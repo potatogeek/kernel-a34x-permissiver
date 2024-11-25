@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Device driver for regulators in Hi6421 IC
  *
@@ -12,6 +13,18 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Device driver for regulators in Hi6421 IC
+//
+// Copyright (c) <2011-2014> HiSilicon Technologies Co., Ltd.
+//              http://www.hisilicon.com
+// Copyright (c) <2013-2014> Linaro Ltd.
+//              https://www.linaro.org
+//
+// Author: Guodong Xu <guodong.xu@linaro.org>
+>>>>>>> upstream/android-13
 
 #include <linux/slab.h>
 #include <linux/device.h>
@@ -78,6 +91,7 @@ enum hi6421_regulator_id {
 	HI6421_NUM_REGULATORS,
 };
 
+<<<<<<< HEAD
 #define HI6421_REGULATOR_OF_MATCH(_name, id)				\
 {									\
 	.name = #_name,							\
@@ -115,6 +129,8 @@ static struct of_regulator_match hi6421_regulator_match[] = {
 	HI6421_REGULATOR_OF_MATCH(hi6421_buck5, BUCK5),
 };
 
+=======
+>>>>>>> upstream/android-13
 /* LDO 0, 4~7, 9~14, 16~20 have same voltage table. */
 static const unsigned int ldo_0_voltages[] = {
 	1500000, 1800000, 2400000, 2500000,
@@ -128,7 +144,11 @@ static const unsigned int ldo_8_voltages[] = {
 };
 
 /* Ranges are sorted in ascending order. */
+<<<<<<< HEAD
 static const struct regulator_linear_range ldo_audio_volt_range[] = {
+=======
+static const struct linear_range ldo_audio_volt_range[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(2800000, 0, 3, 50000),
 	REGULATOR_LINEAR_RANGE(3000000, 4, 7, 100000),
 };
@@ -157,6 +177,10 @@ static const struct regulator_ops hi6421_buck345_ops;
 #define HI6421_LDO_ENABLE_TIME (350)
 /*
  * _id - LDO id name string
+<<<<<<< HEAD
+=======
+ * _match - of match name string
+>>>>>>> upstream/android-13
  * v_table - voltage table
  * vreg - voltage select register
  * vmask - voltage select mask
@@ -166,11 +190,20 @@ static const struct regulator_ops hi6421_buck345_ops;
  * ecomask - eco mode mask
  * ecoamp - eco mode load uppler limit in uA
  */
+<<<<<<< HEAD
 #define HI6421_LDO(_id, v_table, vreg, vmask, ereg, emask,		\
+=======
+#define HI6421_LDO(_id, _match, v_table, vreg, vmask, ereg, emask,	\
+>>>>>>> upstream/android-13
 		   odelay, ecomask, ecoamp)				\
 	[HI6421_##_id] = {						\
 		.desc = {						\
 			.name		= #_id,				\
+<<<<<<< HEAD
+=======
+			.of_match        = of_match_ptr(#_match),	\
+			.regulators_node = of_match_ptr("regulators"),	\
+>>>>>>> upstream/android-13
 			.ops		= &hi6421_ldo_ops,		\
 			.type		= REGULATOR_VOLTAGE,		\
 			.id		= HI6421_##_id,			\
@@ -191,6 +224,10 @@ static const struct regulator_ops hi6421_buck345_ops;
 /* HI6421 LDO1~3 are linear voltage regulators at fixed uV_step
  *
  * _id - LDO id name string
+<<<<<<< HEAD
+=======
+ * _match - of match name string
+>>>>>>> upstream/android-13
  * _min_uV - minimum voltage supported in uV
  * n_volt - number of votages available
  * vstep - voltage increase in each linear step in uV
@@ -202,11 +239,20 @@ static const struct regulator_ops hi6421_buck345_ops;
  * ecomask - eco mode mask
  * ecoamp - eco mode load uppler limit in uA
  */
+<<<<<<< HEAD
 #define HI6421_LDO_LINEAR(_id, _min_uV, n_volt, vstep, vreg, vmask,	\
+=======
+#define HI6421_LDO_LINEAR(_id, _match, _min_uV, n_volt, vstep, vreg, vmask,\
+>>>>>>> upstream/android-13
 			  ereg, emask, odelay, ecomask, ecoamp)		\
 	[HI6421_##_id] = {						\
 		.desc = {						\
 			.name		= #_id,				\
+<<<<<<< HEAD
+=======
+			.of_match        = of_match_ptr(#_match),	\
+			.regulators_node = of_match_ptr("regulators"),	\
+>>>>>>> upstream/android-13
 			.ops		= &hi6421_ldo_linear_ops,	\
 			.type		= REGULATOR_VOLTAGE,		\
 			.id		= HI6421_##_id,			\
@@ -228,8 +274,14 @@ static const struct regulator_ops hi6421_buck345_ops;
 /* HI6421 LDOAUDIO is a linear voltage regulator with two 4-step ranges
  *
  * _id - LDO id name string
+<<<<<<< HEAD
  * n_volt - number of votages available
  * volt_ranges - array of regulator_linear_range
+=======
+ * _match - of match name string
+ * n_volt - number of votages available
+ * volt_ranges - array of linear_range
+>>>>>>> upstream/android-13
  * vstep - voltage increase in each linear step in uV
  * vreg - voltage select register
  * vmask - voltage select mask
@@ -239,11 +291,20 @@ static const struct regulator_ops hi6421_buck345_ops;
  * ecomask - eco mode mask
  * ecoamp - eco mode load uppler limit in uA
  */
+<<<<<<< HEAD
 #define HI6421_LDO_LINEAR_RANGE(_id, n_volt, volt_ranges, vreg, vmask,	\
+=======
+#define HI6421_LDO_LINEAR_RANGE(_id, _match, n_volt, volt_ranges, vreg, vmask,\
+>>>>>>> upstream/android-13
 				ereg, emask, odelay, ecomask, ecoamp)	\
 	[HI6421_##_id] = {						\
 		.desc = {						\
 			.name		= #_id,				\
+<<<<<<< HEAD
+=======
+			.of_match        = of_match_ptr(#_match),	\
+			.regulators_node = of_match_ptr("regulators"),	\
+>>>>>>> upstream/android-13
 			.ops		= &hi6421_ldo_linear_range_ops,	\
 			.type		= REGULATOR_VOLTAGE,		\
 			.id		= HI6421_##_id,			\
@@ -265,6 +326,10 @@ static const struct regulator_ops hi6421_buck345_ops;
 /* HI6421 BUCK0/1/2 are linear voltage regulators at fixed uV_step
  *
  * _id - BUCK0/1/2 id name string
+<<<<<<< HEAD
+=======
+ * _match - of match name string
+>>>>>>> upstream/android-13
  * vreg - voltage select register
  * vmask - voltage select mask
  * ereg - enable register
@@ -273,11 +338,20 @@ static const struct regulator_ops hi6421_buck345_ops;
  * etime - enable time
  * odelay - off/on delay time in uS
  */
+<<<<<<< HEAD
 #define HI6421_BUCK012(_id, vreg, vmask, ereg, emask, sleepmask,	\
+=======
+#define HI6421_BUCK012(_id, _match, vreg, vmask, ereg, emask, sleepmask,\
+>>>>>>> upstream/android-13
 			etime, odelay)					\
 	[HI6421_##_id] = {						\
 		.desc = {						\
 			.name		= #_id,				\
+<<<<<<< HEAD
+=======
+			.of_match        = of_match_ptr(#_match),	\
+			.regulators_node = of_match_ptr("regulators"),	\
+>>>>>>> upstream/android-13
 			.ops		= &hi6421_buck012_ops,		\
 			.type		= REGULATOR_VOLTAGE,		\
 			.id		= HI6421_##_id,			\
@@ -299,6 +373,10 @@ static const struct regulator_ops hi6421_buck345_ops;
  *  that it supports SLEEP mode, so has different .ops.
  *
  * _id - LDO id name string
+<<<<<<< HEAD
+=======
+ * _match - of match name string
+>>>>>>> upstream/android-13
  * v_table - voltage table
  * vreg - voltage select register
  * vmask - voltage select mask
@@ -307,11 +385,20 @@ static const struct regulator_ops hi6421_buck345_ops;
  * odelay - off/on delay time in uS
  * sleepmask - mask of sleep mode
  */
+<<<<<<< HEAD
 #define HI6421_BUCK345(_id, v_table, vreg, vmask, ereg, emask,		\
+=======
+#define HI6421_BUCK345(_id, _match, v_table, vreg, vmask, ereg, emask,	\
+>>>>>>> upstream/android-13
 			odelay, sleepmask)				\
 	[HI6421_##_id] = {						\
 		.desc = {						\
 			.name		= #_id,				\
+<<<<<<< HEAD
+=======
+			.of_match        = of_match_ptr(#_match),	\
+			.regulators_node = of_match_ptr("regulators"),	\
+>>>>>>> upstream/android-13
 			.ops		= &hi6421_buck345_ops,		\
 			.type		= REGULATOR_VOLTAGE,		\
 			.id		= HI6421_##_id,			\
@@ -331,6 +418,7 @@ static const struct regulator_ops hi6421_buck345_ops;
 /* HI6421 regulator information */
 static struct hi6421_regulator_info
 		hi6421_regulator_info[HI6421_NUM_REGULATORS] = {
+<<<<<<< HEAD
 	HI6421_LDO(LDO0, ldo_0_voltages, 0x20, 0x07, 0x20, 0x10,
 		   10000, 0x20, 8000),
 	HI6421_LDO_LINEAR(LDO1, 1700000, 4, 100000, 0x21, 0x03, 0x21, 0x10,
@@ -384,13 +472,77 @@ static struct hi6421_regulator_info
 		       20000, 0x10),
 	HI6421_BUCK345(BUCK5, buck_5_voltages, 0x17, 0x07, 0x16, 0x01,
 		       20000, 0x10),
+=======
+	HI6421_LDO(LDO0, hi6421_vout0, ldo_0_voltages, 0x20, 0x07, 0x20, 0x10,
+		   10000, 0x20, 8000),
+	HI6421_LDO_LINEAR(LDO1, hi6421_vout1, 1700000, 4, 100000, 0x21, 0x03,
+			  0x21, 0x10, 10000, 0x20, 5000),
+	HI6421_LDO_LINEAR(LDO2, hi6421_vout2, 1050000, 8, 50000, 0x22, 0x07,
+			  0x22, 0x10, 20000, 0x20, 8000),
+	HI6421_LDO_LINEAR(LDO3, hi6421_vout3, 1050000, 8, 50000, 0x23, 0x07,
+			  0x23, 0x10, 20000, 0x20, 8000),
+	HI6421_LDO(LDO4, hi6421_vout4, ldo_0_voltages, 0x24, 0x07, 0x24, 0x10,
+		   20000, 0x20, 8000),
+	HI6421_LDO(LDO5, hi6421_vout5, ldo_0_voltages, 0x25, 0x07, 0x25, 0x10,
+		   20000, 0x20, 8000),
+	HI6421_LDO(LDO6, hi6421_vout6, ldo_0_voltages, 0x26, 0x07, 0x26, 0x10,
+		   20000, 0x20, 8000),
+	HI6421_LDO(LDO7, hi6421_vout7, ldo_0_voltages, 0x27, 0x07, 0x27, 0x10,
+		   20000, 0x20, 5000),
+	HI6421_LDO(LDO8, hi6421_vout8, ldo_8_voltages, 0x28, 0x07, 0x28, 0x10,
+		   20000, 0x20, 8000),
+	HI6421_LDO(LDO9, hi6421_vout9, ldo_0_voltages, 0x29, 0x07, 0x29, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO10, hi6421_vout10, ldo_0_voltages, 0x2a, 0x07, 0x2a, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO11, hi6421_vout11, ldo_0_voltages, 0x2b, 0x07, 0x2b, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO12, hi6421_vout12, ldo_0_voltages, 0x2c, 0x07, 0x2c, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO13, hi6421_vout13, ldo_0_voltages, 0x2d, 0x07, 0x2d, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO14, hi6421_vout14, ldo_0_voltages, 0x2e, 0x07, 0x2e, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO15, hi6421_vout15, ldo_8_voltages, 0x2f, 0x07, 0x2f, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO16, hi6421_vout16, ldo_0_voltages, 0x30, 0x07, 0x30, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO17, hi6421_vout17, ldo_0_voltages, 0x31, 0x07, 0x31, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO18, hi6421_vout18, ldo_0_voltages, 0x32, 0x07, 0x32, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO19, hi6421_vout19, ldo_0_voltages, 0x33, 0x07, 0x33, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO(LDO20, hi6421_vout20, ldo_0_voltages, 0x34, 0x07, 0x34, 0x10,
+		   40000, 0x20, 8000),
+	HI6421_LDO_LINEAR_RANGE(LDOAUDIO, hi6421_vout_audio, 8,
+				ldo_audio_volt_range, 0x36, 0x70, 0x36, 0x01,
+				40000, 0x02, 5000),
+	HI6421_BUCK012(BUCK0, hi6421_buck0, 0x0d, 0x7f, 0x0c, 0x01, 0x10, 400,
+		       20000),
+	HI6421_BUCK012(BUCK1, hi6421_buck1, 0x0f, 0x7f, 0x0e, 0x01, 0x10, 400,
+		       20000),
+	HI6421_BUCK012(BUCK2, hi6421_buck2, 0x11, 0x7f, 0x10, 0x01, 0x10, 350,
+		       100),
+	HI6421_BUCK345(BUCK3, hi6421_buck3, buck_3_voltages, 0x13, 0x07, 0x12,
+		       0x01, 20000, 0x10),
+	HI6421_BUCK345(BUCK4, hi6421_buck4, buck_4_voltages, 0x15, 0x07, 0x14,
+		       0x01, 20000, 0x10),
+	HI6421_BUCK345(BUCK5, hi6421_buck5, buck_5_voltages, 0x17, 0x07, 0x16,
+		       0x01, 20000, 0x10),
+>>>>>>> upstream/android-13
 };
 
 static int hi6421_regulator_enable(struct regulator_dev *rdev)
 {
+<<<<<<< HEAD
 	struct hi6421_regulator_pdata *pdata;
 
 	pdata = dev_get_drvdata(rdev->dev.parent);
+=======
+	struct hi6421_regulator_pdata *pdata = rdev_get_drvdata(rdev);
+
+>>>>>>> upstream/android-13
 	/* hi6421 spec requires regulator enablement must be serialized:
 	 *  - Because when BUCK, LDO switching from off to on, it will have
 	 *    a huge instantaneous current; so you can not turn on two or
@@ -407,9 +559,16 @@ static int hi6421_regulator_enable(struct regulator_dev *rdev)
 
 static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
 {
+<<<<<<< HEAD
 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
 	u32 reg_val;
 
+=======
+	struct hi6421_regulator_info *info;
+	unsigned int reg_val;
+
+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
+>>>>>>> upstream/android-13
 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
 	if (reg_val & info->mode_mask)
 		return REGULATOR_MODE_IDLE;
@@ -419,9 +578,16 @@ static unsigned int hi6421_regulator_ldo_get_mode(struct regulator_dev *rdev)
 
 static unsigned int hi6421_regulator_buck_get_mode(struct regulator_dev *rdev)
 {
+<<<<<<< HEAD
 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
 	u32 reg_val;
 
+=======
+	struct hi6421_regulator_info *info;
+	unsigned int reg_val;
+
+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
+>>>>>>> upstream/android-13
 	regmap_read(rdev->regmap, rdev->desc->enable_reg, &reg_val);
 	if (reg_val & info->mode_mask)
 		return REGULATOR_MODE_STANDBY;
@@ -432,9 +598,16 @@ static unsigned int hi6421_regulator_buck_get_mode(struct regulator_dev *rdev)
 static int hi6421_regulator_ldo_set_mode(struct regulator_dev *rdev,
 						unsigned int mode)
 {
+<<<<<<< HEAD
 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
 	u32 new_mode;
 
+=======
+	struct hi6421_regulator_info *info;
+	unsigned int new_mode;
+
+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
+>>>>>>> upstream/android-13
 	switch (mode) {
 	case REGULATOR_MODE_NORMAL:
 		new_mode = 0;
@@ -456,9 +629,16 @@ static int hi6421_regulator_ldo_set_mode(struct regulator_dev *rdev,
 static int hi6421_regulator_buck_set_mode(struct regulator_dev *rdev,
 						unsigned int mode)
 {
+<<<<<<< HEAD
 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
 	u32 new_mode;
 
+=======
+	struct hi6421_regulator_info *info;
+	unsigned int new_mode;
+
+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
+>>>>>>> upstream/android-13
 	switch (mode) {
 	case REGULATOR_MODE_NORMAL:
 		new_mode = 0;
@@ -481,7 +661,13 @@ static unsigned int
 hi6421_regulator_ldo_get_optimum_mode(struct regulator_dev *rdev,
 			int input_uV, int output_uV, int load_uA)
 {
+<<<<<<< HEAD
 	struct hi6421_regulator_info *info = rdev_get_drvdata(rdev);
+=======
+	struct hi6421_regulator_info *info;
+
+	info = container_of(rdev->desc, struct hi6421_regulator_info, desc);
+>>>>>>> upstream/android-13
 
 	if (load_uA > info->eco_microamp)
 		return REGULATOR_MODE_NORMAL;
@@ -552,6 +738,7 @@ static const struct regulator_ops hi6421_buck345_ops = {
 	.set_mode = hi6421_regulator_buck_set_mode,
 };
 
+<<<<<<< HEAD
 static int hi6421_regulator_register(struct platform_device *pdev,
 				     struct regmap *rmap,
 				     struct regulator_init_data *init_data,
@@ -588,11 +775,22 @@ static int hi6421_regulator_probe(struct platform_device *pdev)
 	struct hi6421_pmic *pmic;
 	struct hi6421_regulator_pdata *pdata;
 	int i, ret = 0;
+=======
+static int hi6421_regulator_probe(struct platform_device *pdev)
+{
+	struct hi6421_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
+	struct hi6421_regulator_pdata *pdata;
+	struct hi6421_regulator_info *info;
+	struct regulator_config config = { };
+	struct regulator_dev *rdev;
+	int i;
+>>>>>>> upstream/android-13
 
 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
 	mutex_init(&pdata->lock);
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, pdata);
 
 	np = of_get_child_by_name(dev->parent->of_node, "regulators");
@@ -616,6 +814,24 @@ static int hi6421_regulator_probe(struct platform_device *pdev)
 			hi6421_regulator_match[i].of_node);
 		if (ret)
 			return ret;
+=======
+
+	for (i = 0; i < ARRAY_SIZE(hi6421_regulator_info); i++) {
+		/* assign per-regulator data */
+		info = &hi6421_regulator_info[i];
+
+		config.dev = pdev->dev.parent;
+		config.driver_data = pdata;
+		config.regmap = pmic->regmap;
+
+		rdev = devm_regulator_register(&pdev->dev, &info->desc,
+					       &config);
+		if (IS_ERR(rdev)) {
+			dev_err(&pdev->dev, "failed to register regulator %s\n",
+				info->desc.name);
+			return PTR_ERR(rdev);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

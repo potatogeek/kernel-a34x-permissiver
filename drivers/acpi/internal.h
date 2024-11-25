@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * acpi/internal.h
  * For use by Linux/ACPI infrastructure, not drivers
  *
  * Copyright (c) 2009, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -13,6 +18,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ACPI_INTERNAL_H_
@@ -20,6 +27,7 @@
 
 #include <linux/idr.h>
 
+<<<<<<< HEAD
 #define PREFIX "ACPI: "
 
 int early_acpi_osi_init(void);
@@ -29,6 +37,19 @@ void init_acpi_device_notify(void);
 int acpi_scan_init(void);
 void acpi_pci_root_init(void);
 void acpi_pci_link_init(void);
+=======
+int early_acpi_osi_init(void);
+int acpi_osi_init(void);
+acpi_status acpi_os_initialize1(void);
+int acpi_scan_init(void);
+#ifdef CONFIG_PCI
+void acpi_pci_root_init(void);
+void acpi_pci_link_init(void);
+#else
+static inline void acpi_pci_root_init(void) {}
+static inline void acpi_pci_link_init(void) {}
+#endif
+>>>>>>> upstream/android-13
 void acpi_processor_init(void);
 void acpi_platform_init(void);
 void acpi_pnp_init(void);
@@ -79,7 +100,15 @@ void acpi_debugfs_init(void);
 #else
 static inline void acpi_debugfs_init(void) { return; }
 #endif
+<<<<<<< HEAD
 void acpi_lpss_init(void);
+=======
+#ifdef CONFIG_PCI
+void acpi_lpss_init(void);
+#else
+static inline void acpi_lpss_init(void) {}
+#endif
+>>>>>>> upstream/android-13
 
 void acpi_apd_init(void);
 
@@ -89,7 +118,11 @@ void acpi_device_hotplug(struct acpi_device *adev, u32 src);
 bool acpi_scan_is_offline(struct acpi_device *adev, bool uevent);
 
 acpi_status acpi_sysfs_table_handler(u32 event, void *table, void *context);
+<<<<<<< HEAD
 void acpi_scan_table_handler(u32 event, void *table, void *context);
+=======
+void acpi_scan_table_notify(void);
+>>>>>>> upstream/android-13
 
 /* --------------------------------------------------------------------------
                      Device Node Initialization / Removal
@@ -110,7 +143,11 @@ struct acpi_device_bus_id {
 int acpi_device_add(struct acpi_device *device,
 		    void (*release)(struct device *));
 void acpi_init_device_object(struct acpi_device *device, acpi_handle handle,
+<<<<<<< HEAD
 			     int type, unsigned long long sta);
+=======
+			     int type);
+>>>>>>> upstream/android-13
 int acpi_device_setup_files(struct acpi_device *dev);
 void acpi_device_remove_files(struct acpi_device *dev);
 void acpi_device_add_finalize(struct acpi_device *device);
@@ -135,6 +172,7 @@ int acpi_power_init(void);
 void acpi_power_resources_list_free(struct list_head *list);
 int acpi_extract_power_resources(union acpi_object *package, unsigned int start,
 				 struct list_head *list);
+<<<<<<< HEAD
 int acpi_add_power_resource(acpi_handle handle);
 void acpi_power_add_remove_device(struct acpi_device *adev, bool add);
 int acpi_power_wakeup_list_init(struct list_head *list, int *system_level);
@@ -146,6 +184,27 @@ int acpi_power_transition(struct acpi_device *device, int state);
 
 int acpi_wakeup_device_init(void);
 
+=======
+struct acpi_device *acpi_add_power_resource(acpi_handle handle);
+void acpi_power_add_remove_device(struct acpi_device *adev, bool add);
+int acpi_power_wakeup_list_init(struct list_head *list, int *system_level);
+int acpi_device_sleep_wake(struct acpi_device *dev,
+			   int enable, int sleep_state, int dev_state);
+int acpi_power_get_inferred_state(struct acpi_device *device, int *state);
+int acpi_power_on_resources(struct acpi_device *device, int state);
+int acpi_power_transition(struct acpi_device *device, int state);
+void acpi_turn_off_unused_power_resources(void);
+
+/* --------------------------------------------------------------------------
+                              Device Power Management
+   -------------------------------------------------------------------------- */
+int acpi_device_get_power(struct acpi_device *device, int *state);
+int acpi_wakeup_device_init(void);
+
+/* --------------------------------------------------------------------------
+                                  Processor
+   -------------------------------------------------------------------------- */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARCH_MIGHT_HAVE_ACPI_PDC
 void acpi_early_processor_set_pdc(void);
 #else
@@ -163,7 +222,12 @@ static inline void acpi_early_processor_osc(void) {}
    -------------------------------------------------------------------------- */
 struct acpi_ec {
 	acpi_handle handle;
+<<<<<<< HEAD
 	u32 gpe;
+=======
+	int gpe;
+	int irq;
+>>>>>>> upstream/android-13
 	unsigned long command_addr;
 	unsigned long data_addr;
 	bool global_lock;
@@ -177,6 +241,11 @@ struct acpi_ec {
 	struct work_struct work;
 	unsigned long timestamp;
 	unsigned long nr_pending_queries;
+<<<<<<< HEAD
+=======
+	unsigned int events_in_progress;
+	unsigned int queries_in_progress;
+>>>>>>> upstream/android-13
 	bool busy_polling;
 	unsigned int polling_guard;
 };
@@ -187,6 +256,7 @@ extern struct acpi_ec *first_ec;
 /* External interfaces use first EC only, so remember */
 typedef int (*acpi_ec_query_func) (void *data);
 
+<<<<<<< HEAD
 int acpi_ec_init(void);
 int acpi_ec_ecdt_probe(void);
 int acpi_ec_dsdt_probe(void);
@@ -195,6 +265,13 @@ void acpi_ec_unblock_transactions(void);
 void acpi_ec_mark_gpe_for_wake(void);
 void acpi_ec_set_gpe_wake_mask(u8 action);
 void acpi_ec_dispatch_gpe(void);
+=======
+void acpi_ec_init(void);
+void acpi_ec_ecdt_probe(void);
+void acpi_ec_dsdt_probe(void);
+void acpi_ec_block_transactions(void);
+void acpi_ec_unblock_transactions(void);
+>>>>>>> upstream/android-13
 int acpi_ec_add_query_handler(struct acpi_ec *ec, u8 query_bit,
 			      acpi_handle handle, acpi_ec_query_func func,
 			      void *data);
@@ -202,6 +279,10 @@ void acpi_ec_remove_query_handler(struct acpi_ec *ec, u8 query_bit);
 
 #ifdef CONFIG_PM_SLEEP
 void acpi_ec_flush_work(void);
+<<<<<<< HEAD
+=======
+bool acpi_ec_dispatch_gpe(void);
+>>>>>>> upstream/android-13
 #endif
 
 
@@ -210,11 +291,17 @@ void acpi_ec_flush_work(void);
   -------------------------------------------------------------------------- */
 #ifdef CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT
 extern bool acpi_s2idle_wakeup(void);
+<<<<<<< HEAD
 extern bool acpi_sleep_no_ec_events(void);
 extern int acpi_sleep_init(void);
 #else
 static inline bool acpi_s2idle_wakeup(void) { return false; }
 static inline bool acpi_sleep_no_ec_events(void) { return true; }
+=======
+extern int acpi_sleep_init(void);
+#else
+static inline bool acpi_s2idle_wakeup(void) { return false; }
+>>>>>>> upstream/android-13
 static inline int acpi_sleep_init(void) { return -ENXIO; }
 #endif
 
@@ -232,6 +319,18 @@ static inline int suspend_nvs_save(void) { return 0; }
 static inline void suspend_nvs_restore(void) {}
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86
+bool force_storage_d3(void);
+#else
+static inline bool force_storage_d3(void)
+{
+	return false;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*--------------------------------------------------------------------------
 				Device properties
   -------------------------------------------------------------------------- */

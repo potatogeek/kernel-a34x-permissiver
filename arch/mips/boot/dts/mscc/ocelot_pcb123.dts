@@ -36,11 +36,21 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&i2c {
+	clock-frequency = <100000>;
+	i2c-sda-hold-time-ns = <300>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &mdio0 {
 	status = "okay";
 };
 
 &port0 {
+<<<<<<< HEAD
 	phy-handle = <&phy0>;
 };
 
@@ -54,4 +64,27 @@
 
 &port3 {
 	phy-handle = <&phy3>;
+=======
+	status = "okay";
+	phy-handle = <&phy0>;
+	phy-mode = "internal";
+};
+
+&port1 {
+	status = "okay";
+	phy-handle = <&phy1>;
+	phy-mode = "internal";
+};
+
+&port2 {
+	status = "okay";
+	phy-handle = <&phy2>;
+	phy-mode = "internal";
+};
+
+&port3 {
+	status = "okay";
+	phy-handle = <&phy3>;
+	phy-mode = "internal";
+>>>>>>> upstream/android-13
 };

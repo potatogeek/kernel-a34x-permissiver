@@ -27,7 +27,10 @@
 struct simdisk {
 	const char *filename;
 	spinlock_t lock;
+<<<<<<< HEAD
 	struct request_queue *queue;
+=======
+>>>>>>> upstream/android-13
 	struct gendisk *gd;
 	struct proc_dir_entry *procfile;
 	int users;
@@ -101,9 +104,15 @@ static void simdisk_transfer(struct simdisk *dev, unsigned long sector,
 	spin_unlock(&dev->lock);
 }
 
+<<<<<<< HEAD
 static blk_qc_t simdisk_make_request(struct request_queue *q, struct bio *bio)
 {
 	struct simdisk *dev = q->queuedata;
+=======
+static blk_qc_t simdisk_submit_bio(struct bio *bio)
+{
+	struct simdisk *dev = bio->bi_bdev->bd_disk->private_data;
+>>>>>>> upstream/android-13
 	struct bio_vec bvec;
 	struct bvec_iter iter;
 	sector_t sector = bio->bi_iter.bi_sector;
@@ -127,8 +136,11 @@ static int simdisk_open(struct block_device *bdev, fmode_t mode)
 	struct simdisk *dev = bdev->bd_disk->private_data;
 
 	spin_lock(&dev->lock);
+<<<<<<< HEAD
 	if (!dev->users)
 		check_disk_change(bdev);
+=======
+>>>>>>> upstream/android-13
 	++dev->users;
 	spin_unlock(&dev->lock);
 	return 0;
@@ -144,6 +156,10 @@ static void simdisk_release(struct gendisk *disk, fmode_t mode)
 
 static const struct block_device_operations simdisk_ops = {
 	.owner		= THIS_MODULE,
+<<<<<<< HEAD
+=======
+	.submit_bio	= simdisk_submit_bio,
+>>>>>>> upstream/android-13
 	.open		= simdisk_open,
 	.release	= simdisk_release,
 };
@@ -251,10 +267,17 @@ out_free:
 	return err;
 }
 
+<<<<<<< HEAD
 static const struct file_operations fops = {
 	.read = proc_read_simdisk,
 	.write = proc_write_simdisk,
 	.llseek = default_llseek,
+=======
+static const struct proc_ops simdisk_proc_ops = {
+	.proc_read	= proc_read_simdisk,
+	.proc_write	= proc_write_simdisk,
+	.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 };
 
 static int __init simdisk_setup(struct simdisk *dev, int which,
@@ -267,6 +290,7 @@ static int __init simdisk_setup(struct simdisk *dev, int which,
 	spin_lock_init(&dev->lock);
 	dev->users = 0;
 
+<<<<<<< HEAD
 	dev->queue = blk_alloc_queue(GFP_KERNEL);
 	if (dev->queue == NULL) {
 		pr_err("blk_alloc_queue failed\n");
@@ -285,11 +309,21 @@ static int __init simdisk_setup(struct simdisk *dev, int which,
 	dev->gd->first_minor = which;
 	dev->gd->fops = &simdisk_ops;
 	dev->gd->queue = dev->queue;
+=======
+	dev->gd = blk_alloc_disk(NUMA_NO_NODE);
+	if (!dev->gd)
+		return -ENOMEM;
+	dev->gd->major = simdisk_major;
+	dev->gd->first_minor = which;
+	dev->gd->minors = SIMDISK_MINORS;
+	dev->gd->fops = &simdisk_ops;
+>>>>>>> upstream/android-13
 	dev->gd->private_data = dev;
 	snprintf(dev->gd->disk_name, 32, "simdisk%d", which);
 	set_capacity(dev->gd, 0);
 	add_disk(dev->gd);
 
+<<<<<<< HEAD
 	dev->procfile = proc_create_data(tmp, 0644, procdir, &fops, dev);
 	return 0;
 
@@ -299,6 +333,10 @@ out_alloc_disk:
 out_alloc_queue:
 	simc_close(dev->fd);
 	return -EIO;
+=======
+	dev->procfile = proc_create_data(tmp, 0644, procdir, &simdisk_proc_ops, dev);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __init simdisk_init(void)
@@ -348,10 +386,17 @@ static void simdisk_teardown(struct simdisk *dev, int which,
 	char tmp[2] = { '0' + which, 0 };
 
 	simdisk_detach(dev);
+<<<<<<< HEAD
 	if (dev->gd)
 		del_gendisk(dev->gd);
 	if (dev->queue)
 		blk_cleanup_queue(dev->queue);
+=======
+	if (dev->gd) {
+		del_gendisk(dev->gd);
+		blk_cleanup_disk(dev->gd);
+	}
+>>>>>>> upstream/android-13
 	remove_proc_entry(tmp, procdir);
 }
 

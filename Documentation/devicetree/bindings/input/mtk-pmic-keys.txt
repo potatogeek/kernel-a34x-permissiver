@@ -10,13 +10,21 @@ Documentation/devicetree/bindings/mfd/mt6397.txt
 
 Required properties:
 - compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+<<<<<<< HEAD
 - linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
+=======
+- linux,keycodes: See Documentation/devicetree/bindings/input/input.yaml
+>>>>>>> upstream/android-13
 
 Optional Properties:
 - wakeup-source: See Documentation/devicetree/bindings/power/wakeup-source.txt
 - mediatek,long-press-mode: Long press key shutdown setting, 1 for
 	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+<<<<<<< HEAD
 - power-off-time-sec: See Documentation/devicetree/bindings/input/keys.txt
+=======
+- power-off-time-sec: See Documentation/devicetree/bindings/input/input.yaml
+>>>>>>> upstream/android-13
 
 Example:
 

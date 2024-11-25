@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2012 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007-2012 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -57,10 +63,16 @@ static void netdev_port_receive(struct sk_buff *skb)
 	if (unlikely(!skb))
 		return;
 
+<<<<<<< HEAD
 	if (skb->dev->type == ARPHRD_ETHER) {
 		skb_push(skb, ETH_HLEN);
 		skb_postpush_rcsum(skb, skb->data, ETH_HLEN);
 	}
+=======
+	if (skb->dev->type == ARPHRD_ETHER)
+		skb_push_rcsum(skb, ETH_HLEN);
+
+>>>>>>> upstream/android-13
 	ovs_vport_receive(vport, skb, skb_tunnel_info(skb));
 	return;
 error:
@@ -84,7 +96,10 @@ static struct net_device *get_dpdev(const struct datapath *dp)
 	struct vport *local;
 
 	local = ovs_vport_ovsl(dp, OVSP_LOCAL);
+<<<<<<< HEAD
 	BUG_ON(!local);
+=======
+>>>>>>> upstream/android-13
 	return local->dev;
 }
 
@@ -170,7 +185,11 @@ void ovs_netdev_detach_dev(struct vport *vport)
 static void netdev_destroy(struct vport *vport)
 {
 	rtnl_lock();
+<<<<<<< HEAD
 	if (vport->dev->priv_flags & IFF_OVS_DATAPATH)
+=======
+	if (netif_is_ovs_port(vport->dev))
+>>>>>>> upstream/android-13
 		ovs_netdev_detach_dev(vport);
 	rtnl_unlock();
 
@@ -180,7 +199,11 @@ static void netdev_destroy(struct vport *vport)
 void ovs_netdev_tunnel_destroy(struct vport *vport)
 {
 	rtnl_lock();
+<<<<<<< HEAD
 	if (vport->dev->priv_flags & IFF_OVS_DATAPATH)
+=======
+	if (netif_is_ovs_port(vport->dev))
+>>>>>>> upstream/android-13
 		ovs_netdev_detach_dev(vport);
 
 	/* We can be invoked by both explicit vport deletion and
@@ -200,7 +223,11 @@ EXPORT_SYMBOL_GPL(ovs_netdev_tunnel_destroy);
 /* Returns null if this device is not attached to a datapath. */
 struct vport *ovs_netdev_get_vport(struct net_device *dev)
 {
+<<<<<<< HEAD
 	if (likely(dev->priv_flags & IFF_OVS_DATAPATH))
+=======
+	if (likely(netif_is_ovs_port(dev)))
+>>>>>>> upstream/android-13
 		return (struct vport *)
 			rcu_dereference_rtnl(dev->rx_handler_data);
 	else

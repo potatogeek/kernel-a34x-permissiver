@@ -21,6 +21,10 @@
 #include <linux/personality.h>
 #include <linux/compat.h>
 #include <linux/binfmts.h>
+<<<<<<< HEAD
+=======
+#include <linux/syscalls.h>
+>>>>>>> upstream/android-13
 #include <asm/ucontext.h>
 #include <linux/uaccess.h>
 #include <asm/fpu/internal.h>
@@ -35,6 +39,7 @@
 #include <asm/sighandling.h>
 #include <asm/smap.h>
 
+<<<<<<< HEAD
 /*
  * Do a signal return; undo the signal stack.
  */
@@ -74,10 +79,38 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
 	u16 gs, fs, es, ds;
 	void __user *buf;
 	u32 tmp;
+=======
+static inline void reload_segments(struct sigcontext_32 *sc)
+{
+	unsigned int cur;
+
+	savesegment(gs, cur);
+	if ((sc->gs | 0x03) != cur)
+		load_gs_index(sc->gs | 0x03);
+	savesegment(fs, cur);
+	if ((sc->fs | 0x03) != cur)
+		loadsegment(fs, sc->fs | 0x03);
+	savesegment(ds, cur);
+	if ((sc->ds | 0x03) != cur)
+		loadsegment(ds, sc->ds | 0x03);
+	savesegment(es, cur);
+	if ((sc->es | 0x03) != cur)
+		loadsegment(es, sc->es | 0x03);
+}
+
+/*
+ * Do a signal return; undo the signal stack.
+ */
+static int ia32_restore_sigcontext(struct pt_regs *regs,
+				   struct sigcontext_32 __user *usc)
+{
+	struct sigcontext_32 sc;
+>>>>>>> upstream/android-13
 
 	/* Always make any pending restarted system calls return -EINTR */
 	current->restart_block.fn = do_no_restart_syscall;
 
+<<<<<<< HEAD
 	get_user_try {
 		gs = GET_SEG(gs);
 		fs = GET_SEG(fs);
@@ -99,6 +132,29 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
 		get_user_ex(tmp, &sc->fpstate);
 		buf = compat_ptr(tmp);
 	} get_user_catch(err);
+=======
+	if (unlikely(copy_from_user(&sc, usc, sizeof(sc))))
+		return -EFAULT;
+
+	/* Get only the ia32 registers. */
+	regs->bx = sc.bx;
+	regs->cx = sc.cx;
+	regs->dx = sc.dx;
+	regs->si = sc.si;
+	regs->di = sc.di;
+	regs->bp = sc.bp;
+	regs->ax = sc.ax;
+	regs->sp = sc.sp;
+	regs->ip = sc.ip;
+
+	/* Get CS/SS and force CPL3 */
+	regs->cs = sc.cs | 0x03;
+	regs->ss = sc.ss | 0x03;
+
+	regs->flags = (regs->flags & ~FIX_EFLAGS) | (sc.flags & FIX_EFLAGS);
+	/* disable syscall checks */
+	regs->orig_ax = -1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Reload fs and gs if they have changed in the signal
@@ -106,6 +162,7 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
 	 * the handler, but does not clobber them at least in the
 	 * normal case.
 	 */
+<<<<<<< HEAD
 	RELOAD_SEG(gs);
 	RELOAD_SEG(fs);
 	RELOAD_SEG(ds);
@@ -119,11 +176,19 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
 }
 
 asmlinkage long sys32_sigreturn(const struct pt_regs *__unused)
+=======
+	reload_segments(&sc);
+	return fpu__restore_sig(compat_ptr(sc.fpstate), 1);
+}
+
+COMPAT_SYSCALL_DEFINE0(sigreturn)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *regs = current_pt_regs();
 	struct sigframe_ia32 __user *frame = (struct sigframe_ia32 __user *)(regs->sp-8);
 	sigset_t set;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
 		goto badframe;
 	if (__get_user(set.sig[0], &frame->sc.oldmask)
@@ -131,6 +196,12 @@ asmlinkage long sys32_sigreturn(const struct pt_regs *__unused)
 		&& __copy_from_user((((char *) &set.sig) + 4),
 				    &frame->extramask,
 				    sizeof(frame->extramask))))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+		goto badframe;
+	if (__get_user(set.sig[0], &frame->sc.oldmask)
+	    || __get_user(((__u32 *)&set)[1], &frame->extramask[0]))
+>>>>>>> upstream/android-13
 		goto badframe;
 
 	set_current_blocked(&set);
@@ -144,7 +215,11 @@ badframe:
 	return 0;
 }
 
+<<<<<<< HEAD
 asmlinkage long sys32_rt_sigreturn(const struct pt_regs *__unused)
+=======
+COMPAT_SYSCALL_DEFINE0(rt_sigreturn)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *regs = current_pt_regs();
 	struct rt_sigframe_ia32 __user *frame;
@@ -152,9 +227,15 @@ asmlinkage long sys32_rt_sigreturn(const struct pt_regs *__unused)
 
 	frame = (struct rt_sigframe_ia32 __user *)(regs->sp - 4);
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+=======
+	if (!access_ok(frame, sizeof(*frame)))
+		goto badframe;
+	if (__get_user(set.sig[0], (__u64 __user *)&frame->uc.uc_sigmask))
+>>>>>>> upstream/android-13
 		goto badframe;
 
 	set_current_blocked(&set);
@@ -176,6 +257,7 @@ badframe:
  * Set up a signal frame.
  */
 
+<<<<<<< HEAD
 static int ia32_setup_sigcontext(struct sigcontext_32 __user *sc,
 				 void __user *fpstate,
 				 struct pt_regs *regs, unsigned int mask)
@@ -214,6 +296,53 @@ static int ia32_setup_sigcontext(struct sigcontext_32 __user *sc,
 	return err;
 }
 
+=======
+#define get_user_seg(seg)	({ unsigned int v; savesegment(seg, v); v; })
+
+static __always_inline int
+__unsafe_setup_sigcontext32(struct sigcontext_32 __user *sc,
+			    void __user *fpstate,
+			    struct pt_regs *regs, unsigned int mask)
+{
+	unsafe_put_user(get_user_seg(gs), (unsigned int __user *)&sc->gs, Efault);
+	unsafe_put_user(get_user_seg(fs), (unsigned int __user *)&sc->fs, Efault);
+	unsafe_put_user(get_user_seg(ds), (unsigned int __user *)&sc->ds, Efault);
+	unsafe_put_user(get_user_seg(es), (unsigned int __user *)&sc->es, Efault);
+
+	unsafe_put_user(regs->di, &sc->di, Efault);
+	unsafe_put_user(regs->si, &sc->si, Efault);
+	unsafe_put_user(regs->bp, &sc->bp, Efault);
+	unsafe_put_user(regs->sp, &sc->sp, Efault);
+	unsafe_put_user(regs->bx, &sc->bx, Efault);
+	unsafe_put_user(regs->dx, &sc->dx, Efault);
+	unsafe_put_user(regs->cx, &sc->cx, Efault);
+	unsafe_put_user(regs->ax, &sc->ax, Efault);
+	unsafe_put_user(current->thread.trap_nr, &sc->trapno, Efault);
+	unsafe_put_user(current->thread.error_code, &sc->err, Efault);
+	unsafe_put_user(regs->ip, &sc->ip, Efault);
+	unsafe_put_user(regs->cs, (unsigned int __user *)&sc->cs, Efault);
+	unsafe_put_user(regs->flags, &sc->flags, Efault);
+	unsafe_put_user(regs->sp, &sc->sp_at_signal, Efault);
+	unsafe_put_user(regs->ss, (unsigned int __user *)&sc->ss, Efault);
+
+	unsafe_put_user(ptr_to_compat(fpstate), &sc->fpstate, Efault);
+
+	/* non-iBCS2 extensions.. */
+	unsafe_put_user(mask, &sc->oldmask, Efault);
+	unsafe_put_user(current->thread.cr2, &sc->cr2, Efault);
+	return 0;
+
+Efault:
+	return -EFAULT;
+}
+
+#define unsafe_put_sigcontext32(sc, fp, regs, set, label)		\
+do {									\
+	if (__unsafe_setup_sigcontext32(sc, fp, regs, set->sig[0]))	\
+		goto label;						\
+} while(0)
+
+>>>>>>> upstream/android-13
 /*
  * Determine which stack to use..
  */
@@ -221,8 +350,12 @@ static void __user *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
 				 size_t frame_size,
 				 void __user **fpstate)
 {
+<<<<<<< HEAD
 	struct fpu *fpu = &current->thread.fpu;
 	unsigned long sp;
+=======
+	unsigned long sp, fx_aligned, math_size;
+>>>>>>> upstream/android-13
 
 	/* Default to using normal stack */
 	sp = regs->sp;
@@ -236,6 +369,7 @@ static void __user *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
 		 ksig->ka.sa.sa_restorer)
 		sp = (unsigned long) ksig->ka.sa.sa_restorer;
 
+<<<<<<< HEAD
 	if (fpu->initialized) {
 		unsigned long fx_aligned, math_size;
 
@@ -245,6 +379,13 @@ static void __user *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
 				    math_size) < 0)
 			return (void __user *) -1L;
 	}
+=======
+	sp = fpu__alloc_mathframe(sp, 1, &fx_aligned, &math_size);
+	*fpstate = (struct _fpstate_32 __user *) sp;
+	if (copy_fpstate_to_sigframe(*fpstate, (void __user *)fx_aligned,
+				     math_size) < 0)
+		return (void __user *) -1L;
+>>>>>>> upstream/android-13
 
 	sp -= frame_size;
 	/* Align the stack pointer according to the i386 ABI,
@@ -258,8 +399,12 @@ int ia32_setup_frame(int sig, struct ksignal *ksig,
 {
 	struct sigframe_ia32 __user *frame;
 	void __user *restorer;
+<<<<<<< HEAD
 	int err = 0;
 	void __user *fpstate = NULL;
+=======
+	void __user *fp = NULL;
+>>>>>>> upstream/android-13
 
 	/* copy_to_user optimizes that into a single 8 byte store */
 	static const struct {
@@ -272,6 +417,7 @@ int ia32_setup_frame(int sig, struct ksignal *ksig,
 		0x80cd,		/* int $0x80 */
 	};
 
+<<<<<<< HEAD
 	frame = get_sigframe(ksig, regs, sizeof(*frame), &fpstate);
 
 	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
@@ -288,6 +434,9 @@ int ia32_setup_frame(int sig, struct ksignal *ksig,
 				   sizeof(frame->extramask)))
 			return -EFAULT;
 	}
+=======
+	frame = get_sigframe(ksig, regs, sizeof(*frame), &fp);
+>>>>>>> upstream/android-13
 
 	if (ksig->ka.sa.sa_flags & SA_RESTORER) {
 		restorer = ksig->ka.sa.sa_restorer;
@@ -300,6 +449,7 @@ int ia32_setup_frame(int sig, struct ksignal *ksig,
 			restorer = &frame->retcode;
 	}
 
+<<<<<<< HEAD
 	put_user_try {
 		put_user_ex(ptr_to_compat(restorer), &frame->pretcode);
 
@@ -313,6 +463,22 @@ int ia32_setup_frame(int sig, struct ksignal *ksig,
 	if (err)
 		return -EFAULT;
 
+=======
+	if (!user_access_begin(frame, sizeof(*frame)))
+		return -EFAULT;
+
+	unsafe_put_user(sig, &frame->sig, Efault);
+	unsafe_put_sigcontext32(&frame->sc, fp, regs, set, Efault);
+	unsafe_put_user(set->sig[1], &frame->extramask[0], Efault);
+	unsafe_put_user(ptr_to_compat(restorer), &frame->pretcode, Efault);
+	/*
+	 * These are actually not used anymore, but left because some
+	 * gdb versions depend on them as a marker.
+	 */
+	unsafe_put_user(*((u64 *)&code), (u64 __user *)frame->retcode, Efault);
+	user_access_end();
+
+>>>>>>> upstream/android-13
 	/* Set up registers for signal handler */
 	regs->sp = (unsigned long) frame;
 	regs->ip = (unsigned long) ksig->ka.sa.sa_handler;
@@ -329,6 +495,12 @@ int ia32_setup_frame(int sig, struct ksignal *ksig,
 	regs->ss = __USER32_DS;
 
 	return 0;
+<<<<<<< HEAD
+=======
+Efault:
+	user_access_end();
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }
 
 int ia32_setup_rt_frame(int sig, struct ksignal *ksig,
@@ -336,10 +508,16 @@ int ia32_setup_rt_frame(int sig, struct ksignal *ksig,
 {
 	struct rt_sigframe_ia32 __user *frame;
 	void __user *restorer;
+<<<<<<< HEAD
 	int err = 0;
 	void __user *fpstate = NULL;
 
 	/* __copy_to_user optimizes that into a single 8 byte store */
+=======
+	void __user *fp = NULL;
+
+	/* unsafe_put_user optimizes that into a single 8 byte store */
+>>>>>>> upstream/android-13
 	static const struct {
 		u8 movl;
 		u32 val;
@@ -352,6 +530,7 @@ int ia32_setup_rt_frame(int sig, struct ksignal *ksig,
 		0,
 	};
 
+<<<<<<< HEAD
 	frame = get_sigframe(ksig, regs, sizeof(*frame), &fpstate);
 
 	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
@@ -390,6 +569,42 @@ int ia32_setup_rt_frame(int sig, struct ksignal *ksig,
 	err |= __copy_to_user(&frame->uc.uc_sigmask, set, sizeof(*set));
 
 	if (err)
+=======
+	frame = get_sigframe(ksig, regs, sizeof(*frame), &fp);
+
+	if (!user_access_begin(frame, sizeof(*frame)))
+		return -EFAULT;
+
+	unsafe_put_user(sig, &frame->sig, Efault);
+	unsafe_put_user(ptr_to_compat(&frame->info), &frame->pinfo, Efault);
+	unsafe_put_user(ptr_to_compat(&frame->uc), &frame->puc, Efault);
+
+	/* Create the ucontext.  */
+	if (static_cpu_has(X86_FEATURE_XSAVE))
+		unsafe_put_user(UC_FP_XSTATE, &frame->uc.uc_flags, Efault);
+	else
+		unsafe_put_user(0, &frame->uc.uc_flags, Efault);
+	unsafe_put_user(0, &frame->uc.uc_link, Efault);
+	unsafe_compat_save_altstack(&frame->uc.uc_stack, regs->sp, Efault);
+
+	if (ksig->ka.sa.sa_flags & SA_RESTORER)
+		restorer = ksig->ka.sa.sa_restorer;
+	else
+		restorer = current->mm->context.vdso +
+			vdso_image_32.sym___kernel_rt_sigreturn;
+	unsafe_put_user(ptr_to_compat(restorer), &frame->pretcode, Efault);
+
+	/*
+	 * Not actually used anymore, but left because some gdb
+	 * versions need it.
+	 */
+	unsafe_put_user(*((u64 *)&code), (u64 __user *)frame->retcode, Efault);
+	unsafe_put_sigcontext32(&frame->uc.uc_mcontext, fp, regs, set, Efault);
+	unsafe_put_user(*(__u64 *)set, (__u64 __user *)&frame->uc.uc_sigmask, Efault);
+	user_access_end();
+
+	if (__copy_siginfo_to_user32(&frame->info, &ksig->info))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	/* Set up registers for signal handler */
@@ -408,4 +623,10 @@ int ia32_setup_rt_frame(int sig, struct ksignal *ksig,
 	regs->ss = __USER32_DS;
 
 	return 0;
+<<<<<<< HEAD
+=======
+Efault:
+	user_access_end();
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }

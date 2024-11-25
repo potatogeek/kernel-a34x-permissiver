@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Broadcom Limited
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Broadcom Limited
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -24,10 +30,18 @@
 
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_bridge.h>
+<<<<<<< HEAD
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_edid.h>
 #include <drm/drm_of.h>
 #include <drm/drm_panel.h>
+=======
+#include <drm/drm_edid.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/of_graph.h>
@@ -101,6 +115,11 @@ struct vc4_dpi {
 
 	struct clk *pixel_clock;
 	struct clk *core_clock;
+<<<<<<< HEAD
+=======
+
+	struct debugfs_regset32 regset;
+>>>>>>> upstream/android-13
 };
 
 #define DPI_READ(offset) readl(dpi->regs + (offset))
@@ -118,6 +137,7 @@ to_vc4_dpi_encoder(struct drm_encoder *encoder)
 	return container_of(encoder, struct vc4_dpi_encoder, base.base);
 }
 
+<<<<<<< HEAD
 #define DPI_REG(reg) { reg, #reg }
 static const struct {
 	u32 reg;
@@ -151,6 +171,11 @@ int vc4_dpi_debugfs_regs(struct seq_file *m, void *unused)
 
 static const struct drm_encoder_funcs vc4_dpi_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
+=======
+static const struct debugfs_reg32 dpi_regs[] = {
+	VC4_REG32(DPI_C),
+	VC4_REG32(DPI_ID),
+>>>>>>> upstream/android-13
 };
 
 static void vc4_dpi_encoder_disable(struct drm_encoder *encoder)
@@ -284,9 +309,16 @@ static int vc4_dpi_init_bridge(struct vc4_dpi *dpi)
 	}
 
 	if (panel)
+<<<<<<< HEAD
 		bridge = drm_panel_bridge_add(panel, DRM_MODE_CONNECTOR_DPI);
 
 	return drm_bridge_attach(dpi->encoder, bridge, NULL);
+=======
+		bridge = drm_panel_bridge_add_typed(panel,
+						    DRM_MODE_CONNECTOR_DPI);
+
+	return drm_bridge_attach(dpi->encoder, bridge, NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 static int vc4_dpi_bind(struct device *dev, struct device *master, void *data)
@@ -314,6 +346,12 @@ static int vc4_dpi_bind(struct device *dev, struct device *master, void *data)
 	dpi->regs = vc4_ioremap_regs(pdev, 0);
 	if (IS_ERR(dpi->regs))
 		return PTR_ERR(dpi->regs);
+<<<<<<< HEAD
+=======
+	dpi->regset.base = dpi->regs;
+	dpi->regset.regs = dpi_regs;
+	dpi->regset.nregs = ARRAY_SIZE(dpi_regs);
+>>>>>>> upstream/android-13
 
 	if (DPI_READ(DPI_ID) != DPI_ID_VALUE) {
 		dev_err(dev, "Port returned 0x%08x for ID instead of 0x%08x\n",
@@ -340,8 +378,12 @@ static int vc4_dpi_bind(struct device *dev, struct device *master, void *data)
 	if (ret)
 		DRM_ERROR("Failed to turn on core clock: %d\n", ret);
 
+<<<<<<< HEAD
 	drm_encoder_init(drm, dpi->encoder, &vc4_dpi_encoder_funcs,
 			 DRM_MODE_ENCODER_DPI, NULL);
+=======
+	drm_simple_encoder_init(drm, dpi->encoder, DRM_MODE_ENCODER_DPI);
+>>>>>>> upstream/android-13
 	drm_encoder_helper_add(dpi->encoder, &vc4_dpi_encoder_helper_funcs);
 
 	ret = vc4_dpi_init_bridge(dpi);
@@ -352,6 +394,11 @@ static int vc4_dpi_bind(struct device *dev, struct device *master, void *data)
 
 	vc4->dpi = dpi;
 
+<<<<<<< HEAD
+=======
+	vc4_debugfs_add_regset32(drm, "dpi_regs", &dpi->regset);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_destroy_encoder:

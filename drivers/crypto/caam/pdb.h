@@ -453,7 +453,11 @@ struct srtp_decap_pdb {
 #define DSA_PDB_N_MASK		0x7f
 
 struct dsa_sign_pdb {
+<<<<<<< HEAD
 	u32 sgf_ln; /* Use DSA_PDB_ defintions per above */
+=======
+	u32 sgf_ln; /* Use DSA_PDB_ definitions per above */
+>>>>>>> upstream/android-13
 	u8 *q;
 	u8 *r;
 	u8 *g;	/* or Gx,y */
@@ -512,7 +516,13 @@ struct rsa_pub_pdb {
 	dma_addr_t	n_dma;
 	dma_addr_t	e_dma;
 	u32		f_len;
+<<<<<<< HEAD
 } __packed;
+=======
+};
+
+#define SIZEOF_RSA_PUB_PDB	(2 * sizeof(u32) + 4 * caam_ptr_sz)
+>>>>>>> upstream/android-13
 
 /**
  * RSA Decrypt PDB - Private Key Form #1
@@ -528,7 +538,13 @@ struct rsa_priv_f1_pdb {
 	dma_addr_t	f_dma;
 	dma_addr_t	n_dma;
 	dma_addr_t	d_dma;
+<<<<<<< HEAD
 } __packed;
+=======
+};
+
+#define SIZEOF_RSA_PRIV_F1_PDB	(sizeof(u32) + 4 * caam_ptr_sz)
+>>>>>>> upstream/android-13
 
 /**
  * RSA Decrypt PDB - Private Key Form #2
@@ -554,7 +570,13 @@ struct rsa_priv_f2_pdb {
 	dma_addr_t	tmp1_dma;
 	dma_addr_t	tmp2_dma;
 	u32		p_q_len;
+<<<<<<< HEAD
 } __packed;
+=======
+};
+
+#define SIZEOF_RSA_PRIV_F2_PDB	(2 * sizeof(u32) + 7 * caam_ptr_sz)
+>>>>>>> upstream/android-13
 
 /**
  * RSA Decrypt PDB - Private Key Form #3
@@ -586,6 +608,12 @@ struct rsa_priv_f3_pdb {
 	dma_addr_t	tmp1_dma;
 	dma_addr_t	tmp2_dma;
 	u32		p_q_len;
+<<<<<<< HEAD
 } __packed;
+=======
+};
+
+#define SIZEOF_RSA_PRIV_F3_PDB	(2 * sizeof(u32) + 9 * caam_ptr_sz)
+>>>>>>> upstream/android-13
 
 #endif

@@ -38,9 +38,15 @@ nv04_fifo_dma_object_dtor(struct nvkm_fifo_chan *base, int cookie)
 	struct nv04_fifo_chan *chan = nv04_fifo_chan(base);
 	struct nvkm_instmem *imem = chan->fifo->base.engine.subdev.device->imem;
 
+<<<<<<< HEAD
 	mutex_lock(&chan->fifo->base.engine.subdev.mutex);
 	nvkm_ramht_remove(imem->ramht, cookie);
 	mutex_unlock(&chan->fifo->base.engine.subdev.mutex);
+=======
+	mutex_lock(&chan->fifo->base.mutex);
+	nvkm_ramht_remove(imem->ramht, cookie);
+	mutex_unlock(&chan->fifo->base.mutex);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -53,7 +59,11 @@ nv04_fifo_dma_object_ctor(struct nvkm_fifo_chan *base,
 	u32 handle  = object->handle;
 	int hash;
 
+<<<<<<< HEAD
 	switch (object->engine->subdev.index) {
+=======
+	switch (object->engine->subdev.type) {
+>>>>>>> upstream/android-13
 	case NVKM_ENGINE_DMAOBJ:
 	case NVKM_ENGINE_SW    : context |= 0x00000000; break;
 	case NVKM_ENGINE_GR    : context |= 0x00010000; break;
@@ -63,10 +73,17 @@ nv04_fifo_dma_object_ctor(struct nvkm_fifo_chan *base,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&chan->fifo->base.engine.subdev.mutex);
 	hash = nvkm_ramht_insert(imem->ramht, object, chan->base.chid, 4,
 				 handle, context);
 	mutex_unlock(&chan->fifo->base.engine.subdev.mutex);
+=======
+	mutex_lock(&chan->fifo->base.mutex);
+	hash = nvkm_ramht_insert(imem->ramht, object, chan->base.chid, 4,
+				 handle, context);
+	mutex_unlock(&chan->fifo->base.mutex);
+>>>>>>> upstream/android-13
 	return hash;
 }
 
@@ -191,9 +208,15 @@ nv04_fifo_dma_new(struct nvkm_fifo *base, const struct nvkm_oclass *oclass,
 
 	ret = nvkm_fifo_chan_ctor(&nv04_fifo_dma_func, &fifo->base,
 				  0x1000, 0x1000, false, 0, args->v0.pushbuf,
+<<<<<<< HEAD
 				  (1ULL << NVKM_ENGINE_DMAOBJ) |
 				  (1ULL << NVKM_ENGINE_GR) |
 				  (1ULL << NVKM_ENGINE_SW),
+=======
+				  BIT(NV04_FIFO_ENGN_SW) |
+				  BIT(NV04_FIFO_ENGN_GR) |
+				  BIT(NV04_FIFO_ENGN_DMA),
+>>>>>>> upstream/android-13
 				  0, 0x800000, 0x10000, oclass, &chan->base);
 	chan->fifo = fifo;
 	if (ret)

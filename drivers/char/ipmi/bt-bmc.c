@@ -399,15 +399,25 @@ static int bt_bmc_config_irq(struct bt_bmc *bt_bmc,
 	struct device *dev = &pdev->dev;
 	int rc;
 
+<<<<<<< HEAD
 	bt_bmc->irq = platform_get_irq(pdev, 0);
 	if (!bt_bmc->irq)
 		return -ENODEV;
+=======
+	bt_bmc->irq = platform_get_irq_optional(pdev, 0);
+	if (bt_bmc->irq < 0)
+		return bt_bmc->irq;
+>>>>>>> upstream/android-13
 
 	rc = devm_request_irq(dev, bt_bmc->irq, bt_bmc_irq, IRQF_SHARED,
 			      DEVICE_NAME, bt_bmc);
 	if (rc < 0) {
 		dev_warn(dev, "Unable to request IRQ %d\n", bt_bmc->irq);
+<<<<<<< HEAD
 		bt_bmc->irq = 0;
+=======
+		bt_bmc->irq = rc;
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -430,9 +440,12 @@ static int bt_bmc_probe(struct platform_device *pdev)
 	struct device *dev;
 	int rc;
 
+<<<<<<< HEAD
 	if (!pdev || !pdev->dev.of_node)
 		return -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 	dev = &pdev->dev;
 	dev_info(dev, "Found bt bmc device\n");
 
@@ -444,15 +457,22 @@ static int bt_bmc_probe(struct platform_device *pdev)
 
 	bt_bmc->map = syscon_node_to_regmap(pdev->dev.parent->of_node);
 	if (IS_ERR(bt_bmc->map)) {
+<<<<<<< HEAD
 		struct resource *res;
+=======
+>>>>>>> upstream/android-13
 		void __iomem *base;
 
 		/*
 		 * Assume it's not the MFD-based devicetree description, in
 		 * which case generate a regmap ourselves
 		 */
+<<<<<<< HEAD
 		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 		base = devm_ioremap_resource(&pdev->dev, res);
+=======
+		base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 		if (IS_ERR(base))
 			return PTR_ERR(base);
 
@@ -467,10 +487,17 @@ static int bt_bmc_probe(struct platform_device *pdev)
 	mutex_init(&bt_bmc->mutex);
 	init_waitqueue_head(&bt_bmc->queue);
 
+<<<<<<< HEAD
 	bt_bmc->miscdev.minor	= MISC_DYNAMIC_MINOR,
 		bt_bmc->miscdev.name	= DEVICE_NAME,
 		bt_bmc->miscdev.fops	= &bt_bmc_fops,
 		bt_bmc->miscdev.parent = dev;
+=======
+	bt_bmc->miscdev.minor	= MISC_DYNAMIC_MINOR;
+	bt_bmc->miscdev.name	= DEVICE_NAME;
+	bt_bmc->miscdev.fops	= &bt_bmc_fops;
+	bt_bmc->miscdev.parent = dev;
+>>>>>>> upstream/android-13
 	rc = misc_register(&bt_bmc->miscdev);
 	if (rc) {
 		dev_err(dev, "Unable to register misc device\n");
@@ -479,7 +506,11 @@ static int bt_bmc_probe(struct platform_device *pdev)
 
 	bt_bmc_config_irq(bt_bmc, pdev);
 
+<<<<<<< HEAD
 	if (bt_bmc->irq) {
+=======
+	if (bt_bmc->irq >= 0) {
+>>>>>>> upstream/android-13
 		dev_info(dev, "Using IRQ %d\n", bt_bmc->irq);
 	} else {
 		dev_info(dev, "No IRQ; using timer\n");
@@ -505,7 +536,11 @@ static int bt_bmc_remove(struct platform_device *pdev)
 	struct bt_bmc *bt_bmc = dev_get_drvdata(&pdev->dev);
 
 	misc_deregister(&bt_bmc->miscdev);
+<<<<<<< HEAD
 	if (!bt_bmc->irq)
+=======
+	if (bt_bmc->irq < 0)
+>>>>>>> upstream/android-13
 		del_timer_sync(&bt_bmc->poll_timer);
 	return 0;
 }

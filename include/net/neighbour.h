@@ -28,6 +28,10 @@
 #include <linux/err.h>
 #include <linux/sysctl.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 #include <net/rtnetlink.h>
 
 /*
@@ -72,7 +76,10 @@ struct neigh_parms {
 	struct net_device *dev;
 	struct list_head list;
 	int	(*neigh_setup)(struct neighbour *);
+<<<<<<< HEAD
 	void	(*neigh_cleanup)(struct neighbour *);
+=======
+>>>>>>> upstream/android-13
 	struct neigh_table *tbl;
 
 	void	*sysctl_table;
@@ -84,6 +91,11 @@ struct neigh_parms {
 	int	reachable_time;
 	int	data[NEIGH_VAR_DATA_MAX];
 	DECLARE_BITMAP(data_state, NEIGH_VAR_DATA_MAX);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 static inline void neigh_var_set(struct neigh_parms *p, int index, int val)
@@ -140,8 +152,13 @@ struct neighbour {
 	unsigned long		updated;
 	rwlock_t		lock;
 	refcount_t		refcnt;
+<<<<<<< HEAD
 	struct sk_buff_head	arp_queue;
 	unsigned int		arp_queue_len_bytes;
+=======
+	unsigned int		arp_queue_len_bytes;
+	struct sk_buff_head	arp_queue;
+>>>>>>> upstream/android-13
 	struct timer_list	timer;
 	unsigned long		used;
 	atomic_t		probes;
@@ -149,6 +166,7 @@ struct neighbour {
 	__u8			nud_state;
 	__u8			type;
 	__u8			dead;
+<<<<<<< HEAD
 	seqlock_t		ha_lock;
 	unsigned char		ha[ALIGN(MAX_ADDR_LEN, sizeof(unsigned long))];
 	struct hh_cache		hh;
@@ -156,6 +174,20 @@ struct neighbour {
 	const struct neigh_ops	*ops;
 	struct rcu_head		rcu;
 	struct net_device	*dev;
+=======
+	u8			protocol;
+	seqlock_t		ha_lock;
+	unsigned char		ha[ALIGN(MAX_ADDR_LEN, sizeof(unsigned long))] __aligned(8);
+	struct hh_cache		hh;
+	int			(*output)(struct neighbour *, struct sk_buff *);
+	const struct neigh_ops	*ops;
+	struct list_head	gc_list;
+	struct rcu_head		rcu;
+	struct net_device	*dev;
+
+	ANDROID_KABI_RESERVE(1);
+
+>>>>>>> upstream/android-13
 	u8			primary_key[0];
 } __randomize_layout;
 
@@ -172,7 +204,12 @@ struct pneigh_entry {
 	possible_net_t		net;
 	struct net_device	*dev;
 	u8			flags;
+<<<<<<< HEAD
 	u8			key[0];
+=======
+	u8			protocol;
+	u8			key[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -202,6 +239,12 @@ struct neigh_table {
 	int			(*pconstructor)(struct pneigh_entry *);
 	void			(*pdestructor)(struct pneigh_entry *);
 	void			(*proxy_redo)(struct sk_buff *skb);
+<<<<<<< HEAD
+=======
+	int			(*is_multicast)(const void *pkey);
+	bool			(*allow_add)(const struct net_device *dev,
+					     struct netlink_ext_ack *extack);
+>>>>>>> upstream/android-13
 	char			*id;
 	struct neigh_parms	parms;
 	struct list_head	parms_list;
@@ -214,11 +257,21 @@ struct neigh_table {
 	struct timer_list 	proxy_timer;
 	struct sk_buff_head	proxy_queue;
 	atomic_t		entries;
+<<<<<<< HEAD
+=======
+	atomic_t		gc_entries;
+	struct list_head	gc_list;
+>>>>>>> upstream/android-13
 	rwlock_t		lock;
 	unsigned long		last_rand;
 	struct neigh_statistics	__percpu *stats;
 	struct neigh_hash_table __rcu *nht;
 	struct pneigh_entry	**phash_buckets;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -246,10 +299,18 @@ static inline void *neighbour_priv(const struct neighbour *n)
 #define NEIGH_UPDATE_F_OVERRIDE			0x00000001
 #define NEIGH_UPDATE_F_WEAK_OVERRIDE		0x00000002
 #define NEIGH_UPDATE_F_OVERRIDE_ISROUTER	0x00000004
+<<<<<<< HEAD
+=======
+#define NEIGH_UPDATE_F_USE			0x10000000
+>>>>>>> upstream/android-13
 #define NEIGH_UPDATE_F_EXT_LEARNED		0x20000000
 #define NEIGH_UPDATE_F_ISROUTER			0x40000000
 #define NEIGH_UPDATE_F_ADMIN			0x80000000
 
+<<<<<<< HEAD
+=======
+extern const struct nla_policy nda_policy[];
+>>>>>>> upstream/android-13
 
 static inline bool neigh_key_eq16(const struct neighbour *n, const void *pkey)
 {
@@ -323,6 +384,10 @@ void __neigh_set_probe_once(struct neighbour *neigh);
 bool neigh_remove_one(struct neighbour *ndel, struct neigh_table *tbl);
 void neigh_changeaddr(struct neigh_table *tbl, struct net_device *dev);
 int neigh_ifdown(struct neigh_table *tbl, struct net_device *dev);
+<<<<<<< HEAD
+=======
+int neigh_carrier_down(struct neigh_table *tbl, struct net_device *dev);
+>>>>>>> upstream/android-13
 int neigh_resolve_output(struct neighbour *neigh, struct sk_buff *skb);
 int neigh_connected_output(struct neighbour *neigh, struct sk_buff *skb);
 int neigh_direct_output(struct neighbour *neigh, struct sk_buff *skb);
@@ -384,6 +449,7 @@ void *neigh_seq_next(struct seq_file *, void *, loff_t *);
 void neigh_seq_stop(struct seq_file *, void *);
 
 int neigh_proc_dointvec(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 			void __user *buffer, size_t *lenp, loff_t *ppos);
 int neigh_proc_dointvec_jiffies(struct ctl_table *ctl, int write,
 				void __user *buffer,
@@ -391,6 +457,14 @@ int neigh_proc_dointvec_jiffies(struct ctl_table *ctl, int write,
 int neigh_proc_dointvec_ms_jiffies(struct ctl_table *ctl, int write,
 				   void __user *buffer,
 				   size_t *lenp, loff_t *ppos);
+=======
+			void *buffer, size_t *lenp, loff_t *ppos);
+int neigh_proc_dointvec_jiffies(struct ctl_table *ctl, int write,
+				void *buffer,
+				size_t *lenp, loff_t *ppos);
+int neigh_proc_dointvec_ms_jiffies(struct ctl_table *ctl, int write,
+				   void *buffer, size_t *lenp, loff_t *ppos);
+>>>>>>> upstream/android-13
 
 int neigh_sysctl_register(struct net_device *dev, struct neigh_parms *p,
 			  proc_handler *proc_handler);
@@ -491,6 +565,7 @@ static inline int neigh_hh_output(const struct hh_cache *hh, struct sk_buff *skb
 	return dev_queue_xmit(skb);
 }
 
+<<<<<<< HEAD
 static inline int neigh_output(struct neighbour *n, struct sk_buff *skb)
 {
 	const struct hh_cache *hh = &n->hh;
@@ -499,6 +574,22 @@ static inline int neigh_output(struct neighbour *n, struct sk_buff *skb)
 		return neigh_hh_output(hh, skb);
 	else
 		return n->output(n, skb);
+=======
+static inline int neigh_output(struct neighbour *n, struct sk_buff *skb,
+			       bool skip_cache)
+{
+	const struct hh_cache *hh = &n->hh;
+
+	/* n->nud_state and hh->hh_len could be changed under us.
+	 * neigh_hh_output() is taking care of the race later.
+	 */
+	if (!skip_cache &&
+	    (READ_ONCE(n->nud_state) & NUD_CONNECTED) &&
+	    READ_ONCE(hh->hh_len))
+		return neigh_hh_output(hh, skb);
+
+	return n->output(n, skb);
+>>>>>>> upstream/android-13
 }
 
 static inline struct neighbour *
@@ -545,6 +636,7 @@ static inline void neigh_ha_snapshot(char *dst, const struct neighbour *n,
 	} while (read_seqretry(&n->ha_lock, seq));
 }
 
+<<<<<<< HEAD
 static inline void neigh_update_ext_learned(struct neighbour *neigh, u32 flags,
 					    int *notify)
 {
@@ -559,6 +651,19 @@ static inline void neigh_update_ext_learned(struct neighbour *neigh, u32 flags,
 			neigh->flags |= NTF_EXT_LEARNED;
 		else
 			neigh->flags &= ~NTF_EXT_LEARNED;
+=======
+static inline void neigh_update_is_router(struct neighbour *neigh, u32 flags,
+					  int *notify)
+{
+	u8 ndm_flags = 0;
+
+	ndm_flags |= (flags & NEIGH_UPDATE_F_ISROUTER) ? NTF_ROUTER : 0;
+	if ((neigh->flags ^ ndm_flags) & NTF_ROUTER) {
+		if (ndm_flags & NTF_ROUTER)
+			neigh->flags |= NTF_ROUTER;
+		else
+			neigh->flags &= ~NTF_ROUTER;
+>>>>>>> upstream/android-13
 		*notify = 1;
 	}
 }

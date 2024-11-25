@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/compiler.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <inttypes.h>
+=======
+#include <linux/zalloc.h>
+#include <inttypes.h>
+#include <limits.h>
+>>>>>>> upstream/android-13
 #include <unistd.h>
 #include "tests.h"
 #include "debug.h"
@@ -10,16 +16,43 @@
 #include "../util/unwind.h"
 #include "perf_regs.h"
 #include "map.h"
+<<<<<<< HEAD
 #include "thread.h"
 #include "callchain.h"
 
 #if defined (__x86_64__) || defined (__i386__) || defined (__powerpc__)
 #include "arch-tests.h"
 #endif
+=======
+#include "symbol.h"
+#include "thread.h"
+#include "callchain.h"
+#include "util/synthetic-events.h"
+>>>>>>> upstream/android-13
 
 /* For bsearch. We try to unwind functions in shared object. */
 #include <stdlib.h>
 
+<<<<<<< HEAD
+=======
+/*
+ * The test will assert frames are on the stack but tail call optimizations lose
+ * the frame of the caller. Clang can disable this optimization on a called
+ * function but GCC currently (11/2020) lacks this attribute. The barrier is
+ * used to inhibit tail calls in these cases.
+ */
+#ifdef __has_attribute
+#if __has_attribute(disable_tail_calls)
+#define NO_TAIL_CALL_ATTRIBUTE __attribute__((disable_tail_calls))
+#define NO_TAIL_CALL_BARRIER
+#endif
+#endif
+#ifndef NO_TAIL_CALL_ATTRIBUTE
+#define NO_TAIL_CALL_ATTRIBUTE
+#define NO_TAIL_CALL_BARRIER __asm__ __volatile__("" : : : "memory");
+#endif
+
+>>>>>>> upstream/android-13
 static int mmap_handler(struct perf_tool *tool __maybe_unused,
 			union perf_event *event,
 			struct perf_sample *sample,
@@ -33,8 +66,14 @@ static int init_live_machine(struct machine *machine)
 	union perf_event event;
 	pid_t pid = getpid();
 
+<<<<<<< HEAD
 	return perf_event__synthesize_mmap_events(NULL, &event, pid, pid,
 						  mmap_handler, machine, true, 500);
+=======
+	memset(&event, 0, sizeof(event));
+	return perf_event__synthesize_mmap_events(NULL, &event, pid, pid,
+						  mmap_handler, machine, true);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -55,7 +94,11 @@ int test_dwarf_unwind__krava_1(struct thread *thread);
 static int unwind_entry(struct unwind_entry *entry, void *arg)
 {
 	unsigned long *cnt = (unsigned long *) arg;
+<<<<<<< HEAD
 	char *symbol = entry->sym ? entry->sym->name : NULL;
+=======
+	char *symbol = entry->ms.sym ? entry->ms.sym->name : NULL;
+>>>>>>> upstream/android-13
 	static const char *funcs[MAX_STACK] = {
 		"test__arch_unwind_sample",
 		"test_dwarf_unwind__thread",
@@ -90,7 +133,11 @@ static int unwind_entry(struct unwind_entry *entry, void *arg)
 	return strcmp((const char *) symbol, funcs[idx]);
 }
 
+<<<<<<< HEAD
 noinline int test_dwarf_unwind__thread(struct thread *thread)
+=======
+NO_TAIL_CALL_ATTRIBUTE noinline int test_dwarf_unwind__thread(struct thread *thread)
+>>>>>>> upstream/android-13
 {
 	struct perf_sample sample;
 	unsigned long cnt = 0;
@@ -114,14 +161,23 @@ noinline int test_dwarf_unwind__thread(struct thread *thread)
 	}
 
  out:
+<<<<<<< HEAD
 	free(sample.user_stack.data);
 	free(sample.user_regs.regs);
+=======
+	zfree(&sample.user_stack.data);
+	zfree(&sample.user_regs.regs);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static int global_unwind_retval = -INT_MAX;
 
+<<<<<<< HEAD
 noinline int test_dwarf_unwind__compare(void *p1, void *p2)
+=======
+NO_TAIL_CALL_ATTRIBUTE noinline int test_dwarf_unwind__compare(void *p1, void *p2)
+>>>>>>> upstream/android-13
 {
 	/* Any possible value should be 'thread' */
 	struct thread *thread = *(struct thread **)p1;
@@ -140,7 +196,11 @@ noinline int test_dwarf_unwind__compare(void *p1, void *p2)
 	return p1 - p2;
 }
 
+<<<<<<< HEAD
 noinline int test_dwarf_unwind__krava_3(struct thread *thread)
+=======
+NO_TAIL_CALL_ATTRIBUTE noinline int test_dwarf_unwind__krava_3(struct thread *thread)
+>>>>>>> upstream/android-13
 {
 	struct thread *array[2] = {thread, thread};
 	void *fp = &bsearch;
@@ -159,6 +219,7 @@ noinline int test_dwarf_unwind__krava_3(struct thread *thread)
 	return global_unwind_retval;
 }
 
+<<<<<<< HEAD
 noinline int test_dwarf_unwind__krava_2(struct thread *thread)
 {
 	return test_dwarf_unwind__krava_3(thread);
@@ -167,6 +228,24 @@ noinline int test_dwarf_unwind__krava_2(struct thread *thread)
 noinline int test_dwarf_unwind__krava_1(struct thread *thread)
 {
 	return test_dwarf_unwind__krava_2(thread);
+=======
+NO_TAIL_CALL_ATTRIBUTE noinline int test_dwarf_unwind__krava_2(struct thread *thread)
+{
+	int ret;
+
+	ret =  test_dwarf_unwind__krava_3(thread);
+	NO_TAIL_CALL_BARRIER;
+	return ret;
+}
+
+NO_TAIL_CALL_ATTRIBUTE noinline int test_dwarf_unwind__krava_1(struct thread *thread)
+{
+	int ret;
+
+	ret =  test_dwarf_unwind__krava_2(thread);
+	NO_TAIL_CALL_BARRIER;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int test__dwarf_unwind(struct test *test __maybe_unused, int subtest __maybe_unused)

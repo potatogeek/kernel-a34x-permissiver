@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/cls_basic.c	Basic Packet Classifier.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/cls_basic.c	Basic Packet Classifier.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  */
 
@@ -18,6 +25,10 @@
 #include <linux/rtnetlink.h>
 #include <linux/skbuff.h>
 #include <linux/idr.h>
+<<<<<<< HEAD
+=======
+#include <linux/percpu.h>
+>>>>>>> upstream/android-13
 #include <net/netlink.h>
 #include <net/act_api.h>
 #include <net/pkt_cls.h>
@@ -35,6 +46,10 @@ struct basic_filter {
 	struct tcf_result	res;
 	struct tcf_proto	*tp;
 	struct list_head	link;
+<<<<<<< HEAD
+=======
+	struct tc_basic_pcnt __percpu *pf;
+>>>>>>> upstream/android-13
 	struct rcu_work		rwork;
 };
 
@@ -46,8 +61,15 @@ static int basic_classify(struct sk_buff *skb, const struct tcf_proto *tp,
 	struct basic_filter *f;
 
 	list_for_each_entry_rcu(f, &head->flist, link) {
+<<<<<<< HEAD
 		if (!tcf_em_tree_match(skb, &f->ematches, NULL))
 			continue;
+=======
+		__this_cpu_inc(f->pf->rcnt);
+		if (!tcf_em_tree_match(skb, &f->ematches, NULL))
+			continue;
+		__this_cpu_inc(f->pf->rhit);
+>>>>>>> upstream/android-13
 		*res = f->res;
 		r = tcf_exts_exec(skb, &f->exts, res);
 		if (r < 0)
@@ -89,6 +111,10 @@ static void __basic_delete_filter(struct basic_filter *f)
 	tcf_exts_destroy(&f->exts);
 	tcf_em_tree_destroy(&f->ematches);
 	tcf_exts_put_net(&f->exts);
+<<<<<<< HEAD
+=======
+	free_percpu(f->pf);
+>>>>>>> upstream/android-13
 	kfree(f);
 }
 
@@ -102,7 +128,12 @@ static void basic_delete_filter_work(struct work_struct *work)
 	rtnl_unlock();
 }
 
+<<<<<<< HEAD
 static void basic_destroy(struct tcf_proto *tp, struct netlink_ext_ack *extack)
+=======
+static void basic_destroy(struct tcf_proto *tp, bool rtnl_held,
+			  struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct basic_head *head = rtnl_dereference(tp->root);
 	struct basic_filter *f, *n;
@@ -121,7 +152,11 @@ static void basic_destroy(struct tcf_proto *tp, struct netlink_ext_ack *extack)
 }
 
 static int basic_delete(struct tcf_proto *tp, void *arg, bool *last,
+<<<<<<< HEAD
 			struct netlink_ext_ack *extack)
+=======
+			bool rtnl_held, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct basic_head *head = rtnl_dereference(tp->root);
 	struct basic_filter *f = arg;
@@ -143,12 +178,20 @@ static const struct nla_policy basic_policy[TCA_BASIC_MAX + 1] = {
 static int basic_set_parms(struct net *net, struct tcf_proto *tp,
 			   struct basic_filter *f, unsigned long base,
 			   struct nlattr **tb,
+<<<<<<< HEAD
 			   struct nlattr *est, bool ovr,
+=======
+			   struct nlattr *est, u32 flags,
+>>>>>>> upstream/android-13
 			   struct netlink_ext_ack *extack)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = tcf_exts_validate(net, tp, tb, est, &f->exts, ovr, extack);
+=======
+	err = tcf_exts_validate(net, tp, tb, est, &f->exts, flags, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -167,8 +210,13 @@ static int basic_set_parms(struct net *net, struct tcf_proto *tp,
 
 static int basic_change(struct net *net, struct sk_buff *in_skb,
 			struct tcf_proto *tp, unsigned long base, u32 handle,
+<<<<<<< HEAD
 			struct nlattr **tca, void **arg, bool ovr,
 			struct netlink_ext_ack *extack)
+=======
+			struct nlattr **tca, void **arg,
+			u32 flags, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct basic_head *head = rtnl_dereference(tp->root);
@@ -179,8 +227,13 @@ static int basic_change(struct net *net, struct sk_buff *in_skb,
 	if (tca[TCA_OPTIONS] == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_BASIC_MAX, tca[TCA_OPTIONS],
 			       basic_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_BASIC_MAX, tca[TCA_OPTIONS],
+					  basic_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -193,7 +246,11 @@ static int basic_change(struct net *net, struct sk_buff *in_skb,
 	if (!fnew)
 		return -ENOBUFS;
 
+<<<<<<< HEAD
 	err = tcf_exts_init(&fnew->exts, TCA_BASIC_ACT, TCA_BASIC_POLICE);
+=======
+	err = tcf_exts_init(&fnew->exts, net, TCA_BASIC_ACT, TCA_BASIC_POLICE);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto errout;
 
@@ -208,8 +265,18 @@ static int basic_change(struct net *net, struct sk_buff *in_skb,
 	if (err)
 		goto errout;
 	fnew->handle = handle;
+<<<<<<< HEAD
 
 	err = basic_set_parms(net, tp, fnew, base, tb, tca[TCA_RATE], ovr,
+=======
+	fnew->pf = alloc_percpu(struct tc_basic_pcnt);
+	if (!fnew->pf) {
+		err = -ENOMEM;
+		goto errout;
+	}
+
+	err = basic_set_parms(net, tp, fnew, base, tb, tca[TCA_RATE], flags,
+>>>>>>> upstream/android-13
 			      extack);
 	if (err < 0) {
 		if (!fold)
@@ -231,12 +298,21 @@ static int basic_change(struct net *net, struct sk_buff *in_skb,
 
 	return 0;
 errout:
+<<<<<<< HEAD
+=======
+	free_percpu(fnew->pf);
+>>>>>>> upstream/android-13
 	tcf_exts_destroy(&fnew->exts);
 	kfree(fnew);
 	return err;
 }
 
+<<<<<<< HEAD
 static void basic_walk(struct tcf_proto *tp, struct tcf_walker *arg)
+=======
+static void basic_walk(struct tcf_proto *tp, struct tcf_walker *arg,
+		       bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct basic_head *head = rtnl_dereference(tp->root);
 	struct basic_filter *f;
@@ -268,17 +344,30 @@ static void basic_bind_class(void *fh, u32 classid, unsigned long cl, void *q,
 }
 
 static int basic_dump(struct net *net, struct tcf_proto *tp, void *fh,
+<<<<<<< HEAD
 		      struct sk_buff *skb, struct tcmsg *t)
 {
 	struct basic_filter *f = fh;
 	struct nlattr *nest;
+=======
+		      struct sk_buff *skb, struct tcmsg *t, bool rtnl_held)
+{
+	struct tc_basic_pcnt gpf = {};
+	struct basic_filter *f = fh;
+	struct nlattr *nest;
+	int cpu;
+>>>>>>> upstream/android-13
 
 	if (f == NULL)
 		return skb->len;
 
 	t->tcm_handle = f->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 
@@ -286,6 +375,21 @@ static int basic_dump(struct net *net, struct tcf_proto *tp, void *fh,
 	    nla_put_u32(skb, TCA_BASIC_CLASSID, f->res.classid))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
+=======
+	for_each_possible_cpu(cpu) {
+		struct tc_basic_pcnt *pf = per_cpu_ptr(f->pf, cpu);
+
+		gpf.rcnt += pf->rcnt;
+		gpf.rhit += pf->rhit;
+	}
+
+	if (nla_put_64bit(skb, TCA_BASIC_PCNT,
+			  sizeof(struct tc_basic_pcnt),
+			  &gpf, TCA_BASIC_PAD))
+		goto nla_put_failure;
+
+>>>>>>> upstream/android-13
 	if (tcf_exts_dump(skb, &f->exts) < 0 ||
 	    tcf_em_tree_dump(skb, &f->ematches, TCA_BASIC_EMATCHES) < 0)
 		goto nla_put_failure;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/mb862xx/mb862xxfb_accel.c
  *
@@ -6,11 +10,14 @@
  * (C) 2007 Alexander Shishkin <virtuoso@slind.org>
  * (C) 2009 Valentin Sitdikov <v.sitdikov@gmail.com>
  * (C) 2009 Siemens AG
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/fb.h>
 #include <linux/delay.h>
@@ -188,7 +195,10 @@ static void mb86290fb_imageblit16(u32 *cmd, u16 step, u16 dx, u16 dy,
 static void mb86290fb_imageblit(struct fb_info *info,
 				const struct fb_image *image)
 {
+<<<<<<< HEAD
 	int mdr;
+=======
+>>>>>>> upstream/android-13
 	u32 *cmd = NULL;
 	void (*cmdfn) (u32 *, u16, u16, u16, u16, u16, u32, u32,
 		       const struct fb_image *, struct fb_info *) = NULL;
@@ -200,7 +210,10 @@ static void mb86290fb_imageblit(struct fb_info *info,
 	u16 dx = image->dx, dy = image->dy;
 	int x2, y2, vxres, vyres;
 
+<<<<<<< HEAD
 	mdr = (GDC_ROP_COPY << 9);
+=======
+>>>>>>> upstream/android-13
 	x2 = image->dx + image->width;
 	y2 = image->dy + image->height;
 	vxres = info->var.xres_virtual;
@@ -307,11 +320,16 @@ static void mb86290fb_fillrect(struct fb_info *info,
 	mb862xxfb_write_fifo(7, cmd, info);
 }
 
+<<<<<<< HEAD
 void mb862xxfb_init_accel(struct fb_info *info, int xres)
+=======
+void mb862xxfb_init_accel(struct fb_info *info, struct fb_ops *fbops, int xres)
+>>>>>>> upstream/android-13
 {
 	struct mb862xxfb_par *par = info->par;
 
 	if (info->var.bits_per_pixel == 32) {
+<<<<<<< HEAD
 		info->fbops->fb_fillrect = cfb_fillrect;
 		info->fbops->fb_copyarea = cfb_copyarea;
 		info->fbops->fb_imageblit = cfb_imageblit;
@@ -320,6 +338,16 @@ void mb862xxfb_init_accel(struct fb_info *info, int xres)
 		info->fbops->fb_fillrect = mb86290fb_fillrect;
 		info->fbops->fb_copyarea = mb86290fb_copyarea;
 		info->fbops->fb_imageblit = mb86290fb_imageblit;
+=======
+		fbops->fb_fillrect = cfb_fillrect;
+		fbops->fb_copyarea = cfb_copyarea;
+		fbops->fb_imageblit = cfb_imageblit;
+	} else {
+		outreg(disp, GC_L0EM, 3);
+		fbops->fb_fillrect = mb86290fb_fillrect;
+		fbops->fb_copyarea = mb86290fb_copyarea;
+		fbops->fb_imageblit = mb86290fb_imageblit;
+>>>>>>> upstream/android-13
 	}
 	outreg(draw, GDC_REG_DRAW_BASE, 0);
 	outreg(draw, GDC_REG_MODE_MISC, 0x8000);
@@ -330,6 +358,9 @@ void mb862xxfb_init_accel(struct fb_info *info, int xres)
 	    FBINFO_HWACCEL_IMAGEBLIT;
 	info->fix.accel = 0xff;	/*FIXME: add right define */
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mb862xxfb_init_accel);
+=======
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL v2");

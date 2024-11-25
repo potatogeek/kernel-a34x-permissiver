@@ -17,6 +17,10 @@
 #include <linux/pci.h>
 
 #include <asm/cpufeature.h>
+<<<<<<< HEAD
+=======
+#include <asm/cacheinfo.h>
+>>>>>>> upstream/android-13
 #include <asm/amd_nb.h>
 #include <asm/smp.h>
 
@@ -247,6 +251,10 @@ amd_cpuid4(int leaf, union _cpuid4_leaf_eax *eax,
 	switch (leaf) {
 	case 1:
 		l1 = &l1i;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		if (!l1->val)
 			return;
@@ -578,7 +586,11 @@ static void amd_init_l3_cache(struct _cpuid4_info_regs *this_leaf, int index)
 	if (index < 3)
 		return;
 
+<<<<<<< HEAD
 	node = amd_get_nb_id(smp_processor_id());
+=======
+	node = topology_die_id(smp_processor_id());
+>>>>>>> upstream/android-13
 	this_leaf->nb = node_to_amd_nb(node);
 	if (this_leaf->nb && !this_leaf->nb->l3_cache.indices)
 		amd_calc_l3_indices(this_leaf->nb);
@@ -602,6 +614,13 @@ cpuid4_cache_lookup_regs(int index, struct _cpuid4_info_regs *this_leaf)
 		else
 			amd_cpuid4(index, &eax, &ebx, &ecx);
 		amd_init_l3_cache(this_leaf, index);
+<<<<<<< HEAD
+=======
+	} else if (boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
+		cpuid_count(0x8000001d, index, &eax.full,
+			    &ebx.full, &ecx.full, &edx);
+		amd_init_l3_cache(this_leaf, index);
+>>>>>>> upstream/android-13
 	} else {
 		cpuid_count(4, index, &eax.full, &ebx.full, &ecx.full, &edx);
 	}
@@ -625,7 +644,12 @@ static int find_num_cache_leaves(struct cpuinfo_x86 *c)
 	union _cpuid4_leaf_eax	cache_eax;
 	int 			i = -1;
 
+<<<<<<< HEAD
 	if (c->x86_vendor == X86_VENDOR_AMD)
+=======
+	if (c->x86_vendor == X86_VENDOR_AMD ||
+	    c->x86_vendor == X86_VENDOR_HYGON)
+>>>>>>> upstream/android-13
 		op = 0x8000001d;
 	else
 		op = 4;
@@ -639,7 +663,11 @@ static int find_num_cache_leaves(struct cpuinfo_x86 *c)
 	return i;
 }
 
+<<<<<<< HEAD
 void cacheinfo_amd_init_llc_id(struct cpuinfo_x86 *c, int cpu, u8 node_id)
+=======
+void cacheinfo_amd_init_llc_id(struct cpuinfo_x86 *c, int cpu)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * We may have multiple LLCs if L3 caches exist, so check if we
@@ -650,7 +678,11 @@ void cacheinfo_amd_init_llc_id(struct cpuinfo_x86 *c, int cpu, u8 node_id)
 
 	if (c->x86 < 0x17) {
 		/* LLC is at the node level. */
+<<<<<<< HEAD
 		per_cpu(cpu_llc_id, cpu) = node_id;
+=======
+		per_cpu(cpu_llc_id, cpu) = c->cpu_die_id;
+>>>>>>> upstream/android-13
 	} else if (c->x86 == 0x17 && c->x86_model <= 0x1F) {
 		/*
 		 * LLC is at the core complex level.
@@ -677,6 +709,25 @@ void cacheinfo_amd_init_llc_id(struct cpuinfo_x86 *c, int cpu, u8 node_id)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void cacheinfo_hygon_init_llc_id(struct cpuinfo_x86 *c, int cpu)
+{
+	/*
+	 * We may have multiple LLCs if L3 caches exist, so check if we
+	 * have an L3 cache by looking at the L3 cache CPUID leaf.
+	 */
+	if (!cpuid_edx(0x80000006))
+		return;
+
+	/*
+	 * LLC is at the core complex level.
+	 * Core complex ID is ApicId[3] for these processors.
+	 */
+	per_cpu(cpu_llc_id, cpu) = c->apicid >> 3;
+}
+
+>>>>>>> upstream/android-13
 void init_amd_cacheinfo(struct cpuinfo_x86 *c)
 {
 
@@ -690,6 +741,14 @@ void init_amd_cacheinfo(struct cpuinfo_x86 *c)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void init_hygon_cacheinfo(struct cpuinfo_x86 *c)
+{
+	num_cache_leaves = find_num_cache_leaves(c);
+}
+
+>>>>>>> upstream/android-13
 void init_intel_cacheinfo(struct cpuinfo_x86 *c)
 {
 	/* Cache sizes */
@@ -849,7 +908,11 @@ void init_intel_cacheinfo(struct cpuinfo_x86 *c)
 static int __cache_amd_cpumap_setup(unsigned int cpu, int index,
 				    struct _cpuid4_info_regs *base)
 {
+<<<<<<< HEAD
 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+=======
+	struct cpu_cacheinfo *this_cpu_ci;
+>>>>>>> upstream/android-13
 	struct cacheinfo *this_leaf;
 	int i, sibling;
 
@@ -912,7 +975,12 @@ static void __cache_cpumap_setup(unsigned int cpu, int index,
 	int index_msb, i;
 	struct cpuinfo_x86 *c = &cpu_data(cpu);
 
+<<<<<<< HEAD
 	if (c->x86_vendor == X86_VENDOR_AMD) {
+=======
+	if (c->x86_vendor == X86_VENDOR_AMD ||
+	    c->x86_vendor == X86_VENDOR_HYGON) {
+>>>>>>> upstream/android-13
 		if (__cache_amd_cpumap_setup(cpu, index, base))
 			return;
 	}
@@ -956,7 +1024,11 @@ static void ci_leaf_init(struct cacheinfo *this_leaf,
 	this_leaf->priv = base->nb;
 }
 
+<<<<<<< HEAD
 static int __init_cache_level(unsigned int cpu)
+=======
+int init_cache_level(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
 
@@ -985,7 +1057,11 @@ static void get_cache_id(int cpu, struct _cpuid4_info_regs *id4_regs)
 	id4_regs->id = c->apicid >> index_msb;
 }
 
+<<<<<<< HEAD
 static int __populate_cache_leaves(unsigned int cpu)
+=======
+int populate_cache_leaves(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	unsigned int idx, ret;
 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
@@ -1004,6 +1080,9 @@ static int __populate_cache_leaves(unsigned int cpu)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 DEFINE_SMP_CALL_CACHE_FUNCTION(init_cache_level)
 DEFINE_SMP_CALL_CACHE_FUNCTION(populate_cache_leaves)
+=======
+>>>>>>> upstream/android-13

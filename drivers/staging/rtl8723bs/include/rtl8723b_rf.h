@@ -8,10 +8,18 @@
 #define __RTL8723B_RF_H__
 
 
+<<<<<<< HEAD
 int	PHY_RF6052_Config8723B(struct adapter *Adapter	);
 
 void
 PHY_RF6052SetBandwidth8723B(struct adapter *Adapter,
 	enum CHANNEL_WIDTH		Bandwidth);
+=======
+int	PHY_RF6052_Config8723B(struct adapter *Adapter);
+
+void
+PHY_RF6052SetBandwidth8723B(struct adapter *Adapter,
+	enum channel_width		Bandwidth);
+>>>>>>> upstream/android-13
 
 #endif

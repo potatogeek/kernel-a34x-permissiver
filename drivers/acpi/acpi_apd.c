@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AMD ACPI support for ACPI2platform device.
  *
  * Copyright (c) 2014,2015 AMD Corporation.
  * Authors: Ken Xue <Ken.Xue@amd.com>
  *	Wu, Jeff <Jeff.Wu@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -36,12 +41,36 @@ struct apd_private_data;
  * @flags: device flags like %ACPI_APD_SYSFS, %ACPI_APD_PM
  * @fixed_clk_rate: fixed rate input clock source for acpi device;
  *			0 means no fixed rate input clock source
+=======
+ */
+
+#include <linux/acpi.h>
+#include <linux/clkdev.h>
+#include <linux/clk-provider.h>
+#include <linux/err.h>
+#include <linux/io.h>
+#include <linux/platform_data/clk-fch.h>
+#include <linux/platform_device.h>
+
+#include "internal.h"
+
+struct apd_private_data;
+
+/**
+ * struct apd_device_desc - a descriptor for apd device
+ * @fixed_clk_rate: fixed rate input clock source for acpi device;
+ *			0 means no fixed rate input clock source
+ * @properties: build-in properties of the device such as UART
+>>>>>>> upstream/android-13
  * @setup: a hook routine to set device resource during create platform device
  *
  * Device description defined as acpi_device_id.driver_data
  */
 struct apd_device_desc {
+<<<<<<< HEAD
 	unsigned int flags;
+=======
+>>>>>>> upstream/android-13
 	unsigned int fixed_clk_rate;
 	struct property_entry *properties;
 	int (*setup)(struct apd_private_data *pdata);
@@ -59,7 +88,11 @@ struct apd_private_data {
 static int acpi_apd_setup(struct apd_private_data *pdata)
 {
 	const struct apd_device_desc *dev_desc = pdata->dev_desc;
+<<<<<<< HEAD
 	struct clk *clk = ERR_PTR(-ENODEV);
+=======
+	struct clk *clk;
+>>>>>>> upstream/android-13
 
 	if (dev_desc->fixed_clk_rate) {
 		clk = clk_register_fixed_rate(&pdata->adev->dev,
@@ -73,7 +106,10 @@ static int acpi_apd_setup(struct apd_private_data *pdata)
 }
 
 #ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int misc_check_res(struct acpi_resource *ares, void *data)
 {
 	struct resource res;
@@ -81,11 +117,20 @@ static int misc_check_res(struct acpi_resource *ares, void *data)
 	return !acpi_dev_resource_memory(ares, &res);
 }
 
+<<<<<<< HEAD
 static int st_misc_setup(struct apd_private_data *pdata)
 {
 	struct acpi_device *adev = pdata->adev;
 	struct platform_device *clkdev;
 	struct st_clk_data *clk_data;
+=======
+static int fch_misc_setup(struct apd_private_data *pdata)
+{
+	struct acpi_device *adev = pdata->adev;
+	const union acpi_object *obj;
+	struct platform_device *clkdev;
+	struct fch_clk_data *clk_data;
+>>>>>>> upstream/android-13
 	struct resource_entry *rentry;
 	struct list_head resource_list;
 	int ret;
@@ -100,6 +145,12 @@ static int st_misc_setup(struct apd_private_data *pdata)
 	if (ret < 0)
 		return -ENOENT;
 
+<<<<<<< HEAD
+=======
+	if (!acpi_dev_get_property(adev, "is-rv", ACPI_TYPE_INTEGER, &obj))
+		clk_data->is_rv = obj->integer.value;
+
+>>>>>>> upstream/android-13
 	list_for_each_entry(rentry, &resource_list, node) {
 		clk_data->base = devm_ioremap(&adev->dev, rentry->res->start,
 					      resource_size(rentry->res));
@@ -108,7 +159,11 @@ static int st_misc_setup(struct apd_private_data *pdata)
 
 	acpi_dev_free_resource_list(&resource_list);
 
+<<<<<<< HEAD
 	clkdev = platform_device_register_data(&adev->dev, "clk-st",
+=======
+	clkdev = platform_device_register_data(&adev->dev, "clk-fch",
+>>>>>>> upstream/android-13
 					       PLATFORM_DEVID_NONE, clk_data,
 					       sizeof(*clk_data));
 	return PTR_ERR_OR_ZERO(clkdev);
@@ -137,10 +192,17 @@ static const struct apd_device_desc cz_uart_desc = {
 	.properties = uart_properties,
 };
 
+<<<<<<< HEAD
 static const struct apd_device_desc st_misc_desc = {
 	.setup = st_misc_setup,
 };
 #endif
+=======
+static const struct apd_device_desc fch_misc_desc = {
+	.setup = fch_misc_setup,
+};
+#endif /* CONFIG_X86_AMD_PLATFORM_DEVICE */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ARM64
 static const struct apd_device_desc xgene_i2c_desc = {
@@ -162,10 +224,20 @@ static const struct apd_device_desc hip08_i2c_desc = {
 	.setup = acpi_apd_setup,
 	.fixed_clk_rate = 250000000,
 };
+<<<<<<< HEAD
+=======
+
+static const struct apd_device_desc hip08_lite_i2c_desc = {
+	.setup = acpi_apd_setup,
+	.fixed_clk_rate = 125000000,
+};
+
+>>>>>>> upstream/android-13
 static const struct apd_device_desc thunderx2_i2c_desc = {
 	.setup = acpi_apd_setup,
 	.fixed_clk_rate = 125000000,
 };
+<<<<<<< HEAD
 #endif
 
 #else
@@ -178,6 +250,26 @@ static const struct apd_device_desc thunderx2_i2c_desc = {
 * Create platform device during acpi scan attach handle.
 * Return value > 0 on success of creating device.
 */
+=======
+
+static const struct apd_device_desc nxp_i2c_desc = {
+	.setup = acpi_apd_setup,
+	.fixed_clk_rate = 350000000,
+};
+
+static const struct apd_device_desc hip08_spi_desc = {
+	.setup = acpi_apd_setup,
+	.fixed_clk_rate = 250000000,
+};
+#endif /* CONFIG_ARM64 */
+
+#endif
+
+/*
+ * Create platform device during acpi scan attach handle.
+ * Return value > 0 on success of creating device.
+ */
+>>>>>>> upstream/android-13
 static int acpi_apd_create_device(struct acpi_device *adev,
 				   const struct acpi_device_id *id)
 {
@@ -224,8 +316,15 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
 	{ "AMDI0010", APD_ADDR(wt_i2c_desc) },
 	{ "AMD0020", APD_ADDR(cz_uart_desc) },
 	{ "AMDI0020", APD_ADDR(cz_uart_desc) },
+<<<<<<< HEAD
 	{ "AMD0030", },
 	{ "AMD0040", APD_ADDR(st_misc_desc)},
+=======
+	{ "AMDI0022", APD_ADDR(cz_uart_desc) },
+	{ "AMD0030", },
+	{ "AMD0040", APD_ADDR(fch_misc_desc)},
+	{ "HYGO0010", APD_ADDR(wt_i2c_desc) },
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_ARM64
 	{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
@@ -234,6 +333,12 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
 	{ "CAV9007",  APD_ADDR(thunderx2_i2c_desc) },
 	{ "HISI02A1", APD_ADDR(hip07_i2c_desc) },
 	{ "HISI02A2", APD_ADDR(hip08_i2c_desc) },
+<<<<<<< HEAD
+=======
+	{ "HISI02A3", APD_ADDR(hip08_lite_i2c_desc) },
+	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
+	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
+>>>>>>> upstream/android-13
 #endif
 	{ }
 };

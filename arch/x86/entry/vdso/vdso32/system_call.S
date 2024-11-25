@@ -6,7 +6,11 @@
 #include <linux/linkage.h>
 #include <asm/dwarf2.h>
 #include <asm/cpufeatures.h>
+<<<<<<< HEAD
 #include <asm/alternative-asm.h>
+=======
+#include <asm/alternative.h>
+>>>>>>> upstream/android-13
 
 	.text
 	.globl __kernel_vsyscall
@@ -29,7 +33,11 @@ __kernel_vsyscall:
 	 * anyone with an AMD CPU, for example).  Nonetheless, we try to keep
 	 * it working approximately as well as it ever worked.
 	 *
+<<<<<<< HEAD
 	 * This link may eludicate some of the history:
+=======
+	 * This link may elucidate some of the history:
+>>>>>>> upstream/android-13
 	 *   https://android-review.googlesource.com/#/q/Iac3295376d61ef83e713ac9b528f3b50aa780cd7
 	 * personally, I find it hard to understand what's going on there.
 	 *
@@ -62,7 +70,11 @@ __kernel_vsyscall:
 
 	/* Enter using int $0x80 */
 	int	$0x80
+<<<<<<< HEAD
 GLOBAL(int80_landing_pad)
+=======
+SYM_INNER_LABEL(int80_landing_pad, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 
 	/*
 	 * Restore EDX and ECX in case they were clobbered.  EBP is not
@@ -78,7 +90,11 @@ GLOBAL(int80_landing_pad)
 	popl	%ecx
 	CFI_RESTORE		ecx
 	CFI_ADJUST_CFA_OFFSET	-4
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 	CFI_ENDPROC
 
 	.size __kernel_vsyscall,.-__kernel_vsyscall

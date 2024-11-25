@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -361,7 +368,10 @@ enum queue_entry_flags {
 	ENTRY_DATA_PENDING,
 	ENTRY_DATA_IO_FAILED,
 	ENTRY_DATA_STATUS_PENDING,
+<<<<<<< HEAD
 	ENTRY_DATA_STATUS_SET,
+=======
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -387,8 +397,11 @@ struct queue_entry {
 
 	unsigned int entry_idx;
 
+<<<<<<< HEAD
 	u32 status;
 
+=======
+>>>>>>> upstream/android-13
 	void *priv_data;
 };
 
@@ -449,6 +462,12 @@ enum data_queue_flags {
  * @length: Number of frames in queue.
  * @index: Index pointers to entry positions in the queue,
  *	use &enum queue_index to get a specific index field.
+<<<<<<< HEAD
+=======
+ * @wd_count: watchdog counter number of times entry does change
+ *      in the queue
+ * @wd_idx: index of queue entry saved by watchdog
+>>>>>>> upstream/android-13
  * @txop: maximum burst time.
  * @aifs: The aifs value for outgoing frames (field ignored in RX queue).
  * @cw_min: The cw min value for outgoing frames (field ignored in RX queue).
@@ -476,6 +495,12 @@ struct data_queue {
 	unsigned short length;
 	unsigned short index[Q_INDEX_MAX];
 
+<<<<<<< HEAD
+=======
+	unsigned short wd_count;
+	unsigned int wd_idx;
+
+>>>>>>> upstream/android-13
 	unsigned short txop;
 	unsigned short aifs;
 	unsigned short cw_min;

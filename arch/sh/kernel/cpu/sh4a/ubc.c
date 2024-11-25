@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/kernel/cpu/sh4a/ubc.c
  *
  * On-chip UBC support for SH-4A CPUs.
  *
  * Copyright (C) 2009 - 2010  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/err.h>

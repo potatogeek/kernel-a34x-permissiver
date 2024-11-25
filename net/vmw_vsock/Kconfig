@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Vsock protocol
 #
@@ -25,6 +29,21 @@ config VSOCKETS_DIAG
 
 	  Enable this module so userspace applications can query open sockets.
 
+<<<<<<< HEAD
+=======
+config VSOCKETS_LOOPBACK
+	tristate "Virtual Sockets loopback transport"
+	depends on VSOCKETS
+	default y
+	select VIRTIO_VSOCKETS_COMMON
+	help
+	  This module implements a loopback transport for Virtual Sockets,
+	  using vmw_vsock_virtio_transport_common.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called vsock_loopback. If unsure, say N.
+
+>>>>>>> upstream/android-13
 config VMWARE_VMCI_VSOCKETS
 	tristate "VMware VMCI transport for Virtual Sockets"
 	depends on VSOCKETS && VMWARE_VMCI

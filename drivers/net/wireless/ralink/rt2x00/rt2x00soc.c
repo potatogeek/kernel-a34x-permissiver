@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	Copyright (C) 2004 - 2009 Felix Fietkau <nbd@openwrt.org>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -141,7 +148,11 @@ int rt2x00soc_suspend(struct platform_device *pdev, pm_message_t state)
 	struct ieee80211_hw *hw = platform_get_drvdata(pdev);
 	struct rt2x00_dev *rt2x00dev = hw->priv;
 
+<<<<<<< HEAD
 	return rt2x00lib_suspend(rt2x00dev, state);
+=======
+	return rt2x00lib_suspend(rt2x00dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rt2x00soc_suspend);
 

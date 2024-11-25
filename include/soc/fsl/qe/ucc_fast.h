@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Internal header file for UCC FAST unit routines.
  *
@@ -5,11 +9,14 @@
  *
  * Authors: 	Shlomi Gridish <gridish@freescale.com>
  * 		Li Yang <leoli@freescale.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __UCC_FAST_H__
 #define __UCC_FAST_H__
@@ -41,8 +48,17 @@
 #define R_L_S	0x0800	/* last */
 #define R_F_S	0x0400	/* first */
 #define R_CM_S	0x0200	/* continuous mode */
+<<<<<<< HEAD
 #define R_CR_S	0x0004	/* crc */
 #define R_OV_S	0x0002	/* crc */
+=======
+#define R_LG_S  0x0020  /* frame length */
+#define R_NO_S  0x0010  /* nonoctet */
+#define R_AB_S  0x0008  /* abort */
+#define R_CR_S	0x0004	/* crc */
+#define R_OV_S	0x0002	/* overrun */
+#define R_CD_S  0x0001  /* carrier detect */
+>>>>>>> upstream/android-13
 
 /* transmit BD's status */
 #define T_R_S	0x8000	/* ready bit */
@@ -51,6 +67,11 @@
 #define T_L_S	0x0800	/* last */
 #define T_TC_S	0x0400	/* crc */
 #define T_TM_S	0x0200	/* continuous mode */
+<<<<<<< HEAD
+=======
+#define T_UN_S  0x0002  /* hdlc underrun */
+#define T_CT_S  0x0001  /* hdlc carrier lost */
+>>>>>>> upstream/android-13
 
 /* Rx Data buffer must be 4 bytes aligned in most cases */
 #define UCC_FAST_RX_ALIGN			4
@@ -144,7 +165,10 @@ struct ucc_fast_info {
 	resource_size_t regs;
 	int irq;
 	u32 uccm_mask;
+<<<<<<< HEAD
 	int bd_mem_part;
+=======
+>>>>>>> upstream/android-13
 	int brkpt_support;
 	int grant_support;
 	int tsa;
@@ -176,19 +200,32 @@ struct ucc_fast_info {
 struct ucc_fast_private {
 	struct ucc_fast_info *uf_info;
 	struct ucc_fast __iomem *uf_regs; /* a pointer to the UCC regs. */
+<<<<<<< HEAD
 	u32 __iomem *p_ucce;	/* a pointer to the event register in memory. */
 	u32 __iomem *p_uccm;	/* a pointer to the mask register in memory. */
 #ifdef CONFIG_UGETH_TX_ON_DEMAND
 	u16 __iomem *p_utodr;	/* pointer to the transmit on demand register */
+=======
+	__be32 __iomem *p_ucce;	/* a pointer to the event register in memory. */
+	__be32 __iomem *p_uccm;	/* a pointer to the mask register in memory. */
+#ifdef CONFIG_UGETH_TX_ON_DEMAND
+	__be16 __iomem *p_utodr;/* pointer to the transmit on demand register */
+>>>>>>> upstream/android-13
 #endif
 	int enabled_tx;		/* Whether channel is enabled for Tx (ENT) */
 	int enabled_rx;		/* Whether channel is enabled for Rx (ENR) */
 	int stopped_tx;		/* Whether channel has been stopped for Tx
 				   (STOP_TX, etc.) */
 	int stopped_rx;		/* Whether channel has been stopped for Rx */
+<<<<<<< HEAD
 	u32 ucc_fast_tx_virtual_fifo_base_offset;/* pointer to base of Tx
 						    virtual fifo */
 	u32 ucc_fast_rx_virtual_fifo_base_offset;/* pointer to base of Rx
+=======
+	s32 ucc_fast_tx_virtual_fifo_base_offset;/* pointer to base of Tx
+						    virtual fifo */
+	s32 ucc_fast_rx_virtual_fifo_base_offset;/* pointer to base of Rx
+>>>>>>> upstream/android-13
 						    virtual fifo */
 #ifdef STATISTICS
 	u32 tx_frames;		/* Transmitted frames counter. */

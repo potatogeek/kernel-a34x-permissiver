@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * System call callback functions for SPUs
  */
@@ -34,6 +38,7 @@
  */
 
 static void *spu_syscall_table[] = {
+<<<<<<< HEAD
 #define SYSCALL(func)		sys_ni_syscall,
 #define COMPAT_SYS(func)	sys_ni_syscall,
 #define PPC_SYS(func)		sys_ni_syscall,
@@ -48,6 +53,11 @@ static void *spu_syscall_table[] = {
 #define SYSX_SPU(f, f3264, f32)	f,
 
 #include <asm/systbl.h>
+=======
+#define __SYSCALL_WITH_COMPAT(nr, entry, compat) __SYSCALL(nr, entry)
+#define __SYSCALL(nr, entry) [nr] = entry,
+#include <asm/syscall_table_spu.h>
+>>>>>>> upstream/android-13
 };
 
 long spu_sys_callback(struct spu_syscall_block *s)

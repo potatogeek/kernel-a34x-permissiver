@@ -21,6 +21,7 @@
 typedef long		__kernel_daddr_t;
 #define __kernel_daddr_t __kernel_daddr_t
 
+<<<<<<< HEAD
 #if (_MIPS_SZLONG == 32)
 typedef struct {
 	long	val[2];
@@ -28,6 +29,8 @@ typedef struct {
 #define __kernel_fsid_t __kernel_fsid_t
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/posix_types.h>
 
 #endif /* _ASM_POSIX_TYPES_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
 	Copyright (C) 2010 Willow Garage <http://www.willowgarage.com>
@@ -10,6 +14,7 @@
 	Copyright (C) 2009 Bart Zolnierkiewicz <bzolnier@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -48,7 +55,12 @@
  * RF2853 2.4G/5G 3T3R
  * RF3320 2.4G 1T1R(RT3350/RT3370/RT3390)
  * RF3322 2.4G 2T2R(RT3352/RT3371/RT3372/RT3391/RT3392)
+<<<<<<< HEAD
  * RF3053 2.4G/5G 3T3R(RT3883/RT3563/RT3573/RT3593/RT3662)
+=======
+ * RF3053 2.4G/5G 3T3R(RT3563/RT3573/RT3593)
+ * RF3853 2.4G/5G 3T3R(RT3883/RT3662)
+>>>>>>> upstream/android-13
  * RF5592 2.4G/5G 2T2R
  * RF3070 2.4G 1T1R
  * RF5360 2.4G 1T1R
@@ -72,6 +84,10 @@
 #define RF5592				0x000f
 #define RF3070				0x3070
 #define RF3290				0x3290
+<<<<<<< HEAD
+=======
+#define RF3853				0x3853
+>>>>>>> upstream/android-13
 #define RF5350				0x5350
 #define RF5360				0x5360
 #define RF5362				0x5362
@@ -1726,6 +1742,23 @@
 #define TX_PWR_CFG_9B_STBC_MCS7		FIELD32(0x000000ff)
 
 /*
+<<<<<<< HEAD
+=======
+ * TX_TXBF_CFG:
+ */
+#define TX_TXBF_CFG_0			0x138c
+#define TX_TXBF_CFG_1			0x13a4
+#define TX_TXBF_CFG_2			0x13a8
+#define TX_TXBF_CFG_3			0x13ac
+
+/*
+ * TX_FBK_CFG_3S:
+ */
+#define TX_FBK_CFG_3S_0			0x13c4
+#define TX_FBK_CFG_3S_1			0x13c8
+
+/*
+>>>>>>> upstream/android-13
  * RX_FILTER_CFG: RX configuration register.
  */
 #define RX_FILTER_CFG			0x1400
@@ -2296,6 +2329,10 @@ struct mac_iveiv_entry {
 /*
  * RFCSR 2:
  */
+<<<<<<< HEAD
+=======
+#define RFCSR2_RESCAL_BP		FIELD8(0x40)
+>>>>>>> upstream/android-13
 #define RFCSR2_RESCAL_EN		FIELD8(0x80)
 #define RFCSR2_RX2_EN_MT7620		FIELD8(0x02)
 #define RFCSR2_TX2_EN_MT7620		FIELD8(0x20)

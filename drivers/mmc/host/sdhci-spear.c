@@ -15,13 +15,19 @@
 
 #include <linux/clk.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm.h>
 #include <linux/slab.h>
@@ -32,7 +38,10 @@
 
 struct spear_sdhci {
 	struct clk *clk;
+<<<<<<< HEAD
 	int card_int_gpio;
+=======
+>>>>>>> upstream/android-13
 };
 
 /* sdhci ops */
@@ -43,6 +52,7 @@ static const struct sdhci_ops sdhci_pltfm_ops = {
 	.set_uhs_signaling = sdhci_set_uhs_signaling,
 };
 
+<<<<<<< HEAD
 static void sdhci_probe_config_dt(struct device_node *np,
 				struct spear_sdhci *host)
 {
@@ -59,6 +69,11 @@ static int sdhci_probe(struct platform_device *pdev)
 {
 	struct sdhci_host *host;
 	struct resource *iomem;
+=======
+static int sdhci_probe(struct platform_device *pdev)
+{
+	struct sdhci_host *host;
+>>>>>>> upstream/android-13
 	struct spear_sdhci *sdhci;
 	struct device *dev;
 	int ret;
@@ -71,8 +86,12 @@ static int sdhci_probe(struct platform_device *pdev)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	host->ioaddr = devm_ioremap_resource(&pdev->dev, iomem);
+=======
+	host->ioaddr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(host->ioaddr)) {
 		ret = PTR_ERR(host->ioaddr);
 		dev_dbg(&pdev->dev, "unable to map iomem: %d\n", ret);
@@ -109,6 +128,7 @@ static int sdhci_probe(struct platform_device *pdev)
 		dev_dbg(&pdev->dev, "Error setting desired clk, clk=%lu\n",
 				clk_get_rate(sdhci->clk));
 
+<<<<<<< HEAD
 	sdhci_probe_config_dt(pdev->dev.of_node, sdhci);
 	/*
 	 * It is optional to use GPIOs for sdhci card detection. If
@@ -124,6 +144,15 @@ static int sdhci_probe(struct platform_device *pdev)
 			goto disable_clk;
 		}
 	}
+=======
+	/*
+	 * It is optional to use GPIOs for sdhci card detection. If we
+	 * find a descriptor using slot GPIO, we use it.
+	 */
+	ret = mmc_gpiod_request_cd(host->mmc, "cd", 0, false, 0);
+	if (ret == -EPROBE_DEFER)
+		goto disable_clk;
+>>>>>>> upstream/android-13
 
 	ret = sdhci_add_host(host);
 	if (ret)
@@ -206,6 +235,10 @@ MODULE_DEVICE_TABLE(of, sdhci_spear_id_table);
 static struct platform_driver sdhci_driver = {
 	.driver = {
 		.name	= "sdhci",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= &sdhci_pm_ops,
 		.of_match_table = of_match_ptr(sdhci_spear_id_table),
 	},

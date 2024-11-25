@@ -57,7 +57,10 @@ void acpi_ds_clear_implicit_return(struct acpi_walk_state *walk_state)
 	}
 }
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ds_do_implicit_return
@@ -401,7 +404,10 @@ void acpi_ds_clear_operands(struct acpi_walk_state *walk_state)
 	walk_state->num_operands = 0;
 	return_VOID;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*******************************************************************************
  *

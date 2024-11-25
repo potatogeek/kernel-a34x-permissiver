@@ -12,9 +12,17 @@
 #include "async-thread.h"
 #include "ctree.h"
 
+<<<<<<< HEAD
 #define WORK_DONE_BIT 0
 #define WORK_ORDER_DONE_BIT 1
 #define WORK_HIGH_PRIO_BIT 2
+=======
+enum {
+	WORK_DONE_BIT,
+	WORK_ORDER_DONE_BIT,
+	WORK_HIGH_PRIO_BIT,
+};
+>>>>>>> upstream/android-13
 
 #define NO_THRESHOLD (-1)
 #define DFT_THRESHOLD (32)
@@ -51,6 +59,7 @@ struct btrfs_workqueue {
 	struct __btrfs_workqueue *high;
 };
 
+<<<<<<< HEAD
 static void normal_work_helper(struct btrfs_work *work);
 
 #define BTRFS_WORK_HELPER(name)					\
@@ -63,12 +72,19 @@ noinline_for_stack void btrfs_##name(struct work_struct *arg)		\
 
 struct btrfs_fs_info *
 btrfs_workqueue_owner(const struct __btrfs_workqueue *wq)
+=======
+struct btrfs_fs_info * __pure btrfs_workqueue_owner(const struct __btrfs_workqueue *wq)
+>>>>>>> upstream/android-13
 {
 	return wq->fs_info;
 }
 
+<<<<<<< HEAD
 struct btrfs_fs_info *
 btrfs_work_owner(const struct btrfs_work *work)
+=======
+struct btrfs_fs_info * __pure btrfs_work_owner(const struct btrfs_work *work)
+>>>>>>> upstream/android-13
 {
 	return work->wq->fs_info;
 }
@@ -87,6 +103,7 @@ bool btrfs_workqueue_normal_congested(const struct btrfs_workqueue *wq)
 	return atomic_read(&wq->normal->pending) > wq->normal->thresh * 2;
 }
 
+<<<<<<< HEAD
 BTRFS_WORK_HELPER(worker_helper);
 BTRFS_WORK_HELPER(delalloc_helper);
 BTRFS_WORK_HELPER(flush_delalloc_helper);
@@ -110,6 +127,8 @@ BTRFS_WORK_HELPER(scrubwrc_helper);
 BTRFS_WORK_HELPER(scrubnc_helper);
 BTRFS_WORK_HELPER(scrubparity_helper);
 
+=======
+>>>>>>> upstream/android-13
 static struct __btrfs_workqueue *
 __btrfs_alloc_workqueue(struct btrfs_fs_info *fs_info, const char *name,
 			unsigned int flags, int limit_active, int thresh)
@@ -139,6 +158,7 @@ __btrfs_alloc_workqueue(struct btrfs_fs_info *fs_info, const char *name,
 	}
 
 	if (flags & WQ_HIGHPRI)
+<<<<<<< HEAD
 		ret->normal_wq = alloc_workqueue("%s-%s-high", flags,
 						 ret->current_active, "btrfs",
 						 name);
@@ -146,6 +166,13 @@ __btrfs_alloc_workqueue(struct btrfs_fs_info *fs_info, const char *name,
 		ret->normal_wq = alloc_workqueue("%s-%s", flags,
 						 ret->current_active, "btrfs",
 						 name);
+=======
+		ret->normal_wq = alloc_workqueue("btrfs-%s-high", flags,
+						 ret->current_active, name);
+	else
+		ret->normal_wq = alloc_workqueue("btrfs-%s", flags,
+						 ret->current_active, name);
+>>>>>>> upstream/android-13
 	if (!ret->normal_wq) {
 		kfree(ret);
 		return NULL;
@@ -259,7 +286,10 @@ static void run_ordered_work(struct __btrfs_workqueue *wq,
 	struct btrfs_work *work;
 	spinlock_t *lock = &wq->list_lock;
 	unsigned long flags;
+<<<<<<< HEAD
 	void *wtag;
+=======
+>>>>>>> upstream/android-13
 	bool free_self = false;
 
 	while (1) {
@@ -270,6 +300,16 @@ static void run_ordered_work(struct __btrfs_workqueue *wq,
 				  ordered_list);
 		if (!test_bit(WORK_DONE_BIT, &work->flags))
 			break;
+<<<<<<< HEAD
+=======
+		/*
+		 * Orders all subsequent loads after reading WORK_DONE_BIT,
+		 * paired with the smp_mb__before_atomic in btrfs_work_helper
+		 * this guarantees that the ordered function will see all
+		 * updates from ordinary work function.
+		 */
+		smp_rmb();
+>>>>>>> upstream/android-13
 
 		/*
 		 * we are going to call the ordered done function, but
@@ -302,17 +342,28 @@ static void run_ordered_work(struct __btrfs_workqueue *wq,
 			 * original work item cannot depend on the recycled work
 			 * item in that case (see find_worker_executing_work()).
 			 *
+<<<<<<< HEAD
 			 * Note that the work of one Btrfs filesystem may depend
 			 * on the work of another Btrfs filesystem via, e.g., a
 			 * loop device. Therefore, we must not allow the current
 			 * work item to be recycled until we are really done,
 			 * otherwise we break the above assumption and can
 			 * deadlock.
+=======
+			 * Note that different types of Btrfs work can depend on
+			 * each other, and one type of work on one Btrfs
+			 * filesystem may even depend on the same type of work
+			 * on another Btrfs filesystem via, e.g., a loop device.
+			 * Therefore, we must not allow the current work item to
+			 * be recycled until we are really done, otherwise we
+			 * break the above assumption and can deadlock.
+>>>>>>> upstream/android-13
 			 */
 			free_self = true;
 		} else {
 			/*
 			 * We don't want to call the ordered free functions with
+<<<<<<< HEAD
 			 * the lock held though. Save the work as tag for the
 			 * trace event, because the callback could free the
 			 * structure.
@@ -320,11 +371,19 @@ static void run_ordered_work(struct __btrfs_workqueue *wq,
 			wtag = work;
 			work->ordered_free(work);
 			trace_btrfs_all_work_done(wq->fs_info, wtag);
+=======
+			 * the lock held.
+			 */
+			work->ordered_free(work);
+			/* NB: work must not be dereferenced past this point. */
+			trace_btrfs_all_work_done(wq->fs_info, work);
+>>>>>>> upstream/android-13
 		}
 	}
 	spin_unlock_irqrestore(lock, flags);
 
 	if (free_self) {
+<<<<<<< HEAD
 		wtag = self;
 		self->ordered_free(self);
 		trace_btrfs_all_work_done(wq->fs_info, wtag);
@@ -335,6 +394,19 @@ static void normal_work_helper(struct btrfs_work *work)
 {
 	struct __btrfs_workqueue *wq;
 	void *wtag;
+=======
+		self->ordered_free(self);
+		/* NB: self must not be dereferenced past this point. */
+		trace_btrfs_all_work_done(wq->fs_info, self);
+	}
+}
+
+static void btrfs_work_helper(struct work_struct *normal_work)
+{
+	struct btrfs_work *work = container_of(normal_work, struct btrfs_work,
+					       normal_work);
+	struct __btrfs_workqueue *wq;
+>>>>>>> upstream/android-13
 	int need_order = 0;
 
 	/*
@@ -348,13 +420,17 @@ static void normal_work_helper(struct btrfs_work *work)
 	if (work->ordered_func)
 		need_order = 1;
 	wq = work->wq;
+<<<<<<< HEAD
 	/* Safe for tracepoints in case work gets freed by the callback */
 	wtag = work;
+=======
+>>>>>>> upstream/android-13
 
 	trace_btrfs_work_sched(work);
 	thresh_exec_hook(wq);
 	work->func(work);
 	if (need_order) {
+<<<<<<< HEAD
 		set_bit(WORK_DONE_BIT, &work->flags);
 		run_ordered_work(wq, work);
 	}
@@ -366,11 +442,34 @@ void btrfs_init_work(struct btrfs_work *work, btrfs_work_func_t uniq_func,
 		     btrfs_func_t func,
 		     btrfs_func_t ordered_func,
 		     btrfs_func_t ordered_free)
+=======
+		/*
+		 * Ensures all memory accesses done in the work function are
+		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
+		 * which is going to executed the ordered work sees them.
+		 * Pairs with the smp_rmb in run_ordered_work.
+		 */
+		smp_mb__before_atomic();
+		set_bit(WORK_DONE_BIT, &work->flags);
+		run_ordered_work(wq, work);
+	} else {
+		/* NB: work must not be dereferenced past this point. */
+		trace_btrfs_all_work_done(wq->fs_info, work);
+	}
+}
+
+void btrfs_init_work(struct btrfs_work *work, btrfs_func_t func,
+		     btrfs_func_t ordered_func, btrfs_func_t ordered_free)
+>>>>>>> upstream/android-13
 {
 	work->func = func;
 	work->ordered_func = ordered_func;
 	work->ordered_free = ordered_free;
+<<<<<<< HEAD
 	INIT_WORK(&work->normal_work, uniq_func);
+=======
+	INIT_WORK(&work->normal_work, btrfs_work_helper);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&work->ordered_list);
 	work->flags = 0;
 }

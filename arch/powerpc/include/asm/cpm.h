@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __CPM_H
 #define __CPM_H
@@ -169,3 +170,6 @@ static inline int cpm_command(u32 command, u8 opcode)
 int cpm2_gpiochip_add32(struct device *dev);
 
 #endif
+=======
+#include <soc/fsl/cpm.h>
+>>>>>>> upstream/android-13

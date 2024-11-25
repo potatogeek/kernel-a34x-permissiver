@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qedr NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qedr NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef QEDE_ROCE_H
 #define QEDE_ROCE_H
 
@@ -45,7 +54,12 @@ enum qede_rdma_event {
 	QEDE_UP,
 	QEDE_DOWN,
 	QEDE_CHANGE_ADDR,
+<<<<<<< HEAD
 	QEDE_CLOSE
+=======
+	QEDE_CLOSE,
+	QEDE_CHANGE_MTU,
+>>>>>>> upstream/android-13
 };
 
 struct qede_rdma_event_work {
@@ -74,6 +88,7 @@ void qede_rdma_unregister_driver(struct qedr_driver *drv);
 bool qede_rdma_supported(struct qede_dev *dev);
 
 #if IS_ENABLED(CONFIG_QED_RDMA)
+<<<<<<< HEAD
 int qede_rdma_dev_add(struct qede_dev *dev);
 void qede_rdma_dev_event_open(struct qede_dev *dev);
 void qede_rdma_dev_event_close(struct qede_dev *dev);
@@ -82,13 +97,30 @@ void qede_rdma_event_changeaddr(struct qede_dev *edr);
 
 #else
 static inline int qede_rdma_dev_add(struct qede_dev *dev)
+=======
+int qede_rdma_dev_add(struct qede_dev *dev, bool recovery);
+void qede_rdma_dev_event_open(struct qede_dev *dev);
+void qede_rdma_dev_event_close(struct qede_dev *dev);
+void qede_rdma_dev_remove(struct qede_dev *dev, bool recovery);
+void qede_rdma_event_changeaddr(struct qede_dev *edr);
+void qede_rdma_event_change_mtu(struct qede_dev *edev);
+
+#else
+static inline int qede_rdma_dev_add(struct qede_dev *dev,
+				    bool recovery)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
 static inline void qede_rdma_dev_event_open(struct qede_dev *dev) {}
 static inline void qede_rdma_dev_event_close(struct qede_dev *dev) {}
+<<<<<<< HEAD
 static inline void qede_rdma_dev_remove(struct qede_dev *dev) {}
+=======
+static inline void qede_rdma_dev_remove(struct qede_dev *dev,
+					bool recovery) {}
+>>>>>>> upstream/android-13
 static inline void qede_rdma_event_changeaddr(struct qede_dev *edr) {}
 #endif
 #endif

@@ -46,7 +46,11 @@ int isofs_name_translate(struct iso_directory_record *de, char *new, struct inod
 	return i;
 }
 
+<<<<<<< HEAD
 /* Acorn extensions written by Matthew Wilcox <willy@bofh.ai> 1998 */
+=======
+/* Acorn extensions written by Matthew Wilcox <willy@infradead.org> 1998 */
+>>>>>>> upstream/android-13
 int get_acorn_filename(struct iso_directory_record *de,
 			    char *retname, struct inode *inode)
 {
@@ -235,8 +239,11 @@ static int do_isofs_readdir(struct inode *inode, struct file *file,
 				break;
 		}
 		ctx->pos += de_len;
+<<<<<<< HEAD
 
 		continue;
+=======
+>>>>>>> upstream/android-13
 	}
 	if (bh)
 		brelse(bh);

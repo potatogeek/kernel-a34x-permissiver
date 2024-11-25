@@ -655,7 +655,11 @@ gf100_ram_new_(const struct nvkm_ram_func *func,
 
 static const struct nvkm_ram_func
 gf100_ram = {
+<<<<<<< HEAD
 	.upper = 0x0200000000,
+=======
+	.upper = 0x0200000000ULL,
+>>>>>>> upstream/android-13
 	.probe_fbp = gf100_ram_probe_fbp,
 	.probe_fbp_amount = gf100_ram_probe_fbp_amount,
 	.probe_fbpa_amount = gf100_ram_probe_fbpa_amount,

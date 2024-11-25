@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the Himax HX-8357 LCD Controller
  *
  * Copyright 2012 Free Electrons
+<<<<<<< HEAD
  *
  * Licensed under the GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ALSA driver for the Aureal Vortex family of soundprocessors.
  * Author: Manuel Jander (mjander@embedded.cl)
@@ -40,15 +44,24 @@ MODULE_PARM_DESC(pcifix, "Enable VIA-workaround for " CARD_NAME " soundcard.");
 
 MODULE_DESCRIPTION("Aureal vortex");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Aureal Semiconductor Inc., Aureal Vortex Sound Processor}}");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(pci, snd_vortex_ids);
 
 static void vortex_fix_latency(struct pci_dev *vortex)
 {
 	int rc;
+<<<<<<< HEAD
 	if (!(rc = pci_write_config_byte(vortex, 0x40, 0xff))) {
 			dev_info(&vortex->dev, "vortex latency is 0xff\n");
+=======
+	rc = pci_write_config_byte(vortex, 0x40, 0xff);
+	if (!rc) {
+		dev_info(&vortex->dev, "vortex latency is 0xff\n");
+>>>>>>> upstream/android-13
 	} else {
 		dev_warn(&vortex->dev,
 			 "could not set vortex latency: pci error 0x%x\n", rc);
@@ -66,9 +79,18 @@ static void vortex_fix_agp_bridge(struct pci_dev *via)
 	 * read the config and it is not already set
 	 */
 
+<<<<<<< HEAD
 	if (!(rc = pci_read_config_byte(via, 0x42, &value))
 			&& ((value & 0x10)
 				|| !(rc = pci_write_config_byte(via, 0x42, value | 0x10)))) {
+=======
+	rc = pci_read_config_byte(via, 0x42, &value);
+	if (!rc) {
+		if (!(value & 0x10))
+			rc = pci_write_config_byte(via, 0x42, value | 0x10);
+	}
+	if (!rc) {
+>>>>>>> upstream/android-13
 		dev_info(&via->dev, "bridge config is 0x%x\n", value | 0x10);
 	} else {
 		dev_warn(&via->dev,
@@ -103,6 +125,7 @@ static void snd_vortex_workaround(struct pci_dev *vortex, int fix)
 	} else {
 		if (fix & 0x1)
 			vortex_fix_latency(vortex);
+<<<<<<< HEAD
 		if ((fix & 0x2) && (via = pci_get_device(PCI_VENDOR_ID_VIA,
 				PCI_DEVICE_ID_VIA_8365_1, NULL)))
 			vortex_fix_agp_bridge(via);
@@ -111,6 +134,18 @@ static void snd_vortex_workaround(struct pci_dev *vortex, int fix)
 			vortex_fix_agp_bridge(via);
 		if ((fix & 0x8) && (via = pci_get_device(PCI_VENDOR_ID_AMD,
 				PCI_DEVICE_ID_AMD_FE_GATE_7007, NULL)))
+=======
+		if (fix & 0x2)
+			via = pci_get_device(PCI_VENDOR_ID_VIA,
+					     PCI_DEVICE_ID_VIA_8365_1, NULL);
+		else if (fix & 0x4)
+			via = pci_get_device(PCI_VENDOR_ID_VIA,
+					     PCI_DEVICE_ID_VIA_82C598_1, NULL);
+		else if (fix & 0x8)
+			via = pci_get_device(PCI_VENDOR_ID_AMD,
+					     PCI_DEVICE_ID_AMD_FE_GATE_7007, NULL);
+		if (via)
+>>>>>>> upstream/android-13
 			vortex_fix_agp_bridge(via);
 	}
 	pci_dev_put(via);
@@ -118,6 +153,7 @@ static void snd_vortex_workaround(struct pci_dev *vortex, int fix)
 
 // component-destructor
 // (see "Management of Cards and Components")
+<<<<<<< HEAD
 static int snd_vortex_dev_free(struct snd_device *device)
 {
 	vortex_t *vortex = device->device_data;
@@ -132,11 +168,20 @@ static int snd_vortex_dev_free(struct snd_device *device)
 	kfree(vortex);
 
 	return 0;
+=======
+static void snd_vortex_free(struct snd_card *card)
+{
+	vortex_t *vortex = card->private_data;
+
+	vortex_gameport_unregister(vortex);
+	vortex_core_shutdown(vortex);
+>>>>>>> upstream/android-13
 }
 
 // chip-specific constructor
 // (see "Management of Cards and Components")
 static int
+<<<<<<< HEAD
 snd_vortex_create(struct snd_card *card, struct pci_dev *pci, vortex_t ** rchip)
 {
 	vortex_t *chip;
@@ -163,11 +208,30 @@ snd_vortex_create(struct snd_card *card, struct pci_dev *pci, vortex_t ** rchip)
 		return -ENOMEM;
 	}
 
+=======
+snd_vortex_create(struct snd_card *card, struct pci_dev *pci)
+{
+	vortex_t *chip = card->private_data;
+	int err;
+
+	// check PCI availability (DMA).
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(32))) {
+		dev_err(card->dev, "error to set DMA mask\n");
+		return -ENXIO;
+	}
+
+>>>>>>> upstream/android-13
 	chip->card = card;
 
 	// initialize the stuff
 	chip->pci_dev = pci;
+<<<<<<< HEAD
 	chip->io = pci_resource_start(pci, 0);
+=======
+>>>>>>> upstream/android-13
 	chip->vendor = pci->vendor;
 	chip->device = pci->device;
 	chip->card = card;
@@ -176,6 +240,7 @@ snd_vortex_create(struct snd_card *card, struct pci_dev *pci, vortex_t ** rchip)
 	// (1) PCI resource allocation
 	// Get MMIO area
 	//
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, CARD_NAME_SHORT)) != 0)
 		goto regions_out;
 
@@ -185,10 +250,19 @@ snd_vortex_create(struct snd_card *card, struct pci_dev *pci, vortex_t ** rchip)
 		err = -ENOMEM;
 		goto ioremap_out;
 	}
+=======
+	err = pcim_iomap_regions(pci, 1 << 0, CARD_NAME_SHORT);
+	if (err)
+		return err;
+
+	chip->io = pci_resource_start(pci, 0);
+	chip->mmio = pcim_iomap_table(pci)[0];
+>>>>>>> upstream/android-13
 
 	/* Init audio core.
 	 * This must be done before we do request_irq otherwise we can get spurious
 	 * interrupts that we do not handle properly and make a mess of things */
+<<<<<<< HEAD
 	if ((err = vortex_core_init(chip)) != 0) {
 		dev_err(card->dev, "hw core init failed\n");
 		goto core_out;
@@ -228,11 +302,36 @@ snd_vortex_create(struct snd_card *card, struct pci_dev *pci, vortex_t ** rchip)
 	vortex_gameport_unregister(chip);
 	kfree(chip);
 	return err;
+=======
+	err = vortex_core_init(chip);
+	if (err) {
+		dev_err(card->dev, "hw core init failed\n");
+		return err;
+	}
+
+	err = devm_request_irq(&pci->dev, pci->irq, vortex_interrupt,
+			       IRQF_SHARED, KBUILD_MODNAME, chip);
+	if (err) {
+		dev_err(card->dev, "cannot grab irq\n");
+		return err;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_vortex_free;
+
+	pci_set_master(pci);
+	// End of PCI setup.
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 // constructor -- see "Constructor" sub-section
 static int
+<<<<<<< HEAD
 snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+=======
+__snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -247,6 +346,7 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		return -ENOENT;
 	}
 	// (2)
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -257,6 +357,18 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	// (3)
+	err = snd_vortex_create(card, pci);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	snd_vortex_workaround(pci, pcifix[dev]);
 
 	// Card details needed in snd_vortex_midi
@@ -267,6 +379,7 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 
 	// (4) Alloc components.
 	err = snd_vortex_mixer(chip);
+<<<<<<< HEAD
 	if (err < 0) {
 		snd_card_free(card);
 		return err;
@@ -288,16 +401,37 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		snd_card_free(card);
 		return err;
 	}
+=======
+	if (err < 0)
+		return err;
+	// ADB pcm.
+	err = snd_vortex_new_pcm(chip, VORTEX_PCM_ADB, NR_PCM);
+	if (err < 0)
+		return err;
+#ifndef CHIP_AU8820
+	// ADB SPDIF
+	err = snd_vortex_new_pcm(chip, VORTEX_PCM_SPDIF, 1);
+	if (err < 0)
+		return err;
+	// A3D
+	err = snd_vortex_new_pcm(chip, VORTEX_PCM_A3D, NR_A3D);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 #endif
 	/*
 	   // ADB I2S
 	   if ((err = snd_vortex_new_pcm(chip, VORTEX_PCM_I2S, 1)) < 0) {
+<<<<<<< HEAD
 	   snd_card_free(card);
+=======
+>>>>>>> upstream/android-13
 	   return err;
 	   }
 	 */
 #ifndef CHIP_AU8810
 	// WT pcm.
+<<<<<<< HEAD
 	if ((err = snd_vortex_new_pcm(chip, VORTEX_PCM_WT, NR_WT)) < 0) {
 		snd_card_free(card);
 		return err;
@@ -307,6 +441,15 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_vortex_new_pcm(chip, VORTEX_PCM_WT, NR_WT);
+	if (err < 0)
+		return err;
+#endif
+	err = snd_vortex_midi(chip);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	vortex_gameport_register(chip);
 
@@ -328,6 +471,7 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 #endif
 
 	// (5)
+<<<<<<< HEAD
 	if ((err = pci_read_config_word(pci, PCI_DEVICE_ID,
 				  &(chip->device))) < 0) {
 		snd_card_free(card);
@@ -338,6 +482,14 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = pci_read_config_word(pci, PCI_DEVICE_ID, &chip->device);
+	if (err < 0)
+		return err;
+	err = pci_read_config_word(pci, PCI_VENDOR_ID, &chip->vendor);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	chip->rev = pci->revision;
 #ifdef CHIP_AU8830
 	if ((chip->rev) != 0xfe && (chip->rev) != 0xfa) {
@@ -346,17 +498,27 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 		       chip->rev);
 		dev_alert(card->dev,
 			  "Please email the results of 'lspci -vv' to openvortex-dev@nongnu.org.\n");
+<<<<<<< HEAD
 		snd_card_free(card);
 		err = -ENODEV;
 		return err;
+=======
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 #endif
 
 	// (6)
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0) {
 		snd_card_free(card);
 		return err;
 	}
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	// (7)
 	pci_set_drvdata(pci, card);
 	dev++;
@@ -365,10 +527,17 @@ snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 	return 0;
 }
 
+<<<<<<< HEAD
 // destructor -- see "Destructor" sub-section
 static void snd_vortex_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+static int
+snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_vortex_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 // pci_driver definition
@@ -376,7 +545,10 @@ static struct pci_driver vortex_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_vortex_ids,
 	.probe = snd_vortex_probe,
+<<<<<<< HEAD
 	.remove = snd_vortex_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(vortex_driver);

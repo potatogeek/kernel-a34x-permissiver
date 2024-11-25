@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,6 +61,14 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ * Copyright (C) 2018-2020 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_commands_h__
 #define __iwl_fw_api_commands_h__
 
@@ -77,7 +86,12 @@
  * @DATA_PATH_GROUP: data path group, uses command IDs from
  *	&enum iwl_data_path_subcmd_ids
  * @NAN_GROUP: NAN group, uses command IDs from &enum iwl_nan_subcmd_ids
+<<<<<<< HEAD
  * @TOF_GROUP: TOF group, uses command IDs from &enum iwl_tof_subcmd_ids
+=======
+ * @LOCATION_GROUP: location group, uses command IDs from
+ *	&enum iwl_location_subcmd_ids
+>>>>>>> upstream/android-13
  * @PROT_OFFLOAD_GROUP: protocol offload group, uses command IDs from
  *	&enum iwl_prot_offload_subcmd_ids
  * @REGULATORY_AND_NVM_GROUP: regulatory/NVM group, uses command IDs from
@@ -92,7 +106,11 @@ enum iwl_mvm_command_groups {
 	PHY_OPS_GROUP = 0x4,
 	DATA_PATH_GROUP = 0x5,
 	NAN_GROUP = 0x7,
+<<<<<<< HEAD
 	TOF_GROUP = 0x8,
+=======
+	LOCATION_GROUP = 0x8,
+>>>>>>> upstream/android-13
 	PROT_OFFLOAD_GROUP = 0xb,
 	REGULATORY_AND_NVM_GROUP = 0xc,
 	DEBUG_GROUP = 0xf,
@@ -103,11 +121,20 @@ enum iwl_mvm_command_groups {
  */
 enum iwl_legacy_cmds {
 	/**
+<<<<<<< HEAD
 	 * @MVM_ALIVE:
 	 * Alive data from the firmware, as described in
 	 * &struct mvm_alive_resp_v3 or &struct mvm_alive_resp.
 	 */
 	MVM_ALIVE = 0x1,
+=======
+	 * @UCODE_ALIVE_NTFY:
+	 * Alive data from the firmware, as described in
+	 * &struct iwl_alive_ntf_v3 or &struct iwl_alive_ntf_v4 or
+	 * &struct iwl_alive_ntf_v5.
+	 */
+	UCODE_ALIVE_NTFY = 0x1,
+>>>>>>> upstream/android-13
 
 	/**
 	 * @REPLY_ERROR: Cause an error in the firmware, for testing purposes.
@@ -321,7 +348,11 @@ enum iwl_legacy_cmds {
 
 	/**
 	 * @SCAN_OFFLOAD_UPDATE_PROFILES_CMD:
+<<<<<<< HEAD
 	 * update scan offload (scheduled scan) profiles/blacklist/etc.
+=======
+	 * update scan offload (scheduled scan) profiles/blocklist/etc.
+>>>>>>> upstream/android-13
 	 */
 	SCAN_OFFLOAD_UPDATE_PROFILES_CMD = 0x6E,
 
@@ -338,7 +369,11 @@ enum iwl_legacy_cmds {
 
 	/* Phy */
 	/**
+<<<<<<< HEAD
 	 * @PHY_CONFIGURATION_CMD: &struct iwl_phy_cfg_cmd
+=======
+	 * @PHY_CONFIGURATION_CMD: &struct iwl_phy_cfg_cmd_v1 or &struct iwl_phy_cfg_cmd_v3
+>>>>>>> upstream/android-13
 	 */
 	PHY_CONFIGURATION_CMD = 0x6a,
 
@@ -353,6 +388,7 @@ enum iwl_legacy_cmds {
 	PHY_DB_CMD = 0x6c,
 
 	/**
+<<<<<<< HEAD
 	 * @TOF_CMD: &struct iwl_tof_config_cmd
 	 */
 	TOF_CMD = 0x10,
@@ -363,6 +399,8 @@ enum iwl_legacy_cmds {
 	TOF_NOTIFICATION = 0x11,
 
 	/**
+=======
+>>>>>>> upstream/android-13
 	 * @POWER_TABLE_CMD: &struct iwl_device_power_cmd
 	 */
 	POWER_TABLE_CMD = 0x77,
@@ -415,7 +453,16 @@ enum iwl_legacy_cmds {
 	TX_ANT_CONFIGURATION_CMD = 0x98,
 
 	/**
+<<<<<<< HEAD
 	 * @STATISTICS_CMD: &struct iwl_statistics_cmd
+=======
+	 * @STATISTICS_CMD:
+	 * one of &struct iwl_statistics_cmd,
+	 * &struct iwl_notif_statistics_v11,
+	 * &struct iwl_notif_statistics_v10,
+	 * &struct iwl_notif_statistics,
+	 * &struct iwl_statistics_operational_ntfy
+>>>>>>> upstream/android-13
 	 */
 	STATISTICS_CMD = 0x9c,
 
@@ -423,7 +470,12 @@ enum iwl_legacy_cmds {
 	 * @STATISTICS_NOTIFICATION:
 	 * one of &struct iwl_notif_statistics_v10,
 	 * &struct iwl_notif_statistics_v11,
+<<<<<<< HEAD
 	 * &struct iwl_notif_statistics_cdb
+=======
+	 * &struct iwl_notif_statistic,
+	 * &struct iwl_statistics_operational_ntfy
+>>>>>>> upstream/android-13
 	 */
 	STATISTICS_NOTIFICATION = 0x9d,
 
@@ -436,7 +488,11 @@ enum iwl_legacy_cmds {
 
 	/**
 	 * @REDUCE_TX_POWER_CMD:
+<<<<<<< HEAD
 	 * &struct iwl_dev_tx_power_cmd_v3 or &struct iwl_dev_tx_power_cmd
+=======
+	 * &struct iwl_dev_tx_power_cmd
+>>>>>>> upstream/android-13
 	 */
 	REDUCE_TX_POWER_CMD = 0x9f,
 
@@ -479,6 +535,16 @@ enum iwl_legacy_cmds {
 	REPLY_RX_MPDU_CMD = 0xc1,
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @BAR_FRAME_RELEASE: Frame release from BAR notification, used for
+	 *	multi-TID BAR (previously, the BAR frame itself was reported
+	 *	instead). Uses &struct iwl_bar_frame_release.
+	 */
+	BAR_FRAME_RELEASE = 0xc2,
+
+	/**
+>>>>>>> upstream/android-13
 	 * @FRAME_RELEASE:
 	 * Frame release (reorder helper) notification, uses
 	 * &struct iwl_frame_release
@@ -586,11 +652,14 @@ enum iwl_legacy_cmds {
 	OFFLOADS_QUERY_CMD = 0xd5,
 
 	/**
+<<<<<<< HEAD
 	 * @REMOTE_WAKE_CONFIG_CMD: &struct iwl_wowlan_remote_wake_config
 	 */
 	REMOTE_WAKE_CONFIG_CMD = 0xd6,
 
 	/**
+=======
+>>>>>>> upstream/android-13
 	 * @D0I3_END_CMD: End D0i3/D3 state, no command data
 	 */
 	D0I3_END_CMD = 0xed,
@@ -606,7 +675,12 @@ enum iwl_legacy_cmds {
 	WOWLAN_CONFIGURATION = 0xe1,
 
 	/**
+<<<<<<< HEAD
 	 * @WOWLAN_TSC_RSC_PARAM: &struct iwl_wowlan_rsc_tsc_params_cmd
+=======
+	 * @WOWLAN_TSC_RSC_PARAM: &struct iwl_wowlan_rsc_tsc_params_cmd_v4,
+	 *	&struct iwl_wowlan_rsc_tsc_params_cmd
+>>>>>>> upstream/android-13
 	 */
 	WOWLAN_TSC_RSC_PARAM = 0xe2,
 
@@ -644,9 +718,35 @@ enum iwl_system_subcmd_ids {
 	SHARED_MEM_CFG_CMD = 0x0,
 
 	/**
+<<<<<<< HEAD
 	 * @INIT_EXTENDED_CFG_CMD: &struct iwl_init_extended_cfg_cmd
 	 */
 	INIT_EXTENDED_CFG_CMD = 0x03,
+=======
+	 * @SOC_CONFIGURATION_CMD: &struct iwl_soc_configuration_cmd
+	 */
+	SOC_CONFIGURATION_CMD = 0x01,
+
+	/**
+	 * @INIT_EXTENDED_CFG_CMD: &struct iwl_init_extended_cfg_cmd
+	 */
+	INIT_EXTENDED_CFG_CMD = 0x03,
+
+	/**
+	 * @FW_ERROR_RECOVERY_CMD: &struct iwl_fw_error_recovery_cmd
+	 */
+	FW_ERROR_RECOVERY_CMD = 0x7,
+
+	/**
+	 * @RFI_CONFIG_CMD: &struct iwl_rfi_config_cmd
+	 */
+	RFI_CONFIG_CMD = 0xb,
+
+	/**
+	 * @RFI_GET_FREQ_TABLE_CMD: &struct iwl_rfi_config_cmd
+	 */
+	RFI_GET_FREQ_TABLE_CMD = 0xc,
+>>>>>>> upstream/android-13
 };
 
 #endif /* __iwl_fw_api_commands_h__ */

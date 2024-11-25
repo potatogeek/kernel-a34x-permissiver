@@ -18,12 +18,19 @@
 #include <linux/mc146818rtc.h>
 #include <linux/rtc.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ptrace.h>
 #include <asm/smp.h>
 #include <asm/gct.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/vga.h>
 
@@ -82,7 +89,14 @@ mk_resource_name(int pe, int port, char *str)
 	char *name;
 	
 	sprintf(tmp, "PCI %s PE %d PORT %d", str, pe, port);
+<<<<<<< HEAD
 	name = alloc_bootmem(strlen(tmp) + 1);
+=======
+	name = memblock_alloc(strlen(tmp) + 1, SMP_CACHE_BYTES);
+	if (!name)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      strlen(tmp) + 1);
+>>>>>>> upstream/android-13
 	strcpy(name, tmp);
 
 	return name;
@@ -117,7 +131,14 @@ alloc_io7(unsigned int pe)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	io7 = alloc_bootmem(sizeof(*io7));
+=======
+	io7 = memblock_alloc(sizeof(*io7), SMP_CACHE_BYTES);
+	if (!io7)
+		panic("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(*io7));
+>>>>>>> upstream/android-13
 	io7->pe = pe;
 	raw_spin_lock_init(&io7->irq_lock);
 
@@ -282,8 +303,12 @@ io7_init_hose(struct io7 *io7, int port)
 	/*
 	 * Set up window 0 for scatter-gather 8MB at 8MB.
 	 */
+<<<<<<< HEAD
 	hose->sg_isa = iommu_arena_new_node(marvel_cpuid_to_nid(io7->pe),
 					    hose, 0x00800000, 0x00800000, 0);
+=======
+	hose->sg_isa = iommu_arena_new_node(0, hose, 0x00800000, 0x00800000, 0);
+>>>>>>> upstream/android-13
 	hose->sg_isa->align_entry = 8;	/* cache line boundary */
 	csrs->POx_WBASE[0].csr = 
 		hose->sg_isa->dma_base | wbase_m_ena | wbase_m_sg;
@@ -300,8 +325,12 @@ io7_init_hose(struct io7 *io7, int port)
 	/*
 	 * Set up window 2 for scatter-gather (up-to) 1GB at 3GB.
 	 */
+<<<<<<< HEAD
 	hose->sg_pci = iommu_arena_new_node(marvel_cpuid_to_nid(io7->pe),
 					    hose, 0xc0000000, 0x40000000, 0);
+=======
+	hose->sg_pci = iommu_arena_new_node(0, hose, 0xc0000000, 0x40000000, 0);
+>>>>>>> upstream/android-13
 	hose->sg_pci->align_entry = 8;	/* cache line boundary */
 	csrs->POx_WBASE[2].csr = 
 		hose->sg_pci->dma_base | wbase_m_ena | wbase_m_sg;
@@ -801,7 +830,11 @@ void __iomem *marvel_ioportmap (unsigned long addr)
 }
 
 unsigned int
+<<<<<<< HEAD
 marvel_ioread8(void __iomem *xaddr)
+=======
+marvel_ioread8(const void __iomem *xaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long addr = (unsigned long) xaddr;
 	if (__marvel_is_port_kbd(addr))
@@ -838,6 +871,7 @@ EXPORT_SYMBOL(marvel_ioportmap);
 EXPORT_SYMBOL(marvel_ioread8);
 EXPORT_SYMBOL(marvel_iowrite8);
 #endif
+<<<<<<< HEAD
 
 /*
  * NUMA Support
@@ -885,6 +919,10 @@ marvel_node_mem_size(int nid)
 
 
 /* 
+=======
+
+/*
+>>>>>>> upstream/android-13
  * AGP GART Support.
  */
 #include <linux/agp_backend.h>

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /* Linux driver for devices based on the DiBcom DiB0700 USB bridge
  *
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the Free
  *	Software Foundation, version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Linux driver for devices based on the DiBcom DiB0700 USB bridge
+ *
+>>>>>>> upstream/android-13
  *  Copyright (C) 2005-6 DiBcom, SA
  */
 #include "dib0700.h"
@@ -375,8 +381,15 @@ struct i2c_algorithm dib0700_i2c_algo = {
 	.functionality = dib0700_i2c_func,
 };
 
+<<<<<<< HEAD
 int dib0700_identify_state(struct usb_device *udev, struct dvb_usb_device_properties *props,
 			struct dvb_usb_device_description **desc, int *cold)
+=======
+int dib0700_identify_state(struct usb_device *udev,
+			   const struct dvb_usb_device_properties *props,
+			   const struct dvb_usb_device_description **desc,
+			   int *cold)
+>>>>>>> upstream/android-13
 {
 	s16 ret;
 	u8 *b;
@@ -619,8 +632,11 @@ int dib0700_streaming_ctrl(struct dvb_usb_adapter *adap, int onoff)
 		deb_info("the endpoint number (%i) is not correct, use the adapter id instead", adap->fe_adap[0].stream.props.endpoint);
 		if (onoff)
 			st->channel_state |=	1 << (adap->id);
+<<<<<<< HEAD
 		else
 			st->channel_state |=	1 << ~(adap->id);
+=======
+>>>>>>> upstream/android-13
 	} else {
 		if (onoff)
 			st->channel_state |=	1 << (adap->fe_adap[0].stream.props.endpoint-2);

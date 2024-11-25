@@ -7,10 +7,20 @@
 #include <linux/bitops.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/syscore_ops.h>
 #include <dt-bindings/clock/jz4770-cgu.h>
 #include "cgu.h"
+=======
+#include <linux/io.h>
+#include <linux/of.h>
+
+#include <dt-bindings/clock/jz4770-cgu.h>
+
+#include "cgu.h"
+#include "pm.h"
+>>>>>>> upstream/android-13
 
 /*
  * CPM registers offset address definition
@@ -37,9 +47,12 @@
 #define CGU_REG_MSC2CDR		0xA8
 #define CGU_REG_BCHCDR		0xAC
 
+<<<<<<< HEAD
 /* bits within the LCR register */
 #define LCR_LPM			BIT(0)		/* Low Power Mode */
 
+=======
+>>>>>>> upstream/android-13
 /* bits within the OPCR register */
 #define OPCR_SPENDH		BIT(5)		/* UHC PHY suspend */
 
@@ -86,6 +99,13 @@ static const s8 pll_od_encoding[8] = {
 	0x0, 0x1, -1, 0x2, -1, -1, -1, 0x3,
 };
 
+<<<<<<< HEAD
+=======
+static const u8 jz4770_cgu_cpccr_div_table[] = {
+	1, 2, 3, 4, 6, 8, 12,
+};
+
+>>>>>>> upstream/android-13
 static const struct ingenic_cgu_clk_info jz4770_cgu_clocks[] = {
 
 	/* External clocks */
@@ -100,6 +120,10 @@ static const struct ingenic_cgu_clk_info jz4770_cgu_clocks[] = {
 		.parents = { JZ4770_CLK_EXT },
 		.pll = {
 			.reg = CGU_REG_CPPCR0,
+<<<<<<< HEAD
+=======
+			.rate_multiplier = 1,
+>>>>>>> upstream/android-13
 			.m_shift = 24,
 			.m_bits = 7,
 			.m_offset = 1,
@@ -110,6 +134,10 @@ static const struct ingenic_cgu_clk_info jz4770_cgu_clocks[] = {
 			.od_bits = 2,
 			.od_max = 8,
 			.od_encoding = pll_od_encoding,
+<<<<<<< HEAD
+=======
+			.bypass_reg = CGU_REG_CPPCR0,
+>>>>>>> upstream/android-13
 			.bypass_bit = 9,
 			.enable_bit = 8,
 			.stable_bit = 10,
@@ -122,6 +150,10 @@ static const struct ingenic_cgu_clk_info jz4770_cgu_clocks[] = {
 		.parents = { JZ4770_CLK_EXT },
 		.pll = {
 			.reg = CGU_REG_CPPCR1,
+<<<<<<< HEAD
+=======
+			.rate_multiplier = 1,
+>>>>>>> upstream/android-13
 			.m_shift = 24,
 			.m_bits = 7,
 			.m_offset = 1,
@@ -132,9 +164,15 @@ static const struct ingenic_cgu_clk_info jz4770_cgu_clocks[] = {
 			.od_bits = 2,
 			.od_max = 8,
 			.od_encoding = pll_od_encoding,
+<<<<<<< HEAD
 			.enable_bit = 7,
 			.stable_bit = 6,
 			.no_bypass_bit = true,
+=======
+			.bypass_bit = -1,
+			.enable_bit = 7,
+			.stable_bit = 6,
+>>>>>>> upstream/android-13
 		},
 	},
 
@@ -143,34 +181,76 @@ static const struct ingenic_cgu_clk_info jz4770_cgu_clocks[] = {
 	[JZ4770_CLK_CCLK] = {
 		"cclk", CGU_CLK_DIV,
 		.parents = { JZ4770_CLK_PLL0, },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 0, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 0, 1, 4, 22, -1, -1, 0,
+			jz4770_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 	[JZ4770_CLK_H0CLK] = {
 		"h0clk", CGU_CLK_DIV,
 		.parents = { JZ4770_CLK_PLL0, },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 4, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 4, 1, 4, 22, -1, -1, 0,
+			jz4770_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 	[JZ4770_CLK_H1CLK] = {
 		"h1clk", CGU_CLK_DIV | CGU_CLK_GATE,
 		.parents = { JZ4770_CLK_PLL0, },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 24, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 24, 1, 4, 22, -1, -1, 0,
+			jz4770_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 		.gate = { CGU_REG_CLKGR1, 7 },
 	},
 	[JZ4770_CLK_H2CLK] = {
 		"h2clk", CGU_CLK_DIV,
 		.parents = { JZ4770_CLK_PLL0, },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 16, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 16, 1, 4, 22, -1, -1, 0,
+			jz4770_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 	[JZ4770_CLK_C1CLK] = {
 		"c1clk", CGU_CLK_DIV | CGU_CLK_GATE,
 		.parents = { JZ4770_CLK_PLL0, },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 12, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 12, 1, 4, 22, -1, -1, 0,
+			jz4770_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 		.gate = { CGU_REG_OPCR, 31, true }, // disable CCLK stop on idle
 	},
 	[JZ4770_CLK_PCLK] = {
 		"pclk", CGU_CLK_DIV,
 		.parents = { JZ4770_CLK_PLL0, },
+<<<<<<< HEAD
 		.div = { CGU_REG_CPCCR, 8, 1, 4, 22, -1, -1 },
+=======
+		.div = {
+			CGU_REG_CPCCR, 8, 1, 4, 22, -1, -1, 0,
+			jz4770_cgu_cpccr_div_table,
+		},
+>>>>>>> upstream/android-13
 	},
 
 	/* Those divided clocks can connect to PLL0 or PLL1 */
@@ -406,6 +486,7 @@ static const struct ingenic_cgu_clk_info jz4770_cgu_clocks[] = {
 	},
 };
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_PM_SLEEP)
 static int jz4770_cgu_pm_suspend(void)
 {
@@ -430,6 +511,8 @@ static struct syscore_ops jz4770_cgu_pm_ops = {
 };
 #endif /* CONFIG_PM_SLEEP */
 
+=======
+>>>>>>> upstream/android-13
 static void __init jz4770_cgu_init(struct device_node *np)
 {
 	int retval;
@@ -445,6 +528,7 @@ static void __init jz4770_cgu_init(struct device_node *np)
 	if (retval)
 		pr_err("%s: failed to register CGU Clocks\n", __func__);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_PM_SLEEP)
 	register_syscore_ops(&jz4770_cgu_pm_ops);
 #endif
@@ -452,3 +536,10 @@ static void __init jz4770_cgu_init(struct device_node *np)
 
 /* We only probe via devicetree, no need for a platform driver */
 CLK_OF_DECLARE(jz4770_cgu, "ingenic,jz4770-cgu", jz4770_cgu_init);
+=======
+	ingenic_cgu_register_syscore_ops(cgu);
+}
+
+/* We only probe via devicetree, no need for a platform driver */
+CLK_OF_DECLARE_DRIVER(jz4770_cgu, "ingenic,jz4770-cgu", jz4770_cgu_init);
+>>>>>>> upstream/android-13

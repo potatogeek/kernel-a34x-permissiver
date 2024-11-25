@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Cleancache frontend
  *
@@ -7,8 +11,11 @@
  *
  * Copyright (C) 2009-2010 Oracle Corp. All rights reserved.
  * Author: Dan Magenheimer
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -301,12 +308,33 @@ void __cleancache_invalidate_fs(struct super_block *sb)
 }
 EXPORT_SYMBOL(__cleancache_invalidate_fs);
 
+<<<<<<< HEAD
+=======
+int rbin_oem_func(int cmd, int *stats)
+{
+	rbin_module_oem_func module_fn;
+
+	if (!cleancache_ops)
+		return 0;
+
+	module_fn = (rbin_module_oem_func)cleancache_ops->android_oem_data1;
+	if (module_fn)
+		return module_fn(cmd, stats);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int __init init_cleancache(void)
 {
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *root = debugfs_create_dir("cleancache", NULL);
+<<<<<<< HEAD
 	if (root == NULL)
 		return -ENXIO;
+=======
+
+>>>>>>> upstream/android-13
 	debugfs_create_u64("succ_gets", 0444, root, &cleancache_succ_gets);
 	debugfs_create_u64("failed_gets", 0444, root, &cleancache_failed_gets);
 	debugfs_create_u64("puts", 0444, root, &cleancache_puts);

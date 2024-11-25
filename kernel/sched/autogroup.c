@@ -31,7 +31,11 @@ static inline void autogroup_destroy(struct kref *kref)
 	ag->tg->rt_se = NULL;
 	ag->tg->rt_rq = NULL;
 #endif
+<<<<<<< HEAD
 	sched_offline_group(ag->tg);
+=======
+	sched_release_group(ag->tg);
+>>>>>>> upstream/android-13
 	sched_destroy_group(ag->tg);
 }
 

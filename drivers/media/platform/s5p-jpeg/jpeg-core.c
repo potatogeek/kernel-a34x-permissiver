@@ -1,14 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* linux/drivers/media/platform/s5p-jpeg/jpeg-core.c
  *
  * Copyright (c) 2011-2014 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
  * Author: Jacek Anaszewski <j.anaszewski@samsung.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+ * Author: Jacek Anaszewski <j.anaszewski@samsung.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -27,6 +36,10 @@
 #include <media/v4l2-event.h>
 #include <media/v4l2-mem2mem.h>
 #include <media/v4l2-ioctl.h>
+<<<<<<< HEAD
+=======
+#include <media/v4l2-rect.h>
+>>>>>>> upstream/android-13
 #include <media/videobuf2-v4l2.h>
 #include <media/videobuf2-dma-contig.h>
 
@@ -38,7 +51,10 @@
 
 static struct s5p_jpeg_fmt sjpeg_formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "JPEG JFIF",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_JPEG,
 		.flags		= SJPEG_FMT_FLAG_ENC_CAPTURE |
 				  SJPEG_FMT_FLAG_DEC_OUTPUT |
@@ -47,7 +63,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 				  SJPEG_FMT_FLAG_EXYNOS4,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCbYCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUYV,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -60,7 +79,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCbYCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUYV,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -73,7 +95,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCbYCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUYV,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -86,7 +111,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCrYCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YVYU,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -99,7 +127,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCrYCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YVYU,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -112,7 +143,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCrYCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_UYVY,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -125,7 +159,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCrYCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_VYUY,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -138,7 +175,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "RGB565",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB565,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -151,7 +191,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "RGB565",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB565,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -164,7 +207,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "RGB565X",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB565X,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -177,7 +223,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "RGB565",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB565,
 		.depth		= 16,
 		.colplanes	= 1,
@@ -189,7 +238,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "ARGB8888, 32 bpp",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB32,
 		.depth		= 32,
 		.colplanes	= 1,
@@ -202,7 +254,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "ARGB8888, 32 bpp",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_RGB32,
 		.depth		= 32,
 		.colplanes	= 1,
@@ -215,7 +270,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:4:4 planar, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV24,
 		.depth		= 24,
 		.colplanes	= 2,
@@ -228,7 +286,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:4:4 planar, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV42,
 		.depth		= 24,
 		.colplanes	= 2,
@@ -241,7 +302,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_444,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 planar, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV61,
 		.depth		= 16,
 		.colplanes	= 2,
@@ -254,7 +318,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 planar, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV16,
 		.depth		= 16,
 		.colplanes	= 2,
@@ -267,7 +334,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_422,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV12,
 		.depth		= 12,
 		.colplanes	= 2,
@@ -280,7 +350,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV12,
 		.depth		= 12,
 		.colplanes	= 2,
@@ -293,7 +366,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, Y/CbCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV12,
 		.depth		= 12,
 		.colplanes	= 2,
@@ -306,7 +382,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV21,
 		.depth		= 12,
 		.colplanes	= 2,
@@ -319,7 +398,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 planar, Y/CrCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_NV21,
 		.depth		= 12,
 		.colplanes	= 2,
@@ -333,7 +415,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 contiguous 3-planar, Y/Cb/Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUV420,
 		.depth		= 12,
 		.colplanes	= 3,
@@ -346,7 +431,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:0 contiguous 3-planar, Y/Cb/Cr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUV420,
 		.depth		= 12,
 		.colplanes	= 3,
@@ -359,7 +447,10 @@ static struct s5p_jpeg_fmt sjpeg_formats[] = {
 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
 	},
 	{
+<<<<<<< HEAD
 		.name		= "Gray",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_GREY,
 		.depth		= 8,
 		.colplanes	= 1,
@@ -1168,8 +1259,13 @@ static bool s5p_jpeg_parse_hdr(struct s5p_jpeg_q_data *result,
 			continue;
 		length = 0;
 		switch (c) {
+<<<<<<< HEAD
 		/* SOF0: baseline JPEG */
 		case SOF0:
+=======
+		/* JPEG_MARKER_SOF0: baseline JPEG */
+		case JPEG_MARKER_SOF0:
+>>>>>>> upstream/android-13
 			if (get_word_be(&jpeg_buffer, &word))
 				break;
 			length = (long)word - 2;
@@ -1200,7 +1296,11 @@ static bool s5p_jpeg_parse_hdr(struct s5p_jpeg_q_data *result,
 			notfound = 0;
 			break;
 
+<<<<<<< HEAD
 		case DQT:
+=======
+		case JPEG_MARKER_DQT:
+>>>>>>> upstream/android-13
 			if (get_word_be(&jpeg_buffer, &word))
 				break;
 			length = (long)word - 2;
@@ -1213,7 +1313,11 @@ static bool s5p_jpeg_parse_hdr(struct s5p_jpeg_q_data *result,
 			skip(&jpeg_buffer, length);
 			break;
 
+<<<<<<< HEAD
 		case DHT:
+=======
+		case JPEG_MARKER_DHT:
+>>>>>>> upstream/android-13
 			if (get_word_be(&jpeg_buffer, &word))
 				break;
 			length = (long)word - 2;
@@ -1226,15 +1330,26 @@ static bool s5p_jpeg_parse_hdr(struct s5p_jpeg_q_data *result,
 			skip(&jpeg_buffer, length);
 			break;
 
+<<<<<<< HEAD
 		case SOS:
+=======
+		case JPEG_MARKER_SOS:
+>>>>>>> upstream/android-13
 			sos = jpeg_buffer.curr - 2; /* 0xffda */
 			break;
 
 		/* skip payload-less markers */
+<<<<<<< HEAD
 		case RST ... RST + 7:
 		case SOI:
 		case EOI:
 		case TEM:
+=======
+		case JPEG_MARKER_RST ... JPEG_MARKER_RST + 7:
+		case JPEG_MARKER_SOI:
+		case JPEG_MARKER_EOI:
+		case JPEG_MARKER_TEM:
+>>>>>>> upstream/android-13
 			break;
 
 		/* skip uninteresting payload markers */
@@ -1265,7 +1380,10 @@ static bool s5p_jpeg_parse_hdr(struct s5p_jpeg_q_data *result,
 	}
 	result->sof = sof;
 	result->sof_len = sof_len;
+<<<<<<< HEAD
 	result->components = components;
+=======
+>>>>>>> upstream/android-13
 
 	return true;
 }
@@ -1276,6 +1394,7 @@ static int s5p_jpeg_querycap(struct file *file, void *priv,
 	struct s5p_jpeg_ctx *ctx = fh_to_ctx(priv);
 
 	if (ctx->mode == S5P_JPEG_ENCODE) {
+<<<<<<< HEAD
 		strlcpy(cap->driver, S5P_JPEG_M2M_NAME,
 			sizeof(cap->driver));
 		strlcpy(cap->card, S5P_JPEG_M2M_NAME " encoder",
@@ -1284,12 +1403,25 @@ static int s5p_jpeg_querycap(struct file *file, void *priv,
 		strlcpy(cap->driver, S5P_JPEG_M2M_NAME,
 			sizeof(cap->driver));
 		strlcpy(cap->card, S5P_JPEG_M2M_NAME " decoder",
+=======
+		strscpy(cap->driver, S5P_JPEG_M2M_NAME,
+			sizeof(cap->driver));
+		strscpy(cap->card, S5P_JPEG_M2M_NAME " encoder",
+			sizeof(cap->card));
+	} else {
+		strscpy(cap->driver, S5P_JPEG_M2M_NAME,
+			sizeof(cap->driver));
+		strscpy(cap->card, S5P_JPEG_M2M_NAME " decoder",
+>>>>>>> upstream/android-13
 			sizeof(cap->card));
 	}
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 dev_name(ctx->jpeg->dev));
+<<<<<<< HEAD
 	cap->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_M2M;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1317,7 +1449,10 @@ static int enum_fmt(struct s5p_jpeg_ctx *ctx,
 	if (i >= n)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, sjpeg_formats[i].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = sjpeg_formats[i].fourcc;
 
 	return 0;
@@ -1768,6 +1903,7 @@ static int exynos3250_jpeg_try_downscale(struct s5p_jpeg_ctx *ctx,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Return 1 if rectangle a is enclosed in rectangle b, or 0 otherwise. */
 static int enclosed_rectangle(struct v4l2_rect *a, struct v4l2_rect *b)
 {
@@ -1781,6 +1917,8 @@ static int enclosed_rectangle(struct v4l2_rect *a, struct v4l2_rect *b)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int exynos3250_jpeg_try_crop(struct s5p_jpeg_ctx *ctx,
 				   struct v4l2_rect *r)
 {
@@ -1813,7 +1951,11 @@ static int exynos3250_jpeg_try_crop(struct s5p_jpeg_ctx *ctx,
 	r->left = round_down(r->left, 2);
 	r->top = round_down(r->top, 2);
 
+<<<<<<< HEAD
 	if (!enclosed_rectangle(r, &base_rect))
+=======
+	if (!v4l2_rect_enclosed(r, &base_rect))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	ctx->crop_rect.left = r->left;
@@ -2611,11 +2753,16 @@ static void s5p_jpeg_buf_queue(struct vb2_buffer *vb)
 static int s5p_jpeg_start_streaming(struct vb2_queue *q, unsigned int count)
 {
 	struct s5p_jpeg_ctx *ctx = vb2_get_drv_priv(q);
+<<<<<<< HEAD
 	int ret;
 
 	ret = pm_runtime_get_sync(ctx->jpeg->dev);
 
 	return ret > 0 ? 0 : ret;
+=======
+
+	return pm_runtime_resume_and_get(ctx->jpeg->dev);
+>>>>>>> upstream/android-13
 }
 
 static void s5p_jpeg_stop_streaming(struct vb2_queue *q)
@@ -2907,6 +3054,11 @@ static int s5p_jpeg_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	jpeg->variant = jpeg_get_drv_data(&pdev->dev);
+<<<<<<< HEAD
+=======
+	if (!jpeg->variant)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	mutex_init(&jpeg->lock);
 	spin_lock_init(&jpeg->slock);
@@ -2977,8 +3129,14 @@ static int s5p_jpeg_probe(struct platform_device *pdev)
 	jpeg->vfd_encoder->lock		= &jpeg->lock;
 	jpeg->vfd_encoder->v4l2_dev	= &jpeg->v4l2_dev;
 	jpeg->vfd_encoder->vfl_dir	= VFL_DIR_M2M;
+<<<<<<< HEAD
 
 	ret = video_register_device(jpeg->vfd_encoder, VFL_TYPE_GRABBER, -1);
+=======
+	jpeg->vfd_encoder->device_caps	= V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_M2M;
+
+	ret = video_register_device(jpeg->vfd_encoder, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		v4l2_err(&jpeg->v4l2_dev, "Failed to register video device\n");
 		video_device_release(jpeg->vfd_encoder);
@@ -3006,8 +3164,14 @@ static int s5p_jpeg_probe(struct platform_device *pdev)
 	jpeg->vfd_decoder->lock		= &jpeg->lock;
 	jpeg->vfd_decoder->v4l2_dev	= &jpeg->v4l2_dev;
 	jpeg->vfd_decoder->vfl_dir	= VFL_DIR_M2M;
+<<<<<<< HEAD
 
 	ret = video_register_device(jpeg->vfd_decoder, VFL_TYPE_GRABBER, -1);
+=======
+	jpeg->vfd_decoder->device_caps	= V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_M2M;
+
+	ret = video_register_device(jpeg->vfd_decoder, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		v4l2_err(&jpeg->v4l2_dev, "Failed to register video device\n");
 		video_device_release(jpeg->vfd_decoder);
@@ -3223,7 +3387,11 @@ static struct platform_driver s5p_jpeg_driver = {
 
 module_platform_driver(s5p_jpeg_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Andrzej Pietrasiewicz <andrzej.p@samsung.com>");
+=======
+MODULE_AUTHOR("Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>");
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Jacek Anaszewski <j.anaszewski@samsung.com>");
 MODULE_DESCRIPTION("Samsung JPEG codec driver");
 MODULE_LICENSE("GPL");

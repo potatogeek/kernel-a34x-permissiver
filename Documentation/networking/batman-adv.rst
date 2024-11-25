@@ -27,6 +27,7 @@ Load the batman-adv module into your kernel::
   $ insmod batman-adv.ko
 
 The module is now waiting for activation. You must add some interfaces on which
+<<<<<<< HEAD
 batman can operate. After loading the module batman advanced will scan your
 systems interfaces to search for compatible interfaces. Once found, it will
 create subfolders in the ``/sys`` directories of each supported interface,
@@ -45,6 +46,10 @@ if you plug your USB wifi adapter into your machine after batman advanced was
 initially loaded.
 
 The batman-adv soft-interface can be created using the iproute2 tool ``ip``::
+=======
+batman-adv can operate. The batman-adv soft-interface can be created using the
+iproute2 tool ``ip``::
+>>>>>>> upstream/android-13
 
   $ ip link add name bat0 type batadv
 
@@ -52,6 +57,7 @@ To activate a given interface simply attach it to the ``bat0`` interface::
 
   $ ip link set dev eth0 master bat0
 
+<<<<<<< HEAD
 Repeat this step for all interfaces you wish to add. Now batman starts
 using/broadcasting on this/these interface(s).
 
@@ -60,10 +66,16 @@ By reading the "iface_status" file you can check its status::
   $ cat /sys/class/net/eth0/batman_adv/iface_status
   active
 
+=======
+Repeat this step for all interfaces you wish to add. Now batman-adv starts
+using/broadcasting on this/these interface(s).
+
+>>>>>>> upstream/android-13
 To deactivate an interface you have to detach it from the "bat0" interface::
 
   $ ip link set dev eth0 nomaster
 
+<<<<<<< HEAD
 
 All mesh wide settings can be found in batman's own interface folder::
 
@@ -93,16 +105,48 @@ For instance, you can check the current originator interval (value in
 milliseconds which determines how often batman sends its broadcast packets)::
 
   $ cat /sys/class/net/bat0/mesh/orig_interval
+=======
+The same can also be done using the batctl interface subcommand::
+
+  batctl -m bat0 interface create
+  batctl -m bat0 interface add -M eth0
+
+To detach eth0 and destroy bat0::
+
+  batctl -m bat0 interface del -M eth0
+  batctl -m bat0 interface destroy
+
+There are additional settings for each batadv mesh interface, vlan and hardif
+which can be modified using batctl. Detailed information about this can be found
+in its manual.
+
+For instance, you can check the current originator interval (value
+in milliseconds which determines how often batman-adv sends its broadcast
+packets)::
+
+  $ batctl -M bat0 orig_interval
+>>>>>>> upstream/android-13
   1000
 
 and also change its value::
 
+<<<<<<< HEAD
   $ echo 3000 > /sys/class/net/bat0/mesh/orig_interval
+=======
+  $ batctl -M bat0 orig_interval 3000
+>>>>>>> upstream/android-13
 
 In very mobile scenarios, you might want to adjust the originator interval to a
 lower value. This will make the mesh more responsive to topology changes, but
 will also increase the overhead.
 
+<<<<<<< HEAD
+=======
+Information about the current state can be accessed via the batadv generic
+netlink family. batctl provides a human readable version via its debug tables
+subcommands.
+
+>>>>>>> upstream/android-13
 
 Usage
 =====
@@ -142,6 +186,7 @@ are prefixed with "batman-adv:" So to see just these messages try::
   $ dmesg | grep batman-adv
 
 When investigating problems with your mesh network, it is sometimes necessary to
+<<<<<<< HEAD
 see more detail debug messages. This must be enabled when compiling the
 batman-adv module. When building batman-adv as part of kernel, use "make
 menuconfig" and enable the option ``B.A.T.M.A.N. debugging``
@@ -184,6 +229,23 @@ The debug output can be changed at runtime using the file
   $ echo 6 > /sys/class/net/bat0/mesh/log_level
 
 will enable debug messages for when routes change.
+=======
+see more detailed debug messages. This must be enabled when compiling the
+batman-adv module. When building batman-adv as part of the kernel, use "make
+menuconfig" and enable the option ``B.A.T.M.A.N. debugging``
+(``CONFIG_BATMAN_ADV_DEBUG=y``).
+
+Those additional debug messages can be accessed using the perf infrastructure::
+
+  $ trace-cmd stream -e batadv:batadv_dbg
+
+The additional debug output is by default disabled. It can be enabled during
+run time::
+
+  $ batctl -m bat0 loglevel routes tt
+
+will enable debug messages for when routes and translation table entries change.
+>>>>>>> upstream/android-13
 
 Counters for different types of packets entering and leaving the batman-adv
 module are available through ethtool::
@@ -211,10 +273,17 @@ Contact
 Please send us comments, experiences, questions, anything :)
 
 IRC:
+<<<<<<< HEAD
   #batman on irc.freenode.org
 Mailing-list:
   b.a.t.m.a.n@open-mesh.org (optional subscription at
   https://lists.open-mesh.org/mm/listinfo/b.a.t.m.a.n)
+=======
+  #batadv on ircs://irc.hackint.org/
+Mailing-list:
+  b.a.t.m.a.n@open-mesh.org (optional subscription at
+  https://lists.open-mesh.org/mailman3/postorius/lists/b.a.t.m.a.n.lists.open-mesh.org/)
+>>>>>>> upstream/android-13
 
 You can also contact the Authors:
 

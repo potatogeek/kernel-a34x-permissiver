@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -14,6 +15,12 @@
  *
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)    "fsl-pamu: %s: " fmt, __func__
@@ -75,6 +82,7 @@ static const struct of_device_id l3_device_ids[] = {
 /* maximum subwindows permitted per liodn */
 static u32 max_subwindow_count;
 
+<<<<<<< HEAD
 /* Pool for fspi allocation */
 static struct gen_pool *spaace_pool;
 
@@ -88,6 +96,8 @@ u32 pamu_get_max_subwin_cnt(void)
 	return max_subwindow_count;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * pamu_get_ppaace() - Return the primary PACCE
  * @liodn: liodn PAACT index for desired PAACE
@@ -167,6 +177,7 @@ static unsigned int map_addrspace_size_to_wse(phys_addr_t addrspace_size)
 	return fls64(addrspace_size) - 2;
 }
 
+<<<<<<< HEAD
 /* Derive the PAACE window count encoding for the subwindow count */
 static unsigned int map_subwindow_cnt_to_wce(u32 subwindow_cnt)
 {
@@ -174,6 +185,8 @@ static unsigned int map_subwindow_cnt_to_wce(u32 subwindow_cnt)
 	return __ffs(subwindow_cnt) - 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Set the PAACE type as primary and set the coherency required domain
  * attribute
@@ -187,6 +200,7 @@ static void pamu_init_ppaace(struct paace *ppaace)
 }
 
 /*
+<<<<<<< HEAD
  * Set the PAACE type as secondary and set the coherency required domain
  * attribute.
  */
@@ -269,6 +283,12 @@ void pamu_free_subwins(int liodn)
  * LIODN.
  */
 int  pamu_update_paace_stash(int liodn, u32 subwin, u32 value)
+=======
+ * Function used for updating stash destination for the coressponding
+ * LIODN.
+ */
+int pamu_update_paace_stash(int liodn, u32 value)
+>>>>>>> upstream/android-13
 {
 	struct paace *paace;
 
@@ -277,11 +297,14 @@ int  pamu_update_paace_stash(int liodn, u32 subwin, u32 value)
 		pr_debug("Invalid liodn entry\n");
 		return -ENOENT;
 	}
+<<<<<<< HEAD
 	if (subwin) {
 		paace = pamu_get_spaace(paace, subwin - 1);
 		if (!paace)
 			return -ENOENT;
 	}
+=======
+>>>>>>> upstream/android-13
 	set_bf(paace->impl_attr, PAACE_IA_CID, value);
 
 	mb();
@@ -289,6 +312,7 @@ int  pamu_update_paace_stash(int liodn, u32 subwin, u32 value)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Disable a subwindow corresponding to the LIODN */
 int pamu_disable_spaace(int liodn, u32 subwin)
 {
@@ -314,10 +338,13 @@ int pamu_disable_spaace(int liodn, u32 subwin)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * pamu_config_paace() - Sets up PPAACE entry for specified liodn
  *
  * @liodn: Logical IO device number
+<<<<<<< HEAD
  * @win_addr: starting address of DSA window
  * @win-size: size of DSA window
  * @omi: Operation mapping index -- if ~omi == 0 then omi not defined
@@ -327,10 +354,16 @@ int pamu_disable_spaace(int liodn, u32 subwin)
  * @snoopid: snoop id for hardware coherency -- if ~snoopid == 0 then
  *	     snoopid not defined
  * @subwin_cnt: number of sub-windows
+=======
+ * @omi: Operation mapping index -- if ~omi == 0 then omi not defined
+ * @stashid: cache stash id for associated cpu -- if ~stashid == 0 then
+ *	     stashid not defined
+>>>>>>> upstream/android-13
  * @prot: window permissions
  *
  * Returns 0 upon success else error code < 0 returned
  */
+<<<<<<< HEAD
 int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
 		       u32 omi, unsigned long rpn, u32 snoopid, u32 stashid,
 		       u32 subwin_cnt, int prot)
@@ -348,6 +381,11 @@ int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
 		pr_debug("window address is not aligned with window size\n");
 		return -EINVAL;
 	}
+=======
+int pamu_config_ppaace(int liodn, u32 omi, u32 stashid, int prot)
+{
+	struct paace *ppaace;
+>>>>>>> upstream/android-13
 
 	ppaace = pamu_get_ppaace(liodn);
 	if (!ppaace)
@@ -355,6 +393,7 @@ int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
 
 	/* window size is 2^(WSE+1) bytes */
 	set_bf(ppaace->addr_bitfields, PPAACE_AF_WSE,
+<<<<<<< HEAD
 	       map_addrspace_size_to_wse(win_size));
 
 	pamu_init_ppaace(ppaace);
@@ -362,6 +401,14 @@ int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
 	ppaace->wbah = win_addr >> (PAMU_PAGE_SHIFT + 20);
 	set_bf(ppaace->addr_bitfields, PPAACE_AF_WBAL,
 	       (win_addr >> PAMU_PAGE_SHIFT));
+=======
+	       map_addrspace_size_to_wse(1ULL << 36));
+
+	pamu_init_ppaace(ppaace);
+
+	ppaace->wbah = 0;
+	set_bf(ppaace->addr_bitfields, PPAACE_AF_WBAL, 0);
+>>>>>>> upstream/android-13
 
 	/* set up operation mapping if it's configured */
 	if (omi < OME_NUMBER_ENTRIES) {
@@ -376,6 +423,7 @@ int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
 	if (~stashid != 0)
 		set_bf(ppaace->impl_attr, PAACE_IA_CID, stashid);
 
+<<<<<<< HEAD
 	/* configure snoop id */
 	if (~snoopid != 0)
 		ppaace->domain_attr.to_host.snpid = snoopid;
@@ -490,6 +538,14 @@ int pamu_config_spaace(int liodn, u32 subwin_cnt, u32 subwin,
 	if (enable)
 		set_bf(paace->addr_bitfields, PAACE_AF_V, PAACE_V_VALID);
 
+=======
+	set_bf(ppaace->impl_attr, PAACE_IA_ATM, PAACE_ATM_WINDOW_XLATE);
+	ppaace->twbah = 0;
+	set_bf(ppaace->win_bitfields, PAACE_WIN_TWBAL, 0);
+	set_bf(ppaace->addr_bitfields, PAACE_AF_AP, prot);
+	set_bf(ppaace->impl_attr, PAACE_IA_WCE, 0);
+	set_bf(ppaace->addr_bitfields, PPAACE_AF_MW, 0);
+>>>>>>> upstream/android-13
 	mb();
 
 	return 0;
@@ -543,7 +599,11 @@ u32 get_stash_id(u32 stash_dest_hint, u32 vcpu)
 		return ~(u32)0;
 	}
 
+<<<<<<< HEAD
 	for_each_node_by_type(node, "cpu") {
+=======
+	for_each_of_cpu_node(node) {
+>>>>>>> upstream/android-13
 		prop = of_get_property(node, "reg", &len);
 		for (i = 0; i < len / sizeof(u32); i++) {
 			if (be32_to_cpup(&prop[i]) == vcpu) {
@@ -1141,6 +1201,7 @@ static int fsl_pamu_probe(struct platform_device *pdev)
 	spaact_phys = virt_to_phys(spaact);
 	omt_phys = virt_to_phys(omt);
 
+<<<<<<< HEAD
 	spaace_pool = gen_pool_create(ilog2(sizeof(struct paace)), -1);
 	if (!spaace_pool) {
 		ret = -ENOMEM;
@@ -1152,6 +1213,8 @@ static int fsl_pamu_probe(struct platform_device *pdev)
 	if (ret)
 		goto error_genpool;
 
+=======
+>>>>>>> upstream/android-13
 	pamubypenr = in_be32(&guts_regs->pamubypenr);
 
 	for (pamu_reg_off = 0, pamu_counter = 0x80000000; pamu_reg_off < size;
@@ -1179,17 +1242,24 @@ static int fsl_pamu_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
 error_genpool:
 	gen_pool_destroy(spaace_pool);
 
+=======
+>>>>>>> upstream/android-13
 error:
 	if (irq != NO_IRQ)
 		free_irq(irq, data);
 
+<<<<<<< HEAD
 	if (data) {
 		memset(data, 0, sizeof(struct pamu_isr_data));
 		kfree(data);
 	}
+=======
+	kfree_sensitive(data);
+>>>>>>> upstream/android-13
 
 	if (pamu_regs)
 		iounmap(pamu_regs);

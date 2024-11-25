@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for SWIM (Sander Woz Integrated Machine) floppy controller
  *
@@ -7,11 +11,14 @@
  * based on SWIM3 driver (c) Paul Mackerras, 1996
  * based on netBSD IWM driver (c) 1997, 1998 Hauke Fath.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * 2004-08-21 (lv) - Initial implementation
  * 2008-10-30 (lv) - Port to 2.6
  */
@@ -19,7 +26,12 @@
 #include <linux/module.h>
 #include <linux/fd.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/blkdev.h>
+=======
+#include <linux/blk-mq.h>
+#include <linux/major.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/hdreg.h>
 #include <linux/kernel.h>
@@ -190,6 +202,10 @@ struct floppy_state {
 	int		ref_count;
 
 	struct gendisk *disk;
+<<<<<<< HEAD
+=======
+	struct blk_mq_tag_set tag_set;
+>>>>>>> upstream/android-13
 
 	/* parent controller */
 
@@ -211,7 +227,10 @@ enum head {
 struct swim_priv {
 	struct swim __iomem *base;
 	spinlock_t lock;
+<<<<<<< HEAD
 	int fdc_queue;
+=======
+>>>>>>> upstream/android-13
 	int floppy_count;
 	struct floppy_state unit[FD_MAX_UNIT];
 };
@@ -331,7 +350,11 @@ static inline void swim_motor(struct swim __iomem *base,
 			swim_select(base, RELAX);
 			if (swim_readbit(base, MOTOR_ON))
 				break;
+<<<<<<< HEAD
 			current->state = TASK_INTERRUPTIBLE;
+=======
+			set_current_state(TASK_INTERRUPTIBLE);
+>>>>>>> upstream/android-13
 			schedule_timeout(1);
 		}
 	} else if (action == OFF) {
@@ -350,7 +373,11 @@ static inline void swim_eject(struct swim __iomem *base)
 		swim_select(base, RELAX);
 		if (!swim_readbit(base, DISK_IN))
 			break;
+<<<<<<< HEAD
 		current->state = TASK_INTERRUPTIBLE;
+=======
+		set_current_state(TASK_INTERRUPTIBLE);
+>>>>>>> upstream/android-13
 		schedule_timeout(1);
 	}
 	swim_select(base, RELAX);
@@ -374,7 +401,11 @@ static inline int swim_step(struct swim __iomem *base)
 
 	for (wait = 0; wait < HZ; wait++) {
 
+<<<<<<< HEAD
 		current->state = TASK_INTERRUPTIBLE;
+=======
+		set_current_state(TASK_INTERRUPTIBLE);
+>>>>>>> upstream/android-13
 		schedule_timeout(1);
 
 		swim_select(base, RELAX);
@@ -525,6 +556,7 @@ static blk_status_t floppy_read_sectors(struct floppy_state *fs,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct request *swim_next_request(struct swim_priv *swd)
 {
 	struct request_queue *q;
@@ -577,6 +609,38 @@ static void do_fd_request(struct request_queue *q)
 		if (!__blk_end_request_cur(req, err))
 			req = swim_next_request(swd);
 	}
+=======
+static blk_status_t swim_queue_rq(struct blk_mq_hw_ctx *hctx,
+				  const struct blk_mq_queue_data *bd)
+{
+	struct floppy_state *fs = hctx->queue->queuedata;
+	struct swim_priv *swd = fs->swd;
+	struct request *req = bd->rq;
+	blk_status_t err;
+
+	if (!spin_trylock_irq(&swd->lock))
+		return BLK_STS_DEV_RESOURCE;
+
+	blk_mq_start_request(req);
+
+	if (!fs->disk_in || rq_data_dir(req) == WRITE) {
+		err = BLK_STS_IOERR;
+		goto out;
+	}
+
+	do {
+		err = floppy_read_sectors(fs, blk_rq_pos(req),
+					  blk_rq_cur_sectors(req),
+					  bio_data(req->bio));
+	} while (blk_update_request(req, err, blk_rq_cur_bytes(req)));
+	__blk_mq_end_request(req, err);
+
+	err = BLK_STS_OK;
+out:
+	spin_unlock_irq(&swd->lock);
+	return err;
+
+>>>>>>> upstream/android-13
 }
 
 static struct floppy_struct floppy_type[4] = {
@@ -664,7 +728,12 @@ static int floppy_open(struct block_device *bdev, fmode_t mode)
 		return 0;
 
 	if (mode & (FMODE_READ|FMODE_WRITE)) {
+<<<<<<< HEAD
 		check_disk_change(bdev);
+=======
+		if (bdev_check_media_change(bdev) && fs->disk_in)
+			fs->ejected = 0;
+>>>>>>> upstream/android-13
 		if ((mode & FMODE_WRITE) && fs->write_protected) {
 			err = -EROFS;
 			goto out;
@@ -761,6 +830,7 @@ static unsigned int floppy_check_events(struct gendisk *disk,
 	return fs->ejected ? DISK_EVENT_MEDIA_CHANGE : 0;
 }
 
+<<<<<<< HEAD
 static int floppy_revalidate(struct gendisk *disk)
 {
 	struct floppy_state *fs = disk->private_data;
@@ -779,6 +849,8 @@ static int floppy_revalidate(struct gendisk *disk)
 	return !fs->disk_in;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct block_device_operations floppy_fops = {
 	.owner		 = THIS_MODULE,
 	.open		 = floppy_unlocked_open,
@@ -786,6 +858,7 @@ static const struct block_device_operations floppy_fops = {
 	.ioctl		 = floppy_ioctl,
 	.getgeo		 = floppy_getgeo,
 	.check_events	 = floppy_check_events,
+<<<<<<< HEAD
 	.revalidate_disk = floppy_revalidate,
 };
 
@@ -801,6 +874,10 @@ static struct kobject *floppy_find(dev_t dev, int *part, void *data)
 	return get_disk_and_module(swd->unit[drive].disk);
 }
 
+=======
+};
+
+>>>>>>> upstream/android-13
 static int swim_add_floppy(struct swim_priv *swd, enum drive_location location)
 {
 	struct floppy_state *fs = &swd->unit[swd->floppy_count];
@@ -823,6 +900,13 @@ static int swim_add_floppy(struct swim_priv *swd, enum drive_location location)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct blk_mq_ops swim_mq_ops = {
+	.queue_rq = swim_queue_rq,
+};
+
+>>>>>>> upstream/android-13
 static int swim_floppy_init(struct swim_priv *swd)
 {
 	int err;
@@ -852,6 +936,7 @@ static int swim_floppy_init(struct swim_priv *swd)
 	spin_lock_init(&swd->lock);
 
 	for (drive = 0; drive < swd->floppy_count; drive++) {
+<<<<<<< HEAD
 		swd->unit[drive].disk = alloc_disk(1);
 		if (swd->unit[drive].disk == NULL) {
 			err = -ENOMEM;
@@ -866,6 +951,22 @@ static int swim_floppy_init(struct swim_priv *swd)
 		blk_queue_bounce_limit(swd->unit[drive].disk->queue,
 				BLK_BOUNCE_HIGH);
 		swd->unit[drive].disk->queue->queuedata = swd;
+=======
+		err = blk_mq_alloc_sq_tag_set(&swd->unit[drive].tag_set,
+				&swim_mq_ops, 2, BLK_MQ_F_SHOULD_MERGE);
+		if (err)
+			goto exit_put_disks;
+
+		swd->unit[drive].disk =
+			blk_mq_alloc_disk(&swd->unit[drive].tag_set,
+					  &swd->unit[drive]);
+		if (IS_ERR(swd->unit[drive].disk)) {
+			blk_mq_free_tag_set(&swd->unit[drive].tag_set);
+			err = PTR_ERR(swd->unit[drive].disk);
+			goto exit_put_disks;
+		}
+
+>>>>>>> upstream/android-13
 		swd->unit[drive].swd = swd;
 	}
 
@@ -873,16 +974,26 @@ static int swim_floppy_init(struct swim_priv *swd)
 		swd->unit[drive].disk->flags = GENHD_FL_REMOVABLE;
 		swd->unit[drive].disk->major = FLOPPY_MAJOR;
 		swd->unit[drive].disk->first_minor = drive;
+<<<<<<< HEAD
 		sprintf(swd->unit[drive].disk->disk_name, "fd%d", drive);
 		swd->unit[drive].disk->fops = &floppy_fops;
+=======
+		swd->unit[drive].disk->minors = 1;
+		sprintf(swd->unit[drive].disk->disk_name, "fd%d", drive);
+		swd->unit[drive].disk->fops = &floppy_fops;
+		swd->unit[drive].disk->events = DISK_EVENT_MEDIA_CHANGE;
+>>>>>>> upstream/android-13
 		swd->unit[drive].disk->private_data = &swd->unit[drive];
 		set_capacity(swd->unit[drive].disk, 2880);
 		add_disk(swd->unit[drive].disk);
 	}
 
+<<<<<<< HEAD
 	blk_register_region(MKDEV(FLOPPY_MAJOR, 0), 256, THIS_MODULE,
 			    floppy_find, NULL, swd);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 exit_put_disks:
@@ -890,6 +1001,7 @@ exit_put_disks:
 	do {
 		struct gendisk *disk = swd->unit[drive].disk;
 
+<<<<<<< HEAD
 		if (disk) {
 			if (disk->queue) {
 				blk_cleanup_queue(disk->queue);
@@ -897,6 +1009,12 @@ exit_put_disks:
 			}
 			put_disk(disk);
 		}
+=======
+		if (!disk)
+			continue;
+		blk_cleanup_disk(disk);
+		blk_mq_free_tag_set(&swd->unit[drive].tag_set);
+>>>>>>> upstream/android-13
 	} while (drive--);
 	return err;
 }
@@ -965,11 +1083,18 @@ static int swim_remove(struct platform_device *dev)
 	int drive;
 	struct resource *res;
 
+<<<<<<< HEAD
 	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
 
 	for (drive = 0; drive < swd->floppy_count; drive++) {
 		del_gendisk(swd->unit[drive].disk);
 		blk_cleanup_queue(swd->unit[drive].disk->queue);
+=======
+	for (drive = 0; drive < swd->floppy_count; drive++) {
+		del_gendisk(swd->unit[drive].disk);
+		blk_cleanup_queue(swd->unit[drive].disk->queue);
+		blk_mq_free_tag_set(&swd->unit[drive].tag_set);
+>>>>>>> upstream/android-13
 		put_disk(swd->unit[drive].disk);
 	}
 

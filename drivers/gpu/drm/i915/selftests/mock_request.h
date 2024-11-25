@@ -29,6 +29,7 @@
 
 #include "../i915_request.h"
 
+<<<<<<< HEAD
 struct mock_request {
 	struct i915_request base;
 
@@ -40,6 +41,10 @@ struct i915_request *
 mock_request(struct intel_engine_cs *engine,
 	     struct i915_gem_context *context,
 	     unsigned long delay);
+=======
+struct i915_request *
+mock_request(struct intel_context *ce, unsigned long delay);
+>>>>>>> upstream/android-13
 
 bool mock_cancel_request(struct i915_request *request);
 

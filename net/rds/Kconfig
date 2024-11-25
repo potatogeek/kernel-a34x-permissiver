@@ -1,15 +1,27 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 config RDS
 	tristate "The Reliable Datagram Sockets Protocol"
 	depends on INET
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  The RDS (Reliable Datagram Sockets) protocol provides reliable,
 	  sequenced delivery of datagrams over Infiniband or TCP.
 
 config RDS_RDMA
 	tristate "RDS over Infiniband"
 	depends on RDS && INFINIBAND && INFINIBAND_ADDR_TRANS
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Allow RDS to use Infiniband as a transport.
 	  This transport supports RDMA operations.
 
@@ -17,11 +29,21 @@ config RDS_TCP
 	tristate "RDS over TCP"
 	depends on RDS
 	depends on IPV6 || !IPV6
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Allow RDS to use TCP as a transport.
 	  This transport does not support RDMA operations.
 
 config RDS_DEBUG
+<<<<<<< HEAD
         bool "RDS debugging messages"
 	depends on RDS
         default n
+=======
+	bool "RDS debugging messages"
+	depends on RDS
+	default n
+>>>>>>> upstream/android-13

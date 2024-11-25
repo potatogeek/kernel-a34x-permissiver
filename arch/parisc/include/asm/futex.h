@@ -16,7 +16,11 @@ static inline void
 _futex_spin_lock_irqsave(u32 __user *uaddr, unsigned long int *flags)
 {
 	extern u32 lws_lock_start[];
+<<<<<<< HEAD
 	long index = ((long)uaddr & 0xf0) >> 2;
+=======
+	long index = ((long)uaddr & 0x7f8) >> 1;
+>>>>>>> upstream/android-13
 	arch_spinlock_t *s = (arch_spinlock_t *)&lws_lock_start[index];
 	local_irq_save(*flags);
 	arch_spin_lock(s);
@@ -26,7 +30,11 @@ static inline void
 _futex_spin_unlock_irqrestore(u32 __user *uaddr, unsigned long int *flags)
 {
 	extern u32 lws_lock_start[];
+<<<<<<< HEAD
 	long index = ((long)uaddr & 0xf0) >> 2;
+=======
+	long index = ((long)uaddr & 0x7f8) >> 1;
+>>>>>>> upstream/android-13
 	arch_spinlock_t *s = (arch_spinlock_t *)&lws_lock_start[index];
 	arch_spin_unlock(s);
 	local_irq_restore(*flags);
@@ -40,7 +48,10 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 	u32 tmp;
 
 	_futex_spin_lock_irqsave(uaddr, &flags);
+<<<<<<< HEAD
 	pagefault_disable();
+=======
+>>>>>>> upstream/android-13
 
 	ret = -EFAULT;
 	if (unlikely(get_user(oldval, uaddr) != 0))
@@ -73,7 +84,10 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 		ret = -EFAULT;
 
 out_pagefault_enable:
+<<<<<<< HEAD
 	pagefault_enable();
+=======
+>>>>>>> upstream/android-13
 	_futex_spin_unlock_irqrestore(uaddr, &flags);
 
 	if (!ret)
@@ -95,7 +109,11 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 	if (uaccess_kernel() && !uaddr)
 		return -EFAULT;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	/* HPPA has no cmpxchg in hardware and therefore the

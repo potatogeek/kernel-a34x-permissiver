@@ -31,7 +31,12 @@
 #include "gf100.h"
 
 struct gk104_clkgate_engine_info {
+<<<<<<< HEAD
 	enum nvkm_devidx engine;
+=======
+	enum nvkm_subdev_type type;
+	int inst;
+>>>>>>> upstream/android-13
 	u8 offset;
 };
 

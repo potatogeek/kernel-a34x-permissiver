@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * ddbridge.h: Digital Devices PCIe bridge driver
  *
@@ -8,19 +12,26 @@
  * modify it under the terms of the GNU General Public License
  * version 2 only, as published by the Free Software Foundation.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+<<<<<<< HEAD
  *
  * To obtain the license, point your browser to
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DDBRIDGE_H_
 #define _DDBRIDGE_H_
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -62,6 +73,45 @@
 #include <media/dvb_ringbuffer.h>
 #include <media/dvb_ca_en50221.h>
 #include <media/dvb_net.h>
+=======
+#include <linux/clk.h>
+#include <linux/completion.h>
+#include <linux/delay.h>
+#include <linux/device.h>
+#include <linux/dvb/ca.h>
+#include <linux/gpio.h>
+#include <linux/i2c.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/kthread.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/pci.h>
+#include <linux/platform_device.h>
+#include <linux/poll.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+#include <linux/socket.h>
+#include <linux/spi/spi.h>
+#include <linux/swab.h>
+#include <linux/timer.h>
+#include <linux/types.h>
+#include <linux/uaccess.h>
+#include <linux/vmalloc.h>
+#include <linux/workqueue.h>
+
+#include <asm/dma.h>
+#include <asm/irq.h>
+
+#include <media/dmxdev.h>
+#include <media/dvb_ca_en50221.h>
+#include <media/dvb_demux.h>
+#include <media/dvbdev.h>
+#include <media/dvb_frontend.h>
+#include <media/dvb_net.h>
+#include <media/dvb_ringbuffer.h>
+>>>>>>> upstream/android-13
 
 #define DDBRIDGE_VERSION "0.9.33-integrated"
 

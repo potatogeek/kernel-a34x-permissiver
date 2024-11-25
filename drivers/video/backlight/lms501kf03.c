@@ -1,19 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lms501kf03 TFT LCD panel driver.
  *
  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
  * Author: Jingoo Han  <jg1.han@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/backlight.h>
 #include <linux/delay.h>
 #include <linux/fb.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/lcd.h>
 #include <linux/module.h>
 #include <linux/spi/spi.h>
@@ -93,6 +103,7 @@ static const unsigned char seq_rgb_gamma[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
+<<<<<<< HEAD
 static const unsigned char seq_up_dn[] = {
 	0x36, 0x10,
 };
@@ -101,6 +112,8 @@ static const unsigned char seq_sleep_in[] = {
 	0x10,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const unsigned char seq_sleep_out[] = {
 	0x11,
 };

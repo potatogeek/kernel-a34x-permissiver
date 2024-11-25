@@ -22,11 +22,16 @@
 #include <asm/tlbflush.h>
 
 #include <asm/pgtable-bits.h>
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
 #include <asm-generic/pgtable-nopmd.h>
 
 #define FIRST_USER_ADDRESS	0UL
 
+=======
+#include <asm-generic/pgtable-nopmd.h>
+
+>>>>>>> upstream/android-13
 #define VMALLOC_START		CONFIG_NIOS2_KERNEL_MMU_REGION_BASE
 #define VMALLOC_END		(CONFIG_NIOS2_KERNEL_REGION_BASE - 1)
 
@@ -100,6 +105,7 @@ extern pte_t invalid_pte_table[PAGE_SIZE/sizeof(pte_t)];
  */
 static inline void set_pmd(pmd_t *pmdptr, pmd_t pmdval)
 {
+<<<<<<< HEAD
 	pmdptr->pud.pgd.pgd = pmdval.pud.pgd.pgd;
 }
 
@@ -107,13 +113,21 @@ static inline void set_pmd(pmd_t *pmdptr, pmd_t pmdval)
 #define pgd_index(addr)		(((addr) >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1))
 #define pgd_offset(mm, addr)	((mm)->pgd + pgd_index(addr))
 
+=======
+	*pmdptr = pmdval;
+}
+
+>>>>>>> upstream/android-13
 static inline int pte_write(pte_t pte)		\
 	{ return pte_val(pte) & _PAGE_WRITE; }
 static inline int pte_dirty(pte_t pte)		\
 	{ return pte_val(pte) & _PAGE_DIRTY; }
 static inline int pte_young(pte_t pte)		\
 	{ return pte_val(pte) & _PAGE_ACCESSED; }
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte)	{ return 0; }
+=======
+>>>>>>> upstream/android-13
 
 #define pgprot_noncached pgprot_noncached
 
@@ -168,8 +182,11 @@ static inline pte_t pte_mkdirty(pte_t pte)
 	return pte;
 }
 
+<<<<<<< HEAD
 static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
 
+=======
+>>>>>>> upstream/android-13
 static inline pte_t pte_mkyoung(pte_t pte)
 {
 	pte_val(pte) |= _PAGE_ACCESSED;
@@ -232,7 +249,10 @@ static inline void pte_clear(struct mm_struct *mm,
 	pte_val(null) = (addr >> PAGE_SHIFT) & 0xf;
 
 	set_pte_at(mm, addr, ptep, null);
+<<<<<<< HEAD
 	flush_tlb_one(addr);
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -241,14 +261,18 @@ static inline void pte_clear(struct mm_struct *mm,
  */
 #define mk_pte(page, prot)	(pfn_pte(page_to_pfn(page), prot))
 
+<<<<<<< HEAD
 #define pte_unmap(pte)	do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Conversion functions: convert a page and protection to a page entry,
  * and a page entry and page directory to the page they refer to.
  */
 #define pmd_phys(pmd)		virt_to_phys((void *)pmd_val(pmd))
 #define pmd_page(pmd)		(pfn_to_page(pmd_phys(pmd) >> PAGE_SHIFT))
+<<<<<<< HEAD
 #define pmd_page_vaddr(pmd)	pmd_val(pmd)
 
 #define pte_offset_map(dir, addr)			\
@@ -262,6 +286,13 @@ static inline void pte_clear(struct mm_struct *mm,
 #define pte_offset_kernel(dir, addr)			\
 	((pte_t *) pmd_page_vaddr(*(dir)) +		\
 	 (((addr) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1)))
+=======
+
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	return pmd_val(pmd);
+}
+>>>>>>> upstream/android-13
 
 #define pte_ERROR(e) \
 	pr_err("%s:%d: bad pte %08lx.\n", \
@@ -290,10 +321,13 @@ static inline void pte_clear(struct mm_struct *mm,
 
 #define kern_addr_valid(addr)		(1)
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
 #define pgtable_cache_init()		do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 extern void __init paging_init(void);
 extern void __init mmu_init(void);
 

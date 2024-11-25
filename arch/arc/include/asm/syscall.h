@@ -1,14 +1,24 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ARC_SYSCALL_H
 #define _ASM_ARC_SYSCALL_H  1
 
+<<<<<<< HEAD
+=======
+#include <uapi/linux/audit.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/sched.h>
 #include <asm/unistd.h>
@@ -55,12 +65,20 @@ syscall_set_return_value(struct task_struct *task, struct pt_regs *regs,
  */
 static inline void
 syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
+<<<<<<< HEAD
 		      unsigned int i, unsigned int n, unsigned long *args)
 {
 	unsigned long *inside_ptregs = &(regs->r0);
 	inside_ptregs -= i;
 
 	BUG_ON((i + n) > 6);
+=======
+		      unsigned long *args)
+{
+	unsigned long *inside_ptregs = &(regs->r0);
+	unsigned int n = 6;
+	unsigned int i = 0;
+>>>>>>> upstream/android-13
 
 	while (n--) {
 		args[i++] = (*inside_ptregs);
@@ -68,4 +86,17 @@ syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static inline int
+syscall_get_arch(struct task_struct *task)
+{
+	return IS_ENABLED(CONFIG_ISA_ARCOMPACT)
+		? (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)
+			? AUDIT_ARCH_ARCOMPACTBE : AUDIT_ARCH_ARCOMPACT)
+		: (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)
+			? AUDIT_ARCH_ARCV2BE : AUDIT_ARCH_ARCV2);
+}
+
+>>>>>>> upstream/android-13
 #endif

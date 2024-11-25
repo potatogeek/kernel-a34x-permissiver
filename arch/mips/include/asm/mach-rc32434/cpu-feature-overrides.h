@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  IDT RC32434 specific CPU feature overrides
  *
@@ -6,6 +10,7 @@
  *  This file was derived from: include/asm-mips/cpu-features.h
  *	Copyright (C) 2003, 2004 Ralf Baechle
  *	Copyright (C) 2004 Maciej W. Rozycki
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -21,6 +26,8 @@
  *  along with this program; if not, write to the
  *  Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  *  Boston, MA  02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_MACH_RC32434_CPU_FEATURE_OVERRIDES_H
 #define __ASM_MACH_RC32434_CPU_FEATURE_OVERRIDES_H
@@ -68,7 +75,10 @@
 #define cpu_has_64bits			0
 #define cpu_has_64bit_zero_reg		0
 #define cpu_has_64bit_gp_regs		0
+<<<<<<< HEAD
 #define cpu_has_64bit_addresses		0
+=======
+>>>>>>> upstream/android-13
 
 #define cpu_has_inclusive_pcaches	0
 

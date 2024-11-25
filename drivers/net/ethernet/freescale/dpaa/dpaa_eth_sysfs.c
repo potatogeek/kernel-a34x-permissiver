@@ -131,11 +131,17 @@ static ssize_t dpaa_eth_show_bpids(struct device *dev,
 {
 	struct dpaa_priv *priv = netdev_priv(to_net_dev(dev));
 	ssize_t bytes = 0;
+<<<<<<< HEAD
 	int i = 0;
 
 	for (i = 0; i < DPAA_BPS_NUM; i++)
 		bytes += snprintf(buf + bytes, PAGE_SIZE - bytes, "%u\n",
 				  priv->dpaa_bps[i]->bpid);
+=======
+
+	bytes += snprintf(buf + bytes, PAGE_SIZE - bytes, "%u\n",
+				  priv->dpaa_bp->bpid);
+>>>>>>> upstream/android-13
 
 	return bytes;
 }

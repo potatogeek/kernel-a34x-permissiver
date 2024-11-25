@@ -10,9 +10,16 @@
 #ifndef _XTENSA_PROCESSOR_H
 #define _XTENSA_PROCESSOR_H
 
+<<<<<<< HEAD
 #include <variant/core.h>
 
 #include <linux/compiler.h>
+=======
+#include <asm/core.h>
+
+#include <linux/compiler.h>
+#include <linux/stringify.h>
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include <asm/types.h>
 #include <asm/regs.h>
@@ -156,6 +163,7 @@ struct thread_struct {
 	int align[0] __attribute__ ((aligned(16)));
 };
 
+<<<<<<< HEAD
 
 /*
  * Default implementation of macro that returns current
@@ -164,6 +172,8 @@ struct thread_struct {
 #define current_text_addr()  ({ __label__ _l; _l: &&_l;})
 
 
+=======
+>>>>>>> upstream/android-13
 /* This decides where the kernel will search for a free chunk of vm
  * space during mmap's.
  */
@@ -183,14 +193,28 @@ struct thread_struct {
 
 /*
  * Do necessary setup to start up a newly executed thread.
+<<<<<<< HEAD
  * Note: We set-up ps as if we did a call4 to the new pc.
  *       set_thread_state in signal.c depends on it.
  */
 #define USER_PS_VALUE ((1 << PS_WOE_BIT) |				\
+=======
+ * Note: When windowed ABI is used for userspace we set-up ps
+ *       as if we did a call4 to the new pc.
+ *       set_thread_state in signal.c depends on it.
+ */
+#if IS_ENABLED(CONFIG_USER_ABI_CALL0)
+#define USER_PS_VALUE ((USER_RING << PS_RING_SHIFT) |			\
+		       (1 << PS_UM_BIT) |				\
+		       (1 << PS_EXCM_BIT))
+#else
+#define USER_PS_VALUE (PS_WOE_MASK |					\
+>>>>>>> upstream/android-13
 		       (1 << PS_CALLINC_SHIFT) |			\
 		       (USER_RING << PS_RING_SHIFT) |			\
 		       (1 << PS_UM_BIT) |				\
 		       (1 << PS_EXCM_BIT))
+<<<<<<< HEAD
 
 /* Clearing a0 terminates the backtrace. */
 #define start_thread(regs, new_pc, new_sp) \
@@ -203,6 +227,25 @@ struct thread_struct {
 	regs->depc = 0; \
 	regs->windowbase = 0; \
 	regs->windowstart = 1;
+=======
+#endif
+
+/* Clearing a0 terminates the backtrace. */
+#define start_thread(regs, new_pc, new_sp) \
+	do { \
+		unsigned long syscall = (regs)->syscall; \
+		memset((regs), 0, sizeof(*(regs))); \
+		(regs)->pc = (new_pc); \
+		(regs)->ps = USER_PS_VALUE; \
+		(regs)->areg[1] = (new_sp); \
+		(regs)->areg[0] = 0; \
+		(regs)->wmask = 1; \
+		(regs)->depc = 0; \
+		(regs)->windowbase = 0; \
+		(regs)->windowstart = 1; \
+		(regs)->syscall = syscall; \
+	} while (0)
+>>>>>>> upstream/android-13
 
 /* Forward declaration */
 struct task_struct;
@@ -220,6 +263,7 @@ extern unsigned long get_wchan(struct task_struct *p);
 
 /* Special register access. */
 
+<<<<<<< HEAD
 #define WSR(v,sr) __asm__ __volatile__ ("wsr %0,"__stringify(sr) :: "a"(v));
 #define RSR(v,sr) __asm__ __volatile__ ("rsr %0,"__stringify(sr) : "=a"(v));
 
@@ -229,6 +273,20 @@ extern unsigned long get_wchan(struct task_struct *p);
 #ifndef XCHAL_HAVE_EXTERN_REGS
 #define XCHAL_HAVE_EXTERN_REGS 0
 #endif
+=======
+#define xtensa_set_sr(x, sr) \
+	({ \
+	 __asm__ __volatile__ ("wsr %0, "__stringify(sr) :: \
+			       "a"((unsigned int)(x))); \
+	 })
+
+#define xtensa_get_sr(sr) \
+	({ \
+	 unsigned int v; \
+	 __asm__ __volatile__ ("rsr %0, "__stringify(sr) : "=a"(v)); \
+	 v; \
+	 })
+>>>>>>> upstream/android-13
 
 #if XCHAL_HAVE_EXTERN_REGS
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -19,6 +26,10 @@
 #include <linux/io.h>
 #include <linux/types.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 
 #include "hinic_hw_csr.h"
 #include "hinic_hw_if.h"
@@ -27,6 +38,13 @@
 
 #define VALID_MSIX_IDX(attr, msix_index) ((msix_index) < (attr)->num_irqs)
 
+<<<<<<< HEAD
+=======
+#define WAIT_HWIF_READY_TIMEOUT	10000
+
+#define HINIC_SELFTEST_RESULT 0x883C
+
+>>>>>>> upstream/android-13
 /**
  * hinic_msix_attr_set - set message attribute for msix entry
  * @hwif: the HW interface of a pci function device
@@ -124,8 +142,17 @@ int hinic_msix_attr_cnt_clear(struct hinic_hwif *hwif, u16 msix_index)
  **/
 void hinic_set_pf_action(struct hinic_hwif *hwif, enum hinic_pf_action action)
 {
+<<<<<<< HEAD
 	u32 attr5 = hinic_hwif_read_reg(hwif, HINIC_CSR_FUNC_ATTR5_ADDR);
 
+=======
+	u32 attr5;
+
+	if (HINIC_IS_VF(hwif))
+		return;
+
+	attr5 = hinic_hwif_read_reg(hwif, HINIC_CSR_FUNC_ATTR5_ADDR);
+>>>>>>> upstream/android-13
 	attr5 = HINIC_FA5_CLEAR(attr5, PF_ACTION);
 	attr5 |= HINIC_FA5_SET(action, PF_ACTION);
 
@@ -168,6 +195,25 @@ void hinic_db_state_set(struct hinic_hwif *hwif,
 	hinic_hwif_write_reg(hwif, HINIC_CSR_FUNC_ATTR4_ADDR, attr4);
 }
 
+<<<<<<< HEAD
+=======
+void hinic_set_msix_state(struct hinic_hwif *hwif, u16 msix_idx,
+			  enum hinic_msix_state flag)
+{
+	u32 offset = msix_idx * HINIC_PCI_MSIX_ENTRY_SIZE +
+			HINIC_PCI_MSIX_ENTRY_VECTOR_CTRL;
+	u32 mask_bits;
+
+	mask_bits = readl(hwif->intr_regs_base + offset);
+	mask_bits &= ~HINIC_PCI_MSIX_ENTRY_CTRL_MASKBIT;
+
+	if (flag)
+		mask_bits |= HINIC_PCI_MSIX_ENTRY_CTRL_MASKBIT;
+
+	writel(mask_bits, hwif->intr_regs_base + offset);
+}
+
+>>>>>>> upstream/android-13
 /**
  * hwif_ready - test if the HW is ready for use
  * @hwif: the HW interface of a pci function device
@@ -176,27 +222,66 @@ void hinic_db_state_set(struct hinic_hwif *hwif,
  **/
 static int hwif_ready(struct hinic_hwif *hwif)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = hwif->pdev;
+=======
+>>>>>>> upstream/android-13
 	u32 addr, attr1;
 
 	addr   = HINIC_CSR_FUNC_ATTR1_ADDR;
 	attr1  = hinic_hwif_read_reg(hwif, addr);
 
+<<<<<<< HEAD
 	if (!HINIC_FA1_GET(attr1, INIT_STATUS)) {
 		dev_err(&pdev->dev, "hwif status is not ready\n");
 		return -EFAULT;
+=======
+	if (!HINIC_FA1_GET(attr1, MGMT_INIT_STATUS))
+		return -EBUSY;
+
+	if (HINIC_IS_VF(hwif)) {
+		if (!HINIC_FA1_GET(attr1, PF_INIT_STATUS))
+			return -EBUSY;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int wait_hwif_ready(struct hinic_hwif *hwif)
+{
+	unsigned long timeout = 0;
+
+	do {
+		if (!hwif_ready(hwif))
+			return 0;
+
+		usleep_range(999, 1000);
+		timeout++;
+	} while (timeout <= WAIT_HWIF_READY_TIMEOUT);
+
+	dev_err(&hwif->pdev->dev, "Wait for hwif timeout\n");
+
+	return -EBUSY;
+}
+
+>>>>>>> upstream/android-13
 /**
  * set_hwif_attr - set the attributes in the relevant members in hwif
  * @hwif: the HW interface of a pci function device
  * @attr0: the first attribute that was read from the hw
  * @attr1: the second attribute that was read from the hw
+<<<<<<< HEAD
  **/
 static void set_hwif_attr(struct hinic_hwif *hwif, u32 attr0, u32 attr1)
+=======
+ * @attr2: the third attribute that was read from the hw
+ **/
+static void set_hwif_attr(struct hinic_hwif *hwif, u32 attr0, u32 attr1,
+			  u32 attr2)
+>>>>>>> upstream/android-13
 {
 	hwif->attr.func_idx     = HINIC_FA0_GET(attr0, FUNC_IDX);
 	hwif->attr.pf_idx       = HINIC_FA0_GET(attr0, PF_IDX);
@@ -207,6 +292,11 @@ static void set_hwif_attr(struct hinic_hwif *hwif, u32 attr0, u32 attr1)
 	hwif->attr.num_ceqs = BIT(HINIC_FA1_GET(attr1, CEQS_PER_FUNC));
 	hwif->attr.num_irqs = BIT(HINIC_FA1_GET(attr1, IRQS_PER_FUNC));
 	hwif->attr.num_dma_attr = BIT(HINIC_FA1_GET(attr1, DMA_ATTR_PER_FUNC));
+<<<<<<< HEAD
+=======
+	hwif->attr.global_vf_id_of_pf = HINIC_FA2_GET(attr2,
+						      GLOBAL_VF_ID_OF_PF);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -215,7 +305,11 @@ static void set_hwif_attr(struct hinic_hwif *hwif, u32 attr0, u32 attr1)
  **/
 static void read_hwif_attr(struct hinic_hwif *hwif)
 {
+<<<<<<< HEAD
 	u32 addr, attr0, attr1;
+=======
+	u32 addr, attr0, attr1, attr2;
+>>>>>>> upstream/android-13
 
 	addr   = HINIC_CSR_FUNC_ATTR0_ADDR;
 	attr0  = hinic_hwif_read_reg(hwif, addr);
@@ -223,7 +317,14 @@ static void read_hwif_attr(struct hinic_hwif *hwif)
 	addr   = HINIC_CSR_FUNC_ATTR1_ADDR;
 	attr1  = hinic_hwif_read_reg(hwif, addr);
 
+<<<<<<< HEAD
 	set_hwif_attr(hwif, attr0, attr1);
+=======
+	addr   = HINIC_CSR_FUNC_ATTR2_ADDR;
+	attr2  = hinic_hwif_read_reg(hwif, addr);
+
+	set_hwif_attr(hwif, attr0, attr1, attr2);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -292,7 +393,11 @@ static void set_dma_attr(struct hinic_hwif *hwif, u32 entry_idx,
 }
 
 /**
+<<<<<<< HEAD
  * dma_attr_table_init - initialize the the default dma attributes
+=======
+ * dma_attr_init - initialize the default dma attributes
+>>>>>>> upstream/android-13
  * @hwif: the HW interface of a pci function device
  **/
 static void dma_attr_init(struct hinic_hwif *hwif)
@@ -302,10 +407,65 @@ static void dma_attr_init(struct hinic_hwif *hwif)
 		     HINIC_PCIE_SNOOP, HINIC_PCIE_TPH_DISABLE);
 }
 
+<<<<<<< HEAD
 /**
  * hinic_init_hwif - initialize the hw interface
  * @hwif: the HW interface of a pci function device
  * @pdev: the pci device for acessing PCI resources
+=======
+u16 hinic_glb_pf_vf_offset(struct hinic_hwif *hwif)
+{
+	if (!hwif)
+		return 0;
+
+	return hwif->attr.global_vf_id_of_pf;
+}
+
+u16 hinic_global_func_id_hw(struct hinic_hwif *hwif)
+{
+	u32 addr, attr0;
+
+	addr   = HINIC_CSR_FUNC_ATTR0_ADDR;
+	attr0  = hinic_hwif_read_reg(hwif, addr);
+
+	return HINIC_FA0_GET(attr0, FUNC_IDX);
+}
+
+u16 hinic_pf_id_of_vf_hw(struct hinic_hwif *hwif)
+{
+	u32 addr, attr0;
+
+	addr   = HINIC_CSR_FUNC_ATTR0_ADDR;
+	attr0  = hinic_hwif_read_reg(hwif, addr);
+
+	return HINIC_FA0_GET(attr0, PF_IDX);
+}
+
+static void __print_selftest_reg(struct hinic_hwif *hwif)
+{
+	u32 addr, attr0, attr1;
+
+	addr   = HINIC_CSR_FUNC_ATTR1_ADDR;
+	attr1  = hinic_hwif_read_reg(hwif, addr);
+
+	if (attr1 == HINIC_PCIE_LINK_DOWN) {
+		dev_err(&hwif->pdev->dev, "PCIE is link down\n");
+		return;
+	}
+
+	addr   = HINIC_CSR_FUNC_ATTR0_ADDR;
+	attr0  = hinic_hwif_read_reg(hwif, addr);
+	if (HINIC_FA0_GET(attr0, FUNC_TYPE) != HINIC_VF &&
+	    !HINIC_FA0_GET(attr0, PCI_INTF_IDX))
+		dev_err(&hwif->pdev->dev, "Selftest reg: 0x%08x\n",
+			hinic_hwif_read_reg(hwif, HINIC_SELFTEST_RESULT));
+}
+
+/**
+ * hinic_init_hwif - initialize the hw interface
+ * @hwif: the HW interface of a pci function device
+ * @pdev: the pci device for accessing PCI resources
+>>>>>>> upstream/android-13
  *
  * Return 0 - Success, negative - Failure
  **/
@@ -321,9 +481,23 @@ int hinic_init_hwif(struct hinic_hwif *hwif, struct pci_dev *pdev)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	err = hwif_ready(hwif);
 	if (err) {
 		dev_err(&pdev->dev, "HW interface is not ready\n");
+=======
+	hwif->intr_regs_base = pci_ioremap_bar(pdev, HINIC_PCI_INTR_REGS_BAR);
+	if (!hwif->intr_regs_base) {
+		dev_err(&pdev->dev, "Failed to map configuration regs\n");
+		err = -ENOMEM;
+		goto err_map_intr_bar;
+	}
+
+	err = wait_hwif_ready(hwif);
+	if (err) {
+		dev_err(&pdev->dev, "HW interface is not ready\n");
+		__print_selftest_reg(hwif);
+>>>>>>> upstream/android-13
 		goto err_hwif_ready;
 	}
 
@@ -337,7 +511,15 @@ int hinic_init_hwif(struct hinic_hwif *hwif, struct pci_dev *pdev)
 	return 0;
 
 err_hwif_ready:
+<<<<<<< HEAD
 	iounmap(hwif->cfg_regs_bar);
+=======
+	iounmap(hwif->intr_regs_base);
+
+err_map_intr_bar:
+	iounmap(hwif->cfg_regs_bar);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -347,5 +529,9 @@ err_hwif_ready:
  **/
 void hinic_free_hwif(struct hinic_hwif *hwif)
 {
+<<<<<<< HEAD
+=======
+	iounmap(hwif->intr_regs_base);
+>>>>>>> upstream/android-13
 	iounmap(hwif->cfg_regs_bar);
 }

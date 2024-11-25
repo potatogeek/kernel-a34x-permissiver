@@ -11,6 +11,10 @@
 
 /dts-v1/;
 #include "exynos4412.dtsi"
+<<<<<<< HEAD
+=======
+#include <dt-bindings/clock/samsung,s2mps11.h>
+>>>>>>> upstream/android-13
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include "exynos-mfc-reserved-memory.dtsi"
@@ -25,8 +29,12 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs ="console=ttySAC2,115200";
 		stdout-path = &serial_2;
+=======
+		stdout-path = "serial2:115200n8";
+>>>>>>> upstream/android-13
 	};
 
 	firmware@203f000 {
@@ -34,6 +42,7 @@
 		reg = <0x0203F000 0x1000>;
 	};
 
+<<<<<<< HEAD
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -48,6 +57,15 @@
 			gpio = <&gpx1 1 GPIO_ACTIVE_HIGH>;
 			enable-active-high;
 		};
+=======
+	mmc_reg: regulator-0 {
+		compatible = "regulator-fixed";
+		regulator-name = "VMEM_VDD_2.8V";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&gpx1 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+>>>>>>> upstream/android-13
 	};
 
 	display-timings {
@@ -82,6 +100,24 @@
 	cpu0-supply = <&buck2_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&cpu_thermal {
+	cooling-maps {
+		cooling_map0: map0 {
+			/* Corresponds to 800MHz at freq_table */
+			cooling-device = <&cpu0 7 7>, <&cpu1 7 7>,
+					 <&cpu2 7 7>, <&cpu3 7 7>;
+		};
+		cooling_map1: map1 {
+			/* Corresponds to 200MHz at freq_table */
+			cooling-device = <&cpu0 13 13>, <&cpu1 13 13>,
+					 <&cpu2 13 13>, <&cpu3 13 13>;
+		};
+	};
+};
+
+>>>>>>> upstream/android-13
 &exynos_usbphy {
 	status = "okay";
 };
@@ -89,6 +125,7 @@
 &ehci {
 	samsung,vbus-gpio = <&gpx3 5 1>;
 	status = "okay";
+<<<<<<< HEAD
 
 	port@1 {
 		status = "okay";
@@ -96,6 +133,10 @@
 	port@2 {
 		status = "okay";
 	};
+=======
+	phys = <&exynos_usbphy 2>, <&exynos_usbphy 3>;
+	phy-names = "hsic0", "hsic1";
+>>>>>>> upstream/android-13
 };
 
 &fimd {
@@ -113,7 +154,11 @@
 	pinctrl-names = "default";
 	status = "okay";
 
+<<<<<<< HEAD
 	s5m8767_pmic@66 {
+=======
+	pmic@66 {
+>>>>>>> upstream/android-13
 		compatible = "samsung,s5m8767-pmic";
 		reg = <0x66>;
 
@@ -141,6 +186,17 @@
 						 <1200000>, <1200000>,
 						 <1200000>, <1200000>,
 						 <1200000>, <1200000>;
+<<<<<<< HEAD
+=======
+		wakeup-source;
+
+		s5m8767_osc: clocks {
+			compatible = "samsung,s5m8767-clk";
+			#clock-cells = <1>;
+			clock-output-names = "s5m8767_ap", "s5m8767_cp",
+					     "s5m8767_bt";
+		};
+>>>>>>> upstream/android-13
 
 		regulators {
 			ldo1_reg: LDO1 {
@@ -369,7 +425,11 @@
 			};
 
 			buck1_reg: BUCK1 {
+<<<<<<< HEAD
 				regulator-name = "vdd_mif";
+=======
+				regulator-name = "VDD_MIF";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <950000>;
 				regulator-max-microvolt	= <1100000>;
 				regulator-always-on;
@@ -378,7 +438,11 @@
 			};
 
 			buck2_reg: BUCK2 {
+<<<<<<< HEAD
 				regulator-name = "vdd_arm";
+=======
+				regulator-name = "VDD_ARM";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt	= <1350000>;
 				regulator-always-on;
@@ -387,7 +451,11 @@
 			};
 
 			buck3_reg: BUCK3 {
+<<<<<<< HEAD
 				regulator-name = "vdd_int";
+=======
+				regulator-name = "VDD_INT";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt	= <1200000>;
 				regulator-always-on;
@@ -396,7 +464,11 @@
 			};
 
 			buck4_reg: BUCK4 {
+<<<<<<< HEAD
 				regulator-name = "vdd_g3d";
+=======
+				regulator-name = "VDD_G3D";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <750000>;
 				regulator-max-microvolt	= <1500000>;
 				regulator-always-on;
@@ -405,7 +477,11 @@
 			};
 
 			buck5_reg: BUCK5 {
+<<<<<<< HEAD
 				regulator-name = "vdd_m12";
+=======
+				regulator-name = "VDD_M12";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <750000>;
 				regulator-max-microvolt	= <1500000>;
 				regulator-always-on;
@@ -414,7 +490,11 @@
 			};
 
 			buck6_reg: BUCK6 {
+<<<<<<< HEAD
 				regulator-name = "vdd12_5m";
+=======
+				regulator-name = "VDD12_5M";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <750000>;
 				regulator-max-microvolt	= <1500000>;
 				regulator-always-on;
@@ -423,7 +503,11 @@
 			};
 
 			buck9_reg: BUCK9 {
+<<<<<<< HEAD
 				regulator-name = "vddf28_emmc";
+=======
+				regulator-name = "VDDF28_EMMC";
+>>>>>>> upstream/android-13
 				regulator-min-microvolt = <750000>;
 				regulator-max-microvolt	= <3000000>;
 				regulator-always-on;
@@ -443,37 +527,61 @@
 	pinctrl-names = "default";
 	status = "okay";
 
+<<<<<<< HEAD
 	key_home {
+=======
+	key-home {
+>>>>>>> upstream/android-13
 		keypad,row = <0>;
 		keypad,column = <0>;
 		linux,code = <KEY_HOME>;
 	};
 
+<<<<<<< HEAD
 	key_down {
+=======
+	key-down {
+>>>>>>> upstream/android-13
 		keypad,row = <0>;
 		keypad,column = <1>;
 		linux,code = <KEY_DOWN>;
 	};
 
+<<<<<<< HEAD
 	key_up {
+=======
+	key-up {
+>>>>>>> upstream/android-13
 		keypad,row = <1>;
 		keypad,column = <0>;
 		linux,code = <KEY_UP>;
 	};
 
+<<<<<<< HEAD
 	key_menu {
+=======
+	key-menu {
+>>>>>>> upstream/android-13
 		keypad,row = <1>;
 		keypad,column = <1>;
 		linux,code = <KEY_MENU>;
 	};
 
+<<<<<<< HEAD
 	key_back {
+=======
+	key-back {
+>>>>>>> upstream/android-13
 		keypad,row = <2>;
 		keypad,column = <0>;
 		linux,code = <KEY_BACK>;
 	};
 
+<<<<<<< HEAD
 	key_enter {
+=======
+	key-enter {
+>>>>>>> upstream/android-13
 		keypad,row = <2>;
 		keypad,column = <1>;
 		linux,code = <KEY_ENTER>;
@@ -512,6 +620,11 @@
 
 &rtc {
 	status = "okay";
+<<<<<<< HEAD
+=======
+	clocks = <&clock CLK_RTC>, <&s5m8767_osc S2MPS11_CLK_AP>;
+	clock-names = "rtc", "rtc_src";
+>>>>>>> upstream/android-13
 };
 
 &sdhci_2 {

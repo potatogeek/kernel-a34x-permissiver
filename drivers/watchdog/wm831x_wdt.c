@@ -13,7 +13,10 @@
 #include <linux/platform_device.h>
 #include <linux/watchdog.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/mfd/wm831x/core.h>
 #include <linux/mfd/wm831x/pdata.h>
@@ -29,7 +32,10 @@ struct wm831x_wdt_drvdata {
 	struct watchdog_device wdt;
 	struct wm831x *wm831x;
 	struct mutex lock;
+<<<<<<< HEAD
 	int update_gpio;
+=======
+>>>>>>> upstream/android-13
 	int update_state;
 };
 
@@ -103,6 +109,7 @@ static int wm831x_wdt_ping(struct watchdog_device *wdt_dev)
 
 	mutex_lock(&driver_data->lock);
 
+<<<<<<< HEAD
 	if (driver_data->update_gpio) {
 		gpio_set_value_cansleep(driver_data->update_gpio,
 					driver_data->update_state);
@@ -111,6 +118,8 @@ static int wm831x_wdt_ping(struct watchdog_device *wdt_dev)
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	reg = wm831x_reg_read(wm831x, WM831X_WATCHDOG);
 
 	if (!(reg & WM831X_WDOG_RST_SRC)) {
@@ -180,8 +189,14 @@ static const struct watchdog_ops wm831x_wdt_ops = {
 
 static int wm831x_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
 	struct wm831x_pdata *chip_pdata = dev_get_platdata(pdev->dev.parent);
+=======
+	struct device *dev = &pdev->dev;
+	struct wm831x *wm831x = dev_get_drvdata(dev->parent);
+	struct wm831x_pdata *chip_pdata = dev_get_platdata(dev->parent);
+>>>>>>> upstream/android-13
 	struct wm831x_watchdog_pdata *pdata;
 	struct wm831x_wdt_drvdata *driver_data;
 	struct watchdog_device *wm831x_wdt;
@@ -198,8 +213,12 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
 	if (reg & WM831X_WDOG_DEBUG)
 		dev_warn(wm831x->dev, "Watchdog is paused\n");
 
+<<<<<<< HEAD
 	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
 				   GFP_KERNEL);
+=======
+	driver_data = devm_kzalloc(dev, sizeof(*driver_data), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!driver_data)
 		return -ENOMEM;
 
@@ -210,7 +229,11 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
 
 	wm831x_wdt->info = &wm831x_wdt_info;
 	wm831x_wdt->ops = &wm831x_wdt_ops;
+<<<<<<< HEAD
 	wm831x_wdt->parent = &pdev->dev;
+=======
+	wm831x_wdt->parent = dev;
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(wm831x_wdt, nowayout);
 	watchdog_set_drvdata(wm831x_wdt, driver_data);
 
@@ -239,6 +262,7 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
 		reg |= pdata->secondary << WM831X_WDOG_SECACT_SHIFT;
 		reg |= pdata->software << WM831X_WDOG_RST_SRC_SHIFT;
 
+<<<<<<< HEAD
 		if (pdata->update_gpio) {
 			ret = devm_gpio_request_one(&pdev->dev,
 						pdata->update_gpio,
@@ -257,6 +281,8 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
 			reg |= WM831X_WDOG_RST_SRC;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		ret = wm831x_reg_unlock(wm831x);
 		if (ret == 0) {
 			ret = wm831x_reg_write(wm831x, WM831X_WATCHDOG, reg);
@@ -268,6 +294,7 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	ret = devm_watchdog_register_device(&pdev->dev, &driver_data->wdt);
 	if (ret != 0) {
 		dev_err(wm831x->dev, "watchdog_register_device() failed: %d\n",
@@ -276,6 +303,9 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+=======
+	return devm_watchdog_register_device(dev, &driver_data->wdt);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver wm831x_wdt_driver = {

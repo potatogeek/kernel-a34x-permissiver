@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 if MMP_DISP
 
 config MMP_DISP_CONTROLLER
 	bool "mmp display controller hw support"
 	depends on CPU_PXA910 || CPU_MMP2
 	default n
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config MMP_DISP_CONTROLLER
+	bool "mmp display controller hw support"
+	depends on HAVE_CLK && HAS_IOMEM
+	depends on CPU_PXA910 || CPU_MMP2 || COMPILE_TEST
+>>>>>>> upstream/android-13
 	help
 		Marvell MMP display hw controller support
 		this controller is used on Marvell PXA910 and
@@ -16,5 +24,8 @@ config MMP_DISP_SPI
 	help
 		Marvell MMP display hw controller spi port support
 		will register as a spi master for panel usage
+<<<<<<< HEAD
 
 endif
+=======
+>>>>>>> upstream/android-13

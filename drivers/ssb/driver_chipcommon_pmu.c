@@ -513,7 +513,11 @@ static void ssb_pmu_resources_init(struct ssb_chipcommon *cc)
 		chipco_write32(cc, SSB_CHIPCO_PMU_MAXRES_MSK, max_msk);
 }
 
+<<<<<<< HEAD
 /* http://bcm-v4.sipsolutions.net/802.11/SSB/PmuInit */
+=======
+/* https://bcm-v4.sipsolutions.net/802.11/SSB/PmuInit */
+>>>>>>> upstream/android-13
 void ssb_pmu_init(struct ssb_chipcommon *cc)
 {
 	u32 pmucap;

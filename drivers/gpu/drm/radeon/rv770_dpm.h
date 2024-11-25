@@ -23,6 +23,10 @@
 #ifndef __RV770_DPM_H__
 #define __RV770_DPM_H__
 
+<<<<<<< HEAD
+=======
+#include "radeon.h"
+>>>>>>> upstream/android-13
 #include "rv770_smc.h"
 
 struct rv770_clock_registers {

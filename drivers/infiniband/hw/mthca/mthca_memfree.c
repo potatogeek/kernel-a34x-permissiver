@@ -58,7 +58,11 @@ struct mthca_user_db_table {
 		u64                uvirt;
 		struct scatterlist mem;
 		int                refcount;
+<<<<<<< HEAD
 	}                page[0];
+=======
+	} page[];
+>>>>>>> upstream/android-13
 };
 
 static void mthca_free_icm_pages(struct mthca_dev *dev, struct mthca_icm_chunk *chunk)
@@ -66,8 +70,13 @@ static void mthca_free_icm_pages(struct mthca_dev *dev, struct mthca_icm_chunk *
 	int i;
 
 	if (chunk->nsg > 0)
+<<<<<<< HEAD
 		pci_unmap_sg(dev->pdev, chunk->mem, chunk->npages,
 			     PCI_DMA_BIDIRECTIONAL);
+=======
+		dma_unmap_sg(&dev->pdev->dev, chunk->mem, chunk->npages,
+			     DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < chunk->npages; ++i)
 		__free_pages(sg_page(&chunk->mem[i]),
@@ -184,9 +193,16 @@ struct mthca_icm *mthca_alloc_icm(struct mthca_dev *dev, int npages,
 			if (coherent)
 				++chunk->nsg;
 			else if (chunk->npages == MTHCA_ICM_CHUNK_LEN) {
+<<<<<<< HEAD
 				chunk->nsg = pci_map_sg(dev->pdev, chunk->mem,
 							chunk->npages,
 							PCI_DMA_BIDIRECTIONAL);
+=======
+				chunk->nsg =
+					dma_map_sg(&dev->pdev->dev, chunk->mem,
+						   chunk->npages,
+						   DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 				if (chunk->nsg <= 0)
 					goto fail;
@@ -204,9 +220,14 @@ struct mthca_icm *mthca_alloc_icm(struct mthca_dev *dev, int npages,
 	}
 
 	if (!coherent && chunk) {
+<<<<<<< HEAD
 		chunk->nsg = pci_map_sg(dev->pdev, chunk->mem,
 					chunk->npages,
 					PCI_DMA_BIDIRECTIONAL);
+=======
+		chunk->nsg = dma_map_sg(&dev->pdev->dev, chunk->mem,
+					chunk->npages, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 		if (chunk->nsg <= 0)
 			goto fail;
@@ -472,24 +493,42 @@ int mthca_map_user_db(struct mthca_dev *dev, struct mthca_uar *uar,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = get_user_pages_fast(uaddr & PAGE_MASK, 1, FOLL_WRITE, pages);
+=======
+	ret = pin_user_pages_fast(uaddr & PAGE_MASK, 1,
+				  FOLL_WRITE | FOLL_LONGTERM, pages);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto out;
 
 	sg_set_page(&db_tab->page[i].mem, pages[0], MTHCA_ICM_PAGE_SIZE,
 			uaddr & ~PAGE_MASK);
 
+<<<<<<< HEAD
 	ret = pci_map_sg(dev->pdev, &db_tab->page[i].mem, 1, PCI_DMA_TODEVICE);
 	if (ret < 0) {
 		put_page(pages[0]);
+=======
+	ret = dma_map_sg(&dev->pdev->dev, &db_tab->page[i].mem, 1,
+			 DMA_TO_DEVICE);
+	if (ret < 0) {
+		unpin_user_page(pages[0]);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	ret = mthca_MAP_ICM_page(dev, sg_dma_address(&db_tab->page[i].mem),
 				 mthca_uarc_virt(dev, uar, i));
 	if (ret) {
+<<<<<<< HEAD
 		pci_unmap_sg(dev->pdev, &db_tab->page[i].mem, 1, PCI_DMA_TODEVICE);
 		put_page(sg_page(&db_tab->page[i].mem));
+=======
+		dma_unmap_sg(&dev->pdev->dev, &db_tab->page[i].mem, 1,
+			     DMA_TO_DEVICE);
+		unpin_user_page(sg_page(&db_tab->page[i].mem));
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -554,8 +593,14 @@ void mthca_cleanup_user_db_tab(struct mthca_dev *dev, struct mthca_uar *uar,
 	for (i = 0; i < dev->uar_table.uarc_size / MTHCA_ICM_PAGE_SIZE; ++i) {
 		if (db_tab->page[i].uvirt) {
 			mthca_UNMAP_ICM(dev, mthca_uarc_virt(dev, uar, i), 1);
+<<<<<<< HEAD
 			pci_unmap_sg(dev->pdev, &db_tab->page[i].mem, 1, PCI_DMA_TODEVICE);
 			put_page(sg_page(&db_tab->page[i].mem));
+=======
+			dma_unmap_sg(&dev->pdev->dev, &db_tab->page[i].mem, 1,
+				     DMA_TO_DEVICE);
+			unpin_user_page(sg_page(&db_tab->page[i].mem));
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -623,8 +668,14 @@ int mthca_alloc_db(struct mthca_dev *dev, enum mthca_db_type type,
 	page = dev->db_tab->page + end;
 
 alloc:
+<<<<<<< HEAD
 	page->db_rec = dma_zalloc_coherent(&dev->pdev->dev, MTHCA_ICM_PAGE_SIZE,
 					   &page->mapping, GFP_KERNEL);
+=======
+	page->db_rec = dma_alloc_coherent(&dev->pdev->dev,
+					  MTHCA_ICM_PAGE_SIZE, &page->mapping,
+					  GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!page->db_rec) {
 		ret = -ENOMEM;
 		goto out;

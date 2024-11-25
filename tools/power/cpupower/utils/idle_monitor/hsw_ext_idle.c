@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
  *
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
+ *
+>>>>>>> upstream/android-13
  *  Based on SandyBridge monitor. Implements the new package C-states
  *  (PC8, PC9, PC10) coming with a specific Haswell (family 0x45) CPU.
  */
@@ -80,7 +87,11 @@ static int hsw_ext_get_count(enum intel_hsw_ext_id id, unsigned long long *val,
 		break;
 	default:
 		return -1;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	if (read_msr(cpu, msr, val))
 		return -1;
 	return 0;
@@ -188,7 +199,11 @@ struct cpuidle_monitor intel_hsw_ext_monitor = {
 	.stop			= hsw_ext_stop,
 	.do_register		= hsw_ext_register,
 	.unregister		= hsw_ext_unregister,
+<<<<<<< HEAD
 	.needs_root		= 1,
+=======
+	.flags.needs_root	= 1,
+>>>>>>> upstream/android-13
 	.overflow_s		= 922000000 /* 922337203 seconds TSC overflow
 					       at 20GHz */
 };

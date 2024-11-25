@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2012 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef EFX_SELFTEST_H
@@ -18,8 +25,13 @@
  */
 
 struct efx_loopback_self_tests {
+<<<<<<< HEAD
 	int tx_sent[EFX_TXQ_TYPES];
 	int tx_done[EFX_TXQ_TYPES];
+=======
+	int tx_sent[EFX_MAX_TXQ_PER_CHANNEL];
+	int tx_done[EFX_MAX_TXQ_PER_CHANNEL];
+>>>>>>> upstream/android-13
 	int rx_good;
 	int rx_bad;
 };
@@ -48,8 +60,14 @@ void efx_loopback_rx_packet(struct efx_nic *efx, const char *buf_ptr,
 			    int pkt_len);
 int efx_selftest(struct efx_nic *efx, struct efx_self_tests *tests,
 		 unsigned flags);
+<<<<<<< HEAD
 void efx_selftest_async_start(struct efx_nic *efx);
 void efx_selftest_async_cancel(struct efx_nic *efx);
 void efx_selftest_async_work(struct work_struct *data);
+=======
+void efx_selftest_async_init(struct efx_nic *efx);
+void efx_selftest_async_start(struct efx_nic *efx);
+void efx_selftest_async_cancel(struct efx_nic *efx);
+>>>>>>> upstream/android-13
 
 #endif /* EFX_SELFTEST_H */

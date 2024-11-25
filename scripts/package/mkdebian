@@ -7,7 +7,11 @@
 set -e
 
 is_enabled() {
+<<<<<<< HEAD
 	grep -q "^CONFIG_$1=y" $KCONFIG_CONFIG
+=======
+	grep -q "^$1=y" include/config/auto.conf
+>>>>>>> upstream/android-13
 }
 
 if_enabled_echo() {
@@ -31,6 +35,7 @@ set_debarch() {
 	x86_64)
 		debarch=amd64 ;;
 	sparc*)
+<<<<<<< HEAD
 		debarch=sparc$(if_enabled_echo 64BIT 64) ;;
 	s390*)
 		debarch=s390x ;;
@@ -39,15 +44,32 @@ set_debarch() {
 			debarch=ppc64$(if_enabled_echo CPU_LITTLE_ENDIAN el)
 		else
 			debarch=powerpc$(if_enabled_echo SPE spe)
+=======
+		debarch=sparc$(if_enabled_echo CONFIG_64BIT 64) ;;
+	s390*)
+		debarch=s390x ;;
+	ppc*)
+		if is_enabled CONFIG_64BIT; then
+			debarch=ppc64$(if_enabled_echo CONFIG_CPU_LITTLE_ENDIAN el)
+		else
+			debarch=powerpc$(if_enabled_echo CONFIG_SPE spe)
+>>>>>>> upstream/android-13
 		fi
 		;;
 	parisc*)
 		debarch=hppa ;;
 	mips*)
+<<<<<<< HEAD
 		if is_enabled CPU_LITTLE_ENDIAN; then
 			debarch=mips$(if_enabled_echo 64BIT 64)$(if_enabled_echo CPU_MIPSR6 r6)el
 		elif is_enabled CPU_MIPSR6; then
 			debarch=mips$(if_enabled_echo 64BIT 64)r6
+=======
+		if is_enabled CONFIG_CPU_LITTLE_ENDIAN; then
+			debarch=mips$(if_enabled_echo CONFIG_64BIT 64)$(if_enabled_echo CONFIG_CPU_MIPSR6 r6)el
+		elif is_enabled CONFIG_CPU_MIPSR6; then
+			debarch=mips$(if_enabled_echo CONFIG_64BIT 64)r6
+>>>>>>> upstream/android-13
 		else
 			debarch=mips
 		fi
@@ -55,8 +77,13 @@ set_debarch() {
 	aarch64|arm64)
 		debarch=arm64 ;;
 	arm*)
+<<<<<<< HEAD
 		if is_enabled AEABI; then
 			debarch=arm$(if_enabled_echo VFP hf el)
+=======
+		if is_enabled CONFIG_AEABI; then
+			debarch=arm$(if_enabled_echo CONFIG_VFP hf el)
+>>>>>>> upstream/android-13
 		else
 			debarch=arm
 		fi
@@ -64,10 +91,17 @@ set_debarch() {
 	openrisc)
 		debarch=or1k ;;
 	sh)
+<<<<<<< HEAD
 		if is_enabled CPU_SH3; then
 			debarch=sh3$(if_enabled_echo CPU_BIG_ENDIAN eb)
 		elif is_enabled CPU_SH4; then
 			debarch=sh4$(if_enabled_echo CPU_BIG_ENDIAN eb)
+=======
+		if is_enabled CONFIG_CPU_SH3; then
+			debarch=sh3$(if_enabled_echo CONFIG_CPU_BIG_ENDIAN eb)
+		elif is_enabled CONFIG_CPU_SH4; then
+			debarch=sh4$(if_enabled_echo CONFIG_CPU_BIG_ENDIAN eb)
+>>>>>>> upstream/android-13
 		fi
 		;;
 	esac
@@ -94,6 +128,7 @@ else
 	packageversion=$version-$revision
 fi
 sourcename=$KDEB_SOURCENAME
+<<<<<<< HEAD
 packagename=linux-image-$version
 kernel_headers_packagename=linux-headers-$version
 dbg_packagename=$packagename-dbg
@@ -104,6 +139,18 @@ if [ "$ARCH" = "um" ] ; then
 	packagename=user-mode-linux-$version
 fi
 
+=======
+
+if [ "$ARCH" = "um" ] ; then
+	packagename=user-mode-linux
+else
+	packagename=linux-image
+fi
+
+debarch=
+set_debarch
+
+>>>>>>> upstream/android-13
 email=${DEBEMAIL-$EMAIL}
 
 # use email string directly if it contains <email>
@@ -132,8 +179,17 @@ else
         echo >&2 "Install lsb-release or set \$KDEB_CHANGELOG_DIST explicitly"
 fi
 
+<<<<<<< HEAD
 mkdir -p debian/
 echo $debarch > debian/arch
+=======
+mkdir -p debian/source/
+echo "1.0" > debian/source/format
+
+echo $debarch > debian/arch
+extra_build_depends=", $(if_enabled_echo CONFIG_UNWINDER_ORC libelf-dev:native)"
+extra_build_depends="$extra_build_depends, $(if_enabled_echo CONFIG_SYSTEM_TRUSTED_KEYRING libssl-dev:native)"
+>>>>>>> upstream/android-13
 
 # Generate a simple changelog template
 cat <<EOF > debian/changelog
@@ -170,15 +226,24 @@ Source: $sourcename
 Section: kernel
 Priority: optional
 Maintainer: $maintainer
+<<<<<<< HEAD
 Build-Depends: bc, kmod, cpio
 Homepage: http://www.kernel.org/
 
 Package: $packagename
+=======
+Rules-Requires-Root: no
+Build-Depends: bc, rsync, kmod, cpio, bison, flex | flex:native $extra_build_depends
+Homepage: https://www.kernel.org/
+
+Package: $packagename-$version
+>>>>>>> upstream/android-13
 Architecture: $debarch
 Description: Linux kernel, version $version
  This package contains the Linux kernel, modules and corresponding other
  files, version: $version.
 
+<<<<<<< HEAD
 Package: $kernel_headers_packagename
 Architecture: $debarch
 Description: Linux kernel headers for $version on $debarch
@@ -186,6 +251,8 @@ Description: Linux kernel headers for $version on $debarch
  .
  This is useful for people who need to build external modules
 
+=======
+>>>>>>> upstream/android-13
 Package: linux-libc-dev
 Section: devel
 Provides: linux-kernel-headers
@@ -193,18 +260,45 @@ Architecture: $debarch
 Description: Linux support headers for userspace development
  This package provides userspaces headers from the Linux kernel.  These headers
  are used by the installed headers for GNU glibc and other system libraries.
+<<<<<<< HEAD
 
 Package: $dbg_packagename
+=======
+Multi-Arch: same
+EOF
+
+if is_enabled CONFIG_MODULES; then
+cat <<EOF >> debian/control
+
+Package: linux-headers-$version
+Architecture: $debarch
+Description: Linux kernel headers for $version on $debarch
+ This package provides kernel header files for $version on $debarch
+ .
+ This is useful for people who need to build external modules
+EOF
+fi
+
+if is_enabled CONFIG_DEBUG_INFO; then
+cat <<EOF >> debian/control
+
+Package: linux-image-$version-dbg
+>>>>>>> upstream/android-13
 Section: debug
 Architecture: $debarch
 Description: Linux kernel debugging symbols for $version
  This package will come in handy if you need to debug the kernel. It provides
  all the necessary debug symbols for the kernel and its modules.
 EOF
+<<<<<<< HEAD
+=======
+fi
+>>>>>>> upstream/android-13
 
 cat <<EOF > debian/rules
 #!$(command -v $MAKE) -f
 
+<<<<<<< HEAD
 build:
 	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
 	KBUILD_BUILD_VERSION=${revision} KBUILD_SRC=
@@ -212,6 +306,21 @@ build:
 binary-arch:
 	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
 	KBUILD_BUILD_VERSION=${revision} KBUILD_SRC= intdeb-pkg
+=======
+srctree ?= .
+
+build-indep:
+build-arch:
+	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
+	KBUILD_BUILD_VERSION=${revision} -f \$(srctree)/Makefile
+
+build: build-arch
+
+binary-indep:
+binary-arch: build-arch
+	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
+	KBUILD_BUILD_VERSION=${revision} -f \$(srctree)/Makefile intdeb-pkg
+>>>>>>> upstream/android-13
 
 clean:
 	rm -rf debian/*tmp debian/files
@@ -219,5 +328,9 @@ clean:
 
 binary: binary-arch
 EOF
+<<<<<<< HEAD
+=======
+chmod +x debian/rules
+>>>>>>> upstream/android-13
 
 exit 0

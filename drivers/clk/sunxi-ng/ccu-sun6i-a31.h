@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright 2016 Chen-Yu Tsai
  *
  * Chen-Yu Tsai <wens@csie.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CCU_SUN6I_A31_H_
@@ -41,7 +48,13 @@
 /* The PLL_VIDEO1_2X clock is exported */
 
 #define CLK_PLL_GPU		14
+<<<<<<< HEAD
 #define CLK_PLL_MIPI		15
+=======
+
+/* The PLL_VIDEO1_2X clock is exported */
+
+>>>>>>> upstream/android-13
 #define CLK_PLL9		16
 #define CLK_PLL10		17
 

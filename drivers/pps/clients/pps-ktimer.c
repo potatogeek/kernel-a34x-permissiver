@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * pps-ktimer.c -- kernel timer test client
  *
@@ -17,6 +18,13 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * pps-ktimer.c -- kernel timer test client
+ *
+ * Copyright (C) 2005-2006   Rodolfo Giometti <giometti@linux.it>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -80,9 +88,15 @@ static int __init pps_ktimer_init(void)
 {
 	pps = pps_register_source(&pps_ktimer_info,
 				PPS_CAPTUREASSERT | PPS_OFFSETASSERT);
+<<<<<<< HEAD
 	if (pps == NULL) {
 		pr_err("cannot register PPS source\n");
 		return -ENOMEM;
+=======
+	if (IS_ERR(pps)) {
+		pr_err("cannot register PPS source\n");
+		return PTR_ERR(pps);
+>>>>>>> upstream/android-13
 	}
 
 	timer_setup(&ktimer, pps_ktimer_event, 0);

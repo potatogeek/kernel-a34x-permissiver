@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CXL Flash Device Driver
  *
@@ -5,20 +9,31 @@
  *             Uma Krishnan <ukrishn@linux.vnet.ibm.com>, IBM Corporation
  *
  * Copyright (C) 2018 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/file.h>
 #include <linux/idr.h>
 #include <linux/module.h>
 #include <linux/mount.h>
+<<<<<<< HEAD
 #include <linux/poll.h>
 #include <linux/sched/signal.h>
 
+=======
+#include <linux/pseudo_fs.h>
+#include <linux/poll.h>
+#include <linux/sched/signal.h>
+#include <linux/interrupt.h>
+#include <asm/xive.h>
+>>>>>>> upstream/android-13
 #include <misc/ocxl.h>
 
 #include <uapi/misc/cxl.h>
@@ -35,6 +50,7 @@
 static int ocxlflash_fs_cnt;
 static struct vfsmount *ocxlflash_vfs_mount;
 
+<<<<<<< HEAD
 static const struct dentry_operations ocxlflash_fs_dops = {
 	.d_dname	= simple_dname,
 };
@@ -54,12 +70,21 @@ static struct dentry *ocxlflash_fs_mount(struct file_system_type *fs_type,
 {
 	return mount_pseudo(fs_type, "ocxlflash:", NULL, &ocxlflash_fs_dops,
 			    OCXLFLASH_FS_MAGIC);
+=======
+static int ocxlflash_fs_init_fs_context(struct fs_context *fc)
+{
+	return init_pseudo(fc, OCXLFLASH_FS_MAGIC) ? 0 : -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type ocxlflash_fs_type = {
 	.name		= "ocxlflash",
 	.owner		= THIS_MODULE,
+<<<<<<< HEAD
 	.mount		= ocxlflash_fs_mount,
+=======
+	.init_fs_context = ocxlflash_fs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb	= kill_anon_super,
 };
 
@@ -199,7 +224,11 @@ static int afu_map_irq(u64 flags, struct ocxlflash_context *ctx, int num,
 	struct ocxl_hw_afu *afu = ctx->hw_afu;
 	struct device *dev = afu->dev;
 	struct ocxlflash_irqs *irq;
+<<<<<<< HEAD
 	void __iomem *vtrig;
+=======
+	struct xive_irq_data *xd;
+>>>>>>> upstream/android-13
 	u32 virq;
 	int rc = 0;
 
@@ -223,15 +252,26 @@ static int afu_map_irq(u64 flags, struct ocxlflash_context *ctx, int num,
 		goto err1;
 	}
 
+<<<<<<< HEAD
 	vtrig = ioremap(irq->ptrig, PAGE_SIZE);
 	if (unlikely(!vtrig)) {
 		dev_err(dev, "%s: Trigger page mapping failed\n", __func__);
 		rc = -ENOMEM;
+=======
+	xd = irq_get_handler_data(virq);
+	if (unlikely(!xd)) {
+		dev_err(dev, "%s: Can't get interrupt data\n", __func__);
+		rc = -ENXIO;
+>>>>>>> upstream/android-13
 		goto err2;
 	}
 
 	irq->virq = virq;
+<<<<<<< HEAD
 	irq->vtrig = vtrig;
+=======
+	irq->vtrig = xd->trig_mmio;
+>>>>>>> upstream/android-13
 out:
 	return rc;
 err2:
@@ -278,8 +318,11 @@ static void afu_unmap_irq(u64 flags, struct ocxlflash_context *ctx, int num,
 	}
 
 	irq = &ctx->irqs[num];
+<<<<<<< HEAD
 	if (irq->vtrig)
 		iounmap(irq->vtrig);
+=======
+>>>>>>> upstream/android-13
 
 	if (irq_find_mapping(NULL, irq->hwirq)) {
 		free_irq(irq->virq, cookie);
@@ -349,6 +392,10 @@ static int start_context(struct ocxlflash_context *ctx)
 	struct ocxl_hw_afu *afu = ctx->hw_afu;
 	struct ocxl_afu_config *acfg = &afu->acfg;
 	void *link_token = afu->link_token;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = afu->pdev;
+>>>>>>> upstream/android-13
 	struct device *dev = afu->dev;
 	bool master = ctx->master;
 	struct mm_struct *mm;
@@ -380,8 +427,14 @@ static int start_context(struct ocxlflash_context *ctx)
 		mm = current->mm;
 	}
 
+<<<<<<< HEAD
 	rc = ocxl_link_add_pe(link_token, ctx->pe, pid, 0, 0, mm,
 			      ocxlflash_xsl_fault, ctx);
+=======
+	rc = ocxl_link_add_pe(link_token, ctx->pe, pid, 0, 0,
+			      pci_dev_id(pdev), mm, ocxlflash_xsl_fault,
+			      ctx);
+>>>>>>> upstream/android-13
 	if (unlikely(rc)) {
 		dev_err(dev, "%s: ocxl_link_add_pe failed rc=%d\n",
 			__func__, rc);
@@ -634,7 +687,10 @@ static int alloc_afu_irqs(struct ocxlflash_context *ctx, int num)
 	struct ocxl_hw_afu *afu = ctx->hw_afu;
 	struct device *dev = afu->dev;
 	struct ocxlflash_irqs *irqs;
+<<<<<<< HEAD
 	u64 addr;
+=======
+>>>>>>> upstream/android-13
 	int rc = 0;
 	int hwirq;
 	int i;
@@ -659,7 +715,11 @@ static int alloc_afu_irqs(struct ocxlflash_context *ctx, int num)
 	}
 
 	for (i = 0; i < num; i++) {
+<<<<<<< HEAD
 		rc = ocxl_link_irq_alloc(afu->link_token, &hwirq, &addr);
+=======
+		rc = ocxl_link_irq_alloc(afu->link_token, &hwirq);
+>>>>>>> upstream/android-13
 		if (unlikely(rc)) {
 			dev_err(dev, "%s: ocxl_link_irq_alloc failed rc=%d\n",
 				__func__, rc);
@@ -667,7 +727,10 @@ static int alloc_afu_irqs(struct ocxlflash_context *ctx, int num)
 		}
 
 		irqs[i].hwirq = hwirq;
+<<<<<<< HEAD
 		irqs[i].ptrig = addr;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	ctx->irqs = irqs;

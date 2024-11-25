@@ -150,6 +150,11 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
+=======
+#define pmd_pgtable(pmd) pfn_to_virt(pmd_val(pmd) >> PAGE_SHIFT)
+
+>>>>>>> upstream/android-13
 /*
  * Conversion functions: convert a page and protection to a page entry,
  * and a page entry and page directory to the page they refer to.
@@ -170,7 +175,11 @@ static inline void pgd_set(pgd_t *pgdp, pmd_t *pmdp)
 }
 
 #define __pte_page(pte)	((unsigned long) (pte_val(pte) & PAGE_MASK))
+<<<<<<< HEAD
 #define __pmd_page(pmd)	((unsigned long) (pmd_val(pmd)))
+=======
+#define pmd_page_vaddr(pmd)	((unsigned long) (pmd_val(pmd)))
+>>>>>>> upstream/android-13
 
 static inline int pte_none(pte_t pte)
 {
@@ -198,6 +207,7 @@ static inline int pmd_bad2(pmd_t *pmd) { return 0; }
 #define pmd_present(pmd) (!pmd_none2(&(pmd)))
 static inline void pmd_clear(pmd_t *pmdp) { pmd_val(*pmdp) = 0; }
 
+<<<<<<< HEAD
 static inline int pgd_none(pgd_t pgd) { return 0; }
 static inline int pgd_bad(pgd_t pgd) { return 0; }
 static inline int pgd_present(pgd_t pgd) { return 1; }
@@ -209,6 +219,11 @@ static inline void pgd_clear(pgd_t *pgdp) {}
 #define pmd_ERROR(e) \
 	printk(KERN_ERR "%s:%d: bad pmd %08lx.\n",	\
 	__FILE__, __LINE__, pmd_val(e))
+=======
+#define pte_ERROR(e) \
+	printk(KERN_ERR "%s:%d: bad pte %08lx.\n",	\
+	__FILE__, __LINE__, pte_val(e))
+>>>>>>> upstream/android-13
 #define pgd_ERROR(e) \
 	printk(KERN_ERR "%s:%d: bad pgd %08lx.\n",	\
 	__FILE__, __LINE__, pgd_val(e))
@@ -243,11 +258,14 @@ static inline int pte_young(pte_t pte)
 	return pte_val(pte) & CF_PAGE_ACCESSED;
 }
 
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline pte_t pte_wrprotect(pte_t pte)
 {
 	pte_val(pte) &= ~CF_PAGE_WRITABLE;
@@ -320,15 +338,19 @@ static inline pte_t pte_mkcache(pte_t pte)
 	return pte;
 }
 
+<<<<<<< HEAD
 static inline pte_t pte_mkspecial(pte_t pte)
 {
 	return pte;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define swapper_pg_dir kernel_pg_dir
 extern pgd_t kernel_pg_dir[PTRS_PER_PGD];
 
 /*
+<<<<<<< HEAD
  * Find an entry in a pagetable directory.
  */
 #define pgd_index(address)	((address) >> PGDIR_SHIFT)
@@ -387,6 +409,8 @@ static inline void cache_page(void *vaddr)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Encode and de-code a swap entry (must be !pte_none(e) && !pte_present(e))
  */
 #define __swp_type(x)		((x).val & 0xFF)
@@ -398,9 +422,12 @@ static inline void cache_page(void *vaddr)
 
 #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
 
+<<<<<<< HEAD
 #define pte_offset_map(pmdp, addr) ((pte_t *)__pmd_page(*pmdp) + \
 				       __pte_offset(addr))
 #define pte_unmap(pte)		((void) 0)
+=======
+>>>>>>> upstream/android-13
 #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
 #define pte_pfn(pte)		(pte_val(pte) >> PAGE_SHIFT)
 

@@ -89,7 +89,11 @@ int em28xx_read_reg_req_len(struct em28xx *dev, u8 req, u16 reg,
 	mutex_lock(&dev->ctrl_urb_lock);
 	ret = usb_control_msg(udev, pipe, req,
 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+<<<<<<< HEAD
 			      0x0000, reg, dev->urb_buf, len, HZ);
+=======
+			      0x0000, reg, dev->urb_buf, len, 1000);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		em28xx_regdbg("(pipe 0x%08x): IN:  %02x %02x %02x %02x %02x %02x %02x %02x  failed with error %i\n",
 			      pipe,
@@ -158,7 +162,11 @@ int em28xx_write_regs_req(struct em28xx *dev, u8 req, u16 reg, char *buf,
 	memcpy(dev->urb_buf, buf, len);
 	ret = usb_control_msg(udev, pipe, req,
 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+<<<<<<< HEAD
 			      0x0000, reg, dev->urb_buf, len, HZ);
+=======
+			      0x0000, reg, dev->urb_buf, len, 1000);
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev->ctrl_urb_lock);
 
 	if (ret < 0) {
@@ -698,8 +706,15 @@ int em28xx_capture_start(struct em28xx *dev, int start)
 
 	if (dev->mode == EM28XX_ANALOG_MODE)
 		led = em28xx_find_led(dev, EM28XX_LED_ANALOG_CAPTURING);
+<<<<<<< HEAD
 	else
 		led = em28xx_find_led(dev, EM28XX_LED_DIGITAL_CAPTURING);
+=======
+	else if (dev->ts == PRIMARY_TS)
+		led = em28xx_find_led(dev, EM28XX_LED_DIGITAL_CAPTURING);
+	else
+		led = em28xx_find_led(dev, EM28XX_LED_DIGITAL_CAPTURING_TS2);
+>>>>>>> upstream/android-13
 
 	if (led)
 		em28xx_write_reg_bits(dev, led->gpio_reg,
@@ -777,6 +792,10 @@ EXPORT_SYMBOL_GPL(em28xx_set_mode);
 static void em28xx_irq_callback(struct urb *urb)
 {
 	struct em28xx *dev = urb->context;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int i;
 
 	switch (urb->status) {
@@ -793,9 +812,15 @@ static void em28xx_irq_callback(struct urb *urb)
 	}
 
 	/* Copy data from URB */
+<<<<<<< HEAD
 	spin_lock(&dev->slock);
 	dev->usb_ctl.urb_data_copy(dev, urb);
 	spin_unlock(&dev->slock);
+=======
+	spin_lock_irqsave(&dev->slock, flags);
+	dev->usb_ctl.urb_data_copy(dev, urb);
+	spin_unlock_irqrestore(&dev->slock, flags);
+>>>>>>> upstream/android-13
 
 	/* Reset urb buffers */
 	for (i = 0; i < urb->number_of_packets; i++) {
@@ -1151,8 +1176,14 @@ int em28xx_suspend_extension(struct em28xx *dev)
 	dev_info(&dev->intf->dev, "Suspending extensions\n");
 	mutex_lock(&em28xx_devlist_mutex);
 	list_for_each_entry(ops, &em28xx_extension_devlist, next) {
+<<<<<<< HEAD
 		if (ops->suspend)
 			ops->suspend(dev);
+=======
+		if (!ops->suspend)
+			continue;
+		ops->suspend(dev);
+>>>>>>> upstream/android-13
 		if (dev->dev_next)
 			ops->suspend(dev->dev_next);
 	}

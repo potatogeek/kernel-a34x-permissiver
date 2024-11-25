@@ -24,6 +24,7 @@ static void __init of_numa_parse_cpu_nodes(void)
 {
 	u32 nid;
 	int r;
+<<<<<<< HEAD
 	struct device_node *cpus;
 	struct device_node *np = NULL;
 
@@ -36,6 +37,11 @@ static void __init of_numa_parse_cpu_nodes(void)
 		if (of_node_cmp(np->type, "cpu") != 0)
 			continue;
 
+=======
+	struct device_node *np;
+
+	for_each_of_cpu_node(np) {
+>>>>>>> upstream/android-13
 		r = of_property_read_u32(np, "numa-node-id", &nid);
 		if (r)
 			continue;
@@ -46,8 +52,11 @@ static void __init of_numa_parse_cpu_nodes(void)
 		else
 			node_set(nid, numa_nodes_parsed);
 	}
+<<<<<<< HEAD
 
 	of_node_put(cpus);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __init of_numa_parse_memory_nodes(void)

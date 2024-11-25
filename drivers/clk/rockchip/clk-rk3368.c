@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Heiko Stuebner <heiko@sntech.de>
  *
@@ -13,6 +14,15 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2015 Heiko Stuebner <heiko@sntech.de>
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
@@ -162,9 +172,16 @@ static struct clk_div_table div_ddrphy_t[] = {
 #define IFLAGS ROCKCHIP_INVERTER_HIWORD_MASK
 
 static const struct rockchip_cpuclk_reg_data rk3368_cpuclkb_data = {
+<<<<<<< HEAD
 	.core_reg = RK3368_CLKSEL_CON(0),
 	.div_core_shift = 0,
 	.div_core_mask = 0x1f,
+=======
+	.core_reg[0] = RK3368_CLKSEL_CON(0),
+	.div_core_shift[0] = 0,
+	.div_core_mask[0] = 0x1f,
+	.num_cores = 1,
+>>>>>>> upstream/android-13
 	.mux_core_alt = 1,
 	.mux_core_main = 0,
 	.mux_core_shift = 7,
@@ -172,11 +189,20 @@ static const struct rockchip_cpuclk_reg_data rk3368_cpuclkb_data = {
 };
 
 static const struct rockchip_cpuclk_reg_data rk3368_cpuclkl_data = {
+<<<<<<< HEAD
 	.core_reg = RK3368_CLKSEL_CON(2),
 	.div_core_shift = 0,
 	.mux_core_alt = 1,
 	.mux_core_main = 0,
 	.div_core_mask = 0x1f,
+=======
+	.core_reg[0] = RK3368_CLKSEL_CON(2),
+	.div_core_shift[0] = 0,
+	.mux_core_alt = 1,
+	.num_cores = 1,
+	.mux_core_main = 0,
+	.div_core_mask[0] = 0x1f,
+>>>>>>> upstream/android-13
 	.mux_core_shift = 7,
 	.mux_core_mask = 0x1,
 };
@@ -482,7 +508,11 @@ static struct rockchip_clk_branch rk3368_clk_branches[] __initdata = {
 	COMPOSITE_NODIV(0, "vip_src", mux_pll_src_cpll_gpll_p, 0,
 			RK3368_CLKSEL_CON(21), 15, 1, MFLAGS,
 			RK3368_CLKGATE_CON(4), 5, GFLAGS),
+<<<<<<< HEAD
 	COMPOSITE_NOGATE(0, "sclk_vip_out", mux_vip_out_p, 0,
+=======
+	COMPOSITE_NOGATE(SCLK_VIP_OUT, "sclk_vip_out", mux_vip_out_p, 0,
+>>>>>>> upstream/android-13
 			RK3368_CLKSEL_CON(21), 14, 1, MFLAGS, 8, 5, DFLAGS),
 
 	COMPOSITE_NODIV(SCLK_EDP_24M, "sclk_edp_24m", mux_edp_24m_p, 0,
@@ -819,12 +849,23 @@ static struct rockchip_clk_branch rk3368_clk_branches[] __initdata = {
 	GATE(PCLK_GPIO2, "pclk_gpio2", "pclk_pd_alive", 0, RK3368_CLKGATE_CON(22), 2, GFLAGS),
 	GATE(PCLK_GPIO1, "pclk_gpio1", "pclk_pd_alive", 0, RK3368_CLKGATE_CON(22), 1, GFLAGS),
 
+<<<<<<< HEAD
+=======
+	/* Watchdog pclk is controlled by sgrf_soc_con3[7]. */
+	SGRF_GATE(PCLK_WDT, "pclk_wdt", "pclk_pd_alive"),
+
+>>>>>>> upstream/android-13
 	/*
 	 * pclk_vio gates
 	 * pclk_vio comes from the exactly same source as hclk_vio
 	 */
+<<<<<<< HEAD
 	GATE(0, "pclk_dphyrx", "hclk_vio", CLK_IGNORE_UNUSED, RK3368_CLKGATE_CON(14), 8, GFLAGS),
 	GATE(0, "pclk_dphytx", "hclk_vio", CLK_IGNORE_UNUSED, RK3368_CLKGATE_CON(14), 8, GFLAGS),
+=======
+	GATE(PCLK_DPHYRX, "pclk_dphyrx", "hclk_vio", CLK_IGNORE_UNUSED, RK3368_CLKGATE_CON(22), 11, GFLAGS),
+	GATE(PCLK_DPHYTX0, "pclk_dphytx0", "hclk_vio", CLK_IGNORE_UNUSED, RK3368_CLKGATE_CON(22), 10, GFLAGS),
+>>>>>>> upstream/android-13
 
 	/* pclk_pd_pmu gates */
 	GATE(PCLK_PMUGRF, "pclk_pmugrf", "pclk_pd_pmu", CLK_IGNORE_UNUSED, RK3368_CLKGATE_CON(23), 5, GFLAGS),
@@ -870,7 +911,10 @@ static void __init rk3368_clk_init(struct device_node *np)
 {
 	struct rockchip_clk_provider *ctx;
 	void __iomem *reg_base;
+<<<<<<< HEAD
 	struct clk *clk;
+=======
+>>>>>>> upstream/android-13
 
 	reg_base = of_iomap(np, 0);
 	if (!reg_base) {
@@ -885,6 +929,7 @@ static void __init rk3368_clk_init(struct device_node *np)
 		return;
 	}
 
+<<<<<<< HEAD
 	/* Watchdog pclk is controlled by sgrf_soc_con3[7]. */
 	clk = clk_register_fixed_factor(NULL, "pclk_wdt", "pclk_pd_alive", 0, 1, 1);
 	if (IS_ERR(clk))
@@ -893,6 +938,8 @@ static void __init rk3368_clk_init(struct device_node *np)
 	else
 		rockchip_clk_add_lookup(ctx, clk, PCLK_WDT);
 
+=======
+>>>>>>> upstream/android-13
 	rockchip_clk_register_plls(ctx, rk3368_pll_clks,
 				   ARRAY_SIZE(rk3368_pll_clks),
 				   RK3368_GRF_SOC_STATUS0);

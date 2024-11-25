@@ -62,8 +62,12 @@ static atomic_t rds_tcp_unloading = ATOMIC_INIT(0);
 static struct kmem_cache *rds_tcp_conn_slab;
 
 static int rds_tcp_skbuf_handler(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 				 void __user *buffer, size_t *lenp,
 				 loff_t *fpos);
+=======
+				 void *buffer, size_t *lenp, loff_t *fpos);
+>>>>>>> upstream/android-13
 
 static int rds_tcp_min_sndbuf = SOCK_MIN_SNDBUF;
 static int rds_tcp_min_rcvbuf = SOCK_MIN_RCVBUF;
@@ -90,6 +94,7 @@ static struct ctl_table rds_tcp_sysctl_table[] = {
 	{ }
 };
 
+<<<<<<< HEAD
 /* doing it this way avoids calling tcp_sk() */
 void rds_tcp_nonagle(struct socket *sock)
 {
@@ -99,6 +104,8 @@ void rds_tcp_nonagle(struct socket *sock)
 			      sizeof(val));
 }
 
+=======
+>>>>>>> upstream/android-13
 u32 rds_tcp_write_seq(struct rds_tcp_connection *tc)
 {
 	/* seq# of the last byte of data in tcp send buffer */
@@ -267,6 +274,10 @@ static void rds_tcp_tc_info(struct socket *rds_sock, unsigned int len,
 		tsinfo.last_sent_nxt = tc->t_last_sent_nxt;
 		tsinfo.last_expected_una = tc->t_last_expected_una;
 		tsinfo.last_seen_una = tc->t_last_seen_una;
+<<<<<<< HEAD
+=======
+		tsinfo.tos = tc->t_cpath->cp_conn->c_tos;
+>>>>>>> upstream/android-13
 
 		rds_info_copy(iter, &tsinfo, sizeof(tsinfo));
 	}
@@ -322,8 +333,13 @@ out:
 }
 #endif
 
+<<<<<<< HEAD
 static int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
 			       __u32 scope_id)
+=======
+int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
+			__u32 scope_id)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev = NULL;
 #if IS_ENABLED(CONFIG_IPV6)
@@ -452,6 +468,15 @@ static void rds_tcp_destroy_conns(void)
 
 static void rds_tcp_exit(void);
 
+<<<<<<< HEAD
+=======
+static u8 rds_tcp_get_tos_map(u8 tos)
+{
+	/* all user tos mapped to default 0 for TCP transport */
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 struct rds_transport rds_tcp_transport = {
 	.laddr_check		= rds_tcp_laddr_check,
 	.xmit_path_prepare	= rds_tcp_xmit_path_prepare,
@@ -466,6 +491,10 @@ struct rds_transport rds_tcp_transport = {
 	.inc_free		= rds_tcp_inc_free,
 	.stats_info_copy	= rds_tcp_stats_info_copy,
 	.exit			= rds_tcp_exit,
+<<<<<<< HEAD
+=======
+	.get_tos_map		= rds_tcp_get_tos_map,
+>>>>>>> upstream/android-13
 	.t_owner		= THIS_MODULE,
 	.t_name			= "tcp",
 	.t_type			= RDS_TRANS_TCP,
@@ -495,14 +524,22 @@ void rds_tcp_tune(struct socket *sock)
 	struct net *net = sock_net(sk);
 	struct rds_tcp_net *rtn = net_generic(net, rds_tcp_netid);
 
+<<<<<<< HEAD
 	rds_tcp_nonagle(sock);
+=======
+	tcp_sock_set_nodelay(sock->sk);
+>>>>>>> upstream/android-13
 	lock_sock(sk);
 	if (rtn->sndbuf_size > 0) {
 		sk->sk_sndbuf = rtn->sndbuf_size;
 		sk->sk_userlocks |= SOCK_SNDBUF_LOCK;
 	}
 	if (rtn->rcvbuf_size > 0) {
+<<<<<<< HEAD
 		sk->sk_sndbuf = rtn->rcvbuf_size;
+=======
+		sk->sk_rcvbuf = rtn->rcvbuf_size;
+>>>>>>> upstream/android-13
 		sk->sk_userlocks |= SOCK_RCVBUF_LOCK;
 	}
 	release_sock(sk);
@@ -543,7 +580,11 @@ static __net_init int rds_tcp_init_net(struct net *net)
 		tbl = kmemdup(rds_tcp_sysctl_table,
 			      sizeof(rds_tcp_sysctl_table), GFP_KERNEL);
 		if (!tbl) {
+<<<<<<< HEAD
 			pr_warn("could not set allocate syctl table\n");
+=======
+			pr_warn("could not set allocate sysctl table\n");
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		}
 		rtn->ctl_table = tbl;
@@ -623,7 +664,11 @@ static void __net_exit rds_tcp_exit_net(struct net *net)
 	if (rtn->rds_tcp_sysctl)
 		unregister_net_sysctl_table(rtn->rds_tcp_sysctl);
 
+<<<<<<< HEAD
 	if (net != &init_net && rtn->ctl_table)
+=======
+	if (net != &init_net)
+>>>>>>> upstream/android-13
 		kfree(rtn->ctl_table);
 }
 
@@ -668,8 +713,12 @@ static void rds_tcp_sysctl_reset(struct net *net)
 }
 
 static int rds_tcp_skbuf_handler(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 				 void __user *buffer, size_t *lenp,
 				 loff_t *fpos)
+=======
+				 void *buffer, size_t *lenp, loff_t *fpos)
+>>>>>>> upstream/android-13
 {
 	struct net *net = current->nsproxy->net_ns;
 	int err;

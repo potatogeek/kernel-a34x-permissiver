@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "dpu_kms.h"
@@ -15,8 +20,11 @@
 #include "dpu_hwio.h"
 #include "dpu_hw_lm.h"
 #include "dpu_hw_mdss.h"
+<<<<<<< HEAD
 #include "dpu_dbg.h"
 #include "dpu_kms.h"
+=======
+>>>>>>> upstream/android-13
 
 #define LM_OP_MODE                        0x00
 #define LM_OUT_SIZE                       0x04
@@ -34,11 +42,16 @@
 #define LM_BLEND0_FG_ALPHA               0x04
 #define LM_BLEND0_BG_ALPHA               0x08
 
+<<<<<<< HEAD
 #define LM_MISR_CTRL			0x310
 #define LM_MISR_SIGNATURE		0x314
 
 static struct dpu_lm_cfg *_lm_offset(enum dpu_lm mixer,
 		struct dpu_mdss_cfg *m,
+=======
+static const struct dpu_lm_cfg *_lm_offset(enum dpu_lm mixer,
+		const struct dpu_mdss_cfg *m,
+>>>>>>> upstream/android-13
 		void __iomem *addr,
 		struct dpu_hw_blk_reg_map *b)
 {
@@ -61,12 +74,17 @@ static struct dpu_lm_cfg *_lm_offset(enum dpu_lm mixer,
 /**
  * _stage_offset(): returns the relative offset of the blend registers
  * for the stage to be setup
+<<<<<<< HEAD
  * @c:     mixer ctx contains the mixer to be programmed
+=======
+ * @ctx:     mixer ctx contains the mixer to be programmed
+>>>>>>> upstream/android-13
  * @stage: stage index to setup
  */
 static inline int _stage_offset(struct dpu_hw_mixer *ctx, enum dpu_stage stage)
 {
 	const struct dpu_lm_sub_blks *sblk = ctx->cap->sblk;
+<<<<<<< HEAD
 	int rc;
 
 	if (stage == DPU_STAGE_BASE)
@@ -77,6 +95,12 @@ static inline int _stage_offset(struct dpu_hw_mixer *ctx, enum dpu_stage stage)
 		rc = -EINVAL;
 
 	return rc;
+=======
+	if (stage != DPU_STAGE_BASE && stage <= sblk->maxblendstages)
+		return sblk->blendstage_base[stage - DPU_STAGE_0];
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static void dpu_hw_lm_setup_out(struct dpu_hw_mixer *ctx,
@@ -166,6 +190,7 @@ static void dpu_hw_lm_setup_color3(struct dpu_hw_mixer *ctx,
 	DPU_REG_WRITE(c, LM_OP_MODE, op_mode);
 }
 
+<<<<<<< HEAD
 static void dpu_hw_lm_gc(struct dpu_hw_mixer *mixer,
 			void *cfg)
 {
@@ -196,16 +221,24 @@ static u32 dpu_hw_lm_collect_misr(struct dpu_hw_mixer *ctx)
 }
 
 static void _setup_mixer_ops(struct dpu_mdss_cfg *m,
+=======
+static void _setup_mixer_ops(const struct dpu_mdss_cfg *m,
+>>>>>>> upstream/android-13
 		struct dpu_hw_lm_ops *ops,
 		unsigned long features)
 {
 	ops->setup_mixer_out = dpu_hw_lm_setup_out;
+<<<<<<< HEAD
 	if (IS_SDM845_TARGET(m->hwversion) || IS_SDM670_TARGET(m->hwversion))
+=======
+	if (m->hwversion >= DPU_HW_VER_400)
+>>>>>>> upstream/android-13
 		ops->setup_blend_config = dpu_hw_lm_setup_blend_config_sdm845;
 	else
 		ops->setup_blend_config = dpu_hw_lm_setup_blend_config;
 	ops->setup_alpha_out = dpu_hw_lm_setup_color3;
 	ops->setup_border_color = dpu_hw_lm_setup_border_color;
+<<<<<<< HEAD
 	ops->setup_gc = dpu_hw_lm_gc;
 	ops->setup_misr = dpu_hw_lm_setup_misr;
 	ops->collect_misr = dpu_hw_lm_collect_misr;
@@ -223,6 +256,16 @@ struct dpu_hw_mixer *dpu_hw_lm_init(enum dpu_lm idx,
 	struct dpu_hw_mixer *c;
 	struct dpu_lm_cfg *cfg;
 	int rc;
+=======
+}
+
+struct dpu_hw_mixer *dpu_hw_lm_init(enum dpu_lm idx,
+		void __iomem *addr,
+		const struct dpu_mdss_cfg *m)
+{
+	struct dpu_hw_mixer *c;
+	const struct dpu_lm_cfg *cfg;
+>>>>>>> upstream/android-13
 
 	c = kzalloc(sizeof(*c), GFP_KERNEL);
 	if (!c)
@@ -239,6 +282,7 @@ struct dpu_hw_mixer *dpu_hw_lm_init(enum dpu_lm idx,
 	c->cap = cfg;
 	_setup_mixer_ops(m, &c->ops, c->cap->features);
 
+<<<<<<< HEAD
 	rc = dpu_hw_blk_init(&c->base, DPU_HW_BLK_LM, idx, &dpu_hw_ops);
 	if (rc) {
 		DPU_ERROR("failed to init hw blk %d\n", rc);
@@ -251,11 +295,17 @@ blk_init_error:
 	kzfree(c);
 
 	return ERR_PTR(rc);
+=======
+	return c;
+>>>>>>> upstream/android-13
 }
 
 void dpu_hw_lm_destroy(struct dpu_hw_mixer *lm)
 {
+<<<<<<< HEAD
 	if (lm)
 		dpu_hw_blk_destroy(&lm->base);
+=======
+>>>>>>> upstream/android-13
 	kfree(lm);
 }

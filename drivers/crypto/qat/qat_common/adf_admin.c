@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -48,18 +49,34 @@
 #include <linux/mutex.h>
 #include <linux/slab.h>
 #include <linux/delay.h>
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+#include <linux/types.h>
+#include <linux/mutex.h>
+#include <linux/slab.h>
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/dma-mapping.h>
 #include "adf_accel_devices.h"
 #include "adf_common_drv.h"
 #include "icp_qat_fw_init_admin.h"
 
+<<<<<<< HEAD
 /* Admin Messages Registers */
 #define ADF_DH895XCC_ADMINMSGUR_OFFSET (0x3A000 + 0x574)
 #define ADF_DH895XCC_ADMINMSGLR_OFFSET (0x3A000 + 0x578)
 #define ADF_DH895XCC_MAILBOX_BASE_OFFSET 0x20970
 #define ADF_DH895XCC_MAILBOX_STRIDE 0x1000
 #define ADF_ADMINMSG_LEN 32
+=======
+#define ADF_ADMIN_MAILBOX_STRIDE 0x1000
+#define ADF_ADMINMSG_LEN 32
+#define ADF_CONST_TABLE_SIZE 1024
+#define ADF_ADMIN_POLL_DELAY_US 20
+#define ADF_ADMIN_POLL_TIMEOUT_US (5 * USEC_PER_SEC)
+>>>>>>> upstream/android-13
 
 static const u8 const_tab[1024] __aligned(1024) = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -111,6 +128,7 @@ static const u8 const_tab[1024] __aligned(1024) = {
 0xf8, 0x2b, 0xa5, 0x4f, 0xf5, 0x3a, 0x5f, 0x1d, 0x36, 0xf1, 0x51, 0x0e, 0x52,
 0x7f, 0xad, 0xe6, 0x82, 0xd1, 0x9b, 0x05, 0x68, 0x8c, 0x2b, 0x3e, 0x6c, 0x1f,
 0x1f, 0x83, 0xd9, 0xab, 0xfb, 0x41, 0xbd, 0x6b, 0x5b, 0xe0, 0xcd, 0x19, 0x13,
+<<<<<<< HEAD
 0x7e, 0x21, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -133,6 +151,30 @@ static const u8 const_tab[1024] __aligned(1024) = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+=======
+0x7e, 0x21, 0x79, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x18,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0x01, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x15, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0x02, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x14, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x02,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x24, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x25,
+0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x43, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x45, 0x01, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x01,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x2B, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00,
+>>>>>>> upstream/android-13
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -154,11 +196,21 @@ struct adf_admin_comms {
 static int adf_put_admin_msg_sync(struct adf_accel_dev *accel_dev, u32 ae,
 				  void *in, void *out)
 {
+<<<<<<< HEAD
 	struct adf_admin_comms *admin = accel_dev->admin;
 	int offset = ae * ADF_ADMINMSG_LEN * 2;
 	void __iomem *mailbox = admin->mailbox_addr;
 	int mb_offset = ae * ADF_DH895XCC_MAILBOX_STRIDE;
 	int times, received;
+=======
+	int ret;
+	u32 status;
+	struct adf_admin_comms *admin = accel_dev->admin;
+	int offset = ae * ADF_ADMINMSG_LEN * 2;
+	void __iomem *mailbox = admin->mailbox_addr;
+	int mb_offset = ae * ADF_ADMIN_MAILBOX_STRIDE;
+	struct icp_qat_fw_init_admin_req *request = in;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&admin->lock);
 
@@ -169,6 +221,7 @@ static int adf_put_admin_msg_sync(struct adf_accel_dev *accel_dev, u32 ae,
 
 	memcpy(admin->virt_addr + offset, in, ADF_ADMINMSG_LEN);
 	ADF_CSR_WR(mailbox, mb_offset, 1);
+<<<<<<< HEAD
 	received = 0;
 	for (times = 0; times < 50; times++) {
 		msleep(20);
@@ -209,6 +262,74 @@ static int adf_send_admin_cmd(struct adf_accel_dev *accel_dev, int cmd)
 			return -EFAULT;
 	}
 	return 0;
+=======
+
+	ret = read_poll_timeout(ADF_CSR_RD, status, status == 0,
+				ADF_ADMIN_POLL_DELAY_US,
+				ADF_ADMIN_POLL_TIMEOUT_US, true,
+				mailbox, mb_offset);
+	if (ret < 0) {
+		/* Response timeout */
+		dev_err(&GET_DEV(accel_dev),
+			"Failed to send admin msg %d to accelerator %d\n",
+			request->cmd_id, ae);
+	} else {
+		/* Response received from admin message, we can now
+		 * make response data available in "out" parameter.
+		 */
+		memcpy(out, admin->virt_addr + offset +
+		       ADF_ADMINMSG_LEN, ADF_ADMINMSG_LEN);
+	}
+
+	mutex_unlock(&admin->lock);
+	return ret;
+}
+
+static int adf_send_admin(struct adf_accel_dev *accel_dev,
+			  struct icp_qat_fw_init_admin_req *req,
+			  struct icp_qat_fw_init_admin_resp *resp,
+			  const unsigned long ae_mask)
+{
+	u32 ae;
+
+	for_each_set_bit(ae, &ae_mask, ICP_QAT_HW_AE_DELIMITER)
+		if (adf_put_admin_msg_sync(accel_dev, ae, req, resp) ||
+		    resp->status)
+			return -EFAULT;
+
+	return 0;
+}
+
+static int adf_init_ae(struct adf_accel_dev *accel_dev)
+{
+	struct icp_qat_fw_init_admin_req req;
+	struct icp_qat_fw_init_admin_resp resp;
+	struct adf_hw_device_data *hw_device = accel_dev->hw_device;
+	u32 ae_mask = hw_device->ae_mask;
+
+	memset(&req, 0, sizeof(req));
+	memset(&resp, 0, sizeof(resp));
+	req.cmd_id = ICP_QAT_FW_INIT_AE;
+
+	return adf_send_admin(accel_dev, &req, &resp, ae_mask);
+}
+
+static int adf_set_fw_constants(struct adf_accel_dev *accel_dev)
+{
+	struct icp_qat_fw_init_admin_req req;
+	struct icp_qat_fw_init_admin_resp resp;
+	struct adf_hw_device_data *hw_device = accel_dev->hw_device;
+	u32 ae_mask = hw_device->admin_ae_mask ?: hw_device->ae_mask;
+
+	memset(&req, 0, sizeof(req));
+	memset(&resp, 0, sizeof(resp));
+	req.cmd_id = ICP_QAT_FW_CONSTANTS_CFG;
+
+	req.init_cfg_sz = ADF_CONST_TABLE_SIZE;
+	req.init_cfg_ptr = accel_dev->admin->const_tbl_addr;
+
+	return adf_send_admin(accel_dev, &req, &resp, ae_mask);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -221,11 +342,21 @@ static int adf_send_admin_cmd(struct adf_accel_dev *accel_dev, int cmd)
  */
 int adf_send_admin_init(struct adf_accel_dev *accel_dev)
 {
+<<<<<<< HEAD
 	int ret = adf_send_admin_cmd(accel_dev, ICP_QAT_FW_INIT_ME);
 
 	if (ret)
 		return ret;
 	return adf_send_admin_cmd(accel_dev, ICP_QAT_FW_CONSTANTS_CFG);
+=======
+	int ret;
+
+	ret = adf_set_fw_constants(accel_dev);
+	if (ret)
+		return ret;
+
+	return adf_init_ae(accel_dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(adf_send_admin_init);
 
@@ -236,26 +367,44 @@ int adf_init_admin_comms(struct adf_accel_dev *accel_dev)
 	struct adf_bar *pmisc =
 		&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
 	void __iomem *csr = pmisc->virt_addr;
+<<<<<<< HEAD
 	void __iomem *mailbox = (void __iomem *)((uintptr_t)csr +
 				 ADF_DH895XCC_MAILBOX_BASE_OFFSET);
+=======
+	struct admin_info admin_csrs_info;
+	u32 mailbox_offset, adminmsg_u, adminmsg_l;
+	void __iomem *mailbox;
+>>>>>>> upstream/android-13
 	u64 reg_val;
 
 	admin = kzalloc_node(sizeof(*accel_dev->admin), GFP_KERNEL,
 			     dev_to_node(&GET_DEV(accel_dev)));
 	if (!admin)
 		return -ENOMEM;
+<<<<<<< HEAD
 	admin->virt_addr = dma_zalloc_coherent(&GET_DEV(accel_dev), PAGE_SIZE,
 					       &admin->phy_addr, GFP_KERNEL);
+=======
+	admin->virt_addr = dma_alloc_coherent(&GET_DEV(accel_dev), PAGE_SIZE,
+					      &admin->phy_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!admin->virt_addr) {
 		dev_err(&GET_DEV(accel_dev), "Failed to allocate dma buff\n");
 		kfree(admin);
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	admin->virt_tbl_addr = dma_zalloc_coherent(&GET_DEV(accel_dev),
 						   PAGE_SIZE,
 						   &admin->const_tbl_addr,
 						   GFP_KERNEL);
+=======
+	admin->virt_tbl_addr = dma_alloc_coherent(&GET_DEV(accel_dev),
+						  PAGE_SIZE,
+						  &admin->const_tbl_addr,
+						  GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!admin->virt_tbl_addr) {
 		dev_err(&GET_DEV(accel_dev), "Failed to allocate const_tbl\n");
 		dma_free_coherent(&GET_DEV(accel_dev), PAGE_SIZE,
@@ -265,9 +414,23 @@ int adf_init_admin_comms(struct adf_accel_dev *accel_dev)
 	}
 
 	memcpy(admin->virt_tbl_addr, const_tab, sizeof(const_tab));
+<<<<<<< HEAD
 	reg_val = (u64)admin->phy_addr;
 	ADF_CSR_WR(csr, ADF_DH895XCC_ADMINMSGUR_OFFSET, reg_val >> 32);
 	ADF_CSR_WR(csr, ADF_DH895XCC_ADMINMSGLR_OFFSET, reg_val);
+=======
+	hw_data->get_admin_info(&admin_csrs_info);
+
+	mailbox_offset = admin_csrs_info.mailbox_offset;
+	mailbox = csr + mailbox_offset;
+	adminmsg_u = admin_csrs_info.admin_msg_ur;
+	adminmsg_l = admin_csrs_info.admin_msg_lr;
+
+	reg_val = (u64)admin->phy_addr;
+	ADF_CSR_WR(csr, adminmsg_u, upper_32_bits(reg_val));
+	ADF_CSR_WR(csr, adminmsg_l, lower_32_bits(reg_val));
+
+>>>>>>> upstream/android-13
 	mutex_init(&admin->lock);
 	admin->mailbox_addr = mailbox;
 	accel_dev->admin = admin;

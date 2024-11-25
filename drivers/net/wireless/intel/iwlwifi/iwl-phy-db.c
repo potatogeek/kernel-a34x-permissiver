@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -62,6 +63,13 @@
  *
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2005-2014, 2020 Intel Corporation
+ * Copyright (C) 2016 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/export.h>
@@ -84,11 +92,18 @@ struct iwl_phy_db_entry {
  *
  * @cfg: phy configuration.
  * @calib_nch: non channel specific calibration data.
+<<<<<<< HEAD
  * @calib_ch: channel specific calibration data.
+=======
+>>>>>>> upstream/android-13
  * @n_group_papd: number of entries in papd channel group.
  * @calib_ch_group_papd: calibration data related to papd channel group.
  * @n_group_txp: number of entries in tx power channel group.
  * @calib_ch_group_txp: calibration data related to tx power chanel group.
+<<<<<<< HEAD
+=======
+ * @trans: transport layer
+>>>>>>> upstream/android-13
  */
 struct iwl_phy_db {
 	struct iwl_phy_db_entry	cfg;
@@ -206,6 +221,7 @@ IWL_EXPORT_SYMBOL(iwl_phy_db_free);
 int iwl_phy_db_set_section(struct iwl_phy_db *phy_db,
 			   struct iwl_rx_packet *pkt)
 {
+<<<<<<< HEAD
 	struct iwl_calib_res_notif_phy_db *phy_db_notif =
 			(struct iwl_calib_res_notif_phy_db *)pkt->data;
 	enum iwl_phy_db_section_type type = le16_to_cpu(phy_db_notif->type);
@@ -213,6 +229,25 @@ int iwl_phy_db_set_section(struct iwl_phy_db *phy_db,
 	struct iwl_phy_db_entry *entry;
 	u16 chg_id = 0;
 
+=======
+	unsigned int pkt_len = iwl_rx_packet_payload_len(pkt);
+	struct iwl_calib_res_notif_phy_db *phy_db_notif =
+			(struct iwl_calib_res_notif_phy_db *)pkt->data;
+	enum iwl_phy_db_section_type type;
+	u16 size;
+	struct iwl_phy_db_entry *entry;
+	u16 chg_id = 0;
+
+	if (pkt_len < sizeof(*phy_db_notif))
+		return -EINVAL;
+
+	type = le16_to_cpu(phy_db_notif->type);
+	size = le16_to_cpu(phy_db_notif->length);
+
+	if (pkt_len < sizeof(*phy_db_notif) + size)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (!phy_db)
 		return -EINVAL;
 

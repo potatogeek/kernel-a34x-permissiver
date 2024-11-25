@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (Hisilicon's SoC based) flattened device tree enabled machine
  *
@@ -9,6 +10,16 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * (HiSilicon's SoC based) flattened device tree enabled machine
+ *
+ * Copyright (c) 2012-2013 HiSilicon Ltd.
+ * Copyright (c) 2012-2013 Linaro Ltd.
+ *
+ * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
+>>>>>>> upstream/android-13
 */
 
 #include <linux/clocksource.h>

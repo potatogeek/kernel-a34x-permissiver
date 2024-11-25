@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Tegra host1x Channel
  *
  * Copyright (c) 2010-2013, NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HOST1X_CHANNEL_H
@@ -37,6 +44,10 @@ struct host1x_channel {
 	unsigned int id;
 	struct mutex submitlock;
 	void __iomem *regs;
+<<<<<<< HEAD
+=======
+	struct host1x_client *client;
+>>>>>>> upstream/android-13
 	struct device *dev;
 	struct host1x_cdma cdma;
 };

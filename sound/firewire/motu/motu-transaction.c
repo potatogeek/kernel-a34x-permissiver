@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * motu-transaction.c - a part of driver for MOTU FireWire series
  *
  * Copyright (c) 2015-2017 Takashi Sakamoto <o-takashi@sakamocchi.jp>
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 

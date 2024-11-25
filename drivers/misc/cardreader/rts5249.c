@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Driver for Realtek PCI-Express card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG <wei_wang@realsil.com.cn>
  */
@@ -67,9 +74,16 @@ static void rts5249_fill_driving(struct rtsx_pcr *pcr, u8 voltage)
 
 static void rtsx_base_fetch_vendor_settings(struct rtsx_pcr *pcr)
 {
+<<<<<<< HEAD
 	u32 reg;
 
 	rtsx_pci_read_config_dword(pcr, PCR_SETTING_REG1, &reg);
+=======
+	struct pci_dev *pdev = pcr->pci;
+	u32 reg;
+
+	pci_read_config_dword(pdev, PCR_SETTING_REG1, &reg);
+>>>>>>> upstream/android-13
 	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG1, reg);
 
 	if (!rtsx_vendor_setting_valid(reg)) {
@@ -82,13 +96,24 @@ static void rtsx_base_fetch_vendor_settings(struct rtsx_pcr *pcr)
 	pcr->card_drive_sel &= 0x3F;
 	pcr->card_drive_sel |= rtsx_reg_to_card_drive_sel(reg);
 
+<<<<<<< HEAD
 	rtsx_pci_read_config_dword(pcr, PCR_SETTING_REG2, &reg);
 	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG2, reg);
+=======
+	pci_read_config_dword(pdev, PCR_SETTING_REG2, &reg);
+	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG2, reg);
+
+	pcr->rtd3_en = rtsx_reg_to_rtd3_uhsii(reg);
+
+	if (rtsx_check_mmc_support(reg))
+		pcr->extra_caps |= EXTRA_CAPS_NO_MMC;
+>>>>>>> upstream/android-13
 	pcr->sd30_drive_sel_3v3 = rtsx_reg_to_sd30_drive_sel_3v3(reg);
 	if (rtsx_reg_check_reverse_socket(reg))
 		pcr->flags |= PCR_REVERSE_SOCKET;
 }
 
+<<<<<<< HEAD
 static void rtsx_base_force_power_down(struct rtsx_pcr *pcr, u8 pm_state)
 {
 	/* Set relink_time to 0 */
@@ -125,12 +150,49 @@ static void rts5249_init_from_cfg(struct rtsx_pcr *pcr)
 		rtsx_set_dev_flag(pcr, PM_L1_1_EN);
 
 	if (lval & PM_L1_2_EN_MASK)
+=======
+static void rts5249_init_from_cfg(struct rtsx_pcr *pcr)
+{
+	struct pci_dev *pdev = pcr->pci;
+	int l1ss;
+	struct rtsx_cr_option *option = &(pcr->option);
+	u32 lval;
+
+	l1ss = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_L1SS);
+	if (!l1ss)
+		return;
+
+	pci_read_config_dword(pdev, l1ss + PCI_L1SS_CTL1, &lval);
+
+	if (CHK_PCI_PID(pcr, PID_524A) || CHK_PCI_PID(pcr, PID_525A)) {
+		if (0 == (lval & 0x0F))
+			rtsx_pci_enable_oobs_polling(pcr);
+		else
+			rtsx_pci_disable_oobs_polling(pcr);
+	}
+
+
+	if (lval & PCI_L1SS_CTL1_ASPM_L1_1)
+		rtsx_set_dev_flag(pcr, ASPM_L1_1_EN);
+
+	if (lval & PCI_L1SS_CTL1_ASPM_L1_2)
+		rtsx_set_dev_flag(pcr, ASPM_L1_2_EN);
+
+	if (lval & PCI_L1SS_CTL1_PCIPM_L1_1)
+		rtsx_set_dev_flag(pcr, PM_L1_1_EN);
+
+	if (lval & PCI_L1SS_CTL1_PCIPM_L1_2)
+>>>>>>> upstream/android-13
 		rtsx_set_dev_flag(pcr, PM_L1_2_EN);
 
 	if (option->ltr_en) {
 		u16 val;
 
+<<<<<<< HEAD
 		pcie_capability_read_word(pcr->pci, PCI_EXP_DEVCTL2, &val);
+=======
+		pcie_capability_read_word(pdev, PCI_EXP_DEVCTL2, &val);
+>>>>>>> upstream/android-13
 		if (val & PCI_EXP_DEVCTL2_LTR_EN) {
 			option->ltr_enabled = true;
 			option->ltr_active = true;
@@ -154,6 +216,115 @@ static int rts5249_init_from_hw(struct rtsx_pcr *pcr)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void rts52xa_save_content_from_efuse(struct rtsx_pcr *pcr)
+{
+	u8 cnt, sv;
+	u16 j = 0;
+	u8 tmp;
+	u8 val;
+	int i;
+
+	rtsx_pci_write_register(pcr, RTS524A_PME_FORCE_CTL,
+				REG_EFUSE_BYPASS | REG_EFUSE_POR, REG_EFUSE_POR);
+	udelay(1);
+
+	pcr_dbg(pcr, "Enable efuse por!");
+	pcr_dbg(pcr, "save efuse to autoload");
+
+	rtsx_pci_write_register(pcr, RTS525A_EFUSE_ADD, REG_EFUSE_ADD_MASK, 0x00);
+	rtsx_pci_write_register(pcr, RTS525A_EFUSE_CTL,
+				REG_EFUSE_ENABLE | REG_EFUSE_MODE, REG_EFUSE_ENABLE);
+	/* Wait transfer end */
+	for (j = 0; j < 1024; j++) {
+		rtsx_pci_read_register(pcr, RTS525A_EFUSE_CTL, &tmp);
+		if ((tmp & 0x80) == 0)
+			break;
+	}
+	rtsx_pci_read_register(pcr, RTS525A_EFUSE_DATA, &val);
+	cnt = val & 0x0F;
+	sv = val & 0x10;
+
+	if (sv) {
+		for (i = 0; i < 4; i++) {
+			rtsx_pci_write_register(pcr, RTS525A_EFUSE_ADD,
+				REG_EFUSE_ADD_MASK, 0x04 + i);
+			rtsx_pci_write_register(pcr, RTS525A_EFUSE_CTL,
+				REG_EFUSE_ENABLE | REG_EFUSE_MODE, REG_EFUSE_ENABLE);
+			/* Wait transfer end */
+			for (j = 0; j < 1024; j++) {
+				rtsx_pci_read_register(pcr, RTS525A_EFUSE_CTL, &tmp);
+				if ((tmp & 0x80) == 0)
+					break;
+			}
+			rtsx_pci_read_register(pcr, RTS525A_EFUSE_DATA, &val);
+			rtsx_pci_write_register(pcr, 0xFF04 + i, 0xFF, val);
+		}
+	} else {
+		rtsx_pci_write_register(pcr, 0xFF04, 0xFF, (u8)PCI_VID(pcr));
+		rtsx_pci_write_register(pcr, 0xFF05, 0xFF, (u8)(PCI_VID(pcr) >> 8));
+		rtsx_pci_write_register(pcr, 0xFF06, 0xFF, (u8)PCI_PID(pcr));
+		rtsx_pci_write_register(pcr, 0xFF07, 0xFF, (u8)(PCI_PID(pcr) >> 8));
+	}
+
+	for (i = 0; i < cnt * 4; i++) {
+		if (sv)
+			rtsx_pci_write_register(pcr, RTS525A_EFUSE_ADD,
+				REG_EFUSE_ADD_MASK, 0x08 + i);
+		else
+			rtsx_pci_write_register(pcr, RTS525A_EFUSE_ADD,
+				REG_EFUSE_ADD_MASK, 0x04 + i);
+		rtsx_pci_write_register(pcr, RTS525A_EFUSE_CTL,
+				REG_EFUSE_ENABLE | REG_EFUSE_MODE, REG_EFUSE_ENABLE);
+		/* Wait transfer end */
+		for (j = 0; j < 1024; j++) {
+			rtsx_pci_read_register(pcr, RTS525A_EFUSE_CTL, &tmp);
+			if ((tmp & 0x80) == 0)
+				break;
+		}
+		rtsx_pci_read_register(pcr, RTS525A_EFUSE_DATA, &val);
+		rtsx_pci_write_register(pcr, 0xFF08 + i, 0xFF, val);
+	}
+	rtsx_pci_write_register(pcr, 0xFF00, 0xFF, (cnt & 0x7F) | 0x80);
+	rtsx_pci_write_register(pcr, RTS524A_PME_FORCE_CTL,
+		REG_EFUSE_BYPASS | REG_EFUSE_POR, REG_EFUSE_BYPASS);
+	pcr_dbg(pcr, "Disable efuse por!");
+}
+
+static void rts52xa_save_content_to_autoload_space(struct rtsx_pcr *pcr)
+{
+	u8 val;
+
+	rtsx_pci_read_register(pcr, RESET_LOAD_REG, &val);
+	if (val & 0x02) {
+		rtsx_pci_read_register(pcr, RTS525A_BIOS_CFG, &val);
+		if (val & RTS525A_LOAD_BIOS_FLAG) {
+			rtsx_pci_write_register(pcr, RTS525A_BIOS_CFG,
+				RTS525A_LOAD_BIOS_FLAG, RTS525A_CLEAR_BIOS_FLAG);
+
+			rtsx_pci_write_register(pcr, RTS524A_PME_FORCE_CTL,
+				REG_EFUSE_POWER_MASK, REG_EFUSE_POWERON);
+
+			pcr_dbg(pcr, "Power ON efuse!");
+			mdelay(1);
+			rts52xa_save_content_from_efuse(pcr);
+		} else {
+			rtsx_pci_read_register(pcr, RTS524A_PME_FORCE_CTL, &val);
+			if (!(val & 0x08))
+				rts52xa_save_content_from_efuse(pcr);
+		}
+	} else {
+		pcr_dbg(pcr, "Load from autoload");
+		rtsx_pci_write_register(pcr, 0xFF00, 0xFF, 0x80);
+		rtsx_pci_write_register(pcr, 0xFF04, 0xFF, (u8)PCI_VID(pcr));
+		rtsx_pci_write_register(pcr, 0xFF05, 0xFF, (u8)(PCI_VID(pcr) >> 8));
+		rtsx_pci_write_register(pcr, 0xFF06, 0xFF, (u8)PCI_PID(pcr));
+		rtsx_pci_write_register(pcr, 0xFF07, 0xFF, (u8)(PCI_PID(pcr) >> 8));
+	}
+}
+
+>>>>>>> upstream/android-13
 static int rts5249_extra_init_hw(struct rtsx_pcr *pcr)
 {
 	struct rtsx_cr_option *option = &(pcr->option);
@@ -163,6 +334,12 @@ static int rts5249_extra_init_hw(struct rtsx_pcr *pcr)
 
 	rtsx_pci_init_cmd(pcr);
 
+<<<<<<< HEAD
+=======
+	if (CHK_PCI_PID(pcr, PID_524A) || CHK_PCI_PID(pcr, PID_525A))
+		rts52xa_save_content_to_autoload_space(pcr);
+
+>>>>>>> upstream/android-13
 	/* Rest L1SUB Config */
 	rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, L1SUB_CONFIG3, 0xFF, 0x00);
 	/* Configure GPIO as output */
@@ -181,11 +358,39 @@ static int rts5249_extra_init_hw(struct rtsx_pcr *pcr)
 	else
 		rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, PETXCFG, 0xB0, 0x80);
 
+<<<<<<< HEAD
+=======
+	rtsx_pci_send_cmd(pcr, CMD_TIMEOUT_DEF);
+
+	if (CHK_PCI_PID(pcr, PID_524A) || CHK_PCI_PID(pcr, PID_525A))
+		rtsx_pci_write_register(pcr, REG_VREF, PWD_SUSPND_EN, PWD_SUSPND_EN);
+
+	if (pcr->rtd3_en) {
+		if (CHK_PCI_PID(pcr, PID_524A) || CHK_PCI_PID(pcr, PID_525A)) {
+			rtsx_pci_write_register(pcr, RTS524A_PM_CTRL3, 0x01, 0x01);
+			rtsx_pci_write_register(pcr, RTS524A_PME_FORCE_CTL, 0x30, 0x30);
+		} else {
+			rtsx_pci_write_register(pcr, PM_CTRL3, 0x01, 0x01);
+			rtsx_pci_write_register(pcr, PME_FORCE_CTL, 0xFF, 0x33);
+		}
+	} else {
+		if (CHK_PCI_PID(pcr, PID_524A) || CHK_PCI_PID(pcr, PID_525A)) {
+			rtsx_pci_write_register(pcr, RTS524A_PM_CTRL3, 0x01, 0x00);
+			rtsx_pci_write_register(pcr, RTS524A_PME_FORCE_CTL, 0x30, 0x20);
+		} else {
+			rtsx_pci_write_register(pcr, PME_FORCE_CTL, 0xFF, 0x30);
+			rtsx_pci_write_register(pcr, PM_CTRL3, 0x01, 0x00);
+		}
+	}
+
+
+>>>>>>> upstream/android-13
 	/*
 	 * If u_force_clkreq_0 is enabled, CLKREQ# PIN will be forced
 	 * to drive low, and we forcibly request clock.
 	 */
 	if (option->force_clkreq_0)
+<<<<<<< HEAD
 		rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, PETXCFG,
 			FORCE_CLKREQ_DELINK_MASK, FORCE_CLKREQ_LOW);
 	else
@@ -193,6 +398,22 @@ static int rts5249_extra_init_hw(struct rtsx_pcr *pcr)
 			FORCE_CLKREQ_DELINK_MASK, FORCE_CLKREQ_HIGH);
 
 	return rtsx_pci_send_cmd(pcr, CMD_TIMEOUT_DEF);
+=======
+		rtsx_pci_write_register(pcr, PETXCFG,
+			FORCE_CLKREQ_DELINK_MASK, FORCE_CLKREQ_LOW);
+	else
+		rtsx_pci_write_register(pcr, PETXCFG,
+			FORCE_CLKREQ_DELINK_MASK, FORCE_CLKREQ_HIGH);
+
+	rtsx_pci_write_register(pcr, pcr->reg_pm_ctrl3, 0x10, 0x00);
+	if (CHK_PCI_PID(pcr, PID_524A) || CHK_PCI_PID(pcr, PID_525A)) {
+		rtsx_pci_write_register(pcr, RTS524A_PME_FORCE_CTL,
+				REG_EFUSE_POWER_MASK, REG_EFUSE_POWEROFF);
+		pcr_dbg(pcr, "Power OFF efuse!");
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int rts5249_optimize_phy(struct rtsx_pcr *pcr)
@@ -284,6 +505,13 @@ static int rtsx_base_disable_auto_blink(struct rtsx_pcr *pcr)
 static int rtsx_base_card_power_on(struct rtsx_pcr *pcr, int card)
 {
 	int err;
+<<<<<<< HEAD
+=======
+	struct rtsx_cr_option *option = &pcr->option;
+
+	if (option->ocp_en)
+		rtsx_pci_enable_ocp(pcr);
+>>>>>>> upstream/android-13
 
 	rtsx_pci_init_cmd(pcr);
 	rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, CARD_PWR_CTL,
@@ -306,12 +534,24 @@ static int rtsx_base_card_power_on(struct rtsx_pcr *pcr, int card)
 
 static int rtsx_base_card_power_off(struct rtsx_pcr *pcr, int card)
 {
+<<<<<<< HEAD
 	rtsx_pci_init_cmd(pcr);
 	rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, CARD_PWR_CTL,
 			SD_POWER_MASK, SD_POWER_OFF);
 	rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, PWR_GATE_CTRL,
 			LDO3318_PWR_MASK, 0x00);
 	return rtsx_pci_send_cmd(pcr, 100);
+=======
+	struct rtsx_cr_option *option = &pcr->option;
+
+	if (option->ocp_en)
+		rtsx_pci_disable_ocp(pcr);
+
+	rtsx_pci_write_register(pcr, CARD_PWR_CTL, SD_POWER_MASK, SD_POWER_OFF);
+
+	rtsx_pci_write_register(pcr, PWR_GATE_CTRL, LDO3318_PWR_MASK, 0x00);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int rtsx_base_switch_output_voltage(struct rtsx_pcr *pcr, u8 voltage)
@@ -352,6 +592,7 @@ static int rtsx_base_switch_output_voltage(struct rtsx_pcr *pcr, u8 voltage)
 	return rtsx_pci_send_cmd(pcr, 100);
 }
 
+<<<<<<< HEAD
 static void rts5249_set_aspm(struct rtsx_pcr *pcr, bool enable)
 {
 	struct rtsx_cr_option *option = &pcr->option;
@@ -377,6 +618,8 @@ static void rts5249_set_aspm(struct rtsx_pcr *pcr, bool enable)
 	pcr->aspm_enabled = enable;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct pcr_ops rts5249_pcr_ops = {
 	.fetch_vendor_settings = rtsx_base_fetch_vendor_settings,
 	.extra_init_hw = rts5249_extra_init_hw,
@@ -388,8 +631,11 @@ static const struct pcr_ops rts5249_pcr_ops = {
 	.card_power_on = rtsx_base_card_power_on,
 	.card_power_off = rtsx_base_card_power_off,
 	.switch_output_voltage = rtsx_base_switch_output_voltage,
+<<<<<<< HEAD
 	.force_power_down = rtsx_base_force_power_down,
 	.set_aspm = rts5249_set_aspm,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* SD Pull Control Enable:
@@ -457,6 +703,10 @@ void rts5249_init_params(struct rtsx_pcr *pcr)
 	pcr->sd30_drive_sel_1v8 = CFG_DRIVER_TYPE_B;
 	pcr->sd30_drive_sel_3v3 = CFG_DRIVER_TYPE_B;
 	pcr->aspm_en = ASPM_L1_EN;
+<<<<<<< HEAD
+=======
+	pcr->aspm_mode = ASPM_MODE_CFG;
+>>>>>>> upstream/android-13
 	pcr->tx_initial_phase = SET_CLOCK_PHASE(1, 29, 16);
 	pcr->rx_initial_phase = SET_CLOCK_PHASE(24, 6, 5);
 
@@ -476,7 +726,10 @@ void rts5249_init_params(struct rtsx_pcr *pcr)
 	option->ltr_active_latency = LTR_ACTIVE_LATENCY_DEF;
 	option->ltr_idle_latency = LTR_IDLE_LATENCY_DEF;
 	option->ltr_l1off_latency = LTR_L1OFF_LATENCY_DEF;
+<<<<<<< HEAD
 	option->dev_aspm_mode = DEV_ASPM_DYNAMIC;
+=======
+>>>>>>> upstream/android-13
 	option->l1_snooze_delay = L1_SNOOZE_DELAY_DEF;
 	option->ltr_l1off_sspwrgate = LTR_L1OFF_SSPWRGATE_5249_DEF;
 	option->ltr_l1off_snooze_sspwrgate =
@@ -615,14 +868,22 @@ static const struct pcr_ops rts524a_pcr_ops = {
 	.card_power_on = rtsx_base_card_power_on,
 	.card_power_off = rtsx_base_card_power_off,
 	.switch_output_voltage = rtsx_base_switch_output_voltage,
+<<<<<<< HEAD
 	.force_power_down = rtsx_base_force_power_down,
 	.set_l1off_cfg_sub_d0 = rts5250_set_l1off_cfg_sub_d0,
 	.set_aspm = rts5249_set_aspm,
+=======
+	.set_l1off_cfg_sub_d0 = rts5250_set_l1off_cfg_sub_d0,
+>>>>>>> upstream/android-13
 };
 
 void rts524a_init_params(struct rtsx_pcr *pcr)
 {
 	rts5249_init_params(pcr);
+<<<<<<< HEAD
+=======
+	pcr->aspm_mode = ASPM_MODE_REG;
+>>>>>>> upstream/android-13
 	pcr->tx_initial_phase = SET_CLOCK_PHASE(27, 29, 11);
 	pcr->option.ltr_l1off_sspwrgate = LTR_L1OFF_SSPWRGATE_5250_DEF;
 	pcr->option.ltr_l1off_snooze_sspwrgate =
@@ -630,6 +891,16 @@ void rts524a_init_params(struct rtsx_pcr *pcr)
 
 	pcr->reg_pm_ctrl3 = RTS524A_PM_CTRL3;
 	pcr->ops = &rts524a_pcr_ops;
+<<<<<<< HEAD
+=======
+
+	pcr->option.ocp_en = 1;
+	if (pcr->option.ocp_en)
+		pcr->hw_param.interrupt_en |= SD_OC_INT_EN;
+	pcr->hw_param.ocp_glitch = SD_OCP_GLITCH_10M;
+	pcr->option.sd_800mA_ocp_thd = RTS524A_OCP_THD_800;
+
+>>>>>>> upstream/android-13
 }
 
 static int rts525a_card_power_on(struct rtsx_pcr *pcr, int card)
@@ -692,6 +963,11 @@ static int rts525a_extra_init_hw(struct rtsx_pcr *pcr)
 {
 	rts5249_extra_init_hw(pcr);
 
+<<<<<<< HEAD
+=======
+	rtsx_pci_write_register(pcr, RTS5250_CLK_CFG3, RTS525A_CFG_MEM_PD, RTS525A_CFG_MEM_PD);
+
+>>>>>>> upstream/android-13
 	rtsx_pci_write_register(pcr, PCLK_CTL, PCLK_MODE_SEL, PCLK_MODE_SEL);
 	if (is_version(pcr, 0x525A, IC_VER_A)) {
 		rtsx_pci_write_register(pcr, L1SUB_CONFIG2,
@@ -724,14 +1000,22 @@ static const struct pcr_ops rts525a_pcr_ops = {
 	.card_power_on = rts525a_card_power_on,
 	.card_power_off = rtsx_base_card_power_off,
 	.switch_output_voltage = rts525a_switch_output_voltage,
+<<<<<<< HEAD
 	.force_power_down = rtsx_base_force_power_down,
 	.set_l1off_cfg_sub_d0 = rts5250_set_l1off_cfg_sub_d0,
 	.set_aspm = rts5249_set_aspm,
+=======
+	.set_l1off_cfg_sub_d0 = rts5250_set_l1off_cfg_sub_d0,
+>>>>>>> upstream/android-13
 };
 
 void rts525a_init_params(struct rtsx_pcr *pcr)
 {
 	rts5249_init_params(pcr);
+<<<<<<< HEAD
+=======
+	pcr->aspm_mode = ASPM_MODE_REG;
+>>>>>>> upstream/android-13
 	pcr->tx_initial_phase = SET_CLOCK_PHASE(25, 29, 11);
 	pcr->option.ltr_l1off_sspwrgate = LTR_L1OFF_SSPWRGATE_5250_DEF;
 	pcr->option.ltr_l1off_snooze_sspwrgate =
@@ -739,4 +1023,13 @@ void rts525a_init_params(struct rtsx_pcr *pcr)
 
 	pcr->reg_pm_ctrl3 = RTS524A_PM_CTRL3;
 	pcr->ops = &rts525a_pcr_ops;
+<<<<<<< HEAD
+=======
+
+	pcr->option.ocp_en = 1;
+	if (pcr->option.ocp_en)
+		pcr->hw_param.interrupt_en |= SD_OC_INT_EN;
+	pcr->hw_param.ocp_glitch = SD_OCP_GLITCH_10M;
+	pcr->option.sd_800mA_ocp_thd = RTS525A_OCP_THD_800;
+>>>>>>> upstream/android-13
 }

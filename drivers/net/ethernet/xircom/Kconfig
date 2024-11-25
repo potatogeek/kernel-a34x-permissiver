@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Xircom network device configuration
 #
@@ -6,7 +10,11 @@ config NET_VENDOR_XIRCOM
 	bool "Xircom devices"
 	default y
 	depends on PCMCIA
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -19,7 +27,11 @@ if NET_VENDOR_XIRCOM
 config PCMCIA_XIRC2PS
 	tristate "Xircom 16-bit PCMCIA support"
 	depends on PCMCIA
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you intend to attach a Xircom 16-bit PCMCIA (PC-card)
 	  Ethernet or Fast Ethernet card to your computer.
 

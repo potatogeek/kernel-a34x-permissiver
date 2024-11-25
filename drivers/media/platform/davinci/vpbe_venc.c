@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 Texas Instruments Inc
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2010 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
@@ -22,11 +28,14 @@
 #include <linux/videodev2.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_DAVINCI
 #include <mach/hardware.h>
 #include <mach/mux.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_data/i2c-davinci.h>
 
 #include <linux/io.h>
@@ -534,9 +543,13 @@ static int venc_s_routing(struct v4l2_subdev *sd, u32 input, u32 output,
 	return ret;
 }
 
+<<<<<<< HEAD
 static long venc_ioctl(struct v4l2_subdev *sd,
 			unsigned int cmd,
 			void *arg)
+=======
+static long venc_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+>>>>>>> upstream/android-13
 {
 	u32 val;
 
@@ -555,7 +568,11 @@ static long venc_ioctl(struct v4l2_subdev *sd,
 }
 
 static const struct v4l2_subdev_core_ops venc_core_ops = {
+<<<<<<< HEAD
 	.ioctl      = venc_ioctl,
+=======
+	.command      = venc_command,
+>>>>>>> upstream/android-13
 };
 
 static const struct v4l2_subdev_video_ops venc_video_ops = {
@@ -616,7 +633,11 @@ struct v4l2_subdev *venc_sub_dev_init(struct v4l2_device *v4l2_dev,
 
 	v4l2_subdev_init(&venc->sd, &venc_ops);
 
+<<<<<<< HEAD
 	strcpy(venc->sd.name, venc_name);
+=======
+	strscpy(venc->sd.name, venc_name, sizeof(venc->sd.name));
+>>>>>>> upstream/android-13
 	if (v4l2_device_register_subdev(v4l2_dev, &venc->sd) < 0) {
 		v4l2_err(v4l2_dev,
 			"vpbe unable to register venc sub device\n");

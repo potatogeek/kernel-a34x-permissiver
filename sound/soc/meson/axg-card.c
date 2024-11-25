@@ -9,11 +9,15 @@
 #include <sound/soc-dai.h>
 
 #include "axg-tdm.h"
+<<<<<<< HEAD
 
 struct axg_card {
 	struct snd_soc_card card;
 	void **link_data;
 };
+=======
+#include "meson-card.h"
+>>>>>>> upstream/android-13
 
 struct axg_dai_link_tdm_mask {
 	u32 tx;
@@ -29,6 +33,7 @@ struct axg_dai_link_tdm_data {
 	struct axg_dai_link_tdm_mask *codec_masks;
 };
 
+<<<<<<< HEAD
 #define PREFIX "amlogic,"
 
 static int axg_card_reallocate_links(struct axg_card *priv,
@@ -152,10 +157,24 @@ static int axg_card_add_aux_devices(struct snd_soc_card *card)
 
 	return 0;
 }
+=======
+/*
+ * Base params for the codec to codec links
+ * Those will be over-written by the CPU side of the link
+ */
+static const struct snd_soc_pcm_stream codec_params = {
+	.formats = SNDRV_PCM_FMTBIT_S24_LE,
+	.rate_min = 5525,
+	.rate_max = 192000,
+	.channels_min = 1,
+	.channels_max = 8,
+};
+>>>>>>> upstream/android-13
 
 static int axg_card_tdm_be_hw_params(struct snd_pcm_substream *substream,
 				     struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct axg_card *priv = snd_soc_card_get_drvdata(rtd->card);
 	struct axg_dai_link_tdm_data *be =
@@ -182,6 +201,14 @@ static int axg_card_tdm_be_hw_params(struct snd_pcm_substream *substream,
 	}
 
 	return 0;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct meson_card *priv = snd_soc_card_get_drvdata(rtd->card);
+	struct axg_dai_link_tdm_data *be =
+		(struct axg_dai_link_tdm_data *)priv->link_data[rtd->num];
+
+	return meson_card_i2s_set_sysclk(substream, params, be->mclk_fs);
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_soc_ops axg_card_tdm_be_ops = {
@@ -190,14 +217,22 @@ static const struct snd_soc_ops axg_card_tdm_be_ops = {
 
 static int axg_card_tdm_dai_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct axg_card *priv = snd_soc_card_get_drvdata(rtd->card);
+=======
+	struct meson_card *priv = snd_soc_card_get_drvdata(rtd->card);
+>>>>>>> upstream/android-13
 	struct axg_dai_link_tdm_data *be =
 		(struct axg_dai_link_tdm_data *)priv->link_data[rtd->num];
 	struct snd_soc_dai *codec_dai;
 	int ret, i;
 
+<<<<<<< HEAD
 	for (i = 0; i < rtd->num_codecs; i++) {
 		codec_dai = rtd->codec_dais[i];
+=======
+	for_each_rtd_codec_dais(rtd, i, codec_dai) {
+>>>>>>> upstream/android-13
 		ret = snd_soc_dai_set_tdm_slot(codec_dai,
 					       be->codec_masks[i].tx,
 					       be->codec_masks[i].rx,
@@ -209,10 +244,17 @@ static int axg_card_tdm_dai_init(struct snd_soc_pcm_runtime *rtd)
 		}
 	}
 
+<<<<<<< HEAD
 	ret = axg_tdm_set_tdm_slots(rtd->cpu_dai, be->tx_mask, be->rx_mask,
 				    be->slots, be->slot_width);
 	if (ret) {
 		dev_err(rtd->cpu_dai->dev, "setting tdm link slots failed\n");
+=======
+	ret = axg_tdm_set_tdm_slots(asoc_rtd_to_cpu(rtd, 0), be->tx_mask, be->rx_mask,
+				    be->slots, be->slot_width);
+	if (ret) {
+		dev_err(asoc_rtd_to_cpu(rtd, 0)->dev, "setting tdm link slots failed\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -221,16 +263,27 @@ static int axg_card_tdm_dai_init(struct snd_soc_pcm_runtime *rtd)
 
 static int axg_card_tdm_dai_lb_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct axg_card *priv = snd_soc_card_get_drvdata(rtd->card);
+=======
+	struct meson_card *priv = snd_soc_card_get_drvdata(rtd->card);
+>>>>>>> upstream/android-13
 	struct axg_dai_link_tdm_data *be =
 		(struct axg_dai_link_tdm_data *)priv->link_data[rtd->num];
 	int ret;
 
 	/* The loopback rx_mask is the pad tx_mask */
+<<<<<<< HEAD
 	ret = axg_tdm_set_tdm_slots(rtd->cpu_dai, NULL, be->tx_mask,
 				    be->slots, be->slot_width);
 	if (ret) {
 		dev_err(rtd->cpu_dai->dev, "setting tdm link slots failed\n");
+=======
+	ret = axg_tdm_set_tdm_slots(asoc_rtd_to_cpu(rtd, 0), NULL, be->tx_mask,
+				    be->slots, be->slot_width);
+	if (ret) {
+		dev_err(asoc_rtd_to_cpu(rtd, 0)->dev, "setting tdm link slots failed\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -240,6 +293,7 @@ static int axg_card_tdm_dai_lb_init(struct snd_soc_pcm_runtime *rtd)
 static int axg_card_add_tdm_loopback(struct snd_soc_card *card,
 				     int *index)
 {
+<<<<<<< HEAD
 	struct axg_card *priv = snd_soc_card_get_drvdata(card);
 	struct snd_soc_dai_link *pad = &card->dai_link[*index];
 	struct snd_soc_dai_link *lb;
@@ -247,11 +301,22 @@ static int axg_card_add_tdm_loopback(struct snd_soc_card *card,
 
 	/* extend links */
 	ret = axg_card_reallocate_links(priv, card->num_links + 1);
+=======
+	struct meson_card *priv = snd_soc_card_get_drvdata(card);
+	struct snd_soc_dai_link *pad = &card->dai_link[*index];
+	struct snd_soc_dai_link *lb;
+	struct snd_soc_dai_link_component *dlc;
+	int ret;
+
+	/* extend links */
+	ret = meson_card_reallocate_links(card, card->num_links + 1);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	lb = &card->dai_link[*index + 1];
 
+<<<<<<< HEAD
 	lb->name = kasprintf(GFP_KERNEL, "%s-lb", pad->name);
 	if (!lb->name)
 		return -ENOMEM;
@@ -261,6 +326,26 @@ static int axg_card_add_tdm_loopback(struct snd_soc_card *card,
 	lb->cpu_dai_name = "TDM Loopback";
 	lb->codec_name = "snd-soc-dummy";
 	lb->codec_dai_name = "snd-soc-dummy-dai";
+=======
+	lb->name = devm_kasprintf(card->dev, GFP_KERNEL, "%s-lb", pad->name);
+	if (!lb->name)
+		return -ENOMEM;
+
+	dlc = devm_kzalloc(card->dev, 2 * sizeof(*dlc), GFP_KERNEL);
+	if (!dlc)
+		return -ENOMEM;
+
+	lb->cpus = &dlc[0];
+	lb->codecs = &dlc[1];
+	lb->num_cpus = 1;
+	lb->num_codecs = 1;
+
+	lb->stream_name = lb->name;
+	lb->cpus->of_node = pad->cpus->of_node;
+	lb->cpus->dai_name = "TDM Loopback";
+	lb->codecs->name = "snd-soc-dummy";
+	lb->codecs->dai_name = "snd-soc-dummy-dai";
+>>>>>>> upstream/android-13
 	lb->dpcm_capture = 1;
 	lb->no_pcm = 1;
 	lb->ops = &axg_card_tdm_be_ops;
@@ -273,7 +358,11 @@ static int axg_card_add_tdm_loopback(struct snd_soc_card *card,
 	 * axg_card_clean_references() will iterate over this link,
 	 * make sure the node count is balanced
 	 */
+<<<<<<< HEAD
 	of_node_get(lb->cpu_of_node);
+=======
+	of_node_get(lb->cpus->of_node);
+>>>>>>> upstream/android-13
 
 	/* Let add_links continue where it should */
 	*index += 1;
@@ -281,6 +370,7 @@ static int axg_card_add_tdm_loopback(struct snd_soc_card *card,
 	return 0;
 }
 
+<<<<<<< HEAD
 static unsigned int axg_card_parse_daifmt(struct device_node *node,
 					  struct device_node *cpu_node)
 {
@@ -307,6 +397,8 @@ static unsigned int axg_card_parse_daifmt(struct device_node *node,
 	return daifmt;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int axg_card_parse_cpu_tdm_slots(struct snd_soc_card *card,
 					struct snd_soc_dai_link *link,
 					struct device_node *node,
@@ -401,7 +493,11 @@ static int axg_card_parse_tdm(struct snd_soc_card *card,
 			      struct device_node *node,
 			      int *index)
 {
+<<<<<<< HEAD
 	struct axg_card *priv = snd_soc_card_get_drvdata(card);
+=======
+	struct meson_card *priv = snd_soc_card_get_drvdata(card);
+>>>>>>> upstream/android-13
 	struct snd_soc_dai_link *link = &card->dai_link[*index];
 	struct axg_dai_link_tdm_data *be;
 	int ret;
@@ -415,7 +511,11 @@ static int axg_card_parse_tdm(struct snd_soc_card *card,
 	/* Setup tdm link */
 	link->ops = &axg_card_tdm_be_ops;
 	link->init = axg_card_tdm_dai_init;
+<<<<<<< HEAD
 	link->dai_fmt = axg_card_parse_daifmt(node, link->cpu_of_node);
+=======
+	link->dai_fmt = meson_card_parse_daifmt(node, link->cpus->of_node);
+>>>>>>> upstream/android-13
 
 	of_property_read_u32(node, "mclk-fs", &be->mclk_fs);
 
@@ -439,6 +539,7 @@ static int axg_card_parse_tdm(struct snd_soc_card *card,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int axg_card_set_be_link(struct snd_soc_card *card,
 				struct snd_soc_dai_link *link,
 				struct device_node *node)
@@ -505,22 +606,42 @@ static int axg_card_set_fe_link(struct snd_soc_card *card,
 static int axg_card_cpu_is_capture_fe(struct device_node *np)
 {
 	return of_device_is_compatible(np, PREFIX "axg-toddr");
+=======
+static int axg_card_cpu_is_capture_fe(struct device_node *np)
+{
+	return of_device_is_compatible(np, DT_PREFIX "axg-toddr");
+>>>>>>> upstream/android-13
 }
 
 static int axg_card_cpu_is_playback_fe(struct device_node *np)
 {
+<<<<<<< HEAD
 	return of_device_is_compatible(np, PREFIX "axg-frddr");
+=======
+	return of_device_is_compatible(np, DT_PREFIX "axg-frddr");
+>>>>>>> upstream/android-13
 }
 
 static int axg_card_cpu_is_tdm_iface(struct device_node *np)
 {
+<<<<<<< HEAD
 	return of_device_is_compatible(np, PREFIX "axg-tdm-iface");
+=======
+	return of_device_is_compatible(np, DT_PREFIX "axg-tdm-iface");
+}
+
+static int axg_card_cpu_is_codec(struct device_node *np)
+{
+	return of_device_is_compatible(np, DT_PREFIX "g12a-tohdmitx") ||
+		of_device_is_compatible(np, DT_PREFIX "g12a-toacodec");
+>>>>>>> upstream/android-13
 }
 
 static int axg_card_add_link(struct snd_soc_card *card, struct device_node *np,
 			     int *index)
 {
 	struct snd_soc_dai_link *dai_link = &card->dai_link[*index];
+<<<<<<< HEAD
 	int ret;
 
 	ret = axg_card_parse_dai(card, np, &dai_link->cpu_of_node,
@@ -540,10 +661,46 @@ static int axg_card_add_link(struct snd_soc_card *card, struct device_node *np,
 
 	if (axg_card_cpu_is_tdm_iface(dai_link->cpu_of_node))
 		ret = axg_card_parse_tdm(card, np, index);
+=======
+	struct snd_soc_dai_link_component *cpu;
+	int ret;
+
+	cpu = devm_kzalloc(card->dev, sizeof(*cpu), GFP_KERNEL);
+	if (!cpu)
+		return -ENOMEM;
+
+	dai_link->cpus = cpu;
+	dai_link->num_cpus = 1;
+
+	ret = meson_card_parse_dai(card, np, &dai_link->cpus->of_node,
+				   &dai_link->cpus->dai_name);
+	if (ret)
+		return ret;
+
+	if (axg_card_cpu_is_playback_fe(dai_link->cpus->of_node))
+		return meson_card_set_fe_link(card, dai_link, np, true);
+	else if (axg_card_cpu_is_capture_fe(dai_link->cpus->of_node))
+		return meson_card_set_fe_link(card, dai_link, np, false);
+
+
+	ret = meson_card_set_be_link(card, dai_link, np);
+	if (ret)
+		return ret;
+
+	if (axg_card_cpu_is_codec(dai_link->cpus->of_node)) {
+		dai_link->params = &codec_params;
+	} else {
+		dai_link->no_pcm = 1;
+		snd_soc_dai_link_set_capabilities(dai_link);
+		if (axg_card_cpu_is_tdm_iface(dai_link->cpus->of_node))
+			ret = axg_card_parse_tdm(card, np, index);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int axg_card_add_links(struct snd_soc_card *card)
 {
 	struct axg_card *priv = snd_soc_card_get_drvdata(card);
@@ -659,6 +816,23 @@ static int axg_card_remove(struct platform_device *pdev)
 static struct platform_driver axg_card_pdrv = {
 	.probe = axg_card_probe,
 	.remove = axg_card_remove,
+=======
+static const struct meson_card_match_data axg_card_match_data = {
+	.add_link = axg_card_add_link,
+};
+
+static const struct of_device_id axg_card_of_match[] = {
+	{
+		.compatible = "amlogic,axg-sound-card",
+		.data = &axg_card_match_data,
+	}, {}
+};
+MODULE_DEVICE_TABLE(of, axg_card_of_match);
+
+static struct platform_driver axg_card_pdrv = {
+	.probe = meson_card_probe,
+	.remove = meson_card_remove,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "axg-sound-card",
 		.of_match_table = axg_card_of_match,

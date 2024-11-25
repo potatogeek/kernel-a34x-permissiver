@@ -46,7 +46,11 @@ static const struct hc_driver ps3_ohci_hc_driver = {
 	.product_desc		= "PS3 OHCI Host Controller",
 	.hcd_priv_size		= sizeof(struct ohci_hcd),
 	.irq			= ohci_irq,
+<<<<<<< HEAD
 	.flags			= HCD_MEMORY | HCD_USB11,
+=======
+	.flags			= HCD_MEMORY | HCD_DMA | HCD_USB11,
+>>>>>>> upstream/android-13
 	.reset			= ps3_ohci_hc_reset,
 	.start			= ps3_ohci_hc_start,
 	.stop			= ohci_stop,
@@ -184,7 +188,11 @@ fail_start:
 	return result;
 }
 
+<<<<<<< HEAD
 static int ps3_ohci_remove(struct ps3_system_bus_device *dev)
+=======
+static void ps3_ohci_remove(struct ps3_system_bus_device *dev)
+>>>>>>> upstream/android-13
 {
 	unsigned int tmp;
 	struct usb_hcd *hcd = ps3_system_bus_get_drvdata(dev);
@@ -212,8 +220,11 @@ static int ps3_ohci_remove(struct ps3_system_bus_device *dev)
 
 	ps3_dma_region_free(dev->d_region);
 	ps3_close_hv_device(dev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __init ps3_ohci_driver_register(struct ps3_system_bus_driver *drv)

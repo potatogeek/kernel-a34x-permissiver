@@ -6,6 +6,7 @@
  *
  * Author: Chunfeng Yun <chunfeng.yun@mediatek.com>
  */
+<<<<<<< HEAD
 #include "mtu3.h"
 #include "mtu3_trace.h"
 
@@ -27,11 +28,18 @@ static void mtu3_set_usb_bootcomplete(struct mtu3 *mtu)
 	mtu->usb_bootcomplete = 1;
 }
 
+=======
+
+#include "mtu3.h"
+#include "mtu3_trace.h"
+
+>>>>>>> upstream/android-13
 void mtu3_req_complete(struct mtu3_ep *mep,
 		     struct usb_request *req, int status)
 __releases(mep->mtu->lock)
 __acquires(mep->mtu->lock)
 {
+<<<<<<< HEAD
 	struct mtu3_request *mreq;
 	struct mtu3 *mtu;
 	int busy = mep->busy;
@@ -45,11 +53,23 @@ __acquires(mep->mtu->lock)
 	mep->busy = 1;
 
 	trace_mtu3_req_complete(mreq);
+=======
+	struct mtu3_request *mreq = to_mtu3_request(req);
+	struct mtu3 *mtu = mreq->mtu;
+
+	list_del(&mreq->list);
+	if (req->status == -EINPROGRESS)
+		req->status = status;
+
+	trace_mtu3_req_complete(mreq);
+	spin_unlock(&mtu->lock);
+>>>>>>> upstream/android-13
 
 	/* ep0 makes use of PIO, needn't unmap it */
 	if (mep->epnum)
 		usb_gadget_unmap_request(&mtu->g, req, mep->is_in);
 
+<<<<<<< HEAD
 	dev_dbg(mtu->dev, "%s complete req: %p, sts %d, %d/%d\n", mep->name,
 		req, req->status, mreq->request.actual, mreq->request.length);
 
@@ -59,13 +79,23 @@ __acquires(mep->mtu->lock)
 
 	spin_lock(&mtu->lock);
 	mep->busy = busy;
+=======
+	dev_dbg(mtu->dev, "%s complete req: %p, sts %d, %d/%d\n",
+		mep->name, req, req->status, req->actual, req->length);
+
+	usb_gadget_giveback_request(&mep->ep, req);
+	spin_lock(&mtu->lock);
+>>>>>>> upstream/android-13
 }
 
 static void nuke(struct mtu3_ep *mep, const int status)
 {
 	struct mtu3_request *mreq = NULL;
 
+<<<<<<< HEAD
 	mep->busy = 1;
+=======
+>>>>>>> upstream/android-13
 	if (list_empty(&mep->req_list))
 		return;
 
@@ -82,6 +112,7 @@ static void nuke(struct mtu3_ep *mep, const int status)
 	}
 }
 
+<<<<<<< HEAD
 void mtu3_nuke_all_ep(struct mtu3 *mtu)
 {
 	int i;
@@ -93,6 +124,8 @@ void mtu3_nuke_all_ep(struct mtu3 *mtu)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mtu3_ep_enable(struct mtu3_ep *mep)
 {
 	const struct usb_endpoint_descriptor *desc;
@@ -101,14 +134,21 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
 	u32 interval = 0;
 	u32 mult = 0;
 	u32 burst = 0;
+<<<<<<< HEAD
 	int max_packet;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	desc = mep->desc;
 	comp_desc = mep->comp_desc;
 	mep->type = usb_endpoint_type(desc);
+<<<<<<< HEAD
 	max_packet = usb_endpoint_maxp(desc);
 	mep->maxp = max_packet & GENMASK(10, 0);
+=======
+	mep->maxp = usb_endpoint_maxp(desc);
+>>>>>>> upstream/android-13
 
 	switch (mtu->g.speed) {
 	case USB_SPEED_SUPER:
@@ -116,7 +156,11 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
 		if (usb_endpoint_xfer_int(desc) ||
 				usb_endpoint_xfer_isoc(desc)) {
 			interval = desc->bInterval;
+<<<<<<< HEAD
 			interval = clamp_val(interval, 1, 16) - 1;
+=======
+			interval = clamp_val(interval, 1, 16);
+>>>>>>> upstream/android-13
 			if (usb_endpoint_xfer_isoc(desc) && comp_desc)
 				mult = comp_desc->bmAttributes;
 		}
@@ -128,14 +172,34 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
 		if (usb_endpoint_xfer_isoc(desc) ||
 				usb_endpoint_xfer_int(desc)) {
 			interval = desc->bInterval;
+<<<<<<< HEAD
 			interval = clamp_val(interval, 1, 16) - 1;
 			burst = (max_packet & GENMASK(12, 11)) >> 11;
 		}
 		break;
+=======
+			interval = clamp_val(interval, 1, 16);
+			mult = usb_endpoint_maxp_mult(desc) - 1;
+		}
+		break;
+	case USB_SPEED_FULL:
+		if (usb_endpoint_xfer_isoc(desc))
+			interval = clamp_val(desc->bInterval, 1, 16);
+		else if (usb_endpoint_xfer_int(desc))
+			interval = clamp_val(desc->bInterval, 1, 255);
+
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break; /*others are ignored */
 	}
 
+<<<<<<< HEAD
+=======
+	dev_dbg(mtu->dev, "%s maxp:%d, interval:%d, burst:%d, mult:%d\n",
+		__func__, mep->maxp, interval, burst, mult);
+
+>>>>>>> upstream/android-13
 	mep->ep.maxpacket = mep->maxp;
 	mep->ep.desc = desc;
 	mep->ep.comp_desc = comp_desc;
@@ -143,6 +207,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
 	/* slot mainly affects bulk/isoc transfer, so ignore int */
 	mep->slot = usb_endpoint_xfer_int(desc) ? 0 : mtu->slot;
 
+<<<<<<< HEAD
 	/* reserve ep slot for super speed */
 	if (mep->slot && mtu->g.speed >= MTU3_SPEED_SUPER) {
 		switch (mtu->ep_slot_mode) {
@@ -160,6 +225,8 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
 	dev_info(mtu->dev, "%s %s maxp:%d interval:%d burst:%d slot:%d\n",
 		__func__, mep->name, mep->maxp,	interval, burst, mep->slot);
 
+=======
+>>>>>>> upstream/android-13
 	ret = mtu3_config_ep(mtu, mep, interval, burst, mult);
 	if (ret < 0)
 		return ret;
@@ -238,9 +305,13 @@ static int mtu3_gadget_ep_enable(struct usb_ep *ep,
 	if (ret)
 		goto error;
 
+<<<<<<< HEAD
 	mep->busy = 0;
 	mep->wedged = 0;
 	mep->flags |= MTU3_EP_ENABLED;
+=======
+	mep->flags = MTU3_EP_ENABLED;
+>>>>>>> upstream/android-13
 	mtu->active_ep++;
 
 error:
@@ -268,7 +339,11 @@ static int mtu3_gadget_ep_disable(struct usb_ep *ep)
 
 	spin_lock_irqsave(&mtu->lock, flags);
 	mtu3_ep_disable(mep);
+<<<<<<< HEAD
 	mep->flags &= ~MTU3_EP_ENABLED;
+=======
+	mep->flags = 0;
+>>>>>>> upstream/android-13
 	mtu->active_ep--;
 	spin_unlock_irqrestore(&(mtu->lock), flags);
 
@@ -290,6 +365,10 @@ struct usb_request *mtu3_alloc_request(struct usb_ep *ep, gfp_t gfp_flags)
 	mreq->request.dma = DMA_ADDR_INVALID;
 	mreq->epnum = mep->epnum;
 	mreq->mep = mep;
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&mreq->list);
+>>>>>>> upstream/android-13
 	trace_mtu3_alloc_request(mreq);
 
 	return &mreq->request;
@@ -298,6 +377,7 @@ struct usb_request *mtu3_alloc_request(struct usb_ep *ep, gfp_t gfp_flags)
 void mtu3_free_request(struct usb_ep *ep, struct usb_request *req)
 {
 	struct mtu3_request *mreq = to_mtu3_request(req);
+<<<<<<< HEAD
 	struct mtu3_request *r;
 	struct mtu3_ep *mep = to_mtu3_ep(ep);
 	struct mtu3 *mtu = mep->mtu;
@@ -313,11 +393,17 @@ void mtu3_free_request(struct usb_ep *ep, struct usb_request *req)
 	}
 	kfree(mreq);
 	spin_unlock_irqrestore(&mtu->lock, flags);
+=======
+
+	trace_mtu3_free_request(mreq);
+	kfree(mreq);
+>>>>>>> upstream/android-13
 }
 
 static int mtu3_gadget_queue(struct usb_ep *ep,
 		struct usb_request *req, gfp_t gfp_flags)
 {
+<<<<<<< HEAD
 	struct mtu3_ep *mep;
 	struct mtu3_request *mreq;
 	struct mtu3 *mtu;
@@ -335,6 +421,17 @@ static int mtu3_gadget_queue(struct usb_ep *ep,
 	mreq = to_mtu3_request(req);
 	mreq->mtu = mtu;
 
+=======
+	struct mtu3_ep *mep = to_mtu3_ep(ep);
+	struct mtu3_request *mreq = to_mtu3_request(req);
+	struct mtu3 *mtu = mep->mtu;
+	unsigned long flags;
+	int ret = 0;
+
+	if (!req->buf)
+		return -ENODATA;
+
+>>>>>>> upstream/android-13
 	if (mreq->mep != mep)
 		return -EINVAL;
 
@@ -358,6 +455,10 @@ static int mtu3_gadget_queue(struct usb_ep *ep,
 		return -ESHUTDOWN;
 	}
 
+<<<<<<< HEAD
+=======
+	mreq->mtu = mtu;
+>>>>>>> upstream/android-13
 	mreq->request.actual = 0;
 	mreq->request.status = -EINPROGRESS;
 
@@ -390,11 +491,19 @@ static int mtu3_gadget_dequeue(struct usb_ep *ep, struct usb_request *req)
 	struct mtu3_ep *mep = to_mtu3_ep(ep);
 	struct mtu3_request *mreq = to_mtu3_request(req);
 	struct mtu3_request *r;
+<<<<<<< HEAD
 	unsigned long flags;
 	int ret = 0;
 	struct mtu3 *mtu = mep->mtu;
 
 	if (!ep || !req || mreq->mep != mep)
+=======
+	struct mtu3 *mtu = mep->mtu;
+	unsigned long flags;
+	int ret = 0;
+
+	if (mreq->mep != mep)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	dev_dbg(mtu->dev, "%s : req=%p\n", __func__, req);
@@ -434,9 +543,12 @@ static int mtu3_gadget_ep_set_halt(struct usb_ep *ep, int value)
 	unsigned long flags;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!ep)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(mtu->dev, "%s : %s...", __func__, ep->name);
 
 	spin_lock_irqsave(&mtu->lock, flags);
@@ -460,7 +572,11 @@ static int mtu3_gadget_ep_set_halt(struct usb_ep *ep, int value)
 			goto done;
 		}
 	} else {
+<<<<<<< HEAD
 		mep->wedged = 0;
+=======
+		mep->flags &= ~MTU3_EP_WEDGE;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(mtu->dev, "%s %s stall\n", ep->name, value ? "set" : "clear");
@@ -479,10 +595,14 @@ static int mtu3_gadget_ep_set_wedge(struct usb_ep *ep)
 {
 	struct mtu3_ep *mep = to_mtu3_ep(ep);
 
+<<<<<<< HEAD
 	if (!ep)
 		return -EINVAL;
 
 	mep->wedged = 1;
+=======
+	mep->flags |= MTU3_EP_WEDGE;
+>>>>>>> upstream/android-13
 
 	return usb_ep_set_halt(ep);
 }
@@ -547,6 +667,11 @@ static int mtu3_gadget_pullup(struct usb_gadget *gadget, int is_on)
 	dev_dbg(mtu->dev, "%s (%s) for %sactive device\n", __func__,
 		is_on ? "on" : "off", mtu->is_active ? "" : "in");
 
+<<<<<<< HEAD
+=======
+	pm_runtime_get_sync(mtu->dev);
+
+>>>>>>> upstream/android-13
 	/* we'd rather not pullup unless the device is active. */
 	spin_lock_irqsave(&mtu->lock, flags);
 
@@ -556,6 +681,7 @@ static int mtu3_gadget_pullup(struct usb_gadget *gadget, int is_on)
 		mtu->softconnect = is_on;
 	} else if (is_on != mtu->softconnect) {
 		mtu->softconnect = is_on;
+<<<<<<< HEAD
 
 		if (!is_on)
 			mtu3_nuke_all_ep(mtu);
@@ -579,6 +705,13 @@ static int mtu3_gadget_pullup(struct usb_gadget *gadget, int is_on)
 
 	if (!mtu->is_gadget_ready && is_on)
 		mtu->is_gadget_ready = 1;
+=======
+		mtu3_dev_on_off(mtu, is_on);
+	}
+
+	spin_unlock_irqrestore(&mtu->lock, flags);
+	pm_runtime_put(mtu->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -596,6 +729,10 @@ static int mtu3_gadget_start(struct usb_gadget *gadget,
 	}
 
 	dev_dbg(mtu->dev, "bind driver %s\n", driver->function);
+<<<<<<< HEAD
+=======
+	pm_runtime_get_sync(mtu->dev);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&mtu->lock, flags);
 
@@ -606,6 +743,10 @@ static int mtu3_gadget_start(struct usb_gadget *gadget,
 		mtu3_start(mtu);
 
 	spin_unlock_irqrestore(&mtu->lock, flags);
+<<<<<<< HEAD
+=======
+	pm_runtime_put(mtu->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -613,6 +754,10 @@ static int mtu3_gadget_start(struct usb_gadget *gadget,
 static void stop_activity(struct mtu3 *mtu)
 {
 	struct usb_gadget_driver *driver = mtu->gadget_driver;
+<<<<<<< HEAD
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	/* don't disconnect if it's not connected */
 	if (mtu->g.speed == USB_SPEED_UNKNOWN)
@@ -630,7 +775,15 @@ static void stop_activity(struct mtu3 *mtu)
 	 * killing any outstanding requests will quiesce the driver;
 	 * then report disconnect
 	 */
+<<<<<<< HEAD
 	mtu3_nuke_all_ep(mtu);
+=======
+	nuke(mtu->ep0, -ESHUTDOWN);
+	for (i = 1; i < mtu->num_eps; i++) {
+		nuke(mtu->in_eps + i, -ESHUTDOWN);
+		nuke(mtu->out_eps + i, -ESHUTDOWN);
+	}
+>>>>>>> upstream/android-13
 
 	if (driver) {
 		spin_unlock(&mtu->lock);
@@ -656,14 +809,33 @@ static int mtu3_gadget_stop(struct usb_gadget *g)
 
 	spin_unlock_irqrestore(&mtu->lock, flags);
 
+<<<<<<< HEAD
 	/*
 	 * avoid kernel panic because mtu3_gadget_stop() assigned NULL
 	 * to mtu->gadget_driver.
 	 */
+=======
+>>>>>>> upstream/android-13
 	synchronize_irq(mtu->irq);
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void
+mtu3_gadget_set_speed(struct usb_gadget *g, enum usb_device_speed speed)
+{
+	struct mtu3 *mtu = gadget_to_mtu3(g);
+	unsigned long flags;
+
+	dev_dbg(mtu->dev, "%s %s\n", __func__, usb_speed_string(speed));
+
+	spin_lock_irqsave(&mtu->lock, flags);
+	mtu->speed = speed;
+	spin_unlock_irqrestore(&mtu->lock, flags);
+}
+
+>>>>>>> upstream/android-13
 static const struct usb_gadget_ops mtu3_gadget_ops = {
 	.get_frame = mtu3_gadget_get_frame,
 	.wakeup = mtu3_gadget_wakeup,
@@ -671,6 +843,10 @@ static const struct usb_gadget_ops mtu3_gadget_ops = {
 	.pullup = mtu3_gadget_pullup,
 	.udc_start = mtu3_gadget_start,
 	.udc_stop = mtu3_gadget_stop,
+<<<<<<< HEAD
+=======
+	.udc_set_speed = mtu3_gadget_set_speed,
+>>>>>>> upstream/android-13
 };
 
 static void mtu3_state_reset(struct mtu3 *mtu)
@@ -746,8 +922,11 @@ static void mtu3_gadget_init_eps(struct mtu3 *mtu)
 
 int mtu3_gadget_setup(struct mtu3 *mtu)
 {
+<<<<<<< HEAD
 	int ret;
 
+=======
+>>>>>>> upstream/android-13
 	mtu->g.ops = &mtu3_gadget_ops;
 	mtu->g.max_speed = mtu->max_speed;
 	mtu->g.speed = USB_SPEED_UNKNOWN;
@@ -758,11 +937,15 @@ int mtu3_gadget_setup(struct mtu3 *mtu)
 
 	mtu3_gadget_init_eps(mtu);
 
+<<<<<<< HEAD
 	ret = usb_add_gadget_udc(mtu->dev, &mtu->g);
 	if (ret)
 		dev_err(mtu->dev, "failed to register udc\n");
 
 	return ret;
+=======
+	return usb_add_gadget_udc(mtu->dev, &mtu->g);
+>>>>>>> upstream/android-13
 }
 
 void mtu3_gadget_cleanup(struct mtu3 *mtu)
@@ -783,12 +966,16 @@ void mtu3_gadget_resume(struct mtu3 *mtu)
 /* called when SOF packets stop for 3+ msec or enters U3 */
 void mtu3_gadget_suspend(struct mtu3 *mtu)
 {
+<<<<<<< HEAD
 	dev_info(mtu->dev, "gadget SUSPEND\n");
 
 #if defined(CONFIG_BATTERY_SAMSUNG)
 	mtu->vbus_current = USB_CURRENT_SUSPENDED;
 	schedule_work(&mtu->set_vbus_current_work);
 #endif
+=======
+	dev_dbg(mtu->dev, "gadget SUSPEND\n");
+>>>>>>> upstream/android-13
 	if (mtu->gadget_driver && mtu->gadget_driver->suspend) {
 		spin_unlock(&mtu->lock);
 		mtu->gadget_driver->suspend(&mtu->g);
@@ -812,12 +999,17 @@ void mtu3_gadget_disconnect(struct mtu3 *mtu)
 
 void mtu3_gadget_reset(struct mtu3 *mtu)
 {
+<<<<<<< HEAD
 	dev_info(mtu->dev, "gadget RESET\n");
 
 #if defined(CONFIG_BATTERY_SAMSUNG)
 	mtu->vbus_current = USB_CURRENT_UNCONFIGURED;
 	schedule_work(&mtu->set_vbus_current_work);
 #endif
+=======
+	dev_dbg(mtu->dev, "gadget RESET\n");
+
+>>>>>>> upstream/android-13
 	/* report disconnect, if we didn't flush EP state */
 	if (mtu->g.speed != USB_SPEED_UNKNOWN)
 		mtu3_gadget_disconnect(mtu);

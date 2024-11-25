@@ -23,8 +23,15 @@
  * Authors: Dave Airlie
  *          Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/radeon_drm.h>
+=======
+
+#include <drm/drm_device.h>
+#include <drm/radeon_drm.h>
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 
 static void radeon_lock_cursor(struct drm_crtc *crtc, bool lock)
@@ -307,7 +314,11 @@ int radeon_crtc_cursor_set2(struct drm_crtc *crtc,
 	robj = gem_to_radeon_bo(obj);
 	ret = radeon_bo_reserve(robj, false);
 	if (ret != 0) {
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(obj);
+=======
+		drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	/* Only 27 bit offset for legacy cursor */
@@ -317,7 +328,11 @@ int radeon_crtc_cursor_set2(struct drm_crtc *crtc,
 	radeon_bo_unreserve(robj);
 	if (ret) {
 		DRM_ERROR("Failed to pin new cursor BO (%d)\n", ret);
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(obj);
+=======
+		drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -352,7 +367,11 @@ unpin:
 			radeon_bo_unpin(robj);
 			radeon_bo_unreserve(robj);
 		}
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(radeon_crtc->cursor_bo);
+=======
+		drm_gem_object_put(radeon_crtc->cursor_bo);
+>>>>>>> upstream/android-13
 	}
 
 	radeon_crtc->cursor_bo = obj;

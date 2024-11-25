@@ -497,7 +497,10 @@ out:
 static int
 csio_fcoe_free_vnp(struct csio_hw *hw, struct csio_lnode *ln)
 {
+<<<<<<< HEAD
 	struct csio_lnode *pln;
+=======
+>>>>>>> upstream/android-13
 	struct csio_mb  *mbp;
 	struct fw_fcoe_vnp_cmd *rsp;
 	int ret = 0;
@@ -514,8 +517,11 @@ csio_fcoe_free_vnp(struct csio_hw *hw, struct csio_lnode *ln)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	pln = ln->pln;
 
+=======
+>>>>>>> upstream/android-13
 	csio_fcoe_vnp_free_init_mb(ln, mbp, CSIO_MB_DEFAULT_TMO,
 				   ln->fcf_flowid, ln->vnp_flowid,
 				   NULL);

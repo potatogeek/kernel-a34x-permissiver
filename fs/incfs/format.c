@@ -85,7 +85,11 @@ static int truncate_backing_file(struct backing_file_context *bfc,
 	attr.ia_valid = ATTR_SIZE;
 
 	inode_lock(inode);
+<<<<<<< HEAD
 	result = notify_change(dentry, &attr, NULL);
+=======
+	result = notify_change(&init_user_ns, dentry, &attr, NULL);
+>>>>>>> upstream/android-13
 	inode_unlock(inode);
 
 	return result;

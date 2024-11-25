@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005 Intel Corporation
  * Copyright (C) 2009 Hewlett-Packard Development Company, L.P.
@@ -13,9 +17,12 @@
 #include <linux/acpi.h>
 #include <acpi/processor.h>
 
+<<<<<<< HEAD
 #define _COMPONENT		ACPI_PROCESSOR_COMPONENT
 ACPI_MODULE_NAME("processor_core");
 
+=======
+>>>>>>> upstream/android-13
 static struct acpi_table_madt *get_madt_table(void)
 {
 	static struct acpi_table_madt *madt;

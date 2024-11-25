@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 ARM Limited, All Rights Reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2002 ARM Limited, All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _IRQ_GIC_COMMON_H
@@ -23,6 +29,10 @@
 
 struct gic_quirk {
 	const char *desc;
+<<<<<<< HEAD
+=======
+	const char *compatible;
+>>>>>>> upstream/android-13
 	bool (*init)(void *data);
 	u32 iidr;
 	u32 mask;
@@ -32,10 +42,18 @@ int gic_configure_irq(unsigned int irq, unsigned int type,
                        void __iomem *base, void (*sync_access)(void));
 void gic_dist_config(void __iomem *base, int gic_irqs,
 		     void (*sync_access)(void));
+<<<<<<< HEAD
 void gic_cpu_config(void __iomem *base, void (*sync_access)(void));
 void gic_enable_quirks(u32 iidr, const struct gic_quirk *quirks,
 		void *data);
 
 void gic_set_kvm_info(const struct gic_kvm_info *info);
+=======
+void gic_cpu_config(void __iomem *base, int nr, void (*sync_access)(void));
+void gic_enable_quirks(u32 iidr, const struct gic_quirk *quirks,
+		void *data);
+void gic_enable_of_quirks(const struct device_node *np,
+			  const struct gic_quirk *quirks, void *data);
+>>>>>>> upstream/android-13
 
 #endif /* _IRQ_GIC_COMMON_H */

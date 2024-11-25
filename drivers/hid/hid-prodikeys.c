@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  HID driver for the Prodikeys PC-MIDI Keyboard
  *  providing midi & extra multimedia keys functionality
@@ -6,6 +10,7 @@
  *
  *  Controls for Octave Shift Up/Down, Channel, and
  *  Sustain Duration available via sysfs.
+<<<<<<< HEAD
  *
  */
 
@@ -14,6 +19,11 @@
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+ */
+
+/*
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -520,7 +530,11 @@ static void pcmidi_setup_extra_keys(
 		MY PICTURES =>	KEY_WORDPROCESSOR
 		MY MUSIC=>	KEY_SPREADSHEET
 	*/
+<<<<<<< HEAD
 	unsigned int keys[] = {
+=======
+	static const unsigned int keys[] = {
+>>>>>>> upstream/android-13
 		KEY_FN,
 		KEY_MESSENGER, KEY_CALENDAR,
 		KEY_ADDRESSBOOK, KEY_DOCUMENTS,
@@ -536,7 +550,11 @@ static void pcmidi_setup_extra_keys(
 		0
 	};
 
+<<<<<<< HEAD
 	unsigned int *pkeys = &keys[0];
+=======
+	const unsigned int *pkeys = &keys[0];
+>>>>>>> upstream/android-13
 	unsigned short i;
 
 	if (pm->ifnum != 1)  /* only set up ONCE for interace 1 */

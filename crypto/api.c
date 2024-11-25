@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Scatterlist Cryptographic API.
  *
@@ -7,12 +11,15 @@
  *
  * Portions derived from Cryptoapi, by Alexander Kjeldaas <astor@fast.no>
  * and Nettle, by Niels Möller.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -102,7 +109,11 @@ static void crypto_larval_destroy(struct crypto_alg *alg)
 	struct crypto_larval *larval = (void *)alg;
 
 	BUG_ON(!crypto_is_larval(alg));
+<<<<<<< HEAD
 	if (larval->adult)
+=======
+	if (!IS_ERR_OR_NULL(larval->adult))
+>>>>>>> upstream/android-13
 		crypto_mod_put(larval->adult);
 	kfree(larval);
 }
@@ -183,6 +194,11 @@ static struct crypto_alg *crypto_larval_wait(struct crypto_alg *alg)
 		alg = ERR_PTR(-ETIMEDOUT);
 	else if (!alg)
 		alg = ERR_PTR(-ENOENT);
+<<<<<<< HEAD
+=======
+	else if (IS_ERR(alg))
+		;
+>>>>>>> upstream/android-13
 	else if (crypto_is_test_larval(larval) &&
 		 !(alg->cra_flags & CRYPTO_ALG_TESTED))
 		alg = ERR_PTR(-EAGAIN);
@@ -300,6 +316,7 @@ static int crypto_init_ops(struct crypto_tfm *tfm, u32 type, u32 mask)
 
 	if (type_obj)
 		return type_obj->init(tfm, type, mask);
+<<<<<<< HEAD
 
 	switch (crypto_tfm_alg_type(tfm)) {
 	case CRYPTO_ALG_TYPE_CIPHER:
@@ -314,6 +331,9 @@ static int crypto_init_ops(struct crypto_tfm *tfm, u32 type, u32 mask)
 
 	BUG();
 	return -EINVAL;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void crypto_exit_ops(struct crypto_tfm *tfm)
@@ -349,12 +369,20 @@ static unsigned int crypto_ctxsize(struct crypto_alg *alg, u32 type, u32 mask)
 	return len;
 }
 
+<<<<<<< HEAD
 static void crypto_shoot_alg(struct crypto_alg *alg)
+=======
+void crypto_shoot_alg(struct crypto_alg *alg)
+>>>>>>> upstream/android-13
 {
 	down_write(&crypto_alg_sem);
 	alg->cra_flags |= CRYPTO_ALG_DYING;
 	up_write(&crypto_alg_sem);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(crypto_shoot_alg);
+>>>>>>> upstream/android-13
 
 struct crypto_tfm *__crypto_alloc_tfm(struct crypto_alg *alg, u32 type,
 				      u32 mask)
@@ -410,7 +438,11 @@ EXPORT_SYMBOL_GPL(__crypto_alloc_tfm);
  *
  *	The returned transform is of a non-determinate type.  Most people
  *	should use one of the more specific allocation functions such as
+<<<<<<< HEAD
  *	crypto_alloc_blkcipher.
+=======
+ *	crypto_alloc_skcipher().
+>>>>>>> upstream/android-13
  *
  *	In case of error the return value is an error pointer.
  */
@@ -448,8 +480,14 @@ err:
 }
 EXPORT_SYMBOL_GPL(crypto_alloc_base);
 
+<<<<<<< HEAD
 void *crypto_create_tfm(struct crypto_alg *alg,
 			const struct crypto_type *frontend)
+=======
+void *crypto_create_tfm_node(struct crypto_alg *alg,
+			const struct crypto_type *frontend,
+			int node)
+>>>>>>> upstream/android-13
 {
 	char *mem;
 	struct crypto_tfm *tfm = NULL;
@@ -460,12 +498,20 @@ void *crypto_create_tfm(struct crypto_alg *alg,
 	tfmsize = frontend->tfmsize;
 	total = tfmsize + sizeof(*tfm) + frontend->extsize(alg);
 
+<<<<<<< HEAD
 	mem = kzalloc(total, GFP_KERNEL);
+=======
+	mem = kzalloc_node(total, GFP_KERNEL, node);
+>>>>>>> upstream/android-13
 	if (mem == NULL)
 		goto out_err;
 
 	tfm = (struct crypto_tfm *)(mem + tfmsize);
 	tfm->__crt_alg = alg;
+<<<<<<< HEAD
+=======
+	tfm->node = node;
+>>>>>>> upstream/android-13
 
 	err = frontend->init_tfm(tfm);
 	if (err)
@@ -487,7 +533,11 @@ out_err:
 out:
 	return mem;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(crypto_create_tfm);
+=======
+EXPORT_SYMBOL_GPL(crypto_create_tfm_node);
+>>>>>>> upstream/android-13
 
 struct crypto_alg *crypto_find_alg(const char *alg_name,
 				   const struct crypto_type *frontend,
@@ -505,11 +555,20 @@ struct crypto_alg *crypto_find_alg(const char *alg_name,
 EXPORT_SYMBOL_GPL(crypto_find_alg);
 
 /*
+<<<<<<< HEAD
  *	crypto_alloc_tfm - Locate algorithm and allocate transform
+=======
+ *	crypto_alloc_tfm_node - Locate algorithm and allocate transform
+>>>>>>> upstream/android-13
  *	@alg_name: Name of algorithm
  *	@frontend: Frontend algorithm type
  *	@type: Type of algorithm
  *	@mask: Mask for type comparison
+<<<<<<< HEAD
+=======
+ *	@node: NUMA node in which users desire to put requests, if node is
+ *		NUMA_NO_NODE, it means users have no special requirement.
+>>>>>>> upstream/android-13
  *
  *	crypto_alloc_tfm() will first attempt to locate an already loaded
  *	algorithm.  If that fails and the kernel supports dynamically loadable
@@ -520,12 +579,23 @@ EXPORT_SYMBOL_GPL(crypto_find_alg);
  *
  *	The returned transform is of a non-determinate type.  Most people
  *	should use one of the more specific allocation functions such as
+<<<<<<< HEAD
  *	crypto_alloc_blkcipher.
  *
  *	In case of error the return value is an error pointer.
  */
 void *crypto_alloc_tfm(const char *alg_name,
 		       const struct crypto_type *frontend, u32 type, u32 mask)
+=======
+ *	crypto_alloc_skcipher().
+ *
+ *	In case of error the return value is an error pointer.
+ */
+
+void *crypto_alloc_tfm_node(const char *alg_name,
+		       const struct crypto_type *frontend, u32 type, u32 mask,
+		       int node)
+>>>>>>> upstream/android-13
 {
 	void *tfm;
 	int err;
@@ -539,7 +609,11 @@ void *crypto_alloc_tfm(const char *alg_name,
 			goto err;
 		}
 
+<<<<<<< HEAD
 		tfm = crypto_create_tfm(alg, frontend);
+=======
+		tfm = crypto_create_tfm_node(alg, frontend, node);
+>>>>>>> upstream/android-13
 		if (!IS_ERR(tfm))
 			return tfm;
 
@@ -557,7 +631,11 @@ err:
 
 	return ERR_PTR(err);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(crypto_alloc_tfm);
+=======
+EXPORT_SYMBOL_GPL(crypto_alloc_tfm_node);
+>>>>>>> upstream/android-13
 
 /*
  *	crypto_destroy_tfm - Free crypto transform
@@ -580,7 +658,11 @@ void crypto_destroy_tfm(void *mem, struct crypto_tfm *tfm)
 		alg->cra_exit(tfm);
 	crypto_exit_ops(tfm);
 	crypto_mod_put(alg);
+<<<<<<< HEAD
 	kzfree(mem);
+=======
+	kfree_sensitive(mem);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_destroy_tfm);
 

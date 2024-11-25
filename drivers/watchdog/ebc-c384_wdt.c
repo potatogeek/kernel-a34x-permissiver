@@ -2,6 +2,7 @@
 /*
  * Watchdog timer driver for the WinSystems EBC-C384
  * Copyright (C) 2016 William Breathitt Gray
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/dmi.h>
@@ -117,10 +120,14 @@ static int ebc_c384_wdt_probe(struct device *dev, unsigned int id)
 	wdd->max_timeout = WATCHDOG_MAX_TIMEOUT;
 
 	watchdog_set_nowayout(wdd, nowayout);
+<<<<<<< HEAD
 
 	if (watchdog_init_timeout(wdd, timeout, dev))
 		dev_warn(dev, "Invalid timeout (%u seconds), using default (%u seconds)\n",
 			timeout, WATCHDOG_TIMEOUT);
+=======
+	watchdog_init_timeout(wdd, timeout, dev);
+>>>>>>> upstream/android-13
 
 	return devm_watchdog_register_device(dev, wdd);
 }

@@ -261,7 +261,11 @@
 #define CLK_INFRA_IRTX			53
 #define CLK_INFRA_DISP_PWM		54
 #define CLK_INFRA_DPMAIF_CK		55
+<<<<<<< HEAD
 #define CLK_INFRA_AUD_26M_BCLK_CK	56
+=======
+#define CLK_INFRA_AUD_26M_BCLK		56
+>>>>>>> upstream/android-13
 #define CLK_INFRA_SPI1			57
 #define CLK_INFRA_I2C4			58
 #define CLK_INFRA_MODEM_TEMP_SHARE	59
@@ -320,6 +324,7 @@
 #define CLK_MFGCFG_NR_CLK		2
 
 /* IMG */
+<<<<<<< HEAD
 #define	CLK_IMG_WPE_A			1
 #define	CLK_IMG_MFB			2
 #define	CLK_IMG_DIP			3
@@ -333,11 +338,27 @@
 #define	CLK_IPE_SMI_SUBCOM		3
 #define	CLK_IPE_FD			4
 #define	CLK_IPE_FE			5
+=======
+#define CLK_IMG_WPE_A			1
+#define CLK_IMG_MFB			2
+#define CLK_IMG_DIP			3
+#define CLK_IMG_LARB6			4
+#define CLK_IMG_LARB5			5
+#define CLK_IMG_NR_CLK			6
+
+/* IPE */
+#define CLK_IPE_LARB7			1
+#define CLK_IPE_LARB8			2
+#define CLK_IPE_SMI_SUBCOM		3
+#define CLK_IPE_FD			4
+#define CLK_IPE_FE			5
+>>>>>>> upstream/android-13
 #define CLK_IPE_RSC			6
 #define CLK_IPE_DPE			7
 #define CLK_IPE_NR_CLK			8
 
 /* MM_CONFIG */
+<<<<<<< HEAD
 #define	CLK_MM_SMI_COMMON		1
 #define	CLK_MM_SMI_LARB0		2
 #define	CLK_MM_SMI_LARB1		3
@@ -379,11 +400,55 @@
 #define	CLK_MM_26M			39
 #define	CLK_MM_MM_R2Y			40
 #define	CLK_MM_DISP_RSZ			41
+=======
+#define CLK_MM_SMI_COMMON		1
+#define CLK_MM_SMI_LARB0		2
+#define CLK_MM_SMI_LARB1		3
+#define CLK_MM_GALS_COMM0		4
+#define CLK_MM_GALS_COMM1		5
+#define CLK_MM_GALS_CCU2MM		6
+#define CLK_MM_GALS_IPU12MM		7
+#define CLK_MM_GALS_IMG2MM		8
+#define CLK_MM_GALS_CAM2MM		9
+#define CLK_MM_GALS_IPU2MM		10
+#define CLK_MM_MDP_DL_TXCK		11
+#define CLK_MM_IPU_DL_TXCK		12
+#define CLK_MM_MDP_RDMA0		13
+#define CLK_MM_MDP_RDMA1		14
+#define CLK_MM_MDP_RSZ0			15
+#define CLK_MM_MDP_RSZ1			16
+#define CLK_MM_MDP_TDSHP		17
+#define CLK_MM_MDP_WROT0		18
+#define CLK_MM_FAKE_ENG			19
+#define CLK_MM_DISP_OVL0		20
+#define CLK_MM_DISP_OVL0_2L		21
+#define CLK_MM_DISP_OVL1_2L		22
+#define CLK_MM_DISP_RDMA0		23
+#define CLK_MM_DISP_RDMA1		24
+#define CLK_MM_DISP_WDMA0		25
+#define CLK_MM_DISP_COLOR0		26
+#define CLK_MM_DISP_CCORR0		27
+#define CLK_MM_DISP_AAL0		28
+#define CLK_MM_DISP_GAMMA0		29
+#define CLK_MM_DISP_DITHER0		30
+#define CLK_MM_DISP_SPLIT		31
+#define CLK_MM_DSI0_MM_CK		32
+#define CLK_MM_DSI0_IF_CK		33
+#define CLK_MM_DPI_MM_CK		34
+#define CLK_MM_DPI_IF_CK		35
+#define CLK_MM_FAKE_ENG2		36
+#define CLK_MM_MDP_DL_RX_CK		37
+#define CLK_MM_IPU_DL_RX_CK		38
+#define CLK_MM_26M			39
+#define CLK_MM_MM_R2Y			40
+#define CLK_MM_DISP_RSZ			41
+>>>>>>> upstream/android-13
 #define CLK_MM_MDP_WDMA0		42
 #define CLK_MM_MDP_AAL			43
 #define CLK_MM_MDP_HDR			44
 #define CLK_MM_DBI_MM_CK		45
 #define CLK_MM_DBI_IF_CK		46
+<<<<<<< HEAD
 #define	CLK_MM_MDP_WROT1		47
 #define	CLK_MM_DISP_POSTMASK0		48
 #define	CLK_MM_DISP_HRT_BW		49
@@ -393,6 +458,17 @@
 /* VDEC_GCON */
 #define	CLK_VDEC_VDEC			1
 #define	CLK_VDEC_LARB1			2
+=======
+#define CLK_MM_MDP_WROT1		47
+#define CLK_MM_DISP_POSTMASK0		48
+#define CLK_MM_DISP_HRT_BW		49
+#define CLK_MM_DISP_OVL_FBDC		50
+#define CLK_MM_NR_CLK			51
+
+/* VDEC_GCON */
+#define CLK_VDEC_VDEC			1
+#define CLK_VDEC_LARB1			2
+>>>>>>> upstream/android-13
 #define CLK_VDEC_GCON_NR_CLK		3
 
 /* VENC_GCON */
@@ -403,6 +479,7 @@
 #define CLK_VENC_GCON_NR_CLK		5
 
 /* AUD */
+<<<<<<< HEAD
 #define	CLK_AUD_AFE			1
 #define	CLK_AUD_22M			2
 #define	CLK_AUD_24M			3
@@ -415,14 +492,35 @@
 #define	CLK_AUD_TML			10
 #define	CLK_AUD_NLE			11
 #define	CLK_AUD_I2S1_BCLK_SW		12
+=======
+#define CLK_AUD_AFE			1
+#define CLK_AUD_22M			2
+#define CLK_AUD_24M			3
+#define CLK_AUD_APLL2_TUNER		4
+#define CLK_AUD_APLL_TUNER		5
+#define CLK_AUD_TDM			6
+#define CLK_AUD_ADC			7
+#define CLK_AUD_DAC			8
+#define CLK_AUD_DAC_PREDIS		9
+#define CLK_AUD_TML			10
+#define CLK_AUD_NLE			11
+#define CLK_AUD_I2S1_BCLK_SW		12
+>>>>>>> upstream/android-13
 #define CLK_AUD_I2S2_BCLK_SW		13
 #define CLK_AUD_I2S3_BCLK_SW		14
 #define CLK_AUD_I2S4_BCLK_SW		15
 #define CLK_AUD_I2S5_BCLK_SW		16
+<<<<<<< HEAD
 #define	CLK_AUD_CONN_I2S_ASRC		17
 #define	CLK_AUD_GENERAL1_ASRC		18
 #define	CLK_AUD_GENERAL2_ASRC		19
 #define	CLK_AUD_DAC_HIRES		20
+=======
+#define CLK_AUD_CONN_I2S_ASRC		17
+#define CLK_AUD_GENERAL1_ASRC		18
+#define CLK_AUD_GENERAL2_ASRC		19
+#define CLK_AUD_DAC_HIRES		20
+>>>>>>> upstream/android-13
 #define CLK_AUD_PDN_ADDA6_ADC		21
 #define CLK_AUD_ADC_HIRES		22
 #define CLK_AUD_ADC_HIRES_TML		23
@@ -433,6 +531,7 @@
 #define CLK_AUD_3RD_DAC_HIRES		28
 #define CLK_AUD_NR_CLK			29
 
+<<<<<<< HEAD
 /* APU_CONN */
 #define	CLK_APU_CONN_APU		1
 #define	CLK_APU_CONN_AHB		2
@@ -990,4 +1089,6 @@
 /* SCP_SYS */
 #define SCP_SYS_AUDIO			SCP_SYS_AUD
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _DT_BINDINGS_CLK_MT6779_H */

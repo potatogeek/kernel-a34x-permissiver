@@ -13,6 +13,10 @@
 #include <stdarg.h>
 #include <string.h>
 #include <assert.h>
+<<<<<<< HEAD
+=======
+#include <inttypes.h>
+>>>>>>> upstream/android-13
 
 #include <errno.h>
 #include <fcntl.h>
@@ -393,7 +397,11 @@ void utilfdt_print_data(const char *data, int len)
 
 		printf(" = <");
 		for (i = 0, len /= 4; i < len; i++)
+<<<<<<< HEAD
 			printf("0x%08x%s", fdt32_to_cpu(cell[i]),
+=======
+			printf("0x%08" PRIx32 "%s", fdt32_to_cpu(cell[i]),
+>>>>>>> upstream/android-13
 			       i < (len - 1) ? " " : "");
 		printf(">");
 	} else {

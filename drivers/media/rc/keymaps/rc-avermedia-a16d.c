@@ -11,6 +11,7 @@
 static struct rc_map_table avermedia_a16d[] = {
 	{ 0x20, KEY_LIST},
 	{ 0x00, KEY_POWER},
+<<<<<<< HEAD
 	{ 0x28, KEY_1},
 	{ 0x18, KEY_2},
 	{ 0x38, KEY_3},
@@ -22,6 +23,19 @@ static struct rc_map_table avermedia_a16d[] = {
 	{ 0x3c, KEY_9},
 	{ 0x12, KEY_SUBTITLE},
 	{ 0x22, KEY_0},
+=======
+	{ 0x28, KEY_NUMERIC_1},
+	{ 0x18, KEY_NUMERIC_2},
+	{ 0x38, KEY_NUMERIC_3},
+	{ 0x24, KEY_NUMERIC_4},
+	{ 0x14, KEY_NUMERIC_5},
+	{ 0x34, KEY_NUMERIC_6},
+	{ 0x2c, KEY_NUMERIC_7},
+	{ 0x1c, KEY_NUMERIC_8},
+	{ 0x3c, KEY_NUMERIC_9},
+	{ 0x12, KEY_SUBTITLE},
+	{ 0x22, KEY_NUMERIC_0},
+>>>>>>> upstream/android-13
 	{ 0x32, KEY_REWIND},
 	{ 0x3a, KEY_SHUFFLE},
 	{ 0x02, KEY_PRINT},

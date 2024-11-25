@@ -79,7 +79,11 @@ struct hdlcdrv_ops {
 	 */
 	int (*open)(struct net_device *);
 	int (*close)(struct net_device *);
+<<<<<<< HEAD
 	int (*ioctl)(struct net_device *, struct ifreq *, 
+=======
+	int (*ioctl)(struct net_device *, void __user *,
+>>>>>>> upstream/android-13
 		     struct hdlcdrv_ioctl *, int);
 };
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Linaro Limited
  * Copyright (c) 2017, EPAM Systems
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, Linaro Limited
+ * Copyright (c) 2017, EPAM Systems
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/dma-buf.h>
@@ -26,6 +33,10 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
 {
 	unsigned int order = get_order(size);
 	struct page *page;
+<<<<<<< HEAD
+=======
+	int rc = 0;
+>>>>>>> upstream/android-13
 
 	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
 	if (!page)
@@ -35,12 +46,51 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
 	shm->paddr = page_to_phys(page);
 	shm->size = PAGE_SIZE << order;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	/*
+	 * Shared memory private to the OP-TEE driver doesn't need
+	 * to be registered with OP-TEE.
+	 */
+	if (!(shm->flags & TEE_SHM_PRIV)) {
+		unsigned int nr_pages = 1 << order, i;
+		struct page **pages;
+
+		pages = kcalloc(nr_pages, sizeof(*pages), GFP_KERNEL);
+		if (!pages) {
+			rc = -ENOMEM;
+			goto err;
+		}
+
+		for (i = 0; i < nr_pages; i++)
+			pages[i] = page + i;
+
+		shm->flags |= TEE_SHM_REGISTER;
+		rc = optee_shm_register(shm->ctx, shm, pages, nr_pages,
+					(unsigned long)shm->kaddr);
+		kfree(pages);
+		if (rc)
+			goto err;
+	}
+
+	return 0;
+
+err:
+	__free_pages(page, order);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static void pool_op_free(struct tee_shm_pool_mgr *poolm,
 			 struct tee_shm *shm)
 {
+<<<<<<< HEAD
+=======
+	if (!(shm->flags & TEE_SHM_PRIV))
+		optee_shm_unregister(shm->ctx, shm);
+
+>>>>>>> upstream/android-13
 	free_pages((unsigned long)shm->kaddr, get_order(shm->size));
 	shm->kaddr = NULL;
 }

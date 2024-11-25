@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/core/core.c
  *
@@ -5,10 +9,13 @@
  *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
  *  Copyright (C) 2005-2008 Pierre Ossman, All Rights Reserved.
  *  MMCv4 support Copyright (C) 2006 Philip Langdale, All Rights Reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -21,7 +28,10 @@
 #include <linux/leds.h>
 #include <linux/scatterlist.h>
 #include <linux/log2.h>
+<<<<<<< HEAD
 #include <linux/regulator/consumer.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/pm_wakeup.h>
 #include <linux/suspend.h>
@@ -29,7 +39,10 @@
 #include <linux/random.h>
 #include <linux/slab.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <uapi/linux/sched/types.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/mmc/card.h>
 #include <linux/mmc/host.h>
@@ -42,7 +55,11 @@
 
 #include "core.h"
 #include "card.h"
+<<<<<<< HEAD
 #include "queue.h"
+=======
+#include "crypto.h"
+>>>>>>> upstream/android-13
 #include "bus.h"
 #include "host.h"
 #include "sdio_bus.h"
@@ -51,12 +68,19 @@
 #include "mmc_ops.h"
 #include "sd_ops.h"
 #include "sdio_ops.h"
+<<<<<<< HEAD
 #include "mtk_mmc_block.h"
 #include "../host/mtk-sd-dbg.h"
 #include "block.h"
 
 /* The max erase timeout, used when host->max_busy_timeout isn't specified */
 #define MMC_ERASE_TIMEOUT_MS	(60 * 1000) /* 60 s */
+=======
+
+/* The max erase timeout, used when host->max_busy_timeout isn't specified */
+#define MMC_ERASE_TIMEOUT_MS	(60 * 1000) /* 60 s */
+#define SD_DISCARD_TIMEOUT_MS	(250)
+>>>>>>> upstream/android-13
 
 static const unsigned freqs[] = { 400000, 300000, 200000, 100000 };
 
@@ -169,8 +193,11 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
 
 	trace_mmc_request_done(host, mrq);
 
+<<<<<<< HEAD
 	dbg_add_host_log(host, 1, cmd->opcode, cmd->resp[0]);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * We list various conditions for the command to be considered
 	 * properly done:
@@ -187,7 +214,11 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
 			led_trigger_event(host->led, LED_OFF);
 
 		if (mrq->sbc) {
+<<<<<<< HEAD
 			pr_debug("%s: sbc req done <CMD%u>: %d: %08x %08x %08x %08x\n",
+=======
+			pr_debug("%s: req done <CMD%u>: %d: %08x %08x %08x %08x\n",
+>>>>>>> upstream/android-13
 				mmc_hostname(host), mrq->sbc->opcode,
 				mrq->sbc->error,
 				mrq->sbc->resp[0], mrq->sbc->resp[1],
@@ -219,8 +250,11 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
 	 */
 	if (mrq->done)
 		mrq->done(mrq);
+<<<<<<< HEAD
 
 	/* mmc_crypto_debug(host); */
+=======
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL(mmc_request_done);
@@ -287,12 +321,17 @@ static void mmc_mrq_pr_debug(struct mmc_host *host, struct mmc_request *mrq,
 			 mmc_hostname(host), cqe ? "CQE direct " : "",
 			 mrq->cmd->opcode, mrq->cmd->arg, mrq->cmd->flags);
 	} else if (cqe) {
+<<<<<<< HEAD
 		if (mrq->data->flags & MMC_DATA_WRITE)
 			pr_debug("%s: starting CQE transfer for tag %d blkaddr %u, flags=0x%x WRITE\n",
 			mmc_hostname(host), mrq->tag, mrq->data->blk_addr, mrq->data->flags);
 		else if (mrq->data->flags & MMC_DATA_READ)
 			pr_debug("%s: starting CQE transfer for tag %d blkaddr %u, flags=0x%x READ\n",
 			mmc_hostname(host), mrq->tag, mrq->data->blk_addr, mrq->data->flags);
+=======
+		pr_debug("%s: starting CQE transfer for tag %d blkaddr %u\n",
+			 mmc_hostname(host), mrq->tag, mrq->data->blk_addr);
+>>>>>>> upstream/android-13
 	}
 
 	if (mrq->data) {
@@ -348,6 +387,7 @@ static int mmc_mrq_prep(struct mmc_host *host, struct mmc_request *mrq)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 static void mmc_enqueue_queue(struct mmc_host *host, struct mmc_request *mrq)
 {
@@ -1124,6 +1164,8 @@ int mmc_run_queue_thread(void *data)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 {
 	int err;
@@ -1142,6 +1184,7 @@ int mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 	err = mmc_mrq_prep(host, mrq);
 	if (err)
 		return err;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
 	if (mrq->done == mmc_wait_cmdq_done) {
 		mmc_enqueue_queue(host, mrq);
@@ -1161,6 +1204,9 @@ int mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 			|| !emmc_resetting_when_cmdq)
 			mmc_wait_cmdq_empty(host);
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	led_trigger_event(host->led, LED_FULL);
 	__mmc_start_request(host, mrq);
 
@@ -1213,6 +1259,7 @@ void mmc_wait_for_req_done(struct mmc_host *host, struct mmc_request *mrq)
 
 		cmd = mrq->cmd;
 
+<<<<<<< HEAD
 		/*
 		 * If host has timed out waiting for the sanitize
 		 * to complete, card might be still in programming state
@@ -1230,6 +1277,8 @@ void mmc_wait_for_req_done(struct mmc_host *host, struct mmc_request *mrq)
 				       mmc_hostname(host), __func__);
 			}
 		}
+=======
+>>>>>>> upstream/android-13
 		if (!cmd->error || !cmd->retries ||
 		    mmc_card_removed(host->card))
 			break;
@@ -1273,6 +1322,7 @@ int mmc_cqe_start_req(struct mmc_host *host, struct mmc_request *mrq)
 
 	mmc_mrq_pr_debug(host, mrq, true);
 
+<<<<<<< HEAD
 	if(mrq->cmd)
 		dbg_add_host_log(host, 5, mrq->cmd->opcode, mrq->cmd->arg);
 
@@ -1283,6 +1333,8 @@ int mmc_cqe_start_req(struct mmc_host *host, struct mmc_request *mrq)
 			dbg_add_host_log(host, 5, MMC_EXECUTE_READ_TASK, mrq->data->blocks);//CMD46
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = mmc_mrq_prep(host, mrq);
 	if (err)
 		goto out_err;
@@ -1329,12 +1381,16 @@ void mmc_cqe_request_done(struct mmc_host *host, struct mmc_request *mrq)
 	if (mrq->cmd) {
 		pr_debug("%s: CQE req done (direct CMD%u): %d\n",
 			 mmc_hostname(host), mrq->cmd->opcode, mrq->cmd->error);
+<<<<<<< HEAD
 		dbg_add_host_log(host, 6, mrq->cmd->opcode, mrq->cmd->resp[0]);
+=======
+>>>>>>> upstream/android-13
 	} else {
 		pr_debug("%s: CQE transfer done tag %d\n",
 			 mmc_hostname(host), mrq->tag);
 	}
 
+<<<<<<< HEAD
 	if (mrq->data){
 		if (mrq->data->flags & MMC_DATA_WRITE){
 			pr_debug("%s:     %d bytes transferred: %d WRITE tag %d\n",
@@ -1347,6 +1403,12 @@ void mmc_cqe_request_done(struct mmc_host *host, struct mmc_request *mrq)
 				 mrq->data->bytes_xfered, mrq->data->error, mrq->tag);
 			dbg_add_host_log(host, 6, MMC_EXECUTE_READ_TASK, mrq->data->error);//CMD46
 		}
+=======
+	if (mrq->data) {
+		pr_debug("%s:     %d bytes transferred: %d\n",
+			 mmc_hostname(host),
+			 mrq->data->bytes_xfered, mrq->data->error);
+>>>>>>> upstream/android-13
 	}
 
 	mrq->done(mrq);
@@ -1393,6 +1455,7 @@ int mmc_cqe_recovery(struct mmc_host *host)
 	host->cqe_ops->cqe_recovery_start(host);
 
 	memset(&cmd, 0, sizeof(cmd));
+<<<<<<< HEAD
 	cmd.opcode       = MMC_STOP_TRANSMISSION,
 	cmd.flags        = MMC_RSP_R1B | MMC_CMD_AC,
 	cmd.flags       &= ~MMC_RSP_CRC; /* Ignore CRC */
@@ -1401,12 +1464,24 @@ int mmc_cqe_recovery(struct mmc_host *host)
 
 	mmc_card_error_logging(host->card, NULL, cmd.resp[0]);
 
+=======
+	cmd.opcode       = MMC_STOP_TRANSMISSION;
+	cmd.flags        = MMC_RSP_R1B | MMC_CMD_AC;
+	cmd.flags       &= ~MMC_RSP_CRC; /* Ignore CRC */
+	cmd.busy_timeout = MMC_CQE_RECOVERY_TIMEOUT;
+	mmc_wait_for_cmd(host, &cmd, 0);
+
+>>>>>>> upstream/android-13
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.opcode       = MMC_CMDQ_TASK_MGMT;
 	cmd.arg          = 1; /* Discard entire queue */
 	cmd.flags        = MMC_RSP_R1B | MMC_CMD_AC;
 	cmd.flags       &= ~MMC_RSP_CRC; /* Ignore CRC */
+<<<<<<< HEAD
 	cmd.busy_timeout = MMC_CQE_RECOVERY_TIMEOUT,
+=======
+	cmd.busy_timeout = MMC_CQE_RECOVERY_TIMEOUT;
+>>>>>>> upstream/android-13
 	err = mmc_wait_for_cmd(host, &cmd, 0);
 
 	host->cqe_ops->cqe_recovery_finish(host);
@@ -1587,6 +1662,7 @@ void mmc_set_data_timeout(struct mmc_data *data, const struct mmc_card *card)
 }
 EXPORT_SYMBOL(mmc_set_data_timeout);
 
+<<<<<<< HEAD
 /**
  *	mmc_align_data_size - pads a transfer size to a more optimal value
  *	@card: the MMC card associated with the data transfer
@@ -1614,6 +1690,8 @@ unsigned int mmc_align_data_size(struct mmc_card *card, unsigned int sz)
 }
 EXPORT_SYMBOL(mmc_align_data_size);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Allow claiming an already claimed host if the context is the same or there is
  * no context but the task is the same.
@@ -1693,6 +1771,7 @@ int __mmc_claim_host(struct mmc_host *host, struct mmc_ctx *ctx,
 EXPORT_SYMBOL(__mmc_claim_host);
 
 /**
+<<<<<<< HEAD
  *     mmc_try_claim_host - try exclusively to claim a host
  *        and keep trying for given time, with a gap of 10ms
  *     @host: mmc host to claim
@@ -1730,6 +1809,8 @@ int mmc_try_claim_host(struct mmc_host *host, unsigned int delay_ms)
 EXPORT_SYMBOL(mmc_try_claim_host);
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	mmc_release_host - release a host
  *	@host: mmc host to release
  *
@@ -1753,7 +1834,14 @@ void mmc_release_host(struct mmc_host *host)
 		spin_unlock_irqrestore(&host->lock, flags);
 		wake_up(&host->wq);
 		pm_runtime_mark_last_busy(mmc_dev(host));
+<<<<<<< HEAD
 		pm_runtime_put_autosuspend(mmc_dev(host));
+=======
+		if (host->caps & MMC_CAP_SYNC_RUNTIME_PM)
+			pm_runtime_put_sync_suspend(mmc_dev(host));
+		else
+			pm_runtime_put_autosuspend(mmc_dev(host));
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(mmc_release_host);
@@ -1793,7 +1881,11 @@ static inline void mmc_set_ios(struct mmc_host *host)
 {
 	struct mmc_ios *ios = &host->ios;
 
+<<<<<<< HEAD
 	dev_info(host->parent, "%s: clock %uHz busmode %u powermode %u cs %u Vdd %u "
+=======
+	pr_debug("%s: clock %uHz busmode %u powermode %u cs %u Vdd %u "
+>>>>>>> upstream/android-13
 		"width %u timing %u\n",
 		 mmc_hostname(host), ios->clock, ios->bus_mode,
 		 ios->power_mode, ios->chip_select, ios->vdd,
@@ -1825,6 +1917,10 @@ void mmc_set_clock(struct mmc_host *host, unsigned int hz)
 	host->ios.clock = hz;
 	mmc_set_ios(host);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_set_clock);
+>>>>>>> upstream/android-13
 
 int mmc_execute_tuning(struct mmc_card *card)
 {
@@ -1844,6 +1940,7 @@ int mmc_execute_tuning(struct mmc_card *card)
 		opcode = MMC_SEND_TUNING_BLOCK;
 
 	err = host->ops->execute_tuning(host, opcode);
+<<<<<<< HEAD
 
 	if (err)
 		pr_err("%s: tuning execution failed: %d\n",
@@ -1853,6 +1950,24 @@ int mmc_execute_tuning(struct mmc_card *card)
 
 	return err;
 }
+=======
+	if (!err) {
+		mmc_retune_clear(host);
+		mmc_retune_enable(host);
+		return 0;
+	}
+
+	/* Only print error when we don't check for card removal */
+	if (!host->detect_change) {
+		pr_err("%s: tuning execution failed: %d\n",
+			mmc_hostname(host), err);
+		mmc_debugfs_err_stats_inc(host, MMC_ERR_TUNING);
+	}
+
+	return err;
+}
+EXPORT_SYMBOL_GPL(mmc_execute_tuning);
+>>>>>>> upstream/android-13
 
 /*
  * Change the bus mode (open drain/push-pull) of a host.
@@ -1862,6 +1977,10 @@ void mmc_set_bus_mode(struct mmc_host *host, unsigned int mode)
 	host->ios.bus_mode = mode;
 	mmc_set_ios(host);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_set_bus_mode);
+>>>>>>> upstream/android-13
 
 /*
  * Change data bus width of a host.
@@ -1871,6 +1990,10 @@ void mmc_set_bus_width(struct mmc_host *host, unsigned int width)
 	host->ios.bus_width = width;
 	mmc_set_ios(host);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_set_bus_width);
+>>>>>>> upstream/android-13
 
 /*
  * Set initial state after a power cycle or a hw_reset.
@@ -1901,7 +2024,14 @@ void mmc_set_initial_state(struct mmc_host *host)
 		host->ops->hs400_enhanced_strobe(host, &host->ios);
 
 	mmc_set_ios(host);
+<<<<<<< HEAD
 }
+=======
+
+	mmc_crypto_set_initial_state(host);
+}
+EXPORT_SYMBOL_GPL(mmc_set_initial_state);
+>>>>>>> upstream/android-13
 
 /**
  * mmc_vdd_to_ocrbitnum - Convert a voltage to the OCR bit number
@@ -1975,6 +2105,7 @@ u32 mmc_vddrange_to_ocrmask(int vdd_min, int vdd_max)
 
 	return mask;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mmc_vddrange_to_ocrmask);
 
 #ifdef CONFIG_OF
@@ -2024,6 +2155,8 @@ int mmc_of_parse_voltage(struct device_node *np, u32 *mask)
 EXPORT_SYMBOL(mmc_of_parse_voltage);
 
 #endif /* CONFIG_OF */
+=======
+>>>>>>> upstream/android-13
 
 static int mmc_of_get_func_num(struct device_node *node)
 {
@@ -2053,6 +2186,7 @@ struct device_node *mmc_of_find_child_device(struct mmc_host *host,
 	return NULL;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_REGULATOR
 
 /**
@@ -2293,6 +2427,8 @@ int mmc_regulator_get_supply(struct mmc_host *mmc)
 }
 EXPORT_SYMBOL_GPL(mmc_regulator_get_supply);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Mask off any voltages we don't support and select
  * the lowest voltage
@@ -2454,6 +2590,10 @@ void mmc_set_timing(struct mmc_host *host, unsigned int timing)
 	host->ios.timing = timing;
 	mmc_set_ios(host);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(mmc_set_timing);
+>>>>>>> upstream/android-13
 
 /*
  * Select appropriate driver type for host.
@@ -2573,6 +2713,7 @@ void mmc_power_cycle(struct mmc_host *host, u32 ocr)
 }
 
 /*
+<<<<<<< HEAD
  * Cleanup when the last reference to the bus operator is dropped.
  */
 static void __mmc_release_bus(struct mmc_host *host)
@@ -2610,11 +2751,14 @@ static inline void mmc_bus_put(struct mmc_host *host)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Assign a mmc bus handler to a host. Only one bus handler may control a
  * host at any given time.
  */
 void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	WARN_ON(!host->claimed);
@@ -2629,6 +2773,9 @@ void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 	host->bus_dead = 0;
 
 	spin_unlock_irqrestore(&host->lock, flags);
+=======
+	host->bus_ops = ops;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2636,6 +2783,7 @@ void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
  */
 void mmc_detach_bus(struct mmc_host *host)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	WARN_ON(!host->claimed);
@@ -2660,6 +2808,20 @@ static void _mmc_detect_change(struct mmc_host *host, unsigned long delay,
 	if (cd_irq && !(host->caps & MMC_CAP_NEEDS_POLL) &&
 		device_can_wakeup(mmc_dev(host)))
 		pm_wakeup_event(mmc_dev(host), 5000);
+=======
+	host->bus_ops = NULL;
+}
+
+void _mmc_detect_change(struct mmc_host *host, unsigned long delay, bool cd_irq)
+{
+	/*
+	 * Prevent system sleep for 5s to allow user space to consume the
+	 * corresponding uevent. This is especially useful, when CD irq is used
+	 * as a system wakeup, but doesn't hurt in other cases.
+	 */
+	if (cd_irq && !(host->caps & MMC_CAP_NEEDS_POLL))
+		__pm_wakeup_event(host->ws, 5000);
+>>>>>>> upstream/android-13
 
 	host->detect_change = 1;
 	mmc_schedule_delayed_work(&host->detect, delay);
@@ -2799,6 +2961,15 @@ static unsigned int mmc_sd_erase_timeout(struct mmc_card *card,
 {
 	unsigned int erase_timeout;
 
+<<<<<<< HEAD
+=======
+	/* for DISCARD none of the below calculation applies.
+	 * the busy timeout is 250msec per discard command.
+	 */
+	if (arg == SD_DISCARD_ARG)
+		return SD_DISCARD_TIMEOUT_MS;
+
+>>>>>>> upstream/android-13
 	if (card->ssr.erase_timeout) {
 		/* Erase timeout specified in SD Status Register (SSR) */
 		erase_timeout = card->ssr.erase_timeout * qty +
@@ -2833,9 +3004,13 @@ static int mmc_do_erase(struct mmc_card *card, unsigned int from,
 {
 	struct mmc_command cmd = {};
 	unsigned int qty = 0, busy_timeout = 0;
+<<<<<<< HEAD
 	bool use_r1b_resp = false;
 	unsigned long timeout;
 	int loop_udelay=64, udelay_max=32768;
+=======
+	bool use_r1b_resp;
+>>>>>>> upstream/android-13
 	int err;
 
 	mmc_retune_hold(card->host);
@@ -2903,6 +3078,7 @@ static int mmc_do_erase(struct mmc_card *card, unsigned int from,
 	cmd.opcode = MMC_ERASE;
 	cmd.arg = arg;
 	busy_timeout = mmc_erase_timeout(card, arg, qty);
+<<<<<<< HEAD
 	/*
 	 * If the host controller supports busy signalling and the timeout for
 	 * the erase operation does not exceed the max_busy_timeout, we should
@@ -2920,6 +3096,9 @@ static int mmc_do_erase(struct mmc_card *card, unsigned int from,
 		cmd.busy_timeout = busy_timeout;
 		use_r1b_resp = true;
 	}
+=======
+	use_r1b_resp = mmc_prepare_busy_cmd(card->host, &cmd, busy_timeout);
+>>>>>>> upstream/android-13
 
 	err = mmc_wait_for_cmd(card->host, &cmd, 0);
 	if (err) {
@@ -2939,6 +3118,7 @@ static int mmc_do_erase(struct mmc_card *card, unsigned int from,
 	if ((card->host->caps & MMC_CAP_WAIT_WHILE_BUSY) && use_r1b_resp)
 		goto out;
 
+<<<<<<< HEAD
 	timeout = jiffies + msecs_to_jiffies(busy_timeout);
 	do {
 		memset(&cmd, 0, sizeof(struct mmc_command));
@@ -2977,6 +3157,12 @@ out:
 	if (err)
 		mmc_error_count_log(card, MMC_CMD_OFFSET, err, 0);
 busy_out:
+=======
+	/* Let's poll to find out when the erase operation completes. */
+	err = mmc_poll_for_busy(card, busy_timeout, false, MMC_BUSY_ERASE);
+
+out:
+>>>>>>> upstream/android-13
 	mmc_retune_release(card->host);
 	return err;
 }
@@ -3034,7 +3220,11 @@ static unsigned int mmc_align_erase_size(struct mmc_card *card,
  * @card: card to erase
  * @from: first sector to erase
  * @nr: number of sectors to erase
+<<<<<<< HEAD
  * @arg: erase command argument (SD supports only %MMC_ERASE_ARG)
+=======
+ * @arg: erase command argument
+>>>>>>> upstream/android-13
  *
  * Caller must claim host before calling this function.
  */
@@ -3044,13 +3234,18 @@ int mmc_erase(struct mmc_card *card, unsigned int from, unsigned int nr,
 	unsigned int rem, to = from + nr;
 	int err;
 
+<<<<<<< HEAD
 	if (!(card->host->caps & MMC_CAP_ERASE) ||
 	    !(card->csd.cmdclass & CCC_ERASE))
+=======
+	if (!(card->csd.cmdclass & CCC_ERASE))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	if (!card->erase_size)
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if (mmc_card_sd(card) && arg != MMC_ERASE_ARG)
 		return -EOPNOTSUPP;
 
@@ -3059,6 +3254,16 @@ int mmc_erase(struct mmc_card *card, unsigned int from, unsigned int nr,
 		return -EOPNOTSUPP;
 
 	if ((arg & MMC_TRIM_ARGS) &&
+=======
+	if (mmc_card_sd(card) && arg != SD_ERASE_ARG && arg != SD_DISCARD_ARG)
+		return -EOPNOTSUPP;
+
+	if (mmc_card_mmc(card) && (arg & MMC_SECURE_ARGS) &&
+	    !(card->ext_csd.sec_feature_support & EXT_CSD_SEC_ER_EN))
+		return -EOPNOTSUPP;
+
+	if (mmc_card_mmc(card) && (arg & MMC_TRIM_ARGS) &&
+>>>>>>> upstream/android-13
 	    !(card->ext_csd.sec_feature_support & EXT_CSD_SEC_GB_CL_EN))
 		return -EOPNOTSUPP;
 
@@ -3101,8 +3306,12 @@ EXPORT_SYMBOL(mmc_erase);
 
 int mmc_can_erase(struct mmc_card *card)
 {
+<<<<<<< HEAD
 	if ((card->host->caps & MMC_CAP_ERASE) &&
 	    (card->csd.cmdclass & CCC_ERASE) && card->erase_size)
+=======
+	if (card->csd.cmdclass & CCC_ERASE && card->erase_size)
+>>>>>>> upstream/android-13
 		return 1;
 	return 0;
 }
@@ -3131,16 +3340,22 @@ EXPORT_SYMBOL(mmc_can_discard);
 
 int mmc_can_sanitize(struct mmc_card *card)
 {
+<<<<<<< HEAD
 	/* do not use sanitize*/
 	return 0;
 
+=======
+>>>>>>> upstream/android-13
 	if (!mmc_can_trim(card) && !mmc_can_erase(card))
 		return 0;
 	if (card->ext_csd.sec_feature_support & EXT_CSD_SEC_SANITIZE)
 		return 1;
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mmc_can_sanitize);
+=======
+>>>>>>> upstream/android-13
 
 int mmc_can_secure_erase_trim(struct mmc_card *card)
 {
@@ -3247,6 +3462,10 @@ unsigned int mmc_calc_max_discard(struct mmc_card *card)
 
 	if (!host->max_busy_timeout)
 		return UINT_MAX;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Without erase_group_def set, MMC erase timeout depends on clock
 	 * frequence which can change.  In that case, the best choice is
@@ -3291,6 +3510,7 @@ int mmc_set_blocklen(struct mmc_card *card, unsigned int blocklen)
 }
 EXPORT_SYMBOL(mmc_set_blocklen);
 
+<<<<<<< HEAD
 int mmc_set_blockcount(struct mmc_card *card, unsigned int blockcount,
 			bool is_rel_write)
 {
@@ -3305,6 +3525,8 @@ int mmc_set_blockcount(struct mmc_card *card, unsigned int blockcount,
 }
 EXPORT_SYMBOL(mmc_set_blockcount);
 
+=======
+>>>>>>> upstream/android-13
 static void mmc_hw_reset_for_init(struct mmc_host *host)
 {
 	mmc_pwrseq_reset(host);
@@ -3314,10 +3536,24 @@ static void mmc_hw_reset_for_init(struct mmc_host *host)
 	host->ops->hw_reset(host);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * mmc_hw_reset - reset the card in hardware
+ * @host: MMC host to which the card is attached
+ *
+ * Hard reset the card. This function is only for upper layers, like the
+ * block layer or card drivers. You cannot use it in host drivers (struct
+ * mmc_card might be gone then).
+ *
+ * Return: 0 on success, -errno on failure
+ */
+>>>>>>> upstream/android-13
 int mmc_hw_reset(struct mmc_host *host)
 {
 	int ret;
 
+<<<<<<< HEAD
 	if (!host->card)
 		return -EINVAL;
 
@@ -3332,6 +3568,10 @@ int mmc_hw_reset(struct mmc_host *host)
 	mmc_bus_put(host);
 
 	if (ret)
+=======
+	ret = host->bus_ops->hw_reset(host);
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		pr_warn("%s: tried to HW reset card, got error %d\n",
 			mmc_hostname(host), ret);
 
@@ -3343,6 +3583,7 @@ int mmc_sw_reset(struct mmc_host *host)
 {
 	int ret;
 
+<<<<<<< HEAD
 	if (!host->card)
 		return -EINVAL;
 
@@ -3355,6 +3596,12 @@ int mmc_sw_reset(struct mmc_host *host)
 	ret = host->bus_ops->sw_reset(host);
 	mmc_bus_put(host);
 
+=======
+	if (!host->bus_ops->sw_reset)
+		return -EOPNOTSUPP;
+
+	ret = host->bus_ops->sw_reset(host);
+>>>>>>> upstream/android-13
 	if (ret)
 		pr_warn("%s: tried to SW reset card, got error %d\n",
 			mmc_hostname(host), ret);
@@ -3389,8 +3636,17 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 
 	mmc_go_idle(host);
 
+<<<<<<< HEAD
 	if (!(host->caps2 & MMC_CAP2_NO_SD))
 		mmc_send_if_cond(host, host->ocr_avail);
+=======
+	if (!(host->caps2 & MMC_CAP2_NO_SD)) {
+		if (mmc_send_if_cond_pcie(host, host->ocr_avail))
+			goto out;
+		if (mmc_card_sd_express(host))
+			return 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* Order's important: probe SDIO, then SD, then MMC */
 	if (!(host->caps2 & MMC_CAP2_NO_SDIO))
@@ -3405,6 +3661,10 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 		if (!mmc_attach_mmc(host))
 			return 0;
 
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	mmc_power_off(host);
 	return -EIO;
 }
@@ -3433,7 +3693,11 @@ int _mmc_detect_card_removed(struct mmc_host *host)
 	if (ret) {
 		mmc_card_set_removed(host->card);
 		pr_debug("%s: card remove detected\n", mmc_hostname(host));
+<<<<<<< HEAD
 		ST_LOG("<%s> %s: card remove detected\n", __func__, mmc_hostname(host));
+=======
+		ST_LOG("<%s> %s: card/tray remove detected\n", __func__, mmc_hostname(host));
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -3477,6 +3741,44 @@ int mmc_detect_card_removed(struct mmc_host *host)
 }
 EXPORT_SYMBOL(mmc_detect_card_removed);
 
+<<<<<<< HEAD
+=======
+int mmc_card_alternative_gpt_sector(struct mmc_card *card, sector_t *gpt_sector)
+{
+	unsigned int boot_sectors_num;
+
+	if ((!(card->host->caps2 & MMC_CAP2_ALT_GPT_TEGRA)))
+		return -EOPNOTSUPP;
+
+	/* filter out unrelated cards */
+	if (card->ext_csd.rev < 3 ||
+	    !mmc_card_mmc(card) ||
+	    !mmc_card_is_blockaddr(card) ||
+	     mmc_card_is_removable(card->host))
+		return -ENOENT;
+
+	/*
+	 * eMMC storage has two special boot partitions in addition to the
+	 * main one.  NVIDIA's bootloader linearizes eMMC boot0->boot1->main
+	 * accesses, this means that the partition table addresses are shifted
+	 * by the size of boot partitions.  In accordance with the eMMC
+	 * specification, the boot partition size is calculated as follows:
+	 *
+	 *	boot partition size = 128K byte x BOOT_SIZE_MULT
+	 *
+	 * Calculate number of sectors occupied by the both boot partitions.
+	 */
+	boot_sectors_num = card->ext_csd.raw_boot_mult * SZ_128K /
+			   SZ_512 * MMC_NUM_BOOT_PARTITION;
+
+	/* Defined by NVIDIA and used by Android devices. */
+	*gpt_sector = card->ext_csd.sectors - boot_sectors_num - 1;
+
+	return 0;
+}
+EXPORT_SYMBOL(mmc_card_alternative_gpt_sector);
+
+>>>>>>> upstream/android-13
 void mmc_rescan(struct work_struct *work)
 {
 	struct mmc_host *host =
@@ -3485,9 +3787,16 @@ void mmc_rescan(struct work_struct *work)
 
 	if (host->rescan_disable)
 		return;
+<<<<<<< HEAD
 	/* check if hw interrupt is triggered */
 	if (mmc_card_is_removable(host) && !host->trigger_card_event && !host->card) {
 		pr_err("%s: no detect irq, skipping %s\n", mmc_hostname(host), __func__);
+=======
+
+	/* check if hw interrupt is triggered */
+	if (!host->trigger_card_event && !host->card) {
+		pr_err("%s: no detect irq, skipping mmc_rescan\n", mmc_hostname(host));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -3501,6 +3810,7 @@ void mmc_rescan(struct work_struct *work)
 		host->ops->card_event(host);
 		mmc_release_host(host);
 	}
+<<<<<<< HEAD
 	host->trigger_card_event = false;
 
 	mmc_bus_get(host);
@@ -3510,10 +3820,18 @@ void mmc_rescan(struct work_struct *work)
 	 * still present
 	 */
 	if (host->bus_ops && !host->bus_dead && mmc_card_is_removable(host))
+=======
+
+	host->trigger_card_event = false;
+
+	/* Verify a registered card to be functional, else remove it. */
+	if (host->bus_ops)
+>>>>>>> upstream/android-13
 		host->bus_ops->detect(host);
 
 	host->detect_change = 0;
 
+<<<<<<< HEAD
 	/*
 	 * Let mmc_bus_put() free the bus/bus_ops if we've found that
 	 * the card is no longer present.
@@ -3532,6 +3850,11 @@ void mmc_rescan(struct work_struct *work)
 	 * release the lock here.
 	 */
 	mmc_bus_put(host);
+=======
+	/* if there still is a card present, stop here */
+	if (host->bus_ops != NULL)
+		goto out;
+>>>>>>> upstream/android-13
 
 	mmc_claim_host(host);
 	if (mmc_card_is_removable(host) && host->ops->get_cd &&
@@ -3541,12 +3864,38 @@ void mmc_rescan(struct work_struct *work)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(freqs); i++) {
 		if (!mmc_rescan_try_freq(host, max(freqs[i], host->f_min)))
+=======
+	/* If an SD express card is present, then leave it as is. */
+	if (mmc_card_sd_express(host)) {
+		mmc_release_host(host);
+		goto out;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(freqs); i++) {
+		unsigned int freq = freqs[i];
+		if (freq > host->f_max) {
+			if (i + 1 < ARRAY_SIZE(freqs))
+				continue;
+			freq = host->f_max;
+		}
+		if (!mmc_rescan_try_freq(host, max(freq, host->f_min)))
+>>>>>>> upstream/android-13
 			break;
 		if (freqs[i] <= host->f_min)
 			break;
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Ignore the command timeout errors observed during
+	 * the card init as those are excepted.
+	 */
+	host->err_stats[MMC_ERR_CMD_TIMEOUT] = 0;
+>>>>>>> upstream/android-13
 	mmc_release_host(host);
 
  out:
@@ -3556,6 +3905,7 @@ void mmc_rescan(struct work_struct *work)
 
 void mmc_start_host(struct mmc_host *host)
 {
+<<<<<<< HEAD
 	host->f_init = max(freqs[0], host->f_min);
 	host->rescan_disable = 0;
 	host->ios.power_mode = MMC_POWER_UNDEFINED;
@@ -3566,12 +3916,26 @@ void mmc_start_host(struct mmc_host *host)
 	else
 		mmc_power_up(host, host->ocr_avail);
 	mmc_release_host(host);
+=======
+	host->f_init = max(min(freqs[0], host->f_max), host->f_min);
+	host->rescan_disable = 0;
+
+	if (!(host->caps2 & MMC_CAP2_NO_PRESCAN_POWERUP)) {
+		mmc_claim_host(host);
+		mmc_power_up(host, host->ocr_avail);
+		mmc_release_host(host);
+	}
+>>>>>>> upstream/android-13
 
 	mmc_gpiod_request_cd_irq(host);
 	_mmc_detect_change(host, 0, false);
 }
 
+<<<<<<< HEAD
 void mmc_stop_host(struct mmc_host *host)
+=======
+void __mmc_stop_host(struct mmc_host *host)
+>>>>>>> upstream/android-13
 {
 	if (host->slot.cd_irq >= 0) {
 		mmc_gpio_set_cd_wake(host, false);
@@ -3580,29 +3944,47 @@ void mmc_stop_host(struct mmc_host *host)
 
 	host->rescan_disable = 1;
 	cancel_delayed_work_sync(&host->detect);
+<<<<<<< HEAD
+=======
+}
+
+void mmc_stop_host(struct mmc_host *host)
+{
+	__mmc_stop_host(host);
+>>>>>>> upstream/android-13
 
 	/* clear pm flags now and let card drivers set them as needed */
 	host->pm_flags = 0;
 
+<<<<<<< HEAD
 
 	mmc_bus_get(host);
 	if (host->bus_ops && !host->bus_dead) {
+=======
+	if (host->bus_ops) {
+>>>>>>> upstream/android-13
 		/* Calling bus_ops->remove() with a claimed host can deadlock */
 		host->bus_ops->remove(host);
 		mmc_claim_host(host);
 		mmc_detach_bus(host);
 		mmc_power_off(host);
 		mmc_release_host(host);
+<<<<<<< HEAD
 		mmc_bus_put(host);
 		return;
 	}
 	mmc_bus_put(host);
+=======
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	mmc_claim_host(host);
 	mmc_power_off(host);
 	mmc_release_host(host);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 /* Do the card removal on suspend if card is assumed removeable
  * Do that in pm notifier while userspace isn't yet frozen, so we will be able
@@ -3677,6 +4059,8 @@ void mmc_unregister_pm_notifier(struct mmc_host *host)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int __init mmc_init(void)
 {
 	int ret;

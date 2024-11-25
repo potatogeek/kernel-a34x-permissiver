@@ -383,12 +383,18 @@ int ila_xlat_nl_cmd_flush(struct sk_buff *skb, struct genl_info *info)
 	struct rhashtable_iter iter;
 	struct ila_map *ila;
 	spinlock_t *lock;
+<<<<<<< HEAD
 	int ret;
 
 	ret = rhashtable_walk_init(&ilan->xlat.rhash_table, &iter, GFP_KERNEL);
 	if (ret)
 		goto done;
 
+=======
+	int ret = 0;
+
+	rhashtable_walk_enter(&ilan->xlat.rhash_table, &iter);
+>>>>>>> upstream/android-13
 	rhashtable_walk_start(&iter);
 
 	for (;;) {
@@ -510,23 +516,34 @@ int ila_xlat_nl_dump_start(struct netlink_callback *cb)
 	struct net *net = sock_net(cb->skb->sk);
 	struct ila_net *ilan = net_generic(net, ila_net_id);
 	struct ila_dump_iter *iter;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	iter = kmalloc(sizeof(*iter), GFP_KERNEL);
 	if (!iter)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = rhashtable_walk_init(&ilan->xlat.rhash_table, &iter->rhiter,
 				   GFP_KERNEL);
 	if (ret) {
 		kfree(iter);
 		return ret;
 	}
+=======
+	rhashtable_walk_enter(&ilan->xlat.rhash_table, &iter->rhiter);
+>>>>>>> upstream/android-13
 
 	iter->skip = 0;
 	cb->args[0] = (long)iter;
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int ila_xlat_nl_dump_done(struct netlink_callback *cb)
@@ -610,8 +627,11 @@ out_ret:
 	return ret;
 }
 
+<<<<<<< HEAD
 #define ILA_HASH_TABLE_SIZE 1024
 
+=======
+>>>>>>> upstream/android-13
 int ila_xlat_init_net(struct net *net)
 {
 	struct ila_net *ilan = net_generic(net, ila_net_id);

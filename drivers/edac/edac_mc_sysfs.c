@@ -131,7 +131,11 @@ static const char * const edac_caps[] = {
 
 struct dev_ch_attribute {
 	struct device_attribute attr;
+<<<<<<< HEAD
 	int channel;
+=======
+	unsigned int channel;
+>>>>>>> upstream/android-13
 };
 
 #define DEVICE_CHANNEL(_name, _mode, _show, _store, _var) \
@@ -200,7 +204,11 @@ static ssize_t channel_dimm_label_show(struct device *dev,
 				       char *data)
 {
 	struct csrow_info *csrow = to_csrow(dev);
+<<<<<<< HEAD
 	unsigned chan = to_channel(mattr);
+=======
+	unsigned int chan = to_channel(mattr);
+>>>>>>> upstream/android-13
 	struct rank_info *rank = csrow->channels[chan];
 
 	/* if field has not been initialized, there is nothing to send */
@@ -216,7 +224,11 @@ static ssize_t channel_dimm_label_store(struct device *dev,
 					const char *data, size_t count)
 {
 	struct csrow_info *csrow = to_csrow(dev);
+<<<<<<< HEAD
 	unsigned chan = to_channel(mattr);
+=======
+	unsigned int chan = to_channel(mattr);
+>>>>>>> upstream/android-13
 	struct rank_info *rank = csrow->channels[chan];
 	size_t copy_count = count;
 
@@ -240,7 +252,11 @@ static ssize_t channel_ce_count_show(struct device *dev,
 				     struct device_attribute *mattr, char *data)
 {
 	struct csrow_info *csrow = to_csrow(dev);
+<<<<<<< HEAD
 	unsigned chan = to_channel(mattr);
+=======
+	unsigned int chan = to_channel(mattr);
+>>>>>>> upstream/android-13
 	struct rank_info *rank = csrow->channels[chan];
 
 	return sprintf(data, "%u\n", rank->ce_count);
@@ -274,6 +290,7 @@ static const struct attribute_group *csrow_attr_groups[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static void csrow_attr_release(struct device *dev)
 {
 	struct csrow_info *csrow = container_of(dev, struct csrow_info, dev);
@@ -285,6 +302,10 @@ static void csrow_attr_release(struct device *dev)
 static const struct device_type csrow_attr_type = {
 	.groups		= csrow_attr_groups,
 	.release	= csrow_attr_release,
+=======
+static const struct device_type csrow_attr_type = {
+	.groups		= csrow_attr_groups,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -390,6 +411,17 @@ static const struct attribute_group *csrow_dev_groups[] = {
 	NULL
 };
 
+<<<<<<< HEAD
+=======
+static void csrow_release(struct device *dev)
+{
+	/*
+	 * Nothing to do, just unregister sysfs here. The mci
+	 * device owns the data and will also release it.
+	 */
+}
+
+>>>>>>> upstream/android-13
 static inline int nr_pages_per_csrow(struct csrow_info *csrow)
 {
 	int chan, nr_pages = 0;
@@ -407,14 +439,20 @@ static int edac_create_csrow_object(struct mem_ctl_info *mci,
 	int err;
 
 	csrow->dev.type = &csrow_attr_type;
+<<<<<<< HEAD
 	csrow->dev.bus = mci->bus;
 	csrow->dev.groups = csrow_dev_groups;
+=======
+	csrow->dev.groups = csrow_dev_groups;
+	csrow->dev.release = csrow_release;
+>>>>>>> upstream/android-13
 	device_initialize(&csrow->dev);
 	csrow->dev.parent = &mci->dev;
 	csrow->mci = mci;
 	dev_set_name(&csrow->dev, "csrow%d", index);
 	dev_set_drvdata(&csrow->dev, csrow);
 
+<<<<<<< HEAD
 	edac_dbg(0, "creating (virtual) csrow node %s\n",
 		 dev_name(&csrow->dev));
 
@@ -423,6 +461,18 @@ static int edac_create_csrow_object(struct mem_ctl_info *mci,
 		put_device(&csrow->dev);
 
 	return err;
+=======
+	err = device_add(&csrow->dev);
+	if (err) {
+		edac_dbg(1, "failure: create device %s\n", dev_name(&csrow->dev));
+		put_device(&csrow->dev);
+		return err;
+	}
+
+	edac_dbg(0, "device %s created\n", dev_name(&csrow->dev));
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Create a CSROW object under specifed edac_mc_device */
@@ -436,21 +486,31 @@ static int edac_create_csrow_objects(struct mem_ctl_info *mci)
 		if (!nr_pages_per_csrow(csrow))
 			continue;
 		err = edac_create_csrow_object(mci, mci->csrows[i], i);
+<<<<<<< HEAD
 		if (err < 0) {
 			edac_dbg(1,
 				 "failure: create csrow objects for csrow %d\n",
 				 i);
 			goto error;
 		}
+=======
+		if (err < 0)
+			goto error;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 
 error:
 	for (--i; i >= 0; i--) {
+<<<<<<< HEAD
 		csrow = mci->csrows[i];
 		if (!nr_pages_per_csrow(csrow))
 			continue;
 		put_device(&mci->csrows[i]->dev);
+=======
+		if (device_is_registered(&mci->csrows[i]->dev))
+			device_unregister(&mci->csrows[i]->dev);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -459,6 +519,7 @@ error:
 static void edac_delete_csrow_objects(struct mem_ctl_info *mci)
 {
 	int i;
+<<<<<<< HEAD
 	struct csrow_info *csrow;
 
 	for (i = mci->nr_csrows - 1; i >= 0; i--) {
@@ -468,6 +529,15 @@ static void edac_delete_csrow_objects(struct mem_ctl_info *mci)
 		device_unregister(&mci->csrows[i]->dev);
 	}
 }
+=======
+
+	for (i = 0; i < mci->nr_csrows; i++) {
+		if (device_is_registered(&mci->csrows[i]->dev))
+			device_unregister(&mci->csrows[i]->dev);
+	}
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -481,8 +551,17 @@ static ssize_t dimmdev_location_show(struct device *dev,
 				     struct device_attribute *mattr, char *data)
 {
 	struct dimm_info *dimm = to_dimm(dev);
+<<<<<<< HEAD
 
 	return edac_dimm_info_location(dimm, data, PAGE_SIZE);
+=======
+	ssize_t count;
+
+	count = edac_dimm_info_location(dimm, data, PAGE_SIZE);
+	count += scnprintf(data + count, PAGE_SIZE - count, "\n");
+
+	return count;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dimmdev_label_show(struct device *dev,
@@ -558,6 +637,7 @@ static ssize_t dimmdev_ce_count_show(struct device *dev,
 				      char *data)
 {
 	struct dimm_info *dimm = to_dimm(dev);
+<<<<<<< HEAD
 	u32 count;
 	int off;
 
@@ -568,6 +648,10 @@ static ssize_t dimmdev_ce_count_show(struct device *dev,
 			    dimm->location[2]);
 	count = dimm->mci->ce_per_layer[dimm->mci->n_layers-1][off];
 	return sprintf(data, "%u\n", count);
+=======
+
+	return sprintf(data, "%u\n", dimm->ce_count);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t dimmdev_ue_count_show(struct device *dev,
@@ -575,6 +659,7 @@ static ssize_t dimmdev_ue_count_show(struct device *dev,
 				      char *data)
 {
 	struct dimm_info *dimm = to_dimm(dev);
+<<<<<<< HEAD
 	u32 count;
 	int off;
 
@@ -585,6 +670,10 @@ static ssize_t dimmdev_ue_count_show(struct device *dev,
 			    dimm->location[2]);
 	count = dimm->mci->ue_per_layer[dimm->mci->n_layers-1][off];
 	return sprintf(data, "%u\n", count);
+=======
+
+	return sprintf(data, "%u\n", dimm->ue_count);
+>>>>>>> upstream/android-13
 }
 
 /* dimm/rank attribute files */
@@ -620,6 +709,7 @@ static const struct attribute_group *dimm_attr_groups[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static void dimm_attr_release(struct device *dev)
 {
 	struct dimm_info *dimm = container_of(dev, struct dimm_info, dev);
@@ -637,16 +727,38 @@ static const struct device_type dimm_attr_type = {
 static int edac_create_dimm_object(struct mem_ctl_info *mci,
 				   struct dimm_info *dimm,
 				   int index)
+=======
+static const struct device_type dimm_attr_type = {
+	.groups		= dimm_attr_groups,
+};
+
+static void dimm_release(struct device *dev)
+{
+	/*
+	 * Nothing to do, just unregister sysfs here. The mci
+	 * device owns the data and will also release it.
+	 */
+}
+
+/* Create a DIMM object under specifed memory controller device */
+static int edac_create_dimm_object(struct mem_ctl_info *mci,
+				   struct dimm_info *dimm)
+>>>>>>> upstream/android-13
 {
 	int err;
 	dimm->mci = mci;
 
 	dimm->dev.type = &dimm_attr_type;
+<<<<<<< HEAD
 	dimm->dev.bus = mci->bus;
+=======
+	dimm->dev.release = dimm_release;
+>>>>>>> upstream/android-13
 	device_initialize(&dimm->dev);
 
 	dimm->dev.parent = &mci->dev;
 	if (mci->csbased)
+<<<<<<< HEAD
 		dev_set_name(&dimm->dev, "rank%d", index);
 	else
 		dev_set_name(&dimm->dev, "dimm%d", index);
@@ -658,6 +770,30 @@ static int edac_create_dimm_object(struct mem_ctl_info *mci,
 	edac_dbg(0, "creating rank/dimm device %s\n", dev_name(&dimm->dev));
 
 	return err;
+=======
+		dev_set_name(&dimm->dev, "rank%d", dimm->idx);
+	else
+		dev_set_name(&dimm->dev, "dimm%d", dimm->idx);
+	dev_set_drvdata(&dimm->dev, dimm);
+	pm_runtime_forbid(&mci->dev);
+
+	err = device_add(&dimm->dev);
+	if (err) {
+		edac_dbg(1, "failure: create device %s\n", dev_name(&dimm->dev));
+		put_device(&dimm->dev);
+		return err;
+	}
+
+	if (IS_ENABLED(CONFIG_EDAC_DEBUG)) {
+		char location[80];
+
+		edac_dimm_info_location(dimm, location, sizeof(location));
+		edac_dbg(0, "device %s created at location %s\n",
+			dev_name(&dimm->dev), location);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -671,7 +807,13 @@ static ssize_t mci_reset_counters_store(struct device *dev,
 					const char *data, size_t count)
 {
 	struct mem_ctl_info *mci = to_mci(dev);
+<<<<<<< HEAD
 	int cnt, row, chan, i;
+=======
+	struct dimm_info *dimm;
+	int row, chan;
+
+>>>>>>> upstream/android-13
 	mci->ue_mc = 0;
 	mci->ce_mc = 0;
 	mci->ue_noinfo_count = 0;
@@ -687,11 +829,17 @@ static ssize_t mci_reset_counters_store(struct device *dev,
 			ri->channels[chan]->ce_count = 0;
 	}
 
+<<<<<<< HEAD
 	cnt = 1;
 	for (i = 0; i < mci->n_layers; i++) {
 		cnt *= mci->layers[i].size;
 		memset(mci->ce_per_layer[i], 0, cnt * sizeof(u32));
 		memset(mci->ue_per_layer[i], 0, cnt * sizeof(u32));
+=======
+	mci_for_each_dimm(mci, dimm) {
+		dimm->ue_count = 0;
+		dimm->ce_count = 0;
+>>>>>>> upstream/android-13
 	}
 
 	mci->start_time = jiffies;
@@ -827,6 +975,7 @@ static ssize_t mci_max_location_show(struct device *dev,
 				     char *data)
 {
 	struct mem_ctl_info *mci = to_mci(dev);
+<<<<<<< HEAD
 	int i;
 	char *p = data;
 
@@ -836,6 +985,25 @@ static ssize_t mci_max_location_show(struct device *dev,
 			     mci->layers[i].size - 1);
 	}
 
+=======
+	int len = PAGE_SIZE;
+	char *p = data;
+	int i, n;
+
+	for (i = 0; i < mci->n_layers; i++) {
+		n = scnprintf(p, len, "%s %d ",
+			      edac_layer_name[mci->layers[i].type],
+			      mci->layers[i].size - 1);
+		len -= n;
+		if (len <= 0)
+			goto out;
+
+		p += n;
+	}
+
+	p += scnprintf(p, len, "\n");
+out:
+>>>>>>> upstream/android-13
 	return p - data;
 }
 
@@ -896,6 +1064,7 @@ static const struct attribute_group *mci_attr_groups[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static void mci_attr_release(struct device *dev)
 {
 	struct mem_ctl_info *mci = container_of(dev, struct mem_ctl_info, dev);
@@ -907,6 +1076,10 @@ static void mci_attr_release(struct device *dev)
 static const struct device_type mci_attr_type = {
 	.groups		= mci_attr_groups,
 	.release	= mci_attr_release,
+=======
+static const struct device_type mci_attr_type = {
+	.groups		= mci_attr_groups,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -920,6 +1093,7 @@ static const struct device_type mci_attr_type = {
 int edac_create_sysfs_mci_device(struct mem_ctl_info *mci,
 				 const struct attribute_group **groups)
 {
+<<<<<<< HEAD
 	char *name;
 	int i, err;
 
@@ -947,11 +1121,20 @@ int edac_create_sysfs_mci_device(struct mem_ctl_info *mci,
 
 	mci->dev.parent = mci_pdev;
 	mci->dev.bus = mci->bus;
+=======
+	struct dimm_info *dimm;
+	int err;
+
+	/* get the /sys/devices/system/edac subsys reference */
+	mci->dev.type = &mci_attr_type;
+	mci->dev.parent = mci_pdev;
+>>>>>>> upstream/android-13
 	mci->dev.groups = groups;
 	dev_set_name(&mci->dev, "mc%d", mci->mc_idx);
 	dev_set_drvdata(&mci->dev, mci);
 	pm_runtime_forbid(&mci->dev);
 
+<<<<<<< HEAD
 	edac_dbg(0, "creating device %s\n", dev_name(&mci->dev));
 	err = device_add(&mci->dev);
 	if (err < 0) {
@@ -964,10 +1147,26 @@ int edac_create_sysfs_mci_device(struct mem_ctl_info *mci,
 	 */
 	for (i = 0; i < mci->tot_dimms; i++) {
 		struct dimm_info *dimm = mci->dimms[i];
+=======
+	err = device_add(&mci->dev);
+	if (err < 0) {
+		edac_dbg(1, "failure: create device %s\n", dev_name(&mci->dev));
+		/* no put_device() here, free mci with _edac_mc_free() */
+		return err;
+	}
+
+	edac_dbg(0, "device %s created\n", dev_name(&mci->dev));
+
+	/*
+	 * Create the dimm/rank devices
+	 */
+	mci_for_each_dimm(mci, dimm) {
+>>>>>>> upstream/android-13
 		/* Only expose populated DIMMs */
 		if (!dimm->nr_pages)
 			continue;
 
+<<<<<<< HEAD
 #ifdef CONFIG_EDAC_DEBUG
 		edac_dbg(1, "creating dimm%d, located at ", i);
 		if (edac_debug_level >= 1) {
@@ -984,17 +1183,27 @@ int edac_create_sysfs_mci_device(struct mem_ctl_info *mci,
 			edac_dbg(1, "failure: create dimm %d obj\n", i);
 			goto fail_unregister_dimm;
 		}
+=======
+		err = edac_create_dimm_object(mci, dimm);
+		if (err)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 #ifdef CONFIG_EDAC_LEGACY_SYSFS
 	err = edac_create_csrow_objects(mci);
 	if (err < 0)
+<<<<<<< HEAD
 		goto fail_unregister_dimm;
+=======
+		goto fail;
+>>>>>>> upstream/android-13
 #endif
 
 	edac_create_debugfs_nodes(mci);
 	return 0;
 
+<<<<<<< HEAD
 fail_unregister_dimm:
 	for (i--; i >= 0; i--) {
 		struct dimm_info *dimm = mci->dimms[i];
@@ -1007,6 +1216,10 @@ fail_unregister_dimm:
 fail_unregister_bus:
 	bus_unregister(mci->bus);
 	kfree(name);
+=======
+fail:
+	edac_remove_sysfs_mci_device(mci);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -1016,7 +1229,14 @@ fail_unregister_bus:
  */
 void edac_remove_sysfs_mci_device(struct mem_ctl_info *mci)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	struct dimm_info *dimm;
+
+	if (!device_is_registered(&mci->dev))
+		return;
+>>>>>>> upstream/android-13
 
 	edac_dbg(0, "\n");
 
@@ -1027,6 +1247,7 @@ void edac_remove_sysfs_mci_device(struct mem_ctl_info *mci)
 	edac_delete_csrow_objects(mci);
 #endif
 
+<<<<<<< HEAD
 	for (i = 0; i < mci->tot_dimms; i++) {
 		struct dimm_info *dimm = mci->dimms[i];
 		if (dimm->nr_pages == 0)
@@ -1045,6 +1266,17 @@ void edac_unregister_sysfs(struct mem_ctl_info *mci)
 	device_unregister(&mci->dev);
 	bus_unregister(bus);
 	kfree(name);
+=======
+	mci_for_each_dimm(mci, dimm) {
+		if (!device_is_registered(&dimm->dev))
+			continue;
+		edac_dbg(1, "unregistering device %s\n", dev_name(&dimm->dev));
+		device_unregister(&dimm->dev);
+	}
+
+	/* only remove the device, but keep mci */
+	device_del(&mci->dev);
+>>>>>>> upstream/android-13
 }
 
 static void mc_attr_release(struct device *dev)
@@ -1054,6 +1286,7 @@ static void mc_attr_release(struct device *dev)
 	 * parent device, used to create the /sys/devices/mc sysfs node.
 	 * So, there are no attributes on it.
 	 */
+<<<<<<< HEAD
 	edac_dbg(1, "Releasing device %s\n", dev_name(dev));
 	kfree(dev);
 }
@@ -1061,6 +1294,12 @@ static void mc_attr_release(struct device *dev)
 static const struct device_type mc_attr_type = {
 	.release	= mc_attr_release,
 };
+=======
+	edac_dbg(1, "device %s released\n", dev_name(dev));
+	kfree(dev);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Init/exit code for the module. Basically, creates/removes /sys/class/rc
  */
@@ -1069,6 +1308,7 @@ int __init edac_mc_sysfs_init(void)
 	int err;
 
 	mci_pdev = kzalloc(sizeof(*mci_pdev), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!mci_pdev) {
 		err = -ENOMEM;
 		goto out;
@@ -1082,15 +1322,33 @@ int __init edac_mc_sysfs_init(void)
 	err = device_add(mci_pdev);
 	if (err < 0)
 		goto out_put_device;
+=======
+	if (!mci_pdev)
+		return -ENOMEM;
+
+	mci_pdev->bus = edac_get_sysfs_subsys();
+	mci_pdev->release = mc_attr_release;
+	mci_pdev->init_name = "mc";
+
+	err = device_register(mci_pdev);
+	if (err < 0) {
+		edac_dbg(1, "failure: create device %s\n", dev_name(mci_pdev));
+		put_device(mci_pdev);
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	edac_dbg(0, "device %s created\n", dev_name(mci_pdev));
 
 	return 0;
+<<<<<<< HEAD
 
  out_put_device:
 	put_device(mci_pdev);
  out:
 	return err;
+=======
+>>>>>>> upstream/android-13
 }
 
 void edac_mc_sysfs_exit(void)

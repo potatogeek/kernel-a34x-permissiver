@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * DRA752 bandgap registers, bitfields and temperature definitions
  *
@@ -7,6 +11,7 @@
  *   Tero Kristo <t-kristo@ti.com>
  *
  * This is an auto generated file.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,6 +27,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __DRA752_BANDGAP_H
 #define __DRA752_BANDGAP_H

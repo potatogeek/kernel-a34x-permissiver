@@ -71,7 +71,15 @@ getModuleFromSource(llvm::opt::ArgStringList CFlags,
 	CompilerInstance Clang;
 	Clang.createDiagnostics();
 
+<<<<<<< HEAD
 	Clang.setVirtualFileSystem(&*VFS);
+=======
+#if CLANG_VERSION_MAJOR < 9
+	Clang.setVirtualFileSystem(&*VFS);
+#else
+	Clang.createFileManager(&*VFS);
+#endif
+>>>>>>> upstream/android-13
 
 #if CLANG_VERSION_MAJOR < 4
 	IntrusiveRefCntPtr<CompilerInvocation> CI =
@@ -156,11 +164,19 @@ getBPFObjectFromModule(llvm::Module *Module)
 #endif
 	if (NotAdded) {
 		llvm::errs() << "TargetMachine can't emit a file of this type\n";
+<<<<<<< HEAD
 		return std::unique_ptr<llvm::SmallVectorImpl<char>>(nullptr);;
 	}
 	PM.run(*Module);
 
 	return std::move(Buffer);
+=======
+		return std::unique_ptr<llvm::SmallVectorImpl<char>>(nullptr);
+	}
+	PM.run(*Module);
+
+	return Buffer;
+>>>>>>> upstream/android-13
 }
 
 }

@@ -27,6 +27,10 @@ VERSION {
 		__vdso_time;
 		clock_getres;
 		__vdso_clock_getres;
+<<<<<<< HEAD
+=======
+		__vdso_sgx_enter_enclave;
+>>>>>>> upstream/android-13
 	local: *;
 	};
 }

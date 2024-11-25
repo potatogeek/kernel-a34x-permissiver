@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2004
  *   Portions Copyright (C) Christoph Hellwig, 2001-2002
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2004
+ *   Portions Copyright (C) Christoph Hellwig, 2001-2002
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -56,12 +63,21 @@ static ssize_t jfs_loglevel_proc_write(struct file *file,
 	return count;
 }
 
+<<<<<<< HEAD
 static const struct file_operations jfs_loglevel_proc_fops = {
 	.open		= jfs_loglevel_proc_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= jfs_loglevel_proc_write,
+=======
+static const struct proc_ops jfs_loglevel_proc_ops = {
+	.proc_open	= jfs_loglevel_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= jfs_loglevel_proc_write,
+>>>>>>> upstream/android-13
 };
 #endif
 
@@ -81,7 +97,11 @@ void jfs_proc_init(void)
 #endif
 #ifdef CONFIG_JFS_DEBUG
 	proc_create_single("TxAnchor", 0, base, jfs_txanchor_proc_show);
+<<<<<<< HEAD
 	proc_create("loglevel", 0, base, &jfs_loglevel_proc_fops);
+=======
+	proc_create("loglevel", 0, base, &jfs_loglevel_proc_ops);
+>>>>>>> upstream/android-13
 #endif
 }
 

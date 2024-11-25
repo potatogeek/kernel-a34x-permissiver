@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ARM/ARM64 generic CPU idle driver.
  *
  * Copyright (C) 2014 ARM Ltd.
  * Author: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "CPUidle arm: " fmt
 
+<<<<<<< HEAD
+=======
+#include <linux/cpu_cooling.h>
+>>>>>>> upstream/android-13
 #include <linux/cpuidle.h>
 #include <linux/cpumask.h>
 #include <linux/cpu_pm.h>
@@ -18,7 +29,10 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/topology.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/cpuidle.h>
 
@@ -82,7 +96,10 @@ static int __init arm_idle_init_cpu(int cpu)
 {
 	int ret;
 	struct cpuidle_driver *drv;
+<<<<<<< HEAD
 	struct cpuidle_device *dev;
+=======
+>>>>>>> upstream/android-13
 
 	drv = kmemdup(&arm_idle_driver, sizeof(*drv), GFP_KERNEL);
 	if (!drv)
@@ -110,15 +127,30 @@ static int __init arm_idle_init_cpu(int cpu)
 	ret = arm_cpuidle_init(cpu);
 
 	/*
+<<<<<<< HEAD
 	 * Allow the initialization to continue for other CPUs, if the reported
 	 * failure is a HW misconfiguration/breakage (-ENXIO).
 	 */
 	if (ret) {
 		pr_err("CPU %d failed to init idle CPU ops\n", cpu);
+=======
+	 * Allow the initialization to continue for other CPUs, if the
+	 * reported failure is a HW misconfiguration/breakage (-ENXIO).
+	 *
+	 * Some platforms do not support idle operations
+	 * (arm_cpuidle_init() returning -EOPNOTSUPP), we should
+	 * not flag this case as an error, it is a valid
+	 * configuration.
+	 */
+	if (ret) {
+		if (ret != -EOPNOTSUPP)
+			pr_err("CPU %d failed to init idle CPU ops\n", cpu);
+>>>>>>> upstream/android-13
 		ret = ret == -ENXIO ? 0 : ret;
 		goto out_kfree_drv;
 	}
 
+<<<<<<< HEAD
 	ret = cpuidle_register_driver(drv);
 	if (ret) {
 		if (ret != -EBUSY)
@@ -146,6 +178,16 @@ out_kfree_dev:
 	kfree(dev);
 out_unregister_drv:
 	cpuidle_unregister_driver(drv);
+=======
+	ret = cpuidle_register(drv, NULL);
+	if (ret)
+		goto out_kfree_drv;
+
+	cpuidle_cooling_register(drv);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 out_kfree_drv:
 	kfree(drv);
 	return ret;
@@ -176,9 +218,13 @@ out_fail:
 	while (--cpu >= 0) {
 		dev = per_cpu(cpuidle_devices, cpu);
 		drv = cpuidle_get_cpu_driver(dev);
+<<<<<<< HEAD
 		cpuidle_unregister_device(dev);
 		cpuidle_unregister_driver(drv);
 		kfree(dev);
+=======
+		cpuidle_unregister(drv);
+>>>>>>> upstream/android-13
 		kfree(drv);
 	}
 

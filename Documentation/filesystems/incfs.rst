@@ -7,7 +7,11 @@ incfs: A stacked incremental filesystem for Linux
 /sys/fs interface
 =================
 
+<<<<<<< HEAD
 Please update Documentation/ABI/testing/sys-fs-incfs if you update this
+=======
+Please update Documentation/ABI/testing/sysfs-fs-incfs if you update this
+>>>>>>> upstream/android-13
 section.
 
 incfs creates the following files in /sys/fs.

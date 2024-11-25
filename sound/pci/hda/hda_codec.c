@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Universal Interface for Intel High Definition Audio Codec
  *
  * Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *
  *  This driver is free software; you can redistribute it and/or modify
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -27,7 +34,11 @@
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <sound/core.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include <sound/asoundef.h>
 #include <sound/tlv.h>
 #include <sound/initval.h>
@@ -36,6 +47,10 @@
 #include "hda_beep.h"
 #include "hda_jack.h"
 #include <sound/hda_hwdep.h>
+<<<<<<< HEAD
+=======
+#include <sound/hda_component.h>
+>>>>>>> upstream/android-13
 
 #define codec_in_pm(codec)		snd_hdac_is_in_pm(&codec->core)
 #define hda_codec_is_power_on(codec)	snd_hdac_is_power_on(&codec->core)
@@ -101,7 +116,11 @@ struct hda_conn_list {
 	struct list_head list;
 	int len;
 	hda_nid_t nid;
+<<<<<<< HEAD
 	hda_nid_t conns[0];
+=======
+	hda_nid_t conns[];
+>>>>>>> upstream/android-13
 };
 
 /* look up the cached results */
@@ -121,7 +140,11 @@ static int add_conn_list(struct hda_codec *codec, hda_nid_t nid, int len,
 {
 	struct hda_conn_list *p;
 
+<<<<<<< HEAD
 	p = kmalloc(sizeof(*p) + len * sizeof(hda_nid_t), GFP_KERNEL);
+=======
+	p = kmalloc(struct_size(p, conns, len), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!p)
 		return -ENOMEM;
 	p->len = len;
@@ -654,8 +677,23 @@ static void hda_jackpoll_work(struct work_struct *work)
 	struct hda_codec *codec =
 		container_of(work, struct hda_codec, jackpoll_work.work);
 
+<<<<<<< HEAD
 	snd_hda_jack_set_dirty_all(codec);
 	snd_hda_jack_poll_all(codec);
+=======
+	/* for non-polling trigger: we need nothing if already powered on */
+	if (!codec->jackpoll_interval && snd_hdac_is_power_on(&codec->core))
+		return;
+
+	/* the power-up/down sequence triggers the runtime resume */
+	snd_hda_power_up_pm(codec);
+	/* update jacks manually if polling is required, too */
+	if (codec->jackpoll_interval) {
+		snd_hda_jack_set_dirty_all(codec);
+		snd_hda_jack_poll_all(codec);
+	}
+	snd_hda_power_down_pm(codec);
+>>>>>>> upstream/android-13
 
 	if (!codec->jackpoll_interval)
 		return;
@@ -706,6 +744,7 @@ get_hda_cvt_setup(struct hda_codec *codec, hda_nid_t nid)
 /*
  * PCM device
  */
+<<<<<<< HEAD
 static void release_pcm(struct kref *kref)
 {
 	struct hda_pcm *pcm = container_of(kref, struct hda_pcm, kref);
@@ -720,6 +759,12 @@ static void release_pcm(struct kref *kref)
 void snd_hda_codec_pcm_put(struct hda_pcm *pcm)
 {
 	kref_put(&pcm->kref, release_pcm);
+=======
+void snd_hda_codec_pcm_put(struct hda_pcm *pcm)
+{
+	if (refcount_dec_and_test(&pcm->codec->pcm_ref))
+		wake_up(&pcm->codec->remove_sleep);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hda_codec_pcm_put);
 
@@ -734,7 +779,10 @@ struct hda_pcm *snd_hda_codec_pcm_new(struct hda_codec *codec,
 		return NULL;
 
 	pcm->codec = codec;
+<<<<<<< HEAD
 	kref_init(&pcm->kref);
+=======
+>>>>>>> upstream/android-13
 	va_start(args, fmt);
 	pcm->name = kvasprintf(GFP_KERNEL, fmt, args);
 	va_end(args);
@@ -744,6 +792,10 @@ struct hda_pcm *snd_hda_codec_pcm_new(struct hda_codec *codec,
 	}
 
 	list_add_tail(&pcm->list, &codec->pcm_list_head);
+<<<<<<< HEAD
+=======
+	refcount_inc(&codec->pcm_ref);
+>>>>>>> upstream/android-13
 	return pcm;
 }
 EXPORT_SYMBOL_GPL(snd_hda_codec_pcm_new);
@@ -751,15 +803,41 @@ EXPORT_SYMBOL_GPL(snd_hda_codec_pcm_new);
 /*
  * codec destructor
  */
+<<<<<<< HEAD
+=======
+void snd_hda_codec_disconnect_pcms(struct hda_codec *codec)
+{
+	struct hda_pcm *pcm;
+
+	list_for_each_entry(pcm, &codec->pcm_list_head, list) {
+		if (pcm->disconnected)
+			continue;
+		if (pcm->pcm)
+			snd_device_disconnect(codec->card, pcm->pcm);
+		snd_hda_codec_pcm_put(pcm);
+		pcm->disconnected = 1;
+	}
+}
+
+>>>>>>> upstream/android-13
 static void codec_release_pcms(struct hda_codec *codec)
 {
 	struct hda_pcm *pcm, *n;
 
 	list_for_each_entry_safe(pcm, n, &codec->pcm_list_head, list) {
+<<<<<<< HEAD
 		list_del_init(&pcm->list);
 		if (pcm->pcm)
 			snd_device_disconnect(codec->card, pcm->pcm);
 		snd_hda_codec_pcm_put(pcm);
+=======
+		list_del(&pcm->list);
+		if (pcm->pcm)
+			snd_device_free(pcm->codec->card, pcm->pcm);
+		clear_bit(pcm->device, pcm->codec->bus->pcm_dev_bits);
+		kfree(pcm->name);
+		kfree(pcm);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -772,6 +850,10 @@ void snd_hda_codec_cleanup_for_unbind(struct hda_codec *codec)
 		codec->registered = 0;
 	}
 
+<<<<<<< HEAD
+=======
+	snd_hda_codec_disconnect_pcms(codec);
+>>>>>>> upstream/android-13
 	cancel_delayed_work_sync(&codec->jackpoll_work);
 	if (!codec->in_freeing)
 		snd_hda_ctls_clear(codec);
@@ -788,25 +870,50 @@ void snd_hda_codec_cleanup_for_unbind(struct hda_codec *codec)
 	snd_array_free(&codec->spdif_out);
 	snd_array_free(&codec->verbs);
 	codec->preset = NULL;
+<<<<<<< HEAD
 	codec->slave_dig_outs = NULL;
+=======
+	codec->follower_dig_outs = NULL;
+>>>>>>> upstream/android-13
 	codec->spdif_status_reset = 0;
 	snd_array_free(&codec->mixers);
 	snd_array_free(&codec->nids);
 	remove_conn_list(codec);
 	snd_hdac_regmap_exit(&codec->core);
+<<<<<<< HEAD
 }
+=======
+	codec->configured = 0;
+	refcount_set(&codec->pcm_ref, 1); /* reset refcount */
+}
+EXPORT_SYMBOL_GPL(snd_hda_codec_cleanup_for_unbind);
+>>>>>>> upstream/android-13
 
 static unsigned int hda_set_power_state(struct hda_codec *codec,
 				unsigned int power_state);
 
+<<<<<<< HEAD
+=======
+/* enable/disable display power per codec */
+void snd_hda_codec_display_power(struct hda_codec *codec, bool enable)
+{
+	if (codec->display_power_control)
+		snd_hdac_display_power(&codec->bus->core, codec->addr, enable);
+}
+
+>>>>>>> upstream/android-13
 /* also called from hda_bind.c */
 void snd_hda_codec_register(struct hda_codec *codec)
 {
 	if (codec->registered)
 		return;
 	if (device_is_registered(hda_codec_dev(codec))) {
+<<<<<<< HEAD
 		snd_hda_register_beep_device(codec);
 		snd_hdac_link_power(&codec->core, true);
+=======
+		snd_hda_codec_display_power(codec, true);
+>>>>>>> upstream/android-13
 		pm_runtime_enable(hda_codec_dev(codec));
 		/* it was powered up in snd_hda_codec_new(), now all done */
 		snd_hda_power_down(codec);
@@ -820,6 +927,7 @@ static int snd_hda_codec_dev_register(struct snd_device *device)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_hda_codec_dev_disconnect(struct snd_device *device)
 {
 	struct hda_codec *codec = device->device_data;
@@ -828,14 +936,35 @@ static int snd_hda_codec_dev_disconnect(struct snd_device *device)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_hda_codec_dev_free(struct snd_device *device)
 {
 	struct hda_codec *codec = device->device_data;
 
 	codec->in_freeing = 1;
+<<<<<<< HEAD
 	snd_hdac_device_unregister(&codec->core);
 	snd_hdac_link_power(&codec->core, false);
 	put_device(hda_codec_dev(codec));
+=======
+	/*
+	 * snd_hda_codec_device_new() is used by legacy HDA and ASoC driver.
+	 * We can't unregister ASoC device since it will be unregistered in
+	 * snd_hdac_ext_bus_device_remove().
+	 */
+	if (codec->core.type == HDA_DEV_LEGACY)
+		snd_hdac_device_unregister(&codec->core);
+	snd_hda_codec_display_power(codec, false);
+
+	/*
+	 * In the case of ASoC HD-audio bus, the device refcount is released in
+	 * snd_hdac_ext_bus_device_remove() explicitly.
+	 */
+	if (codec->core.type == HDA_DEV_LEGACY)
+		put_device(hda_codec_dev(codec));
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -848,7 +977,17 @@ static void snd_hda_codec_dev_release(struct device *dev)
 	snd_hda_sysfs_clear(codec);
 	kfree(codec->modelname);
 	kfree(codec->wcaps);
+<<<<<<< HEAD
 	kfree(codec);
+=======
+
+	/*
+	 * In the case of ASoC HD-audio, hda_codec is device managed.
+	 * It will be freed when the ASoC device is removed.
+	 */
+	if (codec->core.type == HDA_DEV_LEGACY)
+		kfree(codec);
+>>>>>>> upstream/android-13
 }
 
 #define DEV_NAME_LEN 31
@@ -887,6 +1026,10 @@ static int snd_hda_codec_device_init(struct hda_bus *bus, struct snd_card *card,
 /**
  * snd_hda_codec_new - create a HDA codec
  * @bus: the bus to assign
+<<<<<<< HEAD
+=======
+ * @card: card for this codec
+>>>>>>> upstream/android-13
  * @codec_addr: the codec address
  * @codecp: the pointer to store the generated codec
  *
@@ -911,9 +1054,14 @@ int snd_hda_codec_device_new(struct hda_bus *bus, struct snd_card *card,
 	char component[31];
 	hda_nid_t fg;
 	int err;
+<<<<<<< HEAD
 	static struct snd_device_ops dev_ops = {
 		.dev_register = snd_hda_codec_dev_register,
 		.dev_disconnect = snd_hda_codec_dev_disconnect,
+=======
+	static const struct snd_device_ops dev_ops = {
+		.dev_register = snd_hda_codec_dev_register,
+>>>>>>> upstream/android-13
 		.dev_free = snd_hda_codec_dev_free,
 	};
 
@@ -942,6 +1090,11 @@ int snd_hda_codec_device_new(struct hda_bus *bus, struct snd_card *card,
 	snd_array_init(&codec->verbs, sizeof(struct hda_verb *), 8);
 	INIT_LIST_HEAD(&codec->conn_list);
 	INIT_LIST_HEAD(&codec->pcm_list_head);
+<<<<<<< HEAD
+=======
+	refcount_set(&codec->pcm_ref, 1);
+	init_waitqueue_head(&codec->remove_sleep);
+>>>>>>> upstream/android-13
 
 	INIT_DELAYED_WORK(&codec->jackpoll_work, hda_jackpoll_work);
 	codec->depop_delay = -1;
@@ -985,6 +1138,12 @@ int snd_hda_codec_device_new(struct hda_bus *bus, struct snd_card *card,
 	if (err < 0)
 		goto error;
 
+<<<<<<< HEAD
+=======
+	/* PM runtime needs to be enabled later after binding codec */
+	pm_runtime_forbid(&codec->core.dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 
  error:
@@ -1005,7 +1164,11 @@ int snd_hda_codec_update_widgets(struct hda_codec *codec)
 	hda_nid_t fg;
 	int err;
 
+<<<<<<< HEAD
 	err = snd_hdac_refresh_widgets(&codec->core, true);
+=======
+	err = snd_hdac_refresh_widgets(&codec->core);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1264,6 +1427,21 @@ int snd_hda_override_amp_caps(struct hda_codec *codec, hda_nid_t nid, int dir,
 }
 EXPORT_SYMBOL_GPL(snd_hda_override_amp_caps);
 
+<<<<<<< HEAD
+=======
+static unsigned int encode_amp(struct hda_codec *codec, hda_nid_t nid,
+			       int ch, int dir, int idx)
+{
+	unsigned int cmd = snd_hdac_regmap_encode_amp(nid, ch, dir, idx);
+
+	/* enable fake mute if no h/w mute but min=mute */
+	if ((query_amp_caps(codec, nid, dir) &
+	     (AC_AMPCAP_MUTE | AC_AMPCAP_MIN_MUTE)) == AC_AMPCAP_MIN_MUTE)
+		cmd |= AC_AMP_FAKE_MUTE;
+	return cmd;
+}
+
+>>>>>>> upstream/android-13
 /**
  * snd_hda_codec_amp_update - update the AMP mono value
  * @codec: HD-audio codec
@@ -1279,12 +1457,17 @@ EXPORT_SYMBOL_GPL(snd_hda_override_amp_caps);
 int snd_hda_codec_amp_update(struct hda_codec *codec, hda_nid_t nid,
 			     int ch, int dir, int idx, int mask, int val)
 {
+<<<<<<< HEAD
 	unsigned int cmd = snd_hdac_regmap_encode_amp(nid, ch, dir, idx);
 
 	/* enable fake mute if no h/w mute but min=mute */
 	if ((query_amp_caps(codec, nid, dir) &
 	     (AC_AMPCAP_MUTE | AC_AMPCAP_MIN_MUTE)) == AC_AMPCAP_MIN_MUTE)
 		cmd |= AC_AMP_FAKE_MUTE;
+=======
+	unsigned int cmd = encode_amp(codec, nid, ch, dir, idx);
+
+>>>>>>> upstream/android-13
 	return snd_hdac_regmap_update_raw(&codec->core, cmd, mask, val);
 }
 EXPORT_SYMBOL_GPL(snd_hda_codec_amp_update);
@@ -1332,6 +1515,7 @@ EXPORT_SYMBOL_GPL(snd_hda_codec_amp_stereo);
 int snd_hda_codec_amp_init(struct hda_codec *codec, hda_nid_t nid, int ch,
 			   int dir, int idx, int mask, int val)
 {
+<<<<<<< HEAD
 	int orig;
 
 	if (!codec->core.regmap)
@@ -1342,6 +1526,13 @@ int snd_hda_codec_amp_init(struct hda_codec *codec, hda_nid_t nid, int ch,
 	if (orig >= 0)
 		return 0;
 	return snd_hda_codec_amp_update(codec, nid, ch, dir, idx, mask, val);
+=======
+	unsigned int cmd = encode_amp(codec, nid, ch, dir, idx);
+
+	if (!codec->core.regmap)
+		return -EINVAL;
+	return snd_hdac_regmap_update_raw_once(&codec->core, cmd, mask, val);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hda_codec_amp_init);
 
@@ -1705,8 +1896,16 @@ void snd_hda_ctls_clear(struct hda_codec *codec)
 {
 	int i;
 	struct hda_nid_item *items = codec->mixers.list;
+<<<<<<< HEAD
 	for (i = 0; i < codec->mixers.used; i++)
 		snd_ctl_remove(codec->card, items[i].kctl);
+=======
+
+	down_write(&codec->card->controls_rwsem);
+	for (i = 0; i < codec->mixers.used; i++)
+		snd_ctl_remove(codec->card, items[i].kctl);
+	up_write(&codec->card->controls_rwsem);
+>>>>>>> upstream/android-13
 	snd_array_free(&codec->mixers);
 	snd_array_free(&codec->nids);
 }
@@ -1789,11 +1988,19 @@ int snd_hda_codec_reset(struct hda_codec *codec)
 	return 0;
 }
 
+<<<<<<< HEAD
 typedef int (*map_slave_func_t)(struct hda_codec *, void *, struct snd_kcontrol *);
 
 /* apply the function to all matching slave ctls in the mixer list */
 static int map_slaves(struct hda_codec *codec, const char * const *slaves,
 		      const char *suffix, map_slave_func_t func, void *data) 
+=======
+typedef int (*map_follower_func_t)(struct hda_codec *, void *, struct snd_kcontrol *);
+
+/* apply the function to all matching follower ctls in the mixer list */
+static int map_followers(struct hda_codec *codec, const char * const *followers,
+			 const char *suffix, map_follower_func_t func, void *data)
+>>>>>>> upstream/android-13
 {
 	struct hda_nid_item *items;
 	const char * const *s;
@@ -1804,7 +2011,11 @@ static int map_slaves(struct hda_codec *codec, const char * const *slaves,
 		struct snd_kcontrol *sctl = items[i].kctl;
 		if (!sctl || sctl->id.iface != SNDRV_CTL_ELEM_IFACE_MIXER)
 			continue;
+<<<<<<< HEAD
 		for (s = slaves; *s; s++) {
+=======
+		for (s = followers; *s; s++) {
+>>>>>>> upstream/android-13
 			char tmpname[sizeof(sctl->id.name)];
 			const char *name = *s;
 			if (suffix) {
@@ -1823,8 +2034,13 @@ static int map_slaves(struct hda_codec *codec, const char * const *slaves,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int check_slave_present(struct hda_codec *codec,
 			       void *data, struct snd_kcontrol *sctl)
+=======
+static int check_follower_present(struct hda_codec *codec,
+				  void *data, struct snd_kcontrol *sctl)
+>>>>>>> upstream/android-13
 {
 	return 1;
 }
@@ -1843,17 +2059,30 @@ static int put_kctl_with_value(struct snd_kcontrol *kctl, int val)
 	return 0;
 }
 
+<<<<<<< HEAD
 struct slave_init_arg {
+=======
+struct follower_init_arg {
+>>>>>>> upstream/android-13
 	struct hda_codec *codec;
 	int step;
 };
 
+<<<<<<< HEAD
 /* initialize the slave volume with 0dB via snd_ctl_apply_vmaster_slaves() */
 static int init_slave_0dB(struct snd_kcontrol *slave,
 			  struct snd_kcontrol *kctl,
 			  void *_arg)
 {
 	struct slave_init_arg *arg = _arg;
+=======
+/* initialize the follower volume with 0dB via snd_ctl_apply_vmaster_followers() */
+static int init_follower_0dB(struct snd_kcontrol *follower,
+			     struct snd_kcontrol *kctl,
+			     void *_arg)
+{
+	struct follower_init_arg *arg = _arg;
+>>>>>>> upstream/android-13
 	int _tlv[4];
 	const int *tlv = NULL;
 	int step;
@@ -1862,7 +2091,11 @@ static int init_slave_0dB(struct snd_kcontrol *slave,
 	if (kctl->vd[0].access & SNDRV_CTL_ELEM_ACCESS_TLV_CALLBACK) {
 		if (kctl->tlv.c != snd_hda_mixer_amp_tlv) {
 			codec_err(arg->codec,
+<<<<<<< HEAD
 				  "Unexpected TLV callback for slave %s:%d\n",
+=======
+				  "Unexpected TLV callback for follower %s:%d\n",
+>>>>>>> upstream/android-13
 				  kctl->id.name, kctl->id.index);
 			return 0; /* ignore */
 		}
@@ -1880,7 +2113,11 @@ static int init_slave_0dB(struct snd_kcontrol *slave,
 		return 0;
 	if (arg->step && arg->step != step) {
 		codec_err(arg->codec,
+<<<<<<< HEAD
 			  "Mismatching dB step for vmaster slave (%d!=%d)\n",
+=======
+			  "Mismatching dB step for vmaster follower (%d!=%d)\n",
+>>>>>>> upstream/android-13
 			  arg->step, step);
 		return 0;
 	}
@@ -1888,13 +2125,18 @@ static int init_slave_0dB(struct snd_kcontrol *slave,
 	arg->step = step;
 	val = -tlv[SNDRV_CTL_TLVO_DB_SCALE_MIN] / step;
 	if (val > 0) {
+<<<<<<< HEAD
 		put_kctl_with_value(slave, val);
+=======
+		put_kctl_with_value(follower, val);
+>>>>>>> upstream/android-13
 		return val;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 /* unmute the slave via snd_ctl_apply_vmaster_slaves() */
 static int init_slave_unmute(struct snd_kcontrol *slave,
 			     struct snd_kcontrol *kctl,
@@ -1917,21 +2159,57 @@ static int add_slave(struct hda_codec *codec,
  * @slaves: slave control names (optional)
  * @suffix: suffix string to each slave name (optional)
  * @init_slave_vol: initialize slaves to unmute/0dB
+=======
+/* unmute the follower via snd_ctl_apply_vmaster_followers() */
+static int init_follower_unmute(struct snd_kcontrol *follower,
+				struct snd_kcontrol *kctl,
+				void *_arg)
+{
+	return put_kctl_with_value(follower, 1);
+}
+
+static int add_follower(struct hda_codec *codec,
+			void *data, struct snd_kcontrol *follower)
+{
+	return snd_ctl_add_follower(data, follower);
+}
+
+/**
+ * __snd_hda_add_vmaster - create a virtual master control and add followers
+ * @codec: HD-audio codec
+ * @name: vmaster control name
+ * @tlv: TLV data (optional)
+ * @followers: follower control names (optional)
+ * @suffix: suffix string to each follower name (optional)
+ * @init_follower_vol: initialize followers to unmute/0dB
+ * @access: kcontrol access rights
+>>>>>>> upstream/android-13
  * @ctl_ret: store the vmaster kcontrol in return
  *
  * Create a virtual master control with the given name.  The TLV data
  * must be either NULL or a valid data.
  *
+<<<<<<< HEAD
  * @slaves is a NULL-terminated array of strings, each of which is a
  * slave control name.  All controls with these names are assigned to
+=======
+ * @followers is a NULL-terminated array of strings, each of which is a
+ * follower control name.  All controls with these names are assigned to
+>>>>>>> upstream/android-13
  * the new virtual master control.
  *
  * This function returns zero if successful or a negative error code.
  */
 int __snd_hda_add_vmaster(struct hda_codec *codec, char *name,
+<<<<<<< HEAD
 			unsigned int *tlv, const char * const *slaves,
 			  const char *suffix, bool init_slave_vol,
 			  struct snd_kcontrol **ctl_ret)
+=======
+			  unsigned int *tlv, const char * const *followers,
+			  const char *suffix, bool init_follower_vol,
+			  unsigned int access, struct snd_kcontrol **ctl_ret)
+>>>>>>> upstream/android-13
 {
 	struct snd_kcontrol *kctl;
 	int err;
@@ -1939,24 +2217,39 @@ int __snd_hda_add_vmaster(struct hda_codec *codec, char *name,
 	if (ctl_ret)
 		*ctl_ret = NULL;
 
+<<<<<<< HEAD
 	err = map_slaves(codec, slaves, suffix, check_slave_present, NULL);
 	if (err != 1) {
 		codec_dbg(codec, "No slave found for %s\n", name);
+=======
+	err = map_followers(codec, followers, suffix, check_follower_present, NULL);
+	if (err != 1) {
+		codec_dbg(codec, "No follower found for %s\n", name);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	kctl = snd_ctl_make_virtual_master(name, tlv);
 	if (!kctl)
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+	kctl->vd[0].access |= access;
+>>>>>>> upstream/android-13
 	err = snd_hda_ctl_add(codec, 0, kctl);
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	err = map_slaves(codec, slaves, suffix, add_slave, kctl);
+=======
+	err = map_followers(codec, followers, suffix, add_follower, kctl);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	/* init with master mute & zero volume */
 	put_kctl_with_value(kctl, 0);
+<<<<<<< HEAD
 	if (init_slave_vol) {
 		struct slave_init_arg arg = {
 			.codec = codec,
@@ -1965,6 +2258,16 @@ int __snd_hda_add_vmaster(struct hda_codec *codec, char *name,
 		snd_ctl_apply_vmaster_slaves(kctl,
 					     tlv ? init_slave_0dB : init_slave_unmute,
 					     &arg);
+=======
+	if (init_follower_vol) {
+		struct follower_init_arg arg = {
+			.codec = codec,
+			.step = 0,
+		};
+		snd_ctl_apply_vmaster_followers(kctl,
+						tlv ? init_follower_0dB : init_follower_unmute,
+						&arg);
+>>>>>>> upstream/android-13
 	}
 
 	if (ctl_ret)
@@ -1973,6 +2276,7 @@ int __snd_hda_add_vmaster(struct hda_codec *codec, char *name,
 }
 EXPORT_SYMBOL_GPL(__snd_hda_add_vmaster);
 
+<<<<<<< HEAD
 /*
  * mute-LED control using vmaster
  */
@@ -2017,17 +2321,23 @@ static const struct snd_kcontrol_new vmaster_mute_mode = {
 	.put = vmaster_mute_mode_put,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* meta hook to call each driver's vmaster hook */
 static void vmaster_hook(void *private_data, int enabled)
 {
 	struct hda_vmaster_mute_hook *hook = private_data;
 
+<<<<<<< HEAD
 	if (hook->mute_mode != HDA_VMUTE_FOLLOW_MASTER)
 		enabled = hook->mute_mode;
+=======
+>>>>>>> upstream/android-13
 	hook->hook(hook->codec, enabled);
 }
 
 /**
+<<<<<<< HEAD
  * snd_hda_add_vmaster_hook - Add a vmaster hook for mute-LED
  * @codec: the HDA codec
  * @hook: the vmaster hook object
@@ -2054,6 +2364,22 @@ int snd_hda_add_vmaster_hook(struct hda_codec *codec,
 	if (!kctl)
 		return -ENOMEM;
 	return snd_hda_ctl_add(codec, 0, kctl);
+=======
+ * snd_hda_add_vmaster_hook - Add a vmaster hw specific hook
+ * @codec: the HDA codec
+ * @hook: the vmaster hook object
+ *
+ * Add a hw specific hook (like EAPD) with the given vmaster switch kctl.
+ */
+int snd_hda_add_vmaster_hook(struct hda_codec *codec,
+			     struct hda_vmaster_mute_hook *hook)
+{
+	if (!hook->hook || !hook->sw_kctl)
+		return 0;
+	hook->codec = codec;
+	snd_ctl_add_vmaster_hook(hook->sw_kctl, vmaster_hook, hook);
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hda_add_vmaster_hook);
 
@@ -2267,7 +2593,11 @@ static unsigned int convert_to_spdif_status(unsigned short val)
 	return sbits;
 }
 
+<<<<<<< HEAD
 /* set digital convert verbs both for the given NID and its slaves */
+=======
+/* set digital convert verbs both for the given NID and its followers */
+>>>>>>> upstream/android-13
 static void set_dig_out(struct hda_codec *codec, hda_nid_t nid,
 			int mask, int val)
 {
@@ -2275,7 +2605,11 @@ static void set_dig_out(struct hda_codec *codec, hda_nid_t nid,
 
 	snd_hdac_regmap_update(&codec->core, nid, AC_VERB_SET_DIGI_CONVERT_1,
 			       mask, val);
+<<<<<<< HEAD
 	d = codec->slave_dig_outs;
+=======
+	d = codec->follower_dig_outs;
+>>>>>>> upstream/android-13
 	if (!d)
 		return;
 	for (; *d; d++)
@@ -2384,7 +2718,11 @@ static int snd_hda_spdif_out_switch_put(struct snd_kcontrol *kcontrol,
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new dig_mixes[] = {
+=======
+static const struct snd_kcontrol_new dig_mixes[] = {
+>>>>>>> upstream/android-13
 	{
 		.access = SNDRV_CTL_ELEM_ACCESS_READ,
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
@@ -2434,7 +2772,11 @@ int snd_hda_create_dig_out_ctls(struct hda_codec *codec,
 {
 	int err;
 	struct snd_kcontrol *kctl;
+<<<<<<< HEAD
 	struct snd_kcontrol_new *dig_mix;
+=======
+	const struct snd_kcontrol_new *dig_mix;
+>>>>>>> upstream/android-13
 	int idx = 0;
 	int val = 0;
 	const int spdif_index = 16;
@@ -2652,7 +2994,11 @@ static int snd_hda_spdif_in_status_get(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new dig_in_ctls[] = {
+=======
+static const struct snd_kcontrol_new dig_in_ctls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.name = SNDRV_CTL_NAME_IEC958("", CAPTURE, SWITCH),
@@ -2684,7 +3030,11 @@ int snd_hda_create_spdif_in_ctls(struct hda_codec *codec, hda_nid_t nid)
 {
 	int err;
 	struct snd_kcontrol *kctl;
+<<<<<<< HEAD
 	struct snd_kcontrol_new *dig_mix;
+=======
+	const struct snd_kcontrol_new *dig_mix;
+>>>>>>> upstream/android-13
 	int idx;
 
 	idx = find_empty_mixer_ctl_idx(codec, "IEC958 Capture Switch", 0);
@@ -2902,8 +3252,12 @@ static void hda_call_codec_resume(struct hda_codec *codec)
 	else {
 		if (codec->patch_ops.init)
 			codec->patch_ops.init(codec);
+<<<<<<< HEAD
 		if (codec->core.regmap)
 			regcache_sync(codec->core.regmap);
+=======
+		snd_hda_regmap_sync(codec);
+>>>>>>> upstream/android-13
 	}
 
 	if (codec->jackpoll_interval)
@@ -2917,18 +3271,32 @@ static void hda_call_codec_resume(struct hda_codec *codec)
 static int hda_codec_runtime_suspend(struct device *dev)
 {
 	struct hda_codec *codec = dev_to_hda_codec(dev);
+<<<<<<< HEAD
 	struct hda_pcm *pcm;
 	unsigned int state;
 
 	cancel_delayed_work_sync(&codec->jackpoll_work);
 	list_for_each_entry(pcm, &codec->pcm_list_head, list)
 		snd_pcm_suspend_all(pcm->pcm);
+=======
+	unsigned int state;
+
+	/* Nothing to do if card registration fails and the component driver never probes */
+	if (!codec->card)
+		return 0;
+
+	cancel_delayed_work_sync(&codec->jackpoll_work);
+>>>>>>> upstream/android-13
 	state = hda_call_codec_suspend(codec);
 	if (codec->link_down_at_suspend ||
 	    (codec_has_clkstop(codec) && codec_has_epss(codec) &&
 	     (state & AC_PWRST_CLK_STOP_OK)))
 		snd_hdac_codec_link_down(&codec->core);
+<<<<<<< HEAD
 	snd_hdac_link_power(&codec->core, false);
+=======
+	snd_hda_codec_display_power(codec, false);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2936,12 +3304,21 @@ static int hda_codec_runtime_resume(struct device *dev)
 {
 	struct hda_codec *codec = dev_to_hda_codec(dev);
 
+<<<<<<< HEAD
 	snd_hdac_link_power(&codec->core, true);
+=======
+	/* Nothing to do if card registration fails and the component driver never probes */
+	if (!codec->card)
+		return 0;
+
+	snd_hda_codec_display_power(codec, true);
+>>>>>>> upstream/android-13
 	snd_hdac_codec_link_up(&codec->core);
 	hda_call_codec_resume(codec);
 	pm_runtime_mark_last_busy(dev);
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
 
 #ifdef CONFIG_PM_SLEEP
@@ -2961,6 +3338,29 @@ static int hda_codec_force_resume(struct device *dev)
 	if (forced_resume)
 		pm_runtime_put(dev);
 	return ret;
+=======
+
+#endif /* CONFIG_PM */
+
+#ifdef CONFIG_PM_SLEEP
+static int hda_codec_pm_prepare(struct device *dev)
+{
+	dev->power.power_state = PMSG_SUSPEND;
+	return pm_runtime_suspended(dev);
+}
+
+static void hda_codec_pm_complete(struct device *dev)
+{
+	struct hda_codec *codec = dev_to_hda_codec(dev);
+
+	/* If no other pm-functions are called between prepare() and complete() */
+	if (dev->power.power_state.event == PM_EVENT_SUSPEND)
+		dev->power.power_state = PMSG_RESUME;
+
+	if (pm_runtime_suspended(dev) && (codec->jackpoll_interval ||
+	    hda_codec_need_resume(codec) || codec->forced_resume))
+		pm_request_resume(dev);
+>>>>>>> upstream/android-13
 }
 
 static int hda_codec_pm_suspend(struct device *dev)
@@ -2972,7 +3372,11 @@ static int hda_codec_pm_suspend(struct device *dev)
 static int hda_codec_pm_resume(struct device *dev)
 {
 	dev->power.power_state = PMSG_RESUME;
+<<<<<<< HEAD
 	return hda_codec_force_resume(dev);
+=======
+	return pm_runtime_force_resume(dev);
+>>>>>>> upstream/android-13
 }
 
 static int hda_codec_pm_freeze(struct device *dev)
@@ -2984,19 +3388,32 @@ static int hda_codec_pm_freeze(struct device *dev)
 static int hda_codec_pm_thaw(struct device *dev)
 {
 	dev->power.power_state = PMSG_THAW;
+<<<<<<< HEAD
 	return hda_codec_force_resume(dev);
+=======
+	return pm_runtime_force_resume(dev);
+>>>>>>> upstream/android-13
 }
 
 static int hda_codec_pm_restore(struct device *dev)
 {
 	dev->power.power_state = PMSG_RESTORE;
+<<<<<<< HEAD
 	return hda_codec_force_resume(dev);
+=======
+	return pm_runtime_force_resume(dev);
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_PM_SLEEP */
 
 /* referred in hda_bind.c */
 const struct dev_pm_ops hda_codec_driver_pm = {
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
+=======
+	.prepare = hda_codec_pm_prepare,
+	.complete = hda_codec_pm_complete,
+>>>>>>> upstream/android-13
 	.suspend = hda_codec_pm_suspend,
 	.resume = hda_codec_pm_resume,
 	.freeze = hda_codec_pm_freeze,
@@ -3008,6 +3425,25 @@ const struct dev_pm_ops hda_codec_driver_pm = {
 			   NULL)
 };
 
+<<<<<<< HEAD
+=======
+/* suspend the codec at shutdown; called from driver's shutdown callback */
+void snd_hda_codec_shutdown(struct hda_codec *codec)
+{
+	struct hda_pcm *cpcm;
+
+	/* Skip the shutdown if codec is not registered */
+	if (!codec->registered)
+		return;
+
+	list_for_each_entry(cpcm, &codec->pcm_list_head, list)
+		snd_pcm_suspend_all(cpcm->pcm);
+
+	pm_runtime_force_suspend(hda_codec_dev(codec));
+	pm_runtime_disable(hda_codec_dev(codec));
+}
+
+>>>>>>> upstream/android-13
 /*
  * add standard channel maps if not specified
  */
@@ -3169,7 +3605,11 @@ int snd_hda_codec_prepare(struct hda_codec *codec,
 EXPORT_SYMBOL_GPL(snd_hda_codec_prepare);
 
 /**
+<<<<<<< HEAD
  * snd_hda_codec_cleanup - Prepare a stream
+=======
+ * snd_hda_codec_cleanup - Clean up stream resources
+>>>>>>> upstream/android-13
  * @codec: the HDA codec
  * @hinfo: PCM information
  * @substream: PCM substream
@@ -3201,7 +3641,11 @@ static int get_empty_pcm_device(struct hda_bus *bus, unsigned int type)
 	/* assigned to static slots up to dev#10; if more needed, assign
 	 * the later slot dynamically (when CONFIG_SND_DYNAMIC_MINORS=y)
 	 */
+<<<<<<< HEAD
 	static int audio_idx[HDA_PCM_NTYPES][5] = {
+=======
+	static const int audio_idx[HDA_PCM_NTYPES][5] = {
+>>>>>>> upstream/android-13
 		[HDA_PCM_TYPE_AUDIO] = { 0, 2, 4, 5, -1 },
 		[HDA_PCM_TYPE_SPDIF] = { 1, -1 },
 		[HDA_PCM_TYPE_HDMI]  = { 3, 7, 8, 9, -1 },
@@ -3459,7 +3903,11 @@ EXPORT_SYMBOL_GPL(snd_hda_check_amp_list_power);
  */
 
 /**
+<<<<<<< HEAD
  * snd_hda_input_mux_info_info - Info callback helper for the input-mux enum
+=======
+ * snd_hda_input_mux_info - Info callback helper for the input-mux enum
+>>>>>>> upstream/android-13
  * @imux: imux helper object
  * @uinfo: pointer to get/store the data
  */
@@ -3482,7 +3930,11 @@ int snd_hda_input_mux_info(const struct hda_input_mux *imux,
 EXPORT_SYMBOL_GPL(snd_hda_input_mux_info);
 
 /**
+<<<<<<< HEAD
  * snd_hda_input_mux_info_put - Put callback helper for the input-mux enum
+=======
+ * snd_hda_input_mux_put - Put callback helper for the input-mux enum
+>>>>>>> upstream/android-13
  * @codec: the HDA codec
  * @imux: imux helper object
  * @ucontrol: pointer to get/store the data
@@ -3571,9 +4023,15 @@ static void setup_dig_out_stream(struct hda_codec *codec, hda_nid_t nid,
 				    spdif->ctls & ~AC_DIG1_ENABLE & 0xff,
 				    -1);
 	snd_hda_codec_setup_stream(codec, nid, stream_tag, 0, format);
+<<<<<<< HEAD
 	if (codec->slave_dig_outs) {
 		const hda_nid_t *d;
 		for (d = codec->slave_dig_outs; *d; d++)
+=======
+	if (codec->follower_dig_outs) {
+		const hda_nid_t *d;
+		for (d = codec->follower_dig_outs; *d; d++)
+>>>>>>> upstream/android-13
 			snd_hda_codec_setup_stream(codec, *d, stream_tag, 0,
 						   format);
 	}
@@ -3586,9 +4044,15 @@ static void setup_dig_out_stream(struct hda_codec *codec, hda_nid_t nid,
 static void cleanup_dig_out_stream(struct hda_codec *codec, hda_nid_t nid)
 {
 	snd_hda_codec_cleanup_stream(codec, nid);
+<<<<<<< HEAD
 	if (codec->slave_dig_outs) {
 		const hda_nid_t *d;
 		for (d = codec->slave_dig_outs; *d; d++)
+=======
+	if (codec->follower_dig_outs) {
+		const hda_nid_t *d;
+		for (d = codec->follower_dig_outs; *d; d++)
+>>>>>>> upstream/android-13
 			snd_hda_codec_cleanup_stream(codec, *d);
 	}
 }
@@ -3670,7 +4134,11 @@ EXPORT_SYMBOL_GPL(snd_hda_multi_out_dig_close);
  * @hinfo: PCM information to assign
  *
  * Open analog outputs and set up the hw-constraints.
+<<<<<<< HEAD
  * If the digital outputs can be opened as slave, open the digital
+=======
+ * If the digital outputs can be opened as follower, open the digital
+>>>>>>> upstream/android-13
  * outputs, too.
  */
 int snd_hda_multi_out_analog_open(struct hda_codec *codec,
@@ -3869,7 +4337,11 @@ EXPORT_SYMBOL_GPL(snd_hda_get_default_vref);
 unsigned int snd_hda_correct_pin_ctl(struct hda_codec *codec,
 				     hda_nid_t pin, unsigned int val)
 {
+<<<<<<< HEAD
 	static unsigned int cap_lists[][2] = {
+=======
+	static const unsigned int cap_lists[][2] = {
+>>>>>>> upstream/android-13
 		{ AC_PINCTL_VREF_100, AC_PINCAP_VREF_100 },
 		{ AC_PINCTL_VREF_80, AC_PINCAP_VREF_80 },
 		{ AC_PINCTL_VREF_50, AC_PINCAP_VREF_50 },
@@ -3917,7 +4389,11 @@ unsigned int snd_hda_correct_pin_ctl(struct hda_codec *codec,
 EXPORT_SYMBOL_GPL(snd_hda_correct_pin_ctl);
 
 /**
+<<<<<<< HEAD
  * _snd_hda_pin_ctl - Helper to set pin ctl value
+=======
+ * _snd_hda_set_pin_ctl - Helper to set pin ctl value
+>>>>>>> upstream/android-13
  * @codec: the HDA codec
  * @pin: referred pin NID
  * @val: pin control value to set
@@ -3975,7 +4451,11 @@ int snd_hda_add_imux_item(struct hda_codec *codec,
 			 sizeof(imux->items[imux->num_items].label),
 			 "%s %d", label, label_idx);
 	else
+<<<<<<< HEAD
 		strlcpy(imux->items[imux->num_items].label, label,
+=======
+		strscpy(imux->items[imux->num_items].label, label,
+>>>>>>> upstream/android-13
 			sizeof(imux->items[imux->num_items].label));
 	imux->items[imux->num_items].index = index;
 	imux->num_items++;
@@ -4014,7 +4494,11 @@ void snd_hda_bus_reset_codecs(struct hda_bus *bus)
  */
 void snd_print_pcm_bits(int pcm, char *buf, int buflen)
 {
+<<<<<<< HEAD
 	static unsigned int bits[] = { 8, 16, 20, 24, 32 };
+=======
+	static const unsigned int bits[] = { 8, 16, 20, 24, 32 };
+>>>>>>> upstream/android-13
 	int i, j;
 
 	for (i = 0, j = 0; i < ARRAY_SIZE(bits); i++)

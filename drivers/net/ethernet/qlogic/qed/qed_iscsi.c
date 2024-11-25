@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -143,10 +150,16 @@ struct qed_iscsi_conn {
 	u8 abortive_dsconnect;
 };
 
+<<<<<<< HEAD
 static int
 qed_iscsi_async_event(struct qed_hwfn *p_hwfn,
 		      u8 fw_event_code,
 		      u16 echo, union event_ring_data *data, u8 fw_return_code)
+=======
+static int qed_iscsi_async_event(struct qed_hwfn *p_hwfn, u8 fw_event_code,
+				 __le16 echo, union event_ring_data *data,
+				 u8 fw_return_code)
+>>>>>>> upstream/android-13
 {
 	if (p_hwfn->p_iscsi_info->event_cb) {
 		struct qed_iscsi_info *p_iscsi = p_hwfn->p_iscsi_info;
@@ -185,7 +198,11 @@ qed_sp_iscsi_func_start(struct qed_hwfn *p_hwfn,
 
 	rc = qed_sp_init_request(p_hwfn, &p_ent,
 				 ISCSI_RAMROD_CMD_ID_INIT_FUNC,
+<<<<<<< HEAD
 				 PROTOCOLID_ISCSI, &init_data);
+=======
+				 PROTOCOLID_TCP_ULP, &init_data);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -204,17 +221,26 @@ qed_sp_iscsi_func_start(struct qed_hwfn *p_hwfn,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	SET_FIELD(p_init->hdr.flags,
 		  ISCSI_SLOW_PATH_HDR_LAYER_CODE, ISCSI_SLOW_PATH_LAYER_CODE);
 	p_init->hdr.op_code = ISCSI_RAMROD_CMD_ID_INIT_FUNC;
 
+=======
+>>>>>>> upstream/android-13
 	val = p_params->half_way_close_timeout;
 	p_init->half_way_close_timeout = cpu_to_le16(val);
 	p_init->num_sq_pages_in_ring = p_params->num_sq_pages_in_ring;
 	p_init->num_r2tq_pages_in_ring = p_params->num_r2tq_pages_in_ring;
 	p_init->num_uhq_pages_in_ring = p_params->num_uhq_pages_in_ring;
+<<<<<<< HEAD
 	p_init->ll2_rx_queue_id = p_hwfn->hw_info.resc_start[QED_LL2_QUEUE] +
 				  p_params->ll2_ooo_queue_id;
+=======
+	p_init->ll2_rx_queue_id =
+	    p_hwfn->hw_info.resc_start[QED_LL2_RAM_QUEUE] +
+	    p_params->ll2_ooo_queue_id;
+>>>>>>> upstream/android-13
 
 	p_init->func_params.log_page_size = p_params->log_page_size;
 	val = p_params->num_tasks;
@@ -280,7 +306,11 @@ qed_sp_iscsi_func_start(struct qed_hwfn *p_hwfn,
 	p_hwfn->p_iscsi_info->event_context = event_context;
 	p_hwfn->p_iscsi_info->event_cb = async_event_cb;
 
+<<<<<<< HEAD
 	qed_spq_register_async_cb(p_hwfn, PROTOCOLID_ISCSI,
+=======
+	qed_spq_register_async_cb(p_hwfn, PROTOCOLID_TCP_ULP,
+>>>>>>> upstream/android-13
 				  qed_iscsi_async_event);
 
 	return qed_spq_post(p_hwfn, p_ent, NULL);
@@ -300,6 +330,10 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 	dma_addr_t xhq_pbl_addr;
 	dma_addr_t uhq_pbl_addr;
 	u16 physical_q;
+<<<<<<< HEAD
+=======
+	__le16 tmp;
+>>>>>>> upstream/android-13
 	int rc = 0;
 	u32 dval;
 	u16 wval;
@@ -315,7 +349,11 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 
 	rc = qed_sp_init_request(p_hwfn, &p_ent,
 				 ISCSI_RAMROD_CMD_ID_OFFLOAD_CONN,
+<<<<<<< HEAD
 				 PROTOCOLID_ISCSI, &init_data);
+=======
+				 PROTOCOLID_TCP_ULP, &init_data);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -323,11 +361,16 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 
 	/* Transmission PQ is the first of the PF */
 	physical_q = qed_get_cm_pq_idx(p_hwfn, PQ_FLAGS_OFLD);
+<<<<<<< HEAD
 	p_conn->physical_q0 = cpu_to_le16(physical_q);
+=======
+	p_conn->physical_q0 = physical_q;
+>>>>>>> upstream/android-13
 	p_ramrod->iscsi.physical_q0 = cpu_to_le16(physical_q);
 
 	/* iSCSI Pure-ACK PQ */
 	physical_q = qed_get_cm_pq_idx(p_hwfn, PQ_FLAGS_ACK);
+<<<<<<< HEAD
 	p_conn->physical_q1 = cpu_to_le16(physical_q);
 	p_ramrod->iscsi.physical_q1 = cpu_to_le16(physical_q);
 
@@ -337,6 +380,12 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 
 	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
 	p_ramrod->fw_cid = cpu_to_le32(p_conn->icid);
+=======
+	p_conn->physical_q1 = physical_q;
+	p_ramrod->iscsi.physical_q1 = cpu_to_le16(physical_q);
+
+	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
+>>>>>>> upstream/android-13
 
 	DMA_REGPAIR_LE(p_ramrod->iscsi.sq_pbl_addr, p_conn->sq_pbl_addr);
 
@@ -359,6 +408,7 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 		p_tcp = &p_ramrod->tcp;
 
 		p = (u16 *)p_conn->local_mac;
+<<<<<<< HEAD
 		p_tcp->local_mac_addr_hi = swab16(get_unaligned(p));
 		p_tcp->local_mac_addr_mid = swab16(get_unaligned(p + 1));
 		p_tcp->local_mac_addr_lo = swab16(get_unaligned(p + 2));
@@ -367,6 +417,22 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 		p_tcp->remote_mac_addr_hi = swab16(get_unaligned(p));
 		p_tcp->remote_mac_addr_mid = swab16(get_unaligned(p + 1));
 		p_tcp->remote_mac_addr_lo = swab16(get_unaligned(p + 2));
+=======
+		tmp = cpu_to_le16(get_unaligned_be16(p));
+		p_tcp->local_mac_addr_hi = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 1));
+		p_tcp->local_mac_addr_mid = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 2));
+		p_tcp->local_mac_addr_lo = tmp;
+
+		p = (u16 *)p_conn->remote_mac;
+		tmp = cpu_to_le16(get_unaligned_be16(p));
+		p_tcp->remote_mac_addr_hi = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 1));
+		p_tcp->remote_mac_addr_mid = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 2));
+		p_tcp->remote_mac_addr_lo = tmp;
+>>>>>>> upstream/android-13
 
 		p_tcp->vlan_id = cpu_to_le16(p_conn->vlan_id);
 
@@ -425,6 +491,7 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 		    &((struct iscsi_spe_conn_offload_option2 *)p_ramrod)->tcp;
 
 		p = (u16 *)p_conn->local_mac;
+<<<<<<< HEAD
 		p_tcp2->local_mac_addr_hi = swab16(get_unaligned(p));
 		p_tcp2->local_mac_addr_mid = swab16(get_unaligned(p + 1));
 		p_tcp2->local_mac_addr_lo = swab16(get_unaligned(p + 2));
@@ -433,6 +500,22 @@ static int qed_sp_iscsi_conn_offload(struct qed_hwfn *p_hwfn,
 		p_tcp2->remote_mac_addr_hi = swab16(get_unaligned(p));
 		p_tcp2->remote_mac_addr_mid = swab16(get_unaligned(p + 1));
 		p_tcp2->remote_mac_addr_lo = swab16(get_unaligned(p + 2));
+=======
+		tmp = cpu_to_le16(get_unaligned_be16(p));
+		p_tcp2->local_mac_addr_hi = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 1));
+		p_tcp2->local_mac_addr_mid = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 2));
+		p_tcp2->local_mac_addr_lo = tmp;
+
+		p = (u16 *)p_conn->remote_mac;
+		tmp = cpu_to_le16(get_unaligned_be16(p));
+		p_tcp2->remote_mac_addr_hi = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 1));
+		p_tcp2->remote_mac_addr_mid = tmp;
+		tmp = cpu_to_le16(get_unaligned_be16(p + 2));
+		p_tcp2->remote_mac_addr_lo = tmp;
+>>>>>>> upstream/android-13
 
 		p_tcp2->vlan_id = cpu_to_le16(p_conn->vlan_id);
 		p_tcp2->flags = cpu_to_le16(p_conn->tcp_flags);
@@ -475,7 +558,11 @@ static int qed_sp_iscsi_conn_update(struct qed_hwfn *p_hwfn,
 	struct iscsi_conn_update_ramrod_params *p_ramrod = NULL;
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	int rc = -EINVAL;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 	u32 dval;
 
 	/* Get SPQ entry */
@@ -487,17 +574,26 @@ static int qed_sp_iscsi_conn_update(struct qed_hwfn *p_hwfn,
 
 	rc = qed_sp_init_request(p_hwfn, &p_ent,
 				 ISCSI_RAMROD_CMD_ID_UPDATE_CONN,
+<<<<<<< HEAD
 				 PROTOCOLID_ISCSI, &init_data);
+=======
+				 PROTOCOLID_TCP_ULP, &init_data);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
 	p_ramrod = &p_ent->ramrod.iscsi_conn_update;
+<<<<<<< HEAD
 	p_ramrod->hdr.op_code = ISCSI_RAMROD_CMD_ID_UPDATE_CONN;
 	SET_FIELD(p_ramrod->hdr.flags,
 		  ISCSI_SLOW_PATH_HDR_LAYER_CODE, p_conn->layer_code);
 
 	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
 	p_ramrod->fw_cid = cpu_to_le32(p_conn->icid);
+=======
+
+	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
+>>>>>>> upstream/android-13
 	p_ramrod->flags = p_conn->update_flag;
 	p_ramrod->max_seq_size = cpu_to_le32(p_conn->max_seq_size);
 	dval = p_conn->max_recv_pdu_length;
@@ -532,17 +628,26 @@ qed_sp_iscsi_mac_update(struct qed_hwfn *p_hwfn,
 
 	rc = qed_sp_init_request(p_hwfn, &p_ent,
 				 ISCSI_RAMROD_CMD_ID_MAC_UPDATE,
+<<<<<<< HEAD
 				 PROTOCOLID_ISCSI, &init_data);
+=======
+				 PROTOCOLID_TCP_ULP, &init_data);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
 	p_ramrod = &p_ent->ramrod.iscsi_conn_mac_update;
+<<<<<<< HEAD
 	p_ramrod->hdr.op_code = ISCSI_RAMROD_CMD_ID_MAC_UPDATE;
 	SET_FIELD(p_ramrod->hdr.flags,
 		  ISCSI_SLOW_PATH_HDR_LAYER_CODE, p_conn->layer_code);
 
 	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
 	p_ramrod->fw_cid = cpu_to_le32(p_conn->icid);
+=======
+
+	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
+>>>>>>> upstream/android-13
 	ucval = p_conn->remote_mac[1];
 	((u8 *)(&p_ramrod->remote_mac_addr_hi))[0] = ucval;
 	ucval = p_conn->remote_mac[0];
@@ -578,17 +683,26 @@ static int qed_sp_iscsi_conn_terminate(struct qed_hwfn *p_hwfn,
 
 	rc = qed_sp_init_request(p_hwfn, &p_ent,
 				 ISCSI_RAMROD_CMD_ID_TERMINATION_CONN,
+<<<<<<< HEAD
 				 PROTOCOLID_ISCSI, &init_data);
+=======
+				 PROTOCOLID_TCP_ULP, &init_data);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
 	p_ramrod = &p_ent->ramrod.iscsi_conn_terminate;
+<<<<<<< HEAD
 	p_ramrod->hdr.op_code = ISCSI_RAMROD_CMD_ID_TERMINATION_CONN;
 	SET_FIELD(p_ramrod->hdr.flags,
 		  ISCSI_SLOW_PATH_HDR_LAYER_CODE, p_conn->layer_code);
 
 	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
 	p_ramrod->fw_cid = cpu_to_le32(p_conn->icid);
+=======
+
+	p_ramrod->conn_id = cpu_to_le16(p_conn->conn_id);
+>>>>>>> upstream/android-13
 	p_ramrod->abortive = p_conn->abortive_dsconnect;
 
 	DMA_REGPAIR_LE(p_ramrod->query_params_addr,
@@ -603,7 +717,10 @@ static int qed_sp_iscsi_conn_clear_sq(struct qed_hwfn *p_hwfn,
 				      enum spq_mode comp_mode,
 				      struct qed_spq_comp_cb *p_comp_addr)
 {
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr *p_ramrod = NULL;
+=======
+>>>>>>> upstream/android-13
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
 	int rc = -EINVAL;
@@ -617,6 +734,7 @@ static int qed_sp_iscsi_conn_clear_sq(struct qed_hwfn *p_hwfn,
 
 	rc = qed_sp_init_request(p_hwfn, &p_ent,
 				 ISCSI_RAMROD_CMD_ID_CLEAR_SQ,
+<<<<<<< HEAD
 				 PROTOCOLID_ISCSI, &init_data);
 	if (rc)
 		return rc;
@@ -626,6 +744,12 @@ static int qed_sp_iscsi_conn_clear_sq(struct qed_hwfn *p_hwfn,
 	SET_FIELD(p_ramrod->flags,
 		  ISCSI_SLOW_PATH_HDR_LAYER_CODE, p_conn->layer_code);
 
+=======
+				 PROTOCOLID_TCP_ULP, &init_data);
+	if (rc)
+		return rc;
+
+>>>>>>> upstream/android-13
 	return qed_spq_post(p_hwfn, p_ent, NULL);
 }
 
@@ -633,7 +757,10 @@ static int qed_sp_iscsi_func_stop(struct qed_hwfn *p_hwfn,
 				  enum spq_mode comp_mode,
 				  struct qed_spq_comp_cb *p_comp_addr)
 {
+<<<<<<< HEAD
 	struct iscsi_spe_func_dstry *p_ramrod = NULL;
+=======
+>>>>>>> upstream/android-13
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
 	int rc = 0;
@@ -647,6 +774,7 @@ static int qed_sp_iscsi_func_stop(struct qed_hwfn *p_hwfn,
 
 	rc = qed_sp_init_request(p_hwfn, &p_ent,
 				 ISCSI_RAMROD_CMD_ID_DESTROY_FUNC,
+<<<<<<< HEAD
 				 PROTOCOLID_ISCSI, &init_data);
 	if (rc)
 		return rc;
@@ -657,6 +785,15 @@ static int qed_sp_iscsi_func_stop(struct qed_hwfn *p_hwfn,
 	rc = qed_spq_post(p_hwfn, p_ent, NULL);
 
 	qed_spq_unregister_async_cb(p_hwfn, PROTOCOLID_ISCSI);
+=======
+				 PROTOCOLID_TCP_ULP, &init_data);
+	if (rc)
+		return rc;
+
+	rc = qed_spq_post(p_hwfn, p_ent, NULL);
+
+	qed_spq_unregister_async_cb(p_hwfn, PROTOCOLID_TCP_ULP);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -728,9 +865,19 @@ nomem:
 static int qed_iscsi_allocate_connection(struct qed_hwfn *p_hwfn,
 					 struct qed_iscsi_conn **p_out_conn)
 {
+<<<<<<< HEAD
 	u16 uhq_num_elements = 0, xhq_num_elements = 0, r2tq_num_elements = 0;
 	struct scsi_terminate_extra_params *p_q_cnts = NULL;
 	struct qed_iscsi_pf_params *p_params = NULL;
+=======
+	struct scsi_terminate_extra_params *p_q_cnts = NULL;
+	struct qed_iscsi_pf_params *p_params = NULL;
+	struct qed_chain_init_params params = {
+		.mode		= QED_CHAIN_MODE_PBL,
+		.intended_use	= QED_CHAIN_USE_TO_CONSUME_PRODUCE,
+		.cnt_type	= QED_CHAIN_CNT_TYPE_U16,
+	};
+>>>>>>> upstream/android-13
 	struct tcp_upload_params *p_tcp = NULL;
 	struct qed_iscsi_conn *p_conn = NULL;
 	int rc = 0;
@@ -771,6 +918,7 @@ static int qed_iscsi_allocate_connection(struct qed_hwfn *p_hwfn,
 		goto nomem_upload_param;
 	p_conn->tcp_upload_params_virt_addr = p_tcp;
 
+<<<<<<< HEAD
 	r2tq_num_elements = p_params->num_r2tq_pages_in_ring *
 			    QED_CHAIN_PAGE_SIZE / 0x80;
 	rc = qed_chain_alloc(p_hwfn->cdev,
@@ -799,6 +947,27 @@ static int qed_iscsi_allocate_connection(struct qed_hwfn *p_hwfn,
 			     QED_CHAIN_CNT_TYPE_U16,
 			     xhq_num_elements,
 			     sizeof(struct iscsi_xhqe), &p_conn->xhq, NULL);
+=======
+	params.num_elems = p_params->num_r2tq_pages_in_ring *
+			   QED_CHAIN_PAGE_SIZE / sizeof(struct iscsi_wqe);
+	params.elem_size = sizeof(struct iscsi_wqe);
+
+	rc = qed_chain_alloc(p_hwfn->cdev, &p_conn->r2tq, &params);
+	if (rc)
+		goto nomem_r2tq;
+
+	params.num_elems = p_params->num_uhq_pages_in_ring *
+			   QED_CHAIN_PAGE_SIZE / sizeof(struct iscsi_uhqe);
+	params.elem_size = sizeof(struct iscsi_uhqe);
+
+	rc = qed_chain_alloc(p_hwfn->cdev, &p_conn->uhq, &params);
+	if (rc)
+		goto nomem_uhq;
+
+	params.elem_size = sizeof(struct iscsi_xhqe);
+
+	rc = qed_chain_alloc(p_hwfn->cdev, &p_conn->xhq, &params);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto nomem;
 
@@ -835,7 +1004,11 @@ static int qed_iscsi_acquire_connection(struct qed_hwfn *p_hwfn,
 	u32 icid;
 
 	spin_lock_bh(&p_hwfn->p_iscsi_info->lock);
+<<<<<<< HEAD
 	rc = qed_cxt_acquire_cid(p_hwfn, PROTOCOLID_ISCSI, &icid);
+=======
+	rc = qed_cxt_acquire_cid(p_hwfn, PROTOCOLID_TCP_ULP, &icid);
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&p_hwfn->p_iscsi_info->lock);
 	if (rc)
 		return rc;
@@ -1082,7 +1255,11 @@ struct qed_hash_iscsi_con {
 static int qed_fill_iscsi_dev_info(struct qed_dev *cdev,
 				   struct qed_dev_iscsi_info *info)
 {
+<<<<<<< HEAD
 	struct qed_hwfn *hwfn = QED_LEADING_HWFN(cdev);
+=======
+	struct qed_hwfn *hwfn = QED_AFFIN_HWFN(cdev);
+>>>>>>> upstream/android-13
 
 	int rc;
 
@@ -1141,8 +1318,13 @@ static int qed_iscsi_stop(struct qed_dev *cdev)
 	}
 
 	/* Stop the iscsi */
+<<<<<<< HEAD
 	rc = qed_sp_iscsi_func_stop(QED_LEADING_HWFN(cdev),
 				    QED_SPQ_MODE_EBLOCK, NULL);
+=======
+	rc = qed_sp_iscsi_func_stop(QED_AFFIN_HWFN(cdev), QED_SPQ_MODE_EBLOCK,
+				    NULL);
+>>>>>>> upstream/android-13
 	cdev->flags &= ~QED_FLAG_STORAGE_STARTED;
 
 	return rc;
@@ -1161,9 +1343,14 @@ static int qed_iscsi_start(struct qed_dev *cdev,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	rc = qed_sp_iscsi_func_start(QED_LEADING_HWFN(cdev),
 				     QED_SPQ_MODE_EBLOCK, NULL, event_context,
 				     async_event_cb);
+=======
+	rc = qed_sp_iscsi_func_start(QED_AFFIN_HWFN(cdev), QED_SPQ_MODE_EBLOCK,
+				     NULL, event_context, async_event_cb);
+>>>>>>> upstream/android-13
 	if (rc) {
 		DP_NOTICE(cdev, "Failed to start iscsi\n");
 		return rc;
@@ -1182,8 +1369,12 @@ static int qed_iscsi_start(struct qed_dev *cdev,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	rc = qed_cxt_get_tid_mem_info(QED_LEADING_HWFN(cdev),
 				      tid_info);
+=======
+	rc = qed_cxt_get_tid_mem_info(QED_AFFIN_HWFN(cdev), tid_info);
+>>>>>>> upstream/android-13
 	if (rc) {
 		DP_NOTICE(cdev, "Failed to gather task information\n");
 		qed_iscsi_stop(cdev);
@@ -1215,7 +1406,11 @@ static int qed_iscsi_acquire_conn(struct qed_dev *cdev,
 		return -ENOMEM;
 
 	/* Acquire the connection */
+<<<<<<< HEAD
 	rc = qed_iscsi_acquire_connection(QED_LEADING_HWFN(cdev), NULL,
+=======
+	rc = qed_iscsi_acquire_connection(QED_AFFIN_HWFN(cdev), NULL,
+>>>>>>> upstream/android-13
 					  &hash_con->con);
 	if (rc) {
 		DP_NOTICE(cdev, "Failed to acquire Connection\n");
@@ -1229,7 +1424,11 @@ static int qed_iscsi_acquire_conn(struct qed_dev *cdev,
 	hash_add(cdev->connections, &hash_con->node, *handle);
 
 	if (p_doorbell)
+<<<<<<< HEAD
 		*p_doorbell = qed_iscsi_get_db_addr(QED_LEADING_HWFN(cdev),
+=======
+		*p_doorbell = qed_iscsi_get_db_addr(QED_AFFIN_HWFN(cdev),
+>>>>>>> upstream/android-13
 						    *handle);
 
 	return 0;
@@ -1247,7 +1446,11 @@ static int qed_iscsi_release_conn(struct qed_dev *cdev, u32 handle)
 	}
 
 	hlist_del(&hash_con->node);
+<<<<<<< HEAD
 	qed_iscsi_release_connection(QED_LEADING_HWFN(cdev), hash_con->con);
+=======
+	qed_iscsi_release_connection(QED_AFFIN_HWFN(cdev), hash_con->con);
+>>>>>>> upstream/android-13
 	kfree(hash_con);
 
 	return 0;
@@ -1324,7 +1527,11 @@ static int qed_iscsi_offload_conn(struct qed_dev *cdev,
 	/* Set default values on other connection fields */
 	con->offl_flags = 0x1;
 
+<<<<<<< HEAD
 	return qed_sp_iscsi_conn_offload(QED_LEADING_HWFN(cdev), con,
+=======
+	return qed_sp_iscsi_conn_offload(QED_AFFIN_HWFN(cdev), con,
+>>>>>>> upstream/android-13
 					 QED_SPQ_MODE_EBLOCK, NULL);
 }
 
@@ -1351,7 +1558,11 @@ static int qed_iscsi_update_conn(struct qed_dev *cdev,
 	con->first_seq_length = conn_info->first_seq_length;
 	con->exp_stat_sn = conn_info->exp_stat_sn;
 
+<<<<<<< HEAD
 	return qed_sp_iscsi_conn_update(QED_LEADING_HWFN(cdev), con,
+=======
+	return qed_sp_iscsi_conn_update(QED_AFFIN_HWFN(cdev), con,
+>>>>>>> upstream/android-13
 					QED_SPQ_MODE_EBLOCK, NULL);
 }
 
@@ -1366,8 +1577,12 @@ static int qed_iscsi_clear_conn_sq(struct qed_dev *cdev, u32 handle)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	return qed_sp_iscsi_conn_clear_sq(QED_LEADING_HWFN(cdev),
 					  hash_con->con,
+=======
+	return qed_sp_iscsi_conn_clear_sq(QED_AFFIN_HWFN(cdev), hash_con->con,
+>>>>>>> upstream/android-13
 					  QED_SPQ_MODE_EBLOCK, NULL);
 }
 
@@ -1385,14 +1600,22 @@ static int qed_iscsi_destroy_conn(struct qed_dev *cdev,
 
 	hash_con->con->abortive_dsconnect = abrt_conn;
 
+<<<<<<< HEAD
 	return qed_sp_iscsi_conn_terminate(QED_LEADING_HWFN(cdev),
 					   hash_con->con,
+=======
+	return qed_sp_iscsi_conn_terminate(QED_AFFIN_HWFN(cdev), hash_con->con,
+>>>>>>> upstream/android-13
 					   QED_SPQ_MODE_EBLOCK, NULL);
 }
 
 static int qed_iscsi_stats(struct qed_dev *cdev, struct qed_iscsi_stats *stats)
 {
+<<<<<<< HEAD
 	return qed_iscsi_get_stats(QED_LEADING_HWFN(cdev), stats);
+=======
+	return qed_iscsi_get_stats(QED_AFFIN_HWFN(cdev), stats);
+>>>>>>> upstream/android-13
 }
 
 static int qed_iscsi_change_mac(struct qed_dev *cdev,
@@ -1407,8 +1630,12 @@ static int qed_iscsi_change_mac(struct qed_dev *cdev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	return qed_sp_iscsi_mac_update(QED_LEADING_HWFN(cdev),
 				       hash_con->con,
+=======
+	return qed_sp_iscsi_mac_update(QED_AFFIN_HWFN(cdev), hash_con->con,
+>>>>>>> upstream/android-13
 				       QED_SPQ_MODE_EBLOCK, NULL);
 }
 

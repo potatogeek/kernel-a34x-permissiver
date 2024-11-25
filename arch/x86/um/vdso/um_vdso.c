@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Richard Weinberger <richrd@nod.at>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Richard Weinberger <richrd@nod.at>
+ *
+>>>>>>> upstream/android-13
  * This vDSO turns all calls into a syscall so that UML can trap them.
  */
 
@@ -16,7 +23,11 @@
 #include <linux/getcpu.h>
 #include <asm/unistd.h>
 
+<<<<<<< HEAD
 int __vdso_clock_gettime(clockid_t clock, struct timespec *ts)
+=======
+int __vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts)
+>>>>>>> upstream/android-13
 {
 	long ret;
 
@@ -25,10 +36,17 @@ int __vdso_clock_gettime(clockid_t clock, struct timespec *ts)
 
 	return ret;
 }
+<<<<<<< HEAD
 int clock_gettime(clockid_t, struct timespec *)
 	__attribute__((weak, alias("__vdso_clock_gettime")));
 
 int __vdso_gettimeofday(struct timeval *tv, struct timezone *tz)
+=======
+int clock_gettime(clockid_t, struct __kernel_old_timespec *)
+	__attribute__((weak, alias("__vdso_clock_gettime")));
+
+int __vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz)
+>>>>>>> upstream/android-13
 {
 	long ret;
 
@@ -37,10 +55,17 @@ int __vdso_gettimeofday(struct timeval *tv, struct timezone *tz)
 
 	return ret;
 }
+<<<<<<< HEAD
 int gettimeofday(struct timeval *, struct timezone *)
 	__attribute__((weak, alias("__vdso_gettimeofday")));
 
 time_t __vdso_time(time_t *t)
+=======
+int gettimeofday(struct __kernel_old_timeval *, struct timezone *)
+	__attribute__((weak, alias("__vdso_gettimeofday")));
+
+__kernel_old_time_t __vdso_time(__kernel_old_time_t *t)
+>>>>>>> upstream/android-13
 {
 	long secs;
 
@@ -50,7 +75,11 @@ time_t __vdso_time(time_t *t)
 
 	return secs;
 }
+<<<<<<< HEAD
 int time(time_t *t) __attribute__((weak, alias("__vdso_time")));
+=======
+__kernel_old_time_t time(__kernel_old_time_t *t) __attribute__((weak, alias("__vdso_time")));
+>>>>>>> upstream/android-13
 
 long
 __vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)

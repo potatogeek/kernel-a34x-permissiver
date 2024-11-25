@@ -55,6 +55,7 @@
 #include "cfgloop.h"
 #include "cgraph.h"
 #include "opts.h"
+<<<<<<< HEAD
 
 #if BUILDING_GCC_VERSION == 4005
 #include <sys/mman.h>
@@ -96,6 +97,19 @@
 #if BUILDING_GCC_VERSION >= 4009
 #include "pass_manager.h"
 #endif
+=======
+#include "tree-pretty-print.h"
+#include "gimple-pretty-print.h"
+#include "c-family/c-common.h"
+#include "tree-cfgcleanup.h"
+#include "tree-ssa-operands.h"
+#include "tree-into-ssa.h"
+#include "is-a.h"
+#include "diagnostic.h"
+#include "tree-dump.h"
+#include "tree-pass.h"
+#include "pass_manager.h"
+>>>>>>> upstream/android-13
 #include "predict.h"
 #include "ipa-utils.h"
 
@@ -103,7 +117,10 @@
 #include "stringpool.h"
 #endif
 
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION >= 4009
+=======
+>>>>>>> upstream/android-13
 #include "attribs.h"
 #include "varasm.h"
 #include "stor-layout.h"
@@ -122,18 +139,25 @@
 #include "tree-eh.h"
 #include "stmt.h"
 #include "gimplify.h"
+<<<<<<< HEAD
 #endif
 
 #include "gimple.h"
 
 #if BUILDING_GCC_VERSION >= 4009
+=======
+#include "gimple.h"
+>>>>>>> upstream/android-13
 #include "tree-ssa-operands.h"
 #include "tree-phinodes.h"
 #include "tree-cfg.h"
 #include "gimple-iterator.h"
 #include "gimple-ssa.h"
 #include "ssa-iterators.h"
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #if BUILDING_GCC_VERSION >= 5000
 #include "builtins.h"
@@ -143,6 +167,7 @@
 void debug_dominance_info(enum cdi_direction dir);
 void debug_dominance_tree(enum cdi_direction dir, basic_block root);
 
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION == 4006
 void debug_gimple_stmt(gimple);
 void debug_gimple_seq(gimple_seq);
@@ -152,6 +177,8 @@ void print_gimple_expr(FILE *, gimple, int, int);
 void dump_gimple_stmt(pretty_printer *, gimple, int, int);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __unused
 #define __unused __attribute__((__unused__))
 #endif
@@ -190,6 +217,7 @@ struct register_pass_info NAME##_pass_info = {	\
 	.pos_op = POS,				\
 }
 
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION == 4005
 #define FOR_EACH_LOCAL_DECL(FUN, I, D)			\
 	for (tree vars = (FUN)->local_decls, (I) = 0;	\
@@ -549,13 +577,18 @@ static inline const greturn *as_a_const_greturn(const_gimple stmt)
 #endif
 
 #if BUILDING_GCC_VERSION >= 4008
+=======
+>>>>>>> upstream/android-13
 #define add_referenced_var(var)
 #define mark_sym_for_renaming(var)
 #define varpool_mark_needed_node(node)
 #define create_var_ann(var)
 #define TODO_dump_func 0
 #define TODO_dump_cgraph 0
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #if BUILDING_GCC_VERSION <= 4009
 #define TODO_verify_il 0
@@ -676,7 +709,10 @@ static inline const greturn *as_a_const_greturn(const_gimple stmt)
 }
 #endif
 
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION >= 4009
+=======
+>>>>>>> upstream/android-13
 #define TODO_ggc_collect 0
 #define NODE_SYMBOL(node) (node)
 #define NODE_DECL(node) (node)->decl
@@ -687,7 +723,10 @@ static inline opt_pass *get_pass_for_id(int id)
 {
 	return g->get_passes()->get_pass_for_id(id);
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #if BUILDING_GCC_VERSION >= 5000 && BUILDING_GCC_VERSION < 6000
 /* gimple related */

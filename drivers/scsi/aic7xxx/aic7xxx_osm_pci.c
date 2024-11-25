@@ -121,6 +121,7 @@ static const struct pci_device_id ahc_linux_pci_id_table[] = {
 
 MODULE_DEVICE_TABLE(pci, ahc_linux_pci_id_table);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int
 ahc_linux_pci_dev_suspend(struct pci_dev *pdev, pm_message_t mesg)
@@ -156,12 +157,29 @@ ahc_linux_pci_dev_resume(struct pci_dev *pdev)
 	}
 
 	pci_set_master(pdev);
+=======
+static int __maybe_unused
+ahc_linux_pci_dev_suspend(struct device *dev)
+{
+	struct ahc_softc *ahc = dev_get_drvdata(dev);
+
+	return ahc_suspend(ahc);
+}
+
+static int __maybe_unused
+ahc_linux_pci_dev_resume(struct device *dev)
+{
+	struct ahc_softc *ahc = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	ahc_pci_resume(ahc);
 
 	return (ahc_resume(ahc));
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static void
 ahc_linux_pci_dev_remove(struct pci_dev *pdev)
@@ -319,14 +337,24 @@ ahc_pci_write_config(ahc_dev_softc_t pci, int reg, uint32_t value, int width)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(ahc_linux_pci_dev_pm_ops,
+			 ahc_linux_pci_dev_suspend,
+			 ahc_linux_pci_dev_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver aic7xxx_pci_driver = {
 	.name		= "aic7xxx",
 	.probe		= ahc_linux_pci_dev_probe,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= ahc_linux_pci_dev_suspend,
 	.resume		= ahc_linux_pci_dev_resume,
 #endif
+=======
+	.driver.pm	= &ahc_linux_pci_dev_pm_ops,
+>>>>>>> upstream/android-13
 	.remove		= ahc_linux_pci_dev_remove,
 	.id_table	= ahc_linux_pci_id_table
 };
@@ -372,7 +400,11 @@ ahc_linux_pci_reserve_mem_region(struct ahc_softc *ahc,
 		if (!request_mem_region(start, 0x1000, "aic7xxx"))
 			error = ENOMEM;
 		if (error == 0) {
+<<<<<<< HEAD
 			*maddr = ioremap_nocache(start, 256);
+=======
+			*maddr = ioremap(start, 256);
+>>>>>>> upstream/android-13
 			if (*maddr == NULL) {
 				error = ENOMEM;
 				release_mem_region(start, 0x1000);

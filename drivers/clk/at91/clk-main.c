@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
  *
@@ -6,13 +7,21 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
 #include <linux/clk/at91_pmc.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mfd/syscon.h>
 #include <linux/regmap.h>
 
@@ -132,14 +141,22 @@ static const struct clk_ops main_osc_ops = {
 	.is_prepared = clk_main_osc_is_prepared,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_main_osc(struct regmap *regmap,
 			   const char *name,
 			   const char *parent_name,
 			   bool bypass)
 {
 	struct clk_main_osc *osc;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int ret;
 
@@ -175,6 +192,7 @@ at91_clk_register_main_osc(struct regmap *regmap,
 	return hw;
 }
 
+<<<<<<< HEAD
 static void __init of_at91rm9200_clk_main_osc_setup(struct device_node *np)
 {
 	struct clk_hw *hw;
@@ -200,13 +218,19 @@ static void __init of_at91rm9200_clk_main_osc_setup(struct device_node *np)
 CLK_OF_DECLARE(at91rm9200_clk_main_osc, "atmel,at91rm9200-clk-main-osc",
 	       of_at91rm9200_clk_main_osc_setup);
 
+=======
+>>>>>>> upstream/android-13
 static bool clk_main_rc_osc_ready(struct regmap *regmap)
 {
 	unsigned int status;
 
 	regmap_read(regmap, AT91_PMC_SR, &status);
 
+<<<<<<< HEAD
 	return status & AT91_PMC_MOSCRCS;
+=======
+	return !!(status & AT91_PMC_MOSCRCS);
+>>>>>>> upstream/android-13
 }
 
 static int clk_main_rc_osc_prepare(struct clk_hw *hw)
@@ -279,13 +303,21 @@ static const struct clk_ops main_rc_osc_ops = {
 	.recalc_accuracy = clk_main_rc_osc_recalc_accuracy,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_main_rc_osc(struct regmap *regmap,
 			      const char *name,
 			      u32 frequency, u32 accuracy)
 {
 	struct clk_main_rc_osc *osc;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int ret;
 
@@ -317,6 +349,7 @@ at91_clk_register_main_rc_osc(struct regmap *regmap,
 	return hw;
 }
 
+<<<<<<< HEAD
 static void __init of_at91sam9x5_clk_main_rc_osc_setup(struct device_node *np)
 {
 	struct clk_hw *hw;
@@ -343,6 +376,8 @@ CLK_OF_DECLARE(at91sam9x5_clk_main_rc_osc, "atmel,at91sam9x5-clk-main-rc-osc",
 	       of_at91sam9x5_clk_main_rc_osc_setup);
 
 
+=======
+>>>>>>> upstream/android-13
 static int clk_main_probe_frequency(struct regmap *regmap)
 {
 	unsigned long prep_time, timeout;
@@ -393,7 +428,11 @@ static int clk_rm9200_main_is_prepared(struct clk_hw *hw)
 
 	regmap_read(clkmain->regmap, AT91_CKGR_MCFR, &status);
 
+<<<<<<< HEAD
 	return status & AT91_PMC_MAINRDY ? 1 : 0;
+=======
+	return !!(status & AT91_PMC_MAINRDY);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long clk_rm9200_main_recalc_rate(struct clk_hw *hw,
@@ -410,13 +449,21 @@ static const struct clk_ops rm9200_main_ops = {
 	.recalc_rate = clk_rm9200_main_recalc_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_rm9200_main(struct regmap *regmap,
 			      const char *name,
 			      const char *parent_name)
 {
 	struct clk_rm9200_main *clkmain;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int ret;
 
@@ -449,6 +496,7 @@ at91_clk_register_rm9200_main(struct regmap *regmap,
 	return hw;
 }
 
+<<<<<<< HEAD
 static void __init of_at91rm9200_clk_main_setup(struct device_node *np)
 {
 	struct clk_hw *hw;
@@ -472,13 +520,19 @@ static void __init of_at91rm9200_clk_main_setup(struct device_node *np)
 CLK_OF_DECLARE(at91rm9200_clk_main, "atmel,at91rm9200-clk-main",
 	       of_at91rm9200_clk_main_setup);
 
+=======
+>>>>>>> upstream/android-13
 static inline bool clk_sam9x5_main_ready(struct regmap *regmap)
 {
 	unsigned int status;
 
 	regmap_read(regmap, AT91_PMC_SR, &status);
 
+<<<<<<< HEAD
 	return status & AT91_PMC_MOSCSELS ? 1 : 0;
+=======
+	return !!(status & AT91_PMC_MOSCSELS);
+>>>>>>> upstream/android-13
 }
 
 static int clk_sam9x5_main_prepare(struct clk_hw *hw)
@@ -553,14 +607,22 @@ static const struct clk_ops sam9x5_main_ops = {
 	.get_parent = clk_sam9x5_main_get_parent,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_sam9x5_main(struct regmap *regmap,
 			      const char *name,
 			      const char **parent_names,
 			      int num_parents)
 {
 	struct clk_sam9x5_main *clkmain;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	unsigned int status;
 	struct clk_hw *hw;
 	int ret;
@@ -595,6 +657,7 @@ at91_clk_register_sam9x5_main(struct regmap *regmap,
 
 	return hw;
 }
+<<<<<<< HEAD
 
 static void __init of_at91sam9x5_clk_main_setup(struct device_node *np)
 {
@@ -624,3 +687,5 @@ static void __init of_at91sam9x5_clk_main_setup(struct device_node *np)
 }
 CLK_OF_DECLARE(at91sam9x5_clk_main, "atmel,at91sam9x5-clk-main",
 	       of_at91sam9x5_clk_main_setup);
+=======
+>>>>>>> upstream/android-13

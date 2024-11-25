@@ -1,5 +1,17 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #include <generated/utsrelease.h>
+=======
+#ifndef _LINUX_VERMAGIC_H
+#define _LINUX_VERMAGIC_H
+
+#ifndef INCLUDE_VERMAGIC
+#error "This header can be included from kernel/module.c or *.mod.c only"
+#endif
+
+#include <generated/utsrelease.h>
+#include <asm/vermagic.h>
+>>>>>>> upstream/android-13
 
 /* Simply sanity version stamp for modules. */
 #ifdef CONFIG_SMP
@@ -9,6 +21,11 @@
 #endif
 #ifdef CONFIG_PREEMPT
 #define MODULE_VERMAGIC_PREEMPT "preempt "
+<<<<<<< HEAD
+=======
+#elif defined(CONFIG_PREEMPT_RT)
+#define MODULE_VERMAGIC_PREEMPT "preempt_rt "
+>>>>>>> upstream/android-13
 #else
 #define MODULE_VERMAGIC_PREEMPT ""
 #endif
@@ -22,9 +39,12 @@
 #else
 #define MODULE_VERMAGIC_MODVERSIONS ""
 #endif
+<<<<<<< HEAD
 #ifndef MODULE_ARCH_VERMAGIC
 #define MODULE_ARCH_VERMAGIC ""
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifdef RANDSTRUCT_PLUGIN
 #include <generated/randomize_layout_hash.h>
 #define MODULE_RANDSTRUCT_PLUGIN "RANDSTRUCT_PLUGIN_" RANDSTRUCT_HASHED_SEED
@@ -39,3 +59,7 @@
 	MODULE_ARCH_VERMAGIC						\
 	MODULE_RANDSTRUCT_PLUGIN
 
+<<<<<<< HEAD
+=======
+#endif /* _LINUX_VERMAGIC_H */
+>>>>>>> upstream/android-13

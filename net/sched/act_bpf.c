@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Jiri Pirko <jiri@resnulli.us>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2015 Jiri Pirko <jiri@resnulli.us>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -16,7 +22,13 @@
 #include <linux/bpf.h>
 
 #include <net/netlink.h>
+<<<<<<< HEAD
 #include <net/pkt_sched.h>
+=======
+#include <net/sock.h>
+#include <net/pkt_sched.h>
+#include <net/pkt_cls.h>
+>>>>>>> upstream/android-13
 
 #include <linux/tc_act/tc_bpf.h>
 #include <net/tc_act/tc_bpf.h>
@@ -45,11 +57,15 @@ static int tcf_bpf_act(struct sk_buff *skb, const struct tc_action *act,
 	tcf_lastuse_update(&prog->tcf_tm);
 	bstats_cpu_update(this_cpu_ptr(prog->common.cpu_bstats), skb);
 
+<<<<<<< HEAD
 	rcu_read_lock();
+=======
+>>>>>>> upstream/android-13
 	filter = rcu_dereference(prog->filter);
 	if (at_ingress) {
 		__skb_push(skb, skb->mac_len);
 		bpf_compute_data_pointers(skb);
+<<<<<<< HEAD
 		filter_res = BPF_PROG_RUN(filter, skb);
 		__skb_pull(skb, skb->mac_len);
 	} else {
@@ -57,6 +73,16 @@ static int tcf_bpf_act(struct sk_buff *skb, const struct tc_action *act,
 		filter_res = BPF_PROG_RUN(filter, skb);
 	}
 	rcu_read_unlock();
+=======
+		filter_res = bpf_prog_run(filter, skb);
+		__skb_pull(skb, skb->mac_len);
+	} else {
+		bpf_compute_data_pointers(skb);
+		filter_res = bpf_prog_run(filter, skb);
+	}
+	if (skb_sk_is_prefetched(skb) && filter_res != TC_ACT_OK)
+		skb_orphan(skb);
+>>>>>>> upstream/android-13
 
 	/* A BPF program may overwrite the default action opcode.
 	 * Similarly as in cls_bpf, if filter_res == -1 we use the
@@ -65,7 +91,11 @@ static int tcf_bpf_act(struct sk_buff *skb, const struct tc_action *act,
 	 * In case a different well-known TC_ACT opcode has been
 	 * returned, it will overwrite the default one.
 	 *
+<<<<<<< HEAD
 	 * For everything else that is unkown, TC_ACT_UNSPEC is
+=======
+	 * For everything else that is unknown, TC_ACT_UNSPEC is
+>>>>>>> upstream/android-13
 	 * returned.
 	 */
 	switch (filter_res) {
@@ -277,11 +307,21 @@ static void tcf_bpf_prog_fill_cfg(const struct tcf_bpf *prog,
 
 static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 			struct nlattr *est, struct tc_action **act,
+<<<<<<< HEAD
 			int replace, int bind, bool rtnl_held,
 			struct netlink_ext_ack *extack)
 {
 	struct tc_action_net *tn = net_generic(net, bpf_net_id);
 	struct nlattr *tb[TCA_ACT_BPF_MAX + 1];
+=======
+			struct tcf_proto *tp, u32 flags,
+			struct netlink_ext_ack *extack)
+{
+	struct tc_action_net *tn = net_generic(net, bpf_net_id);
+	bool bind = flags & TCA_ACT_FLAGS_BIND;
+	struct nlattr *tb[TCA_ACT_BPF_MAX + 1];
+	struct tcf_chain *goto_ch = NULL;
+>>>>>>> upstream/android-13
 	struct tcf_bpf_cfg cfg, old;
 	struct tc_act_bpf *parm;
 	struct tcf_bpf *prog;
@@ -292,7 +332,12 @@ static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 	if (!nla)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = nla_parse_nested(tb, TCA_ACT_BPF_MAX, nla, act_bpf_policy, NULL);
+=======
+	ret = nla_parse_nested_deprecated(tb, TCA_ACT_BPF_MAX, nla,
+					  act_bpf_policy, NULL);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -304,7 +349,11 @@ static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 	ret = tcf_idr_check_alloc(tn, &index, act, bind);
 	if (!ret) {
 		ret = tcf_idr_create(tn, index, est, act,
+<<<<<<< HEAD
 				     &act_bpf_ops, bind, true);
+=======
+				     &act_bpf_ops, bind, true, 0);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			tcf_idr_cleanup(tn, index);
 			return ret;
@@ -316,7 +365,11 @@ static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 		if (bind)
 			return 0;
 
+<<<<<<< HEAD
 		if (!replace) {
+=======
+		if (!(flags & TCA_ACT_FLAGS_REPLACE)) {
+>>>>>>> upstream/android-13
 			tcf_idr_release(*act, bind);
 			return -EEXIST;
 		}
@@ -324,12 +377,23 @@ static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+	if (ret < 0)
+		goto release_idr;
+
+>>>>>>> upstream/android-13
 	is_bpf = tb[TCA_ACT_BPF_OPS_LEN] && tb[TCA_ACT_BPF_OPS];
 	is_ebpf = tb[TCA_ACT_BPF_FD];
 
 	if ((!is_bpf && !is_ebpf) || (is_bpf && is_ebpf)) {
 		ret = -EINVAL;
+<<<<<<< HEAD
 		goto out;
+=======
+		goto put_chain;
+>>>>>>> upstream/android-13
 	}
 
 	memset(&cfg, 0, sizeof(cfg));
@@ -337,7 +401,11 @@ static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 	ret = is_bpf ? tcf_bpf_init_from_ops(tb, &cfg) :
 		       tcf_bpf_init_from_efd(tb, &cfg);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto out;
+=======
+		goto put_chain;
+>>>>>>> upstream/android-13
 
 	prog = to_bpf(*act);
 
@@ -351,6 +419,7 @@ static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 	if (cfg.bpf_num_ops)
 		prog->bpf_num_ops = cfg.bpf_num_ops;
 
+<<<<<<< HEAD
 	prog->tcf_action = parm->action;
 	rcu_assign_pointer(prog->filter, cfg.filter);
 	spin_unlock_bh(&prog->tcf_lock);
@@ -358,15 +427,35 @@ static int tcf_bpf_init(struct net *net, struct nlattr *nla,
 	if (res == ACT_P_CREATED) {
 		tcf_idr_insert(tn, *act);
 	} else {
+=======
+	goto_ch = tcf_action_set_ctrlact(*act, parm->action, goto_ch);
+	rcu_assign_pointer(prog->filter, cfg.filter);
+	spin_unlock_bh(&prog->tcf_lock);
+
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+
+	if (res != ACT_P_CREATED) {
+>>>>>>> upstream/android-13
 		/* make sure the program being replaced is no longer executing */
 		synchronize_rcu();
 		tcf_bpf_cfg_cleanup(&old);
 	}
 
 	return res;
+<<<<<<< HEAD
 out:
 	tcf_idr_release(*act, bind);
 
+=======
+
+put_chain:
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+
+release_idr:
+	tcf_idr_release(*act, bind);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -388,8 +477,12 @@ static int tcf_bpf_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_bpf_search(struct net *net, struct tc_action **a, u32 index,
 			  struct netlink_ext_ack *extack)
+=======
+static int tcf_bpf_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, bpf_net_id);
 
@@ -398,7 +491,11 @@ static int tcf_bpf_search(struct net *net, struct tc_action **a, u32 index,
 
 static struct tc_action_ops act_bpf_ops __read_mostly = {
 	.kind		=	"bpf",
+<<<<<<< HEAD
 	.type		=	TCA_ACT_BPF,
+=======
+	.id		=	TCA_ID_BPF,
+>>>>>>> upstream/android-13
 	.owner		=	THIS_MODULE,
 	.act		=	tcf_bpf_act,
 	.dump		=	tcf_bpf_dump,

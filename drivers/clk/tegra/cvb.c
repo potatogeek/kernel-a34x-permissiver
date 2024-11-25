@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Utility functions for parsing Tegra CVB voltage tables
  *
@@ -12,6 +13,13 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Utility functions for parsing Tegra CVB voltage tables
+ *
+ * Copyright (C) 2012-2019 NVIDIA Corporation.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -62,9 +70,15 @@ static int round_voltage(int mv, const struct rail_alignment *align, int up)
 }
 
 static int build_opp_table(struct device *dev, const struct cvb_table *table,
+<<<<<<< HEAD
 			   int speedo_value, unsigned long max_freq)
 {
 	const struct rail_alignment *align = &table->alignment;
+=======
+			   struct rail_alignment *align,
+			   int speedo_value, unsigned long max_freq)
+{
+>>>>>>> upstream/android-13
 	int i, ret, dfll_mv, min_mv, max_mv;
 
 	min_mv = round_voltage(table->min_millivolts, align, UP);
@@ -95,6 +109,10 @@ static int build_opp_table(struct device *dev, const struct cvb_table *table,
  * @dev: the struct device * for which the OPP table is built
  * @tables: array of CVB tables
  * @count: size of the previously mentioned array
+<<<<<<< HEAD
+=======
+ * @align: parameters of the regulator step and offset
+>>>>>>> upstream/android-13
  * @process_id: process id of the HW module
  * @speedo_id: speedo id of the HW module
  * @speedo_value: speedo value of the HW module
@@ -109,8 +127,14 @@ static int build_opp_table(struct device *dev, const struct cvb_table *table,
  */
 const struct cvb_table *
 tegra_cvb_add_opp_table(struct device *dev, const struct cvb_table *tables,
+<<<<<<< HEAD
 			size_t count, int process_id, int speedo_id,
 			int speedo_value, unsigned long max_freq)
+=======
+			size_t count, struct rail_alignment *align,
+			int process_id, int speedo_id, int speedo_value,
+			unsigned long max_freq)
+>>>>>>> upstream/android-13
 {
 	size_t i;
 	int ret;
@@ -124,7 +148,12 @@ tegra_cvb_add_opp_table(struct device *dev, const struct cvb_table *tables,
 		if (table->process_id != -1 && table->process_id != process_id)
 			continue;
 
+<<<<<<< HEAD
 		ret = build_opp_table(dev, table, speedo_value, max_freq);
+=======
+		ret = build_opp_table(dev, table, align, speedo_value,
+				      max_freq);
+>>>>>>> upstream/android-13
 		return ret ? ERR_PTR(ret) : table;
 	}
 

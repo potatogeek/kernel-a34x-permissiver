@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright © 2009 - Maxim Levitsky
  * SmartMedia/xD translation layer
@@ -5,10 +9,13 @@
  * Based loosly on ssfdc.c which is
  *  © 2005 Eptar srl
  *  Author: Claudio Lanconelli <lanconelli.claudio@eptar.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mtd/blktrans.h>

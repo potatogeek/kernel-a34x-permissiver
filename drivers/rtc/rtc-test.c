@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * An RTC test device/driver
  * Copyright (C) 2005 Tower Technologies
  * Author: Alessandro Zummo <a.zummo@towertech.it>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -53,7 +60,10 @@ static int test_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	if (expires > U32_MAX)
 		expires = U32_MAX;
 
+<<<<<<< HEAD
 	pr_err("ABE: %s +%d %s\n", __FILE__, __LINE__, __func__);
+=======
+>>>>>>> upstream/android-13
 	rtd->alarm.expires = expires;
 
 	if (alrm->enabled)
@@ -73,11 +83,19 @@ static int test_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int test_rtc_set_mmss64(struct device *dev, time64_t secs)
 {
 	struct rtc_test_data *rtd = dev_get_drvdata(dev);
 
 	rtd->offset = secs - ktime_get_real_seconds();
+=======
+static int test_rtc_set_time(struct device *dev, struct rtc_time *tm)
+{
+	struct rtc_test_data *rtd = dev_get_drvdata(dev);
+
+	rtd->offset = rtc_tm_to_time64(tm) - ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -97,15 +115,25 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
 
 static const struct rtc_class_ops test_rtc_ops_noalm = {
 	.read_time = test_rtc_read_time,
+<<<<<<< HEAD
 	.set_mmss64 = test_rtc_set_mmss64,
+=======
+	.set_time = test_rtc_set_time,
+>>>>>>> upstream/android-13
 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
 };
 
 static const struct rtc_class_ops test_rtc_ops = {
 	.read_time = test_rtc_read_time,
+<<<<<<< HEAD
 	.read_alarm = test_rtc_read_alarm,
 	.set_alarm = test_rtc_set_alarm,
 	.set_mmss64 = test_rtc_set_mmss64,
+=======
+	.set_time = test_rtc_set_time,
+	.read_alarm = test_rtc_read_alarm,
+	.set_alarm = test_rtc_set_alarm,
+>>>>>>> upstream/android-13
 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
 };
 
@@ -136,12 +164,20 @@ static int test_probe(struct platform_device *plat_dev)
 		break;
 	default:
 		rtd->rtc->ops = &test_rtc_ops;
+<<<<<<< HEAD
+=======
+		device_init_wakeup(&plat_dev->dev, 1);
+>>>>>>> upstream/android-13
 	}
 
 	timer_setup(&rtd->alarm, test_rtc_alarm_handler, 0);
 	rtd->alarm.expires = 0;
 
+<<<<<<< HEAD
 	return rtc_register_device(rtd->rtc);
+=======
+	return devm_rtc_register_device(rtd->rtc);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver test_driver = {
@@ -155,7 +191,12 @@ static int __init test_init(void)
 {
 	int i, err;
 
+<<<<<<< HEAD
 	if ((err = platform_driver_register(&test_driver)))
+=======
+	err = platform_driver_register(&test_driver);
+	if (err)
+>>>>>>> upstream/android-13
 		return err;
 
 	err = -ENOMEM;
@@ -197,7 +238,11 @@ static void __exit test_exit(void)
 
 MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
 MODULE_DESCRIPTION("RTC test driver/device");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13
 
 module_init(test_init);
 module_exit(test_exit);

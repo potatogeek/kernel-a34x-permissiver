@@ -40,7 +40,11 @@
 
 #include <linux/timex.h>
 
+<<<<<<< HEAD
 static unsigned long clocktick __read_mostly;	/* timer cycles per tick */
+=======
+static unsigned long clocktick __ro_after_init;	/* timer cycles per tick */
+>>>>>>> upstream/android-13
 
 /*
  * We keep time on PA-RISC Linux by using the Interval Timer which is
@@ -70,8 +74,11 @@ irqreturn_t __irq_entry timer_interrupt(int irq, void *dev_id)
 	/* gcc can optimize for "read-only" case with a local clocktick */
 	unsigned long cpt = clocktick;
 
+<<<<<<< HEAD
 	profile_tick(CPU_PROFILING);
 
+=======
+>>>>>>> upstream/android-13
 	/* Initialize next_tick to the old expected tick time. */
 	next_tick = cpuinfo->it_value;
 
@@ -86,10 +93,16 @@ irqreturn_t __irq_entry timer_interrupt(int irq, void *dev_id)
 	cpuinfo->it_value = next_tick;
 
 	/* Go do system house keeping. */
+<<<<<<< HEAD
 	if (cpu == 0)
 		xtime_update(ticks_elapsed);
 
 	update_process_times(user_mode(get_irq_regs()));
+=======
+	if (cpu != 0)
+		ticks_elapsed = 0;
+	legacy_timer_tick(ticks_elapsed);
+>>>>>>> upstream/android-13
 
 	/* Skip clockticks on purpose if we know we would miss those.
 	 * The new CR16 must be "later" than current CR16 otherwise
@@ -180,9 +193,22 @@ static int rtc_generic_get_time(struct device *dev, struct rtc_time *tm)
 static int rtc_generic_set_time(struct device *dev, struct rtc_time *tm)
 {
 	time64_t secs = rtc_tm_to_time64(tm);
+<<<<<<< HEAD
 
 	if (pdc_tod_set(secs, 0) < 0)
 		return -EOPNOTSUPP;
+=======
+	int ret;
+
+	/* hppa has Y2K38 problem: pdc_tod_set() takes an u32 value! */
+	ret = pdc_tod_set(secs, 0);
+	if (ret != 0) {
+		pr_warn("pdc_tod_set(%lld) returned error %d\n", secs, ret);
+		if (ret == PDC_INVALID_ARG)
+			return -EINVAL;
+		return -EOPNOTSUPP;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -245,6 +271,7 @@ void __init time_init(void)
 static int __init init_cr16_clocksource(void)
 {
 	/*
+<<<<<<< HEAD
 	 * The cr16 interval timers are not syncronized across CPUs on
 	 * different sockets, so mark them unstable and lower rating on
 	 * multi-socket SMP systems.
@@ -272,6 +299,16 @@ static int __init init_cr16_clocksource(void)
 	 *	in sync:
 	 *	(clocksource_cr16.flags == CLOCK_SOURCE_IS_CONTINUOUS) */
 
+=======
+	 * The cr16 interval timers are not synchronized across CPUs.
+	 */
+	if (num_online_cpus() > 1 && !running_on_qemu) {
+		clocksource_cr16.name = "cr16_unstable";
+		clocksource_cr16.flags = CLOCK_SOURCE_UNSTABLE;
+		clocksource_cr16.rating = 0;
+	}
+
+>>>>>>> upstream/android-13
 	/* register at clocksource framework */
 	clocksource_register_hz(&clocksource_cr16,
 		100 * PAGE0->mem_10msec);

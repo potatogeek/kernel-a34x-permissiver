@@ -23,9 +23,15 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/random.h>
+<<<<<<< HEAD
 
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/memblock.h>
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/kaslr.h>
 
@@ -60,6 +66,7 @@ static inline unsigned long get_padding(struct kaslr_memory_region *region)
 	return (region->size_tb << TB_SHIFT);
 }
 
+<<<<<<< HEAD
 /*
  * Apply no randomization if KASLR was disabled at boot or if KASAN
  * is enabled. KASAN shadow mappings rely on regions being PGD aligned.
@@ -69,6 +76,8 @@ static inline bool kaslr_memory_enabled(void)
 	return kaslr_enabled() && !IS_ENABLED(CONFIG_KASAN);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Initialize base and padding for each memory region randomized with KASLR */
 void __init kernel_randomize_memory(void)
 {
@@ -105,7 +114,11 @@ void __init kernel_randomize_memory(void)
 	memory_tb = DIV_ROUND_UP(max_pfn << PAGE_SHIFT, 1UL << TB_SHIFT) +
 		CONFIG_RANDOMIZE_MEMORY_PHYSICAL_PADDING;
 
+<<<<<<< HEAD
 	/* Adapt phyiscal memory region size based on available memory */
+=======
+	/* Adapt physical memory region size based on available memory */
+>>>>>>> upstream/android-13
 	if (memory_tb < kaslr_regions[0].size_tb)
 		kaslr_regions[0].size_tb = memory_tb;
 
@@ -133,10 +146,14 @@ void __init kernel_randomize_memory(void)
 		 */
 		entropy = remain_entropy / (ARRAY_SIZE(kaslr_regions) - i);
 		prandom_bytes_state(&rand_state, &rand, sizeof(rand));
+<<<<<<< HEAD
 		if (pgtable_l5_enabled())
 			entropy = (rand % (entropy + 1)) & P4D_MASK;
 		else
 			entropy = (rand % (entropy + 1)) & PUD_MASK;
+=======
+		entropy = (rand % (entropy + 1)) & PUD_MASK;
+>>>>>>> upstream/android-13
 		vaddr += entropy;
 		*kaslr_regions[i].base = vaddr;
 
@@ -145,14 +162,19 @@ void __init kernel_randomize_memory(void)
 		 * randomization alignment.
 		 */
 		vaddr += get_padding(&kaslr_regions[i]);
+<<<<<<< HEAD
 		if (pgtable_l5_enabled())
 			vaddr = round_up(vaddr + 1, P4D_SIZE);
 		else
 			vaddr = round_up(vaddr + 1, PUD_SIZE);
+=======
+		vaddr = round_up(vaddr + 1, PUD_SIZE);
+>>>>>>> upstream/android-13
 		remain_entropy -= entropy;
 	}
 }
 
+<<<<<<< HEAD
 static void __meminit init_trampoline_pud(void)
 {
 	unsigned long paddr, paddr_next;
@@ -225,4 +247,46 @@ void __meminit init_trampoline(void)
 		init_trampoline_p4d();
 	else
 		init_trampoline_pud();
+=======
+void __meminit init_trampoline_kaslr(void)
+{
+	pud_t *pud_page_tramp, *pud, *pud_tramp;
+	p4d_t *p4d_page_tramp, *p4d, *p4d_tramp;
+	unsigned long paddr, vaddr;
+	pgd_t *pgd;
+
+	pud_page_tramp = alloc_low_page();
+
+	/*
+	 * There are two mappings for the low 1MB area, the direct mapping
+	 * and the 1:1 mapping for the real mode trampoline:
+	 *
+	 * Direct mapping: virt_addr = phys_addr + PAGE_OFFSET
+	 * 1:1 mapping:    virt_addr = phys_addr
+	 */
+	paddr = 0;
+	vaddr = (unsigned long)__va(paddr);
+	pgd = pgd_offset_k(vaddr);
+
+	p4d = p4d_offset(pgd, vaddr);
+	pud = pud_offset(p4d, vaddr);
+
+	pud_tramp = pud_page_tramp + pud_index(paddr);
+	*pud_tramp = *pud;
+
+	if (pgtable_l5_enabled()) {
+		p4d_page_tramp = alloc_low_page();
+
+		p4d_tramp = p4d_page_tramp + p4d_index(paddr);
+
+		set_p4d(p4d_tramp,
+			__p4d(_KERNPG_TABLE | __pa(pud_page_tramp)));
+
+		set_pgd(&trampoline_pgd_entry,
+			__pgd(_KERNPG_TABLE | __pa(p4d_page_tramp)));
+	} else {
+		set_pgd(&trampoline_pgd_entry,
+			__pgd(_KERNPG_TABLE | __pa(pud_page_tramp)));
+	}
+>>>>>>> upstream/android-13
 }

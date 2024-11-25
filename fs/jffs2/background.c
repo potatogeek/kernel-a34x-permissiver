@@ -125,7 +125,11 @@ static int jffs2_garbage_collect_thread(void *_c)
 			if (try_to_freeze())
 				goto again;
 
+<<<<<<< HEAD
 			signr = kernel_dequeue_signal(NULL);
+=======
+			signr = kernel_dequeue_signal();
+>>>>>>> upstream/android-13
 
 			switch(signr) {
 			case SIGSTOP:

@@ -7,6 +7,7 @@
 
 struct b43_wldev;
 
+<<<<<<< HEAD
 /* Complex number using 2 32-bit signed integers */
 struct b43_c32 { s32 i, q; };
 
@@ -14,6 +15,8 @@ struct b43_c32 { s32 i, q; };
 				 ((((value) >> 15) + 1) >> 1) : \
 				 -((((-(value)) >> 15) + 1) >> 1))
 
+=======
+>>>>>>> upstream/android-13
 /* PHY register routing bits */
 #define B43_PHYROUTE			0x0C00 /* PHY register routing bits mask */
 #define  B43_PHYROUTE_BASE		0x0000 /* Base registers */
@@ -450,6 +453,9 @@ bool b43_is_40mhz(struct b43_wldev *dev);
 
 void b43_phy_force_clock(struct b43_wldev *dev, bool force);
 
+<<<<<<< HEAD
 struct b43_c32 b43_cordic(int theta);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* LINUX_B43_PHY_COMMON_H_ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * drivers/i2c/muxes/i2c-mux-mlxcpld.c
  * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
@@ -30,6 +31,13 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+=======
+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
+/*
+ * Mellanox i2c mux driver
+ *
+ * Copyright (C) 2016-2020 Mellanox Technologies
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -38,6 +46,7 @@
 #include <linux/io.h>
 #include <linux/init.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/platform_data/x86/mlxcpld.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
@@ -51,6 +60,21 @@
 struct mlxcpld_mux {
 	u8 last_chan;
 	struct i2c_client *client;
+=======
+#include <linux/platform_data/mlxcpld.h>
+#include <linux/platform_device.h>
+#include <linux/slab.h>
+
+/* mlxcpld_mux - mux control structure:
+ * @last_val - last selected register value or -1 if mux deselected
+ * @client - I2C device client
+ * @pdata: platform data
+ */
+struct mlxcpld_mux {
+	int last_val;
+	struct i2c_client *client;
+	struct mlxcpld_mux_plat_data pdata;
+>>>>>>> upstream/android-13
 };
 
 /* MUX logic description.
@@ -81,16 +105,20 @@ struct mlxcpld_mux {
  *
  */
 
+<<<<<<< HEAD
 static const struct i2c_device_id mlxcpld_mux_id[] = {
 	{ "mlxcpld_mux_module", 0 },
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, mlxcpld_mux_id);
 
+=======
+>>>>>>> upstream/android-13
 /* Write to mux register. Don't use i2c_transfer() and i2c_smbus_xfer()
  * for this as they will try to lock adapter a second time.
  */
 static int mlxcpld_mux_reg_write(struct i2c_adapter *adap,
+<<<<<<< HEAD
 				 struct i2c_client *client, u8 val)
 {
 	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&client->dev);
@@ -99,10 +127,38 @@ static int mlxcpld_mux_reg_write(struct i2c_adapter *adap,
 	return __i2c_smbus_xfer(adap, client->addr, client->flags,
 				I2C_SMBUS_WRITE, pdata->sel_reg_addr,
 				I2C_SMBUS_BYTE_DATA, &data);
+=======
+				 struct mlxcpld_mux *mux, u32 val)
+{
+	struct i2c_client *client = mux->client;
+	union i2c_smbus_data data;
+	struct i2c_msg msg;
+	u8 buf[3];
+
+	switch (mux->pdata.reg_size) {
+	case 1:
+		data.byte = val;
+		return __i2c_smbus_xfer(adap, client->addr, client->flags,
+					I2C_SMBUS_WRITE, mux->pdata.sel_reg_addr,
+					I2C_SMBUS_BYTE_DATA, &data);
+	case 2:
+		buf[0] = mux->pdata.sel_reg_addr >> 8;
+		buf[1] = mux->pdata.sel_reg_addr;
+		buf[2] = val;
+		msg.addr = client->addr;
+		msg.buf = buf;
+		msg.len = mux->pdata.reg_size + 1;
+		msg.flags = 0;
+		return __i2c_transfer(adap, &msg, 1);
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
 {
+<<<<<<< HEAD
 	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
 	struct i2c_client *client = data->client;
 	u8 regval = chan + 1;
@@ -112,6 +168,19 @@ static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
 	if (data->last_chan != regval) {
 		err = mlxcpld_mux_reg_write(muxc->parent, client, regval);
 		data->last_chan = err < 0 ? 0 : regval;
+=======
+	struct mlxcpld_mux *mux = i2c_mux_priv(muxc);
+	u32 regval = chan;
+	int err = 0;
+
+	if (mux->pdata.reg_size == 1)
+		regval += 1;
+
+	/* Only select the channel if its different from the last channel */
+	if (mux->last_val != regval) {
+		err = mlxcpld_mux_reg_write(muxc->parent, mux, regval);
+		mux->last_val = err < 0 ? -1 : regval;
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -119,6 +188,7 @@ static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
 
 static int mlxcpld_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
 {
+<<<<<<< HEAD
 	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
 	struct i2c_client *client = data->client;
 
@@ -138,19 +208,57 @@ static int mlxcpld_mux_probe(struct i2c_client *client,
 	int num, force;
 	struct mlxcpld_mux *data;
 	int err;
+=======
+	struct mlxcpld_mux *mux = i2c_mux_priv(muxc);
+
+	/* Deselect active channel */
+	mux->last_val = -1;
+
+	return mlxcpld_mux_reg_write(muxc->parent, mux, 0);
+}
+
+/* Probe/reomove functions */
+static int mlxcpld_mux_probe(struct platform_device *pdev)
+{
+	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&pdev->dev);
+	struct i2c_client *client = to_i2c_client(pdev->dev.parent);
+	struct i2c_mux_core *muxc;
+	struct mlxcpld_mux *data;
+	int num, err;
+	u32 func;
+>>>>>>> upstream/android-13
 
 	if (!pdata)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
 		return -ENODEV;
 
 	muxc = i2c_mux_alloc(adap, &client->dev, CPLD_MUX_MAX_NCHANS,
+=======
+	switch (pdata->reg_size) {
+	case 1:
+		func = I2C_FUNC_SMBUS_WRITE_BYTE_DATA;
+		break;
+	case 2:
+		func = I2C_FUNC_I2C;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	if (!i2c_check_functionality(client->adapter, func))
+		return -ENODEV;
+
+	muxc = i2c_mux_alloc(client->adapter, &pdev->dev, pdata->num_adaps,
+>>>>>>> upstream/android-13
 			     sizeof(*data), 0, mlxcpld_mux_select_chan,
 			     mlxcpld_mux_deselect);
 	if (!muxc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	data = i2c_mux_priv(muxc);
 	i2c_set_clientdata(client, muxc);
 	data->client = client;
@@ -165,10 +273,28 @@ static int mlxcpld_mux_probe(struct i2c_client *client,
 		force = pdata->adap_ids[num];
 
 		err = i2c_mux_add_adapter(muxc, force, num, 0);
+=======
+	platform_set_drvdata(pdev, muxc);
+	data = i2c_mux_priv(muxc);
+	data->client = client;
+	memcpy(&data->pdata, pdata, sizeof(*pdata));
+	data->last_val = -1; /* force the first selection */
+
+	/* Create an adapter for each channel. */
+	for (num = 0; num < pdata->num_adaps; num++) {
+		err = i2c_mux_add_adapter(muxc, 0, pdata->chan_ids[num], 0);
+>>>>>>> upstream/android-13
 		if (err)
 			goto virt_reg_failed;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Notify caller when all channels' adapters are created. */
+	if (pdata->completion_notify)
+		pdata->completion_notify(pdata->handle, muxc->parent, muxc->adapter);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 virt_reg_failed:
@@ -176,14 +302,21 @@ virt_reg_failed:
 	return err;
 }
 
+<<<<<<< HEAD
 static int mlxcpld_mux_remove(struct i2c_client *client)
 {
 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+=======
+static int mlxcpld_mux_remove(struct platform_device *pdev)
+{
+	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
+>>>>>>> upstream/android-13
 
 	i2c_mux_del_adapters(muxc);
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct i2c_driver mlxcpld_mux_driver = {
 	.driver		= {
 		.name	= "mlxcpld-mux",
@@ -194,6 +327,17 @@ static struct i2c_driver mlxcpld_mux_driver = {
 };
 
 module_i2c_driver(mlxcpld_mux_driver);
+=======
+static struct platform_driver mlxcpld_mux_driver = {
+	.driver = {
+		.name = "i2c-mux-mlxcpld",
+	},
+	.probe = mlxcpld_mux_probe,
+	.remove = mlxcpld_mux_remove,
+};
+
+module_platform_driver(mlxcpld_mux_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Michael Shych (michaels@mellanox.com)");
 MODULE_DESCRIPTION("Mellanox I2C-CPLD-MUX driver");

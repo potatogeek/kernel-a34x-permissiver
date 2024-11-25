@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Basic HP/COMPAQ MSA 1000 support. This is only needed if your HW cannot be
  * upgraded.
@@ -5,6 +9,7 @@
  * Copyright (C) 2006 Red Hat, Inc.  All rights reserved.
  * Copyright (C) 2006 Mike Christie
  * Copyright (C) 2008 Hannes Reinecke <hare@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; see the file COPYING.  If not, write to
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -73,7 +80,11 @@ static int tur_done(struct scsi_device *sdev, struct hp_sw_dh_data *h,
 			ret = SCSI_DH_OK;
 			break;
 		}
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		sdev_printk(KERN_WARNING, sdev,
 			   "%s: sending tur failed, sense %x/%x/%x\n",
@@ -160,7 +171,11 @@ retry:
 				rc = SCSI_DH_RETRY;
 				break;
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			sdev_printk(KERN_WARNING, sdev,
 				    "%s: sending start_stop_unit failed, "
@@ -172,6 +187,7 @@ retry:
 	return rc;
 }
 
+<<<<<<< HEAD
 static int hp_sw_prep_fn(struct scsi_device *sdev, struct request *req)
 {
 	struct hp_sw_dh_data *h = sdev->handler_data;
@@ -183,6 +199,18 @@ static int hp_sw_prep_fn(struct scsi_device *sdev, struct request *req)
 	}
 	return ret;
 
+=======
+static blk_status_t hp_sw_prep_fn(struct scsi_device *sdev, struct request *req)
+{
+	struct hp_sw_dh_data *h = sdev->handler_data;
+
+	if (h->path_state != HP_SW_PATH_ACTIVE) {
+		req->rq_flags |= RQF_QUIET;
+		return BLK_STS_IOERR;
+	}
+
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 /*

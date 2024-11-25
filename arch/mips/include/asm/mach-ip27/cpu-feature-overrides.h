@@ -25,8 +25,11 @@
 #define cpu_has_4kex			1
 #define cpu_has_3k_cache		0
 #define cpu_has_4k_cache		1
+<<<<<<< HEAD
 #define cpu_has_6k_cache		0
 #define cpu_has_8k_cache		0
+=======
+>>>>>>> upstream/android-13
 #define cpu_has_tx39_cache		0
 #define cpu_has_fpu			1
 #define cpu_has_nofpuex			0
@@ -67,7 +70,10 @@
 #define cpu_has_mipsmt			0
 #define cpu_has_userlocal		0
 #define cpu_has_inclusive_pcaches	1
+<<<<<<< HEAD
 #define cpu_hwrena_impl_bits		0
+=======
+>>>>>>> upstream/android-13
 #define cpu_has_perf_cntr_intr_bit	0
 #define cpu_has_vz			0
 #define cpu_has_fre			0

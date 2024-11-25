@@ -71,7 +71,10 @@ extern unsigned int num_io_spaces;
 #define HAVE_ARCH_PIO_SIZE
 
 #include <asm/intrinsics.h>
+<<<<<<< HEAD
 #include <asm/machvec.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm-generic/iomap.h>
 
@@ -113,6 +116,7 @@ extern int valid_mmap_phys_addr_range (unsigned long pfn, size_t count);
  */
 #define __ia64_mf_a()	ia64_mfa()
 
+<<<<<<< HEAD
 /**
  * ___ia64_mmiowb - I/O write barrier
  *
@@ -127,6 +131,8 @@ static inline void ___ia64_mmiowb(void)
 	ia64_mfa();
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void*
 __ia64_mk_io_addr (unsigned long port)
 {
@@ -143,6 +149,7 @@ __ia64_mk_io_addr (unsigned long port)
 	return (void *) (space->mmio_base | offset);
 }
 
+<<<<<<< HEAD
 #define __ia64_inb	___ia64_inb
 #define __ia64_inw	___ia64_inw
 #define __ia64_inl	___ia64_inl
@@ -163,6 +170,8 @@ __ia64_mk_io_addr (unsigned long port)
 #define __ia64_writeq	___ia64_writeq
 #define __ia64_mmiowb	___ia64_mmiowb
 
+=======
+>>>>>>> upstream/android-13
 /*
  * For the in/out routines, we need to do "mf.a" _after_ doing the I/O access to ensure
  * that the access has completed before executing other I/O accesses.  Since we're doing
@@ -171,8 +180,13 @@ __ia64_mk_io_addr (unsigned long port)
  * during optimization, which is why we use "volatile" pointers.
  */
 
+<<<<<<< HEAD
 static inline unsigned int
 ___ia64_inb (unsigned long port)
+=======
+#define inb inb
+static inline unsigned int inb(unsigned long port)
+>>>>>>> upstream/android-13
 {
 	volatile unsigned char *addr = __ia64_mk_io_addr(port);
 	unsigned char ret;
@@ -182,8 +196,13 @@ ___ia64_inb (unsigned long port)
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline unsigned int
 ___ia64_inw (unsigned long port)
+=======
+#define inw inw
+static inline unsigned int inw(unsigned long port)
+>>>>>>> upstream/android-13
 {
 	volatile unsigned short *addr = __ia64_mk_io_addr(port);
 	unsigned short ret;
@@ -193,8 +212,13 @@ ___ia64_inw (unsigned long port)
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline unsigned int
 ___ia64_inl (unsigned long port)
+=======
+#define inl inl
+static inline unsigned int inl(unsigned long port)
+>>>>>>> upstream/android-13
 {
 	volatile unsigned int *addr = __ia64_mk_io_addr(port);
 	unsigned int ret;
@@ -204,8 +228,13 @@ ___ia64_inl (unsigned long port)
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline void
 ___ia64_outb (unsigned char val, unsigned long port)
+=======
+#define outb outb
+static inline void outb(unsigned char val, unsigned long port)
+>>>>>>> upstream/android-13
 {
 	volatile unsigned char *addr = __ia64_mk_io_addr(port);
 
@@ -213,8 +242,13 @@ ___ia64_outb (unsigned char val, unsigned long port)
 	__ia64_mf_a();
 }
 
+<<<<<<< HEAD
 static inline void
 ___ia64_outw (unsigned short val, unsigned long port)
+=======
+#define outw outw
+static inline void outw(unsigned short val, unsigned long port)
+>>>>>>> upstream/android-13
 {
 	volatile unsigned short *addr = __ia64_mk_io_addr(port);
 
@@ -222,8 +256,13 @@ ___ia64_outw (unsigned short val, unsigned long port)
 	__ia64_mf_a();
 }
 
+<<<<<<< HEAD
 static inline void
 ___ia64_outl (unsigned int val, unsigned long port)
+=======
+#define outl outl
+static inline void outl(unsigned int val, unsigned long port)
+>>>>>>> upstream/android-13
 {
 	volatile unsigned int *addr = __ia64_mk_io_addr(port);
 
@@ -231,57 +270,106 @@ ___ia64_outl (unsigned int val, unsigned long port)
 	__ia64_mf_a();
 }
 
+<<<<<<< HEAD
 static inline void
 __insb (unsigned long port, void *dst, unsigned long count)
+=======
+#define insb insb
+static inline void insb(unsigned long port, void *dst, unsigned long count)
+>>>>>>> upstream/android-13
 {
 	unsigned char *dp = dst;
 
 	while (count--)
+<<<<<<< HEAD
 		*dp++ = platform_inb(port);
 }
 
 static inline void
 __insw (unsigned long port, void *dst, unsigned long count)
+=======
+		*dp++ = inb(port);
+}
+
+#define insw insw
+static inline void insw(unsigned long port, void *dst, unsigned long count)
+>>>>>>> upstream/android-13
 {
 	unsigned short *dp = dst;
 
 	while (count--)
+<<<<<<< HEAD
 		put_unaligned(platform_inw(port), dp++);
 }
 
 static inline void
 __insl (unsigned long port, void *dst, unsigned long count)
+=======
+		put_unaligned(inw(port), dp++);
+}
+
+#define insl insl
+static inline void insl(unsigned long port, void *dst, unsigned long count)
+>>>>>>> upstream/android-13
 {
 	unsigned int *dp = dst;
 
 	while (count--)
+<<<<<<< HEAD
 		put_unaligned(platform_inl(port), dp++);
 }
 
 static inline void
 __outsb (unsigned long port, const void *src, unsigned long count)
+=======
+		put_unaligned(inl(port), dp++);
+}
+
+#define outsb outsb
+static inline void outsb(unsigned long port, const void *src,
+		unsigned long count)
+>>>>>>> upstream/android-13
 {
 	const unsigned char *sp = src;
 
 	while (count--)
+<<<<<<< HEAD
 		platform_outb(*sp++, port);
 }
 
 static inline void
 __outsw (unsigned long port, const void *src, unsigned long count)
+=======
+		outb(*sp++, port);
+}
+
+#define outsw outsw
+static inline void outsw(unsigned long port, const void *src,
+		unsigned long count)
+>>>>>>> upstream/android-13
 {
 	const unsigned short *sp = src;
 
 	while (count--)
+<<<<<<< HEAD
 		platform_outw(get_unaligned(sp++), port);
 }
 
 static inline void
 __outsl (unsigned long port, const void *src, unsigned long count)
+=======
+		outw(get_unaligned(sp++), port);
+}
+
+#define outsl outsl
+static inline void outsl(unsigned long port, const void *src,
+		unsigned long count)
+>>>>>>> upstream/android-13
 {
 	const unsigned int *sp = src;
 
 	while (count--)
+<<<<<<< HEAD
 		platform_outl(get_unaligned(sp++), port);
 }
 
@@ -430,15 +518,29 @@ __writeq (unsigned long val, volatile void __iomem *addr)
 
 extern void __iomem * ioremap(unsigned long offset, unsigned long size);
 extern void __iomem * ioremap_nocache (unsigned long offset, unsigned long size);
+=======
+		outl(get_unaligned(sp++), port);
+}
+
+# ifdef __KERNEL__
+
+extern void __iomem * ioremap(unsigned long offset, unsigned long size);
+extern void __iomem * ioremap_uc(unsigned long offset, unsigned long size);
+>>>>>>> upstream/android-13
 extern void iounmap (volatile void __iomem *addr);
 static inline void __iomem * ioremap_cache (unsigned long phys_addr, unsigned long size)
 {
 	return ioremap(phys_addr, size);
 }
 #define ioremap ioremap
+<<<<<<< HEAD
 #define ioremap_nocache ioremap_nocache
 #define ioremap_cache ioremap_cache
 #define ioremap_uc ioremap_nocache
+=======
+#define ioremap_cache ioremap_cache
+#define ioremap_uc ioremap_uc
+>>>>>>> upstream/android-13
 #define iounmap iounmap
 
 /*
@@ -451,7 +553,10 @@ extern void memset_io(volatile void __iomem *s, int c, long n);
 #define memcpy_fromio memcpy_fromio
 #define memcpy_toio memcpy_toio
 #define memset_io memset_io
+<<<<<<< HEAD
 #define xlate_dev_kmem_ptr xlate_dev_kmem_ptr
+=======
+>>>>>>> upstream/android-13
 #define xlate_dev_mem_ptr xlate_dev_mem_ptr
 #include <asm-generic/io.h>
 #undef PCI_IOBASE

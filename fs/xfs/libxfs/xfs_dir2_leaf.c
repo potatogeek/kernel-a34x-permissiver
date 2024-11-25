@@ -6,12 +6,19 @@
  */
 #include "xfs.h"
 #include "xfs_fs.h"
+<<<<<<< HEAD
+=======
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_inode.h"
 #include "xfs_bmap.h"
 #include "xfs_dir2.h"
@@ -20,19 +27,90 @@
 #include "xfs_trace.h"
 #include "xfs_trans.h"
 #include "xfs_buf_item.h"
+<<<<<<< HEAD
 #include "xfs_cksum.h"
 #include "xfs_log.h"
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Local function declarations.
  */
 static int xfs_dir2_leaf_lookup_int(xfs_da_args_t *args, struct xfs_buf **lbpp,
+<<<<<<< HEAD
 				    int *indexp, struct xfs_buf **dbpp);
+=======
+				    int *indexp, struct xfs_buf **dbpp,
+				    struct xfs_dir3_icleaf_hdr *leafhdr);
+>>>>>>> upstream/android-13
 static void xfs_dir3_leaf_log_bests(struct xfs_da_args *args,
 				    struct xfs_buf *bp, int first, int last);
 static void xfs_dir3_leaf_log_tail(struct xfs_da_args *args,
 				   struct xfs_buf *bp);
 
+<<<<<<< HEAD
+=======
+void
+xfs_dir2_leaf_hdr_from_disk(
+	struct xfs_mount		*mp,
+	struct xfs_dir3_icleaf_hdr	*to,
+	struct xfs_dir2_leaf		*from)
+{
+	if (xfs_has_crc(mp)) {
+		struct xfs_dir3_leaf *from3 = (struct xfs_dir3_leaf *)from;
+
+		to->forw = be32_to_cpu(from3->hdr.info.hdr.forw);
+		to->back = be32_to_cpu(from3->hdr.info.hdr.back);
+		to->magic = be16_to_cpu(from3->hdr.info.hdr.magic);
+		to->count = be16_to_cpu(from3->hdr.count);
+		to->stale = be16_to_cpu(from3->hdr.stale);
+		to->ents = from3->__ents;
+
+		ASSERT(to->magic == XFS_DIR3_LEAF1_MAGIC ||
+		       to->magic == XFS_DIR3_LEAFN_MAGIC);
+	} else {
+		to->forw = be32_to_cpu(from->hdr.info.forw);
+		to->back = be32_to_cpu(from->hdr.info.back);
+		to->magic = be16_to_cpu(from->hdr.info.magic);
+		to->count = be16_to_cpu(from->hdr.count);
+		to->stale = be16_to_cpu(from->hdr.stale);
+		to->ents = from->__ents;
+
+		ASSERT(to->magic == XFS_DIR2_LEAF1_MAGIC ||
+		       to->magic == XFS_DIR2_LEAFN_MAGIC);
+	}
+}
+
+void
+xfs_dir2_leaf_hdr_to_disk(
+	struct xfs_mount		*mp,
+	struct xfs_dir2_leaf		*to,
+	struct xfs_dir3_icleaf_hdr	*from)
+{
+	if (xfs_has_crc(mp)) {
+		struct xfs_dir3_leaf *to3 = (struct xfs_dir3_leaf *)to;
+
+		ASSERT(from->magic == XFS_DIR3_LEAF1_MAGIC ||
+		       from->magic == XFS_DIR3_LEAFN_MAGIC);
+
+		to3->hdr.info.hdr.forw = cpu_to_be32(from->forw);
+		to3->hdr.info.hdr.back = cpu_to_be32(from->back);
+		to3->hdr.info.hdr.magic = cpu_to_be16(from->magic);
+		to3->hdr.count = cpu_to_be16(from->count);
+		to3->hdr.stale = cpu_to_be16(from->stale);
+	} else {
+		ASSERT(from->magic == XFS_DIR2_LEAF1_MAGIC ||
+		       from->magic == XFS_DIR2_LEAFN_MAGIC);
+
+		to->hdr.info.forw = cpu_to_be32(from->forw);
+		to->hdr.info.back = cpu_to_be32(from->back);
+		to->hdr.info.magic = cpu_to_be16(from->magic);
+		to->hdr.count = cpu_to_be16(from->count);
+		to->hdr.stale = cpu_to_be16(from->stale);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * Check the internal consistency of a leaf1 block.
  * Pop an assert if something is wrong.
@@ -46,16 +124,28 @@ xfs_dir3_leaf1_check(
 	struct xfs_dir2_leaf	*leaf = bp->b_addr;
 	struct xfs_dir3_icleaf_hdr leafhdr;
 
+<<<<<<< HEAD
 	dp->d_ops->leaf_hdr_from_disk(&leafhdr, leaf);
 
 	if (leafhdr.magic == XFS_DIR3_LEAF1_MAGIC) {
 		struct xfs_dir3_leaf_hdr *leaf3 = bp->b_addr;
 		if (be64_to_cpu(leaf3->info.blkno) != bp->b_bn)
+=======
+	xfs_dir2_leaf_hdr_from_disk(dp->i_mount, &leafhdr, leaf);
+
+	if (leafhdr.magic == XFS_DIR3_LEAF1_MAGIC) {
+		struct xfs_dir3_leaf_hdr *leaf3 = bp->b_addr;
+		if (be64_to_cpu(leaf3->info.blkno) != xfs_buf_daddr(bp))
+>>>>>>> upstream/android-13
 			return __this_address;
 	} else if (leafhdr.magic != XFS_DIR2_LEAF1_MAGIC)
 		return __this_address;
 
+<<<<<<< HEAD
 	return xfs_dir3_leaf_check_int(dp->i_mount, dp, &leafhdr, leaf);
+=======
+	return xfs_dir3_leaf_check_int(dp->i_mount, &leafhdr, leaf, false);
+>>>>>>> upstream/android-13
 }
 
 static inline void
@@ -79,6 +169,7 @@ xfs_dir3_leaf_check(
 
 xfs_failaddr_t
 xfs_dir3_leaf_check_int(
+<<<<<<< HEAD
 	struct xfs_mount	*mp,
 	struct xfs_inode	*dp,
 	struct xfs_dir3_icleaf_hdr *hdr,
@@ -104,19 +195,38 @@ xfs_dir3_leaf_check_int(
 	}
 
 	ents = ops->leaf_ents_p(leaf);
+=======
+	struct xfs_mount		*mp,
+	struct xfs_dir3_icleaf_hdr	*hdr,
+	struct xfs_dir2_leaf		*leaf,
+	bool				expensive_checking)
+{
+	struct xfs_da_geometry		*geo = mp->m_dir_geo;
+	xfs_dir2_leaf_tail_t		*ltp;
+	int				stale;
+	int				i;
+
+>>>>>>> upstream/android-13
 	ltp = xfs_dir2_leaf_tail_p(geo, leaf);
 
 	/*
 	 * XXX (dgc): This value is not restrictive enough.
 	 * Should factor in the size of the bests table as well.
+<<<<<<< HEAD
 	 * We can deduce a value for that from di_size.
 	 */
 	if (hdr->count > ops->leaf_max_ents(geo))
+=======
+	 * We can deduce a value for that from i_disk_size.
+	 */
+	if (hdr->count > geo->leaf_max_ents)
+>>>>>>> upstream/android-13
 		return __this_address;
 
 	/* Leaves and bests don't overlap in leaf format. */
 	if ((hdr->magic == XFS_DIR2_LEAF1_MAGIC ||
 	     hdr->magic == XFS_DIR3_LEAF1_MAGIC) &&
+<<<<<<< HEAD
 	    (char *)&ents[hdr->count] > (char *)xfs_dir2_leaf_bests_p(ltp))
 		return __this_address;
 
@@ -128,6 +238,22 @@ xfs_dir3_leaf_check_int(
 				return __this_address;
 		}
 		if (ents[i].address == cpu_to_be32(XFS_DIR2_NULL_DATAPTR))
+=======
+	    (char *)&hdr->ents[hdr->count] > (char *)xfs_dir2_leaf_bests_p(ltp))
+		return __this_address;
+
+	if (!expensive_checking)
+		return NULL;
+
+	/* Check hash value order, count stale entries.  */
+	for (i = stale = 0; i < hdr->count; i++) {
+		if (i + 1 < hdr->count) {
+			if (be32_to_cpu(hdr->ents[i].hashval) >
+					be32_to_cpu(hdr->ents[i + 1].hashval))
+				return __this_address;
+		}
+		if (hdr->ents[i].address == cpu_to_be32(XFS_DIR2_NULL_DATAPTR))
+>>>>>>> upstream/android-13
 			stale++;
 	}
 	if (hdr->stale != stale)
@@ -142,6 +268,7 @@ xfs_dir3_leaf_check_int(
  */
 static xfs_failaddr_t
 xfs_dir3_leaf_verify(
+<<<<<<< HEAD
 	struct xfs_buf		*bp,
 	uint16_t		magic)
 {
@@ -186,28 +313,71 @@ __read_verify(
 		xfs_verifier_error(bp, -EFSBADCRC, __this_address);
 	else {
 		fa = xfs_dir3_leaf_verify(bp, magic);
+=======
+	struct xfs_buf			*bp)
+{
+	struct xfs_mount		*mp = bp->b_mount;
+	struct xfs_dir3_icleaf_hdr	leafhdr;
+	xfs_failaddr_t			fa;
+
+	fa = xfs_da3_blkinfo_verify(bp, bp->b_addr);
+	if (fa)
+		return fa;
+
+	xfs_dir2_leaf_hdr_from_disk(mp, &leafhdr, bp->b_addr);
+	return xfs_dir3_leaf_check_int(mp, &leafhdr, bp->b_addr, true);
+}
+
+static void
+xfs_dir3_leaf_read_verify(
+	struct xfs_buf  *bp)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+	xfs_failaddr_t		fa;
+
+	if (xfs_has_crc(mp) &&
+	     !xfs_buf_verify_cksum(bp, XFS_DIR3_LEAF_CRC_OFF))
+		xfs_verifier_error(bp, -EFSBADCRC, __this_address);
+	else {
+		fa = xfs_dir3_leaf_verify(bp);
+>>>>>>> upstream/android-13
 		if (fa)
 			xfs_verifier_error(bp, -EFSCORRUPTED, fa);
 	}
 }
 
 static void
+<<<<<<< HEAD
 __write_verify(
 	struct xfs_buf  *bp,
 	uint16_t	magic)
 {
 	struct xfs_mount	*mp = bp->b_target->bt_mount;
+=======
+xfs_dir3_leaf_write_verify(
+	struct xfs_buf  *bp)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+>>>>>>> upstream/android-13
 	struct xfs_buf_log_item	*bip = bp->b_log_item;
 	struct xfs_dir3_leaf_hdr *hdr3 = bp->b_addr;
 	xfs_failaddr_t		fa;
 
+<<<<<<< HEAD
 	fa = xfs_dir3_leaf_verify(bp, magic);
+=======
+	fa = xfs_dir3_leaf_verify(bp);
+>>>>>>> upstream/android-13
 	if (fa) {
 		xfs_verifier_error(bp, -EFSCORRUPTED, fa);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (!xfs_sb_version_hascrc(&mp->m_sb))
+=======
+	if (!xfs_has_crc(mp))
+>>>>>>> upstream/android-13
 		return;
 
 	if (bip)
@@ -216,6 +386,7 @@ __write_verify(
 	xfs_buf_update_cksum(bp, XFS_DIR3_LEAF_CRC_OFF);
 }
 
+<<<<<<< HEAD
 static xfs_failaddr_t
 xfs_dir3_leaf1_verify(
 	struct xfs_buf	*bp)
@@ -263,13 +434,30 @@ const struct xfs_buf_ops xfs_dir3_leaf1_buf_ops = {
 	.verify_read = xfs_dir3_leaf1_read_verify,
 	.verify_write = xfs_dir3_leaf1_write_verify,
 	.verify_struct = xfs_dir3_leaf1_verify,
+=======
+const struct xfs_buf_ops xfs_dir3_leaf1_buf_ops = {
+	.name = "xfs_dir3_leaf1",
+	.magic16 = { cpu_to_be16(XFS_DIR2_LEAF1_MAGIC),
+		     cpu_to_be16(XFS_DIR3_LEAF1_MAGIC) },
+	.verify_read = xfs_dir3_leaf_read_verify,
+	.verify_write = xfs_dir3_leaf_write_verify,
+	.verify_struct = xfs_dir3_leaf_verify,
+>>>>>>> upstream/android-13
 };
 
 const struct xfs_buf_ops xfs_dir3_leafn_buf_ops = {
 	.name = "xfs_dir3_leafn",
+<<<<<<< HEAD
 	.verify_read = xfs_dir3_leafn_read_verify,
 	.verify_write = xfs_dir3_leafn_write_verify,
 	.verify_struct = xfs_dir3_leafn_verify,
+=======
+	.magic16 = { cpu_to_be16(XFS_DIR2_LEAFN_MAGIC),
+		     cpu_to_be16(XFS_DIR3_LEAFN_MAGIC) },
+	.verify_read = xfs_dir3_leaf_read_verify,
+	.verify_write = xfs_dir3_leaf_write_verify,
+	.verify_struct = xfs_dir3_leaf_verify,
+>>>>>>> upstream/android-13
 };
 
 int
@@ -277,13 +465,21 @@ xfs_dir3_leaf_read(
 	struct xfs_trans	*tp,
 	struct xfs_inode	*dp,
 	xfs_dablk_t		fbno,
+<<<<<<< HEAD
 	xfs_daddr_t		mappedbno,
+=======
+>>>>>>> upstream/android-13
 	struct xfs_buf		**bpp)
 {
 	int			err;
 
+<<<<<<< HEAD
 	err = xfs_da_read_buf(tp, dp, fbno, mappedbno, bpp,
 				XFS_DATA_FORK, &xfs_dir3_leaf1_buf_ops);
+=======
+	err = xfs_da_read_buf(tp, dp, fbno, 0, bpp, XFS_DATA_FORK,
+			&xfs_dir3_leaf1_buf_ops);
+>>>>>>> upstream/android-13
 	if (!err && tp && *bpp)
 		xfs_trans_buf_set_type(tp, *bpp, XFS_BLFT_DIR_LEAF1_BUF);
 	return err;
@@ -294,13 +490,21 @@ xfs_dir3_leafn_read(
 	struct xfs_trans	*tp,
 	struct xfs_inode	*dp,
 	xfs_dablk_t		fbno,
+<<<<<<< HEAD
 	xfs_daddr_t		mappedbno,
+=======
+>>>>>>> upstream/android-13
 	struct xfs_buf		**bpp)
 {
 	int			err;
 
+<<<<<<< HEAD
 	err = xfs_da_read_buf(tp, dp, fbno, mappedbno, bpp,
 				XFS_DATA_FORK, &xfs_dir3_leafn_buf_ops);
+=======
+	err = xfs_da_read_buf(tp, dp, fbno, 0, bpp, XFS_DATA_FORK,
+			&xfs_dir3_leafn_buf_ops);
+>>>>>>> upstream/android-13
 	if (!err && tp && *bpp)
 		xfs_trans_buf_set_type(tp, *bpp, XFS_BLFT_DIR_LEAFN_BUF);
 	return err;
@@ -321,7 +525,11 @@ xfs_dir3_leaf_init(
 
 	ASSERT(type == XFS_DIR2_LEAF1_MAGIC || type == XFS_DIR2_LEAFN_MAGIC);
 
+<<<<<<< HEAD
 	if (xfs_sb_version_hascrc(&mp->m_sb)) {
+=======
+	if (xfs_has_crc(mp)) {
+>>>>>>> upstream/android-13
 		struct xfs_dir3_leaf_hdr *leaf3 = bp->b_addr;
 
 		memset(leaf3, 0, sizeof(*leaf3));
@@ -329,7 +537,11 @@ xfs_dir3_leaf_init(
 		leaf3->info.hdr.magic = (type == XFS_DIR2_LEAF1_MAGIC)
 					 ? cpu_to_be16(XFS_DIR3_LEAF1_MAGIC)
 					 : cpu_to_be16(XFS_DIR3_LEAFN_MAGIC);
+<<<<<<< HEAD
 		leaf3->info.blkno = cpu_to_be64(bp->b_bn);
+=======
+		leaf3->info.blkno = cpu_to_be64(xfs_buf_daddr(bp));
+>>>>>>> upstream/android-13
 		leaf3->info.owner = cpu_to_be64(owner);
 		uuid_copy(&leaf3->info.uuid, &mp->m_sb.sb_meta_uuid);
 	} else {
@@ -372,7 +584,11 @@ xfs_dir3_leaf_get_buf(
 	       bno < xfs_dir2_byte_to_db(args->geo, XFS_DIR2_FREE_OFFSET));
 
 	error = xfs_da_get_buf(tp, dp, xfs_dir2_db_to_da(args->geo, bno),
+<<<<<<< HEAD
 			       -1, &bp, XFS_DATA_FORK);
+=======
+			       &bp, XFS_DATA_FORK);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -407,7 +623,10 @@ xfs_dir2_block_to_leaf(
 	int			needscan;	/* need to rescan bestfree */
 	xfs_trans_t		*tp;		/* transaction pointer */
 	struct xfs_dir2_data_free *bf;
+<<<<<<< HEAD
 	struct xfs_dir2_leaf_entry *ents;
+=======
+>>>>>>> upstream/android-13
 	struct xfs_dir3_icleaf_hdr leafhdr;
 
 	trace_xfs_dir2_block_to_leaf(args);
@@ -436,24 +655,41 @@ xfs_dir2_block_to_leaf(
 	xfs_dir3_data_check(dp, dbp);
 	btp = xfs_dir2_block_tail_p(args->geo, hdr);
 	blp = xfs_dir2_block_leaf_p(btp);
+<<<<<<< HEAD
 	bf = dp->d_ops->data_bestfree_p(hdr);
 	ents = dp->d_ops->leaf_ents_p(leaf);
+=======
+	bf = xfs_dir2_data_bestfree_p(dp->i_mount, hdr);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set the counts in the leaf header.
 	 */
+<<<<<<< HEAD
 	dp->d_ops->leaf_hdr_from_disk(&leafhdr, leaf);
 	leafhdr.count = be32_to_cpu(btp->count);
 	leafhdr.stale = be32_to_cpu(btp->stale);
 	dp->d_ops->leaf_hdr_to_disk(leaf, &leafhdr);
+=======
+	xfs_dir2_leaf_hdr_from_disk(dp->i_mount, &leafhdr, leaf);
+	leafhdr.count = be32_to_cpu(btp->count);
+	leafhdr.stale = be32_to_cpu(btp->stale);
+	xfs_dir2_leaf_hdr_to_disk(dp->i_mount, leaf, &leafhdr);
+>>>>>>> upstream/android-13
 	xfs_dir3_leaf_log_header(args, lbp);
 
 	/*
 	 * Could compact these but I think we always do the conversion
 	 * after squeezing out stale entries.
 	 */
+<<<<<<< HEAD
 	memcpy(ents, blp, be32_to_cpu(btp->count) * sizeof(xfs_dir2_leaf_entry_t));
 	xfs_dir3_leaf_log_ents(args, lbp, 0, leafhdr.count - 1);
+=======
+	memcpy(leafhdr.ents, blp,
+		be32_to_cpu(btp->count) * sizeof(struct xfs_dir2_leaf_entry));
+	xfs_dir3_leaf_log_ents(args, &leafhdr, lbp, 0, leafhdr.count - 1);
+>>>>>>> upstream/android-13
 	needscan = 0;
 	needlog = 1;
 	/*
@@ -476,7 +712,11 @@ xfs_dir2_block_to_leaf(
 		hdr->magic = cpu_to_be32(XFS_DIR3_DATA_MAGIC);
 
 	if (needscan)
+<<<<<<< HEAD
 		xfs_dir2_data_freescan(dp, hdr, &needlog);
+=======
+		xfs_dir2_data_freescan(dp->i_mount, hdr, &needlog);
+>>>>>>> upstream/android-13
 	/*
 	 * Set up leaf tail and bests table.
 	 */
@@ -621,6 +861,7 @@ xfs_dir3_leaf_find_entry(
  */
 int						/* error */
 xfs_dir2_leaf_addname(
+<<<<<<< HEAD
 	xfs_da_args_t		*args)		/* operation arguments */
 {
 	__be16			*bestsp;	/* freespace table in leaf */
@@ -659,6 +900,43 @@ xfs_dir2_leaf_addname(
 	tp = args->trans;
 
 	error = xfs_dir3_leaf_read(tp, dp, args->geo->leafblk, -1, &lbp);
+=======
+	struct xfs_da_args	*args)		/* operation arguments */
+{
+	struct xfs_dir3_icleaf_hdr leafhdr;
+	struct xfs_trans	*tp = args->trans;
+	__be16			*bestsp;	/* freespace table in leaf */
+	__be16			*tagp;		/* end of data entry */
+	struct xfs_buf		*dbp;		/* data block buffer */
+	struct xfs_buf		*lbp;		/* leaf's buffer */
+	struct xfs_dir2_leaf	*leaf;		/* leaf structure */
+	struct xfs_inode	*dp = args->dp;	/* incore directory inode */
+	struct xfs_dir2_data_hdr *hdr;		/* data block header */
+	struct xfs_dir2_data_entry *dep;	/* data block entry */
+	struct xfs_dir2_leaf_entry *lep;	/* leaf entry table pointer */
+	struct xfs_dir2_leaf_entry *ents;
+	struct xfs_dir2_data_unused *dup;	/* data unused entry */
+	struct xfs_dir2_leaf_tail *ltp;		/* leaf tail pointer */
+	struct xfs_dir2_data_free *bf;		/* bestfree table */
+	int			compact;	/* need to compact leaves */
+	int			error;		/* error return value */
+	int			grown;		/* allocated new data block */
+	int			highstale = 0;	/* index of next stale leaf */
+	int			i;		/* temporary, index */
+	int			index;		/* leaf table position */
+	int			length;		/* length of new entry */
+	int			lfloglow;	/* low leaf logging index */
+	int			lfloghigh;	/* high leaf logging index */
+	int			lowstale = 0;	/* index of prev stale leaf */
+	int			needbytes;	/* leaf block bytes needed */
+	int			needlog;	/* need to log data header */
+	int			needscan;	/* need to rescan data free */
+	xfs_dir2_db_t		use_block;	/* data block number */
+
+	trace_xfs_dir2_leaf_addname(args);
+
+	error = xfs_dir3_leaf_read(tp, dp, args->geo->leafblk, &lbp);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -671,10 +949,17 @@ xfs_dir2_leaf_addname(
 	index = xfs_dir2_leaf_search_hash(args, lbp);
 	leaf = lbp->b_addr;
 	ltp = xfs_dir2_leaf_tail_p(args->geo, leaf);
+<<<<<<< HEAD
 	ents = dp->d_ops->leaf_ents_p(leaf);
 	dp->d_ops->leaf_hdr_from_disk(&leafhdr, leaf);
 	bestsp = xfs_dir2_leaf_bests_p(ltp);
 	length = dp->d_ops->data_entsize(args->namelen);
+=======
+	xfs_dir2_leaf_hdr_from_disk(dp->i_mount, &leafhdr, leaf);
+	ents = leafhdr.ents;
+	bestsp = xfs_dir2_leaf_bests_p(ltp);
+	length = xfs_dir2_data_entsize(dp->i_mount, args->namelen);
+>>>>>>> upstream/android-13
 
 	/*
 	 * See if there are any entries with the same hash value
@@ -837,7 +1122,11 @@ xfs_dir2_leaf_addname(
 		else
 			xfs_dir3_leaf_log_bests(args, lbp, use_block, use_block);
 		hdr = dbp->b_addr;
+<<<<<<< HEAD
 		bf = dp->d_ops->data_bestfree_p(hdr);
+=======
+		bf = xfs_dir2_data_bestfree_p(dp->i_mount, hdr);
+>>>>>>> upstream/android-13
 		bestsp[use_block] = bf[0].length;
 		grown = 1;
 	} else {
@@ -847,13 +1136,21 @@ xfs_dir2_leaf_addname(
 		 */
 		error = xfs_dir3_data_read(tp, dp,
 				   xfs_dir2_db_to_da(args->geo, use_block),
+<<<<<<< HEAD
 				   -1, &dbp);
+=======
+				   0, &dbp);
+>>>>>>> upstream/android-13
 		if (error) {
 			xfs_trans_brelse(tp, lbp);
 			return error;
 		}
 		hdr = dbp->b_addr;
+<<<<<<< HEAD
 		bf = dp->d_ops->data_bestfree_p(hdr);
+=======
+		bf = xfs_dir2_data_bestfree_p(dp->i_mount, hdr);
+>>>>>>> upstream/android-13
 		grown = 0;
 	}
 	/*
@@ -879,14 +1176,23 @@ xfs_dir2_leaf_addname(
 	dep->inumber = cpu_to_be64(args->inumber);
 	dep->namelen = args->namelen;
 	memcpy(dep->name, args->name, dep->namelen);
+<<<<<<< HEAD
 	dp->d_ops->data_put_ftype(dep, args->filetype);
 	tagp = dp->d_ops->data_entry_tag_p(dep);
+=======
+	xfs_dir2_data_put_ftype(dp->i_mount, dep, args->filetype);
+	tagp = xfs_dir2_data_entry_tag_p(dp->i_mount, dep);
+>>>>>>> upstream/android-13
 	*tagp = cpu_to_be16((char *)dep - (char *)hdr);
 	/*
 	 * Need to scan fix up the bestfree table.
 	 */
 	if (needscan)
+<<<<<<< HEAD
 		xfs_dir2_data_freescan(dp, hdr, &needlog);
+=======
+		xfs_dir2_data_freescan(dp->i_mount, hdr, &needlog);
+>>>>>>> upstream/android-13
 	/*
 	 * Need to log the data block's header.
 	 */
@@ -916,9 +1222,15 @@ xfs_dir2_leaf_addname(
 	/*
 	 * Log the leaf fields and give up the buffers.
 	 */
+<<<<<<< HEAD
 	dp->d_ops->leaf_hdr_to_disk(leaf, &leafhdr);
 	xfs_dir3_leaf_log_header(args, lbp);
 	xfs_dir3_leaf_log_ents(args, lbp, lfloglow, lfloghigh);
+=======
+	xfs_dir2_leaf_hdr_to_disk(dp->i_mount, leaf, &leafhdr);
+	xfs_dir3_leaf_log_header(args, lbp);
+	xfs_dir3_leaf_log_ents(args, &leafhdr, lbp, lfloglow, lfloghigh);
+>>>>>>> upstream/android-13
 	xfs_dir3_leaf_check(dp, lbp);
 	xfs_dir3_data_check(dp, dbp);
 	return 0;
@@ -938,7 +1250,10 @@ xfs_dir3_leaf_compact(
 	xfs_dir2_leaf_t	*leaf;		/* leaf structure */
 	int		loglow;		/* first leaf entry to log */
 	int		to;		/* target leaf index */
+<<<<<<< HEAD
 	struct xfs_dir2_leaf_entry *ents;
+=======
+>>>>>>> upstream/android-13
 	struct xfs_inode *dp = args->dp;
 
 	leaf = bp->b_addr;
@@ -948,9 +1263,15 @@ xfs_dir3_leaf_compact(
 	/*
 	 * Compress out the stale entries in place.
 	 */
+<<<<<<< HEAD
 	ents = dp->d_ops->leaf_ents_p(leaf);
 	for (from = to = 0, loglow = -1; from < leafhdr->count; from++) {
 		if (ents[from].address == cpu_to_be32(XFS_DIR2_NULL_DATAPTR))
+=======
+	for (from = to = 0, loglow = -1; from < leafhdr->count; from++) {
+		if (leafhdr->ents[from].address ==
+		    cpu_to_be32(XFS_DIR2_NULL_DATAPTR))
+>>>>>>> upstream/android-13
 			continue;
 		/*
 		 * Only actually copy the entries that are different.
@@ -958,7 +1279,11 @@ xfs_dir3_leaf_compact(
 		if (from > to) {
 			if (loglow == -1)
 				loglow = to;
+<<<<<<< HEAD
 			ents[to] = ents[from];
+=======
+			leafhdr->ents[to] = leafhdr->ents[from];
+>>>>>>> upstream/android-13
 		}
 		to++;
 	}
@@ -969,10 +1294,17 @@ xfs_dir3_leaf_compact(
 	leafhdr->count -= leafhdr->stale;
 	leafhdr->stale = 0;
 
+<<<<<<< HEAD
 	dp->d_ops->leaf_hdr_to_disk(leaf, leafhdr);
 	xfs_dir3_leaf_log_header(args, bp);
 	if (loglow != -1)
 		xfs_dir3_leaf_log_ents(args, bp, loglow, to - 1);
+=======
+	xfs_dir2_leaf_hdr_to_disk(dp->i_mount, leaf, leafhdr);
+	xfs_dir3_leaf_log_header(args, bp);
+	if (loglow != -1)
+		xfs_dir3_leaf_log_ents(args, leafhdr, bp, loglow, to - 1);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1101,6 +1433,10 @@ xfs_dir3_leaf_log_bests(
 void
 xfs_dir3_leaf_log_ents(
 	struct xfs_da_args	*args,
+<<<<<<< HEAD
+=======
+	struct xfs_dir3_icleaf_hdr *hdr,
+>>>>>>> upstream/android-13
 	struct xfs_buf		*bp,
 	int			first,
 	int			last)
@@ -1108,16 +1444,24 @@ xfs_dir3_leaf_log_ents(
 	xfs_dir2_leaf_entry_t	*firstlep;	/* pointer to first entry */
 	xfs_dir2_leaf_entry_t	*lastlep;	/* pointer to last entry */
 	struct xfs_dir2_leaf	*leaf = bp->b_addr;
+<<<<<<< HEAD
 	struct xfs_dir2_leaf_entry *ents;
+=======
+>>>>>>> upstream/android-13
 
 	ASSERT(leaf->hdr.info.magic == cpu_to_be16(XFS_DIR2_LEAF1_MAGIC) ||
 	       leaf->hdr.info.magic == cpu_to_be16(XFS_DIR3_LEAF1_MAGIC) ||
 	       leaf->hdr.info.magic == cpu_to_be16(XFS_DIR2_LEAFN_MAGIC) ||
 	       leaf->hdr.info.magic == cpu_to_be16(XFS_DIR3_LEAFN_MAGIC));
 
+<<<<<<< HEAD
 	ents = args->dp->d_ops->leaf_ents_p(leaf);
 	firstlep = &ents[first];
 	lastlep = &ents[last];
+=======
+	firstlep = &hdr->ents[first];
+	lastlep = &hdr->ents[last];
+>>>>>>> upstream/android-13
 	xfs_trans_log_buf(args->trans, bp,
 		(uint)((char *)firstlep - (char *)leaf),
 		(uint)((char *)lastlep - (char *)leaf + sizeof(*lastlep) - 1));
@@ -1140,7 +1484,11 @@ xfs_dir3_leaf_log_header(
 
 	xfs_trans_log_buf(args->trans, bp,
 			  (uint)((char *)&leaf->hdr - (char *)leaf),
+<<<<<<< HEAD
 			  args->dp->d_ops->leaf_hdr_size - 1);
+=======
+			  args->geo->leaf_hdr_size - 1);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1179,16 +1527,23 @@ xfs_dir2_leaf_lookup(
 	int			error;		/* error return code */
 	int			index;		/* found entry index */
 	struct xfs_buf		*lbp;		/* leaf buffer */
+<<<<<<< HEAD
 	xfs_dir2_leaf_t		*leaf;		/* leaf structure */
 	xfs_dir2_leaf_entry_t	*lep;		/* leaf entry */
 	xfs_trans_t		*tp;		/* transaction pointer */
 	struct xfs_dir2_leaf_entry *ents;
+=======
+	xfs_dir2_leaf_entry_t	*lep;		/* leaf entry */
+	xfs_trans_t		*tp;		/* transaction pointer */
+	struct xfs_dir3_icleaf_hdr leafhdr;
+>>>>>>> upstream/android-13
 
 	trace_xfs_dir2_leaf_lookup(args);
 
 	/*
 	 * Look up name in the leaf block, returning both buffers and index.
 	 */
+<<<<<<< HEAD
 	if ((error = xfs_dir2_leaf_lookup_int(args, &lbp, &index, &dbp))) {
 		return error;
 	}
@@ -1201,6 +1556,20 @@ xfs_dir2_leaf_lookup(
 	 * Get to the leaf entry and contained data entry address.
 	 */
 	lep = &ents[index];
+=======
+	error = xfs_dir2_leaf_lookup_int(args, &lbp, &index, &dbp, &leafhdr);
+	if (error)
+		return error;
+
+	tp = args->trans;
+	dp = args->dp;
+	xfs_dir3_leaf_check(dp, lbp);
+
+	/*
+	 * Get to the leaf entry and contained data entry address.
+	 */
+	lep = &leafhdr.ents[index];
+>>>>>>> upstream/android-13
 
 	/*
 	 * Point to the data entry.
@@ -1212,7 +1581,11 @@ xfs_dir2_leaf_lookup(
 	 * Return the found inode number & CI name if appropriate
 	 */
 	args->inumber = be64_to_cpu(dep->inumber);
+<<<<<<< HEAD
 	args->filetype = dp->d_ops->data_get_ftype(dep);
+=======
+	args->filetype = xfs_dir2_data_get_ftype(dp->i_mount, dep);
+>>>>>>> upstream/android-13
 	error = xfs_dir_cilookup_result(args, dep->name, dep->namelen);
 	xfs_trans_brelse(tp, dbp);
 	xfs_trans_brelse(tp, lbp);
@@ -1230,7 +1603,12 @@ xfs_dir2_leaf_lookup_int(
 	xfs_da_args_t		*args,		/* operation arguments */
 	struct xfs_buf		**lbpp,		/* out: leaf buffer */
 	int			*indexp,	/* out: index in leaf block */
+<<<<<<< HEAD
 	struct xfs_buf		**dbpp)		/* out: data buffer */
+=======
+	struct xfs_buf		**dbpp,		/* out: data buffer */
+	struct xfs_dir3_icleaf_hdr *leafhdr)
+>>>>>>> upstream/android-13
 {
 	xfs_dir2_db_t		curdb = -1;	/* current data block number */
 	struct xfs_buf		*dbp = NULL;	/* data buffer */
@@ -1246,22 +1624,33 @@ xfs_dir2_leaf_lookup_int(
 	xfs_trans_t		*tp;		/* transaction pointer */
 	xfs_dir2_db_t		cidb = -1;	/* case match data block no. */
 	enum xfs_dacmp		cmp;		/* name compare result */
+<<<<<<< HEAD
 	struct xfs_dir2_leaf_entry *ents;
 	struct xfs_dir3_icleaf_hdr leafhdr;
+=======
+>>>>>>> upstream/android-13
 
 	dp = args->dp;
 	tp = args->trans;
 	mp = dp->i_mount;
 
+<<<<<<< HEAD
 	error = xfs_dir3_leaf_read(tp, dp, args->geo->leafblk, -1, &lbp);
+=======
+	error = xfs_dir3_leaf_read(tp, dp, args->geo->leafblk, &lbp);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
 	*lbpp = lbp;
 	leaf = lbp->b_addr;
 	xfs_dir3_leaf_check(dp, lbp);
+<<<<<<< HEAD
 	ents = dp->d_ops->leaf_ents_p(leaf);
 	dp->d_ops->leaf_hdr_from_disk(&leafhdr, leaf);
+=======
+	xfs_dir2_leaf_hdr_from_disk(mp, leafhdr, leaf);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Look for the first leaf entry with our hash value.
@@ -1271,8 +1660,14 @@ xfs_dir2_leaf_lookup_int(
 	 * Loop over all the entries with the right hash value
 	 * looking to match the name.
 	 */
+<<<<<<< HEAD
 	for (lep = &ents[index];
 	     index < leafhdr.count && be32_to_cpu(lep->hashval) == args->hashval;
+=======
+	for (lep = &leafhdr->ents[index];
+	     index < leafhdr->count &&
+			be32_to_cpu(lep->hashval) == args->hashval;
+>>>>>>> upstream/android-13
 	     lep++, index++) {
 		/*
 		 * Skip over stale leaf entries.
@@ -1293,7 +1688,11 @@ xfs_dir2_leaf_lookup_int(
 				xfs_trans_brelse(tp, dbp);
 			error = xfs_dir3_data_read(tp, dp,
 					   xfs_dir2_db_to_da(args->geo, newdb),
+<<<<<<< HEAD
 					   -1, &dbp);
+=======
+					   0, &dbp);
+>>>>>>> upstream/android-13
 			if (error) {
 				xfs_trans_brelse(tp, lbp);
 				return error;
@@ -1311,7 +1710,11 @@ xfs_dir2_leaf_lookup_int(
 		 * and buffer. If it's the first case-insensitive match, store
 		 * the index and buffer and continue looking for an exact match.
 		 */
+<<<<<<< HEAD
 		cmp = mp->m_dirnameops->compname(args, dep->name, dep->namelen);
+=======
+		cmp = xfs_dir2_compname(args, dep->name, dep->namelen);
+>>>>>>> upstream/android-13
 		if (cmp != XFS_CMP_DIFFERENT && cmp != args->cmpresult) {
 			args->cmpresult = cmp;
 			*indexp = index;
@@ -1335,7 +1738,11 @@ xfs_dir2_leaf_lookup_int(
 			xfs_trans_brelse(tp, dbp);
 			error = xfs_dir3_data_read(tp, dp,
 					   xfs_dir2_db_to_da(args->geo, cidb),
+<<<<<<< HEAD
 					   -1, &dbp);
+=======
+					   0, &dbp);
+>>>>>>> upstream/android-13
 			if (error) {
 				xfs_trans_brelse(tp, lbp);
 				return error;
@@ -1361,6 +1768,10 @@ int						/* error */
 xfs_dir2_leaf_removename(
 	xfs_da_args_t		*args)		/* operation arguments */
 {
+<<<<<<< HEAD
+=======
+	struct xfs_da_geometry	*geo = args->geo;
+>>>>>>> upstream/android-13
 	__be16			*bestsp;	/* leaf block best freespace */
 	xfs_dir2_data_hdr_t	*hdr;		/* data block header */
 	xfs_dir2_db_t		db;		/* data block number */
@@ -1378,7 +1789,10 @@ xfs_dir2_leaf_removename(
 	int			needscan;	/* need to rescan data frees */
 	xfs_dir2_data_off_t	oldbest;	/* old value of best free */
 	struct xfs_dir2_data_free *bf;		/* bestfree table */
+<<<<<<< HEAD
 	struct xfs_dir2_leaf_entry *ents;
+=======
+>>>>>>> upstream/android-13
 	struct xfs_dir3_icleaf_hdr leafhdr;
 
 	trace_xfs_dir2_leaf_removename(args);
@@ -1386,13 +1800,21 @@ xfs_dir2_leaf_removename(
 	/*
 	 * Lookup the leaf entry, get the leaf and data blocks read in.
 	 */
+<<<<<<< HEAD
 	if ((error = xfs_dir2_leaf_lookup_int(args, &lbp, &index, &dbp))) {
 		return error;
 	}
+=======
+	error = xfs_dir2_leaf_lookup_int(args, &lbp, &index, &dbp, &leafhdr);
+	if (error)
+		return error;
+
+>>>>>>> upstream/android-13
 	dp = args->dp;
 	leaf = lbp->b_addr;
 	hdr = dbp->b_addr;
 	xfs_dir3_data_check(dp, dbp);
+<<<<<<< HEAD
 	bf = dp->d_ops->data_bestfree_p(hdr);
 	dp->d_ops->leaf_hdr_from_disk(&leafhdr, leaf);
 	ents = dp->d_ops->leaf_ents_p(leaf);
@@ -1409,28 +1831,64 @@ xfs_dir2_leaf_removename(
 	bestsp = xfs_dir2_leaf_bests_p(ltp);
 	if (be16_to_cpu(bestsp[db]) != oldbest)
 		return -EFSCORRUPTED;
+=======
+	bf = xfs_dir2_data_bestfree_p(dp->i_mount, hdr);
+
+	/*
+	 * Point to the leaf entry, use that to point to the data entry.
+	 */
+	lep = &leafhdr.ents[index];
+	db = xfs_dir2_dataptr_to_db(geo, be32_to_cpu(lep->address));
+	dep = (xfs_dir2_data_entry_t *)((char *)hdr +
+		xfs_dir2_dataptr_to_off(geo, be32_to_cpu(lep->address)));
+	needscan = needlog = 0;
+	oldbest = be16_to_cpu(bf[0].length);
+	ltp = xfs_dir2_leaf_tail_p(geo, leaf);
+	bestsp = xfs_dir2_leaf_bests_p(ltp);
+	if (be16_to_cpu(bestsp[db]) != oldbest) {
+		xfs_buf_mark_corrupt(lbp);
+		return -EFSCORRUPTED;
+	}
+>>>>>>> upstream/android-13
 	/*
 	 * Mark the former data entry unused.
 	 */
 	xfs_dir2_data_make_free(args, dbp,
 		(xfs_dir2_data_aoff_t)((char *)dep - (char *)hdr),
+<<<<<<< HEAD
 		dp->d_ops->data_entsize(dep->namelen), &needlog, &needscan);
+=======
+		xfs_dir2_data_entsize(dp->i_mount, dep->namelen), &needlog,
+		&needscan);
+>>>>>>> upstream/android-13
 	/*
 	 * We just mark the leaf entry stale by putting a null in it.
 	 */
 	leafhdr.stale++;
+<<<<<<< HEAD
 	dp->d_ops->leaf_hdr_to_disk(leaf, &leafhdr);
 	xfs_dir3_leaf_log_header(args, lbp);
 
 	lep->address = cpu_to_be32(XFS_DIR2_NULL_DATAPTR);
 	xfs_dir3_leaf_log_ents(args, lbp, index, index);
+=======
+	xfs_dir2_leaf_hdr_to_disk(dp->i_mount, leaf, &leafhdr);
+	xfs_dir3_leaf_log_header(args, lbp);
+
+	lep->address = cpu_to_be32(XFS_DIR2_NULL_DATAPTR);
+	xfs_dir3_leaf_log_ents(args, &leafhdr, lbp, index, index);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Scan the freespace in the data block again if necessary,
 	 * log the data block header if necessary.
 	 */
 	if (needscan)
+<<<<<<< HEAD
 		xfs_dir2_data_freescan(dp, hdr, &needlog);
+=======
+		xfs_dir2_data_freescan(dp->i_mount, hdr, &needlog);
+>>>>>>> upstream/android-13
 	if (needlog)
 		xfs_dir2_data_log_header(args, dbp);
 	/*
@@ -1446,8 +1904,13 @@ xfs_dir2_leaf_removename(
 	 * If the data block is now empty then get rid of the data block.
 	 */
 	if (be16_to_cpu(bf[0].length) ==
+<<<<<<< HEAD
 			args->geo->blksize - dp->d_ops->data_entry_offset) {
 		ASSERT(db != args->geo->datablk);
+=======
+	    geo->blksize - geo->data_entry_offset) {
+		ASSERT(db != geo->datablk);
+>>>>>>> upstream/android-13
 		if ((error = xfs_dir2_shrink_inode(args, db, dbp))) {
 			/*
 			 * Nope, can't get rid of it because it caused
@@ -1489,7 +1952,11 @@ xfs_dir2_leaf_removename(
 	/*
 	 * If the data block was not the first one, drop it.
 	 */
+<<<<<<< HEAD
 	else if (db != args->geo->datablk)
+=======
+	else if (db != geo->datablk)
+>>>>>>> upstream/android-13
 		dbp = NULL;
 
 	xfs_dir3_leaf_check(dp, lbp);
@@ -1512,16 +1979,23 @@ xfs_dir2_leaf_replace(
 	int			error;		/* error return code */
 	int			index;		/* index of leaf entry */
 	struct xfs_buf		*lbp;		/* leaf buffer */
+<<<<<<< HEAD
 	xfs_dir2_leaf_t		*leaf;		/* leaf structure */
 	xfs_dir2_leaf_entry_t	*lep;		/* leaf entry */
 	xfs_trans_t		*tp;		/* transaction pointer */
 	struct xfs_dir2_leaf_entry *ents;
+=======
+	xfs_dir2_leaf_entry_t	*lep;		/* leaf entry */
+	xfs_trans_t		*tp;		/* transaction pointer */
+	struct xfs_dir3_icleaf_hdr leafhdr;
+>>>>>>> upstream/android-13
 
 	trace_xfs_dir2_leaf_replace(args);
 
 	/*
 	 * Look up the entry.
 	 */
+<<<<<<< HEAD
 	if ((error = xfs_dir2_leaf_lookup_int(args, &lbp, &index, &dbp))) {
 		return error;
 	}
@@ -1532,6 +2006,17 @@ xfs_dir2_leaf_replace(
 	 * Point to the leaf entry, get data address from it.
 	 */
 	lep = &ents[index];
+=======
+	error = xfs_dir2_leaf_lookup_int(args, &lbp, &index, &dbp, &leafhdr);
+	if (error)
+		return error;
+
+	dp = args->dp;
+	/*
+	 * Point to the leaf entry, get data address from it.
+	 */
+	lep = &leafhdr.ents[index];
+>>>>>>> upstream/android-13
 	/*
 	 * Point to the data entry.
 	 */
@@ -1543,7 +2028,11 @@ xfs_dir2_leaf_replace(
 	 * Put the new inode number in, log it.
 	 */
 	dep->inumber = cpu_to_be64(args->inumber);
+<<<<<<< HEAD
 	dp->d_ops->data_put_ftype(dep, args->filetype);
+=======
+	xfs_dir2_data_put_ftype(dp->i_mount, dep, args->filetype);
+>>>>>>> upstream/android-13
 	tp = args->trans;
 	xfs_dir2_data_log_entry(args, dbp, dep);
 	xfs_dir3_leaf_check(dp, lbp);
@@ -1565,6 +2054,7 @@ xfs_dir2_leaf_search_hash(
 	xfs_dahash_t		hashwant;	/* hash value looking for */
 	int			high;		/* high leaf index */
 	int			low;		/* low leaf index */
+<<<<<<< HEAD
 	xfs_dir2_leaf_t		*leaf;		/* leaf structure */
 	xfs_dir2_leaf_entry_t	*lep;		/* leaf entry */
 	int			mid=0;		/* current leaf index */
@@ -1574,12 +2064,23 @@ xfs_dir2_leaf_search_hash(
 	leaf = lbp->b_addr;
 	ents = args->dp->d_ops->leaf_ents_p(leaf);
 	args->dp->d_ops->leaf_hdr_from_disk(&leafhdr, leaf);
+=======
+	xfs_dir2_leaf_entry_t	*lep;		/* leaf entry */
+	int			mid=0;		/* current leaf index */
+	struct xfs_dir3_icleaf_hdr leafhdr;
+
+	xfs_dir2_leaf_hdr_from_disk(args->dp->i_mount, &leafhdr, lbp->b_addr);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note, the table cannot be empty, so we have to go through the loop.
 	 * Binary search the leaf entries looking for our hash value.
 	 */
+<<<<<<< HEAD
 	for (lep = ents, low = 0, high = leafhdr.count - 1,
+=======
+	for (lep = leafhdr.ents, low = 0, high = leafhdr.count - 1,
+>>>>>>> upstream/android-13
 		hashwant = args->hashval;
 	     low <= high; ) {
 		mid = (low + high) >> 1;
@@ -1616,6 +2117,10 @@ xfs_dir2_leaf_trim_data(
 	struct xfs_buf		*lbp,		/* leaf buffer */
 	xfs_dir2_db_t		db)		/* data block number */
 {
+<<<<<<< HEAD
+=======
+	struct xfs_da_geometry	*geo = args->geo;
+>>>>>>> upstream/android-13
 	__be16			*bestsp;	/* leaf bests table */
 	struct xfs_buf		*dbp;		/* data block buffer */
 	xfs_inode_t		*dp;		/* incore directory inode */
@@ -1629,23 +2134,40 @@ xfs_dir2_leaf_trim_data(
 	/*
 	 * Read the offending data block.  We need its buffer.
 	 */
+<<<<<<< HEAD
 	error = xfs_dir3_data_read(tp, dp, xfs_dir2_db_to_da(args->geo, db),
 				   -1, &dbp);
+=======
+	error = xfs_dir3_data_read(tp, dp, xfs_dir2_db_to_da(geo, db), 0, &dbp);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
 	leaf = lbp->b_addr;
+<<<<<<< HEAD
 	ltp = xfs_dir2_leaf_tail_p(args->geo, leaf);
+=======
+	ltp = xfs_dir2_leaf_tail_p(geo, leaf);
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 {
 	struct xfs_dir2_data_hdr *hdr = dbp->b_addr;
+<<<<<<< HEAD
 	struct xfs_dir2_data_free *bf = dp->d_ops->data_bestfree_p(hdr);
+=======
+	struct xfs_dir2_data_free *bf =
+		xfs_dir2_data_bestfree_p(dp->i_mount, hdr);
+>>>>>>> upstream/android-13
 
 	ASSERT(hdr->magic == cpu_to_be32(XFS_DIR2_DATA_MAGIC) ||
 	       hdr->magic == cpu_to_be32(XFS_DIR3_DATA_MAGIC));
 	ASSERT(be16_to_cpu(bf[0].length) ==
+<<<<<<< HEAD
 	       args->geo->blksize - dp->d_ops->data_entry_offset);
+=======
+	       geo->blksize - geo->data_entry_offset);
+>>>>>>> upstream/android-13
 	ASSERT(db == be32_to_cpu(ltp->bestcount) - 1);
 }
 #endif
@@ -1703,7 +2225,10 @@ xfs_dir2_node_to_leaf(
 	int			error;		/* error return code */
 	struct xfs_buf		*fbp;		/* buffer for freespace block */
 	xfs_fileoff_t		fo;		/* freespace file offset */
+<<<<<<< HEAD
 	xfs_dir2_free_t		*free;		/* freespace structure */
+=======
+>>>>>>> upstream/android-13
 	struct xfs_buf		*lbp;		/* buffer for leaf block */
 	xfs_dir2_leaf_tail_t	*ltp;		/* tail of leaf structure */
 	xfs_dir2_leaf_t		*leaf;		/* leaf structure */
@@ -1761,7 +2286,11 @@ xfs_dir2_node_to_leaf(
 		return 0;
 	lbp = state->path.blk[0].bp;
 	leaf = lbp->b_addr;
+<<<<<<< HEAD
 	dp->d_ops->leaf_hdr_from_disk(&leafhdr, leaf);
+=======
+	xfs_dir2_leaf_hdr_from_disk(mp, &leafhdr, leaf);
+>>>>>>> upstream/android-13
 
 	ASSERT(leafhdr.magic == XFS_DIR2_LEAFN_MAGIC ||
 	       leafhdr.magic == XFS_DIR3_LEAFN_MAGIC);
@@ -1772,8 +2301,12 @@ xfs_dir2_node_to_leaf(
 	error = xfs_dir2_free_read(tp, dp,  args->geo->freeblk, &fbp);
 	if (error)
 		return error;
+<<<<<<< HEAD
 	free = fbp->b_addr;
 	dp->d_ops->free_hdr_from_disk(&freehdr, free);
+=======
+	xfs_dir2_free_hdr_from_disk(mp, &freehdr, fbp->b_addr);
+>>>>>>> upstream/android-13
 
 	ASSERT(!freehdr.firstdb);
 
@@ -1807,10 +2340,17 @@ xfs_dir2_node_to_leaf(
 	/*
 	 * Set up the leaf bests table.
 	 */
+<<<<<<< HEAD
 	memcpy(xfs_dir2_leaf_bests_p(ltp), dp->d_ops->free_bests_p(free),
 		freehdr.nvalid * sizeof(xfs_dir2_data_off_t));
 
 	dp->d_ops->leaf_hdr_to_disk(leaf, &leafhdr);
+=======
+	memcpy(xfs_dir2_leaf_bests_p(ltp), freehdr.bests,
+		freehdr.nvalid * sizeof(xfs_dir2_data_off_t));
+
+	xfs_dir2_leaf_hdr_to_disk(mp, leaf, &leafhdr);
+>>>>>>> upstream/android-13
 	xfs_dir3_leaf_log_header(args, lbp);
 	xfs_dir3_leaf_log_bests(args, lbp, 0, be32_to_cpu(ltp->bestcount) - 1);
 	xfs_dir3_leaf_log_tail(args, lbp);

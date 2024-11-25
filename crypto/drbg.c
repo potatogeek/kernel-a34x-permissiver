@@ -98,6 +98,10 @@
  */
 
 #include <crypto/drbg.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 
 /***************************************************************
@@ -177,16 +181,28 @@ static const struct drbg_core drbg_cores[] = {
 		.backend_cra_name = "hmac(sha384)",
 	}, {
 		.flags = DRBG_HMAC | DRBG_STRENGTH256,
+<<<<<<< HEAD
 		.statelen = 64, /* block length of cipher */
 		.blocklen_bytes = 64,
 		.cra_name = "hmac_sha512",
 		.backend_cra_name = "hmac(sha512)",
 	}, {
 		.flags = DRBG_HMAC | DRBG_STRENGTH256,
+=======
+>>>>>>> upstream/android-13
 		.statelen = 32, /* block length of cipher */
 		.blocklen_bytes = 32,
 		.cra_name = "hmac_sha256",
 		.backend_cra_name = "hmac(sha256)",
+<<<<<<< HEAD
+=======
+	}, {
+		.flags = DRBG_HMAC | DRBG_STRENGTH256,
+		.statelen = 64, /* block length of cipher */
+		.blocklen_bytes = 64,
+		.cra_name = "hmac_sha512",
+		.backend_cra_name = "hmac(sha512)",
+>>>>>>> upstream/android-13
 	},
 #endif /* CONFIG_CRYPTO_DRBG_HMAC */
 };
@@ -220,6 +236,60 @@ static inline unsigned short drbg_sec_strength(drbg_flag_t flags)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * FIPS 140-2 continuous self test for the noise source
+ * The test is performed on the noise source input data. Thus, the function
+ * implicitly knows the size of the buffer to be equal to the security
+ * strength.
+ *
+ * Note, this function disregards the nonce trailing the entropy data during
+ * initial seeding.
+ *
+ * drbg->drbg_mutex must have been taken.
+ *
+ * @drbg DRBG handle
+ * @entropy buffer of seed data to be checked
+ *
+ * return:
+ *	0 on success
+ *	-EAGAIN on when the CTRNG is not yet primed
+ *	< 0 on error
+ */
+static int drbg_fips_continuous_test(struct drbg_state *drbg,
+				     const unsigned char *entropy)
+{
+	unsigned short entropylen = drbg_sec_strength(drbg->core->flags);
+	int ret = 0;
+
+	if (!IS_ENABLED(CONFIG_CRYPTO_FIPS))
+		return 0;
+
+	/* skip test if we test the overall system */
+	if (list_empty(&drbg->test_data.list))
+		return 0;
+	/* only perform test in FIPS mode */
+	if (!fips_enabled)
+		return 0;
+
+	if (!drbg->fips_primed) {
+		/* Priming of FIPS test */
+		memcpy(drbg->prev, entropy, entropylen);
+		drbg->fips_primed = true;
+		/* priming: another round is needed */
+		return -EAGAIN;
+	}
+	ret = memcmp(drbg->prev, entropy, entropylen);
+	if (!ret)
+		panic("DRBG continuous self test failed\n");
+	memcpy(drbg->prev, entropy, entropylen);
+
+	/* the test shall pass when the two values are not equal */
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Convert an integer into a byte representation of this integer.
  * The byte representation is big-endian
  *
@@ -998,6 +1068,25 @@ static inline int __drbg_seed(struct drbg_state *drbg, struct list_head *seed,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static inline int drbg_get_random_bytes(struct drbg_state *drbg,
+					unsigned char *entropy,
+					unsigned int entropylen)
+{
+	int ret;
+
+	do {
+		get_random_bytes(entropy, entropylen);
+		ret = drbg_fips_continuous_test(drbg, entropy);
+		if (ret && ret != -EAGAIN)
+			return ret;
+	} while (ret);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void drbg_async_seed(struct work_struct *work)
 {
 	struct drbg_string data;
@@ -1006,19 +1095,32 @@ static void drbg_async_seed(struct work_struct *work)
 					       seed_work);
 	unsigned int entropylen = drbg_sec_strength(drbg->core->flags);
 	unsigned char entropy[32];
+<<<<<<< HEAD
 
 	BUG_ON(!entropylen);
 	BUG_ON(entropylen > sizeof(entropy));
 	get_random_bytes(entropy, entropylen);
+=======
+	int ret;
+
+	BUG_ON(!entropylen);
+	BUG_ON(entropylen > sizeof(entropy));
+>>>>>>> upstream/android-13
 
 	drbg_string_fill(&data, entropy, entropylen);
 	list_add_tail(&data.list, &seedlist);
 
 	mutex_lock(&drbg->drbg_mutex);
 
+<<<<<<< HEAD
 	/* If nonblocking pool is initialized, deactivate Jitter RNG */
 	crypto_free_rng(drbg->jent);
 	drbg->jent = NULL;
+=======
+	ret = drbg_get_random_bytes(drbg, entropy, entropylen);
+	if (ret)
+		goto unlock;
+>>>>>>> upstream/android-13
 
 	/* Set seeded to false so that if __drbg_seed fails the
 	 * next generate call will trigger a reseed.
@@ -1030,6 +1132,10 @@ static void drbg_async_seed(struct work_struct *work)
 	if (drbg->seeded)
 		drbg->reseed_threshold = drbg_max_requests(drbg);
 
+<<<<<<< HEAD
+=======
+unlock:
+>>>>>>> upstream/android-13
 	mutex_unlock(&drbg->drbg_mutex);
 
 	memzero_explicit(entropy, entropylen);
@@ -1081,7 +1187,13 @@ static int drbg_seed(struct drbg_state *drbg, struct drbg_string *pers,
 		BUG_ON((entropylen * 2) > sizeof(entropy));
 
 		/* Get seed from in-kernel /dev/urandom */
+<<<<<<< HEAD
 		get_random_bytes(entropy, entropylen);
+=======
+		ret = drbg_get_random_bytes(drbg, entropy, entropylen);
+		if (ret)
+			goto out;
+>>>>>>> upstream/android-13
 
 		if (!drbg->jent) {
 			drbg_string_fill(&data1, entropy, entropylen);
@@ -1094,7 +1206,27 @@ static int drbg_seed(struct drbg_state *drbg, struct drbg_string *pers,
 						   entropylen);
 			if (ret) {
 				pr_devel("DRBG: jent failed with %d\n", ret);
+<<<<<<< HEAD
 				return ret;
+=======
+
+				/*
+				 * Do not treat the transient failure of the
+				 * Jitter RNG as an error that needs to be
+				 * reported. The combined number of the
+				 * maximum reseed threshold times the maximum
+				 * number of Jitter RNG transient errors is
+				 * less than the reseed threshold required by
+				 * SP800-90A allowing us to treat the
+				 * transient errors as such.
+				 *
+				 * However, we mandate that at least the first
+				 * seeding operation must succeed with the
+				 * Jitter RNG.
+				 */
+				if (!reseed || ret != -EAGAIN)
+					goto out;
+>>>>>>> upstream/android-13
 			}
 
 			drbg_string_fill(&data1, entropy, entropylen * 2);
@@ -1121,6 +1253,10 @@ static int drbg_seed(struct drbg_state *drbg, struct drbg_string *pers,
 
 	ret = __drbg_seed(drbg, &seedlist, reseed);
 
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	memzero_explicit(entropy, entropylen * 2);
 
 	return ret;
@@ -1131,6 +1267,7 @@ static inline void drbg_dealloc_state(struct drbg_state *drbg)
 {
 	if (!drbg)
 		return;
+<<<<<<< HEAD
 	kzfree(drbg->Vbuf);
 	drbg->Vbuf = NULL;
 	drbg->V = NULL;
@@ -1138,10 +1275,27 @@ static inline void drbg_dealloc_state(struct drbg_state *drbg)
 	drbg->Cbuf = NULL;
 	drbg->C = NULL;
 	kzfree(drbg->scratchpadbuf);
+=======
+	kfree_sensitive(drbg->Vbuf);
+	drbg->Vbuf = NULL;
+	drbg->V = NULL;
+	kfree_sensitive(drbg->Cbuf);
+	drbg->Cbuf = NULL;
+	drbg->C = NULL;
+	kfree_sensitive(drbg->scratchpadbuf);
+>>>>>>> upstream/android-13
 	drbg->scratchpadbuf = NULL;
 	drbg->reseed_ctr = 0;
 	drbg->d_ops = NULL;
 	drbg->core = NULL;
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_CRYPTO_FIPS)) {
+		kfree_sensitive(drbg->prev);
+		drbg->prev = NULL;
+		drbg->fips_primed = false;
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1211,6 +1365,19 @@ static inline int drbg_alloc_state(struct drbg_state *drbg)
 		drbg->scratchpad = PTR_ALIGN(drbg->scratchpadbuf, ret + 1);
 	}
 
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_CRYPTO_FIPS)) {
+		drbg->prev = kzalloc(drbg_sec_strength(drbg->core->flags),
+				     GFP_KERNEL);
+		if (!drbg->prev) {
+			ret = -ENOMEM;
+			goto fini;
+		}
+		drbg->fips_primed = false;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 
 fini:
@@ -1404,6 +1571,11 @@ static int drbg_prepare_hrng(struct drbg_state *drbg)
 	if (list_empty(&drbg->test_data.list))
 		return 0;
 
+<<<<<<< HEAD
+=======
+	drbg->jent = crypto_alloc_rng("jitterentropy_rng", 0, 0);
+
+>>>>>>> upstream/android-13
 	INIT_WORK(&drbg->seed_work, drbg_async_seed);
 
 	drbg->random_ready.owner = THIS_MODULE;
@@ -1417,15 +1589,22 @@ static int drbg_prepare_hrng(struct drbg_state *drbg)
 
 	case -EALREADY:
 		err = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		drbg->random_ready.func = NULL;
 		return err;
 	}
 
+<<<<<<< HEAD
 	drbg->jent = crypto_alloc_rng("jitterentropy_rng", 0, 0);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Require frequent reseeds until the seed source is fully
 	 * initialized.
@@ -1529,10 +1708,19 @@ static int drbg_uninstantiate(struct drbg_state *drbg)
 	if (drbg->random_ready.func) {
 		del_random_ready_callback(&drbg->random_ready);
 		cancel_work_sync(&drbg->seed_work);
+<<<<<<< HEAD
 		crypto_free_rng(drbg->jent);
 		drbg->jent = NULL;
 	}
 
+=======
+	}
+
+	if (!IS_ERR_OR_NULL(drbg->jent))
+		crypto_free_rng(drbg->jent);
+	drbg->jent = NULL;
+
+>>>>>>> upstream/android-13
 	if (drbg->d_ops)
 		drbg->d_ops->crypto_fini(drbg);
 	drbg_dealloc_state(drbg);
@@ -1587,7 +1775,10 @@ static int drbg_init_hash_kernel(struct drbg_state *drbg)
 	}
 
 	sdesc->shash.tfm = tfm;
+<<<<<<< HEAD
 	sdesc->shash.flags = 0;
+=======
+>>>>>>> upstream/android-13
 	drbg->priv_data = sdesc;
 
 	return crypto_shash_alignmask(tfm);
@@ -1598,7 +1789,11 @@ static int drbg_fini_hash_kernel(struct drbg_state *drbg)
 	struct sdesc *sdesc = (struct sdesc *)drbg->priv_data;
 	if (sdesc) {
 		crypto_free_shash(sdesc->shash.tfm);
+<<<<<<< HEAD
 		kzfree(sdesc);
+=======
+		kfree_sensitive(sdesc);
+>>>>>>> upstream/android-13
 	}
 	drbg->priv_data = NULL;
 	return 0;
@@ -2039,7 +2234,11 @@ static void __exit drbg_exit(void)
 	crypto_unregister_rngs(drbg_algs, (ARRAY_SIZE(drbg_cores) * 2));
 }
 
+<<<<<<< HEAD
 module_init(drbg_init);
+=======
+subsys_initcall(drbg_init);
+>>>>>>> upstream/android-13
 module_exit(drbg_exit);
 #ifndef CRYPTO_DRBG_HASH_STRING
 #define CRYPTO_DRBG_HASH_STRING ""
@@ -2058,3 +2257,7 @@ MODULE_DESCRIPTION("NIST SP800-90A Deterministic Random Bit Generator (DRBG) "
 		   CRYPTO_DRBG_HMAC_STRING
 		   CRYPTO_DRBG_CTR_STRING);
 MODULE_ALIAS_CRYPTO("stdrng");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

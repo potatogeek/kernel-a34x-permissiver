@@ -10,6 +10,10 @@
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/of.h>

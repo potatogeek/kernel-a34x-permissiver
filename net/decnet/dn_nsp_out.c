@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DECnet       An implementation of the DECnet protocol suite for the LINUX
  *              operating system.  DECnet is implemented using the  BSD Socket
@@ -26,6 +30,7 @@
 /******************************************************************************
     (c) 1995-1998 E.M. Serrat		emserrat@geocities.com
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -35,6 +40,8 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 *******************************************************************************/
 
 #include <linux/errno.h>
@@ -187,7 +194,11 @@ static void dn_nsp_rtt(struct sock *sk, long rtt)
 		scp->nsp_srtt = 1;
 
 	/*
+<<<<<<< HEAD
 	 * Add new rtt varience to smoothed varience
+=======
+	 * Add new rtt variance to smoothed varience
+>>>>>>> upstream/android-13
 	 */
 	delta >>= 1;
 	rttvar += ((((delta>0)?(delta):(-delta)) - rttvar) >> 2);

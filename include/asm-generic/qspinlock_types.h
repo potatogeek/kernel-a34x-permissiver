@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Queued spinlock
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Queued spinlock
+ *
+>>>>>>> upstream/android-13
  * (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
  *
  * Authors: Waiman Long <waiman.long@hp.com>
@@ -18,6 +25,7 @@
 #ifndef __ASM_GENERIC_QSPINLOCK_TYPES_H
 #define __ASM_GENERIC_QSPINLOCK_TYPES_H
 
+<<<<<<< HEAD
 /*
  * Including atomic.h with PARAVIRT on will cause compilation errors because
  * of recursive header file incluson via paravirt_types.h. So don't include
@@ -27,6 +35,9 @@
 #include <linux/types.h>
 #include <linux/atomic.h>
 #endif
+=======
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 typedef struct qspinlock {
 	union {
@@ -109,4 +120,24 @@ typedef struct qspinlock {
 #define _Q_LOCKED_VAL		(1U << _Q_LOCKED_OFFSET)
 #define _Q_PENDING_VAL		(1U << _Q_PENDING_OFFSET)
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SEC_DEBUG_QSPIN_OWNER
+/*
+ * Bitfields in locked byte
+ *  2-0 : locked
+ *    3 : debug en
+ *  7-4 : owner cpu
+ */
+#define _Q_OWNER_IN_LOCKED_OFFSET	4
+#define _Q_OWNER_BITS			4
+#define _Q_OWNER_OFFSET			(_Q_LOCKED_OFFSET + _Q_OWNER_IN_LOCKED_OFFSET)
+#define _Q_OWNER_MASK			_Q_SET_MASK(OWNER)
+
+#define _Q_DBGEN_IN_LOCKED_OFFSET	3
+#define _Q_DBGEN_OFFSET			(_Q_LOCKED_OFFSET + _Q_DBGEN_IN_LOCKED_OFFSET)
+#define _Q_DBGEN_VAL			(1U << _Q_DBGEN_OFFSET)
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __ASM_GENERIC_QSPINLOCK_TYPES_H */

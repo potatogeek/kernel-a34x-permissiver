@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Request a key from userspace
  *
  * Copyright (C) 2004-2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
@@ -12,19 +17,60 @@
  */
 
 #include <linux/module.h>
+=======
+ * See Documentation/security/keys/request-key.rst
+ */
+
+#include <linux/export.h>
+>>>>>>> upstream/android-13
 #include <linux/sched.h>
 #include <linux/kmod.h>
 #include <linux/err.h>
 #include <linux/keyctl.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <net/net_namespace.h>
+>>>>>>> upstream/android-13
 #include "internal.h"
 #include <keys/request_key_auth-type.h>
 
 #define key_negative_timeout	60	/* default timeout on a negative key's existence */
 
+<<<<<<< HEAD
 /**
  * complete_request_key - Complete the construction of a key.
  * @auth_key: The authorisation key.
+=======
+static struct key *check_cached_key(struct keyring_search_context *ctx)
+{
+#ifdef CONFIG_KEYS_REQUEST_CACHE
+	struct key *key = current->cached_requested_key;
+
+	if (key &&
+	    ctx->match_data.cmp(key, &ctx->match_data) &&
+	    !(key->flags & ((1 << KEY_FLAG_INVALIDATED) |
+			    (1 << KEY_FLAG_REVOKED))))
+		return key_get(key);
+#endif
+	return NULL;
+}
+
+static void cache_requested_key(struct key *key)
+{
+#ifdef CONFIG_KEYS_REQUEST_CACHE
+	struct task_struct *t = current;
+
+	key_put(t->cached_requested_key);
+	t->cached_requested_key = key_get(key);
+	set_tsk_thread_flag(t, TIF_NOTIFY_RESUME);
+#endif
+}
+
+/**
+ * complete_request_key - Complete the construction of a key.
+ * @authkey: The authorisation key.
+>>>>>>> upstream/android-13
  * @error: The success or failute of the construction.
  *
  * Complete the attempt to construct a key.  The key will be negated
@@ -96,7 +142,11 @@ static int call_sbin_request_key(struct key *authkey, void *aux)
 	struct request_key_auth *rka = get_request_key_auth(authkey);
 	const struct cred *cred = current_cred();
 	key_serial_t prkey, sskey;
+<<<<<<< HEAD
 	struct key *key = rka->target_key, *keyring, *session;
+=======
+	struct key *key = rka->target_key, *keyring, *session, *user_session;
+>>>>>>> upstream/android-13
 	char *argv[9], *envp[3], uid_str[12], gid_str[12];
 	char key_str[12], keyring_str[3][12];
 	char desc[20];
@@ -104,9 +154,15 @@ static int call_sbin_request_key(struct key *authkey, void *aux)
 
 	kenter("{%d},{%d},%s", key->serial, authkey->serial, rka->op);
 
+<<<<<<< HEAD
 	ret = install_user_keyrings();
 	if (ret < 0)
 		goto error_alloc;
+=======
+	ret = look_up_user_keyrings(NULL, &user_session);
+	if (ret < 0)
+		goto error_us;
+>>>>>>> upstream/android-13
 
 	/* allocate a new session keyring */
 	sprintf(desc, "_req.%u", key->serial);
@@ -142,12 +198,19 @@ static int call_sbin_request_key(struct key *authkey, void *aux)
 		prkey = cred->process_keyring->serial;
 	sprintf(keyring_str[1], "%d", prkey);
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	session = rcu_dereference(cred->session_keyring);
 	if (!session)
 		session = cred->user->session_keyring;
 	sskey = session->serial;
 	rcu_read_unlock();
+=======
+	session = cred->session_keyring;
+	if (!session)
+		session = user_session;
+	sskey = session->serial;
+>>>>>>> upstream/android-13
 
 	sprintf(keyring_str[2], "%d", sskey);
 
@@ -188,6 +251,11 @@ error_link:
 	key_put(keyring);
 
 error_alloc:
+<<<<<<< HEAD
+=======
+	key_put(user_session);
+error_us:
+>>>>>>> upstream/android-13
 	complete_request_key(authkey, ret);
 	kleave(" = %d", ret);
 	return ret;
@@ -224,7 +292,11 @@ static int construct_key(struct key *key, const void *callout_info,
 	/* check that the actor called complete_request_key() prior to
 	 * returning an error */
 	WARN_ON(ret < 0 &&
+<<<<<<< HEAD
 		!test_bit(KEY_FLAG_REVOKED, &authkey->flags));
+=======
+		!test_bit(KEY_FLAG_INVALIDATED, &authkey->flags));
+>>>>>>> upstream/android-13
 
 	key_put(authkey);
 	kleave(" = %d", ret);
@@ -273,25 +345,40 @@ static int construct_get_dest_keyring(struct key **_dest_keyring)
 				}
 			}
 
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case KEY_REQKEY_DEFL_THREAD_KEYRING:
 			dest_keyring = key_get(cred->thread_keyring);
 			if (dest_keyring)
 				break;
 
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case KEY_REQKEY_DEFL_PROCESS_KEYRING:
 			dest_keyring = key_get(cred->process_keyring);
 			if (dest_keyring)
 				break;
 
+<<<<<<< HEAD
 		case KEY_REQKEY_DEFL_SESSION_KEYRING:
 			rcu_read_lock();
 			dest_keyring = key_get(
 				rcu_dereference(cred->session_keyring));
 			rcu_read_unlock();
+=======
+			fallthrough;
+		case KEY_REQKEY_DEFL_SESSION_KEYRING:
+			dest_keyring = key_get(cred->session_keyring);
+>>>>>>> upstream/android-13
 
 			if (dest_keyring)
 				break;
 
+<<<<<<< HEAD
 		case KEY_REQKEY_DEFL_USER_SESSION_KEYRING:
 			dest_keyring =
 				key_get(cred->user->session_keyring);
@@ -299,6 +386,19 @@ static int construct_get_dest_keyring(struct key **_dest_keyring)
 
 		case KEY_REQKEY_DEFL_USER_KEYRING:
 			dest_keyring = key_get(cred->user->uid_keyring);
+=======
+			fallthrough;
+		case KEY_REQKEY_DEFL_USER_SESSION_KEYRING:
+			ret = look_up_user_keyrings(NULL, &dest_keyring);
+			if (ret < 0)
+				return ret;
+			break;
+
+		case KEY_REQKEY_DEFL_USER_KEYRING:
+			ret = look_up_user_keyrings(&dest_keyring, NULL);
+			if (ret < 0)
+				return ret;
+>>>>>>> upstream/android-13
 			break;
 
 		case KEY_REQKEY_DEFL_GROUP_KEYRING:
@@ -343,7 +443,11 @@ static int construct_alloc_key(struct keyring_search_context *ctx,
 			       struct key_user *user,
 			       struct key **_key)
 {
+<<<<<<< HEAD
 	struct assoc_array_edit *edit;
+=======
+	struct assoc_array_edit *edit = NULL;
+>>>>>>> upstream/android-13
 	struct key *key;
 	key_perm_t perm;
 	key_ref_t key_ref;
@@ -372,6 +476,12 @@ static int construct_alloc_key(struct keyring_search_context *ctx,
 	set_bit(KEY_FLAG_USER_CONSTRUCT, &key->flags);
 
 	if (dest_keyring) {
+<<<<<<< HEAD
+=======
+		ret = __key_link_lock(dest_keyring, &ctx->index_key);
+		if (ret < 0)
+			goto link_lock_failed;
+>>>>>>> upstream/android-13
 		ret = __key_link_begin(dest_keyring, &ctx->index_key, &edit);
 		if (ret < 0)
 			goto link_prealloc_failed;
@@ -382,12 +492,22 @@ static int construct_alloc_key(struct keyring_search_context *ctx,
 	 * waited for locks */
 	mutex_lock(&key_construction_mutex);
 
+<<<<<<< HEAD
 	key_ref = search_process_keyrings(ctx);
+=======
+	rcu_read_lock();
+	key_ref = search_process_keyrings_rcu(ctx);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	if (!IS_ERR(key_ref))
 		goto key_already_present;
 
 	if (dest_keyring)
+<<<<<<< HEAD
 		__key_link(key, &edit);
+=======
+		__key_link(dest_keyring, key, &edit);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&key_construction_mutex);
 	if (dest_keyring)
@@ -406,7 +526,11 @@ key_already_present:
 	if (dest_keyring) {
 		ret = __key_link_check_live_key(dest_keyring, key);
 		if (ret == 0)
+<<<<<<< HEAD
 			__key_link(key, &edit);
+=======
+			__key_link(dest_keyring, key, &edit);
+>>>>>>> upstream/android-13
 		__key_link_end(dest_keyring, &ctx->index_key, edit);
 		if (ret < 0)
 			goto link_check_failed;
@@ -423,6 +547,11 @@ link_check_failed:
 	return ret;
 
 link_prealloc_failed:
+<<<<<<< HEAD
+=======
+	__key_link_end(dest_keyring, &ctx->index_key, edit);
+link_lock_failed:
+>>>>>>> upstream/android-13
 	mutex_unlock(&user->cons_lock);
 	key_put(key);
 	kleave(" = %d [prelink]", ret);
@@ -497,16 +626,28 @@ error:
  * request_key_and_link - Request a key and cache it in a keyring.
  * @type: The type of key we want.
  * @description: The searchable description of the key.
+<<<<<<< HEAD
+=======
+ * @domain_tag: The domain in which the key operates.
+>>>>>>> upstream/android-13
  * @callout_info: The data to pass to the instantiation upcall (or NULL).
  * @callout_len: The length of callout_info.
  * @aux: Auxiliary data for the upcall.
  * @dest_keyring: Where to cache the key.
  * @flags: Flags to key_alloc().
  *
+<<<<<<< HEAD
  * A key matching the specified criteria is searched for in the process's
  * keyrings and returned with its usage count incremented if found.  Otherwise,
  * if callout_info is not NULL, a key will be allocated and some service
  * (probably in userspace) will be asked to instantiate it.
+=======
+ * A key matching the specified criteria (type, description, domain_tag) is
+ * searched for in the process's keyrings and returned with its usage count
+ * incremented if found.  Otherwise, if callout_info is not NULL, a key will be
+ * allocated and some service (probably in userspace) will be asked to
+ * instantiate it.
+>>>>>>> upstream/android-13
  *
  * If successfully found or created, the key will be linked to the destination
  * keyring if one is provided.
@@ -522,6 +663,10 @@ error:
  */
 struct key *request_key_and_link(struct key_type *type,
 				 const char *description,
+<<<<<<< HEAD
+=======
+				 struct key_tag *domain_tag,
+>>>>>>> upstream/android-13
 				 const void *callout_info,
 				 size_t callout_len,
 				 void *aux,
@@ -530,6 +675,10 @@ struct key *request_key_and_link(struct key_type *type,
 {
 	struct keyring_search_context ctx = {
 		.index_key.type		= type,
+<<<<<<< HEAD
+=======
+		.index_key.domain_tag	= domain_tag,
+>>>>>>> upstream/android-13
 		.index_key.description	= description,
 		.index_key.desc_len	= strlen(description),
 		.cred			= current_cred(),
@@ -537,7 +686,12 @@ struct key *request_key_and_link(struct key_type *type,
 		.match_data.raw_data	= description,
 		.match_data.lookup_type	= KEYRING_SEARCH_LOOKUP_DIRECT,
 		.flags			= (KEYRING_SEARCH_DO_STATE_CHECK |
+<<<<<<< HEAD
 					   KEYRING_SEARCH_SKIP_EXPIRED),
+=======
+					   KEYRING_SEARCH_SKIP_EXPIRED |
+					   KEYRING_SEARCH_RECURSE),
+>>>>>>> upstream/android-13
 	};
 	struct key *key;
 	key_ref_t key_ref;
@@ -555,10 +709,33 @@ struct key *request_key_and_link(struct key_type *type,
 		}
 	}
 
+<<<<<<< HEAD
 	/* search all the process keyrings for a key */
 	key_ref = search_process_keyrings(&ctx);
 
 	if (!IS_ERR(key_ref)) {
+=======
+	key = check_cached_key(&ctx);
+	if (key)
+		goto error_free;
+
+	/* search all the process keyrings for a key */
+	rcu_read_lock();
+	key_ref = search_process_keyrings_rcu(&ctx);
+	rcu_read_unlock();
+
+	if (!IS_ERR(key_ref)) {
+		if (dest_keyring) {
+			ret = key_task_permission(key_ref, current_cred(),
+						  KEY_NEED_LINK);
+			if (ret < 0) {
+				key_ref_put(key_ref);
+				key = ERR_PTR(ret);
+				goto error_free;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		key = key_ref_to_ptr(key_ref);
 		if (dest_keyring) {
 			ret = key_link(dest_keyring, key);
@@ -568,6 +745,12 @@ struct key *request_key_and_link(struct key_type *type,
 				goto error_free;
 			}
 		}
+<<<<<<< HEAD
+=======
+
+		/* Only cache the key on immediate success */
+		cache_requested_key(key);
+>>>>>>> upstream/android-13
 	} else if (PTR_ERR(key_ref) != -EAGAIN) {
 		key = ERR_CAST(key_ref);
 	} else  {
@@ -616,9 +799,16 @@ int wait_for_key_construction(struct key *key, bool intr)
 EXPORT_SYMBOL(wait_for_key_construction);
 
 /**
+<<<<<<< HEAD
  * request_key - Request a key and wait for construction
  * @type: Type of key.
  * @description: The searchable description of the key.
+=======
+ * request_key_tag - Request a key and wait for construction
+ * @type: Type of key.
+ * @description: The searchable description of the key.
+ * @domain_tag: The domain in which the key operates.
+>>>>>>> upstream/android-13
  * @callout_info: The data to pass to the instantiation upcall (or NULL).
  *
  * As for request_key_and_link() except that it does not add the returned key
@@ -629,9 +819,16 @@ EXPORT_SYMBOL(wait_for_key_construction);
  * Furthermore, it then works as wait_for_key_construction() to wait for the
  * completion of keys undergoing construction with a non-interruptible wait.
  */
+<<<<<<< HEAD
 struct key *request_key(struct key_type *type,
 			const char *description,
 			const char *callout_info)
+=======
+struct key *request_key_tag(struct key_type *type,
+			    const char *description,
+			    struct key_tag *domain_tag,
+			    const char *callout_info)
+>>>>>>> upstream/android-13
 {
 	struct key *key;
 	size_t callout_len = 0;
@@ -639,7 +836,12 @@ struct key *request_key(struct key_type *type,
 
 	if (callout_info)
 		callout_len = strlen(callout_info);
+<<<<<<< HEAD
 	key = request_key_and_link(type, description, callout_info, callout_len,
+=======
+	key = request_key_and_link(type, description, domain_tag,
+				   callout_info, callout_len,
+>>>>>>> upstream/android-13
 				   NULL, NULL, KEY_ALLOC_IN_QUOTA);
 	if (!IS_ERR(key)) {
 		ret = wait_for_key_construction(key, false);
@@ -650,12 +852,20 @@ struct key *request_key(struct key_type *type,
 	}
 	return key;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(request_key);
+=======
+EXPORT_SYMBOL(request_key_tag);
+>>>>>>> upstream/android-13
 
 /**
  * request_key_with_auxdata - Request a key with auxiliary data for the upcaller
  * @type: The type of key we want.
  * @description: The searchable description of the key.
+<<<<<<< HEAD
+=======
+ * @domain_tag: The domain in which the key operates.
+>>>>>>> upstream/android-13
  * @callout_info: The data to pass to the instantiation upcall (or NULL).
  * @callout_len: The length of callout_info.
  * @aux: Auxiliary data for the upcall.
@@ -668,6 +878,10 @@ EXPORT_SYMBOL(request_key);
  */
 struct key *request_key_with_auxdata(struct key_type *type,
 				     const char *description,
+<<<<<<< HEAD
+=======
+				     struct key_tag *domain_tag,
+>>>>>>> upstream/android-13
 				     const void *callout_info,
 				     size_t callout_len,
 				     void *aux)
@@ -675,7 +889,12 @@ struct key *request_key_with_auxdata(struct key_type *type,
 	struct key *key;
 	int ret;
 
+<<<<<<< HEAD
 	key = request_key_and_link(type, description, callout_info, callout_len,
+=======
+	key = request_key_and_link(type, description, domain_tag,
+				   callout_info, callout_len,
+>>>>>>> upstream/android-13
 				   aux, NULL, KEY_ALLOC_IN_QUOTA);
 	if (!IS_ERR(key)) {
 		ret = wait_for_key_construction(key, false);
@@ -688,6 +907,7 @@ struct key *request_key_with_auxdata(struct key_type *type,
 }
 EXPORT_SYMBOL(request_key_with_auxdata);
 
+<<<<<<< HEAD
 /*
  * request_key_async - Request a key (allow async construction)
  * @type: Type of key.
@@ -737,3 +957,57 @@ struct key *request_key_async_with_auxdata(struct key_type *type,
 				    callout_len, aux, NULL, KEY_ALLOC_IN_QUOTA);
 }
 EXPORT_SYMBOL(request_key_async_with_auxdata);
+=======
+/**
+ * request_key_rcu - Request key from RCU-read-locked context
+ * @type: The type of key we want.
+ * @description: The name of the key we want.
+ * @domain_tag: The domain in which the key operates.
+ *
+ * Request a key from a context that we may not sleep in (such as RCU-mode
+ * pathwalk).  Keys under construction are ignored.
+ *
+ * Return a pointer to the found key if successful, -ENOKEY if we couldn't find
+ * a key or some other error if the key found was unsuitable or inaccessible.
+ */
+struct key *request_key_rcu(struct key_type *type,
+			    const char *description,
+			    struct key_tag *domain_tag)
+{
+	struct keyring_search_context ctx = {
+		.index_key.type		= type,
+		.index_key.domain_tag	= domain_tag,
+		.index_key.description	= description,
+		.index_key.desc_len	= strlen(description),
+		.cred			= current_cred(),
+		.match_data.cmp		= key_default_cmp,
+		.match_data.raw_data	= description,
+		.match_data.lookup_type	= KEYRING_SEARCH_LOOKUP_DIRECT,
+		.flags			= (KEYRING_SEARCH_DO_STATE_CHECK |
+					   KEYRING_SEARCH_SKIP_EXPIRED),
+	};
+	struct key *key;
+	key_ref_t key_ref;
+
+	kenter("%s,%s", type->name, description);
+
+	key = check_cached_key(&ctx);
+	if (key)
+		return key;
+
+	/* search all the process keyrings for a key */
+	key_ref = search_process_keyrings_rcu(&ctx);
+	if (IS_ERR(key_ref)) {
+		key = ERR_CAST(key_ref);
+		if (PTR_ERR(key_ref) == -EAGAIN)
+			key = ERR_PTR(-ENOKEY);
+	} else {
+		key = key_ref_to_ptr(key_ref);
+		cache_requested_key(key);
+	}
+
+	kleave(" = %p", key);
+	return key;
+}
+EXPORT_SYMBOL(request_key_rcu);
+>>>>>>> upstream/android-13

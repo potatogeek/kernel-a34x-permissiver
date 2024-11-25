@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * dvb_ca.c: generic DVB functions for EN50221 CAM interfaces
  *
@@ -11,6 +15,7 @@
  *
  * Copyright (C) 1999-2002 Ralph  Metzler
  *                       & Marcus Metzler for convergence integrated media GmbH
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +28,8 @@
  * GNU General Public License for more details.
  * To obtain the license, point your browser to
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "dvb_ca_en50221: " fmt
@@ -201,7 +208,11 @@ static int dvb_ca_en50221_write_data(struct dvb_ca_private *ca, int slot,
 				     u8 *ebuf, int ecount);
 
 /**
+<<<<<<< HEAD
  * Safely find needle in haystack.
+=======
+ * findstr - Safely find needle in haystack.
+>>>>>>> upstream/android-13
  *
  * @haystack: Buffer to look in.
  * @hlen: Number of bytes in haystack.
@@ -1017,7 +1028,11 @@ EXPORT_SYMBOL(dvb_ca_en50221_frda_irq);
 /* EN50221 thread functions */
 
 /**
+<<<<<<< HEAD
  * Wake up the DVB CA thread
+=======
+ * dvb_ca_en50221_thread_wakeup - Wake up the DVB CA thread
+>>>>>>> upstream/android-13
  *
  * @ca: CA instance.
  */
@@ -1031,7 +1046,11 @@ static void dvb_ca_en50221_thread_wakeup(struct dvb_ca_private *ca)
 }
 
 /**
+<<<<<<< HEAD
  * Update the delay used by the thread.
+=======
+ * dvb_ca_en50221_thread_update_delay - Update the delay used by the thread.
+>>>>>>> upstream/android-13
  *
  * @ca: CA instance.
  */
@@ -1089,7 +1108,11 @@ static void dvb_ca_en50221_thread_update_delay(struct dvb_ca_private *ca)
 }
 
 /**
+<<<<<<< HEAD
  * Poll if the CAM is gone.
+=======
+ * dvb_ca_en50221_poll_cam_gone - Poll if the CAM is gone.
+>>>>>>> upstream/android-13
  *
  * @ca: CA instance.
  * @slot: Slot to process.
@@ -1120,7 +1143,12 @@ static int dvb_ca_en50221_poll_cam_gone(struct dvb_ca_private *ca, int slot)
 }
 
 /**
+<<<<<<< HEAD
  * Thread state machine for one CA slot to perform the data transfer.
+=======
+ * dvb_ca_en50221_thread_state_machine - Thread state machine for one CA slot
+ *	to perform the data transfer.
+>>>>>>> upstream/android-13
  *
  * @ca: CA instance.
  * @slot: Slot to process.
@@ -1335,13 +1363,22 @@ static int dvb_ca_en50221_thread(void *data)
 /* EN50221 IO interface functions */
 
 /**
+<<<<<<< HEAD
  * Real ioctl implementation.
  * NOTE: CA_SEND_MSG/CA_GET_MSG ioctls have userspace buffers passed to them.
+=======
+ * dvb_ca_en50221_io_do_ioctl - Real ioctl implementation.
+>>>>>>> upstream/android-13
  *
  * @file: File concerned.
  * @cmd: IOCTL command.
  * @parg: Associated argument.
  *
+<<<<<<< HEAD
+=======
+ * NOTE: CA_SEND_MSG/CA_GET_MSG ioctls have userspace buffers passed to them.
+ *
+>>>>>>> upstream/android-13
  * return: 0 on success, <0 on error.
  */
 static int dvb_ca_en50221_io_do_ioctl(struct file *file,
@@ -1395,6 +1432,10 @@ static int dvb_ca_en50221_io_do_ioctl(struct file *file,
 			err = -EINVAL;
 			goto out_unlock;
 		}
+<<<<<<< HEAD
+=======
+		slot = array_index_nospec(slot, ca->slot_count);
+>>>>>>> upstream/android-13
 
 		info->type = CA_CI_LINK;
 		info->flags = 0;
@@ -1419,7 +1460,11 @@ out_unlock:
 }
 
 /**
+<<<<<<< HEAD
  * Wrapper for ioctl implementation.
+=======
+ * dvb_ca_en50221_io_ioctl - Wrapper for ioctl implementation.
+>>>>>>> upstream/android-13
  *
  * @file: File concerned.
  * @cmd: IOCTL command.
@@ -1434,7 +1479,11 @@ static long dvb_ca_en50221_io_ioctl(struct file *file,
 }
 
 /**
+<<<<<<< HEAD
  * Implementation of write() syscall.
+=======
+ * dvb_ca_en50221_io_write - Implementation of write() syscall.
+>>>>>>> upstream/android-13
  *
  * @file: File structure.
  * @buf: Source buffer.
@@ -1590,7 +1639,11 @@ nextslot:
 }
 
 /**
+<<<<<<< HEAD
  * Implementation of read() syscall.
+=======
+ * dvb_ca_en50221_io_read - Implementation of read() syscall.
+>>>>>>> upstream/android-13
  *
  * @file: File structure.
  * @buf: Destination buffer.
@@ -1701,7 +1754,11 @@ exit:
 }
 
 /**
+<<<<<<< HEAD
  * Implementation of file open syscall.
+=======
+ * dvb_ca_en50221_io_open - Implementation of file open syscall.
+>>>>>>> upstream/android-13
  *
  * @inode: Inode concerned.
  * @file: File concerned.
@@ -1751,7 +1808,11 @@ static int dvb_ca_en50221_io_open(struct inode *inode, struct file *file)
 }
 
 /**
+<<<<<<< HEAD
  * Implementation of file close syscall.
+=======
+ * dvb_ca_en50221_io_release - Implementation of file close syscall.
+>>>>>>> upstream/android-13
  *
  * @inode: Inode concerned.
  * @file: File concerned.
@@ -1780,7 +1841,11 @@ static int dvb_ca_en50221_io_release(struct inode *inode, struct file *file)
 }
 
 /**
+<<<<<<< HEAD
  * Implementation of poll() syscall.
+=======
+ * dvb_ca_en50221_io_poll - Implementation of poll() syscall.
+>>>>>>> upstream/android-13
  *
  * @file: File concerned.
  * @wait: poll wait table.
@@ -1797,6 +1862,11 @@ static __poll_t dvb_ca_en50221_io_poll(struct file *file, poll_table *wait)
 
 	dprintk("%s\n", __func__);
 
+<<<<<<< HEAD
+=======
+	poll_wait(file, &ca->wait_queue, wait);
+
+>>>>>>> upstream/android-13
 	if (dvb_ca_en50221_io_read_condition(ca, &result, &slot) == 1)
 		mask |= EPOLLIN;
 
@@ -1804,9 +1874,12 @@ static __poll_t dvb_ca_en50221_io_poll(struct file *file, poll_table *wait)
 	if (mask)
 		return mask;
 
+<<<<<<< HEAD
 	/* wait for something to happen */
 	poll_wait(file, &ca->wait_queue, wait);
 
+=======
+>>>>>>> upstream/android-13
 	if (dvb_ca_en50221_io_read_condition(ca, &result, &slot) == 1)
 		mask |= EPOLLIN;
 
@@ -1839,7 +1912,11 @@ static const struct dvb_device dvbdev_ca = {
 /* Initialisation/shutdown functions */
 
 /**
+<<<<<<< HEAD
  * Initialise a new DVB CA EN50221 interface device.
+=======
+ * dvb_ca_en50221_init - Initialise a new DVB CA EN50221 interface device.
+>>>>>>> upstream/android-13
  *
  * @dvb_adapter: DVB adapter to attach the new CA device to.
  * @pubca: The dvb_ca instance.
@@ -1931,7 +2008,11 @@ exit:
 EXPORT_SYMBOL(dvb_ca_en50221_init);
 
 /**
+<<<<<<< HEAD
  * Release a DVB CA EN50221 interface device.
+=======
+ * dvb_ca_en50221_release - Release a DVB CA EN50221 interface device.
+>>>>>>> upstream/android-13
  *
  * @pubca: The associated dvb_ca instance.
  */

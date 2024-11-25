@@ -7,6 +7,12 @@ config DMABOUNCE
 	bool
 	select ZONE_DMA
 
+<<<<<<< HEAD
+=======
+config KRAIT_L2_ACCESSORS
+	bool
+
+>>>>>>> upstream/android-13
 config SHARP_LOCOMO
 	bool
 

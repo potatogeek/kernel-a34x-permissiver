@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drm gem CMA (contiguous memory allocator) helper functions
  *
@@ -6,6 +10,7 @@
  * Based on Samsung Exynos code
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +31,20 @@
 
 #include <drm/drmP.h>
 #include <drm/drm.h>
+=======
+ */
+
+#include <linux/dma-buf.h>
+#include <linux/dma-mapping.h>
+#include <linux/export.h>
+#include <linux/mm.h>
+#include <linux/mutex.h>
+#include <linux/slab.h>
+
+#include <drm/drm.h>
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_vma_manager.h>
 
@@ -40,10 +59,26 @@
  * display drivers that are unable to map scattered buffers via an IOMMU.
  */
 
+<<<<<<< HEAD
+=======
+static const struct drm_gem_object_funcs drm_gem_cma_default_funcs = {
+	.free = drm_gem_cma_free_object,
+	.print_info = drm_gem_cma_print_info,
+	.get_sg_table = drm_gem_cma_get_sg_table,
+	.vmap = drm_gem_cma_vmap,
+	.mmap = drm_gem_cma_mmap,
+	.vm_ops = &drm_gem_cma_vm_ops,
+};
+
+>>>>>>> upstream/android-13
 /**
  * __drm_gem_cma_create - Create a GEM CMA object without allocating memory
  * @drm: DRM device
  * @size: size of the object to allocate
+<<<<<<< HEAD
+=======
+ * @private: true if used for internal purposes
+>>>>>>> upstream/android-13
  *
  * This function creates and initializes a GEM CMA object of the given size,
  * but doesn't allocate any memory to back the object.
@@ -53,11 +88,19 @@
  * error code on failure.
  */
 static struct drm_gem_cma_object *
+<<<<<<< HEAD
 __drm_gem_cma_create(struct drm_device *drm, size_t size)
 {
 	struct drm_gem_cma_object *cma_obj;
 	struct drm_gem_object *gem_obj;
 	int ret;
+=======
+__drm_gem_cma_create(struct drm_device *drm, size_t size, bool private)
+{
+	struct drm_gem_cma_object *cma_obj;
+	struct drm_gem_object *gem_obj;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (drm->driver->gem_create_object)
 		gem_obj = drm->driver->gem_create_object(drm, size);
@@ -65,9 +108,26 @@ __drm_gem_cma_create(struct drm_device *drm, size_t size)
 		gem_obj = kzalloc(sizeof(*cma_obj), GFP_KERNEL);
 	if (!gem_obj)
 		return ERR_PTR(-ENOMEM);
+<<<<<<< HEAD
 	cma_obj = container_of(gem_obj, struct drm_gem_cma_object, base);
 
 	ret = drm_gem_object_init(drm, gem_obj, size);
+=======
+
+	if (!gem_obj->funcs)
+		gem_obj->funcs = &drm_gem_cma_default_funcs;
+
+	cma_obj = container_of(gem_obj, struct drm_gem_cma_object, base);
+
+	if (private) {
+		drm_gem_private_object_init(drm, gem_obj, size);
+
+		/* Always use writecombine for dma-buf mappings */
+		cma_obj->map_noncoherent = false;
+	} else {
+		ret = drm_gem_object_init(drm, gem_obj, size);
+	}
+>>>>>>> upstream/android-13
 	if (ret)
 		goto error;
 
@@ -90,8 +150,12 @@ error:
  * @size: size of the object to allocate
  *
  * This function creates a CMA GEM object and allocates a contiguous chunk of
+<<<<<<< HEAD
  * memory as backing store. The backing memory has the writecombine attribute
  * set.
+=======
+ * memory as backing store.
+>>>>>>> upstream/android-13
  *
  * Returns:
  * A struct drm_gem_cma_object * on success or an ERR_PTR()-encoded negative
@@ -105,6 +169,7 @@ struct drm_gem_cma_object *drm_gem_cma_create(struct drm_device *drm,
 
 	size = round_up(size, PAGE_SIZE);
 
+<<<<<<< HEAD
 	cma_obj = __drm_gem_cma_create(drm, size);
 	if (IS_ERR(cma_obj))
 		return cma_obj;
@@ -114,6 +179,24 @@ struct drm_gem_cma_object *drm_gem_cma_create(struct drm_device *drm,
 	if (!cma_obj->vaddr) {
 		dev_dbg(drm->dev, "failed to allocate buffer with size %zu\n",
 			size);
+=======
+	cma_obj = __drm_gem_cma_create(drm, size, false);
+	if (IS_ERR(cma_obj))
+		return cma_obj;
+
+	if (cma_obj->map_noncoherent) {
+		cma_obj->vaddr = dma_alloc_noncoherent(drm->dev, size,
+						       &cma_obj->paddr,
+						       DMA_TO_DEVICE,
+						       GFP_KERNEL | __GFP_NOWARN);
+	} else {
+		cma_obj->vaddr = dma_alloc_wc(drm->dev, size, &cma_obj->paddr,
+					      GFP_KERNEL | __GFP_NOWARN);
+	}
+	if (!cma_obj->vaddr) {
+		drm_dbg(drm, "failed to allocate buffer with size %zu\n",
+			 size);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto error;
 	}
@@ -121,7 +204,11 @@ struct drm_gem_cma_object *drm_gem_cma_create(struct drm_device *drm,
 	return cma_obj;
 
 error:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&cma_obj->base);
+=======
+	drm_gem_object_put(&cma_obj->base);
+>>>>>>> upstream/android-13
 	return ERR_PTR(ret);
 }
 EXPORT_SYMBOL_GPL(drm_gem_cma_create);
@@ -163,7 +250,11 @@ drm_gem_cma_create_with_handle(struct drm_file *file_priv,
 	 */
 	ret = drm_gem_handle_create(file_priv, gem_obj, handle);
 	/* drop reference from allocate - handle holds it now. */
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gem_obj);
+=======
+	drm_gem_object_put(gem_obj);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ERR_PTR(ret);
 
@@ -176,6 +267,7 @@ drm_gem_cma_create_with_handle(struct drm_file *file_priv,
  *
  * This function frees the backing memory of the CMA GEM object, cleans up the
  * GEM object state and frees the memory used to store the object itself.
+<<<<<<< HEAD
  * Drivers using the CMA helpers should set this as their
  * &drm_driver.gem_free_object_unlocked callback.
  */
@@ -190,6 +282,29 @@ void drm_gem_cma_free_object(struct drm_gem_object *gem_obj)
 			    cma_obj->vaddr, cma_obj->paddr);
 	} else if (gem_obj->import_attach) {
 		drm_prime_gem_destroy(gem_obj, cma_obj->sgt);
+=======
+ * If the buffer is imported and the virtual address is set, it is released.
+ * Drivers using the CMA helpers should set this as their
+ * &drm_gem_object_funcs.free callback.
+ */
+void drm_gem_cma_free_object(struct drm_gem_object *gem_obj)
+{
+	struct drm_gem_cma_object *cma_obj = to_drm_gem_cma_obj(gem_obj);
+	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(cma_obj->vaddr);
+
+	if (gem_obj->import_attach) {
+		if (cma_obj->vaddr)
+			dma_buf_vunmap(gem_obj->import_attach->dmabuf, &map);
+		drm_prime_gem_destroy(gem_obj, cma_obj->sgt);
+	} else if (cma_obj->vaddr) {
+		if (cma_obj->map_noncoherent)
+			dma_free_noncoherent(gem_obj->dev->dev, cma_obj->base.size,
+					     cma_obj->vaddr, cma_obj->paddr,
+					     DMA_TO_DEVICE);
+		else
+			dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
+				    cma_obj->vaddr, cma_obj->paddr);
+>>>>>>> upstream/android-13
 	}
 
 	drm_gem_object_release(gem_obj);
@@ -270,6 +385,7 @@ const struct vm_operations_struct drm_gem_cma_vm_ops = {
 };
 EXPORT_SYMBOL_GPL(drm_gem_cma_vm_ops);
 
+<<<<<<< HEAD
 static int drm_gem_cma_mmap_obj(struct drm_gem_cma_object *cma_obj,
 				struct vm_area_struct *vma)
 {
@@ -326,6 +442,8 @@ int drm_gem_cma_mmap(struct file *filp, struct vm_area_struct *vma)
 }
 EXPORT_SYMBOL_GPL(drm_gem_cma_mmap);
 
+=======
+>>>>>>> upstream/android-13
 #ifndef CONFIG_MMU
 /**
  * drm_gem_cma_get_unmapped_area - propose address for mapping in noMMU cases
@@ -384,13 +502,21 @@ unsigned long drm_gem_cma_get_unmapped_area(struct file *filp,
 		return -EINVAL;
 
 	if (!drm_vma_node_is_allowed(node, priv)) {
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(obj);
+=======
+		drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 		return -EACCES;
 	}
 
 	cma_obj = to_drm_gem_cma_obj(obj);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	return cma_obj->vaddr ? (unsigned long)cma_obj->vaddr : -EINVAL;
 }
@@ -417,6 +543,7 @@ void drm_gem_cma_print_info(struct drm_printer *p, unsigned int indent,
 EXPORT_SYMBOL(drm_gem_cma_print_info);
 
 /**
+<<<<<<< HEAD
  * drm_gem_cma_prime_get_sg_table - provide a scatter/gather table of pinned
  *     pages for a CMA GEM object
  * @obj: GEM object
@@ -424,11 +551,24 @@ EXPORT_SYMBOL(drm_gem_cma_print_info);
  * This function exports a scatter/gather table suitable for PRIME usage by
  * calling the standard DMA mapping API. Drivers using the CMA helpers should
  * set this as their &drm_driver.gem_prime_get_sg_table callback.
+=======
+ * drm_gem_cma_get_sg_table - provide a scatter/gather table of pinned
+ *     pages for a CMA GEM object
+ * @obj: GEM object
+ *
+ * This function exports a scatter/gather table by
+ * calling the standard DMA mapping API. Drivers using the CMA helpers should
+ * set this as their &drm_gem_object_funcs.get_sg_table callback.
+>>>>>>> upstream/android-13
  *
  * Returns:
  * A pointer to the scatter/gather table of pinned pages or NULL on failure.
  */
+<<<<<<< HEAD
 struct sg_table *drm_gem_cma_prime_get_sg_table(struct drm_gem_object *obj)
+=======
+struct sg_table *drm_gem_cma_get_sg_table(struct drm_gem_object *obj)
+>>>>>>> upstream/android-13
 {
 	struct drm_gem_cma_object *cma_obj = to_drm_gem_cma_obj(obj);
 	struct sg_table *sgt;
@@ -436,7 +576,11 @@ struct sg_table *drm_gem_cma_prime_get_sg_table(struct drm_gem_object *obj)
 
 	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
 	if (!sgt)
+<<<<<<< HEAD
 		return NULL;
+=======
+		return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 
 	ret = dma_get_sgtable(obj->dev->dev, sgt, cma_obj->vaddr,
 			      cma_obj->paddr, obj->size);
@@ -447,9 +591,15 @@ struct sg_table *drm_gem_cma_prime_get_sg_table(struct drm_gem_object *obj)
 
 out:
 	kfree(sgt);
+<<<<<<< HEAD
 	return NULL;
 }
 EXPORT_SYMBOL_GPL(drm_gem_cma_prime_get_sg_table);
+=======
+	return ERR_PTR(ret);
+}
+EXPORT_SYMBOL_GPL(drm_gem_cma_get_sg_table);
+>>>>>>> upstream/android-13
 
 /**
  * drm_gem_cma_prime_import_sg_table - produce a CMA GEM object from another
@@ -475,6 +625,7 @@ drm_gem_cma_prime_import_sg_table(struct drm_device *dev,
 {
 	struct drm_gem_cma_object *cma_obj;
 
+<<<<<<< HEAD
 	if (sgt->nents != 1) {
 		/* check if the entries in the sg_table are contiguous */
 		dma_addr_t next_addr = sg_dma_address(sgt->sgl);
@@ -498,6 +649,14 @@ drm_gem_cma_prime_import_sg_table(struct drm_device *dev,
 
 	/* Create a CMA GEM buffer. */
 	cma_obj = __drm_gem_cma_create(dev, attach->dmabuf->size);
+=======
+	/* check if the entries in the sg_table are contiguous */
+	if (drm_prime_get_contiguous_size(sgt) < attach->dmabuf->size)
+		return ERR_PTR(-EINVAL);
+
+	/* Create a CMA GEM buffer. */
+	cma_obj = __drm_gem_cma_create(dev, attach->dmabuf->size, true);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cma_obj))
 		return ERR_CAST(cma_obj);
 
@@ -511,6 +670,7 @@ drm_gem_cma_prime_import_sg_table(struct drm_device *dev,
 EXPORT_SYMBOL_GPL(drm_gem_cma_prime_import_sg_table);
 
 /**
+<<<<<<< HEAD
  * drm_gem_cma_prime_mmap - memory-map an exported CMA GEM object
  * @obj: GEM object
  * @vma: VMA for the area to be mapped
@@ -518,16 +678,57 @@ EXPORT_SYMBOL_GPL(drm_gem_cma_prime_import_sg_table);
  * This function maps a buffer imported via DRM PRIME into a userspace
  * process's address space. Drivers that use the CMA helpers should set this
  * as their &drm_driver.gem_prime_mmap callback.
+=======
+ * drm_gem_cma_vmap - map a CMA GEM object into the kernel's virtual
+ *     address space
+ * @obj: GEM object
+ * @map: Returns the kernel virtual address of the CMA GEM object's backing
+ *       store.
+ *
+ * This function maps a buffer into the kernel's
+ * virtual address space. Since the CMA buffers are already mapped into the
+ * kernel virtual address space this simply returns the cached virtual
+ * address. Drivers using the CMA helpers should set this as their DRM
+ * driver's &drm_gem_object_funcs.vmap callback.
+ *
+ * Returns:
+ * 0 on success, or a negative error code otherwise.
+ */
+int drm_gem_cma_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+{
+	struct drm_gem_cma_object *cma_obj = to_drm_gem_cma_obj(obj);
+
+	dma_buf_map_set_vaddr(map, cma_obj->vaddr);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(drm_gem_cma_vmap);
+
+/**
+ * drm_gem_cma_mmap - memory-map an exported CMA GEM object
+ * @obj: GEM object
+ * @vma: VMA for the area to be mapped
+ *
+ * This function maps a buffer into a userspace process's address space.
+ * In addition to the usual GEM VMA setup it immediately faults in the entire
+ * object instead of using on-demand faulting. Drivers that use the CMA
+ * helpers should set this as their &drm_gem_object_funcs.mmap callback.
+>>>>>>> upstream/android-13
  *
  * Returns:
  * 0 on success or a negative error code on failure.
  */
+<<<<<<< HEAD
 int drm_gem_cma_prime_mmap(struct drm_gem_object *obj,
 			   struct vm_area_struct *vma)
+=======
+int drm_gem_cma_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+>>>>>>> upstream/android-13
 {
 	struct drm_gem_cma_object *cma_obj;
 	int ret;
 
+<<<<<<< HEAD
 	ret = drm_gem_mmap_obj(obj, obj->size, vma);
 	if (ret < 0)
 		return ret;
@@ -575,3 +776,81 @@ void drm_gem_cma_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
 	/* Nothing to do */
 }
 EXPORT_SYMBOL_GPL(drm_gem_cma_prime_vunmap);
+=======
+	/*
+	 * Clear the VM_PFNMAP flag that was set by drm_gem_mmap(), and set the
+	 * vm_pgoff (used as a fake buffer offset by DRM) to 0 as we want to map
+	 * the whole buffer.
+	 */
+	vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
+	vma->vm_flags &= ~VM_PFNMAP;
+	vma->vm_flags |= VM_DONTEXPAND;
+
+	cma_obj = to_drm_gem_cma_obj(obj);
+
+	if (cma_obj->map_noncoherent) {
+		vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
+
+		ret = dma_mmap_pages(cma_obj->base.dev->dev,
+				     vma, vma->vm_end - vma->vm_start,
+				     virt_to_page(cma_obj->vaddr));
+	} else {
+		ret = dma_mmap_wc(cma_obj->base.dev->dev, vma, cma_obj->vaddr,
+				  cma_obj->paddr, vma->vm_end - vma->vm_start);
+	}
+	if (ret)
+		drm_gem_vm_close(vma);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(drm_gem_cma_mmap);
+
+/**
+ * drm_gem_cma_prime_import_sg_table_vmap - PRIME import another driver's
+ *	scatter/gather table and get the virtual address of the buffer
+ * @dev: DRM device
+ * @attach: DMA-BUF attachment
+ * @sgt: Scatter/gather table of pinned pages
+ *
+ * This function imports a scatter/gather table using
+ * drm_gem_cma_prime_import_sg_table() and uses dma_buf_vmap() to get the kernel
+ * virtual address. This ensures that a CMA GEM object always has its virtual
+ * address set. This address is released when the object is freed.
+ *
+ * This function can be used as the &drm_driver.gem_prime_import_sg_table
+ * callback. The &DRM_GEM_CMA_DRIVER_OPS_VMAP macro provides a shortcut to set
+ * the necessary DRM driver operations.
+ *
+ * Returns:
+ * A pointer to a newly created GEM object or an ERR_PTR-encoded negative
+ * error code on failure.
+ */
+struct drm_gem_object *
+drm_gem_cma_prime_import_sg_table_vmap(struct drm_device *dev,
+				       struct dma_buf_attachment *attach,
+				       struct sg_table *sgt)
+{
+	struct drm_gem_cma_object *cma_obj;
+	struct drm_gem_object *obj;
+	struct dma_buf_map map;
+	int ret;
+
+	ret = dma_buf_vmap(attach->dmabuf, &map);
+	if (ret) {
+		DRM_ERROR("Failed to vmap PRIME buffer\n");
+		return ERR_PTR(ret);
+	}
+
+	obj = drm_gem_cma_prime_import_sg_table(dev, attach, sgt);
+	if (IS_ERR(obj)) {
+		dma_buf_vunmap(attach->dmabuf, &map);
+		return obj;
+	}
+
+	cma_obj = to_drm_gem_cma_obj(obj);
+	cma_obj->vaddr = map.vaddr;
+
+	return obj;
+}
+EXPORT_SYMBOL(drm_gem_cma_prime_import_sg_table_vmap);
+>>>>>>> upstream/android-13

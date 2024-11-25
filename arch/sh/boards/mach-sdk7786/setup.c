@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas Technology Europe SDK7786 Support.
  *
  * Copyright (C) 2010  Matt Fleming
  * Copyright (C) 2010  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -22,7 +29,11 @@
 #include <mach/irq.h>
 #include <asm/machvec.h>
 #include <asm/heartbeat.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/clock.h>
 #include <asm/reboot.h>
 #include <asm/smp-ops.h>

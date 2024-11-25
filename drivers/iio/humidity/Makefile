@@ -6,6 +6,10 @@
 obj-$(CONFIG_AM2315) += am2315.o
 obj-$(CONFIG_DHT11) += dht11.o
 obj-$(CONFIG_HDC100X) += hdc100x.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_HDC2010) += hdc2010.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_HID_SENSOR_HUMIDITY) += hid-sensor-humidity.o
 
 hts221-y := hts221_core.o \

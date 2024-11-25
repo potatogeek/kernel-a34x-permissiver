@@ -7,10 +7,18 @@
 #ifndef _STI_DRV_H_
 #define _STI_DRV_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
 struct sti_compositor;
 struct sti_tvout;
+=======
+#include <linux/platform_device.h>
+
+struct drm_device;
+struct drm_property;
+struct sti_compositor;
+>>>>>>> upstream/android-13
 
 /**
  * STI drm private structure

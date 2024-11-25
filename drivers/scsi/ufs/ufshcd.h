@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 /*
  * Universal Flash Storage Host controller driver
  *
  * This code is based on drivers/scsi/ufs/ufshcd.h
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Universal Flash Storage Host controller driver
+>>>>>>> upstream/android-13
  * Copyright (C) 2011-2013 Samsung India Software Operations
  * Copyright (c) 2013-2016, The Linux Foundation. All rights reserved.
  *
  * Authors:
  *	Santosh Yaraganavi <santosh.sy@samsung.com>
  *	Vinayak Holikatti <h.vinayak@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,6 +39,8 @@
  * circumstances will the contributor of this Program be liable for
  * any damages of any kind arising from your use or distribution of
  * this program.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _UFSHCD_H
@@ -57,6 +66,10 @@
 #include <linux/regulator/consumer.h>
 #include <linux/bitfield.h>
 #include <linux/devfreq.h>
+<<<<<<< HEAD
+=======
+#include <linux/keyslot-manager.h>
+>>>>>>> upstream/android-13
 #include "unipro.h"
 
 #include <asm/irq.h>
@@ -70,6 +83,7 @@
 #include <linux/android_kabi.h>
 
 #include "ufs.h"
+<<<<<<< HEAD
 #include "ufshci.h"
 #if defined(CONFIG_SCSI_UFS_FEATURE)
 #include "ufsfeature.h"
@@ -78,15 +92,22 @@
 #include "ufshpb_skh.h"
 #endif
 
+=======
+#include "ufs_quirks.h"
+#include "ufshci.h"
+>>>>>>> upstream/android-13
 
 #define UFSHCD "ufshcd"
 #define UFSHCD_DRIVER_VERSION "0.2"
 
 struct ufs_hba;
 
+<<<<<<< HEAD
 /* unique number */
 #define UFS_UN_20_DIGITS 20
 
+=======
+>>>>>>> upstream/android-13
 enum dev_cmd_type {
 	DEV_CMD_TYPE_NOP		= 0x0,
 	DEV_CMD_TYPE_QUERY		= 0x1,
@@ -106,16 +127,25 @@ enum ufs_event_type {
 	UFS_EVT_LINK_STARTUP_FAIL,
 	UFS_EVT_RESUME_ERR,
 	UFS_EVT_SUSPEND_ERR,
+<<<<<<< HEAD
+=======
+	UFS_EVT_WL_SUSP_ERR,
+	UFS_EVT_WL_RES_ERR,
+>>>>>>> upstream/android-13
 
 	/* abnormal events */
 	UFS_EVT_DEV_RESET,
 	UFS_EVT_HOST_RESET,
+<<<<<<< HEAD
 	UFS_EVT_SW_RESET,
 	UFS_EVT_ABORT,
 	UFS_EVT_OCS_ERR,
 
 	/* performance warning */
 	UFS_EVT_PERF_WARN,
+=======
+	UFS_EVT_ABORT,
+>>>>>>> upstream/android-13
 
 	UFS_EVT_CNT,
 };
@@ -126,6 +156,10 @@ enum ufs_event_type {
  * @argument1: UIC command argument 1
  * @argument2: UIC command argument 2
  * @argument3: UIC command argument 3
+<<<<<<< HEAD
+=======
+ * @cmd_active: Indicate if UIC command is outstanding
+>>>>>>> upstream/android-13
  * @done: UIC command completion
  */
 struct uic_command {
@@ -133,6 +167,7 @@ struct uic_command {
 	u32 argument1;
 	u32 argument2;
 	u32 argument3;
+<<<<<<< HEAD
 	struct completion done;
 };
 
@@ -149,6 +184,12 @@ enum ufs_tw_state {
 #define ufshcd_set_tw_on(hba) ((hba)->ufs_tw_state = UFS_TW_ON_STATE)
 #define ufshcd_set_tw_err(hba) ((hba)->ufs_tw_state = UFS_TW_ERR_STATE)
 
+=======
+	int cmd_active;
+	struct completion done;
+};
+
+>>>>>>> upstream/android-13
 /* Used to differentiate the power management options */
 enum ufs_pm_op {
 	UFS_RUNTIME_PM,
@@ -156,15 +197,22 @@ enum ufs_pm_op {
 	UFS_SHUTDOWN_PM,
 };
 
+<<<<<<< HEAD
 #define ufshcd_is_runtime_pm(op) ((op) == UFS_RUNTIME_PM)
 #define ufshcd_is_system_pm(op) ((op) == UFS_SYSTEM_PM)
 #define ufshcd_is_shutdown_pm(op) ((op) == UFS_SHUTDOWN_PM)
 
+=======
+>>>>>>> upstream/android-13
 /* Host <-> Device UniPro Link state */
 enum uic_link_state {
 	UIC_LINK_OFF_STATE	= 0, /* Link powered down or disabled */
 	UIC_LINK_ACTIVE_STATE	= 1, /* Link is in Fast/Slow/Sleep state */
 	UIC_LINK_HIBERN8_STATE	= 2, /* Link is in Hibernate state */
+<<<<<<< HEAD
+=======
+	UIC_LINK_BROKEN_STATE	= 3, /* Link is in broken state */
+>>>>>>> upstream/android-13
 };
 
 #define ufshcd_is_link_off(hba) ((hba)->uic_link_state == UIC_LINK_OFF_STATE)
@@ -172,11 +220,21 @@ enum uic_link_state {
 				    UIC_LINK_ACTIVE_STATE)
 #define ufshcd_is_link_hibern8(hba) ((hba)->uic_link_state == \
 				    UIC_LINK_HIBERN8_STATE)
+<<<<<<< HEAD
+=======
+#define ufshcd_is_link_broken(hba) ((hba)->uic_link_state == \
+				   UIC_LINK_BROKEN_STATE)
+>>>>>>> upstream/android-13
 #define ufshcd_set_link_off(hba) ((hba)->uic_link_state = UIC_LINK_OFF_STATE)
 #define ufshcd_set_link_active(hba) ((hba)->uic_link_state = \
 				    UIC_LINK_ACTIVE_STATE)
 #define ufshcd_set_link_hibern8(hba) ((hba)->uic_link_state = \
 				    UIC_LINK_HIBERN8_STATE)
+<<<<<<< HEAD
+=======
+#define ufshcd_set_link_broken(hba) ((hba)->uic_link_state = \
+				    UIC_LINK_BROKEN_STATE)
+>>>>>>> upstream/android-13
 
 #define ufshcd_set_ufs_dev_active(h) \
 	((h)->curr_dev_pwr_mode = UFS_ACTIVE_PWR_MODE)
@@ -184,12 +242,18 @@ enum uic_link_state {
 	((h)->curr_dev_pwr_mode = UFS_SLEEP_PWR_MODE)
 #define ufshcd_set_ufs_dev_poweroff(h) \
 	((h)->curr_dev_pwr_mode = UFS_POWERDOWN_PWR_MODE)
+<<<<<<< HEAD
+=======
+#define ufshcd_set_ufs_dev_deepsleep(h) \
+	((h)->curr_dev_pwr_mode = UFS_DEEPSLEEP_PWR_MODE)
+>>>>>>> upstream/android-13
 #define ufshcd_is_ufs_dev_active(h) \
 	((h)->curr_dev_pwr_mode == UFS_ACTIVE_PWR_MODE)
 #define ufshcd_is_ufs_dev_sleep(h) \
 	((h)->curr_dev_pwr_mode == UFS_SLEEP_PWR_MODE)
 #define ufshcd_is_ufs_dev_poweroff(h) \
 	((h)->curr_dev_pwr_mode == UFS_POWERDOWN_PWR_MODE)
+<<<<<<< HEAD
 
 /*
  * UFS Power management levels.
@@ -202,6 +266,25 @@ enum ufs_pm_level {
 	UFS_PM_LVL_3, /* UFS_SLEEP_PWR_MODE, UIC_LINK_HIBERN8_STATE */
 	UFS_PM_LVL_4, /* UFS_POWERDOWN_PWR_MODE, UIC_LINK_HIBERN8_STATE */
 	UFS_PM_LVL_5, /* UFS_POWERDOWN_PWR_MODE, UIC_LINK_OFF_STATE */
+=======
+#define ufshcd_is_ufs_dev_deepsleep(h) \
+	((h)->curr_dev_pwr_mode == UFS_DEEPSLEEP_PWR_MODE)
+
+/*
+ * UFS Power management levels.
+ * Each level is in increasing order of power savings, except DeepSleep
+ * which is lower than PowerDown with power on but not PowerDown with
+ * power off.
+ */
+enum ufs_pm_level {
+	UFS_PM_LVL_0,
+	UFS_PM_LVL_1,
+	UFS_PM_LVL_2,
+	UFS_PM_LVL_3,
+	UFS_PM_LVL_4,
+	UFS_PM_LVL_5,
+	UFS_PM_LVL_6,
+>>>>>>> upstream/android-13
 	UFS_PM_LVL_MAX
 };
 
@@ -230,8 +313,12 @@ struct ufs_pm_lvl_states {
  * @intr_cmd: Interrupt command (doesn't participate in interrupt aggregation)
  * @issue_time_stamp: time stamp for debug purposes
  * @compl_time_stamp: time stamp for statistics
+<<<<<<< HEAD
  * @crypto_enable: whether or not the request needs inline crypto operations
  * @crypto_key_slot: the key slot to use for inline crypto
+=======
+ * @crypto_key_slot: the key slot to use for inline crypto (-1 if none)
+>>>>>>> upstream/android-13
  * @data_unit_num: the data unit number for the first block for inline crypto
  * @req_abort_skip: skip request abort task flag
  */
@@ -257,6 +344,7 @@ struct ufshcd_lrb {
 	bool intr_cmd;
 	ktime_t issue_time_stamp;
 	ktime_t compl_time_stamp;
+<<<<<<< HEAD
 	bool crypto_enable;
 	u8 crypto_key_slot;
 	u64 data_unit_num;
@@ -266,6 +354,18 @@ struct ufshcd_lrb {
 	int hpb_ctx_id;
 #endif
 
+=======
+#ifdef CONFIG_SCSI_UFS_CRYPTO
+	int crypto_key_slot;
+	u64 data_unit_num;
+#endif
+
+	bool req_abort_skip;
+
+	ANDROID_VENDOR_DATA(1);
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -285,12 +385,16 @@ struct ufs_query {
  * @type: device management command type - Query, NOP OUT
  * @lock: lock to allow one command at a time
  * @complete: internal commands completion
+<<<<<<< HEAD
  * @tag_wq: wait queue until free command slot is available
+=======
+>>>>>>> upstream/android-13
  */
 struct ufs_dev_cmd {
 	enum dev_cmd_type type;
 	struct mutex lock;
 	struct completion *complete;
+<<<<<<< HEAD
 	wait_queue_head_t tag_wq;
 	struct ufs_query query;
 };
@@ -306,6 +410,11 @@ struct ufs_desc_size {
 	int str_desc;
 };
 
+=======
+	struct ufs_query query;
+};
+
+>>>>>>> upstream/android-13
 /**
  * struct ufs_clk_info - UFS clock related info
  * @list: list headed by hba->clk_list_head
@@ -314,6 +423,11 @@ struct ufs_desc_size {
  * @max_freq: maximum frequency supported by the clock
  * @min_freq: min frequency that can be used for clock scaling
  * @curr_freq: indicates the current frequency that it is set to
+<<<<<<< HEAD
+=======
+ * @keep_link_active: indicates that the clk should not be disabled if
+		      link is active
+>>>>>>> upstream/android-13
  * @enabled: variable to check against multiple enable/disable
  */
 struct ufs_clk_info {
@@ -323,6 +437,10 @@ struct ufs_clk_info {
 	u32 max_freq;
 	u32 min_freq;
 	u32 curr_freq;
+<<<<<<< HEAD
+=======
+	bool keep_link_active;
+>>>>>>> upstream/android-13
 	bool enabled;
 };
 
@@ -346,8 +464,11 @@ struct ufs_pwr_mode_info {
 	struct ufs_pa_layer_attr info;
 };
 
+<<<<<<< HEAD
 union ufs_crypto_cfg_entry;
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct ufs_hba_variant_ops - variant specific callbacks
  * @name: variant name
@@ -356,7 +477,10 @@ union ufs_crypto_cfg_entry;
  * @get_ufs_hci_version: called to get UFS HCI version
  * @clk_scale_notify: notifies that clks are scaled up/down
  * @setup_clocks: called before touching any of the controller registers
+<<<<<<< HEAD
  * @setup_regulators: called before accessing the host controller
+=======
+>>>>>>> upstream/android-13
  * @hce_enable_notify: called before and after HCE enable bit is set to allow
  *                     variant specific Uni-Pro initialization.
  * @link_startup_notify: called before and after Link startup is carried out
@@ -375,7 +499,12 @@ union ufs_crypto_cfg_entry;
  * @dbg_register_dump: used to dump controller debug information
  * @phy_initialization: used to initialize phys
  * @device_reset: called to issue a reset pulse on the UFS device
+<<<<<<< HEAD
  * @program_key: program an inline encryption key into a keyslot
+=======
+ * @program_key: program or evict an inline encryption key
+ * @event_notify: called to notify important events
+>>>>>>> upstream/android-13
  */
 struct ufs_hba_variant_ops {
 	const char *name;
@@ -386,7 +515,10 @@ struct ufs_hba_variant_ops {
 				    enum ufs_notify_change_status);
 	int	(*setup_clocks)(struct ufs_hba *, bool,
 				enum ufs_notify_change_status);
+<<<<<<< HEAD
 	int     (*setup_regulators)(struct ufs_hba *, bool);
+=======
+>>>>>>> upstream/android-13
 	int	(*hce_enable_notify)(struct ufs_hba *,
 				     enum ufs_notify_change_status);
 	int	(*link_startup_notify)(struct ufs_hba *,
@@ -396,6 +528,7 @@ struct ufs_hba_variant_ops {
 					struct ufs_pa_layer_attr *,
 					struct ufs_pa_layer_attr *);
 	void	(*setup_xfer_req)(struct ufs_hba *, int, bool);
+<<<<<<< HEAD
 	void    (*compl_xfer_req)(struct ufs_hba *hba, int tag,
 					unsigned long completed_req,
 					bool is_scsi);
@@ -447,6 +580,26 @@ struct ufs_hba_crypto_variant_ops {
 				    struct scsi_cmnd *cmd,
 				    struct ufshcd_lrb *lrbp);
 	void *priv;
+=======
+	void	(*setup_task_mgmt)(struct ufs_hba *, int, u8);
+	void    (*hibern8_notify)(struct ufs_hba *, enum uic_cmd_dme,
+					enum ufs_notify_change_status);
+	int	(*apply_dev_quirks)(struct ufs_hba *hba);
+	void	(*fixup_dev_quirks)(struct ufs_hba *hba);
+	int     (*suspend)(struct ufs_hba *, enum ufs_pm_op,
+					enum ufs_notify_change_status);
+	int     (*resume)(struct ufs_hba *, enum ufs_pm_op);
+	void	(*dbg_register_dump)(struct ufs_hba *hba);
+	int	(*phy_initialization)(struct ufs_hba *);
+	int	(*device_reset)(struct ufs_hba *hba);
+	void	(*config_scaling_param)(struct ufs_hba *hba,
+					struct devfreq_dev_profile *profile,
+					void *data);
+	int	(*program_key)(struct ufs_hba *hba,
+			       const union ufs_crypto_cfg_entry *cfg, int slot);
+	void	(*event_notify)(struct ufs_hba *hba,
+				enum ufs_event_type evt, void *data);
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -475,6 +628,10 @@ enum clk_gating_state {
  * @delay_attr: sysfs attribute to control delay_attr
  * @enable_attr: sysfs attribute to enable/disable clock gating
  * @is_enabled: Indicates the current status of clock gating
+<<<<<<< HEAD
+=======
+ * @is_initialized: Indicates whether clock gating is initialized or not
+>>>>>>> upstream/android-13
  * @active_reqs: number of requests that are pending and should be waited for
  * completion before gating clocks.
  */
@@ -487,8 +644,16 @@ struct ufs_clk_gating {
 	struct device_attribute delay_attr;
 	struct device_attribute enable_attr;
 	bool is_enabled;
+<<<<<<< HEAD
 	int active_reqs;
 	struct workqueue_struct *clk_gating_workq;
+=======
+	bool is_initialized;
+	int active_reqs;
+	struct workqueue_struct *clk_gating_workq;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct ufs_saved_pwr_info {
@@ -510,44 +675,86 @@ struct ufs_saved_pwr_info {
  * @workq: workqueue to schedule devfreq suspend/resume work
  * @suspend_work: worker to suspend devfreq
  * @resume_work: worker to resume devfreq
+<<<<<<< HEAD
  * @is_allowed: tracks if scaling is currently allowed or not
+=======
+ * @min_gear: lowest HS gear to scale down to
+ * @is_enabled: tracks if scaling is currently enabled or not, controlled by
+		clkscale_enable sysfs node
+ * @is_allowed: tracks if scaling is currently allowed or not, used to block
+		clock scaling which is not invoked from devfreq governor
+ * @is_initialized: Indicates whether clock scaling is initialized or not
+>>>>>>> upstream/android-13
  * @is_busy_started: tracks if busy period has started or not
  * @is_suspended: tracks if devfreq is suspended or not
  */
 struct ufs_clk_scaling {
 	int active_reqs;
 	unsigned long tot_busy_t;
+<<<<<<< HEAD
 	unsigned long window_start_t;
+=======
+	ktime_t window_start_t;
+>>>>>>> upstream/android-13
 	ktime_t busy_start_t;
 	struct device_attribute enable_attr;
 	struct ufs_saved_pwr_info saved_pwr_info;
 	struct workqueue_struct *workq;
 	struct work_struct suspend_work;
 	struct work_struct resume_work;
+<<<<<<< HEAD
 	bool is_allowed;
 	bool is_busy_started;
 	bool is_suspended;
+=======
+	u32 min_gear;
+	bool is_enabled;
+	bool is_allowed;
+	bool is_initialized;
+	bool is_busy_started;
+	bool is_suspended;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 #define UFS_EVENT_HIST_LENGTH 8
 /**
+<<<<<<< HEAD
  * struct ufs_event_hist - keeps history of uic errors
  * @pos: index to indicate cyclic buffer position
  * @reg: cyclic buffer for registers value
  * @tstamp: cyclic buffer for time stamp
+=======
+ * struct ufs_event_hist - keeps history of errors
+ * @pos: index to indicate cyclic buffer position
+ * @reg: cyclic buffer for registers value
+ * @tstamp: cyclic buffer for time stamp
+ * @cnt: error counter
+>>>>>>> upstream/android-13
  */
 struct ufs_event_hist {
 	int pos;
 	u32 val[UFS_EVENT_HIST_LENGTH];
 	ktime_t tstamp[UFS_EVENT_HIST_LENGTH];
+<<<<<<< HEAD
+=======
+	unsigned long long cnt;
+>>>>>>> upstream/android-13
 };
 
 /**
  * struct ufs_stats - keeps usage/err statistics
+<<<<<<< HEAD
+=======
+ * @last_intr_status: record the last interrupt status.
+ * @last_intr_ts: record the last interrupt timestamp.
+>>>>>>> upstream/android-13
  * @hibern8_exit_cnt: Counter to keep track of number of exits,
  *		reset this after link-startup.
  * @last_hibern8_exit_tstamp: Set time after the hibern8 exit.
  *		Clear after the first successful command completion.
+<<<<<<< HEAD
  * @pa_err: tracks pa-uic errors
  * @dl_err: tracks dl-uic errors
  * @nl_err: tracks nl-uic errors
@@ -563,11 +770,19 @@ struct ufs_event_hist {
  * @task_abort: tracks task abort events
  */
 struct ufs_stats {
+=======
+ */
+struct ufs_stats {
+	u32 last_intr_status;
+	ktime_t last_intr_ts;
+
+>>>>>>> upstream/android-13
 	u32 hibern8_exit_cnt;
 	ktime_t last_hibern8_exit_tstamp;
 	struct ufs_event_hist event[UFS_EVT_CNT];
 };
 
+<<<<<<< HEAD
 /* UFSHCD states */
 enum {
 	UFSHCD_STATE_RESET,
@@ -592,6 +807,283 @@ struct SEC_UFS_TW_info {
 	ktime_t hibern8_enter_ts;
 	struct timespec timestamp;
 	bool tw_info_disable;
+=======
+/**
+ * enum ufshcd_state - UFS host controller state
+ * @UFSHCD_STATE_RESET: Link is not operational. Postpone SCSI command
+ *	processing.
+ * @UFSHCD_STATE_OPERATIONAL: The host controller is operational and can process
+ *	SCSI commands.
+ * @UFSHCD_STATE_EH_SCHEDULED_NON_FATAL: The error handler has been scheduled.
+ *	SCSI commands may be submitted to the controller.
+ * @UFSHCD_STATE_EH_SCHEDULED_FATAL: The error handler has been scheduled. Fail
+ *	newly submitted SCSI commands with error code DID_BAD_TARGET.
+ * @UFSHCD_STATE_ERROR: An unrecoverable error occurred, e.g. link recovery
+ *	failed. Fail all SCSI commands with error code DID_ERROR.
+ */
+enum ufshcd_state {
+	UFSHCD_STATE_RESET,
+	UFSHCD_STATE_OPERATIONAL,
+	UFSHCD_STATE_EH_SCHEDULED_NON_FATAL,
+	UFSHCD_STATE_EH_SCHEDULED_FATAL,
+	UFSHCD_STATE_ERROR,
+};
+
+enum ufshcd_quirks {
+	/* Interrupt aggregation support is broken */
+	UFSHCD_QUIRK_BROKEN_INTR_AGGR			= 1 << 0,
+
+	/*
+	 * delay before each dme command is required as the unipro
+	 * layer has shown instabilities
+	 */
+	UFSHCD_QUIRK_DELAY_BEFORE_DME_CMDS		= 1 << 1,
+
+	/*
+	 * If UFS host controller is having issue in processing LCC (Line
+	 * Control Command) coming from device then enable this quirk.
+	 * When this quirk is enabled, host controller driver should disable
+	 * the LCC transmission on UFS device (by clearing TX_LCC_ENABLE
+	 * attribute of device to 0).
+	 */
+	UFSHCD_QUIRK_BROKEN_LCC				= 1 << 2,
+
+	/*
+	 * The attribute PA_RXHSUNTERMCAP specifies whether or not the
+	 * inbound Link supports unterminated line in HS mode. Setting this
+	 * attribute to 1 fixes moving to HS gear.
+	 */
+	UFSHCD_QUIRK_BROKEN_PA_RXHSUNTERMCAP		= 1 << 3,
+
+	/*
+	 * This quirk needs to be enabled if the host controller only allows
+	 * accessing the peer dme attributes in AUTO mode (FAST AUTO or
+	 * SLOW AUTO).
+	 */
+	UFSHCD_QUIRK_DME_PEER_ACCESS_AUTO_MODE		= 1 << 4,
+
+	/*
+	 * This quirk needs to be enabled if the host controller doesn't
+	 * advertise the correct version in UFS_VER register. If this quirk
+	 * is enabled, standard UFS host driver will call the vendor specific
+	 * ops (get_ufs_hci_version) to get the correct version.
+	 */
+	UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION		= 1 << 5,
+
+	/*
+	 * Clear handling for transfer/task request list is just opposite.
+	 */
+	UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR		= 1 << 6,
+
+	/*
+	 * This quirk needs to be enabled if host controller doesn't allow
+	 * that the interrupt aggregation timer and counter are reset by s/w.
+	 */
+	UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR		= 1 << 7,
+
+	/*
+	 * This quirks needs to be enabled if host controller cannot be
+	 * enabled via HCE register.
+	 */
+	UFSHCI_QUIRK_BROKEN_HCE				= 1 << 8,
+
+	/*
+	 * This quirk needs to be enabled if the host controller regards
+	 * resolution of the values of PRDTO and PRDTL in UTRD as byte.
+	 */
+	UFSHCD_QUIRK_PRDT_BYTE_GRAN			= 1 << 9,
+
+	/*
+	 * This quirk needs to be enabled if the host controller reports
+	 * OCS FATAL ERROR with device error through sense data
+	 */
+	UFSHCD_QUIRK_BROKEN_OCS_FATAL_ERROR		= 1 << 10,
+
+	/*
+	 * This quirk needs to be enabled if the host controller has
+	 * auto-hibernate capability but it doesn't work.
+	 */
+	UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8		= 1 << 11,
+
+	/*
+	 * This quirk needs to disable manual flush for write booster
+	 */
+	UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL		= 1 << 12,
+
+	/*
+	 * This quirk needs to disable unipro timeout values
+	 * before power mode change
+	 */
+	UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING = 1 << 13,
+
+	/*
+	 * This quirk allows only sg entries aligned with page size.
+	 */
+	UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE		= 1 << 14,
+
+	/*
+	 * This quirk needs to be enabled if the host controller does not
+	 * support UIC command
+	 */
+	UFSHCD_QUIRK_BROKEN_UIC_CMD			= 1 << 15,
+
+	/*
+	 * This quirk needs to be enabled if the host controller cannot
+	 * support physical host configuration.
+	 */
+	UFSHCD_QUIRK_SKIP_PH_CONFIGURATION		= 1 << 16,
+
+	/*
+	 * This quirk needs to be enabled if the host controller supports inline
+	 * encryption, but it needs to initialize the crypto capabilities in a
+	 * nonstandard way and/or it needs to override blk_ksm_ll_ops.  If
+	 * enabled, the standard code won't initialize the blk_keyslot_manager;
+	 * ufs_hba_variant_ops::init() must do it instead.
+	 */
+	UFSHCD_QUIRK_CUSTOM_KEYSLOT_MANAGER		= 1 << 20,
+
+	/*
+	 * This quirk needs to be enabled if the host controller supports inline
+	 * encryption, but the CRYPTO_GENERAL_ENABLE bit is not implemented and
+	 * breaks the HCE sequence if used.
+	 */
+	UFSHCD_QUIRK_BROKEN_CRYPTO_ENABLE		= 1 << 21,
+
+	/*
+	 * This quirk needs to be enabled if the host controller requires that
+	 * the PRDT be cleared after each encrypted request because encryption
+	 * keys were stored in it.
+	 */
+	UFSHCD_QUIRK_KEYS_IN_PRDT			= 1 << 22,
+};
+
+enum ufshcd_caps {
+	/* Allow dynamic clk gating */
+	UFSHCD_CAP_CLK_GATING				= 1 << 0,
+
+	/* Allow hiberb8 with clk gating */
+	UFSHCD_CAP_HIBERN8_WITH_CLK_GATING		= 1 << 1,
+
+	/* Allow dynamic clk scaling */
+	UFSHCD_CAP_CLK_SCALING				= 1 << 2,
+
+	/* Allow auto bkops to enabled during runtime suspend */
+	UFSHCD_CAP_AUTO_BKOPS_SUSPEND			= 1 << 3,
+
+	/*
+	 * This capability allows host controller driver to use the UFS HCI's
+	 * interrupt aggregation capability.
+	 * CAUTION: Enabling this might reduce overall UFS throughput.
+	 */
+	UFSHCD_CAP_INTR_AGGR				= 1 << 4,
+
+	/*
+	 * This capability allows the device auto-bkops to be always enabled
+	 * except during suspend (both runtime and suspend).
+	 * Enabling this capability means that device will always be allowed
+	 * to do background operation when it's active but it might degrade
+	 * the performance of ongoing read/write operations.
+	 */
+	UFSHCD_CAP_KEEP_AUTO_BKOPS_ENABLED_EXCEPT_SUSPEND = 1 << 5,
+
+	/*
+	 * This capability allows host controller driver to automatically
+	 * enable runtime power management by itself instead of waiting
+	 * for userspace to control the power management.
+	 */
+	UFSHCD_CAP_RPM_AUTOSUSPEND			= 1 << 6,
+
+	/*
+	 * This capability allows the host controller driver to turn-on
+	 * WriteBooster, if the underlying device supports it and is
+	 * provisioned to be used. This would increase the write performance.
+	 */
+	UFSHCD_CAP_WB_EN				= 1 << 7,
+
+	/*
+	 * This capability allows the host controller driver to use the
+	 * inline crypto engine, if it is present
+	 */
+	UFSHCD_CAP_CRYPTO				= 1 << 8,
+
+	/*
+	 * This capability allows the controller regulators to be put into
+	 * lpm mode aggressively during clock gating.
+	 * This would increase power savings.
+	 */
+	UFSHCD_CAP_AGGR_POWER_COLLAPSE			= 1 << 9,
+
+	/*
+	 * This capability allows the host controller driver to use DeepSleep,
+	 * if it is supported by the UFS device. The host controller driver must
+	 * support device hardware reset via the hba->device_reset() callback,
+	 * in order to exit DeepSleep state.
+	 */
+	UFSHCD_CAP_DEEPSLEEP				= 1 << 10,
+
+	/*
+	 * This capability allows the host controller driver to use temperature
+	 * notification if it is supported by the UFS device.
+	 */
+	UFSHCD_CAP_TEMP_NOTIF				= 1 << 11,
+
+	/*
+	 * Enable WriteBooster when scaling up the clock and disable
+	 * WriteBooster when scaling the clock down.
+	 */
+	UFSHCD_CAP_WB_WITH_CLK_SCALING			= 1 << 12,
+};
+
+struct ufs_hba_variant_params {
+	struct devfreq_dev_profile devfreq_profile;
+	struct devfreq_simple_ondemand_data ondemand_data;
+	u16 hba_enable_delay_us;
+	u32 wb_flush_threshold;
+};
+
+#ifdef CONFIG_SCSI_UFS_HPB
+/**
+ * struct ufshpb_dev_info - UFSHPB device related info
+ * @num_lu: the number of user logical unit to check whether all lu finished
+ *          initialization
+ * @rgn_size: device reported HPB region size
+ * @srgn_size: device reported HPB sub-region size
+ * @slave_conf_cnt: counter to check all lu finished initialization
+ * @hpb_disabled: flag to check if HPB is disabled
+ * @max_hpb_single_cmd: device reported bMAX_DATA_SIZE_FOR_SINGLE_CMD value
+ * @is_legacy: flag to check HPB 1.0
+ * @control_mode: either host or device
+ */
+struct ufshpb_dev_info {
+	int num_lu;
+	int rgn_size;
+	int srgn_size;
+	atomic_t slave_conf_cnt;
+	bool hpb_disabled;
+	u8 max_hpb_single_cmd;
+	bool is_legacy;
+	u8 control_mode;
+};
+#endif
+
+struct ufs_hba_monitor {
+	unsigned long chunk_size;
+
+	unsigned long nr_sec_rw[2];
+	ktime_t total_busy[2];
+
+	unsigned long nr_req[2];
+	/* latencies*/
+	ktime_t lat_sum[2];
+	ktime_t lat_max[2];
+	ktime_t lat_min[2];
+
+	u32 nr_queued[2];
+	ktime_t busy_start_ts[2];
+
+	ktime_t enabled_ts;
+	bool enabled;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -606,18 +1098,29 @@ struct SEC_UFS_TW_info {
  * @host: Scsi_Host instance of the driver
  * @dev: device handle
  * @lrb: local reference block
+<<<<<<< HEAD
  * @lrb_in_use: lrb in use
  * @outstanding_tasks: Bits representing outstanding task requests
+=======
+ * @cmd_queue: Used to allocate command tags from hba->host->tag_set.
+ * @outstanding_tasks: Bits representing outstanding task requests
+ * @outstanding_lock: Protects @outstanding_reqs.
+>>>>>>> upstream/android-13
  * @outstanding_reqs: Bits representing outstanding transfer requests
  * @capabilities: UFS Controller Capabilities
  * @nutrs: Transfer Request Queue depth supported by controller
  * @nutmrs: Task Management Queue depth supported by controller
+<<<<<<< HEAD
+=======
+ * @reserved_slot: Used to submit device commands. Protected by @dev_cmd.lock.
+>>>>>>> upstream/android-13
  * @ufs_version: UFS Version to which controller complies
  * @vops: pointer to variant specific operations
  * @priv: pointer to variant specific private data
  * @sg_entry_size: size of struct ufshcd_sg_entry (may include variant fields)
  * @irq: Irq number of the controller
  * @active_uic_cmd: handle of active UIC command
+<<<<<<< HEAD
  * @uic_cmd_mutex: mutex for uic command
  * @tm_wq: wait queue for task management
  * @tm_tag_wq: wait queue for free task management slots
@@ -625,16 +1128,34 @@ struct SEC_UFS_TW_info {
  * @pwr_done: completion for power mode change
  * @tm_condition: condition variable for task management
  * @ufshcd_state: UFSHCD states
+=======
+ * @uic_cmd_mutex: mutex for UIC command
+ * @tmf_tag_set: TMF tag set.
+ * @tmf_queue: Used to allocate TMF tags.
+ * @pwr_done: completion for power mode change
+ * @ufshcd_state: UFSHCD state
+>>>>>>> upstream/android-13
  * @eh_flags: Error handling flags
  * @intr_mask: Interrupt Mask Bits
  * @ee_ctrl_mask: Exception event control mask
  * @is_powered: flag to check if HBA is powered
+<<<<<<< HEAD
+=======
+ * @shutting_down: flag to check if shutdown has been invoked
+ * @host_sem: semaphore used to serialize concurrent contexts
+ * @eh_wq: Workqueue that eh_work works on
+>>>>>>> upstream/android-13
  * @eh_work: Worker to handle UFS errors that require s/w attention
  * @eeh_work: Worker to handle exception events
  * @errors: HBA errors
  * @uic_error: UFS interconnect layer error status
  * @saved_err: sticky error mask
  * @saved_uic_err: sticky UIC error mask
+<<<<<<< HEAD
+=======
+ * @force_reset: flag to force eh_work perform a full reset
+ * @force_pmc: flag to force a power mode change
+>>>>>>> upstream/android-13
  * @silence_err_logs: flag to silence error logs
  * @dev_cmd: ufs device management command information
  * @last_dme_cmd_tstamp: time stamp of the last completed DME command
@@ -651,7 +1172,10 @@ struct SEC_UFS_TW_info {
  * @crypto_capabilities: Content of crypto capabilities register (0x100)
  * @crypto_cap_array: Array of crypto capabilities
  * @crypto_cfg_register: Start of the crypto cfg array
+<<<<<<< HEAD
  * @crypto_cfgs: Array of crypto configurations (i.e. config for each slot)
+=======
+>>>>>>> upstream/android-13
  * @ksm: the keyslot manager tied to this hba
  */
 struct ufs_hba {
@@ -669,15 +1193,30 @@ struct ufs_hba {
 
 	struct Scsi_Host *host;
 	struct device *dev;
+<<<<<<< HEAD
+=======
+	struct request_queue *cmd_queue;
+>>>>>>> upstream/android-13
 	/*
 	 * This field is to keep a reference to "scsi_device" corresponding to
 	 * "UFS device" W-LU.
 	 */
 	struct scsi_device *sdev_ufs_device;
+<<<<<<< HEAD
 
 	enum ufs_dev_pwr_mode curr_dev_pwr_mode;
 	enum uic_link_state uic_link_state;
 	enum ufs_tw_state ufs_tw_state;
+=======
+	struct scsi_device *sdev_rpmb;
+
+#ifdef CONFIG_SCSI_UFS_HWMON
+	struct device *hwmon_device;
+#endif
+
+	enum ufs_dev_pwr_mode curr_dev_pwr_mode;
+	enum uic_link_state uic_link_state;
+>>>>>>> upstream/android-13
 	/* Desired UFS power management level during runtime PM */
 	enum ufs_pm_level rpm_lvl;
 	/* Desired UFS power management level during system PM */
@@ -690,23 +1229,38 @@ struct ufs_hba {
 	u32 ahit;
 
 	struct ufshcd_lrb *lrb;
+<<<<<<< HEAD
 	unsigned long lrb_in_use;
 
 	unsigned long outstanding_tasks;
+=======
+
+	unsigned long outstanding_tasks;
+	spinlock_t outstanding_lock;
+>>>>>>> upstream/android-13
 	unsigned long outstanding_reqs;
 
 	u32 capabilities;
 	int nutrs;
 	int nutmrs;
+<<<<<<< HEAD
 	u32 ufs_version;
 	const struct ufs_hba_variant_ops *vops;
 	void *priv;
 	const struct ufs_hba_crypto_variant_ops *crypto_vops;
+=======
+	u32 reserved_slot;
+	u32 ufs_version;
+	const struct ufs_hba_variant_ops *vops;
+	struct ufs_hba_variant_params *vps;
+	void *priv;
+>>>>>>> upstream/android-13
 	size_t sg_entry_size;
 	unsigned int irq;
 	bool is_irq_enabled;
 	enum ufs_ref_clk_freq dev_ref_clk_freq;
 
+<<<<<<< HEAD
 	/* Interrupt aggregation support is broken */
 	#define UFSHCD_QUIRK_BROKEN_INTR_AGGR			0x1
 
@@ -782,20 +1336,29 @@ struct ufs_hba {
 	 */
 	#define UFSHCD_QUIRK_BROKEN_OCS_FATAL_ERROR		0x1000
 
+=======
+>>>>>>> upstream/android-13
 	unsigned int quirks;	/* Deviations from standard UFSHCI spec. */
 
 	/* Device deviations from standard UFS device spec. */
 	unsigned int dev_quirks;
 
+<<<<<<< HEAD
 	wait_queue_head_t tm_wq;
 	wait_queue_head_t tm_tag_wq;
 	unsigned long tm_condition;
 	unsigned long tm_slots_in_use;
+=======
+	struct blk_mq_tag_set tmf_tag_set;
+	struct request_queue *tmf_queue;
+	struct request **tmf_rqs;
+>>>>>>> upstream/android-13
 
 	struct uic_command *active_uic_cmd;
 	struct mutex uic_cmd_mutex;
 	struct completion *uic_async_done;
 
+<<<<<<< HEAD
 	u32 ufshcd_state;
 	u32 eh_flags;
 	u32 intr_mask;
@@ -805,6 +1368,21 @@ struct ufs_hba {
 	struct semaphore eh_sem;
 
 	/* Work Queues */
+=======
+	enum ufshcd_state ufshcd_state;
+	u32 eh_flags;
+	u32 intr_mask;
+	u16 ee_ctrl_mask; /* Exception event mask */
+	u16 ee_drv_mask;  /* Exception event mask for driver */
+	u16 ee_usr_mask;  /* Exception event mask for user (via debugfs) */
+	struct mutex ee_ctrl_mutex;
+	bool is_powered;
+	bool shutting_down;
+	struct semaphore host_sem;
+
+	/* Work Queues */
+	struct workqueue_struct *eh_wq;
+>>>>>>> upstream/android-13
 	struct work_struct eh_work;
 	struct work_struct eeh_work;
 
@@ -814,11 +1392,20 @@ struct ufs_hba {
 	u32 saved_err;
 	u32 saved_uic_err;
 	struct ufs_stats ufs_stats;
+<<<<<<< HEAD
+=======
+	bool force_reset;
+	bool force_pmc;
+>>>>>>> upstream/android-13
 	bool silence_err_logs;
 
 	/* Device management request data */
 	struct ufs_dev_cmd dev_cmd;
 	ktime_t last_dme_cmd_tstamp;
+<<<<<<< HEAD
+=======
+	int nop_out_timeout;
+>>>>>>> upstream/android-13
 
 	/* Keeps information of the UFS device connected to this host */
 	struct ufs_dev_info dev_info;
@@ -826,8 +1413,11 @@ struct ufs_hba {
 	struct ufs_vreg_info vreg_info;
 	struct list_head clk_list_head;
 
+<<<<<<< HEAD
 	bool wlun_dev_clr_ua;
 
+=======
+>>>>>>> upstream/android-13
 	/* Number of requests aborts */
 	int req_abort_count;
 
@@ -839,6 +1429,7 @@ struct ufs_hba {
 	struct ufs_clk_gating clk_gating;
 	/* Control to enable/disable host capabilities */
 	u32 caps;
+<<<<<<< HEAD
 	/* Allow dynamic clk gating */
 #define UFSHCD_CAP_CLK_GATING	(1 << 0)
 	/* Allow hiberb8 with clk gating */
@@ -872,6 +1463,8 @@ struct ufs_hba {
 	 * inline crypto engine, if it is present
 	 */
 #define UFSHCD_CAP_CRYPTO (1 << 7)
+=======
+>>>>>>> upstream/android-13
 
 	struct devfreq *devfreq;
 	struct ufs_clk_scaling clk_scaling;
@@ -881,6 +1474,7 @@ struct ufs_hba {
 	bool is_urgent_bkops_lvl_checked;
 
 	struct rw_semaphore clk_scaling_lock;
+<<<<<<< HEAD
 	struct ufs_desc_size desc_size;
 	atomic_t scsi_block_reqs_cnt;
 
@@ -930,6 +1524,38 @@ struct ufs_hba {
 #endif /* CONFIG_SCSI_UFS_CRYPTO */
 	u32 ufs_mtk_qcmd_r_cmd_cnt;
 	u32 ufs_mtk_qcmd_w_cmd_cnt;
+=======
+	unsigned char desc_size[QUERY_DESC_IDN_MAX];
+	atomic_t scsi_block_reqs_cnt;
+
+	struct device		bsg_dev;
+	struct request_queue	*bsg_queue;
+	struct delayed_work rpm_dev_flush_recheck_work;
+
+#ifdef CONFIG_SCSI_UFS_HPB
+	struct ufshpb_dev_info ufshpb_dev;
+#endif
+
+	struct ufs_hba_monitor	monitor;
+
+#ifdef CONFIG_SCSI_UFS_CRYPTO
+	union ufs_crypto_capabilities crypto_capabilities;
+	union ufs_crypto_cap_entry *crypto_cap_array;
+	u32 crypto_cfg_register;
+	struct blk_keyslot_manager ksm;
+#endif
+#ifdef CONFIG_DEBUG_FS
+	struct dentry *debugfs_root;
+	struct delayed_work debugfs_ee_work;
+	u32 debugfs_ee_rate_limit_ms;
+#endif
+	u32 luns_avail;
+	bool complete_put;
+
+	ANDROID_VENDOR_DATA(1);
+	ANDROID_OEM_DATA_ARRAY(1, 2);
+
+>>>>>>> upstream/android-13
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
@@ -960,6 +1586,7 @@ static inline bool ufshcd_is_rpm_autosuspend_allowed(struct ufs_hba *hba)
 
 static inline bool ufshcd_is_intr_aggr_allowed(struct ufs_hba *hba)
 {
+<<<<<<< HEAD
 /* DWC UFS Core has the Interrupt aggregation feature but is not detectable*/
 #ifndef CONFIG_SCSI_UFS_DWC
 	if ((hba->caps & UFSHCD_CAP_INTR_AGGR) &&
@@ -970,11 +1597,26 @@ static inline bool ufshcd_is_intr_aggr_allowed(struct ufs_hba *hba)
 #else
 return true;
 #endif
+=======
+	return (hba->caps & UFSHCD_CAP_INTR_AGGR) &&
+		!(hba->quirks & UFSHCD_QUIRK_BROKEN_INTR_AGGR);
+}
+
+static inline bool ufshcd_can_aggressive_pc(struct ufs_hba *hba)
+{
+	return !!(ufshcd_is_link_hibern8(hba) &&
+		  (hba->caps & UFSHCD_CAP_AGGR_POWER_COLLAPSE));
+>>>>>>> upstream/android-13
 }
 
 static inline bool ufshcd_is_auto_hibern8_supported(struct ufs_hba *hba)
 {
+<<<<<<< HEAD
 	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT);
+=======
+	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT) &&
+		!(hba->quirks & UFSHCD_QUIRK_BROKEN_AUTO_HIBERN8);
+>>>>>>> upstream/android-13
 }
 
 static inline bool ufshcd_is_auto_hibern8_enabled(struct ufs_hba *hba)
@@ -982,6 +1624,24 @@ static inline bool ufshcd_is_auto_hibern8_enabled(struct ufs_hba *hba)
 	return FIELD_GET(UFSHCI_AHIBERN8_TIMER_MASK, hba->ahit) ? true : false;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool ufshcd_is_wb_allowed(struct ufs_hba *hba)
+{
+	return hba->caps & UFSHCD_CAP_WB_EN;
+}
+
+static inline bool ufshcd_is_user_access_allowed(struct ufs_hba *hba)
+{
+	return !hba->shutting_down;
+}
+
+static inline bool ufshcd_enable_wb_if_scaling_up(struct ufs_hba *hba)
+{
+	return hba->caps & UFSHCD_CAP_WB_WITH_CLK_SCALING;
+}
+
+>>>>>>> upstream/android-13
 #define ufshcd_writel(hba, val, reg)	\
 	writel((val), (hba)->mmio_base + (reg))
 #define ufshcd_readl(hba, reg)	\
@@ -1004,6 +1664,7 @@ static inline void ufshcd_rmwl(struct ufs_hba *hba, u32 mask, u32 val, u32 reg)
 	ufshcd_writel(hba, tmp, reg);
 }
 
+<<<<<<< HEAD
 enum ufs_info_item {
 	UFS_INFO_HOST_STATE = (1 << 0),
 	UFS_INFO_HOST_REGS  = (1 << 1),
@@ -1028,6 +1689,24 @@ void ufshcd_parse_dev_ref_clk_freq(struct ufs_hba *hba, struct clk *refclk);
 void ufshcd_print_all_evt_hist(struct ufs_hba *hba,
 				struct seq_file *m, char **buff, unsigned long *size);
 void ufshcd_update_evt_hist(struct ufs_hba *hba, u32 id, u32 val);
+=======
+int ufshcd_alloc_host(struct device *, struct ufs_hba **);
+void ufshcd_dealloc_host(struct ufs_hba *);
+int ufshcd_hba_enable(struct ufs_hba *hba);
+int ufshcd_init(struct ufs_hba *, void __iomem *, unsigned int);
+int ufshcd_link_recovery(struct ufs_hba *hba);
+int ufshcd_make_hba_operational(struct ufs_hba *hba);
+void ufshcd_remove(struct ufs_hba *);
+int ufshcd_uic_hibern8_enter(struct ufs_hba *hba);
+int ufshcd_uic_hibern8_exit(struct ufs_hba *hba);
+void ufshcd_delay_us(unsigned long us, unsigned long tolerance);
+int ufshcd_wait_for_register(struct ufs_hba *hba, u32 reg, u32 mask,
+				u32 val, unsigned long interval_us,
+				unsigned long timeout_ms);
+void ufshcd_parse_dev_ref_clk_freq(struct ufs_hba *hba, struct clk *refclk);
+void ufshcd_update_evt_hist(struct ufs_hba *hba, u32 id, u32 val);
+void ufshcd_hba_stop(struct ufs_hba *hba);
+>>>>>>> upstream/android-13
 
 static inline void check_upiu_size(void)
 {
@@ -1061,21 +1740,55 @@ static inline bool ufshcd_keep_autobkops_enabled_except_suspend(
 	return hba->caps & UFSHCD_CAP_KEEP_AUTO_BKOPS_ENABLED_EXCEPT_SUSPEND;
 }
 
+<<<<<<< HEAD
 extern int ufshcd_runtime_suspend(struct ufs_hba *hba);
 extern int ufshcd_runtime_resume(struct ufs_hba *hba);
 extern int ufshcd_runtime_idle(struct ufs_hba *hba);
 extern int ufshcd_system_suspend(struct ufs_hba *hba);
 extern int ufshcd_system_resume(struct ufs_hba *hba);
 extern int ufshcd_shutdown(struct ufs_hba *hba);
+=======
+static inline u8 ufshcd_wb_get_query_index(struct ufs_hba *hba)
+{
+	if (hba->dev_info.wb_buffer_type == WB_BUF_MODE_LU_DEDICATED)
+		return hba->dev_info.wb_dedicated_lu;
+	return 0;
+}
+
+#ifdef CONFIG_SCSI_UFS_HWMON
+void ufs_hwmon_probe(struct ufs_hba *hba, u8 mask);
+void ufs_hwmon_remove(struct ufs_hba *hba);
+#else
+static inline void ufs_hwmon_probe(struct ufs_hba *hba, u8 mask) {}
+static inline void ufs_hwmon_remove(struct ufs_hba *hba) {}
+#endif
+
+#ifdef CONFIG_PM
+extern int ufshcd_runtime_suspend(struct device *dev);
+extern int ufshcd_runtime_resume(struct device *dev);
+#endif
+#ifdef CONFIG_PM_SLEEP
+extern int ufshcd_system_suspend(struct device *dev);
+extern int ufshcd_system_resume(struct device *dev);
+#endif
+extern int ufshcd_shutdown(struct ufs_hba *hba);
+extern int ufshcd_dme_configure_adapt(struct ufs_hba *hba,
+				      int agreed_gear,
+				      int adapt_val);
+>>>>>>> upstream/android-13
 extern int ufshcd_dme_set_attr(struct ufs_hba *hba, u32 attr_sel,
 			       u8 attr_set, u32 mib_val, u8 peer);
 extern int ufshcd_dme_get_attr(struct ufs_hba *hba, u32 attr_sel,
 			       u32 *mib_val, u8 peer);
 extern int ufshcd_config_pwr_mode(struct ufs_hba *hba,
 			struct ufs_pa_layer_attr *desired_pwr_mode);
+<<<<<<< HEAD
 extern int ufshcd_clock_scaling_prepare(struct ufs_hba *hba);
 extern void ufshcd_clock_scaling_unprepare(struct ufs_hba *hba);
 extern void ufshcd_hba_stop(struct ufs_hba *hba, bool can_sleep);
+=======
+extern int ufshcd_uic_change_pwr_mode(struct ufs_hba *hba, u8 mode);
+>>>>>>> upstream/android-13
 
 /* UIC command interfaces for DME primitives */
 #define DME_LOCAL	0
@@ -1148,6 +1861,7 @@ int ufshcd_read_desc_param(struct ufs_hba *hba,
 			   u8 param_offset,
 			   u8 *param_read_buf,
 			   u8 param_size);
+<<<<<<< HEAD
 int ufshcd_query_attr(struct ufs_hba *hba, enum query_opcode opcode,
 		      enum attr_idn idn, u8 index, u8 selector, u32 *attr_val);
 int ufshcd_query_flag(struct ufs_hba *hba, enum query_opcode opcode,
@@ -1157,6 +1871,25 @@ int ufshcd_read_health_desc(struct ufs_hba *hba, u8 *buf, u32 size);
 void ufshcd_auto_hibern8_enable(struct ufs_hba *hba);
 void ufshcd_auto_hibern8_update(struct ufs_hba *hba, u32 ahit);
 
+=======
+int ufshcd_query_attr_retry(struct ufs_hba *hba, enum query_opcode opcode,
+			    enum attr_idn idn, u8 index, u8 selector,
+			    u32 *attr_val);
+int ufshcd_query_attr(struct ufs_hba *hba, enum query_opcode opcode,
+		      enum attr_idn idn, u8 index, u8 selector, u32 *attr_val);
+int ufshcd_query_attr_retry(struct ufs_hba *hba,
+	enum query_opcode opcode, enum attr_idn idn, u8 index, u8 selector,
+	u32 *attr_val);
+int ufshcd_query_flag(struct ufs_hba *hba, enum query_opcode opcode,
+	enum flag_idn idn, u8 index, bool *flag_res);
+int ufshcd_query_flag_retry(struct ufs_hba *hba,
+	enum query_opcode opcode, enum flag_idn idn, u8 index, bool *flag_res);
+int ufshcd_bkops_ctrl(struct ufs_hba *hba, enum bkops_status status);
+
+void ufshcd_auto_hibern8_enable(struct ufs_hba *hba);
+void ufshcd_auto_hibern8_update(struct ufs_hba *hba, u32 ahit);
+void ufshcd_fixup_dev_quirks(struct ufs_hba *hba, struct ufs_dev_fix *fixups);
+>>>>>>> upstream/android-13
 #define SD_ASCII_STD true
 #define SD_RAW false
 int ufshcd_read_string_desc(struct ufs_hba *hba, u8 desc_index,
@@ -1164,6 +1897,7 @@ int ufshcd_read_string_desc(struct ufs_hba *hba, u8 desc_index,
 
 int ufshcd_hold(struct ufs_hba *hba, bool async);
 void ufshcd_release(struct ufs_hba *hba);
+<<<<<<< HEAD
 #if defined(CONFIG_SCSI_UFS_FEATURE)
 int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
 						enum dev_cmd_type cmd_type, int timeout);
@@ -1180,6 +1914,14 @@ int ufshcd_map_desc_id_to_length(struct ufs_hba *hba, enum desc_idn desc_id,
 	int *desc_length);
 
 u32 ufshcd_get_local_unipro_ver(struct ufs_hba *hba);
+=======
+
+void ufshcd_map_desc_id_to_length(struct ufs_hba *hba, enum desc_idn desc_id,
+				  int *desc_length);
+
+u32 ufshcd_get_local_unipro_ver(struct ufs_hba *hba);
+int ufshcd_get_vreg(struct device *dev, struct ufs_vreg *vreg);
+>>>>>>> upstream/android-13
 
 int ufshcd_send_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd);
 
@@ -1190,6 +1932,13 @@ int ufshcd_exec_raw_upiu_cmd(struct ufs_hba *hba,
 			     u8 *desc_buff, int *buff_len,
 			     enum query_opcode desc_op);
 
+<<<<<<< HEAD
+=======
+int ufshcd_wb_toggle(struct ufs_hba *hba, bool enable);
+int ufshcd_suspend_prepare(struct device *dev);
+void ufshcd_resume_complete(struct device *dev);
+
+>>>>>>> upstream/android-13
 /* Wrapper functions for safely calling variant operations */
 static inline const char *ufshcd_get_var_name(struct ufs_hba *hba)
 {
@@ -1244,6 +1993,7 @@ static inline int ufshcd_vops_setup_clocks(struct ufs_hba *hba, bool on,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int ufshcd_vops_setup_regulators(struct ufs_hba *hba, bool status)
 {
 	if (hba->vops && hba->vops->setup_regulators)
@@ -1252,6 +2002,8 @@ static inline int ufshcd_vops_setup_regulators(struct ufs_hba *hba, bool status)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int ufshcd_vops_hce_enable_notify(struct ufs_hba *hba,
 						bool status)
 {
@@ -1269,8 +2021,21 @@ static inline int ufshcd_vops_link_startup_notify(struct ufs_hba *hba,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int ufshcd_vops_pwr_change_notify(struct ufs_hba *hba,
 				  bool status,
+=======
+static inline int ufshcd_vops_phy_initialization(struct ufs_hba *hba)
+{
+	if (hba->vops && hba->vops->phy_initialization)
+		return hba->vops->phy_initialization(hba);
+
+	return 0;
+}
+
+static inline int ufshcd_vops_pwr_change_notify(struct ufs_hba *hba,
+				  enum ufs_notify_change_status status,
+>>>>>>> upstream/android-13
 				  struct ufs_pa_layer_attr *dev_max_params,
 				  struct ufs_pa_layer_attr *dev_req_params)
 {
@@ -1281,6 +2046,7 @@ static inline int ufshcd_vops_pwr_change_notify(struct ufs_hba *hba,
 	return -ENOTSUPP;
 }
 
+<<<<<<< HEAD
 static inline void ufshcd_vops_setup_xfer_req(struct ufs_hba *hba, int tag,
 					bool is_scsi_cmd)
 {
@@ -1298,6 +2064,8 @@ static inline void ufshcd_vops_compl_xfer_req(struct ufs_hba *hba,
 						 is_scsi);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void ufshcd_vops_setup_task_mgmt(struct ufs_hba *hba,
 					int tag, u8 tm_function)
 {
@@ -1305,6 +2073,7 @@ static inline void ufshcd_vops_setup_task_mgmt(struct ufs_hba *hba,
 		return hba->vops->setup_task_mgmt(hba, tag, tm_function);
 }
 
+<<<<<<< HEAD
 static inline void ufshcd_vops_compl_task_mgmt(struct ufs_hba *hba,
 					       int tag, int err)
 {
@@ -1312,6 +2081,8 @@ static inline void ufshcd_vops_compl_task_mgmt(struct ufs_hba *hba,
 		return hba->vops->compl_task_mgmt(hba, tag, err);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void ufshcd_vops_hibern8_notify(struct ufs_hba *hba,
 					enum uic_cmd_dme cmd,
 					enum ufs_notify_change_status status)
@@ -1327,10 +2098,24 @@ static inline int ufshcd_vops_apply_dev_quirks(struct ufs_hba *hba)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int ufshcd_vops_suspend(struct ufs_hba *hba, enum ufs_pm_op op)
 {
 	if (hba->vops && hba->vops->suspend)
 		return hba->vops->suspend(hba, op);
+=======
+static inline void ufshcd_vops_fixup_dev_quirks(struct ufs_hba *hba)
+{
+	if (hba->vops && hba->vops->fixup_dev_quirks)
+		hba->vops->fixup_dev_quirks(hba);
+}
+
+static inline int ufshcd_vops_suspend(struct ufs_hba *hba, enum ufs_pm_op op,
+				enum ufs_notify_change_status status)
+{
+	if (hba->vops && hba->vops->suspend)
+		return hba->vops->suspend(hba, op, status);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1347,6 +2132,7 @@ static inline void ufshcd_vops_dbg_register_dump(struct ufs_hba *hba)
 {
 	if (hba->vops && hba->vops->dbg_register_dump)
 		hba->vops->dbg_register_dump(hba);
+<<<<<<< HEAD
 #if defined(CONFIG_SCSI_UFS_TEST_MODE)
 	/* do not recover system if test mode is enabled */
 	BUG();
@@ -1361,6 +2147,16 @@ static inline void ufshcd_vops_device_reset(struct ufs_hba *hba)
 		ufshcd_set_ufs_dev_active(hba);
 		ufshcd_update_evt_hist(hba, UFS_EVT_DEV_RESET, 0);
 	}
+=======
+}
+
+static inline int ufshcd_vops_device_reset(struct ufs_hba *hba)
+{
+	if (hba->vops && hba->vops->device_reset)
+		return hba->vops->device_reset(hba);
+
+	return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 }
 
 static inline void ufshcd_vops_config_scaling_param(struct ufs_hba *hba,
@@ -1371,6 +2167,7 @@ static inline void ufshcd_vops_config_scaling_param(struct ufs_hba *hba,
 		hba->vops->config_scaling_param(hba, profile, data);
 }
 
+<<<<<<< HEAD
 static inline void ufshcd_vops_abort_handler(struct ufs_hba *hba,
 					     int tag, char *file, int line)
 {
@@ -1390,6 +2187,8 @@ static inline bool ufshcd_vops_has_ufshci_perf_heuristic(struct ufs_hba *hba) {
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 extern struct ufs_pm_lvl_states ufs_pm_lvl_states[];
 
 /*
@@ -1409,6 +2208,50 @@ static inline u8 ufshcd_scsi_to_upiu_lun(unsigned int scsi_lun)
 
 int ufshcd_dump_regs(struct ufs_hba *hba, size_t offset, size_t len,
 		     const char *prefix);
+<<<<<<< HEAD
 int ufshcd_uic_hibern8_enter(struct ufs_hba *hba);
 int ufshcd_uic_hibern8_exit(struct ufs_hba *hba);
+=======
+
+int __ufshcd_write_ee_control(struct ufs_hba *hba, u32 ee_ctrl_mask);
+int ufshcd_write_ee_control(struct ufs_hba *hba);
+int ufshcd_update_ee_control(struct ufs_hba *hba, u16 *mask, u16 *other_mask,
+			     u16 set, u16 clr);
+
+static inline int ufshcd_update_ee_drv_mask(struct ufs_hba *hba,
+					    u16 set, u16 clr)
+{
+	return ufshcd_update_ee_control(hba, &hba->ee_drv_mask,
+					&hba->ee_usr_mask, set, clr);
+}
+
+static inline int ufshcd_update_ee_usr_mask(struct ufs_hba *hba,
+					    u16 set, u16 clr)
+{
+	return ufshcd_update_ee_control(hba, &hba->ee_usr_mask,
+					&hba->ee_drv_mask, set, clr);
+}
+
+static inline int ufshcd_rpm_get_sync(struct ufs_hba *hba)
+{
+	return pm_runtime_get_sync(&hba->sdev_ufs_device->sdev_gendev);
+}
+
+static inline int ufshcd_rpm_put_sync(struct ufs_hba *hba)
+{
+	return pm_runtime_put_sync(&hba->sdev_ufs_device->sdev_gendev);
+}
+
+static inline int ufshcd_rpm_put(struct ufs_hba *hba)
+{
+	return pm_runtime_put(&hba->sdev_ufs_device->sdev_gendev);
+}
+
+int ufshcd_transfer_rsp_status(struct ufs_hba *hba, struct ufshcd_lrb *lrbp);
+void ufshcd_clk_scaling_start_busy(struct ufs_hba *hba);
+void ufshcd_clk_scaling_update_busy(struct ufs_hba *hba);
+void ufshcd_add_command_trace(struct ufs_hba *hba, unsigned int tag,
+				     enum ufs_trace_str_t str_t);
+
+>>>>>>> upstream/android-13
 #endif /* End of Header */

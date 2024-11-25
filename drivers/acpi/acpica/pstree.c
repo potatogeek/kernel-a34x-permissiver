@@ -3,7 +3,11 @@
  *
  * Module Name: pstree - Parser op tree manipulation/traversal/search
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 

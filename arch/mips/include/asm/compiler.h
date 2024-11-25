@@ -43,6 +43,7 @@
 #undef barrier_before_unreachable
 #define barrier_before_unreachable() asm volatile(".insn")
 
+<<<<<<< HEAD
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 #define GCC_IMM_ASM() "n"
 #define GCC_REG_ACCUM "$0"
@@ -63,12 +64,23 @@
 #error "microMIPS compilation unsupported with GCC older than 4.9"
 #endif /* CONFIG_CPU_MICROMIPS */
 #endif /* CONFIG_CPU_MIPSR6 */
+=======
+#define GCC_OFF_SMALL_ASM() "ZC"
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_CPU_MIPSR6
 #define MIPS_ISA_LEVEL "mips64r6"
 #define MIPS_ISA_ARCH_LEVEL MIPS_ISA_LEVEL
 #define MIPS_ISA_LEVEL_RAW mips64r6
 #define MIPS_ISA_ARCH_LEVEL_RAW MIPS_ISA_LEVEL_RAW
+<<<<<<< HEAD
+=======
+#elif defined(CONFIG_CPU_MIPSR5)
+#define MIPS_ISA_LEVEL "mips64r5"
+#define MIPS_ISA_ARCH_LEVEL MIPS_ISA_LEVEL
+#define MIPS_ISA_LEVEL_RAW mips64r5
+#define MIPS_ISA_ARCH_LEVEL_RAW MIPS_ISA_LEVEL_RAW
+>>>>>>> upstream/android-13
 #else
 /* MIPS64 is a superset of MIPS32 */
 #define MIPS_ISA_LEVEL "mips64r2"

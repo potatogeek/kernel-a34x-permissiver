@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright © 2017 Broadcom
  *
@@ -10,6 +11,18 @@
 #include <linux/seq_file.h>
 #include <drm/drm_debugfs.h>
 #include <drm/drmP.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  Copyright © 2017 Broadcom
+ */
+
+#include <linux/seq_file.h>
+
+#include <drm/drm_debugfs.h>
+#include <drm/drm_file.h>
+
+>>>>>>> upstream/android-13
 #include "pl111_drm.h"
 
 #define REGDEF(reg) { reg, #reg }
@@ -32,7 +45,11 @@ static const struct {
 	REGDEF(CLCD_PL111_LCUR),
 };
 
+<<<<<<< HEAD
 int pl111_debugfs_regs(struct seq_file *m, void *unused)
+=======
+static int pl111_debugfs_regs(struct seq_file *m, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct drm_info_node *node = (struct drm_info_node *)m->private;
 	struct drm_device *dev = node->minor->dev;
@@ -52,10 +69,19 @@ static const struct drm_info_list pl111_debugfs_list[] = {
 	{"regs", pl111_debugfs_regs, 0},
 };
 
+<<<<<<< HEAD
 int
 pl111_debugfs_init(struct drm_minor *minor)
 {
 	return drm_debugfs_create_files(pl111_debugfs_list,
 					ARRAY_SIZE(pl111_debugfs_list),
 					minor->debugfs_root, minor);
+=======
+void
+pl111_debugfs_init(struct drm_minor *minor)
+{
+	drm_debugfs_create_files(pl111_debugfs_list,
+				 ARRAY_SIZE(pl111_debugfs_list),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }

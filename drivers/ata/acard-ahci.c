@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /*
  *  acard-ahci.c - ACard AHCI SATA support
@@ -8,6 +12,7 @@
  *
  *  Copyright 2010 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,13 +29,18 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * libata documentation is available via 'make {ps|pdf}docs',
  * as Documentation/driver-api/libata.rst
  *
  * AHCI hardware documentation:
  * http://www.intel.com/technology/serialata/pdf/rev1_0.pdf
  * http://www.intel.com/technology/serialata/pdf/rev1_1.pdf
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -176,6 +186,7 @@ static int acard_ahci_pci_device_resume(struct pci_dev *pdev)
 }
 #endif
 
+<<<<<<< HEAD
 static int acard_ahci_configure_dma_masks(struct pci_dev *pdev, int using_dac)
 {
 	int rc;
@@ -207,6 +218,8 @@ static int acard_ahci_configure_dma_masks(struct pci_dev *pdev, int using_dac)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void acard_ahci_pci_print_info(struct ata_host *host)
 {
 	struct pci_dev *pdev = to_pci_dev(host->dev);
@@ -265,7 +278,10 @@ static enum ata_completion_errors acard_ahci_qc_prep(struct ata_queued_cmd *qc)
 	void *cmd_tbl;
 	u32 opts;
 	const u32 cmd_fis_len = 5; /* five dwords */
+<<<<<<< HEAD
 	unsigned int n_elem;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Fill in command table information.  First, the header,
@@ -279,9 +295,14 @@ static enum ata_completion_errors acard_ahci_qc_prep(struct ata_queued_cmd *qc)
 		memcpy(cmd_tbl + AHCI_CMD_TBL_CDB, qc->cdb, qc->dev->cdb_len);
 	}
 
+<<<<<<< HEAD
 	n_elem = 0;
 	if (qc->flags & ATA_QCFLAG_DMAMAP)
 		n_elem = acard_ahci_fill_sg(qc, cmd_tbl);
+=======
+	if (qc->flags & ATA_QCFLAG_DMAMAP)
+		acard_ahci_fill_sg(qc, cmd_tbl);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Fill in command slot information.
@@ -362,7 +383,10 @@ static int acard_ahci_port_start(struct ata_port *ap)
 	mem = dmam_alloc_coherent(dev, dma_sz, &mem_dma, GFP_KERNEL);
 	if (!mem)
 		return -ENOMEM;
+<<<<<<< HEAD
 	memset(mem, 0, dma_sz);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * First item in chunk of DMA memory: 32-slot command table,
@@ -490,9 +514,18 @@ static int acard_ahci_init_one(struct pci_dev *pdev, const struct pci_device_id 
 	}
 
 	/* initialize adapter */
+<<<<<<< HEAD
 	rc = acard_ahci_configure_dma_masks(pdev, hpriv->cap & HOST_CAP_64);
 	if (rc)
 		return rc;
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev,
+			DMA_BIT_MASK((hpriv->cap & HOST_CAP_64) ? 64 : 32));
+	if (rc) {
+		dev_err(&pdev->dev, "DMA enable failed\n");
+		return rc;
+	}
+>>>>>>> upstream/android-13
 
 	rc = ahci_reset_controller(host);
 	if (rc)

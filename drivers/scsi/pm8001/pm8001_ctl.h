@@ -59,5 +59,13 @@
 #define SYSFS_OFFSET                    1024
 #define PM80XX_IB_OB_QUEUE_SIZE         (32 * 1024)
 #define PM8001_IB_OB_QUEUE_SIZE         (16 * 1024)
+<<<<<<< HEAD
+=======
+
+static inline u32 pm8001_ctl_aap1_memmap(u8 *ptr, int idx, int off)
+{
+	return *(u32 *)(ptr + idx * 32 + off);
+}
+>>>>>>> upstream/android-13
 #endif /* PM8001_CTL_H_INCLUDED */
 

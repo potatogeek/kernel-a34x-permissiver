@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92D_REG_H__
 #define __RTL92D_REG_H__
@@ -752,7 +757,11 @@
 
 /* SYS_FUNC_EN */
 #define FEN_BBRSTB				BIT(0)
+<<<<<<< HEAD
 #define FEN_BB_GLB_RSTn				BIT(1)
+=======
+#define FEN_BB_GLB_RSTN				BIT(1)
+>>>>>>> upstream/android-13
 #define FEN_USBA				BIT(2)
 #define FEN_UPLL				BIT(3)
 #define FEN_USBD				BIT(4)
@@ -773,7 +782,11 @@
 #define PFM_ALDN				BIT(1)
 #define PFM_LDKP				BIT(2)
 #define PFM_WOWL				BIT(3)
+<<<<<<< HEAD
 #define EnPDN					BIT(4)
+=======
+#define ENPDN					BIT(4)
+>>>>>>> upstream/android-13
 #define PDN_PL					BIT(5)
 #define APFM_ONMAC				BIT(8)
 #define APFM_OFF				BIT(9)
@@ -910,7 +923,11 @@
 /* MCUFWDL  */
 #define MCUFWDL_EN				BIT(0)
 #define MCUFWDL_RDY				BIT(1)
+<<<<<<< HEAD
 #define FWDL_ChkSum_rpt				BIT(2)
+=======
+#define FWDL_CHKSUM_RPT				BIT(2)
+>>>>>>> upstream/android-13
 #define MACINI_RDY				BIT(3)
 #define BBINI_RDY				BIT(4)
 #define RFINI_RDY				BIT(5)
@@ -1033,7 +1050,11 @@
 #define	RFPGA0_XA_LSSIPARAMETER			0x840
 #define	RFPGA0_XB_LSSIPARAMETER			0x844
 
+<<<<<<< HEAD
 #define	RFPGA0_RFWAkEUPPARAMETER		0x850
+=======
+#define	RFPGA0_RFWAKEUPPARAMETER		0x850
+>>>>>>> upstream/android-13
 #define	RFPGA0_RFSLEEPUPPARAMETER		0x854
 
 #define	RFPGA0_XAB_SWITCHCONTROL		0x858
@@ -1135,6 +1156,7 @@
 #define	ROFDM0_AGCRSSITABLE			0xc78
 #define	ROFDM0_HTSTFAGC				0xc7c
 
+<<<<<<< HEAD
 #define	ROFDM0_XATxIQIMBALANCE			0xc80
 #define	ROFDM0_XATxAFE				0xc84
 #define	ROFDM0_XBTxIQIMBALANCE			0xc88
@@ -1143,6 +1165,16 @@
 #define	ROFDM0_XCTxAFE				0xc94
 #define	ROFDM0_XDTxIQIMBALANCE			0xc98
 #define	ROFDM0_XDTxAFE				0xc9c
+=======
+#define	ROFDM0_XATXIQIMBALANCE			0xc80
+#define	ROFDM0_XATXAFE				0xc84
+#define	ROFDM0_XBTXIQIMBALANCE			0xc88
+#define	ROFDM0_XBTXAFE				0xc8c
+#define	ROFDM0_XCTXIQIMBALANCE			0xc90
+#define	ROFDM0_XCTXAFE				0xc94
+#define	ROFDM0_XDTXIQIMBALANCE			0xc98
+#define	ROFDM0_XDTXAFE				0xc9c
+>>>>>>> upstream/android-13
 
 #define	ROFDM0_RXHPPARAMETER			0xce0
 #define	ROFDM0_TXPSEUDONOISEWGT			0xce4
@@ -1186,7 +1218,11 @@
 #define	ROFDM_AGCREPORT				0xdd0
 #define	ROFDM_RXSNR				0xdd4
 #define	ROFDM_RXEVMCSI				0xdd8
+<<<<<<< HEAD
 #define	ROFDM_SIGReport				0xddc
+=======
+#define	ROFDM_SIGREPORT				0xddc
+>>>>>>> upstream/android-13
 
 /* 8. PageE(0xE00) */
 #define	RTXAGC_A_RATE18_06			0xe00
@@ -1228,7 +1264,11 @@
 #define	RF_IPA					0x15
 #define	RF_POW_ABILITY				0x17
 #define	RF_MODE_AG				0x18
+<<<<<<< HEAD
 #define	rRfChannel				0x18
+=======
+#define	rfchannel				0x18
+>>>>>>> upstream/android-13
 #define	RF_CHNLBW				0x18
 #define	RF_TOP					0x19
 

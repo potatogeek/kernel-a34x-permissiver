@@ -10,6 +10,7 @@ can greatly increase the chances of your change being accepted.
 
 This document contains a large number of suggestions in a relatively terse
 format.  For detailed information on how the kernel development process
+<<<<<<< HEAD
 works, see :ref:`Documentation/process <development_process_main>`.
 Also, read :ref:`Documentation/process/submit-checklist.rst <submitchecklist>`
 for a list of items to check before
@@ -26,6 +27,21 @@ your life as a kernel developer easier.
 
 0) Obtain a current source tree
 -------------------------------
+=======
+works, see Documentation/process/development-process.rst. Also, read
+Documentation/process/submit-checklist.rst
+for a list of items to check before submitting code.  If you are submitting
+a driver, also read Documentation/process/submitting-drivers.rst; for device
+tree binding patches, read Documentation/process/submitting-patches.rst.
+
+This documentation assumes that you're using ``git`` to prepare your patches.
+If you're unfamiliar with ``git``, you would be well-advised to learn how to
+use it, it will make your life as a kernel developer and in general much
+easier.
+
+Obtain a current source tree
+----------------------------
+>>>>>>> upstream/android-13
 
 If you do not have a repository with the current kernel source handy, use
 ``git`` to obtain one.  You'll want to start with the mainline repository,
@@ -39,6 +55,7 @@ patches prepared against those trees.  See the **T:** entry for the subsystem
 in the MAINTAINERS file to find that tree, or simply ask the maintainer if
 the tree is not listed there.
 
+<<<<<<< HEAD
 It is still possible to download kernel releases via tarballs (as described
 in the next section), but that is the hard way to do kernel development.
 
@@ -101,6 +118,12 @@ is another popular alternative.
 
 2) Describe your changes
 ------------------------
+=======
+.. _describe_changes:
+
+Describe your changes
+---------------------
+>>>>>>> upstream/android-13
 
 Describe your problem.  Whether your patch is a one-line bug fix or
 5000 lines of a new feature, there must be an underlying problem that
@@ -182,9 +205,17 @@ change five years from now.
 
 If your patch fixes a bug in a specific commit, e.g. you found an issue using
 ``git bisect``, please use the 'Fixes:' tag with the first 12 characters of
+<<<<<<< HEAD
 the SHA-1 ID, and the one line summary.  For example::
 
 	Fixes: e21d2170f366 ("video: remove unnecessary platform_set_drvdata()")
+=======
+the SHA-1 ID, and the one line summary.  Do not split the tag across multiple
+lines, tags are exempt from the "wrap at 75 columns" rule in order to simplify
+parsing scripts.  For example::
+
+	Fixes: 54a4f0239f2e ("KVM: MMU: make kvm_mmu_zap_page() return the number of pages it actually freed")
+>>>>>>> upstream/android-13
 
 The following ``git config`` settings can be used to add a pretty format for
 outputting the above style in the ``git log`` or ``git show`` commands::
@@ -194,10 +225,22 @@ outputting the above style in the ``git log`` or ``git show`` commands::
 	[pretty]
 		fixes = Fixes: %h (\"%s\")
 
+<<<<<<< HEAD
 .. _split_changes:
 
 3) Separate your changes
 ------------------------
+=======
+An example call::
+
+	$ git log -1 --pretty=fixes 54a4f0239f2e
+	Fixes: 54a4f0239f2e ("KVM: MMU: make kvm_mmu_zap_page() return the number of pages it actually freed")
+
+.. _split_changes:
+
+Separate your changes
+---------------------
+>>>>>>> upstream/android-13
 
 Separate each **logical change** into a separate patch.
 
@@ -229,12 +272,20 @@ then only post say 15 or so at a time and wait for review and integration.
 
 
 
+<<<<<<< HEAD
 4) Style-check your changes
 ---------------------------
 
 Check your patch for basic style violations, details of which can be
 found in
 :ref:`Documentation/process/coding-style.rst <codingstyle>`.
+=======
+Style-check your changes
+------------------------
+
+Check your patch for basic style violations, details of which can be
+found in Documentation/process/coding-style.rst.
+>>>>>>> upstream/android-13
 Failure to do so simply wastes
 the reviewers time and will get your patch rejected, probably
 without even being read.
@@ -260,8 +311,13 @@ You should be able to justify all violations that remain in your
 patch.
 
 
+<<<<<<< HEAD
 5) Select the recipients for your patch
 ---------------------------------------
+=======
+Select the recipients for your patch
+------------------------------------
+>>>>>>> upstream/android-13
 
 You should always copy the appropriate subsystem maintainer(s) on any patch
 to code that they maintain; look through the MAINTAINERS file and the
@@ -271,11 +327,19 @@ cannot find a maintainer for the subsystem you are working on, Andrew
 Morton (akpm@linux-foundation.org) serves as a maintainer of last resort.
 
 You should also normally choose at least one mailing list to receive a copy
+<<<<<<< HEAD
 of your patch set.  linux-kernel@vger.kernel.org functions as a list of
 last resort, but the volume on that list has caused a number of developers
 to tune it out.  Look in the MAINTAINERS file for a subsystem-specific
 list; your patch will probably get more attention there.  Please do not
 spam unrelated lists, though.
+=======
+of your patch set.  linux-kernel@vger.kernel.org should be used by default
+for all patches, but the volume on that list has caused a number of
+developers to tune it out.  Look in the MAINTAINERS file for a
+subsystem-specific list; your patch will probably get more attention there.
+Please do not spam unrelated lists, though.
+>>>>>>> upstream/android-13
 
 Many kernel-related lists are hosted on vger.kernel.org; you can find a
 list of them at http://vger.kernel.org/vger-lists.html.  There are
@@ -292,7 +356,12 @@ sending him e-mail.
 If you have a patch that fixes an exploitable security bug, send that patch
 to security@kernel.org.  For severe bugs, a short embargo may be considered
 to allow distributors to get the patch out to users; in such cases,
+<<<<<<< HEAD
 obviously, the patch should not be sent to any public lists.
+=======
+obviously, the patch should not be sent to any public lists. See also
+Documentation/admin-guide/security-bugs.rst.
+>>>>>>> upstream/android-13
 
 Patches that fix a severe bug in a released kernel should be directed
 toward the stable maintainers by putting a line like this::
@@ -300,6 +369,7 @@ toward the stable maintainers by putting a line like this::
   Cc: stable@vger.kernel.org
 
 into the sign-off area of your patch (note, NOT an email recipient).  You
+<<<<<<< HEAD
 should also read
 :ref:`Documentation/process/stable-kernel-rules.rst <stable_kernel_rules>`
 in addition to this file.
@@ -308,6 +378,10 @@ Note, however, that some subsystem maintainers want to come to their own
 conclusions on which patches should go to the stable trees.  The networking
 maintainer, in particular, would rather not see individual developers
 adding lines like the above to their patches.
+=======
+should also read Documentation/process/stable-kernel-rules.rst
+in addition to this document.
+>>>>>>> upstream/android-13
 
 If changes affect userland-kernel interfaces, please send the MAN-PAGES
 maintainer (as listed in the MAINTAINERS file) a man-pages patch, or at
@@ -335,15 +409,29 @@ Trivial patches must qualify for one of the following rules:
 
 
 
+<<<<<<< HEAD
 6) No MIME, no links, no compression, no attachments.  Just plain text
 ----------------------------------------------------------------------
+=======
+No MIME, no links, no compression, no attachments.  Just plain text
+-------------------------------------------------------------------
+>>>>>>> upstream/android-13
 
 Linus and other kernel developers need to be able to read and comment
 on the changes you are submitting.  It is important for a kernel
 developer to be able to "quote" your changes, using standard e-mail
 tools, so that they may comment on specific portions of your code.
 
+<<<<<<< HEAD
 For this reason, all patches should be submitted by e-mail "inline".
+=======
+For this reason, all patches should be submitted by e-mail "inline". The
+easiest way to do this is with ``git send-email``, which is strongly
+recommended.  An interactive tutorial for ``git send-email`` is available at
+https://git-send-email.io.
+
+If you choose not to use ``git send-email``:
+>>>>>>> upstream/android-13
 
 .. warning::
 
@@ -359,6 +447,7 @@ decreasing the likelihood of your MIME-attached change being accepted.
 Exception:  If your mailer is mangling patches then someone may ask
 you to re-send them using MIME.
 
+<<<<<<< HEAD
 See :ref:`Documentation/process/email-clients.rst <email_clients>`
 for hints about configuring your e-mail client so that it sends your patches
 untouched.
@@ -380,6 +469,19 @@ Your patch will almost certainly get comments from reviewers on ways in
 which the patch can be improved.  You must respond to those comments;
 ignoring reviewers is a good way to get ignored in return.  Review comments
 or questions that do not lead to a code change should almost certainly
+=======
+See Documentation/process/email-clients.rst for hints about configuring
+your e-mail client so that it sends your patches untouched.
+
+Respond to review comments
+--------------------------
+
+Your patch will almost certainly get comments from reviewers on ways in
+which the patch can be improved, in the form of a reply to your email. You must
+respond to those comments; ignoring reviewers is a good way to get ignored in
+return. You can simply reply to their emails to answer their comments. Review
+comments or questions that do not lead to a code change should almost certainly
+>>>>>>> upstream/android-13
 bring about a comment or changelog entry so that the next reviewer better
 understands what is going on.
 
@@ -388,9 +490,18 @@ for their time.  Code review is a tiring and time-consuming process, and
 reviewers sometimes get grumpy.  Even in that case, though, respond
 politely and address the problems they have pointed out.
 
+<<<<<<< HEAD
 
 9) Don't get discouraged - or impatient
 ---------------------------------------
+=======
+See Documentation/process/email-clients.rst for recommendations on email
+clients and mailing list etiquette.
+
+
+Don't get discouraged - or impatient
+------------------------------------
+>>>>>>> upstream/android-13
 
 After you have submitted your change, be patient and wait.  Reviewers are
 busy people and may not get to your patch right away.
@@ -402,19 +513,43 @@ that you have sent your patches to the right place.  Wait for a minimum of
 one week before resubmitting or pinging reviewers - possibly longer during
 busy times like merge windows.
 
+<<<<<<< HEAD
 
 10) Include PATCH in the subject
 --------------------------------
+=======
+It's also ok to resend the patch or the patch series after a couple of
+weeks with the word "RESEND" added to the subject line::
+
+   [PATCH Vx RESEND] sub/sys: Condensed patch summary
+
+Don't add "RESEND" when you are submitting a modified version of your
+patch or patch series - "RESEND" only applies to resubmission of a
+patch or patch series which have not been modified in any way from the
+previous submission.
+
+
+Include PATCH in the subject
+-----------------------------
+>>>>>>> upstream/android-13
 
 Due to high e-mail traffic to Linus, and to linux-kernel, it is common
 convention to prefix your subject line with [PATCH].  This lets Linus
 and other kernel developers more easily distinguish patches from other
 e-mail discussions.
 
+<<<<<<< HEAD
 
 
 11) Sign your work - the Developer's Certificate of Origin
 ----------------------------------------------------------
+=======
+``git send-email`` will do this for you automatically.
+
+
+Sign your work - the Developer's Certificate of Origin
+------------------------------------------------------
+>>>>>>> upstream/android-13
 
 To improve tracking of who did what, especially with patches that can
 percolate to their final resting place in the kernel through several
@@ -458,11 +593,18 @@ then you just add a line saying::
 	Signed-off-by: Random J Developer <random@developer.example.org>
 
 using your real name (sorry, no pseudonyms or anonymous contributions.)
+<<<<<<< HEAD
+=======
+This will be done for you automatically if you use ``git commit -s``.
+Reverts should also include "Signed-off-by". ``git revert -s`` does that
+for you.
+>>>>>>> upstream/android-13
 
 Some people also put extra tags at the end.  They'll just be ignored for
 now, but you can do this to mark internal company procedures or just
 point out some special detail about the sign-off.
 
+<<<<<<< HEAD
 If you are a subsystem or branch maintainer, sometimes you need to slightly
 modify patches you receive in order to merge them, because the code is not
 exactly the same in your tree and the submitters'. If you stick strictly to
@@ -512,6 +654,17 @@ tree.
 
 12) When to use Acked-by:, Cc:, and Co-Developed-by:
 -------------------------------------------------------
+=======
+Any further SoBs (Signed-off-by:'s) following the author's SoB are from
+people handling and transporting the patch, but were not involved in its
+development. SoB chains should reflect the **real** route a patch took
+as it was propagated to the maintainers and ultimately to Linus, with
+the first SoB entry signalling primary authorship of a single author.
+
+
+When to use Acked-by:, Cc:, and Co-developed-by:
+------------------------------------------------
+>>>>>>> upstream/android-13
 
 The Signed-off-by: tag indicates that the signer was involved in the
 development of the patch, or that he/she was in the patch's delivery path.
@@ -543,6 +696,7 @@ person it names - but it should indicate that this person was copied on the
 patch.  This tag documents that potentially interested parties
 have been included in the discussion.
 
+<<<<<<< HEAD
 A Co-Developed-by: states that the patch was also created by another developer
 along with the original author.  This is useful at times when multiple people
 work on a single patch.  Note, this person also needs to have a Signed-off-by:
@@ -551,6 +705,46 @@ line in the patch as well.
 
 13) Using Reported-by:, Tested-by:, Reviewed-by:, Suggested-by: and Fixes:
 --------------------------------------------------------------------------
+=======
+Co-developed-by: states that the patch was co-created by multiple developers;
+it is used to give attribution to co-authors (in addition to the author
+attributed by the From: tag) when several people work on a single patch.  Since
+Co-developed-by: denotes authorship, every Co-developed-by: must be immediately
+followed by a Signed-off-by: of the associated co-author.  Standard sign-off
+procedure applies, i.e. the ordering of Signed-off-by: tags should reflect the
+chronological history of the patch insofar as possible, regardless of whether
+the author is attributed via From: or Co-developed-by:.  Notably, the last
+Signed-off-by: must always be that of the developer submitting the patch.
+
+Note, the From: tag is optional when the From: author is also the person (and
+email) listed in the From: line of the email header.
+
+Example of a patch submitted by the From: author::
+
+	<changelog>
+
+	Co-developed-by: First Co-Author <first@coauthor.example.org>
+	Signed-off-by: First Co-Author <first@coauthor.example.org>
+	Co-developed-by: Second Co-Author <second@coauthor.example.org>
+	Signed-off-by: Second Co-Author <second@coauthor.example.org>
+	Signed-off-by: From Author <from@author.example.org>
+
+Example of a patch submitted by a Co-developed-by: author::
+
+	From: From Author <from@author.example.org>
+
+	<changelog>
+
+	Co-developed-by: Random Co-Author <random@coauthor.example.org>
+	Signed-off-by: Random Co-Author <random@coauthor.example.org>
+	Signed-off-by: From Author <from@author.example.org>
+	Co-developed-by: Submitting Co-Author <sub@coauthor.example.org>
+	Signed-off-by: Submitting Co-Author <sub@coauthor.example.org>
+
+
+Using Reported-by:, Tested-by:, Reviewed-by:, Suggested-by: and Fixes:
+----------------------------------------------------------------------
+>>>>>>> upstream/android-13
 
 The Reported-by tag gives credit to people who find bugs and report them and it
 hopefully inspires them to help us again in the future.  Please note that if
@@ -597,6 +791,16 @@ done on the patch.  Reviewed-by: tags, when supplied by reviewers known to
 understand the subject area and to perform thorough reviews, will normally
 increase the likelihood of your patch getting into the kernel.
 
+<<<<<<< HEAD
+=======
+Both Tested-by and Reviewed-by tags, once received on mailing list from tester
+or reviewer, should be added by author to the applicable patches when sending
+next versions.  However if the patch has changed substantially in following
+version, these tags might not be applicable anymore and thus should be removed.
+Usually removal of someone's Tested-by or Reviewed-by tags should be mentioned
+in the patch changelog (after the '---' separator).
+
+>>>>>>> upstream/android-13
 A Suggested-by: tag indicates that the patch idea is suggested by the person
 named and ensures credit to the person for the idea. Please note that this
 tag should not be added without the reporter's permission, especially if the
@@ -611,10 +815,22 @@ which stable kernel versions should receive your fix. This is the preferred
 method for indicating a bug fixed by the patch. See :ref:`describe_changes`
 for more details.
 
+<<<<<<< HEAD
 .. _the_canonical_patch_format:
 
 14) The canonical patch format
 ------------------------------
+=======
+Note: Attaching a Fixes: tag does not subvert the stable kernel rules
+process nor the requirement to Cc: stable@vger.kernel.org on all stable
+patch candidates. For more information, please read
+Documentation/process/stable-kernel-rules.rst.
+
+.. _the_canonical_patch_format:
+
+The canonical patch format
+--------------------------
+>>>>>>> upstream/android-13
 
 This section describes how the patch itself should be formatted.  Note
 that, if you have your patches stored in a ``git`` repository, proper patch
@@ -680,6 +896,7 @@ not considered part of the summary phrase, but describe how the patch
 should be treated.  Common tags might include a version descriptor if
 the multiple versions of the patch have been sent out in response to
 comments (i.e., "v1, v2, v3"), or "RFC" to indicate a request for
+<<<<<<< HEAD
 comments.  If there are four patches in a patch series the individual
 patches may be numbered like this: 1/4, 2/4, 3/4, 4/4.  This assures
 that developers understand the order in which the patches should be
@@ -690,11 +907,30 @@ A couple of example Subjects::
 
     Subject: [PATCH 2/5] ext2: improve scalability of bitmap searching
     Subject: [PATCH v2 01/27] x86: fix eflags tracking
+=======
+comments.
+
+If there are four patches in a patch series the individual patches may
+be numbered like this: 1/4, 2/4, 3/4, 4/4. This assures that developers
+understand the order in which the patches should be applied and that
+they have reviewed or applied all of the patches in the patch series.
+
+Here are some good example Subjects::
+
+    Subject: [PATCH 2/5] ext2: improve scalability of bitmap searching
+    Subject: [PATCH v2 01/27] x86: fix eflags tracking
+    Subject: [PATCH v2] sub/sys: Condensed patch summary
+    Subject: [PATCH v2 M/N] sub/sys: Condensed patch summary
+>>>>>>> upstream/android-13
 
 The ``from`` line must be the very first line in the message body,
 and has the form:
 
+<<<<<<< HEAD
         From: Original Author <author@example.com>
+=======
+        From: Patch Author <author@example.com>
+>>>>>>> upstream/android-13
 
 The ``from`` line specifies who will be credited as the author of the
 patch in the permanent changelog.  If the ``from`` line is missing,
@@ -702,6 +938,7 @@ then the ``From:`` line from the email header will be used to determine
 the patch author in the changelog.
 
 The explanation body will be committed to the permanent source
+<<<<<<< HEAD
 changelog, so should make sense to a competent reader who has long
 since forgotten the immediate details of the discussion that might
 have led to this patch.  Including symptoms of the failure which the
@@ -730,14 +967,91 @@ use ``diffstat`` options ``-p 1 -w 70`` so that filenames are listed from
 the top of the kernel source tree and don't use too much horizontal
 space (easily fit in 80 columns, maybe with some indentation).  (``git``
 generates appropriate diffstats by default.)
+=======
+changelog, so should make sense to a competent reader who has long since
+forgotten the immediate details of the discussion that might have led to
+this patch. Including symptoms of the failure which the patch addresses
+(kernel log messages, oops messages, etc.) are especially useful for
+people who might be searching the commit logs looking for the applicable
+patch. The text should be written in such detail so that when read
+weeks, months or even years later, it can give the reader the needed
+details to grasp the reasoning for **why** the patch was created.
+
+If a patch fixes a compile failure, it may not be necessary to include
+_all_ of the compile failures; just enough that it is likely that
+someone searching for the patch can find it. As in the ``summary
+phrase``, it is important to be both succinct as well as descriptive.
+
+The ``---`` marker line serves the essential purpose of marking for
+patch handling tools where the changelog message ends.
+
+One good use for the additional comments after the ``---`` marker is
+for a ``diffstat``, to show what files have changed, and the number of
+inserted and deleted lines per file. A ``diffstat`` is especially useful
+on bigger patches. If you are going to include a ``diffstat`` after the
+``---`` marker, please use ``diffstat`` options ``-p 1 -w 70`` so that
+filenames are listed from the top of the kernel source tree and don't
+use too much horizontal space (easily fit in 80 columns, maybe with some
+indentation). (``git`` generates appropriate diffstats by default.)
+
+Other comments relevant only to the moment or the maintainer, not
+suitable for the permanent changelog, should also go here. A good
+example of such comments might be ``patch changelogs`` which describe
+what has changed between the v1 and v2 version of the patch.
+
+Please put this information **after** the ``---`` line which separates
+the changelog from the rest of the patch. The version information is
+not part of the changelog which gets committed to the git tree. It is
+additional information for the reviewers. If it's placed above the
+commit tags, it needs manual interaction to remove it. If it is below
+the separator line, it gets automatically stripped off when applying the
+patch::
+
+  <commit message>
+  ...
+  Signed-off-by: Author <author@mail>
+  ---
+  V2 -> V3: Removed redundant helper function
+  V1 -> V2: Cleaned up coding style and addressed review comments
+
+  path/to/file | 5+++--
+  ...
+>>>>>>> upstream/android-13
 
 See more details on the proper patch format in the following
 references.
 
+<<<<<<< HEAD
 .. _explicit_in_reply_to:
 
 15) Explicit In-Reply-To headers
 --------------------------------
+=======
+Backtraces in commit mesages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Backtraces help document the call chain leading to a problem. However,
+not all backtraces are helpful. For example, early boot call chains are
+unique and obvious. Copying the full dmesg output verbatim, however,
+adds distracting information like timestamps, module lists, register and
+stack dumps.
+
+Therefore, the most useful backtraces should distill the relevant
+information from the dump, which makes it easier to focus on the real
+issue. Here is an example of a well-trimmed backtrace::
+
+  unchecked MSR access error: WRMSR to 0xd51 (tried to write 0x0000000000000064)
+  at rIP: 0xffffffffae059994 (native_write_msr+0x4/0x20)
+  Call Trace:
+  mba_wrmsr
+  update_domains
+  rdtgroup_mkdir
+
+.. _explicit_in_reply_to:
+
+Explicit In-Reply-To headers
+----------------------------
+>>>>>>> upstream/android-13
 
 It can be helpful to manually add In-Reply-To: headers to a patch
 (e.g., when using ``git send-email``) to associate the patch with
@@ -750,6 +1064,7 @@ helpful, you can use the https://lkml.kernel.org/ redirector (e.g., in
 the cover email text) to link to an earlier version of the patch series.
 
 
+<<<<<<< HEAD
 16) Sending ``git pull`` requests
 ---------------------------------
 
@@ -803,16 +1118,74 @@ When generating your pull request, use the signed tag as the target.  A
 command like this will do the trick::
 
   git request-pull master git://my.public.tree/linux.git my-signed-tag
+=======
+Providing base tree information
+-------------------------------
+
+When other developers receive your patches and start the review process,
+it is often useful for them to know where in the tree history they
+should place your work. This is particularly useful for automated CI
+processes that attempt to run a series of tests in order to establish
+the quality of your submission before the maintainer starts the review.
+
+If you are using ``git format-patch`` to generate your patches, you can
+automatically include the base tree information in your submission by
+using the ``--base`` flag. The easiest and most convenient way to use
+this option is with topical branches::
+
+    $ git checkout -t -b my-topical-branch master
+    Branch 'my-topical-branch' set up to track local branch 'master'.
+    Switched to a new branch 'my-topical-branch'
+
+    [perform your edits and commits]
+
+    $ git format-patch --base=auto --cover-letter -o outgoing/ master
+    outgoing/0000-cover-letter.patch
+    outgoing/0001-First-Commit.patch
+    outgoing/...
+
+When you open ``outgoing/0000-cover-letter.patch`` for editing, you will
+notice that it will have the ``base-commit:`` trailer at the very
+bottom, which provides the reviewer and the CI tools enough information
+to properly perform ``git am`` without worrying about conflicts::
+
+    $ git checkout -b patch-review [base-commit-id]
+    Switched to a new branch 'patch-review'
+    $ git am patches.mbox
+    Applying: First Commit
+    Applying: ...
+
+Please see ``man git-format-patch`` for more information about this
+option.
+
+.. note::
+
+    The ``--base`` feature was introduced in git version 2.9.0.
+
+If you are not using git to format your patches, you can still include
+the same ``base-commit`` trailer to indicate the commit hash of the tree
+on which your work is based. You should add it either in the cover
+letter or in the first patch of the series and it should be placed
+either below the ``---`` line or at the very bottom of all other
+content, right before your email signature.
+>>>>>>> upstream/android-13
 
 
 References
 ----------
 
 Andrew Morton, "The perfect patch" (tpp).
+<<<<<<< HEAD
   <http://www.ozlabs.org/~akpm/stuff/tpp.txt>
 
 Jeff Garzik, "Linux kernel patch submission format".
   <http://linux.yyz.us/patch-format.html>
+=======
+  <https://www.ozlabs.org/~akpm/stuff/tpp.txt>
+
+Jeff Garzik, "Linux kernel patch submission format".
+  <https://web.archive.org/web/20180829112450/http://linux.yyz.us/patch-format.html>
+>>>>>>> upstream/android-13
 
 Greg Kroah-Hartman, "How to piss off a kernel subsystem maintainer".
   <http://www.kroah.com/log/linux/maintainer.html>
@@ -828,6 +1201,7 @@ Greg Kroah-Hartman, "How to piss off a kernel subsystem maintainer".
   <http://www.kroah.com/log/linux/maintainer-06.html>
 
 NO!!!! No more huge patch bombs to linux-kernel@vger.kernel.org people!
+<<<<<<< HEAD
   <https://lkml.org/lkml/2005/7/11/336>
 
 Kernel Documentation/process/coding-style.rst:
@@ -835,6 +1209,14 @@ Kernel Documentation/process/coding-style.rst:
 
 Linus Torvalds's mail on the canonical patch format:
   <http://lkml.org/lkml/2005/4/7/183>
+=======
+  <https://lore.kernel.org/r/20050711.125305.08322243.davem@davemloft.net>
+
+Kernel Documentation/process/coding-style.rst
+
+Linus Torvalds's mail on the canonical patch format:
+  <https://lore.kernel.org/r/Pine.LNX.4.58.0504071023190.28951@ppc970.osdl.org>
+>>>>>>> upstream/android-13
 
 Andi Kleen, "On submitting kernel patches"
   Some strategies to get difficult or controversial changes in.

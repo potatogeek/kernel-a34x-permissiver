@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -82,8 +88,11 @@
 #define UNIPHIER_FI2C_BYTE_WISE		BIT(3)
 #define UNIPHIER_FI2C_DEFER_STOP_COMP	BIT(4)
 
+<<<<<<< HEAD
 #define UNIPHIER_FI2C_DEFAULT_SPEED	100000
 #define UNIPHIER_FI2C_MAX_SPEED		400000
+=======
+>>>>>>> upstream/android-13
 #define UNIPHIER_FI2C_FIFO_SIZE		8
 
 struct uniphier_fi2c_priv {
@@ -117,7 +126,10 @@ static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
 		if (fifo_space-- <= 0)
 			break;
 
+<<<<<<< HEAD
 		dev_dbg(&priv->adap.dev, "write data: %02x\n", *priv->buf);
+=======
+>>>>>>> upstream/android-13
 		writel(*priv->buf++, priv->membase + UNIPHIER_FI2C_DTTX);
 		priv->len--;
 	}
@@ -133,7 +145,10 @@ static void uniphier_fi2c_drain_rxfifo(struct uniphier_fi2c_priv *priv)
 			break;
 
 		*priv->buf++ = readl(priv->membase + UNIPHIER_FI2C_DTRX);
+<<<<<<< HEAD
 		dev_dbg(&priv->adap.dev, "read data: %02x\n", priv->buf[-1]);
+=======
+>>>>>>> upstream/android-13
 		priv->len--;
 	}
 }
@@ -151,8 +166,11 @@ static void uniphier_fi2c_clear_irqs(struct uniphier_fi2c_priv *priv,
 
 static void uniphier_fi2c_stop(struct uniphier_fi2c_priv *priv)
 {
+<<<<<<< HEAD
 	dev_dbg(&priv->adap.dev, "stop condition\n");
 
+=======
+>>>>>>> upstream/android-13
 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_STOP;
 	uniphier_fi2c_set_irqs(priv);
 	writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STO,
@@ -169,21 +187,30 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
 	irq_status = readl(priv->membase + UNIPHIER_FI2C_INT);
 	irq_status &= priv->enabled_irqs;
 
+<<<<<<< HEAD
 	dev_dbg(&priv->adap.dev,
 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
 		priv->enabled_irqs, irq_status);
 
+=======
+>>>>>>> upstream/android-13
 	if (irq_status & UNIPHIER_FI2C_INT_STOP)
 		goto complete;
 
 	if (unlikely(irq_status & UNIPHIER_FI2C_INT_AL)) {
+<<<<<<< HEAD
 		dev_dbg(&priv->adap.dev, "arbitration lost\n");
+=======
+>>>>>>> upstream/android-13
 		priv->error = -EAGAIN;
 		goto complete;
 	}
 
 	if (unlikely(irq_status & UNIPHIER_FI2C_INT_NA)) {
+<<<<<<< HEAD
 		dev_dbg(&priv->adap.dev, "could not get ACK\n");
+=======
+>>>>>>> upstream/android-13
 		priv->error = -ENXIO;
 		if (priv->flags & UNIPHIER_FI2C_RD) {
 			/*
@@ -224,18 +251,28 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
 		if (unlikely(priv->flags & UNIPHIER_FI2C_MANUAL_NACK)) {
 			if (priv->len <= UNIPHIER_FI2C_FIFO_SIZE &&
 			    !(priv->flags & UNIPHIER_FI2C_BYTE_WISE)) {
+<<<<<<< HEAD
 				dev_dbg(&priv->adap.dev,
 					"enable read byte count IRQ\n");
+=======
+>>>>>>> upstream/android-13
 				priv->enabled_irqs |= UNIPHIER_FI2C_INT_RB;
 				uniphier_fi2c_set_irqs(priv);
 				priv->flags |= UNIPHIER_FI2C_BYTE_WISE;
 			}
+<<<<<<< HEAD
 			if (priv->len <= 1) {
 				dev_dbg(&priv->adap.dev, "set NACK\n");
 				writel(UNIPHIER_FI2C_CR_MST |
 				       UNIPHIER_FI2C_CR_NACK,
 				       priv->membase + UNIPHIER_FI2C_CR);
 			}
+=======
+			if (priv->len <= 1)
+				writel(UNIPHIER_FI2C_CR_MST |
+				       UNIPHIER_FI2C_CR_NACK,
+				       priv->membase + UNIPHIER_FI2C_CR);
+>>>>>>> upstream/android-13
 		}
 
 		goto handled;
@@ -269,7 +306,12 @@ handled:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr)
+=======
+static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr,
+				  bool repeat)
+>>>>>>> upstream/android-13
 {
 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_TE;
 	uniphier_fi2c_set_irqs(priv);
@@ -279,8 +321,17 @@ static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr)
 	/* set slave address */
 	writel(UNIPHIER_FI2C_DTTX_CMD | addr << 1,
 	       priv->membase + UNIPHIER_FI2C_DTTX);
+<<<<<<< HEAD
 	/* first chunk of data */
 	uniphier_fi2c_fill_txfifo(priv, true);
+=======
+	/*
+	 * First chunk of data. For a repeated START condition, do not write
+	 * data to the TX fifo here to avoid the timing issue.
+	 */
+	if (!repeat)
+		uniphier_fi2c_fill_txfifo(priv, true);
+>>>>>>> upstream/android-13
 }
 
 static void uniphier_fi2c_rx_init(struct uniphier_fi2c_priv *priv, u16 addr)
@@ -338,10 +389,13 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 	bool is_read = msg->flags & I2C_M_RD;
 	unsigned long time_left, flags;
 
+<<<<<<< HEAD
 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, repeat=%d, stop=%d\n",
 		is_read ? "receive" : "transmit", msg->addr, msg->len,
 		repeat, stop);
 
+=======
+>>>>>>> upstream/android-13
 	priv->len = msg->len;
 	priv->buf = msg->buf;
 	priv->enabled_irqs = UNIPHIER_FI2C_INT_FAULTS;
@@ -361,9 +415,14 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 	if (is_read)
 		uniphier_fi2c_rx_init(priv, msg->addr);
 	else
+<<<<<<< HEAD
 		uniphier_fi2c_tx_init(priv, msg->addr);
 
 	dev_dbg(&adap->dev, "start condition\n");
+=======
+		uniphier_fi2c_tx_init(priv, msg->addr, repeat);
+
+>>>>>>> upstream/android-13
 	/*
 	 * For a repeated START condition, writing a slave address to the FIFO
 	 * kicks the controller. So, the UNIPHIER_FI2C_CR register should be
@@ -387,7 +446,10 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
 		uniphier_fi2c_recover(priv);
 		return -ETIMEDOUT;
 	}
+<<<<<<< HEAD
 	dev_dbg(&adap->dev, "complete\n");
+=======
+>>>>>>> upstream/android-13
 
 	if (unlikely(priv->flags & UNIPHIER_FI2C_DEFER_STOP_COMP)) {
 		u32 status;
@@ -542,7 +604,10 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct uniphier_fi2c_priv *priv;
+<<<<<<< HEAD
 	struct resource *regs;
+=======
+>>>>>>> upstream/android-13
 	u32 bus_speed;
 	unsigned long clk_rate;
 	int irq, ret;
@@ -551,12 +616,17 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->membase = devm_ioremap_resource(dev, regs);
+=======
+	priv->membase = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->membase))
 		return PTR_ERR(priv->membase);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "failed to get IRQ number\n");
 		return irq;
@@ -566,6 +636,15 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
 		bus_speed = UNIPHIER_FI2C_DEFAULT_SPEED;
 
 	if (!bus_speed || bus_speed > UNIPHIER_FI2C_MAX_SPEED) {
+=======
+	if (irq < 0)
+		return irq;
+
+	if (of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed))
+		bus_speed = I2C_MAX_STANDARD_MODE_FREQ;
+
+	if (!bus_speed || bus_speed > I2C_MAX_FAST_MODE_FREQ) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "invalid clock-frequency %d\n", bus_speed);
 		return -EINVAL;
 	}

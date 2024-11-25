@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * adv7183.c Analog Devices ADV7183 video decoder driver
  *
  * Copyright (c) 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -417,7 +424,11 @@ static int adv7183_g_input_status(struct v4l2_subdev *sd, u32 *status)
 }
 
 static int adv7183_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->pad || code->index > 0)
@@ -428,7 +439,11 @@ static int adv7183_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int adv7183_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct adv7183 *decoder = to_adv7183(sd);
@@ -451,12 +466,20 @@ static int adv7183_set_fmt(struct v4l2_subdev *sd,
 	if (format->which == V4L2_SUBDEV_FORMAT_ACTIVE)
 		decoder->fmt = *fmt;
 	else
+<<<<<<< HEAD
 		cfg->try_fmt = *fmt;
+=======
+		sd_state->pads->try_fmt = *fmt;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int adv7183_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct adv7183 *decoder = to_adv7183(sd);

@@ -20,7 +20,10 @@
 void __init prom_init(void)
 {
 }
+<<<<<<< HEAD
 
 void __init prom_free_prom_memory(void)
 {
 }
+=======
+>>>>>>> upstream/android-13

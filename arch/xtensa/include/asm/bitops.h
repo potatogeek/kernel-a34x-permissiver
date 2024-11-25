@@ -13,8 +13,11 @@
 #ifndef _XTENSA_BITOPS_H
 #define _XTENSA_BITOPS_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #ifndef _LINUX_BITOPS_H
 #error only <linux/bitops.h> can be included directly
 #endif
@@ -98,6 +101,7 @@ static inline unsigned long __fls(unsigned long word)
 
 #include <asm-generic/bitops/fls64.h>
 
+<<<<<<< HEAD
 #if XCHAL_HAVE_S32C1I
 
 static inline void set_bit(unsigned int bit, volatile unsigned long *p)
@@ -215,14 +219,123 @@ test_and_change_bit(unsigned int bit, volatile unsigned long *p)
 			: "memory");
 
 	return tmp & mask;
+=======
+#if XCHAL_HAVE_EXCLUSIVE
+
+#define BIT_OP(op, insn, inv)						\
+static inline void op##_bit(unsigned int bit, volatile unsigned long *p)\
+{									\
+	unsigned long tmp;						\
+	unsigned long mask = 1UL << (bit & 31);				\
+									\
+	p += bit >> 5;							\
+									\
+	__asm__ __volatile__(						\
+			"1:     l32ex   %[tmp], %[addr]\n"		\
+			"      "insn"   %[tmp], %[tmp], %[mask]\n"	\
+			"       s32ex   %[tmp], %[addr]\n"		\
+			"       getex   %[tmp]\n"			\
+			"       beqz    %[tmp], 1b\n"			\
+			: [tmp] "=&a" (tmp)				\
+			: [mask] "a" (inv mask), [addr] "a" (p)		\
+			: "memory");					\
+}
+
+#define TEST_AND_BIT_OP(op, insn, inv)					\
+static inline int							\
+test_and_##op##_bit(unsigned int bit, volatile unsigned long *p)	\
+{									\
+	unsigned long tmp, value;					\
+	unsigned long mask = 1UL << (bit & 31);				\
+									\
+	p += bit >> 5;							\
+									\
+	__asm__ __volatile__(						\
+			"1:     l32ex   %[value], %[addr]\n"		\
+			"      "insn"   %[tmp], %[value], %[mask]\n"	\
+			"       s32ex   %[tmp], %[addr]\n"		\
+			"       getex   %[tmp]\n"			\
+			"       beqz    %[tmp], 1b\n"			\
+			: [tmp] "=&a" (tmp), [value] "=&a" (value)	\
+			: [mask] "a" (inv mask), [addr] "a" (p)		\
+			: "memory");					\
+									\
+	return value & mask;						\
+}
+
+#elif XCHAL_HAVE_S32C1I
+
+#define BIT_OP(op, insn, inv)						\
+static inline void op##_bit(unsigned int bit, volatile unsigned long *p)\
+{									\
+	unsigned long tmp, value;					\
+	unsigned long mask = 1UL << (bit & 31);				\
+									\
+	p += bit >> 5;							\
+									\
+	__asm__ __volatile__(						\
+			"1:     l32i    %[value], %[mem]\n"		\
+			"       wsr     %[value], scompare1\n"		\
+			"      "insn"   %[tmp], %[value], %[mask]\n"	\
+			"       s32c1i  %[tmp], %[mem]\n"		\
+			"       bne     %[tmp], %[value], 1b\n"		\
+			: [tmp] "=&a" (tmp), [value] "=&a" (value),	\
+			  [mem] "+m" (*p)				\
+			: [mask] "a" (inv mask)				\
+			: "memory");					\
+}
+
+#define TEST_AND_BIT_OP(op, insn, inv)					\
+static inline int							\
+test_and_##op##_bit(unsigned int bit, volatile unsigned long *p)	\
+{									\
+	unsigned long tmp, value;					\
+	unsigned long mask = 1UL << (bit & 31);				\
+									\
+	p += bit >> 5;							\
+									\
+	__asm__ __volatile__(						\
+			"1:     l32i    %[value], %[mem]\n"		\
+			"       wsr     %[value], scompare1\n"		\
+			"      "insn"   %[tmp], %[value], %[mask]\n"	\
+			"       s32c1i  %[tmp], %[mem]\n"		\
+			"       bne     %[tmp], %[value], 1b\n"		\
+			: [tmp] "=&a" (tmp), [value] "=&a" (value),	\
+			  [mem] "+m" (*p)				\
+			: [mask] "a" (inv mask)				\
+			: "memory");					\
+									\
+	return tmp & mask;						\
+>>>>>>> upstream/android-13
 }
 
 #else
 
+<<<<<<< HEAD
+=======
+#define BIT_OP(op, insn, inv)
+#define TEST_AND_BIT_OP(op, insn, inv)
+
+>>>>>>> upstream/android-13
 #include <asm-generic/bitops/atomic.h>
 
 #endif /* XCHAL_HAVE_S32C1I */
 
+<<<<<<< HEAD
+=======
+#define BIT_OPS(op, insn, inv)		\
+	BIT_OP(op, insn, inv)		\
+	TEST_AND_BIT_OP(op, insn, inv)
+
+BIT_OPS(set, "or", )
+BIT_OPS(clear, "and", ~)
+BIT_OPS(change, "xor", )
+
+#undef BIT_OPS
+#undef BIT_OP
+#undef TEST_AND_BIT_OP
+
+>>>>>>> upstream/android-13
 #include <asm-generic/bitops/find.h>
 #include <asm-generic/bitops/le.h>
 
@@ -232,6 +345,9 @@ test_and_change_bit(unsigned int bit, volatile unsigned long *p)
 #include <asm-generic/bitops/lock.h>
 #include <asm-generic/bitops/sched.h>
 
+<<<<<<< HEAD
 #endif	/* __KERNEL__ */
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* _XTENSA_BITOPS_H */

@@ -22,7 +22,11 @@ struct SU_ER_s {
 	__u8 len_des;
 	__u8 len_src;
 	__u8 ext_ver;
+<<<<<<< HEAD
 	__u8 data[0];
+=======
+	__u8 data[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct RR_RR_s {
@@ -44,7 +48,11 @@ struct RR_PN_s {
 struct SL_component {
 	__u8 flags;
 	__u8 len;
+<<<<<<< HEAD
 	__u8 text[0];
+=======
+	__u8 text[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct RR_SL_s {
@@ -54,7 +62,11 @@ struct RR_SL_s {
 
 struct RR_NM_s {
 	__u8 flags;
+<<<<<<< HEAD
 	char name[0];
+=======
+	char name[];
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 struct RR_CL_s {
@@ -71,7 +83,11 @@ struct stamp {
 
 struct RR_TF_s {
 	__u8 flags;
+<<<<<<< HEAD
 	struct stamp times[0];	/* Variable number of these beasts */
+=======
+	struct stamp times[];	/* Variable number of these beasts */
+>>>>>>> upstream/android-13
 } __attribute__ ((packed));
 
 /* Linux-specific extension for transparent decompression */

@@ -138,7 +138,11 @@
 #define IntrQuit	0x40	/* received QUIT code             */
 #define IntrEOF 	0x80	/* received EOF code              */
 
+<<<<<<< HEAD
 #define IntrRxTrigger 	0x100	/* rx data count reach tigger value */
+=======
+#define IntrRxTrigger 	0x100	/* rx data count reach trigger value */
+>>>>>>> upstream/android-13
 #define IntrTxTrigger 	0x200	/* tx data count below trigger value */
 
 #define Magic_no	(Config_base + 0)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -63,6 +64,13 @@
  *
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2012-2014, 2018-2019 Intel Corporation
+ * Copyright (C) 2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/leds.h>
 #include "iwl-io.h"
 #include "iwl-csr.h"
@@ -118,6 +126,10 @@ int iwl_mvm_leds_init(struct iwl_mvm *mvm)
 	switch (mode) {
 	case IWL_LED_BLINK:
 		IWL_ERR(mvm, "Blink led mode not supported, used default\n");
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IWL_LED_DEFAULT:
 	case IWL_LED_RF_STATE:
 		mode = IWL_LED_RF_STATE;
@@ -161,7 +173,11 @@ void iwl_mvm_leds_sync(struct iwl_mvm *mvm)
 	 * if we control through the register, we're doing it
 	 * even when the firmware isn't up, so no need to sync
 	 */
+<<<<<<< HEAD
 	if (mvm->cfg->device_family < IWL_DEVICE_FAMILY_8000)
+=======
+	if (mvm->trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_8000)
+>>>>>>> upstream/android-13
 		return;
 
 	iwl_mvm_led_set(mvm, mvm->led.brightness > 0);

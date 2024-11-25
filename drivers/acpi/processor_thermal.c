@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * processor_thermal.c - Passive cooling submodule of the ACPI processor driver
  *
@@ -6,6 +10,7 @@
  *  Copyright (C) 2004       Dominik Brodowski <linux@brodo.de>
  *  Copyright (C) 2004  Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
  *  			- Added processor hotplug support
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -20,6 +25,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -30,12 +37,15 @@
 #include <acpi/processor.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #define PREFIX "ACPI: "
 
 #define ACPI_PROCESSOR_CLASS            "processor"
 #define _COMPONENT              ACPI_PROCESSOR_COMPONENT
 ACPI_MODULE_NAME("processor_thermal");
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_FREQ
 
 /* If a passive cooling situation is detected, primarily CPUfreq is used, as it
@@ -48,7 +58,10 @@ ACPI_MODULE_NAME("processor_thermal");
 #define CPUFREQ_THERMAL_MAX_STEP 3
 
 static DEFINE_PER_CPU(unsigned int, cpufreq_thermal_reduction_pctg);
+<<<<<<< HEAD
 static unsigned int acpi_thermal_cpufreq_is_init = 0;
+=======
+>>>>>>> upstream/android-13
 
 #define reduction_pctg(cpu) \
 	per_cpu(cpufreq_thermal_reduction_pctg, phys_package_first_cpu(cpu))
@@ -74,11 +87,16 @@ static int phys_package_first_cpu(int cpu)
 static int cpu_has_cpufreq(unsigned int cpu)
 {
 	struct cpufreq_policy policy;
+<<<<<<< HEAD
 	if (!acpi_thermal_cpufreq_is_init || cpufreq_get_policy(&policy, cpu))
+=======
+	if (!acpi_processor_cpufreq_init || cpufreq_get_policy(&policy, cpu))
+>>>>>>> upstream/android-13
 		return 0;
 	return 1;
 }
 
+<<<<<<< HEAD
 static int acpi_thermal_cpufreq_notifier(struct notifier_block *nb,
 					 unsigned long event, void *data)
 {
@@ -103,6 +121,8 @@ static struct notifier_block acpi_thermal_cpufreq_notifier_block = {
 	.notifier_call = acpi_thermal_cpufreq_notifier,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int cpufreq_get_max_state(unsigned int cpu)
 {
 	if (!cpu_has_cpufreq(cpu))
@@ -121,7 +141,14 @@ static int cpufreq_get_cur_state(unsigned int cpu)
 
 static int cpufreq_set_cur_state(unsigned int cpu, int state)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	struct cpufreq_policy *policy;
+	struct acpi_processor *pr;
+	unsigned long max_freq;
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	if (!cpu_has_cpufreq(cpu))
 		return 0;
@@ -134,13 +161,39 @@ static int cpufreq_set_cur_state(unsigned int cpu, int state)
 	 * frequency.
 	 */
 	for_each_online_cpu(i) {
+<<<<<<< HEAD
 		if (topology_physical_package_id(i) ==
 		    topology_physical_package_id(cpu))
 			cpufreq_update_policy(i);
+=======
+		if (topology_physical_package_id(i) !=
+		    topology_physical_package_id(cpu))
+			continue;
+
+		pr = per_cpu(processors, i);
+
+		if (unlikely(!freq_qos_request_active(&pr->thermal_req)))
+			continue;
+
+		policy = cpufreq_cpu_get(i);
+		if (!policy)
+			return -EINVAL;
+
+		max_freq = (policy->cpuinfo.max_freq * (100 - reduction_pctg(i) * 20)) / 100;
+
+		cpufreq_cpu_put(policy);
+
+		ret = freq_qos_update_request(&pr->thermal_req, max_freq);
+		if (ret < 0) {
+			pr_warn("Failed to update thermal freq constraint: CPU%d (%d)\n",
+				pr->id, ret);
+		}
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 void acpi_thermal_cpufreq_init(void)
 {
 	int i;
@@ -161,6 +214,39 @@ void acpi_thermal_cpufreq_exit(void)
 	acpi_thermal_cpufreq_is_init = 0;
 }
 
+=======
+void acpi_thermal_cpufreq_init(struct cpufreq_policy *policy)
+{
+	unsigned int cpu;
+
+	for_each_cpu(cpu, policy->related_cpus) {
+		struct acpi_processor *pr = per_cpu(processors, cpu);
+		int ret;
+
+		if (!pr)
+			continue;
+
+		ret = freq_qos_add_request(&policy->constraints,
+					   &pr->thermal_req,
+					   FREQ_QOS_MAX, INT_MAX);
+		if (ret < 0)
+			pr_err("Failed to add freq constraint for CPU%d (%d)\n",
+			       cpu, ret);
+	}
+}
+
+void acpi_thermal_cpufreq_exit(struct cpufreq_policy *policy)
+{
+	unsigned int cpu;
+
+	for_each_cpu(cpu, policy->related_cpus) {
+		struct acpi_processor *pr = per_cpu(processors, policy->cpu);
+
+		if (pr)
+			freq_qos_remove_request(&pr->thermal_req);
+	}
+}
+>>>>>>> upstream/android-13
 #else				/* ! CONFIG_CPU_FREQ */
 static int cpufreq_get_max_state(unsigned int cpu)
 {

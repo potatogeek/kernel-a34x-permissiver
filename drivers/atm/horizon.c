@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
   Madge Horizon ATM Adapter driver.
   Copyright (C) 1995-1999  Madge Networks Ltd.
   
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
   
   The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian
   system and in the file COPYING in the Linux kernel source.
+=======
+>>>>>>> upstream/android-13
 */
 
 /*
@@ -2182,10 +2189,17 @@ static int hrz_open (struct atm_vcc *atm_vcc)
   
   // Part of the job is done by atm_pcr_goal which gives us a PCR
   // specification which says: EITHER grab the maximum available PCR
+<<<<<<< HEAD
   // (and perhaps a lower bound which we musn't pass), OR grab this
   // amount, rounding down if you have to (and perhaps a lower bound
   // which we musn't pass) OR grab this amount, rounding up if you
   // have to (and perhaps an upper bound which we musn't pass). If any
+=======
+  // (and perhaps a lower bound which we must not pass), OR grab this
+  // amount, rounding down if you have to (and perhaps a lower bound
+  // which we must not pass) OR grab this amount, rounding up if you
+  // have to (and perhaps an upper bound which we must not pass). If any
+>>>>>>> upstream/android-13
   // bounds ARE passed we fail. Note that rounding is only rounding to
   // match device limitations, we do not round down to satisfy
   // bandwidth availability even if this would not violate any given
@@ -2543,6 +2557,7 @@ static void hrz_close (struct atm_vcc * atm_vcc) {
 }
 
 #if 0
+<<<<<<< HEAD
 static int hrz_getsockopt (struct atm_vcc * atm_vcc, int level, int optname,
 			   void *optval, int optlen) {
   hrz_dev * dev = HRZ_DEV(atm_vcc->dev);
@@ -2583,6 +2598,8 @@ static int hrz_setsockopt (struct atm_vcc * atm_vcc, int level, int optname,
 #endif
 
 #if 0
+=======
+>>>>>>> upstream/android-13
 static int hrz_ioctl (struct atm_dev * atm_dev, unsigned int cmd, void *arg) {
   hrz_dev * dev = HRZ_DEV(atm_dev);
   PRINTD (DBG_FLOW, "hrz_ioctl");

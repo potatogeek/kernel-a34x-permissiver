@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * nop (passthrough) Link Layer Control
  *
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -82,7 +89,11 @@ static int llc_nop_xmit_from_hci(struct nfc_llc *llc, struct sk_buff *skb)
 	return llc_nop->xmit_to_drv(llc_nop->hdev, skb);
 }
 
+<<<<<<< HEAD
 static struct nfc_llc_ops llc_nop_ops = {
+=======
+static const struct nfc_llc_ops llc_nop_ops = {
+>>>>>>> upstream/android-13
 	.init = llc_nop_init,
 	.deinit = llc_nop_deinit,
 	.start = llc_nop_start,

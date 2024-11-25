@@ -1,8 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /*
  * Copyright (c) 2019 MediaTek Inc.
  * Author: Owen Chen <owen.chen@mediatek.com>
  */
+=======
+>>>>>>> upstream/android-13
 
 #ifndef _DT_BINDINGS_CLK_MT6765_H
 #define _DT_BINDINGS_CLK_MT6765_H
@@ -165,6 +168,7 @@
 #define CLK_TOP_NR_CLK			126
 
 /* INFRACFG */
+<<<<<<< HEAD
 #define CLK_IFR_TOPAXI_DISABLE			0
 #define CLK_IFR_PMIC_TMR			1
 #define CLK_IFR_PMIC_AP				2
@@ -260,6 +264,73 @@
 /* GCE */
 #define CLK_GCE				0
 #define CLK_GCE_NR_CLK			1
+=======
+#define CLK_IFR_ICUSB			0
+#define CLK_IFR_GCE			1
+#define CLK_IFR_THERM			2
+#define CLK_IFR_I2C_AP			3
+#define CLK_IFR_I2C_CCU			4
+#define CLK_IFR_I2C_SSPM		5
+#define CLK_IFR_I2C_RSV			6
+#define CLK_IFR_PWM_HCLK		7
+#define CLK_IFR_PWM1			8
+#define CLK_IFR_PWM2			9
+#define CLK_IFR_PWM3			10
+#define CLK_IFR_PWM4			11
+#define CLK_IFR_PWM5			12
+#define CLK_IFR_PWM			13
+#define CLK_IFR_UART0			14
+#define CLK_IFR_UART1			15
+#define CLK_IFR_GCE_26M			16
+#define CLK_IFR_CQ_DMA_FPC		17
+#define CLK_IFR_BTIF			18
+#define CLK_IFR_SPI0			19
+#define CLK_IFR_MSDC0			20
+#define CLK_IFR_MSDC1			21
+#define CLK_IFR_TRNG			22
+#define CLK_IFR_AUXADC			23
+#define CLK_IFR_CCIF1_AP		24
+#define CLK_IFR_CCIF1_MD		25
+#define CLK_IFR_AUXADC_MD		26
+#define CLK_IFR_AP_DMA			27
+#define CLK_IFR_DEVICE_APC		28
+#define CLK_IFR_CCIF_AP			29
+#define CLK_IFR_AUDIO			30
+#define CLK_IFR_CCIF_MD			31
+#define CLK_IFR_RG_PWM_FBCLK6		32
+#define CLK_IFR_DISP_PWM		33
+#define CLK_IFR_CLDMA_BCLK		34
+#define CLK_IFR_AUDIO_26M_BCLK		35
+#define CLK_IFR_SPI1			36
+#define CLK_IFR_I2C4			37
+#define CLK_IFR_SPI2			38
+#define CLK_IFR_SPI3			39
+#define CLK_IFR_I2C5			40
+#define CLK_IFR_I2C5_ARBITER		41
+#define CLK_IFR_I2C5_IMM		42
+#define CLK_IFR_I2C1_ARBITER		43
+#define CLK_IFR_I2C1_IMM		44
+#define CLK_IFR_I2C2_ARBITER		45
+#define CLK_IFR_I2C2_IMM		46
+#define CLK_IFR_SPI4			47
+#define CLK_IFR_SPI5			48
+#define CLK_IFR_CQ_DMA			49
+#define CLK_IFR_FAES_FDE		50
+#define CLK_IFR_MSDC0_SELF		51
+#define CLK_IFR_MSDC1_SELF		52
+#define CLK_IFR_I2C6			53
+#define CLK_IFR_AP_MSDC0		54
+#define CLK_IFR_MD_MSDC0		55
+#define CLK_IFR_MSDC0_SRC		56
+#define CLK_IFR_MSDC1_SRC		57
+#define CLK_IFR_AES_TOP0_BCLK		58
+#define CLK_IFR_MCU_PM_BCLK		59
+#define CLK_IFR_CCIF2_AP		60
+#define CLK_IFR_CCIF2_MD		61
+#define CLK_IFR_CCIF3_AP		62
+#define CLK_IFR_CCIF3_MD		63
+#define CLK_IFR_NR_CLK			64
+>>>>>>> upstream/android-13
 
 /* AUDIO */
 #define CLK_AUDIO_AFE			0
@@ -280,6 +351,7 @@
 #define CLK_MIPI0A_CSR_CSI_EN_0A	0
 #define CLK_MIPI0A_NR_CLK		1
 
+<<<<<<< HEAD
 /* MIPI_RX_ANA_CSI0B */
 
 #define CLK_MIPI0B_CSR_CSI_EN_0B	0
@@ -313,6 +385,8 @@
 #define CLK_MFGCFG_B26M			3
 #define CLK_MFGCFG_NR_CLK		4
 
+=======
+>>>>>>> upstream/android-13
 /* MMSYS_CONFIG */
 
 #define CLK_MM_MDP_RDMA0		0
@@ -377,6 +451,7 @@
 #define CLK_CAM_CCU			8
 #define CLK_CAM_NR_CLK			9
 
+<<<<<<< HEAD
 /* SCP_SYS */
 
 #define SCP_SYS_MD1		0
@@ -392,4 +467,6 @@
 #define SCP_SYS_VCODEC		10
 #define SCP_NR_SYSS		11
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _DT_BINDINGS_CLK_MT6765_H */

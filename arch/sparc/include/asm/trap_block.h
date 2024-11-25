@@ -2,6 +2,11 @@
 #ifndef _SPARC_TRAP_BLOCK_H
 #define _SPARC_TRAP_BLOCK_H
 
+<<<<<<< HEAD
+=======
+#include <linux/threads.h>
+
+>>>>>>> upstream/android-13
 #include <asm/hypervisor.h>
 #include <asm/asi.h>
 

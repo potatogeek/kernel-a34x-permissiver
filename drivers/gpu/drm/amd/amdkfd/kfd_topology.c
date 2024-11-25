@@ -36,6 +36,12 @@
 #include "kfd_topology.h"
 #include "kfd_device_queue_manager.h"
 #include "kfd_iommu.h"
+<<<<<<< HEAD
+=======
+#include "kfd_svm.h"
+#include "amdgpu_amdkfd.h"
+#include "amdgpu_ras.h"
+>>>>>>> upstream/android-13
 
 /* topology_device_list - Master list of all topology devices */
 static struct list_head topology_device_list;
@@ -100,7 +106,29 @@ struct kfd_dev *kfd_device_by_pci_dev(const struct pci_dev *pdev)
 	down_read(&topology_lock);
 
 	list_for_each_entry(top_dev, &topology_device_list, list)
+<<<<<<< HEAD
 		if (top_dev->gpu->pdev == pdev) {
+=======
+		if (top_dev->gpu && top_dev->gpu->pdev == pdev) {
+			device = top_dev->gpu;
+			break;
+		}
+
+	up_read(&topology_lock);
+
+	return device;
+}
+
+struct kfd_dev *kfd_device_by_kgd(const struct kgd_dev *kgd)
+{
+	struct kfd_topology_device *top_dev;
+	struct kfd_dev *device = NULL;
+
+	down_read(&topology_lock);
+
+	list_for_each_entry(top_dev, &topology_device_list, list)
+		if (top_dev->gpu && top_dev->gpu->kgd == kgd) {
+>>>>>>> upstream/android-13
 			device = top_dev->gpu;
 			break;
 		}
@@ -190,6 +218,7 @@ struct kfd_topology_device *kfd_create_topology_device(
 }
 
 
+<<<<<<< HEAD
 #define sysfs_show_gen_prop(buffer, fmt, ...) \
 		snprintf(buffer, PAGE_SIZE, "%s"fmt, buffer, __VA_ARGS__)
 #define sysfs_show_32bit_prop(buffer, name, value) \
@@ -200,16 +229,34 @@ struct kfd_topology_device *kfd_create_topology_device(
 		sysfs_show_gen_prop(buffer, "%u\n", value)
 #define sysfs_show_str_val(buffer, value) \
 		sysfs_show_gen_prop(buffer, "%s\n", value)
+=======
+#define sysfs_show_gen_prop(buffer, offs, fmt, ...)		\
+		(offs += snprintf(buffer+offs, PAGE_SIZE-offs,	\
+				  fmt, __VA_ARGS__))
+#define sysfs_show_32bit_prop(buffer, offs, name, value) \
+		sysfs_show_gen_prop(buffer, offs, "%s %u\n", name, value)
+#define sysfs_show_64bit_prop(buffer, offs, name, value) \
+		sysfs_show_gen_prop(buffer, offs, "%s %llu\n", name, value)
+#define sysfs_show_32bit_val(buffer, offs, value) \
+		sysfs_show_gen_prop(buffer, offs, "%u\n", value)
+#define sysfs_show_str_val(buffer, offs, value) \
+		sysfs_show_gen_prop(buffer, offs, "%s\n", value)
+>>>>>>> upstream/android-13
 
 static ssize_t sysprops_show(struct kobject *kobj, struct attribute *attr,
 		char *buffer)
 {
+<<<<<<< HEAD
 	ssize_t ret;
+=======
+	int offs = 0;
+>>>>>>> upstream/android-13
 
 	/* Making sure that the buffer is an empty string */
 	buffer[0] = 0;
 
 	if (attr == &sys_props.attr_genid) {
+<<<<<<< HEAD
 		ret = sysfs_show_32bit_val(buffer, sys_props.generation_count);
 	} else if (attr == &sys_props.attr_props) {
 		sysfs_show_64bit_prop(buffer, "platform_oem",
@@ -223,6 +270,22 @@ static ssize_t sysprops_show(struct kobject *kobj, struct attribute *attr,
 	}
 
 	return ret;
+=======
+		sysfs_show_32bit_val(buffer, offs,
+				     sys_props.generation_count);
+	} else if (attr == &sys_props.attr_props) {
+		sysfs_show_64bit_prop(buffer, offs, "platform_oem",
+				      sys_props.platform_oem);
+		sysfs_show_64bit_prop(buffer, offs, "platform_id",
+				      sys_props.platform_id);
+		sysfs_show_64bit_prop(buffer, offs, "platform_rev",
+				      sys_props.platform_rev);
+	} else {
+		offs = -EINVAL;
+	}
+
+	return offs;
+>>>>>>> upstream/android-13
 }
 
 static void kfd_topology_kobj_release(struct kobject *kobj)
@@ -242,13 +305,18 @@ static struct kobj_type sysprops_type = {
 static ssize_t iolink_show(struct kobject *kobj, struct attribute *attr,
 		char *buffer)
 {
+<<<<<<< HEAD
 	ssize_t ret;
+=======
+	int offs = 0;
+>>>>>>> upstream/android-13
 	struct kfd_iolink_properties *iolink;
 
 	/* Making sure that the buffer is an empty string */
 	buffer[0] = 0;
 
 	iolink = container_of(attr, struct kfd_iolink_properties, attr);
+<<<<<<< HEAD
 	sysfs_show_32bit_prop(buffer, "type", iolink->iolink_type);
 	sysfs_show_32bit_prop(buffer, "version_major", iolink->ver_maj);
 	sysfs_show_32bit_prop(buffer, "version_minor", iolink->ver_min);
@@ -264,6 +332,27 @@ static ssize_t iolink_show(struct kobject *kobj, struct attribute *attr,
 	ret = sysfs_show_32bit_prop(buffer, "flags", iolink->flags);
 
 	return ret;
+=======
+	if (iolink->gpu && kfd_devcgroup_check_permission(iolink->gpu))
+		return -EPERM;
+	sysfs_show_32bit_prop(buffer, offs, "type", iolink->iolink_type);
+	sysfs_show_32bit_prop(buffer, offs, "version_major", iolink->ver_maj);
+	sysfs_show_32bit_prop(buffer, offs, "version_minor", iolink->ver_min);
+	sysfs_show_32bit_prop(buffer, offs, "node_from", iolink->node_from);
+	sysfs_show_32bit_prop(buffer, offs, "node_to", iolink->node_to);
+	sysfs_show_32bit_prop(buffer, offs, "weight", iolink->weight);
+	sysfs_show_32bit_prop(buffer, offs, "min_latency", iolink->min_latency);
+	sysfs_show_32bit_prop(buffer, offs, "max_latency", iolink->max_latency);
+	sysfs_show_32bit_prop(buffer, offs, "min_bandwidth",
+			      iolink->min_bandwidth);
+	sysfs_show_32bit_prop(buffer, offs, "max_bandwidth",
+			      iolink->max_bandwidth);
+	sysfs_show_32bit_prop(buffer, offs, "recommended_transfer_size",
+			      iolink->rec_transfer_size);
+	sysfs_show_32bit_prop(buffer, offs, "flags", iolink->flags);
+
+	return offs;
+>>>>>>> upstream/android-13
 }
 
 static const struct sysfs_ops iolink_ops = {
@@ -278,13 +367,18 @@ static struct kobj_type iolink_type = {
 static ssize_t mem_show(struct kobject *kobj, struct attribute *attr,
 		char *buffer)
 {
+<<<<<<< HEAD
 	ssize_t ret;
+=======
+	int offs = 0;
+>>>>>>> upstream/android-13
 	struct kfd_mem_properties *mem;
 
 	/* Making sure that the buffer is an empty string */
 	buffer[0] = 0;
 
 	mem = container_of(attr, struct kfd_mem_properties, attr);
+<<<<<<< HEAD
 	sysfs_show_32bit_prop(buffer, "heap_type", mem->heap_type);
 	sysfs_show_64bit_prop(buffer, "size_in_bytes", mem->size_in_bytes);
 	sysfs_show_32bit_prop(buffer, "flags", mem->flags);
@@ -292,6 +386,19 @@ static ssize_t mem_show(struct kobject *kobj, struct attribute *attr,
 	ret = sysfs_show_32bit_prop(buffer, "mem_clk_max", mem->mem_clk_max);
 
 	return ret;
+=======
+	if (mem->gpu && kfd_devcgroup_check_permission(mem->gpu))
+		return -EPERM;
+	sysfs_show_32bit_prop(buffer, offs, "heap_type", mem->heap_type);
+	sysfs_show_64bit_prop(buffer, offs, "size_in_bytes",
+			      mem->size_in_bytes);
+	sysfs_show_32bit_prop(buffer, offs, "flags", mem->flags);
+	sysfs_show_32bit_prop(buffer, offs, "width", mem->width);
+	sysfs_show_32bit_prop(buffer, offs, "mem_clk_max",
+			      mem->mem_clk_max);
+
+	return offs;
+>>>>>>> upstream/android-13
 }
 
 static const struct sysfs_ops mem_ops = {
@@ -306,7 +413,11 @@ static struct kobj_type mem_type = {
 static ssize_t kfd_cache_show(struct kobject *kobj, struct attribute *attr,
 		char *buffer)
 {
+<<<<<<< HEAD
 	ssize_t ret;
+=======
+	int offs = 0;
+>>>>>>> upstream/android-13
 	uint32_t i, j;
 	struct kfd_cache_properties *cache;
 
@@ -314,6 +425,7 @@ static ssize_t kfd_cache_show(struct kobject *kobj, struct attribute *attr,
 	buffer[0] = 0;
 
 	cache = container_of(attr, struct kfd_cache_properties, attr);
+<<<<<<< HEAD
 	sysfs_show_32bit_prop(buffer, "processor_id_low",
 			cache->processor_id_low);
 	sysfs_show_32bit_prop(buffer, "level", cache->cache_level);
@@ -338,6 +450,31 @@ static ssize_t kfd_cache_show(struct kobject *kobj, struct attribute *attr,
 	/* Replace the last "," with end of line */
 	*(buffer + strlen(buffer) - 1) = 0xA;
 	return ret;
+=======
+	if (cache->gpu && kfd_devcgroup_check_permission(cache->gpu))
+		return -EPERM;
+	sysfs_show_32bit_prop(buffer, offs, "processor_id_low",
+			cache->processor_id_low);
+	sysfs_show_32bit_prop(buffer, offs, "level", cache->cache_level);
+	sysfs_show_32bit_prop(buffer, offs, "size", cache->cache_size);
+	sysfs_show_32bit_prop(buffer, offs, "cache_line_size",
+			      cache->cacheline_size);
+	sysfs_show_32bit_prop(buffer, offs, "cache_lines_per_tag",
+			      cache->cachelines_per_tag);
+	sysfs_show_32bit_prop(buffer, offs, "association", cache->cache_assoc);
+	sysfs_show_32bit_prop(buffer, offs, "latency", cache->cache_latency);
+	sysfs_show_32bit_prop(buffer, offs, "type", cache->cache_type);
+	offs += snprintf(buffer+offs, PAGE_SIZE-offs, "sibling_map ");
+	for (i = 0; i < CRAT_SIBLINGMAP_SIZE; i++)
+		for (j = 0; j < sizeof(cache->sibling_map[0])*8; j++)
+			/* Check each bit */
+			offs += snprintf(buffer+offs, PAGE_SIZE-offs, "%d,",
+					 (cache->sibling_map[i] >> j) & 1);
+
+	/* Replace the last "," with end of line */
+	buffer[offs-1] = '\n';
+	return offs;
+>>>>>>> upstream/android-13
 }
 
 static const struct sysfs_ops cache_ops = {
@@ -359,6 +496,10 @@ struct kfd_perf_attr {
 static ssize_t perf_show(struct kobject *kobj, struct kobj_attribute *attrs,
 			char *buf)
 {
+<<<<<<< HEAD
+=======
+	int offs = 0;
+>>>>>>> upstream/android-13
 	struct kfd_perf_attr *attr;
 
 	buf[0] = 0;
@@ -366,7 +507,11 @@ static ssize_t perf_show(struct kobject *kobj, struct kobj_attribute *attrs,
 	if (!attr->data) /* invalid data for PMC */
 		return 0;
 	else
+<<<<<<< HEAD
 		return sysfs_show_32bit_val(buf, attr->data);
+=======
+		return sysfs_show_32bit_val(buf, offs, attr->data);
+>>>>>>> upstream/android-13
 }
 
 #define KFD_PERF_DESC(_name, _data)			\
@@ -385,9 +530,14 @@ static struct kfd_perf_attr perf_attr_iommu[] = {
 static ssize_t node_show(struct kobject *kobj, struct attribute *attr,
 		char *buffer)
 {
+<<<<<<< HEAD
 	struct kfd_topology_device *dev;
 	char public_name[KFD_TOPOLOGY_PUBLIC_NAME_SIZE];
 	uint32_t i;
+=======
+	int offs = 0;
+	struct kfd_topology_device *dev;
+>>>>>>> upstream/android-13
 	uint32_t log_max_watch_addr;
 
 	/* Making sure that the buffer is an empty string */
@@ -396,12 +546,19 @@ static ssize_t node_show(struct kobject *kobj, struct attribute *attr,
 	if (strcmp(attr->name, "gpu_id") == 0) {
 		dev = container_of(attr, struct kfd_topology_device,
 				attr_gpuid);
+<<<<<<< HEAD
 		return sysfs_show_32bit_val(buffer, dev->gpu_id);
+=======
+		if (dev->gpu && kfd_devcgroup_check_permission(dev->gpu))
+			return -EPERM;
+		return sysfs_show_32bit_val(buffer, offs, dev->gpu_id);
+>>>>>>> upstream/android-13
 	}
 
 	if (strcmp(attr->name, "name") == 0) {
 		dev = container_of(attr, struct kfd_topology_device,
 				attr_name);
+<<<<<<< HEAD
 		for (i = 0; i < KFD_TOPOLOGY_PUBLIC_NAME_SIZE; i++) {
 			public_name[i] =
 					(char)dev->node_props.marketing_name[i];
@@ -410,10 +567,17 @@ static ssize_t node_show(struct kobject *kobj, struct attribute *attr,
 		}
 		public_name[KFD_TOPOLOGY_PUBLIC_NAME_SIZE-1] = 0x0;
 		return sysfs_show_str_val(buffer, public_name);
+=======
+
+		if (dev->gpu && kfd_devcgroup_check_permission(dev->gpu))
+			return -EPERM;
+		return sysfs_show_str_val(buffer, offs, dev->node_props.name);
+>>>>>>> upstream/android-13
 	}
 
 	dev = container_of(attr, struct kfd_topology_device,
 			attr_props);
+<<<<<<< HEAD
 	sysfs_show_32bit_prop(buffer, "cpu_cores_count",
 			dev->node_props.cpu_cores_count);
 	sysfs_show_32bit_prop(buffer, "simd_count",
@@ -454,6 +618,66 @@ static ssize_t node_show(struct kobject *kobj, struct attribute *attr,
 			dev->node_props.location_id);
 	sysfs_show_32bit_prop(buffer, "drm_render_minor",
 			dev->node_props.drm_render_minor);
+=======
+	if (dev->gpu && kfd_devcgroup_check_permission(dev->gpu))
+		return -EPERM;
+	sysfs_show_32bit_prop(buffer, offs, "cpu_cores_count",
+			      dev->node_props.cpu_cores_count);
+	sysfs_show_32bit_prop(buffer, offs, "simd_count",
+			      dev->gpu ? dev->node_props.simd_count : 0);
+	sysfs_show_32bit_prop(buffer, offs, "mem_banks_count",
+			      dev->node_props.mem_banks_count);
+	sysfs_show_32bit_prop(buffer, offs, "caches_count",
+			      dev->node_props.caches_count);
+	sysfs_show_32bit_prop(buffer, offs, "io_links_count",
+			      dev->node_props.io_links_count);
+	sysfs_show_32bit_prop(buffer, offs, "cpu_core_id_base",
+			      dev->node_props.cpu_core_id_base);
+	sysfs_show_32bit_prop(buffer, offs, "simd_id_base",
+			      dev->node_props.simd_id_base);
+	sysfs_show_32bit_prop(buffer, offs, "max_waves_per_simd",
+			      dev->node_props.max_waves_per_simd);
+	sysfs_show_32bit_prop(buffer, offs, "lds_size_in_kb",
+			      dev->node_props.lds_size_in_kb);
+	sysfs_show_32bit_prop(buffer, offs, "gds_size_in_kb",
+			      dev->node_props.gds_size_in_kb);
+	sysfs_show_32bit_prop(buffer, offs, "num_gws",
+			      dev->node_props.num_gws);
+	sysfs_show_32bit_prop(buffer, offs, "wave_front_size",
+			      dev->node_props.wave_front_size);
+	sysfs_show_32bit_prop(buffer, offs, "array_count",
+			      dev->node_props.array_count);
+	sysfs_show_32bit_prop(buffer, offs, "simd_arrays_per_engine",
+			      dev->node_props.simd_arrays_per_engine);
+	sysfs_show_32bit_prop(buffer, offs, "cu_per_simd_array",
+			      dev->node_props.cu_per_simd_array);
+	sysfs_show_32bit_prop(buffer, offs, "simd_per_cu",
+			      dev->node_props.simd_per_cu);
+	sysfs_show_32bit_prop(buffer, offs, "max_slots_scratch_cu",
+			      dev->node_props.max_slots_scratch_cu);
+	sysfs_show_32bit_prop(buffer, offs, "gfx_target_version",
+			      dev->node_props.gfx_target_version);
+	sysfs_show_32bit_prop(buffer, offs, "vendor_id",
+			      dev->node_props.vendor_id);
+	sysfs_show_32bit_prop(buffer, offs, "device_id",
+			      dev->node_props.device_id);
+	sysfs_show_32bit_prop(buffer, offs, "location_id",
+			      dev->node_props.location_id);
+	sysfs_show_32bit_prop(buffer, offs, "domain",
+			      dev->node_props.domain);
+	sysfs_show_32bit_prop(buffer, offs, "drm_render_minor",
+			      dev->node_props.drm_render_minor);
+	sysfs_show_64bit_prop(buffer, offs, "hive_id",
+			      dev->node_props.hive_id);
+	sysfs_show_32bit_prop(buffer, offs, "num_sdma_engines",
+			      dev->node_props.num_sdma_engines);
+	sysfs_show_32bit_prop(buffer, offs, "num_sdma_xgmi_engines",
+			      dev->node_props.num_sdma_xgmi_engines);
+	sysfs_show_32bit_prop(buffer, offs, "num_sdma_queues_per_engine",
+			      dev->node_props.num_sdma_queues_per_engine);
+	sysfs_show_32bit_prop(buffer, offs, "num_cp_queues",
+			      dev->node_props.num_cp_queues);
+>>>>>>> upstream/android-13
 
 	if (dev->gpu) {
 		log_max_watch_addr =
@@ -473,6 +697,7 @@ static ssize_t node_show(struct kobject *kobj, struct attribute *attr,
 			dev->node_props.capability |=
 					HSA_CAP_AQL_QUEUE_DOUBLE_MAP;
 
+<<<<<<< HEAD
 		sysfs_show_32bit_prop(buffer, "max_engine_clk_fcompute",
 			dev->node_props.max_engine_clk_fcompute);
 
@@ -489,6 +714,26 @@ static ssize_t node_show(struct kobject *kobj, struct attribute *attr,
 
 	return sysfs_show_32bit_prop(buffer, "max_engine_clk_ccompute",
 					cpufreq_quick_get_max(0)/1000);
+=======
+		sysfs_show_32bit_prop(buffer, offs, "max_engine_clk_fcompute",
+			dev->node_props.max_engine_clk_fcompute);
+
+		sysfs_show_64bit_prop(buffer, offs, "local_mem_size", 0ULL);
+
+		sysfs_show_32bit_prop(buffer, offs, "fw_version",
+				      dev->gpu->mec_fw_version);
+		sysfs_show_32bit_prop(buffer, offs, "capability",
+				      dev->node_props.capability);
+		sysfs_show_32bit_prop(buffer, offs, "sdma_fw_version",
+				      dev->gpu->sdma_fw_version);
+		sysfs_show_64bit_prop(buffer, offs, "unique_id",
+				      amdgpu_amdkfd_get_unique_id(dev->gpu->kgd));
+
+	}
+
+	return sysfs_show_32bit_prop(buffer, offs, "max_engine_clk_ccompute",
+				     cpufreq_quick_get_max(0)/1000);
+>>>>>>> upstream/android-13
 }
 
 static const struct sysfs_ops node_ops = {
@@ -757,7 +1002,10 @@ static int kfd_topology_update_sysfs(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	pr_info("Creating topology SYSFS entries\n");
+=======
+>>>>>>> upstream/android-13
 	if (!sys_props.kobj_topology) {
 		sys_props.kobj_topology =
 				kfd_alloc_struct(sys_props.kobj_topology);
@@ -1020,7 +1268,10 @@ int kfd_topology_init(void)
 		sys_props.generation_count++;
 		kfd_update_system_properties();
 		kfd_debug_print_topology();
+<<<<<<< HEAD
 		pr_info("Finished initializing topology\n");
+=======
+>>>>>>> upstream/android-13
 	} else
 		pr_err("Failed to update topology in sysfs ret=%d\n", ret);
 
@@ -1060,14 +1311,24 @@ static uint32_t kfd_generate_gpu_id(struct kfd_dev *gpu)
 	if (!gpu)
 		return 0;
 
+<<<<<<< HEAD
 	gpu->kfd2kgd->get_local_mem_info(gpu->kgd, &local_mem_info);
+=======
+	amdgpu_amdkfd_get_local_mem_info(gpu->kgd, &local_mem_info);
+>>>>>>> upstream/android-13
 
 	local_mem_size = local_mem_info.local_mem_size_private +
 			local_mem_info.local_mem_size_public;
 
 	buf[0] = gpu->pdev->devfn;
+<<<<<<< HEAD
 	buf[1] = gpu->pdev->subsystem_vendor;
 	buf[2] = gpu->pdev->subsystem_device;
+=======
+	buf[1] = gpu->pdev->subsystem_vendor |
+		(gpu->pdev->subsystem_device << 16);
+	buf[2] = pci_domain_nr(gpu->pdev->bus);
+>>>>>>> upstream/android-13
 	buf[3] = gpu->pdev->device;
 	buf[4] = gpu->pdev->bus->number;
 	buf[5] = lower_32_bits(local_mem_size);
@@ -1087,19 +1348,39 @@ static struct kfd_topology_device *kfd_assign_gpu(struct kfd_dev *gpu)
 {
 	struct kfd_topology_device *dev;
 	struct kfd_topology_device *out_dev = NULL;
+<<<<<<< HEAD
+=======
+	struct kfd_mem_properties *mem;
+	struct kfd_cache_properties *cache;
+	struct kfd_iolink_properties *iolink;
+>>>>>>> upstream/android-13
 
 	down_write(&topology_lock);
 	list_for_each_entry(dev, &topology_device_list, list) {
 		/* Discrete GPUs need their own topology device list
 		 * entries. Don't assign them to CPU/APU nodes.
 		 */
+<<<<<<< HEAD
 		if (!gpu->device_info->needs_iommu_device &&
+=======
+		if (!gpu->use_iommu_v2 &&
+>>>>>>> upstream/android-13
 		    dev->node_props.cpu_cores_count)
 			continue;
 
 		if (!dev->gpu && (dev->node_props.simd_count > 0)) {
 			dev->gpu = gpu;
 			out_dev = dev;
+<<<<<<< HEAD
+=======
+
+			list_for_each_entry(mem, &dev->mem_props, list)
+				mem->gpu = dev->gpu;
+			list_for_each_entry(cache, &dev->cache_props, list)
+				cache->gpu = dev->gpu;
+			list_for_each_entry(iolink, &dev->io_link_props, list)
+				iolink->gpu = dev->gpu;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -1132,26 +1413,111 @@ static void kfd_fill_mem_clk_max_info(struct kfd_topology_device *dev)
 	 * for APUs - If CRAT from ACPI reports more than one bank, then
 	 *	all the banks will report the same mem_clk_max information
 	 */
+<<<<<<< HEAD
 	dev->gpu->kfd2kgd->get_local_mem_info(dev->gpu->kgd,
 		&local_mem_info);
+=======
+	amdgpu_amdkfd_get_local_mem_info(dev->gpu->kgd, &local_mem_info);
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(mem, &dev->mem_props, list)
 		mem->mem_clk_max = local_mem_info.mem_clk_max;
 }
 
+<<<<<<< HEAD
 static void kfd_fill_iolink_non_crat_info(struct kfd_topology_device *dev)
 {
 	struct kfd_iolink_properties *link;
+=======
+static void kfd_set_iolink_no_atomics(struct kfd_topology_device *dev,
+					struct kfd_topology_device *target_gpu_dev,
+					struct kfd_iolink_properties *link)
+{
+	/* xgmi always supports atomics between links. */
+	if (link->iolink_type == CRAT_IOLINK_TYPE_XGMI)
+		return;
+
+	/* check pcie support to set cpu(dev) flags for target_gpu_dev link. */
+	if (target_gpu_dev) {
+		uint32_t cap;
+
+		pcie_capability_read_dword(target_gpu_dev->gpu->pdev,
+				PCI_EXP_DEVCAP2, &cap);
+
+		if (!(cap & (PCI_EXP_DEVCAP2_ATOMIC_COMP32 |
+			     PCI_EXP_DEVCAP2_ATOMIC_COMP64)))
+			link->flags |= CRAT_IOLINK_FLAGS_NO_ATOMICS_32_BIT |
+				CRAT_IOLINK_FLAGS_NO_ATOMICS_64_BIT;
+	/* set gpu (dev) flags. */
+	} else {
+		if (!dev->gpu->pci_atomic_requested ||
+				dev->gpu->device_info->asic_family ==
+							CHIP_HAWAII)
+			link->flags |= CRAT_IOLINK_FLAGS_NO_ATOMICS_32_BIT |
+				CRAT_IOLINK_FLAGS_NO_ATOMICS_64_BIT;
+	}
+}
+
+static void kfd_set_iolink_non_coherent(struct kfd_topology_device *to_dev,
+		struct kfd_iolink_properties *outbound_link,
+		struct kfd_iolink_properties *inbound_link)
+{
+	/* CPU -> GPU with PCIe */
+	if (!to_dev->gpu &&
+	    inbound_link->iolink_type == CRAT_IOLINK_TYPE_PCIEXPRESS)
+		inbound_link->flags |= CRAT_IOLINK_FLAGS_NON_COHERENT;
+
+	if (to_dev->gpu) {
+		/* GPU <-> GPU with PCIe and
+		 * Vega20 with XGMI
+		 */
+		if (inbound_link->iolink_type == CRAT_IOLINK_TYPE_PCIEXPRESS ||
+		    (inbound_link->iolink_type == CRAT_IOLINK_TYPE_XGMI &&
+		    to_dev->gpu->device_info->asic_family == CHIP_VEGA20)) {
+			outbound_link->flags |= CRAT_IOLINK_FLAGS_NON_COHERENT;
+			inbound_link->flags |= CRAT_IOLINK_FLAGS_NON_COHERENT;
+		}
+	}
+}
+
+static void kfd_fill_iolink_non_crat_info(struct kfd_topology_device *dev)
+{
+	struct kfd_iolink_properties *link, *inbound_link;
+	struct kfd_topology_device *peer_dev;
+>>>>>>> upstream/android-13
 
 	if (!dev || !dev->gpu)
 		return;
 
+<<<<<<< HEAD
 	/* GPU only creates direck links so apply flags setting to all */
 	if (dev->gpu->device_info->asic_family == CHIP_HAWAII)
 		list_for_each_entry(link, &dev->io_link_props, list)
 			link->flags = CRAT_IOLINK_FLAGS_ENABLED |
 				CRAT_IOLINK_FLAGS_NO_ATOMICS_32_BIT |
 				CRAT_IOLINK_FLAGS_NO_ATOMICS_64_BIT;
+=======
+	/* GPU only creates direct links so apply flags setting to all */
+	list_for_each_entry(link, &dev->io_link_props, list) {
+		link->flags = CRAT_IOLINK_FLAGS_ENABLED;
+		kfd_set_iolink_no_atomics(dev, NULL, link);
+		peer_dev = kfd_topology_device_by_proximity_domain(
+				link->node_to);
+
+		if (!peer_dev)
+			continue;
+
+		list_for_each_entry(inbound_link, &peer_dev->io_link_props,
+									list) {
+			if (inbound_link->node_to != link->node_from)
+				continue;
+
+			inbound_link->flags = CRAT_IOLINK_FLAGS_ENABLED;
+			kfd_set_iolink_no_atomics(peer_dev, dev, inbound_link);
+			kfd_set_iolink_non_coherent(peer_dev, link, inbound_link);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 int kfd_topology_add_device(struct kfd_dev *gpu)
@@ -1164,6 +1530,10 @@ int kfd_topology_add_device(struct kfd_dev *gpu)
 	void *crat_image = NULL;
 	size_t image_size = 0;
 	int proximity_domain;
+<<<<<<< HEAD
+=======
+	struct amdgpu_device *adev;
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&temp_topology_device_list);
 
@@ -1231,6 +1601,7 @@ int kfd_topology_add_device(struct kfd_dev *gpu)
 	 * needed for the topology
 	 */
 
+<<<<<<< HEAD
 	dev->gpu->kfd2kgd->get_cu_info(dev->gpu->kgd, &cu_info);
 	dev->node_props.simd_arrays_per_engine =
 		cu_info.num_shader_arrays_per_engine;
@@ -1241,11 +1612,46 @@ int kfd_topology_add_device(struct kfd_dev *gpu)
 		gpu->pdev->devfn);
 	dev->node_props.max_engine_clk_fcompute =
 		dev->gpu->kfd2kgd->get_max_engine_clock_in_mhz(dev->gpu->kgd);
+=======
+	amdgpu_amdkfd_get_cu_info(dev->gpu->kgd, &cu_info);
+
+	strncpy(dev->node_props.name, gpu->device_info->asic_name,
+			KFD_TOPOLOGY_PUBLIC_NAME_SIZE);
+
+	dev->node_props.simd_arrays_per_engine =
+		cu_info.num_shader_arrays_per_engine;
+
+	dev->node_props.gfx_target_version = gpu->device_info->gfx_target_version;
+	dev->node_props.vendor_id = gpu->pdev->vendor;
+	dev->node_props.device_id = gpu->pdev->device;
+	dev->node_props.capability |=
+		((amdgpu_amdkfd_get_asic_rev_id(dev->gpu->kgd) <<
+			HSA_CAP_ASIC_REVISION_SHIFT) &
+			HSA_CAP_ASIC_REVISION_MASK);
+	dev->node_props.location_id = pci_dev_id(gpu->pdev);
+	dev->node_props.domain = pci_domain_nr(gpu->pdev->bus);
+	dev->node_props.max_engine_clk_fcompute =
+		amdgpu_amdkfd_get_max_engine_clock_in_mhz(dev->gpu->kgd);
+>>>>>>> upstream/android-13
 	dev->node_props.max_engine_clk_ccompute =
 		cpufreq_quick_get_max(0) / 1000;
 	dev->node_props.drm_render_minor =
 		gpu->shared_resources.drm_render_minor;
 
+<<<<<<< HEAD
+=======
+	dev->node_props.hive_id = gpu->hive_id;
+	dev->node_props.num_sdma_engines = gpu->device_info->num_sdma_engines;
+	dev->node_props.num_sdma_xgmi_engines =
+				gpu->device_info->num_xgmi_sdma_engines;
+	dev->node_props.num_sdma_queues_per_engine =
+				gpu->device_info->num_sdma_queues_per_engine;
+	dev->node_props.num_gws = (dev->gpu->gws &&
+		dev->gpu->dqm->sched_policy != KFD_SCHED_POLICY_NO_HWS) ?
+		amdgpu_amdkfd_get_num_gws(dev->gpu->kgd) : 0;
+	dev->node_props.num_cp_queues = get_cp_queues_num(dev->gpu->dqm);
+
+>>>>>>> upstream/android-13
 	kfd_fill_mem_clk_max_info(dev);
 	kfd_fill_iolink_non_crat_info(dev);
 
@@ -1261,13 +1667,37 @@ int kfd_topology_add_device(struct kfd_dev *gpu)
 	case CHIP_FIJI:
 	case CHIP_POLARIS10:
 	case CHIP_POLARIS11:
+<<<<<<< HEAD
+=======
+	case CHIP_POLARIS12:
+	case CHIP_VEGAM:
+>>>>>>> upstream/android-13
 		pr_debug("Adding doorbell packet type capability\n");
 		dev->node_props.capability |= ((HSA_CAP_DOORBELL_TYPE_1_0 <<
 			HSA_CAP_DOORBELL_TYPE_TOTALBITS_SHIFT) &
 			HSA_CAP_DOORBELL_TYPE_TOTALBITS_MASK);
 		break;
 	case CHIP_VEGA10:
+<<<<<<< HEAD
 	case CHIP_RAVEN:
+=======
+	case CHIP_VEGA12:
+	case CHIP_VEGA20:
+	case CHIP_RAVEN:
+	case CHIP_RENOIR:
+	case CHIP_ARCTURUS:
+	case CHIP_ALDEBARAN:
+	case CHIP_NAVI10:
+	case CHIP_NAVI12:
+	case CHIP_NAVI14:
+	case CHIP_SIENNA_CICHLID:
+	case CHIP_NAVY_FLOUNDER:
+	case CHIP_VANGOGH:
+	case CHIP_DIMGREY_CAVEFISH:
+	case CHIP_BEIGE_GOBY:
+	case CHIP_YELLOW_CARP:
+	case CHIP_CYAN_SKILLFISH:
+>>>>>>> upstream/android-13
 		dev->node_props.capability |= ((HSA_CAP_DOORBELL_TYPE_2_0 <<
 			HSA_CAP_DOORBELL_TYPE_TOTALBITS_SHIFT) &
 			HSA_CAP_DOORBELL_TYPE_TOTALBITS_MASK);
@@ -1277,19 +1707,54 @@ int kfd_topology_add_device(struct kfd_dev *gpu)
 		     dev->gpu->device_info->asic_family);
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	* Overwrite ATS capability according to needs_iommu_device to fix
+	* potential missing corresponding bit in CRAT of BIOS.
+	*/
+	if (dev->gpu->use_iommu_v2)
+		dev->node_props.capability |= HSA_CAP_ATS_PRESENT;
+	else
+		dev->node_props.capability &= ~HSA_CAP_ATS_PRESENT;
+
+>>>>>>> upstream/android-13
 	/* Fix errors in CZ CRAT.
 	 * simd_count: Carrizo CRAT reports wrong simd_count, probably
 	 *		because it doesn't consider masked out CUs
 	 * max_waves_per_simd: Carrizo reports wrong max_waves_per_simd
+<<<<<<< HEAD
 	 * capability flag: Carrizo CRAT doesn't report IOMMU flags
+=======
+>>>>>>> upstream/android-13
 	 */
 	if (dev->gpu->device_info->asic_family == CHIP_CARRIZO) {
 		dev->node_props.simd_count =
 			cu_info.simd_per_cu * cu_info.cu_active_number;
 		dev->node_props.max_waves_per_simd = 10;
+<<<<<<< HEAD
 		dev->node_props.capability |= HSA_CAP_ATS_PRESENT;
 	}
 
+=======
+	}
+
+	adev = (struct amdgpu_device *)(dev->gpu->kgd);
+	/* kfd only concerns sram ecc on GFX and HBM ecc on UMC */
+	dev->node_props.capability |=
+		((adev->ras_enabled & BIT(AMDGPU_RAS_BLOCK__GFX)) != 0) ?
+		HSA_CAP_SRAM_EDCSUPPORTED : 0;
+	dev->node_props.capability |= ((adev->ras_enabled & BIT(AMDGPU_RAS_BLOCK__UMC)) != 0) ?
+		HSA_CAP_MEM_EDCSUPPORTED : 0;
+
+	if (adev->asic_type != CHIP_VEGA10)
+		dev->node_props.capability |= (adev->ras_enabled != 0) ?
+			HSA_CAP_RASEVENTNOTIFY : 0;
+
+	if (KFD_IS_SVM_API_SUPPORTED(adev->kfd.dev))
+		dev->node_props.capability |= HSA_CAP_SVMAPI_SUPPORTED;
+
+>>>>>>> upstream/android-13
 	kfd_debug_print_topology();
 
 	if (!res)
@@ -1360,7 +1825,10 @@ int kfd_topology_enum_kfd_devices(uint8_t idx, struct kfd_dev **kdev)
 
 static int kfd_cpumask_to_apic_id(const struct cpumask *cpumask)
 {
+<<<<<<< HEAD
 	const struct cpuinfo_x86 *cpuinfo;
+=======
+>>>>>>> upstream/android-13
 	int first_cpu_of_numa_node;
 
 	if (!cpumask || cpumask == cpu_none_mask)
@@ -1368,9 +1836,17 @@ static int kfd_cpumask_to_apic_id(const struct cpumask *cpumask)
 	first_cpu_of_numa_node = cpumask_first(cpumask);
 	if (first_cpu_of_numa_node >= nr_cpu_ids)
 		return -1;
+<<<<<<< HEAD
 	cpuinfo = &cpu_data(first_cpu_of_numa_node);
 
 	return cpuinfo->apicid;
+=======
+#ifdef CONFIG_X86_64
+	return cpu_data(first_cpu_of_numa_node).apicid;
+#else
+	return first_cpu_of_numa_node;
+#endif
+>>>>>>> upstream/android-13
 }
 
 /* kfd_numa_node_to_apic_id - Returns the APIC ID of the first logical processor
@@ -1386,6 +1862,32 @@ int kfd_numa_node_to_apic_id(int numa_node_id)
 	return kfd_cpumask_to_apic_id(cpumask_of_node(numa_node_id));
 }
 
+<<<<<<< HEAD
+=======
+void kfd_double_confirm_iommu_support(struct kfd_dev *gpu)
+{
+	struct kfd_topology_device *dev;
+
+	gpu->use_iommu_v2 = false;
+
+	if (!gpu->device_info->needs_iommu_device)
+		return;
+
+	down_read(&topology_lock);
+
+	/* Only use IOMMUv2 if there is an APU topology node with no GPU
+	 * assigned yet. This GPU will be assigned to it.
+	 */
+	list_for_each_entry(dev, &topology_device_list, list)
+		if (dev->node_props.cpu_cores_count &&
+		    dev->node_props.simd_count &&
+		    !dev->gpu)
+			gpu->use_iommu_v2 = true;
+
+	up_read(&topology_lock);
+}
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_DEBUG_FS)
 
 int kfd_debugfs_hqds_by_device(struct seq_file *m, void *data)
@@ -1428,7 +1930,11 @@ int kfd_debugfs_rls_by_device(struct seq_file *m, void *data)
 		}
 
 		seq_printf(m, "Node %u, gpu_id %x:\n", i++, dev->gpu->id);
+<<<<<<< HEAD
 		r = pm_debugfs_runlist(m, &dev->gpu->dqm->packets);
+=======
+		r = pm_debugfs_runlist(m, &dev->gpu->dqm->packet_mgr);
+>>>>>>> upstream/android-13
 		if (r)
 			break;
 	}

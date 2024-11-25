@@ -14,7 +14,11 @@ struct nfsd3_sattrargs {
 	struct svc_fh		fh;
 	struct iattr		attrs;
 	int			check_guard;
+<<<<<<< HEAD
 	time_t			guardtime;
+=======
+	time64_t		guardtime;
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_diropargs {
@@ -25,14 +29,21 @@ struct nfsd3_diropargs {
 
 struct nfsd3_accessargs {
 	struct svc_fh		fh;
+<<<<<<< HEAD
 	unsigned int		access;
+=======
+	__u32			access;
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_readargs {
 	struct svc_fh		fh;
 	__u64			offset;
 	__u32			count;
+<<<<<<< HEAD
 	int			vlen;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_writeargs {
@@ -41,7 +52,11 @@ struct nfsd3_writeargs {
 	__u32			count;
 	int			stable;
 	__u32			len;
+<<<<<<< HEAD
 	struct kvec		first;
+=======
+	struct xdr_buf		payload;
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_createargs {
@@ -71,11 +86,14 @@ struct nfsd3_renameargs {
 	unsigned int		tlen;
 };
 
+<<<<<<< HEAD
 struct nfsd3_readlinkargs {
 	struct svc_fh		fh;
 	char *			buffer;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct nfsd3_linkargs {
 	struct svc_fh		ffh;
 	struct svc_fh		tfh;
@@ -96,10 +114,15 @@ struct nfsd3_symlinkargs {
 struct nfsd3_readdirargs {
 	struct svc_fh		fh;
 	__u64			cookie;
+<<<<<<< HEAD
 	__u32			dircount;
 	__u32			count;
 	__be32 *		verf;
 	__be32 *		buffer;
+=======
+	__u32			count;
+	__be32 *		verf;
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_commitargs {
@@ -110,13 +133,21 @@ struct nfsd3_commitargs {
 
 struct nfsd3_getaclargs {
 	struct svc_fh		fh;
+<<<<<<< HEAD
 	int			mask;
+=======
+	__u32			mask;
+>>>>>>> upstream/android-13
 };
 
 struct posix_acl;
 struct nfsd3_setaclargs {
 	struct svc_fh		fh;
+<<<<<<< HEAD
 	int			mask;
+=======
+	__u32			mask;
+>>>>>>> upstream/android-13
 	struct posix_acl	*acl_access;
 	struct posix_acl	*acl_default;
 };
@@ -145,13 +176,22 @@ struct nfsd3_readlinkres {
 	__be32			status;
 	struct svc_fh		fh;
 	__u32			len;
+<<<<<<< HEAD
+=======
+	struct page		**pages;
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_readres {
 	__be32			status;
 	struct svc_fh		fh;
 	unsigned long		count;
+<<<<<<< HEAD
 	int			eof;
+=======
+	__u32			eof;
+	struct page		**pages;
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_writeres {
@@ -159,6 +199,10 @@ struct nfsd3_writeres {
 	struct svc_fh		fh;
 	unsigned long		count;
 	int			committed;
+<<<<<<< HEAD
+=======
+	__be32			verf[2];
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_renameres {
@@ -174,6 +218,7 @@ struct nfsd3_linkres {
 };
 
 struct nfsd3_readdirres {
+<<<<<<< HEAD
 	__be32			status;
 	struct svc_fh		fh;
 	/* Just to save kmalloc on every readdirplus entry (svc_fh is a
@@ -187,6 +232,19 @@ struct nfsd3_readdirres {
 	int			buflen;
 	__be32 *		offset;
 	__be32 *		offset1;
+=======
+	/* Components of the reply */
+	__be32			status;
+	struct svc_fh		fh;
+	__be32			verf[2];
+
+	/* Used to encode the reply's entry list */
+	struct xdr_stream	xdr;
+	struct xdr_buf		dirlist;
+	struct svc_fh		scratch;
+	struct readdir_cd	common;
+	unsigned int		cookie_offset;
+>>>>>>> upstream/android-13
 	struct svc_rqst *	rqstp;
 
 };
@@ -223,6 +281,10 @@ struct nfsd3_pathconfres {
 struct nfsd3_commitres {
 	__be32			status;
 	struct svc_fh		fh;
+<<<<<<< HEAD
+=======
+	__be32			verf[2];
+>>>>>>> upstream/android-13
 };
 
 struct nfsd3_getaclres {
@@ -271,7 +333,11 @@ union nfsd3_xdrstore {
 
 #define NFS3_SVC_XDRSIZE		sizeof(union nfsd3_xdrstore)
 
+<<<<<<< HEAD
 int nfs3svc_decode_fhandle(struct svc_rqst *, __be32 *);
+=======
+int nfs3svc_decode_fhandleargs(struct svc_rqst *, __be32 *);
+>>>>>>> upstream/android-13
 int nfs3svc_decode_sattrargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_diropargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_accessargs(struct svc_rqst *, __be32 *);
@@ -281,16 +347,25 @@ int nfs3svc_decode_createargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_mkdirargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_mknodargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_renameargs(struct svc_rqst *, __be32 *);
+<<<<<<< HEAD
 int nfs3svc_decode_readlinkargs(struct svc_rqst *, __be32 *);
+=======
+>>>>>>> upstream/android-13
 int nfs3svc_decode_linkargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_symlinkargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_readdirargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_readdirplusargs(struct svc_rqst *, __be32 *);
 int nfs3svc_decode_commitargs(struct svc_rqst *, __be32 *);
+<<<<<<< HEAD
 int nfs3svc_encode_voidres(struct svc_rqst *, __be32 *);
 int nfs3svc_encode_attrstat(struct svc_rqst *, __be32 *);
 int nfs3svc_encode_wccstat(struct svc_rqst *, __be32 *);
 int nfs3svc_encode_diropres(struct svc_rqst *, __be32 *);
+=======
+int nfs3svc_encode_getattrres(struct svc_rqst *, __be32 *);
+int nfs3svc_encode_wccstat(struct svc_rqst *, __be32 *);
+int nfs3svc_encode_lookupres(struct svc_rqst *, __be32 *);
+>>>>>>> upstream/android-13
 int nfs3svc_encode_accessres(struct svc_rqst *, __be32 *);
 int nfs3svc_encode_readlinkres(struct svc_rqst *, __be32 *);
 int nfs3svc_encode_readres(struct svc_rqst *, __be32 *);
@@ -306,6 +381,7 @@ int nfs3svc_encode_commitres(struct svc_rqst *, __be32 *);
 
 void nfs3svc_release_fhandle(struct svc_rqst *);
 void nfs3svc_release_fhandle2(struct svc_rqst *);
+<<<<<<< HEAD
 int nfs3svc_encode_entry(void *, const char *name,
 				int namlen, loff_t offset, u64 ino,
 				unsigned int);
@@ -317,5 +393,18 @@ __be32 *nfs3svc_encode_post_op_attr(struct svc_rqst *rqstp, __be32 *p,
 				struct svc_fh *fhp);
 __be32 *nfs3svc_decode_fh(__be32 *p, struct svc_fh *fhp);
 
+=======
+
+void nfs3svc_encode_cookie3(struct nfsd3_readdirres *resp, u64 offset);
+int nfs3svc_encode_entry3(void *data, const char *name, int namlen,
+			  loff_t offset, u64 ino, unsigned int d_type);
+int nfs3svc_encode_entryplus3(void *data, const char *name, int namlen,
+			      loff_t offset, u64 ino, unsigned int d_type);
+/* Helper functions for NFSv3 ACL code */
+bool svcxdr_decode_nfs_fh3(struct xdr_stream *xdr, struct svc_fh *fhp);
+bool svcxdr_encode_nfsstat3(struct xdr_stream *xdr, __be32 status);
+bool svcxdr_encode_post_op_attr(struct svc_rqst *rqstp, struct xdr_stream *xdr,
+				const struct svc_fh *fhp);
+>>>>>>> upstream/android-13
 
 #endif /* _LINUX_NFSD_XDR3_H */

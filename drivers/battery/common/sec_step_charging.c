@@ -29,6 +29,7 @@
 
 void sec_bat_reset_step_charging(struct sec_battery_info *battery)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	union power_supply_propval val = {0, };
 
@@ -44,6 +45,10 @@ void sec_bat_reset_step_charging(struct sec_battery_info *battery)
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 	battery->wpc_step_chg_status = -1;
 #endif
+=======
+	pr_info("%s\n", __func__);
+	battery->step_chg_status = -1;
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 	battery->dc_float_voltage_set = false;
 #endif
@@ -59,6 +64,7 @@ void sec_bat_exit_step_charging(struct sec_battery_info *battery)
 }
 EXPORT_SYMBOL(sec_bat_exit_step_charging);
 
+<<<<<<< HEAD
 void sec_bat_exit_wpc_step_charging(struct sec_battery_info *battery)
 {
 	sec_vote(battery->fcc_vote, VOTER_WPC_STEP_CHARGE, false, 0);
@@ -68,6 +74,8 @@ void sec_bat_exit_wpc_step_charging(struct sec_battery_info *battery)
 }
 EXPORT_SYMBOL(sec_bat_exit_wpc_step_charging);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * true: step is changed
  * false: not changed
@@ -78,6 +86,7 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	int value_sub = 0, step_condition_sub = 0;
 #endif
+<<<<<<< HEAD
 	static int curr_cnt;
 	static bool skip_lcd_on_changed;
 	int age_step = battery->pdata->age_step;
@@ -91,6 +100,16 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 		return false;
 	}
 #endif
+=======
+	static int curr_cnt = 0;
+	static bool skip_lcd_on_changed;
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	int age_step = battery->pdata->age_step;
+#else
+	int age_step = 0;
+#endif
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_SEC_FACTORY)
 	if (!battery->step_chg_en_in_factory)
 		return false;
@@ -109,6 +128,7 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 	else
 		lcd_status = 0;
 
+<<<<<<< HEAD
 	if (battery->cable_type == SEC_BATTERY_CABLE_FPDO_DC) {
 		psy_do_property(battery->pdata->charger_name, get,
 				POWER_SUPPLY_EXT_PROP_CHARGING_ENABLED_DC, val);
@@ -122,6 +142,11 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 	if (battery->step_chg_type & STEP_CHARGING_CONDITION_ONLINE) {
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 		if ((is_pd_apdo_wire_type(battery->cable_type) && !fpdo_sc) &&
+=======
+	if (battery->step_chg_type & STEP_CHARGING_CONDITION_ONLINE) {
+#if IS_ENABLED(CONFIG_DIRECT_CHARGING)
+		if (is_pd_apdo_wire_type(battery->cable_type) &&
+>>>>>>> upstream/android-13
 			!((battery->current_event & SEC_BAT_CURRENT_EVENT_DC_ERR) &&
 			(battery->ta_alert_mode == OCP_NONE))) {
 			sec_vote(battery->fv_vote, VOTER_STEP_CHARGE, false, 0);
@@ -129,8 +154,12 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 			return false;
 		}
 
+<<<<<<< HEAD
 		if (((is_pd_apdo_wire_type(battery->cable_type) || is_pd_apdo_wire_type(battery->wire_status)) &&
 					!fpdo_sc) &&
+=======
+		if ((is_pd_apdo_wire_type(battery->cable_type) || is_pd_apdo_wire_type(battery->wire_status)) &&
+>>>>>>> upstream/android-13
 			(battery->sink_status.rp_currentlvl == RP_CURRENT_LEVEL3)) {
 			pr_info("%s: This cable type should be checked in dc step check\n", __func__);
 			sec_vote(battery->fv_vote, VOTER_STEP_CHARGE, false, 0);
@@ -176,6 +205,7 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 		return false;
 	}
 
+<<<<<<< HEAD
 	if (battery->step_chg_status < 0) {
 		i = 0;
 
@@ -195,6 +225,11 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 			goto check_step_change;
 		}
 	} else
+=======
+	if (battery->step_chg_status < 0)
+		i = 0;
+	else
+>>>>>>> upstream/android-13
 		i = battery->step_chg_status;
 
 	step_condition = battery->pdata->step_chg_cond[age_step][i];
@@ -202,8 +237,13 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 	if (battery->step_chg_type & STEP_CHARGING_CONDITION_VOLTAGE) {
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 		step_condition_sub = battery->pdata->step_chg_cond_sub[age_step][i];
+<<<<<<< HEAD
 		value = battery->voltage_avg_main;
 		value_sub = battery->voltage_avg_sub;
+=======
+		value = battery->voltage_pack_main;
+		value_sub = battery->voltage_pack_sub;
+>>>>>>> upstream/android-13
 #else
 		value = battery->voltage_avg;
 #endif
@@ -246,7 +286,10 @@ bool sec_bat_check_step_charging(struct sec_battery_info *battery)
 			break;
 	}
 
+<<<<<<< HEAD
 check_step_change:
+=======
+>>>>>>> upstream/android-13
 	if ((i != battery->step_chg_status) || skip_lcd_on_changed) {
 		/* this is only for no consuming current */
 		if ((battery->step_chg_type & STEP_CHARGING_CONDITION_CURRENT_NOW) &&
@@ -278,6 +321,7 @@ check_step_change:
 		sec_vote(battery->fcc_vote, VOTER_STEP_CHARGE, true,
 			battery->pdata->step_chg_curr[age_step][i]);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 		if (battery->pdata->step_chg_vsublim) {
 			val.intval = battery->pdata->chg_float_voltage - battery->pdata->limiter_aging_float_offset;
@@ -295,6 +339,10 @@ check_step_change:
 
 		if (battery->step_chg_type & STEP_CHARGING_CONDITION_FLOAT_VOLTAGE) {
 			pr_info("%s: float voltage = %d\n", __func__,
+=======
+		if (battery->step_chg_type & STEP_CHARGING_CONDITION_FLOAT_VOLTAGE) {
+			pr_info("%s : float voltage = %d\n", __func__,
+>>>>>>> upstream/android-13
 				battery->pdata->step_chg_vfloat[age_step][i]);
 			sec_vote(battery->fv_vote, VOTER_STEP_CHARGE, true,
 				battery->pdata->step_chg_vfloat[age_step][i]);
@@ -305,6 +353,7 @@ check_step_change:
 }
 EXPORT_SYMBOL(sec_bat_check_step_charging);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 bool sec_bat_check_wpc_step_charging(struct sec_battery_info *battery)
 {
@@ -441,6 +490,8 @@ bool sec_bat_check_wpc_step_charging(struct sec_battery_info *battery)
 EXPORT_SYMBOL(sec_bat_check_wpc_step_charging);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 bool skip_check_dc_step(struct sec_battery_info *battery)
 {
@@ -472,6 +523,7 @@ bool sec_bat_check_dc_step_charging(struct sec_battery_info *battery)
 	int force_step_soc = 0, step_fg_current = -1;
 	bool force_change_step = false;
 	union power_supply_propval val = {0, };
+<<<<<<< HEAD
 	int age_step = battery->pdata->age_step;
 	unsigned int dc_step_chg_type;
 
@@ -484,6 +536,15 @@ bool sec_bat_check_dc_step_charging(struct sec_battery_info *battery)
 		return false;
 	}
 
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	int age_step = battery->pdata->age_step;
+#else
+	int age_step = 0;
+#endif
+	unsigned int dc_step_chg_type;
+
+>>>>>>> upstream/android-13
 	i = (battery->step_chg_status < 0 ? 0 : battery->step_chg_status);
 	dc_step_chg_type = battery->dc_step_chg_type[i];
 
@@ -575,12 +636,21 @@ bool sec_bat_check_dc_step_charging(struct sec_battery_info *battery)
 		step_vol = i;
 
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
+<<<<<<< HEAD
 		value = max((battery->voltage_avg_main - battery->pdata->dc_step_cond_v_margin_main),
 					(battery->voltage_avg_sub - battery->pdata->dc_step_cond_v_margin_sub));
 		/* (charging current)step down when main or sub voltage condition meets */
 		while (step_vol < battery->dc_step_chg_step - 1) {
 			if (battery->voltage_avg_main < battery->pdata->dc_step_chg_cond_vol[age_step][step_vol] &&
 				battery->voltage_avg_sub < battery->pdata->dc_step_chg_cond_vol_sub[age_step][step_vol])
+=======
+		value = max((battery->voltage_pack_main - battery->pdata->dc_step_cond_v_margin_main),
+					(battery->voltage_pack_sub - battery->pdata->dc_step_cond_v_margin_sub));
+		/* (charging current)step down when main or sub voltage condition meets */
+		while (step_vol < battery->dc_step_chg_step - 1) {
+			if (battery->voltage_pack_main < battery->pdata->dc_step_chg_cond_vol[age_step][step_vol] &&
+				battery->voltage_pack_sub < battery->pdata->dc_step_chg_cond_vol_sub[age_step][step_vol])
+>>>>>>> upstream/android-13
 				break;
 			step_vol++;
 			if (battery->step_chg_status >= 0)
@@ -760,6 +830,7 @@ check_dc_step_change:
 			battery->pdata->dc_step_chg_val_iout[age_step][step]);
 		sec_vote_refresh(battery->fcc_vote);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 		if (battery->pdata->dc_step_chg_vsublim) {
 			val.intval = battery->pdata->dc_step_chg_vsublim[battery->step_chg_status];
@@ -772,6 +843,8 @@ check_dc_step_change:
 		}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 		return true;
 	} else {
 		battery->dc_step_chg_iin_cnt = 0;
@@ -791,7 +864,15 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 	char str[128] = {0,};
 	u32 *soc_cond_temp, *vol_cond_temp, *vfloat_temp, *iout_temp;
 	int age_step = battery->pdata->age_step;
+<<<<<<< HEAD
 	int num_age_step = battery->pdata->num_age_step;
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	int num_age_step = battery->pdata->num_age_step;
+#else
+	int num_age_step = 0;
+#endif
+>>>>>>> upstream/android-13
 	battery->dchg_dc_in_swelling = of_property_read_bool(np,
 						     "battery,dchg_dc_in_swelling");
 	pr_info("%s: dchg_dc_in_swelling(%d)\n", __func__, battery->dchg_dc_in_swelling);
@@ -807,6 +888,7 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 			__func__, battery->dc_step_chg_step);
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	pdata->dc_step_chg_vsublim = kcalloc(battery->dc_step_chg_step, sizeof(u32), GFP_KERNEL);
 
@@ -824,6 +906,8 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	battery->dc_step_chg_type = kcalloc(battery->dc_step_chg_step, sizeof(u32), GFP_KERNEL);
 	p = of_get_property(np, "battery,dc_step_chg_type", &len);
 	if (!p) {
@@ -966,6 +1050,7 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 			if (ret)
 				battery->pdata->dc_step_cond_v_margin_sub = 0;
 
+<<<<<<< HEAD
 			ret = of_property_read_u32(np, "battery,sc_vbat_thresh_main",
 					&battery->pdata->sc_vbat_thresh_main);
 			if (ret)
@@ -975,6 +1060,12 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 					&battery->pdata->sc_vbat_thresh_sub);
 			if (ret)
 				battery->pdata->sc_vbat_thresh_sub = battery->pdata->sc_vbat_thresh_main;
+=======
+			ret = of_property_read_u32(np, "battery,sc_vbat_thresh",
+					&battery->pdata->sc_vbat_thresh);
+			if (ret)
+				battery->pdata->sc_vbat_thresh = 4420;
+>>>>>>> upstream/android-13
 #endif
 		}
 	}
@@ -1115,6 +1206,7 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 			pdata->dc_step_chg_vol_offset = kcalloc(battery->dc_step_chg_step, sizeof(u32), GFP_KERNEL);
 			ret = of_property_read_u32_array(np, "battery,dc_step_chg_vol_offset",
 						pdata->dc_step_chg_vol_offset, battery->dc_step_chg_step);
+<<<<<<< HEAD
 			if (ret) {
 				pr_info("%s: dc_step_chg_vol_offset is empty\n", __func__);
 				/* Fill-up use one-dimensional offset table */
@@ -1124,6 +1216,10 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 							pdata->dc_step_chg_val_vfloat[0][j] -
 								battery->pdata->chg_float_voltage;
 			}
+=======
+			if (ret)
+				pr_info("%s: dc_step_chg_vol_offset is empty\n", __func__);
+>>>>>>> upstream/android-13
 
 			memset(str, 0x0, sizeof(str));
 			sprintf(str + strlen(str), "dc_step_chg_vol_offset arr :");
@@ -1185,8 +1281,12 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 		kfree(iout_temp);
 	}
 
+<<<<<<< HEAD
 	if ((dc_step_chg_type & STEP_CHARGING_CONDITION_INPUT_CURRENT) ||
 		(dc_step_chg_type & STEP_CHARGING_CONDITION_FG_CURRENT)) {
+=======
+	if (dc_step_chg_type & STEP_CHARGING_CONDITION_INPUT_CURRENT) {
+>>>>>>> upstream/android-13
 		p = of_get_property(np, "battery,dc_step_chg_cond_iin", &len);
 		if (!p) {
 			pr_info("%s: dc_step_chg_cond_iin is Empty, set default (Iout / 2)\n", __func__);
@@ -1248,9 +1348,16 @@ int sec_dc_step_charging_dt(struct sec_battery_info *battery, struct device *dev
 
 dc_step_charging_dt_error:
 	return -1;
+<<<<<<< HEAD
 } /* sec_dc_step_charging_dt */
 #endif
 
+=======
+}
+#endif
+
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+>>>>>>> upstream/android-13
 void sec_bat_set_aging_info_step_charging(struct sec_battery_info *battery)
 {
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
@@ -1309,13 +1416,22 @@ void sec_bat_set_aging_info_step_charging(struct sec_battery_info *battery)
 			POWER_SUPPLY_EXT_PROP_DIRECT_CONSTANT_CHARGE_VOLTAGE_MAX, val);
 	}
 
+<<<<<<< HEAD
 	sec_vote(battery->dc_fv_vote, VOTER_AGING_STEP, true, max_fv);
+=======
+	if (battery->step_chg_status >= 0 && !battery->dc_float_voltage_set)
+		sec_vote(battery->dc_fv_vote, VOTER_DC_STEP_CHARGE, true, max_fv);
+>>>>>>> upstream/android-13
 
 	sec_bat_reset_step_charging(battery);
 	sec_bat_check_dc_step_charging(battery);
 #endif
 }
 EXPORT_SYMBOL(sec_bat_set_aging_info_step_charging);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 void sec_step_charging_dt(struct sec_battery_info *battery, struct device *dev)
 {
@@ -1326,7 +1442,15 @@ void sec_step_charging_dt(struct sec_battery_info *battery, struct device *dev)
 	const u32 *p;
 	char str[128] = {0,};
 	u32 *soc_cond_temp, *vfloat_temp, *curr_temp;
+<<<<<<< HEAD
 	int num_age_step = battery->pdata->num_age_step;
+=======
+#if defined(CONFIG_BATTERY_AGE_FORECAST)
+	int num_age_step = battery->pdata->num_age_step;
+#else
+	int num_age_step = 0;
+#endif
+>>>>>>> upstream/android-13
 
 	battery->step_charging_skip_lcd_on = of_property_read_bool(np,
 						     "battery,step_charging_skip_lcd_on");
@@ -1344,6 +1468,7 @@ void sec_step_charging_dt(struct sec_battery_info *battery, struct device *dev)
 			__func__, battery->step_chg_step);
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 	ret = of_property_read_u32(np, "battery,step_chg_vsublim", &pdata->step_chg_vsublim);
 
@@ -1353,6 +1478,8 @@ void sec_step_charging_dt(struct sec_battery_info *battery, struct device *dev)
 	pr_err("%s: step_chg_vsublim is %d\n", __func__, pdata->step_chg_vsublim);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_u32(np, "battery,step_chg_charge_power",
 			&battery->step_chg_charge_power);
 	if (ret) {
@@ -1410,6 +1537,7 @@ void sec_step_charging_dt(struct sec_battery_info *battery, struct device *dev)
 
 #if IS_ENABLED(CONFIG_DUAL_BATTERY)
 		if (battery->step_chg_type & STEP_CHARGING_CONDITION_VOLTAGE) {
+<<<<<<< HEAD
 			p = of_get_property(np, "battery,step_chg_cond_sub", &len);
 			if (!p) {
 				pr_err("%s: step_chg_cond_sub is Empty\n", __func__);
@@ -1462,6 +1590,45 @@ void sec_step_charging_dt(struct sec_battery_info *battery, struct device *dev)
 
 				kfree(soc_cond_temp);
 			}
+=======
+			/* get dt to buff */
+			soc_cond_temp = kcalloc(battery->step_chg_step * num_age_step, sizeof(u32), GFP_KERNEL);
+			ret = of_property_read_u32_array(np, "battery,step_chg_cond_sub",
+					soc_cond_temp, battery->step_chg_step * num_age_step);
+
+			/* copy buff to 2d arr */
+			pdata->step_chg_cond_sub = kcalloc(num_age_step, sizeof(u32 *), GFP_KERNEL);
+			for (i = 0; i < num_age_step; i++) {
+				pdata->step_chg_cond_sub[i] =
+					kcalloc(battery->step_chg_step, sizeof(u32), GFP_KERNEL);
+				for (j = 0; j < battery->step_chg_step; j++)
+					pdata->step_chg_cond_sub[i][j] = soc_cond_temp[i*battery->step_chg_step + j];
+			}
+
+			/* if there are only 1 dimentional array of value, get the same value */
+			if (battery->step_chg_step * num_age_step != len) {
+				ret = of_property_read_u32_array(np, "battery,step_chg_cond",
+					*pdata->step_chg_cond_sub, battery->step_chg_step);
+				for (i = 0; i < num_age_step; i++) {
+					for (j = 0; j < battery->step_chg_step; j++)
+						pdata->step_chg_cond_sub[i][j] = pdata->step_chg_cond[0][j];
+				}
+			}
+
+			/* debug log */
+			for (i = 0; i < num_age_step; i++) {
+				memset(str, 0x0, sizeof(str));
+				sprintf(str + strlen(str), "step_chg_cond_sub arr[%d]:", i);
+				for (j = 0; j < battery->step_chg_step; j++)
+					sprintf(str + strlen(str), " %d", pdata->step_chg_cond_sub[i][j]);
+				pr_info("%s: %s\n", __func__, str);
+			}
+
+			if (ret)
+				pr_info("%s : step_chg_cond_sub read fail\n", __func__);
+
+			kfree(soc_cond_temp);
+>>>>>>> upstream/android-13
 		}
 #endif
 
@@ -1573,6 +1740,7 @@ void sec_step_charging_dt(struct sec_battery_info *battery, struct device *dev)
 
 			kfree(curr_temp);
 		}
+<<<<<<< HEAD
 
 		p = of_get_property(np, "battery,step_chg_cond_soc", &len);
 		if (!p) {
@@ -1816,6 +1984,11 @@ void sec_wpc_step_charging_dt(struct sec_battery_info *battery, struct device *d
 }
 #endif
 
+=======
+	}
+}
+
+>>>>>>> upstream/android-13
 void sec_step_charging_init(struct sec_battery_info *battery, struct device *dev)
 {
 	struct device_node *np = dev->of_node;
@@ -1833,6 +2006,7 @@ void sec_step_charging_init(struct sec_battery_info *battery, struct device *dev
 
 	if (battery->step_chg_type)
 		sec_step_charging_dt(battery, dev);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_WIRELESS_CHARGING)
 	ret = of_property_read_u32(np, "battery,wpc_step_chg_type",
 			&battery->wpc_step_chg_type);
@@ -1845,6 +2019,9 @@ void sec_step_charging_init(struct sec_battery_info *battery, struct device *dev
 	if (battery->wpc_step_chg_type)
 		sec_wpc_step_charging_dt(battery, dev);
 #endif
+=======
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_DIRECT_CHARGING)
 	sec_dc_step_charging_dt(battery, dev);
 #endif

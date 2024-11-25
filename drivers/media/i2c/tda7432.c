@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * For the STS-Thompson TDA7432 audio processor chip
  *
@@ -9,7 +13,11 @@
  *
  * Copyright (c) 2000 Eric Sandeen <eric_sandeen@bigfoot.com>
  * Copyright (c) 2006 Mauro Carvalho Chehab <mchehab@kernel.org>
+<<<<<<< HEAD
  * This code is placed under the terms of the GNU General Public License
+=======
+ *
+>>>>>>> upstream/android-13
  * Based on tda9855.c by Steve VanDeBogart (vandebo@uclink.berkeley.edu)
  * Which was based on tda8425.c by Greg Alexander (c) 1998
  *
@@ -19,7 +27,11 @@
  *
  * loudness - set between 0 and 15 for varying degrees of loudness effect
  *
+<<<<<<< HEAD
  * maxvol   - set maximium volume to +20db (1), default is 0db(0)
+=======
+ * maxvol   - set maximum volume to +20db (1), default is 0db(0)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -53,7 +65,11 @@ MODULE_PARM_DESC(debug, "Set debugging level from 0 to 3. Default is off(0).");
 module_param(loudness, int, S_IRUGO);
 MODULE_PARM_DESC(loudness, "Turn loudness on(1) else off(0). Default is off(0).");
 module_param(maxvol, int, S_IRUGO | S_IWUSR);
+<<<<<<< HEAD
 MODULE_PARM_DESC(maxvol, "Set maximium volume to +20dB(0) else +0dB(1). Default is +20dB(0).");
+=======
+MODULE_PARM_DESC(maxvol, "Set maximum volume to +20dB(0) else +0dB(1). Default is +20dB(0).");
+>>>>>>> upstream/android-13
 
 
 /* Structure of address and subaddresses for the tda7432 */

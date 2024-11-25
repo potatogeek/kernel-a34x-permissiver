@@ -34,6 +34,10 @@
 #include <linux/slab.h>
 
 #include <drm/drm_dsc.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 #include <video/mipi_display.h>
 
 /**
@@ -94,11 +98,14 @@ static struct bus_type mipi_dsi_bus_type = {
 	.pm = &mipi_dsi_device_pm_ops,
 };
 
+<<<<<<< HEAD
 static int of_device_match(struct device *dev, void *data)
 {
 	return dev->of_node == data;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * of_find_mipi_dsi_device_by_node() - find the MIPI DSI device matching a
  *    device tree node
@@ -111,7 +118,11 @@ struct mipi_dsi_device *of_find_mipi_dsi_device_by_node(struct device_node *np)
 {
 	struct device *dev;
 
+<<<<<<< HEAD
 	dev = bus_find_device(&mipi_dsi_bus_type, NULL, np, of_device_match);
+=======
+	dev = bus_find_device_by_of_node(&mipi_dsi_bus_type, np);
+>>>>>>> upstream/android-13
 
 	return dev ? to_mipi_dsi_device(dev) : NULL;
 }
@@ -160,19 +171,30 @@ static int mipi_dsi_device_add(struct mipi_dsi_device *dsi)
 static struct mipi_dsi_device *
 of_mipi_dsi_device_add(struct mipi_dsi_host *host, struct device_node *node)
 {
+<<<<<<< HEAD
 	struct device *dev = host->dev;
+=======
+>>>>>>> upstream/android-13
 	struct mipi_dsi_device_info info = { };
 	int ret;
 	u32 reg;
 
 	if (of_modalias_node(node, info.type, sizeof(info.type)) < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "modalias failure on %pOF\n", node);
+=======
+		drm_err(host, "modalias failure on %pOF\n", node);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
 	ret = of_property_read_u32(node, "reg", &reg);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev, "device node %pOF has no valid reg property: %d\n",
+=======
+		drm_err(host, "device node %pOF has no valid reg property: %d\n",
+>>>>>>> upstream/android-13
 			node, ret);
 		return ERR_PTR(-EINVAL);
 	}
@@ -207,22 +229,37 @@ mipi_dsi_device_register_full(struct mipi_dsi_host *host,
 			      const struct mipi_dsi_device_info *info)
 {
 	struct mipi_dsi_device *dsi;
+<<<<<<< HEAD
 	struct device *dev = host->dev;
 	int ret;
 
 	if (!info) {
 		dev_err(dev, "invalid mipi_dsi_device_info pointer\n");
+=======
+	int ret;
+
+	if (!info) {
+		drm_err(host, "invalid mipi_dsi_device_info pointer\n");
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
 	if (info->channel > 3) {
+<<<<<<< HEAD
 		dev_err(dev, "invalid virtual channel: %u\n", info->channel);
+=======
+		drm_err(host, "invalid virtual channel: %u\n", info->channel);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 
 	dsi = mipi_dsi_device_alloc(host);
 	if (IS_ERR(dsi)) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to allocate DSI device %ld\n",
+=======
+		drm_err(host, "failed to allocate DSI device %ld\n",
+>>>>>>> upstream/android-13
 			PTR_ERR(dsi));
 		return dsi;
 	}
@@ -233,7 +270,11 @@ mipi_dsi_device_register_full(struct mipi_dsi_host *host,
 
 	ret = mipi_dsi_device_add(dsi);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(dev, "failed to add DSI device %d\n", ret);
+=======
+		drm_err(host, "failed to add DSI device %d\n", ret);
+>>>>>>> upstream/android-13
 		kfree(dsi);
 		return ERR_PTR(ret);
 	}
@@ -361,7 +402,10 @@ static ssize_t mipi_dsi_device_transfer(struct mipi_dsi_device *dsi,
 
 	if (dsi->mode_flags & MIPI_DSI_MODE_LPM)
 		msg->flags |= MIPI_DSI_MSG_USE_LPM;
+<<<<<<< HEAD
 	msg->flags |= MIPI_DSI_MSG_LASTCOMMAND;
+=======
+>>>>>>> upstream/android-13
 
 	return ops->transfer(dsi->host, msg);
 }
@@ -380,6 +424,10 @@ bool mipi_dsi_packet_format_is_short(u8 type)
 	case MIPI_DSI_V_SYNC_END:
 	case MIPI_DSI_H_SYNC_START:
 	case MIPI_DSI_H_SYNC_END:
+<<<<<<< HEAD
+=======
+	case MIPI_DSI_COMPRESSION_MODE:
+>>>>>>> upstream/android-13
 	case MIPI_DSI_END_OF_TRANSMISSION:
 	case MIPI_DSI_COLOR_MODE_OFF:
 	case MIPI_DSI_COLOR_MODE_ON:
@@ -394,7 +442,11 @@ bool mipi_dsi_packet_format_is_short(u8 type)
 	case MIPI_DSI_DCS_SHORT_WRITE:
 	case MIPI_DSI_DCS_SHORT_WRITE_PARAM:
 	case MIPI_DSI_DCS_READ:
+<<<<<<< HEAD
 	case MIPI_DSI_DCS_COMPRESSION_MODE:
+=======
+	case MIPI_DSI_EXECUTE_QUEUE:
+>>>>>>> upstream/android-13
 	case MIPI_DSI_SET_MAXIMUM_RETURN_PACKET_SIZE:
 		return true;
 	}
@@ -413,11 +465,19 @@ EXPORT_SYMBOL(mipi_dsi_packet_format_is_short);
 bool mipi_dsi_packet_format_is_long(u8 type)
 {
 	switch (type) {
+<<<<<<< HEAD
 	case MIPI_DSI_PPS_LONG_WRITE:
+=======
+>>>>>>> upstream/android-13
 	case MIPI_DSI_NULL_PACKET:
 	case MIPI_DSI_BLANKING_PACKET:
 	case MIPI_DSI_GENERIC_LONG_WRITE:
 	case MIPI_DSI_DCS_LONG_WRITE:
+<<<<<<< HEAD
+=======
+	case MIPI_DSI_PICTURE_PARAMETER_SET:
+	case MIPI_DSI_COMPRESSED_PIXEL_STREAM:
+>>>>>>> upstream/android-13
 	case MIPI_DSI_LOOSELY_PACKED_PIXEL_STREAM_YCBCR20:
 	case MIPI_DSI_PACKED_PIXEL_STREAM_YCBCR24:
 	case MIPI_DSI_PACKED_PIXEL_STREAM_YCBCR16:
@@ -752,6 +812,7 @@ ssize_t mipi_dsi_dcs_write(struct mipi_dsi_device *dsi, u8 cmd,
 {
 	ssize_t err;
 	size_t size;
+<<<<<<< HEAD
 	u8 *tx;
 
 	if (len > 0) {
@@ -772,6 +833,28 @@ ssize_t mipi_dsi_dcs_write(struct mipi_dsi_device *dsi, u8 cmd,
 	err = mipi_dsi_dcs_write_buffer(dsi, tx, size);
 
 	if (len > 0)
+=======
+	u8 stack_tx[8];
+	u8 *tx;
+
+	size = 1 + len;
+	if (len > ARRAY_SIZE(stack_tx) - 1) {
+		tx = kmalloc(size, GFP_KERNEL);
+		if (!tx)
+			return -ENOMEM;
+	} else {
+		tx = stack_tx;
+	}
+
+	/* concatenate the DCS command byte and the payload */
+	tx[0] = cmd;
+	if (data)
+		memcpy(&tx[1], data, len);
+
+	err = mipi_dsi_dcs_write_buffer(dsi, tx, size);
+
+	if (tx != stack_tx)
+>>>>>>> upstream/android-13
 		kfree(tx);
 
 	return err;

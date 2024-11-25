@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 ** ccio-dma.c:
 **	DMA management routines for first generation cache-coherent machines.
@@ -7,10 +11,13 @@
 **	(c) Copyright 2000 Ryan Bradetich
 **	(c) Copyright 2000 Hewlett-Packard Company
 **
+<<<<<<< HEAD
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
 **
 **
 **  "Real Mode" operation refers to U2/Uturn chip operation.
@@ -42,6 +49,10 @@
 #include <linux/reboot.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/scatterlist.h>
 #include <linux/iommu-helper.h>
 #include <linux/export.h>
@@ -55,6 +66,11 @@
 #include <asm/hardware.h>       /* for register_module() */
 #include <asm/parisc-device.h>
 
+<<<<<<< HEAD
+=======
+#include "iommu.h"
+
+>>>>>>> upstream/android-13
 /* 
 ** Choose "ccio" since that's what HP-UX calls it.
 ** Make it easier for folks to migrate from one to the other :^)
@@ -110,6 +126,7 @@
 #define CMD_TLB_DIRECT_WRITE 35         /* IO_COMMAND for I/O TLB Writes     */
 #define CMD_TLB_PURGE        33         /* IO_COMMAND to Purge I/O TLB entry */
 
+<<<<<<< HEAD
 #define CCIO_MAPPING_ERROR    (~(dma_addr_t)0)
 
 struct ioa_registers {
@@ -136,6 +153,32 @@ struct ioa_registers {
         uint32_t   unused5[2];
         uint32_t   io_io_low;              /* Offset 14 */
         uint32_t   io_io_high;             /* Offset 15 */
+=======
+struct ioa_registers {
+	/* Runway Supervisory Set */
+	int32_t    unused1[12];
+	uint32_t   io_command;             /* Offset 12 */
+	uint32_t   io_status;              /* Offset 13 */
+	uint32_t   io_control;             /* Offset 14 */
+	int32_t    unused2[1];
+
+	/* Runway Auxiliary Register Set */
+	uint32_t   io_err_resp;            /* Offset  0 */
+	uint32_t   io_err_info;            /* Offset  1 */
+	uint32_t   io_err_req;             /* Offset  2 */
+	uint32_t   io_err_resp_hi;         /* Offset  3 */
+	uint32_t   io_tlb_entry_m;         /* Offset  4 */
+	uint32_t   io_tlb_entry_l;         /* Offset  5 */
+	uint32_t   unused3[1];
+	uint32_t   io_pdir_base;           /* Offset  7 */
+	uint32_t   io_io_low_hv;           /* Offset  8 */
+	uint32_t   io_io_high_hv;          /* Offset  9 */
+	uint32_t   unused4[1];
+	uint32_t   io_chain_id_mask;       /* Offset 11 */
+	uint32_t   unused5[2];
+	uint32_t   io_io_low;              /* Offset 14 */
+	uint32_t   io_io_high;             /* Offset 15 */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -200,7 +243,11 @@ struct ioa_registers {
 ** In order for a Runway address to reside within GSC+ extended address space:
 **	Runway Address [0:7]    must identically compare to 8'b11111111
 **	Runway Address [8:11]   must be equal to IO_IO_LOW(_HV)[16:19]
+<<<<<<< HEAD
 ** 	Runway Address [12:23]  must be greater than or equal to
+=======
+**	Runway Address [12:23]  must be greater than or equal to
+>>>>>>> upstream/android-13
 **	           IO_IO_LOW(_HV)[20:31] and less than IO_IO_HIGH(_HV)[20:31].
 **	Runway Address [24:39]  is not used in the comparison.
 **
@@ -228,10 +275,17 @@ struct ioc {
 	struct ioa_registers __iomem *ioc_regs;  /* I/O MMU base address */
 	u8  *res_map;	                /* resource map, bit == pdir entry */
 	u64 *pdir_base;	                /* physical base address */
+<<<<<<< HEAD
 	u32 pdir_size; 			/* bytes, function of IOV Space size */
 	u32 res_hint;	                /* next available IOVP - 
 					   circular search */
 	u32 res_size;		    	/* size of resource map in bytes */
+=======
+	u32 pdir_size;			/* bytes, function of IOV Space size */
+	u32 res_hint;			/* next available IOVP -
+					   circular search */
+	u32 res_size;			/* size of resource map in bytes */
+>>>>>>> upstream/android-13
 	spinlock_t res_lock;
 
 #ifdef CCIO_COLLECT_STATS
@@ -251,7 +305,11 @@ struct ioc {
 	unsigned short cujo20_bug;
 
 	/* STUFF We don't need in performance path */
+<<<<<<< HEAD
 	u32 chainid_shift; 		/* specify bit location of chain_id */
+=======
+	u32 chainid_shift;		/* specify bit location of chain_id */
+>>>>>>> upstream/android-13
 	struct ioc *next;		/* Linked list of discovered iocs */
 	const char *name;		/* device name from firmware */
 	unsigned int hw_path;           /* the hardware path this ioc is associatd with */
@@ -295,7 +353,11 @@ static int ioc_count;
 ** cause the kernel to panic anyhow.
 */
 #define CCIO_SEARCH_LOOP(ioc, res_idx, mask, size)  \
+<<<<<<< HEAD
        for(; res_ptr < res_end; ++res_ptr) { \
+=======
+	for (; res_ptr < res_end; ++res_ptr) { \
+>>>>>>> upstream/android-13
 		int ret;\
 		unsigned int idx;\
 		idx = (unsigned int)((unsigned long)res_ptr - (unsigned long)ioc->res_map); \
@@ -311,9 +373,15 @@ static int ioc_count;
 #define CCIO_FIND_FREE_MAPPING(ioa, res_idx, mask, size) \
        u##size *res_ptr = (u##size *)&((ioc)->res_map[ioa->res_hint & ~((size >> 3) - 1)]); \
        u##size *res_end = (u##size *)&(ioc)->res_map[ioa->res_size]; \
+<<<<<<< HEAD
        CCIO_SEARCH_LOOP(ioc, res_idx, mask, size); \
        res_ptr = (u##size *)&(ioc)->res_map[0]; \
        CCIO_SEARCH_LOOP(ioa, res_idx, mask, size);
+=======
+	CCIO_SEARCH_LOOP(ioc, res_idx, mask, size); \
+	res_ptr = (u##size *)&(ioc)->res_map[0]; \
+	CCIO_SEARCH_LOOP(ioa, res_idx, mask, size);
+>>>>>>> upstream/android-13
 
 /*
 ** Find available bit in this ioa's resource map.
@@ -350,17 +418,27 @@ ccio_alloc_range(struct ioc *ioc, struct device *dev, size_t size)
 	
 	BUG_ON(pages_needed == 0);
 	BUG_ON((pages_needed * IOVP_SIZE) > DMA_CHUNK_SIZE);
+<<<<<<< HEAD
      
 	DBG_RES("%s() size: %d pages_needed %d\n", 
 		__func__, size, pages_needed);
+=======
+
+	DBG_RES("%s() size: %d pages_needed %d\n",
+			__func__, size, pages_needed);
+>>>>>>> upstream/android-13
 
 	/*
 	** "seek and ye shall find"...praying never hurts either...
 	** ggg sacrifices another 710 to the computer gods.
 	*/
 
+<<<<<<< HEAD
 	boundary_size = ALIGN((unsigned long long)dma_get_seg_boundary(dev) + 1,
 			      1ULL << IOVP_SHIFT) >> IOVP_SHIFT;
+=======
+	boundary_size = dma_get_seg_boundary_nr_pages(dev, IOVP_SHIFT);
+>>>>>>> upstream/android-13
 
 	if (pages_needed <= 8) {
 		/*
@@ -419,7 +497,11 @@ resource_found:
 #define CCIO_FREE_MAPPINGS(ioc, res_idx, mask, size) \
         u##size *res_ptr = (u##size *)&((ioc)->res_map[res_idx]); \
         BUG_ON((*res_ptr & mask) != mask); \
+<<<<<<< HEAD
         *res_ptr &= ~(mask);
+=======
+	*res_ptr &= ~(mask);
+>>>>>>> upstream/android-13
 
 /**
  * ccio_free_range - Free pages from the ioc's resource map.
@@ -521,9 +603,15 @@ typedef unsigned long space_t;
 ** when it passes in BIDIRECTIONAL flag.
 */
 static u32 hint_lookup[] = {
+<<<<<<< HEAD
 	[PCI_DMA_BIDIRECTIONAL]	= HINT_STOP_MOST | HINT_SAFE_DMA | IOPDIR_VALID,
 	[PCI_DMA_TODEVICE]	= HINT_STOP_MOST | HINT_PREFETCH | IOPDIR_VALID,
 	[PCI_DMA_FROMDEVICE]	= HINT_STOP_MOST | IOPDIR_VALID,
+=======
+	[DMA_BIDIRECTIONAL]	= HINT_STOP_MOST | HINT_SAFE_DMA | IOPDIR_VALID,
+	[DMA_TO_DEVICE]		= HINT_STOP_MOST | HINT_PREFETCH | IOPDIR_VALID,
+	[DMA_FROM_DEVICE]	= HINT_STOP_MOST | IOPDIR_VALID,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -570,7 +658,11 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_t sid, unsigned long vba,
 	** "hints" parm includes the VALID bit!
 	** "dep" clobbers the physical address offset bits as well.
 	*/
+<<<<<<< HEAD
 	pa = virt_to_phys(vba);
+=======
+	pa = lpa(vba);
+>>>>>>> upstream/android-13
 	asm volatile("depw  %1,31,12,%0" : "+r" (pa) : "r" (hints));
 	((u32 *)pdir_ptr)[1] = (u32) pa;
 
@@ -607,14 +699,22 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_t sid, unsigned long vba,
 	**        PCX-T'? Don't know. (eg C110 or similar K-class)
 	**
 	** See PDC_MODEL/option 0/SW_CAP word for "Non-coherent IO-PDIR bit".
+<<<<<<< HEAD
 	** Hopefully we can patch (NOP) these out at boot time somehow.
+=======
+>>>>>>> upstream/android-13
 	**
 	** "Since PCX-U employs an offset hash that is incompatible with
 	** the real mode coherence index generation of U2, the PDIR entry
 	** must be flushed to memory to retain coherence."
 	*/
+<<<<<<< HEAD
 	asm volatile("fdc %%r0(%0)" : : "r" (pdir_ptr));
 	asm volatile("sync");
+=======
+	asm_io_fdc(pdir_ptr);
+	asm_io_sync();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -680,17 +780,26 @@ ccio_mark_invalid(struct ioc *ioc, dma_addr_t iova, size_t byte_cnt)
 		** FIXME: PCX_W platforms don't need FDC/SYNC. (eg C360)
 		**   PCX-U/U+ do. (eg C200/C240)
 		** See PDC_MODEL/option 0/SW_CAP for "Non-coherent IO-PDIR bit".
+<<<<<<< HEAD
 		**
 		** Hopefully someone figures out how to patch (NOP) the
 		** FDC/SYNC out at boot time.
 		*/
 		asm volatile("fdc %%r0(%0)" : : "r" (pdir_ptr[7]));
+=======
+		*/
+		asm_io_fdc(pdir_ptr);
+>>>>>>> upstream/android-13
 
 		iovp     += IOVP_SIZE;
 		byte_cnt -= IOVP_SIZE;
 	}
 
+<<<<<<< HEAD
 	asm volatile("sync");
+=======
+	asm_io_sync();
+>>>>>>> upstream/android-13
 	ccio_clear_io_tlb(ioc, CCIO_IOVP(iova), saved_byte_cnt);
 }
 
@@ -714,8 +823,13 @@ ccio_dma_supported(struct device *dev, u64 mask)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/* only support 32-bit devices (ie PCI/GSC) */
 	return (int)(mask == 0xffffffffUL);
+=======
+	/* only support 32-bit or better devices (ie PCI/GSC) */
+	return (int)(mask >= 0xffffffffUL);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -742,7 +856,11 @@ ccio_map_single(struct device *dev, void *addr, size_t size,
 	BUG_ON(!dev);
 	ioc = GET_IOC(dev);
 	if (!ioc)
+<<<<<<< HEAD
 		return CCIO_MAPPING_ERROR;
+=======
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 
 	BUG_ON(size <= 0);
 
@@ -852,7 +970,11 @@ static void *
 ccio_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t flag,
 		unsigned long attrs)
 {
+<<<<<<< HEAD
       void *ret;
+=======
+	void *ret;
+>>>>>>> upstream/android-13
 #if 0
 /* GRANT Need to establish hierarchy for non-PCI devs as well
 ** and then provide matching gsc_map_xxx() functions for them as well.
@@ -863,11 +985,19 @@ ccio_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle, gfp_t flag,
 		return 0;
 	}
 #endif
+<<<<<<< HEAD
         ret = (void *) __get_free_pages(flag, get_order(size));
 
 	if (ret) {
 		memset(ret, 0, size);
 		*dma_handle = ccio_map_single(dev, ret, size, PCI_DMA_BIDIRECTIONAL);
+=======
+	ret = (void *) __get_free_pages(flag, get_order(size));
+
+	if (ret) {
+		memset(ret, 0, size);
+		*dma_handle = ccio_map_single(dev, ret, size, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -925,7 +1055,11 @@ ccio_map_sg(struct device *dev, struct scatterlist *sglist, int nents,
 	BUG_ON(!dev);
 	ioc = GET_IOC(dev);
 	if (!ioc)
+<<<<<<< HEAD
 		return 0;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	
 	DBG_RUN_SG("%s() START %d entries\n", __func__, nents);
 
@@ -1010,7 +1144,11 @@ ccio_unmap_sg(struct device *dev, struct scatterlist *sglist, int nents,
 	ioc->usg_calls++;
 #endif
 
+<<<<<<< HEAD
 	while(sg_dma_len(sglist) && nents--) {
+=======
+	while (nents && sg_dma_len(sglist)) {
+>>>>>>> upstream/android-13
 
 #ifdef CCIO_COLLECT_STATS
 		ioc->usg_pages += sg_dma_len(sglist) >> PAGE_SHIFT;
@@ -1018,25 +1156,40 @@ ccio_unmap_sg(struct device *dev, struct scatterlist *sglist, int nents,
 		ccio_unmap_page(dev, sg_dma_address(sglist),
 				  sg_dma_len(sglist), direction, 0);
 		++sglist;
+<<<<<<< HEAD
+=======
+		nents--;
+>>>>>>> upstream/android-13
 	}
 
 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__, nents);
 }
 
+<<<<<<< HEAD
 static int ccio_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return dma_addr == CCIO_MAPPING_ERROR;
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct dma_map_ops ccio_ops = {
 	.dma_supported =	ccio_dma_supported,
 	.alloc =		ccio_alloc,
 	.free =			ccio_free,
 	.map_page =		ccio_map_page,
 	.unmap_page =		ccio_unmap_page,
+<<<<<<< HEAD
 	.map_sg = 		ccio_map_sg,
 	.unmap_sg = 		ccio_unmap_sg,
 	.mapping_error =	ccio_mapping_error,
+=======
+	.map_sg =		ccio_map_sg,
+	.unmap_sg =		ccio_unmap_sg,
+	.get_sgtable =		dma_common_get_sgtable,
+	.alloc_pages =		dma_common_alloc_pages,
+	.free_pages =		dma_common_free_pages,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_PROC_FS
@@ -1090,7 +1243,11 @@ static int ccio_proc_info(struct seq_file *m, void *p)
 		max = ioc->usingle_pages - ioc->usg_pages;
 		seq_printf(m, "pci_unmap_single: %8ld calls  %8ld pages (avg %d/1000)\n",
 			   min, max, (int)((max * 1000)/min));
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> upstream/android-13
 		seq_printf(m, "pci_map_sg()    : %8ld calls  %8ld pages (avg %d/1000)\n",
 			   ioc->msg_calls, ioc->msg_pages,
 			   (int)((ioc->msg_pages * 1000)/ioc->msg_calls));
@@ -1179,7 +1336,11 @@ void __init ccio_cujo20_fixup(struct parisc_device *cujo, u32 iovp)
 	idx = PDIR_INDEX(iovp) >> 3;
 
 	while (idx < ioc->res_size) {
+<<<<<<< HEAD
  		res_ptr[idx] |= 0xff;
+=======
+		res_ptr[idx] |= 0xff;
+>>>>>>> upstream/android-13
 		idx += PDIR_INDEX(CUJO_20_STEP) >> 3;
 	}
 }
@@ -1253,7 +1414,11 @@ ccio_ioc_init(struct ioc *ioc)
 	** Hot-Plug/Removal of PCI cards. (aka PCI OLARD).
 	*/
 
+<<<<<<< HEAD
 	iova_space_size = (u32) (totalram_pages / count_parisc_driver(&ccio_driver));
+=======
+	iova_space_size = (u32) (totalram_pages() / count_parisc_driver(&ccio_driver));
+>>>>>>> upstream/android-13
 
 	/* limit IOVA space size to 1MB-1GB */
 
@@ -1292,7 +1457,11 @@ ccio_ioc_init(struct ioc *ioc)
 
 	DBG_INIT("%s() hpa 0x%p mem %luMB IOV %dMB (%d bits)\n",
 			__func__, ioc->ioc_regs,
+<<<<<<< HEAD
 			(unsigned long) totalram_pages >> (20 - PAGE_SHIFT),
+=======
+			(unsigned long) totalram_pages() >> (20 - PAGE_SHIFT),
+>>>>>>> upstream/android-13
 			iova_space_size>>20,
 			iov_order + PAGE_SHIFT);
 
@@ -1307,7 +1476,11 @@ ccio_ioc_init(struct ioc *ioc)
 	DBG_INIT(" base %p\n", ioc->pdir_base);
 
 	/* resource map size dictated by pdir_size */
+<<<<<<< HEAD
  	ioc->res_size = (ioc->pdir_size / sizeof(u64)) >> 3;
+=======
+	ioc->res_size = (ioc->pdir_size / sizeof(u64)) >> 3;
+>>>>>>> upstream/android-13
 	DBG_INIT("%s() res_size 0x%x\n", __func__, ioc->res_size);
 	
 	ioc->res_map = (u8 *)__get_free_pages(GFP_KERNEL, 
@@ -1527,6 +1700,10 @@ static int __init ccio_probe(struct parisc_device *dev)
 {
 	int i;
 	struct ioc *ioc, **ioc_p = &ioc_list;
+<<<<<<< HEAD
+=======
+	struct pci_hba_data *hba;
+>>>>>>> upstream/android-13
 
 	ioc = kzalloc(sizeof(struct ioc), GFP_KERNEL);
 	if (ioc == NULL) {
@@ -1545,7 +1722,11 @@ static int __init ccio_probe(struct parisc_device *dev)
 	*ioc_p = ioc;
 
 	ioc->hw_path = dev->hw_path;
+<<<<<<< HEAD
 	ioc->ioc_regs = ioremap_nocache(dev->hpa.start, 4096);
+=======
+	ioc->ioc_regs = ioremap(dev->hpa.start, 4096);
+>>>>>>> upstream/android-13
 	if (!ioc->ioc_regs) {
 		kfree(ioc);
 		return -ENOMEM;
@@ -1553,11 +1734,21 @@ static int __init ccio_probe(struct parisc_device *dev)
 	ccio_ioc_init(ioc);
 	ccio_init_resources(ioc);
 	hppa_dma_ops = &ccio_ops;
+<<<<<<< HEAD
 	dev->dev.platform_data = kzalloc(sizeof(struct pci_hba_data), GFP_KERNEL);
 
 	/* if this fails, no I/O cards will work, so may as well bug */
 	BUG_ON(dev->dev.platform_data == NULL);
 	HBA_DATA(dev->dev.platform_data)->iommu = ioc;
+=======
+
+	hba = kzalloc(sizeof(*hba), GFP_KERNEL);
+	/* if this fails, no I/O cards will work, so may as well bug */
+	BUG_ON(hba == NULL);
+
+	hba->iommu = ioc;
+	dev->dev.platform_data = hba;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PROC_FS
 	if (ioc_count == 0) {

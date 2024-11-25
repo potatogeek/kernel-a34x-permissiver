@@ -228,7 +228,11 @@ static int c67x00_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
  * Main part of host controller driver
  */
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * c67x00_hcd_irq
  *
  * This function is called from the interrupt handler in c67x00-drv.c
@@ -260,7 +264,11 @@ static void c67x00_hcd_irq(struct c67x00_sie *sie, u16 int_status, u16 msg)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * c67x00_hcd_start: Host controller start hook
  */
 static int c67x00_hcd_start(struct usb_hcd *hcd)
@@ -272,7 +280,11 @@ static int c67x00_hcd_start(struct usb_hcd *hcd)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * c67x00_hcd_stop: Host controller stop hook
  */
 static void c67x00_hcd_stop(struct usb_hcd *hcd)

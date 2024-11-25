@@ -14,7 +14,11 @@ enum ipi_vector {
 
 static inline int xen_irqs_disabled(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	return raw_irqs_disabled_flags((unsigned long) regs->pstate);
+=======
+	return !interrupts_enabled(regs);
+>>>>>>> upstream/android-13
 }
 
 #define xchg_xen_ulong(ptr, val) xchg((ptr), (val))

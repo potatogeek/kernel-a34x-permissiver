@@ -32,7 +32,11 @@
 #include "control_w.h"
 
 .text
+<<<<<<< HEAD
 ENTRY(FPU_u_add)
+=======
+SYM_FUNC_START(FPU_u_add)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 	pushl	%esi
@@ -164,6 +168,12 @@ L_exit:
 	popl	%edi
 	popl	%esi
 	leave
+<<<<<<< HEAD
 	ret
 #endif /* PARANOID */
 ENDPROC(FPU_u_add)
+=======
+	RET
+#endif /* PARANOID */
+SYM_FUNC_END(FPU_u_add)
+>>>>>>> upstream/android-13

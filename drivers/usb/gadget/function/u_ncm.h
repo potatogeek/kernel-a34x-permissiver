@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * u_ncm.h
  *
@@ -7,7 +11,11 @@
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef U_NCM_H
@@ -20,6 +28,12 @@ struct f_ncm_opts {
 	struct net_device		*net;
 	bool				bound;
 
+<<<<<<< HEAD
+=======
+	struct config_group		*ncm_interf_group;
+	struct usb_os_desc		ncm_os_desc;
+	char				ncm_ext_compat_id[16];
+>>>>>>> upstream/android-13
 	/*
 	 * Read/write access to configfs attributes is handled by configfs.
 	 *

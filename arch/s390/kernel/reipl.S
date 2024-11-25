@@ -73,6 +73,10 @@ ENTRY(store_status)
 	lgr	%r9,%r2
 	lgr	%r2,%r3
 	BR_EX	%r9
+<<<<<<< HEAD
+=======
+ENDPROC(store_status)
+>>>>>>> upstream/android-13
 
 	.section .bss
 	.align	8

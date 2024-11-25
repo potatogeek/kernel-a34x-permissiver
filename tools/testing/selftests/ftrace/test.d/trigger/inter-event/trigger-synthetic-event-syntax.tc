@@ -1,6 +1,10 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: event trigger - test synthetic_events syntax parser
+<<<<<<< HEAD
+=======
+# requires: set_event synthetic_events
+>>>>>>> upstream/android-13
 
 do_reset() {
     reset_trigger
@@ -14,6 +18,7 @@ fail() { #msg
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -24,6 +29,8 @@ if [ ! -f synthetic_events ]; then
     exit_unsupported
 fi
 
+=======
+>>>>>>> upstream/android-13
 reset_tracer
 do_reset
 
@@ -41,6 +48,13 @@ grep "myevent[[:space:]]u64 var1" synthetic_events
 # it is not possible to add same name event
 ! echo "myevent u64 var2" >> synthetic_events
 
+<<<<<<< HEAD
+=======
+# make sure !synthetic event doesn't require a field
+echo "!myevent" >> synthetic_events
+echo "myevent u64 var1" >> synthetic_events
+
+>>>>>>> upstream/android-13
 # Non-append open will cleanup all events and add new one
 echo "myevent u64 var2" > synthetic_events
 

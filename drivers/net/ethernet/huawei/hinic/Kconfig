@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Huawei driver configuration
 #
@@ -5,7 +9,12 @@
 config HINIC
 	tristate "Huawei Intelligent PCIE Network Interface Card"
 	depends on (PCI_MSI && (X86 || ARM64))
+<<<<<<< HEAD
 	---help---
+=======
+	select NET_DEVLINK
+	help
+>>>>>>> upstream/android-13
 	  This driver supports HiNIC PCIE Ethernet cards.
 	  To compile this driver as part of the kernel, choose Y here.
 	  If unsure, choose N.

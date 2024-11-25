@@ -48,6 +48,10 @@ enum {
 	CTRL_CMD_NEWMCAST_GRP,
 	CTRL_CMD_DELMCAST_GRP,
 	CTRL_CMD_GETMCAST_GRP, /* unused */
+<<<<<<< HEAD
+=======
+	CTRL_CMD_GETPOLICY,
+>>>>>>> upstream/android-13
 	__CTRL_CMD_MAX,
 };
 
@@ -62,6 +66,12 @@ enum {
 	CTRL_ATTR_MAXATTR,
 	CTRL_ATTR_OPS,
 	CTRL_ATTR_MCAST_GROUPS,
+<<<<<<< HEAD
+=======
+	CTRL_ATTR_POLICY,
+	CTRL_ATTR_OP_POLICY,
+	CTRL_ATTR_OP,
+>>>>>>> upstream/android-13
 	__CTRL_ATTR_MAX,
 };
 
@@ -83,6 +93,18 @@ enum {
 	__CTRL_ATTR_MCAST_GRP_MAX,
 };
 
+<<<<<<< HEAD
+=======
+enum {
+	CTRL_ATTR_POLICY_UNSPEC,
+	CTRL_ATTR_POLICY_DO,
+	CTRL_ATTR_POLICY_DUMP,
+
+	__CTRL_ATTR_POLICY_DUMP_MAX,
+	CTRL_ATTR_POLICY_DUMP_MAX = __CTRL_ATTR_POLICY_DUMP_MAX - 1
+};
+
+>>>>>>> upstream/android-13
 #define CTRL_ATTR_MCAST_GRP_MAX (__CTRL_ATTR_MCAST_GRP_MAX - 1)
 
 

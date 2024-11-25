@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Measurements Specialties driver common i2c functions
  *
  * Copyright (c) 2015 Measurement-Specialties
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -166,7 +173,11 @@ static bool ms_sensors_crc_valid(u32 value)
 
 /**
  * ms_sensors_read_serial() - Serial number read function
+<<<<<<< HEAD
  * @cli:	pointer to i2c client
+=======
+ * @client:	pointer to i2c client
+>>>>>>> upstream/android-13
  * @sn:		pointer to 64-bits destination value
  *
  * Generic i2c serial number read function for Measurement Specialties devices.
@@ -489,11 +500,16 @@ int ms_sensors_ht_read_humidity(struct ms_ht_dev *dev_data,
 EXPORT_SYMBOL(ms_sensors_ht_read_humidity);
 
 /**
+<<<<<<< HEAD
  * ms_sensors_tp_crc_valid() - CRC check function for
+=======
+ * ms_sensors_tp_crc4() - Calculate PROM CRC for
+>>>>>>> upstream/android-13
  *     Temperature and pressure devices.
  *     This function is only used when reading PROM coefficients
  *
  * @prom:	pointer to PROM coefficients array
+<<<<<<< HEAD
  * @len:	length of PROM coefficients array
  *
  * Return: True if CRC is ok.
@@ -507,6 +523,17 @@ static bool ms_sensors_tp_crc_valid(u16 *prom, u8 len)
 	prom[0] &= 0x0FFF;      /* Clear the CRC computation part */
 
 	for (cnt = 0; cnt < len * 2; cnt++) {
+=======
+ *
+ * Return: CRC.
+ */
+static u8 ms_sensors_tp_crc4(u16 *prom)
+{
+	unsigned int cnt, n_bit;
+	u16 n_rem = 0x0000;
+
+	for (cnt = 0; cnt < MS_SENSORS_TP_PROM_WORDS_NB * 2; cnt++) {
+>>>>>>> upstream/android-13
 		if (cnt % 2 == 1)
 			n_rem ^= prom[cnt >> 1] & 0x00FF;
 		else
@@ -519,10 +546,62 @@ static bool ms_sensors_tp_crc_valid(u16 *prom, u8 len)
 				n_rem <<= 1;
 		}
 	}
+<<<<<<< HEAD
 	n_rem >>= 12;
 	prom[0] = crc_read;
 
 	return n_rem == crc;
+=======
+
+	return n_rem >> 12;
+}
+
+/**
+ * ms_sensors_tp_crc_valid_112() - CRC check function for
+ *     Temperature and pressure devices for 112bit PROM.
+ *     This function is only used when reading PROM coefficients
+ *
+ * @prom:	pointer to PROM coefficients array
+ *
+ * Return: True if CRC is ok.
+ */
+static bool ms_sensors_tp_crc_valid_112(u16 *prom)
+{
+	u16 w0 = prom[0], crc_read = (w0 & 0xF000) >> 12;
+	u8 crc;
+
+	prom[0] &= 0x0FFF;      /* Clear the CRC computation part */
+	prom[MS_SENSORS_TP_PROM_WORDS_NB - 1] = 0;
+
+	crc = ms_sensors_tp_crc4(prom);
+
+	prom[0] = w0;
+
+	return crc == crc_read;
+}
+
+/**
+ * ms_sensors_tp_crc_valid_128() - CRC check function for
+ *     Temperature and pressure devices for 128bit PROM.
+ *     This function is only used when reading PROM coefficients
+ *
+ * @prom:	pointer to PROM coefficients array
+ *
+ * Return: True if CRC is ok.
+ */
+static bool ms_sensors_tp_crc_valid_128(u16 *prom)
+{
+	u16 w7 = prom[7], crc_read = w7 & 0x000F;
+	u8 crc;
+
+	prom[7] &= 0xFF00;      /* Clear the CRC and LSB part */
+
+	crc = ms_sensors_tp_crc4(prom);
+
+	prom[7] = w7;
+
+	return crc == crc_read;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -537,8 +616,14 @@ static bool ms_sensors_tp_crc_valid(u16 *prom, u8 len)
 int ms_sensors_tp_read_prom(struct ms_tp_dev *dev_data)
 {
 	int i, ret;
+<<<<<<< HEAD
 
 	for (i = 0; i < MS_SENSORS_TP_PROM_WORDS_NB; i++) {
+=======
+	bool valid;
+
+	for (i = 0; i < dev_data->hw->prom_len; i++) {
+>>>>>>> upstream/android-13
 		ret = ms_sensors_read_prom_word(
 			dev_data->client,
 			MS_SENSORS_TP_PROM_READ + (i << 1),
@@ -548,8 +633,17 @@ int ms_sensors_tp_read_prom(struct ms_tp_dev *dev_data)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	if (!ms_sensors_tp_crc_valid(dev_data->prom,
 				     MS_SENSORS_TP_PROM_WORDS_NB + 1)) {
+=======
+	if (dev_data->hw->prom_len == 8)
+		valid = ms_sensors_tp_crc_valid_128(dev_data->prom);
+	else
+		valid = ms_sensors_tp_crc_valid_112(dev_data->prom);
+
+	if (!valid) {
+>>>>>>> upstream/android-13
 		dev_err(&dev_data->client->dev,
 			"Calibration coefficients crc check error\n");
 		return -ENODEV;

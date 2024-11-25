@@ -38,7 +38,10 @@
 #include <net/netlink.h>
 
 extern struct genl_family tipc_genl_family;
+<<<<<<< HEAD
 int tipc_nlmsg_parse(const struct nlmsghdr *nlh, struct nlattr ***buf);
+=======
+>>>>>>> upstream/android-13
 
 struct tipc_nl_msg {
 	struct sk_buff *skb;

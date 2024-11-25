@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm8990.c  --  WM8990 ALSA Soc Audio driver
  *
  * Copyright 2008 Wolfson Microelectronics PLC.
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -36,6 +43,7 @@ struct wm8990_priv {
 	unsigned int pcmclk;
 };
 
+<<<<<<< HEAD
 static bool wm8990_volatile_register(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
@@ -115,14 +123,21 @@ static const struct reg_default wm8990_reg_defaults[] = {
 
 static const DECLARE_TLV_DB_SCALE(rec_mix_tlv, -1500, 600, 0);
 
+=======
+#define wm8990_reset(c) snd_soc_component_write(c, WM8990_RESET, 0)
+
+>>>>>>> upstream/android-13
 static const DECLARE_TLV_DB_SCALE(in_pga_tlv, -1650, 3000, 0);
 
 static const DECLARE_TLV_DB_SCALE(out_mix_tlv, 0, -2100, 0);
 
 static const DECLARE_TLV_DB_SCALE(out_pga_tlv, -7300, 600, 0);
 
+<<<<<<< HEAD
 static const DECLARE_TLV_DB_SCALE(out_omix_tlv, -600, 0, 0);
 
+=======
+>>>>>>> upstream/android-13
 static const DECLARE_TLV_DB_SCALE(out_dac_tlv, -7163, 0, 0);
 
 static const DECLARE_TLV_DB_SCALE(in_adc_tlv, -7163, 1763, 0);
@@ -144,7 +159,11 @@ static int wm899x_outpga_put_volsw_vu(struct snd_kcontrol *kcontrol,
 		return ret;
 
 	/* now hit the volume update bits (always bit 8) */
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, reg);
+=======
+	val = snd_soc_component_read(component, reg);
+>>>>>>> upstream/android-13
 	return snd_soc_component_write(component, reg, val | 0x0100);
 }
 
@@ -381,7 +400,11 @@ static int outmixer_event(struct snd_soc_dapm_widget *w,
 
 	switch (reg_shift) {
 	case WM8990_SPEAKER_MIXER | (WM8990_LDSPK_BIT << 8) :
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8990_OUTPUT_MIXER1);
+=======
+		reg = snd_soc_component_read(component, WM8990_OUTPUT_MIXER1);
+>>>>>>> upstream/android-13
 		if (reg & WM8990_LDLO) {
 			printk(KERN_WARNING
 			"Cannot set as Output Mixer 1 LDLO Set\n");
@@ -389,7 +412,11 @@ static int outmixer_event(struct snd_soc_dapm_widget *w,
 		}
 		break;
 	case WM8990_SPEAKER_MIXER | (WM8990_RDSPK_BIT << 8):
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8990_OUTPUT_MIXER2);
+=======
+		reg = snd_soc_component_read(component, WM8990_OUTPUT_MIXER2);
+>>>>>>> upstream/android-13
 		if (reg & WM8990_RDRO) {
 			printk(KERN_WARNING
 			"Cannot set as Output Mixer 2 RDRO Set\n");
@@ -397,7 +424,11 @@ static int outmixer_event(struct snd_soc_dapm_widget *w,
 		}
 		break;
 	case WM8990_OUTPUT_MIXER1 | (WM8990_LDLO_BIT << 8):
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8990_SPEAKER_MIXER);
+=======
+		reg = snd_soc_component_read(component, WM8990_SPEAKER_MIXER);
+>>>>>>> upstream/android-13
 		if (reg & WM8990_LDSPK) {
 			printk(KERN_WARNING
 			"Cannot set as Speaker Mixer LDSPK Set\n");
@@ -405,7 +436,11 @@ static int outmixer_event(struct snd_soc_dapm_widget *w,
 		}
 		break;
 	case WM8990_OUTPUT_MIXER2 | (WM8990_RDRO_BIT << 8):
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8990_SPEAKER_MIXER);
+=======
+		reg = snd_soc_component_read(component, WM8990_SPEAKER_MIXER);
+>>>>>>> upstream/android-13
 		if (reg & WM8990_RDSPK) {
 			printk(KERN_WARNING
 			"Cannot set as Speaker Mixer RDSPK Set\n");
@@ -490,6 +525,7 @@ static SOC_ENUM_SINGLE_DECL(wm8990_ainrmux_enum,
 static const struct snd_kcontrol_new wm8990_dapm_ainrmux_controls =
 SOC_DAPM_ENUM("Route", wm8990_ainrmux_enum);
 
+<<<<<<< HEAD
 /* RXVOICE */
 static const struct snd_kcontrol_new wm8990_dapm_rxvoice_controls[] = {
 SOC_DAPM_SINGLE_TLV("LIN4/RXN", WM8990_INPUT_MIXER5, WM8990_LR4BVOL_SHIFT,
@@ -498,6 +534,8 @@ SOC_DAPM_SINGLE_TLV("RIN4/RXP", WM8990_INPUT_MIXER6, WM8990_RL4BVOL_SHIFT,
 			WM8990_RL4BVOL_MASK, 0, in_mix_tlv),
 };
 
+=======
+>>>>>>> upstream/android-13
 /* LOMIX */
 static const struct snd_kcontrol_new wm8990_dapm_lomix_controls[] = {
 SOC_DAPM_SINGLE("LOMIX Right ADC Bypass Switch", WM8990_OUTPUT_MIXER1,
@@ -983,8 +1021,13 @@ static int wm8990_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	struct snd_soc_component *component = codec_dai->component;
 	u16 audio1, audio3;
 
+<<<<<<< HEAD
 	audio1 = snd_soc_component_read32(component, WM8990_AUDIO_INTERFACE_1);
 	audio3 = snd_soc_component_read32(component, WM8990_AUDIO_INTERFACE_3);
+=======
+	audio1 = snd_soc_component_read(component, WM8990_AUDIO_INTERFACE_1);
+	audio3 = snd_soc_component_read(component, WM8990_AUDIO_INTERFACE_3);
+>>>>>>> upstream/android-13
 
 	/* set master/slave audio interface */
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
@@ -1067,7 +1110,11 @@ static int wm8990_hw_params(struct snd_pcm_substream *substream,
 			    struct snd_soc_dai *dai)
 {
 	struct snd_soc_component *component = dai->component;
+<<<<<<< HEAD
 	u16 audio1 = snd_soc_component_read32(component, WM8990_AUDIO_INTERFACE_1);
+=======
+	u16 audio1 = snd_soc_component_read(component, WM8990_AUDIO_INTERFACE_1);
+>>>>>>> upstream/android-13
 
 	audio1 &= ~WM8990_AIF_WL_MASK;
 	/* bit size */
@@ -1089,12 +1136,20 @@ static int wm8990_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8990_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int wm8990_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	u16 val;
 
+<<<<<<< HEAD
 	val  = snd_soc_component_read32(component, WM8990_DAC_CTRL) & ~WM8990_DAC_MUTE;
+=======
+	val  = snd_soc_component_read(component, WM8990_DAC_CTRL) & ~WM8990_DAC_MUTE;
+>>>>>>> upstream/android-13
 
 	if (mute)
 		snd_soc_component_write(component, WM8990_DAC_CTRL, val | WM8990_DAC_MUTE);
@@ -1243,11 +1298,19 @@ static int wm8990_set_bias_level(struct snd_soc_component *component,
  */
 static const struct snd_soc_dai_ops wm8990_dai_ops = {
 	.hw_params	= wm8990_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= wm8990_mute,
+=======
+	.mute_stream	= wm8990_mute,
+>>>>>>> upstream/android-13
 	.set_fmt	= wm8990_set_dai_fmt,
 	.set_clkdiv	= wm8990_set_dai_clkdiv,
 	.set_pll	= wm8990_set_dai_pll,
 	.set_sysclk	= wm8990_set_dai_sysclk,
+<<<<<<< HEAD
+=======
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8990_dai = {
@@ -1310,6 +1373,7 @@ static const struct snd_soc_component_driver soc_component_dev_wm8990 = {
 	.non_legacy_dai_naming	= 1,
 };
 
+<<<<<<< HEAD
 static const struct regmap_config wm8990_regmap = {
 	.reg_bits = 8,
 	.val_bits = 16,
@@ -1321,6 +1385,8 @@ static const struct regmap_config wm8990_regmap = {
 	.cache_type = REGCACHE_RBTREE,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int wm8990_i2c_probe(struct i2c_client *i2c,
 			    const struct i2c_device_id *id)
 {

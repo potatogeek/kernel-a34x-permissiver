@@ -22,12 +22,18 @@
   in the ELF header, as required by certain architectures.
 */
 
+<<<<<<< HEAD
 #include <linux/stringify.h>
 #include <asm-generic/vmlinux.lds.h>
 
 .section .init.ramfs,"a"
 __irf_start:
 .incbin __stringify(INITRAMFS_IMAGE)
+=======
+.section .init.ramfs,"a"
+__irf_start:
+.incbin "usr/initramfs_inc_data"
+>>>>>>> upstream/android-13
 __irf_end:
 .section .init.ramfs.info,"a"
 .globl __initramfs_size

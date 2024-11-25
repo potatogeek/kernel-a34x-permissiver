@@ -5,6 +5,10 @@
 #include <linux/err.h>
 #include <linux/mutex.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct pwm_capture;
 struct seq_file;
@@ -48,6 +52,7 @@ enum {
 	PWMF_EXPORTED = 1 << 1,
 };
 
+<<<<<<< HEAD
 /**
  * enum pwm_output_type - output type of the PWM signal
  * @PWM_OUTPUT_FIXED: PWM output is fixed until a change request
@@ -71,20 +76,34 @@ struct pwm_output_pattern {
 	u64 cycles_per_duty;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * struct pwm_state - state of a PWM channel
  * @period: PWM period (in nanoseconds)
  * @duty_cycle: PWM duty cycle (in nanoseconds)
  * @polarity: PWM polarity
  * @enabled: PWM enabled status
+<<<<<<< HEAD
+=======
+ * @usage_power: If set, the PWM driver is only required to maintain the power
+ *               output but has more freedom regarding signal form.
+ *               If supported, the signal can be optimized, for example to
+ *               improve EMI by phase shifting individual channels.
+>>>>>>> upstream/android-13
  */
 struct pwm_state {
 	u64 period;
 	u64 duty_cycle;
 	enum pwm_polarity polarity;
+<<<<<<< HEAD
 	enum pwm_output_type output_type;
 	struct pwm_output_pattern *output_pattern;
 	bool enabled;
+=======
+	bool enabled;
+	bool usage_power;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -96,7 +115,12 @@ struct pwm_state {
  * @chip: PWM chip providing this PWM device
  * @chip_data: chip-private data associated with the PWM device
  * @args: PWM arguments
+<<<<<<< HEAD
  * @state: curent PWM channel state
+=======
+ * @state: last applied state
+ * @last: last implemented state (for PWM_DEBUG)
+>>>>>>> upstream/android-13
  */
 struct pwm_device {
 	const char *label;
@@ -108,12 +132,26 @@ struct pwm_device {
 
 	struct pwm_args args;
 	struct pwm_state state;
+<<<<<<< HEAD
+=======
+	struct pwm_state last;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /**
  * pwm_get_state() - retrieve the current PWM state
  * @pwm: PWM device
  * @state: state to fill with the current PWM state
+<<<<<<< HEAD
+=======
+ *
+ * The returned PWM state represents the state that was applied by a previous call to
+ * pwm_apply_state(). Drivers may have to slightly tweak that state before programming it to
+ * hardware. If pwm_apply_state() was never called, this returns either the current hardware
+ * state (if supported) or the default settings.
+>>>>>>> upstream/android-13
  */
 static inline void pwm_get_state(const struct pwm_device *pwm,
 				 struct pwm_state *state)
@@ -130,12 +168,17 @@ static inline bool pwm_is_enabled(const struct pwm_device *pwm)
 	return state.enabled;
 }
 
+<<<<<<< HEAD
 static inline void pwm_set_period(struct pwm_device *pwm, unsigned int period)
+=======
+static inline void pwm_set_period(struct pwm_device *pwm, u64 period)
+>>>>>>> upstream/android-13
 {
 	if (pwm)
 		pwm->state.period = period;
 }
 
+<<<<<<< HEAD
 static inline void pwm_set_period_extend(struct pwm_device *pwm, u64 period)
 {
 	if (pwm)
@@ -155,6 +198,9 @@ static inline unsigned int pwm_get_period(const struct pwm_device *pwm)
 }
 
 static inline u64 pwm_get_period_extend(const struct pwm_device *pwm)
+=======
+static inline u64 pwm_get_period(const struct pwm_device *pwm)
+>>>>>>> upstream/android-13
 {
 	struct pwm_state state;
 
@@ -169,6 +215,7 @@ static inline void pwm_set_duty_cycle(struct pwm_device *pwm, unsigned int duty)
 		pwm->state.duty_cycle = duty;
 }
 
+<<<<<<< HEAD
 static inline void pwm_set_duty_cycle_extend(struct pwm_device *pwm, u64 duty)
 {
 	if (pwm)
@@ -188,6 +235,9 @@ static inline unsigned int pwm_get_duty_cycle(const struct pwm_device *pwm)
 }
 
 static inline u64 pwm_get_duty_cycle_extend(const struct pwm_device *pwm)
+=======
+static inline u64 pwm_get_duty_cycle(const struct pwm_device *pwm)
+>>>>>>> upstream/android-13
 {
 	struct pwm_state state;
 
@@ -205,6 +255,7 @@ static inline enum pwm_polarity pwm_get_polarity(const struct pwm_device *pwm)
 	return state.polarity;
 }
 
+<<<<<<< HEAD
 static inline enum pwm_output_type pwm_get_output_type(
 		const struct pwm_device *pwm)
 {
@@ -225,6 +276,8 @@ static inline struct pwm_output_pattern *pwm_get_output_pattern(
 	return pwm->state.output_pattern ?: NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void pwm_get_args(const struct pwm_device *pwm,
 				struct pwm_args *args)
 {
@@ -262,6 +315,10 @@ static inline void pwm_init_state(const struct pwm_device *pwm,
 	state->period = args.period;
 	state->polarity = args.polarity;
 	state->duty_cycle = 0;
+<<<<<<< HEAD
+=======
+	state->usage_power = false;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -323,6 +380,7 @@ pwm_set_relative_duty_cycle(struct pwm_state *state, unsigned int duty_cycle,
  * struct pwm_ops - PWM controller operations
  * @request: optional hook for requesting a PWM
  * @free: optional hook for freeing a PWM
+<<<<<<< HEAD
  * @config: configure duty cycles and period length for this PWM
  * @config_extend: configure duty cycles and period length for this
  *	PWM with u64 data type
@@ -342,10 +400,23 @@ pwm_set_relative_duty_cycle(struct pwm_state *state, unsigned int duty_cycle,
  *	       registered.
  * @dbg_show: optional routine to show contents in debugfs
  * @owner: helps prevent removal of modules exporting active PWMs
+=======
+ * @capture: capture and report PWM signal
+ * @apply: atomically apply a new PWM config
+ * @get_state: get the current PWM state. This function is only
+ *	       called once per PWM device when the PWM chip is
+ *	       registered.
+ * @owner: helps prevent removal of modules exporting active PWMs
+ * @config: configure duty cycles and period length for this PWM
+ * @set_polarity: configure the polarity of this PWM
+ * @enable: enable PWM output toggling
+ * @disable: disable PWM output toggling
+>>>>>>> upstream/android-13
  */
 struct pwm_ops {
 	int (*request)(struct pwm_chip *chip, struct pwm_device *pwm);
 	void (*free)(struct pwm_chip *chip, struct pwm_device *pwm);
+<<<<<<< HEAD
 	int (*config)(struct pwm_chip *chip, struct pwm_device *pwm,
 		      int duty_ns, int period_ns);
 	int (*config_extend)(struct pwm_chip *chip, struct pwm_device *pwm,
@@ -371,11 +442,31 @@ struct pwm_ops {
 	void (*dbg_show)(struct pwm_chip *chip, struct seq_file *s);
 #endif
 	struct module *owner;
+=======
+	int (*capture)(struct pwm_chip *chip, struct pwm_device *pwm,
+		       struct pwm_capture *result, unsigned long timeout);
+	int (*apply)(struct pwm_chip *chip, struct pwm_device *pwm,
+		     const struct pwm_state *state);
+	void (*get_state)(struct pwm_chip *chip, struct pwm_device *pwm,
+			  struct pwm_state *state);
+	struct module *owner;
+
+	/* Only used by legacy drivers */
+	int (*config)(struct pwm_chip *chip, struct pwm_device *pwm,
+		      int duty_ns, int period_ns);
+	int (*set_polarity)(struct pwm_chip *chip, struct pwm_device *pwm,
+			    enum pwm_polarity polarity);
+	int (*enable)(struct pwm_chip *chip, struct pwm_device *pwm);
+	void (*disable)(struct pwm_chip *chip, struct pwm_device *pwm);
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /**
  * struct pwm_chip - abstract a PWM controller
  * @dev: device providing the PWMs
+<<<<<<< HEAD
  * @list: list node for internal use
  * @ops: callbacks for this PWM controller
  * @base: number of first PWM controlled by this chip
@@ -387,15 +478,39 @@ struct pwm_ops {
 struct pwm_chip {
 	struct device *dev;
 	struct list_head list;
+=======
+ * @ops: callbacks for this PWM controller
+ * @base: number of first PWM controlled by this chip
+ * @npwm: number of PWMs controlled by this chip
+ * @of_xlate: request a PWM device given a device tree PWM specifier
+ * @of_pwm_n_cells: number of cells expected in the device tree PWM specifier
+ * @list: list node for internal use
+ * @pwms: array of PWM devices allocated by the framework
+ */
+struct pwm_chip {
+	struct device *dev;
+>>>>>>> upstream/android-13
 	const struct pwm_ops *ops;
 	int base;
 	unsigned int npwm;
 
+<<<<<<< HEAD
 	struct pwm_device *pwms;
 
 	struct pwm_device * (*of_xlate)(struct pwm_chip *pc,
 					const struct of_phandle_args *args);
 	unsigned int of_pwm_n_cells;
+=======
+	struct pwm_device * (*of_xlate)(struct pwm_chip *pc,
+					const struct of_phandle_args *args);
+	unsigned int of_pwm_n_cells;
+
+	/* only used internally by the PWM framework */
+	struct list_head list;
+	struct pwm_device *pwms;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -404,14 +519,20 @@ struct pwm_chip {
  * @duty_cycle: duty cycle of the PWM signal (in nanoseconds)
  */
 struct pwm_capture {
+<<<<<<< HEAD
 	u64 period;
 	u64 duty_cycle;
+=======
+	unsigned int period;
+	unsigned int duty_cycle;
+>>>>>>> upstream/android-13
 };
 
 #if IS_ENABLED(CONFIG_PWM)
 /* PWM user APIs */
 struct pwm_device *pwm_request(int pwm_id, const char *label);
 void pwm_free(struct pwm_device *pwm);
+<<<<<<< HEAD
 int pwm_apply_state(struct pwm_device *pwm, struct pwm_state *state);
 int pwm_adjust_config(struct pwm_device *pwm);
 
@@ -431,6 +552,12 @@ static inline int pwm_get_output_type_supported(struct pwm_device *pwm)
 }
 
 /**
+=======
+int pwm_apply_state(struct pwm_device *pwm, const struct pwm_state *state);
+int pwm_adjust_config(struct pwm_device *pwm);
+
+/**
+>>>>>>> upstream/android-13
  * pwm_config() - change a PWM device configuration
  * @pwm: PWM device
  * @duty_ns: "on" time (in nanoseconds)
@@ -459,6 +586,7 @@ static inline int pwm_config(struct pwm_device *pwm, int duty_ns,
 }
 
 /**
+<<<<<<< HEAD
  * pwm_config_extend() - change PWM period and duty length with u64 data type
  * @pwm: PWM device
  * @duty_ns: "on" time (in nanoseconds)
@@ -520,6 +648,8 @@ static inline int pwm_set_polarity(struct pwm_device *pwm,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * pwm_enable() - start a PWM output toggling
  * @pwm: PWM device
  *
@@ -565,10 +695,18 @@ int pwm_capture(struct pwm_device *pwm, struct pwm_capture *result,
 int pwm_set_chip_data(struct pwm_device *pwm, void *data);
 void *pwm_get_chip_data(struct pwm_device *pwm);
 
+<<<<<<< HEAD
 int pwmchip_add_with_polarity(struct pwm_chip *chip,
 			      enum pwm_polarity polarity);
 int pwmchip_add(struct pwm_chip *chip);
 int pwmchip_remove(struct pwm_chip *chip);
+=======
+int pwmchip_add(struct pwm_chip *chip);
+void pwmchip_remove(struct pwm_chip *chip);
+
+int devm_pwmchip_add(struct device *dev, struct pwm_chip *chip);
+
+>>>>>>> upstream/android-13
 struct pwm_device *pwm_request_from_chip(struct pwm_chip *chip,
 					 unsigned int index,
 					 const char *label);
@@ -577,13 +715,24 @@ struct pwm_device *of_pwm_xlate_with_flags(struct pwm_chip *pc,
 		const struct of_phandle_args *args);
 
 struct pwm_device *pwm_get(struct device *dev, const char *con_id);
+<<<<<<< HEAD
 struct pwm_device *of_pwm_get(struct device_node *np, const char *con_id);
+=======
+struct pwm_device *of_pwm_get(struct device *dev, struct device_node *np,
+			      const char *con_id);
+>>>>>>> upstream/android-13
 void pwm_put(struct pwm_device *pwm);
 
 struct pwm_device *devm_pwm_get(struct device *dev, const char *con_id);
 struct pwm_device *devm_of_pwm_get(struct device *dev, struct device_node *np,
 				   const char *con_id);
+<<<<<<< HEAD
 void devm_pwm_put(struct device *dev, struct pwm_device *pwm);
+=======
+struct pwm_device *devm_fwnode_pwm_get(struct device *dev,
+				       struct fwnode_handle *fwnode,
+				       const char *con_id);
+>>>>>>> upstream/android-13
 #else
 static inline struct pwm_device *pwm_request(int pwm_id, const char *label)
 {
@@ -618,12 +767,15 @@ static inline int pwm_capture(struct pwm_device *pwm,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static inline int pwm_set_polarity(struct pwm_device *pwm,
 				   enum pwm_polarity polarity)
 {
 	return -ENOTSUPP;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int pwm_enable(struct pwm_device *pwm)
 {
 	return -EINVAL;
@@ -648,11 +800,14 @@ static inline int pwmchip_add(struct pwm_chip *chip)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static inline int pwmchip_add_inversed(struct pwm_chip *chip)
 {
 	return -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int pwmchip_remove(struct pwm_chip *chip)
 {
 	return -EINVAL;
@@ -671,7 +826,12 @@ static inline struct pwm_device *pwm_get(struct device *dev,
 	return ERR_PTR(-ENODEV);
 }
 
+<<<<<<< HEAD
 static inline struct pwm_device *of_pwm_get(struct device_node *np,
+=======
+static inline struct pwm_device *of_pwm_get(struct device *dev,
+					    struct device_node *np,
+>>>>>>> upstream/android-13
 					    const char *con_id)
 {
 	return ERR_PTR(-ENODEV);
@@ -694,8 +854,16 @@ static inline struct pwm_device *devm_of_pwm_get(struct device *dev,
 	return ERR_PTR(-ENODEV);
 }
 
+<<<<<<< HEAD
 static inline void devm_pwm_put(struct device *dev, struct pwm_device *pwm)
 {
+=======
+static inline struct pwm_device *
+devm_fwnode_pwm_get(struct device *dev, struct fwnode_handle *fwnode,
+		    const char *con_id)
+{
+	return ERR_PTR(-ENODEV);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -727,6 +895,10 @@ static inline void pwm_apply_args(struct pwm_device *pwm)
 	state.enabled = false;
 	state.polarity = pwm->args.polarity;
 	state.period = pwm->args.period;
+<<<<<<< HEAD
+=======
+	state.usage_power = false;
+>>>>>>> upstream/android-13
 
 	pwm_apply_state(pwm, &state);
 }

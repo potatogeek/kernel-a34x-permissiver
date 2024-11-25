@@ -14,7 +14,11 @@
  * Linux-USB host controller driver.  USB traffic is simulated; there's
  * no need for USB hardware.  Use this with two other drivers:
  *
+<<<<<<< HEAD
  *  - Gadget driver, responding to requests (slave);
+=======
+ *  - Gadget driver, responding to requests (device);
+>>>>>>> upstream/android-13
  *  - Host-side device driver, as already familiar in Linux.
  *
  * Having this all in one kernel can help some stages of development,
@@ -261,7 +265,11 @@ struct dummy {
 	spinlock_t			lock;
 
 	/*
+<<<<<<< HEAD
 	 * SLAVE/GADGET side support
+=======
+	 * DEVICE/GADGET side support
+>>>>>>> upstream/android-13
 	 */
 	struct dummy_ep			ep[DUMMY_ENDPOINTS];
 	int				address;
@@ -276,7 +284,11 @@ struct dummy {
 	unsigned			pullup:1;
 
 	/*
+<<<<<<< HEAD
 	 * MASTER/HOST side support
+=======
+	 * HOST side support
+>>>>>>> upstream/android-13
 	 */
 	struct dummy_hcd		*hs_hcd;
 	struct dummy_hcd		*ss_hcd;
@@ -323,7 +335,11 @@ static inline struct dummy *gadget_dev_to_dummy(struct device *dev)
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 /* SLAVE/GADGET SIDE UTILITY ROUTINES */
+=======
+/* DEVICE/GADGET SIDE UTILITY ROUTINES */
+>>>>>>> upstream/android-13
 
 /* called with spinlock held */
 static void nuke(struct dummy *dum, struct dummy_ep *ep)
@@ -427,6 +443,10 @@ static void set_link_state_by_speed(struct dummy_hcd *dum_hcd)
 
 /* caller must hold lock */
 static void set_link_state(struct dummy_hcd *dum_hcd)
+<<<<<<< HEAD
+=======
+	__must_hold(&dum->lock)
+>>>>>>> upstream/android-13
 {
 	struct dummy *dum = dum_hcd->dum;
 	unsigned int power_bit;
@@ -485,7 +505,11 @@ static void set_link_state(struct dummy_hcd *dum_hcd)
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 /* SLAVE/GADGET SIDE DRIVER
+=======
+/* DEVICE/GADGET SIDE DRIVER
+>>>>>>> upstream/android-13
  *
  * This only tracks gadget state.  All the work is done when the host
  * side tries some (emulated) i/o operation.  Real device controller
@@ -552,6 +576,10 @@ static int dummy_enable(struct usb_ep *_ep,
 				/* we'll fake any legal size */
 				break;
 			/* save a return statement */
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			goto done;
 		}
@@ -566,12 +594,20 @@ static int dummy_enable(struct usb_ep *_ep,
 			if (max <= 1024)
 				break;
 			/* save a return statement */
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case USB_SPEED_FULL:
 			if (max <= 64)
 				break;
 			/* save a return statement */
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			if (max <= 8)
 				break;
@@ -589,11 +625,19 @@ static int dummy_enable(struct usb_ep *_ep,
 			if (max <= 1024)
 				break;
 			/* save a return statement */
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case USB_SPEED_FULL:
 			if (max <= 1023)
 				break;
 			/* save a return statement */
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			goto done;
 		}
@@ -618,6 +662,7 @@ static int dummy_enable(struct usb_ep *_ep,
 		_ep->name,
 		desc->bEndpointAddress & 0x0f,
 		(desc->bEndpointAddress & USB_DIR_IN) ? "in" : "out",
+<<<<<<< HEAD
 		({ char *val;
 		 switch (usb_endpoint_type(desc)) {
 		 case USB_ENDPOINT_XFER_BULK:
@@ -633,6 +678,9 @@ static int dummy_enable(struct usb_ep *_ep,
 			 val = "ctrl";
 			 break;
 		 } val; }),
+=======
+		usb_ep_type_string(usb_endpoint_type(desc)),
+>>>>>>> upstream/android-13
 		max, ep->stream_en ? "enabled" : "disabled");
 
 	/* at this point real hardware should be NAKing transfers
@@ -945,6 +993,18 @@ static void dummy_udc_set_speed(struct usb_gadget *_gadget,
 	dummy_udc_update_ep0(dum);
 }
 
+<<<<<<< HEAD
+=======
+static void dummy_udc_async_callbacks(struct usb_gadget *_gadget, bool enable)
+{
+	struct dummy	*dum = gadget_dev_to_dummy(&_gadget->dev);
+
+	spin_lock_irq(&dum->lock);
+	dum->ints_enabled = enable;
+	spin_unlock_irq(&dum->lock);
+}
+
+>>>>>>> upstream/android-13
 static int dummy_udc_start(struct usb_gadget *g,
 		struct usb_gadget_driver *driver);
 static int dummy_udc_stop(struct usb_gadget *g);
@@ -957,6 +1017,10 @@ static const struct usb_gadget_ops dummy_ops = {
 	.udc_start	= dummy_udc_start,
 	.udc_stop	= dummy_udc_stop,
 	.udc_set_speed	= dummy_udc_set_speed,
+<<<<<<< HEAD
+=======
+	.udc_async_callbacks = dummy_udc_async_callbacks,
+>>>>>>> upstream/android-13
 };
 
 /*-------------------------------------------------------------------------*/
@@ -985,7 +1049,11 @@ static DEVICE_ATTR_RO(function);
  * hardware can be built with discrete components, so the gadget API doesn't
  * require that assumption.
  *
+<<<<<<< HEAD
  * For this emulator, it might be convenient to create a usb slave device
+=======
+ * For this emulator, it might be convenient to create a usb device
+>>>>>>> upstream/android-13
  * for each driver that registers:  just add to a big root hub.
  */
 
@@ -1009,14 +1077,21 @@ static int dummy_udc_start(struct usb_gadget *g,
 	}
 
 	/*
+<<<<<<< HEAD
 	 * SLAVE side init ... the layer above hardware, which
+=======
+	 * DEVICE side init ... the layer above hardware, which
+>>>>>>> upstream/android-13
 	 * can't enumerate without help from the driver we're binding.
 	 */
 
 	spin_lock_irq(&dum->lock);
 	dum->devstatus = 0;
 	dum->driver = driver;
+<<<<<<< HEAD
 	dum->ints_enabled = 1;
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&dum->lock);
 
 	return 0;
@@ -1155,7 +1230,11 @@ static struct platform_driver dummy_udc_driver = {
 	.suspend	= dummy_udc_suspend,
 	.resume		= dummy_udc_resume,
 	.driver		= {
+<<<<<<< HEAD
 		.name	= (char *) gadget_name,
+=======
+		.name	= gadget_name,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -1171,7 +1250,11 @@ static unsigned int dummy_get_ep_idx(const struct usb_endpoint_descriptor *desc)
 	return index;
 }
 
+<<<<<<< HEAD
 /* MASTER/HOST SIDE DRIVER
+=======
+/* HOST SIDE DRIVER
+>>>>>>> upstream/android-13
  *
  * this uses the hcd framework to hook up to host side drivers.
  * its root hub will only have one device, otherwise it acts like
@@ -1601,7 +1684,11 @@ static struct dummy_ep *find_endpoint(struct dummy *dum, u8 address)
 
 /**
  * handle_control_request() - handles all control transfers
+<<<<<<< HEAD
  * @dum: pointer to dummy (the_controller)
+=======
+ * @dum_hcd: pointer to dummy (the_controller)
+>>>>>>> upstream/android-13
  * @urb: the urb request to handle
  * @setup: pointer to the setup data for a USB device control
  *	 request
@@ -1774,8 +1861,15 @@ static int handle_control_request(struct dummy_hcd *dum_hcd, struct urb *urb,
 	return ret_val;
 }
 
+<<<<<<< HEAD
 /* drive both sides of the transfers; looks like irq handlers to
  * both drivers except the callbacks aren't in_irq().
+=======
+/*
+ * Drive both sides of the transfers; looks like irq handlers to both
+ * drivers except that the callbacks are invoked from soft interrupt
+ * context.
+>>>>>>> upstream/android-13
  */
 static void dummy_timer(struct timer_list *t)
 {
@@ -1882,7 +1976,11 @@ restart:
 		/* handle control requests */
 		if (ep == &dum->ep[0] && ep->setup_stage) {
 			struct usb_ctrlrequest		setup;
+<<<<<<< HEAD
 			int				value = 1;
+=======
+			int				value;
+>>>>>>> upstream/android-13
 
 			setup = *(struct usb_ctrlrequest *) urb->setup_packet;
 			/* paranoia, in case of stale queued data */
@@ -1963,7 +2061,11 @@ restart:
 			 * this almost certainly polls too fast.
 			 */
 			limit = max(limit, periodic_bytes(dum, ep));
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		default:
 treat_control_like_bulk:
@@ -2134,9 +2236,27 @@ static int dummy_hub_control(
 				dum_hcd->port_status &= ~USB_PORT_STAT_POWER;
 			set_link_state(dum_hcd);
 			break;
+<<<<<<< HEAD
 		default:
 			dum_hcd->port_status &= ~(1 << wValue);
 			set_link_state(dum_hcd);
+=======
+		case USB_PORT_FEAT_ENABLE:
+		case USB_PORT_FEAT_C_ENABLE:
+		case USB_PORT_FEAT_C_SUSPEND:
+			/* Not allowed for USB-3 */
+			if (hcd->speed == HCD_USB3)
+				goto error;
+			fallthrough;
+		case USB_PORT_FEAT_C_CONNECTION:
+		case USB_PORT_FEAT_C_RESET:
+			dum_hcd->port_status &= ~(1 << wValue);
+			set_link_state(dum_hcd);
+			break;
+		default:
+		/* Disallow INDICATOR and C_OVER_CURRENT */
+			goto error;
+>>>>>>> upstream/android-13
 		}
 		break;
 	case GetHubDescriptor:
@@ -2272,19 +2392,37 @@ static int dummy_hub_control(
 					 "supported for USB 2.0 roothub\n");
 				goto error;
 			}
+<<<<<<< HEAD
 			/* FALLS THROUGH */
 		case USB_PORT_FEAT_RESET:
 			/* if it's already enabled, disable */
 			if (hcd->speed == HCD_USB3) {
 				dum_hcd->port_status = 0;
+=======
+			fallthrough;
+		case USB_PORT_FEAT_RESET:
+			if (!(dum_hcd->port_status & USB_PORT_STAT_CONNECTION))
+				break;
+			/* if it's already enabled, disable */
+			if (hcd->speed == HCD_USB3) {
+>>>>>>> upstream/android-13
 				dum_hcd->port_status =
 					(USB_SS_PORT_STAT_POWER |
 					 USB_PORT_STAT_CONNECTION |
 					 USB_PORT_STAT_RESET);
+<<<<<<< HEAD
 			} else
 				dum_hcd->port_status &= ~(USB_PORT_STAT_ENABLE
 					| USB_PORT_STAT_LOW_SPEED
 					| USB_PORT_STAT_HIGH_SPEED);
+=======
+			} else {
+				dum_hcd->port_status &= ~(USB_PORT_STAT_ENABLE
+					| USB_PORT_STAT_LOW_SPEED
+					| USB_PORT_STAT_HIGH_SPEED);
+				dum_hcd->port_status |= USB_PORT_STAT_RESET;
+			}
+>>>>>>> upstream/android-13
 			/*
 			 * We want to reset device status. All but the
 			 * Self powered feature
@@ -2296,6 +2434,7 @@ static int dummy_hub_control(
 			 * interval? Is it still 50msec as for HS?
 			 */
 			dum_hcd->re_timeout = jiffies + msecs_to_jiffies(50);
+<<<<<<< HEAD
 			/* FALLS THROUGH */
 		default:
 			if (hcd->speed == HCD_USB3) {
@@ -2309,6 +2448,21 @@ static int dummy_hub_control(
 					dum_hcd->port_status |= (1 << wValue);
 				}
 			set_link_state(dum_hcd);
+=======
+			set_link_state(dum_hcd);
+			break;
+		case USB_PORT_FEAT_C_CONNECTION:
+		case USB_PORT_FEAT_C_RESET:
+		case USB_PORT_FEAT_C_ENABLE:
+		case USB_PORT_FEAT_C_SUSPEND:
+			/* Not allowed for USB-3, and ignored for USB-2 */
+			if (hcd->speed == HCD_USB3)
+				goto error;
+			break;
+		default:
+		/* Disallow TEST, INDICATOR, and C_OVER_CURRENT */
+			goto error;
+>>>>>>> upstream/android-13
 		}
 		break;
 	case GetPortErrorCount:
@@ -2471,8 +2625,13 @@ static int dummy_start(struct usb_hcd *hcd)
 	struct dummy_hcd	*dum_hcd = hcd_to_dummy_hcd(hcd);
 
 	/*
+<<<<<<< HEAD
 	 * MASTER side init ... we emulate a root hub that'll only ever
 	 * talk to one device (the slave side).  Also appears in sysfs,
+=======
+	 * HOST side init ... we emulate a root hub that'll only ever
+	 * talk to one device (the gadget side).  Also appears in sysfs,
+>>>>>>> upstream/android-13
 	 * just like more familiar pci-based HCDs.
 	 */
 	if (!usb_hcd_is_primary_hcd(hcd))
@@ -2741,7 +2900,11 @@ static struct platform_driver dummy_hcd_driver = {
 	.suspend	= dummy_hcd_suspend,
 	.resume		= dummy_hcd_resume,
 	.driver		= {
+<<<<<<< HEAD
 		.name	= (char *) driver_name,
+=======
+		.name	= driver_name,
+>>>>>>> upstream/android-13
 	},
 };
 

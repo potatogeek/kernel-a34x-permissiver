@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * L2TPv3 ethernet pseudowire driver
  *
@@ -7,6 +8,12 @@
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* L2TPv3 ethernet pseudowire driver
+ *
+ * Copyright (c) 2008,2009,2010 Katalix Systems Ltd
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -55,7 +62,10 @@ struct l2tp_eth_sess {
 	struct net_device __rcu *dev;
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int l2tp_eth_dev_init(struct net_device *dev)
 {
 	eth_hw_addr_random(dev);
@@ -77,12 +87,20 @@ static void l2tp_eth_dev_uninit(struct net_device *dev)
 	 */
 }
 
+<<<<<<< HEAD
 static int l2tp_eth_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+=======
+static netdev_tx_t l2tp_eth_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct l2tp_eth *priv = netdev_priv(dev);
 	struct l2tp_session *session = priv->session;
 	unsigned int len = skb->len;
+<<<<<<< HEAD
 	int ret = l2tp_xmit_skb(session, skb, session->hdr_len);
+=======
+	int ret = l2tp_xmit_skb(session, skb);
+>>>>>>> upstream/android-13
 
 	if (likely(ret == NET_XMIT_SUCCESS)) {
 		atomic_long_add(len, &priv->tx_bytes);
@@ -98,6 +116,7 @@ static void l2tp_eth_get_stats64(struct net_device *dev,
 {
 	struct l2tp_eth *priv = netdev_priv(dev);
 
+<<<<<<< HEAD
 	stats->tx_bytes   = (unsigned long) atomic_long_read(&priv->tx_bytes);
 	stats->tx_packets = (unsigned long) atomic_long_read(&priv->tx_packets);
 	stats->tx_dropped = (unsigned long) atomic_long_read(&priv->tx_dropped);
@@ -105,6 +124,14 @@ static void l2tp_eth_get_stats64(struct net_device *dev,
 	stats->rx_packets = (unsigned long) atomic_long_read(&priv->rx_packets);
 	stats->rx_errors  = (unsigned long) atomic_long_read(&priv->rx_errors);
 
+=======
+	stats->tx_bytes   = (unsigned long)atomic_long_read(&priv->tx_bytes);
+	stats->tx_packets = (unsigned long)atomic_long_read(&priv->tx_packets);
+	stats->tx_dropped = (unsigned long)atomic_long_read(&priv->tx_dropped);
+	stats->rx_bytes   = (unsigned long)atomic_long_read(&priv->rx_bytes);
+	stats->rx_packets = (unsigned long)atomic_long_read(&priv->rx_packets);
+	stats->rx_errors  = (unsigned long)atomic_long_read(&priv->rx_errors);
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops l2tp_eth_netdev_ops = {
@@ -135,6 +162,7 @@ static void l2tp_eth_dev_recv(struct l2tp_session *session, struct sk_buff *skb,
 	struct net_device *dev;
 	struct l2tp_eth *priv;
 
+<<<<<<< HEAD
 	if (session->debug & L2TP_MSG_DATA) {
 		unsigned int length;
 
@@ -146,6 +174,8 @@ static void l2tp_eth_dev_recv(struct l2tp_session *session, struct sk_buff *skb,
 		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, skb->data, length);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!pskb_may_pull(skb, ETH_HLEN))
 		goto error;
 
@@ -155,7 +185,11 @@ static void l2tp_eth_dev_recv(struct l2tp_session *session, struct sk_buff *skb,
 	skb->ip_summed = CHECKSUM_NONE;
 
 	skb_dst_drop(skb);
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	dev = rcu_dereference(spriv->dev);
@@ -352,13 +386,19 @@ err:
 	return rc;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static const struct l2tp_nl_cmd_ops l2tp_eth_nl_cmd_ops = {
 	.session_create	= l2tp_eth_create,
 	.session_delete	= l2tp_session_delete,
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int __init l2tp_eth_init(void)
 {
 	int err = 0;

@@ -21,9 +21,14 @@
 /* free up the memory used by a slot */
 void dealloc_slot_struct(struct slot *slot)
 {
+<<<<<<< HEAD
 	kfree(slot->hotplug_slot->info);
 	kfree(slot->name);
 	kfree(slot->hotplug_slot);
+=======
+	of_node_put(slot->dn);
+	kfree(slot->name);
+>>>>>>> upstream/android-13
 	kfree(slot);
 }
 
@@ -35,6 +40,7 @@ struct slot *alloc_slot_struct(struct device_node *dn,
 	slot = kzalloc(sizeof(struct slot), GFP_KERNEL);
 	if (!slot)
 		goto error_nomem;
+<<<<<<< HEAD
 	slot->hotplug_slot = kzalloc(sizeof(struct hotplug_slot), GFP_KERNEL);
 	if (!slot->hotplug_slot)
 		goto error_slot;
@@ -57,6 +63,18 @@ error_info:
 	kfree(slot->hotplug_slot->info);
 error_hpslot:
 	kfree(slot->hotplug_slot);
+=======
+	slot->name = kstrdup(drc_name, GFP_KERNEL);
+	if (!slot->name)
+		goto error_slot;
+	slot->dn = of_node_get(dn);
+	slot->index = drc_index;
+	slot->power_domain = power_domain;
+	slot->hotplug_slot.ops = &rpaphp_hotplug_slot_ops;
+
+	return (slot);
+
+>>>>>>> upstream/android-13
 error_slot:
 	kfree(slot);
 error_nomem:
@@ -77,7 +95,11 @@ static int is_registered(struct slot *slot)
 int rpaphp_deregister_slot(struct slot *slot)
 {
 	int retval = 0;
+<<<<<<< HEAD
 	struct hotplug_slot *php_slot = slot->hotplug_slot;
+=======
+	struct hotplug_slot *php_slot = &slot->hotplug_slot;
+>>>>>>> upstream/android-13
 
 	 dbg("%s - Entry: deregistering slot=%s\n",
 		__func__, slot->name);
@@ -93,7 +115,11 @@ EXPORT_SYMBOL_GPL(rpaphp_deregister_slot);
 
 int rpaphp_register_slot(struct slot *slot)
 {
+<<<<<<< HEAD
 	struct hotplug_slot *php_slot = slot->hotplug_slot;
+=======
+	struct hotplug_slot *php_slot = &slot->hotplug_slot;
+>>>>>>> upstream/android-13
 	struct device_node *child;
 	u32 my_index;
 	int retval;

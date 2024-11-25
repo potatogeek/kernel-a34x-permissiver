@@ -9,9 +9,15 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/device.h>
 #include <linux/err.h>
+=======
+#include <linux/device.h>
+#include <linux/err.h>
+#include <linux/export.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/kdev_t.h>
 #include <linux/idr.h>
@@ -19,16 +25,25 @@
 #include <linux/reboot.h>
 #include <linux/string.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <net/netlink.h>
 #include <net/genetlink.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/suspend.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/thermal.h>
+<<<<<<< HEAD
+=======
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/thermal.h>
+>>>>>>> upstream/android-13
 
 #include "thermal_core.h"
 #include "thermal_hwmon.h"
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_THERMAL_LOG)
 /* cooling device state */
 static struct delayed_work cdev_print_work;
@@ -38,6 +53,8 @@ MODULE_AUTHOR("Zhang Rui");
 MODULE_DESCRIPTION("Generic thermal management sysfs support");
 MODULE_LICENSE("GPL v2");
 
+=======
+>>>>>>> upstream/android-13
 static DEFINE_IDA(thermal_tz_ida);
 static DEFINE_IDA(thermal_cdev_ida);
 
@@ -47,10 +64,15 @@ static LIST_HEAD(thermal_governor_list);
 
 static DEFINE_MUTEX(thermal_list_lock);
 static DEFINE_MUTEX(thermal_governor_lock);
+<<<<<<< HEAD
 static DEFINE_MUTEX(poweroff_lock);
 
 static atomic_t in_suspend;
 static bool power_off_triggered;
+=======
+
+static atomic_t in_suspend;
+>>>>>>> upstream/android-13
 
 static struct thermal_governor *def_governor;
 
@@ -226,6 +248,11 @@ exit:
 	mutex_unlock(&tz->lock);
 	mutex_unlock(&thermal_governor_lock);
 
+<<<<<<< HEAD
+=======
+	thermal_notify_tz_gov_change(tz->id, policy);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -233,21 +260,32 @@ int thermal_build_list_of_policies(char *buf)
 {
 	struct thermal_governor *pos;
 	ssize_t count = 0;
+<<<<<<< HEAD
 	ssize_t size = PAGE_SIZE;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&thermal_governor_lock);
 
 	list_for_each_entry(pos, &thermal_governor_list, governor_list) {
+<<<<<<< HEAD
 		size = PAGE_SIZE - count;
 		count += scnprintf(buf + count, size, "%s ", pos->name);
 	}
 	count += scnprintf(buf + count, size, "\n");
+=======
+		count += scnprintf(buf + count, PAGE_SIZE - count, "%s ",
+				   pos->name);
+	}
+	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&thermal_governor_lock);
 
 	return count;
 }
 
+<<<<<<< HEAD
 static int __init thermal_register_governors(void)
 {
 	int result;
@@ -283,6 +321,44 @@ static void thermal_unregister_governors(void)
 	thermal_gov_bang_bang_unregister();
 	thermal_gov_user_space_unregister();
 	thermal_gov_power_allocator_unregister();
+=======
+static void __init thermal_unregister_governors(void)
+{
+	struct thermal_governor **governor;
+
+	for_each_governor_table(governor)
+		thermal_unregister_governor(*governor);
+}
+
+static int __init thermal_register_governors(void)
+{
+	int ret = 0;
+	struct thermal_governor **governor;
+
+	for_each_governor_table(governor) {
+		ret = thermal_register_governor(*governor);
+		if (ret) {
+			pr_err("Failed to register governor: '%s'",
+			       (*governor)->name);
+			break;
+		}
+
+		pr_info("Registered thermal governor '%s'",
+			(*governor)->name);
+	}
+
+	if (ret) {
+		struct thermal_governor **gov;
+
+		for_each_governor_table(gov) {
+			if (gov == governor)
+				break;
+			thermal_unregister_governor(*gov);
+		}
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -297,6 +373,7 @@ static void thermal_unregister_governors(void)
  * - Critical trip point will cause a system shutdown.
  */
 static void thermal_zone_device_set_polling(struct thermal_zone_device *tz,
+<<<<<<< HEAD
 					    int delay)
 {
 	if (delay > 1000)
@@ -305,10 +382,18 @@ static void thermal_zone_device_set_polling(struct thermal_zone_device *tz,
 	else if (delay)
 		mod_delayed_work(system_freezable_wq, &tz->poll_queue,
 				 msecs_to_jiffies(delay));
+=======
+					    unsigned long delay)
+{
+	if (delay)
+		mod_delayed_work(system_freezable_power_efficient_wq,
+				 &tz->poll_queue, delay);
+>>>>>>> upstream/android-13
 	else
 		cancel_delayed_work(&tz->poll_queue);
 }
 
+<<<<<<< HEAD
 static void monitor_thermal_zone(struct thermal_zone_device *tz)
 {
 	mutex_lock(&tz->lock);
@@ -317,20 +402,44 @@ static void monitor_thermal_zone(struct thermal_zone_device *tz)
 		thermal_zone_device_set_polling(tz, tz->passive_delay);
 	else if (tz->polling_delay)
 		thermal_zone_device_set_polling(tz, tz->polling_delay);
+=======
+static inline bool should_stop_polling(struct thermal_zone_device *tz)
+{
+	return !thermal_zone_device_is_enabled(tz);
+}
+
+static void monitor_thermal_zone(struct thermal_zone_device *tz)
+{
+	bool stop;
+
+	stop = should_stop_polling(tz);
+
+	mutex_lock(&tz->lock);
+
+	if (!stop && tz->passive)
+		thermal_zone_device_set_polling(tz, tz->passive_delay_jiffies);
+	else if (!stop && tz->polling_delay_jiffies)
+		thermal_zone_device_set_polling(tz, tz->polling_delay_jiffies);
+>>>>>>> upstream/android-13
 	else
 		thermal_zone_device_set_polling(tz, 0);
 
 	mutex_unlock(&tz->lock);
 }
 
+<<<<<<< HEAD
 static void handle_non_critical_trips(struct thermal_zone_device *tz,
 				      int trip,
 				      enum thermal_trip_type trip_type)
+=======
+static void handle_non_critical_trips(struct thermal_zone_device *tz, int trip)
+>>>>>>> upstream/android-13
 {
 	tz->governor ? tz->governor->throttle(tz, trip) :
 		       def_governor->throttle(tz, trip);
 }
 
+<<<<<<< HEAD
 /**
  * thermal_emergency_poweroff_func - emergency poweroff work after a known delay
  * @work: work_struct associated with the emergency poweroff function
@@ -378,6 +487,22 @@ static void thermal_emergency_poweroff(void)
 	schedule_delayed_work(&thermal_emergency_poweroff_work,
 			      msecs_to_jiffies(poweroff_delay_ms));
 }
+=======
+void thermal_zone_device_critical(struct thermal_zone_device *tz)
+{
+	/*
+	 * poweroff_delay_ms must be a carefully profiled positive value.
+	 * Its a must for forced_emergency_poweroff_work to be scheduled.
+	 */
+	int poweroff_delay_ms = CONFIG_THERMAL_EMERGENCY_POWEROFF_DELAY_MS;
+
+	dev_emerg(&tz->device, "%s: critical temperature reached, "
+		  "shutting down\n", tz->type);
+
+	hw_protection_shutdown("Temperature too high", poweroff_delay_ms);
+}
+EXPORT_SYMBOL(thermal_zone_device_critical);
+>>>>>>> upstream/android-13
 
 static void handle_critical_trips(struct thermal_zone_device *tz,
 				  int trip, enum thermal_trip_type trip_type)
@@ -392,6 +517,7 @@ static void handle_critical_trips(struct thermal_zone_device *tz,
 
 	trace_thermal_zone_trip(tz, trip, trip_type);
 
+<<<<<<< HEAD
 	if (tz->ops->notify)
 		tz->ops->notify(tz, trip, trip_type);
 
@@ -411,22 +537,52 @@ static void handle_critical_trips(struct thermal_zone_device *tz,
 		}
 		mutex_unlock(&poweroff_lock);
 	}
+=======
+	if (trip_type == THERMAL_TRIP_HOT && tz->ops->hot)
+		tz->ops->hot(tz);
+	else if (trip_type == THERMAL_TRIP_CRITICAL)
+		tz->ops->critical(tz);
+>>>>>>> upstream/android-13
 }
 
 static void handle_thermal_trip(struct thermal_zone_device *tz, int trip)
 {
 	enum thermal_trip_type type;
+<<<<<<< HEAD
+=======
+	int trip_temp, hyst = 0;
+>>>>>>> upstream/android-13
 
 	/* Ignore disabled trip points */
 	if (test_bit(trip, &tz->trips_disabled))
 		return;
 
+<<<<<<< HEAD
 	tz->ops->get_trip_type(tz, trip, &type);
+=======
+	tz->ops->get_trip_temp(tz, trip, &trip_temp);
+	tz->ops->get_trip_type(tz, trip, &type);
+	if (tz->ops->get_trip_hyst)
+		tz->ops->get_trip_hyst(tz, trip, &hyst);
+
+	if (tz->last_temperature != THERMAL_TEMP_INVALID) {
+		if (tz->last_temperature < trip_temp &&
+		    tz->temperature >= trip_temp)
+			thermal_notify_tz_trip_up(tz->id, trip);
+		if (tz->last_temperature >= trip_temp &&
+		    tz->temperature < (trip_temp - hyst))
+			thermal_notify_tz_trip_down(tz->id, trip);
+	}
+>>>>>>> upstream/android-13
 
 	if (type == THERMAL_TRIP_CRITICAL || type == THERMAL_TRIP_HOT)
 		handle_critical_trips(tz, trip, type);
 	else
+<<<<<<< HEAD
 		handle_non_critical_trips(tz, trip, type);
+=======
+		handle_non_critical_trips(tz, trip);
+>>>>>>> upstream/android-13
 	/*
 	 * Alright, we handled this trip successfully.
 	 * So, start monitoring again.
@@ -434,6 +590,7 @@ static void handle_thermal_trip(struct thermal_zone_device *tz, int trip)
 	monitor_thermal_zone(tz);
 }
 
+<<<<<<< HEAD
 static void store_temperature(struct thermal_zone_device *tz, int temp)
 {
 	mutex_lock(&tz->lock);
@@ -451,6 +608,8 @@ static void store_temperature(struct thermal_zone_device *tz, int temp)
 			tz->last_temperature, tz->temperature);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void update_temperature(struct thermal_zone_device *tz)
 {
 	int temp, ret;
@@ -463,17 +622,35 @@ static void update_temperature(struct thermal_zone_device *tz)
 				 ret);
 		return;
 	}
+<<<<<<< HEAD
 	store_temperature(tz, temp);
+=======
+
+	mutex_lock(&tz->lock);
+	tz->last_temperature = tz->temperature;
+	tz->temperature = temp;
+	mutex_unlock(&tz->lock);
+
+	trace_thermal_temperature(tz);
+
+	thermal_genl_sampling_temp(tz->id, temp);
+>>>>>>> upstream/android-13
 }
 
 static void thermal_zone_device_init(struct thermal_zone_device *tz)
 {
 	struct thermal_instance *pos;
 	tz->temperature = THERMAL_TEMP_INVALID;
+<<<<<<< HEAD
+=======
+	tz->prev_low_trip = -INT_MAX;
+	tz->prev_high_trip = INT_MAX;
+>>>>>>> upstream/android-13
 	list_for_each_entry(pos, &tz->thermal_instances, tz_node)
 		pos->initialized = false;
 }
 
+<<<<<<< HEAD
 static void thermal_zone_device_reset(struct thermal_zone_device *tz)
 {
 	tz->passive = 0;
@@ -500,6 +677,63 @@ void thermal_zone_device_update_temp(struct thermal_zone_device *tz,
 
 	for (count = 0; count < tz->trips; count++)
 		handle_thermal_trip(tz, count);
+=======
+static int thermal_zone_device_set_mode(struct thermal_zone_device *tz,
+					enum thermal_device_mode mode)
+{
+	int ret = 0;
+
+	mutex_lock(&tz->lock);
+
+	/* do nothing if mode isn't changing */
+	if (mode == tz->mode) {
+		mutex_unlock(&tz->lock);
+
+		return ret;
+	}
+
+	if (tz->ops->change_mode)
+		ret = tz->ops->change_mode(tz, mode);
+
+	if (!ret)
+		tz->mode = mode;
+
+	mutex_unlock(&tz->lock);
+
+	thermal_zone_device_update(tz, THERMAL_EVENT_UNSPECIFIED);
+
+	if (mode == THERMAL_DEVICE_ENABLED)
+		thermal_notify_tz_enable(tz->id);
+	else
+		thermal_notify_tz_disable(tz->id);
+
+	return ret;
+}
+
+int thermal_zone_device_enable(struct thermal_zone_device *tz)
+{
+	return thermal_zone_device_set_mode(tz, THERMAL_DEVICE_ENABLED);
+}
+EXPORT_SYMBOL_GPL(thermal_zone_device_enable);
+
+int thermal_zone_device_disable(struct thermal_zone_device *tz)
+{
+	return thermal_zone_device_set_mode(tz, THERMAL_DEVICE_DISABLED);
+}
+EXPORT_SYMBOL_GPL(thermal_zone_device_disable);
+
+int thermal_zone_device_is_enabled(struct thermal_zone_device *tz)
+{
+	enum thermal_device_mode mode;
+
+	mutex_lock(&tz->lock);
+
+	mode = tz->mode;
+
+	mutex_unlock(&tz->lock);
+
+	return mode == THERMAL_DEVICE_ENABLED;
+>>>>>>> upstream/android-13
 }
 
 void thermal_zone_device_update(struct thermal_zone_device *tz,
@@ -507,6 +741,7 @@ void thermal_zone_device_update(struct thermal_zone_device *tz,
 {
 	int count;
 
+<<<<<<< HEAD
 	if (!tz || !tz->ops)
 		return;
 
@@ -515,6 +750,16 @@ void thermal_zone_device_update(struct thermal_zone_device *tz,
 		return;
 
 	if (!tz->ops->get_temp)
+=======
+	if (should_stop_polling(tz))
+		return;
+
+	if (atomic_read(&in_suspend))
+		return;
+
+	if (WARN_ONCE(!tz->ops->get_temp, "'%s' must not be called without "
+		      "'get_temp' ops set\n", __func__))
+>>>>>>> upstream/android-13
 		return;
 
 	update_temperature(tz);
@@ -525,6 +770,7 @@ void thermal_zone_device_update(struct thermal_zone_device *tz,
 
 	for (count = 0; count < tz->trips; count++)
 		handle_thermal_trip(tz, count);
+<<<<<<< HEAD
 }
 EXPORT_SYMBOL_GPL(thermal_zone_device_update);
 
@@ -546,6 +792,13 @@ void thermal_notify_framework(struct thermal_zone_device *tz, int trip)
 }
 EXPORT_SYMBOL_GPL(thermal_notify_framework);
 
+=======
+
+	trace_android_vh_get_thermal_zone_device(tz);
+}
+EXPORT_SYMBOL_GPL(thermal_zone_device_update);
+
+>>>>>>> upstream/android-13
 static void thermal_zone_device_check(struct work_struct *work)
 {
 	struct thermal_zone_device *tz = container_of(work, struct
@@ -554,6 +807,7 @@ static void thermal_zone_device_check(struct work_struct *work)
 	thermal_zone_device_update(tz, THERMAL_EVENT_UNSPECIFIED);
 }
 
+<<<<<<< HEAD
 /*
  * Power actor section: interface to power actors to estimate power
  *
@@ -679,6 +933,73 @@ void thermal_zone_device_unbind_exception(struct thermal_zone_device *tz,
 						   cdev);
 	}
 	mutex_unlock(&thermal_list_lock);
+=======
+int for_each_thermal_governor(int (*cb)(struct thermal_governor *, void *),
+			      void *data)
+{
+	struct thermal_governor *gov;
+	int ret = 0;
+
+	mutex_lock(&thermal_governor_lock);
+	list_for_each_entry(gov, &thermal_governor_list, governor_list) {
+		ret = cb(gov, data);
+		if (ret)
+			break;
+	}
+	mutex_unlock(&thermal_governor_lock);
+
+	return ret;
+}
+
+int for_each_thermal_cooling_device(int (*cb)(struct thermal_cooling_device *,
+					      void *), void *data)
+{
+	struct thermal_cooling_device *cdev;
+	int ret = 0;
+
+	mutex_lock(&thermal_list_lock);
+	list_for_each_entry(cdev, &thermal_cdev_list, node) {
+		ret = cb(cdev, data);
+		if (ret)
+			break;
+	}
+	mutex_unlock(&thermal_list_lock);
+
+	return ret;
+}
+
+int for_each_thermal_zone(int (*cb)(struct thermal_zone_device *, void *),
+			  void *data)
+{
+	struct thermal_zone_device *tz;
+	int ret = 0;
+
+	mutex_lock(&thermal_list_lock);
+	list_for_each_entry(tz, &thermal_tz_list, node) {
+		ret = cb(tz, data);
+		if (ret)
+			break;
+	}
+	mutex_unlock(&thermal_list_lock);
+
+	return ret;
+}
+
+struct thermal_zone_device *thermal_zone_get_by_id(int id)
+{
+	struct thermal_zone_device *tz, *match = NULL;
+
+	mutex_lock(&thermal_list_lock);
+	list_for_each_entry(tz, &thermal_tz_list, node) {
+		if (tz->id == id) {
+			match = tz;
+			break;
+		}
+	}
+	mutex_unlock(&thermal_list_lock);
+
+	return match;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -726,7 +1047,11 @@ int thermal_zone_bind_cooling_device(struct thermal_zone_device *tz,
 	unsigned long max_state;
 	int result, ret;
 
+<<<<<<< HEAD
 	if (trip >= tz->trips || (trip < 0 && trip != THERMAL_TRIPS_NONE))
+=======
+	if (trip >= tz->trips || trip < 0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	list_for_each_entry(pos1, &thermal_tz_list, node) {
@@ -777,9 +1102,14 @@ int thermal_zone_bind_cooling_device(struct thermal_zone_device *tz,
 	sprintf(dev->attr_name, "cdev%d_trip_point", dev->id);
 	sysfs_attr_init(&dev->attr.attr);
 	dev->attr.attr.name = dev->attr_name;
+<<<<<<< HEAD
 	dev->attr.attr.mode = 0644;
 	dev->attr.show = trip_point_show;
 	dev->attr.store = trip_point_store;
+=======
+	dev->attr.attr.mode = 0444;
+	dev->attr.show = trip_point_show;
+>>>>>>> upstream/android-13
 	result = device_create_file(&tz->device, &dev->attr);
 	if (result)
 		goto remove_symbol_link;
@@ -988,10 +1318,14 @@ __thermal_cooling_device_register(struct device_node *np,
 {
 	struct thermal_cooling_device *cdev;
 	struct thermal_zone_device *pos = NULL;
+<<<<<<< HEAD
 	int result;
 
 	if (type && strlen(type) >= THERMAL_NAME_LENGTH)
 		return ERR_PTR(-EINVAL);
+=======
+	int id, ret;
+>>>>>>> upstream/android-13
 
 	if (!ops || !ops->get_max_state || !ops->get_cur_state ||
 	    !ops->set_cur_state)
@@ -1001,6 +1335,7 @@ __thermal_cooling_device_register(struct device_node *np,
 	if (!cdev)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	result = ida_simple_get(&thermal_cdev_ida, 0, 0, GFP_KERNEL);
 	if (result < 0) {
 		kfree(cdev);
@@ -1009,6 +1344,24 @@ __thermal_cooling_device_register(struct device_node *np,
 
 	cdev->id = result;
 	strlcpy(cdev->type, type ? : "", sizeof(cdev->type));
+=======
+	ret = ida_simple_get(&thermal_cdev_ida, 0, 0, GFP_KERNEL);
+	if (ret < 0)
+		goto out_kfree_cdev;
+	cdev->id = ret;
+	id = ret;
+
+	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
+	if (ret)
+		goto out_ida_remove;
+
+	cdev->type = kstrdup(type ? type : "", GFP_KERNEL);
+	if (!cdev->type) {
+		ret = -ENOMEM;
+		goto out_ida_remove;
+	}
+
+>>>>>>> upstream/android-13
 	mutex_init(&cdev->lock);
 	INIT_LIST_HEAD(&cdev->thermal_instances);
 	cdev->np = np;
@@ -1017,6 +1370,7 @@ __thermal_cooling_device_register(struct device_node *np,
 	cdev->device.class = &thermal_class;
 	cdev->devdata = devdata;
 	thermal_cooling_device_setup_sysfs(cdev);
+<<<<<<< HEAD
 	dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
 	result = device_register(&cdev->device);
 	if (result) {
@@ -1025,6 +1379,11 @@ __thermal_cooling_device_register(struct device_node *np,
 		return ERR_PTR(result);
 	}
 	pr_info("register cooling_device%d-%s\n", cdev->id, cdev->type);
+=======
+	ret = device_register(&cdev->device);
+	if (ret)
+		goto out_kfree_type;
+>>>>>>> upstream/android-13
 
 	/* Add 'this' new cdev to the global cdev list */
 	mutex_lock(&thermal_list_lock);
@@ -1042,6 +1401,19 @@ __thermal_cooling_device_register(struct device_node *np,
 	mutex_unlock(&thermal_list_lock);
 
 	return cdev;
+<<<<<<< HEAD
+=======
+
+out_kfree_type:
+	kfree(cdev->type);
+	put_device(&cdev->device);
+	cdev = NULL;
+out_ida_remove:
+	ida_simple_remove(&thermal_cdev_ida, id);
+out_kfree_cdev:
+	kfree(cdev);
+	return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1089,6 +1461,58 @@ thermal_of_cooling_device_register(struct device_node *np,
 }
 EXPORT_SYMBOL_GPL(thermal_of_cooling_device_register);
 
+<<<<<<< HEAD
+=======
+static void thermal_cooling_device_release(struct device *dev, void *res)
+{
+	thermal_cooling_device_unregister(
+				*(struct thermal_cooling_device **)res);
+}
+
+/**
+ * devm_thermal_of_cooling_device_register() - register an OF thermal cooling
+ *					       device
+ * @dev:	a valid struct device pointer of a sensor device.
+ * @np:		a pointer to a device tree node.
+ * @type:	the thermal cooling device type.
+ * @devdata:	device private data.
+ * @ops:	standard thermal cooling devices callbacks.
+ *
+ * This function will register a cooling device with device tree node reference.
+ * This interface function adds a new thermal cooling device (fan/processor/...)
+ * to /sys/class/thermal/ folder as cooling_device[0-*]. It tries to bind itself
+ * to all the thermal zone devices registered at the same time.
+ *
+ * Return: a pointer to the created struct thermal_cooling_device or an
+ * ERR_PTR. Caller must check return value with IS_ERR*() helpers.
+ */
+struct thermal_cooling_device *
+devm_thermal_of_cooling_device_register(struct device *dev,
+				struct device_node *np,
+				char *type, void *devdata,
+				const struct thermal_cooling_device_ops *ops)
+{
+	struct thermal_cooling_device **ptr, *tcd;
+
+	ptr = devres_alloc(thermal_cooling_device_release, sizeof(*ptr),
+			   GFP_KERNEL);
+	if (!ptr)
+		return ERR_PTR(-ENOMEM);
+
+	tcd = __thermal_cooling_device_register(np, type, devdata, ops);
+	if (IS_ERR(tcd)) {
+		devres_free(ptr);
+		return tcd;
+	}
+
+	*ptr = tcd;
+	devres_add(dev, ptr);
+
+	return tcd;
+}
+EXPORT_SYMBOL_GPL(devm_thermal_of_cooling_device_register);
+
+>>>>>>> upstream/android-13
 static void __unbind(struct thermal_zone_device *tz, int mask,
 		     struct thermal_cooling_device *cdev)
 {
@@ -1151,6 +1575,10 @@ void thermal_cooling_device_unregister(struct thermal_cooling_device *cdev)
 	ida_simple_remove(&thermal_cdev_ida, cdev->id);
 	device_del(&cdev->device);
 	thermal_cooling_device_destroy_sysfs(cdev);
+<<<<<<< HEAD
+=======
+	kfree(cdev->type);
+>>>>>>> upstream/android-13
 	put_device(&cdev->device);
 }
 EXPORT_SYMBOL_GPL(thermal_cooling_device_unregister);
@@ -1228,10 +1656,15 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	struct thermal_zone_device *tz;
 	enum thermal_trip_type trip_type;
 	int trip_temp;
+<<<<<<< HEAD
+=======
+	int id;
+>>>>>>> upstream/android-13
 	int result;
 	int count;
 	struct thermal_governor *governor;
 
+<<<<<<< HEAD
 	if (!type || strlen(type) == 0)
 		return ERR_PTR(-EINVAL);
 
@@ -1243,6 +1676,28 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 
 	if (!ops)
 		return ERR_PTR(-EINVAL);
+=======
+	if (!type || strlen(type) == 0) {
+		pr_err("Error: No thermal zone type defined\n");
+		return ERR_PTR(-EINVAL);
+	}
+
+	if (type && strlen(type) >= THERMAL_NAME_LENGTH) {
+		pr_err("Error: Thermal zone name (%s) too long, should be under %d chars\n",
+		       type, THERMAL_NAME_LENGTH);
+		return ERR_PTR(-EINVAL);
+	}
+
+	if (trips > THERMAL_MAX_TRIPS || trips < 0 || mask >> trips) {
+		pr_err("Error: Incorrect number of thermal trips\n");
+		return ERR_PTR(-EINVAL);
+	}
+
+	if (!ops) {
+		pr_err("Error: Thermal zone device ops not defined\n");
+		return ERR_PTR(-EINVAL);
+	}
+>>>>>>> upstream/android-13
 
 	if (trips > 0 && (!ops->get_trip_type || !ops->get_trip_temp))
 		return ERR_PTR(-EINVAL);
@@ -1254,19 +1709,44 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	INIT_LIST_HEAD(&tz->thermal_instances);
 	ida_init(&tz->ida);
 	mutex_init(&tz->lock);
+<<<<<<< HEAD
 	result = ida_simple_get(&thermal_tz_ida, 0, 0, GFP_KERNEL);
 	if (result < 0)
 		goto free_tz;
 
 	tz->id = result;
 	strlcpy(tz->type, type, sizeof(tz->type));
+=======
+	id = ida_simple_get(&thermal_tz_ida, 0, 0, GFP_KERNEL);
+	if (id < 0) {
+		result = id;
+		goto free_tz;
+	}
+
+	tz->id = id;
+	strlcpy(tz->type, type, sizeof(tz->type));
+
+	result = dev_set_name(&tz->device, "thermal_zone%d", tz->id);
+	if (result)
+		goto remove_id;
+
+	if (!ops->critical)
+		ops->critical = thermal_zone_device_critical;
+
+>>>>>>> upstream/android-13
 	tz->ops = ops;
 	tz->tzp = tzp;
 	tz->device.class = &thermal_class;
 	tz->devdata = devdata;
 	tz->trips = trips;
+<<<<<<< HEAD
 	tz->passive_delay = passive_delay;
 	tz->polling_delay = polling_delay;
+=======
+
+	thermal_set_delay_jiffies(&tz->passive_delay_jiffies, passive_delay);
+	thermal_set_delay_jiffies(&tz->polling_delay_jiffies, polling_delay);
+>>>>>>> upstream/android-13
 
 	/* sys I/F */
 	/* Add nodes that are always present via .groups */
@@ -1277,6 +1757,7 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	/* A new thermal zone needs to be updated anyway. */
 	atomic_set(&tz->need_update, 1);
 
+<<<<<<< HEAD
 	dev_set_name(&tz->device, "thermal_zone%d", tz->id);
 	result = device_register(&tz->device);
 	if (result)
@@ -1289,6 +1770,16 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 			set_bit(count, &tz->trips_disabled);
 		/* Check for bogus trip points */
 		if (trip_temp == 0)
+=======
+	result = device_register(&tz->device);
+	if (result)
+		goto release_device;
+
+	for (count = 0; count < trips; count++) {
+		if (tz->ops->get_trip_type(tz, count, &trip_type) ||
+		    tz->ops->get_trip_temp(tz, count, &trip_temp) ||
+		    !trip_temp)
+>>>>>>> upstream/android-13
 			set_bit(count, &tz->trips_disabled);
 	}
 
@@ -1313,7 +1804,10 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 		if (result)
 			goto unregister;
 	}
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&tz->poll_queue, thermal_zone_device_check);
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&thermal_list_lock);
 	list_add_tail(&tz->node, &thermal_tz_list);
@@ -1322,12 +1816,19 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	/* Bind cooling devices for this zone */
 	bind_tz(tz);
 
+<<<<<<< HEAD
 
 	thermal_zone_device_reset(tz);
+=======
+	INIT_DELAYED_WORK(&tz->poll_queue, thermal_zone_device_check);
+
+	thermal_zone_device_init(tz);
+>>>>>>> upstream/android-13
 	/* Update the new thermal zone and mark it as already updated. */
 	if (atomic_cmpxchg(&tz->need_update, 1, 0))
 		thermal_zone_device_update(tz, THERMAL_EVENT_UNSPECIFIED);
 
+<<<<<<< HEAD
 	return tz;
 
 unregister:
@@ -1339,6 +1840,19 @@ remove_device_groups:
 	thermal_zone_destroy_device_groups(tz);
 remove_id:
 	ida_simple_remove(&thermal_tz_ida, tz->id);
+=======
+	thermal_notify_tz_create(tz->id, tz->type);
+
+	return tz;
+
+unregister:
+	device_del(&tz->device);
+release_device:
+	put_device(&tz->device);
+	tz = NULL;
+remove_id:
+	ida_simple_remove(&thermal_tz_ida, id);
+>>>>>>> upstream/android-13
 free_tz:
 	kfree(tz);
 	return ERR_PTR(result);
@@ -1346,12 +1860,20 @@ free_tz:
 EXPORT_SYMBOL_GPL(thermal_zone_device_register);
 
 /**
+<<<<<<< HEAD
  * thermal_device_unregister - removes the registered thermal zone device
+=======
+ * thermal_zone_device_unregister - removes the registered thermal zone device
+>>>>>>> upstream/android-13
  * @tz: the thermal zone device to remove
  */
 void thermal_zone_device_unregister(struct thermal_zone_device *tz)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	int i, tz_id;
+>>>>>>> upstream/android-13
 	const struct thermal_zone_params *tzp;
 	struct thermal_cooling_device *cdev;
 	struct thermal_zone_device *pos = NULL;
@@ -1360,6 +1882,10 @@ void thermal_zone_device_unregister(struct thermal_zone_device *tz)
 		return;
 
 	tzp = tz->tzp;
+<<<<<<< HEAD
+=======
+	tz_id = tz->id;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&thermal_list_lock);
 	list_for_each_entry(pos, &thermal_tz_list, node)
@@ -1370,8 +1896,11 @@ void thermal_zone_device_unregister(struct thermal_zone_device *tz)
 		mutex_unlock(&thermal_list_lock);
 		return;
 	}
+<<<<<<< HEAD
 	/* force stop pending/running delayed work */
 	cancel_delayed_work_sync(&(tz->poll_queue));
+=======
+>>>>>>> upstream/android-13
 	list_del(&tz->node);
 
 	/* Unbind all cdevs associated with 'this' thermal zone */
@@ -1403,6 +1932,11 @@ void thermal_zone_device_unregister(struct thermal_zone_device *tz)
 	ida_destroy(&tz->ida);
 	mutex_destroy(&tz->lock);
 	device_unregister(&tz->device);
+<<<<<<< HEAD
+=======
+
+	thermal_notify_tz_delete(tz_id);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(thermal_zone_device_unregister);
 
@@ -1444,6 +1978,7 @@ exit:
 }
 EXPORT_SYMBOL_GPL(thermal_zone_get_zone_by_name);
 
+<<<<<<< HEAD
 /**
  * thermal_zone_get_cdev_by_name() - search for a cooling device and returns
  * its ref.
@@ -1603,6 +2138,8 @@ static void __ref cdev_print(struct work_struct *work)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int thermal_pm_notify(struct notifier_block *nb,
 			     unsigned long mode, void *_unused)
 {
@@ -1612,28 +2149,42 @@ static int thermal_pm_notify(struct notifier_block *nb,
 	case PM_HIBERNATION_PREPARE:
 	case PM_RESTORE_PREPARE:
 	case PM_SUSPEND_PREPARE:
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_THERMAL_LOG)
 		cancel_delayed_work(&cdev_print_work);
 #endif
+=======
+>>>>>>> upstream/android-13
 		atomic_set(&in_suspend, 1);
 		break;
 	case PM_POST_HIBERNATION:
 	case PM_POST_RESTORE:
 	case PM_POST_SUSPEND:
+<<<<<<< HEAD
 		mutex_lock(&thermal_list_lock);
 		atomic_set(&in_suspend, 0);
 		list_for_each_entry(tz, &thermal_tz_list, node) {
 			if (tz->ops && tz->ops->is_wakeable &&
 			    tz->ops->is_wakeable(tz))
 				continue;
+=======
+		atomic_set(&in_suspend, 0);
+		list_for_each_entry(tz, &thermal_tz_list, node) {
+			if (!thermal_zone_device_is_enabled(tz))
+				continue;
+
+>>>>>>> upstream/android-13
 			thermal_zone_device_init(tz);
 			thermal_zone_device_update(tz,
 						   THERMAL_EVENT_UNSPECIFIED);
 		}
+<<<<<<< HEAD
 		mutex_unlock(&thermal_list_lock);
 #if IS_ENABLED(CONFIG_SEC_THERMAL_LOG)
 		schedule_delayed_work(&cdev_print_work, 0);
 #endif
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -1649,7 +2200,14 @@ static int __init thermal_init(void)
 {
 	int result;
 
+<<<<<<< HEAD
 	mutex_init(&poweroff_lock);
+=======
+	result = thermal_netlink_init();
+	if (result)
+		goto error;
+
+>>>>>>> upstream/android-13
 	result = thermal_register_governors();
 	if (result)
 		goto error;
@@ -1658,6 +2216,7 @@ static int __init thermal_init(void)
 	if (result)
 		goto unregister_governors;
 
+<<<<<<< HEAD
 	result = genetlink_init();
 	if (result)
 		goto unregister_class;
@@ -1665,12 +2224,18 @@ static int __init thermal_init(void)
 	result = of_parse_thermal_zones();
 	if (result)
 		goto exit_netlink;
+=======
+	result = of_parse_thermal_zones();
+	if (result)
+		goto unregister_class;
+>>>>>>> upstream/android-13
 
 	result = register_pm_notifier(&thermal_pm_nb);
 	if (result)
 		pr_warn("Thermal: Can not register suspend notifier, return %d\n",
 			result);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_THERMAL_LOG)
 	INIT_DELAYED_WORK(&cdev_print_work, cdev_print);
 	schedule_delayed_work(&cdev_print_work, 0);
@@ -1683,6 +2248,10 @@ static int __init thermal_init(void)
 
 exit_netlink:
 	genetlink_exit();
+=======
+	return 0;
+
+>>>>>>> upstream/android-13
 unregister_class:
 	class_unregister(&thermal_class);
 unregister_governors:
@@ -1692,6 +2261,7 @@ error:
 	ida_destroy(&thermal_cdev_ida);
 	mutex_destroy(&thermal_list_lock);
 	mutex_destroy(&thermal_governor_lock);
+<<<<<<< HEAD
 	mutex_destroy(&poweroff_lock);
 	return result;
 }
@@ -1714,3 +2284,8 @@ static void __exit thermal_exit(void)
 
 fs_initcall(thermal_init);
 module_exit(thermal_exit);
+=======
+	return result;
+}
+postcore_initcall(thermal_init);
+>>>>>>> upstream/android-13

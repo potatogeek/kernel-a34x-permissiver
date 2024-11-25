@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,6 +61,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2014 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_agn_h__
 #define __iwl_agn_h__
 
@@ -444,6 +451,7 @@ static inline void iwl_dvm_set_pmi(struct iwl_priv *priv, bool state)
 }
 
 #ifdef CONFIG_IWLWIFI_DEBUGFS
+<<<<<<< HEAD
 int iwl_dbgfs_register(struct iwl_priv *priv, struct dentry *dbgfs_dir);
 #else
 static inline int iwl_dbgfs_register(struct iwl_priv *priv,
@@ -451,6 +459,12 @@ static inline int iwl_dbgfs_register(struct iwl_priv *priv,
 {
 	return 0;
 }
+=======
+void iwl_dbgfs_register(struct iwl_priv *priv, struct dentry *dbgfs_dir);
+#else
+static inline void iwl_dbgfs_register(struct iwl_priv *priv,
+				      struct dentry *dbgfs_dir) { }
+>>>>>>> upstream/android-13
 #endif /* CONFIG_IWLWIFI_DEBUGFS */
 
 #ifdef CONFIG_IWLWIFI_DEBUG

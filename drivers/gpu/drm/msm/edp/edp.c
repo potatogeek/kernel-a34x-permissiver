@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_irq.h>
@@ -157,7 +163,11 @@ int msm_edp_modeset_init(struct msm_edp *edp, struct drm_device *dev,
 	edp->bridge = msm_edp_bridge_init(edp);
 	if (IS_ERR(edp->bridge)) {
 		ret = PTR_ERR(edp->bridge);
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to create eDP bridge: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to create eDP bridge: %d\n", ret);
+>>>>>>> upstream/android-13
 		edp->bridge = NULL;
 		goto fail;
 	}
@@ -165,7 +175,11 @@ int msm_edp_modeset_init(struct msm_edp *edp, struct drm_device *dev,
 	edp->connector = msm_edp_connector_init(edp);
 	if (IS_ERR(edp->connector)) {
 		ret = PTR_ERR(edp->connector);
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to create eDP connector: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to create eDP connector: %d\n", ret);
+>>>>>>> upstream/android-13
 		edp->connector = NULL;
 		goto fail;
 	}
@@ -173,7 +187,11 @@ int msm_edp_modeset_init(struct msm_edp *edp, struct drm_device *dev,
 	edp->irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
 	if (edp->irq < 0) {
 		ret = edp->irq;
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to get IRQ: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to get IRQ: %d\n", ret);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -181,13 +199,20 @@ int msm_edp_modeset_init(struct msm_edp *edp, struct drm_device *dev,
 			edp_irq, IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
 			"edp_isr", edp);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to request IRQ%u: %d\n",
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to request IRQ%u: %d\n",
+>>>>>>> upstream/android-13
 				edp->irq, ret);
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	encoder->bridge = edp->bridge;
 
+=======
+>>>>>>> upstream/android-13
 	priv->bridges[priv->num_bridges++]       = edp->bridge;
 	priv->connectors[priv->num_connectors++] = edp->connector;
 

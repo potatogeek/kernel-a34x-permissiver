@@ -50,8 +50,13 @@ struct btrfs_delayed_node {
 	 * is waiting to be dealt with by the async worker.
 	 */
 	struct list_head p_list;
+<<<<<<< HEAD
 	struct rb_root ins_root;
 	struct rb_root del_root;
+=======
+	struct rb_root_cached ins_root;
+	struct rb_root_cached del_root;
+>>>>>>> upstream/android-13
 	struct mutex mutex;
 	struct btrfs_inode_item inode_item;
 	refcount_t refs;
@@ -70,7 +75,11 @@ struct btrfs_delayed_item {
 	refcount_t refs;
 	int ins_or_del;
 	u32 data_len;
+<<<<<<< HEAD
 	char data[0];
+=======
+	char data[];
+>>>>>>> upstream/android-13
 };
 
 static inline void btrfs_init_delayed_root(
@@ -110,7 +119,12 @@ int btrfs_commit_inode_delayed_inode(struct btrfs_inode *inode);
 
 
 int btrfs_delayed_update_inode(struct btrfs_trans_handle *trans,
+<<<<<<< HEAD
 			       struct btrfs_root *root, struct inode *inode);
+=======
+			       struct btrfs_root *root,
+			       struct btrfs_inode *inode);
+>>>>>>> upstream/android-13
 int btrfs_fill_inode(struct inode *inode, u32 *rdev);
 int btrfs_delayed_delete_inode_ref(struct btrfs_inode *inode);
 

@@ -27,8 +27,14 @@
 
 #include <linux/init.h>
 #include <linux/ioport.h>
+<<<<<<< HEAD
 
 #include <asm/dma-coherence.h>
+=======
+#include <linux/mm.h>
+#include <linux/dma-map-ops.h> /* for dma_default_coherent */
+
+>>>>>>> upstream/android-13
 #include <asm/mipsregs.h>
 
 #include <au1000.h>
@@ -36,6 +42,26 @@
 extern void __init board_setup(void);
 extern void __init alchemy_set_lpj(void);
 
+<<<<<<< HEAD
+=======
+static bool alchemy_dma_coherent(void)
+{
+	switch (alchemy_get_cputype()) {
+	case ALCHEMY_CPU_AU1000:
+	case ALCHEMY_CPU_AU1500:
+	case ALCHEMY_CPU_AU1100:
+		return false;
+	case ALCHEMY_CPU_AU1200:
+		/* Au1200 AB USB does not support coherent memory */
+		if ((read_c0_prid() & PRID_REV_MASK) == 0)
+			return false;
+		return true;
+	default:
+		return true;
+	}
+}
+
+>>>>>>> upstream/android-13
 void __init plat_mem_setup(void)
 {
 	alchemy_set_lpj();
@@ -47,6 +73,7 @@ void __init plat_mem_setup(void)
 		/* Clear to obtain best system bus performance */
 		clear_c0_config(1 << 19); /* Clear Config[OD] */
 
+<<<<<<< HEAD
 	hw_coherentio = 0;
 	coherentio = IO_COHERENCE_ENABLED;
 	switch (alchemy_get_cputype()) {
@@ -61,6 +88,9 @@ void __init plat_mem_setup(void)
 			coherentio = IO_COHERENCE_DISABLED;
 		break;
 	}
+=======
+	dma_default_coherent = alchemy_dma_coherent();
+>>>>>>> upstream/android-13
 
 	board_setup();	/* board specific setup */
 
@@ -72,9 +102,15 @@ void __init plat_mem_setup(void)
 	iomem_resource.end = IOMEM_RESOURCE_END;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_PHYS_ADDR_T_64BIT) && defined(CONFIG_PCI)
 /* This routine should be valid for all Au1x based boards */
 phys_addr_t __fixup_bigphys_addr(phys_addr_t phys_addr, phys_addr_t size)
+=======
+#ifdef CONFIG_MIPS_FIXUP_BIGPHYS_ADDR
+/* This routine should be valid for all Au1x based boards */
+phys_addr_t fixup_bigphys_addr(phys_addr_t phys_addr, phys_addr_t size)
+>>>>>>> upstream/android-13
 {
 	unsigned long start = ALCHEMY_PCI_MEMWIN_START;
 	unsigned long end = ALCHEMY_PCI_MEMWIN_END;
@@ -90,5 +126,18 @@ phys_addr_t __fixup_bigphys_addr(phys_addr_t phys_addr, phys_addr_t size)
 	/* default nop */
 	return phys_addr;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(__fixup_bigphys_addr);
 #endif
+=======
+
+int io_remap_pfn_range(struct vm_area_struct *vma, unsigned long vaddr,
+		unsigned long pfn, unsigned long size, pgprot_t prot)
+{
+	phys_addr_t phys_addr = fixup_bigphys_addr(pfn << PAGE_SHIFT, size);
+
+	return remap_pfn_range(vma, vaddr, phys_addr >> PAGE_SHIFT, size, prot);
+}
+EXPORT_SYMBOL(io_remap_pfn_range);
+#endif /* CONFIG_MIPS_FIXUP_BIGPHYS_ADDR */
+>>>>>>> upstream/android-13

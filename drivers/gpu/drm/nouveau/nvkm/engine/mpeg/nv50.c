@@ -129,7 +129,14 @@ nv50_mpeg = {
 };
 
 int
+<<<<<<< HEAD
 nv50_mpeg_new(struct nvkm_device *device, int index, struct nvkm_engine **pmpeg)
 {
 	return nvkm_engine_new_(&nv50_mpeg, device, index, true, pmpeg);
+=======
+nv50_mpeg_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_engine **pmpeg)
+{
+	return nvkm_engine_new_(&nv50_mpeg, device, type, inst, true, pmpeg);
+>>>>>>> upstream/android-13
 }

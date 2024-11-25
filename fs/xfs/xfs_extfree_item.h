@@ -17,11 +17,14 @@ struct kmem_zone;
 #define	XFS_EFI_MAX_FAST_EXTENTS	16
 
 /*
+<<<<<<< HEAD
  * Define EFI flag bits. Manipulated by set/clear/test_bit operators.
  */
 #define	XFS_EFI_RECOVERED	1
 
 /*
+=======
+>>>>>>> upstream/android-13
  * This is the "extent free intention" log item.  It is used to log the fact
  * that some extents need to be free.  It is used in conjunction with the
  * "extent free done" log item described below.
@@ -50,6 +53,7 @@ struct kmem_zone;
  * of commit failure or log I/O errors. Note that the EFD is not inserted in the
  * AIL, so at this point both the EFI and EFD are freed.
  */
+<<<<<<< HEAD
 typedef struct xfs_efi_log_item {
 	xfs_log_item_t		efi_item;
 	atomic_t		efi_refcount;
@@ -57,18 +61,35 @@ typedef struct xfs_efi_log_item {
 	unsigned long		efi_flags;	/* misc flags */
 	xfs_efi_log_format_t	efi_format;
 } xfs_efi_log_item_t;
+=======
+struct xfs_efi_log_item {
+	struct xfs_log_item	efi_item;
+	atomic_t		efi_refcount;
+	atomic_t		efi_next_extent;
+	xfs_efi_log_format_t	efi_format;
+};
+>>>>>>> upstream/android-13
 
 /*
  * This is the "extent free done" log item.  It is used to log
  * the fact that some extents earlier mentioned in an efi item
  * have been freed.
  */
+<<<<<<< HEAD
 typedef struct xfs_efd_log_item {
 	xfs_log_item_t		efd_item;
 	xfs_efi_log_item_t	*efd_efip;
 	uint			efd_next_extent;
 	xfs_efd_log_format_t	efd_format;
 } xfs_efd_log_item_t;
+=======
+struct xfs_efd_log_item {
+	struct xfs_log_item	efd_item;
+	struct xfs_efi_log_item *efd_efip;
+	uint			efd_next_extent;
+	xfs_efd_log_format_t	efd_format;
+};
+>>>>>>> upstream/android-13
 
 /*
  * Max number of extents in fast allocation path.
@@ -78,6 +99,7 @@ typedef struct xfs_efd_log_item {
 extern struct kmem_zone	*xfs_efi_zone;
 extern struct kmem_zone	*xfs_efd_zone;
 
+<<<<<<< HEAD
 xfs_efi_log_item_t	*xfs_efi_init(struct xfs_mount *, uint);
 xfs_efd_log_item_t	*xfs_efd_init(struct xfs_mount *, xfs_efi_log_item_t *,
 				      uint);
@@ -89,4 +111,6 @@ void			xfs_efi_release(struct xfs_efi_log_item *);
 int			xfs_efi_recover(struct xfs_mount *mp,
 					struct xfs_efi_log_item *efip);
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* __XFS_EXTFREE_ITEM_H__ */

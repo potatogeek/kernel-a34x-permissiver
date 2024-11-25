@@ -1,7 +1,11 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Broadcom. All Rights Reserved. The term *
+=======
+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+>>>>>>> upstream/android-13
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.     *
  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -20,7 +24,11 @@
  * included with this package.                                     *
  *******************************************************************/
 
+<<<<<<< HEAD
 #define LPFC_DRIVER_VERSION "12.0.0.6"
+=======
+#define LPFC_DRIVER_VERSION "14.0.0.1"
+>>>>>>> upstream/android-13
 #define LPFC_DRIVER_NAME		"lpfc"
 
 /* Used for SLI 2/3 */
@@ -32,6 +40,10 @@
 
 #define LPFC_MODULE_DESC "Emulex LightPulse Fibre Channel SCSI driver " \
 		LPFC_DRIVER_VERSION
+<<<<<<< HEAD
 #define LPFC_COPYRIGHT "Copyright (C) 2017-2018 Broadcom. All Rights " \
+=======
+#define LPFC_COPYRIGHT "Copyright (C) 2017-2021 Broadcom. All Rights " \
+>>>>>>> upstream/android-13
 		"Reserved. The term \"Broadcom\" refers to Broadcom Inc. " \
 		"and/or its subsidiaries."

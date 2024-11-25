@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * skl-sst.c - HDA DSP library functions for SKL platform
  *
@@ -5,6 +9,7 @@
  * Author:Rafal Redzimski <rafal.f.redzimski@intel.com>
  *	Jeeja KP <jeeja.kp@intel.com>
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as version 2, as
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -24,7 +31,11 @@
 #include "../common/sst-dsp.h"
 #include "../common/sst-dsp-priv.h"
 #include "../common/sst-ipc.h"
+<<<<<<< HEAD
 #include "skl-sst-ipc.h"
+=======
+#include "skl.h"
+>>>>>>> upstream/android-13
 
 #define SKL_BASEFW_TIMEOUT	300
 #define SKL_INIT_TIMEOUT	1000
@@ -74,7 +85,11 @@ static int skl_transfer_firmware(struct sst_dsp *ctx,
 static int skl_load_base_firmware(struct sst_dsp *ctx)
 {
 	int ret = 0, i;
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	struct firmware stripped_fw;
 	u32 reg;
 
@@ -169,7 +184,11 @@ static int skl_set_dsp_D0(struct sst_dsp *ctx, unsigned int core_id)
 {
 	int ret;
 	struct skl_ipc_dxstate_info dx;
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	unsigned int core_mask = SKL_DSP_CORE_MASK(core_id);
 
 	/* If core0 is being turned on, we need to load the FW */
@@ -223,7 +242,11 @@ static int skl_set_dsp_D3(struct sst_dsp *ctx, unsigned int core_id)
 {
 	int ret;
 	struct skl_ipc_dxstate_info dx;
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	unsigned int core_mask = SKL_DSP_CORE_MASK(core_id);
 
 	dx.core_mask = core_mask;
@@ -340,7 +363,11 @@ static int skl_transfer_module(struct sst_dsp *ctx, const void *data,
 			u32 size, u16 mod_id, u8 table_id, bool is_module)
 {
 	int ret, bytes_left, curr_pos;
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	skl->mod_load_complete = false;
 
 	bytes_left = ctx->cl_dev.ops.cl_copy_to_dmabuf(ctx, data, size, false);
@@ -362,7 +389,11 @@ static int skl_transfer_module(struct sst_dsp *ctx, const void *data,
 	/*
 	 * if bytes_left > 0 then wait for BDL complete interrupt and
 	 * copy the next chunk till bytes_left is 0. if bytes_left is
+<<<<<<< HEAD
 	 * is zero, then wait for load module IPC reply
+=======
+	 * zero, then wait for load module IPC reply
+>>>>>>> upstream/android-13
 	 */
 	while (bytes_left > 0) {
 		curr_pos = size - bytes_left;
@@ -392,7 +423,11 @@ out:
 static int
 skl_load_library(struct sst_dsp *ctx, struct skl_lib_info *linfo, int lib_count)
 {
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	struct firmware stripped_fw;
 	int ret, i;
 
@@ -420,11 +455,16 @@ static int skl_load_module(struct sst_dsp *ctx, u16 mod_id, u8 *guid)
 	struct skl_module_table *module_entry = NULL;
 	int ret = 0;
 	char mod_name[64]; /* guid str = 32 chars + 4 hyphens */
+<<<<<<< HEAD
 	uuid_le *uuid_mod;
 
 	uuid_mod = (uuid_le *)guid;
 	snprintf(mod_name, sizeof(mod_name), "%s%pUL%s",
 				"intel/dsp_fw_", uuid_mod, ".bin");
+=======
+
+	snprintf(mod_name, sizeof(mod_name), "intel/dsp_fw_%pUL.bin", guid);
+>>>>>>> upstream/android-13
 
 	module_entry = skl_module_get_from_id(ctx, mod_id);
 	if (module_entry == NULL) {
@@ -453,7 +493,11 @@ static int skl_load_module(struct sst_dsp *ctx, u16 mod_id, u8 *guid)
 static int skl_unload_module(struct sst_dsp *ctx, u16 mod_id)
 {
 	int usage_cnt;
+<<<<<<< HEAD
 	struct skl_sst *skl = ctx->thread_context;
+=======
+	struct skl_dev *skl = ctx->thread_context;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	usage_cnt = skl_put_module(ctx, mod_id);
@@ -517,8 +561,11 @@ static struct sst_ops skl_ops = {
 	.irq_handler = skl_dsp_sst_interrupt,
 	.write = sst_shim32_write,
 	.read = sst_shim32_read,
+<<<<<<< HEAD
 	.ram_read = sst_memcpy_fromio_32,
 	.ram_write = sst_memcpy_toio_32,
+=======
+>>>>>>> upstream/android-13
 	.free = skl_dsp_free,
 };
 
@@ -528,9 +575,16 @@ static struct sst_dsp_device skl_dev = {
 };
 
 int skl_sst_dsp_init(struct device *dev, void __iomem *mmio_base, int irq,
+<<<<<<< HEAD
 		const char *fw_name, struct skl_dsp_loader_ops dsp_ops, struct skl_sst **dsp)
 {
 	struct skl_sst *skl;
+=======
+		const char *fw_name, struct skl_dsp_loader_ops dsp_ops,
+		struct skl_dev **dsp)
+{
+	struct skl_dev *skl;
+>>>>>>> upstream/android-13
 	struct sst_dsp *sst;
 	int ret;
 
@@ -564,10 +618,17 @@ int skl_sst_dsp_init(struct device *dev, void __iomem *mmio_base, int irq,
 }
 EXPORT_SYMBOL_GPL(skl_sst_dsp_init);
 
+<<<<<<< HEAD
 int skl_sst_init_fw(struct device *dev, struct skl_sst *ctx)
 {
 	int ret;
 	struct sst_dsp *sst = ctx->dsp;
+=======
+int skl_sst_init_fw(struct device *dev, struct skl_dev *skl)
+{
+	int ret;
+	struct sst_dsp *sst = skl->dsp;
+>>>>>>> upstream/android-13
 
 	ret = sst->fw_ops.load_fw(sst);
 	if (ret < 0) {
@@ -577,20 +638,31 @@ int skl_sst_init_fw(struct device *dev, struct skl_sst *ctx)
 
 	skl_dsp_init_core_state(sst);
 
+<<<<<<< HEAD
 	if (ctx->lib_count > 1) {
 		ret = sst->fw_ops.load_library(sst, ctx->lib_info,
 						ctx->lib_count);
+=======
+	if (skl->lib_count > 1) {
+		ret = sst->fw_ops.load_library(sst, skl->lib_info,
+						skl->lib_count);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			dev_err(dev, "Load Library failed : %x\n", ret);
 			return ret;
 		}
 	}
+<<<<<<< HEAD
 	ctx->is_first_boot = false;
+=======
+	skl->is_first_boot = false;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(skl_sst_init_fw);
 
+<<<<<<< HEAD
 void skl_sst_dsp_cleanup(struct device *dev, struct skl_sst *ctx)
 {
 
@@ -603,6 +675,20 @@ void skl_sst_dsp_cleanup(struct device *dev, struct skl_sst *ctx)
 	if (ctx->boot_complete) {
 		ctx->dsp->cl_dev.ops.cl_cleanup_controller(ctx->dsp);
 		skl_cldma_int_disable(ctx->dsp);
+=======
+void skl_sst_dsp_cleanup(struct device *dev, struct skl_dev *skl)
+{
+
+	if (skl->dsp->fw)
+		release_firmware(skl->dsp->fw);
+	skl_clear_module_table(skl->dsp);
+	skl_freeup_uuid_list(skl);
+	skl_ipc_free(&skl->ipc);
+	skl->dsp->ops->free(skl->dsp);
+	if (skl->boot_complete) {
+		skl->dsp->cl_dev.ops.cl_cleanup_controller(skl->dsp);
+		skl_cldma_int_disable(skl->dsp);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL_GPL(skl_sst_dsp_cleanup);

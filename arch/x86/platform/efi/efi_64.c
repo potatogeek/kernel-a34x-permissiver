@@ -23,7 +23,11 @@
 #include <linux/mm.h>
 #include <linux/types.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/mc146818rtc.h>
 #include <linux/efi.h>
@@ -39,7 +43,10 @@
 #include <asm/setup.h>
 #include <asm/page.h>
 #include <asm/e820/api.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/proto.h>
 #include <asm/efi.h>
@@ -48,12 +55,17 @@
 #include <asm/realmode.h>
 #include <asm/time.h>
 #include <asm/pgalloc.h>
+<<<<<<< HEAD
+=======
+#include <asm/sev.h>
+>>>>>>> upstream/android-13
 
 /*
  * We allocate runtime services regions top-down, starting from -4G, i.e.
  * 0xffff_ffff_0000_0000 and limit EFI VA mapping space to 64G.
  */
 static u64 efi_va = EFI_VA_START;
+<<<<<<< HEAD
 
 struct efi_scratch efi_scratch;
 
@@ -191,6 +203,9 @@ void __init efi_call_phys_epilog(pgd_t *save_pgd)
 }
 
 EXPORT_SYMBOL_GPL(efi_mm);
+=======
+static struct mm_struct *efi_prev_mm;
+>>>>>>> upstream/android-13
 
 /*
  * We need our own copy of the higher levels of the page tables
@@ -208,9 +223,12 @@ int __init efi_alloc_page_tables(void)
 	pud_t *pud;
 	gfp_t gfp_mask;
 
+<<<<<<< HEAD
 	if (efi_enabled(EFI_OLD_MEMMAP))
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	gfp_mask = GFP_KERNEL | __GFP_ZERO;
 	efi_pgd = (pgd_t *)__get_free_pages(gfp_mask, PGD_ALLOCATION_ORDER);
 	if (!efi_pgd)
@@ -251,6 +269,7 @@ void efi_sync_low_kernel_mappings(void)
 	pud_t *pud_k, *pud_efi;
 	pgd_t *efi_pgd = efi_mm.pgd;
 
+<<<<<<< HEAD
 	if (efi_enabled(EFI_OLD_MEMMAP))
 		return;
 
@@ -266,12 +285,15 @@ void efi_sync_low_kernel_mappings(void)
 	MAYBE_BUILD_BUG_ON((EFI_VA_START & PGDIR_MASK) !=
 			(EFI_VA_END & PGDIR_MASK));
 
+=======
+>>>>>>> upstream/android-13
 	pgd_efi = efi_pgd + pgd_index(PAGE_OFFSET);
 	pgd_k = pgd_offset_k(PAGE_OFFSET);
 
 	num_entries = pgd_index(EFI_VA_END) - pgd_index(PAGE_OFFSET);
 	memcpy(pgd_efi, pgd_k, sizeof(pgd_t) * num_entries);
 
+<<<<<<< HEAD
 	/*
 	 * As with PGDs, we share all P4D entries apart from the one entry
 	 * that covers the EFI runtime mapping space.
@@ -279,6 +301,8 @@ void efi_sync_low_kernel_mappings(void)
 	BUILD_BUG_ON(p4d_index(EFI_VA_END) != p4d_index(MODULES_END));
 	BUILD_BUG_ON((EFI_VA_START & P4D_MASK) != (EFI_VA_END & P4D_MASK));
 
+=======
+>>>>>>> upstream/android-13
 	pgd_efi = efi_pgd + pgd_index(EFI_VA_END);
 	pgd_k = pgd_offset_k(EFI_VA_END);
 	p4d_efi = p4d_offset(pgd_efi, 0);
@@ -337,14 +361,21 @@ virt_to_phys_or_null_size(void *va, unsigned long size)
 
 int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
 {
+<<<<<<< HEAD
 	unsigned long pfn, text, pf;
+=======
+	unsigned long pfn, text, pf, rodata;
+>>>>>>> upstream/android-13
 	struct page *page;
 	unsigned npages;
 	pgd_t *pgd = efi_mm.pgd;
 
+<<<<<<< HEAD
 	if (efi_enabled(EFI_OLD_MEMMAP))
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * It can happen that the physical address of new_memmap lands in memory
 	 * which is not mapped in the EFI page table. Therefore we need to go
@@ -359,7 +390,11 @@ int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Certain firmware versions are way too sentimential and still believe
+=======
+	 * Certain firmware versions are way too sentimental and still believe
+>>>>>>> upstream/android-13
 	 * they are exclusive and unquestionable owners of the first physical page,
 	 * even though they explicitly mark it as EFI_CONVENTIONAL_MEMORY
 	 * (but then write-access it later during SetVirtualAddressMap()).
@@ -369,22 +404,41 @@ int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
 	 * as trim_bios_range() will reserve the first page and isolate it away
 	 * from memory allocators anyway.
 	 */
+<<<<<<< HEAD
 	pf = _PAGE_RW;
 	if (sev_active())
 		pf |= _PAGE_ENC;
 
+=======
+>>>>>>> upstream/android-13
 	if (kernel_map_pages_in_pgd(pgd, 0x0, 0x0, 1, pf)) {
 		pr_err("Failed to create 1:1 mapping for the first page!\n");
 		return 1;
 	}
 
 	/*
+<<<<<<< HEAD
+=======
+	 * When SEV-ES is active, the GHCB as set by the kernel will be used
+	 * by firmware. Create a 1:1 unencrypted mapping for each GHCB.
+	 */
+	if (sev_es_efi_map_ghcbs(pgd)) {
+		pr_err("Failed to create 1:1 mapping for the GHCBs!\n");
+		return 1;
+	}
+
+	/*
+>>>>>>> upstream/android-13
 	 * When making calls to the firmware everything needs to be 1:1
 	 * mapped and addressable with 32-bit pointers. Map the kernel
 	 * text and allocate a new stack because we can't rely on the
 	 * stack pointer being < 4GB.
 	 */
+<<<<<<< HEAD
 	if (!IS_ENABLED(CONFIG_EFI_MIXED) || efi_is_native())
+=======
+	if (!efi_is_mixed())
+>>>>>>> upstream/android-13
 		return 0;
 
 	page = alloc_page(GFP_KERNEL|__GFP_DMA32);
@@ -393,18 +447,39 @@ int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
 		return 1;
 	}
 
+<<<<<<< HEAD
 	efi_scratch.phys_stack = page_to_phys(page + 1); /* stack grows down */
+=======
+	efi_mixed_mode_stack_pa = page_to_phys(page + 1); /* stack grows down */
+>>>>>>> upstream/android-13
 
 	npages = (_etext - _text) >> PAGE_SHIFT;
 	text = __pa(_text);
 	pfn = text >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	pf = _PAGE_RW | _PAGE_ENC;
+=======
+	pf = _PAGE_ENC;
+>>>>>>> upstream/android-13
 	if (kernel_map_pages_in_pgd(pgd, pfn, text, npages, pf)) {
 		pr_err("Failed to map kernel text 1:1\n");
 		return 1;
 	}
 
+<<<<<<< HEAD
+=======
+	npages = (__end_rodata - __start_rodata) >> PAGE_SHIFT;
+	rodata = __pa(__start_rodata);
+	pfn = rodata >> PAGE_SHIFT;
+
+	pf = _PAGE_NX | _PAGE_ENC;
+	if (kernel_map_pages_in_pgd(pgd, pfn, rodata, npages, pf)) {
+		pr_err("Failed to map kernel rodata 1:1\n");
+		return 1;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -414,6 +489,25 @@ static void __init __map_region(efi_memory_desc_t *md, u64 va)
 	unsigned long pfn;
 	pgd_t *pgd = efi_mm.pgd;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * EFI_RUNTIME_SERVICES_CODE regions typically cover PE/COFF
+	 * executable images in memory that consist of both R-X and
+	 * RW- sections, so we cannot apply read-only or non-exec
+	 * permissions just yet. However, modern EFI systems provide
+	 * a memory attributes table that describes those sections
+	 * with the appropriate restricted permissions, which are
+	 * applied in efi_runtime_update_mappings() below. All other
+	 * regions can be mapped non-executable at this point, with
+	 * the exception of boot services code regions, but those will
+	 * be unmapped again entirely in efi_free_boot_services().
+	 */
+	if (md->type != EFI_BOOT_SERVICES_CODE &&
+	    md->type != EFI_RUNTIME_SERVICES_CODE)
+		flags |= _PAGE_NX;
+
+>>>>>>> upstream/android-13
 	if (!(md->attribute & EFI_MEMORY_WB))
 		flags |= _PAGE_PCD;
 
@@ -431,9 +525,12 @@ void __init efi_map_region(efi_memory_desc_t *md)
 	unsigned long size = md->num_pages << PAGE_SHIFT;
 	u64 pa = md->phys_addr;
 
+<<<<<<< HEAD
 	if (efi_enabled(EFI_OLD_MEMMAP))
 		return old_map_region(md);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Make sure the 1:1 mappings are present as a catch-all for b0rked
 	 * firmware which doesn't update all internal pointers after switching
@@ -446,7 +543,11 @@ void __init efi_map_region(efi_memory_desc_t *md)
 	 * booting in EFI mixed mode, because even though we may be
 	 * running a 64-bit kernel, the firmware may only be 32-bit.
 	 */
+<<<<<<< HEAD
 	if (!efi_is_native () && IS_ENABLED(CONFIG_EFI_MIXED)) {
+=======
+	if (efi_is_mixed()) {
+>>>>>>> upstream/android-13
 		md->virt_addr = md->phys_addr;
 		return;
 	}
@@ -488,6 +589,7 @@ void __init efi_map_region_fixed(efi_memory_desc_t *md)
 	__map_region(md, md->virt_addr);
 }
 
+<<<<<<< HEAD
 void __iomem *__init efi_ioremap(unsigned long phys_addr, unsigned long size,
 				 u32 type, u64 attribute)
 {
@@ -508,6 +610,8 @@ void __iomem *__init efi_ioremap(unsigned long phys_addr, unsigned long size,
 	return (void __iomem *)__va(phys_addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init parse_efi_setup(u64 phys_addr, u32 data_len)
 {
 	efi_setup = phys_addr + sizeof(struct setup_data);
@@ -556,12 +660,15 @@ void __init efi_runtime_update_mappings(void)
 {
 	efi_memory_desc_t *md;
 
+<<<<<<< HEAD
 	if (efi_enabled(EFI_OLD_MEMMAP)) {
 		if (__supported_pte_mask & _PAGE_NX)
 			runtime_code_page_mkexec();
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Use the EFI Memory Attribute Table for mapping permissions if it
 	 * exists, since it is intended to supersede EFI_PROPERTIES_TABLE.
@@ -610,15 +717,20 @@ void __init efi_runtime_update_mappings(void)
 void __init efi_dump_pagetable(void)
 {
 #ifdef CONFIG_EFI_PGT_DUMP
+<<<<<<< HEAD
 	if (efi_enabled(EFI_OLD_MEMMAP))
 		ptdump_walk_pgd_level(NULL, swapper_pg_dir);
 	else
 		ptdump_walk_pgd_level(NULL, efi_mm.pgd);
+=======
+	ptdump_walk_pgd_level(NULL, &efi_mm);
+>>>>>>> upstream/android-13
 #endif
 }
 
 /*
  * Makes the calling thread switch to/from efi_mm context. Can be used
+<<<<<<< HEAD
  * for SetVirtualAddressMap() i.e. current->active_mm == init_mm as well
  * as during efi runtime calls i.e current->active_mm == current_mm.
  * We are not mm_dropping()/mm_grabbing() any mm, because we are not
@@ -646,16 +758,67 @@ static DEFINE_SPINLOCK(efi_runtime_lock);
 	rt = (u32 *)(table + offsetof(efi_system_table_32_t, runtime));	 \
 	___f = (u32 *)(*rt + offsetof(efi_runtime_services_32_t, func)); \
 	*___f;								 \
+=======
+ * in a kernel thread and user context. Preemption needs to remain disabled
+ * while the EFI-mm is borrowed. mmgrab()/mmdrop() is not used because the mm
+ * can not change under us.
+ * It should be ensured that there are no concurrent calls to this function.
+ */
+void efi_enter_mm(void)
+{
+	efi_prev_mm = current->active_mm;
+	current->active_mm = &efi_mm;
+	switch_mm(efi_prev_mm, &efi_mm, NULL);
+}
+
+void efi_leave_mm(void)
+{
+	current->active_mm = efi_prev_mm;
+	switch_mm(&efi_mm, efi_prev_mm, NULL);
+}
+
+static DEFINE_SPINLOCK(efi_runtime_lock);
+
+/*
+ * DS and ES contain user values.  We need to save them.
+ * The 32-bit EFI code needs a valid DS, ES, and SS.  There's no
+ * need to save the old SS: __KERNEL_DS is always acceptable.
+ */
+#define __efi_thunk(func, ...)						\
+({									\
+	unsigned short __ds, __es;					\
+	efi_status_t ____s;						\
+									\
+	savesegment(ds, __ds);						\
+	savesegment(es, __es);						\
+									\
+	loadsegment(ss, __KERNEL_DS);					\
+	loadsegment(ds, __KERNEL_DS);					\
+	loadsegment(es, __KERNEL_DS);					\
+									\
+	____s = efi64_thunk(efi.runtime->mixed_mode.func, __VA_ARGS__);	\
+									\
+	loadsegment(ds, __ds);						\
+	loadsegment(es, __es);						\
+									\
+	____s ^= (____s & BIT(31)) | (____s & BIT_ULL(31)) << 32;	\
+	____s;								\
+>>>>>>> upstream/android-13
 })
 
 /*
  * Switch to the EFI page tables early so that we can access the 1:1
  * runtime services mappings which are not mapped in any other page
+<<<<<<< HEAD
  * tables. This function must be called before runtime_service32().
+=======
+ * tables.
+>>>>>>> upstream/android-13
  *
  * Also, disable interrupts because the IDT points to 64-bit handlers,
  * which aren't going to function correctly when we switch to 32-bit.
  */
+<<<<<<< HEAD
 #define efi_thunk(f, ...)						\
 ({									\
 	efi_status_t __s;						\
@@ -665,12 +828,22 @@ static DEFINE_SPINLOCK(efi_runtime_lock);
 									\
 	__func = runtime_service32(f);					\
 	__s = efi64_thunk(__func, __VA_ARGS__);				\
+=======
+#define efi_thunk(func...)						\
+({									\
+	efi_status_t __s;						\
+									\
+	arch_efi_call_virt_setup();					\
+									\
+	__s = __efi_thunk(func);					\
+>>>>>>> upstream/android-13
 									\
 	arch_efi_call_virt_teardown();					\
 									\
 	__s;								\
 })
 
+<<<<<<< HEAD
 efi_status_t efi_thunk_set_virtual_address_map(
 	void *phys_set_virtual_address_map,
 	unsigned long memory_map_size,
@@ -681,10 +854,21 @@ efi_status_t efi_thunk_set_virtual_address_map(
 	efi_status_t status;
 	unsigned long flags;
 	u32 func;
+=======
+static efi_status_t __init __no_sanitize_address
+efi_thunk_set_virtual_address_map(unsigned long memory_map_size,
+				  unsigned long descriptor_size,
+				  u32 descriptor_version,
+				  efi_memory_desc_t *virtual_map)
+{
+	efi_status_t status;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	efi_sync_low_kernel_mappings();
 	local_irq_save(flags);
 
+<<<<<<< HEAD
 	efi_switch_mm(&efi_mm);
 
 	func = (u32)(unsigned long)phys_set_virtual_address_map;
@@ -692,6 +876,14 @@ efi_status_t efi_thunk_set_virtual_address_map(
 			     descriptor_version, virtual_map);
 
 	efi_switch_mm(efi_scratch.prev_mm);
+=======
+	efi_enter_mm();
+
+	status = __efi_thunk(set_virtual_address_map, memory_map_size,
+			     descriptor_size, descriptor_version, virtual_map);
+
+	efi_leave_mm();
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 
 	return status;
@@ -699,6 +891,7 @@ efi_status_t efi_thunk_set_virtual_address_map(
 
 static efi_status_t efi_thunk_get_time(efi_time_t *tm, efi_time_cap_t *tc)
 {
+<<<<<<< HEAD
 	efi_status_t status;
 	u32 phys_tm, phys_tc;
 	unsigned long flags;
@@ -715,10 +908,14 @@ static efi_status_t efi_thunk_get_time(efi_time_t *tm, efi_time_cap_t *tc)
 	spin_unlock(&rtc_lock);
 
 	return status;
+=======
+	return EFI_UNSUPPORTED;
+>>>>>>> upstream/android-13
 }
 
 static efi_status_t efi_thunk_set_time(efi_time_t *tm)
 {
+<<<<<<< HEAD
 	efi_status_t status;
 	u32 phys_tm;
 	unsigned long flags;
@@ -734,12 +931,16 @@ static efi_status_t efi_thunk_set_time(efi_time_t *tm)
 	spin_unlock(&rtc_lock);
 
 	return status;
+=======
+	return EFI_UNSUPPORTED;
+>>>>>>> upstream/android-13
 }
 
 static efi_status_t
 efi_thunk_get_wakeup_time(efi_bool_t *enabled, efi_bool_t *pending,
 			  efi_time_t *tm)
 {
+<<<<<<< HEAD
 	efi_status_t status;
 	u32 phys_enabled, phys_pending, phys_tm;
 	unsigned long flags;
@@ -758,11 +959,15 @@ efi_thunk_get_wakeup_time(efi_bool_t *enabled, efi_bool_t *pending,
 	spin_unlock(&rtc_lock);
 
 	return status;
+=======
+	return EFI_UNSUPPORTED;
+>>>>>>> upstream/android-13
 }
 
 static efi_status_t
 efi_thunk_set_wakeup_time(efi_bool_t enabled, efi_time_t *tm)
 {
+<<<<<<< HEAD
 	efi_status_t status;
 	u32 phys_tm;
 	unsigned long flags;
@@ -778,6 +983,9 @@ efi_thunk_set_wakeup_time(efi_bool_t enabled, efi_time_t *tm)
 	spin_unlock(&rtc_lock);
 
 	return status;
+=======
+	return EFI_UNSUPPORTED;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long efi_name_size(efi_char16_t *name)
@@ -911,6 +1119,7 @@ efi_thunk_get_next_variable(unsigned long *name_size,
 static efi_status_t
 efi_thunk_get_next_high_mono_count(u32 *count)
 {
+<<<<<<< HEAD
 	efi_status_t status;
 	u32 phys_count;
 	unsigned long flags;
@@ -923,6 +1132,9 @@ efi_thunk_get_next_high_mono_count(u32 *count)
 	spin_unlock_irqrestore(&efi_runtime_lock, flags);
 
 	return status;
+=======
+	return EFI_UNSUPPORTED;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1019,8 +1231,16 @@ efi_thunk_query_capsule_caps(efi_capsule_header_t **capsules,
 	return EFI_UNSUPPORTED;
 }
 
+<<<<<<< HEAD
 void efi_thunk_runtime_setup(void)
 {
+=======
+void __init efi_thunk_runtime_setup(void)
+{
+	if (!IS_ENABLED(CONFIG_EFI_MIXED))
+		return;
+
+>>>>>>> upstream/android-13
 	efi.get_time = efi_thunk_get_time;
 	efi.set_time = efi_thunk_set_time;
 	efi.get_wakeup_time = efi_thunk_get_wakeup_time;
@@ -1036,4 +1256,44 @@ void efi_thunk_runtime_setup(void)
 	efi.update_capsule = efi_thunk_update_capsule;
 	efi.query_capsule_caps = efi_thunk_query_capsule_caps;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_EFI_MIXED */
+=======
+
+efi_status_t __init __no_sanitize_address
+efi_set_virtual_address_map(unsigned long memory_map_size,
+			    unsigned long descriptor_size,
+			    u32 descriptor_version,
+			    efi_memory_desc_t *virtual_map,
+			    unsigned long systab_phys)
+{
+	const efi_system_table_t *systab = (efi_system_table_t *)systab_phys;
+	efi_status_t status;
+	unsigned long flags;
+
+	if (efi_is_mixed())
+		return efi_thunk_set_virtual_address_map(memory_map_size,
+							 descriptor_size,
+							 descriptor_version,
+							 virtual_map);
+	efi_enter_mm();
+
+	efi_fpu_begin();
+
+	/* Disable interrupts around EFI calls: */
+	local_irq_save(flags);
+	status = efi_call(efi.runtime->set_virtual_address_map,
+			  memory_map_size, descriptor_size,
+			  descriptor_version, virtual_map);
+	local_irq_restore(flags);
+
+	efi_fpu_end();
+
+	/* grab the virtually remapped EFI runtime services table pointer */
+	efi.runtime = READ_ONCE(systab->runtime);
+
+	efi_leave_mm();
+
+	return status;
+}
+>>>>>>> upstream/android-13

@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * eCryptfs: Linux filesystem encryption layer
  *
  * Copyright (C) 2008 International Business Machines Corp.
  *   Author(s): Michael A. Halcrow <mhalcrow@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -17,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -325,6 +333,10 @@ out_unlock_daemon:
 
 /**
  * ecryptfs_miscdev_response - miscdevess response to message previously sent to daemon
+<<<<<<< HEAD
+=======
+ * @daemon: eCryptfs daemon object
+>>>>>>> upstream/android-13
  * @data: Bytes comprising struct ecryptfs_message
  * @data_size: sizeof(struct ecryptfs_message) + data len
  * @seq: Sequence number for miscdev response packet

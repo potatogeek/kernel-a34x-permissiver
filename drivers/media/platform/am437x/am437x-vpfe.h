@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 - 2014 Texas Instruments, Inc.
  *
  * Benoit Parrot <bparrot@ti.com>
  * Lad, Prabhakar <prabhakar.csengg@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you may redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef AM437X_VPFE_H
@@ -23,6 +30,10 @@
 
 #include <linux/am437x-vpfe.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/completion.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/io.h>
 #include <linux/i2c.h>
@@ -65,12 +76,15 @@ struct vpfe_hw_if_param {
 #define VPFE_MAX_SUBDEV		1
 #define VPFE_MAX_INPUTS		1
 
+<<<<<<< HEAD
 struct vpfe_pixel_format {
 	struct v4l2_fmtdesc fmtdesc;
 	/* bytes per pixel */
 	int bpp;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct vpfe_std_info {
 	int active_pixels;
 	int active_lines;
@@ -220,6 +234,28 @@ struct vpfe_ccdc {
 	u32 ccdc_ctx[VPFE_REG_END / sizeof(u32)];
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * struct vpfe_fmt - VPFE media bus format information
+ * fourcc: V4L2 pixel format code
+ * code: V4L2 media bus format code
+ * bitsperpixel: Bits per pixel over the bus
+ */
+struct vpfe_fmt {
+	u32 fourcc;
+	u32 code;
+	u32 bitsperpixel;
+};
+
+/*
+ * When formats[] is modified make sure to adjust this value also.
+ * Expect compile time warnings if VPFE_NUM_FORMATS is smaller then
+ * the number of elements in formats[].
+ */
+#define VPFE_NUM_FORMATS	10
+
+>>>>>>> upstream/android-13
 struct vpfe_device {
 	/* V4l2 specific parameters */
 	/* Identifies video device for this channel */
@@ -255,8 +291,16 @@ struct vpfe_device {
 	struct vpfe_cap_buffer *next_frm;
 	/* Used to store pixel format */
 	struct v4l2_format fmt;
+<<<<<<< HEAD
 	/* Used to store current bytes per pixel based on current format */
 	unsigned int bpp;
+=======
+	/* Used to keep a reference to the current vpfe_fmt */
+	struct vpfe_fmt *current_vpfe_fmt;
+	struct vpfe_fmt	*active_fmt[VPFE_NUM_FORMATS];
+	unsigned int num_active_fmt;
+
+>>>>>>> upstream/android-13
 	/*
 	 * used when IMP is chained to store the crop window which
 	 * is different from the image window
@@ -276,6 +320,11 @@ struct vpfe_device {
 	 */
 	u32 field_off;
 	struct vpfe_ccdc ccdc;
+<<<<<<< HEAD
+=======
+	int stopping;
+	struct completion capture_stop;
+>>>>>>> upstream/android-13
 };
 
 #endif	/* AM437X_VPFE_H */

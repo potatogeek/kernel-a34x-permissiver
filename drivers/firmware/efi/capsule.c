@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * EFI capsule support.
  *
  * Copyright 2013 Intel Corporation; author Matt Fleming
+<<<<<<< HEAD
  *
  * This file is part of the Linux kernel, and is made available under
  * the terms of the GNU General Public License version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "efi: " fmt
@@ -14,6 +21,10 @@
 #include <linux/highmem.h>
 #include <linux/efi.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <asm/efi.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 
 typedef struct {
@@ -246,7 +257,11 @@ int efi_capsule_update(efi_capsule_header_t *capsule, phys_addr_t *pages)
 	for (i = 0; i < sg_count; i++) {
 		efi_capsule_block_desc_t *sglist;
 
+<<<<<<< HEAD
 		sglist = kmap(sg_pages[i]);
+=======
+		sglist = kmap_atomic(sg_pages[i]);
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < SGLIST_PER_PAGE && count > 0; j++) {
 			u64 sz = min_t(u64, imagesize,
@@ -267,7 +282,22 @@ int efi_capsule_update(efi_capsule_header_t *capsule, phys_addr_t *pages)
 		else
 			sglist[j].data = page_to_phys(sg_pages[i + 1]);
 
+<<<<<<< HEAD
 		kunmap(sg_pages[i]);
+=======
+#if defined(CONFIG_ARM) || defined(CONFIG_ARM64)
+		/*
+		 * At runtime, the firmware has no way to find out where the
+		 * sglist elements are mapped, if they are mapped in the first
+		 * place. Therefore, on architectures that can only perform
+		 * cache maintenance by virtual address, the firmware is unable
+		 * to perform this maintenance, and so it is up to the OS to do
+		 * it instead.
+		 */
+		efi_capsule_flush_cache_range(sglist, PAGE_SIZE);
+#endif
+		kunmap_atomic(sglist);
+>>>>>>> upstream/android-13
 	}
 
 	mutex_lock(&capsule_mutex);

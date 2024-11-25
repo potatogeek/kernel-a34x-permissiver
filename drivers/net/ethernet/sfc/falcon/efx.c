@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2005-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -1268,7 +1275,11 @@ static int ef4_init_io(struct ef4_nic *efx)
 		rc = -EIO;
 		goto fail3;
 	}
+<<<<<<< HEAD
 	efx->membase = ioremap_nocache(efx->membase_phys, mem_map_size);
+=======
+	efx->membase = ioremap(efx->membase_phys, mem_map_size);
+>>>>>>> upstream/android-13
 	if (!efx->membase) {
 		netif_err(efx, probe, efx->net_dev,
 			  "could not map memory BAR at %llx+%x\n",
@@ -2111,7 +2122,11 @@ static void ef4_net_stats(struct net_device *net_dev,
 }
 
 /* Context: netif_tx_lock held, BHs disabled. */
+<<<<<<< HEAD
 static void ef4_watchdog(struct net_device *net_dev)
+=======
+static void ef4_watchdog(struct net_device *net_dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ef4_nic *efx = netdev_priv(net_dev);
 
@@ -2222,7 +2237,11 @@ static const struct net_device_ops ef4_netdev_ops = {
 	.ndo_tx_timeout		= ef4_watchdog,
 	.ndo_start_xmit		= ef4_hard_start_xmit,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= ef4_ioctl,
+=======
+	.ndo_eth_ioctl		= ef4_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= ef4_change_mtu,
 	.ndo_set_mac_address	= ef4_set_mac_address,
 	.ndo_set_rx_mode	= ef4_set_rx_mode,
@@ -2257,12 +2276,21 @@ static struct notifier_block ef4_netdev_notifier = {
 };
 
 static ssize_t
+<<<<<<< HEAD
 show_phy_type(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	struct ef4_nic *efx = pci_get_drvdata(to_pci_dev(dev));
 	return sprintf(buf, "%d\n", efx->phy_type);
 }
 static DEVICE_ATTR(phy_type, 0444, show_phy_type, NULL);
+=======
+phy_type_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct ef4_nic *efx = dev_get_drvdata(dev);
+	return sprintf(buf, "%d\n", efx->phy_type);
+}
+static DEVICE_ATTR_RO(phy_type);
+>>>>>>> upstream/android-13
 
 static int ef4_register_netdev(struct ef4_nic *efx)
 {
@@ -2783,6 +2811,7 @@ static void ef4_pci_remove(struct pci_dev *pci_dev)
 };
 
 /* NIC VPD information
+<<<<<<< HEAD
  * Called during probe to display the part number of the
  * installed NIC.  VPD is potentially very large but this should
  * always appear within the first 512 bytes.
@@ -2852,6 +2881,38 @@ static void ef4_probe_vpd_strings(struct ef4_nic *efx)
 		return;
 
 	snprintf(efx->vpd_sn, j + 1, "%s", &vpd_data[i]);
+=======
+ * Called during probe to display the part number of the installed NIC.
+ */
+static void ef4_probe_vpd_strings(struct ef4_nic *efx)
+{
+	struct pci_dev *dev = efx->pci_dev;
+	unsigned int vpd_size, kw_len;
+	u8 *vpd_data;
+	int start;
+
+	vpd_data = pci_vpd_alloc(dev, &vpd_size);
+	if (IS_ERR(vpd_data)) {
+		pci_warn(dev, "Unable to read VPD\n");
+		return;
+	}
+
+	start = pci_vpd_find_ro_info_keyword(vpd_data, vpd_size,
+					     PCI_VPD_RO_KEYWORD_PARTNO, &kw_len);
+	if (start < 0)
+		pci_warn(dev, "Part number not found or incomplete\n");
+	else
+		pci_info(dev, "Part Number : %.*s\n", kw_len, vpd_data + start);
+
+	start = pci_vpd_find_ro_info_keyword(vpd_data, vpd_size,
+					     PCI_VPD_RO_KEYWORD_SERIALNO, &kw_len);
+	if (start < 0)
+		pci_warn(dev, "Serial number not found or incomplete\n");
+	else
+		efx->vpd_sn = kmemdup_nul(vpd_data + start, kw_len, GFP_KERNEL);
+
+	kfree(vpd_data);
+>>>>>>> upstream/android-13
 }
 
 
@@ -3002,7 +3063,11 @@ static int ef4_pci_probe(struct pci_dev *pci_dev,
 
 static int ef4_pm_freeze(struct device *dev)
 {
+<<<<<<< HEAD
 	struct ef4_nic *efx = pci_get_drvdata(to_pci_dev(dev));
+=======
+	struct ef4_nic *efx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	rtnl_lock();
 
@@ -3023,7 +3088,11 @@ static int ef4_pm_freeze(struct device *dev)
 static int ef4_pm_thaw(struct device *dev)
 {
 	int rc;
+<<<<<<< HEAD
 	struct ef4_nic *efx = pci_get_drvdata(to_pci_dev(dev));
+=======
+	struct ef4_nic *efx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	rtnl_lock();
 
@@ -3121,7 +3190,11 @@ static const struct dev_pm_ops ef4_pm_ops = {
  * Stop the software path and request a slot reset.
  */
 static pci_ers_result_t ef4_io_error_detected(struct pci_dev *pdev,
+<<<<<<< HEAD
 					      enum pci_channel_state state)
+=======
+					      pci_channel_state_t state)
+>>>>>>> upstream/android-13
 {
 	pci_ers_result_t status = PCI_ERS_RESULT_RECOVERED;
 	struct ef4_nic *efx = pci_get_drvdata(pdev);
@@ -3160,7 +3233,10 @@ static pci_ers_result_t ef4_io_slot_reset(struct pci_dev *pdev)
 {
 	struct ef4_nic *efx = pci_get_drvdata(pdev);
 	pci_ers_result_t status = PCI_ERS_RESULT_RECOVERED;
+<<<<<<< HEAD
 	int rc;
+=======
+>>>>>>> upstream/android-13
 
 	if (pci_enable_device(pdev)) {
 		netif_err(efx, hw, efx->net_dev,
@@ -3168,6 +3244,7 @@ static pci_ers_result_t ef4_io_slot_reset(struct pci_dev *pdev)
 		status =  PCI_ERS_RESULT_DISCONNECT;
 	}
 
+<<<<<<< HEAD
 	rc = pci_cleanup_aer_uncorrect_error_status(pdev);
 	if (rc) {
 		netif_err(efx, hw, efx->net_dev,
@@ -3175,6 +3252,8 @@ static pci_ers_result_t ef4_io_slot_reset(struct pci_dev *pdev)
 		/* Non-fatal error. Continue. */
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return status;
 }
 

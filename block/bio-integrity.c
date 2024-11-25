@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * bio-integrity.c - bio data integrity extensions
  *
  * Copyright (C) 2007, 2008, 2009 Oracle Corporation
  * Written by: Martin K. Petersen <martin.petersen@oracle.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -18,6 +23,8 @@
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139,
  * USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/blkdev.h>
@@ -28,8 +35,11 @@
 #include <linux/slab.h>
 #include "blk.h"
 
+<<<<<<< HEAD
 #define BIP_INLINE_VECS	4
 
+=======
+>>>>>>> upstream/android-13
 static struct kmem_cache *bip_slab;
 static struct workqueue_struct *kintegrityd_wq;
 
@@ -38,12 +48,21 @@ void blk_flush_integrity(void)
 	flush_workqueue(kintegrityd_wq);
 }
 
+<<<<<<< HEAD
 void __bio_integrity_free(struct bio_set *bs, struct bio_integrity_payload *bip)
+=======
+static void __bio_integrity_free(struct bio_set *bs,
+				 struct bio_integrity_payload *bip)
+>>>>>>> upstream/android-13
 {
 	if (bs && mempool_initialized(&bs->bio_integrity_pool)) {
 		if (bip->bip_vec)
 			bvec_free(&bs->bvec_integrity_pool, bip->bip_vec,
+<<<<<<< HEAD
 				  bip->bip_slab);
+=======
+				  bip->bip_max_vcnt);
+>>>>>>> upstream/android-13
 		mempool_free(bip, &bs->bio_integrity_pool);
 	} else {
 		kfree(bip);
@@ -68,6 +87,7 @@ struct bio_integrity_payload *bio_integrity_alloc(struct bio *bio,
 	struct bio_set *bs = bio->bi_pool;
 	unsigned inline_vecs;
 
+<<<<<<< HEAD
 	if (!bs || !mempool_initialized(&bs->bio_integrity_pool)) {
 		bip = kmalloc(sizeof(struct bio_integrity_payload) +
 			      sizeof(struct bio_vec) * nr_vecs, gfp_mask);
@@ -75,6 +95,17 @@ struct bio_integrity_payload *bio_integrity_alloc(struct bio *bio,
 	} else {
 		bip = mempool_alloc(&bs->bio_integrity_pool, gfp_mask);
 		inline_vecs = BIP_INLINE_VECS;
+=======
+	if (WARN_ON_ONCE(bio_has_crypt_ctx(bio)))
+		return ERR_PTR(-EOPNOTSUPP);
+
+	if (!bs || !mempool_initialized(&bs->bio_integrity_pool)) {
+		bip = kmalloc(struct_size(bip, bip_inline_vecs, nr_vecs), gfp_mask);
+		inline_vecs = nr_vecs;
+	} else {
+		bip = mempool_alloc(&bs->bio_integrity_pool, gfp_mask);
+		inline_vecs = BIO_INLINE_VECS;
+>>>>>>> upstream/android-13
 	}
 
 	if (unlikely(!bip))
@@ -83,6 +114,7 @@ struct bio_integrity_payload *bio_integrity_alloc(struct bio *bio,
 	memset(bip, 0, sizeof(*bip));
 
 	if (nr_vecs > inline_vecs) {
+<<<<<<< HEAD
 		unsigned long idx = 0;
 
 		bip->bip_vec = bvec_alloc(gfp_mask, nr_vecs, &idx,
@@ -91,6 +123,13 @@ struct bio_integrity_payload *bio_integrity_alloc(struct bio *bio,
 			goto err;
 		bip->bip_max_vcnt = bvec_nr_vecs(idx);
 		bip->bip_slab = idx;
+=======
+		bip->bip_max_vcnt = nr_vecs;
+		bip->bip_vec = bvec_alloc(&bs->bvec_integrity_pool,
+					  &bip->bip_max_vcnt, gfp_mask);
+		if (!bip->bip_vec)
+			goto err;
+>>>>>>> upstream/android-13
 	} else {
 		bip->bip_vec = bip->bip_inline_vecs;
 		bip->bip_max_vcnt = inline_vecs;
@@ -114,14 +153,22 @@ EXPORT_SYMBOL(bio_integrity_alloc);
  * Description: Used to free the integrity portion of a bio. Usually
  * called from bio_free().
  */
+<<<<<<< HEAD
 static void bio_integrity_free(struct bio *bio)
+=======
+void bio_integrity_free(struct bio *bio)
+>>>>>>> upstream/android-13
 {
 	struct bio_integrity_payload *bip = bio_integrity(bio);
 	struct bio_set *bs = bio->bi_pool;
 
 	if (bip->bip_flags & BIP_BLOCK_INTEGRITY)
+<<<<<<< HEAD
 		kfree(page_address(bip->bip_vec->bv_page) +
 		      bip->bip_vec->bv_offset);
+=======
+		kfree(bvec_virt(bip->bip_vec));
+>>>>>>> upstream/android-13
 
 	__bio_integrity_free(bs, bip);
 	bio->bi_integrity = NULL;
@@ -151,7 +198,11 @@ int bio_integrity_add_page(struct bio *bio, struct page *page,
 	iv = bip->bip_vec + bip->bip_vcnt;
 
 	if (bip->bip_vcnt &&
+<<<<<<< HEAD
 	    bvec_gap_to_prev(bio->bi_disk->queue,
+=======
+	    bvec_gap_to_prev(bio->bi_bdev->bd_disk->queue,
+>>>>>>> upstream/android-13
 			     &bip->bip_vec[bip->bip_vcnt - 1], offset))
 		return 0;
 
@@ -173,12 +224,17 @@ EXPORT_SYMBOL(bio_integrity_add_page);
 static blk_status_t bio_integrity_process(struct bio *bio,
 		struct bvec_iter *proc_iter, integrity_processing_fn *proc_fn)
 {
+<<<<<<< HEAD
 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
+=======
+	struct blk_integrity *bi = blk_get_integrity(bio->bi_bdev->bd_disk);
+>>>>>>> upstream/android-13
 	struct blk_integrity_iter iter;
 	struct bvec_iter bviter;
 	struct bio_vec bv;
 	struct bio_integrity_payload *bip = bio_integrity(bio);
 	blk_status_t ret = BLK_STS_OK;
+<<<<<<< HEAD
 	void *prot_buf = page_address(bip->bip_vec->bv_page) +
 		bip->bip_vec->bv_offset;
 
@@ -200,6 +256,25 @@ static blk_status_t bio_integrity_process(struct bio *bio,
 		}
 
 		kunmap_atomic(kaddr);
+=======
+
+	iter.disk_name = bio->bi_bdev->bd_disk->disk_name;
+	iter.interval = 1 << bi->interval_exp;
+	iter.seed = proc_iter->bi_sector;
+	iter.prot_buf = bvec_virt(bip->bip_vec);
+
+	__bio_for_each_segment(bv, bio, bviter, *proc_iter) {
+		void *kaddr = bvec_kmap_local(&bv);
+
+		iter.data_buf = kaddr;
+		iter.data_size = bv.bv_len;
+		ret = proc_fn(&iter);
+		kunmap_local(kaddr);
+
+		if (ret)
+			break;
+
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -219,8 +294,12 @@ static blk_status_t bio_integrity_process(struct bio *bio,
 bool bio_integrity_prep(struct bio *bio)
 {
 	struct bio_integrity_payload *bip;
+<<<<<<< HEAD
 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
 	struct request_queue *q = bio->bi_disk->queue;
+=======
+	struct blk_integrity *bi = blk_get_integrity(bio->bi_bdev->bd_disk);
+>>>>>>> upstream/android-13
 	void *buf;
 	unsigned long start, end;
 	unsigned int len, nr_pages;
@@ -254,7 +333,11 @@ bool bio_integrity_prep(struct bio *bio)
 
 	/* Allocate kernel buffer for protection data */
 	len = intervals * bi->tuple_size;
+<<<<<<< HEAD
 	buf = kmalloc(len, GFP_NOIO | q->bounce_gfp);
+=======
+	buf = kmalloc(len, GFP_NOIO);
+>>>>>>> upstream/android-13
 	status = BLK_STS_RESOURCE;
 	if (unlikely(buf == NULL)) {
 		printk(KERN_ERR "could not allocate integrity buffer\n");
@@ -314,6 +397,11 @@ bool bio_integrity_prep(struct bio *bio)
 	if (bio_data_dir(bio) == WRITE) {
 		bio_integrity_process(bio, &bio->bi_iter,
 				      bi->profile->generate_fn);
+<<<<<<< HEAD
+=======
+	} else {
+		bip->bio_iter = bio->bi_iter;
+>>>>>>> upstream/android-13
 	}
 	return true;
 
@@ -338,14 +426,19 @@ static void bio_integrity_verify_fn(struct work_struct *work)
 	struct bio_integrity_payload *bip =
 		container_of(work, struct bio_integrity_payload, bip_work);
 	struct bio *bio = bip->bip_bio;
+<<<<<<< HEAD
 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
 	struct bvec_iter iter = bio->bi_iter;
+=======
+	struct blk_integrity *bi = blk_get_integrity(bio->bi_bdev->bd_disk);
+>>>>>>> upstream/android-13
 
 	/*
 	 * At the moment verify is called bio's iterator was advanced
 	 * during split and completion, we need to rewind iterator to
 	 * it's original position.
 	 */
+<<<<<<< HEAD
 	if (bio_rewind_iter(bio, &iter, iter.bi_done)) {
 		bio->bi_status = bio_integrity_process(bio, &iter,
 						       bi->profile->verify_fn);
@@ -353,6 +446,10 @@ static void bio_integrity_verify_fn(struct work_struct *work)
 		bio->bi_status = BLK_STS_IOERR;
 	}
 
+=======
+	bio->bi_status = bio_integrity_process(bio, &bip->bio_iter,
+						bi->profile->verify_fn);
+>>>>>>> upstream/android-13
 	bio_integrity_free(bio);
 	bio_endio(bio);
 }
@@ -370,7 +467,11 @@ static void bio_integrity_verify_fn(struct work_struct *work)
  */
 bool __bio_integrity_endio(struct bio *bio)
 {
+<<<<<<< HEAD
 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
+=======
+	struct blk_integrity *bi = blk_get_integrity(bio->bi_bdev->bd_disk);
+>>>>>>> upstream/android-13
 	struct bio_integrity_payload *bip = bio_integrity(bio);
 
 	if (bio_op(bio) == REQ_OP_READ && !bio->bi_status &&
@@ -396,6 +497,7 @@ bool __bio_integrity_endio(struct bio *bio)
 void bio_integrity_advance(struct bio *bio, unsigned int bytes_done)
 {
 	struct bio_integrity_payload *bip = bio_integrity(bio);
+<<<<<<< HEAD
 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
 	unsigned bytes = bio_integrity_bytes(bi, bytes_done >> 9);
 
@@ -403,6 +505,14 @@ void bio_integrity_advance(struct bio *bio, unsigned int bytes_done)
 	bvec_iter_advance(bip->bip_vec, &bip->bip_iter, bytes);
 }
 EXPORT_SYMBOL(bio_integrity_advance);
+=======
+	struct blk_integrity *bi = blk_get_integrity(bio->bi_bdev->bd_disk);
+	unsigned bytes = bio_integrity_bytes(bi, bytes_done >> 9);
+
+	bip->bip_iter.bi_sector += bio_integrity_intervals(bi, bytes_done >> 9);
+	bvec_iter_advance(bip->bip_vec, &bip->bip_iter, bytes);
+}
+>>>>>>> upstream/android-13
 
 /**
  * bio_integrity_trim - Trim integrity vector
@@ -413,7 +523,11 @@ EXPORT_SYMBOL(bio_integrity_advance);
 void bio_integrity_trim(struct bio *bio)
 {
 	struct bio_integrity_payload *bip = bio_integrity(bio);
+<<<<<<< HEAD
 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
+=======
+	struct blk_integrity *bi = blk_get_integrity(bio->bi_bdev->bd_disk);
+>>>>>>> upstream/android-13
 
 	bip->bip_iter.bi_size = bio_integrity_bytes(bi, bio_sectors(bio));
 }
@@ -472,7 +586,10 @@ void bioset_integrity_free(struct bio_set *bs)
 	mempool_exit(&bs->bio_integrity_pool);
 	mempool_exit(&bs->bvec_integrity_pool);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(bioset_integrity_free);
+=======
+>>>>>>> upstream/android-13
 
 void __init bio_integrity_init(void)
 {
@@ -487,6 +604,10 @@ void __init bio_integrity_init(void)
 
 	bip_slab = kmem_cache_create("bio_integrity_payload",
 				     sizeof(struct bio_integrity_payload) +
+<<<<<<< HEAD
 				     sizeof(struct bio_vec) * BIP_INLINE_VECS,
+=======
+				     sizeof(struct bio_vec) * BIO_INLINE_VECS,
+>>>>>>> upstream/android-13
 				     0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL);
 }

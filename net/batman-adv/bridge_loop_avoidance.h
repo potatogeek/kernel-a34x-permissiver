@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2011-2018  B.A.T.M.A.N. contributors:
  *
  * Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_BLA_H_
@@ -22,6 +28,7 @@
 #include "main.h"
 
 #include <linux/compiler.h>
+<<<<<<< HEAD
 #include <linux/stddef.h>
 #include <linux/types.h>
 
@@ -30,6 +37,14 @@ struct netlink_callback;
 struct seq_file;
 struct sk_buff;
 
+=======
+#include <linux/netdevice.h>
+#include <linux/netlink.h>
+#include <linux/skbuff.h>
+#include <linux/stddef.h>
+#include <linux/types.h>
+
+>>>>>>> upstream/android-13
 /**
  * batadv_bla_is_loopdetect_mac() - check if the mac address is from a loop
  *  detect frame sent by bridge loop avoidance
@@ -54,10 +69,14 @@ bool batadv_bla_tx(struct batadv_priv *bat_priv, struct sk_buff *skb,
 bool batadv_bla_is_backbone_gw(struct sk_buff *skb,
 			       struct batadv_orig_node *orig_node,
 			       int hdr_size);
+<<<<<<< HEAD
 int batadv_bla_claim_table_seq_print_text(struct seq_file *seq, void *offset);
 int batadv_bla_claim_dump(struct sk_buff *msg, struct netlink_callback *cb);
 int batadv_bla_backbone_table_seq_print_text(struct seq_file *seq,
 					     void *offset);
+=======
+int batadv_bla_claim_dump(struct sk_buff *msg, struct netlink_callback *cb);
+>>>>>>> upstream/android-13
 int batadv_bla_backbone_dump(struct sk_buff *msg, struct netlink_callback *cb);
 bool batadv_bla_is_backbone_gw_orig(struct batadv_priv *bat_priv, u8 *orig,
 				    unsigned short vid);
@@ -69,7 +88,10 @@ void batadv_bla_update_orig_address(struct batadv_priv *bat_priv,
 void batadv_bla_status_update(struct net_device *net_dev);
 int batadv_bla_init(struct batadv_priv *bat_priv);
 void batadv_bla_free(struct batadv_priv *bat_priv);
+<<<<<<< HEAD
 int batadv_bla_claim_dump(struct sk_buff *msg, struct netlink_callback *cb);
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BATMAN_ADV_DAT
 bool batadv_bla_check_claim(struct batadv_priv *bat_priv, u8 *addr,
 			    unsigned short vid);
@@ -97,6 +119,7 @@ static inline bool batadv_bla_is_backbone_gw(struct sk_buff *skb,
 	return false;
 }
 
+<<<<<<< HEAD
 static inline int batadv_bla_claim_table_seq_print_text(struct seq_file *seq,
 							void *offset)
 {
@@ -109,6 +132,8 @@ static inline int batadv_bla_backbone_table_seq_print_text(struct seq_file *seq,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool batadv_bla_is_backbone_gw_orig(struct batadv_priv *bat_priv,
 						  u8 *orig, unsigned short vid)
 {

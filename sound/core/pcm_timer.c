@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Digital Audio (PCM) abstract layer
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Digital Audio (PCM) abstract layer
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -90,7 +97,11 @@ static int snd_pcm_timer_stop(struct snd_timer * timer)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_timer_hardware snd_pcm_timer =
+=======
+static const struct snd_timer_hardware snd_pcm_timer =
+>>>>>>> upstream/android-13
 {
 	.flags =	SNDRV_TIMER_HW_AUTO | SNDRV_TIMER_HW_SLAVE,
 	.resolution =	0,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/device.h>
@@ -18,6 +24,10 @@
 #include <linux/nd.h>
 #include "nd-core.h"
 #include "pmem.h"
+<<<<<<< HEAD
+=======
+#include "pfn.h"
+>>>>>>> upstream/android-13
 #include "nd.h"
 
 static void namespace_io_release(struct device *dev)
@@ -52,6 +62,7 @@ static void namespace_blk_release(struct device *dev)
 	kfree(nsblk);
 }
 
+<<<<<<< HEAD
 static const struct device_type namespace_io_device_type = {
 	.name = "nd_namespace_io",
 	.release = namespace_io_release,
@@ -81,6 +92,11 @@ static bool is_namespace_io(const struct device *dev)
 {
 	return dev ? dev->type == &namespace_io_device_type : false;
 }
+=======
+static bool is_namespace_pmem(const struct device *dev);
+static bool is_namespace_blk(const struct device *dev);
+static bool is_namespace_io(const struct device *dev);
+>>>>>>> upstream/android-13
 
 static int is_uuid_busy(struct device *dev, void *data)
 {
@@ -274,11 +290,18 @@ static ssize_t __alt_name_store(struct device *dev, const char *buf,
 	if (dev->driver || to_ndns(dev)->claim)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	input = kmemdup(buf, len + 1, GFP_KERNEL);
 	if (!input)
 		return -ENOMEM;
 
 	input[len] = '\0';
+=======
+	input = kstrndup(buf, len, GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	pos = strim(input);
 	if (strlen(pos) + 1 > NSLABEL_NAME_LEN) {
 		rc = -EINVAL;
@@ -419,7 +442,11 @@ static ssize_t alt_name_store(struct device *dev,
 	struct nd_region *nd_region = to_nd_region(dev->parent);
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	wait_nvdimm_bus_probe_idle(dev);
 	rc = __alt_name_store(dev, buf, len);
@@ -427,7 +454,11 @@ static ssize_t alt_name_store(struct device *dev,
 		rc = nd_namespace_label_update(nd_region, dev);
 	dev_dbg(dev, "%s(%zd)\n", rc < 0 ? "fail " : "", rc);
 	nvdimm_bus_unlock(dev);
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc < 0 ? rc : len;
 }
@@ -576,6 +607,14 @@ static void space_valid(struct nd_region *nd_region, struct nvdimm_drvdata *ndd,
 {
 	bool is_reserve = strcmp(label_id->id, "pmem-reserve") == 0;
 	bool is_pmem = strncmp(label_id->id, "pmem", 4) == 0;
+<<<<<<< HEAD
+=======
+	unsigned long align;
+
+	align = nd_region->align / nd_region->ndr_mappings;
+	valid->start = ALIGN(valid->start, align);
+	valid->end = ALIGN_DOWN(valid->end + 1, align) - 1;
+>>>>>>> upstream/android-13
 
 	if (valid->start >= valid->end)
 		goto invalid;
@@ -1015,10 +1054,17 @@ static ssize_t __size_store(struct device *dev, unsigned long long val)
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	div_u64_rem(val, SZ_4K * nd_region->ndr_mappings, &remainder);
 	if (remainder) {
 		dev_dbg(dev, "%llu is not %dK aligned\n", val,
 				(SZ_4K * nd_region->ndr_mappings) / SZ_1K);
+=======
+	div_u64_rem(val, nd_region->align, &remainder);
+	if (remainder) {
+		dev_dbg(dev, "%llu is not %ldK aligned\n", val,
+				nd_region->align / SZ_1K);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1086,7 +1132,11 @@ static ssize_t size_store(struct device *dev,
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	wait_nvdimm_bus_probe_idle(dev);
 	rc = __size_store(dev, val);
@@ -1112,7 +1162,11 @@ static ssize_t size_store(struct device *dev,
 	dev_dbg(dev, "%llx %s (%d)\n", val, rc < 0 ? "fail" : "success", rc);
 
 	nvdimm_bus_unlock(dev);
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc < 0 ? rc : len;
 }
@@ -1264,7 +1318,11 @@ static int namespace_update_uuid(struct nd_region *nd_region,
 			if (!nd_label)
 				continue;
 			nd_label_gen_id(&label_id, nd_label->uuid,
+<<<<<<< HEAD
 					__le32_to_cpu(nd_label->flags));
+=======
+					nsl_get_flags(ndd, nd_label));
+>>>>>>> upstream/android-13
 			if (strcmp(old_label_id.id, label_id.id) == 0)
 				set_bit(ND_LABEL_REAP, &label_ent->flags);
 		}
@@ -1295,7 +1353,11 @@ static ssize_t uuid_store(struct device *dev,
 	} else
 		return -ENXIO;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	wait_nvdimm_bus_probe_idle(dev);
 	if (to_ndns(dev)->claim)
@@ -1311,7 +1373,11 @@ static ssize_t uuid_store(struct device *dev,
 	dev_dbg(dev, "result: %zd wrote: %s%s", rc, buf,
 			buf[len - 1] == '\n' ? "" : "\n");
 	nvdimm_bus_unlock(dev);
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc < 0 ? rc : len;
 }
@@ -1338,7 +1404,11 @@ static ssize_t resource_show(struct device *dev,
 		return -ENXIO;
 	return sprintf(buf, "%#llx\n", (unsigned long long) res->start);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR_RO(resource);
+=======
+static DEVICE_ATTR_ADMIN_RO(resource);
+>>>>>>> upstream/android-13
 
 static const unsigned long blk_lbasize_supported[] = { 512, 520, 528,
 	4096, 4104, 4160, 4224, 0 };
@@ -1385,7 +1455,11 @@ static ssize_t sector_size_store(struct device *dev,
 	} else
 		return -ENXIO;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	if (to_ndns(dev)->claim)
 		rc = -EBUSY;
@@ -1396,7 +1470,11 @@ static ssize_t sector_size_store(struct device *dev,
 	dev_dbg(dev, "result: %zd %s: %s%s", rc, rc < 0 ? "tried" : "wrote",
 			buf, buf[len - 1] == '\n' ? "" : "\n");
 	nvdimm_bus_unlock(dev);
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc ? rc : len;
 }
@@ -1511,21 +1589,32 @@ static ssize_t holder_show(struct device *dev,
 	struct nd_namespace_common *ndns = to_ndns(dev);
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
 	rc = sprintf(buf, "%s\n", ndns->claim ? dev_name(ndns->claim) : "");
 	device_unlock(dev);
+=======
+	nd_device_lock(dev);
+	rc = sprintf(buf, "%s\n", ndns->claim ? dev_name(ndns->claim) : "");
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
 static DEVICE_ATTR_RO(holder);
 
+<<<<<<< HEAD
 static ssize_t __holder_class_store(struct device *dev, const char *buf)
+=======
+static int __holder_class_store(struct device *dev, const char *buf)
+>>>>>>> upstream/android-13
 {
 	struct nd_namespace_common *ndns = to_ndns(dev);
 
 	if (dev->driver || ndns->claim)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	if (strcmp(buf, "btt") == 0 || strcmp(buf, "btt\n") == 0)
 		ndns->claim_class = btt_claim_class(dev);
 	else if (strcmp(buf, "pfn") == 0 || strcmp(buf, "pfn\n") == 0)
@@ -1533,14 +1622,30 @@ static ssize_t __holder_class_store(struct device *dev, const char *buf)
 	else if (strcmp(buf, "dax") == 0 || strcmp(buf, "dax\n") == 0)
 		ndns->claim_class = NVDIMM_CCLASS_DAX;
 	else if (strcmp(buf, "") == 0 || strcmp(buf, "\n") == 0)
+=======
+	if (sysfs_streq(buf, "btt")) {
+		int rc = btt_claim_class(dev);
+
+		if (rc < NVDIMM_CCLASS_NONE)
+			return rc;
+		ndns->claim_class = rc;
+	} else if (sysfs_streq(buf, "pfn"))
+		ndns->claim_class = NVDIMM_CCLASS_PFN;
+	else if (sysfs_streq(buf, "dax"))
+		ndns->claim_class = NVDIMM_CCLASS_DAX;
+	else if (sysfs_streq(buf, ""))
+>>>>>>> upstream/android-13
 		ndns->claim_class = NVDIMM_CCLASS_NONE;
 	else
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* btt_claim_class() could've returned an error */
 	if (ndns->claim_class < 0)
 		return ndns->claim_class;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1548,17 +1653,29 @@ static ssize_t holder_class_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t len)
 {
 	struct nd_region *nd_region = to_nd_region(dev->parent);
+<<<<<<< HEAD
 	ssize_t rc;
 
 	device_lock(dev);
+=======
+	int rc;
+
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	nvdimm_bus_lock(dev);
 	wait_nvdimm_bus_probe_idle(dev);
 	rc = __holder_class_store(dev, buf);
 	if (rc >= 0)
 		rc = nd_namespace_label_update(nd_region, dev);
+<<<<<<< HEAD
 	dev_dbg(dev, "%s(%zd)\n", rc < 0 ? "fail " : "", rc);
 	nvdimm_bus_unlock(dev);
 	device_unlock(dev);
+=======
+	dev_dbg(dev, "%s(%d)\n", rc < 0 ? "fail " : "", rc);
+	nvdimm_bus_unlock(dev);
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc < 0 ? rc : len;
 }
@@ -1569,7 +1686,11 @@ static ssize_t holder_class_show(struct device *dev,
 	struct nd_namespace_common *ndns = to_ndns(dev);
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	if (ndns->claim_class == NVDIMM_CCLASS_NONE)
 		rc = sprintf(buf, "\n");
 	else if ((ndns->claim_class == NVDIMM_CCLASS_BTT) ||
@@ -1581,7 +1702,11 @@ static ssize_t holder_class_show(struct device *dev,
 		rc = sprintf(buf, "dax\n");
 	else
 		rc = sprintf(buf, "<unknown>\n");
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -1595,7 +1720,11 @@ static ssize_t mode_show(struct device *dev,
 	char *mode;
 	ssize_t rc;
 
+<<<<<<< HEAD
 	device_lock(dev);
+=======
+	nd_device_lock(dev);
+>>>>>>> upstream/android-13
 	claim = ndns->claim;
 	if (claim && is_nd_btt(claim))
 		mode = "safe";
@@ -1608,7 +1737,11 @@ static ssize_t mode_show(struct device *dev,
 	else
 		mode = "raw";
 	rc = sprintf(buf, "%s\n", mode);
+<<<<<<< HEAD
 	device_unlock(dev);
+=======
+	nd_device_unlock(dev);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -1654,11 +1787,16 @@ static umode_t namespace_visible(struct kobject *kobj,
 {
 	struct device *dev = container_of(kobj, struct device, kobj);
 
+<<<<<<< HEAD
 	if (a == &dev_attr_resource.attr) {
 		if (is_namespace_blk(dev))
 			return 0;
 		return 0400;
 	}
+=======
+	if (a == &dev_attr_resource.attr && is_namespace_blk(dev))
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (is_namespace_pmem(dev) || is_namespace_blk(dev)) {
 		if (a == &dev_attr_size.attr)
@@ -1667,11 +1805,19 @@ static umode_t namespace_visible(struct kobject *kobj,
 		return a->mode;
 	}
 
+<<<<<<< HEAD
 	if (a == &dev_attr_nstype.attr || a == &dev_attr_size.attr
 			|| a == &dev_attr_holder.attr
 			|| a == &dev_attr_holder_class.attr
 			|| a == &dev_attr_force_raw.attr
 			|| a == &dev_attr_mode.attr)
+=======
+	/* base is_namespace_io() attributes */
+	if (a == &dev_attr_nstype.attr || a == &dev_attr_size.attr ||
+	    a == &dev_attr_holder.attr || a == &dev_attr_holder_class.attr ||
+	    a == &dev_attr_force_raw.attr || a == &dev_attr_mode.attr ||
+	    a == &dev_attr_resource.attr)
+>>>>>>> upstream/android-13
 		return a->mode;
 
 	return 0;
@@ -1689,6 +1835,42 @@ static const struct attribute_group *nd_namespace_attribute_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
+=======
+static const struct device_type namespace_io_device_type = {
+	.name = "nd_namespace_io",
+	.release = namespace_io_release,
+	.groups = nd_namespace_attribute_groups,
+};
+
+static const struct device_type namespace_pmem_device_type = {
+	.name = "nd_namespace_pmem",
+	.release = namespace_pmem_release,
+	.groups = nd_namespace_attribute_groups,
+};
+
+static const struct device_type namespace_blk_device_type = {
+	.name = "nd_namespace_blk",
+	.release = namespace_blk_release,
+	.groups = nd_namespace_attribute_groups,
+};
+
+static bool is_namespace_pmem(const struct device *dev)
+{
+	return dev ? dev->type == &namespace_pmem_device_type : false;
+}
+
+static bool is_namespace_blk(const struct device *dev)
+{
+	return dev ? dev->type == &namespace_blk_device_type : false;
+}
+
+static bool is_namespace_io(const struct device *dev)
+{
+	return dev ? dev->type == &namespace_io_device_type : false;
+}
+
+>>>>>>> upstream/android-13
 struct nd_namespace_common *nvdimm_namespace_common_probe(struct device *dev)
 {
 	struct nd_btt *nd_btt = is_nd_btt(dev) ? to_nd_btt(dev) : NULL;
@@ -1712,8 +1894,13 @@ struct nd_namespace_common *nvdimm_namespace_common_probe(struct device *dev)
 		 * Flush any in-progess probes / removals in the driver
 		 * for the raw personality of this namespace.
 		 */
+<<<<<<< HEAD
 		device_lock(&ndns->dev);
 		device_unlock(&ndns->dev);
+=======
+		nd_device_lock(&ndns->dev);
+		nd_device_unlock(&ndns->dev);
+>>>>>>> upstream/android-13
 		if (ndns->dev.driver) {
 			dev_dbg(&ndns->dev, "is active, can't bind %s\n",
 					dev_name(dev));
@@ -1744,6 +1931,25 @@ struct nd_namespace_common *nvdimm_namespace_common_probe(struct device *dev)
 		return ERR_PTR(-ENODEV);
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Note, alignment validation for fsdax and devdax mode
+	 * namespaces happens in nd_pfn_validate() where infoblock
+	 * padding parameters can be applied.
+	 */
+	if (pmem_should_map_pages(dev)) {
+		struct nd_namespace_io *nsio = to_nd_namespace_io(&ndns->dev);
+		struct resource *res = &nsio->res;
+
+		if (!IS_ALIGNED(res->start | (res->end + 1),
+					memremap_compat_align())) {
+			dev_err(&ndns->dev, "%pr misaligned, unable to map\n", res);
+			return ERR_PTR(-EOPNOTSUPP);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (is_namespace_pmem(&ndns->dev)) {
 		struct nd_namespace_pmem *nspm;
 
@@ -1768,6 +1974,26 @@ struct nd_namespace_common *nvdimm_namespace_common_probe(struct device *dev)
 }
 EXPORT_SYMBOL(nvdimm_namespace_common_probe);
 
+<<<<<<< HEAD
+=======
+int devm_namespace_enable(struct device *dev, struct nd_namespace_common *ndns,
+		resource_size_t size)
+{
+	if (is_namespace_blk(&ndns->dev))
+		return 0;
+	return devm_nsio_enable(dev, to_nd_namespace_io(&ndns->dev), size);
+}
+EXPORT_SYMBOL_GPL(devm_namespace_enable);
+
+void devm_namespace_disable(struct device *dev, struct nd_namespace_common *ndns)
+{
+	if (is_namespace_blk(&ndns->dev))
+		return;
+	devm_nsio_disable(dev, to_nd_namespace_io(&ndns->dev));
+}
+EXPORT_SYMBOL_GPL(devm_namespace_disable);
+
+>>>>>>> upstream/android-13
 static struct device **create_namespace_io(struct nd_region *nd_region)
 {
 	struct nd_namespace_io *nsio;
@@ -1813,6 +2039,7 @@ static bool has_uuid_at_pos(struct nd_region *nd_region, u8 *uuid,
 		list_for_each_entry(label_ent, &nd_mapping->labels, list) {
 			struct nd_namespace_label *nd_label = label_ent->label;
 			u16 position, nlabel;
+<<<<<<< HEAD
 			u64 isetcookie;
 
 			if (!nd_label)
@@ -1822,11 +2049,21 @@ static bool has_uuid_at_pos(struct nd_region *nd_region, u8 *uuid,
 			nlabel = __le16_to_cpu(nd_label->nlabel);
 
 			if (isetcookie != cookie)
+=======
+
+			if (!nd_label)
+				continue;
+			position = nsl_get_position(ndd, nd_label);
+			nlabel = nsl_get_nlabel(ndd, nd_label);
+
+			if (!nsl_validate_isetcookie(ndd, nd_label, cookie))
+>>>>>>> upstream/android-13
 				continue;
 
 			if (memcmp(nd_label->uuid, uuid, NSLABEL_UUID_LEN) != 0)
 				continue;
 
+<<<<<<< HEAD
 			if (namespace_label_has(ndd, type_guid)
 					&& !guid_equal(&nd_set->type_guid,
 						&nd_label->type_guid)) {
@@ -1835,6 +2072,11 @@ static bool has_uuid_at_pos(struct nd_region *nd_region, u8 *uuid,
 						nd_label->type_guid.b);
 				continue;
 			}
+=======
+			if (!nsl_validate_type_guid(ndd, nd_label,
+						    &nd_set->type_guid))
+				continue;
+>>>>>>> upstream/android-13
 
 			if (found_uuid) {
 				dev_dbg(ndd->dev, "duplicate entry for uuid\n");
@@ -1889,8 +2131,13 @@ static int select_pmem_id(struct nd_region *nd_region, u8 *pmem_id)
 		 */
 		hw_start = nd_mapping->start;
 		hw_end = hw_start + nd_mapping->size;
+<<<<<<< HEAD
 		pmem_start = __le64_to_cpu(nd_label->dpa);
 		pmem_end = pmem_start + __le64_to_cpu(nd_label->rawsize);
+=======
+		pmem_start = nsl_get_dpa(ndd, nd_label);
+		pmem_end = pmem_start + nsl_get_rawsize(ndd, nd_label);
+>>>>>>> upstream/android-13
 		if (pmem_start >= hw_start && pmem_start < hw_end
 				&& pmem_end <= hw_end && pmem_end > hw_start)
 			/* pass */;
@@ -1913,14 +2160,26 @@ static int select_pmem_id(struct nd_region *nd_region, u8 *pmem_id)
  * @nd_label: target pmem namespace label to evaluate
  */
 static struct device *create_namespace_pmem(struct nd_region *nd_region,
+<<<<<<< HEAD
 		struct nd_namespace_index *nsindex,
 		struct nd_namespace_label *nd_label)
 {
+=======
+					    struct nd_mapping *nd_mapping,
+					    struct nd_namespace_label *nd_label)
+{
+	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
+	struct nd_namespace_index *nsindex =
+		to_namespace_index(ndd, ndd->ns_current);
+>>>>>>> upstream/android-13
 	u64 cookie = nd_region_interleave_set_cookie(nd_region, nsindex);
 	u64 altcookie = nd_region_interleave_set_altcookie(nd_region);
 	struct nd_label_ent *label_ent;
 	struct nd_namespace_pmem *nspm;
+<<<<<<< HEAD
 	struct nd_mapping *nd_mapping;
+=======
+>>>>>>> upstream/android-13
 	resource_size_t size = 0;
 	struct resource *res;
 	struct device *dev;
@@ -1932,10 +2191,17 @@ static struct device *create_namespace_pmem(struct nd_region *nd_region,
 		return ERR_PTR(-ENXIO);
 	}
 
+<<<<<<< HEAD
 	if (__le64_to_cpu(nd_label->isetcookie) != cookie) {
 		dev_dbg(&nd_region->dev, "invalid cookie in label: %pUb\n",
 				nd_label->uuid);
 		if (__le64_to_cpu(nd_label->isetcookie) != altcookie)
+=======
+	if (!nsl_validate_isetcookie(ndd, nd_label, cookie)) {
+		dev_dbg(&nd_region->dev, "invalid cookie in label: %pUb\n",
+				nd_label->uuid);
+		if (!nsl_validate_isetcookie(ndd, nd_label, altcookie))
+>>>>>>> upstream/android-13
 			return ERR_PTR(-EAGAIN);
 
 		dev_dbg(&nd_region->dev, "valid altcookie in label: %pUb\n",
@@ -2003,6 +2269,7 @@ static struct device *create_namespace_pmem(struct nd_region *nd_region,
 			continue;
 		}
 
+<<<<<<< HEAD
 		size += __le64_to_cpu(label0->rawsize);
 		if (__le16_to_cpu(label0->position) != 0)
 			continue;
@@ -2017,6 +2284,20 @@ static struct device *create_namespace_pmem(struct nd_region *nd_region,
 			nspm->nsio.common.claim_class
 				= to_nvdimm_cclass(&label0->abstraction_guid);
 
+=======
+		ndd = to_ndd(nd_mapping);
+		size += nsl_get_rawsize(ndd, label0);
+		if (nsl_get_position(ndd, label0) != 0)
+			continue;
+		WARN_ON(nspm->alt_name || nspm->uuid);
+		nspm->alt_name = kmemdup(nsl_ref_name(ndd, label0),
+					 NSLABEL_NAME_LEN, GFP_KERNEL);
+		nspm->uuid = kmemdup((void __force *) label0->uuid,
+				NSLABEL_UUID_LEN, GFP_KERNEL);
+		nspm->lbasize = nsl_get_lbasize(ndd, label0);
+		nspm->nsio.common.claim_class =
+			nsl_get_claim_class(ndd, label0);
+>>>>>>> upstream/android-13
 	}
 
 	if (!nspm->alt_name || !nspm->uuid) {
@@ -2087,7 +2368,10 @@ static struct device *nd_namespace_blk_create(struct nd_region *nd_region)
 	}
 	dev_set_name(dev, "namespace%d.%d", nd_region->id, nsblk->id);
 	dev->parent = &nd_region->dev;
+<<<<<<< HEAD
 	dev->groups = nd_namespace_attribute_groups;
+=======
+>>>>>>> upstream/android-13
 
 	return &nsblk->common.dev;
 }
@@ -2118,8 +2402,11 @@ static struct device *nd_namespace_pmem_create(struct nd_region *nd_region)
 		return NULL;
 	}
 	dev_set_name(dev, "namespace%d.%d", nd_region->id, nspm->id);
+<<<<<<< HEAD
 	dev->parent = &nd_region->dev;
 	dev->groups = nd_namespace_attribute_groups;
+=======
+>>>>>>> upstream/android-13
 	nd_namespace_pmem_set_resource(nd_region, nspm, 0);
 
 	return dev;
@@ -2206,7 +2493,11 @@ static int add_namespace_resource(struct nd_region *nd_region,
 		if (is_namespace_blk(devs[i])) {
 			res = nsblk_add_resource(nd_region, ndd,
 					to_nd_namespace_blk(devs[i]),
+<<<<<<< HEAD
 					__le64_to_cpu(nd_label->dpa));
+=======
+					nsl_get_dpa(ndd, nd_label));
+>>>>>>> upstream/android-13
 			if (!res)
 				return -ENXIO;
 			nd_dbg_dpa(nd_region, ndd, res, "%d assign\n", count);
@@ -2234,6 +2525,7 @@ static struct device *create_namespace_blk(struct nd_region *nd_region,
 	struct device *dev = NULL;
 	struct resource *res;
 
+<<<<<<< HEAD
 	if (namespace_label_has(ndd, type_guid)) {
 		if (!guid_equal(&nd_set->type_guid, &nd_label->type_guid)) {
 			dev_dbg(ndd->dev, "expect type_guid %pUb got %pUb\n",
@@ -2249,6 +2541,12 @@ static struct device *create_namespace_blk(struct nd_region *nd_region,
 			return ERR_PTR(-EAGAIN);
 		}
 	}
+=======
+	if (!nsl_validate_type_guid(ndd, nd_label, &nd_set->type_guid))
+		return ERR_PTR(-EAGAIN);
+	if (!nsl_validate_blk_isetcookie(ndd, nd_label, nd_set->cookie2))
+		return ERR_PTR(-EAGAIN);
+>>>>>>> upstream/android-13
 
 	nsblk = kzalloc(sizeof(*nsblk), GFP_KERNEL);
 	if (!nsblk)
@@ -2257,6 +2555,7 @@ static struct device *create_namespace_blk(struct nd_region *nd_region,
 	dev->type = &namespace_blk_device_type;
 	dev->parent = &nd_region->dev;
 	nsblk->id = -1;
+<<<<<<< HEAD
 	nsblk->lbasize = __le64_to_cpu(nd_label->lbasize);
 	nsblk->uuid = kmemdup(nd_label->uuid, NSLABEL_UUID_LEN,
 			GFP_KERNEL);
@@ -2269,11 +2568,25 @@ static struct device *create_namespace_blk(struct nd_region *nd_region,
 	if (name[0]) {
 		nsblk->alt_name = kmemdup(name, NSLABEL_NAME_LEN,
 				GFP_KERNEL);
+=======
+	nsblk->lbasize = nsl_get_lbasize(ndd, nd_label);
+	nsblk->uuid = kmemdup(nd_label->uuid, NSLABEL_UUID_LEN, GFP_KERNEL);
+	nsblk->common.claim_class = nsl_get_claim_class(ndd, nd_label);
+	if (!nsblk->uuid)
+		goto blk_err;
+	nsl_get_name(ndd, nd_label, name);
+	if (name[0]) {
+		nsblk->alt_name = kmemdup(name, NSLABEL_NAME_LEN, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!nsblk->alt_name)
 			goto blk_err;
 	}
 	res = nsblk_add_resource(nd_region, ndd, nsblk,
+<<<<<<< HEAD
 			__le64_to_cpu(nd_label->dpa));
+=======
+			nsl_get_dpa(ndd, nd_label));
+>>>>>>> upstream/android-13
 	if (!res)
 		goto blk_err;
 	nd_dbg_dpa(nd_region, ndd, res, "%d: assign\n", count);
@@ -2314,6 +2627,10 @@ static struct device **scan_labels(struct nd_region *nd_region)
 	struct device *dev, **devs = NULL;
 	struct nd_label_ent *label_ent, *e;
 	struct nd_mapping *nd_mapping = &nd_region->mapping[0];
+<<<<<<< HEAD
+=======
+	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
+>>>>>>> upstream/android-13
 	resource_size_t map_end = nd_mapping->start + nd_mapping->size - 1;
 
 	/* "safe" because create_namespace_pmem() might list_move() label_ent */
@@ -2324,7 +2641,11 @@ static struct device **scan_labels(struct nd_region *nd_region)
 
 		if (!nd_label)
 			continue;
+<<<<<<< HEAD
 		flags = __le32_to_cpu(nd_label->flags);
+=======
+		flags = nsl_get_flags(ndd, nd_label);
+>>>>>>> upstream/android-13
 		if (is_nd_blk(&nd_region->dev)
 				== !!(flags & NSLABEL_FLAG_LOCAL))
 			/* pass, region matches label type */;
@@ -2332,9 +2653,15 @@ static struct device **scan_labels(struct nd_region *nd_region)
 			continue;
 
 		/* skip labels that describe extents outside of the region */
+<<<<<<< HEAD
 		if (__le64_to_cpu(nd_label->dpa) < nd_mapping->start ||
 		    __le64_to_cpu(nd_label->dpa) > map_end)
 				continue;
+=======
+		if (nsl_get_dpa(ndd, nd_label) < nd_mapping->start ||
+		    nsl_get_dpa(ndd, nd_label) > map_end)
+			continue;
+>>>>>>> upstream/android-13
 
 		i = add_namespace_resource(nd_region, nd_label, devs, count);
 		if (i < 0)
@@ -2350,6 +2677,7 @@ static struct device **scan_labels(struct nd_region *nd_region)
 
 		if (is_nd_blk(&nd_region->dev))
 			dev = create_namespace_blk(nd_region, nd_label, count);
+<<<<<<< HEAD
 		else {
 			struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
 			struct nd_namespace_index *nsindex;
@@ -2357,6 +2685,11 @@ static struct device **scan_labels(struct nd_region *nd_region)
 			nsindex = to_namespace_index(ndd, ndd->ns_current);
 			dev = create_namespace_pmem(nd_region, nsindex, nd_label);
 		}
+=======
+		else
+			dev = create_namespace_pmem(nd_region, nd_mapping,
+						    nd_label);
+>>>>>>> upstream/android-13
 
 		if (IS_ERR(dev)) {
 			switch (PTR_ERR(dev)) {
@@ -2473,9 +2806,36 @@ static struct device **create_namespaces(struct nd_region *nd_region)
 	return devs;
 }
 
+<<<<<<< HEAD
 static int init_active_labels(struct nd_region *nd_region)
 {
 	int i;
+=======
+static void deactivate_labels(void *region)
+{
+	struct nd_region *nd_region = region;
+	int i;
+
+	for (i = 0; i < nd_region->ndr_mappings; i++) {
+		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
+		struct nvdimm_drvdata *ndd = nd_mapping->ndd;
+		struct nvdimm *nvdimm = nd_mapping->nvdimm;
+
+		mutex_lock(&nd_mapping->lock);
+		nd_mapping_free_labels(nd_mapping);
+		mutex_unlock(&nd_mapping->lock);
+
+		put_ndd(ndd);
+		nd_mapping->ndd = NULL;
+		if (ndd)
+			atomic_dec(&nvdimm->busy);
+	}
+}
+
+static int init_active_labels(struct nd_region *nd_region)
+{
+	int i, rc = 0;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < nd_region->ndr_mappings; i++) {
 		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
@@ -2491,16 +2851,28 @@ static int init_active_labels(struct nd_region *nd_region)
 		if (!ndd) {
 			if (test_bit(NDD_LOCKED, &nvdimm->flags))
 				/* fail, label data may be unreadable */;
+<<<<<<< HEAD
 			else if (test_bit(NDD_ALIASING, &nvdimm->flags))
 				/* fail, labels needed to disambiguate dpa */;
 			else
 				return 0;
+=======
+			else if (test_bit(NDD_LABELING, &nvdimm->flags))
+				/* fail, labels needed to disambiguate dpa */;
+			else
+				continue;
+>>>>>>> upstream/android-13
 
 			dev_err(&nd_region->dev, "%s: is %s, failing probe\n",
 					dev_name(&nd_mapping->nvdimm->dev),
 					test_bit(NDD_LOCKED, &nvdimm->flags)
 					? "locked" : "disabled");
+<<<<<<< HEAD
 			return -ENXIO;
+=======
+			rc = -ENXIO;
+			goto out;
+>>>>>>> upstream/android-13
 		}
 		nd_mapping->ndd = ndd;
 		atomic_inc(&nvdimm->busy);
@@ -2517,6 +2889,15 @@ static int init_active_labels(struct nd_region *nd_region)
 			if (!label_ent)
 				break;
 			label = nd_label_active(ndd, j);
+<<<<<<< HEAD
+=======
+			if (test_bit(NDD_NOBLK, &nvdimm->flags)) {
+				u32 flags = nsl_get_flags(ndd, label);
+
+				flags &= ~NSLABEL_FLAG_LOCAL;
+				nsl_set_flags(ndd, label, flags);
+			}
+>>>>>>> upstream/android-13
 			label_ent->label = label;
 
 			mutex_lock(&nd_mapping->lock);
@@ -2524,6 +2905,7 @@ static int init_active_labels(struct nd_region *nd_region)
 			mutex_unlock(&nd_mapping->lock);
 		}
 
+<<<<<<< HEAD
 		if (j >= count)
 			continue;
 
@@ -2534,6 +2916,23 @@ static int init_active_labels(struct nd_region *nd_region)
 	}
 
 	return 0;
+=======
+		if (j < count)
+			break;
+	}
+
+	if (i < nd_region->ndr_mappings)
+		rc = -ENOMEM;
+
+out:
+	if (rc) {
+		deactivate_labels(nd_region);
+		return rc;
+	}
+
+	return devm_add_action_or_reset(&nd_region->dev, deactivate_labels,
+					nd_region);
+>>>>>>> upstream/android-13
 }
 
 int nd_region_register_namespaces(struct nd_region *nd_region, int *err)
@@ -2590,7 +2989,10 @@ int nd_region_register_namespaces(struct nd_region *nd_region, int *err)
 		if (id < 0)
 			break;
 		dev_set_name(dev, "namespace%d.%d", nd_region->id, id);
+<<<<<<< HEAD
 		dev->groups = nd_namespace_attribute_groups;
+=======
+>>>>>>> upstream/android-13
 		nd_device_register(dev);
 	}
 	if (i)

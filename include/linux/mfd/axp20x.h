@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Functions and registers to access AXP20X power management chip.
  *
  * Copyright (C) 2013, Carlo Caione <carlo@caione.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_AXP20X_H
@@ -35,7 +42,11 @@ enum axp20x_variants {
 #define AXP152_ALDO_OP_MODE		0x13
 #define AXP152_LDO0_CTRL		0x15
 #define AXP152_DCDC2_V_OUT		0x23
+<<<<<<< HEAD
 #define AXP152_DCDC2_V_SCAL		0x25
+=======
+#define AXP152_DCDC2_V_RAMP		0x25
+>>>>>>> upstream/android-13
 #define AXP152_DCDC1_V_OUT		0x26
 #define AXP152_DCDC3_V_OUT		0x27
 #define AXP152_ALDO12_V_OUT		0x28
@@ -53,7 +64,11 @@ enum axp20x_variants {
 #define AXP20X_USB_OTG_STATUS		0x02
 #define AXP20X_PWR_OUT_CTRL		0x12
 #define AXP20X_DCDC2_V_OUT		0x23
+<<<<<<< HEAD
 #define AXP20X_DCDC2_LDO3_V_SCAL	0x25
+=======
+#define AXP20X_DCDC2_LDO3_V_RAMP	0x25
+>>>>>>> upstream/android-13
 #define AXP20X_DCDC3_V_OUT		0x27
 #define AXP20X_LDO24_V_OUT		0x28
 #define AXP20X_LDO3_V_OUT		0x29
@@ -266,6 +281,10 @@ enum axp20x_variants {
 #define AXP288_RT_BATT_V_H		0xa0
 #define AXP288_RT_BATT_V_L		0xa1
 
+<<<<<<< HEAD
+=======
+#define AXP813_ACIN_PATH_CTRL		0x3a
+>>>>>>> upstream/android-13
 #define AXP813_ADC_RATE			0x85
 
 /* Fuel Gauge */
@@ -698,6 +717,10 @@ int axp20x_device_probe(struct axp20x_dev *axp20x);
  *
  * This tells the axp20x core to remove the associated mfd devices
  */
+<<<<<<< HEAD
 int axp20x_device_remove(struct axp20x_dev *axp20x);
+=======
+void axp20x_device_remove(struct axp20x_dev *axp20x);
+>>>>>>> upstream/android-13
 
 #endif /* __LINUX_MFD_AXP20X_H */

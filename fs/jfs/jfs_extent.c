@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2004
  *
@@ -14,6 +15,11 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2004
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -588,7 +594,11 @@ extBalloc(struct inode *ip, s64 hint, s64 * nblocks, s64 * blkno)
  *	blkno	 - starting block number of the extents current allocation.
  *	nblks	 - number of blocks within the extents current allocation.
  *	newnblks - pointer to a s64 value.  on entry, this value is the
+<<<<<<< HEAD
  *		   the new desired extent size (number of blocks).  on
+=======
+ *		   new desired extent size (number of blocks).  on
+>>>>>>> upstream/android-13
  *		   successful exit, this value is set to the extent's actual
  *		   new size (new number of blocks).
  *	newblkno - the starting block number of the extents new allocation.

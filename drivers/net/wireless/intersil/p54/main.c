@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mac80211 glue code for mac80211 Prism54 drivers
  *
@@ -10,10 +14,13 @@
  *   Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
  * - stlc45xx driver
  *   Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -414,12 +421,18 @@ static int p54_conf_tx(struct ieee80211_hw *dev,
 	int ret;
 
 	mutex_lock(&priv->conf_mutex);
+<<<<<<< HEAD
 	if (queue < dev->queues) {
 		P54_SET_QUEUE(priv->qos_params[queue], params->aifs,
 			params->cw_min, params->cw_max, params->txop);
 		ret = p54_set_edcf(priv);
 	} else
 		ret = -EINVAL;
+=======
+	P54_SET_QUEUE(priv->qos_params[queue], params->aifs,
+		      params->cw_min, params->cw_max, params->txop);
+	ret = p54_set_edcf(priv);
+>>>>>>> upstream/android-13
 	mutex_unlock(&priv->conf_mutex);
 	return ret;
 }

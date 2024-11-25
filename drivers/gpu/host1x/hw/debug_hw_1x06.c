@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 Google, Inc.
  * Author: Erik Gilling <konkers@android.com>
  *
  * Copyright (C) 2011-2017 NVIDIA Corporation
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "../dev.h"
@@ -25,10 +32,29 @@ static void host1x_debug_show_channel_cdma(struct host1x *host,
 					   struct output *o)
 {
 	struct host1x_cdma *cdma = &ch->cdma;
+<<<<<<< HEAD
+=======
+	dma_addr_t dmastart = 0, dmaend = 0;
+>>>>>>> upstream/android-13
 	u32 dmaput, dmaget, dmactrl;
 	u32 offset, class;
 	u32 ch_stat;
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_ARCH_DMA_ADDR_T_64BIT) && HOST1X_HW >= 6
+	dmastart = host1x_ch_readl(ch, HOST1X_CHANNEL_DMASTART_HI);
+	dmastart <<= 32;
+#endif
+	dmastart |= host1x_ch_readl(ch, HOST1X_CHANNEL_DMASTART);
+
+#if defined(CONFIG_ARCH_DMA_ADDR_T_64BIT) && HOST1X_HW >= 6
+	dmaend = host1x_ch_readl(ch, HOST1X_CHANNEL_DMAEND_HI);
+	dmaend <<= 32;
+#endif
+	dmaend |= host1x_ch_readl(ch, HOST1X_CHANNEL_DMAEND);
+
+>>>>>>> upstream/android-13
 	dmaput = host1x_ch_readl(ch, HOST1X_CHANNEL_DMAPUT);
 	dmaget = host1x_ch_readl(ch, HOST1X_CHANNEL_DMAGET);
 	dmactrl = host1x_ch_readl(ch, HOST1X_CHANNEL_DMACTRL);
@@ -50,7 +76,12 @@ static void host1x_debug_show_channel_cdma(struct host1x *host,
 		host1x_debug_output(o, "active class %02x, offset %04x\n",
 				    class, offset);
 
+<<<<<<< HEAD
 	host1x_debug_output(o, "DMAPUT %08x, DMAGET %08x, DMACTL %08x\n",
+=======
+	host1x_debug_output(o, "DMASTART %pad, DMAEND %pad\n", &dmastart, &dmaend);
+	host1x_debug_output(o, "DMAPUT %08x DMAGET %08x DMACTL %08x\n",
+>>>>>>> upstream/android-13
 			    dmaput, dmaget, dmactrl);
 	host1x_debug_output(o, "CHANNELSTAT %02x\n", ch_stat);
 
@@ -62,9 +93,18 @@ static void host1x_debug_show_channel_fifo(struct host1x *host,
 					   struct host1x_channel *ch,
 					   struct output *o)
 {
+<<<<<<< HEAD
 	u32 val, rd_ptr, wr_ptr, start, end;
 	u32 payload = INVALID_PAYLOAD;
 	unsigned int data_count = 0;
+=======
+#if HOST1X_HW <= 6
+	u32 rd_ptr, wr_ptr, start, end;
+	u32 payload = INVALID_PAYLOAD;
+	unsigned int data_count = 0;
+#endif
+	u32 val;
+>>>>>>> upstream/android-13
 
 	host1x_debug_output(o, "%u: fifo:\n", ch->id);
 
@@ -78,6 +118,10 @@ static void host1x_debug_show_channel_fifo(struct host1x *host,
 	val = host1x_ch_readl(ch, HOST1X_CHANNEL_CMDFIFO_RDATA);
 	host1x_debug_output(o, "CMDFIFO_RDATA %08x\n", val);
 
+<<<<<<< HEAD
+=======
+#if HOST1X_HW <= 6
+>>>>>>> upstream/android-13
 	/* Peek pointer values are invalid during SLCG, so disable it */
 	host1x_hypervisor_writel(host, 0x1, HOST1X_HV_ICG_EN_OVERRIDE);
 
@@ -127,6 +171,10 @@ static void host1x_debug_show_channel_fifo(struct host1x *host,
 
 	host1x_hypervisor_writel(host, 0x0, HOST1X_HV_CMDFIFO_PEEK_CTRL);
 	host1x_hypervisor_writel(host, 0x0, HOST1X_HV_ICG_EN_OVERRIDE);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 }
 
 static void host1x_debug_show_mlocks(struct host1x *host, struct output *o)

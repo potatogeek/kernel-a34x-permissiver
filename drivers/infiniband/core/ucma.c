@@ -52,6 +52,12 @@
 #include <rdma/rdma_cm_ib.h>
 #include <rdma/ib_addr.h>
 #include <rdma/ib.h>
+<<<<<<< HEAD
+=======
+#include <rdma/ib_cm.h>
+#include <rdma/rdma_netlink.h>
+#include "core_priv.h"
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Sean Hefty");
 MODULE_DESCRIPTION("RDMA Userspace Connection Manager Access");
@@ -77,6 +83,7 @@ struct ucma_file {
 	struct list_head	ctx_list;
 	struct list_head	event_list;
 	wait_queue_head_t	poll_wait;
+<<<<<<< HEAD
 	struct workqueue_struct	*close_wq;
 };
 
@@ -86,6 +93,16 @@ struct ucma_context {
 	atomic_t		ref;
 	int			events_reported;
 	int			backlog;
+=======
+};
+
+struct ucma_context {
+	u32			id;
+	struct completion	comp;
+	refcount_t		ref;
+	int			events_reported;
+	atomic_t		backlog;
+>>>>>>> upstream/android-13
 
 	struct ucma_file	*file;
 	struct rdma_cm_id	*cm_id;
@@ -94,18 +111,25 @@ struct ucma_context {
 
 	struct list_head	list;
 	struct list_head	mc_list;
+<<<<<<< HEAD
 	/* mark that device is in process of destroying the internal HW
 	 * resources, protected by the global mut
 	 */
 	int			closing;
 	/* sync between removal event and id destroy, protected by file mut */
 	int			destroying;
+=======
+>>>>>>> upstream/android-13
 	struct work_struct	close_work;
 };
 
 struct ucma_multicast {
 	struct ucma_context	*ctx;
+<<<<<<< HEAD
 	int			id;
+=======
+	u32			id;
+>>>>>>> upstream/android-13
 	int			events_reported;
 
 	u64			uid;
@@ -116,6 +140,7 @@ struct ucma_multicast {
 
 struct ucma_event {
 	struct ucma_context	*ctx;
+<<<<<<< HEAD
 	struct ucma_multicast	*mc;
 	struct list_head	list;
 	struct rdma_cm_id	*cm_id;
@@ -128,16 +153,36 @@ static DEFINE_IDR(ctx_idr);
 static DEFINE_IDR(multicast_idr);
 
 static const struct file_operations ucma_fops;
+=======
+	struct ucma_context	*conn_req_ctx;
+	struct ucma_multicast	*mc;
+	struct list_head	list;
+	struct rdma_ucm_event_resp resp;
+};
+
+static DEFINE_XARRAY_ALLOC(ctx_table);
+static DEFINE_XARRAY_ALLOC(multicast_table);
+
+static const struct file_operations ucma_fops;
+static int ucma_destroy_private_ctx(struct ucma_context *ctx);
+>>>>>>> upstream/android-13
 
 static inline struct ucma_context *_ucma_find_context(int id,
 						      struct ucma_file *file)
 {
 	struct ucma_context *ctx;
 
+<<<<<<< HEAD
 	ctx = idr_find(&ctx_idr, id);
 	if (!ctx)
 		ctx = ERR_PTR(-ENOENT);
 	else if (ctx->file != file || !ctx->cm_id)
+=======
+	ctx = xa_load(&ctx_table, id);
+	if (!ctx)
+		ctx = ERR_PTR(-ENOENT);
+	else if (ctx->file != file)
+>>>>>>> upstream/android-13
 		ctx = ERR_PTR(-EINVAL);
 	return ctx;
 }
@@ -146,6 +191,7 @@ static struct ucma_context *ucma_get_ctx(struct ucma_file *file, int id)
 {
 	struct ucma_context *ctx;
 
+<<<<<<< HEAD
 	mutex_lock(&mut);
 	ctx = _ucma_find_context(id, file);
 	if (!IS_ERR(ctx)) {
@@ -155,12 +201,24 @@ static struct ucma_context *ucma_get_ctx(struct ucma_file *file, int id)
 			atomic_inc(&ctx->ref);
 	}
 	mutex_unlock(&mut);
+=======
+	xa_lock(&ctx_table);
+	ctx = _ucma_find_context(id, file);
+	if (!IS_ERR(ctx))
+		if (!refcount_inc_not_zero(&ctx->ref))
+			ctx = ERR_PTR(-ENXIO);
+	xa_unlock(&ctx_table);
+>>>>>>> upstream/android-13
 	return ctx;
 }
 
 static void ucma_put_ctx(struct ucma_context *ctx)
 {
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&ctx->ref))
+=======
+	if (refcount_dec_and_test(&ctx->ref))
+>>>>>>> upstream/android-13
 		complete(&ctx->comp);
 }
 
@@ -181,6 +239,7 @@ static struct ucma_context *ucma_get_ctx_dev(struct ucma_file *file, int id)
 	return ctx;
 }
 
+<<<<<<< HEAD
 static void ucma_close_event_id(struct work_struct *work)
 {
 	struct ucma_event *uevent_close =  container_of(work, struct ucma_event, close_work);
@@ -189,18 +248,30 @@ static void ucma_close_event_id(struct work_struct *work)
 	kfree(uevent_close);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void ucma_close_id(struct work_struct *work)
 {
 	struct ucma_context *ctx =  container_of(work, struct ucma_context, close_work);
 
 	/* once all inflight tasks are finished, we close all underlying
 	 * resources. The context is still alive till its explicit destryoing
+<<<<<<< HEAD
 	 * by its creator.
+=======
+	 * by its creator. This puts back the xarray's reference.
+>>>>>>> upstream/android-13
 	 */
 	ucma_put_ctx(ctx);
 	wait_for_completion(&ctx->comp);
 	/* No new events will be generated after destroying the id. */
 	rdma_destroy_id(ctx->cm_id);
+<<<<<<< HEAD
+=======
+
+	/* Reading the cm_id without holding a positive ref is not allowed */
+	ctx->cm_id = NULL;
+>>>>>>> upstream/android-13
 }
 
 static struct ucma_context *ucma_alloc_ctx(struct ucma_file *file)
@@ -212,6 +283,7 @@ static struct ucma_context *ucma_alloc_ctx(struct ucma_file *file)
 		return NULL;
 
 	INIT_WORK(&ctx->close_work, ucma_close_id);
+<<<<<<< HEAD
 	atomic_set(&ctx->ref, 1);
 	init_completion(&ctx->comp);
 	INIT_LIST_HEAD(&ctx->mc_list);
@@ -253,6 +325,34 @@ static struct ucma_multicast* ucma_alloc_multicast(struct ucma_context *ctx)
 error:
 	kfree(mc);
 	return NULL;
+=======
+	init_completion(&ctx->comp);
+	INIT_LIST_HEAD(&ctx->mc_list);
+	/* So list_del() will work if we don't do ucma_finish_ctx() */
+	INIT_LIST_HEAD(&ctx->list);
+	ctx->file = file;
+	mutex_init(&ctx->mutex);
+
+	if (xa_alloc(&ctx_table, &ctx->id, NULL, xa_limit_32b, GFP_KERNEL)) {
+		kfree(ctx);
+		return NULL;
+	}
+	return ctx;
+}
+
+static void ucma_set_ctx_cm_id(struct ucma_context *ctx,
+			       struct rdma_cm_id *cm_id)
+{
+	refcount_set(&ctx->ref, 1);
+	ctx->cm_id = cm_id;
+}
+
+static void ucma_finish_ctx(struct ucma_context *ctx)
+{
+	lockdep_assert_held(&ctx->file->mut);
+	list_add_tail(&ctx->list, &ctx->file->ctx_list);
+	xa_store(&ctx_table, ctx->id, ctx, GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 static void ucma_copy_conn_event(struct rdma_ucm_conn_param *dst,
@@ -262,7 +362,11 @@ static void ucma_copy_conn_event(struct rdma_ucm_conn_param *dst,
 		memcpy(dst->private_data, src->private_data,
 		       src->private_data_len);
 	dst->private_data_len = src->private_data_len;
+<<<<<<< HEAD
 	dst->responder_resources =src->responder_resources;
+=======
+	dst->responder_resources = src->responder_resources;
+>>>>>>> upstream/android-13
 	dst->initiator_depth = src->initiator_depth;
 	dst->flow_control = src->flow_control;
 	dst->retry_count = src->retry_count;
@@ -284,10 +388,22 @@ static void ucma_copy_ud_event(struct ib_device *device,
 	dst->qkey = src->qkey;
 }
 
+<<<<<<< HEAD
 static void ucma_set_event_context(struct ucma_context *ctx,
 				   struct rdma_cm_event *event,
 				   struct ucma_event *uevent)
 {
+=======
+static struct ucma_event *ucma_create_uevent(struct ucma_context *ctx,
+					     struct rdma_cm_event *event)
+{
+	struct ucma_event *uevent;
+
+	uevent = kzalloc(sizeof(*uevent), GFP_KERNEL);
+	if (!uevent)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	uevent->ctx = ctx;
 	switch (event->event) {
 	case RDMA_CM_EVENT_MULTICAST_JOIN:
@@ -302,6 +418,7 @@ static void ucma_set_event_context(struct ucma_context *ctx,
 		uevent->resp.id = ctx->id;
 		break;
 	}
+<<<<<<< HEAD
 }
 
 /* Called with file->mut locked for the relevant context. */
@@ -340,6 +457,57 @@ static void ucma_removal_event_handler(struct rdma_cm_id *cm_id)
 	}
 	if (!event_found)
 		pr_err("ucma_removal_event_handler: warning: connect request event wasn't found\n");
+=======
+	uevent->resp.event = event->event;
+	uevent->resp.status = event->status;
+	if (ctx->cm_id->qp_type == IB_QPT_UD)
+		ucma_copy_ud_event(ctx->cm_id->device, &uevent->resp.param.ud,
+				   &event->param.ud);
+	else
+		ucma_copy_conn_event(&uevent->resp.param.conn,
+				     &event->param.conn);
+
+	uevent->resp.ece.vendor_id = event->ece.vendor_id;
+	uevent->resp.ece.attr_mod = event->ece.attr_mod;
+	return uevent;
+}
+
+static int ucma_connect_event_handler(struct rdma_cm_id *cm_id,
+				      struct rdma_cm_event *event)
+{
+	struct ucma_context *listen_ctx = cm_id->context;
+	struct ucma_context *ctx;
+	struct ucma_event *uevent;
+
+	if (!atomic_add_unless(&listen_ctx->backlog, -1, 0))
+		return -ENOMEM;
+	ctx = ucma_alloc_ctx(listen_ctx->file);
+	if (!ctx)
+		goto err_backlog;
+	ucma_set_ctx_cm_id(ctx, cm_id);
+
+	uevent = ucma_create_uevent(listen_ctx, event);
+	if (!uevent)
+		goto err_alloc;
+	uevent->conn_req_ctx = ctx;
+	uevent->resp.id = ctx->id;
+
+	ctx->cm_id->context = ctx;
+
+	mutex_lock(&ctx->file->mut);
+	ucma_finish_ctx(ctx);
+	list_add_tail(&uevent->list, &ctx->file->event_list);
+	mutex_unlock(&ctx->file->mut);
+	wake_up_interruptible(&ctx->file->poll_wait);
+	return 0;
+
+err_alloc:
+	ucma_destroy_private_ctx(ctx);
+err_backlog:
+	atomic_inc(&listen_ctx->backlog);
+	/* Returning error causes the new ID to be destroyed */
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static int ucma_event_handler(struct rdma_cm_id *cm_id,
@@ -347,6 +515,7 @@ static int ucma_event_handler(struct rdma_cm_id *cm_id,
 {
 	struct ucma_event *uevent;
 	struct ucma_context *ctx = cm_id->context;
+<<<<<<< HEAD
 	int ret = 0;
 
 	uevent = kzalloc(sizeof(*uevent), GFP_KERNEL);
@@ -395,21 +564,62 @@ static int ucma_event_handler(struct rdma_cm_id *cm_id,
 out:
 	mutex_unlock(&ctx->file->mut);
 	return ret;
+=======
+
+	if (event->event == RDMA_CM_EVENT_CONNECT_REQUEST)
+		return ucma_connect_event_handler(cm_id, event);
+
+	/*
+	 * We ignore events for new connections until userspace has set their
+	 * context.  This can only happen if an error occurs on a new connection
+	 * before the user accepts it.  This is okay, since the accept will just
+	 * fail later. However, we do need to release the underlying HW
+	 * resources in case of a device removal event.
+	 */
+	if (ctx->uid) {
+		uevent = ucma_create_uevent(ctx, event);
+		if (!uevent)
+			return 0;
+
+		mutex_lock(&ctx->file->mut);
+		list_add_tail(&uevent->list, &ctx->file->event_list);
+		mutex_unlock(&ctx->file->mut);
+		wake_up_interruptible(&ctx->file->poll_wait);
+	}
+
+	if (event->event == RDMA_CM_EVENT_DEVICE_REMOVAL) {
+		xa_lock(&ctx_table);
+		if (xa_load(&ctx_table, ctx->id) == ctx)
+			queue_work(system_unbound_wq, &ctx->close_work);
+		xa_unlock(&ctx_table);
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ucma_get_event(struct ucma_file *file, const char __user *inbuf,
 			      int in_len, int out_len)
 {
+<<<<<<< HEAD
 	struct ucma_context *ctx;
 	struct rdma_ucm_get_event cmd;
 	struct ucma_event *uevent;
 	int ret = 0;
+=======
+	struct rdma_ucm_get_event cmd;
+	struct ucma_event *uevent;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Old 32 bit user space does not send the 4 byte padding in the
 	 * reserved field. We don't care, allow it to keep working.
 	 */
+<<<<<<< HEAD
 	if (out_len < sizeof(uevent->resp) - sizeof(uevent->resp.reserved))
+=======
+	if (out_len < sizeof(uevent->resp) - sizeof(uevent->resp.reserved) -
+			      sizeof(uevent->resp.ece))
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 
 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
@@ -429,6 +639,7 @@ static ssize_t ucma_get_event(struct ucma_file *file, const char __user *inbuf,
 		mutex_lock(&file->mut);
 	}
 
+<<<<<<< HEAD
 	uevent = list_entry(file->event_list.next, struct ucma_event, list);
 
 	if (uevent->resp.event == RDMA_CM_EVENT_CONNECT_REQUEST) {
@@ -442,22 +653,39 @@ static ssize_t ucma_get_event(struct ucma_file *file, const char __user *inbuf,
 		ctx->cm_id->context = ctx;
 		uevent->resp.id = ctx->id;
 	}
+=======
+	uevent = list_first_entry(&file->event_list, struct ucma_event, list);
+>>>>>>> upstream/android-13
 
 	if (copy_to_user(u64_to_user_ptr(cmd.response),
 			 &uevent->resp,
 			 min_t(size_t, out_len, sizeof(uevent->resp)))) {
+<<<<<<< HEAD
 		ret = -EFAULT;
 		goto done;
+=======
+		mutex_unlock(&file->mut);
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	}
 
 	list_del(&uevent->list);
 	uevent->ctx->events_reported++;
 	if (uevent->mc)
 		uevent->mc->events_reported++;
+<<<<<<< HEAD
 	kfree(uevent);
 done:
 	mutex_unlock(&file->mut);
 	return ret;
+=======
+	if (uevent->resp.event == RDMA_CM_EVENT_CONNECT_REQUEST)
+		atomic_inc(&uevent->ctx->backlog);
+	mutex_unlock(&file->mut);
+
+	kfree(uevent);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ucma_get_qp_type(struct rdma_ucm_create_id *cmd, enum ib_qp_type *qp_type)
@@ -498,24 +726,37 @@ static ssize_t ucma_create_id(struct ucma_file *file, const char __user *inbuf,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mutex_lock(&file->mut);
 	ctx = ucma_alloc_ctx(file);
 	mutex_unlock(&file->mut);
+=======
+	ctx = ucma_alloc_ctx(file);
+>>>>>>> upstream/android-13
 	if (!ctx)
 		return -ENOMEM;
 
 	ctx->uid = cmd.uid;
+<<<<<<< HEAD
 	cm_id = __rdma_create_id(current->nsproxy->net_ns,
 				 ucma_event_handler, ctx, cmd.ps, qp_type, NULL);
+=======
+	cm_id = rdma_create_user_id(ucma_event_handler, ctx, cmd.ps, qp_type);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cm_id)) {
 		ret = PTR_ERR(cm_id);
 		goto err1;
 	}
+<<<<<<< HEAD
+=======
+	ucma_set_ctx_cm_id(ctx, cm_id);
+>>>>>>> upstream/android-13
 
 	resp.id = ctx->id;
 	if (copy_to_user(u64_to_user_ptr(cmd.response),
 			 &resp, sizeof(resp))) {
 		ret = -EFAULT;
+<<<<<<< HEAD
 		goto err2;
 	}
 
@@ -532,6 +773,18 @@ err1:
 	list_del(&ctx->list);
 	mutex_unlock(&file->mut);
 	kfree(ctx);
+=======
+		goto err1;
+	}
+
+	mutex_lock(&file->mut);
+	ucma_finish_ctx(ctx);
+	mutex_unlock(&file->mut);
+	return 0;
+
+err1:
+	ucma_destroy_private_ctx(ctx);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -539,6 +792,7 @@ static void ucma_cleanup_multicast(struct ucma_context *ctx)
 {
 	struct ucma_multicast *mc, *tmp;
 
+<<<<<<< HEAD
 	mutex_lock(&mut);
 	list_for_each_entry_safe(mc, tmp, &ctx->mc_list, list) {
 		list_del(&mc->list);
@@ -546,12 +800,30 @@ static void ucma_cleanup_multicast(struct ucma_context *ctx)
 		kfree(mc);
 	}
 	mutex_unlock(&mut);
+=======
+	xa_lock(&multicast_table);
+	list_for_each_entry_safe(mc, tmp, &ctx->mc_list, list) {
+		list_del(&mc->list);
+		/*
+		 * At this point mc->ctx->ref is 0 so the mc cannot leave the
+		 * lock on the reader and this is enough serialization
+		 */
+		__xa_erase(&multicast_table, mc->id);
+		kfree(mc);
+	}
+	xa_unlock(&multicast_table);
+>>>>>>> upstream/android-13
 }
 
 static void ucma_cleanup_mc_events(struct ucma_multicast *mc)
 {
 	struct ucma_event *uevent, *tmp;
 
+<<<<<<< HEAD
+=======
+	rdma_lock_handler(mc->ctx->cm_id);
+	mutex_lock(&mc->ctx->file->mut);
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(uevent, tmp, &mc->ctx->file->event_list, list) {
 		if (uevent->mc != mc)
 			continue;
@@ -559,6 +831,7 @@ static void ucma_cleanup_mc_events(struct ucma_multicast *mc)
 		list_del(&uevent->list);
 		kfree(uevent);
 	}
+<<<<<<< HEAD
 }
 
 /*
@@ -573,11 +846,19 @@ static void ucma_cleanup_mc_events(struct ucma_multicast *mc)
  * mutex. After that we release them as needed.
  */
 static int ucma_free_ctx(struct ucma_context *ctx)
+=======
+	mutex_unlock(&mc->ctx->file->mut);
+	rdma_unlock_handler(mc->ctx->cm_id);
+}
+
+static int ucma_cleanup_ctx_events(struct ucma_context *ctx)
+>>>>>>> upstream/android-13
 {
 	int events_reported;
 	struct ucma_event *uevent, *tmp;
 	LIST_HEAD(list);
 
+<<<<<<< HEAD
 
 	ucma_cleanup_multicast(ctx);
 
@@ -586,11 +867,29 @@ static int ucma_free_ctx(struct ucma_context *ctx)
 	list_for_each_entry_safe(uevent, tmp, &ctx->file->event_list, list) {
 		if (uevent->ctx == ctx)
 			list_move_tail(&uevent->list, &list);
+=======
+	/* Cleanup events not yet reported to the user.*/
+	mutex_lock(&ctx->file->mut);
+	list_for_each_entry_safe(uevent, tmp, &ctx->file->event_list, list) {
+		if (uevent->ctx != ctx)
+			continue;
+
+		if (uevent->resp.event == RDMA_CM_EVENT_CONNECT_REQUEST &&
+		    xa_cmpxchg(&ctx_table, uevent->conn_req_ctx->id,
+			       uevent->conn_req_ctx, XA_ZERO_ENTRY,
+			       GFP_KERNEL) == uevent->conn_req_ctx) {
+			list_move_tail(&uevent->list, &list);
+			continue;
+		}
+		list_del(&uevent->list);
+		kfree(uevent);
+>>>>>>> upstream/android-13
 	}
 	list_del(&ctx->list);
 	events_reported = ctx->events_reported;
 	mutex_unlock(&ctx->file->mut);
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(uevent, tmp, &list, list) {
 		list_del(&uevent->list);
 		if (uevent->resp.event == RDMA_CM_EVENT_CONNECT_REQUEST)
@@ -598,6 +897,46 @@ static int ucma_free_ctx(struct ucma_context *ctx)
 		kfree(uevent);
 	}
 
+=======
+	/*
+	 * If this was a listening ID then any connections spawned from it that
+	 * have not been delivered to userspace are cleaned up too. Must be done
+	 * outside any locks.
+	 */
+	list_for_each_entry_safe(uevent, tmp, &list, list) {
+		ucma_destroy_private_ctx(uevent->conn_req_ctx);
+		kfree(uevent);
+	}
+	return events_reported;
+}
+
+/*
+ * When this is called the xarray must have a XA_ZERO_ENTRY in the ctx->id (ie
+ * the ctx is not public to the user). This either because:
+ *  - ucma_finish_ctx() hasn't been called
+ *  - xa_cmpxchg() succeed to remove the entry (only one thread can succeed)
+ */
+static int ucma_destroy_private_ctx(struct ucma_context *ctx)
+{
+	int events_reported;
+
+	/*
+	 * Destroy the underlying cm_id. New work queuing is prevented now by
+	 * the removal from the xarray. Once the work is cancled ref will either
+	 * be 0 because the work ran to completion and consumed the ref from the
+	 * xarray, or it will be positive because we still have the ref from the
+	 * xarray. This can also be 0 in cases where cm_id was never set
+	 */
+	cancel_work_sync(&ctx->close_work);
+	if (refcount_read(&ctx->ref))
+		ucma_close_id(&ctx->close_work);
+
+	events_reported = ucma_cleanup_ctx_events(ctx);
+	ucma_cleanup_multicast(ctx);
+
+	WARN_ON(xa_cmpxchg(&ctx_table, ctx->id, XA_ZERO_ENTRY, NULL,
+			   GFP_KERNEL) != NULL);
+>>>>>>> upstream/android-13
 	mutex_destroy(&ctx->mutex);
 	kfree(ctx);
 	return events_reported;
@@ -617,15 +956,27 @@ static ssize_t ucma_destroy_id(struct ucma_file *file, const char __user *inbuf,
 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	mutex_lock(&mut);
 	ctx = _ucma_find_context(cmd.id, file);
 	if (!IS_ERR(ctx))
 		idr_remove(&ctx_idr, ctx->id);
 	mutex_unlock(&mut);
+=======
+	xa_lock(&ctx_table);
+	ctx = _ucma_find_context(cmd.id, file);
+	if (!IS_ERR(ctx)) {
+		if (__xa_cmpxchg(&ctx_table, ctx->id, ctx, XA_ZERO_ENTRY,
+				 GFP_KERNEL) != ctx)
+			ctx = ERR_PTR(-ENOENT);
+	}
+	xa_unlock(&ctx_table);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(ctx))
 		return PTR_ERR(ctx);
 
+<<<<<<< HEAD
 	mutex_lock(&ctx->file->mut);
 	ctx->destroying = 1;
 	mutex_unlock(&ctx->file->mut);
@@ -644,6 +995,9 @@ static ssize_t ucma_destroy_id(struct ucma_file *file, const char __user *inbuf,
 	}
 
 	resp.events_reported = ucma_free_ctx(ctx);
+=======
+	resp.events_reported = ucma_destroy_private_ctx(ctx);
+>>>>>>> upstream/android-13
 	if (copy_to_user(u64_to_user_ptr(cmd.response),
 			 &resp, sizeof(resp)))
 		ret = -EFAULT;
@@ -796,7 +1150,11 @@ static void ucma_copy_ib_route(struct rdma_ucm_query_route_resp *resp,
 	case 2:
 		ib_copy_path_rec_to_user(&resp->ib_route[1],
 					 &route->path_rec[1]);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		ib_copy_path_rec_to_user(&resp->ib_route[0],
 					 &route->path_rec[0]);
@@ -822,7 +1180,11 @@ static void ucma_copy_iboe_route(struct rdma_ucm_query_route_resp *resp,
 	case 2:
 		ib_copy_path_rec_to_user(&resp->ib_route[1],
 					 &route->path_rec[1]);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		ib_copy_path_rec_to_user(&resp->ib_route[0],
 					 &route->path_rec[0]);
@@ -852,7 +1214,11 @@ static ssize_t ucma_query_route(struct ucma_file *file,
 	struct sockaddr *addr;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (out_len < sizeof(resp))
+=======
+	if (out_len < offsetof(struct rdma_ucm_query_route_resp, ibdev_index))
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 
 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
@@ -876,6 +1242,10 @@ static ssize_t ucma_query_route(struct ucma_file *file,
 		goto out;
 
 	resp.node_guid = (__force __u64) ctx->cm_id->device->node_guid;
+<<<<<<< HEAD
+=======
+	resp.ibdev_index = ctx->cm_id->device->index;
+>>>>>>> upstream/android-13
 	resp.port_num = ctx->cm_id->port_num;
 
 	if (rdma_cap_ib_sa(ctx->cm_id->device, ctx->cm_id->port_num))
@@ -887,8 +1257,13 @@ static ssize_t ucma_query_route(struct ucma_file *file,
 
 out:
 	mutex_unlock(&ctx->mutex);
+<<<<<<< HEAD
 	if (copy_to_user(u64_to_user_ptr(cmd.response),
 			 &resp, sizeof(resp)))
+=======
+	if (copy_to_user(u64_to_user_ptr(cmd.response), &resp,
+			 min_t(size_t, out_len, sizeof(resp))))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 
 	ucma_put_ctx(ctx);
@@ -902,6 +1277,10 @@ static void ucma_query_device_addr(struct rdma_cm_id *cm_id,
 		return;
 
 	resp->node_guid = (__force __u64) cm_id->device->node_guid;
+<<<<<<< HEAD
+=======
+	resp->ibdev_index = cm_id->device->index;
+>>>>>>> upstream/android-13
 	resp->port_num = cm_id->port_num;
 	resp->pkey = (__force __u16) cpu_to_be16(
 		     ib_addr_get_pkey(&cm_id->route.addr.dev_addr));
@@ -914,7 +1293,11 @@ static ssize_t ucma_query_addr(struct ucma_context *ctx,
 	struct sockaddr *addr;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (out_len < sizeof(resp))
+=======
+	if (out_len < offsetof(struct rdma_ucm_query_addr_resp, ibdev_index))
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 
 	memset(&resp, 0, sizeof resp);
@@ -929,7 +1312,11 @@ static ssize_t ucma_query_addr(struct ucma_context *ctx,
 
 	ucma_query_device_addr(ctx->cm_id, &resp);
 
+<<<<<<< HEAD
 	if (copy_to_user(response, &resp, sizeof(resp)))
+=======
+	if (copy_to_user(response, &resp, min_t(size_t, out_len, sizeof(resp))))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 
 	return ret;
@@ -967,8 +1354,12 @@ static ssize_t ucma_query_path(struct ucma_context *ctx,
 		}
 	}
 
+<<<<<<< HEAD
 	if (copy_to_user(response, resp,
 			 sizeof(*resp) + (i * sizeof(struct ib_path_rec_data))))
+=======
+	if (copy_to_user(response, resp, struct_size(resp, path_data, i)))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 
 	kfree(resp);
@@ -982,7 +1373,11 @@ static ssize_t ucma_query_gid(struct ucma_context *ctx,
 	struct sockaddr_ib *addr;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (out_len < sizeof(resp))
+=======
+	if (out_len < offsetof(struct rdma_ucm_query_addr_resp, ibdev_index))
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 
 	memset(&resp, 0, sizeof resp);
@@ -1015,7 +1410,11 @@ static ssize_t ucma_query_gid(struct ucma_context *ctx,
 						    &ctx->cm_id->route.addr.dst_addr);
 	}
 
+<<<<<<< HEAD
 	if (copy_to_user(response, &resp, sizeof(resp)))
+=======
+	if (copy_to_user(response, &resp, min_t(size_t, out_len, sizeof(resp))))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 
 	return ret;
@@ -1065,25 +1464,47 @@ static void ucma_copy_conn_param(struct rdma_cm_id *id,
 {
 	dst->private_data = src->private_data;
 	dst->private_data_len = src->private_data_len;
+<<<<<<< HEAD
 	dst->responder_resources =src->responder_resources;
+=======
+	dst->responder_resources = src->responder_resources;
+>>>>>>> upstream/android-13
 	dst->initiator_depth = src->initiator_depth;
 	dst->flow_control = src->flow_control;
 	dst->retry_count = src->retry_count;
 	dst->rnr_retry_count = src->rnr_retry_count;
 	dst->srq = src->srq;
+<<<<<<< HEAD
 	dst->qp_num = src->qp_num;
+=======
+	dst->qp_num = src->qp_num & 0xFFFFFF;
+>>>>>>> upstream/android-13
 	dst->qkey = (id->route.addr.src_addr.ss_family == AF_IB) ? src->qkey : 0;
 }
 
 static ssize_t ucma_connect(struct ucma_file *file, const char __user *inbuf,
 			    int in_len, int out_len)
 {
+<<<<<<< HEAD
 	struct rdma_ucm_connect cmd;
 	struct rdma_conn_param conn_param;
 	struct ucma_context *ctx;
 	int ret;
 
 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
+=======
+	struct rdma_conn_param conn_param;
+	struct rdma_ucm_ece ece = {};
+	struct rdma_ucm_connect cmd;
+	struct ucma_context *ctx;
+	size_t in_size;
+	int ret;
+
+	if (in_len < offsetofend(typeof(cmd), reserved))
+		return -EINVAL;
+	in_size = min_t(size_t, in_len, sizeof(cmd));
+	if (copy_from_user(&cmd, inbuf, in_size))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	if (!cmd.conn_param.valid)
@@ -1094,8 +1515,18 @@ static ssize_t ucma_connect(struct ucma_file *file, const char __user *inbuf,
 		return PTR_ERR(ctx);
 
 	ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
+<<<<<<< HEAD
 	mutex_lock(&ctx->mutex);
 	ret = rdma_connect(ctx->cm_id, &conn_param);
+=======
+	if (offsetofend(typeof(cmd), ece) <= in_size) {
+		ece.vendor_id = cmd.ece.vendor_id;
+		ece.attr_mod = cmd.ece.attr_mod;
+	}
+
+	mutex_lock(&ctx->mutex);
+	ret = rdma_connect_ece(ctx->cm_id, &conn_param, &ece);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ctx->mutex);
 	ucma_put_ctx(ctx);
 	return ret;
@@ -1115,10 +1546,19 @@ static ssize_t ucma_listen(struct ucma_file *file, const char __user *inbuf,
 	if (IS_ERR(ctx))
 		return PTR_ERR(ctx);
 
+<<<<<<< HEAD
 	ctx->backlog = cmd.backlog > 0 && cmd.backlog < max_backlog ?
 		       cmd.backlog : max_backlog;
 	mutex_lock(&ctx->mutex);
 	ret = rdma_listen(ctx->cm_id, ctx->backlog);
+=======
+	if (cmd.backlog <= 0 || cmd.backlog > max_backlog)
+		cmd.backlog = max_backlog;
+	atomic_set(&ctx->backlog, cmd.backlog);
+
+	mutex_lock(&ctx->mutex);
+	ret = rdma_listen(ctx->cm_id, cmd.backlog);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ctx->mutex);
 	ucma_put_ctx(ctx);
 	return ret;
@@ -1129,16 +1569,29 @@ static ssize_t ucma_accept(struct ucma_file *file, const char __user *inbuf,
 {
 	struct rdma_ucm_accept cmd;
 	struct rdma_conn_param conn_param;
+<<<<<<< HEAD
 	struct ucma_context *ctx;
 	int ret;
 
 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
+=======
+	struct rdma_ucm_ece ece = {};
+	struct ucma_context *ctx;
+	size_t in_size;
+	int ret;
+
+	if (in_len < offsetofend(typeof(cmd), reserved))
+		return -EINVAL;
+	in_size = min_t(size_t, in_len, sizeof(cmd));
+	if (copy_from_user(&cmd, inbuf, in_size))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	ctx = ucma_get_ctx_dev(file, cmd.id);
 	if (IS_ERR(ctx))
 		return PTR_ERR(ctx);
 
+<<<<<<< HEAD
 	if (cmd.conn_param.valid) {
 		ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
 		mutex_lock(&file->mut);
@@ -1151,6 +1604,29 @@ static ssize_t ucma_accept(struct ucma_file *file, const char __user *inbuf,
 	} else {
 		mutex_lock(&ctx->mutex);
 		ret = __rdma_accept(ctx->cm_id, NULL, NULL);
+=======
+	if (offsetofend(typeof(cmd), ece) <= in_size) {
+		ece.vendor_id = cmd.ece.vendor_id;
+		ece.attr_mod = cmd.ece.attr_mod;
+	}
+
+	if (cmd.conn_param.valid) {
+		ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
+		mutex_lock(&ctx->mutex);
+		rdma_lock_handler(ctx->cm_id);
+		ret = rdma_accept_ece(ctx->cm_id, &conn_param, &ece);
+		if (!ret) {
+			/* The uid must be set atomically with the handler */
+			ctx->uid = cmd.uid;
+		}
+		rdma_unlock_handler(ctx->cm_id);
+		mutex_unlock(&ctx->mutex);
+	} else {
+		mutex_lock(&ctx->mutex);
+		rdma_lock_handler(ctx->cm_id);
+		ret = rdma_accept_ece(ctx->cm_id, NULL, &ece);
+		rdma_unlock_handler(ctx->cm_id);
+>>>>>>> upstream/android-13
 		mutex_unlock(&ctx->mutex);
 	}
 	ucma_put_ctx(ctx);
@@ -1167,12 +1643,31 @@ static ssize_t ucma_reject(struct ucma_file *file, const char __user *inbuf,
 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
 		return -EFAULT;
 
+<<<<<<< HEAD
+=======
+	if (!cmd.reason)
+		cmd.reason = IB_CM_REJ_CONSUMER_DEFINED;
+
+	switch (cmd.reason) {
+	case IB_CM_REJ_CONSUMER_DEFINED:
+	case IB_CM_REJ_VENDOR_OPTION_NOT_SUPPORTED:
+		break;
+	default:
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	ctx = ucma_get_ctx_dev(file, cmd.id);
 	if (IS_ERR(ctx))
 		return PTR_ERR(ctx);
 
 	mutex_lock(&ctx->mutex);
+<<<<<<< HEAD
 	ret = rdma_reject(ctx->cm_id, cmd.private_data, cmd.private_data_len);
+=======
+	ret = rdma_reject(ctx->cm_id, cmd.private_data, cmd.private_data_len,
+			  cmd.reason);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ctx->mutex);
 	ucma_put_ctx(ctx);
 	return ret;
@@ -1268,6 +1763,16 @@ static int ucma_set_option_id(struct ucma_context *ctx, int optname,
 		}
 		ret = rdma_set_afonly(ctx->cm_id, *((int *) optval) ? 1 : 0);
 		break;
+<<<<<<< HEAD
+=======
+	case RDMA_OPTION_ID_ACK_TIMEOUT:
+		if (optlen != sizeof(u8)) {
+			ret = -EINVAL;
+			break;
+		}
+		ret = rdma_set_ack_timeout(ctx->cm_id, *((u8 *)optval));
+		break;
+>>>>>>> upstream/android-13
 	default:
 		ret = -ENOSYS;
 	}
@@ -1444,6 +1949,7 @@ static ssize_t ucma_process_join(struct ucma_file *file,
 	if (IS_ERR(ctx))
 		return PTR_ERR(ctx);
 
+<<<<<<< HEAD
 	mutex_lock(&file->mut);
 	mc = ucma_alloc_multicast(ctx);
 	if (!mc) {
@@ -1453,17 +1959,45 @@ static ssize_t ucma_process_join(struct ucma_file *file,
 	mc->join_state = join_state;
 	mc->uid = cmd->uid;
 	memcpy(&mc->addr, addr, cmd->addr_size);
+=======
+	mc = kzalloc(sizeof(*mc), GFP_KERNEL);
+	if (!mc) {
+		ret = -ENOMEM;
+		goto err_put_ctx;
+	}
+
+	mc->ctx = ctx;
+	mc->join_state = join_state;
+	mc->uid = cmd->uid;
+	memcpy(&mc->addr, addr, cmd->addr_size);
+
+	xa_lock(&multicast_table);
+	if (__xa_alloc(&multicast_table, &mc->id, NULL, xa_limit_32b,
+		     GFP_KERNEL)) {
+		ret = -ENOMEM;
+		goto err_free_mc;
+	}
+
+	list_add_tail(&mc->list, &ctx->mc_list);
+	xa_unlock(&multicast_table);
+
+>>>>>>> upstream/android-13
 	mutex_lock(&ctx->mutex);
 	ret = rdma_join_multicast(ctx->cm_id, (struct sockaddr *)&mc->addr,
 				  join_state, mc);
 	mutex_unlock(&ctx->mutex);
 	if (ret)
+<<<<<<< HEAD
 		goto err2;
+=======
+		goto err_xa_erase;
+>>>>>>> upstream/android-13
 
 	resp.id = mc->id;
 	if (copy_to_user(u64_to_user_ptr(cmd->response),
 			 &resp, sizeof(resp))) {
 		ret = -EFAULT;
+<<<<<<< HEAD
 		goto err3;
 	}
 
@@ -1476,10 +2010,22 @@ static ssize_t ucma_process_join(struct ucma_file *file,
 	return 0;
 
 err3:
+=======
+		goto err_leave_multicast;
+	}
+
+	xa_store(&multicast_table, mc->id, mc, 0);
+
+	ucma_put_ctx(ctx);
+	return 0;
+
+err_leave_multicast:
+>>>>>>> upstream/android-13
 	mutex_lock(&ctx->mutex);
 	rdma_leave_multicast(ctx->cm_id, (struct sockaddr *) &mc->addr);
 	mutex_unlock(&ctx->mutex);
 	ucma_cleanup_mc_events(mc);
+<<<<<<< HEAD
 err2:
 	mutex_lock(&mut);
 	idr_remove(&multicast_idr, mc->id);
@@ -1488,6 +2034,16 @@ err2:
 	kfree(mc);
 err1:
 	mutex_unlock(&file->mut);
+=======
+err_xa_erase:
+	xa_lock(&multicast_table);
+	list_del(&mc->list);
+	__xa_erase(&multicast_table, mc->id);
+err_free_mc:
+	xa_unlock(&multicast_table);
+	kfree(mc);
+err_put_ctx:
+>>>>>>> upstream/android-13
 	ucma_put_ctx(ctx);
 	return ret;
 }
@@ -1545,6 +2101,7 @@ static ssize_t ucma_leave_multicast(struct ucma_file *file,
 	if (copy_from_user(&cmd, inbuf, sizeof(cmd)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	mutex_lock(&mut);
 	mc = idr_find(&multicast_idr, cmd.id);
 	if (!mc)
@@ -1558,18 +2115,42 @@ static ssize_t ucma_leave_multicast(struct ucma_file *file,
 	mutex_unlock(&mut);
 
 	if (IS_ERR(mc)) {
+=======
+	xa_lock(&multicast_table);
+	mc = xa_load(&multicast_table, cmd.id);
+	if (!mc)
+		mc = ERR_PTR(-ENOENT);
+	else if (READ_ONCE(mc->ctx->file) != file)
+		mc = ERR_PTR(-EINVAL);
+	else if (!refcount_inc_not_zero(&mc->ctx->ref))
+		mc = ERR_PTR(-ENXIO);
+
+	if (IS_ERR(mc)) {
+		xa_unlock(&multicast_table);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(mc);
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	list_del(&mc->list);
+	__xa_erase(&multicast_table, mc->id);
+	xa_unlock(&multicast_table);
+
+>>>>>>> upstream/android-13
 	mutex_lock(&mc->ctx->mutex);
 	rdma_leave_multicast(mc->ctx->cm_id, (struct sockaddr *) &mc->addr);
 	mutex_unlock(&mc->ctx->mutex);
 
+<<<<<<< HEAD
 	mutex_lock(&mc->ctx->file->mut);
 	ucma_cleanup_mc_events(mc);
 	list_del(&mc->list);
 	mutex_unlock(&mc->ctx->file->mut);
+=======
+	ucma_cleanup_mc_events(mc);
+>>>>>>> upstream/android-13
 
 	ucma_put_ctx(mc->ctx);
 	resp.events_reported = mc->events_reported;
@@ -1582,6 +2163,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void ucma_lock_files(struct ucma_file *file1, struct ucma_file *file2)
 {
 	/* Acquire mutex's based on pointer comparison to prevent deadlock. */
@@ -1614,13 +2196,21 @@ static void ucma_move_events(struct ucma_context *ctx, struct ucma_file *file)
 			list_move_tail(&uevent->list, &file->event_list);
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t ucma_migrate_id(struct ucma_file *new_file,
 			       const char __user *inbuf,
 			       int in_len, int out_len)
 {
 	struct rdma_ucm_migrate_id cmd;
 	struct rdma_ucm_migrate_resp resp;
+<<<<<<< HEAD
 	struct ucma_context *ctx;
+=======
+	struct ucma_event *uevent, *tmp;
+	struct ucma_context *ctx;
+	LIST_HEAD(event_list);
+>>>>>>> upstream/android-13
 	struct fd f;
 	struct ucma_file *cur_file;
 	int ret = 0;
@@ -1636,14 +2226,22 @@ static ssize_t ucma_migrate_id(struct ucma_file *new_file,
 		ret = -EINVAL;
 		goto file_put;
 	}
+<<<<<<< HEAD
 
 	/* Validate current fd and prevent destruction of id. */
 	ctx = ucma_get_ctx(f.file->private_data, cmd.id);
+=======
+	cur_file = f.file->private_data;
+
+	/* Validate current fd and prevent destruction of id. */
+	ctx = ucma_get_ctx(cur_file, cmd.id);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ctx)) {
 		ret = PTR_ERR(ctx);
 		goto file_put;
 	}
 
+<<<<<<< HEAD
 	cur_file = ctx->file;
 	if (cur_file == new_file) {
 		mutex_lock(&cur_file->mut);
@@ -1668,10 +2266,49 @@ static ssize_t ucma_migrate_id(struct ucma_file *new_file,
 	ucma_unlock_files(cur_file, new_file);
 
 response:
+=======
+	rdma_lock_handler(ctx->cm_id);
+	/*
+	 * ctx->file can only be changed under the handler & xa_lock. xa_load()
+	 * must be checked again to ensure the ctx hasn't begun destruction
+	 * since the ucma_get_ctx().
+	 */
+	xa_lock(&ctx_table);
+	if (_ucma_find_context(cmd.id, cur_file) != ctx) {
+		xa_unlock(&ctx_table);
+		ret = -ENOENT;
+		goto err_unlock;
+	}
+	ctx->file = new_file;
+	xa_unlock(&ctx_table);
+
+	mutex_lock(&cur_file->mut);
+	list_del(&ctx->list);
+	/*
+	 * At this point lock_handler() prevents addition of new uevents for
+	 * this ctx.
+	 */
+	list_for_each_entry_safe(uevent, tmp, &cur_file->event_list, list)
+		if (uevent->ctx == ctx)
+			list_move_tail(&uevent->list, &event_list);
+	resp.events_reported = ctx->events_reported;
+	mutex_unlock(&cur_file->mut);
+
+	mutex_lock(&new_file->mut);
+	list_add_tail(&ctx->list, &new_file->ctx_list);
+	list_splice_tail(&event_list, &new_file->event_list);
+	mutex_unlock(&new_file->mut);
+
+>>>>>>> upstream/android-13
 	if (copy_to_user(u64_to_user_ptr(cmd.response),
 			 &resp, sizeof(resp)))
 		ret = -EFAULT;
 
+<<<<<<< HEAD
+=======
+err_unlock:
+	rdma_unlock_handler(ctx->cm_id);
+>>>>>>> upstream/android-13
 	ucma_put_ctx(ctx);
 file_put:
 	fdput(f);
@@ -1714,8 +2351,13 @@ static ssize_t ucma_write(struct file *filp, const char __user *buf,
 	ssize_t ret;
 
 	if (!ib_safe_file_access(filp)) {
+<<<<<<< HEAD
 		pr_err_once("ucma_write: process %d (%s) changed security contexts after opening file descriptor, this is not allowed.\n",
 			    task_tgid_vnr(current), current->comm);
+=======
+		pr_err_once("%s: process %d (%s) changed security contexts after opening file descriptor, this is not allowed.\n",
+			    __func__, task_tgid_vnr(current), current->comm);
+>>>>>>> upstream/android-13
 		return -EACCES;
 	}
 
@@ -1771,6 +2413,7 @@ static int ucma_open(struct inode *inode, struct file *filp)
 	if (!file)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	file->close_wq = alloc_ordered_workqueue("ucma_close_id",
 						 WQ_MEM_RECLAIM);
 	if (!file->close_wq) {
@@ -1778,6 +2421,8 @@ static int ucma_open(struct inode *inode, struct file *filp)
 		return -ENOMEM;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&file->event_list);
 	INIT_LIST_HEAD(&file->ctx_list);
 	init_waitqueue_head(&file->poll_wait);
@@ -1786,12 +2431,17 @@ static int ucma_open(struct inode *inode, struct file *filp)
 	filp->private_data = file;
 	file->filp = filp;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, filp);
+=======
+	return stream_open(inode, filp);
+>>>>>>> upstream/android-13
 }
 
 static int ucma_close(struct inode *inode, struct file *filp)
 {
 	struct ucma_file *file = filp->private_data;
+<<<<<<< HEAD
 	struct ucma_context *ctx, *tmp;
 
 	mutex_lock(&file->mut);
@@ -1826,6 +2476,25 @@ static int ucma_close(struct inode *inode, struct file *filp)
 	}
 	mutex_unlock(&file->mut);
 	destroy_workqueue(file->close_wq);
+=======
+
+	/*
+	 * All paths that touch ctx_list or ctx_list starting from write() are
+	 * prevented by this being a FD release function. The list_add_tail() in
+	 * ucma_connect_event_handler() can run concurrently, however it only
+	 * adds to the list *after* a listening ID. By only reading the first of
+	 * the list, and relying on ucma_destroy_private_ctx() to block
+	 * ucma_connect_event_handler(), no additional locking is needed.
+	 */
+	while (!list_empty(&file->ctx_list)) {
+		struct ucma_context *ctx = list_first_entry(
+			&file->ctx_list, struct ucma_context, list);
+
+		WARN_ON(xa_cmpxchg(&ctx_table, ctx->id, ctx, XA_ZERO_ENTRY,
+				   GFP_KERNEL) != ctx);
+		ucma_destroy_private_ctx(ctx);
+	}
+>>>>>>> upstream/android-13
 	kfree(file);
 	return 0;
 }
@@ -1847,6 +2516,7 @@ static struct miscdevice ucma_misc = {
 	.fops		= &ucma_fops,
 };
 
+<<<<<<< HEAD
 static ssize_t show_abi_version(struct device *dev,
 				struct device_attribute *attr,
 				char *buf)
@@ -1854,6 +2524,27 @@ static ssize_t show_abi_version(struct device *dev,
 	return sprintf(buf, "%d\n", RDMA_USER_CM_ABI_VERSION);
 }
 static DEVICE_ATTR(abi_version, S_IRUGO, show_abi_version, NULL);
+=======
+static int ucma_get_global_nl_info(struct ib_client_nl_info *res)
+{
+	res->abi = RDMA_USER_CM_ABI_VERSION;
+	res->cdev = ucma_misc.this_device;
+	return 0;
+}
+
+static struct ib_client rdma_cma_client = {
+	.name = "rdma_cm",
+	.get_global_nl_info = ucma_get_global_nl_info,
+};
+MODULE_ALIAS_RDMA_CLIENT("rdma_cm");
+
+static ssize_t abi_version_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "%d\n", RDMA_USER_CM_ABI_VERSION);
+}
+static DEVICE_ATTR_RO(abi_version);
+>>>>>>> upstream/android-13
 
 static int __init ucma_init(void)
 {
@@ -1875,7 +2566,18 @@ static int __init ucma_init(void)
 		ret = -ENOMEM;
 		goto err2;
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+
+	ret = ib_register_client(&rdma_cma_client);
+	if (ret)
+		goto err3;
+
+	return 0;
+err3:
+	unregister_net_sysctl_table(ucma_ctl_table_hdr);
+>>>>>>> upstream/android-13
 err2:
 	device_remove_file(ucma_misc.this_device, &dev_attr_abi_version);
 err1:
@@ -1885,11 +2587,18 @@ err1:
 
 static void __exit ucma_cleanup(void)
 {
+<<<<<<< HEAD
 	unregister_net_sysctl_table(ucma_ctl_table_hdr);
 	device_remove_file(ucma_misc.this_device, &dev_attr_abi_version);
 	misc_deregister(&ucma_misc);
 	idr_destroy(&ctx_idr);
 	idr_destroy(&multicast_idr);
+=======
+	ib_unregister_client(&rdma_cma_client);
+	unregister_net_sysctl_table(ucma_ctl_table_hdr);
+	device_remove_file(ucma_misc.this_device, &dev_attr_abi_version);
+	misc_deregister(&ucma_misc);
+>>>>>>> upstream/android-13
 }
 
 module_init(ucma_init);

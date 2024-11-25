@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenRISC setup.c
  *
@@ -9,11 +13,14 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This file handles the architecture-dependent parts of initialization
  */
 
@@ -30,18 +37,28 @@
 #include <linux/delay.h>
 #include <linux/console.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <linux/serial.h>
 #include <linux/initrd.h>
 #include <linux/of_fdt.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/memblock.h>
 #include <linux/device.h>
 
 #include <asm/sections.h>
 #include <asm/segment.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/device.h>
+
+#include <asm/sections.h>
+>>>>>>> upstream/android-13
 #include <asm/types.h>
 #include <asm/setup.h>
 #include <asm/io.h>
@@ -55,17 +72,25 @@ static void __init setup_memory(void)
 	unsigned long ram_start_pfn;
 	unsigned long ram_end_pfn;
 	phys_addr_t memory_start, memory_end;
+<<<<<<< HEAD
 	struct memblock_region *region;
+=======
+>>>>>>> upstream/android-13
 
 	memory_end = memory_start = 0;
 
 	/* Find main memory where is the kernel, we assume its the only one */
+<<<<<<< HEAD
 	for_each_memblock(memory, region) {
 		memory_start = region->base;
 		memory_end = region->base + region->size;
 		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
 		       memory_start, memory_end);
 	}
+=======
+	memory_start = memblock_start_of_DRAM();
+	memory_end = memblock_end_of_DRAM();
+>>>>>>> upstream/android-13
 
 	if (!memory_end) {
 		panic("No memory!");
@@ -87,6 +112,19 @@ static void __init setup_memory(void)
 	 */
 	memblock_reserve(__pa(_stext), _end - _stext);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BLK_DEV_INITRD
+	/* Then reserve the initrd, if any */
+	if (initrd_start && (initrd_end > initrd_start)) {
+		unsigned long aligned_start = ALIGN_DOWN(initrd_start, PAGE_SIZE);
+		unsigned long aligned_end = ALIGN(initrd_end, PAGE_SIZE);
+
+		memblock_reserve(__pa(aligned_start), aligned_end - aligned_start);
+	}
+#endif /* CONFIG_BLK_DEV_INITRD */
+
+>>>>>>> upstream/android-13
 	early_init_fdt_reserve_self();
 	early_init_fdt_scan_reserved_mem();
 
@@ -158,9 +196,14 @@ static struct device_node *setup_find_cpu_node(int cpu)
 {
 	u32 hwid;
 	struct device_node *cpun;
+<<<<<<< HEAD
 	struct device_node *cpus = of_find_node_by_path("/cpus");
 
 	for_each_available_child_of_node(cpus, cpun) {
+=======
+
+	for_each_of_cpu_node(cpun) {
+>>>>>>> upstream/android-13
 		if (of_property_read_u32(cpun, "reg", &hwid))
 			continue;
 		if (hwid == cpu)
@@ -212,7 +255,12 @@ void __init setup_cpuinfo(void)
 }
 
 /**
+<<<<<<< HEAD
  * or32_early_setup
+=======
+ * or1k_early_setup
+ * @fdt: pointer to the start of the device tree in memory or NULL
+>>>>>>> upstream/android-13
  *
  * Handles the pointer to the device tree that this kernel is to use
  * for establishing the available platform devices.
@@ -220,7 +268,11 @@ void __init setup_cpuinfo(void)
  * Falls back on built-in device tree in case null pointer is passed.
  */
 
+<<<<<<< HEAD
 void __init or32_early_setup(void *fdt)
+=======
+void __init or1k_early_setup(void *fdt)
+>>>>>>> upstream/android-13
 {
 	if (fdt)
 		pr_info("FDT at %p\n", fdt);
@@ -246,6 +298,7 @@ static inline unsigned long extract_value(unsigned long reg, unsigned long mask)
 	return mask & reg;
 }
 
+<<<<<<< HEAD
 void __init detect_unit_config(unsigned long upr, unsigned long mask,
 			       char *text, void (*func) (void))
 {
@@ -261,6 +314,8 @@ void __init detect_unit_config(unsigned long upr, unsigned long mask,
 		printk("not present\n");
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * calibrate_delay
  *
@@ -281,6 +336,11 @@ void calibrate_delay(void)
 	pr_cont("%lu.%02lu BogoMIPS (lpj=%lu)\n",
 		loops_per_jiffy / (500000 / HZ),
 		(loops_per_jiffy / (5000 / HZ)) % 100, loops_per_jiffy);
+<<<<<<< HEAD
+=======
+
+	of_node_put(cpu);
+>>>>>>> upstream/android-13
 }
 
 void __init setup_arch(char **cmdline_p)
@@ -294,6 +354,7 @@ void __init setup_arch(char **cmdline_p)
 #endif
 
 	/* process 1's initial memory region is the kernel code/data */
+<<<<<<< HEAD
 	init_mm.start_code = (unsigned long)_stext;
 	init_mm.end_code = (unsigned long)_etext;
 	init_mm.end_data = (unsigned long)_edata;
@@ -307,6 +368,20 @@ void __init setup_arch(char **cmdline_p)
 		initrd_end = 0;
 	}
 	initrd_below_start_ok = 1;
+=======
+	setup_initial_init_mm(_stext, _etext, _edata, _end);
+
+#ifdef CONFIG_BLK_DEV_INITRD
+	if (initrd_start == initrd_end) {
+		printk(KERN_INFO "Initial ramdisk not found\n");
+		initrd_start = 0;
+		initrd_end = 0;
+	} else {
+		printk(KERN_INFO "Initial ramdisk at: 0x%p (%lu bytes)\n",
+		       (void *)(initrd_start), initrd_end - initrd_start);
+		initrd_below_start_ok = 1;
+	}
+>>>>>>> upstream/android-13
 #endif
 
 	/* setup memblock allocator */
@@ -315,11 +390,14 @@ void __init setup_arch(char **cmdline_p)
 	/* paging_init() sets up the MMU and marks all pages as reserved */
 	paging_init();
 
+<<<<<<< HEAD
 #if defined(CONFIG_VT) && defined(CONFIG_DUMMY_CONSOLE)
 	if (!conswitchp)
 		conswitchp = &dummy_con;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	*cmdline_p = boot_command_line;
 
 	printk(KERN_INFO "OpenRISC Linux -- http://openrisc.io\n");

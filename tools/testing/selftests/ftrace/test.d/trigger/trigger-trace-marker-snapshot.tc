@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: trace_marker trigger - test snapshot trigger
+<<<<<<< HEAD
 # flags: instance
 
 do_reset() {
@@ -12,10 +13,17 @@ do_reset() {
 
 fail() { #msg
     do_reset
+=======
+# requires: set_event snapshot events/ftrace/print/trigger
+# flags: instance
+
+fail() { #msg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -36,6 +44,8 @@ if [ ! -f events/ftrace/print/trigger ]; then
     exit_unsupported
 fi
 
+=======
+>>>>>>> upstream/android-13
 test_trace() {
     file=$1
     x=$2
@@ -47,6 +57,7 @@ test_trace() {
 	fi
 	echo "testing $line for >$x<"
 	match=`echo $line | sed -e "s/>$x<//"`
+<<<<<<< HEAD
 	if [ "$line" == "$match" ]; then
 	    fail "$line does not have >$x< in it"
 	fi
@@ -57,6 +68,16 @@ test_trace() {
 do_reset
 
 echo "Test snapshot trace_marker tigger"
+=======
+	if [ "$line" = "$match" ]; then
+	    fail "$line does not have >$x< in it"
+	fi
+	x=$((x+2))
+    done
+}
+
+echo "Test snapshot trace_marker trigger"
+>>>>>>> upstream/android-13
 
 echo 'snapshot' > events/ftrace/print/trigger
 
@@ -69,6 +90,9 @@ for i in `seq 1 10` ; do echo "hello >$i<" > trace_marker; done
 test_trace trace 1
 test_trace snapshot 2
 
+<<<<<<< HEAD
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

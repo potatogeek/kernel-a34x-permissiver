@@ -7,6 +7,7 @@
 #ifndef _RTW_RECV_H_
 #define _RTW_RECV_H_
 
+<<<<<<< HEAD
 	#ifdef CONFIG_SINGLE_RECV_BUF
 		#define NR_RECVBUFF (1)
 	#else
@@ -14,6 +15,11 @@
 	#endif /* CONFIG_SINGLE_RECV_BUF */
 
 	#define NR_PREALLOC_RECV_SKB (8)
+=======
+#define NR_RECVBUFF (8)
+
+#define NR_PREALLOC_RECV_SKB (8)
+>>>>>>> upstream/android-13
 
 #define NR_RECVFRAME 256
 
@@ -38,19 +44,31 @@
 #define RX_MAX_QUEUE				2
 
 #define MAX_SUBFRAME_COUNT	64
+<<<<<<< HEAD
 extern u8 rtw_rfc1042_header[];
 extern u8 rtw_bridge_tunnel_header[];
 
 /* for Rx reordering buffer control */
 struct recv_reorder_ctrl
 {
+=======
+
+#define LLC_HEADER_LENGTH	6
+
+/* for Rx reordering buffer control */
+struct recv_reorder_ctrl {
+>>>>>>> upstream/android-13
 	struct adapter	*padapter;
 	u8 enable;
 	u16 indicate_seq;/* wstart_b, init_value = 0xffff */
 	u16 wend_b;
 	u8 wsize_b;
 	struct __queue pending_recvframe_queue;
+<<<<<<< HEAD
 	_timer reordering_ctrl_timer;
+=======
+	struct timer_list reordering_ctrl_timer;
+>>>>>>> upstream/android-13
 };
 
 struct	stainfo_rxcache	{
@@ -76,6 +94,7 @@ struct	stainfo_rxcache	{
 };
 
 
+<<<<<<< HEAD
 struct smooth_rssi_data {
 	u32 elements[100];	/* array to store values */
 	u32 index;			/* index to current array to store */
@@ -83,6 +102,8 @@ struct smooth_rssi_data {
 	u32 total_val;		/* sum of valid elements */
 };
 
+=======
+>>>>>>> upstream/android-13
 struct signal_stat {
 	u8 update_req;		/* used to indicate */
 	u8 avg_val;		/* avg of valid elements */
@@ -114,14 +135,23 @@ struct phy_info {
 };
 
 #ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
+<<<<<<< HEAD
 struct rx_raw_rssi
 {
+=======
+struct rx_raw_rssi {
+>>>>>>> upstream/android-13
 	u8 data_rate;
 	u8 pwdball;
 	s8 pwr_all;
 
+<<<<<<< HEAD
 	u8 mimo_singal_strength[4];/*  in 0~100 index */
 	u8 mimo_singal_quality[4];
+=======
+	u8 mimo_signal_strength[4];/*  in 0~100 index */
+	u8 mimo_signal_quality[4];
+>>>>>>> upstream/android-13
 
 	s8 ofdm_pwr[4];
 	u8 ofdm_snr[4];
@@ -147,7 +177,11 @@ struct rx_pkt_attrib	{
 	u8 order;
 	u8 privacy; /* in frame_ctrl field */
 	u8 bdecrypted;
+<<<<<<< HEAD
 	u8 encrypt; /* when 0 indicate no encrypt. when non-zero, indicate the encrypt algorith */
+=======
+	u8 encrypt; /* when 0 indicates no encryption; when non-zero, indicates the encryption algorithm */
+>>>>>>> upstream/android-13
 	u8 iv_len;
 	u8 icv_len;
 	u8 crc_err;
@@ -163,11 +197,14 @@ struct rx_pkt_attrib	{
 
 	u8 ack_policy;
 
+<<<<<<< HEAD
 /* ifdef CONFIG_TCP_CSUM_OFFLOAD_RX */
 	u8 tcpchk_valid; /*  0: invalid, 1: valid */
 	u8 ip_chkrpt; /* 0: incorrect, 1: correct */
 	u8 tcp_chkrpt; /* 0: incorrect, 1: correct */
 /* endif */
+=======
+>>>>>>> upstream/android-13
 	u8 key_index;
 
 	u8 data_rate;
@@ -187,7 +224,11 @@ struct rx_pkt_attrib	{
 
 
 /* These definition is used for Rx packet reordering. */
+<<<<<<< HEAD
 #define SN_LESS(a, b)		(((a-b)&0x800)!= 0)
+=======
+#define SN_LESS(a, b)		(((a - b) & 0x800) != 0)
+>>>>>>> upstream/android-13
 #define SN_EQUAL(a, b)	(a == b)
 /* define REORDER_WIN_SIZE	128 */
 /* define REORDER_ENTRY_NUM	128 */
@@ -218,7 +259,11 @@ accesser of recv_priv: rtw_recv_entry(dispatch / passive level); recv_thread(pas
 using enter_critical section to protect
 */
 struct recv_priv {
+<<<<<<< HEAD
 	_lock	lock;
+=======
+	spinlock_t	lock;
+>>>>>>> upstream/android-13
 	struct __queue	free_recv_queue;
 	struct __queue	recv_pending_queue;
 	struct __queue	uc_swdec_pending_queue;
@@ -239,10 +284,13 @@ struct recv_priv {
 	struct tasklet_struct recv_tasklet;
 	struct sk_buff_head free_recv_skb_queue;
 	struct sk_buff_head rx_skb_queue;
+<<<<<<< HEAD
 #ifdef CONFIG_RX_INDICATE_QUEUE
 	struct task rx_indicate_tasklet;
 	struct ifqueue rx_indicate_queue;
 #endif	/*  CONFIG_RX_INDICATE_QUEUE */
+=======
+>>>>>>> upstream/android-13
 
 	u8 *pallocated_recv_buf;
 	u8 *precv_buf;    /*  4 alignment */
@@ -251,7 +299,11 @@ struct recv_priv {
 
 	struct __queue	recv_buf_pending_queue;
 
+<<<<<<< HEAD
 	/* For display the phy informatiom */
+=======
+	/* For display the phy information */
+>>>>>>> upstream/android-13
 	u8 is_signal_dbg;	/*  for debug */
 	u8 signal_strength_dbg;	/*  for debug */
 
@@ -268,7 +320,11 @@ struct recv_priv {
 	/* int FalseAlmCnt_all; */
 
 
+<<<<<<< HEAD
 	_timer signal_stat_timer;
+=======
+	struct timer_list signal_stat_timer;
+>>>>>>> upstream/android-13
 	u32 signal_stat_sampling_interval;
 	/* u32 signal_stat_converging_constant; */
 	struct signal_stat signal_qual_data;
@@ -279,8 +335,13 @@ struct recv_priv {
 
 struct sta_recv_priv {
 
+<<<<<<< HEAD
 	_lock	lock;
 	sint	option;
+=======
+	spinlock_t	lock;
+	signed int	option;
+>>>>>>> upstream/android-13
 
 	/* struct __queue	blk_strms[MAX_RX_NUMBLKS]; */
 	struct __queue defrag_q;	 /* keeping the fragment frame until defrag */
@@ -294,6 +355,7 @@ struct sta_recv_priv {
 };
 
 
+<<<<<<< HEAD
 struct recv_buf
 {
 	struct list_head list;
@@ -303,6 +365,16 @@ struct recv_buf
 	u32 ref_cnt;
 
 	struct adapter * adapter;
+=======
+struct recv_buf {
+	struct list_head list;
+
+	spinlock_t recvbuf_lock;
+
+	u32 ref_cnt;
+
+	struct adapter *adapter;
+>>>>>>> upstream/android-13
 
 	u8 *pbuf;
 	u8 *pallocated_buf;
@@ -313,7 +385,11 @@ struct recv_buf
 	u8 *ptail;
 	u8 *pend;
 
+<<<<<<< HEAD
 	_pkt	*pskb;
+=======
+	struct sk_buff	*pskb;
+>>>>>>> upstream/android-13
 	u8 reuse;
 };
 
@@ -333,6 +409,7 @@ struct recv_buf
 	len = (unsigned int)(tail - data);
 
 */
+<<<<<<< HEAD
 struct recv_frame_hdr
 {
 	struct list_head	list;
@@ -343,6 +420,12 @@ struct recv_frame_hdr
 	_pkt	*pkt;
 	_pkt *pkt_newalloc;
 #endif /*  CONFIG_BSD_RX_USE_MBUF */
+=======
+struct recv_frame_hdr {
+	struct list_head	list;
+	struct sk_buff	 *pkt;
+	struct sk_buff	 *pkt_newalloc;
+>>>>>>> upstream/android-13
 
 	struct adapter  *adapter;
 
@@ -369,18 +452,30 @@ struct recv_frame_hdr
 };
 
 
+<<<<<<< HEAD
 union recv_frame{
+=======
+union recv_frame {
+>>>>>>> upstream/android-13
 	union{
 		struct list_head list;
 		struct recv_frame_hdr hdr;
 		uint mem[RECVFRAME_HDR_ALIGN>>2];
+<<<<<<< HEAD
 	}u;
+=======
+	} u;
+>>>>>>> upstream/android-13
 
 	/* uint mem[MAX_RXSZ>>2]; */
 
 };
 
+<<<<<<< HEAD
 enum RX_PACKET_TYPE {
+=======
+enum {
+>>>>>>> upstream/android-13
 	NORMAL_RX,/* Normal rx packet */
 	TX_REPORT1,/* CCX */
 	TX_REPORT2,/* TX RPT */
@@ -388,8 +483,13 @@ enum RX_PACKET_TYPE {
 	C2H_PACKET
 };
 
+<<<<<<< HEAD
 extern union recv_frame *_rtw_alloc_recvframe (struct __queue *pfree_recv_queue);  /* get a free recv_frame from pfree_recv_queue */
 extern union recv_frame *rtw_alloc_recvframe (struct __queue *pfree_recv_queue);  /* get a free recv_frame from pfree_recv_queue */
+=======
+extern union recv_frame *_rtw_alloc_recvframe(struct __queue *pfree_recv_queue);  /* get a free recv_frame from pfree_recv_queue */
+extern union recv_frame *rtw_alloc_recvframe(struct __queue *pfree_recv_queue);  /* get a free recv_frame from pfree_recv_queue */
+>>>>>>> upstream/android-13
 extern int	 rtw_free_recvframe(union recv_frame *precvframe, struct __queue *pfree_recv_queue);
 
 #define rtw_dequeue_recvframe(queue) rtw_alloc_recvframe(queue)
@@ -399,6 +499,7 @@ extern int rtw_enqueue_recvframe(union recv_frame *precvframe, struct __queue *q
 extern void rtw_free_recvframe_queue(struct __queue *pframequeue,  struct __queue *pfree_recv_queue);
 u32 rtw_free_uc_swdec_pending_queue(struct adapter *adapter);
 
+<<<<<<< HEAD
 sint rtw_enqueue_recvbuf_to_head(struct recv_buf *precvbuf, struct __queue *queue);
 sint rtw_enqueue_recvbuf(struct recv_buf *precvbuf, struct __queue *queue);
 struct recv_buf *rtw_dequeue_recvbuf (struct __queue *queue);
@@ -406,6 +507,15 @@ struct recv_buf *rtw_dequeue_recvbuf (struct __queue *queue);
 void rtw_reordering_ctrl_timeout_handler(struct timer_list *t);
 
 __inline static u8 *get_rxmem(union recv_frame *precvframe)
+=======
+signed int rtw_enqueue_recvbuf_to_head(struct recv_buf *precvbuf, struct __queue *queue);
+signed int rtw_enqueue_recvbuf(struct recv_buf *precvbuf, struct __queue *queue);
+struct recv_buf *rtw_dequeue_recvbuf(struct __queue *queue);
+
+void rtw_reordering_ctrl_timeout_handler(struct timer_list *t);
+
+static inline u8 *get_rxmem(union recv_frame *precvframe)
+>>>>>>> upstream/android-13
 {
 	/* always return rx_head... */
 	if (precvframe == NULL)
@@ -414,7 +524,11 @@ __inline static u8 *get_rxmem(union recv_frame *precvframe)
 	return precvframe->u.hdr.rx_head;
 }
 
+<<<<<<< HEAD
 __inline static u8 *get_recvframe_data(union recv_frame *precvframe)
+=======
+static inline u8 *get_recvframe_data(union recv_frame *precvframe)
+>>>>>>> upstream/android-13
 {
 
 	/* alwasy return rx_data */
@@ -425,7 +539,11 @@ __inline static u8 *get_recvframe_data(union recv_frame *precvframe)
 
 }
 
+<<<<<<< HEAD
 __inline static u8 *recvframe_pull(union recv_frame *precvframe, sint sz)
+=======
+static inline u8 *recvframe_pull(union recv_frame *precvframe, signed int sz)
+>>>>>>> upstream/android-13
 {
 	/*  rx_data += sz; move rx_data sz bytes  hereafter */
 
@@ -444,19 +562,31 @@ __inline static u8 *recvframe_pull(union recv_frame *precvframe, sint sz)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	precvframe->u.hdr.len -=sz;
+=======
+	precvframe->u.hdr.len -= sz;
+>>>>>>> upstream/android-13
 
 	return precvframe->u.hdr.rx_data;
 
 }
 
+<<<<<<< HEAD
 __inline static u8 *recvframe_put(union recv_frame *precvframe, sint sz)
+=======
+static inline u8 *recvframe_put(union recv_frame *precvframe, signed int sz)
+>>>>>>> upstream/android-13
 {
 	/*  rx_tai += sz; move rx_tail sz bytes  hereafter */
 
 	/* used for append sz bytes from ptr to rx_tail, update rx_tail and return the updated rx_tail to the caller */
 	/* after putting, rx_tail must be still larger than rx_end. */
+<<<<<<< HEAD
 	unsigned char * prev_rx_tail;
+=======
+	unsigned char *prev_rx_tail;
+>>>>>>> upstream/android-13
 
 	if (precvframe == NULL)
 		return NULL;
@@ -471,7 +601,11 @@ __inline static u8 *recvframe_put(union recv_frame *precvframe, sint sz)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	precvframe->u.hdr.len +=sz;
+=======
+	precvframe->u.hdr.len += sz;
+>>>>>>> upstream/android-13
 
 	return precvframe->u.hdr.rx_tail;
 
@@ -479,7 +613,11 @@ __inline static u8 *recvframe_put(union recv_frame *precvframe, sint sz)
 
 
 
+<<<<<<< HEAD
 __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
+=======
+static inline u8 *recvframe_pull_tail(union recv_frame *precvframe, signed int sz)
+>>>>>>> upstream/android-13
 {
 	/*  rmv data from rx_tail (by yitsen) */
 
@@ -497,28 +635,45 @@ __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	precvframe->u.hdr.len -=sz;
+=======
+	precvframe->u.hdr.len -= sz;
+>>>>>>> upstream/android-13
 
 	return precvframe->u.hdr.rx_tail;
 
 }
 
+<<<<<<< HEAD
 __inline static union recv_frame *rxmem_to_recvframe(u8 *rxmem)
+=======
+static inline union recv_frame *rxmem_to_recvframe(u8 *rxmem)
+>>>>>>> upstream/android-13
 {
 	/* due to the design of 2048 bytes alignment of recv_frame, we can reference the union recv_frame */
 	/* from any given member of recv_frame. */
 	/*  rxmem indicates the any member/address in recv_frame */
 
+<<<<<<< HEAD
 	return (union recv_frame*)(((SIZE_PTR)rxmem >> RXFRAME_ALIGN) << RXFRAME_ALIGN);
 
 }
 
 __inline static sint get_recvframe_len(union recv_frame *precvframe)
+=======
+	return (union recv_frame *)(((SIZE_PTR)rxmem >> RXFRAME_ALIGN) << RXFRAME_ALIGN);
+
+}
+
+static inline signed int get_recvframe_len(union recv_frame *precvframe)
+>>>>>>> upstream/android-13
 {
 	return precvframe->u.hdr.len;
 }
 
 
+<<<<<<< HEAD
 __inline static s32 translate_percentage_to_dbm(u32 SignalStrengthIndex)
 {
 	s32	SignalPower; /*  in dBm. */
@@ -531,6 +686,15 @@ __inline static s32 translate_percentage_to_dbm(u32 SignalStrengthIndex)
 	SignalPower = (s32)((SignalStrengthIndex + 1) >> 1);
 	SignalPower -= 95;
 #endif
+=======
+static inline s32 translate_percentage_to_dbm(u32 SignalStrengthIndex)
+{
+	s32	SignalPower; /*  in dBm. */
+
+	/*  Translate to dBm (x = 0.5y-95). */
+	SignalPower = (s32)((SignalStrengthIndex + 1) >> 1);
+	SignalPower -= 95;
+>>>>>>> upstream/android-13
 
 	return SignalPower;
 }

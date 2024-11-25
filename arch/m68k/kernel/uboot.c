@@ -16,7 +16,11 @@
 #include <linux/console.h>
 #include <linux/errno.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <linux/init.h>
 #include <linux/initrd.h>
@@ -26,7 +30,10 @@
 #include <asm/setup.h>
 #include <asm/irq.h>
 #include <asm/machdep.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 
 /*

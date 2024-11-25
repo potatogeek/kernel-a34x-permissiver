@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -88,7 +95,11 @@ struct clk_hw *uniphier_clk_register_cpugear(struct device *dev,
 				const struct uniphier_clk_cpugear_data *data)
 {
 	struct uniphier_clk_cpugear *gear;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	gear = devm_kzalloc(dev, sizeof(*gear), GFP_KERNEL);
@@ -99,7 +110,11 @@ struct clk_hw *uniphier_clk_register_cpugear(struct device *dev,
 	init.ops = &uniphier_clk_cpugear_ops;
 	init.flags = CLK_SET_RATE_PARENT;
 	init.parent_names = data->parent_names;
+<<<<<<< HEAD
 	init.num_parents = data->num_parents,
+=======
+	init.num_parents = data->num_parents;
+>>>>>>> upstream/android-13
 
 	gear->regmap = regmap;
 	gear->regbase = data->regbase;

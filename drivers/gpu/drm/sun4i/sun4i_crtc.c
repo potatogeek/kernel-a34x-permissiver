@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Free Electrons
  * Copyright (C) 2015 NextThing Co
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,6 +21,10 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_modes.h>
 
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/clk-provider.h>
 #include <linux/ioport.h>
 #include <linux/of_address.h>
@@ -25,6 +34,17 @@
 
 #include <video/videomode.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_modes.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+
+>>>>>>> upstream/android-13
 #include "sun4i_backend.h"
 #include "sun4i_crtc.h"
 #include "sun4i_drv.h"
@@ -48,21 +68,39 @@ static struct drm_encoder *sun4i_crtc_get_encoder(struct drm_crtc *crtc)
 }
 
 static int sun4i_crtc_atomic_check(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *state)
 {
+=======
+				    struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
+									  crtc);
+>>>>>>> upstream/android-13
 	struct sun4i_crtc *scrtc = drm_crtc_to_sun4i_crtc(crtc);
 	struct sunxi_engine *engine = scrtc->engine;
 	int ret = 0;
 
 	if (engine && engine->ops && engine->ops->atomic_check)
+<<<<<<< HEAD
 		ret = engine->ops->atomic_check(engine, state);
+=======
+		ret = engine->ops->atomic_check(engine, crtc_state);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static void sun4i_crtc_atomic_begin(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *old_state)
 {
+=======
+				    struct drm_atomic_state *state)
+{
+	struct drm_crtc_state *old_state = drm_atomic_get_old_crtc_state(state,
+									 crtc);
+>>>>>>> upstream/android-13
 	struct sun4i_crtc *scrtc = drm_crtc_to_sun4i_crtc(crtc);
 	struct drm_device *dev = crtc->dev;
 	struct sunxi_engine *engine = scrtc->engine;
@@ -82,7 +120,11 @@ static void sun4i_crtc_atomic_begin(struct drm_crtc *crtc,
 }
 
 static void sun4i_crtc_atomic_flush(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *old_state)
+=======
+				    struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct sun4i_crtc *scrtc = drm_crtc_to_sun4i_crtc(crtc);
 	struct drm_pending_vblank_event *event = crtc->state->event;
@@ -104,7 +146,11 @@ static void sun4i_crtc_atomic_flush(struct drm_crtc *crtc,
 }
 
 static void sun4i_crtc_atomic_disable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				      struct drm_crtc_state *old_state)
+=======
+				      struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct drm_encoder *encoder = sun4i_crtc_get_encoder(crtc);
 	struct sun4i_crtc *scrtc = drm_crtc_to_sun4i_crtc(crtc);
@@ -125,7 +171,11 @@ static void sun4i_crtc_atomic_disable(struct drm_crtc *crtc,
 }
 
 static void sun4i_crtc_atomic_enable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				     struct drm_crtc_state *old_state)
+=======
+				     struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct drm_encoder *encoder = sun4i_crtc_get_encoder(crtc);
 	struct sun4i_crtc *scrtc = drm_crtc_to_sun4i_crtc(crtc);

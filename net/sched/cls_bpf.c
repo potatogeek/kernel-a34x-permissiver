@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Berkeley Packet Filter based traffic classifier
  *
@@ -6,10 +10,13 @@
  * ematches.
  *
  * (C) 2013 Daniel Borkmann <dborkman@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -88,8 +95,11 @@ static int cls_bpf_classify(struct sk_buff *skb, const struct tcf_proto *tp,
 	struct cls_bpf_prog *prog;
 	int ret = -1;
 
+<<<<<<< HEAD
 	/* Needed here for accessing maps. */
 	rcu_read_lock();
+=======
+>>>>>>> upstream/android-13
 	list_for_each_entry_rcu(prog, &head->plist, link) {
 		int filter_res;
 
@@ -98,6 +108,7 @@ static int cls_bpf_classify(struct sk_buff *skb, const struct tcf_proto *tp,
 		if (tc_skip_sw(prog->gen_flags)) {
 			filter_res = prog->exts_integrated ? TC_ACT_UNSPEC : 0;
 		} else if (at_ingress) {
+<<<<<<< HEAD
 			if ((strncmp(skb->dev->name, "ccmni", 2) == 0))
 				skb->mac_len = 0;
 			/* It is safe to push/pull even if skb_shared() */
@@ -108,6 +119,16 @@ static int cls_bpf_classify(struct sk_buff *skb, const struct tcf_proto *tp,
 		} else {
 			bpf_compute_data_pointers(skb);
 			filter_res = BPF_PROG_RUN(prog->filter, skb);
+=======
+			/* It is safe to push/pull even if skb_shared() */
+			__skb_push(skb, skb->mac_len);
+			bpf_compute_data_pointers(skb);
+			filter_res = bpf_prog_run(prog->filter, skb);
+			__skb_pull(skb, skb->mac_len);
+		} else {
+			bpf_compute_data_pointers(skb);
+			filter_res = bpf_prog_run(prog->filter, skb);
+>>>>>>> upstream/android-13
 		}
 
 		if (prog->exts_integrated) {
@@ -136,7 +157,10 @@ static int cls_bpf_classify(struct sk_buff *skb, const struct tcf_proto *tp,
 
 		break;
 	}
+<<<<<<< HEAD
 	rcu_read_unlock();
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -159,8 +183,12 @@ static int cls_bpf_offload_cmd(struct tcf_proto *tp, struct cls_bpf_prog *prog,
 	skip_sw = prog && tc_skip_sw(prog->gen_flags);
 	obj = prog ?: oldprog;
 
+<<<<<<< HEAD
 	tc_cls_common_offload_init(&cls_bpf.common, tp, obj->gen_flags,
 				   extack);
+=======
+	tc_cls_common_offload_init(&cls_bpf.common, tp, obj->gen_flags, extack);
+>>>>>>> upstream/android-13
 	cls_bpf.command = TC_CLSBPF_OFFLOAD;
 	cls_bpf.exts = &obj->exts;
 	cls_bpf.prog = prog ? prog->filter : NULL;
@@ -168,6 +196,7 @@ static int cls_bpf_offload_cmd(struct tcf_proto *tp, struct cls_bpf_prog *prog,
 	cls_bpf.name = obj->bpf_name;
 	cls_bpf.exts_integrated = obj->exts_integrated;
 
+<<<<<<< HEAD
 	if (oldprog)
 		tcf_block_offload_dec(block, &oldprog->gen_flags);
 
@@ -180,6 +209,26 @@ static int cls_bpf_offload_cmd(struct tcf_proto *tp, struct cls_bpf_prog *prog,
 			prog->in_hw_count = err;
 			tcf_block_offload_inc(block, &prog->gen_flags);
 		}
+=======
+	if (oldprog && prog)
+		err = tc_setup_cb_replace(block, tp, TC_SETUP_CLSBPF, &cls_bpf,
+					  skip_sw, &oldprog->gen_flags,
+					  &oldprog->in_hw_count,
+					  &prog->gen_flags, &prog->in_hw_count,
+					  true);
+	else if (prog)
+		err = tc_setup_cb_add(block, tp, TC_SETUP_CLSBPF, &cls_bpf,
+				      skip_sw, &prog->gen_flags,
+				      &prog->in_hw_count, true);
+	else
+		err = tc_setup_cb_destroy(block, tp, TC_SETUP_CLSBPF, &cls_bpf,
+					  skip_sw, &oldprog->gen_flags,
+					  &oldprog->in_hw_count, true);
+
+	if (prog && err) {
+		cls_bpf_offload_cmd(tp, oldprog, prog, extack);
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	if (prog && skip_sw && !(prog->gen_flags & TCA_CLS_FLAGS_IN_HW))
@@ -236,7 +285,11 @@ static void cls_bpf_offload_update_stats(struct tcf_proto *tp,
 	cls_bpf.name = prog->bpf_name;
 	cls_bpf.exts_integrated = prog->exts_integrated;
 
+<<<<<<< HEAD
 	tc_setup_cb_call(block, NULL, TC_SETUP_CLSBPF, &cls_bpf, false);
+=======
+	tc_setup_cb_call(block, TC_SETUP_CLSBPF, &cls_bpf, false, true);
+>>>>>>> upstream/android-13
 }
 
 static int cls_bpf_init(struct tcf_proto *tp)
@@ -300,7 +353,11 @@ static void __cls_bpf_delete(struct tcf_proto *tp, struct cls_bpf_prog *prog,
 }
 
 static int cls_bpf_delete(struct tcf_proto *tp, void *arg, bool *last,
+<<<<<<< HEAD
 			  struct netlink_ext_ack *extack)
+=======
+			  bool rtnl_held, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct cls_bpf_head *head = rtnl_dereference(tp->root);
 
@@ -309,7 +366,11 @@ static int cls_bpf_delete(struct tcf_proto *tp, void *arg, bool *last,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cls_bpf_destroy(struct tcf_proto *tp,
+=======
+static void cls_bpf_destroy(struct tcf_proto *tp, bool rtnl_held,
+>>>>>>> upstream/android-13
 			    struct netlink_ext_ack *extack)
 {
 	struct cls_bpf_head *head = rtnl_dereference(tp->root);
@@ -407,7 +468,11 @@ static int cls_bpf_prog_from_efd(struct nlattr **tb, struct cls_bpf_prog *prog,
 
 static int cls_bpf_set_parms(struct net *net, struct tcf_proto *tp,
 			     struct cls_bpf_prog *prog, unsigned long base,
+<<<<<<< HEAD
 			     struct nlattr **tb, struct nlattr *est, bool ovr,
+=======
+			     struct nlattr **tb, struct nlattr *est, u32 flags,
+>>>>>>> upstream/android-13
 			     struct netlink_ext_ack *extack)
 {
 	bool is_bpf, is_ebpf, have_exts = false;
@@ -419,7 +484,12 @@ static int cls_bpf_set_parms(struct net *net, struct tcf_proto *tp,
 	if ((!is_bpf && !is_ebpf) || (is_bpf && is_ebpf))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = tcf_exts_validate(net, tp, tb, est, &prog->exts, ovr, extack);
+=======
+	ret = tcf_exts_validate(net, tp, tb, est, &prog->exts, flags,
+				extack);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -457,7 +527,12 @@ static int cls_bpf_set_parms(struct net *net, struct tcf_proto *tp,
 static int cls_bpf_change(struct net *net, struct sk_buff *in_skb,
 			  struct tcf_proto *tp, unsigned long base,
 			  u32 handle, struct nlattr **tca,
+<<<<<<< HEAD
 			  void **arg, bool ovr, struct netlink_ext_ack *extack)
+=======
+			  void **arg, u32 flags,
+			  struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct cls_bpf_head *head = rtnl_dereference(tp->root);
 	struct cls_bpf_prog *oldprog = *arg;
@@ -468,8 +543,13 @@ static int cls_bpf_change(struct net *net, struct sk_buff *in_skb,
 	if (tca[TCA_OPTIONS] == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = nla_parse_nested(tb, TCA_BPF_MAX, tca[TCA_OPTIONS], bpf_policy,
 			       NULL);
+=======
+	ret = nla_parse_nested_deprecated(tb, TCA_BPF_MAX, tca[TCA_OPTIONS],
+					  bpf_policy, NULL);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -477,7 +557,11 @@ static int cls_bpf_change(struct net *net, struct sk_buff *in_skb,
 	if (!prog)
 		return -ENOBUFS;
 
+<<<<<<< HEAD
 	ret = tcf_exts_init(&prog->exts, TCA_BPF_ACT, TCA_BPF_POLICE);
+=======
+	ret = tcf_exts_init(&prog->exts, net, TCA_BPF_ACT, TCA_BPF_POLICE);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto errout;
 
@@ -501,7 +585,11 @@ static int cls_bpf_change(struct net *net, struct sk_buff *in_skb,
 		goto errout;
 	prog->handle = handle;
 
+<<<<<<< HEAD
 	ret = cls_bpf_set_parms(net, tp, prog, base, tb, tca[TCA_RATE], ovr,
+=======
+	ret = cls_bpf_set_parms(net, tp, prog, base, tb, tca[TCA_RATE], flags,
+>>>>>>> upstream/android-13
 				extack);
 	if (ret < 0)
 		goto errout_idr;
@@ -577,7 +665,11 @@ static int cls_bpf_dump_ebpf_info(const struct cls_bpf_prog *prog,
 }
 
 static int cls_bpf_dump(struct net *net, struct tcf_proto *tp, void *fh,
+<<<<<<< HEAD
 			struct sk_buff *skb, struct tcmsg *tm)
+=======
+			struct sk_buff *skb, struct tcmsg *tm, bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct cls_bpf_prog *prog = fh;
 	struct nlattr *nest;
@@ -591,7 +683,11 @@ static int cls_bpf_dump(struct net *net, struct tcf_proto *tp, void *fh,
 
 	cls_bpf_offload_update_stats(tp, prog);
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 
@@ -642,7 +738,12 @@ static void cls_bpf_bind_class(void *fh, u32 classid, unsigned long cl,
 	}
 }
 
+<<<<<<< HEAD
 static void cls_bpf_walk(struct tcf_proto *tp, struct tcf_walker *arg)
+=======
+static void cls_bpf_walk(struct tcf_proto *tp, struct tcf_walker *arg,
+			 bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct cls_bpf_head *head = rtnl_dereference(tp->root);
 	struct cls_bpf_prog *prog;
@@ -659,7 +760,11 @@ skip:
 	}
 }
 
+<<<<<<< HEAD
 static int cls_bpf_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
+=======
+static int cls_bpf_reoffload(struct tcf_proto *tp, bool add, flow_setup_cb_t *cb,
+>>>>>>> upstream/android-13
 			     void *cb_priv, struct netlink_ext_ack *extack)
 {
 	struct cls_bpf_head *head = rtnl_dereference(tp->root);
@@ -681,6 +786,7 @@ static int cls_bpf_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
 		cls_bpf.name = prog->bpf_name;
 		cls_bpf.exts_integrated = prog->exts_integrated;
 
+<<<<<<< HEAD
 		err = cb(TC_SETUP_CLSBPF, &cls_bpf, cb_priv);
 		if (err) {
 			if (add && tc_skip_sw(prog->gen_flags))
@@ -690,6 +796,13 @@ static int cls_bpf_reoffload(struct tcf_proto *tp, bool add, tc_setup_cb_t *cb,
 
 		tc_cls_offload_cnt_update(block, &prog->in_hw_count,
 					  &prog->gen_flags, add);
+=======
+		err = tc_setup_cb_reoffload(block, tp, add, cb, TC_SETUP_CLSBPF,
+					    &cls_bpf, cb_priv, &prog->gen_flags,
+					    &prog->in_hw_count);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

@@ -8,10 +8,16 @@
 #ifndef _LINUX_SUNRPC_XPRTSOCK_H
 #define _LINUX_SUNRPC_XPRTSOCK_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
 int		init_socket_xprt(void);
 void		cleanup_socket_xprt(void);
+=======
+int		init_socket_xprt(void);
+void		cleanup_socket_xprt(void);
+unsigned short	get_srcport(struct rpc_xprt *);
+>>>>>>> upstream/android-13
 
 #define RPC_MIN_RESVPORT	(1U)
 #define RPC_MAX_RESVPORT	(65535U)
@@ -26,10 +32,15 @@ struct sock_xprt {
 	 */
 	struct socket *		sock;
 	struct sock *		inet;
+<<<<<<< HEAD
+=======
+	struct file *		file;
+>>>>>>> upstream/android-13
 
 	/*
 	 * State of TCP reply receive
 	 */
+<<<<<<< HEAD
 	__be32			tcp_fraghdr,
 				tcp_xid,
 				tcp_calldir;
@@ -39,16 +50,45 @@ struct sock_xprt {
 
 	unsigned long		tcp_copied,
 				tcp_flags;
+=======
+	struct {
+		struct {
+			__be32	fraghdr,
+				xid,
+				calldir;
+		} __attribute__((packed));
+
+		u32		offset,
+				len;
+
+		unsigned long	copied;
+	} recv;
+
+	/*
+	 * State of TCP transmit queue
+	 */
+	struct {
+		u32		offset;
+	} xmit;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Connection of transports
 	 */
 	unsigned long		sock_state;
 	struct delayed_work	connect_worker;
+<<<<<<< HEAD
+=======
+	struct work_struct	error_worker;
+>>>>>>> upstream/android-13
 	struct work_struct	recv_worker;
 	struct mutex		recv_mutex;
 	struct sockaddr_storage	srcaddr;
 	unsigned short		srcport;
+<<<<<<< HEAD
+=======
+	int			xprt_err;
+>>>>>>> upstream/android-13
 
 	/*
 	 * UDP socket buffer size parameters
@@ -68,6 +108,7 @@ struct sock_xprt {
 };
 
 /*
+<<<<<<< HEAD
  * TCP receive state flags
  */
 #define TCP_RCV_LAST_FRAG	(1UL << 0)
@@ -87,5 +128,17 @@ struct sock_xprt {
 #define XPRT_SOCK_UPD_TIMEOUT	(3)
 
 #endif /* __KERNEL__ */
+=======
+ * TCP RPC flags
+ */
+#define XPRT_SOCK_CONNECTING	1U
+#define XPRT_SOCK_DATA_READY	(2)
+#define XPRT_SOCK_UPD_TIMEOUT	(3)
+#define XPRT_SOCK_WAKE_ERROR	(4)
+#define XPRT_SOCK_WAKE_WRITE	(5)
+#define XPRT_SOCK_WAKE_PENDING	(6)
+#define XPRT_SOCK_WAKE_DISCONNECT	(7)
+#define XPRT_SOCK_CONNECT_SENT	(8)
+>>>>>>> upstream/android-13
 
 #endif /* _LINUX_SUNRPC_XPRTSOCK_H */

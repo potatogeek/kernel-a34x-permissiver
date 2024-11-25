@@ -32,7 +32,11 @@ do {							\
 		".previous\n"				\
 							\
 		".section\t__ex_table,\"a\"\n\t"	\
+<<<<<<< HEAD
 		STR(PTR) "\t1b, 3b\n\t"			\
+=======
+		STR(PTR_WD) "\t1b, 3b\n\t"		\
+>>>>>>> upstream/android-13
 		".previous\n"				\
 							\
 		: [tmp_dst] "=&r" (dst), [tmp_err] "=r" (error)\
@@ -54,7 +58,11 @@ do {						\
 		".previous\n"			\
 						\
 		".section\t__ex_table,\"a\"\n\t"\
+<<<<<<< HEAD
 		STR(PTR) "\t1b, 3b\n\t"		\
+=======
+		STR(PTR_WD) "\t1b, 3b\n\t"	\
+>>>>>>> upstream/android-13
 		".previous\n"			\
 						\
 		: [tmp_err] "=r" (error)	\

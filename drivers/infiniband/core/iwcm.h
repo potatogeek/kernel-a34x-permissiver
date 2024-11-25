@@ -52,7 +52,11 @@ struct iwcm_id_private {
 	wait_queue_head_t connect_wait;
 	struct list_head work_list;
 	spinlock_t lock;
+<<<<<<< HEAD
 	atomic_t refcount;
+=======
+	refcount_t refcount;
+>>>>>>> upstream/android-13
 	struct list_head work_free_list;
 };
 

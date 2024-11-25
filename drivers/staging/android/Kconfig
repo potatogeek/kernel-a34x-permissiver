@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 menu "Android"
 
 if ANDROID
 
 config ASHMEM
 	bool "Enable the Anonymous Shared Memory Subsystem"
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	depends on SHMEM
 	help
 	  The ashmem subsystem is a new shared memory allocator, similar to
@@ -31,6 +38,7 @@ config SAMSUNG_LMKD_DEBUG
 	help
 	  record lmkd kill history
 
+<<<<<<< HEAD
 config SAMSUNG_FREECESS
 	bool "thraw frozen process when recv sig"
 	default n
@@ -194,4 +202,11 @@ config ION_RBIN_HEAP
 
 endif # if ANDROID
 
+=======
+endif # if ANDROID
+
+if EXYNOS_VARIANT1
+source "drivers/staging/android/Kconfig.variant1"
+endif
+>>>>>>> upstream/android-13
 endmenu

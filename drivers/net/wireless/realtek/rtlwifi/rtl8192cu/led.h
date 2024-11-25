@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation. All rights reserved.
@@ -20,6 +21,10 @@
  * Hsinchu 300, Taiwan.
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92CU_LED_H__
 #define __RTL92CU_LED_H__

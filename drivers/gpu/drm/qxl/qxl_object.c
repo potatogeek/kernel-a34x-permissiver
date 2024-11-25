@@ -23,16 +23,29 @@
  *          Alon Levy
  */
 
+<<<<<<< HEAD
 #include "qxl_drv.h"
 #include "qxl_object.h"
 
 #include <linux/io-mapping.h>
+=======
+#include <linux/dma-buf-map.h>
+#include <linux/io-mapping.h>
+
+#include "qxl_drv.h"
+#include "qxl_object.h"
+
+static int __qxl_bo_pin(struct qxl_bo *bo);
+static void __qxl_bo_unpin(struct qxl_bo *bo);
+
+>>>>>>> upstream/android-13
 static void qxl_ttm_bo_destroy(struct ttm_buffer_object *tbo)
 {
 	struct qxl_bo *bo;
 	struct qxl_device *qdev;
 
 	bo = to_qxl_bo(tbo);
+<<<<<<< HEAD
 	qdev = (struct qxl_device *)bo->gem_base.dev->dev_private;
 
 	qxl_surface_evict(qdev, bo, false);
@@ -40,6 +53,16 @@ static void qxl_ttm_bo_destroy(struct ttm_buffer_object *tbo)
 	list_del_init(&bo->list);
 	mutex_unlock(&qdev->gem.mutex);
 	drm_gem_object_release(&bo->gem_base);
+=======
+	qdev = to_qxl(bo->tbo.base.dev);
+
+	qxl_surface_evict(qdev, bo, false);
+	WARN_ON_ONCE(bo->map_count > 0);
+	mutex_lock(&qdev->gem.mutex);
+	list_del_init(&bo->list);
+	mutex_unlock(&qdev->gem.mutex);
+	drm_gem_object_release(&bo->tbo.base);
+>>>>>>> upstream/android-13
 	kfree(bo);
 }
 
@@ -50,6 +73,7 @@ bool qxl_ttm_bo_is_qxl_bo(struct ttm_buffer_object *bo)
 	return false;
 }
 
+<<<<<<< HEAD
 void qxl_ttm_placement_from_domain(struct qxl_bo *qbo, u32 domain, bool pinned)
 {
 	u32 c = 0;
@@ -66,6 +90,37 @@ void qxl_ttm_placement_from_domain(struct qxl_bo *qbo, u32 domain, bool pinned)
 		qbo->placements[c++].flags = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM | pflag;
 	if (!c)
 		qbo->placements[c++].flags = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
+=======
+void qxl_ttm_placement_from_domain(struct qxl_bo *qbo, u32 domain)
+{
+	u32 c = 0;
+	u32 pflag = 0;
+	unsigned int i;
+
+	if (qbo->tbo.base.size <= PAGE_SIZE)
+		pflag |= TTM_PL_FLAG_TOPDOWN;
+
+	qbo->placement.placement = qbo->placements;
+	qbo->placement.busy_placement = qbo->placements;
+	if (domain == QXL_GEM_DOMAIN_VRAM) {
+		qbo->placements[c].mem_type = TTM_PL_VRAM;
+		qbo->placements[c++].flags = pflag;
+	}
+	if (domain == QXL_GEM_DOMAIN_SURFACE) {
+		qbo->placements[c].mem_type = TTM_PL_PRIV;
+		qbo->placements[c++].flags = pflag;
+		qbo->placements[c].mem_type = TTM_PL_VRAM;
+		qbo->placements[c++].flags = pflag;
+	}
+	if (domain == QXL_GEM_DOMAIN_CPU) {
+		qbo->placements[c].mem_type = TTM_PL_SYSTEM;
+		qbo->placements[c++].flags = pflag;
+	}
+	if (!c) {
+		qbo->placements[c].mem_type = TTM_PL_SYSTEM;
+		qbo->placements[c++].flags = 0;
+	}
+>>>>>>> upstream/android-13
 	qbo->placement.num_placement = c;
 	qbo->placement.num_busy_placement = c;
 	for (i = 0; i < c; ++i) {
@@ -74,12 +129,34 @@ void qxl_ttm_placement_from_domain(struct qxl_bo *qbo, u32 domain, bool pinned)
 	}
 }
 
+<<<<<<< HEAD
 
 int qxl_bo_create(struct qxl_device *qdev,
 		  unsigned long size, bool kernel, bool pinned, u32 domain,
 		  struct qxl_surface *surf,
 		  struct qxl_bo **bo_ptr)
 {
+=======
+static const struct drm_gem_object_funcs qxl_object_funcs = {
+	.free = qxl_gem_object_free,
+	.open = qxl_gem_object_open,
+	.close = qxl_gem_object_close,
+	.pin = qxl_gem_prime_pin,
+	.unpin = qxl_gem_prime_unpin,
+	.get_sg_table = qxl_gem_prime_get_sg_table,
+	.vmap = qxl_gem_prime_vmap,
+	.vunmap = qxl_gem_prime_vunmap,
+	.mmap = drm_gem_ttm_mmap,
+	.print_info = drm_gem_ttm_print_info,
+};
+
+int qxl_bo_create(struct qxl_device *qdev, unsigned long size,
+		  bool kernel, bool pinned, u32 domain, u32 priority,
+		  struct qxl_surface *surf,
+		  struct qxl_bo **bo_ptr)
+{
+	struct ttm_operation_ctx ctx = { !kernel, false };
+>>>>>>> upstream/android-13
 	struct qxl_bo *bo;
 	enum ttm_bo_type type;
 	int r;
@@ -93,24 +170,42 @@ int qxl_bo_create(struct qxl_device *qdev,
 	if (bo == NULL)
 		return -ENOMEM;
 	size = roundup(size, PAGE_SIZE);
+<<<<<<< HEAD
 	r = drm_gem_object_init(&qdev->ddev, &bo->gem_base, size);
+=======
+	r = drm_gem_object_init(&qdev->ddev, &bo->tbo.base, size);
+>>>>>>> upstream/android-13
 	if (unlikely(r)) {
 		kfree(bo);
 		return r;
 	}
+<<<<<<< HEAD
 	bo->type = domain;
 	bo->pin_count = pinned ? 1 : 0;
+=======
+	bo->tbo.base.funcs = &qxl_object_funcs;
+	bo->type = domain;
+>>>>>>> upstream/android-13
 	bo->surface_id = 0;
 	INIT_LIST_HEAD(&bo->list);
 
 	if (surf)
 		bo->surf = *surf;
 
+<<<<<<< HEAD
 	qxl_ttm_placement_from_domain(bo, domain, pinned);
 
 	r = ttm_bo_init(&qdev->mman.bdev, &bo->tbo, size, type,
 			&bo->placement, 0, !kernel, size,
 			NULL, NULL, &qxl_ttm_bo_destroy);
+=======
+	qxl_ttm_placement_from_domain(bo, domain);
+
+	bo->tbo.priority = priority;
+	r = ttm_bo_init_reserved(&qdev->mman.bdev, &bo->tbo, size, type,
+				 &bo->placement, 0, &ctx, NULL, NULL,
+				 &qxl_ttm_bo_destroy);
+>>>>>>> upstream/android-13
 	if (unlikely(r != 0)) {
 		if (r != -ERESTARTSYS)
 			dev_err(qdev->ddev.dev,
@@ -118,10 +213,17 @@ int qxl_bo_create(struct qxl_device *qdev,
 				size, domain);
 		return r;
 	}
+<<<<<<< HEAD
+=======
+	if (pinned)
+		ttm_bo_pin(&bo->tbo);
+	ttm_bo_unreserve(&bo->tbo);
+>>>>>>> upstream/android-13
 	*bo_ptr = bo;
 	return 0;
 }
 
+<<<<<<< HEAD
 int qxl_bo_kmap(struct qxl_bo *bo, void **ptr)
 {
 	bool is_iomem;
@@ -152,40 +254,140 @@ void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev,
 	if (bo->tbo.mem.mem_type == TTM_PL_VRAM)
 		map = qdev->vram_mapping;
 	else if (bo->tbo.mem.mem_type == TTM_PL_PRIV)
+=======
+int qxl_bo_vmap_locked(struct qxl_bo *bo, struct dma_buf_map *map)
+{
+	int r;
+
+	dma_resv_assert_held(bo->tbo.base.resv);
+
+	if (bo->kptr) {
+		bo->map_count++;
+		goto out;
+	}
+	r = ttm_bo_vmap(&bo->tbo, &bo->map);
+	if (r)
+		return r;
+	bo->map_count = 1;
+
+	/* TODO: Remove kptr in favor of map everywhere. */
+	if (bo->map.is_iomem)
+		bo->kptr = (void *)bo->map.vaddr_iomem;
+	else
+		bo->kptr = bo->map.vaddr;
+
+out:
+	*map = bo->map;
+	return 0;
+}
+
+int qxl_bo_vmap(struct qxl_bo *bo, struct dma_buf_map *map)
+{
+	int r;
+
+	r = qxl_bo_reserve(bo);
+	if (r)
+		return r;
+
+	r = __qxl_bo_pin(bo);
+	if (r) {
+		qxl_bo_unreserve(bo);
+		return r;
+	}
+
+	r = qxl_bo_vmap_locked(bo, map);
+	qxl_bo_unreserve(bo);
+	return r;
+}
+
+void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev,
+			      struct qxl_bo *bo, int page_offset)
+{
+	unsigned long offset;
+	void *rptr;
+	int ret;
+	struct io_mapping *map;
+	struct dma_buf_map bo_map;
+
+	if (bo->tbo.resource->mem_type == TTM_PL_VRAM)
+		map = qdev->vram_mapping;
+	else if (bo->tbo.resource->mem_type == TTM_PL_PRIV)
+>>>>>>> upstream/android-13
 		map = qdev->surface_mapping;
 	else
 		goto fallback;
 
+<<<<<<< HEAD
 	(void) ttm_mem_io_lock(man, false);
 	ret = ttm_mem_io_reserve(bo->tbo.bdev, &bo->tbo.mem);
 	ttm_mem_io_unlock(man);
 
 	return io_mapping_map_atomic_wc(map, bo->tbo.mem.bus.offset + page_offset);
+=======
+	offset = bo->tbo.resource->start << PAGE_SHIFT;
+	return io_mapping_map_atomic_wc(map, offset + page_offset);
+>>>>>>> upstream/android-13
 fallback:
 	if (bo->kptr) {
 		rptr = bo->kptr + (page_offset * PAGE_SIZE);
 		return rptr;
 	}
 
+<<<<<<< HEAD
 	ret = qxl_bo_kmap(bo, &rptr);
 	if (ret)
 		return NULL;
+=======
+	ret = qxl_bo_vmap_locked(bo, &bo_map);
+	if (ret)
+		return NULL;
+	rptr = bo_map.vaddr; /* TODO: Use mapping abstraction properly */
+>>>>>>> upstream/android-13
 
 	rptr += page_offset * PAGE_SIZE;
 	return rptr;
 }
 
+<<<<<<< HEAD
 void qxl_bo_kunmap(struct qxl_bo *bo)
 {
 	if (bo->kptr == NULL)
 		return;
 	bo->kptr = NULL;
 	ttm_bo_kunmap(&bo->kmap);
+=======
+void qxl_bo_vunmap_locked(struct qxl_bo *bo)
+{
+	dma_resv_assert_held(bo->tbo.base.resv);
+
+	if (bo->kptr == NULL)
+		return;
+	bo->map_count--;
+	if (bo->map_count > 0)
+		return;
+	bo->kptr = NULL;
+	ttm_bo_vunmap(&bo->tbo, &bo->map);
+}
+
+int qxl_bo_vunmap(struct qxl_bo *bo)
+{
+	int r;
+
+	r = qxl_bo_reserve(bo);
+	if (r)
+		return r;
+
+	qxl_bo_vunmap_locked(bo);
+	__qxl_bo_unpin(bo);
+	qxl_bo_unreserve(bo);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev,
 			       struct qxl_bo *bo, void *pmap)
 {
+<<<<<<< HEAD
 	struct ttm_mem_type_manager *man = &bo->tbo.bdev->man[bo->tbo.mem.mem_type];
 	struct io_mapping *map;
 
@@ -204,6 +406,16 @@ void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev,
 	return ;
  fallback:
 	qxl_bo_kunmap(bo);
+=======
+	if ((bo->tbo.resource->mem_type != TTM_PL_VRAM) &&
+	    (bo->tbo.resource->mem_type != TTM_PL_PRIV))
+		goto fallback;
+
+	io_mapping_unmap_atomic(pmap);
+	return;
+ fallback:
+	qxl_bo_vunmap_locked(bo);
+>>>>>>> upstream/android-13
 }
 
 void qxl_bo_unref(struct qxl_bo **bo)
@@ -211,12 +423,17 @@ void qxl_bo_unref(struct qxl_bo **bo)
 	if ((*bo) == NULL)
 		return;
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&(*bo)->gem_base);
+=======
+	drm_gem_object_put(&(*bo)->tbo.base);
+>>>>>>> upstream/android-13
 	*bo = NULL;
 }
 
 struct qxl_bo *qxl_bo_ref(struct qxl_bo *bo)
 {
+<<<<<<< HEAD
 	drm_gem_object_get(&bo->gem_base);
 	return bo;
 }
@@ -240,11 +457,32 @@ static int __qxl_bo_pin(struct qxl_bo *bo, u32 domain, u64 *gpu_addr)
 		if (gpu_addr != NULL)
 			*gpu_addr = qxl_bo_gpu_offset(bo);
 	}
+=======
+	drm_gem_object_get(&bo->tbo.base);
+	return bo;
+}
+
+static int __qxl_bo_pin(struct qxl_bo *bo)
+{
+	struct ttm_operation_ctx ctx = { false, false };
+	struct drm_device *ddev = bo->tbo.base.dev;
+	int r;
+
+	if (bo->tbo.pin_count) {
+		ttm_bo_pin(&bo->tbo);
+		return 0;
+	}
+	qxl_ttm_placement_from_domain(bo, bo->type);
+	r = ttm_bo_validate(&bo->tbo, &bo->placement, &ctx);
+	if (likely(r == 0))
+		ttm_bo_pin(&bo->tbo);
+>>>>>>> upstream/android-13
 	if (unlikely(r != 0))
 		dev_err(ddev->dev, "%p pin failed\n", bo);
 	return r;
 }
 
+<<<<<<< HEAD
 static int __qxl_bo_unpin(struct qxl_bo *bo)
 {
 	struct ttm_operation_ctx ctx = { false, false };
@@ -267,11 +505,19 @@ static int __qxl_bo_unpin(struct qxl_bo *bo)
 }
 
 
+=======
+static void __qxl_bo_unpin(struct qxl_bo *bo)
+{
+	ttm_bo_unpin(&bo->tbo);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Reserve the BO before pinning the object.  If the BO was reserved
  * beforehand, use the internal version directly __qxl_bo_pin.
  *
  */
+<<<<<<< HEAD
 int qxl_bo_pin(struct qxl_bo *bo, u32 domain, u64 *gpu_addr)
 {
 	int r;
@@ -281,6 +527,17 @@ int qxl_bo_pin(struct qxl_bo *bo, u32 domain, u64 *gpu_addr)
 		return r;
 
 	r = __qxl_bo_pin(bo, bo->type, NULL);
+=======
+int qxl_bo_pin(struct qxl_bo *bo)
+{
+	int r;
+
+	r = qxl_bo_reserve(bo);
+	if (r)
+		return r;
+
+	r = __qxl_bo_pin(bo);
+>>>>>>> upstream/android-13
 	qxl_bo_unreserve(bo);
 	return r;
 }
@@ -294,6 +551,7 @@ int qxl_bo_unpin(struct qxl_bo *bo)
 {
 	int r;
 
+<<<<<<< HEAD
 	r = qxl_bo_reserve(bo, false);
 	if (r)
 		return r;
@@ -301,6 +559,15 @@ int qxl_bo_unpin(struct qxl_bo *bo)
 	r = __qxl_bo_unpin(bo);
 	qxl_bo_unreserve(bo);
 	return r;
+=======
+	r = qxl_bo_reserve(bo);
+	if (r)
+		return r;
+
+	__qxl_bo_unpin(bo);
+	qxl_bo_unreserve(bo);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void qxl_bo_force_delete(struct qxl_device *qdev)
@@ -312,13 +579,22 @@ void qxl_bo_force_delete(struct qxl_device *qdev)
 	dev_err(qdev->ddev.dev, "Userspace still has active objects !\n");
 	list_for_each_entry_safe(bo, n, &qdev->gem.objects, list) {
 		dev_err(qdev->ddev.dev, "%p %p %lu %lu force free\n",
+<<<<<<< HEAD
 			&bo->gem_base, bo, (unsigned long)bo->gem_base.size,
 			*((unsigned long *)&bo->gem_base.refcount));
+=======
+			&bo->tbo.base, bo, (unsigned long)bo->tbo.base.size,
+			*((unsigned long *)&bo->tbo.base.refcount));
+>>>>>>> upstream/android-13
 		mutex_lock(&qdev->gem.mutex);
 		list_del_init(&bo->list);
 		mutex_unlock(&qdev->gem.mutex);
 		/* this should unref the ttm bo */
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(&bo->gem_base);
+=======
+		drm_gem_object_put(&bo->tbo.base);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -335,13 +611,21 @@ void qxl_bo_fini(struct qxl_device *qdev)
 int qxl_bo_check_id(struct qxl_device *qdev, struct qxl_bo *bo)
 {
 	int ret;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (bo->type == QXL_GEM_DOMAIN_SURFACE && bo->surface_id == 0) {
 		/* allocate a surface id for this surface now */
 		ret = qxl_surface_id_alloc(qdev, bo);
 		if (ret)
 			return ret;
 
+<<<<<<< HEAD
 		ret = qxl_hw_surface_alloc(qdev, bo, NULL);
+=======
+		ret = qxl_hw_surface_alloc(qdev, bo);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -350,10 +634,24 @@ int qxl_bo_check_id(struct qxl_device *qdev, struct qxl_bo *bo)
 
 int qxl_surf_evict(struct qxl_device *qdev)
 {
+<<<<<<< HEAD
 	return ttm_bo_evict_mm(&qdev->mman.bdev, TTM_PL_PRIV);
+=======
+	struct ttm_resource_manager *man;
+
+	man = ttm_manager_type(&qdev->mman.bdev, TTM_PL_PRIV);
+	return ttm_resource_manager_evict_all(&qdev->mman.bdev, man);
+>>>>>>> upstream/android-13
 }
 
 int qxl_vram_evict(struct qxl_device *qdev)
 {
+<<<<<<< HEAD
 	return ttm_bo_evict_mm(&qdev->mman.bdev, TTM_PL_VRAM);
+=======
+	struct ttm_resource_manager *man;
+
+	man = ttm_manager_type(&qdev->mman.bdev, TTM_PL_VRAM);
+	return ttm_resource_manager_evict_all(&qdev->mman.bdev, man);
+>>>>>>> upstream/android-13
 }

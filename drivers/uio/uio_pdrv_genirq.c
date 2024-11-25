@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/uio/uio_pdrv_genirq.c
  *
@@ -8,10 +12,13 @@
  * Based on uio_pdrv.c by Uwe Kleine-Koenig,
  * Copyright (C) 2008 by Digi International Inc.
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -23,6 +30,10 @@
 #include <linux/stringify.h>
 #include <linux/pm_runtime.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 
 #include <linux/of.h>
 #include <linux/of_platform.h>
@@ -102,15 +113,35 @@ static int uio_pdrv_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int uio_pdrv_genirq_probe(struct platform_device *pdev)
 {
 	struct uio_info *uioinfo = dev_get_platdata(&pdev->dev);
+=======
+static void uio_pdrv_genirq_cleanup(void *data)
+{
+	struct device *dev = data;
+
+	pm_runtime_disable(dev);
+}
+
+static int uio_pdrv_genirq_probe(struct platform_device *pdev)
+{
+	struct uio_info *uioinfo = dev_get_platdata(&pdev->dev);
+	struct device_node *node = pdev->dev.of_node;
+>>>>>>> upstream/android-13
 	struct uio_pdrv_genirq_platdata *priv;
 	struct uio_mem *uiomem;
 	int ret = -EINVAL;
 	int i;
 
+<<<<<<< HEAD
 	if (pdev->dev.of_node) {
+=======
+	if (node) {
+		const char *name;
+
+>>>>>>> upstream/android-13
 		/* alloc uioinfo for one device */
 		uioinfo = devm_kzalloc(&pdev->dev, sizeof(*uioinfo),
 				       GFP_KERNEL);
@@ -118,7 +149,17 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
 			dev_err(&pdev->dev, "unable to kmalloc\n");
 			return -ENOMEM;
 		}
+<<<<<<< HEAD
 		uioinfo->name = pdev->dev.of_node->name;
+=======
+
+		if (!of_property_read_string(node, "linux,uio-name", &name))
+			uioinfo->name = devm_kstrdup(&pdev->dev, name, GFP_KERNEL);
+		else
+			uioinfo->name = devm_kasprintf(&pdev->dev, GFP_KERNEL,
+						       "%pOFn", node);
+
+>>>>>>> upstream/android-13
 		uioinfo->version = "devicetree";
 		/* Multiple IRQs are not supported */
 	}
@@ -146,16 +187,45 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
 	priv->pdev = pdev;
 
 	if (!uioinfo->irq) {
+<<<<<<< HEAD
 		ret = platform_get_irq(pdev, 0);
 		uioinfo->irq = ret;
 		if (ret == -ENXIO)
 			uioinfo->irq = UIO_IRQ_NONE;
+=======
+		ret = platform_get_irq_optional(pdev, 0);
+		uioinfo->irq = ret;
+		if (ret == -ENXIO)
+			uioinfo->irq = UIO_IRQ_NONE;
+		else if (ret == -EPROBE_DEFER)
+			return ret;
+>>>>>>> upstream/android-13
 		else if (ret < 0) {
 			dev_err(&pdev->dev, "failed to get IRQ\n");
 			return ret;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (uioinfo->irq) {
+		struct irq_data *irq_data = irq_get_irq_data(uioinfo->irq);
+
+		/*
+		 * If a level interrupt, dont do lazy disable. Otherwise the
+		 * irq will fire again since clearing of the actual cause, on
+		 * device level, is done in userspace
+		 * irqd_is_level_type() isn't used since isn't valid until
+		 * irq is configured.
+		 */
+		if (irq_data &&
+		    irqd_get_trigger_type(irq_data) & IRQ_TYPE_LEVEL_MASK) {
+			dev_dbg(&pdev->dev, "disable lazy unmask\n");
+			irq_set_status_flags(uioinfo->irq, IRQ_DISABLE_UNLAZY);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	uiomem = &uioinfo->mem[0];
 
 	for (i = 0; i < pdev->num_resources; ++i) {
@@ -172,8 +242,15 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
 		}
 
 		uiomem->memtype = UIO_MEM_PHYS;
+<<<<<<< HEAD
 		uiomem->addr = r->start;
 		uiomem->size = resource_size(r);
+=======
+		uiomem->addr = r->start & PAGE_MASK;
+		uiomem->offs = r->start & ~PAGE_MASK;
+		uiomem->size = (uiomem->offs + resource_size(r)
+				+ PAGE_SIZE - 1) & PAGE_MASK;
+>>>>>>> upstream/android-13
 		uiomem->name = r->name;
 		++uiomem;
 	}
@@ -205,6 +282,7 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
 	 */
 	pm_runtime_enable(&pdev->dev);
 
+<<<<<<< HEAD
 	ret = uio_register_device(&pdev->dev, priv->uioinfo);
 	if (ret) {
 		dev_err(&pdev->dev, "unable to register uio device\n");
@@ -227,6 +305,18 @@ static int uio_pdrv_genirq_remove(struct platform_device *pdev)
 	priv->uioinfo->irqcontrol = NULL;
 
 	return 0;
+=======
+	ret = devm_add_action_or_reset(&pdev->dev, uio_pdrv_genirq_cleanup,
+				       &pdev->dev);
+	if (ret)
+		return ret;
+
+	ret = devm_uio_register_device(&pdev->dev, priv->uioinfo);
+	if (ret)
+		dev_err(&pdev->dev, "unable to register uio device\n");
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int uio_pdrv_genirq_runtime_nop(struct device *dev)
@@ -263,7 +353,10 @@ MODULE_PARM_DESC(of_id, "Openfirmware id of the device to be handled by uio");
 
 static struct platform_driver uio_pdrv_genirq = {
 	.probe = uio_pdrv_genirq_probe,
+<<<<<<< HEAD
 	.remove = uio_pdrv_genirq_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = DRIVER_NAME,
 		.pm = &uio_pdrv_genirq_dev_pm_ops,

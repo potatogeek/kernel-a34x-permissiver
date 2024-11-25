@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * adm1026.c - Part of lm_sensors, Linux kernel modules for hardware
  *	       monitoring
@@ -6,6 +10,7 @@
  *
  * Chip details at:
  *
+<<<<<<< HEAD
  * <http://www.onsemi.com/PowerSolutions/product.do?id=ADM1026>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+ * <https://www.onsemi.com/PowerSolutions/product.do?id=ADM1026>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -477,24 +485,39 @@ static struct adm1026_data *adm1026_update_device(struct device *dev)
 	return data;
 }
 
+<<<<<<< HEAD
 static ssize_t show_in(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static ssize_t in_show(struct device *dev, struct device_attribute *attr,
+		       char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", INS_FROM_REG(nr, data->in[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_in_min(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static ssize_t in_min_show(struct device *dev, struct device_attribute *attr,
+			   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", INS_FROM_REG(nr, data->in_min[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_in_min(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+static ssize_t in_min_store(struct device *dev, struct device_attribute *attr,
+			    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -513,16 +536,26 @@ static ssize_t set_in_min(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t show_in_max(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static ssize_t in_max_show(struct device *dev, struct device_attribute *attr,
+			   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", INS_FROM_REG(nr, data->in_max[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_in_max(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+static ssize_t in_max_store(struct device *dev, struct device_attribute *attr,
+			    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -542,6 +575,7 @@ static ssize_t set_in_max(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define in_reg(offset)						\
 static SENSOR_DEVICE_ATTR(in##offset##_input, S_IRUGO, show_in,	\
 		NULL, offset);					\
@@ -569,21 +603,84 @@ in_reg(14);
 in_reg(15);
 
 static ssize_t show_in16(struct device *dev, struct device_attribute *attr,
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_input, in, 0);
+static SENSOR_DEVICE_ATTR_RW(in0_min, in_min, 0);
+static SENSOR_DEVICE_ATTR_RW(in0_max, in_max, 0);
+static SENSOR_DEVICE_ATTR_RO(in1_input, in, 1);
+static SENSOR_DEVICE_ATTR_RW(in1_min, in_min, 1);
+static SENSOR_DEVICE_ATTR_RW(in1_max, in_max, 1);
+static SENSOR_DEVICE_ATTR_RO(in2_input, in, 2);
+static SENSOR_DEVICE_ATTR_RW(in2_min, in_min, 2);
+static SENSOR_DEVICE_ATTR_RW(in2_max, in_max, 2);
+static SENSOR_DEVICE_ATTR_RO(in3_input, in, 3);
+static SENSOR_DEVICE_ATTR_RW(in3_min, in_min, 3);
+static SENSOR_DEVICE_ATTR_RW(in3_max, in_max, 3);
+static SENSOR_DEVICE_ATTR_RO(in4_input, in, 4);
+static SENSOR_DEVICE_ATTR_RW(in4_min, in_min, 4);
+static SENSOR_DEVICE_ATTR_RW(in4_max, in_max, 4);
+static SENSOR_DEVICE_ATTR_RO(in5_input, in, 5);
+static SENSOR_DEVICE_ATTR_RW(in5_min, in_min, 5);
+static SENSOR_DEVICE_ATTR_RW(in5_max, in_max, 5);
+static SENSOR_DEVICE_ATTR_RO(in6_input, in, 6);
+static SENSOR_DEVICE_ATTR_RW(in6_min, in_min, 6);
+static SENSOR_DEVICE_ATTR_RW(in6_max, in_max, 6);
+static SENSOR_DEVICE_ATTR_RO(in7_input, in, 7);
+static SENSOR_DEVICE_ATTR_RW(in7_min, in_min, 7);
+static SENSOR_DEVICE_ATTR_RW(in7_max, in_max, 7);
+static SENSOR_DEVICE_ATTR_RO(in8_input, in, 8);
+static SENSOR_DEVICE_ATTR_RW(in8_min, in_min, 8);
+static SENSOR_DEVICE_ATTR_RW(in8_max, in_max, 8);
+static SENSOR_DEVICE_ATTR_RO(in9_input, in, 9);
+static SENSOR_DEVICE_ATTR_RW(in9_min, in_min, 9);
+static SENSOR_DEVICE_ATTR_RW(in9_max, in_max, 9);
+static SENSOR_DEVICE_ATTR_RO(in10_input, in, 10);
+static SENSOR_DEVICE_ATTR_RW(in10_min, in_min, 10);
+static SENSOR_DEVICE_ATTR_RW(in10_max, in_max, 10);
+static SENSOR_DEVICE_ATTR_RO(in11_input, in, 11);
+static SENSOR_DEVICE_ATTR_RW(in11_min, in_min, 11);
+static SENSOR_DEVICE_ATTR_RW(in11_max, in_max, 11);
+static SENSOR_DEVICE_ATTR_RO(in12_input, in, 12);
+static SENSOR_DEVICE_ATTR_RW(in12_min, in_min, 12);
+static SENSOR_DEVICE_ATTR_RW(in12_max, in_max, 12);
+static SENSOR_DEVICE_ATTR_RO(in13_input, in, 13);
+static SENSOR_DEVICE_ATTR_RW(in13_min, in_min, 13);
+static SENSOR_DEVICE_ATTR_RW(in13_max, in_max, 13);
+static SENSOR_DEVICE_ATTR_RO(in14_input, in, 14);
+static SENSOR_DEVICE_ATTR_RW(in14_min, in_min, 14);
+static SENSOR_DEVICE_ATTR_RW(in14_max, in_max, 14);
+static SENSOR_DEVICE_ATTR_RO(in15_input, in, 15);
+static SENSOR_DEVICE_ATTR_RW(in15_min, in_min, 15);
+static SENSOR_DEVICE_ATTR_RW(in15_max, in_max, 15);
+
+static ssize_t in16_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", INS_FROM_REG(16, data->in[16]) -
 		NEG12_OFFSET);
 }
+<<<<<<< HEAD
 static ssize_t show_in16_min(struct device *dev, struct device_attribute *attr,
 			     char *buf)
+=======
+static ssize_t in16_min_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", INS_FROM_REG(16, data->in_min[16])
 		- NEG12_OFFSET);
 }
+<<<<<<< HEAD
 static ssize_t set_in16_min(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)
+=======
+static ssize_t in16_min_store(struct device *dev,
+			      struct device_attribute *attr, const char *buf,
+			      size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1026_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -603,15 +700,26 @@ static ssize_t set_in16_min(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t show_in16_max(struct device *dev, struct device_attribute *attr,
 			     char *buf)
+=======
+static ssize_t in16_max_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", INS_FROM_REG(16, data->in_max[16])
 			- NEG12_OFFSET);
 }
+<<<<<<< HEAD
 static ssize_t set_in16_max(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)
+=======
+static ssize_t in16_max_store(struct device *dev,
+			      struct device_attribute *attr, const char *buf,
+			      size_t count)
+>>>>>>> upstream/android-13
 {
 	struct adm1026_data *data = dev_get_drvdata(dev);
 	struct i2c_client *client = data->client;
@@ -632,6 +740,7 @@ static ssize_t set_in16_max(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in16_input, S_IRUGO, show_in16, NULL, 16);
 static SENSOR_DEVICE_ATTR(in16_min, S_IRUGO | S_IWUSR, show_in16_min,
 			  set_in16_min, 16);
@@ -643,6 +752,16 @@ static SENSOR_DEVICE_ATTR(in16_max, S_IRUGO | S_IWUSR, show_in16_max,
 
 static ssize_t show_fan(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RO(in16_input, in16, 16);
+static SENSOR_DEVICE_ATTR_RW(in16_min, in16_min, 16);
+static SENSOR_DEVICE_ATTR_RW(in16_max, in16_max, 16);
+
+/* Now add fan read/write functions */
+
+static ssize_t fan_show(struct device *dev, struct device_attribute *attr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -650,8 +769,13 @@ static ssize_t show_fan(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%d\n", FAN_FROM_REG(data->fan[nr],
 		data->fan_div[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_fan_min(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static ssize_t fan_min_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -659,8 +783,14 @@ static ssize_t show_fan_min(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%d\n", FAN_FROM_REG(data->fan_min[nr],
 		data->fan_div[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_fan_min(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+static ssize_t fan_min_store(struct device *dev,
+			     struct device_attribute *attr, const char *buf,
+			     size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -681,6 +811,7 @@ static ssize_t set_fan_min(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define fan_offset(offset)						\
 static SENSOR_DEVICE_ATTR(fan##offset##_input, S_IRUGO, show_fan, NULL,	\
 		offset - 1);						\
@@ -695,6 +826,24 @@ fan_offset(5);
 fan_offset(6);
 fan_offset(7);
 fan_offset(8);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan, 0);
+static SENSOR_DEVICE_ATTR_RW(fan1_min, fan_min, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan, 1);
+static SENSOR_DEVICE_ATTR_RW(fan2_min, fan_min, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, fan, 2);
+static SENSOR_DEVICE_ATTR_RW(fan3_min, fan_min, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_input, fan, 3);
+static SENSOR_DEVICE_ATTR_RW(fan4_min, fan_min, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_input, fan, 4);
+static SENSOR_DEVICE_ATTR_RW(fan5_min, fan_min, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_input, fan, 5);
+static SENSOR_DEVICE_ATTR_RW(fan6_min, fan_min, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_input, fan, 6);
+static SENSOR_DEVICE_ATTR_RW(fan7_min, fan_min, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_input, fan, 7);
+static SENSOR_DEVICE_ATTR_RW(fan8_min, fan_min, 7);
+>>>>>>> upstream/android-13
 
 /* Adjust fan_min to account for new fan divisor */
 static void fixup_fan_min(struct device *dev, int fan, int old_div)
@@ -715,16 +864,27 @@ static void fixup_fan_min(struct device *dev, int fan, int old_div)
 }
 
 /* Now add fan_div read/write functions */
+<<<<<<< HEAD
 static ssize_t show_fan_div(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static ssize_t fan_div_show(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", data->fan_div[nr]);
 }
+<<<<<<< HEAD
 static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+static ssize_t fan_div_store(struct device *dev,
+			     struct device_attribute *attr, const char *buf,
+			     size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -765,6 +925,7 @@ static ssize_t set_fan_div(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define fan_offset_div(offset)						\
 static SENSOR_DEVICE_ATTR(fan##offset##_div, S_IRUGO | S_IWUSR,		\
 		show_fan_div, set_fan_div, offset - 1);
@@ -781,22 +942,47 @@ fan_offset_div(8);
 /* Temps */
 static ssize_t show_temp(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RW(fan1_div, fan_div, 0);
+static SENSOR_DEVICE_ATTR_RW(fan2_div, fan_div, 1);
+static SENSOR_DEVICE_ATTR_RW(fan3_div, fan_div, 2);
+static SENSOR_DEVICE_ATTR_RW(fan4_div, fan_div, 3);
+static SENSOR_DEVICE_ATTR_RW(fan5_div, fan_div, 4);
+static SENSOR_DEVICE_ATTR_RW(fan6_div, fan_div, 5);
+static SENSOR_DEVICE_ATTR_RW(fan7_div, fan_div, 6);
+static SENSOR_DEVICE_ATTR_RW(fan8_div, fan_div, 7);
+
+/* Temps */
+static ssize_t temp_show(struct device *dev, struct device_attribute *attr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_temp_min(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static ssize_t temp_min_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_min[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_temp_min(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+static ssize_t temp_min_store(struct device *dev,
+			      struct device_attribute *attr, const char *buf,
+			      size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -816,16 +1002,27 @@ static ssize_t set_temp_min(struct device *dev, struct device_attribute *attr,
 	mutex_unlock(&data->update_lock);
 	return count;
 }
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev, struct device_attribute *attr,
 		char *buf)
+=======
+static ssize_t temp_max_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_max[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_temp_max(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+static ssize_t temp_max_store(struct device *dev,
+			      struct device_attribute *attr, const char *buf,
+			      size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -846,6 +1043,7 @@ static ssize_t set_temp_max(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define temp_reg(offset)						\
 static SENSOR_DEVICE_ATTR(temp##offset##_input, S_IRUGO, show_temp,	\
 		NULL, offset - 1);					\
@@ -861,15 +1059,35 @@ temp_reg(3);
 
 static ssize_t show_temp_offset(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp_min, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp_max, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_min, temp_min, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp_max, 1);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_min, temp_min, 2);
+static SENSOR_DEVICE_ATTR_RW(temp3_max, temp_max, 2);
+
+static ssize_t temp_offset_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_offset[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_temp_offset(struct device *dev,
 		struct device_attribute *attr, const char *buf,
 		size_t count)
+=======
+static ssize_t temp_offset_store(struct device *dev,
+				 struct device_attribute *attr,
+				 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -890,6 +1108,7 @@ static ssize_t set_temp_offset(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 #define temp_offset_reg(offset)						\
 static SENSOR_DEVICE_ATTR(temp##offset##_offset, S_IRUGO | S_IWUSR,	\
 		show_temp_offset, set_temp_offset, offset - 1);
@@ -900,6 +1119,15 @@ temp_offset_reg(3);
 
 static ssize_t show_temp_auto_point1_temp_hyst(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static SENSOR_DEVICE_ATTR_RW(temp1_offset, temp_offset, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_offset, temp_offset, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_offset, temp_offset, 2);
+
+static ssize_t temp_auto_point1_temp_hyst_show(struct device *dev,
+					       struct device_attribute *attr,
+					       char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -907,8 +1135,14 @@ static ssize_t show_temp_auto_point1_temp_hyst(struct device *dev,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(
 		ADM1026_FAN_ACTIVATION_TEMP_HYST + data->temp_tmin[nr]));
 }
+<<<<<<< HEAD
 static ssize_t show_temp_auto_point2_temp(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t temp_auto_point2_temp_show(struct device *dev,
+					  struct device_attribute *attr,
+					  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -916,16 +1150,28 @@ static ssize_t show_temp_auto_point2_temp(struct device *dev,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_tmin[nr] +
 		ADM1026_FAN_CONTROL_TEMP_RANGE));
 }
+<<<<<<< HEAD
 static ssize_t show_temp_auto_point1_temp(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t temp_auto_point1_temp_show(struct device *dev,
+					  struct device_attribute *attr,
+					  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_tmin[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_temp_auto_point1_temp(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t temp_auto_point1_temp_store(struct device *dev,
+					   struct device_attribute *attr,
+					   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -946,6 +1192,7 @@ static ssize_t set_temp_auto_point1_temp(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 #define temp_auto_point(offset)						\
 static SENSOR_DEVICE_ATTR(temp##offset##_auto_point1_temp,		\
 		S_IRUGO | S_IWUSR, show_temp_auto_point1_temp,		\
@@ -958,6 +1205,20 @@ static SENSOR_DEVICE_ATTR(temp##offset##_auto_point2_temp, S_IRUGO,	\
 temp_auto_point(1);
 temp_auto_point(2);
 temp_auto_point(3);
+=======
+static SENSOR_DEVICE_ATTR_RW(temp1_auto_point1_temp, temp_auto_point1_temp, 0);
+static SENSOR_DEVICE_ATTR_RO(temp1_auto_point1_temp_hyst,
+			     temp_auto_point1_temp_hyst, 0);
+static SENSOR_DEVICE_ATTR_RO(temp1_auto_point2_temp, temp_auto_point2_temp, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_auto_point1_temp, temp_auto_point1_temp, 1);
+static SENSOR_DEVICE_ATTR_RO(temp2_auto_point1_temp_hyst,
+			     temp_auto_point1_temp_hyst, 1);
+static SENSOR_DEVICE_ATTR_RO(temp2_auto_point2_temp, temp_auto_point2_temp, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_auto_point1_temp, temp_auto_point1_temp, 2);
+static SENSOR_DEVICE_ATTR_RO(temp3_auto_point1_temp_hyst,
+			     temp_auto_point1_temp_hyst, 2);
+static SENSOR_DEVICE_ATTR_RO(temp3_auto_point2_temp, temp_auto_point2_temp, 2);
+>>>>>>> upstream/android-13
 
 static ssize_t show_temp_crit_enable(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -988,6 +1249,7 @@ static ssize_t set_temp_crit_enable(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 #define temp_crit_enable(offset)				\
 static DEVICE_ATTR(temp##offset##_crit_enable, S_IRUGO | S_IWUSR, \
 	show_temp_crit_enable, set_temp_crit_enable);
@@ -998,14 +1260,31 @@ temp_crit_enable(3);
 
 static ssize_t show_temp_crit(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static DEVICE_ATTR(temp1_crit_enable, 0644, show_temp_crit_enable,
+		   set_temp_crit_enable);
+static DEVICE_ATTR(temp2_crit_enable, 0644, show_temp_crit_enable,
+		   set_temp_crit_enable);
+static DEVICE_ATTR(temp3_crit_enable, 0644, show_temp_crit_enable,
+		   set_temp_crit_enable);
+
+static ssize_t temp_crit_show(struct device *dev,
+			      struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
 	struct adm1026_data *data = adm1026_update_device(dev);
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_crit[nr]));
 }
+<<<<<<< HEAD
 static ssize_t set_temp_crit(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
+=======
+static ssize_t temp_crit_store(struct device *dev,
+			       struct device_attribute *attr, const char *buf,
+			       size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int nr = sensor_attr->index;
@@ -1026,6 +1305,7 @@ static ssize_t set_temp_crit(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 #define temp_crit_reg(offset)						\
 static SENSOR_DEVICE_ATTR(temp##offset##_crit, S_IRUGO | S_IWUSR,	\
 		show_temp_crit, set_temp_crit, offset - 1);
@@ -1033,6 +1313,11 @@ static SENSOR_DEVICE_ATTR(temp##offset##_crit, S_IRUGO | S_IWUSR,	\
 temp_crit_reg(1);
 temp_crit_reg(2);
 temp_crit_reg(3);
+=======
+static SENSOR_DEVICE_ATTR_RW(temp1_crit, temp_crit, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_crit, temp_crit, 1);
+static SENSOR_DEVICE_ATTR_RW(temp3_crit, temp_crit, 2);
+>>>>>>> upstream/android-13
 
 static ssize_t analog_out_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
@@ -1110,7 +1395,11 @@ static ssize_t alarms_show(struct device *dev, struct device_attribute *attr,
 
 static DEVICE_ATTR_RO(alarms);
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t alarm_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  char *buf)
 {
 	struct adm1026_data *data = adm1026_update_device(dev);
@@ -1118,6 +1407,7 @@ static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%ld\n", (data->alarms >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp2_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp3_alarm, S_IRUGO, show_alarm, NULL, 1);
 static SENSOR_DEVICE_ATTR(in9_alarm, S_IRUGO, show_alarm, NULL, 1);
@@ -1146,6 +1436,36 @@ static SENSOR_DEVICE_ATTR(fan8_alarm, S_IRUGO, show_alarm, NULL, 23);
 static SENSOR_DEVICE_ATTR(temp1_alarm, S_IRUGO, show_alarm, NULL, 24);
 static SENSOR_DEVICE_ATTR(in10_alarm, S_IRUGO, show_alarm, NULL, 25);
 static SENSOR_DEVICE_ATTR(in8_alarm, S_IRUGO, show_alarm, NULL, 26);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp2_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp3_alarm, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(in9_alarm, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(in11_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(in12_alarm, alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(in13_alarm, alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(in14_alarm, alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(in15_alarm, alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(in16_alarm, alarm, 7);
+static SENSOR_DEVICE_ATTR_RO(in0_alarm, alarm, 8);
+static SENSOR_DEVICE_ATTR_RO(in1_alarm, alarm, 9);
+static SENSOR_DEVICE_ATTR_RO(in2_alarm, alarm, 10);
+static SENSOR_DEVICE_ATTR_RO(in3_alarm, alarm, 11);
+static SENSOR_DEVICE_ATTR_RO(in4_alarm, alarm, 12);
+static SENSOR_DEVICE_ATTR_RO(in5_alarm, alarm, 13);
+static SENSOR_DEVICE_ATTR_RO(in6_alarm, alarm, 14);
+static SENSOR_DEVICE_ATTR_RO(in7_alarm, alarm, 15);
+static SENSOR_DEVICE_ATTR_RO(fan1_alarm, alarm, 16);
+static SENSOR_DEVICE_ATTR_RO(fan2_alarm, alarm, 17);
+static SENSOR_DEVICE_ATTR_RO(fan3_alarm, alarm, 18);
+static SENSOR_DEVICE_ATTR_RO(fan4_alarm, alarm, 19);
+static SENSOR_DEVICE_ATTR_RO(fan5_alarm, alarm, 20);
+static SENSOR_DEVICE_ATTR_RO(fan6_alarm, alarm, 21);
+static SENSOR_DEVICE_ATTR_RO(fan7_alarm, alarm, 22);
+static SENSOR_DEVICE_ATTR_RO(fan8_alarm, alarm, 23);
+static SENSOR_DEVICE_ATTR_RO(temp1_alarm, alarm, 24);
+static SENSOR_DEVICE_ATTR_RO(in10_alarm, alarm, 25);
+static SENSOR_DEVICE_ATTR_RO(in8_alarm, alarm, 26);
+>>>>>>> upstream/android-13
 
 static ssize_t alarm_mask_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
@@ -1188,7 +1508,10 @@ static ssize_t alarm_mask_store(struct device *dev,
 
 static DEVICE_ATTR_RW(alarm_mask);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t gpio_show(struct device *dev, struct device_attribute *attr,
 			 char *buf)
 {
@@ -1371,6 +1694,7 @@ static ssize_t pwm1_enable_store(struct device *dev,
 
 /* enable PWM fan control */
 static DEVICE_ATTR_RW(pwm1);
+<<<<<<< HEAD
 static DEVICE_ATTR(pwm2, S_IRUGO | S_IWUSR, pwm1_show, pwm1_store);
 static DEVICE_ATTR(pwm3, S_IRUGO | S_IWUSR, pwm1_show, pwm1_store);
 static DEVICE_ATTR_RW(pwm1_enable);
@@ -1388,6 +1712,25 @@ static DEVICE_ATTR_RO(temp1_auto_point2_pwm);
 static DEVICE_ATTR(temp2_auto_point2_pwm, S_IRUGO, temp1_auto_point2_pwm_show,
 		   NULL);
 static DEVICE_ATTR(temp3_auto_point2_pwm, S_IRUGO, temp1_auto_point2_pwm_show,
+=======
+static DEVICE_ATTR(pwm2, 0644, pwm1_show, pwm1_store);
+static DEVICE_ATTR(pwm3, 0644, pwm1_show, pwm1_store);
+static DEVICE_ATTR_RW(pwm1_enable);
+static DEVICE_ATTR(pwm2_enable, 0644, pwm1_enable_show,
+		   pwm1_enable_store);
+static DEVICE_ATTR(pwm3_enable, 0644, pwm1_enable_show,
+		   pwm1_enable_store);
+static DEVICE_ATTR_RW(temp1_auto_point1_pwm);
+static DEVICE_ATTR(temp2_auto_point1_pwm, 0644,
+		   temp1_auto_point1_pwm_show, temp1_auto_point1_pwm_store);
+static DEVICE_ATTR(temp3_auto_point1_pwm, 0644,
+		   temp1_auto_point1_pwm_show, temp1_auto_point1_pwm_store);
+
+static DEVICE_ATTR_RO(temp1_auto_point2_pwm);
+static DEVICE_ATTR(temp2_auto_point2_pwm, 0444, temp1_auto_point2_pwm_show,
+		   NULL);
+static DEVICE_ATTR(temp3_auto_point2_pwm, 0444, temp1_auto_point2_pwm_show,
+>>>>>>> upstream/android-13
 		   NULL);
 
 static struct attribute *adm1026_attributes[] = {
@@ -1813,8 +2156,12 @@ static void adm1026_init_client(struct i2c_client *client)
 	}
 }
 
+<<<<<<< HEAD
 static int adm1026_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int adm1026_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -1857,7 +2204,11 @@ static struct i2c_driver adm1026_driver = {
 	.driver = {
 		.name	= "adm1026",
 	},
+<<<<<<< HEAD
 	.probe		= adm1026_probe,
+=======
+	.probe_new	= adm1026_probe,
+>>>>>>> upstream/android-13
 	.id_table	= adm1026_id,
 	.detect		= adm1026_detect,
 	.address_list	= normal_i2c,

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 Pablo Neira Ayuso <pablo@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -13,6 +19,10 @@
 #include <linux/netfilter.h>
 #include <linux/netfilter/nf_tables.h>
 #include <net/netfilter/nf_tables.h>
+<<<<<<< HEAD
+=======
+#include <net/netfilter/nf_tables_offload.h>
+>>>>>>> upstream/android-13
 #include <net/netfilter/nf_dup_netdev.h>
 
 static void nf_do_netdev_egress(struct sk_buff *skb, struct net_device *dev)
@@ -54,5 +64,31 @@ void nf_dup_netdev_egress(const struct nft_pktinfo *pkt, int oif)
 }
 EXPORT_SYMBOL_GPL(nf_dup_netdev_egress);
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Pablo Neira Ayuso <pablo@netfilter.org>");
+=======
+int nft_fwd_dup_netdev_offload(struct nft_offload_ctx *ctx,
+			       struct nft_flow_rule *flow,
+			       enum flow_action_id id, int oif)
+{
+	struct flow_action_entry *entry;
+	struct net_device *dev;
+
+	/* nft_flow_rule_destroy() releases the reference on this device. */
+	dev = dev_get_by_index(ctx->net, oif);
+	if (!dev)
+		return -EOPNOTSUPP;
+
+	entry = &flow->rule->action.entries[ctx->num_actions++];
+	entry->id = id;
+	entry->dev = dev;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(nft_fwd_dup_netdev_offload);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Pablo Neira Ayuso <pablo@netfilter.org>");
+MODULE_DESCRIPTION("Netfilter packet duplication support");
+>>>>>>> upstream/android-13

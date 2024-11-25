@@ -47,7 +47,11 @@ int atari_partition(struct parsed_partitions *state)
 	 * ATARI partition scheme supports 512 lba only.  If this is not
 	 * the case, bail early to avoid miscalculating hd_size.
 	 */
+<<<<<<< HEAD
 	if (bdev_logical_block_size(state->bdev) != 512)
+=======
+	if (queue_logical_block_size(state->disk->queue) != 512)
+>>>>>>> upstream/android-13
 		return 0;
 
 	rs = read_part_sector(state, 0, &sect);
@@ -55,7 +59,11 @@ int atari_partition(struct parsed_partitions *state)
 		return -1;
 
 	/* Verify this is an Atari rootsector: */
+<<<<<<< HEAD
 	hd_size = state->bdev->bd_inode->i_size >> 9;
+=======
+	hd_size = get_capacity(state->disk);
+>>>>>>> upstream/android-13
 	if (!VALID_PARTITION(&rs->part[0], hd_size) &&
 	    !VALID_PARTITION(&rs->part[1], hd_size) &&
 	    !VALID_PARTITION(&rs->part[2], hd_size) &&

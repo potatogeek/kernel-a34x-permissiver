@@ -9,17 +9,29 @@ config PCI_MVEBU
 	depends on MVEBU_MBUS
 	depends on ARM
 	depends on OF
+<<<<<<< HEAD
 
 config PCI_AARDVARK
 	bool "Aardvark PCIe controller"
 	depends on (ARCH_MVEBU && ARM64) || COMPILE_TEST
 	depends on OF
 	depends on PCI_MSI_IRQ_DOMAIN
+=======
+	select PCI_BRIDGE_EMUL
+
+config PCI_AARDVARK
+	tristate "Aardvark PCIe controller"
+	depends on (ARCH_MVEBU && ARM64) || COMPILE_TEST
+	depends on OF
+	depends on PCI_MSI_IRQ_DOMAIN
+	select PCI_BRIDGE_EMUL
+>>>>>>> upstream/android-13
 	help
 	 Add support for Aardvark 64bit PCIe Host Controller. This
 	 controller is part of the South Bridge of the Marvel Armada
 	 3700 SoC.
 
+<<<<<<< HEAD
 menu "Cadence PCIe controllers support"
 
 config PCIE_CADENCE
@@ -48,6 +60,8 @@ config PCIE_CADENCE_EP
 
 endmenu
 
+=======
+>>>>>>> upstream/android-13
 config PCIE_XILINX_NWL
 	bool "NWL PCIe Core"
 	depends on ARCH_ZYNQMP || COMPILE_TEST
@@ -63,6 +77,18 @@ config PCI_FTPCI100
 	depends on OF
 	default ARCH_GEMINI
 
+<<<<<<< HEAD
+=======
+config PCI_IXP4XX
+	bool "Intel IXP4xx PCI controller"
+	depends on ARM && OF
+	depends on ARCH_IXP4XX || COMPILE_TEST
+	default ARCH_IXP4XX
+	help
+	  Say Y here if you want support for the PCI host controller found
+	  in the Intel IXP4xx XScale-based network processor SoC.
+
+>>>>>>> upstream/android-13
 config PCI_TEGRA
 	bool "NVIDIA Tegra PCIe controller"
 	depends on ARCH_TEGRA || COMPILE_TEST
@@ -80,6 +106,7 @@ config PCI_RCAR_GEN2
 	  There are 3 internal PCI controllers available with a single
 	  built-in EHCI/OHCI host controller present on each one.
 
+<<<<<<< HEAD
 config PCIE_RCAR
 	bool "Renesas R-Car PCIe controller"
 	depends on ARCH_RENESAS || COMPILE_TEST
@@ -93,6 +120,30 @@ config PCI_HOST_COMMON
 
 config PCI_HOST_GENERIC
 	bool "Generic PCI host controller"
+=======
+config PCIE_RCAR_HOST
+	bool "Renesas R-Car PCIe host controller"
+	depends on ARCH_RENESAS || COMPILE_TEST
+	depends on PCI_MSI_IRQ_DOMAIN
+	help
+	  Say Y here if you want PCIe controller support on R-Car SoCs in host
+	  mode.
+
+config PCIE_RCAR_EP
+	bool "Renesas R-Car PCIe endpoint controller"
+	depends on ARCH_RENESAS || COMPILE_TEST
+	depends on PCI_ENDPOINT
+	help
+	  Say Y here if you want PCIe controller support on R-Car SoCs in
+	  endpoint mode.
+
+config PCI_HOST_COMMON
+	tristate
+	select PCI_ECAM
+
+config PCI_HOST_GENERIC
+	tristate "Generic PCI host controller"
+>>>>>>> upstream/android-13
 	depends on OF
 	select PCI_HOST_COMMON
 	select IRQ_DOMAIN
@@ -103,10 +154,25 @@ config PCI_HOST_GENERIC
 config PCIE_XILINX
 	bool "Xilinx AXI PCIe host bridge support"
 	depends on OF || COMPILE_TEST
+<<<<<<< HEAD
+=======
+	depends on PCI_MSI_IRQ_DOMAIN
+>>>>>>> upstream/android-13
 	help
 	  Say 'Y' here if you want kernel to support the Xilinx AXI PCIe
 	  Host Bridge driver.
 
+<<<<<<< HEAD
+=======
+config PCIE_XILINX_CPM
+	bool "Xilinx Versal CPM host bridge support"
+	depends on ARCH_ZYNQMP || COMPILE_TEST
+	select PCI_HOST_COMMON
+	help
+	  Say 'Y' here if you want kernel support for the
+	  Xilinx Versal CPM host bridge.
+
+>>>>>>> upstream/android-13
 config PCI_XGENE
 	bool "X-Gene PCIe controller"
 	depends on ARM64 || COMPILE_TEST
@@ -133,7 +199,11 @@ config PCI_V3_SEMI
 
 config PCI_VERSATILE
 	bool "ARM Versatile PB PCI controller"
+<<<<<<< HEAD
 	depends on ARCH_VERSATILE
+=======
+	depends on ARCH_VERSATILE || COMPILE_TEST
+>>>>>>> upstream/android-13
 
 config PCIE_IPROC
 	tristate
@@ -172,14 +242,23 @@ config PCIE_IPROC_MSI
 	  PCIe controller
 
 config PCIE_ALTERA
+<<<<<<< HEAD
 	bool "Altera PCIe controller"
 	depends on ARM || NIOS2 || COMPILE_TEST
+=======
+	tristate "Altera PCIe controller"
+	depends on ARM || NIOS2 || ARM64 || COMPILE_TEST
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you want to enable PCIe controller support on Altera
 	  FPGA.
 
 config PCIE_ALTERA_MSI
+<<<<<<< HEAD
 	bool "Altera PCIe MSI feature"
+=======
+	tristate "Altera PCIe MSI feature"
+>>>>>>> upstream/android-13
 	depends on PCIE_ALTERA
 	depends on PCI_MSI_IRQ_DOMAIN
 	help
@@ -239,6 +318,7 @@ config PCIE_MEDIATEK
 	  Say Y here if you want to enable PCIe controller support on
 	  MediaTek SoCs.
 
+<<<<<<< HEAD
 config PCIE_MOBIVEIL
 	bool "Mobiveil AXI PCIe controller"
 	depends on ARCH_ZYNQMP || COMPILE_TEST
@@ -262,11 +342,29 @@ config PCIE_TANGO_SMP8759
 	  accesses, and Linux doesn't provide a way to serialize them.
 	  This can lead to data corruption if drivers perform concurrent
 	  config and MMIO accesses.
+=======
+config PCIE_MEDIATEK_GEN3
+	tristate "MediaTek Gen3 PCIe controller"
+	depends on ARCH_MEDIATEK || COMPILE_TEST
+	depends on PCI_MSI_IRQ_DOMAIN
+	help
+	  Adds support for PCIe Gen3 MAC controller for MediaTek SoCs.
+	  This PCIe controller is compatible with Gen3, Gen2 and Gen1 speed,
+	  and support up to 256 MSI interrupt numbers for
+	  multi-function devices.
+
+	  Say Y here if you want to enable Gen3 PCIe controller support on
+	  MediaTek SoCs.
+>>>>>>> upstream/android-13
 
 config VMD
 	depends on PCI_MSI && X86_64 && SRCU
 	tristate "Intel Volume Management Device Driver"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Adds support for the Intel Volume Management Device (VMD). VMD is a
 	  secondary PCI host bridge that allows PCI Express root ports,
 	  and devices attached to them, to be removed from the default
@@ -278,5 +376,55 @@ config VMD
 	  To compile this driver as a module, choose M here: the
 	  module will be called vmd.
 
+<<<<<<< HEAD
 source "drivers/pci/controller/dwc/Kconfig"
+=======
+config PCIE_BRCMSTB
+	tristate "Broadcom Brcmstb PCIe host controller"
+	depends on ARCH_BRCMSTB || ARCH_BCM2835 || ARCH_BCM4908 || COMPILE_TEST
+	depends on OF
+	depends on PCI_MSI_IRQ_DOMAIN
+	default ARCH_BRCMSTB
+	help
+	  Say Y here to enable PCIe host controller support for
+	  Broadcom STB based SoCs, like the Raspberry Pi 4.
+
+config PCI_HYPERV_INTERFACE
+	tristate "Hyper-V PCI Interface"
+	depends on X86 && HYPERV && PCI_MSI && PCI_MSI_IRQ_DOMAIN && X86_64
+	help
+	  The Hyper-V PCI Interface is a helper driver allows other drivers to
+	  have a common interface with the Hyper-V PCI frontend driver.
+
+config PCI_LOONGSON
+	bool "LOONGSON PCI Controller"
+	depends on MACH_LOONGSON64 || COMPILE_TEST
+	depends on OF
+	depends on PCI_QUIRKS
+	default MACH_LOONGSON64
+	help
+	  Say Y here if you want to enable PCI controller support on
+	  Loongson systems.
+
+config PCIE_MICROCHIP_HOST
+	bool "Microchip AXI PCIe host bridge support"
+	depends on PCI_MSI && OF
+	select PCI_MSI_IRQ_DOMAIN
+	select GENERIC_MSI_IRQ_DOMAIN
+	select PCI_HOST_COMMON
+	help
+	  Say Y here if you want kernel to support the Microchip AXI PCIe
+	  Host Bridge driver.
+
+config PCIE_HISI_ERR
+	depends on ACPI_APEI_GHES && (ARM64 || COMPILE_TEST)
+	bool "HiSilicon HIP PCIe controller error handling driver"
+	help
+	  Say Y here if you want error handling support
+	  for the PCIe controller's errors on HiSilicon HIP SoCs
+
+source "drivers/pci/controller/dwc/Kconfig"
+source "drivers/pci/controller/mobiveil/Kconfig"
+source "drivers/pci/controller/cadence/Kconfig"
+>>>>>>> upstream/android-13
 endmenu

@@ -355,8 +355,12 @@ static inline ext2_fsblk_t ext2_find_goal(struct inode *inode, long block,
  *	@blks: number of data blocks to be mapped.
  *	@blocks_to_boundary:  the offset in the indirect block
  *
+<<<<<<< HEAD
  *	return the total number of blocks to be allocate, including the
  *	direct and indirect blocks.
+=======
+ *	return the number of direct blocks to allocate.
+>>>>>>> upstream/android-13
  */
 static int
 ext2_blks_to_allocate(Indirect * branch, int k, unsigned long blks,
@@ -389,11 +393,17 @@ ext2_blks_to_allocate(Indirect * branch, int k, unsigned long blks,
  *	ext2_alloc_blocks: multiple allocate blocks needed for a branch
  *	@indirect_blks: the number of blocks need to allocate for indirect
  *			blocks
+<<<<<<< HEAD
  *
  *	@new_blocks: on return it will store the new block numbers for
  *	the indirect blocks(if needed) and the first direct block,
  *	@blks:	on return it will store the total number of allocated
  *		direct blocks
+=======
+ *	@blks: the number of blocks need to allocate for direct blocks
+ *	@new_blocks: on return it will store the new block numbers for
+ *	the indirect blocks(if needed) and the first direct block,
+>>>>>>> upstream/android-13
  */
 static int ext2_alloc_blocks(struct inode *inode,
 			ext2_fsblk_t goal, int indirect_blks, int blks,
@@ -451,7 +461,13 @@ failed_out:
 /**
  *	ext2_alloc_branch - allocate and set up a chain of blocks.
  *	@inode: owner
+<<<<<<< HEAD
  *	@num: depth of the chain (number of blocks to allocate)
+=======
+ *	@indirect_blks: depth of the chain (number of blocks to allocate)
+ *	@blks: number of allocated direct blocks
+ *	@goal: preferred place for allocation
+>>>>>>> upstream/android-13
  *	@offsets: offsets (in the blocks) to store the pointers to next.
  *	@branch: place to store the chain in.
  *
@@ -720,7 +736,11 @@ static int ext2_get_blocks(struct inode *inode,
 	/* the number of blocks need to allocate for [d,t]indirect blocks */
 	indirect_blks = (chain + depth) - partial - 1;
 	/*
+<<<<<<< HEAD
 	 * Next look up the indirect map to count the totoal number of
+=======
+	 * Next look up the indirect map to count the total number of
+>>>>>>> upstream/android-13
 	 * direct blocks to allocate for this branch.
 	 */
 	count = ext2_blks_to_allocate(partial, indirect_blks,
@@ -800,9 +820,14 @@ int ext2_get_block(struct inode *inode, sector_t iblock,
 
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_FS_DAX
 static int ext2_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
 		unsigned flags, struct iomap *iomap)
+=======
+static int ext2_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+		unsigned flags, struct iomap *iomap, struct iomap *srcmap)
+>>>>>>> upstream/android-13
 {
 	unsigned int blkbits = inode->i_blkbits;
 	unsigned long first_block = offset >> blkbits;
@@ -853,16 +878,30 @@ const struct iomap_ops ext2_iomap_ops = {
 	.iomap_begin		= ext2_iomap_begin,
 	.iomap_end		= ext2_iomap_end,
 };
+<<<<<<< HEAD
 #else
 /* Define empty ops for !CONFIG_FS_DAX case to avoid ugly ifdefs */
 const struct iomap_ops ext2_iomap_ops;
 #endif /* CONFIG_FS_DAX */
+=======
+>>>>>>> upstream/android-13
 
 int ext2_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 		u64 start, u64 len)
 {
+<<<<<<< HEAD
 	return generic_block_fiemap(inode, fieinfo, start, len,
 				    ext2_get_block);
+=======
+	int ret;
+
+	inode_lock(inode);
+	len = min_t(u64, len, i_size_read(inode));
+	ret = iomap_fiemap(inode, fieinfo, start, len, &ext2_iomap_ops);
+	inode_unlock(inode);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int ext2_writepage(struct page *page, struct writeback_control *wbc)
@@ -875,11 +914,17 @@ static int ext2_readpage(struct file *file, struct page *page)
 	return mpage_readpage(page, ext2_get_block);
 }
 
+<<<<<<< HEAD
 static int
 ext2_readpages(struct file *file, struct address_space *mapping,
 		struct list_head *pages, unsigned nr_pages)
 {
 	return mpage_readpages(mapping, pages, nr_pages, ext2_get_block);
+=======
+static void ext2_readahead(struct readahead_control *rac)
+{
+	mpage_readahead(rac, ext2_get_block);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -958,6 +1003,7 @@ ext2_writepages(struct address_space *mapping, struct writeback_control *wbc)
 static int
 ext2_dax_writepages(struct address_space *mapping, struct writeback_control *wbc)
 {
+<<<<<<< HEAD
 	return dax_writeback_mapping_range(mapping,
 			mapping->host->i_sb->s_bdev, wbc);
 }
@@ -965,6 +1011,17 @@ ext2_dax_writepages(struct address_space *mapping, struct writeback_control *wbc
 const struct address_space_operations ext2_aops = {
 	.readpage		= ext2_readpage,
 	.readpages		= ext2_readpages,
+=======
+	struct ext2_sb_info *sbi = EXT2_SB(mapping->host->i_sb);
+
+	return dax_writeback_mapping_range(mapping, sbi->s_daxdev, wbc);
+}
+
+const struct address_space_operations ext2_aops = {
+	.set_page_dirty		= __set_page_dirty_buffers,
+	.readpage		= ext2_readpage,
+	.readahead		= ext2_readahead,
+>>>>>>> upstream/android-13
 	.writepage		= ext2_writepage,
 	.write_begin		= ext2_write_begin,
 	.write_end		= ext2_write_end,
@@ -977,8 +1034,14 @@ const struct address_space_operations ext2_aops = {
 };
 
 const struct address_space_operations ext2_nobh_aops = {
+<<<<<<< HEAD
 	.readpage		= ext2_readpage,
 	.readpages		= ext2_readpages,
+=======
+	.set_page_dirty		= __set_page_dirty_buffers,
+	.readpage		= ext2_readpage,
+	.readahead		= ext2_readahead,
+>>>>>>> upstream/android-13
 	.writepage		= ext2_nobh_writepage,
 	.write_begin		= ext2_nobh_write_begin,
 	.write_end		= nobh_write_end,
@@ -992,7 +1055,11 @@ const struct address_space_operations ext2_nobh_aops = {
 static const struct address_space_operations ext2_dax_aops = {
 	.writepages		= ext2_dax_writepages,
 	.direct_IO		= noop_direct_IO,
+<<<<<<< HEAD
 	.set_page_dirty		= noop_set_page_dirty,
+=======
+	.set_page_dirty		= __set_page_dirty_no_writeback,
+>>>>>>> upstream/android-13
 	.invalidatepage		= noop_invalidatepage,
 };
 
@@ -1177,7 +1244,11 @@ static void ext2_free_branches(struct inode *inode, __le32 *p, __le32 *q, int de
 		ext2_free_data(inode, p, q);
 }
 
+<<<<<<< HEAD
 /* dax_sem must be held when calling this function */
+=======
+/* mapping->invalidate_lock must be held when calling this function */
+>>>>>>> upstream/android-13
 static void __ext2_truncate_blocks(struct inode *inode, loff_t offset)
 {
 	__le32 *i_data = EXT2_I(inode)->i_data;
@@ -1194,7 +1265,11 @@ static void __ext2_truncate_blocks(struct inode *inode, loff_t offset)
 	iblock = (offset + blocksize-1) >> EXT2_BLOCK_SIZE_BITS(inode->i_sb);
 
 #ifdef CONFIG_FS_DAX
+<<<<<<< HEAD
 	WARN_ON(!rwsem_is_locked(&ei->dax_sem));
+=======
+	WARN_ON(!rwsem_is_locked(&inode->i_mapping->invalidate_lock));
+>>>>>>> upstream/android-13
 #endif
 
 	n = ext2_block_to_path(inode, iblock, offsets, NULL);
@@ -1242,6 +1317,10 @@ do_indirects:
 				mark_inode_dirty(inode);
 				ext2_free_branches(inode, &nr, &nr+1, 1);
 			}
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case EXT2_IND_BLOCK:
 			nr = i_data[EXT2_DIND_BLOCK];
 			if (nr) {
@@ -1249,6 +1328,10 @@ do_indirects:
 				mark_inode_dirty(inode);
 				ext2_free_branches(inode, &nr, &nr+1, 2);
 			}
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case EXT2_DIND_BLOCK:
 			nr = i_data[EXT2_TIND_BLOCK];
 			if (nr) {
@@ -1256,6 +1339,10 @@ do_indirects:
 				mark_inode_dirty(inode);
 				ext2_free_branches(inode, &nr, &nr+1, 3);
 			}
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		case EXT2_TIND_BLOCK:
 			;
 	}
@@ -1273,9 +1360,15 @@ static void ext2_truncate_blocks(struct inode *inode, loff_t offset)
 	if (ext2_inode_is_fast_symlink(inode))
 		return;
 
+<<<<<<< HEAD
 	dax_sem_down_write(EXT2_I(inode));
 	__ext2_truncate_blocks(inode, offset);
 	dax_sem_up_write(EXT2_I(inode));
+=======
+	filemap_invalidate_lock(inode->i_mapping);
+	__ext2_truncate_blocks(inode, offset);
+	filemap_invalidate_unlock(inode->i_mapping);
+>>>>>>> upstream/android-13
 }
 
 static int ext2_setsize(struct inode *inode, loff_t newsize)
@@ -1305,10 +1398,17 @@ static int ext2_setsize(struct inode *inode, loff_t newsize)
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	dax_sem_down_write(EXT2_I(inode));
 	truncate_setsize(inode, newsize);
 	__ext2_truncate_blocks(inode, newsize);
 	dax_sem_up_write(EXT2_I(inode));
+=======
+	filemap_invalidate_lock(inode->i_mapping);
+	truncate_setsize(inode, newsize);
+	__ext2_truncate_blocks(inode, newsize);
+	filemap_invalidate_unlock(inode->i_mapping);
+>>>>>>> upstream/android-13
 
 	inode->i_mtime = inode->i_ctime = current_time(inode);
 	if (inode_needs_sync(inode)) {
@@ -1399,7 +1499,11 @@ void ext2_set_file_ops(struct inode *inode)
 struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 {
 	struct ext2_inode_info *ei;
+<<<<<<< HEAD
 	struct buffer_head * bh;
+=======
+	struct buffer_head * bh = NULL;
+>>>>>>> upstream/android-13
 	struct ext2_inode *raw_inode;
 	struct inode *inode;
 	long ret = -EIO;
@@ -1445,7 +1549,10 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	 */
 	if (inode->i_nlink == 0 && (inode->i_mode == 0 || ei->i_dtime)) {
 		/* this inode is deleted */
+<<<<<<< HEAD
 		brelse (bh);
+=======
+>>>>>>> upstream/android-13
 		ret = -ESTALE;
 		goto bad_inode;
 	}
@@ -1462,7 +1569,10 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	    !ext2_data_block_valid(EXT2_SB(sb), ei->i_file_acl, 1)) {
 		ext2_error(sb, "ext2_iget", "bad extended attribute block %u",
 			   ei->i_file_acl);
+<<<<<<< HEAD
 		brelse(bh);
+=======
+>>>>>>> upstream/android-13
 		ret = -EFSCORRUPTED;
 		goto bad_inode;
 	}
@@ -1525,6 +1635,10 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	return inode;
 	
 bad_inode:
+<<<<<<< HEAD
+=======
+	brelse(bh);
+>>>>>>> upstream/android-13
 	iget_failed(inode);
 	return ERR_PTR(ret);
 }
@@ -1638,12 +1752,47 @@ int ext2_write_inode(struct inode *inode, struct writeback_control *wbc)
 	return __ext2_write_inode(inode, wbc->sync_mode == WB_SYNC_ALL);
 }
 
+<<<<<<< HEAD
 int ext2_setattr(struct dentry *dentry, struct iattr *iattr)
+=======
+int ext2_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		 struct kstat *stat, u32 request_mask, unsigned int query_flags)
+{
+	struct inode *inode = d_inode(path->dentry);
+	struct ext2_inode_info *ei = EXT2_I(inode);
+	unsigned int flags;
+
+	flags = ei->i_flags & EXT2_FL_USER_VISIBLE;
+	if (flags & EXT2_APPEND_FL)
+		stat->attributes |= STATX_ATTR_APPEND;
+	if (flags & EXT2_COMPR_FL)
+		stat->attributes |= STATX_ATTR_COMPRESSED;
+	if (flags & EXT2_IMMUTABLE_FL)
+		stat->attributes |= STATX_ATTR_IMMUTABLE;
+	if (flags & EXT2_NODUMP_FL)
+		stat->attributes |= STATX_ATTR_NODUMP;
+	stat->attributes_mask |= (STATX_ATTR_APPEND |
+			STATX_ATTR_COMPRESSED |
+			STATX_ATTR_ENCRYPTED |
+			STATX_ATTR_IMMUTABLE |
+			STATX_ATTR_NODUMP);
+
+	generic_fillattr(&init_user_ns, inode, stat);
+	return 0;
+}
+
+int ext2_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		 struct iattr *iattr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	int error;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, iattr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, iattr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -1663,9 +1812,15 @@ int ext2_setattr(struct dentry *dentry, struct iattr *iattr)
 		if (error)
 			return error;
 	}
+<<<<<<< HEAD
 	setattr_copy(inode, iattr);
 	if (iattr->ia_valid & ATTR_MODE)
 		error = posix_acl_chmod(inode, inode->i_mode);
+=======
+	setattr_copy(&init_user_ns, inode, iattr);
+	if (iattr->ia_valid & ATTR_MODE)
+		error = posix_acl_chmod(&init_user_ns, inode, inode->i_mode);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 
 	return error;

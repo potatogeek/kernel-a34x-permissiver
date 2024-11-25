@@ -27,6 +27,10 @@
  */
 
 #include <linux/bcm47xx_nvram.h>
+<<<<<<< HEAD
+=======
+#include <linux/bcm47xx_sprom.h>
+>>>>>>> upstream/android-13
 #include <linux/bcma/bcma.h>
 #include <linux/etherdevice.h>
 #include <linux/if_ether.h>

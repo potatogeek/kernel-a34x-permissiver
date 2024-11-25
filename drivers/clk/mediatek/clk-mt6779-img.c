@@ -4,23 +4,34 @@
  * Author: Wendell Lin <wendell.lin@mediatek.com>
  */
 
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
 #include <linux/platform_device.h>
 #include <dt-bindings/clock/mt6779-clk.h>
 #include <linux/slab.h>
+=======
+#include <linux/module.h>
+#include <linux/clk-provider.h>
+#include <linux/platform_device.h>
+#include <dt-bindings/clock/mt6779-clk.h>
+>>>>>>> upstream/android-13
 
 #include "clk-mtk.h"
 #include "clk-gate.h"
 
+<<<<<<< HEAD
 #define MT_CLKMGR_MODULE_INIT	0
 #define CCF_SUBSYS_DEBUG		1
 
+=======
+>>>>>>> upstream/android-13
 static const struct mtk_gate_regs img_cg_regs = {
 	.set_ofs = 0x0004,
 	.clr_ofs = 0x0008,
 	.sta_ofs = 0x0000,
 };
 
+<<<<<<< HEAD
 #define GATE_IMG(_id, _name, _parent, _shift) {	\
 	.id = _id,			\
 	.name = _name,			\
@@ -42,6 +53,15 @@ static const struct mtk_gate_regs img_cg_regs = {
 static const struct mtk_gate img_clks[] = {
 	GATE_IMG_DUMMY(CLK_IMG_LARB5, "imgsys_larb5", "img_sel", 0),
 	GATE_IMG_DUMMY(CLK_IMG_LARB6, "imgsys_larb6", "img_sel", 1),
+=======
+#define GATE_IMG(_id, _name, _parent, _shift)			\
+	GATE_MTK(_id, _name, _parent, &img_cg_regs, _shift,	\
+		&mtk_clk_gate_ops_setclr)
+
+static const struct mtk_gate img_clks[] = {
+	GATE_IMG(CLK_IMG_LARB5, "imgsys_larb5", "img_sel", 0),
+	GATE_IMG(CLK_IMG_LARB6, "imgsys_larb6", "img_sel", 1),
+>>>>>>> upstream/android-13
 	GATE_IMG(CLK_IMG_DIP, "imgsys_dip", "img_sel", 2),
 	GATE_IMG(CLK_IMG_MFB, "imgsys_mfb", "img_sel", 6),
 	GATE_IMG(CLK_IMG_WPE_A, "imgsys_wpe_a", "img_sel", 7),
@@ -56,6 +76,7 @@ static int clk_mt6779_img_probe(struct platform_device *pdev)
 {
 	struct clk_onecell_data *clk_data;
 	struct device_node *node = pdev->dev.of_node;
+<<<<<<< HEAD
 	int ret;
 
 	clk_data = mtk_alloc_clk_data(CLK_IMG_NR_CLK);
@@ -67,10 +88,15 @@ static int clk_mt6779_img_probe(struct platform_device *pdev)
 #if CCF_SUBSYS_DEBUG
 	pr_info("%s(): clk data number: %d\n", __func__, clk_data->clk_num);
 #endif
+=======
+
+	clk_data = mtk_alloc_clk_data(CLK_IMG_NR_CLK);
+>>>>>>> upstream/android-13
 
 	mtk_clk_register_gates(node, img_clks, ARRAY_SIZE(img_clks),
 			       clk_data);
 
+<<<<<<< HEAD
 	ret = of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
 
 	if (ret) {
@@ -81,6 +107,9 @@ static int clk_mt6779_img_probe(struct platform_device *pdev)
 	}
 
 	return ret;
+=======
+	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver clk_mt6779_img_drv = {
@@ -91,6 +120,7 @@ static struct platform_driver clk_mt6779_img_drv = {
 	},
 };
 
+<<<<<<< HEAD
 #if MT_CLKMGR_MODULE_INIT
 
 builtin_platform_driver(clk_mt6779_img_drv);
@@ -106,3 +136,7 @@ arch_initcall_sync(clk_mt6779_img_platform_init);
 
 #endif /* MT_CLKMGR_MODULE_INIT */
 
+=======
+module_platform_driver(clk_mt6779_img_drv);
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

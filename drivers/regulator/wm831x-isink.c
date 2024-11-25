@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * wm831x-isink.c  --  Current sink driver for the WM831x series
  *
@@ -10,6 +11,15 @@
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// wm831x-isink.c  --  Current sink driver for the WM831x series
+//
+// Copyright 2009 Wolfson Microelectronics PLC.
+//
+// Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -92,6 +102,7 @@ static int wm831x_isink_is_enabled(struct regulator_dev *rdev)
 		return 0;
 }
 
+<<<<<<< HEAD
 static int wm831x_isink_set_current(struct regulator_dev *rdev,
 				    int min_uA, int max_uA)
 {
@@ -128,12 +139,19 @@ static int wm831x_isink_get_current(struct regulator_dev *rdev)
 	return wm831x_isinkv_values[ret];
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct regulator_ops wm831x_isink_ops = {
 	.is_enabled = wm831x_isink_is_enabled,
 	.enable = wm831x_isink_enable,
 	.disable = wm831x_isink_disable,
+<<<<<<< HEAD
 	.set_current_limit = wm831x_isink_set_current,
 	.get_current_limit = wm831x_isink_get_current,
+=======
+	.set_current_limit = regulator_set_current_limit_regmap,
+	.get_current_limit = regulator_get_current_limit_regmap,
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t wm831x_isink_irq(int irq, void *data)
@@ -187,10 +205,21 @@ static int wm831x_isink_probe(struct platform_device *pdev)
 	isink->desc.ops = &wm831x_isink_ops;
 	isink->desc.type = REGULATOR_CURRENT;
 	isink->desc.owner = THIS_MODULE;
+<<<<<<< HEAD
+=======
+	isink->desc.curr_table = wm831x_isinkv_values,
+	isink->desc.n_current_limits = ARRAY_SIZE(wm831x_isinkv_values),
+	isink->desc.csel_reg = isink->reg,
+	isink->desc.csel_mask = WM831X_CS1_ISEL_MASK,
+>>>>>>> upstream/android-13
 
 	config.dev = pdev->dev.parent;
 	config.init_data = pdata->isink[id];
 	config.driver_data = isink;
+<<<<<<< HEAD
+=======
+	config.regmap = wm831x->regmap;
+>>>>>>> upstream/android-13
 
 	isink->regulator = devm_regulator_register(&pdev->dev, &isink->desc,
 						   &config);

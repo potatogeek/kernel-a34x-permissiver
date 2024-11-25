@@ -20,7 +20,11 @@ static inline void ci_hdrc_host_destroy(struct ci_hdrc *ci)
 
 }
 
+<<<<<<< HEAD
 static void ci_hdrc_host_driver_init(void)
+=======
+static inline void ci_hdrc_host_driver_init(void)
+>>>>>>> upstream/android-13
 {
 
 }

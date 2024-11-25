@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * xfi linux driver.
  *
  * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
+<<<<<<< HEAD
  *
  * This source file is released under GPL v2 license (no other versions).
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -21,7 +28,10 @@
 MODULE_AUTHOR("Creative Technology Ltd");
 MODULE_DESCRIPTION("X-Fi driver version 1.03");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Creative Labs, Sound Blaster X-Fi}");
+=======
+>>>>>>> upstream/android-13
 
 static unsigned int reference_rate = 48000;
 static unsigned int multiple = 2;

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019 MediaTek Inc.
  */
 
@@ -88,6 +89,90 @@
 #define MT6360_MASK_CHRDET_EXT	BIT(4)
 #define MT6360_SHFT_CHRDET_EXT	(4)
 
+=======
+ * Copyright (c) 2021 MediaTek Inc.
+ */
+
+#include <linux/devm-helpers.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+#include <linux/kernel.h>
+#include <linux/linear_range.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/platform_device.h>
+#include <linux/power_supply.h>
+#include <linux/property.h>
+#include <linux/regmap.h>
+#include <linux/regulator/driver.h>
+
+#define MT6360_PMU_CHG_CTRL1	0x311
+#define MT6360_PMU_CHG_CTRL2	0x312
+#define MT6360_PMU_CHG_CTRL3	0x313
+#define MT6360_PMU_CHG_CTRL4	0x314
+#define MT6360_PMU_CHG_CTRL5	0x315
+#define MT6360_PMU_CHG_CTRL6	0x316
+#define MT6360_PMU_CHG_CTRL7	0x317
+#define MT6360_PMU_CHG_CTRL8	0x318
+#define MT6360_PMU_CHG_CTRL9	0x319
+#define MT6360_PMU_CHG_CTRL10	0x31A
+#define MT6360_PMU_DEVICE_TYPE	0x322
+#define MT6360_PMU_USB_STATUS1	0x327
+#define MT6360_PMU_CHG_STAT	0x34A
+#define MT6360_PMU_CHG_CTRL19	0x361
+#define MT6360_PMU_FOD_STAT	0x3E7
+
+/* MT6360_PMU_CHG_CTRL1 */
+#define MT6360_FSLP_SHFT	(3)
+#define MT6360_FSLP_MASK	BIT(MT6360_FSLP_SHFT)
+#define MT6360_OPA_MODE_SHFT	(0)
+#define MT6360_OPA_MODE_MASK	BIT(MT6360_OPA_MODE_SHFT)
+/* MT6360_PMU_CHG_CTRL2 */
+#define MT6360_IINLMTSEL_SHFT	(2)
+#define MT6360_IINLMTSEL_MASK	GENMASK(3, 2)
+/* MT6360_PMU_CHG_CTRL3 */
+#define MT6360_IAICR_SHFT	(2)
+#define MT6360_IAICR_MASK	GENMASK(7, 2)
+#define MT6360_ILIM_EN_MASK	BIT(0)
+/* MT6360_PMU_CHG_CTRL4 */
+#define MT6360_VOREG_SHFT	(1)
+#define MT6360_VOREG_MASK	GENMASK(7, 1)
+/* MT6360_PMU_CHG_CTRL5 */
+#define MT6360_VOBST_MASK	GENMASK(7, 2)
+/* MT6360_PMU_CHG_CTRL6 */
+#define MT6360_VMIVR_SHFT      (1)
+#define MT6360_VMIVR_MASK      GENMASK(7, 1)
+/* MT6360_PMU_CHG_CTRL7 */
+#define MT6360_ICHG_SHFT	(2)
+#define MT6360_ICHG_MASK	GENMASK(7, 2)
+/* MT6360_PMU_CHG_CTRL8 */
+#define MT6360_IPREC_SHFT	(0)
+#define MT6360_IPREC_MASK	GENMASK(3, 0)
+/* MT6360_PMU_CHG_CTRL9 */
+#define MT6360_IEOC_SHFT	(4)
+#define MT6360_IEOC_MASK	GENMASK(7, 4)
+/* MT6360_PMU_CHG_CTRL10 */
+#define MT6360_OTG_OC_MASK	GENMASK(3, 0)
+/* MT6360_PMU_DEVICE_TYPE */
+#define MT6360_USBCHGEN_MASK	BIT(7)
+/* MT6360_PMU_USB_STATUS1 */
+#define MT6360_USB_STATUS_SHFT	(4)
+#define MT6360_USB_STATUS_MASK	GENMASK(6, 4)
+/* MT6360_PMU_CHG_STAT */
+#define MT6360_CHG_STAT_SHFT	(6)
+#define MT6360_CHG_STAT_MASK	GENMASK(7, 6)
+#define MT6360_VBAT_LVL_MASK	BIT(5)
+/* MT6360_PMU_CHG_CTRL19 */
+#define MT6360_VINOVP_SHFT	(5)
+#define MT6360_VINOVP_MASK	GENMASK(6, 5)
+/* MT6360_PMU_FOD_STAT */
+#define MT6360_CHRDET_EXT_MASK	BIT(4)
+
+/* uV */
+#define MT6360_VMIVR_MIN	3900000
+#define MT6360_VMIVR_MAX	13400000
+#define MT6360_VMIVR_STEP	100000
+>>>>>>> upstream/android-13
 /* uA */
 #define MT6360_ICHG_MIN		100000
 #define MT6360_ICHG_MAX		5000000
@@ -108,6 +193,7 @@
 #define MT6360_IEOC_MIN		100000
 #define MT6360_IEOC_MAX		850000
 #define MT6360_IEOC_STEP	50000
+<<<<<<< HEAD
 /* uV */
 #define MT6360_OCV_STEP		1250
 
@@ -120,10 +206,34 @@
 
 struct mt6360_chg_platform_data {
 	u32 vinovp;
+=======
+
+enum {
+	MT6360_RANGE_VMIVR,
+	MT6360_RANGE_ICHG,
+	MT6360_RANGE_VOREG,
+	MT6360_RANGE_AICR,
+	MT6360_RANGE_IPREC,
+	MT6360_RANGE_IEOC,
+	MT6360_RANGE_MAX,
+};
+
+#define MT6360_LINEAR_RANGE(idx, _min, _min_sel, _max_sel, _step) \
+	[idx] = REGULATOR_LINEAR_RANGE(_min, _min_sel, _max_sel, _step)
+
+static const struct linear_range mt6360_chg_range[MT6360_RANGE_MAX] = {
+	MT6360_LINEAR_RANGE(MT6360_RANGE_VMIVR, 3900000, 0, 0x5F, 100000),
+	MT6360_LINEAR_RANGE(MT6360_RANGE_ICHG, 100000, 0, 0x31, 100000),
+	MT6360_LINEAR_RANGE(MT6360_RANGE_VOREG, 3900000, 0, 0x51, 10000),
+	MT6360_LINEAR_RANGE(MT6360_RANGE_AICR, 100000, 0, 0x3F, 50000),
+	MT6360_LINEAR_RANGE(MT6360_RANGE_IPREC, 100000, 0, 0x0F, 50000),
+	MT6360_LINEAR_RANGE(MT6360_RANGE_IEOC, 100000, 0, 0x0F, 50000),
+>>>>>>> upstream/android-13
 };
 
 struct mt6360_chg_info {
 	struct device *dev;
+<<<<<<< HEAD
 	struct mt6360_chg_platform_data *pdata;
 	struct regmap *regmap;
 	struct extcon_dev *edev;
@@ -132,16 +242,27 @@ struct mt6360_chg_info {
 	struct regulator_desc otg_rdesc;
 	struct regulator_dev *otg_rdev;
 	struct mutex chgdet_lock;
+=======
+	struct regmap *regmap;
+	struct power_supply_desc psy_desc;
+	struct power_supply *psy;
+	struct regulator_dev *otg_rdev;
+	struct mutex chgdet_lock;
+	u32 vinovp;
+>>>>>>> upstream/android-13
 	bool pwr_rdy;
 	bool bc12_en;
 	int psy_usb_type;
 	struct work_struct chrdet_work;
 };
 
+<<<<<<< HEAD
 static struct mt6360_chg_platform_data def_platform_data = {
 	.vinovp = 6500000,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum mt6360_iinlmtsel {
 	MT6360_IINLMTSEL_AICR_3250 = 0,
 	MT6360_IINLMTSEL_CHG_TYPE,
@@ -156,6 +277,10 @@ enum mt6360_pmu_chg_type {
 	MT6360_CHG_TYPE_SDPNSTD,
 	MT6360_CHG_TYPE_DCP,
 	MT6360_CHG_TYPE_CDP,
+<<<<<<< HEAD
+=======
+	MT6360_CHG_TYPE_DISABLE_BC12,
+>>>>>>> upstream/android-13
 	MT6360_CHG_TYPE_MAX,
 };
 
@@ -164,6 +289,7 @@ static enum power_supply_usb_type mt6360_charger_usb_types[] = {
 	POWER_SUPPLY_USB_TYPE_SDP,
 	POWER_SUPPLY_USB_TYPE_DCP,
 	POWER_SUPPLY_USB_TYPE_CDP,
+<<<<<<< HEAD
 	POWER_SUPPLY_USB_TYPE_C,
 	POWER_SUPPLY_USB_TYPE_PD,
 	POWER_SUPPLY_USB_TYPE_PD_DRP,
@@ -183,6 +309,11 @@ static inline unsigned int mt6360_trans_reg_sel(u32 data, u32 min_val, u32 step,
 }
 
 static inline int mt6360_get_chrdet_ext_stat(struct mt6360_chg_info *mci,
+=======
+};
+
+static int mt6360_get_chrdet_ext_stat(struct mt6360_chg_info *mci,
+>>>>>>> upstream/android-13
 					     bool *pwr_rdy)
 {
 	int ret;
@@ -191,7 +322,11 @@ static inline int mt6360_get_chrdet_ext_stat(struct mt6360_chg_info *mci,
 	ret = regmap_read(mci->regmap, MT6360_PMU_FOD_STAT, &regval);
 	if (ret < 0)
 		return ret;
+<<<<<<< HEAD
 	*pwr_rdy = (regval & MT6360_MASK_CHRDET_EXT) ? true : false;
+=======
+	*pwr_rdy = (regval & MT6360_CHRDET_EXT_MASK) ? true : false;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -226,8 +361,13 @@ static int mt6360_charger_get_status(struct mt6360_chg_info *mci,
 	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_STAT, &regval);
 	if (ret < 0)
 		return ret;
+<<<<<<< HEAD
 	regval &= MT6360_MASK_CHG_STAT;
 	regval >>= MT6360_SHFT_CHG_STAT;
+=======
+	regval &= MT6360_CHG_STAT_MASK;
+	regval >>= MT6360_CHG_STAT_SHFT;
+>>>>>>> upstream/android-13
 	switch (regval) {
 	case 0x0:
 		status = POWER_SUPPLY_STATUS_NOT_CHARGING;
@@ -247,6 +387,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mt6360_charger_get_ocv(struct mt6360_chg_info *mci,
 				  union power_supply_propval *val)
 {
@@ -261,6 +402,8 @@ static int mt6360_charger_get_ocv(struct mt6360_chg_info *mci,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt6360_charger_get_charge_type(struct mt6360_chg_info *mci,
 					  union power_supply_propval *val)
 {
@@ -271,6 +414,7 @@ static int mt6360_charger_get_charge_type(struct mt6360_chg_info *mci,
 	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_STAT, &regval);
 	if (ret < 0)
 		return ret;
+<<<<<<< HEAD
 	chg_stat = (regval & MT6360_MASK_CHG_STAT) >> MT6360_SHFT_CHG_STAT;
 	switch (chg_stat) {
 	case 0x00: /* Not Charging */
@@ -278,10 +422,18 @@ static int mt6360_charger_get_charge_type(struct mt6360_chg_info *mci,
 		break;
 	case 0x01: /* Charge in Progress */
 		if (regval & MT6360_MASK_VBAT_LVL)
+=======
+
+	chg_stat = (regval & MT6360_CHG_STAT_MASK) >> MT6360_CHG_STAT_SHFT;
+	switch (chg_stat) {
+	case 0x01: /* Charge in Progress */
+		if (regval & MT6360_VBAT_LVL_MASK)
+>>>>>>> upstream/android-13
 			type = POWER_SUPPLY_CHARGE_TYPE_FAST;
 		else
 			type = POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
 		break;
+<<<<<<< HEAD
 	case 0x02: /* Charge Done */
 		type = POWER_SUPPLY_CHARGE_TYPE_NONE;
 		break;
@@ -291,6 +443,16 @@ static int mt6360_charger_get_charge_type(struct mt6360_chg_info *mci,
 	default:
 		break;
 	}
+=======
+	case 0x00: /* Not Charging */
+	case 0x02: /* Charge Done */
+	case 0x03: /* Charge Fault */
+	default:
+		type = POWER_SUPPLY_CHARGE_TYPE_NONE;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	val->intval = type;
 	return 0;
 }
@@ -298,6 +460,7 @@ static int mt6360_charger_get_charge_type(struct mt6360_chg_info *mci,
 static int mt6360_charger_get_ichg(struct mt6360_chg_info *mci,
 				   union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	int ichg, ret;
 	unsigned int regval;
 
@@ -310,6 +473,19 @@ static int mt6360_charger_get_ichg(struct mt6360_chg_info *mci,
 		ichg = MT6360_ICHG_MAX;
 	val->intval = ichg;
 	return 0;
+=======
+	int ret;
+	u32 sel, value;
+
+	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL7, &sel);
+	if (ret < 0)
+		return ret;
+	sel = (sel & MT6360_ICHG_MASK) >> MT6360_ICHG_SHFT;
+	ret = linear_range_get_value(&mt6360_chg_range[MT6360_RANGE_ICHG], sel, &value);
+	if (!ret)
+		val->intval = value;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_get_max_ichg(struct mt6360_chg_info *mci,
@@ -322,6 +498,7 @@ static int mt6360_charger_get_max_ichg(struct mt6360_chg_info *mci,
 static int mt6360_charger_get_cv(struct mt6360_chg_info *mci,
 				 union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	int cv, ret;
 	unsigned int regval;
 
@@ -334,6 +511,19 @@ static int mt6360_charger_get_cv(struct mt6360_chg_info *mci,
 		cv = MT6360_VOREG_MAX;
 	val->intval = cv;
 	return 0;
+=======
+	int ret;
+	u32 sel, value;
+
+	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL4, &sel);
+	if (ret < 0)
+		return ret;
+	sel = (sel & MT6360_VOREG_MASK) >> MT6360_VOREG_SHFT;
+	ret = linear_range_get_value(&mt6360_chg_range[MT6360_RANGE_VOREG], sel, &value);
+	if (!ret)
+		val->intval = value;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_get_max_cv(struct mt6360_chg_info *mci,
@@ -347,6 +537,7 @@ static int mt6360_charger_get_aicr(struct mt6360_chg_info *mci,
 				   union power_supply_propval *val)
 {
 	int ret;
+<<<<<<< HEAD
 	unsigned int regval;
 
 	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL3, &regval);
@@ -355,12 +546,41 @@ static int mt6360_charger_get_aicr(struct mt6360_chg_info *mci,
 	regval = (regval & MT6360_MASK_IAICR) >> MT6360_SHFT_IAICR;
 	val->intval = MT6360_AICR_MIN + (regval * MT6360_AICR_STEP);
 	return 0;
+=======
+	u32 sel, value;
+
+	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL3, &sel);
+	if (ret < 0)
+		return ret;
+	sel = (sel & MT6360_IAICR_MASK) >> MT6360_IAICR_SHFT;
+	ret = linear_range_get_value(&mt6360_chg_range[MT6360_RANGE_AICR], sel, &value);
+	if (!ret)
+		val->intval = value;
+	return ret;
+}
+
+static int mt6360_charger_get_mivr(struct mt6360_chg_info *mci,
+				   union power_supply_propval *val)
+{
+	int ret;
+	u32 sel, value;
+
+	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL6, &sel);
+	if (ret < 0)
+		return ret;
+	sel = (sel & MT6360_VMIVR_MASK) >> MT6360_VMIVR_SHFT;
+	ret = linear_range_get_value(&mt6360_chg_range[MT6360_RANGE_VMIVR], sel, &value);
+	if (!ret)
+		val->intval = value;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_get_iprechg(struct mt6360_chg_info *mci,
 				      union power_supply_propval *val)
 {
 	int ret;
+<<<<<<< HEAD
 	unsigned int regval;
 
 	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL8, &regval);
@@ -369,12 +589,25 @@ static int mt6360_charger_get_iprechg(struct mt6360_chg_info *mci,
 	regval = (regval & MT6360_MASK_IPREC) >> MT6360_SHFT_IPREC;
 	val->intval = MT6360_IPREC_MIN + (regval * MT6360_IPREC_STEP);
 	return 0;
+=======
+	u32 sel, value;
+
+	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL8, &sel);
+	if (ret < 0)
+		return ret;
+	sel = (sel & MT6360_IPREC_MASK) >> MT6360_IPREC_SHFT;
+	ret = linear_range_get_value(&mt6360_chg_range[MT6360_RANGE_IPREC], sel, &value);
+	if (!ret)
+		val->intval = value;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_get_ieoc(struct mt6360_chg_info *mci,
 				   union power_supply_propval *val)
 {
 	int ret;
+<<<<<<< HEAD
 	unsigned int regval;
 
 	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL9, &regval);
@@ -383,6 +616,18 @@ static int mt6360_charger_get_ieoc(struct mt6360_chg_info *mci,
 	regval = (regval & MT6360_MASK_IEOC) >> MT6360_SHFT_IEOC;
 	val->intval = MT6360_IEOC_MIN + (regval * MT6360_IEOC_STEP);
 	return 0;
+=======
+	u32 sel, value;
+
+	ret = regmap_read(mci->regmap, MT6360_PMU_CHG_CTRL9, &sel);
+	if (ret < 0)
+		return ret;
+	sel = (sel & MT6360_IEOC_MASK) >> MT6360_IEOC_SHFT;
+	ret = linear_range_get_value(&mt6360_chg_range[MT6360_RANGE_IEOC], sel, &value);
+	if (!ret)
+		val->intval = value;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_set_online(struct mt6360_chg_info *mci,
@@ -390,24 +635,42 @@ static int mt6360_charger_set_online(struct mt6360_chg_info *mci,
 {
 	u8 force_sleep = val->intval ? 0 : 1;
 
+<<<<<<< HEAD
 	return regmap_update_bits(mci->regmap, MT6360_PMU_CHG_CTRL1,
 				  MT6360_MASK_FSLP,
 				  force_sleep << MT6360_SHFT_FSLP);
+=======
+	return regmap_update_bits(mci->regmap,
+				  MT6360_PMU_CHG_CTRL1,
+				  MT6360_FSLP_MASK,
+				  force_sleep << MT6360_FSLP_SHFT);
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_set_ichg(struct mt6360_chg_info *mci,
 				   const union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	unsigned int regval;
 
 	regval = mt6360_trans_reg_sel(val->intval, 100000, 100000, 0x31);
 	return regmap_update_bits(mci->regmap, MT6360_PMU_CHG_CTRL7,
 				  MT6360_MASK_ICHG, regval << MT6360_SHFT_ICHG);
+=======
+	u32 sel;
+
+	linear_range_get_selector_within(&mt6360_chg_range[MT6360_RANGE_ICHG], val->intval, &sel);
+	return regmap_update_bits(mci->regmap,
+				  MT6360_PMU_CHG_CTRL7,
+				  MT6360_ICHG_MASK,
+				  sel << MT6360_ICHG_SHFT);
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_set_cv(struct mt6360_chg_info *mci,
 				 const union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	unsigned int regval;
 
 	regval = mt6360_trans_reg_sel(val->intval, 3900000, 10000, 0x51);
@@ -415,11 +678,21 @@ static int mt6360_charger_set_cv(struct mt6360_chg_info *mci,
 				  MT6360_PMU_CHG_CTRL4,
 				  MT6360_MASK_VOREG,
 				  regval << MT6360_SHFT_VOREG);
+=======
+	u32 sel;
+
+	linear_range_get_selector_within(&mt6360_chg_range[MT6360_RANGE_VOREG], val->intval, &sel);
+	return regmap_update_bits(mci->regmap,
+				  MT6360_PMU_CHG_CTRL4,
+				  MT6360_VOREG_MASK,
+				  sel << MT6360_VOREG_SHFT);
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_set_aicr(struct mt6360_chg_info *mci,
 				   const union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	unsigned int regval;
 
 	regval = mt6360_trans_reg_sel(val->intval, 100000, 50000, 0x3F);
@@ -427,11 +700,33 @@ static int mt6360_charger_set_aicr(struct mt6360_chg_info *mci,
 				  MT6360_PMU_CHG_CTRL3,
 				  MT6360_MASK_IAICR,
 				  regval << MT6360_SHFT_IAICR);
+=======
+	u32 sel;
+
+	linear_range_get_selector_within(&mt6360_chg_range[MT6360_RANGE_AICR], val->intval, &sel);
+	return regmap_update_bits(mci->regmap,
+				  MT6360_PMU_CHG_CTRL3,
+				  MT6360_IAICR_MASK,
+				  sel << MT6360_IAICR_SHFT);
+}
+
+static int mt6360_charger_set_mivr(struct mt6360_chg_info *mci,
+				   const union power_supply_propval *val)
+{
+	u32 sel;
+
+	linear_range_get_selector_within(&mt6360_chg_range[MT6360_RANGE_VMIVR], val->intval, &sel);
+	return regmap_update_bits(mci->regmap,
+				  MT6360_PMU_CHG_CTRL3,
+				  MT6360_VMIVR_MASK,
+				  sel << MT6360_VMIVR_SHFT);
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_set_iprechg(struct mt6360_chg_info *mci,
 				      const union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	unsigned int regval;
 
 	regval = mt6360_trans_reg_sel(val->intval, 100000, 50000, 0x0F);
@@ -439,11 +734,21 @@ static int mt6360_charger_set_iprechg(struct mt6360_chg_info *mci,
 				  MT6360_PMU_CHG_CTRL8,
 				  MT6360_MASK_IPREC,
 				  regval << MT6360_SHFT_IPREC);
+=======
+	u32 sel;
+
+	linear_range_get_selector_within(&mt6360_chg_range[MT6360_RANGE_IPREC], val->intval, &sel);
+	return regmap_update_bits(mci->regmap,
+				  MT6360_PMU_CHG_CTRL8,
+				  MT6360_IPREC_MASK,
+				  sel << MT6360_IPREC_SHFT);
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_set_ieoc(struct mt6360_chg_info *mci,
 				   const union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	unsigned int regval;
 
 	regval = mt6360_trans_reg_sel(val->intval, 100000, 50000, 0x0F);
@@ -451,6 +756,15 @@ static int mt6360_charger_set_ieoc(struct mt6360_chg_info *mci,
 				  MT6360_PMU_CHG_CTRL9,
 				  MT6360_MASK_IEOC,
 				  regval << MT6360_SHFT_IEOC);
+=======
+	u32 sel;
+
+	linear_range_get_selector_within(&mt6360_chg_range[MT6360_RANGE_IEOC], val->intval, &sel);
+	return regmap_update_bits(mci->regmap,
+				  MT6360_PMU_CHG_CTRL9,
+				  MT6360_IEOC_MASK,
+				  sel << MT6360_IEOC_SHFT);
+>>>>>>> upstream/android-13
 }
 
 static int mt6360_charger_get_property(struct power_supply *psy,
@@ -460,7 +774,10 @@ static int mt6360_charger_get_property(struct power_supply *psy,
 	struct mt6360_chg_info *mci = power_supply_get_drvdata(psy);
 	int ret = 0;
 
+<<<<<<< HEAD
 	dev_dbg(mci->dev, "%s: prop = %d\n", __func__, psp);
+=======
+>>>>>>> upstream/android-13
 	switch (psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
 		ret = mt6360_charger_get_online(mci, val);
@@ -468,9 +785,12 @@ static int mt6360_charger_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_STATUS:
 		ret = mt6360_charger_get_status(mci, val);
 		break;
+<<<<<<< HEAD
 	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
 		ret = mt6360_charger_get_ocv(mci, val);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
 		ret = mt6360_charger_get_charge_type(mci, val);
 		break;
@@ -489,6 +809,12 @@ static int mt6360_charger_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
 		ret = mt6360_charger_get_aicr(mci, val);
 		break;
+<<<<<<< HEAD
+=======
+	case POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT:
+		ret = mt6360_charger_get_mivr(mci, val);
+		break;
+>>>>>>> upstream/android-13
 	case POWER_SUPPLY_PROP_PRECHARGE_CURRENT:
 		ret = mt6360_charger_get_iprechg(mci, val);
 		break;
@@ -511,7 +837,10 @@ static int mt6360_charger_set_property(struct power_supply *psy,
 	struct mt6360_chg_info *mci = power_supply_get_drvdata(psy);
 	int ret;
 
+<<<<<<< HEAD
 	dev_dbg(mci->dev, "%s: prop = %d\n", __func__, psp);
+=======
+>>>>>>> upstream/android-13
 	switch (psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
 		ret = mt6360_charger_set_online(mci, val);
@@ -525,6 +854,12 @@ static int mt6360_charger_set_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
 		ret = mt6360_charger_set_aicr(mci, val);
 		break;
+<<<<<<< HEAD
+=======
+	case POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT:
+		ret = mt6360_charger_set_mivr(mci, val);
+		break;
+>>>>>>> upstream/android-13
 	case POWER_SUPPLY_PROP_PRECHARGE_CURRENT:
 		ret = mt6360_charger_set_iprechg(mci, val);
 		break;
@@ -545,6 +880,10 @@ static int mt6360_charger_property_is_writeable(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT:
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE:
 	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
+<<<<<<< HEAD
+=======
+	case POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT:
+>>>>>>> upstream/android-13
 	case POWER_SUPPLY_PROP_PRECHARGE_CURRENT:
 	case POWER_SUPPLY_PROP_CHARGE_TERM_CURRENT:
 		return 1;
@@ -557,21 +896,31 @@ static enum power_supply_property mt6360_charger_properties[] = {
 	POWER_SUPPLY_PROP_ONLINE,
 	POWER_SUPPLY_PROP_STATUS,
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
+<<<<<<< HEAD
 	POWER_SUPPLY_PROP_VOLTAGE_OCV,
+=======
+>>>>>>> upstream/android-13
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE_MAX,
 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
+<<<<<<< HEAD
+=======
+	POWER_SUPPLY_PROP_INPUT_VOLTAGE_LIMIT,
+>>>>>>> upstream/android-13
 	POWER_SUPPLY_PROP_PRECHARGE_CURRENT,
 	POWER_SUPPLY_PROP_CHARGE_TERM_CURRENT,
 	POWER_SUPPLY_PROP_USB_TYPE,
 };
 
+<<<<<<< HEAD
 static char *mt6360_charger_supplied_to[] = {
 	"battery"
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct power_supply_desc mt6360_charger_desc = {
 	.type			= POWER_SUPPLY_TYPE_USB,
 	.properties		= mt6360_charger_properties,
@@ -599,6 +948,7 @@ static const struct regulator_desc mt6360_otg_rdesc = {
 	.owner = THIS_MODULE,
 	.type = REGULATOR_VOLTAGE,
 	.min_uV = 4425000,
+<<<<<<< HEAD
 	.uV_step = 25000, /* step  25mV */
 	.n_voltages = 57, /* 4425mV to 5825mV */
 	.vsel_reg = MT6360_PMU_CHG_CTRL5,
@@ -734,6 +1084,26 @@ static irqreturn_t mt6360_pmu_attach_i_handler(int irq, void *data)
 	mutex_lock(&mci->chgdet_lock);
 	if (!mci->bc12_en) {
 		dev_info(mci->dev, "%s: bc12 disabled, ignore irq\n", __func__);
+=======
+	.uV_step = 25000,
+	.n_voltages = 57,
+	.vsel_reg = MT6360_PMU_CHG_CTRL5,
+	.vsel_mask = MT6360_VOBST_MASK,
+	.enable_reg = MT6360_PMU_CHG_CTRL1,
+	.enable_mask = MT6360_OPA_MODE_MASK,
+};
+
+static irqreturn_t mt6360_pmu_attach_i_handler(int irq, void *data)
+{
+	struct mt6360_chg_info *mci = data;
+	int ret;
+	unsigned int usb_status;
+	int last_usb_type;
+
+	mutex_lock(&mci->chgdet_lock);
+	if (!mci->bc12_en) {
+		dev_warn(mci->dev, "Received attach interrupt, bc12 disabled, ignore irq\n");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	last_usb_type = mci->psy_usb_type;
@@ -741,6 +1111,7 @@ static irqreturn_t mt6360_pmu_attach_i_handler(int irq, void *data)
 	ret = regmap_read(mci->regmap, MT6360_PMU_USB_STATUS1, &usb_status);
 	if (ret < 0)
 		goto out;
+<<<<<<< HEAD
 	usb_status &= MT6360_MASK_USB_STATUS;
 	usb_status >>= MT6360_SHFT_USB_STATUS;
 	switch (usb_status) {
@@ -786,6 +1157,39 @@ static irqreturn_t mt6360_pmu_attach_i_handler(int irq, void *data)
 		extcon_set_state_sync(mci->edev, EXTCON_USB, true);
 	}
 	extcon_set_state_sync(mci->edev, chg_type, true);
+=======
+	usb_status &= MT6360_USB_STATUS_MASK;
+	usb_status >>= MT6360_USB_STATUS_SHFT;
+	switch (usb_status) {
+	case MT6360_CHG_TYPE_NOVBUS:
+		dev_dbg(mci->dev, "Received attach interrupt, no vbus\n");
+		goto out;
+	case MT6360_CHG_TYPE_UNDER_GOING:
+		dev_dbg(mci->dev, "Received attach interrupt, under going...\n");
+		goto out;
+	case MT6360_CHG_TYPE_SDP:
+		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_SDP;
+		break;
+	case MT6360_CHG_TYPE_SDPNSTD:
+		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_SDP;
+		break;
+	case MT6360_CHG_TYPE_CDP:
+		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_CDP;
+		break;
+	case MT6360_CHG_TYPE_DCP:
+		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_DCP;
+		break;
+	case MT6360_CHG_TYPE_DISABLE_BC12:
+		dev_dbg(mci->dev, "Received attach interrupt, bc12 detect not enable\n");
+		goto out;
+	default:
+		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_UNKNOWN;
+		dev_dbg(mci->dev, "Received attach interrupt, reserved address\n");
+		goto out;
+	}
+
+	dev_dbg(mci->dev, "Received attach interrupt, chg_type = %d\n", mci->psy_usb_type);
+>>>>>>> upstream/android-13
 	if (last_usb_type != mci->psy_usb_type)
 		power_supply_changed(mci->psy);
 out:
@@ -795,15 +1199,21 @@ out:
 
 static void mt6360_handle_chrdet_ext_evt(struct mt6360_chg_info *mci)
 {
+<<<<<<< HEAD
 	int i, ret;
 	bool pwr_rdy;
 	int last_usb_type;
+=======
+	int ret;
+	bool pwr_rdy;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mci->chgdet_lock);
 	ret = mt6360_get_chrdet_ext_stat(mci, &pwr_rdy);
 	if (ret < 0)
 		goto out;
 	if (mci->pwr_rdy == pwr_rdy) {
+<<<<<<< HEAD
 		dev_info(mci->dev,
 			 "%s: pwr_rdy is same(%d)\n", __func__, pwr_rdy);
 		goto out;
@@ -819,12 +1229,27 @@ static void mt6360_handle_chrdet_ext_evt(struct mt6360_chg_info *mci)
 		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_UNKNOWN;
 		if (last_usb_type != mci->psy_usb_type)
 			power_supply_changed(mci->psy);
+=======
+		dev_dbg(mci->dev, "Received vbus interrupt, pwr_rdy is same(%d)\n", pwr_rdy);
+		goto out;
+	}
+	mci->pwr_rdy = pwr_rdy;
+	dev_dbg(mci->dev, "Received vbus interrupt, pwr_rdy = %d\n", pwr_rdy);
+	if (!pwr_rdy) {
+		mci->psy_usb_type = POWER_SUPPLY_USB_TYPE_UNKNOWN;
+		power_supply_changed(mci->psy);
+>>>>>>> upstream/android-13
 
 	}
 	ret = regmap_update_bits(mci->regmap,
 				 MT6360_PMU_DEVICE_TYPE,
+<<<<<<< HEAD
 				 MT6360_MASK_USBCHGEN,
 				 pwr_rdy ? MT6360_MASK_USBCHGEN : 0);
+=======
+				 MT6360_USBCHGEN_MASK,
+				 pwr_rdy ? MT6360_USBCHGEN_MASK : 0);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto out;
 	mci->bc12_en = pwr_rdy;
@@ -837,7 +1262,10 @@ static void mt6360_chrdet_work(struct work_struct *work)
 	struct mt6360_chg_info *mci = (struct mt6360_chg_info *)container_of(
 				     work, struct mt6360_chg_info, chrdet_work);
 
+<<<<<<< HEAD
 	dev_info(mci->dev, "%s\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	mt6360_handle_chrdet_ext_evt(mci);
 }
 
@@ -845,11 +1273,15 @@ static irqreturn_t mt6360_pmu_chrdet_ext_evt_handler(int irq, void *data)
 {
 	struct mt6360_chg_info *mci = data;
 
+<<<<<<< HEAD
 	dev_info(mci->dev, "%s\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	mt6360_handle_chrdet_ext_evt(mci);
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static const struct mt6360_pmu_irq_desc mt6360_chg_irq_desc[] = {
 	{ "chg_treg_evt", mt6360_pmu_chg_treg_evt_handler },
 	{ "pwr_rdy_evt", mt6360_pmu_pwr_rdy_evt_handler },
@@ -1030,6 +1462,38 @@ out:
 }
 
 u32 mt6360_vinovp_trans_to_sel(u32 val)
+=======
+static int mt6360_chg_irq_register(struct platform_device *pdev)
+{
+	const struct {
+		const char *name;
+		irq_handler_t handler;
+	} irq_descs[] = {
+		{ "attach_i", mt6360_pmu_attach_i_handler },
+		{ "chrdet_ext_evt", mt6360_pmu_chrdet_ext_evt_handler }
+	};
+	int i, ret;
+
+	for (i = 0; i < ARRAY_SIZE(irq_descs); i++) {
+		ret = platform_get_irq_byname(pdev, irq_descs[i].name);
+		if (ret < 0)
+			return ret;
+
+		ret = devm_request_threaded_irq(&pdev->dev, ret, NULL,
+						irq_descs[i].handler,
+						IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+						irq_descs[i].name,
+						platform_get_drvdata(pdev));
+		if (ret < 0)
+			return dev_err_probe(&pdev->dev, ret, "Failed to request %s irq\n",
+					     irq_descs[i].name);
+	}
+
+	return 0;
+}
+
+static u32 mt6360_vinovp_trans_to_sel(u32 val)
+>>>>>>> upstream/android-13
 {
 	u32 vinovp_tbl[] = { 5500000, 6500000, 11000000, 14500000 };
 	int i;
@@ -1042,6 +1506,7 @@ u32 mt6360_vinovp_trans_to_sel(u32 val)
 	return i;
 }
 
+<<<<<<< HEAD
 static const struct mt6360_pdata_prop mt6360_pdata_props[] = {
 	MT6360_PDATA_VALPROP(vinovp, struct mt6360_chg_platform_data,
 			     MT6360_PMU_CHG_CTRL19, 5, 0x60,
@@ -1059,11 +1524,54 @@ static int mt6360_charger_probe(struct platform_device *pdev)
 	struct power_supply_config charger_cfg = {};
 	struct regulator_config config = { };
 	struct device_node *np = pdev->dev.of_node;
+=======
+static int mt6360_chg_init_setting(struct mt6360_chg_info *mci)
+{
+	int ret;
+	u32 sel;
+
+	sel = mt6360_vinovp_trans_to_sel(mci->vinovp);
+	ret = regmap_update_bits(mci->regmap, MT6360_PMU_CHG_CTRL19,
+				  MT6360_VINOVP_MASK, sel << MT6360_VINOVP_SHFT);
+	if (ret)
+		return dev_err_probe(mci->dev, ret, "%s: Failed to apply vinovp\n", __func__);
+	ret = regmap_update_bits(mci->regmap, MT6360_PMU_DEVICE_TYPE,
+				 MT6360_USBCHGEN_MASK, 0);
+	if (ret)
+		return dev_err_probe(mci->dev, ret, "%s: Failed to disable bc12\n", __func__);
+	ret = regmap_update_bits(mci->regmap, MT6360_PMU_CHG_CTRL2,
+				 MT6360_IINLMTSEL_MASK,
+				 MT6360_IINLMTSEL_AICR <<
+					MT6360_IINLMTSEL_SHFT);
+	if (ret)
+		return dev_err_probe(mci->dev, ret,
+				     "%s: Failed to switch iinlmtsel to aicr\n", __func__);
+	usleep_range(5000, 6000);
+	ret = regmap_update_bits(mci->regmap, MT6360_PMU_CHG_CTRL3,
+				 MT6360_ILIM_EN_MASK, 0);
+	if (ret)
+		return dev_err_probe(mci->dev, ret,
+				     "%s: Failed to disable ilim\n", __func__);
+	ret = regmap_update_bits(mci->regmap, MT6360_PMU_CHG_CTRL10,
+				 MT6360_OTG_OC_MASK, MT6360_OTG_OC_MASK);
+	if (ret)
+		return dev_err_probe(mci->dev, ret,
+				     "%s: Failed to config otg oc to 3A\n", __func__);
+	return 0;
+}
+
+static int mt6360_charger_probe(struct platform_device *pdev)
+{
+	struct mt6360_chg_info *mci;
+	struct power_supply_config charger_cfg = {};
+	struct regulator_config config = { };
+>>>>>>> upstream/android-13
 	int ret;
 
 	mci = devm_kzalloc(&pdev->dev, sizeof(*mci), GFP_KERNEL);
 	if (!mci)
 		return -ENOMEM;
+<<<<<<< HEAD
 	if (np) {
 		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
 		if (!pdata)
@@ -1106,10 +1614,32 @@ static int mt6360_charger_probe(struct platform_device *pdev)
 		return ret;
 	}
 	/* power supply */
+=======
+
+	mci->dev = &pdev->dev;
+	mci->vinovp = 6500000;
+	mutex_init(&mci->chgdet_lock);
+	platform_set_drvdata(pdev, mci);
+	devm_work_autocancel(&pdev->dev, &mci->chrdet_work, mt6360_chrdet_work);
+
+	ret = device_property_read_u32(&pdev->dev, "richtek,vinovp-microvolt", &mci->vinovp);
+	if (ret)
+		dev_warn(&pdev->dev, "Failed to parse vinovp in DT, keep default 6.5v\n");
+
+	mci->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+	if (!mci->regmap)
+		return dev_err_probe(&pdev->dev, -ENODEV, "Failed to get parent regmap\n");
+
+	ret = mt6360_chg_init_setting(mci);
+	if (ret)
+		return dev_err_probe(&pdev->dev, ret, "Failed to initial setting\n");
+
+>>>>>>> upstream/android-13
 	memcpy(&mci->psy_desc, &mt6360_charger_desc, sizeof(mci->psy_desc));
 	mci->psy_desc.name = dev_name(&pdev->dev);
 	charger_cfg.drv_data = mci;
 	charger_cfg.of_node = pdev->dev.of_node;
+<<<<<<< HEAD
 	charger_cfg.supplied_to = mt6360_charger_supplied_to;
 	charger_cfg.num_supplicants = ARRAY_SIZE(mt6360_charger_supplied_to);
 	mci->psy = devm_power_supply_register(&pdev->dev,
@@ -1133,12 +1663,26 @@ static int mt6360_charger_probe(struct platform_device *pdev)
 		return ret;
 	}
 	/* otg regulator */
+=======
+	mci->psy = devm_power_supply_register(&pdev->dev,
+					      &mci->psy_desc, &charger_cfg);
+	if (IS_ERR(mci->psy))
+		return dev_err_probe(&pdev->dev, PTR_ERR(mci->psy),
+				     "Failed to register power supply dev\n");
+
+
+	ret = mt6360_chg_irq_register(pdev);
+	if (ret)
+		return dev_err_probe(&pdev->dev, ret, "Failed to register irqs\n");
+
+>>>>>>> upstream/android-13
 	config.dev = &pdev->dev;
 	config.regmap = mci->regmap;
 	mci->otg_rdev = devm_regulator_register(&pdev->dev, &mt6360_otg_rdesc,
 						&config);
 	if (IS_ERR(mci->otg_rdev))
 		return PTR_ERR(mci->otg_rdev);
+<<<<<<< HEAD
 	/* create sysfs attr */
 	ret = mt6360_sysfs_create_group(mci);
 	if (ret < 0) {
@@ -1147,25 +1691,42 @@ static int mt6360_charger_probe(struct platform_device *pdev)
 		return ret;
 	}
 	dev_info(&pdev->dev, "Successfully probed\n");
+=======
+
+	schedule_work(&mci->chrdet_work);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static const struct of_device_id __maybe_unused mt6360_charger_of_id[] = {
+<<<<<<< HEAD
 	{ .compatible = "mediatek,mt6360_chg", },
+=======
+	{ .compatible = "mediatek,mt6360-chg", },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, mt6360_charger_of_id);
 
 static const struct platform_device_id mt6360_charger_id[] = {
+<<<<<<< HEAD
 	{ "mt6360_chg", 0 },
+=======
+	{ "mt6360-chg", 0 },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(platform, mt6360_charger_id);
 
 static struct platform_driver mt6360_charger_driver = {
 	.driver = {
+<<<<<<< HEAD
 		.name = "mt6360_charger",
 		.owner = THIS_MODULE,
+=======
+		.name = "mt6360-chg",
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(mt6360_charger_of_id),
 	},
 	.probe = mt6360_charger_probe,
@@ -1173,7 +1734,13 @@ static struct platform_driver mt6360_charger_driver = {
 };
 module_platform_driver(mt6360_charger_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("CY_Huang <cy_huang@richtek.com>");
 MODULE_DESCRIPTION("MT6360 Charger Driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("1.0.0");
+=======
+MODULE_AUTHOR("Gene Chen <gene_chen@richtek.com>");
+MODULE_DESCRIPTION("MT6360 Charger Driver");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

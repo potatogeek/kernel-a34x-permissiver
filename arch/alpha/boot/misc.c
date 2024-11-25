@@ -30,7 +30,11 @@ extern long srm_printk(const char *, ...)
      __attribute__ ((format (printf, 1, 2)));
 
 /*
+<<<<<<< HEAD
  * gzip delarations
+=======
+ * gzip declarations
+>>>>>>> upstream/android-13
  */
 #define OF(args)  args
 #define STATIC static

@@ -30,11 +30,19 @@ struct lwtunnel_state {
 	int		(*orig_output)(struct net *net, struct sock *sk, struct sk_buff *skb);
 	int		(*orig_input)(struct sk_buff *);
 	struct		rcu_head rcu;
+<<<<<<< HEAD
 	__u8            data[0];
 };
 
 struct lwtunnel_encap_ops {
 	int (*build_state)(struct nlattr *encap,
+=======
+	__u8            data[];
+};
+
+struct lwtunnel_encap_ops {
+	int (*build_state)(struct net *net, struct nlattr *encap,
+>>>>>>> upstream/android-13
 			   unsigned int family, const void *cfg,
 			   struct lwtunnel_state **ts,
 			   struct netlink_ext_ack *extack);
@@ -51,6 +59,12 @@ struct lwtunnel_encap_ops {
 };
 
 #ifdef CONFIG_LWTUNNEL
+<<<<<<< HEAD
+=======
+
+DECLARE_STATIC_KEY_FALSE(nf_hooks_lwtunnel_enabled);
+
+>>>>>>> upstream/android-13
 void lwtstate_free(struct lwtunnel_state *lws);
 
 static inline struct lwtunnel_state *
@@ -113,19 +127,33 @@ int lwtunnel_valid_encap_type(u16 encap_type,
 			      struct netlink_ext_ack *extack);
 int lwtunnel_valid_encap_type_attr(struct nlattr *attr, int len,
 				   struct netlink_ext_ack *extack);
+<<<<<<< HEAD
 int lwtunnel_build_state(u16 encap_type,
+=======
+int lwtunnel_build_state(struct net *net, u16 encap_type,
+>>>>>>> upstream/android-13
 			 struct nlattr *encap,
 			 unsigned int family, const void *cfg,
 			 struct lwtunnel_state **lws,
 			 struct netlink_ext_ack *extack);
+<<<<<<< HEAD
 int lwtunnel_fill_encap(struct sk_buff *skb,
 			struct lwtunnel_state *lwtstate);
+=======
+int lwtunnel_fill_encap(struct sk_buff *skb, struct lwtunnel_state *lwtstate,
+			int encap_attr, int encap_type_attr);
+>>>>>>> upstream/android-13
 int lwtunnel_get_encap_size(struct lwtunnel_state *lwtstate);
 struct lwtunnel_state *lwtunnel_state_alloc(int hdr_len);
 int lwtunnel_cmp_encap(struct lwtunnel_state *a, struct lwtunnel_state *b);
 int lwtunnel_output(struct net *net, struct sock *sk, struct sk_buff *skb);
 int lwtunnel_input(struct sk_buff *skb);
 int lwtunnel_xmit(struct sk_buff *skb);
+<<<<<<< HEAD
+=======
+int bpf_lwt_push_ip_encap(struct sk_buff *skb, void *hdr, u32 len,
+			  bool ingress);
+>>>>>>> upstream/android-13
 
 static inline void lwtunnel_set_redirect(struct dst_entry *dst)
 {
@@ -207,7 +235,11 @@ static inline int lwtunnel_valid_encap_type_attr(struct nlattr *attr, int len,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int lwtunnel_build_state(u16 encap_type,
+=======
+static inline int lwtunnel_build_state(struct net *net, u16 encap_type,
+>>>>>>> upstream/android-13
 				       struct nlattr *encap,
 				       unsigned int family, const void *cfg,
 				       struct lwtunnel_state **lws,
@@ -217,7 +249,12 @@ static inline int lwtunnel_build_state(u16 encap_type,
 }
 
 static inline int lwtunnel_fill_encap(struct sk_buff *skb,
+<<<<<<< HEAD
 				      struct lwtunnel_state *lwtstate)
+=======
+				      struct lwtunnel_state *lwtstate,
+				      int encap_attr, int encap_type_attr)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }

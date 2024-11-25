@@ -12,6 +12,10 @@
  */
 
 #define _GNU_SOURCE
+<<<<<<< HEAD
+=======
+#include <elf.h>
+>>>>>>> upstream/android-13
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -23,18 +27,27 @@
 
 /* Are we using CONFIG_MODVERSIONS? */
 static int modversions = 0;
+<<<<<<< HEAD
 /* Warn about undefined symbols? (do so if we have vmlinux) */
 static int have_vmlinux = 0;
+=======
+>>>>>>> upstream/android-13
 /* Is CONFIG_MODULE_SRCVERSION_ALL set? */
 static int all_versions = 0;
 /* If we are modposting external module set to 1 */
 static int external_module = 0;
+<<<<<<< HEAD
 /* Warn about section mismatch in vmlinux if set to 1 */
 static int vmlinux_section_warnings = 1;
+=======
+#define MODULE_SCMVERSION_SIZE 64
+static char module_scmversion[MODULE_SCMVERSION_SIZE];
+>>>>>>> upstream/android-13
 /* Only warn about unresolved symbols */
 static int warn_unresolved = 0;
 /* How a symbol is exported */
 static int sec_mismatch_count = 0;
+<<<<<<< HEAD
 static int sec_mismatch_verbose = 1;
 static int sec_mismatch_fatal = 0;
 /* ignore missing files */
@@ -43,6 +56,27 @@ static int ignore_missing_files;
 enum export {
 	export_plain,      export_unused,     export_gpl,
 	export_unused_gpl, export_gpl_future, export_unknown
+=======
+static int sec_mismatch_warn_only = true;
+/* ignore missing files */
+static int ignore_missing_files;
+/* If set to 1, only warn (instead of error) about missing ns imports */
+static int allow_missing_ns_imports;
+
+static bool error_occurred;
+
+/*
+ * Cut off the warnings when there are too many. This typically occurs when
+ * vmlinux is missing. ('make modules' without building vmlinux.)
+ */
+#define MAX_UNRESOLVED_REPORTS	10
+static unsigned int nr_unresolved;
+
+enum export {
+	export_plain,
+	export_gpl,
+	export_unknown
+>>>>>>> upstream/android-13
 };
 
 /* In kernel, this size is defined in linux/module.h;
@@ -51,6 +85,7 @@ enum export {
 
 #define MODULE_NAME_LEN (64 - sizeof(Elf_Addr))
 
+<<<<<<< HEAD
 #define PRINTF __attribute__ ((format (printf, 1, 2)))
 
 PRINTF void fatal(const char *fmt, ...)
@@ -58,11 +93,34 @@ PRINTF void fatal(const char *fmt, ...)
 	va_list arglist;
 
 	fprintf(stderr, "FATAL: ");
+=======
+void __attribute__((format(printf, 2, 3)))
+modpost_log(enum loglevel loglevel, const char *fmt, ...)
+{
+	va_list arglist;
+
+	switch (loglevel) {
+	case LOG_WARN:
+		fprintf(stderr, "WARNING: ");
+		break;
+	case LOG_ERROR:
+		fprintf(stderr, "ERROR: ");
+		break;
+	case LOG_FATAL:
+		fprintf(stderr, "FATAL: ");
+		break;
+	default: /* invalid loglevel, ignore */
+		break;
+	}
+
+	fprintf(stderr, "modpost: ");
+>>>>>>> upstream/android-13
 
 	va_start(arglist, fmt);
 	vfprintf(stderr, fmt, arglist);
 	va_end(arglist);
 
+<<<<<<< HEAD
 	exit(1);
 }
 
@@ -86,6 +144,12 @@ PRINTF void merror(const char *fmt, ...)
 	va_start(arglist, fmt);
 	vfprintf(stderr, fmt, arglist);
 	va_end(arglist);
+=======
+	if (loglevel == LOG_FATAL)
+		exit(1);
+	if (loglevel == LOG_ERROR)
+		error_occurred = true;
+>>>>>>> upstream/android-13
 }
 
 static inline bool strends(const char *str, const char *postfix)
@@ -96,6 +160,7 @@ static inline bool strends(const char *str, const char *postfix)
 	return strcmp(str + strlen(str) - strlen(postfix), postfix) == 0;
 }
 
+<<<<<<< HEAD
 static int is_vmlinux(const char *modname)
 {
 	const char *myname;
@@ -114,10 +179,77 @@ void *do_nofail(void *ptr, const char *expr)
 {
 	if (!ptr)
 		fatal("modpost: Memory allocation failure: %s.\n", expr);
+=======
+void *do_nofail(void *ptr, const char *expr)
+{
+	if (!ptr)
+		fatal("Memory allocation failure: %s.\n", expr);
+>>>>>>> upstream/android-13
 
 	return ptr;
 }
 
+<<<<<<< HEAD
+=======
+char *read_text_file(const char *filename)
+{
+	struct stat st;
+	size_t nbytes;
+	int fd;
+	char *buf;
+
+	fd = open(filename, O_RDONLY);
+	if (fd < 0) {
+		perror(filename);
+		exit(1);
+	}
+
+	if (fstat(fd, &st) < 0) {
+		perror(filename);
+		exit(1);
+	}
+
+	buf = NOFAIL(malloc(st.st_size + 1));
+
+	nbytes = st.st_size;
+
+	while (nbytes) {
+		ssize_t bytes_read;
+
+		bytes_read = read(fd, buf, nbytes);
+		if (bytes_read < 0) {
+			perror(filename);
+			exit(1);
+		}
+
+		nbytes -= bytes_read;
+	}
+	buf[st.st_size] = '\0';
+
+	close(fd);
+
+	return buf;
+}
+
+char *get_line(char **stringp)
+{
+	char *orig = *stringp, *next;
+
+	/* do not return the unwanted extra line at EOF */
+	if (!orig || *orig == '\0')
+		return NULL;
+
+	/* don't use strsep here, it is not available everywhere */
+	next = strchr(orig, '\n');
+	if (next)
+		*next++ = '\0';
+
+	*stringp = next;
+
+	return orig;
+}
+
+>>>>>>> upstream/android-13
 /* A list of all modules we processed */
 static struct module *modules;
 
@@ -134,6 +266,7 @@ static struct module *find_module(const char *modname)
 static struct module *new_module(const char *modname)
 {
 	struct module *mod;
+<<<<<<< HEAD
 	char *p;
 
 	mod = NOFAIL(malloc(sizeof(*mod)));
@@ -151,6 +284,15 @@ static struct module *new_module(const char *modname)
 
 	/* add to list */
 	mod->name = p;
+=======
+
+	mod = NOFAIL(malloc(sizeof(*mod) + strlen(modname) + 1));
+	memset(mod, 0, sizeof(*mod));
+
+	/* add to list */
+	strcpy(mod->name, modname);
+	mod->is_vmlinux = (strcmp(modname, "vmlinux") == 0);
+>>>>>>> upstream/android-13
 	mod->gpl_compatible = -1;
 	mod->next = modules;
 	modules = mod;
@@ -168,6 +310,7 @@ struct symbol {
 	struct module *module;
 	unsigned int crc;
 	int crc_valid;
+<<<<<<< HEAD
 	unsigned int weak:1;
 	unsigned int vmlinux:1;    /* 1 if symbol is defined in vmlinux */
 	unsigned int kernel:1;     /* 1 if symbol is from kernel
@@ -175,11 +318,22 @@ struct symbol {
 	unsigned int preloaded:1;  /* 1 if symbol from Module.symvers, or crc */
 	enum export  export;       /* Type of export */
 	char name[0];
+=======
+	char *namespace;
+	unsigned int weak:1;
+	unsigned int is_static:1;  /* 1 if symbol is not global */
+	enum export  export;       /* Type of export */
+	char name[];
+>>>>>>> upstream/android-13
 };
 
 static struct symbol *symbolhash[SYMBOL_HASH_SIZE];
 
+<<<<<<< HEAD
 /* This is based on the hash agorithm from gdbm, via tdb */
+=======
+/* This is based on the hash algorithm from gdbm, via tdb */
+>>>>>>> upstream/android-13
 static inline unsigned int tdb_hash(const char *name)
 {
 	unsigned value;	/* Used to compute the hash value.  */
@@ -205,6 +359,10 @@ static struct symbol *alloc_symbol(const char *name, unsigned int weak,
 	strcpy(s->name, name);
 	s->weak = weak;
 	s->next = next;
+<<<<<<< HEAD
+=======
+	s->is_static = 1;
+>>>>>>> upstream/android-13
 	return s;
 }
 
@@ -213,6 +371,7 @@ static struct symbol *new_symbol(const char *name, struct module *module,
 				 enum export export)
 {
 	unsigned int hash;
+<<<<<<< HEAD
 	struct symbol *new;
 
 	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
@@ -220,6 +379,13 @@ static struct symbol *new_symbol(const char *name, struct module *module,
 	new->module = module;
 	new->export = export;
 	return new;
+=======
+
+	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
+	symbolhash[hash] = alloc_symbol(name, 0, symbolhash[hash]);
+
+	return symbolhash[hash];
+>>>>>>> upstream/android-13
 }
 
 static struct symbol *find_symbol(const char *name)
@@ -237,15 +403,51 @@ static struct symbol *find_symbol(const char *name)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static bool contains_namespace(struct namespace_list *list,
+			       const char *namespace)
+{
+	for (; list; list = list->next)
+		if (!strcmp(list->namespace, namespace))
+			return true;
+
+	return false;
+}
+
+static void add_namespace(struct namespace_list **list, const char *namespace)
+{
+	struct namespace_list *ns_entry;
+
+	if (!contains_namespace(*list, namespace)) {
+		ns_entry = NOFAIL(malloc(sizeof(struct namespace_list) +
+					 strlen(namespace) + 1));
+		strcpy(ns_entry->namespace, namespace);
+		ns_entry->next = *list;
+		*list = ns_entry;
+	}
+}
+
+static bool module_imports_namespace(struct module *module,
+				     const char *namespace)
+{
+	return contains_namespace(module->imported_namespaces, namespace);
+}
+
+>>>>>>> upstream/android-13
 static const struct {
 	const char *str;
 	enum export export;
 } export_list[] = {
 	{ .str = "EXPORT_SYMBOL",            .export = export_plain },
+<<<<<<< HEAD
 	{ .str = "EXPORT_UNUSED_SYMBOL",     .export = export_unused },
 	{ .str = "EXPORT_SYMBOL_GPL",        .export = export_gpl },
 	{ .str = "EXPORT_UNUSED_SYMBOL_GPL", .export = export_unused_gpl },
 	{ .str = "EXPORT_SYMBOL_GPL_FUTURE", .export = export_gpl_future },
+=======
+	{ .str = "EXPORT_SYMBOL_GPL",        .export = export_gpl },
+>>>>>>> upstream/android-13
 	{ .str = "(unknown)",                .export = export_unknown },
 };
 
@@ -268,6 +470,7 @@ static enum export export_no(const char *s)
 	return export_unknown;
 }
 
+<<<<<<< HEAD
 static const char *sech_name(struct elf_info *elf, Elf_Shdr *sechdr)
 {
 	return (void *)elf->hdr +
@@ -278,6 +481,34 @@ static const char *sech_name(struct elf_info *elf, Elf_Shdr *sechdr)
 static const char *sec_name(struct elf_info *elf, int secindex)
 {
 	return sech_name(elf, &elf->sechdrs[secindex]);
+=======
+static void *sym_get_data_by_offset(const struct elf_info *info,
+				    unsigned int secindex, unsigned long offset)
+{
+	Elf_Shdr *sechdr = &info->sechdrs[secindex];
+
+	if (info->hdr->e_type != ET_REL)
+		offset -= sechdr->sh_addr;
+
+	return (void *)info->hdr + sechdr->sh_offset + offset;
+}
+
+static void *sym_get_data(const struct elf_info *info, const Elf_Sym *sym)
+{
+	return sym_get_data_by_offset(info, get_secindex(info, sym),
+				      sym->st_value);
+}
+
+static const char *sech_name(const struct elf_info *info, Elf_Shdr *sechdr)
+{
+	return sym_get_data_by_offset(info, info->secindex_strings,
+				      sechdr->sh_name);
+}
+
+static const char *sec_name(const struct elf_info *info, int secindex)
+{
+	return sech_name(info, &info->sechdrs[secindex]);
+>>>>>>> upstream/android-13
 }
 
 #define strstarts(str, prefix) (strncmp(str, prefix, strlen(prefix)) == 0)
@@ -288,6 +519,7 @@ static enum export export_from_secname(struct elf_info *elf, unsigned int sec)
 
 	if (strstarts(secname, "___ksymtab+"))
 		return export_plain;
+<<<<<<< HEAD
 	else if (strstarts(secname, "___ksymtab_unused+"))
 		return export_unused;
 	else if (strstarts(secname, "___ksymtab_gpl+"))
@@ -296,6 +528,10 @@ static enum export export_from_secname(struct elf_info *elf, unsigned int sec)
 		return export_unused_gpl;
 	else if (strstarts(secname, "___ksymtab_gpl_future+"))
 		return export_gpl_future;
+=======
+	else if (strstarts(secname, "___ksymtab_gpl+"))
+		return export_gpl;
+>>>>>>> upstream/android-13
 	else
 		return export_unknown;
 }
@@ -304,6 +540,7 @@ static enum export export_from_sec(struct elf_info *elf, unsigned int sec)
 {
 	if (sec == elf->export_sec)
 		return export_plain;
+<<<<<<< HEAD
 	else if (sec == elf->export_unused_sec)
 		return export_unused;
 	else if (sec == elf->export_gpl_sec)
@@ -312,10 +549,43 @@ static enum export export_from_sec(struct elf_info *elf, unsigned int sec)
 		return export_unused_gpl;
 	else if (sec == elf->export_gpl_future_sec)
 		return export_gpl_future;
+=======
+	else if (sec == elf->export_gpl_sec)
+		return export_gpl;
+>>>>>>> upstream/android-13
 	else
 		return export_unknown;
 }
 
+<<<<<<< HEAD
+=======
+static const char *namespace_from_kstrtabns(const struct elf_info *info,
+					    const Elf_Sym *sym)
+{
+	const char *value = sym_get_data(info, sym);
+	return value[0] ? value : NULL;
+}
+
+static void sym_update_namespace(const char *symname, const char *namespace)
+{
+	struct symbol *s = find_symbol(symname);
+
+	/*
+	 * That symbol should have been created earlier and thus this is
+	 * actually an assertion.
+	 */
+	if (!s) {
+		error("Could not update namespace(%s) for symbol %s\n",
+		      namespace, symname);
+		return;
+	}
+
+	free(s->namespace);
+	s->namespace =
+		namespace && namespace[0] ? NOFAIL(strdup(namespace)) : NULL;
+}
+
+>>>>>>> upstream/android-13
 /**
  * Add an exported symbol - it may have already been added without a
  * CRC, in this case just update the CRC
@@ -327,6 +597,7 @@ static struct symbol *sym_add_exported(const char *name, struct module *mod,
 
 	if (!s) {
 		s = new_symbol(name, mod, export);
+<<<<<<< HEAD
 	} else {
 		if (!s->preloaded) {
 			warn("%s: '%s' exported twice. Previous export "
@@ -341,10 +612,21 @@ static struct symbol *sym_add_exported(const char *name, struct module *mod,
 	s->preloaded = 0;
 	s->vmlinux   = is_vmlinux(mod->name);
 	s->kernel    = 0;
+=======
+	} else if (!external_module || s->module->is_vmlinux ||
+		   s->module == mod) {
+		fatal("%s: '%s' exported twice. Previous export was in %s%s\n",
+		      mod->name, name, s->module->name,
+		      s->module->is_vmlinux ? "" : ".ko");
+	}
+
+	s->module = mod;
+>>>>>>> upstream/android-13
 	s->export    = export;
 	return s;
 }
 
+<<<<<<< HEAD
 static void sym_update_crc(const char *name, struct module *mod,
 			   unsigned int crc, enum export export)
 {
@@ -355,11 +637,28 @@ static void sym_update_crc(const char *name, struct module *mod,
 		/* Don't complain when we find it later. */
 		s->preloaded = 1;
 	}
+=======
+static void sym_set_crc(const char *name, unsigned int crc)
+{
+	struct symbol *s = find_symbol(name);
+
+	/*
+	 * Ignore stand-alone __crc_*, which might be auto-generated symbols
+	 * such as __*_veneer in ARM ELF.
+	 */
+	if (!s)
+		return;
+
+>>>>>>> upstream/android-13
 	s->crc = crc;
 	s->crc_valid = 1;
 }
 
+<<<<<<< HEAD
 void *grab_file(const char *filename, unsigned long *size)
+=======
+static void *grab_file(const char *filename, size_t *size)
+>>>>>>> upstream/android-13
 {
 	struct stat st;
 	void *map = MAP_FAILED;
@@ -381,6 +680,7 @@ failed:
 	return map;
 }
 
+<<<<<<< HEAD
 /**
   * Return a copy of the next line in a mmap'ed file.
   * spaces in the beginning of the line is trimmed away.
@@ -416,6 +716,9 @@ char *get_next_line(unsigned long *pos, void *file, unsigned long size)
 }
 
 void release_file(void *file, unsigned long size)
+=======
+static void release_file(void *file, size_t size)
+>>>>>>> upstream/android-13
 {
 	munmap(file, size);
 }
@@ -471,9 +774,14 @@ static int parse_elf(struct elf_info *info, const char *filename)
 
 	/* Check if file offset is correct */
 	if (hdr->e_shoff > info->size) {
+<<<<<<< HEAD
 		fatal("section header offset=%lu in file '%s' is bigger than "
 		      "filesize=%lu\n", (unsigned long)hdr->e_shoff,
 		      filename, info->size);
+=======
+		fatal("section header offset=%lu in file '%s' is bigger than filesize=%zu\n",
+		      (unsigned long)hdr->e_shoff, filename, info->size);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -528,6 +836,7 @@ static int parse_elf(struct elf_info *info, const char *filename)
 			info->modinfo_len = sechdrs[i].sh_size;
 		} else if (strcmp(secname, "__ksymtab") == 0)
 			info->export_sec = i;
+<<<<<<< HEAD
 		else if (strcmp(secname, "__ksymtab_unused") == 0)
 			info->export_unused_sec = i;
 		else if (strcmp(secname, "__ksymtab_gpl") == 0)
@@ -536,6 +845,10 @@ static int parse_elf(struct elf_info *info, const char *filename)
 			info->export_unused_gpl_sec = i;
 		else if (strcmp(secname, "__ksymtab_gpl_future") == 0)
 			info->export_gpl_future_sec = i;
+=======
+		else if (strcmp(secname, "__ksymtab_gpl") == 0)
+			info->export_gpl_sec = i;
+>>>>>>> upstream/android-13
 
 		if (sechdrs[i].sh_type == SHT_SYMTAB) {
 			unsigned int sh_link_idx;
@@ -618,6 +931,7 @@ static int ignore_undef_symbol(struct elf_info *info, const char *symname)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void handle_modversions(struct module *mod, struct elf_info *info,
 			       Elf_Sym *sym, const char *symname)
 {
@@ -627,10 +941,47 @@ static void handle_modversions(struct module *mod, struct elf_info *info,
 
 	if ((!is_vmlinux(mod->name) || mod->is_dot_o) &&
 	    strstarts(symname, "__ksymtab"))
+=======
+static void handle_modversion(const struct module *mod,
+			      const struct elf_info *info,
+			      const Elf_Sym *sym, const char *symname)
+{
+	unsigned int crc;
+
+	if (sym->st_shndx == SHN_UNDEF) {
+		warn("EXPORT symbol \"%s\" [%s%s] version generation failed, symbol will not be versioned.\n"
+		     "Is \"%s\" prototyped in <asm/asm-prototypes.h>?\n",
+		     symname, mod->name, mod->is_vmlinux ? "" : ".ko",
+		     symname);
+
+		return;
+	}
+
+	if (sym->st_shndx == SHN_ABS) {
+		crc = sym->st_value;
+	} else {
+		unsigned int *crcp;
+
+		/* symbol points to the CRC in the ELF object */
+		crcp = sym_get_data(info, sym);
+		crc = TO_NATIVE(*crcp);
+	}
+	sym_set_crc(symname, crc);
+}
+
+static void handle_symbol(struct module *mod, struct elf_info *info,
+			  const Elf_Sym *sym, const char *symname)
+{
+	enum export export;
+	const char *name;
+
+	if (strstarts(symname, "__ksymtab"))
+>>>>>>> upstream/android-13
 		export = export_from_secname(info, get_secindex(info, sym));
 	else
 		export = export_from_sec(info, get_secindex(info, sym));
 
+<<<<<<< HEAD
 	/* CRC'd symbol */
 	if (strstarts(symname, "__crc_")) {
 		is_crc = true;
@@ -649,6 +1000,8 @@ static void handle_modversions(struct module *mod, struct elf_info *info,
 				export);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	switch (sym->st_shndx) {
 	case SHN_COMMON:
 		if (strstarts(symname, "__gnu_lto_")) {
@@ -663,12 +1016,15 @@ static void handle_modversions(struct module *mod, struct elf_info *info,
 			break;
 		if (ignore_undef_symbol(info, symname))
 			break;
+<<<<<<< HEAD
 /* cope with newer glibc (2.3.4 or higher) STT_ definition in elf.h */
 #if defined(STT_REGISTER) || defined(STT_SPARC_REGISTER)
 /* add compatibility with older glibc */
 #ifndef STT_SPARC_REGISTER
 #define STT_SPARC_REGISTER STT_REGISTER
 #endif
+=======
+>>>>>>> upstream/android-13
 		if (info->hdr->e_machine == EM_SPARC ||
 		    info->hdr->e_machine == EM_SPARCV9) {
 			/* Ignore register directives. */
@@ -681,6 +1037,7 @@ static void handle_modversions(struct module *mod, struct elf_info *info,
 				symname = munged;
 			}
 		}
+<<<<<<< HEAD
 #endif
 
 		if (is_crc) {
@@ -688,6 +1045,9 @@ static void handle_modversions(struct module *mod, struct elf_info *info,
 			warn("EXPORT symbol \"%s\" [%s%s] version generation failed, symbol will not be versioned.\n",
 			     symname + strlen("__crc_"), mod->name, e);
 		}
+=======
+
+>>>>>>> upstream/android-13
 		mod->unres = alloc_symbol(symname,
 					  ELF_ST_BIND(sym->st_info) == STB_WEAK,
 					  mod->unres);
@@ -695,8 +1055,13 @@ static void handle_modversions(struct module *mod, struct elf_info *info,
 	default:
 		/* All exported symbols */
 		if (strstarts(symname, "__ksymtab_")) {
+<<<<<<< HEAD
 			sym_add_exported(symname + strlen("__ksymtab_"), mod,
 					export);
+=======
+			name = symname + strlen("__ksymtab_");
+			sym_add_exported(name, mod, export);
+>>>>>>> upstream/android-13
 		}
 		if (strcmp(symname, "init_module") == 0)
 			mod->has_init = 1;
@@ -799,9 +1164,15 @@ static int match(const char *sym, const char * const pat[])
 
 		/* "*foo*" */
 		if (*p == '*' && *endp == '*') {
+<<<<<<< HEAD
 			char *here, *bare = strndup(p + 1, strlen(p) - 2);
 
 			here = strstr(sym, bare);
+=======
+			char *bare = NOFAIL(strndup(p + 1, strlen(p) - 2));
+			char *here = strstr(sym, bare);
+
+>>>>>>> upstream/android-13
 			free(bare);
 			if (here != NULL)
 				return 1;
@@ -901,7 +1272,11 @@ static void check_section(const char *modname, struct elf_info *elf,
 		".kprobes.text", ".cpuidle.text", ".noinstr.text"
 #define OTHER_TEXT_SECTIONS ".ref.text", ".head.text", ".spinlock.text", \
 		".fixup", ".entry.text", ".exception.text", ".text.*", \
+<<<<<<< HEAD
 		".coldtext"
+=======
+		".coldtext", ".softirqentry.text"
+>>>>>>> upstream/android-13
 
 #define INIT_SECTIONS      ".init.*"
 #define MEM_INIT_SECTIONS  ".meminit.*"
@@ -945,7 +1320,10 @@ static const char *const head_sections[] = { ".head.text*", NULL };
 static const char *const linker_symbols[] =
 	{ "__init_begin", "_sinittext", "_einittext", NULL };
 static const char *const optim_symbols[] = { "*.constprop.*", NULL };
+<<<<<<< HEAD
 static const char *const cfi_symbols[] = { "*.cfi", NULL };
+=======
+>>>>>>> upstream/android-13
 
 enum mismatch {
 	TEXT_TO_ANY_INIT,
@@ -961,7 +1339,11 @@ enum mismatch {
 };
 
 /**
+<<<<<<< HEAD
  * Describe how to match sections on different criterias:
+=======
+ * Describe how to match sections on different criteria:
+>>>>>>> upstream/android-13
  *
  * @fromsec: Array of sections to be matched.
  *
@@ -969,12 +1351,20 @@ enum mismatch {
  * this array is forbidden (black-list).  Can be empty.
  *
  * @good_tosec: Relocations applied to a section in @fromsec must be
+<<<<<<< HEAD
  * targetting sections in this array (white-list).  Can be empty.
+=======
+ * targeting sections in this array (white-list).  Can be empty.
+>>>>>>> upstream/android-13
  *
  * @mismatch: Type of mismatch.
  *
  * @symbol_white_list: Do not match a relocation to a symbol in this list
+<<<<<<< HEAD
  * even if it is targetting a section in @bad_to_sec.
+=======
+ * even if it is targeting a section in @bad_to_sec.
+>>>>>>> upstream/android-13
  *
  * @handler: Specific handler to call when a match is found.  If NULL,
  * default_mismatch_handler() will be called.
@@ -1175,6 +1565,7 @@ static const struct sectioncheck *section_mismatch(
  *   whitelisting, which relies on pattern-matching against symbol
  *   names to work.  (One situation where gcc can autogenerate ELF
  *   local symbols is when "-fsection-anchors" is used.)
+<<<<<<< HEAD
  *
  * Pattern 7:
  *   With CONFIG_CFI_CLANG, clang appends .cfi to all indirectly called
@@ -1186,6 +1577,8 @@ static const struct sectioncheck *section_mismatch(
  *   fromsec = text section
  *   tosym   = *.cfi
  *
+=======
+>>>>>>> upstream/android-13
  **/
 static int secref_whitelist(const struct sectioncheck *mismatch,
 			    const char *fromsec, const char *fromsym,
@@ -1228,12 +1621,15 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
 	if (strstarts(fromsym, ".L"))
 		return 0;
 
+<<<<<<< HEAD
 	/* Check for pattern 7 */
 	if (match(fromsec, text_sections) &&
 	    match(tosec, init_exit_sections) &&
 	    match(tosym, cfi_symbols))
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -1427,8 +1823,11 @@ static void report_sec_mismatch(const char *modname,
 	char *prl_to;
 
 	sec_mismatch_count++;
+<<<<<<< HEAD
 	if (!sec_mismatch_verbose)
 		return;
+=======
+>>>>>>> upstream/android-13
 
 	get_pretty_name(from_is_func, &from, &from_p);
 	get_pretty_name(to_is_func, &to, &to_p);
@@ -1676,9 +2075,13 @@ static void extable_mismatch_handler(const char* modname, struct elf_info *elf,
 
 	sec_mismatch_count++;
 
+<<<<<<< HEAD
 	if (sec_mismatch_verbose)
 		report_extable_warnings(modname, elf, mismatch, r, sym,
 					fromsec, tosec);
+=======
+	report_extable_warnings(modname, elf, mismatch, r, sym, fromsec, tosec);
+>>>>>>> upstream/android-13
 
 	if (match(tosec, mismatch->bad_tosec))
 		fatal("The relocation at %s+0x%lx references\n"
@@ -1724,11 +2127,15 @@ static void check_section_mismatch(const char *modname, struct elf_info *elf,
 static unsigned int *reloc_location(struct elf_info *elf,
 				    Elf_Shdr *sechdr, Elf_Rela *r)
 {
+<<<<<<< HEAD
 	Elf_Shdr *sechdrs = elf->sechdrs;
 	int section = sechdr->sh_info;
 
 	return (void *)elf->hdr + sechdrs[section].sh_offset +
 		r->r_offset;
+=======
+	return sym_get_data_by_offset(elf, sechdr->sh_info, r->r_offset);
+>>>>>>> upstream/android-13
 }
 
 static int addend_386_rel(struct elf_info *elf, Elf_Shdr *sechdr, Elf_Rela *r)
@@ -1973,6 +2380,10 @@ static void read_symbols(const char *modname)
 	const char *symname;
 	char *version;
 	char *license;
+<<<<<<< HEAD
+=======
+	char *namespace;
+>>>>>>> upstream/android-13
 	struct module *mod;
 	struct elf_info info = { };
 	Elf_Sym *sym;
@@ -1980,6 +2391,7 @@ static void read_symbols(const char *modname)
 	if (!parse_elf(&info, modname))
 		return;
 
+<<<<<<< HEAD
 	mod = new_module(modname);
 
 	/* When there's no vmlinux, don't print warnings about
@@ -2002,11 +2414,47 @@ static void read_symbols(const char *modname)
 			break;
 		}
 		license = get_next_modinfo(&info, "license", license);
+=======
+	{
+		char *tmp;
+
+		/* strip trailing .o */
+		tmp = NOFAIL(strdup(modname));
+		tmp[strlen(tmp) - 2] = '\0';
+		/* strip trailing .lto */
+		if (strends(tmp, ".lto"))
+			tmp[strlen(tmp) - 4] = '\0';
+		mod = new_module(tmp);
+		free(tmp);
+	}
+
+	if (!mod->is_vmlinux) {
+		license = get_modinfo(&info, "license");
+		if (!license)
+			error("missing MODULE_LICENSE() in %s\n", modname);
+		while (license) {
+			if (license_is_gpl_compatible(license))
+				mod->gpl_compatible = 1;
+			else {
+				mod->gpl_compatible = 0;
+				break;
+			}
+			license = get_next_modinfo(&info, "license", license);
+		}
+
+		namespace = get_modinfo(&info, "import_ns");
+		while (namespace) {
+			add_namespace(&mod->imported_namespaces, namespace);
+			namespace = get_next_modinfo(&info, "import_ns",
+						     namespace);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	for (sym = info.symtab_start; sym < info.symtab_stop; sym++) {
 		symname = remove_dot(info.strtab + sym->st_name);
 
+<<<<<<< HEAD
 		handle_modversions(mod, &info, sym, symname);
 		handle_moddevtable(mod, &info, sym, symname);
 	}
@@ -2020,6 +2468,48 @@ static void read_symbols(const char *modname)
 	if (version || (all_versions && !is_vmlinux(modname)))
 		get_src_version(modname, mod->srcversion,
 				sizeof(mod->srcversion)-1);
+=======
+		handle_symbol(mod, &info, sym, symname);
+		handle_moddevtable(mod, &info, sym, symname);
+	}
+
+	for (sym = info.symtab_start; sym < info.symtab_stop; sym++) {
+		symname = remove_dot(info.strtab + sym->st_name);
+
+		/* Apply symbol namespaces from __kstrtabns_<symbol> entries. */
+		if (strstarts(symname, "__kstrtabns_"))
+			sym_update_namespace(symname + strlen("__kstrtabns_"),
+					     namespace_from_kstrtabns(&info,
+								      sym));
+
+		if (strstarts(symname, "__crc_"))
+			handle_modversion(mod, &info, sym,
+					  symname + strlen("__crc_"));
+	}
+
+	// check for static EXPORT_SYMBOL_* functions && global vars
+	for (sym = info.symtab_start; sym < info.symtab_stop; sym++) {
+		unsigned char bind = ELF_ST_BIND(sym->st_info);
+
+		if (bind == STB_GLOBAL || bind == STB_WEAK) {
+			struct symbol *s =
+				find_symbol(remove_dot(info.strtab +
+						       sym->st_name));
+
+			if (s)
+				s->is_static = 0;
+		}
+	}
+
+	check_sec_ref(mod, modname, &info);
+
+	if (!mod->is_vmlinux) {
+		version = get_modinfo(&info, "version");
+		if (version || all_versions)
+			get_src_version(mod->name, mod->srcversion,
+					sizeof(mod->srcversion) - 1);
+	}
+>>>>>>> upstream/android-13
 
 	parse_elf_finish(&info);
 
@@ -2083,6 +2573,7 @@ void buf_write(struct buffer *buf, const char *s, int len)
 
 static void check_for_gpl_usage(enum export exp, const char *m, const char *s)
 {
+<<<<<<< HEAD
 	const char *e = is_vmlinux(m) ?"":".ko";
 
 	switch (exp) {
@@ -2100,12 +2591,21 @@ static void check_for_gpl_usage(enum export exp, const char *m, const char *s)
 		break;
 	case export_plain:
 	case export_unused:
+=======
+	switch (exp) {
+	case export_gpl:
+		error("GPL-incompatible module %s.ko uses GPL-only symbol '%s'\n",
+		      m, s);
+		break;
+	case export_plain:
+>>>>>>> upstream/android-13
 	case export_unknown:
 		/* ignore */
 		break;
 	}
 }
 
+<<<<<<< HEAD
 static void check_for_unused(enum export exp, const char *m, const char *s)
 {
 	const char *e = is_vmlinux(m) ?"":".ko";
@@ -2122,6 +2622,8 @@ static void check_for_unused(enum export exp, const char *m, const char *s)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void check_exports(struct module *mod)
 {
 	struct symbol *s, *exp;
@@ -2129,13 +2631,24 @@ static void check_exports(struct module *mod)
 	for (s = mod->unres; s; s = s->next) {
 		const char *basename;
 		exp = find_symbol(s->name);
+<<<<<<< HEAD
 		if (!exp || exp->module == mod)
 			continue;
+=======
+		if (!exp || exp->module == mod) {
+			if (!s->weak && nr_unresolved++ < MAX_UNRESOLVED_REPORTS)
+				modpost_log(warn_unresolved ? LOG_WARN : LOG_ERROR,
+					    "\"%s\" [%s.ko] undefined!\n",
+					    s->name, mod->name);
+			continue;
+		}
+>>>>>>> upstream/android-13
 		basename = strrchr(mod->name, '/');
 		if (basename)
 			basename++;
 		else
 			basename = mod->name;
+<<<<<<< HEAD
 		if (!mod->gpl_compatible)
 			check_for_gpl_usage(exp->export, basename, exp->name);
 		check_for_unused(exp->export, basename, exp->name);
@@ -2143,6 +2656,23 @@ static void check_exports(struct module *mod)
 }
 
 static int check_modname_len(struct module *mod)
+=======
+
+		if (exp->namespace &&
+		    !module_imports_namespace(mod, exp->namespace)) {
+			modpost_log(allow_missing_ns_imports ? LOG_WARN : LOG_ERROR,
+				    "module %s uses symbol %s from namespace %s, but does not import it.\n",
+				    basename, exp->name, exp->namespace);
+			add_namespace(&mod->missing_namespaces, exp->namespace);
+		}
+
+		if (!mod->gpl_compatible)
+			check_for_gpl_usage(exp->export, basename, exp->name);
+	}
+}
+
+static void check_modname_len(struct module *mod)
+>>>>>>> upstream/android-13
 {
 	const char *mod_name;
 
@@ -2151,12 +2681,17 @@ static int check_modname_len(struct module *mod)
 		mod_name = mod->name;
 	else
 		mod_name++;
+<<<<<<< HEAD
 	if (strlen(mod_name) >= MODULE_NAME_LEN) {
 		merror("module name is too long [%s.ko]\n", mod->name);
 		return 1;
 	}
 
 	return 0;
+=======
+	if (strlen(mod_name) >= MODULE_NAME_LEN)
+		error("module name is too long [%s.ko]\n", mod->name);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2169,17 +2704,31 @@ static void add_header(struct buffer *b, struct module *mod)
 	 * Include build-salt.h after module.h in order to
 	 * inherit the definitions.
 	 */
+<<<<<<< HEAD
 	buf_printf(b, "#include <linux/build-salt.h>\n");
+=======
+	buf_printf(b, "#define INCLUDE_VERMAGIC\n");
+	buf_printf(b, "#include <linux/build-salt.h>\n");
+	buf_printf(b, "#include <linux/elfnote-lto.h>\n");
+>>>>>>> upstream/android-13
 	buf_printf(b, "#include <linux/vermagic.h>\n");
 	buf_printf(b, "#include <linux/compiler.h>\n");
 	buf_printf(b, "\n");
 	buf_printf(b, "BUILD_SALT;\n");
+<<<<<<< HEAD
+=======
+	buf_printf(b, "BUILD_LTO_INFO;\n");
+>>>>>>> upstream/android-13
 	buf_printf(b, "\n");
 	buf_printf(b, "MODULE_INFO(vermagic, VERMAGIC_STRING);\n");
 	buf_printf(b, "MODULE_INFO(name, KBUILD_MODNAME);\n");
 	buf_printf(b, "\n");
 	buf_printf(b, "__visible struct module __this_module\n");
+<<<<<<< HEAD
 	buf_printf(b, "__attribute__((section(\".gnu.linkonce.this_module\"))) = {\n");
+=======
+	buf_printf(b, "__section(\".gnu.linkonce.this_module\") = {\n");
+>>>>>>> upstream/android-13
 	buf_printf(b, "\t.name = KBUILD_MODNAME,\n");
 	if (mod->has_init)
 		buf_printf(b, "\t.init = init_module,\n");
@@ -2197,6 +2746,23 @@ static void add_intree_flag(struct buffer *b, int is_intree)
 		buf_printf(b, "\nMODULE_INFO(intree, \"Y\");\n");
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * add_scmversion() - Adds the MODULE_INFO macro for the scmversion.
+ * @b: Buffer to append to.
+ *
+ * This function fills in the module attribute `scmversion` for the kernel
+ * module. This is useful for determining a given module's SCM version on
+ * device via /sys/modules/<module>/scmversion and/or using the modinfo tool.
+ */
+static void add_scmversion(struct buffer *b)
+{
+	if (module_scmversion[0] != '\0')
+		buf_printf(b, "\nMODULE_INFO(scmversion, \"%s\");\n", module_scmversion);
+}
+
+>>>>>>> upstream/android-13
 /* Cannot check for assembler */
 static void add_retpoline(struct buffer *b)
 {
@@ -2214,6 +2780,7 @@ static void add_staging_flag(struct buffer *b, const char *name)
 /**
  * Record CRCs for unresolved symbols
  **/
+<<<<<<< HEAD
 static int add_versions(struct buffer *b, struct module *mod)
 {
 	struct symbol *s, *exp;
@@ -2234,18 +2801,36 @@ static int add_versions(struct buffer *b, struct module *mod)
 			}
 			continue;
 		}
+=======
+static void add_versions(struct buffer *b, struct module *mod)
+{
+	struct symbol *s, *exp;
+
+	for (s = mod->unres; s; s = s->next) {
+		exp = find_symbol(s->name);
+		if (!exp || exp->module == mod)
+			continue;
+>>>>>>> upstream/android-13
 		s->module = exp->module;
 		s->crc_valid = exp->crc_valid;
 		s->crc = exp->crc;
 	}
 
 	if (!modversions)
+<<<<<<< HEAD
 		return err;
 
 	buf_printf(b, "\n");
 	buf_printf(b, "static const struct modversion_info ____versions[]\n");
 	buf_printf(b, "__used\n");
 	buf_printf(b, "__attribute__((section(\"__versions\"))) = {\n");
+=======
+		return;
+
+	buf_printf(b, "\n");
+	buf_printf(b, "static const struct modversion_info ____versions[]\n");
+	buf_printf(b, "__used __section(\"__versions\") = {\n");
+>>>>>>> upstream/android-13
 
 	for (s = mod->unres; s; s = s->next) {
 		if (!s->module)
@@ -2256,9 +2841,14 @@ static int add_versions(struct buffer *b, struct module *mod)
 			continue;
 		}
 		if (strlen(s->name) >= MODULE_NAME_LEN) {
+<<<<<<< HEAD
 			merror("too long symbol \"%s\" [%s.ko]\n",
 			       s->name, mod->name);
 			err = 1;
+=======
+			error("too long symbol \"%s\" [%s.ko]\n",
+			      s->name, mod->name);
+>>>>>>> upstream/android-13
 			break;
 		}
 		buf_printf(b, "\t{ %#8x, \"%s\" },\n",
@@ -2266,6 +2856,7 @@ static int add_versions(struct buffer *b, struct module *mod)
 	}
 
 	buf_printf(b, "};\n");
+<<<<<<< HEAD
 
 	return err;
 }
@@ -2285,6 +2876,22 @@ static void add_depends(struct buffer *b, struct module *mod,
 	buf_printf(b, "__used\n");
 	buf_printf(b, "__attribute__((section(\".modinfo\"))) =\n");
 	buf_printf(b, "\"depends=");
+=======
+}
+
+static void add_depends(struct buffer *b, struct module *mod)
+{
+	struct symbol *s;
+	int first = 1;
+
+	/* Clear ->seen flag of modules that own symbols needed by this. */
+	for (s = mod->unres; s; s = s->next)
+		if (s->module)
+			s->module->seen = s->module->is_vmlinux;
+
+	buf_printf(b, "\n");
+	buf_printf(b, "MODULE_INFO(depends, \"");
+>>>>>>> upstream/android-13
 	for (s = mod->unres; s; s = s->next) {
 		const char *p;
 		if (!s->module)
@@ -2302,7 +2909,11 @@ static void add_depends(struct buffer *b, struct module *mod,
 		buf_printf(b, "%s%s", first ? "" : ",", p);
 		first = 0;
 	}
+<<<<<<< HEAD
 	buf_printf(b, "\";\n");
+=======
+	buf_printf(b, "\");\n");
+>>>>>>> upstream/android-13
 }
 
 static void add_srcversion(struct buffer *b, struct module *mod)
@@ -2314,6 +2925,28 @@ static void add_srcversion(struct buffer *b, struct module *mod)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void write_buf(struct buffer *b, const char *fname)
+{
+	FILE *file;
+
+	file = fopen(fname, "w");
+	if (!file) {
+		perror(fname);
+		exit(1);
+	}
+	if (fwrite(b->p, 1, b->pos, file) != b->pos) {
+		perror(fname);
+		exit(1);
+	}
+	if (fclose(file) != 0) {
+		perror(fname);
+		exit(1);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void write_if_changed(struct buffer *b, const char *fname)
 {
 	char *tmp;
@@ -2346,6 +2979,7 @@ static void write_if_changed(struct buffer *b, const char *fname)
  close_write:
 	fclose(file);
  write:
+<<<<<<< HEAD
 	file = fopen(fname, "w");
 	if (!file) {
 		perror(fname);
@@ -2373,6 +3007,27 @@ static void read_dump(const char *fname, unsigned int kernel)
 
 	while ((line = get_next_line(&pos, file, size))) {
 		char *symname, *modname, *d, *export, *end;
+=======
+	write_buf(b, fname);
+}
+
+/* parse Module.symvers file. line format:
+ * 0x12345678<tab>symbol<tab>module<tab>export<tab>namespace
+ **/
+static void read_dump(const char *fname)
+{
+	char *buf, *pos, *line;
+
+	buf = read_text_file(fname);
+	if (!buf)
+		/* No symbol versions, silently ignore */
+		return;
+
+	pos = buf;
+
+	while ((line = get_line(&pos))) {
+		char *symname, *namespace, *modname, *d, *export;
+>>>>>>> upstream/android-13
 		unsigned int crc;
 		struct module *mod;
 		struct symbol *s;
@@ -2383,15 +3038,26 @@ static void read_dump(const char *fname, unsigned int kernel)
 		if (!(modname = strchr(symname, '\t')))
 			goto fail;
 		*modname++ = '\0';
+<<<<<<< HEAD
 		if ((export = strchr(modname, '\t')) != NULL)
 			*export++ = '\0';
 		if (export && ((end = strchr(export, '\t')) != NULL))
 			*end = '\0';
+=======
+		if (!(export = strchr(modname, '\t')))
+			goto fail;
+		*export++ = '\0';
+		if (!(namespace = strchr(export, '\t')))
+			goto fail;
+		*namespace++ = '\0';
+
+>>>>>>> upstream/android-13
 		crc = strtoul(line, &d, 16);
 		if (*symname == '\0' || *modname == '\0' || *d != '\0')
 			goto fail;
 		mod = find_module(modname);
 		if (!mod) {
+<<<<<<< HEAD
 			if (is_vmlinux(modname))
 				have_vmlinux = 1;
 			mod = new_module(modname);
@@ -2422,15 +3088,37 @@ static int dump_sym(struct symbol *sym)
 	return 1;
 }
 
+=======
+			mod = new_module(modname);
+			mod->from_dump = 1;
+		}
+		s = sym_add_exported(symname, mod, export_no(export));
+		s->is_static = 0;
+		sym_set_crc(symname, crc);
+		sym_update_namespace(symname, namespace);
+	}
+	free(buf);
+	return;
+fail:
+	free(buf);
+	fatal("parse error in symbol dump file\n");
+}
+
+>>>>>>> upstream/android-13
 static void write_dump(const char *fname)
 {
 	struct buffer buf = { };
 	struct symbol *symbol;
+<<<<<<< HEAD
+=======
+	const char *namespace;
+>>>>>>> upstream/android-13
 	int n;
 
 	for (n = 0; n < SYMBOL_HASH_SIZE ; n++) {
 		symbol = symbolhash[n];
 		while (symbol) {
+<<<<<<< HEAD
 			if (dump_sym(symbol))
 				buf_printf(&buf, "0x%08x\t%s\t%s\t%s\n",
 					symbol->crc, symbol->name,
@@ -2445,6 +3133,48 @@ static void write_dump(const char *fname)
 
 struct ext_sym_list {
 	struct ext_sym_list *next;
+=======
+			if (!symbol->module->from_dump) {
+				namespace = symbol->namespace;
+				buf_printf(&buf, "0x%08x\t%s\t%s\t%s\t%s\n",
+					   symbol->crc, symbol->name,
+					   symbol->module->name,
+					   export_str(symbol->export),
+					   namespace ? namespace : "");
+			}
+			symbol = symbol->next;
+		}
+	}
+	write_buf(&buf, fname);
+	free(buf.p);
+}
+
+static void write_namespace_deps_files(const char *fname)
+{
+	struct module *mod;
+	struct namespace_list *ns;
+	struct buffer ns_deps_buf = {};
+
+	for (mod = modules; mod; mod = mod->next) {
+
+		if (mod->from_dump || !mod->missing_namespaces)
+			continue;
+
+		buf_printf(&ns_deps_buf, "%s.ko:", mod->name);
+
+		for (ns = mod->missing_namespaces; ns; ns = ns->next)
+			buf_printf(&ns_deps_buf, " %s", ns->namespace);
+
+		buf_printf(&ns_deps_buf, "\n");
+	}
+
+	write_if_changed(&ns_deps_buf, fname);
+	free(ns_deps_buf.p);
+}
+
+struct dump_list {
+	struct dump_list *next;
+>>>>>>> upstream/android-13
 	const char *file;
 };
 
@@ -2452,6 +3182,7 @@ int main(int argc, char **argv)
 {
 	struct module *mod;
 	struct buffer buf = { };
+<<<<<<< HEAD
 	char *kernel_read = NULL, *module_read = NULL;
 	char *dump_write = NULL, *files_source = NULL;
 	int opt;
@@ -2475,6 +3206,25 @@ int main(int argc, char **argv)
 			extsym_iter->next = extsym_start;
 			extsym_iter->file = optarg;
 			extsym_start = extsym_iter;
+=======
+	char *missing_namespace_deps = NULL;
+	char *dump_write = NULL, *files_source = NULL;
+	int opt;
+	int n;
+	struct dump_list *dump_read_start = NULL;
+	struct dump_list **dump_read_iter = &dump_read_start;
+
+	while ((opt = getopt(argc, argv, "ei:mnT:o:awENd:v:")) != -1) {
+		switch (opt) {
+		case 'e':
+			external_module = 1;
+			break;
+		case 'i':
+			*dump_read_iter =
+				NOFAIL(calloc(1, sizeof(**dump_read_iter)));
+			(*dump_read_iter)->file = optarg;
+			dump_read_iter = &(*dump_read_iter)->next;
+>>>>>>> upstream/android-13
 			break;
 		case 'm':
 			modversions = 1;
@@ -2488,12 +3238,15 @@ int main(int argc, char **argv)
 		case 'a':
 			all_versions = 1;
 			break;
+<<<<<<< HEAD
 		case 's':
 			vmlinux_section_warnings = 0;
 			break;
 		case 'S':
 			sec_mismatch_verbose = 0;
 			break;
+=======
+>>>>>>> upstream/android-13
 		case 'T':
 			files_source = optarg;
 			break;
@@ -2501,13 +3254,27 @@ int main(int argc, char **argv)
 			warn_unresolved = 1;
 			break;
 		case 'E':
+<<<<<<< HEAD
 			sec_mismatch_fatal = 1;
+=======
+			sec_mismatch_warn_only = false;
+			break;
+		case 'N':
+			allow_missing_ns_imports = 1;
+			break;
+		case 'd':
+			missing_namespace_deps = optarg;
+			break;
+		case 'v':
+			strncpy(module_scmversion, optarg, sizeof(module_scmversion) - 1);
+>>>>>>> upstream/android-13
 			break;
 		default:
 			exit(1);
 		}
 	}
 
+<<<<<<< HEAD
 	if (kernel_read)
 		read_dump(kernel_read, 1);
 	if (module_read)
@@ -2517,6 +3284,15 @@ int main(int argc, char **argv)
 		extsym_iter = extsym_start->next;
 		free(extsym_start);
 		extsym_start = extsym_iter;
+=======
+	while (dump_read_start) {
+		struct dump_list *tmp;
+
+		read_dump(dump_read_start->file);
+		tmp = dump_read_start->next;
+		free(dump_read_start);
+		dump_read_start = tmp;
+>>>>>>> upstream/android-13
 	}
 
 	while (optind < argc)
@@ -2526,6 +3302,7 @@ int main(int argc, char **argv)
 		read_symbols_from_files(files_source);
 
 	for (mod = modules; mod; mod = mod->next) {
+<<<<<<< HEAD
 		if (mod->skip)
 			continue;
 		check_exports(mod);
@@ -2537,23 +3314,43 @@ int main(int argc, char **argv)
 		char fname[PATH_MAX];
 
 		if (mod->skip)
+=======
+		char fname[PATH_MAX];
+
+		if (mod->is_vmlinux || mod->from_dump)
+>>>>>>> upstream/android-13
 			continue;
 
 		buf.pos = 0;
 
+<<<<<<< HEAD
 		err |= check_modname_len(mod);
+=======
+		check_modname_len(mod);
+		check_exports(mod);
+
+>>>>>>> upstream/android-13
 		add_header(&buf, mod);
 		add_intree_flag(&buf, !external_module);
 		add_retpoline(&buf);
 		add_staging_flag(&buf, mod->name);
+<<<<<<< HEAD
 		err |= add_versions(&buf, mod);
 		add_depends(&buf, mod, modules);
 		add_moddevtable(&buf, mod);
 		add_srcversion(&buf, mod);
+=======
+		add_versions(&buf, mod);
+		add_depends(&buf, mod);
+		add_moddevtable(&buf, mod);
+		add_srcversion(&buf, mod);
+		add_scmversion(&buf);
+>>>>>>> upstream/android-13
 
 		sprintf(fname, "%s.mod.c", mod->name);
 		write_if_changed(&buf, fname);
 	}
+<<<<<<< HEAD
 	if (dump_write)
 		write_dump(dump_write);
 	if (sec_mismatch_count) {
@@ -2571,4 +3368,33 @@ int main(int argc, char **argv)
 	free(buf.p);
 
 	return err;
+=======
+
+	if (missing_namespace_deps)
+		write_namespace_deps_files(missing_namespace_deps);
+
+	if (dump_write)
+		write_dump(dump_write);
+	if (sec_mismatch_count && !sec_mismatch_warn_only)
+		error("Section mismatches detected.\n"
+		      "Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.\n");
+	for (n = 0; n < SYMBOL_HASH_SIZE; n++) {
+		struct symbol *s;
+
+		for (s = symbolhash[n]; s; s = s->next) {
+			if (s->is_static)
+				error("\"%s\" [%s] is a static %s\n",
+				      s->name, s->module->name,
+				      export_str(s->export));
+		}
+	}
+
+	if (nr_unresolved > MAX_UNRESOLVED_REPORTS)
+		warn("suppressed %u unresolved symbol warnings because there were too many)\n",
+		     nr_unresolved - MAX_UNRESOLVED_REPORTS);
+
+	free(buf.p);
+
+	return error_occurred ? 1 : 0;
+>>>>>>> upstream/android-13
 }

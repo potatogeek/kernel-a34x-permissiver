@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/slab.h>
 #include <linux/list.h>
@@ -96,6 +101,7 @@ static const struct seq_operations qat_dev_cfg_sops = {
 	.show = qat_dev_cfg_show
 };
 
+<<<<<<< HEAD
 static int qat_dev_cfg_open(struct inode *inode, struct file *file)
 {
 	int ret = seq_open(file, &qat_dev_cfg_sops);
@@ -114,6 +120,9 @@ static const struct file_operations qat_dev_cfg_fops = {
 	.llseek = seq_lseek,
 	.release = seq_release
 };
+=======
+DEFINE_SEQ_ATTRIBUTE(qat_dev_cfg);
+>>>>>>> upstream/android-13
 
 /**
  * adf_cfg_dev_add() - Create an acceleration device configuration table.
@@ -141,6 +150,7 @@ int adf_cfg_dev_add(struct adf_accel_dev *accel_dev)
 						  accel_dev->debugfs_dir,
 						  dev_cfg_data,
 						  &qat_dev_cfg_fops);
+<<<<<<< HEAD
 	if (!dev_cfg_data->debug) {
 		dev_err(&GET_DEV(accel_dev),
 			"Failed to create qat cfg debugfs entry.\n");
@@ -148,6 +158,8 @@ int adf_cfg_dev_add(struct adf_accel_dev *accel_dev)
 		accel_dev->cfg = NULL;
 		return -EFAULT;
 	}
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(adf_cfg_dev_add);
@@ -264,7 +276,11 @@ static int adf_cfg_key_val_get(struct adf_accel_dev *accel_dev,
 		memcpy(val, keyval->val, ADF_CFG_MAX_VAL_LEN_IN_BYTES);
 		return 0;
 	}
+<<<<<<< HEAD
 	return -1;
+=======
+	return -ENODATA;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -311,7 +327,11 @@ int adf_cfg_add_key_value_param(struct adf_accel_dev *accel_dev,
 	} else {
 		dev_err(&GET_DEV(accel_dev), "Unknown type given.\n");
 		kfree(key_val);
+<<<<<<< HEAD
 		return -1;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	key_val->type = type;
 	down_write(&cfg->lock);

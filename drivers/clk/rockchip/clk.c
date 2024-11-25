@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -11,6 +15,7 @@
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  * Copyright (c) 2013 Linaro Ltd.
  * Author: Thomas Abraham <thomas.ab@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,18 +26,32 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/mfd/syscon.h>
 #include <linux/regmap.h>
 #include <linux/reboot.h>
 #include <linux/rational.h>
+<<<<<<< HEAD
 #include "clk.h"
 
 /**
+=======
+
+#include "../clk-fractional-divider.h"
+#include "clk.h"
+
+/*
+>>>>>>> upstream/android-13
  * Register a clock branch.
  * Most clock branches have a form like
  *
@@ -46,12 +65,20 @@ static struct clk *rockchip_clk_register_branch(const char *name,
 		const char *const *parent_names, u8 num_parents,
 		void __iomem *base,
 		int muxdiv_offset, u8 mux_shift, u8 mux_width, u8 mux_flags,
+<<<<<<< HEAD
 		u8 div_shift, u8 div_width, u8 div_flags,
+=======
+		int div_offset, u8 div_shift, u8 div_width, u8 div_flags,
+>>>>>>> upstream/android-13
 		struct clk_div_table *div_table, int gate_offset,
 		u8 gate_shift, u8 gate_flags, unsigned long flags,
 		spinlock_t *lock)
 {
+<<<<<<< HEAD
 	struct clk *clk;
+=======
+	struct clk_hw *hw;
+>>>>>>> upstream/android-13
 	struct clk_mux *mux = NULL;
 	struct clk_gate *gate = NULL;
 	struct clk_divider *div = NULL;
@@ -95,7 +122,14 @@ static struct clk *rockchip_clk_register_branch(const char *name,
 		}
 
 		div->flags = div_flags;
+<<<<<<< HEAD
 		div->reg = base + muxdiv_offset;
+=======
+		if (div_offset)
+			div->reg = base + div_offset;
+		else
+			div->reg = base + muxdiv_offset;
+>>>>>>> upstream/android-13
 		div->shift = div_shift;
 		div->width = div_width;
 		div->lock = lock;
@@ -105,6 +139,7 @@ static struct clk *rockchip_clk_register_branch(const char *name,
 						: &clk_divider_ops;
 	}
 
+<<<<<<< HEAD
 	clk = clk_register_composite(NULL, name, parent_names, num_parents,
 				     mux ? &mux->hw : NULL, mux_ops,
 				     div ? &div->hw : NULL, div_ops,
@@ -119,6 +154,20 @@ static struct clk *rockchip_clk_register_branch(const char *name,
 	return clk;
 err_composite:
 	kfree(div);
+=======
+	hw = clk_hw_register_composite(NULL, name, parent_names, num_parents,
+				       mux ? &mux->hw : NULL, mux_ops,
+				       div ? &div->hw : NULL, div_ops,
+				       gate ? &gate->hw : NULL, gate_ops,
+				       flags);
+	if (IS_ERR(hw)) {
+		kfree(div);
+		kfree(gate);
+		return ERR_CAST(hw);
+	}
+
+	return hw->clk;
+>>>>>>> upstream/android-13
 err_div:
 	kfree(gate);
 err_gate:
@@ -177,7 +226,11 @@ static int rockchip_clk_frac_notifier_cb(struct notifier_block *nb,
 	return notifier_from_errno(ret);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fractional divider must set that denominator is 20 times larger than
  * numerator to generate precise clock frequency.
  */
@@ -188,7 +241,10 @@ static void rockchip_fractional_approximation(struct clk_hw *hw,
 	struct clk_fractional_divider *fd = to_clk_fd(hw);
 	unsigned long p_rate, p_parent_rate;
 	struct clk_hw *p_parent;
+<<<<<<< HEAD
 	unsigned long scale;
+=======
+>>>>>>> upstream/android-13
 
 	p_rate = clk_hw_get_rate(clk_hw_get_parent(hw));
 	if ((rate * 20 > p_rate) && (p_rate % rate != 0)) {
@@ -197,6 +253,7 @@ static void rockchip_fractional_approximation(struct clk_hw *hw,
 		*parent_rate = p_parent_rate;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Get rate closer to *parent_rate to guarantee there is no overflow
 	 * for m and n. In the result it will be the nearest rate left shifted
@@ -209,6 +266,11 @@ static void rockchip_fractional_approximation(struct clk_hw *hw,
 	rational_best_approximation(rate, *parent_rate,
 			GENMASK(fd->mwidth - 1, 0), GENMASK(fd->nwidth - 1, 0),
 			m, n);
+=======
+	fd->flags |= CLK_FRAC_DIVIDER_POWER_OF_TWO_PS;
+
+	clk_fractional_divider_general_approximation(hw, rate, parent_rate, m, n);
+>>>>>>> upstream/android-13
 }
 
 static struct clk *rockchip_clk_register_frac_branch(
@@ -219,8 +281,13 @@ static struct clk *rockchip_clk_register_frac_branch(
 		unsigned long flags, struct rockchip_clk_branch *child,
 		spinlock_t *lock)
 {
+<<<<<<< HEAD
 	struct rockchip_clk_frac *frac;
 	struct clk *clk;
+=======
+	struct clk_hw *hw;
+	struct rockchip_clk_frac *frac;
+>>>>>>> upstream/android-13
 	struct clk_gate *gate = NULL;
 	struct clk_fractional_divider *div = NULL;
 	const struct clk_ops *div_ops = NULL, *gate_ops = NULL;
@@ -260,6 +327,7 @@ static struct clk *rockchip_clk_register_frac_branch(
 	div->approximation = rockchip_fractional_approximation;
 	div_ops = &clk_fractional_divider_ops;
 
+<<<<<<< HEAD
 	clk = clk_register_composite(NULL, name, parent_names, num_parents,
 				     NULL, NULL,
 				     &div->hw, div_ops,
@@ -268,11 +336,25 @@ static struct clk *rockchip_clk_register_frac_branch(
 	if (IS_ERR(clk)) {
 		kfree(frac);
 		return clk;
+=======
+	hw = clk_hw_register_composite(NULL, name, parent_names, num_parents,
+				       NULL, NULL,
+				       &div->hw, div_ops,
+				       gate ? &gate->hw : NULL, gate_ops,
+				       flags | CLK_SET_RATE_UNGATE);
+	if (IS_ERR(hw)) {
+		kfree(frac);
+		return ERR_CAST(hw);
+>>>>>>> upstream/android-13
 	}
 
 	if (child) {
 		struct clk_mux *frac_mux = &frac->mux;
+<<<<<<< HEAD
 		struct clk_init_data init = {};
+=======
+		struct clk_init_data init;
+>>>>>>> upstream/android-13
 		struct clk *mux_clk;
 		int ret;
 
@@ -297,7 +379,11 @@ static struct clk *rockchip_clk_register_frac_branch(
 		mux_clk = clk_register(NULL, &frac_mux->hw);
 		if (IS_ERR(mux_clk)) {
 			kfree(frac);
+<<<<<<< HEAD
 			return clk;
+=======
+			return mux_clk;
+>>>>>>> upstream/android-13
 		}
 
 		rockchip_clk_add_lookup(ctx, mux_clk, child->id);
@@ -306,7 +392,11 @@ static struct clk *rockchip_clk_register_frac_branch(
 		if (frac->mux_frac_idx >= 0) {
 			pr_debug("%s: found fractional parent in mux at pos %d\n",
 				 __func__, frac->mux_frac_idx);
+<<<<<<< HEAD
 			ret = clk_notifier_register(clk, &frac->clk_nb);
+=======
+			ret = clk_notifier_register(hw->clk, &frac->clk_nb);
+>>>>>>> upstream/android-13
 			if (ret)
 				pr_err("%s: failed to register clock notifier for %s\n",
 						__func__, name);
@@ -316,7 +406,11 @@ static struct clk *rockchip_clk_register_frac_branch(
 		}
 	}
 
+<<<<<<< HEAD
 	return clk;
+=======
+	return hw->clk;
+>>>>>>> upstream/android-13
 }
 
 static struct clk *rockchip_clk_register_factor_branch(const char *name,
@@ -325,7 +419,11 @@ static struct clk *rockchip_clk_register_factor_branch(const char *name,
 		int gate_offset, u8 gate_shift, u8 gate_flags,
 		unsigned long flags, spinlock_t *lock)
 {
+<<<<<<< HEAD
 	struct clk *clk;
+=======
+	struct clk_hw *hw;
+>>>>>>> upstream/android-13
 	struct clk_gate *gate = NULL;
 	struct clk_fixed_factor *fix = NULL;
 
@@ -354,6 +452,7 @@ static struct clk *rockchip_clk_register_factor_branch(const char *name,
 	fix->mult = mult;
 	fix->div = div;
 
+<<<<<<< HEAD
 	clk = clk_register_composite(NULL, name, parent_names, num_parents,
 				     NULL, NULL,
 				     &fix->hw, &clk_fixed_factor_ops,
@@ -368,6 +467,24 @@ static struct clk *rockchip_clk_register_factor_branch(const char *name,
 
 struct rockchip_clk_provider * __init rockchip_clk_init(struct device_node *np,
 			void __iomem *base, unsigned long nr_clks)
+=======
+	hw = clk_hw_register_composite(NULL, name, parent_names, num_parents,
+				       NULL, NULL,
+				       &fix->hw, &clk_fixed_factor_ops,
+				       &gate->hw, &clk_gate_ops, flags);
+	if (IS_ERR(hw)) {
+		kfree(fix);
+		kfree(gate);
+		return ERR_CAST(hw);
+	}
+
+	return hw->clk;
+}
+
+struct rockchip_clk_provider *rockchip_clk_init(struct device_node *np,
+						void __iomem *base,
+						unsigned long nr_clks)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_clk_provider *ctx;
 	struct clk **clk_table;
@@ -399,14 +516,25 @@ err_free:
 	kfree(ctx);
 	return ERR_PTR(-ENOMEM);
 }
+<<<<<<< HEAD
 
 void __init rockchip_clk_of_add_provider(struct device_node *np,
 				struct rockchip_clk_provider *ctx)
+=======
+EXPORT_SYMBOL_GPL(rockchip_clk_init);
+
+void rockchip_clk_of_add_provider(struct device_node *np,
+				  struct rockchip_clk_provider *ctx)
+>>>>>>> upstream/android-13
 {
 	if (of_clk_add_provider(np, of_clk_src_onecell_get,
 				&ctx->clk_data))
 		pr_err("%s: could not register clk provider\n", __func__);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(rockchip_clk_of_add_provider);
+>>>>>>> upstream/android-13
 
 void rockchip_clk_add_lookup(struct rockchip_clk_provider *ctx,
 			     struct clk *clk, unsigned int id)
@@ -414,8 +542,14 @@ void rockchip_clk_add_lookup(struct rockchip_clk_provider *ctx,
 	if (ctx->clk_data.clks && id)
 		ctx->clk_data.clks[id] = clk;
 }
+<<<<<<< HEAD
 
 void __init rockchip_clk_register_plls(struct rockchip_clk_provider *ctx,
+=======
+EXPORT_SYMBOL_GPL(rockchip_clk_add_lookup);
+
+void rockchip_clk_register_plls(struct rockchip_clk_provider *ctx,
+>>>>>>> upstream/android-13
 				struct rockchip_pll_clock *list,
 				unsigned int nr_pll, int grf_lock_offset)
 {
@@ -438,11 +572,19 @@ void __init rockchip_clk_register_plls(struct rockchip_clk_provider *ctx,
 		rockchip_clk_add_lookup(ctx, clk, list->id);
 	}
 }
+<<<<<<< HEAD
 
 void __init rockchip_clk_register_branches(
 				      struct rockchip_clk_provider *ctx,
 				      struct rockchip_clk_branch *list,
 				      unsigned int nr_clk)
+=======
+EXPORT_SYMBOL_GPL(rockchip_clk_register_plls);
+
+void rockchip_clk_register_branches(struct rockchip_clk_provider *ctx,
+				    struct rockchip_clk_branch *list,
+				    unsigned int nr_clk)
+>>>>>>> upstream/android-13
 {
 	struct clk *clk = NULL;
 	unsigned int idx;
@@ -516,7 +658,11 @@ void __init rockchip_clk_register_branches(
 				ctx->reg_base, list->muxdiv_offset,
 				list->mux_shift,
 				list->mux_width, list->mux_flags,
+<<<<<<< HEAD
 				list->div_shift, list->div_width,
+=======
+				list->div_offset, list->div_shift, list->div_width,
+>>>>>>> upstream/android-13
 				list->div_flags, list->div_table,
 				list->gate_offset, list->gate_shift,
 				list->gate_flags, flags, &ctx->lock);
@@ -571,6 +717,7 @@ void __init rockchip_clk_register_branches(
 		rockchip_clk_add_lookup(ctx, clk, list->id);
 	}
 }
+<<<<<<< HEAD
 
 void __init rockchip_clk_register_armclk(struct rockchip_clk_provider *ctx,
 			unsigned int lookup_id,
@@ -579,6 +726,17 @@ void __init rockchip_clk_register_armclk(struct rockchip_clk_provider *ctx,
 			const struct rockchip_cpuclk_reg_data *reg_data,
 			const struct rockchip_cpuclk_rate_table *rates,
 			int nrates)
+=======
+EXPORT_SYMBOL_GPL(rockchip_clk_register_branches);
+
+void rockchip_clk_register_armclk(struct rockchip_clk_provider *ctx,
+				  unsigned int lookup_id,
+				  const char *name, const char *const *parent_names,
+				  u8 num_parents,
+				  const struct rockchip_cpuclk_reg_data *reg_data,
+				  const struct rockchip_cpuclk_rate_table *rates,
+				  int nrates)
+>>>>>>> upstream/android-13
 {
 	struct clk *clk;
 
@@ -593,9 +751,16 @@ void __init rockchip_clk_register_armclk(struct rockchip_clk_provider *ctx,
 
 	rockchip_clk_add_lookup(ctx, clk, lookup_id);
 }
+<<<<<<< HEAD
 
 void __init rockchip_clk_protect_critical(const char *const clocks[],
 					  int nclocks)
+=======
+EXPORT_SYMBOL_GPL(rockchip_clk_register_armclk);
+
+void rockchip_clk_protect_critical(const char *const clocks[],
+				   int nclocks)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -603,10 +768,17 @@ void __init rockchip_clk_protect_critical(const char *const clocks[],
 	for (i = 0; i < nclocks; i++) {
 		struct clk *clk = __clk_lookup(clocks[i]);
 
+<<<<<<< HEAD
 		if (clk)
 			clk_prepare_enable(clk);
 	}
 }
+=======
+		clk_prepare_enable(clk);
+	}
+}
+EXPORT_SYMBOL_GPL(rockchip_clk_protect_critical);
+>>>>>>> upstream/android-13
 
 static void __iomem *rst_base;
 static unsigned int reg_restart;
@@ -626,10 +798,17 @@ static struct notifier_block rockchip_restart_handler = {
 	.priority = 128,
 };
 
+<<<<<<< HEAD
 void __init
 rockchip_register_restart_notifier(struct rockchip_clk_provider *ctx,
 					       unsigned int reg,
 					       void (*cb)(void))
+=======
+void
+rockchip_register_restart_notifier(struct rockchip_clk_provider *ctx,
+				   unsigned int reg,
+				   void (*cb)(void))
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -641,3 +820,7 @@ rockchip_register_restart_notifier(struct rockchip_clk_provider *ctx,
 		pr_err("%s: cannot register restart handler, %d\n",
 		       __func__, ret);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(rockchip_register_restart_notifier);
+>>>>>>> upstream/android-13

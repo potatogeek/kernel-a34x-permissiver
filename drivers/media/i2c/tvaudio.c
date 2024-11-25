@@ -538,7 +538,11 @@ static int tda9840_checkit(struct CHIPSTATE *chip)
 #define TDA9855_INT	0    /* Selects inputs LOR and LOL.  (internal) */
 
 /* Unique to TDA9850:  */
+<<<<<<< HEAD
 /* lower 4 bits contol SAP noise threshold, over which SAP turns off
+=======
+/* lower 4 bits control SAP noise threshold, over which SAP turns off
+>>>>>>> upstream/android-13
  * set to values of 0x00 through 0x0f for SAP1 through SAP16 */
 
 
@@ -546,7 +550,11 @@ static int tda9840_checkit(struct CHIPSTATE *chip)
 /* Common to TDA9855 and TDA9850: */
 #define TDA985x_SAP	3<<6 /* Selects SAP output, mute if not received */
 #define TDA985x_MONOSAP	2<<6 /* Selects Mono on left, SAP on right */
+<<<<<<< HEAD
 #define TDA985x_STEREO	1<<6 /* Selects Stereo ouput, mono if not received */
+=======
+#define TDA985x_STEREO	1<<6 /* Selects Stereo output, mono if not received */
+>>>>>>> upstream/android-13
 #define TDA985x_MONO	0    /* Forces Mono output */
 #define TDA985x_LMU	1<<3 /* Mute (LOR/LOL for 9855, OUTL/OUTR for 9850) */
 
@@ -1981,7 +1989,11 @@ static int tvaudio_probe(struct i2c_client *client, const struct i2c_device_id *
 
 	/* fill required data structures */
 	if (!id)
+<<<<<<< HEAD
 		strlcpy(client->name, desc->name, I2C_NAME_SIZE);
+=======
+		strscpy(client->name, desc->name, I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 	chip->desc = desc;
 	chip->shadow.count = desc->registers+1;
 	chip->prevmode = -1;

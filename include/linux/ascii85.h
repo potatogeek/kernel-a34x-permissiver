@@ -8,7 +8,12 @@
 #ifndef _ASCII85_H_
 #define _ASCII85_H_
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
+=======
+#include <linux/math.h>
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 #define ASCII85_BUFSZ 6
 

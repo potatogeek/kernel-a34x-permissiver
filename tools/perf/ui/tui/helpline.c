@@ -3,8 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+<<<<<<< HEAD
 
 #include "../../util/debug.h"
+=======
+#include <linux/kernel.h>
+#include <linux/string.h>
+
+>>>>>>> upstream/android-13
 #include "../helpline.h"
 #include "../ui.h"
 #include "../libslang.h"

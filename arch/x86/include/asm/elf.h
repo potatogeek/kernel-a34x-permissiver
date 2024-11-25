@@ -10,6 +10,10 @@
 #include <asm/ptrace.h>
 #include <asm/user.h>
 #include <asm/auxvec.h>
+<<<<<<< HEAD
+=======
+#include <asm/fsgsbase.h>
+>>>>>>> upstream/android-13
 
 typedef unsigned long elf_greg_t;
 
@@ -20,8 +24,11 @@ typedef struct user_i387_struct elf_fpregset_t;
 
 #ifdef __i386__
 
+<<<<<<< HEAD
 typedef struct user_fxsr_struct elf_fpxregset_t;
 
+=======
+>>>>>>> upstream/android-13
 #define R_386_NONE	0
 #define R_386_32	1
 #define R_386_PC32	2
@@ -62,8 +69,12 @@ typedef struct user_fxsr_struct elf_fpxregset_t;
 #define R_X86_64_PC16		13	/* 16 bit sign extended pc relative */
 #define R_X86_64_8		14	/* Direct 8 bit sign extended  */
 #define R_X86_64_PC8		15	/* 8 bit sign extended pc relative */
+<<<<<<< HEAD
 
 #define R_X86_64_NUM		16
+=======
+#define R_X86_64_PC64		24	/* Place relative 64-bit signed */
+>>>>>>> upstream/android-13
 
 /*
  * These are used to set parameters in the core dumps.
@@ -188,8 +199,14 @@ static inline void elf_common_init(struct thread_struct *t,
 #define	COMPAT_ELF_PLAT_INIT(regs, load_addr)		\
 	elf_common_init(&current->thread, regs, __USER_DS)
 
+<<<<<<< HEAD
 void compat_start_thread(struct pt_regs *regs, u32 new_ip, u32 new_sp);
 #define compat_start_thread compat_start_thread
+=======
+void compat_start_thread(struct pt_regs *regs, u32 new_ip, u32 new_sp, bool x32);
+#define COMPAT_START_THREAD(ex, regs, new_ip, new_sp)	\
+	compat_start_thread(regs, new_ip, new_sp, ex->e_machine == EM_X86_64)
+>>>>>>> upstream/android-13
 
 void set_personality_ia32(bool);
 #define COMPAT_SET_PERSONALITY(ex)			\
@@ -205,7 +222,10 @@ void set_personality_ia32(bool);
 
 #define ELF_CORE_COPY_REGS(pr_reg, regs)			\
 do {								\
+<<<<<<< HEAD
 	unsigned long base;					\
+=======
+>>>>>>> upstream/android-13
 	unsigned v;						\
 	(pr_reg)[0] = (regs)->r15;				\
 	(pr_reg)[1] = (regs)->r14;				\
@@ -228,8 +248,13 @@ do {								\
 	(pr_reg)[18] = (regs)->flags;				\
 	(pr_reg)[19] = (regs)->sp;				\
 	(pr_reg)[20] = (regs)->ss;				\
+<<<<<<< HEAD
 	rdmsrl(MSR_FS_BASE, base); (pr_reg)[21] = base;		\
 	rdmsrl(MSR_KERNEL_GS_BASE, base); (pr_reg)[22] = base;	\
+=======
+	(pr_reg)[21] = x86_fsbase_read_cpu();			\
+	(pr_reg)[22] = x86_gsbase_read_cpu_inactive();		\
+>>>>>>> upstream/android-13
 	asm("movl %%ds,%0" : "=r" (v)); (pr_reg)[23] = v;	\
 	asm("movl %%es,%0" : "=r" (v)); (pr_reg)[24] = v;	\
 	asm("movl %%fs,%0" : "=r" (v)); (pr_reg)[25] = v;	\
@@ -282,9 +307,35 @@ extern u32 elf_hwcap2;
 /*
  * An executable for which elf_read_implies_exec() returns TRUE will
  * have the READ_IMPLIES_EXEC personality flag set automatically.
+<<<<<<< HEAD
  */
 #define elf_read_implies_exec(ex, executable_stack)	\
 	(executable_stack != EXSTACK_DISABLE_X)
+=======
+ *
+ * The decision process for determining the results are:
+ *
+ *                 CPU: | lacks NX*  | has NX, ia32     | has NX, x86_64 |
+ * ELF:                 |            |                  |                |
+ * ---------------------|------------|------------------|----------------|
+ * missing PT_GNU_STACK | exec-all   | exec-all         | exec-none      |
+ * PT_GNU_STACK == RWX  | exec-stack | exec-stack       | exec-stack     |
+ * PT_GNU_STACK == RW   | exec-none  | exec-none        | exec-none      |
+ *
+ *  exec-all  : all PROT_READ user mappings are executable, except when
+ *              backed by files on a noexec-filesystem.
+ *  exec-none : only PROT_EXEC user mappings are executable.
+ *  exec-stack: only the stack and PROT_EXEC user mappings are executable.
+ *
+ *  *this column has no architectural effect: NX markings are ignored by
+ *   hardware, but may have behavioral effects when "wants X" collides with
+ *   "cannot be X" constraints in memory permission flags, as in
+ *   https://lkml.kernel.org/r/20190418055759.GA3155@mellanox.com
+ *
+ */
+#define elf_read_implies_exec(ex, executable_stack)	\
+	(mmap_is_ia32() && executable_stack == EXSTACK_DEFAULT)
+>>>>>>> upstream/android-13
 
 struct task_struct;
 
@@ -294,6 +345,10 @@ do {									\
 		NEW_AUX_ENT(AT_SYSINFO,	VDSO_ENTRY);			\
 		NEW_AUX_ENT(AT_SYSINFO_EHDR, VDSO_CURRENT_BASE);	\
 	}								\
+<<<<<<< HEAD
+=======
+	NEW_AUX_ENT(AT_MINSIGSTKSZ, get_sigframe_size());		\
+>>>>>>> upstream/android-13
 } while (0)
 
 /*
@@ -310,6 +365,10 @@ extern unsigned long task_size_32bit(void);
 extern unsigned long task_size_64bit(int full_addr_space);
 extern unsigned long get_mmap_base(int is_legacy);
 extern bool mmap_address_hint_valid(unsigned long addr, unsigned long len);
+<<<<<<< HEAD
+=======
+extern unsigned long get_sigframe_size(void);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_32
 
@@ -331,6 +390,10 @@ do {									\
 	if (vdso64_enabled)						\
 		NEW_AUX_ENT(AT_SYSINFO_EHDR,				\
 			    (unsigned long __force)current->mm->context.vdso); \
+<<<<<<< HEAD
+=======
+	NEW_AUX_ENT(AT_MINSIGSTKSZ, get_sigframe_size());		\
+>>>>>>> upstream/android-13
 } while (0)
 
 /* As a historical oddity, the x32 and x86_64 vDSOs are controlled together. */
@@ -339,14 +402,24 @@ do {									\
 	if (vdso64_enabled)						\
 		NEW_AUX_ENT(AT_SYSINFO_EHDR,				\
 			    (unsigned long __force)current->mm->context.vdso); \
+<<<<<<< HEAD
+=======
+	NEW_AUX_ENT(AT_MINSIGSTKSZ, get_sigframe_size());		\
+>>>>>>> upstream/android-13
 } while (0)
 
 #define AT_SYSINFO		32
 
 #define COMPAT_ARCH_DLINFO						\
+<<<<<<< HEAD
 if (test_thread_flag(TIF_X32))						\
 	ARCH_DLINFO_X32;						\
 else									\
+=======
+if (exec->e_machine == EM_X86_64)					\
+	ARCH_DLINFO_X32;						\
+else if (IS_ENABLED(CONFIG_IA32_EMULATION))				\
+>>>>>>> upstream/android-13
 	ARCH_DLINFO_IA32
 
 #define COMPAT_ELF_ET_DYN_BASE	(TASK_UNMAPPED_BASE + 0x1000000)
@@ -365,8 +438,17 @@ struct linux_binprm;
 extern int arch_setup_additional_pages(struct linux_binprm *bprm,
 				       int uses_interp);
 extern int compat_arch_setup_additional_pages(struct linux_binprm *bprm,
+<<<<<<< HEAD
 					      int uses_interp);
 #define compat_arch_setup_additional_pages compat_arch_setup_additional_pages
+=======
+					      int uses_interp, bool x32);
+#define COMPAT_ARCH_SETUP_ADDITIONAL_PAGES(bprm, ex, interpreter)	\
+	compat_arch_setup_additional_pages(bprm, interpreter,		\
+					   (ex->e_machine == EM_X86_64))
+
+extern bool arch_syscall_is_vdso_sigreturn(struct pt_regs *regs);
+>>>>>>> upstream/android-13
 
 /* Do not change the values. See get_align_mask() */
 enum align_flags {

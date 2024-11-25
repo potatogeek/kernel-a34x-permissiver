@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -121,7 +128,11 @@ qed_sp_fcoe_func_start(struct qed_hwfn *p_hwfn,
 	struct qed_cxt_info cxt_info;
 	u32 dummy_cid;
 	int rc = 0;
+<<<<<<< HEAD
 	u16 tmp;
+=======
+	__le16 tmp;
+>>>>>>> upstream/android-13
 	u8 i;
 
 	/* Get SPQ entry */
@@ -167,6 +178,11 @@ qed_sp_fcoe_func_start(struct qed_hwfn *p_hwfn,
 		goto err;
 	}
 	p_cxt = cxt_info.p_cxt;
+<<<<<<< HEAD
+=======
+	memset(p_cxt, 0, sizeof(*p_cxt));
+
+>>>>>>> upstream/android-13
 	SET_FIELD(p_cxt->tstorm_ag_context.flags3,
 		  E4_TSTORM_FCOE_CONN_AG_CTX_DUMMY_TIMER_CF_EN, 1);
 
@@ -186,6 +202,7 @@ qed_sp_fcoe_func_start(struct qed_hwfn *p_hwfn,
 	tmp = cpu_to_le16(fcoe_pf_params->cmdq_num_entries);
 	p_data->q_params.cmdq_num_entries = tmp;
 
+<<<<<<< HEAD
 	tmp = fcoe_pf_params->num_cqs;
 	p_data->q_params.num_queues = (u8)tmp;
 
@@ -197,6 +214,15 @@ qed_sp_fcoe_func_start(struct qed_hwfn *p_hwfn,
 
 		igu_sb_id = qed_get_igu_sb_id(p_hwfn, i);
 		tmp = cpu_to_le16(igu_sb_id);
+=======
+	p_data->q_params.num_queues = fcoe_pf_params->num_cqs;
+
+	tmp = (__force __le16)p_hwfn->hw_info.resc_start[QED_CMDQS_CQS];
+	p_data->q_params.queue_relative_offset = (__force u8)tmp;
+
+	for (i = 0; i < fcoe_pf_params->num_cqs; i++) {
+		tmp = cpu_to_le16(qed_get_igu_sb_id(p_hwfn, i));
+>>>>>>> upstream/android-13
 		p_data->q_params.cq_cmdq_sb_num_arr[i] = tmp;
 	}
 
@@ -209,21 +235,37 @@ qed_sp_fcoe_func_start(struct qed_hwfn *p_hwfn,
 		       fcoe_pf_params->bdq_pbl_base_addr[BDQ_ID_RQ]);
 	p_data->q_params.bdq_pbl_num_entries[BDQ_ID_RQ] =
 	    fcoe_pf_params->bdq_pbl_num_entries[BDQ_ID_RQ];
+<<<<<<< HEAD
 	tmp = fcoe_pf_params->bdq_xoff_threshold[BDQ_ID_RQ];
 	p_data->q_params.bdq_xoff_threshold[BDQ_ID_RQ] = cpu_to_le16(tmp);
 	tmp = fcoe_pf_params->bdq_xon_threshold[BDQ_ID_RQ];
 	p_data->q_params.bdq_xon_threshold[BDQ_ID_RQ] = cpu_to_le16(tmp);
+=======
+	tmp = cpu_to_le16(fcoe_pf_params->bdq_xoff_threshold[BDQ_ID_RQ]);
+	p_data->q_params.bdq_xoff_threshold[BDQ_ID_RQ] = tmp;
+	tmp = cpu_to_le16(fcoe_pf_params->bdq_xon_threshold[BDQ_ID_RQ]);
+	p_data->q_params.bdq_xon_threshold[BDQ_ID_RQ] = tmp;
+>>>>>>> upstream/android-13
 
 	DMA_REGPAIR_LE(p_data->q_params.bdq_pbl_base_address[BDQ_ID_IMM_DATA],
 		       fcoe_pf_params->bdq_pbl_base_addr[BDQ_ID_IMM_DATA]);
 	p_data->q_params.bdq_pbl_num_entries[BDQ_ID_IMM_DATA] =
 	    fcoe_pf_params->bdq_pbl_num_entries[BDQ_ID_IMM_DATA];
+<<<<<<< HEAD
 	tmp = fcoe_pf_params->bdq_xoff_threshold[BDQ_ID_IMM_DATA];
 	p_data->q_params.bdq_xoff_threshold[BDQ_ID_IMM_DATA] = cpu_to_le16(tmp);
 	tmp = fcoe_pf_params->bdq_xon_threshold[BDQ_ID_IMM_DATA];
 	p_data->q_params.bdq_xon_threshold[BDQ_ID_IMM_DATA] = cpu_to_le16(tmp);
 	tmp = fcoe_pf_params->rq_buffer_size;
 	p_data->q_params.rq_buffer_size = cpu_to_le16(tmp);
+=======
+	tmp = cpu_to_le16(fcoe_pf_params->bdq_xoff_threshold[BDQ_ID_IMM_DATA]);
+	p_data->q_params.bdq_xoff_threshold[BDQ_ID_IMM_DATA] = tmp;
+	tmp = cpu_to_le16(fcoe_pf_params->bdq_xon_threshold[BDQ_ID_IMM_DATA]);
+	p_data->q_params.bdq_xon_threshold[BDQ_ID_IMM_DATA] = tmp;
+	tmp = cpu_to_le16(fcoe_pf_params->rq_buffer_size);
+	p_data->q_params.rq_buffer_size = tmp;
+>>>>>>> upstream/android-13
 
 	if (fcoe_pf_params->is_target) {
 		SET_FIELD(p_data->q_params.q_validity,
@@ -257,7 +299,12 @@ qed_sp_fcoe_conn_offload(struct qed_hwfn *p_hwfn,
 	struct fcoe_conn_offload_ramrod_data *p_data;
 	struct qed_spq_entry *p_ent = NULL;
 	struct qed_sp_init_data init_data;
+<<<<<<< HEAD
 	u16 physical_q0, tmp;
+=======
+	u16 physical_q0;
+	__le16 tmp;
+>>>>>>> upstream/android-13
 	int rc;
 
 	/* Get SPQ entry */
@@ -278,7 +325,11 @@ qed_sp_fcoe_conn_offload(struct qed_hwfn *p_hwfn,
 
 	/* Transmission PQ is the first of the PF */
 	physical_q0 = qed_get_cm_pq_idx(p_hwfn, PQ_FLAGS_OFLD);
+<<<<<<< HEAD
 	p_conn->physical_q0 = cpu_to_le16(physical_q0);
+=======
+	p_conn->physical_q0 = physical_q0;
+>>>>>>> upstream/android-13
 	p_data->physical_q0 = cpu_to_le16(physical_q0);
 
 	p_data->conn_id = cpu_to_le16(p_conn->conn_id);
@@ -577,8 +628,13 @@ int qed_fcoe_alloc(struct qed_hwfn *p_hwfn)
 void qed_fcoe_setup(struct qed_hwfn *p_hwfn)
 {
 	struct e4_fcoe_task_context *p_task_ctx = NULL;
+<<<<<<< HEAD
 	int rc;
 	u32 i;
+=======
+	u32 i, lc;
+	int rc;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&p_hwfn->p_fcoe_info->lock);
 	for (i = 0; i < p_hwfn->pf_params.fcoe_pf_params.num_tasks; i++) {
@@ -589,10 +645,22 @@ void qed_fcoe_setup(struct qed_hwfn *p_hwfn)
 			continue;
 
 		memset(p_task_ctx, 0, sizeof(struct e4_fcoe_task_context));
+<<<<<<< HEAD
 		SET_FIELD(p_task_ctx->timer_context.logical_client_0,
 			  TIMERS_CONTEXT_VALIDLC0, 1);
 		SET_FIELD(p_task_ctx->timer_context.logical_client_1,
 			  TIMERS_CONTEXT_VALIDLC1, 1);
+=======
+
+		lc = 0;
+		SET_FIELD(lc, TIMERS_CONTEXT_VALIDLC0, 1);
+		p_task_ctx->timer_context.logical_client_0 = cpu_to_le32(lc);
+
+		lc = 0;
+		SET_FIELD(lc, TIMERS_CONTEXT_VALIDLC1, 1);
+		p_task_ctx->timer_context.logical_client_1 = cpu_to_le32(lc);
+
+>>>>>>> upstream/android-13
 		SET_FIELD(p_task_ctx->tstorm_ag_context.flags0,
 			  E4_TSTORM_FCOE_TASK_AG_CTX_CONNECTION_TYPE, 1);
 	}
@@ -745,7 +813,11 @@ struct qed_hash_fcoe_con {
 static int qed_fill_fcoe_dev_info(struct qed_dev *cdev,
 				  struct qed_dev_fcoe_info *info)
 {
+<<<<<<< HEAD
 	struct qed_hwfn *hwfn = QED_LEADING_HWFN(cdev);
+=======
+	struct qed_hwfn *hwfn = QED_AFFIN_HWFN(cdev);
+>>>>>>> upstream/android-13
 	int rc;
 
 	memset(info, 0, sizeof(*info));
@@ -806,15 +878,26 @@ static int qed_fcoe_stop(struct qed_dev *cdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	p_ptt = qed_ptt_acquire(QED_LEADING_HWFN(cdev));
+=======
+	p_ptt = qed_ptt_acquire(QED_AFFIN_HWFN(cdev));
+>>>>>>> upstream/android-13
 	if (!p_ptt)
 		return -EAGAIN;
 
 	/* Stop the fcoe */
+<<<<<<< HEAD
 	rc = qed_sp_fcoe_func_stop(QED_LEADING_HWFN(cdev), p_ptt,
 				   QED_SPQ_MODE_EBLOCK, NULL);
 	cdev->flags &= ~QED_FLAG_STORAGE_STARTED;
 	qed_ptt_release(QED_LEADING_HWFN(cdev), p_ptt);
+=======
+	rc = qed_sp_fcoe_func_stop(QED_AFFIN_HWFN(cdev), p_ptt,
+				   QED_SPQ_MODE_EBLOCK, NULL);
+	cdev->flags &= ~QED_FLAG_STORAGE_STARTED;
+	qed_ptt_release(QED_AFFIN_HWFN(cdev), p_ptt);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -828,8 +911,13 @@ static int qed_fcoe_start(struct qed_dev *cdev, struct qed_fcoe_tid *tasks)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	rc = qed_sp_fcoe_func_start(QED_LEADING_HWFN(cdev),
 				    QED_SPQ_MODE_EBLOCK, NULL);
+=======
+	rc = qed_sp_fcoe_func_start(QED_AFFIN_HWFN(cdev), QED_SPQ_MODE_EBLOCK,
+				    NULL);
+>>>>>>> upstream/android-13
 	if (rc) {
 		DP_NOTICE(cdev, "Failed to start fcoe\n");
 		return rc;
@@ -849,7 +937,11 @@ static int qed_fcoe_start(struct qed_dev *cdev, struct qed_fcoe_tid *tasks)
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		rc = qed_cxt_get_tid_mem_info(QED_LEADING_HWFN(cdev), tid_info);
+=======
+		rc = qed_cxt_get_tid_mem_info(QED_AFFIN_HWFN(cdev), tid_info);
+>>>>>>> upstream/android-13
 		if (rc) {
 			DP_NOTICE(cdev, "Failed to gather task information\n");
 			qed_fcoe_stop(cdev);
@@ -884,7 +976,11 @@ static int qed_fcoe_acquire_conn(struct qed_dev *cdev,
 	}
 
 	/* Acquire the connection */
+<<<<<<< HEAD
 	rc = qed_fcoe_acquire_connection(QED_LEADING_HWFN(cdev), NULL,
+=======
+	rc = qed_fcoe_acquire_connection(QED_AFFIN_HWFN(cdev), NULL,
+>>>>>>> upstream/android-13
 					 &hash_con->con);
 	if (rc) {
 		DP_NOTICE(cdev, "Failed to acquire Connection\n");
@@ -898,7 +994,11 @@ static int qed_fcoe_acquire_conn(struct qed_dev *cdev,
 	hash_add(cdev->connections, &hash_con->node, *handle);
 
 	if (p_doorbell)
+<<<<<<< HEAD
 		*p_doorbell = qed_fcoe_get_db_addr(QED_LEADING_HWFN(cdev),
+=======
+		*p_doorbell = qed_fcoe_get_db_addr(QED_AFFIN_HWFN(cdev),
+>>>>>>> upstream/android-13
 						   *handle);
 
 	return 0;
@@ -916,7 +1016,11 @@ static int qed_fcoe_release_conn(struct qed_dev *cdev, u32 handle)
 	}
 
 	hlist_del(&hash_con->node);
+<<<<<<< HEAD
 	qed_fcoe_release_connection(QED_LEADING_HWFN(cdev), hash_con->con);
+=======
+	qed_fcoe_release_connection(QED_AFFIN_HWFN(cdev), hash_con->con);
+>>>>>>> upstream/android-13
 	kfree(hash_con);
 
 	return 0;
@@ -971,7 +1075,11 @@ static int qed_fcoe_offload_conn(struct qed_dev *cdev,
 	con->d_id.addr_mid = conn_info->d_id.addr_mid;
 	con->d_id.addr_lo = conn_info->d_id.addr_lo;
 
+<<<<<<< HEAD
 	return qed_sp_fcoe_conn_offload(QED_LEADING_HWFN(cdev), con,
+=======
+	return qed_sp_fcoe_conn_offload(QED_AFFIN_HWFN(cdev), con,
+>>>>>>> upstream/android-13
 					QED_SPQ_MODE_EBLOCK, NULL);
 }
 
@@ -992,13 +1100,21 @@ static int qed_fcoe_destroy_conn(struct qed_dev *cdev,
 	con = hash_con->con;
 	con->terminate_params = terminate_params;
 
+<<<<<<< HEAD
 	return qed_sp_fcoe_conn_destroy(QED_LEADING_HWFN(cdev), con,
+=======
+	return qed_sp_fcoe_conn_destroy(QED_AFFIN_HWFN(cdev), con,
+>>>>>>> upstream/android-13
 					QED_SPQ_MODE_EBLOCK, NULL);
 }
 
 static int qed_fcoe_stats(struct qed_dev *cdev, struct qed_fcoe_stats *stats)
 {
+<<<<<<< HEAD
 	return qed_fcoe_get_stats(QED_LEADING_HWFN(cdev), stats);
+=======
+	return qed_fcoe_get_stats(QED_AFFIN_HWFN(cdev), stats);
+>>>>>>> upstream/android-13
 }
 
 void qed_get_protocol_stats_fcoe(struct qed_dev *cdev,

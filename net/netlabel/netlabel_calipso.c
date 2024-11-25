@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NetLabel CALIPSO/IPv6 Support
  *
@@ -7,11 +11,15 @@
  *
  * Authors: Paul Moore <paul@paul-moore.com>
  *          Huw Davies <huw@codeweavers.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* (c) Copyright Hewlett-Packard Development Company, L.P., 2006
  * (c) Copyright Huw Davies <huw@codeweavers.com>, 2015
+<<<<<<< HEAD
  *
  * This program is free software;  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program;  if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -119,7 +129,11 @@ static int netlbl_calipso_add(struct sk_buff *skb, struct genl_info *info)
 	    !info->attrs[NLBL_CALIPSO_A_MTYPE])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	netlbl_netlink_auditinfo(skb, &audit_info);
+=======
+	netlbl_netlink_auditinfo(&audit_info);
+>>>>>>> upstream/android-13
 	switch (nla_get_u32(info->attrs[NLBL_CALIPSO_A_MTYPE])) {
 	case CALIPSO_MAP_PASS:
 		ret_val = netlbl_calipso_add_pass(info, &audit_info);
@@ -301,7 +315,11 @@ static int netlbl_calipso_remove(struct sk_buff *skb, struct genl_info *info)
 	if (!info->attrs[NLBL_CALIPSO_A_DOI])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	netlbl_netlink_auditinfo(skb, &audit_info);
+=======
+	netlbl_netlink_auditinfo(&audit_info);
+>>>>>>> upstream/android-13
 	cb_arg.doi = nla_get_u32(info->attrs[NLBL_CALIPSO_A_DOI]);
 	cb_arg.audit_info = &audit_info;
 	ret_val = netlbl_domhsh_walk(&skip_bkt, &skip_chain,
@@ -318,32 +336,55 @@ static int netlbl_calipso_remove(struct sk_buff *skb, struct genl_info *info)
 /* NetLabel Generic NETLINK Command Definitions
  */
 
+<<<<<<< HEAD
 static const struct genl_ops netlbl_calipso_ops[] = {
 	{
 	.cmd = NLBL_CALIPSO_C_ADD,
 	.flags = GENL_ADMIN_PERM,
 	.policy = calipso_genl_policy,
+=======
+static const struct genl_small_ops netlbl_calipso_ops[] = {
+	{
+	.cmd = NLBL_CALIPSO_C_ADD,
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = GENL_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	.doit = netlbl_calipso_add,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_CALIPSO_C_REMOVE,
+<<<<<<< HEAD
 	.flags = GENL_ADMIN_PERM,
 	.policy = calipso_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = GENL_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	.doit = netlbl_calipso_remove,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_CALIPSO_C_LIST,
+<<<<<<< HEAD
 	.flags = 0,
 	.policy = calipso_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = 0,
+>>>>>>> upstream/android-13
 	.doit = netlbl_calipso_list,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_CALIPSO_C_LISTALL,
+<<<<<<< HEAD
 	.flags = 0,
 	.policy = calipso_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = 0,
+>>>>>>> upstream/android-13
 	.doit = NULL,
 	.dumpit = netlbl_calipso_listall,
 	},
@@ -354,9 +395,16 @@ static struct genl_family netlbl_calipso_gnl_family __ro_after_init = {
 	.name = NETLBL_NLTYPE_CALIPSO_NAME,
 	.version = NETLBL_PROTO_VERSION,
 	.maxattr = NLBL_CALIPSO_A_MAX,
+<<<<<<< HEAD
 	.module = THIS_MODULE,
 	.ops = netlbl_calipso_ops,
 	.n_ops = ARRAY_SIZE(netlbl_calipso_ops),
+=======
+	.policy = calipso_genl_policy,
+	.module = THIS_MODULE,
+	.small_ops = netlbl_calipso_ops,
+	.n_small_ops = ARRAY_SIZE(netlbl_calipso_ops),
+>>>>>>> upstream/android-13
 };
 
 /* NetLabel Generic NETLINK Protocol Functions
@@ -379,6 +427,10 @@ static const struct netlbl_calipso_ops *calipso_ops;
 
 /**
  * netlbl_calipso_ops_register - Register the CALIPSO operations
+<<<<<<< HEAD
+=======
+ * @ops: ops to register
+>>>>>>> upstream/android-13
  *
  * Description:
  * Register the CALIPSO packet engine operations.
@@ -439,7 +491,11 @@ void calipso_doi_free(struct calipso_doi *doi_def)
 /**
  * calipso_doi_remove - Remove an existing DOI from the CALIPSO protocol engine
  * @doi: the DOI value
+<<<<<<< HEAD
  * @audit_secid: the LSM secid to use in the audit message
+=======
+ * @audit_info: NetLabel audit information
+>>>>>>> upstream/android-13
  *
  * Description:
  * Removes a DOI definition from the CALIPSO engine.  The NetLabel routines will
@@ -608,7 +664,11 @@ int calipso_req_setattr(struct request_sock *req,
 
 /**
  * calipso_req_delattr - Delete the CALIPSO option from a request socket
+<<<<<<< HEAD
  * @reg: the request socket
+=======
+ * @req: the request socket
+>>>>>>> upstream/android-13
  *
  * Description:
  * Removes the CALIPSO option from a request socket, if present.

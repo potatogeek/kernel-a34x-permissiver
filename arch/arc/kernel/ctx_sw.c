@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+ *
+>>>>>>> upstream/android-13
  * Vineetg: Aug 2009
  *  -"C" version of lowest level context switch asm macro called by schedular
  *   gcc doesn't generate the dward CFI info for hand written asm, hence can't
@@ -17,9 +24,12 @@
 #include <asm/asm-offsets.h>
 #include <linux/sched.h>
 #include <linux/sched/debug.h>
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 #include <plat/ctop.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #define KSP_WORD_OFF 	((TASK_THREAD + THREAD_KSP) / 4)
 
@@ -71,6 +81,7 @@ __switch_to(struct task_struct *prev_task, struct task_struct *next_task)
 #ifndef CONFIG_SMP
 		"st  %2, [@_current_task]	\n\t"
 #else
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 		"lr   r24, [%4]		\n\t"
 #ifndef CONFIG_EZNPS_MTM_EXT
@@ -81,6 +92,11 @@ __switch_to(struct task_struct *prev_task, struct task_struct *next_task)
 		"lsr  r24, r24, 8		\n\t"
 		"bmsk r24, r24, 7		\n\t"
 #endif
+=======
+		"lr   r24, [identity]		\n\t"
+		"lsr  r24, r24, 8		\n\t"
+		"bmsk r24, r24, 7		\n\t"
+>>>>>>> upstream/android-13
 		"add2 r24, @_current_task, r24	\n\t"
 		"st   %2,  [r24]		\n\t"
 #endif
@@ -118,9 +134,12 @@ __switch_to(struct task_struct *prev_task, struct task_struct *next_task)
 
 		: "=r"(tmp)
 		: "n"(KSP_WORD_OFF), "r"(next), "r"(prev)
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 		, "i"(CTOP_AUX_LOGIC_GLOBAL_ID)
 #endif
+=======
+>>>>>>> upstream/android-13
 		: "blink"
 	);
 

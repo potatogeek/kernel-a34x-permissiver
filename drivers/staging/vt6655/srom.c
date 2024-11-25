@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: srom.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose:Implement functions to access eeprom
  *
  * Author: Jerry Chen

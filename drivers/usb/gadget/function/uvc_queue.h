@@ -34,13 +34,22 @@ struct uvc_buffer {
 
 	enum uvc_buffer_state state;
 	void *mem;
+<<<<<<< HEAD
+=======
+	struct sg_table *sgt;
+	struct scatterlist *sg;
+	unsigned int offset;
+>>>>>>> upstream/android-13
 	unsigned int length;
 	unsigned int bytesused;
 };
 
 #define UVC_QUEUE_DISCONNECTED		(1 << 0)
 #define UVC_QUEUE_DROP_INCOMPLETE	(1 << 1)
+<<<<<<< HEAD
 #define UVC_QUEUE_PAUSED		(1 << 2)
+=======
+>>>>>>> upstream/android-13
 
 struct uvc_video_queue {
 	struct vb2_queue queue;
@@ -50,6 +59,11 @@ struct uvc_video_queue {
 
 	unsigned int buf_used;
 
+<<<<<<< HEAD
+=======
+	bool use_sg;
+
+>>>>>>> upstream/android-13
 	spinlock_t irqlock;	/* Protects flags and irqqueue */
 	struct list_head irqqueue;
 };
@@ -59,7 +73,11 @@ static inline int uvc_queue_streaming(struct uvc_video_queue *queue)
 	return vb2_is_streaming(&queue->queue);
 }
 
+<<<<<<< HEAD
 int uvcg_queue_init(struct uvc_video_queue *queue, enum v4l2_buf_type type,
+=======
+int uvcg_queue_init(struct uvc_video_queue *queue, struct device *dev, enum v4l2_buf_type type,
+>>>>>>> upstream/android-13
 		    struct mutex *lock);
 
 void uvcg_free_buffers(struct uvc_video_queue *queue);

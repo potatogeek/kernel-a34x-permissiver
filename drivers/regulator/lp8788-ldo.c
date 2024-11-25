@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI LP8788 MFD - ldo regulator driver
  *
  * Copyright 2012 Texas Instruments
  *
  * Author: Milo(Woogyom) Kim <milo.kim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -186,7 +193,11 @@ static const struct regulator_ops lp8788_ldo_voltage_fixed_ops = {
 	.enable_time = lp8788_ldo_enable_time,
 };
 
+<<<<<<< HEAD
 static struct regulator_desc lp8788_dldo_desc[] = {
+=======
+static const struct regulator_desc lp8788_dldo_desc[] = {
+>>>>>>> upstream/android-13
 	{
 		.name = "dldo1",
 		.id = DLDO1,
@@ -343,7 +354,11 @@ static struct regulator_desc lp8788_dldo_desc[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct regulator_desc lp8788_aldo_desc[] = {
+=======
+static const struct regulator_desc lp8788_aldo_desc[] = {
+>>>>>>> upstream/android-13
 	{
 		.name = "aldo1",
 		.id = ALDO1,
@@ -468,7 +483,11 @@ static int lp8788_config_ldo_enable_mode(struct platform_device *pdev,
 {
 	struct lp8788 *lp = ldo->lp;
 	enum lp8788_ext_ldo_en_id enable_id;
+<<<<<<< HEAD
 	u8 en_mask[] = {
+=======
+	static const u8 en_mask[] = {
+>>>>>>> upstream/android-13
 		[EN_ALDO1]   = LP8788_EN_SEL_ALDO1_M,
 		[EN_ALDO234] = LP8788_EN_SEL_ALDO234_M,
 		[EN_ALDO5]   = LP8788_EN_SEL_ALDO5_M,
@@ -501,11 +520,24 @@ static int lp8788_config_ldo_enable_mode(struct platform_device *pdev,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	/* FIXME: check default mode for GPIO here: high or low? */
 	ldo->ena_gpiod = devm_gpiod_get_index_optional(&pdev->dev,
 						       "enable",
 						       enable_id,
 						       GPIOD_OUT_HIGH);
+=======
+	/*
+	 * Do not use devm* here: the regulator core takes over the
+	 * lifecycle management of the GPIO descriptor.
+	 * FIXME: check default mode for GPIO here: high or low?
+	 */
+	ldo->ena_gpiod = gpiod_get_index_optional(&pdev->dev,
+					       "enable",
+					       enable_id,
+					       GPIOD_OUT_HIGH |
+					       GPIOD_FLAGS_BIT_NONEXCLUSIVE);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ldo->ena_gpiod))
 		return PTR_ERR(ldo->ena_gpiod);
 

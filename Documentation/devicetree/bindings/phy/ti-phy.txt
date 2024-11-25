@@ -27,6 +27,7 @@ omap_control_usb: omap-control-usb@4a002300 {
         reg-names = "otghs_control";
 };
 
+<<<<<<< HEAD
 OMAP USB2 PHY
 
 Required properties:
@@ -63,6 +64,8 @@ usb2phy@4a0ad080 {
 	clock-names = "wkupclk", "refclk";
 };
 
+=======
+>>>>>>> upstream/android-13
 TI PIPE3 PHY
 
 Required properties:

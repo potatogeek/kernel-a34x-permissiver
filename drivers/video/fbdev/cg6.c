@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* cg6.c: CGSIX (GX, GXplus, TGX) frame buffer driver
  *
  * Copyright (C) 2003, 2006 David S. Miller (davem@davemloft.net)
@@ -43,7 +47,11 @@ static int cg6_pan_display(struct fb_var_screeninfo *, struct fb_info *);
  *  Frame buffer operations
  */
 
+<<<<<<< HEAD
 static struct fb_ops cg6_ops = {
+=======
+static const struct fb_ops cg6_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= cg6_setcolreg,
 	.fb_blank		= cg6_blank,
@@ -510,7 +518,11 @@ static int cg6_setcolreg(unsigned regno,
 /**
  *	cg6_blank - Blanks the display.
  *
+<<<<<<< HEAD
  *	@blank_mode: the blank mode we want.
+=======
+ *	@blank: the blank mode we want.
+>>>>>>> upstream/android-13
  *	@info: frame buffer structure that represents a single frame buffer
  */
 static int cg6_blank(int blank, struct fb_info *info)

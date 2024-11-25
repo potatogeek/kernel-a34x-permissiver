@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -97,8 +101,12 @@ static int iio_store_to_kfifo(struct iio_buffer *r,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int iio_read_first_n_kfifo(struct iio_buffer *r,
 			   size_t n, char __user *buf)
+=======
+static int iio_read_kfifo(struct iio_buffer *r, size_t n, char __user *buf)
+>>>>>>> upstream/android-13
 {
 	int ret, copied;
 	struct iio_kfifo *kf = iio_to_kfifo(r);
@@ -140,7 +148,11 @@ static void iio_kfifo_buffer_release(struct iio_buffer *buffer)
 
 static const struct iio_buffer_access_funcs kfifo_access_funcs = {
 	.store_to = &iio_store_to_kfifo,
+<<<<<<< HEAD
 	.read_first_n = &iio_read_first_n_kfifo,
+=======
+	.read = &iio_read_kfifo,
+>>>>>>> upstream/android-13
 	.data_available = iio_kfifo_buf_data_available,
 	.request_update = &iio_request_update_kfifo,
 	.set_bytes_per_datum = &iio_set_bytes_per_datum_kfifo,
@@ -179,6 +191,7 @@ static void devm_iio_kfifo_release(struct device *dev, void *res)
 	iio_kfifo_free(*(struct iio_buffer **)res);
 }
 
+<<<<<<< HEAD
 static int devm_iio_kfifo_match(struct device *dev, void *res, void *data)
 {
 	struct iio_buffer **r = res;
@@ -191,12 +204,20 @@ static int devm_iio_kfifo_match(struct device *dev, void *res, void *data)
 
 /**
  * devm_iio_fifo_allocate - Resource-managed iio_kfifo_allocate()
+=======
+/**
+ * devm_iio_kfifo_allocate - Resource-managed iio_kfifo_allocate()
+>>>>>>> upstream/android-13
  * @dev:		Device to allocate kfifo buffer for
  *
  * RETURNS:
  * Pointer to allocated iio_buffer on success, NULL on failure.
  */
+<<<<<<< HEAD
 struct iio_buffer *devm_iio_kfifo_allocate(struct device *dev)
+=======
+static struct iio_buffer *devm_iio_kfifo_allocate(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct iio_buffer **ptr, *r;
 
@@ -214,6 +235,7 @@ struct iio_buffer *devm_iio_kfifo_allocate(struct device *dev)
 
 	return r;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(devm_iio_kfifo_allocate);
 
 /**
@@ -227,5 +249,47 @@ void devm_iio_kfifo_free(struct device *dev, struct iio_buffer *r)
 			       devm_iio_kfifo_match, r));
 }
 EXPORT_SYMBOL(devm_iio_kfifo_free);
+=======
+
+/**
+ * devm_iio_kfifo_buffer_setup_ext - Allocate a kfifo buffer & attach it to an IIO device
+ * @dev: Device object to which to attach the life-time of this kfifo buffer
+ * @indio_dev: The device the buffer should be attached to
+ * @mode_flags: The mode flags for this buffer (INDIO_BUFFER_SOFTWARE and/or
+ *		INDIO_BUFFER_TRIGGERED).
+ * @setup_ops: The setup_ops required to configure the HW part of the buffer (optional)
+ * @buffer_attrs: Extra sysfs buffer attributes for this IIO buffer
+ *
+ * This function allocates a kfifo buffer via devm_iio_kfifo_allocate() and
+ * attaches it to the IIO device via iio_device_attach_buffer().
+ * This is meant to be a bit of a short-hand/helper function as there are a few
+ * drivers that seem to do this.
+ */
+int devm_iio_kfifo_buffer_setup_ext(struct device *dev,
+				    struct iio_dev *indio_dev,
+				    int mode_flags,
+				    const struct iio_buffer_setup_ops *setup_ops,
+				    const struct attribute **buffer_attrs)
+{
+	struct iio_buffer *buffer;
+
+	if (!mode_flags)
+		return -EINVAL;
+
+	buffer = devm_iio_kfifo_allocate(dev);
+	if (!buffer)
+		return -ENOMEM;
+
+	mode_flags &= kfifo_access_funcs.modes;
+
+	indio_dev->modes |= mode_flags;
+	indio_dev->setup_ops = setup_ops;
+
+	buffer->attrs = buffer_attrs;
+
+	return iio_device_attach_buffer(indio_dev, buffer);
+}
+EXPORT_SYMBOL_GPL(devm_iio_kfifo_buffer_setup_ext);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");

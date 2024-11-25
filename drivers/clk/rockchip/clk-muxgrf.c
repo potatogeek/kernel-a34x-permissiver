@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * This software is licensed under the terms of the GNU General Public
@@ -9,6 +10,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 #include <linux/slab.h>
 #include <linux/bitops.h>
@@ -69,7 +73,11 @@ struct clk *rockchip_clk_register_muxgrf(const char *name,
 				int shift, int width, int mux_flags)
 {
 	struct rockchip_muxgrf_clock *muxgrf_clock;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	if (IS_ERR(regmap)) {

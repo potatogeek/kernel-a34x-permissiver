@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Renesas SuperH DMA Engine support
  *
@@ -8,11 +12,14 @@
  * Copyright (C) 2009 Renesas Solutions, Inc. All rights reserved.
  * Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
  *
+<<<<<<< HEAD
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * - DMA of SuperH does not have Hardware DMA chain mode.
  * - MAX DMA size is 16MB.
  *
@@ -669,12 +676,15 @@ static const struct shdma_ops sh_dmae_shdma_ops = {
 	.get_partial = sh_dmae_get_partial,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id sh_dmae_of_match[] = {
 	{.compatible = "renesas,shdma-r8a73a4", .data = r8a73a4_shdma_devid,},
 	{}
 };
 MODULE_DEVICE_TABLE(of, sh_dmae_of_match);
 
+=======
+>>>>>>> upstream/android-13
 static int sh_dmae_probe(struct platform_device *pdev)
 {
 	const enum dma_slave_buswidth widths =
@@ -919,7 +929,10 @@ static struct platform_driver sh_dmae_driver = {
 	.driver		= {
 		.pm	= &sh_dmae_pm,
 		.name	= SH_DMAE_DRV_NAME,
+<<<<<<< HEAD
 		.of_match_table = sh_dmae_of_match,
+=======
+>>>>>>> upstream/android-13
 	},
 	.remove		= sh_dmae_remove,
 };

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/input/touchscreen/tsc2007.c
  *
@@ -14,19 +18,31 @@
  *	Copyright (C) 2002 MontaVista Software
  *	Copyright (C) 2004 Texas Instruments
  *	Copyright (C) 2005 Dirk Behme
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/input.h>
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/input.h>
+#include <linux/interrupt.h>
+#include <linux/i2c.h>
+#include <linux/mod_devicetable.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/tsc2007.h>
 #include "tsc2007.h"
 
@@ -223,12 +239,16 @@ static void tsc2007_close(struct input_dev *input_dev)
 	tsc2007_stop(ts);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static int tsc2007_get_pendown_state_gpio(struct device *dev)
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct tsc2007 *ts = i2c_get_clientdata(client);
 
+<<<<<<< HEAD
 	return !gpio_get_value(ts->gpio);
 }
 
@@ -244,10 +264,22 @@ static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 *ts)
 	}
 
 	if (!of_property_read_u32(np, "ti,max-rt", &val32))
+=======
+	return gpiod_get_value(ts->gpiod);
+}
+
+static int tsc2007_probe_properties(struct device *dev, struct tsc2007 *ts)
+{
+	u32 val32;
+	u64 val64;
+
+	if (!device_property_read_u32(dev, "ti,max-rt", &val32))
+>>>>>>> upstream/android-13
 		ts->max_rt = val32;
 	else
 		ts->max_rt = MAX_12BIT;
 
+<<<<<<< HEAD
 	if (!of_property_read_u32(np, "ti,fuzzx", &val32))
 		ts->fuzzx = val32;
 
@@ -258,10 +290,23 @@ static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 *ts)
 		ts->fuzzz = val32;
 
 	if (!of_property_read_u64(np, "ti,poll-period", &val64))
+=======
+	if (!device_property_read_u32(dev, "ti,fuzzx", &val32))
+		ts->fuzzx = val32;
+
+	if (!device_property_read_u32(dev, "ti,fuzzy", &val32))
+		ts->fuzzy = val32;
+
+	if (!device_property_read_u32(dev, "ti,fuzzz", &val32))
+		ts->fuzzz = val32;
+
+	if (!device_property_read_u64(dev, "ti,poll-period", &val64))
+>>>>>>> upstream/android-13
 		ts->poll_period = msecs_to_jiffies(val64);
 	else
 		ts->poll_period = msecs_to_jiffies(1);
 
+<<<<<<< HEAD
 	if (!of_property_read_u32(np, "ti,x-plate-ohms", &val32)) {
 		ts->x_plate_ohms = val32;
 	} else {
@@ -288,6 +333,28 @@ static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 *ts)
 #endif
 
 static int tsc2007_probe_pdev(struct i2c_client *client, struct tsc2007 *ts,
+=======
+	if (!device_property_read_u32(dev, "ti,x-plate-ohms", &val32)) {
+		ts->x_plate_ohms = val32;
+	} else {
+		dev_err(dev, "Missing ti,x-plate-ohms device property\n");
+		return -EINVAL;
+	}
+
+	ts->gpiod = devm_gpiod_get_optional(dev, NULL, GPIOD_IN);
+	if (IS_ERR(ts->gpiod))
+		return PTR_ERR(ts->gpiod);
+
+	if (ts->gpiod)
+		ts->get_pendown_state = tsc2007_get_pendown_state_gpio;
+	else
+		dev_warn(dev, "Pen down GPIO is not specified in properties\n");
+
+	return 0;
+}
+
+static int tsc2007_probe_pdev(struct device *dev, struct tsc2007 *ts,
+>>>>>>> upstream/android-13
 			      const struct tsc2007_platform_data *pdata,
 			      const struct i2c_device_id *id)
 {
@@ -302,7 +369,11 @@ static int tsc2007_probe_pdev(struct i2c_client *client, struct tsc2007 *ts,
 	ts->fuzzz             = pdata->fuzzz;
 
 	if (pdata->x_plate_ohms == 0) {
+<<<<<<< HEAD
 		dev_err(&client->dev, "x_plate_ohms is not set up in platform data");
+=======
+		dev_err(dev, "x_plate_ohms is not set up in platform data\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -335,9 +406,15 @@ static int tsc2007_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	if (pdata)
+<<<<<<< HEAD
 		err = tsc2007_probe_pdev(client, ts, pdata, id);
 	else
 		err = tsc2007_probe_dt(client, ts);
+=======
+		err = tsc2007_probe_pdev(&client->dev, ts, pdata, id);
+	else
+		err = tsc2007_probe_properties(&client->dev, ts);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -434,18 +511,28 @@ static const struct i2c_device_id tsc2007_idtable[] = {
 
 MODULE_DEVICE_TABLE(i2c, tsc2007_idtable);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id tsc2007_of_match[] = {
 	{ .compatible = "ti,tsc2007" },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, tsc2007_of_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver tsc2007_driver = {
 	.driver = {
 		.name	= "tsc2007",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(tsc2007_of_match),
+=======
+		.of_match_table = tsc2007_of_match,
+>>>>>>> upstream/android-13
 	},
 	.id_table	= tsc2007_idtable,
 	.probe		= tsc2007_probe,

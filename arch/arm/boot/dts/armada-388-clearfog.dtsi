@@ -93,6 +93,10 @@
 	bm,pool-long = <2>;
 	bm,pool-short = <1>;
 	buffer-manager = <&bm>;
+<<<<<<< HEAD
+=======
+	phys = <&comphy1 1>;
+>>>>>>> upstream/android-13
 	phy-mode = "sgmii";
 	status = "okay";
 };
@@ -103,17 +107,24 @@
 	bm,pool-short = <1>;
 	buffer-manager = <&bm>;
 	managed = "in-band-status";
+<<<<<<< HEAD
+=======
+	phys = <&comphy5 2>;
+>>>>>>> upstream/android-13
 	phy-mode = "sgmii";
 	sfp = <&sfp>;
 	status = "okay";
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	clock-frequency = <400000>;
 	pinctrl-0 = <&i2c0_pins>;
 	pinctrl-names = "default";
 	status = "okay";
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * PCA9655 GPIO expander, up to 1MHz clock.
 	 *  0-CON3 CLKREQ#
@@ -144,31 +155,51 @@
 		#gpio-cells = <2>;
 		reg = <0x20>;
 
+<<<<<<< HEAD
 		pcie1_0_clkreq {
+=======
+		pcie1-0-clkreq-hog {
+>>>>>>> upstream/android-13
 			gpio-hog;
 			gpios = <0 GPIO_ACTIVE_LOW>;
 			input;
 			line-name = "pcie1.0-clkreq";
 		};
+<<<<<<< HEAD
 		pcie1_0_w_disable {
+=======
+		pcie1-0-w-disable-hog {
+>>>>>>> upstream/android-13
 			gpio-hog;
 			gpios = <3 GPIO_ACTIVE_LOW>;
 			output-low;
 			line-name = "pcie1.0-w-disable";
 		};
+<<<<<<< HEAD
 		usb3_ilimit {
+=======
+		usb3-ilimit-hog {
+>>>>>>> upstream/android-13
 			gpio-hog;
 			gpios = <5 GPIO_ACTIVE_LOW>;
 			input;
 			line-name = "usb3-current-limit";
 		};
+<<<<<<< HEAD
 		usb3_power {
+=======
+		usb3-power-hog {
+>>>>>>> upstream/android-13
 			gpio-hog;
 			gpios = <6 GPIO_ACTIVE_HIGH>;
 			output-high;
 			line-name = "usb3-power";
 		};
+<<<<<<< HEAD
 		m2_devslp {
+=======
+		m2-devslp-hog {
+>>>>>>> upstream/android-13
 			gpio-hog;
 			gpios = <11 GPIO_ACTIVE_HIGH>;
 			output-low;
@@ -181,6 +212,15 @@
 		compatible = "microchip,mcp3021";
 		reg = <0x4c>;
 	};
+<<<<<<< HEAD
+=======
+
+	eeprom@52 {
+		compatible = "atmel,24c02";
+		reg = <0x52>;
+		pagesize = <16>;
+	};
+>>>>>>> upstream/android-13
 };
 
 &i2c1 {

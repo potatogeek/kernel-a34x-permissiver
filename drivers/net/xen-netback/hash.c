@@ -51,7 +51,12 @@ static void xenvif_add_hash(struct xenvif *vif, const u8 *tag,
 
 	found = false;
 	oldest = NULL;
+<<<<<<< HEAD
 	list_for_each_entry_rcu(entry, &vif->hash.cache.list, link) {
+=======
+	list_for_each_entry_rcu(entry, &vif->hash.cache.list, link,
+				lockdep_is_held(&vif->hash.cache.lock)) {
+>>>>>>> upstream/android-13
 		/* Make sure we don't add duplicate entries */
 		if (entry->len == len &&
 		    memcmp(entry->tag, tag, len) == 0)
@@ -102,7 +107,12 @@ static void xenvif_flush_hash(struct xenvif *vif)
 
 	spin_lock_irqsave(&vif->hash.cache.lock, flags);
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(entry, &vif->hash.cache.list, link) {
+=======
+	list_for_each_entry_rcu(entry, &vif->hash.cache.list, link,
+				lockdep_is_held(&vif->hash.cache.lock)) {
+>>>>>>> upstream/android-13
 		list_del_rcu(&entry->link);
 		vif->hash.cache.count--;
 		kfree_rcu(entry, rcu);
@@ -391,7 +401,11 @@ void xenvif_dump_hash_info(struct xenvif *vif, struct seq_file *m)
 
 	case XEN_NETIF_CTRL_HASH_ALGORITHM_NONE:
 		seq_puts(m, "Hash Algorithm: NONE\n");
+<<<<<<< HEAD
 		/* FALLTHRU */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return;
 	}

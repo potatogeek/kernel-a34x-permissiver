@@ -169,8 +169,15 @@ nv50_therm = {
 };
 
 int
+<<<<<<< HEAD
 nv50_therm_new(struct nvkm_device *device, int index,
 	       struct nvkm_therm **ptherm)
 {
 	return nvkm_therm_new_(&nv50_therm, device, index, ptherm);
+=======
+nv50_therm_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_therm **ptherm)
+{
+	return nvkm_therm_new_(&nv50_therm, device, type, inst, ptherm);
+>>>>>>> upstream/android-13
 }

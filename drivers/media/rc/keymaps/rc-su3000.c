@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* rc-su3000.h - Keytable for Geniatech HDStar Remote Controller
  *
  * Copyright (c) 2013 by Evgeny Plehov <Evgeny Plehov@ukr.net>
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* rc-su3000.h - Keytable for Geniatech HDStar Remote Controller
+ *
+ * Copyright (c) 2013 by Evgeny Plehov <Evgeny Plehov@ukr.net>
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -14,6 +21,7 @@
 static struct rc_map_table su3000[] = {
 	{ 0x25, KEY_POWER },	/* right-bottom Red */
 	{ 0x0a, KEY_MUTE },	/* -/-- */
+<<<<<<< HEAD
 	{ 0x01, KEY_1 },
 	{ 0x02, KEY_2 },
 	{ 0x03, KEY_3 },
@@ -24,6 +32,18 @@ static struct rc_map_table su3000[] = {
 	{ 0x08, KEY_8 },
 	{ 0x09, KEY_9 },
 	{ 0x00, KEY_0 },
+=======
+	{ 0x01, KEY_NUMERIC_1 },
+	{ 0x02, KEY_NUMERIC_2 },
+	{ 0x03, KEY_NUMERIC_3 },
+	{ 0x04, KEY_NUMERIC_4 },
+	{ 0x05, KEY_NUMERIC_5 },
+	{ 0x06, KEY_NUMERIC_6 },
+	{ 0x07, KEY_NUMERIC_7 },
+	{ 0x08, KEY_NUMERIC_8 },
+	{ 0x09, KEY_NUMERIC_9 },
+	{ 0x00, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x20, KEY_UP },	/* CH+ */
 	{ 0x21, KEY_DOWN },	/* CH+ */
 	{ 0x12, KEY_VOLUMEUP },	/* Brightness Up */

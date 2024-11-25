@@ -86,7 +86,12 @@ void acpi_db_delete_objects(u32 count, union acpi_object *objects)
  *
  * RETURN:      Status
  *
+<<<<<<< HEAD
  * DESCRIPTION: Execute a control method.
+=======
+ * DESCRIPTION: Execute a control method. Used to evaluate objects via the
+ *              "EXECUTE" or "EVALUATE" commands.
+>>>>>>> upstream/android-13
  *
  ******************************************************************************/
 
@@ -160,12 +165,20 @@ acpi_db_execute_method(struct acpi_db_method_info *info,
 		}
 
 		ACPI_EXCEPTION((AE_INFO, status,
+<<<<<<< HEAD
 				"while executing %s from debugger",
+=======
+				"while executing %s from AML Debugger",
+>>>>>>> upstream/android-13
 				info->pathname));
 
 		if (status == AE_BUFFER_OVERFLOW) {
 			ACPI_ERROR((AE_INFO,
+<<<<<<< HEAD
 				    "Possible overflow of internal debugger "
+=======
+				    "Possible buffer overflow within AML Debugger "
+>>>>>>> upstream/android-13
 				    "buffer (size 0x%X needed 0x%X)",
 				    ACPI_DEBUG_BUFFER_SIZE,
 				    (u32)return_obj->length));
@@ -314,11 +327,19 @@ acpi_db_execution_walk(acpi_handle obj_handle,
 
 	status = acpi_evaluate_object(node, NULL, NULL, &return_obj);
 
+<<<<<<< HEAD
+=======
+	acpi_gbl_method_executing = FALSE;
+
+>>>>>>> upstream/android-13
 	acpi_os_printf("Evaluation of [%4.4s] returned %s\n",
 		       acpi_ut_get_node_name(node),
 		       acpi_format_exception(status));
 
+<<<<<<< HEAD
 	acpi_gbl_method_executing = FALSE;
+=======
+>>>>>>> upstream/android-13
 	return (AE_OK);
 }
 
@@ -334,7 +355,12 @@ acpi_db_execution_walk(acpi_handle obj_handle,
  * RETURN:      None
  *
  * DESCRIPTION: Execute a control method. Name is relative to the current
+<<<<<<< HEAD
  *              scope.
+=======
+ *              scope. Function used for the "EXECUTE", "EVALUATE", and
+ *              "ALL" commands
+>>>>>>> upstream/android-13
  *
  ******************************************************************************/
 
@@ -372,6 +398,15 @@ acpi_db_execute(char *name, char **args, acpi_object_type *types, u32 flags)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if ((flags & EX_ALL) && (strlen(name) > 4)) {
+		acpi_os_printf("Input name (%s) must be a 4-char NameSeg\n",
+			       name);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	name_string = ACPI_ALLOCATE(strlen(name) + 1);
 	if (!name_string) {
 		return;
@@ -389,6 +424,7 @@ acpi_db_execute(char *name, char **args, acpi_object_type *types, u32 flags)
 		return;
 	}
 
+<<<<<<< HEAD
 	acpi_gbl_db_method_info.name = name_string;
 	acpi_gbl_db_method_info.args = args;
 	acpi_gbl_db_method_info.types = types;
@@ -396,6 +432,26 @@ acpi_db_execute(char *name, char **args, acpi_object_type *types, u32 flags)
 
 	return_obj.pointer = NULL;
 	return_obj.length = ACPI_ALLOCATE_BUFFER;
+=======
+	/* Command (ALL <nameseg>) to execute all methods of a particular name */
+
+	else if (flags & EX_ALL) {
+		acpi_gbl_db_method_info.name = name_string;
+		return_obj.pointer = NULL;
+		return_obj.length = ACPI_ALLOCATE_BUFFER;
+		acpi_db_evaluate_all(name_string);
+		ACPI_FREE(name_string);
+		return;
+	} else {
+		acpi_gbl_db_method_info.name = name_string;
+		acpi_gbl_db_method_info.args = args;
+		acpi_gbl_db_method_info.types = types;
+		acpi_gbl_db_method_info.flags = flags;
+
+		return_obj.pointer = NULL;
+		return_obj.length = ACPI_ALLOCATE_BUFFER;
+	}
+>>>>>>> upstream/android-13
 
 	status = acpi_db_execute_setup(&acpi_gbl_db_method_info);
 	if (ACPI_FAILURE(status)) {
@@ -450,10 +506,18 @@ acpi_db_execute(char *name, char **args, acpi_object_type *types, u32 flags)
 				       (u32)return_obj.length);
 
 			acpi_db_dump_external_object(return_obj.pointer, 1);
+<<<<<<< HEAD
 
 			/* Dump a _PLD buffer if present */
 
 			if (ACPI_COMPARE_NAME
+=======
+			acpi_os_printf("\n");
+
+			/* Dump a _PLD buffer if present */
+
+			if (ACPI_COMPARE_NAMESEG
+>>>>>>> upstream/android-13
 			    ((ACPI_CAST_PTR
 			      (struct acpi_namespace_node,
 			       acpi_gbl_db_method_info.method)->name.ascii),

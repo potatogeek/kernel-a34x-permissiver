@@ -28,13 +28,24 @@ static long clk_factor_round_rate(struct clk_hw *hw, unsigned long drate,
 		unsigned long *prate)
 {
 	struct mmp_clk_factor *factor = to_clk_factor(hw);
+<<<<<<< HEAD
 	unsigned long rate = 0, prev_rate;
+=======
+	u64 rate = 0, prev_rate;
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < factor->ftbl_cnt; i++) {
 		prev_rate = rate;
+<<<<<<< HEAD
 		rate = (((*prate / 10000) * factor->ftbl[i].den) /
 			(factor->ftbl[i].num * factor->masks->factor)) * 10000;
+=======
+		rate = *prate;
+		rate *= factor->ftbl[i].den;
+		do_div(rate, factor->ftbl[i].num * factor->masks->factor);
+
+>>>>>>> upstream/android-13
 		if (rate > drate)
 			break;
 	}
@@ -54,6 +65,10 @@ static unsigned long clk_factor_recalc_rate(struct clk_hw *hw,
 	struct mmp_clk_factor *factor = to_clk_factor(hw);
 	struct mmp_clk_factor_masks *masks = factor->masks;
 	unsigned int val, num, den;
+<<<<<<< HEAD
+=======
+	u64 rate;
+>>>>>>> upstream/android-13
 
 	val = readl_relaxed(factor->base);
 
@@ -66,8 +81,16 @@ static unsigned long clk_factor_recalc_rate(struct clk_hw *hw,
 	if (!den)
 		return 0;
 
+<<<<<<< HEAD
 	return (((parent_rate / 10000)  * den) /
 			(num * factor->masks->factor)) * 10000;
+=======
+	rate = parent_rate;
+	rate *= den;
+	do_div(rate, num * factor->masks->factor);
+
+	return rate;
+>>>>>>> upstream/android-13
 }
 
 /* Configures new clock rate*/
@@ -78,6 +101,7 @@ static int clk_factor_set_rate(struct clk_hw *hw, unsigned long drate,
 	struct mmp_clk_factor_masks *masks = factor->masks;
 	int i;
 	unsigned long val;
+<<<<<<< HEAD
 	unsigned long prev_rate, rate = 0;
 	unsigned long flags = 0;
 
@@ -85,6 +109,16 @@ static int clk_factor_set_rate(struct clk_hw *hw, unsigned long drate,
 		prev_rate = rate;
 		rate = (((prate / 10000) * factor->ftbl[i].den) /
 			(factor->ftbl[i].num * factor->masks->factor)) * 10000;
+=======
+	unsigned long flags = 0;
+	u64 rate = 0;
+
+	for (i = 0; i < factor->ftbl_cnt; i++) {
+		rate = prate;
+		rate *= factor->ftbl[i].den;
+		do_div(rate, factor->ftbl[i].num * factor->masks->factor);
+
+>>>>>>> upstream/android-13
 		if (rate > drate)
 			break;
 	}
@@ -110,7 +144,11 @@ static int clk_factor_set_rate(struct clk_hw *hw, unsigned long drate,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void clk_factor_init(struct clk_hw *hw)
+=======
+static int clk_factor_init(struct clk_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct mmp_clk_factor *factor = to_clk_factor(hw);
 	struct mmp_clk_factor_masks *masks = factor->masks;
@@ -141,12 +179,24 @@ static void clk_factor_init(struct clk_hw *hw)
 		val &= ~(masks->den_mask << masks->den_shift);
 		val |= (factor->ftbl[0].den & masks->den_mask) <<
 			masks->den_shift;
+<<<<<<< HEAD
 
+=======
+	}
+
+	if (!(val & masks->enable_mask) || i >= factor->ftbl_cnt) {
+		val |= masks->enable_mask;
+>>>>>>> upstream/android-13
 		writel(val, factor->base);
 	}
 
 	if (factor->lock)
 		spin_unlock_irqrestore(factor->lock, flags);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct clk_ops clk_factor_ops = {
@@ -163,7 +213,11 @@ struct clk *mmp_clk_register_factor(const char *name, const char *parent_name,
 		unsigned int ftbl_cnt, spinlock_t *lock)
 {
 	struct mmp_clk_factor *factor;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	if (!masks) {

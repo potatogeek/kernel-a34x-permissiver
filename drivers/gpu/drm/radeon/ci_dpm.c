@@ -22,6 +22,7 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
@@ -31,6 +32,20 @@
 #include "ci_dpm.h"
 #include "atom.h"
 #include <linux/seq_file.h>
+=======
+#include <linux/pci.h>
+#include <linux/seq_file.h>
+
+#include "atom.h"
+#include "ci_dpm.h"
+#include "cik.h"
+#include "cikd.h"
+#include "r600_dpm.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_ucode.h"
+#include "si_dpm.h"
+>>>>>>> upstream/android-13
 
 #define MC_CG_ARB_FREQ_F0           0x0a
 #define MC_CG_ARB_FREQ_F1           0x0b
@@ -64,6 +79,7 @@ static const struct ci_pt_defaults defaults_bonaire_xt =
 	{ 0x17C, 0x172, 0x180, 0x1BC, 0x1B3, 0x1BD, 0x206, 0x200, 0x203, 0x25D, 0x25A, 0x255, 0x2C3, 0x2C5, 0x2B4 }
 };
 
+<<<<<<< HEAD
 static const struct ci_pt_defaults defaults_bonaire_pro =
 {
 	1, 0xF, 0xFD, 0x19, 5, 45, 0, 0x65062,
@@ -71,6 +87,8 @@ static const struct ci_pt_defaults defaults_bonaire_pro =
 	{ 0x187, 0x193, 0x193, 0x1C7, 0x1D1, 0x1D1, 0x210, 0x219, 0x219, 0x266, 0x26C, 0x26C, 0x2C9, 0x2CB, 0x2CB }
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct ci_pt_defaults defaults_saturn_xt =
 {
 	1, 0xF, 0xFD, 0x19, 5, 55, 0, 0x70000,
@@ -78,6 +96,7 @@ static const struct ci_pt_defaults defaults_saturn_xt =
 	{ 0x187, 0x187, 0x187, 0x1C7, 0x1C7, 0x1C7, 0x210, 0x210, 0x210, 0x266, 0x266, 0x266, 0x2C9, 0x2C9, 0x2C9 }
 };
 
+<<<<<<< HEAD
 static const struct ci_pt_defaults defaults_saturn_pro =
 {
 	1, 0xF, 0xFD, 0x19, 5, 55, 0, 0x30000,
@@ -85,6 +104,8 @@ static const struct ci_pt_defaults defaults_saturn_pro =
 	{ 0x193, 0x19E, 0x19E, 0x1D2, 0x1DC, 0x1DC, 0x21A, 0x223, 0x223, 0x26E, 0x27E, 0x274, 0x2CF, 0x2D2, 0x2D2 }
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct ci_pt_config_reg didt_config_ci[] =
 {
 	{ 0x10, 0x000000ff, 0, 0x0, CISLANDS_CONFIGREG_DIDT_IND },
@@ -165,6 +186,7 @@ static const struct ci_pt_config_reg didt_config_ci[] =
 extern u8 rv770_get_memory_module_index(struct radeon_device *rdev);
 extern int ni_copy_and_switch_arb_sets(struct radeon_device *rdev,
 				       u32 arb_freq_src, u32 arb_freq_dest);
+<<<<<<< HEAD
 extern u8 si_get_ddr3_mclk_frequency_ratio(u32 memory_clock);
 extern u8 si_get_mclk_frequency_ratio(u32 memory_clock, bool strobe_mode);
 extern void si_trim_voltage_table_to_fit_state_table(struct radeon_device *rdev,
@@ -176,6 +198,8 @@ extern int ci_mc_load_microcode(struct radeon_device *rdev);
 extern void cik_update_cg(struct radeon_device *rdev,
 			  u32 block, bool enable);
 
+=======
+>>>>>>> upstream/android-13
 static int ci_get_std_voltage_value_sidd(struct radeon_device *rdev,
 					 struct atom_voltage_table_entry *voltage_table,
 					 u16 *std_voltage_hi_sidd, u16 *std_voltage_lo_sidd);
@@ -1379,7 +1403,10 @@ static void ci_set_dpm_event_sources(struct radeon_device *rdev, u32 sources)
 {
 	struct ci_power_info *pi = ci_get_pi(rdev);
 	bool want_thermal_protection;
+<<<<<<< HEAD
 	enum radeon_dpm_event_src dpm_event_src;
+=======
+>>>>>>> upstream/android-13
 	u32 tmp;
 
 	switch (sources) {
@@ -1389,20 +1416,30 @@ static void ci_set_dpm_event_sources(struct radeon_device *rdev, u32 sources)
 		break;
 	case (1 << RADEON_DPM_AUTO_THROTTLE_SRC_THERMAL):
 		want_thermal_protection = true;
+<<<<<<< HEAD
 		dpm_event_src = RADEON_DPM_EVENT_SRC_DIGITAL;
 		break;
 	case (1 << RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL):
 		want_thermal_protection = true;
 		dpm_event_src = RADEON_DPM_EVENT_SRC_EXTERNAL;
+=======
+		break;
+	case (1 << RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL):
+		want_thermal_protection = true;
+>>>>>>> upstream/android-13
 		break;
 	case ((1 << RADEON_DPM_AUTO_THROTTLE_SRC_EXTERNAL) |
 	      (1 << RADEON_DPM_AUTO_THROTTLE_SRC_THERMAL)):
 		want_thermal_protection = true;
+<<<<<<< HEAD
 		dpm_event_src = RADEON_DPM_EVENT_SRC_DIGIAL_OR_EXTERNAL;
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	if (want_thermal_protection) {
+<<<<<<< HEAD
 #if 0
 		/* XXX: need to figure out how to handle this properly */
 		tmp = RREG32_SMC(CG_THERMAL_CTRL);
@@ -1411,6 +1448,8 @@ static void ci_set_dpm_event_sources(struct radeon_device *rdev, u32 sources)
 		WREG32_SMC(CG_THERMAL_CTRL, tmp);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 		tmp = RREG32_SMC(GENERAL_PWRMGT);
 		if (pi->thermal_protection)
 			tmp &= ~THERMAL_PROTECTION_DIS;
@@ -4869,9 +4908,17 @@ static void ci_request_link_speed_change_before_state_change(struct radeon_devic
 			pi->force_pcie_gen = RADEON_PCIE_GEN2;
 			if (current_link_speed == RADEON_PCIE_GEN2)
 				break;
+<<<<<<< HEAD
 		case RADEON_PCIE_GEN2:
 			if (radeon_acpi_pcie_performance_request(rdev, PCIE_PERF_REQ_PECI_GEN2, false) == 0)
 				break;
+=======
+			fallthrough;
+		case RADEON_PCIE_GEN2:
+			if (radeon_acpi_pcie_performance_request(rdev, PCIE_PERF_REQ_PECI_GEN2, false) == 0)
+				break;
+			fallthrough;
+>>>>>>> upstream/android-13
 #endif
 		default:
 			pi->force_pcie_gen = ci_get_current_pcie_speed(rdev);

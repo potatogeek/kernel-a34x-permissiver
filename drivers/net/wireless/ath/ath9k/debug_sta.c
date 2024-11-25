@@ -116,7 +116,11 @@ void ath_debug_rate_stats(struct ath_softc *sc,
 		if (rxs->rate_idx >= ARRAY_SIZE(rstats->ht_stats))
 			goto exit;
 
+<<<<<<< HEAD
 		if ((rxs->bw == RATE_INFO_BW_40))
+=======
+		if (rxs->bw == RATE_INFO_BW_40)
+>>>>>>> upstream/android-13
 			rstats->ht_stats[rxs->rate_idx].ht40_cnt++;
 		else
 			rstats->ht_stats[rxs->rate_idx].ht20_cnt++;
@@ -242,6 +246,7 @@ static const struct file_operations fops_node_recv = {
 	.llseek = default_llseek,
 };
 
+<<<<<<< HEAD
 void ath_debug_airtime(struct ath_softc *sc,
 		struct ath_node *an,
 		u32 rx,
@@ -295,6 +300,8 @@ static const struct file_operations fops_airtime = {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 void ath9k_sta_add_debugfs(struct ieee80211_hw *hw,
 			   struct ieee80211_vif *vif,
 			   struct ieee80211_sta *sta,
@@ -304,5 +311,8 @@ void ath9k_sta_add_debugfs(struct ieee80211_hw *hw,
 
 	debugfs_create_file("node_aggr", 0444, dir, an, &fops_node_aggr);
 	debugfs_create_file("node_recv", 0444, dir, an, &fops_node_recv);
+<<<<<<< HEAD
 	debugfs_create_file("airtime", 0444, dir, an, &fops_airtime);
+=======
+>>>>>>> upstream/android-13
 }

@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #ifndef _RDMA_NETLINK_H
 #define _RDMA_NETLINK_H
 
@@ -6,6 +7,21 @@
 #include <linux/netlink.h>
 #include <uapi/rdma/rdma_netlink.h>
 
+=======
+
+#ifndef _RDMA_NETLINK_H
+#define _RDMA_NETLINK_H
+
+#include <linux/netlink.h>
+#include <uapi/rdma/rdma_netlink.h>
+
+enum {
+	RDMA_NLDEV_ATTR_EMPTY_STRING = 1,
+	RDMA_NLDEV_ATTR_ENTRY_STRLEN = 16,
+	RDMA_NLDEV_ATTR_CHARDEV_TYPE_SIZE = 32,
+};
+
+>>>>>>> upstream/android-13
 struct rdma_nl_cbs {
 	int (*doit)(struct sk_buff *skb, struct nlmsghdr *nlh,
 		    struct netlink_ext_ack *extack);
@@ -24,7 +40,11 @@ enum rdma_nl_flags {
  * constant as well and the compiler checks they are the same.
  */
 #define MODULE_ALIAS_RDMA_NETLINK(_index, _val)                                \
+<<<<<<< HEAD
 	static inline void __chk_##_index(void)                                \
+=======
+	static inline void __maybe_unused __chk_##_index(void)                 \
+>>>>>>> upstream/android-13
 	{                                                                      \
 		BUILD_BUG_ON(_index != _val);                                  \
 	}                                                                      \
@@ -70,33 +90,77 @@ int ibnl_put_attr(struct sk_buff *skb, struct nlmsghdr *nlh,
 
 /**
  * Send the supplied skb to a specific userspace PID.
+<<<<<<< HEAD
+=======
+ * @net: Net namespace in which to send the skb
+>>>>>>> upstream/android-13
  * @skb: The netlink skb
  * @pid: Userspace netlink process ID
  * Returns 0 on success or a negative error code.
  */
+<<<<<<< HEAD
 int rdma_nl_unicast(struct sk_buff *skb, u32 pid);
 
 /**
  * Send, with wait/1 retry, the supplied skb to a specific userspace PID.
+=======
+int rdma_nl_unicast(struct net *net, struct sk_buff *skb, u32 pid);
+
+/**
+ * Send, with wait/1 retry, the supplied skb to a specific userspace PID.
+ * @net: Net namespace in which to send the skb
+>>>>>>> upstream/android-13
  * @skb: The netlink skb
  * @pid: Userspace netlink process ID
  * Returns 0 on success or a negative error code.
  */
+<<<<<<< HEAD
 int rdma_nl_unicast_wait(struct sk_buff *skb, __u32 pid);
 
 /**
  * Send the supplied skb to a netlink group.
+=======
+int rdma_nl_unicast_wait(struct net *net, struct sk_buff *skb, __u32 pid);
+
+/**
+ * Send the supplied skb to a netlink group.
+ * @net: Net namespace in which to send the skb
+>>>>>>> upstream/android-13
  * @skb: The netlink skb
  * @group: Netlink group ID
  * @flags: allocation flags
  * Returns 0 on success or a negative error code.
  */
+<<<<<<< HEAD
 int rdma_nl_multicast(struct sk_buff *skb, unsigned int group, gfp_t flags);
+=======
+int rdma_nl_multicast(struct net *net, struct sk_buff *skb,
+		      unsigned int group, gfp_t flags);
+>>>>>>> upstream/android-13
 
 /**
  * Check if there are any listeners to the netlink group
  * @group: the netlink group ID
+<<<<<<< HEAD
  * Returns 0 on success or a negative for no listeners.
  */
 int rdma_nl_chk_listeners(unsigned int group);
+=======
+ * Returns true on success or false if no listeners.
+ */
+bool rdma_nl_chk_listeners(unsigned int group);
+
+struct rdma_link_ops {
+	struct list_head list;
+	const char *type;
+	int (*newlink)(const char *ibdev_name, struct net_device *ndev);
+};
+
+void rdma_link_register(struct rdma_link_ops *ops);
+void rdma_link_unregister(struct rdma_link_ops *ops);
+
+#define MODULE_ALIAS_RDMA_LINK(type) MODULE_ALIAS("rdma-link-" type)
+#define MODULE_ALIAS_RDMA_CLIENT(type) MODULE_ALIAS("rdma-client-" type)
+
+>>>>>>> upstream/android-13
 #endif /* _RDMA_NETLINK_H */

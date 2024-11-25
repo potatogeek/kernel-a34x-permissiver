@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram miXart soundcards
  *
  * low level interface with interrupt handling and mail box implementation
  *
  * Copyright (c) 2003 by Digigram <alsa@digigram.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -539,7 +546,11 @@ irqreturn_t snd_mixart_threaded_irq(int irq, void *dev_id)
 				dev_err(&mgr->pci->dev,
 					"canceled notification %x !\n", msg);
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case MSG_TYPE_ANSWER:
 			/* answer or notification to a message we are waiting for*/
 			mutex_lock(&mgr->msg_lock);

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * common keywest i2c layer
  *
  * Copyright (c) by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -26,12 +33,16 @@
 #include <sound/core.h>
 #include "pmac.h"
 
+<<<<<<< HEAD
 /*
  * we have to keep a static variable here since i2c attach_adapter
  * callback cannot pass a private data.
  */
 static struct pmac_keywest *keywest_ctx;
 
+=======
+static struct pmac_keywest *keywest_ctx;
+>>>>>>> upstream/android-13
 static bool keywest_probed;
 
 static int keywest_probe(struct i2c_client *client,
@@ -53,6 +64,10 @@ static int keywest_probe(struct i2c_client *client,
 static int keywest_attach_adapter(struct i2c_adapter *adapter)
 {
 	struct i2c_board_info info;
+<<<<<<< HEAD
+=======
+	struct i2c_client *client;
+>>>>>>> upstream/android-13
 
 	if (! keywest_ctx)
 		return -EINVAL;
@@ -61,11 +76,21 @@ static int keywest_attach_adapter(struct i2c_adapter *adapter)
 		return -EINVAL; /* ignored */
 
 	memset(&info, 0, sizeof(struct i2c_board_info));
+<<<<<<< HEAD
 	strlcpy(info.type, "keywest", I2C_NAME_SIZE);
 	info.addr = keywest_ctx->addr;
 	keywest_ctx->client = i2c_new_device(adapter, &info);
 	if (!keywest_ctx->client)
 		return -ENODEV;
+=======
+	strscpy(info.type, "keywest", I2C_NAME_SIZE);
+	info.addr = keywest_ctx->addr;
+	client = i2c_new_client_device(adapter, &info);
+	if (IS_ERR(client))
+		return PTR_ERR(client);
+	keywest_ctx->client = client;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We know the driver is already loaded, so the device should be
 	 * already bound. If not it means binding failed, and then there
@@ -129,7 +154,12 @@ int snd_pmac_tumbler_post_init(void)
 	if (!keywest_ctx || !keywest_ctx->client)
 		return -ENXIO;
 
+<<<<<<< HEAD
 	if ((err = keywest_ctx->init_client(keywest_ctx)) < 0) {
+=======
+	err = keywest_ctx->init_client(keywest_ctx);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		snd_printk(KERN_ERR "tumbler: %i :cannot initialize the MCS\n", err);
 		return err;
 	}
@@ -151,7 +181,12 @@ int snd_pmac_keywest_init(struct pmac_keywest *i2c)
 
 	keywest_ctx = i2c;
 
+<<<<<<< HEAD
 	if ((err = i2c_add_driver(&keywest_driver))) {
+=======
+	err = i2c_add_driver(&keywest_driver);
+	if (err) {
+>>>>>>> upstream/android-13
 		snd_printk(KERN_ERR "cannot register keywest i2c driver\n");
 		i2c_put_adapter(adap);
 		return err;

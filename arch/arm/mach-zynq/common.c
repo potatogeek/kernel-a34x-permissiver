@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file contains common code that is intended to be used across
  * boards so that it's not replicated.
  *
  *  Copyright (C) 2011 Xilinx
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,14 +20,27 @@
  */
 
 #include <linux/init.h>
+=======
+ */
+
+#include <linux/init.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/cpumask.h>
 #include <linux/platform_device.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
 #include <linux/clk/zynq.h>
 #include <linux/clocksource.h>
 #include <linux/of_address.h>
+=======
+#include <linux/clk/zynq.h>
+#include <linux/clocksource.h>
+#include <linux/of_address.h>
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
 #include <linux/of.h>
@@ -31,13 +49,20 @@
 #include <linux/irqchip/arm-gic.h>
 #include <linux/slab.h>
 #include <linux/sys_soc.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 #include <asm/mach/time.h>
 #include <asm/mach-types.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/smp_scu.h>
 #include <asm/system_info.h>
 #include <asm/hardware/cache-l2x0.h>

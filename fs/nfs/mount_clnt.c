@@ -29,9 +29,14 @@
  */
 #define encode_dirpath_sz	(1 + XDR_QUADLEN(MNTPATHLEN))
 #define MNT_status_sz		(1)
+<<<<<<< HEAD
 #define MNT_fhs_status_sz	(1)
 #define MNT_fhandle_sz		XDR_QUADLEN(NFS2_FHSIZE)
 #define MNT_fhandle3_sz		(1 + XDR_QUADLEN(NFS3_FHSIZE))
+=======
+#define MNT_fhandle_sz		XDR_QUADLEN(NFS2_FHSIZE)
+#define MNT_fhandlev3_sz	XDR_QUADLEN(NFS3_FHSIZE)
+>>>>>>> upstream/android-13
 #define MNT_authflav3_sz	(1 + NFS_MAX_SECFLAVORS)
 
 /*
@@ -39,7 +44,11 @@
  */
 #define MNT_enc_dirpath_sz	encode_dirpath_sz
 #define MNT_dec_mountres_sz	(MNT_status_sz + MNT_fhandle_sz)
+<<<<<<< HEAD
 #define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandle_sz + \
+=======
+#define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandlev3_sz + \
+>>>>>>> upstream/android-13
 				 MNT_authflav3_sz)
 
 /*
@@ -137,6 +146,7 @@ struct mnt_fhstatus {
 /**
  * nfs_mount - Obtain an NFS file handle for the given host and path
  * @info: pointer to mount request arguments
+<<<<<<< HEAD
  *
  * Uses default timeout parameters specified by underlying transport. On
  * successful return, the auth_flavs list and auth_flav_len will be populated
@@ -145,6 +155,18 @@ struct mnt_fhstatus {
  */
 int nfs_mount(struct nfs_mount_request *info)
 {
+=======
+ * @timeo: deciseconds the mount waits for a response before it retries
+ * @retrans: number of times the mount retries a request
+ *
+ * Uses timeout parameters specified by caller. On successful return, the
+ * auth_flavs list and auth_flav_len will be populated with the list from the
+ * server or a faked-up list if the server didn't provide one.
+ */
+int nfs_mount(struct nfs_mount_request *info, int timeo, int retrans)
+{
+	struct rpc_timeout mnt_timeout;
+>>>>>>> upstream/android-13
 	struct mountres	result = {
 		.fh		= info->fh,
 		.auth_count	= info->auth_flav_len,
@@ -159,10 +181,18 @@ int nfs_mount(struct nfs_mount_request *info)
 		.protocol	= info->protocol,
 		.address	= info->sap,
 		.addrsize	= info->salen,
+<<<<<<< HEAD
+=======
+		.timeout	= &mnt_timeout,
+>>>>>>> upstream/android-13
 		.servername	= info->hostname,
 		.program	= &mnt_program,
 		.version	= info->version,
 		.authflavor	= RPC_AUTH_UNIX,
+<<<<<<< HEAD
+=======
+		.cred		= current_cred(),
+>>>>>>> upstream/android-13
 	};
 	struct rpc_clnt		*mnt_clnt;
 	int			status;
@@ -177,6 +207,10 @@ int nfs_mount(struct nfs_mount_request *info)
 	if (info->noresvport)
 		args.flags |= RPC_CLNT_CREATE_NONPRIVPORT;
 
+<<<<<<< HEAD
+=======
+	nfs_init_timeout_values(&mnt_timeout, info->protocol, timeo, retrans);
+>>>>>>> upstream/android-13
 	mnt_clnt = rpc_create(&args);
 	if (IS_ERR(mnt_clnt))
 		goto out_clnt_err;
@@ -249,6 +283,10 @@ void nfs_umount(const struct nfs_mount_request *info)
 		.version	= info->version,
 		.authflavor	= RPC_AUTH_UNIX,
 		.flags		= RPC_CLNT_CREATE_NOPING,
+<<<<<<< HEAD
+=======
+		.cred		= current_cred(),
+>>>>>>> upstream/android-13
 	};
 	struct rpc_message msg	= {
 		.rpc_argp	= info->dirpath,

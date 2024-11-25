@@ -20,4 +20,8 @@ case $SRCARCH in
 	sparc)          BCJ=--sparc ;;
 esac
 
+<<<<<<< HEAD
 exec xz --check=crc32 $BCJ --lzma2=$LZMA2OPTS,dict=32MiB
+=======
+exec $XZ --check=crc32 $BCJ --lzma2=$LZMA2OPTS,dict=32MiB
+>>>>>>> upstream/android-13

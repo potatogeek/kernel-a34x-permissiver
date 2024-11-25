@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Copyright (C) 2014 Linaro Ltd.
  *	Author:	Ashwin Chaugule <ashwin.chaugule@linaro.org>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -12,6 +17,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *  PCC (Platform Communication Channel) is defined in the ACPI 5.0+
  *  specification. It is a mailbox like mechanism to allow clients
  *  such as CPPC (Collaborative Processor Performance Control), RAS
@@ -41,7 +48,11 @@
  *  * Client writes WRITE cmd in communication region cmd address.
  *  * Client issues mbox_send_message() which rings the PCC doorbell
  *		for its PCC channel.
+<<<<<<< HEAD
  *  * If command completes, then writes have succeded and it can release
+=======
+ *  * If command completes, then writes have succeeded and it can release
+>>>>>>> upstream/android-13
  *		the channel lock.
  *
  *  There is a Nominal latency defined for each channel which indicates
@@ -382,7 +393,11 @@ static const struct mbox_chan_ops pcc_chan_ops = {
  *
  * This gets called for each entry in the PCC table.
  */
+<<<<<<< HEAD
 static int parse_pcc_subspace(struct acpi_subtable_header *header,
+=======
+static int parse_pcc_subspace(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 		const unsigned long end)
 {
 	struct acpi_pcct_subspace *ss = (struct acpi_pcct_subspace *) header;
@@ -466,14 +481,25 @@ static int __init acpi_pcc_probe(void)
 			pr_warn("Error parsing PCC subspaces from PCCT\n");
 		else
 			pr_warn("Invalid PCCT: %d PCC subspaces\n", count);
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+
+		rc = -EINVAL;
+		goto err_put_pcct;
+>>>>>>> upstream/android-13
 	}
 
 	pcc_mbox_channels = kcalloc(count, sizeof(struct mbox_chan),
 				    GFP_KERNEL);
 	if (!pcc_mbox_channels) {
 		pr_err("Could not allocate space for PCC mbox channels\n");
+<<<<<<< HEAD
 		return -ENOMEM;
+=======
+		rc = -ENOMEM;
+		goto err_put_pcct;
+>>>>>>> upstream/android-13
 	}
 
 	pcc_doorbell_vaddr = kcalloc(count, sizeof(void *), GFP_KERNEL);
@@ -544,6 +570,11 @@ err_free_db_vaddr:
 	kfree(pcc_doorbell_vaddr);
 err_free_mbox:
 	kfree(pcc_mbox_channels);
+<<<<<<< HEAD
+=======
+err_put_pcct:
+	acpi_put_table(pcct_tbl);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -577,11 +608,18 @@ static int pcc_mbox_probe(struct platform_device *pdev)
 	return ret;
 }
 
+<<<<<<< HEAD
 struct platform_driver pcc_mbox_driver = {
 	.probe = pcc_mbox_probe,
 	.driver = {
 		.name = "PCCT",
 		.owner = THIS_MODULE,
+=======
+static struct platform_driver pcc_mbox_driver = {
+	.probe = pcc_mbox_probe,
+	.driver = {
+		.name = "PCCT",
+>>>>>>> upstream/android-13
 	},
 };
 

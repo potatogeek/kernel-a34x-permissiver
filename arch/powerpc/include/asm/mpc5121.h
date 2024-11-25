@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /*
  * MPC5121 Prototypes and definitions
  *
  * This file is licensed under the terms of the GNU General Public
  * License version 2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * MPC5121 Prototypes and definitions
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_POWERPC_MPC5121_H__

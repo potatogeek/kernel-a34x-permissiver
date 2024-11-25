@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * drivers/power/process.c - Functions for starting/stopping processes on 
+=======
+ * drivers/power/process.c - Functions for starting/stopping processes on
+>>>>>>> upstream/android-13
  *                           suspend transitions.
  *
  * Originally from swsusp.
@@ -22,6 +26,12 @@
 #include <linux/kmod.h>
 #include <trace/events/power.h>
 #include <linux/cpuset.h>
+<<<<<<< HEAD
+=======
+#include <linux/sec_debug.h>
+
+#include <trace/hooks/power.h>
+>>>>>>> upstream/android-13
 
 /*
  * Timeout for stopping processes
@@ -38,6 +48,10 @@ static int try_to_freeze_tasks(bool user_only)
 	unsigned int elapsed_msecs;
 	bool wakeup = false;
 	int sleep_usecs = USEC_PER_MSEC;
+<<<<<<< HEAD
+=======
+	bool todo_logging_on = false;
+>>>>>>> upstream/android-13
 
 	start = ktime_get_boottime();
 
@@ -46,6 +60,11 @@ static int try_to_freeze_tasks(bool user_only)
 	if (!user_only)
 		freeze_workqueues_begin();
 
+<<<<<<< HEAD
+=======
+	secdbg_base_built_set_unfrozen_task(NULL, 0);
+
+>>>>>>> upstream/android-13
 	while (true) {
 		todo = 0;
 		read_lock(&tasklist_lock);
@@ -53,8 +72,15 @@ static int try_to_freeze_tasks(bool user_only)
 			if (p == current || !freeze_task(p))
 				continue;
 
+<<<<<<< HEAD
 			if (!freezer_should_skip(p))
 				todo++;
+=======
+			if (!freezer_should_skip(p)) {
+				todo++;
+				secdbg_base_built_set_unfrozen_task(p, (uint64_t)todo);
+			}
+>>>>>>> upstream/android-13
 		}
 		read_unlock(&tasklist_lock);
 
@@ -91,7 +117,11 @@ static int try_to_freeze_tasks(bool user_only)
 		       elapsed_msecs / 1000, elapsed_msecs % 1000);
 	} else if (todo) {
 		pr_cont("\n");
+<<<<<<< HEAD
 		pr_err("Freezing of tasks failed after %d.%03d seconds"
+=======
+		pr_auto(ASL1, "Freezing of tasks failed after %d.%03d seconds"
+>>>>>>> upstream/android-13
 		       " (%d tasks refusing to freeze, wq_busy=%d):\n",
 		       elapsed_msecs / 1000, elapsed_msecs % 1000,
 		       todo - wq_busy, wq_busy);
@@ -99,6 +129,7 @@ static int try_to_freeze_tasks(bool user_only)
 		if (wq_busy)
 			show_workqueue_state();
 
+<<<<<<< HEAD
 		read_lock(&tasklist_lock);
 		for_each_process_thread(g, p) {
 			if (p != current && !freezer_should_skip(p)
@@ -106,11 +137,36 @@ static int try_to_freeze_tasks(bool user_only)
 				sched_show_task(p);
 		}
 		read_unlock(&tasklist_lock);
+=======
+		trace_android_vh_try_to_freeze_todo_logging(&todo_logging_on);
+		if (pm_debug_messages_on || todo_logging_on) {
+			read_lock(&tasklist_lock);
+			for_each_process_thread(g, p) {
+				if (p != current && !freezer_should_skip(p)
+				    && freezing(p) && !frozen(p)) {
+#if IS_ENABLED(CONFIG_SEC_DEBUG_AUTO_COMMENT)
+					sched_show_task_auto_comment(p);
+#else
+					sched_show_task(p);
+#endif
+					trace_android_vh_try_to_freeze_todo_unfrozen(p);
+				}
+			}
+			read_unlock(&tasklist_lock);
+		}
+
+		trace_android_vh_try_to_freeze_todo(todo, elapsed_msecs, wq_busy);
+>>>>>>> upstream/android-13
 	} else {
 		pr_cont("(elapsed %d.%03d seconds) ", elapsed_msecs / 1000,
 			elapsed_msecs % 1000);
 	}
 
+<<<<<<< HEAD
+=======
+	secdbg_base_built_set_unfrozen_task(NULL, 0);
+
+>>>>>>> upstream/android-13
 	return todo ? -EBUSY : 0;
 }
 
@@ -135,7 +191,11 @@ int freeze_processes(void)
 	if (!pm_freezing)
 		atomic_inc(&system_freezing_cnt);
 
+<<<<<<< HEAD
 	pm_wakeup_clear(true);
+=======
+	pm_wakeup_clear(0);
+>>>>>>> upstream/android-13
 	pr_info("Freezing user space processes ... ");
 	pm_freezing = true;
 	error = try_to_freeze_tasks(true);
@@ -147,7 +207,11 @@ int freeze_processes(void)
 	BUG_ON(in_atomic());
 
 	/*
+<<<<<<< HEAD
 	 * Now that the whole userspace is frozen we need to disbale
+=======
+	 * Now that the whole userspace is frozen we need to disable
+>>>>>>> upstream/android-13
 	 * the OOM killer to disallow any further interference with
 	 * killable tasks. There is no guarantee oom victims will
 	 * ever reach a point they go away we have to wait with a timeout.
@@ -236,7 +300,11 @@ void thaw_kernel_threads(void)
 
 	read_lock(&tasklist_lock);
 	for_each_process_thread(g, p) {
+<<<<<<< HEAD
 		if (p->flags & (PF_KTHREAD | PF_WQ_WORKER))
+=======
+		if (p->flags & PF_KTHREAD)
+>>>>>>> upstream/android-13
 			__thaw_task(p);
 	}
 	read_unlock(&tasklist_lock);

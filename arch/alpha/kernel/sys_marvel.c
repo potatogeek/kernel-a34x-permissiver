@@ -18,7 +18,10 @@
 #include <asm/irq.h>
 #include <asm/mmu_context.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/core_marvel.h>
 #include <asm/hwrpb.h>
 #include <asm/tlbflush.h>
@@ -397,7 +400,11 @@ marvel_init_pci(void)
 static void __init
 marvel_init_rtc(void)
 {
+<<<<<<< HEAD
 	init_rtc_irq();
+=======
+	init_rtc_irq(NULL);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -462,10 +469,13 @@ struct alpha_machine_vector marvel_ev7_mv __initmv = {
 	.kill_arch		= marvel_kill_arch,
 	.pci_map_irq		= marvel_map_irq,
 	.pci_swizzle		= common_swizzle,
+<<<<<<< HEAD
 
 	.pa_to_nid		= marvel_pa_to_nid,
 	.cpuid_to_nid		= marvel_cpuid_to_nid,
 	.node_mem_start		= marvel_node_mem_start,
 	.node_mem_size		= marvel_node_mem_size,
+=======
+>>>>>>> upstream/android-13
 };
 ALIAS_MV(marvel_ev7)

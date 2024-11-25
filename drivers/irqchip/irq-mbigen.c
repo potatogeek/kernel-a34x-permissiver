@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Hisilicon Limited, All Rights Reserved.
  * Author: Jun Ma <majun258@huawei.com>
@@ -14,6 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 HiSilicon Limited, All Rights Reserved.
+ * Author: Jun Ma <majun258@huawei.com>
+ * Author: Yun Wu <wuyun.wu@huawei.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -36,7 +44,11 @@
 /* The maximum IRQ pin number of mbigen chip(start from 0) */
 #define MAXIMUM_IRQ_PIN_NUM		1407
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * In mbigen vector register
  * bit[21:12]:	event id value
  * bit[11:0]:	device id
@@ -50,14 +62,22 @@
 /* offset of vector register in mbigen node */
 #define REG_MBIGEN_VEC_OFFSET		0x200
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * offset of clear register in mbigen node
  * This register is used to clear the status
  * of interrupt
  */
 #define REG_MBIGEN_CLEAR_OFFSET		0xa000
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * offset of interrupt type register
  * This register is used to configure interrupt
  * trigger type
@@ -258,12 +278,23 @@ static int mbigen_of_create_domain(struct platform_device *pdev,
 
 		parent = platform_bus_type.dev_root;
 		child = of_platform_device_create(np, NULL, parent);
+<<<<<<< HEAD
 		if (!child)
 			return -ENOMEM;
+=======
+		if (!child) {
+			of_node_put(np);
+			return -ENOMEM;
+		}
+>>>>>>> upstream/android-13
 
 		if (of_property_read_u32(child->dev.of_node, "num-pins",
 					 &num_pins) < 0) {
 			dev_err(&pdev->dev, "No num-pins property\n");
+<<<<<<< HEAD
+=======
+			of_node_put(np);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
@@ -271,14 +302,30 @@ static int mbigen_of_create_domain(struct platform_device *pdev,
 							   mbigen_write_msg,
 							   &mbigen_domain_ops,
 							   mgn_chip);
+<<<<<<< HEAD
 		if (!domain)
 			return -ENOMEM;
+=======
+		if (!domain) {
+			of_node_put(np);
+			return -ENOMEM;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
 #ifdef CONFIG_ACPI
+<<<<<<< HEAD
+=======
+static const struct acpi_device_id mbigen_acpi_match[] = {
+	{ "HISI0152", 0 },
+	{}
+};
+MODULE_DEVICE_TABLE(acpi, mbigen_acpi_match);
+
+>>>>>>> upstream/android-13
 static int mbigen_acpi_create_domain(struct platform_device *pdev,
 				     struct mbigen_device *mgn_chip)
 {
@@ -361,8 +408,12 @@ static int mbigen_device_probe(struct platform_device *pdev)
 		err = -EINVAL;
 
 	if (err) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to create mbi-gen@%p irqdomain",
 			mgn_chip->base);
+=======
+		dev_err(&pdev->dev, "Failed to create mbi-gen irqdomain\n");
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -376,12 +427,15 @@ static const struct of_device_id mbigen_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, mbigen_of_match);
 
+<<<<<<< HEAD
 static const struct acpi_device_id mbigen_acpi_match[] = {
 	{ "HISI0152", 0 },
 	{}
 };
 MODULE_DEVICE_TABLE(acpi, mbigen_acpi_match);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver mbigen_platform_driver = {
 	.driver = {
 		.name		= "Hisilicon MBIGEN-V2",
@@ -397,4 +451,8 @@ module_platform_driver(mbigen_platform_driver);
 MODULE_AUTHOR("Jun Ma <majun258@huawei.com>");
 MODULE_AUTHOR("Yun Wu <wuyun.wu@huawei.com>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Hisilicon MBI Generator driver");
+=======
+MODULE_DESCRIPTION("HiSilicon MBI Generator driver");
+>>>>>>> upstream/android-13

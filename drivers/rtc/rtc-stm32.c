@@ -209,7 +209,11 @@ static irqreturn_t stm32_rtc_alarm_irq(int irq, void *dev_id)
 	const struct stm32_rtc_events *evts = &rtc->data->events;
 	unsigned int status, cr;
 
+<<<<<<< HEAD
 	mutex_lock(&rtc->rtc_dev->ops_lock);
+=======
+	rtc_lock(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 
 	status = readl_relaxed(rtc->base + regs->sr);
 	cr = readl_relaxed(rtc->base + regs->cr);
@@ -226,7 +230,11 @@ static irqreturn_t stm32_rtc_alarm_irq(int irq, void *dev_id)
 		stm32_rtc_clear_event_flags(rtc, evts->alra);
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&rtc->rtc_dev->ops_lock);
+=======
+	rtc_unlock(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -519,11 +527,15 @@ static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	/* Write to Alarm register */
 	writel_relaxed(alrmar, rtc->base + regs->alrmar);
 
+<<<<<<< HEAD
 	if (alrm->enabled)
 		stm32_rtc_alarm_irq_enable(dev, 1);
 	else
 		stm32_rtc_alarm_irq_enable(dev, 0);
 
+=======
+	stm32_rtc_alarm_irq_enable(dev, alrm->enabled);
+>>>>>>> upstream/android-13
 end:
 	stm32_rtc_wpr_lock(rtc);
 
@@ -697,15 +709,22 @@ static int stm32_rtc_probe(struct platform_device *pdev)
 {
 	struct stm32_rtc *rtc;
 	const struct stm32_rtc_registers *regs;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
 	if (!rtc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rtc->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	rtc->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rtc->base))
 		return PTR_ERR(rtc->base);
 
@@ -760,7 +779,11 @@ static int stm32_rtc_probe(struct platform_device *pdev)
 
 	ret = clk_prepare_enable(rtc->rtc_ck);
 	if (ret)
+<<<<<<< HEAD
 		goto err;
+=======
+		goto err_no_rtc_ck;
+>>>>>>> upstream/android-13
 
 	if (rtc->data->need_dbp)
 		regmap_update_bits(rtc->dbp, rtc->dbp_reg,
@@ -780,7 +803,10 @@ static int stm32_rtc_probe(struct platform_device *pdev)
 
 	rtc->irq_alarm = platform_get_irq(pdev, 0);
 	if (rtc->irq_alarm <= 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "no alarm irq\n");
+=======
+>>>>>>> upstream/android-13
 		ret = rtc->irq_alarm;
 		goto err;
 	}
@@ -837,10 +863,19 @@ static int stm32_rtc_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+<<<<<<< HEAD
 err:
 	if (rtc->data->has_pclk)
 		clk_disable_unprepare(rtc->pclk);
 	clk_disable_unprepare(rtc->rtc_ck);
+=======
+
+err:
+	clk_disable_unprepare(rtc->rtc_ck);
+err_no_rtc_ck:
+	if (rtc->data->has_pclk)
+		clk_disable_unprepare(rtc->pclk);
+>>>>>>> upstream/android-13
 
 	if (rtc->data->need_dbp)
 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
@@ -904,8 +939,16 @@ static int stm32_rtc_resume(struct device *dev)
 	}
 
 	ret = stm32_rtc_wait_sync(rtc);
+<<<<<<< HEAD
 	if (ret < 0)
 		return ret;
+=======
+	if (ret < 0) {
+		if (rtc->data->has_pclk)
+			clk_disable_unprepare(rtc->pclk);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	if (device_may_wakeup(dev))
 		return disable_irq_wake(rtc->irq_alarm);

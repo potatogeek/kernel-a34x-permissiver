@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* sun_uflash.c - Driver for user-programmable flash on
  *                Sun Microsystems SME boardsets.
  *
@@ -31,7 +35,10 @@
 
 MODULE_AUTHOR("Eric Brower <ebrower@usa.net>");
 MODULE_DESCRIPTION("User-programmable flash device on Sun Microsystems boardsets");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE(DRIVER_NAME);
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 MODULE_VERSION("2.1");
 
@@ -62,10 +69,15 @@ int uflash_devinit(struct platform_device *op, struct device_node *dp)
 	}
 
 	up = kzalloc(sizeof(struct uflash_dev), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!up) {
 		printk(KERN_ERR PFX "Cannot allocate struct uflash_dev\n");
 		return -ENOMEM;
 	}
+=======
+	if (!up)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* copy defaults and tweak parameters */
 	memcpy(&up->map, &uflash_map_templ, sizeof(uflash_map_templ));

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Squashfs - a compressed read only filesystem for Linux
  *
  * Copyright (c) 2010 LG Electronics
  * Chan Jeong <chan.jeong@lge.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2,
@@ -18,11 +23,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * lzo_wrapper.c
  */
 
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/buffer_head.h>
+=======
+#include <linux/bio.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/lzo.h>
@@ -76,6 +87,7 @@ static void lzo_free(void *strm)
 
 
 static int lzo_uncompress(struct squashfs_sb_info *msblk, void *strm,
+<<<<<<< HEAD
 	struct buffer_head **bh, int b, int offset, int length,
 	struct squashfs_page_actor *output)
 {
@@ -91,6 +103,26 @@ static int lzo_uncompress(struct squashfs_sb_info *msblk, void *strm,
 		bytes -= avail;
 		offset = 0;
 		put_bh(bh[i]);
+=======
+	struct bio *bio, int offset, int length,
+	struct squashfs_page_actor *output)
+{
+	struct bvec_iter_all iter_all = {};
+	struct bio_vec *bvec = bvec_init_iter_all(&iter_all);
+	struct squashfs_lzo *stream = strm;
+	void *buff = stream->input, *data;
+	int bytes = length, res;
+	size_t out_len = output->length;
+
+	while (bio_next_segment(bio, &iter_all)) {
+		int avail = min(bytes, ((int)bvec->bv_len) - offset);
+
+		data = bvec_virt(bvec);
+		memcpy(buff, data + offset, avail);
+		buff += avail;
+		bytes -= avail;
+		offset = 0;
+>>>>>>> upstream/android-13
 	}
 
 	res = lzo1x_decompress_safe(stream->input, (size_t)length,

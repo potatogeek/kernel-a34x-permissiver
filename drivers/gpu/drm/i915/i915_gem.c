@@ -25,6 +25,7 @@
  *
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_vma_manager.h>
 #include <drm/i915_drm.h>
@@ -40,12 +41,19 @@
 #include <linux/dma-fence-array.h>
 #include <linux/kthread.h>
 #include <linux/reservation.h>
+=======
+#include <drm/drm_vma_manager.h>
+#include <linux/dma-fence-array.h>
+#include <linux/kthread.h>
+#include <linux/dma-resv.h>
+>>>>>>> upstream/android-13
 #include <linux/shmem_fs.h>
 #include <linux/slab.h>
 #include <linux/stop_machine.h>
 #include <linux/swap.h>
 #include <linux/pci.h>
 #include <linux/dma-buf.h>
+<<<<<<< HEAD
 
 static void i915_gem_flush_free_objects(struct drm_i915_private *i915);
 
@@ -245,18 +253,72 @@ void i915_gem_unpark(struct drm_i915_private *i915)
 	queue_delayed_work(i915->wq,
 			   &i915->gt.retire_work,
 			   round_jiffies_up_relative(HZ));
+=======
+#include <linux/mman.h>
+
+#include "display/intel_display.h"
+#include "display/intel_frontbuffer.h"
+
+#include "gem/i915_gem_clflush.h"
+#include "gem/i915_gem_context.h"
+#include "gem/i915_gem_ioctls.h"
+#include "gem/i915_gem_mman.h"
+#include "gem/i915_gem_region.h"
+#include "gt/intel_engine_user.h"
+#include "gt/intel_gt.h"
+#include "gt/intel_gt_pm.h"
+#include "gt/intel_workarounds.h"
+
+#include "i915_drv.h"
+#include "i915_trace.h"
+#include "i915_vgpu.h"
+
+#include "intel_pm.h"
+
+static int
+insert_mappable_node(struct i915_ggtt *ggtt, struct drm_mm_node *node, u32 size)
+{
+	int err;
+
+	err = mutex_lock_interruptible(&ggtt->vm.mutex);
+	if (err)
+		return err;
+
+	memset(node, 0, sizeof(*node));
+	err = drm_mm_insert_node_in_range(&ggtt->vm.mm, node,
+					  size, 0, I915_COLOR_UNEVICTABLE,
+					  0, ggtt->mappable_end,
+					  DRM_MM_INSERT_LOW);
+
+	mutex_unlock(&ggtt->vm.mutex);
+
+	return err;
+}
+
+static void
+remove_mappable_node(struct i915_ggtt *ggtt, struct drm_mm_node *node)
+{
+	mutex_lock(&ggtt->vm.mutex);
+	drm_mm_remove_node(node);
+	mutex_unlock(&ggtt->vm.mutex);
+>>>>>>> upstream/android-13
 }
 
 int
 i915_gem_get_aperture_ioctl(struct drm_device *dev, void *data,
 			    struct drm_file *file)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = to_i915(dev);
 	struct i915_ggtt *ggtt = &dev_priv->ggtt;
+=======
+	struct i915_ggtt *ggtt = &to_i915(dev)->ggtt;
+>>>>>>> upstream/android-13
 	struct drm_i915_gem_get_aperture *args = data;
 	struct i915_vma *vma;
 	u64 pinned;
 
+<<<<<<< HEAD
 	pinned = ggtt->vm.reserved;
 	mutex_lock(&dev->struct_mutex);
 	list_for_each_entry(vma, &ggtt->vm.active_list, vm_link)
@@ -266,6 +328,17 @@ i915_gem_get_aperture_ioctl(struct drm_device *dev, void *data,
 		if (i915_vma_is_pinned(vma))
 			pinned += vma->node.size;
 	mutex_unlock(&dev->struct_mutex);
+=======
+	if (mutex_lock_interruptible(&ggtt->vm.mutex))
+		return -EINTR;
+
+	pinned = ggtt->vm.reserved;
+	list_for_each_entry(vma, &ggtt->vm.bound_list, vm_link)
+		if (i915_vma_is_pinned(vma))
+			pinned += vma->node.size;
+
+	mutex_unlock(&ggtt->vm.mutex);
+>>>>>>> upstream/android-13
 
 	args->aper_size = ggtt->vm.total;
 	args->aper_available_size = args->aper_size - pinned;
@@ -273,6 +346,7 @@ i915_gem_get_aperture_ioctl(struct drm_device *dev, void *data,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int i915_gem_object_get_pages_phys(struct drm_i915_gem_object *obj)
 {
 	struct address_space *mapping = obj->base.filp->f_mapping;
@@ -1061,11 +1135,97 @@ static int
 shmem_pread_slow(struct page *page, int offset, int length,
 		 char __user *user_data,
 		 bool page_do_bit17_swizzling, bool needs_clflush)
+=======
+int i915_gem_object_unbind(struct drm_i915_gem_object *obj,
+			   unsigned long flags)
+{
+	struct intel_runtime_pm *rpm = &to_i915(obj->base.dev)->runtime_pm;
+	LIST_HEAD(still_in_list);
+	intel_wakeref_t wakeref;
+	struct i915_vma *vma;
+	int ret;
+
+	if (list_empty(&obj->vma.list))
+		return 0;
+
+	/*
+	 * As some machines use ACPI to handle runtime-resume callbacks, and
+	 * ACPI is quite kmalloc happy, we cannot resume beneath the vm->mutex
+	 * as they are required by the shrinker. Ergo, we wake the device up
+	 * first just in case.
+	 */
+	wakeref = intel_runtime_pm_get(rpm);
+
+try_again:
+	ret = 0;
+	spin_lock(&obj->vma.lock);
+	while (!ret && (vma = list_first_entry_or_null(&obj->vma.list,
+						       struct i915_vma,
+						       obj_link))) {
+		struct i915_address_space *vm = vma->vm;
+
+		list_move_tail(&vma->obj_link, &still_in_list);
+		if (!i915_vma_is_bound(vma, I915_VMA_BIND_MASK))
+			continue;
+
+		if (flags & I915_GEM_OBJECT_UNBIND_TEST) {
+			ret = -EBUSY;
+			break;
+		}
+
+		ret = -EAGAIN;
+		if (!i915_vm_tryopen(vm))
+			break;
+
+		/* Prevent vma being freed by i915_vma_parked as we unbind */
+		vma = __i915_vma_get(vma);
+		spin_unlock(&obj->vma.lock);
+
+		if (vma) {
+			ret = -EBUSY;
+			if (flags & I915_GEM_OBJECT_UNBIND_ACTIVE ||
+			    !i915_vma_is_active(vma)) {
+				if (flags & I915_GEM_OBJECT_UNBIND_VM_TRYLOCK) {
+					if (mutex_trylock(&vma->vm->mutex)) {
+						ret = __i915_vma_unbind(vma);
+						mutex_unlock(&vma->vm->mutex);
+					} else {
+						ret = -EBUSY;
+					}
+				} else {
+					ret = i915_vma_unbind(vma);
+				}
+			}
+
+			__i915_vma_put(vma);
+		}
+
+		i915_vm_close(vm);
+		spin_lock(&obj->vma.lock);
+	}
+	list_splice_init(&still_in_list, &obj->vma.list);
+	spin_unlock(&obj->vma.lock);
+
+	if (ret == -EAGAIN && flags & I915_GEM_OBJECT_UNBIND_BARRIER) {
+		rcu_barrier(); /* flush the i915_vm_release() */
+		goto try_again;
+	}
+
+	intel_runtime_pm_put(rpm, wakeref);
+
+	return ret;
+}
+
+static int
+shmem_pread(struct page *page, int offset, int len, char __user *user_data,
+	    bool needs_clflush)
+>>>>>>> upstream/android-13
 {
 	char *vaddr;
 	int ret;
 
 	vaddr = kmap(page);
+<<<<<<< HEAD
 	if (needs_clflush)
 		shmem_clflush_swizzled_range(vaddr + offset, length,
 					     page_do_bit17_swizzling);
@@ -1099,12 +1259,24 @@ shmem_pread(struct page *page, int offset, int length, char __user *user_data,
 
 	return shmem_pread_slow(page, offset, length, user_data,
 				page_do_bit17_swizzling, needs_clflush);
+=======
+
+	if (needs_clflush)
+		drm_clflush_virt_range(vaddr + offset, len);
+
+	ret = __copy_to_user(user_data, vaddr + offset, len);
+
+	kunmap(page);
+
+	return ret ? -EFAULT : 0;
+>>>>>>> upstream/android-13
 }
 
 static int
 i915_gem_shmem_pread(struct drm_i915_gem_object *obj,
 		     struct drm_i915_gem_pread *args)
 {
+<<<<<<< HEAD
 	char __user *user_data;
 	u64 remain;
 	unsigned int obj_do_bit17_swizzling;
@@ -1124,6 +1296,28 @@ i915_gem_shmem_pread(struct drm_i915_gem_object *obj,
 	mutex_unlock(&obj->base.dev->struct_mutex);
 	if (ret)
 		return ret;
+=======
+	unsigned int needs_clflush;
+	unsigned int idx, offset;
+	char __user *user_data;
+	u64 remain;
+	int ret;
+
+	ret = i915_gem_object_lock_interruptible(obj, NULL);
+	if (ret)
+		return ret;
+
+	ret = i915_gem_object_pin_pages(obj);
+	if (ret)
+		goto err_unlock;
+
+	ret = i915_gem_object_prepare_read(obj, &needs_clflush);
+	if (ret)
+		goto err_unpin;
+
+	i915_gem_object_finish_access(obj);
+	i915_gem_object_unlock(obj);
+>>>>>>> upstream/android-13
 
 	remain = args->size;
 	user_data = u64_to_user_ptr(args->data_ptr);
@@ -1133,7 +1327,10 @@ i915_gem_shmem_pread(struct drm_i915_gem_object *obj,
 		unsigned int length = min_t(u64, remain, PAGE_SIZE - offset);
 
 		ret = shmem_pread(page, offset, length, user_data,
+<<<<<<< HEAD
 				  page_to_phys(page) & obj_do_bit17_swizzling,
+=======
+>>>>>>> upstream/android-13
 				  needs_clflush);
 		if (ret)
 			break;
@@ -1143,7 +1340,17 @@ i915_gem_shmem_pread(struct drm_i915_gem_object *obj,
 		offset = 0;
 	}
 
+<<<<<<< HEAD
 	i915_gem_obj_finish_shmem_access(obj);
+=======
+	i915_gem_object_unpin_pages(obj);
+	return ret;
+
+err_unpin:
+	i915_gem_object_unpin_pages(obj);
+err_unlock:
+	i915_gem_object_unlock(obj);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1171,12 +1378,93 @@ gtt_user_read(struct io_mapping *mapping,
 	return unwritten;
 }
 
+<<<<<<< HEAD
+=======
+static struct i915_vma *i915_gem_gtt_prepare(struct drm_i915_gem_object *obj,
+					     struct drm_mm_node *node,
+					     bool write)
+{
+	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+	struct i915_ggtt *ggtt = &i915->ggtt;
+	struct i915_vma *vma;
+	struct i915_gem_ww_ctx ww;
+	int ret;
+
+	i915_gem_ww_ctx_init(&ww, true);
+retry:
+	vma = ERR_PTR(-ENODEV);
+	ret = i915_gem_object_lock(obj, &ww);
+	if (ret)
+		goto err_ww;
+
+	ret = i915_gem_object_set_to_gtt_domain(obj, write);
+	if (ret)
+		goto err_ww;
+
+	if (!i915_gem_object_is_tiled(obj))
+		vma = i915_gem_object_ggtt_pin_ww(obj, &ww, NULL, 0, 0,
+						  PIN_MAPPABLE |
+						  PIN_NONBLOCK /* NOWARN */ |
+						  PIN_NOEVICT);
+	if (vma == ERR_PTR(-EDEADLK)) {
+		ret = -EDEADLK;
+		goto err_ww;
+	} else if (!IS_ERR(vma)) {
+		node->start = i915_ggtt_offset(vma);
+		node->flags = 0;
+	} else {
+		ret = insert_mappable_node(ggtt, node, PAGE_SIZE);
+		if (ret)
+			goto err_ww;
+		GEM_BUG_ON(!drm_mm_node_allocated(node));
+		vma = NULL;
+	}
+
+	ret = i915_gem_object_pin_pages(obj);
+	if (ret) {
+		if (drm_mm_node_allocated(node)) {
+			ggtt->vm.clear_range(&ggtt->vm, node->start, node->size);
+			remove_mappable_node(ggtt, node);
+		} else {
+			i915_vma_unpin(vma);
+		}
+	}
+
+err_ww:
+	if (ret == -EDEADLK) {
+		ret = i915_gem_ww_ctx_backoff(&ww);
+		if (!ret)
+			goto retry;
+	}
+	i915_gem_ww_ctx_fini(&ww);
+
+	return ret ? ERR_PTR(ret) : vma;
+}
+
+static void i915_gem_gtt_cleanup(struct drm_i915_gem_object *obj,
+				 struct drm_mm_node *node,
+				 struct i915_vma *vma)
+{
+	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+	struct i915_ggtt *ggtt = &i915->ggtt;
+
+	i915_gem_object_unpin_pages(obj);
+	if (drm_mm_node_allocated(node)) {
+		ggtt->vm.clear_range(&ggtt->vm, node->start, node->size);
+		remove_mappable_node(ggtt, node);
+	} else {
+		i915_vma_unpin(vma);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int
 i915_gem_gtt_pread(struct drm_i915_gem_object *obj,
 		   const struct drm_i915_gem_pread *args)
 {
 	struct drm_i915_private *i915 = to_i915(obj->base.dev);
 	struct i915_ggtt *ggtt = &i915->ggtt;
+<<<<<<< HEAD
 	struct drm_mm_node node;
 	struct i915_vma *vma;
 	void __user *user_data;
@@ -1214,6 +1502,23 @@ i915_gem_gtt_pread(struct drm_i915_gem_object *obj,
 
 	mutex_unlock(&i915->drm.struct_mutex);
 
+=======
+	intel_wakeref_t wakeref;
+	struct drm_mm_node node;
+	void __user *user_data;
+	struct i915_vma *vma;
+	u64 remain, offset;
+	int ret = 0;
+
+	wakeref = intel_runtime_pm_get(&i915->runtime_pm);
+
+	vma = i915_gem_gtt_prepare(obj, &node, false);
+	if (IS_ERR(vma)) {
+		ret = PTR_ERR(vma);
+		goto out_rpm;
+	}
+
+>>>>>>> upstream/android-13
 	user_data = u64_to_user_ptr(args->data_ptr);
 	remain = args->size;
 	offset = args->offset;
@@ -1229,12 +1534,19 @@ i915_gem_gtt_pread(struct drm_i915_gem_object *obj,
 		unsigned page_offset = offset_in_page(offset);
 		unsigned page_length = PAGE_SIZE - page_offset;
 		page_length = remain < page_length ? remain : page_length;
+<<<<<<< HEAD
 		if (node.allocated) {
 			wmb();
 			ggtt->vm.insert_page(&ggtt->vm,
 					     i915_gem_object_get_dma_address(obj, offset >> PAGE_SHIFT),
 					     node.start, I915_CACHE_NONE, 0);
 			wmb();
+=======
+		if (drm_mm_node_allocated(&node)) {
+			ggtt->vm.insert_page(&ggtt->vm,
+					     i915_gem_object_get_dma_address(obj, offset >> PAGE_SHIFT),
+					     node.start, I915_CACHE_NONE, 0);
+>>>>>>> upstream/android-13
 		} else {
 			page_base += offset & PAGE_MASK;
 		}
@@ -1250,6 +1562,7 @@ i915_gem_gtt_pread(struct drm_i915_gem_object *obj,
 		offset += page_length;
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&i915->drm.struct_mutex);
 out_unpin:
 	if (node.allocated) {
@@ -1263,6 +1576,11 @@ out_unlock:
 	intel_runtime_pm_put(i915);
 	mutex_unlock(&i915->drm.struct_mutex);
 
+=======
+	i915_gem_gtt_cleanup(obj, &node, vma);
+out_rpm:
+	intel_runtime_pm_put(&i915->runtime_pm, wakeref);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1278,15 +1596,32 @@ int
 i915_gem_pread_ioctl(struct drm_device *dev, void *data,
 		     struct drm_file *file)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = to_i915(dev);
+>>>>>>> upstream/android-13
 	struct drm_i915_gem_pread *args = data;
 	struct drm_i915_gem_object *obj;
 	int ret;
 
+<<<<<<< HEAD
 	if (args->size == 0)
 		return 0;
 
 	if (!access_ok(VERIFY_WRITE,
 		       u64_to_user_ptr(args->data_ptr),
+=======
+	/* PREAD is disallowed for all platforms after TGL-LP.  This also
+	 * covers all platforms with local memory.
+	 */
+	if (GRAPHICS_VER(i915) >= 12 && !IS_TIGERLAKE(i915))
+		return -EOPNOTSUPP;
+
+	if (args->size == 0)
+		return 0;
+
+	if (!access_ok(u64_to_user_ptr(args->data_ptr),
+>>>>>>> upstream/android-13
 		       args->size))
 		return -EFAULT;
 
@@ -1301,6 +1636,7 @@ i915_gem_pread_ioctl(struct drm_device *dev, void *data,
 	}
 
 	trace_i915_gem_object_pread(obj, args->offset, args->size);
+<<<<<<< HEAD
 
 	ret = i915_gem_object_wait(obj,
 				   I915_WAIT_INTERRUPTIBLE,
@@ -1310,6 +1646,17 @@ i915_gem_pread_ioctl(struct drm_device *dev, void *data,
 		goto out;
 
 	ret = i915_gem_object_pin_pages(obj);
+=======
+	ret = -ENODEV;
+	if (obj->ops->pread)
+		ret = obj->ops->pread(obj, args);
+	if (ret != -ENODEV)
+		goto out;
+
+	ret = i915_gem_object_wait(obj,
+				   I915_WAIT_INTERRUPTIBLE,
+				   MAX_SCHEDULE_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -1317,7 +1664,10 @@ i915_gem_pread_ioctl(struct drm_device *dev, void *data,
 	if (ret == -EFAULT || ret == -ENODEV)
 		ret = i915_gem_gtt_pread(obj, args);
 
+<<<<<<< HEAD
 	i915_gem_object_unpin_pages(obj);
+=======
+>>>>>>> upstream/android-13
 out:
 	i915_gem_object_put(obj);
 	return ret;
@@ -1362,15 +1712,24 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
 {
 	struct drm_i915_private *i915 = to_i915(obj->base.dev);
 	struct i915_ggtt *ggtt = &i915->ggtt;
+<<<<<<< HEAD
+=======
+	struct intel_runtime_pm *rpm = &i915->runtime_pm;
+	intel_wakeref_t wakeref;
+>>>>>>> upstream/android-13
 	struct drm_mm_node node;
 	struct i915_vma *vma;
 	u64 remain, offset;
 	void __user *user_data;
+<<<<<<< HEAD
 	int ret;
 
 	ret = mutex_lock_interruptible(&i915->drm.struct_mutex);
 	if (ret)
 		return ret;
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (i915_gem_object_has_struct_page(obj)) {
 		/*
@@ -1380,6 +1739,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
 		 * This easily dwarfs any performance advantage from
 		 * using the cache bypass of indirect GGTT access.
 		 */
+<<<<<<< HEAD
 		if (!intel_runtime_pm_get_if_in_use(i915)) {
 			ret = -EFAULT;
 			goto out_unlock;
@@ -1416,6 +1776,23 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
 	mutex_unlock(&i915->drm.struct_mutex);
 
 	intel_fb_obj_invalidate(obj, ORIGIN_CPU);
+=======
+		wakeref = intel_runtime_pm_get_if_in_use(rpm);
+		if (!wakeref)
+			return -EFAULT;
+	} else {
+		/* No backing pages, no fallback, we must force GGTT access */
+		wakeref = intel_runtime_pm_get(rpm);
+	}
+
+	vma = i915_gem_gtt_prepare(obj, &node, true);
+	if (IS_ERR(vma)) {
+		ret = PTR_ERR(vma);
+		goto out_rpm;
+	}
+
+	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+>>>>>>> upstream/android-13
 
 	user_data = u64_to_user_ptr(args->data_ptr);
 	offset = args->offset;
@@ -1431,8 +1808,14 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
 		unsigned int page_offset = offset_in_page(offset);
 		unsigned int page_length = PAGE_SIZE - page_offset;
 		page_length = remain < page_length ? remain : page_length;
+<<<<<<< HEAD
 		if (node.allocated) {
 			wmb(); /* flush the write before we modify the GGTT */
+=======
+		if (drm_mm_node_allocated(&node)) {
+			/* flush the write before we modify the GGTT */
+			intel_gt_flush_ggtt_writes(ggtt->vm.gt);
+>>>>>>> upstream/android-13
 			ggtt->vm.insert_page(&ggtt->vm,
 					     i915_gem_object_get_dma_address(obj, offset >> PAGE_SHIFT),
 					     node.start, I915_CACHE_NONE, 0);
@@ -1456,6 +1839,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
 		user_data += page_length;
 		offset += page_length;
 	}
+<<<<<<< HEAD
 	intel_fb_obj_flush(obj, ORIGIN_CPU);
 
 	mutex_lock(&i915->drm.struct_mutex);
@@ -1501,6 +1885,18 @@ shmem_pwrite_slow(struct page *page, int offset, int length,
 	return ret ? -EFAULT : 0;
 }
 
+=======
+
+	intel_gt_flush_ggtt_writes(ggtt->vm.gt);
+	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+
+	i915_gem_gtt_cleanup(obj, &node, vma);
+out_rpm:
+	intel_runtime_pm_put(rpm, wakeref);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /* Per-page copy function for the shmem pwrite fastpath.
  * Flushes invalid cachelines before writing to the target if
  * needs_clflush_before is set and flushes out any written cachelines after
@@ -1508,6 +1904,7 @@ shmem_pwrite_slow(struct page *page, int offset, int length,
  */
 static int
 shmem_pwrite(struct page *page, int offset, int len, char __user *user_data,
+<<<<<<< HEAD
 	     bool page_do_bit17_swizzling,
 	     bool needs_clflush_before,
 	     bool needs_clflush_after)
@@ -1533,12 +1930,33 @@ shmem_pwrite(struct page *page, int offset, int len, char __user *user_data,
 				 page_do_bit17_swizzling,
 				 needs_clflush_before,
 				 needs_clflush_after);
+=======
+	     bool needs_clflush_before,
+	     bool needs_clflush_after)
+{
+	char *vaddr;
+	int ret;
+
+	vaddr = kmap(page);
+
+	if (needs_clflush_before)
+		drm_clflush_virt_range(vaddr + offset, len);
+
+	ret = __copy_from_user(vaddr + offset, user_data, len);
+	if (!ret && needs_clflush_after)
+		drm_clflush_virt_range(vaddr + offset, len);
+
+	kunmap(page);
+
+	return ret ? -EFAULT : 0;
+>>>>>>> upstream/android-13
 }
 
 static int
 i915_gem_shmem_pwrite(struct drm_i915_gem_object *obj,
 		      const struct drm_i915_gem_pwrite *args)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *i915 = to_i915(obj->base.dev);
 	void __user *user_data;
 	u64 remain;
@@ -1560,6 +1978,29 @@ i915_gem_shmem_pwrite(struct drm_i915_gem_object *obj,
 	obj_do_bit17_swizzling = 0;
 	if (i915_gem_object_needs_bit17_swizzle(obj))
 		obj_do_bit17_swizzling = BIT(17);
+=======
+	unsigned int partial_cacheline_write;
+	unsigned int needs_clflush;
+	unsigned int offset, idx;
+	void __user *user_data;
+	u64 remain;
+	int ret;
+
+	ret = i915_gem_object_lock_interruptible(obj, NULL);
+	if (ret)
+		return ret;
+
+	ret = i915_gem_object_pin_pages(obj);
+	if (ret)
+		goto err_unlock;
+
+	ret = i915_gem_object_prepare_write(obj, &needs_clflush);
+	if (ret)
+		goto err_unpin;
+
+	i915_gem_object_finish_access(obj);
+	i915_gem_object_unlock(obj);
+>>>>>>> upstream/android-13
 
 	/* If we don't overwrite a cacheline completely we need to be
 	 * careful to have up-to-date data by first clflushing. Don't
@@ -1577,7 +2018,10 @@ i915_gem_shmem_pwrite(struct drm_i915_gem_object *obj,
 		unsigned int length = min_t(u64, remain, PAGE_SIZE - offset);
 
 		ret = shmem_pwrite(page, offset, length, user_data,
+<<<<<<< HEAD
 				   page_to_phys(page) & obj_do_bit17_swizzling,
+=======
+>>>>>>> upstream/android-13
 				   (offset | length) & partial_cacheline_write,
 				   needs_clflush & CLFLUSH_AFTER);
 		if (ret)
@@ -1588,8 +2032,20 @@ i915_gem_shmem_pwrite(struct drm_i915_gem_object *obj,
 		offset = 0;
 	}
 
+<<<<<<< HEAD
 	intel_fb_obj_flush(obj, ORIGIN_CPU);
 	i915_gem_obj_finish_shmem_access(obj);
+=======
+	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+
+	i915_gem_object_unpin_pages(obj);
+	return ret;
+
+err_unpin:
+	i915_gem_object_unpin_pages(obj);
+err_unlock:
+	i915_gem_object_unlock(obj);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1605,16 +2061,33 @@ int
 i915_gem_pwrite_ioctl(struct drm_device *dev, void *data,
 		      struct drm_file *file)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = to_i915(dev);
+>>>>>>> upstream/android-13
 	struct drm_i915_gem_pwrite *args = data;
 	struct drm_i915_gem_object *obj;
 	int ret;
 
+<<<<<<< HEAD
 	if (args->size == 0)
 		return 0;
 
 	if (!access_ok(VERIFY_READ,
 		       u64_to_user_ptr(args->data_ptr),
 		       args->size))
+=======
+	/* PWRITE is disallowed for all platforms after TGL-LP.  This also
+	 * covers all platforms with local memory.
+	 */
+	if (GRAPHICS_VER(i915) >= 12 && !IS_TIGERLAKE(i915))
+		return -EOPNOTSUPP;
+
+	if (args->size == 0)
+		return 0;
+
+	if (!access_ok(u64_to_user_ptr(args->data_ptr), args->size))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	obj = i915_gem_object_lookup(file, args->handle);
@@ -1644,12 +2117,16 @@ i915_gem_pwrite_ioctl(struct drm_device *dev, void *data,
 	ret = i915_gem_object_wait(obj,
 				   I915_WAIT_INTERRUPTIBLE |
 				   I915_WAIT_ALL,
+<<<<<<< HEAD
 				   MAX_SCHEDULE_TIMEOUT,
 				   to_rps_client(file));
 	if (ret)
 		goto err;
 
 	ret = i915_gem_object_pin_pages(obj);
+=======
+				   MAX_SCHEDULE_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err;
 
@@ -1669,6 +2146,7 @@ i915_gem_pwrite_ioctl(struct drm_device *dev, void *data,
 		ret = i915_gem_gtt_pwrite_fast(obj, args);
 
 	if (ret == -EFAULT || ret == -ENOSPC) {
+<<<<<<< HEAD
 		if (obj->phys_handle)
 			ret = i915_gem_phys_pwrite(obj, args, file);
 		else
@@ -1676,11 +2154,18 @@ i915_gem_pwrite_ioctl(struct drm_device *dev, void *data,
 	}
 
 	i915_gem_object_unpin_pages(obj);
+=======
+		if (i915_gem_object_has_struct_page(obj))
+			ret = i915_gem_shmem_pwrite(obj, args);
+	}
+
+>>>>>>> upstream/android-13
 err:
 	i915_gem_object_put(obj);
 	return ret;
 }
 
+<<<<<<< HEAD
 static void i915_gem_object_bump_inactive_ggtt(struct drm_i915_gem_object *obj)
 {
 	struct drm_i915_private *i915;
@@ -1800,6 +2285,8 @@ out:
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * Called when user space has done writes to this buffer
  * @dev: drm device
@@ -1829,6 +2316,7 @@ i915_gem_sw_finish_ioctl(struct drm_device *dev, void *data,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline bool
 __vma_matches(struct vm_area_struct *vma, struct file *filp,
 	      unsigned long addr, unsigned long size)
@@ -2247,6 +2735,9 @@ out:
 }
 
 void i915_gem_runtime_suspend(struct drm_i915_private *dev_priv)
+=======
+void i915_gem_runtime_suspend(struct drm_i915_private *i915)
+>>>>>>> upstream/android-13
 {
 	struct drm_i915_gem_object *obj, *on;
 	int i;
@@ -2259,6 +2750,7 @@ void i915_gem_runtime_suspend(struct drm_i915_private *dev_priv)
 	 */
 
 	list_for_each_entry_safe(obj, on,
+<<<<<<< HEAD
 				 &dev_priv->mm.userfault_list, userfault_link)
 		__i915_gem_object_release_mmap(obj);
 
@@ -2270,6 +2762,21 @@ void i915_gem_runtime_suspend(struct drm_i915_private *dev_priv)
 		struct drm_i915_fence_reg *reg = &dev_priv->fence_regs[i];
 
 		/* Ideally we want to assert that the fence register is not
+=======
+				 &i915->ggtt.userfault_list, userfault_link)
+		__i915_gem_object_release_mmap_gtt(obj);
+
+	/*
+	 * The fence will be lost when the device powers down. If any were
+	 * in use by hardware (i.e. they are pinned), we should not be powering
+	 * down! All other fences will be reacquired by the user upon waking.
+	 */
+	for (i = 0; i < i915->ggtt.num_fences; i++) {
+		struct i915_fence_reg *reg = &i915->ggtt.fence_regs[i];
+
+		/*
+		 * Ideally we want to assert that the fence register is not
+>>>>>>> upstream/android-13
 		 * live at this point (i.e. that no piece of code will be
 		 * trying to write through fence + GTT, as that both violates
 		 * our tracking of activity and associated locking/barriers,
@@ -2288,6 +2795,7 @@ void i915_gem_runtime_suspend(struct drm_i915_private *dev_priv)
 	}
 }
 
+<<<<<<< HEAD
 static int i915_gem_object_create_mmap_offset(struct drm_i915_gem_object *obj)
 {
 	struct drm_i915_private *dev_priv = to_i915(obj->base.dev);
@@ -4455,16 +4963,53 @@ i915_gem_object_pin(struct drm_i915_gem_object *obj,
 	if (flags & PIN_MAPPABLE &&
 	    (!view || view->type == I915_GGTT_VIEW_NORMAL)) {
 		/* If the required space is larger than the available
+=======
+static void discard_ggtt_vma(struct i915_vma *vma)
+{
+	struct drm_i915_gem_object *obj = vma->obj;
+
+	spin_lock(&obj->vma.lock);
+	if (!RB_EMPTY_NODE(&vma->obj_node)) {
+		rb_erase(&vma->obj_node, &obj->vma.tree);
+		RB_CLEAR_NODE(&vma->obj_node);
+	}
+	spin_unlock(&obj->vma.lock);
+}
+
+struct i915_vma *
+i915_gem_object_ggtt_pin_ww(struct drm_i915_gem_object *obj,
+			    struct i915_gem_ww_ctx *ww,
+			    const struct i915_ggtt_view *view,
+			    u64 size, u64 alignment, u64 flags)
+{
+	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+	struct i915_ggtt *ggtt = &i915->ggtt;
+	struct i915_vma *vma;
+	int ret;
+
+	if (flags & PIN_MAPPABLE &&
+	    (!view || view->type == I915_GGTT_VIEW_NORMAL)) {
+		/*
+		 * If the required space is larger than the available
+>>>>>>> upstream/android-13
 		 * aperture, we will not able to find a slot for the
 		 * object and unbinding the object now will be in
 		 * vain. Worse, doing so may cause us to ping-pong
 		 * the object in and out of the Global GTT and
 		 * waste a lot of cycles under the mutex.
 		 */
+<<<<<<< HEAD
 		if (obj->base.size > dev_priv->ggtt.mappable_end)
 			return ERR_PTR(-E2BIG);
 
 		/* If NONBLOCK is set the caller is optimistically
+=======
+		if (obj->base.size > ggtt->mappable_end)
+			return ERR_PTR(-E2BIG);
+
+		/*
+		 * If NONBLOCK is set the caller is optimistically
+>>>>>>> upstream/android-13
 		 * trying to cache the full object within the mappable
 		 * aperture, and *must* have a fallback in place for
 		 * situations where we cannot bind the object. We
@@ -4480,12 +5025,22 @@ i915_gem_object_pin(struct drm_i915_gem_object *obj,
 		 * we could try to minimise harm to others.
 		 */
 		if (flags & PIN_NONBLOCK &&
+<<<<<<< HEAD
 		    obj->base.size > dev_priv->ggtt.mappable_end / 2)
 			return ERR_PTR(-ENOSPC);
 	}
 
 	vma = i915_vma_instance(obj, vm, view);
 	if (unlikely(IS_ERR(vma)))
+=======
+		    obj->base.size > ggtt->mappable_end / 2)
+			return ERR_PTR(-ENOSPC);
+	}
+
+new_vma:
+	vma = i915_vma_instance(obj, &ggtt->vm, view);
+	if (IS_ERR(vma))
+>>>>>>> upstream/android-13
 		return vma;
 
 	if (i915_vma_misplaced(vma, size, alignment, flags)) {
@@ -4494,6 +5049,7 @@ i915_gem_object_pin(struct drm_i915_gem_object *obj,
 				return ERR_PTR(-ENOSPC);
 
 			if (flags & PIN_MAPPABLE &&
+<<<<<<< HEAD
 			    vma->fence_size > dev_priv->ggtt.mappable_end / 2)
 				return ERR_PTR(-ENOSPC);
 		}
@@ -4505,11 +5061,23 @@ i915_gem_object_pin(struct drm_i915_gem_object *obj,
 		     i915_ggtt_offset(vma), alignment,
 		     !!(flags & PIN_MAPPABLE),
 		     i915_vma_is_map_and_fenceable(vma));
+=======
+			    vma->fence_size > ggtt->mappable_end / 2)
+				return ERR_PTR(-ENOSPC);
+		}
+
+		if (i915_vma_is_pinned(vma) || i915_vma_is_active(vma)) {
+			discard_ggtt_vma(vma);
+			goto new_vma;
+		}
+
+>>>>>>> upstream/android-13
 		ret = i915_vma_unbind(vma);
 		if (ret)
 			return ERR_PTR(ret);
 	}
 
+<<<<<<< HEAD
 	ret = i915_vma_pin(vma, size, alignment, flags);
 	if (ret)
 		return ERR_PTR(ret);
@@ -4647,13 +5215,40 @@ i915_gem_throttle_ioctl(struct drm_device *dev, void *data,
 			struct drm_file *file_priv)
 {
 	return i915_gem_ring_throttle(dev, file_priv);
+=======
+	if (ww)
+		ret = i915_vma_pin_ww(vma, ww, size, alignment, flags | PIN_GLOBAL);
+	else
+		ret = i915_vma_pin(vma, size, alignment, flags | PIN_GLOBAL);
+
+	if (ret)
+		return ERR_PTR(ret);
+
+	if (vma->fence && !i915_gem_object_is_tiled(obj)) {
+		mutex_lock(&ggtt->vm.mutex);
+		i915_vma_revoke_fence(vma);
+		mutex_unlock(&ggtt->vm.mutex);
+	}
+
+	ret = i915_vma_wait_for_bind(vma);
+	if (ret) {
+		i915_vma_unpin(vma);
+		return ERR_PTR(ret);
+	}
+
+	return vma;
+>>>>>>> upstream/android-13
 }
 
 int
 i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
 		       struct drm_file *file_priv)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = to_i915(dev);
+=======
+	struct drm_i915_private *i915 = to_i915(dev);
+>>>>>>> upstream/android-13
 	struct drm_i915_gem_madvise *args = data;
 	struct drm_i915_gem_object *obj;
 	int err;
@@ -4670,12 +5265,17 @@ i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
 	if (!obj)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	err = mutex_lock_interruptible(&obj->mm.lock);
+=======
+	err = i915_gem_object_lock_interruptible(obj, NULL);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
 	if (i915_gem_object_has_pages(obj) &&
 	    i915_gem_object_is_tiled(obj) &&
+<<<<<<< HEAD
 	    dev_priv->quirks & QUIRK_PIN_SWIZZLED_PAGES) {
 		if (obj->mm.madv == I915_MADV_WILLNEED) {
 			GEM_BUG_ON(!obj->mm.quirked);
@@ -4691,6 +5291,43 @@ i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
 
 	if (obj->mm.madv != __I915_MADV_PURGED)
 		obj->mm.madv = args->madv;
+=======
+	    i915->quirks & QUIRK_PIN_SWIZZLED_PAGES) {
+		if (obj->mm.madv == I915_MADV_WILLNEED) {
+			GEM_BUG_ON(!i915_gem_object_has_tiling_quirk(obj));
+			i915_gem_object_clear_tiling_quirk(obj);
+			i915_gem_object_make_shrinkable(obj);
+		}
+		if (args->madv == I915_MADV_WILLNEED) {
+			GEM_BUG_ON(i915_gem_object_has_tiling_quirk(obj));
+			i915_gem_object_make_unshrinkable(obj);
+			i915_gem_object_set_tiling_quirk(obj);
+		}
+	}
+
+	if (obj->mm.madv != __I915_MADV_PURGED) {
+		obj->mm.madv = args->madv;
+		if (obj->ops->adjust_lru)
+			obj->ops->adjust_lru(obj);
+	}
+
+	if (i915_gem_object_has_pages(obj)) {
+		unsigned long flags;
+
+		spin_lock_irqsave(&i915->mm.obj_lock, flags);
+		if (!list_empty(&obj->mm.link)) {
+			struct list_head *list;
+
+			if (obj->mm.madv != I915_MADV_WILLNEED)
+				list = &i915->mm.purge_list;
+			else
+				list = &i915->mm.shrink_list;
+			list_move_tail(&obj->mm.link, list);
+
+		}
+		spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
+	}
+>>>>>>> upstream/android-13
 
 	/* if the object is no longer attached, discard its backing storage */
 	if (obj->mm.madv == I915_MADV_DONTNEED &&
@@ -4698,13 +5335,19 @@ i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
 		i915_gem_object_truncate(obj);
 
 	args->retained = obj->mm.madv != __I915_MADV_PURGED;
+<<<<<<< HEAD
 	mutex_unlock(&obj->mm.lock);
 
+=======
+
+	i915_gem_object_unlock(obj);
+>>>>>>> upstream/android-13
 out:
 	i915_gem_object_put(obj);
 	return err;
 }
 
+<<<<<<< HEAD
 static void
 frontbuffer_retire(struct i915_gem_active *active, struct i915_request *request)
 {
@@ -5492,6 +6135,8 @@ err_active:
 	goto out_ctx;
 }
 
+=======
+>>>>>>> upstream/android-13
 int i915_gem_init(struct drm_i915_private *dev_priv)
 {
 	int ret;
@@ -5501,6 +6146,7 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
 		mkwrite_device_info(dev_priv)->page_sizes =
 			I915_GTT_PAGE_SIZE_4K;
 
+<<<<<<< HEAD
 	dev_priv->mm.unordered_timeline = dma_fence_context_alloc(1);
 
 	if (HAS_LOGICAL_RING_CONTEXTS(dev_priv)) {
@@ -5511,10 +6157,13 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
 		dev_priv->gt.cleanup_engine = intel_engine_cleanup;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = i915_gem_init_userptr(dev_priv);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = intel_uc_init_misc(dev_priv);
 	if (ret)
 		return ret;
@@ -5533,11 +6182,18 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
 	intel_uncore_forcewake_get(dev_priv, FORCEWAKE_ALL);
 
 	ret = i915_gem_init_ggtt(dev_priv);
+=======
+	intel_uc_fetch_firmwares(&dev_priv->gt.uc);
+	intel_wopcm_init(&dev_priv->wopcm);
+
+	ret = i915_init_ggtt(dev_priv);
+>>>>>>> upstream/android-13
 	if (ret) {
 		GEM_BUG_ON(ret == -EIO);
 		goto err_unlock;
 	}
 
+<<<<<<< HEAD
 	ret = i915_gem_contexts_init(dev_priv);
 	if (ret) {
 		GEM_BUG_ON(ret == -EIO);
@@ -5560,6 +6216,8 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
 	if (ret)
 		goto err_uc_init;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Despite its name intel_init_clock_gating applies both display
 	 * clock gating workarounds; GT mmio workarounds and the occasional
@@ -5571,6 +6229,7 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
 	 */
 	intel_init_clock_gating(dev_priv);
 
+<<<<<<< HEAD
 	ret = __intel_engines_record_defaults(dev_priv);
 	if (ret)
 		goto err_init_hw;
@@ -5587,6 +6246,11 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
 
 	intel_uncore_forcewake_put(dev_priv, FORCEWAKE_ALL);
 	mutex_unlock(&dev_priv->drm.struct_mutex);
+=======
+	ret = intel_gt_init(&dev_priv->gt);
+	if (ret)
+		goto err_unlock;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -5596,6 +6260,7 @@ int i915_gem_init(struct drm_i915_private *dev_priv)
 	 * HW as irrevisibly wedged, but keep enough state around that the
 	 * driver doesn't explode during runtime.
 	 */
+<<<<<<< HEAD
 err_init_hw:
 	mutex_unlock(&dev_priv->drm.struct_mutex);
 
@@ -5639,10 +6304,29 @@ err_uc_misc:
 			i915_load_error(dev_priv,
 					"Failed to initialize GPU, declaring it wedged!\n");
 			i915_gem_set_wedged(dev_priv);
+=======
+err_unlock:
+	i915_gem_drain_workqueue(dev_priv);
+
+	if (ret != -EIO)
+		intel_uc_cleanup_firmwares(&dev_priv->gt.uc);
+
+	if (ret == -EIO) {
+		/*
+		 * Allow engines or uC initialisation to fail by marking the GPU
+		 * as wedged. But we only want to do this when the GPU is angry,
+		 * for all other failure, such as an allocation failure, bail.
+		 */
+		if (!intel_gt_is_wedged(&dev_priv->gt)) {
+			i915_probe_error(dev_priv,
+					 "Failed to initialize GPU, declaring it wedged!\n");
+			intel_gt_set_wedged(&dev_priv->gt);
+>>>>>>> upstream/android-13
 		}
 
 		/* Minimal basic recovery for KMS */
 		ret = i915_ggtt_enable_hw(dev_priv);
+<<<<<<< HEAD
 		i915_gem_restore_gtt_mappings(dev_priv);
 		i915_gem_restore_fences(dev_priv);
 		intel_init_clock_gating(dev_priv);
@@ -5658,10 +6342,41 @@ void i915_gem_fini(struct drm_i915_private *dev_priv)
 {
 	i915_gem_suspend_late(dev_priv);
 	intel_disable_gt_powersave(dev_priv);
+=======
+		i915_ggtt_resume(&dev_priv->ggtt);
+		intel_init_clock_gating(dev_priv);
+	}
+
+	i915_gem_drain_freed_objects(dev_priv);
+
+	return ret;
+}
+
+void i915_gem_driver_register(struct drm_i915_private *i915)
+{
+	i915_gem_driver_register__shrinker(i915);
+
+	intel_engines_driver_register(i915);
+}
+
+void i915_gem_driver_unregister(struct drm_i915_private *i915)
+{
+	i915_gem_driver_unregister__shrinker(i915);
+}
+
+void i915_gem_driver_remove(struct drm_i915_private *dev_priv)
+{
+	intel_wakeref_auto_fini(&dev_priv->ggtt.userfault_wakeref);
+
+	i915_gem_suspend_late(dev_priv);
+	intel_gt_driver_remove(&dev_priv->gt);
+	dev_priv->uabi_engines = RB_ROOT;
+>>>>>>> upstream/android-13
 
 	/* Flush any outstanding unpin_work. */
 	i915_gem_drain_workqueue(dev_priv);
 
+<<<<<<< HEAD
 	mutex_lock(&dev_priv->drm.struct_mutex);
 	intel_uc_fini_hw(dev_priv);
 	intel_uc_fini(dev_priv);
@@ -5724,10 +6439,27 @@ i915_gem_load_init_fences(struct drm_i915_private *dev_priv)
 	i915_gem_restore_fences(dev_priv);
 
 	i915_gem_detect_bit_6_swizzle(dev_priv);
+=======
+	i915_gem_drain_freed_objects(dev_priv);
+}
+
+void i915_gem_driver_release(struct drm_i915_private *dev_priv)
+{
+	intel_gt_driver_release(&dev_priv->gt);
+
+	intel_wa_list_free(&dev_priv->gt_wa_list);
+
+	intel_uc_cleanup_firmwares(&dev_priv->gt.uc);
+
+	i915_gem_drain_freed_objects(dev_priv);
+
+	drm_WARN_ON(&dev_priv->drm, !list_empty(&dev_priv->gem.contexts.list));
+>>>>>>> upstream/android-13
 }
 
 static void i915_gem_init__mm(struct drm_i915_private *i915)
 {
+<<<<<<< HEAD
 	spin_lock_init(&i915->mm.object_stat_lock);
 	spin_lock_init(&i915->mm.obj_lock);
 	spin_lock_init(&i915->mm.free_lock);
@@ -5810,6 +6542,24 @@ err_objects:
 	kmem_cache_destroy(dev_priv->objects);
 err_out:
 	return err;
+=======
+	spin_lock_init(&i915->mm.obj_lock);
+
+	init_llist_head(&i915->mm.free_list);
+
+	INIT_LIST_HEAD(&i915->mm.purge_list);
+	INIT_LIST_HEAD(&i915->mm.shrink_list);
+
+	i915_gem_init__objects(i915);
+}
+
+void i915_gem_init_early(struct drm_i915_private *dev_priv)
+{
+	i915_gem_init__mm(dev_priv);
+	i915_gem_init__contexts(dev_priv);
+
+	spin_lock_init(&dev_priv->fb_tracking.lock);
+>>>>>>> upstream/android-13
 }
 
 void i915_gem_cleanup_early(struct drm_i915_private *dev_priv)
@@ -5817,6 +6567,7 @@ void i915_gem_cleanup_early(struct drm_i915_private *dev_priv)
 	i915_gem_drain_freed_objects(dev_priv);
 	GEM_BUG_ON(!llist_empty(&dev_priv->mm.free_list));
 	GEM_BUG_ON(atomic_read(&dev_priv->mm.free_count));
+<<<<<<< HEAD
 	WARN_ON(dev_priv->mm.object_count);
 	WARN_ON(!list_empty(&dev_priv->gt.timelines));
 
@@ -5893,6 +6644,9 @@ void i915_gem_release(struct drm_device *dev, struct drm_file *file)
 	list_for_each_entry(request, &file_priv->mm.request_list, client_link)
 		request->file_priv = NULL;
 	spin_unlock(&file_priv->mm.lock);
+=======
+	drm_WARN_ON(&dev_priv->drm, dev_priv->mm.shrink_count);
+>>>>>>> upstream/android-13
 }
 
 int i915_gem_open(struct drm_i915_private *i915, struct drm_file *file)
@@ -5910,9 +6664,12 @@ int i915_gem_open(struct drm_i915_private *i915, struct drm_file *file)
 	file_priv->dev_priv = i915;
 	file_priv->file = file;
 
+<<<<<<< HEAD
 	spin_lock_init(&file_priv->mm.lock);
 	INIT_LIST_HEAD(&file_priv->mm.request_list);
 
+=======
+>>>>>>> upstream/android-13
 	file_priv->bsd_engine = -1;
 	file_priv->hang_timestamp = jiffies;
 
@@ -5923,6 +6680,7 @@ int i915_gem_open(struct drm_i915_private *i915, struct drm_file *file)
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
  * i915_gem_track_fb - update frontbuffer tracking
  * @old: current GEM buffer for the frontbuffer slots
@@ -6230,4 +6988,9 @@ err_unlock:
 #include "selftests/huge_pages.c"
 #include "selftests/i915_gem_object.c"
 #include "selftests/i915_gem_coherency.c"
+=======
+#if IS_ENABLED(CONFIG_DRM_I915_SELFTEST)
+#include "selftests/mock_gem_device.c"
+#include "selftests/i915_gem.c"
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *	(C)Copyright 1998,1999 SysKonnect,
@@ -5,11 +9,14 @@
  *
  *	See the file "skfddi.c" for further information.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
@@ -40,10 +47,13 @@
 #define KERNEL
 #include "h/smtstate.h"
 
+<<<<<<< HEAD
 #ifndef	lint
 static const char ID_sccs[] = "@(#)cfm.c	2.18 98/10/06 (C) SK " ;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * FSM Macros
  */
@@ -212,7 +222,10 @@ void cfm(struct s_smc *smc, int event)
 {
 	int	state ;		/* remember last state */
 	int	cond ;
+<<<<<<< HEAD
 	int	oldstate ;
+=======
+>>>>>>> upstream/android-13
 
 	/* We will do the following: */
 	/*  - compute the variable WC_Flag for every port (This is where */
@@ -226,7 +239,10 @@ void cfm(struct s_smc *smc, int event)
 	/*  - change the portstates */
 	cem_priv_state (smc, event);
 
+<<<<<<< HEAD
 	oldstate = smc->mib.fddiSMTCF_State ;
+=======
+>>>>>>> upstream/android-13
 	do {
 		DB_CFM("CFM : state %s%s event %s",
 		       smc->mib.fddiSMTCF_State & AFLAG ? "ACTIONS " : "",
@@ -254,6 +270,7 @@ void cfm(struct s_smc *smc, int event)
 	if (cond != smc->mib.fddiSMTPeerWrapFlag)
 		smt_srf_event(smc,SMT_COND_SMT_PEER_WRAP,0,cond) ;
 
+<<<<<<< HEAD
 #if	0
 	/*
 	 * Don't send ever MAC_PATH_CHANGE events. Our MAC is hard-wired
@@ -266,6 +283,13 @@ void cfm(struct s_smc *smc, int event)
 		smt_srf_event(smc,SMT_EVENT_MAC_PATH_CHANGE,INDEX_MAC,0) ;
 	}
 #endif
+=======
+	/*
+	 * Don't ever send MAC_PATH_CHANGE events. Our MAC is hard-wired
+	 * to the primary path.
+	 */
+
+>>>>>>> upstream/android-13
 #endif	/* no SLIM_SMT */
 
 	/*

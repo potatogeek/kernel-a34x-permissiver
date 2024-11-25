@@ -42,7 +42,11 @@
 #include <net/dn_fib.h>
 #include <net/dn_neigh.h>
 #include <net/dn_dev.h>
+<<<<<<< HEAD
 #include <net/nexthop.h>
+=======
+#include <net/rtnh.h>
+>>>>>>> upstream/android-13
 
 #define RT_MIN_TABLE 1
 
@@ -92,8 +96,12 @@ void dn_fib_free_info(struct dn_fib_info *fi)
 	}
 
 	change_nexthops(fi) {
+<<<<<<< HEAD
 		if (nh->nh_dev)
 			dev_put(nh->nh_dev);
+=======
+		dev_put(nh->nh_dev);
+>>>>>>> upstream/android-13
 		nh->nh_dev = NULL;
 	} endfor_nexthops(fi);
 	kfree(fi);
@@ -102,7 +110,11 @@ void dn_fib_free_info(struct dn_fib_info *fi)
 void dn_fib_release_info(struct dn_fib_info *fi)
 {
 	spin_lock(&dn_fib_info_lock);
+<<<<<<< HEAD
 	if (fi && --fi->fib_treeref == 0) {
+=======
+	if (fi && refcount_dec_and_test(&fi->fib_treeref)) {
+>>>>>>> upstream/android-13
 		if (fi->fib_next)
 			fi->fib_next->fib_prev = fi->fib_prev;
 		if (fi->fib_prev)
@@ -282,7 +294,11 @@ struct dn_fib_info *dn_fib_create_info(const struct rtmsg *r, struct nlattr *att
 	    (nhs = dn_fib_count_nhs(attrs[RTA_MULTIPATH])) == 0)
 		goto err_inval;
 
+<<<<<<< HEAD
 	fi = kzalloc(sizeof(*fi)+nhs*sizeof(struct dn_fib_nh), GFP_KERNEL);
+=======
+	fi = kzalloc(struct_size(fi, fib_nh, nhs), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	err = -ENOBUFS;
 	if (fi == NULL)
 		goto failure;
@@ -385,11 +401,19 @@ link_it:
 	if ((ofi = dn_fib_find_info(fi)) != NULL) {
 		fi->fib_dead = 1;
 		dn_fib_free_info(fi);
+<<<<<<< HEAD
 		ofi->fib_treeref++;
 		return ofi;
 	}
 
 	fi->fib_treeref++;
+=======
+		refcount_inc(&ofi->fib_treeref);
+		return ofi;
+	}
+
+	refcount_set(&fi->fib_treeref, 1);
+>>>>>>> upstream/android-13
 	refcount_set(&fi->fib_clntref, 1);
 	spin_lock(&dn_fib_info_lock);
 	fi->fib_next = dn_fib_info_list;
@@ -517,8 +541,13 @@ static int dn_fib_rtm_delroute(struct sk_buff *skb, struct nlmsghdr *nlh,
 	if (!net_eq(net, &init_net))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*r), attrs, RTA_MAX, rtm_dn_policy,
 			  extack);
+=======
+	err = nlmsg_parse_deprecated(nlh, sizeof(*r), attrs, RTA_MAX,
+				     rtm_dn_policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -544,8 +573,13 @@ static int dn_fib_rtm_newroute(struct sk_buff *skb, struct nlmsghdr *nlh,
 	if (!net_eq(net, &init_net))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*r), attrs, RTA_MAX, rtm_dn_policy,
 			  extack);
+=======
+	err = nlmsg_parse_deprecated(nlh, sizeof(*r), attrs, RTA_MAX,
+				     rtm_dn_policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 

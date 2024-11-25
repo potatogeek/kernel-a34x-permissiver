@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pci_dn.c
  *
  * Copyright (C) 2001 Todd Inglett, IBM Corporation
  *
  * PCI manipulation via device_nodes.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/pci.h>
@@ -137,9 +144,34 @@ struct pci_dn *pci_get_pdn(struct pci_dev *pdev)
 	return NULL;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_IOV
 static struct pci_dn *add_one_dev_pci_data(struct pci_dn *parent,
 					   int vf_index,
+=======
+#ifdef CONFIG_EEH
+static struct eeh_dev *eeh_dev_init(struct pci_dn *pdn)
+{
+	struct eeh_dev *edev;
+
+	/* Allocate EEH device */
+	edev = kzalloc(sizeof(*edev), GFP_KERNEL);
+	if (!edev)
+		return NULL;
+
+	/* Associate EEH device with OF node */
+	pdn->edev = edev;
+	edev->pdn = pdn;
+	edev->bdfn = (pdn->busno << 8) | pdn->devfn;
+	edev->controller = pdn->phb;
+
+	return edev;
+}
+#endif /* CONFIG_EEH */
+
+#ifdef CONFIG_PCI_IOV
+static struct pci_dn *add_one_sriov_vf_pdn(struct pci_dn *parent,
+>>>>>>> upstream/android-13
 					   int busno, int devfn)
 {
 	struct pci_dn *pdn;
@@ -156,7 +188,10 @@ static struct pci_dn *add_one_dev_pci_data(struct pci_dn *parent,
 	pdn->parent = parent;
 	pdn->busno = busno;
 	pdn->devfn = devfn;
+<<<<<<< HEAD
 	pdn->vf_index = vf_index;
+=======
+>>>>>>> upstream/android-13
 	pdn->pe_number = IODA_INVALID_PE;
 	INIT_LIST_HEAD(&pdn->child_list);
 	INIT_LIST_HEAD(&pdn->list);
@@ -164,17 +199,28 @@ static struct pci_dn *add_one_dev_pci_data(struct pci_dn *parent,
 
 	return pdn;
 }
+<<<<<<< HEAD
 #endif
 
 struct pci_dn *add_dev_pci_data(struct pci_dev *pdev)
 {
 #ifdef CONFIG_PCI_IOV
+=======
+
+struct pci_dn *add_sriov_vf_pdns(struct pci_dev *pdev)
+{
+>>>>>>> upstream/android-13
 	struct pci_dn *parent, *pdn;
 	int i;
 
 	/* Only support IOV for now */
+<<<<<<< HEAD
 	if (!pdev->is_physfn)
 		return pci_get_pdn(pdev);
+=======
+	if (WARN_ON(!pdev->is_physfn))
+		return NULL;
+>>>>>>> upstream/android-13
 
 	/* Check if VFs have been populated */
 	pdn = pci_get_pdn(pdev);
@@ -189,7 +235,11 @@ struct pci_dn *add_dev_pci_data(struct pci_dev *pdev)
 	for (i = 0; i < pci_sriov_get_totalvfs(pdev); i++) {
 		struct eeh_dev *edev __maybe_unused;
 
+<<<<<<< HEAD
 		pdn = add_one_dev_pci_data(parent, i,
+=======
+		pdn = add_one_sriov_vf_pdn(parent,
+>>>>>>> upstream/android-13
 					   pci_iov_virtfn_bus(pdev, i),
 					   pci_iov_virtfn_devfn(pdev, i));
 		if (!pdn) {
@@ -202,6 +252,7 @@ struct pci_dn *add_dev_pci_data(struct pci_dev *pdev)
 		/* Create the EEH device for the VF */
 		edev = eeh_dev_init(pdn);
 		BUG_ON(!edev);
+<<<<<<< HEAD
 		edev->physfn = pdev;
 #endif /* CONFIG_EEH */
 	}
@@ -213,10 +264,24 @@ struct pci_dn *add_dev_pci_data(struct pci_dev *pdev)
 void remove_dev_pci_data(struct pci_dev *pdev)
 {
 #ifdef CONFIG_PCI_IOV
+=======
+
+		/* FIXME: these should probably be populated by the EEH probe */
+		edev->physfn = pdev;
+		edev->vf_index = i;
+#endif /* CONFIG_EEH */
+	}
+	return pci_get_pdn(pdev);
+}
+
+void remove_sriov_vf_pdns(struct pci_dev *pdev)
+{
+>>>>>>> upstream/android-13
 	struct pci_dn *parent;
 	struct pci_dn *pdn, *tmp;
 	int i;
 
+<<<<<<< HEAD
 	/*
 	 * VF and VF PE are created/released dynamically, so we need to
 	 * bind/unbind them.  Otherwise the VF and VF PE would be mismatched
@@ -230,6 +295,10 @@ void remove_dev_pci_data(struct pci_dev *pdev)
 
 	/* Only support IOV PF for now */
 	if (!pdev->is_physfn)
+=======
+	/* Only support IOV PF for now */
+	if (WARN_ON(!pdev->is_physfn))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Check if VFs have been populated */
@@ -271,7 +340,11 @@ void remove_dev_pci_data(struct pci_dev *pdev)
 				 * have a configured PE.
 				 */
 				if (edev->pe)
+<<<<<<< HEAD
 					eeh_rmv_from_parent_pe(edev);
+=======
+					eeh_pe_tree_remove(edev);
+>>>>>>> upstream/android-13
 
 				pdn->edev = NULL;
 				kfree(edev);
@@ -284,8 +357,13 @@ void remove_dev_pci_data(struct pci_dev *pdev)
 			kfree(pdn);
 		}
 	}
+<<<<<<< HEAD
 #endif /* CONFIG_PCI_IOV */
 }
+=======
+}
+#endif /* CONFIG_PCI_IOV */
+>>>>>>> upstream/android-13
 
 struct pci_dn *pci_add_device_node_info(struct pci_controller *hose,
 					struct device_node *dn)
@@ -349,6 +427,10 @@ void pci_remove_device_node_info(struct device_node *dn)
 {
 	struct pci_dn *pdn = dn ? PCI_DN(dn) : NULL;
 	struct device_node *parent;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_EEH
 	struct eeh_dev *edev = pdn_to_eeh_dev(pdn);
 
@@ -362,12 +444,36 @@ void pci_remove_device_node_info(struct device_node *dn)
 	WARN_ON(!list_empty(&pdn->child_list));
 	list_del(&pdn->list);
 
+<<<<<<< HEAD
+=======
+	/* Drop the parent pci_dn's ref to our backing dt node */
+>>>>>>> upstream/android-13
 	parent = of_get_parent(dn);
 	if (parent)
 		of_node_put(parent);
 
+<<<<<<< HEAD
 	dn->data = NULL;
 	kfree(pdn);
+=======
+	/*
+	 * At this point we *might* still have a pci_dev that was
+	 * instantiated from this pci_dn. So defer free()ing it until
+	 * the pci_dev's release function is called.
+	 */
+	pdev = pci_get_domain_bus_and_slot(pdn->phb->global_number,
+			pdn->busno, pdn->devfn);
+	if (pdev) {
+		/* NB: pdev has a ref to dn */
+		pci_dbg(pdev, "marked pdn (from %pOF) as dead\n", dn);
+		pdn->flags |= PCI_DN_FLAG_DEAD;
+	} else {
+		dn->data = NULL;
+		kfree(pdn);
+	}
+
+	pci_dev_put(pdev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_remove_device_node_info);
 
@@ -434,6 +540,7 @@ void *pci_traverse_device_nodes(struct device_node *start,
 }
 EXPORT_SYMBOL_GPL(pci_traverse_device_nodes);
 
+<<<<<<< HEAD
 static struct pci_dn *pci_dn_next_one(struct pci_dn *root,
 				      struct pci_dn *pdn)
 {
@@ -474,6 +581,8 @@ void *traverse_pci_dn(struct pci_dn *root,
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void *add_pdn(struct device_node *dn, void *data)
 {
 	struct pci_controller *hose = data;
@@ -512,6 +621,7 @@ void pci_devs_phb_init_dynamic(struct pci_controller *phb)
 	pci_traverse_device_nodes(dn, add_pdn, phb);
 }
 
+<<<<<<< HEAD
 /** 
  * pci_devs_phb_init - Initialize phbs and pci devs under them.
  * 
@@ -534,6 +644,8 @@ static int __init pci_devs_phb_init(void)
 
 core_initcall(pci_devs_phb_init);
 
+=======
+>>>>>>> upstream/android-13
 static void pci_dev_pdn_setup(struct pci_dev *pdev)
 {
 	struct pci_dn *pdn;

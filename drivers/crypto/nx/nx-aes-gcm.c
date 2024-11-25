@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * AES GCM routines supporting the Power 7+ Nest Accelerators driver
  *
  * Copyright (C) 2012 International Business Machines Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 only.
@@ -16,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Kent Yoder <yoder1@us.ibm.com>
  */
 
@@ -178,8 +186,12 @@ static int nx_gca(struct nx_crypto_ctx  *nx_ctx,
 	return rc;
 }
 
+<<<<<<< HEAD
 static int gmac(struct aead_request *req, struct blkcipher_desc *desc,
 		unsigned int assoclen)
+=======
+static int gmac(struct aead_request *req, const u8 *iv, unsigned int assoclen)
+>>>>>>> upstream/android-13
 {
 	int rc;
 	struct nx_crypto_ctx *nx_ctx =
@@ -202,7 +214,11 @@ static int gmac(struct aead_request *req, struct blkcipher_desc *desc,
 			   nx_ctx->ap->databytelen/NX_PAGE_SIZE);
 
 	/* Copy IV */
+<<<<<<< HEAD
 	memcpy(csbcpb->cpb.aes_gcm.iv_or_cnt, desc->info, AES_BLOCK_SIZE);
+=======
+	memcpy(csbcpb->cpb.aes_gcm.iv_or_cnt, iv, AES_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 
 	do {
 		/*
@@ -252,8 +268,12 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 static int gcm_empty(struct aead_request *req, struct blkcipher_desc *desc,
 		     int enc)
+=======
+static int gcm_empty(struct aead_request *req, const u8 *iv, int enc)
+>>>>>>> upstream/android-13
 {
 	int rc;
 	struct nx_crypto_ctx *nx_ctx =
@@ -280,7 +300,11 @@ static int gcm_empty(struct aead_request *req, struct blkcipher_desc *desc,
 	len = AES_BLOCK_SIZE;
 
 	/* Encrypt the counter/IV */
+<<<<<<< HEAD
 	in_sg = nx_build_sg_list(nx_ctx->in_sg, (u8 *) desc->info,
+=======
+	in_sg = nx_build_sg_list(nx_ctx->in_sg, (u8 *) iv,
+>>>>>>> upstream/android-13
 				 &len, nx_ctx->ap->sglen);
 
 	if (len != AES_BLOCK_SIZE)
@@ -297,7 +321,11 @@ static int gcm_empty(struct aead_request *req, struct blkcipher_desc *desc,
 	nx_ctx->op.outlen = (nx_ctx->out_sg - out_sg) * sizeof(struct nx_sg);
 
 	rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
+<<<<<<< HEAD
 			   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+=======
+			   req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 	atomic_inc(&(nx_ctx->stats->aes_ops));
@@ -325,7 +353,10 @@ static int gcm_aes_nx_crypt(struct aead_request *req, int enc,
 		crypto_aead_ctx(crypto_aead_reqtfm(req));
 	struct nx_gcm_rctx *rctx = aead_request_ctx(req);
 	struct nx_csbcpb *csbcpb = nx_ctx->csbcpb;
+<<<<<<< HEAD
 	struct blkcipher_desc desc;
+=======
+>>>>>>> upstream/android-13
 	unsigned int nbytes = req->cryptlen;
 	unsigned int processed = 0, to_process;
 	unsigned long irq_flags;
@@ -333,6 +364,7 @@ static int gcm_aes_nx_crypt(struct aead_request *req, int enc,
 
 	spin_lock_irqsave(&nx_ctx->lock, irq_flags);
 
+<<<<<<< HEAD
 	desc.info = rctx->iv;
 	/* initialize the counter */
 	*(u32 *)(desc.info + NX_GCM_CTR_OFFSET) = 1;
@@ -342,6 +374,16 @@ static int gcm_aes_nx_crypt(struct aead_request *req, int enc,
 			rc = gcm_empty(req, &desc, enc);
 		else
 			rc = gmac(req, &desc, assoclen);
+=======
+	/* initialize the counter */
+	*(u32 *)&rctx->iv[NX_GCM_CTR_OFFSET] = 1;
+
+	if (nbytes == 0) {
+		if (assoclen == 0)
+			rc = gcm_empty(req, rctx->iv, enc);
+		else
+			rc = gmac(req, rctx->iv, assoclen);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto out;
 		else
@@ -370,7 +412,11 @@ static int gcm_aes_nx_crypt(struct aead_request *req, int enc,
 		to_process = nbytes - processed;
 
 		csbcpb->cpb.aes_gcm.bit_length_data = nbytes * 8;
+<<<<<<< HEAD
 		rc = nx_build_sg_lists(nx_ctx, &desc, req->dst,
+=======
+		rc = nx_build_sg_lists(nx_ctx, rctx->iv, req->dst,
+>>>>>>> upstream/android-13
 				       req->src, &to_process,
 				       processed + req->assoclen,
 				       csbcpb->cpb.aes_gcm.iv_or_cnt);
@@ -389,7 +435,11 @@ static int gcm_aes_nx_crypt(struct aead_request *req, int enc,
 		if (rc)
 			goto out;
 
+<<<<<<< HEAD
 		memcpy(desc.info, csbcpb->cpb.aes_gcm.out_cnt, AES_BLOCK_SIZE);
+=======
+		memcpy(rctx->iv, csbcpb->cpb.aes_gcm.out_cnt, AES_BLOCK_SIZE);
+>>>>>>> upstream/android-13
 		memcpy(csbcpb->cpb.aes_gcm.in_pat_or_aad,
 			csbcpb->cpb.aes_gcm.out_pat_or_mac, AES_BLOCK_SIZE);
 		memcpy(csbcpb->cpb.aes_gcm.in_s0,
@@ -398,7 +448,11 @@ static int gcm_aes_nx_crypt(struct aead_request *req, int enc,
 		NX_CPB_FDM(csbcpb) |= NX_FDM_CONTINUATION;
 
 		atomic_inc(&(nx_ctx->stats->aes_ops));
+<<<<<<< HEAD
 		atomic64_add(csbcpb->csb.processed_byte_count,
+=======
+		atomic64_add(be32_to_cpu(csbcpb->csb.processed_byte_count),
+>>>>>>> upstream/android-13
 			     &(nx_ctx->stats->aes_bytes));
 
 		processed += to_process;
@@ -483,11 +537,14 @@ static int gcm4106_aes_nx_decrypt(struct aead_request *req)
 	return gcm_aes_nx_crypt(req, 0, req->assoclen - 8);
 }
 
+<<<<<<< HEAD
 /* tell the block cipher walk routines that this is a stream cipher by
  * setting cra_blocksize to 1. Even using blkcipher_walk_virt_block
  * during encrypt/decrypt doesn't solve this problem, because it calls
  * blkcipher_walk_done under the covers, which doesn't use walk->blocksize,
  * but instead uses this tfm->blocksize. */
+=======
+>>>>>>> upstream/android-13
 struct aead_alg nx_gcm_aes_alg = {
 	.base = {
 		.cra_name        = "gcm(aes)",

@@ -25,6 +25,7 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/radeon_drm.h>
@@ -41,11 +42,39 @@
  *
  * @int irq, void *arg: args
  *
+=======
+
+#include <linux/pci.h>
+#include <linux/pm_runtime.h>
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+#include <drm/radeon_drm.h>
+
+#include "atom.h"
+#include "radeon.h"
+#include "radeon_kms.h"
+#include "radeon_reg.h"
+
+
+#define RADEON_WAIT_IDLE_TIMEOUT 200
+
+/*
+ * radeon_driver_irq_handler_kms - irq handler for KMS
+ *
+>>>>>>> upstream/android-13
  * This is the irq handler for the radeon KMS driver (all asics).
  * radeon_irq_process is a macro that points to the per-asic
  * irq handler callback.
  */
+<<<<<<< HEAD
 irqreturn_t radeon_driver_irq_handler_kms(int irq, void *arg)
+=======
+static irqreturn_t radeon_driver_irq_handler_kms(int irq, void *arg)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev = (struct drm_device *) arg;
 	struct radeon_device *rdev = dev->dev_private;
@@ -112,7 +141,11 @@ static void radeon_dp_work_func(struct work_struct *work)
  * Gets the hw ready to enable irqs (all asics).
  * This function disables all interrupt sources on the GPU.
  */
+<<<<<<< HEAD
 void radeon_driver_irq_preinstall_kms(struct drm_device *dev)
+=======
+static void radeon_driver_irq_preinstall_kms(struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct radeon_device *rdev = dev->dev_private;
 	unsigned long irqflags;
@@ -144,7 +177,11 @@ void radeon_driver_irq_preinstall_kms(struct drm_device *dev)
  * Handles stuff to be done after enabling irqs (all asics).
  * Returns 0 on success.
  */
+<<<<<<< HEAD
 int radeon_driver_irq_postinstall_kms(struct drm_device *dev)
+=======
+static int radeon_driver_irq_postinstall_kms(struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct radeon_device *rdev = dev->dev_private;
 
@@ -163,7 +200,11 @@ int radeon_driver_irq_postinstall_kms(struct drm_device *dev)
  *
  * This function disables all interrupt sources on the GPU (all asics).
  */
+<<<<<<< HEAD
 void radeon_driver_irq_uninstall_kms(struct drm_device *dev)
+=======
+static void radeon_driver_irq_uninstall_kms(struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct radeon_device *rdev = dev->dev_private;
 	unsigned long irqflags;
@@ -188,6 +229,39 @@ void radeon_driver_irq_uninstall_kms(struct drm_device *dev)
 	spin_unlock_irqrestore(&rdev->irq.lock, irqflags);
 }
 
+<<<<<<< HEAD
+=======
+static int radeon_irq_install(struct radeon_device *rdev, int irq)
+{
+	struct drm_device *dev = rdev->ddev;
+	int ret;
+
+	if (irq == IRQ_NOTCONNECTED)
+		return -ENOTCONN;
+
+	radeon_driver_irq_preinstall_kms(dev);
+
+	/* PCI devices require shared interrupts. */
+	ret = request_irq(irq, radeon_driver_irq_handler_kms,
+			  IRQF_SHARED, dev->driver->name, dev);
+	if (ret)
+		return ret;
+
+	radeon_driver_irq_postinstall_kms(dev);
+
+	return 0;
+}
+
+static void radeon_irq_uninstall(struct radeon_device *rdev)
+{
+	struct drm_device *dev = rdev->ddev;
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+
+	radeon_driver_irq_uninstall_kms(dev);
+	free_irq(pdev->irq, dev);
+}
+
+>>>>>>> upstream/android-13
 /**
  * radeon_msi_ok - asic specific msi checks
  *
@@ -308,7 +382,11 @@ int radeon_irq_kms_init(struct radeon_device *rdev)
 	INIT_WORK(&rdev->audio_work, r600_audio_update_hdmi);
 
 	rdev->irq.installed = true;
+<<<<<<< HEAD
 	r = drm_irq_install(rdev->ddev, rdev->ddev->pdev->irq);
+=======
+	r = radeon_irq_install(rdev, rdev->pdev->irq);
+>>>>>>> upstream/android-13
 	if (r) {
 		rdev->irq.installed = false;
 		flush_delayed_work(&rdev->hotplug_work);
@@ -329,7 +407,11 @@ int radeon_irq_kms_init(struct radeon_device *rdev)
 void radeon_irq_kms_fini(struct radeon_device *rdev)
 {
 	if (rdev->irq.installed) {
+<<<<<<< HEAD
 		drm_irq_uninstall(rdev->ddev);
+=======
+		radeon_irq_uninstall(rdev);
+>>>>>>> upstream/android-13
 		rdev->irq.installed = false;
 		if (rdev->msi_enabled)
 			pci_disable_msi(rdev->pdev);
@@ -351,7 +433,11 @@ void radeon_irq_kms_sw_irq_get(struct radeon_device *rdev, int ring)
 {
 	unsigned long irqflags;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	if (atomic_inc_return(&rdev->irq.ring_int[ring]) == 1) {
@@ -390,7 +476,11 @@ void radeon_irq_kms_sw_irq_put(struct radeon_device *rdev, int ring)
 {
 	unsigned long irqflags;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	if (atomic_dec_and_test(&rdev->irq.ring_int[ring])) {
@@ -416,7 +506,11 @@ void radeon_irq_kms_pflip_irq_get(struct radeon_device *rdev, int crtc)
 	if (crtc < 0 || crtc >= rdev->num_crtc)
 		return;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	if (atomic_inc_return(&rdev->irq.pflip[crtc]) == 1) {
@@ -442,7 +536,11 @@ void radeon_irq_kms_pflip_irq_put(struct radeon_device *rdev, int crtc)
 	if (crtc < 0 || crtc >= rdev->num_crtc)
 		return;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	if (atomic_dec_and_test(&rdev->irq.pflip[crtc])) {
@@ -464,7 +562,11 @@ void radeon_irq_kms_enable_afmt(struct radeon_device *rdev, int block)
 {
 	unsigned long irqflags;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	spin_lock_irqsave(&rdev->irq.lock, irqflags);
@@ -486,7 +588,11 @@ void radeon_irq_kms_disable_afmt(struct radeon_device *rdev, int block)
 {
 	unsigned long irqflags;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	spin_lock_irqsave(&rdev->irq.lock, irqflags);
@@ -508,7 +614,11 @@ void radeon_irq_kms_enable_hpd(struct radeon_device *rdev, unsigned hpd_mask)
 	unsigned long irqflags;
 	int i;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	spin_lock_irqsave(&rdev->irq.lock, irqflags);
@@ -531,7 +641,11 @@ void radeon_irq_kms_disable_hpd(struct radeon_device *rdev, unsigned hpd_mask)
 	unsigned long irqflags;
 	int i;
 
+<<<<<<< HEAD
 	if (!rdev->ddev->irq_enabled)
+=======
+	if (!rdev->irq.installed)
+>>>>>>> upstream/android-13
 		return;
 
 	spin_lock_irqsave(&rdev->irq.lock, irqflags);
@@ -542,14 +656,22 @@ void radeon_irq_kms_disable_hpd(struct radeon_device *rdev, unsigned hpd_mask)
 }
 
 /**
+<<<<<<< HEAD
  * radeon_irq_kms_update_int_n - helper for updating interrupt enable registers
+=======
+ * radeon_irq_kms_set_irq_n_enabled - helper for updating interrupt enable registers
+>>>>>>> upstream/android-13
  *
  * @rdev: radeon device pointer
  * @reg: the register to write to enable/disable interrupts
  * @mask: the mask that enables the interrupts
  * @enable: whether to enable or disable the interrupt register
  * @name: the name of the interrupt register to print to the kernel log
+<<<<<<< HEAD
  * @num: the number of the interrupt register to print to the kernel log
+=======
+ * @n: the number of the interrupt register to print to the kernel log
+>>>>>>> upstream/android-13
  *
  * Helper for updating the enable state of interrupt registers. Checks whether
  * or not the interrupt matches the enable state we want. If it doesn't, then

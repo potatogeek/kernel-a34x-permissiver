@@ -17,7 +17,10 @@
 #include <linux/mm.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <asm/tlbmisc.h>
 #include <asm/isadep.h>
@@ -67,6 +70,7 @@ void local_flush_tlb_all(void)
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 void local_flush_tlb_mm(struct mm_struct *mm)
 {
 	int cpu = smp_processor_id();
@@ -79,6 +83,8 @@ void local_flush_tlb_mm(struct mm_struct *mm)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
 			   unsigned long end)
 {
@@ -117,7 +123,11 @@ void local_flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
 			}
 			write_c0_entryhi(oldpid);
 		} else {
+<<<<<<< HEAD
 			drop_mmu_context(mm, cpu);
+=======
+			drop_mmu_context(mm);
+>>>>>>> upstream/android-13
 		}
 		local_irq_restore(flags);
 	}

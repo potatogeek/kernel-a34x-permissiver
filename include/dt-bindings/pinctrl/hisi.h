@@ -1,7 +1,11 @@
 /*
  * This header provides constants for hisilicon pinctrl bindings.
  *
+<<<<<<< HEAD
  * Copyright (c) 2015 Hisilicon Limited.
+=======
+ * Copyright (c) 2015 HiSilicon Limited.
+>>>>>>> upstream/android-13
  * Copyright (c) 2015 Linaro Limited.
  *
  * This program is free software; you can redistribute it and/or modify

@@ -88,7 +88,11 @@ struct adv7842_format_info {
 struct adv7842_state {
 	struct adv7842_platform_data pdata;
 	struct v4l2_subdev sd;
+<<<<<<< HEAD
 	struct media_pad pad;
+=======
+	struct media_pad pads[ADV7842_PAD_SOURCE + 1];
+>>>>>>> upstream/android-13
 	struct v4l2_ctrl_handler hdl;
 	enum adv7842_mode mode;
 	struct v4l2_dv_timings timings;
@@ -98,11 +102,21 @@ struct adv7842_state {
 
 	v4l2_std_id norm;
 	struct {
+<<<<<<< HEAD
 		u8 edid[256];
 		u32 present;
 	} hdmi_edid;
 	struct {
 		u8 edid[256];
+=======
+		u8 edid[512];
+		u32 blocks;
+		u32 present;
+	} hdmi_edid;
+	struct {
+		u8 edid[128];
+		u32 blocks;
+>>>>>>> upstream/android-13
 		u32 present;
 	} vga_edid;
 	struct v4l2_fract aspect_ratio;
@@ -343,6 +357,7 @@ static void adv_smbus_write_byte_no_check(struct i2c_client *client,
 		       I2C_SMBUS_BYTE_DATA, &data);
 }
 
+<<<<<<< HEAD
 static s32 adv_smbus_write_i2c_block_data(struct i2c_client *client,
 				  u8 command, unsigned length, const u8 *values)
 {
@@ -357,6 +372,8 @@ static s32 adv_smbus_write_i2c_block_data(struct i2c_client *client,
 			      I2C_SMBUS_I2C_BLOCK_DATA, &data);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* ----------------------------------------------------------------------- */
 
 static inline int io_read(struct v4l2_subdev *sd, u8 reg)
@@ -725,12 +742,23 @@ static int edid_write_vga_segment(struct v4l2_subdev *sd)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	struct adv7842_state *state = to_state(sd);
+<<<<<<< HEAD
 	const u8 *val = state->vga_edid.edid;
+=======
+	const u8 *edid = state->vga_edid.edid;
+	u32 blocks = state->vga_edid.blocks;
+>>>>>>> upstream/android-13
 	int err = 0;
 	int i;
 
 	v4l2_dbg(2, debug, sd, "%s: write EDID on VGA port\n", __func__);
 
+<<<<<<< HEAD
+=======
+	if (!state->vga_edid.present)
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* HPA disable on port A and B */
 	io_write_and_or(sd, 0x20, 0xcf, 0x00);
 
@@ -740,9 +768,16 @@ static int edid_write_vga_segment(struct v4l2_subdev *sd)
 	/* edid segment pointer '1' for VGA port */
 	rep_write_and_or(sd, 0x77, 0xef, 0x10);
 
+<<<<<<< HEAD
 	for (i = 0; !err && i < 256; i += I2C_SMBUS_BLOCK_MAX)
 		err = adv_smbus_write_i2c_block_data(state->i2c_edid, i,
 					     I2C_SMBUS_BLOCK_MAX, val + i);
+=======
+	for (i = 0; !err && i < blocks * 128; i += I2C_SMBUS_BLOCK_MAX)
+		err = i2c_smbus_write_i2c_block_data(state->i2c_edid, i,
+						     I2C_SMBUS_BLOCK_MAX,
+						     edid + i);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -772,8 +807,14 @@ static int edid_write_hdmi_segment(struct v4l2_subdev *sd, u8 port)
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	struct adv7842_state *state = to_state(sd);
 	const u8 *edid = state->hdmi_edid.edid;
+<<<<<<< HEAD
 	int spa_loc;
 	u16 pa;
+=======
+	u32 blocks = state->hdmi_edid.blocks;
+	unsigned int spa_loc;
+	u16 pa, parent_pa;
+>>>>>>> upstream/android-13
 	int err = 0;
 	int i;
 
@@ -791,6 +832,7 @@ static int edid_write_hdmi_segment(struct v4l2_subdev *sd, u8 port)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	pa = v4l2_get_edid_phys_addr(edid, 256, &spa_loc);
 	err = v4l2_phys_addr_validate(pa, &pa, NULL);
 	if (err)
@@ -809,15 +851,47 @@ static int edid_write_hdmi_segment(struct v4l2_subdev *sd, u8 port)
 	for (i = 0; !err && i < 256; i += I2C_SMBUS_BLOCK_MAX)
 		err = adv_smbus_write_i2c_block_data(state->i2c_edid, i,
 						     I2C_SMBUS_BLOCK_MAX, edid + i);
+=======
+	pa = v4l2_get_edid_phys_addr(edid, blocks * 128, &spa_loc);
+	err = v4l2_phys_addr_validate(pa, &parent_pa, NULL);
+	if (err)
+		return err;
+
+	if (!spa_loc) {
+		/*
+		 * There is no SPA, so just set spa_loc to 128 and pa to whatever
+		 * data is there.
+		 */
+		spa_loc = 128;
+		pa = (edid[spa_loc] << 8) | edid[spa_loc + 1];
+	}
+
+
+	for (i = 0; !err && i < blocks * 128; i += I2C_SMBUS_BLOCK_MAX) {
+		/* set edid segment pointer for HDMI ports */
+		if (i % 256 == 0)
+			rep_write_and_or(sd, 0x77, 0xef, i >= 256 ? 0x10 : 0x00);
+		err = i2c_smbus_write_i2c_block_data(state->i2c_edid, i,
+						     I2C_SMBUS_BLOCK_MAX, edid + i);
+	}
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	if (port == ADV7842_EDID_PORT_A) {
+<<<<<<< HEAD
 		rep_write(sd, 0x72, edid[spa_loc]);
 		rep_write(sd, 0x73, edid[spa_loc + 1]);
 	} else {
 		rep_write(sd, 0x74, edid[spa_loc]);
 		rep_write(sd, 0x75, edid[spa_loc + 1]);
+=======
+		rep_write(sd, 0x72, pa >> 8);
+		rep_write(sd, 0x73, pa & 0xff);
+	} else {
+		rep_write(sd, 0x74, pa >> 8);
+		rep_write(sd, 0x75, pa & 0xff);
+>>>>>>> upstream/android-13
 	}
 	rep_write(sd, 0x76, spa_loc & 0xff);
 	rep_write_and_or(sd, 0x77, 0xbf, (spa_loc >> 2) & 0x40);
@@ -837,7 +911,11 @@ static int edid_write_hdmi_segment(struct v4l2_subdev *sd, u8 port)
 				(port == ADV7842_EDID_PORT_A) ? 'A' : 'B');
 		return -EIO;
 	}
+<<<<<<< HEAD
 	cec_s_phys_addr(state->cec_adap, pa, false);
+=======
+	cec_s_phys_addr(state->cec_adap, parent_pa, false);
+>>>>>>> upstream/android-13
 
 	/* enable hotplug after 200 ms */
 	schedule_delayed_work(&state->delayed_work_enable_hotplug, HZ / 5);
@@ -1079,7 +1157,11 @@ static void configure_custom_video_timings(struct v4l2_subdev *sd,
 		/* Should only be set in auto-graphics mode [REF_02, p. 91-92] */
 		/* setup PLL_DIV_MAN_EN and PLL_DIV_RATIO */
 		/* IO-map reg. 0x16 and 0x17 should be written in sequence */
+<<<<<<< HEAD
 		if (adv_smbus_write_i2c_block_data(client, 0x16, 2, pll)) {
+=======
+		if (i2c_smbus_write_i2c_block_data(client, 0x16, 2, pll)) {
+>>>>>>> upstream/android-13
 			v4l2_err(sd, "writing to reg 0x16 and 0x17 failed\n");
 			break;
 		}
@@ -1135,7 +1217,11 @@ static void adv7842_set_offset(struct v4l2_subdev *sd, bool auto_offset, u16 off
 	offset_buf[3] = offset_c & 0x0ff;
 
 	/* Registers must be written in this order with no i2c access in between */
+<<<<<<< HEAD
 	if (adv_smbus_write_i2c_block_data(state->i2c_cp, 0x77, 4, offset_buf))
+=======
+	if (i2c_smbus_write_i2c_block_data(state->i2c_cp, 0x77, 4, offset_buf))
+>>>>>>> upstream/android-13
 		v4l2_err(sd, "%s: i2c error writing to CP reg 0x77, 0x78, 0x79, 0x7a\n", __func__);
 }
 
@@ -1164,7 +1250,11 @@ static void adv7842_set_gain(struct v4l2_subdev *sd, bool auto_gain, u16 gain_a,
 	gain_buf[3] = ((gain_c & 0x0ff));
 
 	/* Registers must be written in this order with no i2c access in between */
+<<<<<<< HEAD
 	if (adv_smbus_write_i2c_block_data(state->i2c_cp, 0x73, 4, gain_buf))
+=======
+	if (i2c_smbus_write_i2c_block_data(state->i2c_cp, 0x73, 4, gain_buf))
+>>>>>>> upstream/android-13
 		v4l2_err(sd, "%s: i2c error writing to CP reg 0x73, 0x74, 0x75, 0x76\n", __func__);
 }
 
@@ -1527,6 +1617,10 @@ static void adv7842_fill_optional_dv_timings_fields(struct v4l2_subdev *sd,
 	v4l2_find_dv_timings_cap(timings, adv7842_get_dv_timings_cap(sd),
 			is_digital_input(sd) ? 250000 : 1000000,
 			adv7842_check_dv_timings, NULL);
+<<<<<<< HEAD
+=======
+	timings->bt.flags |= V4L2_DV_FL_CAN_DETECT_REDUCED_FPS;
+>>>>>>> upstream/android-13
 }
 
 static int adv7842_query_dv_timings(struct v4l2_subdev *sd,
@@ -1598,6 +1692,17 @@ static int adv7842_query_dv_timings(struct v4l2_subdev *sd,
 			bt->il_vbackporch = 0;
 		}
 		adv7842_fill_optional_dv_timings_fields(sd, timings);
+<<<<<<< HEAD
+=======
+		if ((timings->bt.flags & V4L2_DV_FL_CAN_REDUCE_FPS) &&
+		    freq < bt->pixelclock) {
+			u32 reduced_freq = ((u32)bt->pixelclock / 1001) * 1000;
+			u32 delta_freq = abs(freq - reduced_freq);
+
+			if (delta_freq < ((u32)bt->pixelclock - reduced_freq) / 2)
+				timings->bt.flags |= V4L2_DV_FL_REDUCED_FPS;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		/* find format
 		 * Since LCVS values are inaccurate [REF_03, p. 339-340],
@@ -1986,7 +2091,11 @@ static int adv7842_s_routing(struct v4l2_subdev *sd,
 }
 
 static int adv7842_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index >= ARRAY_SIZE(adv7842_formats))
@@ -2062,7 +2171,11 @@ static void adv7842_setup_format(struct adv7842_state *state)
 }
 
 static int adv7842_get_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_format *format)
 {
 	struct adv7842_state *state = to_state(sd);
@@ -2090,7 +2203,11 @@ static int adv7842_get_format(struct v4l2_subdev *sd,
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 		struct v4l2_mbus_framefmt *fmt;
 
+<<<<<<< HEAD
 		fmt = v4l2_subdev_get_try_format(sd, cfg, format->pad);
+=======
+		fmt = v4l2_subdev_get_try_format(sd, sd_state, format->pad);
+>>>>>>> upstream/android-13
 		format->format.code = fmt->code;
 	} else {
 		format->format.code = state->format->code;
@@ -2100,7 +2217,11 @@ static int adv7842_get_format(struct v4l2_subdev *sd,
 }
 
 static int adv7842_set_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_format *format)
 {
 	struct adv7842_state *state = to_state(sd);
@@ -2110,7 +2231,11 @@ static int adv7842_set_format(struct v4l2_subdev *sd,
 		return -EINVAL;
 
 	if (state->mode == ADV7842_MODE_SDP)
+<<<<<<< HEAD
 		return adv7842_get_format(sd, cfg, format);
+=======
+		return adv7842_get_format(sd, sd_state, format);
+>>>>>>> upstream/android-13
 
 	info = adv7842_format_info(state, format->format.code);
 	if (info == NULL)
@@ -2122,7 +2247,11 @@ static int adv7842_set_format(struct v4l2_subdev *sd,
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 		struct v4l2_mbus_framefmt *fmt;
 
+<<<<<<< HEAD
 		fmt = v4l2_subdev_get_try_format(sd, cfg, format->pad);
+=======
+		fmt = v4l2_subdev_get_try_format(sd, sd_state, format->pad);
+>>>>>>> upstream/android-13
 		fmt->code = format->format.code;
 	} else {
 		state->format = info;
@@ -2447,6 +2576,10 @@ static int adv7842_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
 static int adv7842_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
 {
 	struct adv7842_state *state = to_state(sd);
+<<<<<<< HEAD
+=======
+	u32 blocks = 0;
+>>>>>>> upstream/android-13
 	u8 *data = NULL;
 
 	memset(edid->reserved, 0, sizeof(edid->reserved));
@@ -2454,39 +2587,78 @@ static int adv7842_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
 	switch (edid->pad) {
 	case ADV7842_EDID_PORT_A:
 	case ADV7842_EDID_PORT_B:
+<<<<<<< HEAD
 		if (state->hdmi_edid.present & (0x04 << edid->pad))
 			data = state->hdmi_edid.edid;
 		break;
 	case ADV7842_EDID_PORT_VGA:
 		if (state->vga_edid.present)
 			data = state->vga_edid.edid;
+=======
+		if (state->hdmi_edid.present & (0x04 << edid->pad)) {
+			data = state->hdmi_edid.edid;
+			blocks = state->hdmi_edid.blocks;
+		}
+		break;
+	case ADV7842_EDID_PORT_VGA:
+		if (state->vga_edid.present) {
+			data = state->vga_edid.edid;
+			blocks = state->vga_edid.blocks;
+		}
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
 	}
 
 	if (edid->start_block == 0 && edid->blocks == 0) {
+<<<<<<< HEAD
 		edid->blocks = data ? 2 : 0;
+=======
+		edid->blocks = blocks;
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	if (!data)
 		return -ENODATA;
 
+<<<<<<< HEAD
 	if (edid->start_block >= 2)
 		return -EINVAL;
 
 	if (edid->start_block + edid->blocks > 2)
 		edid->blocks = 2 - edid->start_block;
+=======
+	if (edid->start_block >= blocks)
+		return -EINVAL;
+
+	if (edid->start_block + edid->blocks > blocks)
+		edid->blocks = blocks - edid->start_block;
+>>>>>>> upstream/android-13
 
 	memcpy(edid->edid, data + edid->start_block * 128, edid->blocks * 128);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int adv7842_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *e)
 {
 	struct adv7842_state *state = to_state(sd);
+=======
+/*
+ * If the VGA_EDID_ENABLE bit is set (Repeater Map 0x7f, bit 7), then
+ * the first two blocks of the EDID are for the HDMI, and the first block
+ * of segment 1 (i.e. the third block of the EDID) is for VGA.
+ * So if a VGA EDID is installed, then the maximum size of the HDMI EDID
+ * is 2 blocks.
+ */
+static int adv7842_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *e)
+{
+	struct adv7842_state *state = to_state(sd);
+	unsigned int max_blocks = e->pad == ADV7842_EDID_PORT_VGA ? 1 : 4;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	memset(e->reserved, 0, sizeof(e->reserved));
@@ -2495,12 +2667,22 @@ static int adv7842_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *e)
 		return -EINVAL;
 	if (e->start_block != 0)
 		return -EINVAL;
+<<<<<<< HEAD
 	if (e->blocks > 2) {
 		e->blocks = 2;
+=======
+	if (e->pad < ADV7842_EDID_PORT_VGA && state->vga_edid.blocks)
+		max_blocks = 2;
+	if (e->pad == ADV7842_EDID_PORT_VGA && state->hdmi_edid.blocks > 2)
+		return -EBUSY;
+	if (e->blocks > max_blocks) {
+		e->blocks = max_blocks;
+>>>>>>> upstream/android-13
 		return -E2BIG;
 	}
 
 	/* todo, per edid */
+<<<<<<< HEAD
 	state->aspect_ratio = v4l2_calc_aspect_ratio(e->edid[0x15],
 			e->edid[0x16]);
 
@@ -2509,18 +2691,42 @@ static int adv7842_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *e)
 		memset(&state->vga_edid.edid, 0, 256);
 		state->vga_edid.present = e->blocks ? 0x1 : 0x0;
 		memcpy(&state->vga_edid.edid, e->edid, 128 * e->blocks);
+=======
+	if (e->blocks)
+		state->aspect_ratio = v4l2_calc_aspect_ratio(e->edid[0x15],
+							     e->edid[0x16]);
+
+	switch (e->pad) {
+	case ADV7842_EDID_PORT_VGA:
+		memset(state->vga_edid.edid, 0, sizeof(state->vga_edid.edid));
+		state->vga_edid.blocks = e->blocks;
+		state->vga_edid.present = e->blocks ? 0x1 : 0x0;
+		if (e->blocks)
+			memcpy(state->vga_edid.edid, e->edid, 128);
+>>>>>>> upstream/android-13
 		err = edid_write_vga_segment(sd);
 		break;
 	case ADV7842_EDID_PORT_A:
 	case ADV7842_EDID_PORT_B:
+<<<<<<< HEAD
 		memset(&state->hdmi_edid.edid, 0, 256);
 		if (e->blocks) {
 			state->hdmi_edid.present |= 0x04 << e->pad;
+=======
+		memset(state->hdmi_edid.edid, 0, sizeof(state->hdmi_edid.edid));
+		state->hdmi_edid.blocks = e->blocks;
+		if (e->blocks) {
+			state->hdmi_edid.present |= 0x04 << e->pad;
+			memcpy(state->hdmi_edid.edid, e->edid, 128 * e->blocks);
+>>>>>>> upstream/android-13
 		} else {
 			state->hdmi_edid.present &= ~(0x04 << e->pad);
 			adv7842_s_detect_tx_5v_ctrl(sd);
 		}
+<<<<<<< HEAD
 		memcpy(&state->hdmi_edid.edid, e->edid, 128 * e->blocks);
+=======
+>>>>>>> upstream/android-13
 		err = edid_write_hdmi_segment(sd, e->pad);
 		break;
 	default:
@@ -2538,7 +2744,11 @@ struct adv7842_cfg_read_infoframe {
 	u8 payload_addr;
 };
 
+<<<<<<< HEAD
 static void log_infoframe(struct v4l2_subdev *sd, struct adv7842_cfg_read_infoframe *cri)
+=======
+static void log_infoframe(struct v4l2_subdev *sd, const struct adv7842_cfg_read_infoframe *cri)
+>>>>>>> upstream/android-13
 {
 	int i;
 	u8 buffer[32];
@@ -2565,7 +2775,11 @@ static void log_infoframe(struct v4l2_subdev *sd, struct adv7842_cfg_read_infofr
 	for (i = 0; i < len; i++)
 		buffer[i + 3] = infoframe_read(sd, cri->payload_addr + i);
 
+<<<<<<< HEAD
 	if (hdmi_infoframe_unpack(&frame, buffer) < 0) {
+=======
+	if (hdmi_infoframe_unpack(&frame, buffer, len + 3) < 0) {
+>>>>>>> upstream/android-13
 		v4l2_err(sd, "%s: unpack of %s infoframe failed\n", __func__, cri->desc);
 		return;
 	}
@@ -2576,7 +2790,11 @@ static void log_infoframe(struct v4l2_subdev *sd, struct adv7842_cfg_read_infofr
 static void adv7842_log_infoframes(struct v4l2_subdev *sd)
 {
 	int i;
+<<<<<<< HEAD
 	struct adv7842_cfg_read_infoframe cri[] = {
+=======
+	static const struct adv7842_cfg_read_infoframe cri[] = {
+>>>>>>> upstream/android-13
 		{ "AVI", 0x01, 0xe0, 0x00 },
 		{ "Audio", 0x02, 0xe3, 0x1c },
 		{ "SDP", 0x04, 0xe6, 0x2a },
@@ -3093,11 +3311,19 @@ static int adv7842_ddr_ram_test(struct v4l2_subdev *sd)
 
 	io_write(sd, 0x00, 0x01);  /* Program SDP 4x1 */
 	io_write(sd, 0x01, 0x00);  /* Program SDP mode */
+<<<<<<< HEAD
 	afe_write(sd, 0x80, 0x92); /* SDP Recommeneded Write */
 	afe_write(sd, 0x9B, 0x01); /* SDP Recommeneded Write ADV7844ES1 */
 	afe_write(sd, 0x9C, 0x60); /* SDP Recommeneded Write ADV7844ES1 */
 	afe_write(sd, 0x9E, 0x02); /* SDP Recommeneded Write ADV7844ES1 */
 	afe_write(sd, 0xA0, 0x0B); /* SDP Recommeneded Write ADV7844ES1 */
+=======
+	afe_write(sd, 0x80, 0x92); /* SDP Recommended Write */
+	afe_write(sd, 0x9B, 0x01); /* SDP Recommended Write ADV7844ES1 */
+	afe_write(sd, 0x9C, 0x60); /* SDP Recommended Write ADV7844ES1 */
+	afe_write(sd, 0x9E, 0x02); /* SDP Recommended Write ADV7844ES1 */
+	afe_write(sd, 0xA0, 0x0B); /* SDP Recommended Write ADV7844ES1 */
+>>>>>>> upstream/android-13
 	afe_write(sd, 0xC3, 0x02); /* Memory BIST Initialisation */
 	io_write(sd, 0x0C, 0x40);  /* Power up ADV7844 */
 	io_write(sd, 0x15, 0xBA);  /* Enable outputs */
@@ -3342,6 +3568,7 @@ static const struct v4l2_ctrl_config adv7842_ctrl_free_run_color = {
 static void adv7842_unregister_clients(struct v4l2_subdev *sd)
 {
 	struct adv7842_state *state = to_state(sd);
+<<<<<<< HEAD
 	if (state->i2c_avlink)
 		i2c_unregister_device(state->i2c_avlink);
 	if (state->i2c_cec)
@@ -3364,6 +3591,19 @@ static void adv7842_unregister_clients(struct v4l2_subdev *sd)
 		i2c_unregister_device(state->i2c_cp);
 	if (state->i2c_vdp)
 		i2c_unregister_device(state->i2c_vdp);
+=======
+	i2c_unregister_device(state->i2c_avlink);
+	i2c_unregister_device(state->i2c_cec);
+	i2c_unregister_device(state->i2c_infoframe);
+	i2c_unregister_device(state->i2c_sdp_io);
+	i2c_unregister_device(state->i2c_sdp);
+	i2c_unregister_device(state->i2c_afe);
+	i2c_unregister_device(state->i2c_repeater);
+	i2c_unregister_device(state->i2c_edid);
+	i2c_unregister_device(state->i2c_hdmi);
+	i2c_unregister_device(state->i2c_cp);
+	i2c_unregister_device(state->i2c_vdp);
+>>>>>>> upstream/android-13
 
 	state->i2c_avlink = NULL;
 	state->i2c_cec = NULL;
@@ -3391,9 +3631,18 @@ static struct i2c_client *adv7842_dummy_client(struct v4l2_subdev *sd, const cha
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	cp = i2c_new_dummy(client->adapter, io_read(sd, io_reg) >> 1);
 	if (!cp)
 		v4l2_err(sd, "register %s on i2c addr 0x%x failed\n", desc, addr);
+=======
+	cp = i2c_new_dummy_device(client->adapter, io_read(sd, io_reg) >> 1);
+	if (IS_ERR(cp)) {
+		v4l2_err(sd, "register %s on i2c addr 0x%x failed with %ld\n",
+			 desc, addr, PTR_ERR(cp));
+		cp = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	return cp;
 }
@@ -3441,6 +3690,10 @@ static int adv7842_probe(struct i2c_client *client,
 	struct v4l2_ctrl_handler *hdl;
 	struct v4l2_ctrl *ctrl;
 	struct v4l2_subdev *sd;
+<<<<<<< HEAD
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 	u16 rev;
 	int err;
 
@@ -3544,8 +3797,16 @@ static int adv7842_probe(struct i2c_client *client,
 			adv7842_delayed_work_enable_hotplug);
 
 	sd->entity.function = MEDIA_ENT_F_DV_DECODER;
+<<<<<<< HEAD
 	state->pad.flags = MEDIA_PAD_FL_SOURCE;
 	err = media_entity_pads_init(&sd->entity, 1, &state->pad);
+=======
+	for (i = 0; i < ADV7842_PAD_SOURCE; ++i)
+		state->pads[i].flags = MEDIA_PAD_FL_SINK;
+	state->pads[ADV7842_PAD_SOURCE].flags = MEDIA_PAD_FL_SOURCE;
+	err = media_entity_pads_init(&sd->entity, ADV7842_PAD_SOURCE + 1,
+				     state->pads);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_work_queues;
 

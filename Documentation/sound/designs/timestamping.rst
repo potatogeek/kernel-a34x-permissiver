@@ -143,7 +143,11 @@ timestamp shows when the information is put together by the driver
 before returning from the ``STATUS`` and ``STATUS_EXT`` ioctl. in most cases
 this driver_timestamp will be identical to the regular system tstamp.
 
+<<<<<<< HEAD
 Examples of typestamping with HDaudio:
+=======
+Examples of timestamping with HDAudio:
+>>>>>>> upstream/android-13
 
 1. DMA timestamp, no compensation for DMA+analog delay
 ::

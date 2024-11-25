@@ -203,7 +203,13 @@
 #define IMX6SLL_CLK_GPIO4               176
 #define IMX6SLL_CLK_GPIO5               177
 #define IMX6SLL_CLK_GPIO6               178
+<<<<<<< HEAD
 
 #define IMX6SLL_CLK_END			179
+=======
+#define IMX6SLL_CLK_MMDC_P1_IPG		179
+
+#define IMX6SLL_CLK_END			180
+>>>>>>> upstream/android-13
 
 #endif /* __DT_BINDINGS_CLOCK_IMX6SLL_H */

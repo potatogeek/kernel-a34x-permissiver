@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/linux/uio_driver.h
  *
@@ -7,8 +11,11 @@
  * Copyright(C) 2006, Greg Kroah-Hartman <greg@kroah.com>
  *
  * Userspace IO driver.
+<<<<<<< HEAD
  *
  * Licensed under the GPLv2 only.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _UIO_DRIVER_H_
@@ -17,6 +24,10 @@
 #include <linux/device.h>
 #include <linux/fs.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct module;
 struct uio_map;
@@ -25,10 +36,17 @@ struct uio_map;
  * struct uio_mem - description of a UIO memory region
  * @name:		name of the memory region for identification
  * @addr:               address of the device's memory rounded to page
+<<<<<<< HEAD
  * 			size (phys_addr is used since addr can be
  * 			logical, virtual, or physical & phys_addr_t
  * 			should always be large enough to handle any of
  * 			the address types)
+=======
+ *			size (phys_addr is used since addr can be
+ *			logical, virtual, or physical & phys_addr_t
+ *			should always be large enough to handle any of
+ *			the address types)
+>>>>>>> upstream/android-13
  * @offs:               offset of device memory within the page
  * @size:		size of IO (multiple of page size)
  * @memtype:		type of memory addr points to
@@ -68,6 +86,7 @@ struct uio_port {
 #define MAX_UIO_PORT_REGIONS	5
 
 struct uio_device {
+<<<<<<< HEAD
         struct module           *owner;
 	struct device		dev;
         int                     minor;
@@ -78,6 +97,20 @@ struct uio_device {
 	struct mutex		info_lock;
         struct kobject          *map_dir;
         struct kobject          *portio_dir;
+=======
+	struct module           *owner;
+	struct device		dev;
+	int                     minor;
+	atomic_t                event;
+	struct fasync_struct    *async_queue;
+	wait_queue_head_t       wait;
+	struct uio_info         *info;
+	struct mutex		info_lock;
+	struct kobject          *map_dir;
+	struct kobject          *portio_dir;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -110,6 +143,10 @@ struct uio_info {
 	int (*open)(struct uio_info *info, struct inode *inode);
 	int (*release)(struct uio_info *info, struct inode *inode);
 	int (*irqcontrol)(struct uio_info *info, s32 irq_on);
+<<<<<<< HEAD
+=======
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 extern int __must_check
@@ -118,12 +155,43 @@ extern int __must_check
 			      struct uio_info *info);
 
 /* use a define to avoid include chaining to get THIS_MODULE */
+<<<<<<< HEAD
+=======
+
+/**
+ * uio_register_device - register a new userspace IO device
+ * @parent:	parent device
+ * @info:	UIO device capabilities
+ *
+ * returns zero on success or a negative error code.
+ */
+>>>>>>> upstream/android-13
 #define uio_register_device(parent, info) \
 	__uio_register_device(THIS_MODULE, parent, info)
 
 extern void uio_unregister_device(struct uio_info *info);
 extern void uio_event_notify(struct uio_info *info);
 
+<<<<<<< HEAD
+=======
+extern int __must_check
+	__devm_uio_register_device(struct module *owner,
+				   struct device *parent,
+				   struct uio_info *info);
+
+/* use a define to avoid include chaining to get THIS_MODULE */
+
+/**
+ * devm_uio_register_device - Resource managed uio_register_device()
+ * @parent:	parent device
+ * @info:	UIO device capabilities
+ *
+ * returns zero on success or a negative error code.
+ */
+#define devm_uio_register_device(parent, info) \
+	__devm_uio_register_device(THIS_MODULE, parent, info)
+
+>>>>>>> upstream/android-13
 /* defines for uio_info->irq */
 #define UIO_IRQ_CUSTOM	-1
 #define UIO_IRQ_NONE	0
@@ -133,6 +201,10 @@ extern void uio_event_notify(struct uio_info *info);
 #define UIO_MEM_PHYS	1
 #define UIO_MEM_LOGICAL	2
 #define UIO_MEM_VIRTUAL 3
+<<<<<<< HEAD
+=======
+#define UIO_MEM_IOVA	4
+>>>>>>> upstream/android-13
 
 /* defines for uio_port->porttype */
 #define UIO_PORT_NONE	0

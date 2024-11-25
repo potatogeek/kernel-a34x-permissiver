@@ -28,7 +28,10 @@ void get_io_context(struct io_context *ioc)
 	BUG_ON(atomic_long_read(&ioc->refcount) <= 0);
 	atomic_long_inc(&ioc->refcount);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(get_io_context);
+=======
+>>>>>>> upstream/android-13
 
 static void icq_free_icq_rcu(struct rcu_head *head)
 {
@@ -48,10 +51,15 @@ static void ioc_exit_icq(struct io_cq *icq)
 	if (icq->flags & ICQ_EXITED)
 		return;
 
+<<<<<<< HEAD
 	if (et->uses_mq && et->ops.mq.exit_icq)
 		et->ops.mq.exit_icq(icq);
 	else if (!et->uses_mq && et->ops.sq.elevator_exit_icq_fn)
 		et->ops.sq.elevator_exit_icq_fn(icq);
+=======
+	if (et->ops.exit_icq)
+		et->ops.exit_icq(icq);
+>>>>>>> upstream/android-13
 
 	icq->flags |= ICQ_EXITED;
 }
@@ -99,6 +107,7 @@ static void ioc_release_fn(struct work_struct *work)
 {
 	struct io_context *ioc = container_of(work, struct io_context,
 					      release_work);
+<<<<<<< HEAD
 	unsigned long flags;
 
 	/*
@@ -108,12 +117,16 @@ static void ioc_release_fn(struct work_struct *work)
 	 * irqsave variant as there's no spin_lock_irq_nested().
 	 */
 	spin_lock_irqsave_nested(&ioc->lock, flags, 1);
+=======
+	spin_lock_irq(&ioc->lock);
+>>>>>>> upstream/android-13
 
 	while (!hlist_empty(&ioc->icq_list)) {
 		struct io_cq *icq = hlist_entry(ioc->icq_list.first,
 						struct io_cq, ioc_node);
 		struct request_queue *q = icq->q;
 
+<<<<<<< HEAD
 		if (spin_trylock(q->queue_lock)) {
 			ioc_destroy_icq(icq);
 			spin_unlock(q->queue_lock);
@@ -125,6 +138,33 @@ static void ioc_release_fn(struct work_struct *work)
 	}
 
 	spin_unlock_irqrestore(&ioc->lock, flags);
+=======
+		if (spin_trylock(&q->queue_lock)) {
+			ioc_destroy_icq(icq);
+			spin_unlock(&q->queue_lock);
+		} else {
+			/* Make sure q and icq cannot be freed. */
+			rcu_read_lock();
+
+			/* Re-acquire the locks in the correct order. */
+			spin_unlock(&ioc->lock);
+			spin_lock(&q->queue_lock);
+			spin_lock(&ioc->lock);
+
+			/*
+			 * The icq may have been destroyed when the ioc lock
+			 * was released.
+			 */
+			if (!(icq->flags & ICQ_DESTROYED))
+				ioc_destroy_icq(icq);
+
+			spin_unlock(&q->queue_lock);
+			rcu_read_unlock();
+		}
+	}
+
+	spin_unlock_irq(&ioc->lock);
+>>>>>>> upstream/android-13
 
 	kmem_cache_free(iocontext_cachep, ioc);
 }
@@ -163,7 +203,10 @@ void put_io_context(struct io_context *ioc)
 	if (free_ioc)
 		kmem_cache_free(iocontext_cachep, ioc);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(put_io_context);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * put_io_context_active - put active reference on ioc
@@ -174,8 +217,11 @@ EXPORT_SYMBOL(put_io_context);
  */
 void put_io_context_active(struct io_context *ioc)
 {
+<<<<<<< HEAD
 	struct elevator_type *et;
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	struct io_cq *icq;
 
 	if (!atomic_dec_and_test(&ioc->active_ref)) {
@@ -183,6 +229,7 @@ void put_io_context_active(struct io_context *ioc)
 		return;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Need ioc lock to walk icq_list and q lock to exit icq.  Perform
 	 * reverse double locking.  Read comment in ioc_release_fn() for
@@ -190,10 +237,14 @@ void put_io_context_active(struct io_context *ioc)
 	 */
 retry:
 	spin_lock_irqsave_nested(&ioc->lock, flags, 1);
+=======
+	spin_lock_irq(&ioc->lock);
+>>>>>>> upstream/android-13
 	hlist_for_each_entry(icq, &ioc->icq_list, ioc_node) {
 		if (icq->flags & ICQ_EXITED)
 			continue;
 
+<<<<<<< HEAD
 		et = icq->q->elevator->type;
 		if (et->uses_mq) {
 			ioc_exit_icq(icq);
@@ -209,6 +260,11 @@ retry:
 		}
 	}
 	spin_unlock_irqrestore(&ioc->lock, flags);
+=======
+		ioc_exit_icq(icq);
+	}
+	spin_unlock_irq(&ioc->lock);
+>>>>>>> upstream/android-13
 
 	put_io_context(ioc);
 }
@@ -234,7 +290,11 @@ static void __ioc_clear_queue(struct list_head *icq_list)
 	rcu_read_lock();
 	while (!list_empty(icq_list)) {
 		struct io_cq *icq = list_entry(icq_list->next,
+<<<<<<< HEAD
 					       struct io_cq, q_node);
+=======
+						struct io_cq, q_node);
+>>>>>>> upstream/android-13
 		struct io_context *ioc = icq->ioc;
 
 		spin_lock_irqsave(&ioc->lock, flags);
@@ -258,6 +318,7 @@ void ioc_clear_queue(struct request_queue *q)
 {
 	LIST_HEAD(icq_list);
 
+<<<<<<< HEAD
 	spin_lock_irq(q->queue_lock);
 	list_splice_init(&q->icq_list, &icq_list);
 
@@ -268,6 +329,13 @@ void ioc_clear_queue(struct request_queue *q)
 		__ioc_clear_queue(&icq_list);
 		spin_unlock_irq(q->queue_lock);
 	}
+=======
+	spin_lock_irq(&q->queue_lock);
+	list_splice_init(&q->icq_list, &icq_list);
+	spin_unlock_irq(&q->queue_lock);
+
+	__ioc_clear_queue(&icq_list);
+>>>>>>> upstream/android-13
 }
 
 int create_task_io_context(struct task_struct *task, gfp_t gfp_flags, int node)
@@ -343,7 +411,10 @@ struct io_context *get_task_io_context(struct task_struct *task,
 
 	return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(get_task_io_context);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * ioc_lookup_icq - lookup io_cq from ioc
@@ -357,7 +428,11 @@ struct io_cq *ioc_lookup_icq(struct io_context *ioc, struct request_queue *q)
 {
 	struct io_cq *icq;
 
+<<<<<<< HEAD
 	lockdep_assert_held(q->queue_lock);
+=======
+	lockdep_assert_held(&q->queue_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * icq's are indexed from @ioc using radix tree and hint pointer,
@@ -416,16 +491,25 @@ struct io_cq *ioc_create_icq(struct io_context *ioc, struct request_queue *q,
 	INIT_HLIST_NODE(&icq->ioc_node);
 
 	/* lock both q and ioc and try to link @icq */
+<<<<<<< HEAD
 	spin_lock_irq(q->queue_lock);
+=======
+	spin_lock_irq(&q->queue_lock);
+>>>>>>> upstream/android-13
 	spin_lock(&ioc->lock);
 
 	if (likely(!radix_tree_insert(&ioc->icq_tree, q->id, icq))) {
 		hlist_add_head(&icq->ioc_node, &ioc->icq_list);
 		list_add(&icq->q_node, &q->icq_list);
+<<<<<<< HEAD
 		if (et->uses_mq && et->ops.mq.init_icq)
 			et->ops.mq.init_icq(icq);
 		else if (!et->uses_mq && et->ops.sq.elevator_init_icq_fn)
 			et->ops.sq.elevator_init_icq_fn(icq);
+=======
+		if (et->ops.init_icq)
+			et->ops.init_icq(icq);
+>>>>>>> upstream/android-13
 	} else {
 		kmem_cache_free(et->icq_cache, icq);
 		icq = ioc_lookup_icq(ioc, q);
@@ -434,7 +518,11 @@ struct io_cq *ioc_create_icq(struct io_context *ioc, struct request_queue *q,
 	}
 
 	spin_unlock(&ioc->lock);
+<<<<<<< HEAD
 	spin_unlock_irq(q->queue_lock);
+=======
+	spin_unlock_irq(&q->queue_lock);
+>>>>>>> upstream/android-13
 	radix_tree_preload_end();
 	return icq;
 }

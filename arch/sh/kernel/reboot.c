@@ -4,9 +4,13 @@
 #include <linux/kernel.h>
 #include <linux/reboot.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
 #include <asm/watchdog.h>
 #endif
+=======
+#include <asm/watchdog.h>
+>>>>>>> upstream/android-13
 #include <asm/addrspace.h>
 #include <asm/reboot.h>
 #include <asm/tlbflush.h>
@@ -15,13 +19,19 @@
 void (*pm_power_off)(void);
 EXPORT_SYMBOL(pm_power_off);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
+=======
+>>>>>>> upstream/android-13
 static void watchdog_trigger_immediate(void)
 {
 	sh_wdt_write_cnt(0xFF);
 	sh_wdt_write_csr(0xC2);
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static void native_machine_restart(char * __unused)
 {
@@ -33,10 +43,15 @@ static void native_machine_restart(char * __unused)
 	/* Address error with SR.BL=1 first. */
 	trigger_address_error();
 
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
 	/* If that fails or is unsupported, go for the watchdog next. */
 	watchdog_trigger_immediate();
 #endif
+=======
+	/* If that fails or is unsupported, go for the watchdog next. */
+	watchdog_trigger_immediate();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Give up and sleep.

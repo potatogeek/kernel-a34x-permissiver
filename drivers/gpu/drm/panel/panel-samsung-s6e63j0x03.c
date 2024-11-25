@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MIPI-DSI based S6E63J0X03 AMOLED lcd 1.63 inch panel driver.
  *
@@ -5,6 +9,7 @@
  *
  * Inki Dae <inki.dae@samsung.com>
  * Hoegeun Kwon <hoegeun.kwon@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,6 +24,22 @@
 #include <linux/regulator/consumer.h>
 #include <video/mipi_display.h>
 
+=======
+ */
+
+#include <linux/backlight.h>
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+#include <linux/module.h>
+#include <linux/regulator/consumer.h>
+
+#include <video/mipi_display.h>
+
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_modes.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 #define MCS_LEVEL2_KEY		0xf0
 #define MCS_MTP_KEY		0xf1
 #define MCS_MTP_SET3		0xd4
@@ -50,7 +71,10 @@ static const struct drm_display_mode default_mode = {
 	.vsync_start = 320 + 150,
 	.vsync_end = 320 + 150 + 1,
 	.vtotal = 320 + 150 + 1 + 2,
+<<<<<<< HEAD
 	.vrefresh = 30,
+=======
+>>>>>>> upstream/android-13
 	.flags = 0,
 };
 
@@ -398,6 +422,7 @@ static int s6e63j0x03_enable(struct drm_panel *panel)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int s6e63j0x03_get_modes(struct drm_panel *panel)
 {
 	struct drm_connector *connector = panel->connector;
@@ -408,6 +433,18 @@ static int s6e63j0x03_get_modes(struct drm_panel *panel)
 		DRM_ERROR("failed to add mode %ux%ux@%u\n",
 			default_mode.hdisplay, default_mode.vdisplay,
 			default_mode.vrefresh);
+=======
+static int s6e63j0x03_get_modes(struct drm_panel *panel,
+				struct drm_connector *connector)
+{
+	struct drm_display_mode *mode;
+
+	mode = drm_mode_duplicate(connector->dev, &default_mode);
+	if (!mode) {
+		dev_err(panel->dev, "failed to add mode %ux%u@%u\n",
+			default_mode.hdisplay, default_mode.vdisplay,
+			drm_mode_vrefresh(&default_mode));
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -446,7 +483,11 @@ static int s6e63j0x03_probe(struct mipi_dsi_device *dsi)
 
 	dsi->lanes = 1;
 	dsi->format = MIPI_DSI_FMT_RGB888;
+<<<<<<< HEAD
 	dsi->mode_flags = MIPI_DSI_MODE_EOT_PACKET;
+=======
+	dsi->mode_flags = MIPI_DSI_MODE_NO_EOT_PACKET;
+>>>>>>> upstream/android-13
 
 	ctx->supplies[0].supply = "vdd3";
 	ctx->supplies[1].supply = "vci";
@@ -464,9 +505,14 @@ static int s6e63j0x03_probe(struct mipi_dsi_device *dsi)
 		return PTR_ERR(ctx->reset_gpio);
 	}
 
+<<<<<<< HEAD
 	drm_panel_init(&ctx->panel);
 	ctx->panel.dev = dev;
 	ctx->panel.funcs = &s6e63j0x03_funcs;
+=======
+	drm_panel_init(&ctx->panel, dev, &s6e63j0x03_funcs,
+		       DRM_MODE_CONNECTOR_DSI);
+>>>>>>> upstream/android-13
 
 	ctx->bl_dev = backlight_device_register("s6e63j0x03", dev, ctx,
 						&s6e63j0x03_bl_ops, NULL);
@@ -479,9 +525,13 @@ static int s6e63j0x03_probe(struct mipi_dsi_device *dsi)
 	ctx->bl_dev->props.brightness = DEFAULT_BRIGHTNESS;
 	ctx->bl_dev->props.power = FB_BLANK_POWERDOWN;
 
+<<<<<<< HEAD
 	ret = drm_panel_add(&ctx->panel);
 	if (ret < 0)
 		goto unregister_backlight;
+=======
+	drm_panel_add(&ctx->panel);
+>>>>>>> upstream/android-13
 
 	ret = mipi_dsi_attach(dsi);
 	if (ret < 0)
@@ -491,8 +541,11 @@ static int s6e63j0x03_probe(struct mipi_dsi_device *dsi)
 
 remove_panel:
 	drm_panel_remove(&ctx->panel);
+<<<<<<< HEAD
 
 unregister_backlight:
+=======
+>>>>>>> upstream/android-13
 	backlight_device_unregister(ctx->bl_dev);
 
 	return ret;

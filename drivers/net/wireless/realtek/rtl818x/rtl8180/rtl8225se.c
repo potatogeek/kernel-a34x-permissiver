@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /* Radio tuning for RTL8225 on RTL8187SE
  *
@@ -10,10 +14,13 @@
  * Also based on the rtl8187 driver, which is:
  * Copyright 2007 Michael Wu <flamingice@sourmilk.net>
  * Copyright 2007 Andrea Merello <andrea.merello@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <net/mac80211.h>
@@ -40,6 +47,7 @@ static const u8 cck_ofdm_gain_settings[] = {
 	0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23,
 };
 
+<<<<<<< HEAD
 static const u8 rtl8225se_tx_gain_cck_ofdm[] = {
 	0x02, 0x06, 0x0e, 0x1e, 0x3e, 0x7e
 };
@@ -66,11 +74,14 @@ static const u8 rtl8225se_tx_power_ofdm[] = {
 	0x80, 0x90, 0xa2, 0xb5, 0xcb, 0xe4
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u32 rtl8225se_chan[] = {
 	0x0080, 0x0100, 0x0180, 0x0200, 0x0280, 0x0300, 0x0380,
 	0x0400, 0x0480, 0x0500, 0x0580, 0x0600, 0x0680, 0x074A,
 };
 
+<<<<<<< HEAD
 static const u8 rtl8225sez2_tx_power_cck_ch14[] = {
 	0x36, 0x35, 0x2e, 0x1b, 0x00, 0x00, 0x00, 0x00
 };
@@ -87,6 +98,8 @@ static const u8 rtl8225sez2_tx_power_cck[] = {
 	0x36, 0x35, 0x2e, 0x25, 0x1c, 0x12, 0x09, 0x04
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u8 ZEBRA_AGC[] = {
 	0x7E, 0x7E, 0x7E, 0x7E, 0x7D, 0x7C, 0x7B, 0x7A,
 	0x79, 0x78, 0x77, 0x76, 0x75, 0x74, 0x73, 0x72,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Touchscreen driver configuration
 #
@@ -9,6 +13,7 @@ menuconfig INPUT_TOUCHSCREEN
 
 	  If unsure, say Y.
 
+<<<<<<< HEAD
 source "drivers/input/touchscreen/mediatek/Kconfig"
 
 # source "drivers/input/touchscreen/NT36672C/Kconfig"
@@ -19,6 +24,10 @@ config TOUCHSCREEN_PROPERTIES
 	def_tristate INPUT
 	depends on INPUT
 
+=======
+if INPUT_TOUCHSCREEN
+
+>>>>>>> upstream/android-13
 config TOUCHSCREEN_88PM860X
 	tristate "Marvell 88PM860x touchscreen"
 	depends on MFD_88PM860X
@@ -205,6 +214,21 @@ config TOUCHSCREEN_CHIPONE_ICN8505
 	  To compile this driver as a module, choose M here: the
 	  module will be called chipone_icn8505.
 
+<<<<<<< HEAD
+=======
+config TOUCHSCREEN_CY8CTMA140
+	tristate "cy8ctma140 touchscreen"
+	depends on I2C
+	help
+	  Say Y here if you have a Cypress CY8CTMA140 capacitive
+	  touchscreen also just known as "TMA140"
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called cy8ctma140.
+
+>>>>>>> upstream/android-13
 config TOUCHSCREEN_CY8CTMG110
 	tristate "cy8ctmg110 touchscreen"
 	depends on I2C
@@ -406,6 +430,20 @@ config TOUCHSCREEN_HIDEEP
 	  To compile this driver as a module, choose M here : the
 	  module will be called hideep_ts.
 
+<<<<<<< HEAD
+=======
+config TOUCHSCREEN_HYCON_HY46XX
+	tristate "Hycon hy46xx touchscreen support"
+	depends on I2C
+	help
+	  Say Y here if you have a touchscreen using Hycon hy46xx
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called hycon-hy46xx.
+
+>>>>>>> upstream/android-13
 config TOUCHSCREEN_ILI210X
 	tristate "Ilitek ILI210X based touchscreen"
 	depends on I2C
@@ -421,6 +459,21 @@ config TOUCHSCREEN_ILI210X
 	  To compile this driver as a module, choose M here: the
 	  module will be called ili210x.
 
+<<<<<<< HEAD
+=======
+config TOUCHSCREEN_ILITEK
+	tristate "Ilitek I2C 213X/23XX/25XX/Lego Series Touch ICs"
+	depends on I2C
+	help
+	  Say Y here if you have touchscreen with ILITEK touch IC,
+	  it supports 213X/23XX/25XX and other Lego series.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ilitek_ts_i2c.
+
+>>>>>>> upstream/android-13
 config TOUCHSCREEN_IPROC
 	tristate "IPROC touch panel driver support"
 	depends on ARCH_BCM_IPROC || COMPILE_TEST
@@ -585,6 +638,21 @@ config TOUCHSCREEN_MELFAS_MIP4
 	  To compile this driver as a module, choose M here:
 	  the module will be called melfas_mip4.
 
+<<<<<<< HEAD
+=======
+config TOUCHSCREEN_MSG2638
+	tristate "MStar msg2638 touchscreen support"
+	depends on I2C
+	depends on GPIOLIB || COMPILE_TEST
+	help
+	  Say Y here if you have an I2C touchscreen using MStar msg2638.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2638.
+
+>>>>>>> upstream/android-13
 config TOUCHSCREEN_MTOUCH
 	tristate "MicroTouch serial touchscreens"
 	select SERIO
@@ -599,7 +667,11 @@ config TOUCHSCREEN_MTOUCH
 
 config TOUCHSCREEN_IMX6UL_TSC
 	tristate "Freescale i.MX6UL touchscreen controller"
+<<<<<<< HEAD
 	depends on (OF && GPIOLIB) || COMPILE_TEST
+=======
+	depends on ((OF && GPIOLIB) || COMPILE_TEST) && HAS_IOMEM
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you have a Freescale i.MX6UL, and want to
 	  use the internal touchscreen controller.
@@ -637,7 +709,11 @@ config TOUCHSCREEN_HP600
 	depends on SH_HP6XX && SH_ADC
 	help
 	  Say Y here if you have a HP Jornada 620/660/680/690 and want to
+<<<<<<< HEAD
           support the built-in touchscreen.
+=======
+	  support the built-in touchscreen.
+>>>>>>> upstream/android-13
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called hp680_ts_input.
@@ -701,6 +777,21 @@ config TOUCHSCREEN_EDT_FT5X06
 	  To compile this driver as a module, choose M here: the
 	  module will be called edt-ft5x06.
 
+<<<<<<< HEAD
+=======
+config TOUCHSCREEN_RASPBERRYPI_FW
+	tristate "Raspberry Pi's firmware base touch screen support"
+	depends on RASPBERRYPI_FIRMWARE || (RASPBERRYPI_FIRMWARE=n && COMPILE_TEST)
+	help
+	  Say Y here if you have the official Raspberry Pi 7 inch screen on
+	  your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called raspberrypi-ts.
+
+>>>>>>> upstream/android-13
 config TOUCHSCREEN_MIGOR
 	tristate "Renesas MIGO-R touchscreen"
 	depends on (SH_MIGOR || COMPILE_TEST) && I2C
@@ -880,7 +971,11 @@ config TOUCHSCREEN_USB_COMPOSITE
 	  - JASTEC USB Touch Controller/DigiTech DTR-02U
 	  - Zytronic controllers
 	  - Elo TouchSystems 2700 IntelliTouch
+<<<<<<< HEAD
 	  - EasyTouch USB Touch Controller from Data Modul
+=======
+	  - EasyTouch USB Touch Controller from Data Module
+>>>>>>> upstream/android-13
 	  - e2i (Mimo monitors)
 
 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
@@ -1029,7 +1124,10 @@ config TOUCHSCREEN_TS4800
 	depends on HAS_IOMEM && OF
 	depends on SOC_IMX51 || COMPILE_TEST
 	select MFD_SYSCON
+<<<<<<< HEAD
 	select INPUT_POLLDEV
+=======
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you have a touchscreen on a TS-4800 board.
 
@@ -1103,6 +1201,7 @@ config TOUCHSCREEN_TSC2007_IIO
 	  or ambient light monitoring), temperature and raw input
 	  values.
 
+<<<<<<< HEAD
 config TOUCHSCREEN_W90X900
 	tristate "W90P910 touchscreen driver"
 	depends on ARCH_W90X900
@@ -1112,6 +1211,8 @@ config TOUCHSCREEN_W90X900
 	  To compile this driver as a module, choose M here: the
 	  module will be called w90p910_ts.
 
+=======
+>>>>>>> upstream/android-13
 config TOUCHSCREEN_PCAP
 	tristate "Motorola PCAP touchscreen"
 	depends on EZX_PCAP
@@ -1161,11 +1262,19 @@ config TOUCHSCREEN_SIS_I2C
 	  module will be called sis_i2c.
 
 config TOUCHSCREEN_ST1232
+<<<<<<< HEAD
 	tristate "Sitronix ST1232 touchscreen controllers"
 	depends on I2C
 	help
 	  Say Y here if you want to support Sitronix ST1232
 	  touchscreen controller.
+=======
+	tristate "Sitronix ST1232 or ST1633 touchscreen controllers"
+	depends on I2C
+	help
+	  Say Y here if you want to support the Sitronix ST1232
+	  or ST1633 touchscreen controller.
+>>>>>>> upstream/android-13
 
 	  If unsure, say N.
 
@@ -1210,7 +1319,10 @@ config TOUCHSCREEN_SUR40
 	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
 	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
 	depends on VIDEO_V4L2
+<<<<<<< HEAD
 	select INPUT_POLLDEV
+=======
+>>>>>>> upstream/android-13
 	select VIDEOBUF2_DMA_SG
 	help
 	  Say Y here if you want support for the Samsung SUR40 touchscreen
@@ -1243,6 +1355,7 @@ config TOUCHSCREEN_SX8654
 	  To compile this driver as a module, choose M here: the
 	  module will be called sx8654.
 
+<<<<<<< HEAD
 config TOUCHSCREEN_MTK_NT36572_COMMON
          bool "NT36572 for Mediatek package"
          default n
@@ -1257,6 +1370,11 @@ config TOUCHSCREEN_TPS6507X
 	tristate "TPS6507x based touchscreens"
 	depends on I2C
 	select INPUT_POLLDEV
+=======
+config TOUCHSCREEN_TPS6507X
+	tristate "TPS6507x based touchscreens"
+	depends on I2C
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you have a TPS6507x based touchscreen
 	  controller.
@@ -1314,6 +1432,7 @@ config TOUCHSCREEN_ROHM_BU21023
 	  To compile this driver as a module, choose M here: the
 	  module will be called bu21023_ts.
 
+<<<<<<< HEAD
 config TOUCHSCREEN_MTK_GT1151
         bool "GT1151 for Mediatek package"
         default n
@@ -1377,4 +1496,31 @@ source "drivers/input/touchscreen/novatek/nt36525/Kconfig"
 source "drivers/input/touchscreen/synaptics_tcm2/Kconfig"
 # source "drivers/input/touchscreen/himax/himax_ic_hx83102j/Kconfig"
 # source "drivers/input/touchscreen/gt9895/Kconfig"
+=======
+config TOUCHSCREEN_IQS5XX
+	tristate "Azoteq IQS550/572/525 trackpad/touchscreen controller"
+	depends on I2C
+	help
+	  Say Y to enable support for the Azoteq IQS550/572/525
+	  family of trackpad/touchscreen controllers.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called iqs5xx.
+
+config TOUCHSCREEN_ZINITIX
+	tristate "Zinitix touchscreen support"
+	depends on I2C
+	help
+	  Say Y here if you have a touchscreen using Zinitix bt541,
+	  or something similar enough.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called zinitix.
+
+if EXYNOS_VARIANT1
+source "drivers/input/touchscreen/Kconfig.variant1"
+endif
+>>>>>>> upstream/android-13
 endif

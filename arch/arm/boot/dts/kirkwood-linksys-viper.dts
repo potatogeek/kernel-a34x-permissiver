@@ -66,6 +66,7 @@
 			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
 		};
 	};
+<<<<<<< HEAD
 
 	dsa {
 		status = "disabled";
@@ -113,6 +114,8 @@
 			};
 		};
 	};
+=======
+>>>>>>> upstream/android-13
 };
 
 &pinctrl {

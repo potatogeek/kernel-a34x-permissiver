@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #include <linux/ethtool.h>
 #include <linux/vmalloc.h>
@@ -66,7 +71,11 @@ enum nfp_dumpspec_type {
 struct nfp_dump_tl {
 	__be32 type;
 	__be32 length;	/* chunk length to follow, aligned to 8 bytes */
+<<<<<<< HEAD
 	char data[0];
+=======
+	char data[];
+>>>>>>> upstream/android-13
 };
 
 /* NFP CPP parameters */
@@ -92,7 +101,11 @@ struct nfp_dumpspec_csr {
 
 struct nfp_dumpspec_rtsym {
 	struct nfp_dump_tl tl;
+<<<<<<< HEAD
 	char rtsym[0];
+=======
+	char rtsym[];
+>>>>>>> upstream/android-13
 };
 
 /* header for register dumpable */
@@ -109,7 +122,11 @@ struct nfp_dump_rtsym {
 	struct nfp_dump_common_cpp cpp;
 	__be32 error;		/* error code encountered while reading */
 	u8 padded_name_length;	/* pad so data starts at 8 byte boundary */
+<<<<<<< HEAD
 	char rtsym[0];
+=======
+	char rtsym[];
+>>>>>>> upstream/android-13
 	/* after padded_name_length, there is dump_length data */
 };
 
@@ -122,7 +139,11 @@ struct nfp_dump_error {
 	struct nfp_dump_tl tl;
 	__be32 error;
 	char padding[4];
+<<<<<<< HEAD
 	char spec[0];
+=======
+	char spec[];
+>>>>>>> upstream/android-13
 };
 
 /* to track state through debug size calculation TLV traversal */
@@ -188,11 +209,16 @@ nfp_net_dump_load_dumpspec(struct nfp_cpp *cpp, struct nfp_rtsym_table *rtbl)
 	const struct nfp_rtsym *specsym;
 	struct nfp_dumpspec *dumpspec;
 	int bytes_read;
+<<<<<<< HEAD
 	u32 cpp_id;
+=======
+	u64 sym_size;
+>>>>>>> upstream/android-13
 
 	specsym = nfp_rtsym_lookup(rtbl, NFP_DUMP_SPEC_RTSYM);
 	if (!specsym)
 		return NULL;
+<<<<<<< HEAD
 
 	/* expected size of this buffer is in the order of tens of kilobytes */
 	dumpspec = vmalloc(sizeof(*dumpspec) + specsym->size);
@@ -207,6 +233,18 @@ nfp_net_dump_load_dumpspec(struct nfp_cpp *cpp, struct nfp_rtsym_table *rtbl)
 	bytes_read = nfp_cpp_read(cpp, cpp_id, specsym->addr, dumpspec->data,
 				  specsym->size);
 	if (bytes_read != specsym->size) {
+=======
+	sym_size = nfp_rtsym_size(specsym);
+
+	/* expected size of this buffer is in the order of tens of kilobytes */
+	dumpspec = vmalloc(sizeof(*dumpspec) + sym_size);
+	if (!dumpspec)
+		return NULL;
+	dumpspec->size = sym_size;
+
+	bytes_read = nfp_rtsym_read(cpp, specsym, 0, dumpspec->data, sym_size);
+	if (bytes_read != sym_size) {
+>>>>>>> upstream/android-13
 		vfree(dumpspec);
 		nfp_warn(cpp, "Debug dump specification read failed.\n");
 		return NULL;
@@ -266,7 +304,10 @@ nfp_calc_rtsym_dump_sz(struct nfp_pf *pf, struct nfp_dump_tl *spec)
 	struct nfp_dumpspec_rtsym *spec_rtsym;
 	const struct nfp_rtsym *sym;
 	u32 tl_len, key_len;
+<<<<<<< HEAD
 	u32 size;
+=======
+>>>>>>> upstream/android-13
 
 	spec_rtsym = (struct nfp_dumpspec_rtsym *)spec;
 	tl_len = be32_to_cpu(spec->length);
@@ -278,6 +319,7 @@ nfp_calc_rtsym_dump_sz(struct nfp_pf *pf, struct nfp_dump_tl *spec)
 	if (!sym)
 		return nfp_dump_error_tlv_size(spec);
 
+<<<<<<< HEAD
 	if (sym->type == NFP_RTSYM_TYPE_ABS)
 		size = sizeof(sym->addr);
 	else
@@ -285,6 +327,10 @@ nfp_calc_rtsym_dump_sz(struct nfp_pf *pf, struct nfp_dump_tl *spec)
 
 	return ALIGN8(offsetof(struct nfp_dump_rtsym, rtsym) + key_len + 1) +
 	       ALIGN8(size);
+=======
+	return ALIGN8(offsetof(struct nfp_dump_rtsym, rtsym) + key_len + 1) +
+	       ALIGN8(nfp_rtsym_size(sym));
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -644,7 +690,10 @@ nfp_dump_single_rtsym(struct nfp_pf *pf, struct nfp_dumpspec_rtsym *spec,
 	const struct nfp_rtsym *sym;
 	u32 tl_len, key_len;
 	int bytes_read;
+<<<<<<< HEAD
 	u32 cpp_id;
+=======
+>>>>>>> upstream/android-13
 	void *dest;
 	int err;
 
@@ -657,11 +706,15 @@ nfp_dump_single_rtsym(struct nfp_pf *pf, struct nfp_dumpspec_rtsym *spec,
 	if (!sym)
 		return nfp_dump_error_tlv(&spec->tl, -ENOENT, dump);
 
+<<<<<<< HEAD
 	if (sym->type == NFP_RTSYM_TYPE_ABS)
 		sym_size = sizeof(sym->addr);
 	else
 		sym_size = sym->size;
 
+=======
+	sym_size = nfp_rtsym_size(sym);
+>>>>>>> upstream/android-13
 	header_size =
 		ALIGN8(offsetof(struct nfp_dump_rtsym, rtsym) + key_len + 1);
 	total_size = header_size + ALIGN8(sym_size);
@@ -676,13 +729,18 @@ nfp_dump_single_rtsym(struct nfp_pf *pf, struct nfp_dumpspec_rtsym *spec,
 	memcpy(dump_header->rtsym, spec->rtsym, key_len + 1);
 	dump_header->cpp.dump_length = cpu_to_be32(sym_size);
 
+<<<<<<< HEAD
 	if (sym->type == NFP_RTSYM_TYPE_ABS) {
 		*(u64 *)dest = sym->addr;
 	} else {
+=======
+	if (sym->type != NFP_RTSYM_TYPE_ABS) {
+>>>>>>> upstream/android-13
 		cpp_params.target = sym->target;
 		cpp_params.action = NFP_CPP_ACTION_RW;
 		cpp_params.token  = 0;
 		cpp_params.island = sym->domain;
+<<<<<<< HEAD
 		cpp_id = nfp_get_numeric_cpp_id(&cpp_params);
 		dump_header->cpp.cpp_id = cpp_params;
 		dump_header->cpp.offset = cpu_to_be32(sym->addr);
@@ -693,6 +751,17 @@ nfp_dump_single_rtsym(struct nfp_pf *pf, struct nfp_dumpspec_rtsym *spec,
 				bytes_read = -EIO;
 			dump_header->error = cpu_to_be32(bytes_read);
 		}
+=======
+		dump_header->cpp.cpp_id = cpp_params;
+		dump_header->cpp.offset = cpu_to_be32(sym->addr);
+	}
+
+	bytes_read = nfp_rtsym_read(pf->cpp, sym, 0, dest, sym_size);
+	if (bytes_read != sym_size) {
+		if (bytes_read >= 0)
+			bytes_read = -EIO;
+		dump_header->error = cpu_to_be32(bytes_read);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

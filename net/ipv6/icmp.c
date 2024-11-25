@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Internet Control Message Protocol (ICMPv6)
  *	Linux INET6 implementation
@@ -8,11 +12,14 @@
  *	Based on net/ipv4/icmp.c
  *
  *	RFC 1885
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -61,6 +68,10 @@
 #include <net/protocol.h>
 #include <net/raw.h>
 #include <net/rawv6.h>
+<<<<<<< HEAD
+=======
+#include <net/seg6.h>
+>>>>>>> upstream/android-13
 #include <net/transp_v6.h>
 #include <net/ip6_route.h>
 #include <net/addrconf.h>
@@ -79,12 +90,21 @@
  *
  *	On SMP we have one ICMP socket per-cpu.
  */
+<<<<<<< HEAD
 static inline struct sock *icmpv6_sk(struct net *net)
 {
 	return net->ipv6.icmp_sk[smp_processor_id()];
 }
 
 static void icmpv6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
+=======
+static struct sock *icmpv6_sk(struct net *net)
+{
+	return this_cpu_read(*net->ipv6.icmp_sk);
+}
+
+static int icmpv6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
+>>>>>>> upstream/android-13
 		       u8 type, u8 code, int offset, __be32 info)
 {
 	/* icmpv6_notify checks 8 bytes can be pulled, icmp6hdr is 8 bytes */
@@ -100,6 +120,11 @@ static void icmpv6_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	if (!(type & ICMPV6_INFOMSG_MASK))
 		if (icmp6->icmp6_type == ICMPV6_ECHO_REQUEST)
 			ping_err(skb, offset, ntohl(info));
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int icmpv6_rcv(struct sk_buff *skb);
@@ -160,12 +185,23 @@ static bool is_ineligible(const struct sk_buff *skb)
 		tp = skb_header_pointer(skb,
 			ptr+offsetof(struct icmp6hdr, icmp6_type),
 			sizeof(_type), &_type);
+<<<<<<< HEAD
 		if (!tp || !(*tp & ICMPV6_INFOMSG_MASK))
+=======
+
+		/* Based on RFC 8200, Section 4.5 Fragment Header, return
+		 * false if this is a fragment packet with no icmp header info.
+		 */
+		if (!tp && frag_off != 0)
+			return false;
+		else if (!tp || !(*tp & ICMPV6_INFOMSG_MASK))
+>>>>>>> upstream/android-13
 			return true;
 	}
 	return false;
 }
 
+<<<<<<< HEAD
 static bool icmpv6_mask_allow(int type)
 {
 	/* Informational messages are not limited. */
@@ -174,14 +210,29 @@ static bool icmpv6_mask_allow(int type)
 
 	/* Do not limit pmtu discovery, it would break it. */
 	if (type == ICMPV6_PKT_TOOBIG)
+=======
+static bool icmpv6_mask_allow(struct net *net, int type)
+{
+	if (type > ICMPV6_MSG_MAX)
+		return true;
+
+	/* Limit if icmp type is set in ratemask. */
+	if (!test_bit(type, net->ipv6.sysctl.icmpv6_ratemask))
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;
 }
 
+<<<<<<< HEAD
 static bool icmpv6_global_allow(int type)
 {
 	if (icmpv6_mask_allow(type))
+=======
+static bool icmpv6_global_allow(struct net *net, int type)
+{
+	if (icmpv6_mask_allow(net, type))
+>>>>>>> upstream/android-13
 		return true;
 
 	if (icmp_global_allow())
@@ -200,7 +251,11 @@ static bool icmpv6_xrlim_allow(struct sock *sk, u8 type,
 	struct dst_entry *dst;
 	bool res = false;
 
+<<<<<<< HEAD
 	if (icmpv6_mask_allow(type))
+=======
+	if (icmpv6_mask_allow(net, type))
+>>>>>>> upstream/android-13
 		return true;
 
 	/*
@@ -232,6 +287,28 @@ static bool icmpv6_xrlim_allow(struct sock *sk, u8 type,
 	return res;
 }
 
+<<<<<<< HEAD
+=======
+static bool icmpv6_rt_has_prefsrc(struct sock *sk, u8 type,
+				  struct flowi6 *fl6)
+{
+	struct net *net = sock_net(sk);
+	struct dst_entry *dst;
+	bool res = false;
+
+	dst = ip6_route_output(net, sk, fl6);
+	if (!dst->error) {
+		struct rt6_info *rt = (struct rt6_info *)dst;
+		struct in6_addr prefsrc;
+
+		rt6_get_prefsrc(rt, &prefsrc);
+		res = !ipv6_addr_any(&prefsrc);
+	}
+	dst_release(dst);
+	return res;
+}
+
+>>>>>>> upstream/android-13
 /*
  *	an inline helper for the "simple" if statement below
  *	checks if parameter problem report is caused by an
@@ -298,10 +375,17 @@ static int icmpv6_getfrag(void *from, char *to, int offset, int len, int odd, st
 {
 	struct icmpv6_msg *msg = (struct icmpv6_msg *) from;
 	struct sk_buff *org_skb = msg->skb;
+<<<<<<< HEAD
 	__wsum csum = 0;
 
 	csum = skb_copy_and_csum_bits(org_skb, msg->offset + offset,
 				      to, len, csum);
+=======
+	__wsum csum;
+
+	csum = skb_copy_and_csum_bits(org_skb, msg->offset + offset,
+				      to, len);
+>>>>>>> upstream/android-13
 	skb->csum = csum_block_add(skb->csum, csum, odd);
 	if (!(msg->type & ICMPV6_INFOMSG_MASK))
 		nf_ct_attach(skb, org_skb);
@@ -395,15 +479,22 @@ relookup_failed:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 static int icmp6_iif(const struct sk_buff *skb)
 {
 	int iif = skb->dev->ifindex;
+=======
+static struct net_device *icmp6_dev(const struct sk_buff *skb)
+{
+	struct net_device *dev = skb->dev;
+>>>>>>> upstream/android-13
 
 	/* for local traffic to local address, skb dev is the loopback
 	 * device. Check if there is a dst attached to the skb and if so
 	 * get the real device index. Same is needed for replies to a link
 	 * local address on a device enslaved to an L3 master device
 	 */
+<<<<<<< HEAD
 	if (unlikely(iif == LOOPBACK_IFINDEX || netif_is_l3_master(skb->dev))) {
 		const struct rt6_info *rt6 = skb_rt6_info(skb);
 
@@ -412,6 +503,21 @@ static int icmp6_iif(const struct sk_buff *skb)
 	}
 
 	return iif;
+=======
+	if (unlikely(dev->ifindex == LOOPBACK_IFINDEX || netif_is_l3_master(skb->dev))) {
+		const struct rt6_info *rt6 = skb_rt6_info(skb);
+
+		if (rt6)
+			dev = rt6->rt6i_idev->dev;
+	}
+
+	return dev;
+}
+
+static int icmp6_iif(const struct sk_buff *skb)
+{
+	return icmp6_dev(skb)->ifindex;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -480,8 +586,16 @@ void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
 	if (__ipv6_addr_needs_scope_id(addr_type)) {
 		iif = icmp6_iif(skb);
 	} else {
+<<<<<<< HEAD
 		dst = skb_dst(skb);
 		iif = l3mdev_master_ifindex(dst ? dst->dev : skb->dev);
+=======
+		/*
+		 * The source device is used for looking up which routing table
+		 * to use for sending an ICMP error.
+		 */
+		iif = l3mdev_master_ifindex(skb->dev);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -509,24 +623,53 @@ void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
 	local_bh_disable();
 
 	/* Check global sysctl_icmp_msgs_per_sec ratelimit */
+<<<<<<< HEAD
 	if (!(skb->dev->flags&IFF_LOOPBACK) && !icmpv6_global_allow(type))
+=======
+	if (!(skb->dev->flags & IFF_LOOPBACK) && !icmpv6_global_allow(net, type))
+>>>>>>> upstream/android-13
 		goto out_bh_enable;
 
 	mip6_addr_swap(skb, parm);
 
+<<<<<<< HEAD
+=======
+	sk = icmpv6_xmit_lock(net);
+	if (!sk)
+		goto out_bh_enable;
+
+>>>>>>> upstream/android-13
 	memset(&fl6, 0, sizeof(fl6));
 	fl6.flowi6_proto = IPPROTO_ICMPV6;
 	fl6.daddr = hdr->saddr;
 	if (force_saddr)
 		saddr = force_saddr;
+<<<<<<< HEAD
 	if (saddr)
 		fl6.saddr = *saddr;
+=======
+	if (saddr) {
+		fl6.saddr = *saddr;
+	} else if (!icmpv6_rt_has_prefsrc(sk, type, &fl6)) {
+		/* select a more meaningful saddr from input if */
+		struct net_device *in_netdev;
+
+		in_netdev = dev_get_by_index(net, parm->iif);
+		if (in_netdev) {
+			ipv6_dev_get_saddr(net, in_netdev, &fl6.daddr,
+					   inet6_sk(sk)->srcprefs,
+					   &fl6.saddr);
+			dev_put(in_netdev);
+		}
+	}
+>>>>>>> upstream/android-13
 	fl6.flowi6_mark = mark;
 	fl6.flowi6_oif = iif;
 	fl6.fl6_icmp_type = type;
 	fl6.fl6_icmp_code = code;
 	fl6.flowi6_uid = sock_net_uid(net, NULL);
 	fl6.mp_hash = rt6_multipath_hash(net, &fl6, skb, NULL);
+<<<<<<< HEAD
 	security_skb_classify_flow(skb, flowi6_to_flowi(&fl6));
 
 	sk = icmpv6_xmit_lock(net);
@@ -534,6 +677,10 @@ void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
 		goto out_bh_enable;
 
 	sk->sk_mark = mark;
+=======
+	security_skb_classify_flow(skb, flowi6_to_flowi_common(&fl6));
+
+>>>>>>> upstream/android-13
 	np = inet6_sk(sk);
 
 	if (!icmpv6_xrlim_allow(sk, type, &fl6))
@@ -550,6 +697,10 @@ void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
 		fl6.flowi6_oif = np->ucast_oif;
 
 	ipcm6_init_sk(&ipc6, np);
+<<<<<<< HEAD
+=======
+	ipc6.sockc.mark = mark;
+>>>>>>> upstream/android-13
 	fl6.flowlabel = ip6_make_flowinfo(ipc6.tclass, fl6.flowlabel);
 
 	dst = icmpv6_route_lookup(net, skb, sk, &fl6);
@@ -682,6 +833,7 @@ static void icmpv6_echo_reply(struct sk_buff *skb)
 	struct dst_entry *dst;
 	struct ipcm6_cookie ipc6;
 	u32 mark = IP6_REPLY_MARK(net, skb->mark);
+<<<<<<< HEAD
 
 	saddr = &ipv6_hdr(skb)->daddr;
 
@@ -694,21 +846,62 @@ static void icmpv6_echo_reply(struct sk_buff *skb)
 	tmp_hdr.icmp6_type = ICMPV6_ECHO_REPLY;
 
 	memset(&fl6, 0, sizeof(fl6));
+=======
+	bool acast;
+	u8 type;
+
+	if (ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) &&
+	    net->ipv6.sysctl.icmpv6_echo_ignore_multicast)
+		return;
+
+	saddr = &ipv6_hdr(skb)->daddr;
+
+	acast = ipv6_anycast_destination(skb_dst(skb), saddr);
+	if (acast && net->ipv6.sysctl.icmpv6_echo_ignore_anycast)
+		return;
+
+	if (!ipv6_unicast_destination(skb) &&
+	    !(net->ipv6.sysctl.anycast_src_echo_reply && acast))
+		saddr = NULL;
+
+	if (icmph->icmp6_type == ICMPV6_EXT_ECHO_REQUEST)
+		type = ICMPV6_EXT_ECHO_REPLY;
+	else
+		type = ICMPV6_ECHO_REPLY;
+
+	memcpy(&tmp_hdr, icmph, sizeof(tmp_hdr));
+	tmp_hdr.icmp6_type = type;
+
+	memset(&fl6, 0, sizeof(fl6));
+	if (net->ipv6.sysctl.flowlabel_reflect & FLOWLABEL_REFLECT_ICMPV6_ECHO_REPLIES)
+		fl6.flowlabel = ip6_flowlabel(ipv6_hdr(skb));
+
+>>>>>>> upstream/android-13
 	fl6.flowi6_proto = IPPROTO_ICMPV6;
 	fl6.daddr = ipv6_hdr(skb)->saddr;
 	if (saddr)
 		fl6.saddr = *saddr;
 	fl6.flowi6_oif = icmp6_iif(skb);
+<<<<<<< HEAD
 	fl6.fl6_icmp_type = ICMPV6_ECHO_REPLY;
 	fl6.flowi6_mark = mark;
 	fl6.flowi6_uid = sock_net_uid(net, NULL);
 	security_skb_classify_flow(skb, flowi6_to_flowi(&fl6));
+=======
+	fl6.fl6_icmp_type = type;
+	fl6.flowi6_mark = mark;
+	fl6.flowi6_uid = sock_net_uid(net, NULL);
+	security_skb_classify_flow(skb, flowi6_to_flowi_common(&fl6));
+>>>>>>> upstream/android-13
 
 	local_bh_disable();
 	sk = icmpv6_xmit_lock(net);
 	if (!sk)
 		goto out_bh_enable;
+<<<<<<< HEAD
 	sk->sk_mark = mark;
+=======
+>>>>>>> upstream/android-13
 	np = inet6_sk(sk);
 
 	if (!fl6.flowi6_oif && ipv6_addr_is_multicast(&fl6.daddr))
@@ -722,15 +915,35 @@ static void icmpv6_echo_reply(struct sk_buff *skb)
 	if (IS_ERR(dst))
 		goto out;
 
+<<<<<<< HEAD
+=======
+	/* Check the ratelimit */
+	if ((!(skb->dev->flags & IFF_LOOPBACK) && !icmpv6_global_allow(net, ICMPV6_ECHO_REPLY)) ||
+	    !icmpv6_xrlim_allow(sk, ICMPV6_ECHO_REPLY, &fl6))
+		goto out_dst_release;
+
+>>>>>>> upstream/android-13
 	idev = __in6_dev_get(skb->dev);
 
 	msg.skb = skb;
 	msg.offset = 0;
+<<<<<<< HEAD
 	msg.type = ICMPV6_ECHO_REPLY;
+=======
+	msg.type = type;
+>>>>>>> upstream/android-13
 
 	ipcm6_init_sk(&ipc6, np);
 	ipc6.hlimit = ip6_sk_dst_hoplimit(np, &fl6, dst);
 	ipc6.tclass = ipv6_get_dsfield(ipv6_hdr(skb));
+<<<<<<< HEAD
+=======
+	ipc6.sockc.mark = mark;
+
+	if (icmph->icmp6_type == ICMPV6_EXT_ECHO_REQUEST)
+		if (!icmp_build_probe(skb, (struct icmphdr *)&tmp_hdr))
+			goto out_dst_release;
+>>>>>>> upstream/android-13
 
 	if (ip6_append_data(sk, icmpv6_getfrag, &msg,
 			    skb->len + sizeof(struct icmp6hdr),
@@ -742,6 +955,10 @@ static void icmpv6_echo_reply(struct sk_buff *skb)
 		icmpv6_push_pending_frames(sk, &fl6, &tmp_hdr,
 					   skb->len + sizeof(struct icmp6hdr));
 	}
+<<<<<<< HEAD
+=======
+out_dst_release:
+>>>>>>> upstream/android-13
 	dst_release(dst);
 out:
 	icmpv6_xmit_unlock(sk);
@@ -751,6 +968,10 @@ out_bh_enable:
 
 void icmpv6_notify(struct sk_buff *skb, u8 type, u8 code, __be32 info)
 {
+<<<<<<< HEAD
+=======
+	struct inet6_skb_parm *opt = IP6CB(skb);
+>>>>>>> upstream/android-13
 	const struct inet6_protocol *ipprot;
 	int inner_offset;
 	__be16 frag_off;
@@ -760,6 +981,11 @@ void icmpv6_notify(struct sk_buff *skb, u8 type, u8 code, __be32 info)
 	if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
 		goto out;
 
+<<<<<<< HEAD
+=======
+	seg6_icmp_srh(skb, opt);
+
+>>>>>>> upstream/android-13
 	nexthdr = ((struct ipv6hdr *)skb->data)->nexthdr;
 	if (ipv6_ext_hdr(nexthdr)) {
 		/* now skip over extension headers */
@@ -784,7 +1010,11 @@ void icmpv6_notify(struct sk_buff *skb, u8 type, u8 code, __be32 info)
 
 	ipprot = rcu_dereference(inet6_protos[nexthdr]);
 	if (ipprot && ipprot->err_handler)
+<<<<<<< HEAD
 		ipprot->err_handler(skb, NULL, type, code, inner_offset, info);
+=======
+		ipprot->err_handler(skb, opt, type, code, inner_offset, info);
+>>>>>>> upstream/android-13
 
 	raw6_icmp_error(skb, nexthdr, type, code, inner_offset, info);
 	return;
@@ -800,7 +1030,11 @@ out:
 static int icmpv6_rcv(struct sk_buff *skb)
 {
 	struct net *net = dev_net(skb->dev);
+<<<<<<< HEAD
 	struct net_device *dev = skb->dev;
+=======
+	struct net_device *dev = icmp6_dev(skb);
+>>>>>>> upstream/android-13
 	struct inet6_dev *idev = __in6_dev_get(dev);
 	const struct in6_addr *saddr, *daddr;
 	struct icmp6hdr *hdr;
@@ -852,11 +1086,26 @@ static int icmpv6_rcv(struct sk_buff *skb)
 		if (!net->ipv6.sysctl.icmpv6_echo_ignore_all)
 			icmpv6_echo_reply(skb);
 		break;
+<<<<<<< HEAD
+=======
+	case ICMPV6_EXT_ECHO_REQUEST:
+		if (!net->ipv6.sysctl.icmpv6_echo_ignore_all &&
+		    net->ipv4.sysctl_icmp_echo_enable_probe)
+			icmpv6_echo_reply(skb);
+		break;
+>>>>>>> upstream/android-13
 
 	case ICMPV6_ECHO_REPLY:
 		success = ping_rcv(skb);
 		break;
 
+<<<<<<< HEAD
+=======
+	case ICMPV6_EXT_ECHO_REPLY:
+		success = ping_rcv(skb);
+		break;
+
+>>>>>>> upstream/android-13
 	case ICMPV6_PKT_TOOBIG:
 		/* BUGGG_FUTURE: if packet contains rthdr, we cannot update
 		   standard destination cache. Seems, only "advanced"
@@ -868,7 +1117,11 @@ static int icmpv6_rcv(struct sk_buff *skb)
 		hdr = icmp6_hdr(skb);
 
 		/* to notify */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ICMPV6_DEST_UNREACH:
 	case ICMPV6_TIME_EXCEED:
 	case ICMPV6_PARAMPROB:
@@ -885,11 +1138,19 @@ static int icmpv6_rcv(struct sk_buff *skb)
 
 	case ICMPV6_MGM_QUERY:
 		igmp6_event_query(skb);
+<<<<<<< HEAD
 		break;
 
 	case ICMPV6_MGM_REPORT:
 		igmp6_event_report(skb);
 		break;
+=======
+		return 0;
+
+	case ICMPV6_MGM_REPORT:
+		igmp6_event_report(skb);
+		return 0;
+>>>>>>> upstream/android-13
 
 	case ICMPV6_MGM_REDUCTION:
 	case ICMPV6_NI_QUERY:
@@ -949,16 +1210,35 @@ void icmpv6_flow_init(struct sock *sk, struct flowi6 *fl6,
 	fl6->fl6_icmp_type	= type;
 	fl6->fl6_icmp_code	= 0;
 	fl6->flowi6_oif		= oif;
+<<<<<<< HEAD
 	security_sk_classify_flow(sk, flowi6_to_flowi(fl6));
+=======
+	security_sk_classify_flow(sk, flowi6_to_flowi_common(fl6));
+}
+
+static void __net_exit icmpv6_sk_exit(struct net *net)
+{
+	int i;
+
+	for_each_possible_cpu(i)
+		inet_ctl_sock_destroy(*per_cpu_ptr(net->ipv6.icmp_sk, i));
+	free_percpu(net->ipv6.icmp_sk);
+>>>>>>> upstream/android-13
 }
 
 static int __net_init icmpv6_sk_init(struct net *net)
 {
 	struct sock *sk;
+<<<<<<< HEAD
 	int err, i, j;
 
 	net->ipv6.icmp_sk =
 		kcalloc(nr_cpu_ids, sizeof(struct sock *), GFP_KERNEL);
+=======
+	int err, i;
+
+	net->ipv6.icmp_sk = alloc_percpu(struct sock *);
+>>>>>>> upstream/android-13
 	if (!net->ipv6.icmp_sk)
 		return -ENOMEM;
 
@@ -971,7 +1251,11 @@ static int __net_init icmpv6_sk_init(struct net *net)
 			goto fail;
 		}
 
+<<<<<<< HEAD
 		net->ipv6.icmp_sk[i] = sk;
+=======
+		*per_cpu_ptr(net->ipv6.icmp_sk, i) = sk;
+>>>>>>> upstream/android-13
 
 		/* Enough space for 2 64K ICMP packets, including
 		 * sk_buff struct overhead.
@@ -981,6 +1265,7 @@ static int __net_init icmpv6_sk_init(struct net *net)
 	return 0;
 
  fail:
+<<<<<<< HEAD
 	for (j = 0; j < i; j++)
 		inet_ctl_sock_destroy(net->ipv6.icmp_sk[j]);
 	kfree(net->ipv6.icmp_sk);
@@ -997,6 +1282,12 @@ static void __net_exit icmpv6_sk_exit(struct net *net)
 	kfree(net->ipv6.icmp_sk);
 }
 
+=======
+	icmpv6_sk_exit(net);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static struct pernet_operations icmpv6_sk_ops = {
 	.init = icmpv6_sk_init,
 	.exit = icmpv6_sk_exit,
@@ -1114,9 +1405,36 @@ static struct ctl_table ipv6_icmp_table_template[] = {
 	{
 		.procname	= "echo_ignore_all",
 		.data		= &init_net.ipv6.sysctl.icmpv6_echo_ignore_all,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler = proc_dointvec,
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler = proc_dou8vec_minmax,
+	},
+	{
+		.procname	= "echo_ignore_multicast",
+		.data		= &init_net.ipv6.sysctl.icmpv6_echo_ignore_multicast,
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler = proc_dou8vec_minmax,
+	},
+	{
+		.procname	= "echo_ignore_anycast",
+		.data		= &init_net.ipv6.sysctl.icmpv6_echo_ignore_anycast,
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler = proc_dou8vec_minmax,
+	},
+	{
+		.procname	= "ratemask",
+		.data		= &init_net.ipv6.sysctl.icmpv6_ratemask_ptr,
+		.maxlen		= ICMPV6_MSG_MAX + 1,
+		.mode		= 0644,
+		.proc_handler = proc_do_large_bitmap,
+>>>>>>> upstream/android-13
 	},
 	{ },
 };
@@ -1132,6 +1450,12 @@ struct ctl_table * __net_init ipv6_icmp_sysctl_init(struct net *net)
 	if (table) {
 		table[0].data = &net->ipv6.sysctl.icmpv6_time;
 		table[1].data = &net->ipv6.sysctl.icmpv6_echo_ignore_all;
+<<<<<<< HEAD
+=======
+		table[2].data = &net->ipv6.sysctl.icmpv6_echo_ignore_multicast;
+		table[3].data = &net->ipv6.sysctl.icmpv6_echo_ignore_anycast;
+		table[4].data = &net->ipv6.sysctl.icmpv6_ratemask_ptr;
+>>>>>>> upstream/android-13
 	}
 	return table;
 }

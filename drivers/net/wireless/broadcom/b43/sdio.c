@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Broadcom B43 wireless driver
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (C) 2009 Albert Herranz
  * Copyright (C) 2009 Michael Buesch <m@bues.ch>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -184,8 +191,13 @@ static void b43_sdio_remove(struct sdio_func *func)
 }
 
 static const struct sdio_device_id b43_sdio_ids[] = {
+<<<<<<< HEAD
 	{ SDIO_DEVICE(0x02d0, 0x044b) }, /* Nintendo Wii WLAN daughter card */
 	{ SDIO_DEVICE(0x0092, 0x0004) }, /* C-guys, Inc. EW-CG1102GC */
+=======
+	{ SDIO_DEVICE(SDIO_VENDOR_ID_BROADCOM, SDIO_DEVICE_ID_BROADCOM_NINTENDO_WII) },
+	{ SDIO_DEVICE(SDIO_VENDOR_ID_CGUYS, SDIO_DEVICE_ID_CGUYS_EW_CG1102GC) },
+>>>>>>> upstream/android-13
 	{ },
 };
 

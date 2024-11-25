@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Mellanox Technologies. All rights reserved.
  *
@@ -28,6 +29,11 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2014 Mellanox Technologies. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef IB_UMEM_ODP_H
@@ -35,6 +41,7 @@
 
 #include <rdma/ib_umem.h>
 #include <rdma/ib_verbs.h>
+<<<<<<< HEAD
 #include <linux/interval_tree.h>
 
 struct umem_odp_node {
@@ -54,6 +61,21 @@ struct ib_umem_odp {
 	 * for pages the pages in page_list. The lower two bits designate
 	 * access permissions. See ODP_READ_ALLOWED_BIT and
 	 * ODP_WRITE_ALLOWED_BIT.
+=======
+
+struct ib_umem_odp {
+	struct ib_umem umem;
+	struct mmu_interval_notifier notifier;
+	struct pid *tgid;
+
+	/* An array of the pfns included in the on-demand paging umem. */
+	unsigned long *pfn_list;
+
+	/*
+	 * An array with DMA addresses mapped for pfns in pfn_list.
+	 * The lower two bits designate access permissions.
+	 * See ODP_READ_ALLOWED_BIT and ODP_WRITE_ALLOWED_BIT.
+>>>>>>> upstream/android-13
 	 */
 	dma_addr_t		*dma_list;
 	/*
@@ -64,6 +86,7 @@ struct ib_umem_odp {
 	struct mutex		umem_mutex;
 	void			*private; /* for the HW driver to use. */
 
+<<<<<<< HEAD
 	/* When false, use the notifier counter in the ucontext struct. */
 	bool mn_counters_active;
 	int notifiers_seq;
@@ -91,6 +114,43 @@ struct ib_umem *ib_alloc_odp_umem(struct ib_ucontext *context,
 				  size_t size);
 
 void ib_umem_odp_release(struct ib_umem *umem);
+=======
+	int npages;
+
+	/*
+	 * An implicit odp umem cannot be DMA mapped, has 0 length, and serves
+	 * only as an anchor for the driver to hold onto the per_mm. FIXME:
+	 * This should be removed and drivers should work with the per_mm
+	 * directly.
+	 */
+	bool is_implicit_odp;
+
+	unsigned int		page_shift;
+};
+
+static inline struct ib_umem_odp *to_ib_umem_odp(struct ib_umem *umem)
+{
+	return container_of(umem, struct ib_umem_odp, umem);
+}
+
+/* Returns the first page of an ODP umem. */
+static inline unsigned long ib_umem_start(struct ib_umem_odp *umem_odp)
+{
+	return umem_odp->notifier.interval_tree.start;
+}
+
+/* Returns the address of the page after the last one of an ODP umem. */
+static inline unsigned long ib_umem_end(struct ib_umem_odp *umem_odp)
+{
+	return umem_odp->notifier.interval_tree.last + 1;
+}
+
+static inline size_t ib_umem_odp_num_pages(struct ib_umem_odp *umem_odp)
+{
+	return (ib_umem_end(umem_odp) - ib_umem_start(umem_odp)) >>
+	       umem_odp->page_shift;
+}
+>>>>>>> upstream/android-13
 
 /*
  * The lower 2 bits of the DMA address signal the R/W permissions for
@@ -105,6 +165,7 @@ void ib_umem_odp_release(struct ib_umem *umem);
 
 #define ODP_DMA_ADDR_MASK (~(ODP_READ_ALLOWED_BIT | ODP_WRITE_ALLOWED_BIT))
 
+<<<<<<< HEAD
 int ib_umem_odp_map_dma_pages(struct ib_umem *umem, u64 start_offset, u64 bcnt,
 			      u64 access_mask, unsigned long current_seq);
 
@@ -164,11 +225,41 @@ static inline int ib_umem_odp_get(struct ib_ucontext *context,
 static inline struct ib_umem *ib_alloc_odp_umem(struct ib_ucontext *context,
 						unsigned long addr,
 						size_t size)
+=======
+#ifdef CONFIG_INFINIBAND_ON_DEMAND_PAGING
+
+struct ib_umem_odp *
+ib_umem_odp_get(struct ib_device *device, unsigned long addr, size_t size,
+		int access, const struct mmu_interval_notifier_ops *ops);
+struct ib_umem_odp *ib_umem_odp_alloc_implicit(struct ib_device *device,
+					       int access);
+struct ib_umem_odp *
+ib_umem_odp_alloc_child(struct ib_umem_odp *root_umem, unsigned long addr,
+			size_t size,
+			const struct mmu_interval_notifier_ops *ops);
+void ib_umem_odp_release(struct ib_umem_odp *umem_odp);
+
+int ib_umem_odp_map_dma_and_lock(struct ib_umem_odp *umem_odp, u64 start_offset,
+				 u64 bcnt, u64 access_mask, bool fault);
+
+void ib_umem_odp_unmap_dma_pages(struct ib_umem_odp *umem_odp, u64 start_offset,
+				 u64 bound);
+
+#else /* CONFIG_INFINIBAND_ON_DEMAND_PAGING */
+
+static inline struct ib_umem_odp *
+ib_umem_odp_get(struct ib_device *device, unsigned long addr, size_t size,
+		int access, const struct mmu_interval_notifier_ops *ops)
+>>>>>>> upstream/android-13
 {
 	return ERR_PTR(-EINVAL);
 }
 
+<<<<<<< HEAD
 static inline void ib_umem_odp_release(struct ib_umem *umem) {}
+=======
+static inline void ib_umem_odp_release(struct ib_umem_odp *umem_odp) {}
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_INFINIBAND_ON_DEMAND_PAGING */
 

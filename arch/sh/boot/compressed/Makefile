@@ -8,9 +8,15 @@
 targets		:= vmlinux vmlinux.bin vmlinux.bin.gz \
 		   vmlinux.bin.bz2 vmlinux.bin.lzma \
 		   vmlinux.bin.xz vmlinux.bin.lzo \
+<<<<<<< HEAD
 		   head_$(BITS).o misc.o piggy.o
 
 OBJECTS = $(obj)/head_$(BITS).o $(obj)/misc.o $(obj)/cache.o
+=======
+		   head_32.o misc.o piggy.o
+
+OBJECTS = $(obj)/head_32.o $(obj)/misc.o $(obj)/cache.o
+>>>>>>> upstream/android-13
 
 GCOV_PROFILE := n
 
@@ -28,10 +34,14 @@ IMAGE_OFFSET	:= $(shell /bin/bash -c 'printf "0x%08x" \
 			$(CONFIG_BOOT_LINK_OFFSET)]')
 endif
 
+<<<<<<< HEAD
 ifeq ($(CONFIG_MCOUNT),y)
 ORIG_CFLAGS := $(KBUILD_CFLAGS)
 KBUILD_CFLAGS = $(subst -pg, , $(ORIG_CFLAGS))
 endif
+=======
+ccflags-remove-$(CONFIG_MCOUNT) += -pg
+>>>>>>> upstream/android-13
 
 LDFLAGS_vmlinux := --oformat $(ld-bfd) -Ttext $(IMAGE_OFFSET) -e startup \
 		   -T $(obj)/../../kernel/vmlinux.lds
@@ -39,6 +49,7 @@ LDFLAGS_vmlinux := --oformat $(ld-bfd) -Ttext $(IMAGE_OFFSET) -e startup \
 #
 # Pull in the necessary libgcc bits from the in-kernel implementation.
 #
+<<<<<<< HEAD
 lib1funcs-$(CONFIG_SUPERH32)	:= ashiftrt.S ashldi3.c ashrsi3.S ashlsi3.S \
 				   lshrsi3.S
 lib1funcs-obj			:= \
@@ -48,6 +59,13 @@ lib1funcs-dir		:= $(srctree)/arch/$(SRCARCH)/lib
 ifeq ($(BITS),64)
 	lib1funcs-dir 	:= $(addsuffix $(BITS), $(lib1funcs-dir))
 endif
+=======
+lib1funcs-y	:= ashiftrt.S ashldi3.c ashrsi3.S ashlsi3.S lshrsi3.S
+lib1funcs-obj   := \
+	$(addsuffix .o, $(basename $(addprefix $(obj)/, $(lib1funcs-y))))
+
+lib1funcs-dir		:= $(srctree)/arch/$(SRCARCH)/lib
+>>>>>>> upstream/android-13
 
 KBUILD_CFLAGS += -I$(lib1funcs-dir) -DDISABLE_BRANCH_PROFILING
 

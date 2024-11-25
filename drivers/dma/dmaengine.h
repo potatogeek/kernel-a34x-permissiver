@@ -77,6 +77,10 @@ static inline enum dma_status dma_cookie_status(struct dma_chan *chan,
 		state->last = complete;
 		state->used = used;
 		state->residue = 0;
+<<<<<<< HEAD
+=======
+		state->in_flight_bytes = 0;
+>>>>>>> upstream/android-13
 	}
 	return dma_async_is_complete(cookie, complete, used);
 }
@@ -87,6 +91,16 @@ static inline void dma_set_residue(struct dma_tx_state *state, u32 residue)
 		state->residue = residue;
 }
 
+<<<<<<< HEAD
+=======
+static inline void dma_set_in_flight_bytes(struct dma_tx_state *state,
+					   u32 in_flight_bytes)
+{
+	if (state)
+		state->in_flight_bytes = in_flight_bytes;
+}
+
+>>>>>>> upstream/android-13
 struct dmaengine_desc_callback {
 	dma_async_tx_callback callback;
 	dma_async_tx_callback_result callback_result;
@@ -168,7 +182,32 @@ dmaengine_desc_get_callback_invoke(struct dma_async_tx_descriptor *tx,
 static inline bool
 dmaengine_desc_callback_valid(struct dmaengine_desc_callback *cb)
 {
+<<<<<<< HEAD
 	return (cb->callback) ? true : false;
 }
 
+=======
+	return cb->callback || cb->callback_result;
+}
+
+struct dma_chan *dma_get_slave_channel(struct dma_chan *chan);
+struct dma_chan *dma_get_any_slave_channel(struct dma_device *device);
+
+#ifdef CONFIG_DEBUG_FS
+#include <linux/debugfs.h>
+
+static inline struct dentry *
+dmaengine_get_debugfs_root(struct dma_device *dma_dev) {
+	return dma_dev->dbg_dev_root;
+}
+#else
+struct dentry;
+static inline struct dentry *
+dmaengine_get_debugfs_root(struct dma_device *dma_dev)
+{
+	return NULL;
+}
+#endif /* CONFIG_DEBUG_FS */
+
+>>>>>>> upstream/android-13
 #endif

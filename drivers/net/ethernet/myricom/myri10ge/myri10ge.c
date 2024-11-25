@@ -70,7 +70,10 @@
 #include <net/tcp.h>
 #include <asm/byteorder.h>
 #include <asm/processor.h>
+<<<<<<< HEAD
 #include <net/busy_poll.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "myri10ge_mcp.h"
 #include "myri10ge_mcp_gen_header.h"
@@ -851,9 +854,15 @@ static int myri10ge_dma_test(struct myri10ge_priv *mgp, int test_type)
 	dmatest_page = alloc_page(GFP_KERNEL);
 	if (!dmatest_page)
 		return -ENOMEM;
+<<<<<<< HEAD
 	dmatest_bus = pci_map_page(mgp->pdev, dmatest_page, 0, PAGE_SIZE,
 				   DMA_BIDIRECTIONAL);
 	if (unlikely(pci_dma_mapping_error(mgp->pdev, dmatest_bus))) {
+=======
+	dmatest_bus = dma_map_page(&mgp->pdev->dev, dmatest_page, 0,
+				   PAGE_SIZE, DMA_BIDIRECTIONAL);
+	if (unlikely(dma_mapping_error(&mgp->pdev->dev, dmatest_bus))) {
+>>>>>>> upstream/android-13
 		__free_page(dmatest_page);
 		return -ENOMEM;
 	}
@@ -900,7 +909,12 @@ static int myri10ge_dma_test(struct myri10ge_priv *mgp, int test_type)
 	    (cmd.data0 & 0xffff);
 
 abort:
+<<<<<<< HEAD
 	pci_unmap_page(mgp->pdev, dmatest_bus, PAGE_SIZE, DMA_BIDIRECTIONAL);
+=======
+	dma_unmap_page(&mgp->pdev->dev, dmatest_bus, PAGE_SIZE,
+		       DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 	put_page(dmatest_page);
 
 	if (status != 0 && test_type != MXGEFW_CMD_UNALIGNED_TEST)
@@ -1175,6 +1189,7 @@ myri10ge_submit_8rx(struct mcp_kreq_ether_recv __iomem * dst,
 	mb();
 }
 
+<<<<<<< HEAD
 static inline void myri10ge_vlan_ip_csum(struct sk_buff *skb, __wsum hw_csum)
 {
 	struct vlan_hdr *vh = (struct vlan_hdr *)(skb->data);
@@ -1187,6 +1202,8 @@ static inline void myri10ge_vlan_ip_csum(struct sk_buff *skb, __wsum hw_csum)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 myri10ge_alloc_rx_pages(struct myri10ge_priv *mgp, struct myri10ge_rx_buf *rx,
 			int bytes, int watchdog)
@@ -1218,10 +1235,17 @@ myri10ge_alloc_rx_pages(struct myri10ge_priv *mgp, struct myri10ge_rx_buf *rx,
 				return;
 			}
 
+<<<<<<< HEAD
 			bus = pci_map_page(mgp->pdev, page, 0,
 					   MYRI10GE_ALLOC_SIZE,
 					   PCI_DMA_FROMDEVICE);
 			if (unlikely(pci_dma_mapping_error(mgp->pdev, bus))) {
+=======
+			bus = dma_map_page(&mgp->pdev->dev, page, 0,
+					   MYRI10GE_ALLOC_SIZE,
+					   DMA_FROM_DEVICE);
+			if (unlikely(dma_mapping_error(&mgp->pdev->dev, bus))) {
+>>>>>>> upstream/android-13
 				__free_pages(page, MYRI10GE_ALLOC_ORDER);
 				if (rx->fill_cnt - rx->cnt < 16)
 					rx->watchdog_needed = 1;
@@ -1269,9 +1293,15 @@ myri10ge_unmap_rx_page(struct pci_dev *pdev,
 	/* unmap the recvd page if we're the only or last user of it */
 	if (bytes >= MYRI10GE_ALLOC_SIZE / 2 ||
 	    (info->page_offset + 2 * bytes) > MYRI10GE_ALLOC_SIZE) {
+<<<<<<< HEAD
 		pci_unmap_page(pdev, (dma_unmap_addr(info, bus)
 				      & ~(MYRI10GE_ALLOC_SIZE - 1)),
 			       MYRI10GE_ALLOC_SIZE, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_page(&pdev->dev, (dma_unmap_addr(info, bus)
+					    & ~(MYRI10GE_ALLOC_SIZE - 1)),
+			       MYRI10GE_ALLOC_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1287,7 +1317,11 @@ myri10ge_vlan_rx(struct net_device *dev, void *addr, struct sk_buff *skb)
 {
 	u8 *va;
 	struct vlan_ethhdr *veh;
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 	__wsum vsum;
 
 	va = addr;
@@ -1307,8 +1341,13 @@ myri10ge_vlan_rx(struct net_device *dev, void *addr, struct sk_buff *skb)
 		skb->len -= VLAN_HLEN;
 		skb->data_len -= VLAN_HLEN;
 		frag = skb_shinfo(skb)->frags;
+<<<<<<< HEAD
 		frag->page_offset += VLAN_HLEN;
 		skb_frag_size_set(frag, skb_frag_size(frag) - VLAN_HLEN);
+=======
+		skb_frag_off_add(frag, VLAN_HLEN);
+		skb_frag_size_sub(frag, VLAN_HLEN);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1319,7 +1358,11 @@ myri10ge_rx_done(struct myri10ge_slice_state *ss, int len, __wsum csum)
 {
 	struct myri10ge_priv *mgp = ss->mgp;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	struct skb_frag_struct *rx_frags;
+=======
+	skb_frag_t *rx_frags;
+>>>>>>> upstream/android-13
 	struct myri10ge_rx_buf *rx;
 	int i, idx, remainder, bytes;
 	struct pci_dev *pdev = mgp->pdev;
@@ -1352,7 +1395,11 @@ myri10ge_rx_done(struct myri10ge_slice_state *ss, int len, __wsum csum)
 		return 0;
 	}
 	rx_frags = skb_shinfo(skb)->frags;
+<<<<<<< HEAD
 	/* Fill skb_frag_struct(s) with data from our receive */
+=======
+	/* Fill skb_frag_t(s) with data from our receive */
+>>>>>>> upstream/android-13
 	for (i = 0, remainder = len; remainder > 0; i++) {
 		myri10ge_unmap_rx_page(pdev, &rx->info[idx], bytes);
 		skb_fill_page_desc(skb, i, rx->info[idx].page,
@@ -1365,8 +1412,13 @@ myri10ge_rx_done(struct myri10ge_slice_state *ss, int len, __wsum csum)
 	}
 
 	/* remove padding */
+<<<<<<< HEAD
 	rx_frags[0].page_offset += MXGEFW_PAD;
 	rx_frags[0].size -= MXGEFW_PAD;
+=======
+	skb_frag_off_add(&rx_frags[0], MXGEFW_PAD);
+	skb_frag_size_sub(&rx_frags[0], MXGEFW_PAD);
+>>>>>>> upstream/android-13
 	len -= MXGEFW_PAD;
 
 	skb->len = len;
@@ -1409,6 +1461,7 @@ myri10ge_tx_done(struct myri10ge_slice_state *ss, int mcp_index)
 		if (skb) {
 			ss->stats.tx_bytes += skb->len;
 			ss->stats.tx_packets++;
+<<<<<<< HEAD
 			dev_kfree_skb_irq(skb);
 			if (len)
 				pci_unmap_single(pdev,
@@ -1421,6 +1474,20 @@ myri10ge_tx_done(struct myri10ge_slice_state *ss, int mcp_index)
 					       dma_unmap_addr(&tx->info[idx],
 							      bus), len,
 					       PCI_DMA_TODEVICE);
+=======
+			dev_consume_skb_irq(skb);
+			if (len)
+				dma_unmap_single(&pdev->dev,
+						 dma_unmap_addr(&tx->info[idx],
+								bus), len,
+						 DMA_TO_DEVICE);
+		} else {
+			if (len)
+				dma_unmap_page(&pdev->dev,
+					       dma_unmap_addr(&tx->info[idx],
+							      bus), len,
+					       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1440,7 +1507,10 @@ myri10ge_tx_done(struct myri10ge_slice_state *ss, int mcp_index)
 			tx->queue_active = 0;
 			put_be32(htonl(1), tx->send_stop);
 			mb();
+<<<<<<< HEAD
 			mmiowb();
+=======
+>>>>>>> upstream/android-13
 		}
 		__netif_tx_unlock(dev_queue);
 	}
@@ -1665,8 +1735,15 @@ myri10ge_get_drvinfo(struct net_device *netdev, struct ethtool_drvinfo *info)
 	strlcpy(info->bus_info, pci_name(mgp->pdev), sizeof(info->bus_info));
 }
 
+<<<<<<< HEAD
 static int
 myri10ge_get_coalesce(struct net_device *netdev, struct ethtool_coalesce *coal)
+=======
+static int myri10ge_get_coalesce(struct net_device *netdev,
+				 struct ethtool_coalesce *coal,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct myri10ge_priv *mgp = netdev_priv(netdev);
 
@@ -1674,8 +1751,15 @@ myri10ge_get_coalesce(struct net_device *netdev, struct ethtool_coalesce *coal)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 myri10ge_set_coalesce(struct net_device *netdev, struct ethtool_coalesce *coal)
+=======
+static int myri10ge_set_coalesce(struct net_device *netdev,
+				 struct ethtool_coalesce *coal,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct myri10ge_priv *mgp = netdev_priv(netdev);
 
@@ -1922,6 +2006,10 @@ myri10ge_phys_id(struct net_device *netdev, enum ethtool_phys_id_state state)
 }
 
 static const struct ethtool_ops myri10ge_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo = myri10ge_get_drvinfo,
 	.get_coalesce = myri10ge_get_coalesce,
 	.set_coalesce = myri10ge_set_coalesce,
@@ -2123,6 +2211,7 @@ static void myri10ge_free_rings(struct myri10ge_slice_state *ss)
 			ss->stats.tx_dropped++;
 			dev_kfree_skb_any(skb);
 			if (len)
+<<<<<<< HEAD
 				pci_unmap_single(mgp->pdev,
 						 dma_unmap_addr(&tx->info[idx],
 								bus), len,
@@ -2133,6 +2222,18 @@ static void myri10ge_free_rings(struct myri10ge_slice_state *ss)
 					       dma_unmap_addr(&tx->info[idx],
 							      bus), len,
 					       PCI_DMA_TODEVICE);
+=======
+				dma_unmap_single(&mgp->pdev->dev,
+						 dma_unmap_addr(&tx->info[idx],
+								bus), len,
+						 DMA_TO_DEVICE);
+		} else {
+			if (len)
+				dma_unmap_page(&mgp->pdev->dev,
+					       dma_unmap_addr(&tx->info[idx],
+							      bus), len,
+					       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		}
 	}
 	kfree(ss->rx_big.info);
@@ -2597,6 +2698,7 @@ static void myri10ge_unmap_tx_dma(struct myri10ge_priv *mgp,
 		len = dma_unmap_len(&tx->info[idx], len);
 		if (len) {
 			if (tx->info[idx].skb != NULL)
+<<<<<<< HEAD
 				pci_unmap_single(mgp->pdev,
 						 dma_unmap_addr(&tx->info[idx],
 								bus), len,
@@ -2606,6 +2708,17 @@ static void myri10ge_unmap_tx_dma(struct myri10ge_priv *mgp,
 					       dma_unmap_addr(&tx->info[idx],
 							      bus), len,
 					       PCI_DMA_TODEVICE);
+=======
+				dma_unmap_single(&mgp->pdev->dev,
+						 dma_unmap_addr(&tx->info[idx],
+								bus), len,
+						 DMA_TO_DEVICE);
+			else
+				dma_unmap_page(&mgp->pdev->dev,
+					       dma_unmap_addr(&tx->info[idx],
+							      bus), len,
+					       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dma_unmap_len_set(&tx->info[idx], len, 0);
 			tx->info[idx].skb = NULL;
 		}
@@ -2630,7 +2743,11 @@ static netdev_tx_t myri10ge_xmit(struct sk_buff *skb,
 	struct myri10ge_slice_state *ss;
 	struct mcp_kreq_ether_send *req;
 	struct myri10ge_tx_buf *tx;
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 	struct netdev_queue *netdev_queue;
 	dma_addr_t bus;
 	u32 low;
@@ -2728,8 +2845,13 @@ again:
 
 	/* map the skb for DMA */
 	len = skb_headlen(skb);
+<<<<<<< HEAD
 	bus = pci_map_single(mgp->pdev, skb->data, len, PCI_DMA_TODEVICE);
 	if (unlikely(pci_dma_mapping_error(mgp->pdev, bus)))
+=======
+	bus = dma_map_single(&mgp->pdev->dev, skb->data, len, DMA_TO_DEVICE);
+	if (unlikely(dma_mapping_error(&mgp->pdev->dev, bus)))
+>>>>>>> upstream/android-13
 		goto drop;
 
 	idx = tx->req & tx->mask;
@@ -2837,7 +2959,11 @@ again:
 		len = skb_frag_size(frag);
 		bus = skb_frag_dma_map(&mgp->pdev->dev, frag, 0, len,
 				       DMA_TO_DEVICE);
+<<<<<<< HEAD
 		if (unlikely(pci_dma_mapping_error(mgp->pdev, bus))) {
+=======
+		if (unlikely(dma_mapping_error(&mgp->pdev->dev, bus))) {
+>>>>>>> upstream/android-13
 			myri10ge_unmap_tx_dma(mgp, tx, idx);
 			goto drop;
 		}
@@ -2862,7 +2988,10 @@ again:
 		tx->queue_active = 1;
 		put_be32(htonl(1), tx->send_go);
 		mb();
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 	tx->pkt_start++;
 	if ((avail - count) < MXGEFW_MAX_SEND_DESC) {
@@ -2895,7 +3024,11 @@ drop:
 static netdev_tx_t myri10ge_sw_tso(struct sk_buff *skb,
 					 struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct sk_buff *segs, *curr;
+=======
+	struct sk_buff *segs, *curr, *next;
+>>>>>>> upstream/android-13
 	struct myri10ge_priv *mgp = netdev_priv(dev);
 	struct myri10ge_slice_state *ss;
 	netdev_tx_t status;
@@ -2904,6 +3037,7 @@ static netdev_tx_t myri10ge_sw_tso(struct sk_buff *skb,
 	if (IS_ERR(segs))
 		goto drop;
 
+<<<<<<< HEAD
 	while (segs) {
 		curr = segs;
 		segs = segs->next;
@@ -2916,6 +3050,16 @@ static netdev_tx_t myri10ge_sw_tso(struct sk_buff *skb,
 				segs = segs->next;
 				curr->next = NULL;
 				dev_kfree_skb_any(segs);
+=======
+	skb_list_walk_safe(segs, curr, next) {
+		skb_mark_not_on_list(curr);
+		status = myri10ge_xmit(curr, dev);
+		if (status != 0) {
+			dev_kfree_skb_any(curr);
+			skb_list_walk_safe(next, curr, next) {
+				curr->next = NULL;
+				dev_kfree_skb_any(curr);
+>>>>>>> upstream/android-13
 			}
 			goto drop;
 		}
@@ -3040,7 +3184,10 @@ static int myri10ge_set_mac_address(struct net_device *dev, void *addr)
 static int myri10ge_change_mtu(struct net_device *dev, int new_mtu)
 {
 	struct myri10ge_priv *mgp = netdev_priv(dev);
+<<<<<<< HEAD
 	int error = 0;
+=======
+>>>>>>> upstream/android-13
 
 	netdev_info(dev, "changing mtu from %d to %d\n", dev->mtu, new_mtu);
 	if (mgp->running) {
@@ -3052,7 +3199,11 @@ static int myri10ge_change_mtu(struct net_device *dev, int new_mtu)
 	} else
 		dev->mtu = new_mtu;
 
+<<<<<<< HEAD
 	return error;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3274,13 +3425,21 @@ static void myri10ge_mask_surprise_down(struct pci_dev *pdev)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int myri10ge_suspend(struct pci_dev *pdev, pm_message_t state)
+=======
+static int __maybe_unused myri10ge_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct myri10ge_priv *mgp;
 	struct net_device *netdev;
 
+<<<<<<< HEAD
 	mgp = pci_get_drvdata(pdev);
+=======
+	mgp = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	if (mgp == NULL)
 		return -EINVAL;
 	netdev = mgp->dev;
@@ -3293,6 +3452,7 @@ static int myri10ge_suspend(struct pci_dev *pdev, pm_message_t state)
 		rtnl_unlock();
 	}
 	myri10ge_dummy_rdma(mgp, 0);
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 
@@ -3301,6 +3461,15 @@ static int myri10ge_suspend(struct pci_dev *pdev, pm_message_t state)
 
 static int myri10ge_resume(struct pci_dev *pdev)
 {
+=======
+
+	return 0;
+}
+
+static int __maybe_unused myri10ge_resume(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct myri10ge_priv *mgp;
 	struct net_device *netdev;
 	int status;
@@ -3310,7 +3479,10 @@ static int myri10ge_resume(struct pci_dev *pdev)
 	if (mgp == NULL)
 		return -EINVAL;
 	netdev = mgp->dev;
+<<<<<<< HEAD
 	pci_set_power_state(pdev, PCI_D0);	/* zeros conf space as a side effect */
+=======
+>>>>>>> upstream/android-13
 	msleep(5);		/* give card time to respond */
 	pci_read_config_word(mgp->pdev, PCI_VENDOR_ID, &vendor);
 	if (vendor == 0xffff) {
@@ -3318,6 +3490,7 @@ static int myri10ge_resume(struct pci_dev *pdev)
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	pci_restore_state(pdev);
 
 	status = pci_enable_device(pdev);
@@ -3335,6 +3508,11 @@ static int myri10ge_resume(struct pci_dev *pdev)
 	 * nic resets due to a parity error */
 	pci_save_state(pdev);
 
+=======
+	myri10ge_reset(mgp);
+	myri10ge_dummy_rdma(mgp, 1);
+
+>>>>>>> upstream/android-13
 	if (netif_running(netdev)) {
 		rtnl_lock();
 		status = myri10ge_open(netdev);
@@ -3348,11 +3526,16 @@ static int myri10ge_resume(struct pci_dev *pdev)
 	return 0;
 
 abort_with_enabled:
+<<<<<<< HEAD
 	pci_disable_device(pdev);
 	return -EIO;
 
 }
 #endif				/* CONFIG_PM */
+=======
+	return -EIO;
+}
+>>>>>>> upstream/android-13
 
 static u32 myri10ge_read_reboot(struct myri10ge_priv *mgp)
 {
@@ -3580,11 +3763,18 @@ static void myri10ge_free_slices(struct myri10ge_priv *mgp)
 					  ss->fw_stats, ss->fw_stats_bus);
 			ss->fw_stats = NULL;
 		}
+<<<<<<< HEAD
 		napi_hash_del(&ss->napi);
 		netif_napi_del(&ss->napi);
 	}
 	/* Wait till napi structs are no longer used, and then free ss. */
 	synchronize_rcu();
+=======
+		__netif_napi_del(&ss->napi);
+	}
+	/* Wait till napi structs are no longer used, and then free ss. */
+	synchronize_net();
+>>>>>>> upstream/android-13
 	kfree(mgp->ss);
 	mgp->ss = NULL;
 }
@@ -3605,9 +3795,15 @@ static int myri10ge_alloc_slices(struct myri10ge_priv *mgp)
 	for (i = 0; i < mgp->num_slices; i++) {
 		ss = &mgp->ss[i];
 		bytes = mgp->max_intr_slots * sizeof(*ss->rx_done.entry);
+<<<<<<< HEAD
 		ss->rx_done.entry = dma_zalloc_coherent(&pdev->dev, bytes,
 							&ss->rx_done.bus,
 							GFP_KERNEL);
+=======
+		ss->rx_done.entry = dma_alloc_coherent(&pdev->dev, bytes,
+						       &ss->rx_done.bus,
+						       GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (ss->rx_done.entry == NULL)
 			goto abort;
 		bytes = sizeof(*ss->fw_stats);
@@ -3814,6 +4010,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	myri10ge_mask_surprise_down(pdev);
 	pci_set_master(pdev);
 	dac_enabled = 1;
+<<<<<<< HEAD
 	status = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (status != 0) {
 		dac_enabled = 0;
@@ -3821,12 +4018,23 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 			"64-bit pci address mask was refused, "
 			"trying 32-bit\n");
 		status = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	status = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (status != 0) {
+		dac_enabled = 0;
+		dev_err(&pdev->dev,
+			"64-bit pci address mask was refused, trying 32-bit\n");
+		status = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	}
 	if (status != 0) {
 		dev_err(&pdev->dev, "Error %d setting DMA mask\n", status);
 		goto abort_with_enabled;
 	}
+<<<<<<< HEAD
 	(void)pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
+=======
+>>>>>>> upstream/android-13
 	mgp->cmd = dma_alloc_coherent(&pdev->dev, sizeof(*mgp->cmd),
 				      &mgp->cmd_bus, GFP_KERNEL);
 	if (!mgp->cmd) {
@@ -3853,6 +4061,10 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		dev_err(&pdev->dev,
 			"invalid sram_size %dB or board span %ldB\n",
 			mgp->sram_size, mgp->board_span);
+<<<<<<< HEAD
+=======
+		status = -EINVAL;
+>>>>>>> upstream/android-13
 		goto abort_with_ioremap;
 	}
 	memcpy_fromio(mgp->eeprom_strings,
@@ -4034,15 +4246,24 @@ static const struct pci_device_id myri10ge_pci_tbl[] = {
 
 MODULE_DEVICE_TABLE(pci, myri10ge_pci_tbl);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(myri10ge_pm_ops, myri10ge_suspend, myri10ge_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver myri10ge_driver = {
 	.name = "myri10ge",
 	.probe = myri10ge_probe,
 	.remove = myri10ge_remove,
 	.id_table = myri10ge_pci_tbl,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = myri10ge_suspend,
 	.resume = myri10ge_resume,
 #endif
+=======
+	.driver.pm = &myri10ge_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_MYRI10GE_DCA

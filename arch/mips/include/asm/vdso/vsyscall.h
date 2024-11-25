@@ -19,6 +19,7 @@ struct vdso_data *__mips_get_k_vdso_data(void)
 }
 #define __arch_get_k_vdso_data __mips_get_k_vdso_data
 
+<<<<<<< HEAD
 static __always_inline
 int __mips_get_clock_mode(struct timekeeper *tk)
 {
@@ -28,6 +29,8 @@ int __mips_get_clock_mode(struct timekeeper *tk)
 }
 #define __arch_get_clock_mode __mips_get_clock_mode
 
+=======
+>>>>>>> upstream/android-13
 /* The asm-generic header needs to be included after the definitions above */
 #include <asm-generic/vdso/vsyscall.h>
 

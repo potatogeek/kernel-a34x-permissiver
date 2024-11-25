@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -12,6 +13,12 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/string.h>
@@ -802,7 +809,12 @@ struct pvr2_sysfs_class *pvr2_sysfs_class_create(void)
 void pvr2_sysfs_class_destroy(struct pvr2_sysfs_class *clp)
 {
 	pvr2_sysfs_trace("Unregistering pvr2_sysfs_class id=%p", clp);
+<<<<<<< HEAD
 	class_unregister(&clp->class);
+=======
+	if (clp)
+		class_unregister(&clp->class);
+>>>>>>> upstream/android-13
 }
 
 

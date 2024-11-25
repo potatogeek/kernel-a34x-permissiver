@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Hisilicon Ltd. Hi3620 SoC
  *
@@ -9,6 +10,16 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * publishhed by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HiSilicon Ltd. Hi3620 SoC
+ *
+ * Copyright (C) 2012-2013 HiSilicon Ltd.
+ * Copyright (C) 2012-2013 Linaro Ltd.
+ *
+ * Author: Haojian Zhuang <haojian.zhuang@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/clock/hi3620-clock.h>
@@ -66,7 +77,11 @@
 		};
 	};
 
+<<<<<<< HEAD
 	amba {
+=======
+	amba-bus {
+>>>>>>> upstream/android-13
 
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -74,7 +89,11 @@
 		interrupt-parent = <&gic>;
 		ranges = <0 0xfc000000 0x2000000>;
 
+<<<<<<< HEAD
 		L2: l2-cache {
+=======
+		L2: cache-controller {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl310-cache";
 			reg = <0x100000 0x100000>;
 			interrupts = <0 15 4>;
@@ -92,7 +111,11 @@
 		};
 
 		sysctrl: system-controller@802000 {
+<<<<<<< HEAD
 			compatible = "hisilicon,sysctrl";
+=======
+			compatible = "hisilicon,sysctrl", "syscon";
+>>>>>>> upstream/android-13
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges = <0 0x802000 0x1000>;
@@ -114,8 +137,15 @@
 			reg = <0x800000 0x1000>;
 			/* timer00 & timer01 */
 			interrupts = <0 0 4>, <0 1 4>;
+<<<<<<< HEAD
 			clocks = <&clock HI3620_TIMER0_MUX>, <&clock HI3620_TIMER1_MUX>;
 			clock-names = "apb_pclk";
+=======
+			clocks = <&clock HI3620_TIMER0_MUX>,
+				 <&clock HI3620_TIMER1_MUX>,
+				 <&clock HI3620_TIMER0_MUX>;
+			clock-names = "timer0clk", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -124,8 +154,15 @@
 			reg = <0x801000 0x1000>;
 			/* timer10 & timer11 */
 			interrupts = <0 2 4>, <0 3 4>;
+<<<<<<< HEAD
 			clocks = <&clock HI3620_TIMER2_MUX>, <&clock HI3620_TIMER3_MUX>;
 			clock-names = "apb_pclk";
+=======
+			clocks = <&clock HI3620_TIMER2_MUX>,
+				 <&clock HI3620_TIMER3_MUX>,
+				 <&clock HI3620_TIMER2_MUX>;
+			clock-names = "timer0clk", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -134,8 +171,15 @@
 			reg = <0xa01000 0x1000>;
 			/* timer20 & timer21 */
 			interrupts = <0 4 4>, <0 5 4>;
+<<<<<<< HEAD
 			clocks = <&clock HI3620_TIMER4_MUX>, <&clock HI3620_TIMER5_MUX>;
 			clock-names = "apb_pclk";
+=======
+			clocks = <&clock HI3620_TIMER4_MUX>,
+				 <&clock HI3620_TIMER5_MUX>,
+				 <&clock HI3620_TIMER4_MUX>;
+			clock-names = "timer0lck", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -144,8 +188,15 @@
 			reg = <0xa02000 0x1000>;
 			/* timer30 & timer31 */
 			interrupts = <0 6 4>, <0 7 4>;
+<<<<<<< HEAD
 			clocks = <&clock HI3620_TIMER6_MUX>, <&clock HI3620_TIMER7_MUX>;
 			clock-names = "apb_pclk";
+=======
+			clocks = <&clock HI3620_TIMER6_MUX>,
+				 <&clock HI3620_TIMER7_MUX>,
+				 <&clock HI3620_TIMER6_MUX>;
+			clock-names = "timer0clk", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -154,8 +205,15 @@
 			reg = <0xa03000 0x1000>;
 			/* timer40 & timer41 */
 			interrupts = <0 96 4>, <0 97 4>;
+<<<<<<< HEAD
 			clocks = <&clock HI3620_TIMER8_MUX>, <&clock HI3620_TIMER9_MUX>;
 			clock-names = "apb_pclk";
+=======
+			clocks = <&clock HI3620_TIMER8_MUX>,
+				 <&clock HI3620_TIMER9_MUX>,
+				 <&clock HI3620_TIMER8_MUX>;
+			clock-names = "timer0clk", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -165,6 +223,7 @@
 			interrupts = <1 13 0xf01>;
 		};
 
+<<<<<<< HEAD
 		uart0: uart@b00000 {
 			compatible = "arm,pl011", "arm,primecell";
 			reg = <0xb00000 0x1000>;
@@ -207,6 +266,50 @@
 			interrupts = <0 24 4>;
 			clocks = <&clock HI3620_UARTCLK4>;
 			clock-names = "apb_pclk";
+=======
+		uart0: serial@b00000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0xb00000 0x1000>;
+			interrupts = <0 20 4>;
+			clocks = <&clock HI3620_UARTCLK0>, <&clock HI3620_UARTCLK0>;
+			clock-names = "uartclk", "apb_pclk";
+			status = "disabled";
+		};
+
+		uart1: serial@b01000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0xb01000 0x1000>;
+			interrupts = <0 21 4>;
+			clocks = <&clock HI3620_UARTCLK1>, <&clock HI3620_UARTCLK1>;
+			clock-names = "uartclk", "apb_pclk";
+			status = "disabled";
+		};
+
+		uart2: serial@b02000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0xb02000 0x1000>;
+			interrupts = <0 22 4>;
+			clocks = <&clock HI3620_UARTCLK2>, <&clock HI3620_UARTCLK2>;
+			clock-names = "uartclk", "apb_pclk";
+			status = "disabled";
+		};
+
+		uart3: serial@b03000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0xb03000 0x1000>;
+			interrupts = <0 23 4>;
+			clocks = <&clock HI3620_UARTCLK3>, <&clock HI3620_UARTCLK3>;
+			clock-names = "uartclk", "apb_pclk";
+			status = "disabled";
+		};
+
+		uart4: serial@b04000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0xb04000 0x1000>;
+			interrupts = <0 24 4>;
+			clocks = <&clock HI3620_UARTCLK4>, <&clock HI3620_UARTCLK4>;
+			clock-names = "uartclk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 

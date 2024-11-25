@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015-2018 The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_CRTC_H_
@@ -83,15 +90,25 @@ struct dpu_crtc_smmu_state_data {
 /**
  * struct dpu_crtc_mixer: stores the map for each virtual pipeline in the CRTC
  * @hw_lm:	LM HW Driver context
+<<<<<<< HEAD
  * @hw_ctl:	CTL Path HW driver context
  * @encoder:	Encoder attached to this lm & ctl
+=======
+ * @lm_ctl:	CTL Path HW driver context
+ * @lm_dspp:	DSPP HW driver context
+>>>>>>> upstream/android-13
  * @mixer_op_mode:	mixer blending operation mode
  * @flush_mask:	mixer flush mask for ctl, mixer and pipe
  */
 struct dpu_crtc_mixer {
 	struct dpu_hw_mixer *hw_lm;
+<<<<<<< HEAD
 	struct dpu_hw_ctl *hw_ctl;
 	struct drm_encoder *encoder;
+=======
+	struct dpu_hw_ctl *lm_ctl;
+	struct dpu_hw_dspp *hw_dspp;
+>>>>>>> upstream/android-13
 	u32 mixer_op_mode;
 	u32 flush_mask;
 };
@@ -121,11 +138,14 @@ struct dpu_crtc_frame_event {
  * struct dpu_crtc - virtualized CRTC data structure
  * @base          : Base drm crtc structure
  * @name          : ASCII description of this crtc
+<<<<<<< HEAD
  * @num_ctls      : Number of ctl paths in use
  * @num_mixers    : Number of mixers in use
  * @mixers_swapped: Whether the mixers have been swapped for left/right update
  *                  especially in the case of DSC Merge.
  * @mixers        : List of active mixers
+=======
+>>>>>>> upstream/android-13
  * @event         : Pointer to last received drm vblank event. If there is a
  *                  pending vblank event, this will be non-null.
  * @vsync_count   : Running count of received vsync events
@@ -137,8 +157,11 @@ struct dpu_crtc_frame_event {
  * @vblank_cb_count : count of vblank callback since last reset
  * @play_count    : frame count between crtc enable and disable
  * @vblank_cb_time  : ktime at vblank count reset
+<<<<<<< HEAD
  * @vblank_requested : whether the user has requested vblank events
  * @suspend         : whether or not a suspend operation is in progress
+=======
+>>>>>>> upstream/android-13
  * @enabled       : whether the DPU CRTC is currently enabled. updated in the
  *                  commit-thread, not state-swap time which is earlier, so
  *                  safe to make decisions on during VBLANK on/off work
@@ -147,7 +170,10 @@ struct dpu_crtc_frame_event {
  * @dirty_list    : list of color processing features are dirty
  * @ad_dirty: list containing ad properties that are dirty
  * @ad_active: list containing ad properties that are active
+<<<<<<< HEAD
  * @crtc_lock     : crtc lock around create, destroy and access.
+=======
+>>>>>>> upstream/android-13
  * @frame_pending : Whether or not an update is pending
  * @frame_events  : static allocation of in-flight frame events
  * @frame_event_list : available frame event list
@@ -156,6 +182,7 @@ struct dpu_crtc_frame_event {
  * @event_thread  : Pointer to event handler thread
  * @event_worker  : Event worker queue
  * @event_lock    : Spinlock around event handling code
+<<<<<<< HEAD
  * @misr_enable   : boolean entry indicates misr enable/disable status.
  * @misr_frame_count  : misr frame count provided by client
  * @misr_data     : store misr data before turning off the clocks.
@@ -165,11 +192,16 @@ struct dpu_crtc_frame_event {
  * @rp_lock       : serialization lock for resource pool
  * @rp_head       : list of active resource pool
  * @scl3_cfg_lut  : qseed3 lut config
+=======
+ * @phandle: Pointer to power handler
+ * @cur_perf      : current performance committed to clock/bandwidth driver
+>>>>>>> upstream/android-13
  */
 struct dpu_crtc {
 	struct drm_crtc base;
 	char name[DPU_CRTC_NAME_SIZE];
 
+<<<<<<< HEAD
 	/* HW Resources reserved for the crtc */
 	u32 num_ctls;
 	u32 num_mixers;
@@ -177,6 +209,8 @@ struct dpu_crtc {
 	struct dpu_crtc_mixer mixers[CRTC_DUAL_MIXERS];
 	struct dpu_hw_scaler3_lut_cfg *scl3_lut_cfg;
 
+=======
+>>>>>>> upstream/android-13
 	struct drm_pending_vblank_event *event;
 	u32 vsync_count;
 
@@ -186,8 +220,11 @@ struct dpu_crtc {
 	u32 vblank_cb_count;
 	u64 play_count;
 	ktime_t vblank_cb_time;
+<<<<<<< HEAD
 	bool vblank_requested;
 	bool suspend;
+=======
+>>>>>>> upstream/android-13
 	bool enabled;
 
 	struct list_head feature_list;
@@ -196,8 +233,11 @@ struct dpu_crtc {
 	struct list_head ad_dirty;
 	struct list_head ad_active;
 
+<<<<<<< HEAD
 	struct mutex crtc_lock;
 
+=======
+>>>>>>> upstream/android-13
 	atomic_t frame_pending;
 	struct dpu_crtc_frame_event frame_events[DPU_CRTC_FRAME_EVENT_SIZE];
 	struct list_head frame_event_list;
@@ -206,6 +246,7 @@ struct dpu_crtc {
 
 	/* for handling internal event thread */
 	spinlock_t event_lock;
+<<<<<<< HEAD
 	bool misr_enable;
 	u32 misr_frame_count;
 	u32 misr_data[CRTC_DUAL_MIXERS];
@@ -218,12 +259,18 @@ struct dpu_crtc {
 	struct mutex rp_lock;
 	struct list_head rp_head;
 
+=======
+
+	struct dpu_core_perf_params cur_perf;
+
+>>>>>>> upstream/android-13
 	struct dpu_crtc_smmu_state_data smmu_state;
 };
 
 #define to_dpu_crtc(x) container_of(x, struct dpu_crtc, base)
 
 /**
+<<<<<<< HEAD
  * struct dpu_crtc_res_ops - common operations for crtc resources
  * @get: get given resource
  * @put: put given resource
@@ -277,6 +324,10 @@ struct dpu_crtc_respool {
  * struct dpu_crtc_state - dpu container for atomic crtc state
  * @base: Base drm crtc state structure
  * @is_ppsplit    : Whether current topology requires PPSplit special handling
+=======
+ * struct dpu_crtc_state - dpu container for atomic crtc state
+ * @base: Base drm crtc state structure
+>>>>>>> upstream/android-13
  * @bw_control    : true if bw/clk controlled by core bw/clk properties
  * @bw_split_vote : true if bw controlled by llcc/dram bw properties
  * @lm_bounds     : LM boundaries based on current mode full resolution, no ROI.
@@ -285,26 +336,47 @@ struct dpu_crtc_respool {
  * @property_values: Current crtc property values
  * @input_fence_timeout_ns : Cached input fence timeout, in ns
  * @new_perf: new performance state being requested
+<<<<<<< HEAD
+=======
+ * @num_mixers    : Number of mixers in use
+ * @mixers        : List of active mixers
+ * @num_ctls      : Number of ctl paths in use
+ * @hw_ctls       : List of active ctl paths
+>>>>>>> upstream/android-13
  */
 struct dpu_crtc_state {
 	struct drm_crtc_state base;
 
 	bool bw_control;
 	bool bw_split_vote;
+<<<<<<< HEAD
 
 	bool is_ppsplit;
+=======
+>>>>>>> upstream/android-13
 	struct drm_rect lm_bounds[CRTC_DUAL_MIXERS];
 
 	uint64_t input_fence_timeout_ns;
 
 	struct dpu_core_perf_params new_perf;
+<<<<<<< HEAD
 	struct dpu_crtc_respool rp;
+=======
+
+	/* HW Resources reserved for the crtc */
+	u32 num_mixers;
+	struct dpu_crtc_mixer mixers[CRTC_DUAL_MIXERS];
+
+	u32 num_ctls;
+	struct dpu_hw_ctl *hw_ctls[CRTC_DUAL_MIXERS];
+>>>>>>> upstream/android-13
 };
 
 #define to_dpu_crtc_state(x) \
 	container_of(x, struct dpu_crtc_state, base)
 
 /**
+<<<<<<< HEAD
  * dpu_crtc_get_mixer_width - get the mixer width
  * Mixer width will be same as panel width(/2 for split)
  */
@@ -336,11 +408,14 @@ static inline int dpu_crtc_get_mixer_height(struct dpu_crtc *dpu_crtc,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * dpu_crtc_frame_pending - retun the number of pending frames
  * @crtc: Pointer to drm crtc object
  */
 static inline int dpu_crtc_frame_pending(struct drm_crtc *crtc)
 {
+<<<<<<< HEAD
 	struct dpu_crtc *dpu_crtc;
 
 	if (!crtc)
@@ -348,6 +423,9 @@ static inline int dpu_crtc_frame_pending(struct drm_crtc *crtc)
 
 	dpu_crtc = to_dpu_crtc(crtc);
 	return atomic_read(&dpu_crtc->frame_pending);
+=======
+	return crtc ? atomic_read(&to_dpu_crtc(crtc)->frame_pending) : -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -358,6 +436,15 @@ static inline int dpu_crtc_frame_pending(struct drm_crtc *crtc)
 int dpu_crtc_vblank(struct drm_crtc *crtc, bool en);
 
 /**
+<<<<<<< HEAD
+=======
+ * dpu_crtc_vblank_callback - called on vblank irq, issues completion events
+ * @crtc: Pointer to drm crtc object
+ */
+void dpu_crtc_vblank_callback(struct drm_crtc *crtc);
+
+/**
+>>>>>>> upstream/android-13
  * dpu_crtc_commit_kickoff - trigger kickoff of the commit for this crtc
  * @crtc: Pointer to drm crtc object
  */
@@ -366,18 +453,31 @@ void dpu_crtc_commit_kickoff(struct drm_crtc *crtc);
 /**
  * dpu_crtc_complete_commit - callback signalling completion of current commit
  * @crtc: Pointer to drm crtc object
+<<<<<<< HEAD
  * @old_state: Pointer to drm crtc old state object
  */
 void dpu_crtc_complete_commit(struct drm_crtc *crtc,
 		struct drm_crtc_state *old_state);
+=======
+ */
+void dpu_crtc_complete_commit(struct drm_crtc *crtc);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_crtc_init - create a new crtc object
  * @dev: dpu device
  * @plane: base plane
+<<<<<<< HEAD
  * @Return: new crtc object or error
  */
 struct drm_crtc *dpu_crtc_init(struct drm_device *dev, struct drm_plane *plane);
+=======
+ * @cursor: cursor plane
+ * @Return: new crtc object or error
+ */
+struct drm_crtc *dpu_crtc_init(struct drm_device *dev, struct drm_plane *plane,
+			       struct drm_plane *cursor);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_crtc_register_custom_event - api for enabling/disabling crtc event
@@ -402,6 +502,7 @@ enum dpu_intf_mode dpu_crtc_get_intf_mode(struct drm_crtc *crtc);
 static inline enum dpu_crtc_client_type dpu_crtc_get_client_type(
 						struct drm_crtc *crtc)
 {
+<<<<<<< HEAD
 	struct dpu_crtc_state *cstate =
 			crtc ? to_dpu_crtc_state(crtc->state) : NULL;
 
@@ -418,6 +519,9 @@ static inline enum dpu_crtc_client_type dpu_crtc_get_client_type(
 static inline bool dpu_crtc_is_enabled(struct drm_crtc *crtc)
 {
 	return crtc ? crtc->enabled : false;
+=======
+	return crtc && crtc->state ? RT_CLIENT : NRT_CLIENT;
+>>>>>>> upstream/android-13
 }
 
 #endif /* _DPU_CRTC_H_ */

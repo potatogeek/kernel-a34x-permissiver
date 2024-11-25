@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * TLB Exception Handling for ARC
  *
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Vineetg: April 2011 :
  *  -MMU v1: moved out legacy code into a seperate file
  *  -MMU v3: PD{0,1} bits layout changed: They don't overlap anymore,
@@ -36,6 +43,7 @@
  */
 
 #include <linux/linkage.h>
+<<<<<<< HEAD
 #include <asm/entry.h>
 #include <asm/mmu.h>
 #include <asm/pgtable.h>
@@ -43,6 +51,14 @@
 #include <asm/cache.h>
 #include <asm/processor.h>
 #include <asm/tlb-mmu1.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/entry.h>
+#include <asm/mmu.h>
+#include <asm/arcregs.h>
+#include <asm/cache.h>
+#include <asm/processor.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ISA_ARCOMPACT
 ;-----------------------------------------------------------------
@@ -97,11 +113,14 @@ ex_saved_reg1:
 	st_s  r1, [r0, 4]
 	st_s  r2, [r0, 8]
 	st_s  r3, [r0, 12]
+<<<<<<< HEAD
 
 	; VERIFY if the ASID in MMU-PID Reg is same as
 	; one in Linux data structures
 
 	tlb_paranoid_check_asm
+=======
+>>>>>>> upstream/android-13
 .endm
 
 .macro TLBMISS_RESTORE_REGS
@@ -125,22 +144,45 @@ ex_saved_reg1:
 #else	/* ARCv2 */
 
 .macro TLBMISS_FREEUP_REGS
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARC_HAS_LL64
+	std   r0, [sp, -16]
+	std   r2, [sp, -8]
+#else
+>>>>>>> upstream/android-13
 	PUSH  r0
 	PUSH  r1
 	PUSH  r2
 	PUSH  r3
+<<<<<<< HEAD
 .endm
 
 .macro TLBMISS_RESTORE_REGS
+=======
+#endif
+.endm
+
+.macro TLBMISS_RESTORE_REGS
+#ifdef CONFIG_ARC_HAS_LL64
+	ldd   r0, [sp, -16]
+	ldd   r2, [sp, -8]
+#else
+>>>>>>> upstream/android-13
 	POP   r3
 	POP   r2
 	POP   r1
 	POP   r0
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 .endm
 
 #endif
 
 ;============================================================================
+<<<<<<< HEAD
 ;  Troubleshooting Stuff
 ;============================================================================
 
@@ -189,6 +231,19 @@ ex_saved_reg1:
 ;TLB Miss handling Code
 ;============================================================================
 
+=======
+;TLB Miss handling Code
+;============================================================================
+
+#ifndef PMD_SHIFT
+#define PMD_SHIFT PUD_SHIFT
+#endif
+
+#ifndef PUD_SHIFT
+#define PUD_SHIFT PGDIR_SHIFT
+#endif
+
+>>>>>>> upstream/android-13
 ;-----------------------------------------------------------------------------
 ; This macro does the page-table lookup for the faulting address.
 ; OUT: r0 = PTE faulted on, r1 = ptr to PTE, r2 = Faulting V-address
@@ -196,7 +251,11 @@ ex_saved_reg1:
 
 	lr  r2, [efa]
 
+<<<<<<< HEAD
 #ifndef CONFIG_SMP
+=======
+#ifdef CONFIG_ISA_ARCV2
+>>>>>>> upstream/android-13
 	lr  r1, [ARC_REG_SCRATCH_DATA0] ; current pgd
 #else
 	GET_CURR_TASK_ON_CPU  r1
@@ -209,6 +268,27 @@ ex_saved_reg1:
 	tst	r3, r3
 	bz	do_slow_path_pf         ; if no Page Table, do page fault
 
+<<<<<<< HEAD
+=======
+#if CONFIG_PGTABLE_LEVELS > 3
+	lsr     r0, r2, PUD_SHIFT	; Bits for indexing into PUD
+	and	r0, r0, (PTRS_PER_PUD - 1)
+	ld.as	r1, [r3, r0]		; PMD entry
+	tst	r1, r1
+	bz	do_slow_path_pf
+	mov	r3, r1
+#endif
+
+#if CONFIG_PGTABLE_LEVELS > 2
+	lsr     r0, r2, PMD_SHIFT	; Bits for indexing into PMD
+	and	r0, r0, (PTRS_PER_PMD - 1)
+	ld.as	r1, [r3, r0]		; PMD entry
+	tst	r1, r1
+	bz	do_slow_path_pf
+	mov	r3, r1
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 	and.f	0, r3, _PAGE_HW_SZ	; Is this Huge PMD (thp)
 	add2.nz	r1, r1, r0
@@ -272,6 +352,7 @@ ex_saved_reg1:
 ; Commit the TLB entry into MMU
 
 .macro COMMIT_ENTRY_TO_MMU
+<<<<<<< HEAD
 #if (CONFIG_ARC_MMU_VER < 4)
 
 #ifdef CONFIG_EZNPS_MTM_EXT
@@ -280,16 +361,23 @@ ex_saved_reg1:
 	lr    r0, [ARC_REG_TLBINDEX]
 	bbit0 r0, 31, 88f
 #endif
+=======
+#ifdef CONFIG_ARC_MMU_V3
+>>>>>>> upstream/android-13
 
 	/* Get free TLB slot: Set = computed from vaddr, way = random */
 	sr  TLBGetIndex, [ARC_REG_TLBCOMMAND]
 
 	/* Commit the Write */
+<<<<<<< HEAD
 #if (CONFIG_ARC_MMU_VER >= 2)   /* introduced in v2 */
 	sr TLBWriteNI, [ARC_REG_TLBCOMMAND]
 #else
 	sr TLBWrite, [ARC_REG_TLBCOMMAND]
 #endif
+=======
+	sr TLBWriteNI, [ARC_REG_TLBCOMMAND]
+>>>>>>> upstream/android-13
 
 #else
 	sr TLBInsertEntry, [ARC_REG_TLBCOMMAND]
@@ -373,14 +461,19 @@ ENTRY(EV_TLBMissD)
 
 	;----------------------------------------------------------------
 	; UPDATE_PTE: Let Linux VM know that page was accessed/dirty
+<<<<<<< HEAD
 	lr      r3, [ecr]
 	or      r0, r0, _PAGE_ACCESSED        ; Accessed bit always
 	btst_s  r3,  ECR_C_BIT_DTLB_ST_MISS   ; See if it was a Write Access ?
+=======
+	or      r0, r0, _PAGE_ACCESSED        ; Accessed bit always
+>>>>>>> upstream/android-13
 	or.nz   r0, r0, _PAGE_DIRTY           ; if Write, set Dirty bit as well
 	st_s    r0, [r1]                      ; Write back PTE
 
 	CONV_PTE_TO_TLB
 
+<<<<<<< HEAD
 #if (CONFIG_ARC_MMU_VER == 1)
 	; MMU with 2 way set assoc J-TLB, needs some help in pathetic case of
 	; memcpy where 3 parties contend for 2 ways, ensuing a livelock.
@@ -388,6 +481,8 @@ ENTRY(EV_TLBMissD)
 	TLB_WRITE_HEURISTICS
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	COMMIT_ENTRY_TO_MMU
 	TLBMISS_RESTORE_REGS
 EV_TLBMissD_fast_ret:	; additional label for VDK OS-kit instrumentation
@@ -396,6 +491,20 @@ EV_TLBMissD_fast_ret:	; additional label for VDK OS-kit instrumentation
 ;-------- Common routine to call Linux Page Fault Handler -----------
 do_slow_path_pf:
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ISA_ARCV2
+	; Set Z flag if exception in U mode. Hardware micro-ops do this on any
+	; taken interrupt/exception, and thus is already the case at the entry
+	; above, but ensuing code would have already clobbered.
+	; EXCEPTION_PROLOGUE called in slow path, relies on correct Z flag set
+
+	lr	r2, [erstatus]
+	and	r2, r2, STATUS_U_MASK
+	bxor.f	0, r2, STATUS_U_BIT
+#endif
+
+>>>>>>> upstream/android-13
 	; Restore the 4-scratch regs saved by fast path miss handler
 	TLBMISS_RESTORE_REGS
 

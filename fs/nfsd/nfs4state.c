@@ -42,6 +42,12 @@
 #include <linux/sunrpc/svcauth_gss.h>
 #include <linux/sunrpc/addr.h>
 #include <linux/jhash.h>
+<<<<<<< HEAD
+=======
+#include <linux/string_helpers.h>
+#include <linux/fsnotify.h>
+#include <linux/nfs_ssc.h>
+>>>>>>> upstream/android-13
 #include "xdr4.h"
 #include "xdr4cb.h"
 #include "vfs.h"
@@ -49,6 +55,11 @@
 
 #include "netns.h"
 #include "pnfs.h"
+<<<<<<< HEAD
+=======
+#include "filecache.h"
+#include "trace.h"
+>>>>>>> upstream/android-13
 
 #define NFSDDBG_FACILITY                NFSDDBG_PROC
 
@@ -77,6 +88,11 @@ static u64 current_sessionid = 1;
 /* forward declarations */
 static bool check_for_locks(struct nfs4_file *fp, struct nfs4_lockowner *lowner);
 static void nfs4_free_ol_stateid(struct nfs4_stid *stid);
+<<<<<<< HEAD
+=======
+void nfsd4_end_grace(struct nfsd_net *nn);
+static void _free_cpntf_state_locked(struct nfsd_net *nn, struct nfs4_cpntf_state *cps);
+>>>>>>> upstream/android-13
 
 /* Locking: */
 
@@ -98,6 +114,16 @@ enum nfsd4_st_mutex_lock_subclass {
  */
 static DECLARE_WAIT_QUEUE_HEAD(close_wq);
 
+<<<<<<< HEAD
+=======
+/*
+ * A waitqueue where a writer to clients/#/ctl destroying a client can
+ * wait for cl_rpc_users to drop to 0 and then for the client to be
+ * unhashed.
+ */
+static DECLARE_WAIT_QUEUE_HEAD(expiry_wq);
+
+>>>>>>> upstream/android-13
 static struct kmem_cache *client_slab;
 static struct kmem_cache *openowner_slab;
 static struct kmem_cache *lockowner_slab;
@@ -137,7 +163,11 @@ static __be32 get_client_locked(struct nfs4_client *clp)
 
 	if (is_client_expired(clp))
 		return nfserr_expired;
+<<<<<<< HEAD
 	atomic_inc(&clp->cl_refcount);
+=======
+	atomic_inc(&clp->cl_rpc_users);
+>>>>>>> upstream/android-13
 	return nfs_ok;
 }
 
@@ -156,11 +186,16 @@ renew_client_locked(struct nfs4_client *clp)
 		return;
 	}
 
+<<<<<<< HEAD
 	dprintk("renewing client (clientid %08x/%08x)\n",
 			clp->cl_clientid.cl_boot,
 			clp->cl_clientid.cl_id);
 	list_move_tail(&clp->cl_lru, &nn->client_lru);
 	clp->cl_time = get_seconds();
+=======
+	list_move_tail(&clp->cl_lru, &nn->client_lru);
+	clp->cl_time = ktime_get_boottime_seconds();
+>>>>>>> upstream/android-13
 }
 
 static void put_client_renew_locked(struct nfs4_client *clp)
@@ -169,20 +204,38 @@ static void put_client_renew_locked(struct nfs4_client *clp)
 
 	lockdep_assert_held(&nn->client_lock);
 
+<<<<<<< HEAD
 	if (!atomic_dec_and_test(&clp->cl_refcount))
 		return;
 	if (!is_client_expired(clp))
 		renew_client_locked(clp);
+=======
+	if (!atomic_dec_and_test(&clp->cl_rpc_users))
+		return;
+	if (!is_client_expired(clp))
+		renew_client_locked(clp);
+	else
+		wake_up_all(&expiry_wq);
+>>>>>>> upstream/android-13
 }
 
 static void put_client_renew(struct nfs4_client *clp)
 {
 	struct nfsd_net *nn = net_generic(clp->net, nfsd_net_id);
 
+<<<<<<< HEAD
 	if (!atomic_dec_and_lock(&clp->cl_refcount, &nn->client_lock))
 		return;
 	if (!is_client_expired(clp))
 		renew_client_locked(clp);
+=======
+	if (!atomic_dec_and_lock(&clp->cl_rpc_users, &nn->client_lock))
+		return;
+	if (!is_client_expired(clp))
+		renew_client_locked(clp);
+	else
+		wake_up_all(&expiry_wq);
+>>>>>>> upstream/android-13
 	spin_unlock(&nn->client_lock);
 }
 
@@ -238,7 +291,11 @@ find_blocked_lock(struct nfs4_lockowner *lo, struct knfsd_fh *fh,
 	}
 	spin_unlock(&nn->blocked_locks_lock);
 	if (found)
+<<<<<<< HEAD
 		posix_unblock_lock(&found->nbl_lock);
+=======
+		locks_delete_block(&found->nbl_lock);
+>>>>>>> upstream/android-13
 	return found;
 }
 
@@ -267,6 +324,10 @@ find_or_allocate_block(struct nfs4_lockowner *lo, struct knfsd_fh *fh,
 static void
 free_blocked_lock(struct nfsd4_blocked_lock *nbl)
 {
+<<<<<<< HEAD
+=======
+	locks_delete_block(&nbl->nbl_lock);
+>>>>>>> upstream/android-13
 	locks_release_private(&nbl->nbl_lock);
 	kfree(nbl);
 }
@@ -295,11 +356,25 @@ remove_blocked_locks(struct nfs4_lockowner *lo)
 		nbl = list_first_entry(&reaplist, struct nfsd4_blocked_lock,
 					nbl_lru);
 		list_del_init(&nbl->nbl_lru);
+<<<<<<< HEAD
 		posix_unblock_lock(&nbl->nbl_lock);
+=======
+>>>>>>> upstream/android-13
 		free_blocked_lock(nbl);
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void
+nfsd4_cb_notify_lock_prepare(struct nfsd4_callback *cb)
+{
+	struct nfsd4_blocked_lock	*nbl = container_of(cb,
+						struct nfsd4_blocked_lock, nbl_cb);
+	locks_delete_block(&nbl->nbl_lock);
+}
+
+>>>>>>> upstream/android-13
 static int
 nfsd4_cb_notify_lock_done(struct nfsd4_callback *cb, struct rpc_task *task)
 {
@@ -327,10 +402,135 @@ nfsd4_cb_notify_lock_release(struct nfsd4_callback *cb)
 }
 
 static const struct nfsd4_callback_ops nfsd4_cb_notify_lock_ops = {
+<<<<<<< HEAD
+=======
+	.prepare	= nfsd4_cb_notify_lock_prepare,
+>>>>>>> upstream/android-13
 	.done		= nfsd4_cb_notify_lock_done,
 	.release	= nfsd4_cb_notify_lock_release,
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * We store the NONE, READ, WRITE, and BOTH bits separately in the
+ * st_{access,deny}_bmap field of the stateid, in order to track not
+ * only what share bits are currently in force, but also what
+ * combinations of share bits previous opens have used.  This allows us
+ * to enforce the recommendation of rfc 3530 14.2.19 that the server
+ * return an error if the client attempt to downgrade to a combination
+ * of share bits not explicable by closing some of its previous opens.
+ *
+ * XXX: This enforcement is actually incomplete, since we don't keep
+ * track of access/deny bit combinations; so, e.g., we allow:
+ *
+ *	OPEN allow read, deny write
+ *	OPEN allow both, deny none
+ *	DOWNGRADE allow read, deny none
+ *
+ * which we should reject.
+ */
+static unsigned int
+bmap_to_share_mode(unsigned long bmap)
+{
+	int i;
+	unsigned int access = 0;
+
+	for (i = 1; i < 4; i++) {
+		if (test_bit(i, &bmap))
+			access |= i;
+	}
+	return access;
+}
+
+/* set share access for a given stateid */
+static inline void
+set_access(u32 access, struct nfs4_ol_stateid *stp)
+{
+	unsigned char mask = 1 << access;
+
+	WARN_ON_ONCE(access > NFS4_SHARE_ACCESS_BOTH);
+	stp->st_access_bmap |= mask;
+}
+
+/* clear share access for a given stateid */
+static inline void
+clear_access(u32 access, struct nfs4_ol_stateid *stp)
+{
+	unsigned char mask = 1 << access;
+
+	WARN_ON_ONCE(access > NFS4_SHARE_ACCESS_BOTH);
+	stp->st_access_bmap &= ~mask;
+}
+
+/* test whether a given stateid has access */
+static inline bool
+test_access(u32 access, struct nfs4_ol_stateid *stp)
+{
+	unsigned char mask = 1 << access;
+
+	return (bool)(stp->st_access_bmap & mask);
+}
+
+/* set share deny for a given stateid */
+static inline void
+set_deny(u32 deny, struct nfs4_ol_stateid *stp)
+{
+	unsigned char mask = 1 << deny;
+
+	WARN_ON_ONCE(deny > NFS4_SHARE_DENY_BOTH);
+	stp->st_deny_bmap |= mask;
+}
+
+/* clear share deny for a given stateid */
+static inline void
+clear_deny(u32 deny, struct nfs4_ol_stateid *stp)
+{
+	unsigned char mask = 1 << deny;
+
+	WARN_ON_ONCE(deny > NFS4_SHARE_DENY_BOTH);
+	stp->st_deny_bmap &= ~mask;
+}
+
+/* test whether a given stateid is denying specific access */
+static inline bool
+test_deny(u32 deny, struct nfs4_ol_stateid *stp)
+{
+	unsigned char mask = 1 << deny;
+
+	return (bool)(stp->st_deny_bmap & mask);
+}
+
+static int nfs4_access_to_omode(u32 access)
+{
+	switch (access & NFS4_SHARE_ACCESS_BOTH) {
+	case NFS4_SHARE_ACCESS_READ:
+		return O_RDONLY;
+	case NFS4_SHARE_ACCESS_WRITE:
+		return O_WRONLY;
+	case NFS4_SHARE_ACCESS_BOTH:
+		return O_RDWR;
+	}
+	WARN_ON_ONCE(1);
+	return O_RDONLY;
+}
+
+static inline int
+access_permit_read(struct nfs4_ol_stateid *stp)
+{
+	return test_access(NFS4_SHARE_ACCESS_READ, stp) ||
+		test_access(NFS4_SHARE_ACCESS_BOTH, stp) ||
+		test_access(NFS4_SHARE_ACCESS_WRITE, stp);
+}
+
+static inline int
+access_permit_write(struct nfs4_ol_stateid *stp)
+{
+	return test_access(NFS4_SHARE_ACCESS_WRITE, stp) ||
+		test_access(NFS4_SHARE_ACCESS_BOTH, stp);
+}
+
+>>>>>>> upstream/android-13
 static inline struct nfs4_stateowner *
 nfs4_get_stateowner(struct nfs4_stateowner *sop)
 {
@@ -409,6 +609,7 @@ put_nfs4_file(struct nfs4_file *fi)
 	}
 }
 
+<<<<<<< HEAD
 static struct file *
 __nfs4_get_fd(struct nfs4_file *f, int oflag)
 {
@@ -421,6 +622,20 @@ static struct file *
 find_writeable_file_locked(struct nfs4_file *f)
 {
 	struct file *ret;
+=======
+static struct nfsd_file *
+__nfs4_get_fd(struct nfs4_file *f, int oflag)
+{
+	if (f->fi_fds[oflag])
+		return nfsd_file_get(f->fi_fds[oflag]);
+	return NULL;
+}
+
+static struct nfsd_file *
+find_writeable_file_locked(struct nfs4_file *f)
+{
+	struct nfsd_file *ret;
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&f->fi_lock);
 
@@ -430,10 +645,17 @@ find_writeable_file_locked(struct nfs4_file *f)
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct file *
 find_writeable_file(struct nfs4_file *f)
 {
 	struct file *ret;
+=======
+static struct nfsd_file *
+find_writeable_file(struct nfs4_file *f)
+{
+	struct nfsd_file *ret;
+>>>>>>> upstream/android-13
 
 	spin_lock(&f->fi_lock);
 	ret = find_writeable_file_locked(f);
@@ -442,9 +664,16 @@ find_writeable_file(struct nfs4_file *f)
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct file *find_readable_file_locked(struct nfs4_file *f)
 {
 	struct file *ret;
+=======
+static struct nfsd_file *
+find_readable_file_locked(struct nfs4_file *f)
+{
+	struct nfsd_file *ret;
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&f->fi_lock);
 
@@ -454,10 +683,17 @@ static struct file *find_readable_file_locked(struct nfs4_file *f)
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct file *
 find_readable_file(struct nfs4_file *f)
 {
 	struct file *ret;
+=======
+static struct nfsd_file *
+find_readable_file(struct nfs4_file *f)
+{
+	struct nfsd_file *ret;
+>>>>>>> upstream/android-13
 
 	spin_lock(&f->fi_lock);
 	ret = find_readable_file_locked(f);
@@ -466,10 +702,17 @@ find_readable_file(struct nfs4_file *f)
 	return ret;
 }
 
+<<<<<<< HEAD
 struct file *
 find_any_file(struct nfs4_file *f)
 {
 	struct file *ret;
+=======
+struct nfsd_file *
+find_any_file(struct nfs4_file *f)
+{
+	struct nfsd_file *ret;
+>>>>>>> upstream/android-13
 
 	if (!f)
 		return NULL;
@@ -484,6 +727,20 @@ find_any_file(struct nfs4_file *f)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static struct nfsd_file *find_deleg_file(struct nfs4_file *f)
+{
+	struct nfsd_file *ret = NULL;
+
+	spin_lock(&f->fi_lock);
+	if (f->fi_deleg_file)
+		ret = nfsd_file_get(f->fi_deleg_file);
+	spin_unlock(&f->fi_lock);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static atomic_long_t num_delegations;
 unsigned long max_delegations;
 
@@ -508,6 +765,7 @@ static unsigned int ownerstr_hashval(struct xdr_netobj *ownername)
 #define FILE_HASH_BITS                   8
 #define FILE_HASH_SIZE                  (1 << FILE_HASH_BITS)
 
+<<<<<<< HEAD
 static unsigned int nfsd_fh_hashval(struct knfsd_fh *fh)
 {
 	return jhash2(fh->fh_base.fh_pad, XDR_QUADLEN(fh->fh_size), 0);
@@ -516,6 +774,14 @@ static unsigned int nfsd_fh_hashval(struct knfsd_fh *fh)
 static unsigned int file_hashval(struct knfsd_fh *fh)
 {
 	return nfsd_fh_hashval(fh) & (FILE_HASH_SIZE - 1);
+=======
+static unsigned int file_hashval(struct svc_fh *fh)
+{
+	struct inode *inode = d_inode(fh->fh_dentry);
+
+	/* XXX: why not (here & in file cache) use inode? */
+	return (unsigned int)hash_long(inode->i_ino, FILE_HASH_BITS);
+>>>>>>> upstream/android-13
 }
 
 static struct hlist_head file_hashtbl[FILE_HASH_SIZE];
@@ -572,17 +838,28 @@ static void __nfs4_file_put_access(struct nfs4_file *fp, int oflag)
 	might_lock(&fp->fi_lock);
 
 	if (atomic_dec_and_lock(&fp->fi_access[oflag], &fp->fi_lock)) {
+<<<<<<< HEAD
 		struct file *f1 = NULL;
 		struct file *f2 = NULL;
+=======
+		struct nfsd_file *f1 = NULL;
+		struct nfsd_file *f2 = NULL;
+>>>>>>> upstream/android-13
 
 		swap(f1, fp->fi_fds[oflag]);
 		if (atomic_read(&fp->fi_access[1 - oflag]) == 0)
 			swap(f2, fp->fi_fds[O_RDWR]);
 		spin_unlock(&fp->fi_lock);
 		if (f1)
+<<<<<<< HEAD
 			fput(f1);
 		if (f2)
 			fput(f2);
+=======
+			nfsd_file_put(f1);
+		if (f2)
+			nfsd_file_put(f2);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -688,7 +965,12 @@ struct nfs4_stid *nfs4_alloc_stid(struct nfs4_client *cl, struct kmem_cache *sla
 
 	idr_preload(GFP_KERNEL);
 	spin_lock(&cl->cl_lock);
+<<<<<<< HEAD
 	new_id = idr_alloc_cyclic(&cl->cl_stateids, stid, 0, 0, GFP_NOWAIT);
+=======
+	/* Reserving 0 for start of file in nfsdfs "states" file: */
+	new_id = idr_alloc_cyclic(&cl->cl_stateids, stid, 1, 0, GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	spin_unlock(&cl->cl_lock);
 	idr_preload_end();
 	if (new_id < 0)
@@ -701,6 +983,10 @@ struct nfs4_stid *nfs4_alloc_stid(struct nfs4_client *cl, struct kmem_cache *sla
 	/* Will be incremented before return to client: */
 	refcount_set(&stid->sc_count, 1);
 	spin_lock_init(&stid->sc_lock);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&stid->sc_cp_list);
+>>>>>>> upstream/android-13
 
 	/*
 	 * It shouldn't be a problem to reuse an opaque stateid value.
@@ -717,6 +1003,86 @@ out_free:
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Create a unique stateid_t to represent each COPY.
+ */
+static int nfs4_init_cp_state(struct nfsd_net *nn, copy_stateid_t *stid,
+			      unsigned char sc_type)
+{
+	int new_id;
+
+	stid->stid.si_opaque.so_clid.cl_boot = (u32)nn->boot_time;
+	stid->stid.si_opaque.so_clid.cl_id = nn->s2s_cp_cl_id;
+	stid->sc_type = sc_type;
+
+	idr_preload(GFP_KERNEL);
+	spin_lock(&nn->s2s_cp_lock);
+	new_id = idr_alloc_cyclic(&nn->s2s_cp_stateids, stid, 0, 0, GFP_NOWAIT);
+	stid->stid.si_opaque.so_id = new_id;
+	stid->stid.si_generation = 1;
+	spin_unlock(&nn->s2s_cp_lock);
+	idr_preload_end();
+	if (new_id < 0)
+		return 0;
+	return 1;
+}
+
+int nfs4_init_copy_state(struct nfsd_net *nn, struct nfsd4_copy *copy)
+{
+	return nfs4_init_cp_state(nn, &copy->cp_stateid, NFS4_COPY_STID);
+}
+
+struct nfs4_cpntf_state *nfs4_alloc_init_cpntf_state(struct nfsd_net *nn,
+						     struct nfs4_stid *p_stid)
+{
+	struct nfs4_cpntf_state *cps;
+
+	cps = kzalloc(sizeof(struct nfs4_cpntf_state), GFP_KERNEL);
+	if (!cps)
+		return NULL;
+	cps->cpntf_time = ktime_get_boottime_seconds();
+	refcount_set(&cps->cp_stateid.sc_count, 1);
+	if (!nfs4_init_cp_state(nn, &cps->cp_stateid, NFS4_COPYNOTIFY_STID))
+		goto out_free;
+	spin_lock(&nn->s2s_cp_lock);
+	list_add(&cps->cp_list, &p_stid->sc_cp_list);
+	spin_unlock(&nn->s2s_cp_lock);
+	return cps;
+out_free:
+	kfree(cps);
+	return NULL;
+}
+
+void nfs4_free_copy_state(struct nfsd4_copy *copy)
+{
+	struct nfsd_net *nn;
+
+	WARN_ON_ONCE(copy->cp_stateid.sc_type != NFS4_COPY_STID);
+	nn = net_generic(copy->cp_clp->net, nfsd_net_id);
+	spin_lock(&nn->s2s_cp_lock);
+	idr_remove(&nn->s2s_cp_stateids,
+		   copy->cp_stateid.stid.si_opaque.so_id);
+	spin_unlock(&nn->s2s_cp_lock);
+}
+
+static void nfs4_free_cpntf_statelist(struct net *net, struct nfs4_stid *stid)
+{
+	struct nfs4_cpntf_state *cps;
+	struct nfsd_net *nn;
+
+	nn = net_generic(net, nfsd_net_id);
+	spin_lock(&nn->s2s_cp_lock);
+	while (!list_empty(&stid->sc_cp_list)) {
+		cps = list_first_entry(&stid->sc_cp_list,
+				       struct nfs4_cpntf_state, cp_list);
+		_free_cpntf_state_locked(nn, cps);
+	}
+	spin_unlock(&nn->s2s_cp_lock);
+}
+
+>>>>>>> upstream/android-13
 static struct nfs4_ol_stateid * nfs4_alloc_open_stateid(struct nfs4_client *clp)
 {
 	struct nfs4_stid *stid;
@@ -755,7 +1121,11 @@ static void nfs4_free_deleg(struct nfs4_stid *stid)
 static DEFINE_SPINLOCK(blocked_delegations_lock);
 static struct bloom_pair {
 	int	entries, old_entries;
+<<<<<<< HEAD
 	time_t	swap_time;
+=======
+	time64_t swap_time;
+>>>>>>> upstream/android-13
 	int	new; /* index into 'set' */
 	DECLARE_BITMAP(set[2], 256);
 } blocked_delegations;
@@ -767,15 +1137,25 @@ static int delegation_blocked(struct knfsd_fh *fh)
 
 	if (bd->entries == 0)
 		return 0;
+<<<<<<< HEAD
 	if (seconds_since_boot() - bd->swap_time > 30) {
 		spin_lock(&blocked_delegations_lock);
 		if (seconds_since_boot() - bd->swap_time > 30) {
+=======
+	if (ktime_get_seconds() - bd->swap_time > 30) {
+		spin_lock(&blocked_delegations_lock);
+		if (ktime_get_seconds() - bd->swap_time > 30) {
+>>>>>>> upstream/android-13
 			bd->entries -= bd->old_entries;
 			bd->old_entries = bd->entries;
 			memset(bd->set[bd->new], 0,
 			       sizeof(bd->set[0]));
 			bd->new = 1-bd->new;
+<<<<<<< HEAD
 			bd->swap_time = seconds_since_boot();
+=======
+			bd->swap_time = ktime_get_seconds();
+>>>>>>> upstream/android-13
 		}
 		spin_unlock(&blocked_delegations_lock);
 	}
@@ -805,7 +1185,11 @@ static void block_delegations(struct knfsd_fh *fh)
 	__set_bit((hash>>8)&255, bd->set[bd->new]);
 	__set_bit((hash>>16)&255, bd->set[bd->new]);
 	if (bd->entries == 0)
+<<<<<<< HEAD
 		bd->swap_time = seconds_since_boot();
+=======
+		bd->swap_time = ktime_get_seconds();
+>>>>>>> upstream/android-13
 	bd->entries += 1;
 	spin_unlock(&blocked_delegations_lock);
 }
@@ -864,6 +1248,10 @@ nfs4_put_stid(struct nfs4_stid *s)
 		return;
 	}
 	idr_remove(&clp->cl_stateids, s->sc_stateid.si_opaque.so_id);
+<<<<<<< HEAD
+=======
+	nfs4_free_cpntf_statelist(clp->net, s);
+>>>>>>> upstream/android-13
 	spin_unlock(&clp->cl_lock);
 	s->sc_free(s);
 	if (fp)
@@ -884,6 +1272,7 @@ nfs4_inc_and_copy_stateid(stateid_t *dst, struct nfs4_stid *stid)
 
 static void put_deleg_file(struct nfs4_file *fp)
 {
+<<<<<<< HEAD
 	struct file *filp = NULL;
 
 	spin_lock(&fp->fi_lock);
@@ -893,16 +1282,35 @@ static void put_deleg_file(struct nfs4_file *fp)
 
 	if (filp)
 		fput(filp);
+=======
+	struct nfsd_file *nf = NULL;
+
+	spin_lock(&fp->fi_lock);
+	if (--fp->fi_delegees == 0)
+		swap(nf, fp->fi_deleg_file);
+	spin_unlock(&fp->fi_lock);
+
+	if (nf)
+		nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 }
 
 static void nfs4_unlock_deleg_lease(struct nfs4_delegation *dp)
 {
 	struct nfs4_file *fp = dp->dl_stid.sc_file;
+<<<<<<< HEAD
 	struct file *filp = fp->fi_deleg_file;
 
 	WARN_ON_ONCE(!fp->fi_delegees);
 
 	vfs_setlease(filp, F_UNLCK, NULL, (void **)&dp);
+=======
+	struct nfsd_file *nf = fp->fi_deleg_file;
+
+	WARN_ON_ONCE(!fp->fi_delegees);
+
+	vfs_setlease(nf->nf_file, F_UNLCK, NULL, (void **)&dp);
+>>>>>>> upstream/android-13
 	put_deleg_file(fp);
 }
 
@@ -975,6 +1383,14 @@ hash_delegation_locked(struct nfs4_delegation *dp, struct nfs4_file *fp)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static bool delegation_hashed(struct nfs4_delegation *dp)
+{
+	return !(list_empty(&dp->dl_perfile));
+}
+
+>>>>>>> upstream/android-13
 static bool
 unhash_delegation_locked(struct nfs4_delegation *dp)
 {
@@ -982,7 +1398,11 @@ unhash_delegation_locked(struct nfs4_delegation *dp)
 
 	lockdep_assert_held(&state_lock);
 
+<<<<<<< HEAD
 	if (list_empty(&dp->dl_perfile))
+=======
+	if (!delegation_hashed(dp))
+>>>>>>> upstream/android-13
 		return false;
 
 	dp->dl_stid.sc_type = NFS4_CLOSED_DELEG_STID;
@@ -1032,6 +1452,7 @@ static unsigned int clientid_hashval(u32 id)
 	return id & CLIENT_HASH_MASK;
 }
 
+<<<<<<< HEAD
 static unsigned int clientstr_hashval(const char *name)
 {
 	return opaque_hashval(name, 8) & CLIENT_HASH_MASK;
@@ -1137,6 +1558,11 @@ static int nfs4_access_to_omode(u32 access)
 	}
 	WARN_ON_ONCE(1);
 	return O_RDONLY;
+=======
+static unsigned int clientstr_hashval(struct xdr_netobj name)
+{
+	return opaque_hashval(name.data, 8) & CLIENT_HASH_MASK;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1246,11 +1672,22 @@ static void nfs4_free_lock_stateid(struct nfs4_stid *stid)
 {
 	struct nfs4_ol_stateid *stp = openlockstateid(stid);
 	struct nfs4_lockowner *lo = lockowner(stp->st_stateowner);
+<<<<<<< HEAD
 	struct file *file;
 
 	file = find_any_file(stp->st_stid.sc_file);
 	if (file)
 		filp_close(file, (fl_owner_t)lo);
+=======
+	struct nfsd_file *nf;
+
+	nf = find_any_file(stp->st_stid.sc_file);
+	if (nf) {
+		get_file(nf->nf_file);
+		filp_close(nf->nf_file, (fl_owner_t)lo);
+		nfsd_file_put(nf);
+	}
+>>>>>>> upstream/android-13
 	nfs4_free_ol_stateid(stid);
 }
 
@@ -1521,11 +1958,16 @@ static inline u32 slot_bytes(struct nfsd4_channel_attrs *ca)
  * re-negotiate active sessions and reduce their slot usage to make
  * room for new connections. For now we just fail the create session.
  */
+<<<<<<< HEAD
 static u32 nfsd4_get_drc_mem(struct nfsd4_channel_attrs *ca)
+=======
+static u32 nfsd4_get_drc_mem(struct nfsd4_channel_attrs *ca, struct nfsd_net *nn)
+>>>>>>> upstream/android-13
 {
 	u32 slotsize = slot_bytes(ca);
 	u32 num = ca->maxreqs;
 	unsigned long avail, total_avail;
+<<<<<<< HEAD
 
 	spin_lock(&nfsd_drc_lock);
 	total_avail = nfsd_drc_max_mem - nfsd_drc_mem_used;
@@ -1536,6 +1978,36 @@ static u32 nfsd4_get_drc_mem(struct nfsd4_channel_attrs *ca)
 	 */
 	avail = clamp_t(unsigned long, avail, slotsize, total_avail/3);
 	num = min_t(int, num, avail / slotsize);
+=======
+	unsigned int scale_factor;
+
+	spin_lock(&nfsd_drc_lock);
+	if (nfsd_drc_max_mem > nfsd_drc_mem_used)
+		total_avail = nfsd_drc_max_mem - nfsd_drc_mem_used;
+	else
+		/* We have handed out more space than we chose in
+		 * set_max_drc() to allow.  That isn't really a
+		 * problem as long as that doesn't make us think we
+		 * have lots more due to integer overflow.
+		 */
+		total_avail = 0;
+	avail = min((unsigned long)NFSD_MAX_MEM_PER_SESSION, total_avail);
+	/*
+	 * Never use more than a fraction of the remaining memory,
+	 * unless it's the only way to give this client a slot.
+	 * The chosen fraction is either 1/8 or 1/number of threads,
+	 * whichever is smaller.  This ensures there are adequate
+	 * slots to support multiple clients per thread.
+	 * Give the client one slot even if that would require
+	 * over-allocation--it is better than failure.
+	 */
+	scale_factor = max_t(unsigned int, 8, nn->nfsd_serv->sv_nrthreads);
+
+	avail = clamp_t(unsigned long, avail, slotsize,
+			total_avail/scale_factor);
+	num = min_t(int, num, avail / slotsize);
+	num = max_t(int, num, 1);
+>>>>>>> upstream/android-13
 	nfsd_drc_mem_used += num * slotsize;
 	spin_unlock(&nfsd_drc_lock);
 
@@ -1595,6 +2067,11 @@ static void nfsd4_conn_lost(struct svc_xpt_user *u)
 	struct nfsd4_conn *c = container_of(u, struct nfsd4_conn, cn_xpt_user);
 	struct nfs4_client *clp = c->cn_session->se_client;
 
+<<<<<<< HEAD
+=======
+	trace_nfsd_cb_lost(clp);
+
+>>>>>>> upstream/android-13
 	spin_lock(&clp->cl_lock);
 	if (!list_empty(&c->cn_persession)) {
 		list_del(&c->cn_persession);
@@ -1797,8 +2274,12 @@ STALE_CLIENTID(clientid_t *clid, struct nfsd_net *nn)
 	 */
 	if (clid->cl_boot == (u32)nn->boot_time)
 		return 0;
+<<<<<<< HEAD
 	dprintk("NFSD stale clientid (%08x/%08x) boot_time %08lx\n",
 		clid->cl_boot, clid->cl_id, nn->boot_time);
+=======
+	trace_nfsd_clid_stale(clid);
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -1815,7 +2296,11 @@ static struct nfs4_client *alloc_client(struct xdr_netobj name)
 	clp = kmem_cache_zalloc(client_slab, GFP_KERNEL);
 	if (clp == NULL)
 		return NULL;
+<<<<<<< HEAD
 	clp->cl_name.data = kmemdup(name.data, name.len, GFP_KERNEL);
+=======
+	xdr_netobj_dup(&clp->cl_name, &name, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (clp->cl_name.data == NULL)
 		goto err_no_name;
 	clp->cl_ownerstr_hashtbl = kmalloc_array(OWNER_HASH_SIZE,
@@ -1825,10 +2310,16 @@ static struct nfs4_client *alloc_client(struct xdr_netobj name)
 		goto err_no_hashtbl;
 	for (i = 0; i < OWNER_HASH_SIZE; i++)
 		INIT_LIST_HEAD(&clp->cl_ownerstr_hashtbl[i]);
+<<<<<<< HEAD
 	clp->cl_name.len = name.len;
 	INIT_LIST_HEAD(&clp->cl_sessions);
 	idr_init(&clp->cl_stateids);
 	atomic_set(&clp->cl_refcount, 0);
+=======
+	INIT_LIST_HEAD(&clp->cl_sessions);
+	idr_init(&clp->cl_stateids);
+	atomic_set(&clp->cl_rpc_users, 0);
+>>>>>>> upstream/android-13
 	clp->cl_cb_state = NFSD4_CB_UNKNOWN;
 	INIT_LIST_HEAD(&clp->cl_idhash);
 	INIT_LIST_HEAD(&clp->cl_openowners);
@@ -1838,6 +2329,11 @@ static struct nfs4_client *alloc_client(struct xdr_netobj name)
 #ifdef CONFIG_NFSD_PNFS
 	INIT_LIST_HEAD(&clp->cl_lo_states);
 #endif
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&clp->async_copies);
+	spin_lock_init(&clp->async_lock);
+>>>>>>> upstream/android-13
 	spin_lock_init(&clp->cl_lock);
 	rpc_init_wait_queue(&clp->cl_cb_waitq, "Backchannel slot table");
 	return clp;
@@ -1848,6 +2344,28 @@ err_no_name:
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static void __free_client(struct kref *k)
+{
+	struct nfsdfs_client *c = container_of(k, struct nfsdfs_client, cl_ref);
+	struct nfs4_client *clp = container_of(c, struct nfs4_client, cl_nfsdfs);
+
+	free_svc_cred(&clp->cl_cred);
+	kfree(clp->cl_ownerstr_hashtbl);
+	kfree(clp->cl_name.data);
+	kfree(clp->cl_nii_domain.data);
+	kfree(clp->cl_nii_name.data);
+	idr_destroy(&clp->cl_stateids);
+	kmem_cache_free(client_slab, clp);
+}
+
+static void drop_client(struct nfs4_client *clp)
+{
+	kref_put(&clp->cl_nfsdfs.cl_ref, __free_client);
+}
+
+>>>>>>> upstream/android-13
 static void
 free_client(struct nfs4_client *clp)
 {
@@ -1860,11 +2378,20 @@ free_client(struct nfs4_client *clp)
 		free_session(ses);
 	}
 	rpc_destroy_wait_queue(&clp->cl_cb_waitq);
+<<<<<<< HEAD
 	free_svc_cred(&clp->cl_cred);
 	kfree(clp->cl_ownerstr_hashtbl);
 	kfree(clp->cl_name.data);
 	idr_destroy(&clp->cl_stateids);
 	kmem_cache_free(client_slab, clp);
+=======
+	if (clp->cl_nfsd_dentry) {
+		nfsd_client_rmdir(clp->cl_nfsd_dentry);
+		clp->cl_nfsd_dentry = NULL;
+		wake_up_all(&expiry_wq);
+	}
+	drop_client(clp);
+>>>>>>> upstream/android-13
 }
 
 /* must be called under the client_lock */
@@ -1905,7 +2432,11 @@ unhash_client(struct nfs4_client *clp)
 
 static __be32 mark_client_expired_locked(struct nfs4_client *clp)
 {
+<<<<<<< HEAD
 	if (atomic_read(&clp->cl_refcount))
+=======
+	if (atomic_read(&clp->cl_rpc_users))
+>>>>>>> upstream/android-13
 		return nfserr_jukebox;
 	unhash_client_locked(clp);
 	return nfs_ok;
@@ -1953,10 +2484,18 @@ __destroy_client(struct nfs4_client *clp)
 		}
 	}
 	nfsd4_return_all_client_layouts(clp);
+<<<<<<< HEAD
+=======
+	nfsd4_shutdown_copy(clp);
+>>>>>>> upstream/android-13
 	nfsd4_shutdown_callback(clp);
 	if (clp->cl_cb_conn.cb_xprt)
 		svc_xprt_put(clp->cl_cb_conn.cb_xprt);
 	free_client(clp);
+<<<<<<< HEAD
+=======
+	wake_up_all(&expiry_wq);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1966,6 +2505,25 @@ destroy_client(struct nfs4_client *clp)
 	__destroy_client(clp);
 }
 
+<<<<<<< HEAD
+=======
+static void inc_reclaim_complete(struct nfs4_client *clp)
+{
+	struct nfsd_net *nn = net_generic(clp->net, nfsd_net_id);
+
+	if (!nn->track_reclaim_completes)
+		return;
+	if (!nfsd4_find_reclaim_client(clp->cl_name, nn))
+		return;
+	if (atomic_inc_return(&nn->nr_reclaim_complete) ==
+			nn->reclaim_str_hashtbl_size) {
+		printk(KERN_INFO "NFSD: all clients done reclaiming, ending NFSv4 grace period (net %x)\n",
+				clp->net->ns.inum);
+		nfsd4_end_grace(nn);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void expire_client(struct nfs4_client *clp)
 {
 	unhash_client(clp);
@@ -2017,11 +2575,14 @@ compare_blob(const struct xdr_netobj *o1, const struct xdr_netobj *o2)
 	return memcmp(o1->data, o2->data, o1->len);
 }
 
+<<<<<<< HEAD
 static int same_name(const char *n1, const char *n2)
 {
 	return 0 == memcmp(n1, n2, HEXDIR_LEN);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 same_verf(nfs4_verifier *v1, nfs4_verifier *v2)
 {
@@ -2116,14 +2677,22 @@ static void gen_confirm(struct nfs4_client *clp, struct nfsd_net *nn)
 	 * This is opaque to client, so no need to byte-swap. Use
 	 * __force to keep sparse happy
 	 */
+<<<<<<< HEAD
 	verf[0] = (__force __be32)get_seconds();
+=======
+	verf[0] = (__force __be32)(u32)ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 	verf[1] = (__force __be32)nn->clverifier_counter++;
 	memcpy(clp->cl_confirm.data, verf, sizeof(clp->cl_confirm.data));
 }
 
 static void gen_clid(struct nfs4_client *clp, struct nfsd_net *nn)
 {
+<<<<<<< HEAD
 	clp->cl_clientid.cl_boot = nn->boot_time;
+=======
+	clp->cl_clientid.cl_boot = (u32)nn->boot_time;
+>>>>>>> upstream/android-13
 	clp->cl_clientid.cl_id = nn->clientid_counter++;
 	gen_confirm(clp, nn);
 }
@@ -2156,6 +2725,402 @@ find_stateid_by_type(struct nfs4_client *cl, stateid_t *t, char typemask)
 	return s;
 }
 
+<<<<<<< HEAD
+=======
+static struct nfs4_client *get_nfsdfs_clp(struct inode *inode)
+{
+	struct nfsdfs_client *nc;
+	nc = get_nfsdfs_client(inode);
+	if (!nc)
+		return NULL;
+	return container_of(nc, struct nfs4_client, cl_nfsdfs);
+}
+
+static void seq_quote_mem(struct seq_file *m, char *data, int len)
+{
+	seq_printf(m, "\"");
+	seq_escape_mem(m, data, len, ESCAPE_HEX | ESCAPE_NAP | ESCAPE_APPEND, "\"\\");
+	seq_printf(m, "\"");
+}
+
+static const char *cb_state2str(int state)
+{
+	switch (state) {
+	case NFSD4_CB_UP:
+		return "UP";
+	case NFSD4_CB_UNKNOWN:
+		return "UNKNOWN";
+	case NFSD4_CB_DOWN:
+		return "DOWN";
+	case NFSD4_CB_FAULT:
+		return "FAULT";
+	}
+	return "UNDEFINED";
+}
+
+static int client_info_show(struct seq_file *m, void *v)
+{
+	struct inode *inode = m->private;
+	struct nfs4_client *clp;
+	u64 clid;
+
+	clp = get_nfsdfs_clp(inode);
+	if (!clp)
+		return -ENXIO;
+	memcpy(&clid, &clp->cl_clientid, sizeof(clid));
+	seq_printf(m, "clientid: 0x%llx\n", clid);
+	seq_printf(m, "address: \"%pISpc\"\n", (struct sockaddr *)&clp->cl_addr);
+	if (test_bit(NFSD4_CLIENT_CONFIRMED, &clp->cl_flags))
+		seq_puts(m, "status: confirmed\n");
+	else
+		seq_puts(m, "status: unconfirmed\n");
+	seq_printf(m, "name: ");
+	seq_quote_mem(m, clp->cl_name.data, clp->cl_name.len);
+	seq_printf(m, "\nminor version: %d\n", clp->cl_minorversion);
+	if (clp->cl_nii_domain.data) {
+		seq_printf(m, "Implementation domain: ");
+		seq_quote_mem(m, clp->cl_nii_domain.data,
+					clp->cl_nii_domain.len);
+		seq_printf(m, "\nImplementation name: ");
+		seq_quote_mem(m, clp->cl_nii_name.data, clp->cl_nii_name.len);
+		seq_printf(m, "\nImplementation time: [%lld, %ld]\n",
+			clp->cl_nii_time.tv_sec, clp->cl_nii_time.tv_nsec);
+	}
+	seq_printf(m, "callback state: %s\n", cb_state2str(clp->cl_cb_state));
+	seq_printf(m, "callback address: %pISpc\n", &clp->cl_cb_conn.cb_addr);
+	drop_client(clp);
+
+	return 0;
+}
+
+static int client_info_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, client_info_show, inode);
+}
+
+static const struct file_operations client_info_fops = {
+	.open		= client_info_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+};
+
+static void *states_start(struct seq_file *s, loff_t *pos)
+	__acquires(&clp->cl_lock)
+{
+	struct nfs4_client *clp = s->private;
+	unsigned long id = *pos;
+	void *ret;
+
+	spin_lock(&clp->cl_lock);
+	ret = idr_get_next_ul(&clp->cl_stateids, &id);
+	*pos = id;
+	return ret;
+}
+
+static void *states_next(struct seq_file *s, void *v, loff_t *pos)
+{
+	struct nfs4_client *clp = s->private;
+	unsigned long id = *pos;
+	void *ret;
+
+	id = *pos;
+	id++;
+	ret = idr_get_next_ul(&clp->cl_stateids, &id);
+	*pos = id;
+	return ret;
+}
+
+static void states_stop(struct seq_file *s, void *v)
+	__releases(&clp->cl_lock)
+{
+	struct nfs4_client *clp = s->private;
+
+	spin_unlock(&clp->cl_lock);
+}
+
+static void nfs4_show_fname(struct seq_file *s, struct nfsd_file *f)
+{
+         seq_printf(s, "filename: \"%pD2\"", f->nf_file);
+}
+
+static void nfs4_show_superblock(struct seq_file *s, struct nfsd_file *f)
+{
+	struct inode *inode = f->nf_inode;
+
+	seq_printf(s, "superblock: \"%02x:%02x:%ld\"",
+					MAJOR(inode->i_sb->s_dev),
+					 MINOR(inode->i_sb->s_dev),
+					 inode->i_ino);
+}
+
+static void nfs4_show_owner(struct seq_file *s, struct nfs4_stateowner *oo)
+{
+	seq_printf(s, "owner: ");
+	seq_quote_mem(s, oo->so_owner.data, oo->so_owner.len);
+}
+
+static void nfs4_show_stateid(struct seq_file *s, stateid_t *stid)
+{
+	seq_printf(s, "0x%.8x", stid->si_generation);
+	seq_printf(s, "%12phN", &stid->si_opaque);
+}
+
+static int nfs4_show_open(struct seq_file *s, struct nfs4_stid *st)
+{
+	struct nfs4_ol_stateid *ols;
+	struct nfs4_file *nf;
+	struct nfsd_file *file;
+	struct nfs4_stateowner *oo;
+	unsigned int access, deny;
+
+	if (st->sc_type != NFS4_OPEN_STID && st->sc_type != NFS4_LOCK_STID)
+		return 0; /* XXX: or SEQ_SKIP? */
+	ols = openlockstateid(st);
+	oo = ols->st_stateowner;
+	nf = st->sc_file;
+	file = find_any_file(nf);
+	if (!file)
+		return 0;
+
+	seq_printf(s, "- ");
+	nfs4_show_stateid(s, &st->sc_stateid);
+	seq_printf(s, ": { type: open, ");
+
+	access = bmap_to_share_mode(ols->st_access_bmap);
+	deny   = bmap_to_share_mode(ols->st_deny_bmap);
+
+	seq_printf(s, "access: %s%s, ",
+		access & NFS4_SHARE_ACCESS_READ ? "r" : "-",
+		access & NFS4_SHARE_ACCESS_WRITE ? "w" : "-");
+	seq_printf(s, "deny: %s%s, ",
+		deny & NFS4_SHARE_ACCESS_READ ? "r" : "-",
+		deny & NFS4_SHARE_ACCESS_WRITE ? "w" : "-");
+
+	nfs4_show_superblock(s, file);
+	seq_printf(s, ", ");
+	nfs4_show_fname(s, file);
+	seq_printf(s, ", ");
+	nfs4_show_owner(s, oo);
+	seq_printf(s, " }\n");
+	nfsd_file_put(file);
+
+	return 0;
+}
+
+static int nfs4_show_lock(struct seq_file *s, struct nfs4_stid *st)
+{
+	struct nfs4_ol_stateid *ols;
+	struct nfs4_file *nf;
+	struct nfsd_file *file;
+	struct nfs4_stateowner *oo;
+
+	ols = openlockstateid(st);
+	oo = ols->st_stateowner;
+	nf = st->sc_file;
+	file = find_any_file(nf);
+	if (!file)
+		return 0;
+
+	seq_printf(s, "- ");
+	nfs4_show_stateid(s, &st->sc_stateid);
+	seq_printf(s, ": { type: lock, ");
+
+	/*
+	 * Note: a lock stateid isn't really the same thing as a lock,
+	 * it's the locking state held by one owner on a file, and there
+	 * may be multiple (or no) lock ranges associated with it.
+	 * (Same for the matter is true of open stateids.)
+	 */
+
+	nfs4_show_superblock(s, file);
+	/* XXX: open stateid? */
+	seq_printf(s, ", ");
+	nfs4_show_fname(s, file);
+	seq_printf(s, ", ");
+	nfs4_show_owner(s, oo);
+	seq_printf(s, " }\n");
+	nfsd_file_put(file);
+
+	return 0;
+}
+
+static int nfs4_show_deleg(struct seq_file *s, struct nfs4_stid *st)
+{
+	struct nfs4_delegation *ds;
+	struct nfs4_file *nf;
+	struct nfsd_file *file;
+
+	ds = delegstateid(st);
+	nf = st->sc_file;
+	file = find_deleg_file(nf);
+	if (!file)
+		return 0;
+
+	seq_printf(s, "- ");
+	nfs4_show_stateid(s, &st->sc_stateid);
+	seq_printf(s, ": { type: deleg, ");
+
+	/* Kinda dead code as long as we only support read delegs: */
+	seq_printf(s, "access: %s, ",
+		ds->dl_type == NFS4_OPEN_DELEGATE_READ ? "r" : "w");
+
+	/* XXX: lease time, whether it's being recalled. */
+
+	nfs4_show_superblock(s, file);
+	seq_printf(s, ", ");
+	nfs4_show_fname(s, file);
+	seq_printf(s, " }\n");
+	nfsd_file_put(file);
+
+	return 0;
+}
+
+static int nfs4_show_layout(struct seq_file *s, struct nfs4_stid *st)
+{
+	struct nfs4_layout_stateid *ls;
+	struct nfsd_file *file;
+
+	ls = container_of(st, struct nfs4_layout_stateid, ls_stid);
+	file = ls->ls_file;
+
+	seq_printf(s, "- ");
+	nfs4_show_stateid(s, &st->sc_stateid);
+	seq_printf(s, ": { type: layout, ");
+
+	/* XXX: What else would be useful? */
+
+	nfs4_show_superblock(s, file);
+	seq_printf(s, ", ");
+	nfs4_show_fname(s, file);
+	seq_printf(s, " }\n");
+
+	return 0;
+}
+
+static int states_show(struct seq_file *s, void *v)
+{
+	struct nfs4_stid *st = v;
+
+	switch (st->sc_type) {
+	case NFS4_OPEN_STID:
+		return nfs4_show_open(s, st);
+	case NFS4_LOCK_STID:
+		return nfs4_show_lock(s, st);
+	case NFS4_DELEG_STID:
+		return nfs4_show_deleg(s, st);
+	case NFS4_LAYOUT_STID:
+		return nfs4_show_layout(s, st);
+	default:
+		return 0; /* XXX: or SEQ_SKIP? */
+	}
+	/* XXX: copy stateids? */
+}
+
+static struct seq_operations states_seq_ops = {
+	.start = states_start,
+	.next = states_next,
+	.stop = states_stop,
+	.show = states_show
+};
+
+static int client_states_open(struct inode *inode, struct file *file)
+{
+	struct seq_file *s;
+	struct nfs4_client *clp;
+	int ret;
+
+	clp = get_nfsdfs_clp(inode);
+	if (!clp)
+		return -ENXIO;
+
+	ret = seq_open(file, &states_seq_ops);
+	if (ret)
+		return ret;
+	s = file->private_data;
+	s->private = clp;
+	return 0;
+}
+
+static int client_opens_release(struct inode *inode, struct file *file)
+{
+	struct seq_file *m = file->private_data;
+	struct nfs4_client *clp = m->private;
+
+	/* XXX: alternatively, we could get/drop in seq start/stop */
+	drop_client(clp);
+	return 0;
+}
+
+static const struct file_operations client_states_fops = {
+	.open		= client_states_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= client_opens_release,
+};
+
+/*
+ * Normally we refuse to destroy clients that are in use, but here the
+ * administrator is telling us to just do it.  We also want to wait
+ * so the caller has a guarantee that the client's locks are gone by
+ * the time the write returns:
+ */
+static void force_expire_client(struct nfs4_client *clp)
+{
+	struct nfsd_net *nn = net_generic(clp->net, nfsd_net_id);
+	bool already_expired;
+
+	trace_nfsd_clid_admin_expired(&clp->cl_clientid);
+
+	spin_lock(&nn->client_lock);
+	clp->cl_time = 0;
+	spin_unlock(&nn->client_lock);
+
+	wait_event(expiry_wq, atomic_read(&clp->cl_rpc_users) == 0);
+	spin_lock(&nn->client_lock);
+	already_expired = list_empty(&clp->cl_lru);
+	if (!already_expired)
+		unhash_client_locked(clp);
+	spin_unlock(&nn->client_lock);
+
+	if (!already_expired)
+		expire_client(clp);
+	else
+		wait_event(expiry_wq, clp->cl_nfsd_dentry == NULL);
+}
+
+static ssize_t client_ctl_write(struct file *file, const char __user *buf,
+				   size_t size, loff_t *pos)
+{
+	char *data;
+	struct nfs4_client *clp;
+
+	data = simple_transaction_get(file, buf, size);
+	if (IS_ERR(data))
+		return PTR_ERR(data);
+	if (size != 7 || 0 != memcmp(data, "expire\n", 7))
+		return -EINVAL;
+	clp = get_nfsdfs_clp(file_inode(file));
+	if (!clp)
+		return -ENXIO;
+	force_expire_client(clp);
+	drop_client(clp);
+	return 7;
+}
+
+static const struct file_operations client_ctl_fops = {
+	.write		= client_ctl_write,
+	.release	= simple_transaction_release,
+};
+
+static const struct tree_descr client_files[] = {
+	[0] = {"info", &client_info_fops, S_IRUSR},
+	[1] = {"states", &client_states_fops, S_IRUSR},
+	[2] = {"ctl", &client_ctl_fops, S_IWUSR},
+	[3] = {""},
+};
+
+>>>>>>> upstream/android-13
 static struct nfs4_client *create_client(struct xdr_netobj name,
 		struct svc_rqst *rqstp, nfs4_verifier *verf)
 {
@@ -2163,6 +3128,11 @@ static struct nfs4_client *create_client(struct xdr_netobj name,
 	struct sockaddr *sa = svc_addr(rqstp);
 	int ret;
 	struct net *net = SVC_NET(rqstp);
+<<<<<<< HEAD
+=======
+	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+	struct dentry *dentries[ARRAY_SIZE(client_files)];
+>>>>>>> upstream/android-13
 
 	clp = alloc_client(name);
 	if (clp == NULL)
@@ -2173,6 +3143,7 @@ static struct nfs4_client *create_client(struct xdr_netobj name,
 		free_client(clp);
 		return NULL;
 	}
+<<<<<<< HEAD
 	nfsd4_init_cb(&clp->cl_cb_null, clp, NULL, NFSPROC4_CLNT_CB_NULL);
 	clp->cl_time = get_seconds();
 	clear_bit(0, &clp->cl_cb_slot_busy);
@@ -2180,6 +3151,26 @@ static struct nfs4_client *create_client(struct xdr_netobj name,
 	rpc_copy_addr((struct sockaddr *) &clp->cl_addr, sa);
 	clp->cl_cb_session = NULL;
 	clp->net = net;
+=======
+	gen_clid(clp, nn);
+	kref_init(&clp->cl_nfsdfs.cl_ref);
+	nfsd4_init_cb(&clp->cl_cb_null, clp, NULL, NFSPROC4_CLNT_CB_NULL);
+	clp->cl_time = ktime_get_boottime_seconds();
+	clear_bit(0, &clp->cl_cb_slot_busy);
+	copy_verf(clp, verf);
+	memcpy(&clp->cl_addr, sa, sizeof(struct sockaddr_storage));
+	clp->cl_cb_session = NULL;
+	clp->net = net;
+	clp->cl_nfsd_dentry = nfsd_client_mkdir(
+		nn, &clp->cl_nfsdfs,
+		clp->cl_clientid.cl_id - nn->clientid_base,
+		client_files, dentries);
+	clp->cl_nfsd_info_dentry = dentries[0];
+	if (!clp->cl_nfsd_dentry) {
+		free_client(clp);
+		return NULL;
+	}
+>>>>>>> upstream/android-13
 	return clp;
 }
 
@@ -2246,11 +3237,18 @@ move_to_confirmed(struct nfs4_client *clp)
 
 	lockdep_assert_held(&nn->client_lock);
 
+<<<<<<< HEAD
 	dprintk("NFSD: move_to_confirm nfs4_client %p\n", clp);
+=======
+>>>>>>> upstream/android-13
 	list_move(&clp->cl_idhash, &nn->conf_id_hashtbl[idhashval]);
 	rb_erase(&clp->cl_namenode, &nn->unconf_name_tree);
 	add_clp_to_name_tree(clp, &nn->conf_name_tree);
 	set_bit(NFSD4_CLIENT_CONFIRMED, &clp->cl_flags);
+<<<<<<< HEAD
+=======
+	trace_nfsd_clid_confirmed(&clp->cl_clientid);
+>>>>>>> upstream/android-13
 	renew_client_locked(clp);
 }
 
@@ -2340,14 +3338,22 @@ gen_callback(struct nfs4_client *clp, struct nfsd4_setclientid *se, struct svc_r
 	conn->cb_prog = se->se_callback_prog;
 	conn->cb_ident = se->se_callback_ident;
 	memcpy(&conn->cb_saddr, &rqstp->rq_daddr, rqstp->rq_daddrlen);
+<<<<<<< HEAD
+=======
+	trace_nfsd_cb_args(clp, conn);
+>>>>>>> upstream/android-13
 	return;
 out_err:
 	conn->cb_addr.ss_family = AF_UNSPEC;
 	conn->cb_addrlen = 0;
+<<<<<<< HEAD
 	dprintk("NFSD: this client (clientid %08x/%08x) "
 		"will not receive delegations\n",
 		clp->cl_clientid.cl_boot, clp->cl_clientid.cl_id);
 
+=======
+	trace_nfsd_cb_nodelegs(clp);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -2357,7 +3363,11 @@ out_err:
 static void
 nfsd4_store_cache_entry(struct nfsd4_compoundres *resp)
 {
+<<<<<<< HEAD
 	struct xdr_buf *buf = resp->xdr.buf;
+=======
+	struct xdr_buf *buf = resp->xdr->buf;
+>>>>>>> upstream/android-13
 	struct nfsd4_slot *slot = resp->cstate.slot;
 	unsigned int base;
 
@@ -2427,7 +3437,11 @@ nfsd4_replay_cache_entry(struct nfsd4_compoundres *resp,
 			 struct nfsd4_sequence *seq)
 {
 	struct nfsd4_slot *slot = resp->cstate.slot;
+<<<<<<< HEAD
 	struct xdr_stream *xdr = &resp->xdr;
+=======
+	struct xdr_stream *xdr = resp->xdr;
+>>>>>>> upstream/android-13
 	__be32 *p;
 	__be32 status;
 
@@ -2486,7 +3500,27 @@ static bool client_has_state(struct nfs4_client *clp)
 		|| !list_empty(&clp->cl_lo_states)
 #endif
 		|| !list_empty(&clp->cl_delegations)
+<<<<<<< HEAD
 		|| !list_empty(&clp->cl_sessions);
+=======
+		|| !list_empty(&clp->cl_sessions)
+		|| !list_empty(&clp->async_copies);
+}
+
+static __be32 copy_impl_id(struct nfs4_client *clp,
+				struct nfsd4_exchange_id *exid)
+{
+	if (!exid->nii_domain.data)
+		return 0;
+	xdr_netobj_dup(&clp->cl_nii_domain, &exid->nii_domain, GFP_KERNEL);
+	if (!clp->cl_nii_domain.data)
+		return nfserr_jukebox;
+	xdr_netobj_dup(&clp->cl_nii_name, &exid->nii_name, GFP_KERNEL);
+	if (!clp->cl_nii_name.data)
+		return nfserr_jukebox;
+	clp->cl_nii_time = exid->nii_time;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 __be32
@@ -2505,7 +3539,11 @@ nfsd4_exchange_id(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 
 	rpc_ntop(sa, addr_str, sizeof(addr_str));
 	dprintk("%s rqstp=%p exid=%p clname.len=%u clname.data=%p "
+<<<<<<< HEAD
 		"ip_addr=%s flags %x, spa_how %d\n",
+=======
+		"ip_addr=%s flags %x, spa_how %u\n",
+>>>>>>> upstream/android-13
 		__func__, rqstp, exid, exid->clname.len, exid->clname.data,
 		addr_str, exid->flags, exid->spa_how);
 
@@ -2515,6 +3553,12 @@ nfsd4_exchange_id(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	new = create_client(exid->clname, rqstp, &verf);
 	if (new == NULL)
 		return nfserr_jukebox;
+<<<<<<< HEAD
+=======
+	status = copy_impl_id(new, exid);
+	if (status)
+		goto out_nolock;
+>>>>>>> upstream/android-13
 
 	switch (exid->spa_how) {
 	case SP4_MACH_CRED:
@@ -2549,10 +3593,18 @@ nfsd4_exchange_id(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 			goto out_nolock;
 		}
 		new->cl_mach_cred = true;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case SP4_NONE:
 		break;
 	default:				/* checked by xdr code */
 		WARN_ON_ONCE(1);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SP4_SSV:
 		status = nfserr_encr_alg_unsupp;
 		goto out_nolock;
@@ -2584,20 +3636,36 @@ nfsd4_exchange_id(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 			}
 			/* case 6 */
 			exid->flags |= EXCHGID4_FLAG_CONFIRMED_R;
+<<<<<<< HEAD
+=======
+			trace_nfsd_clid_confirmed_r(conf);
+>>>>>>> upstream/android-13
 			goto out_copy;
 		}
 		if (!creds_match) { /* case 3 */
 			if (client_has_state(conf)) {
 				status = nfserr_clid_inuse;
+<<<<<<< HEAD
+=======
+				trace_nfsd_clid_cred_mismatch(conf, rqstp);
+>>>>>>> upstream/android-13
 				goto out;
 			}
 			goto out_new;
 		}
 		if (verfs_match) { /* case 2 */
 			conf->cl_exchange_flags |= EXCHGID4_FLAG_CONFIRMED_R;
+<<<<<<< HEAD
 			goto out_copy;
 		}
 		/* case 5, client reboot */
+=======
+			trace_nfsd_clid_confirmed_r(conf);
+			goto out_copy;
+		}
+		/* case 5, client reboot */
+		trace_nfsd_clid_verf_mismatch(conf, rqstp, &verf);
+>>>>>>> upstream/android-13
 		conf = NULL;
 		goto out_new;
 	}
@@ -2607,22 +3675,39 @@ nfsd4_exchange_id(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	unconf  = find_unconfirmed_client_by_name(&exid->clname, nn);
 	if (unconf) /* case 4, possible retry or client restart */
 		unhash_client_locked(unconf);
 
 	/* case 1 (normal case) */
+=======
+	unconf = find_unconfirmed_client_by_name(&exid->clname, nn);
+	if (unconf) /* case 4, possible retry or client restart */
+		unhash_client_locked(unconf);
+
+	/* case 1, new owner ID */
+	trace_nfsd_clid_fresh(new);
+
+>>>>>>> upstream/android-13
 out_new:
 	if (conf) {
 		status = mark_client_expired_locked(conf);
 		if (status)
 			goto out;
+<<<<<<< HEAD
+=======
+		trace_nfsd_clid_replaced(&conf->cl_clientid);
+>>>>>>> upstream/android-13
 	}
 	new->cl_minorversion = cstate->minorversion;
 	new->cl_spo_must_allow.u.words[0] = exid->spo_must_allow[0];
 	new->cl_spo_must_allow.u.words[1] = exid->spo_must_allow[1];
 
+<<<<<<< HEAD
 	gen_clid(new, nn);
+=======
+>>>>>>> upstream/android-13
 	add_to_unconfirmed(new);
 	swap(new, conf);
 out_copy:
@@ -2641,8 +3726,15 @@ out:
 out_nolock:
 	if (new)
 		expire_client(new);
+<<<<<<< HEAD
 	if (unconf)
 		expire_client(unconf);
+=======
+	if (unconf) {
+		trace_nfsd_clid_expire_unconf(&unconf->cl_clientid);
+		expire_client(unconf);
+	}
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -2727,10 +3819,17 @@ static __be32 check_forechannel_attrs(struct nfsd4_channel_attrs *ca, struct nfs
 	 * performance.  When short on memory we therefore prefer to
 	 * decrease number of slots instead of their size.  Clients that
 	 * request larger slots than they need will get poor results:
+<<<<<<< HEAD
 	 */
 	ca->maxreqs = nfsd4_get_drc_mem(ca);
 	if (!ca->maxreqs)
 		return nfserr_jukebox;
+=======
+	 * Note that we always allow at least one slot, because our
+	 * accounting is soft and provides no guarantees either way.
+	 */
+	ca->maxreqs = nfsd4_get_drc_mem(ca, nn);
+>>>>>>> upstream/android-13
 
 	return nfs_ok;
 }
@@ -2834,9 +3933,16 @@ nfsd4_create_session(struct svc_rqst *rqstp,
 			goto out_free_conn;
 		}
 	} else if (unconf) {
+<<<<<<< HEAD
 		if (!same_creds(&unconf->cl_cred, &rqstp->rq_cred) ||
 		    !rpc_cmp_addr(sa, (struct sockaddr *) &unconf->cl_addr)) {
 			status = nfserr_clid_inuse;
+=======
+		status = nfserr_clid_inuse;
+		if (!same_creds(&unconf->cl_cred, &rqstp->rq_cred) ||
+		    !rpc_cmp_addr(sa, (struct sockaddr *) &unconf->cl_addr)) {
+			trace_nfsd_clid_cred_mismatch(unconf, rqstp);
+>>>>>>> upstream/android-13
 			goto out_free_conn;
 		}
 		status = nfserr_wrong_cred;
@@ -2856,6 +3962,10 @@ nfsd4_create_session(struct svc_rqst *rqstp,
 				old = NULL;
 				goto out_free_conn;
 			}
+<<<<<<< HEAD
+=======
+			trace_nfsd_clid_replaced(&old->cl_clientid);
+>>>>>>> upstream/android-13
 		}
 		move_to_confirmed(unconf);
 		conf = unconf;
@@ -2880,6 +3990,11 @@ nfsd4_create_session(struct svc_rqst *rqstp,
 	/* cache solo and embedded create sessions under the client_lock */
 	nfsd4_cache_create_session(cr_ses, cs_slot, status);
 	spin_unlock(&nn->client_lock);
+<<<<<<< HEAD
+=======
+	if (conf == unconf)
+		fsnotify_dentry(conf->cl_nfsd_info_dentry, FS_MODIFY);
+>>>>>>> upstream/android-13
 	/* init connection and backchannel */
 	nfsd4_init_conn(rqstp, conn, new);
 	nfsd4_put_session(new);
@@ -2908,7 +4023,11 @@ static __be32 nfsd4_map_bcts_dir(u32 *dir)
 	case NFS4_CDFC4_BACK_OR_BOTH:
 		*dir = NFS4_CDFC4_BOTH;
 		return nfs_ok;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return nfserr_inval;
 }
 
@@ -2934,6 +4053,50 @@ __be32 nfsd4_backchannel_ctl(struct svc_rqst *rqstp,
 	return nfs_ok;
 }
 
+<<<<<<< HEAD
+=======
+static struct nfsd4_conn *__nfsd4_find_conn(struct svc_xprt *xpt, struct nfsd4_session *s)
+{
+	struct nfsd4_conn *c;
+
+	list_for_each_entry(c, &s->se_conns, cn_persession) {
+		if (c->cn_xprt == xpt) {
+			return c;
+		}
+	}
+	return NULL;
+}
+
+static __be32 nfsd4_match_existing_connection(struct svc_rqst *rqst,
+		struct nfsd4_session *session, u32 req, struct nfsd4_conn **conn)
+{
+	struct nfs4_client *clp = session->se_client;
+	struct svc_xprt *xpt = rqst->rq_xprt;
+	struct nfsd4_conn *c;
+	__be32 status;
+
+	/* Following the last paragraph of RFC 5661 Section 18.34.3: */
+	spin_lock(&clp->cl_lock);
+	c = __nfsd4_find_conn(xpt, session);
+	if (!c)
+		status = nfserr_noent;
+	else if (req == c->cn_flags)
+		status = nfs_ok;
+	else if (req == NFS4_CDFC4_FORE_OR_BOTH &&
+				c->cn_flags != NFS4_CDFC4_BACK)
+		status = nfs_ok;
+	else if (req == NFS4_CDFC4_BACK_OR_BOTH &&
+				c->cn_flags != NFS4_CDFC4_FORE)
+		status = nfs_ok;
+	else
+		status = nfserr_inval;
+	spin_unlock(&clp->cl_lock);
+	if (status == nfs_ok && conn)
+		*conn = c;
+	return status;
+}
+
+>>>>>>> upstream/android-13
 __be32 nfsd4_bind_conn_to_session(struct svc_rqst *rqstp,
 		     struct nfsd4_compound_state *cstate,
 		     union nfsd4_op_u *u)
@@ -2955,6 +4118,20 @@ __be32 nfsd4_bind_conn_to_session(struct svc_rqst *rqstp,
 	status = nfserr_wrong_cred;
 	if (!nfsd4_mach_creds_match(session->se_client, rqstp))
 		goto out;
+<<<<<<< HEAD
+=======
+	status = nfsd4_match_existing_connection(rqstp, session,
+			bcts->dir, &conn);
+	if (status == nfs_ok) {
+		if (bcts->dir == NFS4_CDFC4_FORE_OR_BOTH ||
+				bcts->dir == NFS4_CDFC4_BACK)
+			conn->cn_flags |= NFS4_CDFC4_BACK;
+		nfsd4_probe_callback(session->se_client);
+		goto out;
+	}
+	if (status == nfserr_inval)
+		goto out;
+>>>>>>> upstream/android-13
 	status = nfsd4_map_bcts_dir(&bcts->dir);
 	if (status)
 		goto out;
@@ -3020,6 +4197,7 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 static struct nfsd4_conn *__nfsd4_find_conn(struct svc_xprt *xpt, struct nfsd4_session *s)
 {
 	struct nfsd4_conn *c;
@@ -3032,6 +4210,8 @@ static struct nfsd4_conn *__nfsd4_find_conn(struct svc_xprt *xpt, struct nfsd4_s
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static __be32 nfsd4_sequence_check_conn(struct nfsd4_conn *new, struct nfsd4_session *ses)
 {
 	struct nfs4_client *clp = ses->se_client;
@@ -3113,7 +4293,11 @@ nfsd4_sequence(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 {
 	struct nfsd4_sequence *seq = &u->sequence;
 	struct nfsd4_compoundres *resp = rqstp->rq_resp;
+<<<<<<< HEAD
 	struct xdr_stream *xdr = &resp->xdr;
+=======
+	struct xdr_stream *xdr = resp->xdr;
+>>>>>>> upstream/android-13
 	struct nfsd4_session *session;
 	struct nfs4_client *clp;
 	struct nfsd4_slot *slot;
@@ -3283,6 +4467,10 @@ nfsd4_destroy_clientid(struct svc_rqst *rqstp,
 		status = nfserr_wrong_cred;
 		goto out;
 	}
+<<<<<<< HEAD
+=======
+	trace_nfsd_clid_destroyed(&clp->cl_clientid);
+>>>>>>> upstream/android-13
 	unhash_client_locked(clp);
 out:
 	spin_unlock(&nn->client_lock);
@@ -3296,6 +4484,10 @@ nfsd4_reclaim_complete(struct svc_rqst *rqstp,
 		struct nfsd4_compound_state *cstate, union nfsd4_op_u *u)
 {
 	struct nfsd4_reclaim_complete *rc = &u->reclaim_complete;
+<<<<<<< HEAD
+=======
+	struct nfs4_client *clp = cstate->clp;
+>>>>>>> upstream/android-13
 	__be32 status = 0;
 
 	if (rc->rca_one_fs) {
@@ -3309,12 +4501,20 @@ nfsd4_reclaim_complete(struct svc_rqst *rqstp,
 	}
 
 	status = nfserr_complete_already;
+<<<<<<< HEAD
 	if (test_and_set_bit(NFSD4_CLIENT_RECLAIM_COMPLETE,
 			     &cstate->session->se_client->cl_flags))
 		goto out;
 
 	status = nfserr_stale_clientid;
 	if (is_client_expired(cstate->session->se_client))
+=======
+	if (test_and_set_bit(NFSD4_CLIENT_RECLAIM_COMPLETE, &clp->cl_flags))
+		goto out;
+
+	status = nfserr_stale_clientid;
+	if (is_client_expired(clp))
+>>>>>>> upstream/android-13
 		/*
 		 * The following error isn't really legal.
 		 * But we only get here if the client just explicitly
@@ -3325,7 +4525,13 @@ nfsd4_reclaim_complete(struct svc_rqst *rqstp,
 		goto out;
 
 	status = nfs_ok;
+<<<<<<< HEAD
 	nfsd4_client_record_create(cstate->session->se_client);
+=======
+	trace_nfsd_clid_reclaim_complete(&clp->cl_clientid);
+	nfsd4_client_record_create(clp);
+	inc_reclaim_complete(clp);
+>>>>>>> upstream/android-13
 out:
 	return status;
 }
@@ -3345,32 +4551,54 @@ nfsd4_setclientid(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	new = create_client(clname, rqstp, &clverifier);
 	if (new == NULL)
 		return nfserr_jukebox;
+<<<<<<< HEAD
 	/* Cases below refer to rfc 3530 section 14.2.33: */
 	spin_lock(&nn->client_lock);
 	conf = find_confirmed_client_by_name(&clname, nn);
 	if (conf && client_has_state(conf)) {
 		/* case 0: */
+=======
+	spin_lock(&nn->client_lock);
+	conf = find_confirmed_client_by_name(&clname, nn);
+	if (conf && client_has_state(conf)) {
+>>>>>>> upstream/android-13
 		status = nfserr_clid_inuse;
 		if (clp_used_exchangeid(conf))
 			goto out;
 		if (!same_creds(&conf->cl_cred, &rqstp->rq_cred)) {
+<<<<<<< HEAD
 			char addr_str[INET6_ADDRSTRLEN];
 			rpc_ntop((struct sockaddr *) &conf->cl_addr, addr_str,
 				 sizeof(addr_str));
 			dprintk("NFSD: setclientid: string in use by client "
 				"at %s\n", addr_str);
+=======
+			trace_nfsd_clid_cred_mismatch(conf, rqstp);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 	}
 	unconf = find_unconfirmed_client_by_name(&clname, nn);
 	if (unconf)
 		unhash_client_locked(unconf);
+<<<<<<< HEAD
 	if (conf && same_verf(&conf->cl_verifier, &clverifier)) {
 		/* case 1: probable callback update */
 		copy_clid(new, conf);
 		gen_confirm(new, nn);
 	} else /* case 4 (new client) or cases 2, 3 (client reboot): */
 		gen_clid(new, nn);
+=======
+	if (conf) {
+		if (same_verf(&conf->cl_verifier, &clverifier)) {
+			copy_clid(new, conf);
+			gen_confirm(new, nn);
+		} else
+			trace_nfsd_clid_verf_mismatch(conf, rqstp,
+						      &clverifier);
+	} else
+		trace_nfsd_clid_fresh(new);
+>>>>>>> upstream/android-13
 	new->cl_minorversion = 0;
 	gen_callback(new, setclid, rqstp);
 	add_to_unconfirmed(new);
@@ -3383,12 +4611,22 @@ out:
 	spin_unlock(&nn->client_lock);
 	if (new)
 		free_client(new);
+<<<<<<< HEAD
 	if (unconf)
 		expire_client(unconf);
 	return status;
 }
 
 
+=======
+	if (unconf) {
+		trace_nfsd_clid_expire_unconf(&unconf->cl_clientid);
+		expire_client(unconf);
+	}
+	return status;
+}
+
+>>>>>>> upstream/android-13
 __be32
 nfsd4_setclientid_confirm(struct svc_rqst *rqstp,
 			struct nfsd4_compound_state *cstate,
@@ -3417,6 +4655,7 @@ nfsd4_setclientid_confirm(struct svc_rqst *rqstp,
 	 * Nevertheless, RFC 7530 recommends INUSE for this case:
 	 */
 	status = nfserr_clid_inuse;
+<<<<<<< HEAD
 	if (unconf && !same_creds(&unconf->cl_cred, &rqstp->rq_cred))
 		goto out;
 	if (conf && !same_creds(&conf->cl_cred, &rqstp->rq_cred))
@@ -3427,33 +4666,71 @@ nfsd4_setclientid_confirm(struct svc_rqst *rqstp,
 			/* case 2: probable retransmit */
 			status = nfs_ok;
 		} else /* case 4: client hasn't noticed we rebooted yet? */
+=======
+	if (unconf && !same_creds(&unconf->cl_cred, &rqstp->rq_cred)) {
+		trace_nfsd_clid_cred_mismatch(unconf, rqstp);
+		goto out;
+	}
+	if (conf && !same_creds(&conf->cl_cred, &rqstp->rq_cred)) {
+		trace_nfsd_clid_cred_mismatch(conf, rqstp);
+		goto out;
+	}
+	if (!unconf || !same_verf(&confirm, &unconf->cl_confirm)) {
+		if (conf && same_verf(&confirm, &conf->cl_confirm)) {
+			status = nfs_ok;
+		} else
+>>>>>>> upstream/android-13
 			status = nfserr_stale_clientid;
 		goto out;
 	}
 	status = nfs_ok;
+<<<<<<< HEAD
 	if (conf) { /* case 1: callback update */
 		old = unconf;
 		unhash_client_locked(old);
 		nfsd4_change_callback(conf, &unconf->cl_cb_conn);
 	} else { /* case 3: normal case; new or rebooted client */
+=======
+	if (conf) {
+		old = unconf;
+		unhash_client_locked(old);
+		nfsd4_change_callback(conf, &unconf->cl_cb_conn);
+	} else {
+>>>>>>> upstream/android-13
 		old = find_confirmed_client_by_name(&unconf->cl_name, nn);
 		if (old) {
 			status = nfserr_clid_inuse;
 			if (client_has_state(old)
 					&& !same_creds(&unconf->cl_cred,
+<<<<<<< HEAD
 							&old->cl_cred))
 				goto out;
+=======
+							&old->cl_cred)) {
+				old = NULL;
+				goto out;
+			}
+>>>>>>> upstream/android-13
 			status = mark_client_expired_locked(old);
 			if (status) {
 				old = NULL;
 				goto out;
 			}
+<<<<<<< HEAD
+=======
+			trace_nfsd_clid_replaced(&old->cl_clientid);
+>>>>>>> upstream/android-13
 		}
 		move_to_confirmed(unconf);
 		conf = unconf;
 	}
 	get_client_locked(conf);
 	spin_unlock(&nn->client_lock);
+<<<<<<< HEAD
+=======
+	if (conf == unconf)
+		fsnotify_dentry(conf->cl_nfsd_info_dentry, FS_MODIFY);
+>>>>>>> upstream/android-13
 	nfsd4_probe_callback(conf);
 	spin_lock(&nn->client_lock);
 	put_client_renew_locked(conf);
@@ -3470,7 +4747,11 @@ static struct nfs4_file *nfsd4_alloc_file(void)
 }
 
 /* OPEN Share state helper functions */
+<<<<<<< HEAD
 static void nfsd4_init_file(struct knfsd_fh *fh, unsigned int hashval,
+=======
+static void nfsd4_init_file(struct svc_fh *fh, unsigned int hashval,
+>>>>>>> upstream/android-13
 				struct nfs4_file *fp)
 {
 	lockdep_assert_held(&state_lock);
@@ -3480,12 +4761,21 @@ static void nfsd4_init_file(struct knfsd_fh *fh, unsigned int hashval,
 	INIT_LIST_HEAD(&fp->fi_stateids);
 	INIT_LIST_HEAD(&fp->fi_delegations);
 	INIT_LIST_HEAD(&fp->fi_clnt_odstate);
+<<<<<<< HEAD
 	fh_copy_shallow(&fp->fi_fhandle, fh);
+=======
+	fh_copy_shallow(&fp->fi_fhandle, &fh->fh_handle);
+>>>>>>> upstream/android-13
 	fp->fi_deleg_file = NULL;
 	fp->fi_had_conflict = false;
 	fp->fi_share_deny = 0;
 	memset(fp->fi_fds, 0, sizeof(fp->fi_fds));
 	memset(fp->fi_access, 0, sizeof(fp->fi_access));
+<<<<<<< HEAD
+=======
+	fp->fi_aliased = false;
+	fp->fi_inode = d_inode(fh->fh_dentry);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NFSD_PNFS
 	INIT_LIST_HEAD(&fp->fi_lo_states);
 	atomic_set(&fp->fi_lo_recalls, 0);
@@ -3551,7 +4841,10 @@ out_free_openowner_slab:
 out_free_client_slab:
 	kmem_cache_destroy(client_slab);
 out:
+<<<<<<< HEAD
 	dprintk("nfsd4: out of memory while initializing nfsv4\n");
+=======
+>>>>>>> upstream/android-13
 	return -ENOMEM;
 }
 
@@ -3591,12 +4884,19 @@ static inline void *alloc_stateowner(struct kmem_cache *slab, struct xdr_netobj 
 	if (!sop)
 		return NULL;
 
+<<<<<<< HEAD
 	sop->so_owner.data = kmemdup(owner->data, owner->len, GFP_KERNEL);
+=======
+	xdr_netobj_dup(&sop->so_owner, owner, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sop->so_owner.data) {
 		kmem_cache_free(slab, sop);
 		return NULL;
 	}
+<<<<<<< HEAD
 	sop->so_owner.len = owner->len;
+=======
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&sop->so_stateids);
 	sop->so_client = clp;
@@ -3818,7 +5118,11 @@ move_to_close_lru(struct nfs4_ol_stateid *s, struct net *net)
 	last = oo->oo_last_closed_stid;
 	oo->oo_last_closed_stid = s;
 	list_move_tail(&oo->oo_close_lru, &nn->close_lru);
+<<<<<<< HEAD
 	oo->oo_time = get_seconds();
+=======
+	oo->oo_time = ktime_get_boottime_seconds();
+>>>>>>> upstream/android-13
 	spin_unlock(&nn->client_lock);
 	if (last)
 		nfs4_put_stid(&last->st_stid);
@@ -3826,12 +5130,22 @@ move_to_close_lru(struct nfs4_ol_stateid *s, struct net *net)
 
 /* search file_hashtbl[] for file */
 static struct nfs4_file *
+<<<<<<< HEAD
 find_file_locked(struct knfsd_fh *fh, unsigned int hashval)
 {
 	struct nfs4_file *fp;
 
 	hlist_for_each_entry_rcu(fp, &file_hashtbl[hashval], fi_hash) {
 		if (fh_match(&fp->fi_fhandle, fh)) {
+=======
+find_file_locked(struct svc_fh *fh, unsigned int hashval)
+{
+	struct nfs4_file *fp;
+
+	hlist_for_each_entry_rcu(fp, &file_hashtbl[hashval], fi_hash,
+				lockdep_is_held(&state_lock)) {
+		if (fh_match(&fp->fi_fhandle, &fh->fh_handle)) {
+>>>>>>> upstream/android-13
 			if (refcount_inc_not_zero(&fp->fi_ref))
 				return fp;
 		}
@@ -3839,8 +5153,37 @@ find_file_locked(struct knfsd_fh *fh, unsigned int hashval)
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct nfs4_file *
 find_file(struct knfsd_fh *fh)
+=======
+static struct nfs4_file *insert_file(struct nfs4_file *new, struct svc_fh *fh,
+				     unsigned int hashval)
+{
+	struct nfs4_file *fp;
+	struct nfs4_file *ret = NULL;
+	bool alias_found = false;
+
+	spin_lock(&state_lock);
+	hlist_for_each_entry_rcu(fp, &file_hashtbl[hashval], fi_hash,
+				 lockdep_is_held(&state_lock)) {
+		if (fh_match(&fp->fi_fhandle, &fh->fh_handle)) {
+			if (refcount_inc_not_zero(&fp->fi_ref))
+				ret = fp;
+		} else if (d_inode(fh->fh_dentry) == fp->fi_inode)
+			fp->fi_aliased = alias_found = true;
+	}
+	if (likely(ret == NULL)) {
+		nfsd4_init_file(fh, hashval, new);
+		new->fi_aliased = alias_found;
+		ret = new;
+	}
+	spin_unlock(&state_lock);
+	return ret;
+}
+
+static struct nfs4_file * find_file(struct svc_fh *fh)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_file *fp;
 	unsigned int hashval = file_hashval(fh);
@@ -3852,7 +5195,11 @@ find_file(struct knfsd_fh *fh)
 }
 
 static struct nfs4_file *
+<<<<<<< HEAD
 find_or_add_file(struct nfs4_file *new, struct knfsd_fh *fh)
+=======
+find_or_add_file(struct nfs4_file *new, struct svc_fh *fh)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_file *fp;
 	unsigned int hashval = file_hashval(fh);
@@ -3863,6 +5210,7 @@ find_or_add_file(struct nfs4_file *new, struct knfsd_fh *fh)
 	if (fp)
 		return fp;
 
+<<<<<<< HEAD
 	spin_lock(&state_lock);
 	fp = find_file_locked(fh, hashval);
 	if (likely(fp == NULL)) {
@@ -3872,6 +5220,9 @@ find_or_add_file(struct nfs4_file *new, struct knfsd_fh *fh)
 	spin_unlock(&state_lock);
 
 	return fp;
+=======
+	return insert_file(new, fh, hashval);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3884,7 +5235,11 @@ nfs4_share_conflict(struct svc_fh *current_fh, unsigned int deny_type)
 	struct nfs4_file *fp;
 	__be32 ret = nfs_ok;
 
+<<<<<<< HEAD
 	fp = find_file(&current_fh->fh_handle);
+=======
+	fp = find_file(current_fh);
+>>>>>>> upstream/android-13
 	if (!fp)
 		return ret;
 	/* Check for conflicting share reservations */
@@ -3912,8 +5267,13 @@ static void nfsd4_cb_recall_prepare(struct nfsd4_callback *cb)
 	 * queued for a lease break. Don't queue it again.
 	 */
 	spin_lock(&state_lock);
+<<<<<<< HEAD
 	if (dp->dl_time == 0) {
 		dp->dl_time = get_seconds();
+=======
+	if (delegation_hashed(dp) && dp->dl_time == 0) {
+		dp->dl_time = ktime_get_boottime_seconds();
+>>>>>>> upstream/android-13
 		list_add_tail(&dp->dl_recall_lru, &nn->del_recall_lru);
 	}
 	spin_unlock(&state_lock);
@@ -3924,12 +5284,23 @@ static int nfsd4_cb_recall_done(struct nfsd4_callback *cb,
 {
 	struct nfs4_delegation *dp = cb_to_delegation(cb);
 
+<<<<<<< HEAD
 	if (dp->dl_stid.sc_type == NFS4_CLOSED_DELEG_STID)
+=======
+	if (dp->dl_stid.sc_type == NFS4_CLOSED_DELEG_STID ||
+	    dp->dl_stid.sc_type == NFS4_REVOKED_DELEG_STID)
+>>>>>>> upstream/android-13
 	        return 1;
 
 	switch (task->tk_status) {
 	case 0:
 		return 1;
+<<<<<<< HEAD
+=======
+	case -NFS4ERR_DELAY:
+		rpc_delay(task, 2 * HZ);
+		return 0;
+>>>>>>> upstream/android-13
 	case -EBADHANDLE:
 	case -NFS4ERR_BAD_STATEID:
 		/*
@@ -3940,9 +5311,15 @@ static int nfsd4_cb_recall_done(struct nfsd4_callback *cb,
 			rpc_delay(task, 2 * HZ);
 			return 0;
 		}
+<<<<<<< HEAD
 		/*FALLTHRU*/
 	default:
 		return -1;
+=======
+		fallthrough;
+	default:
+		return 1;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3980,6 +5357,11 @@ nfsd_break_deleg_cb(struct file_lock *fl)
 	struct nfs4_delegation *dp = (struct nfs4_delegation *)fl->fl_owner;
 	struct nfs4_file *fp = dp->dl_stid.sc_file;
 
+<<<<<<< HEAD
+=======
+	trace_nfsd_cb_recall(&dp->dl_stid);
+
+>>>>>>> upstream/android-13
 	/*
 	 * We don't want the locks code to timeout the lease for us;
 	 * we'll remove it ourself if a delegation isn't returned
@@ -3994,6 +5376,33 @@ nfsd_break_deleg_cb(struct file_lock *fl)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * nfsd_breaker_owns_lease - Check if lease conflict was resolved
+ * @fl: Lock state to check
+ *
+ * Return values:
+ *   %true: Lease conflict was resolved
+ *   %false: Lease conflict was not resolved.
+ */
+static bool nfsd_breaker_owns_lease(struct file_lock *fl)
+{
+	struct nfs4_delegation *dl = fl->fl_owner;
+	struct svc_rqst *rqst;
+	struct nfs4_client *clp;
+
+	if (!i_am_nfsd())
+		return false;
+	rqst = kthread_data(current);
+	/* Note rq_prog == NFS_ACL_PROGRAM is also possible: */
+	if (rqst->rq_prog != NFS_PROGRAM || rqst->rq_vers < 4)
+		return false;
+	clp = *(rqst->rq_lease_breaker);
+	return dl->dl_stid.sc_client == clp;
+}
+
+>>>>>>> upstream/android-13
 static int
 nfsd_change_deleg_cb(struct file_lock *onlist, int arg,
 		     struct list_head *dispose)
@@ -4005,6 +5414,10 @@ nfsd_change_deleg_cb(struct file_lock *onlist, int arg,
 }
 
 static const struct lock_manager_operations nfsd_lease_mng_ops = {
+<<<<<<< HEAD
+=======
+	.lm_breaker_owns_lease = nfsd_breaker_owns_lease,
+>>>>>>> upstream/android-13
 	.lm_break = nfsd_break_deleg_cb,
 	.lm_change = nfsd_change_deleg_cb,
 };
@@ -4020,6 +5433,7 @@ static __be32 nfsd4_check_seqid(struct nfsd4_compound_state *cstate, struct nfs4
 	return nfserr_bad_seqid;
 }
 
+<<<<<<< HEAD
 static __be32 lookup_clientid(clientid_t *clid,
 		struct nfsd4_compound_state *cstate,
 		struct nfsd_net *nn)
@@ -4053,6 +5467,39 @@ static __be32 lookup_clientid(clientid_t *clid,
 
 	/* Cache the nfs4_client in cstate! */
 	cstate->clp = found;
+=======
+static struct nfs4_client *lookup_clientid(clientid_t *clid, bool sessions,
+						struct nfsd_net *nn)
+{
+	struct nfs4_client *found;
+
+	spin_lock(&nn->client_lock);
+	found = find_confirmed_client(clid, sessions, nn);
+	if (found)
+		atomic_inc(&found->cl_rpc_users);
+	spin_unlock(&nn->client_lock);
+	return found;
+}
+
+static __be32 set_client(clientid_t *clid,
+		struct nfsd4_compound_state *cstate,
+		struct nfsd_net *nn)
+{
+	if (cstate->clp) {
+		if (!same_clid(&cstate->clp->cl_clientid, clid))
+			return nfserr_stale_clientid;
+		return nfs_ok;
+	}
+	if (STALE_CLIENTID(clid, nn))
+		return nfserr_stale_clientid;
+	/*
+	 * We're in the 4.0 case (otherwise the SEQUENCE op would have
+	 * set cstate->clp), so session = false:
+	 */
+	cstate->clp = lookup_clientid(clid, false, nn);
+	if (!cstate->clp)
+		return nfserr_expired;
+>>>>>>> upstream/android-13
 	return nfs_ok;
 }
 
@@ -4066,8 +5513,11 @@ nfsd4_process_open1(struct nfsd4_compound_state *cstate,
 	struct nfs4_openowner *oo = NULL;
 	__be32 status;
 
+<<<<<<< HEAD
 	if (STALE_CLIENTID(&open->op_clientid, nn))
 		return nfserr_stale_clientid;
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * In case we need it later, after we've already created the
 	 * file and don't want to risk a further failure:
@@ -4076,7 +5526,11 @@ nfsd4_process_open1(struct nfsd4_compound_state *cstate,
 	if (open->op_file == NULL)
 		return nfserr_jukebox;
 
+<<<<<<< HEAD
 	status = lookup_clientid(clientid, cstate, nn);
+=======
+	status = set_client(clientid, cstate, nn);
+>>>>>>> upstream/android-13
 	if (status)
 		return status;
 	clp = cstate->clp;
@@ -4204,14 +5658,22 @@ nfsd4_truncate(struct svc_rqst *rqstp, struct svc_fh *fh,
 		return 0;
 	if (!(open->op_share_access & NFS4_SHARE_ACCESS_WRITE))
 		return nfserr_inval;
+<<<<<<< HEAD
 	return nfsd_setattr(rqstp, fh, &iattr, 0, (time_t)0);
+=======
+	return nfsd_setattr(rqstp, fh, &iattr, 0, (time64_t)0);
+>>>>>>> upstream/android-13
 }
 
 static __be32 nfs4_get_vfs_file(struct svc_rqst *rqstp, struct nfs4_file *fp,
 		struct svc_fh *cur_fh, struct nfs4_ol_stateid *stp,
 		struct nfsd4_open *open)
 {
+<<<<<<< HEAD
 	struct file *filp = NULL;
+=======
+	struct nfsd_file *nf = NULL;
+>>>>>>> upstream/android-13
 	__be32 status;
 	int oflag = nfs4_access_to_omode(open->op_share_access);
 	int access = nfs4_access_to_access(open->op_share_access);
@@ -4247,11 +5709,16 @@ static __be32 nfs4_get_vfs_file(struct svc_rqst *rqstp, struct nfs4_file *fp,
 
 	if (!fp->fi_fds[oflag]) {
 		spin_unlock(&fp->fi_lock);
+<<<<<<< HEAD
 		status = nfsd_open(rqstp, cur_fh, S_IFREG, access, &filp);
+=======
+		status = nfsd_file_acquire(rqstp, cur_fh, access, &nf);
+>>>>>>> upstream/android-13
 		if (status)
 			goto out_put_access;
 		spin_lock(&fp->fi_lock);
 		if (!fp->fi_fds[oflag]) {
+<<<<<<< HEAD
 			fp->fi_fds[oflag] = filp;
 			filp = NULL;
 		}
@@ -4259,6 +5726,20 @@ static __be32 nfs4_get_vfs_file(struct svc_rqst *rqstp, struct nfs4_file *fp,
 	spin_unlock(&fp->fi_lock);
 	if (filp)
 		fput(filp);
+=======
+			fp->fi_fds[oflag] = nf;
+			nf = NULL;
+		}
+	}
+	spin_unlock(&fp->fi_lock);
+	if (nf)
+		nfsd_file_put(nf);
+
+	status = nfserrno(nfsd_open_break_lease(cur_fh->fh_dentry->d_inode,
+								access));
+	if (status)
+		goto out_put_access;
+>>>>>>> upstream/android-13
 
 	status = nfsd4_truncate(rqstp, cur_fh, open);
 	if (status)
@@ -4327,17 +5808,87 @@ static struct file_lock *nfs4_alloc_init_lease(struct nfs4_delegation *dp,
 	fl->fl_end = OFFSET_MAX;
 	fl->fl_owner = (fl_owner_t)dp;
 	fl->fl_pid = current->tgid;
+<<<<<<< HEAD
 	fl->fl_file = dp->dl_stid.sc_file->fi_deleg_file;
 	return fl;
 }
 
+=======
+	fl->fl_file = dp->dl_stid.sc_file->fi_deleg_file->nf_file;
+	return fl;
+}
+
+static int nfsd4_check_conflicting_opens(struct nfs4_client *clp,
+					 struct nfs4_file *fp)
+{
+	struct nfs4_ol_stateid *st;
+	struct file *f = fp->fi_deleg_file->nf_file;
+	struct inode *ino = locks_inode(f);
+	int writes;
+
+	writes = atomic_read(&ino->i_writecount);
+	if (!writes)
+		return 0;
+	/*
+	 * There could be multiple filehandles (hence multiple
+	 * nfs4_files) referencing this file, but that's not too
+	 * common; let's just give up in that case rather than
+	 * trying to go look up all the clients using that other
+	 * nfs4_file as well:
+	 */
+	if (fp->fi_aliased)
+		return -EAGAIN;
+	/*
+	 * If there's a close in progress, make sure that we see it
+	 * clear any fi_fds[] entries before we see it decrement
+	 * i_writecount:
+	 */
+	smp_mb__after_atomic();
+
+	if (fp->fi_fds[O_WRONLY])
+		writes--;
+	if (fp->fi_fds[O_RDWR])
+		writes--;
+	if (writes > 0)
+		return -EAGAIN; /* There may be non-NFSv4 writers */
+	/*
+	 * It's possible there are non-NFSv4 write opens in progress,
+	 * but if they haven't incremented i_writecount yet then they
+	 * also haven't called break lease yet; so, they'll break this
+	 * lease soon enough.  So, all that's left to check for is NFSv4
+	 * opens:
+	 */
+	spin_lock(&fp->fi_lock);
+	list_for_each_entry(st, &fp->fi_stateids, st_perfile) {
+		if (st->st_openstp == NULL /* it's an open */ &&
+		    access_permit_write(st) &&
+		    st->st_stid.sc_client != clp) {
+			spin_unlock(&fp->fi_lock);
+			return -EAGAIN;
+		}
+	}
+	spin_unlock(&fp->fi_lock);
+	/*
+	 * There's a small chance that we could be racing with another
+	 * NFSv4 open.  However, any open that hasn't added itself to
+	 * the fi_stateids list also hasn't called break_lease yet; so,
+	 * they'll break this lease soon enough.
+	 */
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct nfs4_delegation *
 nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
 		    struct nfs4_file *fp, struct nfs4_clnt_odstate *odstate)
 {
 	int status = 0;
 	struct nfs4_delegation *dp;
+<<<<<<< HEAD
 	struct file *filp;
+=======
+	struct nfsd_file *nf;
+>>>>>>> upstream/android-13
 	struct file_lock *fl;
 
 	/*
@@ -4348,28 +5899,52 @@ nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
 	if (fp->fi_had_conflict)
 		return ERR_PTR(-EAGAIN);
 
+<<<<<<< HEAD
 	filp = find_readable_file(fp);
 	if (!filp) {
 		/* We should always have a readable file here */
 		WARN_ON_ONCE(1);
 		return ERR_PTR(-EBADF);
+=======
+	nf = find_readable_file(fp);
+	if (!nf) {
+		/*
+		 * We probably could attempt another open and get a read
+		 * delegation, but for now, don't bother until the
+		 * client actually sends us one.
+		 */
+		return ERR_PTR(-EAGAIN);
+>>>>>>> upstream/android-13
 	}
 	spin_lock(&state_lock);
 	spin_lock(&fp->fi_lock);
 	if (nfs4_delegation_exists(clp, fp))
 		status = -EAGAIN;
 	else if (!fp->fi_deleg_file) {
+<<<<<<< HEAD
 		fp->fi_deleg_file = filp;
 		/* increment early to prevent fi_deleg_file from being
 		 * cleared */
 		fp->fi_delegees = 1;
 		filp = NULL;
+=======
+		fp->fi_deleg_file = nf;
+		/* increment early to prevent fi_deleg_file from being
+		 * cleared */
+		fp->fi_delegees = 1;
+		nf = NULL;
+>>>>>>> upstream/android-13
 	} else
 		fp->fi_delegees++;
 	spin_unlock(&fp->fi_lock);
 	spin_unlock(&state_lock);
+<<<<<<< HEAD
 	if (filp)
 		fput(filp);
+=======
+	if (nf)
+		nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 	if (status)
 		return ERR_PTR(status);
 
@@ -4382,11 +5957,21 @@ nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
 	if (!fl)
 		goto out_clnt_odstate;
 
+<<<<<<< HEAD
 	status = vfs_setlease(fp->fi_deleg_file, fl->fl_type, &fl, NULL);
+=======
+	status = vfs_setlease(fp->fi_deleg_file->nf_file, fl->fl_type, &fl, NULL);
+>>>>>>> upstream/android-13
 	if (fl)
 		locks_free_lock(fl);
 	if (status)
 		goto out_clnt_odstate;
+<<<<<<< HEAD
+=======
+	status = nfsd4_check_conflicting_opens(clp, fp);
+	if (status)
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	spin_lock(&state_lock);
 	spin_lock(&fp->fi_lock);
@@ -4402,7 +5987,11 @@ nfs4_set_delegation(struct nfs4_client *clp, struct svc_fh *fh,
 
 	return dp;
 out_unlock:
+<<<<<<< HEAD
 	vfs_setlease(fp->fi_deleg_file, F_UNLCK, NULL, (void **)&dp);
+=======
+	vfs_setlease(fp->fi_deleg_file->nf_file, F_UNLCK, NULL, (void **)&dp);
+>>>>>>> upstream/android-13
 out_clnt_odstate:
 	put_clnt_odstate(dp->dl_clnt_odstate);
 	nfs4_put_stid(&dp->dl_stid);
@@ -4468,6 +6057,7 @@ nfs4_open_delegation(struct svc_fh *fh, struct nfsd4_open *open,
 				goto out_no_deleg;
 			if (!cb_up || !(oo->oo_flags & NFS4_OO_CONFIRMED))
 				goto out_no_deleg;
+<<<<<<< HEAD
 			/*
 			 * Also, if the file was opened for write or
 			 * create, there's a good chance the client's
@@ -4479,6 +6069,8 @@ nfs4_open_delegation(struct svc_fh *fh, struct nfsd4_open *open,
 				goto out_no_deleg;
 			if (open->op_create == NFS4_OPEN_CREATE)
 				goto out_no_deleg;
+=======
+>>>>>>> upstream/android-13
 			break;
 		default:
 			goto out_no_deleg;
@@ -4489,8 +6081,12 @@ nfs4_open_delegation(struct svc_fh *fh, struct nfsd4_open *open,
 
 	memcpy(&open->op_delegate_stateid, &dp->dl_stid.sc_stateid, sizeof(dp->dl_stid.sc_stateid));
 
+<<<<<<< HEAD
 	dprintk("NFSD: delegation stateid=" STATEID_FMT "\n",
 		STATEID_VAL(&dp->dl_stid.sc_stateid));
+=======
+	trace_nfsd_deleg_read(&dp->dl_stid.sc_stateid);
+>>>>>>> upstream/android-13
 	open->op_delegate_type = NFS4_OPEN_DELEGATE_READ;
 	nfs4_put_stid(&dp->dl_stid);
 	return;
@@ -4542,7 +6138,11 @@ nfsd4_process_open2(struct svc_rqst *rqstp, struct svc_fh *current_fh, struct nf
 	 * and check for delegations in the process of being recalled.
 	 * If not found, create the nfs4_file struct
 	 */
+<<<<<<< HEAD
 	fp = find_or_add_file(open->op_file, &current_fh->fh_handle);
+=======
+	fp = find_or_add_file(open->op_file, current_fh);
+>>>>>>> upstream/android-13
 	if (fp != open->op_file) {
 		status = nfs4_check_deleg(cl, open, &dp);
 		if (status)
@@ -4607,9 +6207,13 @@ nfsd4_process_open2(struct svc_rqst *rqstp, struct svc_fh *current_fh, struct nf
 	nfs4_open_delegation(current_fh, open, stp);
 nodeleg:
 	status = nfs_ok;
+<<<<<<< HEAD
 
 	dprintk("%s: stateid=" STATEID_FMT "\n", __func__,
 		STATEID_VAL(&stp->st_stid.sc_stateid));
+=======
+	trace_nfsd_open(&stp->st_stid.sc_stateid);
+>>>>>>> upstream/android-13
 out:
 	/* 4.1 client trying to upgrade/downgrade delegation? */
 	if (open->op_delegate_type == NFS4_OPEN_DELEGATE_NONE && dp &&
@@ -4663,6 +6267,7 @@ nfsd4_renew(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	__be32 status;
 	struct nfsd_net *nn = net_generic(SVC_NET(rqstp), nfsd_net_id);
 
+<<<<<<< HEAD
 	dprintk("process_renew(%08x/%08x): starting\n", 
 			clid->cl_boot, clid->cl_id);
 	status = lookup_clientid(clid, cstate, nn);
@@ -4676,6 +6281,17 @@ nfsd4_renew(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	status = nfs_ok;
 out:
 	return status;
+=======
+	trace_nfsd_clid_renew(clid);
+	status = set_client(clid, cstate, nn);
+	if (status)
+		return status;
+	clp = cstate->clp;
+	if (!list_empty(&clp->cl_delegations)
+			&& clp->cl_cb_state != NFSD4_CB_UP)
+		return nfserr_cb_path_down;
+	return nfs_ok;
+>>>>>>> upstream/android-13
 }
 
 void
@@ -4685,7 +6301,11 @@ nfsd4_end_grace(struct nfsd_net *nn)
 	if (nn->grace_ended)
 		return;
 
+<<<<<<< HEAD
 	dprintk("NFSD: end of grace period\n");
+=======
+	trace_nfsd_grace_complete(nn);
+>>>>>>> upstream/android-13
 	nn->grace_ended = true;
 	/*
 	 * If the server goes down again right now, an NFSv4
@@ -4717,10 +6337,20 @@ nfsd4_end_grace(struct nfsd_net *nn)
  */
 static bool clients_still_reclaiming(struct nfsd_net *nn)
 {
+<<<<<<< HEAD
 	unsigned long now = get_seconds();
 	unsigned long double_grace_period_end = nn->boot_time +
 						2 * nn->nfsd4_lease;
 
+=======
+	time64_t double_grace_period_end = nn->boot_time +
+					   2 * nn->nfsd4_lease;
+
+	if (nn->track_reclaim_completes &&
+			atomic_read(&nn->nr_reclaim_complete) ==
+			nn->reclaim_str_hashtbl_size)
+		return false;
+>>>>>>> upstream/android-13
 	if (!nn->somebody_reclaimed)
 		return false;
 	nn->somebody_reclaimed = false;
@@ -4728,12 +6358,99 @@ static bool clients_still_reclaiming(struct nfsd_net *nn)
 	 * If we've given them *two* lease times to reclaim, and they're
 	 * still not done, give up:
 	 */
+<<<<<<< HEAD
 	if (time_after(now, double_grace_period_end))
+=======
+	if (ktime_get_boottime_seconds() > double_grace_period_end)
+>>>>>>> upstream/android-13
 		return false;
 	return true;
 }
 
+<<<<<<< HEAD
 static time_t
+=======
+struct laundry_time {
+	time64_t cutoff;
+	time64_t new_timeo;
+};
+
+static bool state_expired(struct laundry_time *lt, time64_t last_refresh)
+{
+	time64_t time_remaining;
+
+	if (last_refresh < lt->cutoff)
+		return true;
+	time_remaining = last_refresh - lt->cutoff;
+	lt->new_timeo = min(lt->new_timeo, time_remaining);
+	return false;
+}
+
+#ifdef CONFIG_NFSD_V4_2_INTER_SSC
+void nfsd4_ssc_init_umount_work(struct nfsd_net *nn)
+{
+	spin_lock_init(&nn->nfsd_ssc_lock);
+	INIT_LIST_HEAD(&nn->nfsd_ssc_mount_list);
+	init_waitqueue_head(&nn->nfsd_ssc_waitq);
+}
+EXPORT_SYMBOL_GPL(nfsd4_ssc_init_umount_work);
+
+/*
+ * This is called when nfsd is being shutdown, after all inter_ssc
+ * cleanup were done, to destroy the ssc delayed unmount list.
+ */
+static void nfsd4_ssc_shutdown_umount(struct nfsd_net *nn)
+{
+	struct nfsd4_ssc_umount_item *ni = NULL;
+	struct nfsd4_ssc_umount_item *tmp;
+
+	spin_lock(&nn->nfsd_ssc_lock);
+	list_for_each_entry_safe(ni, tmp, &nn->nfsd_ssc_mount_list, nsui_list) {
+		list_del(&ni->nsui_list);
+		spin_unlock(&nn->nfsd_ssc_lock);
+		mntput(ni->nsui_vfsmount);
+		kfree(ni);
+		spin_lock(&nn->nfsd_ssc_lock);
+	}
+	spin_unlock(&nn->nfsd_ssc_lock);
+}
+
+static void nfsd4_ssc_expire_umount(struct nfsd_net *nn)
+{
+	bool do_wakeup = false;
+	struct nfsd4_ssc_umount_item *ni = 0;
+	struct nfsd4_ssc_umount_item *tmp;
+
+	spin_lock(&nn->nfsd_ssc_lock);
+	list_for_each_entry_safe(ni, tmp, &nn->nfsd_ssc_mount_list, nsui_list) {
+		if (time_after(jiffies, ni->nsui_expire)) {
+			if (refcount_read(&ni->nsui_refcnt) > 1)
+				continue;
+
+			/* mark being unmount */
+			ni->nsui_busy = true;
+			spin_unlock(&nn->nfsd_ssc_lock);
+			mntput(ni->nsui_vfsmount);
+			spin_lock(&nn->nfsd_ssc_lock);
+
+			/* waiters need to start from begin of list */
+			list_del(&ni->nsui_list);
+			kfree(ni);
+
+			/* wakeup ssc_connect waiters */
+			do_wakeup = true;
+			continue;
+		}
+		break;
+	}
+	if (do_wakeup)
+		wake_up_all(&nn->nfsd_ssc_waitq);
+	spin_unlock(&nn->nfsd_ssc_lock);
+}
+#endif
+
+static time64_t
+>>>>>>> upstream/android-13
 nfs4_laundromat(struct nfsd_net *nn)
 {
 	struct nfs4_client *clp;
@@ -4742,6 +6459,7 @@ nfs4_laundromat(struct nfsd_net *nn)
 	struct nfs4_ol_stateid *stp;
 	struct nfsd4_blocked_lock *nbl;
 	struct list_head *pos, *next, reaplist;
+<<<<<<< HEAD
 	time_t cutoff = get_seconds() - nn->nfsd4_lease;
 	time_t t, new_timeo = nn->nfsd4_lease;
 
@@ -4749,10 +6467,23 @@ nfs4_laundromat(struct nfsd_net *nn)
 
 	if (clients_still_reclaiming(nn)) {
 		new_timeo = 0;
+=======
+	struct laundry_time lt = {
+		.cutoff = ktime_get_boottime_seconds() - nn->nfsd4_lease,
+		.new_timeo = nn->nfsd4_lease
+	};
+	struct nfs4_cpntf_state *cps;
+	copy_stateid_t *cps_t;
+	int i;
+
+	if (clients_still_reclaiming(nn)) {
+		lt.new_timeo = 0;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	nfsd4_end_grace(nn);
 	INIT_LIST_HEAD(&reaplist);
+<<<<<<< HEAD
 	spin_lock(&nn->client_lock);
 	list_for_each_safe(pos, next, &nn->client_lru) {
 		clp = list_entry(pos, struct nfs4_client, cl_lru);
@@ -4766,24 +6497,52 @@ nfs4_laundromat(struct nfsd_net *nn)
 				clp->cl_clientid.cl_id);
 			continue;
 		}
+=======
+
+	spin_lock(&nn->s2s_cp_lock);
+	idr_for_each_entry(&nn->s2s_cp_stateids, cps_t, i) {
+		cps = container_of(cps_t, struct nfs4_cpntf_state, cp_stateid);
+		if (cps->cp_stateid.sc_type == NFS4_COPYNOTIFY_STID &&
+				state_expired(&lt, cps->cpntf_time))
+			_free_cpntf_state_locked(nn, cps);
+	}
+	spin_unlock(&nn->s2s_cp_lock);
+
+	spin_lock(&nn->client_lock);
+	list_for_each_safe(pos, next, &nn->client_lru) {
+		clp = list_entry(pos, struct nfs4_client, cl_lru);
+		if (!state_expired(&lt, clp->cl_time))
+			break;
+		if (mark_client_expired_locked(clp))
+			continue;
+>>>>>>> upstream/android-13
 		list_add(&clp->cl_lru, &reaplist);
 	}
 	spin_unlock(&nn->client_lock);
 	list_for_each_safe(pos, next, &reaplist) {
 		clp = list_entry(pos, struct nfs4_client, cl_lru);
+<<<<<<< HEAD
 		dprintk("NFSD: purging unused client (clientid %08x)\n",
 			clp->cl_clientid.cl_id);
+=======
+		trace_nfsd_clid_purged(&clp->cl_clientid);
+>>>>>>> upstream/android-13
 		list_del_init(&clp->cl_lru);
 		expire_client(clp);
 	}
 	spin_lock(&state_lock);
 	list_for_each_safe(pos, next, &nn->del_recall_lru) {
 		dp = list_entry (pos, struct nfs4_delegation, dl_recall_lru);
+<<<<<<< HEAD
 		if (time_after((unsigned long)dp->dl_time, (unsigned long)cutoff)) {
 			t = dp->dl_time - cutoff;
 			new_timeo = min(new_timeo, t);
 			break;
 		}
+=======
+		if (!state_expired(&lt, dp->dl_time))
+			break;
+>>>>>>> upstream/android-13
 		WARN_ON(!unhash_delegation_locked(dp));
 		list_add(&dp->dl_recall_lru, &reaplist);
 	}
@@ -4799,12 +6558,17 @@ nfs4_laundromat(struct nfsd_net *nn)
 	while (!list_empty(&nn->close_lru)) {
 		oo = list_first_entry(&nn->close_lru, struct nfs4_openowner,
 					oo_close_lru);
+<<<<<<< HEAD
 		if (time_after((unsigned long)oo->oo_time,
 			       (unsigned long)cutoff)) {
 			t = oo->oo_time - cutoff;
 			new_timeo = min(new_timeo, t);
 			break;
 		}
+=======
+		if (!state_expired(&lt, oo->oo_time))
+			break;
+>>>>>>> upstream/android-13
 		list_del_init(&oo->oo_close_lru);
 		stp = oo->oo_last_closed_stid;
 		oo->oo_last_closed_stid = NULL;
@@ -4830,12 +6594,17 @@ nfs4_laundromat(struct nfsd_net *nn)
 	while (!list_empty(&nn->blocked_locks_lru)) {
 		nbl = list_first_entry(&nn->blocked_locks_lru,
 					struct nfsd4_blocked_lock, nbl_lru);
+<<<<<<< HEAD
 		if (time_after((unsigned long)nbl->nbl_time,
 			       (unsigned long)cutoff)) {
 			t = nbl->nbl_time - cutoff;
 			new_timeo = min(new_timeo, t);
 			break;
 		}
+=======
+		if (!state_expired(&lt, nbl->nbl_time))
+			break;
+>>>>>>> upstream/android-13
 		list_move(&nbl->nbl_lru, &reaplist);
 		list_del_init(&nbl->nbl_list);
 	}
@@ -4845,12 +6614,23 @@ nfs4_laundromat(struct nfsd_net *nn)
 		nbl = list_first_entry(&reaplist,
 					struct nfsd4_blocked_lock, nbl_lru);
 		list_del_init(&nbl->nbl_lru);
+<<<<<<< HEAD
 		posix_unblock_lock(&nbl->nbl_lock);
 		free_blocked_lock(nbl);
 	}
 out:
 	new_timeo = max_t(time_t, new_timeo, NFSD_LAUNDROMAT_MINTIMEOUT);
 	return new_timeo;
+=======
+		free_blocked_lock(nbl);
+	}
+#ifdef CONFIG_NFSD_V4_2_INTER_SSC
+	/* service the server-to-server copy delayed unmount list */
+	nfsd4_ssc_expire_umount(nn);
+#endif
+out:
+	return max_t(time64_t, lt.new_timeo, NFSD_LAUNDROMAT_MINTIMEOUT);
+>>>>>>> upstream/android-13
 }
 
 static struct workqueue_struct *laundry_wq;
@@ -4859,13 +6639,20 @@ static void laundromat_main(struct work_struct *);
 static void
 laundromat_main(struct work_struct *laundry)
 {
+<<<<<<< HEAD
 	time_t t;
+=======
+	time64_t t;
+>>>>>>> upstream/android-13
 	struct delayed_work *dwork = to_delayed_work(laundry);
 	struct nfsd_net *nn = container_of(dwork, struct nfsd_net,
 					   laundromat_work);
 
 	t = nfs4_laundromat(nn);
+<<<<<<< HEAD
 	dprintk("NFSD: laundromat_main - sleeping for %ld seconds\n", t);
+=======
+>>>>>>> upstream/android-13
 	queue_delayed_work(laundry_wq, &nn->laundromat_work, t*HZ);
 }
 
@@ -4876,6 +6663,7 @@ static inline __be32 nfs4_check_fh(struct svc_fh *fhp, struct nfs4_stid *stp)
 	return nfs_ok;
 }
 
+<<<<<<< HEAD
 static inline int
 access_permit_read(struct nfs4_ol_stateid *stp)
 {
@@ -4891,6 +6679,8 @@ access_permit_write(struct nfs4_ol_stateid *stp)
 		test_access(NFS4_SHARE_ACCESS_BOTH, stp);
 }
 
+=======
+>>>>>>> upstream/android-13
 static
 __be32 nfs4_check_openmode(struct nfs4_ol_stateid *stp, int flags)
 {
@@ -4925,6 +6715,7 @@ check_special_stateids(struct net *net, svc_fh *current_fh, stateid_t *stateid, 
 				NFS4_SHARE_DENY_READ);
 }
 
+<<<<<<< HEAD
 /*
  * Allow READ/WRITE during grace period on recovered state only for files
  * that are not able to provide mandatory locking.
@@ -4935,6 +6726,8 @@ grace_disallows_io(struct net *net, struct inode *inode)
 	return opens_in_grace(net) && mandatory_lock(inode);
 }
 
+=======
+>>>>>>> upstream/android-13
 static __be32 check_stateid_generation(stateid_t *in, stateid_t *ref, bool has_session)
 {
 	/*
@@ -4991,6 +6784,7 @@ static __be32 nfsd4_validate_stateid(struct nfs4_client *cl, stateid_t *stateid)
 	if (ZERO_STATEID(stateid) || ONE_STATEID(stateid) ||
 		CLOSE_STATEID(stateid))
 		return status;
+<<<<<<< HEAD
 	/* Client debugging aid. */
 	if (!same_clid(&stateid->si_opaque.so_clid, &cl->cl_clientid)) {
 		char addr_str[INET6_ADDRSTRLEN];
@@ -5000,6 +6794,10 @@ static __be32 nfsd4_validate_stateid(struct nfs4_client *cl, stateid_t *stateid)
 					"with incorrect client ID\n", addr_str);
 		return status;
 	}
+=======
+	if (!same_clid(&stateid->si_opaque.so_clid, &cl->cl_clientid))
+		return status;
+>>>>>>> upstream/android-13
 	spin_lock(&cl->cl_lock);
 	s = find_stateid_locked(cl, stateid);
 	if (!s)
@@ -5020,7 +6818,11 @@ static __be32 nfsd4_validate_stateid(struct nfs4_client *cl, stateid_t *stateid)
 		break;
 	default:
 		printk("unknown stateid type %x\n", s->sc_type);
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NFS4_CLOSED_STID:
 	case NFS4_CLOSED_DELEG_STID:
 		status = nfserr_bad_stateid;
@@ -5050,7 +6852,11 @@ nfsd4_lookup_stateid(struct nfsd4_compound_state *cstate,
 	if (ZERO_STATEID(stateid) || ONE_STATEID(stateid) ||
 		CLOSE_STATEID(stateid))
 		return nfserr_bad_stateid;
+<<<<<<< HEAD
 	status = lookup_clientid(&stateid->si_opaque.so_clid, cstate, nn);
+=======
+	status = set_client(&stateid->si_opaque.so_clid, cstate, nn);
+>>>>>>> upstream/android-13
 	if (status == nfserr_stale_clientid) {
 		if (cstate->session)
 			return nfserr_bad_stateid;
@@ -5070,7 +6876,11 @@ nfsd4_lookup_stateid(struct nfsd4_compound_state *cstate,
 	return nfs_ok;
 }
 
+<<<<<<< HEAD
 static struct file *
+=======
+static struct nfsd_file *
+>>>>>>> upstream/android-13
 nfs4_find_file(struct nfs4_stid *s, int flags)
 {
 	if (!s)
@@ -5080,21 +6890,32 @@ nfs4_find_file(struct nfs4_stid *s, int flags)
 	case NFS4_DELEG_STID:
 		if (WARN_ON_ONCE(!s->sc_file->fi_deleg_file))
 			return NULL;
+<<<<<<< HEAD
 		return get_file(s->sc_file->fi_deleg_file);
+=======
+		return nfsd_file_get(s->sc_file->fi_deleg_file);
+>>>>>>> upstream/android-13
 	case NFS4_OPEN_STID:
 	case NFS4_LOCK_STID:
 		if (flags & RD_STATE)
 			return find_readable_file(s->sc_file);
 		else
 			return find_writeable_file(s->sc_file);
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
 }
 
 static __be32
+<<<<<<< HEAD
 nfs4_check_olstateid(struct svc_fh *fhp, struct nfs4_ol_stateid *ols, int flags)
+=======
+nfs4_check_olstateid(struct nfs4_ol_stateid *ols, int flags)
+>>>>>>> upstream/android-13
 {
 	__be32 status;
 
@@ -5106,6 +6927,7 @@ nfs4_check_olstateid(struct svc_fh *fhp, struct nfs4_ol_stateid *ols, int flags)
 
 static __be32
 nfs4_check_file(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfs4_stid *s,
+<<<<<<< HEAD
 		struct file **filpp, bool *tmp_file, int flags)
 {
 	int acc = (flags & RD_STATE) ? NFSD_MAY_READ : NFSD_MAY_WRITE;
@@ -5134,20 +6956,138 @@ nfs4_check_file(struct svc_rqst *rqstp, struct svc_fh *fhp, struct nfs4_stid *s,
 	return 0;
 }
 
+=======
+		struct nfsd_file **nfp, int flags)
+{
+	int acc = (flags & RD_STATE) ? NFSD_MAY_READ : NFSD_MAY_WRITE;
+	struct nfsd_file *nf;
+	__be32 status;
+
+	nf = nfs4_find_file(s, flags);
+	if (nf) {
+		status = nfsd_permission(rqstp, fhp->fh_export, fhp->fh_dentry,
+				acc | NFSD_MAY_OWNER_OVERRIDE);
+		if (status) {
+			nfsd_file_put(nf);
+			goto out;
+		}
+	} else {
+		status = nfsd_file_acquire(rqstp, fhp, acc, &nf);
+		if (status)
+			return status;
+	}
+	*nfp = nf;
+out:
+	return status;
+}
+static void
+_free_cpntf_state_locked(struct nfsd_net *nn, struct nfs4_cpntf_state *cps)
+{
+	WARN_ON_ONCE(cps->cp_stateid.sc_type != NFS4_COPYNOTIFY_STID);
+	if (!refcount_dec_and_test(&cps->cp_stateid.sc_count))
+		return;
+	list_del(&cps->cp_list);
+	idr_remove(&nn->s2s_cp_stateids,
+		   cps->cp_stateid.stid.si_opaque.so_id);
+	kfree(cps);
+}
+/*
+ * A READ from an inter server to server COPY will have a
+ * copy stateid. Look up the copy notify stateid from the
+ * idr structure and take a reference on it.
+ */
+__be32 manage_cpntf_state(struct nfsd_net *nn, stateid_t *st,
+			  struct nfs4_client *clp,
+			  struct nfs4_cpntf_state **cps)
+{
+	copy_stateid_t *cps_t;
+	struct nfs4_cpntf_state *state = NULL;
+
+	if (st->si_opaque.so_clid.cl_id != nn->s2s_cp_cl_id)
+		return nfserr_bad_stateid;
+	spin_lock(&nn->s2s_cp_lock);
+	cps_t = idr_find(&nn->s2s_cp_stateids, st->si_opaque.so_id);
+	if (cps_t) {
+		state = container_of(cps_t, struct nfs4_cpntf_state,
+				     cp_stateid);
+		if (state->cp_stateid.sc_type != NFS4_COPYNOTIFY_STID) {
+			state = NULL;
+			goto unlock;
+		}
+		if (!clp)
+			refcount_inc(&state->cp_stateid.sc_count);
+		else
+			_free_cpntf_state_locked(nn, state);
+	}
+unlock:
+	spin_unlock(&nn->s2s_cp_lock);
+	if (!state)
+		return nfserr_bad_stateid;
+	if (!clp && state)
+		*cps = state;
+	return 0;
+}
+
+static __be32 find_cpntf_state(struct nfsd_net *nn, stateid_t *st,
+			       struct nfs4_stid **stid)
+{
+	__be32 status;
+	struct nfs4_cpntf_state *cps = NULL;
+	struct nfs4_client *found;
+
+	status = manage_cpntf_state(nn, st, NULL, &cps);
+	if (status)
+		return status;
+
+	cps->cpntf_time = ktime_get_boottime_seconds();
+
+	status = nfserr_expired;
+	found = lookup_clientid(&cps->cp_p_clid, true, nn);
+	if (!found)
+		goto out;
+
+	*stid = find_stateid_by_type(found, &cps->cp_p_stateid,
+			NFS4_DELEG_STID|NFS4_OPEN_STID|NFS4_LOCK_STID);
+	if (*stid)
+		status = nfs_ok;
+	else
+		status = nfserr_bad_stateid;
+
+	put_client_renew(found);
+out:
+	nfs4_put_cpntf_state(nn, cps);
+	return status;
+}
+
+void nfs4_put_cpntf_state(struct nfsd_net *nn, struct nfs4_cpntf_state *cps)
+{
+	spin_lock(&nn->s2s_cp_lock);
+	_free_cpntf_state_locked(nn, cps);
+	spin_unlock(&nn->s2s_cp_lock);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Checks for stateid operations
  */
 __be32
 nfs4_preprocess_stateid_op(struct svc_rqst *rqstp,
 		struct nfsd4_compound_state *cstate, struct svc_fh *fhp,
+<<<<<<< HEAD
 		stateid_t *stateid, int flags, struct file **filpp, bool *tmp_file)
 {
 	struct inode *ino = d_inode(fhp->fh_dentry);
+=======
+		stateid_t *stateid, int flags, struct nfsd_file **nfp,
+		struct nfs4_stid **cstid)
+{
+>>>>>>> upstream/android-13
 	struct net *net = SVC_NET(rqstp);
 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
 	struct nfs4_stid *s = NULL;
 	__be32 status;
 
+<<<<<<< HEAD
 	if (filpp)
 		*filpp = NULL;
 	if (tmp_file)
@@ -5158,12 +7098,28 @@ nfs4_preprocess_stateid_op(struct svc_rqst *rqstp,
 
 	if (ZERO_STATEID(stateid) || ONE_STATEID(stateid)) {
 		status = check_special_stateids(net, fhp, stateid, flags);
+=======
+	if (nfp)
+		*nfp = NULL;
+
+	if (ZERO_STATEID(stateid) || ONE_STATEID(stateid)) {
+		if (cstid)
+			status = nfserr_bad_stateid;
+		else
+			status = check_special_stateids(net, fhp, stateid,
+									flags);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
 	status = nfsd4_lookup_stateid(cstate, stateid,
 				NFS4_DELEG_STID|NFS4_OPEN_STID|NFS4_LOCK_STID,
 				&s, nn);
+<<<<<<< HEAD
+=======
+	if (status == nfserr_bad_stateid)
+		status = find_cpntf_state(nn, stateid, &s);
+>>>>>>> upstream/android-13
 	if (status)
 		return status;
 	status = nfsd4_stid_check_stateid_generation(stateid, s,
@@ -5177,7 +7133,11 @@ nfs4_preprocess_stateid_op(struct svc_rqst *rqstp,
 		break;
 	case NFS4_OPEN_STID:
 	case NFS4_LOCK_STID:
+<<<<<<< HEAD
 		status = nfs4_check_olstateid(fhp, openlockstateid(s), flags);
+=======
+		status = nfs4_check_olstateid(openlockstateid(s), flags);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		status = nfserr_bad_stateid;
@@ -5188,11 +7148,23 @@ nfs4_preprocess_stateid_op(struct svc_rqst *rqstp,
 	status = nfs4_check_fh(fhp, s);
 
 done:
+<<<<<<< HEAD
 	if (!status && filpp)
 		status = nfs4_check_file(rqstp, fhp, s, filpp, tmp_file, flags);
 out:
 	if (s)
 		nfs4_put_stid(s);
+=======
+	if (status == nfs_ok && nfp)
+		status = nfs4_check_file(rqstp, fhp, s, nfp, flags);
+out:
+	if (s) {
+		if (!status && cstid)
+			*cstid = s;
+		else
+			nfs4_put_stid(s);
+	}
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -5205,7 +7177,11 @@ nfsd4_test_stateid(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 {
 	struct nfsd4_test_stateid *test_stateid = &u->test_stateid;
 	struct nfsd4_test_stateid_id *stateid;
+<<<<<<< HEAD
 	struct nfs4_client *cl = cstate->session->se_client;
+=======
+	struct nfs4_client *cl = cstate->clp;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(stateid, &test_stateid->ts_stateid_list, ts_id_list)
 		stateid->ts_id_status =
@@ -5251,7 +7227,11 @@ nfsd4_free_stateid(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	stateid_t *stateid = &free_stateid->fr_stateid;
 	struct nfs4_stid *s;
 	struct nfs4_delegation *dp;
+<<<<<<< HEAD
 	struct nfs4_client *cl = cstate->session->se_client;
+=======
+	struct nfs4_client *cl = cstate->clp;
+>>>>>>> upstream/android-13
 	__be32 ret = nfserr_bad_stateid;
 
 	spin_lock(&cl->cl_lock);
@@ -5332,8 +7312,12 @@ nfs4_preprocess_seqid_op(struct nfsd4_compound_state *cstate, u32 seqid,
 	struct nfs4_stid *s;
 	struct nfs4_ol_stateid *stp = NULL;
 
+<<<<<<< HEAD
 	dprintk("NFSD: %s: seqid=%d stateid = " STATEID_FMT "\n", __func__,
 		seqid, STATEID_VAL(stateid));
+=======
+	trace_nfsd_preprocess(seqid, stateid);
+>>>>>>> upstream/android-13
 
 	*stpp = NULL;
 	status = nfsd4_lookup_stateid(cstate, stateid, typemask, &s, nn);
@@ -5402,9 +7386,13 @@ nfsd4_open_confirm(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	oo->oo_flags |= NFS4_OO_CONFIRMED;
 	nfs4_inc_and_copy_stateid(&oc->oc_resp_stateid, &stp->st_stid);
 	mutex_unlock(&stp->st_mutex);
+<<<<<<< HEAD
 	dprintk("NFSD: %s: success, seqid=%d stateid=" STATEID_FMT "\n",
 		__func__, oc->oc_seqid, STATEID_VAL(&stp->st_stid.sc_stateid));
 
+=======
+	trace_nfsd_open_confirm(oc->oc_seqid, &stp->st_stid.sc_stateid);
+>>>>>>> upstream/android-13
 	nfsd4_client_record_create(oo->oo_owner.so_client);
 	status = nfs_ok;
 put_stateid:
@@ -5587,6 +7575,7 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 static inline u64
 end_offset(u64 start, u64 len)
 {
@@ -5596,6 +7585,8 @@ end_offset(u64 start, u64 len)
 	return end >= start ? end: NFS4_MAX_UINT64;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* last octet in a range */
 static inline u64
 last_byte_offset(u64 start, u64 len)
@@ -5661,8 +7652,15 @@ nfsd4_lm_notify(struct file_lock *fl)
 	}
 	spin_unlock(&nn->blocked_locks_lock);
 
+<<<<<<< HEAD
 	if (queue)
 		nfsd4_run_cb(&nbl->nbl_cb);
+=======
+	if (queue) {
+		trace_nfsd_cb_notify_lock(lo, nbl);
+		nfsd4_run_cb(&nbl->nbl_cb);
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct lock_manager_operations nfsd_posix_mng_ops  = {
@@ -5678,12 +7676,20 @@ nfs4_set_lock_denied(struct file_lock *fl, struct nfsd4_lock_denied *deny)
 
 	if (fl->fl_lmops == &nfsd_posix_mng_ops) {
 		lo = (struct nfs4_lockowner *) fl->fl_owner;
+<<<<<<< HEAD
 		deny->ld_owner.data = kmemdup(lo->lo_owner.so_owner.data,
 					lo->lo_owner.so_owner.len, GFP_KERNEL);
 		if (!deny->ld_owner.data)
 			/* We just don't care that much */
 			goto nevermind;
 		deny->ld_owner.len = lo->lo_owner.so_owner.len;
+=======
+		xdr_netobj_dup(&deny->ld_owner, &lo->lo_owner.so_owner,
+						GFP_KERNEL);
+		if (!deny->ld_owner.data)
+			/* We just don't care that much */
+			goto nevermind;
+>>>>>>> upstream/android-13
 		deny->ld_clientid = lo->lo_owner.so_client->cl_clientid;
 	} else {
 nevermind:
@@ -5954,10 +7960,18 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	struct nfs4_ol_stateid *lock_stp = NULL;
 	struct nfs4_ol_stateid *open_stp = NULL;
 	struct nfs4_file *fp;
+<<<<<<< HEAD
 	struct file *filp = NULL;
 	struct nfsd4_blocked_lock *nbl = NULL;
 	struct file_lock *file_lock = NULL;
 	struct file_lock *conflock = NULL;
+=======
+	struct nfsd_file *nf = NULL;
+	struct nfsd4_blocked_lock *nbl = NULL;
+	struct file_lock *file_lock = NULL;
+	struct file_lock *conflock = NULL;
+	struct super_block *sb;
+>>>>>>> upstream/android-13
 	__be32 status = 0;
 	int lkflg;
 	int err;
@@ -5979,11 +7993,16 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		dprintk("NFSD: nfsd4_lock: permission denied!\n");
 		return status;
 	}
+<<<<<<< HEAD
+=======
+	sb = cstate->current_fh.fh_dentry->d_sb;
+>>>>>>> upstream/android-13
 
 	if (lock->lk_is_new) {
 		if (nfsd4_has_session(cstate))
 			/* See rfc 5661 18.10.3: given clientid is ignored: */
 			memcpy(&lock->lk_new_clientid,
+<<<<<<< HEAD
 				&cstate->session->se_client->cl_clientid,
 				sizeof(clientid_t));
 
@@ -5991,6 +8010,11 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		if (STALE_CLIENTID(&lock->lk_new_clientid, nn))
 			goto out;
 
+=======
+				&cstate->clp->cl_clientid,
+				sizeof(clientid_t));
+
+>>>>>>> upstream/android-13
 		/* validate and update open stateid and open seqid */
 		status = nfs4_preprocess_confirmed_seqid_op(cstate,
 				        lock->lk_new_open_seqid,
@@ -6028,6 +8052,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	if (!locks_in_grace(net) && lock->lk_reclaim)
 		goto out;
 
+<<<<<<< HEAD
 	fp = lock_stp->st_stid.sc_file;
 	switch (lock->lk_type) {
 		case NFS4_READW_LT:
@@ -6038,11 +8063,28 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 			spin_lock(&fp->fi_lock);
 			filp = find_readable_file_locked(fp);
 			if (filp)
+=======
+	if (lock->lk_reclaim)
+		fl_flags |= FL_RECLAIM;
+
+	fp = lock_stp->st_stid.sc_file;
+	switch (lock->lk_type) {
+		case NFS4_READW_LT:
+			if (nfsd4_has_session(cstate) &&
+			    !(sb->s_export_op->flags & EXPORT_OP_SYNC_LOCKS))
+				fl_flags |= FL_SLEEP;
+			fallthrough;
+		case NFS4_READ_LT:
+			spin_lock(&fp->fi_lock);
+			nf = find_readable_file_locked(fp);
+			if (nf)
+>>>>>>> upstream/android-13
 				get_lock_access(lock_stp, NFS4_SHARE_ACCESS_READ);
 			spin_unlock(&fp->fi_lock);
 			fl_type = F_RDLCK;
 			break;
 		case NFS4_WRITEW_LT:
+<<<<<<< HEAD
 			if (nfsd4_has_session(cstate))
 				fl_flags |= FL_SLEEP;
 			/* Fallthrough */
@@ -6050,6 +8092,16 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 			spin_lock(&fp->fi_lock);
 			filp = find_writeable_file_locked(fp);
 			if (filp)
+=======
+			if (nfsd4_has_session(cstate) &&
+			    !(sb->s_export_op->flags & EXPORT_OP_SYNC_LOCKS))
+				fl_flags |= FL_SLEEP;
+			fallthrough;
+		case NFS4_WRITE_LT:
+			spin_lock(&fp->fi_lock);
+			nf = find_writeable_file_locked(fp);
+			if (nf)
+>>>>>>> upstream/android-13
 				get_lock_access(lock_stp, NFS4_SHARE_ACCESS_WRITE);
 			spin_unlock(&fp->fi_lock);
 			fl_type = F_WRLCK;
@@ -6059,7 +8111,11 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (!filp) {
+=======
+	if (!nf) {
+>>>>>>> upstream/android-13
 		status = nfserr_openmode;
 		goto out;
 	}
@@ -6075,7 +8131,11 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	file_lock->fl_type = fl_type;
 	file_lock->fl_owner = (fl_owner_t)lockowner(nfs4_get_stateowner(&lock_sop->lo_owner));
 	file_lock->fl_pid = current->tgid;
+<<<<<<< HEAD
 	file_lock->fl_file = filp;
+=======
+	file_lock->fl_file = nf->nf_file;
+>>>>>>> upstream/android-13
 	file_lock->fl_flags = fl_flags;
 	file_lock->fl_lmops = &nfsd_posix_mng_ops;
 	file_lock->fl_start = lock->lk_offset;
@@ -6090,14 +8150,22 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	}
 
 	if (fl_flags & FL_SLEEP) {
+<<<<<<< HEAD
 		nbl->nbl_time = get_seconds();
+=======
+		nbl->nbl_time = ktime_get_boottime_seconds();
+>>>>>>> upstream/android-13
 		spin_lock(&nn->blocked_locks_lock);
 		list_add_tail(&nbl->nbl_list, &lock_sop->lo_blocked);
 		list_add_tail(&nbl->nbl_lru, &nn->blocked_locks_lru);
 		spin_unlock(&nn->blocked_locks_lock);
 	}
 
+<<<<<<< HEAD
 	err = vfs_lock_file(filp, F_SETLK, file_lock, conflock);
+=======
+	err = vfs_lock_file(nf->nf_file, F_SETLK, file_lock, conflock);
+>>>>>>> upstream/android-13
 	switch (err) {
 	case 0: /* success! */
 		nfs4_inc_and_copy_stateid(&lock->lk_resp_stateid, &lock_stp->st_stid);
@@ -6107,7 +8175,11 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		break;
 	case FILE_LOCK_DEFERRED:
 		nbl = NULL;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -EAGAIN:		/* conflock holds conflicting lock */
 		status = nfserr_denied;
 		dprintk("NFSD: nfsd4_lock: conflicting lock found!\n");
@@ -6132,8 +8204,13 @@ out:
 		}
 		free_blocked_lock(nbl);
 	}
+<<<<<<< HEAD
 	if (filp)
 		fput(filp);
+=======
+	if (nf)
+		nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 	if (lock_stp) {
 		/* Bump seqid manually if the 4.0 replay owner is openowner */
 		if (cstate->replay_owner &&
@@ -6163,6 +8240,7 @@ out:
 /*
  * The NFSv4 spec allows a client to do a LOCKT without holding an OPEN,
  * so we do a temporary open here just to get an open file to pass to
+<<<<<<< HEAD
  * vfs_test_lock.  (Arguably perhaps test_lock should be done with an
  * inode operation.)
  */
@@ -6174,6 +8252,29 @@ static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct 
 		err = nfserrno(vfs_test_lock(file, lock));
 		fput(file);
 	}
+=======
+ * vfs_test_lock.
+ */
+static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file_lock *lock)
+{
+	struct nfsd_file *nf;
+	__be32 err;
+
+	err = nfsd_file_acquire(rqstp, fhp, NFSD_MAY_READ, &nf);
+	if (err)
+		return err;
+	fh_lock(fhp); /* to block new leases till after test_lock: */
+	err = nfserrno(nfsd_open_break_lease(fhp->fh_dentry->d_inode,
+							NFSD_MAY_READ));
+	if (err)
+		goto out;
+	lock->fl_file = nf->nf_file;
+	err = nfserrno(vfs_test_lock(nf->nf_file, lock));
+	lock->fl_file = NULL;
+out:
+	fh_unlock(fhp);
+	nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -6197,7 +8298,11 @@ nfsd4_lockt(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		 return nfserr_inval;
 
 	if (!nfsd4_has_session(cstate)) {
+<<<<<<< HEAD
 		status = lookup_clientid(&lockt->lt_clientid, cstate, nn);
+=======
+		status = set_client(&lockt->lt_clientid, cstate, nn);
+>>>>>>> upstream/android-13
 		if (status)
 			goto out;
 	}
@@ -6216,6 +8321,7 @@ nfsd4_lockt(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		case NFS4_READ_LT:
 		case NFS4_READW_LT:
 			file_lock->fl_type = F_RDLCK;
+<<<<<<< HEAD
 		break;
 		case NFS4_WRITE_LT:
 		case NFS4_WRITEW_LT:
@@ -6225,6 +8331,17 @@ nfsd4_lockt(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 			dprintk("NFSD: nfs4_lockt: bad lock type!\n");
 			status = nfserr_inval;
 		goto out;
+=======
+			break;
+		case NFS4_WRITE_LT:
+		case NFS4_WRITEW_LT:
+			file_lock->fl_type = F_WRLCK;
+			break;
+		default:
+			dprintk("NFSD: nfs4_lockt: bad lock type!\n");
+			status = nfserr_inval;
+			goto out;
+>>>>>>> upstream/android-13
 	}
 
 	lo = find_lockowner_str(cstate->clp, &lockt->lt_owner);
@@ -6260,7 +8377,11 @@ nfsd4_locku(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 {
 	struct nfsd4_locku *locku = &u->locku;
 	struct nfs4_ol_stateid *stp;
+<<<<<<< HEAD
 	struct file *filp = NULL;
+=======
+	struct nfsd_file *nf = NULL;
+>>>>>>> upstream/android-13
 	struct file_lock *file_lock = NULL;
 	__be32 status;
 	int err;
@@ -6278,8 +8399,13 @@ nfsd4_locku(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 					&stp, nn);
 	if (status)
 		goto out;
+<<<<<<< HEAD
 	filp = find_any_file(stp->st_stid.sc_file);
 	if (!filp) {
+=======
+	nf = find_any_file(stp->st_stid.sc_file);
+	if (!nf) {
+>>>>>>> upstream/android-13
 		status = nfserr_lock_range;
 		goto put_stateid;
 	}
@@ -6287,13 +8413,21 @@ nfsd4_locku(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	if (!file_lock) {
 		dprintk("NFSD: %s: unable to allocate lock!\n", __func__);
 		status = nfserr_jukebox;
+<<<<<<< HEAD
 		goto fput;
+=======
+		goto put_file;
+>>>>>>> upstream/android-13
 	}
 
 	file_lock->fl_type = F_UNLCK;
 	file_lock->fl_owner = (fl_owner_t)lockowner(nfs4_get_stateowner(stp->st_stateowner));
 	file_lock->fl_pid = current->tgid;
+<<<<<<< HEAD
 	file_lock->fl_file = filp;
+=======
+	file_lock->fl_file = nf->nf_file;
+>>>>>>> upstream/android-13
 	file_lock->fl_flags = FL_POSIX;
 	file_lock->fl_lmops = &nfsd_posix_mng_ops;
 	file_lock->fl_start = locku->lu_offset;
@@ -6302,14 +8436,23 @@ nfsd4_locku(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 						locku->lu_length);
 	nfs4_transform_lock_offset(file_lock);
 
+<<<<<<< HEAD
 	err = vfs_lock_file(filp, F_SETLK, file_lock, NULL);
+=======
+	err = vfs_lock_file(nf->nf_file, F_SETLK, file_lock, NULL);
+>>>>>>> upstream/android-13
 	if (err) {
 		dprintk("NFSD: nfs4_locku: vfs_lock_file failed!\n");
 		goto out_nfserr;
 	}
 	nfs4_inc_and_copy_stateid(&locku->lu_stateid, &stp->st_stid);
+<<<<<<< HEAD
 fput:
 	fput(filp);
+=======
+put_file:
+	nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 put_stateid:
 	mutex_unlock(&stp->st_mutex);
 	nfs4_put_stid(&stp->st_stid);
@@ -6321,7 +8464,11 @@ out:
 
 out_nfserr:
 	status = nfserrno(err);
+<<<<<<< HEAD
 	goto fput;
+=======
+	goto put_file;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -6334,17 +8481,29 @@ check_for_locks(struct nfs4_file *fp, struct nfs4_lockowner *lowner)
 {
 	struct file_lock *fl;
 	int status = false;
+<<<<<<< HEAD
 	struct file *filp = find_any_file(fp);
 	struct inode *inode;
 	struct file_lock_context *flctx;
 
 	if (!filp) {
+=======
+	struct nfsd_file *nf = find_any_file(fp);
+	struct inode *inode;
+	struct file_lock_context *flctx;
+
+	if (!nf) {
+>>>>>>> upstream/android-13
 		/* Any valid lock stateid should have some sort of access */
 		WARN_ON_ONCE(1);
 		return status;
 	}
 
+<<<<<<< HEAD
 	inode = locks_inode(filp);
+=======
+	inode = locks_inode(nf->nf_file);
+>>>>>>> upstream/android-13
 	flctx = inode->i_flctx;
 
 	if (flctx && !list_empty_careful(&flctx->flc_posix)) {
@@ -6357,7 +8516,11 @@ check_for_locks(struct nfs4_file *fp, struct nfs4_lockowner *lowner)
 		}
 		spin_unlock(&flctx->flc_lock);
 	}
+<<<<<<< HEAD
 	fput(filp);
+=======
+	nfsd_file_put(nf);
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -6381,7 +8544,11 @@ nfsd4_release_lockowner(struct svc_rqst *rqstp,
 	dprintk("nfsd4_release_lockowner clientid: (%08x/%08x):\n",
 		clid->cl_boot, clid->cl_id);
 
+<<<<<<< HEAD
 	status = lookup_clientid(clid, cstate, nn);
+=======
+	status = set_client(clid, cstate, nn);
+>>>>>>> upstream/android-13
 	if (status)
 		return status;
 
@@ -6435,7 +8602,11 @@ alloc_reclaim(void)
 }
 
 bool
+<<<<<<< HEAD
 nfs4_has_reclaimed_state(const char *name, struct nfsd_net *nn)
+=======
+nfs4_has_reclaimed_state(struct xdr_netobj name, struct nfsd_net *nn)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_client_reclaim *crp;
 
@@ -6445,20 +8616,40 @@ nfs4_has_reclaimed_state(const char *name, struct nfsd_net *nn)
 
 /*
  * failure => all reset bets are off, nfserr_no_grace...
+<<<<<<< HEAD
  */
 struct nfs4_client_reclaim *
 nfs4_client_to_reclaim(const char *name, struct nfsd_net *nn)
+=======
+ *
+ * The caller is responsible for freeing name.data if NULL is returned (it
+ * will be freed in nfs4_remove_reclaim_record in the normal case).
+ */
+struct nfs4_client_reclaim *
+nfs4_client_to_reclaim(struct xdr_netobj name, struct xdr_netobj princhash,
+		struct nfsd_net *nn)
+>>>>>>> upstream/android-13
 {
 	unsigned int strhashval;
 	struct nfs4_client_reclaim *crp;
 
+<<<<<<< HEAD
 	dprintk("NFSD nfs4_client_to_reclaim NAME: %.*s\n", HEXDIR_LEN, name);
+=======
+>>>>>>> upstream/android-13
 	crp = alloc_reclaim();
 	if (crp) {
 		strhashval = clientstr_hashval(name);
 		INIT_LIST_HEAD(&crp->cr_strhash);
 		list_add(&crp->cr_strhash, &nn->reclaim_str_hashtbl[strhashval]);
+<<<<<<< HEAD
 		memcpy(crp->cr_recdir, name, HEXDIR_LEN);
+=======
+		crp->cr_name.data = name.data;
+		crp->cr_name.len = name.len;
+		crp->cr_princhash.data = princhash.data;
+		crp->cr_princhash.len = princhash.len;
+>>>>>>> upstream/android-13
 		crp->cr_clp = NULL;
 		nn->reclaim_str_hashtbl_size++;
 	}
@@ -6469,6 +8660,11 @@ void
 nfs4_remove_reclaim_record(struct nfs4_client_reclaim *crp, struct nfsd_net *nn)
 {
 	list_del(&crp->cr_strhash);
+<<<<<<< HEAD
+=======
+	kfree(crp->cr_name.data);
+	kfree(crp->cr_princhash.data);
+>>>>>>> upstream/android-13
 	kfree(crp);
 	nn->reclaim_str_hashtbl_size--;
 }
@@ -6492,22 +8688,33 @@ nfs4_release_reclaim(struct nfsd_net *nn)
 /*
  * called from OPEN, CLAIM_PREVIOUS with a new clientid. */
 struct nfs4_client_reclaim *
+<<<<<<< HEAD
 nfsd4_find_reclaim_client(const char *recdir, struct nfsd_net *nn)
+=======
+nfsd4_find_reclaim_client(struct xdr_netobj name, struct nfsd_net *nn)
+>>>>>>> upstream/android-13
 {
 	unsigned int strhashval;
 	struct nfs4_client_reclaim *crp = NULL;
 
+<<<<<<< HEAD
 	dprintk("NFSD: nfs4_find_reclaim_client for recdir %s\n", recdir);
 
 	strhashval = clientstr_hashval(recdir);
 	list_for_each_entry(crp, &nn->reclaim_str_hashtbl[strhashval], cr_strhash) {
 		if (same_name(crp->cr_recdir, recdir)) {
+=======
+	strhashval = clientstr_hashval(name);
+	list_for_each_entry(crp, &nn->reclaim_str_hashtbl[strhashval], cr_strhash) {
+		if (compare_blob(&crp->cr_name, &name) == 0) {
+>>>>>>> upstream/android-13
 			return crp;
 		}
 	}
 	return NULL;
 }
 
+<<<<<<< HEAD
 /*
 * Called from OPEN. Look for clientid in reclaim list.
 */
@@ -6527,11 +8734,21 @@ nfs4_check_open_reclaim(clientid_t *clid,
 		return nfserr_no_grace;
 
 	if (nfsd4_client_record_check(cstate->clp))
+=======
+__be32
+nfs4_check_open_reclaim(struct nfs4_client *clp)
+{
+	if (test_bit(NFSD4_CLIENT_RECLAIM_COMPLETE, &clp->cl_flags))
+		return nfserr_no_grace;
+
+	if (nfsd4_client_record_check(clp))
+>>>>>>> upstream/android-13
 		return nfserr_reclaim_bad;
 
 	return nfs_ok;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_NFSD_FAULT_INJECTION
 static inline void
 put_client(struct nfs4_client *clp)
@@ -7122,6 +9339,8 @@ nfsd_inject_recall_delegations(u64 max)
 }
 #endif /* CONFIG_NFSD_FAULT_INJECTION */
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Since the lifetime of a delegation isn't limited to that of an open, a
  * client may quite reasonably hang on to a delegation as long as it has
@@ -7172,7 +9391,11 @@ static int nfs4_state_create_net(struct net *net)
 		INIT_LIST_HEAD(&nn->sessionid_hashtbl[i]);
 	nn->conf_name_tree = RB_ROOT;
 	nn->unconf_name_tree = RB_ROOT;
+<<<<<<< HEAD
 	nn->boot_time = get_seconds();
+=======
+	nn->boot_time = ktime_get_real_seconds();
+>>>>>>> upstream/android-13
 	nn->grace_ended = false;
 	nn->nfsd4_manager.block_opens = true;
 	INIT_LIST_HEAD(&nn->nfsd4_manager.list);
@@ -7180,6 +9403,11 @@ static int nfs4_state_create_net(struct net *net)
 	INIT_LIST_HEAD(&nn->close_lru);
 	INIT_LIST_HEAD(&nn->del_recall_lru);
 	spin_lock_init(&nn->client_lock);
+<<<<<<< HEAD
+=======
+	spin_lock_init(&nn->s2s_cp_lock);
+	idr_init(&nn->s2s_cp_stateids);
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&nn->blocked_locks_lock);
 	INIT_LIST_HEAD(&nn->blocked_locks_lru);
@@ -7237,10 +9465,27 @@ nfs4_state_start_net(struct net *net)
 		return ret;
 	locks_start_grace(net, &nn->nfsd4_manager);
 	nfsd4_client_tracking_init(net);
+<<<<<<< HEAD
 	printk(KERN_INFO "NFSD: starting %ld-second grace period (net %x)\n",
 	       nn->nfsd4_grace, net->ns.inum);
 	queue_delayed_work(laundry_wq, &nn->laundromat_work, nn->nfsd4_grace * HZ);
 	return 0;
+=======
+	if (nn->track_reclaim_completes && nn->reclaim_str_hashtbl_size == 0)
+		goto skip_grace;
+	printk(KERN_INFO "NFSD: starting %lld-second grace period (net %x)\n",
+	       nn->nfsd4_grace, net->ns.inum);
+	trace_nfsd_grace_start(nn);
+	queue_delayed_work(laundry_wq, &nn->laundromat_work, nn->nfsd4_grace * HZ);
+	return 0;
+
+skip_grace:
+	printk(KERN_INFO "NFSD: no clients to reclaim, skipping NFSv4 grace period (net %x)\n",
+			net->ns.inum);
+	queue_delayed_work(laundry_wq, &nn->laundromat_work, nn->nfsd4_lease * HZ);
+	nfsd4_end_grace(nn);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* initialization to perform when the nfsd service is started: */
@@ -7294,6 +9539,12 @@ nfs4_state_shutdown_net(struct net *net)
 
 	nfsd4_client_tracking_exit(net);
 	nfs4_state_destroy_net(net);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFSD_V4_2_INTER_SSC
+	nfsd4_ssc_shutdown_umount(nn);
+#endif
+>>>>>>> upstream/android-13
 }
 
 void
@@ -7306,7 +9557,12 @@ nfs4_state_shutdown(void)
 static void
 get_stateid(struct nfsd4_compound_state *cstate, stateid_t *stateid)
 {
+<<<<<<< HEAD
 	if (HAS_STATE_ID(cstate, CURRENT_STATE_ID_FLAG) && CURRENT_STATEID(stateid))
+=======
+	if (HAS_CSTATE_FLAG(cstate, CURRENT_STATE_ID_FLAG) &&
+	    CURRENT_STATEID(stateid))
+>>>>>>> upstream/android-13
 		memcpy(stateid, &cstate->current_stateid, sizeof(stateid_t));
 }
 
@@ -7315,14 +9571,22 @@ put_stateid(struct nfsd4_compound_state *cstate, stateid_t *stateid)
 {
 	if (cstate->minorversion) {
 		memcpy(&cstate->current_stateid, stateid, sizeof(stateid_t));
+<<<<<<< HEAD
 		SET_STATE_ID(cstate, CURRENT_STATE_ID_FLAG);
+=======
+		SET_CSTATE_FLAG(cstate, CURRENT_STATE_ID_FLAG);
+>>>>>>> upstream/android-13
 	}
 }
 
 void
 clear_current_stateid(struct nfsd4_compound_state *cstate)
 {
+<<<<<<< HEAD
 	CLEAR_STATE_ID(cstate, CURRENT_STATE_ID_FLAG);
+=======
+	CLEAR_CSTATE_FLAG(cstate, CURRENT_STATE_ID_FLAG);
+>>>>>>> upstream/android-13
 }
 
 /*

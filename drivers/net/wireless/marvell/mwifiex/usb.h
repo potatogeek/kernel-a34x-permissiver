@@ -1,10 +1,17 @@
 /*
  * This file contains definitions for mwifiex USB interface driver.
  *
+<<<<<<< HEAD
  * Copyright (C) 2012-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -134,7 +141,11 @@ struct fw_sync_header {
 struct fw_data {
 	struct fw_header fw_hdr;
 	__le32 seq_num;
+<<<<<<< HEAD
 	u8 data[1];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #endif /*_MWIFIEX_USB_H */

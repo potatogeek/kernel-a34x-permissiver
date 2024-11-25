@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7091/SH7750/SH7750S/SH7750R/SH7751/SH7751R Setup
  *
  *  Copyright (C) 2006  Paul Mundt
  *  Copyright (C) 2006  Jamie Lenehan
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/init.h>
@@ -16,6 +23,10 @@
 #include <linux/sh_intc.h>
 #include <linux/serial_sci.h>
 #include <generated/machtypes.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 static struct resource rtc_resources[] = {
 	[0] = {
@@ -164,6 +175,7 @@ void __init plat_early_device_setup(void)
 	if (mach_is_rts7751r2d()) {
 		scif_platform_data.scscr |= SCSCR_CKE1;
 		dev[0] = &scif_device;
+<<<<<<< HEAD
 		early_platform_add_devices(dev, 1);
 	} else {
 		dev[0] = &sci_device;
@@ -173,6 +185,17 @@ void __init plat_early_device_setup(void)
 	}
 
 	early_platform_add_devices(sh7750_early_devices,
+=======
+		sh_early_platform_add_devices(dev, 1);
+	} else {
+		dev[0] = &sci_device;
+		sh_early_platform_add_devices(dev, 1);
+		dev[0] = &scif_device;
+		sh_early_platform_add_devices(dev, 1);
+	}
+
+	sh_early_platform_add_devices(sh7750_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(sh7750_early_devices));
 }
 

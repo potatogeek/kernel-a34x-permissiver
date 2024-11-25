@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -20,7 +24,11 @@
  *		Alan Cox	:	Added BSD route gw semantics
  *		Alan Cox	:	Super /proc >4K
  *		Alan Cox	:	MTU in route table
+<<<<<<< HEAD
  *		Alan Cox	: 	MSS actually. Also added the window
+=======
+ *		Alan Cox	:	MSS actually. Also added the window
+>>>>>>> upstream/android-13
  *					clamper.
  *		Sam Lantinga	:	Fixed route matching in rt_del()
  *		Alan Cox	:	Routing cache support.
@@ -40,7 +48,11 @@
  *		Olaf Erb	:	irtt wasn't being copied right.
  *		Bjorn Ekwall	:	Kerneld route support.
  *		Alan Cox	:	Multicast fixed (I hope)
+<<<<<<< HEAD
  * 		Pavel Krauz	:	Limited broadcast fixed
+=======
+ *		Pavel Krauz	:	Limited broadcast fixed
+>>>>>>> upstream/android-13
  *		Mike McLagan	:	Routing by source
  *	Alexey Kuznetsov	:	End of old history. Split to fib.c and
  *					route.c and rewritten from scratch.
@@ -53,6 +65,7 @@
  *	Robert Olsson		:	Added rt_cache statistics
  *	Arnaldo C. Melo		:	Convert proc stuff to seq_file
  *	Eric Dumazet		:	hashed spinlocks and rt_check_expire() fixes.
+<<<<<<< HEAD
  * 	Ilia Sotnikov		:	Ignore TOS on PMTUD and Redirect
  * 	Ilia Sotnikov		:	Removed TOS from hash calculations
  *
@@ -60,6 +73,10 @@
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+ *	Ilia Sotnikov		:	Ignore TOS on PMTUD and Redirect
+ *	Ilia Sotnikov		:	Removed TOS from hash calculations
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "IPv4: " fmt
@@ -70,6 +87,10 @@
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/socket.h>
 #include <linux/sockios.h>
@@ -99,6 +120,10 @@
 #include <net/inetpeer.h>
 #include <net/sock.h>
 #include <net/ip_fib.h>
+<<<<<<< HEAD
+=======
+#include <net/nexthop.h>
+>>>>>>> upstream/android-13
 #include <net/arp.h>
 #include <net/tcp.h>
 #include <net/icmp.h>
@@ -136,9 +161,17 @@ static int ip_rt_gc_timeout __read_mostly	= RT_GC_TIMEOUT;
  *	Interface to generic destination cache.
  */
 
+<<<<<<< HEAD
 static struct dst_entry *ipv4_dst_check(struct dst_entry *dst, u32 cookie);
 static unsigned int	 ipv4_default_advmss(const struct dst_entry *dst);
 static unsigned int	 ipv4_mtu(const struct dst_entry *dst);
+=======
+INDIRECT_CALLABLE_SCOPE
+struct dst_entry	*ipv4_dst_check(struct dst_entry *dst, u32 cookie);
+static unsigned int	 ipv4_default_advmss(const struct dst_entry *dst);
+INDIRECT_CALLABLE_SCOPE
+unsigned int		ipv4_mtu(const struct dst_entry *dst);
+>>>>>>> upstream/android-13
 static struct dst_entry *ipv4_negative_advice(struct dst_entry *dst);
 static void		 ipv4_link_failure(struct sk_buff *skb);
 static void		 ip_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
@@ -235,6 +268,7 @@ static const struct seq_operations rt_cache_seq_ops = {
 	.show   = rt_cache_seq_show,
 };
 
+<<<<<<< HEAD
 static int rt_cache_seq_open(struct inode *inode, struct file *file)
 {
 	return seq_open(file, &rt_cache_seq_ops);
@@ -248,6 +282,8 @@ static const struct file_operations rt_cache_seq_fops = {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 static void *rt_cpu_seq_start(struct seq_file *seq, loff_t *pos)
 {
 	int cpu;
@@ -289,12 +325,22 @@ static int rt_cpu_seq_show(struct seq_file *seq, void *v)
 	struct rt_cache_stat *st = v;
 
 	if (v == SEQ_START_TOKEN) {
+<<<<<<< HEAD
 		seq_printf(seq, "entries  in_hit in_slow_tot in_slow_mc in_no_route in_brd in_martian_dst in_martian_src  out_hit out_slow_tot out_slow_mc  gc_total gc_ignored gc_goal_miss gc_dst_overflow in_hlist_search out_hlist_search\n");
 		return 0;
 	}
 
 	seq_printf(seq,"%08x  %08x %08x %08x %08x %08x %08x %08x "
 		   " %08x %08x %08x %08x %08x %08x %08x %08x %08x \n",
+=======
+		seq_puts(seq, "entries  in_hit   in_slow_tot in_slow_mc in_no_route in_brd   in_martian_dst in_martian_src out_hit  out_slow_tot out_slow_mc gc_total gc_ignored gc_goal_miss gc_dst_overflow in_hlist_search out_hlist_search\n");
+		return 0;
+	}
+
+	seq_printf(seq, "%08x %08x %08x    %08x   %08x    %08x %08x       "
+			"%08x       %08x %08x     %08x    %08x %08x   "
+			"%08x     %08x        %08x        %08x\n",
+>>>>>>> upstream/android-13
 		   dst_entries_get_slow(&ipv4_dst_ops),
 		   0, /* st->in_hit */
 		   st->in_slow_tot,
@@ -325,6 +371,7 @@ static const struct seq_operations rt_cpu_seq_ops = {
 	.show   = rt_cpu_seq_show,
 };
 
+<<<<<<< HEAD
 
 static int rt_cpu_seq_open(struct inode *inode, struct file *file)
 {
@@ -338,6 +385,8 @@ static const struct file_operations rt_cpu_seq_fops = {
 	.release = seq_release,
 };
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IP_ROUTE_CLASSID
 static int rt_acct_proc_show(struct seq_file *m, void *v)
 {
@@ -368,6 +417,7 @@ static int __net_init ip_rt_do_proc_init(struct net *net)
 {
 	struct proc_dir_entry *pde;
 
+<<<<<<< HEAD
 	pde = proc_create("rt_cache", 0444, net->proc_net,
 			  &rt_cache_seq_fops);
 	if (!pde)
@@ -375,6 +425,15 @@ static int __net_init ip_rt_do_proc_init(struct net *net)
 
 	pde = proc_create("rt_cache", 0444,
 			  net->proc_net_stat, &rt_cpu_seq_fops);
+=======
+	pde = proc_create_seq("rt_cache", 0444, net->proc_net,
+			      &rt_cache_seq_ops);
+	if (!pde)
+		goto err1;
+
+	pde = proc_create_seq("rt_cache", 0444, net->proc_net_stat,
+			      &rt_cpu_seq_ops);
+>>>>>>> upstream/android-13
 	if (!pde)
 		goto err2;
 
@@ -436,6 +495,7 @@ static struct neighbour *ipv4_neigh_lookup(const struct dst_entry *dst,
 					   struct sk_buff *skb,
 					   const void *daddr)
 {
+<<<<<<< HEAD
 	struct net_device *dev = dst->dev;
 	const __be32 *pkey = daddr;
 	const struct rtable *rt;
@@ -451,10 +511,36 @@ static struct neighbour *ipv4_neigh_lookup(const struct dst_entry *dst,
 	if (n)
 		return n;
 	return neigh_create(&arp_tbl, pkey, dev);
+=======
+	const struct rtable *rt = container_of(dst, struct rtable, dst);
+	struct net_device *dev = dst->dev;
+	struct neighbour *n;
+
+	rcu_read_lock_bh();
+
+	if (likely(rt->rt_gw_family == AF_INET)) {
+		n = ip_neigh_gw4(dev, rt->rt_gw4);
+	} else if (rt->rt_gw_family == AF_INET6) {
+		n = ip_neigh_gw6(dev, &rt->rt_gw6);
+        } else {
+		__be32 pkey;
+
+		pkey = skb ? ip_hdr(skb)->daddr : *((__be32 *) daddr);
+		n = ip_neigh_gw4(dev, pkey);
+	}
+
+	if (!IS_ERR(n) && !refcount_inc_not_zero(&n->refcnt))
+		n = NULL;
+
+	rcu_read_unlock_bh();
+
+	return n;
+>>>>>>> upstream/android-13
 }
 
 static void ipv4_confirm_neigh(const struct dst_entry *dst, const void *daddr)
 {
+<<<<<<< HEAD
 	struct net_device *dev = dst->dev;
 	const __be32 *pkey = daddr;
 	const struct rtable *rt;
@@ -472,6 +558,28 @@ static void ipv4_confirm_neigh(const struct dst_entry *dst, const void *daddr)
 
 #define IP_IDENTS_SZ 2048u
 
+=======
+	const struct rtable *rt = container_of(dst, struct rtable, dst);
+	struct net_device *dev = dst->dev;
+	const __be32 *pkey = daddr;
+
+	if (rt->rt_gw_family == AF_INET) {
+		pkey = (const __be32 *)&rt->rt_gw4;
+	} else if (rt->rt_gw_family == AF_INET6) {
+		return __ipv6_confirm_neigh_stub(dev, &rt->rt_gw6);
+	} else if (!daddr ||
+		 (rt->rt_flags &
+		  (RTCF_MULTICAST | RTCF_BROADCAST | RTCF_LOCAL))) {
+		return;
+	}
+	__ipv4_confirm_neigh(dev, *(__force u32 *)pkey);
+}
+
+/* Hash tables of size 2048..262144 depending on RAM size.
+ * Each bucket uses 8 bytes.
+ */
+static u32 ip_idents_mask __read_mostly;
+>>>>>>> upstream/android-13
 static atomic_t *ip_idents __read_mostly;
 static u32 *ip_tstamps __read_mostly;
 
@@ -481,12 +589,25 @@ static u32 *ip_tstamps __read_mostly;
  */
 u32 ip_idents_reserve(u32 hash, int segs)
 {
+<<<<<<< HEAD
 	u32 *p_tstamp = ip_tstamps + hash % IP_IDENTS_SZ;
 	atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
 	u32 old = READ_ONCE(*p_tstamp);
 	u32 now = (u32)jiffies;
 	u32 delta = 0;
 
+=======
+	u32 bucket, old, now = (u32)jiffies;
+	atomic_t *p_id;
+	u32 *p_tstamp;
+	u32 delta = 0;
+
+	bucket = hash & ip_idents_mask;
+	p_tstamp = ip_tstamps + bucket;
+	p_id = ip_idents + bucket;
+	old = READ_ONCE(*p_tstamp);
+
+>>>>>>> upstream/android-13
 	if (old != now && cmpxchg(p_tstamp, old, now) == old)
 		delta = prandom_u32_max(now - old);
 
@@ -516,6 +637,18 @@ void __ip_select_ident(struct net *net, struct iphdr *iph, int segs)
 }
 EXPORT_SYMBOL(__ip_select_ident);
 
+<<<<<<< HEAD
+=======
+static void ip_rt_fix_tos(struct flowi4 *fl4)
+{
+	__u8 tos = RT_FL_TOS(fl4);
+
+	fl4->flowi4_tos = tos & IPTOS_RT_MASK;
+	fl4->flowi4_scope = tos & RTO_ONLINK ?
+			    RT_SCOPE_LINK : RT_SCOPE_UNIVERSE;
+}
+
+>>>>>>> upstream/android-13
 static void __build_flow_key(const struct net *net, struct flowi4 *fl4,
 			     const struct sock *sk,
 			     const struct iphdr *iph,
@@ -597,6 +730,7 @@ static void fnhe_flush_routes(struct fib_nh_exception *fnhe)
 	}
 }
 
+<<<<<<< HEAD
 static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
 {
 	struct fib_nh_exception *fnhe, *oldest;
@@ -619,6 +753,37 @@ static inline u32 fnhe_hashfun(__be32 daddr)
 	net_get_random_once(&fnhe_hashrnd, sizeof(fnhe_hashrnd));
 	hval = jhash_1word((__force u32) daddr, fnhe_hashrnd);
 	return hash_32(hval, FNHE_HASH_SHIFT);
+=======
+static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
+{
+	struct fib_nh_exception __rcu **fnhe_p, **oldest_p;
+	struct fib_nh_exception *fnhe, *oldest = NULL;
+
+	for (fnhe_p = &hash->chain; ; fnhe_p = &fnhe->fnhe_next) {
+		fnhe = rcu_dereference_protected(*fnhe_p,
+						 lockdep_is_held(&fnhe_lock));
+		if (!fnhe)
+			break;
+		if (!oldest ||
+		    time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp)) {
+			oldest = fnhe;
+			oldest_p = fnhe_p;
+		}
+	}
+	fnhe_flush_routes(oldest);
+	*oldest_p = oldest->fnhe_next;
+	kfree_rcu(oldest, rcu);
+}
+
+static u32 fnhe_hashfun(__be32 daddr)
+{
+	static siphash_key_t fnhe_hash_key __read_mostly;
+	u64 hval;
+
+	net_get_random_once(&fnhe_hash_key, sizeof(fnhe_hash_key));
+	hval = siphash_1u32((__force u32)daddr, &fnhe_hash_key);
+	return hash_64(hval, FNHE_HASH_SHIFT);
+>>>>>>> upstream/android-13
 }
 
 static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnhe)
@@ -629,6 +794,7 @@ static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnh
 
 	if (fnhe->fnhe_gw) {
 		rt->rt_flags |= RTCF_REDIRECTED;
+<<<<<<< HEAD
 		rt->rt_gateway = fnhe->fnhe_gw;
 		rt->rt_uses_gateway = 1;
 	}
@@ -636,6 +802,17 @@ static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnh
 
 static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
 				  u32 pmtu, bool lock, unsigned long expires)
+=======
+		rt->rt_uses_gateway = 1;
+		rt->rt_gw_family = AF_INET;
+		rt->rt_gw4 = fnhe->fnhe_gw;
+	}
+}
+
+static void update_or_create_fnhe(struct fib_nh_common *nhc, __be32 daddr,
+				  __be32 gw, u32 pmtu, bool lock,
+				  unsigned long expires)
+>>>>>>> upstream/android-13
 {
 	struct fnhe_hash_bucket *hash;
 	struct fib_nh_exception *fnhe;
@@ -644,17 +821,29 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
 	unsigned int i;
 	int depth;
 
+<<<<<<< HEAD
 	genid = fnhe_genid(dev_net(nh->nh_dev));
+=======
+	genid = fnhe_genid(dev_net(nhc->nhc_dev));
+>>>>>>> upstream/android-13
 	hval = fnhe_hashfun(daddr);
 
 	spin_lock_bh(&fnhe_lock);
 
+<<<<<<< HEAD
 	hash = rcu_dereference(nh->nh_exceptions);
+=======
+	hash = rcu_dereference(nhc->nhc_exceptions);
+>>>>>>> upstream/android-13
 	if (!hash) {
 		hash = kcalloc(FNHE_HASH_SIZE, sizeof(*hash), GFP_ATOMIC);
 		if (!hash)
 			goto out_unlock;
+<<<<<<< HEAD
 		rcu_assign_pointer(nh->nh_exceptions, hash);
+=======
+		rcu_assign_pointer(nhc->nhc_exceptions, hash);
+>>>>>>> upstream/android-13
 	}
 
 	hash += hval;
@@ -685,6 +874,7 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
 		if (rt)
 			fill_route_from_fnhe(rt, fnhe);
 	} else {
+<<<<<<< HEAD
 		if (depth > FNHE_RECLAIM_DEPTH)
 			fnhe = fnhe_oldest(hash);
 		else {
@@ -695,6 +885,23 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
 			fnhe->fnhe_next = hash->chain;
 			rcu_assign_pointer(hash->chain, fnhe);
 		}
+=======
+		/* Randomize max depth to avoid some side channels attacks. */
+		int max_depth = FNHE_RECLAIM_DEPTH +
+				prandom_u32_max(FNHE_RECLAIM_DEPTH);
+
+		while (depth > max_depth) {
+			fnhe_remove_oldest(hash);
+			depth--;
+		}
+
+		fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
+		if (!fnhe)
+			goto out_unlock;
+
+		fnhe->fnhe_next = hash->chain;
+
+>>>>>>> upstream/android-13
 		fnhe->fnhe_genid = genid;
 		fnhe->fnhe_daddr = daddr;
 		fnhe->fnhe_gw = gw;
@@ -702,17 +909,31 @@ static void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw,
 		fnhe->fnhe_mtu_locked = lock;
 		fnhe->fnhe_expires = max(1UL, expires);
 
+<<<<<<< HEAD
+=======
+		rcu_assign_pointer(hash->chain, fnhe);
+
+>>>>>>> upstream/android-13
 		/* Exception created; mark the cached routes for the nexthop
 		 * stale, so anyone caching it rechecks if this exception
 		 * applies to them.
 		 */
+<<<<<<< HEAD
 		rt = rcu_dereference(nh->nh_rth_input);
+=======
+		rt = rcu_dereference(nhc->nhc_rth_input);
+>>>>>>> upstream/android-13
 		if (rt)
 			rt->dst.obsolete = DST_OBSOLETE_KILL;
 
 		for_each_possible_cpu(i) {
 			struct rtable __rcu **prt;
+<<<<<<< HEAD
 			prt = per_cpu_ptr(nh->nh_pcpu_rth_output, i);
+=======
+
+			prt = per_cpu_ptr(nhc->nhc_pcpu_rth_output, i);
+>>>>>>> upstream/android-13
 			rt = rcu_dereference(*prt);
 			if (rt)
 				rt->dst.obsolete = DST_OBSOLETE_KILL;
@@ -747,7 +968,11 @@ static void __ip_do_redirect(struct rtable *rt, struct sk_buff *skb, struct flow
 		return;
 	}
 
+<<<<<<< HEAD
 	if (rt->rt_gateway != old_gw)
+=======
+	if (rt->rt_gw_family != AF_INET || rt->rt_gw4 != old_gw)
+>>>>>>> upstream/android-13
 		return;
 
 	in_dev = __in_dev_get_rcu(dev);
@@ -778,11 +1003,19 @@ static void __ip_do_redirect(struct rtable *rt, struct sk_buff *skb, struct flow
 			neigh_event_send(n, NULL);
 		} else {
 			if (fib_lookup(net, fl4, &res, 0) == 0) {
+<<<<<<< HEAD
 				struct fib_nh *nh;
 
 				fib_select_path(net, &res, fl4, skb);
 				nh = &FIB_RES_NH(res);
 				update_or_create_fnhe(nh, fl4->daddr, new_gw,
+=======
+				struct fib_nh_common *nhc;
+
+				fib_select_path(net, &res, fl4, skb);
+				nhc = FIB_RES_NHC(res);
+				update_or_create_fnhe(nhc, fl4->daddr, new_gw,
+>>>>>>> upstream/android-13
 						0, false,
 						jiffies + ip_rt_gc_timeout);
 			}
@@ -824,6 +1057,10 @@ static void ip_do_redirect(struct dst_entry *dst, struct sock *sk, struct sk_buf
 	rt = (struct rtable *) dst;
 
 	__build_flow_key(net, &fl4, sk, iph, oif, tos, prot, mark, 0);
+<<<<<<< HEAD
+=======
+	ip_rt_fix_tos(&fl4);
+>>>>>>> upstream/android-13
 	__ip_do_redirect(rt, skb, &fl4, true);
 }
 
@@ -1008,13 +1245,23 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
 {
 	struct dst_entry *dst = &rt->dst;
 	struct net *net = dev_net(dst->dev);
+<<<<<<< HEAD
 	u32 old_mtu = ipv4_mtu(dst);
 	struct fib_result res;
 	bool lock = false;
+=======
+	struct fib_result res;
+	bool lock = false;
+	u32 old_mtu;
+>>>>>>> upstream/android-13
 
 	if (ip_mtu_locked(dst))
 		return;
 
+<<<<<<< HEAD
+=======
+	old_mtu = ipv4_mtu(dst);
+>>>>>>> upstream/android-13
 	if (old_mtu < mtu)
 		return;
 
@@ -1029,11 +1276,19 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
 
 	rcu_read_lock();
 	if (fib_lookup(net, fl4, &res, 0) == 0) {
+<<<<<<< HEAD
 		struct fib_nh *nh;
 
 		fib_select_path(net, &res, fl4, NULL);
 		nh = &FIB_RES_NH(res);
 		update_or_create_fnhe(nh, fl4->daddr, 0, mtu, lock,
+=======
+		struct fib_nh_common *nhc;
+
+		fib_select_path(net, &res, fl4, NULL);
+		nhc = FIB_RES_NHC(res);
+		update_or_create_fnhe(nhc, fl4->daddr, 0, mtu, lock,
+>>>>>>> upstream/android-13
 				      jiffies + ip_rt_mtu_expires);
 	}
 	rcu_read_unlock();
@@ -1047,10 +1302,20 @@ static void ip_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
 	struct flowi4 fl4;
 
 	ip_rt_build_flow_key(&fl4, sk, skb);
+<<<<<<< HEAD
+=======
+	ip_rt_fix_tos(&fl4);
+
+	/* Don't make lookup fail for bridged encapsulations */
+	if (skb && netif_is_any_bridge_port(skb->dev))
+		fl4.flowi4_oif = 0;
+
+>>>>>>> upstream/android-13
 	__ip_rt_update_pmtu(rt, &fl4, mtu);
 }
 
 void ipv4_update_pmtu(struct sk_buff *skb, struct net *net, u32 mtu,
+<<<<<<< HEAD
 		      int oif, u32 mark, u8 protocol, int flow_flags)
 {
 	const struct iphdr *iph = (const struct iphdr *) skb->data;
@@ -1062,6 +1327,17 @@ void ipv4_update_pmtu(struct sk_buff *skb, struct net *net, u32 mtu,
 
 	__build_flow_key(net, &fl4, NULL, iph, oif,
 			 RT_TOS(iph->tos), protocol, mark, flow_flags);
+=======
+		      int oif, u8 protocol)
+{
+	const struct iphdr *iph = (const struct iphdr *)skb->data;
+	struct flowi4 fl4;
+	struct rtable *rt;
+	u32 mark = IP4_REPLY_MARK(net, skb->mark);
+
+	__build_flow_key(net, &fl4, NULL, iph, oif,
+			 RT_TOS(iph->tos), protocol, mark, 0);
+>>>>>>> upstream/android-13
 	rt = __ip_route_output_key(net, &fl4);
 	if (!IS_ERR(rt)) {
 		__ip_rt_update_pmtu(rt, &fl4, mtu);
@@ -1072,7 +1348,11 @@ EXPORT_SYMBOL_GPL(ipv4_update_pmtu);
 
 static void __ipv4_sk_update_pmtu(struct sk_buff *skb, struct sock *sk, u32 mtu)
 {
+<<<<<<< HEAD
 	const struct iphdr *iph = (const struct iphdr *) skb->data;
+=======
+	const struct iphdr *iph = (const struct iphdr *)skb->data;
+>>>>>>> upstream/android-13
 	struct flowi4 fl4;
 	struct rtable *rt;
 
@@ -1090,7 +1370,11 @@ static void __ipv4_sk_update_pmtu(struct sk_buff *skb, struct sock *sk, u32 mtu)
 
 void ipv4_sk_update_pmtu(struct sk_buff *skb, struct sock *sk, u32 mtu)
 {
+<<<<<<< HEAD
 	const struct iphdr *iph = (const struct iphdr *) skb->data;
+=======
+	const struct iphdr *iph = (const struct iphdr *)skb->data;
+>>>>>>> upstream/android-13
 	struct flowi4 fl4;
 	struct rtable *rt;
 	struct dst_entry *odst = NULL;
@@ -1118,9 +1402,17 @@ void ipv4_sk_update_pmtu(struct sk_buff *skb, struct sock *sk, u32 mtu)
 			goto out;
 
 		new = true;
+<<<<<<< HEAD
 	}
 
 	__ip_rt_update_pmtu((struct rtable *) xfrm_dst_path(&rt->dst), &fl4, mtu);
+=======
+	} else {
+		ip_rt_fix_tos(&fl4);
+	}
+
+	__ip_rt_update_pmtu((struct rtable *)xfrm_dst_path(&rt->dst), &fl4, mtu);
+>>>>>>> upstream/android-13
 
 	if (!dst_check(&rt->dst, 0)) {
 		if (new)
@@ -1143,14 +1435,24 @@ out:
 EXPORT_SYMBOL_GPL(ipv4_sk_update_pmtu);
 
 void ipv4_redirect(struct sk_buff *skb, struct net *net,
+<<<<<<< HEAD
 		   int oif, u32 mark, u8 protocol, int flow_flags)
 {
 	const struct iphdr *iph = (const struct iphdr *) skb->data;
+=======
+		   int oif, u8 protocol)
+{
+	const struct iphdr *iph = (const struct iphdr *)skb->data;
+>>>>>>> upstream/android-13
 	struct flowi4 fl4;
 	struct rtable *rt;
 
 	__build_flow_key(net, &fl4, NULL, iph, oif,
+<<<<<<< HEAD
 			 RT_TOS(iph->tos), protocol, mark, flow_flags);
+=======
+			 RT_TOS(iph->tos), protocol, 0, 0);
+>>>>>>> upstream/android-13
 	rt = __ip_route_output_key(net, &fl4);
 	if (!IS_ERR(rt)) {
 		__ip_do_redirect(rt, skb, &fl4, false);
@@ -1161,7 +1463,11 @@ EXPORT_SYMBOL_GPL(ipv4_redirect);
 
 void ipv4_sk_redirect(struct sk_buff *skb, struct sock *sk)
 {
+<<<<<<< HEAD
 	const struct iphdr *iph = (const struct iphdr *) skb->data;
+=======
+	const struct iphdr *iph = (const struct iphdr *)skb->data;
+>>>>>>> upstream/android-13
 	struct flowi4 fl4;
 	struct rtable *rt;
 	struct net *net = sock_net(sk);
@@ -1175,7 +1481,12 @@ void ipv4_sk_redirect(struct sk_buff *skb, struct sock *sk)
 }
 EXPORT_SYMBOL_GPL(ipv4_sk_redirect);
 
+<<<<<<< HEAD
 static struct dst_entry *ipv4_dst_check(struct dst_entry *dst, u32 cookie)
+=======
+INDIRECT_CALLABLE_SCOPE struct dst_entry *ipv4_dst_check(struct dst_entry *dst,
+							 u32 cookie)
+>>>>>>> upstream/android-13
 {
 	struct rtable *rt = (struct rtable *) dst;
 
@@ -1185,12 +1496,20 @@ static struct dst_entry *ipv4_dst_check(struct dst_entry *dst, u32 cookie)
 	 *
 	 * When a PMTU/redirect information update invalidates a route,
 	 * this is indicated by setting obsolete to DST_OBSOLETE_KILL or
+<<<<<<< HEAD
 	 * DST_OBSOLETE_DEAD by dst_free().
+=======
+	 * DST_OBSOLETE_DEAD.
+>>>>>>> upstream/android-13
 	 */
 	if (dst->obsolete != DST_OBSOLETE_FORCE_CHK || rt_is_expired(rt))
 		return NULL;
 	return dst;
 }
+<<<<<<< HEAD
+=======
+EXPORT_INDIRECT_CALLABLE(ipv4_dst_check);
+>>>>>>> upstream/android-13
 
 static void ipv4_send_dest_unreach(struct sk_buff *skb)
 {
@@ -1242,12 +1561,21 @@ static int ip_rt_bug(struct net *net, struct sock *sk, struct sk_buff *skb)
 }
 
 /*
+<<<<<<< HEAD
    We do not cache source address of outgoing interface,
    because it is used only by IP RR, TS and SRR options,
    so that it out of fast path.
 
    BTW remember: "addr" is allowed to be not aligned
    in IP options!
+=======
+ * We do not cache source address of outgoing interface,
+ * because it is used only by IP RR, TS and SRR options,
+ * so that it out of fast path.
+ *
+ * BTW remember: "addr" is allowed to be not aligned
+ * in IP options!
+>>>>>>> upstream/android-13
  */
 
 void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
@@ -1258,6 +1586,7 @@ void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
 		src = ip_hdr(skb)->saddr;
 	else {
 		struct fib_result res;
+<<<<<<< HEAD
 		struct flowi4 fl4;
 		struct iphdr *iph;
 
@@ -1274,6 +1603,21 @@ void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
 		rcu_read_lock();
 		if (fib_lookup(dev_net(rt->dst.dev), &fl4, &res, 0) == 0)
 			src = FIB_RES_PREFSRC(dev_net(rt->dst.dev), res);
+=======
+		struct iphdr *iph = ip_hdr(skb);
+		struct flowi4 fl4 = {
+			.daddr = iph->daddr,
+			.saddr = iph->saddr,
+			.flowi4_tos = RT_TOS(iph->tos),
+			.flowi4_oif = rt->dst.dev->ifindex,
+			.flowi4_iif = skb->dev->ifindex,
+			.flowi4_mark = skb->mark,
+		};
+
+		rcu_read_lock();
+		if (fib_lookup(dev_net(rt->dst.dev), &fl4, &res, 0) == 0)
+			src = fib_result_prefsrc(dev_net(rt->dst.dev), &res);
+>>>>>>> upstream/android-13
 		else
 			src = inet_select_addr(rt->dst.dev,
 					       rt_nexthop(rt, iph->daddr),
@@ -1302,6 +1646,7 @@ static unsigned int ipv4_default_advmss(const struct dst_entry *dst)
 	return min(advmss, IPV4_MAX_PMTU - header_size);
 }
 
+<<<<<<< HEAD
 static unsigned int ipv4_mtu(const struct dst_entry *dst)
 {
 	const struct rtable *rt = (const struct rtable *) dst;
@@ -1326,6 +1671,15 @@ static unsigned int ipv4_mtu(const struct dst_entry *dst)
 }
 
 static void ip_del_fnhe(struct fib_nh *nh, __be32 daddr)
+=======
+INDIRECT_CALLABLE_SCOPE unsigned int ipv4_mtu(const struct dst_entry *dst)
+{
+	return ip_dst_mtu_maybe_forward(dst, false);
+}
+EXPORT_INDIRECT_CALLABLE(ipv4_mtu);
+
+static void ip_del_fnhe(struct fib_nh_common *nhc, __be32 daddr)
+>>>>>>> upstream/android-13
 {
 	struct fnhe_hash_bucket *hash;
 	struct fib_nh_exception *fnhe, __rcu **fnhe_p;
@@ -1333,7 +1687,11 @@ static void ip_del_fnhe(struct fib_nh *nh, __be32 daddr)
 
 	spin_lock_bh(&fnhe_lock);
 
+<<<<<<< HEAD
 	hash = rcu_dereference_protected(nh->nh_exceptions,
+=======
+	hash = rcu_dereference_protected(nhc->nhc_exceptions,
+>>>>>>> upstream/android-13
 					 lockdep_is_held(&fnhe_lock));
 	hash += hval;
 
@@ -1359,9 +1717,16 @@ static void ip_del_fnhe(struct fib_nh *nh, __be32 daddr)
 	spin_unlock_bh(&fnhe_lock);
 }
 
+<<<<<<< HEAD
 static struct fib_nh_exception *find_exception(struct fib_nh *nh, __be32 daddr)
 {
 	struct fnhe_hash_bucket *hash = rcu_dereference(nh->nh_exceptions);
+=======
+static struct fib_nh_exception *find_exception(struct fib_nh_common *nhc,
+					       __be32 daddr)
+{
+	struct fnhe_hash_bucket *hash = rcu_dereference(nhc->nhc_exceptions);
+>>>>>>> upstream/android-13
 	struct fib_nh_exception *fnhe;
 	u32 hval;
 
@@ -1375,7 +1740,11 @@ static struct fib_nh_exception *find_exception(struct fib_nh *nh, __be32 daddr)
 		if (fnhe->fnhe_daddr == daddr) {
 			if (fnhe->fnhe_expires &&
 			    time_after(jiffies, fnhe->fnhe_expires)) {
+<<<<<<< HEAD
 				ip_del_fnhe(nh, daddr);
+=======
+				ip_del_fnhe(nhc, daddr);
+>>>>>>> upstream/android-13
 				break;
 			}
 			return fnhe;
@@ -1392,9 +1761,15 @@ static struct fib_nh_exception *find_exception(struct fib_nh *nh, __be32 daddr)
 
 u32 ip_mtu_from_fib_result(struct fib_result *res, __be32 daddr)
 {
+<<<<<<< HEAD
 	struct fib_info *fi = res->fi;
 	struct fib_nh *nh = &fi->fib_nh[res->nh_sel];
 	struct net_device *dev = nh->nh_dev;
+=======
+	struct fib_nh_common *nhc = res->nhc;
+	struct net_device *dev = nhc->nhc_dev;
+	struct fib_info *fi = res->fi;
+>>>>>>> upstream/android-13
 	u32 mtu = 0;
 
 	if (dev_net(dev)->ipv4.sysctl_ip_fwd_use_pmtu ||
@@ -1404,7 +1779,11 @@ u32 ip_mtu_from_fib_result(struct fib_result *res, __be32 daddr)
 	if (likely(!mtu)) {
 		struct fib_nh_exception *fnhe;
 
+<<<<<<< HEAD
 		fnhe = find_exception(nh, daddr);
+=======
+		fnhe = find_exception(nhc, daddr);
+>>>>>>> upstream/android-13
 		if (fnhe && !time_after_eq(jiffies, fnhe->fnhe_expires))
 			mtu = fnhe->fnhe_pmtu;
 	}
@@ -1412,7 +1791,11 @@ u32 ip_mtu_from_fib_result(struct fib_result *res, __be32 daddr)
 	if (likely(!mtu))
 		mtu = min(READ_ONCE(dev->mtu), IP_MAX_MTU);
 
+<<<<<<< HEAD
 	return mtu - lwtunnel_headroom(nh->nh_lwtstate, mtu);
+=======
+	return mtu - lwtunnel_headroom(nhc->nhc_lwtstate, mtu);
+>>>>>>> upstream/android-13
 }
 
 static bool rt_bind_exception(struct rtable *rt, struct fib_nh_exception *fnhe,
@@ -1443,8 +1826,15 @@ static bool rt_bind_exception(struct rtable *rt, struct fib_nh_exception *fnhe,
 			orig = NULL;
 		}
 		fill_route_from_fnhe(rt, fnhe);
+<<<<<<< HEAD
 		if (!rt->rt_gateway)
 			rt->rt_gateway = daddr;
+=======
+		if (!rt->rt_gw4) {
+			rt->rt_gw4 = daddr;
+			rt->rt_gw_family = AF_INET;
+		}
+>>>>>>> upstream/android-13
 
 		if (do_cache) {
 			dst_hold(&rt->dst);
@@ -1463,15 +1853,25 @@ static bool rt_bind_exception(struct rtable *rt, struct fib_nh_exception *fnhe,
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool rt_cache_route(struct fib_nh *nh, struct rtable *rt)
+=======
+static bool rt_cache_route(struct fib_nh_common *nhc, struct rtable *rt)
+>>>>>>> upstream/android-13
 {
 	struct rtable *orig, *prev, **p;
 	bool ret = true;
 
 	if (rt_is_input_route(rt)) {
+<<<<<<< HEAD
 		p = (struct rtable **)&nh->nh_rth_input;
 	} else {
 		p = (struct rtable **)raw_cpu_ptr(nh->nh_pcpu_rth_output);
+=======
+		p = (struct rtable **)&nhc->nhc_rth_input;
+	} else {
+		p = (struct rtable **)raw_cpu_ptr(nhc->nhc_pcpu_rth_output);
+>>>>>>> upstream/android-13
 	}
 	orig = *p;
 
@@ -1524,18 +1924,27 @@ void rt_del_uncached_list(struct rtable *rt)
 
 static void ipv4_dst_destroy(struct dst_entry *dst)
 {
+<<<<<<< HEAD
 	struct dst_metrics *p = (struct dst_metrics *)DST_METRICS_PTR(dst);
 	struct rtable *rt = (struct rtable *)dst;
 
 	if (p != &dst_default_metrics && refcount_dec_and_test(&p->refcnt))
 		kfree(p);
 
+=======
+	struct rtable *rt = (struct rtable *)dst;
+
+	ip_dst_metrics_put(dst);
+>>>>>>> upstream/android-13
 	rt_del_uncached_list(rt);
 }
 
 void rt_flush_dev(struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct net *net = dev_net(dev);
+=======
+>>>>>>> upstream/android-13
 	struct rtable *rt;
 	int cpu;
 
@@ -1546,7 +1955,11 @@ void rt_flush_dev(struct net_device *dev)
 		list_for_each_entry(rt, &ul->head, rt_uncached) {
 			if (rt->dst.dev != dev)
 				continue;
+<<<<<<< HEAD
 			rt->dst.dev = net->loopback_dev;
+=======
+			rt->dst.dev = blackhole_netdev;
+>>>>>>> upstream/android-13
 			dev_hold(rt->dst.dev);
 			dev_put(dev);
 		}
@@ -1570,6 +1983,7 @@ static void rt_set_nexthop(struct rtable *rt, __be32 daddr,
 	bool cached = false;
 
 	if (fi) {
+<<<<<<< HEAD
 		struct fib_nh *nh = &FIB_RES_NH(*res);
 
 		if (nh->nh_gw && nh->nh_scope == RT_SCOPE_LINK) {
@@ -1589,14 +2003,50 @@ static void rt_set_nexthop(struct rtable *rt, __be32 daddr,
 			cached = rt_bind_exception(rt, fnhe, daddr, do_cache);
 		else if (do_cache)
 			cached = rt_cache_route(nh, rt);
+=======
+		struct fib_nh_common *nhc = FIB_RES_NHC(*res);
+
+		if (nhc->nhc_gw_family && nhc->nhc_scope == RT_SCOPE_LINK) {
+			rt->rt_uses_gateway = 1;
+			rt->rt_gw_family = nhc->nhc_gw_family;
+			/* only INET and INET6 are supported */
+			if (likely(nhc->nhc_gw_family == AF_INET))
+				rt->rt_gw4 = nhc->nhc_gw.ipv4;
+			else
+				rt->rt_gw6 = nhc->nhc_gw.ipv6;
+		}
+
+		ip_dst_init_metrics(&rt->dst, fi->fib_metrics);
+
+#ifdef CONFIG_IP_ROUTE_CLASSID
+		if (nhc->nhc_family == AF_INET) {
+			struct fib_nh *nh;
+
+			nh = container_of(nhc, struct fib_nh, nh_common);
+			rt->dst.tclassid = nh->nh_tclassid;
+		}
+#endif
+		rt->dst.lwtstate = lwtstate_get(nhc->nhc_lwtstate);
+		if (unlikely(fnhe))
+			cached = rt_bind_exception(rt, fnhe, daddr, do_cache);
+		else if (do_cache)
+			cached = rt_cache_route(nhc, rt);
+>>>>>>> upstream/android-13
 		if (unlikely(!cached)) {
 			/* Routes we intend to cache in nexthop exception or
 			 * FIB nexthop have the DST_NOCACHE bit clear.
 			 * However, if we are unsuccessful at storing this
 			 * route into the cache we really need to set it.
 			 */
+<<<<<<< HEAD
 			if (!rt->rt_gateway)
 				rt->rt_gateway = daddr;
+=======
+			if (!rt->rt_gw4) {
+				rt->rt_gw_family = AF_INET;
+				rt->rt_gw4 = daddr;
+			}
+>>>>>>> upstream/android-13
 			rt_add_uncached_list(rt);
 		}
 	} else
@@ -1612,12 +2062,19 @@ static void rt_set_nexthop(struct rtable *rt, __be32 daddr,
 
 struct rtable *rt_dst_alloc(struct net_device *dev,
 			    unsigned int flags, u16 type,
+<<<<<<< HEAD
 			    bool nopolicy, bool noxfrm, bool will_cache)
+=======
+			    bool nopolicy, bool noxfrm)
+>>>>>>> upstream/android-13
 {
 	struct rtable *rt;
 
 	rt = dst_alloc(&ipv4_dst_ops, dev, 1, DST_OBSOLETE_FORCE_CHK,
+<<<<<<< HEAD
 		       (will_cache ? 0 : DST_HOST) |
+=======
+>>>>>>> upstream/android-13
 		       (nopolicy ? DST_NOPOLICY : 0) |
 		       (noxfrm ? DST_NOXFRM : 0));
 
@@ -1629,8 +2086,14 @@ struct rtable *rt_dst_alloc(struct net_device *dev,
 		rt->rt_iif = 0;
 		rt->rt_pmtu = 0;
 		rt->rt_mtu_locked = 0;
+<<<<<<< HEAD
 		rt->rt_gateway = 0;
 		rt->rt_uses_gateway = 0;
+=======
+		rt->rt_uses_gateway = 0;
+		rt->rt_gw_family = 0;
+		rt->rt_gw4 = 0;
+>>>>>>> upstream/android-13
 		INIT_LIST_HEAD(&rt->rt_uncached);
 
 		rt->dst.output = ip_output;
@@ -1642,6 +2105,41 @@ struct rtable *rt_dst_alloc(struct net_device *dev,
 }
 EXPORT_SYMBOL(rt_dst_alloc);
 
+<<<<<<< HEAD
+=======
+struct rtable *rt_dst_clone(struct net_device *dev, struct rtable *rt)
+{
+	struct rtable *new_rt;
+
+	new_rt = dst_alloc(&ipv4_dst_ops, dev, 1, DST_OBSOLETE_FORCE_CHK,
+			   rt->dst.flags);
+
+	if (new_rt) {
+		new_rt->rt_genid = rt_genid_ipv4(dev_net(dev));
+		new_rt->rt_flags = rt->rt_flags;
+		new_rt->rt_type = rt->rt_type;
+		new_rt->rt_is_input = rt->rt_is_input;
+		new_rt->rt_iif = rt->rt_iif;
+		new_rt->rt_pmtu = rt->rt_pmtu;
+		new_rt->rt_mtu_locked = rt->rt_mtu_locked;
+		new_rt->rt_gw_family = rt->rt_gw_family;
+		if (rt->rt_gw_family == AF_INET)
+			new_rt->rt_gw4 = rt->rt_gw4;
+		else if (rt->rt_gw_family == AF_INET6)
+			new_rt->rt_gw6 = rt->rt_gw6;
+		INIT_LIST_HEAD(&new_rt->rt_uncached);
+
+		new_rt->dst.input = rt->dst.input;
+		new_rt->dst.output = rt->dst.output;
+		new_rt->dst.error = rt->dst.error;
+		new_rt->dst.lastuse = jiffies;
+		new_rt->dst.lwtstate = lwtstate_get(rt->dst.lwtstate);
+	}
+	return new_rt;
+}
+EXPORT_SYMBOL(rt_dst_clone);
+
+>>>>>>> upstream/android-13
 /* called in rcu_read_lock() section */
 int ip_mc_validate_source(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 			  u8 tos, struct net_device *dev,
@@ -1661,7 +2159,12 @@ int ip_mc_validate_source(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 		return -EINVAL;
 
 	if (ipv4_is_zeronet(saddr)) {
+<<<<<<< HEAD
 		if (!ipv4_is_local_multicast(daddr))
+=======
+		if (!ipv4_is_local_multicast(daddr) &&
+		    ip_hdr(skb)->protocol != IPPROTO_IGMP)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 	} else {
 		err = fib_validate_source(skb, saddr, 0, tos, 0, dev,
@@ -1679,6 +2182,10 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	struct in_device *in_dev = __in_dev_get_rcu(dev);
 	unsigned int flags = RTCF_MULTICAST;
 	struct rtable *rth;
+<<<<<<< HEAD
+=======
+	bool no_policy;
+>>>>>>> upstream/android-13
 	u32 itag = 0;
 	int err;
 
@@ -1689,8 +2196,17 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	if (our)
 		flags |= RTCF_LOCAL;
 
+<<<<<<< HEAD
 	rth = rt_dst_alloc(dev_net(dev)->loopback_dev, flags, RTN_MULTICAST,
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY), false, false);
+=======
+	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
+	if (no_policy)
+		IPCB(skb)->flags |= IPSKB_NOPOLICY;
+
+	rth = rt_dst_alloc(dev_net(dev)->loopback_dev, flags, RTN_MULTICAST,
+			   no_policy, false);
+>>>>>>> upstream/android-13
 	if (!rth)
 		return -ENOBUFS;
 
@@ -1706,6 +2222,10 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 #endif
 	RT_CACHE_STAT_INC(in_slow_mc);
 
+<<<<<<< HEAD
+=======
+	skb_dst_drop(skb);
+>>>>>>> upstream/android-13
 	skb_dst_set(skb, &rth->dst);
 	return 0;
 }
@@ -1730,7 +2250,11 @@ static void ip_handle_martian_source(struct net_device *dev,
 			print_hex_dump(KERN_WARNING, "ll header: ",
 				       DUMP_PREFIX_OFFSET, 16, 1,
 				       skb_mac_header(skb),
+<<<<<<< HEAD
 				       dev->hard_header_len, true);
+=======
+				       dev->hard_header_len, false);
+>>>>>>> upstream/android-13
 		}
 	}
 #endif
@@ -1742,15 +2266,28 @@ static int __mkroute_input(struct sk_buff *skb,
 			   struct in_device *in_dev,
 			   __be32 daddr, __be32 saddr, u32 tos)
 {
+<<<<<<< HEAD
+=======
+	struct fib_nh_common *nhc = FIB_RES_NHC(*res);
+	struct net_device *dev = nhc->nhc_dev;
+>>>>>>> upstream/android-13
 	struct fib_nh_exception *fnhe;
 	struct rtable *rth;
 	int err;
 	struct in_device *out_dev;
+<<<<<<< HEAD
 	bool do_cache;
 	u32 itag = 0;
 
 	/* get a working reference to the output device */
 	out_dev = __in_dev_get_rcu(FIB_RES_DEV(*res));
+=======
+	bool do_cache, no_policy;
+	u32 itag = 0;
+
+	/* get a working reference to the output device */
+	out_dev = __in_dev_get_rcu(dev);
+>>>>>>> upstream/android-13
 	if (!out_dev) {
 		net_crit_ratelimited("Bug in ip_route_input_slow(). Please report.\n");
 		return -EINVAL;
@@ -1767,10 +2304,21 @@ static int __mkroute_input(struct sk_buff *skb,
 
 	do_cache = res->fi && !itag;
 	if (out_dev == in_dev && err && IN_DEV_TX_REDIRECTS(out_dev) &&
+<<<<<<< HEAD
 	    skb->protocol == htons(ETH_P_IP) &&
 	    (IN_DEV_SHARED_MEDIA(out_dev) ||
 	     inet_addr_onlink(out_dev, saddr, FIB_RES_GW(*res))))
 		IPCB(skb)->flags |= IPSKB_DOREDIRECT;
+=======
+	    skb->protocol == htons(ETH_P_IP)) {
+		__be32 gw;
+
+		gw = nhc->nhc_gw_family == AF_INET ? nhc->nhc_gw.ipv4 : 0;
+		if (IN_DEV_SHARED_MEDIA(out_dev) ||
+		    inet_addr_onlink(out_dev, saddr, gw))
+			IPCB(skb)->flags |= IPSKB_DOREDIRECT;
+	}
+>>>>>>> upstream/android-13
 
 	if (skb->protocol != htons(ETH_P_IP)) {
 		/* Not IP (i.e. ARP). Do not create route, if it is
@@ -1787,21 +2335,38 @@ static int __mkroute_input(struct sk_buff *skb,
 		}
 	}
 
+<<<<<<< HEAD
 	fnhe = find_exception(&FIB_RES_NH(*res), daddr);
+=======
+	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
+	if (no_policy)
+		IPCB(skb)->flags |= IPSKB_NOPOLICY;
+
+	fnhe = find_exception(nhc, daddr);
+>>>>>>> upstream/android-13
 	if (do_cache) {
 		if (fnhe)
 			rth = rcu_dereference(fnhe->fnhe_rth_input);
 		else
+<<<<<<< HEAD
 			rth = rcu_dereference(FIB_RES_NH(*res).nh_rth_input);
+=======
+			rth = rcu_dereference(nhc->nhc_rth_input);
+>>>>>>> upstream/android-13
 		if (rt_cache_valid(rth)) {
 			skb_dst_set_noref(skb, &rth->dst);
 			goto out;
 		}
 	}
 
+<<<<<<< HEAD
 	rth = rt_dst_alloc(out_dev->dev, 0, res->type,
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY),
 			   IN_DEV_CONF_GET(out_dev, NOXFRM), do_cache);
+=======
+	rth = rt_dst_alloc(out_dev->dev, 0, res->type, no_policy,
+			   IN_DEV_ORCONF(out_dev, NOXFRM));
+>>>>>>> upstream/android-13
 	if (!rth) {
 		err = -ENOBUFS;
 		goto cleanup;
@@ -1847,10 +2412,14 @@ static void ip_multipath_l3_keys(const struct sk_buff *skb,
 	if (!icmph)
 		goto out;
 
+<<<<<<< HEAD
 	if (icmph->type != ICMP_DEST_UNREACH &&
 	    icmph->type != ICMP_REDIRECT &&
 	    icmph->type != ICMP_TIME_EXCEEDED &&
 	    icmph->type != ICMP_PARAMETERPROB)
+=======
+	if (!icmp_is_err(icmph->type))
+>>>>>>> upstream/android-13
 		goto out;
 
 	inner_iph = skb_header_pointer(skb,
@@ -1865,12 +2434,136 @@ out:
 	hash_keys->addrs.v4addrs.dst = key_iph->daddr;
 }
 
+<<<<<<< HEAD
+=======
+static u32 fib_multipath_custom_hash_outer(const struct net *net,
+					   const struct sk_buff *skb,
+					   bool *p_has_inner)
+{
+	u32 hash_fields = net->ipv4.sysctl_fib_multipath_hash_fields;
+	struct flow_keys keys, hash_keys;
+
+	if (!(hash_fields & FIB_MULTIPATH_HASH_FIELD_OUTER_MASK))
+		return 0;
+
+	memset(&hash_keys, 0, sizeof(hash_keys));
+	skb_flow_dissect_flow_keys(skb, &keys, FLOW_DISSECTOR_F_STOP_AT_ENCAP);
+
+	hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_SRC_IP)
+		hash_keys.addrs.v4addrs.src = keys.addrs.v4addrs.src;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_DST_IP)
+		hash_keys.addrs.v4addrs.dst = keys.addrs.v4addrs.dst;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_IP_PROTO)
+		hash_keys.basic.ip_proto = keys.basic.ip_proto;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_SRC_PORT)
+		hash_keys.ports.src = keys.ports.src;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_DST_PORT)
+		hash_keys.ports.dst = keys.ports.dst;
+
+	*p_has_inner = !!(keys.control.flags & FLOW_DIS_ENCAPSULATION);
+	return flow_hash_from_keys(&hash_keys);
+}
+
+static u32 fib_multipath_custom_hash_inner(const struct net *net,
+					   const struct sk_buff *skb,
+					   bool has_inner)
+{
+	u32 hash_fields = net->ipv4.sysctl_fib_multipath_hash_fields;
+	struct flow_keys keys, hash_keys;
+
+	/* We assume the packet carries an encapsulation, but if none was
+	 * encountered during dissection of the outer flow, then there is no
+	 * point in calling the flow dissector again.
+	 */
+	if (!has_inner)
+		return 0;
+
+	if (!(hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_MASK))
+		return 0;
+
+	memset(&hash_keys, 0, sizeof(hash_keys));
+	skb_flow_dissect_flow_keys(skb, &keys, 0);
+
+	if (!(keys.control.flags & FLOW_DIS_ENCAPSULATION))
+		return 0;
+
+	if (keys.control.addr_type == FLOW_DISSECTOR_KEY_IPV4_ADDRS) {
+		hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+		if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_SRC_IP)
+			hash_keys.addrs.v4addrs.src = keys.addrs.v4addrs.src;
+		if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_DST_IP)
+			hash_keys.addrs.v4addrs.dst = keys.addrs.v4addrs.dst;
+	} else if (keys.control.addr_type == FLOW_DISSECTOR_KEY_IPV6_ADDRS) {
+		hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+		if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_SRC_IP)
+			hash_keys.addrs.v6addrs.src = keys.addrs.v6addrs.src;
+		if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_DST_IP)
+			hash_keys.addrs.v6addrs.dst = keys.addrs.v6addrs.dst;
+		if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_FLOWLABEL)
+			hash_keys.tags.flow_label = keys.tags.flow_label;
+	}
+
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_IP_PROTO)
+		hash_keys.basic.ip_proto = keys.basic.ip_proto;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_SRC_PORT)
+		hash_keys.ports.src = keys.ports.src;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_INNER_DST_PORT)
+		hash_keys.ports.dst = keys.ports.dst;
+
+	return flow_hash_from_keys(&hash_keys);
+}
+
+static u32 fib_multipath_custom_hash_skb(const struct net *net,
+					 const struct sk_buff *skb)
+{
+	u32 mhash, mhash_inner;
+	bool has_inner = true;
+
+	mhash = fib_multipath_custom_hash_outer(net, skb, &has_inner);
+	mhash_inner = fib_multipath_custom_hash_inner(net, skb, has_inner);
+
+	return jhash_2words(mhash, mhash_inner, 0);
+}
+
+static u32 fib_multipath_custom_hash_fl4(const struct net *net,
+					 const struct flowi4 *fl4)
+{
+	u32 hash_fields = net->ipv4.sysctl_fib_multipath_hash_fields;
+	struct flow_keys hash_keys;
+
+	if (!(hash_fields & FIB_MULTIPATH_HASH_FIELD_OUTER_MASK))
+		return 0;
+
+	memset(&hash_keys, 0, sizeof(hash_keys));
+	hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_SRC_IP)
+		hash_keys.addrs.v4addrs.src = fl4->saddr;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_DST_IP)
+		hash_keys.addrs.v4addrs.dst = fl4->daddr;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_IP_PROTO)
+		hash_keys.basic.ip_proto = fl4->flowi4_proto;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_SRC_PORT)
+		hash_keys.ports.src = fl4->fl4_sport;
+	if (hash_fields & FIB_MULTIPATH_HASH_FIELD_DST_PORT)
+		hash_keys.ports.dst = fl4->fl4_dport;
+
+	return flow_hash_from_keys(&hash_keys);
+}
+
+>>>>>>> upstream/android-13
 /* if skb is set it will be used and fl4 can be NULL */
 int fib_multipath_hash(const struct net *net, const struct flowi4 *fl4,
 		       const struct sk_buff *skb, struct flow_keys *flkeys)
 {
+<<<<<<< HEAD
 	struct flow_keys hash_keys;
 	u32 mhash;
+=======
+	u32 multipath_hash = fl4 ? fl4->flowi4_multipath_hash : 0;
+	struct flow_keys hash_keys;
+	u32 mhash = 0;
+>>>>>>> upstream/android-13
 
 	switch (net->ipv4.sysctl_fib_multipath_hash_policy) {
 	case 0:
@@ -1882,6 +2575,10 @@ int fib_multipath_hash(const struct net *net, const struct flowi4 *fl4,
 			hash_keys.addrs.v4addrs.src = fl4->saddr;
 			hash_keys.addrs.v4addrs.dst = fl4->daddr;
 		}
+<<<<<<< HEAD
+=======
+		mhash = flow_hash_from_keys(&hash_keys);
+>>>>>>> upstream/android-13
 		break;
 	case 1:
 		/* skb is currently provided only when forwarding */
@@ -1915,9 +2612,55 @@ int fib_multipath_hash(const struct net *net, const struct flowi4 *fl4,
 			hash_keys.ports.dst = fl4->fl4_dport;
 			hash_keys.basic.ip_proto = fl4->flowi4_proto;
 		}
+<<<<<<< HEAD
 		break;
 	}
 	mhash = flow_hash_from_keys(&hash_keys);
+=======
+		mhash = flow_hash_from_keys(&hash_keys);
+		break;
+	case 2:
+		memset(&hash_keys, 0, sizeof(hash_keys));
+		/* skb is currently provided only when forwarding */
+		if (skb) {
+			struct flow_keys keys;
+
+			skb_flow_dissect_flow_keys(skb, &keys, 0);
+			/* Inner can be v4 or v6 */
+			if (keys.control.addr_type == FLOW_DISSECTOR_KEY_IPV4_ADDRS) {
+				hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+				hash_keys.addrs.v4addrs.src = keys.addrs.v4addrs.src;
+				hash_keys.addrs.v4addrs.dst = keys.addrs.v4addrs.dst;
+			} else if (keys.control.addr_type == FLOW_DISSECTOR_KEY_IPV6_ADDRS) {
+				hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+				hash_keys.addrs.v6addrs.src = keys.addrs.v6addrs.src;
+				hash_keys.addrs.v6addrs.dst = keys.addrs.v6addrs.dst;
+				hash_keys.tags.flow_label = keys.tags.flow_label;
+				hash_keys.basic.ip_proto = keys.basic.ip_proto;
+			} else {
+				/* Same as case 0 */
+				hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+				ip_multipath_l3_keys(skb, &hash_keys);
+			}
+		} else {
+			/* Same as case 0 */
+			hash_keys.control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+			hash_keys.addrs.v4addrs.src = fl4->saddr;
+			hash_keys.addrs.v4addrs.dst = fl4->daddr;
+		}
+		mhash = flow_hash_from_keys(&hash_keys);
+		break;
+	case 3:
+		if (skb)
+			mhash = fib_multipath_custom_hash_skb(net, skb);
+		else
+			mhash = fib_multipath_custom_hash_fl4(net, fl4);
+		break;
+	}
+
+	if (multipath_hash)
+		mhash = jhash_2words(mhash, multipath_hash, 0);
+>>>>>>> upstream/android-13
 
 	return mhash >> 1;
 }
@@ -1930,7 +2673,11 @@ static int ip_mkroute_input(struct sk_buff *skb,
 			    struct flow_keys *hkeys)
 {
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
+<<<<<<< HEAD
 	if (res->fi && res->fi->fib_nhs > 1) {
+=======
+	if (res->fi && fib_info_num_path(res->fi) > 1) {
+>>>>>>> upstream/android-13
 		int h = fib_multipath_hash(res->fi->fib_net, NULL, skb, hkeys);
 
 		fib_select_multipath(res, h);
@@ -1941,10 +2688,71 @@ static int ip_mkroute_input(struct sk_buff *skb,
 	return __mkroute_input(skb, res, in_dev, daddr, saddr, tos);
 }
 
+<<<<<<< HEAD
+=======
+/* Implements all the saddr-related checks as ip_route_input_slow(),
+ * assuming daddr is valid and the destination is not a local broadcast one.
+ * Uses the provided hint instead of performing a route lookup.
+ */
+int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+		      u8 tos, struct net_device *dev,
+		      const struct sk_buff *hint)
+{
+	struct in_device *in_dev = __in_dev_get_rcu(dev);
+	struct rtable *rt = skb_rtable(hint);
+	struct net *net = dev_net(dev);
+	int err = -EINVAL;
+	u32 tag = 0;
+
+	if (ipv4_is_multicast(saddr) || ipv4_is_lbcast(saddr))
+		goto martian_source;
+
+	if (ipv4_is_zeronet(saddr))
+		goto martian_source;
+
+	if (ipv4_is_loopback(saddr) && !IN_DEV_NET_ROUTE_LOCALNET(in_dev, net))
+		goto martian_source;
+
+	if (rt->rt_type != RTN_LOCAL)
+		goto skip_validate_source;
+
+	tos &= IPTOS_RT_MASK;
+	err = fib_validate_source(skb, saddr, daddr, tos, 0, dev, in_dev, &tag);
+	if (err < 0)
+		goto martian_source;
+
+skip_validate_source:
+	skb_dst_copy(skb, hint);
+	return 0;
+
+martian_source:
+	ip_handle_martian_source(dev, in_dev, skb, daddr, saddr);
+	return err;
+}
+
+/* get device for dst_alloc with local routes */
+static struct net_device *ip_rt_get_dev(struct net *net,
+					const struct fib_result *res)
+{
+	struct fib_nh_common *nhc = res->fi ? res->nhc : NULL;
+	struct net_device *dev = NULL;
+
+	if (nhc)
+		dev = l3mdev_master_dev_rcu(nhc->nhc_dev);
+
+	return dev ? : net->loopback_dev;
+}
+
+>>>>>>> upstream/android-13
 /*
  *	NOTE. We drop all the packets that has local source
  *	addresses, because every properly looped back packet
  *	must have correct destination already attached by output routine.
+<<<<<<< HEAD
+=======
+ *	Changes in the enforced policies must be applied also to
+ *	ip_route_use_hint().
+>>>>>>> upstream/android-13
  *
  *	Such approach solves two big problems:
  *	1. Not simplex devices are handled properly.
@@ -1966,6 +2774,10 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	struct rtable	*rth;
 	struct flowi4	fl4;
 	bool do_cache = true;
+<<<<<<< HEAD
+=======
+	bool no_policy;
+>>>>>>> upstream/android-13
 
 	/* IP on this device is disabled. */
 
@@ -1973,7 +2785,11 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 		goto out;
 
 	/* Check for the most weird martians, which can be not detected
+<<<<<<< HEAD
 	   by fib_lookup.
+=======
+	 * by fib_lookup.
+>>>>>>> upstream/android-13
 	 */
 
 	tun_info = skb_tunnel_info(skb);
@@ -2023,6 +2839,10 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	fl4.daddr = daddr;
 	fl4.saddr = saddr;
 	fl4.flowi4_uid = sock_net_uid(net, NULL);
+<<<<<<< HEAD
+=======
+	fl4.flowi4_multipath_hash = 0;
+>>>>>>> upstream/android-13
 
 	if (fib4_rules_early_flow_dissect(net, skb, &fl4, &_flkeys)) {
 		flkeys = &_flkeys;
@@ -2082,9 +2902,21 @@ brd_input:
 	RT_CACHE_STAT_INC(in_brd);
 
 local_input:
+<<<<<<< HEAD
 	do_cache &= res->fi && !itag;
 	if (do_cache) {
 		rth = rcu_dereference(FIB_RES_NH(*res).nh_rth_input);
+=======
+	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
+	if (no_policy)
+		IPCB(skb)->flags |= IPSKB_NOPOLICY;
+
+	do_cache &= res->fi && !itag;
+	if (do_cache) {
+		struct fib_nh_common *nhc = FIB_RES_NHC(*res);
+
+		rth = rcu_dereference(nhc->nhc_rth_input);
+>>>>>>> upstream/android-13
 		if (rt_cache_valid(rth)) {
 			skb_dst_set_noref(skb, &rth->dst);
 			err = 0;
@@ -2092,9 +2924,15 @@ local_input:
 		}
 	}
 
+<<<<<<< HEAD
 	rth = rt_dst_alloc(l3mdev_master_dev_rcu(dev) ? : net->loopback_dev,
 			   flags | RTCF_LOCAL, res->type,
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY), false, do_cache);
+=======
+	rth = rt_dst_alloc(ip_rt_get_dev(net, res),
+			   flags | RTCF_LOCAL, res->type,
+			   no_policy, false);
+>>>>>>> upstream/android-13
 	if (!rth)
 		goto e_nobufs;
 
@@ -2108,6 +2946,7 @@ local_input:
 	if (res->type == RTN_UNREACHABLE) {
 		rth->dst.input= ip_error;
 		rth->dst.error= -err;
+<<<<<<< HEAD
 		rth->rt_flags 	&= ~RTCF_LOCAL;
 	}
 
@@ -2115,13 +2954,26 @@ local_input:
 		struct fib_nh *nh = &FIB_RES_NH(*res);
 
 		rth->dst.lwtstate = lwtstate_get(nh->nh_lwtstate);
+=======
+		rth->rt_flags	&= ~RTCF_LOCAL;
+	}
+
+	if (do_cache) {
+		struct fib_nh_common *nhc = FIB_RES_NHC(*res);
+
+		rth->dst.lwtstate = lwtstate_get(nhc->nhc_lwtstate);
+>>>>>>> upstream/android-13
 		if (lwtunnel_input_redirect(rth->dst.lwtstate)) {
 			WARN_ON(rth->dst.input == lwtunnel_input);
 			rth->dst.lwtstate->orig_input = rth->dst.input;
 			rth->dst.input = lwtunnel_input;
 		}
 
+<<<<<<< HEAD
 		if (unlikely(!rt_cache_route(nh, rth)))
+=======
+		if (unlikely(!rt_cache_route(nhc, rth)))
+>>>>>>> upstream/android-13
 			rt_add_uncached_list(rth);
 	}
 	skb_dst_set(skb, &rth->dst);
@@ -2179,6 +3031,7 @@ int ip_route_input_rcu(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 		       u8 tos, struct net_device *dev, struct fib_result *res)
 {
 	/* Multicast recognition logic is moved from route cache to here.
+<<<<<<< HEAD
 	   The problem was that too many Ethernet cards have broken/missing
 	   hardware multicast filters :-( As result the host on multicasting
 	   network acquires a lot of useless route cache entries, sort of
@@ -2188,6 +3041,17 @@ int ip_route_input_rcu(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	   comparing with route cache reject entries.
 	   Note, that multicast routers are not affected, because
 	   route cache entry is created eventually.
+=======
+	 * The problem was that too many Ethernet cards have broken/missing
+	 * hardware multicast filters :-( As result the host on multicasting
+	 * network acquires a lot of useless route cache entries, sort of
+	 * SDR messages from all the world. Now we try to get rid of them.
+	 * Really, provided software IP multicast filter is organized
+	 * reasonably (at least, hashed), it does not result in a slowdown
+	 * comparing with route cache reject entries.
+	 * Note, that multicast routers are not affected, because
+	 * route cache entry is created eventually.
+>>>>>>> upstream/android-13
 	 */
 	if (ipv4_is_multicast(daddr)) {
 		struct in_device *in_dev = __in_dev_get_rcu(dev);
@@ -2292,10 +3156,17 @@ static struct rtable *__mkroute_output(const struct fib_result *res,
 	fnhe = NULL;
 	do_cache &= fi != NULL;
 	if (fi) {
+<<<<<<< HEAD
 		struct rtable __rcu **prth;
 		struct fib_nh *nh = &FIB_RES_NH(*res);
 
 		fnhe = find_exception(nh, fl4->daddr);
+=======
+		struct fib_nh_common *nhc = FIB_RES_NHC(*res);
+		struct rtable __rcu **prth;
+
+		fnhe = find_exception(nhc, fl4->daddr);
+>>>>>>> upstream/android-13
 		if (!do_cache)
 			goto add;
 		if (fnhe) {
@@ -2303,12 +3174,21 @@ static struct rtable *__mkroute_output(const struct fib_result *res,
 		} else {
 			if (unlikely(fl4->flowi4_flags &
 				     FLOWI_FLAG_KNOWN_NH &&
+<<<<<<< HEAD
 				     !(nh->nh_gw &&
 				       nh->nh_scope == RT_SCOPE_LINK))) {
 				do_cache = false;
 				goto add;
 			}
 			prth = raw_cpu_ptr(nh->nh_pcpu_rth_output);
+=======
+				     !(nhc->nhc_gw_family &&
+				       nhc->nhc_scope == RT_SCOPE_LINK))) {
+				do_cache = false;
+				goto add;
+			}
+			prth = raw_cpu_ptr(nhc->nhc_pcpu_rth_output);
+>>>>>>> upstream/android-13
 		}
 		rth = rcu_dereference(*prth);
 		if (rt_cache_valid(rth) && dst_hold_safe(&rth->dst))
@@ -2317,9 +3197,14 @@ static struct rtable *__mkroute_output(const struct fib_result *res,
 
 add:
 	rth = rt_dst_alloc(dev_out, flags, type,
+<<<<<<< HEAD
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY),
 			   IN_DEV_CONF_GET(in_dev, NOXFRM),
 			   do_cache);
+=======
+			   IN_DEV_ORCONF(in_dev, NOPOLICY),
+			   IN_DEV_ORCONF(in_dev, NOXFRM));
+>>>>>>> upstream/android-13
 	if (!rth)
 		return ERR_PTR(-ENOBUFS);
 
@@ -2357,7 +3242,10 @@ add:
 struct rtable *ip_route_output_key_hash(struct net *net, struct flowi4 *fl4,
 					const struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	__u8 tos = RT_FL_TOS(fl4);
+=======
+>>>>>>> upstream/android-13
 	struct fib_result res = {
 		.type		= RTN_UNSPEC,
 		.fi		= NULL,
@@ -2367,9 +3255,13 @@ struct rtable *ip_route_output_key_hash(struct net *net, struct flowi4 *fl4,
 	struct rtable *rth;
 
 	fl4->flowi4_iif = LOOPBACK_IFINDEX;
+<<<<<<< HEAD
 	fl4->flowi4_tos = tos & IPTOS_RT_MASK;
 	fl4->flowi4_scope = ((tos & RTO_ONLINK) ?
 			 RT_SCOPE_LINK : RT_SCOPE_UNIVERSE);
+=======
+	ip_rt_fix_tos(fl4);
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	rth = ip_route_output_key_hash_rcu(net, fl4, &res, skb);
@@ -2400,11 +3292,19 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 		rth = ERR_PTR(-ENETUNREACH);
 
 		/* I removed check for oif == dev_out->oif here.
+<<<<<<< HEAD
 		   It was wrong for two reasons:
 		   1. ip_dev_find(net, saddr) can return wrong iface, if saddr
 		      is assigned to multiple interfaces.
 		   2. Moreover, we are allowed to send packets with saddr
 		      of another iface. --ANK
+=======
+		 * It was wrong for two reasons:
+		 * 1. ip_dev_find(net, saddr) can return wrong iface, if saddr
+		 *    is assigned to multiple interfaces.
+		 * 2. Moreover, we are allowed to send packets with saddr
+		 *    of another iface. --ANK
+>>>>>>> upstream/android-13
 		 */
 
 		if (fl4->flowi4_oif == 0 &&
@@ -2416,6 +3316,7 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 				goto out;
 
 			/* Special hack: user can direct multicasts
+<<<<<<< HEAD
 			   and limited broadcast via necessary interface
 			   without fiddling with IP_MULTICAST_IF or IP_PKTINFO.
 			   This hack is not just for fun, it allows
@@ -2428,6 +3329,20 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 			   cannot know, that ttl is zero, so that packet
 			   will not leave this host and route is valid).
 			   Luckily, this hack is good workaround.
+=======
+			 * and limited broadcast via necessary interface
+			 * without fiddling with IP_MULTICAST_IF or IP_PKTINFO.
+			 * This hack is not just for fun, it allows
+			 * vic,vat and friends to work.
+			 * They bind socket to loopback, set ttl to zero
+			 * and expect that it will work.
+			 * From the viewpoint of routing cache they are broken,
+			 * because we are not allowed to build multicast path
+			 * with loopback source addr (look, routing cache
+			 * cannot know, that ttl is zero, so that packet
+			 * will not leave this host and route is valid).
+			 * Luckily, this hack is good workaround.
+>>>>>>> upstream/android-13
 			 */
 
 			fl4->flowi4_oif = dev_out->ifindex;
@@ -2490,6 +3405,7 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 		    (ipv4_is_multicast(fl4->daddr) ||
 		    !netif_index_is_l3_master(net, fl4->flowi4_oif))) {
 			/* Apparently, routing tables are wrong. Assume,
+<<<<<<< HEAD
 			   that the destination is on link.
 
 			   WHY? DW.
@@ -2505,6 +3421,23 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 
 			   We could make it even if oif is unknown,
 			   likely IPv6, but we do not.
+=======
+			 * that the destination is on link.
+			 *
+			 * WHY? DW.
+			 * Because we are allowed to send to iface
+			 * even if it has NO routes and NO assigned
+			 * addresses. When oif is specified, routing
+			 * tables are looked up with only one purpose:
+			 * to catch if destination is gatewayed, rather than
+			 * direct. Moreover, if MSG_DONTROUTE is set,
+			 * we send packet, ignoring both routing tables
+			 * and ifaddr state. --ANK
+			 *
+			 *
+			 * We could make it even if oif is unknown,
+			 * likely IPv6, but we do not.
+>>>>>>> upstream/android-13
 			 */
 
 			if (fl4->saddr == 0)
@@ -2550,6 +3483,7 @@ out:
 	return rth;
 }
 
+<<<<<<< HEAD
 static struct dst_entry *ipv4_blackhole_dst_check(struct dst_entry *dst, u32 cookie)
 {
 	return NULL;
@@ -2588,6 +3522,17 @@ static struct dst_ops ipv4_dst_blackhole_ops = {
 	.redirect		=	ipv4_rt_blackhole_redirect,
 	.cow_metrics		=	ipv4_rt_blackhole_cow_metrics,
 	.neigh_lookup		=	ipv4_neigh_lookup,
+=======
+static struct dst_ops ipv4_dst_blackhole_ops = {
+	.family			= AF_INET,
+	.default_advmss		= ipv4_default_advmss,
+	.neigh_lookup		= ipv4_neigh_lookup,
+	.check			= dst_blackhole_check,
+	.cow_metrics		= dst_blackhole_cow_metrics,
+	.update_pmtu		= dst_blackhole_update_pmtu,
+	.redirect		= dst_blackhole_redirect,
+	.mtu			= dst_blackhole_mtu,
+>>>>>>> upstream/android-13
 };
 
 struct dst_entry *ipv4_blackhole_route(struct net *net, struct dst_entry *dst_orig)
@@ -2604,8 +3549,12 @@ struct dst_entry *ipv4_blackhole_route(struct net *net, struct dst_entry *dst_or
 		new->output = dst_discard_out;
 
 		new->dev = net->loopback_dev;
+<<<<<<< HEAD
 		if (new->dev)
 			dev_hold(new->dev);
+=======
+		dev_hold(new->dev);
+>>>>>>> upstream/android-13
 
 		rt->rt_is_input = ort->rt_is_input;
 		rt->rt_iif = ort->rt_iif;
@@ -2615,8 +3564,17 @@ struct dst_entry *ipv4_blackhole_route(struct net *net, struct dst_entry *dst_or
 		rt->rt_genid = rt_genid_ipv4(net);
 		rt->rt_flags = ort->rt_flags;
 		rt->rt_type = ort->rt_type;
+<<<<<<< HEAD
 		rt->rt_gateway = ort->rt_gateway;
 		rt->rt_uses_gateway = ort->rt_uses_gateway;
+=======
+		rt->rt_uses_gateway = ort->rt_uses_gateway;
+		rt->rt_gw_family = ort->rt_gw_family;
+		if (rt->rt_gw_family == AF_INET)
+			rt->rt_gw4 = ort->rt_gw4;
+		else if (rt->rt_gw_family == AF_INET6)
+			rt->rt_gw6 = ort->rt_gw6;
+>>>>>>> upstream/android-13
 
 		INIT_LIST_HEAD(&rt->rt_uncached);
 	}
@@ -2645,10 +3603,66 @@ struct rtable *ip_route_output_flow(struct net *net, struct flowi4 *flp4,
 }
 EXPORT_SYMBOL_GPL(ip_route_output_flow);
 
+<<<<<<< HEAD
 /* called with rcu_read_lock held */
 static int rt_fill_info(struct net *net, __be32 dst, __be32 src,
 			struct rtable *rt, u32 table_id, struct flowi4 *fl4,
 			struct sk_buff *skb, u32 portid, u32 seq)
+=======
+struct rtable *ip_route_output_tunnel(struct sk_buff *skb,
+				      struct net_device *dev,
+				      struct net *net, __be32 *saddr,
+				      const struct ip_tunnel_info *info,
+				      u8 protocol, bool use_cache)
+{
+#ifdef CONFIG_DST_CACHE
+	struct dst_cache *dst_cache;
+#endif
+	struct rtable *rt = NULL;
+	struct flowi4 fl4;
+	__u8 tos;
+
+#ifdef CONFIG_DST_CACHE
+	dst_cache = (struct dst_cache *)&info->dst_cache;
+	if (use_cache) {
+		rt = dst_cache_get_ip4(dst_cache, saddr);
+		if (rt)
+			return rt;
+	}
+#endif
+	memset(&fl4, 0, sizeof(fl4));
+	fl4.flowi4_mark = skb->mark;
+	fl4.flowi4_proto = protocol;
+	fl4.daddr = info->key.u.ipv4.dst;
+	fl4.saddr = info->key.u.ipv4.src;
+	tos = info->key.tos;
+	fl4.flowi4_tos = RT_TOS(tos);
+
+	rt = ip_route_output_key(net, &fl4);
+	if (IS_ERR(rt)) {
+		netdev_dbg(dev, "no route to %pI4\n", &fl4.daddr);
+		return ERR_PTR(-ENETUNREACH);
+	}
+	if (rt->dst.dev == dev) { /* is this necessary? */
+		netdev_dbg(dev, "circular route to %pI4\n", &fl4.daddr);
+		ip_rt_put(rt);
+		return ERR_PTR(-ELOOP);
+	}
+#ifdef CONFIG_DST_CACHE
+	if (use_cache)
+		dst_cache_set_ip4(dst_cache, &rt->dst, fl4.saddr);
+#endif
+	*saddr = fl4.saddr;
+	return rt;
+}
+EXPORT_SYMBOL_GPL(ip_route_output_tunnel);
+
+/* called with rcu_read_lock held */
+static int rt_fill_info(struct net *net, __be32 dst, __be32 src,
+			struct rtable *rt, u32 table_id, struct flowi4 *fl4,
+			struct sk_buff *skb, u32 portid, u32 seq,
+			unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	struct rtmsg *r;
 	struct nlmsghdr *nlh;
@@ -2656,7 +3670,11 @@ static int rt_fill_info(struct net *net, __be32 dst, __be32 src,
 	u32 error;
 	u32 metrics[RTAX_MAX];
 
+<<<<<<< HEAD
 	nlh = nlmsg_put(skb, portid, seq, RTM_NEWROUTE, sizeof(*r), 0);
+=======
+	nlh = nlmsg_put(skb, portid, seq, RTM_NEWROUTE, sizeof(*r), flags);
+>>>>>>> upstream/android-13
 	if (!nlh)
 		return -EMSGSIZE;
 
@@ -2664,7 +3682,11 @@ static int rt_fill_info(struct net *net, __be32 dst, __be32 src,
 	r->rtm_family	 = AF_INET;
 	r->rtm_dst_len	= 32;
 	r->rtm_src_len	= 0;
+<<<<<<< HEAD
 	r->rtm_tos	= fl4->flowi4_tos;
+=======
+	r->rtm_tos	= fl4 ? fl4->flowi4_tos : 0;
+>>>>>>> upstream/android-13
 	r->rtm_table	= table_id < 256 ? table_id : RT_TABLE_COMPAT;
 	if (nla_put_u32(skb, RTA_TABLE, table_id))
 		goto nla_put_failure;
@@ -2687,19 +3709,50 @@ static int rt_fill_info(struct net *net, __be32 dst, __be32 src,
 	if (rt->dst.dev &&
 	    nla_put_u32(skb, RTA_OIF, rt->dst.dev->ifindex))
 		goto nla_put_failure;
+<<<<<<< HEAD
+=======
+	if (rt->dst.lwtstate &&
+	    lwtunnel_fill_encap(skb, rt->dst.lwtstate, RTA_ENCAP, RTA_ENCAP_TYPE) < 0)
+		goto nla_put_failure;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IP_ROUTE_CLASSID
 	if (rt->dst.tclassid &&
 	    nla_put_u32(skb, RTA_FLOW, rt->dst.tclassid))
 		goto nla_put_failure;
 #endif
+<<<<<<< HEAD
 	if (!rt_is_input_route(rt) &&
+=======
+	if (fl4 && !rt_is_input_route(rt) &&
+>>>>>>> upstream/android-13
 	    fl4->saddr != src) {
 		if (nla_put_in_addr(skb, RTA_PREFSRC, fl4->saddr))
 			goto nla_put_failure;
 	}
+<<<<<<< HEAD
 	if (rt->rt_uses_gateway &&
 	    nla_put_in_addr(skb, RTA_GATEWAY, rt->rt_gateway))
 		goto nla_put_failure;
+=======
+	if (rt->rt_uses_gateway) {
+		if (rt->rt_gw_family == AF_INET &&
+		    nla_put_in_addr(skb, RTA_GATEWAY, rt->rt_gw4)) {
+			goto nla_put_failure;
+		} else if (rt->rt_gw_family == AF_INET6) {
+			int alen = sizeof(struct in6_addr);
+			struct nlattr *nla;
+			struct rtvia *via;
+
+			nla = nla_reserve(skb, RTA_VIA, alen + 2);
+			if (!nla)
+				goto nla_put_failure;
+
+			via = nla_data(nla);
+			via->rtvia_family = AF_INET6;
+			memcpy(via->rtvia_addr, &rt->rt_gw6, alen);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	expires = rt->dst.expires;
 	if (expires) {
@@ -2719,6 +3772,7 @@ static int rt_fill_info(struct net *net, __be32 dst, __be32 src,
 	if (rtnetlink_put_metrics(skb, metrics) < 0)
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	if (fl4->flowi4_mark &&
 	    nla_put_u32(skb, RTA_MARK, fl4->flowi4_mark))
 		goto nla_put_failure;
@@ -2749,6 +3803,42 @@ static int rt_fill_info(struct net *net, __be32 dst, __be32 src,
 				goto nla_put_failure;
 	}
 
+=======
+	if (fl4) {
+		if (fl4->flowi4_mark &&
+		    nla_put_u32(skb, RTA_MARK, fl4->flowi4_mark))
+			goto nla_put_failure;
+
+		if (!uid_eq(fl4->flowi4_uid, INVALID_UID) &&
+		    nla_put_u32(skb, RTA_UID,
+				from_kuid_munged(current_user_ns(),
+						 fl4->flowi4_uid)))
+			goto nla_put_failure;
+
+		if (rt_is_input_route(rt)) {
+#ifdef CONFIG_IP_MROUTE
+			if (ipv4_is_multicast(dst) &&
+			    !ipv4_is_local_multicast(dst) &&
+			    IPV4_DEVCONF_ALL(net, MC_FORWARDING)) {
+				int err = ipmr_get_route(net, skb,
+							 fl4->saddr, fl4->daddr,
+							 r, portid);
+
+				if (err <= 0) {
+					if (err == 0)
+						return 0;
+					goto nla_put_failure;
+				}
+			} else
+#endif
+				if (nla_put_u32(skb, RTA_IIF, fl4->flowi4_iif))
+					goto nla_put_failure;
+		}
+	}
+
+	error = rt->dst.error;
+
+>>>>>>> upstream/android-13
 	if (rtnl_put_cacheinfo(skb, &rt->dst, 0, expires, error) < 0)
 		goto nla_put_failure;
 
@@ -2760,6 +3850,84 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
+<<<<<<< HEAD
+=======
+static int fnhe_dump_bucket(struct net *net, struct sk_buff *skb,
+			    struct netlink_callback *cb, u32 table_id,
+			    struct fnhe_hash_bucket *bucket, int genid,
+			    int *fa_index, int fa_start, unsigned int flags)
+{
+	int i;
+
+	for (i = 0; i < FNHE_HASH_SIZE; i++) {
+		struct fib_nh_exception *fnhe;
+
+		for (fnhe = rcu_dereference(bucket[i].chain); fnhe;
+		     fnhe = rcu_dereference(fnhe->fnhe_next)) {
+			struct rtable *rt;
+			int err;
+
+			if (*fa_index < fa_start)
+				goto next;
+
+			if (fnhe->fnhe_genid != genid)
+				goto next;
+
+			if (fnhe->fnhe_expires &&
+			    time_after(jiffies, fnhe->fnhe_expires))
+				goto next;
+
+			rt = rcu_dereference(fnhe->fnhe_rth_input);
+			if (!rt)
+				rt = rcu_dereference(fnhe->fnhe_rth_output);
+			if (!rt)
+				goto next;
+
+			err = rt_fill_info(net, fnhe->fnhe_daddr, 0, rt,
+					   table_id, NULL, skb,
+					   NETLINK_CB(cb->skb).portid,
+					   cb->nlh->nlmsg_seq, flags);
+			if (err)
+				return err;
+next:
+			(*fa_index)++;
+		}
+	}
+
+	return 0;
+}
+
+int fib_dump_info_fnhe(struct sk_buff *skb, struct netlink_callback *cb,
+		       u32 table_id, struct fib_info *fi,
+		       int *fa_index, int fa_start, unsigned int flags)
+{
+	struct net *net = sock_net(cb->skb->sk);
+	int nhsel, genid = fnhe_genid(net);
+
+	for (nhsel = 0; nhsel < fib_info_num_path(fi); nhsel++) {
+		struct fib_nh_common *nhc = fib_info_nhc(fi, nhsel);
+		struct fnhe_hash_bucket *bucket;
+		int err;
+
+		if (nhc->nhc_flags & RTNH_F_DEAD)
+			continue;
+
+		rcu_read_lock();
+		bucket = rcu_dereference(nhc->nhc_exceptions);
+		err = 0;
+		if (bucket)
+			err = fnhe_dump_bucket(net, skb, cb, table_id, bucket,
+					       genid, fa_index, fa_start,
+					       flags);
+		rcu_read_unlock();
+		if (err)
+			return err;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
 						   u8 ip_proto, __be16 sport,
 						   __be16 dport)
@@ -2793,7 +3961,11 @@ static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
 		udph = skb_put_zero(skb, sizeof(struct udphdr));
 		udph->source = sport;
 		udph->dest = dport;
+<<<<<<< HEAD
 		udph->len = sizeof(struct udphdr);
+=======
+		udph->len = htons(sizeof(struct udphdr));
+>>>>>>> upstream/android-13
 		udph->check = 0;
 		break;
 	}
@@ -2821,6 +3993,78 @@ static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
 	return skb;
 }
 
+<<<<<<< HEAD
+=======
+static int inet_rtm_valid_getroute_req(struct sk_buff *skb,
+				       const struct nlmsghdr *nlh,
+				       struct nlattr **tb,
+				       struct netlink_ext_ack *extack)
+{
+	struct rtmsg *rtm;
+	int i, err;
+
+	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*rtm))) {
+		NL_SET_ERR_MSG(extack,
+			       "ipv4: Invalid header for route get request");
+		return -EINVAL;
+	}
+
+	if (!netlink_strict_get_check(skb))
+		return nlmsg_parse_deprecated(nlh, sizeof(*rtm), tb, RTA_MAX,
+					      rtm_ipv4_policy, extack);
+
+	rtm = nlmsg_data(nlh);
+	if ((rtm->rtm_src_len && rtm->rtm_src_len != 32) ||
+	    (rtm->rtm_dst_len && rtm->rtm_dst_len != 32) ||
+	    rtm->rtm_table || rtm->rtm_protocol ||
+	    rtm->rtm_scope || rtm->rtm_type) {
+		NL_SET_ERR_MSG(extack, "ipv4: Invalid values in header for route get request");
+		return -EINVAL;
+	}
+
+	if (rtm->rtm_flags & ~(RTM_F_NOTIFY |
+			       RTM_F_LOOKUP_TABLE |
+			       RTM_F_FIB_MATCH)) {
+		NL_SET_ERR_MSG(extack, "ipv4: Unsupported rtm_flags for route get request");
+		return -EINVAL;
+	}
+
+	err = nlmsg_parse_deprecated_strict(nlh, sizeof(*rtm), tb, RTA_MAX,
+					    rtm_ipv4_policy, extack);
+	if (err)
+		return err;
+
+	if ((tb[RTA_SRC] && !rtm->rtm_src_len) ||
+	    (tb[RTA_DST] && !rtm->rtm_dst_len)) {
+		NL_SET_ERR_MSG(extack, "ipv4: rtm_src_len and rtm_dst_len must be 32 for IPv4");
+		return -EINVAL;
+	}
+
+	for (i = 0; i <= RTA_MAX; i++) {
+		if (!tb[i])
+			continue;
+
+		switch (i) {
+		case RTA_IIF:
+		case RTA_OIF:
+		case RTA_SRC:
+		case RTA_DST:
+		case RTA_IP_PROTO:
+		case RTA_SPORT:
+		case RTA_DPORT:
+		case RTA_MARK:
+		case RTA_UID:
+			break;
+		default:
+			NL_SET_ERR_MSG(extack, "ipv4: Unsupported attribute in route get request");
+			return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 			     struct netlink_ext_ack *extack)
 {
@@ -2833,7 +4077,11 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 	struct rtable *rt = NULL;
 	struct sk_buff *skb;
 	struct rtmsg *rtm;
+<<<<<<< HEAD
 	struct flowi4 fl4;
+=======
+	struct flowi4 fl4 = {};
+>>>>>>> upstream/android-13
 	__be32 dst = 0;
 	__be32 src = 0;
 	kuid_t uid;
@@ -2841,8 +4089,12 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 	int err;
 	int mark;
 
+<<<<<<< HEAD
 	err = nlmsg_parse(nlh, sizeof(*rtm), tb, RTA_MAX, rtm_ipv4_policy,
 			  extack);
+=======
+	err = inet_rtm_valid_getroute_req(in_skb, nlh, tb, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -2873,7 +4125,10 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 	if (!skb)
 		return -ENOBUFS;
 
+<<<<<<< HEAD
 	memset(&fl4, 0, sizeof(fl4));
+=======
+>>>>>>> upstream/android-13
 	fl4.daddr = dst;
 	fl4.saddr = src;
 	fl4.flowi4_tos = rtm->rtm_tos & IPTOS_RT_MASK;
@@ -2909,6 +4164,10 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 			err = -rt->dst.error;
 	} else {
 		fl4.flowi4_iif = LOOPBACK_IFINDEX;
+<<<<<<< HEAD
+=======
+		skb->dev = net->loopback_dev;
+>>>>>>> upstream/android-13
 		rt = ip_route_output_key_hash_rcu(net, &fl4, &res, skb);
 		err = 0;
 		if (IS_ERR(rt))
@@ -2933,12 +4192,18 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 	skb_reset_mac_header(skb);
 
 	if (rtm->rtm_flags & RTM_F_FIB_MATCH) {
+<<<<<<< HEAD
+=======
+		struct fib_rt_info fri;
+
+>>>>>>> upstream/android-13
 		if (!res.fi) {
 			err = fib_props[res.type].error;
 			if (!err)
 				err = -EHOSTUNREACH;
 			goto errout_rcu;
 		}
+<<<<<<< HEAD
 		err = fib_dump_info(skb, NETLINK_CB(in_skb).portid,
 				    nlh->nlmsg_seq, RTM_NEWROUTE, table_id,
 				    rt->rt_type, res.prefix, res.prefixlen,
@@ -2946,6 +4211,40 @@ static int inet_rtm_getroute(struct sk_buff *in_skb, struct nlmsghdr *nlh,
 	} else {
 		err = rt_fill_info(net, dst, src, rt, table_id, &fl4, skb,
 				   NETLINK_CB(in_skb).portid, nlh->nlmsg_seq);
+=======
+		fri.fi = res.fi;
+		fri.tb_id = table_id;
+		fri.dst = res.prefix;
+		fri.dst_len = res.prefixlen;
+		fri.tos = fl4.flowi4_tos;
+		fri.type = rt->rt_type;
+		fri.offload = 0;
+		fri.trap = 0;
+		fri.offload_failed = 0;
+		if (res.fa_head) {
+			struct fib_alias *fa;
+
+			hlist_for_each_entry_rcu(fa, res.fa_head, fa_list) {
+				u8 slen = 32 - fri.dst_len;
+
+				if (fa->fa_slen == slen &&
+				    fa->tb_id == fri.tb_id &&
+				    fa->fa_tos == fri.tos &&
+				    fa->fa_info == res.fi &&
+				    fa->fa_type == fri.type) {
+					fri.offload = READ_ONCE(fa->offload);
+					fri.trap = READ_ONCE(fa->trap);
+					break;
+				}
+			}
+		}
+		err = fib_dump_info(skb, NETLINK_CB(in_skb).portid,
+				    nlh->nlmsg_seq, RTM_NEWROUTE, &fri, 0);
+	} else {
+		err = rt_fill_info(net, dst, src, rt, table_id, &fl4, skb,
+				   NETLINK_CB(in_skb).portid,
+				   nlh->nlmsg_seq, 0);
+>>>>>>> upstream/android-13
 	}
 	if (err < 0)
 		goto errout_rcu;
@@ -2974,8 +4273,12 @@ static int ip_rt_gc_elasticity __read_mostly	= 8;
 static int ip_min_valid_pmtu __read_mostly	= IPV4_MIN_MTU;
 
 static int ipv4_sysctl_rtcache_flush(struct ctl_table *__ctl, int write,
+<<<<<<< HEAD
 					void __user *buffer,
 					size_t *lenp, loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct net *net = (struct net *)__ctl->extra1;
 
@@ -3100,9 +4403,17 @@ static struct ctl_table ipv4_route_table[] = {
 	{ }
 };
 
+<<<<<<< HEAD
 static struct ctl_table ipv4_route_flush_table[] = {
 	{
 		.procname	= "flush",
+=======
+static const char ipv4_route_flush_procname[] = "flush";
+
+static struct ctl_table ipv4_route_flush_table[] = {
+	{
+		.procname	= ipv4_route_flush_procname,
+>>>>>>> upstream/android-13
 		.maxlen		= sizeof(int),
 		.mode		= 0200,
 		.proc_handler	= ipv4_sysctl_rtcache_flush,
@@ -3120,9 +4431,17 @@ static __net_init int sysctl_route_net_init(struct net *net)
 		if (!tbl)
 			goto err_dup;
 
+<<<<<<< HEAD
 		/* Don't export sysctls to unprivileged users */
 		if (net->user_ns != &init_user_ns)
 			tbl[0].procname = NULL;
+=======
+		/* Don't export non-whitelisted sysctls to unprivileged users */
+		if (net->user_ns != &init_user_ns) {
+			if (tbl[0].procname != ipv4_route_flush_procname)
+				tbl[0].procname = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 	tbl[0].extra1 = net;
 
@@ -3197,6 +4516,7 @@ struct ip_rt_acct __percpu *ip_rt_acct __read_mostly;
 
 int __init ip_rt_init(void)
 {
+<<<<<<< HEAD
 	int cpu;
 
 	ip_idents = kmalloc_array(IP_IDENTS_SZ, sizeof(*ip_idents),
@@ -3209,6 +4529,27 @@ int __init ip_rt_init(void)
 	ip_tstamps = kcalloc(IP_IDENTS_SZ, sizeof(*ip_tstamps), GFP_KERNEL);
 	if (!ip_tstamps)
 		panic("IP: failed to allocate ip_tstamps\n");
+=======
+	void *idents_hash;
+	int cpu;
+
+	/* For modern hosts, this will use 2 MB of memory */
+	idents_hash = alloc_large_system_hash("IP idents",
+					      sizeof(*ip_idents) + sizeof(*ip_tstamps),
+					      0,
+					      16, /* one bucket per 64 KB */
+					      HASH_ZERO,
+					      NULL,
+					      &ip_idents_mask,
+					      2048,
+					      256*1024);
+
+	ip_idents = idents_hash;
+
+	prandom_bytes(ip_idents, (ip_idents_mask + 1) * sizeof(*ip_idents));
+
+	ip_tstamps = idents_hash + (ip_idents_mask + 1) * sizeof(*ip_idents);
+>>>>>>> upstream/android-13
 
 	for_each_possible_cpu(cpu) {
 		struct uncached_list *ul = &per_cpu(rt_uncached_list, cpu);

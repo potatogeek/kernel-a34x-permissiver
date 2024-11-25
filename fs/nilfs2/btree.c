@@ -351,10 +351,17 @@ static int nilfs_btree_node_broken(const struct nilfs_btree_node *node,
 		     (flags & NILFS_BTREE_NODE_ROOT) ||
 		     nchildren < 0 ||
 		     nchildren > NILFS_BTREE_NODE_NCHILDREN_MAX(size))) {
+<<<<<<< HEAD
 		nilfs_msg(inode->i_sb, KERN_CRIT,
 			  "bad btree node (ino=%lu, blocknr=%llu): level = %d, flags = 0x%x, nchildren = %d",
 			  inode->i_ino, (unsigned long long)blocknr, level,
 			  flags, nchildren);
+=======
+		nilfs_crit(inode->i_sb,
+			   "bad btree node (ino=%lu, blocknr=%llu): level = %d, flags = 0x%x, nchildren = %d",
+			   inode->i_ino, (unsigned long long)blocknr, level,
+			   flags, nchildren);
+>>>>>>> upstream/android-13
 		ret = 1;
 	}
 	return ret;
@@ -381,9 +388,15 @@ static int nilfs_btree_root_broken(const struct nilfs_btree_node *node,
 		     level >= NILFS_BTREE_LEVEL_MAX ||
 		     nchildren < 0 ||
 		     nchildren > NILFS_BTREE_ROOT_NCHILDREN_MAX)) {
+<<<<<<< HEAD
 		nilfs_msg(inode->i_sb, KERN_CRIT,
 			  "bad btree root (ino=%lu): level = %d, flags = 0x%x, nchildren = %d",
 			  inode->i_ino, level, flags, nchildren);
+=======
+		nilfs_crit(inode->i_sb,
+			   "bad btree root (ino=%lu): level = %d, flags = 0x%x, nchildren = %d",
+			   inode->i_ino, level, flags, nchildren);
+>>>>>>> upstream/android-13
 		ret = 1;
 	}
 	return ret;
@@ -450,10 +463,17 @@ static int nilfs_btree_bad_node(const struct nilfs_bmap *btree,
 {
 	if (unlikely(nilfs_btree_node_get_level(node) != level)) {
 		dump_stack();
+<<<<<<< HEAD
 		nilfs_msg(btree->b_inode->i_sb, KERN_CRIT,
 			  "btree level mismatch (ino=%lu): %d != %d",
 			  btree->b_inode->i_ino,
 			  nilfs_btree_node_get_level(node), level);
+=======
+		nilfs_crit(btree->b_inode->i_sb,
+			   "btree level mismatch (ino=%lu): %d != %d",
+			   btree->b_inode->i_ino,
+			   nilfs_btree_node_get_level(node), level);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 	return 0;
@@ -508,7 +528,11 @@ static int __nilfs_btree_get_block(const struct nilfs_bmap *btree, __u64 ptr,
 
  out_no_wait:
 	if (!buffer_uptodate(bh)) {
+<<<<<<< HEAD
 		nilfs_msg(btree->b_inode->i_sb, KERN_ERR,
+=======
+		nilfs_err(btree->b_inode->i_sb,
+>>>>>>> upstream/android-13
 			  "I/O error reading b-tree node block (ino=%lu, blocknr=%llu)",
 			  btree->b_inode->i_ino, (unsigned long long)ptr);
 		brelse(bh);
@@ -738,7 +762,10 @@ static int nilfs_btree_lookup_contig(const struct nilfs_bmap *btree,
 			if (ptr2 != ptr + cnt || ++cnt == maxblocks)
 				goto end;
 			index++;
+<<<<<<< HEAD
 			continue;
+=======
+>>>>>>> upstream/android-13
 		}
 		if (level == maxlevel)
 			break;
@@ -2074,10 +2101,17 @@ static int nilfs_btree_propagate(struct nilfs_bmap *btree,
 	ret = nilfs_btree_do_lookup(btree, path, key, NULL, level + 1, 0);
 	if (ret < 0) {
 		if (unlikely(ret == -ENOENT))
+<<<<<<< HEAD
 			nilfs_msg(btree->b_inode->i_sb, KERN_CRIT,
 				  "writing node/leaf block does not appear in b-tree (ino=%lu) at key=%llu, level=%d",
 				  btree->b_inode->i_ino,
 				  (unsigned long long)key, level);
+=======
+			nilfs_crit(btree->b_inode->i_sb,
+				   "writing node/leaf block does not appear in b-tree (ino=%lu) at key=%llu, level=%d",
+				   btree->b_inode->i_ino,
+				   (unsigned long long)key, level);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -2114,11 +2148,19 @@ static void nilfs_btree_add_dirty_buffer(struct nilfs_bmap *btree,
 	if (level < NILFS_BTREE_LEVEL_NODE_MIN ||
 	    level >= NILFS_BTREE_LEVEL_MAX) {
 		dump_stack();
+<<<<<<< HEAD
 		nilfs_msg(btree->b_inode->i_sb, KERN_WARNING,
 			  "invalid btree level: %d (key=%llu, ino=%lu, blocknr=%llu)",
 			  level, (unsigned long long)key,
 			  btree->b_inode->i_ino,
 			  (unsigned long long)bh->b_blocknr);
+=======
+		nilfs_warn(btree->b_inode->i_sb,
+			   "invalid btree level: %d (key=%llu, ino=%lu, blocknr=%llu)",
+			   level, (unsigned long long)key,
+			   btree->b_inode->i_ino,
+			   (unsigned long long)bh->b_blocknr);
+>>>>>>> upstream/android-13
 		return;
 	}
 

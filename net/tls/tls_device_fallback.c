@@ -49,7 +49,12 @@ static int tls_enc_record(struct aead_request *aead_req,
 			  struct crypto_aead *aead, char *aad,
 			  char *iv, __be64 rcd_sn,
 			  struct scatter_walk *in,
+<<<<<<< HEAD
 			  struct scatter_walk *out, int *in_len)
+=======
+			  struct scatter_walk *out, int *in_len,
+			  struct tls_prot_info *prot)
+>>>>>>> upstream/android-13
 {
 	unsigned char buf[TLS_HEADER_SIZE + TLS_CIPHER_AES_GCM_128_IV_SIZE];
 	struct scatterlist sg_in[3];
@@ -73,7 +78,11 @@ static int tls_enc_record(struct aead_request *aead_req,
 	len -= TLS_CIPHER_AES_GCM_128_IV_SIZE;
 
 	tls_make_aad(aad, len - TLS_CIPHER_AES_GCM_128_TAG_SIZE,
+<<<<<<< HEAD
 		     (char *)&rcd_sn, sizeof(rcd_sn), buf[0]);
+=======
+		(char *)&rcd_sn, buf[0], prot);
+>>>>>>> upstream/android-13
 
 	memcpy(iv + TLS_CIPHER_AES_GCM_128_SALT_SIZE, buf + TLS_HEADER_SIZE,
 	       TLS_CIPHER_AES_GCM_128_IV_SIZE);
@@ -139,7 +148,11 @@ static struct aead_request *tls_alloc_aead_request(struct crypto_aead *aead,
 static int tls_enc_records(struct aead_request *aead_req,
 			   struct crypto_aead *aead, struct scatterlist *sg_in,
 			   struct scatterlist *sg_out, char *aad, char *iv,
+<<<<<<< HEAD
 			   u64 rcd_sn, int len)
+=======
+			   u64 rcd_sn, int len, struct tls_prot_info *prot)
+>>>>>>> upstream/android-13
 {
 	struct scatter_walk out, in;
 	int rc;
@@ -149,7 +162,11 @@ static int tls_enc_records(struct aead_request *aead_req,
 
 	do {
 		rc = tls_enc_record(aead_req, aead, aad, iv,
+<<<<<<< HEAD
 				    cpu_to_be64(rcd_sn), &in, &out, &len);
+=======
+				    cpu_to_be64(rcd_sn), &in, &out, &len, prot);
+>>>>>>> upstream/android-13
 		rcd_sn++;
 
 	} while (rc == 0 && len);
@@ -243,7 +260,10 @@ static int fill_sg_in(struct scatterlist *sg_in,
 	record = tls_get_record(ctx, tcp_seq, rcd_sn);
 	if (!record) {
 		spin_unlock_irqrestore(&ctx->lock, flags);
+<<<<<<< HEAD
 		WARN(1, "Record not found for seq %u\n", tcp_seq);
+=======
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -273,7 +293,11 @@ static int fill_sg_in(struct scatterlist *sg_in,
 
 		__skb_frag_ref(frag);
 		sg_set_page(sg_in + i, skb_frag_page(frag),
+<<<<<<< HEAD
 			    skb_frag_size(frag), frag->page_offset);
+=======
+			    skb_frag_size(frag), skb_frag_off(frag));
+>>>>>>> upstream/android-13
 
 		remaining -= skb_frag_size(frag);
 
@@ -348,7 +372,12 @@ static struct sk_buff *tls_enc_skb(struct tls_context *tls_ctx,
 		    payload_len, sync_size, dummy_buf);
 
 	if (tls_enc_records(aead_req, ctx->aead_send, sg_in, sg_out, aad, iv,
+<<<<<<< HEAD
 			    rcd_sn, sync_size + payload_len) < 0)
+=======
+			    rcd_sn, sync_size + payload_len,
+			    &tls_ctx->prot_info) < 0)
+>>>>>>> upstream/android-13
 		goto free_nskb;
 
 	complete_skb(nskb, skb, tcp_payload_offset);
@@ -412,7 +441,14 @@ put_sg:
 		put_page(sg_page(&sg_in[--resync_sgs]));
 	kfree(sg_in);
 free_orig:
+<<<<<<< HEAD
 	kfree_skb(skb);
+=======
+	if (nskb)
+		consume_skb(skb);
+	else
+		kfree_skb(skb);
+>>>>>>> upstream/android-13
 	return nskb;
 }
 
@@ -420,13 +456,33 @@ struct sk_buff *tls_validate_xmit_skb(struct sock *sk,
 				      struct net_device *dev,
 				      struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	if (dev == tls_get_ctx(sk)->netdev)
+=======
+	if (dev == tls_get_ctx(sk)->netdev || netif_is_bond_master(dev))
+>>>>>>> upstream/android-13
 		return skb;
 
 	return tls_sw_fallback(sk, skb);
 }
 EXPORT_SYMBOL_GPL(tls_validate_xmit_skb);
 
+<<<<<<< HEAD
+=======
+struct sk_buff *tls_validate_xmit_skb_sw(struct sock *sk,
+					 struct net_device *dev,
+					 struct sk_buff *skb)
+{
+	return tls_sw_fallback(sk, skb);
+}
+
+struct sk_buff *tls_encrypt_skb(struct sk_buff *skb)
+{
+	return tls_sw_fallback(skb->sk, skb);
+}
+EXPORT_SYMBOL_GPL(tls_encrypt_skb);
+
+>>>>>>> upstream/android-13
 int tls_sw_fallback_init(struct sock *sk,
 			 struct tls_offload_context_tx *offload_ctx,
 			 struct tls_crypto_info *crypto_info)

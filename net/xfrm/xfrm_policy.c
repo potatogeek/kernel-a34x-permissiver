@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * xfrm_policy.c
  *
@@ -26,6 +30,7 @@
 #include <linux/cache.h>
 #include <linux/cpu.h>
 #include <linux/audit.h>
+<<<<<<< HEAD
 #include <net/dst.h>
 #include <net/flow.h>
 #include <net/xfrm.h>
@@ -33,6 +38,25 @@
 #ifdef CONFIG_XFRM_STATISTICS
 #include <net/snmp.h>
 #endif
+=======
+#include <linux/rhashtable.h>
+#include <linux/if_tunnel.h>
+#include <net/dst.h>
+#include <net/flow.h>
+#include <net/inet_ecn.h>
+#include <net/xfrm.h>
+#include <net/ip.h>
+#include <net/gre.h>
+#if IS_ENABLED(CONFIG_IPV6_MIP6)
+#include <net/mip6.h>
+#endif
+#ifdef CONFIG_XFRM_STATISTICS
+#include <net/snmp.h>
+#endif
+#ifdef CONFIG_XFRM_ESPINTCP
+#include <net/espintcp.h>
+#endif
+>>>>>>> upstream/android-13
 
 #include "xfrm_hash.h"
 
@@ -45,6 +69,102 @@ struct xfrm_flo {
 	u8 flags;
 };
 
+<<<<<<< HEAD
+=======
+/* prefixes smaller than this are stored in lists, not trees. */
+#define INEXACT_PREFIXLEN_IPV4	16
+#define INEXACT_PREFIXLEN_IPV6	48
+
+struct xfrm_pol_inexact_node {
+	struct rb_node node;
+	union {
+		xfrm_address_t addr;
+		struct rcu_head rcu;
+	};
+	u8 prefixlen;
+
+	struct rb_root root;
+
+	/* the policies matching this node, can be empty list */
+	struct hlist_head hhead;
+};
+
+/* xfrm inexact policy search tree:
+ * xfrm_pol_inexact_bin = hash(dir,type,family,if_id);
+ *  |
+ * +---- root_d: sorted by daddr:prefix
+ * |                 |
+ * |        xfrm_pol_inexact_node
+ * |                 |
+ * |                 +- root: sorted by saddr/prefix
+ * |                 |              |
+ * |                 |         xfrm_pol_inexact_node
+ * |                 |              |
+ * |                 |              + root: unused
+ * |                 |              |
+ * |                 |              + hhead: saddr:daddr policies
+ * |                 |
+ * |                 +- coarse policies and all any:daddr policies
+ * |
+ * +---- root_s: sorted by saddr:prefix
+ * |                 |
+ * |        xfrm_pol_inexact_node
+ * |                 |
+ * |                 + root: unused
+ * |                 |
+ * |                 + hhead: saddr:any policies
+ * |
+ * +---- coarse policies and all any:any policies
+ *
+ * Lookups return four candidate lists:
+ * 1. any:any list from top-level xfrm_pol_inexact_bin
+ * 2. any:daddr list from daddr tree
+ * 3. saddr:daddr list from 2nd level daddr tree
+ * 4. saddr:any list from saddr tree
+ *
+ * This result set then needs to be searched for the policy with
+ * the lowest priority.  If two results have same prio, youngest one wins.
+ */
+
+struct xfrm_pol_inexact_key {
+	possible_net_t net;
+	u32 if_id;
+	u16 family;
+	u8 dir, type;
+};
+
+struct xfrm_pol_inexact_bin {
+	struct xfrm_pol_inexact_key k;
+	struct rhash_head head;
+	/* list containing '*:*' policies */
+	struct hlist_head hhead;
+
+	seqcount_spinlock_t count;
+	/* tree sorted by daddr/prefix */
+	struct rb_root root_d;
+
+	/* tree sorted by saddr/prefix */
+	struct rb_root root_s;
+
+	/* slow path below */
+	struct list_head inexact_bins;
+	struct rcu_head rcu;
+};
+
+enum xfrm_pol_inexact_candidate_type {
+	XFRM_POL_CAND_BOTH,
+	XFRM_POL_CAND_SADDR,
+	XFRM_POL_CAND_DADDR,
+	XFRM_POL_CAND_ANY,
+
+	XFRM_POL_CAND_MAX,
+};
+
+struct xfrm_pol_inexact_candidates {
+	struct hlist_head *res[XFRM_POL_CAND_MAX];
+};
+
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(xfrm_if_cb_lock);
 static struct xfrm_if_cb const __rcu *xfrm_if_cb __read_mostly;
 
@@ -53,7 +173,13 @@ static struct xfrm_policy_afinfo const __rcu *xfrm_policy_afinfo[AF_INET6 + 1]
 						__read_mostly;
 
 static struct kmem_cache *xfrm_dst_cache __ro_after_init;
+<<<<<<< HEAD
 static __read_mostly seqcount_t xfrm_policy_hash_generation;
+=======
+
+static struct rhashtable xfrm_policy_inexact_table;
+static const struct rhashtable_params xfrm_pol_inexact_params;
+>>>>>>> upstream/android-13
 
 static void xfrm_init_pmtu(struct xfrm_dst **bundle, int nr);
 static int stale_bundle(struct dst_entry *dst);
@@ -64,6 +190,28 @@ static void __xfrm_policy_link(struct xfrm_policy *pol, int dir);
 static struct xfrm_policy *__xfrm_policy_unlink(struct xfrm_policy *pol,
 						int dir);
 
+<<<<<<< HEAD
+=======
+static struct xfrm_pol_inexact_bin *
+xfrm_policy_inexact_lookup(struct net *net, u8 type, u16 family, u8 dir,
+			   u32 if_id);
+
+static struct xfrm_pol_inexact_bin *
+xfrm_policy_inexact_lookup_rcu(struct net *net,
+			       u8 type, u16 family, u8 dir, u32 if_id);
+static struct xfrm_policy *
+xfrm_policy_insert_list(struct hlist_head *chain, struct xfrm_policy *policy,
+			bool excl);
+static void xfrm_policy_insert_inexact_list(struct hlist_head *chain,
+					    struct xfrm_policy *policy);
+
+static bool
+xfrm_policy_find_inexact_candidates(struct xfrm_pol_inexact_candidates *cand,
+				    struct xfrm_pol_inexact_bin *b,
+				    const xfrm_address_t *saddr,
+				    const xfrm_address_t *daddr);
+
+>>>>>>> upstream/android-13
 static inline bool xfrm_pol_hold_rcu(struct xfrm_policy *policy)
 {
 	return refcount_inc_not_zero(&policy->refcnt);
@@ -269,6 +417,10 @@ struct xfrm_policy *xfrm_policy_alloc(struct net *net, gfp_t gfp)
 	if (policy) {
 		write_pnet(&policy->xp_net, net);
 		INIT_LIST_HEAD(&policy->walk.all);
+<<<<<<< HEAD
+=======
+		INIT_HLIST_NODE(&policy->bydst_inexact_list);
+>>>>>>> upstream/android-13
 		INIT_HLIST_NODE(&policy->bydst);
 		INIT_HLIST_NODE(&policy->byidx);
 		rwlock_init(&policy->lock);
@@ -367,7 +519,11 @@ static struct hlist_head *policy_hash_bysel(struct net *net,
 	hash = __sel_hash(sel, family, hmask, dbits, sbits);
 
 	if (hash == hmask + 1)
+<<<<<<< HEAD
 		return &net->xfrm.policy_inexact[dir];
+=======
+		return NULL;
+>>>>>>> upstream/android-13
 
 	return rcu_dereference_check(net->xfrm.policy_bydst[dir].table,
 		     lockdep_is_held(&net->xfrm.xfrm_policy_lock)) + hash;
@@ -460,10 +616,14 @@ static void xfrm_bydst_resize(struct net *net, int dir)
 		return;
 
 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+<<<<<<< HEAD
 	write_seqcount_begin(&xfrm_policy_hash_generation);
 
 	odst = rcu_dereference_protected(net->xfrm.policy_bydst[dir].table,
 				lockdep_is_held(&net->xfrm.xfrm_policy_lock));
+=======
+	write_seqcount_begin(&net->xfrm.xfrm_policy_hash_generation);
+>>>>>>> upstream/android-13
 
 	odst = rcu_dereference_protected(net->xfrm.policy_bydst[dir].table,
 				lockdep_is_held(&net->xfrm.xfrm_policy_lock));
@@ -474,7 +634,11 @@ static void xfrm_bydst_resize(struct net *net, int dir)
 	rcu_assign_pointer(net->xfrm.policy_bydst[dir].table, ndst);
 	net->xfrm.policy_bydst[dir].hmask = nhashmask;
 
+<<<<<<< HEAD
 	write_seqcount_end(&xfrm_policy_hash_generation);
+=======
+	write_seqcount_end(&net->xfrm.xfrm_policy_hash_generation);
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
 
 	synchronize_rcu();
@@ -565,6 +729,539 @@ static void xfrm_hash_resize(struct work_struct *work)
 	mutex_unlock(&hash_resize_mutex);
 }
 
+<<<<<<< HEAD
+=======
+/* Make sure *pol can be inserted into fastbin.
+ * Useful to check that later insert requests will be successful
+ * (provided xfrm_policy_lock is held throughout).
+ */
+static struct xfrm_pol_inexact_bin *
+xfrm_policy_inexact_alloc_bin(const struct xfrm_policy *pol, u8 dir)
+{
+	struct xfrm_pol_inexact_bin *bin, *prev;
+	struct xfrm_pol_inexact_key k = {
+		.family = pol->family,
+		.type = pol->type,
+		.dir = dir,
+		.if_id = pol->if_id,
+	};
+	struct net *net = xp_net(pol);
+
+	lockdep_assert_held(&net->xfrm.xfrm_policy_lock);
+
+	write_pnet(&k.net, net);
+	bin = rhashtable_lookup_fast(&xfrm_policy_inexact_table, &k,
+				     xfrm_pol_inexact_params);
+	if (bin)
+		return bin;
+
+	bin = kzalloc(sizeof(*bin), GFP_ATOMIC);
+	if (!bin)
+		return NULL;
+
+	bin->k = k;
+	INIT_HLIST_HEAD(&bin->hhead);
+	bin->root_d = RB_ROOT;
+	bin->root_s = RB_ROOT;
+	seqcount_spinlock_init(&bin->count, &net->xfrm.xfrm_policy_lock);
+
+	prev = rhashtable_lookup_get_insert_key(&xfrm_policy_inexact_table,
+						&bin->k, &bin->head,
+						xfrm_pol_inexact_params);
+	if (!prev) {
+		list_add(&bin->inexact_bins, &net->xfrm.inexact_bins);
+		return bin;
+	}
+
+	kfree(bin);
+
+	return IS_ERR(prev) ? NULL : prev;
+}
+
+static bool xfrm_pol_inexact_addr_use_any_list(const xfrm_address_t *addr,
+					       int family, u8 prefixlen)
+{
+	if (xfrm_addr_any(addr, family))
+		return true;
+
+	if (family == AF_INET6 && prefixlen < INEXACT_PREFIXLEN_IPV6)
+		return true;
+
+	if (family == AF_INET && prefixlen < INEXACT_PREFIXLEN_IPV4)
+		return true;
+
+	return false;
+}
+
+static bool
+xfrm_policy_inexact_insert_use_any_list(const struct xfrm_policy *policy)
+{
+	const xfrm_address_t *addr;
+	bool saddr_any, daddr_any;
+	u8 prefixlen;
+
+	addr = &policy->selector.saddr;
+	prefixlen = policy->selector.prefixlen_s;
+
+	saddr_any = xfrm_pol_inexact_addr_use_any_list(addr,
+						       policy->family,
+						       prefixlen);
+	addr = &policy->selector.daddr;
+	prefixlen = policy->selector.prefixlen_d;
+	daddr_any = xfrm_pol_inexact_addr_use_any_list(addr,
+						       policy->family,
+						       prefixlen);
+	return saddr_any && daddr_any;
+}
+
+static void xfrm_pol_inexact_node_init(struct xfrm_pol_inexact_node *node,
+				       const xfrm_address_t *addr, u8 prefixlen)
+{
+	node->addr = *addr;
+	node->prefixlen = prefixlen;
+}
+
+static struct xfrm_pol_inexact_node *
+xfrm_pol_inexact_node_alloc(const xfrm_address_t *addr, u8 prefixlen)
+{
+	struct xfrm_pol_inexact_node *node;
+
+	node = kzalloc(sizeof(*node), GFP_ATOMIC);
+	if (node)
+		xfrm_pol_inexact_node_init(node, addr, prefixlen);
+
+	return node;
+}
+
+static int xfrm_policy_addr_delta(const xfrm_address_t *a,
+				  const xfrm_address_t *b,
+				  u8 prefixlen, u16 family)
+{
+	u32 ma, mb, mask;
+	unsigned int pdw, pbi;
+	int delta = 0;
+
+	switch (family) {
+	case AF_INET:
+		if (prefixlen == 0)
+			return 0;
+		mask = ~0U << (32 - prefixlen);
+		ma = ntohl(a->a4) & mask;
+		mb = ntohl(b->a4) & mask;
+		if (ma < mb)
+			delta = -1;
+		else if (ma > mb)
+			delta = 1;
+		break;
+	case AF_INET6:
+		pdw = prefixlen >> 5;
+		pbi = prefixlen & 0x1f;
+
+		if (pdw) {
+			delta = memcmp(a->a6, b->a6, pdw << 2);
+			if (delta)
+				return delta;
+		}
+		if (pbi) {
+			mask = ~0U << (32 - pbi);
+			ma = ntohl(a->a6[pdw]) & mask;
+			mb = ntohl(b->a6[pdw]) & mask;
+			if (ma < mb)
+				delta = -1;
+			else if (ma > mb)
+				delta = 1;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return delta;
+}
+
+static void xfrm_policy_inexact_list_reinsert(struct net *net,
+					      struct xfrm_pol_inexact_node *n,
+					      u16 family)
+{
+	unsigned int matched_s, matched_d;
+	struct xfrm_policy *policy, *p;
+
+	matched_s = 0;
+	matched_d = 0;
+
+	list_for_each_entry_reverse(policy, &net->xfrm.policy_all, walk.all) {
+		struct hlist_node *newpos = NULL;
+		bool matches_s, matches_d;
+
+		if (!policy->bydst_reinsert)
+			continue;
+
+		WARN_ON_ONCE(policy->family != family);
+
+		policy->bydst_reinsert = false;
+		hlist_for_each_entry(p, &n->hhead, bydst) {
+			if (policy->priority > p->priority)
+				newpos = &p->bydst;
+			else if (policy->priority == p->priority &&
+				 policy->pos > p->pos)
+				newpos = &p->bydst;
+			else
+				break;
+		}
+
+		if (newpos)
+			hlist_add_behind_rcu(&policy->bydst, newpos);
+		else
+			hlist_add_head_rcu(&policy->bydst, &n->hhead);
+
+		/* paranoia checks follow.
+		 * Check that the reinserted policy matches at least
+		 * saddr or daddr for current node prefix.
+		 *
+		 * Matching both is fine, matching saddr in one policy
+		 * (but not daddr) and then matching only daddr in another
+		 * is a bug.
+		 */
+		matches_s = xfrm_policy_addr_delta(&policy->selector.saddr,
+						   &n->addr,
+						   n->prefixlen,
+						   family) == 0;
+		matches_d = xfrm_policy_addr_delta(&policy->selector.daddr,
+						   &n->addr,
+						   n->prefixlen,
+						   family) == 0;
+		if (matches_s && matches_d)
+			continue;
+
+		WARN_ON_ONCE(!matches_s && !matches_d);
+		if (matches_s)
+			matched_s++;
+		if (matches_d)
+			matched_d++;
+		WARN_ON_ONCE(matched_s && matched_d);
+	}
+}
+
+static void xfrm_policy_inexact_node_reinsert(struct net *net,
+					      struct xfrm_pol_inexact_node *n,
+					      struct rb_root *new,
+					      u16 family)
+{
+	struct xfrm_pol_inexact_node *node;
+	struct rb_node **p, *parent;
+
+	/* we should not have another subtree here */
+	WARN_ON_ONCE(!RB_EMPTY_ROOT(&n->root));
+restart:
+	parent = NULL;
+	p = &new->rb_node;
+	while (*p) {
+		u8 prefixlen;
+		int delta;
+
+		parent = *p;
+		node = rb_entry(*p, struct xfrm_pol_inexact_node, node);
+
+		prefixlen = min(node->prefixlen, n->prefixlen);
+
+		delta = xfrm_policy_addr_delta(&n->addr, &node->addr,
+					       prefixlen, family);
+		if (delta < 0) {
+			p = &parent->rb_left;
+		} else if (delta > 0) {
+			p = &parent->rb_right;
+		} else {
+			bool same_prefixlen = node->prefixlen == n->prefixlen;
+			struct xfrm_policy *tmp;
+
+			hlist_for_each_entry(tmp, &n->hhead, bydst) {
+				tmp->bydst_reinsert = true;
+				hlist_del_rcu(&tmp->bydst);
+			}
+
+			node->prefixlen = prefixlen;
+
+			xfrm_policy_inexact_list_reinsert(net, node, family);
+
+			if (same_prefixlen) {
+				kfree_rcu(n, rcu);
+				return;
+			}
+
+			rb_erase(*p, new);
+			kfree_rcu(n, rcu);
+			n = node;
+			goto restart;
+		}
+	}
+
+	rb_link_node_rcu(&n->node, parent, p);
+	rb_insert_color(&n->node, new);
+}
+
+/* merge nodes v and n */
+static void xfrm_policy_inexact_node_merge(struct net *net,
+					   struct xfrm_pol_inexact_node *v,
+					   struct xfrm_pol_inexact_node *n,
+					   u16 family)
+{
+	struct xfrm_pol_inexact_node *node;
+	struct xfrm_policy *tmp;
+	struct rb_node *rnode;
+
+	/* To-be-merged node v has a subtree.
+	 *
+	 * Dismantle it and insert its nodes to n->root.
+	 */
+	while ((rnode = rb_first(&v->root)) != NULL) {
+		node = rb_entry(rnode, struct xfrm_pol_inexact_node, node);
+		rb_erase(&node->node, &v->root);
+		xfrm_policy_inexact_node_reinsert(net, node, &n->root,
+						  family);
+	}
+
+	hlist_for_each_entry(tmp, &v->hhead, bydst) {
+		tmp->bydst_reinsert = true;
+		hlist_del_rcu(&tmp->bydst);
+	}
+
+	xfrm_policy_inexact_list_reinsert(net, n, family);
+}
+
+static struct xfrm_pol_inexact_node *
+xfrm_policy_inexact_insert_node(struct net *net,
+				struct rb_root *root,
+				xfrm_address_t *addr,
+				u16 family, u8 prefixlen, u8 dir)
+{
+	struct xfrm_pol_inexact_node *cached = NULL;
+	struct rb_node **p, *parent = NULL;
+	struct xfrm_pol_inexact_node *node;
+
+	p = &root->rb_node;
+	while (*p) {
+		int delta;
+
+		parent = *p;
+		node = rb_entry(*p, struct xfrm_pol_inexact_node, node);
+
+		delta = xfrm_policy_addr_delta(addr, &node->addr,
+					       node->prefixlen,
+					       family);
+		if (delta == 0 && prefixlen >= node->prefixlen) {
+			WARN_ON_ONCE(cached); /* ipsec policies got lost */
+			return node;
+		}
+
+		if (delta < 0)
+			p = &parent->rb_left;
+		else
+			p = &parent->rb_right;
+
+		if (prefixlen < node->prefixlen) {
+			delta = xfrm_policy_addr_delta(addr, &node->addr,
+						       prefixlen,
+						       family);
+			if (delta)
+				continue;
+
+			/* This node is a subnet of the new prefix. It needs
+			 * to be removed and re-inserted with the smaller
+			 * prefix and all nodes that are now also covered
+			 * by the reduced prefixlen.
+			 */
+			rb_erase(&node->node, root);
+
+			if (!cached) {
+				xfrm_pol_inexact_node_init(node, addr,
+							   prefixlen);
+				cached = node;
+			} else {
+				/* This node also falls within the new
+				 * prefixlen. Merge the to-be-reinserted
+				 * node and this one.
+				 */
+				xfrm_policy_inexact_node_merge(net, node,
+							       cached, family);
+				kfree_rcu(node, rcu);
+			}
+
+			/* restart */
+			p = &root->rb_node;
+			parent = NULL;
+		}
+	}
+
+	node = cached;
+	if (!node) {
+		node = xfrm_pol_inexact_node_alloc(addr, prefixlen);
+		if (!node)
+			return NULL;
+	}
+
+	rb_link_node_rcu(&node->node, parent, p);
+	rb_insert_color(&node->node, root);
+
+	return node;
+}
+
+static void xfrm_policy_inexact_gc_tree(struct rb_root *r, bool rm)
+{
+	struct xfrm_pol_inexact_node *node;
+	struct rb_node *rn = rb_first(r);
+
+	while (rn) {
+		node = rb_entry(rn, struct xfrm_pol_inexact_node, node);
+
+		xfrm_policy_inexact_gc_tree(&node->root, rm);
+		rn = rb_next(rn);
+
+		if (!hlist_empty(&node->hhead) || !RB_EMPTY_ROOT(&node->root)) {
+			WARN_ON_ONCE(rm);
+			continue;
+		}
+
+		rb_erase(&node->node, r);
+		kfree_rcu(node, rcu);
+	}
+}
+
+static void __xfrm_policy_inexact_prune_bin(struct xfrm_pol_inexact_bin *b, bool net_exit)
+{
+	write_seqcount_begin(&b->count);
+	xfrm_policy_inexact_gc_tree(&b->root_d, net_exit);
+	xfrm_policy_inexact_gc_tree(&b->root_s, net_exit);
+	write_seqcount_end(&b->count);
+
+	if (!RB_EMPTY_ROOT(&b->root_d) || !RB_EMPTY_ROOT(&b->root_s) ||
+	    !hlist_empty(&b->hhead)) {
+		WARN_ON_ONCE(net_exit);
+		return;
+	}
+
+	if (rhashtable_remove_fast(&xfrm_policy_inexact_table, &b->head,
+				   xfrm_pol_inexact_params) == 0) {
+		list_del(&b->inexact_bins);
+		kfree_rcu(b, rcu);
+	}
+}
+
+static void xfrm_policy_inexact_prune_bin(struct xfrm_pol_inexact_bin *b)
+{
+	struct net *net = read_pnet(&b->k.net);
+
+	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+	__xfrm_policy_inexact_prune_bin(b, false);
+	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+}
+
+static void __xfrm_policy_inexact_flush(struct net *net)
+{
+	struct xfrm_pol_inexact_bin *bin, *t;
+
+	lockdep_assert_held(&net->xfrm.xfrm_policy_lock);
+
+	list_for_each_entry_safe(bin, t, &net->xfrm.inexact_bins, inexact_bins)
+		__xfrm_policy_inexact_prune_bin(bin, false);
+}
+
+static struct hlist_head *
+xfrm_policy_inexact_alloc_chain(struct xfrm_pol_inexact_bin *bin,
+				struct xfrm_policy *policy, u8 dir)
+{
+	struct xfrm_pol_inexact_node *n;
+	struct net *net;
+
+	net = xp_net(policy);
+	lockdep_assert_held(&net->xfrm.xfrm_policy_lock);
+
+	if (xfrm_policy_inexact_insert_use_any_list(policy))
+		return &bin->hhead;
+
+	if (xfrm_pol_inexact_addr_use_any_list(&policy->selector.daddr,
+					       policy->family,
+					       policy->selector.prefixlen_d)) {
+		write_seqcount_begin(&bin->count);
+		n = xfrm_policy_inexact_insert_node(net,
+						    &bin->root_s,
+						    &policy->selector.saddr,
+						    policy->family,
+						    policy->selector.prefixlen_s,
+						    dir);
+		write_seqcount_end(&bin->count);
+		if (!n)
+			return NULL;
+
+		return &n->hhead;
+	}
+
+	/* daddr is fixed */
+	write_seqcount_begin(&bin->count);
+	n = xfrm_policy_inexact_insert_node(net,
+					    &bin->root_d,
+					    &policy->selector.daddr,
+					    policy->family,
+					    policy->selector.prefixlen_d, dir);
+	write_seqcount_end(&bin->count);
+	if (!n)
+		return NULL;
+
+	/* saddr is wildcard */
+	if (xfrm_pol_inexact_addr_use_any_list(&policy->selector.saddr,
+					       policy->family,
+					       policy->selector.prefixlen_s))
+		return &n->hhead;
+
+	write_seqcount_begin(&bin->count);
+	n = xfrm_policy_inexact_insert_node(net,
+					    &n->root,
+					    &policy->selector.saddr,
+					    policy->family,
+					    policy->selector.prefixlen_s, dir);
+	write_seqcount_end(&bin->count);
+	if (!n)
+		return NULL;
+
+	return &n->hhead;
+}
+
+static struct xfrm_policy *
+xfrm_policy_inexact_insert(struct xfrm_policy *policy, u8 dir, int excl)
+{
+	struct xfrm_pol_inexact_bin *bin;
+	struct xfrm_policy *delpol;
+	struct hlist_head *chain;
+	struct net *net;
+
+	bin = xfrm_policy_inexact_alloc_bin(policy, dir);
+	if (!bin)
+		return ERR_PTR(-ENOMEM);
+
+	net = xp_net(policy);
+	lockdep_assert_held(&net->xfrm.xfrm_policy_lock);
+
+	chain = xfrm_policy_inexact_alloc_chain(bin, policy, dir);
+	if (!chain) {
+		__xfrm_policy_inexact_prune_bin(bin, false);
+		return ERR_PTR(-ENOMEM);
+	}
+
+	delpol = xfrm_policy_insert_list(chain, policy, excl);
+	if (delpol && excl) {
+		__xfrm_policy_inexact_prune_bin(bin, false);
+		return ERR_PTR(-EEXIST);
+	}
+
+	chain = &net->xfrm.policy_inexact[dir];
+	xfrm_policy_insert_inexact_list(chain, policy);
+
+	if (delpol)
+		__xfrm_policy_inexact_prune_bin(bin, false);
+
+	return delpol;
+}
+
+>>>>>>> upstream/android-13
 static void xfrm_hash_rebuild(struct work_struct *work)
 {
 	struct net *net = container_of(work, struct net,
@@ -593,6 +1290,7 @@ static void xfrm_hash_rebuild(struct work_struct *work)
 	} while (read_seqretry(&net->xfrm.policy_hthresh.lock, seq));
 
 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+<<<<<<< HEAD
 
 	/* reset the bydst and inexact table in all directions */
 	for (dir = 0; dir < XFRM_POLICY_MAX; dir++) {
@@ -601,6 +1299,68 @@ static void xfrm_hash_rebuild(struct work_struct *work)
 		odst = net->xfrm.policy_bydst[dir].table;
 		for (i = hmask; i >= 0; i--)
 			INIT_HLIST_HEAD(odst + i);
+=======
+	write_seqcount_begin(&net->xfrm.xfrm_policy_hash_generation);
+
+	/* make sure that we can insert the indirect policies again before
+	 * we start with destructive action.
+	 */
+	list_for_each_entry(policy, &net->xfrm.policy_all, walk.all) {
+		struct xfrm_pol_inexact_bin *bin;
+		u8 dbits, sbits;
+
+		dir = xfrm_policy_id2dir(policy->index);
+		if (policy->walk.dead || dir >= XFRM_POLICY_MAX)
+			continue;
+
+		if ((dir & XFRM_POLICY_MASK) == XFRM_POLICY_OUT) {
+			if (policy->family == AF_INET) {
+				dbits = rbits4;
+				sbits = lbits4;
+			} else {
+				dbits = rbits6;
+				sbits = lbits6;
+			}
+		} else {
+			if (policy->family == AF_INET) {
+				dbits = lbits4;
+				sbits = rbits4;
+			} else {
+				dbits = lbits6;
+				sbits = rbits6;
+			}
+		}
+
+		if (policy->selector.prefixlen_d < dbits ||
+		    policy->selector.prefixlen_s < sbits)
+			continue;
+
+		bin = xfrm_policy_inexact_alloc_bin(policy, dir);
+		if (!bin)
+			goto out_unlock;
+
+		if (!xfrm_policy_inexact_alloc_chain(bin, policy, dir))
+			goto out_unlock;
+	}
+
+	/* reset the bydst and inexact table in all directions */
+	for (dir = 0; dir < XFRM_POLICY_MAX; dir++) {
+		struct hlist_node *n;
+
+		hlist_for_each_entry_safe(policy, n,
+					  &net->xfrm.policy_inexact[dir],
+					  bydst_inexact_list) {
+			hlist_del_rcu(&policy->bydst);
+			hlist_del_init(&policy->bydst_inexact_list);
+		}
+
+		hmask = net->xfrm.policy_bydst[dir].hmask;
+		odst = net->xfrm.policy_bydst[dir].table;
+		for (i = hmask; i >= 0; i--) {
+			hlist_for_each_entry_safe(policy, n, odst + i, bydst)
+				hlist_del_rcu(&policy->bydst);
+		}
+>>>>>>> upstream/android-13
 		if ((dir & XFRM_POLICY_MASK) == XFRM_POLICY_OUT) {
 			/* dir out => dst = remote, src = local */
 			net->xfrm.policy_bydst[dir].dbits4 = rbits4;
@@ -618,15 +1378,34 @@ static void xfrm_hash_rebuild(struct work_struct *work)
 
 	/* re-insert all policies by order of creation */
 	list_for_each_entry_reverse(policy, &net->xfrm.policy_all, walk.all) {
+<<<<<<< HEAD
 		if (policy->walk.dead ||
 		    xfrm_policy_id2dir(policy->index) >= XFRM_POLICY_MAX) {
+=======
+		if (policy->walk.dead)
+			continue;
+		dir = xfrm_policy_id2dir(policy->index);
+		if (dir >= XFRM_POLICY_MAX) {
+>>>>>>> upstream/android-13
 			/* skip socket policies */
 			continue;
 		}
 		newpos = NULL;
 		chain = policy_hash_bysel(net, &policy->selector,
+<<<<<<< HEAD
 					  policy->family,
 					  xfrm_policy_id2dir(policy->index));
+=======
+					  policy->family, dir);
+
+		if (!chain) {
+			void *p = xfrm_policy_inexact_insert(policy, dir, 0);
+
+			WARN_ONCE(IS_ERR(p), "reinsert: %ld\n", PTR_ERR(p));
+			continue;
+		}
+
+>>>>>>> upstream/android-13
 		hlist_for_each_entry(pol, chain, bydst) {
 			if (policy->priority >= pol->priority)
 				newpos = &pol->bydst;
@@ -639,6 +1418,12 @@ static void xfrm_hash_rebuild(struct work_struct *work)
 			hlist_add_head_rcu(&policy->bydst, chain);
 	}
 
+<<<<<<< HEAD
+=======
+out_unlock:
+	__xfrm_policy_inexact_flush(net);
+	write_seqcount_end(&net->xfrm.xfrm_policy_hash_generation);
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
 
 	mutex_unlock(&hash_resize_mutex);
@@ -727,6 +1512,7 @@ static void xfrm_policy_requeue(struct xfrm_policy *old,
 	spin_unlock_bh(&pq->hold_queue.lock);
 }
 
+<<<<<<< HEAD
 static bool xfrm_policy_mark_match(struct xfrm_policy *policy,
 				   struct xfrm_policy *pol)
 {
@@ -760,20 +1546,162 @@ int xfrm_policy_insert(int dir, struct xfrm_policy *policy, int excl)
 				spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
 				return -EEXIST;
 			}
+=======
+static inline bool xfrm_policy_mark_match(const struct xfrm_mark *mark,
+					  struct xfrm_policy *pol)
+{
+	return mark->v == pol->mark.v && mark->m == pol->mark.m;
+}
+
+static u32 xfrm_pol_bin_key(const void *data, u32 len, u32 seed)
+{
+	const struct xfrm_pol_inexact_key *k = data;
+	u32 a = k->type << 24 | k->dir << 16 | k->family;
+
+	return jhash_3words(a, k->if_id, net_hash_mix(read_pnet(&k->net)),
+			    seed);
+}
+
+static u32 xfrm_pol_bin_obj(const void *data, u32 len, u32 seed)
+{
+	const struct xfrm_pol_inexact_bin *b = data;
+
+	return xfrm_pol_bin_key(&b->k, 0, seed);
+}
+
+static int xfrm_pol_bin_cmp(struct rhashtable_compare_arg *arg,
+			    const void *ptr)
+{
+	const struct xfrm_pol_inexact_key *key = arg->key;
+	const struct xfrm_pol_inexact_bin *b = ptr;
+	int ret;
+
+	if (!net_eq(read_pnet(&b->k.net), read_pnet(&key->net)))
+		return -1;
+
+	ret = b->k.dir ^ key->dir;
+	if (ret)
+		return ret;
+
+	ret = b->k.type ^ key->type;
+	if (ret)
+		return ret;
+
+	ret = b->k.family ^ key->family;
+	if (ret)
+		return ret;
+
+	return b->k.if_id ^ key->if_id;
+}
+
+static const struct rhashtable_params xfrm_pol_inexact_params = {
+	.head_offset		= offsetof(struct xfrm_pol_inexact_bin, head),
+	.hashfn			= xfrm_pol_bin_key,
+	.obj_hashfn		= xfrm_pol_bin_obj,
+	.obj_cmpfn		= xfrm_pol_bin_cmp,
+	.automatic_shrinking	= true,
+};
+
+static void xfrm_policy_insert_inexact_list(struct hlist_head *chain,
+					    struct xfrm_policy *policy)
+{
+	struct xfrm_policy *pol, *delpol = NULL;
+	struct hlist_node *newpos = NULL;
+	int i = 0;
+
+	hlist_for_each_entry(pol, chain, bydst_inexact_list) {
+		if (pol->type == policy->type &&
+		    pol->if_id == policy->if_id &&
+		    !selector_cmp(&pol->selector, &policy->selector) &&
+		    xfrm_policy_mark_match(&policy->mark, pol) &&
+		    xfrm_sec_ctx_match(pol->security, policy->security) &&
+		    !WARN_ON(delpol)) {
+>>>>>>> upstream/android-13
 			delpol = pol;
 			if (policy->priority > pol->priority)
 				continue;
 		} else if (policy->priority >= pol->priority) {
+<<<<<<< HEAD
 			newpos = &pol->bydst;
+=======
+			newpos = &pol->bydst_inexact_list;
+>>>>>>> upstream/android-13
 			continue;
 		}
 		if (delpol)
 			break;
 	}
+<<<<<<< HEAD
 	if (newpos)
 		hlist_add_behind_rcu(&policy->bydst, newpos);
 	else
 		hlist_add_head_rcu(&policy->bydst, chain);
+=======
+
+	if (newpos)
+		hlist_add_behind_rcu(&policy->bydst_inexact_list, newpos);
+	else
+		hlist_add_head_rcu(&policy->bydst_inexact_list, chain);
+
+	hlist_for_each_entry(pol, chain, bydst_inexact_list) {
+		pol->pos = i;
+		i++;
+	}
+}
+
+static struct xfrm_policy *xfrm_policy_insert_list(struct hlist_head *chain,
+						   struct xfrm_policy *policy,
+						   bool excl)
+{
+	struct xfrm_policy *pol, *newpos = NULL, *delpol = NULL;
+
+	hlist_for_each_entry(pol, chain, bydst) {
+		if (pol->type == policy->type &&
+		    pol->if_id == policy->if_id &&
+		    !selector_cmp(&pol->selector, &policy->selector) &&
+		    xfrm_policy_mark_match(&policy->mark, pol) &&
+		    xfrm_sec_ctx_match(pol->security, policy->security) &&
+		    !WARN_ON(delpol)) {
+			if (excl)
+				return ERR_PTR(-EEXIST);
+			delpol = pol;
+			if (policy->priority > pol->priority)
+				continue;
+		} else if (policy->priority >= pol->priority) {
+			newpos = pol;
+			continue;
+		}
+		if (delpol)
+			break;
+	}
+
+	if (newpos)
+		hlist_add_behind_rcu(&policy->bydst, &newpos->bydst);
+	else
+		hlist_add_head_rcu(&policy->bydst, chain);
+
+	return delpol;
+}
+
+int xfrm_policy_insert(int dir, struct xfrm_policy *policy, int excl)
+{
+	struct net *net = xp_net(policy);
+	struct xfrm_policy *delpol;
+	struct hlist_head *chain;
+
+	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+	chain = policy_hash_bysel(net, &policy->selector, policy->family, dir);
+	if (chain)
+		delpol = xfrm_policy_insert_list(chain, policy, excl);
+	else
+		delpol = xfrm_policy_inexact_insert(policy, dir, excl);
+
+	if (IS_ERR(delpol)) {
+		spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+		return PTR_ERR(delpol);
+	}
+
+>>>>>>> upstream/android-13
 	__xfrm_policy_link(policy, dir);
 
 	/* After previous checking, family can either be AF_INET or AF_INET6 */
@@ -803,6 +1731,7 @@ int xfrm_policy_insert(int dir, struct xfrm_policy *policy, int excl)
 }
 EXPORT_SYMBOL(xfrm_policy_insert);
 
+<<<<<<< HEAD
 struct xfrm_policy *xfrm_policy_bysel_ctx(struct net *net, u32 mark, u32 if_id,
 					  u8 type, int dir,
 					  struct xfrm_selector *sel,
@@ -810,11 +1739,43 @@ struct xfrm_policy *xfrm_policy_bysel_ctx(struct net *net, u32 mark, u32 if_id,
 					  int *err)
 {
 	struct xfrm_policy *pol, *ret;
+=======
+static struct xfrm_policy *
+__xfrm_policy_bysel_ctx(struct hlist_head *chain, const struct xfrm_mark *mark,
+			u32 if_id, u8 type, int dir, struct xfrm_selector *sel,
+			struct xfrm_sec_ctx *ctx)
+{
+	struct xfrm_policy *pol;
+
+	if (!chain)
+		return NULL;
+
+	hlist_for_each_entry(pol, chain, bydst) {
+		if (pol->type == type &&
+		    pol->if_id == if_id &&
+		    xfrm_policy_mark_match(mark, pol) &&
+		    !selector_cmp(sel, &pol->selector) &&
+		    xfrm_sec_ctx_match(ctx, pol->security))
+			return pol;
+	}
+
+	return NULL;
+}
+
+struct xfrm_policy *
+xfrm_policy_bysel_ctx(struct net *net, const struct xfrm_mark *mark, u32 if_id,
+		      u8 type, int dir, struct xfrm_selector *sel,
+		      struct xfrm_sec_ctx *ctx, int delete, int *err)
+{
+	struct xfrm_pol_inexact_bin *bin = NULL;
+	struct xfrm_policy *pol, *ret = NULL;
+>>>>>>> upstream/android-13
 	struct hlist_head *chain;
 
 	*err = 0;
 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
 	chain = policy_hash_bysel(net, sel, sel->family, dir);
+<<<<<<< HEAD
 	ret = NULL;
 	hlist_for_each_entry(pol, chain, bydst) {
 		if (pol->type == type &&
@@ -835,18 +1796,78 @@ struct xfrm_policy *xfrm_policy_bysel_ctx(struct net *net, u32 mark, u32 if_id,
 			ret = pol;
 			break;
 		}
+=======
+	if (!chain) {
+		struct xfrm_pol_inexact_candidates cand;
+		int i;
+
+		bin = xfrm_policy_inexact_lookup(net, type,
+						 sel->family, dir, if_id);
+		if (!bin) {
+			spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+			return NULL;
+		}
+
+		if (!xfrm_policy_find_inexact_candidates(&cand, bin,
+							 &sel->saddr,
+							 &sel->daddr)) {
+			spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+			return NULL;
+		}
+
+		pol = NULL;
+		for (i = 0; i < ARRAY_SIZE(cand.res); i++) {
+			struct xfrm_policy *tmp;
+
+			tmp = __xfrm_policy_bysel_ctx(cand.res[i], mark,
+						      if_id, type, dir,
+						      sel, ctx);
+			if (!tmp)
+				continue;
+
+			if (!pol || tmp->pos < pol->pos)
+				pol = tmp;
+		}
+	} else {
+		pol = __xfrm_policy_bysel_ctx(chain, mark, if_id, type, dir,
+					      sel, ctx);
+	}
+
+	if (pol) {
+		xfrm_pol_hold(pol);
+		if (delete) {
+			*err = security_xfrm_policy_delete(pol->security);
+			if (*err) {
+				spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+				return pol;
+			}
+			__xfrm_policy_unlink(pol, dir);
+		}
+		ret = pol;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
 
 	if (ret && delete)
 		xfrm_policy_kill(ret);
+<<<<<<< HEAD
+=======
+	if (bin && delete)
+		xfrm_policy_inexact_prune_bin(bin);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(xfrm_policy_bysel_ctx);
 
+<<<<<<< HEAD
 struct xfrm_policy *xfrm_policy_byid(struct net *net, u32 mark, u32 if_id,
 				     u8 type, int dir, u32 id, int delete,
 				     int *err)
+=======
+struct xfrm_policy *
+xfrm_policy_byid(struct net *net, const struct xfrm_mark *mark, u32 if_id,
+		 u8 type, int dir, u32 id, int delete, int *err)
+>>>>>>> upstream/android-13
 {
 	struct xfrm_policy *pol, *ret;
 	struct hlist_head *chain;
@@ -861,8 +1882,12 @@ struct xfrm_policy *xfrm_policy_byid(struct net *net, u32 mark, u32 if_id,
 	ret = NULL;
 	hlist_for_each_entry(pol, chain, byidx) {
 		if (pol->type == type && pol->index == id &&
+<<<<<<< HEAD
 		    pol->if_id == if_id &&
 		    (mark & pol->mark.m) == pol->mark.v) {
+=======
+		    pol->if_id == if_id && xfrm_policy_mark_match(mark, pol)) {
+>>>>>>> upstream/android-13
 			xfrm_pol_hold(pol);
 			if (delete) {
 				*err = security_xfrm_policy_delete(
@@ -889,6 +1914,7 @@ EXPORT_SYMBOL(xfrm_policy_byid);
 static inline int
 xfrm_policy_flush_secctx_check(struct net *net, u8 type, bool task_valid)
 {
+<<<<<<< HEAD
 	int dir, err = 0;
 
 	for (dir = 0; dir < XFRM_POLICY_MAX; dir++) {
@@ -919,6 +1945,21 @@ xfrm_policy_flush_secctx_check(struct net *net, u8 type, bool task_valid)
 					return err;
 				}
 			}
+=======
+	struct xfrm_policy *pol;
+	int err = 0;
+
+	list_for_each_entry(pol, &net->xfrm.policy_all, walk.all) {
+		if (pol->walk.dead ||
+		    xfrm_policy_id2dir(pol->index) >= XFRM_POLICY_MAX ||
+		    pol->type != type)
+			continue;
+
+		err = security_xfrm_policy_delete(pol->security);
+		if (err) {
+			xfrm_audit_policy_delete(pol, 0, task_valid);
+			return err;
+>>>>>>> upstream/android-13
 		}
 	}
 	return err;
@@ -934,6 +1975,10 @@ xfrm_policy_flush_secctx_check(struct net *net, u8 type, bool task_valid)
 int xfrm_policy_flush(struct net *net, u8 type, bool task_valid)
 {
 	int dir, err = 0, cnt = 0;
+<<<<<<< HEAD
+=======
+	struct xfrm_policy *pol;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
 
@@ -941,6 +1986,7 @@ int xfrm_policy_flush(struct net *net, u8 type, bool task_valid)
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
 	for (dir = 0; dir < XFRM_POLICY_MAX; dir++) {
 		struct xfrm_policy *pol;
 		int i;
@@ -983,6 +2029,27 @@ int xfrm_policy_flush(struct net *net, u8 type, bool task_valid)
 
 	}
 	if (!cnt)
+=======
+again:
+	list_for_each_entry(pol, &net->xfrm.policy_all, walk.all) {
+		dir = xfrm_policy_id2dir(pol->index);
+		if (pol->walk.dead ||
+		    dir >= XFRM_POLICY_MAX ||
+		    pol->type != type)
+			continue;
+
+		__xfrm_policy_unlink(pol, dir);
+		spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+		cnt++;
+		xfrm_audit_policy_delete(pol, 1, task_valid);
+		xfrm_policy_kill(pol);
+		spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+		goto again;
+	}
+	if (cnt)
+		__xfrm_policy_inexact_flush(net);
+	else
+>>>>>>> upstream/android-13
 		err = -ESRCH;
 out:
 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
@@ -1079,23 +2146,207 @@ static int xfrm_policy_match(const struct xfrm_policy *pol,
 
 	match = xfrm_selector_match(sel, fl, family);
 	if (match)
+<<<<<<< HEAD
 		ret = security_xfrm_policy_lookup(pol->security, fl->flowi_secid,
 						  dir);
 
 	return ret;
 }
 
+=======
+		ret = security_xfrm_policy_lookup(pol->security, fl->flowi_secid);
+	return ret;
+}
+
+static struct xfrm_pol_inexact_node *
+xfrm_policy_lookup_inexact_addr(const struct rb_root *r,
+				seqcount_spinlock_t *count,
+				const xfrm_address_t *addr, u16 family)
+{
+	const struct rb_node *parent;
+	int seq;
+
+again:
+	seq = read_seqcount_begin(count);
+
+	parent = rcu_dereference_raw(r->rb_node);
+	while (parent) {
+		struct xfrm_pol_inexact_node *node;
+		int delta;
+
+		node = rb_entry(parent, struct xfrm_pol_inexact_node, node);
+
+		delta = xfrm_policy_addr_delta(addr, &node->addr,
+					       node->prefixlen, family);
+		if (delta < 0) {
+			parent = rcu_dereference_raw(parent->rb_left);
+			continue;
+		} else if (delta > 0) {
+			parent = rcu_dereference_raw(parent->rb_right);
+			continue;
+		}
+
+		return node;
+	}
+
+	if (read_seqcount_retry(count, seq))
+		goto again;
+
+	return NULL;
+}
+
+static bool
+xfrm_policy_find_inexact_candidates(struct xfrm_pol_inexact_candidates *cand,
+				    struct xfrm_pol_inexact_bin *b,
+				    const xfrm_address_t *saddr,
+				    const xfrm_address_t *daddr)
+{
+	struct xfrm_pol_inexact_node *n;
+	u16 family;
+
+	if (!b)
+		return false;
+
+	family = b->k.family;
+	memset(cand, 0, sizeof(*cand));
+	cand->res[XFRM_POL_CAND_ANY] = &b->hhead;
+
+	n = xfrm_policy_lookup_inexact_addr(&b->root_d, &b->count, daddr,
+					    family);
+	if (n) {
+		cand->res[XFRM_POL_CAND_DADDR] = &n->hhead;
+		n = xfrm_policy_lookup_inexact_addr(&n->root, &b->count, saddr,
+						    family);
+		if (n)
+			cand->res[XFRM_POL_CAND_BOTH] = &n->hhead;
+	}
+
+	n = xfrm_policy_lookup_inexact_addr(&b->root_s, &b->count, saddr,
+					    family);
+	if (n)
+		cand->res[XFRM_POL_CAND_SADDR] = &n->hhead;
+
+	return true;
+}
+
+static struct xfrm_pol_inexact_bin *
+xfrm_policy_inexact_lookup_rcu(struct net *net, u8 type, u16 family,
+			       u8 dir, u32 if_id)
+{
+	struct xfrm_pol_inexact_key k = {
+		.family = family,
+		.type = type,
+		.dir = dir,
+		.if_id = if_id,
+	};
+
+	write_pnet(&k.net, net);
+
+	return rhashtable_lookup(&xfrm_policy_inexact_table, &k,
+				 xfrm_pol_inexact_params);
+}
+
+static struct xfrm_pol_inexact_bin *
+xfrm_policy_inexact_lookup(struct net *net, u8 type, u16 family,
+			   u8 dir, u32 if_id)
+{
+	struct xfrm_pol_inexact_bin *bin;
+
+	lockdep_assert_held(&net->xfrm.xfrm_policy_lock);
+
+	rcu_read_lock();
+	bin = xfrm_policy_inexact_lookup_rcu(net, type, family, dir, if_id);
+	rcu_read_unlock();
+
+	return bin;
+}
+
+static struct xfrm_policy *
+__xfrm_policy_eval_candidates(struct hlist_head *chain,
+			      struct xfrm_policy *prefer,
+			      const struct flowi *fl,
+			      u8 type, u16 family, int dir, u32 if_id)
+{
+	u32 priority = prefer ? prefer->priority : ~0u;
+	struct xfrm_policy *pol;
+
+	if (!chain)
+		return NULL;
+
+	hlist_for_each_entry_rcu(pol, chain, bydst) {
+		int err;
+
+		if (pol->priority > priority)
+			break;
+
+		err = xfrm_policy_match(pol, fl, type, family, dir, if_id);
+		if (err) {
+			if (err != -ESRCH)
+				return ERR_PTR(err);
+
+			continue;
+		}
+
+		if (prefer) {
+			/* matches.  Is it older than *prefer? */
+			if (pol->priority == priority &&
+			    prefer->pos < pol->pos)
+				return prefer;
+		}
+
+		return pol;
+	}
+
+	return NULL;
+}
+
+static struct xfrm_policy *
+xfrm_policy_eval_candidates(struct xfrm_pol_inexact_candidates *cand,
+			    struct xfrm_policy *prefer,
+			    const struct flowi *fl,
+			    u8 type, u16 family, int dir, u32 if_id)
+{
+	struct xfrm_policy *tmp;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(cand->res); i++) {
+		tmp = __xfrm_policy_eval_candidates(cand->res[i],
+						    prefer,
+						    fl, type, family, dir,
+						    if_id);
+		if (!tmp)
+			continue;
+
+		if (IS_ERR(tmp))
+			return tmp;
+		prefer = tmp;
+	}
+
+	return prefer;
+}
+
+>>>>>>> upstream/android-13
 static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
 						     const struct flowi *fl,
 						     u16 family, u8 dir,
 						     u32 if_id)
 {
+<<<<<<< HEAD
 	int err;
 	struct xfrm_policy *pol, *ret;
 	const xfrm_address_t *daddr, *saddr;
 	struct hlist_head *chain;
 	unsigned int sequence;
 	u32 priority;
+=======
+	struct xfrm_pol_inexact_candidates cand;
+	const xfrm_address_t *daddr, *saddr;
+	struct xfrm_pol_inexact_bin *bin;
+	struct xfrm_policy *pol, *ret;
+	struct hlist_head *chain;
+	unsigned int sequence;
+	int err;
+>>>>>>> upstream/android-13
 
 	daddr = xfrm_flowi_daddr(fl, family);
 	saddr = xfrm_flowi_saddr(fl, family);
@@ -1105,11 +2356,18 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
 	rcu_read_lock();
  retry:
 	do {
+<<<<<<< HEAD
 		sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
 		chain = policy_hash_direct(net, daddr, saddr, family, dir);
 	} while (read_seqcount_retry(&xfrm_policy_hash_generation, sequence));
 
 	priority = ~0U;
+=======
+		sequence = read_seqcount_begin(&net->xfrm.xfrm_policy_hash_generation);
+		chain = policy_hash_direct(net, daddr, saddr, family, dir);
+	} while (read_seqcount_retry(&net->xfrm.xfrm_policy_hash_generation, sequence));
+
+>>>>>>> upstream/android-13
 	ret = NULL;
 	hlist_for_each_entry_rcu(pol, chain, bydst) {
 		err = xfrm_policy_match(pol, fl, type, family, dir, if_id);
@@ -1122,6 +2380,7 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
 			}
 		} else {
 			ret = pol;
+<<<<<<< HEAD
 			priority = ret->priority;
 			break;
 		}
@@ -1146,6 +2405,26 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
 	}
 
 	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence))
+=======
+			break;
+		}
+	}
+	bin = xfrm_policy_inexact_lookup_rcu(net, type, family, dir, if_id);
+	if (!bin || !xfrm_policy_find_inexact_candidates(&cand, bin, saddr,
+							 daddr))
+		goto skip_inexact;
+
+	pol = xfrm_policy_eval_candidates(&cand, ret, fl, type,
+					  family, dir, if_id);
+	if (pol) {
+		ret = pol;
+		if (IS_ERR(pol))
+			goto fail;
+	}
+
+skip_inexact:
+	if (read_seqcount_retry(&net->xfrm.xfrm_policy_hash_generation, sequence))
+>>>>>>> upstream/android-13
 		goto retry;
 
 	if (ret && !xfrm_pol_hold_rcu(ret))
@@ -1198,8 +2477,12 @@ static struct xfrm_policy *xfrm_sk_policy_lookup(const struct sock *sk, int dir,
 				goto out;
 			}
 			err = security_xfrm_policy_lookup(pol->security,
+<<<<<<< HEAD
 						      fl->flowi_secid,
 						      dir);
+=======
+						      fl->flowi_secid);
+>>>>>>> upstream/android-13
 			if (!err) {
 				if (!xfrm_pol_hold_rcu(pol))
 					goto again;
@@ -1236,6 +2519,10 @@ static struct xfrm_policy *__xfrm_policy_unlink(struct xfrm_policy *pol,
 	/* Socket policies are not hashed. */
 	if (!hlist_unhashed(&pol->bydst)) {
 		hlist_del_rcu(&pol->bydst);
+<<<<<<< HEAD
+=======
+		hlist_del_init(&pol->bydst_inexact_list);
+>>>>>>> upstream/android-13
 		hlist_del(&pol->byidx);
 	}
 
@@ -1475,6 +2762,7 @@ xfrm_tmpl_resolve(struct xfrm_policy **pols, int npols, const struct flowi *fl,
 
 static int xfrm_get_tos(const struct flowi *fl, int family)
 {
+<<<<<<< HEAD
 	const struct xfrm_policy_afinfo *afinfo;
 	int tos;
 
@@ -1487,6 +2775,12 @@ static int xfrm_get_tos(const struct flowi *fl, int family)
 	rcu_read_unlock();
 
 	return tos;
+=======
+	if (family == AF_INET)
+		return IPTOS_RT_MASK & fl->u.ip4.flowi4_tos;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static inline struct xfrm_dst *xfrm_alloc_dst(struct net *net, int family)
@@ -1524,6 +2818,7 @@ static inline struct xfrm_dst *xfrm_alloc_dst(struct net *net, int family)
 	return xdst;
 }
 
+<<<<<<< HEAD
 static inline int xfrm_init_path(struct xfrm_dst *path, struct dst_entry *dst,
 				 int nfheader_len)
 {
@@ -1539,6 +2834,16 @@ static inline int xfrm_init_path(struct xfrm_dst *path, struct dst_entry *dst,
 	rcu_read_unlock();
 
 	return err;
+=======
+static void xfrm_init_path(struct xfrm_dst *path, struct dst_entry *dst,
+			   int nfheader_len)
+{
+	if (dst->ops->family == AF_INET6) {
+		struct rt6_info *rt = (struct rt6_info *)dst;
+		path->path_cookie = rt6_get_cookie(rt);
+		path->u.rt6.rt6i_nfheader_len = nfheader_len;
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline int xfrm_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
@@ -1570,10 +2875,18 @@ static struct dst_entry *xfrm_bundle_create(struct xfrm_policy *policy,
 					    const struct flowi *fl,
 					    struct dst_entry *dst)
 {
+<<<<<<< HEAD
 	struct net *net = xp_net(policy);
 	unsigned long now = jiffies;
 	struct net_device *dev;
 	struct xfrm_mode *inner_mode;
+=======
+	const struct xfrm_state_afinfo *afinfo;
+	const struct xfrm_mode *inner_mode;
+	struct net *net = xp_net(policy);
+	unsigned long now = jiffies;
+	struct net_device *dev;
+>>>>>>> upstream/android-13
 	struct xfrm_dst *xdst_prev = NULL;
 	struct xfrm_dst *xdst0 = NULL;
 	int i = 0;
@@ -1619,7 +2932,11 @@ static struct dst_entry *xfrm_bundle_create(struct xfrm_policy *policy,
 				goto put_states;
 			}
 		} else
+<<<<<<< HEAD
 			inner_mode = xfrm[i]->inner_mode;
+=======
+			inner_mode = &xfrm[i]->inner_mode;
+>>>>>>> upstream/android-13
 
 		xdst->route = dst;
 		dst_copy_metrics(dst1, dst);
@@ -1643,11 +2960,25 @@ static struct dst_entry *xfrm_bundle_create(struct xfrm_policy *policy,
 		xdst->xfrm_genid = xfrm[i]->genid;
 
 		dst1->obsolete = DST_OBSOLETE_FORCE_CHK;
+<<<<<<< HEAD
 		dst1->flags |= DST_HOST;
 		dst1->lastuse = now;
 
 		dst1->input = dst_discard;
 		dst1->output = inner_mode->afinfo->output;
+=======
+		dst1->lastuse = now;
+
+		dst1->input = dst_discard;
+
+		rcu_read_lock();
+		afinfo = xfrm_state_afinfo_get_rcu(inner_mode->family);
+		if (likely(afinfo))
+			dst1->output = afinfo->output;
+		else
+			dst1->output = dst_discard_out;
+		rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 		xdst_prev = xdst;
 
@@ -1785,6 +3116,10 @@ static void xfrm_policy_queue_process(struct timer_list *t)
 	struct xfrm_policy_queue *pq = &pol->polq;
 	struct flowi fl;
 	struct sk_buff_head list;
+<<<<<<< HEAD
+=======
+	__u32 skb_mark;
+>>>>>>> upstream/android-13
 
 	spin_lock(&pq->hold_queue.lock);
 	skb = skb_peek(&pq->hold_queue);
@@ -1794,7 +3129,16 @@ static void xfrm_policy_queue_process(struct timer_list *t)
 	}
 	dst = skb_dst(skb);
 	sk = skb->sk;
+<<<<<<< HEAD
 	xfrm_decode_session(skb, &fl, dst->ops->family);
+=======
+
+	/* Fixup the mark to support VTI. */
+	skb_mark = skb->mark;
+	skb->mark = pol->mark.v;
+	xfrm_decode_session(skb, &fl, dst->ops->family);
+	skb->mark = skb_mark;
+>>>>>>> upstream/android-13
 	spin_unlock(&pq->hold_queue.lock);
 
 	dst_hold(xfrm_dst_path(dst));
@@ -1811,7 +3155,11 @@ static void xfrm_policy_queue_process(struct timer_list *t)
 		pq->timeout = pq->timeout << 1;
 		if (!mod_timer(&pq->hold_timer, jiffies + pq->timeout))
 			xfrm_pol_hold(pol);
+<<<<<<< HEAD
 	goto out;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	dst_release(dst);
@@ -1826,7 +3174,16 @@ static void xfrm_policy_queue_process(struct timer_list *t)
 	while (!skb_queue_empty(&list)) {
 		skb = __skb_dequeue(&list);
 
+<<<<<<< HEAD
 		xfrm_decode_session(skb, &fl, skb_dst(skb)->ops->family);
+=======
+		/* Fixup the mark to support VTI. */
+		skb_mark = skb->mark;
+		skb->mark = pol->mark.v;
+		xfrm_decode_session(skb, &fl, skb_dst(skb)->ops->family);
+		skb->mark = skb_mark;
+
+>>>>>>> upstream/android-13
 		dst_hold(xfrm_dst_path(skb_dst(skb)));
 		dst = xfrm_lookup(net, xfrm_dst_path(skb_dst(skb)), &fl, skb->sk, 0);
 		if (IS_ERR(dst)) {
@@ -1834,7 +3191,11 @@ static void xfrm_policy_queue_process(struct timer_list *t)
 			continue;
 		}
 
+<<<<<<< HEAD
 		nf_reset(skb);
+=======
+		nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 		skb_dst_drop(skb);
 		skb_dst_set(skb, dst);
 
@@ -1922,7 +3283,11 @@ static struct xfrm_dst *xfrm_create_dummy_bundle(struct net *net,
 	dst_copy_metrics(dst1, dst);
 
 	dst1->obsolete = DST_OBSOLETE_FORCE_CHK;
+<<<<<<< HEAD
 	dst1->flags |= DST_HOST | DST_XFRM_QUEUE;
+=======
+	dst1->flags |= DST_XFRM_QUEUE;
+>>>>>>> upstream/android-13
 	dst1->lastuse = jiffies;
 
 	dst1->input = dst_discard;
@@ -2173,6 +3538,14 @@ ok:
 	return dst;
 
 nopol:
+<<<<<<< HEAD
+=======
+	if (!(dst_orig->dev->flags & IFF_LOOPBACK) &&
+	    net->xfrm.policy_default[dir] == XFRM_USERPOLICY_BLOCK) {
+		err = -EPERM;
+		goto error;
+	}
+>>>>>>> upstream/android-13
 	if (!(flags & XFRM_LOOKUP_ICMP)) {
 		dst = dst_orig;
 		goto ok;
@@ -2212,7 +3585,11 @@ struct dst_entry *xfrm_lookup_route(struct net *net, struct dst_entry *dst_orig,
 					    flags | XFRM_LOOKUP_QUEUE |
 					    XFRM_LOOKUP_KEEP_DST_REF);
 
+<<<<<<< HEAD
 	if (IS_ERR(dst) && PTR_ERR(dst) == -EREMOTE)
+=======
+	if (PTR_ERR(dst) == -EREMOTE)
+>>>>>>> upstream/android-13
 		return make_blackhole(net, dst_orig->ops->family, dst_orig);
 
 	if (IS_ERR(dst))
@@ -2225,11 +3602,20 @@ EXPORT_SYMBOL(xfrm_lookup_route);
 static inline int
 xfrm_secpath_reject(int idx, struct sk_buff *skb, const struct flowi *fl)
 {
+<<<<<<< HEAD
 	struct xfrm_state *x;
 
 	if (!skb->sp || idx < 0 || idx >= skb->sp->len)
 		return 0;
 	x = skb->sp->xvec[idx];
+=======
+	struct sec_path *sp = skb_sec_path(skb);
+	struct xfrm_state *x;
+
+	if (!sp || idx < 0 || idx >= sp->len)
+		return 0;
+	x = sp->xvec[idx];
+>>>>>>> upstream/android-13
 	if (!x->type->reject)
 		return 0;
 	return x->type->reject(x, skb, fl);
@@ -2259,7 +3645,11 @@ xfrm_state_ok(const struct xfrm_tmpl *tmpl, const struct xfrm_state *x,
 
 /*
  * 0 or more than 0 is returned when validation is succeeded (either bypass
+<<<<<<< HEAD
  * because of optional transport mode, or next index of the mathced secpath
+=======
+ * because of optional transport mode, or next index of the matched secpath
+>>>>>>> upstream/android-13
  * state with the template.
  * -1 is returned when no matching template is found.
  * Otherwise "-2 - errored_index" is returned.
@@ -2287,6 +3677,7 @@ xfrm_policy_ok(const struct xfrm_tmpl *tmpl, const struct sec_path *sp, int star
 	return start;
 }
 
+<<<<<<< HEAD
 int __xfrm_decode_session(struct sk_buff *skb, struct flowi *fl,
 			  unsigned int family, int reverse)
 {
@@ -2301,6 +3692,214 @@ int __xfrm_decode_session(struct sk_buff *skb, struct flowi *fl,
 	err = security_xfrm_decode_session(skb, &fl->flowi_secid);
 	rcu_read_unlock();
 	return err;
+=======
+static void
+decode_session4(struct sk_buff *skb, struct flowi *fl, bool reverse)
+{
+	const struct iphdr *iph = ip_hdr(skb);
+	int ihl = iph->ihl;
+	u8 *xprth = skb_network_header(skb) + ihl * 4;
+	struct flowi4 *fl4 = &fl->u.ip4;
+	int oif = 0;
+
+	if (skb_dst(skb) && skb_dst(skb)->dev)
+		oif = skb_dst(skb)->dev->ifindex;
+
+	memset(fl4, 0, sizeof(struct flowi4));
+	fl4->flowi4_mark = skb->mark;
+	fl4->flowi4_oif = reverse ? skb->skb_iif : oif;
+
+	fl4->flowi4_proto = iph->protocol;
+	fl4->daddr = reverse ? iph->saddr : iph->daddr;
+	fl4->saddr = reverse ? iph->daddr : iph->saddr;
+	fl4->flowi4_tos = iph->tos & ~INET_ECN_MASK;
+
+	if (!ip_is_fragment(iph)) {
+		switch (iph->protocol) {
+		case IPPROTO_UDP:
+		case IPPROTO_UDPLITE:
+		case IPPROTO_TCP:
+		case IPPROTO_SCTP:
+		case IPPROTO_DCCP:
+			if (xprth + 4 < skb->data ||
+			    pskb_may_pull(skb, xprth + 4 - skb->data)) {
+				__be16 *ports;
+
+				xprth = skb_network_header(skb) + ihl * 4;
+				ports = (__be16 *)xprth;
+
+				fl4->fl4_sport = ports[!!reverse];
+				fl4->fl4_dport = ports[!reverse];
+			}
+			break;
+		case IPPROTO_ICMP:
+			if (xprth + 2 < skb->data ||
+			    pskb_may_pull(skb, xprth + 2 - skb->data)) {
+				u8 *icmp;
+
+				xprth = skb_network_header(skb) + ihl * 4;
+				icmp = xprth;
+
+				fl4->fl4_icmp_type = icmp[0];
+				fl4->fl4_icmp_code = icmp[1];
+			}
+			break;
+		case IPPROTO_GRE:
+			if (xprth + 12 < skb->data ||
+			    pskb_may_pull(skb, xprth + 12 - skb->data)) {
+				__be16 *greflags;
+				__be32 *gre_hdr;
+
+				xprth = skb_network_header(skb) + ihl * 4;
+				greflags = (__be16 *)xprth;
+				gre_hdr = (__be32 *)xprth;
+
+				if (greflags[0] & GRE_KEY) {
+					if (greflags[0] & GRE_CSUM)
+						gre_hdr++;
+					fl4->fl4_gre_key = gre_hdr[1];
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+#if IS_ENABLED(CONFIG_IPV6)
+static void
+decode_session6(struct sk_buff *skb, struct flowi *fl, bool reverse)
+{
+	struct flowi6 *fl6 = &fl->u.ip6;
+	int onlyproto = 0;
+	const struct ipv6hdr *hdr = ipv6_hdr(skb);
+	u32 offset = sizeof(*hdr);
+	struct ipv6_opt_hdr *exthdr;
+	const unsigned char *nh = skb_network_header(skb);
+	u16 nhoff = IP6CB(skb)->nhoff;
+	int oif = 0;
+	u8 nexthdr;
+
+	if (!nhoff)
+		nhoff = offsetof(struct ipv6hdr, nexthdr);
+
+	nexthdr = nh[nhoff];
+
+	if (skb_dst(skb) && skb_dst(skb)->dev)
+		oif = skb_dst(skb)->dev->ifindex;
+
+	memset(fl6, 0, sizeof(struct flowi6));
+	fl6->flowi6_mark = skb->mark;
+	fl6->flowi6_oif = reverse ? skb->skb_iif : oif;
+
+	fl6->daddr = reverse ? hdr->saddr : hdr->daddr;
+	fl6->saddr = reverse ? hdr->daddr : hdr->saddr;
+
+	while (nh + offset + sizeof(*exthdr) < skb->data ||
+	       pskb_may_pull(skb, nh + offset + sizeof(*exthdr) - skb->data)) {
+		nh = skb_network_header(skb);
+		exthdr = (struct ipv6_opt_hdr *)(nh + offset);
+
+		switch (nexthdr) {
+		case NEXTHDR_FRAGMENT:
+			onlyproto = 1;
+			fallthrough;
+		case NEXTHDR_ROUTING:
+		case NEXTHDR_HOP:
+		case NEXTHDR_DEST:
+			offset += ipv6_optlen(exthdr);
+			nexthdr = exthdr->nexthdr;
+			exthdr = (struct ipv6_opt_hdr *)(nh + offset);
+			break;
+		case IPPROTO_UDP:
+		case IPPROTO_UDPLITE:
+		case IPPROTO_TCP:
+		case IPPROTO_SCTP:
+		case IPPROTO_DCCP:
+			if (!onlyproto && (nh + offset + 4 < skb->data ||
+			     pskb_may_pull(skb, nh + offset + 4 - skb->data))) {
+				__be16 *ports;
+
+				nh = skb_network_header(skb);
+				ports = (__be16 *)(nh + offset);
+				fl6->fl6_sport = ports[!!reverse];
+				fl6->fl6_dport = ports[!reverse];
+			}
+			fl6->flowi6_proto = nexthdr;
+			return;
+		case IPPROTO_ICMPV6:
+			if (!onlyproto && (nh + offset + 2 < skb->data ||
+			    pskb_may_pull(skb, nh + offset + 2 - skb->data))) {
+				u8 *icmp;
+
+				nh = skb_network_header(skb);
+				icmp = (u8 *)(nh + offset);
+				fl6->fl6_icmp_type = icmp[0];
+				fl6->fl6_icmp_code = icmp[1];
+			}
+			fl6->flowi6_proto = nexthdr;
+			return;
+		case IPPROTO_GRE:
+			if (!onlyproto &&
+			    (nh + offset + 12 < skb->data ||
+			     pskb_may_pull(skb, nh + offset + 12 - skb->data))) {
+				struct gre_base_hdr *gre_hdr;
+				__be32 *gre_key;
+
+				nh = skb_network_header(skb);
+				gre_hdr = (struct gre_base_hdr *)(nh + offset);
+				gre_key = (__be32 *)(gre_hdr + 1);
+
+				if (gre_hdr->flags & GRE_KEY) {
+					if (gre_hdr->flags & GRE_CSUM)
+						gre_key++;
+					fl6->fl6_gre_key = *gre_key;
+				}
+			}
+			fl6->flowi6_proto = nexthdr;
+			return;
+
+#if IS_ENABLED(CONFIG_IPV6_MIP6)
+		case IPPROTO_MH:
+			offset += ipv6_optlen(exthdr);
+			if (!onlyproto && (nh + offset + 3 < skb->data ||
+			    pskb_may_pull(skb, nh + offset + 3 - skb->data))) {
+				struct ip6_mh *mh;
+
+				nh = skb_network_header(skb);
+				mh = (struct ip6_mh *)(nh + offset);
+				fl6->fl6_mh_type = mh->ip6mh_type;
+			}
+			fl6->flowi6_proto = nexthdr;
+			return;
+#endif
+		default:
+			fl6->flowi6_proto = nexthdr;
+			return;
+		}
+	}
+}
+#endif
+
+int __xfrm_decode_session(struct sk_buff *skb, struct flowi *fl,
+			  unsigned int family, int reverse)
+{
+	switch (family) {
+	case AF_INET:
+		decode_session4(skb, fl, reverse);
+		break;
+#if IS_ENABLED(CONFIG_IPV6)
+	case AF_INET6:
+		decode_session6(skb, fl, reverse);
+		break;
+#endif
+	default:
+		return -EAFNOSUPPORT;
+	}
+
+	return security_xfrm_decode_session(skb, &fl->flowi_secid);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__xfrm_decode_session);
 
@@ -2329,6 +3928,10 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
 	struct flowi fl;
 	int xerr_idx = -1;
 	const struct xfrm_if_cb *ifcb;
+<<<<<<< HEAD
+=======
+	struct sec_path *sp;
+>>>>>>> upstream/android-13
 	struct xfrm_if *xi;
 	u32 if_id = 0;
 
@@ -2355,11 +3958,20 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
 	nf_nat_decode_session(skb, &fl, family);
 
 	/* First, check used SA against their selectors. */
+<<<<<<< HEAD
 	if (skb->sp) {
 		int i;
 
 		for (i = skb->sp->len-1; i >= 0; i--) {
 			struct xfrm_state *x = skb->sp->xvec[i];
+=======
+	sp = skb_sec_path(skb);
+	if (sp) {
+		int i;
+
+		for (i = sp->len - 1; i >= 0; i--) {
+			struct xfrm_state *x = sp->xvec[i];
+>>>>>>> upstream/android-13
 			if (!xfrm_selector_match(&x->sel, &fl, family)) {
 				XFRM_INC_STATS(net, LINUX_MIB_XFRMINSTATEMISMATCH);
 				return 0;
@@ -2386,7 +3998,16 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
 	}
 
 	if (!pol) {
+<<<<<<< HEAD
 		if (skb->sp && secpath_has_nontransport(skb->sp, 0, &xerr_idx)) {
+=======
+		if (net->xfrm.policy_default[dir] == XFRM_USERPOLICY_BLOCK) {
+			XFRM_INC_STATS(net, LINUX_MIB_XFRMINNOPOLS);
+			return 0;
+		}
+
+		if (sp && secpath_has_nontransport(sp, 0, &xerr_idx)) {
+>>>>>>> upstream/android-13
 			xfrm_secpath_reject(xerr_idx, skb, &fl);
 			XFRM_INC_STATS(net, LINUX_MIB_XFRMINNOPOLS);
 			return 0;
@@ -2415,7 +4036,10 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
 #endif
 
 	if (pol->action == XFRM_POLICY_ALLOW) {
+<<<<<<< HEAD
 		struct sec_path *sp;
+=======
+>>>>>>> upstream/android-13
 		static struct sec_path dummy;
 		struct xfrm_tmpl *tp[XFRM_MAX_DEPTH];
 		struct xfrm_tmpl *stp[XFRM_MAX_DEPTH];
@@ -2423,7 +4047,12 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
 		int ti = 0;
 		int i, k;
 
+<<<<<<< HEAD
 		if ((sp = skb->sp) == NULL)
+=======
+		sp = skb_sec_path(skb);
+		if (!sp)
+>>>>>>> upstream/android-13
 			sp = &dummy;
 
 		for (pi = 0; pi < npols; pi++) {
@@ -2440,8 +4069,20 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
 				tpp[ti++] = &pols[pi]->xfrm_vec[i];
 		}
 		xfrm_nr = ti;
+<<<<<<< HEAD
 		if (npols > 1) {
 			xfrm_tmpl_sort(stp, tpp, xfrm_nr, family, net);
+=======
+
+		if (net->xfrm.policy_default[dir] == XFRM_USERPOLICY_BLOCK &&
+		    !xfrm_nr) {
+			XFRM_INC_STATS(net, LINUX_MIB_XFRMINNOSTATES);
+			goto reject;
+		}
+
+		if (npols > 1) {
+			xfrm_tmpl_sort(stp, tpp, xfrm_nr, family);
+>>>>>>> upstream/android-13
 			tpp = stp;
 		}
 
@@ -2818,13 +4459,26 @@ static void xfrm_statistics_fini(struct net *net)
 static int __net_init xfrm_policy_init(struct net *net)
 {
 	unsigned int hmask, sz;
+<<<<<<< HEAD
 	int dir;
 
 	if (net_eq(net, &init_net))
+=======
+	int dir, err;
+
+	if (net_eq(net, &init_net)) {
+>>>>>>> upstream/android-13
 		xfrm_dst_cache = kmem_cache_create("xfrm_dst_cache",
 					   sizeof(struct xfrm_dst),
 					   0, SLAB_HWCACHE_ALIGN|SLAB_PANIC,
 					   NULL);
+<<<<<<< HEAD
+=======
+		err = rhashtable_init(&xfrm_policy_inexact_table,
+				      &xfrm_pol_inexact_params);
+		BUG_ON(err);
+	}
+>>>>>>> upstream/android-13
 
 	hmask = 8 - 1;
 	sz = (hmask+1) * sizeof(struct hlist_head);
@@ -2859,6 +4513,10 @@ static int __net_init xfrm_policy_init(struct net *net)
 	seqlock_init(&net->xfrm.policy_hthresh.lock);
 
 	INIT_LIST_HEAD(&net->xfrm.policy_all);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&net->xfrm.inexact_bins);
+>>>>>>> upstream/android-13
 	INIT_WORK(&net->xfrm.policy_hash_work, xfrm_hash_resize);
 	INIT_WORK(&net->xfrm.policy_hthresh.work, xfrm_hash_rebuild);
 	return 0;
@@ -2877,6 +4535,10 @@ out_byidx:
 
 static void xfrm_policy_fini(struct net *net)
 {
+<<<<<<< HEAD
+=======
+	struct xfrm_pol_inexact_bin *b, *t;
+>>>>>>> upstream/android-13
 	unsigned int sz;
 	int dir;
 
@@ -2902,6 +4564,14 @@ static void xfrm_policy_fini(struct net *net)
 	sz = (net->xfrm.policy_idx_hmask + 1) * sizeof(struct hlist_head);
 	WARN_ON(!hlist_empty(net->xfrm.policy_byidx));
 	xfrm_hash_free(net->xfrm.policy_byidx, sz);
+<<<<<<< HEAD
+=======
+
+	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+	list_for_each_entry_safe(b, t, &net->xfrm.inexact_bins, inexact_bins)
+		__xfrm_policy_inexact_prune_bin(b, true);
+	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+>>>>>>> upstream/android-13
 }
 
 static int __net_init xfrm_net_init(struct net *net)
@@ -2911,7 +4581,15 @@ static int __net_init xfrm_net_init(struct net *net)
 	/* Initialize the per-net locks here */
 	spin_lock_init(&net->xfrm.xfrm_state_lock);
 	spin_lock_init(&net->xfrm.xfrm_policy_lock);
+<<<<<<< HEAD
 	mutex_init(&net->xfrm.xfrm_cfg_mutex);
+=======
+	seqcount_spinlock_init(&net->xfrm.xfrm_policy_hash_generation, &net->xfrm.xfrm_policy_lock);
+	mutex_init(&net->xfrm.xfrm_cfg_mutex);
+	net->xfrm.policy_default[XFRM_POLICY_IN] = XFRM_USERPOLICY_ACCEPT;
+	net->xfrm.policy_default[XFRM_POLICY_FWD] = XFRM_USERPOLICY_ACCEPT;
+	net->xfrm.policy_default[XFRM_POLICY_OUT] = XFRM_USERPOLICY_ACCEPT;
+>>>>>>> upstream/android-13
 
 	rv = xfrm_statistics_init(net);
 	if (rv < 0)
@@ -2955,6 +4633,7 @@ void __init xfrm_init(void)
 {
 	register_pernet_subsys(&xfrm_net_ops);
 	xfrm_dev_init();
+<<<<<<< HEAD
 	seqcount_init(&xfrm_policy_hash_generation);
 	xfrm_input_init();
 
@@ -2964,6 +4643,16 @@ void __init xfrm_init(void)
 
 // [ SEC_SELINUX_PORTING_COMMON - remove AUDIT_MAC_IPSEC_EVENT audit log, it conflict with security notification
 #if 0 //#ifdef CONFIG_AUDITSYSCALL
+=======
+	xfrm_input_init();
+
+#ifdef CONFIG_XFRM_ESPINTCP
+	espintcp_init();
+#endif
+}
+
+#ifdef CONFIG_AUDITSYSCALL
+>>>>>>> upstream/android-13
 static void xfrm_audit_common_policyinfo(struct xfrm_policy *xp,
 					 struct audit_buffer *audit_buf)
 {
@@ -3027,7 +4716,10 @@ void xfrm_audit_policy_delete(struct xfrm_policy *xp, int result,
 }
 EXPORT_SYMBOL_GPL(xfrm_audit_policy_delete);
 #endif
+<<<<<<< HEAD
 // ] SEC_SELINUX_PORTING_COMMON - remove AUDIT_MAC_IPSEC_EVENT audit log, it conflict with security notification
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_XFRM_MIGRATE
 static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
@@ -3052,7 +4744,11 @@ static bool xfrm_migrate_selector_match(const struct xfrm_selector *sel_cmp,
 }
 
 static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *sel,
+<<<<<<< HEAD
 						    u8 dir, u8 type, struct net *net)
+=======
+						    u8 dir, u8 type, struct net *net, u32 if_id)
+>>>>>>> upstream/android-13
 {
 	struct xfrm_policy *pol, *ret = NULL;
 	struct hlist_head *chain;
@@ -3061,7 +4757,12 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
 	chain = policy_hash_direct(net, &sel->daddr, &sel->saddr, sel->family, dir);
 	hlist_for_each_entry(pol, chain, bydst) {
+<<<<<<< HEAD
 		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
+=======
+		if ((if_id == 0 || pol->if_id == if_id) &&
+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+>>>>>>> upstream/android-13
 		    pol->type == type) {
 			ret = pol;
 			priority = ret->priority;
@@ -3069,11 +4770,20 @@ static struct xfrm_policy *xfrm_migrate_policy_find(const struct xfrm_selector *
 		}
 	}
 	chain = &net->xfrm.policy_inexact[dir];
+<<<<<<< HEAD
 	hlist_for_each_entry(pol, chain, bydst) {
 		if ((pol->priority >= priority) && ret)
 			break;
 
 		if (xfrm_migrate_selector_match(sel, &pol->selector) &&
+=======
+	hlist_for_each_entry(pol, chain, bydst_inexact_list) {
+		if ((pol->priority >= priority) && ret)
+			break;
+
+		if ((if_id == 0 || pol->if_id == if_id) &&
+		    xfrm_migrate_selector_match(sel, &pol->selector) &&
+>>>>>>> upstream/android-13
 		    pol->type == type) {
 			ret = pol;
 			break;
@@ -3189,7 +4899,11 @@ static int xfrm_migrate_check(const struct xfrm_migrate *m, int num_migrate)
 int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
 		 struct xfrm_migrate *m, int num_migrate,
 		 struct xfrm_kmaddress *k, struct net *net,
+<<<<<<< HEAD
 		 struct xfrm_encap_tmpl *encap)
+=======
+		 struct xfrm_encap_tmpl *encap, u32 if_id)
+>>>>>>> upstream/android-13
 {
 	int i, err, nx_cur = 0, nx_new = 0;
 	struct xfrm_policy *pol = NULL;
@@ -3208,14 +4922,22 @@ int xfrm_migrate(const struct xfrm_selector *sel, u8 dir, u8 type,
 	}
 
 	/* Stage 1 - find policy */
+<<<<<<< HEAD
 	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net)) == NULL) {
+=======
+	if ((pol = xfrm_migrate_policy_find(sel, dir, type, net, if_id)) == NULL) {
+>>>>>>> upstream/android-13
 		err = -ENOENT;
 		goto out;
 	}
 
 	/* Stage 2 - find and update state(s) */
 	for (i = 0, mp = m; i < num_migrate; i++, mp++) {
+<<<<<<< HEAD
 		if ((x = xfrm_migrate_state_find(mp, net))) {
+=======
+		if ((x = xfrm_migrate_state_find(mp, net, if_id))) {
+>>>>>>> upstream/android-13
 			x_cur[nx_cur] = x;
 			nx_cur++;
 			xc = xfrm_state_migrate(x, mp, encap);

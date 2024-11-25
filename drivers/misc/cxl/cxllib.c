@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2017 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/hugetlb.h>
@@ -174,8 +180,11 @@ int cxllib_get_PE_attributes(struct task_struct *task,
 			     unsigned long translation_mode,
 			     struct cxllib_pe_attributes *attr)
 {
+<<<<<<< HEAD
 	struct mm_struct *mm = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	if (translation_mode != CXL_TRANSLATED_MODE &&
 		translation_mode != CXL_REAL_MODE)
 		return -EINVAL;
@@ -186,7 +195,11 @@ int cxllib_get_PE_attributes(struct task_struct *task,
 				true);
 	attr->lpid = mfspr(SPRN_LPID);
 	if (task) {
+<<<<<<< HEAD
 		mm = get_task_mm(task);
+=======
+		struct mm_struct *mm = get_task_mm(task);
+>>>>>>> upstream/android-13
 		if (mm == NULL)
 			return -EINVAL;
 		/*
@@ -211,7 +224,11 @@ static int get_vma_info(struct mm_struct *mm, u64 addr,
 	struct vm_area_struct *vma = NULL;
 	int rc = 0;
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 
 	vma = find_vma(mm, addr);
 	if (!vma) {
@@ -222,7 +239,11 @@ static int get_vma_info(struct mm_struct *mm, u64 addr,
 	*vma_start = vma->vm_start;
 	*vma_end = vma->vm_end;
 out:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -249,9 +270,14 @@ int cxllib_handle_fault(struct mm_struct *mm, u64 addr, u64 size, u64 flags)
 	     dar += page_size) {
 		if (dar < vma_start || dar >= vma_end) {
 			/*
+<<<<<<< HEAD
 			 * We don't hold the mm->mmap_sem semaphore
 			 * while iterating, since the semaphore is
 			 * required by one of the lower-level page
+=======
+			 * We don't hold mm->mmap_lock while iterating, since
+			 * the lock is required by one of the lower-level page
+>>>>>>> upstream/android-13
 			 * fault processing functions and it could
 			 * create a deadlock.
 			 *

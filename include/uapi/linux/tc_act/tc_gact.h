@@ -5,7 +5,10 @@
 #include <linux/types.h>
 #include <linux/pkt_cls.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_GACT 5
+=======
+>>>>>>> upstream/android-13
 struct tc_gact {
 	tc_gen;
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Motorola CPCAP PMIC RTC driver
  *
@@ -12,6 +16,7 @@
  *  - remove custom "secure clock daemon" helpers
  *
  * Copyright (C) 2017 Sebastian Reichel <sre@kernel.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,6 +26,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -64,14 +71,22 @@ static void cpcap2rtc_time(struct rtc_time *rtc, struct cpcap_time *cpcap)
 	tod = (cpcap->tod1 & TOD1_MASK) | ((cpcap->tod2 & TOD2_MASK) << 8);
 	time = tod + ((cpcap->day & DAY_MASK) * SECS_PER_DAY);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(time, rtc);
+=======
+	rtc_time64_to_tm(time, rtc);
+>>>>>>> upstream/android-13
 }
 
 static void rtc2cpcap_time(struct cpcap_time *cpcap, struct rtc_time *rtc)
 {
 	unsigned long time;
 
+<<<<<<< HEAD
 	rtc_tm_to_time(rtc, &time);
+=======
+	time = rtc_tm_to_time64(rtc);
+>>>>>>> upstream/android-13
 
 	cpcap->day = time / SECS_PER_DAY;
 	time %= SECS_PER_DAY;
@@ -264,19 +279,34 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	platform_set_drvdata(pdev, rtc);
+<<<<<<< HEAD
 	rtc->rtc_dev = devm_rtc_device_register(dev, "cpcap_rtc",
 						&cpcap_rtc_ops, THIS_MODULE);
 
 	if (IS_ERR(rtc->rtc_dev))
 		return PTR_ERR(rtc->rtc_dev);
 
+=======
+	rtc->rtc_dev = devm_rtc_allocate_device(dev);
+	if (IS_ERR(rtc->rtc_dev))
+		return PTR_ERR(rtc->rtc_dev);
+
+	rtc->rtc_dev->ops = &cpcap_rtc_ops;
+	rtc->rtc_dev->range_max = (timeu64_t) (DAY_MASK + 1) * SECS_PER_DAY - 1;
+
+>>>>>>> upstream/android-13
 	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
 	if (err)
 		return err;
 
 	rtc->alarm_irq = platform_get_irq(pdev, 0);
 	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
+<<<<<<< HEAD
 					cpcap_rtc_alarm_irq, IRQF_TRIGGER_NONE,
+=======
+					cpcap_rtc_alarm_irq,
+					IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+>>>>>>> upstream/android-13
 					"rtc_alarm", rtc);
 	if (err) {
 		dev_err(dev, "Could not request alarm irq: %d\n", err);
@@ -292,7 +322,12 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
 	 */
 	rtc->update_irq = platform_get_irq(pdev, 1);
 	err = devm_request_threaded_irq(dev, rtc->update_irq, NULL,
+<<<<<<< HEAD
 					cpcap_rtc_update_irq, IRQF_TRIGGER_NONE,
+=======
+					cpcap_rtc_update_irq,
+					IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+>>>>>>> upstream/android-13
 					"rtc_1hz", rtc);
 	if (err) {
 		dev_err(dev, "Could not request update irq: %d\n", err);
@@ -306,7 +341,11 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
 		/* ignore error and continue without wakeup support */
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return devm_rtc_register_device(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id cpcap_rtc_of_match[] = {

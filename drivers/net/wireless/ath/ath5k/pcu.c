@@ -101,6 +101,10 @@ static const unsigned int ack_rates_high[] =
 /**
  * ath5k_hw_get_frame_duration() - Get tx time of a frame
  * @ah: The &struct ath5k_hw
+<<<<<<< HEAD
+=======
+ * @band: One of enum nl80211_band
+>>>>>>> upstream/android-13
  * @len: Frame's length in bytes
  * @rate: The @struct ieee80211_rate
  * @shortpre: Indicate short preample
@@ -670,7 +674,11 @@ ath5k_hw_init_beacon_timers(struct ath5k_hw *ah, u32 next_beacon, u32 interval)
 		break;
 	case NL80211_IFTYPE_ADHOC:
 		AR5K_REG_ENABLE_BITS(ah, AR5K_TXCFG, AR5K_TXCFG_ADHOC_BCN_ATIM);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* On non-STA modes timer1 is used as next DMA
 		 * beacon alert (DBA) timer and timer2 as next
@@ -854,7 +862,11 @@ ath5k_hw_start_rx_pcu(struct ath5k_hw *ah)
 }
 
 /**
+<<<<<<< HEAD
  * at5k_hw_stop_rx_pcu() - Stop RX engine
+=======
+ * ath5k_hw_stop_rx_pcu() - Stop RX engine
+>>>>>>> upstream/android-13
  * @ah: The &struct ath5k_hw
  *
  * Stops RX engine on PCU
@@ -913,7 +925,11 @@ ath5k_hw_set_opmode(struct ath5k_hw *ah, enum nl80211_iftype op_mode)
 		pcu_reg |= AR5K_STA_ID1_KEYSRCH_MODE
 			| (ah->ah_version == AR5K_AR5210 ?
 				AR5K_STA_ID1_PWR_SV : 0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_MONITOR:
 		pcu_reg |= AR5K_STA_ID1_KEYSRCH_MODE
 			| (ah->ah_version == AR5K_AR5210 ?
@@ -945,7 +961,10 @@ ath5k_hw_set_opmode(struct ath5k_hw *ah, enum nl80211_iftype op_mode)
  * ath5k_hw_pcu_init() - Initialize PCU
  * @ah: The &struct ath5k_hw
  * @op_mode: One of enum nl80211_iftype
+<<<<<<< HEAD
  * @mode: One of enum ath5k_driver_mode
+=======
+>>>>>>> upstream/android-13
  *
  * This function is used to initialize PCU by setting current
  * operation mode and various other settings.

@@ -42,8 +42,11 @@
 
 #define BNXT_QPLIB_RESERVED_QP_WRS	128
 
+<<<<<<< HEAD
 #define PCI_EXP_DEVCTL2_ATOMIC_REQ      0x0040
 
+=======
+>>>>>>> upstream/android-13
 struct bnxt_qplib_dev_attr {
 #define FW_VER_ARR_LEN			4
 	u8				fw_ver[FW_VER_ARR_LEN];
@@ -65,8 +68,11 @@ struct bnxt_qplib_dev_attr {
 	u32				max_mw;
 	u32				max_raw_ethy_qp;
 	u32				max_ah;
+<<<<<<< HEAD
 	u32				max_fmr;
 	u32				max_map_per_fmr;
+=======
+>>>>>>> upstream/android-13
 	u32				max_srq;
 	u32				max_srq_wqes;
 	u32				max_srq_sges;
@@ -85,6 +91,14 @@ struct bnxt_qplib_gid {
 	u8				data[16];
 };
 
+<<<<<<< HEAD
+=======
+struct bnxt_qplib_gid_info {
+	struct bnxt_qplib_gid gid;
+	u16 vlan_id;
+};
+
+>>>>>>> upstream/android-13
 struct bnxt_qplib_ah {
 	struct bnxt_qplib_gid		dgid;
 	struct bnxt_qplib_pd		*pd;
@@ -206,13 +220,30 @@ struct bnxt_qplib_roce_stats {
 	/* res_tx_pci_err is 64 b */
 	u64 res_rx_pci_err;
 	/* res_rx_pci_err is 64 b */
+<<<<<<< HEAD
+=======
+	u64 res_oos_drop_count;
+	/* res_oos_drop_count */
+	u64     active_qp_count_p0;
+	/* port 0 active qps */
+	u64     active_qp_count_p1;
+	/* port 1 active qps */
+	u64     active_qp_count_p2;
+	/* port 2 active qps */
+	u64     active_qp_count_p3;
+	/* port 3 active qps */
+>>>>>>> upstream/android-13
 };
 
 int bnxt_qplib_get_sgid(struct bnxt_qplib_res *res,
 			struct bnxt_qplib_sgid_tbl *sgid_tbl, int index,
 			struct bnxt_qplib_gid *gid);
 int bnxt_qplib_del_sgid(struct bnxt_qplib_sgid_tbl *sgid_tbl,
+<<<<<<< HEAD
 			struct bnxt_qplib_gid *gid, bool update);
+=======
+			struct bnxt_qplib_gid *gid, u16 vlan_id, bool update);
+>>>>>>> upstream/android-13
 int bnxt_qplib_add_sgid(struct bnxt_qplib_sgid_tbl *sgid_tbl,
 			struct bnxt_qplib_gid *gid, u8 *mac, u16 vlan_id,
 			bool update, u32 *index);
@@ -232,14 +263,25 @@ int bnxt_qplib_get_dev_attr(struct bnxt_qplib_rcfw *rcfw,
 int bnxt_qplib_set_func_resources(struct bnxt_qplib_res *res,
 				  struct bnxt_qplib_rcfw *rcfw,
 				  struct bnxt_qplib_ctx *ctx);
+<<<<<<< HEAD
 int bnxt_qplib_create_ah(struct bnxt_qplib_res *res, struct bnxt_qplib_ah *ah);
 int bnxt_qplib_destroy_ah(struct bnxt_qplib_res *res, struct bnxt_qplib_ah *ah);
+=======
+int bnxt_qplib_create_ah(struct bnxt_qplib_res *res, struct bnxt_qplib_ah *ah,
+			 bool block);
+void bnxt_qplib_destroy_ah(struct bnxt_qplib_res *res, struct bnxt_qplib_ah *ah,
+			   bool block);
+>>>>>>> upstream/android-13
 int bnxt_qplib_alloc_mrw(struct bnxt_qplib_res *res,
 			 struct bnxt_qplib_mrw *mrw);
 int bnxt_qplib_dereg_mrw(struct bnxt_qplib_res *res, struct bnxt_qplib_mrw *mrw,
 			 bool block);
 int bnxt_qplib_reg_mr(struct bnxt_qplib_res *res, struct bnxt_qplib_mrw *mr,
+<<<<<<< HEAD
 		      u64 *pbl_tbl, int num_pbls, bool block, u32 buf_pg_size);
+=======
+		      struct ib_umem *umem, int num_pbls, u32 buf_pg_size);
+>>>>>>> upstream/android-13
 int bnxt_qplib_free_mrw(struct bnxt_qplib_res *res, struct bnxt_qplib_mrw *mr);
 int bnxt_qplib_alloc_fast_reg_mr(struct bnxt_qplib_res *res,
 				 struct bnxt_qplib_mrw *mr, int max);

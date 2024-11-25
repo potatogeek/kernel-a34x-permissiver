@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Florian Vaussard, EPFL Mobots group
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Florian Vaussard, EPFL Mobots group
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -17,10 +23,17 @@
 		reg = <0 0>;
 	};
 
+<<<<<<< HEAD
 	pwmleds {
 		compatible = "pwm-leds";
 
 		overo {
+=======
+	led-controller {
+		compatible = "pwm-leds";
+
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "overo:blue:COM";
 			pwms = <&twl_pwmled 1 7812500>;
 			max-brightness = <127>;

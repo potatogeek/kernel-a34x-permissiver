@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /************************************************************
  * EFI GUID Partition Table
  * Per Intel EFI Specification v1.02
@@ -5,6 +9,7 @@
  *
  * By Matt Domsch <Matt_Domsch@dell.com>  Fri Sep 22 22:15:56 CDT 2000  
  *   Copyright 2000,2001 Dell Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * 
+=======
+>>>>>>> upstream/android-13
  ************************************************************/
 
 #ifndef FS_PART_EFI_H_INCLUDED
@@ -102,7 +109,11 @@ typedef struct _gpt_entry {
 	__le64 starting_lba;
 	__le64 ending_lba;
 	gpt_entry_attributes attributes;
+<<<<<<< HEAD
 	efi_char16_t partition_name[72 / sizeof (efi_char16_t)];
+=======
+	__le16 partition_name[72/sizeof(__le16)];
+>>>>>>> upstream/android-13
 } __packed gpt_entry;
 
 typedef struct _gpt_mbr_record {
@@ -127,7 +138,10 @@ typedef struct _legacy_mbr {
 	__le16 signature;
 } __packed legacy_mbr;
 
+<<<<<<< HEAD
 /* Functions */
 extern int efi_partition(struct parsed_partitions *state);
 
+=======
+>>>>>>> upstream/android-13
 #endif

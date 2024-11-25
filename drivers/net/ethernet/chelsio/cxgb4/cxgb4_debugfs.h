@@ -37,6 +37,7 @@
 
 #include <linux/export.h>
 
+<<<<<<< HEAD
 #define DEFINE_SIMPLE_DEBUGFS_FILE(name) \
 static int name##_open(struct inode *inode, struct file *file) \
 { \
@@ -50,6 +51,8 @@ static const struct file_operations name##_debugfs_fops = { \
 	.release = single_release \
 }
 
+=======
+>>>>>>> upstream/android-13
 struct t4_debugfs_entry {
 	const char *name;
 	const struct file_operations *ops;
@@ -62,7 +65,11 @@ struct seq_tab {
 	unsigned int rows;        /* # of entries */
 	unsigned char width;      /* size in bytes of each entry */
 	unsigned char skip_first; /* whether the first line is a header */
+<<<<<<< HEAD
 	char data[0];             /* the table data */
+=======
+	char data[];             /* the table data */
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned int hex2val(char c)

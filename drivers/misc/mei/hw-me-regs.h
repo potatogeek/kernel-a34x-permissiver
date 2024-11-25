@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Intel Management Engine Interface (Intel MEI) Linux driver
  * Intel MEI Interface Header
@@ -63,6 +64,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (c) 2003-2019, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+ */
+>>>>>>> upstream/android-13
 #ifndef _MEI_HW_MEI_REGS_H_
 #define _MEI_HW_MEI_REGS_H_
 
@@ -119,6 +127,10 @@
 
 #define MEI_DEV_ID_SPT        0x9D3A  /* Sunrise Point */
 #define MEI_DEV_ID_SPT_2      0x9D3B  /* Sunrise Point 2 */
+<<<<<<< HEAD
+=======
+#define MEI_DEV_ID_SPT_3      0x9D3E  /* Sunrise Point 3 (iToutch) */
+>>>>>>> upstream/android-13
 #define MEI_DEV_ID_SPT_H      0xA13A  /* Sunrise Point H */
 #define MEI_DEV_ID_SPT_H_2    0xA13B  /* Sunrise Point H 2 */
 
@@ -133,11 +145,20 @@
 
 #define MEI_DEV_ID_KBP        0xA2BA  /* Kaby Point */
 #define MEI_DEV_ID_KBP_2      0xA2BB  /* Kaby Point 2 */
+<<<<<<< HEAD
 
 #define MEI_DEV_ID_CNP_LP     0x9DE0  /* Cannon Point LP */
 #define MEI_DEV_ID_CNP_LP_4   0x9DE4  /* Cannon Point LP 4 (iTouch) */
 #define MEI_DEV_ID_CNP_H      0xA360  /* Cannon Point H */
 #define MEI_DEV_ID_CNP_H_4    0xA364  /* Cannon Point H 4 (iTouch) */
+=======
+#define MEI_DEV_ID_KBP_3      0xA2BE  /* Kaby Point 3 (iTouch) */
+
+#define MEI_DEV_ID_CNP_LP     0x9DE0  /* Cannon Point LP */
+#define MEI_DEV_ID_CNP_LP_3   0x9DE4  /* Cannon Point LP 3 (iTouch) */
+#define MEI_DEV_ID_CNP_H      0xA360  /* Cannon Point H */
+#define MEI_DEV_ID_CNP_H_3    0xA364  /* Cannon Point H 3 (iTouch) */
+>>>>>>> upstream/android-13
 
 #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
 #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
@@ -150,12 +171,31 @@
 #define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
 
 #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+<<<<<<< HEAD
 
 #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
+=======
+#define MEI_DEV_ID_ICP_N      0x38E0  /* Ice Lake Point N */
+
+#define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
+
+#define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
+#define MEI_DEV_ID_TGP_H      0x43E0  /* Tiger Lake Point H */
+>>>>>>> upstream/android-13
 
 #define MEI_DEV_ID_MCC        0x4B70  /* Mule Creek Canyon (EHL) */
 #define MEI_DEV_ID_MCC_4      0x4B75  /* Mule Creek Canyon 4 (EHL) */
 
+<<<<<<< HEAD
+=======
+#define MEI_DEV_ID_EBG        0x1BE0  /* Emmitsburg WS */
+
+#define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
+#define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
+#define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
+#define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
+
+>>>>>>> upstream/android-13
 /*
  * MEI HW Section
  */
@@ -163,8 +203,18 @@
 /* Host Firmware Status Registers in PCI Config Space */
 #define PCI_CFG_HFS_1         0x40
 #  define PCI_CFG_HFS_1_D0I3_MSK     0x80000000
+<<<<<<< HEAD
 #define PCI_CFG_HFS_2         0x48
 #define PCI_CFG_HFS_3         0x60
+=======
+#  define PCI_CFG_HFS_1_OPMODE_MSK 0xf0000 /* OP MODE Mask: SPS <= 4.0 */
+#  define PCI_CFG_HFS_1_OPMODE_SPS 0xf0000 /* SPS SKU : SPS <= 4.0 */
+#define PCI_CFG_HFS_2         0x48
+#define PCI_CFG_HFS_3         0x60
+#  define PCI_CFG_HFS_3_FW_SKU_MSK   0x00000070
+#  define PCI_CFG_HFS_3_FW_SKU_IGN   0x00000000
+#  define PCI_CFG_HFS_3_FW_SKU_SPS   0x00000060
+>>>>>>> upstream/android-13
 #define PCI_CFG_HFS_4         0x64
 #define PCI_CFG_HFS_5         0x68
 #define PCI_CFG_HFS_6         0x6C
@@ -229,7 +279,12 @@ access to ME_CBD */
 #define ME_IS_HRA         0x00000002
 /* ME Interrupt Enable HRA - host read only access to ME_IE */
 #define ME_IE_HRA         0x00000001
+<<<<<<< HEAD
 
+=======
+/* TRC control shadow register */
+#define ME_TRC            0x00000030
+>>>>>>> upstream/android-13
 
 /* H_HPG_CSR register bits */
 #define H_HPG_CSR_PGIHEXR 0x00000001

@@ -41,6 +41,12 @@
 		bank-width = <4>;
 		device-width = <1>;
 
+<<<<<<< HEAD
+=======
+		clocks = <&mstp9_clks R7S72100_CLK_SPIBSC0>;
+		power-domains = <&cpg_clocks>;
+
+>>>>>>> upstream/android-13
 		#address-cells = <1>;
 		#size-cells = <1>;
 

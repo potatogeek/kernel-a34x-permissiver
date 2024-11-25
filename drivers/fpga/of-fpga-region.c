@@ -22,11 +22,14 @@ static const struct of_device_id fpga_region_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, fpga_region_of_match);
 
+<<<<<<< HEAD
 static int fpga_region_of_node_match(struct device *dev, const void *data)
 {
 	return dev->of_node == data;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * of_fpga_region_find - find FPGA region
  * @np: device node of FPGA Region
@@ -37,7 +40,11 @@ static int fpga_region_of_node_match(struct device *dev, const void *data)
  */
 static struct fpga_region *of_fpga_region_find(struct device_node *np)
 {
+<<<<<<< HEAD
 	return fpga_region_class_find(NULL, np, fpga_region_of_node_match);
+=======
+	return fpga_region_class_find(NULL, np, device_match_of_node);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -186,7 +193,11 @@ static int child_regions_with_firmware(struct device_node *overlay)
  * @region: FPGA region
  * @overlay: overlay applied to the FPGA region
  *
+<<<<<<< HEAD
  * Given an overlay applied to a FPGA region, parse the FPGA image specific
+=======
+ * Given an overlay applied to an FPGA region, parse the FPGA image specific
+>>>>>>> upstream/android-13
  * info in the overlay and do some checking.
  *
  * Returns:
@@ -278,7 +289,11 @@ ret_no_info:
  * @region: FPGA region that the overlay was applied to
  * @nd: overlay notification data
  *
+<<<<<<< HEAD
  * Called when an overlay targeted to a FPGA Region is about to be applied.
+=======
+ * Called when an overlay targeted to an FPGA Region is about to be applied.
+>>>>>>> upstream/android-13
  * Parses the overlay for properties that influence how the FPGA will be
  * programmed and does some checking. If the checks pass, programs the FPGA.
  * If the checks fail, overlay is rejected and does not get added to the
@@ -341,8 +356,13 @@ static void of_fpga_region_notify_post_remove(struct fpga_region *region,
  * @action:	notifier action
  * @arg:	reconfig data
  *
+<<<<<<< HEAD
  * This notifier handles programming a FPGA when a "firmware-name" property is
  * added to a fpga-region.
+=======
+ * This notifier handles programming an FPGA when a "firmware-name" property is
+ * added to an fpga-region.
+>>>>>>> upstream/android-13
  *
  * Returns NOTIFY_OK or error if FPGA programming fails.
  */
@@ -410,7 +430,11 @@ static int of_fpga_region_probe(struct platform_device *pdev)
 	if (IS_ERR(mgr))
 		return -EPROBE_DEFER;
 
+<<<<<<< HEAD
 	region = fpga_region_create(dev, mgr, of_fpga_region_get_bridges);
+=======
+	region = devm_fpga_region_create(dev, mgr, of_fpga_region_get_bridges);
+>>>>>>> upstream/android-13
 	if (!region) {
 		ret = -ENOMEM;
 		goto eprobe_mgr_put;
@@ -418,17 +442,27 @@ static int of_fpga_region_probe(struct platform_device *pdev)
 
 	ret = fpga_region_register(region);
 	if (ret)
+<<<<<<< HEAD
 		goto eprobe_free;
 
 	of_platform_populate(np, fpga_region_of_match, NULL, &region->dev);
 	dev_set_drvdata(dev, region);
+=======
+		goto eprobe_mgr_put;
+
+	of_platform_populate(np, fpga_region_of_match, NULL, &region->dev);
+	platform_set_drvdata(pdev, region);
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "FPGA Region probed\n");
 
 	return 0;
 
+<<<<<<< HEAD
 eprobe_free:
 	fpga_region_free(region);
+=======
+>>>>>>> upstream/android-13
 eprobe_mgr_put:
 	fpga_mgr_put(mgr);
 	return ret;

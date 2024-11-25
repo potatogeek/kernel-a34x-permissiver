@@ -22,10 +22,15 @@ struct subprocess_info {
 	const char *path;
 	char **argv;
 	char **envp;
+<<<<<<< HEAD
 	struct file *file;
 	int wait;
 	int retval;
 	pid_t pid;
+=======
+	int wait;
+	int retval;
+>>>>>>> upstream/android-13
 	int (*init)(struct subprocess_info *info, struct cred *new);
 	void (*cleanup)(struct subprocess_info *info);
 	void *data;
@@ -40,6 +45,7 @@ call_usermodehelper_setup(const char *path, char **argv, char **envp,
 			  int (*init)(struct subprocess_info *info, struct cred *new),
 			  void (*cleanup)(struct subprocess_info *), void *data);
 
+<<<<<<< HEAD
 struct subprocess_info *call_usermodehelper_setup_file(struct file *file,
 			  int (*init)(struct subprocess_info *info, struct cred *new),
 			  void (*cleanup)(struct subprocess_info *), void *data);
@@ -50,6 +56,8 @@ struct umh_info {
 };
 int fork_usermode_blob(void *data, size_t len, struct umh_info *info);
 
+=======
+>>>>>>> upstream/android-13
 extern int
 call_usermodehelper_exec(struct subprocess_info *info, int wait);
 

@@ -18,7 +18,10 @@
 
 #include <linux/nl80211.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <linux/pci-aspm.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include <linux/module.h>
 #include "../ath.h"
@@ -192,7 +195,11 @@ ath5k_pci_probe(struct pci_dev *pdev,
 	}
 
 	/* XXX 32-bit addressing only */
+<<<<<<< HEAD
 	ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "32-bit DMA not available\n");
 		goto err_dis;
@@ -301,8 +308,12 @@ ath5k_pci_remove(struct pci_dev *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int ath5k_pci_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct ieee80211_hw *hw = pci_get_drvdata(pdev);
+=======
+	struct ieee80211_hw *hw = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct ath5k_hw *ah = hw->priv;
 
 	ath5k_led_off(ah);

@@ -45,6 +45,14 @@ enum signal_type {
 };
 
 /* help functions for signal types manipulation */
+<<<<<<< HEAD
+=======
+static inline bool dc_is_hdmi_tmds_signal(enum signal_type signal)
+{
+	return (signal == SIGNAL_TYPE_HDMI_TYPE_A);
+}
+
+>>>>>>> upstream/android-13
 static inline bool dc_is_hdmi_signal(enum signal_type signal)
 {
 	return (signal == SIGNAL_TYPE_HDMI_TYPE_A);
@@ -68,6 +76,14 @@ static inline bool dc_is_embedded_signal(enum signal_type signal)
 	return (signal == SIGNAL_TYPE_EDP || signal == SIGNAL_TYPE_LVDS);
 }
 
+<<<<<<< HEAD
+=======
+static inline bool dc_is_lvds_signal(enum signal_type signal)
+{
+	return (signal == SIGNAL_TYPE_LVDS);
+}
+
+>>>>>>> upstream/android-13
 static inline bool dc_is_dvi_signal(enum signal_type signal)
 {
 	switch (signal) {
@@ -97,4 +113,12 @@ static inline bool dc_is_audio_capable_signal(enum signal_type signal)
 		dc_is_hdmi_signal(signal));
 }
 
+<<<<<<< HEAD
+=======
+static inline bool dc_is_virtual_signal(enum signal_type signal)
+{
+	return (signal == SIGNAL_TYPE_VIRTUAL);
+}
+
+>>>>>>> upstream/android-13
 #endif

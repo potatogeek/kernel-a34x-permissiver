@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * jitdump.h: jitted code info encapsulation file format
  *
@@ -92,7 +96,11 @@ struct debug_entry {
 	uint64_t addr;
 	int lineno;	    /* source line number starting at 1 */
 	int discrim;	    /* column discriminator, 0 is default */
+<<<<<<< HEAD
 	const char name[0]; /* null terminated filename, \xff\0 if same as previous entry */
+=======
+	const char name[]; /* null terminated filename, \xff\0 if same as previous entry */
+>>>>>>> upstream/android-13
 };
 
 struct jr_code_debug_info {
@@ -100,7 +108,11 @@ struct jr_code_debug_info {
 
 	uint64_t code_addr;
 	uint64_t nr_entry;
+<<<<<<< HEAD
 	struct debug_entry entries[0];
+=======
+	struct debug_entry entries[];
+>>>>>>> upstream/android-13
 };
 
 struct jr_code_unwinding_info {
@@ -109,7 +121,11 @@ struct jr_code_unwinding_info {
 	uint64_t unwinding_size;
 	uint64_t eh_frame_hdr_size;
 	uint64_t mapped_size;
+<<<<<<< HEAD
 	const char unwinding_data[0];
+=======
+	const char unwinding_data[];
+>>>>>>> upstream/android-13
 };
 
 union jr_entry {

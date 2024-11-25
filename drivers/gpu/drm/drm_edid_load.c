@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    drm_edid_load.c: use a built-in EDID data set or load it via the firmware
 		    interface
 
    Copyright (C) 2012 Carsten Emde <C.Emde@osadl.org>
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2
@@ -25,6 +30,19 @@
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_edid.h>
+=======
+*/
+
+#include <linux/firmware.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 
 static char edid_firmware[PATH_MAX];
 module_param_string(edid_firmware, edid_firmware, sizeof(edid_firmware), 0644);
@@ -184,7 +202,11 @@ static void *edid_load(struct drm_connector *connector, const char *name,
 	u8 *edid;
 	int fwsize, builtin;
 	int i, valid_extensions = 0;
+<<<<<<< HEAD
 	bool print_bad_edid = !connector->bad_edid_counter || (drm_debug & DRM_UT_KMS);
+=======
+	bool print_bad_edid = !connector->bad_edid_counter || drm_debug_enabled(DRM_UT_KMS);
+>>>>>>> upstream/android-13
 
 	builtin = match_string(generic_edid_name, GENERIC_EDIDS, name);
 	if (builtin >= 0) {

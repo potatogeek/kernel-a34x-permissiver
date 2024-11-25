@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) STMicroelectronics 2016
  *
  * Author: Benjamin Gaignard <benjamin.gaignard@st.com>
+<<<<<<< HEAD
  *
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _STM32_TIMER_TRIGGER_H_
@@ -73,6 +80,20 @@
 
 #define TIM17_OC1	"tim17_oc1"
 
+<<<<<<< HEAD
 bool is_stm32_timer_trigger(struct iio_trigger *trig);
 
+=======
+#if IS_REACHABLE(CONFIG_IIO_STM32_TIMER_TRIGGER)
+bool is_stm32_timer_trigger(struct iio_trigger *trig);
+#else
+static inline bool is_stm32_timer_trigger(struct iio_trigger *trig)
+{
+#if IS_ENABLED(CONFIG_IIO_STM32_TIMER_TRIGGER)
+	pr_warn_once("stm32-timer-trigger not linked in\n");
+#endif
+	return false;
+}
+#endif
+>>>>>>> upstream/android-13
 #endif

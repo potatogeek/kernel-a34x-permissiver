@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * namei.c
  *
  * Create and rename file, directory, symlinks
@@ -19,6 +24,7 @@
  *   linux/fs/minix/dir.c
  *
  *   Copyright (C) 1991, 1992 Linux Torvalds
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -34,6 +40,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -64,6 +72,10 @@
 #include "xattr.h"
 #include "acl.h"
 #include "ocfs2_trace.h"
+<<<<<<< HEAD
+=======
+#include "ioctl.h"
+>>>>>>> upstream/android-13
 
 #include "buffer_head_io.h"
 
@@ -212,7 +224,11 @@ static struct inode *ocfs2_get_init_inode(struct inode *dir, umode_t mode)
 	 * callers. */
 	if (S_ISDIR(mode))
 		set_nlink(inode, 2);
+<<<<<<< HEAD
 	inode_init_owner(inode, dir, mode);
+=======
+	inode_init_owner(&init_user_ns, inode, dir, mode);
+>>>>>>> upstream/android-13
 	status = dquot_initialize(inode);
 	if (status)
 		return ERR_PTR(status);
@@ -235,7 +251,12 @@ static void ocfs2_cleanup_add_entry_failure(struct ocfs2_super *osb,
 	iput(inode);
 }
 
+<<<<<<< HEAD
 static int ocfs2_mknod(struct inode *dir,
+=======
+static int ocfs2_mknod(struct user_namespace *mnt_userns,
+		       struct inode *dir,
+>>>>>>> upstream/android-13
 		       struct dentry *dentry,
 		       umode_t mode,
 		       dev_t dev)
@@ -420,7 +441,11 @@ static int ocfs2_mknod(struct inode *dir,
 
 	if (status < 0) {
 		mlog_errno(status);
+<<<<<<< HEAD
 		goto leave;
+=======
+		goto roll_back;
+>>>>>>> upstream/android-13
 	}
 
 	if (si.enable) {
@@ -428,7 +453,11 @@ static int ocfs2_mknod(struct inode *dir,
 						 meta_ac, data_ac);
 		if (status < 0) {
 			mlog_errno(status);
+<<<<<<< HEAD
 			goto leave;
+=======
+			goto roll_back;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -441,7 +470,11 @@ static int ocfs2_mknod(struct inode *dir,
 					  OCFS2_I(dir)->ip_blkno);
 	if (status) {
 		mlog_errno(status);
+<<<<<<< HEAD
 		goto leave;
+=======
+		goto roll_back;
+>>>>>>> upstream/android-13
 	}
 
 	dl = dentry->d_fsdata;
@@ -451,12 +484,26 @@ static int ocfs2_mknod(struct inode *dir,
 				 &lookup);
 	if (status < 0) {
 		mlog_errno(status);
+<<<<<<< HEAD
 		goto leave;
+=======
+		goto roll_back;
+>>>>>>> upstream/android-13
 	}
 
 	insert_inode_hash(inode);
 	d_instantiate(dentry, inode);
 	status = 0;
+<<<<<<< HEAD
+=======
+
+roll_back:
+	if (status < 0 && S_ISDIR(mode)) {
+		ocfs2_add_links_count(dirfe, -1);
+		drop_nlink(dir);
+	}
+
+>>>>>>> upstream/android-13
 leave:
 	if (status < 0 && did_quota_inode)
 		dquot_free_inode(inode);
@@ -600,8 +647,12 @@ static int __ocfs2_mknod_locked(struct inode *dir,
 			mlog_errno(status);
 	}
 
+<<<<<<< HEAD
 	oi->i_sync_tid = handle->h_transaction->t_tid;
 	oi->i_datasync_tid = handle->h_transaction->t_tid;
+=======
+	ocfs2_update_inode_fsync_trans(handle, inode, 1);
+>>>>>>> upstream/android-13
 
 leave:
 	if (status < 0) {
@@ -653,7 +704,12 @@ static int ocfs2_mknod_locked(struct ocfs2_super *osb,
 	return status;
 }
 
+<<<<<<< HEAD
 static int ocfs2_mkdir(struct inode *dir,
+=======
+static int ocfs2_mkdir(struct user_namespace *mnt_userns,
+		       struct inode *dir,
+>>>>>>> upstream/android-13
 		       struct dentry *dentry,
 		       umode_t mode)
 {
@@ -661,14 +717,23 @@ static int ocfs2_mkdir(struct inode *dir,
 
 	trace_ocfs2_mkdir(dir, dentry, dentry->d_name.len, dentry->d_name.name,
 			  OCFS2_I(dir)->ip_blkno, mode);
+<<<<<<< HEAD
 	ret = ocfs2_mknod(dir, dentry, mode | S_IFDIR, 0);
+=======
+	ret = ocfs2_mknod(&init_user_ns, dir, dentry, mode | S_IFDIR, 0);
+>>>>>>> upstream/android-13
 	if (ret)
 		mlog_errno(ret);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ocfs2_create(struct inode *dir,
+=======
+static int ocfs2_create(struct user_namespace *mnt_userns,
+			struct inode *dir,
+>>>>>>> upstream/android-13
 			struct dentry *dentry,
 			umode_t mode,
 			bool excl)
@@ -677,7 +742,11 @@ static int ocfs2_create(struct inode *dir,
 
 	trace_ocfs2_create(dir, dentry, dentry->d_name.len, dentry->d_name.name,
 			   (unsigned long long)OCFS2_I(dir)->ip_blkno, mode);
+<<<<<<< HEAD
 	ret = ocfs2_mknod(dir, dentry, mode | S_IFREG, 0);
+=======
+	ret = ocfs2_mknod(&init_user_ns, dir, dentry, mode | S_IFREG, 0);
+>>>>>>> upstream/android-13
 	if (ret)
 		mlog_errno(ret);
 
@@ -1096,8 +1165,13 @@ static int ocfs2_check_if_ancestor(struct ocfs2_super *osb,
 		child_inode_no = parent_inode_no;
 
 		if (++i >= MAX_LOOKUP_TIMES) {
+<<<<<<< HEAD
 			mlog(ML_NOTICE, "max lookup times reached, filesystem "
 					"may have nested directories, "
+=======
+			mlog_ratelimited(ML_NOTICE, "max lookup times reached, "
+					"filesystem may have nested directories, "
+>>>>>>> upstream/android-13
 					"src inode: %llu, dest inode: %llu.\n",
 					(unsigned long long)src_inode_no,
 					(unsigned long long)dest_inode_no);
@@ -1203,7 +1277,12 @@ static void ocfs2_double_unlock(struct inode *inode1, struct inode *inode2)
 		ocfs2_inode_unlock(inode2, 1);
 }
 
+<<<<<<< HEAD
 static int ocfs2_rename(struct inode *old_dir,
+=======
+static int ocfs2_rename(struct user_namespace *mnt_userns,
+			struct inode *old_dir,
+>>>>>>> upstream/android-13
 			struct dentry *old_dentry,
 			struct inode *new_dir,
 			struct dentry *new_dentry,
@@ -1792,7 +1871,12 @@ bail:
 	return status;
 }
 
+<<<<<<< HEAD
 static int ocfs2_symlink(struct inode *dir,
+=======
+static int ocfs2_symlink(struct user_namespace *mnt_userns,
+			 struct inode *dir,
+>>>>>>> upstream/android-13
 			 struct dentry *dentry,
 			 const char *symname)
 {
@@ -2500,14 +2584,21 @@ int ocfs2_create_inode_in_orphan(struct inode *dir,
 	struct inode *inode = NULL;
 	struct inode *orphan_dir = NULL;
 	struct ocfs2_super *osb = OCFS2_SB(dir->i_sb);
+<<<<<<< HEAD
 	struct ocfs2_dinode *di = NULL;
+=======
+>>>>>>> upstream/android-13
 	handle_t *handle = NULL;
 	char orphan_name[OCFS2_ORPHAN_NAMELEN + 1];
 	struct buffer_head *parent_di_bh = NULL;
 	struct buffer_head *new_di_bh = NULL;
 	struct ocfs2_alloc_context *inode_ac = NULL;
 	struct ocfs2_dir_lookup_result orphan_insert = { NULL, };
+<<<<<<< HEAD
 	u64 uninitialized_var(di_blkno), suballoc_loc;
+=======
+	u64 di_blkno, suballoc_loc;
+>>>>>>> upstream/android-13
 	u16 suballoc_bit;
 
 	status = ocfs2_inode_lock(dir, &parent_di_bh, 1);
@@ -2566,7 +2657,10 @@ int ocfs2_create_inode_in_orphan(struct inode *dir,
 		goto leave;
 	}
 
+<<<<<<< HEAD
 	di = (struct ocfs2_dinode *)new_di_bh->b_data;
+=======
+>>>>>>> upstream/android-13
 	status = ocfs2_orphan_add(osb, handle, inode, new_di_bh, orphan_name,
 				  &orphan_insert, orphan_dir, false);
 	if (status < 0) {
@@ -2923,4 +3017,9 @@ const struct inode_operations ocfs2_dir_iops = {
 	.fiemap         = ocfs2_fiemap,
 	.get_acl	= ocfs2_iop_get_acl,
 	.set_acl	= ocfs2_iop_set_acl,
+<<<<<<< HEAD
+=======
+	.fileattr_get	= ocfs2_fileattr_get,
+	.fileattr_set	= ocfs2_fileattr_set,
+>>>>>>> upstream/android-13
 };

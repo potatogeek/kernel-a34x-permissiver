@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * speedfax.c	low level stuff for Sedlbauer Speedfax+ cards
  *		based on the ISAR DSP
@@ -6,6 +10,7 @@
  * Author       Karsten Keil <keil@isdn4linux.de>
  *
  * Copyright 2009  by Karsten Keil <keil@isdn4linux.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>

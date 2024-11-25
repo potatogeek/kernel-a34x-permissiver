@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/include/asm/hugetlb-3level.h
  *
  * Copyright (C) 2012 ARM Ltd.
  *
  * Based on arch/x86/include/asm/hugetlb.h.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ARM_HUGETLB_3LEVEL_H
@@ -29,6 +36,10 @@
  * ptes.
  * (The valid bit is automatically cleared by set_pte_at for PROT_NONE ptes).
  */
+<<<<<<< HEAD
+=======
+#define __HAVE_ARCH_HUGE_PTEP_GET
+>>>>>>> upstream/android-13
 static inline pte_t huge_ptep_get(pte_t *ptep)
 {
 	pte_t retval = *ptep;
@@ -37,6 +48,7 @@ static inline pte_t huge_ptep_get(pte_t *ptep)
 	return retval;
 }
 
+<<<<<<< HEAD
 static inline void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
 				   pte_t *ptep, pte_t pte)
 {
@@ -68,4 +80,6 @@ static inline int huge_ptep_set_access_flags(struct vm_area_struct *vma,
 	return ptep_set_access_flags(vma, addr, ptep, pte, dirty);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_ARM_HUGETLB_3LEVEL_H */

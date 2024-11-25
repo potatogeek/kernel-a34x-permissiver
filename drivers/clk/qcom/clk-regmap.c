@@ -87,6 +87,10 @@ EXPORT_SYMBOL_GPL(clk_disable_regmap);
 /**
  * devm_clk_register_regmap - register a clk_regmap clock
  *
+<<<<<<< HEAD
+=======
+ * @dev: reference to the caller's device
+>>>>>>> upstream/android-13
  * @rclk: clk to operate on
  *
  * Clocks that use regmap for their register I/O should register their

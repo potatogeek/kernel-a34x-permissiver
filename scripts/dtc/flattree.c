@@ -149,14 +149,22 @@ static void asm_emit_align(void *e, int a)
 static void asm_emit_data(void *e, struct data d)
 {
 	FILE *f = e;
+<<<<<<< HEAD
 	int off = 0;
+=======
+	unsigned int off = 0;
+>>>>>>> upstream/android-13
 	struct marker *m = d.markers;
 
 	for_each_marker_of_type(m, LABEL)
 		emit_offset_label(f, m->ref, m->offset);
 
 	while ((d.len - off) >= sizeof(uint32_t)) {
+<<<<<<< HEAD
 		asm_emit_cell(e, fdt32_to_cpu(*((fdt32_t *)(d.val+off))));
+=======
+		asm_emit_cell(e, dtb_ld32(d.val + off));
+>>>>>>> upstream/android-13
 		off += sizeof(uint32_t);
 	}
 
@@ -219,7 +227,11 @@ static struct emitter asm_emitter = {
 
 static int stringtable_insert(struct data *d, const char *str)
 {
+<<<<<<< HEAD
 	int i;
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 
 	/* FIXME: do this more efficiently? */
 
@@ -345,7 +357,11 @@ static void make_fdt_header(struct fdt_header *fdt,
 void dt_to_blob(FILE *f, struct dt_info *dti, int version)
 {
 	struct version_info *vi = NULL;
+<<<<<<< HEAD
 	int i;
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 	struct data blob       = empty_data;
 	struct data reservebuf = empty_data;
 	struct data dtbuf      = empty_data;
@@ -446,7 +462,11 @@ static void dump_stringtable_asm(FILE *f, struct data strbuf)
 void dt_to_asm(FILE *f, struct dt_info *dti, int version)
 {
 	struct version_info *vi = NULL;
+<<<<<<< HEAD
 	int i;
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 	struct data strbuf = empty_data;
 	struct reserve_info *re;
 	const char *symprefix = "dt";

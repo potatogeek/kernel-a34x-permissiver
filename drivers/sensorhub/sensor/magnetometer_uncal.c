@@ -25,7 +25,11 @@
 void print_magnetometer_uncal_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_MAGNETIC_FIELD_UNCALIBRATED);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+>>>>>>> upstream/android-13
 	struct uncal_mag_event *sensor_value = (struct uncal_mag_event *)(event->value);
 
 	shub_info("%s(%u) : %d, %d, %d, %d, %d, %d (%lld) (%ums, %dms)",
@@ -59,6 +63,7 @@ int get_magnetometer_uncal_sensor_value(char *dataframe, int *index, struct sens
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct sensor_funcs magnetometer_uncal_sensor_funcs = {
 	.print_debug = print_magnetometer_uncal_debug,
 	.get_sensor_value = get_magnetometer_uncal_sensor_value,
@@ -67,12 +72,17 @@ static struct sensor_funcs magnetometer_uncal_sensor_funcs = {
 int init_magnetometer_uncal(bool en)
 {
 	int ret = 0;
+=======
+int init_magnetometer_uncal(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_MAGNETIC_FIELD_UNCALIBRATED);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		int receive_size = sensor->spec.version >= MAG_EVENT_SIZE_4BYTE_VERSION ?
 								UNCAL_MAG_RECEIVE_EVENT_SIZE(sizeof(s32)) : UNCAL_MAG_RECEIVE_EVENT_SIZE(sizeof(s16));
 
@@ -86,4 +96,45 @@ int init_magnetometer_uncal(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "uncal_geomagnetic_sensor");
+		sensor->report_mode_continuous = true;
+		if (sensor->spec.version >= MAG_EVENT_SIZE_4BYTE_VERSION)
+			sensor->receive_event_size = UNCAL_MAG_RECEIVE_EVENT_SIZE(sizeof(s32));
+		else
+			sensor->receive_event_size = UNCAL_MAG_RECEIVE_EVENT_SIZE(sizeof(s16));
+
+		shub_infof("receive_event_size : %d", sensor->receive_event_size);
+
+		sensor->report_event_size = sizeof(struct uncal_mag_event);
+		sensor->event_buffer.value = kzalloc(sizeof(struct uncal_mag_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->print_debug = print_magnetometer_uncal_debug;
+		sensor->funcs->get_sensor_value = get_magnetometer_uncal_sensor_value;
+	} else {
+
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+	}
+
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

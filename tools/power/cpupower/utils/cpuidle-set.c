@@ -95,6 +95,11 @@ int cmd_idle_set(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+<<<<<<< HEAD
+=======
+	get_cpustate();
+
+>>>>>>> upstream/android-13
 	/* Default is: set all CPUs */
 	if (bitmask_isallclear(cpus_chosen))
 		bitmask_setall(cpus_chosen);
@@ -181,5 +186,10 @@ int cmd_idle_set(int argc, char **argv)
 			break;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	print_offline_cpus();
+>>>>>>> upstream/android-13
 	return EXIT_SUCCESS;
 }

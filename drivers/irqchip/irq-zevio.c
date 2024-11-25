@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/irqchip/irq-zevio.c
  *
  *  Copyright (C) 2013 Daniel Tang <tangrs@tangrs.id.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -55,7 +62,11 @@ static void __exception_irq_entry zevio_handle_irq(struct pt_regs *regs)
 	while (readl(zevio_irq_io + IO_STATUS)) {
 		irqnr = readl(zevio_irq_io + IO_CURRENT);
 		handle_domain_irq(zevio_irq_domain, irqnr, regs);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static void __init zevio_init_irq_base(void __iomem *base)

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/process.c
  *
  *  Copyright (C) 1996-2000 Russell King - Converted to ARM.
  *  Original Copyright (C) 1995  Linus Torvalds
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,6 +15,9 @@
  */
 #include <stdarg.h>
 
+=======
+ */
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/sched.h>
 #include <linux/sched/debug.h>
@@ -39,7 +47,13 @@
 #include <asm/tls.h>
 #include <asm/vdso.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_STACKPROTECTOR
+=======
+#include "signal.h"
+
+#if defined(CONFIG_STACKPROTECTOR) && !defined(CONFIG_STACKPROTECTOR_PER_TASK)
+>>>>>>> upstream/android-13
 #include <linux/stackprotector.h>
 unsigned long __stack_chk_guard __read_mostly;
 EXPORT_SYMBOL(__stack_chk_guard);
@@ -72,7 +86,11 @@ void arch_cpu_idle(void)
 		arm_pm_idle();
 	else
 		cpu_do_idle();
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 void arch_cpu_idle_prepare(void)
@@ -93,12 +111,30 @@ void arch_cpu_idle_exit(void)
 	ledtrig_cpu(CPU_LED_IDLE_END);
 }
 
+<<<<<<< HEAD
+=======
+void __show_regs_alloc_free(struct pt_regs *regs)
+{
+	int i;
+
+	/* check for r0 - r12 only */
+	for (i = 0; i < 13; i++) {
+		pr_alert("Register r%d information:", i);
+		mem_dump_obj((void *)regs->uregs[i]);
+	}
+}
+
+>>>>>>> upstream/android-13
 void __show_regs(struct pt_regs *regs)
 {
 	unsigned long flags;
 	char buf[64];
 #ifndef CONFIG_CPU_V7M
+<<<<<<< HEAD
 	unsigned int domain, fs;
+=======
+	unsigned int domain;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CPU_SW_DOMAIN_PAN
 	/*
 	 * Get the domain register for the parent context. In user
@@ -107,6 +143,7 @@ void __show_regs(struct pt_regs *regs)
 	 */
 	if (user_mode(regs)) {
 		domain = DACR_UACCESS_ENABLE;
+<<<<<<< HEAD
 		fs = get_fs();
 	} else {
 		domain = to_svc_pt_regs(regs)->dacr;
@@ -115,6 +152,13 @@ void __show_regs(struct pt_regs *regs)
 #else
 	domain = get_domain();
 	fs = get_fs();
+=======
+	} else {
+		domain = to_svc_pt_regs(regs)->dacr;
+	}
+#else
+	domain = get_domain();
+>>>>>>> upstream/android-13
 #endif
 #endif
 
@@ -150,8 +194,11 @@ void __show_regs(struct pt_regs *regs)
 		if ((domain & domain_mask(DOMAIN_USER)) ==
 		    domain_val(DOMAIN_USER, DOMAIN_NOACCESS))
 			segment = "none";
+<<<<<<< HEAD
 		else if (fs == get_ds())
 			segment = "kernel";
+=======
+>>>>>>> upstream/android-13
 		else
 			segment = "user";
 
@@ -226,9 +273,14 @@ void release_thread(struct task_struct *dead_task)
 
 asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
 
+<<<<<<< HEAD
 int
 copy_thread(unsigned long clone_flags, unsigned long stack_start,
 	    unsigned long stk_sz, struct task_struct *p)
+=======
+int copy_thread(unsigned long clone_flags, unsigned long stack_start,
+		unsigned long stk_sz, struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct thread_info *thread = task_thread_info(p);
 	struct pt_regs *childregs = task_pt_regs(p);
@@ -245,7 +297,11 @@ copy_thread(unsigned long clone_flags, unsigned long stack_start,
 	thread->cpu_domain = get_domain();
 #endif
 
+<<<<<<< HEAD
 	if (likely(!(p->flags & PF_KTHREAD))) {
+=======
+	if (likely(!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))) {
+>>>>>>> upstream/android-13
 		*childregs = *current_pt_regs();
 		childregs->ARM_r0 = 0;
 		if (stack_start)
@@ -262,11 +318,16 @@ copy_thread(unsigned long clone_flags, unsigned long stack_start,
 	clear_ptrace_hw_breakpoint(p);
 
 	if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 		thread->tp_value[0] = childregs->ARM_r3;
+=======
+		thread->tp_value[0] = tls;
+>>>>>>> upstream/android-13
 	thread->tp_value[1] = get_tpuser();
 
 	thread_notify(THREAD_NOTIFY_COPY, thread);
 
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -294,12 +355,25 @@ int dump_fpu (struct pt_regs *regs, struct user_fp *fp)
 }
 EXPORT_SYMBOL(dump_fpu);
 
+=======
+#ifdef CONFIG_STACKPROTECTOR_PER_TASK
+	thread->stack_canary = p->stack_canary;
+#endif
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 unsigned long get_wchan(struct task_struct *p)
 {
 	struct stackframe frame;
 	unsigned long stack_page;
 	int count = 0;
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	frame.fp = thread_saved_fp(p);
@@ -318,11 +392,14 @@ unsigned long get_wchan(struct task_struct *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 unsigned long arch_randomize_brk(struct mm_struct *mm)
 {
 	return randomize_page(mm->brk, 0x02000000);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MMU
 #ifdef CONFIG_KUSER_HELPERS
 /*
@@ -433,7 +510,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	npages = 1; /* for sigpage */
 	npages += vdso_total_pages;
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem))
+=======
+	if (mmap_write_lock_killable(mm))
+>>>>>>> upstream/android-13
 		return -EINTR;
 	hint = sigpage_addr(mm, npages);
 	addr = get_unmapped_area(NULL, hint, npages << PAGE_SHIFT, 0, 0);
@@ -460,7 +541,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	arm_install_vdso(mm, addr + PAGE_SIZE);
 
  up_fail:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 #endif

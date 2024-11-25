@@ -7,12 +7,23 @@
 
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_bridge.h>
+<<<<<<< HEAD
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_panel.h>
 #include <video/mipi_display.h>
 
 #include <linux/clk.h>
+=======
+#include <drm/drm_drv.h>
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_probe_helper.h>
+#include <video/mipi_display.h>
+
+#include <linux/clk.h>
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <linux/iopoll.h>
 #include <linux/module.h>
 #include <linux/of_address.h>
@@ -21,6 +32,12 @@
 #include <linux/pm_runtime.h>
 #include <linux/reset.h>
 
+<<<<<<< HEAD
+=======
+#include <linux/phy/phy.h>
+#include <linux/phy/phy-mipi-dphy.h>
+
+>>>>>>> upstream/android-13
 #define IP_CONF				0x0
 #define SP_HS_FIFO_DEPTH(x)		(((x) & GENMASK(30, 26)) >> 26)
 #define SP_LP_FIFO_DEPTH(x)		(((x) & GENMASK(25, 21)) >> 21)
@@ -419,6 +436,7 @@
 #define DSI_NULL_FRAME_OVERHEAD		6
 #define DSI_EOT_PKT_SIZE		4
 
+<<<<<<< HEAD
 #define REG_WAKEUP_TIME_NS		800
 #define DPHY_PLL_RATE_HZ		108000000
 
@@ -453,10 +471,16 @@
 #define DPHY_PSM_CFG_FROM_REG		BIT(0)
 #define DPHY_PSM_CLK_DIV(x)		((x) << 1)
 
+=======
+>>>>>>> upstream/android-13
 struct cdns_dsi_output {
 	struct mipi_dsi_device *dev;
 	struct drm_panel *panel;
 	struct drm_bridge *bridge;
+<<<<<<< HEAD
+=======
+	union phy_configure_opts phy_opts;
+>>>>>>> upstream/android-13
 };
 
 enum cdns_dsi_input_id {
@@ -465,6 +489,7 @@ enum cdns_dsi_input_id {
 	CDNS_DSC_INPUT,
 };
 
+<<<<<<< HEAD
 struct cdns_dphy_cfg {
 	u8 pll_ipdiv;
 	u8 pll_opdiv;
@@ -473,6 +498,8 @@ struct cdns_dphy_cfg {
 	unsigned int nlanes;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct cdns_dsi_cfg {
 	unsigned int hfp;
 	unsigned int hsa;
@@ -481,6 +508,7 @@ struct cdns_dsi_cfg {
 	unsigned int htotal;
 };
 
+<<<<<<< HEAD
 struct cdns_dphy;
 
 enum cdns_dphy_clk_lane_cfg {
@@ -509,6 +537,8 @@ struct cdns_dphy {
 	const struct cdns_dphy_ops *ops;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct cdns_dsi_input {
 	enum cdns_dsi_input_id id;
 	struct drm_bridge bridge;
@@ -526,7 +556,11 @@ struct cdns_dsi {
 	struct reset_control *dsi_p_rst;
 	struct clk *dsi_sys_clk;
 	bool link_initialized;
+<<<<<<< HEAD
 	struct cdns_dphy *dphy;
+=======
+	struct phy *dphy;
+>>>>>>> upstream/android-13
 };
 
 static inline struct cdns_dsi *input_to_dsi(struct cdns_dsi_input *input)
@@ -545,6 +579,7 @@ bridge_to_cdns_dsi_input(struct drm_bridge *bridge)
 	return container_of(bridge, struct cdns_dsi_input, bridge);
 }
 
+<<<<<<< HEAD
 static int cdns_dsi_get_dphy_pll_cfg(struct cdns_dphy *dphy,
 				     struct cdns_dphy_cfg *cfg,
 				     unsigned int dpi_htotal,
@@ -712,6 +747,15 @@ static void cdns_dphy_set_pll_cfg(struct cdns_dphy *dphy,
 static unsigned long cdns_dphy_get_wakeup_time_ns(struct cdns_dphy *dphy)
 {
 	return dphy->ops->get_wakeup_time_ns(dphy);
+=======
+static unsigned int mode_to_dpi_hfp(const struct drm_display_mode *mode,
+				    bool mode_valid_check)
+{
+	if (mode_valid_check)
+		return mode->hsync_start - mode->hdisplay;
+
+	return mode->crtc_hsync_start - mode->crtc_hdisplay;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int dpi_to_dsi_timing(unsigned int dpi_timing,
@@ -731,6 +775,7 @@ static unsigned int dpi_to_dsi_timing(unsigned int dpi_timing,
 static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 			     const struct drm_display_mode *mode,
 			     struct cdns_dsi_cfg *dsi_cfg,
+<<<<<<< HEAD
 			     struct cdns_dphy_cfg *dphy_cfg,
 			     bool mode_valid_check)
 {
@@ -739,6 +784,14 @@ static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 	unsigned int dsi_hfp_ext = 0, dpi_hfp, tmp;
 	bool sync_pulse = false;
 	int bpp, nlanes, ret;
+=======
+			     bool mode_valid_check)
+{
+	struct cdns_dsi_output *output = &dsi->output;
+	unsigned int tmp;
+	bool sync_pulse = false;
+	int bpp;
+>>>>>>> upstream/android-13
 
 	memset(dsi_cfg, 0, sizeof(*dsi_cfg));
 
@@ -746,7 +799,10 @@ static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 		sync_pulse = true;
 
 	bpp = mipi_dsi_pixel_format_to_bpp(output->dev->format);
+<<<<<<< HEAD
 	nlanes = output->dev->lanes;
+=======
+>>>>>>> upstream/android-13
 
 	if (mode_valid_check)
 		tmp = mode->htotal -
@@ -757,8 +813,11 @@ static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 		       mode->crtc_hsync_end : mode->crtc_hsync_start);
 
 	dsi_cfg->hbp = dpi_to_dsi_timing(tmp, bpp, DSI_HBP_FRAME_OVERHEAD);
+<<<<<<< HEAD
 	dsi_htotal += dsi_cfg->hbp + DSI_HBP_FRAME_OVERHEAD;
 	dsi_hss_hsa_hse_hbp += dsi_cfg->hbp + DSI_HBP_FRAME_OVERHEAD;
+=======
+>>>>>>> upstream/android-13
 
 	if (sync_pulse) {
 		if (mode_valid_check)
@@ -768,13 +827,17 @@ static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 
 		dsi_cfg->hsa = dpi_to_dsi_timing(tmp, bpp,
 						 DSI_HSA_FRAME_OVERHEAD);
+<<<<<<< HEAD
 		dsi_htotal += dsi_cfg->hsa + DSI_HSA_FRAME_OVERHEAD;
 		dsi_hss_hsa_hse_hbp += dsi_cfg->hsa + DSI_HSA_FRAME_OVERHEAD;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	dsi_cfg->hact = dpi_to_dsi_timing(mode_valid_check ?
 					  mode->hdisplay : mode->crtc_hdisplay,
 					  bpp, 0);
+<<<<<<< HEAD
 	dsi_htotal += dsi_cfg->hact;
 
 	if (mode_valid_check)
@@ -804,13 +867,105 @@ static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 	dsi_cfg->hfp += dsi_hfp_ext;
 	dsi_htotal += dsi_hfp_ext;
 	dsi_cfg->htotal = dsi_htotal;
+=======
+	dsi_cfg->hfp = dpi_to_dsi_timing(mode_to_dpi_hfp(mode, mode_valid_check),
+					 bpp, DSI_HFP_FRAME_OVERHEAD);
+
+	return 0;
+}
+
+static int cdns_dsi_adjust_phy_config(struct cdns_dsi *dsi,
+			      struct cdns_dsi_cfg *dsi_cfg,
+			      struct phy_configure_opts_mipi_dphy *phy_cfg,
+			      const struct drm_display_mode *mode,
+			      bool mode_valid_check)
+{
+	struct cdns_dsi_output *output = &dsi->output;
+	unsigned long long dlane_bps;
+	unsigned long adj_dsi_htotal;
+	unsigned long dsi_htotal;
+	unsigned long dpi_htotal;
+	unsigned long dpi_hz;
+	unsigned int dsi_hfp_ext;
+	unsigned int lanes = output->dev->lanes;
+
+	dsi_htotal = dsi_cfg->hbp + DSI_HBP_FRAME_OVERHEAD;
+	if (output->dev->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE)
+		dsi_htotal += dsi_cfg->hsa + DSI_HSA_FRAME_OVERHEAD;
+
+	dsi_htotal += dsi_cfg->hact;
+	dsi_htotal += dsi_cfg->hfp + DSI_HFP_FRAME_OVERHEAD;
+
+	/*
+	 * Make sure DSI htotal is aligned on a lane boundary when calculating
+	 * the expected data rate. This is done by extending HFP in case of
+	 * misalignment.
+	 */
+	adj_dsi_htotal = dsi_htotal;
+	if (dsi_htotal % lanes)
+		adj_dsi_htotal += lanes - (dsi_htotal % lanes);
+
+	dpi_hz = (mode_valid_check ? mode->clock : mode->crtc_clock) * 1000;
+	dlane_bps = (unsigned long long)dpi_hz * adj_dsi_htotal;
+
+	/* data rate in bytes/sec is not an integer, refuse the mode. */
+	dpi_htotal = mode_valid_check ? mode->htotal : mode->crtc_htotal;
+	if (do_div(dlane_bps, lanes * dpi_htotal))
+		return -EINVAL;
+
+	/* data rate was in bytes/sec, convert to bits/sec. */
+	phy_cfg->hs_clk_rate = dlane_bps * 8;
+
+	dsi_hfp_ext = adj_dsi_htotal - dsi_htotal;
+	dsi_cfg->hfp += dsi_hfp_ext;
+	dsi_cfg->htotal = dsi_htotal + dsi_hfp_ext;
+
+	return 0;
+}
+
+static int cdns_dsi_check_conf(struct cdns_dsi *dsi,
+			       const struct drm_display_mode *mode,
+			       struct cdns_dsi_cfg *dsi_cfg,
+			       bool mode_valid_check)
+{
+	struct cdns_dsi_output *output = &dsi->output;
+	struct phy_configure_opts_mipi_dphy *phy_cfg = &output->phy_opts.mipi_dphy;
+	unsigned long dsi_hss_hsa_hse_hbp;
+	unsigned int nlanes = output->dev->lanes;
+	int ret;
+
+	ret = cdns_dsi_mode2cfg(dsi, mode, dsi_cfg, mode_valid_check);
+	if (ret)
+		return ret;
+
+	phy_mipi_dphy_get_default_config(mode->crtc_clock * 1000,
+					 mipi_dsi_pixel_format_to_bpp(output->dev->format),
+					 nlanes, phy_cfg);
+
+	ret = cdns_dsi_adjust_phy_config(dsi, dsi_cfg, phy_cfg, mode, mode_valid_check);
+	if (ret)
+		return ret;
+
+	ret = phy_validate(dsi->dphy, PHY_MODE_MIPI_DPHY, 0, &output->phy_opts);
+	if (ret)
+		return ret;
+
+	dsi_hss_hsa_hse_hbp = dsi_cfg->hbp + DSI_HBP_FRAME_OVERHEAD;
+	if (output->dev->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE)
+		dsi_hss_hsa_hse_hbp += dsi_cfg->hsa + DSI_HSA_FRAME_OVERHEAD;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure DPI(HFP) > DSI(HSS+HSA+HSE+HBP) to guarantee that the FIFO
 	 * is empty before we start a receiving a new line on the DPI
 	 * interface.
 	 */
+<<<<<<< HEAD
 	if ((u64)dphy_cfg->lane_bps * dpi_hfp * nlanes <
+=======
+	if ((u64)phy_cfg->hs_clk_rate *
+	    mode_to_dpi_hfp(mode, mode_valid_check) * nlanes <
+>>>>>>> upstream/android-13
 	    (u64)dsi_hss_hsa_hse_hbp *
 	    (mode_valid_check ? mode->clock : mode->crtc_clock) * 1000)
 		return -EINVAL;
@@ -818,7 +973,12 @@ static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cdns_dsi_bridge_attach(struct drm_bridge *bridge)
+=======
+static int cdns_dsi_bridge_attach(struct drm_bridge *bridge,
+				  enum drm_bridge_attach_flags flags)
+>>>>>>> upstream/android-13
 {
 	struct cdns_dsi_input *input = bridge_to_cdns_dsi_input(bridge);
 	struct cdns_dsi *dsi = input_to_dsi(input);
@@ -830,19 +990,33 @@ static int cdns_dsi_bridge_attach(struct drm_bridge *bridge)
 		return -ENOTSUPP;
 	}
 
+<<<<<<< HEAD
 	return drm_bridge_attach(bridge->encoder, output->bridge, bridge);
+=======
+	return drm_bridge_attach(bridge->encoder, output->bridge, bridge,
+				 flags);
+>>>>>>> upstream/android-13
 }
 
 static enum drm_mode_status
 cdns_dsi_bridge_mode_valid(struct drm_bridge *bridge,
+<<<<<<< HEAD
+=======
+			   const struct drm_display_info *info,
+>>>>>>> upstream/android-13
 			   const struct drm_display_mode *mode)
 {
 	struct cdns_dsi_input *input = bridge_to_cdns_dsi_input(bridge);
 	struct cdns_dsi *dsi = input_to_dsi(input);
 	struct cdns_dsi_output *output = &dsi->output;
+<<<<<<< HEAD
 	struct cdns_dphy_cfg dphy_cfg;
 	struct cdns_dsi_cfg dsi_cfg;
 	int bpp, nlanes, ret;
+=======
+	struct cdns_dsi_cfg dsi_cfg;
+	int bpp, ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * VFP_DSI should be less than VFP_DPI and VFP_DSI should be at
@@ -860,11 +1034,17 @@ cdns_dsi_bridge_mode_valid(struct drm_bridge *bridge,
 	if ((mode->hdisplay * bpp) % 32)
 		return MODE_H_ILLEGAL;
 
+<<<<<<< HEAD
 	nlanes = output->dev->lanes;
 
 	ret = cdns_dsi_mode2cfg(dsi, mode, &dsi_cfg, &dphy_cfg, true);
 	if (ret)
 		return MODE_CLOCK_RANGE;
+=======
+	ret = cdns_dsi_check_conf(dsi, mode, &dsi_cfg, true);
+	if (ret)
+		return MODE_BAD;
+>>>>>>> upstream/android-13
 
 	return MODE_OK;
 }
@@ -885,9 +1065,15 @@ static void cdns_dsi_bridge_disable(struct drm_bridge *bridge)
 	pm_runtime_put(dsi->base.dev);
 }
 
+<<<<<<< HEAD
 static void cdns_dsi_hs_init(struct cdns_dsi *dsi,
 			     const struct cdns_dphy_cfg *dphy_cfg)
 {
+=======
+static void cdns_dsi_hs_init(struct cdns_dsi *dsi)
+{
+	struct cdns_dsi_output *output = &dsi->output;
+>>>>>>> upstream/android-13
 	u32 status;
 
 	/*
@@ -898,6 +1084,7 @@ static void cdns_dsi_hs_init(struct cdns_dsi *dsi,
 	       DPHY_CMN_PDN | DPHY_PLL_PDN,
 	       dsi->regs + MCTL_DPHY_CFG0);
 
+<<<<<<< HEAD
 	/*
 	 * Configure the internal PSM clk divider so that the DPHY has a
 	 * 1MHz clk (or something close).
@@ -922,6 +1109,12 @@ static void cdns_dsi_hs_init(struct cdns_dsi *dsi,
 	/* Start TX state machine. */
 	writel(DPHY_CMN_SSM_EN | DPHY_CMN_TX_MODE_EN,
 	       dsi->dphy->regs + DPHY_CMN_SSM);
+=======
+	phy_init(dsi->dphy);
+	phy_set_mode(dsi->dphy, PHY_MODE_MIPI_DPHY);
+	phy_configure(dsi->dphy, &output->phy_opts);
+	phy_power_on(dsi->dphy);
+>>>>>>> upstream/android-13
 
 	/* Activate the PLL and wait until it's locked. */
 	writel(PLL_LOCKED, dsi->regs + MCTL_MAIN_STS_CLR);
@@ -931,7 +1124,11 @@ static void cdns_dsi_hs_init(struct cdns_dsi *dsi,
 					status & PLL_LOCKED, 100, 100));
 	/* De-assert data and clock reset lines. */
 	writel(DPHY_CMN_PSO | DPHY_ALL_D_PDN | DPHY_C_PDN | DPHY_CMN_PDN |
+<<<<<<< HEAD
 	       DPHY_D_RSTB(dphy_cfg->nlanes) | DPHY_C_RSTB,
+=======
+	       DPHY_D_RSTB(output->dev->lanes) | DPHY_C_RSTB,
+>>>>>>> upstream/android-13
 	       dsi->regs + MCTL_DPHY_CFG0);
 }
 
@@ -977,22 +1174,38 @@ static void cdns_dsi_bridge_enable(struct drm_bridge *bridge)
 	struct cdns_dsi *dsi = input_to_dsi(input);
 	struct cdns_dsi_output *output = &dsi->output;
 	struct drm_display_mode *mode;
+<<<<<<< HEAD
 	struct cdns_dphy_cfg dphy_cfg;
 	unsigned long tx_byte_period;
 	struct cdns_dsi_cfg dsi_cfg;
 	u32 tmp, reg_wakeup, div;
 	int bpp, nlanes;
+=======
+	struct phy_configure_opts_mipi_dphy *phy_cfg = &output->phy_opts.mipi_dphy;
+	unsigned long tx_byte_period;
+	struct cdns_dsi_cfg dsi_cfg;
+	u32 tmp, reg_wakeup, div;
+	int nlanes;
+>>>>>>> upstream/android-13
 
 	if (WARN_ON(pm_runtime_get_sync(dsi->base.dev) < 0))
 		return;
 
 	mode = &bridge->encoder->crtc->state->adjusted_mode;
+<<<<<<< HEAD
 	bpp = mipi_dsi_pixel_format_to_bpp(output->dev->format);
 	nlanes = output->dev->lanes;
 
 	WARN_ON_ONCE(cdns_dsi_mode2cfg(dsi, mode, &dsi_cfg, &dphy_cfg, false));
 
 	cdns_dsi_hs_init(dsi, &dphy_cfg);
+=======
+	nlanes = output->dev->lanes;
+
+	WARN_ON_ONCE(cdns_dsi_check_conf(dsi, mode, &dsi_cfg, false));
+
+	cdns_dsi_hs_init(dsi);
+>>>>>>> upstream/android-13
 	cdns_dsi_init_link(dsi);
 
 	writel(HBP_LEN(dsi_cfg.hbp) | HSA_LEN(dsi_cfg.hsa),
@@ -1024,6 +1237,7 @@ static void cdns_dsi_bridge_enable(struct drm_bridge *bridge)
 	tmp = DIV_ROUND_UP(dsi_cfg.htotal, nlanes) -
 	      DIV_ROUND_UP(dsi_cfg.hsa, nlanes);
 
+<<<<<<< HEAD
 	if (!(output->dev->mode_flags & MIPI_DSI_MODE_EOT_PACKET))
 		tmp -= DIV_ROUND_UP(DSI_EOT_PKT_SIZE, nlanes);
 
@@ -1031,6 +1245,14 @@ static void cdns_dsi_bridge_enable(struct drm_bridge *bridge)
 					    dphy_cfg.lane_bps);
 	reg_wakeup = cdns_dphy_get_wakeup_time_ns(dsi->dphy) /
 		     tx_byte_period;
+=======
+	if (!(output->dev->mode_flags & MIPI_DSI_MODE_NO_EOT_PACKET))
+		tmp -= DIV_ROUND_UP(DSI_EOT_PKT_SIZE, nlanes);
+
+	tx_byte_period = DIV_ROUND_DOWN_ULL((u64)NSEC_PER_SEC * 8,
+					    phy_cfg->hs_clk_rate);
+	reg_wakeup = (phy_cfg->hs_prepare + phy_cfg->hs_zero) / tx_byte_period;
+>>>>>>> upstream/android-13
 	writel(REG_WAKEUP_TIME(reg_wakeup) | REG_LINE_DURATION(tmp),
 	       dsi->regs + VID_DPHY_TIME);
 
@@ -1098,7 +1320,11 @@ static void cdns_dsi_bridge_enable(struct drm_bridge *bridge)
 	tmp = readl(dsi->regs + MCTL_MAIN_DATA_CTL);
 	tmp &= ~(IF_VID_SELECT_MASK | HOST_EOT_GEN | IF_VID_MODE);
 
+<<<<<<< HEAD
 	if (!(output->dev->mode_flags & MIPI_DSI_MODE_EOT_PACKET))
+=======
+	if (!(output->dev->mode_flags & MIPI_DSI_MODE_NO_EOT_PACKET))
+>>>>>>> upstream/android-13
 		tmp |= HOST_EOT_GEN;
 
 	if (output->dev->mode_flags & MIPI_DSI_MODE_VIDEO)
@@ -1153,7 +1379,12 @@ static int cdns_dsi_attach(struct mipi_dsi_host *host,
 
 	panel = of_drm_find_panel(np);
 	if (!IS_ERR(panel)) {
+<<<<<<< HEAD
 		bridge = drm_panel_bridge_add(panel, DRM_MODE_CONNECTOR_DSI);
+=======
+		bridge = drm_panel_bridge_add_typed(panel,
+						    DRM_MODE_CONNECTOR_DSI);
+>>>>>>> upstream/android-13
 	} else {
 		bridge = of_drm_find_bridge(dev->dev.of_node);
 		if (!bridge)
@@ -1223,7 +1454,11 @@ static ssize_t cdns_dsi_transfer(struct mipi_dsi_host *host,
 	struct mipi_dsi_packet packet;
 	int ret, i, tx_len, rx_len;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(host->dev);
+=======
+	ret = pm_runtime_resume_and_get(host->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -1344,8 +1579,11 @@ static int __maybe_unused cdns_dsi_resume(struct device *dev)
 	reset_control_deassert(dsi->dsi_p_rst);
 	clk_prepare_enable(dsi->dsi_p_clk);
 	clk_prepare_enable(dsi->dsi_sys_clk);
+<<<<<<< HEAD
 	clk_prepare_enable(dsi->dphy->psm_clk);
 	clk_prepare_enable(dsi->dphy->pll_ref_clk);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1354,8 +1592,11 @@ static int __maybe_unused cdns_dsi_suspend(struct device *dev)
 {
 	struct cdns_dsi *dsi = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(dsi->dphy->pll_ref_clk);
 	clk_disable_unprepare(dsi->dphy->psm_clk);
+=======
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(dsi->dsi_sys_clk);
 	clk_disable_unprepare(dsi->dsi_p_clk);
 	reset_control_assert(dsi->dsi_p_rst);
@@ -1366,6 +1607,7 @@ static int __maybe_unused cdns_dsi_suspend(struct device *dev)
 static UNIVERSAL_DEV_PM_OPS(cdns_dsi_pm_ops, cdns_dsi_suspend, cdns_dsi_resume,
 			    NULL);
 
+<<<<<<< HEAD
 static unsigned long cdns_dphy_ref_get_wakeup_time_ns(struct cdns_dphy *dphy)
 {
 	/* Default wakeup time is 800 ns (in a simulated environment). */
@@ -1481,6 +1723,8 @@ static void cdns_dphy_remove(struct cdns_dphy *dphy)
 	clk_put(dphy->psm_clk);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int cdns_dsi_drm_probe(struct platform_device *pdev)
 {
 	struct cdns_dsi *dsi;
@@ -1519,13 +1763,21 @@ static int cdns_dsi_drm_probe(struct platform_device *pdev)
 	if (irq < 0)
 		return irq;
 
+<<<<<<< HEAD
 	dsi->dphy = cdns_dphy_probe(pdev);
+=======
+	dsi->dphy = devm_phy_get(&pdev->dev, "dphy");
+>>>>>>> upstream/android-13
 	if (IS_ERR(dsi->dphy))
 		return PTR_ERR(dsi->dphy);
 
 	ret = clk_prepare_enable(dsi->dsi_p_clk);
 	if (ret)
+<<<<<<< HEAD
 		goto err_remove_dphy;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	val = readl(dsi->regs + ID_REG);
 	if (REV_VENDOR_ID(val) != 0xcad) {
@@ -1583,9 +1835,12 @@ err_disable_runtime_pm:
 err_disable_pclk:
 	clk_disable_unprepare(dsi->dsi_p_clk);
 
+<<<<<<< HEAD
 err_remove_dphy:
 	cdns_dphy_remove(dsi->dphy);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1595,7 +1850,10 @@ static int cdns_dsi_drm_remove(struct platform_device *pdev)
 
 	mipi_dsi_host_unregister(&dsi->base);
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
 	cdns_dphy_remove(dsi->dphy);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1604,6 +1862,10 @@ static const struct of_device_id cdns_dsi_of_match[] = {
 	{ .compatible = "cdns,dsi" },
 	{ },
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, cdns_dsi_of_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver cdns_dsi_platform_driver = {
 	.probe  = cdns_dsi_drm_probe,

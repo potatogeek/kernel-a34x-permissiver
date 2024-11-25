@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * r8a7743 Clock Pulse Generator / Module Standby and Software Reset
  *
  * Copyright (C) 2016 Cogent Embedded Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation; of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/soc/renesas/rcar-rst.h>
 
 #include <dt-bindings/clock/r8a7743-cpg-mssr.h>
@@ -37,7 +48,11 @@ enum clk_ids {
 	MOD_CLK_BASE
 };
 
+<<<<<<< HEAD
 static const struct cpg_core_clk r8a7743_core_clks[] __initconst = {
+=======
+static struct cpg_core_clk r8a7743_core_clks[] __initdata = {
+>>>>>>> upstream/android-13
 	/* External Clock Inputs */
 	DEF_INPUT("extal",	CLK_EXTAL),
 	DEF_INPUT("usb_extal",	CLK_USB_EXTAL),
@@ -94,7 +109,11 @@ static const struct mssr_mod_clk r8a7743_mod_clks[] __initconst = {
 	DEF_MOD("tmu0",			 125,	R8A7743_CLK_CP),
 	DEF_MOD("vsp1du1",		 127,	R8A7743_CLK_ZS),
 	DEF_MOD("vsp1du0",		 128,	R8A7743_CLK_ZS),
+<<<<<<< HEAD
 	DEF_MOD("vsp1-sy",		 131,	R8A7743_CLK_ZS),
+=======
+	DEF_MOD("vsps",			 131,	R8A7743_CLK_ZS),
+>>>>>>> upstream/android-13
 	DEF_MOD("scifa2",		 202,	R8A7743_CLK_MP),
 	DEF_MOD("scifa1",		 203,	R8A7743_CLK_MP),
 	DEF_MOD("scifa0",		 204,	R8A7743_CLK_MP),
@@ -238,6 +257,11 @@ static const struct rcar_gen2_cpg_pll_config cpg_pll_configs[8] __initconst = {
 static int __init r8a7743_cpg_mssr_init(struct device *dev)
 {
 	const struct rcar_gen2_cpg_pll_config *cpg_pll_config;
+<<<<<<< HEAD
+=======
+	struct device_node *np = dev->of_node;
+	unsigned int i;
+>>>>>>> upstream/android-13
 	u32 cpg_mode;
 	int error;
 
@@ -247,6 +271,17 @@ static int __init r8a7743_cpg_mssr_init(struct device *dev)
 
 	cpg_pll_config = &cpg_pll_configs[CPG_PLL_CONFIG_INDEX(cpg_mode)];
 
+<<<<<<< HEAD
+=======
+	if (of_device_is_compatible(np, "renesas,r8a7744-cpg-mssr")) {
+		/* RZ/G1N uses a 1/5 divider for ZG */
+		for (i = 0; i < ARRAY_SIZE(r8a7743_core_clks); i++)
+			if (r8a7743_core_clks[i].id == R8A7743_CLK_ZG) {
+				r8a7743_core_clks[i].div = 5;
+				break;
+			}
+	}
+>>>>>>> upstream/android-13
 	return rcar_gen2_cpg_init(cpg_pll_config, 2, cpg_mode);
 }
 

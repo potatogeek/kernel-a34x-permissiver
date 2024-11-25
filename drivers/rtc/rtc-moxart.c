@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * MOXA ART RTC driver.
  *
@@ -7,10 +11,13 @@
  *
  * Based on code from
  * Moxa Technology Co., Ltd. <www.moxa.com>
+<<<<<<< HEAD
  *
  * This file is licensed under the terms of the GNU General Public
  * License version 2.  This program is licensed "as is" without any
  * warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

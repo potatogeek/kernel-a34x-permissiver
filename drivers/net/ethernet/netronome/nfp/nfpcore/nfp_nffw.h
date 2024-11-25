@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /*
  * nfp_nffw.h
@@ -61,10 +66,19 @@ void nfp_mip_strtab(const struct nfp_mip *mip, u32 *addr, u32 *size);
 
 /* Implemented in nfp_rtsym.c */
 
+<<<<<<< HEAD
 #define NFP_RTSYM_TYPE_NONE		0
 #define NFP_RTSYM_TYPE_OBJECT		1
 #define NFP_RTSYM_TYPE_FUNCTION		2
 #define NFP_RTSYM_TYPE_ABS		3
+=======
+enum nfp_rtsym_type {
+	NFP_RTSYM_TYPE_NONE	= 0,
+	NFP_RTSYM_TYPE_OBJECT	= 1,
+	NFP_RTSYM_TYPE_FUNCTION	= 2,
+	NFP_RTSYM_TYPE_ABS	= 3,
+};
+>>>>>>> upstream/android-13
 
 #define NFP_RTSYM_TARGET_NONE		0
 #define NFP_RTSYM_TARGET_LMEM		-1
@@ -83,7 +97,11 @@ struct nfp_rtsym {
 	const char *name;
 	u64 addr;
 	u64 size;
+<<<<<<< HEAD
 	int type;
+=======
+	enum nfp_rtsym_type type;
+>>>>>>> upstream/android-13
 	int target;
 	int domain;
 };
@@ -98,6 +116,35 @@ const struct nfp_rtsym *nfp_rtsym_get(struct nfp_rtsym_table *rtbl, int idx);
 const struct nfp_rtsym *
 nfp_rtsym_lookup(struct nfp_rtsym_table *rtbl, const char *name);
 
+<<<<<<< HEAD
+=======
+u64 nfp_rtsym_size(const struct nfp_rtsym *rtsym);
+int __nfp_rtsym_read(struct nfp_cpp *cpp, const struct nfp_rtsym *sym,
+		     u8 action, u8 token, u64 off, void *buf, size_t len);
+int nfp_rtsym_read(struct nfp_cpp *cpp, const struct nfp_rtsym *sym, u64 off,
+		   void *buf, size_t len);
+int __nfp_rtsym_readl(struct nfp_cpp *cpp, const struct nfp_rtsym *sym,
+		      u8 action, u8 token, u64 off, u32 *value);
+int nfp_rtsym_readl(struct nfp_cpp *cpp, const struct nfp_rtsym *sym, u64 off,
+		    u32 *value);
+int __nfp_rtsym_readq(struct nfp_cpp *cpp, const struct nfp_rtsym *sym,
+		      u8 action, u8 token, u64 off, u64 *value);
+int nfp_rtsym_readq(struct nfp_cpp *cpp, const struct nfp_rtsym *sym, u64 off,
+		    u64 *value);
+int __nfp_rtsym_write(struct nfp_cpp *cpp, const struct nfp_rtsym *sym,
+		      u8 action, u8 token, u64 off, void *buf, size_t len);
+int nfp_rtsym_write(struct nfp_cpp *cpp, const struct nfp_rtsym *sym, u64 off,
+		    void *buf, size_t len);
+int __nfp_rtsym_writel(struct nfp_cpp *cpp, const struct nfp_rtsym *sym,
+		       u8 action, u8 token, u64 off, u32 value);
+int nfp_rtsym_writel(struct nfp_cpp *cpp, const struct nfp_rtsym *sym, u64 off,
+		     u32 value);
+int __nfp_rtsym_writeq(struct nfp_cpp *cpp, const struct nfp_rtsym *sym,
+		       u8 action, u8 token, u64 off, u64 value);
+int nfp_rtsym_writeq(struct nfp_cpp *cpp, const struct nfp_rtsym *sym, u64 off,
+		     u64 value);
+
+>>>>>>> upstream/android-13
 u64 nfp_rtsym_read_le(struct nfp_rtsym_table *rtbl, const char *name,
 		      int *error);
 int nfp_rtsym_write_le(struct nfp_rtsym_table *rtbl, const char *name,

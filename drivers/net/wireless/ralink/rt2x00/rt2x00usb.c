@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2010 Willow Garage <http://www.willowgarage.com>
 	Copyright (C) 2004 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -31,6 +38,28 @@
 #include "rt2x00.h"
 #include "rt2x00usb.h"
 
+<<<<<<< HEAD
+=======
+static bool rt2x00usb_check_usb_error(struct rt2x00_dev *rt2x00dev, int status)
+{
+	if (status == -ENODEV || status == -ENOENT)
+		return true;
+
+	if (!test_bit(DEVICE_STATE_STARTED, &rt2x00dev->flags))
+		return false;
+
+	if (status == -EPROTO || status == -ETIMEDOUT)
+		rt2x00dev->num_proto_errs++;
+	else
+		rt2x00dev->num_proto_errs = 0;
+
+	if (rt2x00dev->num_proto_errs > 3)
+		return true;
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Interfacing with the HW.
  */
@@ -57,7 +86,11 @@ int rt2x00usb_vendor_request(struct rt2x00_dev *rt2x00dev,
 		if (status >= 0)
 			return 0;
 
+<<<<<<< HEAD
 		if (status == -ENODEV || status == -ENOENT) {
+=======
+		if (rt2x00usb_check_usb_error(rt2x00dev, status)) {
+>>>>>>> upstream/android-13
 			/* Device has disappeared. */
 			clear_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags);
 			break;
@@ -321,7 +354,11 @@ static bool rt2x00usb_kick_tx_entry(struct queue_entry *entry, void *data)
 
 	status = usb_submit_urb(entry_priv->urb, GFP_ATOMIC);
 	if (status) {
+<<<<<<< HEAD
 		if (status == -ENODEV || status == -ENOENT)
+=======
+		if (rt2x00usb_check_usb_error(rt2x00dev, status))
+>>>>>>> upstream/android-13
 			clear_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags);
 		set_bit(ENTRY_DATA_IO_FAILED, &entry->flags);
 		rt2x00lib_dmadone(entry);
@@ -344,8 +381,12 @@ static void rt2x00usb_work_rxdone(struct work_struct *work)
 	while (!rt2x00queue_empty(rt2x00dev->rx)) {
 		entry = rt2x00queue_get_entry(rt2x00dev->rx, Q_INDEX_DONE);
 
+<<<<<<< HEAD
 		if (test_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags) ||
 		    !test_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags))
+=======
+		if (test_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags))
+>>>>>>> upstream/android-13
 			break;
 
 		/*
@@ -367,6 +408,7 @@ static void rt2x00usb_interrupt_rxdone(struct urb *urb)
 	struct queue_entry *entry = (struct queue_entry *)urb->context;
 	struct rt2x00_dev *rt2x00dev = entry->queue->rt2x00dev;
 
+<<<<<<< HEAD
 	if (!test_and_clear_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags))
 		return;
 
@@ -376,6 +418,12 @@ static void rt2x00usb_interrupt_rxdone(struct urb *urb)
 	rt2x00lib_dmadone(entry);
 
 	/*
+=======
+	if (!test_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags))
+		return;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Check if the received data is simply too small
 	 * to be actually valid, or if the urb is signaling
 	 * a problem.
@@ -384,8 +432,17 @@ static void rt2x00usb_interrupt_rxdone(struct urb *urb)
 		set_bit(ENTRY_DATA_IO_FAILED, &entry->flags);
 
 	/*
+<<<<<<< HEAD
 	 * Schedule the delayed work for reading the RX status
 	 * from the device.
+=======
+	 * Report the frame as DMA done
+	 */
+	rt2x00lib_dmadone(entry);
+
+	/*
+	 * Schedule the delayed work for processing RX data
+>>>>>>> upstream/android-13
 	 */
 	queue_work(rt2x00dev->workqueue, &rt2x00dev->rxdone_work);
 }
@@ -397,8 +454,12 @@ static bool rt2x00usb_kick_rx_entry(struct queue_entry *entry, void *data)
 	struct queue_entry_priv_usb *entry_priv = entry->priv_data;
 	int status;
 
+<<<<<<< HEAD
 	if (test_and_set_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags) ||
 	    test_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags))
+=======
+	if (test_and_set_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags))
+>>>>>>> upstream/android-13
 		return false;
 
 	rt2x00lib_dmastart(entry);
@@ -410,7 +471,11 @@ static bool rt2x00usb_kick_rx_entry(struct queue_entry *entry, void *data)
 
 	status = usb_submit_urb(entry_priv->urb, GFP_ATOMIC);
 	if (status) {
+<<<<<<< HEAD
 		if (status == -ENODEV || status == -ENOENT)
+=======
+		if (rt2x00usb_check_usb_error(rt2x00dev, status))
+>>>>>>> upstream/android-13
 			clear_bit(DEVICE_STATE_PRESENT, &rt2x00dev->flags);
 		set_bit(ENTRY_DATA_IO_FAILED, &entry->flags);
 		rt2x00lib_dmadone(entry);
@@ -520,7 +585,11 @@ EXPORT_SYMBOL_GPL(rt2x00usb_flush_queue);
 
 static void rt2x00usb_watchdog_tx_dma(struct data_queue *queue)
 {
+<<<<<<< HEAD
 	rt2x00_warn(queue->rt2x00dev, "TX queue %d DMA timed out, invoke forced forced reset\n",
+=======
+	rt2x00_warn(queue->rt2x00dev, "TX queue %d DMA timed out, invoke forced reset\n",
+>>>>>>> upstream/android-13
 		    queue->qid);
 
 	rt2x00queue_stop_queue(queue);
@@ -884,7 +953,11 @@ int rt2x00usb_suspend(struct usb_interface *usb_intf, pm_message_t state)
 	struct ieee80211_hw *hw = usb_get_intfdata(usb_intf);
 	struct rt2x00_dev *rt2x00dev = hw->priv;
 
+<<<<<<< HEAD
 	return rt2x00lib_suspend(rt2x00dev, state);
+=======
+	return rt2x00lib_suspend(rt2x00dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rt2x00usb_suspend);
 

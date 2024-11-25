@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config NFC_ST95HF
 	tristate "ST95HF NFC Transceiver driver"
 	depends on SPI && NFC_DIGITAL

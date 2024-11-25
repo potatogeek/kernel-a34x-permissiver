@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 ST-Ericsson SA.
  * Copyright (C) 2009 Motorola, Inc.
  *
+<<<<<<< HEAD
  * License Terms: GNU General Public License v2
  *
+=======
+>>>>>>> upstream/android-13
  * Simple driver for National Semiconductor LM3530 Backlight driver chip
  *
  * Author: Shreshtha Kumar SAHU <shreshthakumar.sahu@stericsson.com>
@@ -100,7 +107,11 @@ static struct lm3530_mode_map mode_map[] = {
  * @pdata: LM3530 platform data
  * @mode: mode of operation - manual, ALS, PWM
  * @regulator: regulator
+<<<<<<< HEAD
  * @brighness: previous brightness value
+=======
+ * @brightness: previous brightness value
+>>>>>>> upstream/android-13
  * @enable: regulator is enabled
  */
 struct lm3530_data {
@@ -347,8 +358,13 @@ static void lm3530_brightness_set(struct led_classdev *led_cdev,
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t lm3530_mode_get(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t mode_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct lm3530_data *drvdata;
@@ -366,8 +382,13 @@ static ssize_t lm3530_mode_get(struct device *dev,
 	return len;
 }
 
+<<<<<<< HEAD
 static ssize_t lm3530_mode_set(struct device *dev, struct device_attribute
 				   *attr, const char *buf, size_t size)
+=======
+static ssize_t mode_store(struct device *dev, struct device_attribute
+			  *attr, const char *buf, size_t size)
+>>>>>>> upstream/android-13
 {
 	struct led_classdev *led_cdev = dev_get_drvdata(dev);
 	struct lm3530_data *drvdata;
@@ -398,7 +419,11 @@ static ssize_t lm3530_mode_set(struct device *dev, struct device_attribute
 
 	return sizeof(drvdata->mode);
 }
+<<<<<<< HEAD
 static DEVICE_ATTR(mode, 0644, lm3530_mode_get, lm3530_mode_set);
+=======
+static DEVICE_ATTR_RW(mode);
+>>>>>>> upstream/android-13
 
 static struct attribute *lm3530_attrs[] = {
 	&dev_attr_mode.attr,

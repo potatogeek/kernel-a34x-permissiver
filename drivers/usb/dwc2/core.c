@@ -131,6 +131,7 @@ int dwc2_restore_global_registers(struct dwc2_hsotg *hsotg)
  * dwc2_exit_partial_power_down() - Exit controller from Partial Power Down.
  *
  * @hsotg: Programming view of the DWC_otg controller
+<<<<<<< HEAD
  * @restore: Controller registers need to be restored
  */
 int dwc2_exit_partial_power_down(struct dwc2_hsotg *hsotg, bool restore)
@@ -179,6 +180,28 @@ int dwc2_exit_partial_power_down(struct dwc2_hsotg *hsotg, bool restore)
 	}
 
 	return ret;
+=======
+ * @rem_wakeup: indicates whether resume is initiated by Reset.
+ * @restore: Controller registers need to be restored
+ */
+int dwc2_exit_partial_power_down(struct dwc2_hsotg *hsotg, int rem_wakeup,
+				 bool restore)
+{
+	struct dwc2_gregs_backup *gr;
+
+	gr = &hsotg->gr_backup;
+
+	/*
+	 * Restore host or device regisers with the same mode core enterted
+	 * to partial power down by checking "GOTGCTL_CURMODE_HOST" backup
+	 * value of the "gotgctl" register.
+	 */
+	if (gr->gotgctl & GOTGCTL_CURMODE_HOST)
+		return dwc2_host_exit_partial_power_down(hsotg, rem_wakeup,
+							 restore);
+	else
+		return dwc2_gadget_exit_partial_power_down(hsotg, restore);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -188,6 +211,7 @@ int dwc2_exit_partial_power_down(struct dwc2_hsotg *hsotg, bool restore)
  */
 int dwc2_enter_partial_power_down(struct dwc2_hsotg *hsotg)
 {
+<<<<<<< HEAD
 	u32 pcgcctl;
 	int ret = 0;
 
@@ -239,6 +263,12 @@ int dwc2_enter_partial_power_down(struct dwc2_hsotg *hsotg)
 	dwc2_writel(hsotg, pcgcctl, PCGCTL);
 
 	return ret;
+=======
+	if (dwc2_is_host_mode(hsotg))
+		return dwc2_host_enter_partial_power_down(hsotg);
+	else
+		return dwc2_gadget_enter_partial_power_down(hsotg);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -370,10 +400,23 @@ void dwc2_hib_restore_common(struct dwc2_hsotg *hsotg, int rem_wakeup,
 	if (dwc2_hsotg_wait_bit_set(hsotg, GINTSTS, GINTSTS_RESTOREDONE,
 				    20000)) {
 		dev_dbg(hsotg->dev,
+<<<<<<< HEAD
 			"%s: Restore Done wan't generated here\n",
 			__func__);
 	} else {
 		dev_dbg(hsotg->dev, "restore done  generated here\n");
+=======
+			"%s: Restore Done wasn't generated here\n",
+			__func__);
+	} else {
+		dev_dbg(hsotg->dev, "restore done  generated here\n");
+
+		/*
+		 * To avoid restore done interrupt storm after restore is
+		 * generated clear GINTSTS_RESTOREDONE bit.
+		 */
+		dwc2_writel(hsotg, GINTSTS_RESTOREDONE, GINTSTS);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -460,9 +503,12 @@ static bool dwc2_iddig_filter_enabled(struct dwc2_hsotg *hsotg)
  */
 int dwc2_enter_hibernation(struct dwc2_hsotg *hsotg, int is_host)
 {
+<<<<<<< HEAD
 	if (hsotg->params.power_down != DWC2_POWER_DOWN_PARAM_HIBERNATION)
 		return -ENOTSUPP;
 
+=======
+>>>>>>> upstream/android-13
 	if (is_host)
 		return dwc2_host_enter_hibernation(hsotg);
 	else
@@ -524,12 +570,52 @@ int dwc2_core_reset(struct dwc2_hsotg *hsotg, bool skip_wait)
 	greset |= GRSTCTL_CSFTRST;
 	dwc2_writel(hsotg, greset, GRSTCTL);
 
+<<<<<<< HEAD
 	if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL, GRSTCTL_CSFTRST, 10000)) {
 		dev_warn(hsotg->dev, "%s: HANG! Soft Reset timeout GRSTCTL GRSTCTL_CSFTRST\n",
 			 __func__);
 		return -EBUSY;
 	}
 
+=======
+	if ((hsotg->hw_params.snpsid & DWC2_CORE_REV_MASK) <
+		(DWC2_CORE_REV_4_20a & DWC2_CORE_REV_MASK)) {
+		if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL,
+					      GRSTCTL_CSFTRST, 10000)) {
+			dev_warn(hsotg->dev, "%s: HANG! Soft Reset timeout GRSTCTL_CSFTRST\n",
+				 __func__);
+			return -EBUSY;
+		}
+	} else {
+		if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL,
+					    GRSTCTL_CSFTRST_DONE, 10000)) {
+			dev_warn(hsotg->dev, "%s: HANG! Soft Reset timeout GRSTCTL_CSFTRST_DONE\n",
+				 __func__);
+			return -EBUSY;
+		}
+		greset = dwc2_readl(hsotg, GRSTCTL);
+		greset &= ~GRSTCTL_CSFTRST;
+		greset |= GRSTCTL_CSFTRST_DONE;
+		dwc2_writel(hsotg, greset, GRSTCTL);
+	}
+
+	/*
+	 * Switching from device mode to host mode by disconnecting
+	 * device cable core enters and exits form hibernation.
+	 * However, the fifo map remains not cleared. It results
+	 * to a WARNING (WARNING: CPU: 5 PID: 0 at drivers/usb/dwc2/
+	 * gadget.c:307 dwc2_hsotg_init_fifo+0x12/0x152 [dwc2])
+	 * if in host mode we disconnect the micro a to b host
+	 * cable. Because core reset occurs.
+	 * To avoid the WARNING, fifo_map should be cleared
+	 * in dwc2_core_reset() function by taking into account configs.
+	 * fifo_map must be cleared only if driver is configured in
+	 * "CONFIG_USB_DWC2_PERIPHERAL" or "CONFIG_USB_DWC2_DUAL_ROLE"
+	 * mode.
+	 */
+	dwc2_clear_fifo_map(hsotg);
+
+>>>>>>> upstream/android-13
 	/* Wait for AHB master IDLE state */
 	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 10000)) {
 		dev_warn(hsotg->dev, "%s: HANG! AHB Idle timeout GRSTCTL GRSTCTL_AHBIDLE\n",
@@ -1020,6 +1106,220 @@ int dwc2_hsotg_wait_bit_clear(struct dwc2_hsotg *hsotg, u32 offset, u32 mask,
 	return -ETIMEDOUT;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Initializes the FSLSPClkSel field of the HCFG register depending on the
+ * PHY type
+ */
+void dwc2_init_fs_ls_pclk_sel(struct dwc2_hsotg *hsotg)
+{
+	u32 hcfg, val;
+
+	if ((hsotg->hw_params.hs_phy_type == GHWCFG2_HS_PHY_TYPE_ULPI &&
+	     hsotg->hw_params.fs_phy_type == GHWCFG2_FS_PHY_TYPE_DEDICATED &&
+	     hsotg->params.ulpi_fs_ls) ||
+	    hsotg->params.phy_type == DWC2_PHY_TYPE_PARAM_FS) {
+		/* Full speed PHY */
+		val = HCFG_FSLSPCLKSEL_48_MHZ;
+	} else {
+		/* High speed PHY running at full speed or high speed */
+		val = HCFG_FSLSPCLKSEL_30_60_MHZ;
+	}
+
+	dev_dbg(hsotg->dev, "Initializing HCFG.FSLSPClkSel to %08x\n", val);
+	hcfg = dwc2_readl(hsotg, HCFG);
+	hcfg &= ~HCFG_FSLSPCLKSEL_MASK;
+	hcfg |= val << HCFG_FSLSPCLKSEL_SHIFT;
+	dwc2_writel(hsotg, hcfg, HCFG);
+}
+
+static int dwc2_fs_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+{
+	u32 usbcfg, ggpio, i2cctl;
+	int retval = 0;
+
+	/*
+	 * core_init() is now called on every switch so only call the
+	 * following for the first time through
+	 */
+	if (select_phy) {
+		dev_dbg(hsotg->dev, "FS PHY selected\n");
+
+		usbcfg = dwc2_readl(hsotg, GUSBCFG);
+		if (!(usbcfg & GUSBCFG_PHYSEL)) {
+			usbcfg |= GUSBCFG_PHYSEL;
+			dwc2_writel(hsotg, usbcfg, GUSBCFG);
+
+			/* Reset after a PHY select */
+			retval = dwc2_core_reset(hsotg, false);
+
+			if (retval) {
+				dev_err(hsotg->dev,
+					"%s: Reset failed, aborting", __func__);
+				return retval;
+			}
+		}
+
+		if (hsotg->params.activate_stm_fs_transceiver) {
+			ggpio = dwc2_readl(hsotg, GGPIO);
+			if (!(ggpio & GGPIO_STM32_OTG_GCCFG_PWRDWN)) {
+				dev_dbg(hsotg->dev, "Activating transceiver\n");
+				/*
+				 * STM32F4x9 uses the GGPIO register as general
+				 * core configuration register.
+				 */
+				ggpio |= GGPIO_STM32_OTG_GCCFG_PWRDWN;
+				dwc2_writel(hsotg, ggpio, GGPIO);
+			}
+		}
+	}
+
+	/*
+	 * Program DCFG.DevSpd or HCFG.FSLSPclkSel to 48Mhz in FS. Also
+	 * do this on HNP Dev/Host mode switches (done in dev_init and
+	 * host_init).
+	 */
+	if (dwc2_is_host_mode(hsotg))
+		dwc2_init_fs_ls_pclk_sel(hsotg);
+
+	if (hsotg->params.i2c_enable) {
+		dev_dbg(hsotg->dev, "FS PHY enabling I2C\n");
+
+		/* Program GUSBCFG.OtgUtmiFsSel to I2C */
+		usbcfg = dwc2_readl(hsotg, GUSBCFG);
+		usbcfg |= GUSBCFG_OTG_UTMI_FS_SEL;
+		dwc2_writel(hsotg, usbcfg, GUSBCFG);
+
+		/* Program GI2CCTL.I2CEn */
+		i2cctl = dwc2_readl(hsotg, GI2CCTL);
+		i2cctl &= ~GI2CCTL_I2CDEVADDR_MASK;
+		i2cctl |= 1 << GI2CCTL_I2CDEVADDR_SHIFT;
+		i2cctl &= ~GI2CCTL_I2CEN;
+		dwc2_writel(hsotg, i2cctl, GI2CCTL);
+		i2cctl |= GI2CCTL_I2CEN;
+		dwc2_writel(hsotg, i2cctl, GI2CCTL);
+	}
+
+	return retval;
+}
+
+static int dwc2_hs_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+{
+	u32 usbcfg, usbcfg_old;
+	int retval = 0;
+
+	if (!select_phy)
+		return 0;
+
+	usbcfg = dwc2_readl(hsotg, GUSBCFG);
+	usbcfg_old = usbcfg;
+
+	/*
+	 * HS PHY parameters. These parameters are preserved during soft reset
+	 * so only program the first time. Do a soft reset immediately after
+	 * setting phyif.
+	 */
+	switch (hsotg->params.phy_type) {
+	case DWC2_PHY_TYPE_PARAM_ULPI:
+		/* ULPI interface */
+		dev_dbg(hsotg->dev, "HS ULPI PHY selected\n");
+		usbcfg |= GUSBCFG_ULPI_UTMI_SEL;
+		usbcfg &= ~(GUSBCFG_PHYIF16 | GUSBCFG_DDRSEL);
+		if (hsotg->params.phy_ulpi_ddr)
+			usbcfg |= GUSBCFG_DDRSEL;
+
+		/* Set external VBUS indicator as needed. */
+		if (hsotg->params.oc_disable)
+			usbcfg |= (GUSBCFG_ULPI_INT_VBUS_IND |
+				   GUSBCFG_INDICATORPASSTHROUGH);
+		break;
+	case DWC2_PHY_TYPE_PARAM_UTMI:
+		/* UTMI+ interface */
+		dev_dbg(hsotg->dev, "HS UTMI+ PHY selected\n");
+		usbcfg &= ~(GUSBCFG_ULPI_UTMI_SEL | GUSBCFG_PHYIF16);
+		if (hsotg->params.phy_utmi_width == 16)
+			usbcfg |= GUSBCFG_PHYIF16;
+		break;
+	default:
+		dev_err(hsotg->dev, "FS PHY selected at HS!\n");
+		break;
+	}
+
+	if (usbcfg != usbcfg_old) {
+		dwc2_writel(hsotg, usbcfg, GUSBCFG);
+
+		/* Reset after setting the PHY parameters */
+		retval = dwc2_core_reset(hsotg, false);
+		if (retval) {
+			dev_err(hsotg->dev,
+				"%s: Reset failed, aborting", __func__);
+			return retval;
+		}
+	}
+
+	return retval;
+}
+
+static void dwc2_set_turnaround_time(struct dwc2_hsotg *hsotg)
+{
+	u32 usbcfg;
+
+	if (hsotg->params.phy_type != DWC2_PHY_TYPE_PARAM_UTMI)
+		return;
+
+	usbcfg = dwc2_readl(hsotg, GUSBCFG);
+
+	usbcfg &= ~GUSBCFG_USBTRDTIM_MASK;
+	if (hsotg->params.phy_utmi_width == 16)
+		usbcfg |= 5 << GUSBCFG_USBTRDTIM_SHIFT;
+	else
+		usbcfg |= 9 << GUSBCFG_USBTRDTIM_SHIFT;
+
+	dwc2_writel(hsotg, usbcfg, GUSBCFG);
+}
+
+int dwc2_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+{
+	u32 usbcfg;
+	int retval = 0;
+
+	if ((hsotg->params.speed == DWC2_SPEED_PARAM_FULL ||
+	     hsotg->params.speed == DWC2_SPEED_PARAM_LOW) &&
+	    hsotg->params.phy_type == DWC2_PHY_TYPE_PARAM_FS) {
+		/* If FS/LS mode with FS/LS PHY */
+		retval = dwc2_fs_phy_init(hsotg, select_phy);
+		if (retval)
+			return retval;
+	} else {
+		/* High speed PHY */
+		retval = dwc2_hs_phy_init(hsotg, select_phy);
+		if (retval)
+			return retval;
+
+		if (dwc2_is_device_mode(hsotg))
+			dwc2_set_turnaround_time(hsotg);
+	}
+
+	if (hsotg->hw_params.hs_phy_type == GHWCFG2_HS_PHY_TYPE_ULPI &&
+	    hsotg->hw_params.fs_phy_type == GHWCFG2_FS_PHY_TYPE_DEDICATED &&
+	    hsotg->params.ulpi_fs_ls) {
+		dev_dbg(hsotg->dev, "Setting ULPI FSLS\n");
+		usbcfg = dwc2_readl(hsotg, GUSBCFG);
+		usbcfg |= GUSBCFG_ULPI_FS_LS;
+		usbcfg |= GUSBCFG_ULPI_CLK_SUSP_M;
+		dwc2_writel(hsotg, usbcfg, GUSBCFG);
+	} else {
+		usbcfg = dwc2_readl(hsotg, GUSBCFG);
+		usbcfg &= ~GUSBCFG_ULPI_FS_LS;
+		usbcfg &= ~GUSBCFG_ULPI_CLK_SUSP_M;
+		dwc2_writel(hsotg, usbcfg, GUSBCFG);
+	}
+
+	return retval;
+}
+
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("DESIGNWARE HS OTG Core");
 MODULE_AUTHOR("Synopsys, Inc.");
 MODULE_LICENSE("Dual BSD/GPL");

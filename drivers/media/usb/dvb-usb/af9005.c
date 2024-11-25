@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* DVB USB compliant Linux driver for the Afatech 9005
  * USB1.1 DVB-T receiver.
  *
@@ -5,6 +9,7 @@
  *
  * Thanks to Afatech who kindly provided information.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,9 @@
  * GNU General Public License for more details.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 #include "af9005.h"
 
@@ -845,7 +853,11 @@ static int af9005_rc_query(struct dvb_usb_device *d, u32 * event, int *state)
 
 	/* deb_info("rc_query\n"); */
 	st->data[0] = 3;		/* rest of packet length low */
+<<<<<<< HEAD
 	st->data[1] = 0;		/* rest of packet lentgh high */
+=======
+	st->data[1] = 0;		/* rest of packet length high */
+>>>>>>> upstream/android-13
 	st->data[2] = 0x40;		/* read remote */
 	st->data[3] = 1;		/* rest of packet length */
 	st->data[4] = seq = st->sequence++;	/* sequence number */
@@ -964,8 +976,13 @@ static int af9005_pid_filter(struct dvb_usb_adapter *adap, int index,
 }
 
 static int af9005_identify_state(struct usb_device *udev,
+<<<<<<< HEAD
 				 struct dvb_usb_device_properties *props,
 				 struct dvb_usb_device_description **desc,
+=======
+				 const struct dvb_usb_device_properties *props,
+				 const struct dvb_usb_device_description **desc,
+>>>>>>> upstream/android-13
 				 int *cold)
 {
 	int ret;

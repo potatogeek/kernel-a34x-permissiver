@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue code for the SHA1 Secure Hash Algorithm assembler implementation using
  * ARM NEON instructions.
@@ -10,6 +14,7 @@
  *  Copyright (c) Jean-Francois Dive <jef@linuxbe.org>
  *  Copyright (c) Mathias Krause <minipli@googlemail.com>
  *  Copyright (c) Chandramouli Narayanan <mouli@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,6 +30,17 @@
 #include <linux/cryptohash.h>
 #include <linux/types.h>
 #include <crypto/sha.h>
+=======
+ */
+
+#include <crypto/internal/hash.h>
+#include <crypto/internal/simd.h>
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/mm.h>
+#include <linux/types.h>
+#include <crypto/sha1.h>
+>>>>>>> upstream/android-13
 #include <crypto/sha1_base.h>
 #include <asm/neon.h>
 #include <asm/simd.h>
@@ -39,7 +55,11 @@ static int sha1_neon_update(struct shash_desc *desc, const u8 *data,
 {
 	struct sha1_state *sctx = shash_desc_ctx(desc);
 
+<<<<<<< HEAD
 	if (!may_use_simd() ||
+=======
+	if (!crypto_simd_usable() ||
+>>>>>>> upstream/android-13
 	    (sctx->count % SHA1_BLOCK_SIZE) + len < SHA1_BLOCK_SIZE)
 		return sha1_update_arm(desc, data, len);
 
@@ -54,7 +74,11 @@ static int sha1_neon_update(struct shash_desc *desc, const u8 *data,
 static int sha1_neon_finup(struct shash_desc *desc, const u8 *data,
 			   unsigned int len, u8 *out)
 {
+<<<<<<< HEAD
 	if (!may_use_simd())
+=======
+	if (!crypto_simd_usable())
+>>>>>>> upstream/android-13
 		return sha1_finup_arm(desc, data, len, out);
 
 	kernel_neon_begin();

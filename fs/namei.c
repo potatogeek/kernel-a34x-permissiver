@@ -39,14 +39,20 @@
 #include <linux/bitops.h>
 #include <linux/init_task.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/build_bug.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 #include "mount.h"
 
+<<<<<<< HEAD
 #define CREATE_TRACE_POINTS
 #include <trace/events/namei.h>
 
+=======
+>>>>>>> upstream/android-13
 /* [Feb-1997 T. Schoebel-Theuer]
  * Fundamental changes in the pathname lookup mechanisms (namei)
  * were necessary because of omirr.  The reason is that omirr needs
@@ -134,7 +140,10 @@ getname_flags(const char __user *filename, int flags, int *empty)
 	struct filename *result;
 	char *kname;
 	int len;
+<<<<<<< HEAD
 	BUILD_BUG_ON(offsetof(struct filename, iname) % sizeof(long) != 0);
+=======
+>>>>>>> upstream/android-13
 
 	result = audit_reusename(filename);
 	if (result)
@@ -209,6 +218,17 @@ getname_flags(const char __user *filename, int flags, int *empty)
 }
 
 struct filename *
+<<<<<<< HEAD
+=======
+getname_uflags(const char __user *filename, int uflags)
+{
+	int flags = (uflags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
+
+	return getname_flags(filename, flags, NULL);
+}
+
+struct filename *
+>>>>>>> upstream/android-13
 getname(const char __user * filename)
 {
 	return getname_flags(filename, 0, NULL);
@@ -252,6 +272,12 @@ getname_kernel(const char * filename)
 
 void putname(struct filename *name)
 {
+<<<<<<< HEAD
+=======
+	if (IS_ERR(name))
+		return;
+
+>>>>>>> upstream/android-13
 	BUG_ON(name->refcnt <= 0);
 
 	if (--name->refcnt > 0)
@@ -264,7 +290,28 @@ void putname(struct filename *name)
 		__putname(name);
 }
 
+<<<<<<< HEAD
 static int check_acl(struct inode *inode, int mask)
+=======
+/**
+ * check_acl - perform ACL permission checking
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @inode:	inode to check permissions on
+ * @mask:	right to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC ...)
+ *
+ * This function performs the ACL permission checking. Since this function
+ * retrieve POSIX acls it needs to know whether it is called from a blocking or
+ * non-blocking context and thus cares about the MAY_NOT_BLOCK bit.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+static int check_acl(struct user_namespace *mnt_userns,
+		     struct inode *inode, int mask)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_FS_POSIX_ACL
 	struct posix_acl *acl;
@@ -276,14 +323,22 @@ static int check_acl(struct inode *inode, int mask)
 		/* no ->get_acl() calls in RCU mode... */
 		if (is_uncached_acl(acl))
 			return -ECHILD;
+<<<<<<< HEAD
 	        return posix_acl_permission(inode, acl, mask & ~MAY_NOT_BLOCK);
+=======
+	        return posix_acl_permission(mnt_userns, inode, acl, mask);
+>>>>>>> upstream/android-13
 	}
 
 	acl = get_acl(inode, ACL_TYPE_ACCESS);
 	if (IS_ERR(acl))
 		return PTR_ERR(acl);
 	if (acl) {
+<<<<<<< HEAD
 	        int error = posix_acl_permission(inode, acl, mask);
+=======
+	        int error = posix_acl_permission(mnt_userns, inode, acl, mask);
+>>>>>>> upstream/android-13
 	        posix_acl_release(acl);
 	        return error;
 	}
@@ -292,6 +347,7 @@ static int check_acl(struct inode *inode, int mask)
 	return -EAGAIN;
 }
 
+<<<<<<< HEAD
 /*
  * This does the basic permission checking
  */
@@ -318,12 +374,74 @@ static int acl_permission_check(struct inode *inode, int mask)
 	if ((mask & ~mode & (MAY_READ | MAY_WRITE | MAY_EXEC)) == 0)
 		return 0;
 	return -EACCES;
+=======
+/**
+ * acl_permission_check - perform basic UNIX permission checking
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @inode:	inode to check permissions on
+ * @mask:	right to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC ...)
+ *
+ * This function performs the basic UNIX permission checking. Since this
+ * function may retrieve POSIX acls it needs to know whether it is called from a
+ * blocking or non-blocking context and thus cares about the MAY_NOT_BLOCK bit.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+static int acl_permission_check(struct user_namespace *mnt_userns,
+				struct inode *inode, int mask)
+{
+	unsigned int mode = inode->i_mode;
+	kuid_t i_uid;
+
+	/* Are we the owner? If so, ACL's don't matter */
+	i_uid = i_uid_into_mnt(mnt_userns, inode);
+	if (likely(uid_eq(current_fsuid(), i_uid))) {
+		mask &= 7;
+		mode >>= 6;
+		return (mask & ~mode) ? -EACCES : 0;
+	}
+
+	/* Do we have ACL's? */
+	if (IS_POSIXACL(inode) && (mode & S_IRWXG)) {
+		int error = check_acl(mnt_userns, inode, mask);
+		if (error != -EAGAIN)
+			return error;
+	}
+
+	/* Only RWX matters for group/other mode bits */
+	mask &= 7;
+
+	/*
+	 * Are the group permissions different from
+	 * the other permissions in the bits we care
+	 * about? Need to check group ownership if so.
+	 */
+	if (mask & (mode ^ (mode >> 3))) {
+		kgid_t kgid = i_gid_into_mnt(mnt_userns, inode);
+		if (in_group_p(kgid))
+			mode >>= 3;
+	}
+
+	/* Bits in 'mode' clear that we require? */
+	return (mask & ~mode) ? -EACCES : 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  * generic_permission -  check for access rights on a Posix-like filesystem
+<<<<<<< HEAD
  * @inode:	inode to check access rights for
  * @mask:	right to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC, ...)
+=======
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @inode:	inode to check access rights for
+ * @mask:	right to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC,
+ *		%MAY_NOT_BLOCK ...)
+>>>>>>> upstream/android-13
  *
  * Used to check for read/write/execute permissions on a file.
  * We use "fsuid" for this, letting us set arbitrary permissions
@@ -333,25 +451,49 @@ static int acl_permission_check(struct inode *inode, int mask)
  * generic_permission is rcu-walk aware. It returns -ECHILD in case an rcu-walk
  * request cannot be satisfied (eg. requires blocking or too much complexity).
  * It would then be called again in ref-walk mode.
+<<<<<<< HEAD
  */
 int generic_permission(struct inode *inode, int mask)
+=======
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int generic_permission(struct user_namespace *mnt_userns, struct inode *inode,
+		       int mask)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	/*
 	 * Do the basic permission checks.
 	 */
+<<<<<<< HEAD
 	ret = acl_permission_check(inode, mask);
+=======
+	ret = acl_permission_check(mnt_userns, inode, mask);
+>>>>>>> upstream/android-13
 	if (ret != -EACCES)
 		return ret;
 
 	if (S_ISDIR(inode->i_mode)) {
 		/* DACs are overridable for directories */
 		if (!(mask & MAY_WRITE))
+<<<<<<< HEAD
 			if (capable_wrt_inode_uidgid(inode,
 						     CAP_DAC_READ_SEARCH))
 				return 0;
 		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
+=======
+			if (capable_wrt_inode_uidgid(mnt_userns, inode,
+						     CAP_DAC_READ_SEARCH))
+				return 0;
+		if (capable_wrt_inode_uidgid(mnt_userns, inode,
+					     CAP_DAC_OVERRIDE))
+>>>>>>> upstream/android-13
 			return 0;
 		return -EACCES;
 	}
@@ -361,7 +503,12 @@ int generic_permission(struct inode *inode, int mask)
 	 */
 	mask &= MAY_READ | MAY_WRITE | MAY_EXEC;
 	if (mask == MAY_READ)
+<<<<<<< HEAD
 		if (capable_wrt_inode_uidgid(inode, CAP_DAC_READ_SEARCH))
+=======
+		if (capable_wrt_inode_uidgid(mnt_userns, inode,
+					     CAP_DAC_READ_SEARCH))
+>>>>>>> upstream/android-13
 			return 0;
 	/*
 	 * Read/write DACs are always overridable.
@@ -369,19 +516,34 @@ int generic_permission(struct inode *inode, int mask)
 	 * at least one exec bit set.
 	 */
 	if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
+<<<<<<< HEAD
 		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
+=======
+		if (capable_wrt_inode_uidgid(mnt_userns, inode,
+					     CAP_DAC_OVERRIDE))
+>>>>>>> upstream/android-13
 			return 0;
 
 	return -EACCES;
 }
 EXPORT_SYMBOL(generic_permission);
 
+<<<<<<< HEAD
 /*
+=======
+/**
+ * do_inode_permission - UNIX permission checking
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @inode:	inode to check permissions on
+ * @mask:	right to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC ...)
+ *
+>>>>>>> upstream/android-13
  * We _really_ want to just do "generic_permission()" without
  * even looking at the inode->i_op values. So we keep a cache
  * flag in inode->i_opflags, that says "this has not special
  * permission function, use the fast case".
  */
+<<<<<<< HEAD
 static inline int do_inode_permission(struct vfsmount *mnt, struct inode *inode, int mask)
 {
 	if (unlikely(!(inode->i_opflags & IOP_FASTPERM))) {
@@ -389,13 +551,25 @@ static inline int do_inode_permission(struct vfsmount *mnt, struct inode *inode,
 			return inode->i_op->permission2(mnt, inode, mask);
 		if (likely(inode->i_op->permission))
 			return inode->i_op->permission(inode, mask);
+=======
+static inline int do_inode_permission(struct user_namespace *mnt_userns,
+				      struct inode *inode, int mask)
+{
+	if (unlikely(!(inode->i_opflags & IOP_FASTPERM))) {
+		if (likely(inode->i_op->permission))
+			return inode->i_op->permission(mnt_userns, inode, mask);
+>>>>>>> upstream/android-13
 
 		/* This gets set once for the inode lifetime */
 		spin_lock(&inode->i_lock);
 		inode->i_opflags |= IOP_FASTPERM;
 		spin_unlock(&inode->i_lock);
 	}
+<<<<<<< HEAD
 	return generic_permission(inode, mask);
+=======
+	return generic_permission(mnt_userns, inode, mask);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -419,10 +593,17 @@ static int sb_permission(struct super_block *sb, struct inode *inode, int mask)
 }
 
 /**
+<<<<<<< HEAD
  * inode_permission2 - Check for access rights to a given inode
  * @mnt:
  * @inode: Inode to check permission on
  * @mask: Right to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
+=======
+ * inode_permission - Check for access rights to a given inode
+ * @mnt_userns:	User namespace of the mount the inode was found from
+ * @inode:	Inode to check permission on
+ * @mask:	Right to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
+>>>>>>> upstream/android-13
  *
  * Check for read/write/execute permissions on an inode.  We use fs[ug]id for
  * this, letting us set arbitrary permissions for filesystem access without
@@ -430,7 +611,12 @@ static int sb_permission(struct super_block *sb, struct inode *inode, int mask)
  *
  * When checking for MAY_APPEND, MAY_WRITE must also be set in @mask.
  */
+<<<<<<< HEAD
 int inode_permission2(struct vfsmount *mnt, struct inode *inode, int mask)
+=======
+int inode_permission(struct user_namespace *mnt_userns,
+		     struct inode *inode, int mask)
+>>>>>>> upstream/android-13
 {
 	int retval;
 
@@ -450,11 +636,19 @@ int inode_permission2(struct vfsmount *mnt, struct inode *inode, int mask)
 		 * written back improperly if their true value is unknown
 		 * to the vfs.
 		 */
+<<<<<<< HEAD
 		if (HAS_UNMAPPED_ID(inode))
 			return -EACCES;
 	}
 
 	retval = do_inode_permission(mnt, inode, mask);
+=======
+		if (HAS_UNMAPPED_ID(mnt_userns, inode))
+			return -EACCES;
+	}
+
+	retval = do_inode_permission(mnt_userns, inode, mask);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 
@@ -462,6 +656,7 @@ int inode_permission2(struct vfsmount *mnt, struct inode *inode, int mask)
 	if (retval)
 		return retval;
 
+<<<<<<< HEAD
 	retval = security_inode_permission(inode, mask);
 	return retval;
 }
@@ -470,6 +665,9 @@ EXPORT_SYMBOL_GPL(inode_permission2);
 int inode_permission(struct inode *inode, int mask)
 {
 	return inode_permission2(NULL, inode, mask);
+=======
+	return security_inode_permission(inode, mask);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(inode_permission);
 
@@ -505,8 +703,13 @@ struct nameidata {
 	struct qstr	last;
 	struct path	root;
 	struct inode	*inode; /* path.dentry.d_inode */
+<<<<<<< HEAD
 	unsigned int	flags;
 	unsigned	seq, m_seq;
+=======
+	unsigned int	flags, state;
+	unsigned	seq, m_seq, r_seq;
+>>>>>>> upstream/android-13
 	int		last_type;
 	unsigned	depth;
 	int		total_link_count;
@@ -518,6 +721,7 @@ struct nameidata {
 	} *stack, internal[EMBEDDED_LEVELS];
 	struct filename	*name;
 	struct nameidata *saved;
+<<<<<<< HEAD
 	struct inode	*link_inode;
 	unsigned	root_seq;
 	int		dfd;
@@ -529,11 +733,46 @@ static void set_nameidata(struct nameidata *p, int dfd, struct filename *name)
 	p->stack = p->internal;
 	p->dfd = dfd;
 	p->name = name;
+=======
+	unsigned	root_seq;
+	int		dfd;
+	kuid_t		dir_uid;
+	umode_t		dir_mode;
+} __randomize_layout;
+
+#define ND_ROOT_PRESET 1
+#define ND_ROOT_GRABBED 2
+#define ND_JUMPED 4
+
+static void __set_nameidata(struct nameidata *p, int dfd, struct filename *name)
+{
+	struct nameidata *old = current->nameidata;
+	p->stack = p->internal;
+	p->depth = 0;
+	p->dfd = dfd;
+	p->name = name;
+	p->path.mnt = NULL;
+	p->path.dentry = NULL;
+>>>>>>> upstream/android-13
 	p->total_link_count = old ? old->total_link_count : 0;
 	p->saved = old;
 	current->nameidata = p;
 }
 
+<<<<<<< HEAD
+=======
+static inline void set_nameidata(struct nameidata *p, int dfd, struct filename *name,
+			  const struct path *root)
+{
+	__set_nameidata(p, dfd, name);
+	p->state = 0;
+	if (unlikely(root)) {
+		p->state = ND_ROOT_PRESET;
+		p->root = *root;
+	}
+}
+
+>>>>>>> upstream/android-13
 static void restore_nameidata(void)
 {
 	struct nameidata *now = current->nameidata, *old = now->saved;
@@ -545,6 +784,7 @@ static void restore_nameidata(void)
 		kfree(now->stack);
 }
 
+<<<<<<< HEAD
 static int __nd_alloc_stack(struct nameidata *nd)
 {
 	struct saved *p;
@@ -568,10 +808,28 @@ static int __nd_alloc_stack(struct nameidata *nd)
 /**
  * path_connected - Verify that a path->dentry is below path->mnt.mnt_root
  * @path: nameidate to verify
+=======
+static bool nd_alloc_stack(struct nameidata *nd)
+{
+	struct saved *p;
+
+	p= kmalloc_array(MAXSYMLINKS, sizeof(struct saved),
+			 nd->flags & LOOKUP_RCU ? GFP_ATOMIC : GFP_KERNEL);
+	if (unlikely(!p))
+		return false;
+	memcpy(p, nd->internal, sizeof(nd->internal));
+	nd->stack = p;
+	return true;
+}
+
+/**
+ * path_connected - Verify that a dentry is below mnt.mnt_root
+>>>>>>> upstream/android-13
  *
  * Rename can sometimes move a file or directory outside of a bind
  * mount, path_connected allows those cases to be detected.
  */
+<<<<<<< HEAD
 static bool path_connected(const struct path *path)
 {
 	struct vfsmount *mnt = path->mnt;
@@ -591,6 +849,17 @@ static inline int nd_alloc_stack(struct nameidata *nd)
 	if (likely(nd->stack != nd->internal))
 		return 0;
 	return __nd_alloc_stack(nd);
+=======
+static bool path_connected(struct vfsmount *mnt, struct dentry *dentry)
+{
+	struct super_block *sb = mnt->mnt_sb;
+
+	/* Bind mounts can have disconnected paths */
+	if (mnt->mnt_root == sb->s_root)
+		return true;
+
+	return is_subdir(dentry, mnt->mnt_root);
+>>>>>>> upstream/android-13
 }
 
 static void drop_links(struct nameidata *nd)
@@ -611,6 +880,7 @@ static void terminate_walk(struct nameidata *nd)
 		path_put(&nd->path);
 		for (i = 0; i < nd->depth; i++)
 			path_put(&nd->stack[i].link);
+<<<<<<< HEAD
 		if (nd->root.mnt && !(nd->flags & LOOKUP_ROOT)) {
 			path_put(&nd->root);
 			nd->root.mnt = NULL;
@@ -629,6 +899,25 @@ static bool legitimize_path(struct nameidata *nd,
 			    struct path *path, unsigned seq)
 {
 	int res = __legitimize_mnt(path->mnt, nd->m_seq);
+=======
+		if (nd->state & ND_ROOT_GRABBED) {
+			path_put(&nd->root);
+			nd->state &= ~ND_ROOT_GRABBED;
+		}
+	} else {
+		nd->flags &= ~LOOKUP_RCU;
+		rcu_read_unlock();
+	}
+	nd->depth = 0;
+	nd->path.mnt = NULL;
+	nd->path.dentry = NULL;
+}
+
+/* path_put is needed afterwards regardless of success or failure */
+static bool __legitimize_path(struct path *path, unsigned seq, unsigned mseq)
+{
+	int res = __legitimize_mnt(path->mnt, mseq);
+>>>>>>> upstream/android-13
 	if (unlikely(res)) {
 		if (res > 0)
 			path->mnt = NULL;
@@ -642,9 +931,26 @@ static bool legitimize_path(struct nameidata *nd,
 	return !read_seqcount_retry(&path->dentry->d_seq, seq);
 }
 
+<<<<<<< HEAD
 static bool legitimize_links(struct nameidata *nd)
 {
 	int i;
+=======
+static inline bool legitimize_path(struct nameidata *nd,
+			    struct path *path, unsigned seq)
+{
+	return __legitimize_path(path, seq, nd->m_seq);
+}
+
+static bool legitimize_links(struct nameidata *nd)
+{
+	int i;
+	if (unlikely(nd->flags & LOOKUP_CACHED)) {
+		drop_links(nd);
+		nd->depth = 0;
+		return false;
+	}
+>>>>>>> upstream/android-13
 	for (i = 0; i < nd->depth; i++) {
 		struct saved *last = nd->stack + i;
 		if (unlikely(!legitimize_path(nd, &last->link, last->seq))) {
@@ -656,6 +962,25 @@ static bool legitimize_links(struct nameidata *nd)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static bool legitimize_root(struct nameidata *nd)
+{
+	/*
+	 * For scoped-lookups (where nd->root has been zeroed), we need to
+	 * restart the whole lookup from scratch -- because set_root() is wrong
+	 * for these lookups (nd->dfd is the root, not the filesystem root).
+	 */
+	if (!nd->root.mnt && (nd->flags & LOOKUP_IS_SCOPED))
+		return false;
+	/* Nothing to do if nd->root is zero or is managed by the VFS user. */
+	if (!nd->root.mnt || (nd->state & ND_ROOT_PRESET))
+		return true;
+	nd->state |= ND_ROOT_GRABBED;
+	return legitimize_path(nd, &nd->root, nd->root_seq);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Path walking has 2 modes, rcu-walk and ref-walk (see
  * Documentation/filesystems/path-lookup.txt).  In situations when we can't
@@ -668,6 +993,7 @@ static bool legitimize_links(struct nameidata *nd)
  */
 
 /**
+<<<<<<< HEAD
  * unlazy_walk - try to switch to ref-walk mode.
  * @nd: nameidata pathwalk data
  * Returns: 0 on success, -ECHILD on failure
@@ -679,6 +1005,19 @@ static bool legitimize_links(struct nameidata *nd)
  * terminate_walk().
  */
 static int unlazy_walk(struct nameidata *nd)
+=======
+ * try_to_unlazy - try to switch to ref-walk mode.
+ * @nd: nameidata pathwalk data
+ * Returns: true on success, false on failure
+ *
+ * try_to_unlazy attempts to legitimize the current nd->path and nd->root
+ * for ref-walk mode.
+ * Must be called from rcu-walk context.
+ * Nothing should touch nameidata between try_to_unlazy() failure and
+ * terminate_walk().
+ */
+static bool try_to_unlazy(struct nameidata *nd)
+>>>>>>> upstream/android-13
 {
 	struct dentry *parent = nd->path.dentry;
 
@@ -686,6 +1025,7 @@ static int unlazy_walk(struct nameidata *nd)
 
 	nd->flags &= ~LOOKUP_RCU;
 	if (unlikely(!legitimize_links(nd)))
+<<<<<<< HEAD
 		goto out2;
 	if (unlikely(!legitimize_path(nd, &nd->path, nd->seq)))
 		goto out1;
@@ -722,6 +1062,39 @@ out:
  * terminate_walk().
  */
 static int unlazy_child(struct nameidata *nd, struct dentry *dentry, unsigned seq)
+=======
+		goto out1;
+	if (unlikely(!legitimize_path(nd, &nd->path, nd->seq)))
+		goto out;
+	if (unlikely(!legitimize_root(nd)))
+		goto out;
+	rcu_read_unlock();
+	BUG_ON(nd->inode != parent->d_inode);
+	return true;
+
+out1:
+	nd->path.mnt = NULL;
+	nd->path.dentry = NULL;
+out:
+	rcu_read_unlock();
+	return false;
+}
+
+/**
+ * try_to_unlazy_next - try to switch to ref-walk mode.
+ * @nd: nameidata pathwalk data
+ * @dentry: next dentry to step into
+ * @seq: seq number to check @dentry against
+ * Returns: true on success, false on failure
+ *
+ * Similar to to try_to_unlazy(), but here we have the next dentry already
+ * picked by rcu-walk and want to legitimize that in addition to the current
+ * nd->path and nd->root for ref-walk mode.  Must be called from rcu-walk context.
+ * Nothing should touch nameidata between try_to_unlazy_next() failure and
+ * terminate_walk().
+ */
+static bool try_to_unlazy_next(struct nameidata *nd, struct dentry *dentry, unsigned seq)
+>>>>>>> upstream/android-13
 {
 	BUG_ON(!(nd->flags & LOOKUP_RCU));
 
@@ -742,15 +1115,21 @@ static int unlazy_child(struct nameidata *nd, struct dentry *dentry, unsigned se
 	 */
 	if (unlikely(!lockref_get_not_dead(&dentry->d_lockref)))
 		goto out;
+<<<<<<< HEAD
 	if (unlikely(read_seqcount_retry(&dentry->d_seq, seq))) {
 		rcu_read_unlock();
 		dput(dentry);
 		goto drop_root_mnt;
 	}
+=======
+	if (unlikely(read_seqcount_retry(&dentry->d_seq, seq)))
+		goto out_dput;
+>>>>>>> upstream/android-13
 	/*
 	 * Sequence counts matched. Now make sure that the root is
 	 * still valid and get it if required.
 	 */
+<<<<<<< HEAD
 	if (nd->root.mnt && !(nd->flags & LOOKUP_ROOT)) {
 		if (unlikely(!legitimize_path(nd, &nd->root, nd->root_seq))) {
 			rcu_read_unlock();
@@ -761,6 +1140,12 @@ static int unlazy_child(struct nameidata *nd, struct dentry *dentry, unsigned se
 
 	rcu_read_unlock();
 	return 0;
+=======
+	if (unlikely(!legitimize_root(nd)))
+		goto out_dput;
+	rcu_read_unlock();
+	return true;
+>>>>>>> upstream/android-13
 
 out2:
 	nd->path.mnt = NULL;
@@ -768,10 +1153,18 @@ out1:
 	nd->path.dentry = NULL;
 out:
 	rcu_read_unlock();
+<<<<<<< HEAD
 drop_root_mnt:
 	if (!(nd->flags & LOOKUP_ROOT))
 		nd->root.mnt = NULL;
 	return -ECHILD;
+=======
+	return false;
+out_dput:
+	rcu_read_unlock();
+	dput(dentry);
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static inline int d_revalidate(struct dentry *dentry, unsigned int flags)
@@ -782,6 +1175,7 @@ static inline int d_revalidate(struct dentry *dentry, unsigned int flags)
 		return 1;
 }
 
+<<<<<<< HEAD
 #define INIT_PATH_SIZE 64
 
 static void success_walk_trace(struct nameidata *nd)
@@ -857,6 +1251,8 @@ static void success_walk_trace(struct nameidata *nd)
 	return;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * complete_walk - successful completion of path walk
  * @nd:  pointer nameidata
@@ -873,6 +1269,7 @@ static int complete_walk(struct nameidata *nd)
 	int status;
 
 	if (nd->flags & LOOKUP_RCU) {
+<<<<<<< HEAD
 		if (!(nd->flags & LOOKUP_ROOT))
 			nd->root.mnt = NULL;
 		if (unlikely(unlazy_walk(nd)))
@@ -894,6 +1291,50 @@ static int complete_walk(struct nameidata *nd)
 		success_walk_trace(nd);
 		return 0;
 	}
+=======
+		/*
+		 * We don't want to zero nd->root for scoped-lookups or
+		 * externally-managed nd->root.
+		 */
+		if (!(nd->state & ND_ROOT_PRESET))
+			if (!(nd->flags & LOOKUP_IS_SCOPED))
+				nd->root.mnt = NULL;
+		nd->flags &= ~LOOKUP_CACHED;
+		if (!try_to_unlazy(nd))
+			return -ECHILD;
+	}
+
+	if (unlikely(nd->flags & LOOKUP_IS_SCOPED)) {
+		/*
+		 * While the guarantee of LOOKUP_IS_SCOPED is (roughly) "don't
+		 * ever step outside the root during lookup" and should already
+		 * be guaranteed by the rest of namei, we want to avoid a namei
+		 * BUG resulting in userspace being given a path that was not
+		 * scoped within the root at some point during the lookup.
+		 *
+		 * So, do a final sanity-check to make sure that in the
+		 * worst-case scenario (a complete bypass of LOOKUP_IS_SCOPED)
+		 * we won't silently return an fd completely outside of the
+		 * requested root to userspace.
+		 *
+		 * Userspace could move the path outside the root after this
+		 * check, but as discussed elsewhere this is not a concern (the
+		 * resolved file was inside the root at some point).
+		 */
+		if (!path_is_under(&nd->path, &nd->root))
+			return -EXDEV;
+	}
+
+	if (likely(!(nd->state & ND_JUMPED)))
+		return 0;
+
+	if (likely(!(dentry->d_flags & DCACHE_OP_WEAK_REVALIDATE)))
+		return 0;
+
+	status = dentry->d_op->d_weak_revalidate(dentry, nd->flags);
+	if (status > 0)
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (!status)
 		status = -ESTALE;
@@ -901,10 +1342,25 @@ static int complete_walk(struct nameidata *nd)
 	return status;
 }
 
+<<<<<<< HEAD
 static void set_root(struct nameidata *nd)
 {
 	struct fs_struct *fs = current->fs;
 
+=======
+static int set_root(struct nameidata *nd)
+{
+	struct fs_struct *fs = current->fs;
+
+	/*
+	 * Jumping to the real root in a scoped-lookup is a BUG in namei, but we
+	 * still have to ensure it doesn't happen because it will cause a breakout
+	 * from the dirfd.
+	 */
+	if (WARN_ON(nd->flags & LOOKUP_IS_SCOPED))
+		return -ENOTRECOVERABLE;
+
+>>>>>>> upstream/android-13
 	if (nd->flags & LOOKUP_RCU) {
 		unsigned seq;
 
@@ -915,6 +1371,7 @@ static void set_root(struct nameidata *nd)
 		} while (read_seqcount_retry(&fs->seq, seq));
 	} else {
 		get_fs_root(fs, &nd->root);
+<<<<<<< HEAD
 	}
 }
 
@@ -935,10 +1392,30 @@ static inline void path_to_nameidata(const struct path *path,
 	}
 	nd->path.mnt = path->mnt;
 	nd->path.dentry = path->dentry;
+=======
+		nd->state |= ND_ROOT_GRABBED;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int nd_jump_root(struct nameidata *nd)
 {
+<<<<<<< HEAD
+=======
+	if (unlikely(nd->flags & LOOKUP_BENEATH))
+		return -EXDEV;
+	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
+		/* Absolute path arguments to path_init() are allowed. */
+		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
+			return -EXDEV;
+	}
+	if (!nd->root.mnt) {
+		int error = set_root(nd);
+		if (error)
+			return error;
+	}
+>>>>>>> upstream/android-13
 	if (nd->flags & LOOKUP_RCU) {
 		struct dentry *d;
 		nd->path = nd->root;
@@ -953,7 +1430,11 @@ static int nd_jump_root(struct nameidata *nd)
 		path_get(&nd->path);
 		nd->inode = nd->path.dentry->d_inode;
 	}
+<<<<<<< HEAD
 	nd->flags |= LOOKUP_JUMPED;
+=======
+	nd->state |= ND_JUMPED;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -961,6 +1442,7 @@ static int nd_jump_root(struct nameidata *nd)
  * Helper to directly jump to a known parsed path from ->get_link,
  * caller must have taken a reference to path beforehand.
  */
+<<<<<<< HEAD
 void nd_jump_link(struct path *path)
 {
 	struct nameidata *nd = current->nameidata;
@@ -969,6 +1451,34 @@ void nd_jump_link(struct path *path)
 	nd->path = *path;
 	nd->inode = nd->path.dentry->d_inode;
 	nd->flags |= LOOKUP_JUMPED;
+=======
+int nd_jump_link(struct path *path)
+{
+	int error = -ELOOP;
+	struct nameidata *nd = current->nameidata;
+
+	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
+		goto err;
+
+	error = -EXDEV;
+	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
+		if (nd->path.mnt != path->mnt)
+			goto err;
+	}
+	/* Not currently safe for scoped-lookups. */
+	if (unlikely(nd->flags & LOOKUP_IS_SCOPED))
+		goto err;
+
+	path_put(&nd->path);
+	nd->path = *path;
+	nd->inode = nd->path.dentry->d_inode;
+	nd->state |= ND_JUMPED;
+	return 0;
+
+err:
+	path_put(path);
+	return error;
+>>>>>>> upstream/android-13
 }
 
 static inline void put_link(struct nameidata *nd)
@@ -999,15 +1509,23 @@ int sysctl_protected_regular __read_mostly;
  *
  * Returns 0 if following the symlink is allowed, -ve on error.
  */
+<<<<<<< HEAD
 static inline int may_follow_link(struct nameidata *nd)
 {
 	const struct inode *inode;
 	const struct inode *parent;
 	kuid_t puid;
+=======
+static inline int may_follow_link(struct nameidata *nd, const struct inode *inode)
+{
+	struct user_namespace *mnt_userns;
+	kuid_t i_uid;
+>>>>>>> upstream/android-13
 
 	if (!sysctl_protected_symlinks)
 		return 0;
 
+<<<<<<< HEAD
 	/* Allowed if owner and follower match. */
 	inode = nd->link_inode;
 	if (uid_eq(current_cred()->fsuid, inode->i_uid))
@@ -1021,18 +1539,40 @@ static inline int may_follow_link(struct nameidata *nd)
 	/* Allowed if parent directory and link owner match. */
 	puid = parent->i_uid;
 	if (uid_valid(puid) && uid_eq(puid, inode->i_uid))
+=======
+	mnt_userns = mnt_user_ns(nd->path.mnt);
+	i_uid = i_uid_into_mnt(mnt_userns, inode);
+	/* Allowed if owner and follower match. */
+	if (uid_eq(current_cred()->fsuid, i_uid))
+		return 0;
+
+	/* Allowed if parent directory not sticky and world-writable. */
+	if ((nd->dir_mode & (S_ISVTX|S_IWOTH)) != (S_ISVTX|S_IWOTH))
+		return 0;
+
+	/* Allowed if parent directory and link owner match. */
+	if (uid_valid(nd->dir_uid) && uid_eq(nd->dir_uid, i_uid))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (nd->flags & LOOKUP_RCU)
 		return -ECHILD;
 
 	audit_inode(nd->name, nd->stack[0].link.dentry, 0);
+<<<<<<< HEAD
 	audit_log_link_denied("follow_link");
+=======
+	audit_log_path_denied(AUDIT_ANOM_LINK, "follow_link");
+>>>>>>> upstream/android-13
 	return -EACCES;
 }
 
 /**
  * safe_hardlink_source - Check for safe hardlink conditions
+<<<<<<< HEAD
+=======
+ * @mnt_userns:	user namespace of the mount the inode was found from
+>>>>>>> upstream/android-13
  * @inode: the source inode to hardlink from
  *
  * Return false if at least one of the following conditions:
@@ -1043,7 +1583,12 @@ static inline int may_follow_link(struct nameidata *nd)
  *
  * Otherwise returns true.
  */
+<<<<<<< HEAD
 static bool safe_hardlink_source(struct inode *inode)
+=======
+static bool safe_hardlink_source(struct user_namespace *mnt_userns,
+				 struct inode *inode)
+>>>>>>> upstream/android-13
 {
 	umode_t mode = inode->i_mode;
 
@@ -1060,7 +1605,11 @@ static bool safe_hardlink_source(struct inode *inode)
 		return false;
 
 	/* Hardlinking to unreadable or unwritable sources is dangerous. */
+<<<<<<< HEAD
 	if (inode_permission(inode, MAY_READ | MAY_WRITE))
+=======
+	if (inode_permission(mnt_userns, inode, MAY_READ | MAY_WRITE))
+>>>>>>> upstream/android-13
 		return false;
 
 	return true;
@@ -1068,6 +1617,10 @@ static bool safe_hardlink_source(struct inode *inode)
 
 /**
  * may_linkat - Check permissions for creating a hardlink
+<<<<<<< HEAD
+=======
+ * @mnt_userns:	user namespace of the mount the inode was found from
+>>>>>>> upstream/android-13
  * @link: the source to hardlink from
  *
  * Block hardlink when all of:
@@ -1076,14 +1629,31 @@ static bool safe_hardlink_source(struct inode *inode)
  *  - hardlink source is unsafe (see safe_hardlink_source() above)
  *  - not CAP_FOWNER in a namespace with the inode owner uid mapped
  *
+<<<<<<< HEAD
  * Returns 0 if successful, -ve on error.
  */
 static int may_linkat(struct path *link)
+=======
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ *
+ * Returns 0 if successful, -ve on error.
+ */
+int may_linkat(struct user_namespace *mnt_userns, struct path *link)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = link->dentry->d_inode;
 
 	/* Inode writeback is not safe when the uid or gid are invalid. */
+<<<<<<< HEAD
 	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
+=======
+	if (!uid_valid(i_uid_into_mnt(mnt_userns, inode)) ||
+	    !gid_valid(i_gid_into_mnt(mnt_userns, inode)))
+>>>>>>> upstream/android-13
 		return -EOVERFLOW;
 
 	if (!sysctl_protected_hardlinks)
@@ -1092,10 +1662,18 @@ static int may_linkat(struct path *link)
 	/* Source inode owner (or CAP_FOWNER) can hardlink all they like,
 	 * otherwise, it must be a safe source.
 	 */
+<<<<<<< HEAD
 	if (safe_hardlink_source(inode) || inode_owner_or_capable(inode))
 		return 0;
 
 	audit_log_link_denied("linkat");
+=======
+	if (safe_hardlink_source(mnt_userns, inode) ||
+	    inode_owner_or_capable(mnt_userns, inode))
+		return 0;
+
+	audit_log_path_denied(AUDIT_ANOM_LINK, "linkat");
+>>>>>>> upstream/android-13
 	return -EPERM;
 }
 
@@ -1103,8 +1681,13 @@ static int may_linkat(struct path *link)
  * may_create_in_sticky - Check whether an O_CREAT open in a sticky directory
  *			  should be allowed, or not, on files that already
  *			  exist.
+<<<<<<< HEAD
  * @dir_mode: mode bits of directory
  * @dir_uid: owner of directory
+=======
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @nd: nameidata pathwalk data
+>>>>>>> upstream/android-13
  * @inode: the inode of the file to open
  *
  * Block an O_CREAT open of a FIFO (or a regular file) when:
@@ -1118,6 +1701,7 @@ static int may_linkat(struct path *link)
  * the directory doesn't have to be world writable: being group writable will
  * be enough.
  *
+<<<<<<< HEAD
  * Returns 0 if the open is allowed, -ve on error.
  */
 static int may_create_in_sticky(umode_t dir_mode, kuid_t dir_uid,
@@ -1128,17 +1712,46 @@ static int may_create_in_sticky(umode_t dir_mode, kuid_t dir_uid,
 	    likely(!(dir_mode & S_ISVTX)) ||
 	    uid_eq(inode->i_uid, dir_uid) ||
 	    uid_eq(current_fsuid(), inode->i_uid))
+=======
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ *
+ * Returns 0 if the open is allowed, -ve on error.
+ */
+static int may_create_in_sticky(struct user_namespace *mnt_userns,
+				struct nameidata *nd, struct inode *const inode)
+{
+	umode_t dir_mode = nd->dir_mode;
+	kuid_t dir_uid = nd->dir_uid;
+
+	if ((!sysctl_protected_fifos && S_ISFIFO(inode->i_mode)) ||
+	    (!sysctl_protected_regular && S_ISREG(inode->i_mode)) ||
+	    likely(!(dir_mode & S_ISVTX)) ||
+	    uid_eq(i_uid_into_mnt(mnt_userns, inode), dir_uid) ||
+	    uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (likely(dir_mode & 0002) ||
 	    (dir_mode & 0020 &&
 	     ((sysctl_protected_fifos >= 2 && S_ISFIFO(inode->i_mode)) ||
 	      (sysctl_protected_regular >= 2 && S_ISREG(inode->i_mode))))) {
+<<<<<<< HEAD
+=======
+		const char *operation = S_ISFIFO(inode->i_mode) ?
+					"sticky_create_fifo" :
+					"sticky_create_regular";
+		audit_log_path_denied(AUDIT_ANOM_CREAT, operation);
+>>>>>>> upstream/android-13
 		return -EACCES;
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static __always_inline
 const char *get_link(struct nameidata *nd)
 {
@@ -1194,6 +1807,8 @@ const char *get_link(struct nameidata *nd)
 	return res;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * follow_up - Find the mountpoint of path's vfsmount
  *
@@ -1216,30 +1831,87 @@ int follow_up(struct path *path)
 		read_sequnlock_excl(&mount_lock);
 		return 0;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	mntget(parent->mnt);
 #else
 	mntget(&parent->mnt);
 #endif
+=======
+	mntget(&parent->mnt);
+>>>>>>> upstream/android-13
 	mountpoint = dget(mnt->mnt_mountpoint);
 	read_sequnlock_excl(&mount_lock);
 	dput(path->dentry);
 	path->dentry = mountpoint;
 	mntput(path->mnt);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	path->mnt = parent->mnt;
 #else
 	path->mnt = &parent->mnt;
 #endif
+=======
+	path->mnt = &parent->mnt;
+>>>>>>> upstream/android-13
 	return 1;
 }
 EXPORT_SYMBOL(follow_up);
 
+<<<<<<< HEAD
+=======
+static bool choose_mountpoint_rcu(struct mount *m, const struct path *root,
+				  struct path *path, unsigned *seqp)
+{
+	while (mnt_has_parent(m)) {
+		struct dentry *mountpoint = m->mnt_mountpoint;
+
+		m = m->mnt_parent;
+		if (unlikely(root->dentry == mountpoint &&
+			     root->mnt == &m->mnt))
+			break;
+		if (mountpoint != m->mnt.mnt_root) {
+			path->mnt = &m->mnt;
+			path->dentry = mountpoint;
+			*seqp = read_seqcount_begin(&mountpoint->d_seq);
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool choose_mountpoint(struct mount *m, const struct path *root,
+			      struct path *path)
+{
+	bool found;
+
+	rcu_read_lock();
+	while (1) {
+		unsigned seq, mseq = read_seqbegin(&mount_lock);
+
+		found = choose_mountpoint_rcu(m, root, path, &seq);
+		if (unlikely(!found)) {
+			if (!read_seqretry(&mount_lock, mseq))
+				break;
+		} else {
+			if (likely(__legitimize_path(path, seq, mseq)))
+				break;
+			rcu_read_unlock();
+			path_put(path);
+			rcu_read_lock();
+		}
+	}
+	rcu_read_unlock();
+	return found;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Perform an automount
  * - return -EISDIR to tell follow_managed() to stop and return the path we
  *   were called with.
  */
+<<<<<<< HEAD
 static int follow_automount(struct path *path, struct nameidata *nd,
 			    bool *need_mntput)
 {
@@ -1248,6 +1920,11 @@ static int follow_automount(struct path *path, struct nameidata *nd,
 
 	if (!path->dentry->d_op || !path->dentry->d_op->d_automount)
 		return -EREMOTE;
+=======
+static int follow_automount(struct path *path, int *count, unsigned lookup_flags)
+{
+	struct dentry *dentry = path->dentry;
+>>>>>>> upstream/android-13
 
 	/* We don't want to mount if someone's just doing a stat -
 	 * unless they're stat'ing a directory and appended a '/' to
@@ -1260,6 +1937,7 @@ static int follow_automount(struct path *path, struct nameidata *nd,
 	 * as being automount points.  These will need the attentions
 	 * of the daemon to instantiate them before they can be used.
 	 */
+<<<<<<< HEAD
 	if (!(nd->flags & (LOOKUP_PARENT | LOOKUP_DIRECTORY |
 			   LOOKUP_OPEN | LOOKUP_CREATE | LOOKUP_AUTOMOUNT)) &&
 	    path->dentry->d_inode)
@@ -1339,19 +2017,58 @@ static int follow_managed(struct path *path, struct nameidata *nd)
 			BUG_ON(!path->dentry->d_op);
 			BUG_ON(!path->dentry->d_op->d_manage);
 			ret = path->dentry->d_op->d_manage(path, false);
+=======
+	if (!(lookup_flags & (LOOKUP_PARENT | LOOKUP_DIRECTORY |
+			   LOOKUP_OPEN | LOOKUP_CREATE | LOOKUP_AUTOMOUNT)) &&
+	    dentry->d_inode)
+		return -EISDIR;
+
+	if (count && (*count)++ >= MAXSYMLINKS)
+		return -ELOOP;
+
+	return finish_automount(dentry->d_op->d_automount(path), path);
+}
+
+/*
+ * mount traversal - out-of-line part.  One note on ->d_flags accesses -
+ * dentries are pinned but not locked here, so negative dentry can go
+ * positive right under us.  Use of smp_load_acquire() provides a barrier
+ * sufficient for ->d_inode and ->d_flags consistency.
+ */
+static int __traverse_mounts(struct path *path, unsigned flags, bool *jumped,
+			     int *count, unsigned lookup_flags)
+{
+	struct vfsmount *mnt = path->mnt;
+	bool need_mntput = false;
+	int ret = 0;
+
+	while (flags & DCACHE_MANAGED_DENTRY) {
+		/* Allow the filesystem to manage the transit without i_mutex
+		 * being held. */
+		if (flags & DCACHE_MANAGE_TRANSIT) {
+			ret = path->dentry->d_op->d_manage(path, false);
+			flags = smp_load_acquire(&path->dentry->d_flags);
+>>>>>>> upstream/android-13
 			if (ret < 0)
 				break;
 		}
 
+<<<<<<< HEAD
 		/* Transit to a mounted filesystem. */
 		if (managed & DCACHE_MOUNTED) {
 			struct vfsmount *mounted = lookup_mnt(path);
 			if (mounted) {
+=======
+		if (flags & DCACHE_MOUNTED) {	// something's mounted on it..
+			struct vfsmount *mounted = lookup_mnt(path);
+			if (mounted) {		// ... in our namespace
+>>>>>>> upstream/android-13
 				dput(path->dentry);
 				if (need_mntput)
 					mntput(path->mnt);
 				path->mnt = mounted;
 				path->dentry = dget(mounted->mnt_root);
+<<<<<<< HEAD
 				need_mntput = true;
 				continue;
 			}
@@ -1385,6 +2102,51 @@ static int follow_managed(struct path *path, struct nameidata *nd)
 	return ret;
 }
 
+=======
+				// here we know it's positive
+				flags = path->dentry->d_flags;
+				need_mntput = true;
+				continue;
+			}
+		}
+
+		if (!(flags & DCACHE_NEED_AUTOMOUNT))
+			break;
+
+		// uncovered automount point
+		ret = follow_automount(path, count, lookup_flags);
+		flags = smp_load_acquire(&path->dentry->d_flags);
+		if (ret < 0)
+			break;
+	}
+
+	if (ret == -EISDIR)
+		ret = 0;
+	// possible if you race with several mount --move
+	if (need_mntput && path->mnt == mnt)
+		mntput(path->mnt);
+	if (!ret && unlikely(d_flags_negative(flags)))
+		ret = -ENOENT;
+	*jumped = need_mntput;
+	return ret;
+}
+
+static inline int traverse_mounts(struct path *path, bool *jumped,
+				  int *count, unsigned lookup_flags)
+{
+	unsigned flags = smp_load_acquire(&path->dentry->d_flags);
+
+	/* fastpath */
+	if (likely(!(flags & DCACHE_MANAGED_DENTRY))) {
+		*jumped = false;
+		if (unlikely(d_flags_negative(flags)))
+			return -ENOENT;
+		return 0;
+	}
+	return __traverse_mounts(path, flags, jumped, count, lookup_flags);
+}
+
+>>>>>>> upstream/android-13
 int follow_down_one(struct path *path)
 {
 	struct vfsmount *mounted;
@@ -1401,11 +2163,30 @@ int follow_down_one(struct path *path)
 }
 EXPORT_SYMBOL(follow_down_one);
 
+<<<<<<< HEAD
 static inline int managed_dentry_rcu(const struct path *path)
 {
 	return (path->dentry->d_flags & DCACHE_MANAGE_TRANSIT) ?
 		path->dentry->d_op->d_manage(path, true) : 0;
 }
+=======
+/*
+ * Follow down to the covering mount currently visible to userspace.  At each
+ * point, the filesystem owning that dentry may be queried as to whether the
+ * caller is permitted to proceed or not.
+ */
+int follow_down(struct path *path)
+{
+	struct vfsmount *mnt = path->mnt;
+	bool jumped;
+	int ret = traverse_mounts(path, &jumped, NULL, 0);
+
+	if (path->mnt != mnt)
+		mntput(mnt);
+	return ret;
+}
+EXPORT_SYMBOL(follow_down);
+>>>>>>> upstream/android-13
 
 /*
  * Try to skip to top of mountpoint pile in rcuwalk mode.  Fail if
@@ -1414,12 +2195,26 @@ static inline int managed_dentry_rcu(const struct path *path)
 static bool __follow_mount_rcu(struct nameidata *nd, struct path *path,
 			       struct inode **inode, unsigned *seqp)
 {
+<<<<<<< HEAD
 	for (;;) {
 		struct mount *mounted;
+=======
+	struct dentry *dentry = path->dentry;
+	unsigned int flags = dentry->d_flags;
+
+	if (likely(!(flags & DCACHE_MANAGED_DENTRY)))
+		return true;
+
+	if (unlikely(nd->flags & LOOKUP_NO_XDEV))
+		return false;
+
+	for (;;) {
+>>>>>>> upstream/android-13
 		/*
 		 * Don't forget we might have a non-mountpoint managed dentry
 		 * that wants to block transit.
 		 */
+<<<<<<< HEAD
 		switch (managed_dentry_rcu(path)) {
 		case -ECHILD:
 		default:
@@ -1616,6 +2411,76 @@ static int follow_dotdot(struct nameidata *nd)
 	follow_mount(&nd->path);
 	nd->inode = nd->path.dentry->d_inode;
 	return 0;
+=======
+		if (unlikely(flags & DCACHE_MANAGE_TRANSIT)) {
+			int res = dentry->d_op->d_manage(path, true);
+			if (res)
+				return res == -EISDIR;
+			flags = dentry->d_flags;
+		}
+
+		if (flags & DCACHE_MOUNTED) {
+			struct mount *mounted = __lookup_mnt(path->mnt, dentry);
+			if (mounted) {
+				path->mnt = &mounted->mnt;
+				dentry = path->dentry = mounted->mnt.mnt_root;
+				nd->state |= ND_JUMPED;
+				*seqp = read_seqcount_begin(&dentry->d_seq);
+				*inode = dentry->d_inode;
+				/*
+				 * We don't need to re-check ->d_seq after this
+				 * ->d_inode read - there will be an RCU delay
+				 * between mount hash removal and ->mnt_root
+				 * becoming unpinned.
+				 */
+				flags = dentry->d_flags;
+				continue;
+			}
+			if (read_seqretry(&mount_lock, nd->m_seq))
+				return false;
+		}
+		return !(flags & DCACHE_NEED_AUTOMOUNT);
+	}
+}
+
+static inline int handle_mounts(struct nameidata *nd, struct dentry *dentry,
+			  struct path *path, struct inode **inode,
+			  unsigned int *seqp)
+{
+	bool jumped;
+	int ret;
+
+	path->mnt = nd->path.mnt;
+	path->dentry = dentry;
+	if (nd->flags & LOOKUP_RCU) {
+		unsigned int seq = *seqp;
+		if (unlikely(!*inode))
+			return -ENOENT;
+		if (likely(__follow_mount_rcu(nd, path, inode, seqp)))
+			return 0;
+		if (!try_to_unlazy_next(nd, dentry, seq))
+			return -ECHILD;
+		// *path might've been clobbered by __follow_mount_rcu()
+		path->mnt = nd->path.mnt;
+		path->dentry = dentry;
+	}
+	ret = traverse_mounts(path, &jumped, &nd->total_link_count, nd->flags);
+	if (jumped) {
+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
+			ret = -EXDEV;
+		else
+			nd->state |= ND_JUMPED;
+	}
+	if (unlikely(ret)) {
+		dput(path->dentry);
+		if (path->mnt != nd->path.mnt)
+			mntput(path->mnt);
+	} else {
+		*inode = d_backing_inode(path->dentry);
+		*seqp = 0; /* out of RCU mode, so the value doesn't matter */
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1672,6 +2537,7 @@ static struct dentry *__lookup_hash(const struct qstr *name,
 	return dentry;
 }
 
+<<<<<<< HEAD
 static int lookup_fast(struct nameidata *nd,
 		       struct path *path, struct inode **inode,
 		       unsigned *seqp)
@@ -1680,6 +2546,14 @@ static int lookup_fast(struct nameidata *nd,
 	struct dentry *dentry, *parent = nd->path.dentry;
 	int status = 1;
 	int err;
+=======
+static struct dentry *lookup_fast(struct nameidata *nd,
+				  struct inode **inode,
+			          unsigned *seqp)
+{
+	struct dentry *dentry, *parent = nd->path.dentry;
+	int status = 1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Rename seqlock is not required here because in the off chance
@@ -1688,12 +2562,20 @@ static int lookup_fast(struct nameidata *nd,
 	 */
 	if (nd->flags & LOOKUP_RCU) {
 		unsigned seq;
+<<<<<<< HEAD
 		bool negative;
 		dentry = __d_lookup_rcu(parent, &nd->last, &seq);
 		if (unlikely(!dentry)) {
 			if (unlazy_walk(nd))
 				return -ECHILD;
 			return 0;
+=======
+		dentry = __d_lookup_rcu(parent, &nd->last, &seq);
+		if (unlikely(!dentry)) {
+			if (!try_to_unlazy(nd))
+				return ERR_PTR(-ECHILD);
+			return NULL;
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -1701,9 +2583,14 @@ static int lookup_fast(struct nameidata *nd,
 		 * the dentry name information from lookup.
 		 */
 		*inode = d_backing_inode(dentry);
+<<<<<<< HEAD
 		negative = d_is_negative(dentry);
 		if (unlikely(read_seqcount_retry(&dentry->d_seq, seq)))
 			return -ECHILD;
+=======
+		if (unlikely(read_seqcount_retry(&dentry->d_seq, seq)))
+			return ERR_PTR(-ECHILD);
+>>>>>>> upstream/android-13
 
 		/*
 		 * This sequence count validates that the parent had no
@@ -1713,6 +2600,7 @@ static int lookup_fast(struct nameidata *nd,
 		 *  enough, we can use __read_seqcount_retry here.
 		 */
 		if (unlikely(__read_seqcount_retry(&parent->d_seq, nd->seq)))
+<<<<<<< HEAD
 			return -ECHILD;
 
 		*seqp = seq;
@@ -1732,18 +2620,34 @@ static int lookup_fast(struct nameidata *nd,
 		if (unlazy_child(nd, dentry, seq))
 			return -ECHILD;
 		if (unlikely(status == -ECHILD))
+=======
+			return ERR_PTR(-ECHILD);
+
+		*seqp = seq;
+		status = d_revalidate(dentry, nd->flags);
+		if (likely(status > 0))
+			return dentry;
+		if (!try_to_unlazy_next(nd, dentry, seq))
+			return ERR_PTR(-ECHILD);
+		if (status == -ECHILD)
+>>>>>>> upstream/android-13
 			/* we'd been told to redo it in non-rcu mode */
 			status = d_revalidate(dentry, nd->flags);
 	} else {
 		dentry = __d_lookup(parent, &nd->last);
 		if (unlikely(!dentry))
+<<<<<<< HEAD
 			return 0;
+=======
+			return NULL;
+>>>>>>> upstream/android-13
 		status = d_revalidate(dentry, nd->flags);
 	}
 	if (unlikely(status <= 0)) {
 		if (!status)
 			d_invalidate(dentry);
 		dput(dentry);
+<<<<<<< HEAD
 		return status;
 	}
 	if (unlikely(d_is_negative(dentry))) {
@@ -1757,6 +2661,11 @@ static int lookup_fast(struct nameidata *nd,
 	if (likely(err > 0))
 		*inode = d_backing_inode(path->dentry);
 	return err;
+=======
+		return ERR_PTR(status);
+	}
+	return dentry;
+>>>>>>> upstream/android-13
 }
 
 /* Fast lookup failed, do it the slow way */
@@ -1776,6 +2685,7 @@ again:
 	if (IS_ERR(dentry))
 		return dentry;
 	if (unlikely(!d_in_lookup(dentry))) {
+<<<<<<< HEAD
 		if (!(flags & LOOKUP_NO_REVAL)) {
 			int error = d_revalidate(dentry, flags);
 			if (unlikely(error <= 0)) {
@@ -1787,6 +2697,17 @@ again:
 				dput(dentry);
 				dentry = ERR_PTR(error);
 			}
+=======
+		int error = d_revalidate(dentry, flags);
+		if (unlikely(error <= 0)) {
+			if (!error) {
+				d_invalidate(dentry);
+				dput(dentry);
+				goto again;
+			}
+			dput(dentry);
+			dentry = ERR_PTR(error);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		old = inode->i_op->lookup(inode, dentry, flags);
@@ -1811,6 +2732,7 @@ static struct dentry *lookup_slow(const struct qstr *name,
 	return res;
 }
 
+<<<<<<< HEAD
 static inline int may_lookup(struct nameidata *nd)
 {
 	if (nd->flags & LOOKUP_RCU) {
@@ -1879,6 +2801,118 @@ static int pick_link(struct nameidata *nd, struct path *link,
 }
 
 enum {WALK_FOLLOW = 1, WALK_MORE = 2};
+=======
+static inline int may_lookup(struct user_namespace *mnt_userns,
+			     struct nameidata *nd)
+{
+	if (nd->flags & LOOKUP_RCU) {
+		int err = inode_permission(mnt_userns, nd->inode, MAY_EXEC|MAY_NOT_BLOCK);
+		if (err != -ECHILD || !try_to_unlazy(nd))
+			return err;
+	}
+	return inode_permission(mnt_userns, nd->inode, MAY_EXEC);
+}
+
+static int reserve_stack(struct nameidata *nd, struct path *link, unsigned seq)
+{
+	if (unlikely(nd->total_link_count++ >= MAXSYMLINKS))
+		return -ELOOP;
+
+	if (likely(nd->depth != EMBEDDED_LEVELS))
+		return 0;
+	if (likely(nd->stack != nd->internal))
+		return 0;
+	if (likely(nd_alloc_stack(nd)))
+		return 0;
+
+	if (nd->flags & LOOKUP_RCU) {
+		// we need to grab link before we do unlazy.  And we can't skip
+		// unlazy even if we fail to grab the link - cleanup needs it
+		bool grabbed_link = legitimize_path(nd, link, seq);
+
+		if (!try_to_unlazy(nd) != 0 || !grabbed_link)
+			return -ECHILD;
+
+		if (nd_alloc_stack(nd))
+			return 0;
+	}
+	return -ENOMEM;
+}
+
+enum {WALK_TRAILING = 1, WALK_MORE = 2, WALK_NOFOLLOW = 4};
+
+static const char *pick_link(struct nameidata *nd, struct path *link,
+		     struct inode *inode, unsigned seq, int flags)
+{
+	struct saved *last;
+	const char *res;
+	int error = reserve_stack(nd, link, seq);
+
+	if (unlikely(error)) {
+		if (!(nd->flags & LOOKUP_RCU))
+			path_put(link);
+		return ERR_PTR(error);
+	}
+	last = nd->stack + nd->depth++;
+	last->link = *link;
+	clear_delayed_call(&last->done);
+	last->seq = seq;
+
+	if (flags & WALK_TRAILING) {
+		error = may_follow_link(nd, inode);
+		if (unlikely(error))
+			return ERR_PTR(error);
+	}
+
+	if (unlikely(nd->flags & LOOKUP_NO_SYMLINKS) ||
+			unlikely(link->mnt->mnt_flags & MNT_NOSYMFOLLOW))
+		return ERR_PTR(-ELOOP);
+
+	if (!(nd->flags & LOOKUP_RCU)) {
+		touch_atime(&last->link);
+		cond_resched();
+	} else if (atime_needs_update(&last->link, inode)) {
+		if (!try_to_unlazy(nd))
+			return ERR_PTR(-ECHILD);
+		touch_atime(&last->link);
+	}
+
+	error = security_inode_follow_link(link->dentry, inode,
+					   nd->flags & LOOKUP_RCU);
+	if (unlikely(error))
+		return ERR_PTR(error);
+
+	res = READ_ONCE(inode->i_link);
+	if (!res) {
+		const char * (*get)(struct dentry *, struct inode *,
+				struct delayed_call *);
+		get = inode->i_op->get_link;
+		if (nd->flags & LOOKUP_RCU) {
+			res = get(NULL, inode, &last->done);
+			if (res == ERR_PTR(-ECHILD) && try_to_unlazy(nd))
+				res = get(link->dentry, inode, &last->done);
+		} else {
+			res = get(link->dentry, inode, &last->done);
+		}
+		if (!res)
+			goto all_done;
+		if (IS_ERR(res))
+			return res;
+	}
+	if (*res == '/') {
+		error = nd_jump_root(nd);
+		if (unlikely(error))
+			return ERR_PTR(error);
+		while (unlikely(*++res == '/'))
+			;
+	}
+	if (*res)
+		return res;
+all_done: // pure jump
+	put_link(nd);
+	return NULL;
+}
+>>>>>>> upstream/android-13
 
 /*
  * Do we need to follow links? We _really_ want to be able
@@ -1886,6 +2920,7 @@ enum {WALK_FOLLOW = 1, WALK_MORE = 2};
  * so we keep a cache of "no, this doesn't need follow_link"
  * for the common case.
  */
+<<<<<<< HEAD
 static inline int step_into(struct nameidata *nd, struct path *path,
 			    int flags, struct inode *inode, unsigned seq)
 {
@@ -1913,12 +2948,175 @@ static int walk_component(struct nameidata *nd, int flags)
 	struct inode *inode;
 	unsigned seq;
 	int err;
+=======
+static const char *step_into(struct nameidata *nd, int flags,
+		     struct dentry *dentry, struct inode *inode, unsigned seq)
+{
+	struct path path;
+	int err = handle_mounts(nd, dentry, &path, &inode, &seq);
+
+	if (err < 0)
+		return ERR_PTR(err);
+	if (likely(!d_is_symlink(path.dentry)) ||
+	   ((flags & WALK_TRAILING) && !(nd->flags & LOOKUP_FOLLOW)) ||
+	   (flags & WALK_NOFOLLOW)) {
+		/* not a symlink or should not follow */
+		if (!(nd->flags & LOOKUP_RCU)) {
+			dput(nd->path.dentry);
+			if (nd->path.mnt != path.mnt)
+				mntput(nd->path.mnt);
+		}
+		nd->path = path;
+		nd->inode = inode;
+		nd->seq = seq;
+		return NULL;
+	}
+	if (nd->flags & LOOKUP_RCU) {
+		/* make sure that d_is_symlink above matches inode */
+		if (read_seqcount_retry(&path.dentry->d_seq, seq))
+			return ERR_PTR(-ECHILD);
+	} else {
+		if (path.mnt == nd->path.mnt)
+			mntget(path.mnt);
+	}
+	return pick_link(nd, &path, inode, seq, flags);
+}
+
+static struct dentry *follow_dotdot_rcu(struct nameidata *nd,
+					struct inode **inodep,
+					unsigned *seqp)
+{
+	struct dentry *parent, *old;
+
+	if (path_equal(&nd->path, &nd->root))
+		goto in_root;
+	if (unlikely(nd->path.dentry == nd->path.mnt->mnt_root)) {
+		struct path path;
+		unsigned seq;
+		if (!choose_mountpoint_rcu(real_mount(nd->path.mnt),
+					   &nd->root, &path, &seq))
+			goto in_root;
+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
+			return ERR_PTR(-ECHILD);
+		nd->path = path;
+		nd->inode = path.dentry->d_inode;
+		nd->seq = seq;
+		if (unlikely(read_seqretry(&mount_lock, nd->m_seq)))
+			return ERR_PTR(-ECHILD);
+		/* we know that mountpoint was pinned */
+	}
+	old = nd->path.dentry;
+	parent = old->d_parent;
+	*inodep = parent->d_inode;
+	*seqp = read_seqcount_begin(&parent->d_seq);
+	if (unlikely(read_seqcount_retry(&old->d_seq, nd->seq)))
+		return ERR_PTR(-ECHILD);
+	if (unlikely(!path_connected(nd->path.mnt, parent)))
+		return ERR_PTR(-ECHILD);
+	return parent;
+in_root:
+	if (unlikely(read_seqretry(&mount_lock, nd->m_seq)))
+		return ERR_PTR(-ECHILD);
+	if (unlikely(nd->flags & LOOKUP_BENEATH))
+		return ERR_PTR(-ECHILD);
+	return NULL;
+}
+
+static struct dentry *follow_dotdot(struct nameidata *nd,
+				 struct inode **inodep,
+				 unsigned *seqp)
+{
+	struct dentry *parent;
+
+	if (path_equal(&nd->path, &nd->root))
+		goto in_root;
+	if (unlikely(nd->path.dentry == nd->path.mnt->mnt_root)) {
+		struct path path;
+
+		if (!choose_mountpoint(real_mount(nd->path.mnt),
+				       &nd->root, &path))
+			goto in_root;
+		path_put(&nd->path);
+		nd->path = path;
+		nd->inode = path.dentry->d_inode;
+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
+			return ERR_PTR(-EXDEV);
+	}
+	/* rare case of legitimate dget_parent()... */
+	parent = dget_parent(nd->path.dentry);
+	if (unlikely(!path_connected(nd->path.mnt, parent))) {
+		dput(parent);
+		return ERR_PTR(-ENOENT);
+	}
+	*seqp = 0;
+	*inodep = parent->d_inode;
+	return parent;
+
+in_root:
+	if (unlikely(nd->flags & LOOKUP_BENEATH))
+		return ERR_PTR(-EXDEV);
+	dget(nd->path.dentry);
+	return NULL;
+}
+
+static const char *handle_dots(struct nameidata *nd, int type)
+{
+	if (type == LAST_DOTDOT) {
+		const char *error = NULL;
+		struct dentry *parent;
+		struct inode *inode;
+		unsigned seq;
+
+		if (!nd->root.mnt) {
+			error = ERR_PTR(set_root(nd));
+			if (error)
+				return error;
+		}
+		if (nd->flags & LOOKUP_RCU)
+			parent = follow_dotdot_rcu(nd, &inode, &seq);
+		else
+			parent = follow_dotdot(nd, &inode, &seq);
+		if (IS_ERR(parent))
+			return ERR_CAST(parent);
+		if (unlikely(!parent))
+			error = step_into(nd, WALK_NOFOLLOW,
+					 nd->path.dentry, nd->inode, nd->seq);
+		else
+			error = step_into(nd, WALK_NOFOLLOW,
+					 parent, inode, seq);
+		if (unlikely(error))
+			return error;
+
+		if (unlikely(nd->flags & LOOKUP_IS_SCOPED)) {
+			/*
+			 * If there was a racing rename or mount along our
+			 * path, then we can't be sure that ".." hasn't jumped
+			 * above nd->root (and so userspace should retry or use
+			 * some fallback).
+			 */
+			smp_rmb();
+			if (unlikely(__read_seqcount_retry(&mount_lock.seqcount, nd->m_seq)))
+				return ERR_PTR(-EAGAIN);
+			if (unlikely(__read_seqcount_retry(&rename_lock.seqcount, nd->r_seq)))
+				return ERR_PTR(-EAGAIN);
+		}
+	}
+	return NULL;
+}
+
+static const char *walk_component(struct nameidata *nd, int flags)
+{
+	struct dentry *dentry;
+	struct inode *inode;
+	unsigned seq;
+>>>>>>> upstream/android-13
 	/*
 	 * "." and ".." are special - ".." especially so because it has
 	 * to be able to know about the current root directory and
 	 * parent relationships.
 	 */
 	if (unlikely(nd->last_type != LAST_NORM)) {
+<<<<<<< HEAD
 		err = handle_dots(nd, nd->last_type);
 		if (!(flags & WALK_MORE) && nd->depth)
 			put_link(nd);
@@ -1948,6 +3146,23 @@ static int walk_component(struct nameidata *nd, int flags)
 	}
 
 	return step_into(nd, &path, flags, inode, seq);
+=======
+		if (!(flags & WALK_MORE) && nd->depth)
+			put_link(nd);
+		return handle_dots(nd, nd->last_type);
+	}
+	dentry = lookup_fast(nd, &inode, &seq);
+	if (IS_ERR(dentry))
+		return ERR_CAST(dentry);
+	if (unlikely(!dentry)) {
+		dentry = lookup_slow(&nd->last, nd->path.dentry, nd->flags);
+		if (IS_ERR(dentry))
+			return ERR_CAST(dentry);
+	}
+	if (!(flags & WALK_MORE) && nd->depth)
+		put_link(nd);
+	return step_into(nd, flags, dentry, inode, seq);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2188,12 +3403,21 @@ static inline u64 hash_name(const void *salt, const char *name)
  */
 static int link_path_walk(const char *name, struct nameidata *nd)
 {
+<<<<<<< HEAD
 	int err;
 
+=======
+	int depth = 0; // depth <= nd->depth
+	int err;
+
+	nd->last_type = LAST_ROOT;
+	nd->flags |= LOOKUP_PARENT;
+>>>>>>> upstream/android-13
 	if (IS_ERR(name))
 		return PTR_ERR(name);
 	while (*name=='/')
 		name++;
+<<<<<<< HEAD
 	if (!*name)
 		return 0;
 
@@ -2203,6 +3427,22 @@ static int link_path_walk(const char *name, struct nameidata *nd)
 		int type;
 
 		err = may_lookup(nd);
+=======
+	if (!*name) {
+		nd->dir_mode = 0; // short-circuit the 'hardening' idiocy
+		return 0;
+	}
+
+	/* At this point we know we have a real path component. */
+	for(;;) {
+		struct user_namespace *mnt_userns;
+		const char *link;
+		u64 hash_len;
+		int type;
+
+		mnt_userns = mnt_user_ns(nd->path.mnt);
+		err = may_lookup(mnt_userns, nd);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 
@@ -2213,7 +3453,11 @@ static int link_path_walk(const char *name, struct nameidata *nd)
 			case 2:
 				if (name[1] == '.') {
 					type = LAST_DOTDOT;
+<<<<<<< HEAD
 					nd->flags |= LOOKUP_JUMPED;
+=======
+					nd->state |= ND_JUMPED;
+>>>>>>> upstream/android-13
 				}
 				break;
 			case 1:
@@ -2221,7 +3465,11 @@ static int link_path_walk(const char *name, struct nameidata *nd)
 		}
 		if (likely(type == LAST_NORM)) {
 			struct dentry *parent = nd->path.dentry;
+<<<<<<< HEAD
 			nd->flags &= ~LOOKUP_JUMPED;
+=======
+			nd->state &= ~ND_JUMPED;
+>>>>>>> upstream/android-13
 			if (unlikely(parent->d_flags & DCACHE_OP_HASH)) {
 				struct qstr this = { { .hash_len = hash_len }, .name = name };
 				err = parent->d_op->d_hash(parent, &this);
@@ -2248,6 +3496,7 @@ static int link_path_walk(const char *name, struct nameidata *nd)
 		} while (unlikely(*name == '/'));
 		if (unlikely(!*name)) {
 OK:
+<<<<<<< HEAD
 			/* pathname body, done */
 			if (!nd->depth)
 				return 0;
@@ -2282,6 +3531,33 @@ OK:
 		if (unlikely(!d_can_lookup(nd->path.dentry))) {
 			if (nd->flags & LOOKUP_RCU) {
 				if (unlazy_walk(nd))
+=======
+			/* pathname or trailing symlink, done */
+			if (!depth) {
+				nd->dir_uid = i_uid_into_mnt(mnt_userns, nd->inode);
+				nd->dir_mode = nd->inode->i_mode;
+				nd->flags &= ~LOOKUP_PARENT;
+				return 0;
+			}
+			/* last component of nested symlink */
+			name = nd->stack[--depth].name;
+			link = walk_component(nd, 0);
+		} else {
+			/* not the last component */
+			link = walk_component(nd, WALK_MORE);
+		}
+		if (unlikely(link)) {
+			if (IS_ERR(link))
+				return PTR_ERR(link);
+			/* a symlink to follow */
+			nd->stack[depth++].name = name;
+			name = link;
+			continue;
+		}
+		if (unlikely(!d_can_lookup(nd->path.dentry))) {
+			if (nd->flags & LOOKUP_RCU) {
+				if (!try_to_unlazy(nd))
+>>>>>>> upstream/android-13
 					return -ECHILD;
 			}
 			return -ENOTDIR;
@@ -2292,17 +3568,38 @@ OK:
 /* must be paired with terminate_walk() */
 static const char *path_init(struct nameidata *nd, unsigned flags)
 {
+<<<<<<< HEAD
 	const char *s = nd->name->name;
 
+=======
+	int error;
+	const char *s = nd->name->name;
+
+	/* LOOKUP_CACHED requires RCU, ask caller to retry */
+	if ((flags & (LOOKUP_RCU | LOOKUP_CACHED)) == LOOKUP_CACHED)
+		return ERR_PTR(-EAGAIN);
+
+>>>>>>> upstream/android-13
 	if (!*s)
 		flags &= ~LOOKUP_RCU;
 	if (flags & LOOKUP_RCU)
 		rcu_read_lock();
 
+<<<<<<< HEAD
 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
 	nd->flags = flags | LOOKUP_JUMPED | LOOKUP_PARENT;
 	nd->depth = 0;
 	if (flags & LOOKUP_ROOT) {
+=======
+	nd->flags = flags;
+	nd->state |= ND_JUMPED;
+
+	nd->m_seq = __read_seqcount_begin(&mount_lock.seqcount);
+	nd->r_seq = __read_seqcount_begin(&rename_lock.seqcount);
+	smp_rmb();
+
+	if (nd->state & ND_ROOT_PRESET) {
+>>>>>>> upstream/android-13
 		struct dentry *root = nd->root.dentry;
 		struct inode *inode = root->d_inode;
 		if (*s && unlikely(!d_can_lookup(root)))
@@ -2310,9 +3607,14 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
 		nd->path = nd->root;
 		nd->inode = inode;
 		if (flags & LOOKUP_RCU) {
+<<<<<<< HEAD
 			nd->seq = __read_seqcount_begin(&nd->path.dentry->d_seq);
 			nd->root_seq = nd->seq;
 			nd->m_seq = read_seqbegin(&mount_lock);
+=======
+			nd->seq = read_seqcount_begin(&nd->path.dentry->d_seq);
+			nd->root_seq = nd->seq;
+>>>>>>> upstream/android-13
 		} else {
 			path_get(&nd->path);
 		}
@@ -2320,6 +3622,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
 	}
 
 	nd->root.mnt = NULL;
+<<<<<<< HEAD
 	nd->path.mnt = NULL;
 	nd->path.dentry = NULL;
 
@@ -2330,6 +3633,19 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
 			return s;
 		return ERR_PTR(-ECHILD);
 	} else if (nd->dfd == AT_FDCWD) {
+=======
+
+	/* Absolute pathname -- fetch the root (LOOKUP_IN_ROOT uses nd->dfd). */
+	if (*s == '/' && !(flags & LOOKUP_IN_ROOT)) {
+		error = nd_jump_root(nd);
+		if (unlikely(error))
+			return ERR_PTR(error);
+		return s;
+	}
+
+	/* Relative pathname -- get the starting-point it is relative to. */
+	if (nd->dfd == AT_FDCWD) {
+>>>>>>> upstream/android-13
 		if (flags & LOOKUP_RCU) {
 			struct fs_struct *fs = current->fs;
 			unsigned seq;
@@ -2344,7 +3660,10 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
 			get_fs_pwd(current->fs, &nd->path);
 			nd->inode = nd->path.dentry->d_inode;
 		}
+<<<<<<< HEAD
 		return s;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		/* Caller must check execute permissions on the starting path component */
 		struct fd f = fdget_raw(nd->dfd);
@@ -2369,6 +3688,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
 			nd->inode = nd->path.dentry->d_inode;
 		}
 		fdput(f);
+<<<<<<< HEAD
 		return s;
 	}
 }
@@ -2386,16 +3706,39 @@ static const char *trailing_symlink(struct nameidata *nd)
 }
 
 static inline int lookup_last(struct nameidata *nd)
+=======
+	}
+
+	/* For scoped-lookups we need to set the root to the dirfd as well. */
+	if (flags & LOOKUP_IS_SCOPED) {
+		nd->root = nd->path;
+		if (flags & LOOKUP_RCU) {
+			nd->root_seq = nd->seq;
+		} else {
+			path_get(&nd->root);
+			nd->state |= ND_ROOT_GRABBED;
+		}
+	}
+	return s;
+}
+
+static inline const char *lookup_last(struct nameidata *nd)
+>>>>>>> upstream/android-13
 {
 	if (nd->last_type == LAST_NORM && nd->last.name[nd->last.len])
 		nd->flags |= LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
 
+<<<<<<< HEAD
 	nd->flags &= ~LOOKUP_PARENT;
 	return walk_component(nd, 0);
+=======
+	return walk_component(nd, WALK_TRAILING);
+>>>>>>> upstream/android-13
 }
 
 static int handle_lookup_down(struct nameidata *nd)
 {
+<<<<<<< HEAD
 	struct path path = nd->path;
 	struct inode *inode = nd->inode;
 	unsigned seq = nd->seq;
@@ -2421,6 +3764,12 @@ static int handle_lookup_down(struct nameidata *nd)
 	nd->inode = inode;
 	nd->seq = seq;
 	return 0;
+=======
+	if (!(nd->flags & LOOKUP_RCU))
+		dget(nd->path.dentry);
+	return PTR_ERR(step_into(nd, WALK_NOFOLLOW,
+			nd->path.dentry, nd->inode, nd->seq));
+>>>>>>> upstream/android-13
 }
 
 /* Returns 0 and nd will be valid on success; Retuns error, otherwise. */
@@ -2435,9 +3784,18 @@ static int path_lookupat(struct nameidata *nd, unsigned flags, struct path *path
 			s = ERR_PTR(err);
 	}
 
+<<<<<<< HEAD
 	while (!(err = link_path_walk(s, nd))
 		&& ((err = lookup_last(nd)) > 0)) {
 		s = trailing_symlink(nd);
+=======
+	while (!(err = link_path_walk(s, nd)) &&
+	       (s = lookup_last(nd)) != NULL)
+		;
+	if (!err && unlikely(nd->flags & LOOKUP_MOUNTPOINT)) {
+		err = handle_lookup_down(nd);
+		nd->state &= ~ND_JUMPED; // no d_weak_revalidate(), please...
+>>>>>>> upstream/android-13
 	}
 	if (!err)
 		err = complete_walk(nd);
@@ -2454,18 +3812,27 @@ static int path_lookupat(struct nameidata *nd, unsigned flags, struct path *path
 	return err;
 }
 
+<<<<<<< HEAD
 static int filename_lookup(int dfd, struct filename *name, unsigned flags,
 			   struct path *path, struct path *root)
+=======
+int filename_lookup(int dfd, struct filename *name, unsigned flags,
+		    struct path *path, struct path *root)
+>>>>>>> upstream/android-13
 {
 	int retval;
 	struct nameidata nd;
 	if (IS_ERR(name))
 		return PTR_ERR(name);
+<<<<<<< HEAD
 	if (unlikely(root)) {
 		nd.root = *root;
 		flags |= LOOKUP_ROOT;
 	}
 	set_nameidata(&nd, dfd, name);
+=======
+	set_nameidata(&nd, dfd, name, root);
+>>>>>>> upstream/android-13
 	retval = path_lookupat(&nd, flags | LOOKUP_RCU, path);
 	if (unlikely(retval == -ECHILD))
 		retval = path_lookupat(&nd, flags, path);
@@ -2473,9 +3840,15 @@ static int filename_lookup(int dfd, struct filename *name, unsigned flags,
 		retval = path_lookupat(&nd, flags | LOOKUP_REVAL, path);
 
 	if (likely(!retval))
+<<<<<<< HEAD
 		audit_inode(name, path->dentry, flags & LOOKUP_PARENT);
 	restore_nameidata();
 	putname(name);
+=======
+		audit_inode(name, path->dentry,
+			    flags & LOOKUP_MOUNTPOINT ? AUDIT_INODE_NOEVAL : 0);
+	restore_nameidata();
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -2496,16 +3869,28 @@ static int path_parentat(struct nameidata *nd, unsigned flags,
 	return err;
 }
 
+<<<<<<< HEAD
 static struct filename *filename_parentat(int dfd, struct filename *name,
 				unsigned int flags, struct path *parent,
 				struct qstr *last, int *type)
+=======
+/* Note: this does not consume "name" */
+static int filename_parentat(int dfd, struct filename *name,
+			     unsigned int flags, struct path *parent,
+			     struct qstr *last, int *type)
+>>>>>>> upstream/android-13
 {
 	int retval;
 	struct nameidata nd;
 
 	if (IS_ERR(name))
+<<<<<<< HEAD
 		return name;
 	set_nameidata(&nd, dfd, name);
+=======
+		return PTR_ERR(name);
+	set_nameidata(&nd, dfd, name, NULL);
+>>>>>>> upstream/android-13
 	retval = path_parentat(&nd, flags | LOOKUP_RCU, parent);
 	if (unlikely(retval == -ECHILD))
 		retval = path_parentat(&nd, flags, parent);
@@ -2514,6 +3899,7 @@ static struct filename *filename_parentat(int dfd, struct filename *name,
 	if (likely(!retval)) {
 		*last = nd.last;
 		*type = nd.last_type;
+<<<<<<< HEAD
 		audit_inode(name, parent->dentry, LOOKUP_PARENT);
 	} else {
 		putname(name);
@@ -2538,6 +3924,26 @@ struct dentry *kern_path_locked(const char *name, struct path *path)
 	if (unlikely(type != LAST_NORM)) {
 		path_put(path);
 		putname(filename);
+=======
+		audit_inode(name, parent->dentry, AUDIT_INODE_PARENT);
+	}
+	restore_nameidata();
+	return retval;
+}
+
+/* does lookup, returns the object with parent locked */
+static struct dentry *__kern_path_locked(struct filename *name, struct path *path)
+{
+	struct dentry *d;
+	struct qstr last;
+	int type, error;
+
+	error = filename_parentat(AT_FDCWD, name, 0, path, &last, &type);
+	if (error)
+		return ERR_PTR(error);
+	if (unlikely(type != LAST_NORM)) {
+		path_put(path);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 	}
 	inode_lock_nested(path->dentry->d_inode, I_MUTEX_PARENT);
@@ -2546,6 +3952,7 @@ struct dentry *kern_path_locked(const char *name, struct path *path)
 		inode_unlock(path->dentry->d_inode);
 		path_put(path);
 	}
+<<<<<<< HEAD
 	putname(filename);
 	return d;
 }
@@ -2556,6 +3963,30 @@ int kern_path(const char *name, unsigned int flags, struct path *path)
 			       flags, path, NULL);
 }
 EXPORT_SYMBOL(kern_path);
+=======
+	return d;
+}
+
+struct dentry *kern_path_locked(const char *name, struct path *path)
+{
+	struct filename *filename = getname_kernel(name);
+	struct dentry *res = __kern_path_locked(filename, path);
+
+	putname(filename);
+	return res;
+}
+
+int kern_path(const char *name, unsigned int flags, struct path *path)
+{
+	struct filename *filename = getname_kernel(name);
+	int ret = filename_lookup(AT_FDCWD, filename, flags, path, NULL);
+
+	putname(filename);
+	return ret;
+
+}
+EXPORT_SYMBOL_NS(kern_path, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * vfs_path_lookup - lookup a file path relative to a dentry-vfsmount pair
@@ -2569,6 +4000,7 @@ int vfs_path_lookup(struct dentry *dentry, struct vfsmount *mnt,
 		    const char *name, unsigned int flags,
 		    struct path *path)
 {
+<<<<<<< HEAD
 	struct path root = {.mnt = mnt, .dentry = dentry};
 	/* the first argument of filename_lookup() is ignored with root */
 	return filename_lookup(AT_FDCWD, getname_kernel(name),
@@ -2578,6 +4010,23 @@ EXPORT_SYMBOL(vfs_path_lookup);
 
 static int lookup_one_len_common(const char *name, struct vfsmount *mnt,
 				 struct dentry *base, int len, struct qstr *this)
+=======
+	struct filename *filename;
+	struct path root = {.mnt = mnt, .dentry = dentry};
+	int ret;
+
+	filename = getname_kernel(name);
+	/* the first argument of filename_lookup() is ignored with root */
+	ret = filename_lookup(AT_FDCWD, filename, flags, path, &root);
+	putname(filename);
+	return ret;
+}
+EXPORT_SYMBOL(vfs_path_lookup);
+
+static int lookup_one_common(struct user_namespace *mnt_userns,
+			     const char *name, struct dentry *base, int len,
+			     struct qstr *this)
+>>>>>>> upstream/android-13
 {
 	this->name = name;
 	this->len = len;
@@ -2605,7 +4054,11 @@ static int lookup_one_len_common(const char *name, struct vfsmount *mnt,
 			return err;
 	}
 
+<<<<<<< HEAD
 	return inode_permission2(mnt, base->d_inode, MAY_EXEC);
+=======
+	return inode_permission(mnt_userns, base->d_inode, MAY_EXEC);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2629,7 +4082,11 @@ struct dentry *try_lookup_one_len(const char *name, struct dentry *base, int len
 
 	WARN_ON_ONCE(!inode_is_locked(base->d_inode));
 
+<<<<<<< HEAD
 	err = lookup_one_len_common(name, NULL, base, len, &this);
+=======
+	err = lookup_one_common(&init_user_ns, name, base, len, &this);
+>>>>>>> upstream/android-13
 	if (err)
 		return ERR_PTR(err);
 
@@ -2648,7 +4105,11 @@ EXPORT_SYMBOL(try_lookup_one_len);
  *
  * The caller must hold base->i_mutex.
  */
+<<<<<<< HEAD
 struct dentry *lookup_one_len2(const char *name, struct vfsmount *mnt, struct dentry *base, int len)
+=======
+struct dentry *lookup_one_len(const char *name, struct dentry *base, int len)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry;
 	struct qstr this;
@@ -2656,13 +4117,18 @@ struct dentry *lookup_one_len2(const char *name, struct vfsmount *mnt, struct de
 
 	WARN_ON_ONCE(!inode_is_locked(base->d_inode));
 
+<<<<<<< HEAD
 	err = lookup_one_len_common(name, mnt, base, len, &this);
+=======
+	err = lookup_one_common(&init_user_ns, name, base, len, &this);
+>>>>>>> upstream/android-13
 	if (err)
 		return ERR_PTR(err);
 
 	dentry = lookup_dcache(&this, base, 0);
 	return dentry ? dentry : __lookup_slow(&this, base, 0);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(lookup_one_len2);
 
 struct dentry *lookup_one_len(const char *name, struct dentry *base, int len)
@@ -2672,6 +4138,41 @@ struct dentry *lookup_one_len(const char *name, struct dentry *base, int len)
 EXPORT_SYMBOL(lookup_one_len);
 
 /**
+=======
+EXPORT_SYMBOL(lookup_one_len);
+
+/**
+ * lookup_one - filesystem helper to lookup single pathname component
+ * @mnt_userns:	user namespace of the mount the lookup is performed from
+ * @name:	pathname component to lookup
+ * @base:	base directory to lookup from
+ * @len:	maximum length @len should be interpreted to
+ *
+ * Note that this routine is purely a helper for filesystem usage and should
+ * not be called by generic code.
+ *
+ * The caller must hold base->i_mutex.
+ */
+struct dentry *lookup_one(struct user_namespace *mnt_userns, const char *name,
+			  struct dentry *base, int len)
+{
+	struct dentry *dentry;
+	struct qstr this;
+	int err;
+
+	WARN_ON_ONCE(!inode_is_locked(base->d_inode));
+
+	err = lookup_one_common(mnt_userns, name, base, len, &this);
+	if (err)
+		return ERR_PTR(err);
+
+	dentry = lookup_dcache(&this, base, 0);
+	return dentry ? dentry : __lookup_slow(&this, base, 0);
+}
+EXPORT_SYMBOL(lookup_one);
+
+/**
+>>>>>>> upstream/android-13
  * lookup_one_len_unlocked - filesystem helper to lookup single pathname component
  * @name:	pathname component to lookup
  * @base:	base directory to lookup from
@@ -2690,7 +4191,11 @@ struct dentry *lookup_one_len_unlocked(const char *name,
 	int err;
 	struct dentry *ret;
 
+<<<<<<< HEAD
 	err = lookup_one_len_common(name, NULL, base, len, &this);
+=======
+	err = lookup_one_common(&init_user_ns, name, base, len, &this);
+>>>>>>> upstream/android-13
 	if (err)
 		return ERR_PTR(err);
 
@@ -2701,12 +4206,36 @@ struct dentry *lookup_one_len_unlocked(const char *name,
 }
 EXPORT_SYMBOL(lookup_one_len_unlocked);
 
+<<<<<<< HEAD
+=======
+/*
+ * Like lookup_one_len_unlocked(), except that it yields ERR_PTR(-ENOENT)
+ * on negatives.  Returns known positive or ERR_PTR(); that's what
+ * most of the users want.  Note that pinned negative with unlocked parent
+ * _can_ become positive at any time, so callers of lookup_one_len_unlocked()
+ * need to be very careful; pinned positives have ->d_inode stable, so
+ * this one avoids such problems.
+ */
+struct dentry *lookup_positive_unlocked(const char *name,
+				       struct dentry *base, int len)
+{
+	struct dentry *ret = lookup_one_len_unlocked(name, base, len);
+	if (!IS_ERR(ret) && d_flags_negative(smp_load_acquire(&ret->d_flags))) {
+		dput(ret);
+		ret = ERR_PTR(-ENOENT);
+	}
+	return ret;
+}
+EXPORT_SYMBOL(lookup_positive_unlocked);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_UNIX98_PTYS
 int path_pts(struct path *path)
 {
 	/* Find something mounted on "pts" in the same directory as
 	 * the input path.
 	 */
+<<<<<<< HEAD
 	struct dentry *child, *parent;
 	struct qstr this;
 	int ret;
@@ -2718,13 +4247,29 @@ int path_pts(struct path *path)
 	parent = path->dentry;
 	this.name = "pts";
 	this.len = 3;
+=======
+	struct dentry *parent = dget_parent(path->dentry);
+	struct dentry *child;
+	struct qstr this = QSTR_INIT("pts", 3);
+
+	if (unlikely(!path_connected(path->mnt, parent))) {
+		dput(parent);
+		return -ENOENT;
+	}
+	dput(path->dentry);
+	path->dentry = parent;
+>>>>>>> upstream/android-13
 	child = d_hash_and_lookup(parent, &this);
 	if (!child)
 		return -ENOENT;
 
 	path->dentry = child;
 	dput(parent);
+<<<<<<< HEAD
 	follow_mount(path);
+=======
+	follow_down(path);
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
@@ -2732,6 +4277,7 @@ int path_pts(struct path *path)
 int user_path_at_empty(int dfd, const char __user *name, unsigned flags,
 		 struct path *path, int *empty)
 {
+<<<<<<< HEAD
 	return filename_lookup(dfd, getname_flags(name, flags, empty),
 			       flags, path, NULL);
 }
@@ -2891,6 +4437,26 @@ int __check_sticky(struct inode *dir, struct inode *inode)
 	if (uid_eq(dir->i_uid, fsuid))
 		return 0;
 	return !capable_wrt_inode_uidgid(inode, CAP_FOWNER);
+=======
+	struct filename *filename = getname_flags(name, flags, empty);
+	int ret = filename_lookup(dfd, filename, flags, path, NULL);
+
+	putname(filename);
+	return ret;
+}
+EXPORT_SYMBOL(user_path_at_empty);
+
+int __check_sticky(struct user_namespace *mnt_userns, struct inode *dir,
+		   struct inode *inode)
+{
+	kuid_t fsuid = current_fsuid();
+
+	if (uid_eq(i_uid_into_mnt(mnt_userns, inode), fsuid))
+		return 0;
+	if (uid_eq(i_uid_into_mnt(mnt_userns, dir), fsuid))
+		return 0;
+	return !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FOWNER);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__check_sticky);
 
@@ -2914,7 +4480,12 @@ EXPORT_SYMBOL(__check_sticky);
  * 11. We don't allow removal of NFS sillyrenamed files; it's handled by
  *     nfs_async_unlink().
  */
+<<<<<<< HEAD
 static int may_delete(struct vfsmount *mnt, struct inode *dir, struct dentry *victim, bool isdir)
+=======
+static int may_delete(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *victim, bool isdir)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_backing_inode(victim);
 	int error;
@@ -2926,19 +4497,34 @@ static int may_delete(struct vfsmount *mnt, struct inode *dir, struct dentry *vi
 	BUG_ON(victim->d_parent->d_inode != dir);
 
 	/* Inode writeback is not safe when the uid or gid are invalid. */
+<<<<<<< HEAD
 	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
+=======
+	if (!uid_valid(i_uid_into_mnt(mnt_userns, inode)) ||
+	    !gid_valid(i_gid_into_mnt(mnt_userns, inode)))
+>>>>>>> upstream/android-13
 		return -EOVERFLOW;
 
 	audit_inode_child(dir, victim, AUDIT_TYPE_CHILD_DELETE);
 
+<<<<<<< HEAD
 	error = inode_permission2(mnt, dir, MAY_WRITE | MAY_EXEC);
+=======
+	error = inode_permission(mnt_userns, dir, MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 	if (IS_APPEND(dir))
 		return -EPERM;
 
+<<<<<<< HEAD
 	if (check_sticky(dir, inode) || IS_APPEND(inode) ||
 	    IS_IMMUTABLE(inode) || IS_SWAPFILE(inode) || HAS_UNMAPPED_ID(inode))
+=======
+	if (check_sticky(mnt_userns, dir, inode) || IS_APPEND(inode) ||
+	    IS_IMMUTABLE(inode) || IS_SWAPFILE(inode) ||
+	    HAS_UNMAPPED_ID(mnt_userns, inode))
+>>>>>>> upstream/android-13
 		return -EPERM;
 	if (isdir) {
 		if (!d_is_dir(victim))
@@ -2963,19 +4549,32 @@ static int may_delete(struct vfsmount *mnt, struct inode *dir, struct dentry *vi
  *  4. We should have write and exec permissions on dir
  *  5. We can't do it if dir is immutable (done in permission())
  */
+<<<<<<< HEAD
 static inline int may_create(struct vfsmount *mnt, struct inode *dir, struct dentry *child)
 {
 	struct user_namespace *s_user_ns;
+=======
+static inline int may_create(struct user_namespace *mnt_userns,
+			     struct inode *dir, struct dentry *child)
+{
+>>>>>>> upstream/android-13
 	audit_inode_child(dir, child, AUDIT_TYPE_CHILD_CREATE);
 	if (child->d_inode)
 		return -EEXIST;
 	if (IS_DEADDIR(dir))
 		return -ENOENT;
+<<<<<<< HEAD
 	s_user_ns = dir->i_sb->s_user_ns;
 	if (!kuid_has_mapping(s_user_ns, current_fsuid()) ||
 	    !kgid_has_mapping(s_user_ns, current_fsgid()))
 		return -EOVERFLOW;
 	return inode_permission2(mnt, dir, MAY_WRITE | MAY_EXEC);
+=======
+	if (!fsuidgid_has_mapping(dir->i_sb, mnt_userns))
+		return -EOVERFLOW;
+
+	return inode_permission(mnt_userns, dir, MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3022,10 +4621,33 @@ void unlock_rename(struct dentry *p1, struct dentry *p2)
 }
 EXPORT_SYMBOL(unlock_rename);
 
+<<<<<<< HEAD
 int vfs_create2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry,
 		umode_t mode, bool want_excl)
 {
 	int error = may_create(mnt, dir, dentry);
+=======
+/**
+ * vfs_create - create new file
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dir:	inode of @dentry
+ * @dentry:	pointer to dentry of the base directory
+ * @mode:	mode of the new file
+ * @want_excl:	whether the file must not yet exist
+ *
+ * Create a new file.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int vfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+	       struct dentry *dentry, umode_t mode, bool want_excl)
+{
+	int error = may_create(mnt_userns, dir, dentry);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -3036,11 +4658,16 @@ int vfs_create2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry,
 	error = security_inode_create(dir, dentry, mode);
 	if (error)
 		return error;
+<<<<<<< HEAD
 	error = dir->i_op->create(dir, dentry, mode, want_excl);
+=======
+	error = dir->i_op->create(mnt_userns, dir, dentry, mode, want_excl);
+>>>>>>> upstream/android-13
 	if (!error)
 		fsnotify_create(dir, dentry);
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_create2);
 
 int vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
@@ -3051,11 +4678,20 @@ int vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 EXPORT_SYMBOL(vfs_create);
 
 int vfs_mkobj2(struct vfsmount *mnt, struct dentry *dentry, umode_t mode,
+=======
+EXPORT_SYMBOL_NS(vfs_create, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+int vfs_mkobj(struct dentry *dentry, umode_t mode,
+>>>>>>> upstream/android-13
 		int (*f)(struct dentry *, umode_t, void *),
 		void *arg)
 {
 	struct inode *dir = dentry->d_parent->d_inode;
+<<<<<<< HEAD
 	int error = may_create(mnt, dir, dentry);
+=======
+	int error = may_create(&init_user_ns, dir, dentry);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -3069,6 +4705,7 @@ int vfs_mkobj2(struct vfsmount *mnt, struct dentry *dentry, umode_t mode,
 		fsnotify_create(dir, dentry);
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_mkobj2);
 
 
@@ -3078,6 +4715,8 @@ int vfs_mkobj(struct dentry *dentry, umode_t mode,
 {
 	return vfs_mkobj2(NULL, dentry, mode, f, arg);
 }
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(vfs_mkobj);
 
 bool may_open_dev(const struct path *path)
@@ -3086,10 +4725,17 @@ bool may_open_dev(const struct path *path)
 		!(path->mnt->mnt_sb->s_iflags & SB_I_NODEV);
 }
 
+<<<<<<< HEAD
 static int may_open(const struct path *path, int acc_mode, int flag)
 {
 	struct dentry *dentry = path->dentry;
 	struct vfsmount *mnt = path->mnt;
+=======
+static int may_open(struct user_namespace *mnt_userns, const struct path *path,
+		    int acc_mode, int flag)
+{
+	struct dentry *dentry = path->dentry;
+>>>>>>> upstream/android-13
 	struct inode *inode = dentry->d_inode;
 	int error;
 
@@ -3102,11 +4748,17 @@ static int may_open(const struct path *path, int acc_mode, int flag)
 	case S_IFDIR:
 		if (acc_mode & MAY_WRITE)
 			return -EISDIR;
+<<<<<<< HEAD
+=======
+		if (acc_mode & MAY_EXEC)
+			return -EACCES;
+>>>>>>> upstream/android-13
 		break;
 	case S_IFBLK:
 	case S_IFCHR:
 		if (!may_open_dev(path))
 			return -EACCES;
+<<<<<<< HEAD
 		/*FALLTHRU*/
 	case S_IFIFO:
 	case S_IFSOCK:
@@ -3115,6 +4767,22 @@ static int may_open(const struct path *path, int acc_mode, int flag)
 	}
 
 	error = inode_permission2(mnt, inode, MAY_OPEN | acc_mode);
+=======
+		fallthrough;
+	case S_IFIFO:
+	case S_IFSOCK:
+		if (acc_mode & MAY_EXEC)
+			return -EACCES;
+		flag &= ~O_TRUNC;
+		break;
+	case S_IFREG:
+		if ((acc_mode & MAY_EXEC) && path_noexec(path))
+			return -EACCES;
+		break;
+	}
+
+	error = inode_permission(mnt_userns, inode, MAY_OPEN | acc_mode);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -3129,13 +4797,21 @@ static int may_open(const struct path *path, int acc_mode, int flag)
 	}
 
 	/* O_NOATIME can only be set by the owner or superuser */
+<<<<<<< HEAD
 	if (flag & O_NOATIME && !inode_owner_or_capable(inode))
+=======
+	if (flag & O_NOATIME && !inode_owner_or_capable(mnt_userns, inode))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int handle_truncate(struct file *filp)
+=======
+static int handle_truncate(struct user_namespace *mnt_userns, struct file *filp)
+>>>>>>> upstream/android-13
 {
 	const struct path *path = &filp->f_path;
 	struct inode *inode = path->dentry->d_inode;
@@ -3145,11 +4821,17 @@ static int handle_truncate(struct file *filp)
 	/*
 	 * Refuse to truncate files with mandatory locks held on them.
 	 */
+<<<<<<< HEAD
 	error = locks_verify_locked(filp);
 	if (!error)
 		error = security_path_truncate(path);
 	if (!error) {
 		error = do_truncate2(path->mnt, path->dentry, 0,
+=======
+	error = security_path_truncate(path);
+	if (!error) {
+		error = do_truncate(mnt_userns, path->dentry, 0,
+>>>>>>> upstream/android-13
 				    ATTR_MTIME|ATTR_CTIME|ATTR_OPEN,
 				    filp);
 	}
@@ -3164,19 +4846,34 @@ static inline int open_to_namei_flags(int flag)
 	return flag;
 }
 
+<<<<<<< HEAD
 static int may_o_create(const struct path *dir, struct dentry *dentry, umode_t mode)
 {
 	struct user_namespace *s_user_ns;
+=======
+static int may_o_create(struct user_namespace *mnt_userns,
+			const struct path *dir, struct dentry *dentry,
+			umode_t mode)
+{
+>>>>>>> upstream/android-13
 	int error = security_path_mknod(dir, dentry, mode, 0);
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	s_user_ns = dir->dentry->d_sb->s_user_ns;
 	if (!kuid_has_mapping(s_user_ns, current_fsuid()) ||
 	    !kgid_has_mapping(s_user_ns, current_fsgid()))
 		return -EOVERFLOW;
 
 	error = inode_permission2(dir->mnt, dir->dentry->d_inode, MAY_WRITE | MAY_EXEC);
+=======
+	if (!fsuidgid_has_mapping(dir->dentry->d_sb, mnt_userns))
+		return -EOVERFLOW;
+
+	error = inode_permission(mnt_userns, dir->dentry->d_inode,
+				 MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -3196,18 +4893,27 @@ static int may_o_create(const struct path *dir, struct dentry *dentry, umode_t m
  *
  * Returns an error code otherwise.
  */
+<<<<<<< HEAD
 static int atomic_open(struct nameidata *nd, struct dentry *dentry,
 			struct path *path, struct file *file,
 			const struct open_flags *op,
 			int open_flag, umode_t mode)
+=======
+static struct dentry *atomic_open(struct nameidata *nd, struct dentry *dentry,
+				  struct file *file,
+				  int open_flag, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct dentry *const DENTRY_NOT_SET = (void *) -1UL;
 	struct inode *dir =  nd->path.dentry->d_inode;
 	int error;
 
+<<<<<<< HEAD
 	if (!(~open_flag & (O_EXCL | O_CREAT)))	/* both O_EXCL and O_CREAT */
 		open_flag &= ~O_TRUNC;
 
+=======
+>>>>>>> upstream/android-13
 	if (nd->flags & LOOKUP_DIRECTORY)
 		open_flag |= O_DIRECTORY;
 
@@ -3218,6 +4924,7 @@ static int atomic_open(struct nameidata *nd, struct dentry *dentry,
 	d_lookup_done(dentry);
 	if (!error) {
 		if (file->f_mode & FMODE_OPENED) {
+<<<<<<< HEAD
 			/*
 			 * We didn't have the inode before the open, so check open
 			 * permission here.
@@ -3231,6 +4938,12 @@ static int atomic_open(struct nameidata *nd, struct dentry *dentry,
 			error = may_open(&file->f_path, acc_mode, open_flag);
 			if (WARN_ON(error > 0))
 				error = -EINVAL;
+=======
+			if (unlikely(dentry != file->f_path.dentry)) {
+				dput(dentry);
+				dentry = dget(file->f_path.dentry);
+			}
+>>>>>>> upstream/android-13
 		} else if (WARN_ON(file->f_path.dentry == DENTRY_NOT_SET)) {
 			error = -EIO;
 		} else {
@@ -3238,6 +4951,7 @@ static int atomic_open(struct nameidata *nd, struct dentry *dentry,
 				dput(dentry);
 				dentry = file->f_path.dentry;
 			}
+<<<<<<< HEAD
 			if (file->f_mode & FMODE_CREATED)
 				fsnotify_create(dir, dentry);
 			if (unlikely(d_is_negative(dentry))) {
@@ -3251,6 +4965,17 @@ static int atomic_open(struct nameidata *nd, struct dentry *dentry,
 	}
 	dput(dentry);
 	return error;
+=======
+			if (unlikely(d_is_negative(dentry)))
+				error = -ENOENT;
+		}
+	}
+	if (error) {
+		dput(dentry);
+		dentry = ERR_PTR(error);
+	}
+	return dentry;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3268,11 +4993,19 @@ static int atomic_open(struct nameidata *nd, struct dentry *dentry,
  *
  * An error code is returned on failure.
  */
+<<<<<<< HEAD
 static int lookup_open(struct nameidata *nd, struct path *path,
 			struct file *file,
 			const struct open_flags *op,
 			bool got_write)
 {
+=======
+static struct dentry *lookup_open(struct nameidata *nd, struct file *file,
+				  const struct open_flags *op,
+				  bool got_write)
+{
+	struct user_namespace *mnt_userns;
+>>>>>>> upstream/android-13
 	struct dentry *dir = nd->path.dentry;
 	struct inode *dir_inode = dir->d_inode;
 	int open_flag = op->open_flag;
@@ -3282,7 +5015,11 @@ static int lookup_open(struct nameidata *nd, struct path *path,
 	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
 
 	if (unlikely(IS_DEADDIR(dir_inode)))
+<<<<<<< HEAD
 		return -ENOENT;
+=======
+		return ERR_PTR(-ENOENT);
+>>>>>>> upstream/android-13
 
 	file->f_mode &= ~FMODE_CREATED;
 	dentry = d_lookup(dir, &nd->last);
@@ -3290,7 +5027,11 @@ static int lookup_open(struct nameidata *nd, struct path *path,
 		if (!dentry) {
 			dentry = d_alloc_parallel(dir, &nd->last, &wq);
 			if (IS_ERR(dentry))
+<<<<<<< HEAD
 				return PTR_ERR(dentry);
+=======
+				return dentry;
+>>>>>>> upstream/android-13
 		}
 		if (d_in_lookup(dentry))
 			break;
@@ -3306,7 +5047,11 @@ static int lookup_open(struct nameidata *nd, struct path *path,
 	}
 	if (dentry->d_inode) {
 		/* Cached positive dentry: will open in f_op->open */
+<<<<<<< HEAD
 		goto out_no_open;
+=======
+		return dentry;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -3318,6 +5063,7 @@ static int lookup_open(struct nameidata *nd, struct path *path,
 	 * Another problem is returing the "right" error value (e.g. for an
 	 * O_EXCL open we want to return EEXIST not EROFS).
 	 */
+<<<<<<< HEAD
 	if (open_flag & O_CREAT) {
 		if (!IS_POSIXACL(dir->d_inode))
 			mode &= ~current_umask();
@@ -3353,6 +5099,31 @@ static int lookup_open(struct nameidata *nd, struct path *path,
 	}
 
 no_open:
+=======
+	if (unlikely(!got_write))
+		open_flag &= ~O_TRUNC;
+	mnt_userns = mnt_user_ns(nd->path.mnt);
+	if (open_flag & O_CREAT) {
+		if (open_flag & O_EXCL)
+			open_flag &= ~O_TRUNC;
+		if (!IS_POSIXACL(dir->d_inode))
+			mode &= ~current_umask();
+		if (likely(got_write))
+			create_error = may_o_create(mnt_userns, &nd->path,
+						    dentry, mode);
+		else
+			create_error = -EROFS;
+	}
+	if (create_error)
+		open_flag &= ~O_CREAT;
+	if (dir_inode->i_op->atomic_open) {
+		dentry = atomic_open(nd, dentry, file, open_flag, mode);
+		if (unlikely(create_error) && dentry == ERR_PTR(-ENOENT))
+			dentry = ERR_PTR(create_error);
+		return dentry;
+	}
+
+>>>>>>> upstream/android-13
 	if (d_in_lookup(dentry)) {
 		struct dentry *res = dir_inode->i_op->lookup(dir_inode, dentry,
 							     nd->flags);
@@ -3375,16 +5146,25 @@ no_open:
 			error = -EACCES;
 			goto out_dput;
 		}
+<<<<<<< HEAD
 		error = dir_inode->i_op->create(dir_inode, dentry, mode,
 						open_flag & O_EXCL);
 		if (error)
 			goto out_dput;
 		fsnotify_create(dir_inode, dentry);
+=======
+
+		error = dir_inode->i_op->create(mnt_userns, dir_inode, dentry,
+						mode, open_flag & O_EXCL);
+		if (error)
+			goto out_dput;
+>>>>>>> upstream/android-13
 	}
 	if (unlikely(create_error) && !dentry->d_inode) {
 		error = create_error;
 		goto out_dput;
 	}
+<<<<<<< HEAD
 out_no_open:
 	path->dentry = dentry;
 	path->mnt = nd->path.mnt;
@@ -3421,12 +5201,39 @@ static int do_last(struct nameidata *nd,
 		if (unlikely(error))
 			return error;
 		goto finish_open;
+=======
+	return dentry;
+
+out_dput:
+	dput(dentry);
+	return ERR_PTR(error);
+}
+
+static const char *open_last_lookups(struct nameidata *nd,
+		   struct file *file, const struct open_flags *op)
+{
+	struct dentry *dir = nd->path.dentry;
+	int open_flag = op->open_flag;
+	bool got_write = false;
+	unsigned seq;
+	struct inode *inode;
+	struct dentry *dentry;
+	const char *res;
+
+	nd->flags |= op->intent;
+
+	if (nd->last_type != LAST_NORM) {
+		if (nd->depth)
+			put_link(nd);
+		return handle_dots(nd, nd->last_type);
+>>>>>>> upstream/android-13
 	}
 
 	if (!(open_flag & O_CREAT)) {
 		if (nd->last.name[nd->last.len])
 			nd->flags |= LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
 		/* we _can_ be in RCU mode here */
+<<<<<<< HEAD
 		error = lookup_fast(nd, &path, &inode, &seq);
 		if (likely(error > 0))
 			goto finish_lookup;
@@ -3457,6 +5264,29 @@ static int do_last(struct nameidata *nd,
 		error = mnt_want_write(nd->path.mnt);
 		if (!error)
 			got_write = true;
+=======
+		dentry = lookup_fast(nd, &inode, &seq);
+		if (IS_ERR(dentry))
+			return ERR_CAST(dentry);
+		if (likely(dentry))
+			goto finish_lookup;
+
+		BUG_ON(nd->flags & LOOKUP_RCU);
+	} else {
+		/* create side of things */
+		if (nd->flags & LOOKUP_RCU) {
+			if (!try_to_unlazy(nd))
+				return ERR_PTR(-ECHILD);
+		}
+		audit_inode(nd->name, dir, AUDIT_INODE_PARENT);
+		/* trailing slashes? */
+		if (unlikely(nd->last.name[nd->last.len]))
+			return ERR_PTR(-EISDIR);
+	}
+
+	if (open_flag & (O_CREAT | O_TRUNC | O_WRONLY | O_RDWR)) {
+		got_write = !mnt_want_write(nd->path.mnt);
+>>>>>>> upstream/android-13
 		/*
 		 * do _not_ fail yet - we might not need that or fail with
 		 * a different error; let lookup_open() decide; we'll be
@@ -3467,12 +5297,19 @@ static int do_last(struct nameidata *nd,
 		inode_lock(dir->d_inode);
 	else
 		inode_lock_shared(dir->d_inode);
+<<<<<<< HEAD
 	error = lookup_open(nd, &path, file, op, got_write);
+=======
+	dentry = lookup_open(nd, file, op, got_write);
+	if (!IS_ERR(dentry) && (file->f_mode & FMODE_CREATED))
+		fsnotify_create(dir->d_inode, dentry);
+>>>>>>> upstream/android-13
 	if (open_flag & O_CREAT)
 		inode_unlock(dir->d_inode);
 	else
 		inode_unlock_shared(dir->d_inode);
 
+<<<<<<< HEAD
 	if (error)
 		goto out;
 
@@ -3569,16 +5406,115 @@ opened:
 	if (!error && will_truncate)
 		error = handle_truncate(file);
 out:
+=======
+	if (got_write)
+		mnt_drop_write(nd->path.mnt);
+
+	if (IS_ERR(dentry))
+		return ERR_CAST(dentry);
+
+	if (file->f_mode & (FMODE_OPENED | FMODE_CREATED)) {
+		dput(nd->path.dentry);
+		nd->path.dentry = dentry;
+		return NULL;
+	}
+
+finish_lookup:
+	if (nd->depth)
+		put_link(nd);
+	res = step_into(nd, WALK_TRAILING, dentry, inode, seq);
+	if (unlikely(res))
+		nd->flags &= ~(LOOKUP_OPEN|LOOKUP_CREATE|LOOKUP_EXCL);
+	return res;
+}
+
+/*
+ * Handle the last step of open()
+ */
+static int do_open(struct nameidata *nd,
+		   struct file *file, const struct open_flags *op)
+{
+	struct user_namespace *mnt_userns;
+	int open_flag = op->open_flag;
+	bool do_truncate;
+	int acc_mode;
+	int error;
+
+	if (!(file->f_mode & (FMODE_OPENED | FMODE_CREATED))) {
+		error = complete_walk(nd);
+		if (error)
+			return error;
+	}
+	if (!(file->f_mode & FMODE_CREATED))
+		audit_inode(nd->name, nd->path.dentry, 0);
+	mnt_userns = mnt_user_ns(nd->path.mnt);
+	if (open_flag & O_CREAT) {
+		if ((open_flag & O_EXCL) && !(file->f_mode & FMODE_CREATED))
+			return -EEXIST;
+		if (d_is_dir(nd->path.dentry))
+			return -EISDIR;
+		error = may_create_in_sticky(mnt_userns, nd,
+					     d_backing_inode(nd->path.dentry));
+		if (unlikely(error))
+			return error;
+	}
+	if ((nd->flags & LOOKUP_DIRECTORY) && !d_can_lookup(nd->path.dentry))
+		return -ENOTDIR;
+
+	do_truncate = false;
+	acc_mode = op->acc_mode;
+	if (file->f_mode & FMODE_CREATED) {
+		/* Don't check for write permission, don't truncate */
+		open_flag &= ~O_TRUNC;
+		acc_mode = 0;
+	} else if (d_is_reg(nd->path.dentry) && open_flag & O_TRUNC) {
+		error = mnt_want_write(nd->path.mnt);
+		if (error)
+			return error;
+		do_truncate = true;
+	}
+	error = may_open(mnt_userns, &nd->path, acc_mode, open_flag);
+	if (!error && !(file->f_mode & FMODE_OPENED))
+		error = vfs_open(&nd->path, file);
+	if (!error)
+		error = ima_file_check(file, op->acc_mode);
+	if (!error && do_truncate)
+		error = handle_truncate(mnt_userns, file);
+>>>>>>> upstream/android-13
 	if (unlikely(error > 0)) {
 		WARN_ON(1);
 		error = -EINVAL;
 	}
+<<<<<<< HEAD
 	if (got_write)
+=======
+	if (do_truncate)
+>>>>>>> upstream/android-13
 		mnt_drop_write(nd->path.mnt);
 	return error;
 }
 
+<<<<<<< HEAD
 struct dentry *vfs_tmpfile(struct dentry *dentry, umode_t mode, int open_flag)
+=======
+/**
+ * vfs_tmpfile - create tmpfile
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dentry:	pointer to dentry of the base directory
+ * @mode:	mode of the new tmpfile
+ * @open_flag:	flags
+ *
+ * Create a temporary file.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+struct dentry *vfs_tmpfile(struct user_namespace *mnt_userns,
+			   struct dentry *dentry, umode_t mode, int open_flag)
+>>>>>>> upstream/android-13
 {
 	struct dentry *child = NULL;
 	struct inode *dir = dentry->d_inode;
@@ -3586,8 +5522,12 @@ struct dentry *vfs_tmpfile(struct dentry *dentry, umode_t mode, int open_flag)
 	int error;
 
 	/* we want directory to be writable */
+<<<<<<< HEAD
 	error = inode_permission2(ERR_PTR(-EOPNOTSUPP), dir,
 					MAY_WRITE | MAY_EXEC);
+=======
+	error = inode_permission(mnt_userns, dir, MAY_WRITE | MAY_EXEC);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_err;
 	error = -EOPNOTSUPP;
@@ -3597,7 +5537,11 @@ struct dentry *vfs_tmpfile(struct dentry *dentry, umode_t mode, int open_flag)
 	child = d_alloc(dentry, &slash_name);
 	if (unlikely(!child))
 		goto out_err;
+<<<<<<< HEAD
 	error = dir->i_op->tmpfile(dir, child, mode);
+=======
+	error = dir->i_op->tmpfile(mnt_userns, dir, child, mode);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_err;
 	error = -ENOENT;
@@ -3609,6 +5553,10 @@ struct dentry *vfs_tmpfile(struct dentry *dentry, umode_t mode, int open_flag)
 		inode->i_state |= I_LINKABLE;
 		spin_unlock(&inode->i_lock);
 	}
+<<<<<<< HEAD
+=======
+	ima_post_create_tmpfile(mnt_userns, inode);
+>>>>>>> upstream/android-13
 	return child;
 
 out_err:
@@ -3621,6 +5569,10 @@ static int do_tmpfile(struct nameidata *nd, unsigned flags,
 		const struct open_flags *op,
 		struct file *file)
 {
+<<<<<<< HEAD
+=======
+	struct user_namespace *mnt_userns;
+>>>>>>> upstream/android-13
 	struct dentry *child;
 	struct path path;
 	int error = path_lookupat(nd, flags | LOOKUP_DIRECTORY, &path);
@@ -3629,7 +5581,12 @@ static int do_tmpfile(struct nameidata *nd, unsigned flags,
 	error = mnt_want_write(path.mnt);
 	if (unlikely(error))
 		goto out;
+<<<<<<< HEAD
 	child = vfs_tmpfile(path.dentry, op->mode, op->open_flag);
+=======
+	mnt_userns = mnt_user_ns(path.mnt);
+	child = vfs_tmpfile(mnt_userns, path.dentry, op->mode, op->open_flag);
+>>>>>>> upstream/android-13
 	error = PTR_ERR(child);
 	if (IS_ERR(child))
 		goto out2;
@@ -3637,11 +5594,17 @@ static int do_tmpfile(struct nameidata *nd, unsigned flags,
 	path.dentry = child;
 	audit_inode(nd->name, child, 0);
 	/* Don't check for other permissions, the inode was just created */
+<<<<<<< HEAD
 	error = may_open(&path, 0, op->open_flag);
 	if (error)
 		goto out2;
 	file->f_path.mnt = path.mnt;
 	error = finish_open(file, child, NULL);
+=======
+	error = may_open(mnt_userns, &path, 0, op->open_flag);
+	if (!error)
+		error = vfs_open(&path, file);
+>>>>>>> upstream/android-13
 out2:
 	mnt_drop_write(path.mnt);
 out:
@@ -3678,10 +5641,17 @@ static struct file *path_openat(struct nameidata *nd,
 	} else {
 		const char *s = path_init(nd, flags);
 		while (!(error = link_path_walk(s, nd)) &&
+<<<<<<< HEAD
 			(error = do_last(nd, file, op)) > 0) {
 			nd->flags &= ~(LOOKUP_OPEN|LOOKUP_CREATE|LOOKUP_EXCL);
 			s = trailing_symlink(nd);
 		}
+=======
+		       (s = open_last_lookups(nd, file, op)) != NULL)
+			;
+		if (!error)
+			error = do_open(nd, file, op);
+>>>>>>> upstream/android-13
 		terminate_walk(nd);
 	}
 	if (likely(!error)) {
@@ -3707,7 +5677,11 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 	int flags = op->lookup_flags;
 	struct file *filp;
 
+<<<<<<< HEAD
 	set_nameidata(&nd, dfd, pathname);
+=======
+	set_nameidata(&nd, dfd, pathname, NULL);
+>>>>>>> upstream/android-13
 	filp = path_openat(&nd, op, flags | LOOKUP_RCU);
 	if (unlikely(filp == ERR_PTR(-ECHILD)))
 		filp = path_openat(&nd, op, flags);
@@ -3717,25 +5691,39 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 	return filp;
 }
 
+<<<<<<< HEAD
 struct file *do_file_open_root(struct dentry *dentry, struct vfsmount *mnt,
+=======
+struct file *do_file_open_root(const struct path *root,
+>>>>>>> upstream/android-13
 		const char *name, const struct open_flags *op)
 {
 	struct nameidata nd;
 	struct file *file;
 	struct filename *filename;
+<<<<<<< HEAD
 	int flags = op->lookup_flags | LOOKUP_ROOT;
 
 	nd.root.mnt = mnt;
 	nd.root.dentry = dentry;
 
 	if (d_is_symlink(dentry) && op->intent & LOOKUP_OPEN)
+=======
+	int flags = op->lookup_flags;
+
+	if (d_is_symlink(root->dentry) && op->intent & LOOKUP_OPEN)
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ELOOP);
 
 	filename = getname_kernel(name);
 	if (IS_ERR(filename))
 		return ERR_CAST(filename);
 
+<<<<<<< HEAD
 	set_nameidata(&nd, -1, filename);
+=======
+	set_nameidata(&nd, -1, filename, root);
+>>>>>>> upstream/android-13
 	file = path_openat(&nd, op, flags | LOOKUP_RCU);
 	if (unlikely(file == ERR_PTR(-ECHILD)))
 		file = path_openat(&nd, op, flags);
@@ -3747,6 +5735,7 @@ struct file *do_file_open_root(struct dentry *dentry, struct vfsmount *mnt,
 }
 
 static struct dentry *filename_create(int dfd, struct filename *name,
+<<<<<<< HEAD
 				struct path *path, unsigned int lookup_flags)
 {
 	struct dentry *dentry = ERR_PTR(-EEXIST);
@@ -3765,6 +5754,22 @@ static struct dentry *filename_create(int dfd, struct filename *name,
 	name = filename_parentat(dfd, name, lookup_flags, path, &last, &type);
 	if (IS_ERR(name))
 		return ERR_CAST(name);
+=======
+				      struct path *path, unsigned int lookup_flags)
+{
+	struct dentry *dentry = ERR_PTR(-EEXIST);
+	struct qstr last;
+	bool want_dir = lookup_flags & LOOKUP_DIRECTORY;
+	unsigned int reval_flag = lookup_flags & LOOKUP_REVAL;
+	unsigned int create_flags = LOOKUP_CREATE | LOOKUP_EXCL;
+	int type;
+	int err2;
+	int error;
+
+	error = filename_parentat(dfd, name, reval_flag, path, &last, &type);
+	if (error)
+		return ERR_PTR(error);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Yucky last component or no last component at all?
@@ -3776,11 +5781,21 @@ static struct dentry *filename_create(int dfd, struct filename *name,
 	/* don't fail immediately if it's r/o, at least try to report other errors */
 	err2 = mnt_want_write(path->mnt);
 	/*
+<<<<<<< HEAD
 	 * Do the final lookup.
 	 */
 	lookup_flags |= LOOKUP_CREATE | LOOKUP_EXCL;
 	inode_lock_nested(path->dentry->d_inode, I_MUTEX_PARENT);
 	dentry = __lookup_hash(&last, path->dentry, lookup_flags);
+=======
+	 * Do the final lookup.  Suppress 'create' if there is a trailing
+	 * '/', and a directory wasn't requested.
+	 */
+	if (last.name[last.len] && !want_dir)
+		create_flags = 0;
+	inode_lock_nested(path->dentry->d_inode, I_MUTEX_PARENT);
+	dentry = __lookup_hash(&last, path->dentry, reval_flag | create_flags);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dentry))
 		goto unlock;
 
@@ -3794,7 +5809,11 @@ static struct dentry *filename_create(int dfd, struct filename *name,
 	 * all is fine. Let's be bastards - you had / on the end, you've
 	 * been asking for (non-existent) directory. -ENOENT for you.
 	 */
+<<<<<<< HEAD
 	if (unlikely(!is_dir && last.name[last.len])) {
+=======
+	if (unlikely(!create_flags)) {
+>>>>>>> upstream/android-13
 		error = -ENOENT;
 		goto fail;
 	}
@@ -3802,7 +5821,10 @@ static struct dentry *filename_create(int dfd, struct filename *name,
 		error = err2;
 		goto fail;
 	}
+<<<<<<< HEAD
 	putname(name);
+=======
+>>>>>>> upstream/android-13
 	return dentry;
 fail:
 	dput(dentry);
@@ -3813,15 +5835,26 @@ unlock:
 		mnt_drop_write(path->mnt);
 out:
 	path_put(path);
+<<<<<<< HEAD
 	putname(name);
+=======
+>>>>>>> upstream/android-13
 	return dentry;
 }
 
 struct dentry *kern_path_create(int dfd, const char *pathname,
 				struct path *path, unsigned int lookup_flags)
 {
+<<<<<<< HEAD
 	return filename_create(dfd, getname_kernel(pathname),
 				path, lookup_flags);
+=======
+	struct filename *filename = getname_kernel(pathname);
+	struct dentry *res = filename_create(dfd, filename, path, lookup_flags);
+
+	putname(filename);
+	return res;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(kern_path_create);
 
@@ -3837,6 +5870,7 @@ EXPORT_SYMBOL(done_path_create);
 inline struct dentry *user_path_create(int dfd, const char __user *pathname,
 				struct path *path, unsigned int lookup_flags)
 {
+<<<<<<< HEAD
 	return filename_create(dfd, getname(pathname), path, lookup_flags);
 }
 EXPORT_SYMBOL(user_path_create);
@@ -3844,11 +5878,47 @@ EXPORT_SYMBOL(user_path_create);
 int vfs_mknod2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 {
 	int error = may_create(mnt, dir, dentry);
+=======
+	struct filename *filename = getname(pathname);
+	struct dentry *res = filename_create(dfd, filename, path, lookup_flags);
+
+	putname(filename);
+	return res;
+}
+EXPORT_SYMBOL(user_path_create);
+
+/**
+ * vfs_mknod - create device node or file
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dir:	inode of @dentry
+ * @dentry:	pointer to dentry of the base directory
+ * @mode:	mode of the new device node or file
+ * @dev:	device number of device to create
+ *
+ * Create a device node or file.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int vfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+	      struct dentry *dentry, umode_t mode, dev_t dev)
+{
+	bool is_whiteout = S_ISCHR(mode) && dev == WHITEOUT_DEV;
+	int error = may_create(mnt_userns, dir, dentry);
+>>>>>>> upstream/android-13
 
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	if ((S_ISCHR(mode) || S_ISBLK(mode)) && !capable(CAP_MKNOD))
+=======
+	if ((S_ISCHR(mode) || S_ISBLK(mode)) && !is_whiteout &&
+	    !capable(CAP_MKNOD))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	if (!dir->i_op->mknod)
@@ -3862,17 +5932,24 @@ int vfs_mknod2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry, u
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	error = dir->i_op->mknod(dir, dentry, mode, dev);
+=======
+	error = dir->i_op->mknod(mnt_userns, dir, dentry, mode, dev);
+>>>>>>> upstream/android-13
 	if (!error)
 		fsnotify_create(dir, dentry);
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_mknod2);
 
 int vfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 {
 	return vfs_mknod2(NULL, dir, dentry, mode, dev);
 }
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(vfs_mknod);
 
 static int may_mknod(umode_t mode)
@@ -3892,9 +5969,16 @@ static int may_mknod(umode_t mode)
 	}
 }
 
+<<<<<<< HEAD
 long do_mknodat(int dfd, const char __user *filename, umode_t mode,
 		unsigned int dev)
 {
+=======
+static int do_mknodat(int dfd, struct filename *name, umode_t mode,
+		unsigned int dev)
+{
+	struct user_namespace *mnt_userns;
+>>>>>>> upstream/android-13
 	struct dentry *dentry;
 	struct path path;
 	int error;
@@ -3902,16 +5986,26 @@ long do_mknodat(int dfd, const char __user *filename, umode_t mode,
 
 	error = may_mknod(mode);
 	if (error)
+<<<<<<< HEAD
 		return error;
 retry:
 	dentry = user_path_create(dfd, filename, &path, lookup_flags);
 	if (IS_ERR(dentry))
 		return PTR_ERR(dentry);
+=======
+		goto out1;
+retry:
+	dentry = filename_create(dfd, name, &path, lookup_flags);
+	error = PTR_ERR(dentry);
+	if (IS_ERR(dentry))
+		goto out1;
+>>>>>>> upstream/android-13
 
 	if (!IS_POSIXACL(path.dentry->d_inode))
 		mode &= ~current_umask();
 	error = security_path_mknod(&path, dentry, mode, dev);
 	if (error)
+<<<<<<< HEAD
 		goto out;
 	switch (mode & S_IFMT) {
 		case 0: case S_IFREG:
@@ -3928,28 +6022,84 @@ retry:
 			break;
 	}
 out:
+=======
+		goto out2;
+
+	mnt_userns = mnt_user_ns(path.mnt);
+	switch (mode & S_IFMT) {
+		case 0: case S_IFREG:
+			error = vfs_create(mnt_userns, path.dentry->d_inode,
+					   dentry, mode, true);
+			if (!error)
+				ima_post_path_mknod(mnt_userns, dentry);
+			break;
+		case S_IFCHR: case S_IFBLK:
+			error = vfs_mknod(mnt_userns, path.dentry->d_inode,
+					  dentry, mode, new_decode_dev(dev));
+			break;
+		case S_IFIFO: case S_IFSOCK:
+			error = vfs_mknod(mnt_userns, path.dentry->d_inode,
+					  dentry, mode, 0);
+			break;
+	}
+out2:
+>>>>>>> upstream/android-13
 	done_path_create(&path, dentry);
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
 		goto retry;
 	}
+<<<<<<< HEAD
+=======
+out1:
+	putname(name);
+>>>>>>> upstream/android-13
 	return error;
 }
 
 SYSCALL_DEFINE4(mknodat, int, dfd, const char __user *, filename, umode_t, mode,
 		unsigned int, dev)
 {
+<<<<<<< HEAD
 	return do_mknodat(dfd, filename, mode, dev);
+=======
+	return do_mknodat(dfd, getname(filename), mode, dev);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE3(mknod, const char __user *, filename, umode_t, mode, unsigned, dev)
 {
+<<<<<<< HEAD
 	return do_mknodat(AT_FDCWD, filename, mode, dev);
 }
 
 int vfs_mkdir2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	int error = may_create(mnt, dir, dentry);
+=======
+	return do_mknodat(AT_FDCWD, getname(filename), mode, dev);
+}
+
+/**
+ * vfs_mkdir - create directory
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dir:	inode of @dentry
+ * @dentry:	pointer to dentry of the base directory
+ * @mode:	mode of the new directory
+ *
+ * Create a directory.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int vfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+	      struct dentry *dentry, umode_t mode)
+{
+	int error = may_create(mnt_userns, dir, dentry);
+>>>>>>> upstream/android-13
 	unsigned max_links = dir->i_sb->s_max_links;
 
 	if (error)
@@ -3966,11 +6116,16 @@ int vfs_mkdir2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry, u
 	if (max_links && dir->i_nlink >= max_links)
 		return -EMLINK;
 
+<<<<<<< HEAD
 	error = dir->i_op->mkdir(dir, dentry, mode);
+=======
+	error = dir->i_op->mkdir(mnt_userns, dir, dentry, mode);
+>>>>>>> upstream/android-13
 	if (!error)
 		fsnotify_mkdir(dir, dentry);
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_mkdir2);
 
 int vfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
@@ -3980,6 +6135,11 @@ int vfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 EXPORT_SYMBOL(vfs_mkdir);
 
 long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
+=======
+EXPORT_SYMBOL_NS(vfs_mkdir, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+int do_mkdirat(int dfd, struct filename *name, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct dentry *dentry;
 	struct path path;
@@ -3987,36 +6147,85 @@ long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
 	unsigned int lookup_flags = LOOKUP_DIRECTORY;
 
 retry:
+<<<<<<< HEAD
 	dentry = user_path_create(dfd, pathname, &path, lookup_flags);
 	if (IS_ERR(dentry))
 		return PTR_ERR(dentry);
+=======
+	dentry = filename_create(dfd, name, &path, lookup_flags);
+	error = PTR_ERR(dentry);
+	if (IS_ERR(dentry))
+		goto out_putname;
+>>>>>>> upstream/android-13
 
 	if (!IS_POSIXACL(path.dentry->d_inode))
 		mode &= ~current_umask();
 	error = security_path_mkdir(&path, dentry, mode);
+<<<<<<< HEAD
 	if (!error)
 		error = vfs_mkdir2(path.mnt, path.dentry->d_inode, dentry, mode);
+=======
+	if (!error) {
+		struct user_namespace *mnt_userns;
+		mnt_userns = mnt_user_ns(path.mnt);
+		error = vfs_mkdir(mnt_userns, path.dentry->d_inode, dentry,
+				  mode);
+	}
+>>>>>>> upstream/android-13
 	done_path_create(&path, dentry);
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
 		goto retry;
 	}
+<<<<<<< HEAD
+=======
+out_putname:
+	putname(name);
+>>>>>>> upstream/android-13
 	return error;
 }
 
 SYSCALL_DEFINE3(mkdirat, int, dfd, const char __user *, pathname, umode_t, mode)
 {
+<<<<<<< HEAD
 	return do_mkdirat(dfd, pathname, mode);
+=======
+	return do_mkdirat(dfd, getname(pathname), mode);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE2(mkdir, const char __user *, pathname, umode_t, mode)
 {
+<<<<<<< HEAD
 	return do_mkdirat(AT_FDCWD, pathname, mode);
 }
 
 int vfs_rmdir2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry)
 {
 	int error = may_delete(mnt, dir, dentry, 1);
+=======
+	return do_mkdirat(AT_FDCWD, getname(pathname), mode);
+}
+
+/**
+ * vfs_rmdir - remove directory
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dir:	inode of @dentry
+ * @dentry:	pointer to dentry of the base directory
+ *
+ * Remove a directory.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int vfs_rmdir(struct user_namespace *mnt_userns, struct inode *dir,
+		     struct dentry *dentry)
+{
+	int error = may_delete(mnt_userns, dir, dentry, 1);
+>>>>>>> upstream/android-13
 
 	if (error)
 		return error;
@@ -4048,6 +6257,7 @@ out:
 	inode_unlock(dentry->d_inode);
 	dput(dentry);
 	if (!error)
+<<<<<<< HEAD
 		d_delete(dentry);
 	return error;
 }
@@ -4063,20 +6273,38 @@ long do_rmdir(int dfd, const char __user *pathname)
 {
 	int error = 0;
 	struct filename *name;
+=======
+		d_delete_notify(dir, dentry);
+	return error;
+}
+EXPORT_SYMBOL_NS(vfs_rmdir, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+int do_rmdir(int dfd, struct filename *name)
+{
+	struct user_namespace *mnt_userns;
+	int error;
+>>>>>>> upstream/android-13
 	struct dentry *dentry;
 	struct path path;
 	struct qstr last;
 	int type;
 	unsigned int lookup_flags = 0;
 retry:
+<<<<<<< HEAD
 	name = filename_parentat(dfd, getname(pathname), lookup_flags,
 				&path, &last, &type);
 	if (IS_ERR(name))
 		return PTR_ERR(name);
+=======
+	error = filename_parentat(dfd, name, lookup_flags, &path, &last, &type);
+	if (error)
+		goto exit1;
+>>>>>>> upstream/android-13
 
 	switch (type) {
 	case LAST_DOTDOT:
 		error = -ENOTEMPTY;
+<<<<<<< HEAD
 		goto exit1;
 	case LAST_DOT:
 		error = -EINVAL;
@@ -4084,16 +6312,30 @@ retry:
 	case LAST_ROOT:
 		error = -EBUSY;
 		goto exit1;
+=======
+		goto exit2;
+	case LAST_DOT:
+		error = -EINVAL;
+		goto exit2;
+	case LAST_ROOT:
+		error = -EBUSY;
+		goto exit2;
+>>>>>>> upstream/android-13
 	}
 
 	error = mnt_want_write(path.mnt);
 	if (error)
+<<<<<<< HEAD
 		goto exit1;
+=======
+		goto exit2;
+>>>>>>> upstream/android-13
 
 	inode_lock_nested(path.dentry->d_inode, I_MUTEX_PARENT);
 	dentry = __lookup_hash(&last, path.dentry, lookup_flags);
 	error = PTR_ERR(dentry);
 	if (IS_ERR(dentry))
+<<<<<<< HEAD
 		goto exit2;
 	if (!dentry->d_inode) {
 		error = -ENOENT;
@@ -4103,10 +6345,23 @@ retry:
 	if (error)
 		goto exit3;
 	error = vfs_rmdir2(path.mnt, path.dentry->d_inode, dentry);
+=======
+		goto exit3;
+	if (!dentry->d_inode) {
+		error = -ENOENT;
+		goto exit4;
+	}
+	error = security_path_rmdir(&path, dentry);
+	if (error)
+		goto exit4;
+	mnt_userns = mnt_user_ns(path.mnt);
+	error = vfs_rmdir(mnt_userns, path.dentry->d_inode, dentry);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROC_DLOG
 	if (!error)
 		dlog_hook_rmdir(dentry, &path);
 #endif
+<<<<<<< HEAD
 exit3:
 	dput(dentry);
 exit2:
@@ -4115,20 +6370,42 @@ exit2:
 exit1:
 	path_put(&path);
 	putname(name);
+=======
+exit4:
+	dput(dentry);
+exit3:
+	inode_unlock(path.dentry->d_inode);
+	mnt_drop_write(path.mnt);
+exit2:
+	path_put(&path);
+>>>>>>> upstream/android-13
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
 		goto retry;
 	}
+<<<<<<< HEAD
+=======
+exit1:
+	putname(name);
+>>>>>>> upstream/android-13
 	return error;
 }
 
 SYSCALL_DEFINE1(rmdir, const char __user *, pathname)
 {
+<<<<<<< HEAD
 	return do_rmdir(AT_FDCWD, pathname);
+=======
+	return do_rmdir(AT_FDCWD, getname(pathname));
+>>>>>>> upstream/android-13
 }
 
 /**
  * vfs_unlink - unlink a filesystem object
+<<<<<<< HEAD
+=======
+ * @mnt_userns:	user namespace of the mount the inode was found from
+>>>>>>> upstream/android-13
  * @dir:	parent directory
  * @dentry:	victim
  * @delegated_inode: returns victim inode, if the inode is delegated.
@@ -4144,11 +6421,26 @@ SYSCALL_DEFINE1(rmdir, const char __user *, pathname)
  * Alternatively, a caller may pass NULL for delegated_inode.  This may
  * be appropriate for callers that expect the underlying filesystem not
  * to be NFS exported.
+<<<<<<< HEAD
  */
 int vfs_unlink2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry, struct inode **delegated_inode)
 {
 	struct inode *target = dentry->d_inode;
 	int error = may_delete(mnt, dir, dentry, 0);
+=======
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int vfs_unlink(struct user_namespace *mnt_userns, struct inode *dir,
+	       struct dentry *dentry, struct inode **delegated_inode)
+{
+	struct inode *target = dentry->d_inode;
+	int error = may_delete(mnt_userns, dir, dentry, 0);
+>>>>>>> upstream/android-13
 
 	if (error)
 		return error;
@@ -4157,7 +6449,13 @@ int vfs_unlink2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry, 
 		return -EPERM;
 
 	inode_lock(target);
+<<<<<<< HEAD
 	if (is_local_mountpoint(dentry))
+=======
+	if (IS_SWAPFILE(target))
+		error = -EPERM;
+	else if (is_local_mountpoint(dentry))
+>>>>>>> upstream/android-13
 		error = -EBUSY;
 	else {
 		error = security_inode_unlink(dir, dentry);
@@ -4176,13 +6474,22 @@ out:
 	inode_unlock(target);
 
 	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
+<<<<<<< HEAD
 	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
 		fsnotify_link_count(target);
 		d_delete(dentry);
+=======
+	if (!error && dentry->d_flags & DCACHE_NFSFS_RENAMED) {
+		fsnotify_unlink(dir, dentry);
+	} else if (!error) {
+		fsnotify_link_count(target);
+		d_delete_notify(dir, dentry);
+>>>>>>> upstream/android-13
 	}
 
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_unlink2);
 
 int vfs_unlink(struct inode *dir, struct dentry *dentry, struct inode **delegated_inode)
@@ -4190,6 +6497,9 @@ int vfs_unlink(struct inode *dir, struct dentry *dentry, struct inode **delegate
 	return vfs_unlink2(NULL, dir, dentry, delegated_inode);
 }
 EXPORT_SYMBOL(vfs_unlink);
+=======
+EXPORT_SYMBOL_NS(vfs_unlink, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * Make sure that the actual truncation of the file will occur outside its
@@ -4197,7 +6507,11 @@ EXPORT_SYMBOL(vfs_unlink);
  * writeout happening, and we don't want to prevent access to the directory
  * while waiting on the I/O.
  */
+<<<<<<< HEAD
 long do_unlinkat(int dfd, struct filename *name)
+=======
+int do_unlinkat(int dfd, struct filename *name)
+>>>>>>> upstream/android-13
 {
 	int error;
 	struct dentry *dentry;
@@ -4208,6 +6522,7 @@ long do_unlinkat(int dfd, struct filename *name)
 	struct inode *delegated_inode = NULL;
 	unsigned int lookup_flags = 0;
 retry:
+<<<<<<< HEAD
 	name = filename_parentat(dfd, name, lookup_flags, &path, &last, &type);
 	if (IS_ERR(name))
 		return PTR_ERR(name);
@@ -4219,11 +6534,29 @@ retry:
 	error = mnt_want_write(path.mnt);
 	if (error)
 		goto exit1;
+=======
+	error = filename_parentat(dfd, name, lookup_flags, &path, &last, &type);
+	if (error)
+		goto exit1;
+
+	error = -EISDIR;
+	if (type != LAST_NORM)
+		goto exit2;
+
+	error = mnt_want_write(path.mnt);
+	if (error)
+		goto exit2;
+>>>>>>> upstream/android-13
 retry_deleg:
 	inode_lock_nested(path.dentry->d_inode, I_MUTEX_PARENT);
 	dentry = __lookup_hash(&last, path.dentry, lookup_flags);
 	error = PTR_ERR(dentry);
 	if (!IS_ERR(dentry)) {
+<<<<<<< HEAD
+=======
+		struct user_namespace *mnt_userns;
+
+>>>>>>> upstream/android-13
 		/* Why not before? Because we want correct error value */
 		if (last.name[last.len])
 			goto slashes;
@@ -4233,13 +6566,24 @@ retry_deleg:
 		ihold(inode);
 		error = security_path_unlink(&path, dentry);
 		if (error)
+<<<<<<< HEAD
 			goto exit2;
 		error = vfs_unlink2(path.mnt, path.dentry->d_inode, dentry, &delegated_inode);
+=======
+			goto exit3;
+		mnt_userns = mnt_user_ns(path.mnt);
+		error = vfs_unlink(mnt_userns, path.dentry->d_inode, dentry,
+				   &delegated_inode);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROC_DLOG
 		if (!error)
 			dlog_hook(dentry, inode, &path);
 #endif
+<<<<<<< HEAD
 exit2:
+=======
+exit3:
+>>>>>>> upstream/android-13
 		dput(dentry);
 	}
 	inode_unlock(path.dentry->d_inode);
@@ -4252,13 +6596,21 @@ exit2:
 			goto retry_deleg;
 	}
 	mnt_drop_write(path.mnt);
+<<<<<<< HEAD
 exit1:
+=======
+exit2:
+>>>>>>> upstream/android-13
 	path_put(&path);
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
 		inode = NULL;
 		goto retry;
 	}
+<<<<<<< HEAD
+=======
+exit1:
+>>>>>>> upstream/android-13
 	putname(name);
 	return error;
 
@@ -4269,7 +6621,11 @@ slashes:
 		error = -EISDIR;
 	else
 		error = -ENOTDIR;
+<<<<<<< HEAD
 	goto exit2;
+=======
+	goto exit3;
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE3(unlinkat, int, dfd, const char __user *, pathname, int, flag)
@@ -4278,8 +6634,12 @@ SYSCALL_DEFINE3(unlinkat, int, dfd, const char __user *, pathname, int, flag)
 		return -EINVAL;
 
 	if (flag & AT_REMOVEDIR)
+<<<<<<< HEAD
 		return do_rmdir(dfd, pathname);
 
+=======
+		return do_rmdir(dfd, getname(pathname));
+>>>>>>> upstream/android-13
 	return do_unlinkat(dfd, getname(pathname));
 }
 
@@ -4288,9 +6648,31 @@ SYSCALL_DEFINE1(unlink, const char __user *, pathname)
 	return do_unlinkat(AT_FDCWD, getname(pathname));
 }
 
+<<<<<<< HEAD
 int vfs_symlink2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry, const char *oldname)
 {
 	int error = may_create(mnt, dir, dentry);
+=======
+/**
+ * vfs_symlink - create symlink
+ * @mnt_userns:	user namespace of the mount the inode was found from
+ * @dir:	inode of @dentry
+ * @dentry:	pointer to dentry of the base directory
+ * @oldname:	name of the file to link to
+ *
+ * Create a symlink.
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int vfs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+		struct dentry *dentry, const char *oldname)
+{
+	int error = may_create(mnt_userns, dir, dentry);
+>>>>>>> upstream/android-13
 
 	if (error)
 		return error;
@@ -4302,11 +6684,16 @@ int vfs_symlink2(struct vfsmount *mnt, struct inode *dir, struct dentry *dentry,
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	error = dir->i_op->symlink(dir, dentry, oldname);
+=======
+	error = dir->i_op->symlink(mnt_userns, dir, dentry, oldname);
+>>>>>>> upstream/android-13
 	if (!error)
 		fsnotify_create(dir, dentry);
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_symlink2);
 
 int vfs_symlink(struct inode *dir, struct dentry *dentry, const char *oldname)
@@ -4320,10 +6707,18 @@ long do_symlinkat(const char __user *oldname, int newdfd,
 {
 	int error;
 	struct filename *from;
+=======
+EXPORT_SYMBOL(vfs_symlink);
+
+int do_symlinkat(struct filename *from, int newdfd, struct filename *to)
+{
+	int error;
+>>>>>>> upstream/android-13
 	struct dentry *dentry;
 	struct path path;
 	unsigned int lookup_flags = 0;
 
+<<<<<<< HEAD
 	from = getname(oldname);
 	if (IS_ERR(from))
 		return PTR_ERR(from);
@@ -4336,12 +6731,37 @@ retry:
 	error = security_path_symlink(&path, dentry, from->name);
 	if (!error)
 		error = vfs_symlink2(path.mnt, path.dentry->d_inode, dentry, from->name);
+=======
+	if (IS_ERR(from)) {
+		error = PTR_ERR(from);
+		goto out_putnames;
+	}
+retry:
+	dentry = filename_create(newdfd, to, &path, lookup_flags);
+	error = PTR_ERR(dentry);
+	if (IS_ERR(dentry))
+		goto out_putnames;
+
+	error = security_path_symlink(&path, dentry, from->name);
+	if (!error) {
+		struct user_namespace *mnt_userns;
+
+		mnt_userns = mnt_user_ns(path.mnt);
+		error = vfs_symlink(mnt_userns, path.dentry->d_inode, dentry,
+				    from->name);
+	}
+>>>>>>> upstream/android-13
 	done_path_create(&path, dentry);
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
 		goto retry;
 	}
+<<<<<<< HEAD
 out_putname:
+=======
+out_putnames:
+	putname(to);
+>>>>>>> upstream/android-13
 	putname(from);
 	return error;
 }
@@ -4349,17 +6769,29 @@ out_putname:
 SYSCALL_DEFINE3(symlinkat, const char __user *, oldname,
 		int, newdfd, const char __user *, newname)
 {
+<<<<<<< HEAD
 	return do_symlinkat(oldname, newdfd, newname);
+=======
+	return do_symlinkat(getname(oldname), newdfd, getname(newname));
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE2(symlink, const char __user *, oldname, const char __user *, newname)
 {
+<<<<<<< HEAD
 	return do_symlinkat(oldname, AT_FDCWD, newname);
+=======
+	return do_symlinkat(getname(oldname), AT_FDCWD, getname(newname));
+>>>>>>> upstream/android-13
 }
 
 /**
  * vfs_link - create a new link
  * @old_dentry:	object to be linked
+<<<<<<< HEAD
+=======
+ * @mnt_userns:	the user namespace of the mount
+>>>>>>> upstream/android-13
  * @dir:	new parent
  * @new_dentry:	where to create the new link
  * @delegated_inode: returns inode needing a delegation break
@@ -4375,8 +6807,21 @@ SYSCALL_DEFINE2(symlink, const char __user *, oldname, const char __user *, newn
  * Alternatively, a caller may pass NULL for delegated_inode.  This may
  * be appropriate for callers that expect the underlying filesystem not
  * to be NFS exported.
+<<<<<<< HEAD
  */
 int vfs_link2(struct vfsmount *mnt, struct dentry *old_dentry, struct inode *dir, struct dentry *new_dentry, struct inode **delegated_inode)
+=======
+ *
+ * If the inode has been found through an idmapped mount the user namespace of
+ * the vfsmount must be passed through @mnt_userns. This function will then take
+ * care to map the inode according to @mnt_userns before checking permissions.
+ * On non-idmapped mounts or if permission checking is to be performed on the
+ * raw inode simply passs init_user_ns.
+ */
+int vfs_link(struct dentry *old_dentry, struct user_namespace *mnt_userns,
+	     struct inode *dir, struct dentry *new_dentry,
+	     struct inode **delegated_inode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = old_dentry->d_inode;
 	unsigned max_links = dir->i_sb->s_max_links;
@@ -4385,7 +6830,11 @@ int vfs_link2(struct vfsmount *mnt, struct dentry *old_dentry, struct inode *dir
 	if (!inode)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	error = may_create(mnt, dir, new_dentry);
+=======
+	error = may_create(mnt_userns, dir, new_dentry);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -4402,7 +6851,11 @@ int vfs_link2(struct vfsmount *mnt, struct dentry *old_dentry, struct inode *dir
 	 * be writen back improperly if their true value is unknown to
 	 * the vfs.
 	 */
+<<<<<<< HEAD
 	if (HAS_UNMAPPED_ID(inode))
+=======
+	if (HAS_UNMAPPED_ID(mnt_userns, inode))
+>>>>>>> upstream/android-13
 		return -EPERM;
 	if (!dir->i_op->link)
 		return -EPERM;
@@ -4435,6 +6888,7 @@ int vfs_link2(struct vfsmount *mnt, struct dentry *old_dentry, struct inode *dir
 		fsnotify_link(dir, inode, new_dentry);
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_link2);
 
 int vfs_link(struct dentry *old_dentry, struct inode *dir, struct dentry *new_dentry, struct inode **delegated_inode)
@@ -4442,6 +6896,9 @@ int vfs_link(struct dentry *old_dentry, struct inode *dir, struct dentry *new_de
 	return vfs_link2(NULL, old_dentry, dir, new_dentry, delegated_inode);
 }
 EXPORT_SYMBOL(vfs_link);
+=======
+EXPORT_SYMBOL_NS(vfs_link, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * Hardlinks are often used in delicate situations.  We avoid
@@ -4452,31 +6909,52 @@ EXPORT_SYMBOL(vfs_link);
  * with linux 2.0, and to avoid hard-linking to directories
  * and other special files.  --ADM
  */
+<<<<<<< HEAD
 int do_linkat(int olddfd, const char __user *oldname, int newdfd,
 	      const char __user *newname, int flags)
 {
+=======
+int do_linkat(int olddfd, struct filename *old, int newdfd,
+	      struct filename *new, int flags)
+{
+	struct user_namespace *mnt_userns;
+>>>>>>> upstream/android-13
 	struct dentry *new_dentry;
 	struct path old_path, new_path;
 	struct inode *delegated_inode = NULL;
 	int how = 0;
 	int error;
 
+<<<<<<< HEAD
 	if ((flags & ~(AT_SYMLINK_FOLLOW | AT_EMPTY_PATH)) != 0)
 		return -EINVAL;
+=======
+	if ((flags & ~(AT_SYMLINK_FOLLOW | AT_EMPTY_PATH)) != 0) {
+		error = -EINVAL;
+		goto out_putnames;
+	}
+>>>>>>> upstream/android-13
 	/*
 	 * To use null names we require CAP_DAC_READ_SEARCH
 	 * This ensures that not everyone will be able to create
 	 * handlink using the passed filedescriptor.
 	 */
+<<<<<<< HEAD
 	if (flags & AT_EMPTY_PATH) {
 		if (!capable(CAP_DAC_READ_SEARCH))
 			return -ENOENT;
 		how = LOOKUP_EMPTY;
+=======
+	if (flags & AT_EMPTY_PATH && !capable(CAP_DAC_READ_SEARCH)) {
+		error = -ENOENT;
+		goto out_putnames;
+>>>>>>> upstream/android-13
 	}
 
 	if (flags & AT_SYMLINK_FOLLOW)
 		how |= LOOKUP_FOLLOW;
 retry:
+<<<<<<< HEAD
 	error = user_path_at(olddfd, oldname, how, &old_path);
 	if (error)
 		return error;
@@ -4486,17 +6964,38 @@ retry:
 	error = PTR_ERR(new_dentry);
 	if (IS_ERR(new_dentry))
 		goto out;
+=======
+	error = filename_lookup(olddfd, old, how, &old_path, NULL);
+	if (error)
+		goto out_putnames;
+
+	new_dentry = filename_create(newdfd, new, &new_path,
+					(how & LOOKUP_REVAL));
+	error = PTR_ERR(new_dentry);
+	if (IS_ERR(new_dentry))
+		goto out_putpath;
+>>>>>>> upstream/android-13
 
 	error = -EXDEV;
 	if (old_path.mnt != new_path.mnt)
 		goto out_dput;
+<<<<<<< HEAD
 	error = may_linkat(&old_path);
+=======
+	mnt_userns = mnt_user_ns(new_path.mnt);
+	error = may_linkat(mnt_userns, &old_path);
+>>>>>>> upstream/android-13
 	if (unlikely(error))
 		goto out_dput;
 	error = security_path_link(old_path.dentry, &new_path, new_dentry);
 	if (error)
 		goto out_dput;
+<<<<<<< HEAD
 	error = vfs_link2(old_path.mnt, old_path.dentry, new_path.dentry->d_inode, new_dentry, &delegated_inode);
+=======
+	error = vfs_link(old_path.dentry, mnt_userns, new_path.dentry->d_inode,
+			 new_dentry, &delegated_inode);
+>>>>>>> upstream/android-13
 out_dput:
 	done_path_create(&new_path, new_dentry);
 	if (delegated_inode) {
@@ -4511,8 +7010,16 @@ out_dput:
 		how |= LOOKUP_REVAL;
 		goto retry;
 	}
+<<<<<<< HEAD
 out:
 	path_put(&old_path);
+=======
+out_putpath:
+	path_put(&old_path);
+out_putnames:
+	putname(old);
+	putname(new);
+>>>>>>> upstream/android-13
 
 	return error;
 }
@@ -4520,22 +7027,35 @@ out:
 SYSCALL_DEFINE5(linkat, int, olddfd, const char __user *, oldname,
 		int, newdfd, const char __user *, newname, int, flags)
 {
+<<<<<<< HEAD
 	return do_linkat(olddfd, oldname, newdfd, newname, flags);
+=======
+	return do_linkat(olddfd, getname_uflags(oldname, flags),
+		newdfd, getname(newname), flags);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE2(link, const char __user *, oldname, const char __user *, newname)
 {
+<<<<<<< HEAD
 	return do_linkat(AT_FDCWD, oldname, AT_FDCWD, newname, 0);
+=======
+	return do_linkat(AT_FDCWD, getname(oldname), AT_FDCWD, getname(newname), 0);
+>>>>>>> upstream/android-13
 }
 
 /**
  * vfs_rename - rename a filesystem object
+<<<<<<< HEAD
  * @old_dir:	parent of source
  * @old_dentry:	source
  * @new_dir:	parent of destination
  * @new_dentry:	destination
  * @delegated_inode: returns an inode needing a delegation break
  * @flags:	rename flags
+=======
+ * @rd:		pointer to &struct renamedata info
+>>>>>>> upstream/android-13
  *
  * The caller must hold multiple mutexes--see lock_rename()).
  *
@@ -4578,12 +7098,23 @@ SYSCALL_DEFINE2(link, const char __user *, oldname, const char __user *, newname
  *	   ->i_mutex on parents, which works but leads to some truly excessive
  *	   locking].
  */
+<<<<<<< HEAD
 int vfs_rename2(struct vfsmount *mnt,
 	       struct inode *old_dir, struct dentry *old_dentry,
 	       struct inode *new_dir, struct dentry *new_dentry,
 	       struct inode **delegated_inode, unsigned int flags)
 {
 	int error;
+=======
+int vfs_rename(struct renamedata *rd)
+{
+	int error;
+	struct inode *old_dir = rd->old_dir, *new_dir = rd->new_dir;
+	struct dentry *old_dentry = rd->old_dentry;
+	struct dentry *new_dentry = rd->new_dentry;
+	struct inode **delegated_inode = rd->delegated_inode;
+	unsigned int flags = rd->flags;
+>>>>>>> upstream/android-13
 	bool is_dir = d_is_dir(old_dentry);
 	struct inode *source = old_dentry->d_inode;
 	struct inode *target = new_dentry->d_inode;
@@ -4594,19 +7125,35 @@ int vfs_rename2(struct vfsmount *mnt,
 	if (source == target)
 		return 0;
 
+<<<<<<< HEAD
 	error = may_delete(mnt, old_dir, old_dentry, is_dir);
+=======
+	error = may_delete(rd->old_mnt_userns, old_dir, old_dentry, is_dir);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
 	if (!target) {
+<<<<<<< HEAD
 		error = may_create(mnt, new_dir, new_dentry);
+=======
+		error = may_create(rd->new_mnt_userns, new_dir, new_dentry);
+>>>>>>> upstream/android-13
 	} else {
 		new_is_dir = d_is_dir(new_dentry);
 
 		if (!(flags & RENAME_EXCHANGE))
+<<<<<<< HEAD
 			error = may_delete(mnt, new_dir, new_dentry, is_dir);
 		else
 			error = may_delete(mnt, new_dir, new_dentry, new_is_dir);
+=======
+			error = may_delete(rd->new_mnt_userns, new_dir,
+					   new_dentry, is_dir);
+		else
+			error = may_delete(rd->new_mnt_userns, new_dir,
+					   new_dentry, new_is_dir);
+>>>>>>> upstream/android-13
 	}
 	if (error)
 		return error;
@@ -4620,12 +7167,22 @@ int vfs_rename2(struct vfsmount *mnt,
 	 */
 	if (new_dir != old_dir) {
 		if (is_dir) {
+<<<<<<< HEAD
 			error = inode_permission2(mnt, source, MAY_WRITE);
+=======
+			error = inode_permission(rd->old_mnt_userns, source,
+						 MAY_WRITE);
+>>>>>>> upstream/android-13
 			if (error)
 				return error;
 		}
 		if ((flags & RENAME_EXCHANGE) && new_is_dir) {
+<<<<<<< HEAD
 			error = inode_permission2(mnt, target, MAY_WRITE);
+=======
+			error = inode_permission(rd->new_mnt_userns, target,
+						 MAY_WRITE);
+>>>>>>> upstream/android-13
 			if (error)
 				return error;
 		}
@@ -4643,6 +7200,13 @@ int vfs_rename2(struct vfsmount *mnt,
 	else if (target)
 		inode_lock(target);
 
+<<<<<<< HEAD
+=======
+	error = -EPERM;
+	if (IS_SWAPFILE(source) || (target && IS_SWAPFILE(target)))
+		goto out;
+
+>>>>>>> upstream/android-13
 	error = -EBUSY;
 	if (is_local_mountpoint(old_dentry) || is_local_mountpoint(new_dentry))
 		goto out;
@@ -4665,8 +7229,13 @@ int vfs_rename2(struct vfsmount *mnt,
 		if (error)
 			goto out;
 	}
+<<<<<<< HEAD
 	error = old_dir->i_op->rename(old_dir, old_dentry,
 				       new_dir, new_dentry, flags);
+=======
+	error = old_dir->i_op->rename(rd->new_mnt_userns, old_dir, old_dentry,
+				      new_dir, new_dentry, flags);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -4691,10 +7260,17 @@ out:
 		inode_unlock(target);
 	dput(new_dentry);
 	if (!error) {
+<<<<<<< HEAD
 		fsnotify_move(old_dir, new_dir, old_name.name, is_dir,
 			      !(flags & RENAME_EXCHANGE) ? target : NULL, old_dentry);
 		if (flags & RENAME_EXCHANGE) {
 			fsnotify_move(new_dir, old_dir, old_dentry->d_name.name,
+=======
+		fsnotify_move(old_dir, new_dir, &old_name.name, is_dir,
+			      !(flags & RENAME_EXCHANGE) ? target : NULL, old_dentry);
+		if (flags & RENAME_EXCHANGE) {
+			fsnotify_move(new_dir, old_dir, &old_dentry->d_name,
+>>>>>>> upstream/android-13
 				      new_is_dir, NULL, new_dentry);
 		}
 	}
@@ -4702,6 +7278,7 @@ out:
 
 	return error;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(vfs_rename2);
 
 int vfs_rename(struct inode *old_dir, struct dentry *old_dentry,
@@ -4715,12 +7292,21 @@ EXPORT_SYMBOL(vfs_rename);
 static int do_renameat2(int olddfd, const char __user *oldname, int newdfd,
 			const char __user *newname, unsigned int flags)
 {
+=======
+EXPORT_SYMBOL_NS(vfs_rename, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+int do_renameat2(int olddfd, struct filename *from, int newdfd,
+		 struct filename *to, unsigned int flags)
+{
+	struct renamedata rd;
+>>>>>>> upstream/android-13
 	struct dentry *old_dentry, *new_dentry;
 	struct dentry *trap;
 	struct path old_path, new_path;
 	struct qstr old_last, new_last;
 	int old_type, new_type;
 	struct inode *delegated_inode = NULL;
+<<<<<<< HEAD
 	struct filename *from;
 	struct filename *to;
 	unsigned int lookup_flags = 0, target_flags = LOOKUP_RENAME_TARGET;
@@ -4736,11 +7322,24 @@ static int do_renameat2(int olddfd, const char __user *oldname, int newdfd,
 
 	if ((flags & RENAME_WHITEOUT) && !capable(CAP_MKNOD))
 		return -EPERM;
+=======
+	unsigned int lookup_flags = 0, target_flags = LOOKUP_RENAME_TARGET;
+	bool should_retry = false;
+	int error = -EINVAL;
+
+	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE | RENAME_WHITEOUT))
+		goto put_names;
+
+	if ((flags & (RENAME_NOREPLACE | RENAME_WHITEOUT)) &&
+	    (flags & RENAME_EXCHANGE))
+		goto put_names;
+>>>>>>> upstream/android-13
 
 	if (flags & RENAME_EXCHANGE)
 		target_flags = 0;
 
 retry:
+<<<<<<< HEAD
 	from = filename_parentat(olddfd, getname(oldname), lookup_flags,
 				&old_path, &old_last, &old_type);
 	if (IS_ERR(from)) {
@@ -4754,6 +7353,17 @@ retry:
 		error = PTR_ERR(to);
 		goto exit1;
 	}
+=======
+	error = filename_parentat(olddfd, from, lookup_flags, &old_path,
+				  &old_last, &old_type);
+	if (error)
+		goto put_names;
+
+	error = filename_parentat(newdfd, to, lookup_flags, &new_path, &new_last,
+				  &new_type);
+	if (error)
+		goto exit1;
+>>>>>>> upstream/android-13
 
 	error = -EXDEV;
 	if (old_path.mnt != new_path.mnt)
@@ -4823,9 +7433,22 @@ retry_deleg:
 				     &new_path, new_dentry, flags);
 	if (error)
 		goto exit5;
+<<<<<<< HEAD
 	error = vfs_rename2(old_path.mnt, old_path.dentry->d_inode, old_dentry,
 			   new_path.dentry->d_inode, new_dentry,
 			   &delegated_inode, flags);
+=======
+
+	rd.old_dir	   = old_path.dentry->d_inode;
+	rd.old_dentry	   = old_dentry;
+	rd.old_mnt_userns  = mnt_user_ns(old_path.mnt);
+	rd.new_dir	   = new_path.dentry->d_inode;
+	rd.new_dentry	   = new_dentry;
+	rd.new_mnt_userns  = mnt_user_ns(new_path.mnt);
+	rd.delegated_inode = &delegated_inode;
+	rd.flags	   = flags;
+	error = vfs_rename(&rd);
+>>>>>>> upstream/android-13
 exit5:
 	dput(new_dentry);
 exit4:
@@ -4842,33 +7465,55 @@ exit2:
 	if (retry_estale(error, lookup_flags))
 		should_retry = true;
 	path_put(&new_path);
+<<<<<<< HEAD
 	putname(to);
 exit1:
 	path_put(&old_path);
 	putname(from);
+=======
+exit1:
+	path_put(&old_path);
+>>>>>>> upstream/android-13
 	if (should_retry) {
 		should_retry = false;
 		lookup_flags |= LOOKUP_REVAL;
 		goto retry;
 	}
+<<<<<<< HEAD
 exit:
+=======
+put_names:
+	putname(from);
+	putname(to);
+>>>>>>> upstream/android-13
 	return error;
 }
 
 SYSCALL_DEFINE5(renameat2, int, olddfd, const char __user *, oldname,
 		int, newdfd, const char __user *, newname, unsigned int, flags)
 {
+<<<<<<< HEAD
 	return do_renameat2(olddfd, oldname, newdfd, newname, flags);
+=======
+	return do_renameat2(olddfd, getname(oldname), newdfd, getname(newname),
+				flags);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE4(renameat, int, olddfd, const char __user *, oldname,
 		int, newdfd, const char __user *, newname)
 {
+<<<<<<< HEAD
 	return do_renameat2(olddfd, oldname, newdfd, newname, 0);
+=======
+	return do_renameat2(olddfd, getname(oldname), newdfd, getname(newname),
+				0);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE2(rename, const char __user *, oldname, const char __user *, newname)
 {
+<<<<<<< HEAD
 	return do_renameat2(AT_FDCWD, oldname, AT_FDCWD, newname, 0);
 }
 
@@ -4886,6 +7531,12 @@ int vfs_whiteout(struct inode *dir, struct dentry *dentry)
 }
 EXPORT_SYMBOL(vfs_whiteout);
 
+=======
+	return do_renameat2(AT_FDCWD, getname(oldname), AT_FDCWD,
+				getname(newname), 0);
+}
+
+>>>>>>> upstream/android-13
 int readlink_copy(char __user *buffer, int buflen, const char *link)
 {
 	int len = PTR_ERR(link);

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \file drm_vm.c
  * Memory mapping for DRM
  *
@@ -33,15 +37,34 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <linux/export.h>
 #include <linux/seq_file.h>
+=======
+#include <linux/export.h>
+#include <linux/pci.h>
+#include <linux/seq_file.h>
+#include <linux/vmalloc.h>
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #if defined(__ia64__)
 #include <linux/efi.h>
 #include <linux/slab.h>
 #endif
 #include <linux/mem_encrypt.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_framebuffer.h>
+#include <drm/drm_print.h>
+
+>>>>>>> upstream/android-13
 #include "drm_internal.h"
 #include "drm_legacy.h"
 
@@ -59,10 +82,15 @@ static pgprot_t drm_io_prot(struct drm_local_map *map,
 {
 	pgprot_t tmp = vm_get_page_prot(vma->vm_flags);
 
+<<<<<<< HEAD
 	/* We don't want graphics memory to be mapped encrypted */
 	tmp = pgprot_decrypted(tmp);
 
 #if defined(__i386__) || defined(__x86_64__) || defined(__powerpc__)
+=======
+#if defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || \
+    defined(__mips__)
+>>>>>>> upstream/android-13
 	if (map->type == _DRM_REGISTERS && !(map->flags & _DRM_WRITE_COMBINING))
 		tmp = pgprot_noncached(tmp);
 	else
@@ -73,7 +101,11 @@ static pgprot_t drm_io_prot(struct drm_local_map *map,
 		tmp = pgprot_writecombine(tmp);
 	else
 		tmp = pgprot_noncached(tmp);
+<<<<<<< HEAD
 #elif defined(__sparc__) || defined(__arm__) || defined(__mips__)
+=======
+#elif defined(__sparc__) || defined(__arm__)
+>>>>>>> upstream/android-13
 	tmp = pgprot_noncached(tmp);
 #endif
 	return tmp;
@@ -89,7 +121,11 @@ static pgprot_t drm_dma_prot(uint32_t map_type, struct vm_area_struct *vma)
 	return tmp;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \c fault method for AGP virtual memory.
  *
  * \param vma virtual memory area.
@@ -179,7 +215,11 @@ static vm_fault_t drm_vm_fault(struct vm_fault *vmf)
 }
 #endif
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \c nopage method for shared virtual memory.
  *
  * \param vma virtual memory area.
@@ -212,7 +252,11 @@ static vm_fault_t drm_vm_shm_fault(struct vm_fault *vmf)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \c close method for shared virtual memory.
  *
  * \param vma virtual memory area.
@@ -256,8 +300,11 @@ static void drm_vm_shm_close(struct vm_area_struct *vma)
 		}
 
 		if (!found_maps) {
+<<<<<<< HEAD
 			drm_dma_handle_t dmah;
 
+=======
+>>>>>>> upstream/android-13
 			switch (map->type) {
 			case _DRM_REGISTERS:
 			case _DRM_FRAME_BUFFER:
@@ -271,10 +318,17 @@ static void drm_vm_shm_close(struct vm_area_struct *vma)
 			case _DRM_SCATTER_GATHER:
 				break;
 			case _DRM_CONSISTENT:
+<<<<<<< HEAD
 				dmah.vaddr = map->handle;
 				dmah.busaddr = map->offset;
 				dmah.size = map->size;
 				__drm_legacy_pci_free(dev, &dmah);
+=======
+				dma_free_coherent(dev->dev,
+						  map->size,
+						  map->handle,
+						  map->offset);
+>>>>>>> upstream/android-13
 				break;
 			}
 			kfree(map);
@@ -283,7 +337,11 @@ static void drm_vm_shm_close(struct vm_area_struct *vma)
 	mutex_unlock(&dev->struct_mutex);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \c fault method for DMA virtual memory.
  *
  * \param address access address.
@@ -318,7 +376,11 @@ static vm_fault_t drm_vm_dma_fault(struct vm_fault *vmf)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \c fault method for scatter-gather virtual memory.
  *
  * \param address access address.
@@ -424,7 +486,11 @@ static void drm_vm_close_locked(struct drm_device *dev,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \c close method for all virtual memory types.
  *
  * \param vma virtual memory area.
@@ -442,7 +508,11 @@ static void drm_vm_close(struct vm_area_struct *vma)
 	mutex_unlock(&dev->struct_mutex);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * mmap DMA memory.
  *
  * \param file_priv DRM file private.
@@ -502,7 +572,11 @@ static resource_size_t drm_core_get_reg_ofs(struct drm_device *dev)
 #endif
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * mmap DMA memory.
  *
  * \param file_priv DRM file private.
@@ -584,7 +658,11 @@ static int drm_mmap_locked(struct file *filp, struct vm_area_struct *vma)
 			vma->vm_ops = &drm_vm_ops;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through to _DRM_FRAME_BUFFER... */
+=======
+		fallthrough;	/* to _DRM_FRAME_BUFFER... */
+>>>>>>> upstream/android-13
 #endif
 	case _DRM_FRAME_BUFFER:
 	case _DRM_REGISTERS:
@@ -610,7 +688,11 @@ static int drm_mmap_locked(struct file *filp, struct vm_area_struct *vma)
 		    vma->vm_end - vma->vm_start, vma->vm_page_prot))
 			return -EAGAIN;
 		vma->vm_page_prot = drm_dma_prot(map->type, vma);
+<<<<<<< HEAD
 	/* fall through to _DRM_SHM */
+=======
+		fallthrough;	/* to _DRM_SHM */
+>>>>>>> upstream/android-13
 	case _DRM_SHM:
 		vma->vm_ops = &drm_vm_shm_ops;
 		vma->vm_private_data = (void *)map;
@@ -646,6 +728,10 @@ int drm_legacy_mmap(struct file *filp, struct vm_area_struct *vma)
 }
 EXPORT_SYMBOL(drm_legacy_mmap);
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+>>>>>>> upstream/android-13
 void drm_legacy_vma_flush(struct drm_device *dev)
 {
 	struct drm_vma_entry *vma, *vma_temp;
@@ -656,3 +742,7 @@ void drm_legacy_vma_flush(struct drm_device *dev)
 		kfree(vma);
 	}
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13

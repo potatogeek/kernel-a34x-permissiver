@@ -13,6 +13,11 @@ struct nvkm_fault {
 	struct nvkm_event event;
 
 	struct nvkm_notify nrpfb;
+<<<<<<< HEAD
+=======
+
+	struct nvkm_device_oclass user;
+>>>>>>> upstream/android-13
 };
 
 struct nvkm_fault_data {
@@ -28,6 +33,13 @@ struct nvkm_fault_data {
 	u8 reason;
 };
 
+<<<<<<< HEAD
 int gp100_fault_new(struct nvkm_device *, int, struct nvkm_fault **);
 int gv100_fault_new(struct nvkm_device *, int, struct nvkm_fault **);
+=======
+int gp100_fault_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fault **);
+int gp10b_fault_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fault **);
+int gv100_fault_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fault **);
+int tu102_fault_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fault **);
+>>>>>>> upstream/android-13
 #endif

@@ -32,6 +32,10 @@
 
 #include <crypto/b128ops.h>
 #include <crypto/chacha.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/hash.h>
 #include <crypto/internal/poly1305.h>
 #include <crypto/internal/skcipher.h>
@@ -39,8 +43,11 @@
 #include <crypto/scatterwalk.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include "internal.h"
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Size of right-hand part of input data, in bytes; also the size of the block
  * cipher's block size and the hash function's output.
@@ -64,7 +71,11 @@
 
 struct adiantum_instance_ctx {
 	struct crypto_skcipher_spawn streamcipher_spawn;
+<<<<<<< HEAD
 	struct crypto_spawn blockcipher_spawn;
+=======
+	struct crypto_cipher_spawn blockcipher_spawn;
+>>>>>>> upstream/android-13
 	struct crypto_shash_spawn hash_spawn;
 };
 
@@ -135,9 +146,12 @@ static int adiantum_setkey(struct crypto_skcipher *tfm, const u8 *key,
 				  crypto_skcipher_get_flags(tfm) &
 				  CRYPTO_TFM_REQ_MASK);
 	err = crypto_skcipher_setkey(tctx->streamcipher, key, keylen);
+<<<<<<< HEAD
 	crypto_skcipher_set_flags(tfm,
 				crypto_skcipher_get_flags(tctx->streamcipher) &
 				CRYPTO_TFM_RES_MASK);
+=======
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -167,9 +181,12 @@ static int adiantum_setkey(struct crypto_skcipher *tfm, const u8 *key,
 				CRYPTO_TFM_REQ_MASK);
 	err = crypto_cipher_setkey(tctx->blockcipher, keyp,
 				   BLOCKCIPHER_KEY_SIZE);
+<<<<<<< HEAD
 	crypto_skcipher_set_flags(tfm,
 				  crypto_cipher_get_flags(tctx->blockcipher) &
 				  CRYPTO_TFM_RES_MASK);
+=======
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 	keyp += BLOCKCIPHER_KEY_SIZE;
@@ -182,12 +199,19 @@ static int adiantum_setkey(struct crypto_skcipher *tfm, const u8 *key,
 	crypto_shash_set_flags(tctx->hash, crypto_skcipher_get_flags(tfm) &
 					   CRYPTO_TFM_REQ_MASK);
 	err = crypto_shash_setkey(tctx->hash, keyp, NHPOLY1305_KEY_SIZE);
+<<<<<<< HEAD
 	crypto_skcipher_set_flags(tfm, crypto_shash_get_flags(tctx->hash) &
 				       CRYPTO_TFM_RES_MASK);
 	keyp += NHPOLY1305_KEY_SIZE;
 	WARN_ON(keyp != &data->derived_keys[ARRAY_SIZE(data->derived_keys)]);
 out:
 	kzfree(data);
+=======
+	keyp += NHPOLY1305_KEY_SIZE;
+	WARN_ON(keyp != &data->derived_keys[ARRAY_SIZE(data->derived_keys)]);
+out:
+	kfree_sensitive(data);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -266,7 +290,10 @@ static int adiantum_hash_message(struct skcipher_request *req,
 	int err;
 
 	hash_desc->tfm = tctx->hash;
+<<<<<<< HEAD
 	hash_desc->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	err = crypto_shash_init(hash_desc);
 	if (err)
@@ -437,10 +464,17 @@ static int adiantum_init_tfm(struct crypto_skcipher *tfm)
 
 	BUILD_BUG_ON(offsetofend(struct adiantum_request_ctx, u) !=
 		     sizeof(struct adiantum_request_ctx));
+<<<<<<< HEAD
 	subreq_size = max(FIELD_SIZEOF(struct adiantum_request_ctx,
 				       u.hash_desc) +
 			  crypto_shash_descsize(hash),
 			  FIELD_SIZEOF(struct adiantum_request_ctx,
+=======
+	subreq_size = max(sizeof_field(struct adiantum_request_ctx,
+				       u.hash_desc) +
+			  crypto_shash_descsize(hash),
+			  sizeof_field(struct adiantum_request_ctx,
+>>>>>>> upstream/android-13
 				       u.streamcipher_req) +
 			  crypto_skcipher_reqsize(streamcipher));
 
@@ -470,7 +504,11 @@ static void adiantum_free_instance(struct skcipher_instance *inst)
 	struct adiantum_instance_ctx *ictx = skcipher_instance_ctx(inst);
 
 	crypto_drop_skcipher(&ictx->streamcipher_spawn);
+<<<<<<< HEAD
 	crypto_drop_spawn(&ictx->blockcipher_spawn);
+=======
+	crypto_drop_cipher(&ictx->blockcipher_spawn);
+>>>>>>> upstream/android-13
 	crypto_drop_shash(&ictx->hash_spawn);
 	kfree(inst);
 }
@@ -501,14 +539,19 @@ static bool adiantum_supported_algorithms(struct skcipher_alg *streamcipher_alg,
 
 static int adiantum_create(struct crypto_template *tmpl, struct rtattr **tb)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	const char *streamcipher_name;
 	const char *blockcipher_name;
+=======
+	u32 mask;
+>>>>>>> upstream/android-13
 	const char *nhpoly1305_name;
 	struct skcipher_instance *inst;
 	struct adiantum_instance_ctx *ictx;
 	struct skcipher_alg *streamcipher_alg;
 	struct crypto_alg *blockcipher_alg;
+<<<<<<< HEAD
 	struct crypto_alg *_hash_alg;
 	struct shash_alg *hash_alg;
 	int err;
@@ -533,6 +576,14 @@ static int adiantum_create(struct crypto_template *tmpl, struct rtattr **tb)
 		nhpoly1305_name = "nhpoly1305";
 	if (IS_ERR(nhpoly1305_name))
 		return PTR_ERR(nhpoly1305_name);
+=======
+	struct shash_alg *hash_alg;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SKCIPHER, &mask);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*ictx), GFP_KERNEL);
 	if (!inst)
@@ -540,6 +591,7 @@ static int adiantum_create(struct crypto_template *tmpl, struct rtattr **tb)
 	ictx = skcipher_instance_ctx(inst);
 
 	/* Stream cipher, e.g. "xchacha12" */
+<<<<<<< HEAD
 	crypto_set_skcipher_spawn(&ictx->streamcipher_spawn,
 				  skcipher_crypto_instance(inst));
 	err = crypto_grab_skcipher(&ictx->streamcipher_spawn, streamcipher_name,
@@ -571,6 +623,33 @@ static int adiantum_create(struct crypto_template *tmpl, struct rtattr **tb)
 				      skcipher_crypto_instance(inst));
 	if (err)
 		goto out_put_hash;
+=======
+	err = crypto_grab_skcipher(&ictx->streamcipher_spawn,
+				   skcipher_crypto_instance(inst),
+				   crypto_attr_alg_name(tb[1]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	streamcipher_alg = crypto_spawn_skcipher_alg(&ictx->streamcipher_spawn);
+
+	/* Block cipher, e.g. "aes" */
+	err = crypto_grab_cipher(&ictx->blockcipher_spawn,
+				 skcipher_crypto_instance(inst),
+				 crypto_attr_alg_name(tb[2]), 0, mask);
+	if (err)
+		goto err_free_inst;
+	blockcipher_alg = crypto_spawn_cipher_alg(&ictx->blockcipher_spawn);
+
+	/* NHPoly1305 ε-∆U hash function */
+	nhpoly1305_name = crypto_attr_alg_name(tb[3]);
+	if (nhpoly1305_name == ERR_PTR(-ENOENT))
+		nhpoly1305_name = "nhpoly1305";
+	err = crypto_grab_shash(&ictx->hash_spawn,
+				skcipher_crypto_instance(inst),
+				nhpoly1305_name, 0, mask);
+	if (err)
+		goto err_free_inst;
+	hash_alg = crypto_spawn_shash_alg(&ictx->hash_spawn);
+>>>>>>> upstream/android-13
 
 	/* Check the set of algorithms */
 	if (!adiantum_supported_algorithms(streamcipher_alg, blockcipher_alg,
@@ -579,7 +658,11 @@ static int adiantum_create(struct crypto_template *tmpl, struct rtattr **tb)
 			streamcipher_alg->base.cra_name,
 			blockcipher_alg->cra_name, hash_alg->base.cra_name);
 		err = -EINVAL;
+<<<<<<< HEAD
 		goto out_drop_hash;
+=======
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 	}
 
 	/* Instance fields */
@@ -588,16 +671,25 @@ static int adiantum_create(struct crypto_template *tmpl, struct rtattr **tb)
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
 		     "adiantum(%s,%s)", streamcipher_alg->base.cra_name,
 		     blockcipher_alg->cra_name) >= CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto out_drop_hash;
+=======
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
 		     "adiantum(%s,%s,%s)",
 		     streamcipher_alg->base.cra_driver_name,
 		     blockcipher_alg->cra_driver_name,
 		     hash_alg->base.cra_driver_name) >= CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto out_drop_hash;
 
 	inst->alg.base.cra_flags = streamcipher_alg->base.cra_flags &
 				   CRYPTO_ALG_ASYNC;
+=======
+		goto err_free_inst;
+
+>>>>>>> upstream/android-13
 	inst->alg.base.cra_blocksize = BLOCKCIPHER_BLOCK_SIZE;
 	inst->alg.base.cra_ctxsize = sizeof(struct adiantum_tfm_ctx);
 	inst->alg.base.cra_alignmask = streamcipher_alg->base.cra_alignmask |
@@ -624,6 +716,7 @@ static int adiantum_create(struct crypto_template *tmpl, struct rtattr **tb)
 	inst->free = adiantum_free_instance;
 
 	err = skcipher_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto out_drop_hash;
 
@@ -640,6 +733,12 @@ out_drop_streamcipher:
 	crypto_drop_skcipher(&ictx->streamcipher_spawn);
 out_free_inst:
 	kfree(inst);
+=======
+	if (err) {
+err_free_inst:
+		adiantum_free_instance(inst);
+	}
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -660,10 +759,18 @@ static void __exit adiantum_module_exit(void)
 	crypto_unregister_template(&adiantum_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(adiantum_module_init);
+=======
+subsys_initcall(adiantum_module_init);
+>>>>>>> upstream/android-13
 module_exit(adiantum_module_exit);
 
 MODULE_DESCRIPTION("Adiantum length-preserving encryption mode");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Eric Biggers <ebiggers@google.com>");
 MODULE_ALIAS_CRYPTO("adiantum");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Linux driver for Philips webcam
    Decompression frontend.
    (C) 1999-2003 Nemosoft Unv.
@@ -8,6 +12,7 @@
    Please send bug reports and support requests to <luc@saillard.org>.
    The decompression routines have been implemented by reverse-engineering the
    Nemosoft binary pwcx module. Caveat emptor.
+<<<<<<< HEAD
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
    vim: set ts=8:
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <asm/current.h>

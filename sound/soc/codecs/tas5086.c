@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TAS5086 ASoC codec driver
  *
  * Copyright (c) 2013 Daniel Mack <zonque@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *  - implement DAPM and input muxing
  *  - implement modulation limit
@@ -496,7 +503,11 @@ static int tas5086_init(struct device *dev, struct tas5086_private *priv)
 	/*
 	 * If any of the channels is configured to start in Mid-Z mode,
 	 * configure 'part 1' of the PWM starts to use Mid-Z, and tell
+<<<<<<< HEAD
 	 * all configured mid-z channels to start start under 'part 1'.
+=======
+	 * all configured mid-z channels to start under 'part 1'.
+>>>>>>> upstream/android-13
 	 */
 	if (priv->pwm_start_mid_z)
 		regmap_write(priv->regmap, TAS5086_PWM_START,

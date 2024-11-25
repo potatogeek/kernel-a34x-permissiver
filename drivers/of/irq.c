@@ -22,7 +22,10 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_irq.h>
+<<<<<<< HEAD
 #include <linux/of_pci.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/slab.h>
 
@@ -49,7 +52,11 @@ EXPORT_SYMBOL_GPL(irq_of_parse_and_map);
  * of_irq_find_parent - Given a device node, find its interrupt parent node
  * @child: pointer to device node
  *
+<<<<<<< HEAD
  * Returns a pointer to the interrupt parent node, or NULL if the interrupt
+=======
+ * Return: A pointer to the interrupt parent node, or NULL if the interrupt
+>>>>>>> upstream/android-13
  * parent could not be determined.
  */
 struct device_node *of_irq_find_parent(struct device_node *child)
@@ -82,14 +89,22 @@ EXPORT_SYMBOL_GPL(of_irq_find_parent);
  * @addr:	address specifier (start of "reg" property of the device) in be32 format
  * @out_irq:	structure of_phandle_args updated by this function
  *
+<<<<<<< HEAD
  * Returns 0 on success and a negative number on error
  *
+=======
+>>>>>>> upstream/android-13
  * This function is a low-level interrupt tree walking function. It
  * can be used to do a partial walk with synthetized reg and interrupts
  * properties, for example when resolving PCI interrupts when no device
  * node exist for the parent. It takes an interrupt specifier structure as
  * input, walks the tree looking for any interrupt-map properties, translates
  * the specifier for each map, and then returns the translated map.
+<<<<<<< HEAD
+=======
+ *
+ * Return: 0 on success and a negative number on error
+>>>>>>> upstream/android-13
  */
 int of_irq_parse_raw(const __be32 *addr, struct of_phandle_args *out_irq)
 {
@@ -274,6 +289,7 @@ int of_irq_parse_raw(const __be32 *addr, struct of_phandle_args *out_irq)
 }
 EXPORT_SYMBOL_GPL(of_irq_parse_raw);
 
+<<<<<<< HEAD
 int of_irq_domain_map(const struct irq_fwspec *in, struct irq_fwspec *out)
 {
 	char *stem_name;
@@ -399,11 +415,17 @@ free:
 }
 EXPORT_SYMBOL(of_irq_domain_map);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * of_irq_parse_one - Resolve an interrupt for a device
  * @device: the device whose interrupt is to be resolved
  * @index: index of the interrupt to resolve
+<<<<<<< HEAD
  * @out_irq: structure of_irq filled by this function
+=======
+ * @out_irq: structure of_phandle_args filled by this function
+>>>>>>> upstream/android-13
  *
  * This function resolves an interrupt for a node by walking the interrupt tree,
  * finding which interrupt controller node it is attached to, and returning the
@@ -506,7 +528,11 @@ EXPORT_SYMBOL_GPL(of_irq_to_resource);
  * @dev: pointer to device tree node
  * @index: zero-based index of the IRQ
  *
+<<<<<<< HEAD
  * Returns Linux IRQ number on success, or 0 on the IRQ mapping failure, or
+=======
+ * Return: Linux IRQ number on success, or 0 on the IRQ mapping failure, or
+>>>>>>> upstream/android-13
  * -EPROBE_DEFER if the IRQ domain is not yet created, or error code in case
  * of any other failure.
  */
@@ -533,7 +559,11 @@ EXPORT_SYMBOL_GPL(of_irq_get);
  * @dev: pointer to device tree node
  * @name: IRQ name
  *
+<<<<<<< HEAD
  * Returns Linux IRQ number on success, or 0 on the IRQ mapping failure, or
+=======
+ * Return: Linux IRQ number on success, or 0 on the IRQ mapping failure, or
+>>>>>>> upstream/android-13
  * -EPROBE_DEFER if the IRQ domain is not yet created, or error code in case
  * of any other failure.
  */
@@ -573,7 +603,11 @@ int of_irq_count(struct device_node *dev)
  * @res: array of resources to fill in
  * @nr_irqs: the number of IRQs (and upper bound for num of @res elements)
  *
+<<<<<<< HEAD
  * Returns the size of the filled in table (up to @nr_irqs).
+=======
+ * Return: The size of the filled in table (up to @nr_irqs).
+>>>>>>> upstream/android-13
  */
 int of_irq_to_resource_table(struct device_node *dev, struct resource *res,
 		int nr_irqs)
@@ -626,7 +660,11 @@ void __init of_irq_init(const struct of_device_id *matches)
 		 * pointer, interrupt-parent device_node etc.
 		 */
 		desc = kzalloc(sizeof(*desc), GFP_KERNEL);
+<<<<<<< HEAD
 		if (WARN_ON(!desc)) {
+=======
+		if (!desc) {
+>>>>>>> upstream/android-13
 			of_node_put(np);
 			goto err;
 		}
@@ -702,17 +740,26 @@ err:
 	}
 }
 
+<<<<<<< HEAD
 static u32 __of_msi_map_rid(struct device *dev, struct device_node **np,
 			    u32 rid_in)
 {
 	struct device *parent_dev;
 	u32 rid_out = rid_in;
+=======
+static u32 __of_msi_map_id(struct device *dev, struct device_node **np,
+			    u32 id_in)
+{
+	struct device *parent_dev;
+	u32 id_out = id_in;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Walk up the device parent links looking for one with a
 	 * "msi-map" property.
 	 */
 	for (parent_dev = dev; parent_dev; parent_dev = parent_dev->parent)
+<<<<<<< HEAD
 		if (!of_pci_map_rid(parent_dev->of_node, rid_in, "msi-map",
 				    "msi-map-mask", np, &rid_out))
 			break;
@@ -733,24 +780,61 @@ static u32 __of_msi_map_rid(struct device *dev, struct device_node **np,
 u32 of_msi_map_rid(struct device *dev, struct device_node *msi_np, u32 rid_in)
 {
 	return __of_msi_map_rid(dev, &msi_np, rid_in);
+=======
+		if (!of_map_id(parent_dev->of_node, id_in, "msi-map",
+				"msi-map-mask", np, &id_out))
+			break;
+	return id_out;
+}
+
+/**
+ * of_msi_map_id - Map a MSI ID for a device.
+ * @dev: device for which the mapping is to be done.
+ * @msi_np: device node of the expected msi controller.
+ * @id_in: unmapped MSI ID for the device.
+ *
+ * Walk up the device hierarchy looking for devices with a "msi-map"
+ * property.  If found, apply the mapping to @id_in.
+ *
+ * Return: The mapped MSI ID.
+ */
+u32 of_msi_map_id(struct device *dev, struct device_node *msi_np, u32 id_in)
+{
+	return __of_msi_map_id(dev, &msi_np, id_in);
+>>>>>>> upstream/android-13
 }
 
 /**
  * of_msi_map_get_device_domain - Use msi-map to find the relevant MSI domain
  * @dev: device for which the mapping is to be done.
+<<<<<<< HEAD
  * @rid: Requester ID for the device.
+=======
+ * @id: Device ID.
+ * @bus_token: Bus token
+>>>>>>> upstream/android-13
  *
  * Walk up the device hierarchy looking for devices with a "msi-map"
  * property.
  *
  * Returns: the MSI domain for this device (or NULL on failure)
  */
+<<<<<<< HEAD
 struct irq_domain *of_msi_map_get_device_domain(struct device *dev, u32 rid)
 {
 	struct device_node *np = NULL;
 
 	__of_msi_map_rid(dev, &np, rid);
 	return irq_find_matching_host(np, DOMAIN_BUS_PCI_MSI);
+=======
+struct irq_domain *of_msi_map_get_device_domain(struct device *dev, u32 id,
+						u32 bus_token)
+{
+	struct device_node *np = NULL;
+
+	__of_msi_map_id(dev, &np, id);
+	return irq_find_matching_host(np, bus_token);
+>>>>>>> upstream/android-13
 }
 
 /**

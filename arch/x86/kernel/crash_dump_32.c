@@ -13,8 +13,11 @@
 
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 static void *kdump_buf_page;
 
+=======
+>>>>>>> upstream/android-13
 static inline bool is_crashed_pfn_valid(unsigned long pfn)
 {
 #ifndef CONFIG_X86_PAE
@@ -41,6 +44,7 @@ static inline bool is_crashed_pfn_valid(unsigned long pfn)
  * @userbuf: if set, @buf is in user address space, use copy_to_user(),
  *	otherwise @buf is in kernel address space, use memcpy().
  *
+<<<<<<< HEAD
  * Copy a page from "oldmem". For this page, there is no pte mapped
  * in the current kernel. We stitch up a pte, similar to kmap_atomic.
  *
@@ -50,6 +54,13 @@ static inline bool is_crashed_pfn_valid(unsigned long pfn)
  */
 ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
                                size_t csize, unsigned long offset, int userbuf)
+=======
+ * Copy a page from "oldmem". For this page, there might be no pte mapped
+ * in the current kernel.
+ */
+ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
+			 unsigned long offset, int userbuf)
+>>>>>>> upstream/android-13
 {
 	void  *vaddr;
 
@@ -59,6 +70,7 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
 	if (!is_crashed_pfn_valid(pfn))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	vaddr = kmap_atomic_pfn(pfn);
 
 	if (!userbuf) {
@@ -94,3 +106,18 @@ static int __init kdump_buf_page_init(void)
 	return ret;
 }
 arch_initcall(kdump_buf_page_init);
+=======
+	vaddr = kmap_local_pfn(pfn);
+
+	if (!userbuf) {
+		memcpy(buf, vaddr + offset, csize);
+	} else {
+		if (copy_to_user(buf, vaddr + offset, csize))
+			csize = -EFAULT;
+	}
+
+	kunmap_local(vaddr);
+
+	return csize;
+}
+>>>>>>> upstream/android-13

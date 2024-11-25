@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,10 +13,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_SMP_H
 #define __ASM_SMP_H
 
+<<<<<<< HEAD
 /* Values for secondary_data.status */
 
 #define CPU_MMU_OFF		(-1)
@@ -26,6 +33,25 @@
 #define CPU_STUCK_IN_KERNEL	(2)
 /* Fatal system error detected by secondary CPU, crash the system */
 #define CPU_PANIC_KERNEL	(3)
+=======
+#include <linux/const.h>
+
+/* Values for secondary_data.status */
+#define CPU_STUCK_REASON_SHIFT		(8)
+#define CPU_BOOT_STATUS_MASK		((UL(1) << CPU_STUCK_REASON_SHIFT) - 1)
+
+#define CPU_MMU_OFF			(-1)
+#define CPU_BOOT_SUCCESS		(0)
+/* The cpu invoked ops->cpu_die, synchronise it with cpu_kill */
+#define CPU_KILL_ME			(1)
+/* The cpu couldn't die gracefully and is looping in the kernel */
+#define CPU_STUCK_IN_KERNEL		(2)
+/* Fatal system error detected by secondary CPU, crash the system */
+#define CPU_PANIC_KERNEL		(3)
+
+#define CPU_STUCK_REASON_52_BIT_VA	(UL(1) << CPU_STUCK_REASON_SHIFT)
+#define CPU_STUCK_REASON_NO_GRAN	(UL(2) << CPU_STUCK_REASON_SHIFT)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 
@@ -46,6 +72,7 @@ DECLARE_PER_CPU_READ_MOSTLY(int, cpu_number);
  */
 #define raw_smp_processor_id() (*raw_cpu_ptr(&cpu_number))
 
+<<<<<<< HEAD
 struct seq_file;
 
 /*
@@ -59,12 +86,29 @@ extern void show_ipi_list(struct seq_file *p, int prec);
 extern void handle_IPI(int ipinr, struct pt_regs *regs);
 
 /*
+=======
+/*
+ * Logical CPU mapping.
+ */
+extern u64 __cpu_logical_map[NR_CPUS];
+extern u64 cpu_logical_map(unsigned int cpu);
+
+static inline void set_cpu_logical_map(unsigned int cpu, u64 hwid)
+{
+	__cpu_logical_map[cpu] = hwid;
+}
+
+struct seq_file;
+
+/*
+>>>>>>> upstream/android-13
  * Discover the set of possible CPUs and determine their
  * SMP operations.
  */
 extern void smp_init_cpus(void);
 
 /*
+<<<<<<< HEAD
  * Provide a function to raise an IPI cross call on CPUs in callmap.
  */
 extern void set_smp_cross_call(void (*)(const struct cpumask *, unsigned int));
@@ -76,6 +120,11 @@ extern void (*__smp_cross_call)(const struct cpumask *, unsigned int);
  * history.
  */
 extern void set_update_ipi_history_callback(void (*fn)(int));
+=======
+ * Register IPI interrupts with the arch SMP code
+ */
+extern void set_smp_ipi_range(int ipi_base, int nr_ipi);
+>>>>>>> upstream/android-13
 
 /*
  * Called from the secondary holding pen, this is the secondary CPU entry point.
@@ -84,12 +133,18 @@ asmlinkage void secondary_start_kernel(void);
 
 /*
  * Initial data for bringing up a secondary CPU.
+<<<<<<< HEAD
  * @stack  - sp for the secondary CPU
+=======
+>>>>>>> upstream/android-13
  * @status - Result passed back from the secondary CPU to
  *           indicate failure.
  */
 struct secondary_data {
+<<<<<<< HEAD
 	void *stack;
+=======
+>>>>>>> upstream/android-13
 	struct task_struct *task;
 	long status;
 };
@@ -100,6 +155,11 @@ extern void secondary_entry(void);
 
 extern void arch_send_call_function_single_ipi(int cpu);
 extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
+<<<<<<< HEAD
+=======
+extern int nr_ipi_get(void);
+extern struct irq_desc **ipi_desc_get(void);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ARM64_ACPI_PARKING_PROTOCOL
 extern void arch_send_wakeup_ipi_mask(const struct cpumask *mask);
@@ -156,6 +216,10 @@ bool cpus_are_stuck_in_kernel(void);
 
 extern void crash_smp_send_stop(void);
 extern bool smp_crash_stop_failed(void);
+<<<<<<< HEAD
+=======
+extern void panic_smp_self_stop(void);
+>>>>>>> upstream/android-13
 
 #endif /* ifndef __ASSEMBLY__ */
 

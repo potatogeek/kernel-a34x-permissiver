@@ -29,13 +29,20 @@ typedef struct {
 #define SA_X32_ABI	0x01000000u
 
 #ifndef CONFIG_COMPAT
+<<<<<<< HEAD
+=======
+#define compat_sigset_t compat_sigset_t
+>>>>>>> upstream/android-13
 typedef sigset_t compat_sigset_t;
 #endif
 
 #endif /* __ASSEMBLY__ */
 #include <uapi/asm/signal.h>
 #ifndef __ASSEMBLY__
+<<<<<<< HEAD
 extern void do_signal(struct pt_regs *regs);
+=======
+>>>>>>> upstream/android-13
 
 #define __ARCH_HAS_SA_RESTORER
 

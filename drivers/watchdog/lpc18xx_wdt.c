@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * NXP LPC18xx Watchdog Timer (WDT)
  *
  * Copyright (c) 2015 Ariel D'Alessandro <ariel@vanguardiasur.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Notes
  * -----
  * The Watchdog consists of a fixed divide-by-4 clock pre-scaler and a 24-bit
@@ -200,19 +207,34 @@ static const struct watchdog_ops lpc18xx_wdt_ops = {
 	.restart        = lpc18xx_wdt_restart,
 };
 
+<<<<<<< HEAD
+=======
+static void lpc18xx_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+>>>>>>> upstream/android-13
 static int lpc18xx_wdt_probe(struct platform_device *pdev)
 {
 	struct lpc18xx_wdt_dev *lpc18xx_wdt;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	lpc18xx_wdt = devm_kzalloc(dev, sizeof(*lpc18xx_wdt), GFP_KERNEL);
 	if (!lpc18xx_wdt)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	lpc18xx_wdt->base = devm_ioremap_resource(dev, res);
+=======
+	lpc18xx_wdt->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(lpc18xx_wdt->base))
 		return PTR_ERR(lpc18xx_wdt->base);
 
@@ -233,19 +255,39 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
 		dev_err(dev, "could not prepare or enable sys clock\n");
 		return ret;
 	}
+<<<<<<< HEAD
+=======
+	ret = devm_add_action_or_reset(dev, lpc18xx_clk_disable_unprepare,
+				       lpc18xx_wdt->reg_clk);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare_enable(lpc18xx_wdt->wdt_clk);
 	if (ret) {
 		dev_err(dev, "could not prepare or enable wdt clock\n");
+<<<<<<< HEAD
 		goto disable_reg_clk;
 	}
+=======
+		return ret;
+	}
+	ret = devm_add_action_or_reset(dev, lpc18xx_clk_disable_unprepare,
+				       lpc18xx_wdt->wdt_clk);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* We use the clock rate to calculate timeouts */
 	lpc18xx_wdt->clk_rate = clk_get_rate(lpc18xx_wdt->wdt_clk);
 	if (lpc18xx_wdt->clk_rate == 0) {
 		dev_err(dev, "failed to get clock rate\n");
+<<<<<<< HEAD
 		ret = -EINVAL;
 		goto disable_wdt_clk;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	lpc18xx_wdt->wdt_dev.info = &lpc18xx_wdt_info;
@@ -276,6 +318,7 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, lpc18xx_wdt);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(&lpc18xx_wdt->wdt_dev);
 	if (ret)
 		goto disable_wdt_clk;
@@ -294,6 +337,10 @@ static void lpc18xx_wdt_shutdown(struct platform_device *pdev)
 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
 
 	lpc18xx_wdt_stop(&lpc18xx_wdt->wdt_dev);
+=======
+	watchdog_stop_on_reboot(&lpc18xx_wdt->wdt_dev);
+	return devm_watchdog_register_device(dev, &lpc18xx_wdt->wdt_dev);
+>>>>>>> upstream/android-13
 }
 
 static int lpc18xx_wdt_remove(struct platform_device *pdev)
@@ -301,11 +348,15 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
 
 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
+<<<<<<< HEAD
 	del_timer(&lpc18xx_wdt->timer);
 
 	watchdog_unregister_device(&lpc18xx_wdt->wdt_dev);
 	clk_disable_unprepare(lpc18xx_wdt->wdt_clk);
 	clk_disable_unprepare(lpc18xx_wdt->reg_clk);
+=======
+	del_timer_sync(&lpc18xx_wdt->timer);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -323,7 +374,10 @@ static struct platform_driver lpc18xx_wdt_driver = {
 	},
 	.probe = lpc18xx_wdt_probe,
 	.remove = lpc18xx_wdt_remove,
+<<<<<<< HEAD
 	.shutdown = lpc18xx_wdt_shutdown,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(lpc18xx_wdt_driver);
 

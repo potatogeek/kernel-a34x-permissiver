@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * x86 decoder sanity test - based on test_get_insn.c
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * x86 decoder sanity test - based on test_get_insn.c
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2009
  * Copyright (C) Hitachi, Ltd., 2011
  */
@@ -27,10 +34,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+<<<<<<< HEAD
 
 #define unlikely(cond) (cond)
 #define ARRAY_SIZE(a)	(sizeof(a)/sizeof(a[0]))
 
+=======
+>>>>>>> upstream/android-13
 #include <asm/insn.h>
 #include <inat.c>
 #include <insn.c>
@@ -96,7 +106,11 @@ static void dump_insn(FILE *fp, struct insn *insn)
 }
 
 static void dump_stream(FILE *fp, const char *msg, unsigned long nr_iter,
+<<<<<<< HEAD
 			unsigned char *insn_buf, struct insn *insn)
+=======
+			unsigned char *insn_buff, struct insn *insn)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -109,7 +123,11 @@ static void dump_stream(FILE *fp, const char *msg, unsigned long nr_iter,
 	/* Input a decoded instruction sequence directly */
 	fprintf(fp, " $ echo ");
 	for (i = 0; i < MAX_INSN_SIZE; i++)
+<<<<<<< HEAD
 		fprintf(fp, " %02x", insn_buf[i]);
+=======
+		fprintf(fp, " %02x", insn_buff[i]);
+>>>>>>> upstream/android-13
 	fprintf(fp, " | %s -i -\n", prog);
 
 	if (!input_file) {
@@ -137,7 +155,11 @@ fail:
 }
 
 /* Read given instruction sequence from the input file */
+<<<<<<< HEAD
 static int read_next_insn(unsigned char *insn_buf)
+=======
+static int read_next_insn(unsigned char *insn_buff)
+>>>>>>> upstream/android-13
 {
 	char buf[256]  = "", *tmp;
 	int i;
@@ -147,7 +169,11 @@ static int read_next_insn(unsigned char *insn_buf)
 		return 0;
 
 	for (i = 0; i < MAX_INSN_SIZE; i++) {
+<<<<<<< HEAD
 		insn_buf[i] = (unsigned char)strtoul(tmp, &tmp, 16);
+=======
+		insn_buff[i] = (unsigned char)strtoul(tmp, &tmp, 16);
+>>>>>>> upstream/android-13
 		if (*tmp != ' ')
 			break;
 	}
@@ -155,11 +181,16 @@ static int read_next_insn(unsigned char *insn_buf)
 	return i;
 }
 
+<<<<<<< HEAD
 static int generate_insn(unsigned char *insn_buf)
+=======
+static int generate_insn(unsigned char *insn_buff)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	if (input_file)
+<<<<<<< HEAD
 		return read_next_insn(insn_buf);
 
 	/* Fills buffer with random binary up to MAX_INSN_SIZE */
@@ -168,6 +199,16 @@ static int generate_insn(unsigned char *insn_buf)
 
 	while (i < MAX_INSN_SIZE)
 		insn_buf[i++] = random() & 0xff;
+=======
+		return read_next_insn(insn_buff);
+
+	/* Fills buffer with random binary up to MAX_INSN_SIZE */
+	for (i = 0; i < MAX_INSN_SIZE - 1; i += 2)
+		*(unsigned short *)(&insn_buff[i]) = random() & 0xffff;
+
+	while (i < MAX_INSN_SIZE)
+		insn_buff[i++] = random() & 0xff;
+>>>>>>> upstream/android-13
 
 	return i;
 }
@@ -235,35 +276,62 @@ static void parse_args(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+<<<<<<< HEAD
 	struct insn insn;
 	int insns = 0;
 	int errors = 0;
 	unsigned long i;
 	unsigned char insn_buf[MAX_INSN_SIZE * 2];
+=======
+	int insns = 0, ret;
+	struct insn insn;
+	int errors = 0;
+	unsigned long i;
+	unsigned char insn_buff[MAX_INSN_SIZE * 2];
+>>>>>>> upstream/android-13
 
 	parse_args(argc, argv);
 
 	/* Prepare stop bytes with NOPs */
+<<<<<<< HEAD
 	memset(insn_buf + MAX_INSN_SIZE, INSN_NOP, MAX_INSN_SIZE);
 
 	for (i = 0; i < iter_end; i++) {
 		if (generate_insn(insn_buf) <= 0)
+=======
+	memset(insn_buff + MAX_INSN_SIZE, INSN_NOP, MAX_INSN_SIZE);
+
+	for (i = 0; i < iter_end; i++) {
+		if (generate_insn(insn_buff) <= 0)
+>>>>>>> upstream/android-13
 			break;
 
 		if (i < iter_start)	/* Skip to given iteration number */
 			continue;
 
 		/* Decode an instruction */
+<<<<<<< HEAD
 		insn_init(&insn, insn_buf, sizeof(insn_buf), x86_64);
 		insn_get_length(&insn);
+=======
+		ret = insn_decode(&insn, insn_buff, sizeof(insn_buff),
+				  x86_64 ? INSN_MODE_64 : INSN_MODE_32);
+>>>>>>> upstream/android-13
 
 		if (insn.next_byte <= insn.kaddr ||
 		    insn.kaddr + MAX_INSN_SIZE < insn.next_byte) {
 			/* Access out-of-range memory */
+<<<<<<< HEAD
 			dump_stream(stderr, "Error: Found an access violation", i, insn_buf, &insn);
 			errors++;
 		} else if (verbose && !insn_complete(&insn))
 			dump_stream(stdout, "Info: Found an undecodable input", i, insn_buf, &insn);
+=======
+			dump_stream(stderr, "Error: Found an access violation", i, insn_buff, &insn);
+			errors++;
+		} else if (verbose && ret < 0)
+			dump_stream(stdout, "Info: Found an undecodable input", i, insn_buff, &insn);
+>>>>>>> upstream/android-13
 		else if (verbose >= 2)
 			dump_insn(stdout, &insn);
 		insns++;

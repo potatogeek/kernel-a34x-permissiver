@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Steffen Trumtrar <s.trumtrar@pengutronix.de>
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2013 Steffen Trumtrar <s.trumtrar@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #include "socfpga_cyclone5.dtsi"
@@ -181,7 +187,11 @@
 	flash: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
+<<<<<<< HEAD
 		compatible = "n25q00";
+=======
+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+>>>>>>> upstream/android-13
 		reg = <0>;
 		spi-max-frequency = <100000000>;
 

@@ -12,8 +12,11 @@
 #define _XTENSA_PLATFORM_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/pci.h>
 
+=======
+>>>>>>> upstream/android-13
 #include <asm/bootparam.h>
 
 /*
@@ -55,6 +58,7 @@ extern void platform_idle (void);
 extern void platform_heartbeat (void);
 
 /*
+<<<<<<< HEAD
  * platform_pcibios_init is called to allow the platform to setup the pci bus.
  */
 extern void platform_pcibios_init (void);
@@ -65,6 +69,8 @@ extern void platform_pcibios_init (void);
 extern int platform_pcibios_fixup (void);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * platform_calibrate_ccount calibrates cpu clock freq (CONFIG_XTENSA_CALIBRATE)
  */
 extern void platform_calibrate_ccount (void);
@@ -75,6 +81,7 @@ extern void platform_calibrate_ccount (void);
  */
 void cpu_reset(void) __attribute__((noreturn));
 
+<<<<<<< HEAD
 /*
  * Memory caching is platform-dependent in noMMU xtensa configurations.
  * The following set of functions should be implemented in platform code
@@ -102,4 +109,6 @@ void *platform_vaddr_to_uncached(void *p);
  */
 void *platform_vaddr_to_cached(void *p);
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* _XTENSA_PLATFORM_H */

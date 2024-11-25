@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/slab.h>
 #include <linux/netdevice.h>
@@ -28,6 +34,10 @@
 #include "fwil_types.h"
 #include "p2p.h"
 #include "cfg80211.h"
+<<<<<<< HEAD
+=======
+#include "feature.h"
+>>>>>>> upstream/android-13
 
 /* parameters used for p2p escan */
 #define P2PAPI_SCAN_NPROBES 1
@@ -70,12 +80,20 @@
 #define P2P_AF_MIN_DWELL_TIME		100
 #define P2P_AF_MED_DWELL_TIME		400
 #define P2P_AF_LONG_DWELL_TIME		1000
+<<<<<<< HEAD
 #define P2P_AF_TX_MAX_RETRY		1
+=======
+#define P2P_AF_TX_MAX_RETRY		5
+>>>>>>> upstream/android-13
 #define P2P_AF_MAX_WAIT_TIME		msecs_to_jiffies(2000)
 #define P2P_INVALID_CHANNEL		-1
 #define P2P_CHANNEL_SYNC_RETRY		5
 #define P2P_AF_FRM_SCAN_MAX_WAIT	msecs_to_jiffies(450)
 #define P2P_DEFAULT_SLEEP_TIME_VSDB	200
+<<<<<<< HEAD
+=======
+#define P2P_AF_RETRY_DELAY_TIME		40
+>>>>>>> upstream/android-13
 
 /* WiFi P2P Public Action Frame OUI Subtypes */
 #define P2P_PAF_GON_REQ		0	/* Group Owner Negotiation Req */
@@ -103,6 +121,12 @@
 #define P2PSD_ACTION_ID_GAS_CRESP	0x0d	/* GAS Comback Response AF */
 
 #define BRCMF_P2P_DISABLE_TIMEOUT	msecs_to_jiffies(500)
+<<<<<<< HEAD
+=======
+
+/* Mask for retry counter of custom dwell time */
+#define CUSTOM_RETRY_MASK 0xff000000
+>>>>>>> upstream/android-13
 /**
  * struct brcmf_p2p_disc_st_le - set discovery state in firmware.
  *
@@ -151,11 +175,19 @@ struct brcmf_p2p_scan_le {
  *
  * @category: P2P_PUB_AF_CATEGORY
  * @action: P2P_PUB_AF_ACTION
+<<<<<<< HEAD
  * @oui[3]: P2P_OUI
  * @oui_type: OUI type - P2P_VER
  * @subtype: OUI subtype - P2P_TYPE_*
  * @dialog_token: nonzero, identifies req/rsp transaction
  * @elts[1]: Variable length information elements.
+=======
+ * @oui: P2P_OUI
+ * @oui_type: OUI type - P2P_VER
+ * @subtype: OUI subtype - P2P_TYPE_*
+ * @dialog_token: nonzero, identifies req/rsp transaction
+ * @elts: Variable length information elements.
+>>>>>>> upstream/android-13
  */
 struct brcmf_p2p_pub_act_frame {
 	u8	category;
@@ -171,11 +203,19 @@ struct brcmf_p2p_pub_act_frame {
  * struct brcmf_p2p_action_frame - WiFi P2P Action Frame
  *
  * @category: P2P_AF_CATEGORY
+<<<<<<< HEAD
  * @OUI[3]: OUI - P2P_OUI
  * @type: OUI Type - P2P_VER
  * @subtype: OUI Subtype - P2P_AF_*
  * @dialog_token: nonzero, identifies req/resp tranaction
  * @elts[1]: Variable length information elements.
+=======
+ * @oui: OUI - P2P_OUI
+ * @type: OUI Type - P2P_VER
+ * @subtype: OUI Subtype - P2P_AF_*
+ * @dialog_token: nonzero, identifies req/resp tranaction
+ * @elts: Variable length information elements.
+>>>>>>> upstream/android-13
  */
 struct brcmf_p2p_action_frame {
 	u8	category;
@@ -192,7 +232,11 @@ struct brcmf_p2p_action_frame {
  * @category: 0x04 Public Action Frame
  * @action: 0x6c Advertisement Protocol
  * @dialog_token: nonzero, identifies req/rsp transaction
+<<<<<<< HEAD
  * @query_data[1]: Query Data. SD gas ireq SD gas iresp
+=======
+ * @query_data: Query Data. SD gas ireq SD gas iresp
+>>>>>>> upstream/android-13
  */
 struct brcmf_p2psd_gas_pub_act_frame {
 	u8	category;
@@ -207,7 +251,11 @@ struct brcmf_p2psd_gas_pub_act_frame {
  * @mpc_onoff: To make sure to send successfully action frame, we have to
  *             turn off mpc  0: off, 1: on,  (-1): do nothing
  * @search_channel: 1: search peer's channel to send af
+<<<<<<< HEAD
  * extra_listen: keep the dwell time to get af response frame.
+=======
+ * @extra_listen: keep the dwell time to get af response frame.
+>>>>>>> upstream/android-13
  */
 struct brcmf_config_af_params {
 	s32 mpc_onoff;
@@ -434,6 +482,10 @@ static void brcmf_p2p_print_actframe(bool tx, void *frame, u32 frame_len)
  */
 static int brcmf_p2p_set_firmware(struct brcmf_if *ifp, u8 *p2p_mac)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = ifp->drvr;
+>>>>>>> upstream/android-13
 	s32 ret = 0;
 
 	brcmf_fil_cmd_int_set(ifp, BRCMF_C_DOWN, 1);
@@ -450,7 +502,11 @@ static int brcmf_p2p_set_firmware(struct brcmf_if *ifp, u8 *p2p_mac)
 	ret = brcmf_fil_iovar_data_set(ifp, "p2p_da_override", p2p_mac,
 				       ETH_ALEN);
 	if (ret)
+<<<<<<< HEAD
 		brcmf_err("failed to update device address ret %d\n", ret);
+=======
+		bphy_err(drvr, "failed to update device address ret %d\n", ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -467,10 +523,28 @@ static int brcmf_p2p_set_firmware(struct brcmf_if *ifp, u8 *p2p_mac)
  */
 static void brcmf_p2p_generate_bss_mac(struct brcmf_p2p_info *p2p, u8 *dev_addr)
 {
+<<<<<<< HEAD
 	bool random_addr = false;
 
 	if (!dev_addr || is_zero_ether_addr(dev_addr))
 		random_addr = true;
+=======
+	struct brcmf_if *pri_ifp = p2p->bss_idx[P2PAPI_BSSCFG_PRIMARY].vif->ifp;
+	bool random_addr = false;
+	bool local_admin = false;
+
+	if (!dev_addr || is_zero_ether_addr(dev_addr)) {
+		/* If the primary interface address is already locally
+		 * administered, create a new random address.
+		 */
+		if (pri_ifp->mac_addr[0] & 0x02) {
+			random_addr = true;
+		} else {
+			dev_addr = pri_ifp->mac_addr;
+			local_admin = true;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* Generate the P2P Device Address obtaining a random ethernet
 	 * address with the locally administered bit set.
@@ -480,13 +554,29 @@ static void brcmf_p2p_generate_bss_mac(struct brcmf_p2p_info *p2p, u8 *dev_addr)
 	else
 		memcpy(p2p->dev_addr, dev_addr, ETH_ALEN);
 
+<<<<<<< HEAD
+=======
+	if (local_admin)
+		p2p->dev_addr[0] |= 0x02;
+
+>>>>>>> upstream/android-13
 	/* Generate the P2P Interface Address.  If the discovery and connection
 	 * BSSCFGs need to simultaneously co-exist, then this address must be
 	 * different from the P2P Device Address, but also locally administered.
 	 */
+<<<<<<< HEAD
 	memcpy(p2p->int_addr, p2p->dev_addr, ETH_ALEN);
 	p2p->int_addr[0] |= 0x02;
 	p2p->int_addr[4] ^= 0x80;
+=======
+	memcpy(p2p->conn_int_addr, p2p->dev_addr, ETH_ALEN);
+	p2p->conn_int_addr[0] |= 0x02;
+	p2p->conn_int_addr[4] ^= 0x80;
+
+	memcpy(p2p->conn2_int_addr, p2p->dev_addr, ETH_ALEN);
+	p2p->conn2_int_addr[0] |= 0x02;
+	p2p->conn2_int_addr[4] ^= 0x90;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -570,13 +660,21 @@ static s32 brcmf_p2p_deinit_discovery(struct brcmf_p2p_info *p2p)
  */
 static int brcmf_p2p_enable_discovery(struct brcmf_p2p_info *p2p)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = p2p->cfg->pub;
+>>>>>>> upstream/android-13
 	struct brcmf_cfg80211_vif *vif;
 	s32 ret = 0;
 
 	brcmf_dbg(TRACE, "enter\n");
 	vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
 	if (!vif) {
+<<<<<<< HEAD
 		brcmf_err("P2P config device not available\n");
+=======
+		bphy_err(drvr, "P2P config device not available\n");
+>>>>>>> upstream/android-13
 		ret = -EPERM;
 		goto exit;
 	}
@@ -590,13 +688,21 @@ static int brcmf_p2p_enable_discovery(struct brcmf_p2p_info *p2p)
 	vif = p2p->bss_idx[P2PAPI_BSSCFG_PRIMARY].vif;
 	ret = brcmf_fil_iovar_int_set(vif->ifp, "p2p_disc", 1);
 	if (ret < 0) {
+<<<<<<< HEAD
 		brcmf_err("set p2p_disc error\n");
+=======
+		bphy_err(drvr, "set p2p_disc error\n");
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 	vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
 	ret = brcmf_p2p_set_discover_state(vif->ifp, WL_P2P_DISC_ST_SCAN, 0, 0);
 	if (ret < 0) {
+<<<<<<< HEAD
 		brcmf_err("unable to set WL_P2P_DISC_ST_SCAN\n");
+=======
+		bphy_err(drvr, "unable to set WL_P2P_DISC_ST_SCAN\n");
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
@@ -608,7 +714,11 @@ static int brcmf_p2p_enable_discovery(struct brcmf_p2p_info *p2p)
 	 */
 	ret = brcmf_fil_bsscfg_int_set(vif->ifp, "wsec", AES_ENABLED);
 	if (ret < 0) {
+<<<<<<< HEAD
 		brcmf_err("wsec error %d\n", ret);
+=======
+		bphy_err(drvr, "wsec error %d\n", ret);
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
@@ -630,6 +740,10 @@ static s32 brcmf_p2p_escan(struct brcmf_p2p_info *p2p, u32 num_chans,
 			   u16 chanspecs[], s32 search_state,
 			   enum p2p_bss_type bss_type)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = p2p->cfg->pub;
+>>>>>>> upstream/android-13
 	s32 ret = 0;
 	s32 memsize = offsetof(struct brcmf_p2p_scan_le,
 			       eparams.params_le.channel_list);
@@ -648,7 +762,11 @@ static s32 brcmf_p2p_escan(struct brcmf_p2p_info *p2p, u32 num_chans,
 
 	vif = p2p->bss_idx[bss_type].vif;
 	if (vif == NULL) {
+<<<<<<< HEAD
 		brcmf_err("no vif for bss type %d\n", bss_type);
+=======
+		bphy_err(drvr, "no vif for bss type %d\n", bss_type);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -676,7 +794,11 @@ static s32 brcmf_p2p_escan(struct brcmf_p2p_info *p2p, u32 num_chans,
 		       BRCMF_P2P_WILDCARD_SSID_LEN);
 		break;
 	default:
+<<<<<<< HEAD
 		brcmf_err(" invalid search state %d\n", search_state);
+=======
+		bphy_err(drvr, " invalid search state %d\n", search_state);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -748,9 +870,14 @@ exit:
  * brcmf_p2p_run_escan() - escan callback for peer-to-peer.
  *
  * @cfg: driver private data for cfg80211 interface.
+<<<<<<< HEAD
  * @ndev: net device for which scan is requested.
  * @request: scan request from cfg80211.
  * @action: scan action.
+=======
+ * @ifp: interface control.
+ * @request: scan request from cfg80211.
+>>>>>>> upstream/android-13
  *
  * Determines the P2P discovery state based to scan request parameters and
  * validates the channels in the request.
@@ -760,6 +887,10 @@ static s32 brcmf_p2p_run_escan(struct brcmf_cfg80211_info *cfg,
 			       struct cfg80211_scan_request *request)
 {
 	struct brcmf_p2p_info *p2p = &cfg->p2p;
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = cfg->pub;
+>>>>>>> upstream/android-13
 	s32 err = 0;
 	s32 search_state = WL_P2P_DISC_ST_SCAN;
 	struct brcmf_cfg80211_vif *vif;
@@ -822,7 +953,11 @@ static s32 brcmf_p2p_run_escan(struct brcmf_cfg80211_info *cfg,
 	}
 exit:
 	if (err)
+<<<<<<< HEAD
 		brcmf_err("error (%d)\n", err);
+=======
+		bphy_err(drvr, "error (%d)\n", err);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -897,8 +1032,11 @@ int brcmf_p2p_scan_prep(struct wiphy *wiphy,
 		if (err)
 			return err;
 
+<<<<<<< HEAD
 		vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
 
+=======
+>>>>>>> upstream/android-13
 		/* override .run_escan() callback. */
 		cfg->escan_info.run = brcmf_p2p_run_escan;
 	}
@@ -917,19 +1055,31 @@ int brcmf_p2p_scan_prep(struct wiphy *wiphy,
 static s32
 brcmf_p2p_discover_listen(struct brcmf_p2p_info *p2p, u16 channel, u32 duration)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = p2p->cfg->pub;
+>>>>>>> upstream/android-13
 	struct brcmf_cfg80211_vif *vif;
 	struct brcmu_chan ch;
 	s32 err = 0;
 
 	vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
 	if (!vif) {
+<<<<<<< HEAD
 		brcmf_err("Discovery is not set, so we have nothing to do\n");
+=======
+		bphy_err(drvr, "Discovery is not set, so we have nothing to do\n");
+>>>>>>> upstream/android-13
 		err = -EPERM;
 		goto exit;
 	}
 
 	if (test_bit(BRCMF_P2P_STATUS_DISCOVER_LISTEN, &p2p->status)) {
+<<<<<<< HEAD
 		brcmf_err("Previous LISTEN is not completed yet\n");
+=======
+		bphy_err(drvr, "Previous LISTEN is not completed yet\n");
+>>>>>>> upstream/android-13
 		/* WAR: prevent cookie mismatch in wpa_supplicant return OK */
 		goto exit;
 	}
@@ -952,9 +1102,16 @@ exit:
  * brcmf_p2p_remain_on_channel() - put device on channel and stay there.
  *
  * @wiphy: wiphy device.
+<<<<<<< HEAD
  * @channel: channel to stay on.
  * @duration: time in ms to remain on channel.
  *
+=======
+ * @wdev: wireless device.
+ * @channel: channel to stay on.
+ * @duration: time in ms to remain on channel.
+ * @cookie: cookie.
+>>>>>>> upstream/android-13
  */
 int brcmf_p2p_remain_on_channel(struct wiphy *wiphy, struct wireless_dev *wdev,
 				struct ieee80211_channel *channel,
@@ -1039,13 +1196,21 @@ void brcmf_p2p_cancel_remain_on_channel(struct brcmf_if *ifp)
  * brcmf_p2p_act_frm_search() - search function for action frame.
  *
  * @p2p: p2p device.
+<<<<<<< HEAD
  * channel: channel on which action frame is to be trasmitted.
+=======
+ * @channel: channel on which action frame is to be trasmitted.
+>>>>>>> upstream/android-13
  *
  * search function to reach at common channel to send action frame. When
  * channel is 0 then all social channels will be used to send af
  */
 static s32 brcmf_p2p_act_frm_search(struct brcmf_p2p_info *p2p, u16 channel)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = p2p->cfg->pub;
+>>>>>>> upstream/android-13
 	s32 err;
 	u32 channel_cnt;
 	u16 *default_chan_list;
@@ -1061,7 +1226,11 @@ static s32 brcmf_p2p_act_frm_search(struct brcmf_p2p_info *p2p, u16 channel)
 	default_chan_list = kcalloc(channel_cnt, sizeof(*default_chan_list),
 				    GFP_KERNEL);
 	if (default_chan_list == NULL) {
+<<<<<<< HEAD
 		brcmf_err("channel list allocation failed\n");
+=======
+		bphy_err(drvr, "channel list allocation failed\n");
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto exit;
 	}
@@ -1103,6 +1272,10 @@ static void brcmf_p2p_afx_handler(struct work_struct *work)
 	struct brcmf_p2p_info *p2p = container_of(afx_hdl,
 						  struct brcmf_p2p_info,
 						  afx_hdl);
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = p2p->cfg->pub;
+>>>>>>> upstream/android-13
 	s32 err;
 
 	if (!afx_hdl->is_active)
@@ -1116,7 +1289,11 @@ static void brcmf_p2p_afx_handler(struct work_struct *work)
 		err = brcmf_p2p_act_frm_search(p2p, afx_hdl->peer_listen_chan);
 
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("ERROR occurred! value is (%d)\n", err);
+=======
+		bphy_err(drvr, "ERROR occurred! value is (%d)\n", err);
+>>>>>>> upstream/android-13
 		if (test_bit(BRCMF_P2P_STATUS_FINDING_COMMON_CHANNEL,
 			     &p2p->status))
 			complete(&afx_hdl->act_frm_scan);
@@ -1249,6 +1426,33 @@ bool brcmf_p2p_scan_finding_common_channel(struct brcmf_cfg80211_info *cfg,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * brcmf_p2p_abort_action_frame() - abort action frame.
+ *
+ * @cfg: common configuration struct.
+ *
+ */
+static s32 brcmf_p2p_abort_action_frame(struct brcmf_cfg80211_info *cfg)
+{
+	struct brcmf_p2p_info *p2p = &cfg->p2p;
+	struct brcmf_cfg80211_vif *vif;
+	s32 err;
+	s32 int_val = 1;
+
+	brcmf_dbg(TRACE, "Enter\n");
+
+	vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
+	err = brcmf_fil_bsscfg_data_set(vif->ifp, "actframe_abort", &int_val,
+					sizeof(s32));
+	if (err)
+		brcmf_err(" aborting action frame has failed (%d)\n", err);
+
+	return err;
+}
+
+/**
+>>>>>>> upstream/android-13
  * brcmf_p2p_stop_wait_next_action_frame() - finish scan if af tx complete.
  *
  * @cfg: common configuration struct.
@@ -1259,6 +1463,10 @@ brcmf_p2p_stop_wait_next_action_frame(struct brcmf_cfg80211_info *cfg)
 {
 	struct brcmf_p2p_info *p2p = &cfg->p2p;
 	struct brcmf_if *ifp = p2p->bss_idx[P2PAPI_BSSCFG_PRIMARY].vif->ifp;
+<<<<<<< HEAD
+=======
+	s32 err;
+>>>>>>> upstream/android-13
 
 	if (test_bit(BRCMF_P2P_STATUS_SENDING_ACT_FRAME, &p2p->status) &&
 	    (test_bit(BRCMF_P2P_STATUS_ACTION_TX_COMPLETED, &p2p->status) ||
@@ -1267,8 +1475,18 @@ brcmf_p2p_stop_wait_next_action_frame(struct brcmf_cfg80211_info *cfg)
 		/* if channel is not zero, "actfame" uses off channel scan.
 		 * So abort scan for off channel completion.
 		 */
+<<<<<<< HEAD
 		if (p2p->af_sent_channel)
 			brcmf_notify_escan_complete(cfg, ifp, true, true);
+=======
+		if (p2p->af_sent_channel) {
+			/* abort actframe using actframe_abort or abort scan */
+			err = brcmf_p2p_abort_action_frame(cfg);
+			if (err)
+				brcmf_notify_escan_complete(cfg, ifp, true,
+							    true);
+		}
+>>>>>>> upstream/android-13
 	} else if (test_bit(BRCMF_P2P_STATUS_WAITING_NEXT_AF_LISTEN,
 			    &p2p->status)) {
 		brcmf_dbg(TRACE, "*** Wake UP ** abort listen for next af frame\n");
@@ -1282,6 +1500,10 @@ brcmf_p2p_stop_wait_next_action_frame(struct brcmf_cfg80211_info *cfg)
  * brcmf_p2p_gon_req_collision() - Check if go negotiaton collission
  *
  * @p2p: p2p device info struct.
+<<<<<<< HEAD
+=======
+ * @mac: MAC address.
+>>>>>>> upstream/android-13
  *
  * return true if recevied action frame is to be dropped.
  */
@@ -1338,7 +1560,12 @@ int brcmf_p2p_notify_action_frame_rx(struct brcmf_if *ifp,
 				     const struct brcmf_event_msg *e,
 				     void *data)
 {
+<<<<<<< HEAD
 	struct brcmf_cfg80211_info *cfg = ifp->drvr->config;
+=======
+	struct brcmf_pub *drvr = ifp->drvr;
+	struct brcmf_cfg80211_info *cfg = drvr->config;
+>>>>>>> upstream/android-13
 	struct brcmf_p2p_info *p2p = &cfg->p2p;
 	struct afx_hdl *afx_hdl = &p2p->afx_hdl;
 	struct wireless_dev *wdev;
@@ -1409,7 +1636,11 @@ int brcmf_p2p_notify_action_frame_rx(struct brcmf_if *ifp,
 	mgmt_frame = kzalloc(offsetof(struct ieee80211_mgmt, u) +
 			     mgmt_frame_len, GFP_KERNEL);
 	if (!mgmt_frame) {
+<<<<<<< HEAD
 		brcmf_err("No memory available for action frame\n");
+=======
+		bphy_err(drvr, "No memory available for action frame\n");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 	memcpy(mgmt_frame->da, ifp->mac_addr, ETH_ALEN);
@@ -1492,9 +1723,16 @@ int brcmf_p2p_notify_action_tx_complete(struct brcmf_if *ifp,
 static s32 brcmf_p2p_tx_action_frame(struct brcmf_p2p_info *p2p,
 				     struct brcmf_fil_af_params_le *af_params)
 {
+<<<<<<< HEAD
 	struct brcmf_cfg80211_vif *vif;
 	s32 err = 0;
 	s32 timeout = 0;
+=======
+	struct brcmf_pub *drvr = p2p->cfg->pub;
+	struct brcmf_cfg80211_vif *vif;
+	struct brcmf_p2p_action_frame *p2p_af;
+	s32 err = 0;
+>>>>>>> upstream/android-13
 
 	brcmf_dbg(TRACE, "Enter\n");
 
@@ -1502,11 +1740,25 @@ static s32 brcmf_p2p_tx_action_frame(struct brcmf_p2p_info *p2p,
 	clear_bit(BRCMF_P2P_STATUS_ACTION_TX_COMPLETED, &p2p->status);
 	clear_bit(BRCMF_P2P_STATUS_ACTION_TX_NOACK, &p2p->status);
 
+<<<<<<< HEAD
 	vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
 	err = brcmf_fil_bsscfg_data_set(vif->ifp, "actframe", af_params,
 					sizeof(*af_params));
 	if (err) {
 		brcmf_err(" sending action frame has failed\n");
+=======
+	/* check if it is a p2p_presence response */
+	p2p_af = (struct brcmf_p2p_action_frame *)af_params->action_frame.data;
+	if (p2p_af->subtype == P2P_AF_PRESENCE_RSP)
+		vif = p2p->bss_idx[P2PAPI_BSSCFG_CONNECTION].vif;
+	else
+		vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
+
+	err = brcmf_fil_bsscfg_data_set(vif->ifp, "actframe", af_params,
+					sizeof(*af_params));
+	if (err) {
+		bphy_err(drvr, " sending action frame has failed\n");
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
@@ -1524,8 +1776,12 @@ static s32 brcmf_p2p_tx_action_frame(struct brcmf_p2p_info *p2p,
 		  (p2p->wait_for_offchan_complete) ?
 		   "off-channel" : "on-channel");
 
+<<<<<<< HEAD
 	timeout = wait_for_completion_timeout(&p2p->send_af_done,
 					      P2P_AF_MAX_WAIT_TIME);
+=======
+	wait_for_completion_timeout(&p2p->send_af_done, P2P_AF_MAX_WAIT_TIME);
+>>>>>>> upstream/android-13
 
 	if (test_bit(BRCMF_P2P_STATUS_ACTION_TX_COMPLETED, &p2p->status)) {
 		brcmf_dbg(TRACE, "TX action frame operation is success\n");
@@ -1556,6 +1812,10 @@ static s32 brcmf_p2p_pub_af_tx(struct brcmf_cfg80211_info *cfg,
 			       struct brcmf_config_af_params *config_af_params)
 {
 	struct brcmf_p2p_info *p2p = &cfg->p2p;
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = cfg->pub;
+>>>>>>> upstream/android-13
 	struct brcmf_fil_action_frame_le *action_frame;
 	struct brcmf_p2p_pub_act_frame *act_frm;
 	s32 err = 0;
@@ -1634,13 +1894,32 @@ static s32 brcmf_p2p_pub_af_tx(struct brcmf_cfg80211_info *cfg,
 		config_af_params->extra_listen = false;
 		break;
 	default:
+<<<<<<< HEAD
 		brcmf_err("Unknown p2p pub act frame subtype: %d\n",
 			  act_frm->subtype);
+=======
+		bphy_err(drvr, "Unknown p2p pub act frame subtype: %d\n",
+			 act_frm->subtype);
+>>>>>>> upstream/android-13
 		err = -EINVAL;
 	}
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static bool brcmf_p2p_check_dwell_overflow(u32 requested_dwell,
+					   unsigned long dwell_jiffies)
+{
+	if ((requested_dwell & CUSTOM_RETRY_MASK) &&
+	    (jiffies_to_msecs(jiffies - dwell_jiffies) >
+	    (requested_dwell & ~CUSTOM_RETRY_MASK))) {
+		brcmf_err("Action frame TX retry time over dwell time!\n");
+		return true;
+	}
+	return false;
+}
+>>>>>>> upstream/android-13
 /**
  * brcmf_p2p_send_action_frame() - send action frame .
  *
@@ -1657,6 +1936,10 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 	struct brcmf_fil_action_frame_le *action_frame;
 	struct brcmf_config_af_params config_af_params;
 	struct afx_hdl *afx_hdl = &p2p->afx_hdl;
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = cfg->pub;
+>>>>>>> upstream/android-13
 	u16 action_frame_len;
 	bool ack = false;
 	u8 category;
@@ -1664,7 +1947,14 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 	s32 tx_retry;
 	s32 extra_listen_time;
 	uint delta_ms;
+<<<<<<< HEAD
 
+=======
+	unsigned long dwell_jiffies = 0;
+	bool dwell_overflow = false;
+
+	u32 requested_dwell = le32_to_cpu(af_params->dwell_time);
+>>>>>>> upstream/android-13
 	action_frame = &af_params->action_frame;
 	action_frame_len = le16_to_cpu(action_frame->len);
 
@@ -1692,7 +1982,11 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 		if (brcmf_p2p_pub_af_tx(cfg, af_params, &config_af_params)) {
 			/* Just send unknown subtype frame with */
 			/* default parameters.                  */
+<<<<<<< HEAD
 			brcmf_err("P2P Public action frame, unknown subtype.\n");
+=======
+			bphy_err(drvr, "P2P Public action frame, unknown subtype.\n");
+>>>>>>> upstream/android-13
 		}
 	} else if (brcmf_p2p_is_gas_action(action_frame->data,
 					   action_frame_len)) {
@@ -1714,7 +2008,11 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 			af_params->dwell_time =
 				cpu_to_le32(P2P_AF_MIN_DWELL_TIME);
 		} else {
+<<<<<<< HEAD
 			brcmf_err("Unknown action type: %d\n", action);
+=======
+			bphy_err(drvr, "Unknown action type: %d\n", action);
+>>>>>>> upstream/android-13
 			goto exit;
 		}
 	} else if (brcmf_p2p_is_p2p_action(action_frame->data,
@@ -1722,8 +2020,13 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 		/* do not configure anything. it will be */
 		/* sent with a default configuration     */
 	} else {
+<<<<<<< HEAD
 		brcmf_err("Unknown Frame: category 0x%x, action 0x%x\n",
 			  category, action);
+=======
+		bphy_err(drvr, "Unknown Frame: category 0x%x, action 0x%x\n",
+			 category, action);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
@@ -1761,7 +2064,11 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 
 		if (brcmf_p2p_af_searching_channel(p2p) ==
 							P2P_INVALID_CHANNEL) {
+<<<<<<< HEAD
 			brcmf_err("Couldn't find peer's channel.\n");
+=======
+			bphy_err(drvr, "Couldn't find peer's channel.\n");
+>>>>>>> upstream/android-13
 			goto exit;
 		}
 
@@ -1775,6 +2082,7 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 		/* update channel */
 		af_params->channel = cpu_to_le32(afx_hdl->peer_chan);
 	}
+<<<<<<< HEAD
 
 	tx_retry = 0;
 	while (!p2p->block_gon_req_tx &&
@@ -1784,6 +2092,27 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
 	}
 	if (ack == false) {
 		brcmf_err("Failed to send Action Frame(retry %d)\n", tx_retry);
+=======
+	dwell_jiffies = jiffies;
+	dwell_overflow = brcmf_p2p_check_dwell_overflow(requested_dwell,
+							dwell_jiffies);
+
+	tx_retry = 0;
+	while (!p2p->block_gon_req_tx &&
+	       (!ack) && (tx_retry < P2P_AF_TX_MAX_RETRY) &&
+		!dwell_overflow) {
+		if (af_params->channel)
+			msleep(P2P_AF_RETRY_DELAY_TIME);
+
+		ack = !brcmf_p2p_tx_action_frame(p2p, af_params);
+		tx_retry++;
+		dwell_overflow = brcmf_p2p_check_dwell_overflow(requested_dwell,
+								dwell_jiffies);
+	}
+	if (!ack) {
+		bphy_err(drvr, "Failed to send Action Frame(retry %d)\n",
+			 tx_retry);
+>>>>>>> upstream/android-13
 		clear_bit(BRCMF_P2P_STATUS_GO_NEG_PHASE, &p2p->status);
 	}
 
@@ -1956,15 +2285,25 @@ static void brcmf_p2p_get_current_chanspec(struct brcmf_p2p_info *p2p,
 }
 
 /**
+<<<<<<< HEAD
  * Change a P2P Role.
  * Parameters:
  * @mac: MAC address of the BSS to change a role
+=======
+ * brcmf_p2p_ifchange - Change a P2P Role.
+ * @cfg: driver private data for cfg80211 interface.
+ * @if_type: interface type.
+>>>>>>> upstream/android-13
  * Returns 0 if success.
  */
 int brcmf_p2p_ifchange(struct brcmf_cfg80211_info *cfg,
 		       enum brcmf_fil_p2p_if_types if_type)
 {
 	struct brcmf_p2p_info *p2p = &cfg->p2p;
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = cfg->pub;
+>>>>>>> upstream/android-13
 	struct brcmf_cfg80211_vif *vif;
 	struct brcmf_fil_p2p_if_le if_request;
 	s32 err;
@@ -1974,13 +2313,21 @@ int brcmf_p2p_ifchange(struct brcmf_cfg80211_info *cfg,
 
 	vif = p2p->bss_idx[P2PAPI_BSSCFG_PRIMARY].vif;
 	if (!vif) {
+<<<<<<< HEAD
 		brcmf_err("vif for P2PAPI_BSSCFG_PRIMARY does not exist\n");
+=======
+		bphy_err(drvr, "vif for P2PAPI_BSSCFG_PRIMARY does not exist\n");
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 	brcmf_notify_escan_complete(cfg, vif->ifp, true, true);
 	vif = p2p->bss_idx[P2PAPI_BSSCFG_CONNECTION].vif;
 	if (!vif) {
+<<<<<<< HEAD
 		brcmf_err("vif for P2PAPI_BSSCFG_CONNECTION does not exist\n");
+=======
+		bphy_err(drvr, "vif for P2PAPI_BSSCFG_CONNECTION does not exist\n");
+>>>>>>> upstream/android-13
 		return -EPERM;
 	}
 	brcmf_set_mpc(vif->ifp, 0);
@@ -1992,13 +2339,21 @@ int brcmf_p2p_ifchange(struct brcmf_cfg80211_info *cfg,
 
 	if_request.type = cpu_to_le16((u16)if_type);
 	if_request.chspec = cpu_to_le16(chanspec);
+<<<<<<< HEAD
 	memcpy(if_request.addr, p2p->int_addr, sizeof(if_request.addr));
+=======
+	memcpy(if_request.addr, p2p->conn_int_addr, sizeof(if_request.addr));
+>>>>>>> upstream/android-13
 
 	brcmf_cfg80211_arm_vif_event(cfg, vif);
 	err = brcmf_fil_iovar_data_set(vif->ifp, "p2p_ifupd", &if_request,
 				       sizeof(if_request));
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("p2p_ifupd FAILED, err=%d\n", err);
+=======
+		bphy_err(drvr, "p2p_ifupd FAILED, err=%d\n", err);
+>>>>>>> upstream/android-13
 		brcmf_cfg80211_arm_vif_event(cfg, NULL);
 		return err;
 	}
@@ -2006,7 +2361,11 @@ int brcmf_p2p_ifchange(struct brcmf_cfg80211_info *cfg,
 					    BRCMF_VIF_EVENT_TIMEOUT);
 	brcmf_cfg80211_arm_vif_event(cfg, NULL);
 	if (!err)  {
+<<<<<<< HEAD
 		brcmf_err("No BRCMF_E_IF_CHANGE event received\n");
+=======
+		bphy_err(drvr, "No BRCMF_E_IF_CHANGE event received\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -2069,6 +2428,10 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
 						    struct wiphy *wiphy,
 						    u8 *addr)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = p2p->cfg->pub;
+>>>>>>> upstream/android-13
 	struct brcmf_cfg80211_vif *p2p_vif;
 	struct brcmf_if *p2p_ifp;
 	struct brcmf_if *pri_ifp;
@@ -2080,7 +2443,11 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
 
 	p2p_vif = brcmf_alloc_vif(p2p->cfg, NL80211_IFTYPE_P2P_DEVICE);
 	if (IS_ERR(p2p_vif)) {
+<<<<<<< HEAD
 		brcmf_err("could not create discovery vif\n");
+=======
+		bphy_err(drvr, "could not create discovery vif\n");
+>>>>>>> upstream/android-13
 		return (struct wireless_dev *)p2p_vif;
 	}
 
@@ -2088,8 +2455,14 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
 
 	/* firmware requires unique mac address for p2pdev interface */
 	if (addr && ether_addr_equal(addr, pri_ifp->mac_addr)) {
+<<<<<<< HEAD
 		brcmf_err("discovery vif must be different from primary interface\n");
 		return ERR_PTR(-EINVAL);
+=======
+		bphy_err(drvr, "discovery vif must be different from primary interface\n");
+		err = -EINVAL;
+		goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	brcmf_p2p_generate_bss_mac(p2p, addr);
@@ -2101,7 +2474,11 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
 	/* Initialize P2P Discovery in the firmware */
 	err = brcmf_fil_iovar_int_set(pri_ifp, "p2p_disc", 1);
 	if (err < 0) {
+<<<<<<< HEAD
 		brcmf_err("set p2p_disc error\n");
+=======
+		bphy_err(drvr, "set p2p_disc error\n");
+>>>>>>> upstream/android-13
 		brcmf_fweh_p2pdev_setup(pri_ifp, false);
 		brcmf_cfg80211_arm_vif_event(p2p->cfg, NULL);
 		goto fail;
@@ -2113,7 +2490,11 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
 	brcmf_cfg80211_arm_vif_event(p2p->cfg, NULL);
 	brcmf_fweh_p2pdev_setup(pri_ifp, false);
 	if (!err) {
+<<<<<<< HEAD
 		brcmf_err("timeout occurred\n");
+=======
+		bphy_err(drvr, "timeout occurred\n");
+>>>>>>> upstream/android-13
 		err = -EIO;
 		goto fail;
 	}
@@ -2127,7 +2508,11 @@ static struct wireless_dev *brcmf_p2p_create_p2pdev(struct brcmf_p2p_info *p2p,
 	/* verify bsscfg index for P2P discovery */
 	err = brcmf_fil_iovar_int_get(pri_ifp, "p2p_dev", &bsscfgidx);
 	if (err < 0) {
+<<<<<<< HEAD
 		brcmf_err("retrieving discover bsscfg index failed\n");
+=======
+		bphy_err(drvr, "retrieving discover bsscfg index failed\n");
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -2145,6 +2530,30 @@ fail:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
+=======
+static int brcmf_p2p_get_conn_idx(struct brcmf_cfg80211_info *cfg)
+{
+	int i;
+	struct brcmf_if *ifp = netdev_priv(cfg_to_ndev(cfg));
+
+	if (!ifp)
+		return -ENODEV;
+
+	for (i = P2PAPI_BSSCFG_CONNECTION; i < P2PAPI_BSSCFG_MAX; i++) {
+		if (!cfg->p2p.bss_idx[i].vif) {
+			if (i == P2PAPI_BSSCFG_CONNECTION2 &&
+			    !(brcmf_feat_is_enabled(ifp, BRCMF_FEAT_RSDB))) {
+				brcmf_err("Multi p2p not supported");
+				return -EIO;
+			}
+			return i;
+		}
+	}
+	return -EIO;
+}
+
+>>>>>>> upstream/android-13
 /**
  * brcmf_p2p_add_vif() - create a new P2P virtual interface.
  *
@@ -2161,9 +2570,18 @@ struct wireless_dev *brcmf_p2p_add_vif(struct wiphy *wiphy, const char *name,
 {
 	struct brcmf_cfg80211_info *cfg = wiphy_to_cfg(wiphy);
 	struct brcmf_if *ifp = netdev_priv(cfg_to_ndev(cfg));
+<<<<<<< HEAD
 	struct brcmf_cfg80211_vif *vif;
 	enum brcmf_fil_p2p_if_types iftype;
 	int err;
+=======
+	struct brcmf_pub *drvr = cfg->pub;
+	struct brcmf_cfg80211_vif *vif;
+	enum brcmf_fil_p2p_if_types iftype;
+	int err = 0;
+	int connidx;
+	u8 *p2p_intf_addr;
+>>>>>>> upstream/android-13
 
 	if (brcmf_cfg80211_vif_event_armed(cfg))
 		return ERR_PTR(-EBUSY);
@@ -2189,9 +2607,27 @@ struct wireless_dev *brcmf_p2p_add_vif(struct wiphy *wiphy, const char *name,
 		return (struct wireless_dev *)vif;
 	brcmf_cfg80211_arm_vif_event(cfg, vif);
 
+<<<<<<< HEAD
 	err = brcmf_p2p_request_p2p_if(&cfg->p2p, ifp, cfg->p2p.int_addr,
 				       iftype);
 	if (err) {
+=======
+	connidx = brcmf_p2p_get_conn_idx(cfg);
+
+	if (connidx == P2PAPI_BSSCFG_CONNECTION)
+		p2p_intf_addr = cfg->p2p.conn_int_addr;
+	else if (connidx == P2PAPI_BSSCFG_CONNECTION2)
+		p2p_intf_addr = cfg->p2p.conn2_int_addr;
+	else
+		err = -EINVAL;
+
+	if (!err)
+		err =  brcmf_p2p_request_p2p_if(&cfg->p2p, ifp,
+						p2p_intf_addr, iftype);
+
+	if (err) {
+		brcmf_err("request p2p interface failed\n");
+>>>>>>> upstream/android-13
 		brcmf_cfg80211_arm_vif_event(cfg, NULL);
 		goto fail;
 	}
@@ -2201,7 +2637,11 @@ struct wireless_dev *brcmf_p2p_add_vif(struct wiphy *wiphy, const char *name,
 					    BRCMF_VIF_EVENT_TIMEOUT);
 	brcmf_cfg80211_arm_vif_event(cfg, NULL);
 	if (!err) {
+<<<<<<< HEAD
 		brcmf_err("timeout occurred\n");
+=======
+		bphy_err(drvr, "timeout occurred\n");
+>>>>>>> upstream/android-13
 		err = -EIO;
 		goto fail;
 	}
@@ -2209,7 +2649,11 @@ struct wireless_dev *brcmf_p2p_add_vif(struct wiphy *wiphy, const char *name,
 	/* interface created in firmware */
 	ifp = vif->ifp;
 	if (!ifp) {
+<<<<<<< HEAD
 		brcmf_err("no if pointer provided\n");
+=======
+		bphy_err(drvr, "no if pointer provided\n");
+>>>>>>> upstream/android-13
 		err = -ENOENT;
 		goto fail;
 	}
@@ -2218,12 +2662,20 @@ struct wireless_dev *brcmf_p2p_add_vif(struct wiphy *wiphy, const char *name,
 	ifp->ndev->name_assign_type = name_assign_type;
 	err = brcmf_net_attach(ifp, true);
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("Registering netdevice failed\n");
+=======
+		bphy_err(drvr, "Registering netdevice failed\n");
+>>>>>>> upstream/android-13
 		free_netdev(ifp->ndev);
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	cfg->p2p.bss_idx[P2PAPI_BSSCFG_CONNECTION].vif = vif;
+=======
+	cfg->p2p.bss_idx[connidx].vif = vif;
+>>>>>>> upstream/android-13
 	/* Disable firmware roaming for P2P interface  */
 	brcmf_fil_iovar_int_set(ifp, "roam_off", 1);
 	if (iftype == BRCMF_FIL_P2P_IF_GO) {
@@ -2310,7 +2762,11 @@ int brcmf_p2p_del_vif(struct wiphy *wiphy, struct wireless_dev *wdev)
 	return err;
 }
 
+<<<<<<< HEAD
 void brcmf_p2p_ifp_removed(struct brcmf_if *ifp, bool rtnl_locked)
+=======
+void brcmf_p2p_ifp_removed(struct brcmf_if *ifp, bool locked)
+>>>>>>> upstream/android-13
 {
 	struct brcmf_cfg80211_info *cfg;
 	struct brcmf_cfg80211_vif *vif;
@@ -2319,11 +2775,23 @@ void brcmf_p2p_ifp_removed(struct brcmf_if *ifp, bool rtnl_locked)
 	vif = ifp->vif;
 	cfg = wdev_to_cfg(&vif->wdev);
 	cfg->p2p.bss_idx[P2PAPI_BSSCFG_DEVICE].vif = NULL;
+<<<<<<< HEAD
 	if (!rtnl_locked)
 		rtnl_lock();
 	cfg80211_unregister_wdev(&vif->wdev);
 	if (!rtnl_locked)
 		rtnl_unlock();
+=======
+	if (!locked) {
+		rtnl_lock();
+		wiphy_lock(cfg->wiphy);
+		cfg80211_unregister_wdev(&vif->wdev);
+		wiphy_unlock(cfg->wiphy);
+		rtnl_unlock();
+	} else {
+		cfg80211_unregister_wdev(&vif->wdev);
+	}
+>>>>>>> upstream/android-13
 	brcmf_free_vif(vif);
 }
 
@@ -2373,6 +2841,10 @@ void brcmf_p2p_stop_device(struct wiphy *wiphy, struct wireless_dev *wdev)
  */
 s32 brcmf_p2p_attach(struct brcmf_cfg80211_info *cfg, bool p2pdev_forced)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = cfg->pub;
+>>>>>>> upstream/android-13
 	struct brcmf_p2p_info *p2p;
 	struct brcmf_if *pri_ifp;
 	s32 err = 0;
@@ -2387,7 +2859,11 @@ s32 brcmf_p2p_attach(struct brcmf_cfg80211_info *cfg, bool p2pdev_forced)
 	if (p2pdev_forced) {
 		err_ptr = brcmf_p2p_create_p2pdev(p2p, NULL, NULL);
 		if (IS_ERR(err_ptr)) {
+<<<<<<< HEAD
 			brcmf_err("P2P device creation failed.\n");
+=======
+			bphy_err(drvr, "P2P device creation failed.\n");
+>>>>>>> upstream/android-13
 			err = PTR_ERR(err_ptr);
 		}
 	} else {

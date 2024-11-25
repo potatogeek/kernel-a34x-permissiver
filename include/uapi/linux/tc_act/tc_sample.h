@@ -6,8 +6,11 @@
 #include <linux/pkt_cls.h>
 #include <linux/if_ether.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_SAMPLE 26
 
+=======
+>>>>>>> upstream/android-13
 struct tc_sample {
 	tc_gen;
 };

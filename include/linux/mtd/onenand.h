@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/include/linux/mtd/onenand.h
  *
  *  Copyright © 2005-2009 Samsung Electronics
  *  Kyungmin Park <kyungmin.park@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MTD_ONENAND_H
@@ -94,6 +101,10 @@ struct onenand_chip {
 	unsigned int		technology;
 	unsigned int		density_mask;
 	unsigned int		options;
+<<<<<<< HEAD
+=======
+	unsigned int		badblockpos;
+>>>>>>> upstream/android-13
 
 	unsigned int		erase_shift;
 	unsigned int		page_shift;
@@ -188,6 +199,11 @@ struct onenand_chip {
 /* Check byte access in OneNAND */
 #define ONENAND_CHECK_BYTE_ACCESS(addr)		(addr & 0x1)
 
+<<<<<<< HEAD
+=======
+#define ONENAND_BADBLOCK_POS		0
+
+>>>>>>> upstream/android-13
 /*
  * Options bits
  */

@@ -20,7 +20,11 @@ partitions {
 		label = "kernel";
 	};
 
+<<<<<<< HEAD
 	rofs@c0000 {
+=======
+	rofs@4c0000 {
+>>>>>>> upstream/android-13
 		reg = <0x4c0000 0x1740000>;
 		label = "rofs";
 	};

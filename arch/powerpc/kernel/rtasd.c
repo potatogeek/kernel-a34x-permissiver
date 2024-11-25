@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001 Anton Blanchard <anton@au.ibm.com>, IBM
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2001 Anton Blanchard <anton@au.ibm.com>, IBM
+ *
+>>>>>>> upstream/android-13
  * Communication to userspace based on kernel/printk.c
  */
 
@@ -91,6 +98,11 @@ static char *rtas_event_type(int type)
 			return "Dump Notification Event";
 		case RTAS_TYPE_PRRN:
 			return "Platform Resource Reassignment Event";
+<<<<<<< HEAD
+=======
+		case RTAS_TYPE_HOTPLUG:
+			return "Hotplug Event";
+>>>>>>> upstream/android-13
 	}
 
 	return rtas_type[0];
@@ -150,8 +162,15 @@ static void printk_log_rtas(char *buf, int len)
 	} else {
 		struct rtas_error_log *errlog = (struct rtas_error_log *)buf;
 
+<<<<<<< HEAD
 		printk(RTAS_DEBUG "event: %d, Type: %s, Severity: %d\n",
 		       error_log_cnt, rtas_event_type(rtas_error_type(errlog)),
+=======
+		printk(RTAS_DEBUG "event: %d, Type: %s (%d), Severity: %d\n",
+		       error_log_cnt,
+		       rtas_event_type(rtas_error_type(errlog)),
+		       rtas_error_type(errlog),
+>>>>>>> upstream/android-13
 		       rtas_error_severity(errlog));
 	}
 }
@@ -273,6 +292,7 @@ void pSeries_log_error(char *buf, unsigned int err_type, int fatal)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_PSERIES
 static void handle_prrn_event(s32 scope)
 {
@@ -304,6 +324,17 @@ static void handle_rtas_event(const struct rtas_error_log *log)
 
 #endif
 
+=======
+static void handle_rtas_event(const struct rtas_error_log *log)
+{
+	if (!machine_is(pseries))
+		return;
+
+	if (rtas_error_type(log) == RTAS_TYPE_PRRN)
+		pr_info_ratelimited("Platform resource reassignment ignored.\n");
+}
+
+>>>>>>> upstream/android-13
 static int rtas_log_open(struct inode * inode, struct file * file)
 {
 	return 0;
@@ -331,7 +362,11 @@ static ssize_t rtas_log_read(struct file * file, char __user * buf,
 
 	count = rtas_error_log_buffer_max;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	tmp = kmalloc(count, GFP_KERNEL);
@@ -385,12 +420,21 @@ static __poll_t rtas_log_poll(struct file *file, poll_table * wait)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_rtas_log_operations = {
 	.read =		rtas_log_read,
 	.poll =		rtas_log_poll,
 	.open =		rtas_log_open,
 	.release =	rtas_log_release,
 	.llseek =	noop_llseek,
+=======
+static const struct proc_ops rtas_log_proc_ops = {
+	.proc_read	= rtas_log_read,
+	.proc_poll	= rtas_log_poll,
+	.proc_open	= rtas_log_open,
+	.proc_release	= rtas_log_release,
+	.proc_lseek	= noop_llseek,
+>>>>>>> upstream/android-13
 };
 
 static int enable_surveillance(int timeout)
@@ -451,7 +495,11 @@ static void rtas_event_scan(struct work_struct *w)
 
 	do_event_scan();
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 
 	/* raw_ OK because just using CPU as starting point. */
 	cpu = cpumask_next(raw_smp_processor_id(), cpu_online_mask);
@@ -473,7 +521,11 @@ static void rtas_event_scan(struct work_struct *w)
 	schedule_delayed_work_on(cpu, &event_scan_work,
 		__round_jiffies_relative(event_scan_delay, cpu));
 
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PPC64
@@ -572,7 +624,11 @@ static int __init rtas_init(void)
 		return -ENODEV;
 
 	entry = proc_create("powerpc/rtas/error_log", 0400, NULL,
+<<<<<<< HEAD
 			    &proc_rtas_log_operations);
+=======
+			    &rtas_log_proc_ops);
+>>>>>>> upstream/android-13
 	if (!entry)
 		printk(KERN_ERR "Failed to create error_log proc entry\n");
 

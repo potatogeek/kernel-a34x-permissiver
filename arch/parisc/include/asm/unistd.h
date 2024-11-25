@@ -4,10 +4,20 @@
 
 #include <uapi/asm/unistd.h>
 
+<<<<<<< HEAD
+=======
+#define __NR_Linux_syscalls	__NR_syscalls
+
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 
 #define SYS_ify(syscall_name)   __NR_##syscall_name
 
+<<<<<<< HEAD
+=======
+#define __IGNORE_fadvise64		/* fadvise64_64 */
+
+>>>>>>> upstream/android-13
 #ifndef ASM_LINE_SEP
 # define ASM_LINE_SEP ;
 #endif
@@ -141,21 +151,34 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
     return K_INLINE_SYSCALL(name, 5, arg1, arg2, arg3, arg4, arg5);	\
 }
 
+<<<<<<< HEAD
+=======
+#define __ARCH_WANT_NEW_STAT
+>>>>>>> upstream/android-13
 #define __ARCH_WANT_OLD_READDIR
 #define __ARCH_WANT_STAT64
 #define __ARCH_WANT_SYS_ALARM
 #define __ARCH_WANT_SYS_GETHOSTNAME
 #define __ARCH_WANT_SYS_PAUSE
 #define __ARCH_WANT_SYS_SIGNAL
+<<<<<<< HEAD
 #define __ARCH_WANT_SYS_TIME
 #define __ARCH_WANT_COMPAT_SYS_TIME
 #define __ARCH_WANT_COMPAT_SYS_SCHED_RR_GET_INTERVAL
 #define __ARCH_WANT_SYS_UTIME
+=======
+#define __ARCH_WANT_SYS_TIME32
+#define __ARCH_WANT_COMPAT_SYS_SCHED_RR_GET_INTERVAL
+#define __ARCH_WANT_SYS_UTIME32
+>>>>>>> upstream/android-13
 #define __ARCH_WANT_SYS_WAITPID
 #define __ARCH_WANT_SYS_SOCKETCALL
 #define __ARCH_WANT_SYS_FADVISE64
 #define __ARCH_WANT_SYS_GETPGRP
+<<<<<<< HEAD
 #define __ARCH_WANT_SYS_LLSEEK
+=======
+>>>>>>> upstream/android-13
 #define __ARCH_WANT_SYS_NICE
 #define __ARCH_WANT_SYS_OLDUMOUNT
 #define __ARCH_WANT_SYS_SIGPENDING
@@ -163,8 +186,19 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
 #define __ARCH_WANT_SYS_FORK
 #define __ARCH_WANT_SYS_VFORK
 #define __ARCH_WANT_SYS_CLONE
+<<<<<<< HEAD
 #define __ARCH_WANT_COMPAT_SYS_SENDFILE
 
+=======
+#define __ARCH_WANT_SYS_CLONE3
+#define __ARCH_WANT_COMPAT_SYS_SENDFILE
+
+#ifdef CONFIG_64BIT
+#define __ARCH_WANT_SYS_TIME
+#define __ARCH_WANT_SYS_UTIME
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #undef STR

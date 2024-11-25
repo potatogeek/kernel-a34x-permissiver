@@ -252,12 +252,15 @@ enum {
 };
 
 
+<<<<<<< HEAD
 #define PCI_STATUS_ERROR_BITS (PCI_STATUS_DETECTED_PARITY | \
 			       PCI_STATUS_SIG_SYSTEM_ERROR | \
 			       PCI_STATUS_REC_MASTER_ABORT | \
 			       PCI_STATUS_REC_TARGET_ABORT | \
 			       PCI_STATUS_PARITY)
 
+=======
+>>>>>>> upstream/android-13
 enum csr_regs {
 	B0_RAP		= 0x0000,
 	B0_CTST		= 0x0004,
@@ -544,8 +547,13 @@ enum {
 	CHIP_ID_YUKON_EC_U = 0xb4, /* YUKON-2 EC Ultra */
 	CHIP_ID_YUKON_EX   = 0xb5, /* YUKON-2 Extreme */
 	CHIP_ID_YUKON_EC   = 0xb6, /* YUKON-2 EC */
+<<<<<<< HEAD
  	CHIP_ID_YUKON_FE   = 0xb7, /* YUKON-2 FE */
  	CHIP_ID_YUKON_FE_P = 0xb8, /* YUKON-2 FE+ */
+=======
+	CHIP_ID_YUKON_FE   = 0xb7, /* YUKON-2 FE */
+	CHIP_ID_YUKON_FE_P = 0xb8, /* YUKON-2 FE+ */
+>>>>>>> upstream/android-13
 	CHIP_ID_YUKON_SUPR = 0xb9, /* YUKON-2 Supreme */
 	CHIP_ID_YUKON_UL_2 = 0xba, /* YUKON-2 Ultra 2 */
 	CHIP_ID_YUKON_OPT  = 0xbc, /* YUKON-2 Optima */
@@ -2268,8 +2276,13 @@ struct sky2_port {
 #define SKY2_FLAG_AUTO_SPEED		0x0002
 #define SKY2_FLAG_AUTO_PAUSE		0x0004
 
+<<<<<<< HEAD
  	enum flow_control    flow_mode;
  	enum flow_control    flow_status;
+=======
+	enum flow_control    flow_mode;
+	enum flow_control    flow_status;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SKY2_DEBUG
 	struct dentry	     *debugfs;
@@ -2309,7 +2322,11 @@ struct sky2_hw {
 	struct work_struct   restart_work;
 	wait_queue_head_t    msi_wait;
 
+<<<<<<< HEAD
 	char		     irq_name[0];
+=======
+	char		     irq_name[];
+>>>>>>> upstream/android-13
 };
 
 static inline int sky2_is_copper(const struct sky2_hw *hw)

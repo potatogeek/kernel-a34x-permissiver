@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/proc-sa110.S
  *
  *  Copyright (C) 1997-2002 Russell King
  *  hacked for non-paged-MM by Hyok S. Choi, 2003.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  MMU functions for SA110
  *
  *  These are the low level assembler for performing cache and TLB
@@ -15,12 +22,19 @@
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/assembler.h>
 #include <asm/asm-offsets.h>
 #include <asm/hwcap.h>
 #include <mach/hardware.h>
 #include <asm/pgtable-hwdef.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 
 #include "proc-macros.S"
@@ -199,7 +213,11 @@ sa110_crval:
 
 	.align
 
+<<<<<<< HEAD
 	.section ".proc.info.init", #alloc
+=======
+	.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 
 	.type	__sa110_proc_info,#object
 __sa110_proc_info:

@@ -17,10 +17,17 @@
 
 	soc {
 		gsbi@19c00000 {
+<<<<<<< HEAD
 			status = "ok";
 			qcom,mode = <GSBI_PROT_I2C_UART>;
 			serial@19c40000 {
 				status = "ok";
+=======
+			status = "okay";
+			qcom,mode = <GSBI_PROT_I2C_UART>;
+			serial@19c40000 {
+				status = "okay";
+>>>>>>> upstream/android-13
 			};
 		};
 

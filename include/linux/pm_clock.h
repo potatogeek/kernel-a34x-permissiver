@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * pm_clock.h - Definitions and headers related to device clocks.
  *
  * Copyright (C) 2011 Rafael J. Wysocki <rjw@sisk.pl>, Renesas Electronics Corp.
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_PM_CLOCK_H
@@ -48,6 +55,10 @@ extern void pm_clk_remove(struct device *dev, const char *con_id);
 extern void pm_clk_remove_clk(struct device *dev, struct clk *clk);
 extern int pm_clk_suspend(struct device *dev);
 extern int pm_clk_resume(struct device *dev);
+<<<<<<< HEAD
+=======
+extern int devm_pm_clk_create(struct device *dev);
+>>>>>>> upstream/android-13
 #else
 static inline bool pm_clk_no_clocks(struct device *dev)
 {
@@ -84,6 +95,13 @@ static inline void pm_clk_remove(struct device *dev, const char *con_id)
 static inline void pm_clk_remove_clk(struct device *dev, struct clk *clk)
 {
 }
+<<<<<<< HEAD
+=======
+static inline int devm_pm_clk_create(struct device *dev)
+{
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_HAVE_CLK

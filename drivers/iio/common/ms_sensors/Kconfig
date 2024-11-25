@@ -1,6 +1,14 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Measurements Specialties sensors common library
 #
 
 config IIO_MS_SENSORS_I2C
+<<<<<<< HEAD
         tristate
+=======
+	tristate
+>>>>>>> upstream/android-13

@@ -29,6 +29,10 @@ Optional properties:
 - vdda-pll-max-microamp : specifies max. load that can be drawn from pll supply
 - vddp-ref-clk-supply   : phandle to UFS device ref_clk pad power supply
 - vddp-ref-clk-max-microamp : specifies max. load that can be drawn from this supply
+<<<<<<< HEAD
+=======
+- resets : specifies the PHY reset in the UFS controller
+>>>>>>> upstream/android-13
 
 Example:
 
@@ -51,9 +55,17 @@ Example:
 			<&clock_gcc clk_ufs_phy_ldo>,
 			<&clock_gcc clk_gcc_ufs_tx_cfg_clk>,
 			<&clock_gcc clk_gcc_ufs_rx_cfg_clk>;
+<<<<<<< HEAD
 	};
 
 	ufshc@fc598000 {
+=======
+		resets = <&ufshc 0>;
+	};
+
+	ufshc: ufshc@fc598000 {
+		#reset-cells = <1>;
+>>>>>>> upstream/android-13
 		...
 		phys = <&ufsphy1>;
 		phy-names = "ufsphy";

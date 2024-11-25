@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ADT7316 digital temperature sensor driver supporting ADT7316/7/8 ADT7516/7/9
  *
@@ -9,6 +10,18 @@
 
 #include <linux/interrupt.h>
 #include <linux/gpio.h>
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * ADT7316 digital temperature sensor driver supporting ADT7316/7/8 ADT7516/7/9
+ *
+ * Copyright 2010 Analog Devices Inc.
+ */
+
+#include <linux/interrupt.h>
+#include <linux/gpio/consumer.h>
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 #include <linux/device.h>
 #include <linux/kernel.h>
@@ -61,8 +74,13 @@
 #define ADT7316_CONFIG1			0x18
 #define ADT7316_CONFIG2			0x19
 #define ADT7316_CONFIG3			0x1A
+<<<<<<< HEAD
 #define ADT7316_LDAC_CONFIG		0x1B
 #define ADT7316_DAC_CONFIG		0x1C
+=======
+#define ADT7316_DAC_CONFIG		0x1B
+#define ADT7316_LDAC_CONFIG		0x1C
+>>>>>>> upstream/android-13
 #define ADT7316_INT_MASK1		0x1D
 #define ADT7316_INT_MASK2		0x1E
 #define ADT7316_IN_TEMP_OFFSET		0x1F
@@ -119,7 +137,11 @@
  */
 #define ADT7316_ADCLK_22_5		0x1
 #define ADT7316_DA_HIGH_RESOLUTION	0x2
+<<<<<<< HEAD
 #define ADT7316_DA_EN_VIA_DAC_LDCA	0x4
+=======
+#define ADT7316_DA_EN_VIA_DAC_LDAC	0x8
+>>>>>>> upstream/android-13
 #define ADT7516_AIN_IN_VREF		0x10
 #define ADT7316_EN_IN_TEMP_PROP_DACA	0x20
 #define ADT7316_EN_EX_TEMP_PROP_DACB	0x40
@@ -129,6 +151,10 @@
  */
 #define ADT7316_DA_2VREF_CH_MASK	0xF
 #define ADT7316_DA_EN_MODE_MASK		0x30
+<<<<<<< HEAD
+=======
+#define ADT7316_DA_EN_MODE_SHIFT	4
+>>>>>>> upstream/android-13
 #define ADT7316_DA_EN_MODE_SINGLE	0x00
 #define ADT7316_DA_EN_MODE_AB_CD	0x10
 #define ADT7316_DA_EN_MODE_ABCD		0x20
@@ -179,7 +205,11 @@
 
 struct adt7316_chip_info {
 	struct adt7316_bus	bus;
+<<<<<<< HEAD
 	u16			ldac_pin;
+=======
+	struct gpio_desc	*ldac_pin;
+>>>>>>> upstream/android-13
 	u16			int_mask;	/* 0x2f */
 	u8			config1;
 	u8			config2;
@@ -219,8 +249,13 @@ struct adt7316_limit_regs {
 };
 
 static ssize_t adt7316_show_enabled(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				    struct device_attribute *attr,
+				    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -229,7 +264,11 @@ static ssize_t adt7316_show_enabled(struct device *dev,
 }
 
 static ssize_t _adt7316_store_enabled(struct adt7316_chip_info *chip,
+<<<<<<< HEAD
 		int enable)
+=======
+				      int enable)
+>>>>>>> upstream/android-13
 {
 	u8 config1;
 	int ret;
@@ -249,9 +288,15 @@ static ssize_t _adt7316_store_enabled(struct adt7316_chip_info *chip,
 }
 
 static ssize_t adt7316_store_enabled(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				     struct device_attribute *attr,
+				     const char *buf,
+				     size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -274,8 +319,13 @@ static IIO_DEVICE_ATTR(enabled, 0644,
 		0);
 
 static ssize_t adt7316_show_select_ex_temp(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					   struct device_attribute *attr,
+					   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -287,9 +337,15 @@ static ssize_t adt7316_show_select_ex_temp(struct device *dev,
 }
 
 static ssize_t adt7316_store_select_ex_temp(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					    struct device_attribute *attr,
+					    const char *buf,
+					    size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -318,8 +374,13 @@ static IIO_DEVICE_ATTR(select_ex_temp, 0644,
 		0);
 
 static ssize_t adt7316_show_mode(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				 struct device_attribute *attr,
+				 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -331,9 +392,15 @@ static ssize_t adt7316_show_mode(struct device *dev,
 }
 
 static ssize_t adt7316_store_mode(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				  struct device_attribute *attr,
+				  const char *buf,
+				  size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -359,8 +426,13 @@ static IIO_DEVICE_ATTR(mode, 0644,
 		0);
 
 static ssize_t adt7316_show_all_modes(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				      struct device_attribute *attr,
+				      char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "single_channel\nround_robin\n");
 }
@@ -368,8 +440,13 @@ static ssize_t adt7316_show_all_modes(struct device *dev,
 static IIO_DEVICE_ATTR(all_modes, 0444, adt7316_show_all_modes, NULL, 0);
 
 static ssize_t adt7316_show_ad_channel(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				       struct device_attribute *attr,
+				       char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -384,7 +461,11 @@ static ssize_t adt7316_show_ad_channel(struct device *dev,
 		return sprintf(buf, "1 - Internal Temperature\n");
 	case ADT7316_AD_SINGLE_CH_EX:
 		if (((chip->id & ID_FAMILY_MASK) == ID_ADT75XX) &&
+<<<<<<< HEAD
 			(chip->config1 & ADT7516_SEL_AIN1_2_EX_TEMP_MASK) == 0)
+=======
+		    (chip->config1 & ADT7516_SEL_AIN1_2_EX_TEMP_MASK) == 0)
+>>>>>>> upstream/android-13
 			return sprintf(buf, "2 - AIN1\n");
 
 		return sprintf(buf, "2 - External Temperature\n");
@@ -406,9 +487,15 @@ static ssize_t adt7316_show_ad_channel(struct device *dev,
 }
 
 static ssize_t adt7316_store_ad_channel(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					struct device_attribute *attr,
+					const char *buf,
+					size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -452,8 +539,13 @@ static IIO_DEVICE_ATTR(ad_channel, 0644,
 		0);
 
 static ssize_t adt7316_show_all_ad_channels(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					    struct device_attribute *attr,
+					    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -473,8 +565,13 @@ static IIO_DEVICE_ATTR(all_ad_channels, 0444,
 		adt7316_show_all_ad_channels, NULL, 0);
 
 static ssize_t adt7316_show_disable_averaging(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					      struct device_attribute *attr,
+					      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -484,9 +581,15 @@ static ssize_t adt7316_show_disable_averaging(struct device *dev,
 }
 
 static ssize_t adt7316_store_disable_averaging(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					       struct device_attribute *attr,
+					       const char *buf,
+					       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -512,8 +615,13 @@ static IIO_DEVICE_ATTR(disable_averaging, 0644,
 		0);
 
 static ssize_t adt7316_show_enable_smbus_timeout(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+						 struct device_attribute *attr,
+						 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -523,9 +631,15 @@ static ssize_t adt7316_show_enable_smbus_timeout(struct device *dev,
 }
 
 static ssize_t adt7316_store_enable_smbus_timeout(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+						  struct device_attribute *attr,
+						  const char *buf,
+						  size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -551,8 +665,13 @@ static IIO_DEVICE_ATTR(enable_smbus_timeout, 0644,
 		0);
 
 static ssize_t adt7316_show_powerdown(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				      struct device_attribute *attr,
+				      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -561,9 +680,15 @@ static ssize_t adt7316_show_powerdown(struct device *dev,
 }
 
 static ssize_t adt7316_store_powerdown(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				       struct device_attribute *attr,
+				       const char *buf,
+				       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -589,8 +714,13 @@ static IIO_DEVICE_ATTR(powerdown, 0644,
 		0);
 
 static ssize_t adt7316_show_fast_ad_clock(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					  struct device_attribute *attr,
+					  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -599,9 +729,15 @@ static ssize_t adt7316_show_fast_ad_clock(struct device *dev,
 }
 
 static ssize_t adt7316_store_fast_ad_clock(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					   struct device_attribute *attr,
+					   const char *buf,
+					   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -627,16 +763,25 @@ static IIO_DEVICE_ATTR(fast_ad_clock, 0644,
 		0);
 
 static ssize_t adt7316_show_da_high_resolution(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					       struct device_attribute *attr,
+					       char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 
 	if (chip->config3 & ADT7316_DA_HIGH_RESOLUTION) {
+<<<<<<< HEAD
 		if (chip->id == ID_ADT7316 || chip->id == ID_ADT7516)
 			return sprintf(buf, "1 (12 bits)\n");
 		if (chip->id == ID_ADT7317 || chip->id == ID_ADT7517)
+=======
+		if (chip->id != ID_ADT7318 && chip->id != ID_ADT7519)
+>>>>>>> upstream/android-13
 			return sprintf(buf, "1 (10 bits)\n");
 	}
 
@@ -644,15 +789,22 @@ static ssize_t adt7316_show_da_high_resolution(struct device *dev,
 }
 
 static ssize_t adt7316_store_da_high_resolution(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+						struct device_attribute *attr,
+						const char *buf,
+						size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 	u8 config3;
 	int ret;
 
+<<<<<<< HEAD
 	chip->dac_bits = 8;
 
 	if (buf[0] == '1') {
@@ -664,6 +816,14 @@ static ssize_t adt7316_store_da_high_resolution(struct device *dev,
 	} else {
 		config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
 	}
+=======
+	if (chip->id == ID_ADT7318 || chip->id == ID_ADT7519)
+		return -EPERM;
+
+	config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
+	if (buf[0] == '1')
+		config3 |= ADT7316_DA_HIGH_RESOLUTION;
+>>>>>>> upstream/android-13
 
 	ret = chip->bus.write(chip->bus.client, ADT7316_CONFIG3, config3);
 	if (ret)
@@ -680,8 +840,13 @@ static IIO_DEVICE_ATTR(da_high_resolution, 0644,
 		0);
 
 static ssize_t adt7316_show_AIN_internal_Vref(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					      struct device_attribute *attr,
+					      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -694,9 +859,15 @@ static ssize_t adt7316_show_AIN_internal_Vref(struct device *dev,
 }
 
 static ssize_t adt7316_store_AIN_internal_Vref(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					       struct device_attribute *attr,
+					       const char *buf,
+					       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -726,8 +897,13 @@ static IIO_DEVICE_ATTR(AIN_internal_Vref, 0644,
 		0);
 
 static ssize_t adt7316_show_enable_prop_DACA(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					     struct device_attribute *attr,
+					     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -737,9 +913,15 @@ static ssize_t adt7316_show_enable_prop_DACA(struct device *dev,
 }
 
 static ssize_t adt7316_store_enable_prop_DACA(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					      struct device_attribute *attr,
+					      const char *buf,
+					      size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -760,6 +942,7 @@ static ssize_t adt7316_store_enable_prop_DACA(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(enable_proportion_DACA, 0644,
+<<<<<<< HEAD
 		adt7316_show_enable_prop_DACA,
 		adt7316_store_enable_prop_DACA,
 		0);
@@ -767,6 +950,15 @@ static IIO_DEVICE_ATTR(enable_proportion_DACA, 0644,
 static ssize_t adt7316_show_enable_prop_DACB(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_enable_prop_DACA,
+		       adt7316_store_enable_prop_DACA,
+		       0);
+
+static ssize_t adt7316_show_enable_prop_DACB(struct device *dev,
+					     struct device_attribute *attr,
+					     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -776,9 +968,15 @@ static ssize_t adt7316_show_enable_prop_DACB(struct device *dev,
 }
 
 static ssize_t adt7316_store_enable_prop_DACB(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					      struct device_attribute *attr,
+					      const char *buf,
+					      size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -799,6 +997,7 @@ static ssize_t adt7316_store_enable_prop_DACB(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(enable_proportion_DACB, 0644,
+<<<<<<< HEAD
 		adt7316_show_enable_prop_DACB,
 		adt7316_store_enable_prop_DACB,
 		0);
@@ -806,6 +1005,15 @@ static IIO_DEVICE_ATTR(enable_proportion_DACB, 0644,
 static ssize_t adt7316_show_DAC_2Vref_ch_mask(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_enable_prop_DACB,
+		       adt7316_store_enable_prop_DACB,
+		       0);
+
+static ssize_t adt7316_show_DAC_2Vref_ch_mask(struct device *dev,
+					      struct device_attribute *attr,
+					      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -815,9 +1023,15 @@ static ssize_t adt7316_show_DAC_2Vref_ch_mask(struct device *dev,
 }
 
 static ssize_t adt7316_store_DAC_2Vref_ch_mask(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					       struct device_attribute *attr,
+					       const char *buf,
+					       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -842,6 +1056,7 @@ static ssize_t adt7316_store_DAC_2Vref_ch_mask(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DAC_2Vref_channels_mask, 0644,
+<<<<<<< HEAD
 		adt7316_show_DAC_2Vref_ch_mask,
 		adt7316_store_DAC_2Vref_ch_mask,
 		0);
@@ -849,11 +1064,24 @@ static IIO_DEVICE_ATTR(DAC_2Vref_channels_mask, 0644,
 static ssize_t adt7316_show_DAC_update_mode(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_DAC_2Vref_ch_mask,
+		       adt7316_store_DAC_2Vref_ch_mask,
+		       0);
+
+static ssize_t adt7316_show_DAC_update_mode(struct device *dev,
+					    struct device_attribute *attr,
+					    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 
+<<<<<<< HEAD
 	if (!(chip->config3 & ADT7316_DA_EN_VIA_DAC_LDCA))
+=======
+	if (!(chip->config3 & ADT7316_DA_EN_VIA_DAC_LDAC))
+>>>>>>> upstream/android-13
 		return sprintf(buf, "manual\n");
 
 	switch (chip->dac_config & ADT7316_DA_EN_MODE_MASK) {
@@ -872,9 +1100,15 @@ static ssize_t adt7316_show_DAC_update_mode(struct device *dev,
 }
 
 static ssize_t adt7316_store_DAC_update_mode(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					     struct device_attribute *attr,
+					     const char *buf,
+					     size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -882,6 +1116,7 @@ static ssize_t adt7316_store_DAC_update_mode(struct device *dev,
 	u8 data;
 	int ret;
 
+<<<<<<< HEAD
 	if (!(chip->config3 & ADT7316_DA_EN_VIA_DAC_LDCA))
 		return -EPERM;
 
@@ -891,6 +1126,17 @@ static ssize_t adt7316_store_DAC_update_mode(struct device *dev,
 
 	dac_config = chip->dac_config & (~ADT7316_DA_EN_MODE_MASK);
 	dac_config |= data;
+=======
+	if (!(chip->config3 & ADT7316_DA_EN_VIA_DAC_LDAC))
+		return -EPERM;
+
+	ret = kstrtou8(buf, 10, &data);
+	if (ret || data > (ADT7316_DA_EN_MODE_MASK >> ADT7316_DA_EN_MODE_SHIFT))
+		return -EINVAL;
+
+	dac_config = chip->dac_config & (~ADT7316_DA_EN_MODE_MASK);
+	dac_config |= data << ADT7316_DA_EN_MODE_SHIFT;
+>>>>>>> upstream/android-13
 
 	ret = chip->bus.write(chip->bus.client, ADT7316_DAC_CONFIG, dac_config);
 	if (ret)
@@ -902,6 +1148,7 @@ static ssize_t adt7316_store_DAC_update_mode(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DAC_update_mode, 0644,
+<<<<<<< HEAD
 		adt7316_show_DAC_update_mode,
 		adt7316_store_DAC_update_mode,
 		0);
@@ -909,11 +1156,24 @@ static IIO_DEVICE_ATTR(DAC_update_mode, 0644,
 static ssize_t adt7316_show_all_DAC_update_modes(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_DAC_update_mode,
+		       adt7316_store_DAC_update_mode,
+		       0);
+
+static ssize_t adt7316_show_all_DAC_update_modes(struct device *dev,
+						 struct device_attribute *attr,
+						 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 
+<<<<<<< HEAD
 	if (chip->config3 & ADT7316_DA_EN_VIA_DAC_LDCA)
+=======
+	if (chip->config3 & ADT7316_DA_EN_VIA_DAC_LDAC)
+>>>>>>> upstream/android-13
 		return sprintf(buf, "0 - auto at any MSB DAC writing\n"
 				"1 - auto at MSB DAC AB and CD writing\n"
 				"2 - auto at MSB DAC ABCD writing\n"
@@ -922,12 +1182,21 @@ static ssize_t adt7316_show_all_DAC_update_modes(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(all_DAC_update_modes, 0444,
+<<<<<<< HEAD
 		adt7316_show_all_DAC_update_modes, NULL, 0);
 
 static ssize_t adt7316_store_update_DAC(struct device *dev,
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+		       adt7316_show_all_DAC_update_modes, NULL, 0);
+
+static ssize_t adt7316_store_update_DAC(struct device *dev,
+					struct device_attribute *attr,
+					const char *buf,
+					size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -935,7 +1204,11 @@ static ssize_t adt7316_store_update_DAC(struct device *dev,
 	u8 data;
 	int ret;
 
+<<<<<<< HEAD
 	if (chip->config3 & ADT7316_DA_EN_VIA_DAC_LDCA) {
+=======
+	if (chip->config3 & ADT7316_DA_EN_VIA_DAC_LDAC) {
+>>>>>>> upstream/android-13
 		if ((chip->dac_config & ADT7316_DA_EN_MODE_MASK) !=
 			ADT7316_DA_EN_MODE_LDAC)
 			return -EPERM;
@@ -952,14 +1225,20 @@ static ssize_t adt7316_store_update_DAC(struct device *dev,
 		if (ret)
 			return -EIO;
 	} else {
+<<<<<<< HEAD
 		gpio_set_value(chip->ldac_pin, 0);
 		gpio_set_value(chip->ldac_pin, 1);
+=======
+		gpiod_set_value(chip->ldac_pin, 0);
+		gpiod_set_value(chip->ldac_pin, 1);
+>>>>>>> upstream/android-13
 	}
 
 	return len;
 }
 
 static IIO_DEVICE_ATTR(update_DAC, 0644,
+<<<<<<< HEAD
 		NULL,
 		adt7316_store_update_DAC,
 		0);
@@ -967,30 +1246,51 @@ static IIO_DEVICE_ATTR(update_DAC, 0644,
 static ssize_t adt7316_show_DA_AB_Vref_bypass(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       NULL,
+		       adt7316_store_update_DAC,
+		       0);
+
+static ssize_t adt7316_show_DA_AB_Vref_bypass(struct device *dev,
+					      struct device_attribute *attr,
+					      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 
+<<<<<<< HEAD
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 		return -EPERM;
 
+=======
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%d\n",
 		!!(chip->dac_config & ADT7316_VREF_BYPASS_DAC_AB));
 }
 
 static ssize_t adt7316_store_DA_AB_Vref_bypass(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					       struct device_attribute *attr,
+					       const char *buf,
+					       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 	u8 dac_config;
 	int ret;
 
+<<<<<<< HEAD
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 		return -EPERM;
 
+=======
+>>>>>>> upstream/android-13
 	dac_config = chip->dac_config & (~ADT7316_VREF_BYPASS_DAC_AB);
 	if (buf[0] == '1')
 		dac_config |= ADT7316_VREF_BYPASS_DAC_AB;
@@ -1005,6 +1305,7 @@ static ssize_t adt7316_store_DA_AB_Vref_bypass(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DA_AB_Vref_bypass, 0644,
+<<<<<<< HEAD
 		adt7316_show_DA_AB_Vref_bypass,
 		adt7316_store_DA_AB_Vref_bypass,
 		0);
@@ -1012,30 +1313,51 @@ static IIO_DEVICE_ATTR(DA_AB_Vref_bypass, 0644,
 static ssize_t adt7316_show_DA_CD_Vref_bypass(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_DA_AB_Vref_bypass,
+		       adt7316_store_DA_AB_Vref_bypass,
+		       0);
+
+static ssize_t adt7316_show_DA_CD_Vref_bypass(struct device *dev,
+					      struct device_attribute *attr,
+					      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 
+<<<<<<< HEAD
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 		return -EPERM;
 
+=======
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%d\n",
 		!!(chip->dac_config & ADT7316_VREF_BYPASS_DAC_CD));
 }
 
 static ssize_t adt7316_store_DA_CD_Vref_bypass(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					       struct device_attribute *attr,
+					       const char *buf,
+					       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 	u8 dac_config;
 	int ret;
 
+<<<<<<< HEAD
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 		return -EPERM;
 
+=======
+>>>>>>> upstream/android-13
 	dac_config = chip->dac_config & (~ADT7316_VREF_BYPASS_DAC_CD);
 	if (buf[0] == '1')
 		dac_config |= ADT7316_VREF_BYPASS_DAC_CD;
@@ -1050,6 +1372,7 @@ static ssize_t adt7316_store_DA_CD_Vref_bypass(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DA_CD_Vref_bypass, 0644,
+<<<<<<< HEAD
 		adt7316_show_DA_CD_Vref_bypass,
 		adt7316_store_DA_CD_Vref_bypass,
 		0);
@@ -1057,12 +1380,22 @@ static IIO_DEVICE_ATTR(DA_CD_Vref_bypass, 0644,
 static ssize_t adt7316_show_DAC_internal_Vref(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_DA_CD_Vref_bypass,
+		       adt7316_store_DA_CD_Vref_bypass,
+		       0);
+
+static ssize_t adt7316_show_DAC_internal_Vref(struct device *dev,
+					      struct device_attribute *attr,
+					      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
 
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 		return sprintf(buf, "0x%x\n",
+<<<<<<< HEAD
 			(chip->dac_config & ADT7516_DAC_IN_VREF_MASK) >>
 			ADT7516_DAC_IN_VREF_OFFSET);
 	return sprintf(buf, "%d\n",
@@ -1073,6 +1406,18 @@ static ssize_t adt7316_store_DAC_internal_Vref(struct device *dev,
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+			(chip->ldac_config & ADT7516_DAC_IN_VREF_MASK) >>
+			ADT7516_DAC_IN_VREF_OFFSET);
+	return sprintf(buf, "%d\n",
+		       !!(chip->ldac_config & ADT7316_DAC_IN_VREF));
+}
+
+static ssize_t adt7316_store_DAC_internal_Vref(struct device *dev,
+					       struct device_attribute *attr,
+					       const char *buf,
+					       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1111,12 +1456,21 @@ static ssize_t adt7316_store_DAC_internal_Vref(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DAC_internal_Vref, 0644,
+<<<<<<< HEAD
 		adt7316_show_DAC_internal_Vref,
 		adt7316_store_DAC_internal_Vref,
 		0);
 
 static ssize_t adt7316_show_ad(struct adt7316_chip_info *chip,
 		int channel, char *buf)
+=======
+		       adt7316_show_DAC_internal_Vref,
+		       adt7316_store_DAC_internal_Vref,
+		       0);
+
+static ssize_t adt7316_show_ad(struct adt7316_chip_info *chip,
+			       int channel, char *buf)
+>>>>>>> upstream/android-13
 {
 	u16 data;
 	u8 msb, lsb;
@@ -1124,7 +1478,11 @@ static ssize_t adt7316_show_ad(struct adt7316_chip_info *chip,
 	int ret;
 
 	if ((chip->config2 & ADT7316_AD_SINGLE_CH_MODE) &&
+<<<<<<< HEAD
 		channel != (chip->config2 & ADT7516_AD_SINGLE_CH_MASK))
+=======
+	    channel != (chip->config2 & ADT7516_AD_SINGLE_CH_MASK))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	switch (channel) {
@@ -1191,8 +1549,13 @@ static ssize_t adt7316_show_ad(struct adt7316_chip_info *chip,
 }
 
 static ssize_t adt7316_show_VDD(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				struct device_attribute *attr,
+				char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1202,8 +1565,13 @@ static ssize_t adt7316_show_VDD(struct device *dev,
 static IIO_DEVICE_ATTR(VDD, 0444, adt7316_show_VDD, NULL, 0);
 
 static ssize_t adt7316_show_in_temp(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				    struct device_attribute *attr,
+				    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1214,8 +1582,13 @@ static ssize_t adt7316_show_in_temp(struct device *dev,
 static IIO_DEVICE_ATTR(in_temp, 0444, adt7316_show_in_temp, NULL, 0);
 
 static ssize_t adt7316_show_ex_temp_AIN1(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					 struct device_attribute *attr,
+					 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1224,12 +1597,21 @@ static ssize_t adt7316_show_ex_temp_AIN1(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(ex_temp_AIN1, 0444, adt7316_show_ex_temp_AIN1,
+<<<<<<< HEAD
 		NULL, 0);
 static IIO_DEVICE_ATTR(ex_temp, 0444, adt7316_show_ex_temp_AIN1, NULL, 0);
 
 static ssize_t adt7316_show_AIN2(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       NULL, 0);
+static IIO_DEVICE_ATTR(ex_temp, 0444, adt7316_show_ex_temp_AIN1, NULL, 0);
+
+static ssize_t adt7316_show_AIN2(struct device *dev,
+				 struct device_attribute *attr,
+				 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1239,8 +1621,13 @@ static ssize_t adt7316_show_AIN2(struct device *dev,
 static IIO_DEVICE_ATTR(AIN2, 0444, adt7316_show_AIN2, NULL, 0);
 
 static ssize_t adt7316_show_AIN3(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				 struct device_attribute *attr,
+				 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1250,8 +1637,13 @@ static ssize_t adt7316_show_AIN3(struct device *dev,
 static IIO_DEVICE_ATTR(AIN3, 0444, adt7316_show_AIN3, NULL, 0);
 
 static ssize_t adt7316_show_AIN4(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				 struct device_attribute *attr,
+				 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1261,7 +1653,11 @@ static ssize_t adt7316_show_AIN4(struct device *dev,
 static IIO_DEVICE_ATTR(AIN4, 0444, adt7316_show_AIN4, NULL, 0);
 
 static ssize_t adt7316_show_temp_offset(struct adt7316_chip_info *chip,
+<<<<<<< HEAD
 		int offset_addr, char *buf)
+=======
+					int offset_addr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int data;
 	u8 val;
@@ -1279,7 +1675,13 @@ static ssize_t adt7316_show_temp_offset(struct adt7316_chip_info *chip,
 }
 
 static ssize_t adt7316_store_temp_offset(struct adt7316_chip_info *chip,
+<<<<<<< HEAD
 		int offset_addr, const char *buf, size_t len)
+=======
+					 int offset_addr,
+					 const char *buf,
+					 size_t len)
+>>>>>>> upstream/android-13
 {
 	int data;
 	u8 val;
@@ -1302,8 +1704,13 @@ static ssize_t adt7316_store_temp_offset(struct adt7316_chip_info *chip,
 }
 
 static ssize_t adt7316_show_in_temp_offset(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					   struct device_attribute *attr,
+					   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1312,9 +1719,15 @@ static ssize_t adt7316_show_in_temp_offset(struct device *dev,
 }
 
 static ssize_t adt7316_store_in_temp_offset(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					    struct device_attribute *attr,
+					    const char *buf,
+					    size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1324,12 +1737,21 @@ static ssize_t adt7316_store_in_temp_offset(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(in_temp_offset, 0644,
+<<<<<<< HEAD
 		adt7316_show_in_temp_offset,
 		adt7316_store_in_temp_offset, 0);
 
 static ssize_t adt7316_show_ex_temp_offset(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_in_temp_offset,
+		       adt7316_store_in_temp_offset, 0);
+
+static ssize_t adt7316_show_ex_temp_offset(struct device *dev,
+					   struct device_attribute *attr,
+					   char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1338,9 +1760,15 @@ static ssize_t adt7316_show_ex_temp_offset(struct device *dev,
 }
 
 static ssize_t adt7316_store_ex_temp_offset(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					    struct device_attribute *attr,
+					    const char *buf,
+					    size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1350,12 +1778,21 @@ static ssize_t adt7316_store_ex_temp_offset(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(ex_temp_offset, 0644,
+<<<<<<< HEAD
 		adt7316_show_ex_temp_offset,
 		adt7316_store_ex_temp_offset, 0);
 
 static ssize_t adt7316_show_in_analog_temp_offset(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_ex_temp_offset,
+		       adt7316_store_ex_temp_offset, 0);
+
+static ssize_t adt7316_show_in_analog_temp_offset(struct device *dev,
+						  struct device_attribute *attr,
+						  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1365,9 +1802,15 @@ static ssize_t adt7316_show_in_analog_temp_offset(struct device *dev,
 }
 
 static ssize_t adt7316_store_in_analog_temp_offset(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+						   struct device_attribute *attr,
+						   const char *buf,
+						   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1377,12 +1820,21 @@ static ssize_t adt7316_store_in_analog_temp_offset(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(in_analog_temp_offset, 0644,
+<<<<<<< HEAD
 		adt7316_show_in_analog_temp_offset,
 		adt7316_store_in_analog_temp_offset, 0);
 
 static ssize_t adt7316_show_ex_analog_temp_offset(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_in_analog_temp_offset,
+		       adt7316_store_in_analog_temp_offset, 0);
+
+static ssize_t adt7316_show_ex_analog_temp_offset(struct device *dev,
+						  struct device_attribute *attr,
+						  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1392,9 +1844,15 @@ static ssize_t adt7316_show_ex_analog_temp_offset(struct device *dev,
 }
 
 static ssize_t adt7316_store_ex_analog_temp_offset(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+						   struct device_attribute *attr,
+						   const char *buf,
+						   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1404,21 +1862,36 @@ static ssize_t adt7316_store_ex_analog_temp_offset(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(ex_analog_temp_offset, 0644,
+<<<<<<< HEAD
 		adt7316_show_ex_analog_temp_offset,
 		adt7316_store_ex_analog_temp_offset, 0);
 
 static ssize_t adt7316_show_DAC(struct adt7316_chip_info *chip,
 		int channel, char *buf)
+=======
+		       adt7316_show_ex_analog_temp_offset,
+		       adt7316_store_ex_analog_temp_offset, 0);
+
+static ssize_t adt7316_show_DAC(struct adt7316_chip_info *chip,
+				int channel, char *buf)
+>>>>>>> upstream/android-13
 {
 	u16 data = 0;
 	u8 msb, lsb, offset;
 	int ret;
 
 	if (channel >= ADT7316_DA_MSB_DATA_REGS ||
+<<<<<<< HEAD
 		(channel == 0 &&
 		(chip->config3 & ADT7316_EN_IN_TEMP_PROP_DACA)) ||
 		(channel == 1 &&
 		(chip->config3 & ADT7316_EN_EX_TEMP_PROP_DACB)))
+=======
+	    (channel == 0 &&
+	    (chip->config3 & ADT7316_EN_IN_TEMP_PROP_DACA)) ||
+	    (channel == 1 &&
+	    (chip->config3 & ADT7316_EN_EX_TEMP_PROP_DACB)))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	offset = chip->dac_bits - 8;
@@ -1445,17 +1918,28 @@ static ssize_t adt7316_show_DAC(struct adt7316_chip_info *chip,
 }
 
 static ssize_t adt7316_store_DAC(struct adt7316_chip_info *chip,
+<<<<<<< HEAD
 		int channel, const char *buf, size_t len)
+=======
+				 int channel, const char *buf, size_t len)
+>>>>>>> upstream/android-13
 {
 	u8 msb, lsb, lsb_reg, offset;
 	u16 data;
 	int ret;
 
 	if (channel >= ADT7316_DA_MSB_DATA_REGS ||
+<<<<<<< HEAD
 		(channel == 0 &&
 		(chip->config3 & ADT7316_EN_IN_TEMP_PROP_DACA)) ||
 		(channel == 1 &&
 		(chip->config3 & ADT7316_EN_EX_TEMP_PROP_DACB)))
+=======
+	    (channel == 0 &&
+	    (chip->config3 & ADT7316_EN_IN_TEMP_PROP_DACA)) ||
+	    (channel == 1 &&
+	    (chip->config3 & ADT7316_EN_EX_TEMP_PROP_DACB)))
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	offset = chip->dac_bits - 8;
@@ -1486,8 +1970,13 @@ static ssize_t adt7316_store_DAC(struct adt7316_chip_info *chip,
 }
 
 static ssize_t adt7316_show_DAC_A(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				  struct device_attribute *attr,
+				  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1496,9 +1985,15 @@ static ssize_t adt7316_show_DAC_A(struct device *dev,
 }
 
 static ssize_t adt7316_store_DAC_A(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				   struct device_attribute *attr,
+				   const char *buf,
+				   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1507,11 +2002,19 @@ static ssize_t adt7316_store_DAC_A(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DAC_A, 0644, adt7316_show_DAC_A,
+<<<<<<< HEAD
 		adt7316_store_DAC_A, 0);
 
 static ssize_t adt7316_show_DAC_B(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_store_DAC_A, 0);
+
+static ssize_t adt7316_show_DAC_B(struct device *dev,
+				  struct device_attribute *attr,
+				  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1520,9 +2023,15 @@ static ssize_t adt7316_show_DAC_B(struct device *dev,
 }
 
 static ssize_t adt7316_store_DAC_B(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				   struct device_attribute *attr,
+				   const char *buf,
+				   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1531,11 +2040,19 @@ static ssize_t adt7316_store_DAC_B(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DAC_B, 0644, adt7316_show_DAC_B,
+<<<<<<< HEAD
 		adt7316_store_DAC_B, 0);
 
 static ssize_t adt7316_show_DAC_C(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_store_DAC_B, 0);
+
+static ssize_t adt7316_show_DAC_C(struct device *dev,
+				  struct device_attribute *attr,
+				  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1544,9 +2061,15 @@ static ssize_t adt7316_show_DAC_C(struct device *dev,
 }
 
 static ssize_t adt7316_store_DAC_C(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				   struct device_attribute *attr,
+				   const char *buf,
+				   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1555,11 +2078,19 @@ static ssize_t adt7316_store_DAC_C(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DAC_C, 0644, adt7316_show_DAC_C,
+<<<<<<< HEAD
 		adt7316_store_DAC_C, 0);
 
 static ssize_t adt7316_show_DAC_D(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_store_DAC_C, 0);
+
+static ssize_t adt7316_show_DAC_D(struct device *dev,
+				  struct device_attribute *attr,
+				  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1568,9 +2099,15 @@ static ssize_t adt7316_show_DAC_D(struct device *dev,
 }
 
 static ssize_t adt7316_store_DAC_D(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				   struct device_attribute *attr,
+				   const char *buf,
+				   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1579,11 +2116,19 @@ static ssize_t adt7316_store_DAC_D(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(DAC_D, 0644, adt7316_show_DAC_D,
+<<<<<<< HEAD
 		adt7316_store_DAC_D, 0);
 
 static ssize_t adt7316_show_device_id(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_store_DAC_D, 0);
+
+static ssize_t adt7316_show_device_id(struct device *dev,
+				      struct device_attribute *attr,
+				      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1600,8 +2145,13 @@ static ssize_t adt7316_show_device_id(struct device *dev,
 static IIO_DEVICE_ATTR(device_id, 0444, adt7316_show_device_id, NULL, 0);
 
 static ssize_t adt7316_show_manufactorer_id(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					    struct device_attribute *attr,
+					    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1616,11 +2166,19 @@ static ssize_t adt7316_show_manufactorer_id(struct device *dev,
 }
 
 static IIO_DEVICE_ATTR(manufactorer_id, 0444,
+<<<<<<< HEAD
 		adt7316_show_manufactorer_id, NULL, 0);
 
 static ssize_t adt7316_show_device_rev(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
+=======
+		       adt7316_show_manufactorer_id, NULL, 0);
+
+static ssize_t adt7316_show_device_rev(struct device *dev,
+				       struct device_attribute *attr,
+				       char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1637,8 +2195,13 @@ static ssize_t adt7316_show_device_rev(struct device *dev,
 static IIO_DEVICE_ATTR(device_rev, 0444, adt7316_show_device_rev, NULL, 0);
 
 static ssize_t adt7316_show_bus_type(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				     struct device_attribute *attr,
+				     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1718,8 +2281,11 @@ static struct attribute *adt7516_attributes[] = {
 	&iio_dev_attr_DAC_update_mode.dev_attr.attr,
 	&iio_dev_attr_all_DAC_update_modes.dev_attr.attr,
 	&iio_dev_attr_update_DAC.dev_attr.attr,
+<<<<<<< HEAD
 	&iio_dev_attr_DA_AB_Vref_bypass.dev_attr.attr,
 	&iio_dev_attr_DA_CD_Vref_bypass.dev_attr.attr,
+=======
+>>>>>>> upstream/android-13
 	&iio_dev_attr_DAC_internal_Vref.dev_attr.attr,
 	&iio_dev_attr_VDD.dev_attr.attr,
 	&iio_dev_attr_in_temp.dev_attr.attr,
@@ -1817,12 +2383,57 @@ static irqreturn_t adt7316_event_handler(int irq, void *private)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static int adt7316_setup_irq(struct iio_dev *indio_dev)
+{
+	struct adt7316_chip_info *chip = iio_priv(indio_dev);
+	int irq_type, ret;
+
+	irq_type = irqd_get_trigger_type(irq_get_irq_data(chip->bus.irq));
+
+	switch (irq_type) {
+	case IRQF_TRIGGER_HIGH:
+	case IRQF_TRIGGER_RISING:
+		break;
+	case IRQF_TRIGGER_LOW:
+	case IRQF_TRIGGER_FALLING:
+		break;
+	default:
+		dev_info(&indio_dev->dev, "mode %d unsupported, using IRQF_TRIGGER_LOW\n",
+			 irq_type);
+		irq_type = IRQF_TRIGGER_LOW;
+		break;
+	}
+
+	ret = devm_request_threaded_irq(&indio_dev->dev, chip->bus.irq,
+					NULL, adt7316_event_handler,
+					irq_type | IRQF_ONESHOT,
+					indio_dev->name, indio_dev);
+	if (ret) {
+		dev_err(&indio_dev->dev, "failed to request irq %d\n",
+			chip->bus.irq);
+		return ret;
+	}
+
+	if (irq_type & IRQF_TRIGGER_HIGH)
+		chip->config1 |= ADT7316_INT_POLARITY;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Show mask of enabled interrupts in Hex.
  */
 static ssize_t adt7316_show_int_mask(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+				     struct device_attribute *attr,
+				     char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1834,9 +2445,15 @@ static ssize_t adt7316_show_int_mask(struct device *dev,
  * Set 1 to the mask in Hex to enabled interrupts.
  */
 static ssize_t adt7316_set_int_mask(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				    struct device_attribute *attr,
+				    const char *buf,
+				    size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1875,8 +2492,13 @@ static ssize_t adt7316_set_int_mask(struct device *dev,
 }
 
 static inline ssize_t adt7316_show_ad_bound(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					    struct device_attribute *attr,
+					    char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
@@ -1886,7 +2508,11 @@ static inline ssize_t adt7316_show_ad_bound(struct device *dev,
 	int ret;
 
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT73XX &&
+<<<<<<< HEAD
 		this_attr->address > ADT7316_EX_TEMP_LOW)
+=======
+	    this_attr->address > ADT7316_EX_TEMP_LOW)
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	ret = chip->bus.read(chip->bus.client, this_attr->address, &val);
@@ -1896,7 +2522,11 @@ static inline ssize_t adt7316_show_ad_bound(struct device *dev,
 	data = (int)val;
 
 	if (!((chip->id & ID_FAMILY_MASK) == ID_ADT75XX &&
+<<<<<<< HEAD
 		(chip->config1 & ADT7516_SEL_AIN1_2_EX_TEMP_MASK) == 0)) {
+=======
+	      (chip->config1 & ADT7516_SEL_AIN1_2_EX_TEMP_MASK) == 0)) {
+>>>>>>> upstream/android-13
 		if (data & 0x80)
 			data -= 256;
 	}
@@ -1905,9 +2535,15 @@ static inline ssize_t adt7316_show_ad_bound(struct device *dev,
 }
 
 static inline ssize_t adt7316_set_ad_bound(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+					   struct device_attribute *attr,
+					   const char *buf,
+					   size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
@@ -1917,7 +2553,11 @@ static inline ssize_t adt7316_set_ad_bound(struct device *dev,
 	int ret;
 
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT73XX &&
+<<<<<<< HEAD
 		this_attr->address > ADT7316_EX_TEMP_LOW)
+=======
+	    this_attr->address > ADT7316_EX_TEMP_LOW)
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	ret = kstrtoint(buf, 10, &data);
@@ -1925,7 +2565,11 @@ static inline ssize_t adt7316_set_ad_bound(struct device *dev,
 		return -EINVAL;
 
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX &&
+<<<<<<< HEAD
 		(chip->config1 & ADT7516_SEL_AIN1_2_EX_TEMP_MASK) == 0) {
+=======
+	    (chip->config1 & ADT7516_SEL_AIN1_2_EX_TEMP_MASK) == 0) {
+>>>>>>> upstream/android-13
 		if (data > 255 || data < 0)
 			return -EINVAL;
 	} else {
@@ -1946,8 +2590,13 @@ static inline ssize_t adt7316_set_ad_bound(struct device *dev,
 }
 
 static ssize_t adt7316_show_int_enabled(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		char *buf)
+=======
+					struct device_attribute *attr,
+					char *buf)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -1956,9 +2605,15 @@ static ssize_t adt7316_show_int_enabled(struct device *dev,
 }
 
 static ssize_t adt7316_set_int_enabled(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr,
 		const char *buf,
 		size_t len)
+=======
+				       struct device_attribute *attr,
+				       const char *buf,
+				       size_t len)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *dev_info = dev_to_iio_dev(dev);
 	struct adt7316_chip_info *chip = iio_priv(dev_info);
@@ -2107,12 +2762,20 @@ static const struct iio_info adt7516_info = {
  * device probe and remove
  */
 int adt7316_probe(struct device *dev, struct adt7316_bus *bus,
+<<<<<<< HEAD
 		const char *name)
 {
 	struct adt7316_chip_info *chip;
 	struct iio_dev *indio_dev;
 	unsigned short *adt7316_platform_data = dev->platform_data;
 	int ret = 0;
+=======
+		  const char *name)
+{
+	struct adt7316_chip_info *chip;
+	struct iio_dev *indio_dev;
+	int ret;
+>>>>>>> upstream/android-13
 
 	indio_dev = devm_iio_device_alloc(dev, sizeof(*chip));
 	if (!indio_dev)
@@ -2130,9 +2793,29 @@ int adt7316_probe(struct device *dev, struct adt7316_bus *bus,
 	else
 		return -ENODEV;
 
+<<<<<<< HEAD
 	chip->ldac_pin = adt7316_platform_data[1];
 	if (chip->ldac_pin) {
 		chip->config3 |= ADT7316_DA_EN_VIA_DAC_LDCA;
+=======
+	if (chip->id == ID_ADT7316 || chip->id == ID_ADT7516)
+		chip->dac_bits = 12;
+	else if (chip->id == ID_ADT7317 || chip->id == ID_ADT7517)
+		chip->dac_bits = 10;
+	else
+		chip->dac_bits = 8;
+
+	chip->ldac_pin = devm_gpiod_get_optional(dev, "adi,ldac",
+						 GPIOD_OUT_LOW);
+	if (IS_ERR(chip->ldac_pin)) {
+		ret = PTR_ERR(chip->ldac_pin);
+		dev_err(dev, "Failed to request ldac GPIO: %d\n", ret);
+		return ret;
+	}
+
+	if (!chip->ldac_pin) {
+		chip->config3 |= ADT7316_DA_EN_VIA_DAC_LDAC;
+>>>>>>> upstream/android-13
 		if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 			chip->config1 |= ADT7516_SEL_AIN3;
 	}
@@ -2140,7 +2823,10 @@ int adt7316_probe(struct device *dev, struct adt7316_bus *bus,
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 		chip->int_mask |= ADT7516_AIN_INT_MASK;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	if ((chip->id & ID_FAMILY_MASK) == ID_ADT75XX)
 		indio_dev->info = &adt7516_info;
 	else
@@ -2149,6 +2835,7 @@ int adt7316_probe(struct device *dev, struct adt7316_bus *bus,
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
 	if (chip->bus.irq > 0) {
+<<<<<<< HEAD
 		if (adt7316_platform_data[0])
 			chip->bus.irq_flags = adt7316_platform_data[0];
 
@@ -2164,6 +2851,11 @@ int adt7316_probe(struct device *dev, struct adt7316_bus *bus,
 
 		if (chip->bus.irq_flags & IRQF_TRIGGER_HIGH)
 			chip->config1 |= ADT7316_INT_POLARITY;
+=======
+		ret = adt7316_setup_irq(indio_dev);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	ret = chip->bus.write(chip->bus.client, ADT7316_CONFIG1, chip->config1);
@@ -2179,7 +2871,11 @@ int adt7316_probe(struct device *dev, struct adt7316_bus *bus,
 		return ret;
 
 	dev_info(dev, "%s temperature sensor, ADC and DAC registered.\n",
+<<<<<<< HEAD
 			indio_dev->name);
+=======
+		 indio_dev->name);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

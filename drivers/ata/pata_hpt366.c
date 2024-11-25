@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Libata driver for the highpoint 366 and 368 UDMA66 ATA controllers.
  *
@@ -191,6 +195,10 @@ static int hpt_dma_blacklisted(const struct ata_device *dev, char *modestr,
 /**
  *	hpt366_filter	-	mode selection filter
  *	@adev: ATA device
+<<<<<<< HEAD
+=======
+ *	@mask: Current mask to manipulate and pass back
+>>>>>>> upstream/android-13
  *
  *	Block UDMA on devices that cause trouble with this controller.
  */

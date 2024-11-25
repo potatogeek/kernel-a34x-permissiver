@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * call-path.h: Manipulate a tree data structure containing function call paths
  * Copyright (c) 2014, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * call-path.h: Manipulate a tree data structure containing function call paths
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PERF_CALL_PATH_H
@@ -32,7 +39,11 @@
  * @children: tree of call paths of functions called
  *
  * In combination with the call_return structure, the call_path structure
+<<<<<<< HEAD
  * defines a context-sensitve call-graph.
+=======
+ * defines a context-sensitive call-graph.
+>>>>>>> upstream/android-13
  */
 struct call_path {
 	struct call_path *parent;

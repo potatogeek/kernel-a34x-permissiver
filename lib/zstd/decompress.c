@@ -442,7 +442,11 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx *dctx, const void *src, size_t srcSize
 		case set_repeat:
 			if (dctx->litEntropy == 0)
 				return ERROR(dictionary_corrupted);
+<<<<<<< HEAD
 		/* fall-through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case set_compressed:
 			if (srcSize < 5)
 				return ERROR(corruption_detected); /* srcSize >= MIN_CBLOCK_SIZE == 3; here we need up to 5 for case 3 */
@@ -1768,6 +1772,10 @@ size_t ZSTD_decompressContinue(ZSTD_DCtx *dctx, void *dst, size_t dstCapacity, c
 			return 0;
 		}
 		dctx->expected = 0; /* not necessary to copy more */
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case ZSTDds_decodeFrameHeader:
 		memcpy(dctx->headerBuffer + ZSTD_frameHeaderSize_prefix, src, dctx->expected);
@@ -2308,7 +2316,11 @@ size_t ZSTD_decompressStream(ZSTD_DStream *zds, ZSTD_outBuffer *output, ZSTD_inB
 		switch (zds->stage) {
 		case zdss_init:
 			ZSTD_resetDStream(zds); /* transparent reset on starting decoding a new frame */
+<<<<<<< HEAD
 						/* fall-through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case zdss_loadHeader: {
 			size_t const hSize = ZSTD_getFrameParams(&zds->fParams, zds->headerBuffer, zds->lhSize);
@@ -2375,7 +2387,11 @@ size_t ZSTD_decompressStream(ZSTD_DStream *zds, ZSTD_outBuffer *output, ZSTD_inB
 			}
 			zds->stage = zdss_read;
 		}
+<<<<<<< HEAD
 		/* pass-through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case zdss_read: {
 			size_t const neededInSize = ZSTD_nextSrcSizeToDecompress(zds->dctx);
@@ -2404,6 +2420,10 @@ size_t ZSTD_decompressStream(ZSTD_DStream *zds, ZSTD_outBuffer *output, ZSTD_inB
 			zds->stage = zdss_load;
 			/* pass-through */
 		}
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case zdss_load: {
 			size_t const neededInSize = ZSTD_nextSrcSizeToDecompress(zds->dctx);
@@ -2436,6 +2456,10 @@ size_t ZSTD_decompressStream(ZSTD_DStream *zds, ZSTD_outBuffer *output, ZSTD_inB
 				/* pass-through */
 			}
 		}
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case zdss_flush: {
 			size_t const toFlushSize = zds->outEnd - zds->outStart;

@@ -44,7 +44,12 @@ enum dc_status dce112_validate_with_context(
 
 bool dce112_validate_bandwidth(
 	struct dc *dc,
+<<<<<<< HEAD
 	struct dc_state *context);
+=======
+	struct dc_state *context,
+	bool fast_validate);
+>>>>>>> upstream/android-13
 
 enum dc_status dce112_add_stream_to_ctx(
 		struct dc *dc,

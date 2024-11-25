@@ -6,6 +6,14 @@ Required properties:
 	"dlg,da9061-watchdog", "dlg,da9062-watchdog"
 	"dlg,da9062-watchdog"
 
+<<<<<<< HEAD
+=======
+Optional properties:
+- dlg,use-sw-pm: Add this property to disable the watchdog during suspend.
+	Only use this option if you can't use the watchdog automatic suspend
+	function during a suspend (see register CONTROL_B).
+
+>>>>>>> upstream/android-13
 Example: DA9062
 
 	pmic0: da9062@58 {

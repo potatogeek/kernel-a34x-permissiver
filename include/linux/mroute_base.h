@@ -7,6 +7,10 @@
 #include <net/net_namespace.h>
 #include <net/sock.h>
 #include <net/fib_notifier.h>
+<<<<<<< HEAD
+=======
+#include <net/ip_fib.h>
+>>>>>>> upstream/android-13
 
 /**
  * struct vif_device - interface representor for multicast routing
@@ -46,16 +50,28 @@ struct vif_entry_notifier_info {
 };
 
 static inline int mr_call_vif_notifier(struct notifier_block *nb,
+<<<<<<< HEAD
 				       struct net *net,
 				       unsigned short family,
 				       enum fib_event_type event_type,
 				       struct vif_device *vif,
 				       unsigned short vif_index, u32 tb_id)
+=======
+				       unsigned short family,
+				       enum fib_event_type event_type,
+				       struct vif_device *vif,
+				       unsigned short vif_index, u32 tb_id,
+				       struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct vif_entry_notifier_info info = {
 		.info = {
 			.family = family,
+<<<<<<< HEAD
 			.net = net,
+=======
+			.extack = extack,
+>>>>>>> upstream/android-13
 		},
 		.dev = vif->dev,
 		.vif_index = vif_index,
@@ -63,7 +79,11 @@ static inline int mr_call_vif_notifier(struct notifier_block *nb,
 		.tb_id = tb_id,
 	};
 
+<<<<<<< HEAD
 	return call_fib_notifier(nb, net, event_type, &info.info);
+=======
+	return call_fib_notifier(nb, event_type, &info.info);
+>>>>>>> upstream/android-13
 }
 
 static inline int mr_call_vif_notifiers(struct net *net,
@@ -76,7 +96,10 @@ static inline int mr_call_vif_notifiers(struct net *net,
 	struct vif_entry_notifier_info info = {
 		.info = {
 			.family = family,
+<<<<<<< HEAD
 			.net = net,
+=======
+>>>>>>> upstream/android-13
 		},
 		.dev = vif->dev,
 		.vif_index = vif_index,
@@ -172,21 +195,36 @@ struct mfc_entry_notifier_info {
 };
 
 static inline int mr_call_mfc_notifier(struct notifier_block *nb,
+<<<<<<< HEAD
 				       struct net *net,
 				       unsigned short family,
 				       enum fib_event_type event_type,
 				       struct mr_mfc *mfc, u32 tb_id)
+=======
+				       unsigned short family,
+				       enum fib_event_type event_type,
+				       struct mr_mfc *mfc, u32 tb_id,
+				       struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct mfc_entry_notifier_info info = {
 		.info = {
 			.family = family,
+<<<<<<< HEAD
 			.net = net,
+=======
+			.extack = extack,
+>>>>>>> upstream/android-13
 		},
 		.mfc = mfc,
 		.tb_id = tb_id
 	};
 
+<<<<<<< HEAD
 	return call_fib_notifier(nb, net, event_type, &info.info);
+=======
+	return call_fib_notifier(nb, event_type, &info.info);
+>>>>>>> upstream/android-13
 }
 
 static inline int mr_call_mfc_notifiers(struct net *net,
@@ -198,7 +236,10 @@ static inline int mr_call_mfc_notifiers(struct net *net,
 	struct mfc_entry_notifier_info info = {
 		.info = {
 			.family = family,
+<<<<<<< HEAD
 			.net = net,
+=======
+>>>>>>> upstream/android-13
 		},
 		.mfc = mfc,
 		.tb_id = tb_id
@@ -283,6 +324,15 @@ void *mr_mfc_find_any(struct mr_table *mrt, int vifi, void *hasharg);
 
 int mr_fill_mroute(struct mr_table *mrt, struct sk_buff *skb,
 		   struct mr_mfc *c, struct rtmsg *rtm);
+<<<<<<< HEAD
+=======
+int mr_table_dump(struct mr_table *mrt, struct sk_buff *skb,
+		  struct netlink_callback *cb,
+		  int (*fill)(struct mr_table *mrt, struct sk_buff *skb,
+			      u32 portid, u32 seq, struct mr_mfc *c,
+			      int cmd, int flags),
+		  spinlock_t *lock, struct fib_dump_filter *filter);
+>>>>>>> upstream/android-13
 int mr_rtm_dumproute(struct sk_buff *skb, struct netlink_callback *cb,
 		     struct mr_table *(*iter)(struct net *net,
 					      struct mr_table *mrt),
@@ -290,6 +340,7 @@ int mr_rtm_dumproute(struct sk_buff *skb, struct netlink_callback *cb,
 				 struct sk_buff *skb,
 				 u32 portid, u32 seq, struct mr_mfc *c,
 				 int cmd, int flags),
+<<<<<<< HEAD
 		     spinlock_t *lock);
 
 int mr_dump(struct net *net, struct notifier_block *nb, unsigned short family,
@@ -298,6 +349,17 @@ int mr_dump(struct net *net, struct notifier_block *nb, unsigned short family,
 	    struct mr_table *(*mr_iter)(struct net *net,
 					struct mr_table *mrt),
 	    rwlock_t *mrt_lock);
+=======
+		     spinlock_t *lock, struct fib_dump_filter *filter);
+
+int mr_dump(struct net *net, struct notifier_block *nb, unsigned short family,
+	    int (*rules_dump)(struct net *net,
+			      struct notifier_block *nb,
+			      struct netlink_ext_ack *extack),
+	    struct mr_table *(*mr_iter)(struct net *net,
+					struct mr_table *mrt),
+	    rwlock_t *mrt_lock, struct netlink_ext_ack *extack);
+>>>>>>> upstream/android-13
 #else
 static inline void vif_device_init(struct vif_device *v,
 				   struct net_device *dev,
@@ -340,7 +402,11 @@ mr_rtm_dumproute(struct sk_buff *skb, struct netlink_callback *cb,
 			     struct sk_buff *skb,
 			     u32 portid, u32 seq, struct mr_mfc *c,
 			     int cmd, int flags),
+<<<<<<< HEAD
 		 spinlock_t *lock)
+=======
+		 spinlock_t *lock, struct fib_dump_filter *filter)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
@@ -348,10 +414,18 @@ mr_rtm_dumproute(struct sk_buff *skb, struct netlink_callback *cb,
 static inline int mr_dump(struct net *net, struct notifier_block *nb,
 			  unsigned short family,
 			  int (*rules_dump)(struct net *net,
+<<<<<<< HEAD
 					    struct notifier_block *nb),
 			  struct mr_table *(*mr_iter)(struct net *net,
 						      struct mr_table *mrt),
 			  rwlock_t *mrt_lock)
+=======
+					    struct notifier_block *nb,
+					    struct netlink_ext_ack *extack),
+			  struct mr_table *(*mr_iter)(struct net *net,
+						      struct mr_table *mrt),
+			  rwlock_t *mrt_lock, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }

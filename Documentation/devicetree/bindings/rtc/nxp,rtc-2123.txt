@@ -1,7 +1,12 @@
 NXP PCF2123 SPI Real Time Clock
 
 Required properties:
+<<<<<<< HEAD
 - compatible: should be: "nxp,rtc-pcf2123"
+=======
+- compatible: should be: "nxp,pcf2123"
+                      or "microcrystal,rv2123"
+>>>>>>> upstream/android-13
 - reg: should be the SPI slave chipselect address
 
 Optional properties:
@@ -10,7 +15,11 @@ Optional properties:
 Example:
 
 pcf2123: rtc@3 {
+<<<<<<< HEAD
 	compatible = "nxp,rtc-pcf2123"
+=======
+	compatible = "nxp,pcf2123"
+>>>>>>> upstream/android-13
 	reg = <3>
 	spi-cs-high;
 };

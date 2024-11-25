@@ -48,7 +48,11 @@ struct f_phonet {
 	struct usb_ep			*in_ep, *out_ep;
 
 	struct usb_request		*in_req;
+<<<<<<< HEAD
 	struct usb_request		*out_reqv[0];
+=======
+	struct usb_request		*out_reqv[];
+>>>>>>> upstream/android-13
 };
 
 static int phonet_rxq_size = 17;
@@ -212,7 +216,11 @@ static void pn_tx_complete(struct usb_ep *ep, struct usb_request *req)
 	case -ESHUTDOWN: /* disconnected */
 	case -ECONNRESET: /* disabled */
 		dev->stats.tx_aborted_errors++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev->stats.tx_errors++;
 	}
@@ -360,7 +368,11 @@ static void pn_rx_complete(struct usb_ep *ep, struct usb_request *req)
 	/* Do resubmit in these cases: */
 	case -EOVERFLOW: /* request buffer overflow */
 		dev->stats.rx_over_errors++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev->stats.rx_errors++;
 		break;

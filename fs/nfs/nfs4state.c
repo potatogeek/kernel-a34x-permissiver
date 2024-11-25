@@ -49,6 +49,10 @@
 #include <linux/workqueue.h>
 #include <linux/bitops.h>
 #include <linux/jiffies.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+>>>>>>> upstream/android-13
 
 #include <linux/sunrpc/clnt.h>
 
@@ -60,6 +64,10 @@
 #include "nfs4session.h"
 #include "pnfs.h"
 #include "netns.h"
+<<<<<<< HEAD
+=======
+#include "nfs4trace.h"
+>>>>>>> upstream/android-13
 
 #define NFSDBG_FACILITY		NFSDBG_STATE
 
@@ -87,7 +95,30 @@ const nfs4_stateid current_stateid = {
 
 static DEFINE_MUTEX(nfs_clid_init_mutex);
 
+<<<<<<< HEAD
 int nfs4_init_clientid(struct nfs_client *clp, struct rpc_cred *cred)
+=======
+static int nfs4_setup_state_renewal(struct nfs_client *clp)
+{
+	int status;
+	struct nfs_fsinfo fsinfo;
+
+	if (!test_bit(NFS_CS_CHECK_LEASE_TIME, &clp->cl_res_state)) {
+		nfs4_schedule_state_renewal(clp);
+		return 0;
+	}
+
+	status = nfs4_proc_get_lease_time(clp, &fsinfo);
+	if (status == 0) {
+		nfs4_set_lease_period(clp, fsinfo.lease_time * HZ);
+		nfs4_schedule_state_renewal(clp);
+	}
+
+	return status;
+}
+
+int nfs4_init_clientid(struct nfs_client *clp, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_setclientid_res clid = {
 		.clientid = clp->cl_clientid,
@@ -114,7 +145,11 @@ do_confirm:
 	if (status != 0)
 		goto out;
 	clear_bit(NFS4CLNT_LEASE_CONFIRM, &clp->cl_state);
+<<<<<<< HEAD
 	nfs4_schedule_state_renewal(clp);
+=======
+	nfs4_setup_state_renewal(clp);
+>>>>>>> upstream/android-13
 out:
 	return status;
 }
@@ -134,7 +169,11 @@ out:
  */
 int nfs40_discover_server_trunking(struct nfs_client *clp,
 				   struct nfs_client **result,
+<<<<<<< HEAD
 				   struct rpc_cred *cred)
+=======
+				   const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_setclientid_res clid = {
 		.clientid = clp->cl_clientid,
@@ -168,6 +207,7 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 struct rpc_cred *nfs4_get_machine_cred_locked(struct nfs_client *clp)
 {
 	struct rpc_cred *cred = NULL;
@@ -175,10 +215,16 @@ struct rpc_cred *nfs4_get_machine_cred_locked(struct nfs_client *clp)
 	if (clp->cl_machine_cred != NULL)
 		cred = get_rpccred(clp->cl_machine_cred);
 	return cred;
+=======
+const struct cred *nfs4_get_machine_cred(struct nfs_client *clp)
+{
+	return get_cred(rpc_machine_cred());
+>>>>>>> upstream/android-13
 }
 
 static void nfs4_root_machine_cred(struct nfs_client *clp)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred, *new;
 
 	new = rpc_lookup_machine_cred(NULL);
@@ -194,6 +240,18 @@ static struct rpc_cred *
 nfs4_get_renew_cred_server_locked(struct nfs_server *server)
 {
 	struct rpc_cred *cred = NULL;
+=======
+
+	/* Force root creds instead of machine */
+	clp->cl_principal = NULL;
+	clp->cl_rpcclient->cl_principal = NULL;
+}
+
+static const struct cred *
+nfs4_get_renew_cred_server_locked(struct nfs_server *server)
+{
+	const struct cred *cred = NULL;
+>>>>>>> upstream/android-13
 	struct nfs4_state_owner *sp;
 	struct rb_node *pos;
 
@@ -203,19 +261,28 @@ nfs4_get_renew_cred_server_locked(struct nfs_server *server)
 		sp = rb_entry(pos, struct nfs4_state_owner, so_server_node);
 		if (list_empty(&sp->so_states))
 			continue;
+<<<<<<< HEAD
 		cred = get_rpccred(sp->so_cred);
+=======
+		cred = get_cred(sp->so_cred);
+>>>>>>> upstream/android-13
 		break;
 	}
 	return cred;
 }
 
 /**
+<<<<<<< HEAD
  * nfs4_get_renew_cred_locked - Acquire credential for a renew operation
+=======
+ * nfs4_get_renew_cred - Acquire credential for a renew operation
+>>>>>>> upstream/android-13
  * @clp: client state handle
  *
  * Returns an rpc_cred with reference count bumped, or NULL.
  * Caller must hold clp->cl_lock.
  */
+<<<<<<< HEAD
 struct rpc_cred *nfs4_get_renew_cred_locked(struct nfs_client *clp)
 {
 	struct rpc_cred *cred = NULL;
@@ -226,6 +293,19 @@ struct rpc_cred *nfs4_get_renew_cred_locked(struct nfs_client *clp)
 	if (cred != NULL)
 		goto out;
 
+=======
+const struct cred *nfs4_get_renew_cred(struct nfs_client *clp)
+{
+	const struct cred *cred = NULL;
+	struct nfs_server *server;
+
+	/* Use machine credentials if available */
+	cred = nfs4_get_machine_cred(clp);
+	if (cred != NULL)
+		goto out;
+
+	spin_lock(&clp->cl_lock);
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
 		cred = nfs4_get_renew_cred_server_locked(server);
@@ -233,6 +313,10 @@ struct rpc_cred *nfs4_get_renew_cred_locked(struct nfs_client *clp)
 			break;
 	}
 	rcu_read_unlock();
+<<<<<<< HEAD
+=======
+	spin_unlock(&clp->cl_lock);
+>>>>>>> upstream/android-13
 
 out:
 	return cred;
@@ -293,6 +377,7 @@ static int nfs4_begin_drain_session(struct nfs_client *clp)
 
 #if defined(CONFIG_NFS_V4_1)
 
+<<<<<<< HEAD
 static int nfs41_setup_state_renewal(struct nfs_client *clp)
 {
 	int status;
@@ -314,16 +399,25 @@ static int nfs41_setup_state_renewal(struct nfs_client *clp)
 	return status;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void nfs41_finish_session_reset(struct nfs_client *clp)
 {
 	clear_bit(NFS4CLNT_LEASE_CONFIRM, &clp->cl_state);
 	clear_bit(NFS4CLNT_SESSION_RESET, &clp->cl_state);
 	/* create_session negotiated new slot table */
 	clear_bit(NFS4CLNT_BIND_CONN_TO_SESSION, &clp->cl_state);
+<<<<<<< HEAD
 	nfs41_setup_state_renewal(clp);
 }
 
 int nfs41_init_clientid(struct nfs_client *clp, struct rpc_cred *cred)
+=======
+	nfs4_setup_state_renewal(clp);
+}
+
+int nfs41_init_clientid(struct nfs_client *clp, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int status;
 
@@ -358,7 +452,11 @@ out:
  */
 int nfs41_discover_server_trunking(struct nfs_client *clp,
 				   struct nfs_client **result,
+<<<<<<< HEAD
 				   struct rpc_cred *cred)
+=======
+				   const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int status;
 
@@ -396,6 +494,7 @@ int nfs41_discover_server_trunking(struct nfs_client *clp,
  * nfs4_get_clid_cred - Acquire credential for a setclientid operation
  * @clp: client state handle
  *
+<<<<<<< HEAD
  * Returns an rpc_cred with reference count bumped, or NULL.
  */
 struct rpc_cred *nfs4_get_clid_cred(struct nfs_client *clp)
@@ -405,23 +504,48 @@ struct rpc_cred *nfs4_get_clid_cred(struct nfs_client *clp)
 	spin_lock(&clp->cl_lock);
 	cred = nfs4_get_machine_cred_locked(clp);
 	spin_unlock(&clp->cl_lock);
+=======
+ * Returns a cred with reference count bumped, or NULL.
+ */
+const struct cred *nfs4_get_clid_cred(struct nfs_client *clp)
+{
+	const struct cred *cred;
+
+	cred = nfs4_get_machine_cred(clp);
+>>>>>>> upstream/android-13
 	return cred;
 }
 
 static struct nfs4_state_owner *
+<<<<<<< HEAD
 nfs4_find_state_owner_locked(struct nfs_server *server, struct rpc_cred *cred)
+=======
+nfs4_find_state_owner_locked(struct nfs_server *server, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct rb_node **p = &server->state_owners.rb_node,
 		       *parent = NULL;
 	struct nfs4_state_owner *sp;
+<<<<<<< HEAD
+=======
+	int cmp;
+>>>>>>> upstream/android-13
 
 	while (*p != NULL) {
 		parent = *p;
 		sp = rb_entry(parent, struct nfs4_state_owner, so_server_node);
+<<<<<<< HEAD
 
 		if (cred < sp->so_cred)
 			p = &parent->rb_left;
 		else if (cred > sp->so_cred)
+=======
+		cmp = cred_fscmp(cred, sp->so_cred);
+
+		if (cmp < 0)
+			p = &parent->rb_left;
+		else if (cmp > 0)
+>>>>>>> upstream/android-13
 			p = &parent->rb_right;
 		else {
 			if (!list_empty(&sp->so_lru))
@@ -440,14 +564,26 @@ nfs4_insert_state_owner_locked(struct nfs4_state_owner *new)
 	struct rb_node **p = &server->state_owners.rb_node,
 		       *parent = NULL;
 	struct nfs4_state_owner *sp;
+<<<<<<< HEAD
+=======
+	int cmp;
+>>>>>>> upstream/android-13
 
 	while (*p != NULL) {
 		parent = *p;
 		sp = rb_entry(parent, struct nfs4_state_owner, so_server_node);
+<<<<<<< HEAD
 
 		if (new->so_cred < sp->so_cred)
 			p = &parent->rb_left;
 		else if (new->so_cred > sp->so_cred)
+=======
+		cmp = cred_fscmp(new->so_cred, sp->so_cred);
+
+		if (cmp < 0)
+			p = &parent->rb_left;
+		else if (cmp > 0)
+>>>>>>> upstream/android-13
 			p = &parent->rb_right;
 		else {
 			if (!list_empty(&sp->so_lru))
@@ -494,7 +630,11 @@ nfs4_destroy_seqid_counter(struct nfs_seqid_counter *sc)
  */
 static struct nfs4_state_owner *
 nfs4_alloc_state_owner(struct nfs_server *server,
+<<<<<<< HEAD
 		struct rpc_cred *cred,
+=======
+		const struct cred *cred,
+>>>>>>> upstream/android-13
 		gfp_t gfp_flags)
 {
 	struct nfs4_state_owner *sp;
@@ -509,13 +649,21 @@ nfs4_alloc_state_owner(struct nfs_server *server,
 		return NULL;
 	}
 	sp->so_server = server;
+<<<<<<< HEAD
 	sp->so_cred = get_rpccred(cred);
+=======
+	sp->so_cred = get_cred(cred);
+>>>>>>> upstream/android-13
 	spin_lock_init(&sp->so_lock);
 	INIT_LIST_HEAD(&sp->so_states);
 	nfs4_init_seqid_counter(&sp->so_seqid);
 	atomic_set(&sp->so_count, 1);
 	INIT_LIST_HEAD(&sp->so_lru);
+<<<<<<< HEAD
 	seqcount_init(&sp->so_reclaim_seqcount);
+=======
+	seqcount_spinlock_init(&sp->so_reclaim_seqcount, &sp->so_lock);
+>>>>>>> upstream/android-13
 	mutex_init(&sp->so_delegreturn_mutex);
 	return sp;
 }
@@ -538,7 +686,11 @@ nfs4_reset_state_owner(struct nfs4_state_owner *sp)
 static void nfs4_free_state_owner(struct nfs4_state_owner *sp)
 {
 	nfs4_destroy_seqid_counter(&sp->so_seqid);
+<<<<<<< HEAD
 	put_rpccred(sp->so_cred);
+=======
+	put_cred(sp->so_cred);
+>>>>>>> upstream/android-13
 	ida_simple_remove(&sp->so_server->openowner_id, sp->so_seqid.owner_id);
 	kfree(sp);
 }
@@ -572,11 +724,19 @@ static void nfs4_gc_state_owners(struct nfs_server *server)
  * nfs4_get_state_owner - Look up a state owner given a credential
  * @server: nfs_server to search
  * @cred: RPC credential to match
+<<<<<<< HEAD
+=======
+ * @gfp_flags: allocation mode
+>>>>>>> upstream/android-13
  *
  * Returns a pointer to an instantiated nfs4_state_owner struct, or NULL.
  */
 struct nfs4_state_owner *nfs4_get_state_owner(struct nfs_server *server,
+<<<<<<< HEAD
 					      struct rpc_cred *cred,
+=======
+					      const struct cred *cred,
+>>>>>>> upstream/android-13
 					      gfp_t gfp_flags)
 {
 	struct nfs_client *clp = server->nfs_client;
@@ -650,7 +810,11 @@ void nfs4_purge_state_owners(struct nfs_server *server, struct list_head *head)
 }
 
 /**
+<<<<<<< HEAD
  * nfs4_purge_state_owners - Release all cached state owners
+=======
+ * nfs4_free_state_owners - Release all cached state owners
+>>>>>>> upstream/android-13
  * @head: resulting list of state owners
  *
  * Frees a list of state owners that was generated by
@@ -674,7 +838,11 @@ nfs4_alloc_open_state(void)
 	state = kzalloc(sizeof(*state), GFP_NOFS);
 	if (!state)
 		return NULL;
+<<<<<<< HEAD
 	atomic_set(&state->count, 1);
+=======
+	refcount_set(&state->count, 1);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&state->lock_states);
 	spin_lock_init(&state->state_lock);
 	seqlock_init(&state->seqlock);
@@ -703,12 +871,20 @@ __nfs4_find_state_byowner(struct inode *inode, struct nfs4_state_owner *owner)
 	struct nfs_inode *nfsi = NFS_I(inode);
 	struct nfs4_state *state;
 
+<<<<<<< HEAD
 	list_for_each_entry(state, &nfsi->open_states, inode_states) {
+=======
+	list_for_each_entry_rcu(state, &nfsi->open_states, inode_states) {
+>>>>>>> upstream/android-13
 		if (state->owner != owner)
 			continue;
 		if (!nfs4_valid_open_stateid(state))
 			continue;
+<<<<<<< HEAD
 		if (atomic_inc_not_zero(&state->count))
+=======
+		if (refcount_inc_not_zero(&state->count))
+>>>>>>> upstream/android-13
 			return state;
 	}
 	return NULL;
@@ -717,7 +893,11 @@ __nfs4_find_state_byowner(struct inode *inode, struct nfs4_state_owner *owner)
 static void
 nfs4_free_open_state(struct nfs4_state *state)
 {
+<<<<<<< HEAD
 	kfree(state);
+=======
+	kfree_rcu(state, rcu_head);
+>>>>>>> upstream/android-13
 }
 
 struct nfs4_state *
@@ -726,9 +906,15 @@ nfs4_get_open_state(struct inode *inode, struct nfs4_state_owner *owner)
 	struct nfs4_state *state, *new;
 	struct nfs_inode *nfsi = NFS_I(inode);
 
+<<<<<<< HEAD
 	spin_lock(&inode->i_lock);
 	state = __nfs4_find_state_byowner(inode, owner);
 	spin_unlock(&inode->i_lock);
+=======
+	rcu_read_lock();
+	state = __nfs4_find_state_byowner(inode, owner);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	if (state)
 		goto out;
 	new = nfs4_alloc_open_state();
@@ -739,9 +925,15 @@ nfs4_get_open_state(struct inode *inode, struct nfs4_state_owner *owner)
 		state = new;
 		state->owner = owner;
 		atomic_inc(&owner->so_count);
+<<<<<<< HEAD
 		list_add(&state->inode_states, &nfsi->open_states);
 		ihold(inode);
 		state->inode = inode;
+=======
+		ihold(inode);
+		state->inode = inode;
+		list_add_rcu(&state->inode_states, &nfsi->open_states);
+>>>>>>> upstream/android-13
 		spin_unlock(&inode->i_lock);
 		/* Note: The reclaim code dictates that we add stateless
 		 * and read-only stateids to the end of the list */
@@ -762,6 +954,7 @@ void nfs4_put_open_state(struct nfs4_state *state)
 	struct inode *inode = state->inode;
 	struct nfs4_state_owner *owner = state->owner;
 
+<<<<<<< HEAD
 	if (!atomic_dec_and_lock(&state->count, &owner->so_lock))
 		return;
 	spin_lock(&inode->i_lock);
@@ -769,6 +962,16 @@ void nfs4_put_open_state(struct nfs4_state *state)
 	list_del(&state->open_states);
 	spin_unlock(&inode->i_lock);
 	spin_unlock(&owner->so_lock);
+=======
+	if (!refcount_dec_and_lock(&state->count, &owner->so_lock))
+		return;
+	spin_lock(&inode->i_lock);
+	list_del_rcu(&state->inode_states);
+	list_del(&state->open_states);
+	spin_unlock(&inode->i_lock);
+	spin_unlock(&owner->so_lock);
+	nfs4_inode_return_delegation_on_close(inode);
+>>>>>>> upstream/android-13
 	iput(inode);
 	nfs4_free_open_state(state);
 	nfs4_put_state_owner(owner);
@@ -1019,6 +1222,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 bool nfs4_refresh_open_stateid(nfs4_stateid *dst, struct nfs4_state *state)
 {
 	bool ret;
@@ -1035,6 +1239,8 @@ bool nfs4_refresh_open_stateid(nfs4_stateid *dst, struct nfs4_state *state)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 bool nfs4_copy_open_stateid(nfs4_stateid *dst, struct nfs4_state *state)
 {
 	bool ret;
@@ -1060,7 +1266,11 @@ bool nfs4_copy_open_stateid(nfs4_stateid *dst, struct nfs4_state *state)
  */
 int nfs4_select_rw_stateid(struct nfs4_state *state,
 		fmode_t fmode, const struct nfs_lock_context *l_ctx,
+<<<<<<< HEAD
 		nfs4_stateid *dst, struct rpc_cred **cred)
+=======
+		nfs4_stateid *dst, const struct cred **cred)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -1083,8 +1293,12 @@ int nfs4_select_rw_stateid(struct nfs4_state *state,
 		 * choose to use.
 		 */
 		goto out;
+<<<<<<< HEAD
 	nfs4_copy_open_stateid(dst, state);
 	ret = 0;
+=======
+	ret = nfs4_copy_open_stateid(dst, state) ? 0 : -EAGAIN;
+>>>>>>> upstream/android-13
 out:
 	if (nfs_server_capable(state->inode, NFS_CAP_STATEID_NFSV41))
 		dst->seqid = 0;
@@ -1146,6 +1360,10 @@ static void nfs_increment_seqid(int status, struct nfs_seqid *seqid)
 					" sequence-id error on an"
 					" unconfirmed sequence %p!\n",
 					seqid->sequence);
+<<<<<<< HEAD
+=======
+			return;
+>>>>>>> upstream/android-13
 		case -NFS4ERR_STALE_CLIENTID:
 		case -NFS4ERR_STALE_STATEID:
 		case -NFS4ERR_BAD_STATEID:
@@ -1155,7 +1373,11 @@ static void nfs_increment_seqid(int status, struct nfs_seqid *seqid)
 		case -NFS4ERR_MOVED:
 			/* Non-seqid mutating errors */
 			return;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	/*
 	 * Note: no locking needed as we are guaranteed to be first
 	 * on the sequence list
@@ -1428,7 +1650,11 @@ nfs_state_find_lock_state_by_stateid(struct nfs4_state *state,
 	list_for_each_entry(pos, &state->lock_states, ls_locks) {
 		if (!test_bit(NFS_LOCK_INITIALIZED, &pos->ls_flags))
 			continue;
+<<<<<<< HEAD
 		if (nfs4_stateid_match_other(&pos->ls_stateid, stateid))
+=======
+		if (nfs4_stateid_match_or_older(&pos->ls_stateid, stateid))
+>>>>>>> upstream/android-13
 			return pos;
 	}
 	return NULL;
@@ -1457,17 +1683,31 @@ void nfs_inode_find_state_and_recover(struct inode *inode,
 	struct nfs4_state *state;
 	bool found = false;
 
+<<<<<<< HEAD
 	spin_lock(&inode->i_lock);
 	list_for_each_entry(ctx, &nfsi->open_files, list) {
 		state = ctx->state;
 		if (state == NULL)
 			continue;
 		if (nfs4_stateid_match_other(&state->stateid, stateid) &&
+=======
+	rcu_read_lock();
+	list_for_each_entry_rcu(ctx, &nfsi->open_files, list) {
+		state = ctx->state;
+		if (state == NULL)
+			continue;
+		if (nfs4_stateid_match_or_older(&state->stateid, stateid) &&
+>>>>>>> upstream/android-13
 		    nfs4_state_mark_reclaim_nograce(clp, state)) {
 			found = true;
 			continue;
 		}
+<<<<<<< HEAD
 		if (nfs4_stateid_match_other(&state->open_stateid, stateid) &&
+=======
+		if (test_bit(NFS_OPEN_STATE, &state->flags) &&
+		    nfs4_stateid_match_or_older(&state->open_stateid, stateid) &&
+>>>>>>> upstream/android-13
 		    nfs4_state_mark_reclaim_nograce(clp, state)) {
 			found = true;
 			continue;
@@ -1476,19 +1716,28 @@ void nfs_inode_find_state_and_recover(struct inode *inode,
 		    nfs4_state_mark_reclaim_nograce(clp, state))
 			found = true;
 	}
+<<<<<<< HEAD
 	spin_unlock(&inode->i_lock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	nfs_inode_find_delegation_state_and_recover(inode, stateid);
 	if (found)
 		nfs4_schedule_state_manager(clp);
 }
 
+<<<<<<< HEAD
 static void nfs4_state_mark_open_context_bad(struct nfs4_state *state)
+=======
+static void nfs4_state_mark_open_context_bad(struct nfs4_state *state, int err)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = state->inode;
 	struct nfs_inode *nfsi = NFS_I(inode);
 	struct nfs_open_context *ctx;
 
+<<<<<<< HEAD
 	spin_lock(&inode->i_lock);
 	list_for_each_entry(ctx, &nfsi->open_files, list) {
 		if (ctx->state != state)
@@ -1496,12 +1745,27 @@ static void nfs4_state_mark_open_context_bad(struct nfs4_state *state)
 		set_bit(NFS_CONTEXT_BAD, &ctx->flags);
 	}
 	spin_unlock(&inode->i_lock);
+=======
+	rcu_read_lock();
+	list_for_each_entry_rcu(ctx, &nfsi->open_files, list) {
+		if (ctx->state != state)
+			continue;
+		set_bit(NFS_CONTEXT_BAD, &ctx->flags);
+		pr_warn("NFSv4: state recovery failed for open file %pd2, "
+				"error = %d\n", ctx->dentry, err);
+	}
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 static void nfs4_state_mark_recovery_failed(struct nfs4_state *state, int error)
 {
 	set_bit(NFS_STATE_RECOVERY_FAILED, &state->flags);
+<<<<<<< HEAD
 	nfs4_state_mark_open_context_bad(state);
+=======
+	nfs4_state_mark_open_context_bad(state, error);
+>>>>>>> upstream/android-13
 }
 
 
@@ -1532,6 +1796,10 @@ restart:
 		switch (status) {
 		case 0:
 			break;
+<<<<<<< HEAD
+=======
+		case -ETIMEDOUT:
+>>>>>>> upstream/android-13
 		case -ESTALE:
 		case -NFS4ERR_ADMIN_REVOKED:
 		case -NFS4ERR_STALE_STATEID:
@@ -1547,7 +1815,11 @@ restart:
 		default:
 			pr_err("NFS: %s: unhandled error %d\n",
 					__func__, status);
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -ENOMEM:
 		case -NFS4ERR_DENIED:
 		case -NFS4ERR_RECLAIM_BAD:
@@ -1569,11 +1841,92 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs4_state_recovery_ops *ops)
 {
 	struct nfs4_state *state;
 	struct nfs4_lock_state *lock;
 	int status = 0;
+=======
+#ifdef CONFIG_NFS_V4_2
+static void nfs42_complete_copies(struct nfs4_state_owner *sp, struct nfs4_state *state)
+{
+	struct nfs4_copy_state *copy;
+
+	if (!test_bit(NFS_CLNT_DST_SSC_COPY_STATE, &state->flags) &&
+		!test_bit(NFS_CLNT_SRC_SSC_COPY_STATE, &state->flags))
+		return;
+
+	spin_lock(&sp->so_server->nfs_client->cl_lock);
+	list_for_each_entry(copy, &sp->so_server->ss_copies, copies) {
+		if ((test_bit(NFS_CLNT_DST_SSC_COPY_STATE, &state->flags) &&
+				!nfs4_stateid_match_other(&state->stateid,
+				&copy->parent_dst_state->stateid)))
+				continue;
+		copy->flags = 1;
+		if (test_and_clear_bit(NFS_CLNT_DST_SSC_COPY_STATE,
+				&state->flags)) {
+			clear_bit(NFS_CLNT_SRC_SSC_COPY_STATE, &state->flags);
+			complete(&copy->completion);
+		}
+	}
+	list_for_each_entry(copy, &sp->so_server->ss_copies, src_copies) {
+		if ((test_bit(NFS_CLNT_SRC_SSC_COPY_STATE, &state->flags) &&
+				!nfs4_stateid_match_other(&state->stateid,
+				&copy->parent_src_state->stateid)))
+				continue;
+		copy->flags = 1;
+		if (test_and_clear_bit(NFS_CLNT_DST_SSC_COPY_STATE,
+				&state->flags))
+			complete(&copy->completion);
+	}
+	spin_unlock(&sp->so_server->nfs_client->cl_lock);
+}
+#else /* !CONFIG_NFS_V4_2 */
+static inline void nfs42_complete_copies(struct nfs4_state_owner *sp,
+					 struct nfs4_state *state)
+{
+}
+#endif /* CONFIG_NFS_V4_2 */
+
+static int __nfs4_reclaim_open_state(struct nfs4_state_owner *sp, struct nfs4_state *state,
+				     const struct nfs4_state_recovery_ops *ops)
+{
+	struct nfs4_lock_state *lock;
+	int status;
+
+	status = ops->recover_open(sp, state);
+	if (status < 0)
+		return status;
+
+	status = nfs4_reclaim_locks(state, ops);
+	if (status < 0)
+		return status;
+
+	if (!test_bit(NFS_DELEGATED_STATE, &state->flags)) {
+		spin_lock(&state->state_lock);
+		list_for_each_entry(lock, &state->lock_states, ls_locks) {
+			trace_nfs4_state_lock_reclaim(state, lock);
+			if (!test_bit(NFS_LOCK_INITIALIZED, &lock->ls_flags))
+				pr_warn_ratelimited("NFS: %s: Lock reclaim failed!\n", __func__);
+		}
+		spin_unlock(&state->state_lock);
+	}
+
+	nfs42_complete_copies(sp, state);
+	clear_bit(NFS_STATE_RECLAIM_NOGRACE, &state->flags);
+	return status;
+}
+
+static int nfs4_reclaim_open_state(struct nfs4_state_owner *sp, const struct nfs4_state_recovery_ops *ops)
+{
+	struct nfs4_state *state;
+	unsigned int loop = 0;
+	int status = 0;
+#ifdef CONFIG_NFS_V4_2
+	bool found_ssc_copy_state = false;
+#endif /* CONFIG_NFS_V4_2 */
+>>>>>>> upstream/android-13
 
 	/* Note: we rely on the sp->so_states list being ordered 
 	 * so that we always reclaim open(O_RDWR) and/or open(O_WRITE)
@@ -1593,6 +1946,7 @@ restart:
 			continue;
 		if (state->state == 0)
 			continue;
+<<<<<<< HEAD
 		atomic_inc(&state->count);
 		spin_unlock(&sp->so_lock);
 		status = ops->recover_open(sp, state);
@@ -1666,6 +2020,62 @@ restart:
 			case -NFS4ERR_BAD_HIGH_SLOT:
 			case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
 				goto out_err;
+=======
+#ifdef CONFIG_NFS_V4_2
+		if (test_bit(NFS_SRV_SSC_COPY_STATE, &state->flags)) {
+			nfs4_state_mark_recovery_failed(state, -EIO);
+			found_ssc_copy_state = true;
+			continue;
+		}
+#endif /* CONFIG_NFS_V4_2 */
+		refcount_inc(&state->count);
+		spin_unlock(&sp->so_lock);
+		status = __nfs4_reclaim_open_state(sp, state, ops);
+
+		switch (status) {
+		default:
+			if (status >= 0) {
+				loop = 0;
+				break;
+			}
+			printk(KERN_ERR "NFS: %s: unhandled error %d\n", __func__, status);
+			fallthrough;
+		case -ENOENT:
+		case -ENOMEM:
+		case -EACCES:
+		case -EROFS:
+		case -EIO:
+		case -ESTALE:
+			/* Open state on this file cannot be recovered */
+			nfs4_state_mark_recovery_failed(state, status);
+			break;
+		case -EAGAIN:
+			ssleep(1);
+			if (loop++ < 10) {
+				set_bit(ops->state_flag_bit, &state->flags);
+				break;
+			}
+			fallthrough;
+		case -NFS4ERR_ADMIN_REVOKED:
+		case -NFS4ERR_STALE_STATEID:
+		case -NFS4ERR_OLD_STATEID:
+		case -NFS4ERR_BAD_STATEID:
+		case -NFS4ERR_RECLAIM_BAD:
+		case -NFS4ERR_RECLAIM_CONFLICT:
+			nfs4_state_mark_reclaim_nograce(sp->so_server->nfs_client, state);
+			break;
+		case -NFS4ERR_EXPIRED:
+		case -NFS4ERR_NO_GRACE:
+			nfs4_state_mark_reclaim_nograce(sp->so_server->nfs_client, state);
+			fallthrough;
+		case -NFS4ERR_STALE_CLIENTID:
+		case -NFS4ERR_BADSESSION:
+		case -NFS4ERR_BADSLOT:
+		case -NFS4ERR_BAD_HIGH_SLOT:
+		case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
+		case -ETIMEDOUT:
+			goto out_err;
+>>>>>>> upstream/android-13
 		}
 		nfs4_put_open_state(state);
 		spin_lock(&sp->so_lock);
@@ -1673,6 +2083,13 @@ restart:
 	}
 	raw_write_seqcount_end(&sp->so_reclaim_seqcount);
 	spin_unlock(&sp->so_lock);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFS_V4_2
+	if (found_ssc_copy_state)
+		return -EIO;
+#endif /* CONFIG_NFS_V4_2 */
+>>>>>>> upstream/android-13
 	return 0;
 out_err:
 	nfs4_put_open_state(state);
@@ -1742,7 +2159,11 @@ static void nfs4_state_start_reclaim_reboot(struct nfs_client *clp)
 
 static int nfs4_reclaim_complete(struct nfs_client *clp,
 				 const struct nfs4_state_recovery_ops *ops,
+<<<<<<< HEAD
 				 struct rpc_cred *cred)
+=======
+				 const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	/* Notify the server we're done reclaiming our state */
 	if (ops->reclaim_complete)
@@ -1793,7 +2214,11 @@ static int nfs4_state_clear_reclaim_reboot(struct nfs_client *clp)
 static void nfs4_state_end_reclaim_reboot(struct nfs_client *clp)
 {
 	const struct nfs4_state_recovery_ops *ops;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!nfs4_state_clear_reclaim_reboot(clp))
@@ -1801,7 +2226,11 @@ static void nfs4_state_end_reclaim_reboot(struct nfs_client *clp)
 	ops = clp->cl_mvops->reboot_recovery_ops;
 	cred = nfs4_get_clid_cred(clp);
 	err = nfs4_reclaim_complete(clp, ops, cred);
+<<<<<<< HEAD
 	put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	if (err == -NFS4ERR_CONN_NOT_BOUND_TO_SESSION)
 		set_bit(NFS4CLNT_RECLAIM_REBOOT, &clp->cl_state);
 }
@@ -1815,6 +2244,7 @@ static void nfs4_state_start_reclaim_nograce(struct nfs_client *clp)
 static int nfs4_recovery_handle_error(struct nfs_client *clp, int error)
 {
 	switch (error) {
+<<<<<<< HEAD
 		case 0:
 			break;
 		case -NFS4ERR_CB_PATH_DOWN:
@@ -1847,6 +2277,40 @@ static int nfs4_recovery_handle_error(struct nfs_client *clp, int error)
 			dprintk("%s: failed to handle error %d for server %s\n",
 					__func__, error, clp->cl_hostname);
 			return error;
+=======
+	case 0:
+		break;
+	case -NFS4ERR_CB_PATH_DOWN:
+		nfs40_handle_cb_pathdown(clp);
+		break;
+	case -NFS4ERR_NO_GRACE:
+		nfs4_state_end_reclaim_reboot(clp);
+		break;
+	case -NFS4ERR_STALE_CLIENTID:
+		set_bit(NFS4CLNT_LEASE_EXPIRED, &clp->cl_state);
+		nfs4_state_start_reclaim_reboot(clp);
+		break;
+	case -NFS4ERR_EXPIRED:
+		set_bit(NFS4CLNT_LEASE_EXPIRED, &clp->cl_state);
+		nfs4_state_start_reclaim_nograce(clp);
+		break;
+	case -NFS4ERR_BADSESSION:
+	case -NFS4ERR_BADSLOT:
+	case -NFS4ERR_BAD_HIGH_SLOT:
+	case -NFS4ERR_DEADSESSION:
+	case -NFS4ERR_SEQ_FALSE_RETRY:
+	case -NFS4ERR_SEQ_MISORDERED:
+		set_bit(NFS4CLNT_SESSION_RESET, &clp->cl_state);
+		/* Zero session reset errors */
+		break;
+	case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
+		set_bit(NFS4CLNT_BIND_CONN_TO_SESSION, &clp->cl_state);
+		break;
+	default:
+		dprintk("%s: failed to handle error %d for server %s\n",
+				__func__, error, clp->cl_hostname);
+		return error;
+>>>>>>> upstream/android-13
 	}
 	dprintk("%s: handled error %d for server %s\n", __func__, error,
 			clp->cl_hostname);
@@ -1899,7 +2363,11 @@ restart:
 
 static int nfs4_check_lease(struct nfs_client *clp)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 	const struct nfs4_state_maintenance_ops *ops =
 		clp->cl_mvops->state_renewal_ops;
 	int status;
@@ -1907,9 +2375,13 @@ static int nfs4_check_lease(struct nfs_client *clp)
 	/* Is the client already known to have an expired lease? */
 	if (test_bit(NFS4CLNT_LEASE_EXPIRED, &clp->cl_state))
 		return 0;
+<<<<<<< HEAD
 	spin_lock(&clp->cl_lock);
 	cred = ops->get_state_renewal_cred_locked(clp);
 	spin_unlock(&clp->cl_lock);
+=======
+	cred = ops->get_state_renewal_cred(clp);
+>>>>>>> upstream/android-13
 	if (cred == NULL) {
 		cred = nfs4_get_clid_cred(clp);
 		status = -ENOKEY;
@@ -1917,7 +2389,11 @@ static int nfs4_check_lease(struct nfs_client *clp)
 			goto out;
 	}
 	status = ops->renew_lease(clp, cred);
+<<<<<<< HEAD
 	put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	if (status == -ETIMEDOUT) {
 		set_bit(NFS4CLNT_CHECK_LEASE, &clp->cl_state);
 		return 0;
@@ -1951,7 +2427,10 @@ static int nfs4_handle_reclaim_lease_error(struct nfs_client *clp, int status)
 		return -EPERM;
 	case -EACCES:
 	case -NFS4ERR_DELAY:
+<<<<<<< HEAD
 	case -ETIMEDOUT:
+=======
+>>>>>>> upstream/android-13
 	case -EAGAIN:
 		ssleep(1);
 		break;
@@ -1977,7 +2456,11 @@ static int nfs4_handle_reclaim_lease_error(struct nfs_client *clp, int status)
 
 static int nfs4_establish_lease(struct nfs_client *clp)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 	const struct nfs4_state_recovery_ops *ops =
 		clp->cl_mvops->reboot_recovery_ops;
 	int status;
@@ -1989,7 +2472,11 @@ static int nfs4_establish_lease(struct nfs_client *clp)
 	if (cred == NULL)
 		return -ENOENT;
 	status = ops->establish_clid(clp, cred);
+<<<<<<< HEAD
 	put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	if (status != 0)
 		return status;
 	pnfs_destroy_all_layouts(clp);
@@ -2036,7 +2523,11 @@ static int nfs4_purge_lease(struct nfs_client *clp)
  *
  * Returns zero or a negative NFS4ERR status code.
  */
+<<<<<<< HEAD
 static int nfs4_try_migration(struct nfs_server *server, struct rpc_cred *cred)
+=======
+static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs_client *clp = server->nfs_client;
 	struct nfs4_fs_locations *locations = NULL;
@@ -2058,7 +2549,12 @@ static int nfs4_try_migration(struct nfs_server *server, struct rpc_cred *cred)
 	}
 
 	inode = d_inode(server->super->s_root);
+<<<<<<< HEAD
 	result = nfs4_proc_get_locations(inode, locations, page, cred);
+=======
+	result = nfs4_proc_get_locations(server, NFS_FH(inode), locations,
+					 page, cred);
+>>>>>>> upstream/android-13
 	if (result) {
 		dprintk("<-- %s: failed to retrieve fs_locations: %d\n",
 			__func__, result);
@@ -2066,6 +2562,12 @@ static int nfs4_try_migration(struct nfs_server *server, struct rpc_cred *cred)
 	}
 
 	result = -NFS4ERR_NXIO;
+<<<<<<< HEAD
+=======
+	if (!locations->nlocations)
+		goto out;
+
+>>>>>>> upstream/android-13
 	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
 			__func__);
@@ -2073,8 +2575,15 @@ static int nfs4_try_migration(struct nfs_server *server, struct rpc_cred *cred)
 	}
 
 	status = nfs4_begin_drain_session(clp);
+<<<<<<< HEAD
 	if (status != 0)
 		return status;
+=======
+	if (status != 0) {
+		result = status;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	status = nfs4_replace_transport(server, locations);
 	if (status != 0) {
@@ -2106,14 +2615,22 @@ static int nfs4_handle_migration(struct nfs_client *clp)
 	const struct nfs4_state_maintenance_ops *ops =
 				clp->cl_mvops->state_renewal_ops;
 	struct nfs_server *server;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 
 	dprintk("%s: migration reported on \"%s\"\n", __func__,
 			clp->cl_hostname);
 
+<<<<<<< HEAD
 	spin_lock(&clp->cl_lock);
 	cred = ops->get_state_renewal_cred_locked(clp);
 	spin_unlock(&clp->cl_lock);
+=======
+	cred = ops->get_state_renewal_cred(clp);
+>>>>>>> upstream/android-13
 	if (cred == NULL)
 		return -NFS4ERR_NOENT;
 
@@ -2134,13 +2651,21 @@ restart:
 		rcu_read_unlock();
 		status = nfs4_try_migration(server, cred);
 		if (status < 0) {
+<<<<<<< HEAD
 			put_rpccred(cred);
+=======
+			put_cred(cred);
+>>>>>>> upstream/android-13
 			return status;
 		}
 		goto restart;
 	}
 	rcu_read_unlock();
+<<<<<<< HEAD
 	put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2154,14 +2679,22 @@ static int nfs4_handle_lease_moved(struct nfs_client *clp)
 	const struct nfs4_state_maintenance_ops *ops =
 				clp->cl_mvops->state_renewal_ops;
 	struct nfs_server *server;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 
 	dprintk("%s: lease moved reported on \"%s\"\n", __func__,
 			clp->cl_hostname);
 
+<<<<<<< HEAD
 	spin_lock(&clp->cl_lock);
 	cred = ops->get_state_renewal_cred_locked(clp);
 	spin_unlock(&clp->cl_lock);
+=======
+	cred = ops->get_state_renewal_cred(clp);
+>>>>>>> upstream/android-13
 	if (cred == NULL)
 		return -NFS4ERR_NOENT;
 
@@ -2189,7 +2722,11 @@ restart:
 	rcu_read_unlock();
 
 out:
+<<<<<<< HEAD
 	put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2212,7 +2749,11 @@ int nfs4_discover_server_trunking(struct nfs_client *clp,
 	const struct nfs4_state_recovery_ops *ops =
 				clp->cl_mvops->reboot_recovery_ops;
 	struct rpc_clnt *clnt;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 	int i, status;
 
 	dprintk("NFS: %s: testing '%s'\n", __func__, clp->cl_hostname);
@@ -2228,7 +2769,11 @@ again:
 		goto out_unlock;
 
 	status = ops->detect_trunking(clp, result, cred);
+<<<<<<< HEAD
 	put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	switch (status) {
 	case 0:
 	case -EINTR:
@@ -2237,11 +2782,19 @@ again:
 	case -ETIMEDOUT:
 		if (clnt->cl_softrtry)
 			break;
+<<<<<<< HEAD
 		/* Fall through */
 	case -NFS4ERR_DELAY:
 	case -EAGAIN:
 		ssleep(1);
 		/* Fall through */
+=======
+		fallthrough;
+	case -NFS4ERR_DELAY:
+	case -EAGAIN:
+		ssleep(1);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -NFS4ERR_STALE_CLIENTID:
 		dprintk("NFS: %s after status %d, retrying\n",
 			__func__, status);
@@ -2253,7 +2806,11 @@ again:
 		}
 		if (clnt->cl_auth->au_flavor == RPC_AUTH_UNIX)
 			break;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -NFS4ERR_CLID_INUSE:
 	case -NFS4ERR_WRONGSEC:
 		/* No point in retrying if we already used RPC_AUTH_UNIX */
@@ -2359,8 +2916,12 @@ static void nfs41_handle_recallable_state_revoked(struct nfs_client *clp)
 {
 	/* FIXME: For now, we destroy all layouts. */
 	pnfs_destroy_all_layouts(clp);
+<<<<<<< HEAD
 	/* FIXME: For now, we test all delegations+open state+locks. */
 	nfs41_handle_some_state_revoked(clp);
+=======
+	nfs_test_expired_all_delegations(clp);
+>>>>>>> upstream/android-13
 	dprintk("%s: Recallable state revoked on server %s!\n", __func__,
 			clp->cl_hostname);
 }
@@ -2419,7 +2980,11 @@ out_recovery:
 
 static int nfs4_reset_session(struct nfs_client *clp)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 	int status;
 
 	if (!nfs4_has_session(clp))
@@ -2457,14 +3022,22 @@ static int nfs4_reset_session(struct nfs_client *clp)
 	dprintk("%s: session reset was successful for server %s!\n",
 			__func__, clp->cl_hostname);
 out:
+<<<<<<< HEAD
 	if (cred)
 		put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	return status;
 }
 
 static int nfs4_bind_conn_to_session(struct nfs_client *clp)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!nfs4_has_session(clp))
@@ -2474,8 +3047,12 @@ static int nfs4_bind_conn_to_session(struct nfs_client *clp)
 		return ret;
 	cred = nfs4_get_clid_cred(clp);
 	ret = nfs4_proc_bind_conn_to_session(clp, cred);
+<<<<<<< HEAD
 	if (cred)
 		put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	clear_bit(NFS4CLNT_BIND_CONN_TO_SESSION, &clp->cl_state);
 	switch (ret) {
 	case 0:
@@ -2491,6 +3068,24 @@ static int nfs4_bind_conn_to_session(struct nfs_client *clp)
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static void nfs4_layoutreturn_any_run(struct nfs_client *clp)
+{
+	int iomode = 0;
+
+	if (test_and_clear_bit(NFS4CLNT_RECALL_ANY_LAYOUT_READ, &clp->cl_state))
+		iomode += IOMODE_READ;
+	if (test_and_clear_bit(NFS4CLNT_RECALL_ANY_LAYOUT_RW, &clp->cl_state))
+		iomode += IOMODE_RW;
+	/* Note: IOMODE_READ + IOMODE_RW == IOMODE_ANY */
+	if (iomode) {
+		pnfs_layout_return_unused_byclid(clp, iomode);
+		set_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state);
+	}
+}
+>>>>>>> upstream/android-13
 #else /* CONFIG_NFS_V4_1 */
 static int nfs4_reset_session(struct nfs_client *clp) { return 0; }
 
@@ -2498,15 +3093,39 @@ static int nfs4_bind_conn_to_session(struct nfs_client *clp)
 {
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static void nfs4_layoutreturn_any_run(struct nfs_client *clp)
+{
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_NFS_V4_1 */
 
 static void nfs4_state_manager(struct nfs_client *clp)
 {
+<<<<<<< HEAD
 	int status = 0;
 	const char *section = "", *section_sep = "";
 
 	/* Ensure exclusive access to NFSv4 state */
 	do {
+=======
+	unsigned int memflags;
+	int status = 0;
+	const char *section = "", *section_sep = "";
+
+	/*
+	 * State recovery can deadlock if the direct reclaim code tries
+	 * start NFS writeback. So ensure memory allocations are all
+	 * GFP_NOFS.
+	 */
+	memflags = memalloc_nofs_save();
+
+	/* Ensure exclusive access to NFSv4 state */
+	do {
+		trace_nfs4_state_mgr(clp);
+>>>>>>> upstream/android-13
 		clear_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state);
 		if (test_bit(NFS4CLNT_PURGE_STATE, &clp->cl_state)) {
 			section = "purge state";
@@ -2587,7 +3206,11 @@ static void nfs4_state_manager(struct nfs_client *clp)
 		}
 
 		/* Now recover expired state... */
+<<<<<<< HEAD
 		if (test_and_clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state)) {
+=======
+		if (test_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state)) {
+>>>>>>> upstream/android-13
 			section = "reclaim nograce";
 			status = nfs4_do_reclaim(clp,
 				clp->cl_mvops->nograce_recovery_ops);
@@ -2595,17 +3218,33 @@ static void nfs4_state_manager(struct nfs_client *clp)
 				continue;
 			if (status < 0)
 				goto out_error;
+<<<<<<< HEAD
 		}
 
 		nfs4_end_drain_session(clp);
 		nfs4_clear_state_manager_bit(clp);
 
 		if (!test_and_set_bit(NFS4CLNT_DELEGRETURN_RUNNING, &clp->cl_state)) {
+=======
+			clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state);
+		}
+
+		memalloc_nofs_restore(memflags);
+		nfs4_end_drain_session(clp);
+		nfs4_clear_state_manager_bit(clp);
+
+		if (!test_and_set_bit(NFS4CLNT_RECALL_RUNNING, &clp->cl_state)) {
+>>>>>>> upstream/android-13
 			if (test_and_clear_bit(NFS4CLNT_DELEGRETURN, &clp->cl_state)) {
 				nfs_client_return_marked_delegations(clp);
 				set_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state);
 			}
+<<<<<<< HEAD
 			clear_bit(NFS4CLNT_DELEGRETURN_RUNNING, &clp->cl_state);
+=======
+			nfs4_layoutreturn_any_run(clp);
+			clear_bit(NFS4CLNT_RECALL_RUNNING, &clp->cl_state);
+>>>>>>> upstream/android-13
 		}
 
 		/* Did we race with an attempt to give us more work? */
@@ -2613,17 +3252,29 @@ static void nfs4_state_manager(struct nfs_client *clp)
 			return;
 		if (test_and_set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) != 0)
 			return;
+<<<<<<< HEAD
+=======
+		memflags = memalloc_nofs_save();
+>>>>>>> upstream/android-13
 	} while (refcount_read(&clp->cl_count) > 1 && !signalled());
 	goto out_drain;
 
 out_error:
 	if (strlen(section))
 		section_sep = ": ";
+<<<<<<< HEAD
+=======
+	trace_nfs4_state_mgr_failed(clp, section, status);
+>>>>>>> upstream/android-13
 	pr_warn_ratelimited("NFS: state manager%s%s failed on NFSv4 server %s"
 			" with error %d\n", section_sep, section,
 			clp->cl_hostname, -status);
 	ssleep(1);
 out_drain:
+<<<<<<< HEAD
+=======
+	memalloc_nofs_restore(memflags);
+>>>>>>> upstream/android-13
 	nfs4_end_drain_session(clp);
 	nfs4_clear_state_manager_bit(clp);
 }
@@ -2638,9 +3289,12 @@ static int nfs4_run_state_manager(void *ptr)
 	module_put_and_exit(0);
 	return 0;
 }
+<<<<<<< HEAD
 
 /*
  * Local variables:
  *  c-basic-offset: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

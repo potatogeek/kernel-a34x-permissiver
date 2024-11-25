@@ -42,9 +42,16 @@
  *                    deprecated in 2.6
  */
 
+<<<<<<< HEAD
 #include <crypto/hash.h>
 #include <crypto/skcipher.h>
 #include <linux/err.h>
+=======
+#include <crypto/arc4.h>
+#include <crypto/hash.h>
+#include <linux/err.h>
+#include <linux/fips.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -63,6 +70,7 @@ MODULE_AUTHOR("Frank Cusack <fcusack@fcusack.com>");
 MODULE_DESCRIPTION("Point-to-Point Protocol Microsoft Point-to-Point Encryption support");
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_ALIAS("ppp-compress-" __stringify(CI_MPPE));
+<<<<<<< HEAD
 MODULE_SOFTDEP("pre: arc4");
 MODULE_VERSION("1.0.2");
 
@@ -73,6 +81,10 @@ setup_sg(struct scatterlist *sg, const void *address, unsigned int length)
 	return length;
 }
 
+=======
+MODULE_VERSION("1.0.2");
+
+>>>>>>> upstream/android-13
 #define SHA1_PAD_SIZE 40
 
 /*
@@ -96,7 +108,11 @@ static inline void sha_pad_init(struct sha_pad *shapad)
  * State for an MPPE (de)compressor.
  */
 struct ppp_mppe_state {
+<<<<<<< HEAD
 	struct crypto_skcipher *arc4;
+=======
+	struct arc4_ctx arc4;
+>>>>>>> upstream/android-13
 	struct shash_desc *sha1;
 	unsigned char *sha1_digest;
 	unsigned char master_key[MPPE_MAX_KEY_LEN];
@@ -155,6 +171,7 @@ static void get_new_key_from_sha(struct ppp_mppe_state * state)
  */
 static void mppe_rekey(struct ppp_mppe_state * state, int initial_key)
 {
+<<<<<<< HEAD
 	struct scatterlist sg_in[1], sg_out[1];
 	SKCIPHER_REQUEST_ON_STACK(req, state->arc4);
 
@@ -173,6 +190,13 @@ static void mppe_rekey(struct ppp_mppe_state * state, int initial_key)
 					   NULL);
 		if (crypto_skcipher_encrypt(req))
     		    printk(KERN_WARNING "mppe_rekey: cipher_encrypt failed\n");
+=======
+	get_new_key_from_sha(state);
+	if (!initial_key) {
+		arc4_setkey(&state->arc4, state->sha1_digest, state->keylen);
+		arc4_crypt(&state->arc4, state->session_key, state->sha1_digest,
+			   state->keylen);
+>>>>>>> upstream/android-13
 	} else {
 		memcpy(state->session_key, state->sha1_digest, state->keylen);
 	}
@@ -182,8 +206,12 @@ static void mppe_rekey(struct ppp_mppe_state * state, int initial_key)
 		state->session_key[1] = 0x26;
 		state->session_key[2] = 0x9e;
 	}
+<<<<<<< HEAD
 	crypto_skcipher_setkey(state->arc4, state->session_key, state->keylen);
 	skcipher_request_zero(req);
+=======
+	arc4_setkey(&state->arc4, state->session_key, state->keylen);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -196,7 +224,12 @@ static void *mppe_alloc(unsigned char *options, int optlen)
 	unsigned int digestsize;
 
 	if (optlen != CILEN_MPPE + sizeof(state->master_key) ||
+<<<<<<< HEAD
 	    options[0] != CI_MPPE || options[1] != CILEN_MPPE)
+=======
+	    options[0] != CI_MPPE || options[1] != CILEN_MPPE ||
+	    fips_enabled)
+>>>>>>> upstream/android-13
 		goto out;
 
 	state = kzalloc(sizeof(*state), GFP_KERNEL);
@@ -204,12 +237,15 @@ static void *mppe_alloc(unsigned char *options, int optlen)
 		goto out;
 
 
+<<<<<<< HEAD
 	state->arc4 = crypto_alloc_skcipher("ecb(arc4)", 0, CRYPTO_ALG_ASYNC);
 	if (IS_ERR(state->arc4)) {
 		state->arc4 = NULL;
 		goto out_free;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	shash = crypto_alloc_shash("sha1", 0, 0);
 	if (IS_ERR(shash))
 		goto out_free;
@@ -222,7 +258,10 @@ static void *mppe_alloc(unsigned char *options, int optlen)
 		goto out_free;
 	}
 	state->sha1->tfm = shash;
+<<<<<<< HEAD
 	state->sha1->flags = 0;
+=======
+>>>>>>> upstream/android-13
 
 	digestsize = crypto_shash_digestsize(shash);
 	if (digestsize < MPPE_MAX_KEY_LEN)
@@ -249,9 +288,14 @@ out_free:
 	kfree(state->sha1_digest);
 	if (state->sha1) {
 		crypto_free_shash(state->sha1->tfm);
+<<<<<<< HEAD
 		kzfree(state->sha1);
 	}
 	crypto_free_skcipher(state->arc4);
+=======
+		kfree_sensitive(state->sha1);
+	}
+>>>>>>> upstream/android-13
 	kfree(state);
 out:
 	return NULL;
@@ -266,9 +310,14 @@ static void mppe_free(void *arg)
 	if (state) {
 		kfree(state->sha1_digest);
 		crypto_free_shash(state->sha1->tfm);
+<<<<<<< HEAD
 		kzfree(state->sha1);
 		crypto_free_skcipher(state->arc4);
 		kfree(state);
+=======
+		kfree_sensitive(state->sha1);
+		kfree_sensitive(state);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -367,10 +416,14 @@ mppe_compress(void *arg, unsigned char *ibuf, unsigned char *obuf,
 	      int isize, int osize)
 {
 	struct ppp_mppe_state *state = (struct ppp_mppe_state *) arg;
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(req, state->arc4);
 	int proto;
 	int err;
 	struct scatterlist sg_in[1], sg_out[1];
+=======
+	int proto;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check that the protocol is in the range we handle.
@@ -421,6 +474,7 @@ mppe_compress(void *arg, unsigned char *ibuf, unsigned char *obuf,
 	ibuf += 2;		/* skip to proto field */
 	isize -= 2;
 
+<<<<<<< HEAD
 	/* Encrypt packet */
 	sg_init_table(sg_in, 1);
 	sg_init_table(sg_out, 1);
@@ -436,6 +490,9 @@ mppe_compress(void *arg, unsigned char *ibuf, unsigned char *obuf,
 		printk(KERN_DEBUG "crypto_cypher_encrypt failed\n");
 		return -1;
 	}
+=======
+	arc4_crypt(&state->arc4, obuf, ibuf, isize);
+>>>>>>> upstream/android-13
 
 	state->stats.unc_bytes += isize;
 	state->stats.unc_packets++;
@@ -481,10 +538,15 @@ mppe_decompress(void *arg, unsigned char *ibuf, int isize, unsigned char *obuf,
 		int osize)
 {
 	struct ppp_mppe_state *state = (struct ppp_mppe_state *) arg;
+<<<<<<< HEAD
 	SKCIPHER_REQUEST_ON_STACK(req, state->arc4);
 	unsigned ccount;
 	int flushed = MPPE_BITS(ibuf) & MPPE_BIT_FLUSHED;
 	struct scatterlist sg_in[1], sg_out[1];
+=======
+	unsigned ccount;
+	int flushed = MPPE_BITS(ibuf) & MPPE_BIT_FLUSHED;
+>>>>>>> upstream/android-13
 
 	if (isize <= PPP_HDRLEN + MPPE_OVHD) {
 		if (state->debug)
@@ -611,6 +673,7 @@ mppe_decompress(void *arg, unsigned char *ibuf, int isize, unsigned char *obuf,
 	 * Decrypt the first byte in order to check if it is
 	 * a compressed or uncompressed protocol field.
 	 */
+<<<<<<< HEAD
 	sg_init_table(sg_in, 1);
 	sg_init_table(sg_out, 1);
 	setup_sg(sg_in, ibuf, 1);
@@ -624,6 +687,9 @@ mppe_decompress(void *arg, unsigned char *ibuf, int isize, unsigned char *obuf,
 		osize = DECOMP_ERROR;
 		goto out_zap_req;
 	}
+=======
+	arc4_crypt(&state->arc4, obuf, ibuf, 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Do PFC decompression.
@@ -638,6 +704,7 @@ mppe_decompress(void *arg, unsigned char *ibuf, int isize, unsigned char *obuf,
 	}
 
 	/* And finally, decrypt the rest of the packet. */
+<<<<<<< HEAD
 	setup_sg(sg_in, ibuf + 1, isize - 1);
 	setup_sg(sg_out, obuf + 1, osize - 1);
 	skcipher_request_set_crypt(req, sg_in, sg_out, isize - 1, NULL);
@@ -646,6 +713,9 @@ mppe_decompress(void *arg, unsigned char *ibuf, int isize, unsigned char *obuf,
 		osize = DECOMP_ERROR;
 		goto out_zap_req;
 	}
+=======
+	arc4_crypt(&state->arc4, obuf + 1, ibuf + 1, isize - 1);
+>>>>>>> upstream/android-13
 
 	state->stats.unc_bytes += osize;
 	state->stats.unc_packets++;
@@ -655,8 +725,11 @@ mppe_decompress(void *arg, unsigned char *ibuf, int isize, unsigned char *obuf,
 	/* good packet credit */
 	state->sanity_errors >>= 1;
 
+<<<<<<< HEAD
 out_zap_req:
 	skcipher_request_zero(req);
+=======
+>>>>>>> upstream/android-13
 	return osize;
 
 sanity_error:
@@ -729,8 +802,12 @@ static struct compressor ppp_mppe = {
 static int __init ppp_mppe_init(void)
 {
 	int answer;
+<<<<<<< HEAD
 	if (!(crypto_has_skcipher("ecb(arc4)", 0, CRYPTO_ALG_ASYNC) &&
 	      crypto_has_ahash("sha1", 0, CRYPTO_ALG_ASYNC)))
+=======
+	if (fips_enabled || !crypto_has_ahash("sha1", 0, CRYPTO_ALG_ASYNC))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	sha_pad = kmalloc(sizeof(struct sha_pad), GFP_KERNEL);

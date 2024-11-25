@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 libperf-y += util/
 libperf-$(CONFIG_DWARF_UNWIND) += tests/
+=======
+perf-y += util/
+perf-$(CONFIG_DWARF_UNWIND) += tests/
+>>>>>>> upstream/android-13

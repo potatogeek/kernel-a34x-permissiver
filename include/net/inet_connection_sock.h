@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * NET		Generic infrastructure for INET connection oriented protocols.
  *
@@ -6,11 +10,14 @@
  * Authors:	Many people, see the TCP sources
  *
  * 		From code originally in TCP
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _INET_CONNECTION_SOCK_H
 #define _INET_CONNECTION_SOCK_H
@@ -20,6 +27,11 @@
 #include <linux/timer.h>
 #include <linux/poll.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/sockptr.h>
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 #include <net/inet_sock.h>
 #include <net/request_sock.h>
@@ -49,6 +61,7 @@ struct inet_connection_sock_af_ops {
 	u16	    net_frag_header_len;
 	u16	    sockaddr_len;
 	int	    (*setsockopt)(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 				  char __user *optval, unsigned int optlen);
 	int	    (*getsockopt)(struct sock *sk, int level, int optname,
 				  char __user *optval, int __user *optlen);
@@ -62,6 +75,15 @@ struct inet_connection_sock_af_ops {
 #endif
 	void	    (*addr2sockaddr)(struct sock *sk, struct sockaddr *);
 	void	    (*mtu_reduced)(struct sock *sk);
+=======
+				  sockptr_t optval, unsigned int optlen);
+	int	    (*getsockopt)(struct sock *sk, int level, int optname,
+				  char __user *optval, int __user *optlen);
+	void	    (*addr2sockaddr)(struct sock *sk, struct sockaddr *);
+	void	    (*mtu_reduced)(struct sock *sk);
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /** inet_connection_sock - INET connection oriented sock
@@ -87,6 +109,11 @@ struct inet_connection_sock_af_ops {
  * @icsk_ext_hdr_len:	   Network protocol overhead (IP/IPv6 options)
  * @icsk_ack:		   Delayed ACK control data
  * @icsk_mtup;		   MTU probing control data
+<<<<<<< HEAD
+=======
+ * @icsk_probes_tstamp:    Probe timestamp (cleared by non-zero window ack)
+ * @icsk_user_timeout:	   TCP_USER_TIMEOUT value
+>>>>>>> upstream/android-13
  */
 struct inet_connection_sock {
 	/* inet_sock has to be the first member! */
@@ -97,15 +124,29 @@ struct inet_connection_sock {
  	struct timer_list	  icsk_retransmit_timer;
  	struct timer_list	  icsk_delack_timer;
 	__u32			  icsk_rto;
+<<<<<<< HEAD
+=======
+	__u32                     icsk_rto_min;
+	__u32                     icsk_delack_max;
+>>>>>>> upstream/android-13
 	__u32			  icsk_pmtu_cookie;
 	const struct tcp_congestion_ops *icsk_ca_ops;
 	const struct inet_connection_sock_af_ops *icsk_af_ops;
 	const struct tcp_ulp_ops  *icsk_ulp_ops;
+<<<<<<< HEAD
 	void			  *icsk_ulp_data;
 	void (*icsk_clean_acked)(struct sock *sk, u32 acked_seq);
 	struct hlist_node         icsk_listen_portaddr_node;
 	unsigned int		  (*icsk_sync_mss)(struct sock *sk, u32 pmtu);
 	__u8			  icsk_ca_state:6,
+=======
+	void __rcu		  *icsk_ulp_data;
+	void (*icsk_clean_acked)(struct sock *sk, u32 acked_seq);
+	struct hlist_node         icsk_listen_portaddr_node;
+	unsigned int		  (*icsk_sync_mss)(struct sock *sk, u32 pmtu);
+	__u8			  icsk_ca_state:5,
+				  icsk_ca_initialized:1,
+>>>>>>> upstream/android-13
 				  icsk_ca_setsockopt:1,
 				  icsk_ca_dst_locked:1;
 	__u8			  icsk_retransmits;
@@ -118,7 +159,11 @@ struct inet_connection_sock {
 		__u8		  pending;	 /* ACK is pending			   */
 		__u8		  quick;	 /* Scheduled number of quick acks	   */
 		__u8		  pingpong;	 /* The session is interactive		   */
+<<<<<<< HEAD
 		__u8		  blocked;	 /* Delayed ACK was blocked by socket lock */
+=======
+		__u8		  retry;	 /* Number of attempts			   */
+>>>>>>> upstream/android-13
 		__u32		  ato;		 /* Predicted tick of soft clock	   */
 		unsigned long	  timeout;	 /* Currently scheduled timeout		   */
 		__u32		  lrcvtime;	 /* timestamp of last received data packet */
@@ -126,13 +171,17 @@ struct inet_connection_sock {
 		__u16		  rcv_mss;	 /* MSS used for delayed ACK decisions	   */
 	} icsk_ack;
 	struct {
+<<<<<<< HEAD
 		int		  enabled;
 
+=======
+>>>>>>> upstream/android-13
 		/* Range of MTUs to search */
 		int		  search_high;
 		int		  search_low;
 
 		/* Information on the current probe. */
+<<<<<<< HEAD
 		int		  probe_size;
 
 		u32		  probe_timestamp;
@@ -141,12 +190,30 @@ struct inet_connection_sock {
 
 	u64			  icsk_ca_priv[104 / sizeof(u64)];
 #define ICSK_CA_PRIV_SIZE      (13 * sizeof(u64))
+=======
+		u32		  probe_size:31,
+		/* Is the MTUP feature enabled for this connection? */
+				  enabled:1;
+
+		u32		  probe_timestamp;
+	} icsk_mtup;
+	u32			  icsk_probes_tstamp;
+	u32			  icsk_user_timeout;
+
+	ANDROID_KABI_RESERVE(1);
+
+	u64			  icsk_ca_priv[104 / sizeof(u64)];
+#define ICSK_CA_PRIV_SIZE	  sizeof_field(struct inet_connection_sock, icsk_ca_priv)
+>>>>>>> upstream/android-13
 };
 
 #define ICSK_TIME_RETRANS	1	/* Retransmit timer */
 #define ICSK_TIME_DACK		2	/* Delayed ack timer */
 #define ICSK_TIME_PROBE0	3	/* Zero window probe timer */
+<<<<<<< HEAD
 #define ICSK_TIME_EARLY_RETRANS 4	/* Early retransmit timer */
+=======
+>>>>>>> upstream/android-13
 #define ICSK_TIME_LOSS_PROBE	5	/* Tail loss probe timer */
 #define ICSK_TIME_REO_TIMEOUT	6	/* Reordering timer */
 
@@ -206,7 +273,12 @@ static inline void inet_csk_clear_xmit_timer(struct sock *sk, const int what)
 		sk_stop_timer(sk, &icsk->icsk_retransmit_timer);
 #endif
 	} else if (what == ICSK_TIME_DACK) {
+<<<<<<< HEAD
 		icsk->icsk_ack.blocked = icsk->icsk_ack.pending = 0;
+=======
+		icsk->icsk_ack.pending = 0;
+		icsk->icsk_ack.retry = 0;
+>>>>>>> upstream/android-13
 #ifdef INET_CSK_CLEAR_TIMERS
 		sk_stop_timer(sk, &icsk->icsk_delack_timer);
 #endif
@@ -231,8 +303,12 @@ static inline void inet_csk_reset_xmit_timer(struct sock *sk, const int what,
 	}
 
 	if (what == ICSK_TIME_RETRANS || what == ICSK_TIME_PROBE0 ||
+<<<<<<< HEAD
 	    what == ICSK_TIME_EARLY_RETRANS || what == ICSK_TIME_LOSS_PROBE ||
 	    what == ICSK_TIME_REO_TIMEOUT) {
+=======
+	    what == ICSK_TIME_LOSS_PROBE || what == ICSK_TIME_REO_TIMEOUT) {
+>>>>>>> upstream/android-13
 		icsk->icsk_pending = what;
 		icsk->icsk_timeout = jiffies + when;
 		sk_reset_timer(sk, &icsk->icsk_retransmit_timer, icsk->icsk_timeout);
@@ -291,6 +367,16 @@ static inline int inet_csk_reqsk_queue_is_full(const struct sock *sk)
 bool inet_csk_reqsk_queue_drop(struct sock *sk, struct request_sock *req);
 void inet_csk_reqsk_queue_drop_and_put(struct sock *sk, struct request_sock *req);
 
+<<<<<<< HEAD
+=======
+static inline void inet_csk_prepare_for_destroy_sock(struct sock *sk)
+{
+	/* The below has to be done to allow calling inet_csk_destroy_sock */
+	sock_set_flag(sk, SOCK_DEAD);
+	this_cpu_inc(*sk->sk_prot->orphan_count);
+}
+
+>>>>>>> upstream/android-13
 void inet_csk_destroy_sock(struct sock *sk);
 void inet_csk_prepare_forced_close(struct sock *sk);
 
@@ -308,14 +394,51 @@ void inet_csk_listen_stop(struct sock *sk);
 
 void inet_csk_addr2sockaddr(struct sock *sk, struct sockaddr *uaddr);
 
+<<<<<<< HEAD
 int inet_csk_compat_getsockopt(struct sock *sk, int level, int optname,
 			       char __user *optval, int __user *optlen);
 int inet_csk_compat_setsockopt(struct sock *sk, int level, int optname,
 			       char __user *optval, unsigned int optlen);
 
+=======
+>>>>>>> upstream/android-13
 /* update the fast reuse flag when adding a socket */
 void inet_csk_update_fastreuse(struct inet_bind_bucket *tb,
 			       struct sock *sk);
 
 struct dst_entry *inet_csk_update_pmtu(struct sock *sk, u32 mtu);
+<<<<<<< HEAD
+=======
+
+#define TCP_PINGPONG_THRESH	3
+
+static inline void inet_csk_enter_pingpong_mode(struct sock *sk)
+{
+	inet_csk(sk)->icsk_ack.pingpong = TCP_PINGPONG_THRESH;
+}
+
+static inline void inet_csk_exit_pingpong_mode(struct sock *sk)
+{
+	inet_csk(sk)->icsk_ack.pingpong = 0;
+}
+
+static inline bool inet_csk_in_pingpong_mode(struct sock *sk)
+{
+	return inet_csk(sk)->icsk_ack.pingpong >= TCP_PINGPONG_THRESH;
+}
+
+static inline void inet_csk_inc_pingpong_cnt(struct sock *sk)
+{
+	struct inet_connection_sock *icsk = inet_csk(sk);
+
+	if (icsk->icsk_ack.pingpong < U8_MAX)
+		icsk->icsk_ack.pingpong++;
+}
+
+static inline bool inet_csk_has_ulp(struct sock *sk)
+{
+	return inet_sk(sk)->is_icsk && !!inet_csk(sk)->icsk_ulp_ops;
+}
+
+>>>>>>> upstream/android-13
 #endif /* _INET_CONNECTION_SOCK_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 # Makefile for s3c244x/s3c64xx CAMIF driver
 
 s3c-camif-objs := camif-core.o camif-capture.o camif-regs.o

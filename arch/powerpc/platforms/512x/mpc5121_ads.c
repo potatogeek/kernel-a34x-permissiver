@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007, 2008 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -5,12 +9,15 @@
  *
  * Description:
  * MPC5121 ADS board setup
+<<<<<<< HEAD
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -29,21 +36,38 @@
 
 static void __init mpc5121_ads_setup_arch(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PCI
 	struct device_node *np;
 #endif
+=======
+>>>>>>> upstream/android-13
 	printk(KERN_INFO "MPC5121 ADS board from Freescale Semiconductor\n");
 	/*
 	 * cpld regs are needed early
 	 */
 	mpc5121_ads_cpld_map();
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI
 	for_each_compatible_node(np, "pci", "fsl,mpc5121-pci")
 		mpc83xx_add_bridge(np);
 #endif
 
 	mpc512x_setup_arch();
+=======
+	mpc512x_setup_arch();
+}
+
+static void __init mpc5121_ads_setup_pci(void)
+{
+#ifdef CONFIG_PCI
+	struct device_node *np;
+
+	for_each_compatible_node(np, "pci", "fsl,mpc5121-pci")
+		mpc83xx_add_bridge(np);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static void __init mpc5121_ads_init_IRQ(void)
@@ -69,6 +93,10 @@ define_machine(mpc5121_ads) {
 	.name			= "MPC5121 ADS",
 	.probe			= mpc5121_ads_probe,
 	.setup_arch		= mpc5121_ads_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs		= mpc5121_ads_setup_pci,
+>>>>>>> upstream/android-13
 	.init			= mpc512x_init,
 	.init_IRQ		= mpc5121_ads_init_IRQ,
 	.get_irq		= ipic_get_irq,

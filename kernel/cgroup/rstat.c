@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include "cgroup-internal.h"
 
 #include <linux/sched/cputime.h>
@@ -24,6 +28,7 @@ static struct cgroup_rstat_cpu *cgroup_rstat_cpu(struct cgroup *cgrp, int cpu)
 void cgroup_rstat_updated(struct cgroup *cgrp, int cpu)
 {
 	raw_spinlock_t *cpu_lock = per_cpu_ptr(&cgroup_rstat_cpu_lock, cpu);
+<<<<<<< HEAD
 	struct cgroup *parent;
 	unsigned long flags;
 
@@ -31,6 +36,10 @@ void cgroup_rstat_updated(struct cgroup *cgrp, int cpu)
 	if (!cgroup_parent(cgrp))
 		return;
 
+=======
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Speculative already-on-list test. This may race leading to
 	 * temporary inaccuracies, which is fine.
@@ -45,10 +54,17 @@ void cgroup_rstat_updated(struct cgroup *cgrp, int cpu)
 	raw_spin_lock_irqsave(cpu_lock, flags);
 
 	/* put @cgrp and all ancestors on the corresponding updated lists */
+<<<<<<< HEAD
 	for (parent = cgroup_parent(cgrp); parent;
 	     cgrp = parent, parent = cgroup_parent(cgrp)) {
 		struct cgroup_rstat_cpu *rstatc = cgroup_rstat_cpu(cgrp, cpu);
 		struct cgroup_rstat_cpu *prstatc = cgroup_rstat_cpu(parent, cpu);
+=======
+	while (true) {
+		struct cgroup_rstat_cpu *rstatc = cgroup_rstat_cpu(cgrp, cpu);
+		struct cgroup *parent = cgroup_parent(cgrp);
+		struct cgroup_rstat_cpu *prstatc;
+>>>>>>> upstream/android-13
 
 		/*
 		 * Both additions and removals are bottom-up.  If a cgroup
@@ -57,13 +73,30 @@ void cgroup_rstat_updated(struct cgroup *cgrp, int cpu)
 		if (rstatc->updated_next)
 			break;
 
+<<<<<<< HEAD
 		rstatc->updated_next = prstatc->updated_children;
 		prstatc->updated_children = cgrp;
+=======
+		/* Root has no parent to link it to, but mark it busy */
+		if (!parent) {
+			rstatc->updated_next = cgrp;
+			break;
+		}
+
+		prstatc = cgroup_rstat_cpu(parent, cpu);
+		rstatc->updated_next = prstatc->updated_children;
+		prstatc->updated_children = cgrp;
+
+		cgrp = parent;
+>>>>>>> upstream/android-13
 	}
 
 	raw_spin_unlock_irqrestore(cpu_lock, flags);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(cgroup_rstat_updated);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * cgroup_rstat_cpu_pop_updated - iterate and dismantle rstat_cpu updated tree
@@ -71,7 +104,11 @@ EXPORT_SYMBOL_GPL(cgroup_rstat_updated);
  * @root: root of the tree to traversal
  * @cpu: target cpu
  *
+<<<<<<< HEAD
  * Walks the udpated rstat_cpu tree on @cpu from @root.  %NULL @pos starts
+=======
+ * Walks the updated rstat_cpu tree on @cpu from @root.  %NULL @pos starts
+>>>>>>> upstream/android-13
  * the traversal and %NULL return indicates the end.  During traversal,
  * each returned cgroup is unlinked from the tree.  Must be called with the
  * matching cgroup_rstat_cpu_lock held.
@@ -113,6 +150,7 @@ static struct cgroup *cgroup_rstat_cpu_pop_updated(struct cgroup *pos,
 	 */
 	if (rstatc->updated_next) {
 		struct cgroup *parent = cgroup_parent(pos);
+<<<<<<< HEAD
 		struct cgroup_rstat_cpu *prstatc = cgroup_rstat_cpu(parent, cpu);
 		struct cgroup_rstat_cpu *nrstatc;
 		struct cgroup **nextp;
@@ -130,6 +168,28 @@ static struct cgroup *cgroup_rstat_cpu_pop_updated(struct cgroup *pos,
 		*nextp = rstatc->updated_next;
 		rstatc->updated_next = NULL;
 
+=======
+
+		if (parent) {
+			struct cgroup_rstat_cpu *prstatc;
+			struct cgroup **nextp;
+
+			prstatc = cgroup_rstat_cpu(parent, cpu);
+			nextp = &prstatc->updated_children;
+			while (true) {
+				struct cgroup_rstat_cpu *nrstatc;
+
+				nrstatc = cgroup_rstat_cpu(*nextp, cpu);
+				if (*nextp == pos)
+					break;
+				WARN_ON_ONCE(*nextp == parent);
+				nextp = &nrstatc->updated_next;
+			}
+			*nextp = rstatc->updated_next;
+		}
+
+		rstatc->updated_next = NULL;
+>>>>>>> upstream/android-13
 		return pos;
 	}
 
@@ -213,7 +273,11 @@ void cgroup_rstat_flush_irqsafe(struct cgroup *cgrp)
 }
 
 /**
+<<<<<<< HEAD
  * cgroup_rstat_flush_begin - flush stats in @cgrp's subtree and hold
+=======
+ * cgroup_rstat_flush_hold - flush stats in @cgrp's subtree and hold
+>>>>>>> upstream/android-13
  * @cgrp: target cgroup
  *
  * Flush stats in @cgrp's subtree and prevent further flushes.  Must be
@@ -285,22 +349,31 @@ void __init cgroup_rstat_boot(void)
 
 	for_each_possible_cpu(cpu)
 		raw_spin_lock_init(per_cpu_ptr(&cgroup_rstat_cpu_lock, cpu));
+<<<<<<< HEAD
 
 	BUG_ON(cgroup_rstat_init(&cgrp_dfl_root.cgrp));
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
  * Functions for cgroup basic resource statistics implemented on top of
  * rstat.
  */
+<<<<<<< HEAD
 static void cgroup_base_stat_accumulate(struct cgroup_base_stat *dst_bstat,
 					struct cgroup_base_stat *src_bstat)
+=======
+static void cgroup_base_stat_add(struct cgroup_base_stat *dst_bstat,
+				 struct cgroup_base_stat *src_bstat)
+>>>>>>> upstream/android-13
 {
 	dst_bstat->cputime.utime += src_bstat->cputime.utime;
 	dst_bstat->cputime.stime += src_bstat->cputime.stime;
 	dst_bstat->cputime.sum_exec_runtime += src_bstat->cputime.sum_exec_runtime;
 }
 
+<<<<<<< HEAD
 static void cgroup_base_stat_flush(struct cgroup *cgrp, int cpu)
 {
 	struct cgroup *parent = cgroup_parent(cgrp);
@@ -335,18 +408,73 @@ static void cgroup_base_stat_flush(struct cgroup *cgrp, int cpu)
 
 static struct cgroup_rstat_cpu *
 cgroup_base_stat_cputime_account_begin(struct cgroup *cgrp)
+=======
+static void cgroup_base_stat_sub(struct cgroup_base_stat *dst_bstat,
+				 struct cgroup_base_stat *src_bstat)
+{
+	dst_bstat->cputime.utime -= src_bstat->cputime.utime;
+	dst_bstat->cputime.stime -= src_bstat->cputime.stime;
+	dst_bstat->cputime.sum_exec_runtime -= src_bstat->cputime.sum_exec_runtime;
+}
+
+static void cgroup_base_stat_flush(struct cgroup *cgrp, int cpu)
+{
+	struct cgroup_rstat_cpu *rstatc = cgroup_rstat_cpu(cgrp, cpu);
+	struct cgroup *parent = cgroup_parent(cgrp);
+	struct cgroup_base_stat cur, delta;
+	unsigned seq;
+
+	/* Root-level stats are sourced from system-wide CPU stats */
+	if (!parent)
+		return;
+
+	/* fetch the current per-cpu values */
+	do {
+		seq = __u64_stats_fetch_begin(&rstatc->bsync);
+		cur.cputime = rstatc->bstat.cputime;
+	} while (__u64_stats_fetch_retry(&rstatc->bsync, seq));
+
+	/* propagate percpu delta to global */
+	delta = cur;
+	cgroup_base_stat_sub(&delta, &rstatc->last_bstat);
+	cgroup_base_stat_add(&cgrp->bstat, &delta);
+	cgroup_base_stat_add(&rstatc->last_bstat, &delta);
+
+	/* propagate global delta to parent (unless that's root) */
+	if (cgroup_parent(parent)) {
+		delta = cgrp->bstat;
+		cgroup_base_stat_sub(&delta, &cgrp->last_bstat);
+		cgroup_base_stat_add(&parent->bstat, &delta);
+		cgroup_base_stat_add(&cgrp->last_bstat, &delta);
+	}
+}
+
+static struct cgroup_rstat_cpu *
+cgroup_base_stat_cputime_account_begin(struct cgroup *cgrp, unsigned long *flags)
+>>>>>>> upstream/android-13
 {
 	struct cgroup_rstat_cpu *rstatc;
 
 	rstatc = get_cpu_ptr(cgrp->rstat_cpu);
+<<<<<<< HEAD
 	u64_stats_update_begin(&rstatc->bsync);
+=======
+	*flags = u64_stats_update_begin_irqsave(&rstatc->bsync);
+>>>>>>> upstream/android-13
 	return rstatc;
 }
 
 static void cgroup_base_stat_cputime_account_end(struct cgroup *cgrp,
+<<<<<<< HEAD
 						 struct cgroup_rstat_cpu *rstatc)
 {
 	u64_stats_update_end(&rstatc->bsync);
+=======
+						 struct cgroup_rstat_cpu *rstatc,
+						 unsigned long flags)
+{
+	u64_stats_update_end_irqrestore(&rstatc->bsync, flags);
+>>>>>>> upstream/android-13
 	cgroup_rstat_updated(cgrp, smp_processor_id());
 	put_cpu_ptr(rstatc);
 }
@@ -354,18 +482,32 @@ static void cgroup_base_stat_cputime_account_end(struct cgroup *cgrp,
 void __cgroup_account_cputime(struct cgroup *cgrp, u64 delta_exec)
 {
 	struct cgroup_rstat_cpu *rstatc;
+<<<<<<< HEAD
 
 	rstatc = cgroup_base_stat_cputime_account_begin(cgrp);
 	rstatc->bstat.cputime.sum_exec_runtime += delta_exec;
 	cgroup_base_stat_cputime_account_end(cgrp, rstatc);
+=======
+	unsigned long flags;
+
+	rstatc = cgroup_base_stat_cputime_account_begin(cgrp, &flags);
+	rstatc->bstat.cputime.sum_exec_runtime += delta_exec;
+	cgroup_base_stat_cputime_account_end(cgrp, rstatc, flags);
+>>>>>>> upstream/android-13
 }
 
 void __cgroup_account_cputime_field(struct cgroup *cgrp,
 				    enum cpu_usage_stat index, u64 delta_exec)
 {
 	struct cgroup_rstat_cpu *rstatc;
+<<<<<<< HEAD
 
 	rstatc = cgroup_base_stat_cputime_account_begin(cgrp);
+=======
+	unsigned long flags;
+
+	rstatc = cgroup_base_stat_cputime_account_begin(cgrp, &flags);
+>>>>>>> upstream/android-13
 
 	switch (index) {
 	case CPUTIME_USER:
@@ -381,13 +523,54 @@ void __cgroup_account_cputime_field(struct cgroup *cgrp,
 		break;
 	}
 
+<<<<<<< HEAD
 	cgroup_base_stat_cputime_account_end(cgrp, rstatc);
+=======
+	cgroup_base_stat_cputime_account_end(cgrp, rstatc, flags);
+}
+
+/*
+ * compute the cputime for the root cgroup by getting the per cpu data
+ * at a global level, then categorizing the fields in a manner consistent
+ * with how it is done by __cgroup_account_cputime_field for each bit of
+ * cpu time attributed to a cgroup.
+ */
+static void root_cgroup_cputime(struct task_cputime *cputime)
+{
+	int i;
+
+	cputime->stime = 0;
+	cputime->utime = 0;
+	cputime->sum_exec_runtime = 0;
+	for_each_possible_cpu(i) {
+		struct kernel_cpustat kcpustat;
+		u64 *cpustat = kcpustat.cpustat;
+		u64 user = 0;
+		u64 sys = 0;
+
+		kcpustat_cpu_fetch(&kcpustat, i);
+
+		user += cpustat[CPUTIME_USER];
+		user += cpustat[CPUTIME_NICE];
+		cputime->utime += user;
+
+		sys += cpustat[CPUTIME_SYSTEM];
+		sys += cpustat[CPUTIME_IRQ];
+		sys += cpustat[CPUTIME_SOFTIRQ];
+		cputime->stime += sys;
+
+		cputime->sum_exec_runtime += user;
+		cputime->sum_exec_runtime += sys;
+		cputime->sum_exec_runtime += cpustat[CPUTIME_STEAL];
+	}
+>>>>>>> upstream/android-13
 }
 
 void cgroup_base_stat_cputime_show(struct seq_file *seq)
 {
 	struct cgroup *cgrp = seq_css(seq)->cgroup;
 	u64 usage, utime, stime;
+<<<<<<< HEAD
 
 	if (!cgroup_parent(cgrp))
 		return;
@@ -396,6 +579,22 @@ void cgroup_base_stat_cputime_show(struct seq_file *seq)
 	usage = cgrp->bstat.cputime.sum_exec_runtime;
 	cputime_adjust(&cgrp->bstat.cputime, &cgrp->prev_cputime, &utime, &stime);
 	cgroup_rstat_flush_release();
+=======
+	struct task_cputime cputime;
+
+	if (cgroup_parent(cgrp)) {
+		cgroup_rstat_flush_hold(cgrp);
+		usage = cgrp->bstat.cputime.sum_exec_runtime;
+		cputime_adjust(&cgrp->bstat.cputime, &cgrp->prev_cputime,
+			       &utime, &stime);
+		cgroup_rstat_flush_release();
+	} else {
+		root_cgroup_cputime(&cputime);
+		usage = cputime.sum_exec_runtime;
+		utime = cputime.utime;
+		stime = cputime.stime;
+	}
+>>>>>>> upstream/android-13
 
 	do_div(usage, NSEC_PER_USEC);
 	do_div(utime, NSEC_PER_USEC);

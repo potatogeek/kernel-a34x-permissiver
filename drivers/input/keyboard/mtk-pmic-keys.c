@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 MediaTek, Inc.
  *
  * Author: Chen Zhong <chen.zhong@mediatek.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -29,11 +34,39 @@
 #include <linux/mfd/mt6397/core.h>
 #include <linux/mfd/mt6357/registers.h>
 #include <linux/mfd/mt6357/core.h>
+=======
+ */
+
+#include <linux/input.h>
+#include <linux/interrupt.h>
+#include <linux/kernel.h>
+#include <linux/mfd/mt6323/registers.h>
+#include <linux/mfd/mt6397/core.h>
+#include <linux/mfd/mt6397/registers.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/of.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+
+#define MTK_PMIC_PWRKEY_RST_EN_MASK	0x1
+#define MTK_PMIC_PWRKEY_RST_EN_SHIFT	6
+#define MTK_PMIC_HOMEKEY_RST_EN_MASK	0x1
+#define MTK_PMIC_HOMEKEY_RST_EN_SHIFT	5
+#define MTK_PMIC_RST_DU_MASK		0x3
+#define MTK_PMIC_RST_DU_SHIFT		8
+
+#define MTK_PMIC_PWRKEY_RST		\
+	(MTK_PMIC_PWRKEY_RST_EN_MASK << MTK_PMIC_PWRKEY_RST_EN_SHIFT)
+#define MTK_PMIC_HOMEKEY_RST		\
+	(MTK_PMIC_HOMEKEY_RST_EN_MASK << MTK_PMIC_HOMEKEY_RST_EN_SHIFT)
+>>>>>>> upstream/android-13
 
 #define MTK_PMIC_PWRKEY_INDEX	0
 #define MTK_PMIC_HOMEKEY_INDEX	1
 #define MTK_PMIC_MAX_KEY_COUNT	2
 
+<<<<<<< HEAD
 #define MT6397_PWRKEY_RST_SHIFT		6
 #define MT6397_HOMEKEY_RST_SHIFT	5
 #define MT6397_RST_DU_SHIFT		8
@@ -51,6 +84,8 @@
 #define RST_DU_MASK				0x3
 #define INVALID_VALUE			0
 
+=======
+>>>>>>> upstream/android-13
 struct mtk_pmic_keys_regs {
 	u32 deb_reg;
 	u32 deb_mask;
@@ -67,6 +102,7 @@ struct mtk_pmic_keys_regs {
 	.intsel_mask		= _intsel_mask,		\
 }
 
+<<<<<<< HEAD
 #define RELEASE_IRQ_INTERVAL	2
 
 struct mtk_pmic_regs {
@@ -76,6 +112,11 @@ struct mtk_pmic_regs {
 	u32 pwrkey_rst_shift;
 	u32 homekey_rst_shift;
 	u32 rst_du_shift;
+=======
+struct mtk_pmic_regs {
+	const struct mtk_pmic_keys_regs keys_regs[MTK_PMIC_MAX_KEY_COUNT];
+	u32 pmic_rst_reg;
+>>>>>>> upstream/android-13
 };
 
 static const struct mtk_pmic_regs mt6397_regs = {
@@ -85,11 +126,15 @@ static const struct mtk_pmic_regs mt6397_regs = {
 	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
 		MTK_PMIC_KEYS_REGS(MT6397_OCSTATUS2,
 		0x10, MT6397_INT_RSV, 0x8),
+<<<<<<< HEAD
 	.release_irq = false,
 	.pmic_rst_reg = MT6397_TOP_RST_MISC,
 	.pwrkey_rst_shift = MT6397_PWRKEY_RST_SHIFT,
 	.homekey_rst_shift = MT6397_HOMEKEY_RST_SHIFT,
 	.rst_du_shift = MT6397_RST_DU_SHIFT,
+=======
+	.pmic_rst_reg = MT6397_TOP_RST_MISC,
+>>>>>>> upstream/android-13
 };
 
 static const struct mtk_pmic_regs mt6323_regs = {
@@ -99,6 +144,7 @@ static const struct mtk_pmic_regs mt6323_regs = {
 	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
 		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
 		0x4, MT6323_INT_MISC_CON, 0x8),
+<<<<<<< HEAD
 	.release_irq = false,
 	.pmic_rst_reg = MT6323_TOP_RST_MISC,
 	.pwrkey_rst_shift = MT6397_PWRKEY_RST_SHIFT,
@@ -139,12 +185,20 @@ static const struct mtk_pmic_regs mt6357_regs = {
 };
 
 
+=======
+	.pmic_rst_reg = MT6323_TOP_RST_MISC,
+};
+
+>>>>>>> upstream/android-13
 struct mtk_pmic_keys_info {
 	struct mtk_pmic_keys *keys;
 	const struct mtk_pmic_keys_regs *regs;
 	unsigned int keycode;
 	int irq;
+<<<<<<< HEAD
 	int release_irq_num;
+=======
+>>>>>>> upstream/android-13
 	bool wakeup:1;
 };
 
@@ -161,6 +215,7 @@ enum mtk_pmic_keys_lp_mode {
 	LP_TWOKEY,
 };
 
+<<<<<<< HEAD
 struct mtk_pmic_keys *keys;
 
 static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
@@ -172,6 +227,13 @@ static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
 	u32 pwrkey_rst = PWRKEY_RST_EN << pmic_regs->pwrkey_rst_shift;
 	u32 homekey_rst =
 		HOMEKEY_RST_EN << pmic_regs->homekey_rst_shift;
+=======
+static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
+		u32 pmic_rst_reg)
+{
+	int ret;
+	u32 long_press_mode, long_press_debounce;
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(keys->dev->of_node,
 		"power-off-time-sec", &long_press_debounce);
@@ -179,8 +241,13 @@ static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
 		long_press_debounce = 0;
 
 	regmap_update_bits(keys->regmap, pmic_rst_reg,
+<<<<<<< HEAD
 			   RST_DU_MASK << pmic_regs->rst_du_shift,
 			   long_press_debounce << pmic_regs->rst_du_shift);
+=======
+			   MTK_PMIC_RST_DU_MASK << MTK_PMIC_RST_DU_SHIFT,
+			   long_press_debounce << MTK_PMIC_RST_DU_SHIFT);
+>>>>>>> upstream/android-13
 
 	ret = of_property_read_u32(keys->dev->of_node,
 		"mediatek,long-press-mode", &long_press_mode);
@@ -190,14 +257,22 @@ static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
 	switch (long_press_mode) {
 	case LP_ONEKEY:
 		regmap_update_bits(keys->regmap, pmic_rst_reg,
+<<<<<<< HEAD
 				   pwrkey_rst,
 				   pwrkey_rst);
 		regmap_update_bits(keys->regmap, pmic_rst_reg,
 				   homekey_rst,
+=======
+				   MTK_PMIC_PWRKEY_RST,
+				   MTK_PMIC_PWRKEY_RST);
+		regmap_update_bits(keys->regmap, pmic_rst_reg,
+				   MTK_PMIC_HOMEKEY_RST,
+>>>>>>> upstream/android-13
 				   0);
 		break;
 	case LP_TWOKEY:
 		regmap_update_bits(keys->regmap, pmic_rst_reg,
+<<<<<<< HEAD
 				   pwrkey_rst,
 				   pwrkey_rst);
 		regmap_update_bits(keys->regmap, pmic_rst_reg,
@@ -210,6 +285,20 @@ static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
 				   0);
 		regmap_update_bits(keys->regmap, pmic_rst_reg,
 				   homekey_rst,
+=======
+				   MTK_PMIC_PWRKEY_RST,
+				   MTK_PMIC_PWRKEY_RST);
+		regmap_update_bits(keys->regmap, pmic_rst_reg,
+				   MTK_PMIC_HOMEKEY_RST,
+				   MTK_PMIC_HOMEKEY_RST);
+		break;
+	case LP_DISABLE:
+		regmap_update_bits(keys->regmap, pmic_rst_reg,
+				   MTK_PMIC_PWRKEY_RST,
+				   0);
+		regmap_update_bits(keys->regmap, pmic_rst_reg,
+				   MTK_PMIC_HOMEKEY_RST,
+>>>>>>> upstream/android-13
 				   0);
 		break;
 	default:
@@ -217,6 +306,7 @@ static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
 	}
 }
 
+<<<<<<< HEAD
 static irqreturn_t mtk_pmic_keys_release_irq_handler_thread(
 				int irq, void *data)
 {
@@ -231,11 +321,14 @@ static irqreturn_t mtk_pmic_keys_release_irq_handler_thread(
 	return IRQ_HANDLED;
 }
 
+=======
+>>>>>>> upstream/android-13
 static irqreturn_t mtk_pmic_keys_irq_handler_thread(int irq, void *data)
 {
 	struct mtk_pmic_keys_info *info = data;
 	u32 key_deb, pressed;
 
+<<<<<<< HEAD
 	if (info->release_irq_num > 0) {
 		pressed = 1;
 	} else {
@@ -243,6 +336,13 @@ static irqreturn_t mtk_pmic_keys_irq_handler_thread(int irq, void *data)
 		key_deb &= info->regs->deb_mask;
 		pressed = !key_deb;
 	}
+=======
+	regmap_read(info->keys->regmap, info->regs->deb_reg, &key_deb);
+
+	key_deb &= info->regs->deb_mask;
+
+	pressed = !key_deb;
+>>>>>>> upstream/android-13
 
 	input_report_key(info->keys->input_dev, info->keycode, pressed);
 	input_sync(info->keys->input_dev);
@@ -271,11 +371,16 @@ static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
 					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
 					"mtk-pmic-keys", info);
 	if (ret) {
+<<<<<<< HEAD
 		dev_dbg(keys->dev, "Failed to request IRQ: %d: %d\n",
+=======
+		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
+>>>>>>> upstream/android-13
 			info->irq, ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (info->release_irq_num > 0) {
 		ret = devm_request_threaded_irq(keys->dev,
 				info->release_irq_num,
@@ -289,11 +394,14 @@ static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	input_set_capability(keys->input_dev, EV_KEY, info->keycode);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 int mtk_pmic_pwrkey_status(void)
 {
 	struct mtk_pmic_keys_info *pwrkey;
@@ -344,6 +452,8 @@ int mtk_pmic_homekey_status(void)
 EXPORT_SYMBOL(mtk_pmic_homekey_status);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int __maybe_unused mtk_pmic_keys_suspend(struct device *dev)
 {
 	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
@@ -381,12 +491,15 @@ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
 		.compatible = "mediatek,mt6323-keys",
 		.data = &mt6323_regs,
 	}, {
+<<<<<<< HEAD
 		.compatible = "mediatek,mt6359-keys",
 		.data = &mt6359_regs,
 	}, {
 		.compatible = "mediatek,mt6357-keys",
 		.data = &mt6357_regs,
 	}, {
+=======
+>>>>>>> upstream/android-13
 		/* sentinel */
 	}
 };
@@ -398,14 +511,21 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 	unsigned int keycount;
 	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
 	struct device_node *node = pdev->dev.of_node, *child;
+<<<<<<< HEAD
+=======
+	struct mtk_pmic_keys *keys;
+>>>>>>> upstream/android-13
 	const struct mtk_pmic_regs *mtk_pmic_regs;
 	struct input_dev *input_dev;
 	const struct of_device_id *of_id =
 		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
 
+<<<<<<< HEAD
 	if (!of_id)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
 	if (!keys)
 		return -ENOMEM;
@@ -426,7 +546,10 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 	input_dev->id.product = 0x0001;
 	input_dev->id.version = 0x0001;
 
+<<<<<<< HEAD
 	__set_bit(EV_KEY, input_dev->evbit);
+=======
+>>>>>>> upstream/android-13
 	keycount = of_get_available_child_count(node);
 	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
 		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
@@ -437,6 +560,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
 
 		keys->keys[index].irq = platform_get_irq(pdev, index);
+<<<<<<< HEAD
 		if (keys->keys[index].irq < 0)
 			return keys->keys[index].irq;
 
@@ -446,6 +570,11 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 						index + RELEASE_IRQ_INTERVAL);
 			if (keys->keys[index].release_irq_num < 0)
 				return keys->keys[index].release_irq_num;
+=======
+		if (keys->keys[index].irq < 0) {
+			of_node_put(child);
+			return keys->keys[index].irq;
+>>>>>>> upstream/android-13
 		}
 
 		error = of_property_read_u32(child,
@@ -454,6 +583,10 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 			dev_err(keys->dev,
 				"failed to read key:%d linux,keycode property: %d\n",
 				index, error);
+<<<<<<< HEAD
+=======
+			of_node_put(child);
+>>>>>>> upstream/android-13
 			return error;
 		}
 
@@ -462,7 +595,11 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 
 		error = mtk_pmic_key_setup(keys, &keys->keys[index]);
 		if (error) {
+<<<<<<< HEAD
 			pr_info("Set key index = %d error.\n", index);
+=======
+			of_node_put(child);
+>>>>>>> upstream/android-13
 			return error;
 		}
 
@@ -476,7 +613,11 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
 		return error;
 	}
 
+<<<<<<< HEAD
 	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_regs);
+=======
+	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_regs->pmic_rst_reg);
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, keys);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
  *
@@ -6,6 +7,11 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -17,8 +23,11 @@
 
 #include "pmc.h"
 
+<<<<<<< HEAD
 #define SMD_SOURCE_MAX		2
 
+=======
+>>>>>>> upstream/android-13
 #define SMD_DIV_SHIFT		8
 #define SMD_MAX_DIV		0xf
 
@@ -111,13 +120,21 @@ static const struct clk_ops at91sam9x5_smd_ops = {
 	.set_rate = at91sam9x5_clk_smd_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91sam9x5_clk_register_smd(struct regmap *regmap, const char *name,
 			    const char **parent_names, u8 num_parents)
 {
 	struct at91sam9x5_clk_smd *smd;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	smd = kzalloc(sizeof(*smd), GFP_KERNEL);
@@ -142,6 +159,7 @@ at91sam9x5_clk_register_smd(struct regmap *regmap, const char *name,
 
 	return hw;
 }
+<<<<<<< HEAD
 
 static void __init of_at91sam9x5_clk_smd_setup(struct device_node *np)
 {
@@ -172,3 +190,5 @@ static void __init of_at91sam9x5_clk_smd_setup(struct device_node *np)
 }
 CLK_OF_DECLARE(at91sam9x5_clk_smd, "atmel,at91sam9x5-clk-smd",
 	       of_at91sam9x5_clk_smd_setup);
+=======
+>>>>>>> upstream/android-13

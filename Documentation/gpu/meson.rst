@@ -42,12 +42,15 @@ Video Encoder
 .. kernel-doc:: drivers/gpu/drm/meson/meson_venc.c
    :doc: Video Encoder
 
+<<<<<<< HEAD
 Video Canvas Management
 =======================
 
 .. kernel-doc:: drivers/gpu/drm/meson/meson_canvas.c
    :doc: Canvas
 
+=======
+>>>>>>> upstream/android-13
 Video Clocks
 ============
 

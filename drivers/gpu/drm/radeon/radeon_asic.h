@@ -86,7 +86,11 @@ struct radeon_fence *r100_copy_blit(struct radeon_device *rdev,
 				    uint64_t src_offset,
 				    uint64_t dst_offset,
 				    unsigned num_gpu_pages,
+<<<<<<< HEAD
 				    struct reservation_object *resv);
+=======
+				    struct dma_resv *resv);
+>>>>>>> upstream/android-13
 int r100_set_surface_reg(struct radeon_device *rdev, int reg,
 			 uint32_t tiling_flags, uint32_t pitch,
 			 uint32_t offset, uint32_t obj_size);
@@ -99,8 +103,13 @@ void r100_hpd_fini(struct radeon_device *rdev);
 bool r100_hpd_sense(struct radeon_device *rdev, enum radeon_hpd_id hpd);
 void r100_hpd_set_polarity(struct radeon_device *rdev,
 			   enum radeon_hpd_id hpd);
+<<<<<<< HEAD
 int r100_debugfs_rbbm_init(struct radeon_device *rdev);
 int r100_debugfs_cp_init(struct radeon_device *rdev);
+=======
+void r100_debugfs_rbbm_init(struct radeon_device *rdev);
+void r100_debugfs_cp_init(struct radeon_device *rdev);
+>>>>>>> upstream/android-13
 void r100_cp_disable(struct radeon_device *rdev);
 int r100_cp_init(struct radeon_device *rdev, unsigned ring_size);
 void r100_cp_fini(struct radeon_device *rdev);
@@ -108,7 +117,11 @@ int r100_pci_gart_init(struct radeon_device *rdev);
 void r100_pci_gart_fini(struct radeon_device *rdev);
 int r100_pci_gart_enable(struct radeon_device *rdev);
 void r100_pci_gart_disable(struct radeon_device *rdev);
+<<<<<<< HEAD
 int r100_debugfs_mc_info_init(struct radeon_device *rdev);
+=======
+void  r100_debugfs_mc_info_init(struct radeon_device *rdev);
+>>>>>>> upstream/android-13
 int r100_gui_wait_for_idle(struct radeon_device *rdev);
 int r100_ib_test(struct radeon_device *rdev, struct radeon_ring *ring);
 void r100_irq_disable(struct radeon_device *rdev);
@@ -157,7 +170,11 @@ struct radeon_fence *r200_copy_dma(struct radeon_device *rdev,
 				   uint64_t src_offset,
 				   uint64_t dst_offset,
 				   unsigned num_gpu_pages,
+<<<<<<< HEAD
 				   struct reservation_object *resv);
+=======
+				   struct dma_resv *resv);
+>>>>>>> upstream/android-13
 void r200_set_safe_registers(struct radeon_device *rdev);
 
 /*
@@ -187,7 +204,10 @@ extern int rv370_pcie_gart_init(struct radeon_device *rdev);
 extern void rv370_pcie_gart_fini(struct radeon_device *rdev);
 extern int rv370_pcie_gart_enable(struct radeon_device *rdev);
 extern void rv370_pcie_gart_disable(struct radeon_device *rdev);
+<<<<<<< HEAD
 extern int r300_mc_wait_for_idle(struct radeon_device *rdev);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * r420,r423,rv410
@@ -199,7 +219,11 @@ extern int r420_resume(struct radeon_device *rdev);
 extern void r420_pm_init_profile(struct radeon_device *rdev);
 extern u32 r420_mc_rreg(struct radeon_device *rdev, u32 reg);
 extern void r420_mc_wreg(struct radeon_device *rdev, u32 reg, u32 v);
+<<<<<<< HEAD
 extern int r420_debugfs_pipes_info_init(struct radeon_device *rdev);
+=======
+extern void r420_debugfs_pipes_info_init(struct radeon_device *rdev);
+>>>>>>> upstream/android-13
 extern void r420_pipes_init(struct radeon_device *rdev);
 
 /*
@@ -347,11 +371,19 @@ int r600_dma_ring_test(struct radeon_device *rdev, struct radeon_ring *cp);
 struct radeon_fence *r600_copy_cpdma(struct radeon_device *rdev,
 				     uint64_t src_offset, uint64_t dst_offset,
 				     unsigned num_gpu_pages,
+<<<<<<< HEAD
 				     struct reservation_object *resv);
 struct radeon_fence *r600_copy_dma(struct radeon_device *rdev,
 				   uint64_t src_offset, uint64_t dst_offset,
 				   unsigned num_gpu_pages,
 				   struct reservation_object *resv);
+=======
+				     struct dma_resv *resv);
+struct radeon_fence *r600_copy_dma(struct radeon_device *rdev,
+				   uint64_t src_offset, uint64_t dst_offset,
+				   unsigned num_gpu_pages,
+				   struct dma_resv *resv);
+>>>>>>> upstream/android-13
 void r600_hpd_init(struct radeon_device *rdev);
 void r600_hpd_fini(struct radeon_device *rdev);
 bool r600_hpd_sense(struct radeon_device *rdev, enum radeon_hpd_id hpd);
@@ -404,7 +436,10 @@ void r600_hdmi_update_ACR(struct drm_encoder *encoder, uint32_t clock);
 void r600_hdmi_audio_workaround(struct drm_encoder *encoder);
 int r600_hdmi_buffer_status_changed(struct drm_encoder *encoder);
 void r600_hdmi_update_audio_settings(struct drm_encoder *encoder);
+<<<<<<< HEAD
 int r600_mc_wait_for_idle(struct radeon_device *rdev);
+=======
+>>>>>>> upstream/android-13
 u32 r600_get_xclk(struct radeon_device *rdev);
 uint64_t r600_get_gpu_clock_counter(struct radeon_device *rdev);
 int rv6xx_get_temp(struct radeon_device *rdev);
@@ -473,7 +508,11 @@ void r700_cp_fini(struct radeon_device *rdev);
 struct radeon_fence *rv770_copy_dma(struct radeon_device *rdev,
 				    uint64_t src_offset, uint64_t dst_offset,
 				    unsigned num_gpu_pages,
+<<<<<<< HEAD
 				    struct reservation_object *resv);
+=======
+				    struct dma_resv *resv);
+>>>>>>> upstream/android-13
 u32 rv770_get_xclk(struct radeon_device *rdev);
 int rv770_set_uvd_clocks(struct radeon_device *rdev, u32 vclk, u32 dclk);
 int rv770_get_temp(struct radeon_device *rdev);
@@ -547,7 +586,11 @@ void evergreen_dma_ring_ib_execute(struct radeon_device *rdev,
 struct radeon_fence *evergreen_copy_dma(struct radeon_device *rdev,
 					uint64_t src_offset, uint64_t dst_offset,
 					unsigned num_gpu_pages,
+<<<<<<< HEAD
 					struct reservation_object *resv);
+=======
+					struct dma_resv *resv);
+>>>>>>> upstream/android-13
 int evergreen_get_temp(struct radeon_device *rdev);
 int evergreen_get_allowed_info_register(struct radeon_device *rdev,
 					u32 reg, u32 *val);
@@ -596,6 +639,10 @@ int sumo_dpm_force_performance_level(struct radeon_device *rdev,
 				     enum radeon_dpm_forced_level level);
 u32 sumo_dpm_get_current_sclk(struct radeon_device *rdev);
 u32 sumo_dpm_get_current_mclk(struct radeon_device *rdev);
+<<<<<<< HEAD
+=======
+u16 sumo_dpm_get_current_vddc(struct radeon_device *rdev);
+>>>>>>> upstream/android-13
 
 /*
  * cayman
@@ -725,7 +772,11 @@ int si_ib_parse(struct radeon_device *rdev, struct radeon_ib *ib);
 struct radeon_fence *si_copy_dma(struct radeon_device *rdev,
 				 uint64_t src_offset, uint64_t dst_offset,
 				 unsigned num_gpu_pages,
+<<<<<<< HEAD
 				 struct reservation_object *resv);
+=======
+				 struct dma_resv *resv);
+>>>>>>> upstream/android-13
 
 void si_dma_vm_copy_pages(struct radeon_device *rdev,
 			  struct radeon_ib *ib,
@@ -796,11 +847,19 @@ void cik_sdma_ring_ib_execute(struct radeon_device *rdev, struct radeon_ib *ib);
 struct radeon_fence *cik_copy_dma(struct radeon_device *rdev,
 				  uint64_t src_offset, uint64_t dst_offset,
 				  unsigned num_gpu_pages,
+<<<<<<< HEAD
 				  struct reservation_object *resv);
 struct radeon_fence *cik_copy_cpdma(struct radeon_device *rdev,
 				    uint64_t src_offset, uint64_t dst_offset,
 				    unsigned num_gpu_pages,
 				    struct reservation_object *resv);
+=======
+				  struct dma_resv *resv);
+struct radeon_fence *cik_copy_cpdma(struct radeon_device *rdev,
+				    uint64_t src_offset, uint64_t dst_offset,
+				    unsigned num_gpu_pages,
+				    struct dma_resv *resv);
+>>>>>>> upstream/android-13
 int cik_sdma_ring_test(struct radeon_device *rdev, struct radeon_ring *ring);
 int cik_sdma_ib_test(struct radeon_device *rdev, struct radeon_ring *ring);
 bool cik_sdma_is_lockup(struct radeon_device *rdev, struct radeon_ring *ring);

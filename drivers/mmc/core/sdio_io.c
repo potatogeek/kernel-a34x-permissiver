@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/core/sdio_io.c
  *
  *  Copyright 2007-2008 Pierre Ossman
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,6 +15,12 @@
  */
 
 #include <linux/export.h>
+=======
+ */
+
+#include <linux/export.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <linux/mmc/host.h>
 #include <linux/mmc/card.h>
 #include <linux/mmc/sdio.h>
@@ -136,7 +147,11 @@ int sdio_disable_func(struct sdio_func *func)
 
 err:
 	pr_debug("SDIO: Failed to disable device %s\n", sdio_func_id(func));
+<<<<<<< HEAD
 	return -EIO;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sdio_disable_func);
 
@@ -204,6 +219,24 @@ static inline unsigned int sdio_max_byte_size(struct sdio_func *func)
 	return min(mval, 512u); /* maximum size for byte mode */
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * This is legacy code, which needs to be re-worked some day. Basically we need
+ * to take into account the properties of the host, as to enable the SDIO func
+ * driver layer to allocate optimal buffers.
+ */
+static inline unsigned int _sdio_align_size(unsigned int sz)
+{
+	/*
+	 * FIXME: We don't have a system for the controller to tell
+	 * the core about its problems yet, so for now we just 32-bit
+	 * align the size.
+	 */
+	return ALIGN(sz, 4);
+}
+
+>>>>>>> upstream/android-13
 /**
  *	sdio_align_size - pads a transfer size to a more optimal value
  *	@func: SDIO function
@@ -231,7 +264,11 @@ unsigned int sdio_align_size(struct sdio_func *func, unsigned int sz)
 	 * wants to increase the size up to a point where it
 	 * might need more than one block.
 	 */
+<<<<<<< HEAD
 	sz = mmc_align_data_size(func->card, sz);
+=======
+	sz = _sdio_align_size(sz);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we can still do this with just a byte transfer, then
@@ -253,7 +290,11 @@ unsigned int sdio_align_size(struct sdio_func *func, unsigned int sz)
 		 */
 		blk_sz = ((sz + func->cur_blksize - 1) /
 			func->cur_blksize) * func->cur_blksize;
+<<<<<<< HEAD
 		blk_sz = mmc_align_data_size(func->card, blk_sz);
+=======
+		blk_sz = _sdio_align_size(blk_sz);
+>>>>>>> upstream/android-13
 
 		/*
 		 * This value is only good if it is still just
@@ -266,8 +307,12 @@ unsigned int sdio_align_size(struct sdio_func *func, unsigned int sz)
 		 * We failed to do one request, but at least try to
 		 * pad the remainder properly.
 		 */
+<<<<<<< HEAD
 		byte_sz = mmc_align_data_size(func->card,
 				sz % func->cur_blksize);
+=======
+		byte_sz = _sdio_align_size(sz % func->cur_blksize);
+>>>>>>> upstream/android-13
 		if (byte_sz <= sdio_max_byte_size(func)) {
 			blk_sz = sz / func->cur_blksize;
 			return blk_sz * func->cur_blksize + byte_sz;
@@ -277,16 +322,24 @@ unsigned int sdio_align_size(struct sdio_func *func, unsigned int sz)
 		 * We need multiple requests, so first check that the
 		 * controller can handle the chunk size;
 		 */
+<<<<<<< HEAD
 		chunk_sz = mmc_align_data_size(func->card,
 				sdio_max_byte_size(func));
+=======
+		chunk_sz = _sdio_align_size(sdio_max_byte_size(func));
+>>>>>>> upstream/android-13
 		if (chunk_sz == sdio_max_byte_size(func)) {
 			/*
 			 * Fix up the size of the remainder (if any)
 			 */
 			byte_sz = orig_sz % chunk_sz;
 			if (byte_sz) {
+<<<<<<< HEAD
 				byte_sz = mmc_align_data_size(func->card,
 						byte_sz);
+=======
+				byte_sz = _sdio_align_size(byte_sz);
+>>>>>>> upstream/android-13
 			}
 
 			return (orig_sz / chunk_sz) * chunk_sz + byte_sz;
@@ -700,6 +753,10 @@ EXPORT_SYMBOL_GPL(sdio_get_host_pm_caps);
 /**
  *	sdio_set_host_pm_flags - set wanted host power management capabilities
  *	@func: SDIO function attached to host
+<<<<<<< HEAD
+=======
+ *	@flags: Power Management flags to set
+>>>>>>> upstream/android-13
  *
  *	Set a capability bitmask corresponding to wanted host controller
  *	power management features for the upcoming suspend state.

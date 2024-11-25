@@ -12,10 +12,15 @@ struct zone;
 struct pglist_data;
 struct mem_section;
 struct memory_block;
+<<<<<<< HEAD
+=======
+struct memory_group;
+>>>>>>> upstream/android-13
 struct resource;
 struct vmem_altmap;
 
 #ifdef CONFIG_MEMORY_HOTPLUG
+<<<<<<< HEAD
 /*
  * Return page for the valid pfn only if the page is online. All pfn
  * walkers which rely on the fully initialized page->flags and others
@@ -53,6 +58,62 @@ enum {
 	MMOP_ONLINE_MOVABLE,
 };
 
+=======
+struct page *pfn_to_online_page(unsigned long pfn);
+
+/* Types for control the zone type of onlined and offlined memory */
+enum {
+	/* Offline the memory. */
+	MMOP_OFFLINE = 0,
+	/* Online the memory. Zone depends, see default_zone_for_pfn(). */
+	MMOP_ONLINE,
+	/* Online the memory to ZONE_NORMAL. */
+	MMOP_ONLINE_KERNEL,
+	/* Online the memory to ZONE_MOVABLE. */
+	MMOP_ONLINE_MOVABLE,
+};
+
+/* Flags for add_memory() and friends to specify memory hotplug details. */
+typedef int __bitwise mhp_t;
+
+/* No special request */
+#define MHP_NONE		((__force mhp_t)0)
+/*
+ * Allow merging of the added System RAM resource with adjacent,
+ * mergeable resources. After a successful call to add_memory_resource()
+ * with this flag set, the resource pointer must no longer be used as it
+ * might be stale, or the resource might have changed.
+ */
+#define MHP_MERGE_RESOURCE	((__force mhp_t)BIT(0))
+
+/*
+ * We want memmap (struct page array) to be self contained.
+ * To do so, we will use the beginning of the hot-added range to build
+ * the page tables for the memmap array that describes the entire range.
+ * Only selected architectures support it with SPARSE_VMEMMAP.
+ */
+#define MHP_MEMMAP_ON_MEMORY   ((__force mhp_t)BIT(1))
+/*
+ * The nid field specifies a memory group id (mgid) instead. The memory group
+ * implies the node id (nid).
+ */
+#define MHP_NID_IS_MGID		((__force mhp_t)BIT(2))
+
+/*
+ * Extended parameters for memory hotplug:
+ * altmap: alternative allocator for memmap array (optional)
+ * pgprot: page protection flags to apply to newly created page tables
+ *	(required)
+ */
+struct mhp_params {
+	struct vmem_altmap *altmap;
+	pgprot_t pgprot;
+};
+
+bool mhp_range_allowed(u64 start, u64 size, bool need_mapping);
+struct range mhp_get_pluggable_range(bool need_mapping);
+
+>>>>>>> upstream/android-13
 /*
  * Zone resizing functions
  *
@@ -83,6 +144,7 @@ static inline void zone_seqlock_init(struct zone *zone)
 extern int zone_grow_free_lists(struct zone *zone, unsigned long new_nr_pages);
 extern int zone_grow_waitqueues(struct zone *zone, unsigned long nr_pages);
 extern int add_one_highpage(struct page *page, int pfn, int bad_ppro);
+<<<<<<< HEAD
 /* VM interface that may be used by firmware interface */
 extern int online_pages(unsigned long, unsigned long, int);
 extern int test_pages_in_a_zone(unsigned long start_pfn, unsigned long end_pfn,
@@ -101,6 +163,38 @@ extern void __online_page_free(struct page *page);
 extern int try_online_node(int nid);
 
 extern bool memhp_auto_online;
+=======
+extern void adjust_present_page_count(struct page *page,
+				      struct memory_group *group,
+				      long nr_pages);
+/* VM interface that may be used by firmware interface */
+extern int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
+				     struct zone *zone);
+extern void mhp_deinit_memmap_on_memory(unsigned long pfn, unsigned long nr_pages);
+extern int online_pages(unsigned long pfn, unsigned long nr_pages,
+			struct zone *zone, struct memory_group *group);
+extern struct zone *test_pages_in_a_zone(unsigned long start_pfn,
+					 unsigned long end_pfn);
+extern void __offline_isolated_pages(unsigned long start_pfn,
+				     unsigned long end_pfn);
+
+typedef void (*online_page_callback_t)(struct page *page, unsigned int order);
+
+extern void generic_online_page(struct page *page, unsigned int order);
+extern int set_online_page_callback(online_page_callback_t callback);
+extern int restore_online_page_callback(online_page_callback_t callback);
+
+extern int try_online_node(int nid);
+
+extern int arch_add_memory(int nid, u64 start, u64 size,
+			   struct mhp_params *params);
+extern u64 max_mem_size;
+
+extern int mhp_online_type_from_str(const char *str);
+
+/* Default online_type (MMOP_*) when new memory blocks are added. */
+extern int mhp_default_online_type;
+>>>>>>> upstream/android-13
 /* If movable_node boot option specified */
 extern bool movable_node_enabled;
 static inline bool movable_node_is_enabled(void)
@@ -108,13 +202,18 @@ static inline bool movable_node_is_enabled(void)
 	return movable_node_enabled;
 }
 
+<<<<<<< HEAD
 extern void arch_remove_memory(int nid, u64 start, u64 size,
 			       struct vmem_altmap *altmap);
+=======
+extern void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap);
+>>>>>>> upstream/android-13
 extern void __remove_pages(unsigned long start_pfn, unsigned long nr_pages,
 			   struct vmem_altmap *altmap);
 
 /* reasonably generic interface to expand the physical pages */
 extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
+<<<<<<< HEAD
 		struct vmem_altmap *altmap, bool want_memblock);
 
 #ifndef CONFIG_ARCH_HAS_ADD_PAGES
@@ -138,6 +237,21 @@ static inline int memory_add_physaddr_to_nid(u64 start)
 }
 #endif
 
+=======
+		       struct mhp_params *params);
+
+#ifndef CONFIG_ARCH_HAS_ADD_PAGES
+static inline int add_pages(int nid, unsigned long start_pfn,
+		unsigned long nr_pages, struct mhp_params *params)
+{
+	return __add_pages(nid, start_pfn, nr_pages, params);
+}
+#else /* ARCH_HAS_ADD_PAGES */
+int add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
+	      struct mhp_params *params);
+#endif /* ARCH_HAS_ADD_PAGES */
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
 /*
  * For supporting node-hotadd, we have to allocate a new pgdat.
@@ -198,6 +312,7 @@ static inline void arch_refresh_nodedata(int nid, pg_data_t *pgdat)
 #endif /* CONFIG_NUMA */
 #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
 
+<<<<<<< HEAD
 #ifdef CONFIG_HAVE_BOOTMEM_INFO_NODE
 extern void __init register_page_bootmem_info_node(struct pglist_data *pgdat);
 #else
@@ -209,15 +324,20 @@ extern void put_page_bootmem(struct page *page);
 extern void get_page_bootmem(unsigned long ingo, struct page *page,
 			     unsigned long type);
 
+=======
+>>>>>>> upstream/android-13
 void get_online_mems(void);
 void put_online_mems(void);
 
 void mem_hotplug_begin(void);
 void mem_hotplug_done(void);
 
+<<<<<<< HEAD
 extern void set_zone_contiguous(struct zone *zone);
 extern void clear_zone_contiguous(struct zone *zone);
 
+=======
+>>>>>>> upstream/android-13
 #else /* ! CONFIG_MEMORY_HOTPLUG */
 #define pfn_to_online_page(pfn)			\
 ({						\
@@ -239,6 +359,7 @@ static inline void zone_span_writelock(struct zone *zone) {}
 static inline void zone_span_writeunlock(struct zone *zone) {}
 static inline void zone_seqlock_init(struct zone *zone) {}
 
+<<<<<<< HEAD
 static inline int mhp_notimplemented(const char *func)
 {
 	printk(KERN_WARNING "%s() called, with CONFIG_MEMORY_HOTPLUG disabled\n", func);
@@ -250,6 +371,8 @@ static inline void register_page_bootmem_info_node(struct pglist_data *pgdat)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int try_online_node(int nid)
 {
 	return 0;
@@ -267,6 +390,16 @@ static inline bool movable_node_is_enabled(void)
 }
 #endif /* ! CONFIG_MEMORY_HOTPLUG */
 
+<<<<<<< HEAD
+=======
+/*
+ * Keep this declaration outside CONFIG_MEMORY_HOTPLUG as some
+ * platforms might override and use arch_get_mappable_range()
+ * for internal non memory hotplug purposes.
+ */
+struct range arch_get_mappable_range(void);
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_MEMORY_HOTPLUG) || defined(CONFIG_DEFERRED_STRUCT_PAGE_INIT)
 /*
  * pgdat resizing functions
@@ -297,6 +430,7 @@ static inline void pgdat_resize_init(struct pglist_data *pgdat) {}
 
 #ifdef CONFIG_MEMORY_HOTREMOVE
 
+<<<<<<< HEAD
 extern bool is_mem_section_removable(unsigned long pfn, unsigned long nr_pages);
 extern void try_offline_node(int nid);
 extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
@@ -313,10 +447,26 @@ static inline bool is_mem_section_removable(unsigned long pfn,
 static inline void try_offline_node(int nid) {}
 
 static inline int offline_pages(unsigned long start_pfn, unsigned long nr_pages)
+=======
+extern void try_offline_node(int nid);
+extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages,
+			 struct memory_group *group);
+extern int remove_memory(u64 start, u64 size);
+extern int remove_memory_subsection(u64 start, u64 size);
+extern void __remove_memory(u64 start, u64 size);
+extern int offline_and_remove_memory(u64 start, u64 size);
+
+#else
+static inline void try_offline_node(int nid) {}
+
+static inline int offline_pages(unsigned long start_pfn, unsigned long nr_pages,
+				struct memory_group *group)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static inline void remove_memory(int nid, u64 start, u64 size) {}
 static inline void __remove_memory(int nid, u64 start, u64 size) {}
 #endif /* CONFIG_MEMORY_HOTREMOVE */
@@ -346,4 +496,50 @@ extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_
 		int online_type);
 extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
 		unsigned long nr_pages);
+=======
+static inline int remove_memory(u64 start, u64 size)
+{
+	return -EBUSY;
+}
+
+static inline void __remove_memory(u64 start, u64 size) {}
+#endif /* CONFIG_MEMORY_HOTREMOVE */
+
+extern void set_zone_contiguous(struct zone *zone);
+extern void clear_zone_contiguous(struct zone *zone);
+
+#ifdef CONFIG_MEMORY_HOTPLUG
+extern void __ref free_area_init_core_hotplug(int nid);
+extern int __add_memory(int nid, u64 start, u64 size, mhp_t mhp_flags);
+extern int add_memory(int nid, u64 start, u64 size, mhp_t mhp_flags);
+extern int add_memory_subsection(int nid, u64 start, u64 size);
+extern int add_memory_resource(int nid, struct resource *resource,
+			       mhp_t mhp_flags);
+extern int add_memory_driver_managed(int nid, u64 start, u64 size,
+				     const char *resource_name,
+				     mhp_t mhp_flags);
+extern void move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
+				   unsigned long nr_pages,
+				   struct vmem_altmap *altmap, int migratetype);
+extern void remove_pfn_range_from_zone(struct zone *zone,
+				       unsigned long start_pfn,
+				       unsigned long nr_pages);
+extern bool is_memblock_offlined(struct memory_block *mem);
+extern int sparse_add_section(int nid, unsigned long pfn,
+		unsigned long nr_pages, struct vmem_altmap *altmap);
+extern void sparse_remove_section(struct mem_section *ms,
+		unsigned long pfn, unsigned long nr_pages,
+		unsigned long map_offset, struct vmem_altmap *altmap);
+extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
+					  unsigned long pnum);
+extern struct zone *zone_for_pfn_range(int online_type, int nid,
+		struct memory_group *group, unsigned long start_pfn,
+		unsigned long nr_pages);
+extern int arch_create_linear_mapping(int nid, u64 start, u64 size,
+				      struct mhp_params *params);
+void arch_remove_linear_mapping(u64 start, u64 size);
+extern bool mhp_supports_memmap_on_memory(unsigned long size);
+#endif /* CONFIG_MEMORY_HOTPLUG */
+
+>>>>>>> upstream/android-13
 #endif /* __LINUX_MEMORY_HOTPLUG_H */

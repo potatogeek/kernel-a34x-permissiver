@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C)2003-2006 Helsinki University of Technology
  * Copyright (C)2003-2006 USAGI/WIDE Project
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C)2003-2006 Helsinki University of Technology
+ * Copyright (C)2003-2006 USAGI/WIDE Project
+>>>>>>> upstream/android-13
  */
 /*
  * Authors:
@@ -259,6 +266,7 @@ static int mip6_destopt_reject(struct xfrm_state *x, struct sk_buff *skb,
 	return err;
 }
 
+<<<<<<< HEAD
 static int mip6_destopt_offset(struct xfrm_state *x, struct sk_buff *skb,
 			       u8 **nexthdr)
 {
@@ -307,6 +315,8 @@ static int mip6_destopt_offset(struct xfrm_state *x, struct sk_buff *skb,
 	return offset;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mip6_destopt_init_state(struct xfrm_state *x)
 {
 	if (x->id.spi) {
@@ -336,7 +346,10 @@ static void mip6_destopt_destroy(struct xfrm_state *x)
 }
 
 static const struct xfrm_type mip6_destopt_type = {
+<<<<<<< HEAD
 	.description	= "MIP6DESTOPT",
+=======
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.proto		= IPPROTO_DSTOPTS,
 	.flags		= XFRM_TYPE_NON_FRAGMENT | XFRM_TYPE_LOCAL_COADDR,
@@ -345,7 +358,10 @@ static const struct xfrm_type mip6_destopt_type = {
 	.input		= mip6_destopt_input,
 	.output		= mip6_destopt_output,
 	.reject		= mip6_destopt_reject,
+<<<<<<< HEAD
 	.hdr_offset	= mip6_destopt_offset,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int mip6_rthdr_input(struct xfrm_state *x, struct sk_buff *skb)
@@ -395,6 +411,7 @@ static int mip6_rthdr_output(struct xfrm_state *x, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mip6_rthdr_offset(struct xfrm_state *x, struct sk_buff *skb,
 			     u8 **nexthdr)
 {
@@ -442,6 +459,8 @@ static int mip6_rthdr_offset(struct xfrm_state *x, struct sk_buff *skb,
 	return offset;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mip6_rthdr_init_state(struct xfrm_state *x)
 {
 	if (x->id.spi) {
@@ -468,7 +487,10 @@ static void mip6_rthdr_destroy(struct xfrm_state *x)
 }
 
 static const struct xfrm_type mip6_rthdr_type = {
+<<<<<<< HEAD
 	.description	= "MIP6RT",
+=======
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.proto		= IPPROTO_ROUTING,
 	.flags		= XFRM_TYPE_NON_FRAGMENT | XFRM_TYPE_REMOTE_COADDR,
@@ -476,7 +498,10 @@ static const struct xfrm_type mip6_rthdr_type = {
 	.destructor	= mip6_rthdr_destroy,
 	.input		= mip6_rthdr_input,
 	.output		= mip6_rthdr_output,
+<<<<<<< HEAD
 	.hdr_offset	= mip6_rthdr_offset,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init mip6_init(void)
@@ -511,10 +536,15 @@ static void __exit mip6_fini(void)
 {
 	if (rawv6_mh_filter_unregister(mip6_mh_filter) < 0)
 		pr_info("%s: can't remove rawv6 mh filter\n", __func__);
+<<<<<<< HEAD
 	if (xfrm_unregister_type(&mip6_rthdr_type, AF_INET6) < 0)
 		pr_info("%s: can't remove xfrm type(rthdr)\n", __func__);
 	if (xfrm_unregister_type(&mip6_destopt_type, AF_INET6) < 0)
 		pr_info("%s: can't remove xfrm type(destopt)\n", __func__);
+=======
+	xfrm_unregister_type(&mip6_rthdr_type, AF_INET6);
+	xfrm_unregister_type(&mip6_destopt_type, AF_INET6);
+>>>>>>> upstream/android-13
 }
 
 module_init(mip6_init);

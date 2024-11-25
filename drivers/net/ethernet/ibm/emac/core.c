@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/net/ethernet/ibm/emac/core.c
  *
@@ -16,12 +20,15 @@
  *	(c) 2003 Benjamin Herrenschmidt <benh@kernel.crashing.org>
  *      Armin Kuster <akuster@mvista.com>
  * 	Johnnie Peters <jpeters@mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -43,6 +50,10 @@
 #include <linux/of_irq.h>
 #include <linux/of_net.h>
 #include <linux/of_mdio.h>
+<<<<<<< HEAD
+=======
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 #include <asm/processor.h>
@@ -423,7 +434,11 @@ static void emac_hash_mc(struct emac_instance *dev)
 {
 	const int regs = EMAC_XAHT_REGS(dev);
 	u32 *gaht_base = emac_gaht_base(dev);
+<<<<<<< HEAD
 	u32 gaht_temp[regs];
+=======
+	u32 gaht_temp[EMAC_XAHT_MAX_REGS];
+>>>>>>> upstream/android-13
 	struct netdev_hw_addr *ha;
 	int i;
 
@@ -781,7 +796,11 @@ static void emac_reset_work(struct work_struct *work)
 	mutex_unlock(&dev->link_lock);
 }
 
+<<<<<<< HEAD
 static void emac_tx_timeout(struct net_device *ndev)
+=======
+static void emac_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct emac_instance *dev = netdev_priv(ndev);
 
@@ -877,7 +896,11 @@ static void __emac_mdio_write(struct emac_instance *dev, u8 id, u8 reg,
 {
 	struct emac_regs __iomem *p = dev->emacp;
 	u32 r = 0;
+<<<<<<< HEAD
 	int n, err = -ETIMEDOUT;
+=======
+	int n;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dev->mdio_lock);
 
@@ -924,7 +947,10 @@ static void __emac_mdio_write(struct emac_instance *dev, u8 id, u8 reg,
 			goto bail;
 		}
 	}
+<<<<<<< HEAD
 	err = 0;
+=======
+>>>>>>> upstream/android-13
  bail:
 	if (emac_has_feature(dev, EMAC_FTR_HAS_RGMII))
 		rgmii_put_mdio(dev->rgmii_dev, dev->rgmii_port);
@@ -1071,7 +1097,13 @@ static int emac_resize_rx_ring(struct emac_instance *dev, int new_mtu)
 
 	/* Second pass, allocate new skbs */
 	for (i = 0; i < NUM_RX_BUFF; ++i) {
+<<<<<<< HEAD
 		struct sk_buff *skb = alloc_skb(rx_skb_size, GFP_ATOMIC);
+=======
+		struct sk_buff *skb;
+
+		skb = netdev_alloc_skb_ip_align(dev->ndev, rx_skb_size);
+>>>>>>> upstream/android-13
 		if (!skb) {
 			ret = -ENOMEM;
 			goto oom;
@@ -1080,10 +1112,17 @@ static int emac_resize_rx_ring(struct emac_instance *dev, int new_mtu)
 		BUG_ON(!dev->rx_skb[i]);
 		dev_kfree_skb(dev->rx_skb[i]);
 
+<<<<<<< HEAD
 		skb_reserve(skb, EMAC_RX_SKB_HEADROOM + 2);
 		dev->rx_desc[i].data_ptr =
 		    dma_map_single(&dev->ofdev->dev, skb->data - 2, rx_sync_size,
 				   DMA_FROM_DEVICE) + 2;
+=======
+		dev->rx_desc[i].data_ptr =
+		    dma_map_single(&dev->ofdev->dev, skb->data - NET_IP_ALIGN,
+				   rx_sync_size, DMA_FROM_DEVICE)
+				   + NET_IP_ALIGN;
+>>>>>>> upstream/android-13
 		dev->rx_skb[i] = skb;
 	}
  skip:
@@ -1174,20 +1213,32 @@ static void emac_clean_rx_ring(struct emac_instance *dev)
 	}
 }
 
+<<<<<<< HEAD
 static inline int emac_alloc_rx_skb(struct emac_instance *dev, int slot,
 				    gfp_t flags)
 {
 	struct sk_buff *skb = alloc_skb(dev->rx_skb_size, flags);
+=======
+static int
+__emac_prepare_rx_skb(struct sk_buff *skb, struct emac_instance *dev, int slot)
+{
+>>>>>>> upstream/android-13
 	if (unlikely(!skb))
 		return -ENOMEM;
 
 	dev->rx_skb[slot] = skb;
 	dev->rx_desc[slot].data_len = 0;
 
+<<<<<<< HEAD
 	skb_reserve(skb, EMAC_RX_SKB_HEADROOM + 2);
 	dev->rx_desc[slot].data_ptr =
 	    dma_map_single(&dev->ofdev->dev, skb->data - 2, dev->rx_sync_size,
 			   DMA_FROM_DEVICE) + 2;
+=======
+	dev->rx_desc[slot].data_ptr =
+	    dma_map_single(&dev->ofdev->dev, skb->data - NET_IP_ALIGN,
+			   dev->rx_sync_size, DMA_FROM_DEVICE) + NET_IP_ALIGN;
+>>>>>>> upstream/android-13
 	wmb();
 	dev->rx_desc[slot].ctrl = MAL_RX_CTRL_EMPTY |
 	    (slot == (NUM_RX_BUFF - 1) ? MAL_RX_CTRL_WRAP : 0);
@@ -1195,6 +1246,30 @@ static inline int emac_alloc_rx_skb(struct emac_instance *dev, int slot,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int
+emac_alloc_rx_skb(struct emac_instance *dev, int slot)
+{
+	struct sk_buff *skb;
+
+	skb = __netdev_alloc_skb_ip_align(dev->ndev, dev->rx_skb_size,
+					  GFP_KERNEL);
+
+	return __emac_prepare_rx_skb(skb, dev, slot);
+}
+
+static int
+emac_alloc_rx_skb_napi(struct emac_instance *dev, int slot)
+{
+	struct sk_buff *skb;
+
+	skb = napi_alloc_skb(&dev->mal->napi, dev->rx_skb_size);
+
+	return __emac_prepare_rx_skb(skb, dev, slot);
+}
+
+>>>>>>> upstream/android-13
 static void emac_print_link_status(struct emac_instance *dev)
 {
 	if (netif_carrier_ok(dev->ndev))
@@ -1225,7 +1300,11 @@ static int emac_open(struct net_device *ndev)
 
 	/* Allocate RX ring */
 	for (i = 0; i < NUM_RX_BUFF; ++i)
+<<<<<<< HEAD
 		if (emac_alloc_rx_skb(dev, i, GFP_KERNEL)) {
+=======
+		if (emac_alloc_rx_skb(dev, i)) {
+>>>>>>> upstream/android-13
 			printk(KERN_ERR "%s: failed to allocate RX ring\n",
 			       ndev->name);
 			goto oom;
@@ -1533,7 +1612,11 @@ emac_start_xmit_sg(struct sk_buff *skb, struct net_device *ndev)
 				       ctrl);
 	/* skb fragments */
 	for (i = 0; i < nr_frags; ++i) {
+<<<<<<< HEAD
 		struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i];
+=======
+		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+>>>>>>> upstream/android-13
 		len = skb_frag_size(frag);
 
 		if (unlikely(dev->tx_cnt + mal_tx_chunks(len) >= NUM_TX_BUFF))
@@ -1660,8 +1743,14 @@ static inline void emac_recycle_rx_skb(struct emac_instance *dev, int slot,
 	DBG2(dev, "recycle %d %d" NL, slot, len);
 
 	if (len)
+<<<<<<< HEAD
 		dma_map_single(&dev->ofdev->dev, skb->data - 2,
 			       EMAC_DMA_ALIGN(len + 2), DMA_FROM_DEVICE);
+=======
+		dma_map_single(&dev->ofdev->dev, skb->data - NET_IP_ALIGN,
+			       SKB_DATA_ALIGN(len + NET_IP_ALIGN),
+			       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	dev->rx_desc[slot].data_len = 0;
 	wmb();
@@ -1713,7 +1802,11 @@ static inline int emac_rx_sg_append(struct emac_instance *dev, int slot)
 		int len = dev->rx_desc[slot].data_len;
 		int tot_len = dev->rx_sg_skb->len + len;
 
+<<<<<<< HEAD
 		if (unlikely(tot_len + 2 > dev->rx_skb_size)) {
+=======
+		if (unlikely(tot_len + NET_IP_ALIGN > dev->rx_skb_size)) {
+>>>>>>> upstream/android-13
 			++dev->estats.rx_dropped_mtu;
 			dev_kfree_skb(dev->rx_sg_skb);
 			dev->rx_sg_skb = NULL;
@@ -1769,6 +1862,7 @@ static int emac_poll_rx(void *param, int budget)
 		}
 
 		if (len && len < EMAC_RX_COPY_THRESH) {
+<<<<<<< HEAD
 			struct sk_buff *copy_skb =
 			    alloc_skb(len + EMAC_RX_SKB_HEADROOM + 2, GFP_ATOMIC);
 			if (unlikely(!copy_skb))
@@ -1779,6 +1873,20 @@ static int emac_poll_rx(void *param, int budget)
 			emac_recycle_rx_skb(dev, slot, len);
 			skb = copy_skb;
 		} else if (unlikely(emac_alloc_rx_skb(dev, slot, GFP_ATOMIC)))
+=======
+			struct sk_buff *copy_skb;
+
+			copy_skb = napi_alloc_skb(&dev->mal->napi, len);
+			if (unlikely(!copy_skb))
+				goto oom;
+
+			memcpy(copy_skb->data - NET_IP_ALIGN,
+			       skb->data - NET_IP_ALIGN,
+			       len + NET_IP_ALIGN);
+			emac_recycle_rx_skb(dev, slot, len);
+			skb = copy_skb;
+		} else if (unlikely(emac_alloc_rx_skb_napi(dev, slot)))
+>>>>>>> upstream/android-13
 			goto oom;
 
 		skb_put(skb, len);
@@ -1799,7 +1907,11 @@ static int emac_poll_rx(void *param, int budget)
 	sg:
 		if (ctrl & MAL_RX_CTRL_FIRST) {
 			BUG_ON(dev->rx_sg_skb);
+<<<<<<< HEAD
 			if (unlikely(emac_alloc_rx_skb(dev, slot, GFP_ATOMIC))) {
+=======
+			if (unlikely(emac_alloc_rx_skb_napi(dev, slot))) {
+>>>>>>> upstream/android-13
 				DBG(dev, "rx OOM %d" NL, slot);
 				++dev->estats.rx_dropped_oom;
 				emac_recycle_rx_skb(dev, slot, 0);
@@ -2301,7 +2413,11 @@ static int emac_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd)
 	switch (cmd) {
 	case SIOCGMIIPHY:
 		data->phy_id = dev->phy.address;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SIOCGMIIREG:
 		data->val_out = emac_mdio_read(ndev, dev->phy.address,
 					       data->reg_num);
@@ -2372,11 +2488,19 @@ static int emac_check_deps(struct emac_instance *dev,
 
 static void emac_put_deps(struct emac_instance *dev)
 {
+<<<<<<< HEAD
 	of_dev_put(dev->mal_dev);
 	of_dev_put(dev->zmii_dev);
 	of_dev_put(dev->rgmii_dev);
 	of_dev_put(dev->mdio_dev);
 	of_dev_put(dev->tah_dev);
+=======
+	platform_device_put(dev->mal_dev);
+	platform_device_put(dev->zmii_dev);
+	platform_device_put(dev->rgmii_dev);
+	platform_device_put(dev->mdio_dev);
+	platform_device_put(dev->tah_dev);
+>>>>>>> upstream/android-13
 }
 
 static int emac_of_bus_notify(struct notifier_block *nb, unsigned long action,
@@ -2417,7 +2541,11 @@ static int emac_wait_deps(struct emac_instance *dev)
 	for (i = 0; i < EMAC_DEP_COUNT; i++) {
 		of_node_put(deps[i].node);
 		if (err)
+<<<<<<< HEAD
 			of_dev_put(deps[i].ofdev);
+=======
+			platform_device_put(deps[i].ofdev);
+>>>>>>> upstream/android-13
 	}
 	if (err == 0) {
 		dev->mal_dev = deps[EMAC_DEP_MAL_IDX].ofdev;
@@ -2426,7 +2554,11 @@ static int emac_wait_deps(struct emac_instance *dev)
 		dev->tah_dev = deps[EMAC_DEP_TAH_IDX].ofdev;
 		dev->mdio_dev = deps[EMAC_DEP_MDIO_IDX].ofdev;
 	}
+<<<<<<< HEAD
 	of_dev_put(deps[EMAC_DEP_PREV_IDX].ofdev);
+=======
+	platform_device_put(deps[EMAC_DEP_PREV_IDX].ofdev);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -2455,7 +2587,12 @@ static void emac_adjust_link(struct net_device *ndev)
 	dev->phy.duplex = phy->duplex;
 	dev->phy.pause = phy->pause;
 	dev->phy.asym_pause = phy->asym_pause;
+<<<<<<< HEAD
 	dev->phy.advertising = phy->advertising;
+=======
+	ethtool_convert_link_mode_to_legacy_u32(&dev->phy.advertising,
+						phy->advertising);
+>>>>>>> upstream/android-13
 }
 
 static int emac_mii_bus_read(struct mii_bus *bus, int addr, int regnum)
@@ -2490,7 +2627,12 @@ static int emac_mdio_phy_start_aneg(struct mii_phy *phy,
 	phy_dev->autoneg = phy->autoneg;
 	phy_dev->speed = phy->speed;
 	phy_dev->duplex = phy->duplex;
+<<<<<<< HEAD
 	phy_dev->advertising = phy->advertising;
+=======
+	ethtool_convert_legacy_u32_to_link_mode(phy_dev->advertising,
+						phy->advertising);
+>>>>>>> upstream/android-13
 	return phy_start_aneg(phy_dev);
 }
 
@@ -2624,7 +2766,12 @@ static int emac_dt_phy_connect(struct emac_instance *dev,
 	dev->phy.def->phy_id_mask = dev->phy_dev->drv->phy_id_mask;
 	dev->phy.def->name = dev->phy_dev->drv->name;
 	dev->phy.def->ops = &emac_dt_mdio_phy_ops;
+<<<<<<< HEAD
 	dev->phy.features = dev->phy_dev->supported;
+=======
+	ethtool_convert_link_mode_to_legacy_u32(&dev->phy.features,
+						dev->phy_dev->supported);
+>>>>>>> upstream/android-13
 	dev->phy.address = dev->phy_dev->mdio.addr;
 	dev->phy.mode = dev->phy_dev->interface;
 	return 0;
@@ -2827,6 +2974,10 @@ static int emac_init_config(struct emac_instance *dev)
 {
 	struct device_node *np = dev->ofdev->dev.of_node;
 	const void *p;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* Read config from device-tree */
 	if (emac_read_uint_prop(np, "mal-device", &dev->mal_ph, 1))
@@ -2875,8 +3026,13 @@ static int emac_init_config(struct emac_instance *dev)
 		dev->mal_burst_size = 256;
 
 	/* PHY mode needs some decoding */
+<<<<<<< HEAD
 	dev->phy_mode = of_get_phy_mode(np);
 	if (dev->phy_mode < 0)
+=======
+	err = of_get_phy_mode(np, &dev->phy_mode);
+	if (err)
+>>>>>>> upstream/android-13
 		dev->phy_mode = PHY_INTERFACE_MODE_NA;
 
 	/* Check EMAC version */
@@ -2970,6 +3126,13 @@ static int emac_init_config(struct emac_instance *dev)
 		dev->xaht_width_shift = EMAC4_XAHT_WIDTH_SHIFT;
 	}
 
+<<<<<<< HEAD
+=======
+	/* This should never happen */
+	if (WARN_ON(EMAC_XAHT_REGS(dev) > EMAC_XAHT_MAX_REGS))
+		return -ENXIO;
+
+>>>>>>> upstream/android-13
 	DBG(dev, "features     : 0x%08x / 0x%08x\n", dev->features, EMAC_FTRS_POSSIBLE);
 	DBG(dev, "tx_fifo_size : %d (%d gige)\n", dev->tx_fifo_size, dev->tx_fifo_size_gige);
 	DBG(dev, "rx_fifo_size : %d (%d gige)\n", dev->rx_fifo_size, dev->rx_fifo_size_gige);
@@ -2984,7 +3147,11 @@ static const struct net_device_ops emac_netdev_ops = {
 	.ndo_stop		= emac_close,
 	.ndo_get_stats		= emac_stats,
 	.ndo_set_rx_mode	= emac_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= emac_ioctl,
+=======
+	.ndo_eth_ioctl		= emac_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= emac_tx_timeout,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= emac_set_mac_address,
@@ -2996,7 +3163,11 @@ static const struct net_device_ops emac_gige_netdev_ops = {
 	.ndo_stop		= emac_close,
 	.ndo_get_stats		= emac_stats,
 	.ndo_set_rx_mode	= emac_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= emac_ioctl,
+=======
+	.ndo_eth_ioctl		= emac_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= emac_tx_timeout,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= emac_set_mac_address,

@@ -8,7 +8,10 @@
 #include <media/demux.h>
 #include <media/dvb_demux.h>
 #include <media/dmxdev.h>
+<<<<<<< HEAD
 #include "dvb_filter.h"
+=======
+>>>>>>> upstream/android-13
 #include <media/dvb_net.h>
 
 #include <linux/module.h>
@@ -28,6 +31,10 @@ extern int budget_debug;
 		       __func__, ##arg);				\
 } while (0)
 
+<<<<<<< HEAD
+=======
+#define TS_SIZE        188
+>>>>>>> upstream/android-13
 
 struct budget_info {
 	char *name;

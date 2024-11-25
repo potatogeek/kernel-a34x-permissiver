@@ -13,7 +13,11 @@
 struct isa_driver {
 	int (*match)(struct device *, unsigned int);
 	int (*probe)(struct device *, unsigned int);
+<<<<<<< HEAD
 	int (*remove)(struct device *, unsigned int);
+=======
+	void (*remove)(struct device *, unsigned int);
+>>>>>>> upstream/android-13
 	void (*shutdown)(struct device *, unsigned int);
 	int (*suspend)(struct device *, unsigned int, pm_message_t);
 	int (*resume)(struct device *, unsigned int);

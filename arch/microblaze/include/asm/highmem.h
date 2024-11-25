@@ -25,8 +25,11 @@
 #include <linux/uaccess.h>
 #include <asm/fixmap.h>
 
+<<<<<<< HEAD
 extern pte_t *kmap_pte;
 extern pgprot_t kmap_prot;
+=======
+>>>>>>> upstream/android-13
 extern pte_t *pkmap_page_table;
 
 /*
@@ -51,6 +54,7 @@ extern pte_t *pkmap_page_table;
 #define PKMAP_NR(virt)  ((virt - PKMAP_BASE) >> PAGE_SHIFT)
 #define PKMAP_ADDR(nr)  (PKMAP_BASE + ((nr) << PAGE_SHIFT))
 
+<<<<<<< HEAD
 extern void *kmap_high(struct page *page);
 extern void kunmap_high(struct page *page);
 extern void *kmap_atomic_prot(struct page *page, pgprot_t prot);
@@ -79,6 +83,15 @@ static inline void *kmap_atomic(struct page *page)
 
 #define flush_cache_kmaps()	{ flush_icache(); flush_dcache(); }
 
+=======
+#define flush_cache_kmaps()	{ flush_icache(); flush_dcache(); }
+
+#define arch_kmap_local_post_map(vaddr, pteval)	\
+	local_flush_tlb_page(NULL, vaddr);
+#define arch_kmap_local_post_unmap(vaddr)	\
+	local_flush_tlb_page(NULL, vaddr);
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 
 #endif /* _ASM_HIGHMEM_H */

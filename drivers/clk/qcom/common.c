@@ -69,6 +69,21 @@ int qcom_find_src_index(struct clk_hw *hw, const struct parent_map *map, u8 src)
 }
 EXPORT_SYMBOL_GPL(qcom_find_src_index);
 
+<<<<<<< HEAD
+=======
+int qcom_find_cfg_index(struct clk_hw *hw, const struct parent_map *map, u8 cfg)
+{
+	int i, num_parents = clk_hw_get_num_parents(hw);
+
+	for (i = 0; i < num_parents; i++)
+		if (cfg == map[i].cfg)
+			return i;
+
+	return -ENOENT;
+}
+EXPORT_SYMBOL_GPL(qcom_find_cfg_index);
+
+>>>>>>> upstream/android-13
 struct regmap *
 qcom_cc_map(struct platform_device *pdev, const struct qcom_cc_desc *desc)
 {
@@ -194,6 +209,25 @@ int qcom_cc_register_sleep_clk(struct device *dev)
 }
 EXPORT_SYMBOL_GPL(qcom_cc_register_sleep_clk);
 
+<<<<<<< HEAD
+=======
+/* Drop 'protected-clocks' from the list of clocks to register */
+static void qcom_cc_drop_protected(struct device *dev, struct qcom_cc *cc)
+{
+	struct device_node *np = dev->of_node;
+	struct property *prop;
+	const __be32 *p;
+	u32 i;
+
+	of_property_for_each_u32(np, "protected-clocks", prop, p, i) {
+		if (i >= cc->num_rclks)
+			continue;
+
+		cc->rclks[i] = NULL;
+	}
+}
+
+>>>>>>> upstream/android-13
 static struct clk_hw *qcom_cc_clk_hw_get(struct of_phandle_args *clkspec,
 					 void *data)
 {
@@ -205,7 +239,11 @@ static struct clk_hw *qcom_cc_clk_hw_get(struct of_phandle_args *clkspec,
 		return ERR_PTR(-EINVAL);
 	}
 
+<<<<<<< HEAD
 	return cc->rclks[idx] ? &cc->rclks[idx]->hw : ERR_PTR(-ENOENT);
+=======
+	return cc->rclks[idx] ? &cc->rclks[idx]->hw : NULL;
+>>>>>>> upstream/android-13
 }
 
 int qcom_cc_really_probe(struct platform_device *pdev,
@@ -218,6 +256,11 @@ int qcom_cc_really_probe(struct platform_device *pdev,
 	struct gdsc_desc *scd;
 	size_t num_clks = desc->num_clks;
 	struct clk_regmap **rclks = desc->clks;
+<<<<<<< HEAD
+=======
+	size_t num_clk_hws = desc->num_clk_hws;
+	struct clk_hw **clk_hws = desc->clk_hws;
+>>>>>>> upstream/android-13
 
 	cc = devm_kzalloc(dev, sizeof(*cc), GFP_KERNEL);
 	if (!cc)
@@ -254,6 +297,17 @@ int qcom_cc_really_probe(struct platform_device *pdev,
 	cc->rclks = rclks;
 	cc->num_rclks = num_clks;
 
+<<<<<<< HEAD
+=======
+	qcom_cc_drop_protected(dev, cc);
+
+	for (i = 0; i < num_clk_hws; i++) {
+		ret = devm_clk_hw_register(dev, clk_hws[i]);
+		if (ret)
+			return ret;
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < num_clks; i++) {
 		if (!rclks[i])
 			continue;
@@ -283,4 +337,27 @@ int qcom_cc_probe(struct platform_device *pdev, const struct qcom_cc_desc *desc)
 }
 EXPORT_SYMBOL_GPL(qcom_cc_probe);
 
+<<<<<<< HEAD
+=======
+int qcom_cc_probe_by_index(struct platform_device *pdev, int index,
+			   const struct qcom_cc_desc *desc)
+{
+	struct regmap *regmap;
+	struct resource *res;
+	void __iomem *base;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, index);
+	base = devm_ioremap_resource(&pdev->dev, res);
+	if (IS_ERR(base))
+		return -ENOMEM;
+
+	regmap = devm_regmap_init_mmio(&pdev->dev, base, desc->config);
+	if (IS_ERR(regmap))
+		return PTR_ERR(regmap);
+
+	return qcom_cc_really_probe(pdev, desc, regmap);
+}
+EXPORT_SYMBOL_GPL(qcom_cc_probe_by_index);
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

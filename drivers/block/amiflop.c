@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/amiga/amiflop.c
  *
@@ -60,11 +64,18 @@
 #include <linux/hdreg.h>
 #include <linux/delay.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/mutex.h>
 #include <linux/amifdreg.h>
 #include <linux/amifd.h>
 #include <linux/fs.h>
 #include <linux/blkdev.h>
+=======
+#include <linux/major.h>
+#include <linux/mutex.h>
+#include <linux/fs.h>
+#include <linux/blk-mq.h>
+>>>>>>> upstream/android-13
 #include <linux/elevator.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
@@ -87,6 +98,129 @@
  */
 
 /*
+<<<<<<< HEAD
+=======
+ * CIAAPRA bits (read only)
+ */
+
+#define DSKRDY      (0x1<<5)        /* disk ready when low */
+#define DSKTRACK0   (0x1<<4)        /* head at track zero when low */
+#define DSKPROT     (0x1<<3)        /* disk protected when low */
+#define DSKCHANGE   (0x1<<2)        /* low when disk removed */
+
+/*
+ * CIAAPRB bits (read/write)
+ */
+
+#define DSKMOTOR    (0x1<<7)        /* motor on when low */
+#define DSKSEL3     (0x1<<6)        /* select drive 3 when low */
+#define DSKSEL2     (0x1<<5)        /* select drive 2 when low */
+#define DSKSEL1     (0x1<<4)        /* select drive 1 when low */
+#define DSKSEL0     (0x1<<3)        /* select drive 0 when low */
+#define DSKSIDE     (0x1<<2)        /* side selection: 0 = upper, 1 = lower */
+#define DSKDIREC    (0x1<<1)        /* step direction: 0=in, 1=out (to trk 0) */
+#define DSKSTEP     (0x1)           /* pulse low to step head 1 track */
+
+/*
+ * DSKBYTR bits (read only)
+ */
+
+#define DSKBYT      (1<<15)         /* register contains valid byte when set */
+#define DMAON       (1<<14)         /* disk DMA enabled */
+#define DISKWRITE   (1<<13)         /* disk write bit in DSKLEN enabled */
+#define WORDEQUAL   (1<<12)         /* DSKSYNC register match when true */
+/* bits 7-0 are data */
+
+/*
+ * ADKCON/ADKCONR bits
+ */
+
+#ifndef SETCLR
+#define ADK_SETCLR      (1<<15)     /* control bit */
+#endif
+#define ADK_PRECOMP1    (1<<14)     /* precompensation selection */
+#define ADK_PRECOMP0    (1<<13)     /* 00=none, 01=140ns, 10=280ns, 11=500ns */
+#define ADK_MFMPREC     (1<<12)     /* 0=GCR precomp., 1=MFM precomp. */
+#define ADK_WORDSYNC    (1<<10)     /* enable DSKSYNC auto DMA */
+#define ADK_MSBSYNC     (1<<9)      /* when 1, enable sync on MSbit (for GCR) */
+#define ADK_FAST        (1<<8)      /* bit cell: 0=2us (GCR), 1=1us (MFM) */
+
+/*
+ * DSKLEN bits
+ */
+
+#define DSKLEN_DMAEN    (1<<15)
+#define DSKLEN_WRITE    (1<<14)
+
+/*
+ * INTENA/INTREQ bits
+ */
+
+#define DSKINDEX    (0x1<<4)        /* DSKINDEX bit */
+
+/*
+ * Misc
+ */
+
+#define MFM_SYNC    0x4489          /* standard MFM sync value */
+
+/* Values for FD_COMMAND */
+#define FD_RECALIBRATE		0x07	/* move to track 0 */
+#define FD_SEEK			0x0F	/* seek track */
+#define FD_READ			0xE6	/* read with MT, MFM, SKip deleted */
+#define FD_WRITE		0xC5	/* write with MT, MFM */
+#define FD_SENSEI		0x08	/* Sense Interrupt Status */
+#define FD_SPECIFY		0x03	/* specify HUT etc */
+#define FD_FORMAT		0x4D	/* format one track */
+#define FD_VERSION		0x10	/* get version code */
+#define FD_CONFIGURE		0x13	/* configure FIFO operation */
+#define FD_PERPENDICULAR	0x12	/* perpendicular r/w mode */
+
+#define FD_MAX_UNITS    4	/* Max. Number of drives */
+#define FLOPPY_MAX_SECTORS	22	/* Max. Number of sectors per track */
+
+struct fd_data_type {
+	char *name;		/* description of data type */
+	int sects;		/* sectors per track */
+	int (*read_fkt)(int);	/* read whole track */
+	void (*write_fkt)(int);	/* write whole track */
+};
+
+struct fd_drive_type {
+	unsigned long code;		/* code returned from drive */
+	char *name;			/* description of drive */
+	unsigned int tracks;	/* number of tracks */
+	unsigned int heads;		/* number of heads */
+	unsigned int read_size;	/* raw read size for one track */
+	unsigned int write_size;	/* raw write size for one track */
+	unsigned int sect_mult;	/* sectors and gap multiplier (HD = 2) */
+	unsigned int precomp1;	/* start track for precomp 1 */
+	unsigned int precomp2;	/* start track for precomp 2 */
+	unsigned int step_delay;	/* time (in ms) for delay after step */
+	unsigned int settle_time;	/* time to settle after dir change */
+	unsigned int side_time;	/* time needed to change sides */
+};
+
+struct amiga_floppy_struct {
+	struct fd_drive_type *type;	/* type of floppy for this unit */
+	struct fd_data_type *dtype;	/* type of floppy for this unit */
+	int track;			/* current track (-1 == unknown) */
+	unsigned char *trackbuf;	/* current track (kmaloc()'d */
+
+	int blocks;			/* total # blocks on disk */
+
+	int changed;			/* true when not known */
+	int disk;			/* disk in drive (-1 == unknown) */
+	int motor;			/* true when motor is at speed */
+	int busy;			/* true when drive is active */
+	int dirty;			/* true when trackbuf is not on disk */
+	int status;			/* current error code for unit */
+	struct gendisk *gendisk[2];
+	struct blk_mq_tag_set tag_set;
+};
+
+/*
+>>>>>>> upstream/android-13
  *  Error codes
  */
 #define FD_OK		0	/* operation succeeded */
@@ -164,7 +298,10 @@ static volatile int selected = -1;	/* currently selected drive */
 static int writepending;
 static int writefromint;
 static char *raw_buf;
+<<<<<<< HEAD
 static int fdc_queue;
+=======
+>>>>>>> upstream/android-13
 
 static DEFINE_SPINLOCK(amiflop_lock);
 
@@ -1337,6 +1474,7 @@ static int get_track(int drive, int track)
 	return -1;
 }
 
+<<<<<<< HEAD
 /*
  * Round-robin between our available drives, doing one request from each
  */
@@ -1396,17 +1534,30 @@ next_req:
 next_segment:
 	/* Here someone could investigate to be more efficient */
 	for (cnt = 0, err = BLK_STS_OK; cnt < blk_rq_cur_sectors(rq); cnt++) {
+=======
+static blk_status_t amiflop_rw_cur_segment(struct amiga_floppy_struct *floppy,
+					   struct request *rq)
+{
+	int drive = floppy - unit;
+	unsigned int cnt, block, track, sector;
+	char *data;
+
+	for (cnt = 0; cnt < blk_rq_cur_sectors(rq); cnt++) {
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 		printk("fd: sector %ld + %d requested for %s\n",
 		       blk_rq_pos(rq), cnt,
 		       (rq_data_dir(rq) == READ) ? "read" : "write");
 #endif
 		block = blk_rq_pos(rq) + cnt;
+<<<<<<< HEAD
 		if ((int)block > floppy->blocks) {
 			err = BLK_STS_IOERR;
 			break;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		track = block / (floppy->dtype->sects * floppy->type->sect_mult);
 		sector = block % (floppy->dtype->sects * floppy->type->sect_mult);
 		data = bio_data(rq->bio) + 512 * cnt;
@@ -1415,10 +1566,15 @@ next_segment:
 		       "0x%08lx\n", track, sector, data);
 #endif
 
+<<<<<<< HEAD
 		if (get_track(drive, track) == -1) {
 			err = BLK_STS_IOERR;
 			break;
 		}
+=======
+		if (get_track(drive, track) == -1)
+			return BLK_STS_IOERR;
+>>>>>>> upstream/android-13
 
 		if (rq_data_dir(rq) == READ) {
 			memcpy(data, floppy->trackbuf + sector * 512, 512);
@@ -1426,14 +1582,20 @@ next_segment:
 			memcpy(floppy->trackbuf + sector * 512, data, 512);
 
 			/* keep the drive spinning while writes are scheduled */
+<<<<<<< HEAD
 			if (!fd_motor_on(drive)) {
 				err = BLK_STS_IOERR;
 				break;
 			}
+=======
+			if (!fd_motor_on(drive))
+				return BLK_STS_IOERR;
+>>>>>>> upstream/android-13
 			/*
 			 * setup a callback to write the track buffer
 			 * after a short (1 tick) delay.
 			 */
+<<<<<<< HEAD
 			local_irq_save(flags);
 
 			floppy->dirty = 1;
@@ -1451,6 +1613,36 @@ next_segment:
 static void do_fd_request(struct request_queue * q)
 {
 	redo_fd_request();
+=======
+			floppy->dirty = 1;
+		        /* reset the timer */
+			mod_timer (flush_track_timer + drive, jiffies + 1);
+		}
+	}
+
+	return BLK_STS_OK;
+}
+
+static blk_status_t amiflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+				     const struct blk_mq_queue_data *bd)
+{
+	struct request *rq = bd->rq;
+	struct amiga_floppy_struct *floppy = rq->rq_disk->private_data;
+	blk_status_t err;
+
+	if (!spin_trylock_irq(&amiflop_lock))
+		return BLK_STS_DEV_RESOURCE;
+
+	blk_mq_start_request(rq);
+
+	do {
+		err = amiflop_rw_cur_segment(floppy, rq);
+	} while (blk_update_request(rq, err, blk_rq_cur_bytes(rq)));
+	blk_mq_end_request(rq, err);
+
+	spin_unlock_irq(&amiflop_lock);
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 static int fd_getgeo(struct block_device *bdev, struct hd_geometry *geo)
@@ -1533,8 +1725,11 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
 			return p->type->read_size;
 #endif
 	default:
+<<<<<<< HEAD
 		printk(KERN_DEBUG "fd_ioctl: unknown cmd %d for drive %d.",
 		       cmd, drive);
+=======
+>>>>>>> upstream/android-13
 		return -ENOSYS;
 	}
 	return 0;
@@ -1602,8 +1797,18 @@ static int floppy_open(struct block_device *bdev, fmode_t mode)
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	if (mode & (FMODE_READ|FMODE_WRITE)) {
 		check_disk_change(bdev);
+=======
+	if (unit[drive].type->code == FD_NODRIVE) {
+		mutex_unlock(&amiflop_mutex);
+		return -ENXIO;
+	}
+
+	if (mode & (FMODE_READ|FMODE_WRITE)) {
+		bdev_check_media_change(bdev);
+>>>>>>> upstream/android-13
 		if (mode & FMODE_WRITE) {
 			int wrprot;
 
@@ -1628,7 +1833,11 @@ static int floppy_open(struct block_device *bdev, fmode_t mode)
 	unit[drive].dtype=&data_types[system];
 	unit[drive].blocks=unit[drive].type->heads*unit[drive].type->tracks*
 		data_types[system].sects*unit[drive].type->sect_mult;
+<<<<<<< HEAD
 	set_capacity(unit[drive].gendisk, unit[drive].blocks);
+=======
+	set_capacity(unit[drive].gendisk[system], unit[drive].blocks);
+>>>>>>> upstream/android-13
 
 	printk(KERN_INFO "fd%d: accessing %s-disk with %s-layout\n",drive,
 	       unit[drive].type->name, data_types[system].name);
@@ -1701,6 +1910,7 @@ static const struct block_device_operations floppy_fops = {
 	.check_events	= amiga_check_events,
 };
 
+<<<<<<< HEAD
 static struct gendisk *fd_alloc_disk(int drive)
 {
 	struct gendisk *disk;
@@ -1729,6 +1939,66 @@ out_put_disk:
 out:
 	unit[drive].type->code = FD_NODRIVE;
 	return NULL;
+=======
+static const struct blk_mq_ops amiflop_mq_ops = {
+	.queue_rq = amiflop_queue_rq,
+};
+
+static int fd_alloc_disk(int drive, int system)
+{
+	struct gendisk *disk;
+
+	disk = blk_mq_alloc_disk(&unit[drive].tag_set, NULL);
+	if (IS_ERR(disk))
+		return PTR_ERR(disk);
+
+	disk->major = FLOPPY_MAJOR;
+	disk->first_minor = drive + system;
+	disk->minors = 1;
+	disk->fops = &floppy_fops;
+	disk->events = DISK_EVENT_MEDIA_CHANGE;
+	if (system)
+		sprintf(disk->disk_name, "fd%d_msdos", drive);
+	else
+		sprintf(disk->disk_name, "fd%d", drive);
+	disk->private_data = &unit[drive];
+	set_capacity(disk, 880 * 2);
+
+	unit[drive].gendisk[system] = disk;
+	add_disk(disk);
+	return 0;
+}
+
+static int fd_alloc_drive(int drive)
+{
+	unit[drive].trackbuf = kmalloc(FLOPPY_MAX_SECTORS * 512, GFP_KERNEL);
+	if (!unit[drive].trackbuf)
+		goto out;
+
+	memset(&unit[drive].tag_set, 0, sizeof(unit[drive].tag_set));
+	unit[drive].tag_set.ops = &amiflop_mq_ops;
+	unit[drive].tag_set.nr_hw_queues = 1;
+	unit[drive].tag_set.nr_maps = 1;
+	unit[drive].tag_set.queue_depth = 2;
+	unit[drive].tag_set.numa_node = NUMA_NO_NODE;
+	unit[drive].tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+	if (blk_mq_alloc_tag_set(&unit[drive].tag_set))
+		goto out_cleanup_trackbuf;
+
+	pr_cont(" fd%d", drive);
+
+	if (fd_alloc_disk(drive, 0) || fd_alloc_disk(drive, 1))
+		goto out_cleanup_tagset;
+	return 0;
+
+out_cleanup_tagset:
+	blk_mq_free_tag_set(&unit[drive].tag_set);
+out_cleanup_trackbuf:
+	kfree(unit[drive].trackbuf);
+out:
+	unit[drive].type->code = FD_NODRIVE;
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static int __init fd_probe_drives(void)
@@ -1739,17 +2009,25 @@ static int __init fd_probe_drives(void)
 	drives=0;
 	nomem=0;
 	for(drive=0;drive<FD_MAX_UNITS;drive++) {
+<<<<<<< HEAD
 		struct gendisk *disk;
+=======
+>>>>>>> upstream/android-13
 		fd_probe(drive);
 		if (unit[drive].type->code == FD_NODRIVE)
 			continue;
 
+<<<<<<< HEAD
 		disk = fd_alloc_disk(drive);
 		if (!disk) {
+=======
+		if (fd_alloc_drive(drive) < 0) {
+>>>>>>> upstream/android-13
 			pr_cont(" no mem for fd%d", drive);
 			nomem = 1;
 			continue;
 		}
+<<<<<<< HEAD
 		unit[drive].gendisk = disk;
 		drives++;
 
@@ -1761,6 +2039,9 @@ static int __init fd_probe_drives(void)
 		disk->private_data = &unit[drive];
 		set_capacity(disk, 880*2);
 		add_disk(disk);
+=======
+		drives++;
+>>>>>>> upstream/android-13
 	}
 	if ((drives > 0) || (nomem == 0)) {
 		if (drives == 0)
@@ -1772,6 +2053,7 @@ static int __init fd_probe_drives(void)
 	return -ENOMEM;
 }
  
+<<<<<<< HEAD
 static struct kobject *floppy_find(dev_t dev, int *part, void *data)
 {
 	int drive = *part & 3;
@@ -1781,6 +2063,8 @@ static struct kobject *floppy_find(dev_t dev, int *part, void *data)
 	return get_disk_and_module(unit[drive].gendisk);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __init amiga_floppy_probe(struct platform_device *pdev)
 {
 	int i, ret;
@@ -1810,9 +2094,12 @@ static int __init amiga_floppy_probe(struct platform_device *pdev)
 	if (fd_probe_drives() < 1) /* No usable drives */
 		goto out_probe;
 
+<<<<<<< HEAD
 	blk_register_region(MKDEV(FLOPPY_MAJOR, 0), 256, THIS_MODULE,
 				floppy_find, NULL, NULL);
 
+=======
+>>>>>>> upstream/android-13
 	/* initialize variables */
 	timer_setup(&motor_on_timer, motor_on_callback, 0);
 	motor_on_timer.expires = 0;

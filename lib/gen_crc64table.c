@@ -16,8 +16,11 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+<<<<<<< HEAD
 #include <linux/swab.h>
 
+=======
+>>>>>>> upstream/android-13
 #define CRC64_ECMA182_POLY 0x42F0E1EBA9EA3693ULL
 
 static uint64_t crc64_table[256] = {0};

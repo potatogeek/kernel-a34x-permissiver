@@ -33,13 +33,27 @@
 #include <linux/time.h>
 #include <linux/mm.h>
 #include <linux/mman.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-buf.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include "kfd_priv.h"
 #include "kfd_device_queue_manager.h"
 #include "kfd_dbgmgr.h"
+<<<<<<< HEAD
 
 static long kfd_ioctl(struct file *, unsigned int, unsigned long);
 static int kfd_open(struct inode *, struct file *);
+=======
+#include "kfd_svm.h"
+#include "amdgpu_amdkfd.h"
+#include "kfd_smi_events.h"
+
+static long kfd_ioctl(struct file *, unsigned int, unsigned long);
+static int kfd_open(struct inode *, struct file *);
+static int kfd_release(struct inode *, struct file *);
+>>>>>>> upstream/android-13
 static int kfd_mmap(struct file *, struct vm_area_struct *);
 
 static const char kfd_dev_name[] = "kfd";
@@ -47,8 +61,14 @@ static const char kfd_dev_name[] = "kfd";
 static const struct file_operations kfd_fops = {
 	.owner = THIS_MODULE,
 	.unlocked_ioctl = kfd_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl = kfd_ioctl,
 	.open = kfd_open,
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+	.open = kfd_open,
+	.release = kfd_release,
+>>>>>>> upstream/android-13
 	.mmap = kfd_mmap,
 };
 
@@ -92,6 +112,10 @@ void kfd_chardev_exit(void)
 	device_destroy(kfd_class, MKDEV(kfd_char_dev_major, 0));
 	class_destroy(kfd_class);
 	unregister_chrdev(kfd_char_dev_major, kfd_dev_name);
+<<<<<<< HEAD
+=======
+	kfd_device = NULL;
+>>>>>>> upstream/android-13
 }
 
 struct device *kfd_chardev(void)
@@ -122,8 +146,20 @@ static int kfd_open(struct inode *inode, struct file *filep)
 	if (IS_ERR(process))
 		return PTR_ERR(process);
 
+<<<<<<< HEAD
 	if (kfd_is_locked())
 		return -EAGAIN;
+=======
+	if (kfd_is_locked()) {
+		dev_dbg(kfd_device, "kfd is locked!\n"
+				"process %d unreferenced", process->pasid);
+		kfd_unref_process(process);
+		return -EAGAIN;
+	}
+
+	/* filep now owns the reference returned by kfd_create_process */
+	filep->private_data = process;
+>>>>>>> upstream/android-13
 
 	dev_dbg(kfd_device, "process %d opened, compat mode (32 bit) - %d\n",
 		process->pasid, process->is_32bit_user_mode);
@@ -131,6 +167,19 @@ static int kfd_open(struct inode *inode, struct file *filep)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int kfd_release(struct inode *inode, struct file *filep)
+{
+	struct kfd_process *process = filep->private_data;
+
+	if (process)
+		kfd_unref_process(process);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int kfd_ioctl_get_version(struct file *filep, struct kfd_process *p,
 					void *data)
 {
@@ -156,8 +205,12 @@ static int set_queue_properties_from_user(struct queue_properties *q_properties,
 	}
 
 	if ((args->ring_base_address) &&
+<<<<<<< HEAD
 		(!access_ok(VERIFY_WRITE,
 			(const void __user *) args->ring_base_address,
+=======
+		(!access_ok((const void __user *) args->ring_base_address,
+>>>>>>> upstream/android-13
 			sizeof(uint64_t)))) {
 		pr_err("Can't access ring base address\n");
 		return -EFAULT;
@@ -168,37 +221,57 @@ static int set_queue_properties_from_user(struct queue_properties *q_properties,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE,
 			(const void __user *) args->read_pointer_address,
+=======
+	if (!access_ok((const void __user *) args->read_pointer_address,
+>>>>>>> upstream/android-13
 			sizeof(uint32_t))) {
 		pr_err("Can't access read pointer\n");
 		return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE,
 			(const void __user *) args->write_pointer_address,
+=======
+	if (!access_ok((const void __user *) args->write_pointer_address,
+>>>>>>> upstream/android-13
 			sizeof(uint32_t))) {
 		pr_err("Can't access write pointer\n");
 		return -EFAULT;
 	}
 
 	if (args->eop_buffer_address &&
+<<<<<<< HEAD
 		!access_ok(VERIFY_WRITE,
 			(const void __user *) args->eop_buffer_address,
+=======
+		!access_ok((const void __user *) args->eop_buffer_address,
+>>>>>>> upstream/android-13
 			sizeof(uint32_t))) {
 		pr_debug("Can't access eop buffer");
 		return -EFAULT;
 	}
 
 	if (args->ctx_save_restore_address &&
+<<<<<<< HEAD
 		!access_ok(VERIFY_WRITE,
 			(const void __user *) args->ctx_save_restore_address,
+=======
+		!access_ok((const void __user *) args->ctx_save_restore_address,
+>>>>>>> upstream/android-13
 			sizeof(uint32_t))) {
 		pr_debug("Can't access ctx save restore buffer");
 		return -EFAULT;
 	}
 
 	q_properties->is_interop = false;
+<<<<<<< HEAD
+=======
+	q_properties->is_gws = false;
+>>>>>>> upstream/android-13
 	q_properties->queue_percent = args->queue_percentage;
 	q_properties->priority = args->queue_priority;
 	q_properties->queue_address = args->ring_base_address;
@@ -216,6 +289,11 @@ static int set_queue_properties_from_user(struct queue_properties *q_properties,
 		q_properties->type = KFD_QUEUE_TYPE_COMPUTE;
 	else if (args->queue_type == KFD_IOC_QUEUE_TYPE_SDMA)
 		q_properties->type = KFD_QUEUE_TYPE_SDMA;
+<<<<<<< HEAD
+=======
+	else if (args->queue_type == KFD_IOC_QUEUE_TYPE_SDMA_XGMI)
+		q_properties->type = KFD_QUEUE_TYPE_SDMA_XGMI;
+>>>>>>> upstream/android-13
 	else
 		return -ENOTSUPP;
 
@@ -259,6 +337,10 @@ static int kfd_ioctl_create_queue(struct file *filep, struct kfd_process *p,
 	unsigned int queue_id;
 	struct kfd_process_device *pdd;
 	struct queue_properties q_properties;
+<<<<<<< HEAD
+=======
+	uint32_t doorbell_offset_in_process = 0;
+>>>>>>> upstream/android-13
 
 	memset(&q_properties, 0, sizeof(struct queue_properties));
 
@@ -283,11 +365,20 @@ static int kfd_ioctl_create_queue(struct file *filep, struct kfd_process *p,
 		goto err_bind_process;
 	}
 
+<<<<<<< HEAD
 	pr_debug("Creating queue for PASID %d on gpu 0x%x\n",
 			p->pasid,
 			dev->id);
 
 	err = pqm_create_queue(&p->pqm, dev, filep, &q_properties, &queue_id);
+=======
+	pr_debug("Creating queue for PASID 0x%x on gpu 0x%x\n",
+			p->pasid,
+			dev->id);
+
+	err = pqm_create_queue(&p->pqm, dev, filep, &q_properties, &queue_id,
+			&doorbell_offset_in_process);
+>>>>>>> upstream/android-13
 	if (err != 0)
 		goto err_create_queue;
 
@@ -297,6 +388,7 @@ static int kfd_ioctl_create_queue(struct file *filep, struct kfd_process *p,
 	/* Return gpu_id as doorbell offset for mmap usage */
 	args->doorbell_offset = KFD_MMAP_TYPE_DOORBELL;
 	args->doorbell_offset |= KFD_MMAP_GPU_ID(args->gpu_id);
+<<<<<<< HEAD
 	args->doorbell_offset <<= PAGE_SHIFT;
 	if (KFD_IS_SOC15(dev->device_info->asic_family))
 		/* On SOC15 ASICs, doorbell allocation must be
@@ -305,6 +397,13 @@ static int kfd_ioctl_create_queue(struct file *filep, struct kfd_process *p,
 		 * doorbell aperture to user mode.
 		 */
 		args->doorbell_offset |= q_properties.doorbell_off;
+=======
+	if (KFD_IS_SOC15(dev->device_info->asic_family))
+		/* On SOC15 ASICs, include the doorbell offset within the
+		 * process doorbell frame, which is 2 pages.
+		 */
+		args->doorbell_offset |= doorbell_offset_in_process;
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&p->mutex);
 
@@ -333,7 +432,11 @@ static int kfd_ioctl_destroy_queue(struct file *filp, struct kfd_process *p,
 	int retval;
 	struct kfd_ioctl_destroy_queue_args *args = data;
 
+<<<<<<< HEAD
 	pr_debug("Destroying queue id %d for pasid %d\n",
+=======
+	pr_debug("Destroying queue id %d for pasid 0x%x\n",
+>>>>>>> upstream/android-13
 				args->queue_id,
 				p->pasid);
 
@@ -363,8 +466,12 @@ static int kfd_ioctl_update_queue(struct file *filp, struct kfd_process *p,
 	}
 
 	if ((args->ring_base_address) &&
+<<<<<<< HEAD
 		(!access_ok(VERIFY_WRITE,
 			(const void __user *) args->ring_base_address,
+=======
+		(!access_ok((const void __user *) args->ring_base_address,
+>>>>>>> upstream/android-13
 			sizeof(uint64_t)))) {
 		pr_err("Can't access ring base address\n");
 		return -EFAULT;
@@ -380,7 +487,11 @@ static int kfd_ioctl_update_queue(struct file *filp, struct kfd_process *p,
 	properties.queue_percent = args->queue_percentage;
 	properties.priority = args->queue_priority;
 
+<<<<<<< HEAD
 	pr_debug("Updating queue id %d for pasid %d\n",
+=======
+	pr_debug("Updating queue id %d for pasid 0x%x\n",
+>>>>>>> upstream/android-13
 			args->queue_id, p->pasid);
 
 	mutex_lock(&p->mutex);
@@ -447,6 +558,27 @@ static int kfd_ioctl_set_cu_mask(struct file *filp, struct kfd_process *p,
 	return retval;
 }
 
+<<<<<<< HEAD
+=======
+static int kfd_ioctl_get_queue_wave_state(struct file *filep,
+					  struct kfd_process *p, void *data)
+{
+	struct kfd_ioctl_get_queue_wave_state_args *args = data;
+	int r;
+
+	mutex_lock(&p->mutex);
+
+	r = pqm_get_wave_state(&p->pqm, args->queue_id,
+			       (void __user *)args->ctl_stack_address,
+			       &args->ctl_stack_used_size,
+			       &args->save_area_used_size);
+
+	mutex_unlock(&p->mutex);
+
+	return r;
+}
+
+>>>>>>> upstream/android-13
 static int kfd_ioctl_set_memory_policy(struct file *filep,
 					struct kfd_process *p, void *data)
 {
@@ -508,7 +640,11 @@ static int kfd_ioctl_set_trap_handler(struct file *filep,
 	struct kfd_process_device *pdd;
 
 	dev = kfd_device_by_id(args->gpu_id);
+<<<<<<< HEAD
 	if (dev == NULL)
+=======
+	if (!dev)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	mutex_lock(&p->mutex);
@@ -519,11 +655,15 @@ static int kfd_ioctl_set_trap_handler(struct file *filep,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (dev->dqm->ops.set_trap_handler(dev->dqm,
 					&pdd->qpd,
 					args->tba_addr,
 					args->tma_addr))
 		err = -EINVAL;
+=======
+	kfd_process_set_trap_handler(&pdd->qpd, args->tba_addr, args->tma_addr);
+>>>>>>> upstream/android-13
 
 out:
 	mutex_unlock(&p->mutex);
@@ -816,15 +956,23 @@ static int kfd_ioctl_get_clock_counters(struct file *filep,
 	dev = kfd_device_by_id(args->gpu_id);
 	if (dev)
 		/* Reading GPU clock counter from KGD */
+<<<<<<< HEAD
 		args->gpu_clock_counter =
 			dev->kfd2kgd->get_gpu_clock_counter(dev->kgd);
+=======
+		args->gpu_clock_counter = amdgpu_amdkfd_get_gpu_clock_counter(dev->kgd);
+>>>>>>> upstream/android-13
 	else
 		/* Node without GPU resource */
 		args->gpu_clock_counter = 0;
 
 	/* No access to rdtsc. Using raw monotonic time */
 	args->cpu_clock_counter = ktime_get_raw_ns();
+<<<<<<< HEAD
 	args->system_clock_counter = ktime_get_boot_ns();
+=======
+	args->system_clock_counter = ktime_get_boottime_ns();
+>>>>>>> upstream/android-13
 
 	/* Since the counter is in nano-seconds we use 1GHz frequency */
 	args->system_clock_freq = 1000000000;
@@ -838,13 +986,20 @@ static int kfd_ioctl_get_process_apertures(struct file *filp,
 {
 	struct kfd_ioctl_get_process_apertures_args *args = data;
 	struct kfd_process_device_apertures *pAperture;
+<<<<<<< HEAD
 	struct kfd_process_device *pdd;
 
 	dev_dbg(kfd_device, "get apertures for PASID %d", p->pasid);
+=======
+	int i;
+
+	dev_dbg(kfd_device, "get apertures for PASID 0x%x", p->pasid);
+>>>>>>> upstream/android-13
 
 	args->num_of_nodes = 0;
 
 	mutex_lock(&p->mutex);
+<<<<<<< HEAD
 
 	/*if the process-device list isn't empty*/
 	if (kfd_has_process_device_data(p)) {
@@ -884,6 +1039,42 @@ static int kfd_ioctl_get_process_apertures(struct file *filp,
 		} while (pdd && (args->num_of_nodes < NUM_OF_SUPPORTED_GPUS));
 	}
 
+=======
+	/* Run over all pdd of the process */
+	for (i = 0; i < p->n_pdds; i++) {
+		struct kfd_process_device *pdd = p->pdds[i];
+
+		pAperture =
+			&args->process_apertures[args->num_of_nodes];
+		pAperture->gpu_id = pdd->dev->id;
+		pAperture->lds_base = pdd->lds_base;
+		pAperture->lds_limit = pdd->lds_limit;
+		pAperture->gpuvm_base = pdd->gpuvm_base;
+		pAperture->gpuvm_limit = pdd->gpuvm_limit;
+		pAperture->scratch_base = pdd->scratch_base;
+		pAperture->scratch_limit = pdd->scratch_limit;
+
+		dev_dbg(kfd_device,
+			"node id %u\n", args->num_of_nodes);
+		dev_dbg(kfd_device,
+			"gpu id %u\n", pdd->dev->id);
+		dev_dbg(kfd_device,
+			"lds_base %llX\n", pdd->lds_base);
+		dev_dbg(kfd_device,
+			"lds_limit %llX\n", pdd->lds_limit);
+		dev_dbg(kfd_device,
+			"gpuvm_base %llX\n", pdd->gpuvm_base);
+		dev_dbg(kfd_device,
+			"gpuvm_limit %llX\n", pdd->gpuvm_limit);
+		dev_dbg(kfd_device,
+			"scratch_base %llX\n", pdd->scratch_base);
+		dev_dbg(kfd_device,
+			"scratch_limit %llX\n", pdd->scratch_limit);
+
+		if (++args->num_of_nodes >= NUM_OF_SUPPORTED_GPUS)
+			break;
+	}
+>>>>>>> upstream/android-13
 	mutex_unlock(&p->mutex);
 
 	return 0;
@@ -894,17 +1085,25 @@ static int kfd_ioctl_get_process_apertures_new(struct file *filp,
 {
 	struct kfd_ioctl_get_process_apertures_new_args *args = data;
 	struct kfd_process_device_apertures *pa;
+<<<<<<< HEAD
 	struct kfd_process_device *pdd;
 	uint32_t nodes = 0;
 	int ret;
 
 	dev_dbg(kfd_device, "get apertures for PASID %d", p->pasid);
+=======
+	int ret;
+	int i;
+
+	dev_dbg(kfd_device, "get apertures for PASID 0x%x", p->pasid);
+>>>>>>> upstream/android-13
 
 	if (args->num_of_nodes == 0) {
 		/* Return number of nodes, so that user space can alloacate
 		 * sufficient memory
 		 */
 		mutex_lock(&p->mutex);
+<<<<<<< HEAD
 
 		if (!kfd_has_process_device_data(p))
 			goto out_unlock;
@@ -916,6 +1115,9 @@ static int kfd_ioctl_get_process_apertures_new(struct file *filp,
 			pdd = kfd_get_next_process_device_data(p, pdd);
 		} while (pdd);
 
+=======
+		args->num_of_nodes = p->n_pdds;
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	}
 
@@ -930,13 +1132,18 @@ static int kfd_ioctl_get_process_apertures_new(struct file *filp,
 
 	mutex_lock(&p->mutex);
 
+<<<<<<< HEAD
 	if (!kfd_has_process_device_data(p)) {
+=======
+	if (!p->n_pdds) {
+>>>>>>> upstream/android-13
 		args->num_of_nodes = 0;
 		kfree(pa);
 		goto out_unlock;
 	}
 
 	/* Run over all pdd of the process */
+<<<<<<< HEAD
 	pdd = kfd_get_first_process_device_data(p);
 	do {
 		pa[nodes].gpu_id = pdd->dev->id;
@@ -946,6 +1153,18 @@ static int kfd_ioctl_get_process_apertures_new(struct file *filp,
 		pa[nodes].gpuvm_limit = pdd->gpuvm_limit;
 		pa[nodes].scratch_base = pdd->scratch_base;
 		pa[nodes].scratch_limit = pdd->scratch_limit;
+=======
+	for (i = 0; i < min(p->n_pdds, args->num_of_nodes); i++) {
+		struct kfd_process_device *pdd = p->pdds[i];
+
+		pa[i].gpu_id = pdd->dev->id;
+		pa[i].lds_base = pdd->lds_base;
+		pa[i].lds_limit = pdd->lds_limit;
+		pa[i].gpuvm_base = pdd->gpuvm_base;
+		pa[i].gpuvm_limit = pdd->gpuvm_limit;
+		pa[i].scratch_base = pdd->scratch_base;
+		pa[i].scratch_limit = pdd->scratch_limit;
+>>>>>>> upstream/android-13
 
 		dev_dbg(kfd_device,
 			"gpu id %u\n", pdd->dev->id);
@@ -961,6 +1180,7 @@ static int kfd_ioctl_get_process_apertures_new(struct file *filp,
 			"scratch_base %llX\n", pdd->scratch_base);
 		dev_dbg(kfd_device,
 			"scratch_limit %llX\n", pdd->scratch_limit);
+<<<<<<< HEAD
 		nodes++;
 
 		pdd = kfd_get_next_process_device_data(p, pdd);
@@ -972,6 +1192,16 @@ static int kfd_ioctl_get_process_apertures_new(struct file *filp,
 			(void __user *)args->kfd_process_device_apertures_ptr,
 			pa,
 			(nodes * sizeof(struct kfd_process_device_apertures)));
+=======
+	}
+	mutex_unlock(&p->mutex);
+
+	args->num_of_nodes = i;
+	ret = copy_to_user(
+			(void __user *)args->kfd_process_device_apertures_ptr,
+			pa,
+			(i * sizeof(struct kfd_process_device_apertures)));
+>>>>>>> upstream/android-13
 	kfree(pa);
 	return ret ? -EFAULT : 0;
 
@@ -1024,7 +1254,11 @@ static int kfd_ioctl_create_event(struct file *filp, struct kfd_process *p,
 		}
 		mutex_unlock(&p->mutex);
 
+<<<<<<< HEAD
 		err = kfd->kfd2kgd->map_gtt_bo_to_kernel(kfd->kgd,
+=======
+		err = amdgpu_amdkfd_gpuvm_map_gtt_bo_to_kernel(kfd->kgd,
+>>>>>>> upstream/android-13
 						mem, &kern_addr, &size);
 		if (err) {
 			pr_err("Failed to map event page to kernel\n");
@@ -1113,7 +1347,11 @@ static int kfd_ioctl_set_scratch_backing_va(struct file *filep,
 	mutex_unlock(&p->mutex);
 
 	if (dev->dqm->sched_policy == KFD_SCHED_POLICY_NO_HWS &&
+<<<<<<< HEAD
 	    pdd->qpd.vmid != 0)
+=======
+	    pdd->qpd.vmid != 0 && dev->kfd2kgd->set_scratch_backing_va)
+>>>>>>> upstream/android-13
 		dev->kfd2kgd->set_scratch_backing_va(
 			dev->kgd, args->va_addr, pdd->qpd.vmid);
 
@@ -1136,7 +1374,11 @@ static int kfd_ioctl_get_tile_config(struct file *filep,
 	if (!dev)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	dev->kfd2kgd->get_tile_config(dev->kgd, &config);
+=======
+	amdgpu_amdkfd_get_tile_config(dev->kgd, &config);
+>>>>>>> upstream/android-13
 
 	args->gb_addr_config = config.gb_addr_config;
 	args->num_banks = config.num_banks;
@@ -1210,7 +1452,11 @@ err_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool kfd_dev_is_large_bar(struct kfd_dev *dev)
+=======
+bool kfd_dev_is_large_bar(struct kfd_dev *dev)
+>>>>>>> upstream/android-13
 {
 	struct kfd_local_mem_info mem_info;
 
@@ -1219,10 +1465,17 @@ static bool kfd_dev_is_large_bar(struct kfd_dev *dev)
 		return true;
 	}
 
+<<<<<<< HEAD
 	if (dev->device_info->needs_iommu_device)
 		return false;
 
 	dev->kfd2kgd->get_local_mem_info(dev->kgd, &mem_info);
+=======
+	if (dev->use_iommu_v2)
+		return false;
+
+	amdgpu_amdkfd_get_local_mem_info(dev->kgd, &mem_info);
+>>>>>>> upstream/android-13
 	if (mem_info.local_mem_size_private == 0 &&
 			mem_info.local_mem_size_public > 0)
 		return true;
@@ -1263,9 +1516,33 @@ static int kfd_ioctl_alloc_memory_of_gpu(struct file *filep,
 		goto err_unlock;
 	}
 
+<<<<<<< HEAD
 	err = dev->kfd2kgd->alloc_memory_of_gpu(
 		dev->kgd, args->va_addr, args->size,
 		pdd->vm, (struct kgd_mem **) &mem, &offset,
+=======
+	if (flags & KFD_IOC_ALLOC_MEM_FLAGS_DOORBELL) {
+		if (args->size != kfd_doorbell_process_slice(dev)) {
+			err = -EINVAL;
+			goto err_unlock;
+		}
+		offset = kfd_get_process_doorbells(pdd);
+	} else if (flags & KFD_IOC_ALLOC_MEM_FLAGS_MMIO_REMAP) {
+		if (args->size != PAGE_SIZE) {
+			err = -EINVAL;
+			goto err_unlock;
+		}
+		offset = amdgpu_amdkfd_get_mmio_remap_phys_addr(dev->kgd);
+		if (!offset) {
+			err = -ENOMEM;
+			goto err_unlock;
+		}
+	}
+
+	err = amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu(
+		dev->kgd, args->va_addr, args->size,
+		pdd->drm_priv, (struct kgd_mem **) &mem, &offset,
+>>>>>>> upstream/android-13
 		flags);
 
 	if (err)
@@ -1277,15 +1554,37 @@ static int kfd_ioctl_alloc_memory_of_gpu(struct file *filep,
 		goto err_free;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Update the VRAM usage count */
+	if (flags & KFD_IOC_ALLOC_MEM_FLAGS_VRAM)
+		WRITE_ONCE(pdd->vram_usage, pdd->vram_usage + args->size);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&p->mutex);
 
 	args->handle = MAKE_HANDLE(args->gpu_id, idr_handle);
 	args->mmap_offset = offset;
 
+<<<<<<< HEAD
 	return 0;
 
 err_free:
 	dev->kfd2kgd->free_memory_of_gpu(dev->kgd, (struct kgd_mem *)mem);
+=======
+	/* MMIO is mapped through kfd device
+	 * Generate a kfd mmap offset
+	 */
+	if (flags & KFD_IOC_ALLOC_MEM_FLAGS_MMIO_REMAP)
+		args->mmap_offset = KFD_MMAP_TYPE_MMIO
+					| KFD_MMAP_GPU_ID(args->gpu_id);
+
+	return 0;
+
+err_free:
+	amdgpu_amdkfd_gpuvm_free_memory_of_gpu(dev->kgd, (struct kgd_mem *)mem,
+					       pdd->drm_priv, NULL);
+>>>>>>> upstream/android-13
 err_unlock:
 	mutex_unlock(&p->mutex);
 	return err;
@@ -1299,6 +1598,10 @@ static int kfd_ioctl_free_memory_of_gpu(struct file *filep,
 	void *mem;
 	struct kfd_dev *dev;
 	int ret;
+<<<<<<< HEAD
+=======
+	uint64_t size = 0;
+>>>>>>> upstream/android-13
 
 	dev = kfd_device_by_id(GET_GPU_ID(args->handle));
 	if (!dev)
@@ -1320,7 +1623,12 @@ static int kfd_ioctl_free_memory_of_gpu(struct file *filep,
 		goto err_unlock;
 	}
 
+<<<<<<< HEAD
 	ret = dev->kfd2kgd->free_memory_of_gpu(dev->kgd, (struct kgd_mem *)mem);
+=======
+	ret = amdgpu_amdkfd_gpuvm_free_memory_of_gpu(dev->kgd,
+				(struct kgd_mem *)mem, pdd->drm_priv, &size);
+>>>>>>> upstream/android-13
 
 	/* If freeing the buffer failed, leave the handle in place for
 	 * clean-up during process tear-down.
@@ -1329,6 +1637,11 @@ static int kfd_ioctl_free_memory_of_gpu(struct file *filep,
 		kfd_process_device_remove_obj_handle(
 			pdd, GET_IDR_HANDLE(args->handle));
 
+<<<<<<< HEAD
+=======
+	WRITE_ONCE(pdd->vram_usage, pdd->vram_usage - size);
+
+>>>>>>> upstream/android-13
 err_unlock:
 	mutex_unlock(&p->mutex);
 	return ret;
@@ -1344,6 +1657,10 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
 	long err = 0;
 	int i;
 	uint32_t *devices_arr = NULL;
+<<<<<<< HEAD
+=======
+	bool table_freed = false;
+>>>>>>> upstream/android-13
 
 	dev = kfd_device_by_id(GET_GPU_ID(args->handle));
 	if (!dev)
@@ -1400,8 +1717,14 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
 			err = PTR_ERR(peer_pdd);
 			goto get_mem_obj_from_handle_failed;
 		}
+<<<<<<< HEAD
 		err = peer->kfd2kgd->map_memory_to_gpu(
 			peer->kgd, (struct kgd_mem *)mem, peer_pdd->vm);
+=======
+		err = amdgpu_amdkfd_gpuvm_map_memory_to_gpu(
+			peer->kgd, (struct kgd_mem *)mem,
+			peer_pdd->drm_priv, &table_freed);
+>>>>>>> upstream/android-13
 		if (err) {
 			pr_err("Failed to map to gpu %d/%d\n",
 			       i, args->n_devices);
@@ -1412,13 +1735,18 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
 
 	mutex_unlock(&p->mutex);
 
+<<<<<<< HEAD
 	err = dev->kfd2kgd->sync_memory(dev->kgd, (struct kgd_mem *) mem, true);
+=======
+	err = amdgpu_amdkfd_gpuvm_sync_memory(dev->kgd, (struct kgd_mem *) mem, true);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_debug("Sync memory failed, wait interrupted by user signal\n");
 		goto sync_memory_failed;
 	}
 
 	/* Flush TLBs after waiting for the page table updates to complete */
+<<<<<<< HEAD
 	for (i = 0; i < args->n_devices; i++) {
 		peer = kfd_device_by_id(devices_arr[i]);
 		if (WARN_ON_ONCE(!peer))
@@ -1429,6 +1757,19 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
 		kfd_flush_tlb(peer_pdd);
 	}
 
+=======
+	if (table_freed) {
+		for (i = 0; i < args->n_devices; i++) {
+			peer = kfd_device_by_id(devices_arr[i]);
+			if (WARN_ON_ONCE(!peer))
+				continue;
+			peer_pdd = kfd_get_process_device_data(peer, p);
+			if (WARN_ON_ONCE(!peer_pdd))
+				continue;
+			kfd_flush_tlb(peer_pdd, TLB_FLUSH_LEGACY);
+		}
+	}
+>>>>>>> upstream/android-13
 	kfree(devices_arr);
 
 	return err;
@@ -1507,8 +1848,13 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
 			err = -ENODEV;
 			goto get_mem_obj_from_handle_failed;
 		}
+<<<<<<< HEAD
 		err = dev->kfd2kgd->unmap_memory_to_gpu(
 			peer->kgd, (struct kgd_mem *)mem, peer_pdd->vm);
+=======
+		err = amdgpu_amdkfd_gpuvm_unmap_memory_from_gpu(
+			peer->kgd, (struct kgd_mem *)mem, peer_pdd->drm_priv);
+>>>>>>> upstream/android-13
 		if (err) {
 			pr_err("Failed to unmap from gpu %d/%d\n",
 			       i, args->n_devices);
@@ -1516,10 +1862,36 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
 		}
 		args->n_success = i+1;
 	}
+<<<<<<< HEAD
 	kfree(devices_arr);
 
 	mutex_unlock(&p->mutex);
 
+=======
+	mutex_unlock(&p->mutex);
+
+	if (dev->device_info->asic_family == CHIP_ALDEBARAN) {
+		err = amdgpu_amdkfd_gpuvm_sync_memory(dev->kgd,
+				(struct kgd_mem *) mem, true);
+		if (err) {
+			pr_debug("Sync memory failed, wait interrupted by user signal\n");
+			goto sync_memory_failed;
+		}
+
+		/* Flush TLBs after waiting for the page table updates to complete */
+		for (i = 0; i < args->n_devices; i++) {
+			peer = kfd_device_by_id(devices_arr[i]);
+			if (WARN_ON_ONCE(!peer))
+				continue;
+			peer_pdd = kfd_get_process_device_data(peer, p);
+			if (WARN_ON_ONCE(!peer_pdd))
+				continue;
+			kfd_flush_tlb(peer_pdd, TLB_FLUSH_HEAVYWEIGHT);
+		}
+	}
+	kfree(devices_arr);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 bind_process_to_device_failed:
@@ -1527,10 +1899,233 @@ get_mem_obj_from_handle_failed:
 unmap_memory_from_gpu_failed:
 	mutex_unlock(&p->mutex);
 copy_from_user_failed:
+<<<<<<< HEAD
+=======
+sync_memory_failed:
+>>>>>>> upstream/android-13
 	kfree(devices_arr);
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int kfd_ioctl_alloc_queue_gws(struct file *filep,
+		struct kfd_process *p, void *data)
+{
+	int retval;
+	struct kfd_ioctl_alloc_queue_gws_args *args = data;
+	struct queue *q;
+	struct kfd_dev *dev;
+
+	mutex_lock(&p->mutex);
+	q = pqm_get_user_queue(&p->pqm, args->queue_id);
+
+	if (q) {
+		dev = q->device;
+	} else {
+		retval = -EINVAL;
+		goto out_unlock;
+	}
+
+	if (!dev->gws) {
+		retval = -ENODEV;
+		goto out_unlock;
+	}
+
+	if (dev->dqm->sched_policy == KFD_SCHED_POLICY_NO_HWS) {
+		retval = -ENODEV;
+		goto out_unlock;
+	}
+
+	retval = pqm_set_gws(&p->pqm, args->queue_id, args->num_gws ? dev->gws : NULL);
+	mutex_unlock(&p->mutex);
+
+	args->first_gws = 0;
+	return retval;
+
+out_unlock:
+	mutex_unlock(&p->mutex);
+	return retval;
+}
+
+static int kfd_ioctl_get_dmabuf_info(struct file *filep,
+		struct kfd_process *p, void *data)
+{
+	struct kfd_ioctl_get_dmabuf_info_args *args = data;
+	struct kfd_dev *dev = NULL;
+	struct kgd_dev *dma_buf_kgd;
+	void *metadata_buffer = NULL;
+	uint32_t flags;
+	unsigned int i;
+	int r;
+
+	/* Find a KFD GPU device that supports the get_dmabuf_info query */
+	for (i = 0; kfd_topology_enum_kfd_devices(i, &dev) == 0; i++)
+		if (dev)
+			break;
+	if (!dev)
+		return -EINVAL;
+
+	if (args->metadata_ptr) {
+		metadata_buffer = kzalloc(args->metadata_size, GFP_KERNEL);
+		if (!metadata_buffer)
+			return -ENOMEM;
+	}
+
+	/* Get dmabuf info from KGD */
+	r = amdgpu_amdkfd_get_dmabuf_info(dev->kgd, args->dmabuf_fd,
+					  &dma_buf_kgd, &args->size,
+					  metadata_buffer, args->metadata_size,
+					  &args->metadata_size, &flags);
+	if (r)
+		goto exit;
+
+	/* Reverse-lookup gpu_id from kgd pointer */
+	dev = kfd_device_by_kgd(dma_buf_kgd);
+	if (!dev) {
+		r = -EINVAL;
+		goto exit;
+	}
+	args->gpu_id = dev->id;
+	args->flags = flags;
+
+	/* Copy metadata buffer to user mode */
+	if (metadata_buffer) {
+		r = copy_to_user((void __user *)args->metadata_ptr,
+				 metadata_buffer, args->metadata_size);
+		if (r != 0)
+			r = -EFAULT;
+	}
+
+exit:
+	kfree(metadata_buffer);
+
+	return r;
+}
+
+static int kfd_ioctl_import_dmabuf(struct file *filep,
+				   struct kfd_process *p, void *data)
+{
+	struct kfd_ioctl_import_dmabuf_args *args = data;
+	struct kfd_process_device *pdd;
+	struct dma_buf *dmabuf;
+	struct kfd_dev *dev;
+	int idr_handle;
+	uint64_t size;
+	void *mem;
+	int r;
+
+	dev = kfd_device_by_id(args->gpu_id);
+	if (!dev)
+		return -EINVAL;
+
+	dmabuf = dma_buf_get(args->dmabuf_fd);
+	if (IS_ERR(dmabuf))
+		return PTR_ERR(dmabuf);
+
+	mutex_lock(&p->mutex);
+
+	pdd = kfd_bind_process_to_device(dev, p);
+	if (IS_ERR(pdd)) {
+		r = PTR_ERR(pdd);
+		goto err_unlock;
+	}
+
+	r = amdgpu_amdkfd_gpuvm_import_dmabuf(dev->kgd, dmabuf,
+					      args->va_addr, pdd->drm_priv,
+					      (struct kgd_mem **)&mem, &size,
+					      NULL);
+	if (r)
+		goto err_unlock;
+
+	idr_handle = kfd_process_device_create_obj_handle(pdd, mem);
+	if (idr_handle < 0) {
+		r = -EFAULT;
+		goto err_free;
+	}
+
+	mutex_unlock(&p->mutex);
+	dma_buf_put(dmabuf);
+
+	args->handle = MAKE_HANDLE(args->gpu_id, idr_handle);
+
+	return 0;
+
+err_free:
+	amdgpu_amdkfd_gpuvm_free_memory_of_gpu(dev->kgd, (struct kgd_mem *)mem,
+					       pdd->drm_priv, NULL);
+err_unlock:
+	mutex_unlock(&p->mutex);
+	dma_buf_put(dmabuf);
+	return r;
+}
+
+/* Handle requests for watching SMI events */
+static int kfd_ioctl_smi_events(struct file *filep,
+				struct kfd_process *p, void *data)
+{
+	struct kfd_ioctl_smi_events_args *args = data;
+	struct kfd_dev *dev;
+
+	dev = kfd_device_by_id(args->gpuid);
+	if (!dev)
+		return -EINVAL;
+
+	return kfd_smi_event_open(dev, &args->anon_fd);
+}
+
+static int kfd_ioctl_set_xnack_mode(struct file *filep,
+				    struct kfd_process *p, void *data)
+{
+	struct kfd_ioctl_set_xnack_mode_args *args = data;
+	int r = 0;
+
+	mutex_lock(&p->mutex);
+	if (args->xnack_enabled >= 0) {
+		if (!list_empty(&p->pqm.queues)) {
+			pr_debug("Process has user queues running\n");
+			mutex_unlock(&p->mutex);
+			return -EBUSY;
+		}
+		if (args->xnack_enabled && !kfd_process_xnack_mode(p, true))
+			r = -EPERM;
+		else
+			p->xnack_enabled = args->xnack_enabled;
+	} else {
+		args->xnack_enabled = p->xnack_enabled;
+	}
+	mutex_unlock(&p->mutex);
+
+	return r;
+}
+
+#if IS_ENABLED(CONFIG_HSA_AMD_SVM)
+static int kfd_ioctl_svm(struct file *filep, struct kfd_process *p, void *data)
+{
+	struct kfd_ioctl_svm_args *args = data;
+	int r = 0;
+
+	pr_debug("start 0x%llx size 0x%llx op 0x%x nattr 0x%x\n",
+		 args->start_addr, args->size, args->op, args->nattr);
+
+	if ((args->start_addr & ~PAGE_MASK) || (args->size & ~PAGE_MASK))
+		return -EINVAL;
+	if (!args->start_addr || !args->size)
+		return -EINVAL;
+
+	r = svm_ioctl(p, args->op, args->start_addr, args->size, args->nattr,
+		      args->attrs);
+
+	return r;
+}
+#else
+static int kfd_ioctl_svm(struct file *filep, struct kfd_process *p, void *data)
+{
+	return -EPERM;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #define AMDKFD_IOCTL_DEF(ioctl, _func, _flags) \
 	[_IOC_NR(ioctl)] = {.cmd = ioctl, .func = _func, .flags = _flags, \
 			    .cmd_drv = 0, .name = #ioctl}
@@ -1615,6 +2210,28 @@ static const struct amdkfd_ioctl_desc amdkfd_ioctls[] = {
 	AMDKFD_IOCTL_DEF(AMDKFD_IOC_SET_CU_MASK,
 			kfd_ioctl_set_cu_mask, 0),
 
+<<<<<<< HEAD
+=======
+	AMDKFD_IOCTL_DEF(AMDKFD_IOC_GET_QUEUE_WAVE_STATE,
+			kfd_ioctl_get_queue_wave_state, 0),
+
+	AMDKFD_IOCTL_DEF(AMDKFD_IOC_GET_DMABUF_INFO,
+				kfd_ioctl_get_dmabuf_info, 0),
+
+	AMDKFD_IOCTL_DEF(AMDKFD_IOC_IMPORT_DMABUF,
+				kfd_ioctl_import_dmabuf, 0),
+
+	AMDKFD_IOCTL_DEF(AMDKFD_IOC_ALLOC_QUEUE_GWS,
+			kfd_ioctl_alloc_queue_gws, 0),
+
+	AMDKFD_IOCTL_DEF(AMDKFD_IOC_SMI_EVENTS,
+			kfd_ioctl_smi_events, 0),
+
+	AMDKFD_IOCTL_DEF(AMDKFD_IOC_SVM, kfd_ioctl_svm, 0),
+
+	AMDKFD_IOCTL_DEF(AMDKFD_IOC_SET_XNACK_MODE,
+			kfd_ioctl_set_xnack_mode, 0),
+>>>>>>> upstream/android-13
 };
 
 #define AMDKFD_CORE_IOCTL_COUNT	ARRAY_SIZE(amdkfd_ioctls)
@@ -1647,11 +2264,24 @@ static long kfd_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 	} else
 		goto err_i1;
 
+<<<<<<< HEAD
 	dev_dbg(kfd_device, "ioctl cmd 0x%x (#%d), arg 0x%lx\n", cmd, nr, arg);
 
 	process = kfd_get_process(current);
 	if (IS_ERR(process)) {
 		dev_dbg(kfd_device, "no process\n");
+=======
+	dev_dbg(kfd_device, "ioctl cmd 0x%x (#0x%x), arg 0x%lx\n", cmd, nr, arg);
+
+	/* Get the process struct from the filep. Only the process
+	 * that opened /dev/kfd can use the file descriptor. Child
+	 * processes need to create their own KFD device context.
+	 */
+	process = filep->private_data;
+	if (process->lead_thread != current->group_leader) {
+		dev_dbg(kfd_device, "Using KFD FD in wrong process\n");
+		retcode = -EBADF;
+>>>>>>> upstream/android-13
 		goto err_i1;
 	}
 
@@ -1702,22 +2332,68 @@ err_i1:
 		kfree(kdata);
 
 	if (retcode)
+<<<<<<< HEAD
 		dev_dbg(kfd_device, "ret = %d\n", retcode);
+=======
+		dev_dbg(kfd_device, "ioctl cmd (#0x%x), arg 0x%lx, ret = %d\n",
+				nr, arg, retcode);
+>>>>>>> upstream/android-13
 
 	return retcode;
 }
 
+<<<<<<< HEAD
+=======
+static int kfd_mmio_mmap(struct kfd_dev *dev, struct kfd_process *process,
+		      struct vm_area_struct *vma)
+{
+	phys_addr_t address;
+	int ret;
+
+	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
+		return -EINVAL;
+
+	address = amdgpu_amdkfd_get_mmio_remap_phys_addr(dev->kgd);
+
+	vma->vm_flags |= VM_IO | VM_DONTCOPY | VM_DONTEXPAND | VM_NORESERVE |
+				VM_DONTDUMP | VM_PFNMAP;
+
+	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+
+	pr_debug("pasid 0x%x mapping mmio page\n"
+		 "     target user address == 0x%08llX\n"
+		 "     physical address    == 0x%08llX\n"
+		 "     vm_flags            == 0x%04lX\n"
+		 "     size                == 0x%04lX\n",
+		 process->pasid, (unsigned long long) vma->vm_start,
+		 address, vma->vm_flags, PAGE_SIZE);
+
+	ret = io_remap_pfn_range(vma,
+				vma->vm_start,
+				address >> PAGE_SHIFT,
+				PAGE_SIZE,
+				vma->vm_page_prot);
+	return ret;
+}
+
+
+>>>>>>> upstream/android-13
 static int kfd_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 	struct kfd_process *process;
 	struct kfd_dev *dev = NULL;
+<<<<<<< HEAD
 	unsigned long vm_pgoff;
+=======
+	unsigned long mmap_offset;
+>>>>>>> upstream/android-13
 	unsigned int gpu_id;
 
 	process = kfd_get_process(current);
 	if (IS_ERR(process))
 		return PTR_ERR(process);
 
+<<<<<<< HEAD
 	vm_pgoff = vma->vm_pgoff;
 	vma->vm_pgoff = KFD_MMAP_OFFSET_VALUE_GET(vm_pgoff);
 	gpu_id = KFD_MMAP_GPU_ID_GET(vm_pgoff);
@@ -1725,6 +2401,14 @@ static int kfd_mmap(struct file *filp, struct vm_area_struct *vma)
 		dev = kfd_device_by_id(gpu_id);
 
 	switch (vm_pgoff & KFD_MMAP_TYPE_MASK) {
+=======
+	mmap_offset = vma->vm_pgoff << PAGE_SHIFT;
+	gpu_id = KFD_MMAP_GET_GPU_ID(mmap_offset);
+	if (gpu_id)
+		dev = kfd_device_by_id(gpu_id);
+
+	switch (mmap_offset & KFD_MMAP_TYPE_MASK) {
+>>>>>>> upstream/android-13
 	case KFD_MMAP_TYPE_DOORBELL:
 		if (!dev)
 			return -ENODEV;
@@ -1737,6 +2421,13 @@ static int kfd_mmap(struct file *filp, struct vm_area_struct *vma)
 		if (!dev)
 			return -ENODEV;
 		return kfd_reserved_mem_mmap(dev, process, vma);
+<<<<<<< HEAD
+=======
+	case KFD_MMAP_TYPE_MMIO:
+		if (!dev)
+			return -ENODEV;
+		return kfd_mmio_mmap(dev, process, vma);
+>>>>>>> upstream/android-13
 	}
 
 	return -EFAULT;

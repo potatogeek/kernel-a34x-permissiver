@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Miscellaneous bits
  *
  * Copyright (C) 2016 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -67,11 +74,14 @@ unsigned int rxrpc_rx_mtu = 5692;
  */
 unsigned int rxrpc_rx_jumbo_max = 4;
 
+<<<<<<< HEAD
 /*
  * Time till packet resend (in milliseconds).
  */
 unsigned long rxrpc_resend_timeout = 4 * HZ;
 
+=======
+>>>>>>> upstream/android-13
 const s8 rxrpc_ack_priority[] = {
 	[0]				= 0,
 	[RXRPC_ACK_DELAY]		= 1,

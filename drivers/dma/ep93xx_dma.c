@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for the Cirrus Logic EP93xx DMA Controller
  *
@@ -11,11 +15,14 @@
  *   Copyright (C) 2009 Ryan Mallon <rmallon@gmail.com>
  *
  * This driver is based on dw_dmac and amba-pl08x drivers.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -109,6 +116,12 @@
 #define DMA_MAX_CHAN_DESCRIPTORS	32
 
 struct ep93xx_dma_engine;
+<<<<<<< HEAD
+=======
+static int ep93xx_dma_slave_config_write(struct dma_chan *chan,
+					 enum dma_transfer_direction dir,
+					 struct dma_slave_config *config);
+>>>>>>> upstream/android-13
 
 /**
  * struct ep93xx_dma_desc - EP93xx specific transaction descriptor
@@ -148,6 +161,10 @@ struct ep93xx_dma_desc {
  *                is set via .device_config before slave operation is
  *                prepared
  * @runtime_ctrl: M2M runtime values for the control register.
+<<<<<<< HEAD
+=======
+ * @slave_config: slave configuration
+>>>>>>> upstream/android-13
  *
  * As EP93xx DMA controller doesn't support real chained DMA descriptors we
  * will have slightly different scheme here: @active points to a head of
@@ -180,6 +197,10 @@ struct ep93xx_dma_chan {
 	struct list_head		free_list;
 	u32				runtime_addr;
 	u32				runtime_ctrl;
+<<<<<<< HEAD
+=======
+	struct dma_slave_config		slave_config;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -187,6 +208,10 @@ struct ep93xx_dma_chan {
  * @dma_dev: holds the dmaengine device
  * @m2m: is this an M2M or M2P device
  * @hw_setup: method which sets the channel up for operation
+<<<<<<< HEAD
+=======
+ * @hw_synchronize: synchronizes DMA channel termination to current context
+>>>>>>> upstream/android-13
  * @hw_shutdown: shuts the channel down and flushes whatever is left
  * @hw_submit: pushes active descriptor(s) to the hardware
  * @hw_interrupt: handle the interrupt
@@ -743,9 +768,15 @@ static void ep93xx_dma_advance_work(struct ep93xx_dma_chan *edmac)
 	spin_unlock_irqrestore(&edmac->lock, flags);
 }
 
+<<<<<<< HEAD
 static void ep93xx_dma_tasklet(unsigned long data)
 {
 	struct ep93xx_dma_chan *edmac = (struct ep93xx_dma_chan *)data;
+=======
+static void ep93xx_dma_tasklet(struct tasklet_struct *t)
+{
+	struct ep93xx_dma_chan *edmac = from_tasklet(edmac, t, tasklet);
+>>>>>>> upstream/android-13
 	struct ep93xx_dma_desc *desc, *d;
 	struct dmaengine_desc_callback cb;
 	LIST_HEAD(list);
@@ -895,7 +926,11 @@ static int ep93xx_dma_alloc_chan_resources(struct dma_chan *chan)
 	if (data && data->name)
 		name = data->name;
 
+<<<<<<< HEAD
 	ret = clk_enable(edmac->clk);
+=======
+	ret = clk_prepare_enable(edmac->clk);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -934,7 +969,11 @@ static int ep93xx_dma_alloc_chan_resources(struct dma_chan *chan)
 fail_free_irq:
 	free_irq(edmac->irq, edmac);
 fail_clk_disable:
+<<<<<<< HEAD
 	clk_disable(edmac->clk);
+=======
+	clk_disable_unprepare(edmac->clk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -967,7 +1006,11 @@ static void ep93xx_dma_free_chan_resources(struct dma_chan *chan)
 	list_for_each_entry_safe(desc, d, &list, node)
 		kfree(desc);
 
+<<<<<<< HEAD
 	clk_disable(edmac->clk);
+=======
+	clk_disable_unprepare(edmac->clk);
+>>>>>>> upstream/android-13
 	free_irq(edmac->irq, edmac);
 }
 
@@ -993,7 +1036,11 @@ ep93xx_dma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dest,
 	for (offset = 0; offset < len; offset += bytes) {
 		desc = ep93xx_dma_desc_get(edmac);
 		if (!desc) {
+<<<<<<< HEAD
 			dev_warn(chan2dev(edmac), "couln't get descriptor\n");
+=======
+			dev_warn(chan2dev(edmac), "couldn't get descriptor\n");
+>>>>>>> upstream/android-13
 			goto fail;
 		}
 
@@ -1051,6 +1098,11 @@ ep93xx_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	ep93xx_dma_slave_config_write(chan, dir, &edmac->slave_config);
+
+>>>>>>> upstream/android-13
 	first = NULL;
 	for_each_sg(sgl, sg, sg_len, i) {
 		size_t len = sg_dma_len(sg);
@@ -1063,7 +1115,11 @@ ep93xx_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
 
 		desc = ep93xx_dma_desc_get(edmac);
 		if (!desc) {
+<<<<<<< HEAD
 			dev_warn(chan2dev(edmac), "couln't get descriptor\n");
+=======
+			dev_warn(chan2dev(edmac), "couldn't get descriptor\n");
+>>>>>>> upstream/android-13
 			goto fail;
 		}
 
@@ -1136,12 +1192,21 @@ ep93xx_dma_prep_dma_cyclic(struct dma_chan *chan, dma_addr_t dma_addr,
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	ep93xx_dma_slave_config_write(chan, dir, &edmac->slave_config);
+
+>>>>>>> upstream/android-13
 	/* Split the buffer into period size chunks */
 	first = NULL;
 	for (offset = 0; offset < buf_len; offset += period_len) {
 		desc = ep93xx_dma_desc_get(edmac);
 		if (!desc) {
+<<<<<<< HEAD
 			dev_warn(chan2dev(edmac), "couln't get descriptor\n");
+=======
+			dev_warn(chan2dev(edmac), "couldn't get descriptor\n");
+>>>>>>> upstream/android-13
 			goto fail;
 		}
 
@@ -1227,6 +1292,20 @@ static int ep93xx_dma_slave_config(struct dma_chan *chan,
 				   struct dma_slave_config *config)
 {
 	struct ep93xx_dma_chan *edmac = to_ep93xx_dma_chan(chan);
+<<<<<<< HEAD
+=======
+
+	memcpy(&edmac->slave_config, config, sizeof(*config));
+
+	return 0;
+}
+
+static int ep93xx_dma_slave_config_write(struct dma_chan *chan,
+					 enum dma_transfer_direction dir,
+					 struct dma_slave_config *config)
+{
+	struct ep93xx_dma_chan *edmac = to_ep93xx_dma_chan(chan);
+>>>>>>> upstream/android-13
 	enum dma_slave_buswidth width;
 	unsigned long flags;
 	u32 addr, ctrl;
@@ -1234,7 +1313,11 @@ static int ep93xx_dma_slave_config(struct dma_chan *chan,
 	if (!edmac->edma->m2m)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	switch (config->direction) {
+=======
+	switch (dir) {
+>>>>>>> upstream/android-13
 	case DMA_DEV_TO_MEM:
 		width = config->src_addr_width;
 		addr = config->src_addr;
@@ -1336,8 +1419,12 @@ static int __init ep93xx_dma_probe(struct platform_device *pdev)
 		INIT_LIST_HEAD(&edmac->active);
 		INIT_LIST_HEAD(&edmac->queue);
 		INIT_LIST_HEAD(&edmac->free_list);
+<<<<<<< HEAD
 		tasklet_init(&edmac->tasklet, ep93xx_dma_tasklet,
 			     (unsigned long)edmac);
+=======
+		tasklet_setup(&edmac->tasklet, ep93xx_dma_tasklet);
+>>>>>>> upstream/android-13
 
 		list_add_tail(&edmac->chan.device_node,
 			      &dma_dev->channels);

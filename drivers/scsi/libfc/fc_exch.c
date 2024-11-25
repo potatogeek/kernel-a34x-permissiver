@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright(c) 2007 Intel Corporation. All rights reserved.
  * Copyright(c) 2008 Red Hat, Inc.  All rights reserved.
  * Copyright(c) 2008 Mike Christie
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 
@@ -32,7 +39,10 @@
 #include <scsi/fc/fc_fc2.h>
 
 #include <scsi/libfc.h>
+<<<<<<< HEAD
 #include <scsi/fc_encode.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "fc_libfc.h"
 
@@ -61,6 +71,11 @@ static struct workqueue_struct *fc_exch_workqueue;
  * @total_exches: Total allocated exchanges
  * @lock:	  Exch pool lock
  * @ex_list:	  List of exchanges
+<<<<<<< HEAD
+=======
+ * @left:	  Cache of free slot in exch array
+ * @right:	  Cache of free slot in exch array
+>>>>>>> upstream/android-13
  *
  * This structure manages per cpu exchanges in array of exchange pointers.
  * This array is allocated followed by struct fc_exch_pool memory for
@@ -72,7 +87,10 @@ struct fc_exch_pool {
 	u16		 next_index;
 	u16		 total_exches;
 
+<<<<<<< HEAD
 	/* two cache of free slot in exch array */
+=======
+>>>>>>> upstream/android-13
 	u16		 left;
 	u16		 right;
 } ____cacheline_aligned_in_smp;
@@ -86,6 +104,10 @@ struct fc_exch_pool {
  * @ep_pool:	    Reserved exchange pointers
  * @pool_max_index: Max exch array index in exch pool
  * @pool:	    Per cpu exch pool
+<<<<<<< HEAD
+=======
+ * @lport:	    Local exchange port
+>>>>>>> upstream/android-13
  * @stats:	    Statistics structure
  *
  * This structure is the center for creating exchanges and sequences.
@@ -282,7 +304,11 @@ static void fc_exch_setup_hdr(struct fc_exch *ep, struct fc_frame *fp,
 
 	if (f_ctl & FC_FC_END_SEQ) {
 		fr_eof(fp) = FC_EOF_T;
+<<<<<<< HEAD
 		if (fc_sof_needs_ack(ep->class))
+=======
+		if (fc_sof_needs_ack((enum fc_sof)ep->class))
+>>>>>>> upstream/android-13
 			fr_eof(fp) = FC_EOF_N;
 		/*
 		 * From F_CTL.
@@ -714,6 +740,12 @@ int fc_seq_exch_abort(const struct fc_seq *req_sp, unsigned int timer_msec)
 
 /**
  * fc_invoke_resp() - invoke ep->resp()
+<<<<<<< HEAD
+=======
+ * @ep:	   The exchange to be operated on
+ * @fp:	   The frame pointer to pass through to ->resp()
+ * @sp:	   The sequence pointer to pass through to ->resp()
+>>>>>>> upstream/android-13
  *
  * Notes:
  * It is assumed that after initialization finished (this means the
@@ -1709,6 +1741,10 @@ static void fc_exch_abts_resp(struct fc_exch *ep, struct fc_frame *fp)
 	if (cancel_delayed_work_sync(&ep->timeout_work)) {
 		FC_EXCH_DBG(ep, "Exchange timer canceled due to ABTS response\n");
 		fc_exch_release(ep);	/* release from pending timer hold */
+<<<<<<< HEAD
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_bh(&ep->ex_lock);
@@ -2127,7 +2163,11 @@ static void fc_exch_rrq_resp(struct fc_seq *sp, struct fc_frame *fp, void *arg)
 	switch (op) {
 	case ELS_LS_RJT:
 		FC_EXCH_DBG(aborted_ep, "LS_RJT for RRQ\n");
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ELS_LS_ACC:
 		goto cleanup;
 	default:
@@ -2641,7 +2681,11 @@ void fc_exch_recv(struct fc_lport *lport, struct fc_frame *fp)
 	case FC_EOF_T:
 		if (f_ctl & FC_FC_END_SEQ)
 			skb_trim(fp_skb(fp), fr_len(fp) - FC_FC_FILL(f_ctl));
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FC_EOF_N:
 		if (fh->fh_type == FC_TYPE_BLS)
 			fc_exch_recv_bls(ema->mp, fp);

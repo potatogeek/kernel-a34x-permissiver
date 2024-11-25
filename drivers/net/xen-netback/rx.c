@@ -33,6 +33,7 @@
 #include <xen/xen.h>
 #include <xen/events.h>
 
+<<<<<<< HEAD
 static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
 {
 	RING_IDX prod, cons;
@@ -55,6 +56,38 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
 		needed++;
 
 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+=======
+/*
+ * Update the needed ring page slots for the first SKB queued.
+ * Note that any call sequence outside the RX thread calling this function
+ * needs to wake up the RX thread via a call of xenvif_kick_thread()
+ * afterwards in order to avoid a race with putting the thread to sleep.
+ */
+static void xenvif_update_needed_slots(struct xenvif_queue *queue,
+				       const struct sk_buff *skb)
+{
+	unsigned int needed = 0;
+
+	if (skb) {
+		needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
+		if (skb_is_gso(skb))
+			needed++;
+		if (skb->sw_hash)
+			needed++;
+	}
+
+	WRITE_ONCE(queue->rx_slots_needed, needed);
+}
+
+static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
+{
+	RING_IDX prod, cons;
+	unsigned int needed;
+
+	needed = READ_ONCE(queue->rx_slots_needed);
+	if (!needed)
+		return false;
+>>>>>>> upstream/android-13
 
 	do {
 		prod = queue->rx.sring->req_prod;
@@ -80,6 +113,7 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
 
 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
 
+<<<<<<< HEAD
 	__skb_queue_tail(&queue->rx_queue, skb);
 
 	queue->rx_queue_len += skb->len;
@@ -87,6 +121,21 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
 		struct net_device *dev = queue->vif->dev;
 
 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
+=======
+	if (queue->rx_queue_len >= queue->rx_queue_max) {
+		struct net_device *dev = queue->vif->dev;
+
+		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
+		kfree_skb(skb);
+		queue->vif->dev->stats.rx_dropped++;
+	} else {
+		if (skb_queue_empty(&queue->rx_queue))
+			xenvif_update_needed_slots(queue, skb);
+
+		__skb_queue_tail(&queue->rx_queue, skb);
+
+		queue->rx_queue_len += skb->len;
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
@@ -100,6 +149,11 @@ static struct sk_buff *xenvif_rx_dequeue(struct xenvif_queue *queue)
 
 	skb = __skb_dequeue(&queue->rx_queue);
 	if (skb) {
+<<<<<<< HEAD
+=======
+		xenvif_update_needed_slots(queue, skb_peek(&queue->rx_queue));
+
+>>>>>>> upstream/android-13
 		queue->rx_queue_len -= skb->len;
 		if (queue->rx_queue_len < queue->rx_queue_max) {
 			struct netdev_queue *txq;
@@ -134,6 +188,10 @@ static void xenvif_rx_queue_drop_expired(struct xenvif_queue *queue)
 			break;
 		xenvif_rx_dequeue(queue);
 		kfree_skb(skb);
+<<<<<<< HEAD
+=======
+		queue->vif->dev->stats.rx_dropped++;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -265,6 +323,22 @@ static void xenvif_rx_next_skb(struct xenvif_queue *queue,
 		pkt->extra_count++;
 	}
 
+<<<<<<< HEAD
+=======
+	if (queue->vif->xdp_headroom) {
+		struct xen_netif_extra_info *extra;
+
+		extra = &pkt->extras[XEN_NETIF_EXTRA_TYPE_XDP - 1];
+
+		memset(extra, 0, sizeof(struct xen_netif_extra_info));
+		extra->u.xdp.headroom = queue->vif->xdp_headroom;
+		extra->type = XEN_NETIF_EXTRA_TYPE_XDP;
+		extra->flags = 0;
+
+		pkt->extra_count++;
+	}
+
+>>>>>>> upstream/android-13
 	if (skb->sw_hash) {
 		struct xen_netif_extra_info *extra;
 
@@ -363,7 +437,11 @@ static void xenvif_rx_data_slot(struct xenvif_queue *queue,
 				struct xen_netif_rx_request *req,
 				struct xen_netif_rx_response *rsp)
 {
+<<<<<<< HEAD
 	unsigned int offset = 0;
+=======
+	unsigned int offset = queue->vif->xdp_headroom;
+>>>>>>> upstream/android-13
 	unsigned int flags;
 
 	do {
@@ -474,27 +552,49 @@ void xenvif_rx_action(struct xenvif_queue *queue)
 	xenvif_rx_copy_flush(queue);
 }
 
+<<<<<<< HEAD
 static bool xenvif_rx_queue_stalled(struct xenvif_queue *queue)
+=======
+static RING_IDX xenvif_rx_queue_slots(const struct xenvif_queue *queue)
+>>>>>>> upstream/android-13
 {
 	RING_IDX prod, cons;
 
 	prod = queue->rx.sring->req_prod;
 	cons = queue->rx.req_cons;
 
+<<<<<<< HEAD
 	return !queue->stalled &&
 		prod - cons < 1 &&
+=======
+	return prod - cons;
+}
+
+static bool xenvif_rx_queue_stalled(const struct xenvif_queue *queue)
+{
+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
+
+	return !queue->stalled &&
+		xenvif_rx_queue_slots(queue) < needed &&
+>>>>>>> upstream/android-13
 		time_after(jiffies,
 			   queue->last_rx_time + queue->vif->stall_timeout);
 }
 
 static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
 {
+<<<<<<< HEAD
 	RING_IDX prod, cons;
 
 	prod = queue->rx.sring->req_prod;
 	cons = queue->rx.req_cons;
 
 	return queue->stalled && prod - cons >= 1;
+=======
+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
+
+	return queue->stalled && xenvif_rx_queue_slots(queue) >= needed;
+>>>>>>> upstream/android-13
 }
 
 bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2009 Nokia Corporation
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
  *
  * Some code and ideas taken from drivers/video/omap/ driver
  * by Imre Deak.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "DISPC"
@@ -125,6 +132,10 @@ struct dispc_features {
 	const unsigned int num_reg_fields;
 	const enum omap_overlay_caps *overlay_caps;
 	const u32 **supported_color_modes;
+<<<<<<< HEAD
+=======
+	const u32 *supported_scaler_color_modes;
+>>>>>>> upstream/android-13
 	unsigned int num_mgrs;
 	unsigned int num_ovls;
 	unsigned int buffer_size_unit;
@@ -195,9 +206,12 @@ struct dispc_device {
 
 	struct regmap *syscon_pol;
 	u32 syscon_pol_offset;
+<<<<<<< HEAD
 
 	/* DISPC_CONTROL & DISPC_CONFIG lock*/
 	spinlock_t control_lock;
+=======
+>>>>>>> upstream/android-13
 };
 
 enum omap_color_component {
@@ -364,8 +378,11 @@ static unsigned long dispc_plane_pclk_rate(struct dispc_device *dispc,
 static unsigned long dispc_plane_lclk_rate(struct dispc_device *dispc,
 					   enum omap_plane_id plane);
 
+<<<<<<< HEAD
 static void dispc_clear_irqstatus(struct dispc_device *dispc, u32 mask);
 
+=======
+>>>>>>> upstream/android-13
 static inline void dispc_write_reg(struct dispc_device *dispc, u16 idx, u32 val)
 {
 	__raw_writel(val, dispc->base + idx);
@@ -379,14 +396,21 @@ static inline u32 dispc_read_reg(struct dispc_device *dispc, u16 idx)
 static u32 mgr_fld_read(struct dispc_device *dispc, enum omap_channel channel,
 			enum mgr_reg_fields regfld)
 {
+<<<<<<< HEAD
 	const struct dispc_reg_field rfld = mgr_desc[channel].reg_desc[regfld];
 
 	return REG_GET(dispc, rfld.reg, rfld.high, rfld.low);
+=======
+	const struct dispc_reg_field *rfld = &mgr_desc[channel].reg_desc[regfld];
+
+	return REG_GET(dispc, rfld->reg, rfld->high, rfld->low);
+>>>>>>> upstream/android-13
 }
 
 static void mgr_fld_write(struct dispc_device *dispc, enum omap_channel channel,
 			  enum mgr_reg_fields regfld, int val)
 {
+<<<<<<< HEAD
 	const struct dispc_reg_field rfld = mgr_desc[channel].reg_desc[regfld];
 	const bool need_lock = rfld.reg == DISPC_CONTROL || rfld.reg == DISPC_CONFIG;
 	unsigned long flags;
@@ -401,11 +425,23 @@ static void mgr_fld_write(struct dispc_device *dispc, enum omap_channel channel,
 }
 
 static int dispc_get_num_ovls(struct dispc_device *dispc)
+=======
+	const struct dispc_reg_field *rfld = &mgr_desc[channel].reg_desc[regfld];
+
+	REG_FLD_MOD(dispc, rfld->reg, val, rfld->high, rfld->low);
+}
+
+int dispc_get_num_ovls(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	return dispc->feat->num_ovls;
 }
 
+<<<<<<< HEAD
 static int dispc_get_num_mgrs(struct dispc_device *dispc)
+=======
+int dispc_get_num_mgrs(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	return dispc->feat->num_mgrs;
 }
@@ -414,8 +450,12 @@ static void dispc_get_reg_field(struct dispc_device *dispc,
 				enum dispc_feat_reg_field id,
 				u8 *start, u8 *end)
 {
+<<<<<<< HEAD
 	if (id >= dispc->feat->num_reg_fields)
 		BUG();
+=======
+	BUG_ON(id >= dispc->feat->num_reg_fields);
+>>>>>>> upstream/android-13
 
 	*start = dispc->feat->reg_fields[id].start;
 	*end = dispc->feat->reg_fields[id].end;
@@ -675,8 +715,16 @@ int dispc_runtime_get(struct dispc_device *dispc)
 	DSSDBG("dispc_runtime_get\n");
 
 	r = pm_runtime_get_sync(&dispc->pdev->dev);
+<<<<<<< HEAD
 	WARN_ON(r < 0);
 	return r < 0 ? r : 0;
+=======
+	if (WARN_ON(r < 0)) {
+		pm_runtime_put_noidle(&dispc->pdev->dev);
+		return r;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void dispc_runtime_put(struct dispc_device *dispc)
@@ -689,13 +737,21 @@ void dispc_runtime_put(struct dispc_device *dispc)
 	WARN_ON(r < 0 && r != -ENOSYS);
 }
 
+<<<<<<< HEAD
 static u32 dispc_mgr_get_vsync_irq(struct dispc_device *dispc,
+=======
+u32 dispc_mgr_get_vsync_irq(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 				   enum omap_channel channel)
 {
 	return mgr_desc[channel].vsync_irq;
 }
 
+<<<<<<< HEAD
 static u32 dispc_mgr_get_framedone_irq(struct dispc_device *dispc,
+=======
+u32 dispc_mgr_get_framedone_irq(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 				       enum omap_channel channel)
 {
 	if (channel == OMAP_DSS_CHANNEL_DIGIT && dispc->feat->no_framedone_tv)
@@ -704,18 +760,30 @@ static u32 dispc_mgr_get_framedone_irq(struct dispc_device *dispc,
 	return mgr_desc[channel].framedone_irq;
 }
 
+<<<<<<< HEAD
 static u32 dispc_mgr_get_sync_lost_irq(struct dispc_device *dispc,
+=======
+u32 dispc_mgr_get_sync_lost_irq(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 				       enum omap_channel channel)
 {
 	return mgr_desc[channel].sync_lost_irq;
 }
 
+<<<<<<< HEAD
 static u32 dispc_wb_get_framedone_irq(struct dispc_device *dispc)
+=======
+u32 dispc_wb_get_framedone_irq(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	return DISPC_IRQ_FRAMEDONEWB;
 }
 
+<<<<<<< HEAD
 static void dispc_mgr_enable(struct dispc_device *dispc,
+=======
+void dispc_mgr_enable(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 			     enum omap_channel channel, bool enable)
 {
 	mgr_fld_write(dispc, channel, DISPC_MGR_FLD_ENABLE, enable);
@@ -729,13 +797,21 @@ static bool dispc_mgr_is_enabled(struct dispc_device *dispc,
 	return !!mgr_fld_read(dispc, channel, DISPC_MGR_FLD_ENABLE);
 }
 
+<<<<<<< HEAD
 static bool dispc_mgr_go_busy(struct dispc_device *dispc,
+=======
+bool dispc_mgr_go_busy(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 			      enum omap_channel channel)
 {
 	return mgr_fld_read(dispc, channel, DISPC_MGR_FLD_GO) == 1;
 }
 
+<<<<<<< HEAD
 static void dispc_mgr_go(struct dispc_device *dispc, enum omap_channel channel)
+=======
+void dispc_mgr_go(struct dispc_device *dispc, enum omap_channel channel)
+>>>>>>> upstream/android-13
 {
 	WARN_ON(!dispc_mgr_is_enabled(dispc, channel));
 	WARN_ON(dispc_mgr_go_busy(dispc, channel));
@@ -745,12 +821,20 @@ static void dispc_mgr_go(struct dispc_device *dispc, enum omap_channel channel)
 	mgr_fld_write(dispc, channel, DISPC_MGR_FLD_GO, 1);
 }
 
+<<<<<<< HEAD
 static bool dispc_wb_go_busy(struct dispc_device *dispc)
+=======
+bool dispc_wb_go_busy(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	return REG_GET(dispc, DISPC_CONTROL2, 6, 6) == 1;
 }
 
+<<<<<<< HEAD
 static void dispc_wb_go(struct dispc_device *dispc)
+=======
+void dispc_wb_go(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	enum omap_plane_id plane = OMAP_DSS_WB;
 	bool enable, go;
@@ -896,6 +980,7 @@ static void dispc_ovl_write_color_conv_coef(struct dispc_device *dispc,
 #undef CVAL
 }
 
+<<<<<<< HEAD
 static void dispc_wb_write_color_conv_coef(struct dispc_device *dispc,
 					   const struct csc_coef_rgb2yuv *ct)
 {
@@ -940,6 +1025,64 @@ static void dispc_setup_color_conv_coef(struct dispc_device *dispc)
 
 	if (dispc->feat->has_writeback)
 		dispc_wb_write_color_conv_coef(dispc, &coefs_rgb2yuv_bt601_lim);
+=======
+/* YUV -> RGB, ITU-R BT.601, full range */
+static const struct csc_coef_yuv2rgb coefs_yuv2rgb_bt601_full = {
+	256,   0,  358,		/* ry, rcb, rcr |1.000  0.000  1.402|*/
+	256, -88, -182,		/* gy, gcb, gcr |1.000 -0.344 -0.714|*/
+	256, 452,    0,		/* by, bcb, bcr |1.000  1.772  0.000|*/
+	true,			/* full range */
+};
+
+/* YUV -> RGB, ITU-R BT.601, limited range */
+static const struct csc_coef_yuv2rgb coefs_yuv2rgb_bt601_lim = {
+	298,    0,  409,	/* ry, rcb, rcr |1.164  0.000  1.596|*/
+	298, -100, -208,	/* gy, gcb, gcr |1.164 -0.392 -0.813|*/
+	298,  516,    0,	/* by, bcb, bcr |1.164  2.017  0.000|*/
+	false,			/* limited range */
+};
+
+/* YUV -> RGB, ITU-R BT.709, full range */
+static const struct csc_coef_yuv2rgb coefs_yuv2rgb_bt709_full = {
+	256,    0,  402,        /* ry, rcb, rcr |1.000  0.000  1.570|*/
+	256,  -48, -120,        /* gy, gcb, gcr |1.000 -0.187 -0.467|*/
+	256,  475,    0,        /* by, bcb, bcr |1.000  1.856  0.000|*/
+	true,                   /* full range */
+};
+
+/* YUV -> RGB, ITU-R BT.709, limited range */
+static const struct csc_coef_yuv2rgb coefs_yuv2rgb_bt709_lim = {
+	298,    0,  459,	/* ry, rcb, rcr |1.164  0.000  1.793|*/
+	298,  -55, -136,	/* gy, gcb, gcr |1.164 -0.213 -0.533|*/
+	298,  541,    0,	/* by, bcb, bcr |1.164  2.112  0.000|*/
+	false,			/* limited range */
+};
+
+static void dispc_ovl_set_csc(struct dispc_device *dispc,
+			      enum omap_plane_id plane,
+			      enum drm_color_encoding color_encoding,
+			      enum drm_color_range color_range)
+{
+	const struct csc_coef_yuv2rgb *csc;
+
+	switch (color_encoding) {
+	default:
+	case DRM_COLOR_YCBCR_BT601:
+		if (color_range == DRM_COLOR_YCBCR_FULL_RANGE)
+			csc = &coefs_yuv2rgb_bt601_full;
+		else
+			csc = &coefs_yuv2rgb_bt601_lim;
+		break;
+	case DRM_COLOR_YCBCR_BT709:
+		if (color_range == DRM_COLOR_YCBCR_FULL_RANGE)
+			csc = &coefs_yuv2rgb_bt709_full;
+		else
+			csc = &coefs_yuv2rgb_bt709_lim;
+		break;
+	}
+
+	dispc_ovl_write_color_conv_coef(dispc, plane, csc);
+>>>>>>> upstream/android-13
 }
 
 static void dispc_ovl_set_ba0(struct dispc_device *dispc,
@@ -1140,6 +1283,7 @@ static void dispc_ovl_set_color_mode(struct dispc_device *dispc,
 	REG_FLD_MOD(dispc, DISPC_OVL_ATTRIBUTES(plane), m, 4, 1);
 }
 
+<<<<<<< HEAD
 static bool format_is_yuv(u32 fourcc)
 {
 	switch (fourcc) {
@@ -1152,6 +1296,8 @@ static bool format_is_yuv(u32 fourcc)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dispc_ovl_configure_burst_type(struct dispc_device *dispc,
 					   enum omap_plane_id plane,
 					   enum omap_dss_rotation_type rotation)
@@ -1316,7 +1462,11 @@ static bool dispc_ovl_color_mode_supported(struct dispc_device *dispc,
 	return false;
 }
 
+<<<<<<< HEAD
 static const u32 *dispc_ovl_get_color_modes(struct dispc_device *dispc,
+=======
+const u32 *dispc_ovl_get_color_modes(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 					    enum omap_plane_id plane)
 {
 	return dispc->feat->supported_color_modes[plane];
@@ -1910,11 +2060,21 @@ static void dispc_ovl_set_scaling_uv(struct dispc_device *dispc,
 	int scale_x = out_width != orig_width;
 	int scale_y = out_height != orig_height;
 	bool chroma_upscale = plane != OMAP_DSS_WB;
+<<<<<<< HEAD
+=======
+	const struct drm_format_info *info;
+
+	info = drm_format_info(fourcc);
+>>>>>>> upstream/android-13
 
 	if (!dispc_has_feature(dispc, FEAT_HANDLE_UV_SEPARATE))
 		return;
 
+<<<<<<< HEAD
 	if (!format_is_yuv(fourcc)) {
+=======
+	if (!info->is_yuv) {
+>>>>>>> upstream/android-13
 		/* reset chroma resampling for RGB formats  */
 		if (plane != OMAP_DSS_WB)
 			REG_FLD_MOD(dispc, DISPC_OVL_ATTRIBUTES2(plane),
@@ -2108,9 +2268,14 @@ static s32 pixinc(int pixels, u8 ps)
 		return 1 + (pixels - 1) * ps;
 	else if (pixels < 0)
 		return 1 - (-pixels + 1) * ps;
+<<<<<<< HEAD
 	else
 		BUG();
 		return 0;
+=======
+
+	BUG();
+>>>>>>> upstream/android-13
 }
 
 static void calc_offset(u16 screen_width, u16 width,
@@ -2530,6 +2695,22 @@ static int dispc_ovl_calc_scaling(struct dispc_device *dispc,
 	if (width == out_width && height == out_height)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (dispc->feat->supported_scaler_color_modes) {
+		const u32 *modes = dispc->feat->supported_scaler_color_modes;
+		unsigned int i;
+
+		for (i = 0; modes[i]; ++i) {
+			if (modes[i] == fourcc)
+				break;
+		}
+
+		if (modes[i] == 0)
+			return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (plane == OMAP_DSS_WB) {
 		switch (fourcc) {
 		case DRM_FORMAT_NV12:
@@ -2616,7 +2797,13 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 				  u8 pre_mult_alpha, u8 global_alpha,
 				  enum omap_dss_rotation_type rotation_type,
 				  bool replication, const struct videomode *vm,
+<<<<<<< HEAD
 				  bool mem_to_mem)
+=======
+				  bool mem_to_mem,
+				  enum drm_color_encoding color_encoding,
+				  enum drm_color_range color_range)
+>>>>>>> upstream/android-13
 {
 	bool five_taps = true;
 	bool fieldmode = false;
@@ -2624,7 +2811,11 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 	unsigned int offset0, offset1;
 	s32 row_inc;
 	s32 pix_inc;
+<<<<<<< HEAD
 	u16 frame_width, frame_height;
+=======
+	u16 frame_width;
+>>>>>>> upstream/android-13
 	unsigned int field_offset = 0;
 	u16 in_height = height;
 	u16 in_width = width;
@@ -2632,6 +2823,12 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 	bool ilace = !!(vm->flags & DISPLAY_FLAGS_INTERLACED);
 	unsigned long pclk = dispc_plane_pclk_rate(dispc, plane);
 	unsigned long lclk = dispc_plane_lclk_rate(dispc, plane);
+<<<<<<< HEAD
+=======
+	const struct drm_format_info *info;
+
+	info = drm_format_info(fourcc);
+>>>>>>> upstream/android-13
 
 	/* when setting up WB, dispc_plane_pclk_rate() returns 0 */
 	if (plane == OMAP_DSS_WB)
@@ -2640,7 +2837,11 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 	if (paddr == 0 && rotation_type != OMAP_DSS_ROT_TILER)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (format_is_yuv(fourcc) && (in_width & 1)) {
+=======
+	if (info->is_yuv && (in_width & 1)) {
+>>>>>>> upstream/android-13
 		DSSERR("input width %d is not even for YUV format\n", in_width);
 		return -EINVAL;
 	}
@@ -2680,7 +2881,11 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 		DSSDBG("predecimation %d x %x, new input size %d x %d\n",
 			x_predecim, y_predecim, in_width, in_height);
 
+<<<<<<< HEAD
 	if (format_is_yuv(fourcc) && (in_width & 1)) {
+=======
+	if (info->is_yuv && (in_width & 1)) {
+>>>>>>> upstream/android-13
 		DSSDBG("predecimated input width is not even for YUV format\n");
 		DSSDBG("adjusting input width %d -> %d\n",
 			in_width, in_width & ~1);
@@ -2688,7 +2893,11 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 		in_width &= ~1;
 	}
 
+<<<<<<< HEAD
 	if (format_is_yuv(fourcc))
+=======
+	if (info->is_yuv)
+>>>>>>> upstream/android-13
 		cconv = 1;
 
 	if (ilace && !fieldmode) {
@@ -2714,6 +2923,7 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 	row_inc = 0;
 	pix_inc = 0;
 
+<<<<<<< HEAD
 	if (plane == OMAP_DSS_WB) {
 		frame_width = out_width;
 		frame_height = out_height;
@@ -2721,6 +2931,12 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 		frame_width = in_width;
 		frame_height = height;
 	}
+=======
+	if (plane == OMAP_DSS_WB)
+		frame_width = out_width;
+	else
+		frame_width = in_width;
+>>>>>>> upstream/android-13
 
 	calc_offset(screen_width, frame_width,
 			fourcc, fieldmode, field_offset,
@@ -2765,6 +2981,12 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 				      fieldmode, fourcc, rotation);
 		dispc_ovl_set_output_size(dispc, plane, out_width, out_height);
 		dispc_ovl_set_vid_color_conv(dispc, plane, cconv);
+<<<<<<< HEAD
+=======
+
+		if (plane != OMAP_DSS_WB)
+			dispc_ovl_set_csc(dispc, plane, color_encoding, color_range);
+>>>>>>> upstream/android-13
 	}
 
 	dispc_ovl_set_rotation_attrs(dispc, plane, rotation, rotation_type,
@@ -2779,7 +3001,11 @@ static int dispc_ovl_setup_common(struct dispc_device *dispc,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dispc_ovl_setup(struct dispc_device *dispc,
+=======
+int dispc_ovl_setup(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 			   enum omap_plane_id plane,
 			   const struct omap_overlay_info *oi,
 			   const struct videomode *vm, bool mem_to_mem,
@@ -2801,12 +3027,21 @@ static int dispc_ovl_setup(struct dispc_device *dispc,
 		oi->screen_width, oi->pos_x, oi->pos_y, oi->width, oi->height,
 		oi->out_width, oi->out_height, oi->fourcc, oi->rotation,
 		oi->zorder, oi->pre_mult_alpha, oi->global_alpha,
+<<<<<<< HEAD
 		oi->rotation_type, replication, vm, mem_to_mem);
+=======
+		oi->rotation_type, replication, vm, mem_to_mem,
+		oi->color_encoding, oi->color_range);
+>>>>>>> upstream/android-13
 
 	return r;
 }
 
+<<<<<<< HEAD
 static int dispc_wb_setup(struct dispc_device *dispc,
+=======
+int dispc_wb_setup(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 		   const struct omap_dss_writeback_info *wi,
 		   bool mem_to_mem, const struct videomode *vm,
 		   enum dss_writeback_channel channel_in)
@@ -2834,7 +3069,12 @@ static int dispc_wb_setup(struct dispc_device *dispc,
 		wi->buf_width, pos_x, pos_y, in_width, in_height, wi->width,
 		wi->height, wi->fourcc, wi->rotation, zorder,
 		wi->pre_mult_alpha, global_alpha, wi->rotation_type,
+<<<<<<< HEAD
 		replication, vm, mem_to_mem);
+=======
+		replication, vm, mem_to_mem, DRM_COLOR_YCBCR_BT601,
+		DRM_COLOR_YCBCR_LIMITED_RANGE);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -2889,12 +3129,20 @@ static int dispc_wb_setup(struct dispc_device *dispc,
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool dispc_has_writeback(struct dispc_device *dispc)
+=======
+bool dispc_has_writeback(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	return dispc->feat->has_writeback;
 }
 
+<<<<<<< HEAD
 static int dispc_ovl_enable(struct dispc_device *dispc,
+=======
+int dispc_ovl_enable(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 			    enum omap_plane_id plane, bool enable)
 {
 	DSSDBG("dispc_enable_plane %d, %d\n", plane, enable);
@@ -2904,6 +3152,7 @@ static int dispc_ovl_enable(struct dispc_device *dispc,
 	return 0;
 }
 
+<<<<<<< HEAD
 static enum omap_dss_output_id
 dispc_mgr_get_supported_outputs(struct dispc_device *dispc,
 				enum omap_channel channel)
@@ -2911,6 +3160,8 @@ dispc_mgr_get_supported_outputs(struct dispc_device *dispc,
 	return dss_get_supported_outputs(dispc->dss, channel);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dispc_lcd_enable_signal_polarity(struct dispc_device *dispc,
 					     bool act_high)
 {
@@ -2992,7 +3243,11 @@ static void dispc_mgr_enable_alpha_fixed_zorder(struct dispc_device *dispc,
 		REG_FLD_MOD(dispc, DISPC_CONFIG, enable, 19, 19);
 }
 
+<<<<<<< HEAD
 static void dispc_mgr_setup(struct dispc_device *dispc,
+=======
+void dispc_mgr_setup(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 			    enum omap_channel channel,
 			    const struct omap_overlay_manager_info *info)
 {
@@ -3071,7 +3326,11 @@ static void dispc_mgr_enable_stallmode(struct dispc_device *dispc,
 	mgr_fld_write(dispc, channel, DISPC_MGR_FLD_STALLMODE, enable);
 }
 
+<<<<<<< HEAD
 static void dispc_mgr_set_lcd_config(struct dispc_device *dispc,
+=======
+void dispc_mgr_set_lcd_config(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 				     enum omap_channel channel,
 				     const struct dss_lcd_mgr_config *config)
 {
@@ -3120,6 +3379,7 @@ static bool _dispc_mgr_pclk_ok(struct dispc_device *dispc,
 		return pclk <= dispc->feat->max_tv_pclk;
 }
 
+<<<<<<< HEAD
 bool dispc_mgr_timings_ok(struct dispc_device *dispc, enum omap_channel channel,
 			  const struct videomode *vm)
 {
@@ -3128,20 +3388,42 @@ bool dispc_mgr_timings_ok(struct dispc_device *dispc, enum omap_channel channel,
 
 	if (!_dispc_mgr_pclk_ok(dispc, channel, vm->pixelclock))
 		return false;
+=======
+int dispc_mgr_check_timings(struct dispc_device *dispc,
+				   enum omap_channel channel,
+				   const struct videomode *vm)
+{
+	if (!_dispc_mgr_size_ok(dispc, vm->hactive, vm->vactive))
+		return MODE_BAD;
+
+	if (!_dispc_mgr_pclk_ok(dispc, channel, vm->pixelclock))
+		return MODE_BAD;
+>>>>>>> upstream/android-13
 
 	if (dss_mgr_is_lcd(channel)) {
 		/* TODO: OMAP4+ supports interlace for LCD outputs */
 		if (vm->flags & DISPLAY_FLAGS_INTERLACED)
+<<<<<<< HEAD
 			return false;
+=======
+			return MODE_BAD;
+>>>>>>> upstream/android-13
 
 		if (!_dispc_lcd_timings_ok(dispc, vm->hsync_len,
 				vm->hfront_porch, vm->hback_porch,
 				vm->vsync_len, vm->vfront_porch,
 				vm->vback_porch))
+<<<<<<< HEAD
 			return false;
 	}
 
 	return true;
+=======
+			return MODE_BAD;
+	}
+
+	return MODE_OK;
+>>>>>>> upstream/android-13
 }
 
 static void _dispc_mgr_set_lcd_timings(struct dispc_device *dispc,
@@ -3161,6 +3443,7 @@ static void _dispc_mgr_set_lcd_timings(struct dispc_device *dispc,
 	dispc_write_reg(dispc, DISPC_TIMING_H(channel), timing_h);
 	dispc_write_reg(dispc, DISPC_TIMING_V(channel), timing_v);
 
+<<<<<<< HEAD
 	if (vm->flags & DISPLAY_FLAGS_VSYNC_HIGH)
 		vs = false;
 	else
@@ -3188,6 +3471,14 @@ static void _dispc_mgr_set_lcd_timings(struct dispc_device *dispc,
 		rf = true;
 	else
 		rf = false;
+=======
+	vs = !!(vm->flags & DISPLAY_FLAGS_VSYNC_LOW);
+	hs = !!(vm->flags & DISPLAY_FLAGS_HSYNC_LOW);
+	de = !!(vm->flags & DISPLAY_FLAGS_DE_LOW);
+	ipc = !!(vm->flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE);
+	onoff = true; /* always use the 'rf' setting */
+	rf = !!(vm->flags & DISPLAY_FLAGS_SYNC_POSEDGE);
+>>>>>>> upstream/android-13
 
 	l = FLD_VAL(onoff, 17, 17) |
 		FLD_VAL(rf, 16, 16) |
@@ -3233,7 +3524,11 @@ static int vm_flag_to_int(enum display_flags flags, enum display_flags high,
 }
 
 /* change name to mode? */
+<<<<<<< HEAD
 static void dispc_mgr_set_timings(struct dispc_device *dispc,
+=======
+void dispc_mgr_set_timings(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 				  enum omap_channel channel,
 				  const struct videomode *vm)
 {
@@ -3243,7 +3538,11 @@ static void dispc_mgr_set_timings(struct dispc_device *dispc,
 
 	DSSDBG("channel %d xres %u yres %u\n", channel, t.hactive, t.vactive);
 
+<<<<<<< HEAD
 	if (!dispc_mgr_timings_ok(dispc, channel, &t)) {
+=======
+	if (dispc_mgr_check_timings(dispc, channel, &t)) {
+>>>>>>> upstream/android-13
 		BUG();
 		return;
 	}
@@ -3777,17 +4076,29 @@ int dispc_mgr_get_clock_div(struct dispc_device *dispc,
 	return 0;
 }
 
+<<<<<<< HEAD
 static u32 dispc_read_irqstatus(struct dispc_device *dispc)
+=======
+u32 dispc_read_irqstatus(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	return dispc_read_reg(dispc, DISPC_IRQSTATUS);
 }
 
+<<<<<<< HEAD
 static void dispc_clear_irqstatus(struct dispc_device *dispc, u32 mask)
+=======
+void dispc_clear_irqstatus(struct dispc_device *dispc, u32 mask)
+>>>>>>> upstream/android-13
 {
 	dispc_write_reg(dispc, DISPC_IRQSTATUS, mask);
 }
 
+<<<<<<< HEAD
 static void dispc_write_irqenable(struct dispc_device *dispc, u32 mask)
+=======
+void dispc_write_irqenable(struct dispc_device *dispc, u32 mask)
+>>>>>>> upstream/android-13
 {
 	u32 old_mask = dispc_read_reg(dispc, DISPC_IRQENABLE);
 
@@ -3811,7 +4122,11 @@ void dispc_disable_sidle(struct dispc_device *dispc)
 	REG_FLD_MOD(dispc, DISPC_SYSCONFIG, 1, 4, 3);	/* SIDLEMODE: no idle */
 }
 
+<<<<<<< HEAD
 static u32 dispc_mgr_gamma_size(struct dispc_device *dispc,
+=======
+u32 dispc_mgr_gamma_size(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 				enum omap_channel channel)
 {
 	const struct dispc_gamma_desc *gdesc = &mgr_desc[channel].gamma;
@@ -3866,7 +4181,11 @@ static const struct drm_color_lut dispc_mgr_gamma_default_lut[] = {
 	{ .red = U16_MAX, .green = U16_MAX, .blue = U16_MAX, },
 };
 
+<<<<<<< HEAD
 static void dispc_mgr_set_gamma(struct dispc_device *dispc,
+=======
+void dispc_mgr_set_gamma(struct dispc_device *dispc,
+>>>>>>> upstream/android-13
 				enum omap_channel channel,
 				const struct drm_color_lut *lut,
 				unsigned int length)
@@ -3972,8 +4291,11 @@ static void _omap_dispc_initial_config(struct dispc_device *dispc)
 	    dispc->feat->has_gamma_table)
 		REG_FLD_MOD(dispc, DISPC_CONFIG, 1, 9, 9);
 
+<<<<<<< HEAD
 	dispc_setup_color_conv_coef(dispc);
 
+=======
+>>>>>>> upstream/android-13
 	dispc_set_loadmode(dispc, OMAP_DSS_LOAD_FRAME_ONLY);
 
 	dispc_init_fifos(dispc);
@@ -4251,6 +4573,15 @@ static const u32 *omap4_dispc_supported_color_modes[] = {
 	DRM_FORMAT_RGBX8888),
 };
 
+<<<<<<< HEAD
+=======
+static const u32 omap3_dispc_supported_scaler_color_modes[] = {
+	DRM_FORMAT_XRGB8888, DRM_FORMAT_RGB565, DRM_FORMAT_YUYV,
+	DRM_FORMAT_UYVY,
+	0,
+};
+
+>>>>>>> upstream/android-13
 static const struct dispc_features omap24xx_dispc_feats = {
 	.sw_start		=	5,
 	.fp_start		=	15,
@@ -4279,6 +4610,10 @@ static const struct dispc_features omap24xx_dispc_feats = {
 	.num_reg_fields		=	ARRAY_SIZE(omap2_dispc_reg_fields),
 	.overlay_caps		=	omap2_dispc_overlay_caps,
 	.supported_color_modes	=	omap2_dispc_supported_color_modes,
+<<<<<<< HEAD
+=======
+	.supported_scaler_color_modes = COLOR_ARRAY(DRM_FORMAT_XRGB8888),
+>>>>>>> upstream/android-13
 	.num_mgrs		=	2,
 	.num_ovls		=	3,
 	.buffer_size_unit	=	1,
@@ -4313,6 +4648,10 @@ static const struct dispc_features omap34xx_rev1_0_dispc_feats = {
 	.num_reg_fields		=	ARRAY_SIZE(omap3_dispc_reg_fields),
 	.overlay_caps		=	omap3430_dispc_overlay_caps,
 	.supported_color_modes	=	omap3_dispc_supported_color_modes,
+<<<<<<< HEAD
+=======
+	.supported_scaler_color_modes = omap3_dispc_supported_scaler_color_modes,
+>>>>>>> upstream/android-13
 	.num_mgrs		=	2,
 	.num_ovls		=	3,
 	.buffer_size_unit	=	1,
@@ -4347,6 +4686,10 @@ static const struct dispc_features omap34xx_rev3_0_dispc_feats = {
 	.num_reg_fields		=	ARRAY_SIZE(omap3_dispc_reg_fields),
 	.overlay_caps		=	omap3430_dispc_overlay_caps,
 	.supported_color_modes	=	omap3_dispc_supported_color_modes,
+<<<<<<< HEAD
+=======
+	.supported_scaler_color_modes = omap3_dispc_supported_scaler_color_modes,
+>>>>>>> upstream/android-13
 	.num_mgrs		=	2,
 	.num_ovls		=	3,
 	.buffer_size_unit	=	1,
@@ -4381,6 +4724,10 @@ static const struct dispc_features omap36xx_dispc_feats = {
 	.num_reg_fields		=	ARRAY_SIZE(omap3_dispc_reg_fields),
 	.overlay_caps		=	omap3630_dispc_overlay_caps,
 	.supported_color_modes	=	omap3_dispc_supported_color_modes,
+<<<<<<< HEAD
+=======
+	.supported_scaler_color_modes = omap3_dispc_supported_scaler_color_modes,
+>>>>>>> upstream/android-13
 	.num_mgrs		=	2,
 	.num_ovls		=	3,
 	.buffer_size_unit	=	1,
@@ -4415,6 +4762,10 @@ static const struct dispc_features am43xx_dispc_feats = {
 	.num_reg_fields		=	ARRAY_SIZE(omap3_dispc_reg_fields),
 	.overlay_caps		=	omap3430_dispc_overlay_caps,
 	.supported_color_modes	=	omap3_dispc_supported_color_modes,
+<<<<<<< HEAD
+=======
+	.supported_scaler_color_modes = omap3_dispc_supported_scaler_color_modes,
+>>>>>>> upstream/android-13
 	.num_mgrs		=	1,
 	.num_ovls		=	3,
 	.buffer_size_unit	=	1,
@@ -4513,7 +4864,11 @@ static irqreturn_t dispc_irq_handler(int irq, void *arg)
 	return dispc->user_handler(irq, dispc->user_data);
 }
 
+<<<<<<< HEAD
 static int dispc_request_irq(struct dispc_device *dispc, irq_handler_t handler,
+=======
+int dispc_request_irq(struct dispc_device *dispc, irq_handler_t handler,
+>>>>>>> upstream/android-13
 			     void *dev_id)
 {
 	int r;
@@ -4537,7 +4892,11 @@ static int dispc_request_irq(struct dispc_device *dispc, irq_handler_t handler,
 	return r;
 }
 
+<<<<<<< HEAD
 static void dispc_free_irq(struct dispc_device *dispc, void *dev_id)
+=======
+void dispc_free_irq(struct dispc_device *dispc, void *dev_id)
+>>>>>>> upstream/android-13
 {
 	devm_free_irq(&dispc->pdev->dev, dispc->irq, dispc);
 
@@ -4545,7 +4904,11 @@ static void dispc_free_irq(struct dispc_device *dispc, void *dev_id)
 	dispc->user_data = NULL;
 }
 
+<<<<<<< HEAD
 static u32 dispc_get_memory_bandwidth_limit(struct dispc_device *dispc)
+=======
+u32 dispc_get_memory_bandwidth_limit(struct dispc_device *dispc)
+>>>>>>> upstream/android-13
 {
 	u32 limit = 0;
 
@@ -4635,11 +4998,18 @@ static int dispc_errata_i734_wa_init(struct dispc_device *dispc)
 	i734_buf.size = i734.ovli.width * i734.ovli.height *
 		color_mode_to_bpp(i734.ovli.fourcc) / 8;
 
+<<<<<<< HEAD
 	i734_buf.vaddr = dma_alloc_writecombine(&dispc->pdev->dev,
 						i734_buf.size, &i734_buf.paddr,
 						GFP_KERNEL);
 	if (!i734_buf.vaddr) {
 		dev_err(&dispc->pdev->dev, "%s: dma_alloc_writecombine failed\n",
+=======
+	i734_buf.vaddr = dma_alloc_wc(&dispc->pdev->dev, i734_buf.size,
+				      &i734_buf.paddr, GFP_KERNEL);
+	if (!i734_buf.vaddr) {
+		dev_err(&dispc->pdev->dev, "%s: dma_alloc_wc failed\n",
+>>>>>>> upstream/android-13
 			__func__);
 		return -ENOMEM;
 	}
@@ -4652,8 +5022,13 @@ static void dispc_errata_i734_wa_fini(struct dispc_device *dispc)
 	if (!dispc->feat->has_gamma_i734_bug)
 		return;
 
+<<<<<<< HEAD
 	dma_free_writecombine(&dispc->pdev->dev, i734_buf.size, i734_buf.vaddr,
 			      i734_buf.paddr);
+=======
+	dma_free_wc(&dispc->pdev->dev, i734_buf.size, i734_buf.vaddr,
+		    i734_buf.paddr);
+>>>>>>> upstream/android-13
 }
 
 static void dispc_errata_i734_wa(struct dispc_device *dispc)
@@ -4716,6 +5091,7 @@ static void dispc_errata_i734_wa(struct dispc_device *dispc)
 	REG_FLD_MOD(dispc, DISPC_CONFIG, gatestate, 8, 4);
 }
 
+<<<<<<< HEAD
 static const struct dispc_ops dispc_ops = {
 	.read_irqstatus = dispc_read_irqstatus,
 	.clear_irqstatus = dispc_clear_irqstatus,
@@ -4757,6 +5133,8 @@ static const struct dispc_ops dispc_ops = {
 	.wb_go = dispc_wb_go,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* DISPC HW IP initialisation */
 static const struct of_device_id dispc_of_match[] = {
 	{ .compatible = "ti,omap2-dispc", .data = &omap24xx_dispc_feats },
@@ -4795,8 +5173,11 @@ static int dispc_bind(struct device *dev, struct device *master, void *data)
 	platform_set_drvdata(pdev, dispc);
 	dispc->dss = dss;
 
+<<<<<<< HEAD
 	spin_lock_init(&dispc->control_lock);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The OMAP3-based models can't be told apart using the compatible
 	 * string, use SoC device matching.
@@ -4860,7 +5241,10 @@ static int dispc_bind(struct device *dev, struct device *master, void *data)
 	dispc_runtime_put(dispc);
 
 	dss->dispc = dispc;
+<<<<<<< HEAD
 	dss->dispc_ops = &dispc_ops;
+=======
+>>>>>>> upstream/android-13
 
 	dispc->debugfs = dss_debugfs_create_file(dss, "dispc", dispc_dump_regs,
 						 dispc);
@@ -4882,7 +5266,10 @@ static void dispc_unbind(struct device *dev, struct device *master, void *data)
 	dss_debugfs_remove_file(dispc->debugfs);
 
 	dss->dispc = NULL;
+<<<<<<< HEAD
 	dss->dispc_ops = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	pm_runtime_disable(dev);
 
@@ -4952,6 +5339,10 @@ static int dispc_runtime_resume(struct device *dev)
 static const struct dev_pm_ops dispc_pm_ops = {
 	.runtime_suspend = dispc_runtime_suspend,
 	.runtime_resume = dispc_runtime_resume,
+<<<<<<< HEAD
+=======
+	SET_LATE_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+>>>>>>> upstream/android-13
 };
 
 struct platform_driver omap_dispchw_driver = {

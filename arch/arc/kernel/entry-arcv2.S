@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ARCv2 ISA based core Low Level Intr/Traps/Exceptions(non-TLB) Handling
  *
  * Copyright (C) 2013 Synopsys, Inc. (www.synopsys.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>   /* ARC_{EXTRY,EXIT} */
@@ -13,6 +20,10 @@
 #include <asm/errno.h>
 #include <asm/arcregs.h>
 #include <asm/irqflags.h>
+<<<<<<< HEAD
+=======
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 
 ; A maximum number of supported interrupts in the core interrupt controller.
 ; This number is not equal to the maximum interrupt number (256) because
@@ -70,7 +81,11 @@ reserved:
 
 ENTRY(handle_interrupt)
 
+<<<<<<< HEAD
 	INTERRUPT_PROLOGUE  irq
+=======
+	INTERRUPT_PROLOGUE
+>>>>>>> upstream/android-13
 
 	# irq control APIs local_irq_save/restore/disable/enable fiddle with
 	# global interrupt enable bits in STATUS32 (.IE for 1 prio, .E[] for 2 prio)
@@ -82,7 +97,11 @@ ENTRY(handle_interrupt)
 	#
 	# Note this disable is only for consistent book-keeping as further interrupts
 	# will be disabled anyways even w/o this. Hardware tracks active interrupts
+<<<<<<< HEAD
 	# seperately in AUX_IRQ_ACTIVE.active and will not take new interrupts
+=======
+	# seperately in AUX_IRQ_ACT.active and will not take new interrupts
+>>>>>>> upstream/android-13
 	# unless this one returns (or higher prio becomes pending in 2-prio scheme)
 
 	IRQ_DISABLE
@@ -203,17 +222,29 @@ restore_regs:
 	ld	r0, [sp, PT_status32]	; U/K mode at time of entry
 	lr	r10, [AUX_IRQ_ACT]
 
+<<<<<<< HEAD
 	bmsk	r11, r10, 15	; AUX_IRQ_ACT.ACTIVE
+=======
+	bmsk	r11, r10, 15		; extract AUX_IRQ_ACT.active
+>>>>>>> upstream/android-13
 	breq	r11, 0, .Lexcept_ret	; No intr active, ret from Exception
 
 ;####### Return from Intr #######
 
+<<<<<<< HEAD
+=======
+.Lisr_ret:
+
+>>>>>>> upstream/android-13
 debug_marker_l1:
 	; bbit1.nt r0, STATUS_DE_BIT, .Lintr_ret_to_delay_slot
 	btst	r0, STATUS_DE_BIT		; Z flag set if bit clear
 	bnz	.Lintr_ret_to_delay_slot	; branch if STATUS_DE_BIT set
 
+<<<<<<< HEAD
 .Lisr_ret_fast_path:
+=======
+>>>>>>> upstream/android-13
 	; Handle special case #1: (Entry via Exception, Return via IRQ)
 	;
 	; Exception in U mode, preempted in kernel, Intr taken (K mode), orig
@@ -226,7 +257,11 @@ debug_marker_l1:
 	bset.nz	r11, r11, AUX_IRQ_ACT_BIT_U	; NZ means U
 	sr	r11, [AUX_IRQ_ACT]
 
+<<<<<<< HEAD
 	INTERRUPT_EPILOGUE  irq
+=======
+	INTERRUPT_EPILOGUE
+>>>>>>> upstream/android-13
 	rtie
 
 ;####### Return from Exception / pure kernel mode #######
@@ -247,8 +282,13 @@ debug_marker_syscall:
 ;
 ; IRQ RTIE won't reliably restore DE bit and/or BTA, needs workaround
 ;
+<<<<<<< HEAD
 ; Solution is return from Intr w/o any delay slot quirks into a kernel trampoline
 ; and from pure kernel mode return to delay slot which handles DS bit/BTA correctly
+=======
+; Solution is to drop out of interrupt context into pure kernel mode
+; and return from pure kernel mode which does right things for delay slot
+>>>>>>> upstream/android-13
 
 .Lintr_ret_to_delay_slot:
 debug_marker_ds:
@@ -257,6 +297,7 @@ debug_marker_ds:
 	add	r2, r2, 1
 	st	r2, [@intr_to_DE_cnt]
 
+<<<<<<< HEAD
 	ld	r2, [sp, PT_ret]
 	ld	r3, [sp, PT_status32]
 
@@ -300,5 +341,11 @@ debug_marker_ds:
 
 	; return from pure kernel mode to delay slot
 	rtie
+=======
+	; drop out of interrupt context (clear AUX_IRQ_ACT.active)
+	bmskn	r11, r10, 15
+	sr	r11, [AUX_IRQ_ACT]
+	b	.Lexcept_ret
+>>>>>>> upstream/android-13
 
 END(ret_from_exception)

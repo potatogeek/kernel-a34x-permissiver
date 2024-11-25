@@ -26,8 +26,14 @@ struct sec_key_notifier_param {
 	int down;
 };
 
+<<<<<<< HEAD
 int sec_kn_register_notifier(struct notifier_block *nb);
 
 int sec_kn_unregister_notifier(struct notifier_block *nb);
+=======
+extern int sec_kn_register_notifier(struct notifier_block *nb);
+
+extern int sec_kn_unregister_notifier(struct notifier_block *nb);
+>>>>>>> upstream/android-13
 
 #endif /* __SEC_KEY_NOTIFIER_H__ */

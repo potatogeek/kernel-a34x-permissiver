@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * max31790.c - Part of lm_sensors, Linux kernel modules for hardware
  *             monitoring.
  *
  * (C) 2015 by Il Han <corone.il.han@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -36,6 +43,10 @@
 
 /* Fan Config register bits */
 #define MAX31790_FAN_CFG_RPM_MODE	0x80
+<<<<<<< HEAD
+=======
+#define MAX31790_FAN_CFG_CTRL_MON	0x10
+>>>>>>> upstream/android-13
 #define MAX31790_FAN_CFG_TACH_INPUT_EN	0x08
 #define MAX31790_FAN_CFG_TACH_INPUT	0x01
 
@@ -48,6 +59,11 @@
 #define FAN_RPM_MIN			120
 #define FAN_RPM_MAX			7864320
 
+<<<<<<< HEAD
+=======
+#define FAN_COUNT_REG_MAX		0xffe0
+
+>>>>>>> upstream/android-13
 #define RPM_FROM_REG(reg, sr)		(((reg) >> 4) ? \
 					 ((60 * (sr) * 8192) / ((reg) >> 4)) : \
 					 FAN_RPM_MAX)
@@ -88,7 +104,11 @@ static struct max31790_data *max31790_update_device(struct device *dev)
 				MAX31790_REG_FAN_FAULT_STATUS1);
 		if (rv < 0)
 			goto abort;
+<<<<<<< HEAD
 		data->fault_status = rv & 0x3F;
+=======
+		data->fault_status |= rv & 0x3F;
+>>>>>>> upstream/android-13
 
 		rv = i2c_smbus_read_byte_data(client,
 				MAX31790_REG_FAN_FAULT_STATUS2);
@@ -113,7 +133,11 @@ static struct max31790_data *max31790_update_device(struct device *dev)
 				data->tach[NR_CHANNEL + i] = rv;
 			} else {
 				rv = i2c_smbus_read_word_swapped(client,
+<<<<<<< HEAD
 						MAX31790_REG_PWMOUT(i));
+=======
+						MAX31790_REG_PWM_DUTY_CYCLE(i));
+>>>>>>> upstream/android-13
 				if (rv < 0)
 					goto abort;
 				data->pwm[i] = rv;
@@ -179,8 +203,16 @@ static int max31790_read_fan(struct device *dev, u32 attr, int channel,
 
 	switch (attr) {
 	case hwmon_fan_input:
+<<<<<<< HEAD
 		sr = get_tach_period(data->fan_dynamics[channel]);
 		rpm = RPM_FROM_REG(data->tach[channel], sr);
+=======
+		sr = get_tach_period(data->fan_dynamics[channel % NR_CHANNEL]);
+		if (data->tach[channel] == FAN_COUNT_REG_MAX)
+			rpm = 0;
+		else
+			rpm = RPM_FROM_REG(data->tach[channel], sr);
+>>>>>>> upstream/android-13
 		*val = rpm;
 		return 0;
 	case hwmon_fan_target:
@@ -189,7 +221,25 @@ static int max31790_read_fan(struct device *dev, u32 attr, int channel,
 		*val = rpm;
 		return 0;
 	case hwmon_fan_fault:
+<<<<<<< HEAD
 		*val = !!(data->fault_status & (1 << channel));
+=======
+		mutex_lock(&data->update_lock);
+		*val = !!(data->fault_status & (1 << channel));
+		data->fault_status &= ~(1 << channel);
+		/*
+		 * If a fault bit is set, we need to write into one of the fan
+		 * configuration registers to clear it. Note that this also
+		 * clears the fault for the companion channel if enabled.
+		 */
+		if (*val) {
+			int reg = MAX31790_REG_TARGET_COUNT(channel % NR_CHANNEL);
+
+			i2c_smbus_write_byte_data(data->client, reg,
+						  data->target_count[channel % NR_CHANNEL] >> 8);
+		}
+		mutex_unlock(&data->update_lock);
+>>>>>>> upstream/android-13
 		return 0;
 	default:
 		return -EOPNOTSUPP;
@@ -252,12 +302,20 @@ static umode_t max31790_fan_is_visible(const void *_data, u32 attr, int channel)
 	case hwmon_fan_fault:
 		if (channel < NR_CHANNEL ||
 		    (fan_config & MAX31790_FAN_CFG_TACH_INPUT))
+<<<<<<< HEAD
 			return S_IRUGO;
+=======
+			return 0444;
+>>>>>>> upstream/android-13
 		return 0;
 	case hwmon_fan_target:
 		if (channel < NR_CHANNEL &&
 		    !(fan_config & MAX31790_FAN_CFG_TACH_INPUT))
+<<<<<<< HEAD
 			return S_IRUGO | S_IWUSR;
+=======
+			return 0644;
+>>>>>>> upstream/android-13
 		return 0;
 	default:
 		return 0;
@@ -280,12 +338,21 @@ static int max31790_read_pwm(struct device *dev, u32 attr, int channel,
 		*val = data->pwm[channel] >> 8;
 		return 0;
 	case hwmon_pwm_enable:
+<<<<<<< HEAD
 		if (fan_config & MAX31790_FAN_CFG_RPM_MODE)
 			*val = 2;
 		else if (fan_config & MAX31790_FAN_CFG_TACH_INPUT_EN)
 			*val = 1;
 		else
 			*val = 0;
+=======
+		if (fan_config & MAX31790_FAN_CFG_CTRL_MON)
+			*val = 0;
+		else if (fan_config & MAX31790_FAN_CFG_RPM_MODE)
+			*val = 2;
+		else
+			*val = 1;
+>>>>>>> upstream/android-13
 		return 0;
 	default:
 		return -EOPNOTSUPP;
@@ -308,14 +375,22 @@ static int max31790_write_pwm(struct device *dev, u32 attr, int channel,
 			err = -EINVAL;
 			break;
 		}
+<<<<<<< HEAD
 		data->pwm[channel] = val << 8;
 		err = i2c_smbus_write_word_swapped(client,
 						   MAX31790_REG_PWMOUT(channel),
 						   data->pwm[channel]);
+=======
+		data->valid = false;
+		err = i2c_smbus_write_word_swapped(client,
+						   MAX31790_REG_PWMOUT(channel),
+						   val << 8);
+>>>>>>> upstream/android-13
 		break;
 	case hwmon_pwm_enable:
 		fan_config = data->fan_config[channel];
 		if (val == 0) {
+<<<<<<< HEAD
 			fan_config &= ~(MAX31790_FAN_CFG_TACH_INPUT_EN |
 					MAX31790_FAN_CFG_RPM_MODE);
 		} else if (val == 1) {
@@ -325,14 +400,42 @@ static int max31790_write_pwm(struct device *dev, u32 attr, int channel,
 		} else if (val == 2) {
 			fan_config |= MAX31790_FAN_CFG_TACH_INPUT_EN |
 				      MAX31790_FAN_CFG_RPM_MODE;
+=======
+			fan_config |= MAX31790_FAN_CFG_CTRL_MON;
+			/*
+			 * Disable RPM mode; otherwise disabling fan speed
+			 * monitoring is not possible.
+			 */
+			fan_config &= ~MAX31790_FAN_CFG_RPM_MODE;
+		} else if (val == 1) {
+			fan_config &= ~(MAX31790_FAN_CFG_CTRL_MON | MAX31790_FAN_CFG_RPM_MODE);
+		} else if (val == 2) {
+			fan_config &= ~MAX31790_FAN_CFG_CTRL_MON;
+			/*
+			 * The chip sets MAX31790_FAN_CFG_TACH_INPUT_EN on its
+			 * own if MAX31790_FAN_CFG_RPM_MODE is set.
+			 * Do it here as well to reflect the actual register
+			 * value in the cache.
+			 */
+			fan_config |= (MAX31790_FAN_CFG_RPM_MODE | MAX31790_FAN_CFG_TACH_INPUT_EN);
+>>>>>>> upstream/android-13
 		} else {
 			err = -EINVAL;
 			break;
 		}
+<<<<<<< HEAD
 		data->fan_config[channel] = fan_config;
 		err = i2c_smbus_write_byte_data(client,
 					MAX31790_REG_FAN_CONFIG(channel),
 					fan_config);
+=======
+		if (fan_config != data->fan_config[channel]) {
+			err = i2c_smbus_write_byte_data(client, MAX31790_REG_FAN_CONFIG(channel),
+							fan_config);
+			if (!err)
+				data->fan_config[channel] = fan_config;
+		}
+>>>>>>> upstream/android-13
 		break;
 	default:
 		err = -EOPNOTSUPP;
@@ -353,7 +456,11 @@ static umode_t max31790_pwm_is_visible(const void *_data, u32 attr, int channel)
 	case hwmon_pwm_input:
 	case hwmon_pwm_enable:
 		if (!(fan_config & MAX31790_FAN_CFG_TACH_INPUT))
+<<<<<<< HEAD
 			return S_IRUGO | S_IWUSR;
+=======
+			return 0644;
+>>>>>>> upstream/android-13
 		return 0;
 	default:
 		return 0;
@@ -400,6 +507,7 @@ static umode_t max31790_is_visible(const void *data,
 	}
 }
 
+<<<<<<< HEAD
 static const u32 max31790_fan_config[] = {
 	HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
 	HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
@@ -439,6 +547,29 @@ static const struct hwmon_channel_info max31790_pwm = {
 static const struct hwmon_channel_info *max31790_info[] = {
 	&max31790_fan,
 	&max31790_pwm,
+=======
+static const struct hwmon_channel_info *max31790_info[] = {
+	HWMON_CHANNEL_INFO(fan,
+			   HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_TARGET | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT,
+			   HWMON_F_INPUT | HWMON_F_FAULT),
+	HWMON_CHANNEL_INFO(pwm,
+			   HWMON_PWM_INPUT | HWMON_PWM_ENABLE,
+			   HWMON_PWM_INPUT | HWMON_PWM_ENABLE,
+			   HWMON_PWM_INPUT | HWMON_PWM_ENABLE,
+			   HWMON_PWM_INPUT | HWMON_PWM_ENABLE,
+			   HWMON_PWM_INPUT | HWMON_PWM_ENABLE,
+			   HWMON_PWM_INPUT | HWMON_PWM_ENABLE),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -475,8 +606,12 @@ static int max31790_init_client(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int max31790_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
+=======
+static int max31790_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct device *dev = &client->dev;
@@ -518,7 +653,11 @@ MODULE_DEVICE_TABLE(i2c, max31790_id);
 
 static struct i2c_driver max31790_driver = {
 	.class		= I2C_CLASS_HWMON,
+<<<<<<< HEAD
 	.probe		= max31790_probe,
+=======
+	.probe_new	= max31790_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name	= "max31790",
 	},

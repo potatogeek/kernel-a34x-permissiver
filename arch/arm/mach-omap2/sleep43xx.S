@@ -2,11 +2,18 @@
 /*
  * Low level suspend code for AM43XX SoCs
  *
+<<<<<<< HEAD
  * Copyright (C) 2013-2018 Texas Instruments Incorporated - http://www.ti.com/
  *	Dave Gerlach, Vaibhav Bedia
  */
 
 #include <generated/ti-pm-asm-offsets.h>
+=======
+ * Copyright (C) 2013-2018 Texas Instruments Incorporated - https://www.ti.com/
+ *	Dave Gerlach, Vaibhav Bedia
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 #include <linux/ti-emif-sram.h>
 #include <linux/platform_data/pm33xx.h>
@@ -19,6 +26,10 @@
 #include "iomap.h"
 #include "omap-secure.h"
 #include "omap44xx.h"
+<<<<<<< HEAD
+=======
+#include "pm-asm-offsets.h"
+>>>>>>> upstream/android-13
 #include "prm33xx.h"
 #include "prcm43xx.h"
 
@@ -56,6 +67,11 @@
 #define RTC_PMIC_EXT_WAKEUP_EN				BIT(0)
 
 	.arm
+<<<<<<< HEAD
+=======
+	.arch armv7-a
+	.arch_extension sec
+>>>>>>> upstream/android-13
 	.align 3
 
 ENTRY(am43xx_do_wfi)
@@ -368,6 +384,12 @@ wait_emif_enable1:
 	mov     r1, #AM43XX_EMIF_POWEROFF_DISABLE
 	str     r1, [r2, #0x0]
 
+<<<<<<< HEAD
+=======
+	ldr     r1, [r9, #EMIF_PM_RUN_HW_LEVELING]
+	blx     r1
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CACHE_L2X0
 	ldr	r2, l2_cache_base
 	ldr	r0, [r2, #L2X0_CTRL]

@@ -15,6 +15,10 @@
 #include <linux/cpumask.h>
 #include <linux/nodemask.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/mmu_context.h>
+>>>>>>> upstream/android-13
 #include <linux/jump_label.h>
 
 #ifdef CONFIG_CPUSETS
@@ -40,14 +44,24 @@ static inline bool cpusets_enabled(void)
 
 static inline void cpuset_inc(void)
 {
+<<<<<<< HEAD
 	static_branch_inc(&cpusets_pre_enable_key);
 	static_branch_inc(&cpusets_enabled_key);
+=======
+	static_branch_inc_cpuslocked(&cpusets_pre_enable_key);
+	static_branch_inc_cpuslocked(&cpusets_enabled_key);
+>>>>>>> upstream/android-13
 }
 
 static inline void cpuset_dec(void)
 {
+<<<<<<< HEAD
 	static_branch_dec(&cpusets_enabled_key);
 	static_branch_dec(&cpusets_pre_enable_key);
+=======
+	static_branch_dec_cpuslocked(&cpusets_enabled_key);
+	static_branch_dec_cpuslocked(&cpusets_pre_enable_key);
+>>>>>>> upstream/android-13
 }
 
 extern int cpuset_init(void);
@@ -56,7 +70,11 @@ extern void cpuset_force_rebuild(void);
 extern void cpuset_update_active_cpus(void);
 extern void cpuset_wait_for_hotplug(void);
 extern void cpuset_cpus_allowed(struct task_struct *p, struct cpumask *mask);
+<<<<<<< HEAD
 extern void cpuset_cpus_allowed_fallback(struct task_struct *p);
+=======
+extern bool cpuset_cpus_allowed_fallback(struct task_struct *p);
+>>>>>>> upstream/android-13
 extern nodemask_t cpuset_mems_allowed(struct task_struct *p);
 #define cpuset_current_mems_allowed (current->mems_allowed)
 void cpuset_init_current_mems_allowed(void);
@@ -179,11 +197,20 @@ static inline void cpuset_wait_for_hotplug(void) { }
 static inline void cpuset_cpus_allowed(struct task_struct *p,
 				       struct cpumask *mask)
 {
+<<<<<<< HEAD
 	cpumask_copy(mask, cpu_possible_mask);
 }
 
 static inline void cpuset_cpus_allowed_fallback(struct task_struct *p)
 {
+=======
+	cpumask_copy(mask, task_cpu_possible_mask(p));
+}
+
+static inline bool cpuset_cpus_allowed_fallback(struct task_struct *p)
+{
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static inline nodemask_t cpuset_mems_allowed(struct task_struct *p)

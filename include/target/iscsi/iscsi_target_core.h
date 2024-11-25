@@ -25,6 +25,10 @@ struct sock;
 #define ISCSIT_TCP_BACKLOG		256
 #define ISCSI_RX_THREAD_NAME		"iscsi_trx"
 #define ISCSI_TX_THREAD_NAME		"iscsi_ttx"
+<<<<<<< HEAD
+=======
+#define ISCSI_IQN_LEN			224
+>>>>>>> upstream/android-13
 
 /* struct iscsi_node_attrib sanity values */
 #define NA_DATAOUT_TIMEOUT		3
@@ -270,9 +274,15 @@ struct iscsi_conn_ops {
 };
 
 struct iscsi_sess_ops {
+<<<<<<< HEAD
 	char	InitiatorName[224];
 	char	InitiatorAlias[256];
 	char	TargetName[224];
+=======
+	char	InitiatorName[ISCSI_IQN_LEN];
+	char	InitiatorAlias[256];
+	char	TargetName[ISCSI_IQN_LEN];
+>>>>>>> upstream/android-13
 	char	TargetAlias[256];
 	char	TargetAddress[256];
 	u16	TargetPortalGroupTag;		/* [0..65535] */
@@ -300,6 +310,7 @@ struct iscsi_queue_req {
 	struct list_head	qr_list;
 };
 
+<<<<<<< HEAD
 struct iscsi_data_count {
 	int			data_length;
 	int			sync_and_steering;
@@ -310,6 +321,8 @@ struct iscsi_data_count {
 	struct kvec		*iov;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct iscsi_param_list {
 	bool			iser;
 	struct list_head	param_list;
@@ -472,6 +485,10 @@ struct iscsi_cmd {
 	struct timer_list	dataout_timer;
 	/* Iovecs for SCSI data payload RX/TX w/ kernel level sockets */
 	struct kvec		*iov_data;
+<<<<<<< HEAD
+=======
+	void			*overflow_buf;
+>>>>>>> upstream/android-13
 	/* Iovecs for miscellaneous purposes */
 #define ISCSI_MISC_IOVECS			5
 	struct kvec		iov_misc[ISCSI_MISC_IOVECS];
@@ -564,10 +581,18 @@ struct iscsi_conn {
 	struct socket		*sock;
 	void			(*orig_data_ready)(struct sock *);
 	void			(*orig_state_change)(struct sock *);
+<<<<<<< HEAD
 #define LOGIN_FLAGS_READ_ACTIVE		1
 #define LOGIN_FLAGS_CLOSED		2
 #define LOGIN_FLAGS_READY		4
 #define LOGIN_FLAGS_INITIAL_PDU		8
+=======
+#define LOGIN_FLAGS_READY		0
+#define LOGIN_FLAGS_INITIAL_PDU		1
+#define LOGIN_FLAGS_READ_ACTIVE		2
+#define LOGIN_FLAGS_WRITE_ACTIVE	3
+#define LOGIN_FLAGS_CLOSED		4
+>>>>>>> upstream/android-13
 	unsigned long		login_flags;
 	struct delayed_work	login_work;
 	struct iscsi_login	*login;
@@ -855,7 +880,10 @@ struct iscsi_wwn_stat_grps {
 };
 
 struct iscsi_tiqn {
+<<<<<<< HEAD
 #define ISCSI_IQN_LEN				224
+=======
+>>>>>>> upstream/android-13
 	unsigned char		tiqn[ISCSI_IQN_LEN];
 	enum tiqn_state_table	tiqn_state;
 	int			tiqn_access_count;

@@ -10,6 +10,7 @@
 #ifndef __LINUX_USB_PHY_H
 #define __LINUX_USB_PHY_H
 
+<<<<<<< HEAD
 #include <linux/extcon.h>
 #include <linux/notifier.h>
 #include <linux/usb.h>
@@ -26,6 +27,15 @@
 #define PHY_HSFS_MODE		BIT(8)
 #define PHY_LS_MODE		BIT(9)
 
+=======
+#include <linux/android_vendor.h>
+#include <linux/extcon.h>
+#include <linux/notifier.h>
+#include <linux/usb.h>
+#include <linux/android_kabi.h>
+#include <uapi/linux/usb/charger.h>
+
+>>>>>>> upstream/android-13
 enum usb_phy_interface {
 	USBPHY_INTERFACE_MODE_UNKNOWN,
 	USBPHY_INTERFACE_MODE_UTMI,
@@ -48,8 +58,11 @@ enum usb_phy_type {
 	USB_PHY_TYPE_UNDEFINED,
 	USB_PHY_TYPE_USB2,
 	USB_PHY_TYPE_USB3,
+<<<<<<< HEAD
 	USB_PHY_TYPE_USB3_OR_DP,
 	USB_PHY_TYPE_USB3_AND_DP,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* OTG defines lots of enumeration states before device reset */
@@ -60,7 +73,10 @@ enum usb_otg_state {
 	OTG_STATE_B_IDLE,
 	OTG_STATE_B_SRP_INIT,
 	OTG_STATE_B_PERIPHERAL,
+<<<<<<< HEAD
 	OTG_STATE_B_SUSPEND,
+=======
+>>>>>>> upstream/android-13
 
 	/* extra dual-role default-b states */
 	OTG_STATE_B_WAIT_ACON,
@@ -170,9 +186,14 @@ struct usb_phy {
 	 */
 	enum usb_charger_type (*charger_detect)(struct usb_phy *x);
 
+<<<<<<< HEAD
 	/* reset the PHY clocks */
 	int     (*reset)(struct usb_phy *x);
 	int	(*drive_dp_pulse)(struct usb_phy *x, unsigned int pulse_width);
+=======
+	ANDROID_VENDOR_DATA(1);
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /* for board-specific init logic */
@@ -231,6 +252,7 @@ usb_phy_vbus_off(struct usb_phy *x)
 	return x->set_vbus(x, false);
 }
 
+<<<<<<< HEAD
 static inline int
 usb_phy_reset(struct usb_phy *x)
 {
@@ -249,6 +271,8 @@ usb_phy_drive_dp_pulse(struct usb_phy *x, unsigned int pulse_width)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* for usb host and peripheral controller drivers */
 #if IS_ENABLED(CONFIG_USB_PHY)
 extern struct usb_phy *usb_get_phy(enum usb_phy_type type);

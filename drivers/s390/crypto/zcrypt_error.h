@@ -1,7 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+<<<<<<< HEAD
  *  zcrypt 2.1.0
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright IBM Corp. 2001, 2006
  *  Author(s): Robert Burroughs
  *	       Eric Rossman (edrossma@us.ibm.com)
@@ -16,6 +19,10 @@
 #include <linux/atomic.h>
 #include "zcrypt_debug.h"
 #include "zcrypt_api.h"
+<<<<<<< HEAD
+=======
+#include "zcrypt_msgtype6.h"
+>>>>>>> upstream/android-13
 
 /**
  * Reply Messages
@@ -53,7 +60,10 @@ struct error_hdr {
 #define REP82_ERROR_INVALID_COMMAND	    0x30
 #define REP82_ERROR_MALFORMED_MSG	    0x40
 #define REP82_ERROR_INVALID_SPECIAL_CMD	    0x41
+<<<<<<< HEAD
 #define REP82_ERROR_INVALID_DOMAIN_PRECHECK 0x42
+=======
+>>>>>>> upstream/android-13
 #define REP82_ERROR_RESERVED_FIELDO	    0x50 /* old value	*/
 #define REP82_ERROR_WORD_ALIGNMENT	    0x60
 #define REP82_ERROR_MESSAGE_LENGTH	    0x80
@@ -68,7 +78,10 @@ struct error_hdr {
 #define REP82_ERROR_ZERO_BUFFER_LEN	    0xB0
 
 #define REP88_ERROR_MODULE_FAILURE	    0x10
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define REP88_ERROR_MESSAGE_TYPE	    0x20
 #define REP88_ERROR_MESSAGE_MALFORMD	    0x22
 #define REP88_ERROR_MESSAGE_LENGTH	    0x23
@@ -81,11 +94,16 @@ struct error_hdr {
 static inline int convert_error(struct zcrypt_queue *zq,
 				struct ap_message *reply)
 {
+<<<<<<< HEAD
 	struct error_hdr *ehdr = reply->message;
+=======
+	struct error_hdr *ehdr = reply->msg;
+>>>>>>> upstream/android-13
 	int card = AP_QID_CARD(zq->queue->qid);
 	int queue = AP_QID_QUEUE(zq->queue->qid);
 
 	switch (ehdr->reply_code) {
+<<<<<<< HEAD
 	case REP82_ERROR_OPERAND_INVALID:
 	case REP82_ERROR_OPERAND_SIZE:
 	case REP82_ERROR_EVEN_MOD_IN_OPND:
@@ -137,6 +155,58 @@ static inline int convert_error(struct zcrypt_queue *zq,
 			   "device=%02x.%04x reply=0x%02x => online=0 rc=EAGAIN\n",
 			   card, queue, ehdr->reply_code);
 		return -EAGAIN;	/* repeat the request on a different device. */
+=======
+	case REP82_ERROR_INVALID_MSG_LEN:	 /* 0x23 */
+	case REP82_ERROR_RESERVD_FIELD:		 /* 0x24 */
+	case REP82_ERROR_FORMAT_FIELD:		 /* 0x29 */
+	case REP82_ERROR_MALFORMED_MSG:		 /* 0x40 */
+	case REP82_ERROR_INVALID_SPECIAL_CMD:	 /* 0x41 */
+	case REP82_ERROR_MESSAGE_LENGTH:	 /* 0x80 */
+	case REP82_ERROR_OPERAND_INVALID:	 /* 0x82 */
+	case REP82_ERROR_OPERAND_SIZE:		 /* 0x84 */
+	case REP82_ERROR_EVEN_MOD_IN_OPND:	 /* 0x85 */
+	case REP82_ERROR_INVALID_DOMAIN_PENDING: /* 0x8A */
+	case REP82_ERROR_FILTERED_BY_HYPERVISOR: /* 0x8B */
+	case REP82_ERROR_PACKET_TRUNCATED:	 /* 0xA0 */
+	case REP88_ERROR_MESSAGE_MALFORMD:	 /* 0x22 */
+	case REP88_ERROR_KEY_TYPE:		 /* 0x34 */
+		/* RY indicates malformed request */
+		ZCRYPT_DBF(DBF_WARN,
+			   "dev=%02x.%04x RY=0x%02x => rc=EINVAL\n",
+			   card, queue, ehdr->reply_code);
+		return -EINVAL;
+	case REP82_ERROR_MACHINE_FAILURE:	 /* 0x10 */
+	case REP82_ERROR_MESSAGE_TYPE:		 /* 0x20 */
+	case REP82_ERROR_TRANSPORT_FAIL:	 /* 0x90 */
+		/*
+		 * Msg to wrong type or card/infrastructure failure.
+		 * Trigger rescan of the ap bus, trigger retry request.
+		 */
+		atomic_set(&zcrypt_rescan_req, 1);
+		/* For type 86 response show the apfs value (failure reason) */
+		if (ehdr->reply_code == REP82_ERROR_TRANSPORT_FAIL &&
+		    ehdr->type == TYPE86_RSP_CODE) {
+			struct {
+				struct type86_hdr hdr;
+				struct type86_fmt2_ext fmt2;
+			} __packed * head = reply->msg;
+			unsigned int apfs = *((u32 *)head->fmt2.apfs);
+
+			ZCRYPT_DBF(DBF_WARN,
+				   "dev=%02x.%04x RY=0x%02x apfs=0x%x => bus rescan, rc=EAGAIN\n",
+				   card, queue, ehdr->reply_code, apfs);
+		} else
+			ZCRYPT_DBF(DBF_WARN,
+				   "dev=%02x.%04x RY=0x%02x => bus rescan, rc=EAGAIN\n",
+				   card, queue, ehdr->reply_code);
+		return -EAGAIN;
+	default:
+		/* Assume request is valid and a retry will be worth it */
+		ZCRYPT_DBF(DBF_WARN,
+			   "dev=%02x.%04x RY=0x%02x => rc=EAGAIN\n",
+			   card, queue, ehdr->reply_code);
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 	}
 }
 

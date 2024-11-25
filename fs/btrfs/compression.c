@@ -17,6 +17,11 @@
 #include <linux/slab.h>
 #include <linux/sched/mm.h>
 #include <linux/log2.h>
+<<<<<<< HEAD
+=======
+#include <crypto/hash.h>
+#include "misc.h"
+>>>>>>> upstream/android-13
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
@@ -26,6 +31,10 @@
 #include "compression.h"
 #include "extent_io.h"
 #include "extent_map.h"
+<<<<<<< HEAD
+=======
+#include "zoned.h"
+>>>>>>> upstream/android-13
 
 static const char* const btrfs_compress_types[] = { "", "zlib", "lzo", "zstd" };
 
@@ -37,6 +46,11 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
 	case BTRFS_COMPRESS_ZSTD:
 	case BTRFS_COMPRESS_NONE:
 		return btrfs_compress_types[type];
+<<<<<<< HEAD
+=======
+	default:
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
@@ -58,11 +72,84 @@ bool btrfs_compress_is_valid_type(const char *str, size_t len)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static int compression_compress_pages(int type, struct list_head *ws,
+               struct address_space *mapping, u64 start, struct page **pages,
+               unsigned long *out_pages, unsigned long *total_in,
+               unsigned long *total_out)
+{
+	switch (type) {
+	case BTRFS_COMPRESS_ZLIB:
+		return zlib_compress_pages(ws, mapping, start, pages,
+				out_pages, total_in, total_out);
+	case BTRFS_COMPRESS_LZO:
+		return lzo_compress_pages(ws, mapping, start, pages,
+				out_pages, total_in, total_out);
+	case BTRFS_COMPRESS_ZSTD:
+		return zstd_compress_pages(ws, mapping, start, pages,
+				out_pages, total_in, total_out);
+	case BTRFS_COMPRESS_NONE:
+	default:
+		/*
+		 * This can happen when compression races with remount setting
+		 * it to 'no compress', while caller doesn't call
+		 * inode_need_compress() to check if we really need to
+		 * compress.
+		 *
+		 * Not a big deal, just need to inform caller that we
+		 * haven't allocated any pages yet.
+		 */
+		*out_pages = 0;
+		return -E2BIG;
+	}
+}
+
+static int compression_decompress_bio(int type, struct list_head *ws,
+		struct compressed_bio *cb)
+{
+	switch (type) {
+	case BTRFS_COMPRESS_ZLIB: return zlib_decompress_bio(ws, cb);
+	case BTRFS_COMPRESS_LZO:  return lzo_decompress_bio(ws, cb);
+	case BTRFS_COMPRESS_ZSTD: return zstd_decompress_bio(ws, cb);
+	case BTRFS_COMPRESS_NONE:
+	default:
+		/*
+		 * This can't happen, the type is validated several times
+		 * before we get here.
+		 */
+		BUG();
+	}
+}
+
+static int compression_decompress(int type, struct list_head *ws,
+               unsigned char *data_in, struct page *dest_page,
+               unsigned long start_byte, size_t srclen, size_t destlen)
+{
+	switch (type) {
+	case BTRFS_COMPRESS_ZLIB: return zlib_decompress(ws, data_in, dest_page,
+						start_byte, srclen, destlen);
+	case BTRFS_COMPRESS_LZO:  return lzo_decompress(ws, data_in, dest_page,
+						start_byte, srclen, destlen);
+	case BTRFS_COMPRESS_ZSTD: return zstd_decompress(ws, data_in, dest_page,
+						start_byte, srclen, destlen);
+	case BTRFS_COMPRESS_NONE:
+	default:
+		/*
+		 * This can't happen, the type is validated several times
+		 * before we get here.
+		 */
+		BUG();
+	}
+}
+
+>>>>>>> upstream/android-13
 static int btrfs_decompress_bio(struct compressed_bio *cb);
 
 static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
 				      unsigned long disk_size)
 {
+<<<<<<< HEAD
 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
 
 	return sizeof(struct compressed_bio) +
@@ -104,6 +191,62 @@ static int check_compressed_csum(struct btrfs_inode *inode,
 	ret = 0;
 fail:
 	return ret;
+=======
+	return sizeof(struct compressed_bio) +
+		(DIV_ROUND_UP(disk_size, fs_info->sectorsize)) * fs_info->csum_size;
+}
+
+static int check_compressed_csum(struct btrfs_inode *inode, struct bio *bio,
+				 u64 disk_start)
+{
+	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+	const u32 csum_size = fs_info->csum_size;
+	const u32 sectorsize = fs_info->sectorsize;
+	struct page *page;
+	unsigned int i;
+	char *kaddr;
+	u8 csum[BTRFS_CSUM_SIZE];
+	struct compressed_bio *cb = bio->bi_private;
+	u8 *cb_sum = cb->sums;
+
+	if (!fs_info->csum_root || (inode->flags & BTRFS_INODE_NODATASUM))
+		return 0;
+
+	shash->tfm = fs_info->csum_shash;
+
+	for (i = 0; i < cb->nr_pages; i++) {
+		u32 pg_offset;
+		u32 bytes_left = PAGE_SIZE;
+		page = cb->compressed_pages[i];
+
+		/* Determine the remaining bytes inside the page first */
+		if (i == cb->nr_pages - 1)
+			bytes_left = cb->compressed_len - i * PAGE_SIZE;
+
+		/* Hash through the page sector by sector */
+		for (pg_offset = 0; pg_offset < bytes_left;
+		     pg_offset += sectorsize) {
+			kaddr = kmap_atomic(page);
+			crypto_shash_digest(shash, kaddr + pg_offset,
+					    sectorsize, csum);
+			kunmap_atomic(kaddr);
+
+			if (memcmp(&csum, cb_sum, csum_size) != 0) {
+				btrfs_print_data_csum_error(inode, disk_start,
+						csum, cb_sum, cb->mirror_num);
+				if (btrfs_io_bio(bio)->device)
+					btrfs_dev_stat_inc_and_print(
+						btrfs_io_bio(bio)->device,
+						BTRFS_DEV_STAT_CORRUPTION_ERRS);
+				return -EIO;
+			}
+			cb_sum += csum_size;
+			disk_start += sectorsize;
+		}
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* when we finish reading compressed pages from the disk, we
@@ -121,7 +264,11 @@ static void end_compressed_bio_read(struct bio *bio)
 	struct compressed_bio *cb = bio->bi_private;
 	struct inode *inode;
 	struct page *page;
+<<<<<<< HEAD
 	unsigned long index;
+=======
+	unsigned int index;
+>>>>>>> upstream/android-13
 	unsigned int mirror = btrfs_io_bio(bio)->mirror_num;
 	int ret = 0;
 
@@ -138,7 +285,10 @@ static void end_compressed_bio_read(struct bio *bio)
 	 * Record the correct mirror_num in cb->orig_bio so that
 	 * read-repair can work properly.
 	 */
+<<<<<<< HEAD
 	ASSERT(btrfs_io_bio(cb->orig_bio));
+=======
+>>>>>>> upstream/android-13
 	btrfs_io_bio(cb->orig_bio)->mirror_num = mirror;
 	cb->mirror_num = mirror;
 
@@ -150,8 +300,13 @@ static void end_compressed_bio_read(struct bio *bio)
 		goto csum_failed;
 
 	inode = cb->inode;
+<<<<<<< HEAD
 	ret = check_compressed_csum(BTRFS_I(inode), cb,
 				    (u64)bio->bi_iter.bi_sector << 9);
+=======
+	ret = check_compressed_csum(BTRFS_I(inode), bio,
+				    bio->bi_iter.bi_sector << 9);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto csum_failed;
 
@@ -176,15 +331,24 @@ csum_failed:
 	if (cb->errors) {
 		bio_io_error(cb->orig_bio);
 	} else {
+<<<<<<< HEAD
 		int i;
 		struct bio_vec *bvec;
+=======
+		struct bio_vec *bvec;
+		struct bvec_iter_all iter_all;
+>>>>>>> upstream/android-13
 
 		/*
 		 * we have verified the checksum already, set page
 		 * checked so the end_io handlers know about it
 		 */
 		ASSERT(!bio_flagged(bio, BIO_CLONED));
+<<<<<<< HEAD
 		bio_for_each_segment_all(bvec, cb->orig_bio, i)
+=======
+		bio_for_each_segment_all(bvec, cb->orig_bio, iter_all)
+>>>>>>> upstream/android-13
 			SetPageChecked(bvec->bv_page);
 
 		bio_endio(cb->orig_bio);
@@ -245,11 +409,18 @@ static noinline void end_compressed_writeback(struct inode *inode,
  */
 static void end_compressed_bio_write(struct bio *bio)
 {
+<<<<<<< HEAD
 	struct extent_io_tree *tree;
 	struct compressed_bio *cb = bio->bi_private;
 	struct inode *inode;
 	struct page *page;
 	unsigned long index;
+=======
+	struct compressed_bio *cb = bio->bi_private;
+	struct inode *inode;
+	struct page *page;
+	unsigned int index;
+>>>>>>> upstream/android-13
 
 	if (bio->bi_status)
 		cb->errors = 1;
@@ -264,6 +435,7 @@ static void end_compressed_bio_write(struct bio *bio)
 	 * call back into the FS and do all the end_io operations
 	 */
 	inode = cb->inode;
+<<<<<<< HEAD
 	tree = &BTRFS_I(inode)->io_tree;
 	cb->compressed_pages[0]->mapping = cb->inode->i_mapping;
 	tree->ops->writepage_end_io_hook(cb->compressed_pages[0],
@@ -273,6 +445,12 @@ static void end_compressed_bio_write(struct bio *bio)
 					 bio->bi_status ?
 					 BLK_STS_OK : BLK_STS_NOTSUPP);
 	cb->compressed_pages[0]->mapping = NULL;
+=======
+	btrfs_record_physical_zoned(inode, cb->start, bio);
+	btrfs_writepage_endio_finish_ordered(BTRFS_I(inode), NULL,
+			cb->start, cb->start + cb->len - 1,
+			!cb->errors);
+>>>>>>> upstream/android-13
 
 	end_compressed_writeback(inode, cb);
 	/* note, our inode could be gone now */
@@ -304,6 +482,7 @@ out:
  * This also checksums the file bytes and gets things ready for
  * the end io hooks.
  */
+<<<<<<< HEAD
 blk_status_t btrfs_submit_compressed_write(struct inode *inode, u64 start,
 				 unsigned long len, u64 disk_start,
 				 unsigned long compressed_len,
@@ -312,23 +491,47 @@ blk_status_t btrfs_submit_compressed_write(struct inode *inode, u64 start,
 				 unsigned int write_flags)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+=======
+blk_status_t btrfs_submit_compressed_write(struct btrfs_inode *inode, u64 start,
+				 unsigned int len, u64 disk_start,
+				 unsigned int compressed_len,
+				 struct page **compressed_pages,
+				 unsigned int nr_pages,
+				 unsigned int write_flags,
+				 struct cgroup_subsys_state *blkcg_css)
+{
+	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+>>>>>>> upstream/android-13
 	struct bio *bio = NULL;
 	struct compressed_bio *cb;
 	unsigned long bytes_left;
 	int pg_index = 0;
 	struct page *page;
 	u64 first_byte = disk_start;
+<<<<<<< HEAD
 	struct block_device *bdev;
 	blk_status_t ret;
 	int skip_sum = BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM;
 
 	WARN_ON(start & ((u64)PAGE_SIZE - 1));
+=======
+	blk_status_t ret;
+	int skip_sum = inode->flags & BTRFS_INODE_NODATASUM;
+	const bool use_append = btrfs_use_zone_append(inode, disk_start);
+	const unsigned int bio_op = use_append ? REQ_OP_ZONE_APPEND : REQ_OP_WRITE;
+
+	WARN_ON(!PAGE_ALIGNED(start));
+>>>>>>> upstream/android-13
 	cb = kmalloc(compressed_bio_size(fs_info, compressed_len), GFP_NOFS);
 	if (!cb)
 		return BLK_STS_RESOURCE;
 	refcount_set(&cb->pending_bios, 0);
 	cb->errors = 0;
+<<<<<<< HEAD
 	cb->inode = inode;
+=======
+	cb->inode = &inode->vfs_inode;
+>>>>>>> upstream/android-13
 	cb->start = start;
 	cb->len = len;
 	cb->mirror_num = 0;
@@ -337,18 +540,44 @@ blk_status_t btrfs_submit_compressed_write(struct inode *inode, u64 start,
 	cb->orig_bio = NULL;
 	cb->nr_pages = nr_pages;
 
+<<<<<<< HEAD
 	bdev = fs_info->fs_devices->latest_bdev;
 
 	bio = btrfs_bio_alloc(bdev, first_byte);
 	bio->bi_opf = REQ_OP_WRITE | write_flags;
 	bio->bi_private = cb;
 	bio->bi_end_io = end_compressed_bio_write;
+=======
+	bio = btrfs_bio_alloc(first_byte);
+	bio->bi_opf = bio_op | write_flags;
+	bio->bi_private = cb;
+	bio->bi_end_io = end_compressed_bio_write;
+
+	if (use_append) {
+		struct btrfs_device *device;
+
+		device = btrfs_zoned_get_device(fs_info, disk_start, PAGE_SIZE);
+		if (IS_ERR(device)) {
+			kfree(cb);
+			bio_put(bio);
+			return BLK_STS_NOTSUPP;
+		}
+
+		bio_set_dev(bio, device->bdev);
+	}
+
+	if (blkcg_css) {
+		bio->bi_opf |= REQ_CGROUP_PUNT;
+		kthread_associate_blkcg(blkcg_css);
+	}
+>>>>>>> upstream/android-13
 	refcount_set(&cb->pending_bios, 1);
 
 	/* create and submit bios for the compressed pages */
 	bytes_left = compressed_len;
 	for (pg_index = 0; pg_index < cb->nr_pages; pg_index++) {
 		int submit = 0;
+<<<<<<< HEAD
 
 		page = compressed_pages[pg_index];
 		page->mapping = inode->i_mapping;
@@ -358,6 +587,30 @@ blk_status_t btrfs_submit_compressed_write(struct inode *inode, u64 start,
 		page->mapping = NULL;
 		if (submit || bio_add_page(bio, page, PAGE_SIZE, 0) <
 		    PAGE_SIZE) {
+=======
+		int len = 0;
+
+		page = compressed_pages[pg_index];
+		page->mapping = inode->vfs_inode.i_mapping;
+		if (bio->bi_iter.bi_size)
+			submit = btrfs_bio_fits_in_stripe(page, PAGE_SIZE, bio,
+							  0);
+
+		/*
+		 * Page can only be added to bio if the current bio fits in
+		 * stripe.
+		 */
+		if (!submit) {
+			if (pg_index == 0 && use_append)
+				len = bio_add_zone_append_page(bio, page,
+							       PAGE_SIZE, 0);
+			else
+				len = bio_add_page(bio, page, PAGE_SIZE, 0);
+		}
+
+		page->mapping = NULL;
+		if (submit || len < PAGE_SIZE) {
+>>>>>>> upstream/android-13
 			/*
 			 * inc the count before we submit the bio so
 			 * we know the end IO handler won't happen before
@@ -374,21 +627,42 @@ blk_status_t btrfs_submit_compressed_write(struct inode *inode, u64 start,
 				BUG_ON(ret); /* -ENOMEM */
 			}
 
+<<<<<<< HEAD
 			ret = btrfs_map_bio(fs_info, bio, 0, 1);
+=======
+			ret = btrfs_map_bio(fs_info, bio, 0);
+>>>>>>> upstream/android-13
 			if (ret) {
 				bio->bi_status = ret;
 				bio_endio(bio);
 			}
 
+<<<<<<< HEAD
 			bio = btrfs_bio_alloc(bdev, first_byte);
 			bio->bi_opf = REQ_OP_WRITE | write_flags;
 			bio->bi_private = cb;
 			bio->bi_end_io = end_compressed_bio_write;
+=======
+			bio = btrfs_bio_alloc(first_byte);
+			bio->bi_opf = bio_op | write_flags;
+			bio->bi_private = cb;
+			bio->bi_end_io = end_compressed_bio_write;
+			if (blkcg_css)
+				bio->bi_opf |= REQ_CGROUP_PUNT;
+			/*
+			 * Use bio_add_page() to ensure the bio has at least one
+			 * page.
+			 */
+>>>>>>> upstream/android-13
 			bio_add_page(bio, page, PAGE_SIZE, 0);
 		}
 		if (bytes_left < PAGE_SIZE) {
 			btrfs_info(fs_info,
+<<<<<<< HEAD
 					"bytes left %lu compress len %lu nr %lu",
+=======
+					"bytes left %lu compress len %u nr %u",
+>>>>>>> upstream/android-13
 			       bytes_left, cb->compressed_len, cb->nr_pages);
 		}
 		bytes_left -= PAGE_SIZE;
@@ -404,12 +678,22 @@ blk_status_t btrfs_submit_compressed_write(struct inode *inode, u64 start,
 		BUG_ON(ret); /* -ENOMEM */
 	}
 
+<<<<<<< HEAD
 	ret = btrfs_map_bio(fs_info, bio, 0, 1);
+=======
+	ret = btrfs_map_bio(fs_info, bio, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		bio->bi_status = ret;
 		bio_endio(bio);
 	}
 
+<<<<<<< HEAD
+=======
+	if (blkcg_css)
+		kthread_associate_blkcg(NULL);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -430,7 +714,10 @@ static noinline int add_ra_bio_pages(struct inode *inode,
 	u64 isize = i_size_read(inode);
 	int ret;
 	struct page *page;
+<<<<<<< HEAD
 	unsigned long nr_pages = 0;
+=======
+>>>>>>> upstream/android-13
 	struct extent_map *em;
 	struct address_space *mapping = inode->i_mapping;
 	struct extent_map_tree *em_tree;
@@ -445,6 +732,19 @@ static noinline int add_ra_bio_pages(struct inode *inode,
 	if (isize == 0)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * For current subpage support, we only support 64K page size,
+	 * which means maximum compressed extent size (128K) is just 2x page
+	 * size.
+	 * This makes readahead less effective, so here disable readahead for
+	 * subpage for now, until full compressed write is supported.
+	 */
+	if (btrfs_sb(inode->i_sb)->sectorsize < PAGE_SIZE)
+		return 0;
+
+>>>>>>> upstream/android-13
 	end_index = (i_size_read(inode) - 1) >> PAGE_SHIFT;
 
 	while (last_offset < compressed_end) {
@@ -453,10 +753,15 @@ static noinline int add_ra_bio_pages(struct inode *inode,
 		if (pg_index > end_index)
 			break;
 
+<<<<<<< HEAD
 		rcu_read_lock();
 		page = radix_tree_lookup(&mapping->i_pages, pg_index);
 		rcu_read_unlock();
 		if (page && !radix_tree_exceptional_entry(page)) {
+=======
+		page = xa_load(&mapping->i_pages, pg_index);
+		if (page && !xa_is_value(page)) {
+>>>>>>> upstream/android-13
 			misses++;
 			if (misses > 4)
 				break;
@@ -473,13 +778,27 @@ static noinline int add_ra_bio_pages(struct inode *inode,
 			goto next;
 		}
 
+<<<<<<< HEAD
 		end = last_offset + PAGE_SIZE - 1;
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * at this point, we have a locked page in the page cache
 		 * for these bytes in the file.  But, we have to make
 		 * sure they map to this compressed extent on disk.
 		 */
+<<<<<<< HEAD
 		set_page_extent_mapped(page);
+=======
+		ret = set_page_extent_mapped(page);
+		if (ret < 0) {
+			unlock_page(page);
+			put_page(page);
+			break;
+		}
+
+		end = last_offset + PAGE_SIZE - 1;
+>>>>>>> upstream/android-13
 		lock_extent(tree, last_offset, end);
 		read_lock(&em_tree->lock);
 		em = lookup_extent_mapping(em_tree, last_offset,
@@ -498,16 +817,25 @@ static noinline int add_ra_bio_pages(struct inode *inode,
 		free_extent_map(em);
 
 		if (page->index == end_index) {
+<<<<<<< HEAD
 			char *userpage;
 			size_t zero_offset = isize & (PAGE_SIZE - 1);
+=======
+			size_t zero_offset = offset_in_page(isize);
+>>>>>>> upstream/android-13
 
 			if (zero_offset) {
 				int zeros;
 				zeros = PAGE_SIZE - zero_offset;
+<<<<<<< HEAD
 				userpage = kmap_atomic(page);
 				memset(userpage + zero_offset, 0, zeros);
 				flush_dcache_page(page);
 				kunmap_atomic(userpage);
+=======
+				memzero_page(page, zero_offset, zeros);
+				flush_dcache_page(page);
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -515,7 +843,10 @@ static noinline int add_ra_bio_pages(struct inode *inode,
 				   PAGE_SIZE, 0);
 
 		if (ret == PAGE_SIZE) {
+<<<<<<< HEAD
 			nr_pages++;
+=======
+>>>>>>> upstream/android-13
 			put_page(page);
 		} else {
 			unlock_extent(tree, last_offset, end);
@@ -544,6 +875,7 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 				 int mirror_num, unsigned long bio_flags)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+<<<<<<< HEAD
 	struct extent_io_tree *tree;
 	struct extent_map_tree *em_tree;
 	struct compressed_bio *cb;
@@ -554,11 +886,23 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 	struct block_device *bdev;
 	struct bio *comp_bio;
 	u64 cur_disk_byte = (u64)bio->bi_iter.bi_sector << 9;
+=======
+	struct extent_map_tree *em_tree;
+	struct compressed_bio *cb;
+	unsigned int compressed_len;
+	unsigned int nr_pages;
+	unsigned int pg_index;
+	struct page *page;
+	struct bio *comp_bio;
+	u64 cur_disk_byte = bio->bi_iter.bi_sector << 9;
+	u64 file_offset;
+>>>>>>> upstream/android-13
 	u64 em_len;
 	u64 em_start;
 	struct extent_map *em;
 	blk_status_t ret = BLK_STS_RESOURCE;
 	int faili = 0;
+<<<<<<< HEAD
 	u32 *sums;
 
 	tree = &BTRFS_I(inode)->io_tree;
@@ -569,10 +913,26 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 	em = lookup_extent_mapping(em_tree,
 				   page_offset(bio_first_page_all(bio)),
 				   PAGE_SIZE);
+=======
+	u8 *sums;
+
+	em_tree = &BTRFS_I(inode)->extent_tree;
+
+	file_offset = bio_first_bvec_all(bio)->bv_offset +
+		      page_offset(bio_first_page_all(bio));
+
+	/* we need the actual starting offset of this extent in the file */
+	read_lock(&em_tree->lock);
+	em = lookup_extent_mapping(em_tree, file_offset, fs_info->sectorsize);
+>>>>>>> upstream/android-13
 	read_unlock(&em_tree->lock);
 	if (!em)
 		return BLK_STS_IOERR;
 
+<<<<<<< HEAD
+=======
+	ASSERT(em->compress_type != BTRFS_COMPRESS_NONE);
+>>>>>>> upstream/android-13
 	compressed_len = em->block_len;
 	cb = kmalloc(compressed_bio_size(fs_info, compressed_len), GFP_NOFS);
 	if (!cb)
@@ -582,7 +942,11 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 	cb->errors = 0;
 	cb->inode = inode;
 	cb->mirror_num = mirror_num;
+<<<<<<< HEAD
 	sums = &cb->sums;
+=======
+	sums = cb->sums;
+>>>>>>> upstream/android-13
 
 	cb->start = em->orig_start;
 	em_len = em->len;
@@ -602,11 +966,16 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 	if (!cb->compressed_pages)
 		goto fail1;
 
+<<<<<<< HEAD
 	bdev = fs_info->fs_devices->latest_bdev;
 
 	for (pg_index = 0; pg_index < nr_pages; pg_index++) {
 		cb->compressed_pages[pg_index] = alloc_page(GFP_NOFS |
 							      __GFP_HIGHMEM);
+=======
+	for (pg_index = 0; pg_index < nr_pages; pg_index++) {
+		cb->compressed_pages[pg_index] = alloc_page(GFP_NOFS);
+>>>>>>> upstream/android-13
 		if (!cb->compressed_pages[pg_index]) {
 			faili = pg_index - 1;
 			ret = BLK_STS_RESOURCE;
@@ -621,26 +990,57 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 	/* include any pages we added in add_ra-bio_pages */
 	cb->len = bio->bi_iter.bi_size;
 
+<<<<<<< HEAD
 	comp_bio = btrfs_bio_alloc(bdev, cur_disk_byte);
+=======
+	comp_bio = btrfs_bio_alloc(cur_disk_byte);
+>>>>>>> upstream/android-13
 	comp_bio->bi_opf = REQ_OP_READ;
 	comp_bio->bi_private = cb;
 	comp_bio->bi_end_io = end_compressed_bio_read;
 	refcount_set(&cb->pending_bios, 1);
 
 	for (pg_index = 0; pg_index < nr_pages; pg_index++) {
+<<<<<<< HEAD
 		int submit = 0;
 
+=======
+		u32 pg_len = PAGE_SIZE;
+		int submit = 0;
+
+		/*
+		 * To handle subpage case, we need to make sure the bio only
+		 * covers the range we need.
+		 *
+		 * If we're at the last page, truncate the length to only cover
+		 * the remaining part.
+		 */
+		if (pg_index == nr_pages - 1)
+			pg_len = min_t(u32, PAGE_SIZE,
+					compressed_len - pg_index * PAGE_SIZE);
+
+>>>>>>> upstream/android-13
 		page = cb->compressed_pages[pg_index];
 		page->mapping = inode->i_mapping;
 		page->index = em_start >> PAGE_SHIFT;
 
 		if (comp_bio->bi_iter.bi_size)
+<<<<<<< HEAD
 			submit = btrfs_merge_bio_hook(page, 0, PAGE_SIZE,
 					comp_bio, 0);
 
 		page->mapping = NULL;
 		if (submit || bio_add_page(comp_bio, page, PAGE_SIZE, 0) <
 		    PAGE_SIZE) {
+=======
+			submit = btrfs_bio_fits_in_stripe(page, pg_len,
+							  comp_bio, 0);
+
+		page->mapping = NULL;
+		if (submit || bio_add_page(comp_bio, page, pg_len, 0) < pg_len) {
+			unsigned int nr_sectors;
+
+>>>>>>> upstream/android-13
 			ret = btrfs_bio_wq_end_io(fs_info, comp_bio,
 						  BTRFS_WQ_ENDIO_DATA);
 			BUG_ON(ret); /* -ENOMEM */
@@ -653,6 +1053,7 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 			 */
 			refcount_inc(&cb->pending_bios);
 
+<<<<<<< HEAD
 			if (!(BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM)) {
 				ret = btrfs_lookup_bio_sums(inode, comp_bio,
 							    sums);
@@ -662,30 +1063,57 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
 					     fs_info->sectorsize);
 
 			ret = btrfs_map_bio(fs_info, comp_bio, mirror_num, 0);
+=======
+			ret = btrfs_lookup_bio_sums(inode, comp_bio, sums);
+			BUG_ON(ret); /* -ENOMEM */
+
+			nr_sectors = DIV_ROUND_UP(comp_bio->bi_iter.bi_size,
+						  fs_info->sectorsize);
+			sums += fs_info->csum_size * nr_sectors;
+
+			ret = btrfs_map_bio(fs_info, comp_bio, mirror_num);
+>>>>>>> upstream/android-13
 			if (ret) {
 				comp_bio->bi_status = ret;
 				bio_endio(comp_bio);
 			}
 
+<<<<<<< HEAD
 			comp_bio = btrfs_bio_alloc(bdev, cur_disk_byte);
+=======
+			comp_bio = btrfs_bio_alloc(cur_disk_byte);
+>>>>>>> upstream/android-13
 			comp_bio->bi_opf = REQ_OP_READ;
 			comp_bio->bi_private = cb;
 			comp_bio->bi_end_io = end_compressed_bio_read;
 
+<<<<<<< HEAD
 			bio_add_page(comp_bio, page, PAGE_SIZE, 0);
 		}
 		cur_disk_byte += PAGE_SIZE;
+=======
+			bio_add_page(comp_bio, page, pg_len, 0);
+		}
+		cur_disk_byte += pg_len;
+>>>>>>> upstream/android-13
 	}
 
 	ret = btrfs_bio_wq_end_io(fs_info, comp_bio, BTRFS_WQ_ENDIO_DATA);
 	BUG_ON(ret); /* -ENOMEM */
 
+<<<<<<< HEAD
 	if (!(BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM)) {
 		ret = btrfs_lookup_bio_sums(inode, comp_bio, sums);
 		BUG_ON(ret); /* -ENOMEM */
 	}
 
 	ret = btrfs_map_bio(fs_info, comp_bio, mirror_num, 0);
+=======
+	ret = btrfs_lookup_bio_sums(inode, comp_bio, sums);
+	BUG_ON(ret); /* -ENOMEM */
+
+	ret = btrfs_map_bio(fs_info, comp_bio, mirror_num);
+>>>>>>> upstream/android-13
 	if (ret) {
 		comp_bio->bi_status = ret;
 		bio_endio(comp_bio);
@@ -754,6 +1182,11 @@ struct heuristic_ws {
 	struct list_head list;
 };
 
+<<<<<<< HEAD
+=======
+static struct workspace_manager heuristic_wsm;
+
+>>>>>>> upstream/android-13
 static void free_heuristic_ws(struct list_head *ws)
 {
 	struct heuristic_ws *workspace;
@@ -766,7 +1199,11 @@ static void free_heuristic_ws(struct list_head *ws)
 	kfree(workspace);
 }
 
+<<<<<<< HEAD
 static struct list_head *alloc_heuristic_ws(void)
+=======
+static struct list_head *alloc_heuristic_ws(unsigned int level)
+>>>>>>> upstream/android-13
 {
 	struct heuristic_ws *ws;
 
@@ -793,6 +1230,7 @@ fail:
 	return ERR_PTR(-ENOMEM);
 }
 
+<<<<<<< HEAD
 struct workspaces_list {
 	struct list_head idle_ws;
 	spinlock_t ws_lock;
@@ -809,11 +1247,21 @@ static struct workspaces_list btrfs_comp_ws[BTRFS_COMPRESS_TYPES];
 static struct workspaces_list btrfs_heuristic_ws;
 
 static const struct btrfs_compress_op * const btrfs_compress_op[] = {
+=======
+const struct btrfs_compress_op btrfs_heuristic_compress = {
+	.workspace_manager = &heuristic_wsm,
+};
+
+static const struct btrfs_compress_op * const btrfs_compress_op[] = {
+	/* The heuristic is represented as compression type 0 */
+	&btrfs_heuristic_compress,
+>>>>>>> upstream/android-13
 	&btrfs_zlib_compress,
 	&btrfs_lzo_compress,
 	&btrfs_zstd_compress,
 };
 
+<<<<<<< HEAD
 void __init btrfs_init_compress(void)
 {
 	struct list_head *workspace;
@@ -852,6 +1300,77 @@ void __init btrfs_init_compress(void)
 			btrfs_comp_ws[i].free_ws = 1;
 			list_add(workspace, &btrfs_comp_ws[i].idle_ws);
 		}
+=======
+static struct list_head *alloc_workspace(int type, unsigned int level)
+{
+	switch (type) {
+	case BTRFS_COMPRESS_NONE: return alloc_heuristic_ws(level);
+	case BTRFS_COMPRESS_ZLIB: return zlib_alloc_workspace(level);
+	case BTRFS_COMPRESS_LZO:  return lzo_alloc_workspace(level);
+	case BTRFS_COMPRESS_ZSTD: return zstd_alloc_workspace(level);
+	default:
+		/*
+		 * This can't happen, the type is validated several times
+		 * before we get here.
+		 */
+		BUG();
+	}
+}
+
+static void free_workspace(int type, struct list_head *ws)
+{
+	switch (type) {
+	case BTRFS_COMPRESS_NONE: return free_heuristic_ws(ws);
+	case BTRFS_COMPRESS_ZLIB: return zlib_free_workspace(ws);
+	case BTRFS_COMPRESS_LZO:  return lzo_free_workspace(ws);
+	case BTRFS_COMPRESS_ZSTD: return zstd_free_workspace(ws);
+	default:
+		/*
+		 * This can't happen, the type is validated several times
+		 * before we get here.
+		 */
+		BUG();
+	}
+}
+
+static void btrfs_init_workspace_manager(int type)
+{
+	struct workspace_manager *wsm;
+	struct list_head *workspace;
+
+	wsm = btrfs_compress_op[type]->workspace_manager;
+	INIT_LIST_HEAD(&wsm->idle_ws);
+	spin_lock_init(&wsm->ws_lock);
+	atomic_set(&wsm->total_ws, 0);
+	init_waitqueue_head(&wsm->ws_wait);
+
+	/*
+	 * Preallocate one workspace for each compression type so we can
+	 * guarantee forward progress in the worst case
+	 */
+	workspace = alloc_workspace(type, 0);
+	if (IS_ERR(workspace)) {
+		pr_warn(
+	"BTRFS: cannot preallocate compression workspace, will try later\n");
+	} else {
+		atomic_set(&wsm->total_ws, 1);
+		wsm->free_ws = 1;
+		list_add(workspace, &wsm->idle_ws);
+	}
+}
+
+static void btrfs_cleanup_workspace_manager(int type)
+{
+	struct workspace_manager *wsman;
+	struct list_head *ws;
+
+	wsman = btrfs_compress_op[type]->workspace_manager;
+	while (!list_empty(&wsman->idle_ws)) {
+		ws = wsman->idle_ws.next;
+		list_del(ws);
+		free_workspace(type, ws);
+		atomic_dec(&wsman->total_ws);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -861,11 +1380,19 @@ void __init btrfs_init_compress(void)
  * Preallocation makes a forward progress guarantees and we do not return
  * errors.
  */
+<<<<<<< HEAD
 static struct list_head *__find_workspace(int type, bool heuristic)
 {
 	struct list_head *workspace;
 	int cpus = num_online_cpus();
 	int idx = type - 1;
+=======
+struct list_head *btrfs_get_workspace(int type, unsigned int level)
+{
+	struct workspace_manager *wsm;
+	struct list_head *workspace;
+	int cpus = num_online_cpus();
+>>>>>>> upstream/android-13
 	unsigned nofs_flag;
 	struct list_head *idle_ws;
 	spinlock_t *ws_lock;
@@ -873,6 +1400,7 @@ static struct list_head *__find_workspace(int type, bool heuristic)
 	wait_queue_head_t *ws_wait;
 	int *free_ws;
 
+<<<<<<< HEAD
 	if (heuristic) {
 		idle_ws	 = &btrfs_heuristic_ws.idle_ws;
 		ws_lock	 = &btrfs_heuristic_ws.ws_lock;
@@ -886,6 +1414,14 @@ static struct list_head *__find_workspace(int type, bool heuristic)
 		ws_wait	 = &btrfs_comp_ws[idx].ws_wait;
 		free_ws	 = &btrfs_comp_ws[idx].free_ws;
 	}
+=======
+	wsm = btrfs_compress_op[type]->workspace_manager;
+	idle_ws	 = &wsm->idle_ws;
+	ws_lock	 = &wsm->ws_lock;
+	total_ws = &wsm->total_ws;
+	ws_wait	 = &wsm->ws_wait;
+	free_ws	 = &wsm->free_ws;
+>>>>>>> upstream/android-13
 
 again:
 	spin_lock(ws_lock);
@@ -916,10 +1452,14 @@ again:
 	 * context of btrfs_compress_bio/btrfs_compress_pages
 	 */
 	nofs_flag = memalloc_nofs_save();
+<<<<<<< HEAD
 	if (heuristic)
 		workspace = alloc_heuristic_ws();
 	else
 		workspace = btrfs_compress_op[idx]->alloc_workspace();
+=======
+	workspace = alloc_workspace(type, level);
+>>>>>>> upstream/android-13
 	memalloc_nofs_restore(nofs_flag);
 
 	if (IS_ERR(workspace)) {
@@ -950,25 +1490,49 @@ again:
 	return workspace;
 }
 
+<<<<<<< HEAD
 static struct list_head *find_workspace(int type)
 {
 	return __find_workspace(type, false);
+=======
+static struct list_head *get_workspace(int type, int level)
+{
+	switch (type) {
+	case BTRFS_COMPRESS_NONE: return btrfs_get_workspace(type, level);
+	case BTRFS_COMPRESS_ZLIB: return zlib_get_workspace(level);
+	case BTRFS_COMPRESS_LZO:  return btrfs_get_workspace(type, level);
+	case BTRFS_COMPRESS_ZSTD: return zstd_get_workspace(level);
+	default:
+		/*
+		 * This can't happen, the type is validated several times
+		 * before we get here.
+		 */
+		BUG();
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
  * put a workspace struct back on the list or free it if we have enough
  * idle ones sitting around
  */
+<<<<<<< HEAD
 static void __free_workspace(int type, struct list_head *workspace,
 			     bool heuristic)
 {
 	int idx = type - 1;
+=======
+void btrfs_put_workspace(int type, struct list_head *ws)
+{
+	struct workspace_manager *wsm;
+>>>>>>> upstream/android-13
 	struct list_head *idle_ws;
 	spinlock_t *ws_lock;
 	atomic_t *total_ws;
 	wait_queue_head_t *ws_wait;
 	int *free_ws;
 
+<<<<<<< HEAD
 	if (heuristic) {
 		idle_ws	 = &btrfs_heuristic_ws.idle_ws;
 		ws_lock	 = &btrfs_heuristic_ws.ws_lock;
@@ -986,21 +1550,38 @@ static void __free_workspace(int type, struct list_head *workspace,
 	spin_lock(ws_lock);
 	if (*free_ws <= num_online_cpus()) {
 		list_add(workspace, idle_ws);
+=======
+	wsm = btrfs_compress_op[type]->workspace_manager;
+	idle_ws	 = &wsm->idle_ws;
+	ws_lock	 = &wsm->ws_lock;
+	total_ws = &wsm->total_ws;
+	ws_wait	 = &wsm->ws_wait;
+	free_ws	 = &wsm->free_ws;
+
+	spin_lock(ws_lock);
+	if (*free_ws <= num_online_cpus()) {
+		list_add(ws, idle_ws);
+>>>>>>> upstream/android-13
 		(*free_ws)++;
 		spin_unlock(ws_lock);
 		goto wake;
 	}
 	spin_unlock(ws_lock);
 
+<<<<<<< HEAD
 	if (heuristic)
 		free_heuristic_ws(workspace);
 	else
 		btrfs_compress_op[idx]->free_workspace(workspace);
+=======
+	free_workspace(type, ws);
+>>>>>>> upstream/android-13
 	atomic_dec(total_ws);
 wake:
 	cond_wake_up(ws_wait);
 }
 
+<<<<<<< HEAD
 static void free_workspace(int type, struct list_head *ws)
 {
 	return __free_workspace(type, ws, false);
@@ -1029,6 +1610,38 @@ static void free_workspaces(void)
 			atomic_dec(&btrfs_comp_ws[i].total_ws);
 		}
 	}
+=======
+static void put_workspace(int type, struct list_head *ws)
+{
+	switch (type) {
+	case BTRFS_COMPRESS_NONE: return btrfs_put_workspace(type, ws);
+	case BTRFS_COMPRESS_ZLIB: return btrfs_put_workspace(type, ws);
+	case BTRFS_COMPRESS_LZO:  return btrfs_put_workspace(type, ws);
+	case BTRFS_COMPRESS_ZSTD: return zstd_put_workspace(ws);
+	default:
+		/*
+		 * This can't happen, the type is validated several times
+		 * before we get here.
+		 */
+		BUG();
+	}
+}
+
+/*
+ * Adjust @level according to the limits of the compression algorithm or
+ * fallback to default
+ */
+static unsigned int btrfs_compress_set_level(int type, unsigned level)
+{
+	const struct btrfs_compress_op *ops = btrfs_compress_op[type];
+
+	if (level == 0)
+		level = ops->default_level;
+	else
+		level = min(level, ops->max_level);
+
+	return level;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1050,9 +1663,12 @@ static void free_workspaces(void)
  *
  * @total_out is an in/out parameter, must be set to the input length and will
  * be also used to return the total number of compressed bytes
+<<<<<<< HEAD
  *
  * @max_out tells us the max number of bytes that we're allowed to
  * stuff into pages
+=======
+>>>>>>> upstream/android-13
  */
 int btrfs_compress_pages(unsigned int type_level, struct address_space *mapping,
 			 u64 start, struct page **pages,
@@ -1060,6 +1676,7 @@ int btrfs_compress_pages(unsigned int type_level, struct address_space *mapping,
 			 unsigned long *total_in,
 			 unsigned long *total_out)
 {
+<<<<<<< HEAD
 	struct list_head *workspace;
 	int ret;
 	int type = type_level & 0xF;
@@ -1089,15 +1706,36 @@ int btrfs_compress_pages(unsigned int type_level, struct address_space *mapping,
  * be contiguous.  They all correspond to the range of bytes covered by
  * the compressed extent.
  */
+=======
+	int type = btrfs_compress_type(type_level);
+	int level = btrfs_compress_level(type_level);
+	struct list_head *workspace;
+	int ret;
+
+	level = btrfs_compress_set_level(type, level);
+	workspace = get_workspace(type, level);
+	ret = compression_compress_pages(type, workspace, mapping, start, pages,
+					 out_pages, total_in, total_out);
+	put_workspace(type, workspace);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int btrfs_decompress_bio(struct compressed_bio *cb)
 {
 	struct list_head *workspace;
 	int ret;
 	int type = cb->compress_type;
 
+<<<<<<< HEAD
 	workspace = find_workspace(type);
 	ret = btrfs_compress_op[type - 1]->decompress_bio(workspace, cb);
 	free_workspace(type, workspace);
+=======
+	workspace = get_workspace(type, 0);
+	ret = compression_decompress_bio(type, workspace, cb);
+	put_workspace(type, workspace);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1113,6 +1751,7 @@ int btrfs_decompress(int type, unsigned char *data_in, struct page *dest_page,
 	struct list_head *workspace;
 	int ret;
 
+<<<<<<< HEAD
 	workspace = find_workspace(type);
 
 	ret = btrfs_compress_op[type-1]->decompress(workspace, data_in,
@@ -1221,13 +1860,120 @@ int btrfs_decompress_buf2page(const char *buf, unsigned long buf_start,
 		}
 	}
 
+=======
+	workspace = get_workspace(type, 0);
+	ret = compression_decompress(type, workspace, data_in, dest_page,
+				     start_byte, srclen, destlen);
+	put_workspace(type, workspace);
+
+	return ret;
+}
+
+void __init btrfs_init_compress(void)
+{
+	btrfs_init_workspace_manager(BTRFS_COMPRESS_NONE);
+	btrfs_init_workspace_manager(BTRFS_COMPRESS_ZLIB);
+	btrfs_init_workspace_manager(BTRFS_COMPRESS_LZO);
+	zstd_init_workspace_manager();
+}
+
+void __cold btrfs_exit_compress(void)
+{
+	btrfs_cleanup_workspace_manager(BTRFS_COMPRESS_NONE);
+	btrfs_cleanup_workspace_manager(BTRFS_COMPRESS_ZLIB);
+	btrfs_cleanup_workspace_manager(BTRFS_COMPRESS_LZO);
+	zstd_cleanup_workspace_manager();
+}
+
+/*
+ * Copy decompressed data from working buffer to pages.
+ *
+ * @buf:		The decompressed data buffer
+ * @buf_len:		The decompressed data length
+ * @decompressed:	Number of bytes that are already decompressed inside the
+ * 			compressed extent
+ * @cb:			The compressed extent descriptor
+ * @orig_bio:		The original bio that the caller wants to read for
+ *
+ * An easier to understand graph is like below:
+ *
+ * 		|<- orig_bio ->|     |<- orig_bio->|
+ * 	|<-------      full decompressed extent      ----->|
+ * 	|<-----------    @cb range   ---->|
+ * 	|			|<-- @buf_len -->|
+ * 	|<--- @decompressed --->|
+ *
+ * Note that, @cb can be a subpage of the full decompressed extent, but
+ * @cb->start always has the same as the orig_file_offset value of the full
+ * decompressed extent.
+ *
+ * When reading compressed extent, we have to read the full compressed extent,
+ * while @orig_bio may only want part of the range.
+ * Thus this function will ensure only data covered by @orig_bio will be copied
+ * to.
+ *
+ * Return 0 if we have copied all needed contents for @orig_bio.
+ * Return >0 if we need continue decompress.
+ */
+int btrfs_decompress_buf2page(const char *buf, u32 buf_len,
+			      struct compressed_bio *cb, u32 decompressed)
+{
+	struct bio *orig_bio = cb->orig_bio;
+	/* Offset inside the full decompressed extent */
+	u32 cur_offset;
+
+	cur_offset = decompressed;
+	/* The main loop to do the copy */
+	while (cur_offset < decompressed + buf_len) {
+		struct bio_vec bvec;
+		size_t copy_len;
+		u32 copy_start;
+		/* Offset inside the full decompressed extent */
+		u32 bvec_offset;
+
+		bvec = bio_iter_iovec(orig_bio, orig_bio->bi_iter);
+		/*
+		 * cb->start may underflow, but subtracting that value can still
+		 * give us correct offset inside the full decompressed extent.
+		 */
+		bvec_offset = page_offset(bvec.bv_page) + bvec.bv_offset - cb->start;
+
+		/* Haven't reached the bvec range, exit */
+		if (decompressed + buf_len <= bvec_offset)
+			return 1;
+
+		copy_start = max(cur_offset, bvec_offset);
+		copy_len = min(bvec_offset + bvec.bv_len,
+			       decompressed + buf_len) - copy_start;
+		ASSERT(copy_len);
+
+		/*
+		 * Extra range check to ensure we didn't go beyond
+		 * @buf + @buf_len.
+		 */
+		ASSERT(copy_start - decompressed < buf_len);
+		memcpy_to_page(bvec.bv_page, bvec.bv_offset,
+			       buf + copy_start - decompressed, copy_len);
+		flush_dcache_page(bvec.bv_page);
+		cur_offset += copy_len;
+
+		bio_advance(orig_bio, copy_len);
+		/* Finished the bio */
+		if (!orig_bio->bi_iter.bi_size)
+			return 0;
+	}
+>>>>>>> upstream/android-13
 	return 1;
 }
 
 /*
  * Shannon Entropy calculation
  *
+<<<<<<< HEAD
  * Pure byte distribution analysis fails to determine compressiability of data.
+=======
+ * Pure byte distribution analysis fails to determine compressibility of data.
+>>>>>>> upstream/android-13
  * Try calculating entropy to estimate the average minimum number of bits
  * needed to encode the sampled data.
  *
@@ -1291,7 +2037,11 @@ static u8 get4bits(u64 num, int shift) {
 
 /*
  * Use 4 bits as radix base
+<<<<<<< HEAD
  * Use 16 u32 counters for calculating new possition in buf array
+=======
+ * Use 16 u32 counters for calculating new position in buf array
+>>>>>>> upstream/android-13
  *
  * @array     - array that will be sorted
  * @array_buf - buffer array to store sorting results
@@ -1497,7 +2247,11 @@ static void heuristic_collect_sample(struct inode *inode, u64 start, u64 end,
 	curr_sample_pos = 0;
 	while (index < index_end) {
 		page = find_get_page(inode->i_mapping, index);
+<<<<<<< HEAD
 		in_data = kmap(page);
+=======
+		in_data = kmap_local_page(page);
+>>>>>>> upstream/android-13
 		/* Handle case where the start is not aligned to PAGE_SIZE */
 		i = start % PAGE_SIZE;
 		while (i < PAGE_SIZE - SAMPLING_READ_SIZE) {
@@ -1510,7 +2264,11 @@ static void heuristic_collect_sample(struct inode *inode, u64 start, u64 end,
 			start += SAMPLING_INTERVAL;
 			curr_sample_pos += SAMPLING_READ_SIZE;
 		}
+<<<<<<< HEAD
 		kunmap(page);
+=======
+		kunmap_local(in_data);
+>>>>>>> upstream/android-13
 		put_page(page);
 
 		index++;
@@ -1536,7 +2294,11 @@ static void heuristic_collect_sample(struct inode *inode, u64 start, u64 end,
  */
 int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end)
 {
+<<<<<<< HEAD
 	struct list_head *ws_list = __find_workspace(0, true);
+=======
+	struct list_head *ws_list = get_workspace(0, 0);
+>>>>>>> upstream/android-13
 	struct heuristic_ws *ws;
 	u32 i;
 	u8 byte;
@@ -1605,6 +2367,7 @@ int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end)
 	}
 
 out:
+<<<<<<< HEAD
 	__free_workspace(0, ws_list, true);
 	return ret;
 }
@@ -1619,4 +2382,31 @@ unsigned int btrfs_compress_str2level(const char *str)
 		return str[5] - '0';
 
 	return BTRFS_ZLIB_DEFAULT_LEVEL;
+=======
+	put_workspace(0, ws_list);
+	return ret;
+}
+
+/*
+ * Convert the compression suffix (eg. after "zlib" starting with ":") to
+ * level, unrecognized string will set the default level
+ */
+unsigned int btrfs_compress_str2level(unsigned int type, const char *str)
+{
+	unsigned int level = 0;
+	int ret;
+
+	if (!type)
+		return 0;
+
+	if (str[0] == ':') {
+		ret = kstrtouint(str + 1, 10, &level);
+		if (ret)
+			level = 0;
+	}
+
+	level = btrfs_compress_set_level(type, level);
+
+	return level;
+>>>>>>> upstream/android-13
 }

@@ -81,7 +81,11 @@ long calc_load_fold_active(struct rq *this_rq, long adjust)
 	long nr_active, delta = 0;
 
 	nr_active = this_rq->nr_running - adjust;
+<<<<<<< HEAD
 	nr_active += (long)this_rq->nr_uninterruptible;
+=======
+	nr_active += (int)this_rq->nr_uninterruptible;
+>>>>>>> upstream/android-13
 
 	if (nr_active != this_rq->calc_load_active) {
 		delta = nr_active - this_rq->calc_load_active;
@@ -189,7 +193,11 @@ calc_load_n(unsigned long load, unsigned long exp,
  *    w:0 1 1           0 0           1 1           0 0
  *
  *    This ensures we'll fold the old NO_HZ contribution in this window while
+<<<<<<< HEAD
  *    accumlating the new one.
+=======
+ *    accumulating the new one.
+>>>>>>> upstream/android-13
  *
  *  - When we wake up from NO_HZ during the window, we push up our
  *    contribution, since we effectively move our sample point to a known
@@ -231,6 +239,7 @@ static inline int calc_load_read_idx(void)
 	return calc_load_idx & 1;
 }
 
+<<<<<<< HEAD
 void calc_load_nohz_start(void)
 {
 	struct rq *this_rq = this_rq();
@@ -241,6 +250,13 @@ void calc_load_nohz_start(void)
 	 * into the pending NO_HZ delta.
 	 */
 	delta = calc_load_fold_active(this_rq, 0);
+=======
+static void calc_load_nohz_fold(struct rq *rq)
+{
+	long delta;
+
+	delta = calc_load_fold_active(rq, 0);
+>>>>>>> upstream/android-13
 	if (delta) {
 		int idx = calc_load_write_idx();
 
@@ -248,6 +264,27 @@ void calc_load_nohz_start(void)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void calc_load_nohz_start(void)
+{
+	/*
+	 * We're going into NO_HZ mode, if there's any pending delta, fold it
+	 * into the pending NO_HZ delta.
+	 */
+	calc_load_nohz_fold(this_rq());
+}
+
+/*
+ * Keep track of the load for NOHZ_FULL, must be called between
+ * calc_load_nohz_{start,stop}().
+ */
+void calc_load_nohz_remote(struct rq *rq)
+{
+	calc_load_nohz_fold(rq);
+}
+
+>>>>>>> upstream/android-13
 void calc_load_nohz_stop(void)
 {
 	struct rq *this_rq = this_rq();
@@ -268,7 +305,11 @@ void calc_load_nohz_stop(void)
 		this_rq->calc_load_update += LOAD_FREQ;
 }
 
+<<<<<<< HEAD
 static long calc_load_nohz_fold(void)
+=======
+static long calc_load_nohz_read(void)
+>>>>>>> upstream/android-13
 {
 	int idx = calc_load_read_idx();
 	long delta = 0;
@@ -323,7 +364,11 @@ static void calc_global_nohz(void)
 }
 #else /* !CONFIG_NO_HZ_COMMON */
 
+<<<<<<< HEAD
 static inline long calc_load_nohz_fold(void) { return 0; }
+=======
+static inline long calc_load_nohz_read(void) { return 0; }
+>>>>>>> upstream/android-13
 static inline void calc_global_nohz(void) { }
 
 #endif /* CONFIG_NO_HZ_COMMON */
@@ -334,7 +379,11 @@ static inline void calc_global_nohz(void) { }
  *
  * Called from the global timer code.
  */
+<<<<<<< HEAD
 void calc_global_load(unsigned long ticks)
+=======
+void calc_global_load(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long sample_window;
 	long active, delta;
@@ -346,7 +395,11 @@ void calc_global_load(unsigned long ticks)
 	/*
 	 * Fold the 'old' NO_HZ-delta to include all NO_HZ CPUs.
 	 */
+<<<<<<< HEAD
 	delta = calc_load_nohz_fold();
+=======
+	delta = calc_load_nohz_read();
+>>>>>>> upstream/android-13
 	if (delta)
 		atomic_long_add(delta, &calc_load_tasks);
 

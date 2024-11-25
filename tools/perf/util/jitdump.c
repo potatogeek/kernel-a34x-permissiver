@@ -2,6 +2,10 @@
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <errno.h>
+<<<<<<< HEAD
+=======
+#include <libgen.h>
+>>>>>>> upstream/android-13
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,10 +17,18 @@
 #include <sys/mman.h>
 #include <linux/stringify.h>
 
+<<<<<<< HEAD
 #include "util.h"
 #include "event.h"
 #include "debug.h"
 #include "evlist.h"
+=======
+#include "build-id.h"
+#include "event.h"
+#include "debug.h"
+#include "evlist.h"
+#include "namespaces.h"
+>>>>>>> upstream/android-13
 #include "symbol.h"
 #include <elf.h>
 
@@ -25,20 +37,35 @@
 #include "jit.h"
 #include "jitdump.h"
 #include "genelf.h"
+<<<<<<< HEAD
 #include "../builtin.h"
 
 #include "sane_ctype.h"
+=======
+#include "thread.h"
+
+#include <linux/ctype.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 struct jit_buf_desc {
 	struct perf_data *output;
 	struct perf_session *session;
 	struct machine *machine;
+<<<<<<< HEAD
+=======
+	struct nsinfo  *nsi;
+>>>>>>> upstream/android-13
 	union jr_entry   *entry;
 	void             *buf;
 	uint64_t	 sample_type;
 	size_t           bufsize;
 	FILE             *in;
+<<<<<<< HEAD
 	bool		 needs_bswap; /* handles cross-endianess */
+=======
+	bool		 needs_bswap; /* handles cross-endianness */
+>>>>>>> upstream/android-13
 	bool		 use_arch_timestamp;
 	void		 *debug_data;
 	void		 *unwinding_data;
@@ -56,7 +83,11 @@ struct debug_line_info {
 	unsigned long vma;
 	unsigned int lineno;
 	/* The filename format is unspecified, absolute path, relative etc. */
+<<<<<<< HEAD
 	char const filename[0];
+=======
+	char const filename[];
+>>>>>>> upstream/android-13
 };
 
 struct jit_tool {
@@ -70,7 +101,12 @@ struct jit_tool {
 #define get_jit_tool(t) (container_of(tool, struct jit_tool, tool))
 
 static int
+<<<<<<< HEAD
 jit_emit_elf(char *filename,
+=======
+jit_emit_elf(struct jit_buf_desc *jd,
+	     char *filename,
+>>>>>>> upstream/android-13
 	     const char *sym,
 	     uint64_t code_addr,
 	     const void *code,
@@ -81,14 +117,28 @@ jit_emit_elf(char *filename,
 	     uint32_t unwinding_header_size,
 	     uint32_t unwinding_size)
 {
+<<<<<<< HEAD
 	int ret, fd;
+=======
+	int ret, fd, saved_errno;
+	struct nscookie nsc;
+>>>>>>> upstream/android-13
 
 	if (verbose > 0)
 		fprintf(stderr, "write ELF image %s\n", filename);
 
+<<<<<<< HEAD
 	fd = open(filename, O_CREAT|O_TRUNC|O_WRONLY, 0644);
 	if (fd == -1) {
 		pr_warning("cannot create jit ELF %s: %s\n", filename, strerror(errno));
+=======
+	nsinfo__mountns_enter(jd->nsi, &nsc);
+	fd = open(filename, O_CREAT|O_TRUNC|O_WRONLY, 0644);
+	saved_errno = errno;
+	nsinfo__mountns_exit(&nsc);
+	if (fd == -1) {
+		pr_warning("cannot create jit ELF %s: %s\n", filename, strerror(saved_errno));
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -97,8 +147,16 @@ jit_emit_elf(char *filename,
 
         close(fd);
 
+<<<<<<< HEAD
         if (ret)
                 unlink(filename);
+=======
+	if (ret) {
+		nsinfo__mountns_enter(jd->nsi, &nsc);
+		unlink(filename);
+		nsinfo__mountns_exit(&nsc);
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -116,13 +174,21 @@ jit_close(struct jit_buf_desc *jd)
 static int
 jit_validate_events(struct perf_session *session)
 {
+<<<<<<< HEAD
 	struct perf_evsel *evsel;
+=======
+	struct evsel *evsel;
+>>>>>>> upstream/android-13
 
 	/*
 	 * check that all events use CLOCK_MONOTONIC
 	 */
 	evlist__for_each_entry(session->evlist, evsel) {
+<<<<<<< HEAD
 		if (evsel->attr.use_clockid == 0 || evsel->attr.clockid != CLOCK_MONOTONIC)
+=======
+		if (evsel->core.attr.use_clockid == 0 || evsel->core.attr.clockid != CLOCK_MONOTONIC)
+>>>>>>> upstream/android-13
 			return -1;
 	}
 	return 0;
@@ -132,12 +198,22 @@ static int
 jit_open(struct jit_buf_desc *jd, const char *name)
 {
 	struct jitheader header;
+<<<<<<< HEAD
+=======
+	struct nscookie nsc;
+>>>>>>> upstream/android-13
 	struct jr_prefix *prefix;
 	ssize_t bs, bsz = 0;
 	void *n, *buf = NULL;
 	int ret, retval = -1;
 
+<<<<<<< HEAD
 	jd->in = fopen(name, "r");
+=======
+	nsinfo__mountns_enter(jd->nsi, &nsc);
+	jd->in = fopen(name, "r");
+	nsinfo__mountns_exit(&nsc);
+>>>>>>> upstream/android-13
 	if (!jd->in)
 		return -1;
 
@@ -365,19 +441,62 @@ jit_inject_event(struct jit_buf_desc *jd, union perf_event *event)
 	return 0;
 }
 
+<<<<<<< HEAD
 static uint64_t convert_timestamp(struct jit_buf_desc *jd, uint64_t timestamp)
 {
 	struct perf_tsc_conversion tc;
+=======
+static pid_t jr_entry_pid(struct jit_buf_desc *jd, union jr_entry *jr)
+{
+	if (jd->nsi && jd->nsi->in_pidns)
+		return jd->nsi->tgid;
+	return jr->load.pid;
+}
+
+static pid_t jr_entry_tid(struct jit_buf_desc *jd, union jr_entry *jr)
+{
+	if (jd->nsi && jd->nsi->in_pidns)
+		return jd->nsi->pid;
+	return jr->load.tid;
+}
+
+static uint64_t convert_timestamp(struct jit_buf_desc *jd, uint64_t timestamp)
+{
+	struct perf_tsc_conversion tc = { .time_shift = 0, };
+	struct perf_record_time_conv *time_conv = &jd->session->time_conv;
+>>>>>>> upstream/android-13
 
 	if (!jd->use_arch_timestamp)
 		return timestamp;
 
+<<<<<<< HEAD
 	tc.time_shift = jd->session->time_conv.time_shift;
 	tc.time_mult  = jd->session->time_conv.time_mult;
 	tc.time_zero  = jd->session->time_conv.time_zero;
 
 	if (!tc.time_mult)
 		return 0;
+=======
+	tc.time_shift = time_conv->time_shift;
+	tc.time_mult  = time_conv->time_mult;
+	tc.time_zero  = time_conv->time_zero;
+
+	/*
+	 * The event TIME_CONV was extended for the fields from "time_cycles"
+	 * when supported cap_user_time_short, for backward compatibility,
+	 * checks the event size and assigns these extended fields if these
+	 * fields are contained in the event.
+	 */
+	if (event_contains(*time_conv, time_cycles)) {
+		tc.time_cycles	       = time_conv->time_cycles;
+		tc.time_mask	       = time_conv->time_mask;
+		tc.cap_user_time_zero  = time_conv->cap_user_time_zero;
+		tc.cap_user_time_short = time_conv->cap_user_time_short;
+
+		if (!tc.cap_user_time_zero)
+			return 0;
+	}
+>>>>>>> upstream/android-13
 
 	return tsc_to_perf_time(timestamp, &tc);
 }
@@ -396,14 +515,24 @@ static int jit_repipe_code_load(struct jit_buf_desc *jd, union jr_entry *jr)
 	const char *sym;
 	uint64_t count;
 	int ret, csize, usize;
+<<<<<<< HEAD
 	pid_t pid, tid;
+=======
+	pid_t nspid, pid, tid;
+>>>>>>> upstream/android-13
 	struct {
 		u32 pid, tid;
 		u64 time;
 	} *id;
 
+<<<<<<< HEAD
 	pid   = jr->load.pid;
 	tid   = jr->load.tid;
+=======
+	nspid = jr->load.pid;
+	pid   = jr_entry_pid(jd, jr);
+	tid   = jr_entry_tid(jd, jr);
+>>>>>>> upstream/android-13
 	csize = jr->load.code_size;
 	usize = jd->unwinding_mapped_size;
 	addr  = jr->load.code_addr;
@@ -419,25 +548,41 @@ static int jit_repipe_code_load(struct jit_buf_desc *jd, union jr_entry *jr)
 	filename = event->mmap2.filename;
 	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
 			jd->dir,
+<<<<<<< HEAD
 			pid,
+=======
+			nspid,
+>>>>>>> upstream/android-13
 			count);
 
 	size++; /* for \0 */
 
 	size = PERF_ALIGN(size, sizeof(u64));
 	uaddr = (uintptr_t)code;
+<<<<<<< HEAD
 	ret = jit_emit_elf(filename, sym, addr, (const void *)uaddr, csize, jd->debug_data, jd->nr_debug_entries,
 			   jd->unwinding_data, jd->eh_frame_hdr_size, jd->unwinding_size);
 
 	if (jd->debug_data && jd->nr_debug_entries) {
 		free(jd->debug_data);
 		jd->debug_data = NULL;
+=======
+	ret = jit_emit_elf(jd, filename, sym, addr, (const void *)uaddr, csize, jd->debug_data, jd->nr_debug_entries,
+			   jd->unwinding_data, jd->eh_frame_hdr_size, jd->unwinding_size);
+
+	if (jd->debug_data && jd->nr_debug_entries) {
+		zfree(&jd->debug_data);
+>>>>>>> upstream/android-13
 		jd->nr_debug_entries = 0;
 	}
 
 	if (jd->unwinding_data && jd->eh_frame_hdr_size) {
+<<<<<<< HEAD
 		free(jd->unwinding_data);
 		jd->unwinding_data = NULL;
+=======
+		zfree(&jd->unwinding_data);
+>>>>>>> upstream/android-13
 		jd->eh_frame_hdr_size = 0;
 		jd->unwinding_mapped_size = 0;
 		jd->unwinding_size = 0;
@@ -447,7 +592,11 @@ static int jit_repipe_code_load(struct jit_buf_desc *jd, union jr_entry *jr)
 		free(event);
 		return -1;
 	}
+<<<<<<< HEAD
 	if (stat(filename, &st))
+=======
+	if (nsinfo__stat(filename, &st, jd->nsi))
+>>>>>>> upstream/android-13
 		memset(&st, 0, sizeof(st));
 
 	event->mmap2.header.type = PERF_RECORD_MMAP2;
@@ -511,14 +660,24 @@ static int jit_repipe_code_move(struct jit_buf_desc *jd, union jr_entry *jr)
 	int usize;
 	u16 idr_size;
 	int ret;
+<<<<<<< HEAD
 	pid_t pid, tid;
+=======
+	pid_t nspid, pid, tid;
+>>>>>>> upstream/android-13
 	struct {
 		u32 pid, tid;
 		u64 time;
 	} *id;
 
+<<<<<<< HEAD
 	pid = jr->move.pid;
 	tid =  jr->move.tid;
+=======
+	nspid = jr->load.pid;
+	pid   = jr_entry_pid(jd, jr);
+	tid   = jr_entry_tid(jd, jr);
+>>>>>>> upstream/android-13
 	usize = jd->unwinding_mapped_size;
 	idr_size = jd->machine->id_hdr_size;
 
@@ -532,12 +691,20 @@ static int jit_repipe_code_move(struct jit_buf_desc *jd, union jr_entry *jr)
 	filename = event->mmap2.filename;
 	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
 	         jd->dir,
+<<<<<<< HEAD
 	         pid,
+=======
+		 nspid,
+>>>>>>> upstream/android-13
 		 jr->move.code_index);
 
 	size++; /* for \0 */
 
+<<<<<<< HEAD
 	if (stat(filename, &st))
+=======
+	if (nsinfo__stat(filename, &st, jd->nsi))
+>>>>>>> upstream/android-13
 		memset(&st, 0, sizeof(st));
 
 	size = PERF_ALIGN(size, sizeof(u64));
@@ -696,7 +863,11 @@ jit_inject(struct jit_buf_desc *jd, char *path)
  * as captured in the RECORD_MMAP record
  */
 static int
+<<<<<<< HEAD
 jit_detect(char *mmap_name, pid_t pid)
+=======
+jit_detect(char *mmap_name, pid_t pid, struct nsinfo *nsi)
+>>>>>>> upstream/android-13
  {
 	char *p;
 	char *end = NULL;
@@ -736,7 +907,11 @@ jit_detect(char *mmap_name, pid_t pid)
 	 * pid does not match mmap pid
 	 * pid==0 in system-wide mode (synthesized)
 	 */
+<<<<<<< HEAD
 	if (pid && pid2 != pid)
+=======
+	if (pid && pid2 != nsi->nstgid)
+>>>>>>> upstream/android-13
 		return -1;
 	/*
 	 * validate suffix
@@ -750,12 +925,38 @@ jit_detect(char *mmap_name, pid_t pid)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void jit_add_pid(struct machine *machine, pid_t pid)
+{
+	struct thread *thread = machine__findnew_thread(machine, pid, pid);
+
+	if (!thread) {
+		pr_err("%s: thread %d not found or created\n", __func__, pid);
+		return;
+	}
+
+	thread->priv = (void *)1;
+}
+
+static bool jit_has_pid(struct machine *machine, pid_t pid)
+{
+	struct thread *thread = machine__find_thread(machine, pid, pid);
+
+	if (!thread)
+		return 0;
+
+	return (bool)thread->priv;
+}
+
+>>>>>>> upstream/android-13
 int
 jit_process(struct perf_session *session,
 	    struct perf_data *output,
 	    struct machine *machine,
 	    char *filename,
 	    pid_t pid,
+<<<<<<< HEAD
 	    u64 *nbytes)
 {
 	struct perf_evsel *first;
@@ -767,27 +968,77 @@ jit_process(struct perf_session *session,
 	 */
 	if (jit_detect(filename, pid))
 		return 0;
+=======
+	    pid_t tid,
+	    u64 *nbytes)
+{
+	struct thread *thread;
+	struct nsinfo *nsi;
+	struct evsel *first;
+	struct jit_buf_desc jd;
+	int ret;
+
+	thread = machine__findnew_thread(machine, pid, tid);
+	if (thread == NULL) {
+		pr_err("problem processing JIT mmap event, skipping it.\n");
+		return 0;
+	}
+
+	nsi = nsinfo__get(thread->nsinfo);
+	thread__put(thread);
+
+	/*
+	 * first, detect marker mmap (i.e., the jitdump mmap)
+	 */
+	if (jit_detect(filename, pid, nsi)) {
+		nsinfo__put(nsi);
+
+		// Strip //anon* mmaps if we processed a jitdump for this pid
+		if (jit_has_pid(machine, pid) && (strncmp(filename, "//anon", 6) == 0))
+			return 1;
+
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	memset(&jd, 0, sizeof(jd));
 
 	jd.session = session;
 	jd.output  = output;
 	jd.machine = machine;
+<<<<<<< HEAD
+=======
+	jd.nsi = nsi;
+>>>>>>> upstream/android-13
 
 	/*
 	 * track sample_type to compute id_all layout
 	 * perf sets the same sample type to all events as of now
 	 */
+<<<<<<< HEAD
 	first = perf_evlist__first(session->evlist);
 	jd.sample_type = first->attr.sample_type;
+=======
+	first = evlist__first(session->evlist);
+	jd.sample_type = first->core.attr.sample_type;
+>>>>>>> upstream/android-13
 
 	*nbytes = 0;
 
 	ret = jit_inject(&jd, filename);
 	if (!ret) {
+<<<<<<< HEAD
+=======
+		jit_add_pid(machine, pid);
+>>>>>>> upstream/android-13
 		*nbytes = jd.bytes_written;
 		ret = 1;
 	}
 
+<<<<<<< HEAD
+=======
+	nsinfo__put(jd.nsi);
+
+>>>>>>> upstream/android-13
 	return ret;
 }

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/entry-common.S
  *
  *  Copyright (C) 2000 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/assembler.h>
@@ -52,11 +59,16 @@ __ret_fast_syscall:
  UNWIND(.fnstart	)
  UNWIND(.cantunwind	)
 	disable_irq_notrace			@ disable interrupts
+<<<<<<< HEAD
 	ldr	r2, [tsk, #TI_ADDR_LIMIT]
 	cmp	r2, #TASK_SIZE
 	blne	addr_limit_check_failed
 	ldr	r1, [tsk, #TI_FLAGS]		@ re-check for syscall tracing
 	tst	r1, #_TIF_SYSCALL_WORK | _TIF_WORK_MASK
+=======
+	ldr	r1, [tsk, #TI_FLAGS]		@ re-check for syscall tracing
+	movs	r1, r1, lsl #16
+>>>>>>> upstream/android-13
 	bne	fast_work_pending
 
 
@@ -89,11 +101,16 @@ __ret_fast_syscall:
 	bl	do_rseq_syscall
 #endif
 	disable_irq_notrace			@ disable interrupts
+<<<<<<< HEAD
 	ldr	r2, [tsk, #TI_ADDR_LIMIT]
 	cmp	r2, #TASK_SIZE
 	blne	addr_limit_check_failed
 	ldr	r1, [tsk, #TI_FLAGS]		@ re-check for syscall tracing
 	tst	r1, #_TIF_SYSCALL_WORK | _TIF_WORK_MASK
+=======
+	ldr	r1, [tsk, #TI_FLAGS]		@ re-check for syscall tracing
+	movs	r1, r1, lsl #16
+>>>>>>> upstream/android-13
 	beq	no_work_pending
  UNWIND(.fnend		)
 ENDPROC(ret_fast_syscall)
@@ -130,11 +147,16 @@ ret_slow_syscall:
 #endif
 	disable_irq_notrace			@ disable interrupts
 ENTRY(ret_to_user_from_irq)
+<<<<<<< HEAD
 	ldr	r2, [tsk, #TI_ADDR_LIMIT]
 	cmp	r2, #TASK_SIZE
 	blne	addr_limit_check_failed
 	ldr	r1, [tsk, #TI_FLAGS]
 	tst	r1, #_TIF_WORK_MASK
+=======
+	ldr	r1, [tsk, #TI_FLAGS]
+	movs	r1, r1, lsl #16
+>>>>>>> upstream/android-13
 	bne	slow_work_pending
 no_work_pending:
 	asm_trace_hardirqs_on save = 0
@@ -166,12 +188,42 @@ ENDPROC(ret_from_fork)
  */
 
 	.align	5
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HARDEN_BRANCH_HISTORY
+ENTRY(vector_bhb_loop8_swi)
+	sub	sp, sp, #PT_REGS_SIZE
+	stmia	sp, {r0 - r12}
+	mov	r8, #8
+1:	b	2f
+2:	subs	r8, r8, #1
+	bne	1b
+	dsb
+	isb
+	b	3f
+ENDPROC(vector_bhb_loop8_swi)
+
+	.align	5
+ENTRY(vector_bhb_bpiall_swi)
+	sub	sp, sp, #PT_REGS_SIZE
+	stmia	sp, {r0 - r12}
+	mcr	p15, 0, r8, c7, c5, 6	@ BPIALL
+	isb
+	b	3f
+ENDPROC(vector_bhb_bpiall_swi)
+#endif
+	.align	5
+>>>>>>> upstream/android-13
 ENTRY(vector_swi)
 #ifdef CONFIG_CPU_V7M
 	v7m_exception_entry
 #else
 	sub	sp, sp, #PT_REGS_SIZE
 	stmia	sp, {r0 - r12}			@ Calling r0 - r12
+<<<<<<< HEAD
+=======
+3:
+>>>>>>> upstream/android-13
  ARM(	add	r8, sp, #S_PC		)
  ARM(	stmdb	r8, {sp, lr}^		)	@ Calling sp, lr
  THUMB(	mov	r8, sp			)
@@ -226,6 +278,10 @@ ENTRY(vector_swi)
 	/* saved_psr and saved_pc are now dead */
 
 	uaccess_disable tbl
+<<<<<<< HEAD
+=======
+	get_thread_info tsk
+>>>>>>> upstream/android-13
 
 	adr	tbl, sys_call_table		@ load syscall table pointer
 
@@ -237,13 +293,26 @@ ENTRY(vector_swi)
 	 * get the old ABI syscall table address.
 	 */
 	bics	r10, r10, #0xff000000
+<<<<<<< HEAD
+=======
+	strne	r10, [tsk, #TI_ABI_SYSCALL]
+	streq	scno, [tsk, #TI_ABI_SYSCALL]
+>>>>>>> upstream/android-13
 	eorne	scno, r10, #__NR_OABI_SYSCALL_BASE
 	ldrne	tbl, =sys_oabi_call_table
 #elif !defined(CONFIG_AEABI)
 	bic	scno, scno, #0xff000000		@ mask off SWI op-code
+<<<<<<< HEAD
 	eor	scno, scno, #__NR_SYSCALL_BASE	@ check OS number
 #endif
 	get_thread_info tsk
+=======
+	str	scno, [tsk, #TI_ABI_SYSCALL]
+	eor	scno, scno, #__NR_SYSCALL_BASE	@ check OS number
+#else
+	str	scno, [tsk, #TI_ABI_SYSCALL]
+#endif
+>>>>>>> upstream/android-13
 	/*
 	 * Reload the registers that may have been corrupted on entry to
 	 * the syscall assembly (by tracing or context tracking.)
@@ -288,7 +357,10 @@ ENDPROC(vector_swi)
 	 * context switches, and waiting for our parent to respond.
 	 */
 __sys_trace:
+<<<<<<< HEAD
 	mov	r1, scno
+=======
+>>>>>>> upstream/android-13
 	add	r0, sp, #S_OFF
 	bl	syscall_trace_enter
 	mov	scno, r0
@@ -344,20 +416,31 @@ ENTRY(\sym)
 	.size	\sym, . - \sym
 	.endm
 
+<<<<<<< HEAD
 #define NATIVE(nr, func) syscall nr, func
+=======
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
+#define __SYSCALL(nr, func) syscall nr, func
+>>>>>>> upstream/android-13
 
 /*
  * This is the syscall table declaration for native ABI syscalls.
  * With EABI a couple syscalls are obsolete and defined as sys_ni_syscall.
  */
 	syscall_table_start sys_call_table
+<<<<<<< HEAD
 #define COMPAT(nr, native, compat) syscall nr, native
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_AEABI
 #include <calls-eabi.S>
 #else
 #include <calls-oabi.S>
 #endif
+<<<<<<< HEAD
 #undef COMPAT
+=======
+>>>>>>> upstream/android-13
 	syscall_table_end sys_call_table
 
 /*============================================================================
@@ -373,7 +456,11 @@ sys_syscall:
 		movhs	scno, #0
 		csdb
 #endif
+<<<<<<< HEAD
 		stmloia	sp, {r5, r6}		@ shuffle args
+=======
+		stmialo	sp, {r5, r6}		@ shuffle args
+>>>>>>> upstream/android-13
 		movlo	r0, r1
 		movlo	r1, r2
 		movlo	r2, r3
@@ -455,7 +542,12 @@ ENDPROC(sys_oabi_readahead)
  * using the compatibility syscall entries.
  */
 	syscall_table_start sys_oabi_call_table
+<<<<<<< HEAD
 #define COMPAT(nr, native, compat) syscall nr, compat
+=======
+#undef __SYSCALL_WITH_COMPAT
+#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, compat)
+>>>>>>> upstream/android-13
 #include <calls-oabi.S>
 	syscall_table_end sys_oabi_call_table
 

@@ -76,6 +76,17 @@ do {									\
 #define ULP2_MAX_PDU_PAYLOAD	\
 	(ULP2_MAX_PKT_SIZE - ISCSI_PDU_NONPAYLOAD_LEN)
 
+<<<<<<< HEAD
+=======
+#define CXGBI_ULP2_MAX_ISO_PAYLOAD	65535
+
+#define CXGBI_MAX_ISO_DATA_IN_SKB	\
+	min_t(u32, MAX_SKB_FRAGS << PAGE_SHIFT, CXGBI_ULP2_MAX_ISO_PAYLOAD)
+
+#define cxgbi_is_iso_config(csk)	((csk)->cdev->skb_iso_txhdr)
+#define cxgbi_is_iso_disabled(csk)	((csk)->disable_iso)
+
+>>>>>>> upstream/android-13
 /*
  * For iscsi connections HW may inserts digest bytes into the pdu. Those digest
  * bytes are not sent by the host but are part of the TCP payload and therefore
@@ -120,6 +131,12 @@ struct cxgbi_sock {
 	int wr_max_cred;
 	int wr_cred;
 	int wr_una_cred;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CHELSIO_T4_DCB
+	u8 dcb_priority;
+#endif
+>>>>>>> upstream/android-13
 	unsigned char hcrc_len;
 	unsigned char dcrc_len;
 
@@ -159,6 +176,13 @@ struct cxgbi_sock {
 	u32 write_seq;
 	u32 snd_win;
 	u32 rcv_win;
+<<<<<<< HEAD
+=======
+
+	bool disable_iso;
+	u32 no_tx_credits;
+	unsigned long prev_iso_ts;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -200,6 +224,11 @@ struct cxgbi_skb_tx_cb {
 	void *handle;
 	void *arp_err_handler;
 	struct sk_buff *wr_next;
+<<<<<<< HEAD
+=======
+	u16 iscsi_hdr_len;
+	u8 ulp_mode;
+>>>>>>> upstream/android-13
 };
 
 enum cxgbi_skcb_flags {
@@ -215,6 +244,10 @@ enum cxgbi_skcb_flags {
 	SKCBF_RX_HCRC_ERR,	/* header digest error */
 	SKCBF_RX_DCRC_ERR,	/* data digest error */
 	SKCBF_RX_PAD_ERR,	/* padding byte error */
+<<<<<<< HEAD
+=======
+	SKCBF_TX_ISO,		/* iso cpl in tx skb */
+>>>>>>> upstream/android-13
 };
 
 struct cxgbi_skb_cb {
@@ -222,18 +255,29 @@ struct cxgbi_skb_cb {
 		struct cxgbi_skb_rx_cb rx;
 		struct cxgbi_skb_tx_cb tx;
 	};
+<<<<<<< HEAD
 	unsigned char ulp_mode;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned int seq;
 };
 
 #define CXGBI_SKB_CB(skb)	((struct cxgbi_skb_cb *)&((skb)->cb[0]))
 #define cxgbi_skcb_flags(skb)		(CXGBI_SKB_CB(skb)->flags)
+<<<<<<< HEAD
 #define cxgbi_skcb_ulp_mode(skb)	(CXGBI_SKB_CB(skb)->ulp_mode)
+=======
+>>>>>>> upstream/android-13
 #define cxgbi_skcb_tcp_seq(skb)		(CXGBI_SKB_CB(skb)->seq)
 #define cxgbi_skcb_rx_ddigest(skb)	(CXGBI_SKB_CB(skb)->rx.ddigest)
 #define cxgbi_skcb_rx_pdulen(skb)	(CXGBI_SKB_CB(skb)->rx.pdulen)
 #define cxgbi_skcb_tx_wr_next(skb)	(CXGBI_SKB_CB(skb)->tx.wr_next)
+<<<<<<< HEAD
+=======
+#define cxgbi_skcb_tx_iscsi_hdrlen(skb)	(CXGBI_SKB_CB(skb)->tx.iscsi_hdr_len)
+#define cxgbi_skcb_tx_ulp_mode(skb)	(CXGBI_SKB_CB(skb)->tx.ulp_mode)
+>>>>>>> upstream/android-13
 
 static inline void cxgbi_skcb_set_flag(struct sk_buff *skb,
 					enum cxgbi_skcb_flags flag)
@@ -455,6 +499,10 @@ struct cxgbi_ports_map {
 #define CXGBI_FLAG_IPV4_SET		0x10
 #define CXGBI_FLAG_USE_PPOD_OFLDQ       0x40
 #define CXGBI_FLAG_DDP_OFF		0x100
+<<<<<<< HEAD
+=======
+#define CXGBI_FLAG_DEV_ISO_OFF		0x400
+>>>>>>> upstream/android-13
 
 struct cxgbi_device {
 	struct list_head list_head;
@@ -474,6 +522,10 @@ struct cxgbi_device {
 	unsigned int pfvf;
 	unsigned int rx_credit_thres;
 	unsigned int skb_tx_rsvd;
+<<<<<<< HEAD
+=======
+	u32 skb_iso_txhdr;
+>>>>>>> upstream/android-13
 	unsigned int skb_rx_extra;	/* for msg coalesced mode */
 	unsigned int tx_max_size;
 	unsigned int rx_max_size;
@@ -520,20 +572,36 @@ struct cxgbi_endpoint {
 	struct cxgbi_sock *csk;
 };
 
+<<<<<<< HEAD
 #define MAX_PDU_FRAGS	((ULP2_MAX_PDU_PAYLOAD + 512 - 1) / 512)
 struct cxgbi_task_data {
 	unsigned short nr_frags;
 	struct page_frag frags[MAX_PDU_FRAGS];
+=======
+struct cxgbi_task_data {
+#define CXGBI_TASK_SGL_CHECKED	0x1
+#define CXGBI_TASK_SGL_COPY	0x2
+	u8 flags;
+	unsigned short nr_frags;
+	struct page_frag frags[MAX_SKB_FRAGS];
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	unsigned int dlen;
 	unsigned int offset;
 	unsigned int count;
 	unsigned int sgoffset;
+<<<<<<< HEAD
+=======
+	u32 total_count;
+	u32 total_offset;
+	u32 max_xmit_dlength;
+>>>>>>> upstream/android-13
 	struct cxgbi_task_tag_info ttinfo;
 };
 #define iscsi_task_cxgbi_data(task) \
 	((task)->dd_data + sizeof(struct iscsi_tcp_task))
 
+<<<<<<< HEAD
 static inline void *cxgbi_alloc_big_mem(unsigned int size,
 					gfp_t gfp)
 {
@@ -549,6 +617,23 @@ static inline void cxgbi_free_big_mem(void *addr)
 {
 	kvfree(addr);
 }
+=======
+struct cxgbi_iso_info {
+#define CXGBI_ISO_INFO_FSLICE		0x1
+#define CXGBI_ISO_INFO_LSLICE		0x2
+#define CXGBI_ISO_INFO_IMM_ENABLE	0x4
+	u8 flags;
+	u8 op;
+	u8 ahs;
+	u8 num_pdu;
+	u32 mpdu;
+	u32 burst_size;
+	u32 len;
+	u32 segment_offset;
+	u32 datasn_offset;
+	u32 buffer_offset;
+};
+>>>>>>> upstream/android-13
 
 static inline void cxgbi_set_iscsi_ipv4(struct cxgbi_hba *chba, __be32 ipaddr)
 {
@@ -614,8 +699,16 @@ void cxgbi_ddp_page_size_factor(int *);
 void cxgbi_ddp_set_one_ppod(struct cxgbi_pagepod *,
 			    struct cxgbi_task_tag_info *,
 			    struct scatterlist **sg_pp, unsigned int *sg_off);
+<<<<<<< HEAD
 void cxgbi_ddp_ppm_setup(void **ppm_pp, struct cxgbi_device *,
 			 struct cxgbi_tag_format *, unsigned int ppmax,
 			 unsigned int llimit, unsigned int start,
 			 unsigned int rsvd_factor);
+=======
+int cxgbi_ddp_ppm_setup(void **ppm_pp, struct cxgbi_device *cdev,
+			struct cxgbi_tag_format *tformat,
+			unsigned int iscsi_size, unsigned int llimit,
+			unsigned int start, unsigned int rsvd_factor,
+			unsigned int edram_start, unsigned int edram_size);
+>>>>>>> upstream/android-13
 #endif	/*__LIBCXGBI_H__*/

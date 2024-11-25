@@ -323,7 +323,11 @@ static void do_attach(struct i2c_adapter *adapter)
 		of_node_put(np);
 	} else {
 		strlcpy(info.type, "MAC,ds1775", I2C_NAME_SIZE);
+<<<<<<< HEAD
 		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
+=======
+		i2c_new_scanned_device(adapter, &info, scan_ds1775, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,adm1030");
@@ -331,7 +335,11 @@ static void do_attach(struct i2c_adapter *adapter)
 		of_node_put(np);
 	} else {
 		strlcpy(info.type, "MAC,adm1030", I2C_NAME_SIZE);
+<<<<<<< HEAD
 		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
+=======
+		i2c_new_scanned_device(adapter, &info, scan_adm1030, NULL);
+>>>>>>> upstream/android-13
 	}
 }
 

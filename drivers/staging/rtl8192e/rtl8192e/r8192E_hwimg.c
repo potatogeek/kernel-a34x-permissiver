@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -14,6 +15,14 @@
  *****************************************************************************/
 /*Created on  2008/11/18,  3: 7*/
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include "r8192E_hwimg.h"
 
 u32 Rtl8192PciEPHY_REGArray[PHY_REGArrayLengthPciE] = {0x0,};

@@ -7,9 +7,19 @@
 
 typedef struct {
 	unsigned int __softirq_pending;
+<<<<<<< HEAD
 } ____cacheline_aligned irq_cpustat_t;
 
 #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
+=======
+#ifdef ARCH_WANTS_NMI_IRQSTAT
+	unsigned int __nmi_count;
+#endif
+} ____cacheline_aligned irq_cpustat_t;
+
+DECLARE_PER_CPU_ALIGNED(irq_cpustat_t, irq_stat);
+
+>>>>>>> upstream/android-13
 #include <linux/irq.h>
 
 #ifndef ack_bad_irq

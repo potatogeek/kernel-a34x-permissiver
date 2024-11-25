@@ -11,7 +11,10 @@
 #include <linux/mm.h>
 #include <linux/init.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 #include <linux/kernel_stat.h>
 #include <linux/mc146818rtc.h>
@@ -20,11 +23,20 @@
 #include <linux/smp.h>
 #include <linux/pci.h>
 
+<<<<<<< HEAD
 #include <asm/irqdomain.h>
 #include <asm/mtrr.h>
 #include <asm/mpspec.h>
 #include <asm/pgalloc.h>
 #include <asm/io_apic.h>
+=======
+#include <asm/i8259.h>
+#include <asm/io_apic.h>
+#include <asm/acpi.h>
+#include <asm/irqdomain.h>
+#include <asm/mtrr.h>
+#include <asm/mpspec.h>
+>>>>>>> upstream/android-13
 #include <asm/proto.h>
 #include <asm/bios_ebda.h>
 #include <asm/e820/api.h>
@@ -46,11 +58,14 @@ static int __init mpf_checksum(unsigned char *mp, int len)
 	return sum & 0xFF;
 }
 
+<<<<<<< HEAD
 int __init default_mpc_apic_id(struct mpc_cpu *m)
 {
 	return m->apicid;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init MP_processor_info(struct mpc_cpu *m)
 {
 	int apicid;
@@ -61,7 +76,11 @@ static void __init MP_processor_info(struct mpc_cpu *m)
 		return;
 	}
 
+<<<<<<< HEAD
 	apicid = x86_init.mpparse.mpc_apic_id(m);
+=======
+	apicid = m->apicid;
+>>>>>>> upstream/android-13
 
 	if (m->cpuflag & CPU_BOOTPROCESSOR) {
 		bootup_cpu = " (Bootup-CPU)";
@@ -73,7 +92,11 @@ static void __init MP_processor_info(struct mpc_cpu *m)
 }
 
 #ifdef CONFIG_X86_IO_APIC
+<<<<<<< HEAD
 void __init default_mpc_oem_bus_info(struct mpc_bus *m, char *str)
+=======
+static void __init mpc_oem_bus_info(struct mpc_bus *m, char *str)
+>>>>>>> upstream/android-13
 {
 	memcpy(str, m->bustype, 6);
 	str[6] = 0;
@@ -84,7 +107,11 @@ static void __init MP_bus_info(struct mpc_bus *m)
 {
 	char str[7];
 
+<<<<<<< HEAD
 	x86_init.mpparse.mpc_oem_bus_info(m, str);
+=======
+	mpc_oem_bus_info(m, str);
+>>>>>>> upstream/android-13
 
 #if MAX_MP_BUSSES < 256
 	if (m->busid >= MAX_MP_BUSSES) {
@@ -100,9 +127,12 @@ static void __init MP_bus_info(struct mpc_bus *m)
 		mp_bus_id_to_type[m->busid] = MP_BUS_ISA;
 #endif
 	} else if (strncmp(str, BUSTYPE_PCI, sizeof(BUSTYPE_PCI) - 1) == 0) {
+<<<<<<< HEAD
 		if (x86_init.mpparse.mpc_oem_pci_bus)
 			x86_init.mpparse.mpc_oem_pci_bus(m);
 
+=======
+>>>>>>> upstream/android-13
 		clear_bit(m->busid, mp_bus_not_pci);
 #ifdef CONFIG_EISA
 		mp_bus_id_to_type[m->busid] = MP_BUS_PCI;
@@ -198,8 +228,11 @@ static void __init smp_dump_mptable(struct mpc_table *mpc, unsigned char *mpt)
 			1, mpc, mpc->length, 1);
 }
 
+<<<<<<< HEAD
 void __init default_smp_read_mpc_oem(struct mpc_table *mpc) { }
 
+=======
+>>>>>>> upstream/android-13
 static int __init smp_read_mpc(struct mpc_table *mpc, unsigned early)
 {
 	char str[16];
@@ -218,6 +251,7 @@ static int __init smp_read_mpc(struct mpc_table *mpc, unsigned early)
 	if (early)
 		return 1;
 
+<<<<<<< HEAD
 	if (mpc->oemptr)
 		x86_init.mpparse.smp_read_mpc_oem(mpc);
 
@@ -226,6 +260,9 @@ static int __init smp_read_mpc(struct mpc_table *mpc, unsigned early)
 	 */
 	x86_init.mpparse.mpc_record(0);
 
+=======
+	/* Now process the configuration blocks. */
+>>>>>>> upstream/android-13
 	while (count < mpc->length) {
 		switch (*mpt) {
 		case MP_PROCESSOR:
@@ -256,7 +293,10 @@ static int __init smp_read_mpc(struct mpc_table *mpc, unsigned early)
 			count = mpc->length;
 			break;
 		}
+<<<<<<< HEAD
 		x86_init.mpparse.mpc_record(1);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (!num_processors)
@@ -270,7 +310,11 @@ static int __init ELCR_trigger(unsigned int irq)
 {
 	unsigned int port;
 
+<<<<<<< HEAD
 	port = 0x4d0 + (irq >> 3);
+=======
+	port = PIC_ELCR1 + (irq >> 3);
+>>>>>>> upstream/android-13
 	return (inb(port) >> (irq & 7)) & 1;
 }
 
@@ -312,7 +356,11 @@ static void __init construct_default_ioirq_mptable(int mpc_default_type)
 		case 2:
 			if (i == 0 || i == 13)
 				continue;	/* IRQ0 & IRQ13 not connected */
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			if (i == 2)
 				continue;	/* IRQ2 is never connected */
@@ -356,7 +404,11 @@ static void __init construct_ioapic_table(int mpc_default_type)
 	default:
 		pr_err("???\nUnknown standard configuration %d\n",
 		       mpc_default_type);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 	case 5:
 		memcpy(bus.bustype, "ISA   ", 6);

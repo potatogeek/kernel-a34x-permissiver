@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HID Sensors Driver
  * Copyright (c) 2012, Intel Corporation.
@@ -15,10 +16,17 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HID Sensors Driver
+ * Copyright (c) 2012, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/platform_device.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/slab.h>
@@ -27,6 +35,15 @@
 #include <linux/iio/iio.h>
 #include <linux/iio/trigger.h>
 #include <linux/iio/buffer.h>
+=======
+#include <linux/delay.h>
+#include <linux/hid-sensor-hub.h>
+#include <linux/workqueue.h>
+#include <linux/iio/iio.h>
+#include <linux/iio/trigger.h>
+#include <linux/iio/triggered_buffer.h>
+#include <linux/iio/trigger_consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/sysfs.h>
 #include "hid-sensor-trigger.h"
 
@@ -95,6 +112,7 @@ static const struct attribute *hid_sensor_fifo_attributes[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static void hid_sensor_setup_batch_mode(struct iio_dev *indio_dev,
 					struct hid_sensor_common *st)
 {
@@ -104,6 +122,8 @@ static void hid_sensor_setup_batch_mode(struct iio_dev *indio_dev,
 	iio_buffer_set_attrs(indio_dev->buffer, hid_sensor_fifo_attributes);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int _hid_sensor_power_state(struct hid_sensor_common *st, bool state)
 {
 	int state_val;
@@ -170,7 +190,11 @@ static int _hid_sensor_power_state(struct hid_sensor_common *st, bool state)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(hid_sensor_power_state);
+=======
+EXPORT_SYMBOL_NS(hid_sensor_power_state, IIO_HID);
+>>>>>>> upstream/android-13
 
 int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
 {
@@ -183,18 +207,27 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
 
 	if (state) {
 		atomic_inc(&st->user_requested_state);
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(&st->pdev->dev);
+=======
+		ret = pm_runtime_resume_and_get(&st->pdev->dev);
+>>>>>>> upstream/android-13
 	} else {
 		atomic_dec(&st->user_requested_state);
 		pm_runtime_mark_last_busy(&st->pdev->dev);
 		pm_runtime_use_autosuspend(&st->pdev->dev);
 		ret = pm_runtime_put_autosuspend(&st->pdev->dev);
 	}
+<<<<<<< HEAD
 	if (ret < 0) {
 		if (state)
 			pm_runtime_put_noidle(&st->pdev->dev);
 		return ret;
 	}
+=======
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	return 0;
 #else
@@ -235,19 +268,33 @@ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
 	return hid_sensor_power_state(iio_trigger_get_drvdata(trig), state);
 }
 
+<<<<<<< HEAD
 void hid_sensor_remove_trigger(struct hid_sensor_common *attrb)
+=======
+void hid_sensor_remove_trigger(struct iio_dev *indio_dev,
+			       struct hid_sensor_common *attrb)
+>>>>>>> upstream/android-13
 {
 	if (atomic_read(&attrb->runtime_pm_enable))
 		pm_runtime_disable(&attrb->pdev->dev);
 
 	pm_runtime_set_suspended(&attrb->pdev->dev);
+<<<<<<< HEAD
 	pm_runtime_put_noidle(&attrb->pdev->dev);
+=======
+>>>>>>> upstream/android-13
 
 	cancel_work_sync(&attrb->work);
 	iio_trigger_unregister(attrb->trigger);
 	iio_trigger_free(attrb->trigger);
+<<<<<<< HEAD
 }
 EXPORT_SYMBOL(hid_sensor_remove_trigger);
+=======
+	iio_triggered_buffer_cleanup(indio_dev);
+}
+EXPORT_SYMBOL_NS(hid_sensor_remove_trigger, IIO_HID);
+>>>>>>> upstream/android-13
 
 static const struct iio_trigger_ops hid_sensor_trigger_ops = {
 	.set_trigger_state = &hid_sensor_data_rdy_trigger_set_state,
@@ -256,6 +303,7 @@ static const struct iio_trigger_ops hid_sensor_trigger_ops = {
 int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
 				struct hid_sensor_common *attrb)
 {
+<<<<<<< HEAD
 	int ret;
 	struct iio_trigger *trig;
 
@@ -267,6 +315,33 @@ int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
 	}
 
 	trig->dev.parent = indio_dev->dev.parent;
+=======
+	const struct attribute **fifo_attrs;
+	int ret;
+	struct iio_trigger *trig;
+
+	if (hid_sensor_batch_mode_supported(attrb))
+		fifo_attrs = hid_sensor_fifo_attributes;
+	else
+		fifo_attrs = NULL;
+
+	ret = iio_triggered_buffer_setup_ext(indio_dev,
+					     &iio_pollfunc_store_time,
+					     NULL, NULL, fifo_attrs);
+	if (ret) {
+		dev_err(&indio_dev->dev, "Triggered Buffer Setup Failed\n");
+		return ret;
+	}
+
+	trig = iio_trigger_alloc(indio_dev->dev.parent,
+				 "%s-dev%d", name, iio_device_id(indio_dev));
+	if (trig == NULL) {
+		dev_err(&indio_dev->dev, "Trigger Allocate Failed\n");
+		ret = -ENOMEM;
+		goto error_triggered_buffer_cleanup;
+	}
+
+>>>>>>> upstream/android-13
 	iio_trigger_set_drvdata(trig, attrb);
 	trig->ops = &hid_sensor_trigger_ops;
 	ret = iio_trigger_register(trig);
@@ -278,8 +353,11 @@ int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
 	attrb->trigger = trig;
 	indio_dev->trig = iio_trigger_get(trig);
 
+<<<<<<< HEAD
 	hid_sensor_setup_batch_mode(indio_dev, attrb);
 
+=======
+>>>>>>> upstream/android-13
 	ret = pm_runtime_set_active(&indio_dev->dev);
 	if (ret)
 		goto error_unreg_trigger;
@@ -297,10 +375,18 @@ error_unreg_trigger:
 	iio_trigger_unregister(trig);
 error_free_trig:
 	iio_trigger_free(trig);
+<<<<<<< HEAD
 error_ret:
 	return ret;
 }
 EXPORT_SYMBOL(hid_sensor_setup_trigger);
+=======
+error_triggered_buffer_cleanup:
+	iio_triggered_buffer_cleanup(indio_dev);
+	return ret;
+}
+EXPORT_SYMBOL_NS(hid_sensor_setup_trigger, IIO_HID);
+>>>>>>> upstream/android-13
 
 static int __maybe_unused hid_sensor_suspend(struct device *dev)
 {
@@ -330,8 +416,16 @@ const struct dev_pm_ops hid_sensor_pm_ops = {
 	SET_RUNTIME_PM_OPS(hid_sensor_suspend,
 			   hid_sensor_runtime_resume, NULL)
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL(hid_sensor_pm_ops);
+=======
+EXPORT_SYMBOL_NS(hid_sensor_pm_ops, IIO_HID);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@intel.com>");
 MODULE_DESCRIPTION("HID Sensor trigger processing");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(IIO_HID_ATTRIBUTES);
+>>>>>>> upstream/android-13

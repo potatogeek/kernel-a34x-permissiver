@@ -290,6 +290,15 @@ struct usba_ep {
 #endif
 };
 
+<<<<<<< HEAD
+=======
+struct usba_ep_config {
+	u8					nr_banks;
+	unsigned int				can_dma:1;
+	unsigned int				can_isoc:1;
+};
+
+>>>>>>> upstream/android-13
 struct usba_request {
 	struct usb_request			req;
 	struct list_head			queue;
@@ -307,6 +316,16 @@ struct usba_udc_errata {
 	void (*pulse_bias)(struct usba_udc *udc);
 };
 
+<<<<<<< HEAD
+=======
+struct usba_udc_config {
+	const struct usba_udc_errata *errata;
+	const struct usba_ep_config *config;
+	const int num_ep;
+	const bool ep_prealloc;
+};
+
+>>>>>>> upstream/android-13
 struct usba_udc {
 	/* Protect hw registers from concurrent modifications */
 	spinlock_t lock;
@@ -324,13 +343,21 @@ struct usba_udc {
 	int irq;
 	struct gpio_desc *vbus_pin;
 	int num_ep;
+<<<<<<< HEAD
 	int configured_ep;
+=======
+>>>>>>> upstream/android-13
 	struct usba_fifo_cfg *fifo_cfg;
 	struct clk *pclk;
 	struct clk *hclk;
 	struct usba_ep *usba_ep;
 	bool bias_pulse_needed;
 	bool clocked;
+<<<<<<< HEAD
+=======
+	bool suspended;
+	bool ep_prealloc;
+>>>>>>> upstream/android-13
 
 	u16 devstatus;
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Afatech AF9013 demodulator driver
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2011 Antti Palosaari <crope@iki.fi>
  *
  * Thanks to Afatech who kindly provided information.
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "af9013_priv.h"
@@ -607,7 +614,11 @@ static int af9013_read_status(struct dvb_frontend *fe, enum fe_status *status)
 			state->strength_en = 2;
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		if (time_is_after_jiffies(state->strength_jiffies + msecs_to_jiffies(2000)))
 			break;

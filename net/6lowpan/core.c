@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -6,6 +7,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Authors:
  * (C) 2015 Pengutronix, Alexander Aring <aar@pengutronix.de>
@@ -48,9 +53,13 @@ int lowpan_register_netdevice(struct net_device *dev,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = lowpan_dev_debugfs_init(dev);
 	if (ret < 0)
 		unregister_netdevice(dev);
+=======
+	lowpan_dev_debugfs_init(dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -158,9 +167,13 @@ static int __init lowpan_module_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = lowpan_debugfs_init();
 	if (ret < 0)
 		return ret;
+=======
+	lowpan_debugfs_init();
+>>>>>>> upstream/android-13
 
 	ret = register_netdevice_notifier(&lowpan_notifier);
 	if (ret < 0) {

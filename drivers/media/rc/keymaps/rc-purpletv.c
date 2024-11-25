@@ -13,6 +13,7 @@ static struct rc_map_table purpletv[] = {
 	{ 0x6f, KEY_MUTE },
 	{ 0x10, KEY_BACKSPACE },	/* Recall */
 
+<<<<<<< HEAD
 	{ 0x11, KEY_0 },
 	{ 0x04, KEY_1 },
 	{ 0x05, KEY_2 },
@@ -23,6 +24,18 @@ static struct rc_map_table purpletv[] = {
 	{ 0x0c, KEY_7 },
 	{ 0x0d, KEY_8 },
 	{ 0x0e, KEY_9 },
+=======
+	{ 0x11, KEY_NUMERIC_0 },
+	{ 0x04, KEY_NUMERIC_1 },
+	{ 0x05, KEY_NUMERIC_2 },
+	{ 0x06, KEY_NUMERIC_3 },
+	{ 0x08, KEY_NUMERIC_4 },
+	{ 0x09, KEY_NUMERIC_5 },
+	{ 0x0a, KEY_NUMERIC_6 },
+	{ 0x0c, KEY_NUMERIC_7 },
+	{ 0x0d, KEY_NUMERIC_8 },
+	{ 0x0e, KEY_NUMERIC_9 },
+>>>>>>> upstream/android-13
 	{ 0x12, KEY_DOT },	/* 100+ */
 
 	{ 0x07, KEY_VOLUMEUP },

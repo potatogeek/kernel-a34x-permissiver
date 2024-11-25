@@ -105,7 +105,11 @@ static int maxinefb_setcolreg(unsigned regno, unsigned red, unsigned green,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops maxinefb_ops = {
+=======
+static const struct fb_ops maxinefb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_setcolreg	= maxinefb_setcolreg,
 	.fb_fillrect	= cfb_fillrect,

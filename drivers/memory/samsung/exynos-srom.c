@@ -3,7 +3,11 @@
 // Copyright (c) 2015 Samsung Electronics Co., Ltd.
 //	      http://www.samsung.com/
 //
+<<<<<<< HEAD
 // EXYNOS - SROM Controller support
+=======
+// Exynos - SROM Controller support
+>>>>>>> upstream/android-13
 // Author: Pankaj Dubey <pankaj.dubey@samsung.com>
 
 #include <linux/io.h>
@@ -47,9 +51,15 @@ struct exynos_srom {
 	struct exynos_srom_reg_dump *reg_offset;
 };
 
+<<<<<<< HEAD
 static struct exynos_srom_reg_dump *exynos_srom_alloc_reg_dump(
 		const unsigned long *rdump,
 		unsigned long nr_rdump)
+=======
+static struct exynos_srom_reg_dump *
+exynos_srom_alloc_reg_dump(const unsigned long *rdump,
+			   unsigned long nr_rdump)
+>>>>>>> upstream/android-13
 {
 	struct exynos_srom_reg_dump *rd;
 	unsigned int i;
@@ -116,7 +126,11 @@ static int exynos_srom_probe(struct platform_device *pdev)
 	}
 
 	srom = devm_kzalloc(&pdev->dev,
+<<<<<<< HEAD
 			sizeof(struct exynos_srom), GFP_KERNEL);
+=======
+			    sizeof(struct exynos_srom), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!srom)
 		return -ENOMEM;
 
@@ -130,7 +144,11 @@ static int exynos_srom_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, srom);
 
 	srom->reg_offset = exynos_srom_alloc_reg_dump(exynos_srom_offsets,
+<<<<<<< HEAD
 			ARRAY_SIZE(exynos_srom_offsets));
+=======
+						      ARRAY_SIZE(exynos_srom_offsets));
+>>>>>>> upstream/android-13
 	if (!srom->reg_offset) {
 		iounmap(srom->reg_base);
 		return -ENOMEM;
@@ -139,8 +157,13 @@ static int exynos_srom_probe(struct platform_device *pdev)
 	for_each_child_of_node(np, child) {
 		if (exynos_srom_configure_bank(srom, child)) {
 			dev_err(dev,
+<<<<<<< HEAD
 				"Could not decode bank configuration for %s\n",
 				child->name);
+=======
+				"Could not decode bank configuration for %pOFn\n",
+				child);
+>>>>>>> upstream/android-13
 			bad_bank_config = true;
 		}
 	}
@@ -157,16 +180,26 @@ static int exynos_srom_probe(struct platform_device *pdev)
 
 #ifdef CONFIG_PM_SLEEP
 static void exynos_srom_save(void __iomem *base,
+<<<<<<< HEAD
 				    struct exynos_srom_reg_dump *rd,
 				    unsigned int num_regs)
+=======
+			     struct exynos_srom_reg_dump *rd,
+			     unsigned int num_regs)
+>>>>>>> upstream/android-13
 {
 	for (; num_regs > 0; --num_regs, ++rd)
 		rd->value = readl(base + rd->offset);
 }
 
 static void exynos_srom_restore(void __iomem *base,
+<<<<<<< HEAD
 				      const struct exynos_srom_reg_dump *rd,
 				      unsigned int num_regs)
+=======
+				const struct exynos_srom_reg_dump *rd,
+				unsigned int num_regs)
+>>>>>>> upstream/android-13
 {
 	for (; num_regs > 0; --num_regs, ++rd)
 		writel(rd->value, base + rd->offset);
@@ -177,7 +210,11 @@ static int exynos_srom_suspend(struct device *dev)
 	struct exynos_srom *srom = dev_get_drvdata(dev);
 
 	exynos_srom_save(srom->reg_base, srom->reg_offset,
+<<<<<<< HEAD
 				ARRAY_SIZE(exynos_srom_offsets));
+=======
+			 ARRAY_SIZE(exynos_srom_offsets));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -186,7 +223,11 @@ static int exynos_srom_resume(struct device *dev)
 	struct exynos_srom *srom = dev_get_drvdata(dev);
 
 	exynos_srom_restore(srom->reg_base, srom->reg_offset,
+<<<<<<< HEAD
 				ARRAY_SIZE(exynos_srom_offsets));
+=======
+			    ARRAY_SIZE(exynos_srom_offsets));
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif

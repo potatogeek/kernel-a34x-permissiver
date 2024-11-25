@@ -2,7 +2,10 @@
 /*
  * Copyright (C) 2019 MediaTek Inc.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __MTK_SIP_SVC_H
 #define __MTK_SIP_SVC_H
 
@@ -19,16 +22,20 @@
 #define MTK_SIP_SMC_CONVENTION          ARM_SMCCC_SMC_32
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARM64
 #define MTK_SIP_SMC_AARCH_BIT		0x40000000
 #else
 #define MTK_SIP_SMC_AARCH_BIT		0x00000000
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define MTK_SIP_SMC_CMD(fn_id) \
 	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL, MTK_SIP_SMC_CONVENTION, \
 			   ARM_SMCCC_OWNER_SIP, fn_id)
 
+<<<<<<< HEAD
 /* 0x82000200 - 0x820003FF & 0xC2000300 - 0xC20003FF */
 /* Debug feature and ATF related */
 #define MTK_SIP_KERNEL_WDT \
@@ -200,4 +207,6 @@
 	(0x82000520 | MTK_SIP_SMC_AARCH_BIT)
 
 
+=======
+>>>>>>> upstream/android-13
 #endif

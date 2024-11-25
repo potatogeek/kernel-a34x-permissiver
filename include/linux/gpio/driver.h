@@ -10,6 +10,10 @@
 #include <linux/lockdep.h>
 #include <linux/pinctrl/pinctrl.h>
 #include <linux/pinctrl/pinconf-generic.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct gpio_desc;
 struct of_phandle_args;
@@ -17,10 +21,21 @@ struct device_node;
 struct seq_file;
 struct gpio_device;
 struct module;
+<<<<<<< HEAD
 
 #ifdef CONFIG_GPIOLIB
 
 #ifdef CONFIG_GPIOLIB_IRQCHIP
+=======
+enum gpiod_flags;
+enum gpio_lookup_flags;
+
+struct gpio_chip;
+
+#define GPIO_LINE_DIRECTION_IN	1
+#define GPIO_LINE_DIRECTION_OUT	0
+
+>>>>>>> upstream/android-13
 /**
  * struct gpio_irq_chip - GPIO interrupt controller
  */
@@ -49,10 +64,86 @@ struct gpio_irq_chip {
 
 #ifdef CONFIG_IRQ_DOMAIN_HIERARCHY
 	/**
+<<<<<<< HEAD
 	 * @parent_domain:
 	 *
 	 */
 	struct irq_domain *parent_domain;
+=======
+	 * @fwnode:
+	 *
+	 * Firmware node corresponding to this gpiochip/irqchip, necessary
+	 * for hierarchical irqdomain support.
+	 */
+	struct fwnode_handle *fwnode;
+
+	/**
+	 * @parent_domain:
+	 *
+	 * If non-NULL, will be set as the parent of this GPIO interrupt
+	 * controller's IRQ domain to establish a hierarchical interrupt
+	 * domain. The presence of this will activate the hierarchical
+	 * interrupt support.
+	 */
+	struct irq_domain *parent_domain;
+
+	/**
+	 * @child_to_parent_hwirq:
+	 *
+	 * This callback translates a child hardware IRQ offset to a parent
+	 * hardware IRQ offset on a hierarchical interrupt chip. The child
+	 * hardware IRQs correspond to the GPIO index 0..ngpio-1 (see the
+	 * ngpio field of struct gpio_chip) and the corresponding parent
+	 * hardware IRQ and type (such as IRQ_TYPE_*) shall be returned by
+	 * the driver. The driver can calculate this from an offset or using
+	 * a lookup table or whatever method is best for this chip. Return
+	 * 0 on successful translation in the driver.
+	 *
+	 * If some ranges of hardware IRQs do not have a corresponding parent
+	 * HWIRQ, return -EINVAL, but also make sure to fill in @valid_mask and
+	 * @need_valid_mask to make these GPIO lines unavailable for
+	 * translation.
+	 */
+	int (*child_to_parent_hwirq)(struct gpio_chip *gc,
+				     unsigned int child_hwirq,
+				     unsigned int child_type,
+				     unsigned int *parent_hwirq,
+				     unsigned int *parent_type);
+
+	/**
+	 * @populate_parent_alloc_arg :
+	 *
+	 * This optional callback allocates and populates the specific struct
+	 * for the parent's IRQ domain. If this is not specified, then
+	 * &gpiochip_populate_parent_fwspec_twocell will be used. A four-cell
+	 * variant named &gpiochip_populate_parent_fwspec_fourcell is also
+	 * available.
+	 */
+	void *(*populate_parent_alloc_arg)(struct gpio_chip *gc,
+				       unsigned int parent_hwirq,
+				       unsigned int parent_type);
+
+	/**
+	 * @child_offset_to_irq:
+	 *
+	 * This optional callback is used to translate the child's GPIO line
+	 * offset on the GPIO chip to an IRQ number for the GPIO to_irq()
+	 * callback. If this is not specified, then a default callback will be
+	 * provided that returns the line offset.
+	 */
+	unsigned int (*child_offset_to_irq)(struct gpio_chip *gc,
+					    unsigned int pin);
+
+	/**
+	 * @child_irq_domain_ops:
+	 *
+	 * The IRQ domain operations that will be used for this GPIO IRQ
+	 * chip. If no operations are provided, then default callbacks will
+	 * be populated to setup the IRQ hierarchy. Some drivers need to
+	 * supply their own translate function.
+	 */
+	struct irq_domain_ops child_irq_domain_ops;
+>>>>>>> upstream/android-13
 #endif
 
 	/**
@@ -74,9 +165,21 @@ struct gpio_irq_chip {
 	/**
 	 * @lock_key:
 	 *
+<<<<<<< HEAD
 	 * Per GPIO IRQ chip lockdep classes.
 	 */
 	struct lock_class_key *lock_key;
+=======
+	 * Per GPIO IRQ chip lockdep class for IRQ lock.
+	 */
+	struct lock_class_key *lock_key;
+
+	/**
+	 * @request_key:
+	 *
+	 * Per GPIO IRQ chip lockdep class for IRQ request.
+	 */
+>>>>>>> upstream/android-13
 	struct lock_class_key *request_key;
 
 	/**
@@ -103,6 +206,7 @@ struct gpio_irq_chip {
 	unsigned int num_parents;
 
 	/**
+<<<<<<< HEAD
 	 * @parent_irq:
 	 *
 	 * For use by gpiochip_set_cascaded_irqchip()
@@ -110,6 +214,8 @@ struct gpio_irq_chip {
 	unsigned int parent_irq;
 
 	/**
+=======
+>>>>>>> upstream/android-13
 	 * @parents:
 	 *
 	 * A list of interrupt parents of a GPIO chip. This is owned by the
@@ -132,16 +238,51 @@ struct gpio_irq_chip {
 	bool threaded;
 
 	/**
+<<<<<<< HEAD
 	 * @need_valid_mask:
 	 *
 	 * If set core allocates @valid_mask with all bits set to one.
 	 */
 	bool need_valid_mask;
+=======
+	 * @init_hw: optional routine to initialize hardware before
+	 * an IRQ chip will be added. This is quite useful when
+	 * a particular driver wants to clear IRQ related registers
+	 * in order to avoid undesired events.
+	 */
+	int (*init_hw)(struct gpio_chip *gc);
+
+	/**
+	 * @init_valid_mask: optional routine to initialize @valid_mask, to be
+	 * used if not all GPIO lines are valid interrupts. Sometimes some
+	 * lines just cannot fire interrupts, and this routine, when defined,
+	 * is passed a bitmap in "valid_mask" and it will have ngpios
+	 * bits from 0..(ngpios-1) set to "1" as in valid. The callback can
+	 * then directly set some bits to "0" if they cannot be used for
+	 * interrupts.
+	 */
+	void (*init_valid_mask)(struct gpio_chip *gc,
+				unsigned long *valid_mask,
+				unsigned int ngpios);
+
+	/**
+	 * @initialized:
+	 *
+	 * Flag to track GPIO chip irq member's initialization.
+	 * This flag will make sure GPIO chip irq members are not used
+	 * before they are initialized.
+	 */
+	bool initialized;
+>>>>>>> upstream/android-13
 
 	/**
 	 * @valid_mask:
 	 *
+<<<<<<< HEAD
 	 * If not %NULL holds bitmask of GPIOs which are valid to be included
+=======
+	 * If not %NULL, holds bitmask of GPIOs which are valid to be included
+>>>>>>> upstream/android-13
 	 * in IRQ domain of the chip.
 	 */
 	unsigned long *valid_mask;
@@ -153,6 +294,7 @@ struct gpio_irq_chip {
 	 * will allocate and map all IRQs during initialization.
 	 */
 	unsigned int first;
+<<<<<<< HEAD
 };
 
 static inline struct gpio_irq_chip *to_gpio_irq_chip(struct irq_chip *chip)
@@ -160,6 +302,39 @@ static inline struct gpio_irq_chip *to_gpio_irq_chip(struct irq_chip *chip)
 	return container_of(chip, struct gpio_irq_chip, chip);
 }
 #endif
+=======
+
+	/**
+	 * @irq_enable:
+	 *
+	 * Store old irq_chip irq_enable callback
+	 */
+	void		(*irq_enable)(struct irq_data *data);
+
+	/**
+	 * @irq_disable:
+	 *
+	 * Store old irq_chip irq_disable callback
+	 */
+	void		(*irq_disable)(struct irq_data *data);
+	/**
+	 * @irq_unmask:
+	 *
+	 * Store old irq_chip irq_unmask callback
+	 */
+	void		(*irq_unmask)(struct irq_data *data);
+
+	/**
+	 * @irq_mask:
+	 *
+	 * Store old irq_chip irq_mask callback
+	 */
+	void		(*irq_mask)(struct irq_data *data);
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+};
+>>>>>>> upstream/android-13
 
 /**
  * struct gpio_chip - abstract a GPIO controller
@@ -173,9 +348,19 @@ static inline struct gpio_irq_chip *to_gpio_irq_chip(struct irq_chip *chip)
  * @free: optional hook for chip-specific deactivation, such as
  *	disabling module power and clock; may sleep
  * @get_direction: returns direction for signal "offset", 0=out, 1=in,
+<<<<<<< HEAD
  *	(same as GPIOF_DIR_XXX), or negative error
  * @direction_input: configures signal "offset" as input, or returns error
  * @direction_output: configures signal "offset" as output, or returns error
+=======
+ *	(same as GPIO_LINE_DIRECTION_OUT / GPIO_LINE_DIRECTION_IN),
+ *	or negative error. It is recommended to always implement this
+ *	function, even on input-only or output-only gpio chips.
+ * @direction_input: configures signal "offset" as input, or returns error
+ *	This can be omitted on input-only or output-only gpio chips.
+ * @direction_output: configures signal "offset" as output, or returns error
+ *	This can be omitted on input-only or output-only gpio chips.
+>>>>>>> upstream/android-13
  * @get: returns value for signal "offset", 0=low, 1=high, or negative error
  * @get_multiple: reads values for multiple signals defined by "mask" and
  *	stores them in "bits", returns 0 on success or negative error
@@ -188,6 +373,14 @@ static inline struct gpio_irq_chip *to_gpio_irq_chip(struct irq_chip *chip)
  * @dbg_show: optional routine to show contents in debugfs; default code
  *	will be used when this is omitted, but custom code can show extra
  *	state (such as pullup/pulldown configuration).
+<<<<<<< HEAD
+=======
+ * @init_valid_mask: optional routine to initialize @valid_mask, to be used if
+ *	not all GPIOs are valid.
+ * @add_pin_ranges: optional routine to initialize pin ranges, to be used when
+ *	requires special mapping of the pins that provides GPIO functionality.
+ *	It is called after adding GPIO chip and before adding IRQ chip.
+>>>>>>> upstream/android-13
  * @base: identifies the first GPIO number handled by this chip;
  *	or, if negative during registration, requests dynamic ID allocation.
  *	DEPRECATION: providing anything non-negative and nailing the base
@@ -196,6 +389,12 @@ static inline struct gpio_irq_chip *to_gpio_irq_chip(struct irq_chip *chip)
  *	get rid of the static GPIO number space in the long run.
  * @ngpio: the number of GPIOs handled by this controller; the last GPIO
  *	handled is (base + ngpio - 1).
+<<<<<<< HEAD
+=======
+ * @offset: when multiple gpio chips belong to the same device this
+ *	can be used as offset within the device so friendly names can
+ *	be properly assigned.
+>>>>>>> upstream/android-13
  * @names: if set, must be an array of strings to use as alternative
  *      names for the GPIOs in this chip. Any entry in the array
  *      may be NULL if there is no alias for the GPIO, however the
@@ -215,9 +414,16 @@ static inline struct gpio_irq_chip *to_gpio_irq_chip(struct irq_chip *chip)
  * @reg_dat: data (in) register for generic GPIO
  * @reg_set: output set register (out=high) for generic GPIO
  * @reg_clr: output clear register (out=low) for generic GPIO
+<<<<<<< HEAD
  * @reg_dir: direction setting register for generic GPIO
  * @bgpio_dir_inverted: indicates that the direction register is inverted
  *	(gpiolib private state variable)
+=======
+ * @reg_dir_out: direction out setting register for generic GPIO
+ * @reg_dir_in: direction in setting register for generic GPIO
+ * @bgpio_dir_unreadable: indicates that the direction register(s) cannot
+ *	be read and we need to rely on out internal state tracking.
+>>>>>>> upstream/android-13
  * @bgpio_bits: number of register bits used for a generic GPIO i.e.
  *	<register width> * 8
  * @bgpio_lock: used to lock chip->bgpio_data. Also, this is needed to keep
@@ -225,10 +431,18 @@ static inline struct gpio_irq_chip *to_gpio_irq_chip(struct irq_chip *chip)
  * @bgpio_data:	shadowed data register for generic GPIO to clear/set bits
  *	safely.
  * @bgpio_dir: shadowed direction register for generic GPIO to clear/set
+<<<<<<< HEAD
  *	direction safely.
  *
  * A gpio_chip can help platforms abstract various sources of GPIOs so
  * they can all be accessed through a common programing interface.
+=======
+ *	direction safely. A "1" in this word means the line is set as
+ *	output.
+ *
+ * A gpio_chip can help platforms abstract various sources of GPIOs so
+ * they can all be accessed through a common programming interface.
+>>>>>>> upstream/android-13
  * Example sources would be SOC controllers, FPGAs, multifunction
  * chips, dedicated GPIO expanders, and so on.
  *
@@ -243,6 +457,7 @@ struct gpio_chip {
 	struct device		*parent;
 	struct module		*owner;
 
+<<<<<<< HEAD
 	int			(*request)(struct gpio_chip *chip,
 						unsigned offset);
 	void			(*free)(struct gpio_chip *chip,
@@ -273,6 +488,46 @@ struct gpio_chip {
 						struct gpio_chip *chip);
 	int			base;
 	u16			ngpio;
+=======
+	int			(*request)(struct gpio_chip *gc,
+						unsigned int offset);
+	void			(*free)(struct gpio_chip *gc,
+						unsigned int offset);
+	int			(*get_direction)(struct gpio_chip *gc,
+						unsigned int offset);
+	int			(*direction_input)(struct gpio_chip *gc,
+						unsigned int offset);
+	int			(*direction_output)(struct gpio_chip *gc,
+						unsigned int offset, int value);
+	int			(*get)(struct gpio_chip *gc,
+						unsigned int offset);
+	int			(*get_multiple)(struct gpio_chip *gc,
+						unsigned long *mask,
+						unsigned long *bits);
+	void			(*set)(struct gpio_chip *gc,
+						unsigned int offset, int value);
+	void			(*set_multiple)(struct gpio_chip *gc,
+						unsigned long *mask,
+						unsigned long *bits);
+	int			(*set_config)(struct gpio_chip *gc,
+					      unsigned int offset,
+					      unsigned long config);
+	int			(*to_irq)(struct gpio_chip *gc,
+						unsigned int offset);
+
+	void			(*dbg_show)(struct seq_file *s,
+						struct gpio_chip *gc);
+
+	int			(*init_valid_mask)(struct gpio_chip *gc,
+						   unsigned long *valid_mask,
+						   unsigned int ngpios);
+
+	int			(*add_pin_ranges)(struct gpio_chip *gc);
+
+	int			base;
+	u16			ngpio;
+	u16			offset;
+>>>>>>> upstream/android-13
 	const char		*const *names;
 	bool			can_sleep;
 
@@ -283,13 +538,23 @@ struct gpio_chip {
 	void __iomem *reg_dat;
 	void __iomem *reg_set;
 	void __iomem *reg_clr;
+<<<<<<< HEAD
 	void __iomem *reg_dir;
 	bool bgpio_dir_inverted;
+=======
+	void __iomem *reg_dir_out;
+	void __iomem *reg_dir_in;
+	bool bgpio_dir_unreadable;
+>>>>>>> upstream/android-13
 	int bgpio_bits;
 	spinlock_t bgpio_lock;
 	unsigned long bgpio_data;
 	unsigned long bgpio_dir;
+<<<<<<< HEAD
 #endif
+=======
+#endif /* CONFIG_GPIO_GENERIC */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_GPIOLIB_IRQCHIP
 	/*
@@ -304,6 +569,7 @@ struct gpio_chip {
 	 * used to handle IRQs for most practical cases.
 	 */
 	struct gpio_irq_chip irq;
+<<<<<<< HEAD
 #endif
 
 	/**
@@ -312,19 +578,31 @@ struct gpio_chip {
 	 * If set core allocates @valid_mask with all bits set to one.
 	 */
 	bool need_valid_mask;
+=======
+#endif /* CONFIG_GPIOLIB_IRQCHIP */
+>>>>>>> upstream/android-13
 
 	/**
 	 * @valid_mask:
 	 *
+<<<<<<< HEAD
 	 * If not %NULL holds bitmask of GPIOs which are valid to be used
+=======
+	 * If not %NULL, holds bitmask of GPIOs which are valid to be used
+>>>>>>> upstream/android-13
 	 * from the chip.
 	 */
 	unsigned long *valid_mask;
 
 #if defined(CONFIG_OF_GPIO)
 	/*
+<<<<<<< HEAD
 	 * If CONFIG_OF is enabled, then all GPIO controllers described in the
 	 * device tree automatically may have an OF translation
+=======
+	 * If CONFIG_OF_GPIO is enabled, then all GPIO controllers described in
+	 * the device tree automatically may have an OF translation
+>>>>>>> upstream/android-13
 	 */
 
 	/**
@@ -349,6 +627,7 @@ struct gpio_chip {
 	 */
 	int (*of_xlate)(struct gpio_chip *gc,
 			const struct of_phandle_args *gpiospec, u32 *flags);
+<<<<<<< HEAD
 #endif
 };
 
@@ -357,29 +636,73 @@ extern const char *gpiochip_is_requested(struct gpio_chip *chip,
 
 /* add/remove chips */
 extern int gpiochip_add_data_with_key(struct gpio_chip *chip, void *data,
+=======
+#endif /* CONFIG_OF_GPIO */
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+};
+
+extern const char *gpiochip_is_requested(struct gpio_chip *gc,
+			unsigned int offset);
+
+/**
+ * for_each_requested_gpio_in_range - iterates over requested GPIOs in a given range
+ * @chip:	the chip to query
+ * @i:		loop variable
+ * @base:	first GPIO in the range
+ * @size:	amount of GPIOs to check starting from @base
+ * @label:	label of current GPIO
+ */
+#define for_each_requested_gpio_in_range(chip, i, base, size, label)			\
+	for (i = 0; i < size; i++)							\
+		if ((label = gpiochip_is_requested(chip, base + i)) == NULL) {} else
+
+/* Iterates over all requested GPIO of the given @chip */
+#define for_each_requested_gpio(chip, i, label)						\
+	for_each_requested_gpio_in_range(chip, i, 0, chip->ngpio, label)
+
+/* add/remove chips */
+extern int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+>>>>>>> upstream/android-13
 				      struct lock_class_key *lock_key,
 				      struct lock_class_key *request_key);
 
 /**
  * gpiochip_add_data() - register a gpio_chip
+<<<<<<< HEAD
  * @chip: the chip to register, with chip->base initialized
+=======
+ * @gc: the chip to register, with gc->base initialized
+>>>>>>> upstream/android-13
  * @data: driver-private data associated with this chip
  *
  * Context: potentially before irqs will work
  *
  * When gpiochip_add_data() is called very early during boot, so that GPIOs
+<<<<<<< HEAD
  * can be freely used, the chip->parent device must be registered before
+=======
+ * can be freely used, the gc->parent device must be registered before
+>>>>>>> upstream/android-13
  * the gpio framework's arch_initcall().  Otherwise sysfs initialization
  * for GPIOs will fail rudely.
  *
  * gpiochip_add_data() must only be called after gpiolib initialization,
+<<<<<<< HEAD
  * ie after core_initcall().
  *
  * If chip->base is negative, this requests dynamic assignment of
+=======
+ * i.e. after core_initcall().
+ *
+ * If gc->base is negative, this requests dynamic assignment of
+>>>>>>> upstream/android-13
  * a range of valid GPIOs.
  *
  * Returns:
  * A negative errno if the chip can't be registered, such as because the
+<<<<<<< HEAD
  * chip->base is invalid or already associated with a different chip.
  * Otherwise it returns zero as a success code.
  */
@@ -423,6 +746,58 @@ bool gpiochip_line_is_valid(const struct gpio_chip *chip, unsigned int offset);
 void *gpiochip_get_data(struct gpio_chip *chip);
 
 struct gpio_chip *gpiod_to_chip(const struct gpio_desc *desc);
+=======
+ * gc->base is invalid or already associated with a different chip.
+ * Otherwise it returns zero as a success code.
+ */
+#ifdef CONFIG_LOCKDEP
+#define gpiochip_add_data(gc, data) ({		\
+		static struct lock_class_key lock_key;	\
+		static struct lock_class_key request_key;	  \
+		gpiochip_add_data_with_key(gc, data, &lock_key, \
+					   &request_key);	  \
+	})
+#define devm_gpiochip_add_data(dev, gc, data) ({ \
+		static struct lock_class_key lock_key;	\
+		static struct lock_class_key request_key;	  \
+		devm_gpiochip_add_data_with_key(dev, gc, data, &lock_key, \
+					   &request_key);	  \
+	})
+#else
+#define gpiochip_add_data(gc, data) gpiochip_add_data_with_key(gc, data, NULL, NULL)
+#define devm_gpiochip_add_data(dev, gc, data) \
+	devm_gpiochip_add_data_with_key(dev, gc, data, NULL, NULL)
+#endif /* CONFIG_LOCKDEP */
+
+static inline int gpiochip_add(struct gpio_chip *gc)
+{
+	return gpiochip_add_data(gc, NULL);
+}
+extern void gpiochip_remove(struct gpio_chip *gc);
+extern int devm_gpiochip_add_data_with_key(struct device *dev, struct gpio_chip *gc, void *data,
+					   struct lock_class_key *lock_key,
+					   struct lock_class_key *request_key);
+
+extern struct gpio_chip *gpiochip_find(void *data,
+			      int (*match)(struct gpio_chip *gc, void *data));
+
+bool gpiochip_line_is_irq(struct gpio_chip *gc, unsigned int offset);
+int gpiochip_reqres_irq(struct gpio_chip *gc, unsigned int offset);
+void gpiochip_relres_irq(struct gpio_chip *gc, unsigned int offset);
+void gpiochip_disable_irq(struct gpio_chip *gc, unsigned int offset);
+void gpiochip_enable_irq(struct gpio_chip *gc, unsigned int offset);
+
+/* Line status inquiry for drivers */
+bool gpiochip_line_is_open_drain(struct gpio_chip *gc, unsigned int offset);
+bool gpiochip_line_is_open_source(struct gpio_chip *gc, unsigned int offset);
+
+/* Sleep persistence inquiry for drivers */
+bool gpiochip_line_is_persistent(struct gpio_chip *gc, unsigned int offset);
+bool gpiochip_line_is_valid(const struct gpio_chip *gc, unsigned int offset);
+
+/* get driver data */
+void *gpiochip_get_data(struct gpio_chip *gc);
+>>>>>>> upstream/android-13
 
 struct bgpio_pdata {
 	const char *label;
@@ -430,7 +805,36 @@ struct bgpio_pdata {
 	int ngpio;
 };
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_GPIO_GENERIC)
+=======
+#ifdef CONFIG_IRQ_DOMAIN_HIERARCHY
+
+void *gpiochip_populate_parent_fwspec_twocell(struct gpio_chip *gc,
+					     unsigned int parent_hwirq,
+					     unsigned int parent_type);
+void *gpiochip_populate_parent_fwspec_fourcell(struct gpio_chip *gc,
+					      unsigned int parent_hwirq,
+					      unsigned int parent_type);
+
+#else
+
+static inline void *gpiochip_populate_parent_fwspec_twocell(struct gpio_chip *gc,
+						    unsigned int parent_hwirq,
+						    unsigned int parent_type)
+{
+	return NULL;
+}
+
+static inline void *gpiochip_populate_parent_fwspec_fourcell(struct gpio_chip *gc,
+						     unsigned int parent_hwirq,
+						     unsigned int parent_type)
+{
+	return NULL;
+}
+
+#endif /* CONFIG_IRQ_DOMAIN_HIERARCHY */
+>>>>>>> upstream/android-13
 
 int bgpio_init(struct gpio_chip *gc, struct device *dev,
 	       unsigned long sz, void __iomem *dat, void __iomem *set,
@@ -443,15 +847,20 @@ int bgpio_init(struct gpio_chip *gc, struct device *dev,
 #define BGPIOF_BIG_ENDIAN_BYTE_ORDER	BIT(3)
 #define BGPIOF_READ_OUTPUT_REG_SET	BIT(4) /* reg_set stores output value */
 #define BGPIOF_NO_OUTPUT		BIT(5) /* only input */
+<<<<<<< HEAD
 
 #endif
 
 #ifdef CONFIG_GPIOLIB_IRQCHIP
+=======
+#define BGPIOF_NO_SET_ON_INPUT		BIT(6)
+>>>>>>> upstream/android-13
 
 int gpiochip_irq_map(struct irq_domain *d, unsigned int irq,
 		     irq_hw_number_t hwirq);
 void gpiochip_irq_unmap(struct irq_domain *d, unsigned int irq);
 
+<<<<<<< HEAD
 void gpiochip_set_chained_irqchip(struct gpio_chip *gpiochip,
 		struct irq_chip *irqchip,
 		unsigned int parent_irq,
@@ -540,6 +949,33 @@ int gpiochip_generic_config(struct gpio_chip *chip, unsigned offset,
 
 #ifdef CONFIG_PINCTRL
 
+=======
+int gpiochip_irq_domain_activate(struct irq_domain *domain,
+				 struct irq_data *data, bool reserve);
+void gpiochip_irq_domain_deactivate(struct irq_domain *domain,
+				    struct irq_data *data);
+
+bool gpiochip_irqchip_irq_valid(const struct gpio_chip *gc,
+				unsigned int offset);
+
+#ifdef CONFIG_GPIOLIB_IRQCHIP
+int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
+				struct irq_domain *domain);
+#else
+static inline int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
+					      struct irq_domain *domain)
+{
+	WARN_ON(1);
+	return -EINVAL;
+}
+#endif
+
+int gpiochip_generic_request(struct gpio_chip *gc, unsigned int offset);
+void gpiochip_generic_free(struct gpio_chip *gc, unsigned int offset);
+int gpiochip_generic_config(struct gpio_chip *gc, unsigned int offset,
+			    unsigned long config);
+
+>>>>>>> upstream/android-13
 /**
  * struct gpio_pin_range - pin range controlled by a gpio chip
  * @node: list for maintaining set of pin ranges, used internally
@@ -552,6 +988,7 @@ struct gpio_pin_range {
 	struct pinctrl_gpio_range range;
 };
 
+<<<<<<< HEAD
 int gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
 			   unsigned int gpio_offset, unsigned int pin_offset,
 			   unsigned int npins);
@@ -564,13 +1001,33 @@ void gpiochip_remove_pin_ranges(struct gpio_chip *chip);
 
 static inline int
 gpiochip_add_pin_range(struct gpio_chip *chip, const char *pinctl_name,
+=======
+#ifdef CONFIG_PINCTRL
+
+int gpiochip_add_pin_range(struct gpio_chip *gc, const char *pinctl_name,
+			   unsigned int gpio_offset, unsigned int pin_offset,
+			   unsigned int npins);
+int gpiochip_add_pingroup_range(struct gpio_chip *gc,
+			struct pinctrl_dev *pctldev,
+			unsigned int gpio_offset, const char *pin_group);
+void gpiochip_remove_pin_ranges(struct gpio_chip *gc);
+
+#else /* ! CONFIG_PINCTRL */
+
+static inline int
+gpiochip_add_pin_range(struct gpio_chip *gc, const char *pinctl_name,
+>>>>>>> upstream/android-13
 		       unsigned int gpio_offset, unsigned int pin_offset,
 		       unsigned int npins)
 {
 	return 0;
 }
 static inline int
+<<<<<<< HEAD
 gpiochip_add_pingroup_range(struct gpio_chip *chip,
+=======
+gpiochip_add_pingroup_range(struct gpio_chip *gc,
+>>>>>>> upstream/android-13
 			struct pinctrl_dev *pctldev,
 			unsigned int gpio_offset, const char *pin_group)
 {
@@ -578,16 +1035,39 @@ gpiochip_add_pingroup_range(struct gpio_chip *chip,
 }
 
 static inline void
+<<<<<<< HEAD
 gpiochip_remove_pin_ranges(struct gpio_chip *chip)
+=======
+gpiochip_remove_pin_ranges(struct gpio_chip *gc)
+>>>>>>> upstream/android-13
 {
 }
 
 #endif /* CONFIG_PINCTRL */
 
+<<<<<<< HEAD
 struct gpio_desc *gpiochip_request_own_desc(struct gpio_chip *chip, u16 hwnum,
 					    const char *label);
 void gpiochip_free_own_desc(struct gpio_desc *desc);
 
+=======
+struct gpio_desc *gpiochip_request_own_desc(struct gpio_chip *gc,
+					    unsigned int hwnum,
+					    const char *label,
+					    enum gpio_lookup_flags lflags,
+					    enum gpiod_flags dflags);
+void gpiochip_free_own_desc(struct gpio_desc *desc);
+
+#ifdef CONFIG_GPIOLIB
+
+/* lock/unlock as IRQ */
+int gpiochip_lock_as_irq(struct gpio_chip *gc, unsigned int offset);
+void gpiochip_unlock_as_irq(struct gpio_chip *gc, unsigned int offset);
+
+
+struct gpio_chip *gpiod_to_chip(const struct gpio_desc *desc);
+
+>>>>>>> upstream/android-13
 #else /* CONFIG_GPIOLIB */
 
 static inline struct gpio_chip *gpiod_to_chip(const struct gpio_desc *desc)
@@ -597,6 +1077,24 @@ static inline struct gpio_chip *gpiod_to_chip(const struct gpio_desc *desc)
 	return ERR_PTR(-ENODEV);
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_GPIOLIB */
 
 #endif
+=======
+static inline int gpiochip_lock_as_irq(struct gpio_chip *gc,
+				       unsigned int offset)
+{
+	WARN_ON(1);
+	return -EINVAL;
+}
+
+static inline void gpiochip_unlock_as_irq(struct gpio_chip *gc,
+					  unsigned int offset)
+{
+	WARN_ON(1);
+}
+#endif /* CONFIG_GPIOLIB */
+
+#endif /* __LINUX_GPIO_DRIVER_H */
+>>>>>>> upstream/android-13

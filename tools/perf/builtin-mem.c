@@ -7,13 +7,29 @@
 #include "perf.h"
 
 #include <subcmd/parse-options.h>
+<<<<<<< HEAD
+=======
+#include "util/auxtrace.h"
+>>>>>>> upstream/android-13
 #include "util/trace-event.h"
 #include "util/tool.h"
 #include "util/session.h"
 #include "util/data.h"
+<<<<<<< HEAD
 #include "util/mem-events.h"
 #include "util/debug.h"
 #include "util/symbol.h"
+=======
+#include "util/map_symbol.h"
+#include "util/mem-events.h"
+#include "util/debug.h"
+#include "util/dso.h"
+#include "util/map.h"
+#include "util/symbol.h"
+#include "util/pmu.h"
+#include "util/pmu-hybrid.h"
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 
 #define MEM_OPERATION_LOAD	0x1
 #define MEM_OPERATION_STORE	0x2
@@ -25,6 +41,10 @@ struct perf_mem {
 	bool			dump_raw;
 	bool			force;
 	bool			phys_addr;
+<<<<<<< HEAD
+=======
+	bool			data_page_size;
+>>>>>>> upstream/android-13
 	int			operation;
 	const char		*cpu_list;
 	DECLARE_BITMAP(cpu_bitmap, MAX_NR_CPUS);
@@ -34,6 +54,7 @@ static int parse_record_events(const struct option *opt,
 			       const char *str, int unset __maybe_unused)
 {
 	struct perf_mem *mem = *(struct perf_mem **)opt->value;
+<<<<<<< HEAD
 	int j;
 
 	if (strcmp(str, "list")) {
@@ -54,6 +75,18 @@ static int parse_record_events(const struct option *opt,
 			e->supported ? ": available" : "");
 	}
 	exit(0);
+=======
+
+	if (!strcmp(str, "list")) {
+		perf_mem_events__list();
+		exit(0);
+	}
+	if (perf_mem_events__parse(str))
+		exit(-1);
+
+	mem->operation = 0;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const char * const __usage[] = {
@@ -66,10 +99,20 @@ static const char * const *record_mem_usage = __usage;
 
 static int __cmd_record(int argc, const char **argv, struct perf_mem *mem)
 {
+<<<<<<< HEAD
 	int rec_argc, i = 0, j;
 	const char **rec_argv;
 	int ret;
 	bool all_user = false, all_kernel = false;
+=======
+	int rec_argc, i = 0, j, tmp_nr = 0;
+	int start, end;
+	const char **rec_argv;
+	char **rec_tmp;
+	int ret;
+	bool all_user = false, all_kernel = false;
+	struct perf_mem_event *e;
+>>>>>>> upstream/android-13
 	struct option options[] = {
 	OPT_CALLBACK('e', "event", &mem, "event",
 		     "event selector. use 'perf mem record -e list' to list available events",
@@ -82,14 +125,31 @@ static int __cmd_record(int argc, const char **argv, struct perf_mem *mem)
 	OPT_END()
 	};
 
+<<<<<<< HEAD
 	argc = parse_options(argc, argv, options, record_mem_usage,
 			     PARSE_OPT_KEEP_UNKNOWN);
 
 	rec_argc = argc + 9; /* max number of arguments */
+=======
+	if (perf_mem_events__init()) {
+		pr_err("failed: memory events not supported\n");
+		return -1;
+	}
+
+	argc = parse_options(argc, argv, options, record_mem_usage,
+			     PARSE_OPT_KEEP_UNKNOWN);
+
+	if (!perf_pmu__has_hybrid())
+		rec_argc = argc + 9; /* max number of arguments */
+	else
+		rec_argc = argc + 9 * perf_pmu__hybrid_pmu_num();
+
+>>>>>>> upstream/android-13
 	rec_argv = calloc(rec_argc + 1, sizeof(char *));
 	if (!rec_argv)
 		return -1;
 
+<<<<<<< HEAD
 	rec_argv[i++] = "record";
 
 	if (mem->operation & MEM_OPERATION_LOAD)
@@ -99,6 +159,43 @@ static int __cmd_record(int argc, const char **argv, struct perf_mem *mem)
 		perf_mem_events[PERF_MEM_EVENTS__STORE].record = true;
 
 	if (perf_mem_events[PERF_MEM_EVENTS__LOAD].record)
+=======
+	/*
+	 * Save the allocated event name strings.
+	 */
+	rec_tmp = calloc(rec_argc + 1, sizeof(char *));
+	if (!rec_tmp) {
+		free(rec_argv);
+		return -1;
+	}
+
+	rec_argv[i++] = "record";
+
+	e = perf_mem_events__ptr(PERF_MEM_EVENTS__LOAD_STORE);
+
+	/*
+	 * The load and store operations are required, use the event
+	 * PERF_MEM_EVENTS__LOAD_STORE if it is supported.
+	 */
+	if (e->tag &&
+	    (mem->operation & MEM_OPERATION_LOAD) &&
+	    (mem->operation & MEM_OPERATION_STORE)) {
+		e->record = true;
+	} else {
+		if (mem->operation & MEM_OPERATION_LOAD) {
+			e = perf_mem_events__ptr(PERF_MEM_EVENTS__LOAD);
+			e->record = true;
+		}
+
+		if (mem->operation & MEM_OPERATION_STORE) {
+			e = perf_mem_events__ptr(PERF_MEM_EVENTS__STORE);
+			e->record = true;
+		}
+	}
+
+	e = perf_mem_events__ptr(PERF_MEM_EVENTS__LOAD);
+	if (e->record)
+>>>>>>> upstream/android-13
 		rec_argv[i++] = "-W";
 
 	rec_argv[i++] = "-d";
@@ -106,6 +203,7 @@ static int __cmd_record(int argc, const char **argv, struct perf_mem *mem)
 	if (mem->phys_addr)
 		rec_argv[i++] = "--phys-data";
 
+<<<<<<< HEAD
 	for (j = 0; j < PERF_MEM_EVENTS__MAX; j++) {
 		if (!perf_mem_events[j].record)
 			continue;
@@ -120,6 +218,16 @@ static int __cmd_record(int argc, const char **argv, struct perf_mem *mem)
 		rec_argv[i++] = "-e";
 		rec_argv[i++] = perf_mem_events__name(j);
 	};
+=======
+	if (mem->data_page_size)
+		rec_argv[i++] = "--data-page-size";
+
+	start = i;
+	ret = perf_mem_events__record_args(rec_argv, &i, rec_tmp, &tmp_nr);
+	if (ret)
+		goto out;
+	end = i;
+>>>>>>> upstream/android-13
 
 	if (all_user)
 		rec_argv[i++] = "--all-user";
@@ -133,14 +241,28 @@ static int __cmd_record(int argc, const char **argv, struct perf_mem *mem)
 	if (verbose > 0) {
 		pr_debug("calling: record ");
 
+<<<<<<< HEAD
 		while (rec_argv[j]) {
 			pr_debug("%s ", rec_argv[j]);
 			j++;
 		}
+=======
+		for (j = start; j < end; j++)
+			pr_debug("%s ", rec_argv[j]);
+
+>>>>>>> upstream/android-13
 		pr_debug("\n");
 	}
 
 	ret = cmd_record(i, rec_argv);
+<<<<<<< HEAD
+=======
+out:
+	for (i = 0; i < tmp_nr; i++)
+		free(rec_tmp[i]);
+
+	free(rec_tmp);
+>>>>>>> upstream/android-13
 	free(rec_argv);
 	return ret;
 }
@@ -153,7 +275,12 @@ dump_raw_samples(struct perf_tool *tool,
 {
 	struct perf_mem *mem = container_of(tool, struct perf_mem, tool);
 	struct addr_location al;
+<<<<<<< HEAD
 	const char *fmt;
+=======
+	const char *fmt, *field_sep;
+	char str[PAGE_SIZE_NAME_LEN];
+>>>>>>> upstream/android-13
 
 	if (machine__resolve(machine, &al, sample) < 0) {
 		fprintf(stderr, "problem processing %d event, skipping it.\n",
@@ -167,6 +294,7 @@ dump_raw_samples(struct perf_tool *tool,
 	if (al.map != NULL)
 		al.map->dso->hit = 1;
 
+<<<<<<< HEAD
 	if (mem->phys_addr) {
 		if (symbol_conf.field_sep) {
 			fmt = "%d%s%d%s0x%"PRIx64"%s0x%"PRIx64"%s0x%016"PRIx64
@@ -221,6 +349,49 @@ dump_raw_samples(struct perf_tool *tool,
 			al.map ? (al.map->dso ? al.map->dso->long_name : "???") : "???",
 			al.sym ? al.sym->name : "???");
 	}
+=======
+	field_sep = symbol_conf.field_sep;
+	if (field_sep) {
+		fmt = "%d%s%d%s0x%"PRIx64"%s0x%"PRIx64"%s";
+	} else {
+		fmt = "%5d%s%5d%s0x%016"PRIx64"%s0x016%"PRIx64"%s";
+		symbol_conf.field_sep = " ";
+	}
+	printf(fmt,
+		sample->pid,
+		symbol_conf.field_sep,
+		sample->tid,
+		symbol_conf.field_sep,
+		sample->ip,
+		symbol_conf.field_sep,
+		sample->addr,
+		symbol_conf.field_sep);
+
+	if (mem->phys_addr) {
+		printf("0x%016"PRIx64"%s",
+			sample->phys_addr,
+			symbol_conf.field_sep);
+	}
+
+	if (mem->data_page_size) {
+		printf("%s%s",
+			get_page_size_name(sample->data_page_size, str),
+			symbol_conf.field_sep);
+	}
+
+	if (field_sep)
+		fmt = "%"PRIu64"%s0x%"PRIx64"%s%s:%s\n";
+	else
+		fmt = "%5"PRIu64"%s0x%06"PRIx64"%s%s:%s\n";
+
+	printf(fmt,
+		sample->weight,
+		symbol_conf.field_sep,
+		sample->data_src,
+		symbol_conf.field_sep,
+		al.map ? (al.map->dso ? al.map->dso->long_name : "???") : "???",
+		al.sym ? al.sym->name : "???");
+>>>>>>> upstream/android-13
 out_put:
 	addr_location__put(&al);
 	return 0;
@@ -229,7 +400,11 @@ out_put:
 static int process_sample_event(struct perf_tool *tool,
 				union perf_event *event,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel __maybe_unused,
+=======
+				struct evsel *evsel __maybe_unused,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	return dump_raw_samples(tool, event, sample, machine);
@@ -237,6 +412,7 @@ static int process_sample_event(struct perf_tool *tool,
 
 static int report_raw_events(struct perf_mem *mem)
 {
+<<<<<<< HEAD
 	struct perf_data data = {
 		.file      = {
 			.path = input_name,
@@ -250,6 +426,26 @@ static int report_raw_events(struct perf_mem *mem)
 
 	if (session == NULL)
 		return -1;
+=======
+	struct itrace_synth_opts itrace_synth_opts = {
+		.set = true,
+		.mem = true,	/* Only enable memory event */
+		.default_no_sample = true,
+	};
+
+	struct perf_data data = {
+		.path  = input_name,
+		.mode  = PERF_DATA_MODE_READ,
+		.force = mem->force,
+	};
+	int ret;
+	struct perf_session *session = perf_session__new(&data, &mem->tool);
+
+	if (IS_ERR(session))
+		return PTR_ERR(session);
+
+	session->itrace_synth_opts = &itrace_synth_opts;
+>>>>>>> upstream/android-13
 
 	if (mem->cpu_list) {
 		ret = perf_session__cpu_bitmap(session, mem->cpu_list,
@@ -262,10 +458,22 @@ static int report_raw_events(struct perf_mem *mem)
 	if (ret < 0)
 		goto out_delete;
 
+<<<<<<< HEAD
 	if (mem->phys_addr)
 		printf("# PID, TID, IP, ADDR, PHYS ADDR, LOCAL WEIGHT, DSRC, SYMBOL\n");
 	else
 		printf("# PID, TID, IP, ADDR, LOCAL WEIGHT, DSRC, SYMBOL\n");
+=======
+	printf("# PID, TID, IP, ADDR, ");
+
+	if (mem->phys_addr)
+		printf("PHYS ADDR, ");
+
+	if (mem->data_page_size)
+		printf("DATA PAGE SIZE, ");
+
+	printf("LOCAL WEIGHT, DSRC, SYMBOL\n");
+>>>>>>> upstream/android-13
 
 	ret = perf_session__process_events(session);
 
@@ -273,11 +481,44 @@ out_delete:
 	perf_session__delete(session);
 	return ret;
 }
+<<<<<<< HEAD
+=======
+static char *get_sort_order(struct perf_mem *mem)
+{
+	bool has_extra_options = (mem->phys_addr | mem->data_page_size) ? true : false;
+	char sort[128];
+
+	/*
+	 * there is no weight (cost) associated with stores, so don't print
+	 * the column
+	 */
+	if (!(mem->operation & MEM_OPERATION_LOAD)) {
+		strcpy(sort, "--sort=mem,sym,dso,symbol_daddr,"
+			     "dso_daddr,tlb,locked");
+	} else if (has_extra_options) {
+		strcpy(sort, "--sort=local_weight,mem,sym,dso,symbol_daddr,"
+			     "dso_daddr,snoop,tlb,locked,blocked");
+	} else
+		return NULL;
+
+	if (mem->phys_addr)
+		strcat(sort, ",phys_daddr");
+
+	if (mem->data_page_size)
+		strcat(sort, ",data_page_size");
+
+	return strdup(sort);
+}
+>>>>>>> upstream/android-13
 
 static int report_events(int argc, const char **argv, struct perf_mem *mem)
 {
 	const char **rep_argv;
 	int ret, i = 0, j, rep_argc;
+<<<<<<< HEAD
+=======
+	char *new_sort_order;
+>>>>>>> upstream/android-13
 
 	if (mem->dump_raw)
 		return report_raw_events(mem);
@@ -291,6 +532,7 @@ static int report_events(int argc, const char **argv, struct perf_mem *mem)
 	rep_argv[i++] = "--mem-mode";
 	rep_argv[i++] = "-n"; /* display number of samples */
 
+<<<<<<< HEAD
 	/*
 	 * there is no weight (cost) associated with stores, so don't print
 	 * the column
@@ -305,6 +547,11 @@ static int report_events(int argc, const char **argv, struct perf_mem *mem)
 	} else if (mem->phys_addr)
 		rep_argv[i++] = "--sort=local_weight,mem,sym,dso,symbol_daddr,"
 				"dso_daddr,snoop,tlb,locked,phys_daddr";
+=======
+	new_sort_order = get_sort_order(mem);
+	if (new_sort_order)
+		rep_argv[i++] = new_sort_order;
+>>>>>>> upstream/android-13
 
 	for (j = 1; j < argc; j++, i++)
 		rep_argv[i] = argv[j];
@@ -394,8 +641,17 @@ int cmd_mem(int argc, const char **argv)
 			.comm		= perf_event__process_comm,
 			.lost		= perf_event__process_lost,
 			.fork		= perf_event__process_fork,
+<<<<<<< HEAD
 			.build_id	= perf_event__process_build_id,
 			.namespaces	= perf_event__process_namespaces,
+=======
+			.attr		= perf_event__process_attr,
+			.build_id	= perf_event__process_build_id,
+			.namespaces	= perf_event__process_namespaces,
+			.auxtrace_info  = perf_event__process_auxtrace_info,
+			.auxtrace       = perf_event__process_auxtrace,
+			.auxtrace_error = perf_event__process_auxtrace_error,
+>>>>>>> upstream/android-13
 			.ordered_events	= true,
 		},
 		.input_name		 = "perf.data",
@@ -422,6 +678,10 @@ int cmd_mem(int argc, const char **argv)
 		   " between columns '.' is reserved."),
 	OPT_BOOLEAN('f', "force", &mem.force, "don't complain, do it"),
 	OPT_BOOLEAN('p', "phys-data", &mem.phys_addr, "Record/Report sample physical addresses"),
+<<<<<<< HEAD
+=======
+	OPT_BOOLEAN(0, "data-page-size", &mem.data_page_size, "Record/Report sample data address page size"),
+>>>>>>> upstream/android-13
 	OPT_END()
 	};
 	const char *const mem_subcommands[] = { "record", "report", NULL };
@@ -430,11 +690,14 @@ int cmd_mem(int argc, const char **argv)
 		NULL
 	};
 
+<<<<<<< HEAD
 	if (perf_mem_events__init()) {
 		pr_err("failed: memory events not supported\n");
 		return -1;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	argc = parse_options_subcommand(argc, argv, mem_options, mem_subcommands,
 					mem_usage, PARSE_OPT_KEEP_UNKNOWN);
 

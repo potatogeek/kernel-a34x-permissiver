@@ -1,7 +1,14 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0
 
+<<<<<<< HEAD
 NUM_NETIFS=1
+=======
+lib_dir=$(dirname $0)/../../../../net/forwarding
+
+NUM_NETIFS=1
+source $lib_dir/lib.sh
+>>>>>>> upstream/android-13
 source devlink_lib_spectrum.sh
 
 setup_prepare()

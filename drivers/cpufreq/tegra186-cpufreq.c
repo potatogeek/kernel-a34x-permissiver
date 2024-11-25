@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpufreq.h>
@@ -20,6 +26,7 @@
 #include <soc/tegra/bpmp.h>
 #include <soc/tegra/bpmp-abi.h>
 
+<<<<<<< HEAD
 #define EDVD_CORE_VOLT_FREQ(core)		(0x20 + (core) * 0x4)
 #define EDVD_CORE_VOLT_FREQ_F_SHIFT		0
 #define EDVD_CORE_VOLT_FREQ_V_SHIFT		16
@@ -43,24 +50,80 @@ static const struct tegra186_cpufreq_cluster_info tegra186_clusters[] = {
 		.offset = SZ_64K * 6,
 		.cpus = { 0, 3, 4, 5 },
 		.bpmp_cluster_id = 1,
+=======
+#define TEGRA186_NUM_CLUSTERS		2
+#define EDVD_OFFSET_A57(core)		((SZ_64K * 6) + (0x20 + (core) * 0x4))
+#define EDVD_OFFSET_DENVER(core)	((SZ_64K * 7) + (0x20 + (core) * 0x4))
+#define EDVD_CORE_VOLT_FREQ_F_SHIFT	0
+#define EDVD_CORE_VOLT_FREQ_F_MASK	0xffff
+#define EDVD_CORE_VOLT_FREQ_V_SHIFT	16
+
+struct tegra186_cpufreq_cpu {
+	unsigned int bpmp_cluster_id;
+	unsigned int edvd_offset;
+};
+
+static const struct tegra186_cpufreq_cpu tegra186_cpus[] = {
+	/* CPU0 - A57 Cluster */
+	{
+		.bpmp_cluster_id = 1,
+		.edvd_offset = EDVD_OFFSET_A57(0)
+	},
+	/* CPU1 - Denver Cluster */
+	{
+		.bpmp_cluster_id = 0,
+		.edvd_offset = EDVD_OFFSET_DENVER(0)
+	},
+	/* CPU2 - Denver Cluster */
+	{
+		.bpmp_cluster_id = 0,
+		.edvd_offset = EDVD_OFFSET_DENVER(1)
+	},
+	/* CPU3 - A57 Cluster */
+	{
+		.bpmp_cluster_id = 1,
+		.edvd_offset = EDVD_OFFSET_A57(1)
+	},
+	/* CPU4 - A57 Cluster */
+	{
+		.bpmp_cluster_id = 1,
+		.edvd_offset = EDVD_OFFSET_A57(2)
+	},
+	/* CPU5 - A57 Cluster */
+	{
+		.bpmp_cluster_id = 1,
+		.edvd_offset = EDVD_OFFSET_A57(3)
+>>>>>>> upstream/android-13
 	},
 };
 
 struct tegra186_cpufreq_cluster {
+<<<<<<< HEAD
 	const struct tegra186_cpufreq_cluster_info *info;
 	struct cpufreq_frequency_table *table;
+=======
+	struct cpufreq_frequency_table *table;
+	u32 ref_clk_khz;
+	u32 div;
+>>>>>>> upstream/android-13
 };
 
 struct tegra186_cpufreq_data {
 	void __iomem *regs;
+<<<<<<< HEAD
 
 	size_t num_clusters;
 	struct tegra186_cpufreq_cluster *clusters;
+=======
+	struct tegra186_cpufreq_cluster *clusters;
+	const struct tegra186_cpufreq_cpu *cpus;
+>>>>>>> upstream/android-13
 };
 
 static int tegra186_cpufreq_init(struct cpufreq_policy *policy)
 {
 	struct tegra186_cpufreq_data *data = cpufreq_get_driver_data();
+<<<<<<< HEAD
 	unsigned int i;
 
 	for (i = 0; i < data->num_clusters; i++) {
@@ -83,6 +146,13 @@ static int tegra186_cpufreq_init(struct cpufreq_policy *policy)
 	}
 
 	policy->cpuinfo.transition_latency = 300 * 1000;
+=======
+	unsigned int cluster = data->cpus[policy->cpu].bpmp_cluster_id;
+
+	policy->freq_table = data->clusters[cluster].table;
+	policy->cpuinfo.transition_latency = 300 * 1000;
+	policy->driver_data = NULL;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -90,18 +160,56 @@ static int tegra186_cpufreq_init(struct cpufreq_policy *policy)
 static int tegra186_cpufreq_set_target(struct cpufreq_policy *policy,
 				       unsigned int index)
 {
+<<<<<<< HEAD
 	struct cpufreq_frequency_table *tbl = policy->freq_table + index;
 	void __iomem *edvd_reg = policy->driver_data;
 	u32 edvd_val = tbl->driver_data;
 
 	writel(edvd_val, edvd_reg);
+=======
+	struct tegra186_cpufreq_data *data = cpufreq_get_driver_data();
+	struct cpufreq_frequency_table *tbl = policy->freq_table + index;
+	unsigned int edvd_offset = data->cpus[policy->cpu].edvd_offset;
+	u32 edvd_val = tbl->driver_data;
+
+	writel(edvd_val, data->regs + edvd_offset);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct cpufreq_driver tegra186_cpufreq_driver = {
 	.name = "tegra186",
 	.flags = CPUFREQ_STICKY | CPUFREQ_HAVE_GOVERNOR_PER_POLICY,
+=======
+static unsigned int tegra186_cpufreq_get(unsigned int cpu)
+{
+	struct tegra186_cpufreq_data *data = cpufreq_get_driver_data();
+	struct tegra186_cpufreq_cluster *cluster;
+	struct cpufreq_policy *policy;
+	unsigned int edvd_offset, cluster_id;
+	u32 ndiv;
+
+	policy = cpufreq_cpu_get(cpu);
+	if (!policy)
+		return 0;
+
+	edvd_offset = data->cpus[policy->cpu].edvd_offset;
+	ndiv = readl(data->regs + edvd_offset) & EDVD_CORE_VOLT_FREQ_F_MASK;
+	cluster_id = data->cpus[policy->cpu].bpmp_cluster_id;
+	cluster = &data->clusters[cluster_id];
+	cpufreq_cpu_put(policy);
+
+	return (cluster->ref_clk_khz * ndiv) / cluster->div;
+}
+
+static struct cpufreq_driver tegra186_cpufreq_driver = {
+	.name = "tegra186",
+	.flags = CPUFREQ_HAVE_GOVERNOR_PER_POLICY |
+			CPUFREQ_NEED_INITIAL_FREQ_CHECK,
+	.get = tegra186_cpufreq_get,
+>>>>>>> upstream/android-13
 	.verify = cpufreq_generic_frequency_table_verify,
 	.target_index = tegra186_cpufreq_set_target,
 	.init = tegra186_cpufreq_init,
@@ -110,7 +218,11 @@ static struct cpufreq_driver tegra186_cpufreq_driver = {
 
 static struct cpufreq_frequency_table *init_vhint_table(
 	struct platform_device *pdev, struct tegra_bpmp *bpmp,
+<<<<<<< HEAD
 	unsigned int cluster_id)
+=======
+	struct tegra186_cpufreq_cluster *cluster, unsigned int cluster_id)
+>>>>>>> upstream/android-13
 {
 	struct cpufreq_frequency_table *table;
 	struct mrq_cpu_vhint_request req;
@@ -121,7 +233,11 @@ static struct cpufreq_frequency_table *init_vhint_table(
 	void *virt;
 
 	virt = dma_alloc_coherent(bpmp->dev, sizeof(*data), &phys,
+<<<<<<< HEAD
 				  GFP_KERNEL | GFP_DMA32);
+=======
+				  GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!virt)
 		return ERR_PTR(-ENOMEM);
 
@@ -162,6 +278,12 @@ static struct cpufreq_frequency_table *init_vhint_table(
 		goto free;
 	}
 
+<<<<<<< HEAD
+=======
+	cluster->ref_clk_khz = data->ref_clk_hz / 1000;
+	cluster->div = data->pdiv * data->mdiv;
+
+>>>>>>> upstream/android-13
 	for (i = data->vfloor, j = 0; i <= data->vceil; i++) {
 		struct cpufreq_frequency_table *point;
 		u16 ndiv = data->ndiv[i];
@@ -179,8 +301,12 @@ static struct cpufreq_frequency_table *init_vhint_table(
 
 		point = &table[j++];
 		point->driver_data = edvd_val;
+<<<<<<< HEAD
 		point->frequency = data->ref_clk_hz * ndiv / data->pdiv /
 			data->mdiv / 1000;
+=======
+		point->frequency = (cluster->ref_clk_khz * ndiv) / cluster->div;
+>>>>>>> upstream/android-13
 	}
 
 	table[j].frequency = CPUFREQ_TABLE_END;
@@ -195,43 +321,66 @@ static int tegra186_cpufreq_probe(struct platform_device *pdev)
 {
 	struct tegra186_cpufreq_data *data;
 	struct tegra_bpmp *bpmp;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	unsigned int i = 0, err;
 
 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	data->clusters = devm_kcalloc(&pdev->dev, ARRAY_SIZE(tegra186_clusters),
+=======
+	data->clusters = devm_kcalloc(&pdev->dev, TEGRA186_NUM_CLUSTERS,
+>>>>>>> upstream/android-13
 				      sizeof(*data->clusters), GFP_KERNEL);
 	if (!data->clusters)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	data->num_clusters = ARRAY_SIZE(tegra186_clusters);
+=======
+	data->cpus = tegra186_cpus;
+>>>>>>> upstream/android-13
 
 	bpmp = tegra_bpmp_get(&pdev->dev);
 	if (IS_ERR(bpmp))
 		return PTR_ERR(bpmp);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	data->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	data->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(data->regs)) {
 		err = PTR_ERR(data->regs);
 		goto put_bpmp;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < data->num_clusters; i++) {
 		struct tegra186_cpufreq_cluster *cluster = &data->clusters[i];
 
 		cluster->info = &tegra186_clusters[i];
 		cluster->table = init_vhint_table(
 			pdev, bpmp, cluster->info->bpmp_cluster_id);
+=======
+	for (i = 0; i < TEGRA186_NUM_CLUSTERS; i++) {
+		struct tegra186_cpufreq_cluster *cluster = &data->clusters[i];
+
+		cluster->table = init_vhint_table(pdev, bpmp, cluster, i);
+>>>>>>> upstream/android-13
 		if (IS_ERR(cluster->table)) {
 			err = PTR_ERR(cluster->table);
 			goto put_bpmp;
 		}
 	}
 
+<<<<<<< HEAD
 	tegra_bpmp_put(bpmp);
 
 	tegra186_cpufreq_driver.driver_data = data;
@@ -241,6 +390,11 @@ static int tegra186_cpufreq_probe(struct platform_device *pdev)
 		return err;
 
 	return 0;
+=======
+	tegra186_cpufreq_driver.driver_data = data;
+
+	err = cpufreq_register_driver(&tegra186_cpufreq_driver);
+>>>>>>> upstream/android-13
 
 put_bpmp:
 	tegra_bpmp_put(bpmp);

@@ -1,7 +1,10 @@
 #
 # Broadcom BCM47XX boards
 #
+<<<<<<< HEAD
 platform-$(CONFIG_BCM47XX)	+= bcm47xx/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_BCM47XX)	+=					\
 		-I$(srctree)/arch/mips/include/asm/mach-bcm47xx
 load-$(CONFIG_BCM47XX)		:= 0xffffffff80001000

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -6,11 +10,14 @@
  * Copyright (c) 2010 Nokia Corporation
  * Author: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
  * Copyright (c) 2011 Texas Instruments Incorporated
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "%20s: " fmt, __func__
@@ -107,7 +114,11 @@ static int omap_aes_hw_init(struct omap_aes_dev *dd)
 		dd->err = 0;
 	}
 
+<<<<<<< HEAD
 	err = pm_runtime_get_sync(dd->dev);
+=======
+	err = pm_runtime_resume_and_get(dd->dev);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(dd->dev, "failed to get sync: %d\n", err);
 		return err;
@@ -143,11 +154,19 @@ int omap_aes_write_ctrl(struct omap_aes_dev *dd)
 
 	for (i = 0; i < key32; i++) {
 		omap_aes_write(dd, AES_REG_KEY(dd, i),
+<<<<<<< HEAD
 			__le32_to_cpu(dd->ctx->key[i]));
 	}
 
 	if ((dd->flags & (FLAGS_CBC | FLAGS_CTR)) && dd->req->info)
 		omap_aes_write_n(dd, AES_REG_IV(dd, 0), dd->req->info, 4);
+=======
+			       (__force u32)cpu_to_le32(dd->ctx->key[i]));
+	}
+
+	if ((dd->flags & (FLAGS_CBC | FLAGS_CTR)) && dd->req->iv)
+		omap_aes_write_n(dd, AES_REG_IV(dd, 0), (void *)dd->req->iv, 4);
+>>>>>>> upstream/android-13
 
 	if ((dd->flags & (FLAGS_GCM)) && dd->aead_req->iv) {
 		rctx = aead_request_ctx(dd->aead_req);
@@ -273,13 +292,22 @@ static int omap_aes_crypt_dma(struct omap_aes_dev *dd,
 			      struct scatterlist *out_sg,
 			      int in_sg_len, int out_sg_len)
 {
+<<<<<<< HEAD
 	struct dma_async_tx_descriptor *tx_in, *tx_out;
+=======
+	struct dma_async_tx_descriptor *tx_in, *tx_out = NULL, *cb_desc;
+>>>>>>> upstream/android-13
 	struct dma_slave_config cfg;
 	int ret;
 
 	if (dd->pio_only) {
 		scatterwalk_start(&dd->in_walk, dd->in_sg);
+<<<<<<< HEAD
 		scatterwalk_start(&dd->out_walk, dd->out_sg);
+=======
+		if (out_sg_len)
+			scatterwalk_start(&dd->out_walk, dd->out_sg);
+>>>>>>> upstream/android-13
 
 		/* Enable DATAIN interrupt and let it take
 		   care of the rest */
@@ -316,6 +344,7 @@ static int omap_aes_crypt_dma(struct omap_aes_dev *dd,
 
 	/* No callback necessary */
 	tx_in->callback_param = dd;
+<<<<<<< HEAD
 
 	/* OUT */
 	ret = dmaengine_slave_config(dd->dma_lch_out, &cfg);
@@ -344,6 +373,47 @@ static int omap_aes_crypt_dma(struct omap_aes_dev *dd,
 
 	dma_async_issue_pending(dd->dma_lch_in);
 	dma_async_issue_pending(dd->dma_lch_out);
+=======
+	tx_in->callback = NULL;
+
+	/* OUT */
+	if (out_sg_len) {
+		ret = dmaengine_slave_config(dd->dma_lch_out, &cfg);
+		if (ret) {
+			dev_err(dd->dev, "can't configure OUT dmaengine slave: %d\n",
+				ret);
+			return ret;
+		}
+
+		tx_out = dmaengine_prep_slave_sg(dd->dma_lch_out, out_sg,
+						 out_sg_len,
+						 DMA_DEV_TO_MEM,
+						 DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+		if (!tx_out) {
+			dev_err(dd->dev, "OUT prep_slave_sg() failed\n");
+			return -EINVAL;
+		}
+
+		cb_desc = tx_out;
+	} else {
+		cb_desc = tx_in;
+	}
+
+	if (dd->flags & FLAGS_GCM)
+		cb_desc->callback = omap_aes_gcm_dma_out_callback;
+	else
+		cb_desc->callback = omap_aes_dma_out_callback;
+	cb_desc->callback_param = dd;
+
+
+	dmaengine_submit(tx_in);
+	if (tx_out)
+		dmaengine_submit(tx_out);
+
+	dma_async_issue_pending(dd->dma_lch_in);
+	if (out_sg_len)
+		dma_async_issue_pending(dd->dma_lch_out);
+>>>>>>> upstream/android-13
 
 	/* start DMA */
 	dd->pdata->trigger(dd, dd->total);
@@ -355,7 +425,11 @@ int omap_aes_crypt_dma_start(struct omap_aes_dev *dd)
 {
 	int err;
 
+<<<<<<< HEAD
 	pr_debug("total: %d\n", dd->total);
+=======
+	pr_debug("total: %zu\n", dd->total);
+>>>>>>> upstream/android-13
 
 	if (!dd->pio_only) {
 		err = dma_map_sg(dd->dev, dd->in_sg, dd->in_sg_len,
@@ -365,11 +439,21 @@ int omap_aes_crypt_dma_start(struct omap_aes_dev *dd)
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		err = dma_map_sg(dd->dev, dd->out_sg, dd->out_sg_len,
 				 DMA_FROM_DEVICE);
 		if (!err) {
 			dev_err(dd->dev, "dma_map_sg() error\n");
 			return -EINVAL;
+=======
+		if (dd->out_sg_len) {
+			err = dma_map_sg(dd->dev, dd->out_sg, dd->out_sg_len,
+					 DMA_FROM_DEVICE);
+			if (!err) {
+				dev_err(dd->dev, "dma_map_sg() error\n");
+				return -EINVAL;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -377,8 +461,14 @@ int omap_aes_crypt_dma_start(struct omap_aes_dev *dd)
 				 dd->out_sg_len);
 	if (err && !dd->pio_only) {
 		dma_unmap_sg(dd->dev, dd->in_sg, dd->in_sg_len, DMA_TO_DEVICE);
+<<<<<<< HEAD
 		dma_unmap_sg(dd->dev, dd->out_sg, dd->out_sg_len,
 			     DMA_FROM_DEVICE);
+=======
+		if (dd->out_sg_len)
+			dma_unmap_sg(dd->dev, dd->out_sg, dd->out_sg_len,
+				     DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -386,11 +476,19 @@ int omap_aes_crypt_dma_start(struct omap_aes_dev *dd)
 
 static void omap_aes_finish_req(struct omap_aes_dev *dd, int err)
 {
+<<<<<<< HEAD
 	struct ablkcipher_request *req = dd->req;
 
 	pr_debug("err: %d\n", err);
 
 	crypto_finalize_ablkcipher_request(dd->engine, req, err);
+=======
+	struct skcipher_request *req = dd->req;
+
+	pr_debug("err: %d\n", err);
+
+	crypto_finalize_skcipher_request(dd->engine, req, err);
+>>>>>>> upstream/android-13
 
 	pm_runtime_mark_last_busy(dd->dev);
 	pm_runtime_put_autosuspend(dd->dev);
@@ -398,7 +496,11 @@ static void omap_aes_finish_req(struct omap_aes_dev *dd, int err)
 
 int omap_aes_crypt_dma_stop(struct omap_aes_dev *dd)
 {
+<<<<<<< HEAD
 	pr_debug("total: %d\n", dd->total);
+=======
+	pr_debug("total: %zu\n", dd->total);
+>>>>>>> upstream/android-13
 
 	omap_aes_dma_stop(dd);
 
@@ -407,10 +509,17 @@ int omap_aes_crypt_dma_stop(struct omap_aes_dev *dd)
 }
 
 static int omap_aes_handle_queue(struct omap_aes_dev *dd,
+<<<<<<< HEAD
 				 struct ablkcipher_request *req)
 {
 	if (req)
 		return crypto_transfer_ablkcipher_request_to_engine(dd->engine, req);
+=======
+				 struct skcipher_request *req)
+{
+	if (req)
+		return crypto_transfer_skcipher_request_to_engine(dd->engine, req);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -418,10 +527,17 @@ static int omap_aes_handle_queue(struct omap_aes_dev *dd,
 static int omap_aes_prepare_req(struct crypto_engine *engine,
 				void *areq)
 {
+<<<<<<< HEAD
 	struct ablkcipher_request *req = container_of(areq, struct ablkcipher_request, base);
 	struct omap_aes_ctx *ctx = crypto_ablkcipher_ctx(
 			crypto_ablkcipher_reqtfm(req));
 	struct omap_aes_reqctx *rctx = ablkcipher_request_ctx(req);
+=======
+	struct skcipher_request *req = container_of(areq, struct skcipher_request, base);
+	struct omap_aes_ctx *ctx = crypto_skcipher_ctx(
+			crypto_skcipher_reqtfm(req));
+	struct omap_aes_reqctx *rctx = skcipher_request_ctx(req);
+>>>>>>> upstream/android-13
 	struct omap_aes_dev *dd = rctx->dd;
 	int ret;
 	u16 flags;
@@ -431,8 +547,13 @@ static int omap_aes_prepare_req(struct crypto_engine *engine,
 
 	/* assign new request to device */
 	dd->req = req;
+<<<<<<< HEAD
 	dd->total = req->nbytes;
 	dd->total_save = req->nbytes;
+=======
+	dd->total = req->cryptlen;
+	dd->total_save = req->cryptlen;
+>>>>>>> upstream/android-13
 	dd->in_sg = req->src;
 	dd->out_sg = req->dst;
 	dd->orig_out = req->dst;
@@ -473,8 +594,13 @@ static int omap_aes_prepare_req(struct crypto_engine *engine,
 static int omap_aes_crypt_req(struct crypto_engine *engine,
 			      void *areq)
 {
+<<<<<<< HEAD
 	struct ablkcipher_request *req = container_of(areq, struct ablkcipher_request, base);
 	struct omap_aes_reqctx *rctx = ablkcipher_request_ctx(req);
+=======
+	struct skcipher_request *req = container_of(areq, struct skcipher_request, base);
+	struct omap_aes_reqctx *rctx = skcipher_request_ctx(req);
+>>>>>>> upstream/android-13
 	struct omap_aes_dev *dd = rctx->dd;
 
 	if (!dd)
@@ -483,6 +609,17 @@ static int omap_aes_crypt_req(struct crypto_engine *engine,
 	return omap_aes_crypt_dma_start(dd);
 }
 
+<<<<<<< HEAD
+=======
+static void omap_aes_copy_ivout(struct omap_aes_dev *dd, u8 *ivbuf)
+{
+	int i;
+
+	for (i = 0; i < 4; i++)
+		((u32 *)ivbuf)[i] = omap_aes_read(dd, AES_REG_IV(dd, i));
+}
+
+>>>>>>> upstream/android-13
 static void omap_aes_done_task(unsigned long data)
 {
 	struct omap_aes_dev *dd = (struct omap_aes_dev *)data;
@@ -498,17 +635,31 @@ static void omap_aes_done_task(unsigned long data)
 		omap_aes_crypt_dma_stop(dd);
 	}
 
+<<<<<<< HEAD
 	omap_crypto_cleanup(dd->in_sgl, NULL, 0, dd->total_save,
 			    FLAGS_IN_DATA_ST_SHIFT, dd->flags);
 
 	omap_crypto_cleanup(&dd->out_sgl, dd->orig_out, 0, dd->total_save,
 			    FLAGS_OUT_DATA_ST_SHIFT, dd->flags);
 
+=======
+	omap_crypto_cleanup(dd->in_sg, NULL, 0, dd->total_save,
+			    FLAGS_IN_DATA_ST_SHIFT, dd->flags);
+
+	omap_crypto_cleanup(dd->out_sg, dd->orig_out, 0, dd->total_save,
+			    FLAGS_OUT_DATA_ST_SHIFT, dd->flags);
+
+	/* Update IV output */
+	if (dd->flags & (FLAGS_CBC | FLAGS_CTR))
+		omap_aes_copy_ivout(dd, dd->req->iv);
+
+>>>>>>> upstream/android-13
 	omap_aes_finish_req(dd, 0);
 
 	pr_debug("exit\n");
 }
 
+<<<<<<< HEAD
 static int omap_aes_crypt(struct ablkcipher_request *req, unsigned long mode)
 {
 	struct omap_aes_ctx *ctx = crypto_ablkcipher_ctx(
@@ -536,6 +687,36 @@ static int omap_aes_crypt(struct ablkcipher_request *req, unsigned long mode)
 			ret = crypto_skcipher_decrypt(subreq);
 
 		skcipher_request_zero(subreq);
+=======
+static int omap_aes_crypt(struct skcipher_request *req, unsigned long mode)
+{
+	struct omap_aes_ctx *ctx = crypto_skcipher_ctx(
+			crypto_skcipher_reqtfm(req));
+	struct omap_aes_reqctx *rctx = skcipher_request_ctx(req);
+	struct omap_aes_dev *dd;
+	int ret;
+
+	if ((req->cryptlen % AES_BLOCK_SIZE) && !(mode & FLAGS_CTR))
+		return -EINVAL;
+
+	pr_debug("nbytes: %d, enc: %d, cbc: %d\n", req->cryptlen,
+		  !!(mode & FLAGS_ENCRYPT),
+		  !!(mode & FLAGS_CBC));
+
+	if (req->cryptlen < aes_fallback_sz) {
+		skcipher_request_set_tfm(&rctx->fallback_req, ctx->fallback);
+		skcipher_request_set_callback(&rctx->fallback_req,
+					      req->base.flags,
+					      req->base.complete,
+					      req->base.data);
+		skcipher_request_set_crypt(&rctx->fallback_req, req->src,
+					   req->dst, req->cryptlen, req->iv);
+
+		if (mode & FLAGS_ENCRYPT)
+			ret = crypto_skcipher_encrypt(&rctx->fallback_req);
+		else
+			ret = crypto_skcipher_decrypt(&rctx->fallback_req);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	dd = omap_aes_find_dev(rctx);
@@ -549,10 +730,17 @@ static int omap_aes_crypt(struct ablkcipher_request *req, unsigned long mode)
 
 /* ********************** ALG API ************************************ */
 
+<<<<<<< HEAD
 static int omap_aes_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 			   unsigned int keylen)
 {
 	struct omap_aes_ctx *ctx = crypto_ablkcipher_ctx(tfm);
+=======
+static int omap_aes_setkey(struct crypto_skcipher *tfm, const u8 *key,
+			   unsigned int keylen)
+{
+	struct omap_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (keylen != AES_KEYSIZE_128 && keylen != AES_KEYSIZE_192 &&
@@ -575,32 +763,56 @@ static int omap_aes_setkey(struct crypto_ablkcipher *tfm, const u8 *key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int omap_aes_ecb_encrypt(struct ablkcipher_request *req)
+=======
+static int omap_aes_ecb_encrypt(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return omap_aes_crypt(req, FLAGS_ENCRYPT);
 }
 
+<<<<<<< HEAD
 static int omap_aes_ecb_decrypt(struct ablkcipher_request *req)
+=======
+static int omap_aes_ecb_decrypt(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return omap_aes_crypt(req, 0);
 }
 
+<<<<<<< HEAD
 static int omap_aes_cbc_encrypt(struct ablkcipher_request *req)
+=======
+static int omap_aes_cbc_encrypt(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return omap_aes_crypt(req, FLAGS_ENCRYPT | FLAGS_CBC);
 }
 
+<<<<<<< HEAD
 static int omap_aes_cbc_decrypt(struct ablkcipher_request *req)
+=======
+static int omap_aes_cbc_decrypt(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return omap_aes_crypt(req, FLAGS_CBC);
 }
 
+<<<<<<< HEAD
 static int omap_aes_ctr_encrypt(struct ablkcipher_request *req)
+=======
+static int omap_aes_ctr_encrypt(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return omap_aes_crypt(req, FLAGS_ENCRYPT | FLAGS_CTR);
 }
 
+<<<<<<< HEAD
 static int omap_aes_ctr_decrypt(struct ablkcipher_request *req)
+=======
+static int omap_aes_ctr_decrypt(struct skcipher_request *req)
+>>>>>>> upstream/android-13
 {
 	return omap_aes_crypt(req, FLAGS_CTR);
 }
@@ -610,6 +822,7 @@ static int omap_aes_prepare_req(struct crypto_engine *engine,
 static int omap_aes_crypt_req(struct crypto_engine *engine,
 			      void *req);
 
+<<<<<<< HEAD
 static int omap_aes_cra_init(struct crypto_tfm *tfm)
 {
 	const char *name = crypto_tfm_alg_name(tfm);
@@ -618,12 +831,26 @@ static int omap_aes_cra_init(struct crypto_tfm *tfm)
 	struct crypto_skcipher *blk;
 
 	blk = crypto_alloc_skcipher(name, 0, flags);
+=======
+static int omap_aes_init_tfm(struct crypto_skcipher *tfm)
+{
+	const char *name = crypto_tfm_alg_name(&tfm->base);
+	struct omap_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct crypto_skcipher *blk;
+
+	blk = crypto_alloc_skcipher(name, 0, CRYPTO_ALG_NEED_FALLBACK);
+>>>>>>> upstream/android-13
 	if (IS_ERR(blk))
 		return PTR_ERR(blk);
 
 	ctx->fallback = blk;
 
+<<<<<<< HEAD
 	tfm->crt_ablkcipher.reqsize = sizeof(struct omap_aes_reqctx);
+=======
+	crypto_skcipher_set_reqsize(tfm, sizeof(struct omap_aes_reqctx) +
+					 crypto_skcipher_reqsize(blk));
+>>>>>>> upstream/android-13
 
 	ctx->enginectx.op.prepare_request = omap_aes_prepare_req;
 	ctx->enginectx.op.unprepare_request = NULL;
@@ -632,6 +859,7 @@ static int omap_aes_cra_init(struct crypto_tfm *tfm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int omap_aes_gcm_cra_init(struct crypto_aead *tfm)
 {
 	struct omap_aes_dev *dd = NULL;
@@ -665,6 +893,11 @@ static int omap_aes_gcm_cra_init(struct crypto_aead *tfm)
 static void omap_aes_cra_exit(struct crypto_tfm *tfm)
 {
 	struct omap_aes_ctx *ctx = crypto_tfm_ctx(tfm);
+=======
+static void omap_aes_exit_tfm(struct crypto_skcipher *tfm)
+{
+	struct omap_aes_ctx *ctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 
 	if (ctx->fallback)
 		crypto_free_skcipher(ctx->fallback);
@@ -672,6 +905,7 @@ static void omap_aes_cra_exit(struct crypto_tfm *tfm)
 	ctx->fallback = NULL;
 }
 
+<<<<<<< HEAD
 static void omap_aes_gcm_cra_exit(struct crypto_aead *tfm)
 {
 	struct omap_aes_ctx *ctx = crypto_aead_ctx(tfm);
@@ -757,6 +991,73 @@ static struct crypto_alg algs_ctr[] = {
 		.decrypt	= omap_aes_ctr_decrypt,
 	}
 } ,
+=======
+/* ********************** ALGS ************************************ */
+
+static struct skcipher_alg algs_ecb_cbc[] = {
+{
+	.base.cra_name		= "ecb(aes)",
+	.base.cra_driver_name	= "ecb-aes-omap",
+	.base.cra_priority	= 300,
+	.base.cra_flags		= CRYPTO_ALG_KERN_DRIVER_ONLY |
+				  CRYPTO_ALG_ASYNC |
+				  CRYPTO_ALG_NEED_FALLBACK,
+	.base.cra_blocksize	= AES_BLOCK_SIZE,
+	.base.cra_ctxsize	= sizeof(struct omap_aes_ctx),
+	.base.cra_module	= THIS_MODULE,
+
+	.min_keysize		= AES_MIN_KEY_SIZE,
+	.max_keysize		= AES_MAX_KEY_SIZE,
+	.setkey			= omap_aes_setkey,
+	.encrypt		= omap_aes_ecb_encrypt,
+	.decrypt		= omap_aes_ecb_decrypt,
+	.init			= omap_aes_init_tfm,
+	.exit			= omap_aes_exit_tfm,
+},
+{
+	.base.cra_name		= "cbc(aes)",
+	.base.cra_driver_name	= "cbc-aes-omap",
+	.base.cra_priority	= 300,
+	.base.cra_flags		= CRYPTO_ALG_KERN_DRIVER_ONLY |
+				  CRYPTO_ALG_ASYNC |
+				  CRYPTO_ALG_NEED_FALLBACK,
+	.base.cra_blocksize	= AES_BLOCK_SIZE,
+	.base.cra_ctxsize	= sizeof(struct omap_aes_ctx),
+	.base.cra_module	= THIS_MODULE,
+
+	.min_keysize		= AES_MIN_KEY_SIZE,
+	.max_keysize		= AES_MAX_KEY_SIZE,
+	.ivsize			= AES_BLOCK_SIZE,
+	.setkey			= omap_aes_setkey,
+	.encrypt		= omap_aes_cbc_encrypt,
+	.decrypt		= omap_aes_cbc_decrypt,
+	.init			= omap_aes_init_tfm,
+	.exit			= omap_aes_exit_tfm,
+}
+};
+
+static struct skcipher_alg algs_ctr[] = {
+{
+	.base.cra_name		= "ctr(aes)",
+	.base.cra_driver_name	= "ctr-aes-omap",
+	.base.cra_priority	= 300,
+	.base.cra_flags		= CRYPTO_ALG_KERN_DRIVER_ONLY |
+				  CRYPTO_ALG_ASYNC |
+				  CRYPTO_ALG_NEED_FALLBACK,
+	.base.cra_blocksize	= 1,
+	.base.cra_ctxsize	= sizeof(struct omap_aes_ctx),
+	.base.cra_module	= THIS_MODULE,
+
+	.min_keysize		= AES_MIN_KEY_SIZE,
+	.max_keysize		= AES_MAX_KEY_SIZE,
+	.ivsize			= AES_BLOCK_SIZE,
+	.setkey			= omap_aes_setkey,
+	.encrypt		= omap_aes_ctr_encrypt,
+	.decrypt		= omap_aes_ctr_decrypt,
+	.init			= omap_aes_init_tfm,
+	.exit			= omap_aes_exit_tfm,
+}
+>>>>>>> upstream/android-13
 };
 
 static struct omap_aes_algs_info omap_aes_algs_info_ecb_cbc[] = {
@@ -775,15 +1076,26 @@ static struct aead_alg algs_aead_gcm[] = {
 		.cra_flags		= CRYPTO_ALG_ASYNC |
 					  CRYPTO_ALG_KERN_DRIVER_ONLY,
 		.cra_blocksize		= 1,
+<<<<<<< HEAD
 		.cra_ctxsize		= sizeof(struct omap_aes_ctx),
+=======
+		.cra_ctxsize		= sizeof(struct omap_aes_gcm_ctx),
+>>>>>>> upstream/android-13
 		.cra_alignmask		= 0xf,
 		.cra_module		= THIS_MODULE,
 	},
 	.init		= omap_aes_gcm_cra_init,
+<<<<<<< HEAD
 	.exit		= omap_aes_gcm_cra_exit,
 	.ivsize		= GCM_AES_IV_SIZE,
 	.maxauthsize	= AES_BLOCK_SIZE,
 	.setkey		= omap_aes_gcm_setkey,
+=======
+	.ivsize		= GCM_AES_IV_SIZE,
+	.maxauthsize	= AES_BLOCK_SIZE,
+	.setkey		= omap_aes_gcm_setkey,
+	.setauthsize	= omap_aes_gcm_setauthsize,
+>>>>>>> upstream/android-13
 	.encrypt	= omap_aes_gcm_encrypt,
 	.decrypt	= omap_aes_gcm_decrypt,
 },
@@ -795,15 +1107,26 @@ static struct aead_alg algs_aead_gcm[] = {
 		.cra_flags		= CRYPTO_ALG_ASYNC |
 					  CRYPTO_ALG_KERN_DRIVER_ONLY,
 		.cra_blocksize		= 1,
+<<<<<<< HEAD
 		.cra_ctxsize		= sizeof(struct omap_aes_ctx),
+=======
+		.cra_ctxsize		= sizeof(struct omap_aes_gcm_ctx),
+>>>>>>> upstream/android-13
 		.cra_alignmask		= 0xf,
 		.cra_module		= THIS_MODULE,
 	},
 	.init		= omap_aes_gcm_cra_init,
+<<<<<<< HEAD
 	.exit		= omap_aes_gcm_cra_exit,
 	.maxauthsize	= AES_BLOCK_SIZE,
 	.ivsize		= GCM_RFC4106_IV_SIZE,
 	.setkey		= omap_aes_4106gcm_setkey,
+=======
+	.maxauthsize	= AES_BLOCK_SIZE,
+	.ivsize		= GCM_RFC4106_IV_SIZE,
+	.setkey		= omap_aes_4106gcm_setkey,
+	.setauthsize	= omap_aes_4106gcm_setauthsize,
+>>>>>>> upstream/android-13
 	.encrypt	= omap_aes_4106gcm_encrypt,
 	.decrypt	= omap_aes_4106gcm_decrypt,
 },
@@ -1127,7 +1450,11 @@ static int omap_aes_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct omap_aes_dev *dd;
+<<<<<<< HEAD
 	struct crypto_alg *algp;
+=======
+	struct skcipher_alg *algp;
+>>>>>>> upstream/android-13
 	struct aead_alg *aalg;
 	struct resource res;
 	int err = -ENOMEM, i, j, irq = -1;
@@ -1159,7 +1486,11 @@ static int omap_aes_probe(struct platform_device *pdev)
 	pm_runtime_set_autosuspend_delay(dev, DEFAULT_AUTOSUSPEND_DELAY);
 
 	pm_runtime_enable(dev);
+<<<<<<< HEAD
 	err = pm_runtime_get_sync(dev);
+=======
+	err = pm_runtime_resume_and_get(dev);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(dev, "%s: failed to get_sync(%d)\n",
 			__func__, err);
@@ -1186,7 +1517,10 @@ static int omap_aes_probe(struct platform_device *pdev)
 
 		irq = platform_get_irq(pdev, 0);
 		if (irq < 0) {
+<<<<<<< HEAD
 			dev_err(dev, "can't get IRQ resource\n");
+=======
+>>>>>>> upstream/android-13
 			err = irq;
 			goto err_irq;
 		}
@@ -1202,9 +1536,15 @@ static int omap_aes_probe(struct platform_device *pdev)
 	spin_lock_init(&dd->lock);
 
 	INIT_LIST_HEAD(&dd->list);
+<<<<<<< HEAD
 	spin_lock(&list_lock);
 	list_add_tail(&dd->list, &dev_list);
 	spin_unlock(&list_lock);
+=======
+	spin_lock_bh(&list_lock);
+	list_add_tail(&dd->list, &dev_list);
+	spin_unlock_bh(&list_lock);
+>>>>>>> upstream/android-13
 
 	/* Initialize crypto engine */
 	dd->engine = crypto_engine_alloc_init(dev, 1);
@@ -1222,10 +1562,16 @@ static int omap_aes_probe(struct platform_device *pdev)
 			for (j = 0; j < dd->pdata->algs_info[i].size; j++) {
 				algp = &dd->pdata->algs_info[i].algs_list[j];
 
+<<<<<<< HEAD
 				pr_debug("reg alg: %s\n", algp->cra_name);
 				INIT_LIST_HEAD(&algp->cra_list);
 
 				err = crypto_register_alg(algp);
+=======
+				pr_debug("reg alg: %s\n", algp->base.cra_name);
+
+				err = crypto_register_skcipher(algp);
+>>>>>>> upstream/android-13
 				if (err)
 					goto err_algs;
 
@@ -1238,10 +1584,15 @@ static int omap_aes_probe(struct platform_device *pdev)
 	    !dd->pdata->aead_algs_info->registered) {
 		for (i = 0; i < dd->pdata->aead_algs_info->size; i++) {
 			aalg = &dd->pdata->aead_algs_info->algs_list[i];
+<<<<<<< HEAD
 			algp = &aalg->base;
 
 			pr_debug("reg alg: %s\n", algp->cra_name);
 			INIT_LIST_HEAD(&algp->cra_list);
+=======
+
+			pr_debug("reg alg: %s\n", aalg->base.cra_name);
+>>>>>>> upstream/android-13
 
 			err = crypto_register_aead(aalg);
 			if (err)
@@ -1266,7 +1617,11 @@ err_aead_algs:
 err_algs:
 	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
 		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--)
+<<<<<<< HEAD
 			crypto_unregister_alg(
+=======
+			crypto_unregister_skcipher(
+>>>>>>> upstream/android-13
 					&dd->pdata->algs_info[i].algs_list[j]);
 
 err_engine:
@@ -1294,6 +1649,7 @@ static int omap_aes_remove(struct platform_device *pdev)
 	if (!dd)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	spin_lock(&list_lock);
 	list_del(&dd->list);
 	spin_unlock(&list_lock);
@@ -1306,6 +1662,24 @@ static int omap_aes_remove(struct platform_device *pdev)
 	for (i = dd->pdata->aead_algs_info->size - 1; i >= 0; i--) {
 		aalg = &dd->pdata->aead_algs_info->algs_list[i];
 		crypto_unregister_aead(aalg);
+=======
+	spin_lock_bh(&list_lock);
+	list_del(&dd->list);
+	spin_unlock_bh(&list_lock);
+
+	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
+		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--) {
+			crypto_unregister_skcipher(
+					&dd->pdata->algs_info[i].algs_list[j]);
+			dd->pdata->algs_info[i].registered--;
+		}
+
+	for (i = dd->pdata->aead_algs_info->registered - 1; i >= 0; i--) {
+		aalg = &dd->pdata->aead_algs_info->algs_list[i];
+		crypto_unregister_aead(aalg);
+		dd->pdata->aead_algs_info->registered--;
+
+>>>>>>> upstream/android-13
 	}
 
 	crypto_engine_exit(dd->engine);
@@ -1313,7 +1687,12 @@ static int omap_aes_remove(struct platform_device *pdev)
 	tasklet_kill(&dd->done_task);
 	omap_aes_dma_cleanup(dd);
 	pm_runtime_disable(dd->dev);
+<<<<<<< HEAD
 	dd = NULL;
+=======
+
+	sysfs_remove_group(&dd->dev->kobj, &omap_aes_attr_group);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

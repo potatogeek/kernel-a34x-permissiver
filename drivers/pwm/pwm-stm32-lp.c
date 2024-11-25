@@ -13,6 +13,10 @@
 #include <linux/mfd/stm32-lptimer.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pwm.h>
 
@@ -31,7 +35,11 @@ static inline struct stm32_pwm_lp *to_stm32_pwm_lp(struct pwm_chip *chip)
 #define STM32_LPTIM_MAX_PRESCALER	128
 
 static int stm32_pwm_lp_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+<<<<<<< HEAD
 			      struct pwm_state *state)
+=======
+			      const struct pwm_state *state)
+>>>>>>> upstream/android-13
 {
 	struct stm32_pwm_lp *priv = to_stm32_pwm_lp(chip);
 	unsigned long long prd, div, dty;
@@ -60,7 +68,11 @@ static int stm32_pwm_lp_apply(struct pwm_chip *chip, struct pwm_device *pwm,
 	do_div(div, NSEC_PER_SEC);
 	if (!div) {
 		/* Clock is too slow to achieve requested period. */
+<<<<<<< HEAD
 		dev_dbg(priv->chip.dev, "Can't reach %u ns\n",	state->period);
+=======
+		dev_dbg(priv->chip.dev, "Can't reach %llu ns\n", state->period);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -204,6 +216,7 @@ static int stm32_pwm_lp_probe(struct platform_device *pdev)
 
 	priv->regmap = ddata->regmap;
 	priv->clk = ddata->clk;
+<<<<<<< HEAD
 	priv->chip.base = -1;
 	priv->chip.dev = &pdev->dev;
 	priv->chip.ops = &stm32_pwm_lp_ops;
@@ -212,6 +225,13 @@ static int stm32_pwm_lp_probe(struct platform_device *pdev)
 	priv->chip.of_pwm_n_cells = 3;
 
 	ret = pwmchip_add(&priv->chip);
+=======
+	priv->chip.dev = &pdev->dev;
+	priv->chip.ops = &stm32_pwm_lp_ops;
+	priv->chip.npwm = 1;
+
+	ret = devm_pwmchip_add(&pdev->dev, &priv->chip);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -220,6 +240,7 @@ static int stm32_pwm_lp_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int stm32_pwm_lp_remove(struct platform_device *pdev)
 {
 	struct stm32_pwm_lp *priv = platform_get_drvdata(pdev);
@@ -229,6 +250,31 @@ static int stm32_pwm_lp_remove(struct platform_device *pdev)
 	return pwmchip_remove(&priv->chip);
 }
 
+=======
+static int __maybe_unused stm32_pwm_lp_suspend(struct device *dev)
+{
+	struct stm32_pwm_lp *priv = dev_get_drvdata(dev);
+	struct pwm_state state;
+
+	pwm_get_state(&priv->chip.pwms[0], &state);
+	if (state.enabled) {
+		dev_err(dev, "The consumer didn't stop us (%s)\n",
+			priv->chip.pwms[0].label);
+		return -EBUSY;
+	}
+
+	return pinctrl_pm_select_sleep_state(dev);
+}
+
+static int __maybe_unused stm32_pwm_lp_resume(struct device *dev)
+{
+	return pinctrl_pm_select_default_state(dev);
+}
+
+static SIMPLE_DEV_PM_OPS(stm32_pwm_lp_pm_ops, stm32_pwm_lp_suspend,
+			 stm32_pwm_lp_resume);
+
+>>>>>>> upstream/android-13
 static const struct of_device_id stm32_pwm_lp_of_match[] = {
 	{ .compatible = "st,stm32-pwm-lp", },
 	{},
@@ -237,10 +283,17 @@ MODULE_DEVICE_TABLE(of, stm32_pwm_lp_of_match);
 
 static struct platform_driver stm32_pwm_lp_driver = {
 	.probe	= stm32_pwm_lp_probe,
+<<<<<<< HEAD
 	.remove	= stm32_pwm_lp_remove,
 	.driver	= {
 		.name = "stm32-pwm-lp",
 		.of_match_table = of_match_ptr(stm32_pwm_lp_of_match),
+=======
+	.driver	= {
+		.name = "stm32-pwm-lp",
+		.of_match_table = of_match_ptr(stm32_pwm_lp_of_match),
+		.pm = &stm32_pwm_lp_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(stm32_pwm_lp_driver);

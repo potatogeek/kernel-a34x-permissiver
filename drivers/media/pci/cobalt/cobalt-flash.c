@@ -69,7 +69,11 @@ static void flash_copy_to(struct map_info *map, unsigned long to,
 
 	pr_info("%s: offset 0x%x: length %zu\n", __func__, dest, len);
 	while (len) {
+<<<<<<< HEAD
 		u16 data = 0xffff;
+=======
+		u16 data;
+>>>>>>> upstream/android-13
 
 		do {
 			data = *src << (8 * (dest & 1));

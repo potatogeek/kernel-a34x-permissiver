@@ -15,12 +15,32 @@
 #   $2 - kernel image file
 #   $3 - kernel map file
 #   $4 - default install path (blank if root directory)
+<<<<<<< HEAD
 #   $5 and more - kernel boot files; zImage*, uImage, cuImage.*, etc.
+=======
+>>>>>>> upstream/android-13
 #
 
 # Bail with error code if anything goes wrong
 set -e
 
+<<<<<<< HEAD
+=======
+verify () {
+	if [ ! -f "$1" ]; then
+		echo ""                                                   1>&2
+		echo " *** Missing file: $1"                              1>&2
+		echo ' *** You need to run "make" before "make install".' 1>&2
+		echo ""                                                   1>&2
+		exit 1
+	fi
+}
+
+# Make sure the files actually exist
+verify "$2"
+verify "$3"
+
+>>>>>>> upstream/android-13
 # User may have a custom install script
 
 if [ -x ~/bin/${INSTALLKERNEL} ]; then exec ~/bin/${INSTALLKERNEL} "$@"; fi
@@ -41,6 +61,7 @@ fi
 
 cat $2 > $4/$image_name
 cp $3 $4/System.map
+<<<<<<< HEAD
 
 # Copy all the bootable image files
 path=$4
@@ -53,3 +74,5 @@ while [ $# -ne 0 ]; do
 	cat $1 > $path/$image_name
 	shift
 done;
+=======
+>>>>>>> upstream/android-13

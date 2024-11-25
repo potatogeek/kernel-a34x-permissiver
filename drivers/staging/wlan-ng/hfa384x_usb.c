@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: (GPL-2.0 OR MPL-1.1)
 /* src/prism2/driver/hfa384x_usb.c
  *
+<<<<<<< HEAD
  * Functions that talk to the USB variantof the Intersil hfa384x MAC
+=======
+ * Functions that talk to the USB variant of the Intersil hfa384x MAC
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 1999 AbsoluteValue Systems, Inc.  All Rights Reserved.
  * --------------------------------------------------------------------
@@ -191,9 +195,15 @@ static void hfa384x_usbctlx_resptimerfn(struct timer_list *t);
 
 static void hfa384x_usb_throttlefn(struct timer_list *t);
 
+<<<<<<< HEAD
 static void hfa384x_usbctlx_completion_task(unsigned long data);
 
 static void hfa384x_usbctlx_reaper_task(unsigned long data);
+=======
+static void hfa384x_usbctlx_completion_task(struct tasklet_struct *t);
+
+static void hfa384x_usbctlx_reaper_task(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 
 static int hfa384x_usbctlx_submit(struct hfa384x *hw,
 				  struct hfa384x_usbctlx *ctlx);
@@ -226,11 +236,17 @@ usbctlx_get_rridresult(const struct hfa384x_usb_rridresp *rridresp,
 
 /*---------------------------------------------------*/
 /* Low level req/resp CTLX formatters and submitters */
+<<<<<<< HEAD
 static int
 hfa384x_docmd(struct hfa384x *hw,
 	      enum cmd_mode mode,
 	      struct hfa384x_metacmd *cmd,
 	      ctlx_cmdcb_t cmdcb, ctlx_usercb_t usercb, void *usercb_data);
+=======
+static inline int
+hfa384x_docmd(struct hfa384x *hw,
+	      struct hfa384x_metacmd *cmd);
+>>>>>>> upstream/android-13
 
 static int
 hfa384x_dorrid(struct hfa384x *hw,
@@ -250,6 +266,7 @@ hfa384x_dowrid(struct hfa384x *hw,
 
 static int
 hfa384x_dormem(struct hfa384x *hw,
+<<<<<<< HEAD
 	       enum cmd_mode mode,
 	       u16 page,
 	       u16 offset,
@@ -265,6 +282,19 @@ hfa384x_dowmem(struct hfa384x *hw,
 	       void *data,
 	       unsigned int len,
 	       ctlx_cmdcb_t cmdcb, ctlx_usercb_t usercb, void *usercb_data);
+=======
+	       u16 page,
+	       u16 offset,
+	       void *data,
+	       unsigned int len);
+
+static int
+hfa384x_dowmem(struct hfa384x *hw,
+	       u16 page,
+	       u16 offset,
+	       void *data,
+	       unsigned int len);
+>>>>>>> upstream/android-13
 
 static int hfa384x_isgood_pdrcode(u16 pdrcode);
 
@@ -299,13 +329,19 @@ void dbprint_urb(struct urb *urb)
 	pr_debug("urb->transfer_buffer_length=0x%08x\n",
 		 urb->transfer_buffer_length);
 	pr_debug("urb->actual_length=0x%08x\n", urb->actual_length);
+<<<<<<< HEAD
 	pr_debug("urb->bandwidth=0x%08x\n", urb->bandwidth);
+=======
+>>>>>>> upstream/android-13
 	pr_debug("urb->setup_packet(ctl)=0x%08x\n",
 		 (unsigned int)urb->setup_packet);
 	pr_debug("urb->start_frame(iso/irq)=0x%08x\n", urb->start_frame);
 	pr_debug("urb->interval(irq)=0x%08x\n", urb->interval);
 	pr_debug("urb->error_count(iso)=0x%08x\n", urb->error_count);
+<<<<<<< HEAD
 	pr_debug("urb->timeout=0x%08x\n", urb->timeout);
+=======
+>>>>>>> upstream/android-13
 	pr_debug("urb->context=0x%08x\n", (unsigned int)urb->context);
 	pr_debug("urb->complete=0x%08x\n", (unsigned int)urb->complete);
 }
@@ -547,10 +583,15 @@ void hfa384x_create(struct hfa384x *hw, struct usb_device *usb)
 	/* Initialize the authentication queue */
 	skb_queue_head_init(&hw->authq);
 
+<<<<<<< HEAD
 	tasklet_init(&hw->reaper_bh,
 		     hfa384x_usbctlx_reaper_task, (unsigned long)hw);
 	tasklet_init(&hw->completion_bh,
 		     hfa384x_usbctlx_completion_task, (unsigned long)hw);
+=======
+	tasklet_setup(&hw->reaper_bh, hfa384x_usbctlx_reaper_task);
+	tasklet_setup(&hw->completion_bh, hfa384x_usbctlx_completion_task);
+>>>>>>> upstream/android-13
 	INIT_WORK(&hw->link_bh, prism2sta_processing_defer);
 	INIT_WORK(&hw->usb_work, hfa384x_usb_defer);
 
@@ -815,6 +856,7 @@ static void hfa384x_cb_status(struct hfa384x *hw,
 	}
 }
 
+<<<<<<< HEAD
 static inline int hfa384x_docmd_wait(struct hfa384x *hw,
 				     struct hfa384x_metacmd *cmd)
 {
@@ -908,6 +950,8 @@ hfa384x_dowmem_async(struct hfa384x *hw,
 			      cmdcb, usercb, usercb_data);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*----------------------------------------------------------------
  * hfa384x_cmd_initialize
  *
@@ -939,7 +983,11 @@ int hfa384x_cmd_initialize(struct hfa384x *hw)
 	cmd.parm1 = 0;
 	cmd.parm2 = 0;
 
+<<<<<<< HEAD
 	result = hfa384x_docmd_wait(hw, &cmd);
+=======
+	result = hfa384x_docmd(hw, &cmd);
+>>>>>>> upstream/android-13
 
 	pr_debug("cmdresp.init: status=0x%04x, resp0=0x%04x, resp1=0x%04x, resp2=0x%04x\n",
 		 cmd.result.status,
@@ -985,7 +1033,11 @@ int hfa384x_cmd_disable(struct hfa384x *hw, u16 macport)
 	cmd.parm1 = 0;
 	cmd.parm2 = 0;
 
+<<<<<<< HEAD
 	return hfa384x_docmd_wait(hw, &cmd);
+=======
+	return hfa384x_docmd(hw, &cmd);
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------
@@ -1019,7 +1071,11 @@ int hfa384x_cmd_enable(struct hfa384x *hw, u16 macport)
 	cmd.parm1 = 0;
 	cmd.parm2 = 0;
 
+<<<<<<< HEAD
 	return hfa384x_docmd_wait(hw, &cmd);
+=======
+	return hfa384x_docmd(hw, &cmd);
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------
@@ -1062,7 +1118,11 @@ int hfa384x_cmd_monitor(struct hfa384x *hw, u16 enable)
 	cmd.parm1 = 0;
 	cmd.parm2 = 0;
 
+<<<<<<< HEAD
 	return hfa384x_docmd_wait(hw, &cmd);
+=======
+	return hfa384x_docmd(hw, &cmd);
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------
@@ -1119,7 +1179,11 @@ int hfa384x_cmd_download(struct hfa384x *hw, u16 mode, u16 lowaddr,
 	cmd.parm1 = highaddr;
 	cmd.parm2 = codelen;
 
+<<<<<<< HEAD
 	return hfa384x_docmd_wait(hw, &cmd);
+=======
+	return hfa384x_docmd(hw, &cmd);
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------
@@ -1279,6 +1343,7 @@ cleanup:
  *
  * Arguments:
  *	hw		device structure
+<<<<<<< HEAD
  *	mode		DOWAIT or DOASYNC
  *       cmd             cmd structure.  Includes all arguments and result
  *                       data points.  All in host order. in host order
@@ -1286,6 +1351,10 @@ cleanup:
  *	usercb		user callback for async calls, NULL for DOWAIT calls
  *	usercb_data	user supplied data pointer for async calls, NULL
  *			for DOWAIT calls
+=======
+ *       cmd             cmd structure.  Includes all arguments and result
+ *                       data points.  All in host order. in host order
+>>>>>>> upstream/android-13
  *
  * Returns:
  *	0		success
@@ -1301,11 +1370,17 @@ cleanup:
  *	process
  *----------------------------------------------------------------
  */
+<<<<<<< HEAD
 static int
 hfa384x_docmd(struct hfa384x *hw,
 	      enum cmd_mode mode,
 	      struct hfa384x_metacmd *cmd,
 	      ctlx_cmdcb_t cmdcb, ctlx_usercb_t usercb, void *usercb_data)
+=======
+static inline int
+hfa384x_docmd(struct hfa384x *hw,
+	      struct hfa384x_metacmd *cmd)
+>>>>>>> upstream/android-13
 {
 	int result;
 	struct hfa384x_usbctlx *ctlx;
@@ -1328,15 +1403,26 @@ hfa384x_docmd(struct hfa384x *hw,
 	pr_debug("cmdreq: cmd=0x%04x parm0=0x%04x parm1=0x%04x parm2=0x%04x\n",
 		 cmd->cmd, cmd->parm0, cmd->parm1, cmd->parm2);
 
+<<<<<<< HEAD
 	ctlx->reapable = mode;
 	ctlx->cmdcb = cmdcb;
 	ctlx->usercb = usercb;
 	ctlx->usercb_data = usercb_data;
+=======
+	ctlx->reapable = DOWAIT;
+	ctlx->cmdcb = NULL;
+	ctlx->usercb = NULL;
+	ctlx->usercb_data = NULL;
+>>>>>>> upstream/android-13
 
 	result = hfa384x_usbctlx_submit(hw, ctlx);
 	if (result != 0) {
 		kfree(ctlx);
+<<<<<<< HEAD
 	} else if (mode == DOWAIT) {
+=======
+	} else {
+>>>>>>> upstream/android-13
 		struct usbctlx_cmd_completor cmd_completor;
 		struct usbctlx_completor *completor;
 
@@ -1535,14 +1621,20 @@ done:
  *
  * Arguments:
  *	hw		device structure
+<<<<<<< HEAD
  *	mode		DOWAIT or DOASYNC
+=======
+>>>>>>> upstream/android-13
  *	page		MAC address space page (CMD format)
  *	offset		MAC address space offset
  *	data		Ptr to data buffer to receive read
  *	len		Length of the data to read (max == 2048)
+<<<<<<< HEAD
  *	cmdcb		command callback for async calls, NULL for DOWAIT calls
  *	usercb		user callback for async calls, NULL for DOWAIT calls
  *	usercb_data	user supplied data pointer for async calls
+=======
+>>>>>>> upstream/android-13
  *
  * Returns:
  *	0		success
@@ -1554,18 +1646,29 @@ done:
  * Side effects:
  *
  * Call context:
+<<<<<<< HEAD
  *	interrupt (DOASYNC)
  *	process (DOWAIT or DOASYNC)
+=======
+ *	process (DOWAIT)
+>>>>>>> upstream/android-13
  *----------------------------------------------------------------
  */
 static int
 hfa384x_dormem(struct hfa384x *hw,
+<<<<<<< HEAD
 	       enum cmd_mode mode,
 	       u16 page,
 	       u16 offset,
 	       void *data,
 	       unsigned int len,
 	       ctlx_cmdcb_t cmdcb, ctlx_usercb_t usercb, void *usercb_data)
+=======
+	       u16 page,
+	       u16 offset,
+	       void *data,
+	       unsigned int len)
+>>>>>>> upstream/android-13
 {
 	int result;
 	struct hfa384x_usbctlx *ctlx;
@@ -1593,15 +1696,26 @@ hfa384x_dormem(struct hfa384x *hw,
 
 	pr_debug("pktsize=%zd\n", ROUNDUP64(sizeof(ctlx->outbuf.rmemreq)));
 
+<<<<<<< HEAD
 	ctlx->reapable = mode;
 	ctlx->cmdcb = cmdcb;
 	ctlx->usercb = usercb;
 	ctlx->usercb_data = usercb_data;
+=======
+	ctlx->reapable = DOWAIT;
+	ctlx->cmdcb = NULL;
+	ctlx->usercb = NULL;
+	ctlx->usercb_data = NULL;
+>>>>>>> upstream/android-13
 
 	result = hfa384x_usbctlx_submit(hw, ctlx);
 	if (result != 0) {
 		kfree(ctlx);
+<<<<<<< HEAD
 	} else if (mode == DOWAIT) {
+=======
+	} else {
+>>>>>>> upstream/android-13
 		struct usbctlx_rmem_completor completor;
 
 		result =
@@ -1627,14 +1741,20 @@ done:
  *
  * Arguments:
  *	hw		device structure
+<<<<<<< HEAD
  *	mode		DOWAIT or DOASYNC
+=======
+>>>>>>> upstream/android-13
  *	page		MAC address space page (CMD format)
  *	offset		MAC address space offset
  *	data		Ptr to data buffer containing write data
  *	len		Length of the data to read (max == 2048)
+<<<<<<< HEAD
  *	cmdcb		command callback for async calls, NULL for DOWAIT calls
  *	usercb		user callback for async calls, NULL for DOWAIT calls
  *	usercb_data	user supplied data pointer for async calls.
+=======
+>>>>>>> upstream/android-13
  *
  * Returns:
  *	0		success
@@ -1647,17 +1767,28 @@ done:
  *
  * Call context:
  *	interrupt (DOWAIT)
+<<<<<<< HEAD
  *	process (DOWAIT or DOASYNC)
+=======
+ *	process (DOWAIT)
+>>>>>>> upstream/android-13
  *----------------------------------------------------------------
  */
 static int
 hfa384x_dowmem(struct hfa384x *hw,
+<<<<<<< HEAD
 	       enum cmd_mode mode,
 	       u16 page,
 	       u16 offset,
 	       void *data,
 	       unsigned int len,
 	       ctlx_cmdcb_t cmdcb, ctlx_usercb_t usercb, void *usercb_data)
+=======
+	       u16 page,
+	       u16 offset,
+	       void *data,
+	       unsigned int len)
+>>>>>>> upstream/android-13
 {
 	int result;
 	struct hfa384x_usbctlx *ctlx;
@@ -1684,15 +1815,26 @@ hfa384x_dowmem(struct hfa384x *hw,
 	    sizeof(ctlx->outbuf.wmemreq.offset) +
 	    sizeof(ctlx->outbuf.wmemreq.page) + len;
 
+<<<<<<< HEAD
 	ctlx->reapable = mode;
 	ctlx->cmdcb = cmdcb;
 	ctlx->usercb = usercb;
 	ctlx->usercb_data = usercb_data;
+=======
+	ctlx->reapable = DOWAIT;
+	ctlx->cmdcb = NULL;
+	ctlx->usercb = NULL;
+	ctlx->usercb_data = NULL;
+>>>>>>> upstream/android-13
 
 	result = hfa384x_usbctlx_submit(hw, ctlx);
 	if (result != 0) {
 		kfree(ctlx);
+<<<<<<< HEAD
 	} else if (mode == DOWAIT) {
+=======
+	} else {
+>>>>>>> upstream/android-13
 		struct usbctlx_cmd_completor completor;
 		struct hfa384x_cmdresult wmemresult;
 
@@ -1999,10 +2141,17 @@ int hfa384x_drvr_flashdl_write(struct hfa384x *hw, u32 daddr,
 			writelen = writelen > HFA384x_USB_RWMEM_MAXLEN ?
 			    HFA384x_USB_RWMEM_MAXLEN : writelen;
 
+<<<<<<< HEAD
 			result = hfa384x_dowmem_wait(hw,
 						     writepage,
 						     writeoffset,
 						     writebuf, writelen);
+=======
+			result = hfa384x_dowmem(hw,
+						writepage,
+						writeoffset,
+						writebuf, writelen);
+>>>>>>> upstream/android-13
 		}
 
 		/* set the download 'write flash' mode */
@@ -2056,7 +2205,11 @@ exit_proc:
  */
 int hfa384x_drvr_getconfig(struct hfa384x *hw, u16 rid, void *buf, u16 len)
 {
+<<<<<<< HEAD
 	return hfa384x_dorrid_wait(hw, rid, buf, len);
+=======
+	return hfa384x_dorrid(hw, DOWAIT, rid, buf, len, NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------
@@ -2089,8 +2242,13 @@ hfa384x_drvr_setconfig_async(struct hfa384x *hw,
 			     void *buf,
 			     u16 len, ctlx_usercb_t usercb, void *usercb_data)
 {
+<<<<<<< HEAD
 	return hfa384x_dowrid_async(hw, rid, buf, len,
 				    hfa384x_cb_status, usercb, usercb_data);
+=======
+	return hfa384x_dowrid(hw, DOASYNC, rid, buf, len, hfa384x_cb_status,
+			      usercb, usercb_data);
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------
@@ -2256,12 +2414,20 @@ int hfa384x_drvr_ramdl_write(struct hfa384x *hw, u32 daddr, void *buf, u32 len)
 			currlen = HFA384x_USB_RWMEM_MAXLEN;
 
 		/* Do blocking ctlx */
+<<<<<<< HEAD
 		result = hfa384x_dowmem_wait(hw,
 					     currpage,
 					     curroffset,
 					     data +
 					     (i * HFA384x_USB_RWMEM_MAXLEN),
 					     currlen);
+=======
+		result = hfa384x_dowmem(hw,
+					currpage,
+					curroffset,
+					data + (i * HFA384x_USB_RWMEM_MAXLEN),
+					currlen);
+>>>>>>> upstream/android-13
 
 		if (result)
 			break;
@@ -2333,8 +2499,13 @@ int hfa384x_drvr_readpda(struct hfa384x *hw, void *buf, unsigned int len)
 		curroffset = HFA384x_ADDR_CMD_MKOFF(pdaloc[i].cardaddr);
 
 		/* units of bytes */
+<<<<<<< HEAD
 		result = hfa384x_dormem_wait(hw, currpage, curroffset, buf,
 					     len);
+=======
+		result = hfa384x_dormem(hw, currpage, curroffset, buf,
+					len);
+>>>>>>> upstream/android-13
 
 		if (result) {
 			netdev_warn(hw->wlandev->netdev,
@@ -2417,7 +2588,11 @@ int hfa384x_drvr_readpda(struct hfa384x *hw, void *buf, unsigned int len)
  */
 int hfa384x_drvr_setconfig(struct hfa384x *hw, u16 rid, void *buf, u16 len)
 {
+<<<<<<< HEAD
 	return hfa384x_dowrid_wait(hw, rid, buf, len);
+=======
+	return hfa384x_dowrid(hw, DOWAIT, rid, buf, len, NULL, NULL, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*----------------------------------------------------------------
@@ -2596,7 +2771,11 @@ int hfa384x_drvr_stop(struct hfa384x *hw)
  *----------------------------------------------------------------
  */
 int hfa384x_drvr_txframe(struct hfa384x *hw, struct sk_buff *skb,
+<<<<<<< HEAD
 			 union p80211_hdr *p80211_hdr,
+=======
+			 struct p80211_hdr *p80211_hdr,
+>>>>>>> upstream/android-13
 			 struct p80211_metawep *p80211_wep)
 {
 	int usbpktlen = sizeof(struct hfa384x_tx_frame);
@@ -2640,8 +2819,12 @@ int hfa384x_drvr_txframe(struct hfa384x *hw, struct sk_buff *skb,
 	cpu_to_le16s(&hw->txbuff.txfrm.desc.tx_control);
 
 	/* copy the header over to the txdesc */
+<<<<<<< HEAD
 	memcpy(&hw->txbuff.txfrm.desc.frame_control, p80211_hdr,
 	       sizeof(union p80211_hdr));
+=======
+	hw->txbuff.txfrm.desc.hdr = *p80211_hdr;
+>>>>>>> upstream/android-13
 
 	/* if we're using host WEP, increase size by IV+ICV */
 	if (p80211_wep->data) {
@@ -2721,9 +2904,15 @@ void hfa384x_tx_timeout(struct wlandevice *wlandev)
  *	Interrupt
  *----------------------------------------------------------------
  */
+<<<<<<< HEAD
 static void hfa384x_usbctlx_reaper_task(unsigned long data)
 {
 	struct hfa384x *hw = (struct hfa384x *)data;
+=======
+static void hfa384x_usbctlx_reaper_task(struct tasklet_struct *t)
+{
+	struct hfa384x *hw = from_tasklet(hw, t, reaper_bh);
+>>>>>>> upstream/android-13
 	struct hfa384x_usbctlx *ctlx, *temp;
 	unsigned long flags;
 
@@ -2755,9 +2944,15 @@ static void hfa384x_usbctlx_reaper_task(unsigned long data)
  *	Interrupt
  *----------------------------------------------------------------
  */
+<<<<<<< HEAD
 static void hfa384x_usbctlx_completion_task(unsigned long data)
 {
 	struct hfa384x *hw = (struct hfa384x *)data;
+=======
+static void hfa384x_usbctlx_completion_task(struct tasklet_struct *t)
+{
+	struct hfa384x *hw = from_tasklet(hw, t, completion_bh);
+>>>>>>> upstream/android-13
 	struct hfa384x_usbctlx *ctlx, *temp;
 	unsigned long flags;
 
@@ -3371,15 +3566,27 @@ static void hfa384x_usbin_rx(struct wlandevice *wlandev, struct sk_buff *skb)
 	struct p80211_rxmeta *rxmeta;
 	u16 data_len;
 	u16 fc;
+<<<<<<< HEAD
+=======
+	u16 status;
+>>>>>>> upstream/android-13
 
 	/* Byte order convert once up front. */
 	le16_to_cpus(&usbin->rxfrm.desc.status);
 	le32_to_cpus(&usbin->rxfrm.desc.time);
 
 	/* Now handle frame based on port# */
+<<<<<<< HEAD
 	switch (HFA384x_RXSTATUS_MACPORT_GET(usbin->rxfrm.desc.status)) {
 	case 0:
 		fc = le16_to_cpu(usbin->rxfrm.desc.frame_control);
+=======
+	status = HFA384x_RXSTATUS_MACPORT_GET(usbin->rxfrm.desc.status);
+
+	switch (status) {
+	case 0:
+		fc = le16_to_cpu(usbin->rxfrm.desc.hdr.frame_control);
+>>>>>>> upstream/android-13
 
 		/* If exclude and we receive an unencrypted, drop it */
 		if ((wlandev->hostwep & HOSTWEP_EXCLUDEUNENCRYPTED) &&
@@ -3399,7 +3606,11 @@ static void hfa384x_usbin_rx(struct wlandevice *wlandev, struct sk_buff *skb)
 		 * with an "overlapping" copy
 		 */
 		memmove(skb_push(skb, hdrlen),
+<<<<<<< HEAD
 			&usbin->rxfrm.desc.frame_control, hdrlen);
+=======
+			&usbin->rxfrm.desc.hdr, hdrlen);
+>>>>>>> upstream/android-13
 
 		skb->dev = wlandev->netdev;
 
@@ -3434,8 +3645,14 @@ static void hfa384x_usbin_rx(struct wlandevice *wlandev, struct sk_buff *skb)
 		break;
 
 	default:
+<<<<<<< HEAD
 		netdev_warn(hw->wlandev->netdev, "Received frame on unsupported port=%d\n",
 			    HFA384x_RXSTATUS_MACPORT_GET(usbin->rxfrm.desc.status));
+=======
+		netdev_warn(hw->wlandev->netdev,
+			    "Received frame on unsupported port=%d\n",
+			    status);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -3476,7 +3693,11 @@ static void hfa384x_int_rxmonitor(struct wlandevice *wlandev,
 
 	/* Remember the status, time, and data_len fields are in host order */
 	/* Figure out how big the frame is */
+<<<<<<< HEAD
 	fc = le16_to_cpu(rxdesc->frame_control);
+=======
+	fc = le16_to_cpu(rxdesc->hdr.frame_control);
+>>>>>>> upstream/android-13
 	hdrlen = p80211_headerlen(fc);
 	datalen = le16_to_cpu(rxdesc->data_len);
 
@@ -3524,7 +3745,11 @@ static void hfa384x_int_rxmonitor(struct wlandevice *wlandev,
 	/* Copy the 802.11 header to the skb
 	 * (ctl frames may be less than a full header)
 	 */
+<<<<<<< HEAD
 	skb_put_data(skb, &rxdesc->frame_control, hdrlen);
+=======
+	skb_put_data(skb, &rxdesc->hdr.frame_control, hdrlen);
+>>>>>>> upstream/android-13
 
 	/* If any, copy the data from the card to the skb */
 	if (datalen > 0) {
@@ -3603,6 +3828,7 @@ static void hfa384x_usbout_callback(struct urb *urb)
 			prism2sta_ev_alloc(wlandev);
 			break;
 
+<<<<<<< HEAD
 		case -EPIPE:
 			{
 				struct hfa384x *hw = wlandev->priv;
@@ -3633,6 +3859,34 @@ static void hfa384x_usbout_callback(struct urb *urb)
 				netif_stop_queue(wlandev->netdev);
 				break;
 			}
+=======
+		case -EPIPE: {
+			struct hfa384x *hw = wlandev->priv;
+
+			netdev_warn(hw->wlandev->netdev,
+				    "%s tx pipe stalled: requesting reset\n",
+				    wlandev->netdev->name);
+			if (!test_and_set_bit(WORK_TX_HALT, &hw->usb_flags))
+				schedule_work(&hw->usb_work);
+			wlandev->netdev->stats.tx_errors++;
+			break;
+		}
+
+		case -EPROTO:
+		case -ETIMEDOUT:
+		case -EILSEQ: {
+			struct hfa384x *hw = wlandev->priv;
+
+			if (!test_and_set_bit(THROTTLE_TX, &hw->usb_flags) &&
+			    !timer_pending(&hw->throttle)) {
+				mod_timer(&hw->throttle,
+					  jiffies + THROTTLE_JIFFIES);
+			}
+			wlandev->netdev->stats.tx_errors++;
+			netif_stop_queue(wlandev->netdev);
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		case -ENOENT:
 		case -ESHUTDOWN:
@@ -3903,6 +4157,7 @@ static void hfa384x_usb_throttlefn(struct timer_list *t)
 
 	spin_lock_irqsave(&hw->ctlxq.lock, flags);
 
+<<<<<<< HEAD
 	/*
 	 * We need to check BOTH the RX and the TX throttle controls,
 	 * so we use the bitwise OR instead of the logical OR.
@@ -3915,6 +4170,20 @@ static void hfa384x_usb_throttlefn(struct timer_list *t)
 	      !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags))
 	    )) {
 		schedule_work(&hw->usb_work);
+=======
+	pr_debug("flags=0x%lx\n", hw->usb_flags);
+	if (!hw->wlandev->hwremoved) {
+		bool rx_throttle = test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
+				   !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags);
+		bool tx_throttle = test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
+				   !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags);
+		/*
+		 * We need to check BOTH the RX and the TX throttle controls,
+		 * so we use the bitwise OR instead of the logical OR.
+		 */
+		if (rx_throttle | tx_throttle)
+			schedule_work(&hw->usb_work);
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_irqrestore(&hw->ctlxq.lock, flags);

@@ -10,12 +10,18 @@
 #include <linux/string.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/setup.h>
 #include <asm/traps.h>
 #include <asm/sun3xprom.h>
 #include <asm/idprom.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sun3ints.h>
 #include <asm/openprom.h>
 #include <asm/machines.h>

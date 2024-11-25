@@ -29,6 +29,7 @@
 #include "kfd_priv.h"
 
 /**
+<<<<<<< HEAD
  * struct kernel_queue_ops
  *
  * @initialize: Initialize a kernel queue, including allocations of GART memory
@@ -37,21 +38,31 @@
  * @uninitialize: Uninitialize a kernel queue and free all its memory usages.
  *
  * @acquire_packet_buffer: Returns a pointer to the location in the kernel
+=======
+ * kq_acquire_packet_buffer: Returns a pointer to the location in the kernel
+>>>>>>> upstream/android-13
  * queue ring buffer where the calling function can write its packet. It is
  * Guaranteed that there is enough space for that packet. It also updates the
  * pending write pointer to that location so subsequent calls to
  * acquire_packet_buffer will get a correct write pointer
  *
+<<<<<<< HEAD
  * @submit_packet: Update the write pointer and doorbell of a kernel queue.
  *
  * @sync_with_hw: Wait until the write pointer and the read pointer of a kernel
  * queue are equal, which means the CP has read all the submitted packets.
  *
  * @rollback_packet: This routine is called if we failed to build an acquired
+=======
+ * kq_submit_packet: Update the write pointer and doorbell of a kernel queue.
+ *
+ * kq_rollback_packet: This routine is called if we failed to build an acquired
+>>>>>>> upstream/android-13
  * packet for some reason. It just overwrites the pending wptr with the current
  * one
  *
  */
+<<<<<<< HEAD
 struct kernel_queue_ops {
 	bool	(*initialize)(struct kernel_queue *kq, struct kfd_dev *dev,
 			enum kfd_queue_type type, unsigned int queue_size);
@@ -68,6 +79,17 @@ struct kernel_queue {
 	struct kernel_queue_ops ops;
 	struct kernel_queue_ops ops_asic_specific;
 
+=======
+
+int kq_acquire_packet_buffer(struct kernel_queue *kq,
+				size_t packet_size_in_dwords,
+				unsigned int **buffer_ptr);
+void kq_submit_packet(struct kernel_queue *kq);
+void kq_rollback_packet(struct kernel_queue *kq);
+
+
+struct kernel_queue {
+>>>>>>> upstream/android-13
 	/* data */
 	struct kfd_dev		*dev;
 	struct mqd_manager	*mqd_mgr;
@@ -99,8 +121,11 @@ struct kernel_queue {
 	struct list_head	list;
 };
 
+<<<<<<< HEAD
 void kernel_queue_init_cik(struct kernel_queue_ops *ops);
 void kernel_queue_init_vi(struct kernel_queue_ops *ops);
 void kernel_queue_init_v9(struct kernel_queue_ops *ops);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* KFD_KERNEL_QUEUE_H_ */

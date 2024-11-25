@@ -6,9 +6,13 @@
 #define _ASM_X86_TSC_H
 
 #include <asm/processor.h>
+<<<<<<< HEAD
 
 #define NS_SCALE	10 /* 2^10, carefully chosen */
 #define US_SCALE	32 /* 2^32, arbitralrily chosen */
+=======
+#include <asm/cpufeature.h>
+>>>>>>> upstream/android-13
 
 /*
  * Standard way to access the cycle counter.
@@ -35,6 +39,10 @@ extern struct system_counterval_t convert_art_ns_to_tsc(u64 art_ns);
 
 extern void tsc_early_init(void);
 extern void tsc_init(void);
+<<<<<<< HEAD
+=======
+extern unsigned long calibrate_delay_is_known(void);
+>>>>>>> upstream/android-13
 extern void mark_tsc_unstable(char *reason);
 extern int unsynchronized_tsc(void);
 extern int check_tsc_unstable(void);

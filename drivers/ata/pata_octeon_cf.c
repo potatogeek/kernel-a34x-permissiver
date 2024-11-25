@@ -891,17 +891,29 @@ static int octeon_cf_probe(struct platform_device *pdev)
 					of_node_put(dma_node);
 					return -EINVAL;
 				}
+<<<<<<< HEAD
 				cf_port->dma_base = (u64)devm_ioremap_nocache(&pdev->dev, res_dma->start,
+=======
+				cf_port->dma_base = (u64)devm_ioremap(&pdev->dev, res_dma->start,
+>>>>>>> upstream/android-13
 									 resource_size(res_dma));
 				if (!cf_port->dma_base) {
 					of_node_put(dma_node);
 					return -EINVAL;
 				}
 
+<<<<<<< HEAD
 				irq_handler = octeon_cf_interrupt;
 				i = platform_get_irq(dma_dev, 0);
 				if (i > 0)
 					irq = i;
+=======
+				i = platform_get_irq(dma_dev, 0);
+				if (i > 0) {
+					irq = i;
+					irq_handler = octeon_cf_interrupt;
+				}
+>>>>>>> upstream/android-13
 			}
 			of_node_put(dma_node);
 		}
@@ -909,7 +921,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
 		if (!res_cs1)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		cs1 = devm_ioremap_nocache(&pdev->dev, res_cs1->start,
+=======
+		cs1 = devm_ioremap(&pdev->dev, res_cs1->start,
+>>>>>>> upstream/android-13
 					   resource_size(res_cs1));
 		if (!cs1)
 			return rv;
@@ -925,7 +941,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
 	if (!res_cs0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	cs0 = devm_ioremap_nocache(&pdev->dev, res_cs0->start,
+=======
+	cs0 = devm_ioremap(&pdev->dev, res_cs0->start,
+>>>>>>> upstream/android-13
 				   resource_size(res_cs0));
 	if (!cs0)
 		return rv;

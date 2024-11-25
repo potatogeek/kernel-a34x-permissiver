@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Definitions for Compaq iPAQ H3100 and H3600 handheld computers
  *
  * (c) 2000 Compaq Computer Corporation. (Author: Jamey Hicks)
  * (c) 2009 Dmitry Artamonow <mad_soft@inbox.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _INCLUDE_H3XXX_H_

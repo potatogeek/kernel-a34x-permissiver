@@ -36,7 +36,11 @@
 		power management.
 		support for big endian descriptors
 			Copyright (C) 2001 Manfred Spraul
+<<<<<<< HEAD
   	* ethtool support (jgarzik)
+=======
+	* ethtool support (jgarzik)
+>>>>>>> upstream/android-13
 	* Replace some MII-related magic numbers with constants (jgarzik)
 
 	TODO:
@@ -47,9 +51,12 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #define DRV_NAME	"winbond-840"
+<<<<<<< HEAD
 #define DRV_VERSION	"1.01-e"
 #define DRV_RELDATE	"Sep-11-2006"
 
+=======
+>>>>>>> upstream/android-13
 
 /* Automatically extracted configuration info:
 probe-func: winbond840_probe
@@ -139,6 +146,7 @@ static int full_duplex[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
 #undef PKT_BUF_SZ			/* tulip.h also defines this */
 #define PKT_BUF_SZ		1536	/* Size of each temporary Rx buffer.*/
 
+<<<<<<< HEAD
 /* These identify the driver base version and may not be removed. */
 static const char version[] __initconst =
 	"v" DRV_VERSION " (2.4 port) "
@@ -149,6 +157,11 @@ MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
 MODULE_DESCRIPTION("Winbond W89c840 Ethernet driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
+=======
+MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
+MODULE_DESCRIPTION("Winbond W89c840 Ethernet driver");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13
 
 module_param(max_interrupt_work, int, 0);
 module_param(debug, int, 0);
@@ -331,7 +344,11 @@ static void netdev_timer(struct timer_list *t);
 static void init_rxtx_rings(struct net_device *dev);
 static void free_rxtx_rings(struct netdev_private *np);
 static void init_registers(struct net_device *dev);
+<<<<<<< HEAD
 static void tx_timeout(struct net_device *dev);
+=======
+static void tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static int alloc_ringdesc(struct net_device *dev);
 static void free_ringdesc(struct netdev_private *np);
 static netdev_tx_t start_tx(struct sk_buff *skb, struct net_device *dev);
@@ -351,7 +368,11 @@ static const struct net_device_ops netdev_ops = {
 	.ndo_start_xmit		= start_tx,
 	.ndo_get_stats		= get_stats,
 	.ndo_set_rx_mode	= set_rx_mode,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= netdev_ioctl,
+=======
+	.ndo_eth_ioctl		= netdev_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= tx_timeout,
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
@@ -367,14 +388,22 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
 	int i, option = find_cnt < MAX_UNITS ? options[find_cnt] : 0;
 	void __iomem *ioaddr;
 
+<<<<<<< HEAD
 	i = pci_enable_device(pdev);
+=======
+	i = pcim_enable_device(pdev);
+>>>>>>> upstream/android-13
 	if (i) return i;
 
 	pci_set_master(pdev);
 
 	irq = pdev->irq;
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		pr_warn("Device %s disabled due to DMA limitations\n",
 			pci_name(pdev));
 		return -EIO;
@@ -389,7 +418,11 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	ioaddr = pci_iomap(pdev, TULIP_BAR, netdev_res_size);
 	if (!ioaddr)
+<<<<<<< HEAD
 		goto err_out_free_res;
+=======
+		goto err_out_netdev;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < 3; i++)
 		((__le16 *)dev->dev_addr)[i] = cpu_to_le16(eeprom_read(ioaddr, i));
@@ -468,8 +501,11 @@ static int w840_probe1(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 err_out_cleardev:
 	pci_iounmap(pdev, ioaddr);
+<<<<<<< HEAD
 err_out_free_res:
 	pci_release_regions(pdev);
+=======
+>>>>>>> upstream/android-13
 err_out_netdev:
 	free_netdev (dev);
 	return -ENODEV;
@@ -640,9 +676,16 @@ static int netdev_open(struct net_device *dev)
 		goto out_err;
 
 	if (debug > 1)
+<<<<<<< HEAD
 		netdev_dbg(dev, "w89c840_open() irq %d\n", irq);
 
 	if((i=alloc_ringdesc(dev)))
+=======
+		netdev_dbg(dev, "%s() irq %d\n", __func__, irq);
+
+	i = alloc_ringdesc(dev);
+	if (i)
+>>>>>>> upstream/android-13
 		goto out_err;
 
 	spin_lock_irq(&np->lock);
@@ -652,7 +695,11 @@ static int netdev_open(struct net_device *dev)
 
 	netif_start_queue(dev);
 	if (debug > 2)
+<<<<<<< HEAD
 		netdev_dbg(dev, "Done netdev_open()\n");
+=======
+		netdev_dbg(dev, "Done %s()\n", __func__);
+>>>>>>> upstream/android-13
 
 	/* Set the timer to check for link beat. */
 	timer_setup(&np->timer, netdev_timer, 0);
@@ -812,8 +859,14 @@ static void init_rxtx_rings(struct net_device *dev)
 		np->rx_skbuff[i] = skb;
 		if (skb == NULL)
 			break;
+<<<<<<< HEAD
 		np->rx_addr[i] = pci_map_single(np->pci_dev,skb->data,
 					np->rx_buf_sz,PCI_DMA_FROMDEVICE);
+=======
+		np->rx_addr[i] = dma_map_single(&np->pci_dev->dev, skb->data,
+						np->rx_buf_sz,
+						DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		np->rx_ring[i].buffer1 = np->rx_addr[i];
 		np->rx_ring[i].status = DescOwned;
@@ -843,20 +896,31 @@ static void free_rxtx_rings(struct netdev_private* np)
 	for (i = 0; i < RX_RING_SIZE; i++) {
 		np->rx_ring[i].status = 0;
 		if (np->rx_skbuff[i]) {
+<<<<<<< HEAD
 			pci_unmap_single(np->pci_dev,
 						np->rx_addr[i],
 						np->rx_skbuff[i]->len,
 						PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&np->pci_dev->dev, np->rx_addr[i],
+					 np->rx_skbuff[i]->len,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(np->rx_skbuff[i]);
 		}
 		np->rx_skbuff[i] = NULL;
 	}
 	for (i = 0; i < TX_RING_SIZE; i++) {
 		if (np->tx_skbuff[i]) {
+<<<<<<< HEAD
 			pci_unmap_single(np->pci_dev,
 						np->tx_addr[i],
 						np->tx_skbuff[i]->len,
 						PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&np->pci_dev->dev, np->tx_addr[i],
+					 np->tx_skbuff[i]->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(np->tx_skbuff[i]);
 		}
 		np->tx_skbuff[i] = NULL;
@@ -890,7 +954,11 @@ static void init_registers(struct net_device *dev)
 		8000	16 longwords		0200 2 longwords	2000 32 longwords
 		C000	32  longwords		0400 4 longwords */
 
+<<<<<<< HEAD
 #if defined (__i386__) && !defined(MODULE)
+=======
+#if defined (__i386__) && !defined(MODULE) && !defined(CONFIG_UML)
+>>>>>>> upstream/android-13
 	/* When not a module we can work around broken '486 PCI boards. */
 	if (boot_cpu_data.x86 <= 4) {
 		i |= 0x4800;
@@ -921,7 +989,11 @@ static void init_registers(struct net_device *dev)
 	iowrite32(0, ioaddr + RxStartDemand);
 }
 
+<<<<<<< HEAD
 static void tx_timeout(struct net_device *dev)
+=======
+static void tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct netdev_private *np = netdev_priv(dev);
 	void __iomem *ioaddr = np->base_addr;
@@ -974,10 +1046,17 @@ static int alloc_ringdesc(struct net_device *dev)
 
 	np->rx_buf_sz = (dev->mtu <= 1500 ? PKT_BUF_SZ : dev->mtu + 32);
 
+<<<<<<< HEAD
 	np->rx_ring = pci_alloc_consistent(np->pci_dev,
 			sizeof(struct w840_rx_desc)*RX_RING_SIZE +
 			sizeof(struct w840_tx_desc)*TX_RING_SIZE,
 			&np->ring_dma_addr);
+=======
+	np->rx_ring = dma_alloc_coherent(&np->pci_dev->dev,
+					 sizeof(struct w840_rx_desc) * RX_RING_SIZE +
+					 sizeof(struct w840_tx_desc) * TX_RING_SIZE,
+					 &np->ring_dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if(!np->rx_ring)
 		return -ENOMEM;
 	init_rxtx_rings(dev);
@@ -986,10 +1065,17 @@ static int alloc_ringdesc(struct net_device *dev)
 
 static void free_ringdesc(struct netdev_private *np)
 {
+<<<<<<< HEAD
 	pci_free_consistent(np->pci_dev,
 			sizeof(struct w840_rx_desc)*RX_RING_SIZE +
 			sizeof(struct w840_tx_desc)*TX_RING_SIZE,
 			np->rx_ring, np->ring_dma_addr);
+=======
+	dma_free_coherent(&np->pci_dev->dev,
+			  sizeof(struct w840_rx_desc) * RX_RING_SIZE +
+			  sizeof(struct w840_tx_desc) * TX_RING_SIZE,
+			  np->rx_ring, np->ring_dma_addr);
+>>>>>>> upstream/android-13
 
 }
 
@@ -1004,8 +1090,13 @@ static netdev_tx_t start_tx(struct sk_buff *skb, struct net_device *dev)
 	/* Calculate the next Tx descriptor entry. */
 	entry = np->cur_tx % TX_RING_SIZE;
 
+<<<<<<< HEAD
 	np->tx_addr[entry] = pci_map_single(np->pci_dev,
 				skb->data,skb->len, PCI_DMA_TODEVICE);
+=======
+	np->tx_addr[entry] = dma_map_single(&np->pci_dev->dev, skb->data,
+					    skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	np->tx_skbuff[entry] = skb;
 
 	np->tx_ring[entry].buffer1 = np->tx_addr[entry];
@@ -1088,9 +1179,14 @@ static void netdev_tx_done(struct net_device *dev)
 			np->stats.tx_packets++;
 		}
 		/* Free the original skb. */
+<<<<<<< HEAD
 		pci_unmap_single(np->pci_dev,np->tx_addr[entry],
 					np->tx_skbuff[entry]->len,
 					PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&np->pci_dev->dev, np->tx_addr[entry],
+				 np->tx_skbuff[entry]->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		np->tx_q_bytes -= np->tx_skbuff[entry]->len;
 		dev_kfree_skb_irq(np->tx_skbuff[entry]);
 		np->tx_skbuff[entry] = NULL;
@@ -1227,6 +1323,7 @@ static int netdev_rx(struct net_device *dev)
 			if (pkt_len < rx_copybreak &&
 			    (skb = netdev_alloc_skb(dev, pkt_len + 2)) != NULL) {
 				skb_reserve(skb, 2);	/* 16 byte align the IP header */
+<<<<<<< HEAD
 				pci_dma_sync_single_for_cpu(np->pci_dev,np->rx_addr[entry],
 							    np->rx_skbuff[entry]->len,
 							    PCI_DMA_FROMDEVICE);
@@ -1239,6 +1336,23 @@ static int netdev_rx(struct net_device *dev)
 				pci_unmap_single(np->pci_dev,np->rx_addr[entry],
 							np->rx_skbuff[entry]->len,
 							PCI_DMA_FROMDEVICE);
+=======
+				dma_sync_single_for_cpu(&np->pci_dev->dev,
+							np->rx_addr[entry],
+							np->rx_skbuff[entry]->len,
+							DMA_FROM_DEVICE);
+				skb_copy_to_linear_data(skb, np->rx_skbuff[entry]->data, pkt_len);
+				skb_put(skb, pkt_len);
+				dma_sync_single_for_device(&np->pci_dev->dev,
+							   np->rx_addr[entry],
+							   np->rx_skbuff[entry]->len,
+							   DMA_FROM_DEVICE);
+			} else {
+				dma_unmap_single(&np->pci_dev->dev,
+						 np->rx_addr[entry],
+						 np->rx_skbuff[entry]->len,
+						 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				skb_put(skb = np->rx_skbuff[entry], pkt_len);
 				np->rx_skbuff[entry] = NULL;
 			}
@@ -1268,9 +1382,16 @@ static int netdev_rx(struct net_device *dev)
 			np->rx_skbuff[entry] = skb;
 			if (skb == NULL)
 				break;			/* Better luck next round. */
+<<<<<<< HEAD
 			np->rx_addr[entry] = pci_map_single(np->pci_dev,
 							skb->data,
 							np->rx_buf_sz, PCI_DMA_FROMDEVICE);
+=======
+			np->rx_addr[entry] = dma_map_single(&np->pci_dev->dev,
+							    skb->data,
+							    np->rx_buf_sz,
+							    DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			np->rx_ring[entry].buffer1 = np->rx_addr[entry];
 		}
 		wmb();
@@ -1385,7 +1506,10 @@ static void netdev_get_drvinfo (struct net_device *dev, struct ethtool_drvinfo *
 	struct netdev_private *np = netdev_priv(dev);
 
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, pci_name(np->pci_dev), sizeof(info->bus_info));
 }
 
@@ -1454,7 +1578,11 @@ static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	switch(cmd) {
 	case SIOCGMIIPHY:		/* Get address of MII PHY in use. */
 		data->phy_id = ((struct netdev_private *)netdev_priv(dev))->phys[0] & 0x1f;
+<<<<<<< HEAD
 		/* Fall Through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case SIOCGMIIREG:		/* Read MII PHY register. */
 		spin_lock_irq(&np->lock);
@@ -1488,7 +1616,11 @@ static int netdev_close(struct net_device *dev)
 			   np->cur_rx, np->dirty_rx);
 	}
 
+<<<<<<< HEAD
  	/* Stop the chip's Tx and Rx processes. */
+=======
+	/* Stop the chip's Tx and Rx processes. */
+>>>>>>> upstream/android-13
 	spin_lock_irq(&np->lock);
 	netif_device_detach(dev);
 	update_csr6(dev, 0);
@@ -1535,14 +1667,20 @@ static void w840_remove1(struct pci_dev *pdev)
 	if (dev) {
 		struct netdev_private *np = netdev_priv(dev);
 		unregister_netdev(dev);
+<<<<<<< HEAD
 		pci_release_regions(pdev);
+=======
+>>>>>>> upstream/android-13
 		pci_iounmap(pdev, np->base_addr);
 		free_netdev(dev);
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
+=======
+>>>>>>> upstream/android-13
 /*
  * suspend/resume synchronization:
  * - open, close, do_ioctl:
@@ -1566,9 +1704,15 @@ static void w840_remove1(struct pci_dev *pdev)
  * Detach must occur under spin_unlock_irq(), interrupts from a detached
  * device would cause an irq storm.
  */
+<<<<<<< HEAD
 static int w840_suspend (struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata (pdev);
+=======
+static int __maybe_unused w840_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct netdev_private *np = netdev_priv(dev);
 	void __iomem *ioaddr = np->base_addr;
 
@@ -1601,21 +1745,31 @@ static int w840_suspend (struct pci_dev *pdev, pm_message_t state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int w840_resume (struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata (pdev);
 	struct netdev_private *np = netdev_priv(dev);
 	int retval = 0;
+=======
+static int __maybe_unused w840_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+	struct netdev_private *np = netdev_priv(dev);
+>>>>>>> upstream/android-13
 
 	rtnl_lock();
 	if (netif_device_present(dev))
 		goto out; /* device not suspended */
 	if (netif_running(dev)) {
+<<<<<<< HEAD
 		if ((retval = pci_enable_device(pdev))) {
 			dev_err(&dev->dev,
 				"pci_enable_device failed in resume\n");
 			goto out;
 		}
+=======
+>>>>>>> upstream/android-13
 		spin_lock_irq(&np->lock);
 		iowrite32(1, np->base_addr+PCIBusCfg);
 		ioread32(np->base_addr+PCIBusCfg);
@@ -1633,15 +1787,23 @@ static int w840_resume (struct pci_dev *pdev)
 	}
 out:
 	rtnl_unlock();
+<<<<<<< HEAD
 	return retval;
 }
 #endif
+=======
+	return 0;
+}
+
+static SIMPLE_DEV_PM_OPS(w840_pm_ops, w840_suspend, w840_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver w840_driver = {
 	.name		= DRV_NAME,
 	.id_table	= w840_pci_tbl,
 	.probe		= w840_probe1,
 	.remove		= w840_remove1,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= w840_suspend,
 	.resume		= w840_resume,
@@ -1661,3 +1823,9 @@ static void __exit w840_exit(void)
 
 module_init(w840_init);
 module_exit(w840_exit);
+=======
+	.driver.pm	= &w840_pm_ops,
+};
+
+module_pci_driver(w840_driver);
+>>>>>>> upstream/android-13

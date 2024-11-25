@@ -48,7 +48,11 @@ static inline u32 mlx_to_net_policy(enum port_state_policy mlx_policy)
 	}
 }
 
+<<<<<<< HEAD
 int mlx5_ib_get_vf_config(struct ib_device *device, int vf, u8 port,
+=======
+int mlx5_ib_get_vf_config(struct ib_device *device, int vf, u32 port,
+>>>>>>> upstream/android-13
 			  struct ifla_vf_info *info)
 {
 	struct mlx5_ib_dev *dev = to_mdev(device);
@@ -91,7 +95,11 @@ static inline enum port_state_policy net_to_mlx_policy(int policy)
 }
 
 int mlx5_ib_set_vf_link_state(struct ib_device *device, int vf,
+<<<<<<< HEAD
 			      u8 port, int state)
+=======
+			      u32 port, int state)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_ib_dev *dev = to_mdev(device);
 	struct mlx5_core_dev *mdev = dev->mdev;
@@ -119,7 +127,11 @@ out:
 }
 
 int mlx5_ib_get_vf_stats(struct ib_device *device, int vf,
+<<<<<<< HEAD
 			 u8 port, struct ifla_vf_stats *stats)
+=======
+			 u32 port, struct ifla_vf_stats *stats)
+>>>>>>> upstream/android-13
 {
 	int out_sz = MLX5_ST_SZ_BYTES(query_vport_counter_out);
 	struct mlx5_core_dev *mdev;
@@ -134,7 +146,11 @@ int mlx5_ib_get_vf_stats(struct ib_device *device, int vf,
 	if (!out)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	err = mlx5_core_query_vport_counter(mdev, true, vf, port, out, out_sz);
+=======
+	err = mlx5_core_query_vport_counter(mdev, true, vf, port, out);
+>>>>>>> upstream/android-13
 	if (err)
 		goto ex;
 
@@ -149,7 +165,12 @@ ex:
 	return err;
 }
 
+<<<<<<< HEAD
 static int set_vf_node_guid(struct ib_device *device, int vf, u8 port, u64 guid)
+=======
+static int set_vf_node_guid(struct ib_device *device, int vf, u32 port,
+			    u64 guid)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_ib_dev *dev = to_mdev(device);
 	struct mlx5_core_dev *mdev = dev->mdev;
@@ -164,13 +185,25 @@ static int set_vf_node_guid(struct ib_device *device, int vf, u8 port, u64 guid)
 	in->field_select = MLX5_HCA_VPORT_SEL_NODE_GUID;
 	in->node_guid = guid;
 	err = mlx5_core_modify_hca_vport_context(mdev, 1, 1, vf + 1, in);
+<<<<<<< HEAD
 	if (!err)
 		vfs_ctx[vf].node_guid = guid;
+=======
+	if (!err) {
+		vfs_ctx[vf].node_guid = guid;
+		vfs_ctx[vf].node_guid_valid = 1;
+	}
+>>>>>>> upstream/android-13
 	kfree(in);
 	return err;
 }
 
+<<<<<<< HEAD
 static int set_vf_port_guid(struct ib_device *device, int vf, u8 port, u64 guid)
+=======
+static int set_vf_port_guid(struct ib_device *device, int vf, u32 port,
+			    u64 guid)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_ib_dev *dev = to_mdev(device);
 	struct mlx5_core_dev *mdev = dev->mdev;
@@ -185,13 +218,24 @@ static int set_vf_port_guid(struct ib_device *device, int vf, u8 port, u64 guid)
 	in->field_select = MLX5_HCA_VPORT_SEL_PORT_GUID;
 	in->port_guid = guid;
 	err = mlx5_core_modify_hca_vport_context(mdev, 1, 1, vf + 1, in);
+<<<<<<< HEAD
 	if (!err)
 		vfs_ctx[vf].port_guid = guid;
+=======
+	if (!err) {
+		vfs_ctx[vf].port_guid = guid;
+		vfs_ctx[vf].port_guid_valid = 1;
+	}
+>>>>>>> upstream/android-13
 	kfree(in);
 	return err;
 }
 
+<<<<<<< HEAD
 int mlx5_ib_set_vf_guid(struct ib_device *device, int vf, u8 port,
+=======
+int mlx5_ib_set_vf_guid(struct ib_device *device, int vf, u32 port,
+>>>>>>> upstream/android-13
 			u64 guid, int type)
 {
 	if (type == IFLA_VF_IB_NODE_GUID)
@@ -201,3 +245,22 @@ int mlx5_ib_set_vf_guid(struct ib_device *device, int vf, u8 port,
 
 	return -EINVAL;
 }
+<<<<<<< HEAD
+=======
+
+int mlx5_ib_get_vf_guid(struct ib_device *device, int vf, u32 port,
+			struct ifla_vf_guid *node_guid,
+			struct ifla_vf_guid *port_guid)
+{
+	struct mlx5_ib_dev *dev = to_mdev(device);
+	struct mlx5_core_dev *mdev = dev->mdev;
+	struct mlx5_vf_context *vfs_ctx = mdev->priv.sriov.vfs_ctx;
+
+	node_guid->guid =
+		vfs_ctx[vf].node_guid_valid ? vfs_ctx[vf].node_guid : 0;
+	port_guid->guid =
+		vfs_ctx[vf].port_guid_valid ? vfs_ctx[vf].port_guid : 0;
+
+	return 0;
+}
+>>>>>>> upstream/android-13

@@ -24,6 +24,10 @@
  */
 
 #include <linux/irqdomain.h>
+<<<<<<< HEAD
+=======
+#include <linux/pci.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_domain.h>
 #include <linux/platform_device.h>
 #include <sound/designware_i2s.h>
@@ -35,6 +39,7 @@
 
 #include "acp_gfx_if.h"
 
+<<<<<<< HEAD
 #define ACP_TILE_ON_MASK                	0x03
 #define ACP_TILE_OFF_MASK               	0x02
 #define ACP_TILE_ON_RETAIN_REG_MASK     	0x1f
@@ -46,6 +51,19 @@
 #define ACP_TILE_DSP1_MASK              	0x37
 
 #define ACP_TILE_DSP2_MASK              	0x2f
+=======
+#define ACP_TILE_ON_MASK			0x03
+#define ACP_TILE_OFF_MASK			0x02
+#define ACP_TILE_ON_RETAIN_REG_MASK		0x1f
+#define ACP_TILE_OFF_RETAIN_REG_MASK		0x20
+
+#define ACP_TILE_P1_MASK			0x3e
+#define ACP_TILE_P2_MASK			0x3d
+#define ACP_TILE_DSP0_MASK			0x3b
+#define ACP_TILE_DSP1_MASK			0x37
+
+#define ACP_TILE_DSP2_MASK			0x2f
+>>>>>>> upstream/android-13
 
 #define ACP_DMA_REGS_END			0x146c0
 #define ACP_I2S_PLAY_REGS_START			0x14840
@@ -74,8 +92,13 @@
 #define mmACP_CONTROL				0x5131
 #define mmACP_STATUS				0x5133
 #define mmACP_SOFT_RESET			0x5134
+<<<<<<< HEAD
 #define ACP_CONTROL__ClkEn_MASK 		0x1
 #define ACP_SOFT_RESET__SoftResetAud_MASK 	0x100
+=======
+#define ACP_CONTROL__ClkEn_MASK			0x1
+#define ACP_SOFT_RESET__SoftResetAud_MASK	0x100
+>>>>>>> upstream/android-13
 #define ACP_SOFT_RESET__SoftResetAudDone_MASK	0x1000000
 #define ACP_CLOCK_EN_TIME_OUT_VALUE		0x000000FF
 #define ACP_SOFT_RESET_DONE_TIME_OUT_VALUE	0x000000FF
@@ -116,6 +139,7 @@ static int acp_sw_fini(void *handle)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* power off a tile/block within ACP */
 static int acp_suspend_tile(void *cgs_dev, int tile)
 {
@@ -202,11 +226,16 @@ static int acp_resume_tile(void *cgs_dev, int tile)
 
 struct acp_pm_domain {
 	void *cgs_dev;
+=======
+struct acp_pm_domain {
+	void *adev;
+>>>>>>> upstream/android-13
 	struct generic_pm_domain gpd;
 };
 
 static int acp_poweroff(struct generic_pm_domain *genpd)
 {
+<<<<<<< HEAD
 	int i, ret;
 	struct acp_pm_domain *apd;
 
@@ -220,12 +249,28 @@ static int acp_poweroff(struct generic_pm_domain *genpd)
 			if (ret)
 				pr_err("ACP tile %d tile suspend failed\n", i);
 		}
+=======
+	struct acp_pm_domain *apd;
+	struct amdgpu_device *adev;
+
+	apd = container_of(genpd, struct acp_pm_domain, gpd);
+	if (apd != NULL) {
+		adev = apd->adev;
+	/* call smu to POWER GATE ACP block
+	 * smu will
+	 * 1. turn off the acp clock
+	 * 2. power off the acp tiles
+	 * 3. check and enter ulv state
+	 */
+		amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_ACP, true);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
 static int acp_poweron(struct generic_pm_domain *genpd)
 {
+<<<<<<< HEAD
 	int i, ret;
 	struct acp_pm_domain *apd;
 
@@ -246,10 +291,26 @@ static int acp_poweron(struct generic_pm_domain *genpd)
 			if (ret)
 				pr_err("ACP DSP %d suspend failed\n", i);
 		}
+=======
+	struct acp_pm_domain *apd;
+	struct amdgpu_device *adev;
+
+	apd = container_of(genpd, struct acp_pm_domain, gpd);
+	if (apd != NULL) {
+		adev = apd->adev;
+	/* call smu to UNGATE ACP block
+	 * smu will
+	 * 1. exit ulv
+	 * 2. turn on acp clock
+	 * 3. power on acp tiles
+	 */
+		amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_ACP, false);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct device *get_mfd_cell_dev(const char *device_name, int r)
 {
 	char auto_dev_name[25];
@@ -261,21 +322,56 @@ static struct device *get_mfd_cell_dev(const char *device_name, int r)
 	dev_info(dev, "device %s added to pm domain\n", auto_dev_name);
 
 	return dev;
+=======
+static int acp_genpd_add_device(struct device *dev, void *data)
+{
+	struct generic_pm_domain *gpd = data;
+	int ret;
+
+	ret = pm_genpd_add_device(gpd, dev);
+	if (ret)
+		dev_err(dev, "Failed to add dev to genpd %d\n", ret);
+
+	return ret;
+}
+
+static int acp_genpd_remove_device(struct device *dev, void *data)
+{
+	int ret;
+
+	ret = pm_genpd_remove_device(dev);
+	if (ret)
+		dev_err(dev, "Failed to remove dev from genpd %d\n", ret);
+
+	/* Continue to remove */
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  * acp_hw_init - start and test ACP block
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
+=======
+ * @handle: handle used to pass amdgpu_device pointer
+>>>>>>> upstream/android-13
  *
  */
 static int acp_hw_init(void *handle)
 {
+<<<<<<< HEAD
 	int r, i;
 	uint64_t acp_base;
 	u32 val = 0;
 	u32 count = 0;
 	struct device *dev;
+=======
+	int r;
+	uint64_t acp_base;
+	u32 val = 0;
+	u32 count = 0;
+>>>>>>> upstream/android-13
 	struct i2s_platform_data *i2s_pdata = NULL;
 
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
@@ -289,16 +385,26 @@ static int acp_hw_init(void *handle)
 	r = amd_acp_hw_init(adev->acp.cgs_device,
 			    ip_block->version->major, ip_block->version->minor);
 	/* -ENODEV means board uses AZ rather than ACP */
+<<<<<<< HEAD
 	if (r == -ENODEV)
 		return 0;
 	else if (r)
 		return r;
+=======
+	if (r == -ENODEV) {
+		amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_ACP, true);
+		return 0;
+	} else if (r) {
+		return r;
+	}
+>>>>>>> upstream/android-13
 
 	if (adev->rmmio_size == 0 || adev->rmmio_size < 0x5289)
 		return -EINVAL;
 
 	acp_base = adev->rmmio_base;
 
+<<<<<<< HEAD
 	if (adev->asic_type != CHIP_STONEY) {
 		adev->acp.acp_genpd = kzalloc(sizeof(struct acp_pm_domain), GFP_KERNEL);
 		if (adev->acp.acp_genpd == NULL)
@@ -313,6 +419,21 @@ static int acp_hw_init(void *handle)
 
 		pm_genpd_init(&adev->acp.acp_genpd->gpd, NULL, false);
 	}
+=======
+
+	adev->acp.acp_genpd = kzalloc(sizeof(struct acp_pm_domain), GFP_KERNEL);
+	if (adev->acp.acp_genpd == NULL)
+		return -ENOMEM;
+
+	adev->acp.acp_genpd->gpd.name = "ACP_AUDIO";
+	adev->acp.acp_genpd->gpd.power_off = acp_poweroff;
+	adev->acp.acp_genpd->gpd.power_on = acp_poweron;
+
+
+	adev->acp.acp_genpd->adev = adev;
+
+	pm_genpd_init(&adev->acp.acp_genpd->gpd, NULL, false);
+>>>>>>> upstream/android-13
 
 	adev->acp.acp_cell = kcalloc(ACP_DEVS, sizeof(struct mfd_cell),
 							GFP_KERNEL);
@@ -430,6 +551,7 @@ static int acp_hw_init(void *handle)
 	if (r)
 		goto failure;
 
+<<<<<<< HEAD
 	if (adev->asic_type != CHIP_STONEY) {
 		for (i = 0; i < ACP_DEVS ; i++) {
 			dev = get_mfd_cell_dev(adev->acp.acp_cell[i].name, i);
@@ -440,6 +562,12 @@ static int acp_hw_init(void *handle)
 			}
 		}
 	}
+=======
+	r = device_for_each_child(adev->acp.parent, &adev->acp.acp_genpd->gpd,
+				  acp_genpd_add_device);
+	if (r)
+		goto failure;
+>>>>>>> upstream/android-13
 
 	/* Assert Soft reset of ACP */
 	val = cgs_read_register(adev->acp.cgs_device, mmACP_SOFT_RESET);
@@ -495,11 +623,16 @@ failure:
 /**
  * acp_hw_fini - stop the hardware block
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
+=======
+ * @handle: handle used to pass amdgpu_device pointer
+>>>>>>> upstream/android-13
  *
  */
 static int acp_hw_fini(void *handle)
 {
+<<<<<<< HEAD
 	int i, ret;
 	u32 val = 0;
 	u32 count = 0;
@@ -509,6 +642,17 @@ static int acp_hw_fini(void *handle)
 	/* return early if no ACP */
 	if (!adev->acp.acp_cell)
 		return 0;
+=======
+	u32 val = 0;
+	u32 count = 0;
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	/* return early if no ACP */
+	if (!adev->acp.acp_genpd) {
+		amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_ACP, false);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* Assert Soft reset of ACP */
 	val = cgs_read_register(adev->acp.cgs_device, mmACP_SOFT_RESET);
@@ -546,6 +690,7 @@ static int acp_hw_fini(void *handle)
 		udelay(100);
 	}
 
+<<<<<<< HEAD
 	if (adev->acp.acp_genpd) {
 		for (i = 0; i < ACP_DEVS ; i++) {
 			dev = get_mfd_cell_dev(adev->acp.acp_cell[i].name, i);
@@ -559,6 +704,14 @@ static int acp_hw_fini(void *handle)
 
 	mfd_remove_devices(adev->acp.parent);
 	kfree(adev->acp.acp_res);
+=======
+	device_for_each_child(adev->acp.parent, NULL,
+			      acp_genpd_remove_device);
+
+	mfd_remove_devices(adev->acp.parent);
+	kfree(adev->acp.acp_res);
+	kfree(adev->acp.acp_genpd);
+>>>>>>> upstream/android-13
 	kfree(adev->acp.acp_cell);
 
 	return 0;
@@ -566,11 +719,27 @@ static int acp_hw_fini(void *handle)
 
 static int acp_suspend(void *handle)
 {
+<<<<<<< HEAD
+=======
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	/* power up on suspend */
+	if (!adev->acp.acp_cell)
+		amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_ACP, false);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int acp_resume(void *handle)
 {
+<<<<<<< HEAD
+=======
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	/* power down again on resume */
+	if (!adev->acp.acp_cell)
+		amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_ACP, true);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -603,6 +772,14 @@ static int acp_set_clockgating_state(void *handle,
 static int acp_set_powergating_state(void *handle,
 				     enum amd_powergating_state state)
 {
+<<<<<<< HEAD
+=======
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+	bool enable = (state == AMD_PG_STATE_GATE);
+
+	amdgpu_dpm_set_powergating_by_smu(adev, AMD_IP_BLOCK_TYPE_ACP, enable);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Driver for AUO in-cell touchscreens
  *
@@ -7,6 +11,7 @@
  *
  * Copyright (c) 2008 QUALCOMM Incorporated.
  * Copyright (c) 2008 QUALCOMM USA, INC.
+<<<<<<< HEAD
  *
  *
  * This software is licensed under the terms of the GNU General Public
@@ -18,6 +23,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AUO_PIXCIR_TS_H__

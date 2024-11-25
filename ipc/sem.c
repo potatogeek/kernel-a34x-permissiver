@@ -36,7 +36,11 @@
  * - two Linux specific semctl() commands: SEM_STAT, SEM_INFO.
  * - undo adjustments at process exit are limited to 0..SEMVMX.
  * - namespace are supported.
+<<<<<<< HEAD
  * - SEMMSL, SEMMNS, SEMOPM and SEMMNI can be configured at runtine by writing
+=======
+ * - SEMMSL, SEMMNS, SEMOPM and SEMMNI can be configured at runtime by writing
+>>>>>>> upstream/android-13
  *   to /proc/sys/kernel/sem.
  * - statistics about the usage are reported in /proc/sysvipc/sem.
  *
@@ -205,15 +209,49 @@ static int sysvipc_sem_proc_show(struct seq_file *s, void *it);
  *
  * Memory ordering:
  * Most ordering is enforced by using spin_lock() and spin_unlock().
+<<<<<<< HEAD
  * The special case is use_global_lock:
  * Setting it from non-zero to 0 is a RELEASE, this is ensured by
  * using smp_store_release().
+=======
+ *
+ * Exceptions:
+ * 1) use_global_lock: (SEM_BARRIER_1)
+ * Setting it from non-zero to 0 is a RELEASE, this is ensured by
+ * using smp_store_release(): Immediately after setting it to 0,
+ * a simple op can start.
+>>>>>>> upstream/android-13
  * Testing if it is non-zero is an ACQUIRE, this is ensured by using
  * smp_load_acquire().
  * Setting it from 0 to non-zero must be ordered with regards to
  * this smp_load_acquire(), this is guaranteed because the smp_load_acquire()
  * is inside a spin_lock() and after a write from 0 to non-zero a
  * spin_lock()+spin_unlock() is done.
+<<<<<<< HEAD
+=======
+ * To prevent the compiler/cpu temporarily writing 0 to use_global_lock,
+ * READ_ONCE()/WRITE_ONCE() is used.
+ *
+ * 2) queue.status: (SEM_BARRIER_2)
+ * Initialization is done while holding sem_lock(), so no further barrier is
+ * required.
+ * Setting it to a result code is a RELEASE, this is ensured by both a
+ * smp_store_release() (for case a) and while holding sem_lock()
+ * (for case b).
+ * The ACQUIRE when reading the result code without holding sem_lock() is
+ * achieved by using READ_ONCE() + smp_acquire__after_ctrl_dep().
+ * (case a above).
+ * Reading the result code while holding sem_lock() needs no further barriers,
+ * the locks inside sem_lock() enforce ordering (case b above)
+ *
+ * 3) current->state:
+ * current->state is set to TASK_INTERRUPTIBLE while holding sem_lock().
+ * The wakeup is handled using the wake_q infrastructure. wake_q wakeups may
+ * happen immediately after calling wake_q_add. As wake_q_add_safe() is called
+ * when holding sem_lock(), no further barriers are required.
+ *
+ * See also ipc/mqueue.c for more details on the covered races.
+>>>>>>> upstream/android-13
  */
 
 #define sc_semmsl	sem_ctls[0]
@@ -319,10 +357,17 @@ static void complexmode_enter(struct sem_array *sma)
 		 * Nothing to do, just reset the
 		 * counter until we return to simple mode.
 		 */
+<<<<<<< HEAD
 		sma->use_global_lock = USE_GLOBAL_LOCK_HYSTERESIS;
 		return;
 	}
 	sma->use_global_lock = USE_GLOBAL_LOCK_HYSTERESIS;
+=======
+		WRITE_ONCE(sma->use_global_lock, USE_GLOBAL_LOCK_HYSTERESIS);
+		return;
+	}
+	WRITE_ONCE(sma->use_global_lock, USE_GLOBAL_LOCK_HYSTERESIS);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < sma->sem_nsems; i++) {
 		sem = &sma->sems[i];
@@ -344,6 +389,7 @@ static void complexmode_tryleave(struct sem_array *sma)
 		return;
 	}
 	if (sma->use_global_lock == 1) {
+<<<<<<< HEAD
 		/*
 		 * Immediately after setting use_global_lock to 0,
 		 * a simple op can start. Thus: all memory writes
@@ -353,6 +399,14 @@ static void complexmode_tryleave(struct sem_array *sma)
 		smp_store_release(&sma->use_global_lock, 0);
 	} else {
 		sma->use_global_lock--;
+=======
+
+		/* See SEM_BARRIER_1 for purpose/pairing */
+		smp_store_release(&sma->use_global_lock, 0);
+	} else {
+		WRITE_ONCE(sma->use_global_lock,
+				sma->use_global_lock-1);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -393,14 +447,22 @@ static inline int sem_lock(struct sem_array *sma, struct sembuf *sops,
 	 * Initial check for use_global_lock. Just an optimization,
 	 * no locking, no memory barrier.
 	 */
+<<<<<<< HEAD
 	if (!sma->use_global_lock) {
+=======
+	if (!READ_ONCE(sma->use_global_lock)) {
+>>>>>>> upstream/android-13
 		/*
 		 * It appears that no complex operation is around.
 		 * Acquire the per-semaphore lock.
 		 */
 		spin_lock(&sem->lock);
 
+<<<<<<< HEAD
 		/* pairs with smp_store_release() */
+=======
+		/* see SEM_BARRIER_1 for purpose/pairing */
+>>>>>>> upstream/android-13
 		if (!smp_load_acquire(&sma->use_global_lock)) {
 			/* fast path successful! */
 			return sops->sem_num;
@@ -488,11 +550,15 @@ static inline void sem_rmid(struct ipc_namespace *ns, struct sem_array *s)
 static struct sem_array *sem_alloc(size_t nsems)
 {
 	struct sem_array *sma;
+<<<<<<< HEAD
 	size_t size;
+=======
+>>>>>>> upstream/android-13
 
 	if (nsems > (INT_MAX - sizeof(*sma)) / sizeof(sma->sems[0]))
 		return NULL;
 
+<<<<<<< HEAD
 	size = sizeof(*sma) + nsems * sizeof(sma->sems[0]);
 	sma = kvmalloc(size, GFP_KERNEL);
 	if (unlikely(!sma))
@@ -500,6 +566,12 @@ static struct sem_array *sem_alloc(size_t nsems)
 
 	memset(sma, 0, size);
 
+=======
+	sma = kvzalloc(struct_size(sma, sems, nsems), GFP_KERNEL_ACCOUNT);
+	if (unlikely(!sma))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	return sma;
 }
 
@@ -570,8 +642,12 @@ static int newary(struct ipc_namespace *ns, struct ipc_params *params)
 /*
  * Called with sem_ids.rwsem and ipcp locked.
  */
+<<<<<<< HEAD
 static inline int sem_more_checks(struct kern_ipc_perm *ipcp,
 				struct ipc_params *params)
+=======
+static int sem_more_checks(struct kern_ipc_perm *ipcp, struct ipc_params *params)
+>>>>>>> upstream/android-13
 {
 	struct sem_array *sma;
 
@@ -770,6 +846,7 @@ would_block:
 static inline void wake_up_sem_queue_prepare(struct sem_queue *q, int error,
 					     struct wake_q_head *wake_q)
 {
+<<<<<<< HEAD
 	wake_q_add(wake_q, q->sleeper);
 	/*
 	 * Rely on the above implicit barrier, such that we can
@@ -779,6 +856,16 @@ static inline void wake_up_sem_queue_prepare(struct sem_queue *q, int error,
 	 * wake_up_process().
 	 */
 	WRITE_ONCE(q->status, error);
+=======
+	struct task_struct *sleeper;
+
+	sleeper = get_task_struct(q->sleeper);
+
+	/* see SEM_BARRIER_2 for purpose/pairing */
+	smp_store_release(&q->status, error);
+
+	wake_q_add_safe(wake_q, sleeper);
+>>>>>>> upstream/android-13
 }
 
 static void unlink_queue(struct sem_array *sma, struct sem_queue *q)
@@ -810,7 +897,11 @@ static inline int check_restart(struct sem_array *sma, struct sem_queue *q)
 
 	/* It is impossible that someone waits for the new value:
 	 * - complex operations always restart.
+<<<<<<< HEAD
 	 * - wait-for-zero are handled seperately.
+=======
+	 * - wait-for-zero are handled separately.
+>>>>>>> upstream/android-13
 	 * - q is a previously sleeping simple operation that
 	 *   altered the array. It must be a decrement, because
 	 *   simple increments never sleep.
@@ -1035,7 +1126,11 @@ static void do_smart_update(struct sem_array *sma, struct sembuf *sops, int nsop
 			 * - No complex ops, thus all sleeping ops are
 			 *   decrease.
 			 * - if we decreased the value, then any sleeping
+<<<<<<< HEAD
 			 *   semaphore ops wont be able to run: If the
+=======
+			 *   semaphore ops won't be able to run: If the
+>>>>>>> upstream/android-13
 			 *   previous value was too small, then the new
 			 *   value will be too small, too.
 			 */
@@ -1141,7 +1236,11 @@ static void freeary(struct ipc_namespace *ns, struct kern_ipc_perm *ipcp)
 		un->semid = -1;
 		list_del_rcu(&un->list_proc);
 		spin_unlock(&un->ulp->lock);
+<<<<<<< HEAD
 		kfree_rcu(un, rcu);
+=======
+		kvfree_rcu(un, rcu);
+>>>>>>> upstream/android-13
 	}
 
 	/* Wake up all pending processes and let them fail with EIDRM. */
@@ -1634,9 +1733,14 @@ out_up:
 	return err;
 }
 
+<<<<<<< HEAD
 long ksys_semctl(int semid, int semnum, int cmd, unsigned long arg)
 {
 	int version;
+=======
+static long ksys_semctl(int semid, int semnum, int cmd, unsigned long arg, int version)
+{
+>>>>>>> upstream/android-13
 	struct ipc_namespace *ns;
 	void __user *p = (void __user *)arg;
 	struct semid64_ds semid64;
@@ -1645,7 +1749,10 @@ long ksys_semctl(int semid, int semnum, int cmd, unsigned long arg)
 	if (semid < 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	version = ipc_parse_version(&cmd);
+=======
+>>>>>>> upstream/android-13
 	ns = current->nsproxy->ipc_ns;
 
 	switch (cmd) {
@@ -1682,6 +1789,10 @@ long ksys_semctl(int semid, int semnum, int cmd, unsigned long arg)
 	case IPC_SET:
 		if (copy_semid_from_user(&semid64, p, version))
 			return -EFAULT;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IPC_RMID:
 		return semctl_down(ns, semid, cmd, &semid64);
 	default:
@@ -1691,15 +1802,40 @@ long ksys_semctl(int semid, int semnum, int cmd, unsigned long arg)
 
 SYSCALL_DEFINE4(semctl, int, semid, int, semnum, int, cmd, unsigned long, arg)
 {
+<<<<<<< HEAD
 	return ksys_semctl(semid, semnum, cmd, arg);
 }
 
+=======
+	return ksys_semctl(semid, semnum, cmd, arg, IPC_64);
+}
+
+#ifdef CONFIG_ARCH_WANT_IPC_PARSE_VERSION
+long ksys_old_semctl(int semid, int semnum, int cmd, unsigned long arg)
+{
+	int version = ipc_parse_version(&cmd);
+
+	return ksys_semctl(semid, semnum, cmd, arg, version);
+}
+
+SYSCALL_DEFINE4(old_semctl, int, semid, int, semnum, int, cmd, unsigned long, arg)
+{
+	return ksys_old_semctl(semid, semnum, cmd, arg);
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT
 
 struct compat_semid_ds {
 	struct compat_ipc_perm sem_perm;
+<<<<<<< HEAD
 	compat_time_t sem_otime;
 	compat_time_t sem_ctime;
+=======
+	old_time32_t sem_otime;
+	old_time32_t sem_ctime;
+>>>>>>> upstream/android-13
 	compat_uptr_t sem_base;
 	compat_uptr_t sem_pending;
 	compat_uptr_t sem_pending_last;
@@ -1744,12 +1880,19 @@ static int copy_compat_semid_to_user(void __user *buf, struct semid64_ds *in,
 	}
 }
 
+<<<<<<< HEAD
 long compat_ksys_semctl(int semid, int semnum, int cmd, int arg)
+=======
+static long compat_ksys_semctl(int semid, int semnum, int cmd, int arg, int version)
+>>>>>>> upstream/android-13
 {
 	void __user *p = compat_ptr(arg);
 	struct ipc_namespace *ns;
 	struct semid64_ds semid64;
+<<<<<<< HEAD
 	int version = compat_ipc_parse_version(&cmd);
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	ns = current->nsproxy->ipc_ns;
@@ -1782,7 +1925,11 @@ long compat_ksys_semctl(int semid, int semnum, int cmd, int arg)
 	case IPC_SET:
 		if (copy_compat_semid_from_user(&semid64, p, version))
 			return -EFAULT;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IPC_RMID:
 		return semctl_down(ns, semid, cmd, &semid64);
 	default:
@@ -1792,8 +1939,27 @@ long compat_ksys_semctl(int semid, int semnum, int cmd, int arg)
 
 COMPAT_SYSCALL_DEFINE4(semctl, int, semid, int, semnum, int, cmd, int, arg)
 {
+<<<<<<< HEAD
 	return compat_ksys_semctl(semid, semnum, cmd, arg);
 }
+=======
+	return compat_ksys_semctl(semid, semnum, cmd, arg, IPC_64);
+}
+
+#ifdef CONFIG_ARCH_WANT_COMPAT_IPC_PARSE_VERSION
+long compat_ksys_old_semctl(int semid, int semnum, int cmd, int arg)
+{
+	int version = compat_ipc_parse_version(&cmd);
+
+	return compat_ksys_semctl(semid, semnum, cmd, arg, version);
+}
+
+COMPAT_SYSCALL_DEFINE4(old_semctl, int, semid, int, semnum, int, cmd, int, arg)
+{
+	return compat_ksys_old_semctl(semid, semnum, cmd, arg);
+}
+#endif
+>>>>>>> upstream/android-13
 #endif
 
 /* If the task doesn't already have a undo_list, then allocate one
@@ -1813,7 +1979,11 @@ static inline int get_undo_list(struct sem_undo_list **undo_listp)
 
 	undo_list = current->sysvsem.undo_list;
 	if (!undo_list) {
+<<<<<<< HEAD
 		undo_list = kzalloc(sizeof(*undo_list), GFP_KERNEL);
+=======
+		undo_list = kzalloc(sizeof(*undo_list), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 		if (undo_list == NULL)
 			return -ENOMEM;
 		spin_lock_init(&undo_list->lock);
@@ -1830,7 +2000,12 @@ static struct sem_undo *__lookup_undo(struct sem_undo_list *ulp, int semid)
 {
 	struct sem_undo *un;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(un, &ulp->list_proc, list_proc) {
+=======
+	list_for_each_entry_rcu(un, &ulp->list_proc, list_proc,
+				spin_is_locked(&ulp->lock)) {
+>>>>>>> upstream/android-13
 		if (un->semid == semid)
 			return un;
 	}
@@ -1897,7 +2072,12 @@ static struct sem_undo *find_alloc_undo(struct ipc_namespace *ns, int semid)
 	rcu_read_unlock();
 
 	/* step 2: allocate new undo structure */
+<<<<<<< HEAD
 	new = kzalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
+=======
+	new = kvzalloc(sizeof(struct sem_undo) + sizeof(short)*nsems,
+		       GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!new) {
 		ipc_rcu_putref(&sma->sem_perm, sem_rcu_free);
 		return ERR_PTR(-ENOMEM);
@@ -1909,7 +2089,11 @@ static struct sem_undo *find_alloc_undo(struct ipc_namespace *ns, int semid)
 	if (!ipc_valid_object(&sma->sem_perm)) {
 		sem_unlock(sma, -1);
 		rcu_read_unlock();
+<<<<<<< HEAD
 		kfree(new);
+=======
+		kvfree(new);
+>>>>>>> upstream/android-13
 		un = ERR_PTR(-EIDRM);
 		goto out;
 	}
@@ -1920,7 +2104,12 @@ static struct sem_undo *find_alloc_undo(struct ipc_namespace *ns, int semid)
 	 */
 	un = lookup_undo(ulp, semid);
 	if (un) {
+<<<<<<< HEAD
 		kfree(new);
+=======
+		spin_unlock(&ulp->lock);
+		kvfree(new);
+>>>>>>> upstream/android-13
 		goto success;
 	}
 	/* step 5: initialize & link new undo structure */
@@ -1932,14 +2121,20 @@ static struct sem_undo *find_alloc_undo(struct ipc_namespace *ns, int semid)
 	ipc_assert_locked_object(&sma->sem_perm);
 	list_add(&new->list_id, &sma->list_id);
 	un = new;
+<<<<<<< HEAD
 
 success:
 	spin_unlock(&ulp->lock);
+=======
+	spin_unlock(&ulp->lock);
+success:
+>>>>>>> upstream/android-13
 	sem_unlock(sma, -1);
 out:
 	return un;
 }
 
+<<<<<<< HEAD
 static long do_semtimedop(int semid, struct sembuf __user *tsops,
 		unsigned nsops, const struct timespec64 *timeout)
 {
@@ -1947,19 +2142,32 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 	struct sem_array *sma;
 	struct sembuf fast_sops[SEMOPM_FAST];
 	struct sembuf *sops = fast_sops, *sop;
+=======
+long __do_semtimedop(int semid, struct sembuf *sops,
+		unsigned nsops, const struct timespec64 *timeout,
+		struct ipc_namespace *ns)
+{
+	int error = -EINVAL;
+	struct sem_array *sma;
+	struct sembuf *sop;
+>>>>>>> upstream/android-13
 	struct sem_undo *un;
 	int max, locknum;
 	bool undos = false, alter = false, dupsop = false;
 	struct sem_queue queue;
 	unsigned long dup = 0, jiffies_left = 0;
+<<<<<<< HEAD
 	struct ipc_namespace *ns;
 
 	ns = current->nsproxy->ipc_ns;
+=======
+>>>>>>> upstream/android-13
 
 	if (nsops < 1 || semid < 0)
 		return -EINVAL;
 	if (nsops > ns->sc_semopm)
 		return -E2BIG;
+<<<<<<< HEAD
 	if (nsops > SEMOPM_FAST) {
 		sops = kvmalloc_array(nsops, sizeof(*sops), GFP_KERNEL);
 		if (sops == NULL)
@@ -1970,16 +2178,26 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 		error =  -EFAULT;
 		goto out_free;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (timeout) {
 		if (timeout->tv_sec < 0 || timeout->tv_nsec < 0 ||
 			timeout->tv_nsec >= 1000000000L) {
 			error = -EINVAL;
+<<<<<<< HEAD
 			goto out_free;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 		}
 		jiffies_left = timespec64_to_jiffies(timeout);
 	}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	max = 0;
 	for (sop = sops; sop < sops + nsops; sop++) {
 		unsigned long mask = 1ULL << ((sop->sem_num) % BITS_PER_LONG);
@@ -2008,7 +2226,11 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 		un = find_alloc_undo(ns, semid);
 		if (IS_ERR(un)) {
 			error = PTR_ERR(un);
+<<<<<<< HEAD
 			goto out_free;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		un = NULL;
@@ -2019,25 +2241,41 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 	if (IS_ERR(sma)) {
 		rcu_read_unlock();
 		error = PTR_ERR(sma);
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	error = -EFBIG;
 	if (max >= sma->sem_nsems) {
 		rcu_read_unlock();
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	error = -EACCES;
 	if (ipcperms(ns, &sma->sem_perm, alter ? S_IWUGO : S_IRUGO)) {
 		rcu_read_unlock();
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	error = security_sem_semop(&sma->sem_perm, sops, nsops, alter);
 	if (error) {
 		rcu_read_unlock();
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	error = -EIDRM;
@@ -2051,7 +2289,11 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 	 * entangled here and why it's RMID race safe on comments at sem_lock()
 	 */
 	if (!ipc_valid_object(&sma->sem_perm))
+<<<<<<< HEAD
 		goto out_unlock_free;
+=======
+		goto out_unlock;
+>>>>>>> upstream/android-13
 	/*
 	 * semid identifiers are not unique - find_alloc_undo may have
 	 * allocated an undo structure, it was invalidated by an RMID
@@ -2060,7 +2302,11 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 	 * "un" itself is guaranteed by rcu.
 	 */
 	if (un && un->semid == -1)
+<<<<<<< HEAD
 		goto out_unlock_free;
+=======
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	queue.sops = sops;
 	queue.nsops = nsops;
@@ -2070,7 +2316,11 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 	queue.dupsop = dupsop;
 
 	error = perform_atomic_semop(sma, &queue);
+<<<<<<< HEAD
 	if (error == 0) { /* non-blocking succesfull path */
+=======
+	if (error == 0) { /* non-blocking successful path */
+>>>>>>> upstream/android-13
 		DEFINE_WAKE_Q(wake_q);
 
 		/*
@@ -2086,10 +2336,17 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 		rcu_read_unlock();
 		wake_up_q(&wake_q);
 
+<<<<<<< HEAD
 		goto out_free;
 	}
 	if (error < 0) /* non-blocking error path */
 		goto out_unlock_free;
+=======
+		goto out;
+	}
+	if (error < 0) /* non-blocking error path */
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We need to sleep on this operation, so we put the current
@@ -2125,9 +2382,17 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 	}
 
 	do {
+<<<<<<< HEAD
 		WRITE_ONCE(queue.status, -EINTR);
 		queue.sleeper = current;
 
+=======
+		/* memory ordering ensured by the lock in sem_lock() */
+		WRITE_ONCE(queue.status, -EINTR);
+		queue.sleeper = current;
+
+		/* memory ordering is ensured by the lock in sem_lock() */
+>>>>>>> upstream/android-13
 		__set_current_state(TASK_INTERRUPTIBLE);
 		sem_unlock(sma, locknum);
 		rcu_read_unlock();
@@ -2150,6 +2415,7 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 		 */
 		error = READ_ONCE(queue.status);
 		if (error != -EINTR) {
+<<<<<<< HEAD
 			/*
 			 * User space could assume that semop() is a memory
 			 * barrier: Without the mb(), the cpu could
@@ -2158,14 +2424,27 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 			 */
 			smp_mb();
 			goto out_free;
+=======
+			/* see SEM_BARRIER_2 for purpose/pairing */
+			smp_acquire__after_ctrl_dep();
+			goto out;
+>>>>>>> upstream/android-13
 		}
 
 		rcu_read_lock();
 		locknum = sem_lock(sma, sops, nsops);
 
 		if (!ipc_valid_object(&sma->sem_perm))
+<<<<<<< HEAD
 			goto out_unlock_free;
 
+=======
+			goto out_unlock;
+
+		/*
+		 * No necessity for any barrier: We are protect by sem_lock()
+		 */
+>>>>>>> upstream/android-13
 		error = READ_ONCE(queue.status);
 
 		/*
@@ -2173,7 +2452,11 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 		 * Leave without unlink_queue(), but with sem_unlock().
 		 */
 		if (error != -EINTR)
+<<<<<<< HEAD
 			goto out_unlock_free;
+=======
+			goto out_unlock;
+>>>>>>> upstream/android-13
 
 		/*
 		 * If an interrupt occurred we have to clean up the queue.
@@ -2184,6 +2467,7 @@ static long do_semtimedop(int semid, struct sembuf __user *tsops,
 
 	unlink_queue(sma, &queue);
 
+<<<<<<< HEAD
 out_unlock_free:
 	sem_unlock(sma, locknum);
 	rcu_read_unlock();
@@ -2191,6 +2475,47 @@ out_free:
 	if (sops != fast_sops)
 		kvfree(sops);
 	return error;
+=======
+out_unlock:
+	sem_unlock(sma, locknum);
+	rcu_read_unlock();
+out:
+	return error;
+}
+
+static long do_semtimedop(int semid, struct sembuf __user *tsops,
+		unsigned nsops, const struct timespec64 *timeout)
+{
+	struct sembuf fast_sops[SEMOPM_FAST];
+	struct sembuf *sops = fast_sops;
+	struct ipc_namespace *ns;
+	int ret;
+
+	ns = current->nsproxy->ipc_ns;
+	if (nsops > ns->sc_semopm)
+		return -E2BIG;
+	if (nsops < 1)
+		return -EINVAL;
+
+	if (nsops > SEMOPM_FAST) {
+		sops = kvmalloc_array(nsops, sizeof(*sops), GFP_KERNEL);
+		if (sops == NULL)
+			return -ENOMEM;
+	}
+
+	if (copy_from_user(sops, tsops, nsops * sizeof(*tsops))) {
+		ret =  -EFAULT;
+		goto out_free;
+	}
+
+	ret = __do_semtimedop(semid, sops, nsops, timeout, ns);
+
+out_free:
+	if (sops != fast_sops)
+		kvfree(sops);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 long ksys_semtimedop(int semid, struct sembuf __user *tsops,
@@ -2214,20 +2539,34 @@ SYSCALL_DEFINE4(semtimedop, int, semid, struct sembuf __user *, tsops,
 #ifdef CONFIG_COMPAT_32BIT_TIME
 long compat_ksys_semtimedop(int semid, struct sembuf __user *tsems,
 			    unsigned int nsops,
+<<<<<<< HEAD
 			    const struct compat_timespec __user *timeout)
 {
 	if (timeout) {
 		struct timespec64 ts;
 		if (compat_get_timespec64(&ts, timeout))
+=======
+			    const struct old_timespec32 __user *timeout)
+{
+	if (timeout) {
+		struct timespec64 ts;
+		if (get_old_timespec32(&ts, timeout))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		return do_semtimedop(semid, tsems, nsops, &ts);
 	}
 	return do_semtimedop(semid, tsems, nsops, NULL);
 }
 
+<<<<<<< HEAD
 COMPAT_SYSCALL_DEFINE4(semtimedop, int, semid, struct sembuf __user *, tsems,
 		       unsigned int, nsops,
 		       const struct compat_timespec __user *, timeout)
+=======
+SYSCALL_DEFINE4(semtimedop_time32, int, semid, struct sembuf __user *, tsems,
+		       unsigned int, nsops,
+		       const struct old_timespec32 __user *, timeout)
+>>>>>>> upstream/android-13
 {
 	return compat_ksys_semtimedop(semid, tsems, nsops, timeout);
 }
@@ -2380,7 +2719,11 @@ void exit_sem(struct task_struct *tsk)
 		rcu_read_unlock();
 		wake_up_q(&wake_q);
 
+<<<<<<< HEAD
 		kfree_rcu(un, rcu);
+=======
+		kvfree_rcu(un, rcu);
+>>>>>>> upstream/android-13
 	}
 	kfree(ulp);
 }
@@ -2395,7 +2738,12 @@ static int sysvipc_sem_proc_show(struct seq_file *s, void *it)
 
 	/*
 	 * The proc interface isn't aware of sem_lock(), it calls
+<<<<<<< HEAD
 	 * ipc_lock_object() directly (in sysvipc_find_ipc).
+=======
+	 * ipc_lock_object(), i.e. spin_lock(&sma->sem_perm.lock).
+	 * (in sysvipc_find_ipc)
+>>>>>>> upstream/android-13
 	 * In order to stay compatible with sem_lock(), we must
 	 * enter / leave complex_mode.
 	 */

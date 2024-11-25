@@ -425,7 +425,11 @@ static int agp_amdk7_probe(struct pci_dev *pdev,
 		return -ENOMEM;
 
 	bridge->driver = &amd_irongate_driver;
+<<<<<<< HEAD
 	bridge->dev_private_data = &amd_irongate_private,
+=======
+	bridge->dev_private_data = &amd_irongate_private;
+>>>>>>> upstream/android-13
 	bridge->dev = pdev;
 	bridge->capndx = cap_ptr;
 

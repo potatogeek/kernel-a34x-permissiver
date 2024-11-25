@@ -68,14 +68,30 @@ static ssize_t reg_show(struct device *dev, struct device_attribute *attr,
 static ssize_t reg_store(struct device *dev, struct device_attribute *attr,
 			 const char *buf, size_t count);
 
+<<<<<<< HEAD
 DEVICE_ATTR(reg_br, S_IRUGO|S_IWUSR|S_IWGRP, reg_show, reg_store);
 DEVICE_ATTR(reg_or, S_IRUGO|S_IWUSR|S_IWGRP, reg_show, reg_store);
+=======
+static DEVICE_ATTR(reg_br, 0664, reg_show, reg_store);
+static DEVICE_ATTR(reg_or, 0664, reg_show, reg_store);
+
+static struct attribute *uio_fsl_elbc_gpcm_attrs[] = {
+	&dev_attr_reg_br.attr,
+	&dev_attr_reg_or.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(uio_fsl_elbc_gpcm);
+>>>>>>> upstream/android-13
 
 static ssize_t reg_show(struct device *dev, struct device_attribute *attr,
 			char *buf)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct uio_info *info = platform_get_drvdata(pdev);
+=======
+	struct uio_info *info = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct fsl_elbc_gpcm *priv = info->priv;
 	struct fsl_lbc_bank *bank = &priv->lbc->bank[priv->bank];
 
@@ -94,8 +110,12 @@ static ssize_t reg_show(struct device *dev, struct device_attribute *attr,
 static ssize_t reg_store(struct device *dev, struct device_attribute *attr,
 			 const char *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct uio_info *info = platform_get_drvdata(pdev);
+=======
+	struct uio_info *info = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct fsl_elbc_gpcm *priv = info->priv;
 	struct fsl_lbc_bank *bank = &priv->lbc->bank[priv->bank];
 	unsigned long val;
@@ -294,7 +314,11 @@ static int get_of_data(struct fsl_elbc_gpcm *priv, struct device_node *node,
 	/* get optional uio name */
 	if (of_property_read_string(node, "uio_name", &dt_name) != 0)
 		dt_name = "eLBC_GPCM";
+<<<<<<< HEAD
 	*name = kstrdup(dt_name, GFP_KERNEL);
+=======
+	*name = devm_kstrdup(priv->dev, dt_name, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!*name)
 		return -ENOMEM;
 
@@ -319,7 +343,11 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 		return -ENODEV;
 
 	/* allocate private data */
+<<<<<<< HEAD
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+=======
+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv)
 		return -ENOMEM;
 	priv->dev = &pdev->dev;
@@ -329,6 +357,7 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 	ret = get_of_data(priv, node, &res, &reg_br_new, &reg_or_new,
 			  &irq, &uio_name);
 	if (ret)
+<<<<<<< HEAD
 		goto out_err0;
 
 	/* allocate UIO structure */
@@ -337,6 +366,14 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto out_err0;
 	}
+=======
+		return ret;
+
+	/* allocate UIO structure */
+	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* get current BR/OR values */
 	reg_br_cur = in_be32(&priv->lbc->bank[priv->bank].br);
@@ -349,8 +386,12 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 		     != fsl_lbc_addr(res.start)) {
 			dev_err(priv->dev,
 				"bank in use by another peripheral\n");
+<<<<<<< HEAD
 			ret = -ENODEV;
 			goto out_err1;
+=======
+			return -ENODEV;
+>>>>>>> upstream/android-13
 		}
 
 		/* warn if behavior settings changing */
@@ -377,6 +418,7 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 	info->mem[0].internal_addr = ioremap(res.start, resource_size(&res));
 	if (!info->mem[0].internal_addr) {
 		dev_err(priv->dev, "failed to map chip region\n");
+<<<<<<< HEAD
 		ret = -ENODEV;
 		goto out_err1;
 	}
@@ -384,6 +426,13 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 	/* set all UIO data */
 	if (node->name)
 		info->mem[0].name = kstrdup(node->name, GFP_KERNEL);
+=======
+		return -ENODEV;
+	}
+
+	/* set all UIO data */
+	info->mem[0].name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%pOFn", node);
+>>>>>>> upstream/android-13
 	info->mem[0].addr = res.start;
 	info->mem[0].size = resource_size(&res);
 	info->mem[0].memtype = UIO_MEM_PHYS;
@@ -414,6 +463,7 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 	/* store private data */
 	platform_set_drvdata(pdev, info);
 
+<<<<<<< HEAD
 	/* create sysfs files */
 	ret = device_create_file(priv->dev, &dev_attr_reg_br);
 	if (ret)
@@ -422,27 +472,35 @@ static int uio_fsl_elbc_gpcm_probe(struct platform_device *pdev)
 	if (ret)
 		goto out_err4;
 
+=======
+>>>>>>> upstream/android-13
 	dev_info(priv->dev,
 		 "eLBC/GPCM device (%s) at 0x%llx, bank %d, irq=%d\n",
 		 priv->name, (unsigned long long)res.start, priv->bank,
 		 irq != NO_IRQ ? irq : -1);
 
 	return 0;
+<<<<<<< HEAD
 out_err4:
 	device_remove_file(priv->dev, &dev_attr_reg_br);
 out_err3:
 	platform_set_drvdata(pdev, NULL);
 	uio_unregister_device(info);
+=======
+>>>>>>> upstream/android-13
 out_err2:
 	if (priv->shutdown)
 		priv->shutdown(info, true);
 	iounmap(info->mem[0].internal_addr);
+<<<<<<< HEAD
 out_err1:
 	kfree(info->mem[0].name);
 	kfree(info);
 out_err0:
 	kfree(uio_name);
 	kfree(priv);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -451,17 +509,23 @@ static int uio_fsl_elbc_gpcm_remove(struct platform_device *pdev)
 	struct uio_info *info = platform_get_drvdata(pdev);
 	struct fsl_elbc_gpcm *priv = info->priv;
 
+<<<<<<< HEAD
 	device_remove_file(priv->dev, &dev_attr_reg_or);
 	device_remove_file(priv->dev, &dev_attr_reg_br);
+=======
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, NULL);
 	uio_unregister_device(info);
 	if (priv->shutdown)
 		priv->shutdown(info, false);
 	iounmap(info->mem[0].internal_addr);
+<<<<<<< HEAD
 	kfree(info->mem[0].name);
 	kfree(info->name);
 	kfree(info);
 	kfree(priv);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -477,6 +541,10 @@ static struct platform_driver uio_fsl_elbc_gpcm_driver = {
 	.driver = {
 		.name = "fsl,elbc-gpcm-uio",
 		.of_match_table = uio_fsl_elbc_gpcm_match,
+<<<<<<< HEAD
+=======
+		.dev_groups = uio_fsl_elbc_gpcm_groups,
+>>>>>>> upstream/android-13
 	},
 	.probe = uio_fsl_elbc_gpcm_probe,
 	.remove = uio_fsl_elbc_gpcm_remove,

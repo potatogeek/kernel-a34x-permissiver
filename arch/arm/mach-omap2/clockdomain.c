@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP2/3/4 clockdomain framework functions
  *
@@ -6,10 +10,13 @@
  *
  * Written by Paul Walmsley and Jouni Högander
  * Added OMAP4 specific support by Abhijit Pagare <abhijitpagare@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #undef DEBUG
 
@@ -1150,7 +1157,25 @@ void clkdm_del_autodeps(struct clockdomain *clkdm)
 
 /* Clockdomain-to-clock/hwmod framework interface code */
 
+<<<<<<< HEAD
 static int _clkdm_clk_hwmod_enable(struct clockdomain *clkdm)
+=======
+/**
+ * clkdm_clk_enable - add an enabled downstream clock to this clkdm
+ * @clkdm: struct clockdomain *
+ * @clk: struct clk * of the enabled downstream clock
+ *
+ * Increment the usecount of the clockdomain @clkdm and ensure that it
+ * is awake before @clk is enabled.  Intended to be called by
+ * clk_enable() code.  If the clockdomain is in software-supervised
+ * idle mode, force the clockdomain to wake.  If the clockdomain is in
+ * hardware-supervised idle mode, add clkdm-pwrdm autodependencies, to
+ * ensure that devices in the clockdomain can be read from/written to
+ * by on-chip processors.  Returns -EINVAL if passed null pointers;
+ * returns 0 upon success or if the clockdomain is in hwsup idle mode.
+ */
+int clkdm_clk_enable(struct clockdomain *clkdm, struct clk *unused)
+>>>>>>> upstream/android-13
 {
 	if (!clkdm || !arch_clkdm || !arch_clkdm->clkdm_clk_enable)
 		return -EINVAL;
@@ -1178,6 +1203,7 @@ static int _clkdm_clk_hwmod_enable(struct clockdomain *clkdm)
 }
 
 /**
+<<<<<<< HEAD
  * clkdm_clk_enable - add an enabled downstream clock to this clkdm
  * @clkdm: struct clockdomain *
  * @clk: struct clk * of the enabled downstream clock
@@ -1205,6 +1231,8 @@ int clkdm_clk_enable(struct clockdomain *clkdm, struct clk *clk)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * clkdm_clk_disable - remove an enabled downstream clock from this clkdm
  * @clkdm: struct clockdomain *
  * @clk: struct clk * of the disabled downstream clock
@@ -1219,13 +1247,21 @@ int clkdm_clk_enable(struct clockdomain *clkdm, struct clk *clk)
  */
 int clkdm_clk_disable(struct clockdomain *clkdm, struct clk *clk)
 {
+<<<<<<< HEAD
 	if (!clkdm || !clk || !arch_clkdm || !arch_clkdm->clkdm_clk_disable)
+=======
+	if (!clkdm || !arch_clkdm || !arch_clkdm->clkdm_clk_disable)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	pwrdm_lock(clkdm->pwrdm.ptr);
 
 	/* corner case: disabling unused clocks */
+<<<<<<< HEAD
 	if ((__clk_get_enable_count(clk) == 0) && clkdm->usecount == 0)
+=======
+	if (clk && (__clk_get_enable_count(clk) == 0) && clkdm->usecount == 0)
+>>>>>>> upstream/android-13
 		goto ccd_exit;
 
 	if (clkdm->usecount == 0) {
@@ -1280,7 +1316,11 @@ int clkdm_hwmod_enable(struct clockdomain *clkdm, struct omap_hwmod *oh)
 	if (!oh)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return _clkdm_clk_hwmod_enable(clkdm);
+=======
+	return clkdm_clk_enable(clkdm, NULL);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1303,6 +1343,7 @@ int clkdm_hwmod_disable(struct clockdomain *clkdm, struct omap_hwmod *oh)
 	if (cpu_is_omap24xx() || cpu_is_omap34xx())
 		return 0;
 
+<<<<<<< HEAD
 	/*
 	 * XXX Rewrite this code to maintain a list of enabled
 	 * downstream hwmods for debugging purposes?
@@ -1332,6 +1373,12 @@ int clkdm_hwmod_disable(struct clockdomain *clkdm, struct omap_hwmod *oh)
 	pr_debug("clockdomain: %s: disabled\n", clkdm->name);
 
 	return 0;
+=======
+	if (!oh)
+		return -EINVAL;
+
+	return clkdm_clk_disable(clkdm, NULL);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1340,7 +1387,11 @@ int clkdm_hwmod_disable(struct clockdomain *clkdm, struct omap_hwmod *oh)
  * Due to a suspend or hibernation operation, the state of the registers
  * controlling this clkdm will be lost, save their context.
  */
+<<<<<<< HEAD
 static int _clkdm_save_context(struct clockdomain *clkdm, void *ununsed)
+=======
+static int _clkdm_save_context(struct clockdomain *clkdm, void *unused)
+>>>>>>> upstream/android-13
 {
 	if (!arch_clkdm || !arch_clkdm->clkdm_save_context)
 		return -EINVAL;
@@ -1353,7 +1404,11 @@ static int _clkdm_save_context(struct clockdomain *clkdm, void *ununsed)
  *
  * Restore the register values for this clockdomain.
  */
+<<<<<<< HEAD
 static int _clkdm_restore_context(struct clockdomain *clkdm, void *ununsed)
+=======
+static int _clkdm_restore_context(struct clockdomain *clkdm, void *unused)
+>>>>>>> upstream/android-13
 {
 	if (!arch_clkdm || !arch_clkdm->clkdm_restore_context)
 		return -EINVAL;

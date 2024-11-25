@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * USB-to-WWAN Driver for Sierra Wireless modems
  *
@@ -9,6 +13,7 @@
  *
  * IMPORTANT DISCLAIMER: This driver is not commercially supported by
  * Sierra Wireless. Use at your own risk.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DRIVER_VERSION "v.2.0"
@@ -196,7 +203,11 @@ static const struct net_device_ops sierra_net_device_ops = {
 	.ndo_start_xmit         = usbnet_start_xmit,
 	.ndo_tx_timeout         = usbnet_tx_timeout,
 	.ndo_change_mtu         = usbnet_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64        = usbnet_get_stats64,
+=======
+	.ndo_get_stats64        = dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address    = eth_mac_addr,
 	.ndo_validate_addr      = eth_validate_addr,
 };
@@ -366,11 +377,14 @@ static void sierra_net_set_ctx_index(struct sierra_net_data *priv, u8 ctx_ix)
 		cpu_to_be16(SIERRA_NET_HIP_EXT_IP_OUT_ID);
 }
 
+<<<<<<< HEAD
 static inline int sierra_net_is_valid_addrlen(u8 len)
 {
 	return len == sizeof(struct in_addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sierra_net_parse_lsi(struct usbnet *dev, char *data, int datalen)
 {
 	struct lsi_umts *lsi = (struct lsi_umts *)data;
@@ -646,8 +660,13 @@ static const struct ethtool_ops sierra_net_ethtool_ops = {
 	.get_msglevel = usbnet_get_msglevel,
 	.set_msglevel = usbnet_set_msglevel,
 	.nway_reset = usbnet_nway_reset,
+<<<<<<< HEAD
 	.get_link_ksettings = usbnet_get_link_ksettings,
 	.set_link_ksettings = usbnet_set_link_ksettings,
+=======
+	.get_link_ksettings = usbnet_get_link_ksettings_mii,
+	.set_link_ksettings = usbnet_set_link_ksettings_mii,
+>>>>>>> upstream/android-13
 };
 
 static int sierra_net_get_fw_attr(struct usbnet *dev, u16 *datap)
@@ -877,7 +896,11 @@ static struct sk_buff *sierra_net_tx_fixup(struct usbnet *dev,
 	u16 len;
 	bool need_tail;
 
+<<<<<<< HEAD
 	BUILD_BUG_ON(FIELD_SIZEOF(struct usbnet, data)
+=======
+	BUILD_BUG_ON(sizeof_field(struct usbnet, data)
+>>>>>>> upstream/android-13
 				< sizeof(struct cdc_state));
 
 	dev_dbg(&dev->udev->dev, "%s", __func__);

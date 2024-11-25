@@ -4,16 +4,22 @@
  * Author: Benjamin Gaignard <benjamin.gaignard@st.com> for STMicroelectronics.
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
 #include <linux/component.h>
 #include <linux/debugfs.h>
+=======
+#include <linux/component.h>
+#include <linux/dma-mapping.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of_platform.h>
 
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
+<<<<<<< HEAD
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
@@ -22,6 +28,17 @@
 #include <drm/drm_of.h>
 
 #include "sti_crtc.h"
+=======
+#include <drm/drm_debugfs.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_probe_helper.h>
+
+>>>>>>> upstream/android-13
 #include "sti_drv.h"
 #include "sti_plane.h"
 
@@ -93,6 +110,7 @@ static struct drm_info_list sti_drm_dbg_list[] = {
 	{"fps_get", sti_drm_fps_dbg_show, 0},
 };
 
+<<<<<<< HEAD
 static int sti_drm_dbg_init(struct drm_minor *minor)
 {
 	struct dentry *dentry;
@@ -117,11 +135,26 @@ static int sti_drm_dbg_init(struct drm_minor *minor)
 err:
 	DRM_ERROR("%s: cannot install debugfs\n", DRIVER_NAME);
 	return ret;
+=======
+static void sti_drm_dbg_init(struct drm_minor *minor)
+{
+	drm_debugfs_create_files(sti_drm_dbg_list,
+				 ARRAY_SIZE(sti_drm_dbg_list),
+				 minor->debugfs_root, minor);
+
+	debugfs_create_file("fps_show", S_IRUGO | S_IWUSR, minor->debugfs_root,
+			    minor->dev, &sti_drm_fps_fops);
+
+	DRM_INFO("%s: debugfs installed\n", DRIVER_NAME);
+>>>>>>> upstream/android-13
 }
 
 static const struct drm_mode_config_funcs sti_mode_config_funcs = {
 	.fb_create = drm_gem_fb_create,
+<<<<<<< HEAD
 	.output_poll_changed = drm_fb_helper_output_poll_changed,
+=======
+>>>>>>> upstream/android-13
 	.atomic_check = drm_atomic_helper_check,
 	.atomic_commit = drm_atomic_helper_commit,
 };
@@ -146,6 +179,7 @@ static void sti_mode_config_init(struct drm_device *dev)
 
 DEFINE_DRM_GEM_CMA_FOPS(sti_driver_fops);
 
+<<<<<<< HEAD
 static struct drm_driver sti_driver = {
 	.driver_features = DRIVER_MODESET |
 	    DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
@@ -166,6 +200,12 @@ static struct drm_driver sti_driver = {
 	.gem_prime_vmap = drm_gem_cma_prime_vmap,
 	.gem_prime_vunmap = drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap = drm_gem_cma_prime_mmap,
+=======
+static const struct drm_driver sti_driver = {
+	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+	.fops = &sti_driver_fops,
+	DRM_GEM_CMA_DRIVER_OPS,
+>>>>>>> upstream/android-13
 
 	.debugfs_init = sti_drm_dbg_init,
 
@@ -206,8 +246,14 @@ static void sti_cleanup(struct drm_device *ddev)
 {
 	struct sti_private *private = ddev->dev_private;
 
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(ddev);
 	drm_kms_helper_poll_fini(ddev);
+=======
+	drm_kms_helper_poll_fini(ddev);
+	drm_atomic_helper_shutdown(ddev);
+	drm_mode_config_cleanup(ddev);
+>>>>>>> upstream/android-13
 	component_unbind_all(ddev->dev, ddev);
 	kfree(private);
 	ddev->dev_private = NULL;
@@ -232,6 +278,7 @@ static int sti_bind(struct device *dev)
 
 	ret = drm_dev_register(ddev, 0);
 	if (ret)
+<<<<<<< HEAD
 		goto err_register;
 
 	drm_mode_config_reset(ddev);
@@ -246,6 +293,16 @@ static int sti_bind(struct device *dev)
 
 err_register:
 	drm_mode_config_cleanup(ddev);
+=======
+		goto err_cleanup;
+
+	drm_mode_config_reset(ddev);
+
+	drm_fbdev_generic_setup(ddev, 32);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 err_cleanup:
 	sti_cleanup(ddev);
 err_drm_dev_put:

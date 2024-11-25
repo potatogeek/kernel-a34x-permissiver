@@ -39,6 +39,7 @@ static void ttm_eu_backoff_reservation_reverse(struct list_head *list,
 	list_for_each_entry_continue_reverse(entry, list, head) {
 		struct ttm_buffer_object *bo = entry->bo;
 
+<<<<<<< HEAD
 		reservation_object_unlock(bo->resv);
 	}
 }
@@ -50,6 +51,9 @@ static void ttm_eu_del_from_lru_locked(struct list_head *list)
 	list_for_each_entry(entry, list, head) {
 		struct ttm_buffer_object *bo = entry->bo;
 		ttm_bo_del_from_lru(bo);
+=======
+		dma_resv_unlock(bo->base.resv);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -57,11 +61,15 @@ void ttm_eu_backoff_reservation(struct ww_acquire_ctx *ticket,
 				struct list_head *list)
 {
 	struct ttm_validate_buffer *entry;
+<<<<<<< HEAD
 	struct ttm_bo_global *glob;
+=======
+>>>>>>> upstream/android-13
 
 	if (list_empty(list))
 		return;
 
+<<<<<<< HEAD
 	entry = list_first_entry(list, struct ttm_validate_buffer, head);
 	glob = entry->bo->bdev->glob;
 
@@ -73,6 +81,14 @@ void ttm_eu_backoff_reservation(struct ww_acquire_ctx *ticket,
 		reservation_object_unlock(bo->resv);
 	}
 	spin_unlock(&glob->lru_lock);
+=======
+	list_for_each_entry(entry, list, head) {
+		struct ttm_buffer_object *bo = entry->bo;
+
+		ttm_bo_move_to_lru_tail_unlocked(bo);
+		dma_resv_unlock(bo->base.resv);
+	}
+>>>>>>> upstream/android-13
 
 	if (ticket)
 		ww_acquire_fini(ticket);
@@ -95,22 +111,29 @@ int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
 			   struct list_head *list, bool intr,
 			   struct list_head *dups)
 {
+<<<<<<< HEAD
 	struct ttm_bo_global *glob;
+=======
+>>>>>>> upstream/android-13
 	struct ttm_validate_buffer *entry;
 	int ret;
 
 	if (list_empty(list))
 		return 0;
 
+<<<<<<< HEAD
 	entry = list_first_entry(list, struct ttm_validate_buffer, head);
 	glob = entry->bo->bdev->glob;
 
+=======
+>>>>>>> upstream/android-13
 	if (ticket)
 		ww_acquire_init(ticket, &reservation_ww_class);
 
 	list_for_each_entry(entry, list, head) {
 		struct ttm_buffer_object *bo = entry->bo;
 
+<<<<<<< HEAD
 		ret = __ttm_bo_reserve(bo, intr, (ticket == NULL), ticket);
 		if (!ret && unlikely(atomic_read(&bo->cpu_writers) > 0)) {
 			reservation_object_unlock(bo->resv);
@@ -118,6 +141,10 @@ int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
 			ret = -EBUSY;
 
 		} else if (ret == -EALREADY && dups) {
+=======
+		ret = ttm_bo_reserve(bo, intr, (ticket == NULL), ticket);
+		if (ret == -EALREADY && dups) {
+>>>>>>> upstream/android-13
 			struct ttm_validate_buffer *safe = entry;
 			entry = list_prev_entry(entry, head);
 			list_del(&safe->head);
@@ -126,10 +153,18 @@ int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
 		}
 
 		if (!ret) {
+<<<<<<< HEAD
 			if (!entry->shared)
 				continue;
 
 			ret = reservation_object_reserve_shared(bo->resv);
+=======
+			if (!entry->num_shared)
+				continue;
+
+			ret = dma_resv_reserve_shared(bo->base.resv,
+								entry->num_shared);
+>>>>>>> upstream/android-13
 			if (!ret)
 				continue;
 		}
@@ -141,6 +176,7 @@ int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
 		ttm_eu_backoff_reservation_reverse(list, entry);
 
 		if (ret == -EDEADLK) {
+<<<<<<< HEAD
 			if (intr) {
 				ret = ww_mutex_lock_slow_interruptible(&bo->resv->lock,
 								       ticket);
@@ -156,6 +192,16 @@ int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
 		if (unlikely(ret != 0)) {
 			if (ret == -EINTR)
 				ret = -ERESTARTSYS;
+=======
+			ret = ttm_bo_reserve_slowpath(bo, intr, ticket);
+		}
+
+		if (!ret && entry->num_shared)
+			ret = dma_resv_reserve_shared(bo->base.resv,
+								entry->num_shared);
+
+		if (unlikely(ret != 0)) {
+>>>>>>> upstream/android-13
 			if (ticket) {
 				ww_acquire_done(ticket);
 				ww_acquire_fini(ticket);
@@ -170,11 +216,14 @@ int ttm_eu_reserve_buffers(struct ww_acquire_ctx *ticket,
 		list_add(&entry->head, list);
 	}
 
+<<<<<<< HEAD
 	if (ticket)
 		ww_acquire_done(ticket);
 	spin_lock(&glob->lru_lock);
 	ttm_eu_del_from_lru_locked(list);
 	spin_unlock(&glob->lru_lock);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(ttm_eu_reserve_buffers);
@@ -184,14 +233,18 @@ void ttm_eu_fence_buffer_objects(struct ww_acquire_ctx *ticket,
 				 struct dma_fence *fence)
 {
 	struct ttm_validate_buffer *entry;
+<<<<<<< HEAD
 	struct ttm_buffer_object *bo;
 	struct ttm_bo_global *glob;
 	struct ttm_bo_device *bdev;
 	struct ttm_bo_driver *driver;
+=======
+>>>>>>> upstream/android-13
 
 	if (list_empty(list))
 		return;
 
+<<<<<<< HEAD
 	bo = list_first_entry(list, struct ttm_validate_buffer, head)->bo;
 	bdev = bo->bdev;
 	driver = bdev->driver;
@@ -209,6 +262,18 @@ void ttm_eu_fence_buffer_objects(struct ww_acquire_ctx *ticket,
 		reservation_object_unlock(bo->resv);
 	}
 	spin_unlock(&glob->lru_lock);
+=======
+	list_for_each_entry(entry, list, head) {
+		struct ttm_buffer_object *bo = entry->bo;
+
+		if (entry->num_shared)
+			dma_resv_add_shared_fence(bo->base.resv, fence);
+		else
+			dma_resv_add_excl_fence(bo->base.resv, fence);
+		ttm_bo_move_to_lru_tail_unlocked(bo);
+		dma_resv_unlock(bo->base.resv);
+	}
+>>>>>>> upstream/android-13
 	if (ticket)
 		ww_acquire_fini(ticket);
 }

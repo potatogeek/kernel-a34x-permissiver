@@ -170,8 +170,11 @@ static void igbvf_get_drvinfo(struct net_device *netdev,
 	struct igbvf_adapter *adapter = netdev_priv(netdev);
 
 	strlcpy(drvinfo->driver,  igbvf_driver_name, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, igbvf_driver_version,
 		sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(drvinfo->bus_info, pci_name(adapter->pdev),
 		sizeof(drvinfo->bus_info));
 }
@@ -316,7 +319,13 @@ static int igbvf_set_wol(struct net_device *netdev,
 }
 
 static int igbvf_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct igbvf_adapter *adapter = netdev_priv(netdev);
 
@@ -329,7 +338,13 @@ static int igbvf_get_coalesce(struct net_device *netdev,
 }
 
 static int igbvf_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct igbvf_adapter *adapter = netdev_priv(netdev);
 	struct e1000_hw *hw = &adapter->hw;
@@ -424,6 +439,10 @@ static void igbvf_get_strings(struct net_device *netdev, u32 stringset,
 }
 
 static const struct ethtool_ops igbvf_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo		= igbvf_get_drvinfo,
 	.get_regs_len		= igbvf_get_regs_len,
 	.get_regs		= igbvf_get_regs,

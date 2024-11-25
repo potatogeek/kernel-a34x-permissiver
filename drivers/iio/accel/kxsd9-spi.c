@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 #include <linux/device.h>
 #include <linux/kernel.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+#include <linux/device.h>
+#include <linux/kernel.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -40,10 +48,23 @@ static const struct spi_device_id kxsd9_spi_id[] = {
 };
 MODULE_DEVICE_TABLE(spi, kxsd9_spi_id);
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id kxsd9_of_match[] = {
+        { .compatible = "kionix,kxsd9" },
+        { },
+};
+MODULE_DEVICE_TABLE(of, kxsd9_of_match);
+
+>>>>>>> upstream/android-13
 static struct spi_driver kxsd9_spi_driver = {
 	.driver = {
 		.name = "kxsd9",
 		.pm = &kxsd9_dev_pm_ops,
+<<<<<<< HEAD
+=======
+		.of_match_table = kxsd9_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = kxsd9_spi_probe,
 	.remove = kxsd9_spi_remove,

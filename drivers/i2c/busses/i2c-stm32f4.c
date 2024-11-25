@@ -232,10 +232,17 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
 		 * In standard mode:
 		 * t_scl_high = t_scl_low = CCR * I2C parent clk period
 		 * So to reach 100 kHz, we have:
+<<<<<<< HEAD
 		 * CCR = I2C parent rate / 100 kHz >> 1
 		 *
 		 * For example with parent rate = 2 MHz:
 		 * CCR = 2000000 / (100000 << 1) = 10
+=======
+		 * CCR = I2C parent rate / (100 kHz * 2)
+		 *
+		 * For example with parent rate = 2 MHz:
+		 * CCR = 2000000 / (100000 * 2) = 10
+>>>>>>> upstream/android-13
 		 * t_scl_high = t_scl_low = 10 * (1 / 2000000) = 5000 ns
 		 * t_scl_high + t_scl_low = 10000 ns so 100 kHz is reached
 		 *
@@ -243,7 +250,11 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
 		 * parent rate is not higher than 46 MHz . As a result val
 		 * is at most 8 bits wide and so fits into the CCR bits [11:0].
 		 */
+<<<<<<< HEAD
 		val = i2c_dev->parent_rate / (100000 << 1);
+=======
+		val = i2c_dev->parent_rate / (I2C_MAX_STANDARD_MODE_FREQ * 2);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * In fast mode, we compute CCR with duty = 0 as with low
@@ -263,7 +274,11 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
 		 * parent rate is not higher than 46 MHz . As a result val
 		 * is at most 6 bits wide and so fits into the CCR bits [11:0].
 		 */
+<<<<<<< HEAD
 		val = DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * 3);
+=======
+		val = DIV_ROUND_UP(i2c_dev->parent_rate, I2C_MAX_FAST_MODE_FREQ * 3);
+>>>>>>> upstream/android-13
 
 		/* Select Fast mode */
 		ccr |= STM32F4_I2C_CCR_FS;
@@ -313,7 +328,11 @@ static int stm32f4_i2c_wait_free_bus(struct stm32f4_i2c_dev *i2c_dev)
 }
 
 /**
+<<<<<<< HEAD
  * stm32f4_i2c_write_ byte() - Write a byte in the data register
+=======
+ * stm32f4_i2c_write_byte() - Write a byte in the data register
+>>>>>>> upstream/android-13
  * @i2c_dev: Controller's private data
  * @byte: Data to write in the register
  */
@@ -534,7 +553,11 @@ static void stm32f4_i2c_handle_rx_addr(struct stm32f4_i2c_dev *i2c_dev)
 	default:
 		/*
 		 * N-byte reception:
+<<<<<<< HEAD
 		 * Enable ACK, reset POS (ACK postion) and clear ADDR flag.
+=======
+		 * Enable ACK, reset POS (ACK position) and clear ADDR flag.
+>>>>>>> upstream/android-13
 		 * In that way, ACK will be sent as soon as the current byte
 		 * will be received in the shift register
 		 */
@@ -797,8 +820,13 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
 
 	rst = devm_reset_control_get_exclusive(&pdev->dev, NULL);
 	if (IS_ERR(rst)) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Error: Missing controller reset\n");
 		ret = PTR_ERR(rst);
+=======
+		ret = dev_err_probe(&pdev->dev, PTR_ERR(rst),
+				    "Error: Missing reset ctrl\n");
+>>>>>>> upstream/android-13
 		goto clk_free;
 	}
 	reset_control_assert(rst);
@@ -807,7 +835,11 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
 
 	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
 	ret = of_property_read_u32(np, "clock-frequency", &clk_rate);
+<<<<<<< HEAD
 	if (!ret && clk_rate >= 400000)
+=======
+	if (!ret && clk_rate >= I2C_MAX_FAST_MODE_FREQ)
+>>>>>>> upstream/android-13
 		i2c_dev->speed = STM32_I2C_SPEED_FAST;
 
 	i2c_dev->dev = &pdev->dev;

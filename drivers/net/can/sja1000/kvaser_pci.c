@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008 Per Dalen <per.dalen@cnw.se>
  *
@@ -15,6 +19,7 @@
  *   Copyright (c) 2002-2007 Volkswagen Group Electronic Research
  *   Copyright (c) 2003 Matthias Brukner, Trajet Gmbh, Rebenring 33,
  *   38106 Braunschweig, GERMANY
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License
@@ -27,6 +32,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -44,7 +51,10 @@
 
 MODULE_AUTHOR("Per Dalen <per.dalen@cnw.se>");
 MODULE_DESCRIPTION("Socket-CAN driver for KVASER PCAN PCI cards");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("KVASER PCAN PCI CAN card");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");
 
 #define MAX_NO_OF_CHANNELS        4 /* max no of channels on a single card */

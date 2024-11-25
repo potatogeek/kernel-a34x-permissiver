@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -11,12 +12,22 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Copyright (C) 2015-2017 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PINCTRL_UNIPHIER_H__
 #define __PINCTRL_UNIPHIER_H__
 
+<<<<<<< HEAD
 #include <linux/bitops.h>
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/build_bug.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -190,7 +201,11 @@ struct uniphier_pinctrl_socdata {
 	}
 
 int uniphier_pinctrl_probe(struct platform_device *pdev,
+<<<<<<< HEAD
 			   struct uniphier_pinctrl_socdata *socdata);
+=======
+			   const struct uniphier_pinctrl_socdata *socdata);
+>>>>>>> upstream/android-13
 
 extern const struct dev_pm_ops uniphier_pinctrl_pm_ops;
 

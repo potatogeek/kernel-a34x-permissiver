@@ -23,7 +23,10 @@
 #include <asm/dma.h>
 #include <asm/mmu_context.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/core_cia.h>
 #include <asm/tlbflush.h>
 
@@ -133,7 +136,12 @@ alcor_init_irq(void)
 	init_i8259a_irqs();
 	common_init_isa_dma();
 
+<<<<<<< HEAD
 	setup_irq(16+31, &isa_cascade_irqaction);
+=======
+	if (request_irq(16 + 31, no_action, 0, "isa-cascade", NULL))
+		pr_err("Failed to register isa-cascade interrupt\n");
+>>>>>>> upstream/android-13
 }
 
 

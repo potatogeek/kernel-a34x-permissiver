@@ -108,12 +108,19 @@ static void *element_at(struct dm_array_info *info, struct array_block *ab,
  * in an array block.
  */
 static void on_entries(struct dm_array_info *info, struct array_block *ab,
+<<<<<<< HEAD
 		       void (*fn)(void *, const void *))
 {
 	unsigned i, nr_entries = le32_to_cpu(ab->nr_entries);
 
 	for (i = 0; i < nr_entries; i++)
 		fn(info->value_type.context, element_at(info, ab, i));
+=======
+		       void (*fn)(void *, const void *, unsigned))
+{
+	unsigned nr_entries = le32_to_cpu(ab->nr_entries);
+	fn(info->value_type.context, element_at(info, ab, 0), nr_entries);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -175,19 +182,31 @@ static int alloc_ablock(struct dm_array_info *info, size_t size_of_block,
 static void fill_ablock(struct dm_array_info *info, struct array_block *ab,
 			const void *value, unsigned new_nr)
 {
+<<<<<<< HEAD
 	unsigned i;
 	uint32_t nr_entries;
+=======
+	uint32_t nr_entries, delta, i;
+>>>>>>> upstream/android-13
 	struct dm_btree_value_type *vt = &info->value_type;
 
 	BUG_ON(new_nr > le32_to_cpu(ab->max_entries));
 	BUG_ON(new_nr < le32_to_cpu(ab->nr_entries));
 
 	nr_entries = le32_to_cpu(ab->nr_entries);
+<<<<<<< HEAD
 	for (i = nr_entries; i < new_nr; i++) {
 		if (vt->inc)
 			vt->inc(vt->context, value);
 		memcpy(element_at(info, ab, i), value, vt->size);
 	}
+=======
+	delta = new_nr - nr_entries;
+	if (vt->inc)
+		vt->inc(vt->context, value, delta);
+	for (i = nr_entries; i < new_nr; i++)
+		memcpy(element_at(info, ab, i), value, vt->size);
+>>>>>>> upstream/android-13
 	ab->nr_entries = cpu_to_le32(new_nr);
 }
 
@@ -199,17 +218,27 @@ static void fill_ablock(struct dm_array_info *info, struct array_block *ab,
 static void trim_ablock(struct dm_array_info *info, struct array_block *ab,
 			unsigned new_nr)
 {
+<<<<<<< HEAD
 	unsigned i;
 	uint32_t nr_entries;
+=======
+	uint32_t nr_entries, delta;
+>>>>>>> upstream/android-13
 	struct dm_btree_value_type *vt = &info->value_type;
 
 	BUG_ON(new_nr > le32_to_cpu(ab->max_entries));
 	BUG_ON(new_nr > le32_to_cpu(ab->nr_entries));
 
 	nr_entries = le32_to_cpu(ab->nr_entries);
+<<<<<<< HEAD
 	for (i = nr_entries; i > new_nr; i--)
 		if (vt->dec)
 			vt->dec(vt->context, element_at(info, ab, i - 1));
+=======
+	delta = nr_entries - new_nr;
+	if (vt->dec)
+		vt->dec(vt->context, element_at(info, ab, new_nr - 1), delta);
+>>>>>>> upstream/android-13
 	ab->nr_entries = cpu_to_le32(new_nr);
 }
 
@@ -573,6 +602,7 @@ static int grow(struct resize *resize)
  * These are the value_type functions for the btree elements, which point
  * to array blocks.
  */
+<<<<<<< HEAD
 static void block_inc(void *context, const void *value)
 {
 	__le64 block_le;
@@ -583,6 +613,19 @@ static void block_inc(void *context, const void *value)
 }
 
 static void block_dec(void *context, const void *value)
+=======
+static void block_inc(void *context, const void *value, unsigned count)
+{
+	const __le64 *block_le = value;
+	struct dm_array_info *info = context;
+	unsigned i;
+
+	for (i = 0; i < count; i++, block_le++)
+		dm_tm_inc(info->btree_info.tm, le64_to_cpu(*block_le));
+}
+
+static void __block_dec(void *context, const void *value)
+>>>>>>> upstream/android-13
 {
 	int r;
 	uint64_t b;
@@ -621,6 +664,16 @@ static void block_dec(void *context, const void *value)
 	dm_tm_dec(info->btree_info.tm, b);
 }
 
+<<<<<<< HEAD
+=======
+static void block_dec(void *context, const void *value, unsigned count)
+{
+	unsigned i;
+	for (i = 0; i < count; i++, value += sizeof(__le64))
+		__block_dec(context, value);
+}
+
+>>>>>>> upstream/android-13
 static int block_equal(void *context, const void *value1, const void *value2)
 {
 	return !memcmp(value1, value2, sizeof(__le64));
@@ -711,7 +764,11 @@ static int populate_ablock_with_values(struct dm_array_info *info, struct array_
 			return r;
 
 		if (vt->inc)
+<<<<<<< HEAD
 			vt->inc(vt->context, element_at(info, ab, i));
+=======
+			vt->inc(vt->context, element_at(info, ab, i), 1);
+>>>>>>> upstream/android-13
 	}
 
 	ab->nr_entries = cpu_to_le32(new_nr);
@@ -822,9 +879,15 @@ static int array_set_value(struct dm_array_info *info, dm_block_t root,
 	old_value = element_at(info, ab, entry);
 	if (vt->dec &&
 	    (!vt->equal || !vt->equal(vt->context, old_value, value))) {
+<<<<<<< HEAD
 		vt->dec(vt->context, old_value);
 		if (vt->inc)
 			vt->inc(vt->context, value);
+=======
+		vt->dec(vt->context, old_value, 1);
+		if (vt->inc)
+			vt->inc(vt->context, value, 1);
+>>>>>>> upstream/android-13
 	}
 
 	memcpy(old_value, value, info->value_type.size);

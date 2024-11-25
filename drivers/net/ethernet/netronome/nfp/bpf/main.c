@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017-2018 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2017-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #include <net/pkt_cls.h>
 
@@ -45,7 +50,11 @@
 
 const struct rhashtable_params nfp_bpf_maps_neutral_params = {
 	.nelem_hint		= 4,
+<<<<<<< HEAD
 	.key_len		= FIELD_SIZEOF(struct bpf_map, id),
+=======
+	.key_len		= sizeof_field(struct bpf_map, id),
+>>>>>>> upstream/android-13
 	.key_offset		= offsetof(struct nfp_bpf_neutral_map, map_id),
 	.head_offset		= offsetof(struct nfp_bpf_neutral_map, l),
 	.automatic_shrinking	= true,
@@ -54,11 +63,22 @@ const struct rhashtable_params nfp_bpf_maps_neutral_params = {
 static bool nfp_net_ebpf_capable(struct nfp_net *nn)
 {
 #ifdef __LITTLE_ENDIAN
+<<<<<<< HEAD
 	if (nn->cap & NFP_NET_CFG_CTRL_BPF &&
 	    nn_readb(nn, NFP_NET_CFG_BPF_ABI) == NFP_NET_BPF_ABI)
 		return true;
 #endif
 	return false;
+=======
+	struct nfp_app_bpf *bpf = nn->app->priv;
+
+	return nn->cap & NFP_NET_CFG_CTRL_BPF &&
+	       bpf->abi_version &&
+	       nn_readb(nn, NFP_NET_CFG_BPF_ABI) == bpf->abi_version;
+#else
+	return false;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -187,6 +207,7 @@ static int nfp_bpf_setup_tc_block_cb(enum tc_setup_type type,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int nfp_bpf_setup_tc_block(struct net_device *netdev,
 				  struct tc_block_offload *f)
 {
@@ -209,13 +230,27 @@ static int nfp_bpf_setup_tc_block(struct net_device *netdev,
 		return -EOPNOTSUPP;
 	}
 }
+=======
+static LIST_HEAD(nfp_bpf_block_cb_list);
+>>>>>>> upstream/android-13
 
 static int nfp_bpf_setup_tc(struct nfp_app *app, struct net_device *netdev,
 			    enum tc_setup_type type, void *type_data)
 {
+<<<<<<< HEAD
 	switch (type) {
 	case TC_SETUP_BLOCK:
 		return nfp_bpf_setup_tc_block(netdev, type_data);
+=======
+	struct nfp_net *nn = netdev_priv(netdev);
+
+	switch (type) {
+	case TC_SETUP_BLOCK:
+		return flow_block_cb_setup_simple(type_data,
+						  &nfp_bpf_block_cb_list,
+						  nfp_bpf_setup_tc_block_cb,
+						  nn, nn, true);
+>>>>>>> upstream/android-13
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -225,15 +260,32 @@ static int
 nfp_bpf_check_mtu(struct nfp_app *app, struct net_device *netdev, int new_mtu)
 {
 	struct nfp_net *nn = netdev_priv(netdev);
+<<<<<<< HEAD
 	unsigned int max_mtu;
+=======
+	struct nfp_bpf_vnic *bv;
+	struct bpf_prog *prog;
+>>>>>>> upstream/android-13
 
 	if (~nn->dp.ctrl & NFP_NET_CFG_CTRL_BPF)
 		return 0;
 
+<<<<<<< HEAD
 	max_mtu = nn_readb(nn, NFP_NET_CFG_BPF_INL_MTU) * 64 - 32;
 	if (new_mtu > max_mtu) {
 		nn_info(nn, "BPF offload active, MTU over %u not supported\n",
 			max_mtu);
+=======
+	if (nn->xdp_hw.prog) {
+		prog = nn->xdp_hw.prog;
+	} else {
+		bv = nn->app_priv;
+		prog = bv->tc_prog;
+	}
+
+	if (nfp_bpf_offload_check_mtu(nn, prog, new_mtu)) {
+		nn_info(nn, "BPF offload active, potential packet access beyond hardware packet boundary");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 	return 0;
@@ -342,6 +394,37 @@ nfp_bpf_parse_cap_adjust_tail(struct nfp_app_bpf *bpf, void __iomem *value,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int
+nfp_bpf_parse_cap_cmsg_multi_ent(struct nfp_app_bpf *bpf, void __iomem *value,
+				 u32 length)
+{
+	bpf->cmsg_multi_ent = true;
+	return 0;
+}
+
+static int
+nfp_bpf_parse_cap_abi_version(struct nfp_app_bpf *bpf, void __iomem *value,
+			      u32 length)
+{
+	if (length < 4) {
+		nfp_err(bpf->app->cpp, "truncated ABI version TLV: %d\n",
+			length);
+		return -EINVAL;
+	}
+
+	bpf->abi_version = readl(value);
+	if (bpf->abi_version < 2 || bpf->abi_version > 3) {
+		nfp_warn(bpf->app->cpp, "unsupported BPF ABI version: %d\n",
+			 bpf->abi_version);
+		bpf->abi_version = 0;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int nfp_bpf_parse_capabilities(struct nfp_app *app)
 {
 	struct nfp_cpp *cpp = app->pf->cpp;
@@ -393,6 +476,19 @@ static int nfp_bpf_parse_capabilities(struct nfp_app *app)
 							  length))
 				goto err_release_free;
 			break;
+<<<<<<< HEAD
+=======
+		case NFP_BPF_CAP_TYPE_ABI_VERSION:
+			if (nfp_bpf_parse_cap_abi_version(app->priv, value,
+							  length))
+				goto err_release_free;
+			break;
+		case NFP_BPF_CAP_TYPE_CMSG_MULTI_ENT:
+			if (nfp_bpf_parse_cap_cmsg_multi_ent(app->priv, value,
+							     length))
+				goto err_release_free;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			nfp_dbg(cpp, "unknown BPF capability: %d\n", type);
 			break;
@@ -414,6 +510,14 @@ err_release_free:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static void nfp_bpf_init_capabilities(struct nfp_app_bpf *bpf)
+{
+	bpf->abi_version = 2; /* Original BPF ABI version */
+}
+
+>>>>>>> upstream/android-13
 static int nfp_bpf_ndo_init(struct nfp_app *app, struct net_device *netdev)
 {
 	struct nfp_app_bpf *bpf = app->priv;
@@ -428,6 +532,28 @@ static void nfp_bpf_ndo_uninit(struct nfp_app *app, struct net_device *netdev)
 	bpf_offload_dev_netdev_unregister(bpf->bpf_dev, netdev);
 }
 
+<<<<<<< HEAD
+=======
+static int nfp_bpf_start(struct nfp_app *app)
+{
+	struct nfp_app_bpf *bpf = app->priv;
+
+	if (app->ctrl->dp.mtu < nfp_bpf_ctrl_cmsg_min_mtu(bpf)) {
+		nfp_err(bpf->app->cpp,
+			"ctrl channel MTU below min required %u < %u\n",
+			app->ctrl->dp.mtu, nfp_bpf_ctrl_cmsg_min_mtu(bpf));
+		return -EINVAL;
+	}
+
+	if (bpf->cmsg_multi_ent)
+		bpf->cmsg_cache_cnt = nfp_bpf_ctrl_cmsg_cache_cnt(bpf);
+	else
+		bpf->cmsg_cache_cnt = 1;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int nfp_bpf_init(struct nfp_app *app)
 {
 	struct nfp_app_bpf *bpf;
@@ -439,6 +565,7 @@ static int nfp_bpf_init(struct nfp_app *app)
 	bpf->app = app;
 	app->priv = bpf;
 
+<<<<<<< HEAD
 	skb_queue_head_init(&bpf->cmsg_replies);
 	init_waitqueue_head(&bpf->cmsg_wq);
 	INIT_LIST_HEAD(&bpf->map_list);
@@ -446,12 +573,38 @@ static int nfp_bpf_init(struct nfp_app *app)
 	err = rhashtable_init(&bpf->maps_neutral, &nfp_bpf_maps_neutral_params);
 	if (err)
 		goto err_free_bpf;
+=======
+	INIT_LIST_HEAD(&bpf->map_list);
+
+	err = nfp_ccm_init(&bpf->ccm, app);
+	if (err)
+		goto err_free_bpf;
+
+	err = rhashtable_init(&bpf->maps_neutral, &nfp_bpf_maps_neutral_params);
+	if (err)
+		goto err_clean_ccm;
+
+	nfp_bpf_init_capabilities(bpf);
+>>>>>>> upstream/android-13
 
 	err = nfp_bpf_parse_capabilities(app);
 	if (err)
 		goto err_free_neutral_maps;
 
+<<<<<<< HEAD
 	bpf->bpf_dev = bpf_offload_dev_create();
+=======
+	if (bpf->abi_version < 3) {
+		bpf->cmsg_key_sz = CMSG_MAP_KEY_LW * 4;
+		bpf->cmsg_val_sz = CMSG_MAP_VALUE_LW * 4;
+	} else {
+		bpf->cmsg_key_sz = bpf->maps.max_key_sz;
+		bpf->cmsg_val_sz = bpf->maps.max_val_sz;
+		app->ctrl_mtu = nfp_bpf_ctrl_cmsg_mtu(bpf);
+	}
+
+	bpf->bpf_dev = bpf_offload_dev_create(&nfp_bpf_dev_ops, bpf);
+>>>>>>> upstream/android-13
 	err = PTR_ERR_OR_ZERO(bpf->bpf_dev);
 	if (err)
 		goto err_free_neutral_maps;
@@ -460,22 +613,34 @@ static int nfp_bpf_init(struct nfp_app *app)
 
 err_free_neutral_maps:
 	rhashtable_destroy(&bpf->maps_neutral);
+<<<<<<< HEAD
+=======
+err_clean_ccm:
+	nfp_ccm_clean(&bpf->ccm);
+>>>>>>> upstream/android-13
 err_free_bpf:
 	kfree(bpf);
 	return err;
 }
 
+<<<<<<< HEAD
 static void nfp_check_rhashtable_empty(void *ptr, void *arg)
 {
 	WARN_ON_ONCE(1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void nfp_bpf_clean(struct nfp_app *app)
 {
 	struct nfp_app_bpf *bpf = app->priv;
 
 	bpf_offload_dev_destroy(bpf->bpf_dev);
+<<<<<<< HEAD
 	WARN_ON(!skb_queue_empty(&bpf->cmsg_replies));
+=======
+	nfp_ccm_clean(&bpf->ccm);
+>>>>>>> upstream/android-13
 	WARN_ON(!list_empty(&bpf->map_list));
 	WARN_ON(bpf->maps_in_use || bpf->map_elems_in_use);
 	rhashtable_free_and_destroy(&bpf->maps_neutral,
@@ -491,6 +656,10 @@ const struct nfp_app_type app_bpf = {
 
 	.init		= nfp_bpf_init,
 	.clean		= nfp_bpf_clean,
+<<<<<<< HEAD
+=======
+	.start		= nfp_bpf_start,
+>>>>>>> upstream/android-13
 
 	.check_mtu	= nfp_bpf_check_mtu,
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Macros for manipulating and testing flags related to a
  * pageblock_nr_pages number of pages.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation version 2 of the License
@@ -15,6 +20,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2006
  *
  * Original author, Mel Gorman
@@ -25,10 +32,18 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 /* Bit indices that affect a whole block of pages */
 enum pageblock_bits {
 	PB_migrate,
 	PB_migrate_end = PB_migrate + 3 - 1,
+=======
+#define PB_migratetype_bits 3
+/* Bit indices that affect a whole block of pages */
+enum pageblock_bits {
+	PB_migrate,
+	PB_migrate_end = PB_migrate + PB_migratetype_bits - 1,
+>>>>>>> upstream/android-13
 			/* 3 bits required for migrate types */
 	PB_migrate_skip,/* If set the block is skipped by compaction */
 
@@ -65,14 +80,20 @@ extern unsigned int pageblock_order;
 /* Forward declaration */
 struct page;
 
+<<<<<<< HEAD
 unsigned long get_pfnblock_flags_mask(struct page *page,
 				unsigned long pfn,
 				unsigned long end_bitidx,
+=======
+unsigned long get_pfnblock_flags_mask(const struct page *page,
+				unsigned long pfn,
+>>>>>>> upstream/android-13
 				unsigned long mask);
 
 void set_pfnblock_flags_mask(struct page *page,
 				unsigned long flags,
 				unsigned long pfn,
+<<<<<<< HEAD
 				unsigned long end_bitidx,
 				unsigned long mask);
 
@@ -96,6 +117,22 @@ void set_pfnblock_flags_mask(struct page *page,
 #define set_pageblock_skip(page) \
 			set_pageblock_flags_group(page, 1, PB_migrate_skip,  \
 							PB_migrate_skip)
+=======
+				unsigned long mask);
+
+/* Declarations for getting and setting flags. See mm/page_alloc.c */
+#ifdef CONFIG_COMPACTION
+#define get_pageblock_skip(page) \
+	get_pfnblock_flags_mask(page, page_to_pfn(page),	\
+			(1 << (PB_migrate_skip)))
+#define clear_pageblock_skip(page) \
+	set_pfnblock_flags_mask(page, 0, page_to_pfn(page),	\
+			(1 << PB_migrate_skip))
+#define set_pageblock_skip(page) \
+	set_pfnblock_flags_mask(page, (1 << PB_migrate_skip),	\
+			page_to_pfn(page),			\
+			(1 << PB_migrate_skip))
+>>>>>>> upstream/android-13
 #else
 static inline bool get_pageblock_skip(struct page *page)
 {

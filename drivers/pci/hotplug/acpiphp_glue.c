@@ -5,7 +5,11 @@
  * Copyright (C) 2002,2003 Takayoshi Kochi (t-kochi@bq.jp.nec.com)
  * Copyright (C) 2002 Hiroshi Aono (h-aono@ap.jp.nec.com)
  * Copyright (C) 2002,2003 NEC Corporation
+<<<<<<< HEAD
  * Copyright (C) 2003-2005 Matthew Wilcox (matthew.wilcox@hp.com)
+=======
+ * Copyright (C) 2003-2005 Matthew Wilcox (willy@infradead.org)
+>>>>>>> upstream/android-13
  * Copyright (C) 2003-2005 Hewlett Packard
  * Copyright (C) 2005 Rajesh Shah (rajesh.shah@intel.com)
  * Copyright (C) 2005 Intel Corporation
@@ -393,6 +397,7 @@ static unsigned char acpiphp_max_busnr(struct pci_bus *bus)
 static void acpiphp_set_acpi_region(struct acpiphp_slot *slot)
 {
 	struct acpiphp_func *func;
+<<<<<<< HEAD
 	union acpi_object params[2];
 	struct acpi_object_list arg_list;
 
@@ -406,6 +411,14 @@ static void acpiphp_set_acpi_region(struct acpiphp_slot *slot)
 		/* _REG is optional, we don't care about if there is failure */
 		acpi_evaluate_object(func_to_handle(func), "_REG", &arg_list,
 				     NULL);
+=======
+
+	list_for_each_entry(func, &slot->funcs, sibling) {
+		/* _REG is optional, we don't care about if there is failure */
+		acpi_evaluate_reg(func_to_handle(func),
+				  ACPI_ADR_SPACE_PCI_CONFIG,
+				  ACPI_REG_CONNECT);
+>>>>>>> upstream/android-13
 	}
 }
 

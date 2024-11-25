@@ -75,7 +75,11 @@ static void strip_it(char *str)
 		case '\r':
 		case ':':
 			*str = 0;
+<<<<<<< HEAD
 			/* Fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0:
 			return;
 		}
@@ -134,8 +138,12 @@ static int parse_addr(__le16 *addr, char *str)
 }
 
 static int dn_node_address_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 				void __user *buffer,
 				size_t *lenp, loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	char addr[DN_ASCBUF_LEN];
 	size_t len;
@@ -148,10 +156,14 @@ static int dn_node_address_handler(struct ctl_table *table, int write,
 
 	if (write) {
 		len = (*lenp < DN_ASCBUF_LEN) ? *lenp : (DN_ASCBUF_LEN-1);
+<<<<<<< HEAD
 
 		if (copy_from_user(addr, buffer, len))
 			return -EFAULT;
 
+=======
+		memcpy(addr, buffer, len);
+>>>>>>> upstream/android-13
 		addr[len] = 0;
 		strip_it(addr);
 
@@ -173,11 +185,17 @@ static int dn_node_address_handler(struct ctl_table *table, int write,
 	len = strlen(addr);
 	addr[len++] = '\n';
 
+<<<<<<< HEAD
 	if (len > *lenp) len = *lenp;
 
 	if (copy_to_user(buffer, addr, len))
 		return -EFAULT;
 
+=======
+	if (len > *lenp)
+		len = *lenp;
+	memcpy(buffer, addr, len);
+>>>>>>> upstream/android-13
 	*lenp = len;
 	*ppos += len;
 
@@ -185,8 +203,12 @@ static int dn_node_address_handler(struct ctl_table *table, int write,
 }
 
 static int dn_def_dev_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 				void __user *buffer,
 				size_t *lenp, loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	size_t len;
 	struct net_device *dev;
@@ -201,9 +223,13 @@ static int dn_def_dev_handler(struct ctl_table *table, int write,
 		if (*lenp > 16)
 			return -E2BIG;
 
+<<<<<<< HEAD
 		if (copy_from_user(devname, buffer, *lenp))
 			return -EFAULT;
 
+=======
+		memcpy(devname, buffer, *lenp);
+>>>>>>> upstream/android-13
 		devname[*lenp] = 0;
 		strip_it(devname);
 
@@ -238,9 +264,13 @@ static int dn_def_dev_handler(struct ctl_table *table, int write,
 
 	if (len > *lenp) len = *lenp;
 
+<<<<<<< HEAD
 	if (copy_to_user(buffer, devname, len))
 		return -EFAULT;
 
+=======
+	memcpy(buffer, devname, len);
+>>>>>>> upstream/android-13
 	*lenp = len;
 	*ppos += len;
 

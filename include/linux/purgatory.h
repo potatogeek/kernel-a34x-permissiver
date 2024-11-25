@@ -3,7 +3,11 @@
 #define _LINUX_PURGATORY_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/kexec.h>
 
 struct kexec_sha_region {

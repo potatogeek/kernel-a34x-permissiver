@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 if X86
 source "drivers/platform/x86/Kconfig"
 endif
@@ -10,3 +14,10 @@ source "drivers/platform/goldfish/Kconfig"
 source "drivers/platform/chrome/Kconfig"
 
 source "drivers/platform/mellanox/Kconfig"
+<<<<<<< HEAD
+=======
+
+source "drivers/platform/olpc/Kconfig"
+
+source "drivers/platform/surface/Kconfig"
+>>>>>>> upstream/android-13

@@ -18,7 +18,11 @@
 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
 		};
 
+<<<<<<< HEAD
 		aips-bus@2100000 {
+=======
+		bus@2100000 {
+>>>>>>> upstream/android-13
 			pre1: pre@21c8000 {
 				compatible = "fsl,imx6qp-pre";
 				reg = <0x021c8000 0x1000>;

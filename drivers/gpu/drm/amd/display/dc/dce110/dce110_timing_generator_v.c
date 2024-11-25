@@ -46,17 +46,29 @@
  *
  **********************************************************************************/
 
+<<<<<<< HEAD
 /**
 * Enable CRTCV
 */
+=======
+/*
+ * Enable CRTCV
+ */
+>>>>>>> upstream/android-13
 
 static bool dce110_timing_generator_v_enable_crtc(struct timing_generator *tg)
 {
 /*
+<<<<<<< HEAD
 * Set MASTER_UPDATE_MODE to 0
 * This is needed for DRR, and also suggested to be default value by Syed.
 */
 
+=======
+ * Set MASTER_UPDATE_MODE to 0
+ * This is needed for DRR, and also suggested to be default value by Syed.
+ */
+>>>>>>> upstream/android-13
 	uint32_t value;
 
 	value = 0;
@@ -209,9 +221,15 @@ static void dce110_timing_generator_v_wait_for_vblank(struct timing_generator *t
 	}
 }
 
+<<<<<<< HEAD
 /**
 * Wait till we are in VActive (anywhere in VActive)
 */
+=======
+/*
+ * Wait till we are in VActive (anywhere in VActive)
+ */
+>>>>>>> upstream/android-13
 static void dce110_timing_generator_v_wait_for_vactive(struct timing_generator *tg)
 {
 	while (dce110_timing_generator_v_is_in_vertical_blank(tg)) {
@@ -435,6 +453,14 @@ static void dce110_timing_generator_v_set_blank(struct timing_generator *tg,
 
 static void dce110_timing_generator_v_program_timing(struct timing_generator *tg,
 	const struct dc_crtc_timing *timing,
+<<<<<<< HEAD
+=======
+	int vready_offset,
+	int vstartup_start,
+	int vupdate_offset,
+	int vupdate_width,
+	const enum signal_type signal,
+>>>>>>> upstream/android-13
 	bool use_vbios)
 {
 	if (use_vbios)

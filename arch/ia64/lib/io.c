@@ -49,6 +49,7 @@ void memset_io(volatile void __iomem *dst, int c, long count)
 	}
 }
 EXPORT_SYMBOL(memset_io);
+<<<<<<< HEAD
 
 #ifdef CONFIG_IA64_GENERIC
 
@@ -163,3 +164,5 @@ __ia64_mmiowb(void)
 }
 
 #endif /* CONFIG_IA64_GENERIC */
+=======
+>>>>>>> upstream/android-13

@@ -3,6 +3,10 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+<<<<<<< HEAD
+=======
+ * (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+>>>>>>> upstream/android-13
  * Copyright (C) 2004-2008 Silicon Graphics, Inc. All rights reserved.
  */
 
@@ -17,6 +21,7 @@
 
 #if defined CONFIG_X86_UV || defined CONFIG_IA64_SGI_UV
 #include <asm/uv/uv.h>
+<<<<<<< HEAD
 #define is_uv()		is_uv_system()
 #endif
 
@@ -39,6 +44,8 @@
 
 #ifndef is_shub
 #define is_shub()	0
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef USE_DBUG_ON
@@ -96,7 +103,11 @@
 
 #define XPC_MSG_SIZE(_payload_size) \
 				ALIGN(XPC_MSG_HDR_MAX_SIZE + (_payload_size), \
+<<<<<<< HEAD
 				      is_uv() ? 64 : 128)
+=======
+				      is_uv_system() ? 64 : 128)
+>>>>>>> upstream/android-13
 
 
 /*
@@ -360,9 +371,13 @@ extern int xp_nofault_PIOR(void *);
 extern int xp_error_PIOR(void);
 
 extern struct device *xp;
+<<<<<<< HEAD
 extern enum xp_retval xp_init_sn2(void);
 extern enum xp_retval xp_init_uv(void);
 extern void xp_exit_sn2(void);
+=======
+extern enum xp_retval xp_init_uv(void);
+>>>>>>> upstream/android-13
 extern void xp_exit_uv(void);
 
 #endif /* _DRIVERS_MISC_SGIXP_XP_H */

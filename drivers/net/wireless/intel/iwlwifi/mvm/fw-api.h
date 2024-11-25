@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -65,6 +66,14 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018, 2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __fw_api_h__
 #define __fw_api_h__
 
@@ -76,6 +85,10 @@
 #include "fw/api/datapath.h"
 #include "fw/api/phy.h"
 #include "fw/api/config.h"
+<<<<<<< HEAD
+=======
+#include "fw/api/soc.h"
+>>>>>>> upstream/android-13
 #include "fw/api/alive.h"
 #include "fw/api/binding.h"
 #include "fw/api/cmdhdr.h"
@@ -94,7 +107,13 @@
 #include "fw/api/sf.h"
 #include "fw/api/sta.h"
 #include "fw/api/stats.h"
+<<<<<<< HEAD
 #include "fw/api/tof.h"
 #include "fw/api/tx.h"
+=======
+#include "fw/api/location.h"
+#include "fw/api/tx.h"
+#include "fw/api/rfi.h"
+>>>>>>> upstream/android-13
 
 #endif /* __fw_api_h__ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * drivers/net/phy/smsc.c
  *
@@ -7,15 +11,22 @@
  *
  * Copyright (c) 2006 Herbert Valerio Riedel <hvr@gnu.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Support added for SMSC LAN8187 and LAN8700 by steve.glendinning@shawell.net
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mii.h>
@@ -25,6 +36,20 @@
 #include <linux/netdevice.h>
 #include <linux/smscphy.h>
 
+<<<<<<< HEAD
+=======
+/* Vendor-specific PHY Definitions */
+/* EDPD NLP / crossover time configuration */
+#define PHY_EDPD_CONFIG			16
+#define PHY_EDPD_CONFIG_EXT_CROSSOVER_	0x0001
+
+/* Control/Status Indication Register */
+#define SPECIAL_CTRL_STS		27
+#define SPECIAL_CTRL_STS_OVRRD_AMDIX_	0x8000
+#define SPECIAL_CTRL_STS_AMDIX_ENABLE_	0x4000
+#define SPECIAL_CTRL_STS_AMDIX_STATE_	0x2000
+
+>>>>>>> upstream/android-13
 struct smsc_hw_stat {
 	const char *string;
 	u8 reg;
@@ -37,6 +62,7 @@ static struct smsc_hw_stat smsc_hw_stats[] = {
 
 struct smsc_phy_priv {
 	bool energy_enable;
+<<<<<<< HEAD
 };
 
 static int smsc_phy_config_intr(struct phy_device *phydev)
@@ -45,26 +71,96 @@ static int smsc_phy_config_intr(struct phy_device *phydev)
 			((PHY_INTERRUPT_ENABLED == phydev->interrupts)
 			? MII_LAN83C185_ISF_INT_PHYLIB_EVENTS
 			: 0));
-
-	return rc < 0 ? rc : 0;
-}
+=======
+	struct clk *refclk;
+};
 
 static int smsc_phy_ack_interrupt(struct phy_device *phydev)
 {
-	int rc = phy_read (phydev, MII_LAN83C185_ISF);
+	int rc = phy_read(phydev, MII_LAN83C185_ISF);
+>>>>>>> upstream/android-13
 
 	return rc < 0 ? rc : 0;
 }
 
+<<<<<<< HEAD
+static int smsc_phy_ack_interrupt(struct phy_device *phydev)
+{
+	int rc = phy_read (phydev, MII_LAN83C185_ISF);
+=======
+static int smsc_phy_config_intr(struct phy_device *phydev)
+{
+	struct smsc_phy_priv *priv = phydev->priv;
+	u16 intmask = 0;
+	int rc;
+
+	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
+		rc = smsc_phy_ack_interrupt(phydev);
+		if (rc)
+			return rc;
+
+		intmask = MII_LAN83C185_ISF_INT4 | MII_LAN83C185_ISF_INT6;
+		if (priv->energy_enable)
+			intmask |= MII_LAN83C185_ISF_INT7;
+		rc = phy_write(phydev, MII_LAN83C185_IM, intmask);
+	} else {
+		rc = phy_write(phydev, MII_LAN83C185_IM, intmask);
+		if (rc)
+			return rc;
+
+		rc = smsc_phy_ack_interrupt(phydev);
+	}
+>>>>>>> upstream/android-13
+
+	return rc < 0 ? rc : 0;
+}
+
+<<<<<<< HEAD
 static int smsc_phy_config_init(struct phy_device *phydev)
 {
 	struct smsc_phy_priv *priv = phydev->priv;
 
 	int rc = phy_read(phydev, MII_LAN83C185_CTRL_STATUS);
+=======
+static irqreturn_t smsc_phy_handle_interrupt(struct phy_device *phydev)
+{
+	int irq_status, irq_enabled;
+
+	irq_enabled = phy_read(phydev, MII_LAN83C185_IM);
+	if (irq_enabled < 0) {
+		phy_error(phydev);
+		return IRQ_NONE;
+	}
+
+	irq_status = phy_read(phydev, MII_LAN83C185_ISF);
+	if (irq_status < 0) {
+		phy_error(phydev);
+		return IRQ_NONE;
+	}
+
+	if (!(irq_status & irq_enabled))
+		return IRQ_NONE;
+
+	phy_trigger_machine(phydev);
+
+	return IRQ_HANDLED;
+}
+
+static int smsc_phy_config_init(struct phy_device *phydev)
+{
+	struct smsc_phy_priv *priv = phydev->priv;
+	int rc;
+
+	if (!priv->energy_enable)
+		return 0;
+
+	rc = phy_read(phydev, MII_LAN83C185_CTRL_STATUS);
+>>>>>>> upstream/android-13
 
 	if (rc < 0)
 		return rc;
 
+<<<<<<< HEAD
 	if (priv->energy_enable) {
 		/* Enable energy detect mode for this SMSC Transceivers */
 		rc = phy_write(phydev, MII_LAN83C185_CTRL_STATUS,
@@ -72,6 +168,13 @@ static int smsc_phy_config_init(struct phy_device *phydev)
 		if (rc < 0)
 			return rc;
 	}
+=======
+	/* Enable energy detect mode for this SMSC Transceivers */
+	rc = phy_write(phydev, MII_LAN83C185_CTRL_STATUS,
+		       rc | MII_LAN83C185_EDPWRDOWN);
+	if (rc < 0)
+		return rc;
+>>>>>>> upstream/android-13
 
 	return smsc_phy_ack_interrupt(phydev);
 }
@@ -100,6 +203,60 @@ static int lan911x_config_init(struct phy_device *phydev)
 	return smsc_phy_ack_interrupt(phydev);
 }
 
+<<<<<<< HEAD
+=======
+static int lan87xx_config_aneg(struct phy_device *phydev)
+{
+	int rc;
+	int val;
+
+	switch (phydev->mdix_ctrl) {
+	case ETH_TP_MDI:
+		val = SPECIAL_CTRL_STS_OVRRD_AMDIX_;
+		break;
+	case ETH_TP_MDI_X:
+		val = SPECIAL_CTRL_STS_OVRRD_AMDIX_ |
+			SPECIAL_CTRL_STS_AMDIX_STATE_;
+		break;
+	case ETH_TP_MDI_AUTO:
+		val = SPECIAL_CTRL_STS_AMDIX_ENABLE_;
+		break;
+	default:
+		return genphy_config_aneg(phydev);
+	}
+
+	rc = phy_read(phydev, SPECIAL_CTRL_STS);
+	if (rc < 0)
+		return rc;
+
+	rc &= ~(SPECIAL_CTRL_STS_OVRRD_AMDIX_ |
+		SPECIAL_CTRL_STS_AMDIX_ENABLE_ |
+		SPECIAL_CTRL_STS_AMDIX_STATE_);
+	rc |= val;
+	phy_write(phydev, SPECIAL_CTRL_STS, rc);
+
+	phydev->mdix = phydev->mdix_ctrl;
+	return genphy_config_aneg(phydev);
+}
+
+static int lan95xx_config_aneg_ext(struct phy_device *phydev)
+{
+	int rc;
+
+	if (phydev->phy_id != 0x0007c0f0) /* not (LAN9500A or LAN9505A) */
+		return lan87xx_config_aneg(phydev);
+
+	/* Extend Manual AutoMDIX timer */
+	rc = phy_read(phydev, PHY_EDPD_CONFIG);
+	if (rc < 0)
+		return rc;
+
+	rc |= PHY_EDPD_CONFIG_EXT_CROSSOVER_;
+	phy_write(phydev, PHY_EDPD_CONFIG, rc);
+	return lan87xx_config_aneg(phydev);
+}
+
+>>>>>>> upstream/android-13
 /*
  * The LAN87xx suffers from rare absence of the ENERGYON-bit when Ethernet cable
  * plugs in while LAN87xx is in Energy Detect Power-Down mode. This leads to
@@ -116,8 +273,11 @@ static int lan87xx_read_status(struct phy_device *phydev)
 	int err = genphy_read_status(phydev);
 
 	if (!phydev->link && priv->energy_enable) {
+<<<<<<< HEAD
 		int i;
 
+=======
+>>>>>>> upstream/android-13
 		/* Disable EDPD to wake up PHY */
 		int rc = phy_read(phydev, MII_LAN83C185_CTRL_STATUS);
 		if (rc < 0)
@@ -128,6 +288,7 @@ static int lan87xx_read_status(struct phy_device *phydev)
 		if (rc < 0)
 			return rc;
 
+<<<<<<< HEAD
 		/* Wait max 640 ms to detect energy */
 		for (i = 0; i < 64; i++) {
 			/* Sleep to allow link test pulses to be sent */
@@ -138,6 +299,17 @@ static int lan87xx_read_status(struct phy_device *phydev)
 			if (rc & MII_LAN83C185_ENERGYON)
 				break;
 		}
+=======
+		/* Wait max 640 ms to detect energy and the timeout is not
+		 * an actual error.
+		 */
+		read_poll_timeout(phy_read, rc,
+				  rc & MII_LAN83C185_ENERGYON || rc < 0,
+				  10000, 640000, true, phydev,
+				  MII_LAN83C185_CTRL_STATUS);
+		if (rc < 0)
+			return rc;
+>>>>>>> upstream/android-13
 
 		/* Re-enable EDPD */
 		rc = phy_read(phydev, MII_LAN83C185_CTRL_STATUS);
@@ -192,11 +364,26 @@ static void smsc_get_stats(struct phy_device *phydev,
 		data[i] = smsc_get_stat(phydev, i);
 }
 
+<<<<<<< HEAD
+=======
+static void smsc_phy_remove(struct phy_device *phydev)
+{
+	struct smsc_phy_priv *priv = phydev->priv;
+
+	clk_disable_unprepare(priv->refclk);
+	clk_put(priv->refclk);
+}
+
+>>>>>>> upstream/android-13
 static int smsc_phy_probe(struct phy_device *phydev)
 {
 	struct device *dev = &phydev->mdio.dev;
 	struct device_node *of_node = dev->of_node;
 	struct smsc_phy_priv *priv;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -209,6 +396,25 @@ static int smsc_phy_probe(struct phy_device *phydev)
 
 	phydev->priv = priv;
 
+<<<<<<< HEAD
+=======
+	/* Make clk optional to keep DTB backward compatibility. */
+	priv->refclk = clk_get_optional(dev, NULL);
+	if (IS_ERR(priv->refclk))
+		return dev_err_probe(dev, PTR_ERR(priv->refclk),
+				     "Failed to request clock\n");
+
+	ret = clk_prepare_enable(priv->refclk);
+	if (ret)
+		return ret;
+
+	ret = clk_set_rate(priv->refclk, 50 * 1000 * 1000);
+	if (ret) {
+		clk_disable_unprepare(priv->refclk);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -218,8 +424,12 @@ static struct phy_driver smsc_phy_driver[] = {
 	.phy_id_mask	= 0xfffffff0,
 	.name		= "SMSC LAN83C185",
 
+<<<<<<< HEAD
 	.features	= PHY_BASIC_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
+=======
+	/* PHY_BASIC_FEATURES */
+>>>>>>> upstream/android-13
 
 	.probe		= smsc_phy_probe,
 
@@ -228,8 +438,13 @@ static struct phy_driver smsc_phy_driver[] = {
 	.soft_reset	= smsc_phy_reset,
 
 	/* IRQ related */
+<<<<<<< HEAD
 	.ack_interrupt	= smsc_phy_ack_interrupt,
 	.config_intr	= smsc_phy_config_intr,
+=======
+	.config_intr	= smsc_phy_config_intr,
+	.handle_interrupt = smsc_phy_handle_interrupt,
+>>>>>>> upstream/android-13
 
 	.suspend	= genphy_suspend,
 	.resume		= genphy_resume,
@@ -238,8 +453,12 @@ static struct phy_driver smsc_phy_driver[] = {
 	.phy_id_mask	= 0xfffffff0,
 	.name		= "SMSC LAN8187",
 
+<<<<<<< HEAD
 	.features	= PHY_BASIC_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
+=======
+	/* PHY_BASIC_FEATURES */
+>>>>>>> upstream/android-13
 
 	.probe		= smsc_phy_probe,
 
@@ -248,8 +467,13 @@ static struct phy_driver smsc_phy_driver[] = {
 	.soft_reset	= smsc_phy_reset,
 
 	/* IRQ related */
+<<<<<<< HEAD
 	.ack_interrupt	= smsc_phy_ack_interrupt,
 	.config_intr	= smsc_phy_config_intr,
+=======
+	.config_intr	= smsc_phy_config_intr,
+	.handle_interrupt = smsc_phy_handle_interrupt,
+>>>>>>> upstream/android-13
 
 	/* Statistics */
 	.get_sset_count = smsc_get_sset_count,
@@ -259,12 +483,22 @@ static struct phy_driver smsc_phy_driver[] = {
 	.suspend	= genphy_suspend,
 	.resume		= genphy_resume,
 }, {
+<<<<<<< HEAD
+=======
+	/* This covers internal PHY (phy_id: 0x0007C0C3) for
+	 * LAN9500 (PID: 0x9500), LAN9514 (PID: 0xec00), LAN9505 (PID: 0x9505)
+	 */
+>>>>>>> upstream/android-13
 	.phy_id		= 0x0007c0c0, /* OUI=0x00800f, Model#=0x0c */
 	.phy_id_mask	= 0xfffffff0,
 	.name		= "SMSC LAN8700",
 
+<<<<<<< HEAD
 	.features	= PHY_BASIC_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
+=======
+	/* PHY_BASIC_FEATURES */
+>>>>>>> upstream/android-13
 
 	.probe		= smsc_phy_probe,
 
@@ -272,10 +506,18 @@ static struct phy_driver smsc_phy_driver[] = {
 	.read_status	= lan87xx_read_status,
 	.config_init	= smsc_phy_config_init,
 	.soft_reset	= smsc_phy_reset,
+<<<<<<< HEAD
 
 	/* IRQ related */
 	.ack_interrupt	= smsc_phy_ack_interrupt,
 	.config_intr	= smsc_phy_config_intr,
+=======
+	.config_aneg	= lan87xx_config_aneg,
+
+	/* IRQ related */
+	.config_intr	= smsc_phy_config_intr,
+	.handle_interrupt = smsc_phy_handle_interrupt,
+>>>>>>> upstream/android-13
 
 	/* Statistics */
 	.get_sset_count = smsc_get_sset_count,
@@ -289,8 +531,12 @@ static struct phy_driver smsc_phy_driver[] = {
 	.phy_id_mask	= 0xfffffff0,
 	.name		= "SMSC LAN911x Internal PHY",
 
+<<<<<<< HEAD
 	.features	= PHY_BASIC_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
+=======
+	/* PHY_BASIC_FEATURES */
+>>>>>>> upstream/android-13
 
 	.probe		= smsc_phy_probe,
 
@@ -298,29 +544,55 @@ static struct phy_driver smsc_phy_driver[] = {
 	.config_init	= lan911x_config_init,
 
 	/* IRQ related */
+<<<<<<< HEAD
 	.ack_interrupt	= smsc_phy_ack_interrupt,
 	.config_intr	= smsc_phy_config_intr,
+=======
+	.config_intr	= smsc_phy_config_intr,
+	.handle_interrupt = smsc_phy_handle_interrupt,
+>>>>>>> upstream/android-13
 
 	.suspend	= genphy_suspend,
 	.resume		= genphy_resume,
 }, {
+<<<<<<< HEAD
+=======
+	/* This covers internal PHY (phy_id: 0x0007C0F0) for
+	 * LAN9500A (PID: 0x9E00), LAN9505A (PID: 0x9E01)
+	 */
+>>>>>>> upstream/android-13
 	.phy_id		= 0x0007c0f0, /* OUI=0x00800f, Model#=0x0f */
 	.phy_id_mask	= 0xfffffff0,
 	.name		= "SMSC LAN8710/LAN8720",
 
+<<<<<<< HEAD
 	.features	= PHY_BASIC_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT | PHY_RST_AFTER_CLK_EN,
 
 	.probe		= smsc_phy_probe,
+=======
+	/* PHY_BASIC_FEATURES */
+
+	.probe		= smsc_phy_probe,
+	.remove		= smsc_phy_remove,
+>>>>>>> upstream/android-13
 
 	/* basic functions */
 	.read_status	= lan87xx_read_status,
 	.config_init	= smsc_phy_config_init,
 	.soft_reset	= smsc_phy_reset,
+<<<<<<< HEAD
 
 	/* IRQ related */
 	.ack_interrupt	= smsc_phy_ack_interrupt,
 	.config_intr	= smsc_phy_config_intr,
+=======
+	.config_aneg	= lan95xx_config_aneg_ext,
+
+	/* IRQ related */
+	.config_intr	= smsc_phy_config_intr,
+	.handle_interrupt = smsc_phy_handle_interrupt,
+>>>>>>> upstream/android-13
 
 	/* Statistics */
 	.get_sset_count = smsc_get_sset_count,
@@ -334,8 +606,13 @@ static struct phy_driver smsc_phy_driver[] = {
 	.phy_id_mask	= 0xfffffff0,
 	.name		= "SMSC LAN8740",
 
+<<<<<<< HEAD
 	.features	= PHY_BASIC_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
+=======
+	/* PHY_BASIC_FEATURES */
+	.flags		= PHY_RST_AFTER_CLK_EN,
+>>>>>>> upstream/android-13
 
 	.probe		= smsc_phy_probe,
 
@@ -345,8 +622,13 @@ static struct phy_driver smsc_phy_driver[] = {
 	.soft_reset	= smsc_phy_reset,
 
 	/* IRQ related */
+<<<<<<< HEAD
 	.ack_interrupt	= smsc_phy_ack_interrupt,
 	.config_intr	= smsc_phy_config_intr,
+=======
+	.config_intr	= smsc_phy_config_intr,
+	.handle_interrupt = smsc_phy_handle_interrupt,
+>>>>>>> upstream/android-13
 
 	/* Statistics */
 	.get_sset_count = smsc_get_sset_count,

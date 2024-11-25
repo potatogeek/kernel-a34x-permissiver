@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Minimalist driver for a generic PCI-to-EISA bridge.
  *
  * (C) 2003 Marc Zyngier <maz@wild-wind.fr.eu.org>
  *
+<<<<<<< HEAD
  * This code is released under the GPL version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * Ivan Kokshaysky <ink@jurassic.park.msu.ru> :
  * Generalisation from i82375 to PCI_CLASS_BRIDGE_EISA.
  */

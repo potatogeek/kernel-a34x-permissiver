@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PPP synchronous tty channel driver for Linux.
  *
@@ -15,11 +19,14 @@
  *
  * Also touched by the grubby hands of Paul Fulghum paulkf@microgate.com
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver provides the encapsulation and framing for sending
  * and receiving PPP frames over sync serial lines.  It relies on
  * the generic PPP layer to give it frames to send and to process
@@ -94,11 +101,19 @@ static struct sk_buff* ppp_sync_txmunge(struct syncppp *ap, struct sk_buff *);
 static int ppp_sync_send(struct ppp_channel *chan, struct sk_buff *skb);
 static int ppp_sync_ioctl(struct ppp_channel *chan, unsigned int cmd,
 			  unsigned long arg);
+<<<<<<< HEAD
 static void ppp_sync_process(unsigned long arg);
 static int ppp_sync_push(struct syncppp *ap);
 static void ppp_sync_flush_output(struct syncppp *ap);
 static void ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
 			   char *flags, int count);
+=======
+static void ppp_sync_process(struct tasklet_struct *t);
+static int ppp_sync_push(struct syncppp *ap);
+static void ppp_sync_flush_output(struct syncppp *ap);
+static void ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
+			   const char *flags, int count);
+>>>>>>> upstream/android-13
 
 static const struct ppp_channel_ops sync_ops = {
 	.start_xmit = ppp_sync_send,
@@ -181,7 +196,11 @@ ppp_sync_open(struct tty_struct *tty)
 	ap->raccm = ~0U;
 
 	skb_queue_head_init(&ap->rqueue);
+<<<<<<< HEAD
 	tasklet_init(&ap->tsk, ppp_sync_process, (unsigned long) ap);
+=======
+	tasklet_setup(&ap->tsk, ppp_sync_process);
+>>>>>>> upstream/android-13
 
 	refcount_set(&ap->refcnt, 1);
 	init_completion(&ap->dead_cmp);
@@ -261,7 +280,12 @@ static int ppp_sync_hangup(struct tty_struct *tty)
  */
 static ssize_t
 ppp_sync_read(struct tty_struct *tty, struct file *file,
+<<<<<<< HEAD
 	       unsigned char __user *buf, size_t count)
+=======
+	      unsigned char *buf, size_t count,
+	      void **cookie, unsigned long offset)
+>>>>>>> upstream/android-13
 {
 	return -EAGAIN;
 }
@@ -336,7 +360,11 @@ ppp_sync_poll(struct tty_struct *tty, struct file *file, poll_table *wait)
 /* May sleep, don't call from interrupt level or with interrupts disabled */
 static void
 ppp_sync_receive(struct tty_struct *tty, const unsigned char *buf,
+<<<<<<< HEAD
 		  char *cflags, int count)
+=======
+		  const char *cflags, int count)
+>>>>>>> upstream/android-13
 {
 	struct syncppp *ap = sp_get(tty);
 	unsigned long flags;
@@ -368,7 +396,11 @@ ppp_sync_wakeup(struct tty_struct *tty)
 
 static struct tty_ldisc_ops ppp_sync_ldisc = {
 	.owner	= THIS_MODULE,
+<<<<<<< HEAD
 	.magic	= TTY_LDISC_MAGIC,
+=======
+	.num	= N_SYNC_PPP,
+>>>>>>> upstream/android-13
 	.name	= "pppsync",
 	.open	= ppp_sync_open,
 	.close	= ppp_sync_close,
@@ -386,7 +418,11 @@ ppp_sync_init(void)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = tty_register_ldisc(N_SYNC_PPP, &ppp_sync_ldisc);
+=======
+	err = tty_register_ldisc(&ppp_sync_ldisc);
+>>>>>>> upstream/android-13
 	if (err != 0)
 		printk(KERN_ERR "PPP_sync: error %d registering line disc.\n",
 		       err);
@@ -484,9 +520,15 @@ ppp_sync_ioctl(struct ppp_channel *chan, unsigned int cmd, unsigned long arg)
  * to the ppp_generic code, and to tell the ppp_generic code
  * if we can accept more output now.
  */
+<<<<<<< HEAD
 static void ppp_sync_process(unsigned long arg)
 {
 	struct syncppp *ap = (struct syncppp *) arg;
+=======
+static void ppp_sync_process(struct tasklet_struct *t)
+{
+	struct syncppp *ap = from_tasklet(ap, t, tsk);
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 
 	/* process received packets */
@@ -669,7 +711,11 @@ ppp_sync_flush_output(struct syncppp *ap)
  */
 static void
 ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
+<<<<<<< HEAD
 		char *flags, int count)
+=======
+		const char *flags, int count)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb;
 	unsigned char *p;
@@ -730,8 +776,12 @@ err:
 static void __exit
 ppp_sync_cleanup(void)
 {
+<<<<<<< HEAD
 	if (tty_unregister_ldisc(N_SYNC_PPP) != 0)
 		printk(KERN_ERR "failed to unregister Sync PPP line discipline\n");
+=======
+	tty_unregister_ldisc(&ppp_sync_ldisc);
+>>>>>>> upstream/android-13
 }
 
 module_init(ppp_sync_init);

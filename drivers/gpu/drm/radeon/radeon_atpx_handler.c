@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010 Red Hat Inc.
  * Author : Dave Airlie <airlied@redhat.com>
  *
+<<<<<<< HEAD
  * Licensed under GPLv2
  *
+=======
+>>>>>>> upstream/android-13
  * ATPX support for both Intel/ATI
  */
 #include <linux/vga_switcheroo.h>

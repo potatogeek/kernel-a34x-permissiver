@@ -27,7 +27,11 @@ int main(void)
 	fd = open("/proc/self/wchan", O_RDONLY);
 	if (fd == -1) {
 		if (errno == ENOENT)
+<<<<<<< HEAD
 			return 2;
+=======
+			return 4;
+>>>>>>> upstream/android-13
 		return 1;
 	}
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* n2-drv.c: Niagara-2 RNG driver.
  *
  * Copyright (C) 2008, 2011 David S. Miller <davem@davemloft.net>
@@ -767,7 +771,11 @@ static int n2rng_probe(struct platform_device *op)
 	np->hwrng.data_read = n2rng_data_read;
 	np->hwrng.priv = (unsigned long) np;
 
+<<<<<<< HEAD
 	err = hwrng_register(&np->hwrng);
+=======
+	err = devm_hwrng_register(&op->dev, &np->hwrng);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_hvapi_unregister;
 
@@ -792,8 +800,11 @@ static int n2rng_remove(struct platform_device *op)
 
 	cancel_delayed_work_sync(&np->work);
 
+<<<<<<< HEAD
 	hwrng_unregister(&np->hwrng);
 
+=======
+>>>>>>> upstream/android-13
 	sun4v_hvapi_unregister(HV_GRP_RNG);
 
 	return 0;

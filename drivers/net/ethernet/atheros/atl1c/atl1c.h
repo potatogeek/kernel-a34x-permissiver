@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright(c) 2008 - 2009 Atheros Corporation. All rights reserved.
  *
  * Derived from Intel e1000 driver
  * Copyright(c) 1999 - 2005 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59
  * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ATL1C_H_
@@ -76,7 +83,11 @@
 
 #define AT_MAX_RECEIVE_QUEUE    4
 #define AT_DEF_RECEIVE_QUEUE	1
+<<<<<<< HEAD
 #define AT_MAX_TRANSMIT_QUEUE	2
+=======
+#define AT_MAX_TRANSMIT_QUEUE  4
+>>>>>>> upstream/android-13
 
 #define AT_DMA_HI_ADDR_MASK     0xffffffff00000000ULL
 #define AT_DMA_LO_ADDR_MASK     0x00000000ffffffffULL
@@ -254,6 +265,11 @@ struct atl1c_tpd_ext_desc {
 #define RRS_PACKET_PROT_IS_IPV6_ONLY(word) \
 	((((word) >> RRS_PROT_ID_SHIFT) & RRS_PROT_ID_MASK) == 6)
 
+<<<<<<< HEAD
+=======
+#define RRS_MT_PROT_ID_TCPUDP	BIT(19)
+
+>>>>>>> upstream/android-13
 struct atl1c_recv_ret_status {
 	__le32  word0;
 	__le32	rss_hash;
@@ -302,11 +318,15 @@ enum atl1c_nic_type {
 	athr_l2c_b2,
 	athr_l1d,
 	athr_l1d_2,
+<<<<<<< HEAD
 };
 
 enum atl1c_trans_queue {
 	atl1c_trans_normal = 0,
 	atl1c_trans_high = 1
+=======
+	athr_mt,
+>>>>>>> upstream/android-13
 };
 
 struct atl1c_hw_stats {
@@ -380,6 +400,10 @@ struct atl1c_hw {
 	u16 phy_id1;
 	u16 phy_id2;
 
+<<<<<<< HEAD
+=======
+	spinlock_t intr_mask_lock;	/* protect the intr_mask */
+>>>>>>> upstream/android-13
 	u32 intr_mask;
 
 	u8 preamble_len;
@@ -484,13 +508,24 @@ struct atl1c_buffer {
 
 /* transimit packet descriptor (tpd) ring */
 struct atl1c_tpd_ring {
+<<<<<<< HEAD
 	void *desc;		/* descriptor ring virtual address */
 	dma_addr_t dma;		/* descriptor ring physical address */
+=======
+	struct atl1c_adapter *adapter;
+	void *desc;		/* descriptor ring virtual address */
+	dma_addr_t dma;		/* descriptor ring physical address */
+	u16 num;
+>>>>>>> upstream/android-13
 	u16 size;		/* descriptor ring length in bytes */
 	u16 count;		/* number of descriptors in the ring */
 	u16 next_to_use;
 	atomic_t next_to_clean;
 	struct atl1c_buffer *buffer_info;
+<<<<<<< HEAD
+=======
+	struct napi_struct napi;
+>>>>>>> upstream/android-13
 };
 
 /* receive free descriptor (rfd) ring */
@@ -506,26 +541,47 @@ struct atl1c_rfd_ring {
 
 /* receive return descriptor (rrd) ring */
 struct atl1c_rrd_ring {
+<<<<<<< HEAD
 	void *desc;		/* descriptor ring virtual address */
 	dma_addr_t dma;		/* descriptor ring physical address */
+=======
+	struct atl1c_adapter *adapter;
+	void *desc;		/* descriptor ring virtual address */
+	dma_addr_t dma;		/* descriptor ring physical address */
+	u16 num;
+>>>>>>> upstream/android-13
 	u16 size;		/* descriptor ring length in bytes */
 	u16 count;		/* number of descriptors in the ring */
 	u16 next_to_use;
 	u16 next_to_clean;
+<<<<<<< HEAD
+=======
+	struct napi_struct napi;
+	struct page *rx_page;
+	unsigned int rx_page_offset;
+>>>>>>> upstream/android-13
 };
 
 /* board specific private data structure */
 struct atl1c_adapter {
 	struct net_device   *netdev;
 	struct pci_dev      *pdev;
+<<<<<<< HEAD
 	struct napi_struct  napi;
 	struct page         *rx_page;
 	unsigned int	    rx_page_offset;
+=======
+>>>>>>> upstream/android-13
 	unsigned int	    rx_frag_size;
 	struct atl1c_hw        hw;
 	struct atl1c_hw_stats  hw_stats;
 	struct mii_if_info  mii;    /* MII interface info */
 	u16 rx_buffer_len;
+<<<<<<< HEAD
+=======
+	unsigned int tx_queue_count;
+	unsigned int rx_queue_count;
+>>>>>>> upstream/android-13
 
 	unsigned long flags;
 #define __AT_TESTING        0x0001
@@ -551,8 +607,13 @@ struct atl1c_adapter {
 	/* All Descriptor memory */
 	struct atl1c_ring_header ring_header;
 	struct atl1c_tpd_ring tpd_ring[AT_MAX_TRANSMIT_QUEUE];
+<<<<<<< HEAD
 	struct atl1c_rfd_ring rfd_ring;
 	struct atl1c_rrd_ring rrd_ring;
+=======
+	struct atl1c_rfd_ring rfd_ring[AT_MAX_RECEIVE_QUEUE];
+	struct atl1c_rrd_ring rrd_ring[AT_MAX_RECEIVE_QUEUE];
+>>>>>>> upstream/android-13
 	u32 bd_number;     /* board number;*/
 };
 
@@ -596,7 +657,10 @@ struct atl1c_adapter {
 		readl(((a)->hw_addr + reg) + ((offset) << 2)))
 
 extern char atl1c_driver_name[];
+<<<<<<< HEAD
 extern char atl1c_driver_version[];
+=======
+>>>>>>> upstream/android-13
 
 void atl1c_reinit_locked(struct atl1c_adapter *adapter);
 s32 atl1c_reset_hw(struct atl1c_hw *hw);

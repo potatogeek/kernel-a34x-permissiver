@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 config TTY
 	bool "Enable TTY" if EXPERT
 	default y
 	---help---
+=======
+# SPDX-License-Identifier: GPL-2.0
+config TTY
+	bool "Enable TTY" if EXPERT
+	default y
+	help
+>>>>>>> upstream/android-13
 	  Allows you to remove TTY support which can save space, and
 	  blocks features that require TTY from inclusion in the kernel.
 	  TTY is required for any text terminals or serial port
@@ -11,10 +19,16 @@ if TTY
 
 config VT
 	bool "Virtual terminal" if EXPERT
+<<<<<<< HEAD
 	depends on !UML
 	select INPUT
 	default y
 	---help---
+=======
+	select INPUT
+	default y if !UML
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, you will get support for terminal devices with
 	  display and keyboard devices. These are called "virtual" because you
 	  can run several virtual terminals (also called virtual consoles) on
@@ -45,7 +59,11 @@ config CONSOLE_TRANSLATIONS
 	depends on VT
 	default y
 	bool "Enable character translations in console" if EXPERT
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This enables support for font mapping and Unicode translation
 	  on virtual consoles.
 
@@ -53,7 +71,11 @@ config VT_CONSOLE
 	bool "Support for console on virtual terminal" if EXPERT
 	depends on VT
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  The system console is the device which receives all kernel messages
 	  and warnings and which allows logins in single user mode. If you
 	  answer Y here, a virtual terminal (the device used to interact with
@@ -77,6 +99,7 @@ config VT_CONSOLE_SLEEP
 
 config HW_CONSOLE
 	bool
+<<<<<<< HEAD
 	depends on VT && !UML
 	default y
 
@@ -96,11 +119,35 @@ config VT_HW_CONSOLE_BINDING
 	 See <file:Documentation/console/console.txt> for more
 	 information. For framebuffer console users, please refer to
 	 <file:Documentation/fb/fbcon.txt>.
+=======
+	depends on VT
+	default y
+
+config VT_HW_CONSOLE_BINDING
+	bool "Support for binding and unbinding console drivers"
+	depends on HW_CONSOLE
+	help
+	  The virtual terminal is the device that interacts with the physical
+	  terminal through console drivers. On these systems, at least one
+	  console driver is loaded. In other configurations, additional console
+	  drivers may be enabled, such as the framebuffer console. If more than
+	  1 console driver is enabled, setting this to 'y' will allow you to
+	  select the console driver that will serve as the backend for the
+	  virtual terminals.
+
+	  See <file:Documentation/driver-api/console.rst> for more
+	  information. For framebuffer console users, please refer to
+	  <file:Documentation/fb/fbcon.rst>.
+>>>>>>> upstream/android-13
 
 config UNIX98_PTYS
 	bool "Unix98 PTY support" if EXPERT
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  A pseudo terminal (PTY) is a software device consisting of two
 	  halves: a master and a slave. The slave device behaves identical to
 	  a physical terminal; the master device is used by a process to
@@ -123,7 +170,11 @@ config UNIX98_PTYS
 config LEGACY_PTYS
 	bool "Legacy (BSD) PTY support"
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  A pseudo terminal (PTY) is a software device consisting of two
 	  halves: a master and a slave. The slave device behaves identical to
 	  a physical terminal; the master device is used by a process to
@@ -137,13 +188,20 @@ config LEGACY_PTYS
 	  security.  This option enables these legacy devices; on most
 	  systems, it is safe to say N.
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 config LEGACY_PTY_COUNT
 	int "Maximum number of legacy PTY in use"
 	depends on LEGACY_PTYS
 	range 0 256
 	default "256"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  The maximum number of legacy PTYs that can be used at any one time.
 	  The default is 256, and should be more than enough.  Embedded
 	  systems may want to reduce this to save memory.
@@ -151,6 +209,7 @@ config LEGACY_PTY_COUNT
 	  When not in use, each legacy PTY occupies 12 bytes on 32-bit
 	  architectures and 24 bytes on 64-bit architectures.
 
+<<<<<<< HEAD
 config SERIAL_NONSTANDARD
 	bool "Non-standard serial port support"
 	depends on HAS_IOMEM
@@ -158,6 +217,40 @@ config SERIAL_NONSTANDARD
 	  Say Y here if you have any non-standard serial boards -- boards
 	  which aren't supported using the standard "dumb" serial driver.
 	  This includes intelligent serial boards such as Cyclades,
+=======
+config LDISC_AUTOLOAD
+	bool "Automatically load TTY Line Disciplines"
+	default y
+	help
+	  Historically the kernel has always automatically loaded any
+	  line discipline that is in a kernel module when a user asks
+	  for it to be loaded with the TIOCSETD ioctl, or through other
+	  means.  This is not always the best thing to do on systems
+	  where you know you will not be using some of the more
+	  "ancient" line disciplines, so prevent the kernel from doing
+	  this unless the request is coming from a process with the
+	  CAP_SYS_MODULE permissions.
+
+	  Say 'Y' here if you trust your userspace users to do the right
+	  thing, or if you have only provided the line disciplines that
+	  you know you will be using, or if you wish to continue to use
+	  the traditional method of on-demand loading of these modules
+	  by any user.
+
+	  This functionality can be changed at runtime with the
+	  dev.tty.ldisc_autoload sysctl, this configuration option will
+	  only set the default value of this functionality.
+
+source "drivers/tty/serial/Kconfig"
+
+config SERIAL_NONSTANDARD
+	bool "Non-standard serial port support"
+	depends on HAS_IOMEM
+	help
+	  Say Y here if you have any non-standard serial boards -- boards
+	  which aren't supported using the standard "dumb" serial driver.
+	  This includes intelligent serial boards such as
+>>>>>>> upstream/android-13
 	  Digiboards, etc. These are usually used for systems that need many
 	  serial ports because they serve many terminals or dial-in
 	  connections.
@@ -168,6 +261,7 @@ config SERIAL_NONSTANDARD
 
 	  Most people can say N here.
 
+<<<<<<< HEAD
 config ROCKETPORT
 	tristate "Comtrol RocketPort support"
 	depends on SERIAL_NONSTANDARD && (ISA || EISA || PCI)
@@ -212,6 +306,8 @@ config CYZ_INTR
 	  status of the Cyclades-Z ports. The default op mode is polling. If
 	  unsure, say N.
 
+=======
+>>>>>>> upstream/android-13
 config MOXA_INTELLIO
 	tristate "Moxa Intellio support"
 	depends on SERIAL_NONSTANDARD && (ISA || EISA || PCI)
@@ -224,7 +320,11 @@ config MOXA_INTELLIO
 
 config MOXA_SMARTIO
 	tristate "Moxa SmartIO support v. 2.0"
+<<<<<<< HEAD
 	depends on SERIAL_NONSTANDARD && (PCI || EISA || ISA)
+=======
+	depends on SERIAL_NONSTANDARD && PCI
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you have a Moxa SmartIO multiport serial card and/or
 	  want to help develop a new version of this driver.
@@ -235,6 +335,7 @@ config MOXA_SMARTIO
 	  This driver can also be built as a module. The module will be called
 	  mxser. If you want to do that, say M here.
 
+<<<<<<< HEAD
 config SYNCLINK
 	tristate "Microgate SyncLink card support"
 	depends on SERIAL_NONSTANDARD && PCI && ISA_DMA_API
@@ -262,6 +363,8 @@ config SYNCLINKMP
 	  The module will be called synclinkmp.  If you want to do that, say M
 	  here.
 
+=======
+>>>>>>> upstream/android-13
 config SYNCLINK_GT
 	tristate "SyncLink GT/AC support"
 	depends on SERIAL_NONSTANDARD && PCI
@@ -270,6 +373,7 @@ config SYNCLINK_GT
 	  synchronous and asynchronous serial adapters
 	  manufactured by Microgate Systems, Ltd. (www.microgate.com)
 
+<<<<<<< HEAD
 config NOZOMI
 	tristate "HSDPA Broadband Wireless Data Card - Globe Trotter"
 	depends on PCI
@@ -290,6 +394,8 @@ config ISI
 	  built as a module. The module will be called isicom.
 	  If you want to do that, choose M here.
 
+=======
+>>>>>>> upstream/android-13
 config N_HDLC
 	tristate "HDLC line discipline support"
 	depends on SERIAL_NONSTANDARD
@@ -302,6 +408,7 @@ config N_HDLC
 	  The module will be called n_hdlc. If you want to do that, say M
 	  here.
 
+<<<<<<< HEAD
 config N_GSM
 	tristate "GSM MUX line discipline support (EXPERIMENTAL)"
 	depends on NET
@@ -341,6 +448,8 @@ config TRACE_SINK
 	  If you select this option, you need to select
 	  "Trace data router for MIPI P1149.7 cJTAG standard".
 
+=======
+>>>>>>> upstream/android-13
 config PPC_EPAPR_HV_BYTECHAN
 	bool "ePAPR hypervisor byte channel driver"
 	depends on PPC
@@ -389,6 +498,26 @@ config GOLDFISH_TTY_EARLY_CONSOLE
 	default y if GOLDFISH_TTY=y
 	select SERIAL_EARLYCON
 
+<<<<<<< HEAD
+=======
+config N_GSM
+	tristate "GSM MUX line discipline support (EXPERIMENTAL)"
+	depends on NET
+	help
+	  This line discipline provides support for the GSM MUX protocol and
+	  presents the mux as a set of 61 individual tty devices.
+
+config NOZOMI
+	tristate "HSDPA Broadband Wireless Data Card - Globe Trotter"
+	depends on PCI
+	help
+	  If you have a HSDPA driver Broadband Wireless Data Card -
+	  Globe Trotter PCMCIA card, say Y here.
+
+	  To compile this driver as a module, choose M here, the module
+	  will be called nozomi.
+
+>>>>>>> upstream/android-13
 config MIPS_EJTAG_FDC_TTY
 	bool "MIPS EJTAG Fast Debug Channel TTY"
 	depends on MIPS_CDMM
@@ -425,8 +554,13 @@ config MIPS_EJTAG_FDC_KGDB
 	depends on MIPS_EJTAG_FDC_TTY && KGDB
 	default y
 	help
+<<<<<<< HEAD
           This enables the use of KGDB over an FDC channel, allowing KGDB to be
           used remotely or when a serial port isn't available.
+=======
+	  This enables the use of KGDB over an FDC channel, allowing KGDB to be
+	  used remotely or when a serial port isn't available.
+>>>>>>> upstream/android-13
 
 config MIPS_EJTAG_FDC_KGDB_CHAN
 	int "KGDB FDC channel"
@@ -436,12 +570,30 @@ config MIPS_EJTAG_FDC_KGDB_CHAN
 	help
 	  FDC channel number to use for KGDB.
 
+<<<<<<< HEAD
+=======
+config NULL_TTY
+	tristate "NULL TTY driver"
+	help
+	  Say Y here if you want a NULL TTY which simply discards messages.
+
+	  This is useful to allow userspace applications which expect a console
+	  device to work without modifications even when no console is
+	  available or desired.
+
+	  In order to use this driver, you should redirect the console to this
+	  TTY, or boot the kernel with console=ttynull.
+
+	  If unsure, say N.
+
+>>>>>>> upstream/android-13
 config VCC
 	tristate "Sun Virtual Console Concentrator"
 	depends on SUN_LDOMS
 	help
 	  Support for Sun logical domain consoles.
 
+<<<<<<< HEAD
 config LDISC_AUTOLOAD
 	bool "Automatically load TTY Line Disciplines"
 	default y
@@ -466,3 +618,10 @@ config LDISC_AUTOLOAD
 	  only set the default value of this functionality.
 
 endif # TTY
+=======
+source "drivers/tty/hvc/Kconfig"
+
+endif # TTY
+
+source "drivers/tty/serdev/Kconfig"
+>>>>>>> upstream/android-13

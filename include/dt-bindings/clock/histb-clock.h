@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 HiSilicon Technologies Co., Ltd.
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2016 HiSilicon Technologies Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DTS_HISTB_CLOCK_H

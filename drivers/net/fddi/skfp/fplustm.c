@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *	(C)Copyright 1998,1999 SysKonnect,
@@ -5,11 +9,14 @@
  *
  *	See the file "skfddi.c" for further information.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
@@ -25,10 +32,13 @@
 #include <linux/bitrev.h>
 #include <linux/etherdevice.h>
 
+<<<<<<< HEAD
 #ifndef	lint
 static const char ID_sccs[] = "@(#)fplustm.c	1.32 99/02/23 (C) SK " ;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifndef UNUSED
 #ifdef  lint
 #define UNUSED(x)	(x) = (x)

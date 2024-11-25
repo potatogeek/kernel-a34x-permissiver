@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * des3_ede-asm_64.S  -  x86-64 assembly implementation of 3DES cipher
  *
  * Copyright © 2014 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -171,7 +178,11 @@
 	movl   left##d,   (io); \
 	movl   right##d, 4(io);
 
+<<<<<<< HEAD
 ENTRY(des3_ede_x86_64_crypt_blk)
+=======
+SYM_FUNC_START(des3_ede_x86_64_crypt_blk)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: round keys, CTX
 	 *	%rsi: dst
@@ -252,8 +263,13 @@ ENTRY(des3_ede_x86_64_crypt_blk)
 	popq %r12;
 	popq %rbx;
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(des3_ede_x86_64_crypt_blk)
+=======
+	RET;
+SYM_FUNC_END(des3_ede_x86_64_crypt_blk)
+>>>>>>> upstream/android-13
 
 /***********************************************************************
  * 3-way 3DES
@@ -427,7 +443,11 @@ ENDPROC(des3_ede_x86_64_crypt_blk)
 #define __movq(src, dst) \
 	movq src, dst;
 
+<<<<<<< HEAD
 ENTRY(des3_ede_x86_64_crypt_blk_3way)
+=======
+SYM_FUNC_START(des3_ede_x86_64_crypt_blk_3way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, round keys
 	 *	%rsi: dst (3 blocks)
@@ -537,8 +557,13 @@ ENTRY(des3_ede_x86_64_crypt_blk_3way)
 	popq %r12;
 	popq %rbx;
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(des3_ede_x86_64_crypt_blk_3way)
+=======
+	RET;
+SYM_FUNC_END(des3_ede_x86_64_crypt_blk_3way)
+>>>>>>> upstream/android-13
 
 .section	.rodata, "a", @progbits
 .align 16

@@ -1,7 +1,10 @@
 #
 # DECstation family
 #
+<<<<<<< HEAD
 platform-$(CONFIG_MACH_DECSTATION)	+= dec/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_MACH_DECSTATION)	+= \
 			-I$(srctree)/arch/mips/include/asm/mach-dec
 libs-$(CONFIG_MACH_DECSTATION)		+= arch/mips/dec/prom/

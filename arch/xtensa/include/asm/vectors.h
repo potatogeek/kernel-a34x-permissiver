@@ -18,6 +18,7 @@
 #ifndef _XTENSA_VECTORS_H
 #define _XTENSA_VECTORS_H
 
+<<<<<<< HEAD
 #include <variant/core.h>
 #include <asm/kmem_layout.h>
 
@@ -52,10 +53,24 @@ static inline unsigned long xtensa_get_kio_paddr(void)
 #define KERNELOFFSET			(XCHAL_KSEG_CACHED_VADDR + \
 					 CONFIG_KERNEL_LOAD_ADDRESS - \
 					 XCHAL_KSEG_PADDR)
+=======
+#include <asm/core.h>
+#include <asm/kmem_layout.h>
+
+#if defined(CONFIG_MMU) && XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY
+#ifdef CONFIG_KERNEL_VIRTUAL_ADDRESS
+#define KERNELOFFSET			CONFIG_KERNEL_VIRTUAL_ADDRESS
+#else
+#define KERNELOFFSET			(CONFIG_KERNEL_LOAD_ADDRESS + \
+					 XCHAL_KSEG_CACHED_VADDR - \
+					 XCHAL_KSEG_PADDR)
+#endif
+>>>>>>> upstream/android-13
 #else
 #define KERNELOFFSET			CONFIG_KERNEL_LOAD_ADDRESS
 #endif
 
+<<<<<<< HEAD
 #else /* !defined(CONFIG_MMU) */
   /* MMU Not being used - Virtual == Physical */
 
@@ -68,11 +83,20 @@ static inline unsigned long xtensa_get_kio_paddr(void)
 #define RESET_VECTOR1_VADDR		(XCHAL_RESET_VECTOR1_VADDR)
 #ifdef CONFIG_VECTORS_OFFSET
 #define VECBASE_VADDR			(KERNELOFFSET - CONFIG_VECTORS_OFFSET)
+=======
+#define RESET_VECTOR1_VADDR		(XCHAL_RESET_VECTOR1_VADDR)
+#ifdef CONFIG_VECTORS_ADDR
+#define VECBASE_VADDR			(CONFIG_VECTORS_ADDR)
+>>>>>>> upstream/android-13
 #else
 #define VECBASE_VADDR			_vecbase
 #endif
 
+<<<<<<< HEAD
 #if defined(XCHAL_HAVE_VECBASE) && XCHAL_HAVE_VECBASE
+=======
+#if XCHAL_HAVE_VECBASE
+>>>>>>> upstream/android-13
 
 #define VECTOR_VADDR(offset)		(VECBASE_VADDR + offset)
 

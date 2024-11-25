@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 MediaTek Inc.
  * Author: Hongzhou.Yang <hongzhou.yang@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 MediaTek Inc.
+ * Author: Hongzhou.Yang <hongzhou.yang@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -41,6 +48,12 @@ static const struct mtk_pinctrl_devdata mt6397_pinctrl_data = {
 	.port_shf = 3,
 	.port_mask = 0x3,
 	.port_align = 2,
+<<<<<<< HEAD
+=======
+	.mode_mask = 0xf,
+	.mode_per_reg = 5,
+	.mode_shf = 4,
+>>>>>>> upstream/android-13
 };
 
 static int mt6397_pinctrl_probe(struct platform_device *pdev)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 
 #include <linux/kernel.h>
@@ -7,7 +11,11 @@
 #include <linux/string.h>
 #include <linux/bitops.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/mtd/nand_ecc.h>
+=======
+#include <linux/mtd/nand-ecc-sw-hamming.h>
+>>>>>>> upstream/android-13
 
 #include "mtd_test.h"
 
@@ -21,7 +29,11 @@
  * or detected.
  */
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTD_NAND)
+=======
+#if IS_ENABLED(CONFIG_MTD_RAW_NAND)
+>>>>>>> upstream/android-13
 
 struct nand_ecc_test {
 	const char *name;
@@ -118,11 +130,21 @@ static void no_bit_error(void *error_data, void *error_ecc,
 static int no_bit_error_verify(void *error_data, void *error_ecc,
 				void *correct_data, const size_t size)
 {
+<<<<<<< HEAD
 	unsigned char calc_ecc[3];
 	int ret;
 
 	__nand_calculate_ecc(error_data, size, calc_ecc);
 	ret = __nand_correct_data(error_data, error_ecc, calc_ecc, size);
+=======
+	bool sm_order = IS_ENABLED(CONFIG_MTD_NAND_ECC_SW_HAMMING_SMC);
+	unsigned char calc_ecc[3];
+	int ret;
+
+	ecc_sw_hamming_calculate(error_data, size, calc_ecc, sm_order);
+	ret = ecc_sw_hamming_correct(error_data, error_ecc, calc_ecc, size,
+				     sm_order);
+>>>>>>> upstream/android-13
 	if (ret == 0 && !memcmp(correct_data, error_data, size))
 		return 0;
 
@@ -146,11 +168,21 @@ static void single_bit_error_in_ecc(void *error_data, void *error_ecc,
 static int single_bit_error_correct(void *error_data, void *error_ecc,
 				void *correct_data, const size_t size)
 {
+<<<<<<< HEAD
 	unsigned char calc_ecc[3];
 	int ret;
 
 	__nand_calculate_ecc(error_data, size, calc_ecc);
 	ret = __nand_correct_data(error_data, error_ecc, calc_ecc, size);
+=======
+	bool sm_order = IS_ENABLED(CONFIG_MTD_NAND_ECC_SW_HAMMING_SMC);
+	unsigned char calc_ecc[3];
+	int ret;
+
+	ecc_sw_hamming_calculate(error_data, size, calc_ecc, sm_order);
+	ret = ecc_sw_hamming_correct(error_data, error_ecc, calc_ecc, size,
+				     sm_order);
+>>>>>>> upstream/android-13
 	if (ret == 1 && !memcmp(correct_data, error_data, size))
 		return 0;
 
@@ -181,11 +213,21 @@ static void double_bit_error_in_ecc(void *error_data, void *error_ecc,
 static int double_bit_error_detect(void *error_data, void *error_ecc,
 				void *correct_data, const size_t size)
 {
+<<<<<<< HEAD
 	unsigned char calc_ecc[3];
 	int ret;
 
 	__nand_calculate_ecc(error_data, size, calc_ecc);
 	ret = __nand_correct_data(error_data, error_ecc, calc_ecc, size);
+=======
+	bool sm_order = IS_ENABLED(CONFIG_MTD_NAND_ECC_SW_HAMMING_SMC);
+	unsigned char calc_ecc[3];
+	int ret;
+
+	ecc_sw_hamming_calculate(error_data, size, calc_ecc, sm_order);
+	ret = ecc_sw_hamming_correct(error_data, error_ecc, calc_ecc, size,
+				     sm_order);
+>>>>>>> upstream/android-13
 
 	return (ret == -EBADMSG) ? 0 : -EINVAL;
 }
@@ -241,6 +283,10 @@ static void dump_data_ecc(void *error_data, void *error_ecc, void *correct_data,
 
 static int nand_ecc_test_run(const size_t size)
 {
+<<<<<<< HEAD
+=======
+	bool sm_order = IS_ENABLED(CONFIG_MTD_NAND_ECC_SW_HAMMING_SMC);
+>>>>>>> upstream/android-13
 	int i;
 	int err = 0;
 	void *error_data;
@@ -259,8 +305,12 @@ static int nand_ecc_test_run(const size_t size)
 	}
 
 	prandom_bytes(correct_data, size);
+<<<<<<< HEAD
 	__nand_calculate_ecc(correct_data, size, correct_ecc);
 
+=======
+	ecc_sw_hamming_calculate(correct_data, size, correct_ecc, sm_order);
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(nand_ecc_test); i++) {
 		nand_ecc_test[i].prepare(error_data, error_ecc,
 				correct_data, correct_ecc, size);

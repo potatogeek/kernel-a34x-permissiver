@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* Internal procfs definitions
  *
  * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/proc_fs.h>
@@ -43,7 +50,14 @@ struct proc_dir_entry {
 	spinlock_t pde_unload_lock;
 	struct completion *pde_unload_completion;
 	const struct inode_operations *proc_iops;
+<<<<<<< HEAD
 	const struct file_operations *proc_fops;
+=======
+	union {
+		const struct proc_ops *proc_ops;
+		const struct file_operations *proc_dir_ops;
+	};
+>>>>>>> upstream/android-13
 	const struct dentry_operations *proc_dops;
 	union {
 		const struct seq_operations *seq_ops;
@@ -62,6 +76,10 @@ struct proc_dir_entry {
 	struct rb_node subdir_node;
 	char *name;
 	umode_t mode;
+<<<<<<< HEAD
+=======
+	u8 flags;
+>>>>>>> upstream/android-13
 	u8 namelen;
 	char inline_name[];
 } __randomize_layout;
@@ -74,6 +92,14 @@ struct proc_dir_entry {
 	0)
 #define SIZEOF_PDE_INLINE_NAME (SIZEOF_PDE - sizeof(struct proc_dir_entry))
 
+<<<<<<< HEAD
+=======
+static inline bool pde_is_permanent(const struct proc_dir_entry *pde)
+{
+	return pde->flags & PROC_ENTRY_PERMANENT;
+}
+
+>>>>>>> upstream/android-13
 extern struct kmem_cache *proc_dir_entry_cache;
 void pde_free(struct proc_dir_entry *pde);
 
@@ -82,6 +108,10 @@ union proc_op {
 	int (*proc_show)(struct seq_file *m,
 		struct pid_namespace *ns, struct pid *pid,
 		struct task_struct *task);
+<<<<<<< HEAD
+=======
+	const char *lsm;
+>>>>>>> upstream/android-13
 };
 
 struct proc_inode {
@@ -91,7 +121,11 @@ struct proc_inode {
 	struct proc_dir_entry *pde;
 	struct ctl_table_header *sysctl;
 	struct ctl_table *sysctl_entry;
+<<<<<<< HEAD
 	struct hlist_node sysctl_inodes;
+=======
+	struct hlist_node sibling_inodes;
+>>>>>>> upstream/android-13
 	const struct proc_ns_operations *ns_ops;
 	struct inode vfs_inode;
 } __randomize_layout;
@@ -156,13 +190,25 @@ extern int proc_pid_statm(struct seq_file *, struct pid_namespace *,
  * base.c
  */
 extern const struct dentry_operations pid_dentry_operations;
+<<<<<<< HEAD
 extern int pid_getattr(const struct path *, struct kstat *, u32, unsigned int);
 extern int proc_setattr(struct dentry *, struct iattr *);
+=======
+extern int pid_getattr(struct user_namespace *, const struct path *,
+		       struct kstat *, u32, unsigned int);
+extern int proc_setattr(struct user_namespace *, struct dentry *,
+			struct iattr *);
+extern void proc_pid_evict_inode(struct proc_inode *);
+>>>>>>> upstream/android-13
 extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *, umode_t);
 extern void pid_update_inode(struct task_struct *, struct inode *);
 extern int pid_delete_dentry(const struct dentry *);
 extern int proc_pid_readdir(struct file *, struct dir_context *);
+<<<<<<< HEAD
 extern struct dentry *proc_pid_lookup(struct inode *, struct dentry *, unsigned int);
+=======
+struct dentry *proc_pid_lookup(struct dentry *, unsigned int);
+>>>>>>> upstream/android-13
 extern loff_t mem_lseek(struct file *, loff_t, int);
 
 /* Lookups */
@@ -183,10 +229,16 @@ struct dentry *proc_lookup_de(struct inode *, struct dentry *, struct proc_dir_e
 extern int proc_readdir(struct file *, struct dir_context *);
 int proc_readdir_de(struct file *, struct dir_context *, struct proc_dir_entry *);
 
+<<<<<<< HEAD
 static inline struct proc_dir_entry *pde_get(struct proc_dir_entry *pde)
 {
 	refcount_inc(&pde->refcnt);
 	return pde;
+=======
+static inline void pde_get(struct proc_dir_entry *pde)
+{
+	refcount_inc(&pde->refcnt);
+>>>>>>> upstream/android-13
 }
 extern void pde_put(struct proc_dir_entry *);
 
@@ -200,12 +252,18 @@ extern ssize_t proc_simple_write(struct file *, const char __user *, size_t, lof
  * inode.c
  */
 struct pde_opener {
+<<<<<<< HEAD
 	struct file *file;
 	struct list_head lh;
+=======
+	struct list_head lh;
+	struct file *file;
+>>>>>>> upstream/android-13
 	bool closing;
 	struct completion *c;
 } __randomize_layout;
 extern const struct inode_operations proc_link_inode_operations;
+<<<<<<< HEAD
 
 extern const struct inode_operations proc_pid_link_inode_operations;
 extern const struct file_operations proc_reclaim_operations;
@@ -214,6 +272,15 @@ void proc_init_kmemcache(void);
 void set_proc_pid_nlink(void);
 extern struct inode *proc_get_inode(struct super_block *, struct proc_dir_entry *);
 extern int proc_fill_super(struct super_block *);
+=======
+extern const struct inode_operations proc_pid_link_inode_operations;
+extern const struct super_operations proc_sops;
+
+void proc_init_kmemcache(void);
+void proc_invalidate_siblings_dcache(struct hlist_head *inodes, spinlock_t *lock);
+void set_proc_pid_nlink(void);
+extern struct inode *proc_get_inode(struct super_block *, struct proc_dir_entry *);
+>>>>>>> upstream/android-13
 extern void proc_entry_rundown(struct proc_dir_entry *);
 
 /*
@@ -259,6 +326,7 @@ static inline void proc_sys_evict_inode(struct  inode *inode,
 #endif
 
 /*
+<<<<<<< HEAD
  * uid.c
  */
 #ifdef CONFIG_PROC_UID
@@ -268,6 +336,8 @@ static inline void proc_uid_init(void) { }
 #endif
 
 /*
+=======
+>>>>>>> upstream/android-13
  * proc_tty.c
  */
 #ifdef CONFIG_TTY
@@ -282,7 +352,10 @@ static inline void proc_tty_init(void) {}
 extern struct proc_dir_entry proc_root;
 
 extern void proc_self_init(void);
+<<<<<<< HEAD
 extern int proc_remount(struct super_block *, int *, char *);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * task_[no]mmu.c
@@ -337,4 +410,8 @@ struct proc_filemap_private {
 extern const struct file_operations proc_pid_filemap_list_operations;
 extern const struct file_operations proc_pid_filemap_info_operations;
 extern const struct file_operations proc_pid_io_record_operations;
+<<<<<<< HEAD
 #endif
+=======
+#endif
+>>>>>>> upstream/android-13

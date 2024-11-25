@@ -7,6 +7,10 @@
  * Copyright (C) 2018 Stefan Wahren <stefan.wahren@i2se.com>
  */
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/devm-helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/hwmon.h>
 #include <linux/module.h>
@@ -86,6 +90,7 @@ static umode_t rpi_is_visible(const void *_data, enum hwmon_sensor_types type,
 	return 0444;
 }
 
+<<<<<<< HEAD
 static const u32 rpi_in_config[] = {
 	HWMON_I_LCRIT_ALARM,
 	0
@@ -98,6 +103,11 @@ static const struct hwmon_channel_info rpi_in = {
 
 static const struct hwmon_channel_info *rpi_info[] = {
 	&rpi_in,
+=======
+static const struct hwmon_channel_info *rpi_info[] = {
+	HWMON_CHANNEL_INFO(in,
+			   HWMON_I_LCRIT_ALARM),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -115,6 +125,10 @@ static int rpi_hwmon_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct rpi_hwmon_data *data;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
@@ -128,7 +142,14 @@ static int rpi_hwmon_probe(struct platform_device *pdev)
 							       &rpi_chip_info,
 							       NULL);
 
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&data->get_values_poll_work, get_values_poll);
+=======
+	ret = devm_delayed_work_autocancel(dev, &data->get_values_poll_work,
+					   get_values_poll);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, data);
 
 	if (!PTR_ERR_OR_ZERO(data->hwmon_dev))
@@ -137,6 +158,7 @@ static int rpi_hwmon_probe(struct platform_device *pdev)
 	return PTR_ERR_OR_ZERO(data->hwmon_dev);
 }
 
+<<<<<<< HEAD
 static int rpi_hwmon_remove(struct platform_device *pdev)
 {
 	struct rpi_hwmon_data *data = platform_get_drvdata(pdev);
@@ -149,13 +171,21 @@ static int rpi_hwmon_remove(struct platform_device *pdev)
 static struct platform_driver rpi_hwmon_driver = {
 	.probe = rpi_hwmon_probe,
 	.remove = rpi_hwmon_remove,
+=======
+static struct platform_driver rpi_hwmon_driver = {
+	.probe = rpi_hwmon_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "raspberrypi-hwmon",
 	},
 };
 module_platform_driver(rpi_hwmon_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Stefan Wahren <stefan.wahren@i2se.com>");
+=======
+MODULE_AUTHOR("Stefan Wahren <wahrenst@gmx.net>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Raspberry Pi voltage sensor driver");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("platform:raspberrypi-hwmon");

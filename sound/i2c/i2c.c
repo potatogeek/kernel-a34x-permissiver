@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   Generic i2c interface for ALSA
  *
  *   (c) 1998 Gerd Knorr <kraxel@cs.tu-berlin.de>
  *   Modified for the ALSA driver by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -81,7 +88,11 @@ int snd_i2c_bus_create(struct snd_card *card, const char *name,
 {
 	struct snd_i2c_bus *bus;
 	int err;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free =	snd_i2c_bus_dev_free,
 	};
 
@@ -98,7 +109,11 @@ int snd_i2c_bus_create(struct snd_card *card, const char *name,
 		list_add_tail(&bus->buses, &master->buses);
 		bus->master = master;
 	}
+<<<<<<< HEAD
 	strlcpy(bus->name, name, sizeof(bus->name));
+=======
+	strscpy(bus->name, name, sizeof(bus->name));
+>>>>>>> upstream/android-13
 	err = snd_device_new(card, SNDRV_DEV_BUS, bus, &ops);
 	if (err < 0) {
 		snd_i2c_bus_free(bus);
@@ -122,7 +137,11 @@ int snd_i2c_device_create(struct snd_i2c_bus *bus, const char *name,
 	if (device == NULL)
 		return -ENOMEM;
 	device->addr = addr;
+<<<<<<< HEAD
 	strlcpy(device->name, name, sizeof(device->name));
+=======
+	strscpy(device->name, name, sizeof(device->name));
+>>>>>>> upstream/android-13
 	list_add_tail(&device->list, &bus->devices);
 	device->bus = bus;
 	*rdevice = device;

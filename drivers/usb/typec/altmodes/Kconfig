@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 
 menu "USB Type-C Alternate Mode drivers"
 
@@ -11,4 +15,17 @@ config TYPEC_DP_ALTMODE
 	  To compile this driver as a module, choose M here: the
 	  module will be called typec_displayport.
 
+<<<<<<< HEAD
+=======
+config TYPEC_NVIDIA_ALTMODE
+	tristate "NVIDIA Alternate Mode driver"
+	depends on TYPEC_DP_ALTMODE
+	help
+	  Latest NVIDIA GPUs support VirtualLink devices. Select this
+	  to enable support for VirtualLink devices with NVIDIA GPUs.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called typec_nvidia.
+
+>>>>>>> upstream/android-13
 endmenu

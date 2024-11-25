@@ -1,8 +1,13 @@
 * Dialog DA9062 Power Management Integrated Circuit (PMIC)
 
 Product information for the DA9062 and DA9061 devices can be found here:
+<<<<<<< HEAD
 - http://www.dialog-semiconductor.com/products/da9062
 - http://www.dialog-semiconductor.com/products/da9061
+=======
+- https://www.dialog-semiconductor.com/products/da9062
+- https://www.dialog-semiconductor.com/products/da9061
+>>>>>>> upstream/android-13
 
 The DA9062 PMIC consists of:
 
@@ -13,6 +18,10 @@ da9062-rtc              :               : Real-Time Clock
 da9062-onkey            :               : On Key
 da9062-watchdog         :               : Watchdog Timer
 da9062-thermal          :               : Thermal
+<<<<<<< HEAD
+=======
+da9062-gpio             :               : GPIOs
+>>>>>>> upstream/android-13
 
 The DA9061 PMIC consists of:
 
@@ -38,6 +47,18 @@ Required properties:
 See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
 further information on IRQ bindings.
 
+<<<<<<< HEAD
+=======
+Optional properties:
+
+- gpio-controller : Marks the device as a gpio controller.
+- #gpio-cells     : Should be two. The first cell is the pin number and the
+                    second cell is used to specify the gpio polarity.
+
+See Documentation/devicetree/bindings/gpio/gpio.txt for further information on
+GPIO bindings.
+
+>>>>>>> upstream/android-13
 Sub-nodes:
 
 - regulators : This node defines the settings for the LDOs and BUCKs.
@@ -66,6 +87,12 @@ Sub-nodes:
   details of individual regulator device can be found in:
   Documentation/devicetree/bindings/regulator/regulator.txt
 
+<<<<<<< HEAD
+=======
+  regulator-initial-mode may be specified for buck regulators using mode values
+  from include/dt-bindings/regulator/dlg,da9063-regulator.h.
+
+>>>>>>> upstream/android-13
 - rtc : This node defines settings required for the Real-Time Clock associated
   with the DA9062. There are currently no entries in this binding, however
   compatible = "dlg,da9062-rtc" should be added if a node is created.
@@ -96,6 +123,10 @@ Example:
 				regulator-max-microvolt = <1570000>;
 				regulator-min-microamp = <500000>;
 				regulator-max-microamp = <2000000>;
+<<<<<<< HEAD
+=======
+				regulator-initial-mode = <DA9063_BUCK_MODE_SYNC>;
+>>>>>>> upstream/android-13
 				regulator-boot-on;
 			};
 			DA9062_LDO1: ldo1 {

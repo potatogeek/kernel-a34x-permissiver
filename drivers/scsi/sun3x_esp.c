@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* sun3x_esp.c: ESP front-end for Sun3x systems.
  *
  * Copyright (C) 2007,2008 Thomas Bogendoerfer (tsbogend@alpha.franken.de)
@@ -60,6 +64,7 @@ static u8 sun3x_esp_read8(struct esp *esp, unsigned long reg)
 	return readb(esp->regs + (reg * 4UL));
 }
 
+<<<<<<< HEAD
 static dma_addr_t sun3x_esp_map_single(struct esp *esp, void *buf,
 				      size_t sz, int dir)
 {
@@ -84,6 +89,8 @@ static void sun3x_esp_unmap_sg(struct esp *esp, struct scatterlist *sg,
 	dma_unmap_sg(esp->dev, sg, num_sg, dir);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sun3x_esp_irq_pending(struct esp *esp)
 {
 	if (dma_read32(DMA_CSR) & (DMA_HNDL_INTR | DMA_HNDL_ERROR))
@@ -182,10 +189,13 @@ static int sun3x_esp_dma_error(struct esp *esp)
 static const struct esp_driver_ops sun3x_esp_ops = {
 	.esp_write8	=	sun3x_esp_write8,
 	.esp_read8	=	sun3x_esp_read8,
+<<<<<<< HEAD
 	.map_single	=	sun3x_esp_map_single,
 	.map_sg		=	sun3x_esp_map_sg,
 	.unmap_single	=	sun3x_esp_unmap_single,
 	.unmap_sg	=	sun3x_esp_unmap_sg,
+=======
+>>>>>>> upstream/android-13
 	.irq_pending	=	sun3x_esp_irq_pending,
 	.reset_dma	=	sun3x_esp_reset_dma,
 	.dma_drain	=	sun3x_esp_dma_drain,
@@ -217,7 +227,11 @@ static int esp_sun3x_probe(struct platform_device *dev)
 	if (!res || !res->start)
 		goto fail_unlink;
 
+<<<<<<< HEAD
 	esp->regs = ioremap_nocache(res->start, 0x20);
+=======
+	esp->regs = ioremap(res->start, 0x20);
+>>>>>>> upstream/android-13
 	if (!esp->regs)
 		goto fail_unmap_regs;
 
@@ -225,7 +239,11 @@ static int esp_sun3x_probe(struct platform_device *dev)
 	if (!res || !res->start)
 		goto fail_unmap_regs;
 
+<<<<<<< HEAD
 	esp->dma_regs = ioremap_nocache(res->start, 0x10);
+=======
+	esp->dma_regs = ioremap(res->start, 0x10);
+>>>>>>> upstream/android-13
 
 	esp->command_block = dma_alloc_coherent(esp->dev, 16,
 						&esp->command_block_dma,
@@ -248,7 +266,11 @@ static int esp_sun3x_probe(struct platform_device *dev)
 
 	dev_set_drvdata(&dev->dev, esp);
 
+<<<<<<< HEAD
 	err = scsi_esp_register(esp, &dev->dev);
+=======
+	err = scsi_esp_register(esp);
+>>>>>>> upstream/android-13
 	if (err)
 		goto fail_free_irq;
 
@@ -299,6 +321,7 @@ static struct platform_driver esp_sun3x_driver = {
 		.name   = "sun3x_esp",
 	},
 };
+<<<<<<< HEAD
 
 static int __init sun3x_esp_init(void)
 {
@@ -309,12 +332,18 @@ static void __exit sun3x_esp_exit(void)
 {
 	platform_driver_unregister(&esp_sun3x_driver);
 }
+=======
+module_platform_driver(esp_sun3x_driver);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("Sun3x ESP SCSI driver");
 MODULE_AUTHOR("Thomas Bogendoerfer (tsbogend@alpha.franken.de)");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
+<<<<<<< HEAD
 
 module_init(sun3x_esp_init);
 module_exit(sun3x_esp_exit);
+=======
+>>>>>>> upstream/android-13
 MODULE_ALIAS("platform:sun3x_esp");

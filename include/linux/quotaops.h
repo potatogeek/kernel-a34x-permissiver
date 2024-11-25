@@ -27,9 +27,12 @@ static inline bool is_quota_modification(struct inode *inode, struct iattr *ia)
 		(ia->ia_valid & ATTR_GID && !gid_eq(ia->ia_gid, inode->i_gid));
 }
 
+<<<<<<< HEAD
 int kernel_quotactl(unsigned int cmd, const char __user *special,
 		    qid_t id, void __user *addr);
 
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_QUOTA)
 
 #define quota_error(sb, fmt, args...) \
@@ -97,7 +100,13 @@ int dquot_mark_dquot_dirty(struct dquot *dquot);
 
 int dquot_file_open(struct inode *inode, struct file *file);
 
+<<<<<<< HEAD
 int dquot_enable(struct inode *inode, int type, int format_id,
+=======
+int dquot_load_quota_sb(struct super_block *sb, int type, int format_id,
+	unsigned int flags);
+int dquot_load_quota_inode(struct inode *inode, int type, int format_id,
+>>>>>>> upstream/android-13
 	unsigned int flags);
 int dquot_quota_on(struct super_block *sb, int type, int format_id,
 	const struct path *path);

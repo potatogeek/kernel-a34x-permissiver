@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
  *
  * (c) 2004, 2005 Chris Pascoe <c.pascoe@itee.uq.edu.au>
  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx88.h"
@@ -112,7 +119,12 @@ static void buffer_finish(struct vb2_buffer *vb)
 	struct cx88_riscmem *risc = &buf->risc;
 
 	if (risc->cpu)
+<<<<<<< HEAD
 		pci_free_consistent(dev->pci, risc->size, risc->cpu, risc->dma);
+=======
+		dma_free_coherent(&dev->pci->dev, risc->size, risc->cpu,
+				  risc->dma);
+>>>>>>> upstream/android-13
 	memset(risc, 0, sizeof(*risc));
 }
 
@@ -1387,6 +1399,10 @@ static int dvb_register(struct cx8802_dev *dev)
 				fe->ops.tuner_ops.set_config(fe, &ctl);
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case CX88_BOARD_NOTONLYTV_LV3H:
+>>>>>>> upstream/android-13
 	case CX88_BOARD_PINNACLE_HYBRID_PCTV:
 	case CX88_BOARD_WINFAST_DTV1800H:
 		fe0->dvb.frontend = dvb_attach(zl10353_attach,

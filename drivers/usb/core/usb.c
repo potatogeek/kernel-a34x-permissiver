@@ -19,9 +19,14 @@
  * just a collection of helper routines that implement the
  * generic USB things that the real drivers can use..
  *
+<<<<<<< HEAD
  * Think of this as a "USB library" rather than anything else.
  * It should be considered a slave, with no callbacks. Callbacks
  * are evil.
+=======
+ * Think of this as a "USB library" rather than anything else,
+ * with no callbacks.  Callbacks are evil.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -29,7 +34,10 @@
 #include <linux/string.h>
 #include <linux/bitops.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/interrupt.h>  /* for in_interrupt() */
+=======
+>>>>>>> upstream/android-13
 #include <linux/kmod.h>
 #include <linux/init.h>
 #include <linux/spinlock.h>
@@ -46,8 +54,12 @@
 #include <linux/mm.h>
 #include <linux/dma-mapping.h>
 
+<<<<<<< HEAD
 #include "usb.h"
 
+=======
+#include "hub.h"
+>>>>>>> upstream/android-13
 
 const char *usbcore_name = "usbcore";
 
@@ -65,8 +77,13 @@ int usb_disabled(void)
 EXPORT_SYMBOL_GPL(usb_disabled);
 
 #ifdef	CONFIG_PM
+<<<<<<< HEAD
 static int usb_autosuspend_delay = 2;		/* Default delay value,
 						 * in seconds */
+=======
+/* Default delay value, in seconds */
+static int usb_autosuspend_delay = CONFIG_USB_AUTOSUSPEND_DELAY;
+>>>>>>> upstream/android-13
 module_param_named(autosuspend, usb_autosuspend_delay, int, 0644);
 MODULE_PARM_DESC(autosuspend, "default autosuspend delay");
 
@@ -326,9 +343,15 @@ struct find_interface_arg {
 	struct device_driver *drv;
 };
 
+<<<<<<< HEAD
 static int __find_interface(struct device *dev, void *data)
 {
 	struct find_interface_arg *arg = data;
+=======
+static int __find_interface(struct device *dev, const void *data)
+{
+	const struct find_interface_arg *arg = data;
+>>>>>>> upstream/android-13
 	struct usb_interface *intf;
 
 	if (!is_usb_interface(dev))
@@ -401,6 +424,55 @@ int usb_for_each_dev(void *data, int (*fn)(struct usb_device *, void *))
 }
 EXPORT_SYMBOL_GPL(usb_for_each_dev);
 
+<<<<<<< HEAD
+=======
+struct each_hub_arg {
+	void *data;
+	int (*fn)(struct device *, void *);
+};
+
+static int __each_hub(struct usb_device *hdev, void *data)
+{
+	struct each_hub_arg *arg = (struct each_hub_arg *)data;
+	struct usb_hub *hub;
+	int ret = 0;
+	int i;
+
+	hub = usb_hub_to_struct_hub(hdev);
+	if (!hub)
+		return 0;
+
+	mutex_lock(&usb_port_peer_mutex);
+
+	for (i = 0; i < hdev->maxchild; i++) {
+		ret = arg->fn(&hub->ports[i]->dev, arg->data);
+		if (ret)
+			break;
+	}
+
+	mutex_unlock(&usb_port_peer_mutex);
+
+	return ret;
+}
+
+/**
+ * usb_for_each_port - interate over all USB ports in the system
+ * @data: data pointer that will be handed to the callback function
+ * @fn: callback function to be called for each USB port
+ *
+ * Iterate over all USB ports and call @fn for each, passing it @data. If it
+ * returns anything other than 0, we break the iteration prematurely and return
+ * that value.
+ */
+int usb_for_each_port(void *data, int (*fn)(struct device *, void *))
+{
+	struct each_hub_arg arg = {data, fn};
+
+	return usb_for_each_dev(&arg, __each_hub);
+}
+EXPORT_SYMBOL_GPL(usb_for_each_port);
+
+>>>>>>> upstream/android-13
 /**
  * usb_release_dev - free a usb device structure when all users of it are finished.
  * @dev: device that's been disconnected
@@ -536,13 +608,42 @@ static unsigned usb_bus_is_wusb(struct usb_bus *bus)
 	return hcd->wireless;
 }
 
+<<<<<<< HEAD
+=======
+static bool usb_dev_authorized(struct usb_device *dev, struct usb_hcd *hcd)
+{
+	struct usb_hub *hub;
+
+	if (!dev->parent)
+		return true; /* Root hub always ok [and always wired] */
+
+	switch (hcd->dev_policy) {
+	case USB_DEVICE_AUTHORIZE_NONE:
+	default:
+		return false;
+
+	case USB_DEVICE_AUTHORIZE_ALL:
+		return true;
+
+	case USB_DEVICE_AUTHORIZE_INTERNAL:
+		hub = usb_hub_to_struct_hub(dev->parent);
+		return hub->ports[dev->portnum - 1]->connect_type ==
+				USB_PORT_CONNECT_TYPE_HARD_WIRED;
+	}
+}
+>>>>>>> upstream/android-13
 
 /**
  * usb_alloc_dev - usb device constructor (usbcore-internal)
  * @parent: hub to which device is connected; null to allocate a root hub
  * @bus: bus used to access the device
  * @port1: one-based index of port; ignored for root hubs
+<<<<<<< HEAD
  * Context: !in_interrupt()
+=======
+ *
+ * Context: task context, might sleep.
+>>>>>>> upstream/android-13
  *
  * Only hub drivers (including virtual root hub drivers for host
  * controllers) should ever call this.
@@ -580,6 +681,7 @@ struct usb_device *usb_alloc_dev(struct usb_device *parent,
 	dev->dev.bus = &usb_bus_type;
 	dev->dev.type = &usb_device_type;
 	dev->dev.groups = usb_device_groups;
+<<<<<<< HEAD
 	/*
 	 * Fake a dma_mask/offset for the USB device:
 	 * We cannot really use the dma-mapping API (dma_alloc_* and
@@ -592,6 +694,8 @@ struct usb_device *usb_alloc_dev(struct usb_device *parent,
 	 */
 	dev->dev.dma_mask = bus->sysdev->dma_mask;
 	dev->dev.dma_pfn_offset = bus->sysdev->dma_pfn_offset;
+=======
+>>>>>>> upstream/android-13
 	set_dev_node(&dev->dev, dev_to_node(bus->sysdev));
 	dev->state = USB_STATE_ATTACHED;
 	dev->lpm_disable_count = 1;
@@ -663,12 +767,20 @@ struct usb_device *usb_alloc_dev(struct usb_device *parent,
 	dev->connect_time = jiffies;
 	dev->active_duration = -jiffies;
 #endif
+<<<<<<< HEAD
 	if (root_hub)	/* Root hub always ok [and always wired] */
 		dev->authorized = 1;
 	else {
 		dev->authorized = !!HCD_DEV_AUTHORIZED(usb_hcd);
 		dev->wusb = usb_bus_is_wusb(bus) ? 1 : 0;
 	}
+=======
+
+	dev->authorized = usb_dev_authorized(dev, usb_hcd);
+	if (!root_hub)
+		dev->wusb = usb_bus_is_wusb(bus) ? 1 : 0;
+
+>>>>>>> upstream/android-13
 	return dev;
 }
 EXPORT_SYMBOL_GPL(usb_alloc_dev);
@@ -742,6 +854,41 @@ void usb_put_intf(struct usb_interface *intf)
 }
 EXPORT_SYMBOL_GPL(usb_put_intf);
 
+<<<<<<< HEAD
+=======
+/**
+ * usb_intf_get_dma_device - acquire a reference on the usb interface's DMA endpoint
+ * @intf: the usb interface
+ *
+ * While a USB device cannot perform DMA operations by itself, many USB
+ * controllers can. A call to usb_intf_get_dma_device() returns the DMA endpoint
+ * for the given USB interface, if any. The returned device structure must be
+ * released with put_device().
+ *
+ * See also usb_get_dma_device().
+ *
+ * Returns: A reference to the usb interface's DMA endpoint; or NULL if none
+ *          exists.
+ */
+struct device *usb_intf_get_dma_device(struct usb_interface *intf)
+{
+	struct usb_device *udev = interface_to_usbdev(intf);
+	struct device *dmadev;
+
+	if (!udev->bus)
+		return NULL;
+
+	dmadev = get_device(udev->bus->sysdev);
+	if (!dmadev || !dmadev->dma_mask) {
+		put_device(dmadev);
+		return NULL;
+	}
+
+	return dmadev;
+}
+EXPORT_SYMBOL_GPL(usb_intf_get_dma_device);
+
+>>>>>>> upstream/android-13
 /*			USB device locking
  *
  * USB devices and interfaces are locked using the semaphore in their
@@ -825,6 +972,7 @@ int usb_get_current_frame_number(struct usb_device *dev)
 }
 EXPORT_SYMBOL_GPL(usb_get_current_frame_number);
 
+<<<<<<< HEAD
 int usb_sec_event_ring_setup(struct usb_device *dev,
 	unsigned int intr_num)
 {
@@ -882,6 +1030,8 @@ int usb_stop_endpoint(struct usb_device *dev, struct usb_host_endpoint *ep)
 }
 EXPORT_SYMBOL_GPL(usb_stop_endpoint);
 
+=======
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------*/
 /*
  * __usb_get_extra_descriptor() finds a descriptor of specific type in the
@@ -971,6 +1121,7 @@ void usb_free_coherent(struct usb_device *dev, size_t size, void *addr,
 }
 EXPORT_SYMBOL_GPL(usb_free_coherent);
 
+<<<<<<< HEAD
 /**
  * usb_buffer_map - create DMA mapping(s) for an urb
  * @urb: urb whose transfer_buffer/setup_packet will be mapped
@@ -1193,6 +1344,8 @@ void usb_buffer_unmap_sg(const struct usb_device *dev, int is_in,
 EXPORT_SYMBOL_GPL(usb_buffer_unmap_sg);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Notifications of device and interface registration
  */
@@ -1223,19 +1376,28 @@ static struct notifier_block usb_bus_nb = {
 	.notifier_call = usb_bus_notify,
 };
 
+<<<<<<< HEAD
 struct dentry *usb_debug_root;
 EXPORT_SYMBOL_GPL(usb_debug_root);
 
 static void usb_debugfs_init(void)
 {
 	usb_debug_root = debugfs_create_dir("usb", NULL);
+=======
+static void usb_debugfs_init(void)
+{
+>>>>>>> upstream/android-13
 	debugfs_create_file("devices", 0444, usb_debug_root, NULL,
 			    &usbfs_devices_fops);
 }
 
 static void usb_debugfs_cleanup(void)
 {
+<<<<<<< HEAD
 	debugfs_remove_recursive(usb_debug_root);
+=======
+	debugfs_remove(debugfs_lookup("devices", usb_debug_root));
+>>>>>>> upstream/android-13
 }
 
 /*

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -15,6 +16,13 @@
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
  * Author: Varun Sethi <varun.sethi@freescale.com>
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
+ * Author: Varun Sethi <varun.sethi@freescale.com>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)    "fsl-pamu-domain: %s: " fmt, __func__
@@ -66,6 +74,7 @@ static int __init iommu_init_mempool(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static phys_addr_t get_phys_addr(struct fsl_dma_domain *dma_domain, dma_addr_t iova)
 {
 	u32 win_cnt = dma_domain->win_cnt;
@@ -219,6 +228,20 @@ static int update_liodn_stash(int liodn, struct fsl_dma_domain *dma_domain,
 			spin_unlock_irqrestore(&iommu_lock, flags);
 			return ret;
 		}
+=======
+static int update_liodn_stash(int liodn, struct fsl_dma_domain *dma_domain,
+			      u32 val)
+{
+	int ret = 0;
+	unsigned long flags;
+
+	spin_lock_irqsave(&iommu_lock, flags);
+	ret = pamu_update_paace_stash(liodn, val);
+	if (ret) {
+		pr_debug("Failed to update SPAACE for liodn %d\n ", liodn);
+		spin_unlock_irqrestore(&iommu_lock, flags);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_irqrestore(&iommu_lock, flags);
@@ -227,6 +250,7 @@ static int update_liodn_stash(int liodn, struct fsl_dma_domain *dma_domain,
 }
 
 /* Set the geometry parameters for a LIODN */
+<<<<<<< HEAD
 static int pamu_set_liodn(int liodn, struct device *dev,
 			  struct fsl_dma_domain *dma_domain,
 			  struct iommu_domain_geometry *geom_attr,
@@ -237,6 +261,14 @@ static int pamu_set_liodn(int liodn, struct device *dev,
 	int ret = 0, i;
 	u32 omi_index = ~(u32)0;
 	unsigned long flags;
+=======
+static int pamu_set_liodn(struct fsl_dma_domain *dma_domain, struct device *dev,
+			  int liodn)
+{
+	u32 omi_index = ~(u32)0;
+	unsigned long flags;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Configure the omi_index at the geometry setup time.
@@ -245,6 +277,7 @@ static int pamu_set_liodn(int liodn, struct device *dev,
 	 */
 	get_ome_index(&omi_index, dev);
 
+<<<<<<< HEAD
 	window_addr = geom_attr->aperture_start;
 	window_size = dma_domain->geom_size;
 
@@ -325,17 +358,45 @@ static struct fsl_dma_domain *iommu_alloc_dma_domain(void)
 }
 
 static void remove_device_ref(struct device_domain_info *info, u32 win_cnt)
+=======
+	spin_lock_irqsave(&iommu_lock, flags);
+	ret = pamu_disable_liodn(liodn);
+	if (ret)
+		goto out_unlock;
+	ret = pamu_config_ppaace(liodn, omi_index, dma_domain->stash_id, 0);
+	if (ret)
+		goto out_unlock;
+	ret = pamu_config_ppaace(liodn, ~(u32)0, dma_domain->stash_id,
+				 PAACE_AP_PERMS_QUERY | PAACE_AP_PERMS_UPDATE);
+out_unlock:
+	spin_unlock_irqrestore(&iommu_lock, flags);
+	if (ret) {
+		pr_debug("PAACE configuration failed for liodn %d\n",
+			 liodn);
+	}
+	return ret;
+}
+
+static void remove_device_ref(struct device_domain_info *info)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
 	list_del(&info->link);
 	spin_lock_irqsave(&iommu_lock, flags);
+<<<<<<< HEAD
 	if (win_cnt > 1)
 		pamu_free_subwins(info->liodn);
 	pamu_disable_liodn(info->liodn);
 	spin_unlock_irqrestore(&iommu_lock, flags);
 	spin_lock_irqsave(&device_domain_lock, flags);
 	info->dev->archdata.iommu_domain = NULL;
+=======
+	pamu_disable_liodn(info->liodn);
+	spin_unlock_irqrestore(&iommu_lock, flags);
+	spin_lock_irqsave(&device_domain_lock, flags);
+	dev_iommu_priv_set(info->dev, NULL);
+>>>>>>> upstream/android-13
 	kmem_cache_free(iommu_devinfo_cache, info);
 	spin_unlock_irqrestore(&device_domain_lock, flags);
 }
@@ -349,7 +410,11 @@ static void detach_device(struct device *dev, struct fsl_dma_domain *dma_domain)
 	/* Remove the device from the domain device list */
 	list_for_each_entry_safe(info, tmp, &dma_domain->devices, link) {
 		if (!dev || (info->dev == dev))
+<<<<<<< HEAD
 			remove_device_ref(info, dma_domain->win_cnt);
+=======
+			remove_device_ref(info);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
 }
@@ -364,7 +429,11 @@ static void attach_device(struct fsl_dma_domain *dma_domain, int liodn, struct d
 	 * Check here if the device is already attached to domain or not.
 	 * If the device is already attached to a domain detach it.
 	 */
+<<<<<<< HEAD
 	old_domain_info = dev->archdata.iommu_domain;
+=======
+	old_domain_info = dev_iommu_priv_get(dev);
+>>>>>>> upstream/android-13
 	if (old_domain_info && old_domain_info->domain != dma_domain) {
 		spin_unlock_irqrestore(&device_domain_lock, flags);
 		detach_device(dev, old_domain_info->domain);
@@ -383,14 +452,20 @@ static void attach_device(struct fsl_dma_domain *dma_domain, int liodn, struct d
 	 * the info for the first LIODN as all
 	 * LIODNs share the same domain
 	 */
+<<<<<<< HEAD
 	if (!dev->archdata.iommu_domain)
 		dev->archdata.iommu_domain = info;
+=======
+	if (!dev_iommu_priv_get(dev))
+		dev_iommu_priv_set(dev, info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&device_domain_lock, flags);
 }
 
 static phys_addr_t fsl_pamu_iova_to_phys(struct iommu_domain *domain,
 					 dma_addr_t iova)
 {
+<<<<<<< HEAD
 	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
 
 	if (iova < domain->geometry.aperture_start ||
@@ -398,6 +473,12 @@ static phys_addr_t fsl_pamu_iova_to_phys(struct iommu_domain *domain,
 		return 0;
 
 	return get_phys_addr(dma_domain, iova);
+=======
+	if (iova < domain->geometry.aperture_start ||
+	    iova > domain->geometry.aperture_end)
+		return 0;
+	return iova;
+>>>>>>> upstream/android-13
 }
 
 static bool fsl_pamu_capable(enum iommu_cap cap)
@@ -411,10 +492,13 @@ static void fsl_pamu_domain_free(struct iommu_domain *domain)
 
 	/* remove all the devices from the device list */
 	detach_device(NULL, dma_domain);
+<<<<<<< HEAD
 
 	dma_domain->enabled = 0;
 	dma_domain->mapped = 0;
 
+=======
+>>>>>>> upstream/android-13
 	kmem_cache_free(fsl_pamu_domain_cache, dma_domain);
 }
 
@@ -425,12 +509,24 @@ static struct iommu_domain *fsl_pamu_domain_alloc(unsigned type)
 	if (type != IOMMU_DOMAIN_UNMANAGED)
 		return NULL;
 
+<<<<<<< HEAD
 	dma_domain = iommu_alloc_dma_domain();
 	if (!dma_domain) {
 		pr_debug("dma_domain allocation failed\n");
 		return NULL;
 	}
 	/* defaul geometry 64 GB i.e. maximum system address */
+=======
+	dma_domain = kmem_cache_zalloc(fsl_pamu_domain_cache, GFP_KERNEL);
+	if (!dma_domain)
+		return NULL;
+
+	dma_domain->stash_id = ~(u32)0;
+	INIT_LIST_HEAD(&dma_domain->devices);
+	spin_lock_init(&dma_domain->domain_lock);
+
+	/* default geometry 64 GB i.e. maximum system address */
+>>>>>>> upstream/android-13
 	dma_domain->iommu_domain. geometry.aperture_start = 0;
 	dma_domain->iommu_domain.geometry.aperture_end = (1ULL << 36) - 1;
 	dma_domain->iommu_domain.geometry.force_aperture = true;
@@ -438,6 +534,7 @@ static struct iommu_domain *fsl_pamu_domain_alloc(unsigned type)
 	return &dma_domain->iommu_domain;
 }
 
+<<<<<<< HEAD
 /* Configure geometry settings for all LIODNs associated with domain */
 static int pamu_set_domain_geometry(struct fsl_dma_domain *dma_domain,
 				    struct iommu_domain_geometry *geom_attr,
@@ -456,6 +553,8 @@ static int pamu_set_domain_geometry(struct fsl_dma_domain *dma_domain,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Update stash destination for all LIODNs associated with the domain */
 static int update_domain_stash(struct fsl_dma_domain *dma_domain, u32 val)
 {
@@ -471,6 +570,7 @@ static int update_domain_stash(struct fsl_dma_domain *dma_domain, u32 val)
 	return ret;
 }
 
+<<<<<<< HEAD
 /* Update domain mappings for all LIODNs associated with the domain */
 static int update_domain_mapping(struct fsl_dma_domain *dma_domain, u32 wnd_nr)
 {
@@ -656,13 +756,21 @@ static int handle_attach_device(struct fsl_dma_domain *dma_domain,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int fsl_pamu_attach_device(struct iommu_domain *domain,
 				  struct device *dev)
 {
 	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
+<<<<<<< HEAD
 	const u32 *liodn;
 	u32 liodn_cnt;
 	int len, ret = 0;
+=======
+	unsigned long flags;
+	int len, ret = 0, i;
+	const u32 *liodn;
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev = NULL;
 	struct pci_controller *pci_ctl;
 
@@ -682,6 +790,7 @@ static int fsl_pamu_attach_device(struct iommu_domain *domain,
 	}
 
 	liodn = of_get_property(dev->of_node, "fsl,liodn", &len);
+<<<<<<< HEAD
 	if (liodn) {
 		liodn_cnt = len / sizeof(u32);
 		ret = handle_attach_device(dma_domain, dev, liodn, liodn_cnt);
@@ -690,6 +799,32 @@ static int fsl_pamu_attach_device(struct iommu_domain *domain,
 		ret = -EINVAL;
 	}
 
+=======
+	if (!liodn) {
+		pr_debug("missing fsl,liodn property at %pOF\n", dev->of_node);
+		return -EINVAL;
+	}
+
+	spin_lock_irqsave(&dma_domain->domain_lock, flags);
+	for (i = 0; i < len / sizeof(u32); i++) {
+		/* Ensure that LIODN value is valid */
+		if (liodn[i] >= PAACE_NUMBER_ENTRIES) {
+			pr_debug("Invalid liodn %d, attach device failed for %pOF\n",
+				 liodn[i], dev->of_node);
+			ret = -EINVAL;
+			break;
+		}
+
+		attach_device(dma_domain, liodn[i], dev);
+		ret = pamu_set_liodn(dma_domain, dev, liodn[i]);
+		if (ret)
+			break;
+		ret = pamu_enable_liodn(liodn[i]);
+		if (ret)
+			break;
+	}
+	spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -724,6 +859,7 @@ static void fsl_pamu_detach_device(struct iommu_domain *domain,
 		pr_debug("missing fsl,liodn property at %pOF\n", dev->of_node);
 }
 
+<<<<<<< HEAD
 static  int configure_domain_geometry(struct iommu_domain *domain, void *data)
 {
 	struct iommu_domain_geometry *geom_attr = data;
@@ -763,29 +899,44 @@ static  int configure_domain_geometry(struct iommu_domain *domain, void *data)
 static int configure_domain_stash(struct fsl_dma_domain *dma_domain, void *data)
 {
 	struct pamu_stash_attribute *stash_attr = data;
+=======
+/* Set the domain stash attribute */
+int fsl_pamu_configure_l1_stash(struct iommu_domain *domain, u32 cpu)
+{
+	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret;
 
 	spin_lock_irqsave(&dma_domain->domain_lock, flags);
+<<<<<<< HEAD
 
 	memcpy(&dma_domain->dma_stash, stash_attr,
 	       sizeof(struct pamu_stash_attribute));
 
 	dma_domain->stash_id = get_stash_id(stash_attr->cache,
 					    stash_attr->cpu);
+=======
+	dma_domain->stash_id = get_stash_id(PAMU_ATTR_CACHE_L1, cpu);
+>>>>>>> upstream/android-13
 	if (dma_domain->stash_id == ~(u32)0) {
 		pr_debug("Invalid stash attributes\n");
 		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 
 	ret = update_domain_stash(dma_domain, dma_domain->stash_id);
 
+=======
+	ret = update_domain_stash(dma_domain, dma_domain->stash_id);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 /* Configure domain dma state i.e. enable/disable DMA */
 static int configure_domain_dma_state(struct fsl_dma_domain *dma_domain, bool enable)
 {
@@ -865,6 +1016,8 @@ static int fsl_pamu_get_domain_attr(struct iommu_domain *domain,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct iommu_group *get_device_iommu_group(struct device *dev)
 {
 	struct iommu_group *group;
@@ -916,6 +1069,7 @@ static struct iommu_group *get_shared_pci_device_group(struct pci_dev *pdev)
 static struct iommu_group *get_pci_device_group(struct pci_dev *pdev)
 {
 	struct pci_controller *pci_ctl;
+<<<<<<< HEAD
 	bool pci_endpt_partioning;
 	struct iommu_group *group = NULL;
 
@@ -923,6 +1077,15 @@ static struct iommu_group *get_pci_device_group(struct pci_dev *pdev)
 	pci_endpt_partioning = check_pci_ctl_endpt_part(pci_ctl);
 	/* We can partition PCIe devices so assign device group to the device */
 	if (pci_endpt_partioning) {
+=======
+	bool pci_endpt_partitioning;
+	struct iommu_group *group = NULL;
+
+	pci_ctl = pci_bus_to_host(pdev->bus);
+	pci_endpt_partitioning = check_pci_ctl_endpt_part(pci_ctl);
+	/* We can partition PCIe devices so assign device group to the device */
+	if (pci_endpt_partitioning) {
+>>>>>>> upstream/android-13
 		group = pci_device_group(&pdev->dev);
 
 		/*
@@ -973,6 +1136,7 @@ static struct iommu_group *fsl_pamu_device_group(struct device *dev)
 	return group;
 }
 
+<<<<<<< HEAD
 static int fsl_pamu_add_device(struct device *dev)
 {
 	struct iommu_group *group;
@@ -1048,6 +1212,15 @@ static u32 fsl_pamu_get_windows(struct iommu_domain *domain)
 	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
 
 	return dma_domain->win_cnt;
+=======
+static struct iommu_device *fsl_pamu_probe_device(struct device *dev)
+{
+	return &pamu_iommu;
+}
+
+static void fsl_pamu_release_device(struct device *dev)
+{
+>>>>>>> upstream/android-13
 }
 
 static const struct iommu_ops fsl_pamu_ops = {
@@ -1056,6 +1229,7 @@ static const struct iommu_ops fsl_pamu_ops = {
 	.domain_free    = fsl_pamu_domain_free,
 	.attach_dev	= fsl_pamu_attach_device,
 	.detach_dev	= fsl_pamu_detach_device,
+<<<<<<< HEAD
 	.domain_window_enable = fsl_pamu_window_enable,
 	.domain_window_disable = fsl_pamu_window_disable,
 	.domain_get_windows = fsl_pamu_get_windows,
@@ -1065,6 +1239,11 @@ static const struct iommu_ops fsl_pamu_ops = {
 	.domain_get_attr = fsl_pamu_get_domain_attr,
 	.add_device	= fsl_pamu_add_device,
 	.remove_device	= fsl_pamu_remove_device,
+=======
+	.iova_to_phys	= fsl_pamu_iova_to_phys,
+	.probe_device	= fsl_pamu_probe_device,
+	.release_device	= fsl_pamu_release_device,
+>>>>>>> upstream/android-13
 	.device_group   = fsl_pamu_device_group,
 };
 
@@ -1080,9 +1259,13 @@ int __init pamu_domain_init(void)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	iommu_device_set_ops(&pamu_iommu, &fsl_pamu_ops);
 
 	ret = iommu_device_register(&pamu_iommu);
+=======
+	ret = iommu_device_register(&pamu_iommu, &fsl_pamu_ops, NULL);
+>>>>>>> upstream/android-13
 	if (ret) {
 		iommu_device_sysfs_remove(&pamu_iommu);
 		pr_err("Can't register iommu device\n");

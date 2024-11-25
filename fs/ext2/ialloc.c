@@ -173,9 +173,13 @@ static void ext2_preread_inode(struct inode *inode)
 	struct backing_dev_info *bdi;
 
 	bdi = inode_to_bdi(inode);
+<<<<<<< HEAD
 	if (bdi_read_congested(bdi))
 		return;
 	if (bdi_write_congested(bdi))
+=======
+	if (bdi_rw_congested(bdi))
+>>>>>>> upstream/android-13
 		return;
 
 	block_group = (inode->i_ino - 1) / EXT2_INODES_PER_GROUP(inode->i_sb);
@@ -223,8 +227,11 @@ static int find_group_dir(struct super_block *sb, struct inode *parent)
 			best_desc = desc;
 		}
 	}
+<<<<<<< HEAD
 	if (!best_desc)
 		return -1;
+=======
+>>>>>>> upstream/android-13
 
 	return best_group;
 }
@@ -514,6 +521,10 @@ repeat_in_this_group:
 	/*
 	 * Scanned all blockgroups.
 	 */
+<<<<<<< HEAD
+=======
+	brelse(bitmap_bh);
+>>>>>>> upstream/android-13
 	err = -ENOSPC;
 	goto fail;
 got:
@@ -554,7 +565,11 @@ got:
 		inode->i_uid = current_fsuid();
 		inode->i_gid = dir->i_gid;
 	} else
+<<<<<<< HEAD
 		inode_init_owner(inode, dir, mode);
+=======
+		inode_init_owner(&init_user_ns, inode, dir, mode);
+>>>>>>> upstream/android-13
 
 	inode->i_ino = ino;
 	inode->i_blocks = 0;

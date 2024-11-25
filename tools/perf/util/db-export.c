@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * db-export.c: Support for exporting data suitable for import to a database
  * Copyright (c) 2014, Intel Corporation.
@@ -15,17 +16,35 @@
 
 #include <errno.h>
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * db-export.c: Support for exporting data suitable for import to a database
+ * Copyright (c) 2014, Intel Corporation.
+ */
+
+#include <errno.h>
+#include <stdlib.h>
+
+#include "dso.h"
+>>>>>>> upstream/android-13
 #include "evsel.h"
 #include "machine.h"
 #include "thread.h"
 #include "comm.h"
 #include "symbol.h"
+<<<<<<< HEAD
 #include "event.h"
 #include "util.h"
+=======
+#include "map.h"
+#include "event.h"
+>>>>>>> upstream/android-13
 #include "thread-stack.h"
 #include "callchain.h"
 #include "call-path.h"
 #include "db-export.h"
+<<<<<<< HEAD
 
 struct deferred_export {
 	struct list_head node;
@@ -75,10 +94,14 @@ static int db_export__defer_comm(struct db_export *dbe, struct comm *comm)
 
 	return 0;
 }
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 int db_export__init(struct db_export *dbe)
 {
 	memset(dbe, 0, sizeof(struct db_export));
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&dbe->deferred);
 	return 0;
 }
@@ -91,11 +114,22 @@ int db_export__flush(struct db_export *dbe)
 void db_export__exit(struct db_export *dbe)
 {
 	db_export__free_deferred(dbe);
+=======
+	return 0;
+}
+
+void db_export__exit(struct db_export *dbe)
+{
+>>>>>>> upstream/android-13
 	call_return_processor__free(dbe->crp);
 	dbe->crp = NULL;
 }
 
+<<<<<<< HEAD
 int db_export__evsel(struct db_export *dbe, struct perf_evsel *evsel)
+=======
+int db_export__evsel(struct db_export *dbe, struct evsel *evsel)
+>>>>>>> upstream/android-13
 {
 	if (evsel->db_id)
 		return 0;
@@ -122,17 +156,24 @@ int db_export__machine(struct db_export *dbe, struct machine *machine)
 }
 
 int db_export__thread(struct db_export *dbe, struct thread *thread,
+<<<<<<< HEAD
 		      struct machine *machine, struct comm *comm)
 {
 	struct thread *main_thread;
 	u64 main_thread_db_id = 0;
 	int err;
+=======
+		      struct machine *machine, struct thread *main_thread)
+{
+	u64 main_thread_db_id = 0;
+>>>>>>> upstream/android-13
 
 	if (thread->db_id)
 		return 0;
 
 	thread->db_id = ++dbe->thread_last_db_id;
 
+<<<<<<< HEAD
 	if (thread->pid_ != -1) {
 		if (thread->pid_ == thread->tid) {
 			main_thread = thread;
@@ -156,12 +197,17 @@ int db_export__thread(struct db_export *dbe, struct thread *thread,
 		if (main_thread != thread)
 			thread__put(main_thread);
 	}
+=======
+	if (main_thread)
+		main_thread_db_id = main_thread->db_id;
+>>>>>>> upstream/android-13
 
 	if (dbe->export_thread)
 		return dbe->export_thread(dbe, thread, main_thread_db_id,
 					  machine);
 
 	return 0;
+<<<<<<< HEAD
 
 out_put:
 	thread__put(main_thread);
@@ -170,12 +216,45 @@ out_put:
 
 int db_export__comm(struct db_export *dbe, struct comm *comm,
 		    struct thread *main_thread)
+=======
+}
+
+static int __db_export__comm(struct db_export *dbe, struct comm *comm,
+			     struct thread *thread)
+{
+	comm->db_id = ++dbe->comm_last_db_id;
+
+	if (dbe->export_comm)
+		return dbe->export_comm(dbe, comm, thread);
+
+	return 0;
+}
+
+int db_export__comm(struct db_export *dbe, struct comm *comm,
+		    struct thread *thread)
+{
+	if (comm->db_id)
+		return 0;
+
+	return __db_export__comm(dbe, comm, thread);
+}
+
+/*
+ * Export the "exec" comm. The "exec" comm is the program / application command
+ * name at the time it first executes. It is used to group threads for the same
+ * program. Note that the main thread pid (or thread group id tgid) cannot be
+ * used because it does not change when a new program is exec'ed.
+ */
+int db_export__exec_comm(struct db_export *dbe, struct comm *comm,
+			 struct thread *main_thread)
+>>>>>>> upstream/android-13
 {
 	int err;
 
 	if (comm->db_id)
 		return 0;
 
+<<<<<<< HEAD
 	comm->db_id = ++dbe->comm_last_db_id;
 
 	if (dbe->export_comm) {
@@ -187,6 +266,22 @@ int db_export__comm(struct db_export *dbe, struct comm *comm,
 			return err;
 	}
 
+=======
+	err = __db_export__comm(dbe, comm, main_thread);
+	if (err)
+		return err;
+
+	/*
+	 * Record the main thread for this comm. Note that the main thread can
+	 * have many "exec" comms because there will be a new one every time it
+	 * exec's. An "exec" comm however will only ever have 1 main thread.
+	 * That is different to any other threads for that same program because
+	 * exec() will effectively kill them, so the relationship between the
+	 * "exec" comm and non-main threads is 1-to-1. That is why
+	 * db_export__comm_thread() is called here for the main thread, but it
+	 * is called for non-main threads when they are exported.
+	 */
+>>>>>>> upstream/android-13
 	return db_export__comm_thread(dbe, comm, main_thread);
 }
 
@@ -241,7 +336,11 @@ static int db_ids_from_al(struct db_export *dbe, struct addr_location *al,
 	if (al->map) {
 		struct dso *dso = al->map->dso;
 
+<<<<<<< HEAD
 		err = db_export__dso(dbe, dso, al->machine);
+=======
+		err = db_export__dso(dbe, dso, al->maps->machine);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 		*dso_db_id = dso->db_id;
@@ -270,7 +369,11 @@ static struct call_path *call_path_from_sample(struct db_export *dbe,
 					       struct machine *machine,
 					       struct thread *thread,
 					       struct perf_sample *sample,
+<<<<<<< HEAD
 					       struct perf_evsel *evsel)
+=======
+					       struct evsel *evsel)
+>>>>>>> upstream/android-13
 {
 	u64 kernel_start = machine__kernel_start(machine);
 	struct call_path *current = &dbe->cpr->call_path;
@@ -309,9 +412,15 @@ static struct call_path *call_path_from_sample(struct db_export *dbe,
 		 * constructing an addr_location struct and then passing it to
 		 * db_ids_from_al() to perform the export.
 		 */
+<<<<<<< HEAD
 		al.sym = node->sym;
 		al.map = node->map;
 		al.machine = machine;
+=======
+		al.sym = node->ms.sym;
+		al.map = node->ms.map;
+		al.maps = thread->maps;
+>>>>>>> upstream/android-13
 		al.addr = node->ip;
 
 		if (al.map && !al.sym)
@@ -347,11 +456,73 @@ int db_export__branch_type(struct db_export *dbe, u32 branch_type,
 	return 0;
 }
 
+<<<<<<< HEAD
 int db_export__sample(struct db_export *dbe, union perf_event *event,
 		      struct perf_sample *sample, struct perf_evsel *evsel,
 		      struct addr_location *al)
 {
 	struct thread* thread = al->thread;
+=======
+static int db_export__threads(struct db_export *dbe, struct thread *thread,
+			      struct thread *main_thread,
+			      struct machine *machine, struct comm **comm_ptr)
+{
+	struct comm *comm = NULL;
+	struct comm *curr_comm;
+	int err;
+
+	if (main_thread) {
+		/*
+		 * A thread has a reference to the main thread, so export the
+		 * main thread first.
+		 */
+		err = db_export__thread(dbe, main_thread, machine, main_thread);
+		if (err)
+			return err;
+		/*
+		 * Export comm before exporting the non-main thread because
+		 * db_export__comm_thread() can be called further below.
+		 */
+		comm = machine__thread_exec_comm(machine, main_thread);
+		if (comm) {
+			err = db_export__exec_comm(dbe, comm, main_thread);
+			if (err)
+				return err;
+			*comm_ptr = comm;
+		}
+	}
+
+	if (thread != main_thread) {
+		/*
+		 * For a non-main thread, db_export__comm_thread() must be
+		 * called only if thread has not previously been exported.
+		 */
+		bool export_comm_thread = comm && !thread->db_id;
+
+		err = db_export__thread(dbe, thread, machine, main_thread);
+		if (err)
+			return err;
+
+		if (export_comm_thread) {
+			err = db_export__comm_thread(dbe, comm, thread);
+			if (err)
+				return err;
+		}
+	}
+
+	curr_comm = thread__comm(thread);
+	if (curr_comm)
+		return db_export__comm(dbe, curr_comm, thread);
+
+	return 0;
+}
+
+int db_export__sample(struct db_export *dbe, union perf_event *event,
+		      struct perf_sample *sample, struct evsel *evsel,
+		      struct addr_location *al, struct addr_location *addr_al)
+{
+	struct thread *thread = al->thread;
+>>>>>>> upstream/android-13
 	struct export_sample es = {
 		.event = event,
 		.sample = sample,
@@ -366,6 +537,7 @@ int db_export__sample(struct db_export *dbe, union perf_event *event,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = db_export__machine(dbe, al->machine);
 	if (err)
 		return err;
@@ -384,6 +556,20 @@ int db_export__sample(struct db_export *dbe, union perf_event *event,
 			goto out_put;
 		es.comm_db_id = comm->db_id;
 	}
+=======
+	err = db_export__machine(dbe, al->maps->machine);
+	if (err)
+		return err;
+
+	main_thread = thread__main_thread(al->maps->machine, thread);
+
+	err = db_export__threads(dbe, thread, main_thread, al->maps->machine, &comm);
+	if (err)
+		goto out_put;
+
+	if (comm)
+		es.comm_db_id = comm->db_id;
+>>>>>>> upstream/android-13
 
 	es.db_id = ++dbe->sample_last_db_id;
 
@@ -392,7 +578,11 @@ int db_export__sample(struct db_export *dbe, union perf_event *event,
 		goto out_put;
 
 	if (dbe->cpr) {
+<<<<<<< HEAD
 		struct call_path *cp = call_path_from_sample(dbe, al->machine,
+=======
+		struct call_path *cp = call_path_from_sample(dbe, al->maps->machine,
+>>>>>>> upstream/android-13
 							     thread, sample,
 							     evsel);
 		if (cp) {
@@ -401,18 +591,27 @@ int db_export__sample(struct db_export *dbe, union perf_event *event,
 		}
 	}
 
+<<<<<<< HEAD
 	if ((evsel->attr.sample_type & PERF_SAMPLE_ADDR) &&
 	    sample_addr_correlates_sym(&evsel->attr)) {
 		struct addr_location addr_al;
 
 		thread__resolve(thread, &addr_al, sample);
 		err = db_ids_from_al(dbe, &addr_al, &es.addr_dso_db_id,
+=======
+	if (addr_al) {
+		err = db_ids_from_al(dbe, addr_al, &es.addr_dso_db_id,
+>>>>>>> upstream/android-13
 				     &es.addr_sym_db_id, &es.addr_offset);
 		if (err)
 			goto out_put;
 		if (dbe->crp) {
 			err = thread_stack__process(thread, comm, sample, al,
+<<<<<<< HEAD
 						    &addr_al, es.db_id,
+=======
+						    addr_al, es.db_id,
+>>>>>>> upstream/android-13
 						    dbe->crp);
 			if (err)
 				goto out_put;
@@ -450,6 +649,11 @@ static struct {
 	{PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TX_ABORT, "transaction abort"},
 	{PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TRACE_BEGIN, "trace begin"},
 	{PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TRACE_END, "trace end"},
+<<<<<<< HEAD
+=======
+	{PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_CALL | PERF_IP_FLAG_VMENTRY, "vm entry"},
+	{PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_CALL | PERF_IP_FLAG_VMEXIT, "vm exit"},
+>>>>>>> upstream/android-13
 	{0, NULL}
 };
 
@@ -463,6 +667,31 @@ int db_export__branch_types(struct db_export *dbe)
 		if (err)
 			break;
 	}
+<<<<<<< HEAD
+=======
+
+	/* Add trace begin / end variants */
+	for (i = 0; branch_types[i].name ; i++) {
+		const char *name = branch_types[i].name;
+		u32 type = branch_types[i].branch_type;
+		char buf[64];
+
+		if (type == PERF_IP_FLAG_BRANCH ||
+		    (type & (PERF_IP_FLAG_TRACE_BEGIN | PERF_IP_FLAG_TRACE_END)))
+			continue;
+
+		snprintf(buf, sizeof(buf), "trace begin / %s", name);
+		err = db_export__branch_type(dbe, type | PERF_IP_FLAG_TRACE_BEGIN, buf);
+		if (err)
+			break;
+
+		snprintf(buf, sizeof(buf), "%s / trace end", name);
+		err = db_export__branch_type(dbe, type | PERF_IP_FLAG_TRACE_END, buf);
+		if (err)
+			break;
+	}
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -487,6 +716,7 @@ int db_export__call_path(struct db_export *dbe, struct call_path *cp)
 	return 0;
 }
 
+<<<<<<< HEAD
 int db_export__call_return(struct db_export *dbe, struct call_return *cr)
 {
 	int err;
@@ -494,14 +724,124 @@ int db_export__call_return(struct db_export *dbe, struct call_return *cr)
 	if (cr->db_id)
 		return 0;
 
+=======
+int db_export__call_return(struct db_export *dbe, struct call_return *cr,
+			   u64 *parent_db_id)
+{
+	int err;
+
+>>>>>>> upstream/android-13
 	err = db_export__call_path(dbe, cr->cp);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	cr->db_id = ++dbe->call_return_last_db_id;
+=======
+	if (!cr->db_id)
+		cr->db_id = ++dbe->call_return_last_db_id;
+
+	if (parent_db_id) {
+		if (!*parent_db_id)
+			*parent_db_id = ++dbe->call_return_last_db_id;
+		cr->parent_db_id = *parent_db_id;
+	}
+>>>>>>> upstream/android-13
 
 	if (dbe->export_call_return)
 		return dbe->export_call_return(dbe, cr);
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static int db_export__pid_tid(struct db_export *dbe, struct machine *machine,
+			      pid_t pid, pid_t tid, u64 *db_id,
+			      struct comm **comm_ptr, bool *is_idle)
+{
+	struct thread *thread = machine__find_thread(machine, pid, tid);
+	struct thread *main_thread;
+	int err = 0;
+
+	if (!thread || !thread->comm_set)
+		goto out_put;
+
+	*is_idle = !thread->pid_ && !thread->tid;
+
+	main_thread = thread__main_thread(machine, thread);
+
+	err = db_export__threads(dbe, thread, main_thread, machine, comm_ptr);
+
+	*db_id = thread->db_id;
+
+	thread__put(main_thread);
+out_put:
+	thread__put(thread);
+
+	return err;
+}
+
+int db_export__switch(struct db_export *dbe, union perf_event *event,
+		      struct perf_sample *sample, struct machine *machine)
+{
+	bool out = event->header.misc & PERF_RECORD_MISC_SWITCH_OUT;
+	bool out_preempt = out &&
+		(event->header.misc & PERF_RECORD_MISC_SWITCH_OUT_PREEMPT);
+	int flags = out | (out_preempt << 1);
+	bool is_idle_a = false, is_idle_b = false;
+	u64 th_a_id = 0, th_b_id = 0;
+	u64 comm_out_id, comm_in_id;
+	struct comm *comm_a = NULL;
+	struct comm *comm_b = NULL;
+	u64 th_out_id, th_in_id;
+	u64 db_id;
+	int err;
+
+	err = db_export__machine(dbe, machine);
+	if (err)
+		return err;
+
+	err = db_export__pid_tid(dbe, machine, sample->pid, sample->tid,
+				 &th_a_id, &comm_a, &is_idle_a);
+	if (err)
+		return err;
+
+	if (event->header.type == PERF_RECORD_SWITCH_CPU_WIDE) {
+		pid_t pid = event->context_switch.next_prev_pid;
+		pid_t tid = event->context_switch.next_prev_tid;
+
+		err = db_export__pid_tid(dbe, machine, pid, tid, &th_b_id,
+					 &comm_b, &is_idle_b);
+		if (err)
+			return err;
+	}
+
+	/*
+	 * Do not export if both threads are unknown (i.e. not being traced),
+	 * or one is unknown and the other is the idle task.
+	 */
+	if ((!th_a_id || is_idle_a) && (!th_b_id || is_idle_b))
+		return 0;
+
+	db_id = ++dbe->context_switch_last_db_id;
+
+	if (out) {
+		th_out_id   = th_a_id;
+		th_in_id    = th_b_id;
+		comm_out_id = comm_a ? comm_a->db_id : 0;
+		comm_in_id  = comm_b ? comm_b->db_id : 0;
+	} else {
+		th_out_id   = th_b_id;
+		th_in_id    = th_a_id;
+		comm_out_id = comm_b ? comm_b->db_id : 0;
+		comm_in_id  = comm_a ? comm_a->db_id : 0;
+	}
+
+	if (dbe->export_context_switch)
+		return dbe->export_context_switch(dbe, db_id, machine, sample,
+						  th_out_id, comm_out_id,
+						  th_in_id, comm_in_id, flags);
+	return 0;
+}
+>>>>>>> upstream/android-13

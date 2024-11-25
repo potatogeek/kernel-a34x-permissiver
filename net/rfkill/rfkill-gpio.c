@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011, NVIDIA Corporation.
  *
@@ -17,6 +18,13 @@
  */
 
 #include <linux/gpio.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2011, NVIDIA Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>

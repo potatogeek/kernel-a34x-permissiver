@@ -121,6 +121,13 @@
 	cpu-supply = <&sw1a_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&cpu1 {
+	cpu-supply = <&sw1a_reg>;
+};
+
+>>>>>>> upstream/android-13
 &fec1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet1>;
@@ -284,7 +291,11 @@
 	codec: wm8960@1a {
 		compatible = "wlf,wm8960";
 		reg = <0x1a>;
+<<<<<<< HEAD
 		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
+=======
+		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+>>>>>>> upstream/android-13
 		clock-names = "mclk";
 		wlf,shared-lrclk;
 	};

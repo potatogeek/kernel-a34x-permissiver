@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_CHECKSUM_H
@@ -23,6 +29,7 @@
 unsigned int do_csum(const void *voidptr, int len);
 
 /*
+<<<<<<< HEAD
  * the same as csum_partial, but copies from src while it
  * checksums
  *
@@ -34,6 +41,8 @@ __wsum csum_partial_copy_nocheck(const void *src, void *dst,
 					int len, __wsum sum);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * computes the checksum of the TCP/UDP pseudo-header
  * returns a 16-bit checksum, already complemented
  */

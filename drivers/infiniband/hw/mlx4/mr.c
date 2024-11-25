@@ -200,7 +200,11 @@ int mlx4_ib_umem_write_mtt(struct mlx4_ib_dev *dev, struct mlx4_mtt *mtt,
 	mtt_shift = mtt->page_shift;
 	mtt_size = 1ULL << mtt_shift;
 
+<<<<<<< HEAD
 	for_each_sg(umem->sg_head.sgl, sg, umem->nmap, i) {
+=======
+	for_each_sgtable_dma_sg(&umem->sgt_append.sgt, sg, i) {
+>>>>>>> upstream/android-13
 		if (cur_start_addr + len == sg_dma_address(sg)) {
 			/* still the same block */
 			len += sg_dma_len(sg);
@@ -258,7 +262,11 @@ int mlx4_ib_umem_calc_optimal_mtt_size(struct ib_umem *umem, u64 start_va,
 				       int *num_of_mtts)
 {
 	u64 block_shift = MLX4_MAX_MTT_SHIFT;
+<<<<<<< HEAD
 	u64 min_shift = umem->page_shift;
+=======
+	u64 min_shift = PAGE_SHIFT;
+>>>>>>> upstream/android-13
 	u64 last_block_aligned_end = 0;
 	u64 current_block_start = 0;
 	u64 first_block_start = 0;
@@ -271,7 +279,13 @@ int mlx4_ib_umem_calc_optimal_mtt_size(struct ib_umem *umem, u64 start_va,
 	u64 total_len = 0;
 	int i;
 
+<<<<<<< HEAD
 	for_each_sg(umem->sg_head.sgl, sg, umem->nmap, i) {
+=======
+	*num_of_mtts = ib_umem_num_dma_blocks(umem, PAGE_SIZE);
+
+	for_each_sgtable_dma_sg(&umem->sgt_append.sgt, sg, i) {
+>>>>>>> upstream/android-13
 		/*
 		 * Initialization - save the first chunk start as the
 		 * current_block_start - block means contiguous pages.
@@ -295,8 +309,13 @@ int mlx4_ib_umem_calc_optimal_mtt_size(struct ib_umem *umem, u64 start_va,
 			 * in access to the wrong data.
 			 */
 			misalignment_bits =
+<<<<<<< HEAD
 			(start_va & (~(((u64)(BIT(umem->page_shift))) - 1ULL)))
 			^ current_block_start;
+=======
+				(start_va & (~(((u64)(PAGE_SIZE)) - 1ULL))) ^
+				current_block_start;
+>>>>>>> upstream/android-13
 			block_shift = min(alignment_of(misalignment_bits),
 					  block_shift);
 		}
@@ -367,9 +386,14 @@ end:
 	return block_shift;
 }
 
+<<<<<<< HEAD
 static struct ib_umem *mlx4_get_umem_mr(struct ib_ucontext *context, u64 start,
 					u64 length, u64 virt_addr,
 					int access_flags)
+=======
+static struct ib_umem *mlx4_get_umem_mr(struct ib_device *device, u64 start,
+					u64 length, int access_flags)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Force registering the memory as writable if the underlying pages
@@ -378,27 +402,47 @@ static struct ib_umem *mlx4_get_umem_mr(struct ib_ucontext *context, u64 start,
 	 * again
 	 */
 	if (!ib_access_writable(access_flags)) {
+<<<<<<< HEAD
 		struct vm_area_struct *vma;
 
 		down_read(&current->mm->mmap_sem);
+=======
+		unsigned long untagged_start = untagged_addr(start);
+		struct vm_area_struct *vma;
+
+		mmap_read_lock(current->mm);
+>>>>>>> upstream/android-13
 		/*
 		 * FIXME: Ideally this would iterate over all the vmas that
 		 * cover the memory, but for now it requires a single vma to
 		 * entirely cover the MR to support RO mappings.
 		 */
+<<<<<<< HEAD
 		vma = find_vma(current->mm, start);
 		if (vma && vma->vm_end >= start + length &&
 		    vma->vm_start <= start) {
+=======
+		vma = find_vma(current->mm, untagged_start);
+		if (vma && vma->vm_end >= untagged_start + length &&
+		    vma->vm_start <= untagged_start) {
+>>>>>>> upstream/android-13
 			if (vma->vm_flags & VM_WRITE)
 				access_flags |= IB_ACCESS_LOCAL_WRITE;
 		} else {
 			access_flags |= IB_ACCESS_LOCAL_WRITE;
 		}
 
+<<<<<<< HEAD
 		up_read(&current->mm->mmap_sem);
 	}
 
 	return ib_umem_get(context, start, length, access_flags, 0);
+=======
+		mmap_read_unlock(current->mm);
+	}
+
+	return ib_umem_get(device, start, length, access_flags);
+>>>>>>> upstream/android-13
 }
 
 struct ib_mr *mlx4_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
@@ -415,14 +459,21 @@ struct ib_mr *mlx4_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 	if (!mr)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	mr->umem = mlx4_get_umem_mr(pd->uobject->context, start, length,
 				    virt_addr, access_flags);
+=======
+	mr->umem = mlx4_get_umem_mr(pd->device, start, length, access_flags);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mr->umem)) {
 		err = PTR_ERR(mr->umem);
 		goto err_free;
 	}
 
+<<<<<<< HEAD
 	n = ib_umem_page_count(mr->umem);
+=======
+>>>>>>> upstream/android-13
 	shift = mlx4_ib_umem_calc_optimal_mtt_size(mr->umem, start, &n);
 
 	err = mlx4_mr_alloc(dev->dev, to_mpd(pd)->pdn, virt_addr, length,
@@ -440,7 +491,10 @@ struct ib_mr *mlx4_ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
 
 	mr->ibmr.rkey = mr->ibmr.lkey = mr->mmr.key;
 	mr->ibmr.length = length;
+<<<<<<< HEAD
 	mr->ibmr.iova = virt_addr;
+=======
+>>>>>>> upstream/android-13
 	mr->ibmr.page_size = 1U << shift;
 
 	return &mr->ibmr;
@@ -457,10 +511,17 @@ err_free:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 int mlx4_ib_rereg_user_mr(struct ib_mr *mr, int flags,
 			  u64 start, u64 length, u64 virt_addr,
 			  int mr_access_flags, struct ib_pd *pd,
 			  struct ib_udata *udata)
+=======
+struct ib_mr *mlx4_ib_rereg_user_mr(struct ib_mr *mr, int flags, u64 start,
+				    u64 length, u64 virt_addr,
+				    int mr_access_flags, struct ib_pd *pd,
+				    struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_ib_dev *dev = to_mdev(mr->device);
 	struct mlx4_ib_mr *mmr = to_mmr(mr);
@@ -473,9 +534,14 @@ int mlx4_ib_rereg_user_mr(struct ib_mr *mr, int flags,
 	 * race exists.
 	 */
 	err =  mlx4_mr_hw_get_mpt(dev->dev, &mmr->mmr, &pmpt_entry);
+<<<<<<< HEAD
 
 	if (err)
 		return err;
+=======
+	if (err)
+		return ERR_PTR(err);
+>>>>>>> upstream/android-13
 
 	if (flags & IB_MR_REREG_PD) {
 		err = mlx4_mr_hw_change_pd(dev->dev, *pmpt_entry,
@@ -505,17 +571,27 @@ int mlx4_ib_rereg_user_mr(struct ib_mr *mr, int flags,
 
 		mlx4_mr_rereg_mem_cleanup(dev->dev, &mmr->mmr);
 		ib_umem_release(mmr->umem);
+<<<<<<< HEAD
 		mmr->umem =
 			mlx4_get_umem_mr(mr->uobject->context, start, length,
 					 virt_addr, mr_access_flags);
+=======
+		mmr->umem = mlx4_get_umem_mr(mr->device, start, length,
+					     mr_access_flags);
+>>>>>>> upstream/android-13
 		if (IS_ERR(mmr->umem)) {
 			err = PTR_ERR(mmr->umem);
 			/* Prevent mlx4_ib_dereg_mr from free'ing invalid pointer */
 			mmr->umem = NULL;
 			goto release_mpt_entry;
 		}
+<<<<<<< HEAD
 		n = ib_umem_page_count(mmr->umem);
 		shift = mmr->umem->page_shift;
+=======
+		n = ib_umem_num_dma_blocks(mmr->umem, PAGE_SIZE);
+		shift = PAGE_SHIFT;
+>>>>>>> upstream/android-13
 
 		err = mlx4_mr_rereg_mem_write(dev->dev, &mmr->mmr,
 					      virt_addr, length, n, shift,
@@ -544,8 +620,14 @@ int mlx4_ib_rereg_user_mr(struct ib_mr *mr, int flags,
 
 release_mpt_entry:
 	mlx4_mr_hw_put_mpt(dev->dev, pmpt_entry);
+<<<<<<< HEAD
 
 	return err;
+=======
+	if (err)
+		return ERR_PTR(err);
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -596,7 +678,11 @@ mlx4_free_priv_pages(struct mlx4_ib_mr *mr)
 	}
 }
 
+<<<<<<< HEAD
 int mlx4_ib_dereg_mr(struct ib_mr *ibmr)
+=======
+int mlx4_ib_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_ib_mr *mr = to_mmr(ibmr);
 	int ret;
@@ -613,6 +699,7 @@ int mlx4_ib_dereg_mr(struct ib_mr *ibmr)
 	return 0;
 }
 
+<<<<<<< HEAD
 struct ib_mw *mlx4_ib_alloc_mw(struct ib_pd *pd, enum ib_mw_type type,
 			       struct ib_udata *udata)
 {
@@ -628,11 +715,24 @@ struct ib_mw *mlx4_ib_alloc_mw(struct ib_pd *pd, enum ib_mw_type type,
 			    to_mlx4_type(type), &mw->mmw);
 	if (err)
 		goto err_free;
+=======
+int mlx4_ib_alloc_mw(struct ib_mw *ibmw, struct ib_udata *udata)
+{
+	struct mlx4_ib_dev *dev = to_mdev(ibmw->device);
+	struct mlx4_ib_mw *mw = to_mmw(ibmw);
+	int err;
+
+	err = mlx4_mw_alloc(dev->dev, to_mpd(ibmw->pd)->pdn,
+			    to_mlx4_type(ibmw->type), &mw->mmw);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	err = mlx4_mw_enable(dev->dev, &mw->mmw);
 	if (err)
 		goto err_mw;
 
+<<<<<<< HEAD
 	mw->ibmw.rkey = mw->mmw.key;
 
 	return &mw->ibmw;
@@ -644,6 +744,14 @@ err_free:
 	kfree(mw);
 
 	return ERR_PTR(err);
+=======
+	ibmw->rkey = mw->mmw.key;
+	return 0;
+
+err_mw:
+	mlx4_mw_free(dev->dev, &mw->mmw);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 int mlx4_ib_dealloc_mw(struct ib_mw *ibmw)
@@ -651,6 +759,7 @@ int mlx4_ib_dealloc_mw(struct ib_mw *ibmw)
 	struct mlx4_ib_mw *mw = to_mmw(ibmw);
 
 	mlx4_mw_free(to_mdev(ibmw->device)->dev, &mw->mmw);
+<<<<<<< HEAD
 	kfree(mw);
 
 	return 0;
@@ -658,6 +767,12 @@ int mlx4_ib_dealloc_mw(struct ib_mw *ibmw)
 
 struct ib_mr *mlx4_ib_alloc_mr(struct ib_pd *pd,
 			       enum ib_mr_type mr_type,
+=======
+	return 0;
+}
+
+struct ib_mr *mlx4_ib_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
+>>>>>>> upstream/android-13
 			       u32 max_num_sg)
 {
 	struct mlx4_ib_dev *dev = to_mdev(pd->device);
@@ -701,6 +816,7 @@ err_free:
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 struct ib_fmr *mlx4_ib_fmr_alloc(struct ib_pd *pd, int acc,
 				 struct ib_fmr_attr *fmr_attr)
 {
@@ -794,6 +910,8 @@ int mlx4_ib_fmr_dealloc(struct ib_fmr *ibfmr)
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mlx4_set_page(struct ib_mr *ibmr, u64 addr)
 {
 	struct mlx4_ib_mr *mr = to_mmr(ibmr);

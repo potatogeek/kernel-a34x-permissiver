@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * vpx3220a, vpx3216b & vpx3214c video decoder driver version 0.0.1
  *
  * Copyright (C) 2001 Laurent Pinchart <lpinchart@freegates.be>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -384,7 +391,11 @@ static int vpx3220_s_routing(struct v4l2_subdev *sd,
 		 input = 1: COMPOSITE  input
 		 input = 2: SVHS       input  */
 
+<<<<<<< HEAD
 	const int input_vals[3][2] = {
+=======
+	static const int input_vals[3][2] = {
+>>>>>>> upstream/android-13
 		{0x0c, 0},
 		{0x0d, 0},
 		{0x0e, 1}

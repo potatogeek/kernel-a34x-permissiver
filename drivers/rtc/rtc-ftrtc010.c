@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Faraday Technology FTRTC010 driver
  *
  *  Copyright (C) 2009 Janos Laube <janos.dev@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Original code for older kernel 2.6.15 are from Stormlinksemi
  * first update from Janos Laube for > 2.6.29 kernels
  *
@@ -185,7 +192,11 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
 	if (unlikely(ret))
 		return ret;
 
+<<<<<<< HEAD
 	return rtc_register_device(rtc->rtc_dev);
+=======
+	return devm_rtc_register_device(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 }
 
 static int ftrtc010_rtc_remove(struct platform_device *pdev)

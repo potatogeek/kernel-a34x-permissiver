@@ -11,6 +11,13 @@
 	model = "Radxa Rock";
 	compatible = "radxa,rock", "rockchip,rk3188";
 
+<<<<<<< HEAD
+=======
+	aliases {
+		mmc0 = &mmc0;
+	};
+
+>>>>>>> upstream/android-13
 	memory@60000000 {
 		device_type = "memory";
 		reg = <0x60000000 0x80000000>;
@@ -33,19 +40,31 @@
 	gpio-leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		green {
+=======
+		green_led: led-0 {
+>>>>>>> upstream/android-13
 			label = "rock:green:user1";
 			gpios = <&gpio0 RK_PB4 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
 
+<<<<<<< HEAD
 		blue {
+=======
+		blue_led: led-1 {
+>>>>>>> upstream/android-13
 			label = "rock:blue:user2";
 			gpios = <&gpio0 RK_PB6 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
 
+<<<<<<< HEAD
 		sleep {
+=======
+		sleep_led: led-2 {
+>>>>>>> upstream/android-13
 			label = "rock:red:power";
 			gpios = <&gpio0 RK_PB7 GPIO_ACTIVE_HIGH>;
 			default-state = "off";
@@ -138,7 +157,23 @@
 };
 
 &cpu0 {
+<<<<<<< HEAD
 	cpu0-supply = <&vdd_arm>;
+=======
+	cpu-supply = <&vdd_arm>;
+};
+
+&cpu1 {
+	cpu-supply = <&vdd_arm>;
+};
+
+&cpu2 {
+	cpu-supply = <&vdd_arm>;
+};
+
+&cpu3 {
+	cpu-supply = <&vdd_arm>;
+>>>>>>> upstream/android-13
 };
 
 &gpu {
@@ -295,40 +330,67 @@
 
 	act8846 {
 		act8846_dvs0_ctl: act8846-dvs0-ctl {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO3 27 RK_FUNC_GPIO &pcfg_output_low>;
+=======
+			rockchip,pins = <3 RK_PD3 RK_FUNC_GPIO &pcfg_output_low>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	hym8563 {
 		rtc_int: rtc-int {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO0 0 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <0 RK_PA0 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	lan8720a  {
 		phy_int: phy-int {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO3 26 RK_FUNC_GPIO &pcfg_pull_up>;
+=======
+			rockchip,pins = <3 RK_PD2 RK_FUNC_GPIO &pcfg_pull_up>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	ir-receiver {
 		ir_recv_pin: ir-recv-pin {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO0 10 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <0 RK_PB2 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	sd0 {
 		sdmmc_pwr: sdmmc-pwr {
+<<<<<<< HEAD
 			rockchip,pins = <RK_GPIO3 1 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <3 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 
 	usb {
 		host_vbus_drv: host-vbus-drv {
+<<<<<<< HEAD
 			rockchip,pins = <0 3 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 		otg_vbus_drv: otg-vbus-drv {
 			rockchip,pins = <2 31 RK_FUNC_GPIO &pcfg_pull_none>;
+=======
+			rockchip,pins = <0 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+		otg_vbus_drv: otg-vbus-drv {
+			rockchip,pins = <2 RK_PD7 RK_FUNC_GPIO &pcfg_pull_none>;
+>>>>>>> upstream/android-13
 		};
 	};
 };

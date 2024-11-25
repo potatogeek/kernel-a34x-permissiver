@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Resizable, Scalable, Concurrent Hash Table
  *
  * Copyright (c) 2014-2015 Thomas Graf <tgraf@suug.ch>
  * Copyright (c) 2008-2014 Patrick McHardy <kaber@trash.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /**************************************************************************
@@ -20,11 +27,18 @@
 #include <linux/module.h>
 #include <linux/rcupdate.h>
 #include <linux/rhashtable.h>
+<<<<<<< HEAD
 #include <linux/semaphore.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/sched.h>
 #include <linux/random.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/wait.h>
+>>>>>>> upstream/android-13
 
 #define MAX_ENTRIES	1000000
 #define TEST_INSERT_FAIL INT_MAX
@@ -112,8 +126,13 @@ static struct rhashtable_params test_rht_params_dup = {
 	.automatic_shrinking = false,
 };
 
+<<<<<<< HEAD
 static struct semaphore prestart_sem;
 static struct semaphore startup_sem = __SEMAPHORE_INITIALIZER(startup_sem, 0);
+=======
+static atomic_t startup_count;
+static DECLARE_WAIT_QUEUE_HEAD(startup_wait);
+>>>>>>> upstream/android-13
 
 static int insert_retry(struct rhashtable *ht, struct test_obj *obj,
                         const struct rhashtable_params params)
@@ -177,6 +196,7 @@ static int __init test_rht_lookup(struct rhashtable *ht, struct test_obj *array,
 
 static void test_bucket_stats(struct rhashtable *ht, unsigned int entries)
 {
+<<<<<<< HEAD
 	unsigned int err, total = 0, chain_len = 0;
 	struct rhashtable_iter hti;
 	struct rhash_head *pos;
@@ -187,6 +207,13 @@ static void test_bucket_stats(struct rhashtable *ht, unsigned int entries)
 		return;
 	}
 
+=======
+	unsigned int total = 0, chain_len = 0;
+	struct rhashtable_iter hti;
+	struct rhash_head *pos;
+
+	rhashtable_walk_enter(ht, &hti);
+>>>>>>> upstream/android-13
 	rhashtable_walk_start(&hti);
 
 	while ((pos = rhashtable_walk_next(&hti))) {
@@ -395,7 +422,11 @@ static int __init test_rhltable(unsigned int entries)
 			if (WARN(err, "cannot remove element at slot %d", i))
 				continue;
 		} else {
+<<<<<<< HEAD
 			if (WARN(err != -ENOENT, "removed non-existant element %d, error %d not %d",
+=======
+			if (WARN(err != -ENOENT, "removed non-existent element %d, error %d not %d",
+>>>>>>> upstream/android-13
 			     i, err, -ENOENT))
 				continue;
 		}
@@ -440,9 +471,15 @@ static int __init test_rhltable(unsigned int entries)
 			if (WARN(err, "cannot remove element at slot %d", i))
 				continue;
 		} else {
+<<<<<<< HEAD
 			if (WARN(err != -ENOENT, "removed non-existant element, error %d not %d",
 				 err, -ENOENT))
 			continue;
+=======
+			if (WARN(err != -ENOENT, "removed non-existent element, error %d not %d",
+				 err, -ENOENT))
+				continue;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -495,6 +532,10 @@ static unsigned int __init print_ht(struct rhltable *rhlt)
 	struct rhashtable *ht;
 	const struct bucket_table *tbl;
 	char buff[512] = "";
+<<<<<<< HEAD
+=======
+	int offset = 0;
+>>>>>>> upstream/android-13
 	unsigned int i, cnt = 0;
 
 	ht = &rhlt->ht;
@@ -505,22 +546,38 @@ static unsigned int __init print_ht(struct rhltable *rhlt)
 		struct rhash_head *pos, *next;
 		struct test_obj_rhl *p;
 
+<<<<<<< HEAD
 		pos = rht_dereference(tbl->buckets[i], ht);
 		next = !rht_is_a_nulls(pos) ? rht_dereference(pos->next, ht) : NULL;
 
 		if (!rht_is_a_nulls(pos)) {
 			sprintf(buff, "%s\nbucket[%d] -> ", buff, i);
+=======
+		pos = rht_ptr_exclusive(tbl->buckets + i);
+		next = !rht_is_a_nulls(pos) ? rht_dereference(pos->next, ht) : NULL;
+
+		if (!rht_is_a_nulls(pos)) {
+			offset += sprintf(buff + offset, "\nbucket[%d] -> ", i);
+>>>>>>> upstream/android-13
 		}
 
 		while (!rht_is_a_nulls(pos)) {
 			struct rhlist_head *list = container_of(pos, struct rhlist_head, rhead);
+<<<<<<< HEAD
 			sprintf(buff, "%s[[", buff);
+=======
+			offset += sprintf(buff + offset, "[[");
+>>>>>>> upstream/android-13
 			do {
 				pos = &list->rhead;
 				list = rht_dereference(list->next, ht);
 				p = rht_obj(ht, pos);
 
+<<<<<<< HEAD
 				sprintf(buff, "%s val %d (tid=%d)%s", buff, p->value.id, p->value.tid,
+=======
+				offset += sprintf(buff + offset, " val %d (tid=%d)%s", p->value.id, p->value.tid,
+>>>>>>> upstream/android-13
 					list? ", " : " ");
 				cnt++;
 			} while (list);
@@ -529,7 +586,11 @@ static unsigned int __init print_ht(struct rhltable *rhlt)
 			next = !rht_is_a_nulls(pos) ?
 				rht_dereference(pos->next, ht) : NULL;
 
+<<<<<<< HEAD
 			sprintf(buff, "%s]]%s", buff, !rht_is_a_nulls(pos) ? " -> " : "");
+=======
+			offset += sprintf(buff + offset, "]]%s", !rht_is_a_nulls(pos) ? " -> " : "");
+>>>>>>> upstream/android-13
 		}
 	}
 	printk(KERN_ERR "\n---- ht: ----%s\n-------------\n", buff);
@@ -641,9 +702,18 @@ static int threadfunc(void *data)
 	int i, step, err = 0, insert_retries = 0;
 	struct thread_data *tdata = data;
 
+<<<<<<< HEAD
 	up(&prestart_sem);
 	if (down_interruptible(&startup_sem))
 		pr_err("  thread[%d]: down_interruptible failed\n", tdata->id);
+=======
+	if (atomic_dec_and_test(&startup_count))
+		wake_up(&startup_wait);
+	if (wait_event_interruptible(startup_wait, atomic_read(&startup_count) == -1)) {
+		pr_err("  thread[%d]: interrupted\n", tdata->id);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < tdata->entries; i++) {
 		tdata->objs[i].value.id = i;
@@ -762,7 +832,11 @@ static int __init test_rht_init(void)
 
 	pr_info("Testing concurrent rhashtable access from %d threads\n",
 	        tcount);
+<<<<<<< HEAD
 	sema_init(&prestart_sem, 1 - tcount);
+=======
+	atomic_set(&startup_count, tcount);
+>>>>>>> upstream/android-13
 	tdata = vzalloc(array_size(tcount, sizeof(struct thread_data)));
 	if (!tdata)
 		return -ENOMEM;
@@ -788,6 +862,7 @@ static int __init test_rht_init(void)
 		tdata[i].objs = objs + i * entries;
 		tdata[i].task = kthread_run(threadfunc, &tdata[i],
 		                            "rhashtable_thrad[%d]", i);
+<<<<<<< HEAD
 		if (IS_ERR(tdata[i].task))
 			pr_err(" kthread_run failed for thread %d\n", i);
 		else
@@ -797,6 +872,20 @@ static int __init test_rht_init(void)
 		pr_err("  down interruptible failed\n");
 	for (i = 0; i < tcount; i++)
 		up(&startup_sem);
+=======
+		if (IS_ERR(tdata[i].task)) {
+			pr_err(" kthread_run failed for thread %d\n", i);
+			atomic_dec(&startup_count);
+		} else {
+			started_threads++;
+		}
+	}
+	if (wait_event_interruptible(startup_wait, atomic_read(&startup_count) == 0))
+		pr_err("  wait_event interruptible failed\n");
+	/* count is 0 now, set it to -1 and wake up all threads together */
+	atomic_dec(&startup_count);
+	wake_up_all(&startup_wait);
+>>>>>>> upstream/android-13
 	for (i = 0; i < tcount; i++) {
 		if (IS_ERR(tdata[i].task))
 			continue;

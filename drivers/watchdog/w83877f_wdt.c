@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	W83877F Computer Watchdog Timer driver
  *
  *      Based on acquirewdt.c by Alan Cox,
  *           and sbc60xxwdt.c by Jakob Oestergaard <jakob@unthought.net>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The authors do NOT admit liability nor provide warranty for
  *	any of this software. This material is provided "AS-IS" in
  *      the hope that it may be useful for others.
@@ -170,7 +177,11 @@ static void wdt_startup(void)
 static void wdt_turnoff(void)
 {
 	/* Stop the timer */
+<<<<<<< HEAD
 	del_timer(&timer);
+=======
+	del_timer_sync(&timer);
+>>>>>>> upstream/android-13
 
 	wdt_change(WDT_DISABLE);
 
@@ -224,7 +235,11 @@ static int fop_open(struct inode *inode, struct file *file)
 
 	/* Good, fire up the show */
 	wdt_startup();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int fop_close(struct inode *inode, struct file *file)
@@ -292,8 +307,13 @@ static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 		timeout = new_timeout;
 		wdt_keepalive();
+<<<<<<< HEAD
 		/* Fall through */
 	}
+=======
+	}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WDIOC_GETTIMEOUT:
 		return put_user(timeout, p);
 	default:
@@ -308,6 +328,10 @@ static const struct file_operations wdt_fops = {
 	.open		= fop_open,
 	.release	= fop_close,
 	.unlocked_ioctl	= fop_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static struct miscdevice wdt_miscdev = {

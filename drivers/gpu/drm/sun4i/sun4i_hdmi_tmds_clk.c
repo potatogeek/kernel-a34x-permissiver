@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 Free Electrons
  * Copyright (C) 2016 NextThing Co
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -11,6 +16,12 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #include "sun4i_hdmi.h"
 
@@ -35,7 +46,11 @@ static unsigned long sun4i_tmds_calc_divider(unsigned long rate,
 {
 	unsigned long best_rate = 0;
 	u8 best_m = 0, m;
+<<<<<<< HEAD
 	bool is_double;
+=======
+	bool is_double = false;
+>>>>>>> upstream/android-13
 
 	for (m = div_offset ?: 1; m < (16 + div_offset); m++) {
 		u8 d;

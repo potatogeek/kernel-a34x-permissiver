@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * dlmglue.c
  *
  * Code which implements an OCFS2 specific interface to our DLM.
  *
  * Copyright (C) 2003, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -32,6 +40,10 @@
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
 #include <linux/time.h>
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/quotaops.h>
 #include <linux/sched/signal.h>
 
@@ -440,6 +452,10 @@ static void ocfs2_remove_lockres_tracking(struct ocfs2_lock_res *res)
 static void ocfs2_init_lock_stats(struct ocfs2_lock_res *res)
 {
 	res->l_lock_refresh = 0;
+<<<<<<< HEAD
+=======
+	res->l_lock_wait = 0;
+>>>>>>> upstream/android-13
 	memset(&res->l_lock_prmode, 0, sizeof(struct ocfs2_lock_stats));
 	memset(&res->l_lock_exmode, 0, sizeof(struct ocfs2_lock_stats));
 }
@@ -474,6 +490,11 @@ static void ocfs2_update_lock_stats(struct ocfs2_lock_res *res, int level,
 
 	if (ret)
 		stats->ls_fail++;
+<<<<<<< HEAD
+=======
+
+	stats->ls_last = ktime_to_us(ktime_get_real());
+>>>>>>> upstream/android-13
 }
 
 static inline void ocfs2_track_lock_refresh(struct ocfs2_lock_res *lockres)
@@ -481,6 +502,24 @@ static inline void ocfs2_track_lock_refresh(struct ocfs2_lock_res *lockres)
 	lockres->l_lock_refresh++;
 }
 
+<<<<<<< HEAD
+=======
+static inline void ocfs2_track_lock_wait(struct ocfs2_lock_res *lockres)
+{
+	struct ocfs2_mask_waiter *mw;
+
+	if (list_empty(&lockres->l_mask_waiters)) {
+		lockres->l_lock_wait = 0;
+		return;
+	}
+
+	mw = list_first_entry(&lockres->l_mask_waiters,
+				struct ocfs2_mask_waiter, mw_item);
+	lockres->l_lock_wait =
+			ktime_to_us(ktime_mono_to_real(mw->mw_lock_start));
+}
+
+>>>>>>> upstream/android-13
 static inline void ocfs2_init_start_time(struct ocfs2_mask_waiter *mw)
 {
 	mw->mw_lock_start = ktime_get();
@@ -496,6 +535,12 @@ static inline void ocfs2_update_lock_stats(struct ocfs2_lock_res *res,
 static inline void ocfs2_track_lock_refresh(struct ocfs2_lock_res *lockres)
 {
 }
+<<<<<<< HEAD
+=======
+static inline void ocfs2_track_lock_wait(struct ocfs2_lock_res *lockres)
+{
+}
+>>>>>>> upstream/android-13
 static inline void ocfs2_init_start_time(struct ocfs2_mask_waiter *mw)
 {
 }
@@ -563,7 +608,11 @@ void ocfs2_inode_lock_res_init(struct ocfs2_lock_res *res,
 			mlog_bug_on_msg(1, "type: %d\n", type);
 			ops = NULL; /* thanks, gcc */
 			break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	ocfs2_build_lock_name(type, OCFS2_I(inode)->ip_blkno,
 			      generation, res->l_name);
@@ -692,6 +741,12 @@ void ocfs2_trim_fs_lock_res_init(struct ocfs2_super *osb)
 {
 	struct ocfs2_lock_res *lockres = &osb->osb_trim_fs_lockres;
 
+<<<<<<< HEAD
+=======
+	/* Only one trimfs thread are allowed to work at the same time. */
+	mutex_lock(&osb->obs_trim_fs_mutex);
+
+>>>>>>> upstream/android-13
 	ocfs2_lock_res_init_once(lockres);
 	ocfs2_build_lock_name(OCFS2_LOCK_TYPE_TRIM_FS, 0, 0, lockres->l_name);
 	ocfs2_lock_res_init_common(osb, lockres, OCFS2_LOCK_TYPE_TRIM_FS,
@@ -704,6 +759,11 @@ void ocfs2_trim_fs_lock_res_uninit(struct ocfs2_super *osb)
 
 	ocfs2_simple_drop_lockres(osb, lockres);
 	ocfs2_lock_res_free(lockres);
+<<<<<<< HEAD
+=======
+
+	mutex_unlock(&osb->obs_trim_fs_mutex);
+>>>>>>> upstream/android-13
 }
 
 static void ocfs2_orphan_scan_lock_res_init(struct ocfs2_lock_res *res,
@@ -890,6 +950,10 @@ static void lockres_set_flags(struct ocfs2_lock_res *lockres,
 		list_del_init(&mw->mw_item);
 		mw->mw_status = 0;
 		complete(&mw->mw_complete);
+<<<<<<< HEAD
+=======
+		ocfs2_track_lock_wait(lockres);
+>>>>>>> upstream/android-13
 	}
 }
 static void lockres_or_flags(struct ocfs2_lock_res *lockres, unsigned long or)
@@ -1401,6 +1465,10 @@ static void lockres_add_mask_waiter(struct ocfs2_lock_res *lockres,
 	list_add_tail(&mw->mw_item, &lockres->l_mask_waiters);
 	mw->mw_mask = mask;
 	mw->mw_goal = goal;
+<<<<<<< HEAD
+=======
+	ocfs2_track_lock_wait(lockres);
+>>>>>>> upstream/android-13
 }
 
 /* returns 0 if the mw that was removed was already satisfied, -EBUSY
@@ -1417,6 +1485,10 @@ static int __lockres_remove_mask_waiter(struct ocfs2_lock_res *lockres,
 
 		list_del_init(&mw->mw_item);
 		init_completion(&mw->mw_complete);
+<<<<<<< HEAD
+=======
+		ocfs2_track_lock_wait(lockres);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -1678,7 +1750,11 @@ static void __ocfs2_cluster_unlock(struct ocfs2_super *osb,
 	spin_unlock_irqrestore(&lockres->l_lock, flags);
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	if (lockres->l_lockdep_map.key != NULL)
+<<<<<<< HEAD
 		rwsem_release(&lockres->l_lockdep_map, 1, caller_ip);
+=======
+		rwsem_release(&lockres->l_lockdep_map, caller_ip);
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -2124,15 +2200,26 @@ static void ocfs2_downconvert_on_unlock(struct ocfs2_super *osb,
 }
 
 #define OCFS2_SEC_BITS   34
+<<<<<<< HEAD
 #define OCFS2_SEC_SHIFT  (64 - 34)
+=======
+#define OCFS2_SEC_SHIFT  (64 - OCFS2_SEC_BITS)
+>>>>>>> upstream/android-13
 #define OCFS2_NSEC_MASK  ((1ULL << OCFS2_SEC_SHIFT) - 1)
 
 /* LVB only has room for 64 bits of time here so we pack it for
  * now. */
+<<<<<<< HEAD
 static u64 ocfs2_pack_timespec(struct timespec *spec)
 {
 	u64 res;
 	u64 sec = spec->tv_sec;
+=======
+static u64 ocfs2_pack_timespec(struct timespec64 *spec)
+{
+	u64 res;
+	u64 sec = clamp_t(time64_t, spec->tv_sec, 0, 0x3ffffffffull);
+>>>>>>> upstream/android-13
 	u32 nsec = spec->tv_nsec;
 
 	res = (sec << OCFS2_SEC_SHIFT) | (nsec & OCFS2_NSEC_MASK);
@@ -2148,7 +2235,10 @@ static void __ocfs2_stuff_meta_lvb(struct inode *inode)
 	struct ocfs2_inode_info *oi = OCFS2_I(inode);
 	struct ocfs2_lock_res *lockres = &oi->ip_inode_lockres;
 	struct ocfs2_meta_lvb *lvb;
+<<<<<<< HEAD
 	struct timespec ts;
+=======
+>>>>>>> upstream/android-13
 
 	lvb = ocfs2_dlm_lvb(&lockres->l_lksb);
 
@@ -2169,6 +2259,7 @@ static void __ocfs2_stuff_meta_lvb(struct inode *inode)
 	lvb->lvb_igid      = cpu_to_be32(i_gid_read(inode));
 	lvb->lvb_imode     = cpu_to_be16(inode->i_mode);
 	lvb->lvb_inlink    = cpu_to_be16(inode->i_nlink);
+<<<<<<< HEAD
 	ts = timespec64_to_timespec(inode->i_atime);
 	lvb->lvb_iatime_packed  =
 		cpu_to_be64(ocfs2_pack_timespec(&ts));
@@ -2178,6 +2269,14 @@ static void __ocfs2_stuff_meta_lvb(struct inode *inode)
 	ts = timespec64_to_timespec(inode->i_mtime);
 	lvb->lvb_imtime_packed =
 		cpu_to_be64(ocfs2_pack_timespec(&ts));
+=======
+	lvb->lvb_iatime_packed  =
+		cpu_to_be64(ocfs2_pack_timespec(&inode->i_atime));
+	lvb->lvb_ictime_packed =
+		cpu_to_be64(ocfs2_pack_timespec(&inode->i_ctime));
+	lvb->lvb_imtime_packed =
+		cpu_to_be64(ocfs2_pack_timespec(&inode->i_mtime));
+>>>>>>> upstream/android-13
 	lvb->lvb_iattr    = cpu_to_be32(oi->ip_attr);
 	lvb->lvb_idynfeatures = cpu_to_be16(oi->ip_dyn_features);
 	lvb->lvb_igeneration = cpu_to_be32(inode->i_generation);
@@ -2186,16 +2285,25 @@ out:
 	mlog_meta_lvb(0, lockres);
 }
 
+<<<<<<< HEAD
 static void ocfs2_unpack_timespec(struct timespec *spec,
+=======
+static void ocfs2_unpack_timespec(struct timespec64 *spec,
+>>>>>>> upstream/android-13
 				  u64 packed_time)
 {
 	spec->tv_sec = packed_time >> OCFS2_SEC_SHIFT;
 	spec->tv_nsec = packed_time & OCFS2_NSEC_MASK;
 }
 
+<<<<<<< HEAD
 static void ocfs2_refresh_inode_from_lvb(struct inode *inode)
 {
 	struct timespec ts;
+=======
+static int ocfs2_refresh_inode_from_lvb(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	struct ocfs2_inode_info *oi = OCFS2_I(inode);
 	struct ocfs2_lock_res *lockres = &oi->ip_inode_lockres;
 	struct ocfs2_meta_lvb *lvb;
@@ -2203,6 +2311,11 @@ static void ocfs2_refresh_inode_from_lvb(struct inode *inode)
 	mlog_meta_lvb(0, lockres);
 
 	lvb = ocfs2_dlm_lvb(&lockres->l_lksb);
+<<<<<<< HEAD
+=======
+	if (inode_wrong_type(inode, be16_to_cpu(lvb->lvb_imode)))
+		return -ESTALE;
+>>>>>>> upstream/android-13
 
 	/* We're safe here without the lockres lock... */
 	spin_lock(&oi->ip_lock);
@@ -2223,6 +2336,7 @@ static void ocfs2_refresh_inode_from_lvb(struct inode *inode)
 	i_gid_write(inode, be32_to_cpu(lvb->lvb_igid));
 	inode->i_mode    = be16_to_cpu(lvb->lvb_imode);
 	set_nlink(inode, be16_to_cpu(lvb->lvb_inlink));
+<<<<<<< HEAD
 	ocfs2_unpack_timespec(&ts,
 			      be64_to_cpu(lvb->lvb_iatime_packed));
 	inode->i_atime = timespec_to_timespec64(ts);
@@ -2233,6 +2347,16 @@ static void ocfs2_refresh_inode_from_lvb(struct inode *inode)
 			      be64_to_cpu(lvb->lvb_ictime_packed));
 	inode->i_ctime = timespec_to_timespec64(ts);
 	spin_unlock(&oi->ip_lock);
+=======
+	ocfs2_unpack_timespec(&inode->i_atime,
+			      be64_to_cpu(lvb->lvb_iatime_packed));
+	ocfs2_unpack_timespec(&inode->i_mtime,
+			      be64_to_cpu(lvb->lvb_imtime_packed));
+	ocfs2_unpack_timespec(&inode->i_ctime,
+			      be64_to_cpu(lvb->lvb_ictime_packed));
+	spin_unlock(&oi->ip_lock);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static inline int ocfs2_meta_lvb_is_trustable(struct inode *inode,
@@ -2335,7 +2459,12 @@ static int ocfs2_inode_lock_update(struct inode *inode,
 	if (ocfs2_meta_lvb_is_trustable(inode, lockres)) {
 		mlog(0, "Trusting LVB on inode %llu\n",
 		     (unsigned long long)oi->ip_blkno);
+<<<<<<< HEAD
 		ocfs2_refresh_inode_from_lvb(inode);
+=======
+		status = ocfs2_refresh_inode_from_lvb(inode);
+		goto bail_refresh;
+>>>>>>> upstream/android-13
 	} else {
 		/* Boo, we have to go to disk. */
 		/* read bh, cast, ocfs2_refresh_inode */
@@ -2345,6 +2474,13 @@ static int ocfs2_inode_lock_update(struct inode *inode,
 			goto bail_refresh;
 		}
 		fe = (struct ocfs2_dinode *) (*bh)->b_data;
+<<<<<<< HEAD
+=======
+		if (inode_wrong_type(inode, le16_to_cpu(fe->i_mode))) {
+			status = -ESTALE;
+			goto bail_refresh;
+		}
+>>>>>>> upstream/android-13
 
 		/* This is a good chance to make sure we're not
 		 * locking an invalid object.  ocfs2_read_inode_block()
@@ -2507,9 +2643,13 @@ bail:
 			ocfs2_inode_unlock(inode, ex);
 	}
 
+<<<<<<< HEAD
 	if (local_bh)
 		brelse(local_bh);
 
+=======
+	brelse(local_bh);
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -2592,8 +2732,12 @@ int ocfs2_inode_lock_atime(struct inode *inode,
 		*level = 1;
 		if (ocfs2_should_update_atime(inode, vfsmnt))
 			ocfs2_update_inode_atime(inode, bh);
+<<<<<<< HEAD
 		if (bh)
 			brelse(bh);
+=======
+		brelse(bh);
+>>>>>>> upstream/android-13
 	} else
 		*level = 0;
 
@@ -2711,7 +2855,11 @@ int ocfs2_inode_lock_tracker(struct inode *inode,
 			return status;
 		}
 	}
+<<<<<<< HEAD
 	return tmp_oh ? 1 : 0;
+=======
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 void ocfs2_inode_unlock_tracker(struct inode *inode,
@@ -3026,7 +3174,11 @@ struct ocfs2_dlm_debug *ocfs2_new_dlm_debug(void)
 
 	kref_init(&dlm_debug->d_refcnt);
 	INIT_LIST_HEAD(&dlm_debug->d_lockres_tracking);
+<<<<<<< HEAD
 	dlm_debug->d_locking_state = NULL;
+=======
+	dlm_debug->d_filter_secs = 0;
+>>>>>>> upstream/android-13
 out:
 	return dlm_debug;
 }
@@ -3117,17 +3269,54 @@ static void *ocfs2_dlm_seq_next(struct seq_file *m, void *v, loff_t *pos)
  *	- Lock stats printed
  * New in version 3
  *	- Max time in lock stats is in usecs (instead of nsecs)
+<<<<<<< HEAD
  */
 #define OCFS2_DLM_DEBUG_STR_VERSION 3
+=======
+ * New in version 4
+ *	- Add last pr/ex unlock times and first lock wait time in usecs
+ */
+#define OCFS2_DLM_DEBUG_STR_VERSION 4
+>>>>>>> upstream/android-13
 static int ocfs2_dlm_seq_show(struct seq_file *m, void *v)
 {
 	int i;
 	char *lvb;
 	struct ocfs2_lock_res *lockres = v;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OCFS2_FS_STATS
+	u64 now, last;
+	struct ocfs2_dlm_debug *dlm_debug =
+			((struct ocfs2_dlm_seq_priv *)m->private)->p_dlm_debug;
+#endif
+>>>>>>> upstream/android-13
 
 	if (!lockres)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OCFS2_FS_STATS
+	if (!lockres->l_lock_wait && dlm_debug->d_filter_secs) {
+		now = ktime_to_us(ktime_get_real());
+		if (lockres->l_lock_prmode.ls_last >
+		    lockres->l_lock_exmode.ls_last)
+			last = lockres->l_lock_prmode.ls_last;
+		else
+			last = lockres->l_lock_exmode.ls_last;
+		/*
+		 * Use d_filter_secs field to filter lock resources dump,
+		 * the default d_filter_secs(0) value filters nothing,
+		 * otherwise, only dump the last N seconds active lock
+		 * resources.
+		 */
+		if (div_u64(now - last, 1000000) > dlm_debug->d_filter_secs)
+			return 0;
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	seq_printf(m, "0x%x\t", OCFS2_DLM_DEBUG_STR_VERSION);
 
 	if (lockres->l_type == OCFS2_LOCK_TYPE_DENTRY)
@@ -3169,6 +3358,12 @@ static int ocfs2_dlm_seq_show(struct seq_file *m, void *v)
 # define lock_max_prmode(_l)		((_l)->l_lock_prmode.ls_max)
 # define lock_max_exmode(_l)		((_l)->l_lock_exmode.ls_max)
 # define lock_refresh(_l)		((_l)->l_lock_refresh)
+<<<<<<< HEAD
+=======
+# define lock_last_prmode(_l)		((_l)->l_lock_prmode.ls_last)
+# define lock_last_exmode(_l)		((_l)->l_lock_exmode.ls_last)
+# define lock_wait(_l)			((_l)->l_lock_wait)
+>>>>>>> upstream/android-13
 #else
 # define lock_num_prmode(_l)		(0)
 # define lock_num_exmode(_l)		(0)
@@ -3179,6 +3374,12 @@ static int ocfs2_dlm_seq_show(struct seq_file *m, void *v)
 # define lock_max_prmode(_l)		(0)
 # define lock_max_exmode(_l)		(0)
 # define lock_refresh(_l)		(0)
+<<<<<<< HEAD
+=======
+# define lock_last_prmode(_l)		(0ULL)
+# define lock_last_exmode(_l)		(0ULL)
+# define lock_wait(_l)			(0ULL)
+>>>>>>> upstream/android-13
 #endif
 	/* The following seq_print was added in version 2 of this output */
 	seq_printf(m, "%u\t"
@@ -3189,7 +3390,14 @@ static int ocfs2_dlm_seq_show(struct seq_file *m, void *v)
 		   "%llu\t"
 		   "%u\t"
 		   "%u\t"
+<<<<<<< HEAD
 		   "%u\t",
+=======
+		   "%u\t"
+		   "%llu\t"
+		   "%llu\t"
+		   "%llu\t",
+>>>>>>> upstream/android-13
 		   lock_num_prmode(lockres),
 		   lock_num_exmode(lockres),
 		   lock_num_prmode_failed(lockres),
@@ -3198,7 +3406,14 @@ static int ocfs2_dlm_seq_show(struct seq_file *m, void *v)
 		   lock_total_exmode(lockres),
 		   lock_max_prmode(lockres),
 		   lock_max_exmode(lockres),
+<<<<<<< HEAD
 		   lock_refresh(lockres));
+=======
+		   lock_refresh(lockres),
+		   lock_last_prmode(lockres),
+		   lock_last_exmode(lockres),
+		   lock_wait(lockres));
+>>>>>>> upstream/android-13
 
 	/* End the line */
 	seq_printf(m, "\n");
@@ -3252,6 +3467,7 @@ static const struct file_operations ocfs2_dlm_debug_fops = {
 	.llseek =	seq_lseek,
 };
 
+<<<<<<< HEAD
 static int ocfs2_dlm_init_debug(struct ocfs2_super *osb)
 {
 	int ret = 0;
@@ -3272,16 +3488,33 @@ static int ocfs2_dlm_init_debug(struct ocfs2_super *osb)
 	ocfs2_get_dlm_debug(dlm_debug);
 out:
 	return ret;
+=======
+static void ocfs2_dlm_init_debug(struct ocfs2_super *osb)
+{
+	struct ocfs2_dlm_debug *dlm_debug = osb->osb_dlm_debug;
+
+	debugfs_create_file("locking_state", S_IFREG|S_IRUSR,
+			    osb->osb_debug_root, osb, &ocfs2_dlm_debug_fops);
+
+	debugfs_create_u32("locking_filter", 0600, osb->osb_debug_root,
+			   &dlm_debug->d_filter_secs);
+	ocfs2_get_dlm_debug(dlm_debug);
+>>>>>>> upstream/android-13
 }
 
 static void ocfs2_dlm_shutdown_debug(struct ocfs2_super *osb)
 {
 	struct ocfs2_dlm_debug *dlm_debug = osb->osb_dlm_debug;
 
+<<<<<<< HEAD
 	if (dlm_debug) {
 		debugfs_remove(dlm_debug->d_locking_state);
 		ocfs2_put_dlm_debug(dlm_debug);
 	}
+=======
+	if (dlm_debug)
+		ocfs2_put_dlm_debug(dlm_debug);
+>>>>>>> upstream/android-13
 }
 
 int ocfs2_dlm_init(struct ocfs2_super *osb)
@@ -3294,11 +3527,15 @@ int ocfs2_dlm_init(struct ocfs2_super *osb)
 		goto local;
 	}
 
+<<<<<<< HEAD
 	status = ocfs2_dlm_init_debug(osb);
 	if (status < 0) {
 		mlog_errno(status);
 		goto bail;
 	}
+=======
+	ocfs2_dlm_init_debug(osb);
+>>>>>>> upstream/android-13
 
 	/* launch downconvert thread */
 	osb->dc_task = kthread_run(ocfs2_downconvert_thread, osb, "ocfs2dc-%s",
@@ -3880,6 +4117,20 @@ downconvert:
 	spin_unlock_irqrestore(&lockres->l_lock, flags);
 	ret = ocfs2_downconvert_lock(osb, lockres, new_level, set_lvb,
 				     gen);
+<<<<<<< HEAD
+=======
+	/* The dlm lock convert is being cancelled in background,
+	 * ocfs2_cancel_convert() is asynchronous in fs/dlm,
+	 * requeue it, try again later.
+	 */
+	if (ret == -EBUSY) {
+		ctl->requeue = 1;
+		mlog(ML_BASTS, "lockres %s, ReQ: Downconvert busy\n",
+		     lockres->l_name);
+		ret = 0;
+		msleep(20);
+	}
+>>>>>>> upstream/android-13
 
 leave:
 	if (ret)
@@ -3907,7 +4158,11 @@ static int ocfs2_data_convert_worker(struct ocfs2_lock_res *lockres,
 		oi = OCFS2_I(inode);
 		oi->ip_dir_lock_gen++;
 		mlog(0, "generation: %u\n", oi->ip_dir_lock_gen);
+<<<<<<< HEAD
 		goto out;
+=======
+		goto out_forget;
+>>>>>>> upstream/android-13
 	}
 
 	if (!S_ISREG(inode->i_mode))
@@ -3938,6 +4193,10 @@ static int ocfs2_data_convert_worker(struct ocfs2_lock_res *lockres,
 		filemap_fdatawait(mapping);
 	}
 
+<<<<<<< HEAD
+=======
+out_forget:
+>>>>>>> upstream/android-13
 	forget_all_cached_acls(inode);
 
 out:
@@ -4390,7 +4649,10 @@ static int ocfs2_downconvert_thread_should_wake(struct ocfs2_super *osb)
 
 static int ocfs2_downconvert_thread(void *arg)
 {
+<<<<<<< HEAD
 	int status = 0;
+=======
+>>>>>>> upstream/android-13
 	struct ocfs2_super *osb = arg;
 
 	/* only quit once we've been asked to stop and there is no more
@@ -4408,7 +4670,11 @@ static int ocfs2_downconvert_thread(void *arg)
 	}
 
 	osb->dc_task = NULL;
+<<<<<<< HEAD
 	return status;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void ocfs2_wake_downconvert_thread(struct ocfs2_super *osb)

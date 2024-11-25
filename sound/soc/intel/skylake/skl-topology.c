@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  skl-topology.c - Implements Platform component ALSA controls/widget
  *  handlers.
@@ -5,6 +9,7 @@
  *  Copyright (C) 2014-2015 Intel Corp
  *  Author: Jeeja KP <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as version 2, as
@@ -14,13 +19,21 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
 #include <linux/types.h>
 #include <linux/firmware.h>
 #include <linux/uuid.h>
+<<<<<<< HEAD
 #include <sound/soc.h>
+=======
+#include <sound/intel-nhlt.h>
+#include <sound/soc.h>
+#include <sound/soc-acpi.h>
+>>>>>>> upstream/android-13
 #include <sound/soc-topology.h>
 #include <uapi/sound/snd_sst_tokens.h>
 #include <uapi/sound/skl-tplg-interface.h>
@@ -53,9 +66,15 @@ static const int mic_quatro_list[][SKL_CH_QUATRO] = {
 #define CHECK_HW_PARAMS(ch, freq, bps, prm_ch, prm_freq, prm_bps) \
 	((ch == prm_ch) && (bps == prm_bps) && (freq == prm_freq))
 
+<<<<<<< HEAD
 void skl_tplg_d0i3_get(struct skl *skl, enum d0i3_capability caps)
 {
 	struct skl_d0i3_data *d0i3 =  &skl->skl_sst->d0i3;
+=======
+void skl_tplg_d0i3_get(struct skl_dev *skl, enum d0i3_capability caps)
+{
+	struct skl_d0i3_data *d0i3 =  &skl->d0i3;
+>>>>>>> upstream/android-13
 
 	switch (caps) {
 	case SKL_D0I3_NONE:
@@ -72,9 +91,15 @@ void skl_tplg_d0i3_get(struct skl *skl, enum d0i3_capability caps)
 	}
 }
 
+<<<<<<< HEAD
 void skl_tplg_d0i3_put(struct skl *skl, enum d0i3_capability caps)
 {
 	struct skl_d0i3_data *d0i3 =  &skl->skl_sst->d0i3;
+=======
+void skl_tplg_d0i3_put(struct skl_dev *skl, enum d0i3_capability caps)
+{
+	struct skl_d0i3_data *d0i3 =  &skl->d0i3;
+>>>>>>> upstream/android-13
 
 	switch (caps) {
 	case SKL_D0I3_NONE:
@@ -117,6 +142,7 @@ static int is_skl_dsp_widget_type(struct snd_soc_dapm_widget *w,
 	}
 }
 
+<<<<<<< HEAD
 /*
  * Each pipelines needs memory to be allocated. Check if we have free memory
  * from available pool.
@@ -229,6 +255,25 @@ static void skl_dump_mconfig(struct skl_sst *ctx,
 	dev_dbg(ctx->dev, "valid bit depth = %d\n",
 				iface->outputs[0].fmt.valid_bit_depth);
 	dev_dbg(ctx->dev, "ch_cfg = %d\n", iface->outputs[0].fmt.ch_cfg);
+=======
+static void skl_dump_mconfig(struct skl_dev *skl, struct skl_module_cfg *mcfg)
+{
+	struct skl_module_iface *iface = &mcfg->module->formats[mcfg->fmt_idx];
+
+	dev_dbg(skl->dev, "Dumping config\n");
+	dev_dbg(skl->dev, "Input Format:\n");
+	dev_dbg(skl->dev, "channels = %d\n", iface->inputs[0].fmt.channels);
+	dev_dbg(skl->dev, "s_freq = %d\n", iface->inputs[0].fmt.s_freq);
+	dev_dbg(skl->dev, "ch_cfg = %d\n", iface->inputs[0].fmt.ch_cfg);
+	dev_dbg(skl->dev, "valid bit depth = %d\n",
+				iface->inputs[0].fmt.valid_bit_depth);
+	dev_dbg(skl->dev, "Output Format:\n");
+	dev_dbg(skl->dev, "channels = %d\n", iface->outputs[0].fmt.channels);
+	dev_dbg(skl->dev, "s_freq = %d\n", iface->outputs[0].fmt.s_freq);
+	dev_dbg(skl->dev, "valid bit depth = %d\n",
+				iface->outputs[0].fmt.valid_bit_depth);
+	dev_dbg(skl->dev, "ch_cfg = %d\n", iface->outputs[0].fmt.ch_cfg);
+>>>>>>> upstream/android-13
 }
 
 static void skl_tplg_update_chmap(struct skl_module_fmt *fmt, int chs)
@@ -296,8 +341,13 @@ static void skl_tplg_update_params_fixup(struct skl_module_cfg *m_cfg,
 	struct skl_module_fmt *in_fmt, *out_fmt;
 
 	/* Fixups will be applied to pin 0 only */
+<<<<<<< HEAD
 	in_fmt = &m_cfg->module->formats[0].inputs[0].fmt;
 	out_fmt = &m_cfg->module->formats[0].outputs[0].fmt;
+=======
+	in_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].inputs[0].fmt;
+	out_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].outputs[0].fmt;
+>>>>>>> upstream/android-13
 
 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 		if (is_fe) {
@@ -330,7 +380,11 @@ static void skl_tplg_update_params_fixup(struct skl_module_cfg *m_cfg,
  * params, so once we have calculate params, we need buffer calculation as
  * well.
  */
+<<<<<<< HEAD
 static void skl_tplg_update_buffer_size(struct skl_sst *ctx,
+=======
+static void skl_tplg_update_buffer_size(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 				struct skl_module_cfg *mcfg)
 {
 	int multiplier = 1;
@@ -340,9 +394,15 @@ static void skl_tplg_update_buffer_size(struct skl_sst *ctx,
 	/* Since fixups is applied to pin 0 only, ibs, obs needs
 	 * change for pin 0 only
 	 */
+<<<<<<< HEAD
 	res = &mcfg->module->resources[0];
 	in_fmt = &mcfg->module->formats[0].inputs[0].fmt;
 	out_fmt = &mcfg->module->formats[0].outputs[0].fmt;
+=======
+	res = &mcfg->module->resources[mcfg->res_idx];
+	in_fmt = &mcfg->module->formats[mcfg->fmt_idx].inputs[0].fmt;
+	out_fmt = &mcfg->module->formats[mcfg->fmt_idx].outputs[0].fmt;
+>>>>>>> upstream/android-13
 
 	if (mcfg->m_type == SKL_MODULE_TYPE_SRCINT)
 		multiplier = 5;
@@ -382,22 +442,36 @@ static u8 skl_tplg_be_dev_type(int dev_type)
 }
 
 static int skl_tplg_update_be_blob(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 						struct skl_sst *ctx)
+=======
+						struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct skl_module_cfg *m_cfg = w->priv;
 	int link_type, dir;
 	u32 ch, s_freq, s_fmt;
 	struct nhlt_specific_cfg *cfg;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(ctx->dev);
+=======
+>>>>>>> upstream/android-13
 	u8 dev_type = skl_tplg_be_dev_type(m_cfg->dev_type);
 	int fmt_idx = m_cfg->fmt_idx;
 	struct skl_module_iface *m_iface = &m_cfg->module->formats[fmt_idx];
 
 	/* check if we already have blob */
+<<<<<<< HEAD
 	if (m_cfg->formats_config.caps_size > 0)
 		return 0;
 
 	dev_dbg(ctx->dev, "Applying default cfg blob\n");
+=======
+	if (m_cfg->formats_config[SKL_PARAM_INIT].caps_size > 0)
+		return 0;
+
+	dev_dbg(skl->dev, "Applying default cfg blob\n");
+>>>>>>> upstream/android-13
 	switch (m_cfg->dev_type) {
 	case SKL_DEVICE_DMIC:
 		link_type = NHLT_LINK_DMIC;
@@ -430,12 +504,21 @@ static int skl_tplg_update_be_blob(struct snd_soc_dapm_widget *w,
 	cfg = skl_get_ep_blob(skl, m_cfg->vbus_id, link_type,
 					s_fmt, ch, s_freq, dir, dev_type);
 	if (cfg) {
+<<<<<<< HEAD
 		m_cfg->formats_config.caps_size = cfg->size;
 		m_cfg->formats_config.caps = (u32 *) &cfg->caps;
 	} else {
 		dev_err(ctx->dev, "Blob NULL for id %x type %d dirn %d\n",
 					m_cfg->vbus_id, link_type, dir);
 		dev_err(ctx->dev, "PCM: ch %d, freq %d, fmt %d\n",
+=======
+		m_cfg->formats_config[SKL_PARAM_INIT].caps_size = cfg->size;
+		m_cfg->formats_config[SKL_PARAM_INIT].caps = (u32 *)&cfg->caps;
+	} else {
+		dev_err(skl->dev, "Blob NULL for id %x type %d dirn %d\n",
+					m_cfg->vbus_id, link_type, dir);
+		dev_err(skl->dev, "PCM: ch %d, freq %d, fmt %d\n",
+>>>>>>> upstream/android-13
 					ch, s_freq, s_fmt);
 		return -EIO;
 	}
@@ -444,7 +527,11 @@ static int skl_tplg_update_be_blob(struct snd_soc_dapm_widget *w,
 }
 
 static void skl_tplg_update_module_params(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 							struct skl_sst *ctx)
+=======
+							struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct skl_module_cfg *m_cfg = w->priv;
 	struct skl_pipe_params *params = m_cfg->pipe->p_params;
@@ -454,10 +541,17 @@ static void skl_tplg_update_module_params(struct snd_soc_dapm_widget *w,
 	if (!m_cfg->params_fixup)
 		return;
 
+<<<<<<< HEAD
 	dev_dbg(ctx->dev, "Mconfig for widget=%s BEFORE updation\n",
 				w->name);
 
 	skl_dump_mconfig(ctx, m_cfg);
+=======
+	dev_dbg(skl->dev, "Mconfig for widget=%s BEFORE updation\n",
+				w->name);
+
+	skl_dump_mconfig(skl, m_cfg);
+>>>>>>> upstream/android-13
 
 	if (p_conn_type == SKL_PIPE_CONN_TYPE_FE)
 		is_fe = true;
@@ -465,12 +559,21 @@ static void skl_tplg_update_module_params(struct snd_soc_dapm_widget *w,
 		is_fe = false;
 
 	skl_tplg_update_params_fixup(m_cfg, params, is_fe);
+<<<<<<< HEAD
 	skl_tplg_update_buffer_size(ctx, m_cfg);
 
 	dev_dbg(ctx->dev, "Mconfig for widget=%s AFTER updation\n",
 				w->name);
 
 	skl_dump_mconfig(ctx, m_cfg);
+=======
+	skl_tplg_update_buffer_size(skl, m_cfg);
+
+	dev_dbg(skl->dev, "Mconfig for widget=%s AFTER updation\n",
+				w->name);
+
+	skl_dump_mconfig(skl, m_cfg);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -479,7 +582,11 @@ static void skl_tplg_update_module_params(struct snd_soc_dapm_widget *w,
  * set module params will be done after module is initialised.
  */
 static int skl_tplg_set_module_params(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 						struct skl_sst *ctx)
+=======
+						struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	int i, ret;
 	struct skl_module_cfg *mconfig = w->priv;
@@ -488,10 +595,17 @@ static int skl_tplg_set_module_params(struct snd_soc_dapm_widget *w,
 	struct skl_algo_data *bc;
 	struct skl_specific_cfg *sp_cfg;
 
+<<<<<<< HEAD
 	if (mconfig->formats_config.caps_size > 0 &&
 		mconfig->formats_config.set_params == SKL_PARAM_SET) {
 		sp_cfg = &mconfig->formats_config;
 		ret = skl_set_module_params(ctx, sp_cfg->caps,
+=======
+	if (mconfig->formats_config[SKL_PARAM_SET].caps_size > 0 &&
+	    mconfig->formats_config[SKL_PARAM_SET].set_params == SKL_PARAM_SET) {
+		sp_cfg = &mconfig->formats_config[SKL_PARAM_SET];
+		ret = skl_set_module_params(skl, sp_cfg->caps,
+>>>>>>> upstream/android-13
 					sp_cfg->caps_size,
 					sp_cfg->param_id, mconfig);
 		if (ret < 0)
@@ -505,7 +619,11 @@ static int skl_tplg_set_module_params(struct snd_soc_dapm_widget *w,
 			bc = (struct skl_algo_data *)sb->dobj.private;
 
 			if (bc->set_params == SKL_PARAM_SET) {
+<<<<<<< HEAD
 				ret = skl_set_module_params(ctx,
+=======
+				ret = skl_set_module_params(skl,
+>>>>>>> upstream/android-13
 						(u32 *)bc->params, bc->size,
 						bc->param_id, mconfig);
 				if (ret < 0)
@@ -540,8 +658,15 @@ static int skl_tplg_set_module_init_data(struct snd_soc_dapm_widget *w)
 			if (bc->set_params != SKL_PARAM_INIT)
 				continue;
 
+<<<<<<< HEAD
 			mconfig->formats_config.caps = (u32 *)bc->params;
 			mconfig->formats_config.caps_size = bc->size;
+=======
+			mconfig->formats_config[SKL_PARAM_INIT].caps =
+							(u32 *)bc->params;
+			mconfig->formats_config[SKL_PARAM_INIT].caps_size =
+								bc->size;
+>>>>>>> upstream/android-13
 
 			break;
 		}
@@ -550,15 +675,26 @@ static int skl_tplg_set_module_init_data(struct snd_soc_dapm_widget *w)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_tplg_module_prepare(struct skl_sst *ctx, struct skl_pipe *pipe,
+=======
+static int skl_tplg_module_prepare(struct skl_dev *skl, struct skl_pipe *pipe,
+>>>>>>> upstream/android-13
 		struct snd_soc_dapm_widget *w, struct skl_module_cfg *mcfg)
 {
 	switch (mcfg->dev_type) {
 	case SKL_DEVICE_HDAHOST:
+<<<<<<< HEAD
 		return skl_pcm_host_dma_prepare(ctx->dev, pipe->p_params);
 
 	case SKL_DEVICE_HDALINK:
 		return skl_pcm_link_dma_prepare(ctx->dev, pipe->p_params);
+=======
+		return skl_pcm_host_dma_prepare(skl->dev, pipe->p_params);
+
+	case SKL_DEVICE_HDALINK:
+		return skl_pcm_link_dma_prepare(skl->dev, pipe->p_params);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -570,25 +706,42 @@ static int skl_tplg_module_prepare(struct skl_sst *ctx, struct skl_pipe *pipe,
  * skl_init_module() routine, so invoke that for all modules in a pipeline
  */
 static int
+<<<<<<< HEAD
 skl_tplg_init_pipe_modules(struct skl *skl, struct skl_pipe *pipe)
+=======
+skl_tplg_init_pipe_modules(struct skl_dev *skl, struct skl_pipe *pipe)
+>>>>>>> upstream/android-13
 {
 	struct skl_pipe_module *w_module;
 	struct snd_soc_dapm_widget *w;
 	struct skl_module_cfg *mconfig;
+<<<<<<< HEAD
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+>>>>>>> upstream/android-13
 	u8 cfg_idx;
 	int ret = 0;
 
 	list_for_each_entry(w_module, &pipe->w_list, node) {
+<<<<<<< HEAD
 		uuid_le *uuid_mod;
+=======
+		guid_t *uuid_mod;
+>>>>>>> upstream/android-13
 		w = w_module->w;
 		mconfig = w->priv;
 
 		/* check if module ids are populated */
 		if (mconfig->id.module_id < 0) {
+<<<<<<< HEAD
 			dev_err(skl->skl_sst->dev,
 					"module %pUL id not populated\n",
 					(uuid_le *)mconfig->guid);
+=======
+			dev_err(skl->dev,
+					"module %pUL id not populated\n",
+					(guid_t *)mconfig->guid);
+>>>>>>> upstream/android-13
 			return -EIO;
 		}
 
@@ -596,6 +749,7 @@ skl_tplg_init_pipe_modules(struct skl *skl, struct skl_pipe *pipe)
 		mconfig->fmt_idx = mconfig->mod_cfg[cfg_idx].fmt_idx;
 		mconfig->res_idx = mconfig->mod_cfg[cfg_idx].res_idx;
 
+<<<<<<< HEAD
 		/* check resource available */
 		if (!skl_is_pipe_mcps_avail(skl, mconfig))
 			return -ENOMEM;
@@ -611,31 +765,59 @@ skl_tplg_init_pipe_modules(struct skl *skl, struct skl_pipe *pipe)
 
 		/* prepare the DMA if the module is gateway cpr */
 		ret = skl_tplg_module_prepare(ctx, pipe, w, mconfig);
+=======
+		if (mconfig->module->loadable && skl->dsp->fw_ops.load_mod) {
+			ret = skl->dsp->fw_ops.load_mod(skl->dsp,
+				mconfig->id.module_id, mconfig->guid);
+			if (ret < 0)
+				return ret;
+		}
+
+		/* prepare the DMA if the module is gateway cpr */
+		ret = skl_tplg_module_prepare(skl, pipe, w, mconfig);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
 		/* update blob if blob is null for be with default value */
+<<<<<<< HEAD
 		skl_tplg_update_be_blob(w, ctx);
+=======
+		skl_tplg_update_be_blob(w, skl);
+>>>>>>> upstream/android-13
 
 		/*
 		 * apply fix/conversion to module params based on
 		 * FE/BE params
 		 */
+<<<<<<< HEAD
 		skl_tplg_update_module_params(w, ctx);
 		uuid_mod = (uuid_le *)mconfig->guid;
 		mconfig->id.pvt_id = skl_get_pvt_id(ctx, uuid_mod,
+=======
+		skl_tplg_update_module_params(w, skl);
+		uuid_mod = (guid_t *)mconfig->guid;
+		mconfig->id.pvt_id = skl_get_pvt_id(skl, uuid_mod,
+>>>>>>> upstream/android-13
 						mconfig->id.instance_id);
 		if (mconfig->id.pvt_id < 0)
 			return ret;
 		skl_tplg_set_module_init_data(w);
 
+<<<<<<< HEAD
 		ret = skl_dsp_get_core(ctx->dsp, mconfig->core_id);
 		if (ret < 0) {
 			dev_err(ctx->dev, "Failed to wake up core %d ret=%d\n",
+=======
+		ret = skl_dsp_get_core(skl->dsp, mconfig->core_id);
+		if (ret < 0) {
+			dev_err(skl->dev, "Failed to wake up core %d ret=%d\n",
+>>>>>>> upstream/android-13
 						mconfig->core_id, ret);
 			return ret;
 		}
 
+<<<<<<< HEAD
 		ret = skl_init_module(ctx, mconfig);
 		if (ret < 0) {
 			skl_put_pvt_id(ctx, uuid_mod, &mconfig->id.pvt_id);
@@ -643,12 +825,22 @@ skl_tplg_init_pipe_modules(struct skl *skl, struct skl_pipe *pipe)
 		}
 		skl_tplg_alloc_pipe_mcps(skl, mconfig);
 		ret = skl_tplg_set_module_params(w, ctx);
+=======
+		ret = skl_init_module(skl, mconfig);
+		if (ret < 0) {
+			skl_put_pvt_id(skl, uuid_mod, &mconfig->id.pvt_id);
+			goto err;
+		}
+
+		ret = skl_tplg_set_module_params(w, skl);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto err;
 	}
 
 	return 0;
 err:
+<<<<<<< HEAD
 	skl_dsp_put_core(ctx->dsp, mconfig->core_id);
 	return ret;
 }
@@ -668,16 +860,45 @@ static int skl_tplg_unload_pipe_modules(struct skl_sst *ctx,
 		if (mconfig->module->loadable && ctx->dsp->fw_ops.unload_mod &&
 			mconfig->m_state > SKL_MODULE_UNINIT) {
 			ret = ctx->dsp->fw_ops.unload_mod(ctx->dsp,
+=======
+	skl_dsp_put_core(skl->dsp, mconfig->core_id);
+	return ret;
+}
+
+static int skl_tplg_unload_pipe_modules(struct skl_dev *skl,
+	 struct skl_pipe *pipe)
+{
+	int ret = 0;
+	struct skl_pipe_module *w_module;
+	struct skl_module_cfg *mconfig;
+
+	list_for_each_entry(w_module, &pipe->w_list, node) {
+		guid_t *uuid_mod;
+		mconfig  = w_module->w->priv;
+		uuid_mod = (guid_t *)mconfig->guid;
+
+		if (mconfig->module->loadable && skl->dsp->fw_ops.unload_mod) {
+			ret = skl->dsp->fw_ops.unload_mod(skl->dsp,
+>>>>>>> upstream/android-13
 						mconfig->id.module_id);
 			if (ret < 0)
 				return -EIO;
 		}
+<<<<<<< HEAD
 		skl_put_pvt_id(ctx, uuid_mod, &mconfig->id.pvt_id);
 
 		ret = skl_dsp_put_core(ctx->dsp, mconfig->core_id);
 		if (ret < 0) {
 			/* don't return; continue with other modules */
 			dev_err(ctx->dev, "Failed to sleep core %d ret=%d\n",
+=======
+		skl_put_pvt_id(skl, uuid_mod, &mconfig->id.pvt_id);
+
+		ret = skl_dsp_put_core(skl->dsp, mconfig->core_id);
+		if (ret < 0) {
+			/* don't return; continue with other modules */
+			dev_err(skl->dev, "Failed to sleep core %d ret=%d\n",
+>>>>>>> upstream/android-13
 				mconfig->core_id, ret);
 		}
 	}
@@ -686,6 +907,41 @@ static int skl_tplg_unload_pipe_modules(struct skl_sst *ctx,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static bool skl_tplg_is_multi_fmt(struct skl_dev *skl, struct skl_pipe *pipe)
+{
+	struct skl_pipe_fmt *cur_fmt;
+	struct skl_pipe_fmt *next_fmt;
+	int i;
+
+	if (pipe->nr_cfgs <= 1)
+		return false;
+
+	if (pipe->conn_type != SKL_PIPE_CONN_TYPE_FE)
+		return true;
+
+	for (i = 0; i < pipe->nr_cfgs - 1; i++) {
+		if (pipe->direction == SNDRV_PCM_STREAM_PLAYBACK) {
+			cur_fmt = &pipe->configs[i].out_fmt;
+			next_fmt = &pipe->configs[i + 1].out_fmt;
+		} else {
+			cur_fmt = &pipe->configs[i].in_fmt;
+			next_fmt = &pipe->configs[i + 1].in_fmt;
+		}
+
+		if (!CHECK_HW_PARAMS(cur_fmt->channels, cur_fmt->freq,
+				     cur_fmt->bps,
+				     next_fmt->channels,
+				     next_fmt->freq,
+				     next_fmt->bps))
+			return true;
+	}
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Here, we select pipe format based on the pipe type and pipe
  * direction to determine the current config index for the pipeline.
@@ -694,9 +950,14 @@ static int skl_tplg_unload_pipe_modules(struct skl_sst *ctx,
  * 0th configuratation by default for such pipes.
  */
 static int
+<<<<<<< HEAD
 skl_tplg_get_pipe_config(struct skl *skl, struct skl_module_cfg *mconfig)
 {
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+skl_tplg_get_pipe_config(struct skl_dev *skl, struct skl_module_cfg *mconfig)
+{
+>>>>>>> upstream/android-13
 	struct skl_pipe *pipe = mconfig->pipe;
 	struct skl_pipe_params *params = pipe->p_params;
 	struct skl_path_config *pconfig = &pipe->configs[0];
@@ -709,8 +970,22 @@ skl_tplg_get_pipe_config(struct skl *skl, struct skl_module_cfg *mconfig)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (pipe->conn_type == SKL_PIPE_CONN_TYPE_NONE) {
 		dev_dbg(ctx->dev, "No conn_type detected, take 0th config\n");
+=======
+	if (skl_tplg_is_multi_fmt(skl, pipe)) {
+		pipe->cur_config_idx = pipe->pipe_config_idx;
+		pipe->memory_pages = pconfig->mem_pages;
+		dev_dbg(skl->dev, "found pipe config idx:%d\n",
+			pipe->cur_config_idx);
+		return 0;
+	}
+
+	if (pipe->conn_type == SKL_PIPE_CONN_TYPE_NONE || pipe->nr_cfgs == 1) {
+		dev_dbg(skl->dev, "No conn_type or just 1 pathcfg, taking 0th for %d\n",
+			pipe->ppl_id);
+>>>>>>> upstream/android-13
 		pipe->cur_config_idx = 0;
 		pipe->memory_pages = pconfig->mem_pages;
 
@@ -734,13 +1009,21 @@ skl_tplg_get_pipe_config(struct skl *skl, struct skl_module_cfg *mconfig)
 				    fmt->channels, fmt->freq, fmt->bps)) {
 			pipe->cur_config_idx = i;
 			pipe->memory_pages = pconfig->mem_pages;
+<<<<<<< HEAD
 			dev_dbg(ctx->dev, "Using pipe config: %d\n", i);
+=======
+			dev_dbg(skl->dev, "Using pipe config: %d\n", i);
+>>>>>>> upstream/android-13
 
 			return 0;
 		}
 	}
 
+<<<<<<< HEAD
 	dev_err(ctx->dev, "Invalid pipe config: %d %d %d for pipe: %d\n",
+=======
+	dev_err(skl->dev, "Invalid pipe config: %d %d %d for pipe: %d\n",
+>>>>>>> upstream/android-13
 		params->ch, params->s_freq, params->s_fmt, pipe->ppl_id);
 	return -EINVAL;
 }
@@ -748,26 +1031,37 @@ skl_tplg_get_pipe_config(struct skl *skl, struct skl_module_cfg *mconfig)
 /*
  * Mixer module represents a pipeline. So in the Pre-PMU event of mixer we
  * need create the pipeline. So we do following:
+<<<<<<< HEAD
  *   - check the resources
+=======
+>>>>>>> upstream/android-13
  *   - Create the pipeline
  *   - Initialize the modules in pipeline
  *   - finally bind all modules together
  */
 static int skl_tplg_mixer_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 							struct skl *skl)
+=======
+							struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct skl_module_cfg *mconfig = w->priv;
 	struct skl_pipe_module *w_module;
 	struct skl_pipe *s_pipe = mconfig->pipe;
 	struct skl_module_cfg *src_module = NULL, *dst_module, *module;
+<<<<<<< HEAD
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+>>>>>>> upstream/android-13
 	struct skl_module_deferred_bind *modules;
 
 	ret = skl_tplg_get_pipe_config(skl, mconfig);
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	/* check resource available */
 	if (!skl_is_pipe_mcps_avail(skl, mconfig))
 		return -EBUSY;
@@ -775,10 +1069,13 @@ static int skl_tplg_mixer_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
 	if (!skl_is_pipe_mem_avail(skl, mconfig))
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Create a list of modules for pipe.
 	 * This list contains modules from source to sink
 	 */
+<<<<<<< HEAD
 	ret = skl_create_pipeline(ctx, mconfig->pipe);
 	if (ret < 0)
 		return ret;
@@ -786,6 +1083,12 @@ static int skl_tplg_mixer_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
 	skl_tplg_alloc_pipe_mem(skl, mconfig);
 	skl_tplg_alloc_pipe_mcps(skl, mconfig);
 
+=======
+	ret = skl_create_pipeline(skl, mconfig->pipe);
+	if (ret < 0)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/* Init all pipe modules from source to sink */
 	ret = skl_tplg_init_pipe_modules(skl, s_pipe);
 	if (ret < 0)
@@ -800,7 +1103,11 @@ static int skl_tplg_mixer_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
 			continue;
 		}
 
+<<<<<<< HEAD
 		ret = skl_bind_modules(ctx, src_module, dst_module);
+=======
+		ret = skl_bind_modules(skl, src_module, dst_module);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -818,7 +1125,11 @@ static int skl_tplg_mixer_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
 		list_for_each_entry(modules, &skl->bind_list, node) {
 			module = w_module->w->priv;
 			if (modules->dst == module)
+<<<<<<< HEAD
 				skl_bind_modules(ctx, modules->src,
+=======
+				skl_bind_modules(skl, modules->src,
+>>>>>>> upstream/android-13
 							modules->dst);
 		}
 	}
@@ -826,7 +1137,11 @@ static int skl_tplg_mixer_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_fill_sink_instance_id(struct skl_sst *ctx, u32 *params,
+=======
+static int skl_fill_sink_instance_id(struct skl_dev *skl, u32 *params,
+>>>>>>> upstream/android-13
 				int size, struct skl_module_cfg *mcfg)
 {
 	int i, pvt_id;
@@ -837,7 +1152,11 @@ static int skl_fill_sink_instance_id(struct skl_sst *ctx, u32 *params,
 		struct skl_mod_inst_map *inst = kpb_params->u.map;
 
 		for (i = 0; i < kpb_params->num_modules; i++) {
+<<<<<<< HEAD
 			pvt_id = skl_get_pvt_instance_id_map(ctx, inst->mod_id,
+=======
+			pvt_id = skl_get_pvt_instance_id_map(skl, inst->mod_id,
+>>>>>>> upstream/android-13
 								inst->inst_id);
 			if (pvt_id < 0)
 				return -EINVAL;
@@ -857,7 +1176,11 @@ static int skl_fill_sink_instance_id(struct skl_sst *ctx, u32 *params,
  * send params after binding
  */
 static int skl_tplg_set_module_bind_params(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 			struct skl_module_cfg *mcfg, struct skl_sst *ctx)
+=======
+			struct skl_module_cfg *mcfg, struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	int i, ret;
 	struct skl_module_cfg *mconfig = w->priv;
@@ -881,10 +1204,18 @@ static int skl_tplg_set_module_bind_params(struct snd_soc_dapm_widget *w,
 			return 0;
 	}
 
+<<<<<<< HEAD
 	if (mconfig->formats_config.caps_size > 0 &&
 		mconfig->formats_config.set_params == SKL_PARAM_BIND) {
 		sp_cfg = &mconfig->formats_config;
 		ret = skl_set_module_params(ctx, sp_cfg->caps,
+=======
+	if (mconfig->formats_config[SKL_PARAM_BIND].caps_size > 0 &&
+	    mconfig->formats_config[SKL_PARAM_BIND].set_params ==
+								SKL_PARAM_BIND) {
+		sp_cfg = &mconfig->formats_config[SKL_PARAM_BIND];
+		ret = skl_set_module_params(skl, sp_cfg->caps,
+>>>>>>> upstream/android-13
 					sp_cfg->caps_size,
 					sp_cfg->param_id, mconfig);
 		if (ret < 0)
@@ -898,6 +1229,7 @@ static int skl_tplg_set_module_bind_params(struct snd_soc_dapm_widget *w,
 			bc = (struct skl_algo_data *)sb->dobj.private;
 
 			if (bc->set_params == SKL_PARAM_BIND) {
+<<<<<<< HEAD
 				params = kzalloc(bc->max, GFP_KERNEL);
 				if (!params)
 					return -ENOMEM;
@@ -907,6 +1239,16 @@ static int skl_tplg_set_module_bind_params(struct snd_soc_dapm_widget *w,
 								mconfig);
 
 				ret = skl_set_module_params(ctx, params,
+=======
+				params = kmemdup(bc->params, bc->max, GFP_KERNEL);
+				if (!params)
+					return -ENOMEM;
+
+				skl_fill_sink_instance_id(skl, params, bc->max,
+								mconfig);
+
+				ret = skl_set_module_params(skl, params,
+>>>>>>> upstream/android-13
 						bc->max, bc->param_id, mconfig);
 				kfree(params);
 
@@ -919,19 +1261,32 @@ static int skl_tplg_set_module_bind_params(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_get_module_id(struct skl_sst *ctx, uuid_le *uuid)
 {
 	struct uuid_module *module;
 
 	list_for_each_entry(module, &ctx->uuid_list, list) {
 		if (uuid_le_cmp(*uuid, module->uuid) == 0)
+=======
+static int skl_get_module_id(struct skl_dev *skl, guid_t *uuid)
+{
+	struct uuid_module *module;
+
+	list_for_each_entry(module, &skl->uuid_list, list) {
+		if (guid_equal(uuid, &module->uuid))
+>>>>>>> upstream/android-13
 			return module->id;
 	}
 
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int skl_tplg_find_moduleid_from_uuid(struct skl *skl,
+=======
+static int skl_tplg_find_moduleid_from_uuid(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 					const struct snd_kcontrol_new *k)
 {
 	struct soc_bytes_ext *sb = (void *) k->private_value;
@@ -942,9 +1297,13 @@ static int skl_tplg_find_moduleid_from_uuid(struct skl *skl,
 
 	if (bc->set_params == SKL_PARAM_BIND && bc->max) {
 		uuid_params = (struct skl_kpb_params *)bc->params;
+<<<<<<< HEAD
 		size = uuid_params->num_modules *
 			sizeof(struct skl_mod_inst_map) +
 			sizeof(uuid_params->num_modules);
+=======
+		size = struct_size(params, u.map, uuid_params->num_modules);
+>>>>>>> upstream/android-13
 
 		params = devm_kzalloc(bus->dev, size, GFP_KERNEL);
 		if (!params)
@@ -953,7 +1312,11 @@ static int skl_tplg_find_moduleid_from_uuid(struct skl *skl,
 		params->num_modules = uuid_params->num_modules;
 
 		for (i = 0; i < uuid_params->num_modules; i++) {
+<<<<<<< HEAD
 			module_id = skl_get_module_id(skl->skl_sst,
+=======
+			module_id = skl_get_module_id(skl,
+>>>>>>> upstream/android-13
 				&uuid_params->u.map_uuid[i].mod_uuid);
 			if (module_id < 0) {
 				devm_kfree(bus->dev, params);
@@ -977,7 +1340,11 @@ static int skl_tplg_find_moduleid_from_uuid(struct skl *skl,
  * Retrieve the module id from UUID mentioned in the
  * post bind params
  */
+<<<<<<< HEAD
 void skl_tplg_add_moduleid_in_bind_params(struct skl *skl,
+=======
+void skl_tplg_add_moduleid_in_bind_params(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 				struct snd_soc_dapm_widget *w)
 {
 	struct skl_module_cfg *mconfig = w->priv;
@@ -996,12 +1363,20 @@ void skl_tplg_add_moduleid_in_bind_params(struct skl *skl,
 			SNDRV_CTL_ELEM_ACCESS_TLV_CALLBACK) &&
 			(skl_tplg_find_moduleid_from_uuid(skl,
 			&w->kcontrol_news[i]) < 0))
+<<<<<<< HEAD
 			dev_err(skl->skl_sst->dev,
+=======
+			dev_err(skl->dev,
+>>>>>>> upstream/android-13
 				"%s: invalid kpb post bind params\n",
 				__func__);
 }
 
+<<<<<<< HEAD
 static int skl_tplg_module_add_deferred_bind(struct skl *skl,
+=======
+static int skl_tplg_module_add_deferred_bind(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *src, struct skl_module_cfg *dst)
 {
 	struct skl_module_deferred_bind *m_list, *modules;
@@ -1039,26 +1414,44 @@ static int skl_tplg_module_add_deferred_bind(struct skl *skl,
 }
 
 static int skl_tplg_bind_sinks(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 				struct skl *skl,
+=======
+				struct skl_dev *skl,
+>>>>>>> upstream/android-13
 				struct snd_soc_dapm_widget *src_w,
 				struct skl_module_cfg *src_mconfig)
 {
 	struct snd_soc_dapm_path *p;
 	struct snd_soc_dapm_widget *sink = NULL, *next_sink = NULL;
 	struct skl_module_cfg *sink_mconfig;
+<<<<<<< HEAD
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	snd_soc_dapm_widget_for_each_sink_path(w, p) {
 		if (!p->connect)
 			continue;
 
+<<<<<<< HEAD
 		dev_dbg(ctx->dev, "%s: src widget=%s\n", __func__, w->name);
 		dev_dbg(ctx->dev, "%s: sink widget=%s\n", __func__, p->sink->name);
 
 		next_sink = p->sink;
 
 		if (!is_skl_dsp_widget_type(p->sink, ctx->dev))
+=======
+		dev_dbg(skl->dev,
+			"%s: src widget=%s\n", __func__, w->name);
+		dev_dbg(skl->dev,
+			"%s: sink widget=%s\n", __func__, p->sink->name);
+
+		next_sink = p->sink;
+
+		if (!is_skl_dsp_widget_type(p->sink, skl->dev))
+>>>>>>> upstream/android-13
 			return skl_tplg_bind_sinks(p->sink, skl, src_w, src_mconfig);
 
 		/*
@@ -1067,7 +1460,11 @@ static int skl_tplg_bind_sinks(struct snd_soc_dapm_widget *w,
 		 * they are ones used for SKL so check that first
 		 */
 		if ((p->sink->priv != NULL) &&
+<<<<<<< HEAD
 				is_skl_dsp_widget_type(p->sink, ctx->dev)) {
+=======
+				is_skl_dsp_widget_type(p->sink, skl->dev)) {
+>>>>>>> upstream/android-13
 
 			sink = p->sink;
 			sink_mconfig = sink->priv;
@@ -1099,19 +1496,34 @@ static int skl_tplg_bind_sinks(struct snd_soc_dapm_widget *w,
 				continue;
 
 			/* Bind source to sink, mixin is always source */
+<<<<<<< HEAD
 			ret = skl_bind_modules(ctx, src_mconfig, sink_mconfig);
+=======
+			ret = skl_bind_modules(skl, src_mconfig, sink_mconfig);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 
 			/* set module params after bind */
+<<<<<<< HEAD
 			skl_tplg_set_module_bind_params(src_w, src_mconfig, ctx);
 			skl_tplg_set_module_bind_params(sink, sink_mconfig, ctx);
+=======
+			skl_tplg_set_module_bind_params(src_w,
+					src_mconfig, skl);
+			skl_tplg_set_module_bind_params(sink,
+					sink_mconfig, skl);
+>>>>>>> upstream/android-13
 
 			/* Start sinks pipe first */
 			if (sink_mconfig->pipe->state != SKL_PIPE_STARTED) {
 				if (sink_mconfig->pipe->conn_type !=
 							SKL_PIPE_CONN_TYPE_FE)
+<<<<<<< HEAD
 					ret = skl_run_pipe(ctx,
+=======
+					ret = skl_run_pipe(skl,
+>>>>>>> upstream/android-13
 							sink_mconfig->pipe);
 				if (ret)
 					return ret;
@@ -1136,10 +1548,16 @@ static int skl_tplg_bind_sinks(struct snd_soc_dapm_widget *w,
  *   - Then run current pipe
  */
 static int skl_tplg_pga_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 								struct skl *skl)
 {
 	struct skl_module_cfg *src_mconfig;
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+							struct skl_dev *skl)
+{
+	struct skl_module_cfg *src_mconfig;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	src_mconfig = w->priv;
@@ -1155,25 +1573,41 @@ static int skl_tplg_pga_dapm_pre_pmu_event(struct snd_soc_dapm_widget *w,
 
 	/* Start source pipe last after starting all sinks */
 	if (src_mconfig->pipe->conn_type != SKL_PIPE_CONN_TYPE_FE)
+<<<<<<< HEAD
 		return skl_run_pipe(ctx, src_mconfig->pipe);
+=======
+		return skl_run_pipe(skl, src_mconfig->pipe);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static struct snd_soc_dapm_widget *skl_get_src_dsp_widget(
+<<<<<<< HEAD
 		struct snd_soc_dapm_widget *w, struct skl *skl)
 {
 	struct snd_soc_dapm_path *p;
 	struct snd_soc_dapm_widget *src_w = NULL;
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+		struct snd_soc_dapm_widget *w, struct skl_dev *skl)
+{
+	struct snd_soc_dapm_path *p;
+	struct snd_soc_dapm_widget *src_w = NULL;
+>>>>>>> upstream/android-13
 
 	snd_soc_dapm_widget_for_each_source_path(w, p) {
 		src_w = p->source;
 		if (!p->connect)
 			continue;
 
+<<<<<<< HEAD
 		dev_dbg(ctx->dev, "sink widget=%s\n", w->name);
 		dev_dbg(ctx->dev, "src widget=%s\n", p->source->name);
+=======
+		dev_dbg(skl->dev, "sink widget=%s\n", w->name);
+		dev_dbg(skl->dev, "src widget=%s\n", p->source->name);
+>>>>>>> upstream/android-13
 
 		/*
 		 * here we will check widgets in sink pipelines, so that can
@@ -1181,7 +1615,11 @@ static struct snd_soc_dapm_widget *skl_get_src_dsp_widget(
 		 * ones used for SKL so check that first
 		 */
 		if ((p->source->priv != NULL) &&
+<<<<<<< HEAD
 				is_skl_dsp_widget_type(p->source, ctx->dev)) {
+=======
+				is_skl_dsp_widget_type(p->source, skl->dev)) {
+>>>>>>> upstream/android-13
 			return p->source;
 		}
 	}
@@ -1202,12 +1640,19 @@ static struct snd_soc_dapm_widget *skl_get_src_dsp_widget(
  *	- start this pipeline
  */
 static int skl_tplg_mixer_dapm_post_pmu_event(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 							struct skl *skl)
+=======
+							struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	struct snd_soc_dapm_widget *source, *sink;
 	struct skl_module_cfg *src_mconfig, *sink_mconfig;
+<<<<<<< HEAD
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+>>>>>>> upstream/android-13
 	int src_pipe_started = 0;
 
 	sink = w;
@@ -1233,16 +1678,28 @@ static int skl_tplg_mixer_dapm_post_pmu_event(struct snd_soc_dapm_widget *w,
 	}
 
 	if (src_pipe_started) {
+<<<<<<< HEAD
 		ret = skl_bind_modules(ctx, src_mconfig, sink_mconfig);
+=======
+		ret = skl_bind_modules(skl, src_mconfig, sink_mconfig);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
 		/* set module params after bind */
+<<<<<<< HEAD
 		skl_tplg_set_module_bind_params(source, src_mconfig, ctx);
 		skl_tplg_set_module_bind_params(sink, sink_mconfig, ctx);
 
 		if (sink_mconfig->pipe->conn_type != SKL_PIPE_CONN_TYPE_FE)
 			ret = skl_run_pipe(ctx, sink_mconfig->pipe);
+=======
+		skl_tplg_set_module_bind_params(source, src_mconfig, skl);
+		skl_tplg_set_module_bind_params(sink, sink_mconfig, skl);
+
+		if (sink_mconfig->pipe->conn_type != SKL_PIPE_CONN_TYPE_FE)
+			ret = skl_run_pipe(skl, sink_mconfig->pipe);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -1255,16 +1712,27 @@ static int skl_tplg_mixer_dapm_post_pmu_event(struct snd_soc_dapm_widget *w,
  *   - unbind with source pipelines if still connected
  */
 static int skl_tplg_mixer_dapm_pre_pmd_event(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 							struct skl *skl)
 {
 	struct skl_module_cfg *src_mconfig, *sink_mconfig;
 	int ret = 0, i;
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+							struct skl_dev *skl)
+{
+	struct skl_module_cfg *src_mconfig, *sink_mconfig;
+	int ret = 0, i;
+>>>>>>> upstream/android-13
 
 	sink_mconfig = w->priv;
 
 	/* Stop the pipe */
+<<<<<<< HEAD
 	ret = skl_stop_pipe(ctx, sink_mconfig->pipe);
+=======
+	ret = skl_stop_pipe(skl, sink_mconfig->pipe);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1274,7 +1742,11 @@ static int skl_tplg_mixer_dapm_pre_pmd_event(struct snd_soc_dapm_widget *w,
 			if (!src_mconfig)
 				continue;
 
+<<<<<<< HEAD
 			ret = skl_unbind_modules(ctx,
+=======
+			ret = skl_unbind_modules(skl,
+>>>>>>> upstream/android-13
 						src_mconfig, sink_mconfig);
 		}
 	}
@@ -1284,28 +1756,41 @@ static int skl_tplg_mixer_dapm_pre_pmd_event(struct snd_soc_dapm_widget *w,
 
 /*
  * in the Post-PMD event of mixer we need to do following:
+<<<<<<< HEAD
  *   - Free the mcps used
  *   - Free the mem used
+=======
+>>>>>>> upstream/android-13
  *   - Unbind the modules within the pipeline
  *   - Delete the pipeline (modules are not required to be explicitly
  *     deleted, pipeline delete is enough here
  */
 static int skl_tplg_mixer_dapm_post_pmd_event(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 							struct skl *skl)
+=======
+							struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct skl_module_cfg *mconfig = w->priv;
 	struct skl_pipe_module *w_module;
 	struct skl_module_cfg *src_module = NULL, *dst_module;
+<<<<<<< HEAD
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+>>>>>>> upstream/android-13
 	struct skl_pipe *s_pipe = mconfig->pipe;
 	struct skl_module_deferred_bind *modules, *tmp;
 
 	if (s_pipe->state == SKL_PIPE_INVALID)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	skl_tplg_free_pipe_mcps(skl, mconfig);
 	skl_tplg_free_pipe_mem(skl, mconfig);
 
+=======
+>>>>>>> upstream/android-13
 	list_for_each_entry(w_module, &s_pipe->w_list, node) {
 		if (list_empty(&skl->bind_list))
 			break;
@@ -1318,7 +1803,11 @@ static int skl_tplg_mixer_dapm_post_pmd_event(struct snd_soc_dapm_widget *w,
 			 * modules from deferred bind list.
 			 */
 			if (modules->dst == src_module) {
+<<<<<<< HEAD
 				skl_unbind_modules(ctx, modules->src,
+=======
+				skl_unbind_modules(skl, modules->src,
+>>>>>>> upstream/android-13
 						modules->dst);
 			}
 
@@ -1338,44 +1827,73 @@ static int skl_tplg_mixer_dapm_post_pmd_event(struct snd_soc_dapm_widget *w,
 	list_for_each_entry(w_module, &s_pipe->w_list, node) {
 		dst_module = w_module->w->priv;
 
+<<<<<<< HEAD
 		if (mconfig->m_state >= SKL_MODULE_INIT_DONE)
 			skl_tplg_free_pipe_mcps(skl, dst_module);
+=======
+>>>>>>> upstream/android-13
 		if (src_module == NULL) {
 			src_module = dst_module;
 			continue;
 		}
 
+<<<<<<< HEAD
 		skl_unbind_modules(ctx, src_module, dst_module);
 		src_module = dst_module;
 	}
 
 	skl_delete_pipe(ctx, mconfig->pipe);
+=======
+		skl_unbind_modules(skl, src_module, dst_module);
+		src_module = dst_module;
+	}
+
+	skl_delete_pipe(skl, mconfig->pipe);
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(w_module, &s_pipe->w_list, node) {
 		src_module = w_module->w->priv;
 		src_module->m_state = SKL_MODULE_UNINIT;
 	}
 
+<<<<<<< HEAD
 	return skl_tplg_unload_pipe_modules(ctx, s_pipe);
+=======
+	return skl_tplg_unload_pipe_modules(skl, s_pipe);
+>>>>>>> upstream/android-13
 }
 
 /*
  * in the Post-PMD event of PGA we need to do following:
+<<<<<<< HEAD
  *   - Free the mcps used
+=======
+>>>>>>> upstream/android-13
  *   - Stop the pipeline
  *   - In source pipe is connected, unbind with source pipelines
  */
 static int skl_tplg_pga_dapm_post_pmd_event(struct snd_soc_dapm_widget *w,
+<<<<<<< HEAD
 								struct skl *skl)
 {
 	struct skl_module_cfg *src_mconfig, *sink_mconfig;
 	int ret = 0, i;
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+							struct skl_dev *skl)
+{
+	struct skl_module_cfg *src_mconfig, *sink_mconfig;
+	int ret = 0, i;
+>>>>>>> upstream/android-13
 
 	src_mconfig = w->priv;
 
 	/* Stop the pipe since this is a mixin module */
+<<<<<<< HEAD
 	ret = skl_stop_pipe(ctx, src_mconfig->pipe);
+=======
+	ret = skl_stop_pipe(skl, src_mconfig->pipe);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1388,7 +1906,11 @@ static int skl_tplg_pga_dapm_post_pmd_event(struct snd_soc_dapm_widget *w,
 			 * This is a connecter and if path is found that means
 			 * unbind between source and sink has not happened yet
 			 */
+<<<<<<< HEAD
 			ret = skl_unbind_modules(ctx, src_mconfig,
+=======
+			ret = skl_unbind_modules(skl, src_mconfig,
+>>>>>>> upstream/android-13
 							sink_mconfig);
 		}
 	}
@@ -1406,7 +1928,11 @@ static int skl_tplg_mixer_event(struct snd_soc_dapm_widget *w,
 				struct snd_kcontrol *k, int event)
 {
 	struct snd_soc_dapm_context *dapm = w->dapm;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(dapm->dev);
+=======
+	struct skl_dev *skl = get_skl_ctx(dapm->dev);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -1436,7 +1962,11 @@ static int skl_tplg_pga_event(struct snd_soc_dapm_widget *w,
 
 {
 	struct snd_soc_dapm_context *dapm = w->dapm;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(dapm->dev);
+=======
+	struct skl_dev *skl = get_skl_ctx(dapm->dev);
+>>>>>>> upstream/android-13
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -1449,6 +1979,71 @@ static int skl_tplg_pga_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int skl_tplg_multi_config_set_get(struct snd_kcontrol *kcontrol,
+					 struct snd_ctl_elem_value *ucontrol,
+					 bool is_set)
+{
+	struct snd_soc_component *component =
+		snd_soc_kcontrol_component(kcontrol);
+	struct hdac_bus *bus = snd_soc_component_get_drvdata(component);
+	struct skl_dev *skl = bus_to_skl(bus);
+	struct skl_pipeline *ppl;
+	struct skl_pipe *pipe = NULL;
+	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
+	u32 *pipe_id;
+
+	if (!ec)
+		return -EINVAL;
+
+	if (is_set && ucontrol->value.enumerated.item[0] > ec->items)
+		return -EINVAL;
+
+	pipe_id = ec->dobj.private;
+
+	list_for_each_entry(ppl, &skl->ppl_list, node) {
+		if (ppl->pipe->ppl_id == *pipe_id) {
+			pipe = ppl->pipe;
+			break;
+		}
+	}
+	if (!pipe)
+		return -EIO;
+
+	if (is_set)
+		pipe->pipe_config_idx = ucontrol->value.enumerated.item[0];
+	else
+		ucontrol->value.enumerated.item[0]  =  pipe->pipe_config_idx;
+
+	return 0;
+}
+
+static int skl_tplg_multi_config_get(struct snd_kcontrol *kcontrol,
+				     struct snd_ctl_elem_value *ucontrol)
+{
+	return skl_tplg_multi_config_set_get(kcontrol, ucontrol, false);
+}
+
+static int skl_tplg_multi_config_set(struct snd_kcontrol *kcontrol,
+				     struct snd_ctl_elem_value *ucontrol)
+{
+	return skl_tplg_multi_config_set_get(kcontrol, ucontrol, true);
+}
+
+static int skl_tplg_multi_config_get_dmic(struct snd_kcontrol *kcontrol,
+					  struct snd_ctl_elem_value *ucontrol)
+{
+	return skl_tplg_multi_config_set_get(kcontrol, ucontrol, false);
+}
+
+static int skl_tplg_multi_config_set_dmic(struct snd_kcontrol *kcontrol,
+					  struct snd_ctl_elem_value *ucontrol)
+{
+	return skl_tplg_multi_config_set_get(kcontrol, ucontrol, true);
+}
+
+>>>>>>> upstream/android-13
 static int skl_tplg_tlv_control_get(struct snd_kcontrol *kcontrol,
 			unsigned int __user *data, unsigned int size)
 {
@@ -1457,10 +2052,17 @@ static int skl_tplg_tlv_control_get(struct snd_kcontrol *kcontrol,
 	struct skl_algo_data *bc = (struct skl_algo_data *)sb->dobj.private;
 	struct snd_soc_dapm_widget *w = snd_soc_dapm_kcontrol_widget(kcontrol);
 	struct skl_module_cfg *mconfig = w->priv;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(w->dapm->dev);
 
 	if (w->power)
 		skl_get_module_params(skl->skl_sst, (u32 *)bc->params,
+=======
+	struct skl_dev *skl = get_skl_ctx(w->dapm->dev);
+
+	if (w->power)
+		skl_get_module_params(skl, (u32 *)bc->params,
+>>>>>>> upstream/android-13
 				      bc->size, bc->param_id, mconfig);
 
 	/* decrement size for TLV header */
@@ -1492,11 +2094,16 @@ static int skl_tplg_tlv_control_set(struct snd_kcontrol *kcontrol,
 	struct soc_bytes_ext *sb =
 			(struct soc_bytes_ext *)kcontrol->private_value;
 	struct skl_algo_data *ac = (struct skl_algo_data *)sb->dobj.private;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(w->dapm->dev);
+=======
+	struct skl_dev *skl = get_skl_ctx(w->dapm->dev);
+>>>>>>> upstream/android-13
 
 	if (ac->params) {
 		if (size > ac->max)
 			return -EINVAL;
+<<<<<<< HEAD
 
 		ac->size = size;
 		/*
@@ -1514,6 +2121,15 @@ static int skl_tplg_tlv_control_set(struct snd_kcontrol *kcontrol,
 
 		if (w->power)
 			return skl_set_module_params(skl->skl_sst,
+=======
+		ac->size = size;
+
+		if (copy_from_user(ac->params, data, size))
+			return -EFAULT;
+
+		if (w->power)
+			return skl_set_module_params(skl,
+>>>>>>> upstream/android-13
 						(u32 *)ac->params, ac->size,
 						ac->param_id, mconfig);
 	}
@@ -1541,7 +2157,12 @@ static int skl_tplg_mic_control_get(struct snd_kcontrol *kcontrol,
 static int skl_fill_mic_sel_params(struct skl_module_cfg *mconfig,
 	struct skl_mic_sel_config *mic_cfg, struct device *dev)
 {
+<<<<<<< HEAD
 	struct skl_specific_cfg *sp_cfg = &mconfig->formats_config;
+=======
+	struct skl_specific_cfg *sp_cfg =
+				&mconfig->formats_config[SKL_PARAM_INIT];
+>>>>>>> upstream/android-13
 
 	sp_cfg->caps_size = sizeof(struct skl_mic_sel_config);
 	sp_cfg->set_params = SKL_PARAM_SET;
@@ -1673,11 +2294,20 @@ int skl_tplg_update_pipe_params(struct device *dev,
 			struct skl_module_cfg *mconfig,
 			struct skl_pipe_params *params)
 {
+<<<<<<< HEAD
 	struct skl_module_res *res = &mconfig->module->resources[0];
 	struct skl *skl = get_skl_ctx(dev);
 	struct skl_module_fmt *format = NULL;
 	u8 cfg_idx = mconfig->pipe->cur_config_idx;
 
+=======
+	struct skl_module_res *res;
+	struct skl_dev *skl = get_skl_ctx(dev);
+	struct skl_module_fmt *format = NULL;
+	u8 cfg_idx = mconfig->pipe->cur_config_idx;
+
+	res = &mconfig->module->resources[mconfig->res_idx];
+>>>>>>> upstream/android-13
 	skl_tplg_fill_dma_id(mconfig, params);
 	mconfig->fmt_idx = mconfig->mod_cfg[cfg_idx].fmt_idx;
 	mconfig->res_idx = mconfig->mod_cfg[cfg_idx].res_idx;
@@ -1686,9 +2316,15 @@ int skl_tplg_update_pipe_params(struct device *dev,
 		return 0;
 
 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK)
+<<<<<<< HEAD
 		format = &mconfig->module->formats[0].inputs[0].fmt;
 	else
 		format = &mconfig->module->formats[0].outputs[0].fmt;
+=======
+		format = &mconfig->module->formats[mconfig->fmt_idx].inputs[0].fmt;
+	else
+		format = &mconfig->module->formats[mconfig->fmt_idx].outputs[0].fmt;
+>>>>>>> upstream/android-13
 
 	/* set the hw_params */
 	format->s_freq = params->s_freq;
@@ -1863,7 +2499,11 @@ static u8 skl_tplg_be_link_type(int dev_type)
  * Fill the BE gateway parameters
  * The BE gateway expects a blob of parameters which are kept in the ACPI
  * NHLT blob, so query the blob for interface type (i2s/pdm) and instance.
+<<<<<<< HEAD
  * The port can have multiple settings so pick based on the PCM
+=======
+ * The port can have multiple settings so pick based on the pipeline
+>>>>>>> upstream/android-13
  * parameters
  */
 static int skl_tplg_be_fill_pipe_params(struct snd_soc_dai *dai,
@@ -1871,7 +2511,13 @@ static int skl_tplg_be_fill_pipe_params(struct snd_soc_dai *dai,
 				struct skl_pipe_params *params)
 {
 	struct nhlt_specific_cfg *cfg;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(dai->dev);
+=======
+	struct skl_pipe *pipe = mconfig->pipe;
+	struct skl_pipe_fmt *pipe_fmt;
+	struct skl_dev *skl = get_skl_ctx(dai->dev);
+>>>>>>> upstream/android-13
 	int link_type = skl_tplg_be_link_type(mconfig->dev_type);
 	u8 dev_type = skl_tplg_be_dev_type(mconfig->dev_type);
 
@@ -1880,6 +2526,7 @@ static int skl_tplg_be_fill_pipe_params(struct snd_soc_dai *dai,
 	if (link_type == NHLT_LINK_HDA)
 		return 0;
 
+<<<<<<< HEAD
 	/* update the blob based on virtual bus_id*/
 	cfg = skl_get_ep_blob(skl, mconfig->vbus_id, link_type,
 					params->s_fmt, params->ch,
@@ -1894,6 +2541,25 @@ static int skl_tplg_be_fill_pipe_params(struct snd_soc_dai *dai,
 					params->stream);
 		dev_err(dai->dev, "PCM: ch %d, freq %d, fmt %d\n",
 				 params->ch, params->s_freq, params->s_fmt);
+=======
+	if (pipe->direction == SNDRV_PCM_STREAM_PLAYBACK)
+		pipe_fmt = &pipe->configs[pipe->pipe_config_idx].out_fmt;
+	else
+		pipe_fmt = &pipe->configs[pipe->pipe_config_idx].in_fmt;
+
+	/* update the blob based on virtual bus_id*/
+	cfg = skl_get_ep_blob(skl, mconfig->vbus_id, link_type,
+					pipe_fmt->bps, pipe_fmt->channels,
+					pipe_fmt->freq, pipe->direction,
+					dev_type);
+	if (cfg) {
+		mconfig->formats_config[SKL_PARAM_INIT].caps_size = cfg->size;
+		mconfig->formats_config[SKL_PARAM_INIT].caps = (u32 *)&cfg->caps;
+	} else {
+		dev_err(dai->dev, "Blob NULL for id:%d type:%d dirn:%d ch:%d, freq:%d, fmt:%d\n",
+			mconfig->vbus_id, link_type, params->stream,
+			params->ch, params->s_freq, params->s_fmt);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1929,7 +2595,11 @@ static int skl_tplg_be_set_src_pipe_params(struct snd_soc_dai *dai,
 static int skl_tplg_be_set_sink_pipe_params(struct snd_soc_dai *dai,
 	struct snd_soc_dapm_widget *w, struct skl_pipe_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_dapm_path *p = NULL;
+=======
+	struct snd_soc_dapm_path *p;
+>>>>>>> upstream/android-13
 	int ret = -EIO;
 
 	snd_soc_dapm_widget_for_each_sink_path(w, p) {
@@ -1992,6 +2662,19 @@ static const struct snd_soc_tplg_kcontrol_ops skl_tplg_kcontrol_ops[] = {
 		.get = skl_tplg_mic_control_get,
 		.put = skl_tplg_mic_control_set,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.id = SKL_CONTROL_TYPE_MULTI_IO_SELECT,
+		.get = skl_tplg_multi_config_get,
+		.put = skl_tplg_multi_config_set,
+	},
+	{
+		.id = SKL_CONTROL_TYPE_MULTI_IO_SELECT_DMIC,
+		.get = skl_tplg_multi_config_get_dmic,
+		.put = skl_tplg_multi_config_set_dmic,
+	}
+>>>>>>> upstream/android-13
 };
 
 static int skl_tplg_fill_pipe_cfg(struct device *dev,
@@ -2085,7 +2768,11 @@ static int skl_tplg_fill_pipe_tkn(struct device *dev,
  * Return an existing pipe if the pipe already exists.
  */
 static int skl_tplg_add_pipe(struct device *dev,
+<<<<<<< HEAD
 		struct skl_module_cfg *mconfig, struct skl *skl,
+=======
+		struct skl_module_cfg *mconfig, struct skl_dev *skl,
+>>>>>>> upstream/android-13
 		struct snd_soc_tplg_vendor_value_elem *tkn_elem)
 {
 	struct skl_pipeline *ppl;
@@ -2124,11 +2811,19 @@ static int skl_tplg_add_pipe(struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int skl_tplg_get_uuid(struct device *dev, u8 *guid,
 	      struct snd_soc_tplg_vendor_uuid_elem *uuid_tkn)
 {
 	if (uuid_tkn->token == SKL_TKN_UUID) {
 		memcpy(guid, &uuid_tkn->uuid, 16);
+=======
+static int skl_tplg_get_uuid(struct device *dev, guid_t *guid,
+	      struct snd_soc_tplg_vendor_uuid_elem *uuid_tkn)
+{
+	if (uuid_tkn->token == SKL_TKN_UUID) {
+		import_guid(guid, uuid_tkn->uuid);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -2154,7 +2849,11 @@ static int skl_tplg_fill_pin(struct device *dev,
 		break;
 
 	case SKL_TKN_UUID:
+<<<<<<< HEAD
 		ret = skl_tplg_get_uuid(dev, m_pin[pin_index].id.mod_uuid.b,
+=======
+		ret = skl_tplg_get_uuid(dev, &m_pin[pin_index].id.mod_uuid,
+>>>>>>> upstream/android-13
 			(struct snd_soc_tplg_vendor_uuid_elem *)tkn_elem);
 		if (ret < 0)
 			return ret;
@@ -2345,10 +3044,13 @@ static int skl_tplg_fill_res_tkn(struct device *dev,
 		return -EINVAL;
 
 	switch (tkn_elem->token) {
+<<<<<<< HEAD
 	case SKL_TKN_MM_U32_CPS:
 		res->cps = tkn_elem->value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case SKL_TKN_MM_U32_DMA_SIZE:
 		res->dma_buffer_size = tkn_elem->value;
 		break;
@@ -2369,10 +3071,13 @@ static int skl_tplg_fill_res_tkn(struct device *dev,
 		res->ibs = tkn_elem->value;
 		break;
 
+<<<<<<< HEAD
 	case SKL_TKN_U32_MAX_MCPS:
 		res->cps = tkn_elem->value;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case SKL_TKN_MM_U32_RES_PIN_ID:
 	case SKL_TKN_MM_U32_PIN_BUF:
 		ret = skl_tplg_manifest_pin_res_tkn(dev, tkn_elem, res,
@@ -2381,6 +3086,14 @@ static int skl_tplg_fill_res_tkn(struct device *dev,
 			return ret;
 		break;
 
+<<<<<<< HEAD
+=======
+	case SKL_TKN_MM_U32_CPS:
+	case SKL_TKN_U32_MAX_MCPS:
+		/* ignore unused tokens */
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		dev_err(dev, "Not a res type token: %d", tkn_elem->token);
 		return -EINVAL;
@@ -2396,7 +3109,11 @@ static int skl_tplg_fill_res_tkn(struct device *dev,
  */
 static int skl_tplg_get_token(struct device *dev,
 		struct snd_soc_tplg_vendor_value_elem *tkn_elem,
+<<<<<<< HEAD
 		struct skl *skl, struct skl_module_cfg *mconfig)
+=======
+		struct skl_dev *skl, struct skl_module_cfg *mconfig)
+>>>>>>> upstream/android-13
 {
 	int tkn_count = 0;
 	int ret;
@@ -2599,19 +3316,39 @@ static int skl_tplg_get_token(struct device *dev,
 
 		break;
 
+<<<<<<< HEAD
 	case SKL_TKN_U32_CAPS_SIZE:
 		mconfig->formats_config.caps_size =
+=======
+	case SKL_TKN_U32_FMT_CFG_IDX:
+		if (tkn_elem->value > SKL_MAX_PARAMS_TYPES)
+			return -EINVAL;
+
+		mconfig->fmt_cfg_idx = tkn_elem->value;
+		break;
+
+	case SKL_TKN_U32_CAPS_SIZE:
+		mconfig->formats_config[mconfig->fmt_cfg_idx].caps_size =
+>>>>>>> upstream/android-13
 			tkn_elem->value;
 
 		break;
 
 	case SKL_TKN_U32_CAPS_SET_PARAMS:
+<<<<<<< HEAD
 		mconfig->formats_config.set_params =
+=======
+		mconfig->formats_config[mconfig->fmt_cfg_idx].set_params =
+>>>>>>> upstream/android-13
 				tkn_elem->value;
 		break;
 
 	case SKL_TKN_U32_CAPS_PARAMS_ID:
+<<<<<<< HEAD
 		mconfig->formats_config.param_id =
+=======
+		mconfig->formats_config[mconfig->fmt_cfg_idx].param_id =
+>>>>>>> upstream/android-13
 				tkn_elem->value;
 		break;
 
@@ -2646,7 +3383,11 @@ static int skl_tplg_get_token(struct device *dev,
  * module private data
  */
 static int skl_tplg_get_tokens(struct device *dev,
+<<<<<<< HEAD
 		char *pvt_data,	struct skl *skl,
+=======
+		char *pvt_data,	struct skl_dev *skl,
+>>>>>>> upstream/android-13
 		struct skl_module_cfg *mconfig, int block_size)
 {
 	struct snd_soc_tplg_vendor_array *array;
@@ -2670,7 +3411,11 @@ static int skl_tplg_get_tokens(struct device *dev,
 
 		case SND_SOC_TPLG_TUPLE_TYPE_UUID:
 			if (is_module_guid) {
+<<<<<<< HEAD
 				ret = skl_tplg_get_uuid(dev, mconfig->guid,
+=======
+				ret = skl_tplg_get_uuid(dev, (guid_t *)mconfig->guid,
+>>>>>>> upstream/android-13
 							array->uuid);
 				is_module_guid = false;
 			} else {
@@ -2742,8 +3487,13 @@ static int skl_tplg_get_desc_blocks(struct device *dev,
  * Otherwise we create a new instance and add into driver list
  */
 static int skl_tplg_add_pipe_v4(struct device *dev,
+<<<<<<< HEAD
 				struct skl_module_cfg *mconfig, struct skl *skl,
 				struct skl_dfw_v4_pipe *dfw_pipe)
+=======
+			struct skl_module_cfg *mconfig, struct skl_dev *skl,
+			struct skl_dfw_v4_pipe *dfw_pipe)
+>>>>>>> upstream/android-13
 {
 	struct skl_pipeline *ppl;
 	struct skl_pipe *pipe;
@@ -2819,12 +3569,20 @@ static void skl_tplg_fill_fmt_v4(struct skl_module_pin_fmt *dst_fmt,
 }
 
 static int skl_tplg_get_pvt_data_v4(struct snd_soc_tplg_dapm_widget *tplg_w,
+<<<<<<< HEAD
 				    struct skl *skl, struct device *dev,
+=======
+				    struct skl_dev *skl, struct device *dev,
+>>>>>>> upstream/android-13
 				    struct skl_module_cfg *mconfig)
 {
 	struct skl_dfw_v4_module *dfw =
 				(struct skl_dfw_v4_module *)tplg_w->priv.data;
 	int ret;
+<<<<<<< HEAD
+=======
+	int idx = mconfig->fmt_cfg_idx;
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev, "Parsing Skylake v4 widget topology data\n");
 
@@ -2833,7 +3591,11 @@ static int skl_tplg_get_pvt_data_v4(struct snd_soc_tplg_dapm_widget *tplg_w,
 		return ret;
 	mconfig->id.module_id = -1;
 	mconfig->id.instance_id = dfw->instance_id;
+<<<<<<< HEAD
 	mconfig->module->resources[0].cps = dfw->max_mcps;
+=======
+	mconfig->module->resources[0].cpc = dfw->max_mcps / 1000;
+>>>>>>> upstream/android-13
 	mconfig->module->resources[0].ibs = dfw->ibs;
 	mconfig->module->resources[0].obs = dfw->obs;
 	mconfig->core_id = dfw->core_id;
@@ -2858,7 +3620,11 @@ static int skl_tplg_get_pvt_data_v4(struct snd_soc_tplg_dapm_widget *tplg_w,
 	mconfig->dev_type = dfw->dev_type;
 	mconfig->hw_conn_type = dfw->hw_conn_type;
 	mconfig->time_slot = dfw->time_slot;
+<<<<<<< HEAD
 	mconfig->formats_config.caps_size = dfw->caps.caps_size;
+=======
+	mconfig->formats_config[idx].caps_size = dfw->caps.caps_size;
+>>>>>>> upstream/android-13
 
 	mconfig->m_in_pin = devm_kcalloc(dev,
 				MAX_IN_QUEUE, sizeof(*mconfig->m_in_pin),
@@ -2879,6 +3645,7 @@ static int skl_tplg_get_pvt_data_v4(struct snd_soc_tplg_dapm_widget *tplg_w,
 				    dfw->is_dynamic_out_pin,
 				    mconfig->module->max_output_pins);
 
+<<<<<<< HEAD
 	if (mconfig->formats_config.caps_size) {
 		mconfig->formats_config.set_params = dfw->caps.set_params;
 		mconfig->formats_config.param_id = dfw->caps.param_id;
@@ -2888,12 +3655,44 @@ static int skl_tplg_get_pvt_data_v4(struct snd_soc_tplg_dapm_widget *tplg_w,
 		if (!mconfig->formats_config.caps)
 			return -ENOMEM;
 		memcpy(mconfig->formats_config.caps, dfw->caps.caps,
+=======
+	if (mconfig->formats_config[idx].caps_size) {
+		mconfig->formats_config[idx].set_params = dfw->caps.set_params;
+		mconfig->formats_config[idx].param_id = dfw->caps.param_id;
+		mconfig->formats_config[idx].caps =
+		devm_kzalloc(dev, mconfig->formats_config[idx].caps_size,
+			     GFP_KERNEL);
+		if (!mconfig->formats_config[idx].caps)
+			return -ENOMEM;
+		memcpy(mconfig->formats_config[idx].caps, dfw->caps.caps,
+>>>>>>> upstream/android-13
 		       dfw->caps.caps_size);
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int skl_tplg_get_caps_data(struct device *dev, char *data,
+				  struct skl_module_cfg *mconfig)
+{
+	int idx = mconfig->fmt_cfg_idx;
+
+	if (mconfig->formats_config[idx].caps_size > 0) {
+		mconfig->formats_config[idx].caps =
+			devm_kzalloc(dev, mconfig->formats_config[idx].caps_size,
+				     GFP_KERNEL);
+		if (!mconfig->formats_config[idx].caps)
+			return -ENOMEM;
+		memcpy(mconfig->formats_config[idx].caps, data,
+		       mconfig->formats_config[idx].caps_size);
+	}
+
+	return mconfig->formats_config[idx].caps_size;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Parse the private data for the token and corresponding value.
  * The private data can have multiple data blocks. So, a data block
@@ -2901,11 +3700,19 @@ static int skl_tplg_get_pvt_data_v4(struct snd_soc_tplg_dapm_widget *tplg_w,
  * for the type and size of the suceeding data block.
  */
 static int skl_tplg_get_pvt_data(struct snd_soc_tplg_dapm_widget *tplg_w,
+<<<<<<< HEAD
 				struct skl *skl, struct device *dev,
 				struct skl_module_cfg *mconfig)
 {
 	struct snd_soc_tplg_vendor_array *array;
 	int num_blocks, block_size = 0, block_type, off = 0;
+=======
+				struct skl_dev *skl, struct device *dev,
+				struct skl_module_cfg *mconfig)
+{
+	struct snd_soc_tplg_vendor_array *array;
+	int num_blocks, block_size, block_type, off = 0;
+>>>>>>> upstream/android-13
 	char *data;
 	int ret;
 
@@ -2954,6 +3761,7 @@ static int skl_tplg_get_pvt_data(struct snd_soc_tplg_dapm_widget *tplg_w,
 		if (block_type == SKL_TYPE_TUPLE) {
 			ret = skl_tplg_get_tokens(dev, data,
 					skl, mconfig, block_size);
+<<<<<<< HEAD
 
 			if (ret < 0)
 				return ret;
@@ -2966,6 +3774,16 @@ static int skl_tplg_get_pvt_data(struct snd_soc_tplg_dapm_widget *tplg_w,
 			--num_blocks;
 			ret = mconfig->formats_config.caps_size;
 		}
+=======
+		} else {
+			ret = skl_tplg_get_caps_data(dev, data, mconfig);
+		}
+
+		if (ret < 0)
+			return ret;
+
+		--num_blocks;
+>>>>>>> upstream/android-13
 		off += ret;
 	}
 
@@ -2996,9 +3814,14 @@ static void skl_clear_pin_config(struct snd_soc_component *component,
 	}
 }
 
+<<<<<<< HEAD
 void skl_cleanup_resources(struct skl *skl)
 {
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+void skl_cleanup_resources(struct skl_dev *skl)
+{
+>>>>>>> upstream/android-13
 	struct snd_soc_component *soc_component = skl->component;
 	struct snd_soc_dapm_widget *w;
 	struct snd_soc_card *card;
@@ -3010,6 +3833,7 @@ void skl_cleanup_resources(struct skl *skl)
 	if (!card || !card->instantiated)
 		return;
 
+<<<<<<< HEAD
 	skl->resource.mem = 0;
 	skl->resource.mcps = 0;
 
@@ -3019,6 +3843,14 @@ void skl_cleanup_resources(struct skl *skl)
 	}
 
 	skl_clear_module_cnt(ctx->dsp);
+=======
+	list_for_each_entry(w, &card->widgets, list) {
+		if (is_skl_dsp_widget_type(w, skl->dev) && w->priv != NULL)
+			skl_clear_pin_config(soc_component, w);
+	}
+
+	skl_clear_module_cnt(skl->dsp);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3034,7 +3866,11 @@ static int skl_tplg_widget_load(struct snd_soc_component *cmpnt, int index,
 {
 	int ret;
 	struct hdac_bus *bus = snd_soc_component_get_drvdata(cmpnt);
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	struct skl_module_cfg *mconfig;
 
 	if (!tplg_w->priv.size)
@@ -3060,6 +3896,12 @@ static int skl_tplg_widget_load(struct snd_soc_component *cmpnt, int index,
 	 */
 	mconfig->id.module_id = -1;
 
+<<<<<<< HEAD
+=======
+	/* To provide backward compatibility, set default as SKL_PARAM_INIT */
+	mconfig->fmt_cfg_idx = SKL_PARAM_INIT;
+
+>>>>>>> upstream/android-13
 	/* Parse private data for tuples */
 	ret = skl_tplg_get_pvt_data(tplg_w, skl, bus->dev, mconfig);
 	if (ret < 0)
@@ -3104,7 +3946,11 @@ static int skl_init_algo_data(struct device *dev, struct soc_bytes_ext *be,
 	ac->size = dfw_ac->max;
 
 	if (ac->max) {
+<<<<<<< HEAD
 		ac->params = (char *) devm_kzalloc(dev, ac->max, GFP_KERNEL);
+=======
+		ac->params = devm_kzalloc(dev, ac->max, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!ac->params)
 			return -ENOMEM;
 
@@ -3159,12 +4005,30 @@ static int skl_tplg_control_load(struct snd_soc_component *cmpnt,
 	case SND_SOC_TPLG_CTL_ENUM:
 		tplg_ec = container_of(hdr,
 				struct snd_soc_tplg_enum_control, hdr);
+<<<<<<< HEAD
 		if (kctl->access & SNDRV_CTL_ELEM_ACCESS_READWRITE) {
 			se = (struct soc_enum *)kctl->private_value;
 			if (tplg_ec->priv.size)
 				return skl_init_enum_data(bus->dev, se,
 						tplg_ec);
 		}
+=======
+		if (kctl->access & SNDRV_CTL_ELEM_ACCESS_READ) {
+			se = (struct soc_enum *)kctl->private_value;
+			if (tplg_ec->priv.size)
+				skl_init_enum_data(bus->dev, se, tplg_ec);
+		}
+
+		/*
+		 * now that the control initializations are done, remove
+		 * write permission for the DMIC configuration enums to
+		 * avoid conflicts between NHLT settings and user interaction
+		 */
+
+		if (hdr->ops.get == SKL_CONTROL_TYPE_MULTI_IO_SELECT_DMIC)
+			kctl->access = SNDRV_CTL_ELEM_ACCESS_READ;
+
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -3178,21 +4042,35 @@ static int skl_tplg_control_load(struct snd_soc_component *cmpnt,
 
 static int skl_tplg_fill_str_mfest_tkn(struct device *dev,
 		struct snd_soc_tplg_vendor_string_elem *str_elem,
+<<<<<<< HEAD
 		struct skl *skl)
+=======
+		struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	int tkn_count = 0;
 	static int ref_count;
 
 	switch (str_elem->token) {
 	case SKL_TKN_STR_LIB_NAME:
+<<<<<<< HEAD
 		if (ref_count > skl->skl_sst->lib_count - 1) {
+=======
+		if (ref_count > skl->lib_count - 1) {
+>>>>>>> upstream/android-13
 			ref_count = 0;
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		strncpy(skl->skl_sst->lib_info[ref_count].name,
 			str_elem->string,
 			ARRAY_SIZE(skl->skl_sst->lib_info[ref_count].name));
+=======
+		strncpy(skl->lib_info[ref_count].name,
+			str_elem->string,
+			ARRAY_SIZE(skl->lib_info[ref_count].name));
+>>>>>>> upstream/android-13
 		ref_count++;
 		break;
 
@@ -3207,7 +4085,11 @@ static int skl_tplg_fill_str_mfest_tkn(struct device *dev,
 
 static int skl_tplg_get_str_tkn(struct device *dev,
 		struct snd_soc_tplg_vendor_array *array,
+<<<<<<< HEAD
 		struct skl *skl)
+=======
+		struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	int tkn_count = 0, ret;
 	struct snd_soc_tplg_vendor_string_elem *str_elem;
@@ -3314,9 +4196,15 @@ static int skl_tplg_fill_mod_info(struct device *dev,
 
 static int skl_tplg_get_int_tkn(struct device *dev,
 		struct snd_soc_tplg_vendor_value_elem *tkn_elem,
+<<<<<<< HEAD
 		struct skl *skl)
 {
 	int tkn_count = 0, ret, size;
+=======
+		struct skl_dev *skl)
+{
+	int tkn_count = 0, ret;
+>>>>>>> upstream/android-13
 	static int mod_idx, res_val_idx, intf_val_idx, dir, pin_idx;
 	struct skl_module_res *res = NULL;
 	struct skl_module_iface *fmt = NULL;
@@ -3324,6 +4212,10 @@ static int skl_tplg_get_int_tkn(struct device *dev,
 	static struct skl_astate_param *astate_table;
 	static int astate_cfg_idx, count;
 	int i;
+<<<<<<< HEAD
+=======
+	size_t size;
+>>>>>>> upstream/android-13
 
 	if (skl->modules) {
 		mod = skl->modules[mod_idx];
@@ -3333,7 +4225,11 @@ static int skl_tplg_get_int_tkn(struct device *dev,
 
 	switch (tkn_elem->token) {
 	case SKL_TKN_U32_LIB_COUNT:
+<<<<<<< HEAD
 		skl->skl_sst->lib_count = tkn_elem->value;
+=======
+		skl->lib_count = tkn_elem->value;
+>>>>>>> upstream/android-13
 		break;
 
 	case SKL_TKN_U8_NUM_MOD:
@@ -3367,8 +4263,13 @@ static int skl_tplg_get_int_tkn(struct device *dev,
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		size = tkn_elem->value * sizeof(struct skl_astate_param) +
 				sizeof(count);
+=======
+		size = struct_size(skl->cfg.astate_cfg, astate_table,
+				   tkn_elem->value);
+>>>>>>> upstream/android-13
 		skl->cfg.astate_cfg = devm_kzalloc(dev, size, GFP_KERNEL);
 		if (!skl->cfg.astate_cfg)
 			return -ENOMEM;
@@ -3479,6 +4380,7 @@ static int skl_tplg_get_int_tkn(struct device *dev,
 	return tkn_count;
 }
 
+<<<<<<< HEAD
 static int skl_tplg_get_manifest_uuid(struct device *dev,
 				struct skl *skl,
 				struct snd_soc_tplg_vendor_uuid_elem *uuid_tkn)
@@ -3498,16 +4400,26 @@ static int skl_tplg_get_manifest_uuid(struct device *dev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Fill the manifest structure by parsing the tokens based on the
  * type.
  */
 static int skl_tplg_get_manifest_tkn(struct device *dev,
+<<<<<<< HEAD
 		char *pvt_data, struct skl *skl,
+=======
+		char *pvt_data, struct skl_dev *skl,
+>>>>>>> upstream/android-13
 		int block_size)
 {
 	int tkn_count = 0, ret;
 	int off = 0, tuple_size = 0;
+<<<<<<< HEAD
+=======
+	u8 uuid_index = 0;
+>>>>>>> upstream/android-13
 	struct snd_soc_tplg_vendor_array *array;
 	struct snd_soc_tplg_vendor_value_elem *tkn_elem;
 
@@ -3530,9 +4442,23 @@ static int skl_tplg_get_manifest_tkn(struct device *dev,
 			continue;
 
 		case SND_SOC_TPLG_TUPLE_TYPE_UUID:
+<<<<<<< HEAD
 			ret = skl_tplg_get_manifest_uuid(dev, skl, array->uuid);
 			if (ret < 0)
 				return ret;
+=======
+			if (array->uuid->token != SKL_TKN_UUID) {
+				dev_err(dev, "Not an UUID token: %d\n",
+					array->uuid->token);
+				return -EINVAL;
+			}
+			if (uuid_index >= skl->nr_modules) {
+				dev_err(dev, "Too many UUID tokens\n");
+				return -EINVAL;
+			}
+			import_guid(&skl->modules[uuid_index++]->uuid,
+				    array->uuid->uuid);
+>>>>>>> upstream/android-13
 
 			tuple_size += sizeof(*array->uuid);
 			continue;
@@ -3564,7 +4490,11 @@ static int skl_tplg_get_manifest_tkn(struct device *dev,
  * preceded by descriptors for type and size of data block.
  */
 static int skl_tplg_get_manifest_data(struct snd_soc_tplg_manifest *manifest,
+<<<<<<< HEAD
 			struct device *dev, struct skl *skl)
+=======
+			struct device *dev, struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_tplg_vendor_array *array;
 	int num_blocks, block_size = 0, block_type, off = 0;
@@ -3626,7 +4556,11 @@ static int skl_manifest_load(struct snd_soc_component *cmpnt, int index,
 				struct snd_soc_tplg_manifest *manifest)
 {
 	struct hdac_bus *bus = snd_soc_component_get_drvdata(cmpnt);
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 
 	/* proceed only if we have private data defined */
 	if (manifest->priv.size == 0)
@@ -3634,15 +4568,61 @@ static int skl_manifest_load(struct snd_soc_component *cmpnt, int index,
 
 	skl_tplg_get_manifest_data(manifest, bus->dev, skl);
 
+<<<<<<< HEAD
 	if (skl->skl_sst->lib_count > SKL_MAX_LIB) {
 		dev_err(bus->dev, "Exceeding max Library count. Got:%d\n",
 					skl->skl_sst->lib_count);
+=======
+	if (skl->lib_count > SKL_MAX_LIB) {
+		dev_err(bus->dev, "Exceeding max Library count. Got:%d\n",
+					skl->lib_count);
+>>>>>>> upstream/android-13
 		return  -EINVAL;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void skl_tplg_complete(struct snd_soc_component *component)
+{
+	struct snd_soc_dobj *dobj;
+	struct snd_soc_acpi_mach *mach;
+	struct snd_ctl_elem_value *val;
+	int i;
+
+	val = kmalloc(sizeof(*val), GFP_KERNEL);
+	if (!val)
+		return;
+
+	mach = dev_get_platdata(component->card->dev);
+	list_for_each_entry(dobj, &component->dobj_list, list) {
+		struct snd_kcontrol *kcontrol = dobj->control.kcontrol;
+		struct soc_enum *se;
+		char **texts;
+		char chan_text[4];
+
+		if (dobj->type != SND_SOC_DOBJ_ENUM || !kcontrol ||
+		    kcontrol->put != skl_tplg_multi_config_set_dmic)
+			continue;
+
+		se = (struct soc_enum *)kcontrol->private_value;
+		texts = dobj->control.dtexts;
+		sprintf(chan_text, "c%d", mach->mach_params.dmic_num);
+
+		for (i = 0; i < se->items; i++) {
+			if (strstr(texts[i], chan_text)) {
+				memset(val, 0, sizeof(*val));
+				val->value.enumerated.item[0] = i;
+				kcontrol->put(kcontrol, val);
+			}
+		}
+	}
+	kfree(val);
+}
+
+>>>>>>> upstream/android-13
 static struct snd_soc_tplg_ops skl_tplg_ops  = {
 	.widget_load = skl_tplg_widget_load,
 	.control_load = skl_tplg_control_load,
@@ -3652,6 +4632,10 @@ static struct snd_soc_tplg_ops skl_tplg_ops  = {
 	.io_ops_count = ARRAY_SIZE(skl_tplg_kcontrol_ops),
 	.manifest = skl_manifest_load,
 	.dai_load = skl_dai_load,
+<<<<<<< HEAD
+=======
+	.complete = skl_tplg_complete,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -3685,7 +4669,11 @@ static int skl_tplg_create_pipe_widget_list(struct snd_soc_component *component)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void skl_tplg_set_pipe_type(struct skl *skl, struct skl_pipe *pipe)
+=======
+static void skl_tplg_set_pipe_type(struct skl_dev *skl, struct skl_pipe *pipe)
+>>>>>>> upstream/android-13
 {
 	struct skl_pipe_module *w_module;
 	struct snd_soc_dapm_widget *w;
@@ -3708,10 +4696,13 @@ static void skl_tplg_set_pipe_type(struct skl *skl, struct skl_pipe *pipe)
 		pipe->passthru = false;
 }
 
+<<<<<<< HEAD
 /* This will be read from topology manifest, currently defined here */
 #define SKL_MAX_MCPS 30000000
 #define SKL_FW_MAX_MEM 1000000
 
+=======
+>>>>>>> upstream/android-13
 /*
  * SKL topology init routine
  */
@@ -3719,13 +4710,34 @@ int skl_tplg_init(struct snd_soc_component *component, struct hdac_bus *bus)
 {
 	int ret;
 	const struct firmware *fw;
+<<<<<<< HEAD
 	struct skl *skl = bus_to_skl(bus);
+=======
+	struct skl_dev *skl = bus_to_skl(bus);
+>>>>>>> upstream/android-13
 	struct skl_pipeline *ppl;
 
 	ret = request_firmware(&fw, skl->tplg_name, bus->dev);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_info(bus->dev, "tplg fw %s load failed with %d, falling back to dfw_sst.bin",
 				skl->tplg_name, ret);
+=======
+		char alt_tplg_name[64];
+
+		snprintf(alt_tplg_name, sizeof(alt_tplg_name), "%s-tplg.bin",
+			 skl->mach->drv_name);
+		dev_info(bus->dev, "tplg fw %s load failed with %d, trying alternative tplg name %s",
+			 skl->tplg_name, ret, alt_tplg_name);
+
+		ret = request_firmware(&fw, alt_tplg_name, bus->dev);
+		if (!ret)
+			goto component_load;
+
+		dev_info(bus->dev, "tplg %s failed with %d, falling back to dfw_sst.bin",
+			 alt_tplg_name, ret);
+
+>>>>>>> upstream/android-13
 		ret = request_firmware(&fw, "dfw_sst.bin", bus->dev);
 		if (ret < 0) {
 			dev_err(bus->dev, "Fallback tplg fw %s load failed with %d\n",
@@ -3734,6 +4746,7 @@ int skl_tplg_init(struct snd_soc_component *component, struct hdac_bus *bus)
 		}
 	}
 
+<<<<<<< HEAD
 	/*
 	 * The complete tplg for SKL is loaded as index 0, we don't use
 	 * any other index
@@ -3753,9 +4766,42 @@ int skl_tplg_init(struct snd_soc_component *component, struct hdac_bus *bus)
 	ret = skl_tplg_create_pipe_widget_list(component);
 	if (ret < 0)
 		return ret;
+=======
+component_load:
+	ret = snd_soc_tplg_component_load(component, &skl_tplg_ops, fw);
+	if (ret < 0) {
+		dev_err(bus->dev, "tplg component load failed%d\n", ret);
+		goto err;
+	}
+
+	ret = skl_tplg_create_pipe_widget_list(component);
+	if (ret < 0) {
+		dev_err(bus->dev, "tplg create pipe widget list failed%d\n",
+				ret);
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(ppl, &skl->ppl_list, node)
 		skl_tplg_set_pipe_type(skl, ppl->pipe);
 
+<<<<<<< HEAD
 	return 0;
+=======
+err:
+	release_firmware(fw);
+	return ret;
+}
+
+void skl_tplg_exit(struct snd_soc_component *component, struct hdac_bus *bus)
+{
+	struct skl_dev *skl = bus_to_skl(bus);
+	struct skl_pipeline *ppl, *tmp;
+
+	list_for_each_entry_safe(ppl, tmp, &skl->ppl_list, node)
+		list_del(&ppl->node);
+
+	/* clean up topology */
+	snd_soc_tplg_component_remove(component);
+>>>>>>> upstream/android-13
 }

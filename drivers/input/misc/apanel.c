@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Fujitsu Lifebook Application Panel button drive
  *
  *  Copyright (C) 2007 Stephen Hemminger <shemminger@linux-foundation.org>
  *  Copyright (C) 2001-2003 Jochen Eisinger <jochen@penguin-breeder.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Many Fujitsu Lifebook laptops have a small panel of buttons that are
  * accessible via the i2c/smbus interface. This driver polls those
  * buttons and generates input events.
@@ -20,9 +27,14 @@
 #include <linux/module.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
 #include <linux/i2c.h>
 #include <linux/workqueue.h>
+=======
+#include <linux/input.h>
+#include <linux/i2c.h>
+>>>>>>> upstream/android-13
 #include <linux/leds.h>
 
 #define APANEL_NAME	"Fujitsu Application Panel"
@@ -55,6 +67,7 @@ static enum apanel_chip device_chip[APANEL_DEV_MAX];
 #define MAX_PANEL_KEYS	12
 
 struct apanel {
+<<<<<<< HEAD
 	struct input_polled_dev *ipdev;
 	struct i2c_client *client;
 	unsigned short keymap[MAX_PANEL_KEYS];
@@ -70,6 +83,30 @@ static int apanel_probe(struct i2c_client *, const struct i2c_device_id *);
 static void report_key(struct input_dev *input, unsigned keycode)
 {
 	pr_debug(APANEL ": report key %#x\n", keycode);
+=======
+	struct input_dev *idev;
+	struct i2c_client *client;
+	unsigned short keymap[MAX_PANEL_KEYS];
+	u16 nkeys;
+	struct led_classdev mail_led;
+};
+
+static const unsigned short apanel_keymap[MAX_PANEL_KEYS] = {
+	[0] = KEY_MAIL,
+	[1] = KEY_WWW,
+	[2] = KEY_PROG2,
+	[3] = KEY_PROG1,
+
+	[8] = KEY_FORWARD,
+	[9] = KEY_REWIND,
+	[10] = KEY_STOPCD,
+	[11] = KEY_PLAYPAUSE,
+};
+
+static void report_key(struct input_dev *input, unsigned keycode)
+{
+	dev_dbg(input->dev.parent, "report key %#x\n", keycode);
+>>>>>>> upstream/android-13
 	input_report_key(input, keycode, 1);
 	input_sync(input);
 
@@ -85,10 +122,16 @@ static void report_key(struct input_dev *input, unsigned keycode)
  * CD keys:
  * Forward (0x100), Rewind (0x200), Stop (0x400), Pause (0x800)
  */
+<<<<<<< HEAD
 static void apanel_poll(struct input_polled_dev *ipdev)
 {
 	struct apanel *ap = ipdev->private;
 	struct input_dev *idev = ipdev->input;
+=======
+static void apanel_poll(struct input_dev *idev)
+{
+	struct apanel *ap = input_get_drvdata(idev);
+>>>>>>> upstream/android-13
 	u8 cmd = device_chip[APANEL_DEV_APPBTN] == CHIP_OZ992C ? 0 : 8;
 	s32 data;
 	int i;
@@ -109,6 +152,7 @@ static void apanel_poll(struct input_polled_dev *ipdev)
 			report_key(idev, ap->keymap[i]);
 }
 
+<<<<<<< HEAD
 /* Track state changes of LED */
 static void led_update(struct work_struct *work)
 {
@@ -139,13 +183,91 @@ static int apanel_remove(struct i2c_client *client)
 
 	input_unregister_polled_device(ap->ipdev);
 	input_free_polled_device(ap->ipdev);
+=======
+static int mail_led_set(struct led_classdev *led,
+			 enum led_brightness value)
+{
+	struct apanel *ap = container_of(led, struct apanel, mail_led);
+	u16 led_bits = value != LED_OFF ? 0x8000 : 0x0000;
+
+	return i2c_smbus_write_word_data(ap->client, 0x10, led_bits);
+}
+
+static int apanel_probe(struct i2c_client *client,
+			const struct i2c_device_id *id)
+{
+	struct apanel *ap;
+	struct input_dev *idev;
+	u8 cmd = device_chip[APANEL_DEV_APPBTN] == CHIP_OZ992C ? 0 : 8;
+	int i, err;
+
+	ap = devm_kzalloc(&client->dev, sizeof(*ap), GFP_KERNEL);
+	if (!ap)
+		return -ENOMEM;
+
+	idev = devm_input_allocate_device(&client->dev);
+	if (!idev)
+		return -ENOMEM;
+
+	ap->idev = idev;
+	ap->client = client;
+
+	i2c_set_clientdata(client, ap);
+
+	err = i2c_smbus_write_word_data(client, cmd, 0);
+	if (err) {
+		dev_warn(&client->dev, "smbus write error %d\n", err);
+		return err;
+	}
+
+	input_set_drvdata(idev, ap);
+
+	idev->name = APANEL_NAME " buttons";
+	idev->phys = "apanel/input0";
+	idev->id.bustype = BUS_HOST;
+
+	memcpy(ap->keymap, apanel_keymap, sizeof(apanel_keymap));
+	idev->keycode = ap->keymap;
+	idev->keycodesize = sizeof(ap->keymap[0]);
+	idev->keycodemax = (device_chip[APANEL_DEV_CDBTN] != CHIP_NONE) ? 12 : 4;
+
+	set_bit(EV_KEY, idev->evbit);
+	for (i = 0; i < idev->keycodemax; i++)
+		if (ap->keymap[i])
+			set_bit(ap->keymap[i], idev->keybit);
+
+	err = input_setup_polling(idev, apanel_poll);
+	if (err)
+		return err;
+
+	input_set_poll_interval(idev, POLL_INTERVAL_DEFAULT);
+
+	err = input_register_device(idev);
+	if (err)
+		return err;
+
+	if (device_chip[APANEL_DEV_LED] != CHIP_NONE) {
+		ap->mail_led.name = "mail:blue";
+		ap->mail_led.brightness_set_blocking = mail_led_set;
+		err = devm_led_classdev_register(&client->dev, &ap->mail_led);
+		if (err)
+			return err;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void apanel_shutdown(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	apanel_remove(client);
+=======
+	struct apanel *ap = i2c_get_clientdata(client);
+
+	if (device_chip[APANEL_DEV_LED] != CHIP_NONE)
+		led_set_brightness(&ap->mail_led, LED_OFF);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id apanel_id[] = {
@@ -158,6 +280,7 @@ static struct i2c_driver apanel_driver = {
 	.driver = {
 		.name = APANEL,
 	},
+<<<<<<< HEAD
 	.probe		= &apanel_probe,
 	.remove		= &apanel_remove,
 	.shutdown	= &apanel_shutdown,
@@ -251,6 +374,13 @@ out1:
 	return err;
 }
 
+=======
+	.probe		= apanel_probe,
+	.shutdown	= apanel_shutdown,
+	.id_table	= apanel_id,
+};
+
+>>>>>>> upstream/android-13
 /* Scan the system ROM for the signature "FJKEYINF" */
 static __init const void __iomem *bios_signature(const void __iomem *bios)
 {

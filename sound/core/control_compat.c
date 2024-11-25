@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * compat ioctls for control API
  *
  *   Copyright (c) by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /* this file included from control.c */
@@ -35,6 +42,7 @@ struct snd_ctl_elem_list32 {
 static int snd_ctl_elem_list_compat(struct snd_card *card,
 				    struct snd_ctl_elem_list32 __user *data32)
 {
+<<<<<<< HEAD
 	struct snd_ctl_elem_list __user *data;
 	compat_caddr_t ptr;
 	int err;
@@ -53,6 +61,24 @@ static int snd_ctl_elem_list_compat(struct snd_card *card,
 		return err;
 	/* copy the result */
 	if (copy_in_user(data32, data, 4 * sizeof(u32)))
+=======
+	struct snd_ctl_elem_list data = {};
+	compat_caddr_t ptr;
+	int err;
+
+	/* offset, space, used, count */
+	if (copy_from_user(&data, data32, 4 * sizeof(u32)))
+		return -EFAULT;
+	/* pids */
+	if (get_user(ptr, &data32->pids))
+		return -EFAULT;
+	data.pids = compat_ptr(ptr);
+	err = snd_ctl_elem_list(card, &data);
+	if (err < 0)
+		return err;
+	/* copy the result */
+	if (copy_to_user(data32, &data, 4 * sizeof(u32)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return 0;
 }
@@ -111,9 +137,12 @@ static int snd_ctl_elem_info_compat(struct snd_ctl_file *ctl,
 	if (get_user(data->value.enumerated.item, &data32->value.enumerated.item))
 		goto error;
 
+<<<<<<< HEAD
 	err = snd_power_wait(ctl->card, SNDRV_CTL_POWER_D0);
 	if (err < 0)
 		goto error;
+=======
+>>>>>>> upstream/android-13
 	err = snd_ctl_elem_info(ctl, data);
 	if (err < 0)
 		goto error;
@@ -202,7 +231,14 @@ static int get_ctl_type(struct snd_card *card, struct snd_ctl_elem_id *id,
 		return -ENOMEM;
 	}
 	info->id = *id;
+<<<<<<< HEAD
 	err = kctl->info(kctl, info);
+=======
+	err = snd_power_ref_and_wait(card);
+	if (!err)
+		err = kctl->info(kctl, info);
+	snd_power_unref(card);
+>>>>>>> upstream/android-13
 	up_read(&card->controls_rwsem);
 	if (err >= 0) {
 		err = info->type;
@@ -236,7 +272,11 @@ static int copy_ctl_value_from_user(struct snd_card *card,
 {
 	struct snd_ctl_elem_value32 __user *data32 = userdata;
 	int i, type, size;
+<<<<<<< HEAD
 	int uninitialized_var(count);
+=======
+	int count;
+>>>>>>> upstream/android-13
 	unsigned int indirect;
 
 	if (copy_from_user(&data->id, &data32->id, sizeof(data->id)))
@@ -279,6 +319,10 @@ static int copy_ctl_value_to_user(void __user *userdata,
 				  struct snd_ctl_elem_value *data,
 				  int type, int count)
 {
+<<<<<<< HEAD
+=======
+	struct snd_ctl_elem_value32 __user *data32 = userdata;
+>>>>>>> upstream/android-13
 	int i, size;
 
 	if (type == SNDRV_CTL_ELEM_TYPE_BOOLEAN ||
@@ -295,6 +339,11 @@ static int copy_ctl_value_to_user(void __user *userdata,
 		if (copy_to_user(valuep, data->value.bytes.data, size))
 			return -EFAULT;
 	}
+<<<<<<< HEAD
+=======
+	if (copy_to_user(&data32->id, &data->id, sizeof(data32->id)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -313,9 +362,12 @@ static int ctl_elem_read_user(struct snd_card *card,
 	if (err < 0)
 		goto error;
 
+<<<<<<< HEAD
 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
 	if (err < 0)
 		goto error;
+=======
+>>>>>>> upstream/android-13
 	err = snd_ctl_elem_read(card, data);
 	if (err < 0)
 		goto error;
@@ -341,9 +393,12 @@ static int ctl_elem_write_user(struct snd_ctl_file *file,
 	if (err < 0)
 		goto error;
 
+<<<<<<< HEAD
 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
 	if (err < 0)
 		goto error;
+=======
+>>>>>>> upstream/android-13
 	err = snd_ctl_elem_write(card, file, data);
 	if (err < 0)
 		goto error;

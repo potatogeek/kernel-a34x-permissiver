@@ -6,8 +6,12 @@
 
 set -e
 
+<<<<<<< HEAD
 IN=$1
 OUT=$2
+=======
+OUT=$1
+>>>>>>> upstream/android-13
 
 dump_array()
 {
@@ -15,6 +19,10 @@ dump_array()
 	SIZE=$2
 	PFX=$3
 	POSTFIX=$4
+<<<<<<< HEAD
+=======
+	IN=$5
+>>>>>>> upstream/android-13
 
 	PFX_SZ=$(echo $PFX | wc -c)
 	TABS="$(printf '\t\t\t\t\t')"
@@ -57,11 +65,26 @@ trap 'rm "$OUT"' EXIT
 	echo "#endif"
 	echo ""
 
+<<<<<<< HEAD
 	dump_array "x86_cap_flags" "NCAPINTS*32" "X86_FEATURE_" ""
 	echo ""
 
 	dump_array "x86_bug_flags" "NBUGINTS*32" "X86_BUG_" "NCAPINTS*32"
 
+=======
+	dump_array "x86_cap_flags" "NCAPINTS*32" "X86_FEATURE_" "" $2
+	echo ""
+
+	dump_array "x86_bug_flags" "NBUGINTS*32" "X86_BUG_" "NCAPINTS*32" $2
+	echo ""
+
+	echo "#ifdef CONFIG_X86_VMX_FEATURE_NAMES"
+	echo "#ifndef _ASM_X86_VMXFEATURES_H"
+	echo "#include <asm/vmxfeatures.h>"
+	echo "#endif"
+	dump_array "x86_vmx_flags" "NVMXINTS*32" "VMX_FEATURE_" "" $3
+	echo "#endif /* CONFIG_X86_VMX_FEATURE_NAMES */"
+>>>>>>> upstream/android-13
 ) > $OUT
 
 trap - EXIT

@@ -74,27 +74,55 @@
 	__stringify(BCM_5710_FW_MINOR_VERSION) "."	\
 	__stringify(BCM_5710_FW_REVISION_VERSION) "."	\
 	__stringify(BCM_5710_FW_ENGINEERING_VERSION)
+<<<<<<< HEAD
 #define FW_FILE_NAME_E1		"bnx2x/bnx2x-e1-" FW_FILE_VERSION ".fw"
 #define FW_FILE_NAME_E1H	"bnx2x/bnx2x-e1h-" FW_FILE_VERSION ".fw"
 #define FW_FILE_NAME_E2		"bnx2x/bnx2x-e2-" FW_FILE_VERSION ".fw"
+=======
+
+#define FW_FILE_VERSION_V15				\
+	__stringify(BCM_5710_FW_MAJOR_VERSION) "."      \
+	__stringify(BCM_5710_FW_MINOR_VERSION) "."	\
+	__stringify(BCM_5710_FW_REVISION_VERSION_V15) "."	\
+	__stringify(BCM_5710_FW_ENGINEERING_VERSION)
+
+#define FW_FILE_NAME_E1		"bnx2x/bnx2x-e1-" FW_FILE_VERSION ".fw"
+#define FW_FILE_NAME_E1H	"bnx2x/bnx2x-e1h-" FW_FILE_VERSION ".fw"
+#define FW_FILE_NAME_E2		"bnx2x/bnx2x-e2-" FW_FILE_VERSION ".fw"
+#define FW_FILE_NAME_E1_V15	"bnx2x/bnx2x-e1-" FW_FILE_VERSION_V15 ".fw"
+#define FW_FILE_NAME_E1H_V15	"bnx2x/bnx2x-e1h-" FW_FILE_VERSION_V15 ".fw"
+#define FW_FILE_NAME_E2_V15	"bnx2x/bnx2x-e2-" FW_FILE_VERSION_V15 ".fw"
+>>>>>>> upstream/android-13
 
 /* Time in jiffies before concluding the transmitter is hung */
 #define TX_TIMEOUT		(5*HZ)
 
+<<<<<<< HEAD
 static char version[] =
 	"QLogic 5771x/578xx 10/20-Gigabit Ethernet Driver "
 	DRV_MODULE_NAME " " DRV_MODULE_VERSION " (" DRV_MODULE_RELDATE ")\n";
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Eliezer Tamir");
 MODULE_DESCRIPTION("QLogic "
 		   "BCM57710/57711/57711E/"
 		   "57712/57712_MF/57800/57800_MF/57810/57810_MF/"
 		   "57840/57840_MF Driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION(DRV_MODULE_VERSION);
 MODULE_FIRMWARE(FW_FILE_NAME_E1);
 MODULE_FIRMWARE(FW_FILE_NAME_E1H);
 MODULE_FIRMWARE(FW_FILE_NAME_E2);
+=======
+MODULE_FIRMWARE(FW_FILE_NAME_E1);
+MODULE_FIRMWARE(FW_FILE_NAME_E1H);
+MODULE_FIRMWARE(FW_FILE_NAME_E2);
+MODULE_FIRMWARE(FW_FILE_NAME_E1_V15);
+MODULE_FIRMWARE(FW_FILE_NAME_E1H_V15);
+MODULE_FIRMWARE(FW_FILE_NAME_E2_V15);
+>>>>>>> upstream/android-13
 
 int bnx2x_num_queues;
 module_param_named(num_queues, bnx2x_num_queues, int, 0444);
@@ -281,6 +309,16 @@ static const struct pci_device_id bnx2x_pci_tbl[] = {
 
 MODULE_DEVICE_TABLE(pci, bnx2x_pci_tbl);
 
+<<<<<<< HEAD
+=======
+const u32 dmae_reg_go_c[] = {
+	DMAE_REG_GO_C0, DMAE_REG_GO_C1, DMAE_REG_GO_C2, DMAE_REG_GO_C3,
+	DMAE_REG_GO_C4, DMAE_REG_GO_C5, DMAE_REG_GO_C6, DMAE_REG_GO_C7,
+	DMAE_REG_GO_C8, DMAE_REG_GO_C9, DMAE_REG_GO_C10, DMAE_REG_GO_C11,
+	DMAE_REG_GO_C12, DMAE_REG_GO_C13, DMAE_REG_GO_C14, DMAE_REG_GO_C15
+};
+
+>>>>>>> upstream/android-13
 /* Global resources for unloading a previously loaded device */
 #define BNX2X_PREV_WAIT_NEEDED 1
 static DEFINE_SEMAPHORE(bnx2x_prev_sem);
@@ -745,9 +783,13 @@ static int bnx2x_mc_assert(struct bnx2x *bp)
 		  CHIP_IS_E1(bp) ? "everest1" :
 		  CHIP_IS_E1H(bp) ? "everest1h" :
 		  CHIP_IS_E2(bp) ? "everest2" : "everest3",
+<<<<<<< HEAD
 		  BCM_5710_FW_MAJOR_VERSION,
 		  BCM_5710_FW_MINOR_VERSION,
 		  BCM_5710_FW_REVISION_VERSION);
+=======
+		  bp->fw_major, bp->fw_minor, bp->fw_rev);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -869,9 +911,12 @@ static void bnx2x_hc_int_disable(struct bnx2x *bp)
 	   "write %x to HC %d (addr 0x%x)\n",
 	   val, port, addr);
 
+<<<<<<< HEAD
 	/* flush all outstanding writes */
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	REG_WR(bp, addr, val);
 	if (REG_RD(bp, addr) != val)
 		BNX2X_ERR("BUG! Proper val not read from IGU!\n");
@@ -887,9 +932,12 @@ static void bnx2x_igu_int_disable(struct bnx2x *bp)
 
 	DP(NETIF_MSG_IFDOWN, "write %x to IGU\n", val);
 
+<<<<<<< HEAD
 	/* flush all outstanding writes */
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	REG_WR(bp, IGU_REG_PF_CONFIGURATION, val);
 	if (REG_RD(bp, IGU_REG_PF_CONFIGURATION) != val)
 		BNX2X_ERR("BUG! Proper val not read from IGU!\n");
@@ -1180,9 +1228,24 @@ void bnx2x_panic_dump(struct bnx2x *bp, bool disable_int)
 	}
 #endif
 	if (IS_PF(bp)) {
+<<<<<<< HEAD
 		bnx2x_fw_dump(bp);
 		bnx2x_mc_assert(bp);
 	}
+=======
+		int tmp_msg_en = bp->msg_enable;
+
+		bnx2x_fw_dump(bp);
+		bp->msg_enable |= NETIF_MSG_HW;
+		BNX2X_ERR("Idle check (1st round) ----------\n");
+		bnx2x_idle_chk(bp);
+		BNX2X_ERR("Idle check (2nd round) ----------\n");
+		bnx2x_idle_chk(bp);
+		bp->msg_enable = tmp_msg_en;
+		bnx2x_mc_assert(bp);
+	}
+
+>>>>>>> upstream/android-13
 	BNX2X_ERR("end crash dump -----------------\n");
 }
 
@@ -1390,7 +1453,10 @@ int bnx2x_send_final_clnup(struct bnx2x *bp, u8 clnup_func, u32 poll_cnt)
 	u32 op_gen_command = 0;
 	u32 comp_addr = BAR_CSTRORM_INTMEM +
 			CSTORM_FINAL_CLEANUP_COMPLETE_OFFSET(clnup_func);
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (REG_RD(bp, comp_addr)) {
 		BNX2X_ERR("Cleanup complete was not 0 before sending\n");
@@ -1415,7 +1481,11 @@ int bnx2x_send_final_clnup(struct bnx2x *bp, u8 clnup_func, u32 poll_cnt)
 	/* Zero completion for next FLR */
 	REG_WR(bp, comp_addr, 0);
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 u8 bnx2x_is_pcie_pending(struct pci_dev *dev)
@@ -1595,7 +1665,10 @@ static void bnx2x_hc_int_enable(struct bnx2x *bp)
 	/*
 	 * Ensure that HC_CONFIG is written before leading/trailing edge config
 	 */
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	barrier();
 
 	if (!CHIP_IS_E1(bp)) {
@@ -1611,9 +1684,12 @@ static void bnx2x_hc_int_enable(struct bnx2x *bp)
 		REG_WR(bp, HC_REG_TRAILING_EDGE_0 + port*8, val);
 		REG_WR(bp, HC_REG_LEADING_EDGE_0 + port*8, val);
 	}
+<<<<<<< HEAD
 
 	/* Make sure that interrupts are indeed enabled from here on */
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static void bnx2x_igu_int_enable(struct bnx2x *bp)
@@ -1674,9 +1750,12 @@ static void bnx2x_igu_int_enable(struct bnx2x *bp)
 
 	REG_WR(bp, IGU_REG_TRAILING_EDGE_LATCH, val);
 	REG_WR(bp, IGU_REG_LEADING_EDGE_LATCH, val);
+<<<<<<< HEAD
 
 	/* Make sure that interrupts are indeed enabled from here on */
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 void bnx2x_int_enable(struct bnx2x *bp)
@@ -3088,9 +3167,15 @@ void bnx2x_func_init(struct bnx2x *bp, struct bnx2x_func_init_params *p)
 /**
  * bnx2x_get_common_flags - Return common flags
  *
+<<<<<<< HEAD
  * @bp		device handle
  * @fp		queue handle
  * @zero_stats	TRUE if statistics zeroing is needed
+=======
+ * @bp:		device handle
+ * @fp:		queue handle
+ * @zero_stats:	TRUE if statistics zeroing is needed
+>>>>>>> upstream/android-13
  *
  * Return the flags that are common for the Tx-only and not normal connections.
  */
@@ -3833,7 +3918,10 @@ static void bnx2x_sp_prod_update(struct bnx2x *bp)
 
 	REG_WR16_RELAXED(bp, BAR_XSTRORM_INTMEM + XSTORM_SPQ_PROD_OFFSET(func),
 			 bp->spq_prod_idx);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -5244,7 +5332,10 @@ static void bnx2x_update_eq_prod(struct bnx2x *bp, u16 prod)
 {
 	/* No memory barriers */
 	storm_memset_eq_prod(bp, prod, BP_FUNC(bp));
+<<<<<<< HEAD
 	mmiowb(); /* keep prod updates ordered */
+=======
+>>>>>>> upstream/android-13
 }
 
 static int  bnx2x_cnic_handle_cfc_del(struct bnx2x *bp, u32 cid,
@@ -6317,11 +6408,19 @@ static void bnx2x_init_internal(struct bnx2x *bp, u32 load_code)
 	case FW_MSG_CODE_DRV_LOAD_COMMON:
 	case FW_MSG_CODE_DRV_LOAD_COMMON_CHIP:
 		bnx2x_init_internal_common(bp);
+<<<<<<< HEAD
 		/* no break */
 
 	case FW_MSG_CODE_DRV_LOAD_PORT:
 		/* nothing to do */
 		/* no break */
+=======
+		fallthrough;
+
+	case FW_MSG_CODE_DRV_LOAD_PORT:
+		/* nothing to do */
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case FW_MSG_CODE_DRV_LOAD_FUNCTION:
 		/* internal memory per function is
@@ -6513,7 +6612,10 @@ void bnx2x_nic_init_cnic(struct bnx2x *bp)
 
 	/* flush all */
 	mb();
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 void bnx2x_pre_irq_nic_init(struct bnx2x *bp)
@@ -6553,7 +6655,10 @@ void bnx2x_post_irq_nic_init(struct bnx2x *bp, u32 load_code)
 
 	/* flush all before enabling interrupts */
 	mb();
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	bnx2x_int_enable(bp);
 
@@ -7728,6 +7833,12 @@ static int bnx2x_init_hw_port(struct bnx2x *bp)
 		REG_WR(bp, reg_addr, val);
 	}
 
+<<<<<<< HEAD
+=======
+	if (CHIP_IS_E3B0(bp))
+		bp->flags |= PTP_SUPPORTED;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -7772,12 +7883,18 @@ void bnx2x_igu_clear_sb_gen(struct bnx2x *bp, u8 func, u8 idu_sb_id, bool is_pf)
 	DP(NETIF_MSG_HW, "write 0x%08x to IGU(via GRC) addr 0x%x\n",
 			 data, igu_addr_data);
 	REG_WR(bp, igu_addr_data, data);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	barrier();
 	DP(NETIF_MSG_HW, "write 0x%08x to IGU(via GRC) addr 0x%x\n",
 			  ctl, igu_addr_ctl);
 	REG_WR(bp, igu_addr_ctl, ctl);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	barrier();
 
 	/* wait for clean up to finish */
@@ -8605,11 +8722,19 @@ int bnx2x_set_int_mode(struct bnx2x *bp)
 			       bp->num_queues,
 			       1 + bp->num_cnic_queues);
 
+<<<<<<< HEAD
 		/* fall through */
 	case BNX2X_INT_MODE_MSI:
 		bnx2x_enable_msi(bp);
 
 		/* fall through */
+=======
+		fallthrough;
+	case BNX2X_INT_MODE_MSI:
+		bnx2x_enable_msi(bp);
+
+		fallthrough;
+>>>>>>> upstream/android-13
 	case BNX2X_INT_MODE_INTX:
 		bp->num_ethernet_queues = 1;
 		bp->num_queues = bp->num_ethernet_queues + bp->num_cnic_queues;
@@ -9462,8 +9587,18 @@ unload_error:
 	 * function stop ramrod is sent, since as part of this ramrod FW access
 	 * PTP registers.
 	 */
+<<<<<<< HEAD
 	if (bp->flags & PTP_SUPPORTED)
 		bnx2x_stop_ptp(bp);
+=======
+	if (bp->flags & PTP_SUPPORTED) {
+		bnx2x_stop_ptp(bp);
+		if (bp->ptp_clock) {
+			ptp_clock_unregister(bp->ptp_clock);
+			bp->ptp_clock = NULL;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* Disable HW interrupts, NAPI */
 	bnx2x_netif_stop(bp, 1);
@@ -9549,7 +9684,10 @@ static void bnx2x_set_234_gates(struct bnx2x *bp, bool close)
 
 	DP(NETIF_MSG_HW | NETIF_MSG_IFUP, "%s gates #2, #3 and #4\n",
 		close ? "closing" : "opening");
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 #define SHARED_MF_CLP_MAGIC  0x80000000 /* `magic' bit */
@@ -9673,7 +9811,10 @@ static void bnx2x_pxp_prep(struct bnx2x *bp)
 	if (!CHIP_IS_E1(bp)) {
 		REG_WR(bp, PXP2_REG_RD_START_INIT, 0);
 		REG_WR(bp, PXP2_REG_RQ_RBC_DONE, 0);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -9773,16 +9914,24 @@ static void bnx2x_process_kill_chip_reset(struct bnx2x *bp, bool global)
 	       reset_mask1 & (~not_reset_mask1));
 
 	barrier();
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	REG_WR(bp, GRCBASE_MISC + MISC_REGISTERS_RESET_REG_2_SET,
 	       reset_mask2 & (~stay_reset2));
 
 	barrier();
+<<<<<<< HEAD
 	mmiowb();
 
 	REG_WR(bp, GRCBASE_MISC + MISC_REGISTERS_RESET_REG_1_SET, reset_mask1);
 	mmiowb();
+=======
+
+	REG_WR(bp, GRCBASE_MISC + MISC_REGISTERS_RESET_REG_1_SET, reset_mask1);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -9866,9 +10015,12 @@ static int bnx2x_process_kill(struct bnx2x *bp, bool global)
 	REG_WR(bp, MISC_REG_UNPREPARED, 0);
 	barrier();
 
+<<<<<<< HEAD
 	/* Make sure all is written to the chip before the reset */
 	mmiowb();
 
+=======
+>>>>>>> upstream/android-13
 	/* Wait for 1ms to empty GLUE and PCI-E core queues,
 	 * PSWHST, GRC and PSWRD Tetris buffer.
 	 */
@@ -10160,7 +10312,10 @@ static int bnx2x_udp_port_update(struct bnx2x *bp)
 {
 	struct bnx2x_func_switch_update_params *switch_update_params;
 	struct bnx2x_func_state_params func_params = {NULL};
+<<<<<<< HEAD
 	struct bnx2x_udp_tunnel *udp_tunnel;
+=======
+>>>>>>> upstream/android-13
 	u16 vxlan_port = 0, geneve_port = 0;
 	int rc;
 
@@ -10177,6 +10332,7 @@ static int bnx2x_udp_port_update(struct bnx2x *bp)
 	__set_bit(BNX2X_F_UPDATE_TUNNEL_CFG_CHNG,
 		  &switch_update_params->changes);
 
+<<<<<<< HEAD
 	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE].count) {
 		udp_tunnel = &bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE];
 		geneve_port = udp_tunnel->dst_port;
@@ -10186,6 +10342,15 @@ static int bnx2x_udp_port_update(struct bnx2x *bp)
 	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN].count) {
 		udp_tunnel = &bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN];
 		vxlan_port = udp_tunnel->dst_port;
+=======
+	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE]) {
+		geneve_port = bp->udp_tunnel_ports[BNX2X_UDP_PORT_GENEVE];
+		switch_update_params->geneve_dst_port = geneve_port;
+	}
+
+	if (bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN]) {
+		vxlan_port = bp->udp_tunnel_ports[BNX2X_UDP_PORT_VXLAN];
+>>>>>>> upstream/android-13
 		switch_update_params->vxlan_dst_port = vxlan_port;
 	}
 
@@ -10205,6 +10370,7 @@ static int bnx2x_udp_port_update(struct bnx2x *bp)
 	return rc;
 }
 
+<<<<<<< HEAD
 static void __bnx2x_add_udp_port(struct bnx2x *bp, u16 port,
 				 enum bnx2x_udp_port_type type)
 {
@@ -10292,6 +10458,28 @@ static void bnx2x_udp_tunnel_del(struct net_device *netdev,
 		break;
 	}
 }
+=======
+static int bnx2x_udp_tunnel_sync(struct net_device *netdev, unsigned int table)
+{
+	struct bnx2x *bp = netdev_priv(netdev);
+	struct udp_tunnel_info ti;
+
+	udp_tunnel_nic_get_port(netdev, table, 0, &ti);
+	bp->udp_tunnel_ports[table] = be16_to_cpu(ti.port);
+
+	return bnx2x_udp_port_update(bp);
+}
+
+static const struct udp_tunnel_nic_info bnx2x_udp_tunnels = {
+	.sync_table	= bnx2x_udp_tunnel_sync,
+	.flags		= UDP_TUNNEL_NIC_INFO_MAY_SLEEP |
+			  UDP_TUNNEL_NIC_INFO_OPEN_ONLY,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN,  },
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_GENEVE, },
+	},
+};
+>>>>>>> upstream/android-13
 
 static int bnx2x_close(struct net_device *dev);
 
@@ -10415,6 +10603,7 @@ sp_rtnl_not_reset:
 	if (test_and_clear_bit(BNX2X_SP_RTNL_UPDATE_SVID, &bp->sp_rtnl_state))
 		bnx2x_handle_update_svid_cmd(bp);
 
+<<<<<<< HEAD
 	if (test_and_clear_bit(BNX2X_SP_RTNL_CHANGE_UDP_PORT,
 			       &bp->sp_rtnl_state)) {
 		if (bnx2x_udp_port_update(bp)) {
@@ -10433,6 +10622,8 @@ sp_rtnl_not_reset:
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* work which needs rtnl lock not-taken (as it takes the lock itself and
 	 * can be called from other contexts as well)
 	 */
@@ -11305,7 +11496,11 @@ static void bnx2x_link_settings_supported(struct bnx2x *bp, u32 switch_cfg)
 			   dev_info.port_hw_config[port].external_phy_config),
 			   SHMEM_RD(bp,
 			   dev_info.port_hw_config[port].external_phy_config2));
+<<<<<<< HEAD
 			return;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	if (CHIP_IS_E3(bp))
@@ -12005,7 +12200,11 @@ static void validate_set_si_mode(struct bnx2x *bp)
 static int bnx2x_get_hwinfo(struct bnx2x *bp)
 {
 	int /*abs*/func = BP_ABS_FUNC(bp);
+<<<<<<< HEAD
 	int vn, mfw_vn;
+=======
+	int vn;
+>>>>>>> upstream/android-13
 	u32 val = 0, val2 = 0;
 	int rc = 0;
 
@@ -12090,12 +12289,18 @@ static int bnx2x_get_hwinfo(struct bnx2x *bp)
 	/*
 	 * Initialize MF configuration
 	 */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	bp->mf_ov = 0;
 	bp->mf_mode = 0;
 	bp->mf_sub_mode = 0;
 	vn = BP_VN(bp);
+<<<<<<< HEAD
 	mfw_vn = BP_FW_MB_IDX(bp);
+=======
+>>>>>>> upstream/android-13
 
 	if (!CHIP_IS_E1(bp) && !BP_NOMCP(bp)) {
 		BNX2X_DEV_INFO("shmem2base 0x%x, size %d, mfcfg offset %d\n",
@@ -12288,6 +12493,7 @@ static int bnx2x_get_hwinfo(struct bnx2x *bp)
 
 static void bnx2x_read_fwinfo(struct bnx2x *bp)
 {
+<<<<<<< HEAD
 	int cnt, i, block_end, rodi;
 	char vpd_start[BNX2X_VPD_LEN+1];
 	char str_id_reg[VENDOR_ID_LEN+1];
@@ -12369,6 +12575,37 @@ static void bnx2x_read_fwinfo(struct bnx2x *bp)
 out_not_found:
 	kfree(vpd_extended_data);
 	return;
+=======
+	char str_id[VENDOR_ID_LEN + 1];
+	unsigned int vpd_len, kw_len;
+	u8 *vpd_data;
+	int rodi;
+
+	memset(bp->fw_ver, 0, sizeof(bp->fw_ver));
+
+	vpd_data = pci_vpd_alloc(bp->pdev, &vpd_len);
+	if (IS_ERR(vpd_data))
+		return;
+
+	rodi = pci_vpd_find_ro_info_keyword(vpd_data, vpd_len,
+					    PCI_VPD_RO_KEYWORD_MFR_ID, &kw_len);
+	if (rodi < 0 || kw_len != VENDOR_ID_LEN)
+		goto out_not_found;
+
+	/* vendor specific info */
+	snprintf(str_id, VENDOR_ID_LEN + 1, "%04x", PCI_VENDOR_ID_DELL);
+	if (!strncasecmp(str_id, &vpd_data[rodi], VENDOR_ID_LEN)) {
+		rodi = pci_vpd_find_ro_info_keyword(vpd_data, vpd_len,
+						    PCI_VPD_RO_KEYWORD_VENDOR0,
+						    &kw_len);
+		if (rodi >= 0 && kw_len < sizeof(bp->fw_ver)) {
+			memcpy(bp->fw_ver, &vpd_data[rodi], kw_len);
+			bp->fw_ver[kw_len] = ' ';
+		}
+	}
+out_not_found:
+	kfree(vpd_data);
+>>>>>>> upstream/android-13
 }
 
 static void bnx2x_set_modes_bitmap(struct bnx2x *bp)
@@ -12488,7 +12725,11 @@ static int bnx2x_init_bp(struct bnx2x *bp)
 	}
 
 	if (CHIP_IS_E1(bp))
+<<<<<<< HEAD
 		bp->dropless_fc = 0;
+=======
+		bp->dropless_fc = false;
+>>>>>>> upstream/android-13
 	else
 		bp->dropless_fc = dropless_fc | bnx2x_get_dropless_info(bp);
 
@@ -12552,9 +12793,12 @@ static int bnx2x_init_bp(struct bnx2x *bp)
 
 	bp->dump_preset_idx = 1;
 
+<<<<<<< HEAD
 	if (CHIP_IS_E3B0(bp))
 		bp->flags |= PTP_SUPPORTED;
 
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -12633,9 +12877,12 @@ static int bnx2x_open(struct net_device *dev)
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	if (IS_PF(bp))
 		udp_tunnel_get_rx_info(dev);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -13154,7 +13401,11 @@ static const struct net_device_ops bnx2x_netdev_ops = {
 	.ndo_set_rx_mode	= bnx2x_set_rx_mode,
 	.ndo_set_mac_address	= bnx2x_change_mac_addr,
 	.ndo_validate_addr	= bnx2x_validate_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= bnx2x_ioctl,
+=======
+	.ndo_eth_ioctl		= bnx2x_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= bnx2x_change_mtu,
 	.ndo_fix_features	= bnx2x_fix_features,
 	.ndo_set_features	= bnx2x_set_features,
@@ -13166,6 +13417,10 @@ static const struct net_device_ops bnx2x_netdev_ops = {
 	.ndo_set_vf_mac		= bnx2x_set_vf_mac,
 	.ndo_set_vf_vlan	= bnx2x_set_vf_vlan,
 	.ndo_get_vf_config	= bnx2x_get_vf_config,
+<<<<<<< HEAD
+=======
+	.ndo_set_vf_spoofchk	= bnx2x_set_vf_spoofchk,
+>>>>>>> upstream/android-13
 #endif
 #ifdef NETDEV_FCOE_WWNN
 	.ndo_fcoe_get_wwn	= bnx2x_fcoe_get_wwn,
@@ -13174,8 +13429,11 @@ static const struct net_device_ops bnx2x_netdev_ops = {
 	.ndo_get_phys_port_id	= bnx2x_get_phys_port_id,
 	.ndo_set_vf_link_state	= bnx2x_set_vf_link_state,
 	.ndo_features_check	= bnx2x_features_check,
+<<<<<<< HEAD
 	.ndo_udp_tunnel_add	= bnx2x_udp_tunnel_add,
 	.ndo_udp_tunnel_del	= bnx2x_udp_tunnel_del,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int bnx2x_set_coherency_mask(struct bnx2x *bp)
@@ -13370,6 +13628,12 @@ static int bnx2x_init_dev(struct bnx2x *bp, struct pci_dev *pdev,
 
 		dev->gso_partial_features = NETIF_F_GSO_GRE_CSUM |
 					    NETIF_F_GSO_UDP_TUNNEL_CSUM;
+<<<<<<< HEAD
+=======
+
+		if (IS_PF(bp))
+			dev->udp_tunnel_nic_info = &bnx2x_udp_tunnels;
+>>>>>>> upstream/android-13
 	}
 
 	dev->vlan_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
@@ -13466,6 +13730,7 @@ static int bnx2x_check_firmware(struct bnx2x *bp)
 	/* Check FW version */
 	offset = be32_to_cpu(fw_hdr->fw_version.offset);
 	fw_ver = firmware->data + offset;
+<<<<<<< HEAD
 	if ((fw_ver[0] != BCM_5710_FW_MAJOR_VERSION) ||
 	    (fw_ver[1] != BCM_5710_FW_MINOR_VERSION) ||
 	    (fw_ver[2] != BCM_5710_FW_REVISION_VERSION) ||
@@ -13476,6 +13741,13 @@ static int bnx2x_check_firmware(struct bnx2x *bp)
 		       BCM_5710_FW_MINOR_VERSION,
 		       BCM_5710_FW_REVISION_VERSION,
 		       BCM_5710_FW_ENGINEERING_VERSION);
+=======
+	if (fw_ver[0] != bp->fw_major || fw_ver[1] != bp->fw_minor ||
+	    fw_ver[2] != bp->fw_rev || fw_ver[3] != bp->fw_eng) {
+		BNX2X_ERR("Bad FW version:%d.%d.%d.%d. Should be %d.%d.%d.%d\n",
+			  fw_ver[0], fw_ver[1], fw_ver[2], fw_ver[3],
+			  bp->fw_major, bp->fw_minor, bp->fw_rev, bp->fw_eng);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -13555,13 +13827,18 @@ do {									\
 
 static int bnx2x_init_firmware(struct bnx2x *bp)
 {
+<<<<<<< HEAD
 	const char *fw_file_name;
+=======
+	const char *fw_file_name, *fw_file_name_v15;
+>>>>>>> upstream/android-13
 	struct bnx2x_fw_file_hdr *fw_hdr;
 	int rc;
 
 	if (bp->firmware)
 		return 0;
 
+<<<<<<< HEAD
 	if (CHIP_IS_E1(bp))
 		fw_file_name = FW_FILE_NAME_E1;
 	else if (CHIP_IS_E1H(bp))
@@ -13572,15 +13849,52 @@ static int bnx2x_init_firmware(struct bnx2x *bp)
 		BNX2X_ERR("Unsupported chip revision\n");
 		return -EINVAL;
 	}
+=======
+	if (CHIP_IS_E1(bp)) {
+		fw_file_name = FW_FILE_NAME_E1;
+		fw_file_name_v15 = FW_FILE_NAME_E1_V15;
+	} else if (CHIP_IS_E1H(bp)) {
+		fw_file_name = FW_FILE_NAME_E1H;
+		fw_file_name_v15 = FW_FILE_NAME_E1H_V15;
+	} else if (!CHIP_IS_E1x(bp)) {
+		fw_file_name = FW_FILE_NAME_E2;
+		fw_file_name_v15 = FW_FILE_NAME_E2_V15;
+	} else {
+		BNX2X_ERR("Unsupported chip revision\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	BNX2X_DEV_INFO("Loading %s\n", fw_file_name);
 
 	rc = request_firmware(&bp->firmware, fw_file_name, &bp->pdev->dev);
 	if (rc) {
+<<<<<<< HEAD
 		BNX2X_ERR("Can't load firmware file %s\n",
 			  fw_file_name);
 		goto request_firmware_exit;
 	}
 
+=======
+		BNX2X_DEV_INFO("Trying to load older fw %s\n", fw_file_name_v15);
+
+		/* try to load prev version */
+		rc = request_firmware(&bp->firmware, fw_file_name_v15, &bp->pdev->dev);
+
+		if (rc)
+			goto request_firmware_exit;
+
+		bp->fw_rev = BCM_5710_FW_REVISION_VERSION_V15;
+	} else {
+		bp->fw_cap |= FW_CAP_INVALIDATE_VF_FP_HSI;
+		bp->fw_rev = BCM_5710_FW_REVISION_VERSION;
+	}
+
+	bp->fw_major = BCM_5710_FW_MAJOR_VERSION;
+	bp->fw_minor = BCM_5710_FW_MINOR_VERSION;
+	bp->fw_eng = BCM_5710_FW_ENGINEERING_VERSION;
+
+>>>>>>> upstream/android-13
 	rc = bnx2x_check_firmware(bp);
 	if (rc) {
 		BNX2X_ERR("Corrupt firmware file %s\n", fw_file_name);
@@ -13690,9 +14004,15 @@ static int bnx2x_set_qm_cid_count(struct bnx2x *bp)
 }
 
 /**
+<<<<<<< HEAD
  * bnx2x_get_num_none_def_sbs - return the number of none default SBs
  *
  * @dev:	pci device
+=======
+ * bnx2x_get_num_non_def_sbs - return the number of none default SBs
+ * @pdev: pci device
+ * @cnic_cnt: count
+>>>>>>> upstream/android-13
  *
  */
 static int bnx2x_get_num_non_def_sbs(struct pci_dev *pdev, int cnic_cnt)
@@ -13945,7 +14265,11 @@ static int bnx2x_ptp_enable(struct ptp_clock_info *ptp,
 	return -ENOTSUPP;
 }
 
+<<<<<<< HEAD
 static void bnx2x_register_phc(struct bnx2x *bp)
+=======
+void bnx2x_register_phc(struct bnx2x *bp)
+>>>>>>> upstream/android-13
 {
 	/* Fill the ptp_clock_info struct and register PTP clock*/
 	bp->ptp_clock_info.owner = THIS_MODULE;
@@ -14076,7 +14400,11 @@ static int bnx2x_init_one(struct pci_dev *pdev,
 			rc = -ENOMEM;
 			goto init_one_freemem;
 		}
+<<<<<<< HEAD
 		bp->doorbells = ioremap_nocache(pci_resource_start(pdev, 2),
+=======
+		bp->doorbells = ioremap(pci_resource_start(pdev, 2),
+>>>>>>> upstream/android-13
 						doorbell_size);
 	}
 	if (!bp->doorbells) {
@@ -14147,8 +14475,11 @@ static int bnx2x_init_one(struct pci_dev *pdev,
 	       dev->base_addr, bp->pdev->irq, dev->dev_addr);
 	pcie_print_link_status(bp->pdev);
 
+<<<<<<< HEAD
 	bnx2x_register_phc(bp);
 
+=======
+>>>>>>> upstream/android-13
 	if (!IS_MF_SD_STORAGE_PERSONALITY_ONLY(bp))
 		bnx2x_set_os_driver_state(bp, OS_DRIVER_STATE_DISABLED);
 
@@ -14181,11 +14512,14 @@ static void __bnx2x_remove(struct pci_dev *pdev,
 			   struct bnx2x *bp,
 			   bool remove_netdev)
 {
+<<<<<<< HEAD
 	if (bp->ptp_clock) {
 		ptp_clock_unregister(bp->ptp_clock);
 		bp->ptp_clock = NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Delete storage MAC address */
 	if (!NO_FCOE(bp)) {
 		rtnl_lock();
@@ -14297,10 +14631,13 @@ static int bnx2x_eeh_nic_unload(struct bnx2x *bp)
 
 	/* Stop Tx */
 	bnx2x_tx_disable(bp);
+<<<<<<< HEAD
 	/* Delete all NAPI objects */
 	bnx2x_del_all_napi(bp);
 	if (CNIC_LOADED(bp))
 		bnx2x_del_all_napi_cnic(bp);
+=======
+>>>>>>> upstream/android-13
 	netdev_reset_tc(bp->dev);
 
 	del_timer_sync(&bp->timer);
@@ -14405,6 +14742,14 @@ static pci_ers_result_t bnx2x_io_slot_reset(struct pci_dev *pdev)
 		bnx2x_drain_tx_queues(bp);
 		bnx2x_send_unload_req(bp, UNLOAD_RECOVERY);
 		bnx2x_netif_stop(bp, 1);
+<<<<<<< HEAD
+=======
+		bnx2x_del_all_napi(bp);
+
+		if (CNIC_LOADED(bp))
+			bnx2x_del_all_napi_cnic(bp);
+
+>>>>>>> upstream/android-13
 		bnx2x_free_irq(bp);
 
 		/* Report UNLOAD_DONE to MCP */
@@ -14430,6 +14775,7 @@ static pci_ers_result_t bnx2x_io_slot_reset(struct pci_dev *pdev)
 
 	rtnl_unlock();
 
+<<<<<<< HEAD
 	/* If AER, perform cleanup of the PCIe registers */
 	if (bp->flags & AER_ENABLED) {
 		if (pci_cleanup_aer_uncorrect_error_status(pdev))
@@ -14438,6 +14784,8 @@ static pci_ers_result_t bnx2x_io_slot_reset(struct pci_dev *pdev)
 			DP(NETIF_MSG_HW, "pci_cleanup_aer_uncorrect_error_status succeeded\n");
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return PCI_ERS_RESULT_RECOVERED;
 }
 
@@ -14505,8 +14853,12 @@ static struct pci_driver bnx2x_pci_driver = {
 	.id_table    = bnx2x_pci_tbl,
 	.probe       = bnx2x_init_one,
 	.remove      = bnx2x_remove_one,
+<<<<<<< HEAD
 	.suspend     = bnx2x_suspend,
 	.resume      = bnx2x_resume,
+=======
+	.driver.pm   = &bnx2x_pm_ops,
+>>>>>>> upstream/android-13
 	.err_handler = &bnx2x_err_handler,
 #ifdef CONFIG_BNX2X_SRIOV
 	.sriov_configure = bnx2x_sriov_configure,
@@ -14518,8 +14870,11 @@ static int __init bnx2x_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	pr_info("%s", version);
 
+=======
+>>>>>>> upstream/android-13
 	bnx2x_wq = create_singlethread_workqueue("bnx2x");
 	if (bnx2x_wq == NULL) {
 		pr_err("Cannot create workqueue\n");
@@ -14569,9 +14924,13 @@ module_exit(bnx2x_cleanup);
 
 /**
  * bnx2x_set_iscsi_eth_mac_addr - set iSCSI MAC(s).
+<<<<<<< HEAD
  *
  * @bp:		driver handle
  * @set:	set or clear the CAM entry
+=======
+ * @bp:		driver handle
+>>>>>>> upstream/android-13
  *
  * This function will wait until the ramrod completion returns.
  * Return 0 if success, -ENODEV if ramrod doesn't return.
@@ -14854,7 +15213,10 @@ static int bnx2x_drv_ctl(struct net_device *dev, struct drv_ctl_info *ctl)
 		if (rc)
 			break;
 
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		barrier();
 
 		/* Start accepting on iSCSI L2 ring */
@@ -14889,7 +15251,10 @@ static int bnx2x_drv_ctl(struct net_device *dev, struct drv_ctl_info *ctl)
 		if (!bnx2x_wait_sp_comp(bp, sp_bits))
 			BNX2X_ERR("rx_mode completion timed out!\n");
 
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		barrier();
 
 		/* Unset iSCSI L2 MAC */
@@ -15417,14 +15782,35 @@ static int bnx2x_enable_ptp_packets(struct bnx2x *bp)
 	return 0;
 }
 
+<<<<<<< HEAD
 int bnx2x_configure_ptp_filters(struct bnx2x *bp)
 {
 	int port = BP_PORT(bp);
+=======
+#define BNX2X_P2P_DETECT_PARAM_MASK 0x5F5
+#define BNX2X_P2P_DETECT_RULE_MASK 0x3DBB
+#define BNX2X_PTP_TX_ON_PARAM_MASK (BNX2X_P2P_DETECT_PARAM_MASK & 0x6AA)
+#define BNX2X_PTP_TX_ON_RULE_MASK (BNX2X_P2P_DETECT_RULE_MASK & 0x3EEE)
+#define BNX2X_PTP_V1_L4_PARAM_MASK (BNX2X_P2P_DETECT_PARAM_MASK & 0x7EE)
+#define BNX2X_PTP_V1_L4_RULE_MASK (BNX2X_P2P_DETECT_RULE_MASK & 0x3FFE)
+#define BNX2X_PTP_V2_L4_PARAM_MASK (BNX2X_P2P_DETECT_PARAM_MASK & 0x7EA)
+#define BNX2X_PTP_V2_L4_RULE_MASK (BNX2X_P2P_DETECT_RULE_MASK & 0x3FEE)
+#define BNX2X_PTP_V2_L2_PARAM_MASK (BNX2X_P2P_DETECT_PARAM_MASK & 0x6BF)
+#define BNX2X_PTP_V2_L2_RULE_MASK (BNX2X_P2P_DETECT_RULE_MASK & 0x3EFF)
+#define BNX2X_PTP_V2_PARAM_MASK (BNX2X_P2P_DETECT_PARAM_MASK & 0x6AA)
+#define BNX2X_PTP_V2_RULE_MASK (BNX2X_P2P_DETECT_RULE_MASK & 0x3EEE)
+
+int bnx2x_configure_ptp_filters(struct bnx2x *bp)
+{
+	int port = BP_PORT(bp);
+	u32 param, rule;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!bp->hwtstamp_ioctl_called)
 		return 0;
 
+<<<<<<< HEAD
 	switch (bp->tx_type) {
 	case HWTSTAMP_TX_ON:
 		bp->flags |= TX_TIMESTAMPING_EN;
@@ -15434,10 +15820,31 @@ int bnx2x_configure_ptp_filters(struct bnx2x *bp)
 		       NIG_REG_P0_TLLH_PTP_RULE_MASK, 0x3EEE);
 		break;
 	case HWTSTAMP_TX_ONESTEP_SYNC:
+=======
+	param = port ? NIG_REG_P1_TLLH_PTP_PARAM_MASK :
+		NIG_REG_P0_TLLH_PTP_PARAM_MASK;
+	rule = port ? NIG_REG_P1_TLLH_PTP_RULE_MASK :
+		NIG_REG_P0_TLLH_PTP_RULE_MASK;
+	switch (bp->tx_type) {
+	case HWTSTAMP_TX_ON:
+		bp->flags |= TX_TIMESTAMPING_EN;
+		REG_WR(bp, param, BNX2X_PTP_TX_ON_PARAM_MASK);
+		REG_WR(bp, rule, BNX2X_PTP_TX_ON_RULE_MASK);
+		break;
+	case HWTSTAMP_TX_ONESTEP_SYNC:
+	case HWTSTAMP_TX_ONESTEP_P2P:
+>>>>>>> upstream/android-13
 		BNX2X_ERR("One-step timestamping is not supported\n");
 		return -ERANGE;
 	}
 
+<<<<<<< HEAD
+=======
+	param = port ? NIG_REG_P1_LLH_PTP_PARAM_MASK :
+		NIG_REG_P0_LLH_PTP_PARAM_MASK;
+	rule = port ? NIG_REG_P1_LLH_PTP_RULE_MASK :
+		NIG_REG_P0_LLH_PTP_RULE_MASK;
+>>>>>>> upstream/android-13
 	switch (bp->rx_filter) {
 	case HWTSTAMP_FILTER_NONE:
 		break;
@@ -15451,30 +15858,45 @@ int bnx2x_configure_ptp_filters(struct bnx2x *bp)
 	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
 		bp->rx_filter = HWTSTAMP_FILTER_PTP_V1_L4_EVENT;
 		/* Initialize PTP detection for UDP/IPv4 events */
+<<<<<<< HEAD
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_PARAM_MASK :
 		       NIG_REG_P0_LLH_PTP_PARAM_MASK, 0x7EE);
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_RULE_MASK :
 		       NIG_REG_P0_LLH_PTP_RULE_MASK, 0x3FFE);
+=======
+		REG_WR(bp, param, BNX2X_PTP_V1_L4_PARAM_MASK);
+		REG_WR(bp, rule, BNX2X_PTP_V1_L4_RULE_MASK);
+>>>>>>> upstream/android-13
 		break;
 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
 	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
 		bp->rx_filter = HWTSTAMP_FILTER_PTP_V2_L4_EVENT;
 		/* Initialize PTP detection for UDP/IPv4 or UDP/IPv6 events */
+<<<<<<< HEAD
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_PARAM_MASK :
 		       NIG_REG_P0_LLH_PTP_PARAM_MASK, 0x7EA);
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_RULE_MASK :
 		       NIG_REG_P0_LLH_PTP_RULE_MASK, 0x3FEE);
+=======
+		REG_WR(bp, param, BNX2X_PTP_V2_L4_PARAM_MASK);
+		REG_WR(bp, rule, BNX2X_PTP_V2_L4_RULE_MASK);
+>>>>>>> upstream/android-13
 		break;
 	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
 	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
 	case HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ:
 		bp->rx_filter = HWTSTAMP_FILTER_PTP_V2_L2_EVENT;
 		/* Initialize PTP detection L2 events */
+<<<<<<< HEAD
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_PARAM_MASK :
 		       NIG_REG_P0_LLH_PTP_PARAM_MASK, 0x6BF);
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_RULE_MASK :
 		       NIG_REG_P0_LLH_PTP_RULE_MASK, 0x3EFF);
+=======
+		REG_WR(bp, param, BNX2X_PTP_V2_L2_PARAM_MASK);
+		REG_WR(bp, rule, BNX2X_PTP_V2_L2_RULE_MASK);
+>>>>>>> upstream/android-13
 
 		break;
 	case HWTSTAMP_FILTER_PTP_V2_EVENT:
@@ -15482,10 +15904,15 @@ int bnx2x_configure_ptp_filters(struct bnx2x *bp)
 	case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
 		bp->rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
 		/* Initialize PTP detection L2, UDP/IPv4 or UDP/IPv6 events */
+<<<<<<< HEAD
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_PARAM_MASK :
 		       NIG_REG_P0_LLH_PTP_PARAM_MASK, 0x6AA);
 		REG_WR(bp, port ? NIG_REG_P1_LLH_PTP_RULE_MASK :
 		       NIG_REG_P0_LLH_PTP_RULE_MASK, 0x3EEE);
+=======
+		REG_WR(bp, param, BNX2X_PTP_V2_PARAM_MASK);
+		REG_WR(bp, rule, BNX2X_PTP_V2_RULE_MASK);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -15519,7 +15946,11 @@ static int bnx2x_hwtstamp_ioctl(struct bnx2x *bp, struct ifreq *ifr)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	bp->hwtstamp_ioctl_called = 1;
+=======
+	bp->hwtstamp_ioctl_called = true;
+>>>>>>> upstream/android-13
 	bp->tx_type = config.tx_type;
 	bp->rx_filter = config.rx_filter;
 
@@ -15601,7 +16032,11 @@ void bnx2x_init_ptp(struct bnx2x *bp)
 		bnx2x_init_cyclecounter(bp);
 		timecounter_init(&bp->timecounter, &bp->cyclecounter,
 				 ktime_to_ns(ktime_get_real()));
+<<<<<<< HEAD
 		bp->timecounter_init_done = 1;
+=======
+		bp->timecounter_init_done = true;
+>>>>>>> upstream/android-13
 	}
 
 	DP(BNX2X_MSG_PTP, "PTP initialization ended successfully\n");

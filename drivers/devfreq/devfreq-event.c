@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * devfreq-event: a framework to provide raw data and events of devfreq devices
  *
  * Copyright (C) 2015 Samsung Electronics
  * Author: Chanwoo Choi <cw00.choi@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver is based on drivers/devfreq/devfreq.c.
  */
 
@@ -216,20 +223,35 @@ EXPORT_SYMBOL_GPL(devfreq_event_reset_event);
  * devfreq_event_get_edev_by_phandle() - Get the devfreq-event dev from
  *					 devicetree.
  * @dev		: the pointer to the given device
+<<<<<<< HEAD
+=======
+ * @phandle_name: name of property holding a phandle value
+>>>>>>> upstream/android-13
  * @index	: the index into list of devfreq-event device
  *
  * Note that this function return the pointer of devfreq-event device.
  */
 struct devfreq_event_dev *devfreq_event_get_edev_by_phandle(struct device *dev,
+<<<<<<< HEAD
 						      int index)
+=======
+					const char *phandle_name, int index)
+>>>>>>> upstream/android-13
 {
 	struct device_node *node;
 	struct devfreq_event_dev *edev;
 
+<<<<<<< HEAD
 	if (!dev->of_node)
 		return ERR_PTR(-EINVAL);
 
 	node = of_parse_phandle(dev->of_node, "devfreq-events", index);
+=======
+	if (!dev->of_node || !phandle_name)
+		return ERR_PTR(-EINVAL);
+
+	node = of_parse_phandle(dev->of_node, phandle_name, index);
+>>>>>>> upstream/android-13
 	if (!node)
 		return ERR_PTR(-ENODEV);
 
@@ -240,7 +262,11 @@ struct devfreq_event_dev *devfreq_event_get_edev_by_phandle(struct device *dev,
 	}
 
 	list_for_each_entry(edev, &devfreq_event_list, node) {
+<<<<<<< HEAD
 		if (!strcmp(edev->desc->name, node->name))
+=======
+		if (of_node_name_eq(node, edev->desc->name))
+>>>>>>> upstream/android-13
 			goto out;
 	}
 	edev = NULL;
@@ -261,6 +287,7 @@ EXPORT_SYMBOL_GPL(devfreq_event_get_edev_by_phandle);
 /**
  * devfreq_event_get_edev_count() - Get the count of devfreq-event dev
  * @dev		: the pointer to the given device
+<<<<<<< HEAD
  *
  * Note that this function return the count of devfreq-event devices.
  */
@@ -269,11 +296,26 @@ int devfreq_event_get_edev_count(struct device *dev)
 	int count;
 
 	if (!dev->of_node) {
+=======
+ * @phandle_name: name of property holding a phandle value
+ *
+ * Note that this function return the count of devfreq-event devices.
+ */
+int devfreq_event_get_edev_count(struct device *dev, const char *phandle_name)
+{
+	int count;
+
+	if (!dev->of_node || !phandle_name) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "device does not have a device node entry\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	count = of_property_count_elems_of_size(dev->of_node, "devfreq-events",
+=======
+	count = of_property_count_elems_of_size(dev->of_node, phandle_name,
+>>>>>>> upstream/android-13
 						sizeof(u32));
 	if (count < 0) {
 		dev_err(dev,
@@ -296,7 +338,11 @@ static void devfreq_event_release_edev(struct device *dev)
 /**
  * devfreq_event_add_edev() - Add new devfreq-event device.
  * @dev		: the device owning the devfreq-event device being created
+<<<<<<< HEAD
  * @desc	: the devfreq-event device's decriptor which include essential
+=======
+ * @desc	: the devfreq-event device's descriptor which include essential
+>>>>>>> upstream/android-13
  *		  data for devfreq-event device.
  *
  * Note that this function add new devfreq-event device to devfreq-event class
@@ -349,9 +395,15 @@ EXPORT_SYMBOL_GPL(devfreq_event_add_edev);
 
 /**
  * devfreq_event_remove_edev() - Remove the devfreq-event device registered.
+<<<<<<< HEAD
  * @dev		: the devfreq-event device
  *
  * Note that this function remove the registered devfreq-event device.
+=======
+ * @edev	: the devfreq-event device
+ *
+ * Note that this function removes the registered devfreq-event device.
+>>>>>>> upstream/android-13
  */
 int devfreq_event_remove_edev(struct devfreq_event_dev *edev)
 {
@@ -388,7 +440,11 @@ static void devm_devfreq_event_release(struct device *dev, void *res)
 /**
  * devm_devfreq_event_add_edev() - Resource-managed devfreq_event_add_edev()
  * @dev		: the device owning the devfreq-event device being created
+<<<<<<< HEAD
  * @desc	: the devfreq-event device's decriptor which include essential
+=======
+ * @desc	: the devfreq-event device's descriptor which include essential
+>>>>>>> upstream/android-13
  *		  data for devfreq-event device.
  *
  * Note that this function manages automatically the memory of devfreq-event

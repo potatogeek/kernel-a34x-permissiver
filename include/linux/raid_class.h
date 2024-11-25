@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * raid_class.h - a generic raid visualisation class
  *
  * Copyright (c) 2005 - James Bottomley <James.Bottomley@steeleye.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/transport_class.h>
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Benq DC E300 subdriver
  *
  * Copyright (C) 2009 Jean-Francois Moine (http://moinejf.free.fr)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -205,12 +212,20 @@ static void sd_isoc_irq(struct urb *urb)
 		 *	- 80 ba/bb 00 00 = start of image followed by 'ff d8'
 		 *	- 04 ba/bb oo oo = image piece
 		 *		where 'oo oo' is the image offset
+<<<<<<< HEAD
 						(not cheked)
+=======
+						(not checked)
+>>>>>>> upstream/android-13
 		 *	- (other -> bad frame)
 		 * The images are JPEG encoded with full header and
 		 * normal ff escape.
 		 * The end of image ('ff d9') may occur in any URB.
+<<<<<<< HEAD
 		 * (not cheked)
+=======
+		 * (not checked)
+>>>>>>> upstream/android-13
 		 */
 		data = (u8 *) urb0->transfer_buffer
 					+ urb0->iso_frame_desc[i].offset;

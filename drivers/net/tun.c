@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  TUN - Universal TUN/TAP device driver.
  *  Copyright (C) 1999-2002 Maxim Krasnyansky <maxk@qualcomm.com>
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -12,6 +17,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  *  $Id: tun.c,v 1.15 2002/03/01 02:44:24 maxk Exp $
  */
 
@@ -71,6 +78,7 @@
 #include <net/rtnetlink.h>
 #include <net/sock.h>
 #include <net/xdp.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 #include <linux/uio.h>
 #include <linux/skb_array.h>
@@ -86,6 +94,12 @@
 
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 
+=======
+#include <net/ip_tunnels.h>
+#include <linux/seq_file.h>
+#include <linux/uio.h>
+#include <linux/skb_array.h>
+>>>>>>> upstream/android-13
 #include <linux/bpf.h>
 #include <linux/bpf_trace.h>
 #include <linux/mutex.h>
@@ -104,6 +118,7 @@
 static void tun_default_link_ksettings(struct net_device *dev,
 				       struct ethtool_link_ksettings *cmd);
 
+<<<<<<< HEAD
 /* Uncomment to enable debugging */
 /* #define TUN_DEBUG 1 */
 
@@ -134,6 +149,8 @@ do {								\
 #endif
 
 #define TUN_HEADROOM 256
+=======
+>>>>>>> upstream/android-13
 #define TUN_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
 
 /* TUN device flags */
@@ -151,6 +168,7 @@ do {								\
 
 #define GOODCOPY_LEN 128
 
+<<<<<<< HEAD
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 /* The KNOX framework marks packets intended to a VPN client for special processing differently.
  * The marked packets hit special IP table rules and are routed back to user space using the TUN driver
@@ -173,6 +191,8 @@ struct knox_meta_param {
 #define TUN_META_MARK_OFFSET offsetof(struct knox_meta_param, uid)
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 
+=======
+>>>>>>> upstream/android-13
 #define FLT_EXACT_COUNT 8
 struct tap_filter {
 	unsigned int    count;    /* Number of addrs. Zero means disabled */
@@ -187,6 +207,7 @@ struct tap_filter {
 
 #define TUN_FLOW_EXPIRE (3 * HZ)
 
+<<<<<<< HEAD
 struct tun_pcpu_stats {
 	u64 rx_packets;
 	u64 rx_bytes;
@@ -198,6 +219,8 @@ struct tun_pcpu_stats {
 	u32 rx_frame_errors;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* A tun_file connects an open character device to a tuntap netdevice. It
  * also contains all socket related structures (except sock_fprog and tap_filter)
  * to serve as one transmit queue for tuntap device. The sock_fprog and
@@ -212,7 +235,10 @@ struct tun_pcpu_stats {
 struct tun_file {
 	struct sock sk;
 	struct socket socket;
+<<<<<<< HEAD
 	struct socket_wq wq;
+=======
+>>>>>>> upstream/android-13
 	struct tun_struct __rcu *tun;
 	struct fasync_struct *fasync;
 	/* only used for fasnyc */
@@ -231,6 +257,14 @@ struct tun_file {
 	struct xdp_rxq_info xdp_rxq;
 };
 
+<<<<<<< HEAD
+=======
+struct tun_page {
+	struct page *page;
+	int count;
+};
+
+>>>>>>> upstream/android-13
 struct tun_flow_entry {
 	struct hlist_node hash_link;
 	struct rcu_head rcu;
@@ -239,7 +273,11 @@ struct tun_flow_entry {
 	u32 rxhash;
 	u32 rps_rxhash;
 	int queue_index;
+<<<<<<< HEAD
 	unsigned long updated;
+=======
+	unsigned long updated ____cacheline_aligned_in_smp;
+>>>>>>> upstream/android-13
 };
 
 #define TUN_NUM_FLOW_ENTRIES 1024
@@ -273,9 +311,13 @@ struct tun_struct {
 	struct sock_fprog	fprog;
 	/* protected by rtnl lock */
 	bool			filter_attached;
+<<<<<<< HEAD
 #ifdef TUN_DEBUG
 	int debug;
 #endif
+=======
+	u32			msg_enable;
+>>>>>>> upstream/android-13
 	spinlock_t lock;
 	struct hlist_head flows[TUN_NUM_FLOW_ENTRIES];
 	struct timer_list flow_gc_timer;
@@ -285,11 +327,21 @@ struct tun_struct {
 	void *security;
 	u32 flow_count;
 	u32 rx_batched;
+<<<<<<< HEAD
 	struct tun_pcpu_stats __percpu *pcpu_stats;
+=======
+	atomic_long_t rx_frame_errors;
+>>>>>>> upstream/android-13
 	struct bpf_prog __rcu *xdp_prog;
 	struct tun_prog __rcu *steering_prog;
 	struct tun_prog __rcu *filter_prog;
 	struct ethtool_link_ksettings link_ksettings;
+<<<<<<< HEAD
+=======
+	/* init args */
+	struct file *file;
+	struct ifreq *ifr;
+>>>>>>> upstream/android-13
 };
 
 struct veth {
@@ -297,6 +349,7 @@ struct veth {
 	__be16 h_vlan_TCI;
 };
 
+<<<<<<< HEAD
 bool tun_is_xdp_frame(void *ptr)
 {
 	return (unsigned long)ptr & TUN_XDP_FLAG;
@@ -314,6 +367,10 @@ void *tun_ptr_to_xdp(void *ptr)
 	return (void *)((unsigned long)ptr & ~TUN_XDP_FLAG);
 }
 EXPORT_SYMBOL(tun_ptr_to_xdp);
+=======
+static void tun_flow_init(struct tun_struct *tun);
+static void tun_flow_uninit(struct tun_struct *tun);
+>>>>>>> upstream/android-13
 
 static int tun_napi_receive(struct napi_struct *napi, int budget)
 {
@@ -471,8 +528,14 @@ static struct tun_flow_entry *tun_flow_create(struct tun_struct *tun,
 	struct tun_flow_entry *e = kmalloc(sizeof(*e), GFP_ATOMIC);
 
 	if (e) {
+<<<<<<< HEAD
 		tun_debug(KERN_INFO, tun, "create flow: hash %u index %u\n",
 			  rxhash, queue_index);
+=======
+		netif_info(tun, tx_queued, tun->dev,
+			   "create flow: hash %u index %u\n",
+			   rxhash, queue_index);
+>>>>>>> upstream/android-13
 		e->updated = jiffies;
 		e->rxhash = rxhash;
 		e->rps_rxhash = 0;
@@ -486,8 +549,13 @@ static struct tun_flow_entry *tun_flow_create(struct tun_struct *tun,
 
 static void tun_flow_delete(struct tun_struct *tun, struct tun_flow_entry *e)
 {
+<<<<<<< HEAD
 	tun_debug(KERN_INFO, tun, "delete flow: hash %u index %u\n",
 		  e->rxhash, e->queue_index);
+=======
+	netif_info(tun, tx_queued, tun->dev, "delete flow: hash %u index %u\n",
+		   e->rxhash, e->queue_index);
+>>>>>>> upstream/android-13
 	hlist_del_rcu(&e->hash_link);
 	kfree_rcu(e, rcu);
 	--tun->flow_count;
@@ -533,8 +601,11 @@ static void tun_flow_cleanup(struct timer_list *t)
 	unsigned long count = 0;
 	int i;
 
+<<<<<<< HEAD
 	tun_debug(KERN_INFO, tun, "tun_flow_cleanup\n");
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock(&tun->lock);
 	for (i = 0; i < TUN_NUM_FLOW_ENTRIES; i++) {
 		struct tun_flow_entry *e;
@@ -567,18 +638,29 @@ static void tun_flow_update(struct tun_struct *tun, u32 rxhash,
 	unsigned long delay = tun->ageing_time;
 	u16 queue_index = tfile->queue_index;
 
+<<<<<<< HEAD
 	if (!rxhash)
 		return;
 	else
 		head = &tun->flows[tun_hashfn(rxhash)];
+=======
+	head = &tun->flows[tun_hashfn(rxhash)];
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 
 	e = tun_flow_find(head, rxhash);
 	if (likely(e)) {
 		/* TODO: keep queueing to old queue until it's empty? */
+<<<<<<< HEAD
 		e->queue_index = queue_index;
 		e->updated = jiffies;
+=======
+		if (READ_ONCE(e->queue_index) != queue_index)
+			WRITE_ONCE(e->queue_index, queue_index);
+		if (e->updated != jiffies)
+			e->updated = jiffies;
+>>>>>>> upstream/android-13
 		sock_rps_record_flow_hash(e->rps_rxhash);
 	} else {
 		spin_lock_bh(&tun->lock);
@@ -595,8 +677,12 @@ static void tun_flow_update(struct tun_struct *tun, u32 rxhash,
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 /**
  * Save the hash received in the stack receive path and update the
+=======
+/* Save the hash received in the stack receive path and update the
+>>>>>>> upstream/android-13
  * flow_hash table accordingly.
  */
 static inline void tun_flow_save_rps_rxhash(struct tun_flow_entry *e, u32 hash)
@@ -605,12 +691,20 @@ static inline void tun_flow_save_rps_rxhash(struct tun_flow_entry *e, u32 hash)
 		e->rps_rxhash = hash;
 }
 
+<<<<<<< HEAD
 /* We try to identify a flow through its rxhash first. The reason that
  * we do not check rxq no. is because some cards(e.g 82599), chooses
  * the rxq based on the txq where the last packet of the flow comes. As
  * the userspace application move between processors, we may get a
  * different rxq no. here. If we could not get rxhash, then we would
  * hope the rxq no. may help here.
+=======
+/* We try to identify a flow through its rxhash. The reason that
+ * we do not check rxq no. is because some cards(e.g 82599), chooses
+ * the rxq based on the txq where the last packet of the flow comes. As
+ * the userspace application move between processors, we may get a
+ * different rxq no. here.
+>>>>>>> upstream/android-13
  */
 static u16 tun_automq_select_queue(struct tun_struct *tun, struct sk_buff *skb)
 {
@@ -621,6 +715,7 @@ static u16 tun_automq_select_queue(struct tun_struct *tun, struct sk_buff *skb)
 	numqueues = READ_ONCE(tun->numqueues);
 
 	txq = __skb_get_hash_symmetric(skb);
+<<<<<<< HEAD
 	if (txq) {
 		e = tun_flow_find(&tun->flows[tun_hashfn(txq)], txq);
 		if (e) {
@@ -633,6 +728,15 @@ static u16 tun_automq_select_queue(struct tun_struct *tun, struct sk_buff *skb)
 		txq = skb_get_rx_queue(skb);
 		while (unlikely(txq >= numqueues))
 			txq -= numqueues;
+=======
+	e = tun_flow_find(&tun->flows[tun_hashfn(txq)], txq);
+	if (e) {
+		tun_flow_save_rps_rxhash(e, txq);
+		txq = e->queue_index;
+	} else {
+		/* use multiply and shift instead of expensive divide */
+		txq = ((u64)txq * numqueues) >> 32;
+>>>>>>> upstream/android-13
 	}
 
 	return txq;
@@ -656,8 +760,12 @@ static u16 tun_ebpf_select_queue(struct tun_struct *tun, struct sk_buff *skb)
 }
 
 static u16 tun_select_queue(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 			    struct net_device *sb_dev,
 			    select_queue_fallback_t fallback)
+=======
+			    struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	struct tun_struct *tun = netdev_priv(dev);
 	u16 ret;
@@ -897,7 +1005,11 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
 	} else {
 		/* Setup XDP RX-queue info, for new tfile getting attached */
 		err = xdp_rxq_info_reg(&tfile->xdp_rxq,
+<<<<<<< HEAD
 				       tun->dev, tfile->queue_index);
+=======
+				       tun->dev, tfile->queue_index, 0);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto out;
 		err = xdp_rxq_info_reg_mem_model(&tfile->xdp_rxq,
@@ -916,6 +1028,12 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
 		tun_napi_init(tun, tfile, napi, napi_frags);
 	}
 
+<<<<<<< HEAD
+=======
+	if (rtnl_dereference(tun->xdp_prog))
+		sock_set_flag(&tfile->sk, SOCK_XDP);
+
+>>>>>>> upstream/android-13
 	/* device is allowed to go away first, so no need to hold extra
 	 * refcnt.
 	 */
@@ -1059,6 +1177,52 @@ static int check_filter(struct tap_filter *filter, const struct sk_buff *skb)
 
 static const struct ethtool_ops tun_ethtool_ops;
 
+<<<<<<< HEAD
+=======
+static int tun_net_init(struct net_device *dev)
+{
+	struct tun_struct *tun = netdev_priv(dev);
+	struct ifreq *ifr = tun->ifr;
+	int err;
+
+	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
+	if (!dev->tstats)
+		return -ENOMEM;
+
+	spin_lock_init(&tun->lock);
+
+	err = security_tun_dev_alloc_security(&tun->security);
+	if (err < 0) {
+		free_percpu(dev->tstats);
+		return err;
+	}
+
+	tun_flow_init(tun);
+
+	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
+			   TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
+			   NETIF_F_HW_VLAN_STAG_TX;
+	dev->features = dev->hw_features | NETIF_F_LLTX;
+	dev->vlan_features = dev->features &
+			     ~(NETIF_F_HW_VLAN_CTAG_TX |
+			       NETIF_F_HW_VLAN_STAG_TX);
+
+	tun->flags = (tun->flags & ~TUN_FEATURES) |
+		      (ifr->ifr_flags & TUN_FEATURES);
+
+	INIT_LIST_HEAD(&tun->disabled);
+	err = tun_attach(tun, tun->file, false, ifr->ifr_flags & IFF_NAPI,
+			 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
+	if (err < 0) {
+		tun_flow_uninit(tun);
+		security_tun_dev_free_security(tun->security);
+		free_percpu(dev->tstats);
+		return err;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Net device detach from fd. */
 static void tun_net_uninit(struct net_device *dev)
 {
@@ -1084,6 +1248,7 @@ static int tun_net_close(struct net_device *dev)
 static void tun_automq_xmit(struct tun_struct *tun, struct sk_buff *skb)
 {
 #ifdef CONFIG_RPS
+<<<<<<< HEAD
 	if (tun->numqueues == 1 && static_key_false(&rps_needed)) {
 		/* Select queue was not called for the skbuff, so we extract the
 		 * RPS hash and save it into the flow_table here.
@@ -1098,6 +1263,19 @@ static void tun_automq_xmit(struct tun_struct *tun, struct sk_buff *skb)
 			if (e)
 				tun_flow_save_rps_rxhash(e, rxhash);
 		}
+=======
+	if (tun->numqueues == 1 && static_branch_unlikely(&rps_needed)) {
+		/* Select queue was not called for the skbuff, so we extract the
+		 * RPS hash and save it into the flow_table here.
+		 */
+		struct tun_flow_entry *e;
+		__u32 rxhash;
+
+		rxhash = __skb_get_hash_symmetric(skb);
+		e = tun_flow_find(&tun->flows[tun_hashfn(rxhash)], rxhash);
+		if (e)
+			tun_flow_save_rps_rxhash(e, rxhash);
+>>>>>>> upstream/android-13
 	}
 #endif
 }
@@ -1119,6 +1297,10 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct tun_struct *tun = netdev_priv(dev);
 	int txq = skb->queue_mapping;
+<<<<<<< HEAD
+=======
+	struct netdev_queue *queue;
+>>>>>>> upstream/android-13
 	struct tun_file *tfile;
 	int len = skb->len;
 
@@ -1132,9 +1314,13 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
 	if (!rcu_dereference(tun->steering_prog))
 		tun_automq_xmit(tun, skb);
 
+<<<<<<< HEAD
 	tun_debug(KERN_INFO, tun, "tun_net_xmit %d\n", skb->len);
 
 	BUG_ON(!tfile);
+=======
+	netif_info(tun, tx_queued, tun->dev, "%s %d\n", __func__, skb->len);
+>>>>>>> upstream/android-13
 
 	/* Drop if the filter does not like it.
 	 * This is a noop if the filter is disabled.
@@ -1160,11 +1346,22 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
 	 */
 	skb_orphan(skb);
 
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	if (ptr_ring_produce(&tfile->tx_ring, skb))
 		goto drop;
 
+<<<<<<< HEAD
+=======
+	/* NETIF_F_LLTX requires to do our own update of trans_start */
+	queue = netdev_get_tx_queue(dev, txq);
+	queue->trans_start = jiffies;
+
+>>>>>>> upstream/android-13
 	/* Notify and wake up reader process */
 	if (tfile->flags & TUN_FASYNC)
 		kill_fasync(&tfile->fasync, SIGIO, POLL_IN);
@@ -1174,7 +1371,11 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
 	return NETDEV_TX_OK;
 
 drop:
+<<<<<<< HEAD
 	this_cpu_inc(tun->pcpu_stats->tx_dropped);
+=======
+	atomic_long_inc(&dev->tx_dropped);
+>>>>>>> upstream/android-13
 	skb_tx_error(skb);
 	kfree_skb(skb);
 	rcu_read_unlock();
@@ -1211,6 +1412,7 @@ static void tun_set_headroom(struct net_device *dev, int new_hr)
 static void
 tun_net_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 {
+<<<<<<< HEAD
 	u32 rx_dropped = 0, tx_dropped = 0, rx_frame_errors = 0;
 	struct tun_struct *tun = netdev_priv(dev);
 	struct tun_pcpu_stats *p;
@@ -1242,19 +1444,34 @@ tun_net_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
 	stats->rx_dropped  = rx_dropped;
 	stats->rx_frame_errors = rx_frame_errors;
 	stats->tx_dropped = tx_dropped;
+=======
+	struct tun_struct *tun = netdev_priv(dev);
+
+	dev_get_tstats64(dev, stats);
+
+	stats->rx_frame_errors +=
+		(unsigned long)atomic_long_read(&tun->rx_frame_errors);
+>>>>>>> upstream/android-13
 }
 
 static int tun_xdp_set(struct net_device *dev, struct bpf_prog *prog,
 		       struct netlink_ext_ack *extack)
 {
 	struct tun_struct *tun = netdev_priv(dev);
+<<<<<<< HEAD
 	struct bpf_prog *old_prog;
+=======
+	struct tun_file *tfile;
+	struct bpf_prog *old_prog;
+	int i;
+>>>>>>> upstream/android-13
 
 	old_prog = rtnl_dereference(tun->xdp_prog);
 	rcu_assign_pointer(tun->xdp_prog, prog);
 	if (old_prog)
 		bpf_prog_put(old_prog);
 
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -1266,6 +1483,21 @@ static u32 tun_xdp_query(struct net_device *dev)
 	xdp_prog = rtnl_dereference(tun->xdp_prog);
 	if (xdp_prog)
 		return xdp_prog->aux->id;
+=======
+	for (i = 0; i < tun->numqueues; i++) {
+		tfile = rtnl_dereference(tun->tfiles[i]);
+		if (prog)
+			sock_set_flag(&tfile->sk, SOCK_XDP);
+		else
+			sock_reset_flag(&tfile->sk, SOCK_XDP);
+	}
+	list_for_each_entry(tfile, &tun->disabled, next) {
+		if (prog)
+			sock_set_flag(&tfile->sk, SOCK_XDP);
+		else
+			sock_reset_flag(&tfile->sk, SOCK_XDP);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1275,15 +1507,38 @@ static int tun_xdp(struct net_device *dev, struct netdev_bpf *xdp)
 	switch (xdp->command) {
 	case XDP_SETUP_PROG:
 		return tun_xdp_set(dev, xdp->prog, xdp->extack);
+<<<<<<< HEAD
 	case XDP_QUERY_PROG:
 		xdp->prog_id = tun_xdp_query(dev);
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
 }
 
+<<<<<<< HEAD
 static const struct net_device_ops tun_netdev_ops = {
+=======
+static int tun_net_change_carrier(struct net_device *dev, bool new_carrier)
+{
+	if (new_carrier) {
+		struct tun_struct *tun = netdev_priv(dev);
+
+		if (!tun->numqueues)
+			return -EPERM;
+
+		netif_carrier_on(dev);
+	} else {
+		netif_carrier_off(dev);
+	}
+	return 0;
+}
+
+static const struct net_device_ops tun_netdev_ops = {
+	.ndo_init		= tun_net_init,
+>>>>>>> upstream/android-13
 	.ndo_uninit		= tun_net_uninit,
 	.ndo_open		= tun_net_open,
 	.ndo_stop		= tun_net_close,
@@ -1292,6 +1547,10 @@ static const struct net_device_ops tun_netdev_ops = {
 	.ndo_select_queue	= tun_select_queue,
 	.ndo_set_rx_headroom	= tun_set_headroom,
 	.ndo_get_stats64	= tun_net_get_stats64,
+<<<<<<< HEAD
+=======
+	.ndo_change_carrier	= tun_net_change_carrier,
+>>>>>>> upstream/android-13
 };
 
 static void __tun_xdp_flush_tfile(struct tun_file *tfile)
@@ -1308,8 +1567,12 @@ static int tun_xdp_xmit(struct net_device *dev, int n,
 	struct tun_struct *tun = netdev_priv(dev);
 	struct tun_file *tfile;
 	u32 numqueues;
+<<<<<<< HEAD
 	int drops = 0;
 	int cnt = n;
+=======
+	int nxmit = 0;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK))
@@ -1338,10 +1601,17 @@ resample:
 		void *frame = tun_xdp_to_ptr(xdp);
 
 		if (__ptr_ring_produce(&tfile->tx_ring, frame)) {
+<<<<<<< HEAD
 			this_cpu_inc(tun->pcpu_stats->tx_dropped);
 			xdp_return_frame_rx_napi(xdp);
 			drops++;
 		}
+=======
+			atomic_long_inc(&dev->tx_dropped);
+			break;
+		}
+		nxmit++;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&tfile->tx_ring.producer_lock);
 
@@ -1349,20 +1619,40 @@ resample:
 		__tun_xdp_flush_tfile(tfile);
 
 	rcu_read_unlock();
+<<<<<<< HEAD
 	return cnt - drops;
+=======
+	return nxmit;
+>>>>>>> upstream/android-13
 }
 
 static int tun_xdp_tx(struct net_device *dev, struct xdp_buff *xdp)
 {
+<<<<<<< HEAD
 	struct xdp_frame *frame = convert_to_xdp_frame(xdp);
+=======
+	struct xdp_frame *frame = xdp_convert_buff_to_frame(xdp);
+	int nxmit;
+>>>>>>> upstream/android-13
 
 	if (unlikely(!frame))
 		return -EOVERFLOW;
 
+<<<<<<< HEAD
 	return tun_xdp_xmit(dev, 1, &frame, XDP_XMIT_FLUSH);
 }
 
 static const struct net_device_ops tap_netdev_ops = {
+=======
+	nxmit = tun_xdp_xmit(dev, 1, &frame, XDP_XMIT_FLUSH);
+	if (!nxmit)
+		xdp_return_frame_rx_napi(frame);
+	return nxmit;
+}
+
+static const struct net_device_ops tap_netdev_ops = {
+	.ndo_init		= tun_net_init,
+>>>>>>> upstream/android-13
 	.ndo_uninit		= tun_net_uninit,
 	.ndo_open		= tun_net_open,
 	.ndo_stop		= tun_net_close,
@@ -1374,9 +1664,16 @@ static const struct net_device_ops tap_netdev_ops = {
 	.ndo_select_queue	= tun_select_queue,
 	.ndo_features_check	= passthru_features_check,
 	.ndo_set_rx_headroom	= tun_set_headroom,
+<<<<<<< HEAD
 	.ndo_get_stats64	= tun_net_get_stats64,
 	.ndo_bpf		= tun_xdp,
 	.ndo_xdp_xmit		= tun_xdp_xmit,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+	.ndo_bpf		= tun_xdp,
+	.ndo_xdp_xmit		= tun_xdp_xmit,
+	.ndo_change_carrier	= tun_net_change_carrier,
+>>>>>>> upstream/android-13
 };
 
 static void tun_flow_init(struct tun_struct *tun)
@@ -1402,13 +1699,21 @@ static void tun_flow_uninit(struct tun_struct *tun)
 #define MAX_MTU 65535
 
 /* Initialize net device. */
+<<<<<<< HEAD
 static void tun_net_init(struct net_device *dev)
+=======
+static void tun_net_initialize(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tun_struct *tun = netdev_priv(dev);
 
 	switch (tun->flags & TUN_TYPE_MASK) {
 	case IFF_TUN:
 		dev->netdev_ops = &tun_netdev_ops;
+<<<<<<< HEAD
+=======
+		dev->header_ops = &ip_tunnel_header_ops;
+>>>>>>> upstream/android-13
 
 		/* Point-to-Point TUN Device */
 		dev->hard_header_len = 0;
@@ -1458,8 +1763,11 @@ static __poll_t tun_chr_poll(struct file *file, poll_table *wait)
 
 	sk = tfile->socket.sk;
 
+<<<<<<< HEAD
 	tun_debug(KERN_INFO, tun, "tun_chr_poll\n");
 
+=======
+>>>>>>> upstream/android-13
 	poll_wait(file, sk_sleep(sk), wait);
 
 	if (!ptr_ring_empty(&tfile->tx_ring))
@@ -1510,13 +1818,20 @@ static struct sk_buff *tun_napi_alloc_frags(struct tun_file *tfile,
 	skb->truesize += skb->data_len;
 
 	for (i = 1; i < it->nr_segs; i++) {
+<<<<<<< HEAD
 		struct page_frag *pfrag = &current->task_frag;
 		size_t fragsz = it->iov[i].iov_len;
+=======
+		size_t fragsz = it->iov[i].iov_len;
+		struct page *page;
+		void *frag;
+>>>>>>> upstream/android-13
 
 		if (fragsz == 0 || fragsz > PAGE_SIZE) {
 			err = -EINVAL;
 			goto free;
 		}
+<<<<<<< HEAD
 
 		if (!skb_page_frag_refill(fragsz, pfrag, GFP_KERNEL)) {
 			err = -ENOMEM;
@@ -1527,6 +1842,16 @@ static struct sk_buff *tun_napi_alloc_frags(struct tun_file *tfile,
 				   pfrag->offset, fragsz);
 		page_ref_inc(pfrag->page);
 		pfrag->offset += fragsz;
+=======
+		frag = netdev_alloc_frag(fragsz);
+		if (!frag) {
+			err = -ENOMEM;
+			goto free;
+		}
+		page = virt_to_head_page(frag);
+		skb_fill_page_desc(skb, i - 1, page,
+				   frag - page_address(page), fragsz);
+>>>>>>> upstream/android-13
 	}
 
 	return skb;
@@ -1625,6 +1950,60 @@ static bool tun_can_build_skb(struct tun_struct *tun, struct tun_file *tfile,
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static struct sk_buff *__tun_build_skb(struct tun_file *tfile,
+				       struct page_frag *alloc_frag, char *buf,
+				       int buflen, int len, int pad)
+{
+	struct sk_buff *skb = build_skb(buf, buflen);
+
+	if (!skb)
+		return ERR_PTR(-ENOMEM);
+
+	skb_reserve(skb, pad);
+	skb_put(skb, len);
+	skb_set_owner_w(skb, tfile->socket.sk);
+
+	get_page(alloc_frag->page);
+	alloc_frag->offset += buflen;
+
+	return skb;
+}
+
+static int tun_xdp_act(struct tun_struct *tun, struct bpf_prog *xdp_prog,
+		       struct xdp_buff *xdp, u32 act)
+{
+	int err;
+
+	switch (act) {
+	case XDP_REDIRECT:
+		err = xdp_do_redirect(tun->dev, xdp, xdp_prog);
+		if (err)
+			return err;
+		break;
+	case XDP_TX:
+		err = tun_xdp_tx(tun->dev, xdp);
+		if (err < 0)
+			return err;
+		break;
+	case XDP_PASS:
+		break;
+	default:
+		bpf_warn_invalid_xdp_action(act);
+		fallthrough;
+	case XDP_ABORTED:
+		trace_xdp_exception(tun->dev, xdp_prog, act);
+		fallthrough;
+	case XDP_DROP:
+		atomic_long_inc(&tun->dev->rx_dropped);
+		break;
+	}
+
+	return act;
+}
+
+>>>>>>> upstream/android-13
 static struct sk_buff *tun_build_skb(struct tun_struct *tun,
 				     struct tun_file *tfile,
 				     struct iov_iter *from,
@@ -1632,6 +2011,7 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
 				     int len, int *skb_xdp)
 {
 	struct page_frag *alloc_frag = &current->task_frag;
+<<<<<<< HEAD
 	struct sk_buff *skb;
 	struct bpf_prog *xdp_prog;
 	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
@@ -1639,11 +2019,23 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
 	char *buf;
 	size_t copied;
 	int err, pad = TUN_RX_PAD;
+=======
+	struct bpf_prog *xdp_prog;
+	int buflen = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+	char *buf;
+	size_t copied;
+	int pad = TUN_RX_PAD;
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	xdp_prog = rcu_dereference(tun->xdp_prog);
 	if (xdp_prog)
+<<<<<<< HEAD
 		pad += TUN_HEADROOM;
+=======
+		pad += XDP_PACKET_HEADROOM;
+>>>>>>> upstream/android-13
 	buflen += SKB_DATA_ALIGN(len + pad);
 	rcu_read_unlock();
 
@@ -1662,14 +2054,25 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
 	 * of xdp_prog above, this should be rare and for simplicity
 	 * we do XDP on skb in case the headroom is not enough.
 	 */
+<<<<<<< HEAD
 	if (hdr->gso_type || !xdp_prog)
 		*skb_xdp = 1;
 	else
 		*skb_xdp = 0;
+=======
+	if (hdr->gso_type || !xdp_prog) {
+		*skb_xdp = 1;
+		return __tun_build_skb(tfile, alloc_frag, buf, buflen, len,
+				       pad);
+	}
+
+	*skb_xdp = 0;
+>>>>>>> upstream/android-13
 
 	local_bh_disable();
 	rcu_read_lock();
 	xdp_prog = rcu_dereference(tun->xdp_prog);
+<<<<<<< HEAD
 	if (xdp_prog && !*skb_xdp) {
 		struct xdp_buff xdp;
 		void *orig_data;
@@ -1741,6 +2144,43 @@ err_xdp:
 	rcu_read_unlock();
 	local_bh_enable();
 	this_cpu_inc(tun->pcpu_stats->rx_dropped);
+=======
+	if (xdp_prog) {
+		struct xdp_buff xdp;
+		u32 act;
+
+		xdp_init_buff(&xdp, buflen, &tfile->xdp_rxq);
+		xdp_prepare_buff(&xdp, buf, pad, len, false);
+
+		act = bpf_prog_run_xdp(xdp_prog, &xdp);
+		if (act == XDP_REDIRECT || act == XDP_TX) {
+			get_page(alloc_frag->page);
+			alloc_frag->offset += buflen;
+		}
+		err = tun_xdp_act(tun, xdp_prog, &xdp, act);
+		if (err < 0) {
+			if (act == XDP_REDIRECT || act == XDP_TX)
+				put_page(alloc_frag->page);
+			goto out;
+		}
+
+		if (err == XDP_REDIRECT)
+			xdp_do_flush();
+		if (err != XDP_PASS)
+			goto out;
+
+		pad = xdp.data - xdp.data_hard_start;
+		len = xdp.data_end - xdp.data;
+	}
+	rcu_read_unlock();
+	local_bh_enable();
+
+	return __tun_build_skb(tfile, alloc_frag, buf, buflen, len, pad);
+
+out:
+	rcu_read_unlock();
+	local_bh_enable();
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -1754,7 +2194,10 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
 	size_t total_len = iov_iter_count(from);
 	size_t len = total_len, align = tun->align, linear;
 	struct virtio_net_hdr gso = { 0 };
+<<<<<<< HEAD
 	struct tun_pcpu_stats *stats;
+=======
+>>>>>>> upstream/android-13
 	int good_linear;
 	int copylen;
 	bool zerocopy = false;
@@ -1823,7 +2266,11 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
 		 */
 		skb = tun_build_skb(tun, tfile, from, &gso, len, &skb_xdp);
 		if (IS_ERR(skb)) {
+<<<<<<< HEAD
 			this_cpu_inc(tun->pcpu_stats->rx_dropped);
+=======
+			atomic_long_inc(&tun->dev->rx_dropped);
+>>>>>>> upstream/android-13
 			return PTR_ERR(skb);
 		}
 		if (!skb)
@@ -1852,7 +2299,11 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
 
 		if (IS_ERR(skb)) {
 			if (PTR_ERR(skb) != -EAGAIN)
+<<<<<<< HEAD
 				this_cpu_inc(tun->pcpu_stats->rx_dropped);
+=======
+				atomic_long_inc(&tun->dev->rx_dropped);
+>>>>>>> upstream/android-13
 			if (frags)
 				mutex_unlock(&tfile->napi_mutex);
 			return PTR_ERR(skb);
@@ -1866,7 +2317,11 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
 		if (err) {
 			err = -EFAULT;
 drop:
+<<<<<<< HEAD
 			this_cpu_inc(tun->pcpu_stats->rx_dropped);
+=======
+			atomic_long_inc(&tun->dev->rx_dropped);
+>>>>>>> upstream/android-13
 			kfree_skb(skb);
 			if (frags) {
 				tfile->napi.skb = NULL;
@@ -1878,7 +2333,11 @@ drop:
 	}
 
 	if (virtio_net_hdr_to_skb(skb, &gso, tun_is_little_endian(tun))) {
+<<<<<<< HEAD
 		this_cpu_inc(tun->pcpu_stats->rx_frame_errors);
+=======
+		atomic_long_inc(&tun->rx_frame_errors);
+>>>>>>> upstream/android-13
 		kfree_skb(skb);
 		if (frags) {
 			tfile->napi.skb = NULL;
@@ -1901,7 +2360,11 @@ drop:
 				pi.proto = htons(ETH_P_IPV6);
 				break;
 			default:
+<<<<<<< HEAD
 				this_cpu_inc(tun->pcpu_stats->rx_dropped);
+=======
+				atomic_long_inc(&tun->dev->rx_dropped);
+>>>>>>> upstream/android-13
 				kfree_skb(skb);
 				return -EINVAL;
 			}
@@ -1922,6 +2385,7 @@ drop:
 
 	/* copy skb_ubuf_info for callback when skb has no error */
 	if (zerocopy) {
+<<<<<<< HEAD
 		skb_shinfo(skb)->destructor_arg = msg_control;
 		skb_shinfo(skb)->tx_flags |= SKBTX_DEV_ZEROCOPY;
 		skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
@@ -1932,6 +2396,17 @@ drop:
 
 	skb_reset_network_header(skb);
 	skb_probe_transport_header(skb, 0);
+=======
+		skb_zcopy_init(skb, msg_control);
+	} else if (msg_control) {
+		struct ubuf_info *uarg = msg_control;
+		uarg->callback(NULL, uarg, false);
+	}
+
+	skb_reset_network_header(skb);
+	skb_probe_transport_header(skb);
+	skb_record_rx_queue(skb, tfile->queue_index);
+>>>>>>> upstream/android-13
 
 	if (skb_xdp) {
 		struct bpf_prog *xdp_prog;
@@ -1976,10 +2451,18 @@ drop:
 
 		/* Exercise flow dissector code path. */
 		skb_push(skb, ETH_HLEN);
+<<<<<<< HEAD
 		headlen = eth_get_headlen(skb->data, skb_headlen(skb));
 
 		if (unlikely(headlen > skb_headlen(skb))) {
 			this_cpu_inc(tun->pcpu_stats->rx_dropped);
+=======
+		headlen = eth_get_headlen(tun->dev, skb->data,
+					  skb_headlen(skb));
+
+		if (unlikely(headlen > skb_headlen(skb))) {
+			atomic_long_inc(&tun->dev->rx_dropped);
+>>>>>>> upstream/android-13
 			napi_free_frags(&tfile->napi);
 			rcu_read_unlock();
 			mutex_unlock(&tfile->napi_mutex);
@@ -2011,12 +2494,18 @@ drop:
 	}
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	stats = get_cpu_ptr(tun->pcpu_stats);
 	u64_stats_update_begin(&stats->syncp);
 	stats->rx_packets++;
 	stats->rx_bytes += len;
 	u64_stats_update_end(&stats->syncp);
 	put_cpu_ptr(stats);
+=======
+	preempt_disable();
+	dev_sw_netstats_rx_add(tun->dev, len);
+	preempt_enable();
+>>>>>>> upstream/android-13
 
 	if (rxhash)
 		tun_flow_update(tun, rxhash, tfile);
@@ -2044,6 +2533,7 @@ static ssize_t tun_chr_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	return result;
 }
 
+<<<<<<< HEAD
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 static int get_meta_param_values(struct sk_buff *skb, struct knox_meta_param *metalocal) {
 
@@ -2079,6 +2569,8 @@ static int get_meta_param_values(struct sk_buff *skb, struct knox_meta_param *me
 }
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t tun_put_user_xdp(struct tun_struct *tun,
 				struct tun_file *tfile,
 				struct xdp_frame *xdp_frame,
@@ -2086,7 +2578,10 @@ static ssize_t tun_put_user_xdp(struct tun_struct *tun,
 {
 	int vnet_hdr_sz = 0;
 	size_t size = xdp_frame->len;
+<<<<<<< HEAD
 	struct tun_pcpu_stats *stats;
+=======
+>>>>>>> upstream/android-13
 	size_t ret;
 
 	if (tun->flags & IFF_VNET_HDR) {
@@ -2103,12 +2598,18 @@ static ssize_t tun_put_user_xdp(struct tun_struct *tun,
 
 	ret = copy_to_iter(xdp_frame->data, size, iter) + vnet_hdr_sz;
 
+<<<<<<< HEAD
 	stats = get_cpu_ptr(tun->pcpu_stats);
 	u64_stats_update_begin(&stats->syncp);
 	stats->tx_packets++;
 	stats->tx_bytes += ret;
 	u64_stats_update_end(&stats->syncp);
 	put_cpu_ptr(tun->pcpu_stats);
+=======
+	preempt_disable();
+	dev_sw_netstats_tx_add(tun->dev, 1, ret);
+	preempt_enable();
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -2120,11 +2621,14 @@ static ssize_t tun_put_user(struct tun_struct *tun,
 			    struct iov_iter *iter)
 {
 	struct tun_pi pi = { 0, skb->protocol };
+<<<<<<< HEAD
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 	struct knox_meta_param metalocal = { 0, 0 };
 	int meta_param_get_status = 0;
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 	struct tun_pcpu_stats *stats;
+=======
+>>>>>>> upstream/android-13
 	ssize_t total;
 	int vlan_offset = 0;
 	int vlan_hlen = 0;
@@ -2152,6 +2656,7 @@ static ssize_t tun_put_user(struct tun_struct *tun,
 			return -EFAULT;
 	}
 
+<<<<<<< HEAD
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 	meta_param_get_status = get_meta_param_values(skb, &metalocal);
 	if (meta_param_get_status == 1) {
@@ -2175,6 +2680,8 @@ static ssize_t tun_put_user(struct tun_struct *tun,
 		}
 	}
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
+=======
+>>>>>>> upstream/android-13
 	if (vnet_hdr_sz) {
 		struct virtio_net_hdr gso;
 
@@ -2225,12 +2732,18 @@ static ssize_t tun_put_user(struct tun_struct *tun,
 
 done:
 	/* caller is in process context, */
+<<<<<<< HEAD
 	stats = get_cpu_ptr(tun->pcpu_stats);
 	u64_stats_update_begin(&stats->syncp);
 	stats->tx_packets++;
 	stats->tx_bytes += skb->len + vlan_hlen;
 	u64_stats_update_end(&stats->syncp);
 	put_cpu_ptr(tun->pcpu_stats);
+=======
+	preempt_disable();
+	dev_sw_netstats_tx_add(tun->dev, 1, skb->len + vlan_hlen);
+	preempt_enable();
+>>>>>>> upstream/android-13
 
 	return total;
 }
@@ -2249,7 +2762,11 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	add_wait_queue(&tfile->wq.wait, &wait);
+=======
+	add_wait_queue(&tfile->socket.wq.wait, &wait);
+>>>>>>> upstream/android-13
 
 	while (1) {
 		set_current_state(TASK_INTERRUPTIBLE);
@@ -2269,7 +2786,11 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
 	}
 
 	__set_current_state(TASK_RUNNING);
+<<<<<<< HEAD
 	remove_wait_queue(&tfile->wq.wait, &wait);
+=======
+	remove_wait_queue(&tfile->socket.wq.wait, &wait);
+>>>>>>> upstream/android-13
 
 out:
 	*err = error;
@@ -2283,8 +2804,11 @@ static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
 	ssize_t ret;
 	int err;
 
+<<<<<<< HEAD
 	tun_debug(KERN_INFO, tun, "tun_do_read\n");
 
+=======
+>>>>>>> upstream/android-13
 	if (!iov_iter_count(to)) {
 		tun_ptr_free(ptr);
 		return 0;
@@ -2375,7 +2899,12 @@ static void tun_free_netdev(struct net_device *dev)
 	struct tun_struct *tun = netdev_priv(dev);
 
 	BUG_ON(!(list_empty(&tun->disabled)));
+<<<<<<< HEAD
 	free_percpu(tun->pcpu_stats);
+=======
+
+	free_percpu(dev->tstats);
+>>>>>>> upstream/android-13
 	tun_flow_uninit(tun);
 	security_tun_dev_free_security(tun->security);
 	__tun_set_ebpf(tun, &tun->steering_prog, NULL);
@@ -2491,18 +3020,169 @@ static void tun_sock_write_space(struct sock *sk)
 	kill_fasync(&tfile->fasync, SIGIO, POLL_OUT);
 }
 
+<<<<<<< HEAD
 static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
 {
 	int ret;
 	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
 	struct tun_struct *tun = tun_get(tfile);
+=======
+static void tun_put_page(struct tun_page *tpage)
+{
+	if (tpage->page)
+		__page_frag_cache_drain(tpage->page, tpage->count);
+}
+
+static int tun_xdp_one(struct tun_struct *tun,
+		       struct tun_file *tfile,
+		       struct xdp_buff *xdp, int *flush,
+		       struct tun_page *tpage)
+{
+	unsigned int datasize = xdp->data_end - xdp->data;
+	struct tun_xdp_hdr *hdr = xdp->data_hard_start;
+	struct virtio_net_hdr *gso = &hdr->gso;
+	struct bpf_prog *xdp_prog;
+	struct sk_buff *skb = NULL;
+	u32 rxhash = 0, act;
+	int buflen = hdr->buflen;
+	int err = 0;
+	bool skb_xdp = false;
+	struct page *page;
+
+	xdp_prog = rcu_dereference(tun->xdp_prog);
+	if (xdp_prog) {
+		if (gso->gso_type) {
+			skb_xdp = true;
+			goto build;
+		}
+
+		xdp_init_buff(xdp, buflen, &tfile->xdp_rxq);
+		xdp_set_data_meta_invalid(xdp);
+
+		act = bpf_prog_run_xdp(xdp_prog, xdp);
+		err = tun_xdp_act(tun, xdp_prog, xdp, act);
+		if (err < 0) {
+			put_page(virt_to_head_page(xdp->data));
+			return err;
+		}
+
+		switch (err) {
+		case XDP_REDIRECT:
+			*flush = true;
+			fallthrough;
+		case XDP_TX:
+			return 0;
+		case XDP_PASS:
+			break;
+		default:
+			page = virt_to_head_page(xdp->data);
+			if (tpage->page == page) {
+				++tpage->count;
+			} else {
+				tun_put_page(tpage);
+				tpage->page = page;
+				tpage->count = 1;
+			}
+			return 0;
+		}
+	}
+
+build:
+	skb = build_skb(xdp->data_hard_start, buflen);
+	if (!skb) {
+		err = -ENOMEM;
+		goto out;
+	}
+
+	skb_reserve(skb, xdp->data - xdp->data_hard_start);
+	skb_put(skb, xdp->data_end - xdp->data);
+
+	if (virtio_net_hdr_to_skb(skb, gso, tun_is_little_endian(tun))) {
+		atomic_long_inc(&tun->rx_frame_errors);
+		kfree_skb(skb);
+		err = -EINVAL;
+		goto out;
+	}
+
+	skb->protocol = eth_type_trans(skb, tun->dev);
+	skb_reset_network_header(skb);
+	skb_probe_transport_header(skb);
+	skb_record_rx_queue(skb, tfile->queue_index);
+
+	if (skb_xdp) {
+		err = do_xdp_generic(xdp_prog, skb);
+		if (err != XDP_PASS)
+			goto out;
+	}
+
+	if (!rcu_dereference(tun->steering_prog) && tun->numqueues > 1 &&
+	    !tfile->detached)
+		rxhash = __skb_get_hash_symmetric(skb);
+
+	netif_receive_skb(skb);
+
+	/* No need to disable preemption here since this function is
+	 * always called with bh disabled
+	 */
+	dev_sw_netstats_rx_add(tun->dev, datasize);
+
+	if (rxhash)
+		tun_flow_update(tun, rxhash, tfile);
+
+out:
+	return err;
+}
+
+static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+{
+	int ret, i;
+	struct tun_file *tfile = container_of(sock, struct tun_file, socket);
+	struct tun_struct *tun = tun_get(tfile);
+	struct tun_msg_ctl *ctl = m->msg_control;
+	struct xdp_buff *xdp;
+>>>>>>> upstream/android-13
 
 	if (!tun)
 		return -EBADFD;
 
+<<<<<<< HEAD
 	ret = tun_get_user(tun, tfile, m->msg_control, &m->msg_iter,
 			   m->msg_flags & MSG_DONTWAIT,
 			   m->msg_flags & MSG_MORE);
+=======
+	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
+	    ctl && ctl->type == TUN_MSG_PTR) {
+		struct tun_page tpage;
+		int n = ctl->num;
+		int flush = 0;
+
+		memset(&tpage, 0, sizeof(tpage));
+
+		local_bh_disable();
+		rcu_read_lock();
+
+		for (i = 0; i < n; i++) {
+			xdp = &((struct xdp_buff *)ctl->ptr)[i];
+			tun_xdp_one(tun, tfile, xdp, &flush, &tpage);
+		}
+
+		if (flush)
+			xdp_do_flush();
+
+		rcu_read_unlock();
+		local_bh_enable();
+
+		tun_put_page(&tpage);
+
+		ret = total_len;
+		goto out;
+	}
+
+	ret = tun_get_user(tun, tfile, ctl ? ctl->ptr : NULL, &m->msg_iter,
+			   m->msg_flags & MSG_DONTWAIT,
+			   m->msg_flags & MSG_MORE);
+out:
+>>>>>>> upstream/android-13
 	tun_put(tun);
 	return ret;
 }
@@ -2590,20 +3270,32 @@ static struct proto tun_proto = {
 
 static int tun_flags(struct tun_struct *tun)
 {
+<<<<<<< HEAD
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 	return tun->flags & (TUN_FEATURES | IFF_PERSIST | IFF_TUN | IFF_TAP | IFF_META_HDR);
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 }
 
 static ssize_t tun_show_flags(struct device *dev, struct device_attribute *attr,
+=======
+	return tun->flags & (TUN_FEATURES | IFF_PERSIST | IFF_TUN | IFF_TAP);
+}
+
+static ssize_t tun_flags_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			      char *buf)
 {
 	struct tun_struct *tun = netdev_priv(to_net_dev(dev));
 	return sprintf(buf, "0x%x\n", tun_flags(tun));
 }
 
+<<<<<<< HEAD
 static ssize_t tun_show_owner(struct device *dev, struct device_attribute *attr,
 			      char *buf)
+=======
+static ssize_t owner_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct tun_struct *tun = netdev_priv(to_net_dev(dev));
 	return uid_valid(tun->owner)?
@@ -2612,8 +3304,13 @@ static ssize_t tun_show_owner(struct device *dev, struct device_attribute *attr,
 		sprintf(buf, "-1\n");
 }
 
+<<<<<<< HEAD
 static ssize_t tun_show_group(struct device *dev, struct device_attribute *attr,
 			      char *buf)
+=======
+static ssize_t group_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct tun_struct *tun = netdev_priv(to_net_dev(dev));
 	return gid_valid(tun->group) ?
@@ -2622,9 +3319,15 @@ static ssize_t tun_show_group(struct device *dev, struct device_attribute *attr,
 		sprintf(buf, "-1\n");
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(tun_flags, 0444, tun_show_flags, NULL);
 static DEVICE_ATTR(owner, 0444, tun_show_owner, NULL);
 static DEVICE_ATTR(group, 0444, tun_show_group, NULL);
+=======
+static DEVICE_ATTR_RO(tun_flags);
+static DEVICE_ATTR_RO(owner);
+static DEVICE_ATTR_RO(group);
+>>>>>>> upstream/android-13
 
 static struct attribute *tun_dev_attrs[] = {
 	&dev_attr_tun_flags.attr,
@@ -2729,9 +3432,12 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
 
 		if (!dev)
 			return -ENOMEM;
+<<<<<<< HEAD
 		err = dev_get_valid_name(net, dev, name);
 		if (err < 0)
 			goto err_free_dev;
+=======
+>>>>>>> upstream/android-13
 
 		dev_net_set(dev, net);
 		dev->rtnl_link_ops = &tun_link_ops;
@@ -2750,6 +3456,7 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
 		tun->rx_batched = 0;
 		RCU_INIT_POINTER(tun->steering_prog, NULL);
 
+<<<<<<< HEAD
 		tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
 		if (!tun->pcpu_stats) {
 			err = -ENOMEM;
@@ -2786,6 +3493,19 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
 		if (err < 0)
 			goto err_detach;
 		/* free_netdev() won't check refcnt, to aovid race
+=======
+		tun->ifr = ifr;
+		tun->file = file;
+
+		tun_net_initialize(dev);
+
+		err = register_netdevice(tun->dev);
+		if (err < 0) {
+			free_netdev(dev);
+			return err;
+		}
+		/* free_netdev() won't check refcnt, to avoid race
+>>>>>>> upstream/android-13
 		 * with dev_put() we need publish tun after registration.
 		 */
 		rcu_assign_pointer(tfile->tun, tun);
@@ -2793,6 +3513,7 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
 
 	netif_carrier_on(tun->dev);
 
+<<<<<<< HEAD
 	tun_debug(KERN_INFO, tun, "tun_set_iff\n");
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 	if (ifr->ifr_flags & IFF_META_HDR) {
@@ -2802,6 +3523,8 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
 	}
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
 
+=======
+>>>>>>> upstream/android-13
 	/* Make sure persistent devices do not get stuck in
 	 * xoff state.
 	 */
@@ -2810,6 +3533,7 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
 
 	strcpy(ifr->ifr_name, tun->dev->name);
 	return 0;
+<<<<<<< HEAD
 
 err_detach:
 	tun_detach_all(dev);
@@ -2831,6 +3555,12 @@ static void tun_get_iff(struct net *net, struct tun_struct *tun,
 {
 	tun_debug(KERN_INFO, tun, "tun_get_iff\n");
 
+=======
+}
+
+static void tun_get_iff(struct tun_struct *tun, struct ifreq *ifr)
+{
+>>>>>>> upstream/android-13
 	strcpy(ifr->ifr_name, tun->dev->name);
 
 	ifr->ifr_flags = tun_flags(tun);
@@ -2957,7 +3687,11 @@ unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int tun_set_ebpf(struct tun_struct *tun, struct tun_prog **prog_p,
+=======
+static int tun_set_ebpf(struct tun_struct *tun, struct tun_prog __rcu **prog_p,
+>>>>>>> upstream/android-13
 			void __user *data)
 {
 	struct bpf_prog *prog;
@@ -3023,11 +3757,16 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 	struct net *net = sock_net(&tfile->sk);
 	struct tun_struct *tun;
 	void __user* argp = (void __user*)arg;
+<<<<<<< HEAD
+=======
+	unsigned int ifindex, carrier;
+>>>>>>> upstream/android-13
 	struct ifreq ifr;
 	kuid_t owner;
 	kgid_t group;
 	int sndbuf;
 	int vnet_hdr_sz;
+<<<<<<< HEAD
 	unsigned int ifindex;
 	int le;
 	int ret;
@@ -3036,6 +3775,10 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 	int tun_meta_param;
 	int tun_meta_value;
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
+=======
+	int le;
+	int ret;
+>>>>>>> upstream/android-13
 	bool do_notify = false;
 
 	if (cmd == TUNSETIFF || cmd == TUNSETQUEUE ||
@@ -3050,11 +3793,16 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		 * This is needed because we never checked for invalid flags on
 		 * TUNSETIFF.
 		 */
+<<<<<<< HEAD
 		// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 		knox_flag |= IFF_META_HDR;
 		return put_user(IFF_TUN | IFF_TAP | TUN_FEATURES | knox_flag,
 				(unsigned int __user*)argp);
 		// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
+=======
+		return put_user(IFF_TUN | IFF_TAP | TUN_FEATURES,
+				(unsigned int __user*)argp);
+>>>>>>> upstream/android-13
 	} else if (cmd == TUNSETQUEUE) {
 		return tun_set_queue(file, &ifr);
 	} else if (cmd == SIOCGSKNS) {
@@ -3063,7 +3811,10 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		return open_related_ns(&net->ns, get_net_ns);
 	}
 
+<<<<<<< HEAD
 	ret = 0;
+=======
+>>>>>>> upstream/android-13
 	rtnl_lock();
 
 	tun = tun_get(tfile);
@@ -3101,12 +3852,22 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 	if (!tun)
 		goto unlock;
 
+<<<<<<< HEAD
 	tun_debug(KERN_INFO, tun, "tun_chr_ioctl cmd %u\n", cmd);
 
 	ret = 0;
 	switch (cmd) {
 	case TUNGETIFF:
 		tun_get_iff(current->nsproxy->net_ns, tun, &ifr);
+=======
+	netif_info(tun, drv, tun->dev, "tun_chr_ioctl cmd %u\n", cmd);
+
+	net = dev_net(tun->dev);
+	ret = 0;
+	switch (cmd) {
+	case TUNGETIFF:
+		tun_get_iff(tun, &ifr);
+>>>>>>> upstream/android-13
 
 		if (tfile->detached)
 			ifr.ifr_flags |= IFF_DETACH_QUEUE;
@@ -3121,8 +3882,13 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		/* Disable/Enable checksum */
 
 		/* [unimplemented] */
+<<<<<<< HEAD
 		tun_debug(KERN_INFO, tun, "ignored: set checksum %s\n",
 			  arg ? "disabled" : "enabled");
+=======
+		netif_info(tun, drv, tun->dev, "ignored: set checksum %s\n",
+			   arg ? "disabled" : "enabled");
+>>>>>>> upstream/android-13
 		break;
 
 	case TUNSETPERSIST:
@@ -3140,8 +3906,13 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 			do_notify = true;
 		}
 
+<<<<<<< HEAD
 		tun_debug(KERN_INFO, tun, "persist %s\n",
 			  arg ? "enabled" : "disabled");
+=======
+		netif_info(tun, drv, tun->dev, "persist %s\n",
+			   arg ? "enabled" : "disabled");
+>>>>>>> upstream/android-13
 		break;
 
 	case TUNSETOWNER:
@@ -3153,8 +3924,13 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		}
 		tun->owner = owner;
 		do_notify = true;
+<<<<<<< HEAD
 		tun_debug(KERN_INFO, tun, "owner set to %u\n",
 			  from_kuid(&init_user_ns, tun->owner));
+=======
+		netif_info(tun, drv, tun->dev, "owner set to %u\n",
+			   from_kuid(&init_user_ns, tun->owner));
+>>>>>>> upstream/android-13
 		break;
 
 	case TUNSETGROUP:
@@ -3166,13 +3942,19 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		}
 		tun->group = group;
 		do_notify = true;
+<<<<<<< HEAD
 		tun_debug(KERN_INFO, tun, "group set to %u\n",
 			  from_kgid(&init_user_ns, tun->group));
+=======
+		netif_info(tun, drv, tun->dev, "group set to %u\n",
+			   from_kgid(&init_user_ns, tun->group));
+>>>>>>> upstream/android-13
 		break;
 
 	case TUNSETLINK:
 		/* Only allow setting the type when the interface is down */
 		if (tun->dev->flags & IFF_UP) {
+<<<<<<< HEAD
 			tun_debug(KERN_INFO, tun,
 				  "Linktype set failed because interface is up\n");
 			ret = -EBUSY;
@@ -3190,6 +3972,33 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		tun->debug = arg;
 		break;
 #endif
+=======
+			netif_info(tun, drv, tun->dev,
+				   "Linktype set failed because interface is up\n");
+			ret = -EBUSY;
+		} else {
+			ret = call_netdevice_notifiers(NETDEV_PRE_TYPE_CHANGE,
+						       tun->dev);
+			ret = notifier_to_errno(ret);
+			if (ret) {
+				netif_info(tun, drv, tun->dev,
+					   "Refused to change device type\n");
+				break;
+			}
+			tun->dev->type = (int) arg;
+			tun->dev->addr_len = tun_get_addr_len(tun->dev->type);
+			netif_info(tun, drv, tun->dev, "linktype set to %d\n",
+				   tun->dev->type);
+			call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE,
+						 tun->dev);
+		}
+		break;
+
+	case TUNSETDEBUG:
+		tun->msg_enable = (u32)arg;
+		break;
+
+>>>>>>> upstream/android-13
 	case TUNSETOFFLOAD:
 		ret = set_offload(tun, arg);
 		break;
@@ -3204,18 +4013,26 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 
 	case SIOCGIFHWADDR:
 		/* Get hw address */
+<<<<<<< HEAD
 		memcpy(ifr.ifr_hwaddr.sa_data, tun->dev->dev_addr, ETH_ALEN);
 		ifr.ifr_hwaddr.sa_family = tun->dev->type;
+=======
+		dev_get_mac_address(&ifr.ifr_hwaddr, net, tun->dev->name);
+>>>>>>> upstream/android-13
 		if (copy_to_user(argp, &ifr, ifreq_len))
 			ret = -EFAULT;
 		break;
 
 	case SIOCSIFHWADDR:
 		/* Set hw address */
+<<<<<<< HEAD
 		tun_debug(KERN_DEBUG, tun, "set hw address: %pM\n",
 			  ifr.ifr_hwaddr.sa_data);
 
 		ret = dev_set_mac_address(tun->dev, &ifr.ifr_hwaddr);
+=======
+		ret = dev_set_mac_address_user(tun->dev, &ifr.ifr_hwaddr, NULL);
+>>>>>>> upstream/android-13
 		break;
 
 	case TUNGETSNDBUF:
@@ -3244,6 +4061,7 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 			ret = -EFAULT;
 		break;
 
+<<<<<<< HEAD
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN {
 	case TUNGETMETAPARAM:
 
@@ -3275,6 +4093,8 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		}
 		break;
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_VPN }
+=======
+>>>>>>> upstream/android-13
 	case TUNSETVNETHDRSZ:
 		if (copy_from_user(&vnet_hdr_sz, argp, sizeof(vnet_hdr_sz))) {
 			ret = -EFAULT;
@@ -3352,6 +4172,24 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 		ret = tun_set_ebpf(tun, &tun->filter_prog, argp);
 		break;
 
+<<<<<<< HEAD
+=======
+	case TUNSETCARRIER:
+		ret = -EFAULT;
+		if (copy_from_user(&carrier, argp, sizeof(carrier)))
+			goto unlock;
+
+		ret = tun_net_change_carrier(tun->dev, (bool)carrier);
+		break;
+
+	case TUNGETDEVNETNS:
+		ret = -EPERM;
+		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
+			goto unlock;
+		ret = open_related_ns(&net->ns, get_net_ns);
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		ret = -EINVAL;
 		break;
@@ -3425,8 +4263,11 @@ static int tun_chr_open(struct inode *inode, struct file * file)
 	struct net *net = current->nsproxy->net_ns;
 	struct tun_file *tfile;
 
+<<<<<<< HEAD
 	DBG1(KERN_INFO, "tunX: tun_chr_open\n");
 
+=======
+>>>>>>> upstream/android-13
 	tfile = (struct tun_file *)sk_alloc(net, AF_UNSPEC, GFP_KERNEL,
 					    &tun_proto, 0);
 	if (!tfile)
@@ -3441,8 +4282,12 @@ static int tun_chr_open(struct inode *inode, struct file * file)
 	tfile->flags = 0;
 	tfile->ifindex = 0;
 
+<<<<<<< HEAD
 	init_waitqueue_head(&tfile->wq.wait);
 	RCU_INIT_POINTER(tfile->socket.wq, &tfile->wq);
+=======
+	init_waitqueue_head(&tfile->socket.wq.wait);
+>>>>>>> upstream/android-13
 
 	tfile->socket.file = file;
 	tfile->socket.ops = &tun_socket_ops;
@@ -3481,7 +4326,11 @@ static void tun_chr_show_fdinfo(struct seq_file *m, struct file *file)
 	rtnl_lock();
 	tun = tun_get(tfile);
 	if (tun)
+<<<<<<< HEAD
 		tun_get_iff(current->nsproxy->net_ns, tun, &ifr);
+=======
+		tun_get_iff(tun, &ifr);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 
 	if (tun)
@@ -3567,16 +4416,23 @@ static void tun_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info
 
 static u32 tun_get_msglevel(struct net_device *dev)
 {
+<<<<<<< HEAD
 #ifdef TUN_DEBUG
 	struct tun_struct *tun = netdev_priv(dev);
 	return tun->debug;
 #else
 	return -EOPNOTSUPP;
 #endif
+=======
+	struct tun_struct *tun = netdev_priv(dev);
+
+	return tun->msg_enable;
+>>>>>>> upstream/android-13
 }
 
 static void tun_set_msglevel(struct net_device *dev, u32 value)
 {
+<<<<<<< HEAD
 #ifdef TUN_DEBUG
 	struct tun_struct *tun = netdev_priv(dev);
 	tun->debug = value;
@@ -3585,6 +4441,17 @@ static void tun_set_msglevel(struct net_device *dev, u32 value)
 
 static int tun_get_coalesce(struct net_device *dev,
 			    struct ethtool_coalesce *ec)
+=======
+	struct tun_struct *tun = netdev_priv(dev);
+
+	tun->msg_enable = value;
+}
+
+static int tun_get_coalesce(struct net_device *dev,
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct tun_struct *tun = netdev_priv(dev);
 
@@ -3594,7 +4461,13 @@ static int tun_get_coalesce(struct net_device *dev,
 }
 
 static int tun_set_coalesce(struct net_device *dev,
+<<<<<<< HEAD
 			    struct ethtool_coalesce *ec)
+=======
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct tun_struct *tun = netdev_priv(dev);
 
@@ -3607,6 +4480,10 @@ static int tun_set_coalesce(struct net_device *dev,
 }
 
 static const struct ethtool_ops tun_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_RX_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo	= tun_get_drvinfo,
 	.get_msglevel	= tun_get_msglevel,
 	.set_msglevel	= tun_set_msglevel,

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Device Tree Source for OMAP36xx clock data
  *
  * Copyright (C) 2013 Texas Instruments, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 &cm_clocks {
 	dpll4_ck: dpll4_ck@d00 {
@@ -108,3 +115,10 @@
 			 <&mcbsp4_ick>, <&uart4_fck>;
 	};
 };
+<<<<<<< HEAD
+=======
+
+&dpll4_m4_ck {
+	ti,max-div = <31>;
+};
+>>>>>>> upstream/android-13

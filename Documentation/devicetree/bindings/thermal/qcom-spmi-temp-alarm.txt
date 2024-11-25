@@ -6,10 +6,16 @@ interrupt signal and status register to identify high PMIC die temperature.
 
 Required properties:
 - compatible:      Should contain "qcom,spmi-temp-alarm".
+<<<<<<< HEAD
 - reg:             Specifies the SPMI address and length of the controller's
                    registers.
 - interrupts:      PMIC temperature alarm interrupt.
 - #thermal-sensor-cells: Should be 0. See thermal.txt for a description.
+=======
+- reg:             Specifies the SPMI address.
+- interrupts:      PMIC temperature alarm interrupt.
+- #thermal-sensor-cells: Should be 0. See Documentation/devicetree/bindings/thermal/thermal-sensor.yaml for a description.
+>>>>>>> upstream/android-13
 
 Optional properties:
 - io-channels:     Should contain IIO channel specifier for the ADC channel,
@@ -20,7 +26,11 @@ Example:
 
 	pm8941_temp: thermal-alarm@2400 {
 		compatible = "qcom,spmi-temp-alarm";
+<<<<<<< HEAD
 		reg = <0x2400 0x100>;
+=======
+		reg = <0x2400>;
+>>>>>>> upstream/android-13
 		interrupts = <0 0x24 0 IRQ_TYPE_EDGE_RISING>;
 		#thermal-sensor-cells = <0>;
 
@@ -36,6 +46,7 @@ Example:
 			thermal-sensors = <&pm8941_temp>;
 
 			trips {
+<<<<<<< HEAD
 				passive {
 					temperature = <1050000>;
 					hysteresis = <2000>;
@@ -49,6 +60,16 @@ Example:
 				crit {
 					temperature = <145000>;
 					hysteresis = <2000>;
+=======
+				stage1 {
+					temperature = <105000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+				stage2 {
+					temperature = <125000>;
+					hysteresis = <2000>;
+>>>>>>> upstream/android-13
 					type = "critical";
 				};
 			};

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 snd-usb-caiaq-y := device.o audio.o midi.o control.o
 snd-usb-caiaq-$(CONFIG_SND_USB_CAIAQ_INPUT) += input.o
 

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * irqchip.c: Common API for in kernel interrupt controllers
  * Copyright (c) 2007, Intel Corporation.
  * Copyright 2010 Red Hat, Inc. and/or its affiliates.
  * Copyright (c) 2013, Alexander Graf <agraf@suse.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307 USA.
  *
+=======
+>>>>>>> upstream/android-13
  * This file is derived from virt/kvm/irq_comm.c.
  *
  * Authors:
@@ -196,9 +203,13 @@ int kvm_set_irq_routing(struct kvm *kvm,
 
 	nr_rt_entries += 1;
 
+<<<<<<< HEAD
 	new = kzalloc(sizeof(*new) + (nr_rt_entries * sizeof(struct hlist_head)),
 		      GFP_KERNEL);
 
+=======
+	new = kzalloc(struct_size(new, map, nr_rt_entries), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!new)
 		return -ENOMEM;
 
@@ -209,7 +220,11 @@ int kvm_set_irq_routing(struct kvm *kvm,
 
 	for (i = 0; i < nr; ++i) {
 		r = -ENOMEM;
+<<<<<<< HEAD
 		e = kzalloc(sizeof(*e), GFP_KERNEL);
+=======
+		e = kzalloc(sizeof(*e), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 		if (!e)
 			goto out;
 

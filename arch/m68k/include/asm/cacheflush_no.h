@@ -9,6 +9,7 @@
 #include <asm/mcfsim.h>
 
 #define flush_cache_all()			__flush_cache_all()
+<<<<<<< HEAD
 #define flush_cache_mm(mm)			do { } while (0)
 #define flush_cache_dup_mm(mm)			do { } while (0)
 #define flush_cache_range(vma, start, end)	do { } while (0)
@@ -28,6 +29,10 @@
 	memcpy(dst, src, len)
 #define copy_from_user_page(vma, page, vaddr, dst, src, len) \
 	memcpy(dst, src, len)
+=======
+#define flush_dcache_range(start, len)		__flush_dcache_all()
+#define flush_icache_range(start, len)		__flush_icache_all()
+>>>>>>> upstream/android-13
 
 void mcf_cache_push(void);
 
@@ -98,4 +103,9 @@ static inline void cache_clear(unsigned long paddr, int len)
 	__clear_cache_all();
 }
 
+<<<<<<< HEAD
+=======
+#include <asm-generic/cacheflush.h>
+
+>>>>>>> upstream/android-13
 #endif /* _M68KNOMMU_CACHEFLUSH_H */

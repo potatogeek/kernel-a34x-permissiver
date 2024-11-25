@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /*
  * nfp_cpplib.c
@@ -54,8 +59,14 @@
 /* NFP6000 PL */
 #define NFP_PL_DEVICE_ID			0x00000004
 #define   NFP_PL_DEVICE_ID_MASK			GENMASK(7, 0)
+<<<<<<< HEAD
 
 #define NFP6000_ARM_GCSR_SOFTMODEL0		0x00400144
+=======
+#define   NFP_PL_DEVICE_PART_MASK		GENMASK(31, 16)
+#define NFP_PL_DEVICE_MODEL_MASK		(NFP_PL_DEVICE_PART_MASK | \
+						 NFP_PL_DEVICE_ID_MASK)
+>>>>>>> upstream/android-13
 
 /**
  * nfp_cpp_readl() - Read a u32 word from a CPP location
@@ -150,6 +161,7 @@ int nfp_cpp_writeq(struct nfp_cpp *cpp, u32 cpp_id,
  */
 int nfp_cpp_model_autodetect(struct nfp_cpp *cpp, u32 *model)
 {
+<<<<<<< HEAD
 	const u32 arm_id = NFP_CPP_ID(NFP_CPP_TARGET_ARM, 0, 0);
 	u32 reg;
 	int err;
@@ -160,12 +172,23 @@ int nfp_cpp_model_autodetect(struct nfp_cpp *cpp, u32 *model)
 
 	/* The PL's PluDeviceID revision code is authoratative */
 	*model &= ~0xff;
+=======
+	u32 reg;
+	int err;
+
+>>>>>>> upstream/android-13
 	err = nfp_xpb_readl(cpp, NFP_XPB_DEVICE(1, 1, 16) + NFP_PL_DEVICE_ID,
 			    &reg);
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	*model |= (NFP_PL_DEVICE_ID_MASK & reg) - 0x10;
+=======
+	*model = reg & NFP_PL_DEVICE_MODEL_MASK;
+	if (*model & NFP_PL_DEVICE_ID_MASK)
+		*model -= 0x10;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -294,8 +317,12 @@ exit_release:
  * nfp_cpp_map_area() - Helper function to map an area
  * @cpp:    NFP CPP handler
  * @name:   Name for the area
+<<<<<<< HEAD
  * @domain: CPP domain
  * @target: CPP target
+=======
+ * @cpp_id: CPP ID for operation
+>>>>>>> upstream/android-13
  * @addr:   CPP address
  * @size:   Size of the area
  * @area:   Area handle (output)
@@ -306,6 +333,7 @@ exit_release:
  * Return: Pointer to memory mapped area or ERR_PTR
  */
 u8 __iomem *
+<<<<<<< HEAD
 nfp_cpp_map_area(struct nfp_cpp *cpp, const char *name, int domain, int target,
 		 u64 addr, unsigned long size, struct nfp_cpp_area **area)
 {
@@ -315,6 +343,14 @@ nfp_cpp_map_area(struct nfp_cpp *cpp, const char *name, int domain, int target,
 	dest = NFP_CPP_ISLAND_ID(target, NFP_CPP_ACTION_RW, 0, domain);
 
 	*area = nfp_cpp_area_alloc_acquire(cpp, name, dest, addr, size);
+=======
+nfp_cpp_map_area(struct nfp_cpp *cpp, const char *name, u32 cpp_id, u64 addr,
+		 unsigned long size, struct nfp_cpp_area **area)
+{
+	u8 __iomem *res;
+
+	*area = nfp_cpp_area_alloc_acquire(cpp, name, cpp_id, addr, size);
+>>>>>>> upstream/android-13
 	if (!*area)
 		goto err_eio;
 

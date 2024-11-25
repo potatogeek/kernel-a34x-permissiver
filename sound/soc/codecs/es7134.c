@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 BayLibre, SAS.
  * Author: Jerome Brunet <jbrunet@baylibre.com>
@@ -15,6 +16,12 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  * The full GNU General Public License is included in this distribution
  * in the file called COPYING.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2017 BayLibre, SAS.
+ * Author: Jerome Brunet <jbrunet@baylibre.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_platform.h>
@@ -196,7 +203,11 @@ static const struct snd_soc_dapm_route es7134_extra_routes[] = {
 	{ "Playback", NULL, "VDD", }
 };
 
+<<<<<<< HEAD
 static const struct es7134_chip es7134_chip = {
+=======
+static const struct es7134_chip es7134_chip __maybe_unused = {
+>>>>>>> upstream/android-13
 	.dai_drv = &es7134_dai,
 	.modes = es7134_modes,
 	.mode_num = ARRAY_SIZE(es7134_modes),
@@ -274,7 +285,11 @@ static const struct snd_soc_dapm_route es7154_extra_routes[] = {
 	{ "Playback", NULL, "PVDD", }
 };
 
+<<<<<<< HEAD
 static const struct es7134_chip es7154_chip = {
+=======
+static const struct es7134_chip es7154_chip __maybe_unused = {
+>>>>>>> upstream/android-13
 	.dai_drv = &es7154_dai,
 	.modes = es7154_modes,
 	.mode_num = ARRAY_SIZE(es7154_modes),

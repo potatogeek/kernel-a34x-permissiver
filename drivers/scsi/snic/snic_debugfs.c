@@ -30,6 +30,7 @@
  * fnic directory and statistics directory for trace buffer and
  * stats logging
  */
+<<<<<<< HEAD
 
 int
 snic_debugfs_init(void)
@@ -57,6 +58,15 @@ snic_debugfs_init(void)
 
 	return rc;
 } /* end of snic_debugfs_init */
+=======
+void snic_debugfs_init(void)
+{
+	snic_glob->trc_root = debugfs_create_dir("snic", NULL);
+
+	snic_glob->stats_root = debugfs_create_dir("statistics",
+						   snic_glob->trc_root);
+}
+>>>>>>> upstream/android-13
 
 /*
  * snic_debugfs_term - Tear down debugfs intrastructure
@@ -354,6 +364,7 @@ snic_stats_show(struct seq_file *sfp, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * snic_stats_open - Open the stats file for specific host
  *
@@ -373,6 +384,9 @@ static const struct file_operations snic_stats_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(snic_stats);
+>>>>>>> upstream/android-13
 
 static const struct file_operations snic_reset_stats_fops = {
 	.owner = THIS_MODULE,
@@ -391,6 +405,7 @@ static const struct file_operations snic_reset_stats_fops = {
  * It will create file stats and reset_stats under statistics/host# directory
  * to log per snic stats
  */
+<<<<<<< HEAD
 int
 snic_stats_debugfs_init(struct snic *snic)
 {
@@ -441,6 +456,25 @@ snic_stats_debugfs_init(struct snic *snic)
 
 	return rc;
 } /* end of snic_stats_debugfs_init */
+=======
+void snic_stats_debugfs_init(struct snic *snic)
+{
+	char name[16];
+
+	snprintf(name, sizeof(name), "host%d", snic->shost->host_no);
+
+	snic->stats_host = debugfs_create_dir(name, snic_glob->stats_root);
+
+	snic->stats_file = debugfs_create_file("stats", S_IFREG|S_IRUGO,
+					       snic->stats_host, snic,
+					       &snic_stats_fops);
+
+	snic->reset_stats_file = debugfs_create_file("reset_stats",
+						     S_IFREG|S_IRUGO|S_IWUSR,
+						     snic->stats_host, snic,
+						     &snic_reset_stats_fops);
+}
+>>>>>>> upstream/android-13
 
 /*
  * snic_stats_debugfs_remove - Tear down debugfs infrastructure of stats
@@ -492,13 +526,18 @@ snic_trc_seq_show(struct seq_file *sfp, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct seq_operations snic_trc_seq_ops = {
+=======
+static const struct seq_operations snic_trc_sops = {
+>>>>>>> upstream/android-13
 	.start	= snic_trc_seq_start,
 	.next	= snic_trc_seq_next,
 	.stop	= snic_trc_seq_stop,
 	.show	= snic_trc_seq_show,
 };
 
+<<<<<<< HEAD
 static int
 snic_trc_open(struct inode *inode, struct file *filp)
 {
@@ -513,10 +552,17 @@ static const struct file_operations snic_trc_fops = {
 	.release = seq_release,
 };
 
+=======
+DEFINE_SEQ_ATTRIBUTE(snic_trc);
+
+#define TRC_ENABLE_FILE	"tracing_enable"
+#define TRC_FILE	"trace"
+>>>>>>> upstream/android-13
 /*
  * snic_trc_debugfs_init : creates trace/tracing_enable files for trace
  * under debugfs
  */
+<<<<<<< HEAD
 int
 snic_trc_debugfs_init(void)
 {
@@ -557,6 +603,16 @@ snic_trc_debugfs_init(void)
 
 	return ret;
 } /* end of snic_trc_debugfs_init */
+=======
+void snic_trc_debugfs_init(void)
+{
+	debugfs_create_bool(TRC_ENABLE_FILE, S_IFREG | S_IRUGO | S_IWUSR,
+			    snic_glob->trc_root, &snic_glob->trc.enable);
+
+	debugfs_create_file(TRC_FILE, S_IFREG | S_IRUGO | S_IWUSR,
+			    snic_glob->trc_root, NULL, &snic_trc_fops);
+}
+>>>>>>> upstream/android-13
 
 /*
  * snic_trc_debugfs_term : cleans up the files created for trace under debugfs
@@ -564,9 +620,14 @@ snic_trc_debugfs_init(void)
 void
 snic_trc_debugfs_term(void)
 {
+<<<<<<< HEAD
 	debugfs_remove(snic_glob->trc.trc_file);
 	snic_glob->trc.trc_file = NULL;
 
 	debugfs_remove(snic_glob->trc.trc_enable);
 	snic_glob->trc.trc_enable = NULL;
+=======
+	debugfs_remove(debugfs_lookup(TRC_FILE, snic_glob->trc_root));
+	debugfs_remove(debugfs_lookup(TRC_ENABLE_FILE, snic_glob->trc_root));
+>>>>>>> upstream/android-13
 }

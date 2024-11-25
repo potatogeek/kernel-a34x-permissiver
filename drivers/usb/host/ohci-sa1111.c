@@ -84,7 +84,11 @@ static const struct hc_driver ohci_sa1111_hc_driver = {
 	 * generic hardware linkage
 	 */
 	.irq =			ohci_irq,
+<<<<<<< HEAD
 	.flags =		HCD_USB11 | HCD_MEMORY,
+=======
+	.flags =		HCD_USB11 | HCD_DMA | HCD_MEMORY,
+>>>>>>> upstream/android-13
 
 	/*
 	 * basic lifecycle operations
@@ -236,7 +240,11 @@ static int ohci_hcd_sa1111_probe(struct sa1111_dev *dev)
  * Reverses the effect of ohci_hcd_sa1111_probe(), first invoking
  * the HCD's stop() method.
  */
+<<<<<<< HEAD
 static int ohci_hcd_sa1111_remove(struct sa1111_dev *dev)
+=======
+static void ohci_hcd_sa1111_remove(struct sa1111_dev *dev)
+>>>>>>> upstream/android-13
 {
 	struct usb_hcd *hcd = sa1111_get_drvdata(dev);
 
@@ -244,8 +252,11 @@ static int ohci_hcd_sa1111_remove(struct sa1111_dev *dev)
 	sa1111_stop_hc(dev);
 	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
 	usb_put_hcd(hcd);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void ohci_hcd_sa1111_shutdown(struct device *_dev)

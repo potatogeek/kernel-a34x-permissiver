@@ -24,6 +24,7 @@
 #include <asm/tlbflush.h>
 #include <asm/traps.h>
 
+<<<<<<< HEAD
 static inline int notify_page_fault(struct pt_regs *regs, int trap)
 {
 	int ret = 0;
@@ -43,6 +44,12 @@ force_sig_info_fault(int si_signo, int si_code, unsigned long address,
 		     struct task_struct *tsk)
 {
 	force_sig_fault(si_signo, si_code, (void __user *)address, tsk);
+=======
+static void
+force_sig_info_fault(int si_signo, int si_code, unsigned long address)
+{
+	force_sig_fault(si_signo, si_code, (void __user *)address);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -62,12 +69,22 @@ static void show_pte(struct mm_struct *mm, unsigned long addr)
 			pgd = swapper_pg_dir;
 	}
 
+<<<<<<< HEAD
 	printk(KERN_ALERT "pgd = %p\n", pgd);
 	pgd += pgd_index(addr);
 	printk(KERN_ALERT "[%08lx] *pgd=%0*Lx", addr,
 	       (u32)(sizeof(*pgd) * 2), (u64)pgd_val(*pgd));
 
 	do {
+=======
+	pr_alert("pgd = %p\n", pgd);
+	pgd += pgd_index(addr);
+	pr_alert("[%08lx] *pgd=%0*llx", addr, (u32)(sizeof(*pgd) * 2),
+		 (u64)pgd_val(*pgd));
+
+	do {
+		p4d_t *p4d;
+>>>>>>> upstream/android-13
 		pud_t *pud;
 		pmd_t *pmd;
 		pte_t *pte;
@@ -76,6 +93,7 @@ static void show_pte(struct mm_struct *mm, unsigned long addr)
 			break;
 
 		if (pgd_bad(*pgd)) {
+<<<<<<< HEAD
 			printk("(bad)");
 			break;
 		}
@@ -84,25 +102,61 @@ static void show_pte(struct mm_struct *mm, unsigned long addr)
 		if (PTRS_PER_PUD != 1)
 			printk(", *pud=%0*Lx", (u32)(sizeof(*pud) * 2),
 			       (u64)pud_val(*pud));
+=======
+			pr_cont("(bad)");
+			break;
+		}
+
+		p4d = p4d_offset(pgd, addr);
+		if (PTRS_PER_P4D != 1)
+			pr_cont(", *p4d=%0*Lx", (u32)(sizeof(*p4d) * 2),
+			        (u64)p4d_val(*p4d));
+
+		if (p4d_none(*p4d))
+			break;
+
+		if (p4d_bad(*p4d)) {
+			pr_cont("(bad)");
+			break;
+		}
+
+		pud = pud_offset(p4d, addr);
+		if (PTRS_PER_PUD != 1)
+			pr_cont(", *pud=%0*llx", (u32)(sizeof(*pud) * 2),
+				(u64)pud_val(*pud));
+>>>>>>> upstream/android-13
 
 		if (pud_none(*pud))
 			break;
 
 		if (pud_bad(*pud)) {
+<<<<<<< HEAD
 			printk("(bad)");
+=======
+			pr_cont("(bad)");
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		pmd = pmd_offset(pud, addr);
 		if (PTRS_PER_PMD != 1)
+<<<<<<< HEAD
 			printk(", *pmd=%0*Lx", (u32)(sizeof(*pmd) * 2),
 			       (u64)pmd_val(*pmd));
+=======
+			pr_cont(", *pmd=%0*llx", (u32)(sizeof(*pmd) * 2),
+				(u64)pmd_val(*pmd));
+>>>>>>> upstream/android-13
 
 		if (pmd_none(*pmd))
 			break;
 
 		if (pmd_bad(*pmd)) {
+<<<<<<< HEAD
 			printk("(bad)");
+=======
+			pr_cont("(bad)");
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -111,17 +165,29 @@ static void show_pte(struct mm_struct *mm, unsigned long addr)
 			break;
 
 		pte = pte_offset_kernel(pmd, addr);
+<<<<<<< HEAD
 		printk(", *pte=%0*Lx", (u32)(sizeof(*pte) * 2),
 		       (u64)pte_val(*pte));
 	} while (0);
 
 	printk("\n");
+=======
+		pr_cont(", *pte=%0*llx", (u32)(sizeof(*pte) * 2),
+			(u64)pte_val(*pte));
+	} while (0);
+
+	pr_cont("\n");
+>>>>>>> upstream/android-13
 }
 
 static inline pmd_t *vmalloc_sync_one(pgd_t *pgd, unsigned long address)
 {
 	unsigned index = pgd_index(address);
 	pgd_t *pgd_k;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d, *p4d_k;
+>>>>>>> upstream/android-13
 	pud_t *pud, *pud_k;
 	pmd_t *pmd, *pmd_k;
 
@@ -131,8 +197,18 @@ static inline pmd_t *vmalloc_sync_one(pgd_t *pgd, unsigned long address)
 	if (!pgd_present(*pgd_k))
 		return NULL;
 
+<<<<<<< HEAD
 	pud = pud_offset(pgd, address);
 	pud_k = pud_offset(pgd_k, address);
+=======
+	p4d = p4d_offset(pgd, address);
+	p4d_k = p4d_offset(pgd_k, address);
+	if (!p4d_present(*p4d_k))
+		return NULL;
+
+	pud = pud_offset(p4d, address);
+	pud_k = pud_offset(p4d_k, address);
+>>>>>>> upstream/android-13
 	if (!pud_present(*pud_k))
 		return NULL;
 
@@ -203,6 +279,7 @@ show_fault_oops(struct pt_regs *regs, unsigned long address)
 	if (!oops_may_print())
 		return;
 
+<<<<<<< HEAD
 	printk(KERN_ALERT "BUG: unable to handle kernel ");
 	if (address < PAGE_SIZE)
 		printk(KERN_CONT "NULL pointer dereference");
@@ -211,6 +288,13 @@ show_fault_oops(struct pt_regs *regs, unsigned long address)
 
 	printk(KERN_CONT " at %08lx\n", address);
 	printk(KERN_ALERT "PC:");
+=======
+	pr_alert("BUG: unable to handle kernel %s at %08lx\n",
+		 address < PAGE_SIZE ? "NULL pointer dereference"
+				     : "paging request",
+		 address);
+	pr_alert("PC:");
+>>>>>>> upstream/android-13
 	printk_address(regs->pc, 1);
 
 	show_pte(NULL, address);
@@ -244,8 +328,11 @@ static void
 __bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
 		       unsigned long address, int si_code)
 {
+<<<<<<< HEAD
 	struct task_struct *tsk = current;
 
+=======
+>>>>>>> upstream/android-13
 	/* User mode accesses just cause a SIGSEGV */
 	if (user_mode(regs)) {
 		/*
@@ -253,7 +340,11 @@ __bad_area_nosemaphore(struct pt_regs *regs, unsigned long error_code,
 		 */
 		local_irq_enable();
 
+<<<<<<< HEAD
 		force_sig_info_fault(SIGSEGV, si_code, address, tsk);
+=======
+		force_sig_info_fault(SIGSEGV, si_code, address);
+>>>>>>> upstream/android-13
 
 		return;
 	}
@@ -278,7 +369,11 @@ __bad_area(struct pt_regs *regs, unsigned long error_code,
 	 * Something tried to access memory that isn't in our memory map..
 	 * Fix it, but check if it's kernel or user first..
 	 */
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 	__bad_area_nosemaphore(regs, error_code, address, si_code);
 }
@@ -302,13 +397,21 @@ do_sigbus(struct pt_regs *regs, unsigned long error_code, unsigned long address)
 	struct task_struct *tsk = current;
 	struct mm_struct *mm = tsk->mm;
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 	/* Kernel mode? Handle exceptions or die: */
 	if (!user_mode(regs))
 		no_context(regs, error_code, address);
 
+<<<<<<< HEAD
 	force_sig_info_fault(SIGBUS, BUS_ADRERR, address, tsk);
+=======
+	force_sig_info_fault(SIGBUS, BUS_ADRERR, address);
+>>>>>>> upstream/android-13
 }
 
 static noinline int
@@ -319,25 +422,42 @@ mm_fault_error(struct pt_regs *regs, unsigned long error_code,
 	 * Pagefault was interrupted by SIGKILL. We have no reason to
 	 * continue pagefault.
 	 */
+<<<<<<< HEAD
 	if (fatal_signal_pending(current)) {
 		if (!(fault & VM_FAULT_RETRY))
 			up_read(&current->mm->mmap_sem);
+=======
+	if (fault_signal_pending(fault, regs)) {
+>>>>>>> upstream/android-13
 		if (!user_mode(regs))
 			no_context(regs, error_code, address);
 		return 1;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Release mmap_lock first if necessary */
+	if (!(fault & VM_FAULT_RETRY))
+		mmap_read_unlock(current->mm);
+
+>>>>>>> upstream/android-13
 	if (!(fault & VM_FAULT_ERROR))
 		return 0;
 
 	if (fault & VM_FAULT_OOM) {
 		/* Kernel mode? Handle exceptions or die: */
 		if (!user_mode(regs)) {
+<<<<<<< HEAD
 			up_read(&current->mm->mmap_sem);
 			no_context(regs, error_code, address);
 			return 1;
 		}
 		up_read(&current->mm->mmap_sem);
+=======
+			no_context(regs, error_code, address);
+			return 1;
+		}
+>>>>>>> upstream/android-13
 
 		/*
 		 * We ran out of memory, call the OOM killer, and return the
@@ -372,7 +492,11 @@ static inline int access_error(int error_code, struct vm_area_struct *vma)
 		return 1;
 
 	/* read, not present: */
+<<<<<<< HEAD
 	if (unlikely(!(vma->vm_flags & (VM_READ | VM_EXEC | VM_WRITE))))
+=======
+	if (unlikely(!vma_is_accessible(vma)))
+>>>>>>> upstream/android-13
 		return 1;
 
 	return 0;
@@ -397,7 +521,11 @@ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs,
 	struct mm_struct *mm;
 	struct vm_area_struct * vma;
 	vm_fault_t fault;
+<<<<<<< HEAD
 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+=======
+	unsigned int flags = FAULT_FLAG_DEFAULT;
+>>>>>>> upstream/android-13
 
 	tsk = current;
 	mm = tsk->mm;
@@ -415,14 +543,22 @@ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs,
 	if (unlikely(fault_in_kernel_space(address))) {
 		if (vmalloc_fault(address) >= 0)
 			return;
+<<<<<<< HEAD
 		if (notify_page_fault(regs, vec))
+=======
+		if (kprobe_page_fault(regs, vec))
+>>>>>>> upstream/android-13
 			return;
 
 		bad_area_nosemaphore(regs, error_code, address);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(notify_page_fault(regs, vec)))
+=======
+	if (unlikely(kprobe_page_fault(regs, vec)))
+>>>>>>> upstream/android-13
 		return;
 
 	/* Only enable interrupts if they were on before the fault */
@@ -441,7 +577,11 @@ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs,
 	}
 
 retry:
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 
 	vma = find_vma(mm, address);
 	if (unlikely(!vma)) {
@@ -481,13 +621,18 @@ good_area:
 	 * make sure we exit gracefully rather than endlessly redo
 	 * the fault.
 	 */
+<<<<<<< HEAD
 	fault = handle_mm_fault(vma, address, flags);
+=======
+	fault = handle_mm_fault(vma, address, flags, regs);
+>>>>>>> upstream/android-13
 
 	if (unlikely(fault & (VM_FAULT_RETRY | VM_FAULT_ERROR)))
 		if (mm_fault_error(regs, error_code, address, fault))
 			return;
 
 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+<<<<<<< HEAD
 		if (fault & VM_FAULT_MAJOR) {
 			tsk->maj_flt++;
 			perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS_MAJ, 1,
@@ -503,6 +648,13 @@ good_area:
 
 			/*
 			 * No need to up_read(&mm->mmap_sem) as we would
+=======
+		if (fault & VM_FAULT_RETRY) {
+			flags |= FAULT_FLAG_TRIED;
+
+			/*
+			 * No need to mmap_read_unlock(mm) as we would
+>>>>>>> upstream/android-13
 			 * have already released it in __lock_page_or_retry
 			 * in mm/filemap.c.
 			 */
@@ -510,5 +662,9 @@ good_area:
 		}
 	}
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 }

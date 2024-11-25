@@ -6,7 +6,12 @@
 #define _ASM_SPARC_VVAR_DATA_H
 
 #include <asm/clocksource.h>
+<<<<<<< HEAD
 #include <linux/seqlock.h>
+=======
+#include <asm/processor.h>
+#include <asm/barrier.h>
+>>>>>>> upstream/android-13
 #include <linux/time.h>
 #include <linux/types.h>
 

@@ -29,7 +29,11 @@
 	{ 0x13, "SIGP conditional emergency signal" },		\
 	{ 0x15, "SIGP sense running" },				\
 	{ 0x16, "SIGP set multithreading"},			\
+<<<<<<< HEAD
 	{ 0x17, "SIGP store additional status ait address"}
+=======
+	{ 0x17, "SIGP store additional status at address"}
+>>>>>>> upstream/android-13
 
 #define icpt_prog_codes						\
 	{ 0x0001, "Prog Operation" },				\

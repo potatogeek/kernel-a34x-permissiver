@@ -238,7 +238,10 @@ static void x38_check(struct mem_ctl_info *mci)
 {
 	struct x38_error_info info;
 
+<<<<<<< HEAD
 	edac_dbg(1, "MC%d\n", mci->mc_idx);
+=======
+>>>>>>> upstream/android-13
 	x38_get_and_clear_error_info(mci, &info);
 	x38_process_error_info(mci, &info);
 }
@@ -266,7 +269,11 @@ static void __iomem *x38_map_mchbar(struct pci_dev *pdev)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	window = ioremap_nocache(u.mchbar, X38_MMR_WINDOW_SIZE);
+=======
+	window = ioremap(u.mchbar, X38_MMR_WINDOW_SIZE);
+>>>>>>> upstream/android-13
 	if (!window)
 		printk(KERN_ERR "x38: cannot map mmio space at 0x%llx\n",
 			(unsigned long long)u.mchbar);

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Motorola PCAP2 as present in EZX phones
  *
  * Copyright (C) 2006 Harald Welte <laforge@openezx.org>
  * Copyright (C) 2009 Daniel Ribeiro <drwyrm@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -39,7 +46,11 @@ struct pcap_chip {
 
 	/* IO */
 	u32 buf;
+<<<<<<< HEAD
 	struct mutex io_mutex;
+=======
+	spinlock_t io_lock;
+>>>>>>> upstream/android-13
 
 	/* IRQ */
 	unsigned int irq_base;
@@ -52,7 +63,11 @@ struct pcap_chip {
 	struct pcap_adc_request *adc_queue[PCAP_ADC_MAXQ];
 	u8 adc_head;
 	u8 adc_tail;
+<<<<<<< HEAD
 	struct mutex adc_mutex;
+=======
+	spinlock_t adc_lock;
+>>>>>>> upstream/android-13
 };
 
 /* IO */
@@ -80,14 +95,25 @@ static int ezx_pcap_putget(struct pcap_chip *pcap, u32 *data)
 
 int ezx_pcap_write(struct pcap_chip *pcap, u8 reg_num, u32 value)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&pcap->io_mutex);
+=======
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&pcap->io_lock, flags);
+>>>>>>> upstream/android-13
 	value &= PCAP_REGISTER_VALUE_MASK;
 	value |= PCAP_REGISTER_WRITE_OP_BIT
 		| (reg_num << PCAP_REGISTER_ADDRESS_SHIFT);
 	ret = ezx_pcap_putget(pcap, &value);
+<<<<<<< HEAD
 	mutex_unlock(&pcap->io_mutex);
+=======
+	spin_unlock_irqrestore(&pcap->io_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -95,14 +121,25 @@ EXPORT_SYMBOL_GPL(ezx_pcap_write);
 
 int ezx_pcap_read(struct pcap_chip *pcap, u8 reg_num, u32 *value)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&pcap->io_mutex);
+=======
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&pcap->io_lock, flags);
+>>>>>>> upstream/android-13
 	*value = PCAP_REGISTER_READ_OP_BIT
 		| (reg_num << PCAP_REGISTER_ADDRESS_SHIFT);
 
 	ret = ezx_pcap_putget(pcap, value);
+<<<<<<< HEAD
 	mutex_unlock(&pcap->io_mutex);
+=======
+	spin_unlock_irqrestore(&pcap->io_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -110,11 +147,19 @@ EXPORT_SYMBOL_GPL(ezx_pcap_read);
 
 int ezx_pcap_set_bits(struct pcap_chip *pcap, u8 reg_num, u32 mask, u32 val)
 {
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int ret;
 	u32 tmp = PCAP_REGISTER_READ_OP_BIT |
 		(reg_num << PCAP_REGISTER_ADDRESS_SHIFT);
 
+<<<<<<< HEAD
 	mutex_lock(&pcap->io_mutex);
+=======
+	spin_lock_irqsave(&pcap->io_lock, flags);
+>>>>>>> upstream/android-13
 	ret = ezx_pcap_putget(pcap, &tmp);
 	if (ret)
 		goto out_unlock;
@@ -125,7 +170,11 @@ int ezx_pcap_set_bits(struct pcap_chip *pcap, u8 reg_num, u32 mask, u32 val)
 
 	ret = ezx_pcap_putget(pcap, &tmp);
 out_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&pcap->io_mutex);
+=======
+	spin_unlock_irqrestore(&pcap->io_lock, flags);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -216,14 +265,25 @@ static void pcap_irq_handler(struct irq_desc *desc)
 /* ADC */
 void pcap_set_ts_bits(struct pcap_chip *pcap, u32 bits)
 {
+<<<<<<< HEAD
 	u32 tmp;
 
 	mutex_lock(&pcap->adc_mutex);
+=======
+	unsigned long flags;
+	u32 tmp;
+
+	spin_lock_irqsave(&pcap->adc_lock, flags);
+>>>>>>> upstream/android-13
 	ezx_pcap_read(pcap, PCAP_REG_ADC, &tmp);
 	tmp &= ~(PCAP_ADC_TS_M_MASK | PCAP_ADC_TS_REF_LOWPWR);
 	tmp |= bits & (PCAP_ADC_TS_M_MASK | PCAP_ADC_TS_REF_LOWPWR);
 	ezx_pcap_write(pcap, PCAP_REG_ADC, tmp);
+<<<<<<< HEAD
 	mutex_unlock(&pcap->adc_mutex);
+=======
+	spin_unlock_irqrestore(&pcap->adc_lock, flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pcap_set_ts_bits);
 
@@ -238,15 +298,27 @@ static void pcap_disable_adc(struct pcap_chip *pcap)
 
 static void pcap_adc_trigger(struct pcap_chip *pcap)
 {
+<<<<<<< HEAD
 	u32 tmp;
 	u8 head;
 
 	mutex_lock(&pcap->adc_mutex);
+=======
+	unsigned long flags;
+	u32 tmp;
+	u8 head;
+
+	spin_lock_irqsave(&pcap->adc_lock, flags);
+>>>>>>> upstream/android-13
 	head = pcap->adc_head;
 	if (!pcap->adc_queue[head]) {
 		/* queue is empty, save power */
 		pcap_disable_adc(pcap);
+<<<<<<< HEAD
 		mutex_unlock(&pcap->adc_mutex);
+=======
+		spin_unlock_irqrestore(&pcap->adc_lock, flags);
+>>>>>>> upstream/android-13
 		return;
 	}
 	/* start conversion on requested bank, save TS_M bits */
@@ -258,7 +330,11 @@ static void pcap_adc_trigger(struct pcap_chip *pcap)
 		tmp |= PCAP_ADC_AD_SEL1;
 
 	ezx_pcap_write(pcap, PCAP_REG_ADC, tmp);
+<<<<<<< HEAD
 	mutex_unlock(&pcap->adc_mutex);
+=======
+	spin_unlock_irqrestore(&pcap->adc_lock, flags);
+>>>>>>> upstream/android-13
 	ezx_pcap_write(pcap, PCAP_REG_ADR, PCAP_ADR_ASC);
 }
 
@@ -269,11 +345,19 @@ static irqreturn_t pcap_adc_irq(int irq, void *_pcap)
 	u16 res[2];
 	u32 tmp;
 
+<<<<<<< HEAD
 	mutex_lock(&pcap->adc_mutex);
 	req = pcap->adc_queue[pcap->adc_head];
 
 	if (WARN(!req, "adc irq without pending request\n")) {
 		mutex_unlock(&pcap->adc_mutex);
+=======
+	spin_lock(&pcap->adc_lock);
+	req = pcap->adc_queue[pcap->adc_head];
+
+	if (WARN(!req, "adc irq without pending request\n")) {
+		spin_unlock(&pcap->adc_lock);
+>>>>>>> upstream/android-13
 		return IRQ_HANDLED;
 	}
 
@@ -289,7 +373,11 @@ static irqreturn_t pcap_adc_irq(int irq, void *_pcap)
 
 	pcap->adc_queue[pcap->adc_head] = NULL;
 	pcap->adc_head = (pcap->adc_head + 1) & (PCAP_ADC_MAXQ - 1);
+<<<<<<< HEAD
 	mutex_unlock(&pcap->adc_mutex);
+=======
+	spin_unlock(&pcap->adc_lock);
+>>>>>>> upstream/android-13
 
 	/* pass the results and release memory */
 	req->callback(req->data, res);
@@ -305,6 +393,10 @@ int pcap_adc_async(struct pcap_chip *pcap, u8 bank, u32 flags, u8 ch[],
 						void *callback, void *data)
 {
 	struct pcap_adc_request *req;
+<<<<<<< HEAD
+=======
+	unsigned long irq_flags;
+>>>>>>> upstream/android-13
 
 	/* This will be freed after we have a result */
 	req = kmalloc(sizeof(struct pcap_adc_request), GFP_KERNEL);
@@ -318,15 +410,25 @@ int pcap_adc_async(struct pcap_chip *pcap, u8 bank, u32 flags, u8 ch[],
 	req->callback = callback;
 	req->data = data;
 
+<<<<<<< HEAD
 	mutex_lock(&pcap->adc_mutex);
 	if (pcap->adc_queue[pcap->adc_tail]) {
 		mutex_unlock(&pcap->adc_mutex);
+=======
+	spin_lock_irqsave(&pcap->adc_lock, irq_flags);
+	if (pcap->adc_queue[pcap->adc_tail]) {
+		spin_unlock_irqrestore(&pcap->adc_lock, irq_flags);
+>>>>>>> upstream/android-13
 		kfree(req);
 		return -EBUSY;
 	}
 	pcap->adc_queue[pcap->adc_tail] = req;
 	pcap->adc_tail = (pcap->adc_tail + 1) & (PCAP_ADC_MAXQ - 1);
+<<<<<<< HEAD
 	mutex_unlock(&pcap->adc_mutex);
+=======
+	spin_unlock_irqrestore(&pcap->adc_lock, irq_flags);
+>>>>>>> upstream/android-13
 
 	/* start conversion */
 	pcap_adc_trigger(pcap);
@@ -393,16 +495,27 @@ static int pcap_add_subdev(struct pcap_chip *pcap,
 static int ezx_pcap_remove(struct spi_device *spi)
 {
 	struct pcap_chip *pcap = spi_get_drvdata(spi);
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* remove all registered subdevs */
 	device_for_each_child(&spi->dev, NULL, pcap_remove_subdev);
 
 	/* cleanup ADC */
+<<<<<<< HEAD
 	mutex_lock(&pcap->adc_mutex);
 	for (i = 0; i < PCAP_ADC_MAXQ; i++)
 		kfree(pcap->adc_queue[i]);
 	mutex_unlock(&pcap->adc_mutex);
+=======
+	spin_lock_irqsave(&pcap->adc_lock, flags);
+	for (i = 0; i < PCAP_ADC_MAXQ; i++)
+		kfree(pcap->adc_queue[i]);
+	spin_unlock_irqrestore(&pcap->adc_lock, flags);
+>>>>>>> upstream/android-13
 
 	/* cleanup irqchip */
 	for (i = pcap->irq_base; i < (pcap->irq_base + PCAP_NIRQS); i++)
@@ -430,8 +543,13 @@ static int ezx_pcap_probe(struct spi_device *spi)
 		goto ret;
 	}
 
+<<<<<<< HEAD
 	mutex_init(&pcap->io_mutex);
 	mutex_init(&pcap->adc_mutex);
+=======
+	spin_lock_init(&pcap->io_lock);
+	spin_lock_init(&pcap->adc_lock);
+>>>>>>> upstream/android-13
 	INIT_WORK(&pcap->isr_work, pcap_isr_work);
 	INIT_WORK(&pcap->msr_work, pcap_msr_work);
 	spi_set_drvdata(spi, pcap);

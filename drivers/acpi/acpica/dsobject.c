@@ -3,7 +3,11 @@
  *
  * Module Name: dsobject - Dispatcher object management routines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -18,7 +22,10 @@
 #define _COMPONENT          ACPI_DISPATCHER
 ACPI_MODULE_NAME("dsobject")
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ds_build_internal_object
@@ -299,8 +306,11 @@ acpi_ds_create_node(struct acpi_walk_state *walk_state,
 	return_ACPI_STATUS(status);
 }
 
+<<<<<<< HEAD
 #endif				/* ACPI_NO_METHOD_EXECUTION */
 
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ds_init_object_from_op
@@ -404,9 +414,13 @@ acpi_ds_init_object_from_op(struct acpi_walk_state *walk_state,
 
 				/* Truncate value if we are executing from a 32-bit ACPI table */
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
 				(void)acpi_ex_truncate_for32bit_table(obj_desc);
 #endif
+=======
+				(void)acpi_ex_truncate_for32bit_table(obj_desc);
+>>>>>>> upstream/android-13
 				break;
 
 			case AML_REVISION_OP:
@@ -428,7 +442,10 @@ acpi_ds_init_object_from_op(struct acpi_walk_state *walk_state,
 
 			obj_desc->integer.value = op->common.value.integer;
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 			if (acpi_ex_truncate_for32bit_table(obj_desc)) {
 
 				/* Warn if we found a 64-bit constant in a 32-bit table */
@@ -439,7 +456,10 @@ acpi_ds_init_object_from_op(struct acpi_walk_state *walk_state,
 								 value.integer),
 					      (u32)obj_desc->integer.value));
 			}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		default:
@@ -477,7 +497,10 @@ acpi_ds_init_object_from_op(struct acpi_walk_state *walk_state,
 			    ((u32)opcode) - AML_FIRST_LOCAL_OP;
 			obj_desc->reference.class = ACPI_REFCLASS_LOCAL;
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 			status =
 			    acpi_ds_method_data_get_node(ACPI_REFCLASS_LOCAL,
 							 obj_desc->reference.
@@ -487,7 +510,10 @@ acpi_ds_init_object_from_op(struct acpi_walk_state *walk_state,
 							  acpi_namespace_node,
 							  &obj_desc->reference.
 							  object));
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		case AML_TYPE_METHOD_ARGUMENT:
@@ -498,7 +524,10 @@ acpi_ds_init_object_from_op(struct acpi_walk_state *walk_state,
 			    ((u32)opcode) - AML_FIRST_ARG_OP;
 			obj_desc->reference.class = ACPI_REFCLASS_ARG;
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 			status = acpi_ds_method_data_get_node(ACPI_REFCLASS_ARG,
 							      obj_desc->
 							      reference.value,
@@ -509,7 +538,10 @@ acpi_ds_init_object_from_op(struct acpi_walk_state *walk_state,
 							       &obj_desc->
 							       reference.
 							       object));
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 			break;
 
 		default:	/* Object name or Debug object */

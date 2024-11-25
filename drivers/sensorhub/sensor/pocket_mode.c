@@ -19,6 +19,7 @@
 
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 int init_pocket_pos_mode(bool en)
 {
 	int ret = 0;
@@ -39,12 +40,17 @@ int init_pocket_pos_mode(bool en)
 int init_pocket_mode_lite(bool en)
 {
 	int ret = 0;
+=======
+int init_pocket_mode_lite(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_POCKET_MODE_LITE);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "pocket_mode_lite", 5, 5, 5);
 	} else {
 		destroy_default_func(sensor);
@@ -69,3 +75,24 @@ int init_pocket_mode(bool en)
 
 	return ret;
 }
+=======
+		strcpy(sensor->name, "pocket_mode_lite");
+		sensor->receive_event_size = 5;
+		sensor->report_event_size = 5;
+		sensor->event_buffer.value = kzalloc(sensor->receive_event_size, GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+	}
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	return -ENOMEM;
+}
+
+>>>>>>> upstream/android-13

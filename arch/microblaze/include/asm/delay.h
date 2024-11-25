@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * include/asm-microblaze/delay.h
  *
@@ -5,6 +6,10 @@
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) 2008 Michal Simek
  * Copyright (C) 2007 John Williams
  * Copyright (C) 2006 Atmark Techno, Inc.

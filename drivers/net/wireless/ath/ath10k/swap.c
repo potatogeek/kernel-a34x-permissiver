@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016 Qualcomm Atheros, Inc.
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2015-2016 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 /* This file has implementation for code swap logic. With code swap feature,
@@ -117,10 +123,15 @@ ath10k_swap_code_seg_alloc(struct ath10k *ar, size_t swap_bin_len)
 
 	virt_addr = dma_alloc_coherent(ar->dev, swap_bin_len, &paddr,
 				       GFP_KERNEL);
+<<<<<<< HEAD
 	if (!virt_addr) {
 		ath10k_err(ar, "failed to allocate dma coherent memory\n");
 		return NULL;
 	}
+=======
+	if (!virt_addr)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	seg_info->seg_hw_info.bus_addr[0] = __cpu_to_le32(paddr);
 	seg_info->seg_hw_info.size = __cpu_to_le32(swap_bin_len);

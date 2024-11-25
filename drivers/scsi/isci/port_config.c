@@ -73,7 +73,11 @@ enum SCIC_SDS_APC_ACTIVITY {
  * ****************************************************************************** */
 
 /**
+<<<<<<< HEAD
  *
+=======
+ * sci_sas_address_compare()
+>>>>>>> upstream/android-13
  * @address_one: A SAS Address to be compared.
  * @address_two: A SAS Address to be compared.
  *
@@ -102,9 +106,15 @@ static s32 sci_sas_address_compare(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @controller: The controller object used for the port search.
  * @phy: The phy object to match.
+=======
+ * sci_port_configuration_agent_find_port()
+ * @ihost: The controller object used for the port search.
+ * @iphy: The phy object to match.
+>>>>>>> upstream/android-13
  *
  * This routine will find a matching port for the phy.  This means that the
  * port and phy both have the same broadcast sas address and same received sas
@@ -145,9 +155,15 @@ static struct isci_port *sci_port_configuration_agent_find_port(
 }
 
 /**
+<<<<<<< HEAD
  *
  * @controller: This is the controller object that contains the port agent
  * @port_agent: This is the port configruation agent for the controller.
+=======
+ * sci_port_configuration_agent_validate_ports()
+ * @ihost: This is the controller object that contains the port agent
+ * @port_agent: This is the port configuration agent for the controller.
+>>>>>>> upstream/android-13
  *
  * This routine will validate the port configuration is correct for the SCU
  * hardware.  The SCU hardware allows for port configurations as follows. LP0
@@ -373,15 +389,27 @@ static void sci_mpc_agent_link_up(struct isci_host *ihost,
 }
 
 /**
+<<<<<<< HEAD
  *
  * @controller: This is the controller object that receives the link down
  *    notification.
  * @port: This is the port object associated with the phy.  If the is no
+=======
+ * sci_mpc_agent_link_down()
+ * @ihost: This is the controller object that receives the link down
+ *    notification.
+ * @port_agent: This is the port configuration agent for the controller.
+ * @iport: This is the port object associated with the phy.  If the is no
+>>>>>>> upstream/android-13
  *    associated port this is an NULL.  The port is an invalid
  *    handle only if the phy was never port of this port.  This happens when
  *    the phy is not broadcasting the same SAS address as the other phys in the
  *    assigned port.
+<<<<<<< HEAD
  * @phy: This is the phy object which has gone link down.
+=======
+ * @iphy: This is the phy object which has gone link down.
+>>>>>>> upstream/android-13
  *
  * This function handles the manual port configuration link down notifications.
  * Since all ports and phys are associated at initialization time we just turn
@@ -590,11 +618,20 @@ static void sci_apc_agent_configure_ports(struct isci_host *ihost,
 
 /**
  * sci_apc_agent_link_up - handle apc link up events
+<<<<<<< HEAD
  * @scic: This is the controller object that receives the link up
  *    notification.
  * @sci_port: This is the port object associated with the phy.  If the is no
  *    associated port this is an NULL.
  * @sci_phy: This is the phy object which has gone link up.
+=======
+ * @ihost: This is the controller object that receives the link up
+ *    notification.
+ * @port_agent: This is the port configuration agent for the controller.
+ * @iport: This is the port object associated with the phy.  If the is no
+ *    associated port this is an NULL.
+ * @iphy: This is the phy object which has gone link up.
+>>>>>>> upstream/android-13
  *
  * This method handles the automatic port configuration for link up
  * notifications. Is it possible to get a link down notification from a phy
@@ -620,9 +657,16 @@ static void sci_apc_agent_link_up(struct isci_host *ihost,
 }
 
 /**
+<<<<<<< HEAD
  *
  * @controller: This is the controller object that receives the link down
  *    notification.
+=======
+ * sci_apc_agent_link_down()
+ * @ihost: This is the controller object that receives the link down
+ *    notification.
+ * @port_agent: This is the port configuration agent for the controller.
+>>>>>>> upstream/android-13
  * @iport: This is the port object associated with the phy.  If the is no
  *    associated port this is an NULL.
  * @iphy: This is the phy object which has gone link down.
@@ -697,9 +741,13 @@ done:
  * Public port configuration agent routines
  * ****************************************************************************** */
 
+<<<<<<< HEAD
 /**
  *
  *
+=======
+/*
+>>>>>>> upstream/android-13
  * This method will construct the port configuration agent for operation. This
  * call is universal for both manual port configuration and automatic port
  * configuration modes.

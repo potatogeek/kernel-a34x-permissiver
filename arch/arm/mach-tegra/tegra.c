@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * NVIDIA Tegra SoC device tree board support
  *
  * Copyright (C) 2011, 2013, NVIDIA Corporation
  * Copyright (C) 2010 Secret Lab Technologies, Ltd.
  * Copyright (C) 2010 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,6 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -35,13 +42,23 @@
 #include <linux/sys_soc.h>
 #include <linux/usb/tegra_usb_phy.h>
 
+<<<<<<< HEAD
 #include <soc/tegra/fuse.h>
 #include <soc/tegra/pmc.h>
 
+=======
+#include <linux/firmware/trusted_foundations.h>
+
+#include <soc/tegra/fuse.h>
+#include <soc/tegra/pmc.h>
+
+#include <asm/firmware.h>
+>>>>>>> upstream/android-13
 #include <asm/hardware/cache-l2x0.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/time.h>
 #include <asm/mach-types.h>
+<<<<<<< HEAD
 #include <asm/setup.h>
 #include <asm/trusted_foundations.h>
 
@@ -50,6 +67,14 @@
 #include "cpuidle.h"
 #include "iomap.h"
 #include "irq.h"
+=======
+#include <asm/psci.h>
+#include <asm/setup.h>
+
+#include "board.h"
+#include "common.h"
+#include "iomap.h"
+>>>>>>> upstream/android-13
 #include "pm.h"
 #include "reset.h"
 #include "sleep.h"
@@ -74,6 +99,10 @@ static void __init tegra_init_early(void)
 {
 	of_register_trusted_foundations();
 	tegra_cpu_reset_handler_init();
+<<<<<<< HEAD
+=======
+	call_firmware_op(l2x0_init);
+>>>>>>> upstream/android-13
 }
 
 static void __init tegra_dt_init_irq(void)
@@ -91,9 +120,12 @@ static void __init tegra_dt_init(void)
 
 static void __init tegra_dt_init_late(void)
 {
+<<<<<<< HEAD
 	tegra_init_suspend();
 	tegra_cpuidle_init();
 
+=======
+>>>>>>> upstream/android-13
 	if (IS_ENABLED(CONFIG_ARCH_TEGRA_2x_SOC) &&
 	    of_machine_is_compatible("compal,paz00"))
 		tegra_paz00_wifikill_init();
@@ -101,6 +133,16 @@ static void __init tegra_dt_init_late(void)
 	if (IS_ENABLED(CONFIG_ARCH_TEGRA_2x_SOC) &&
 	    of_machine_is_compatible("nvidia,tegra20"))
 		platform_device_register_simple("tegra20-cpufreq", -1, NULL, 0);
+<<<<<<< HEAD
+=======
+
+	if (IS_ENABLED(CONFIG_ARM_TEGRA_CPUIDLE) && !psci_smp_available())
+		platform_device_register_simple("tegra-cpuidle", -1, NULL, 0);
+
+	if (IS_ENABLED(CONFIG_ARCH_TEGRA_3x_SOC) &&
+	    of_machine_is_compatible("nvidia,tegra30"))
+		platform_device_register_simple("tegra20-cpufreq", -1, NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 static const char * const tegra_dt_board_compat[] = {

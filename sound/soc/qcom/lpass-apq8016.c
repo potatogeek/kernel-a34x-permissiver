@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2011,2013-2015 The Linux Foundation. All rights reserved.
  *
@@ -12,6 +13,13 @@
  *
  * lpass-apq8016.c -- ALSA SoC CPU DAI driver for APQ8016 LPASS
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010-2011,2013-2015 The Linux Foundation. All rights reserved.
+ *
+ * lpass-apq8016.c -- ALSA SoC CPU DAI driver for APQ8016 LPASS
+>>>>>>> upstream/android-13
  */
 
 
@@ -134,7 +142,11 @@ static struct snd_soc_dai_driver apq8016_lpass_cpu_dai_driver[] = {
 };
 
 static int apq8016_lpass_alloc_dma_channel(struct lpass_data *drvdata,
+<<<<<<< HEAD
 					   int direction)
+=======
+					   int direction, unsigned int dai_id)
+>>>>>>> upstream/android-13
 {
 	struct lpass_variant *v = drvdata->variant;
 	int chan = 0;
@@ -160,7 +172,11 @@ static int apq8016_lpass_alloc_dma_channel(struct lpass_data *drvdata,
 	return chan;
 }
 
+<<<<<<< HEAD
 static int apq8016_lpass_free_dma_channel(struct lpass_data *drvdata, int chan)
+=======
+static int apq8016_lpass_free_dma_channel(struct lpass_data *drvdata, int chan, unsigned int dai_id)
+>>>>>>> upstream/android-13
 {
 	clear_bit(chan, &drvdata->dma_ch_bit_map);
 
@@ -170,6 +186,7 @@ static int apq8016_lpass_free_dma_channel(struct lpass_data *drvdata, int chan)
 static int apq8016_lpass_init(struct platform_device *pdev)
 {
 	struct lpass_data *drvdata = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	int ret;
 
@@ -201,14 +218,74 @@ static int apq8016_lpass_init(struct platform_device *pdev)
 	}
 
 	return 0;
+=======
+	struct lpass_variant *variant = drvdata->variant;
+	struct device *dev = &pdev->dev;
+	int ret, i;
+
+
+	drvdata->clks = devm_kcalloc(dev, variant->num_clks,
+				     sizeof(*drvdata->clks), GFP_KERNEL);
+	if (!drvdata->clks)
+		return -ENOMEM;
+	drvdata->num_clks = variant->num_clks;
+
+	for (i = 0; i < drvdata->num_clks; i++)
+		drvdata->clks[i].id = variant->clk_name[i];
+
+	ret = devm_clk_bulk_get(dev, drvdata->num_clks, drvdata->clks);
+	if (ret) {
+		dev_err(dev, "Failed to get clocks %d\n", ret);
+		return ret;
+	}
+
+	ret = clk_bulk_prepare_enable(drvdata->num_clks, drvdata->clks);
+	if (ret) {
+		dev_err(dev, "apq8016 clk_enable failed\n");
+		return ret;
+	}
+
+	drvdata->ahbix_clk = devm_clk_get(dev, "ahbix-clk");
+	if (IS_ERR(drvdata->ahbix_clk)) {
+		dev_err(dev, "error getting ahbix-clk: %ld\n",
+				PTR_ERR(drvdata->ahbix_clk));
+		ret = PTR_ERR(drvdata->ahbix_clk);
+		goto err_ahbix_clk;
+	}
+
+	ret = clk_set_rate(drvdata->ahbix_clk, LPASS_AHBIX_CLOCK_FREQUENCY);
+	if (ret) {
+		dev_err(dev, "error setting rate on ahbix_clk: %d\n", ret);
+		goto err_ahbix_clk;
+	}
+	dev_dbg(dev, "set ahbix_clk rate to %lu\n",
+			clk_get_rate(drvdata->ahbix_clk));
+
+	ret = clk_prepare_enable(drvdata->ahbix_clk);
+	if (ret) {
+		dev_err(dev, "error enabling ahbix_clk: %d\n", ret);
+		goto err_ahbix_clk;
+	}
+
+	return 0;
+
+err_ahbix_clk:
+	clk_bulk_disable_unprepare(drvdata->num_clks, drvdata->clks);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int apq8016_lpass_exit(struct platform_device *pdev)
 {
 	struct lpass_data *drvdata = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(drvdata->pcnoc_mport_clk);
 	clk_disable_unprepare(drvdata->pcnoc_sway_clk);
+=======
+	clk_bulk_disable_unprepare(drvdata->num_clks, drvdata->clks);
+	clk_disable_unprepare(drvdata->ahbix_clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -229,6 +306,38 @@ static struct lpass_variant apq8016_data = {
 	.wrdma_reg_stride	= 0x1000,
 	.wrdma_channel_start	= 5,
 	.wrdma_channels		= 2,
+<<<<<<< HEAD
+=======
+	.loopback		= REG_FIELD_ID(0x1000, 15, 15, 4, 0x1000),
+	.spken			= REG_FIELD_ID(0x1000, 14, 14, 4, 0x1000),
+	.spkmode		= REG_FIELD_ID(0x1000, 10, 13, 4, 0x1000),
+	.spkmono		= REG_FIELD_ID(0x1000, 9, 9, 4, 0x1000),
+	.micen			= REG_FIELD_ID(0x1000, 8, 8, 4, 0x1000),
+	.micmode		= REG_FIELD_ID(0x1000, 4, 7, 4, 0x1000),
+	.micmono		= REG_FIELD_ID(0x1000, 3, 3, 4, 0x1000),
+	.wssrc			= REG_FIELD_ID(0x1000, 2, 2, 4, 0x1000),
+	.bitwidth		= REG_FIELD_ID(0x1000, 0, 1, 4, 0x1000),
+
+	.rdma_dyncclk		= REG_FIELD_ID(0x8400, 12, 12, 2, 0x1000),
+	.rdma_bursten		= REG_FIELD_ID(0x8400, 11, 11, 2, 0x1000),
+	.rdma_wpscnt		= REG_FIELD_ID(0x8400, 8, 10, 2, 0x1000),
+	.rdma_intf		= REG_FIELD_ID(0x8400, 4, 7, 2, 0x1000),
+	.rdma_fifowm		= REG_FIELD_ID(0x8400, 1, 3, 2, 0x1000),
+	.rdma_enable		= REG_FIELD_ID(0x8400, 0, 0, 2, 0x1000),
+
+	.wrdma_dyncclk		= REG_FIELD_ID(0xB000, 12, 12, 2, 0x1000),
+	.wrdma_bursten		= REG_FIELD_ID(0xB000, 11, 11, 2, 0x1000),
+	.wrdma_wpscnt		= REG_FIELD_ID(0xB000, 8, 10, 2, 0x1000),
+	.wrdma_intf		= REG_FIELD_ID(0xB000, 4, 7, 2, 0x1000),
+	.wrdma_fifowm		= REG_FIELD_ID(0xB000, 1, 3, 2, 0x1000),
+	.wrdma_enable		= REG_FIELD_ID(0xB000, 0, 0, 2, 0x1000),
+
+	.clk_name		= (const char*[]) {
+				   "pcnoc-mport-clk",
+				   "pcnoc-sway-clk",
+				  },
+	.num_clks		= 2,
+>>>>>>> upstream/android-13
 	.dai_driver		= apq8016_lpass_cpu_dai_driver,
 	.num_dai		= ARRAY_SIZE(apq8016_lpass_cpu_dai_driver),
 	.dai_osr_clk_names	= (const char *[]) {
@@ -249,7 +358,11 @@ static struct lpass_variant apq8016_data = {
 	.free_dma_channel	= apq8016_lpass_free_dma_channel,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id apq8016_lpass_cpu_device_id[] = {
+=======
+static const struct of_device_id apq8016_lpass_cpu_device_id[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "qcom,lpass-cpu-apq8016", .data = &apq8016_data },
 	{}
 };

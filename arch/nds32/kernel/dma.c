@@ -3,16 +3,23 @@
 
 #include <linux/types.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/string.h>
 #include <linux/dma-noncoherent.h>
 #include <linux/io.h>
 #include <linux/cache.h>
 #include <linux/highmem.h>
 #include <linux/slab.h>
+=======
+#include <linux/dma-map-ops.h>
+#include <linux/cache.h>
+#include <linux/highmem.h>
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
 #include <asm/proc-fns.h>
 
+<<<<<<< HEAD
 /*
  * This is the page table (2MB) covering uncached, DMA consistent allocations
  */
@@ -324,6 +331,8 @@ static int __init consistent_init(void)
 
 core_initcall(consistent_init);
 
+=======
+>>>>>>> upstream/android-13
 static inline void cache_op(phys_addr_t paddr, size_t size,
 		void (*fn)(unsigned long start, unsigned long end))
 {
@@ -360,8 +369,13 @@ static inline void cache_op(phys_addr_t paddr, size_t size,
 	} while (left);
 }
 
+<<<<<<< HEAD
 void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	switch (dir) {
 	case DMA_FROM_DEVICE:
@@ -375,8 +389,13 @@ void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 	}
 }
 
+<<<<<<< HEAD
 void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	switch (dir) {
 	case DMA_TO_DEVICE:
@@ -389,3 +408,11 @@ void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 		BUG();
 	}
 }
+<<<<<<< HEAD
+=======
+
+void arch_dma_prep_coherent(struct page *page, size_t size)
+{
+	cache_op(page_to_phys(page), size, cpu_dma_wbinval_range);
+}
+>>>>>>> upstream/android-13

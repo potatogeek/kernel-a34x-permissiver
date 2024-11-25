@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Hibernation support for x86-64
  *
  * Distribute under GPLv2
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Hibernation support for x86-64
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 2007 Rafael J. Wysocki <rjw@sisk.pl>
  * Copyright (c) 2002 Pavel Machek <pavel@ucw.cz>
  * Copyright (c) 2001 Patrick Mochel <mochel@osdl.org>
@@ -13,7 +20,11 @@
 #include <linux/suspend.h>
 #include <linux/scatterlist.h>
 #include <linux/kdebug.h>
+<<<<<<< HEAD
 #include <linux/cpu.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <crypto/hash.h>
 
@@ -21,12 +32,16 @@
 #include <asm/init.h>
 #include <asm/proto.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mtrr.h>
 #include <asm/sections.h>
 #include <asm/suspend.h>
 #include <asm/tlbflush.h>
 
+<<<<<<< HEAD
 /* Defined in hibernate_asm_64.S */
 extern asmlinkage __visible int restore_image(void);
 
@@ -47,6 +62,8 @@ unsigned long temp_level4_pgt __visible;
 
 unsigned long relocated_restore_code __visible;
 
+=======
+>>>>>>> upstream/android-13
 static int set_up_temporary_text_mapping(pgd_t *pgd)
 {
 	pmd_t *pmd;
@@ -142,6 +159,7 @@ static int set_up_temporary_mappings(void)
 			return result;
 	}
 
+<<<<<<< HEAD
 	temp_level4_pgt = __pa(pgd);
 	return 0;
 }
@@ -182,6 +200,9 @@ static int relocate_restore_code(void)
 	set_pte(pte, __pte(pte_val(*pte) & ~_PAGE_NX));
 out:
 	__flush_tlb_all();
+=======
+	temp_pgt = __pa(pgd);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -201,6 +222,7 @@ asmlinkage int swsusp_arch_resume(void)
 	restore_image();
 	return 0;
 }
+<<<<<<< HEAD
 
 /*
  *	pfn_is_nosave - check if given pfn is in the 'nosave' section
@@ -395,3 +417,5 @@ out:
 	cpu_hotplug_disable();
 	return ret;
 }
+=======
+>>>>>>> upstream/android-13

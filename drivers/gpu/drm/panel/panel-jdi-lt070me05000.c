@@ -1,13 +1,32 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
 */
 #include <linux/backlight.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 InforceComputing
+ * Author: Vinay Simha BN <simhavcs@gmail.com>
+ *
+ * Copyright (C) 2016 Linaro Ltd
+ * Author: Sumit Semwal <sumit.semwal@linaro.org>
+ *
+ * From internet archives, the panel for Nexus 7 2nd Gen, 2013 model is a
+ * JDI model LT070ME05000, and its data sheet is at:
+ * http://panelone.net/en/7-0-inch/JDI_LT070ME05000_7.0_inch-datasheet
+ */
+
+#include <linux/backlight.h>
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_mipi_dsi.h>
@@ -15,6 +34,15 @@
 
 #include <video/mipi_display.h>
 
+=======
+#include <video/mipi_display.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_modes.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 static const char * const regulator_names[] = {
 	"vddp",
 	"iovcc"
@@ -173,8 +201,12 @@ static int jdi_panel_disable(struct drm_panel *panel)
 	if (!jdi->enabled)
 		return 0;
 
+<<<<<<< HEAD
 	jdi->backlight->props.power = FB_BLANK_POWERDOWN;
 	backlight_update_status(jdi->backlight);
+=======
+	backlight_disable(jdi->backlight);
+>>>>>>> upstream/android-13
 
 	jdi->enabled = false;
 
@@ -270,8 +302,12 @@ static int jdi_panel_enable(struct drm_panel *panel)
 	if (jdi->enabled)
 		return 0;
 
+<<<<<<< HEAD
 	jdi->backlight->props.power = FB_BLANK_UNBLANK;
 	backlight_update_status(jdi->backlight);
+=======
+	backlight_enable(jdi->backlight);
+>>>>>>> upstream/android-13
 
 	jdi->enabled = true;
 
@@ -288,30 +324,53 @@ static const struct drm_display_mode default_mode = {
 		.vsync_start = 1920 + 3,
 		.vsync_end = 1920 + 3 + 5,
 		.vtotal = 1920 + 3 + 5 + 6,
+<<<<<<< HEAD
 		.vrefresh = 60,
 		.flags = 0,
 };
 
 static int jdi_panel_get_modes(struct drm_panel *panel)
+=======
+		.flags = 0,
+};
+
+static int jdi_panel_get_modes(struct drm_panel *panel,
+			       struct drm_connector *connector)
+>>>>>>> upstream/android-13
 {
 	struct drm_display_mode *mode;
 	struct jdi_panel *jdi = to_jdi_panel(panel);
 	struct device *dev = &jdi->dsi->dev;
 
+<<<<<<< HEAD
 	mode = drm_mode_duplicate(panel->drm, &default_mode);
 	if (!mode) {
 		dev_err(dev, "failed to add mode %ux%ux@%u\n",
 			default_mode.hdisplay, default_mode.vdisplay,
 			default_mode.vrefresh);
+=======
+	mode = drm_mode_duplicate(connector->dev, &default_mode);
+	if (!mode) {
+		dev_err(dev, "failed to add mode %ux%ux@%u\n",
+			default_mode.hdisplay, default_mode.vdisplay,
+			drm_mode_vrefresh(&default_mode));
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	drm_mode_set_name(mode);
 
+<<<<<<< HEAD
 	drm_mode_probed_add(panel->connector, mode);
 
 	panel->connector->display_info.width_mm = 95;
 	panel->connector->display_info.height_mm = 151;
+=======
+	drm_mode_probed_add(connector, mode);
+
+	connector->display_info.width_mm = 95;
+	connector->display_info.height_mm = 151;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -429,6 +488,7 @@ static int jdi_panel_add(struct jdi_panel *jdi)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	drm_panel_init(&jdi->base);
 	jdi->base.funcs = &jdi_panel_funcs;
 	jdi->base.dev = &jdi->dsi->dev;
@@ -436,6 +496,14 @@ static int jdi_panel_add(struct jdi_panel *jdi)
 	ret = drm_panel_add(&jdi->base);
 
 	return ret;
+=======
+	drm_panel_init(&jdi->base, &jdi->dsi->dev, &jdi_panel_funcs,
+		       DRM_MODE_CONNECTOR_DSI);
+
+	drm_panel_add(&jdi->base);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void jdi_panel_del(struct jdi_panel *jdi)
@@ -466,7 +534,17 @@ static int jdi_panel_probe(struct mipi_dsi_device *dsi)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	return mipi_dsi_attach(dsi);
+=======
+	ret = mipi_dsi_attach(dsi);
+	if (ret < 0) {
+		jdi_panel_del(jdi);
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int jdi_panel_remove(struct mipi_dsi_device *dsi)
@@ -483,7 +561,10 @@ static int jdi_panel_remove(struct mipi_dsi_device *dsi)
 		dev_err(&dsi->dev, "failed to detach from DSI host: %d\n",
 			ret);
 
+<<<<<<< HEAD
 	drm_panel_detach(&jdi->base);
+=======
+>>>>>>> upstream/android-13
 	jdi_panel_del(jdi);
 
 	return 0;

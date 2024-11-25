@@ -10,8 +10,11 @@
 #ifndef _LINUX_SUNRPC_SVCAUTH_H_
 #define _LINUX_SUNRPC_SVCAUTH_H_
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/sunrpc/msg_prot.h>
 #include <linux/sunrpc/cache.h>
@@ -82,6 +85,10 @@ struct auth_domain {
 	struct hlist_node	hash;
 	char			*name;
 	struct auth_ops		*flavour;
+<<<<<<< HEAD
+=======
+	struct rcu_head		rcu_head;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -128,7 +135,11 @@ struct auth_ops {
 	char *	name;
 	struct module *owner;
 	int	flavour;
+<<<<<<< HEAD
 	int	(*accept)(struct svc_rqst *rq, __be32 *authp);
+=======
+	int	(*accept)(struct svc_rqst *rq);
+>>>>>>> upstream/android-13
 	int	(*release)(struct svc_rqst *rq);
 	void	(*domain_release)(struct auth_domain *);
 	int	(*set_client)(struct svc_rqst *rq);
@@ -150,7 +161,11 @@ struct auth_ops {
 
 struct svc_xprt;
 
+<<<<<<< HEAD
 extern int	svc_authenticate(struct svc_rqst *rqstp, __be32 *authp);
+=======
+extern int	svc_authenticate(struct svc_rqst *rqstp);
+>>>>>>> upstream/android-13
 extern int	svc_authorise(struct svc_rqst *rqstp);
 extern int	svc_set_client(struct svc_rqst *rqstp);
 extern int	svc_auth_register(rpc_authflavor_t flavor, struct auth_ops *aops);
@@ -184,6 +199,9 @@ static inline unsigned long hash_mem(char const *buf, int length, int bits)
 	return full_name_hash(NULL, buf, length) >> (32 - bits);
 }
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _LINUX_SUNRPC_SVCAUTH_H_ */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_HW_TOP_H
@@ -38,7 +43,11 @@ struct traffic_shaper_cfg {
 
 /**
  * struct split_pipe_cfg - pipe configuration for dual display panels
+<<<<<<< HEAD
  * @en        : Enable/disable dual pipe confguration
+=======
+ * @en        : Enable/disable dual pipe configuration
+>>>>>>> upstream/android-13
  * @mode      : Panel interface mode
  * @intf      : Interface id for main control path
  * @split_flush_en: Allows both the paths to be flushed when master path is
@@ -52,6 +61,7 @@ struct split_pipe_cfg {
 };
 
 /**
+<<<<<<< HEAD
  * struct cdm_output_cfg: output configuration for cdm
  * @intf_en   : enable/disable interface output
  */
@@ -60,6 +70,8 @@ struct cdm_output_cfg {
 };
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct dpu_danger_safe_status: danger and safe status signals
  * @mdp: top level status
  * @sspp: source pipe status
@@ -89,11 +101,18 @@ struct dpu_vsync_source_cfg {
  * Assumption is these functions will be called after clocks are enabled.
  * @setup_split_pipe : Programs the pipe control registers
  * @setup_pp_split : Programs the pp split control registers
+<<<<<<< HEAD
  * @setup_cdm_output : programs cdm control
  * @setup_traffic_shaper : programs traffic shaper control
  */
 struct dpu_hw_mdp_ops {
 	/** setup_split_pipe() : Regsiters are not double buffered, thisk
+=======
+ * @setup_traffic_shaper : programs traffic shaper control
+ */
+struct dpu_hw_mdp_ops {
+	/** setup_split_pipe() : Registers are not double buffered, thisk
+>>>>>>> upstream/android-13
 	 * function should be called before timing control enable
 	 * @mdp  : mdp top context driver
 	 * @cfg  : upper and lower part of pipe configuration
@@ -102,6 +121,7 @@ struct dpu_hw_mdp_ops {
 			struct split_pipe_cfg *p);
 
 	/**
+<<<<<<< HEAD
 	 * setup_cdm_output() : Setup selection control of the cdm data path
 	 * @mdp  : mdp top context driver
 	 * @cfg  : cdm output configuration
@@ -110,6 +130,8 @@ struct dpu_hw_mdp_ops {
 			struct cdm_output_cfg *cfg);
 
 	/**
+=======
+>>>>>>> upstream/android-13
 	 * setup_traffic_shaper() : Setup traffic shaper control
 	 * @mdp  : mdp top context driver
 	 * @cfg  : traffic shaper configuration
@@ -152,6 +174,7 @@ struct dpu_hw_mdp_ops {
 			struct dpu_danger_safe_status *status);
 
 	/**
+<<<<<<< HEAD
 	 * reset_ubwc - reset top level UBWC configuration
 	 * @mdp: mdp top context driver
 	 * @m: pointer to mdss catalog data
@@ -159,6 +182,8 @@ struct dpu_hw_mdp_ops {
 	void (*reset_ubwc)(struct dpu_hw_mdp *mdp, struct dpu_mdss_cfg *m);
 
 	/**
+=======
+>>>>>>> upstream/android-13
 	 * intf_audio_select - select the external interface for audio
 	 * @mdp: mdp top context driver
 	 */
@@ -178,6 +203,7 @@ struct dpu_hw_mdp {
 };
 
 /**
+<<<<<<< HEAD
  * to_dpu_hw_mdp - convert base object dpu_hw_base to container
  * @hw: Pointer to base hardware block
  * return: Pointer to hardware block container
@@ -188,6 +214,8 @@ static inline struct dpu_hw_mdp *to_dpu_hw_mdp(struct dpu_hw_blk *hw)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * dpu_hw_mdptop_init - initializes the top driver for the passed idx
  * @idx:  Interface index for which driver object is required
  * @addr: Mapped register io address of MDP

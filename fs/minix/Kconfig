@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config MINIX_FS
 	tristate "Minix file system support"
 	depends on BLOCK

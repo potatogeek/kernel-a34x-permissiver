@@ -124,6 +124,7 @@ struct clcd_board {
 struct amba_device;
 struct clk;
 
+<<<<<<< HEAD
 /**
  * struct clcd_vendor_data - holds hardware (IP-block) vendor-specific
  * variant information
@@ -150,12 +151,17 @@ struct clcd_vendor_data {
 			      struct device_node *panel);
 };
 
+=======
+>>>>>>> upstream/android-13
 /* this data structure describes each frame buffer device we find */
 struct clcd_fb {
 	struct fb_info		fb;
 	struct amba_device	*dev;
 	struct clk		*clk;
+<<<<<<< HEAD
 	struct clcd_vendor_data	*vendor;
+=======
+>>>>>>> upstream/android-13
 	struct clcd_panel	*panel;
 	struct clcd_board	*board;
 	void			*board_data;
@@ -257,10 +263,13 @@ static inline void clcdfb_decode(struct clcd_fb *fb, struct clcd_regs *regs)
 		else
 			val |= CNTL_LCDBPP16_444;
 		break;
+<<<<<<< HEAD
 	case 24:
 		/* Modified variant supporting 24 bit packed pixels */
 		val |= CNTL_ST_LCDBPP24_PACKED;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case 32:
 		val |= CNTL_LCDBPP24;
 		break;

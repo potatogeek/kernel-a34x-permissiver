@@ -17,7 +17,10 @@ config PIC32MZDA
 	select SYS_SUPPORTS_LITTLE_ENDIAN
 	select GPIOLIB
 	select COMMON_CLK
+<<<<<<< HEAD
 	select CLKDEV_LOOKUP
+=======
+>>>>>>> upstream/android-13
 	select LIBFDT
 	select USE_OF
 	select PINCTRL
@@ -39,12 +42,21 @@ choice
 	  Select the devicetree.
 
 config DTB_PIC32_NONE
+<<<<<<< HEAD
        bool "None"
 
 config DTB_PIC32_MZDA_SK
        bool "PIC32MZDA Starter Kit"
        depends on PIC32MZDA
        select BUILTIN_DTB
+=======
+	bool "None"
+
+config DTB_PIC32_MZDA_SK
+	bool "PIC32MZDA Starter Kit"
+	depends on PIC32MZDA
+	select BUILTIN_DTB
+>>>>>>> upstream/android-13
 
 endchoice
 

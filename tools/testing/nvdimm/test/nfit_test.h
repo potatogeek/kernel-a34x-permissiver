@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef __NFIT_TEST_H__
 #define __NFIT_TEST_H__
@@ -59,7 +65,11 @@ struct nd_cmd_translate_spa {
 		__u32 nfit_device_handle;
 		__u32 _reserved;
 		__u64 dpa;
+<<<<<<< HEAD
 	} __packed devices[0];
+=======
+	} __packed devices[];
+>>>>>>> upstream/android-13
 
 } __packed;
 
@@ -82,7 +92,11 @@ struct nd_cmd_ars_err_inj_stat {
 	struct nd_error_stat_query_record {
 		__u64 err_inj_stat_spa_range_base;
 		__u64 err_inj_stat_spa_range_length;
+<<<<<<< HEAD
 	} __packed record[0];
+=======
+	} __packed record[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define ND_INTEL_SMART			 1
@@ -118,6 +132,7 @@ struct nd_cmd_ars_err_inj_stat {
 #define ND_INTEL_SMART_INJECT_FATAL		(1 << 2)
 #define ND_INTEL_SMART_INJECT_SHUTDOWN		(1 << 3)
 
+<<<<<<< HEAD
 struct nd_intel_smart {
 	__u32 status;
 	union {
@@ -142,6 +157,8 @@ struct nd_intel_smart {
 	};
 } __packed;
 
+=======
+>>>>>>> upstream/android-13
 struct nd_intel_smart_threshold {
 	__u32 status;
 	union {
@@ -212,7 +229,11 @@ struct nd_intel_fw_send_data {
 	__u32 context;
 	__u32 offset;
 	__u32 length;
+<<<<<<< HEAD
 	__u8 data[0];
+=======
+	__u8 data[];
+>>>>>>> upstream/android-13
 /* this field is not declared due ot variable data from input */
 /*	__u32 status; */
 } __packed;
@@ -239,8 +260,11 @@ typedef struct nfit_test_resource *(*nfit_test_lookup_fn)(resource_size_t);
 typedef union acpi_object *(*nfit_test_evaluate_dsm_fn)(acpi_handle handle,
 		 const guid_t *guid, u64 rev, u64 func,
 		 union acpi_object *argv4);
+<<<<<<< HEAD
 void __iomem *__wrap_ioremap_nocache(resource_size_t offset,
 		unsigned long size);
+=======
+>>>>>>> upstream/android-13
 void __wrap_iounmap(volatile void __iomem *addr);
 void nfit_test_setup(nfit_test_lookup_fn lookup,
 		nfit_test_evaluate_dsm_fn evaluate);

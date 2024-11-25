@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019 MediaTek Inc.
+=======
+ * Copyright (c) 2018 MediaTek Inc.
+>>>>>>> upstream/android-13
  * Author: Owen Chen <owen.chen@mediatek.com>
  */
 
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
+=======
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 
 #include "clk-mtk.h"
 #include "clk-gate.h"
@@ -33,7 +41,10 @@ static const struct mtk_gate_regs audio1_cg_regs = {
 		.regs = &audio0_cg_regs,		\
 		.shift = _shift,			\
 		.ops = &mtk_clk_gate_ops_no_setclr,	\
+<<<<<<< HEAD
 		.flags = CLK_IGNORE_UNUSED,		\
+=======
+>>>>>>> upstream/android-13
 	}
 
 #define GATE_AUDIO1(_id, _name, _parent, _shift) {	\
@@ -43,6 +54,7 @@ static const struct mtk_gate_regs audio1_cg_regs = {
 		.regs = &audio1_cg_regs,		\
 		.shift = _shift,			\
 		.ops = &mtk_clk_gate_ops_no_setclr,	\
+<<<<<<< HEAD
 		.flags = CLK_IGNORE_UNUSED,		\
 	}
 
@@ -71,10 +83,35 @@ static const struct mtk_gate audio_clks[] __initconst = {
 		6),
 	GATE_AUDIO1(CLK_AUDIO_I2S4_BCLK, "aud_i2s4_bclk", "audio_ck",
 		7),
+=======
+	}
+
+static const struct mtk_gate audio_clks[] = {
+	/* AUDIO0 */
+	GATE_AUDIO0(CLK_AUDIO_AFE, "aud_afe", "audio_ck", 2),
+	GATE_AUDIO0(CLK_AUDIO_22M, "aud_22m", "aud_engen1_ck", 8),
+	GATE_AUDIO0(CLK_AUDIO_APLL_TUNER, "aud_apll_tuner",
+		    "aud_engen1_ck", 19),
+	GATE_AUDIO0(CLK_AUDIO_ADC, "aud_adc", "audio_ck", 24),
+	GATE_AUDIO0(CLK_AUDIO_DAC, "aud_dac", "audio_ck", 25),
+	GATE_AUDIO0(CLK_AUDIO_DAC_PREDIS, "aud_dac_predis",
+		    "audio_ck", 26),
+	GATE_AUDIO0(CLK_AUDIO_TML, "aud_tml", "audio_ck", 27),
+	/* AUDIO1 */
+	GATE_AUDIO1(CLK_AUDIO_I2S1_BCLK, "aud_i2s1_bclk",
+		    "audio_ck", 4),
+	GATE_AUDIO1(CLK_AUDIO_I2S2_BCLK, "aud_i2s2_bclk",
+		    "audio_ck", 5),
+	GATE_AUDIO1(CLK_AUDIO_I2S3_BCLK, "aud_i2s3_bclk",
+		    "audio_ck", 6),
+	GATE_AUDIO1(CLK_AUDIO_I2S4_BCLK, "aud_i2s4_bclk",
+		    "audio_ck", 7),
+>>>>>>> upstream/android-13
 };
 
 static int clk_mt6765_audio_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device_node *node = pdev->dev.of_node;
 	struct clk_onecell_data *clk_data;
 	int r;
@@ -82,17 +119,30 @@ static int clk_mt6765_audio_probe(struct platform_device *pdev)
 	clk_data = mtk_alloc_clk_data(CLK_AUDIO_NR_CLK);
 	if (!clk_data)
 		return -ENOMEM;
+=======
+	struct clk_onecell_data *clk_data;
+	int r;
+	struct device_node *node = pdev->dev.of_node;
+
+	clk_data = mtk_alloc_clk_data(CLK_AUDIO_NR_CLK);
+>>>>>>> upstream/android-13
 
 	mtk_clk_register_gates(node, audio_clks,
 			       ARRAY_SIZE(audio_clks), clk_data);
 
 	r = of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
 
+<<<<<<< HEAD
 	if (r) {
 		kfree(clk_data);
 		pr_err("%s(): could not register clock provider: %d\n",
 				__func__, r);
 	}
+=======
+	if (r)
+		pr_err("%s(): could not register clock provider: %d\n",
+		       __func__, r);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -110,6 +160,7 @@ static struct platform_driver clk_mt6765_audio_drv = {
 	},
 };
 
+<<<<<<< HEAD
 static int __init clk_mt6765_audio_init(void)
 {
 	return platform_driver_register(&clk_mt6765_audio_drv);
@@ -122,3 +173,6 @@ static void __exit clk_mt6765_audio_exit(void)
 postcore_initcall(clk_mt6765_audio_init);
 module_exit(clk_mt6765_audio_exit);
 MODULE_LICENSE("GPL");
+=======
+builtin_platform_driver(clk_mt6765_audio_drv);
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SN Platform GRU Driver
  *
@@ -6,6 +10,7 @@
  * This file supports the user system call for file open, close, mmap, etc.
  * This also incudes the driver initialization code.
  *
+<<<<<<< HEAD
  *  Copyright (c) 2008-2014 Silicon Graphics, Inc.  All Rights Reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+ *  (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+ *  Copyright (c) 2008-2014 Silicon Graphics, Inc.  All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -148,7 +157,11 @@ static int gru_create_new_context(unsigned long arg)
 	if (!(req.options & GRU_OPT_MISS_MASK))
 		req.options |= GRU_OPT_MISS_FMM_INTR;
 
+<<<<<<< HEAD
 	down_write(&current->mm->mmap_sem);
+=======
+	mmap_write_lock(current->mm);
+>>>>>>> upstream/android-13
 	vma = gru_find_vma(req.gseg);
 	if (vma) {
 		vdata = vma->vm_private_data;
@@ -159,7 +172,11 @@ static int gru_create_new_context(unsigned long arg)
 		vdata->vd_tlb_preload_count = req.tlb_preload_count;
 		ret = 0;
 	}
+<<<<<<< HEAD
 	up_write(&current->mm->mmap_sem);
+=======
+	mmap_write_unlock(current->mm);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -529,7 +546,11 @@ static int __init gru_init(void)
 #if defined CONFIG_IA64
 	gru_start_paddr = 0xd000000000UL; /* ZZZZZZZZZZZZZZZZZZZ fixme */
 #else
+<<<<<<< HEAD
 	gru_start_paddr = uv_read_local_mmr(UVH_RH_GAM_GRU_OVERLAY_CONFIG_MMR) &
+=======
+	gru_start_paddr = uv_read_local_mmr(UVH_RH_GAM_GRU_OVERLAY_CONFIG) &
+>>>>>>> upstream/android-13
 				0x7fffffffffffUL;
 #endif
 	gru_start_vaddr = __va(gru_start_paddr);
@@ -586,6 +607,10 @@ static void __exit gru_exit(void)
 	gru_free_tables();
 	misc_deregister(&gru_miscdev);
 	gru_proc_exit();
+<<<<<<< HEAD
+=======
+	mmu_notifier_synchronize();
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations gru_fops = {

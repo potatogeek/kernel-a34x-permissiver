@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Driver for Realtek PCI-Express card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG <wei_wang@realsil.com.cn>
  */
@@ -35,9 +42,16 @@ static u8 rts5209_get_ic_version(struct rtsx_pcr *pcr)
 
 static void rts5209_fetch_vendor_settings(struct rtsx_pcr *pcr)
 {
+<<<<<<< HEAD
 	u32 reg;
 
 	rtsx_pci_read_config_dword(pcr, PCR_SETTING_REG1, &reg);
+=======
+	struct pci_dev *pdev = pcr->pci;
+	u32 reg;
+
+	pci_read_config_dword(pdev, PCR_SETTING_REG1, &reg);
+>>>>>>> upstream/android-13
 	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG1, reg);
 
 	if (rts5209_vendor_setting1_valid(reg)) {
@@ -46,7 +60,11 @@ static void rts5209_fetch_vendor_settings(struct rtsx_pcr *pcr)
 		pcr->aspm_en = rts5209_reg_to_aspm(reg);
 	}
 
+<<<<<<< HEAD
 	rtsx_pci_read_config_dword(pcr, PCR_SETTING_REG2, &reg);
+=======
+	pci_read_config_dword(pdev, PCR_SETTING_REG2, &reg);
+>>>>>>> upstream/android-13
 	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG2, reg);
 
 	if (rts5209_vendor_setting2_valid(reg)) {
@@ -266,6 +284,10 @@ void rts5209_init_params(struct rtsx_pcr *pcr)
 	pcr->sd30_drive_sel_1v8 = DRIVER_TYPE_B;
 	pcr->sd30_drive_sel_3v3 = DRIVER_TYPE_D;
 	pcr->aspm_en = ASPM_L1_EN;
+<<<<<<< HEAD
+=======
+	pcr->aspm_mode = ASPM_MODE_CFG;
+>>>>>>> upstream/android-13
 	pcr->tx_initial_phase = SET_CLOCK_PHASE(27, 27, 16);
 	pcr->rx_initial_phase = SET_CLOCK_PHASE(24, 6, 5);
 

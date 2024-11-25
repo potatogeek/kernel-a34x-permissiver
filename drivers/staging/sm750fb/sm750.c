@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/errno.h>
@@ -111,8 +115,13 @@ static int lynxfb_ops_cursor(struct fb_info *info, struct fb_cursor *fbcursor)
 	crtc = &par->crtc;
 	cursor = &crtc->cursor;
 
+<<<<<<< HEAD
 	if (fbcursor->image.width > cursor->maxW ||
 	    fbcursor->image.height > cursor->maxH ||
+=======
+	if (fbcursor->image.width > cursor->max_w ||
+	    fbcursor->image.height > cursor->max_h ||
+>>>>>>> upstream/android-13
 	    fbcursor->image.depth > 1) {
 		return -ENXIO;
 	}
@@ -174,7 +183,11 @@ static void lynxfb_ops_fillrect(struct fb_info *info,
 	 * each time 2d function begin to work,below three variable always need
 	 * be set, seems we can put them together in some place
 	 */
+<<<<<<< HEAD
 	base = par->crtc.oScreen;
+=======
+	base = par->crtc.o_screen;
+>>>>>>> upstream/android-13
 	pitch = info->fix.line_length;
 	Bpp = info->var.bits_per_pixel >> 3;
 
@@ -212,7 +225,11 @@ static void lynxfb_ops_copyarea(struct fb_info *info,
 	 * each time 2d function begin to work,below three variable always need
 	 * be set, seems we can put them together in some place
 	 */
+<<<<<<< HEAD
 	base = par->crtc.oScreen;
+=======
+	base = par->crtc.o_screen;
+>>>>>>> upstream/android-13
 	pitch = info->fix.line_length;
 	Bpp = info->var.bits_per_pixel >> 3;
 
@@ -246,7 +263,11 @@ static void lynxfb_ops_imageblit(struct fb_info *info,
 	 * each time 2d function begin to work,below three variable always need
 	 * be set, seems we can put them together in some place
 	 */
+<<<<<<< HEAD
 	base = par->crtc.oScreen;
+=======
+	base = par->crtc.o_screen;
+>>>>>>> upstream/android-13
 	pitch = info->fix.line_length;
 	Bpp = info->var.bits_per_pixel >> 3;
 
@@ -296,6 +317,65 @@ static int lynxfb_ops_pan_display(struct fb_var_screeninfo *var,
 	return hw_sm750_pan_display(crtc, var, info);
 }
 
+<<<<<<< HEAD
+=======
+static inline void lynxfb_set_visual_mode(struct fb_info *info)
+{
+	switch (info->var.bits_per_pixel) {
+	case 8:
+		info->fix.visual = FB_VISUAL_PSEUDOCOLOR;
+		break;
+	case 16:
+	case 24:
+	case 32:
+		info->fix.visual = FB_VISUAL_TRUECOLOR;
+		break;
+	default:
+		break;
+	}
+}
+
+static inline int lynxfb_set_color_offsets(struct fb_info *info)
+{
+	lynxfb_set_visual_mode(info);
+
+	switch (info->var.bits_per_pixel) {
+	case 8:
+		info->var.red.offset = 0;
+		info->var.red.length = 8;
+		info->var.green.offset = 0;
+		info->var.green.length = 8;
+		info->var.blue.offset = 0;
+		info->var.blue.length = 8;
+		info->var.transp.length = 0;
+		info->var.transp.offset = 0;
+		break;
+	case 16:
+		info->var.red.offset = 11;
+		info->var.red.length = 5;
+		info->var.green.offset = 5;
+		info->var.green.length = 6;
+		info->var.blue.offset = 0;
+		info->var.blue.length = 5;
+		info->var.transp.length = 0;
+		info->var.transp.offset = 0;
+		break;
+	case 24:
+	case 32:
+		info->var.red.offset = 16;
+		info->var.red.length = 8;
+		info->var.green.offset = 8;
+		info->var.green.length = 8;
+		info->var.blue.offset = 0;
+		info->var.blue.length = 8;
+		break;
+	default:
+		return -EINVAL;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int lynxfb_ops_set_par(struct fb_info *info)
 {
 	struct lynxfb_par *par;
@@ -327,6 +407,7 @@ static int lynxfb_ops_set_par(struct fb_info *info)
 	 * and these data should be set before setcolreg routine
 	 */
 
+<<<<<<< HEAD
 	switch (var->bits_per_pixel) {
 	case 8:
 		fix->visual = FB_VISUAL_PSEUDOCOLOR;
@@ -364,11 +445,19 @@ static int lynxfb_ops_set_par(struct fb_info *info)
 		ret = -EINVAL;
 		break;
 	}
+=======
+	ret = lynxfb_set_color_offsets(info);
+
+>>>>>>> upstream/android-13
 	var->height = var->width = -1;
 	var->accel_flags = 0;/*FB_ACCELF_TEXT;*/
 
 	if (ret) {
+<<<<<<< HEAD
 		pr_err("pixel bpp format not satisfied\n.");
+=======
+		pr_err("bpp %d not supported\n", var->bits_per_pixel);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	ret = hw_sm750_crtc_setMode(crtc, var, fix);
@@ -385,6 +474,7 @@ static inline unsigned int chan_to_field(unsigned int chan,
 	return chan << bf->offset;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int lynxfb_suspend(struct pci_dev *pdev, pm_message_t mesg)
 {
@@ -440,6 +530,32 @@ lynxfb_suspend_err:
 
 static int lynxfb_resume(struct pci_dev *pdev)
 {
+=======
+static int __maybe_unused lynxfb_suspend(struct device *dev)
+{
+	struct fb_info *info;
+	struct sm750_dev *sm750_dev;
+
+	sm750_dev = dev_get_drvdata(dev);
+
+	console_lock();
+	info = sm750_dev->fbinfo[0];
+	if (info)
+		/* 1 means do suspend */
+		fb_set_suspend(info, 1);
+	info = sm750_dev->fbinfo[1];
+	if (info)
+		/* 1 means do suspend */
+		fb_set_suspend(info, 1);
+
+	console_unlock();
+	return 0;
+}
+
+static int __maybe_unused lynxfb_resume(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+>>>>>>> upstream/android-13
 	struct fb_info *info;
 	struct sm750_dev *sm750_dev;
 
@@ -447,13 +563,17 @@ static int lynxfb_resume(struct pci_dev *pdev)
 	struct lynxfb_crtc *crtc;
 	struct lynx_cursor *cursor;
 
+<<<<<<< HEAD
 	int ret;
 
 	ret = 0;
+=======
+>>>>>>> upstream/android-13
 	sm750_dev = pci_get_drvdata(pdev);
 
 	console_lock();
 
+<<<<<<< HEAD
 	ret = pci_set_power_state(pdev, PCI_D0);
 	if (ret) {
 		dev_err(&pdev->dev,
@@ -473,6 +593,8 @@ static int lynxfb_resume(struct pci_dev *pdev)
 		pci_set_master(pdev);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	hw_sm750_inithw(sm750_dev, pdev);
 
 	info = sm750_dev->fbinfo[0];
@@ -482,7 +604,11 @@ static int lynxfb_resume(struct pci_dev *pdev)
 		crtc = &par->crtc;
 		cursor = &crtc->cursor;
 		memset_io(cursor->vstart, 0x0, cursor->size);
+<<<<<<< HEAD
 		memset_io(crtc->vScreen, 0x0, crtc->vidmem_size);
+=======
+		memset_io(crtc->v_screen, 0x0, crtc->vidmem_size);
+>>>>>>> upstream/android-13
 		lynxfb_ops_set_par(info);
 		fb_set_suspend(info, 0);
 	}
@@ -494,26 +620,44 @@ static int lynxfb_resume(struct pci_dev *pdev)
 		crtc = &par->crtc;
 		cursor = &crtc->cursor;
 		memset_io(cursor->vstart, 0x0, cursor->size);
+<<<<<<< HEAD
 		memset_io(crtc->vScreen, 0x0, crtc->vidmem_size);
+=======
+		memset_io(crtc->v_screen, 0x0, crtc->vidmem_size);
+>>>>>>> upstream/android-13
 		lynxfb_ops_set_par(info);
 		fb_set_suspend(info, 0);
 	}
 
 	pdev->dev.power.power_state.event = PM_EVENT_RESUME;
 
+<<<<<<< HEAD
 lynxfb_resume_err:
 	console_unlock();
 	return ret;
 }
 #endif
+=======
+	console_unlock();
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int lynxfb_ops_check_var(struct fb_var_screeninfo *var,
 				struct fb_info *info)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct lynxfb_par *par;
 	struct lynxfb_crtc *crtc;
 	resource_size_t request;
 
+<<<<<<< HEAD
+=======
+	ret = 0;
+>>>>>>> upstream/android-13
 	par = info->par;
 	crtc = &par->crtc;
 
@@ -522,6 +666,7 @@ static int lynxfb_ops_check_var(struct fb_var_screeninfo *var,
 		 var->yres,
 		 var->bits_per_pixel);
 
+<<<<<<< HEAD
 	switch (var->bits_per_pixel) {
 	case 8:
 		info->fix.visual = FB_VISUAL_PSEUDOCOLOR;
@@ -563,6 +708,19 @@ static int lynxfb_ops_check_var(struct fb_var_screeninfo *var,
 	var->accel_flags = 0;/* FB_ACCELF_TEXT; */
 
 	/* check if current fb's video memory big enought to hold the onscreen*/
+=======
+	ret = lynxfb_set_color_offsets(info);
+
+	if (ret) {
+		pr_err("bpp %d not supported\n", var->bits_per_pixel);
+		return ret;
+	}
+
+	var->height = var->width = -1;
+	var->accel_flags = 0;/* FB_ACCELF_TEXT; */
+
+	/* check if current fb's video memory big enough to hold the onscreen*/
+>>>>>>> upstream/android-13
 	request = var->xres_virtual * (var->bits_per_pixel >> 3);
 	/* defaulty crtc->channel go with par->index */
 
@@ -675,20 +833,31 @@ static int sm750fb_set_drv(struct lynxfb_par *par)
 	case sm750_simul_pri:
 		output->paths = sm750_pnc;
 		crtc->channel = sm750_primary;
+<<<<<<< HEAD
 		crtc->oScreen = 0;
 		crtc->vScreen = sm750_dev->pvMem;
+=======
+		crtc->o_screen = 0;
+		crtc->v_screen = sm750_dev->pvMem;
+>>>>>>> upstream/android-13
 		pr_info("use simul primary mode\n");
 		break;
 	case sm750_simul_sec:
 		output->paths = sm750_pnc;
 		crtc->channel = sm750_secondary;
+<<<<<<< HEAD
 		crtc->oScreen = 0;
 		crtc->vScreen = sm750_dev->pvMem;
+=======
+		crtc->o_screen = 0;
+		crtc->v_screen = sm750_dev->pvMem;
+>>>>>>> upstream/android-13
 		break;
 	case sm750_dual_normal:
 		if (par->index == 0) {
 			output->paths = sm750_panel;
 			crtc->channel = sm750_primary;
+<<<<<<< HEAD
 			crtc->oScreen = 0;
 			crtc->vScreen = sm750_dev->pvMem;
 		} else {
@@ -697,12 +866,23 @@ static int sm750fb_set_drv(struct lynxfb_par *par)
 			/* not consider of padding stuffs for oScreen,need fix */
 			crtc->oScreen = (sm750_dev->vidmem_size >> 1);
 			crtc->vScreen = sm750_dev->pvMem + crtc->oScreen;
+=======
+			crtc->o_screen = 0;
+			crtc->v_screen = sm750_dev->pvMem;
+		} else {
+			output->paths = sm750_crt;
+			crtc->channel = sm750_secondary;
+			/* not consider of padding stuffs for o_screen,need fix */
+			crtc->o_screen = sm750_dev->vidmem_size >> 1;
+			crtc->v_screen = sm750_dev->pvMem + crtc->o_screen;
+>>>>>>> upstream/android-13
 		}
 		break;
 	case sm750_dual_swap:
 		if (par->index == 0) {
 			output->paths = sm750_panel;
 			crtc->channel = sm750_secondary;
+<<<<<<< HEAD
 			crtc->oScreen = 0;
 			crtc->vScreen = sm750_dev->pvMem;
 		} else {
@@ -711,6 +891,18 @@ static int sm750fb_set_drv(struct lynxfb_par *par)
 			/* not consider of padding stuffs for oScreen,need fix */
 			crtc->oScreen = (sm750_dev->vidmem_size >> 1);
 			crtc->vScreen = sm750_dev->pvMem + crtc->oScreen;
+=======
+			crtc->o_screen = 0;
+			crtc->v_screen = sm750_dev->pvMem;
+		} else {
+			output->paths = sm750_crt;
+			crtc->channel = sm750_primary;
+			/* not consider of padding stuffs for o_screen,
+			 * need fix
+			 */
+			crtc->o_screen = sm750_dev->vidmem_size >> 1;
+			crtc->v_screen = sm750_dev->pvMem + crtc->o_screen;
+>>>>>>> upstream/android-13
 		}
 		break;
 	default:
@@ -747,7 +939,11 @@ static int lynxfb_set_fbinfo(struct fb_info *info, int index)
 		lynx750_ext, NULL, vesa_modes,
 	};
 	int cdb[] = {ARRAY_SIZE(lynx750_ext), 0, VESA_MODEDB_SIZE};
+<<<<<<< HEAD
 	static const char *mdb_desc[] = {
+=======
+	static const char * const mdb_desc[] = {
+>>>>>>> upstream/android-13
 		"driver prepared modes",
 		"kernel prepared default modedb",
 		"kernel HELPERS prepared vesa_modes",
@@ -777,13 +973,22 @@ static int lynxfb_set_fbinfo(struct fb_info *info, int index)
 	 * set current cursor variable and proc pointer,
 	 * must be set after crtc member initialized
 	 */
+<<<<<<< HEAD
 	crtc->cursor.offset = crtc->oScreen + crtc->vidmem_size - 1024;
+=======
+	crtc->cursor.offset = crtc->o_screen + crtc->vidmem_size - 1024;
+>>>>>>> upstream/android-13
 	crtc->cursor.mmio = sm750_dev->pvReg +
 		0x800f0 + (int)crtc->channel * 0x140;
 
 	pr_info("crtc->cursor.mmio = %p\n", crtc->cursor.mmio);
+<<<<<<< HEAD
 	crtc->cursor.maxH = crtc->cursor.maxW = 64;
 	crtc->cursor.size = crtc->cursor.maxH * crtc->cursor.maxW * 2 / 8;
+=======
+	crtc->cursor.max_h = crtc->cursor.max_w = 64;
+	crtc->cursor.size = crtc->cursor.max_h * crtc->cursor.max_w * 2 / 8;
+>>>>>>> upstream/android-13
 	crtc->cursor.vstart = sm750_dev->pvMem + crtc->cursor.offset;
 
 	memset_io(crtc->cursor.vstart, 0, crtc->cursor.size);
@@ -860,7 +1065,11 @@ static int lynxfb_set_fbinfo(struct fb_info *info, int index)
 			    crtc->line_pad);
 
 	info->pseudo_palette = &par->pseudo_palette[0];
+<<<<<<< HEAD
 	info->screen_base = crtc->vScreen;
+=======
+	info->screen_base = crtc->v_screen;
+>>>>>>> upstream/android-13
 	pr_debug("screen_base vaddr = %p\n", info->screen_base);
 	info->screen_size = line_length * var->yres_virtual;
 	info->flags = FBINFO_FLAG_DEFAULT | 0;
@@ -873,9 +1082,15 @@ static int lynxfb_set_fbinfo(struct fb_info *info, int index)
 	fix->ywrapstep = crtc->ywrapstep;
 	fix->accel = FB_ACCEL_SMI;
 
+<<<<<<< HEAD
 	strlcpy(fix->id, fixId[index], sizeof(fix->id));
 
 	fix->smem_start = crtc->oScreen + sm750_dev->vidmem_start;
+=======
+	strscpy(fix->id, fixId[index], sizeof(fix->id));
+
+	fix->smem_start = crtc->o_screen + sm750_dev->vidmem_start;
+>>>>>>> upstream/android-13
 	pr_info("fix->smem_start = %lx\n", fix->smem_start);
 	/*
 	 * according to mmap experiment from user space application,
@@ -892,6 +1107,7 @@ static int lynxfb_set_fbinfo(struct fb_info *info, int index)
 	pr_info("fix->mmio_start = %lx\n", fix->mmio_start);
 	fix->mmio_len = sm750_dev->vidreg_size;
 	pr_info("fix->mmio_len = %x\n", fix->mmio_len);
+<<<<<<< HEAD
 	switch (var->bits_per_pixel) {
 	case 8:
 		fix->visual = FB_VISUAL_PSEUDOCOLOR;
@@ -902,6 +1118,10 @@ static int lynxfb_set_fbinfo(struct fb_info *info, int index)
 		fix->visual = FB_VISUAL_TRUECOLOR;
 		break;
 	}
+=======
+
+	lynxfb_set_visual_mode(info);
+>>>>>>> upstream/android-13
 
 	/* set var */
 	var->activate = FB_ACTIVATE_NOW;
@@ -1008,7 +1228,11 @@ NO_PARAM:
 	}
 }
 
+<<<<<<< HEAD
 static void sm750fb_frambuffer_release(struct sm750_dev *sm750_dev)
+=======
+static void sm750fb_framebuffer_release(struct sm750_dev *sm750_dev)
+>>>>>>> upstream/android-13
 {
 	struct fb_info *fb_info;
 
@@ -1020,7 +1244,11 @@ static void sm750fb_frambuffer_release(struct sm750_dev *sm750_dev)
 	}
 }
 
+<<<<<<< HEAD
 static int sm750fb_frambuffer_alloc(struct sm750_dev *sm750_dev, int fbidx)
+=======
+static int sm750fb_framebuffer_alloc(struct sm750_dev *sm750_dev, int fbidx)
+>>>>>>> upstream/android-13
 {
 	struct fb_info *fb_info;
 	struct lynxfb_par *par;
@@ -1138,7 +1366,11 @@ static int lynxfb_pci_probe(struct pci_dev *pdev,
 	/* allocate frame buffer info structures according to g_dualview */
 	max_fb = g_dualview ? 2 : 1;
 	for (fbidx = 0; fbidx < max_fb; fbidx++) {
+<<<<<<< HEAD
 		err = sm750fb_frambuffer_alloc(sm750_dev, fbidx);
+=======
+		err = sm750fb_framebuffer_alloc(sm750_dev, fbidx);
+>>>>>>> upstream/android-13
 		if (err)
 			goto release_fb;
 	}
@@ -1146,7 +1378,11 @@ static int lynxfb_pci_probe(struct pci_dev *pdev,
 	return 0;
 
 release_fb:
+<<<<<<< HEAD
 	sm750fb_frambuffer_release(sm750_dev);
+=======
+	sm750fb_framebuffer_release(sm750_dev);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1156,7 +1392,11 @@ static void lynxfb_pci_remove(struct pci_dev *pdev)
 
 	sm750_dev = pci_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	sm750fb_frambuffer_release(sm750_dev);
+=======
+	sm750fb_framebuffer_release(sm750_dev);
+>>>>>>> upstream/android-13
 	arch_phys_wc_del(sm750_dev->mtrr.vram);
 
 	iounmap(sm750_dev->pvReg);
@@ -1222,15 +1462,24 @@ static const struct pci_device_id smi_pci_table[] = {
 
 MODULE_DEVICE_TABLE(pci, smi_pci_table);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(lynxfb_pm_ops, lynxfb_suspend, lynxfb_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver lynxfb_driver = {
 	.name =		"sm750fb",
 	.id_table =	smi_pci_table,
 	.probe =	lynxfb_pci_probe,
 	.remove =	lynxfb_pci_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = lynxfb_suspend,
 	.resume = lynxfb_resume,
 #endif
+=======
+	.driver.pm =	&lynxfb_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init lynxfb_init(void)

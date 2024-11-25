@@ -3,6 +3,10 @@
 
 # Kselftest framework requirement - SKIP code is 4.
 ksft_skip=4
+<<<<<<< HEAD
+=======
+ret=$ksft_skip
+>>>>>>> upstream/android-13
 
 msg="skip all tests:"
 if [ $UID != 0 ]; then
@@ -21,6 +25,7 @@ do
 	if grep -q DRV_NAME=rc-loopback $i/uevent
 	then
 		LIRCDEV=$(grep DEVNAME= $i/lirc*/uevent | sed sQDEVNAME=Q/dev/Q)
+<<<<<<< HEAD
 	fi
 done
 
@@ -28,6 +33,16 @@ if [ -n $LIRCDEV ];
 then
 	TYPE=lirc_mode2
 	./test_lirc_mode2_user $LIRCDEV
+=======
+		INPUTDEV=$(grep DEVNAME= $i/input*/event*/uevent | sed sQDEVNAME=Q/dev/Q)
+	fi
+done
+
+if [ -n "$LIRCDEV" ];
+then
+	TYPE=lirc_mode2
+	./test_lirc_mode2_user $LIRCDEV $INPUTDEV
+>>>>>>> upstream/android-13
 	ret=$?
 	if [ $ret -ne 0 ]; then
 		echo -e ${RED}"FAIL: $TYPE"${NC}
@@ -35,3 +50,8 @@ then
 		echo -e ${GREEN}"PASS: $TYPE"${NC}
 	fi
 fi
+<<<<<<< HEAD
+=======
+
+exit $ret
+>>>>>>> upstream/android-13

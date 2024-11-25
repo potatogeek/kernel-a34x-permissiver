@@ -70,13 +70,22 @@ static int prism2_result2err(int prism2_result)
 	return err;
 }
 
+<<<<<<< HEAD
 static int prism2_domibset_uint32(struct wlandevice *wlandev, u32 did, u32 data)
+=======
+static int prism2_domibset_uint32(struct wlandevice *wlandev,
+				  u32 did, u32 data)
+>>>>>>> upstream/android-13
 {
 	struct p80211msg_dot11req_mibset msg;
 	struct p80211item_uint32 *mibitem =
 			(struct p80211item_uint32 *)&msg.mibattribute.data;
 
+<<<<<<< HEAD
 	msg.msgcode = DIDmsg_dot11req_mibset;
+=======
+	msg.msgcode = DIDMSG_DOT11REQ_MIBSET;
+>>>>>>> upstream/android-13
 	mibitem->did = did;
 	mibitem->data = data;
 
@@ -90,7 +99,11 @@ static int prism2_domibset_pstr32(struct wlandevice *wlandev,
 	struct p80211item_pstr32 *mibitem =
 			(struct p80211item_pstr32 *)&msg.mibattribute.data;
 
+<<<<<<< HEAD
 	msg.msgcode = DIDmsg_dot11req_mibset;
+=======
+	msg.msgcode = DIDMSG_DOT11REQ_MIBSET;
+>>>>>>> upstream/android-13
 	mibitem->did = did;
 	mibitem->data.len = len;
 	memcpy(mibitem->data.data, data, len);
@@ -129,7 +142,11 @@ static int prism2_change_virtual_intf(struct wiphy *wiphy,
 
 	/* Set Operation mode to the PORT TYPE RID */
 	result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 					DIDmib_p2_p2Static_p2CnfPortType,
+=======
+					DIDMIB_P2_STATIC_CNFPORTTYPE,
+>>>>>>> upstream/android-13
 					data);
 
 	if (result)
@@ -142,8 +159,13 @@ exit:
 }
 
 static int prism2_add_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 			  u8 key_index, bool pairwise, const u8 *mac_addr,
 			  struct key_params *params)
+=======
+			  int link_id, u8 key_index, bool pairwise,
+			  const u8 *mac_addr, struct key_params *params)
+>>>>>>> upstream/android-13
 {
 	struct wlandevice *wlandev = dev->ml_priv;
 	u32 did;
@@ -158,12 +180,20 @@ static int prism2_add_key(struct wiphy *wiphy, struct net_device *dev,
 	}
 
 	if (prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 				   DIDmib_dot11smt_dot11PrivacyTable_dot11WEPDefaultKeyID,
+=======
+				   DIDMIB_DOT11SMT_PRIVACYTABLE_WEPDEFAULTKEYID,
+>>>>>>> upstream/android-13
 				   key_index))
 		return -EFAULT;
 
 	/* send key to driver */
+<<<<<<< HEAD
 	did = DIDmib_dot11smt_dot11WEPDefaultKeysTable_key(key_index + 1);
+=======
+	did = didmib_dot11smt_wepdefaultkeystable_key(key_index + 1);
+>>>>>>> upstream/android-13
 
 	if (prism2_domibset_pstr32(wlandev, did, params->key_len, params->key))
 		return -EFAULT;
@@ -171,7 +201,11 @@ static int prism2_add_key(struct wiphy *wiphy, struct net_device *dev,
 }
 
 static int prism2_get_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 			  u8 key_index, bool pairwise,
+=======
+			  int link_id, u8 key_index, bool pairwise,
+>>>>>>> upstream/android-13
 			  const u8 *mac_addr, void *cookie,
 			  void (*callback)(void *cookie, struct key_params*))
 {
@@ -201,7 +235,12 @@ static int prism2_get_key(struct wiphy *wiphy, struct net_device *dev,
 }
 
 static int prism2_del_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 			  u8 key_index, bool pairwise, const u8 *mac_addr)
+=======
+			  int link_id, u8 key_index, bool pairwise,
+			  const u8 *mac_addr)
+>>>>>>> upstream/android-13
 {
 	struct wlandevice *wlandev = dev->ml_priv;
 	u32 did;
@@ -216,7 +255,11 @@ static int prism2_del_key(struct wiphy *wiphy, struct net_device *dev,
 		return -EINVAL;
 
 	/* send key to driver */
+<<<<<<< HEAD
 	did = DIDmib_dot11smt_dot11WEPDefaultKeysTable_key(key_index + 1);
+=======
+	did = didmib_dot11smt_wepdefaultkeystable_key(key_index + 1);
+>>>>>>> upstream/android-13
 	result = prism2_domibset_pstr32(wlandev, did, 13, "0000000000000");
 
 	if (result)
@@ -226,6 +269,7 @@ static int prism2_del_key(struct wiphy *wiphy, struct net_device *dev,
 }
 
 static int prism2_set_default_key(struct wiphy *wiphy, struct net_device *dev,
+<<<<<<< HEAD
 				  u8 key_index, bool unicast, bool multicast)
 {
 	struct wlandevice *wlandev = dev->ml_priv;
@@ -241,6 +285,16 @@ static int prism2_set_default_key(struct wiphy *wiphy, struct net_device *dev,
 		err = -EFAULT;
 
 	return err;
+=======
+				  int link_id, u8 key_index, bool unicast,
+				  bool multicast)
+{
+	struct wlandevice *wlandev = dev->ml_priv;
+
+	return  prism2_domibset_uint32(wlandev,
+				       DIDMIB_DOT11SMT_PRIVACYTABLE_WEPDEFAULTKEYID,
+				       key_index);
+>>>>>>> upstream/android-13
 }
 
 static int prism2_get_station(struct wiphy *wiphy, struct net_device *dev,
@@ -256,7 +310,11 @@ static int prism2_get_station(struct wiphy *wiphy, struct net_device *dev,
 		return -EOPNOTSUPP;
 
 	/* build request message */
+<<<<<<< HEAD
 	quality.msgcode = DIDmsg_lnxreq_commsquality;
+=======
+	quality.msgcode = DIDMSG_LNXREQ_COMMSQUALITY;
+>>>>>>> upstream/android-13
 	quality.dbm.data = P80211ENUM_truth_true;
 	quality.dbm.status = P80211ENUM_msgitem_status_data_ok;
 
@@ -283,7 +341,11 @@ static int prism2_scan(struct wiphy *wiphy,
 	struct prism2_wiphy_private *priv = wiphy_priv(wiphy);
 	struct wlandevice *wlandev;
 	struct p80211msg_dot11req_scan msg1;
+<<<<<<< HEAD
 	struct p80211msg_dot11req_scan_results msg2;
+=======
+	struct p80211msg_dot11req_scan_results *msg2;
+>>>>>>> upstream/android-13
 	struct cfg80211_bss *bss;
 	struct cfg80211_scan_info info = {};
 
@@ -308,10 +370,21 @@ static int prism2_scan(struct wiphy *wiphy,
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	priv->scan_request = request;
 
 	memset(&msg1, 0x00, sizeof(msg1));
 	msg1.msgcode = DIDmsg_dot11req_scan;
+=======
+	msg2 = kzalloc(sizeof(*msg2), GFP_KERNEL);
+	if (!msg2)
+		return -ENOMEM;
+
+	priv->scan_request = request;
+
+	memset(&msg1, 0x00, sizeof(msg1));
+	msg1.msgcode = DIDMSG_DOT11REQ_SCAN;
+>>>>>>> upstream/android-13
 	msg1.bsstype.data = P80211ENUM_bsstype_any;
 
 	memset(&msg1.bssid.data.data, 0xFF, sizeof(msg1.bssid.data.data));
@@ -349,6 +422,7 @@ static int prism2_scan(struct wiphy *wiphy,
 	for (i = 0; i < numbss; i++) {
 		int freq;
 
+<<<<<<< HEAD
 		memset(&msg2, 0, sizeof(msg2));
 		msg2.msgcode = DIDmsg_dot11req_scan_results;
 		msg2.bssindex.data = i;
@@ -356,10 +430,19 @@ static int prism2_scan(struct wiphy *wiphy,
 		result = p80211req_dorequest(wlandev, (u8 *)&msg2);
 		if ((result != 0) ||
 		    (msg2.resultcode.data != P80211ENUM_resultcode_success)) {
+=======
+		msg2->msgcode = DIDMSG_DOT11REQ_SCAN_RESULTS;
+		msg2->bssindex.data = i;
+
+		result = p80211req_dorequest(wlandev, (u8 *)&msg2);
+		if ((result != 0) ||
+		    (msg2->resultcode.data != P80211ENUM_resultcode_success)) {
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		ie_buf[0] = WLAN_EID_SSID;
+<<<<<<< HEAD
 		ie_buf[1] = msg2.ssid.data.len;
 		ie_len = ie_buf[1] + 2;
 		memcpy(&ie_buf[2], &msg2.ssid.data.data, msg2.ssid.data.len);
@@ -376,6 +459,23 @@ static int prism2_scan(struct wiphy *wiphy,
 			(msg2.signal.data - 65536) * 100, /* Conversion to signed type */
 			GFP_KERNEL
 		);
+=======
+		ie_buf[1] = msg2->ssid.data.len;
+		ie_len = ie_buf[1] + 2;
+		memcpy(&ie_buf[2], &msg2->ssid.data.data, msg2->ssid.data.len);
+		freq = ieee80211_channel_to_frequency(msg2->dschannel.data,
+						      NL80211_BAND_2GHZ);
+		bss = cfg80211_inform_bss(wiphy,
+					  ieee80211_get_channel(wiphy, freq),
+					  CFG80211_BSS_FTYPE_UNKNOWN,
+					  (const u8 *)&msg2->bssid.data.data,
+					  msg2->timestamp.data, msg2->capinfo.data,
+					  msg2->beaconperiod.data,
+					  ie_buf,
+					  ie_len,
+					  (msg2->signal.data - 65536) * 100, /* Conversion to signed type */
+					  GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		if (!bss) {
 			err = -ENOMEM;
@@ -386,12 +486,20 @@ static int prism2_scan(struct wiphy *wiphy,
 	}
 
 	if (result)
+<<<<<<< HEAD
 		err = prism2_result2err(msg2.resultcode.data);
+=======
+		err = prism2_result2err(msg2->resultcode.data);
+>>>>>>> upstream/android-13
 
 exit:
 	info.aborted = !!(err);
 	cfg80211_scan_done(request, &info);
 	priv->scan_request = NULL;
+<<<<<<< HEAD
+=======
+	kfree(msg2);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -410,7 +518,11 @@ static int prism2_set_wiphy_params(struct wiphy *wiphy, u32 changed)
 			data = wiphy->rts_threshold;
 
 		result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 						DIDmib_dot11mac_dot11OperationTable_dot11RTSThreshold,
+=======
+						DIDMIB_DOT11MAC_OPERATIONTABLE_RTSTHRESHOLD,
+>>>>>>> upstream/android-13
 						data);
 		if (result) {
 			err = -EFAULT;
@@ -425,7 +537,11 @@ static int prism2_set_wiphy_params(struct wiphy *wiphy, u32 changed)
 			data = wiphy->frag_threshold;
 
 		result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 						DIDmib_dot11mac_dot11OperationTable_dot11FragmentationThreshold,
+=======
+						DIDMIB_DOT11MAC_OPERATIONTABLE_FRAGMENTATIONTHRESHOLD,
+>>>>>>> upstream/android-13
 						data);
 		if (result) {
 			err = -EFAULT;
@@ -455,7 +571,11 @@ static int prism2_connect(struct wiphy *wiphy, struct net_device *dev,
 	if (channel) {
 		chan = ieee80211_frequency_to_channel(channel->center_freq);
 		result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 						DIDmib_dot11phy_dot11PhyDSSSTable_dot11CurrentChannel,
+=======
+						DIDMIB_DOT11PHY_DSSSTABLE_CURRENTCHANNEL,
+>>>>>>> upstream/android-13
 						chan);
 		if (result)
 			goto exit;
@@ -480,13 +600,21 @@ static int prism2_connect(struct wiphy *wiphy, struct net_device *dev,
 				return -EINVAL;
 
 			result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 				DIDmib_dot11smt_dot11PrivacyTable_dot11WEPDefaultKeyID,
+=======
+				DIDMIB_DOT11SMT_PRIVACYTABLE_WEPDEFAULTKEYID,
+>>>>>>> upstream/android-13
 				sme->key_idx);
 			if (result)
 				goto exit;
 
 			/* send key to driver */
+<<<<<<< HEAD
 			did = DIDmib_dot11smt_dot11WEPDefaultKeysTable_key(
+=======
+			did = didmib_dot11smt_wepdefaultkeystable_key(
+>>>>>>> upstream/android-13
 					sme->key_idx + 1);
 			result = prism2_domibset_pstr32(wlandev,
 							did, sme->key_len,
@@ -500,13 +628,21 @@ static int prism2_connect(struct wiphy *wiphy, struct net_device *dev,
 		 * seems reasonable anyways
 		 */
 		result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 						DIDmib_dot11smt_dot11PrivacyTable_dot11PrivacyInvoked,
+=======
+						DIDMIB_DOT11SMT_PRIVACYTABLE_PRIVACYINVOKED,
+>>>>>>> upstream/android-13
 						P80211ENUM_truth_true);
 		if (result)
 			goto exit;
 
 		result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 						DIDmib_dot11smt_dot11PrivacyTable_dot11ExcludeUnencrypted,
+=======
+						DIDMIB_DOT11SMT_PRIVACYTABLE_EXCLUDEUNENCRYPTED,
+>>>>>>> upstream/android-13
 						P80211ENUM_truth_true);
 		if (result)
 			goto exit;
@@ -516,13 +652,21 @@ static int prism2_connect(struct wiphy *wiphy, struct net_device *dev,
 		 * and exclude unencrypted
 		 */
 		result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 						DIDmib_dot11smt_dot11PrivacyTable_dot11PrivacyInvoked,
+=======
+						DIDMIB_DOT11SMT_PRIVACYTABLE_PRIVACYINVOKED,
+>>>>>>> upstream/android-13
 						P80211ENUM_truth_false);
 		if (result)
 			goto exit;
 
 		result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 						DIDmib_dot11smt_dot11PrivacyTable_dot11ExcludeUnencrypted,
+=======
+						DIDMIB_DOT11SMT_PRIVACYTABLE_EXCLUDEUNENCRYPTED,
+>>>>>>> upstream/android-13
 						P80211ENUM_truth_false);
 		if (result)
 			goto exit;
@@ -531,7 +675,11 @@ static int prism2_connect(struct wiphy *wiphy, struct net_device *dev,
 	/* Now do the actual join. Note there is no way that I can
 	 * see to request a specific bssid
 	 */
+<<<<<<< HEAD
 	msg_join.msgcode = DIDmsg_lnxreq_autojoin;
+=======
+	msg_join.msgcode = DIDMSG_LNXREQ_AUTOJOIN;
+>>>>>>> upstream/android-13
 
 	memcpy(msg_join.ssid.data.data, sme->ssid, length);
 	msg_join.ssid.data.len = length;
@@ -554,7 +702,11 @@ static int prism2_disconnect(struct wiphy *wiphy, struct net_device *dev,
 	int err = 0;
 
 	/* Do a join, with a bogus ssid. Thats the only way I can think of */
+<<<<<<< HEAD
 	msg_join.msgcode = DIDmsg_lnxreq_autojoin;
+=======
+	msg_join.msgcode = DIDMSG_LNXREQ_AUTOJOIN;
+>>>>>>> upstream/android-13
 
 	memcpy(msg_join.ssid.data.data, "---", 3);
 	msg_join.ssid.data.len = 3;
@@ -593,7 +745,11 @@ static int prism2_set_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev,
 		data = MBM_TO_DBM(mbm);
 
 	result = prism2_domibset_uint32(wlandev,
+<<<<<<< HEAD
 		DIDmib_dot11phy_dot11PhyTxPowerTable_dot11CurrentTxPowerLevel,
+=======
+		DIDMIB_DOT11PHY_TXPOWERTABLE_CURRENTTXPOWERLEVEL,
+>>>>>>> upstream/android-13
 		data);
 
 	if (result) {
@@ -616,9 +772,14 @@ static int prism2_get_tx_power(struct wiphy *wiphy, struct wireless_dev *wdev,
 	int err = 0;
 
 	mibitem = (struct p80211item_uint32 *)&msg.mibattribute.data;
+<<<<<<< HEAD
 	msg.msgcode = DIDmsg_dot11req_mibget;
 	mibitem->did =
 	    DIDmib_dot11phy_dot11PhyTxPowerTable_dot11CurrentTxPowerLevel;
+=======
+	msg.msgcode = DIDMSG_DOT11REQ_MIBGET;
+	mibitem->did = DIDMIB_DOT11PHY_TXPOWERTABLE_CURRENTTXPOWERLEVEL;
+>>>>>>> upstream/android-13
 
 	result = p80211req_dorequest(wlandev, (u8 *)&msg);
 
@@ -652,7 +813,11 @@ void prism2_disconnected(struct wlandevice *wlandev)
 void prism2_roamed(struct wlandevice *wlandev)
 {
 	struct cfg80211_roam_info roam_info = {
+<<<<<<< HEAD
 		.bssid = wlandev->bssid,
+=======
+		.links[0].bssid = wlandev->bssid,
+>>>>>>> upstream/android-13
 	};
 
 	cfg80211_roamed(wlandev->netdev, &roam_info, GFP_KERNEL);
@@ -677,7 +842,12 @@ static const struct cfg80211_ops prism2_usb_cfg_ops = {
 };
 
 /* Functions to create/free wiphy interface */
+<<<<<<< HEAD
 static struct wiphy *wlan_create_wiphy(struct device *dev, struct wlandevice *wlandev)
+=======
+static struct wiphy *wlan_create_wiphy(struct device *dev,
+				       struct wlandevice *wlandev)
+>>>>>>> upstream/android-13
 {
 	struct wiphy *wiphy;
 	struct prism2_wiphy_private *priv;

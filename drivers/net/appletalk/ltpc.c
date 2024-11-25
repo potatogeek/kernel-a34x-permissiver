@@ -229,6 +229,11 @@ static int dma;
 #include <linux/bitops.h>
 #include <linux/gfp.h>
 
+<<<<<<< HEAD
+=======
+#include <net/Space.h>
+
+>>>>>>> upstream/android-13
 #include <asm/dma.h>
 #include <asm/io.h>
 
@@ -582,11 +587,21 @@ loop:
 						printk("%02x ",ltdmacbuf[i]);
 					printk("\n");
 				}
+<<<<<<< HEAD
 				handlecommand(dev);
 					if(0xfa==inb_p(base+6)) {
 						/* we timed out, so return */
 						goto done;
 					} 
+=======
+
+				handlecommand(dev);
+
+				if (0xfa == inb_p(base + 6)) {
+					/* we timed out, so return */
+					goto done;
+				}
+>>>>>>> upstream/android-13
 			} else {
 				/* we don't seem to have a command */
 				if (!mboxinuse[0]) {
@@ -933,10 +948,17 @@ static netdev_tx_t ltpc_xmit(struct sk_buff *skb, struct net_device *dev)
 static int __init ltpc_probe_dma(int base, int dma)
 {
 	int want = (dma == 3) ? 2 : (dma == 1) ? 1 : 3;
+<<<<<<< HEAD
   	unsigned long timeout;
   	unsigned long f;
   
   	if (want & 1) {
+=======
+	unsigned long timeout;
+	unsigned long f;
+  
+	if (want & 1) {
+>>>>>>> upstream/android-13
 		if (request_dma(1,"ltpc")) {
 			want &= ~1;
 		} else {
@@ -1011,7 +1033,11 @@ static const struct net_device_ops ltpc_netdev = {
 	.ndo_set_rx_mode	= set_multicast_list,
 };
 
+<<<<<<< HEAD
 struct net_device * __init ltpc_probe(void)
+=======
+static struct net_device * __init ltpc_probe(void)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev;
 	int err = -ENOMEM;
@@ -1217,12 +1243,19 @@ static int __init ltpc_setup(char *str)
 }
 
 __setup("ltpc=", ltpc_setup);
+<<<<<<< HEAD
 #endif /* MODULE */
 
 static struct net_device *dev_ltpc;
 
 #ifdef MODULE
 
+=======
+#endif
+
+static struct net_device *dev_ltpc;
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 module_param(debug, int, 0);
 module_param_hw(io, int, ioport, 0);
@@ -1240,7 +1273,10 @@ static int __init ltpc_module_init(void)
 	return PTR_ERR_OR_ZERO(dev_ltpc);
 }
 module_init(ltpc_module_init);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static void __exit ltpc_cleanup(void)
 {

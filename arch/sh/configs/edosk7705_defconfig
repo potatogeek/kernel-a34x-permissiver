@@ -23,7 +23,10 @@ CONFIG_SH_PCLK_FREQ=31250000
 # CONFIG_INPUT is not set
 # CONFIG_SERIO is not set
 # CONFIG_VT is not set
+<<<<<<< HEAD
 # CONFIG_DEVKMEM is not set
+=======
+>>>>>>> upstream/android-13
 # CONFIG_UNIX98_PTYS is not set
 # CONFIG_LEGACY_PTYS is not set
 # CONFIG_HW_RANDOM is not set
@@ -32,6 +35,9 @@ CONFIG_SH_PCLK_FREQ=31250000
 # CONFIG_DNOTIFY is not set
 # CONFIG_PROC_FS is not set
 # CONFIG_SYSFS is not set
+<<<<<<< HEAD
 # CONFIG_ENABLE_WARN_DEPRECATED is not set
+=======
+>>>>>>> upstream/android-13
 # CONFIG_ENABLE_MUST_CHECK is not set
 # CONFIG_CRC32 is not set

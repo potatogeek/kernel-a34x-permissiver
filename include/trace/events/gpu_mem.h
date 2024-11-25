@@ -24,7 +24,11 @@
  *
  * @pid: Put 0 for global total, while positive pid for process total.
  *
+<<<<<<< HEAD
  * @size: Virtual size of the allocation in bytes.
+=======
+ * @size: Size of the allocation in bytes.
+>>>>>>> upstream/android-13
  *
  */
 TRACE_EVENT(gpu_mem_total,

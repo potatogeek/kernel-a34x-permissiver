@@ -20,12 +20,15 @@
 #include "av_permissions.h"
 #include "security.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
 extern int selinux_enforcing;
 #else
 #define selinux_enforcing 1
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * An entry in the AVC.
  */
@@ -117,7 +120,10 @@ int slow_avc_audit(struct selinux_state *state,
  * @avd: access vector decisions
  * @result: result from avc_has_perm_noaudit
  * @a:  auxiliary audit data
+<<<<<<< HEAD
  * @flags: VFS walk flags
+=======
+>>>>>>> upstream/android-13
  *
  * Audit the granting or denial of permissions in accordance
  * with the policy.  This function is typically called by
@@ -133,16 +139,23 @@ static inline int avc_audit(struct selinux_state *state,
 			    u16 tclass, u32 requested,
 			    struct av_decision *avd,
 			    int result,
+<<<<<<< HEAD
 			    struct common_audit_data *a,
 			    int flags)
+=======
+			    struct common_audit_data *a)
+>>>>>>> upstream/android-13
 {
 	u32 audited, denied;
 	audited = avc_audit_required(requested, avd, result, 0, &denied);
 	if (likely(!audited))
 		return 0;
+<<<<<<< HEAD
 	/* fall back to ref-walk if we have to generate audit */
 	if (flags & MAY_NOT_BLOCK)
 		return -ECHILD;
+=======
+>>>>>>> upstream/android-13
 	return slow_avc_audit(state, ssid, tsid, tclass,
 			      requested, audited, denied, result,
 			      a);
@@ -150,7 +163,10 @@ static inline int avc_audit(struct selinux_state *state,
 
 #define AVC_STRICT 1 /* Ignore permissive mode. */
 #define AVC_EXTENDED_PERMS 2	/* update extended permissions */
+<<<<<<< HEAD
 #define AVC_NONBLOCKING    4	/* non blocking */
+=======
+>>>>>>> upstream/android-13
 int avc_has_perm_noaudit(struct selinux_state *state,
 			 u32 ssid, u32 tsid,
 			 u16 tclass, u32 requested,
@@ -161,11 +177,14 @@ int avc_has_perm(struct selinux_state *state,
 		 u32 ssid, u32 tsid,
 		 u16 tclass, u32 requested,
 		 struct common_audit_data *auditdata);
+<<<<<<< HEAD
 int avc_has_perm_flags(struct selinux_state *state,
 		       u32 ssid, u32 tsid,
 		       u16 tclass, u32 requested,
 		       struct common_audit_data *auditdata,
 		       int flags);
+=======
+>>>>>>> upstream/android-13
 
 int avc_has_extended_perms(struct selinux_state *state,
 			   u32 ssid, u32 tsid, u16 tclass, u32 requested,
@@ -200,10 +219,13 @@ void avc_disable(void);
 DECLARE_PER_CPU(struct avc_cache_stats, avc_cache_stats);
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_SELINUX_AEE_WARNING
 extern struct sk_buff *audit_get_skb(struct audit_buffer *ab);
 extern void __attribute__((weak)) mtk_audit_hook(char *data);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _SELINUX_AVC_H_ */
 

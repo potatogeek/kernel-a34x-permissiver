@@ -145,13 +145,22 @@ void shub_report_scontext_notice_data(char notice)
 
 }
 
+<<<<<<< HEAD
 int convert_ap_status(unsigned char command)
+=======
+int convert_ap_status(int command)
+>>>>>>> upstream/android-13
 {
 	int ret = -1;
 
 	switch (command) {
+<<<<<<< HEAD
 	case SCONTEXT_VALUE_SCREEN_STATE:
 		ret = SCREEN_STATE;
+=======
+	case SCONTEXT_AP_STATUS_SHUTDOWN:
+		ret = AP_SHUTDOWN;
+>>>>>>> upstream/android-13
 		break;
 	case SCONTEXT_AP_STATUS_LCD_ON:
 		ret = LCD_ON;
@@ -176,7 +185,11 @@ int convert_ap_status(unsigned char command)
 	return ret;
 }
 
+<<<<<<< HEAD
 int shub_scontext_send_cmd(const unsigned char *buf, int count)
+=======
+int shub_scontext_send_cmd(const char *buf, int count)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	int convert_status = 0;
@@ -201,16 +214,22 @@ int shub_scontext_send_cmd(const unsigned char *buf, int count)
 #define SCONTEXT_VALUE_PEDOMETER_USERWEIGHT	   0x13
 #define SCONTEXT_VALUE_PEDOMETER_USERGENDER	   0x14
 #define SCONTEXT_VALUE_PEDOMETER_INFOUPDATETIME       0x15
+<<<<<<< HEAD
 #define SCONTEXT_VLAUE_DISPLAY_STATE			0x47
+=======
+>>>>>>> upstream/android-13
 
 int convert_scontext_putvalue_subcmd(int subcmd)
 {
 	int ret = -1;
 
 	switch (subcmd) {
+<<<<<<< HEAD
 	case SCONTEXT_VLAUE_DISPLAY_STATE:
 		ret = SCREEN_STATE;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case SCONTEXT_VALUE_CURRENTSYSTEMTIME:
 		ret = CURRENT_SYSTEM_TIME;
 		break;
@@ -297,10 +316,17 @@ void get_ss_sensor_name(int type, char *buf, int buf_size)
 	}
 }
 
+<<<<<<< HEAD
 int shub_scontext_send_instruction(const unsigned char *buf, int count)
 {
 	char cmd, type, sub_cmd = 0;
 	unsigned char *buffer = (unsigned char *)(buf + 2);
+=======
+int shub_scontext_send_instruction(const char *buf, int count)
+{
+	char cmd, type, sub_cmd = 0;
+	char *buffer = (char *)(buf + 2);
+>>>>>>> upstream/android-13
 	int length = count - 2;
 	char name[SCONTEXT_NAME_MAX] = "";
 
@@ -329,6 +355,7 @@ int shub_scontext_send_instruction(const unsigned char *buf, int count)
 		if (buf[1] != SCONTEXT_VALUE_LIBRARY_DATA) {
 			type = TYPE_HUB;
 			sub_cmd = convert_scontext_putvalue_subcmd(buf[1]);
+<<<<<<< HEAD
 			if (sub_cmd == SCREEN_STATE) {
 				struct shub_data_t *shub_data = get_shub_data();
 
@@ -337,6 +364,8 @@ int shub_scontext_send_instruction(const unsigned char *buf, int count)
 				else if (buffer[1] == 0x00 || buffer[1] == 0x01)
 					shub_data->display_screen_state = buffer[1];
 			}
+=======
+>>>>>>> upstream/android-13
 		} else {
 			type = buf[2] + SENSOR_TYPE_SS_BASE;
 			sub_cmd = LIBRARY_DATA;
@@ -379,6 +408,7 @@ void init_scontext_enable_state(void)
 	}
 }
 
+<<<<<<< HEAD
 void disable_scontext_all(void)
 {
 	int type;
@@ -400,11 +430,14 @@ void disable_scontext_all(void)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void print_scontext_debug(void)
 {
 	/* print nothing for debug */
 }
 
+<<<<<<< HEAD
 static struct sensor_funcs scontext_sensor_funcs = {
 	.print_debug = print_scontext_debug,
 };
@@ -412,12 +445,17 @@ static struct sensor_funcs scontext_sensor_funcs = {
 int init_scontext(bool en)
 {
 	int ret = 0;
+=======
+int init_scontext(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_SCONTEXT);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "scontext_iio", 0, 64, 64);
 		sensor->funcs = &scontext_sensor_funcs;
 	} else {
@@ -425,4 +463,36 @@ int init_scontext(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "scontext_iio");
+		sensor->receive_event_size = 0;
+		sensor->report_event_size = 64;
+		sensor->event_buffer.value = kzalloc(sensor->report_event_size, GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->print_debug = print_scontext_debug;
+	} else {
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+	}
+
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

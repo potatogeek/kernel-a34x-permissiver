@@ -47,6 +47,7 @@ int get_light_cct_sensor_value(char *dataframe, int *index, struct sensor_event 
 {
 	struct light_data *data = get_sensor(SENSOR_TYPE_LIGHT)->data;
 	struct light_cct_event *sensor_value = (struct light_cct_event *)event->value;
+<<<<<<< HEAD
 
 	memcpy(&sensor_value->lux, dataframe + *index, sizeof(sensor_value->lux));
 	*index += sizeof(sensor_value->lux);
@@ -54,6 +55,15 @@ int get_light_cct_sensor_value(char *dataframe, int *index, struct sensor_event 
 	*index += sizeof(sensor_value->cct);
 	memcpy(&sensor_value->raw_lux, dataframe + *index, sizeof(sensor_value->raw_lux));
 	*index += sizeof(sensor_value->raw_lux);
+=======
+	int offset_raw_data = offsetof(struct light_cct_event, r);
+
+	if (!data->ddi_support)
+		offset_raw_data -= sizeof(sensor_value->roi);
+
+	memcpy(&sensor_value->lux, dataframe + *index, offset_raw_data);
+	*index += offset_raw_data;
+>>>>>>> upstream/android-13
 
 	if (data->ddi_support) {
 		memcpy(&sensor_value->roi, dataframe + *index, sizeof(sensor_value->roi));
@@ -80,7 +90,11 @@ int get_light_cct_sensor_value(char *dataframe, int *index, struct sensor_event 
 void print_light_cct_debug(void)
 {
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT_CCT);
+<<<<<<< HEAD
 	struct sensor_event *event = &(sensor->last_event_buffer);
+=======
+	struct sensor_event *event = &(sensor->event_buffer);
+>>>>>>> upstream/android-13
 	struct light_cct_event *sensor_value = (struct light_cct_event *)(event->value);
 
 	shub_info("%s(%u) : %u, %u, %u (%lld) (%ums, %dms)", sensor->name, SENSOR_TYPE_LIGHT_CCT, sensor_value->lux,
@@ -88,6 +102,7 @@ void print_light_cct_debug(void)
 		  sensor->max_report_latency);
 }
 
+<<<<<<< HEAD
 static struct sensor_funcs light_cct_sensor_funcs = {
 	.enable = enable_light_cct,
 	.report_event = report_event_light_cct,
@@ -98,12 +113,17 @@ static struct sensor_funcs light_cct_sensor_funcs = {
 int init_light_cct(bool en)
 {
 	int ret = 0;
+=======
+int init_light_cct(bool en)
+{
+>>>>>>> upstream/android-13
 	struct shub_sensor *sensor = get_sensor(SENSOR_TYPE_LIGHT_CCT);
 
 	if (!sensor)
 		return 0;
 
 	if (en) {
+<<<<<<< HEAD
 		ret = init_default_func(sensor, "light_cct_sensor", 
 					sensor->spec.version >= LIGHT_DEBIG_EVENT_SIZE_4BYTE_VERSION ? 36 : 24, 14, sizeof(struct light_cct_event));
 
@@ -113,4 +133,42 @@ int init_light_cct(bool en)
 	}
 
 	return ret;
+=======
+		strcpy(sensor->name, "light_cct_sensor");
+		if(sensor->spec.version >= LIGHT_DEBIG_EVENT_SIZE_4BYTE_VERSION)
+			sensor->receive_event_size = 36;
+		else
+			sensor->receive_event_size = 24;
+		sensor->report_event_size = 14;
+		sensor->event_buffer.value = kzalloc(sizeof(struct light_cct_event), GFP_KERNEL);
+		if (!sensor->event_buffer.value)
+			goto err_no_mem;
+
+		sensor->funcs = kzalloc(sizeof(struct sensor_funcs), GFP_KERNEL);
+		if (!sensor->funcs)
+			goto err_no_mem;
+
+		sensor->funcs->enable = enable_light_cct;
+		sensor->funcs->report_event = report_event_light_cct;
+		sensor->funcs->print_debug = print_light_cct_debug;
+		sensor->funcs->get_sensor_value = get_light_cct_sensor_value;
+	} else {
+		kfree(sensor->funcs);
+		sensor->funcs = NULL;
+
+		kfree(sensor->event_buffer.value);
+		sensor->event_buffer.value = NULL;
+	}
+
+	return 0;
+
+err_no_mem:
+	kfree(sensor->event_buffer.value);
+	sensor->event_buffer.value = NULL;
+
+	kfree(sensor->funcs);
+	sensor->funcs = NULL;
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }

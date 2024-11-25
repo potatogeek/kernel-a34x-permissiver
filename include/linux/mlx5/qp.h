@@ -37,7 +37,12 @@
 #include <linux/mlx5/driver.h>
 
 #define MLX5_INVALID_LKEY	0x100
+<<<<<<< HEAD
 #define MLX5_SIG_WQE_SIZE	(MLX5_SEND_WQE_BB * 5)
+=======
+/* UMR (3 WQE_BB's) + SIG (3 WQE_BB's) + PSV (mem) + PSV (wire) */
+#define MLX5_SIG_WQE_SIZE	(MLX5_SEND_WQE_BB * 8)
+>>>>>>> upstream/android-13
 #define MLX5_DIF_SIZE		8
 #define MLX5_STRIDE_BLOCK_OP	0x400
 #define MLX5_CPY_GRD_MASK	0xc0
@@ -65,11 +70,19 @@ enum mlx5_qp_optpar {
 	MLX5_QP_OPTPAR_RETRY_COUNT		= 1 << 12,
 	MLX5_QP_OPTPAR_RNR_RETRY		= 1 << 13,
 	MLX5_QP_OPTPAR_ACK_TIMEOUT		= 1 << 14,
+<<<<<<< HEAD
+=======
+	MLX5_QP_OPTPAR_LAG_TX_AFF		= 1 << 15,
+>>>>>>> upstream/android-13
 	MLX5_QP_OPTPAR_PRI_PORT			= 1 << 16,
 	MLX5_QP_OPTPAR_SRQN			= 1 << 18,
 	MLX5_QP_OPTPAR_CQN_RCV			= 1 << 19,
 	MLX5_QP_OPTPAR_DC_HS			= 1 << 20,
 	MLX5_QP_OPTPAR_DC_KEY			= 1 << 21,
+<<<<<<< HEAD
+=======
+	MLX5_QP_OPTPAR_COUNTER_SET_ID		= 1 << 25,
+>>>>>>> upstream/android-13
 };
 
 enum mlx5_qp_state {
@@ -202,7 +215,16 @@ struct mlx5_wqe_ctrl_seg {
 	u8			signature;
 	u8			rsvd[2];
 	u8			fm_ce_se;
+<<<<<<< HEAD
 	__be32			imm;
+=======
+	union {
+		__be32		general_id;
+		__be32		imm;
+		__be32		umr_mkey;
+		__be32		tis_tir_num;
+	};
+>>>>>>> upstream/android-13
 };
 
 #define MLX5_WQE_CTRL_DS_MASK 0x3f
@@ -222,6 +244,14 @@ enum {
 
 enum {
 	MLX5_ETH_WQE_SVLAN              = 1 << 0,
+<<<<<<< HEAD
+=======
+	MLX5_ETH_WQE_TRAILER_HDR_OUTER_IP_ASSOC = 1 << 26,
+	MLX5_ETH_WQE_TRAILER_HDR_OUTER_L4_ASSOC = 1 << 27,
+	MLX5_ETH_WQE_TRAILER_HDR_INNER_IP_ASSOC = 3 << 26,
+	MLX5_ETH_WQE_TRAILER_HDR_INNER_L4_ASSOC = 1 << 28,
+	MLX5_ETH_WQE_INSERT_TRAILER     = 1 << 30,
+>>>>>>> upstream/android-13
 	MLX5_ETH_WQE_INSERT_VLAN        = 1 << 15,
 };
 
@@ -232,6 +262,13 @@ enum {
 	MLX5_ETH_WQE_SWP_OUTER_L4_UDP   = 1 << 5,
 };
 
+<<<<<<< HEAD
+=======
+enum {
+	MLX5_ETH_WQE_FT_META_IPSEC = BIT(0),
+};
+
+>>>>>>> upstream/android-13
 struct mlx5_wqe_eth_seg {
 	u8              swp_outer_l4_offset;
 	u8              swp_outer_l3_offset;
@@ -240,7 +277,11 @@ struct mlx5_wqe_eth_seg {
 	u8              cs_flags;
 	u8              swp_flags;
 	__be16          mss;
+<<<<<<< HEAD
 	__be32          rsvd2;
+=======
+	__be32          flow_table_metadata;
+>>>>>>> upstream/android-13
 	union {
 		struct {
 			__be16 sz;
@@ -250,6 +291,10 @@ struct mlx5_wqe_eth_seg {
 			__be16 type;
 			__be16 vlan_tci;
 		} insert;
+<<<<<<< HEAD
+=======
+		__be32 trailer;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -308,6 +353,10 @@ struct mlx5_av {
 struct mlx5_ib_ah {
 	struct ib_ah		ibah;
 	struct mlx5_av		av;
+<<<<<<< HEAD
+=======
+	u8			xmit_port;
+>>>>>>> upstream/android-13
 };
 
 static inline struct mlx5_ib_ah *to_mah(struct ib_ah *ibah)
@@ -395,6 +444,10 @@ struct mlx5_wqe_signature_seg {
 
 struct mlx5_wqe_inline_seg {
 	__be32	byte_count;
+<<<<<<< HEAD
+=======
+	__be32	data[];
+>>>>>>> upstream/android-13
 };
 
 enum mlx5_sig_type {
@@ -471,6 +524,10 @@ struct mlx5_core_qp {
 	int			qpn;
 	struct mlx5_rsc_debug	*dbg;
 	int			pid;
+<<<<<<< HEAD
+=======
+	u16			uid;
+>>>>>>> upstream/android-13
 };
 
 struct mlx5_core_dct {
@@ -478,6 +535,7 @@ struct mlx5_core_dct {
 	struct completion	drained;
 };
 
+<<<<<<< HEAD
 struct mlx5_qp_path {
 	u8			fl_free_ar;
 	u8			rsvd3;
@@ -594,6 +652,10 @@ int mlx5_core_alloc_q_counter(struct mlx5_core_dev *dev, u16 *counter_id);
 int mlx5_core_dealloc_q_counter(struct mlx5_core_dev *dev, u16 counter_id);
 int mlx5_core_query_q_counter(struct mlx5_core_dev *dev, u16 counter_id,
 			      int reset, void *out, int out_size);
+=======
+int mlx5_debug_qp_add(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp);
+void mlx5_debug_qp_remove(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp);
+>>>>>>> upstream/android-13
 
 static inline const char *mlx5_qp_type_str(int type)
 {
@@ -640,4 +702,14 @@ static inline const char *mlx5_qp_state_str(int state)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static inline int mlx5_get_qp_default_ts(struct mlx5_core_dev *dev)
+{
+	return !MLX5_CAP_ROCE(dev, qp_ts_format) ?
+		       MLX5_TIMESTAMP_FORMAT_FREE_RUNNING :
+		       MLX5_TIMESTAMP_FORMAT_DEFAULT;
+}
+
+>>>>>>> upstream/android-13
 #endif /* MLX5_QP_H */

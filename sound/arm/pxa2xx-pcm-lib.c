@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 #include <linux/slab.h>
 #include <linux/module.h>
@@ -42,7 +46,11 @@ int pxa2xx_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct dma_slave_config config;
 	int ret;
 
+<<<<<<< HEAD
 	dma_params = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+	dma_params = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 	if (!dma_params)
 		return 0;
 
@@ -51,19 +59,27 @@ int pxa2xx_pcm_hw_params(struct snd_pcm_substream *substream,
 		return ret;
 
 	snd_dmaengine_pcm_set_config_from_dai_data(substream,
+<<<<<<< HEAD
 			snd_soc_dai_get_dma_data(rtd->cpu_dai, substream),
+=======
+			snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream),
+>>>>>>> upstream/android-13
 			&config);
 
 	ret = dmaengine_slave_config(chan, &config);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	snd_pcm_set_runtime_buffer(substream, &substream->dma_buffer);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(pxa2xx_pcm_hw_params);
 
+<<<<<<< HEAD
 int pxa2xx_pcm_hw_free(struct snd_pcm_substream *substream)
 {
 	snd_pcm_set_runtime_buffer(substream, NULL);
@@ -71,6 +87,8 @@ int pxa2xx_pcm_hw_free(struct snd_pcm_substream *substream)
 }
 EXPORT_SYMBOL(pxa2xx_pcm_hw_free);
 
+=======
+>>>>>>> upstream/android-13
 int pxa2xx_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	return snd_dmaengine_pcm_trigger(substream, cmd);
@@ -99,7 +117,11 @@ int pxa2xx_pcm_open(struct snd_pcm_substream *substream)
 
 	runtime->hw = pxa2xx_pcm_hardware;
 
+<<<<<<< HEAD
 	dma_params = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+	dma_params = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 	if (!dma_params)
 		return 0;
 
@@ -124,7 +146,11 @@ int pxa2xx_pcm_open(struct snd_pcm_substream *substream)
 		return ret;
 
 	return snd_dmaengine_pcm_open(
+<<<<<<< HEAD
 		substream, dma_request_slave_channel(rtd->cpu_dai->dev,
+=======
+		substream, dma_request_slave_channel(asoc_rtd_to_cpu(rtd, 0)->dev,
+>>>>>>> upstream/android-13
 						     dma_params->chan_name));
 }
 EXPORT_SYMBOL(pxa2xx_pcm_open);
@@ -135,6 +161,7 @@ int pxa2xx_pcm_close(struct snd_pcm_substream *substream)
 }
 EXPORT_SYMBOL(pxa2xx_pcm_close);
 
+<<<<<<< HEAD
 int pxa2xx_pcm_mmap(struct snd_pcm_substream *substream,
 	struct vm_area_struct *vma)
 {
@@ -180,6 +207,19 @@ void pxa2xx_pcm_free_dma_buffers(struct snd_pcm *pcm)
 EXPORT_SYMBOL(pxa2xx_pcm_free_dma_buffers);
 
 int pxa2xx_soc_pcm_new(struct snd_soc_pcm_runtime *rtd)
+=======
+int pxa2xx_pcm_preallocate_dma_buffer(struct snd_pcm *pcm)
+{
+	size_t size = pxa2xx_pcm_hardware.buffer_bytes_max;
+
+	return snd_pcm_set_fixed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV_WC,
+					    pcm->card->dev, size);
+}
+EXPORT_SYMBOL(pxa2xx_pcm_preallocate_dma_buffer);
+
+int pxa2xx_soc_pcm_new(struct snd_soc_component *component,
+		       struct snd_soc_pcm_runtime *rtd)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card = rtd->card->snd_card;
 	struct snd_pcm *pcm = rtd->pcm;
@@ -189,6 +229,7 @@ int pxa2xx_soc_pcm_new(struct snd_soc_pcm_runtime *rtd)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		ret = pxa2xx_pcm_preallocate_dma_buffer(pcm,
 			SNDRV_PCM_STREAM_PLAYBACK);
@@ -219,6 +260,55 @@ const struct snd_pcm_ops pxa2xx_pcm_ops = {
 	.mmap		= pxa2xx_pcm_mmap,
 };
 EXPORT_SYMBOL(pxa2xx_pcm_ops);
+=======
+	return pxa2xx_pcm_preallocate_dma_buffer(pcm);
+}
+EXPORT_SYMBOL(pxa2xx_soc_pcm_new);
+
+int pxa2xx_soc_pcm_open(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream)
+{
+	return pxa2xx_pcm_open(substream);
+}
+EXPORT_SYMBOL(pxa2xx_soc_pcm_open);
+
+int pxa2xx_soc_pcm_close(struct snd_soc_component *component,
+			 struct snd_pcm_substream *substream)
+{
+	return pxa2xx_pcm_close(substream);
+}
+EXPORT_SYMBOL(pxa2xx_soc_pcm_close);
+
+int pxa2xx_soc_pcm_hw_params(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream,
+			     struct snd_pcm_hw_params *params)
+{
+	return pxa2xx_pcm_hw_params(substream, params);
+}
+EXPORT_SYMBOL(pxa2xx_soc_pcm_hw_params);
+
+int pxa2xx_soc_pcm_prepare(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream)
+{
+	return pxa2xx_pcm_prepare(substream);
+}
+EXPORT_SYMBOL(pxa2xx_soc_pcm_prepare);
+
+int pxa2xx_soc_pcm_trigger(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream, int cmd)
+{
+	return pxa2xx_pcm_trigger(substream, cmd);
+}
+EXPORT_SYMBOL(pxa2xx_soc_pcm_trigger);
+
+snd_pcm_uframes_t
+pxa2xx_soc_pcm_pointer(struct snd_soc_component *component,
+		       struct snd_pcm_substream *substream)
+{
+	return pxa2xx_pcm_pointer(substream);
+}
+EXPORT_SYMBOL(pxa2xx_soc_pcm_pointer);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Nicolas Pitre");
 MODULE_DESCRIPTION("Intel PXA2xx sound library");

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2018, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -11,8 +15,13 @@
  * GNU General Public License for more details.
  */
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <asm/atomic.h>
+=======
+#include <linux/atomic.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 
 #include "core/event.h"
 #include "core/sysdep.h"
@@ -49,6 +58,29 @@ int tz_event_add(struct iwd_events_buf *buf, unsigned int id)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int tz_event_del(struct iwd_events_buf *buf, unsigned int id)
+{
+	int prev;
+
+	BUG_ON(id >= buf->size);
+
+	prev = atomic_fetch_and(~(1 << id % BITS_PER_INT),
+			(atomic_t *)&buf->events[id / BITS_PER_INT]);
+
+	if (prev & (1 << id % BITS_PER_INT)) {
+		smp_wmb();
+
+		atomic_dec(&buf->num_events);
+
+		return 1;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int popcount(int v)
 {
 	int i, num = 0;

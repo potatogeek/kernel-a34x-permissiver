@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Pablo Neira Ayuso <pablo@netfilter.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 Pablo Neira Ayuso <pablo@netfilter.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -16,7 +22,11 @@
 #include <net/netfilter/nf_tables.h>
 
 struct nft_quota {
+<<<<<<< HEAD
 	u64		quota;
+=======
+	atomic64_t	quota;
+>>>>>>> upstream/android-13
 	unsigned long	flags;
 	atomic64_t	consumed;
 };
@@ -24,7 +34,12 @@ struct nft_quota {
 static inline bool nft_overquota(struct nft_quota *priv,
 				 const struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	return atomic64_add_return(skb->len, &priv->consumed) >= priv->quota;
+=======
+	return atomic64_add_return(skb->len, &priv->consumed) >=
+	       atomic64_read(&priv->quota);
+>>>>>>> upstream/android-13
 }
 
 static inline bool nft_quota_invert(struct nft_quota *priv)
@@ -61,8 +76,13 @@ static void nft_quota_obj_eval(struct nft_object *obj,
 
 	if (overquota &&
 	    !test_and_set_bit(NFT_QUOTA_DEPLETED_BIT, &priv->flags))
+<<<<<<< HEAD
 		nft_obj_notify(nft_net(pkt), obj->table, obj, 0, 0,
 			       NFT_MSG_NEWOBJ, nft_pf(pkt), 0, GFP_ATOMIC);
+=======
+		nft_obj_notify(nft_net(pkt), obj->key.table, obj, 0, 0,
+			       NFT_MSG_NEWOBJ, 0, nft_pf(pkt), 0, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 }
 
 static int nft_quota_do_init(const struct nlattr * const tb[],
@@ -92,7 +112,11 @@ static int nft_quota_do_init(const struct nlattr * const tb[],
 			return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	priv->quota = quota;
+=======
+	atomic64_set(&priv->quota, quota);
+>>>>>>> upstream/android-13
 	priv->flags = flags;
 	atomic64_set(&priv->consumed, consumed);
 
@@ -108,10 +132,29 @@ static int nft_quota_obj_init(const struct nft_ctx *ctx,
 	return nft_quota_do_init(tb, priv);
 }
 
+<<<<<<< HEAD
 static int nft_quota_do_dump(struct sk_buff *skb, struct nft_quota *priv,
 			     bool reset)
 {
 	u64 consumed, consumed_cap;
+=======
+static void nft_quota_obj_update(struct nft_object *obj,
+				 struct nft_object *newobj)
+{
+	struct nft_quota *newpriv = nft_obj_data(newobj);
+	struct nft_quota *priv = nft_obj_data(obj);
+	u64 newquota;
+
+	newquota = atomic64_read(&newpriv->quota);
+	atomic64_set(&priv->quota, newquota);
+	priv->flags = newpriv->flags;
+}
+
+static int nft_quota_do_dump(struct sk_buff *skb, struct nft_quota *priv,
+			     bool reset)
+{
+	u64 consumed, consumed_cap, quota;
+>>>>>>> upstream/android-13
 	u32 flags = priv->flags;
 
 	/* Since we inconditionally increment consumed quota for each packet
@@ -119,14 +162,24 @@ static int nft_quota_do_dump(struct sk_buff *skb, struct nft_quota *priv,
 	 * userspace.
 	 */
 	consumed = atomic64_read(&priv->consumed);
+<<<<<<< HEAD
 	if (consumed >= priv->quota) {
 		consumed_cap = priv->quota;
+=======
+	quota = atomic64_read(&priv->quota);
+	if (consumed >= quota) {
+		consumed_cap = quota;
+>>>>>>> upstream/android-13
 		flags |= NFT_QUOTA_F_DEPLETED;
 	} else {
 		consumed_cap = consumed;
 	}
 
+<<<<<<< HEAD
 	if (nla_put_be64(skb, NFTA_QUOTA_BYTES, cpu_to_be64(priv->quota),
+=======
+	if (nla_put_be64(skb, NFTA_QUOTA_BYTES, cpu_to_be64(quota),
+>>>>>>> upstream/android-13
 			 NFTA_QUOTA_PAD) ||
 	    nla_put_be64(skb, NFTA_QUOTA_CONSUMED, cpu_to_be64(consumed_cap),
 			 NFTA_QUOTA_PAD) ||
@@ -158,6 +211,10 @@ static const struct nft_object_ops nft_quota_obj_ops = {
 	.init		= nft_quota_obj_init,
 	.eval		= nft_quota_obj_eval,
 	.dump		= nft_quota_obj_dump,
+<<<<<<< HEAD
+=======
+	.update		= nft_quota_obj_update,
+>>>>>>> upstream/android-13
 };
 
 static struct nft_object_type nft_quota_obj_type __read_mostly = {
@@ -242,3 +299,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Pablo Neira Ayuso <pablo@netfilter.org>");
 MODULE_ALIAS_NFT_EXPR("quota");
 MODULE_ALIAS_NFT_OBJ(NFT_OBJECT_QUOTA);
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Netfilter nftables quota module");
+>>>>>>> upstream/android-13

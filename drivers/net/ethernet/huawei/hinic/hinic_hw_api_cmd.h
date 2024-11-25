@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #ifndef HINIC_HW_API_CMD_H
@@ -112,10 +119,21 @@
 	 HINIC_API_CMD_STATUS_HEADER_##member##_MASK)
 
 #define HINIC_API_CMD_STATUS_CONS_IDX_SHIFT                     0
+<<<<<<< HEAD
 #define HINIC_API_CMD_STATUS_CHKSUM_ERR_SHIFT                   28
 
 #define HINIC_API_CMD_STATUS_CONS_IDX_MASK                      0xFFFFFF
 #define HINIC_API_CMD_STATUS_CHKSUM_ERR_MASK                    0x3
+=======
+#define HINIC_API_CMD_STATUS_FSM_SHIFT				24
+#define HINIC_API_CMD_STATUS_CHKSUM_ERR_SHIFT                   28
+#define HINIC_API_CMD_STATUS_CPLD_ERR_SHIFT			30
+
+#define HINIC_API_CMD_STATUS_CONS_IDX_MASK                      0xFFFFFF
+#define HINIC_API_CMD_STATUS_FSM_MASK				0xFU
+#define HINIC_API_CMD_STATUS_CHKSUM_ERR_MASK                    0x3
+#define HINIC_API_CMD_STATUS_CPLD_ERR_MASK			0x1U
+>>>>>>> upstream/android-13
 
 #define HINIC_API_CMD_STATUS_GET(val, member)                   \
 	(((val) >> HINIC_API_CMD_STATUS_##member##_SHIFT) &     \

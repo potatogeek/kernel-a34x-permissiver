@@ -9,6 +9,10 @@
  *  Bits copied from original nmi.c file
  *
  */
+<<<<<<< HEAD
+=======
+#include <linux/thread_info.h>
+>>>>>>> upstream/android-13
 #include <asm/apic.h>
 #include <asm/nmi.h>
 

@@ -70,6 +70,11 @@ static const char *version =
 #include <linux/bitops.h>
 #include <linux/jiffies.h>
 
+<<<<<<< HEAD
+=======
+#include <net/Space.h>
+
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/dma.h>
 
@@ -189,7 +194,11 @@ static int  cops_nodeid (struct net_device *dev, int nodeid);
 
 static irqreturn_t cops_interrupt (int irq, void *dev_id);
 static void cops_poll(struct timer_list *t);
+<<<<<<< HEAD
 static void cops_timeout(struct net_device *dev);
+=======
+static void cops_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void cops_rx (struct net_device *dev);
 static netdev_tx_t  cops_send_packet (struct sk_buff *skb,
 					    struct net_device *dev);
@@ -301,7 +310,11 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
 			dev->irq = cops_irq(ioaddr, board);
 			if (dev->irq)
 				break;
+<<<<<<< HEAD
 			/* No IRQ found on this port, fallthrough */
+=======
+			fallthrough;	/* Once no IRQ found on this port */
+>>>>>>> upstream/android-13
 		case 1:
 			retval = -EINVAL;
 			goto err_out;
@@ -325,6 +338,11 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
 			break;
 	}
 
+<<<<<<< HEAD
+=======
+	dev->base_addr = ioaddr;
+
+>>>>>>> upstream/android-13
 	/* Reserve any actual interrupt. */
 	if (dev->irq) {
 		retval = request_irq(dev->irq, cops_interrupt, 0, dev->name, dev);
@@ -332,8 +350,11 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
 			goto err_out;
 	}
 
+<<<<<<< HEAD
 	dev->base_addr = ioaddr;
 
+=======
+>>>>>>> upstream/android-13
         lp = netdev_priv(dev);
         spin_lock_init(&lp->lock);
 
@@ -607,12 +628,21 @@ static int cops_nodeid (struct net_device *dev, int nodeid)
 
 	if(lp->board == DAYNA)
         {
+<<<<<<< HEAD
         	/* Empty any pending adapter responses. */
                 while((inb(ioaddr+DAYNA_CARD_STATUS)&DAYNA_TX_READY)==0)
                 {
 			outb(0, ioaddr+COPS_CLEAR_INT);	/* Clear interrupts. */
         		if((inb(ioaddr+DAYNA_CARD_STATUS)&0x03)==DAYNA_RX_REQUEST)
                 		cops_rx(dev);	/* Kick any packets waiting. */
+=======
+		/* Empty any pending adapter responses. */
+                while((inb(ioaddr+DAYNA_CARD_STATUS)&DAYNA_TX_READY)==0)
+                {
+			outb(0, ioaddr+COPS_CLEAR_INT);	/* Clear interrupts. */
+			if((inb(ioaddr+DAYNA_CARD_STATUS)&0x03)==DAYNA_RX_REQUEST)
+				cops_rx(dev);	/* Kick any packets waiting. */
+>>>>>>> upstream/android-13
 			schedule();
                 }
 
@@ -628,13 +658,21 @@ static int cops_nodeid (struct net_device *dev, int nodeid)
                 while(inb(ioaddr+TANG_CARD_STATUS)&TANG_RX_READY)
                 {
 			outb(0, ioaddr+COPS_CLEAR_INT);	/* Clear interrupt. */
+<<<<<<< HEAD
                 	cops_rx(dev);          	/* Kick out packets waiting. */
+=======
+			cops_rx(dev);          	/* Kick out packets waiting. */
+>>>>>>> upstream/android-13
 			schedule();
                 }
 
 		/* Not sure what Tangent does if nodeid picked is used. */
                 if(nodeid == 0)	         		/* Seed. */
+<<<<<<< HEAD
                 	nodeid = jiffies&0xFF;		/* Get a random try */
+=======
+			nodeid = jiffies&0xFF;		/* Get a random try */
+>>>>>>> upstream/android-13
                 outb(2, ioaddr);        		/* Command length LSB */
                 outb(0, ioaddr);       			/* Command length MSB */
                 outb(LAP_INIT, ioaddr); 		/* Send LAP_INIT byte */
@@ -649,13 +687,22 @@ static int cops_nodeid (struct net_device *dev, int nodeid)
 
 		if(lp->board == DAYNA)
 		{
+<<<<<<< HEAD
                 	if((inb(ioaddr+DAYNA_CARD_STATUS)&0x03)==DAYNA_RX_REQUEST)
                 		cops_rx(dev);	/* Grab the nodeid put in lp->node_acquire. */
+=======
+			if((inb(ioaddr+DAYNA_CARD_STATUS)&0x03)==DAYNA_RX_REQUEST)
+				cops_rx(dev);	/* Grab the nodeid put in lp->node_acquire. */
+>>>>>>> upstream/android-13
 		}
 		if(lp->board == TANGENT)
 		{	
 			if(inb(ioaddr+TANG_CARD_STATUS)&TANG_RX_READY)
+<<<<<<< HEAD
                                 cops_rx(dev);   /* Grab the nodeid put in lp->node_acquire. */
+=======
+				cops_rx(dev);   /* Grab the nodeid put in lp->node_acquire. */
+>>>>>>> upstream/android-13
 		}
 		schedule();
 	}
@@ -717,16 +764,27 @@ static irqreturn_t cops_interrupt(int irq, void *dev_id)
 	{
 		do {
 			outb(0, ioaddr + COPS_CLEAR_INT);
+<<<<<<< HEAD
                        	status=inb(ioaddr+DAYNA_CARD_STATUS);
                        	if((status&0x03)==DAYNA_RX_REQUEST)
                        	        cops_rx(dev);
                 	netif_wake_queue(dev);
+=======
+			status=inb(ioaddr+DAYNA_CARD_STATUS);
+			if((status&0x03)==DAYNA_RX_REQUEST)
+				cops_rx(dev);
+			netif_wake_queue(dev);
+>>>>>>> upstream/android-13
 		} while(++boguscount < 20);
 	}
 	else
 	{
 		do {
+<<<<<<< HEAD
                        	status=inb(ioaddr+TANG_CARD_STATUS);
+=======
+			status=inb(ioaddr+TANG_CARD_STATUS);
+>>>>>>> upstream/android-13
 			if(status & TANG_RX_READY)
 				cops_rx(dev);
 			if(status & TANG_TX_READY)
@@ -777,10 +835,14 @@ static void cops_rx(struct net_device *dev)
         }
 
         /* Get response length. */
+<<<<<<< HEAD
 	if(lp->board==DAYNA)
         	pkt_len = inb(ioaddr) & 0xFF;
 	else
 		pkt_len = inb(ioaddr) & 0x00FF;
+=======
+	pkt_len = inb(ioaddr);
+>>>>>>> upstream/android-13
         pkt_len |= (inb(ioaddr) << 8);
         /* Input IO code. */
         rsp_type=inb(ioaddr);
@@ -847,7 +909,11 @@ static void cops_rx(struct net_device *dev)
         netif_rx(skb);
 }
 
+<<<<<<< HEAD
 static void cops_timeout(struct net_device *dev)
+=======
+static void cops_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
         struct cops_local *lp = netdev_priv(dev);
         int ioaddr = dev->base_addr;
@@ -856,7 +922,11 @@ static void cops_timeout(struct net_device *dev)
         if(lp->board==TANGENT)
         {
 		if((inb(ioaddr+TANG_CARD_STATUS)&TANG_TX_READY)==0)
+<<<<<<< HEAD
                		printk(KERN_WARNING "%s: No TX complete interrupt.\n", dev->name);
+=======
+			printk(KERN_WARNING "%s: No TX complete interrupt.\n", dev->name);
+>>>>>>> upstream/android-13
 	}
 	printk(KERN_WARNING "%s: Transmit timed out.\n", dev->name);
 	cops_jumpstart(dev);	/* Restart the card. */
@@ -892,16 +962,24 @@ static netdev_tx_t cops_send_packet(struct sk_buff *skb,
 
 	/* Output IO length. */
 	outb(skb->len, ioaddr);
+<<<<<<< HEAD
 	if(lp->board == DAYNA)
                	outb(skb->len >> 8, ioaddr);
 	else
 		outb((skb->len >> 8)&0x0FF, ioaddr);
+=======
+	outb(skb->len >> 8, ioaddr);
+>>>>>>> upstream/android-13
 
 	/* Output IO code. */
 	outb(LAP_WRITE, ioaddr);
 
 	if(lp->board == DAYNA)	/* Check the transmit buffer again. */
+<<<<<<< HEAD
         	while((inb(ioaddr+DAYNA_CARD_STATUS)&DAYNA_TX_READY)==0);
+=======
+		while((inb(ioaddr+DAYNA_CARD_STATUS)&DAYNA_TX_READY)==0);
+>>>>>>> upstream/android-13
 
 	outsb(ioaddr, skb->data, skb->len);	/* Send out the data. */
 

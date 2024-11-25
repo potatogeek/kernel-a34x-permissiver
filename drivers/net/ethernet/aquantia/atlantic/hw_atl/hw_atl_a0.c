@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * aQuantia Corporation Network Driver
  * Copyright (C) 2014-2017 aQuantia Corporation. All rights reserved
@@ -5,6 +6,13 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Atlantic Network Driver
+ *
+ * Copyright (C) 2014-2019 aQuantia Corporation
+ * Copyright (C) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 /* File hw_atl_a0.c: Definition of Atlantic hardware specific functions. */
@@ -18,6 +26,7 @@
 #include "hw_atl_llh.h"
 #include "hw_atl_a0_internal.h"
 
+<<<<<<< HEAD
 #define DEFAULT_A0_BOARD_BASIC_CAPABILITIES \
 	.is_64_dma = true,		  \
 	.msix_irqs = 4U,		  \
@@ -44,47 +53,110 @@
 	.flow_control = true,		  \
 	.mtu = HW_ATL_A0_MTU_JUMBO,       \
 	.mac_regs_count = 88,		  \
+=======
+#define DEFAULT_A0_BOARD_BASIC_CAPABILITIES	     \
+	.is_64_dma = true,			     \
+	.op64bit = false,			     \
+	.msix_irqs = 4U,			     \
+	.irq_mask = ~0U,			     \
+	.vecs = HW_ATL_A0_RSS_MAX,		     \
+	.tcs_max = HW_ATL_A0_TC_MAX,		     \
+	.rxd_alignment = 1U,			     \
+	.rxd_size = HW_ATL_A0_RXD_SIZE,		     \
+	.rxds_max = HW_ATL_A0_MAX_RXD,		     \
+	.rxds_min = HW_ATL_A0_MIN_RXD,		     \
+	.txd_alignment = 1U,			     \
+	.txd_size = HW_ATL_A0_TXD_SIZE,		     \
+	.txds_max = HW_ATL_A0_MAX_TXD,		     \
+	.txds_min = HW_ATL_A0_MIN_RXD,		     \
+	.txhwb_alignment = 4096U,		     \
+	.tx_rings = HW_ATL_A0_TX_RINGS,		     \
+	.rx_rings = HW_ATL_A0_RX_RINGS,		     \
+	.hw_features = NETIF_F_HW_CSUM |	     \
+			NETIF_F_RXHASH |	     \
+			NETIF_F_RXCSUM |	     \
+			NETIF_F_SG |		     \
+			NETIF_F_TSO |		     \
+			NETIF_F_NTUPLE |	     \
+			NETIF_F_HW_VLAN_CTAG_FILTER, \
+	.hw_priv_flags = IFF_UNICAST_FLT,	     \
+	.flow_control = true,			     \
+	.mtu = HW_ATL_A0_MTU_JUMBO,		     \
+	.mac_regs_count = 88,			     \
+>>>>>>> upstream/android-13
 	.hw_alive_check_addr = 0x10U
 
 const struct aq_hw_caps_s hw_atl_a0_caps_aqc100 = {
 	DEFAULT_A0_BOARD_BASIC_CAPABILITIES,
 	.media_type = AQ_HW_MEDIA_TYPE_FIBRE,
+<<<<<<< HEAD
 	.link_speed_msk = HW_ATL_A0_RATE_5G  |
 			  HW_ATL_A0_RATE_2G5 |
 			  HW_ATL_A0_RATE_1G  |
 			  HW_ATL_A0_RATE_100M,
+=======
+	.link_speed_msk = AQ_NIC_RATE_5G |
+			  AQ_NIC_RATE_2G5 |
+			  AQ_NIC_RATE_1G |
+			  AQ_NIC_RATE_100M,
+>>>>>>> upstream/android-13
 };
 
 const struct aq_hw_caps_s hw_atl_a0_caps_aqc107 = {
 	DEFAULT_A0_BOARD_BASIC_CAPABILITIES,
 	.media_type = AQ_HW_MEDIA_TYPE_TP,
+<<<<<<< HEAD
 	.link_speed_msk = HW_ATL_A0_RATE_10G |
 			  HW_ATL_A0_RATE_5G  |
 			  HW_ATL_A0_RATE_2G5 |
 			  HW_ATL_A0_RATE_1G  |
 			  HW_ATL_A0_RATE_100M,
+=======
+	.link_speed_msk = AQ_NIC_RATE_10G |
+			  AQ_NIC_RATE_5G |
+			  AQ_NIC_RATE_2G5 |
+			  AQ_NIC_RATE_1G |
+			  AQ_NIC_RATE_100M,
+>>>>>>> upstream/android-13
 };
 
 const struct aq_hw_caps_s hw_atl_a0_caps_aqc108 = {
 	DEFAULT_A0_BOARD_BASIC_CAPABILITIES,
 	.media_type = AQ_HW_MEDIA_TYPE_TP,
+<<<<<<< HEAD
 	.link_speed_msk = HW_ATL_A0_RATE_5G  |
 			  HW_ATL_A0_RATE_2G5 |
 			  HW_ATL_A0_RATE_1G  |
 			  HW_ATL_A0_RATE_100M,
+=======
+	.link_speed_msk = AQ_NIC_RATE_5G |
+			  AQ_NIC_RATE_2G5 |
+			  AQ_NIC_RATE_1G |
+			  AQ_NIC_RATE_100M,
+>>>>>>> upstream/android-13
 };
 
 const struct aq_hw_caps_s hw_atl_a0_caps_aqc109 = {
 	DEFAULT_A0_BOARD_BASIC_CAPABILITIES,
 	.media_type = AQ_HW_MEDIA_TYPE_TP,
+<<<<<<< HEAD
 	.link_speed_msk = HW_ATL_A0_RATE_2G5 |
 			  HW_ATL_A0_RATE_1G  |
 			  HW_ATL_A0_RATE_100M,
+=======
+	.link_speed_msk = AQ_NIC_RATE_2G5 |
+			  AQ_NIC_RATE_1G |
+			  AQ_NIC_RATE_100M,
+>>>>>>> upstream/android-13
 };
 
 static int hw_atl_a0_hw_reset(struct aq_hw_s *self)
 {
 	int err = 0;
+<<<<<<< HEAD
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 
 	hw_atl_glb_glb_reg_res_dis_set(self, 1U);
 	hw_atl_pci_pci_reg_res_dis_set(self, 0U);
@@ -95,7 +167,13 @@ static int hw_atl_a0_hw_reset(struct aq_hw_s *self)
 	hw_atl_glb_soft_res_set(self, 1);
 
 	/* check 10 times by 1ms */
+<<<<<<< HEAD
 	AQ_HW_WAIT_FOR(hw_atl_glb_soft_res_get(self) == 0, 1000U, 10U);
+=======
+	err = readx_poll_timeout_atomic(hw_atl_glb_soft_res_get,
+					self, val, val == 0,
+					1000U, 10000U);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto err_exit;
 
@@ -103,7 +181,13 @@ static int hw_atl_a0_hw_reset(struct aq_hw_s *self)
 	hw_atl_itr_res_irq_set(self, 1U);
 
 	/* check 10 times by 1ms */
+<<<<<<< HEAD
 	AQ_HW_WAIT_FOR(hw_atl_itr_res_irq_get(self) == 0, 1000U, 10U);
+=======
+	err = readx_poll_timeout_atomic(hw_atl_itr_res_irq_get,
+					self, val, val == 0,
+					1000U, 10000U);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto err_exit;
 
@@ -117,10 +201,17 @@ err_exit:
 
 static int hw_atl_a0_hw_qos_set(struct aq_hw_s *self)
 {
+<<<<<<< HEAD
 	u32 tc = 0U;
 	u32 buff_size = 0U;
 	unsigned int i_priority = 0U;
 	bool is_rx_flow_control = false;
+=======
+	bool is_rx_flow_control = false;
+	unsigned int i_priority = 0U;
+	u32 buff_size = 0U;
+	u32 tc = 0U;
+>>>>>>> upstream/android-13
 
 	/* TPS Descriptor rate init */
 	hw_atl_tps_tx_pkt_shed_desc_rate_curr_time_res_set(self, 0x0U);
@@ -133,10 +224,17 @@ static int hw_atl_a0_hw_qos_set(struct aq_hw_s *self)
 	hw_atl_tps_tx_pkt_shed_desc_tc_arb_mode_set(self, 0U);
 	hw_atl_tps_tx_pkt_shed_data_arb_mode_set(self, 0U);
 
+<<<<<<< HEAD
 	hw_atl_tps_tx_pkt_shed_tc_data_max_credit_set(self, 0xFFF, 0U);
 	hw_atl_tps_tx_pkt_shed_tc_data_weight_set(self, 0x64, 0U);
 	hw_atl_tps_tx_pkt_shed_desc_tc_max_credit_set(self, 0x50, 0U);
 	hw_atl_tps_tx_pkt_shed_desc_tc_weight_set(self, 0x1E, 0U);
+=======
+	hw_atl_tps_tx_pkt_shed_tc_data_max_credit_set(self, 0U, 0xFFF);
+	hw_atl_tps_tx_pkt_shed_tc_data_weight_set(self, 0U, 0x64);
+	hw_atl_tps_tx_pkt_shed_desc_tc_max_credit_set(self, 0U, 0x50);
+	hw_atl_tps_tx_pkt_shed_desc_tc_weight_set(self, 0U, 0x1E);
+>>>>>>> upstream/android-13
 
 	/* Tx buf size */
 	buff_size = HW_ATL_A0_TXBUF_MAX;
@@ -153,7 +251,11 @@ static int hw_atl_a0_hw_qos_set(struct aq_hw_s *self)
 
 	/* QoS Rx buf size per TC */
 	tc = 0;
+<<<<<<< HEAD
 	is_rx_flow_control = (AQ_NIC_FC_RX & self->aq_nic_cfg->flow_control);
+=======
+	is_rx_flow_control = (AQ_NIC_FC_RX & self->aq_nic_cfg->fc.req);
+>>>>>>> upstream/android-13
 	buff_size = HW_ATL_A0_RXBUF_MAX;
 
 	hw_atl_rpb_rx_pkt_buff_size_per_tc_set(self, buff_size, tc);
@@ -178,9 +280,16 @@ static int hw_atl_a0_hw_rss_hash_set(struct aq_hw_s *self,
 				     struct aq_rss_parameters *rss_params)
 {
 	struct aq_nic_cfg_s *cfg = self->aq_nic_cfg;
+<<<<<<< HEAD
 	int err = 0;
 	unsigned int i = 0U;
 	unsigned int addr = 0U;
+=======
+	unsigned int addr = 0U;
+	unsigned int i = 0U;
+	int err = 0;
+	u32 val;
+>>>>>>> upstream/android-13
 
 	for (i = 10, addr = 0U; i--; ++addr) {
 		u32 key_data = cfg->is_rss ?
@@ -188,8 +297,14 @@ static int hw_atl_a0_hw_rss_hash_set(struct aq_hw_s *self,
 		hw_atl_rpf_rss_key_wr_data_set(self, key_data);
 		hw_atl_rpf_rss_key_addr_set(self, addr);
 		hw_atl_rpf_rss_key_wr_en_set(self, 1U);
+<<<<<<< HEAD
 		AQ_HW_WAIT_FOR(hw_atl_rpf_rss_key_wr_en_get(self) == 0,
 			       1000U, 10U);
+=======
+		err = readx_poll_timeout_atomic(hw_atl_rpf_rss_key_wr_en_get,
+						self, val, val == 0,
+						1000U, 10000U);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto err_exit;
 	}
@@ -203,12 +318,22 @@ err_exit:
 static int hw_atl_a0_hw_rss_set(struct aq_hw_s *self,
 				struct aq_rss_parameters *rss_params)
 {
+<<<<<<< HEAD
 	u8 *indirection_table =	rss_params->indirection_table;
 	u32 i = 0U;
 	u32 num_rss_queues = max(1U, self->aq_nic_cfg->num_rss_queues);
 	int err = 0;
 	u16 bitary[1 + (HW_ATL_A0_RSS_REDIRECTION_MAX *
 		   HW_ATL_A0_RSS_REDIRECTION_BITS / 16U)];
+=======
+	u32 num_rss_queues = max(1U, self->aq_nic_cfg->num_rss_queues);
+	u8 *indirection_table =	rss_params->indirection_table;
+	u16 bitary[1 + (HW_ATL_A0_RSS_REDIRECTION_MAX *
+		   HW_ATL_A0_RSS_REDIRECTION_BITS / 16U)];
+	int err = 0;
+	u32 i = 0U;
+	u32 val;
+>>>>>>> upstream/android-13
 
 	memset(bitary, 0, sizeof(bitary));
 
@@ -222,8 +347,14 @@ static int hw_atl_a0_hw_rss_set(struct aq_hw_s *self,
 		hw_atl_rpf_rss_redir_tbl_wr_data_set(self, bitary[i]);
 		hw_atl_rpf_rss_redir_tbl_addr_set(self, i);
 		hw_atl_rpf_rss_redir_wr_en_set(self, 1U);
+<<<<<<< HEAD
 		AQ_HW_WAIT_FOR(hw_atl_rpf_rss_redir_wr_en_get(self) == 0,
 			       1000U, 10U);
+=======
+		err = readx_poll_timeout_atomic(hw_atl_rpf_rss_redir_wr_en_get,
+						self, val, val == 0,
+						1000U, 10000U);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto err_exit;
 	}
@@ -261,8 +392,12 @@ static int hw_atl_a0_hw_init_tx_path(struct aq_hw_s *self)
 	hw_atl_tdm_tx_desc_wr_wb_irq_en_set(self, 1U);
 
 	/* misc */
+<<<<<<< HEAD
 	aq_hw_write_reg(self, 0x00007040U, IS_CHIP_FEATURE(TPO2) ?
 			0x00010000U : 0x00000000U);
+=======
+	aq_hw_write_reg(self, 0x00007040U, 0x00000000U);
+>>>>>>> upstream/android-13
 	hw_atl_tdm_tx_dca_en_set(self, 0U);
 	hw_atl_tdm_tx_dca_mode_set(self, 0U);
 
@@ -284,7 +419,11 @@ static int hw_atl_a0_hw_init_rx_path(struct aq_hw_s *self)
 
 	/* RSS Ring selection */
 	hw_atl_reg_rx_flr_rss_control1set(self, cfg->is_rss ?
+<<<<<<< HEAD
 					0xB3333333U : 0x00000000U);
+=======
+					  0xB3333333U : 0x00000000U);
+>>>>>>> upstream/android-13
 
 	/* Multicast filters */
 	for (i = HW_ATL_A0_MAC_MAX; i--;) {
@@ -315,17 +454,30 @@ static int hw_atl_a0_hw_init_rx_path(struct aq_hw_s *self)
 
 static int hw_atl_a0_hw_mac_addr_set(struct aq_hw_s *self, u8 *mac_addr)
 {
+<<<<<<< HEAD
 	int err = 0;
 	unsigned int h = 0U;
 	unsigned int l = 0U;
+=======
+	unsigned int h = 0U;
+	unsigned int l = 0U;
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	if (!mac_addr) {
 		err = -EINVAL;
 		goto err_exit;
 	}
+<<<<<<< HEAD
 	h = (mac_addr[0] << 8) | (mac_addr[1]);
 	l = (mac_addr[2] << 24) | (mac_addr[3] << 16) |
 		(mac_addr[4] << 8) | mac_addr[5];
+=======
+
+	h = (mac_addr[0] << 8) | (mac_addr[1]);
+	l = (mac_addr[2] << 24) | (mac_addr[3] << 16) |
+	    (mac_addr[4] << 8) | mac_addr[5];
+>>>>>>> upstream/android-13
 
 	hw_atl_rpfl2_uc_flr_en_set(self, 0U, HW_ATL_A0_MAC);
 	hw_atl_rpfl2unicast_dest_addresslsw_set(self, l, HW_ATL_A0_MAC);
@@ -341,6 +493,7 @@ err_exit:
 static int hw_atl_a0_hw_init(struct aq_hw_s *self, u8 *mac_addr)
 {
 	static u32 aq_hw_atl_igcr_table_[4][2] = {
+<<<<<<< HEAD
 		{ 0x20000000U, 0x20000000U }, /* AQ_IRQ_INVALID */
 		{ 0x20000080U, 0x20000080U }, /* AQ_IRQ_LEGACY */
 		{ 0x20000021U, 0x20000025U }, /* AQ_IRQ_MSI */
@@ -350,6 +503,15 @@ static int hw_atl_a0_hw_init(struct aq_hw_s *self, u8 *mac_addr)
 	int err = 0;
 
 	struct aq_nic_cfg_s *aq_nic_cfg = self->aq_nic_cfg;
+=======
+		[AQ_HW_IRQ_INVALID] = { 0x20000000U, 0x20000000U },
+		[AQ_HW_IRQ_LEGACY]  = { 0x20000080U, 0x20000080U },
+		[AQ_HW_IRQ_MSI]     = { 0x20000021U, 0x20000025U },
+		[AQ_HW_IRQ_MSIX]    = { 0x20000022U, 0x20000026U },
+	};
+	struct aq_nic_cfg_s *aq_nic_cfg = self->aq_nic_cfg;
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	hw_atl_a0_hw_init_tx_path(self);
 	hw_atl_a0_hw_init_rx_path(self);
@@ -398,6 +560,10 @@ static int hw_atl_a0_hw_ring_tx_start(struct aq_hw_s *self,
 				      struct aq_ring_s *ring)
 {
 	hw_atl_tdm_tx_desc_en_set(self, 1, ring->idx);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -405,6 +571,10 @@ static int hw_atl_a0_hw_ring_rx_start(struct aq_hw_s *self,
 				      struct aq_ring_s *ring)
 {
 	hw_atl_rdm_rx_desc_en_set(self, 1, ring->idx);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -412,6 +582,10 @@ static int hw_atl_a0_hw_start(struct aq_hw_s *self)
 {
 	hw_atl_tpb_tx_buff_en_set(self, 1);
 	hw_atl_rpb_rx_buff_en_set(self, 1);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -419,6 +593,10 @@ static int hw_atl_a0_hw_tx_ring_tail_update(struct aq_hw_s *self,
 					    struct aq_ring_s *ring)
 {
 	hw_atl_reg_tx_dma_desc_tail_ptr_set(self, ring->sw_tail, ring->idx);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -429,8 +607,13 @@ static int hw_atl_a0_hw_ring_tx_xmit(struct aq_hw_s *self,
 	struct aq_ring_buff_s *buff = NULL;
 	struct hw_atl_txd_s *txd = NULL;
 	unsigned int buff_pa_len = 0U;
+<<<<<<< HEAD
 	unsigned int pkt_len = 0U;
 	unsigned int frag_count = 0U;
+=======
+	unsigned int frag_count = 0U;
+	unsigned int pkt_len = 0U;
+>>>>>>> upstream/android-13
 	bool is_gso = false;
 
 	buff = &ring->buff_ring[ring->sw_tail];
@@ -445,7 +628,11 @@ static int hw_atl_a0_hw_ring_tx_xmit(struct aq_hw_s *self,
 
 		buff = &ring->buff_ring[ring->sw_tail];
 
+<<<<<<< HEAD
 		if (buff->is_txc) {
+=======
+		if (buff->is_gso_tcp) {
+>>>>>>> upstream/android-13
 			txd->ctl |= (buff->len_l3 << 31) |
 				(buff->len_l2 << 24) |
 				HW_ATL_A0_TXD_CTL_CMD_TCP |
@@ -494,6 +681,10 @@ static int hw_atl_a0_hw_ring_tx_xmit(struct aq_hw_s *self,
 	}
 
 	hw_atl_a0_hw_tx_ring_tail_update(self, ring);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -501,8 +692,13 @@ static int hw_atl_a0_hw_ring_rx_init(struct aq_hw_s *self,
 				     struct aq_ring_s *aq_ring,
 				     struct aq_ring_param_s *aq_ring_param)
 {
+<<<<<<< HEAD
 	u32 dma_desc_addr_lsw = (u32)aq_ring->dx_ring_pa;
 	u32 dma_desc_addr_msw = (u32)(((u64)aq_ring->dx_ring_pa) >> 32);
+=======
+	u32 dma_desc_addr_msw = (u32)(((u64)aq_ring->dx_ring_pa) >> 32);
+	u32 dma_desc_addr_lsw = (u32)aq_ring->dx_ring_pa;
+>>>>>>> upstream/android-13
 
 	hw_atl_rdm_rx_desc_en_set(self, false, aq_ring->idx);
 
@@ -519,7 +715,11 @@ static int hw_atl_a0_hw_ring_rx_init(struct aq_hw_s *self,
 
 	hw_atl_rdm_rx_desc_data_buff_size_set(self,
 					      AQ_CFG_RX_FRAME_MAX / 1024U,
+<<<<<<< HEAD
 				       aq_ring->idx);
+=======
+					      aq_ring->idx);
+>>>>>>> upstream/android-13
 
 	hw_atl_rdm_rx_desc_head_buff_size_set(self, 0U, aq_ring->idx);
 	hw_atl_rdm_rx_desc_head_splitting_set(self, 0U, aq_ring->idx);
@@ -543,8 +743,13 @@ static int hw_atl_a0_hw_ring_tx_init(struct aq_hw_s *self,
 				     struct aq_ring_s *aq_ring,
 				     struct aq_ring_param_s *aq_ring_param)
 {
+<<<<<<< HEAD
 	u32 dma_desc_lsw_addr = (u32)aq_ring->dx_ring_pa;
 	u32 dma_desc_msw_addr = (u32)(((u64)aq_ring->dx_ring_pa) >> 32);
+=======
+	u32 dma_desc_msw_addr = (u32)(((u64)aq_ring->dx_ring_pa) >> 32);
+	u32 dma_desc_lsw_addr = (u32)aq_ring->dx_ring_pa;
+>>>>>>> upstream/android-13
 
 	hw_atl_reg_tx_dma_desc_base_addresslswset(self, dma_desc_lsw_addr,
 						  aq_ring->idx);
@@ -593,8 +798,13 @@ static int hw_atl_a0_hw_ring_rx_fill(struct aq_hw_s *self,
 static int hw_atl_a0_hw_ring_tx_head_update(struct aq_hw_s *self,
 					    struct aq_ring_s *ring)
 {
+<<<<<<< HEAD
 	int err = 0;
 	unsigned int hw_head = hw_atl_tdm_tx_desc_head_ptr_get(self, ring->idx);
+=======
+	unsigned int hw_head = hw_atl_tdm_tx_desc_head_ptr_get(self, ring->idx);
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	if (aq_utils_obj_test(&self->flags, AQ_HW_FLAG_ERR_UNPLUG)) {
 		err = -ENXIO;
@@ -610,8 +820,11 @@ err_exit:
 static int hw_atl_a0_hw_ring_rx_receive(struct aq_hw_s *self,
 					struct aq_ring_s *ring)
 {
+<<<<<<< HEAD
 	struct device *ndev = aq_nic_get_dev(ring->aq_nic);
 
+=======
+>>>>>>> upstream/android-13
 	for (; ring->hw_head != ring->sw_tail;
 		ring->hw_head = aq_ring_next_dx(ring, ring->hw_head)) {
 		struct aq_ring_buff_s *buff = NULL;
@@ -678,8 +891,11 @@ static int hw_atl_a0_hw_ring_rx_receive(struct aq_hw_s *self,
 		is_err &= ~0x18U;
 		is_err &= ~0x04U;
 
+<<<<<<< HEAD
 		dma_unmap_page(ndev, buff->pa, buff->len, DMA_FROM_DEVICE);
 
+=======
+>>>>>>> upstream/android-13
 		if (is_err || rxd_wb->type & 0x1000U) {
 			/* status error or DMA error */
 			buff->is_error = 1U;
@@ -718,6 +934,10 @@ static int hw_atl_a0_hw_irq_enable(struct aq_hw_s *self, u64 mask)
 {
 	hw_atl_itr_irq_msk_setlsw_set(self, LODWORD(mask) |
 			       (1U << HW_ATL_A0_ERR_INT));
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -735,6 +955,10 @@ static int hw_atl_a0_hw_irq_disable(struct aq_hw_s *self, u64 mask)
 static int hw_atl_a0_hw_irq_read(struct aq_hw_s *self, u64 *mask)
 {
 	*mask = hw_atl_itr_irq_statuslsw_get(self);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -743,6 +967,10 @@ static int hw_atl_a0_hw_irq_read(struct aq_hw_s *self, u64 *mask)
 static int hw_atl_a0_hw_packet_filter_set(struct aq_hw_s *self,
 					  unsigned int packet_filter)
 {
+<<<<<<< HEAD
+=======
+	struct aq_nic_cfg_s *cfg = self->aq_nic_cfg;
+>>>>>>> upstream/android-13
 	unsigned int i = 0U;
 
 	hw_atl_rpfl2promiscuous_mode_en_set(self,
@@ -751,6 +979,7 @@ static int hw_atl_a0_hw_packet_filter_set(struct aq_hw_s *self,
 					 IS_FILTER_ENABLED(IFF_MULTICAST), 0);
 	hw_atl_rpfl2broadcast_en_set(self, IS_FILTER_ENABLED(IFF_BROADCAST));
 
+<<<<<<< HEAD
 	self->aq_nic_cfg->is_mc_list_enabled =
 			IS_FILTER_ENABLED(IFF_MULTICAST);
 
@@ -759,6 +988,15 @@ static int hw_atl_a0_hw_packet_filter_set(struct aq_hw_s *self,
 					   (self->aq_nic_cfg->is_mc_list_enabled &&
 					   (i <= self->aq_nic_cfg->mc_list_count)) ?
 					    1U : 0U, i);
+=======
+	cfg->is_mc_list_enabled = IS_FILTER_ENABLED(IFF_MULTICAST);
+
+	for (i = HW_ATL_A0_MAC_MIN; i < HW_ATL_A0_MAC_MAX; ++i)
+		hw_atl_rpfl2_uc_flr_en_set(self,
+					   (cfg->is_mc_list_enabled &&
+					    (i <= cfg->mc_list_count)) ? 1U : 0U,
+					   i);
+>>>>>>> upstream/android-13
 
 	return aq_hw_err_from_flags(self);
 }
@@ -771,12 +1009,17 @@ static int hw_atl_a0_hw_multicast_list_set(struct aq_hw_s *self,
 					   [ETH_ALEN],
 					   u32 count)
 {
+<<<<<<< HEAD
+=======
+	struct aq_nic_cfg_s *cfg = self->aq_nic_cfg;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	if (count > (HW_ATL_A0_MAC_MAX - HW_ATL_A0_MAC_MIN)) {
 		err = -EBADRQC;
 		goto err_exit;
 	}
+<<<<<<< HEAD
 	for (self->aq_nic_cfg->mc_list_count = 0U;
 			self->aq_nic_cfg->mc_list_count < count;
 			++self->aq_nic_cfg->mc_list_count) {
@@ -784,6 +1027,13 @@ static int hw_atl_a0_hw_multicast_list_set(struct aq_hw_s *self,
 		u32 h = (ar_mac[i][0] << 8) | (ar_mac[i][1]);
 		u32 l = (ar_mac[i][2] << 24) | (ar_mac[i][3] << 16) |
 					(ar_mac[i][4] << 8) | ar_mac[i][5];
+=======
+	for (cfg->mc_list_count = 0U; cfg->mc_list_count < count; ++cfg->mc_list_count) {
+		u32 i = cfg->mc_list_count;
+		u32 h = (ar_mac[i][0] << 8) | (ar_mac[i][1]);
+		u32 l = (ar_mac[i][2] << 24) | (ar_mac[i][3] << 16) |
+			(ar_mac[i][4] << 8) | ar_mac[i][5];
+>>>>>>> upstream/android-13
 
 		hw_atl_rpfl2_uc_flr_en_set(self, 0U, HW_ATL_A0_MAC_MIN + i);
 
@@ -796,7 +1046,11 @@ static int hw_atl_a0_hw_multicast_list_set(struct aq_hw_s *self,
 							HW_ATL_A0_MAC_MIN + i);
 
 		hw_atl_rpfl2_uc_flr_en_set(self,
+<<<<<<< HEAD
 					   (self->aq_nic_cfg->is_mc_list_enabled),
+=======
+					   (cfg->is_mc_list_enabled),
+>>>>>>> upstream/android-13
 					   HW_ATL_A0_MAC_MIN + i);
 	}
 
@@ -857,6 +1111,10 @@ static int hw_atl_a0_hw_interrupt_moderation_set(struct aq_hw_s *self)
 static int hw_atl_a0_hw_stop(struct aq_hw_s *self)
 {
 	hw_atl_a0_hw_irq_disable(self, HW_ATL_A0_INT_MASK);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -864,6 +1122,10 @@ static int hw_atl_a0_hw_ring_tx_stop(struct aq_hw_s *self,
 				     struct aq_ring_s *ring)
 {
 	hw_atl_tdm_tx_desc_en_set(self, 0U, ring->idx);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
@@ -871,13 +1133,81 @@ static int hw_atl_a0_hw_ring_rx_stop(struct aq_hw_s *self,
 				     struct aq_ring_s *ring)
 {
 	hw_atl_rdm_rx_desc_en_set(self, 0U, ring->idx);
+<<<<<<< HEAD
+=======
+
+	return aq_hw_err_from_flags(self);
+}
+
+static int hw_atl_a0_hw_fl3l4_clear(struct aq_hw_s *self,
+				    struct aq_rx_filter_l3l4 *data)
+{
+	u8 location = data->location;
+
+	if (!data->is_ipv6) {
+		hw_atl_rpfl3l4_cmd_clear(self, location);
+		hw_atl_rpf_l4_spd_set(self, 0U, location);
+		hw_atl_rpf_l4_dpd_set(self, 0U, location);
+		hw_atl_rpfl3l4_ipv4_src_addr_clear(self, location);
+		hw_atl_rpfl3l4_ipv4_dest_addr_clear(self, location);
+	} else {
+		int i;
+
+		for (i = 0; i < HW_ATL_RX_CNT_REG_ADDR_IPV6; ++i) {
+			hw_atl_rpfl3l4_cmd_clear(self, location + i);
+			hw_atl_rpf_l4_spd_set(self, 0U, location + i);
+			hw_atl_rpf_l4_dpd_set(self, 0U, location + i);
+		}
+		hw_atl_rpfl3l4_ipv6_src_addr_clear(self, location);
+		hw_atl_rpfl3l4_ipv6_dest_addr_clear(self, location);
+	}
+
+	return aq_hw_err_from_flags(self);
+}
+
+static int hw_atl_a0_hw_fl3l4_set(struct aq_hw_s *self,
+				  struct aq_rx_filter_l3l4 *data)
+{
+	u8 location = data->location;
+
+	hw_atl_a0_hw_fl3l4_clear(self, data);
+
+	if (data->cmd) {
+		if (!data->is_ipv6) {
+			hw_atl_rpfl3l4_ipv4_dest_addr_set(self,
+							  location,
+							  data->ip_dst[0]);
+			hw_atl_rpfl3l4_ipv4_src_addr_set(self,
+							 location,
+							 data->ip_src[0]);
+		} else {
+			hw_atl_rpfl3l4_ipv6_dest_addr_set(self,
+							  location,
+							  data->ip_dst);
+			hw_atl_rpfl3l4_ipv6_src_addr_set(self,
+							 location,
+							 data->ip_src);
+		}
+	}
+	hw_atl_rpf_l4_dpd_set(self, data->p_dst, location);
+	hw_atl_rpf_l4_spd_set(self, data->p_src, location);
+	hw_atl_rpfl3l4_cmd_set(self, location, data->cmd);
+
+>>>>>>> upstream/android-13
 	return aq_hw_err_from_flags(self);
 }
 
 const struct aq_hw_ops hw_atl_ops_a0 = {
+<<<<<<< HEAD
 	.hw_set_mac_address   = hw_atl_a0_hw_mac_addr_set,
 	.hw_init              = hw_atl_a0_hw_init,
 	.hw_set_power         = hw_atl_utils_hw_set_power,
+=======
+	.hw_soft_reset        = hw_atl_utils_soft_reset,
+	.hw_prepare           = hw_atl_utils_initfw,
+	.hw_set_mac_address   = hw_atl_a0_hw_mac_addr_set,
+	.hw_init              = hw_atl_a0_hw_init,
+>>>>>>> upstream/android-13
 	.hw_reset             = hw_atl_a0_hw_reset,
 	.hw_start             = hw_atl_a0_hw_start,
 	.hw_ring_tx_start     = hw_atl_a0_hw_ring_tx_start,
@@ -899,6 +1229,10 @@ const struct aq_hw_ops hw_atl_ops_a0 = {
 	.hw_ring_rx_init             = hw_atl_a0_hw_ring_rx_init,
 	.hw_ring_tx_init             = hw_atl_a0_hw_ring_tx_init,
 	.hw_packet_filter_set        = hw_atl_a0_hw_packet_filter_set,
+<<<<<<< HEAD
+=======
+	.hw_filter_l3l4_set          = hw_atl_a0_hw_fl3l4_set,
+>>>>>>> upstream/android-13
 	.hw_multicast_list_set       = hw_atl_a0_hw_multicast_list_set,
 	.hw_interrupt_moderation_set = hw_atl_a0_hw_interrupt_moderation_set,
 	.hw_rss_set                  = hw_atl_a0_hw_rss_set,

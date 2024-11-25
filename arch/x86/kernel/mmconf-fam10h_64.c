@@ -95,7 +95,11 @@ static void get_fam10h_pci_mmconf_base(void)
 		return;
 
 	/* SYS_CFG */
+<<<<<<< HEAD
 	address = MSR_K8_SYSCFG;
+=======
+	address = MSR_AMD64_SYSCFG;
+>>>>>>> upstream/android-13
 	rdmsrl(address, val);
 
 	/* TOP_MEM2 is not enabled? */

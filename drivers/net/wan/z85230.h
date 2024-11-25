@@ -327,6 +327,7 @@ struct z8530_channel
 	void		*private;	/* For our owner */
 	struct net_device	*netdevice;	/* Network layer device */
 
+<<<<<<< HEAD
 	/*
 	 *	Async features
 	 */
@@ -366,6 +367,8 @@ struct z8530_channel
 	unsigned char		tx_active; /* character is being xmitted */
 	unsigned char		tx_stopped; /* output is suspended */
 
+=======
+>>>>>>> upstream/android-13
 	spinlock_t		*lock;	  /* Device lock */
 };
 
@@ -421,8 +424,11 @@ extern struct z8530_irqhandler z8530_sync, z8530_async, z8530_nop;
  *	Asynchronous Interfacing
  */
 
+<<<<<<< HEAD
 #define SERIAL_MAGIC 0x5301
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The size of the serial xmit buffer is 1 page, or 4096 bytes
  */

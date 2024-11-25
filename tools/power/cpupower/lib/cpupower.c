@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  *  (C) 2004-2009  Dominik Brodowski <linux@dominikbrodowski.de>
  *
  *  Licensed under the terms of the GNU GPL License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2004-2009  Dominik Brodowski <linux@dominikbrodowski.de>
+>>>>>>> upstream/android-13
  */
 
 #include <sys/types.h>
@@ -17,8 +23,13 @@
 
 unsigned int cpupower_read_sysfs(const char *path, char *buf, size_t buflen)
 {
+<<<<<<< HEAD
 	int fd;
 	ssize_t numread;
+=======
+	ssize_t numread;
+	int fd;
+>>>>>>> upstream/android-13
 
 	fd = open(path, O_RDONLY);
 	if (fd == -1)
@@ -36,6 +47,30 @@ unsigned int cpupower_read_sysfs(const char *path, char *buf, size_t buflen)
 	return (unsigned int) numread;
 }
 
+<<<<<<< HEAD
+=======
+unsigned int cpupower_write_sysfs(const char *path, char *buf, size_t buflen)
+{
+	ssize_t numwritten;
+	int fd;
+
+	fd = open(path, O_WRONLY);
+	if (fd == -1)
+		return 0;
+
+	numwritten = write(fd, buf, buflen - 1);
+	if (numwritten < 1) {
+		perror(path);
+		close(fd);
+		return -1;
+	}
+
+	close(fd);
+
+	return (unsigned int) numwritten;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Detect whether a CPU is online
  *

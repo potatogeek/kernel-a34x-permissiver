@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rtc-tps6586x.c: RTC driver for TI PMIC TPS6586X
  *
  * Copyright (c) 2012, NVIDIA Corporation.
  *
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,11 +23,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307, USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/mfd/tps6586x.h>
 #include <linux/module.h>
@@ -259,7 +270,10 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
 	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
 	if (IS_ERR(rtc->rtc)) {
 		ret = PTR_ERR(rtc->rtc);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "RTC allocate device: ret %d\n", ret);
+=======
+>>>>>>> upstream/android-13
 		goto fail_rtc_register;
 	}
 
@@ -268,6 +282,11 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
 	rtc->rtc->start_secs = mktime64(2009, 1, 1, 0, 0, 0);
 	rtc->rtc->set_start_time = true;
 
+<<<<<<< HEAD
+=======
+	irq_set_status_flags(rtc->irq, IRQ_NOAUTOEN);
+
+>>>>>>> upstream/android-13
 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
 				tps6586x_rtc_irq,
 				IRQF_ONESHOT,
@@ -277,6 +296,7 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
 				rtc->irq, ret);
 		goto fail_rtc_register;
 	}
+<<<<<<< HEAD
 	disable_irq(rtc->irq);
 
 	ret = rtc_register_device(rtc->rtc);
@@ -284,6 +304,12 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "RTC device register: ret %d\n", ret);
 		goto fail_rtc_register;
 	}
+=======
+
+	ret = devm_rtc_register_device(rtc->rtc);
+	if (ret)
+		goto fail_rtc_register;
+>>>>>>> upstream/android-13
 
 	return 0;
 

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 STMicroelectronics R&D Limited
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 STMicroelectronics R&D Limited
+>>>>>>> upstream/android-13
  */
 #include <dt-bindings/clock/stih418-clks.h>
 / {
@@ -42,8 +48,11 @@
 				compatible = "st,stih418-clkgen-plla9";
 
 				clocks = <&clk_sysin>;
+<<<<<<< HEAD
 
 				clock-output-names = "clockgen-a9-pll-odf";
+=======
+>>>>>>> upstream/android-13
 			};
 		};
 
@@ -78,6 +87,7 @@
 
 			clk_s_a0_pll: clk-s-a0-pll {
 				#clock-cells = <1>;
+<<<<<<< HEAD
 				compatible = "st,clkgen-pll0";
 
 				clocks = <&clk_sysin>;
@@ -87,14 +97,26 @@
 
 			clk_s_a0_flexgen: clk-s-a0-flexgen {
 				compatible = "st,flexgen";
+=======
+				compatible = "st,clkgen-pll0-a0";
+
+				clocks = <&clk_sysin>;
+			};
+
+			clk_s_a0_flexgen: clk-s-a0-flexgen {
+				compatible = "st,flexgen", "st,flexgen-stih410-a0";
+>>>>>>> upstream/android-13
 
 				#clock-cells = <1>;
 
 				clocks = <&clk_s_a0_pll 0>,
 					 <&clk_sysin>;
+<<<<<<< HEAD
 
 				clock-output-names = "clk-ic-lmi0",
 						     "clk-ic-lmi1";
+=======
+>>>>>>> upstream/android-13
 			};
 		};
 
@@ -104,11 +126,14 @@
 			reg = <0x9103000 0x1000>;
 
 			clocks = <&clk_sysin>;
+<<<<<<< HEAD
 
 			clock-output-names = "clk-s-c0-fs0-ch0",
 					     "clk-s-c0-fs0-ch1",
 					     "clk-s-c0-fs0-ch2",
 					     "clk-s-c0-fs0-ch3";
+=======
+>>>>>>> upstream/android-13
 		};
 
 		clk_s_c0: clockgen-c@9103000 {
@@ -117,25 +142,41 @@
 
 			clk_s_c0_pll0: clk-s-c0-pll0 {
 				#clock-cells = <1>;
+<<<<<<< HEAD
 				compatible = "st,clkgen-pll0";
 
 				clocks = <&clk_sysin>;
 
 				clock-output-names = "clk-s-c0-pll0-odf-0";
+=======
+				compatible = "st,clkgen-pll0-c0";
+
+				clocks = <&clk_sysin>;
+>>>>>>> upstream/android-13
 			};
 
 			clk_s_c0_pll1: clk-s-c0-pll1 {
 				#clock-cells = <1>;
+<<<<<<< HEAD
 				compatible = "st,clkgen-pll1";
 
 				clocks = <&clk_sysin>;
 
 				clock-output-names = "clk-s-c0-pll1-odf-0";
+=======
+				compatible = "st,clkgen-pll1-c0";
+
+				clocks = <&clk_sysin>;
+>>>>>>> upstream/android-13
 			};
 
 			clk_s_c0_flexgen: clk-s-c0-flexgen {
 				#clock-cells = <1>;
+<<<<<<< HEAD
 				compatible = "st,flexgen";
+=======
+				compatible = "st,flexgen", "st,flexgen-stih418-c0";
+>>>>>>> upstream/android-13
 
 				clocks = <&clk_s_c0_pll0 0>,
 					 <&clk_s_c0_pll1 0>,
@@ -145,6 +186,7 @@
 					 <&clk_s_c0_quadfs 3>,
 					 <&clk_sysin>;
 
+<<<<<<< HEAD
 				clock-output-names = "clk-icn-gpu",
 						     "clk-fdma",
 						     "clk-nand",
@@ -188,6 +230,8 @@
 						     "clk-proc-sc",
 						     "clk-avsp-hevc";
 
+=======
+>>>>>>> upstream/android-13
 				/*
 				 * ARM Peripheral clock for timers
 				 */
@@ -207,6 +251,7 @@
 
 		clk_s_d0_quadfs: clk-s-d0-quadfs@9104000 {
 			#clock-cells = <1>;
+<<<<<<< HEAD
 			compatible = "st,quadfs";
 			reg = <0x9104000 0x1000>;
 
@@ -216,6 +261,12 @@
 					     "clk-s-d0-fs0-ch1",
 					     "clk-s-d0-fs0-ch2",
 					     "clk-s-d0-fs0-ch3";
+=======
+			compatible = "st,quadfs-d0";
+			reg = <0x9104000 0x1000>;
+
+			clocks = <&clk_sysin>;
+>>>>>>> upstream/android-13
 		};
 
 		clockgen-d0@9104000 {
@@ -224,13 +275,18 @@
 
 			clk_s_d0_flexgen: clk-s-d0-flexgen {
 				#clock-cells = <1>;
+<<<<<<< HEAD
 				compatible = "st,flexgen-audio", "st,flexgen";
+=======
+				compatible = "st,flexgen", "st,flexgen-stih410-d0";
+>>>>>>> upstream/android-13
 
 				clocks = <&clk_s_d0_quadfs 0>,
 					 <&clk_s_d0_quadfs 1>,
 					 <&clk_s_d0_quadfs 2>,
 					 <&clk_s_d0_quadfs 3>,
 					 <&clk_sysin>;
+<<<<<<< HEAD
 
 				clock-output-names = "clk-pcm-0",
 						     "clk-pcm-1",
@@ -238,11 +294,14 @@
 						     "clk-spdiff",
 						     "clk-pcmr10-master",
 						     "clk-usb2-phy";
+=======
+>>>>>>> upstream/android-13
 			};
 		};
 
 		clk_s_d2_quadfs: clk-s-d2-quadfs@9106000 {
 			#clock-cells = <1>;
+<<<<<<< HEAD
 			compatible = "st,quadfs";
 			reg = <0x9106000 0x1000>;
 
@@ -252,6 +311,12 @@
 					     "clk-s-d2-fs0-ch1",
 					     "clk-s-d2-fs0-ch2",
 					     "clk-s-d2-fs0-ch3";
+=======
+			compatible = "st,quadfs-d2";
+			reg = <0x9106000 0x1000>;
+
+			clocks = <&clk_sysin>;
+>>>>>>> upstream/android-13
 		};
 
 		clockgen-d2@9106000 {
@@ -260,7 +325,11 @@
 
 			clk_s_d2_flexgen: clk-s-d2-flexgen {
 				#clock-cells = <1>;
+<<<<<<< HEAD
 				compatible = "st,flexgen-video", "st,flexgen";
+=======
+				compatible = "st,flexgen", "st,flexgen-stih418-d2";
+>>>>>>> upstream/android-13
 
 				clocks = <&clk_s_d2_quadfs 0>,
 					 <&clk_s_d2_quadfs 1>,
@@ -269,6 +338,7 @@
 					 <&clk_sysin>,
 					 <&clk_sysin>,
 					 <&clk_tmdsout_hdmi>;
+<<<<<<< HEAD
 
 				clock-output-names = "clk-pix-main-disp",
 						     "",
@@ -293,11 +363,14 @@
 						     "", "", "", "", "",
 						     "", "", "", "", "",
 						     "", "clk-vp9";
+=======
+>>>>>>> upstream/android-13
 			};
 		};
 
 		clk_s_d3_quadfs: clk-s-d3-quadfs@9107000 {
 			#clock-cells = <1>;
+<<<<<<< HEAD
 			compatible = "st,quadfs";
 			reg = <0x9107000 0x1000>;
 
@@ -307,6 +380,12 @@
 					     "clk-s-d3-fs0-ch1",
 					     "clk-s-d3-fs0-ch2",
 					     "clk-s-d3-fs0-ch3";
+=======
+			compatible = "st,quadfs-d3";
+			reg = <0x9107000 0x1000>;
+
+			clocks = <&clk_sysin>;
+>>>>>>> upstream/android-13
 		};
 
 		clockgen-d3@9107000 {
@@ -315,13 +394,18 @@
 
 			clk_s_d3_flexgen: clk-s-d3-flexgen {
 				#clock-cells = <1>;
+<<<<<<< HEAD
 				compatible = "st,flexgen";
+=======
+				compatible = "st,flexgen", "st,flexgen-stih407-d3";
+>>>>>>> upstream/android-13
 
 				clocks = <&clk_s_d3_quadfs 0>,
 					 <&clk_s_d3_quadfs 1>,
 					 <&clk_s_d3_quadfs 2>,
 					 <&clk_s_d3_quadfs 3>,
 					 <&clk_sysin>;
+<<<<<<< HEAD
 
 				clock-output-names = "clk-stfe-frc1",
 						     "clk-tsout-0",
@@ -331,6 +415,8 @@
 						     "clk-frc1-remote",
 						     "clk-lpc-0",
 						     "clk-lpc-1";
+=======
+>>>>>>> upstream/android-13
 			};
 		};
 	};

@@ -56,6 +56,10 @@ struct dp_receiver_id_info;
 
 struct i2c_payloads;
 struct aux_payloads;
+<<<<<<< HEAD
+=======
+enum aux_return_code_type;
+>>>>>>> upstream/android-13
 
 void dal_ddc_i2c_payloads_add(
 		struct i2c_payloads *payloads,
@@ -64,6 +68,7 @@ void dal_ddc_i2c_payloads_add(
 		uint8_t *data,
 		bool write);
 
+<<<<<<< HEAD
 void dal_ddc_aux_payloads_add(
 		struct aux_payloads *payloads,
 		uint32_t address,
@@ -71,6 +76,8 @@ void dal_ddc_aux_payloads_add(
 		uint8_t *data,
 		bool write);
 
+=======
+>>>>>>> upstream/android-13
 struct ddc_service_init_data {
 	struct graphics_object_id id;
 	struct dc_context *ctx;
@@ -102,6 +109,7 @@ bool dal_ddc_service_query_ddc_data(
 		uint8_t *read_buf,
 		uint32_t read_size);
 
+<<<<<<< HEAD
 int dc_link_aux_transfer(struct ddc_service *ddc,
 			     unsigned int address,
 			     uint8_t *reply,
@@ -109,6 +117,20 @@ int dc_link_aux_transfer(struct ddc_service *ddc,
 			     unsigned int size,
 			     enum aux_transaction_type type,
 			     enum i2caux_transaction_action action);
+=======
+bool dal_ddc_submit_aux_command(struct ddc_service *ddc,
+		struct aux_payload *payload);
+
+int dc_link_aux_transfer_raw(struct ddc_service *ddc,
+		struct aux_payload *payload,
+		enum aux_return_code_type *operation_result);
+
+bool dc_link_aux_transfer_with_retries(struct ddc_service *ddc,
+		struct aux_payload *payload);
+
+bool dc_link_aux_try_to_configure_timeout(struct ddc_service *ddc,
+		uint32_t timeout);
+>>>>>>> upstream/android-13
 
 void dal_ddc_service_write_scdc_data(
 		struct ddc_service *ddc_service,

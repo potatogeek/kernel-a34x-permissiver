@@ -9,7 +9,11 @@
 
 #include <linux/kernel_stat.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/virtio.h>
 #include <linux/virtio_config.h>
@@ -46,9 +50,21 @@ struct vq_config_block {
 #define VIRTIO_CCW_CONFIG_SIZE 0x100
 /* same as PCI config space size, should be enough for all drivers */
 
+<<<<<<< HEAD
 struct virtio_ccw_device {
 	struct virtio_device vdev;
 	__u8 *status;
+=======
+struct vcdev_dma_area {
+	unsigned long indicators;
+	unsigned long indicators2;
+	struct vq_config_block config_block;
+	__u8 status;
+};
+
+struct virtio_ccw_device {
+	struct virtio_device vdev;
+>>>>>>> upstream/android-13
 	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
 	struct ccw_device *cdev;
 	__u32 curr_io;
@@ -58,16 +74,35 @@ struct virtio_ccw_device {
 	spinlock_t lock;
 	struct mutex io_lock; /* Serializes I/O requests */
 	struct list_head virtqueues;
+<<<<<<< HEAD
 	unsigned long indicators;
 	unsigned long indicators2;
 	struct vq_config_block *config_block;
+=======
+>>>>>>> upstream/android-13
 	bool is_thinint;
 	bool going_away;
 	bool device_lost;
 	unsigned int config_ready;
 	void *airq_info;
+<<<<<<< HEAD
 };
 
+=======
+	struct vcdev_dma_area *dma_area;
+};
+
+static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
+{
+	return &vcdev->dma_area->indicators;
+}
+
+static inline unsigned long *indicators2(struct virtio_ccw_device *vcdev)
+{
+	return &vcdev->dma_area->indicators2;
+}
+
+>>>>>>> upstream/android-13
 struct vq_info_block_legacy {
 	__u64 queue;
 	__u32 align;
@@ -108,7 +143,10 @@ struct virtio_rev_info {
 struct virtio_ccw_vq_info {
 	struct virtqueue *vq;
 	int num;
+<<<<<<< HEAD
 	void *queue;
+=======
+>>>>>>> upstream/android-13
 	union {
 		struct vq_info_block s;
 		struct vq_info_block_legacy l;
@@ -127,13 +165,27 @@ static int virtio_ccw_use_airq = 1;
 
 struct airq_info {
 	rwlock_t lock;
+<<<<<<< HEAD
 	u8 summary_indicator;
+=======
+	u8 summary_indicator_idx;
+>>>>>>> upstream/android-13
 	struct airq_struct airq;
 	struct airq_iv *aiv;
 };
 static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
 static DEFINE_MUTEX(airq_areas_lock);
 
+<<<<<<< HEAD
+=======
+static u8 *summary_indicators;
+
+static inline u8 *get_summary_indicator(struct airq_info *info)
+{
+	return summary_indicators + info->summary_indicator_idx;
+}
+
+>>>>>>> upstream/android-13
 #define CCW_CMD_SET_VQ 0x13
 #define CCW_CMD_VDEV_RESET 0x33
 #define CCW_CMD_SET_IND 0x43
@@ -183,7 +235,11 @@ static void drop_airq_indicator(struct virtqueue *vq, struct airq_info *info)
 	write_unlock_irqrestore(&info->lock, flags);
 }
 
+<<<<<<< HEAD
 static void virtio_airq_handler(struct airq_struct *airq)
+=======
+static void virtio_airq_handler(struct airq_struct *airq, bool floating)
+>>>>>>> upstream/android-13
 {
 	struct airq_info *info = container_of(airq, struct airq_info, airq);
 	unsigned long ai;
@@ -197,7 +253,11 @@ static void virtio_airq_handler(struct airq_struct *airq)
 			break;
 		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
 	}
+<<<<<<< HEAD
 	info->summary_indicator = 0;
+=======
+	*(get_summary_indicator(info)) = 0;
+>>>>>>> upstream/android-13
 	smp_wmb();
 	/* Walk through indicators field, summary indicator not active. */
 	for (ai = 0;;) {
@@ -209,7 +269,11 @@ static void virtio_airq_handler(struct airq_struct *airq)
 	read_unlock(&info->lock);
 }
 
+<<<<<<< HEAD
 static struct airq_info *new_airq_info(void)
+=======
+static struct airq_info *new_airq_info(int index)
+>>>>>>> upstream/android-13
 {
 	struct airq_info *info;
 	int rc;
@@ -218,13 +282,23 @@ static struct airq_info *new_airq_info(void)
 	if (!info)
 		return NULL;
 	rwlock_init(&info->lock);
+<<<<<<< HEAD
 	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR);
+=======
+	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR
+				   | AIRQ_IV_CACHELINE);
+>>>>>>> upstream/android-13
 	if (!info->aiv) {
 		kfree(info);
 		return NULL;
 	}
 	info->airq.handler = virtio_airq_handler;
+<<<<<<< HEAD
 	info->airq.lsi_ptr = &info->summary_indicator;
+=======
+	info->summary_indicator_idx = index;
+	info->airq.lsi_ptr = get_summary_indicator(info);
+>>>>>>> upstream/android-13
 	info->airq.lsi_mask = 0xff;
 	info->airq.isc = VIRTIO_AIRQ_ISC;
 	rc = register_adapter_interrupt(&info->airq);
@@ -247,7 +321,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
 		mutex_lock(&airq_areas_lock);
 		if (!airq_areas[i])
+<<<<<<< HEAD
 			airq_areas[i] = new_airq_info();
+=======
+			airq_areas[i] = new_airq_info(i);
+>>>>>>> upstream/android-13
 		info = airq_areas[i];
 		mutex_unlock(&airq_areas_lock);
 		if (!info)
@@ -329,29 +407,51 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
 	struct airq_info *airq_info = vcdev->airq_info;
 
 	if (vcdev->is_thinint) {
+<<<<<<< HEAD
 		thinint_area = kzalloc(sizeof(*thinint_area),
 				       GFP_DMA | GFP_KERNEL);
 		if (!thinint_area)
 			return;
 		thinint_area->summary_indicator =
 			(unsigned long) &airq_info->summary_indicator;
+=======
+		thinint_area = ccw_device_dma_zalloc(vcdev->cdev,
+						     sizeof(*thinint_area));
+		if (!thinint_area)
+			return;
+		thinint_area->summary_indicator =
+			(unsigned long) get_summary_indicator(airq_info);
+>>>>>>> upstream/android-13
 		thinint_area->isc = VIRTIO_AIRQ_ISC;
 		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
 		ccw->count = sizeof(*thinint_area);
 		ccw->cda = (__u32)(unsigned long) thinint_area;
 	} else {
 		/* payload is the address of the indicators */
+<<<<<<< HEAD
 		indicatorp = kmalloc(sizeof(&vcdev->indicators),
 				     GFP_DMA | GFP_KERNEL);
+=======
+		indicatorp = ccw_device_dma_zalloc(vcdev->cdev,
+						   sizeof(indicators(vcdev)));
+>>>>>>> upstream/android-13
 		if (!indicatorp)
 			return;
 		*indicatorp = 0;
 		ccw->cmd_code = CCW_CMD_SET_IND;
+<<<<<<< HEAD
 		ccw->count = sizeof(&vcdev->indicators);
 		ccw->cda = (__u32)(unsigned long) indicatorp;
 	}
 	/* Deregister indicators from host. */
 	vcdev->indicators = 0;
+=======
+		ccw->count = sizeof(indicators(vcdev));
+		ccw->cda = (__u32)(unsigned long) indicatorp;
+	}
+	/* Deregister indicators from host. */
+	*indicators(vcdev) = 0;
+>>>>>>> upstream/android-13
 	ccw->flags = 0;
 	ret = ccw_io_helper(vcdev, ccw,
 			    vcdev->is_thinint ?
@@ -362,6 +462,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
 			 "Failed to deregister indicators (%d)\n", ret);
 	else if (vcdev->is_thinint)
 		virtio_ccw_drop_indicators(vcdev);
+<<<<<<< HEAD
 	kfree(indicatorp);
 	kfree(thinint_area);
 }
@@ -389,6 +490,10 @@ static inline long do_kvm_notify(struct subchannel_id schid,
 {
 	diag_stat_inc(DIAG_STAT_X500);
 	return __do_kvm_notify(schid, queue_index, cookie);
+=======
+	ccw_device_dma_free(vcdev->cdev, indicatorp, sizeof(indicators(vcdev)));
+	ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_area));
+>>>>>>> upstream/android-13
 }
 
 static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
@@ -399,7 +504,14 @@ static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
 
 	vcdev = to_vc_device(info->vq->vdev);
 	ccw_device_get_schid(vcdev->cdev, &schid);
+<<<<<<< HEAD
 	info->cookie = do_kvm_notify(schid, vq->index, info->cookie);
+=======
+	BUILD_BUG_ON(sizeof(struct subchannel_id) != sizeof(unsigned int));
+	info->cookie = kvm_hypercall3(KVM_S390_VIRTIO_CCW_NOTIFY,
+				      *((unsigned int *)&schid),
+				      vq->index, info->cookie);
+>>>>>>> upstream/android-13
 	if (info->cookie < 0)
 		return false;
 	return true;
@@ -410,6 +522,7 @@ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
 {
 	int ret;
 
+<<<<<<< HEAD
 	vcdev->config_block->index = index;
 	ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
 	ccw->flags = 0;
@@ -419,6 +532,17 @@ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
 	if (ret)
 		return ret;
 	return vcdev->config_block->num ?: -ENOENT;
+=======
+	vcdev->dma_area->config_block.index = index;
+	ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
+	ccw->flags = 0;
+	ccw->count = sizeof(struct vq_config_block);
+	ccw->cda = (__u32)(unsigned long)(&vcdev->dma_area->config_block);
+	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
+	if (ret)
+		return ret;
+	return vcdev->dma_area->config_block.num ?: -ENOENT;
+>>>>>>> upstream/android-13
 }
 
 static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
@@ -426,7 +550,10 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
 	struct virtio_ccw_device *vcdev = to_vc_device(vq->vdev);
 	struct virtio_ccw_vq_info *info = vq->priv;
 	unsigned long flags;
+<<<<<<< HEAD
 	unsigned long size;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	unsigned int index = vq->index;
 
@@ -464,9 +591,14 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
 			 ret, index);
 
 	vring_del_virtqueue(vq);
+<<<<<<< HEAD
 	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
 	free_pages_exact(info->queue, size);
 	kfree(info->info_block);
+=======
+	ccw_device_dma_free(vcdev->cdev, info->info_block,
+			    sizeof(*info->info_block));
+>>>>>>> upstream/android-13
 	kfree(info);
 }
 
@@ -476,7 +608,11 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
 	struct ccw1 *ccw;
 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
 
+<<<<<<< HEAD
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+=======
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+>>>>>>> upstream/android-13
 	if (!ccw)
 		return;
 
@@ -485,7 +621,11 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
 	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
 		virtio_ccw_del_vq(vq, ccw);
 
+<<<<<<< HEAD
 	kfree(ccw);
+=======
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+>>>>>>> upstream/android-13
 }
 
 static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
@@ -497,8 +637,14 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
 	int err;
 	struct virtqueue *vq = NULL;
 	struct virtio_ccw_vq_info *info;
+<<<<<<< HEAD
 	unsigned long size = 0; /* silence the compiler */
 	unsigned long flags;
+=======
+	u64 queue;
+	unsigned long flags;
+	bool may_reduce;
+>>>>>>> upstream/android-13
 
 	/* Allocate queue. */
 	info = kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
@@ -507,8 +653,13 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
 		err = -ENOMEM;
 		goto out_err;
 	}
+<<<<<<< HEAD
 	info->info_block = kzalloc(sizeof(*info->info_block),
 				   GFP_DMA | GFP_KERNEL);
+=======
+	info->info_block = ccw_device_dma_zalloc(vcdev->cdev,
+						 sizeof(*info->info_block));
+>>>>>>> upstream/android-13
 	if (!info->info_block) {
 		dev_warn(&vcdev->cdev->dev, "no info block\n");
 		err = -ENOMEM;
@@ -519,6 +670,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
 		err = info->num;
 		goto out_err;
 	}
+<<<<<<< HEAD
 	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
 	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
 	if (info->queue == NULL) {
@@ -530,26 +682,51 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
 	vq = vring_new_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN, vdev,
 				 true, ctx, info->queue, virtio_ccw_kvm_notify,
 				 callback, name);
+=======
+	may_reduce = vcdev->revision > 0;
+	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
+				    vdev, true, may_reduce, ctx,
+				    virtio_ccw_kvm_notify, callback, name);
+
+>>>>>>> upstream/android-13
 	if (!vq) {
 		/* For now, we fail if we can't get the requested size. */
 		dev_warn(&vcdev->cdev->dev, "no vq\n");
 		err = -ENOMEM;
 		goto out_err;
 	}
+<<<<<<< HEAD
 
 	/* Register it with the host. */
 	if (vcdev->revision == 0) {
 		info->info_block->l.queue = (__u64)info->queue;
+=======
+	/* it may have been reduced */
+	info->num = virtqueue_get_vring_size(vq);
+
+	/* Register it with the host. */
+	queue = virtqueue_get_desc_addr(vq);
+	if (vcdev->revision == 0) {
+		info->info_block->l.queue = queue;
+>>>>>>> upstream/android-13
 		info->info_block->l.align = KVM_VIRTIO_CCW_RING_ALIGN;
 		info->info_block->l.index = i;
 		info->info_block->l.num = info->num;
 		ccw->count = sizeof(info->info_block->l);
 	} else {
+<<<<<<< HEAD
 		info->info_block->s.desc = (__u64)info->queue;
 		info->info_block->s.index = i;
 		info->info_block->s.num = info->num;
 		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
 		info->info_block->s.used = (__u64)virtqueue_get_used(vq);
+=======
+		info->info_block->s.desc = queue;
+		info->info_block->s.index = i;
+		info->info_block->s.num = info->num;
+		info->info_block->s.avail = (__u64)virtqueue_get_avail_addr(vq);
+		info->info_block->s.used = (__u64)virtqueue_get_used_addr(vq);
+>>>>>>> upstream/android-13
 		ccw->count = sizeof(info->info_block->s);
 	}
 	ccw->cmd_code = CCW_CMD_SET_VQ;
@@ -575,9 +752,14 @@ out_err:
 	if (vq)
 		vring_del_virtqueue(vq);
 	if (info) {
+<<<<<<< HEAD
 		if (info->queue)
 			free_pages_exact(info->queue, size);
 		kfree(info->info_block);
+=======
+		ccw_device_dma_free(vcdev->cdev, info->info_block,
+				    sizeof(*info->info_block));
+>>>>>>> upstream/android-13
 	}
 	kfree(info);
 	return ERR_PTR(err);
@@ -591,7 +773,12 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
 	struct virtio_thinint_area *thinint_area = NULL;
 	struct airq_info *info;
 
+<<<<<<< HEAD
 	thinint_area = kzalloc(sizeof(*thinint_area), GFP_DMA | GFP_KERNEL);
+=======
+	thinint_area = ccw_device_dma_zalloc(vcdev->cdev,
+					     sizeof(*thinint_area));
+>>>>>>> upstream/android-13
 	if (!thinint_area) {
 		ret = -ENOMEM;
 		goto out;
@@ -606,7 +793,11 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
 	}
 	info = vcdev->airq_info;
 	thinint_area->summary_indicator =
+<<<<<<< HEAD
 		(unsigned long) &info->summary_indicator;
+=======
+		(unsigned long) get_summary_indicator(info);
+>>>>>>> upstream/android-13
 	thinint_area->isc = VIRTIO_AIRQ_ISC;
 	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
 	ccw->flags = CCW_FLAG_SLI;
@@ -627,7 +818,11 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
 		virtio_ccw_drop_indicators(vcdev);
 	}
 out:
+<<<<<<< HEAD
 	kfree(thinint_area);
+=======
+	ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_area));
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -640,16 +835,34 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
 {
 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
 	unsigned long *indicatorp = NULL;
+<<<<<<< HEAD
 	int ret, i;
 	struct ccw1 *ccw;
 
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+=======
+	int ret, i, queue_idx = 0;
+	struct ccw1 *ccw;
+
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+>>>>>>> upstream/android-13
 	if (!ccw)
 		return -ENOMEM;
 
 	for (i = 0; i < nvqs; ++i) {
+<<<<<<< HEAD
 		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i], names[i],
 					     ctx ? ctx[i] : false, ccw);
+=======
+		if (!names[i]) {
+			vqs[i] = NULL;
+			continue;
+		}
+
+		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
+					     names[i], ctx ? ctx[i] : false,
+					     ccw);
+>>>>>>> upstream/android-13
 		if (IS_ERR(vqs[i])) {
 			ret = PTR_ERR(vqs[i]);
 			vqs[i] = NULL;
@@ -661,10 +874,18 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
 	 * We need a data area under 2G to communicate. Our payload is
 	 * the address of the indicators.
 	*/
+<<<<<<< HEAD
 	indicatorp = kmalloc(sizeof(&vcdev->indicators), GFP_DMA | GFP_KERNEL);
 	if (!indicatorp)
 		goto out;
 	*indicatorp = (unsigned long) &vcdev->indicators;
+=======
+	indicatorp = ccw_device_dma_zalloc(vcdev->cdev,
+					   sizeof(indicators(vcdev)));
+	if (!indicatorp)
+		goto out;
+	*indicatorp = (unsigned long) indicators(vcdev);
+>>>>>>> upstream/android-13
 	if (vcdev->is_thinint) {
 		ret = virtio_ccw_register_adapter_ind(vcdev, vqs, nvqs, ccw);
 		if (ret)
@@ -673,32 +894,60 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
 	}
 	if (!vcdev->is_thinint) {
 		/* Register queue indicators with host. */
+<<<<<<< HEAD
 		vcdev->indicators = 0;
 		ccw->cmd_code = CCW_CMD_SET_IND;
 		ccw->flags = 0;
 		ccw->count = sizeof(&vcdev->indicators);
+=======
+		*indicators(vcdev) = 0;
+		ccw->cmd_code = CCW_CMD_SET_IND;
+		ccw->flags = 0;
+		ccw->count = sizeof(indicators(vcdev));
+>>>>>>> upstream/android-13
 		ccw->cda = (__u32)(unsigned long) indicatorp;
 		ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
 		if (ret)
 			goto out;
 	}
 	/* Register indicators2 with host for config changes */
+<<<<<<< HEAD
 	*indicatorp = (unsigned long) &vcdev->indicators2;
 	vcdev->indicators2 = 0;
 	ccw->cmd_code = CCW_CMD_SET_CONF_IND;
 	ccw->flags = 0;
 	ccw->count = sizeof(&vcdev->indicators2);
+=======
+	*indicatorp = (unsigned long) indicators2(vcdev);
+	*indicators2(vcdev) = 0;
+	ccw->cmd_code = CCW_CMD_SET_CONF_IND;
+	ccw->flags = 0;
+	ccw->count = sizeof(indicators2(vcdev));
+>>>>>>> upstream/android-13
 	ccw->cda = (__u32)(unsigned long) indicatorp;
 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_CONF_IND);
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	kfree(indicatorp);
 	kfree(ccw);
 	return 0;
 out:
 	kfree(indicatorp);
 	kfree(ccw);
+=======
+	if (indicatorp)
+		ccw_device_dma_free(vcdev->cdev, indicatorp,
+				    sizeof(indicators(vcdev)));
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+	return 0;
+out:
+	if (indicatorp)
+		ccw_device_dma_free(vcdev->cdev, indicatorp,
+				    sizeof(indicators(vcdev)));
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+>>>>>>> upstream/android-13
 	virtio_ccw_del_vqs(vdev);
 	return ret;
 }
@@ -708,12 +957,20 @@ static void virtio_ccw_reset(struct virtio_device *vdev)
 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
 	struct ccw1 *ccw;
 
+<<<<<<< HEAD
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+=======
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+>>>>>>> upstream/android-13
 	if (!ccw)
 		return;
 
 	/* Zero status bits. */
+<<<<<<< HEAD
 	*vcdev->status = 0;
+=======
+	vcdev->dma_area->status = 0;
+>>>>>>> upstream/android-13
 
 	/* Send a reset ccw on device. */
 	ccw->cmd_code = CCW_CMD_VDEV_RESET;
@@ -721,7 +978,11 @@ static void virtio_ccw_reset(struct virtio_device *vdev)
 	ccw->count = 0;
 	ccw->cda = 0;
 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_RESET);
+<<<<<<< HEAD
 	kfree(ccw);
+=======
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+>>>>>>> upstream/android-13
 }
 
 static u64 virtio_ccw_get_features(struct virtio_device *vdev)
@@ -732,11 +993,19 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
 	u64 rc;
 	struct ccw1 *ccw;
 
+<<<<<<< HEAD
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
 	if (!ccw)
 		return 0;
 
 	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
+=======
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+	if (!ccw)
+		return 0;
+
+	features = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*features));
+>>>>>>> upstream/android-13
 	if (!features) {
 		rc = 0;
 		goto out_free;
@@ -769,11 +1038,26 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
 		rc |= (u64)le32_to_cpu(features->features) << 32;
 
 out_free:
+<<<<<<< HEAD
 	kfree(features);
 	kfree(ccw);
 	return rc;
 }
 
+=======
+	ccw_device_dma_free(vcdev->cdev, features, sizeof(*features));
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+	return rc;
+}
+
+static void ccw_transport_features(struct virtio_device *vdev)
+{
+	/*
+	 * Currently nothing to do here.
+	 */
+}
+
+>>>>>>> upstream/android-13
 static int virtio_ccw_finalize_features(struct virtio_device *vdev)
 {
 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
@@ -788,11 +1072,19 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
 	if (!ccw)
 		return -ENOMEM;
 
 	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
+=======
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+	if (!ccw)
+		return -ENOMEM;
+
+	features = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*features));
+>>>>>>> upstream/android-13
 	if (!features) {
 		ret = -ENOMEM;
 		goto out_free;
@@ -800,6 +1092,12 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
 	/* Give virtio_ring a chance to accept features. */
 	vring_transport_features(vdev);
 
+<<<<<<< HEAD
+=======
+	/* Give virtio_ccw a chance to accept features. */
+	ccw_transport_features(vdev);
+
+>>>>>>> upstream/android-13
 	features->index = 0;
 	features->features = cpu_to_le32((u32)vdev->features);
 	/* Write the first half of the feature bits to the host. */
@@ -824,8 +1122,13 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
 
 out_free:
+<<<<<<< HEAD
 	kfree(features);
 	kfree(ccw);
+=======
+	ccw_device_dma_free(vcdev->cdev, features, sizeof(*features));
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -839,11 +1142,20 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
 	void *config_area;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
 	if (!ccw)
 		return;
 
 	config_area = kzalloc(VIRTIO_CCW_CONFIG_SIZE, GFP_DMA | GFP_KERNEL);
+=======
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+	if (!ccw)
+		return;
+
+	config_area = ccw_device_dma_zalloc(vcdev->cdev,
+					    VIRTIO_CCW_CONFIG_SIZE);
+>>>>>>> upstream/android-13
 	if (!config_area)
 		goto out_free;
 
@@ -865,8 +1177,13 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
 		memcpy(buf, config_area + offset, len);
 
 out_free:
+<<<<<<< HEAD
 	kfree(config_area);
 	kfree(ccw);
+=======
+	ccw_device_dma_free(vcdev->cdev, config_area, VIRTIO_CCW_CONFIG_SIZE);
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+>>>>>>> upstream/android-13
 }
 
 static void virtio_ccw_set_config(struct virtio_device *vdev,
@@ -878,11 +1195,20 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
 	void *config_area;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
 	if (!ccw)
 		return;
 
 	config_area = kzalloc(VIRTIO_CCW_CONFIG_SIZE, GFP_DMA | GFP_KERNEL);
+=======
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+	if (!ccw)
+		return;
+
+	config_area = ccw_device_dma_zalloc(vcdev->cdev,
+					    VIRTIO_CCW_CONFIG_SIZE);
+>>>>>>> upstream/android-13
 	if (!config_area)
 		goto out_free;
 
@@ -901,13 +1227,19 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_CONFIG);
 
 out_free:
+<<<<<<< HEAD
 	kfree(config_area);
 	kfree(ccw);
+=======
+	ccw_device_dma_free(vcdev->cdev, config_area, VIRTIO_CCW_CONFIG_SIZE);
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+>>>>>>> upstream/android-13
 }
 
 static u8 virtio_ccw_get_status(struct virtio_device *vdev)
 {
 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+<<<<<<< HEAD
 	u8 old_status = *vcdev->status;
 	struct ccw1 *ccw;
 
@@ -915,37 +1247,69 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
 		return *vcdev->status;
 
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+=======
+	u8 old_status = vcdev->dma_area->status;
+	struct ccw1 *ccw;
+
+	if (vcdev->revision < 2)
+		return vcdev->dma_area->status;
+
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+>>>>>>> upstream/android-13
 	if (!ccw)
 		return old_status;
 
 	ccw->cmd_code = CCW_CMD_READ_STATUS;
 	ccw->flags = 0;
+<<<<<<< HEAD
 	ccw->count = sizeof(*vcdev->status);
 	ccw->cda = (__u32)(unsigned long)vcdev->status;
+=======
+	ccw->count = sizeof(vcdev->dma_area->status);
+	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
+>>>>>>> upstream/android-13
 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_STATUS);
 /*
  * If the channel program failed (should only happen if the device
  * was hotunplugged, and then we clean up via the machine check
+<<<<<<< HEAD
  * handler anyway), vcdev->status was not overwritten and we just
  * return the old status, which is fine.
 */
 	kfree(ccw);
 
 	return *vcdev->status;
+=======
+ * handler anyway), vcdev->dma_area->status was not overwritten and we just
+ * return the old status, which is fine.
+*/
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+
+	return vcdev->dma_area->status;
+>>>>>>> upstream/android-13
 }
 
 static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
 {
 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+<<<<<<< HEAD
 	u8 old_status = *vcdev->status;
 	struct ccw1 *ccw;
 	int ret;
 
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+=======
+	u8 old_status = vcdev->dma_area->status;
+	struct ccw1 *ccw;
+	int ret;
+
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+>>>>>>> upstream/android-13
 	if (!ccw)
 		return;
 
 	/* Write the status to the host. */
+<<<<<<< HEAD
 	*vcdev->status = status;
 	ccw->cmd_code = CCW_CMD_WRITE_STATUS;
 	ccw->flags = 0;
@@ -956,6 +1320,25 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
 	if (ret)
 		*vcdev->status = old_status;
 	kfree(ccw);
+=======
+	vcdev->dma_area->status = status;
+	ccw->cmd_code = CCW_CMD_WRITE_STATUS;
+	ccw->flags = 0;
+	ccw->count = sizeof(status);
+	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
+	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
+	/* Write failed? We assume status is unchanged. */
+	if (ret)
+		vcdev->dma_area->status = old_status;
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+}
+
+static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
+{
+	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+
+	return dev_name(&vcdev->cdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct virtio_config_ops virtio_ccw_config_ops = {
@@ -968,6 +1351,10 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
 	.reset = virtio_ccw_reset,
 	.find_vqs = virtio_ccw_find_vqs,
 	.del_vqs = virtio_ccw_del_vqs,
+<<<<<<< HEAD
+=======
+	.bus_name = virtio_ccw_bus_name,
+>>>>>>> upstream/android-13
 };
 
 
@@ -980,8 +1367,13 @@ static void virtio_ccw_release_dev(struct device *_d)
 	struct virtio_device *dev = dev_to_virtio(_d);
 	struct virtio_ccw_device *vcdev = to_vc_device(dev);
 
+<<<<<<< HEAD
 	kfree(vcdev->status);
 	kfree(vcdev->config_block);
+=======
+	ccw_device_dma_free(vcdev->cdev, vcdev->dma_area,
+			    sizeof(*vcdev->dma_area));
+>>>>>>> upstream/android-13
 	kfree(vcdev);
 }
 
@@ -1079,17 +1471,30 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
 			vcdev->err = -EIO;
 	}
 	virtio_ccw_check_activity(vcdev, activity);
+<<<<<<< HEAD
 	for_each_set_bit(i, &vcdev->indicators,
 			 sizeof(vcdev->indicators) * BITS_PER_BYTE) {
 		/* The bit clear must happen before the vring kick. */
 		clear_bit(i, &vcdev->indicators);
+=======
+	for_each_set_bit(i, indicators(vcdev),
+			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
+		/* The bit clear must happen before the vring kick. */
+		clear_bit(i, indicators(vcdev));
+>>>>>>> upstream/android-13
 		barrier();
 		vq = virtio_ccw_vq_by_ind(vcdev, i);
 		vring_interrupt(0, vq);
 	}
+<<<<<<< HEAD
 	if (test_bit(0, &vcdev->indicators2)) {
 		virtio_config_changed(&vcdev->vdev);
 		clear_bit(0, &vcdev->indicators2);
+=======
+	if (test_bit(0, indicators2(vcdev))) {
+		virtio_config_changed(&vcdev->vdev);
+		clear_bit(0, indicators2(vcdev));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1189,12 +1594,21 @@ static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
 	struct ccw1 *ccw;
 	int ret;
 
+<<<<<<< HEAD
 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
 	if (!ccw)
 		return -ENOMEM;
 	rev = kzalloc(sizeof(*rev), GFP_DMA | GFP_KERNEL);
 	if (!rev) {
 		kfree(ccw);
+=======
+	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+	if (!ccw)
+		return -ENOMEM;
+	rev = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*rev));
+	if (!rev) {
+		ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -1224,8 +1638,13 @@ static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
 		}
 	} while (ret == -EOPNOTSUPP);
 
+<<<<<<< HEAD
 	kfree(ccw);
 	kfree(rev);
+=======
+	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
+	ccw_device_dma_free(vcdev->cdev, rev, sizeof(*rev));
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1241,6 +1660,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
 		ret = -ENOMEM;
 		goto out_free;
 	}
+<<<<<<< HEAD
 	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
 				   GFP_DMA | GFP_KERNEL);
 	if (!vcdev->config_block) {
@@ -1249,16 +1669,28 @@ static int virtio_ccw_online(struct ccw_device *cdev)
 	}
 	vcdev->status = kzalloc(sizeof(*vcdev->status), GFP_DMA | GFP_KERNEL);
 	if (!vcdev->status) {
+=======
+	vcdev->vdev.dev.parent = &cdev->dev;
+	vcdev->cdev = cdev;
+	vcdev->dma_area = ccw_device_dma_zalloc(vcdev->cdev,
+						sizeof(*vcdev->dma_area));
+	if (!vcdev->dma_area) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_free;
 	}
 
 	vcdev->is_thinint = virtio_ccw_use_airq; /* at least try */
 
+<<<<<<< HEAD
 	vcdev->vdev.dev.parent = &cdev->dev;
 	vcdev->vdev.dev.release = virtio_ccw_release_dev;
 	vcdev->vdev.config = &virtio_ccw_config_ops;
 	vcdev->cdev = cdev;
+=======
+	vcdev->vdev.dev.release = virtio_ccw_release_dev;
+	vcdev->vdev.config = &virtio_ccw_config_ops;
+>>>>>>> upstream/android-13
 	init_waitqueue_head(&vcdev->wait_q);
 	INIT_LIST_HEAD(&vcdev->virtqueues);
 	spin_lock_init(&vcdev->lock);
@@ -1289,8 +1721,13 @@ out_put:
 	return ret;
 out_free:
 	if (vcdev) {
+<<<<<<< HEAD
 		kfree(vcdev->status);
 		kfree(vcdev->config_block);
+=======
+		ccw_device_dma_free(vcdev->cdev, vcdev->dma_area,
+				    sizeof(*vcdev->dma_area));
+>>>>>>> upstream/android-13
 	}
 	kfree(vcdev);
 	return ret;
@@ -1328,6 +1765,7 @@ static struct ccw_device_id virtio_ids[] = {
 	{},
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int virtio_ccw_freeze(struct ccw_device *cdev)
 {
@@ -1349,6 +1787,8 @@ static int virtio_ccw_restore(struct ccw_device *cdev)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static struct ccw_driver virtio_ccw_driver = {
 	.driver = {
 		.owner = THIS_MODULE,
@@ -1361,11 +1801,14 @@ static struct ccw_driver virtio_ccw_driver = {
 	.set_online = virtio_ccw_online,
 	.notify = virtio_ccw_cio_notify,
 	.int_class = IRQIO_VIR,
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 	.freeze = virtio_ccw_freeze,
 	.thaw = virtio_ccw_restore,
 	.restore = virtio_ccw_restore,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
@@ -1460,8 +1903,23 @@ static void __init no_auto_parse(void)
 
 static int __init virtio_ccw_init(void)
 {
+<<<<<<< HEAD
 	/* parse no_auto string before we do anything further */
 	no_auto_parse();
 	return ccw_driver_register(&virtio_ccw_driver);
+=======
+	int rc;
+
+	/* parse no_auto string before we do anything further */
+	no_auto_parse();
+
+	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
+	if (!summary_indicators)
+		return -ENOMEM;
+	rc = ccw_driver_register(&virtio_ccw_driver);
+	if (rc)
+		cio_dma_free(summary_indicators, MAX_AIRQ_AREAS);
+	return rc;
+>>>>>>> upstream/android-13
 }
 device_initcall(virtio_ccw_init);

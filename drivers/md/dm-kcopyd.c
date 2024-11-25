@@ -28,10 +28,34 @@
 
 #include "dm-core.h"
 
+<<<<<<< HEAD
 #define SUB_JOB_SIZE	128
 #define SPLIT_COUNT	8
 #define MIN_JOBS	8
 #define RESERVE_PAGES	(DIV_ROUND_UP(SUB_JOB_SIZE << SECTOR_SHIFT, PAGE_SIZE))
+=======
+#define SPLIT_COUNT	8
+#define MIN_JOBS	8
+
+#define DEFAULT_SUB_JOB_SIZE_KB 512
+#define MAX_SUB_JOB_SIZE_KB     1024
+
+static unsigned kcopyd_subjob_size_kb = DEFAULT_SUB_JOB_SIZE_KB;
+
+module_param(kcopyd_subjob_size_kb, uint, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(kcopyd_subjob_size_kb, "Sub-job size for dm-kcopyd clients");
+
+static unsigned dm_get_kcopyd_subjob_size(void)
+{
+	unsigned sub_job_size_kb;
+
+	sub_job_size_kb = __dm_get_module_param(&kcopyd_subjob_size_kb,
+						DEFAULT_SUB_JOB_SIZE_KB,
+						MAX_SUB_JOB_SIZE_KB);
+
+	return sub_job_size_kb << 1;
+}
+>>>>>>> upstream/android-13
 
 /*-----------------------------------------------------------------
  * Each kcopyd client has its own little pool of preallocated
@@ -41,6 +65,10 @@ struct dm_kcopyd_client {
 	struct page_list *pages;
 	unsigned nr_reserved_pages;
 	unsigned nr_free_pages;
+<<<<<<< HEAD
+=======
+	unsigned sub_job_size;
+>>>>>>> upstream/android-13
 
 	struct dm_io_client *io_client;
 
@@ -323,7 +351,11 @@ static void client_free_pages(struct dm_kcopyd_client *kc)
 struct kcopyd_job {
 	struct dm_kcopyd_client *kc;
 	struct list_head list;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+	unsigned flags;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Error state of the job.
@@ -400,7 +432,11 @@ static struct kcopyd_job *pop_io_job(struct list_head *jobs,
 	 * constraint and sequential writes that are at the right position.
 	 */
 	list_for_each_entry(job, jobs, list) {
+<<<<<<< HEAD
 		if (job->rw == READ || !test_bit(DM_KCOPYD_WRITE_SEQ, &job->flags)) {
+=======
+		if (job->rw == READ || !(job->flags & BIT(DM_KCOPYD_WRITE_SEQ))) {
+>>>>>>> upstream/android-13
 			list_del(&job->list);
 			return job;
 		}
@@ -419,9 +455,14 @@ static struct kcopyd_job *pop(struct list_head *jobs,
 			      struct dm_kcopyd_client *kc)
 {
 	struct kcopyd_job *job = NULL;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&kc->job_lock, flags);
+=======
+
+	spin_lock_irq(&kc->job_lock);
+>>>>>>> upstream/android-13
 
 	if (!list_empty(jobs)) {
 		if (jobs == &kc->io_jobs)
@@ -431,7 +472,11 @@ static struct kcopyd_job *pop(struct list_head *jobs,
 			list_del(&job->list);
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&kc->job_lock, flags);
+=======
+	spin_unlock_irq(&kc->job_lock);
+>>>>>>> upstream/android-13
 
 	return job;
 }
@@ -449,12 +494,20 @@ static void push(struct list_head *jobs, struct kcopyd_job *job)
 
 static void push_head(struct list_head *jobs, struct kcopyd_job *job)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	struct dm_kcopyd_client *kc = job->kc;
 
 	spin_lock_irqsave(&kc->job_lock, flags);
 	list_add(&job->list, jobs);
 	spin_unlock_irqrestore(&kc->job_lock, flags);
+=======
+	struct dm_kcopyd_client *kc = job->kc;
+
+	spin_lock_irq(&kc->job_lock);
+	list_add(&job->list, jobs);
+	spin_unlock_irq(&kc->job_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -507,7 +560,11 @@ static void complete_io(unsigned long error, void *context)
 		else
 			job->read_err = 1;
 
+<<<<<<< HEAD
 		if (!test_bit(DM_KCOPYD_IGNORE_ERROR, &job->flags)) {
+=======
+		if (!(job->flags & BIT(DM_KCOPYD_IGNORE_ERROR))) {
+>>>>>>> upstream/android-13
 			push(&kc->complete_jobs, job);
 			wake(kc);
 			return;
@@ -547,7 +604,11 @@ static int run_io_job(struct kcopyd_job *job)
 	 * If we need to write sequentially and some reads or writes failed,
 	 * no point in continuing.
 	 */
+<<<<<<< HEAD
 	if (test_bit(DM_KCOPYD_WRITE_SEQ, &job->flags) &&
+=======
+	if (job->flags & BIT(DM_KCOPYD_WRITE_SEQ) &&
+>>>>>>> upstream/android-13
 	    job->master_job->write_err) {
 		job->write_err = job->master_job->write_err;
 		return -EIO;
@@ -630,7 +691,10 @@ static void do_work(struct work_struct *work)
 	struct dm_kcopyd_client *kc = container_of(work,
 					struct dm_kcopyd_client, kcopyd_work);
 	struct blk_plug plug;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * The order that these are called is *very* important.
@@ -639,9 +703,15 @@ static void do_work(struct work_struct *work)
 	 * list.  io jobs call wake when they complete and it all
 	 * starts again.
 	 */
+<<<<<<< HEAD
 	spin_lock_irqsave(&kc->job_lock, flags);
 	list_splice_tail_init(&kc->callback_jobs, &kc->complete_jobs);
 	spin_unlock_irqrestore(&kc->job_lock, flags);
+=======
+	spin_lock_irq(&kc->job_lock);
+	list_splice_tail_init(&kc->callback_jobs, &kc->complete_jobs);
+	spin_unlock_irq(&kc->job_lock);
+>>>>>>> upstream/android-13
 
 	blk_start_plug(&plug);
 	process_jobs(&kc->complete_jobs, kc, run_complete_job);
@@ -691,13 +761,22 @@ static void segment_complete(int read_err, unsigned long write_err,
 	 * Only dispatch more work if there hasn't been an error.
 	 */
 	if ((!job->read_err && !job->write_err) ||
+<<<<<<< HEAD
 	    test_bit(DM_KCOPYD_IGNORE_ERROR, &job->flags)) {
+=======
+	    job->flags & BIT(DM_KCOPYD_IGNORE_ERROR)) {
+>>>>>>> upstream/android-13
 		/* get the next chunk of work */
 		progress = job->progress;
 		count = job->source.count - progress;
 		if (count) {
+<<<<<<< HEAD
 			if (count > SUB_JOB_SIZE)
 				count = SUB_JOB_SIZE;
+=======
+			if (count > kc->sub_job_size)
+				count = kc->sub_job_size;
+>>>>>>> upstream/android-13
 
 			job->progress += count;
 		}
@@ -783,10 +862,17 @@ void dm_kcopyd_copy(struct dm_kcopyd_client *kc, struct dm_io_region *from,
 	 * we need to write sequentially. If one of the destination is a
 	 * host-aware device, then leave it to the caller to choose what to do.
 	 */
+<<<<<<< HEAD
 	if (!test_bit(DM_KCOPYD_WRITE_SEQ, &job->flags)) {
 		for (i = 0; i < job->num_dests; i++) {
 			if (bdev_zoned_model(dests[i].bdev) == BLK_ZONED_HM) {
 				set_bit(DM_KCOPYD_WRITE_SEQ, &job->flags);
+=======
+	if (!(job->flags & BIT(DM_KCOPYD_WRITE_SEQ))) {
+		for (i = 0; i < job->num_dests; i++) {
+			if (bdev_zoned_model(dests[i].bdev) == BLK_ZONED_HM) {
+				job->flags |= BIT(DM_KCOPYD_WRITE_SEQ);
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
@@ -795,9 +881,15 @@ void dm_kcopyd_copy(struct dm_kcopyd_client *kc, struct dm_io_region *from,
 	/*
 	 * If we need to write sequentially, errors cannot be ignored.
 	 */
+<<<<<<< HEAD
 	if (test_bit(DM_KCOPYD_WRITE_SEQ, &job->flags) &&
 	    test_bit(DM_KCOPYD_IGNORE_ERROR, &job->flags))
 		clear_bit(DM_KCOPYD_IGNORE_ERROR, &job->flags);
+=======
+	if (job->flags & BIT(DM_KCOPYD_WRITE_SEQ) &&
+	    job->flags & BIT(DM_KCOPYD_IGNORE_ERROR))
+		job->flags &= ~BIT(DM_KCOPYD_IGNORE_ERROR);
+>>>>>>> upstream/android-13
 
 	if (from) {
 		job->source = *from;
@@ -824,7 +916,11 @@ void dm_kcopyd_copy(struct dm_kcopyd_client *kc, struct dm_io_region *from,
 	job->master_job = job;
 	job->write_offset = 0;
 
+<<<<<<< HEAD
 	if (job->source.count <= SUB_JOB_SIZE)
+=======
+	if (job->source.count <= kc->sub_job_size)
+>>>>>>> upstream/android-13
 		dispatch_job(job);
 	else {
 		job->progress = 0;
@@ -891,6 +987,10 @@ int kcopyd_cancel(struct kcopyd_job *job, int block)
 struct dm_kcopyd_client *dm_kcopyd_client_create(struct dm_kcopyd_throttle *throttle)
 {
 	int r;
+<<<<<<< HEAD
+=======
+	unsigned reserve_pages;
+>>>>>>> upstream/android-13
 	struct dm_kcopyd_client *kc;
 
 	kc = kzalloc(sizeof(*kc), GFP_KERNEL);
@@ -915,9 +1015,18 @@ struct dm_kcopyd_client *dm_kcopyd_client_create(struct dm_kcopyd_throttle *thro
 		goto bad_workqueue;
 	}
 
+<<<<<<< HEAD
 	kc->pages = NULL;
 	kc->nr_reserved_pages = kc->nr_free_pages = 0;
 	r = client_reserve_pages(kc, RESERVE_PAGES);
+=======
+	kc->sub_job_size = dm_get_kcopyd_subjob_size();
+	reserve_pages = DIV_ROUND_UP(kc->sub_job_size << SECTOR_SHIFT, PAGE_SIZE);
+
+	kc->pages = NULL;
+	kc->nr_reserved_pages = kc->nr_free_pages = 0;
+	r = client_reserve_pages(kc, reserve_pages);
+>>>>>>> upstream/android-13
 	if (r)
 		goto bad_client_pages;
 
@@ -961,3 +1070,12 @@ void dm_kcopyd_client_destroy(struct dm_kcopyd_client *kc)
 	kfree(kc);
 }
 EXPORT_SYMBOL(dm_kcopyd_client_destroy);
+<<<<<<< HEAD
+=======
+
+void dm_kcopyd_client_flush(struct dm_kcopyd_client *kc)
+{
+	flush_workqueue(kc->kcopyd_wq);
+}
+EXPORT_SYMBOL(dm_kcopyd_client_flush);
+>>>>>>> upstream/android-13

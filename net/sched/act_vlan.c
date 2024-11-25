@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Jiri Pirko <jiri@resnulli.us>
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014 Jiri Pirko <jiri@resnulli.us>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -15,6 +21,10 @@
 #include <linux/if_vlan.h>
 #include <net/netlink.h>
 #include <net/pkt_sched.h>
+<<<<<<< HEAD
+=======
+#include <net/pkt_cls.h>
+>>>>>>> upstream/android-13
 
 #include <linux/tc_act/tc_vlan.h>
 #include <net/tc_act/tc_vlan.h>
@@ -32,7 +42,11 @@ static int tcf_vlan_act(struct sk_buff *skb, const struct tc_action *a,
 	u16 tci;
 
 	tcf_lastuse_update(&v->tcf_tm);
+<<<<<<< HEAD
 	bstats_cpu_update(this_cpu_ptr(v->common.cpu_bstats), skb);
+=======
+	tcf_action_update_bstats(&v->common, skb);
+>>>>>>> upstream/android-13
 
 	/* Ensure 'data' points at mac_header prior calling vlan manipulating
 	 * functions.
@@ -63,7 +77,11 @@ static int tcf_vlan_act(struct sk_buff *skb, const struct tc_action *a,
 		/* extract existing tag (and guarantee no hw-accel tag) */
 		if (skb_vlan_tag_present(skb)) {
 			tci = skb_vlan_tag_get(skb);
+<<<<<<< HEAD
 			skb->vlan_tci = 0;
+=======
+			__vlan_hwaccel_clear_tag(skb);
+>>>>>>> upstream/android-13
 		} else {
 			/* in-payload vlan tag, pop it */
 			err = __skb_vlan_pop(skb, &tci);
@@ -73,13 +91,30 @@ static int tcf_vlan_act(struct sk_buff *skb, const struct tc_action *a,
 		/* replace the vid */
 		tci = (tci & ~VLAN_VID_MASK) | p->tcfv_push_vid;
 		/* replace prio bits, if tcfv_push_prio specified */
+<<<<<<< HEAD
 		if (p->tcfv_push_prio) {
+=======
+		if (p->tcfv_push_prio_exists) {
+>>>>>>> upstream/android-13
 			tci &= ~VLAN_PRIO_MASK;
 			tci |= p->tcfv_push_prio << VLAN_PRIO_SHIFT;
 		}
 		/* put updated tci as hwaccel tag */
 		__vlan_hwaccel_put_tag(skb, p->tcfv_push_proto, tci);
 		break;
+<<<<<<< HEAD
+=======
+	case TCA_VLAN_ACT_POP_ETH:
+		err = skb_eth_pop(skb);
+		if (err)
+			goto drop;
+		break;
+	case TCA_VLAN_ACT_PUSH_ETH:
+		err = skb_eth_push(skb, p->tcfv_push_dst, p->tcfv_push_src);
+		if (err)
+			goto drop;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 	}
@@ -91,24 +126,48 @@ out:
 	return action;
 
 drop:
+<<<<<<< HEAD
 	qstats_drop_inc(this_cpu_ptr(v->common.cpu_qstats));
+=======
+	tcf_action_inc_drop_qstats(&v->common);
+>>>>>>> upstream/android-13
 	return TC_ACT_SHOT;
 }
 
 static const struct nla_policy vlan_policy[TCA_VLAN_MAX + 1] = {
+<<<<<<< HEAD
+=======
+	[TCA_VLAN_UNSPEC]		= { .strict_start_type = TCA_VLAN_PUSH_ETH_DST },
+>>>>>>> upstream/android-13
 	[TCA_VLAN_PARMS]		= { .len = sizeof(struct tc_vlan) },
 	[TCA_VLAN_PUSH_VLAN_ID]		= { .type = NLA_U16 },
 	[TCA_VLAN_PUSH_VLAN_PROTOCOL]	= { .type = NLA_U16 },
 	[TCA_VLAN_PUSH_VLAN_PRIORITY]	= { .type = NLA_U8 },
+<<<<<<< HEAD
+=======
+	[TCA_VLAN_PUSH_ETH_DST]		= NLA_POLICY_ETH_ADDR,
+	[TCA_VLAN_PUSH_ETH_SRC]		= NLA_POLICY_ETH_ADDR,
+>>>>>>> upstream/android-13
 };
 
 static int tcf_vlan_init(struct net *net, struct nlattr *nla,
 			 struct nlattr *est, struct tc_action **a,
+<<<<<<< HEAD
 			 int ovr, int bind, bool rtnl_held,
 			 struct netlink_ext_ack *extack)
 {
 	struct tc_action_net *tn = net_generic(net, vlan_net_id);
 	struct nlattr *tb[TCA_VLAN_MAX + 1];
+=======
+			 struct tcf_proto *tp, u32 flags,
+			 struct netlink_ext_ack *extack)
+{
+	struct tc_action_net *tn = net_generic(net, vlan_net_id);
+	bool bind = flags & TCA_ACT_FLAGS_BIND;
+	struct nlattr *tb[TCA_VLAN_MAX + 1];
+	struct tcf_chain *goto_ch = NULL;
+	bool push_prio_exists = false;
+>>>>>>> upstream/android-13
 	struct tcf_vlan_params *p;
 	struct tc_vlan *parm;
 	struct tcf_vlan *v;
@@ -123,7 +182,12 @@ static int tcf_vlan_init(struct net *net, struct nlattr *nla,
 	if (!nla)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_VLAN_MAX, nla, vlan_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_VLAN_MAX, nla, vlan_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -176,9 +240,27 @@ static int tcf_vlan_init(struct net *net, struct nlattr *nla,
 			push_proto = htons(ETH_P_8021Q);
 		}
 
+<<<<<<< HEAD
 		if (tb[TCA_VLAN_PUSH_VLAN_PRIORITY])
 			push_prio = nla_get_u8(tb[TCA_VLAN_PUSH_VLAN_PRIORITY]);
 		break;
+=======
+		push_prio_exists = !!tb[TCA_VLAN_PUSH_VLAN_PRIORITY];
+		if (push_prio_exists)
+			push_prio = nla_get_u8(tb[TCA_VLAN_PUSH_VLAN_PRIORITY]);
+		break;
+	case TCA_VLAN_ACT_POP_ETH:
+		break;
+	case TCA_VLAN_ACT_PUSH_ETH:
+		if (!tb[TCA_VLAN_PUSH_ETH_DST] || !tb[TCA_VLAN_PUSH_ETH_SRC]) {
+			if (exists)
+				tcf_idr_release(*a, bind);
+			else
+				tcf_idr_cleanup(tn, index);
+			return -EINVAL;
+		}
+		break;
+>>>>>>> upstream/android-13
 	default:
 		if (exists)
 			tcf_idr_release(*a, bind);
@@ -189,30 +271,52 @@ static int tcf_vlan_init(struct net *net, struct nlattr *nla,
 	action = parm->v_action;
 
 	if (!exists) {
+<<<<<<< HEAD
 		ret = tcf_idr_create(tn, index, est, a,
 				     &act_vlan_ops, bind, true);
+=======
+		ret = tcf_idr_create_from_flags(tn, index, est, a,
+						&act_vlan_ops, bind, flags);
+>>>>>>> upstream/android-13
 		if (ret) {
 			tcf_idr_cleanup(tn, index);
 			return ret;
 		}
 
 		ret = ACT_P_CREATED;
+<<<<<<< HEAD
 	} else if (!ovr) {
+=======
+	} else if (!(flags & TCA_ACT_FLAGS_REPLACE)) {
+>>>>>>> upstream/android-13
 		tcf_idr_release(*a, bind);
 		return -EEXIST;
 	}
 
+<<<<<<< HEAD
+=======
+	err = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+	if (err < 0)
+		goto release_idr;
+
+>>>>>>> upstream/android-13
 	v = to_vlan(*a);
 
 	p = kzalloc(sizeof(*p), GFP_KERNEL);
 	if (!p) {
+<<<<<<< HEAD
 		tcf_idr_release(*a, bind);
 		return -ENOMEM;
+=======
+		err = -ENOMEM;
+		goto put_chain;
+>>>>>>> upstream/android-13
 	}
 
 	p->tcfv_action = action;
 	p->tcfv_push_vid = push_vid;
 	p->tcfv_push_prio = push_prio;
+<<<<<<< HEAD
 	p->tcfv_push_proto = push_proto;
 
 	spin_lock_bh(&v->tcf_lock);
@@ -226,6 +330,35 @@ static int tcf_vlan_init(struct net *net, struct nlattr *nla,
 	if (ret == ACT_P_CREATED)
 		tcf_idr_insert(tn, *a);
 	return ret;
+=======
+	p->tcfv_push_prio_exists = push_prio_exists || action == TCA_VLAN_ACT_PUSH;
+	p->tcfv_push_proto = push_proto;
+
+	if (action == TCA_VLAN_ACT_PUSH_ETH) {
+		nla_memcpy(&p->tcfv_push_dst, tb[TCA_VLAN_PUSH_ETH_DST],
+			   ETH_ALEN);
+		nla_memcpy(&p->tcfv_push_src, tb[TCA_VLAN_PUSH_ETH_SRC],
+			   ETH_ALEN);
+	}
+
+	spin_lock_bh(&v->tcf_lock);
+	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
+	p = rcu_replace_pointer(v->vlan_p, p, lockdep_is_held(&v->tcf_lock));
+	spin_unlock_bh(&v->tcf_lock);
+
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+	if (p)
+		kfree_rcu(p, rcu);
+
+	return ret;
+put_chain:
+	if (goto_ch)
+		tcf_chain_put_by_act(goto_ch);
+release_idr:
+	tcf_idr_release(*a, bind);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void tcf_vlan_cleanup(struct tc_action *a)
@@ -263,10 +396,26 @@ static int tcf_vlan_dump(struct sk_buff *skb, struct tc_action *a,
 	    (nla_put_u16(skb, TCA_VLAN_PUSH_VLAN_ID, p->tcfv_push_vid) ||
 	     nla_put_be16(skb, TCA_VLAN_PUSH_VLAN_PROTOCOL,
 			  p->tcfv_push_proto) ||
+<<<<<<< HEAD
 	     (nla_put_u8(skb, TCA_VLAN_PUSH_VLAN_PRIORITY,
 					      p->tcfv_push_prio))))
 		goto nla_put_failure;
 
+=======
+	     (p->tcfv_push_prio_exists &&
+	      nla_put_u8(skb, TCA_VLAN_PUSH_VLAN_PRIORITY, p->tcfv_push_prio))))
+		goto nla_put_failure;
+
+	if (p->tcfv_action == TCA_VLAN_ACT_PUSH_ETH) {
+		if (nla_put(skb, TCA_VLAN_PUSH_ETH_DST, ETH_ALEN,
+			    p->tcfv_push_dst))
+			goto nla_put_failure;
+		if (nla_put(skb, TCA_VLAN_PUSH_ETH_SRC, ETH_ALEN,
+			    p->tcfv_push_src))
+			goto nla_put_failure;
+	}
+
+>>>>>>> upstream/android-13
 	tcf_tm_dump(&t, &v->tcf_tm);
 	if (nla_put_64bit(skb, TCA_VLAN_TM, sizeof(t), &t, TCA_VLAN_PAD))
 		goto nla_put_failure;
@@ -290,8 +439,22 @@ static int tcf_vlan_walker(struct net *net, struct sk_buff *skb,
 	return tcf_generic_walker(tn, skb, cb, type, ops, extack);
 }
 
+<<<<<<< HEAD
 static int tcf_vlan_search(struct net *net, struct tc_action **a, u32 index,
 			   struct netlink_ext_ack *extack)
+=======
+static void tcf_vlan_stats_update(struct tc_action *a, u64 bytes, u64 packets,
+				  u64 drops, u64 lastuse, bool hw)
+{
+	struct tcf_vlan *v = to_vlan(a);
+	struct tcf_t *tm = &v->tcf_tm;
+
+	tcf_action_update_stats(a, bytes, packets, drops, hw);
+	tm->lastuse = max_t(u64, tm->lastuse, lastuse);
+}
+
+static int tcf_vlan_search(struct net *net, struct tc_action **a, u32 index)
+>>>>>>> upstream/android-13
 {
 	struct tc_action_net *tn = net_generic(net, vlan_net_id);
 
@@ -308,13 +471,21 @@ static size_t tcf_vlan_get_fill_size(const struct tc_action *act)
 
 static struct tc_action_ops act_vlan_ops = {
 	.kind		=	"vlan",
+<<<<<<< HEAD
 	.type		=	TCA_ACT_VLAN,
+=======
+	.id		=	TCA_ID_VLAN,
+>>>>>>> upstream/android-13
 	.owner		=	THIS_MODULE,
 	.act		=	tcf_vlan_act,
 	.dump		=	tcf_vlan_dump,
 	.init		=	tcf_vlan_init,
 	.cleanup	=	tcf_vlan_cleanup,
 	.walk		=	tcf_vlan_walker,
+<<<<<<< HEAD
+=======
+	.stats_update	=	tcf_vlan_stats_update,
+>>>>>>> upstream/android-13
 	.get_fill_size	=	tcf_vlan_get_fill_size,
 	.lookup		=	tcf_vlan_search,
 	.size		=	sizeof(struct tcf_vlan),

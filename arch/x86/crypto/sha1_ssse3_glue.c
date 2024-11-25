@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -11,17 +15,21 @@
  * Copyright (c) Jean-Francois Dive <jef@linuxbe.org>
  * Copyright (c) Mathias Krause <minipli@googlemail.com>
  * Copyright (c) Chandramouli Narayanan <mouli@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
 
 #include <crypto/internal/hash.h>
+<<<<<<< HEAD
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/mm.h>
@@ -30,13 +38,27 @@
 #include <crypto/sha.h>
 #include <crypto/sha1_base.h>
 #include <asm/fpu/api.h>
+=======
+#include <crypto/internal/simd.h>
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/mm.h>
+#include <linux/types.h>
+#include <crypto/sha1.h>
+#include <crypto/sha1_base.h>
+#include <asm/simd.h>
+>>>>>>> upstream/android-13
 
 static int sha1_update(struct shash_desc *desc, const u8 *data,
 			     unsigned int len, sha1_block_fn *sha1_xform)
 {
 	struct sha1_state *sctx = shash_desc_ctx(desc);
 
+<<<<<<< HEAD
 	if (!irq_fpu_usable() ||
+=======
+	if (!crypto_simd_usable() ||
+>>>>>>> upstream/android-13
 	    (sctx->count % SHA1_BLOCK_SIZE) + len < SHA1_BLOCK_SIZE)
 		return crypto_sha1_update(desc, data, len);
 
@@ -56,7 +78,11 @@ static int sha1_update(struct shash_desc *desc, const u8 *data,
 static int sha1_finup(struct shash_desc *desc, const u8 *data,
 		      unsigned int len, u8 *out, sha1_block_fn *sha1_xform)
 {
+<<<<<<< HEAD
 	if (!irq_fpu_usable())
+=======
+	if (!crypto_simd_usable())
+>>>>>>> upstream/android-13
 		return crypto_sha1_finup(desc, data, len, out);
 
 	kernel_fpu_begin();
@@ -118,7 +144,10 @@ static void unregister_sha1_ssse3(void)
 		crypto_unregister_shash(&sha1_ssse3_alg);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_AS_AVX
+=======
+>>>>>>> upstream/android-13
 asmlinkage void sha1_transform_avx(struct sha1_state *state,
 				   const u8 *data, int blocks);
 
@@ -179,6 +208,7 @@ static void unregister_sha1_avx(void)
 		crypto_unregister_shash(&sha1_avx_alg);
 }
 
+<<<<<<< HEAD
 #else  /* CONFIG_AS_AVX */
 static inline int register_sha1_avx(void) { return 0; }
 static inline void unregister_sha1_avx(void) { }
@@ -186,6 +216,8 @@ static inline void unregister_sha1_avx(void) { }
 
 
 #if defined(CONFIG_AS_AVX2) && (CONFIG_AS_AVX)
+=======
+>>>>>>> upstream/android-13
 #define SHA1_AVX2_BLOCK_OPTSIZE	4	/* optimal 4*64 bytes of SHA1 blocks */
 
 asmlinkage void sha1_transform_avx2(struct sha1_state *state,
@@ -257,11 +289,14 @@ static void unregister_sha1_avx2(void)
 		crypto_unregister_shash(&sha1_avx2_alg);
 }
 
+<<<<<<< HEAD
 #else
 static inline int register_sha1_avx2(void) { return 0; }
 static inline void unregister_sha1_avx2(void) { }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_AS_SHA1_NI
 asmlinkage void sha1_ni_transform(struct sha1_state *digest, const u8 *data,
 				  int rounds);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*x
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*x
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -536,6 +542,7 @@ static struct clk_rcg2 maxi_clk_src = {
 	},
 };
 
+<<<<<<< HEAD
 static struct clk_rcg2 gfx3d_clk_src = {
 	.cmd_rcgr = 0x4000,
 	.hid_width = 5,
@@ -546,6 +553,25 @@ static struct clk_rcg2 gfx3d_clk_src = {
 		.num_parents = 6,
 		.ops = &clk_gfx3d_ops,
 		.flags = CLK_SET_RATE_PARENT,
+=======
+static struct clk_rcg2_gfx3d gfx3d_clk_src = {
+	.rcg = {
+		.cmd_rcgr = 0x4000,
+		.hid_width = 5,
+		.parent_map = mmss_xo_mmpll0_mmpll9_mmpll2_mmpll8_gpll0_map,
+		.clkr.hw.init = &(struct clk_init_data){
+			.name = "gfx3d_clk_src",
+			.parent_names = mmss_xo_mmpll0_mmpll9_mmpll2_mmpll8_gpll0,
+			.num_parents = 6,
+			.ops = &clk_gfx3d_ops,
+			.flags = CLK_SET_RATE_PARENT,
+		},
+	},
+	.hws = (struct clk_hw*[]) {
+		&mmpll9.clkr.hw,
+		&mmpll2.clkr.hw,
+		&mmpll8.clkr.hw
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -3072,7 +3098,13 @@ static struct gdsc gpu_gx_gdsc = {
 		.name = "gpu_gx",
 	},
 	.pwrsts = PWRSTS_OFF_ON,
+<<<<<<< HEAD
 	.flags = CLAMP_IO,
+=======
+	.parent = &gpu_gdsc.pd,
+	.flags = CLAMP_IO,
+	.supply = "vdd-gfx",
+>>>>>>> upstream/android-13
 };
 
 static struct clk_regmap *mmcc_msm8996_clocks[] = {
@@ -3095,7 +3127,11 @@ static struct clk_regmap *mmcc_msm8996_clocks[] = {
 	[AHB_CLK_SRC] = &ahb_clk_src.clkr,
 	[AXI_CLK_SRC] = &axi_clk_src.clkr,
 	[MAXI_CLK_SRC] = &maxi_clk_src.clkr,
+<<<<<<< HEAD
 	[GFX3D_CLK_SRC] = &gfx3d_clk_src.clkr,
+=======
+	[GFX3D_CLK_SRC] = &gfx3d_clk_src.rcg.clkr,
+>>>>>>> upstream/android-13
 	[RBBMTIMER_CLK_SRC] = &rbbmtimer_clk_src.clkr,
 	[ISENSE_CLK_SRC] = &isense_clk_src.clkr,
 	[RBCPR_CLK_SRC] = &rbcpr_clk_src.clkr,
@@ -3347,6 +3383,11 @@ static const struct qcom_cc_desc mmcc_msm8996_desc = {
 	.num_resets = ARRAY_SIZE(mmcc_msm8996_resets),
 	.gdscs = mmcc_msm8996_gdscs,
 	.num_gdscs = ARRAY_SIZE(mmcc_msm8996_gdscs),
+<<<<<<< HEAD
+=======
+	.clk_hws = mmcc_msm8996_hws,
+	.num_clk_hws = ARRAY_SIZE(mmcc_msm8996_hws),
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id mmcc_msm8996_match_table[] = {
@@ -3357,8 +3398,11 @@ MODULE_DEVICE_TABLE(of, mmcc_msm8996_match_table);
 
 static int mmcc_msm8996_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device *dev = &pdev->dev;
 	int i, ret;
+=======
+>>>>>>> upstream/android-13
 	struct regmap *regmap;
 
 	regmap = qcom_cc_map(pdev, &mmcc_msm8996_desc);
@@ -3370,12 +3414,15 @@ static int mmcc_msm8996_probe(struct platform_device *pdev)
 	/* Disable the NoC FSM for mmss_mmagic_cfg_ahb_clk */
 	regmap_update_bits(regmap, 0x5054, BIT(15), 0);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(mmcc_msm8996_hws); i++) {
 		ret = devm_clk_hw_register(dev, mmcc_msm8996_hws[i]);
 		if (ret)
 			return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return qcom_cc_really_probe(pdev, &mmcc_msm8996_desc, regmap);
 }
 

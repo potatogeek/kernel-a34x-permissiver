@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SA11x0 DMAengine support
  *
  * Copyright (C) 2012 Russell King
  *   Derived in part from arch/arm/mach-sa1100/dma.c,
  *   Copyright (C) 2000, 2001 by Nicolas Pitre
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/sched.h>
 #include <linux/device.h>
@@ -17,7 +24,10 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/sa11x0-dma.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 
@@ -82,7 +92,11 @@ struct sa11x0_dma_desc {
 	bool			cyclic;
 
 	unsigned		sglen;
+<<<<<<< HEAD
 	struct sa11x0_dma_sg	sg[0];
+=======
+	struct sa11x0_dma_sg	sg[];
+>>>>>>> upstream/android-13
 };
 
 struct sa11x0_dma_phy;
@@ -327,9 +341,15 @@ static void sa11x0_dma_start_txd(struct sa11x0_dma_chan *c)
 	}
 }
 
+<<<<<<< HEAD
 static void sa11x0_dma_tasklet(unsigned long arg)
 {
 	struct sa11x0_dma_dev *d = (struct sa11x0_dma_dev *)arg;
+=======
+static void sa11x0_dma_tasklet(struct tasklet_struct *t)
+{
+	struct sa11x0_dma_dev *d = from_tasklet(d, t, task);
+>>>>>>> upstream/android-13
 	struct sa11x0_dma_phy *p;
 	struct sa11x0_dma_chan *c;
 	unsigned pch, pch_alloc = 0;
@@ -706,7 +726,10 @@ static int sa11x0_dma_device_pause(struct dma_chan *chan)
 	struct sa11x0_dma_chan *c = to_sa11x0_dma_chan(chan);
 	struct sa11x0_dma_dev *d = to_sa11x0_dma(chan->device);
 	struct sa11x0_dma_phy *p;
+<<<<<<< HEAD
 	LIST_HEAD(head);
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	dev_dbg(d->slave.dev, "vchan %p: pause\n", &c->vc);
@@ -733,7 +756,10 @@ static int sa11x0_dma_device_resume(struct dma_chan *chan)
 	struct sa11x0_dma_chan *c = to_sa11x0_dma_chan(chan);
 	struct sa11x0_dma_dev *d = to_sa11x0_dma(chan->device);
 	struct sa11x0_dma_phy *p;
+<<<<<<< HEAD
 	LIST_HEAD(head);
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	dev_dbg(d->slave.dev, "vchan %p: resume\n", &c->vc);
@@ -830,6 +856,17 @@ static const struct dma_slave_map sa11x0_dma_map[] = {
 	{ "sa11x0-ssp", "rx", "Ser4SSPRc" },
 };
 
+<<<<<<< HEAD
+=======
+static bool sa11x0_dma_filter_fn(struct dma_chan *chan, void *param)
+{
+	struct sa11x0_dma_chan *c = to_sa11x0_dma_chan(chan);
+	const char *p = param;
+
+	return !strcmp(c->name, p);
+}
+
+>>>>>>> upstream/android-13
 static int sa11x0_dma_init_dmadev(struct dma_device *dmadev,
 	struct device *dev)
 {
@@ -926,7 +963,11 @@ static int sa11x0_dma_probe(struct platform_device *pdev)
 		goto err_ioremap;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&d->task, sa11x0_dma_tasklet, (unsigned long)d);
+=======
+	tasklet_setup(&d->task, sa11x0_dma_tasklet);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < NR_PHY_CHAN; i++) {
 		struct sa11x0_dma_phy *p = &d->phy[i];
@@ -1087,6 +1128,7 @@ static struct platform_driver sa11x0_dma_driver = {
 	.remove		= sa11x0_dma_remove,
 };
 
+<<<<<<< HEAD
 bool sa11x0_dma_filter_fn(struct dma_chan *chan, void *param)
 {
 	if (chan->device->dev->driver == &sa11x0_dma_driver.driver) {
@@ -1099,6 +1141,8 @@ bool sa11x0_dma_filter_fn(struct dma_chan *chan, void *param)
 }
 EXPORT_SYMBOL(sa11x0_dma_filter_fn);
 
+=======
+>>>>>>> upstream/android-13
 static int __init sa11x0_dma_init(void)
 {
 	return platform_driver_register(&sa11x0_dma_driver);

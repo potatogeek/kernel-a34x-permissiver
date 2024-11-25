@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Designware HDMI CEC driver
  *
  * Copyright (C) 2015-2017 Russell King.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -259,8 +266,13 @@ static int dw_hdmi_cec_probe(struct platform_device *pdev)
 	dw_hdmi_write(cec, 0, HDMI_CEC_POLARITY);
 
 	cec->adap = cec_allocate_adapter(&dw_hdmi_cec_ops, cec, "dw_hdmi",
+<<<<<<< HEAD
 					 CEC_CAP_LOG_ADDRS | CEC_CAP_TRANSMIT |
 					 CEC_CAP_RC | CEC_CAP_PASSTHROUGH,
+=======
+					 CEC_CAP_DEFAULTS |
+					 CEC_CAP_CONNECTOR_INFO,
+>>>>>>> upstream/android-13
 					 CEC_MAX_LOG_ADDRS);
 	if (IS_ERR(cec->adap))
 		return PTR_ERR(cec->adap);
@@ -281,13 +293,22 @@ static int dw_hdmi_cec_probe(struct platform_device *pdev)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	cec->notify = cec_notifier_get(pdev->dev.parent);
+=======
+	cec->notify = cec_notifier_cec_adap_register(pdev->dev.parent,
+						     NULL, cec->adap);
+>>>>>>> upstream/android-13
 	if (!cec->notify)
 		return -ENOMEM;
 
 	ret = cec_register_adapter(cec->adap, pdev->dev.parent);
 	if (ret < 0) {
+<<<<<<< HEAD
 		cec_notifier_put(cec->notify);
+=======
+		cec_notifier_cec_adap_unregister(cec->notify, cec->adap);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -297,8 +318,11 @@ static int dw_hdmi_cec_probe(struct platform_device *pdev)
 	 */
 	devm_remove_action(&pdev->dev, dw_hdmi_cec_del, cec);
 
+<<<<<<< HEAD
 	cec_register_cec_notifier(cec->adap, cec->notify);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -306,8 +330,13 @@ static int dw_hdmi_cec_remove(struct platform_device *pdev)
 {
 	struct dw_hdmi_cec *cec = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	cec_unregister_adapter(cec->adap);
 	cec_notifier_put(cec->notify);
+=======
+	cec_notifier_cec_adap_unregister(cec->notify, cec->adap);
+	cec_unregister_adapter(cec->adap);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

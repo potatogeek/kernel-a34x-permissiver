@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	IEEE 802.1Q Multiple VLAN Registration Protocol (MVRP)
  *
@@ -5,10 +9,13 @@
  *
  *	Adapted from code in net/8021q/vlan_gvrp.c
  *	Copyright (c) 2008 Patrick McHardy <kaber@trash.net>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/if_ether.h>

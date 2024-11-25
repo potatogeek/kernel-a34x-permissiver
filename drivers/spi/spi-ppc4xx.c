@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI_PPC4XX SPI controller driver.
  *
@@ -10,10 +14,13 @@
  * Copyright (c) 2006 Ben Dooks
  * Copyright (c) 2006 Simtec Electronics
  *	Ben Dooks <ben@simtec.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -31,6 +38,7 @@
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
@@ -40,6 +48,15 @@
 #include <linux/spi/spi_bitbang.h>
 
 #include <asm/io.h>
+=======
+#include <linux/interrupt.h>
+#include <linux/delay.h>
+
+#include <linux/spi/spi.h>
+#include <linux/spi/spi_bitbang.h>
+
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <asm/dcr.h>
 #include <asm/dcr-regs.h>
 
@@ -130,8 +147,11 @@ struct ppc4xx_spi {
 	const unsigned char *tx;
 	unsigned char *rx;
 
+<<<<<<< HEAD
 	int *gpios;
 
+=======
+>>>>>>> upstream/android-13
 	struct spi_ppc4xx_regs __iomem *regs; /* pointer to the registers */
 	struct spi_master *master;
 	struct device *dev;
@@ -230,7 +250,11 @@ static int spi_ppc4xx_setup(struct spi_device *spi)
 	}
 
 	if (cs == NULL) {
+<<<<<<< HEAD
 		cs = kzalloc(sizeof *cs, GFP_KERNEL);
+=======
+		cs = kzalloc(sizeof(*cs), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!cs)
 			return -ENOMEM;
 		spi->controller_state = cs;
@@ -242,7 +266,11 @@ static int spi_ppc4xx_setup(struct spi_device *spi)
 	 */
 	cs->mode = SPI_PPC4XX_MODE_SPE;
 
+<<<<<<< HEAD
 	switch (spi->mode & (SPI_CPHA | SPI_CPOL)) {
+=======
+	switch (spi->mode & SPI_MODE_X_MASK) {
+>>>>>>> upstream/android-13
 	case SPI_MODE_0:
 		cs->mode |= SPI_CLK_MODE0;
 		break;
@@ -263,6 +291,7 @@ static int spi_ppc4xx_setup(struct spi_device *spi)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void spi_ppc4xx_chipsel(struct spi_device *spi, int value)
 {
 	struct ppc4xx_spi *hw = spi_master_get_devdata(spi->master);
@@ -284,6 +313,8 @@ static void spi_ppc4xx_chipsel(struct spi_device *spi, int value)
 	gpio_set_value(hw->gpios[cs], cspol);
 }
 
+=======
+>>>>>>> upstream/android-13
 static irqreturn_t spi_ppc4xx_int(int irq, void *dev_id)
 {
 	struct ppc4xx_spi *hw;
@@ -354,7 +385,11 @@ static void spi_ppc4xx_enable(struct ppc4xx_spi *hw)
 {
 	/*
 	 * On all 4xx PPC's the SPI bus is shared/multiplexed with
+<<<<<<< HEAD
 	 * the 2nd I2C bus. We need to enable the the SPI bus before
+=======
+	 * the 2nd I2C bus. We need to enable the SPI bus before
+>>>>>>> upstream/android-13
 	 * using it.
 	 */
 
@@ -362,6 +397,7 @@ static void spi_ppc4xx_enable(struct ppc4xx_spi *hw)
 	dcri_clrset(SDR0, SDR0_PFC1, 0x80000000 >> 14, 0);
 }
 
+<<<<<<< HEAD
 static void free_gpios(struct ppc4xx_spi *hw)
 {
 	if (hw->master->num_chipselect) {
@@ -375,6 +411,8 @@ static void free_gpios(struct ppc4xx_spi *hw)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * platform_device layer stuff...
  */
@@ -388,10 +426,16 @@ static int spi_ppc4xx_of_probe(struct platform_device *op)
 	struct device *dev = &op->dev;
 	struct device_node *opbnp;
 	int ret;
+<<<<<<< HEAD
 	int num_gpios;
 	const unsigned int *clk;
 
 	master = spi_alloc_master(dev, sizeof *hw);
+=======
+	const unsigned int *clk;
+
+	master = spi_alloc_master(dev, sizeof(*hw));
+>>>>>>> upstream/android-13
 	if (master == NULL)
 		return -ENOMEM;
 	master->dev.of_node = np;
@@ -402,6 +446,7 @@ static int spi_ppc4xx_of_probe(struct platform_device *op)
 
 	init_completion(&hw->done);
 
+<<<<<<< HEAD
 	/*
 	 * A count of zero implies a single SPI device without any chip-select.
 	 * Note that of_gpio_count counts all gpios assigned to this spi master.
@@ -446,30 +491,51 @@ static int spi_ppc4xx_of_probe(struct platform_device *op)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Setup the state for the bitbang driver */
 	bbp = &hw->bitbang;
 	bbp->master = hw->master;
 	bbp->setup_transfer = spi_ppc4xx_setupxfer;
+<<<<<<< HEAD
 	bbp->chipselect = spi_ppc4xx_chipsel;
+=======
+>>>>>>> upstream/android-13
 	bbp->txrx_bufs = spi_ppc4xx_txrx;
 	bbp->use_dma = 0;
 	bbp->master->setup = spi_ppc4xx_setup;
 	bbp->master->cleanup = spi_ppc4xx_cleanup;
 	bbp->master->bits_per_word_mask = SPI_BPW_MASK(8);
+<<<<<<< HEAD
+=======
+	bbp->master->use_gpio_descriptors = true;
+	/*
+	 * The SPI core will count the number of GPIO descriptors to figure
+	 * out the number of chip selects available on the platform.
+	 */
+	bbp->master->num_chipselect = 0;
+>>>>>>> upstream/android-13
 
 	/* the spi->mode bits understood by this driver: */
 	bbp->master->mode_bits =
 		SPI_CPHA | SPI_CPOL | SPI_CS_HIGH | SPI_LSB_FIRST;
 
+<<<<<<< HEAD
 	/* this many pins in all GPIO controllers */
 	bbp->master->num_chipselect = num_gpios > 0 ? num_gpios : 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* Get the clock for the OPB */
 	opbnp = of_find_compatible_node(NULL, NULL, "ibm,opb");
 	if (opbnp == NULL) {
 		dev_err(dev, "OPB: cannot find node\n");
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto free_gpios;
+=======
+		goto free_master;
+>>>>>>> upstream/android-13
 	}
 	/* Get the clock (Hz) for the OPB */
 	clk = of_get_property(opbnp, "clock-frequency", NULL);
@@ -477,7 +543,11 @@ static int spi_ppc4xx_of_probe(struct platform_device *op)
 		dev_err(dev, "OPB: no clock-frequency property set\n");
 		of_node_put(opbnp);
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto free_gpios;
+=======
+		goto free_master;
+>>>>>>> upstream/android-13
 	}
 	hw->opb_freq = *clk;
 	hw->opb_freq >>= 2;
@@ -486,7 +556,11 @@ static int spi_ppc4xx_of_probe(struct platform_device *op)
 	ret = of_address_to_resource(np, 0, &resource);
 	if (ret) {
 		dev_err(dev, "error while parsing device node resource\n");
+<<<<<<< HEAD
 		goto free_gpios;
+=======
+		goto free_master;
+>>>>>>> upstream/android-13
 	}
 	hw->mapbase = resource.start;
 	hw->mapsize = resource_size(&resource);
@@ -495,7 +569,11 @@ static int spi_ppc4xx_of_probe(struct platform_device *op)
 	if (hw->mapsize < sizeof(struct spi_ppc4xx_regs)) {
 		dev_err(dev, "too small to map registers\n");
 		ret = -EINVAL;
+<<<<<<< HEAD
 		goto free_gpios;
+=======
+		goto free_master;
+>>>>>>> upstream/android-13
 	}
 
 	/* Request IRQ */
@@ -504,7 +582,11 @@ static int spi_ppc4xx_of_probe(struct platform_device *op)
 			  0, "spi_ppc4xx_of", (void *)hw);
 	if (ret) {
 		dev_err(dev, "unable to allocate interrupt\n");
+<<<<<<< HEAD
 		goto free_gpios;
+=======
+		goto free_master;
+>>>>>>> upstream/android-13
 	}
 
 	if (!request_mem_region(hw->mapbase, hw->mapsize, DRIVER_NAME)) {
@@ -541,8 +623,11 @@ map_io_error:
 	release_mem_region(hw->mapbase, hw->mapsize);
 request_mem_error:
 	free_irq(hw->irqnum, hw);
+<<<<<<< HEAD
 free_gpios:
 	free_gpios(hw);
+=======
+>>>>>>> upstream/android-13
 free_master:
 	spi_master_put(master);
 
@@ -559,7 +644,10 @@ static int spi_ppc4xx_of_remove(struct platform_device *op)
 	release_mem_region(hw->mapbase, hw->mapsize);
 	free_irq(hw->irqnum, hw);
 	iounmap(hw->regs);
+<<<<<<< HEAD
 	free_gpios(hw);
+=======
+>>>>>>> upstream/android-13
 	spi_master_put(master);
 	return 0;
 }

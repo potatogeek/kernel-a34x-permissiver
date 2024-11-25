@@ -15,6 +15,11 @@
 #include <linux/dax.h>
 #include <linux/pfn_t.h>
 #include <linux/libnvdimm.h>
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+#include "dm-io-tracker.h"
+>>>>>>> upstream/android-13
 
 #define DM_MSG_PREFIX "writecache"
 
@@ -26,6 +31,12 @@
 #define AUTOCOMMIT_BLOCKS_SSD		65536
 #define AUTOCOMMIT_BLOCKS_PMEM		64
 #define AUTOCOMMIT_MSEC			1000
+<<<<<<< HEAD
+=======
+#define MAX_AGE_DIV			16
+#define MAX_AGE_UNSPECIFIED		-1UL
+#define PAUSE_WRITEBACK			(HZ * 3)
+>>>>>>> upstream/android-13
 
 #define BITMAP_GRANULARITY	65536
 #if BITMAP_GRANULARITY < PAGE_SIZE
@@ -47,7 +58,11 @@ do {								\
 #define pmem_assign(dest, src)	((dest) = (src))
 #endif
 
+<<<<<<< HEAD
 #if defined(__HAVE_ARCH_MEMCPY_MCSAFE) && defined(DM_WRITECACHE_HAS_PMEM)
+=======
+#if IS_ENABLED(CONFIG_ARCH_HAS_COPY_MC) && defined(DM_WRITECACHE_HAS_PMEM)
+>>>>>>> upstream/android-13
 #define DM_WRITECACHE_HANDLE_HARDWARE_ERRORS
 #endif
 
@@ -71,7 +86,11 @@ struct wc_memory_superblock {
 		};
 		__le64 padding[8];
 	};
+<<<<<<< HEAD
 	struct wc_memory_entry entries[0];
+=======
+	struct wc_memory_entry entries[];
+>>>>>>> upstream/android-13
 };
 
 struct wc_entry {
@@ -88,6 +107,10 @@ struct wc_entry {
 		:47
 #endif
 	;
+<<<<<<< HEAD
+=======
+	unsigned long age;
+>>>>>>> upstream/android-13
 #ifdef DM_WRITECACHE_HANDLE_HARDWARE_ERRORS
 	uint64_t original_sector;
 	uint64_t seq_count;
@@ -119,6 +142,11 @@ struct dm_writecache {
 	size_t writeback_size;
 	size_t freelist_high_watermark;
 	size_t freelist_low_watermark;
+<<<<<<< HEAD
+=======
+	unsigned long max_age;
+	unsigned long pause;
+>>>>>>> upstream/android-13
 
 	unsigned uncommitted_blocks;
 	unsigned autocommit_blocks;
@@ -130,6 +158,11 @@ struct dm_writecache {
 	struct timer_list autocommit_timer;
 	struct wait_queue_head freelist_wait;
 
+<<<<<<< HEAD
+=======
+	struct timer_list max_age_timer;
+
+>>>>>>> upstream/android-13
 	atomic_t bio_in_progress[2];
 	struct wait_queue_head bio_in_progress_wait[2];
 
@@ -142,6 +175,10 @@ struct dm_writecache {
 	size_t metadata_sectors;
 	size_t n_blocks;
 	uint64_t seq_count;
+<<<<<<< HEAD
+=======
+	sector_t data_device_sectors;
+>>>>>>> upstream/android-13
 	void *block_start;
 	struct wc_entry *entries;
 	unsigned block_size;
@@ -153,19 +190,44 @@ struct dm_writecache {
 	bool overwrote_committed:1;
 	bool memory_vmapped:1;
 
+<<<<<<< HEAD
+=======
+	bool start_sector_set:1;
+>>>>>>> upstream/android-13
 	bool high_wm_percent_set:1;
 	bool low_wm_percent_set:1;
 	bool max_writeback_jobs_set:1;
 	bool autocommit_blocks_set:1;
 	bool autocommit_time_set:1;
+<<<<<<< HEAD
 	bool writeback_fua_set:1;
 	bool flush_on_suspend:1;
+=======
+	bool max_age_set:1;
+	bool writeback_fua_set:1;
+	bool flush_on_suspend:1;
+	bool cleaner:1;
+	bool cleaner_set:1;
+	bool metadata_only:1;
+	bool pause_set:1;
+
+	unsigned high_wm_percent_value;
+	unsigned low_wm_percent_value;
+	unsigned autocommit_time_value;
+	unsigned max_age_value;
+	unsigned pause_value;
+>>>>>>> upstream/android-13
 
 	unsigned writeback_all;
 	struct workqueue_struct *writeback_wq;
 	struct work_struct writeback_work;
 	struct work_struct flush_work;
 
+<<<<<<< HEAD
+=======
+	struct dm_io_tracker iot;
+
+>>>>>>> upstream/android-13
 	struct dm_io_client *dm_io;
 
 	raw_spinlock_t endio_list_lock;
@@ -181,6 +243,22 @@ struct dm_writecache {
 
 	struct bio_set bio_set;
 	mempool_t copy_pool;
+<<<<<<< HEAD
+=======
+
+	struct {
+		unsigned long long reads;
+		unsigned long long read_hits;
+		unsigned long long writes;
+		unsigned long long write_hits_uncommitted;
+		unsigned long long write_hits_committed;
+		unsigned long long writes_around;
+		unsigned long long writes_allocate;
+		unsigned long long writes_blocked_on_freelist;
+		unsigned long long flushes;
+		unsigned long long discards;
+	} stats;
+>>>>>>> upstream/android-13
 };
 
 #define WB_LIST_INLINE		16
@@ -190,8 +268,11 @@ struct writeback_struct {
 	struct dm_writecache *wc;
 	struct wc_entry **wc_list;
 	unsigned wc_list_n;
+<<<<<<< HEAD
 	unsigned page_offset;
 	struct page *page;
+=======
+>>>>>>> upstream/android-13
 	struct wc_entry *wc_list_inline[WB_LIST_INLINE];
 	struct bio bio;
 };
@@ -230,10 +311,13 @@ static int persistent_memory_claim(struct dm_writecache *wc)
 
 	wc->memory_vmapped = false;
 
+<<<<<<< HEAD
 	if (!wc->ssd_dev->dax_dev) {
 		r = -EOPNOTSUPP;
 		goto err1;
 	}
+=======
+>>>>>>> upstream/android-13
 	s = wc->memory_map_size;
 	p = s >> PAGE_SHIFT;
 	if (!p) {
@@ -360,10 +444,14 @@ static struct wc_memory_superblock *sb(struct dm_writecache *wc)
 
 static struct wc_memory_entry *memory_entry(struct dm_writecache *wc, struct wc_entry *e)
 {
+<<<<<<< HEAD
 	if (is_power_of_2(sizeof(struct wc_entry)) && 0)
 		return &sb(wc)->entries[e - wc->entries];
 	else
 		return &sb(wc)->entries[e->index];
+=======
+	return &sb(wc)->entries[e->index];
+>>>>>>> upstream/android-13
 }
 
 static void *memory_data(struct dm_writecache *wc, struct wc_entry *e)
@@ -517,10 +605,45 @@ static void ssd_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
 	memset(wc->dirty_bitmap, 0, wc->dirty_bitmap_size);
 }
 
+<<<<<<< HEAD
 static void writecache_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
 {
 	if (WC_MODE_PMEM(wc))
 		wmb();
+=======
+static void ssd_commit_superblock(struct dm_writecache *wc)
+{
+	int r;
+	struct dm_io_region region;
+	struct dm_io_request req;
+
+	region.bdev = wc->ssd_dev->bdev;
+	region.sector = 0;
+	region.count = max(4096U, wc->block_size) >> SECTOR_SHIFT;
+
+	if (unlikely(region.sector + region.count > wc->metadata_sectors))
+		region.count = wc->metadata_sectors - region.sector;
+
+	region.sector += wc->start_sector;
+
+	req.bi_op = REQ_OP_WRITE;
+	req.bi_op_flags = REQ_SYNC | REQ_FUA;
+	req.mem.type = DM_IO_VMA;
+	req.mem.ptr.vma = (char *)wc->memory_map;
+	req.client = wc->dm_io;
+	req.notify.fn = NULL;
+	req.notify.context = NULL;
+
+	r = dm_io(&req, 1, &region, NULL);
+	if (unlikely(r))
+		writecache_error(wc, r, "error writing superblock");
+}
+
+static void writecache_commit_flushed(struct dm_writecache *wc, bool wait_for_ios)
+{
+	if (WC_MODE_PMEM(wc))
+		pmem_wmb();
+>>>>>>> upstream/android-13
 	else
 		ssd_commit_flushed(wc, wait_for_ios);
 }
@@ -562,6 +685,7 @@ static struct wc_entry *writecache_find_entry(struct dm_writecache *wc,
 		e = container_of(node, struct wc_entry, rb_node);
 		if (read_original_sector(wc, e) == block)
 			break;
+<<<<<<< HEAD
 		node = (read_original_sector(wc, e) >= block ?
 			e->rb_node.rb_left : e->rb_node.rb_right);
 		if (unlikely(!node)) {
@@ -577,6 +701,22 @@ static struct wc_entry *writecache_find_entry(struct dm_writecache *wc,
 				}
 				e = container_of(node, struct wc_entry, rb_node);
 				break;
+=======
+
+		node = (read_original_sector(wc, e) >= block ?
+			e->rb_node.rb_left : e->rb_node.rb_right);
+		if (unlikely(!node)) {
+			if (!(flags & WFE_RETURN_FOLLOWING))
+				return NULL;
+			if (read_original_sector(wc, e) >= block) {
+				return e;
+			} else {
+				node = rb_next(&e->rb_node);
+				if (unlikely(!node))
+					return NULL;
+				e = container_of(node, struct wc_entry, rb_node);
+				return e;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -587,7 +727,11 @@ static struct wc_entry *writecache_find_entry(struct dm_writecache *wc,
 			node = rb_prev(&e->rb_node);
 		else
 			node = rb_next(&e->rb_node);
+<<<<<<< HEAD
 		if (!node)
+=======
+		if (unlikely(!node))
+>>>>>>> upstream/android-13
 			return e;
 		e2 = container_of(node, struct wc_entry, rb_node);
 		if (read_original_sector(wc, e2) != block)
@@ -612,6 +756,10 @@ static void writecache_insert_entry(struct dm_writecache *wc, struct wc_entry *i
 	rb_link_node(&ins->rb_node, parent, node);
 	rb_insert_color(&ins->rb_node, &wc->tree);
 	list_add(&ins->lru, &wc->lru);
+<<<<<<< HEAD
+=======
+	ins->age = jiffies;
+>>>>>>> upstream/android-13
 }
 
 static void writecache_unlink(struct dm_writecache *wc, struct wc_entry *e)
@@ -647,7 +795,21 @@ static inline void writecache_verify_watermark(struct dm_writecache *wc)
 		queue_work(wc->writeback_wq, &wc->writeback_work);
 }
 
+<<<<<<< HEAD
 static struct wc_entry *writecache_pop_from_freelist(struct dm_writecache *wc)
+=======
+static void writecache_max_age_timer(struct timer_list *t)
+{
+	struct dm_writecache *wc = from_timer(wc, t, max_age_timer);
+
+	if (!dm_suspended(wc->ti) && !writecache_has_error(wc)) {
+		queue_work(wc->writeback_wq, &wc->writeback_work);
+		mod_timer(&wc->max_age_timer, jiffies + wc->max_age / MAX_AGE_DIV);
+	}
+}
+
+static struct wc_entry *writecache_pop_from_freelist(struct dm_writecache *wc, sector_t expected_sector)
+>>>>>>> upstream/android-13
 {
 	struct wc_entry *e;
 
@@ -656,6 +818,11 @@ static struct wc_entry *writecache_pop_from_freelist(struct dm_writecache *wc)
 		if (unlikely(!wc->current_free))
 			return NULL;
 		e = wc->current_free;
+<<<<<<< HEAD
+=======
+		if (expected_sector != (sector_t)-1 && unlikely(cache_sector(wc, e) != expected_sector))
+			return NULL;
+>>>>>>> upstream/android-13
 		next = rb_next(&e->rb_node);
 		rb_erase(&e->rb_node, &wc->freetree);
 		if (unlikely(!next))
@@ -665,6 +832,11 @@ static struct wc_entry *writecache_pop_from_freelist(struct dm_writecache *wc)
 		if (unlikely(list_empty(&wc->freelist)))
 			return NULL;
 		e = container_of(wc->freelist.next, struct wc_entry, lru);
+<<<<<<< HEAD
+=======
+		if (expected_sector != (sector_t)-1 && unlikely(cache_sector(wc, e) != expected_sector))
+			return NULL;
+>>>>>>> upstream/android-13
 		list_del(&e->lru);
 	}
 	wc->freelist_size--;
@@ -753,8 +925,15 @@ static void writecache_flush(struct dm_writecache *wc)
 
 	wc->seq_count++;
 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(wc->seq_count));
+<<<<<<< HEAD
 	writecache_flush_region(wc, &sb(wc)->seq_count, sizeof sb(wc)->seq_count);
 	writecache_commit_flushed(wc, false);
+=======
+	if (WC_MODE_PMEM(wc))
+		writecache_commit_flushed(wc, false);
+	else
+		ssd_commit_superblock(wc);
+>>>>>>> upstream/android-13
 
 	wc->overwrote_committed = false;
 
@@ -817,8 +996,15 @@ static void writecache_discard(struct dm_writecache *wc, sector_t start, sector_
 
 		if (likely(!e->write_in_progress)) {
 			if (!discarded_something) {
+<<<<<<< HEAD
 				writecache_wait_for_ios(wc, READ);
 				writecache_wait_for_ios(wc, WRITE);
+=======
+				if (!WC_MODE_PMEM(wc)) {
+					writecache_wait_for_ios(wc, READ);
+					writecache_wait_for_ios(wc, WRITE);
+				}
+>>>>>>> upstream/android-13
 				discarded_something = true;
 			}
 			if (!writecache_entry_is_committed(wc, e))
@@ -826,7 +1012,11 @@ static void writecache_discard(struct dm_writecache *wc, sector_t start, sector_
 			writecache_free_entry(wc, e);
 		}
 
+<<<<<<< HEAD
 		if (!node)
+=======
+		if (unlikely(!node))
+>>>>>>> upstream/android-13
 			break;
 
 		e = container_of(node, struct wc_entry, rb_node);
@@ -851,6 +1041,10 @@ static void writecache_suspend(struct dm_target *ti)
 	bool flush_on_suspend;
 
 	del_timer_sync(&wc->autocommit_timer);
+<<<<<<< HEAD
+=======
+	del_timer_sync(&wc->max_age_timer);
+>>>>>>> upstream/android-13
 
 	wc_lock(wc);
 	writecache_flush(wc);
@@ -924,6 +1118,11 @@ static void writecache_resume(struct dm_target *ti)
 
 	wc_lock(wc);
 
+<<<<<<< HEAD
+=======
+	wc->data_device_sectors = bdev_nr_sectors(wc->dev->bdev);
+
+>>>>>>> upstream/android-13
 	if (WC_MODE_PMEM(wc)) {
 		persistent_memory_invalidate_cache(wc->memory_map, wc->memory_map_size);
 	} else {
@@ -947,7 +1146,12 @@ static void writecache_resume(struct dm_target *ti)
 	}
 	wc->freelist_size = 0;
 
+<<<<<<< HEAD
 	r = memcpy_mcsafe(&sb_seq_count, &sb(wc)->seq_count, sizeof(uint64_t));
+=======
+	r = copy_mc_to_kernel(&sb_seq_count, &sb(wc)->seq_count,
+			      sizeof(uint64_t));
+>>>>>>> upstream/android-13
 	if (r) {
 		writecache_error(wc, r, "hardware memory error when reading superblock: %d", r);
 		sb_seq_count = cpu_to_le64(0);
@@ -963,7 +1167,12 @@ static void writecache_resume(struct dm_target *ti)
 			e->seq_count = -1;
 			continue;
 		}
+<<<<<<< HEAD
 		r = memcpy_mcsafe(&wme, memory_entry(wc, e), sizeof(struct wc_memory_entry));
+=======
+		r = copy_mc_to_kernel(&wme, memory_entry(wc, e),
+				      sizeof(struct wc_memory_entry));
+>>>>>>> upstream/android-13
 		if (r) {
 			writecache_error(wc, r, "hardware memory error when reading metadata entry %lu: %d",
 					 (unsigned long)b, r);
@@ -1017,6 +1226,12 @@ erase_this:
 
 	writecache_verify_watermark(wc);
 
+<<<<<<< HEAD
+=======
+	if (wc->max_age != MAX_AGE_UNSPECIFIED)
+		mod_timer(&wc->max_age_timer, jiffies + wc->max_age / MAX_AGE_DIV);
+
+>>>>>>> upstream/android-13
 	wc_unlock(wc);
 }
 
@@ -1065,6 +1280,43 @@ static int process_flush_on_suspend_mesg(unsigned argc, char **argv, struct dm_w
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void activate_cleaner(struct dm_writecache *wc)
+{
+	wc->flush_on_suspend = true;
+	wc->cleaner = true;
+	wc->freelist_high_watermark = wc->n_blocks;
+	wc->freelist_low_watermark = wc->n_blocks;
+}
+
+static int process_cleaner_mesg(unsigned argc, char **argv, struct dm_writecache *wc)
+{
+	if (argc != 1)
+		return -EINVAL;
+
+	wc_lock(wc);
+	activate_cleaner(wc);
+	if (!dm_suspended(wc->ti))
+		writecache_verify_watermark(wc);
+	wc_unlock(wc);
+
+	return 0;
+}
+
+static int process_clear_stats_mesg(unsigned argc, char **argv, struct dm_writecache *wc)
+{
+	if (argc != 1)
+		return -EINVAL;
+
+	wc_lock(wc);
+	memset(&wc->stats, 0, sizeof wc->stats);
+	wc_unlock(wc);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int writecache_message(struct dm_target *ti, unsigned argc, char **argv,
 			      char *result, unsigned maxlen)
 {
@@ -1075,30 +1327,87 @@ static int writecache_message(struct dm_target *ti, unsigned argc, char **argv,
 		r = process_flush_mesg(argc, argv, wc);
 	else if (!strcasecmp(argv[0], "flush_on_suspend"))
 		r = process_flush_on_suspend_mesg(argc, argv, wc);
+<<<<<<< HEAD
+=======
+	else if (!strcasecmp(argv[0], "cleaner"))
+		r = process_cleaner_mesg(argc, argv, wc);
+	else if (!strcasecmp(argv[0], "clear_stats"))
+		r = process_clear_stats_mesg(argc, argv, wc);
+>>>>>>> upstream/android-13
 	else
 		DMERR("unrecognised message received: %s", argv[0]);
 
 	return r;
 }
 
+<<<<<<< HEAD
 static void bio_copy_block(struct dm_writecache *wc, struct bio *bio, void *data)
 {
 	void *buf;
 	unsigned long flags;
+=======
+static void memcpy_flushcache_optimized(void *dest, void *source, size_t size)
+{
+	/*
+	 * clflushopt performs better with block size 1024, 2048, 4096
+	 * non-temporal stores perform better with block size 512
+	 *
+	 * block size   512             1024            2048            4096
+	 * movnti       496 MB/s        642 MB/s        725 MB/s        744 MB/s
+	 * clflushopt   373 MB/s        688 MB/s        1.1 GB/s        1.2 GB/s
+	 *
+	 * We see that movnti performs better for 512-byte blocks, and
+	 * clflushopt performs better for 1024-byte and larger blocks. So, we
+	 * prefer clflushopt for sizes >= 768.
+	 *
+	 * NOTE: this happens to be the case now (with dm-writecache's single
+	 * threaded model) but re-evaluate this once memcpy_flushcache() is
+	 * enabled to use movdir64b which might invalidate this performance
+	 * advantage seen with cache-allocating-writes plus flushing.
+	 */
+#ifdef CONFIG_X86
+	if (static_cpu_has(X86_FEATURE_CLFLUSHOPT) &&
+	    likely(boot_cpu_data.x86_clflush_size == 64) &&
+	    likely(size >= 768)) {
+		do {
+			memcpy((void *)dest, (void *)source, 64);
+			clflushopt((void *)dest);
+			dest += 64;
+			source += 64;
+			size -= 64;
+		} while (size >= 64);
+		return;
+	}
+#endif
+	memcpy_flushcache(dest, source, size);
+}
+
+static void bio_copy_block(struct dm_writecache *wc, struct bio *bio, void *data)
+{
+	void *buf;
+>>>>>>> upstream/android-13
 	unsigned size;
 	int rw = bio_data_dir(bio);
 	unsigned remaining_size = wc->block_size;
 
 	do {
 		struct bio_vec bv = bio_iter_iovec(bio, bio->bi_iter);
+<<<<<<< HEAD
 		buf = bvec_kmap_irq(&bv, &flags);
+=======
+		buf = bvec_kmap_local(&bv);
+>>>>>>> upstream/android-13
 		size = bv.bv_len;
 		if (unlikely(size > remaining_size))
 			size = remaining_size;
 
 		if (rw == READ) {
 			int r;
+<<<<<<< HEAD
 			r = memcpy_mcsafe(buf, data, size);
+=======
+			r = copy_mc_to_kernel(buf, data, size);
+>>>>>>> upstream/android-13
 			flush_dcache_page(bio_page(bio));
 			if (unlikely(r)) {
 				writecache_error(wc, r, "hardware memory error when reading data: %d", r);
@@ -1106,10 +1415,17 @@ static void bio_copy_block(struct dm_writecache *wc, struct bio *bio, void *data
 			}
 		} else {
 			flush_dcache_page(bio_page(bio));
+<<<<<<< HEAD
 			memcpy_flushcache(data, buf, size);
 		}
 
 		bvec_kunmap_irq(buf, &flags);
+=======
+			memcpy_flushcache_optimized(data, buf, size);
+		}
+
+		kunmap_local(buf);
+>>>>>>> upstream/android-13
 
 		data = (char *)data + size;
 		remaining_size -= size;
@@ -1144,7 +1460,11 @@ static int writecache_flush_thread(void *data)
 					   bio_end_sector(bio));
 			wc_unlock(wc);
 			bio_set_dev(bio, wc->dev->bdev);
+<<<<<<< HEAD
 			generic_make_request(bio);
+=======
+			submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		} else {
 			writecache_flush(wc);
 			wc_unlock(wc);
@@ -1164,16 +1484,224 @@ static void writecache_offload_bio(struct dm_writecache *wc, struct bio *bio)
 	bio_list_add(&wc->flush_list, bio);
 }
 
+<<<<<<< HEAD
 static int writecache_map(struct dm_target *ti, struct bio *bio)
 {
 	struct wc_entry *e;
 	struct dm_writecache *wc = ti->private;
+=======
+enum wc_map_op {
+	WC_MAP_SUBMIT,
+	WC_MAP_REMAP,
+	WC_MAP_REMAP_ORIGIN,
+	WC_MAP_RETURN,
+	WC_MAP_ERROR,
+};
+
+static enum wc_map_op writecache_map_remap_origin(struct dm_writecache *wc, struct bio *bio,
+						  struct wc_entry *e)
+{
+	if (e) {
+		sector_t next_boundary =
+			read_original_sector(wc, e) - bio->bi_iter.bi_sector;
+		if (next_boundary < bio->bi_iter.bi_size >> SECTOR_SHIFT)
+			dm_accept_partial_bio(bio, next_boundary);
+	}
+
+	return WC_MAP_REMAP_ORIGIN;
+}
+
+static enum wc_map_op writecache_map_read(struct dm_writecache *wc, struct bio *bio)
+{
+	enum wc_map_op map_op;
+	struct wc_entry *e;
+
+read_next_block:
+	wc->stats.reads++;
+	e = writecache_find_entry(wc, bio->bi_iter.bi_sector, WFE_RETURN_FOLLOWING);
+	if (e && read_original_sector(wc, e) == bio->bi_iter.bi_sector) {
+		wc->stats.read_hits++;
+		if (WC_MODE_PMEM(wc)) {
+			bio_copy_block(wc, bio, memory_data(wc, e));
+			if (bio->bi_iter.bi_size)
+				goto read_next_block;
+			map_op = WC_MAP_SUBMIT;
+		} else {
+			dm_accept_partial_bio(bio, wc->block_size >> SECTOR_SHIFT);
+			bio_set_dev(bio, wc->ssd_dev->bdev);
+			bio->bi_iter.bi_sector = cache_sector(wc, e);
+			if (!writecache_entry_is_committed(wc, e))
+				writecache_wait_for_ios(wc, WRITE);
+			map_op = WC_MAP_REMAP;
+		}
+	} else {
+		map_op = writecache_map_remap_origin(wc, bio, e);
+	}
+
+	return map_op;
+}
+
+static enum wc_map_op writecache_bio_copy_ssd(struct dm_writecache *wc, struct bio *bio,
+					      struct wc_entry *e, bool search_used)
+{
+	unsigned bio_size = wc->block_size;
+	sector_t start_cache_sec = cache_sector(wc, e);
+	sector_t current_cache_sec = start_cache_sec + (bio_size >> SECTOR_SHIFT);
+
+	while (bio_size < bio->bi_iter.bi_size) {
+		if (!search_used) {
+			struct wc_entry *f = writecache_pop_from_freelist(wc, current_cache_sec);
+			if (!f)
+				break;
+			write_original_sector_seq_count(wc, f, bio->bi_iter.bi_sector +
+							(bio_size >> SECTOR_SHIFT), wc->seq_count);
+			writecache_insert_entry(wc, f);
+			wc->uncommitted_blocks++;
+		} else {
+			struct wc_entry *f;
+			struct rb_node *next = rb_next(&e->rb_node);
+			if (!next)
+				break;
+			f = container_of(next, struct wc_entry, rb_node);
+			if (f != e + 1)
+				break;
+			if (read_original_sector(wc, f) !=
+			    read_original_sector(wc, e) + (wc->block_size >> SECTOR_SHIFT))
+				break;
+			if (unlikely(f->write_in_progress))
+				break;
+			if (writecache_entry_is_committed(wc, f))
+				wc->overwrote_committed = true;
+			e = f;
+		}
+		bio_size += wc->block_size;
+		current_cache_sec += wc->block_size >> SECTOR_SHIFT;
+	}
+
+	bio_set_dev(bio, wc->ssd_dev->bdev);
+	bio->bi_iter.bi_sector = start_cache_sec;
+	dm_accept_partial_bio(bio, bio_size >> SECTOR_SHIFT);
+
+	if (unlikely(wc->uncommitted_blocks >= wc->autocommit_blocks)) {
+		wc->uncommitted_blocks = 0;
+		queue_work(wc->writeback_wq, &wc->flush_work);
+	} else {
+		writecache_schedule_autocommit(wc);
+	}
+
+	return WC_MAP_REMAP;
+}
+
+static enum wc_map_op writecache_map_write(struct dm_writecache *wc, struct bio *bio)
+{
+	struct wc_entry *e;
+
+	do {
+		bool found_entry = false;
+		bool search_used = false;
+		wc->stats.writes++;
+		if (writecache_has_error(wc))
+			return WC_MAP_ERROR;
+		e = writecache_find_entry(wc, bio->bi_iter.bi_sector, 0);
+		if (e) {
+			if (!writecache_entry_is_committed(wc, e)) {
+				wc->stats.write_hits_uncommitted++;
+				search_used = true;
+				goto bio_copy;
+			}
+			wc->stats.write_hits_committed++;
+			if (!WC_MODE_PMEM(wc) && !e->write_in_progress) {
+				wc->overwrote_committed = true;
+				search_used = true;
+				goto bio_copy;
+			}
+			found_entry = true;
+		} else {
+			if (unlikely(wc->cleaner) ||
+			    (wc->metadata_only && !(bio->bi_opf & REQ_META)))
+				goto direct_write;
+		}
+		e = writecache_pop_from_freelist(wc, (sector_t)-1);
+		if (unlikely(!e)) {
+			if (!WC_MODE_PMEM(wc) && !found_entry) {
+direct_write:
+				wc->stats.writes_around++;
+				e = writecache_find_entry(wc, bio->bi_iter.bi_sector, WFE_RETURN_FOLLOWING);
+				return writecache_map_remap_origin(wc, bio, e);
+			}
+			wc->stats.writes_blocked_on_freelist++;
+			writecache_wait_on_freelist(wc);
+			continue;
+		}
+		write_original_sector_seq_count(wc, e, bio->bi_iter.bi_sector, wc->seq_count);
+		writecache_insert_entry(wc, e);
+		wc->uncommitted_blocks++;
+		wc->stats.writes_allocate++;
+bio_copy:
+		if (WC_MODE_PMEM(wc))
+			bio_copy_block(wc, bio, memory_data(wc, e));
+		else
+			return writecache_bio_copy_ssd(wc, bio, e, search_used);
+	} while (bio->bi_iter.bi_size);
+
+	if (unlikely(bio->bi_opf & REQ_FUA || wc->uncommitted_blocks >= wc->autocommit_blocks))
+		writecache_flush(wc);
+	else
+		writecache_schedule_autocommit(wc);
+
+	return WC_MAP_SUBMIT;
+}
+
+static enum wc_map_op writecache_map_flush(struct dm_writecache *wc, struct bio *bio)
+{
+	if (writecache_has_error(wc))
+		return WC_MAP_ERROR;
+
+	if (WC_MODE_PMEM(wc)) {
+		wc->stats.flushes++;
+		writecache_flush(wc);
+		if (writecache_has_error(wc))
+			return WC_MAP_ERROR;
+		else if (unlikely(wc->cleaner) || unlikely(wc->metadata_only))
+			return WC_MAP_REMAP_ORIGIN;
+		return WC_MAP_SUBMIT;
+	}
+	/* SSD: */
+	if (dm_bio_get_target_bio_nr(bio))
+		return WC_MAP_REMAP_ORIGIN;
+	wc->stats.flushes++;
+	writecache_offload_bio(wc, bio);
+	return WC_MAP_RETURN;
+}
+
+static enum wc_map_op writecache_map_discard(struct dm_writecache *wc, struct bio *bio)
+{
+	wc->stats.discards++;
+
+	if (writecache_has_error(wc))
+		return WC_MAP_ERROR;
+
+	if (WC_MODE_PMEM(wc)) {
+		writecache_discard(wc, bio->bi_iter.bi_sector, bio_end_sector(bio));
+		return WC_MAP_REMAP_ORIGIN;
+	}
+	/* SSD: */
+	writecache_offload_bio(wc, bio);
+	return WC_MAP_RETURN;
+}
+
+static int writecache_map(struct dm_target *ti, struct bio *bio)
+{
+	struct dm_writecache *wc = ti->private;
+	enum wc_map_op map_op;
+>>>>>>> upstream/android-13
 
 	bio->bi_private = NULL;
 
 	wc_lock(wc);
 
 	if (unlikely(bio->bi_opf & REQ_PREFLUSH)) {
+<<<<<<< HEAD
 		if (writecache_has_error(wc))
 			goto unlock_error;
 		if (WC_MODE_PMEM(wc)) {
@@ -1185,6 +1713,10 @@ static int writecache_map(struct dm_target *ti, struct bio *bio)
 			writecache_offload_bio(wc, bio);
 			goto unlock_return;
 		}
+=======
+		map_op = writecache_map_flush(wc, bio);
+		goto done;
+>>>>>>> upstream/android-13
 	}
 
 	bio->bi_iter.bi_sector = dm_target_offset(ti, bio->bi_iter.bi_sector);
@@ -1194,6 +1726,7 @@ static int writecache_map(struct dm_target *ti, struct bio *bio)
 		DMERR("I/O is not aligned, sector %llu, size %u, block size %u",
 		      (unsigned long long)bio->bi_iter.bi_sector,
 		      bio->bi_iter.bi_size, wc->block_size);
+<<<<<<< HEAD
 		goto unlock_error;
 	}
 
@@ -1307,17 +1840,79 @@ unlock_error:
 	wc_unlock(wc);
 	bio_io_error(bio);
 	return DM_MAPIO_SUBMITTED;
+=======
+		map_op = WC_MAP_ERROR;
+		goto done;
+	}
+
+	if (unlikely(bio_op(bio) == REQ_OP_DISCARD)) {
+		map_op = writecache_map_discard(wc, bio);
+		goto done;
+	}
+
+	if (bio_data_dir(bio) == READ)
+		map_op = writecache_map_read(wc, bio);
+	else
+		map_op = writecache_map_write(wc, bio);
+done:
+	switch (map_op) {
+	case WC_MAP_REMAP_ORIGIN:
+		if (likely(wc->pause != 0)) {
+			if (bio_op(bio) == REQ_OP_WRITE) {
+				dm_iot_io_begin(&wc->iot, 1);
+				bio->bi_private = (void *)2;
+			}
+		}
+		bio_set_dev(bio, wc->dev->bdev);
+		wc_unlock(wc);
+		return DM_MAPIO_REMAPPED;
+
+	case WC_MAP_REMAP:
+		/* make sure that writecache_end_io decrements bio_in_progress: */
+		bio->bi_private = (void *)1;
+		atomic_inc(&wc->bio_in_progress[bio_data_dir(bio)]);
+		wc_unlock(wc);
+		return DM_MAPIO_REMAPPED;
+
+	case WC_MAP_SUBMIT:
+		wc_unlock(wc);
+		bio_endio(bio);
+		return DM_MAPIO_SUBMITTED;
+
+	case WC_MAP_RETURN:
+		wc_unlock(wc);
+		return DM_MAPIO_SUBMITTED;
+
+	case WC_MAP_ERROR:
+		wc_unlock(wc);
+		bio_io_error(bio);
+		return DM_MAPIO_SUBMITTED;
+
+	default:
+		BUG();
+		return -1;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int writecache_end_io(struct dm_target *ti, struct bio *bio, blk_status_t *status)
 {
 	struct dm_writecache *wc = ti->private;
 
+<<<<<<< HEAD
 	if (bio->bi_private != NULL) {
+=======
+	if (bio->bi_private == (void *)1) {
+>>>>>>> upstream/android-13
 		int dir = bio_data_dir(bio);
 		if (atomic_dec_and_test(&wc->bio_in_progress[dir]))
 			if (unlikely(waitqueue_active(&wc->bio_in_progress_wait[dir])))
 				wake_up(&wc->bio_in_progress_wait[dir]);
+<<<<<<< HEAD
+=======
+	} else if (bio->bi_private == (void *)2) {
+		dm_iot_io_end(&wc->iot, 1);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -1487,13 +2082,24 @@ pop_from_list:
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool wc_add_block(struct writeback_struct *wb, struct wc_entry *e, gfp_t gfp)
+=======
+static bool wc_add_block(struct writeback_struct *wb, struct wc_entry *e)
+>>>>>>> upstream/android-13
 {
 	struct dm_writecache *wc = wb->wc;
 	unsigned block_size = wc->block_size;
 	void *address = memory_data(wc, e);
 
 	persistent_memory_flush_cache(address, block_size);
+<<<<<<< HEAD
+=======
+
+	if (unlikely(bio_end_sector(&wb->bio) >= wc->data_device_sectors))
+		return true;
+
+>>>>>>> upstream/android-13
 	return bio_add_page(&wb->bio, persistent_memory_page(address),
 			    block_size, persistent_memory_page_offset(address)) != 0;
 }
@@ -1533,10 +2139,16 @@ static void __writecache_writeback_pmem(struct dm_writecache *wc, struct writeba
 		bio = bio_alloc_bioset(GFP_NOIO, max_pages, &wc->bio_set);
 		wb = container_of(bio, struct writeback_struct, bio);
 		wb->wc = wc;
+<<<<<<< HEAD
 		wb->bio.bi_end_io = writecache_writeback_endio;
 		bio_set_dev(&wb->bio, wc->dev->bdev);
 		wb->bio.bi_iter.bi_sector = read_original_sector(wc, e);
 		wb->page_offset = PAGE_SIZE;
+=======
+		bio->bi_end_io = writecache_writeback_endio;
+		bio_set_dev(bio, wc->dev->bdev);
+		bio->bi_iter.bi_sector = read_original_sector(wc, e);
+>>>>>>> upstream/android-13
 		if (max_pages <= WB_LIST_INLINE ||
 		    unlikely(!(wb->wc_list = kmalloc_array(max_pages, sizeof(struct wc_entry *),
 							   GFP_NOIO | __GFP_NORETRY |
@@ -1545,7 +2157,11 @@ static void __writecache_writeback_pmem(struct dm_writecache *wc, struct writeba
 			max_pages = WB_LIST_INLINE;
 		}
 
+<<<<<<< HEAD
 		BUG_ON(!wc_add_block(wb, e, GFP_NOIO));
+=======
+		BUG_ON(!wc_add_block(wb, e));
+>>>>>>> upstream/android-13
 
 		wb->wc_list[0] = e;
 		wb->wc_list_n = 1;
@@ -1555,19 +2171,35 @@ static void __writecache_writeback_pmem(struct dm_writecache *wc, struct writeba
 			if (read_original_sector(wc, f) !=
 			    read_original_sector(wc, e) + (wc->block_size >> SECTOR_SHIFT))
 				break;
+<<<<<<< HEAD
 			if (!wc_add_block(wb, f, GFP_NOWAIT | __GFP_NOWARN))
+=======
+			if (!wc_add_block(wb, f))
+>>>>>>> upstream/android-13
 				break;
 			wbl->size--;
 			list_del(&f->lru);
 			wb->wc_list[wb->wc_list_n++] = f;
 			e = f;
 		}
+<<<<<<< HEAD
 		bio_set_op_attrs(&wb->bio, REQ_OP_WRITE, WC_MODE_FUA(wc) * REQ_FUA);
 		if (writecache_has_error(wc)) {
 			bio->bi_status = BLK_STS_IOERR;
 			bio_endio(&wb->bio);
 		} else {
 			submit_bio(&wb->bio);
+=======
+		bio_set_op_attrs(bio, REQ_OP_WRITE, WC_MODE_FUA(wc) * REQ_FUA);
+		if (writecache_has_error(wc)) {
+			bio->bi_status = BLK_STS_IOERR;
+			bio_endio(bio);
+		} else if (unlikely(!bio_sectors(bio))) {
+			bio->bi_status = BLK_STS_OK;
+			bio_endio(bio);
+		} else {
+			submit_bio(bio);
+>>>>>>> upstream/android-13
 		}
 
 		__writeback_throttle(wc, wbl);
@@ -1609,6 +2241,17 @@ static void __writecache_writeback_ssd(struct dm_writecache *wc, struct writebac
 			e = f;
 		}
 
+<<<<<<< HEAD
+=======
+		if (unlikely(to.sector + to.count > wc->data_device_sectors)) {
+			if (to.sector >= wc->data_device_sectors) {
+				writecache_copy_endio(0, 0, c);
+				continue;
+			}
+			from.count = to.count = wc->data_device_sectors - to.sector;
+		}
+
+>>>>>>> upstream/android-13
 		dm_kcopyd_copy(wc->dm_kcopyd, &from, 1, &to, 0, writecache_copy_endio, c);
 
 		__writeback_throttle(wc, wbl);
@@ -1619,12 +2262,40 @@ static void writecache_writeback(struct work_struct *work)
 {
 	struct dm_writecache *wc = container_of(work, struct dm_writecache, writeback_work);
 	struct blk_plug plug;
+<<<<<<< HEAD
 	struct wc_entry *e, *f, *g;
+=======
+	struct wc_entry *f, *g, *e = NULL;
+>>>>>>> upstream/android-13
 	struct rb_node *node, *next_node;
 	struct list_head skipped;
 	struct writeback_list wbl;
 	unsigned long n_walked;
 
+<<<<<<< HEAD
+=======
+	if (!WC_MODE_PMEM(wc)) {
+		/* Wait for any active kcopyd work on behalf of ssd writeback */
+		dm_kcopyd_client_flush(wc->dm_kcopyd);
+	}
+
+	if (likely(wc->pause != 0)) {
+		while (1) {
+			unsigned long idle;
+			if (unlikely(wc->cleaner) || unlikely(wc->writeback_all) ||
+			    unlikely(dm_suspended(wc->ti)))
+				break;
+			idle = dm_iot_idle_time(&wc->iot);
+			if (idle >= wc->pause)
+				break;
+			idle = wc->pause - idle;
+			if (idle > HZ)
+				idle = HZ;
+			schedule_timeout_idle(idle);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	wc_lock(wc);
 restart:
 	if (writecache_has_error(wc)) {
@@ -1647,6 +2318,7 @@ restart:
 	wbl.size = 0;
 	while (!list_empty(&wc->lru) &&
 	       (wc->writeback_all ||
+<<<<<<< HEAD
 		wc->freelist_size + wc->writeback_size <= wc->freelist_low_watermark)) {
 
 		n_walked++;
@@ -1657,6 +2329,28 @@ restart:
 		}
 
 		e = container_of(wc->lru.prev, struct wc_entry, lru);
+=======
+		wc->freelist_size + wc->writeback_size <= wc->freelist_low_watermark ||
+		(jiffies - container_of(wc->lru.prev, struct wc_entry, lru)->age >=
+		 wc->max_age - wc->max_age / MAX_AGE_DIV))) {
+
+		n_walked++;
+		if (unlikely(n_walked > WRITEBACK_LATENCY) &&
+		    likely(!wc->writeback_all)) {
+			if (likely(!dm_suspended(wc->ti)))
+				queue_work(wc->writeback_wq, &wc->writeback_work);
+			break;
+		}
+
+		if (unlikely(wc->writeback_all)) {
+			if (unlikely(!e)) {
+				writecache_flush(wc);
+				e = container_of(rb_first(&wc->tree), struct wc_entry, rb_node);
+			} else
+				e = g;
+		} else
+			e = container_of(wc->lru.prev, struct wc_entry, lru);
+>>>>>>> upstream/android-13
 		BUG_ON(e->write_in_progress);
 		if (unlikely(!writecache_entry_is_committed(wc, e))) {
 			writecache_flush(wc);
@@ -1667,15 +2361,23 @@ restart:
 			if (unlikely(read_original_sector(wc, f) ==
 				     read_original_sector(wc, e))) {
 				BUG_ON(!f->write_in_progress);
+<<<<<<< HEAD
 				list_del(&e->lru);
 				list_add(&e->lru, &skipped);
+=======
+				list_move(&e->lru, &skipped);
+>>>>>>> upstream/android-13
 				cond_resched();
 				continue;
 			}
 		}
 		wc->writeback_size++;
+<<<<<<< HEAD
 		list_del(&e->lru);
 		list_add(&e->lru, &wbl.list);
+=======
+		list_move(&e->lru, &wbl.list);
+>>>>>>> upstream/android-13
 		wbl.size++;
 		e->write_in_progress = true;
 		e->wc_list_contiguous = 1;
@@ -1687,8 +2389,13 @@ restart:
 			if (unlikely(!next_node))
 				break;
 			g = container_of(next_node, struct wc_entry, rb_node);
+<<<<<<< HEAD
 			if (read_original_sector(wc, g) ==
 			    read_original_sector(wc, f)) {
+=======
+			if (unlikely(read_original_sector(wc, g) ==
+			    read_original_sector(wc, f))) {
+>>>>>>> upstream/android-13
 				f = g;
 				continue;
 			}
@@ -1710,6 +2417,7 @@ restart:
 			//	break;
 
 			wc->writeback_size++;
+<<<<<<< HEAD
 			list_del(&g->lru);
 			list_add(&g->lru, &wbl.list);
 			wbl.size++;
@@ -1719,6 +2427,22 @@ restart:
 			e->wc_list_contiguous++;
 			if (unlikely(e->wc_list_contiguous == BIO_MAX_PAGES))
 				break;
+=======
+			list_move(&g->lru, &wbl.list);
+			wbl.size++;
+			g->write_in_progress = true;
+			g->wc_list_contiguous = BIO_MAX_VECS;
+			f = g;
+			e->wc_list_contiguous++;
+			if (unlikely(e->wc_list_contiguous == BIO_MAX_VECS)) {
+				if (unlikely(wc->writeback_all)) {
+					next_node = rb_next(&f->rb_node);
+					if (likely(next_node))
+						g = container_of(next_node, struct wc_entry, rb_node);
+				}
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 		cond_resched();
 	}
@@ -1846,8 +2570,12 @@ static void writecache_dtr(struct dm_target *ti)
 	if (wc->ssd_dev)
 		dm_put_device(ti, wc->ssd_dev);
 
+<<<<<<< HEAD
 	if (wc->entries)
 		vfree(wc->entries);
+=======
+	vfree(wc->entries);
+>>>>>>> upstream/android-13
 
 	if (wc->memory_map) {
 		if (WC_MODE_PMEM(wc))
@@ -1862,8 +2590,12 @@ static void writecache_dtr(struct dm_target *ti)
 	if (wc->dm_io)
 		dm_io_client_destroy(wc->dm_io);
 
+<<<<<<< HEAD
 	if (wc->dirty_bitmap)
 		vfree(wc->dirty_bitmap);
+=======
+	vfree(wc->dirty_bitmap);
+>>>>>>> upstream/android-13
 
 	kfree(wc);
 }
@@ -1883,7 +2615,11 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	struct wc_memory_superblock s;
 
 	static struct dm_arg _args[] = {
+<<<<<<< HEAD
 		{0, 16, "Invalid number of feature args"},
+=======
+		{0, 18, "Invalid number of feature args"},
+>>>>>>> upstream/android-13
 	};
 
 	as.argc = argc;
@@ -1899,9 +2635,17 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	wc->ti = ti;
 
 	mutex_init(&wc->lock);
+<<<<<<< HEAD
 	writecache_poison_lists(wc);
 	init_waitqueue_head(&wc->freelist_wait);
 	timer_setup(&wc->autocommit_timer, writecache_autocommit_timer, 0);
+=======
+	wc->max_age = MAX_AGE_UNSPECIFIED;
+	writecache_poison_lists(wc);
+	init_waitqueue_head(&wc->freelist_wait);
+	timer_setup(&wc->autocommit_timer, writecache_autocommit_timer, 0);
+	timer_setup(&wc->max_age_timer, writecache_max_age_timer, 0);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < 2; i++) {
 		atomic_set(&wc->bio_in_progress[i], 0);
@@ -1916,7 +2660,11 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 		goto bad;
 	}
 
+<<<<<<< HEAD
 	wc->writeback_wq = alloc_workqueue("writecache-writeabck", WQ_MEM_RECLAIM, 1);
+=======
+	wc->writeback_wq = alloc_workqueue("writecache-writeback", WQ_MEM_RECLAIM, 1);
+>>>>>>> upstream/android-13
 	if (!wc->writeback_wq) {
 		r = -ENOMEM;
 		ti->error = "Could not allocate writeback workqueue";
@@ -1925,6 +2673,11 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	INIT_WORK(&wc->writeback_work, writecache_writeback);
 	INIT_WORK(&wc->flush_work, writecache_flush_work);
 
+<<<<<<< HEAD
+=======
+	dm_iot_init(&wc->iot);
+
+>>>>>>> upstream/android-13
 	raw_spin_lock_init(&wc->endio_list_lock);
 	INIT_LIST_HEAD(&wc->endio_list);
 	wc->endio_thread = kthread_create(writecache_endio_thread, wc, "writecache_endio");
@@ -1972,6 +2725,10 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 			goto bad;
 		}
 	} else {
+<<<<<<< HEAD
+=======
+		wc->pause = PAUSE_WRITEBACK;
+>>>>>>> upstream/android-13
 		r = mempool_init_kmalloc_pool(&wc->copy_pool, 1, sizeof(struct copy_struct));
 		if (r) {
 			ti->error = "Could not allocate mempool";
@@ -2045,6 +2802,10 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 			if (sscanf(string, "%llu%c", &start_sector, &dummy) != 1)
 				goto invalid_optional;
 			wc->start_sector = start_sector;
+<<<<<<< HEAD
+=======
+			wc->start_sector_set = true;
+>>>>>>> upstream/android-13
 			if (wc->start_sector != start_sector ||
 			    wc->start_sector >= wc->memory_map_size >> SECTOR_SHIFT)
 				goto invalid_optional;
@@ -2054,6 +2815,10 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 				goto invalid_optional;
 			if (high_wm_percent < 0 || high_wm_percent > 100)
 				goto invalid_optional;
+<<<<<<< HEAD
+=======
+			wc->high_wm_percent_value = high_wm_percent;
+>>>>>>> upstream/android-13
 			wc->high_wm_percent_set = true;
 		} else if (!strcasecmp(string, "low_watermark") && opt_params >= 1) {
 			string = dm_shift_arg(&as), opt_params--;
@@ -2061,6 +2826,10 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 				goto invalid_optional;
 			if (low_wm_percent < 0 || low_wm_percent > 100)
 				goto invalid_optional;
+<<<<<<< HEAD
+=======
+			wc->low_wm_percent_value = low_wm_percent;
+>>>>>>> upstream/android-13
 			wc->low_wm_percent_set = true;
 		} else if (!strcasecmp(string, "writeback_jobs") && opt_params >= 1) {
 			string = dm_shift_arg(&as), opt_params--;
@@ -2080,7 +2849,25 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 			if (autocommit_msecs > 3600000)
 				goto invalid_optional;
 			wc->autocommit_jiffies = msecs_to_jiffies(autocommit_msecs);
+<<<<<<< HEAD
 			wc->autocommit_time_set = true;
+=======
+			wc->autocommit_time_value = autocommit_msecs;
+			wc->autocommit_time_set = true;
+		} else if (!strcasecmp(string, "max_age") && opt_params >= 1) {
+			unsigned max_age_msecs;
+			string = dm_shift_arg(&as), opt_params--;
+			if (sscanf(string, "%u%c", &max_age_msecs, &dummy) != 1)
+				goto invalid_optional;
+			if (max_age_msecs > 86400000)
+				goto invalid_optional;
+			wc->max_age = msecs_to_jiffies(max_age_msecs);
+			wc->max_age_set = true;
+			wc->max_age_value = max_age_msecs;
+		} else if (!strcasecmp(string, "cleaner")) {
+			wc->cleaner_set = true;
+			wc->cleaner = true;
+>>>>>>> upstream/android-13
 		} else if (!strcasecmp(string, "fua")) {
 			if (WC_MODE_PMEM(wc)) {
 				wc->writeback_fua = true;
@@ -2091,6 +2878,23 @@ static int writecache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 				wc->writeback_fua = false;
 				wc->writeback_fua_set = true;
 			} else goto invalid_optional;
+<<<<<<< HEAD
+=======
+		} else if (!strcasecmp(string, "metadata_only")) {
+			wc->metadata_only = true;
+		} else if (!strcasecmp(string, "pause_writeback") && opt_params >= 1) {
+			unsigned pause_msecs;
+			if (WC_MODE_PMEM(wc))
+				goto invalid_optional;
+			string = dm_shift_arg(&as), opt_params--;
+			if (sscanf(string, "%u%c", &pause_msecs, &dummy) != 1)
+				goto invalid_optional;
+			if (pause_msecs > 60000)
+				goto invalid_optional;
+			wc->pause = msecs_to_jiffies(pause_msecs);
+			wc->pause_set = true;
+			wc->pause_value = pause_msecs;
+>>>>>>> upstream/android-13
 		} else {
 invalid_optional:
 			r = -EINVAL;
@@ -2106,6 +2910,15 @@ invalid_optional:
 	}
 
 	if (WC_MODE_PMEM(wc)) {
+<<<<<<< HEAD
+=======
+		if (!dax_synchronous(wc->ssd_dev->dax_dev)) {
+			r = -EOPNOTSUPP;
+			ti->error = "Asynchronous persistent memory not supported as pmem cache";
+			goto bad;
+		}
+
+>>>>>>> upstream/android-13
 		r = persistent_memory_claim(wc);
 		if (r) {
 			ti->error = "Unable to map persistent memory for cache";
@@ -2122,7 +2935,11 @@ invalid_optional:
 		if (IS_ERR(wc->flush_thread)) {
 			r = PTR_ERR(wc->flush_thread);
 			wc->flush_thread = NULL;
+<<<<<<< HEAD
 			ti->error = "Couldn't spawn endio thread";
+=======
+			ti->error = "Couldn't spawn flush thread";
+>>>>>>> upstream/android-13
 			goto bad;
 		}
 		wake_up_process(wc->flush_thread);
@@ -2175,7 +2992,11 @@ invalid_optional:
 		}
 	}
 
+<<<<<<< HEAD
 	r = memcpy_mcsafe(&s, sb(wc), sizeof(struct wc_memory_superblock));
+=======
+	r = copy_mc_to_kernel(&s, sb(wc), sizeof(struct wc_memory_superblock));
+>>>>>>> upstream/android-13
 	if (r) {
 		ti->error = "Hardware memory error when reading superblock";
 		goto bad;
@@ -2186,7 +3007,12 @@ invalid_optional:
 			ti->error = "Unable to initialize device";
 			goto bad;
 		}
+<<<<<<< HEAD
 		r = memcpy_mcsafe(&s, sb(wc), sizeof(struct wc_memory_superblock));
+=======
+		r = copy_mc_to_kernel(&s, sb(wc),
+				      sizeof(struct wc_memory_superblock));
+>>>>>>> upstream/android-13
 		if (r) {
 			ti->error = "Hardware memory error when reading superblock";
 			goto bad;
@@ -2246,13 +3072,23 @@ overflow:
 	do_div(x, 100);
 	wc->freelist_low_watermark = x;
 
+<<<<<<< HEAD
+=======
+	if (wc->cleaner)
+		activate_cleaner(wc);
+
+>>>>>>> upstream/android-13
 	r = writecache_alloc_entries(wc);
 	if (r) {
 		ti->error = "Cannot allocate memory";
 		goto bad;
 	}
 
+<<<<<<< HEAD
 	ti->num_flush_bios = 1;
+=======
+	ti->num_flush_bios = WC_MODE_PMEM(wc) ? 1 : 2;
+>>>>>>> upstream/android-13
 	ti->flush_supported = true;
 	ti->num_discard_bios = 1;
 
@@ -2275,6 +3111,7 @@ static void writecache_status(struct dm_target *ti, status_type_t type,
 	struct dm_writecache *wc = ti->private;
 	unsigned extra_args;
 	unsigned sz = 0;
+<<<<<<< HEAD
 	uint64_t x;
 
 	switch (type) {
@@ -2282,12 +3119,35 @@ static void writecache_status(struct dm_target *ti, status_type_t type,
 		DMEMIT("%ld %llu %llu %llu", writecache_has_error(wc),
 		       (unsigned long long)wc->n_blocks, (unsigned long long)wc->freelist_size,
 		       (unsigned long long)wc->writeback_size);
+=======
+
+	switch (type) {
+	case STATUSTYPE_INFO:
+		DMEMIT("%ld %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu",
+		       writecache_has_error(wc),
+		       (unsigned long long)wc->n_blocks, (unsigned long long)wc->freelist_size,
+		       (unsigned long long)wc->writeback_size,
+		       wc->stats.reads,
+		       wc->stats.read_hits,
+		       wc->stats.writes,
+		       wc->stats.write_hits_uncommitted,
+		       wc->stats.write_hits_committed,
+		       wc->stats.writes_around,
+		       wc->stats.writes_allocate,
+		       wc->stats.writes_blocked_on_freelist,
+		       wc->stats.flushes,
+		       wc->stats.discards);
+>>>>>>> upstream/android-13
 		break;
 	case STATUSTYPE_TABLE:
 		DMEMIT("%c %s %s %u ", WC_MODE_PMEM(wc) ? 'p' : 's',
 				wc->dev->name, wc->ssd_dev->name, wc->block_size);
 		extra_args = 0;
+<<<<<<< HEAD
 		if (wc->start_sector)
+=======
+		if (wc->start_sector_set)
+>>>>>>> upstream/android-13
 			extra_args += 2;
 		if (wc->high_wm_percent_set)
 			extra_args += 2;
@@ -2299,6 +3159,7 @@ static void writecache_status(struct dm_target *ti, status_type_t type,
 			extra_args += 2;
 		if (wc->autocommit_time_set)
 			extra_args += 2;
+<<<<<<< HEAD
 		if (wc->writeback_fua_set)
 			extra_args++;
 
@@ -2317,21 +3178,62 @@ static void writecache_status(struct dm_target *ti, status_type_t type,
 			do_div(x, (size_t)wc->n_blocks);
 			DMEMIT(" low_watermark %u", 100 - (unsigned)x);
 		}
+=======
+		if (wc->max_age_set)
+			extra_args += 2;
+		if (wc->cleaner_set)
+			extra_args++;
+		if (wc->writeback_fua_set)
+			extra_args++;
+		if (wc->metadata_only)
+			extra_args++;
+		if (wc->pause_set)
+			extra_args += 2;
+
+		DMEMIT("%u", extra_args);
+		if (wc->start_sector_set)
+			DMEMIT(" start_sector %llu", (unsigned long long)wc->start_sector);
+		if (wc->high_wm_percent_set)
+			DMEMIT(" high_watermark %u", wc->high_wm_percent_value);
+		if (wc->low_wm_percent_set)
+			DMEMIT(" low_watermark %u", wc->low_wm_percent_value);
+>>>>>>> upstream/android-13
 		if (wc->max_writeback_jobs_set)
 			DMEMIT(" writeback_jobs %u", wc->max_writeback_jobs);
 		if (wc->autocommit_blocks_set)
 			DMEMIT(" autocommit_blocks %u", wc->autocommit_blocks);
 		if (wc->autocommit_time_set)
+<<<<<<< HEAD
 			DMEMIT(" autocommit_time %u", jiffies_to_msecs(wc->autocommit_jiffies));
 		if (wc->writeback_fua_set)
 			DMEMIT(" %sfua", wc->writeback_fua ? "" : "no");
+=======
+			DMEMIT(" autocommit_time %u", wc->autocommit_time_value);
+		if (wc->max_age_set)
+			DMEMIT(" max_age %u", wc->max_age_value);
+		if (wc->cleaner_set)
+			DMEMIT(" cleaner");
+		if (wc->writeback_fua_set)
+			DMEMIT(" %sfua", wc->writeback_fua ? "" : "no");
+		if (wc->metadata_only)
+			DMEMIT(" metadata_only");
+		if (wc->pause_set)
+			DMEMIT(" pause_writeback %u", wc->pause_value);
+		break;
+	case STATUSTYPE_IMA:
+		*result = '\0';
+>>>>>>> upstream/android-13
 		break;
 	}
 }
 
 static struct target_type writecache_target = {
 	.name			= "writecache",
+<<<<<<< HEAD
 	.version		= {1, 1, 1},
+=======
+	.version		= {1, 6, 0},
+>>>>>>> upstream/android-13
 	.module			= THIS_MODULE,
 	.ctr			= writecache_ctr,
 	.dtr			= writecache_dtr,

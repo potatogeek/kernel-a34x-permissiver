@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 CONFIG_TEST_SYSCTL=y
+=======
+CONFIG_TEST_SYSCTL=m
+>>>>>>> upstream/android-13

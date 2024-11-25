@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,10 +45,18 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/ctype.h>
 #include <linux/kernel.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/pci_ids.h>
+>>>>>>> upstream/android-13
 #include "adf_accel_devices.h"
 #include "adf_common_drv.h"
 #include "icp_qat_uclo.h"
@@ -117,7 +126,11 @@ static int qat_uclo_free_ae_data(struct icp_qat_uclo_aedata *ae_data)
 static char *qat_uclo_get_string(struct icp_qat_uof_strtable *str_table,
 				 unsigned int str_offset)
 {
+<<<<<<< HEAD
 	if ((!str_table->table_len) || (str_offset > str_table->table_len))
+=======
+	if (!str_table->table_len || str_offset > str_table->table_len)
+>>>>>>> upstream/android-13
 		return NULL;
 	return (char *)(((uintptr_t)(str_table->strings)) + str_offset);
 }
@@ -354,7 +367,11 @@ static int qat_uclo_init_lmem_seg(struct icp_qat_fw_loader_handle *handle,
 	unsigned int ae;
 
 	if (qat_uclo_fetch_initmem_ae(handle, init_mem,
+<<<<<<< HEAD
 				      ICP_QAT_UCLO_MAX_LMEM_REG, &ae))
+=======
+				      handle->chip_info->lm_size, &ae))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	if (qat_uclo_create_batch_init_list(handle, init_mem, ae,
 					    &obj_handle->lm_init_tab[ae]))
@@ -367,6 +384,10 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
 {
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
 	unsigned int ae, ustore_size, uaddr, i;
+<<<<<<< HEAD
+=======
+	struct icp_qat_uclo_aedata *aed;
+>>>>>>> upstream/android-13
 
 	ustore_size = obj_handle->ustore_phy_size;
 	if (qat_uclo_fetch_initmem_ae(handle, init_mem, ustore_size, &ae))
@@ -376,16 +397,26 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
 		return -EINVAL;
 	/* set the highest ustore address referenced */
 	uaddr = (init_mem->addr + init_mem->num_in_bytes) >> 0x2;
+<<<<<<< HEAD
 	for (i = 0; i < obj_handle->ae_data[ae].slice_num; i++) {
 		if (obj_handle->ae_data[ae].ae_slices[i].
 		    encap_image->uwords_num < uaddr)
 			obj_handle->ae_data[ae].ae_slices[i].
 			encap_image->uwords_num = uaddr;
+=======
+	aed = &obj_handle->ae_data[ae];
+	for (i = 0; i < aed->slice_num; i++) {
+		if (aed->ae_slices[i].encap_image->uwords_num < uaddr)
+			aed->ae_slices[i].encap_image->uwords_num = uaddr;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 #define ICP_DH895XCC_PESRAM_BAR_SIZE 0x80000
+=======
+>>>>>>> upstream/android-13
 static int qat_uclo_init_ae_memory(struct icp_qat_fw_loader_handle *handle,
 				   struct icp_qat_uof_initmem *init_mem)
 {
@@ -416,21 +447,43 @@ static int qat_uclo_init_ustore(struct icp_qat_fw_loader_handle *handle,
 	unsigned int ustore_size;
 	unsigned int patt_pos;
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
+<<<<<<< HEAD
 	uint64_t *fill_data;
 
 	uof_image = image->img_ptr;
 	fill_data = kcalloc(ICP_QAT_UCLO_MAX_USTORE, sizeof(uint64_t),
+=======
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+	unsigned long cfg_ae_mask = handle->cfg_ae_mask;
+	u64 *fill_data;
+
+	uof_image = image->img_ptr;
+	fill_data = kcalloc(ICP_QAT_UCLO_MAX_USTORE, sizeof(u64),
+>>>>>>> upstream/android-13
 			    GFP_KERNEL);
 	if (!fill_data)
 		return -ENOMEM;
 	for (i = 0; i < ICP_QAT_UCLO_MAX_USTORE; i++)
 		memcpy(&fill_data[i], &uof_image->fill_pattern,
+<<<<<<< HEAD
 		       sizeof(uint64_t));
 	page = image->page;
 
 	for (ae = 0; ae < handle->hal_handle->ae_max_num; ae++) {
 		if (!test_bit(ae, (unsigned long *)&uof_image->ae_assigned))
 			continue;
+=======
+		       sizeof(u64));
+	page = image->page;
+
+	for_each_set_bit(ae, &ae_mask, handle->hal_handle->ae_max_num) {
+		if (!test_bit(ae, (unsigned long *)&uof_image->ae_assigned))
+			continue;
+
+		if (!test_bit(ae, &cfg_ae_mask))
+			continue;
+
+>>>>>>> upstream/android-13
 		ustore_size = obj_handle->ae_data[ae].eff_ustore_size;
 		patt_pos = page->beg_addr_p + page->micro_words_num;
 
@@ -449,6 +502,10 @@ static int qat_uclo_init_memory(struct icp_qat_fw_loader_handle *handle)
 	int i, ae;
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
 	struct icp_qat_uof_initmem *initmem = obj_handle->init_mem_tab.init_mem;
+<<<<<<< HEAD
+=======
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < obj_handle->init_mem_tab.entry_num; i++) {
 		if (initmem->num_in_bytes) {
@@ -461,7 +518,12 @@ static int qat_uclo_init_memory(struct icp_qat_fw_loader_handle *handle)
 			(sizeof(struct icp_qat_uof_memvar_attr) *
 			initmem->val_attr_num));
 	}
+<<<<<<< HEAD
 	for (ae = 0; ae < handle->hal_handle->ae_max_num; ae++) {
+=======
+
+	for_each_set_bit(ae, &ae_mask, handle->hal_handle->ae_max_num) {
+>>>>>>> upstream/android-13
 		if (qat_hal_batch_wr_lm(handle, ae,
 					obj_handle->lm_init_tab[ae])) {
 			pr_err("QAT: fail to batch init lmem for AE %d\n", ae);
@@ -579,7 +641,11 @@ qat_uclo_check_image_compat(struct icp_qat_uof_encap_obj *encap_uof_obj,
 			(encap_uof_obj->beg_uof +
 			code_page->neigh_reg_tab_offset);
 	if (neigh_reg_tab->entry_num) {
+<<<<<<< HEAD
 		pr_err("QAT: UOF can't contain shared control store feature\n");
+=======
+		pr_err("QAT: UOF can't contain neighbor register table\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	if (image->numpages > 1) {
@@ -692,11 +758,21 @@ static int qat_uclo_map_ae(struct icp_qat_fw_loader_handle *handle, int max_ae)
 	int i, ae;
 	int mflag = 0;
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
+<<<<<<< HEAD
 
 	for (ae = 0; ae < max_ae; ae++) {
 		if (!test_bit(ae,
 			      (unsigned long *)&handle->hal_handle->ae_mask))
 			continue;
+=======
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+	unsigned long cfg_ae_mask = handle->cfg_ae_mask;
+
+	for_each_set_bit(ae, &ae_mask, max_ae) {
+		if (!test_bit(ae, &cfg_ae_mask))
+			continue;
+
+>>>>>>> upstream/android-13
 		for (i = 0; i < obj_handle->uimage_num; i++) {
 			if (!test_bit(ae, (unsigned long *)
 			&obj_handle->ae_uimage[i].img_ptr->ae_assigned))
@@ -755,12 +831,23 @@ static unsigned int
 qat_uclo_get_dev_type(struct icp_qat_fw_loader_handle *handle)
 {
 	switch (handle->pci_dev->device) {
+<<<<<<< HEAD
 	case ADF_DH895XCC_PCI_DEVICE_ID:
 		return ICP_QAT_AC_895XCC_DEV_TYPE;
 	case ADF_C62X_PCI_DEVICE_ID:
 		return ICP_QAT_AC_C62X_DEV_TYPE;
 	case ADF_C3XXX_PCI_DEVICE_ID:
 		return ICP_QAT_AC_C3XXX_DEV_TYPE;
+=======
+	case PCI_DEVICE_ID_INTEL_QAT_DH895XCC:
+		return ICP_QAT_AC_895XCC_DEV_TYPE;
+	case PCI_DEVICE_ID_INTEL_QAT_C62X:
+		return ICP_QAT_AC_C62X_DEV_TYPE;
+	case PCI_DEVICE_ID_INTEL_QAT_C3XXX:
+		return ICP_QAT_AC_C3XXX_DEV_TYPE;
+	case ADF_4XXX_PCI_DEVICE_ID:
+		return ICP_QAT_AC_4XXX_A_DEV_TYPE;
+>>>>>>> upstream/android-13
 	default:
 		pr_err("QAT: unsupported device 0x%x\n",
 		       handle->pci_dev->device);
@@ -779,8 +866,13 @@ static int qat_uclo_check_uof_compat(struct icp_qat_uclo_objhandle *obj_handle)
 		return -EINVAL;
 	}
 	maj_ver = obj_handle->prod_rev & 0xff;
+<<<<<<< HEAD
 	if ((obj_handle->encap_uof_obj.obj_hdr->max_cpu_ver < maj_ver) ||
 	    (obj_handle->encap_uof_obj.obj_hdr->min_cpu_ver > maj_ver)) {
+=======
+	if (obj_handle->encap_uof_obj.obj_hdr->max_cpu_ver < maj_ver ||
+	    obj_handle->encap_uof_obj.obj_hdr->min_cpu_ver > maj_ver) {
+>>>>>>> upstream/android-13
 		pr_err("QAT: UOF majVer 0x%x out of range\n", maj_ver);
 		return -EINVAL;
 	}
@@ -796,7 +888,11 @@ static int qat_uclo_init_reg(struct icp_qat_fw_loader_handle *handle,
 	case ICP_GPA_ABS:
 	case ICP_GPB_ABS:
 		ctx_mask = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ICP_GPA_REL:
 	case ICP_GPB_REL:
 		return qat_hal_init_gpr(handle, ae, ctx_mask, reg_type,
@@ -806,7 +902,11 @@ static int qat_uclo_init_reg(struct icp_qat_fw_loader_handle *handle,
 	case ICP_SR_RD_ABS:
 	case ICP_DR_RD_ABS:
 		ctx_mask = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ICP_SR_REL:
 	case ICP_DR_REL:
 	case ICP_SR_RD_REL:
@@ -816,7 +916,11 @@ static int qat_uclo_init_reg(struct icp_qat_fw_loader_handle *handle,
 	case ICP_SR_WR_ABS:
 	case ICP_DR_WR_ABS:
 		ctx_mask = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ICP_SR_WR_REL:
 	case ICP_DR_WR_REL:
 		return qat_hal_init_wr_xfer(handle, ae, ctx_mask, reg_type,
@@ -888,6 +992,11 @@ static int qat_uclo_init_reg_sym(struct icp_qat_fw_loader_handle *handle,
 static int qat_uclo_init_globals(struct icp_qat_fw_loader_handle *handle)
 {
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
+<<<<<<< HEAD
+=======
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+	struct icp_qat_uclo_aedata *aed;
+>>>>>>> upstream/android-13
 	unsigned int s, ae;
 
 	if (obj_handle->global_inited)
@@ -898,6 +1007,7 @@ static int qat_uclo_init_globals(struct icp_qat_fw_loader_handle *handle)
 			return -EINVAL;
 		}
 	}
+<<<<<<< HEAD
 	for (ae = 0; ae < handle->hal_handle->ae_max_num; ae++) {
 		for (s = 0; s < obj_handle->ae_data[ae].slice_num; s++) {
 			if (!obj_handle->ae_data[ae].ae_slices[s].encap_image)
@@ -905,6 +1015,15 @@ static int qat_uclo_init_globals(struct icp_qat_fw_loader_handle *handle)
 			if (qat_uclo_init_reg_sym(handle, ae,
 						  obj_handle->ae_data[ae].
 						  ae_slices[s].encap_image))
+=======
+
+	for_each_set_bit(ae, &ae_mask, handle->hal_handle->ae_max_num) {
+		aed = &obj_handle->ae_data[ae];
+		for (s = 0; s < aed->slice_num; s++) {
+			if (!aed->ae_slices[s].encap_image)
+				continue;
+			if (qat_uclo_init_reg_sym(handle, ae, aed->ae_slices[s].encap_image))
+>>>>>>> upstream/android-13
 				return -EINVAL;
 		}
 	}
@@ -912,6 +1031,7 @@ static int qat_uclo_init_globals(struct icp_qat_fw_loader_handle *handle)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qat_uclo_set_ae_mode(struct icp_qat_fw_loader_handle *handle)
 {
 	unsigned char ae, nn_mode, s;
@@ -923,12 +1043,82 @@ static int qat_uclo_set_ae_mode(struct icp_qat_fw_loader_handle *handle)
 		if (!test_bit(ae,
 			      (unsigned long *)&handle->hal_handle->ae_mask))
 			continue;
+=======
+static int qat_hal_set_modes(struct icp_qat_fw_loader_handle *handle,
+			     struct icp_qat_uclo_objhandle *obj_handle,
+			     unsigned char ae,
+			     struct icp_qat_uof_image *uof_image)
+{
+	unsigned char mode;
+	int ret;
+
+	mode = ICP_QAT_CTX_MODE(uof_image->ae_mode);
+	ret = qat_hal_set_ae_ctx_mode(handle, ae, mode);
+	if (ret) {
+		pr_err("QAT: qat_hal_set_ae_ctx_mode error\n");
+		return ret;
+	}
+	if (handle->chip_info->nn) {
+		mode = ICP_QAT_NN_MODE(uof_image->ae_mode);
+		ret = qat_hal_set_ae_nn_mode(handle, ae, mode);
+		if (ret) {
+			pr_err("QAT: qat_hal_set_ae_nn_mode error\n");
+			return ret;
+		}
+	}
+	mode = ICP_QAT_LOC_MEM0_MODE(uof_image->ae_mode);
+	ret = qat_hal_set_ae_lm_mode(handle, ae, ICP_LMEM0, mode);
+	if (ret) {
+		pr_err("QAT: qat_hal_set_ae_lm_mode LMEM0 error\n");
+		return ret;
+	}
+	mode = ICP_QAT_LOC_MEM1_MODE(uof_image->ae_mode);
+	ret = qat_hal_set_ae_lm_mode(handle, ae, ICP_LMEM1, mode);
+	if (ret) {
+		pr_err("QAT: qat_hal_set_ae_lm_mode LMEM1 error\n");
+		return ret;
+	}
+	if (handle->chip_info->lm2lm3) {
+		mode = ICP_QAT_LOC_MEM2_MODE(uof_image->ae_mode);
+		ret = qat_hal_set_ae_lm_mode(handle, ae, ICP_LMEM2, mode);
+		if (ret) {
+			pr_err("QAT: qat_hal_set_ae_lm_mode LMEM2 error\n");
+			return ret;
+		}
+		mode = ICP_QAT_LOC_MEM3_MODE(uof_image->ae_mode);
+		ret = qat_hal_set_ae_lm_mode(handle, ae, ICP_LMEM3, mode);
+		if (ret) {
+			pr_err("QAT: qat_hal_set_ae_lm_mode LMEM3 error\n");
+			return ret;
+		}
+		mode = ICP_QAT_LOC_TINDEX_MODE(uof_image->ae_mode);
+		qat_hal_set_ae_tindex_mode(handle, ae, mode);
+	}
+	return 0;
+}
+
+static int qat_uclo_set_ae_mode(struct icp_qat_fw_loader_handle *handle)
+{
+	struct icp_qat_uof_image *uof_image;
+	struct icp_qat_uclo_aedata *ae_data;
+	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+	unsigned long cfg_ae_mask = handle->cfg_ae_mask;
+	unsigned char ae, s;
+	int error;
+
+	for_each_set_bit(ae, &ae_mask, handle->hal_handle->ae_max_num) {
+		if (!test_bit(ae, &cfg_ae_mask))
+			continue;
+
+>>>>>>> upstream/android-13
 		ae_data = &obj_handle->ae_data[ae];
 		for (s = 0; s < min_t(unsigned int, ae_data->slice_num,
 				      ICP_QAT_UCLO_MAX_CTX); s++) {
 			if (!obj_handle->ae_data[ae].ae_slices[s].encap_image)
 				continue;
 			uof_image = ae_data->ae_slices[s].encap_image->img_ptr;
+<<<<<<< HEAD
 			if (qat_hal_set_ae_ctx_mode(handle, ae,
 						    (char)ICP_QAT_CTX_MODE
 						    (uof_image->ae_mode))) {
@@ -952,6 +1142,12 @@ static int qat_uclo_set_ae_mode(struct icp_qat_fw_loader_handle *handle)
 				pr_err("QAT: qat_hal_set_ae_lm_mode LMEM1 error\n");
 				return -EFAULT;
 			}
+=======
+			error = qat_hal_set_modes(handle, obj_handle, ae,
+						  uof_image);
+			if (error)
+				return error;
+>>>>>>> upstream/android-13
 		}
 	}
 	return 0;
@@ -986,7 +1182,11 @@ static int qat_uclo_parse_uof_obj(struct icp_qat_fw_loader_handle *handle)
 		pr_err("QAT: UOF incompatible\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	obj_handle->uword_buf = kcalloc(UWORD_CPYBUF_SIZE, sizeof(uint64_t),
+=======
+	obj_handle->uword_buf = kcalloc(UWORD_CPYBUF_SIZE, sizeof(u64),
+>>>>>>> upstream/android-13
 					GFP_KERNEL);
 	if (!obj_handle->uword_buf)
 		return -ENOMEM;
@@ -1046,10 +1246,18 @@ static int qat_uclo_map_suof_file_hdr(struct icp_qat_fw_loader_handle *handle,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void qat_uclo_map_simg(struct icp_qat_suof_handle *suof_handle,
 			      struct icp_qat_suof_img_hdr *suof_img_hdr,
 			      struct icp_qat_suof_chunk_hdr *suof_chunk_hdr)
 {
+=======
+static void qat_uclo_map_simg(struct icp_qat_fw_loader_handle *handle,
+			      struct icp_qat_suof_img_hdr *suof_img_hdr,
+			      struct icp_qat_suof_chunk_hdr *suof_chunk_hdr)
+{
+	struct icp_qat_suof_handle *suof_handle = handle->sobj_handle;
+>>>>>>> upstream/android-13
 	struct icp_qat_simg_ae_mode *ae_mode;
 	struct icp_qat_suof_objhdr *suof_objhdr;
 
@@ -1064,10 +1272,17 @@ static void qat_uclo_map_simg(struct icp_qat_suof_handle *suof_handle,
 	suof_img_hdr->css_key = (suof_img_hdr->css_header +
 				 sizeof(struct icp_qat_css_hdr));
 	suof_img_hdr->css_signature = suof_img_hdr->css_key +
+<<<<<<< HEAD
 				      ICP_QAT_CSS_FWSK_MODULUS_LEN +
 				      ICP_QAT_CSS_FWSK_EXPONENT_LEN;
 	suof_img_hdr->css_simg = suof_img_hdr->css_signature +
 				 ICP_QAT_CSS_SIGNATURE_LEN;
+=======
+				      ICP_QAT_CSS_FWSK_MODULUS_LEN(handle) +
+				      ICP_QAT_CSS_FWSK_EXPONENT_LEN(handle);
+	suof_img_hdr->css_simg = suof_img_hdr->css_signature +
+				 ICP_QAT_CSS_SIGNATURE_LEN(handle);
+>>>>>>> upstream/android-13
 
 	ae_mode = (struct icp_qat_simg_ae_mode *)(suof_img_hdr->css_simg);
 	suof_img_hdr->ae_mask = ae_mode->ae_mask;
@@ -1107,8 +1322,13 @@ static int qat_uclo_check_simg_compat(struct icp_qat_fw_loader_handle *handle,
 		return -EINVAL;
 	}
 	maj_ver = prod_rev & 0xff;
+<<<<<<< HEAD
 	if ((maj_ver > img_ae_mode->devmax_ver) ||
 	    (maj_ver < img_ae_mode->devmin_ver)) {
+=======
+	if (maj_ver > img_ae_mode->devmax_ver ||
+	    maj_ver < img_ae_mode->devmin_ver) {
+>>>>>>> upstream/android-13
 		pr_err("QAT: incompatible device majver 0x%x\n", maj_ver);
 		return -EINVAL;
 	}
@@ -1151,7 +1371,11 @@ static int qat_uclo_map_suof(struct icp_qat_fw_loader_handle *handle,
 	unsigned int i = 0;
 	struct icp_qat_suof_img_hdr img_header;
 
+<<<<<<< HEAD
 	if (!suof_ptr || (suof_size == 0)) {
+=======
+	if (!suof_ptr || suof_size == 0) {
+>>>>>>> upstream/android-13
 		pr_err("QAT: input parameter SUOF pointer/size is NULL\n");
 		return -EINVAL;
 	}
@@ -1173,6 +1397,7 @@ static int qat_uclo_map_suof(struct icp_qat_fw_loader_handle *handle,
 		if (!suof_img_hdr)
 			return -ENOMEM;
 		suof_handle->img_table.simg_hdr = suof_img_hdr;
+<<<<<<< HEAD
 	}
 
 	for (i = 0; i < suof_handle->img_table.num_simgs; i++) {
@@ -1191,16 +1416,47 @@ static int qat_uclo_map_suof(struct icp_qat_fw_loader_handle *handle,
 }
 
 #define ADD_ADDR(high, low)  ((((uint64_t)high) << 32) + low)
+=======
+
+		for (i = 0; i < suof_handle->img_table.num_simgs; i++) {
+			qat_uclo_map_simg(handle, &suof_img_hdr[i],
+					  &suof_chunk_hdr[1 + i]);
+			ret = qat_uclo_check_simg_compat(handle,
+							 &suof_img_hdr[i]);
+			if (ret)
+				return ret;
+			suof_img_hdr[i].ae_mask &= handle->cfg_ae_mask;
+			if ((suof_img_hdr[i].ae_mask & 0x1) != 0)
+				ae0_img = i;
+		}
+
+		if (!handle->chip_info->tgroup_share_ustore) {
+			qat_uclo_tail_img(suof_img_hdr, ae0_img,
+					  suof_handle->img_table.num_simgs);
+		}
+	}
+	return 0;
+}
+
+#define ADD_ADDR(high, low)  ((((u64)high) << 32) + low)
+>>>>>>> upstream/android-13
 #define BITS_IN_DWORD 32
 
 static int qat_uclo_auth_fw(struct icp_qat_fw_loader_handle *handle,
 			    struct icp_qat_fw_auth_desc *desc)
 {
+<<<<<<< HEAD
 	unsigned int fcu_sts, retry = 0;
+=======
+	u32 fcu_sts, retry = 0;
+	u32 fcu_ctl_csr, fcu_sts_csr;
+	u32 fcu_dram_hi_csr, fcu_dram_lo_csr;
+>>>>>>> upstream/android-13
 	u64 bus_addr;
 
 	bus_addr = ADD_ADDR(desc->css_hdr_high, desc->css_hdr_low)
 			   - sizeof(struct icp_qat_auth_chunk);
+<<<<<<< HEAD
 	SET_CAP_CSR(handle, FCU_DRAM_ADDR_HI, (bus_addr >> BITS_IN_DWORD));
 	SET_CAP_CSR(handle, FCU_DRAM_ADDR_LO, bus_addr);
 	SET_CAP_CSR(handle, FCU_CONTROL, FCU_CTRL_CMD_AUTH);
@@ -1208,6 +1464,21 @@ static int qat_uclo_auth_fw(struct icp_qat_fw_loader_handle *handle,
 	do {
 		msleep(FW_AUTH_WAIT_PERIOD);
 		fcu_sts = GET_CAP_CSR(handle, FCU_STATUS);
+=======
+
+	fcu_ctl_csr = handle->chip_info->fcu_ctl_csr;
+	fcu_sts_csr = handle->chip_info->fcu_sts_csr;
+	fcu_dram_hi_csr = handle->chip_info->fcu_dram_addr_hi;
+	fcu_dram_lo_csr = handle->chip_info->fcu_dram_addr_lo;
+
+	SET_CAP_CSR(handle, fcu_dram_hi_csr, (bus_addr >> BITS_IN_DWORD));
+	SET_CAP_CSR(handle, fcu_dram_lo_csr, bus_addr);
+	SET_CAP_CSR(handle, fcu_ctl_csr, FCU_CTRL_CMD_AUTH);
+
+	do {
+		msleep(FW_AUTH_WAIT_PERIOD);
+		fcu_sts = GET_CAP_CSR(handle, fcu_sts_csr);
+>>>>>>> upstream/android-13
 		if ((fcu_sts & FCU_AUTH_STS_MASK) == FCU_STS_VERI_FAIL)
 			goto auth_fail;
 		if (((fcu_sts >> FCU_STS_AUTHFWLD_POS) & 0x1))
@@ -1220,6 +1491,86 @@ auth_fail:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static bool qat_uclo_is_broadcast(struct icp_qat_fw_loader_handle *handle,
+				  int imgid)
+{
+	struct icp_qat_suof_handle *sobj_handle;
+
+	if (!handle->chip_info->tgroup_share_ustore)
+		return false;
+
+	sobj_handle = (struct icp_qat_suof_handle *)handle->sobj_handle;
+	if (handle->hal_handle->admin_ae_mask &
+	    sobj_handle->img_table.simg_hdr[imgid].ae_mask)
+		return false;
+
+	return true;
+}
+
+static int qat_uclo_broadcast_load_fw(struct icp_qat_fw_loader_handle *handle,
+				      struct icp_qat_fw_auth_desc *desc)
+{
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+	unsigned long desc_ae_mask = desc->ae_mask;
+	u32 fcu_sts, ae_broadcast_mask = 0;
+	u32 fcu_loaded_csr, ae_loaded;
+	u32 fcu_sts_csr, fcu_ctl_csr;
+	unsigned int ae, retry = 0;
+
+	if (handle->chip_info->tgroup_share_ustore) {
+		fcu_ctl_csr = handle->chip_info->fcu_ctl_csr;
+		fcu_sts_csr = handle->chip_info->fcu_sts_csr;
+		fcu_loaded_csr = handle->chip_info->fcu_loaded_ae_csr;
+	} else {
+		pr_err("Chip 0x%x doesn't support broadcast load\n",
+		       handle->pci_dev->device);
+		return -EINVAL;
+	}
+
+	for_each_set_bit(ae, &ae_mask, handle->hal_handle->ae_max_num) {
+		if (qat_hal_check_ae_active(handle, (unsigned char)ae)) {
+			pr_err("QAT: Broadcast load failed. AE is not enabled or active.\n");
+			return -EINVAL;
+		}
+
+		if (test_bit(ae, &desc_ae_mask))
+			ae_broadcast_mask |= 1 << ae;
+	}
+
+	if (ae_broadcast_mask) {
+		SET_CAP_CSR(handle, FCU_ME_BROADCAST_MASK_TYPE,
+			    ae_broadcast_mask);
+
+		SET_CAP_CSR(handle, fcu_ctl_csr, FCU_CTRL_CMD_LOAD);
+
+		do {
+			msleep(FW_AUTH_WAIT_PERIOD);
+			fcu_sts = GET_CAP_CSR(handle, fcu_sts_csr);
+			fcu_sts &= FCU_AUTH_STS_MASK;
+
+			if (fcu_sts == FCU_STS_LOAD_FAIL) {
+				pr_err("Broadcast load failed: 0x%x)\n", fcu_sts);
+				return -EINVAL;
+			} else if (fcu_sts == FCU_STS_LOAD_DONE) {
+				ae_loaded = GET_CAP_CSR(handle, fcu_loaded_csr);
+				ae_loaded >>= handle->chip_info->fcu_loaded_ae_pos;
+
+				if ((ae_loaded & ae_broadcast_mask) == ae_broadcast_mask)
+					break;
+			}
+		} while (retry++ < FW_AUTH_MAX_RETRY);
+
+		if (retry > FW_AUTH_MAX_RETRY) {
+			pr_err("QAT: broadcast load failed timeout %d\n", retry);
+			return -EINVAL;
+		}
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int qat_uclo_simg_alloc(struct icp_qat_fw_loader_handle *handle,
 			       struct icp_firml_dram_desc *dram_desc,
 			       unsigned int size)
@@ -1240,11 +1591,23 @@ static int qat_uclo_simg_alloc(struct icp_qat_fw_loader_handle *handle,
 static void qat_uclo_simg_free(struct icp_qat_fw_loader_handle *handle,
 			       struct icp_firml_dram_desc *dram_desc)
 {
+<<<<<<< HEAD
 	dma_free_coherent(&handle->pci_dev->dev,
 			  (size_t)(dram_desc->dram_size),
 			  (dram_desc->dram_base_addr_v),
 			  dram_desc->dram_bus_addr);
 	memset(dram_desc, 0, sizeof(*dram_desc));
+=======
+	if (handle && dram_desc && dram_desc->dram_base_addr_v) {
+		dma_free_coherent(&handle->pci_dev->dev,
+				  (size_t)(dram_desc->dram_size),
+				  dram_desc->dram_base_addr_v,
+				  dram_desc->dram_bus_addr);
+	}
+
+	if (dram_desc)
+		memset(dram_desc, 0, sizeof(*dram_desc));
+>>>>>>> upstream/android-13
 }
 
 static void qat_uclo_ummap_auth_fw(struct icp_qat_fw_loader_handle *handle,
@@ -1252,12 +1615,23 @@ static void qat_uclo_ummap_auth_fw(struct icp_qat_fw_loader_handle *handle,
 {
 	struct icp_firml_dram_desc dram_desc;
 
+<<<<<<< HEAD
 	dram_desc.dram_base_addr_v = *desc;
 	dram_desc.dram_bus_addr = ((struct icp_qat_auth_chunk *)
 				   (*desc))->chunk_bus_addr;
 	dram_desc.dram_size = ((struct icp_qat_auth_chunk *)
 			       (*desc))->chunk_size;
 	qat_uclo_simg_free(handle, &dram_desc);
+=======
+	if (*desc) {
+		dram_desc.dram_base_addr_v = *desc;
+		dram_desc.dram_bus_addr = ((struct icp_qat_auth_chunk *)
+					   (*desc))->chunk_bus_addr;
+		dram_desc.dram_size = ((struct icp_qat_auth_chunk *)
+				       (*desc))->chunk_size;
+		qat_uclo_simg_free(handle, &dram_desc);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int qat_uclo_map_auth_fw(struct icp_qat_fw_loader_handle *handle,
@@ -1269,15 +1643,27 @@ static int qat_uclo_map_auth_fw(struct icp_qat_fw_loader_handle *handle,
 	struct icp_qat_auth_chunk *auth_chunk;
 	u64 virt_addr,  bus_addr, virt_base;
 	unsigned int length, simg_offset = sizeof(*auth_chunk);
+<<<<<<< HEAD
 	struct icp_firml_dram_desc img_desc;
 
 	if (size > (ICP_QAT_AE_IMG_OFFSET + ICP_QAT_CSS_MAX_IMAGE_LEN)) {
+=======
+	struct icp_qat_simg_ae_mode *simg_ae_mode;
+	struct icp_firml_dram_desc img_desc;
+
+	if (size > (ICP_QAT_AE_IMG_OFFSET(handle) + ICP_QAT_CSS_MAX_IMAGE_LEN)) {
+>>>>>>> upstream/android-13
 		pr_err("QAT: error, input image size overflow %d\n", size);
 		return -EINVAL;
 	}
 	length = (css_hdr->fw_type == CSS_AE_FIRMWARE) ?
+<<<<<<< HEAD
 		 ICP_QAT_CSS_AE_SIMG_LEN + simg_offset :
 		 size + ICP_QAT_CSS_FWSK_PAD_LEN + simg_offset;
+=======
+		 ICP_QAT_CSS_AE_SIMG_LEN(handle) + simg_offset :
+		 size + ICP_QAT_CSS_FWSK_PAD_LEN(handle) + simg_offset;
+>>>>>>> upstream/android-13
 	if (qat_uclo_simg_alloc(handle, &img_desc, length)) {
 		pr_err("QAT: error, allocate continuous dram fail\n");
 		return -ENOMEM;
@@ -1304,6 +1690,7 @@ static int qat_uclo_map_auth_fw(struct icp_qat_fw_loader_handle *handle,
 
 	memcpy((void *)(uintptr_t)virt_addr,
 	       (void *)(image + sizeof(*css_hdr)),
+<<<<<<< HEAD
 	       ICP_QAT_CSS_FWSK_MODULUS_LEN);
 	/* padding */
 	memset((void *)(uintptr_t)(virt_addr + ICP_QAT_CSS_FWSK_MODULUS_LEN),
@@ -1314,18 +1701,36 @@ static int qat_uclo_map_auth_fw(struct icp_qat_fw_loader_handle *handle,
 	       ICP_QAT_CSS_FWSK_PAD_LEN),
 	       (void *)(image + sizeof(*css_hdr) +
 			ICP_QAT_CSS_FWSK_MODULUS_LEN),
+=======
+	       ICP_QAT_CSS_FWSK_MODULUS_LEN(handle));
+	/* padding */
+	memset((void *)(uintptr_t)(virt_addr + ICP_QAT_CSS_FWSK_MODULUS_LEN(handle)),
+	       0, ICP_QAT_CSS_FWSK_PAD_LEN(handle));
+
+	/* exponent */
+	memcpy((void *)(uintptr_t)(virt_addr + ICP_QAT_CSS_FWSK_MODULUS_LEN(handle) +
+	       ICP_QAT_CSS_FWSK_PAD_LEN(handle)),
+	       (void *)(image + sizeof(*css_hdr) +
+			ICP_QAT_CSS_FWSK_MODULUS_LEN(handle)),
+>>>>>>> upstream/android-13
 	       sizeof(unsigned int));
 
 	/* signature */
 	bus_addr = ADD_ADDR(auth_desc->fwsk_pub_high,
 			    auth_desc->fwsk_pub_low) +
+<<<<<<< HEAD
 		   ICP_QAT_CSS_FWSK_PUB_LEN;
 	virt_addr = virt_addr + ICP_QAT_CSS_FWSK_PUB_LEN;
+=======
+		   ICP_QAT_CSS_FWSK_PUB_LEN(handle);
+	virt_addr = virt_addr + ICP_QAT_CSS_FWSK_PUB_LEN(handle);
+>>>>>>> upstream/android-13
 	auth_desc->signature_high = (unsigned int)(bus_addr >> BITS_IN_DWORD);
 	auth_desc->signature_low = (unsigned int)bus_addr;
 
 	memcpy((void *)(uintptr_t)virt_addr,
 	       (void *)(image + sizeof(*css_hdr) +
+<<<<<<< HEAD
 	       ICP_QAT_CSS_FWSK_MODULUS_LEN +
 	       ICP_QAT_CSS_FWSK_EXPONENT_LEN),
 	       ICP_QAT_CSS_SIGNATURE_LEN);
@@ -1340,6 +1745,22 @@ static int qat_uclo_map_auth_fw(struct icp_qat_fw_loader_handle *handle,
 	auth_desc->img_len = size - ICP_QAT_AE_IMG_OFFSET;
 	memcpy((void *)(uintptr_t)virt_addr,
 	       (void *)(image + ICP_QAT_AE_IMG_OFFSET),
+=======
+	       ICP_QAT_CSS_FWSK_MODULUS_LEN(handle) +
+	       ICP_QAT_CSS_FWSK_EXPONENT_LEN(handle)),
+	       ICP_QAT_CSS_SIGNATURE_LEN(handle));
+
+	bus_addr = ADD_ADDR(auth_desc->signature_high,
+			    auth_desc->signature_low) +
+		   ICP_QAT_CSS_SIGNATURE_LEN(handle);
+	virt_addr += ICP_QAT_CSS_SIGNATURE_LEN(handle);
+
+	auth_desc->img_high = (unsigned int)(bus_addr >> BITS_IN_DWORD);
+	auth_desc->img_low = (unsigned int)bus_addr;
+	auth_desc->img_len = size - ICP_QAT_AE_IMG_OFFSET(handle);
+	memcpy((void *)(uintptr_t)virt_addr,
+	       (void *)(image + ICP_QAT_AE_IMG_OFFSET(handle)),
+>>>>>>> upstream/android-13
 	       auth_desc->img_len);
 	virt_addr = virt_base;
 	/* AE firmware */
@@ -1358,6 +1779,14 @@ static int qat_uclo_map_auth_fw(struct icp_qat_fw_loader_handle *handle,
 		auth_desc->img_ae_insts_high = (unsigned int)
 					     (bus_addr >> BITS_IN_DWORD);
 		auth_desc->img_ae_insts_low = (unsigned int)bus_addr;
+<<<<<<< HEAD
+=======
+		virt_addr += sizeof(struct icp_qat_css_hdr);
+		virt_addr += ICP_QAT_CSS_FWSK_PUB_LEN(handle);
+		virt_addr += ICP_QAT_CSS_SIGNATURE_LEN(handle);
+		simg_ae_mode = (struct icp_qat_simg_ae_mode *)(uintptr_t)virt_addr;
+		auth_desc->ae_mask = simg_ae_mode->ae_mask & handle->cfg_ae_mask;
+>>>>>>> upstream/android-13
 	} else {
 		auth_desc->img_ae_insts_high = auth_desc->img_high;
 		auth_desc->img_ae_insts_low = auth_desc->img_low;
@@ -1369,6 +1798,7 @@ static int qat_uclo_map_auth_fw(struct icp_qat_fw_loader_handle *handle,
 static int qat_uclo_load_fw(struct icp_qat_fw_loader_handle *handle,
 			    struct icp_qat_fw_auth_desc *desc)
 {
+<<<<<<< HEAD
 	unsigned int i;
 	unsigned int fcu_sts;
 	struct icp_qat_simg_ae_mode *virt_addr;
@@ -1383,11 +1813,28 @@ static int qat_uclo_load_fw(struct icp_qat_fw_loader_handle *handle,
 		int retry = 0;
 
 		if (!((virt_addr->ae_mask >> i) & 0x1))
+=======
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+	u32 fcu_sts_csr, fcu_ctl_csr;
+	u32 loaded_aes, loaded_csr;
+	unsigned int i;
+	u32 fcu_sts;
+
+	fcu_ctl_csr = handle->chip_info->fcu_ctl_csr;
+	fcu_sts_csr = handle->chip_info->fcu_sts_csr;
+	loaded_csr = handle->chip_info->fcu_loaded_ae_csr;
+
+	for_each_set_bit(i, &ae_mask, handle->hal_handle->ae_max_num) {
+		int retry = 0;
+
+		if (!((desc->ae_mask >> i) & 0x1))
+>>>>>>> upstream/android-13
 			continue;
 		if (qat_hal_check_ae_active(handle, i)) {
 			pr_err("QAT: AE %d is active\n", i);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		SET_CAP_CSR(handle, FCU_CONTROL,
 			    (FCU_CTRL_CMD_LOAD | (i << FCU_CTRL_AE_POS)));
 
@@ -1398,6 +1845,23 @@ static int qat_uclo_load_fw(struct icp_qat_fw_loader_handle *handle,
 			    FCU_STS_LOAD_DONE) &&
 			    ((fcu_sts >> fcu_loaded_ae_pos) & (1 << i)))
 				break;
+=======
+		SET_CAP_CSR(handle, fcu_ctl_csr,
+			    (FCU_CTRL_CMD_LOAD |
+			    (1 << FCU_CTRL_BROADCAST_POS) |
+			    (i << FCU_CTRL_AE_POS)));
+
+		do {
+			msleep(FW_AUTH_WAIT_PERIOD);
+			fcu_sts = GET_CAP_CSR(handle, fcu_sts_csr);
+			if ((fcu_sts & FCU_AUTH_STS_MASK) ==
+			    FCU_STS_LOAD_DONE) {
+				loaded_aes = GET_CAP_CSR(handle, loaded_csr);
+				loaded_aes >>= handle->chip_info->fcu_loaded_ae_pos;
+				if (loaded_aes & (1 << i))
+					break;
+			}
+>>>>>>> upstream/android-13
 		} while (retry++ < FW_AUTH_MAX_RETRY);
 		if (retry > FW_AUTH_MAX_RETRY) {
 			pr_err("QAT: firmware load failed timeout %x\n", retry);
@@ -1430,6 +1894,7 @@ int qat_uclo_wr_mimage(struct icp_qat_fw_loader_handle *handle,
 	struct icp_qat_fw_auth_desc *desc = NULL;
 	int status = 0;
 
+<<<<<<< HEAD
 	if (handle->fw_auth) {
 		if (!qat_uclo_map_auth_fw(handle, addr_ptr, mem_size, &desc))
 			status = qat_uclo_auth_fw(handle, desc);
@@ -1438,6 +1903,17 @@ int qat_uclo_wr_mimage(struct icp_qat_fw_loader_handle *handle,
 		if (handle->pci_dev->device == ADF_C3XXX_PCI_DEVICE_ID) {
 			pr_err("QAT: C3XXX doesn't support unsigned MMP\n");
 			return -EINVAL;
+=======
+	if (handle->chip_info->fw_auth) {
+		status = qat_uclo_map_auth_fw(handle, addr_ptr, mem_size, &desc);
+		if (!status)
+			status = qat_uclo_auth_fw(handle, desc);
+		qat_uclo_ummap_auth_fw(handle, &desc);
+	} else {
+		if (handle->chip_info->mmp_sram_size < mem_size) {
+			pr_err("QAT: MMP size is too large: 0x%x\n", mem_size);
+			return -EFBIG;
+>>>>>>> upstream/android-13
 		}
 		qat_uclo_wr_sram_by_words(handle, 0, addr_ptr, mem_size);
 	}
@@ -1480,25 +1956,299 @@ out_objbuf_err:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 int qat_uclo_map_obj(struct icp_qat_fw_loader_handle *handle,
 		     void *addr_ptr, int mem_size)
 {
+=======
+static int qat_uclo_map_mof_file_hdr(struct icp_qat_fw_loader_handle *handle,
+				     struct icp_qat_mof_file_hdr *mof_ptr,
+				     u32 mof_size)
+{
+	struct icp_qat_mof_handle *mobj_handle = handle->mobj_handle;
+	unsigned int min_ver_offset;
+	unsigned int checksum;
+
+	mobj_handle->file_id = ICP_QAT_MOF_FID;
+	mobj_handle->mof_buf = (char *)mof_ptr;
+	mobj_handle->mof_size = mof_size;
+
+	min_ver_offset = mof_size - offsetof(struct icp_qat_mof_file_hdr,
+					     min_ver);
+	checksum = qat_uclo_calc_str_checksum(&mof_ptr->min_ver,
+					      min_ver_offset);
+	if (checksum != mof_ptr->checksum) {
+		pr_err("QAT: incorrect MOF checksum\n");
+		return -EINVAL;
+	}
+
+	mobj_handle->checksum = mof_ptr->checksum;
+	mobj_handle->min_ver = mof_ptr->min_ver;
+	mobj_handle->maj_ver = mof_ptr->maj_ver;
+	return 0;
+}
+
+static void qat_uclo_del_mof(struct icp_qat_fw_loader_handle *handle)
+{
+	struct icp_qat_mof_handle *mobj_handle = handle->mobj_handle;
+
+	kfree(mobj_handle->obj_table.obj_hdr);
+	mobj_handle->obj_table.obj_hdr = NULL;
+	kfree(handle->mobj_handle);
+	handle->mobj_handle = NULL;
+}
+
+static int qat_uclo_seek_obj_inside_mof(struct icp_qat_mof_handle *mobj_handle,
+					char *obj_name, char **obj_ptr,
+					unsigned int *obj_size)
+{
+	struct icp_qat_mof_objhdr *obj_hdr = mobj_handle->obj_table.obj_hdr;
+	unsigned int i;
+
+	for (i = 0; i < mobj_handle->obj_table.num_objs; i++) {
+		if (!strncmp(obj_hdr[i].obj_name, obj_name,
+			     ICP_QAT_SUOF_OBJ_NAME_LEN)) {
+			*obj_ptr  = obj_hdr[i].obj_buf;
+			*obj_size = obj_hdr[i].obj_size;
+			return 0;
+		}
+	}
+
+	pr_err("QAT: object %s is not found inside MOF\n", obj_name);
+	return -EINVAL;
+}
+
+static int qat_uclo_map_obj_from_mof(struct icp_qat_mof_handle *mobj_handle,
+				     struct icp_qat_mof_objhdr *mobj_hdr,
+				     struct icp_qat_mof_obj_chunkhdr *obj_chunkhdr)
+{
+	u8 *obj;
+
+	if (!strncmp(obj_chunkhdr->chunk_id, ICP_QAT_UOF_IMAG,
+		     ICP_QAT_MOF_OBJ_CHUNKID_LEN)) {
+		obj = mobj_handle->uobjs_hdr + obj_chunkhdr->offset;
+	} else if (!strncmp(obj_chunkhdr->chunk_id, ICP_QAT_SUOF_IMAG,
+			    ICP_QAT_MOF_OBJ_CHUNKID_LEN)) {
+		obj = mobj_handle->sobjs_hdr + obj_chunkhdr->offset;
+	} else {
+		pr_err("QAT: unsupported chunk id\n");
+		return -EINVAL;
+	}
+	mobj_hdr->obj_buf = obj;
+	mobj_hdr->obj_size = (unsigned int)obj_chunkhdr->size;
+	mobj_hdr->obj_name = obj_chunkhdr->name + mobj_handle->sym_str;
+	return 0;
+}
+
+static int qat_uclo_map_objs_from_mof(struct icp_qat_mof_handle *mobj_handle)
+{
+	struct icp_qat_mof_obj_chunkhdr *uobj_chunkhdr;
+	struct icp_qat_mof_obj_chunkhdr *sobj_chunkhdr;
+	struct icp_qat_mof_obj_hdr *uobj_hdr;
+	struct icp_qat_mof_obj_hdr *sobj_hdr;
+	struct icp_qat_mof_objhdr *mobj_hdr;
+	unsigned int uobj_chunk_num = 0;
+	unsigned int sobj_chunk_num = 0;
+	unsigned int *valid_chunk;
+	int ret, i;
+
+	uobj_hdr = (struct icp_qat_mof_obj_hdr *)mobj_handle->uobjs_hdr;
+	sobj_hdr = (struct icp_qat_mof_obj_hdr *)mobj_handle->sobjs_hdr;
+	if (uobj_hdr)
+		uobj_chunk_num = uobj_hdr->num_chunks;
+	if (sobj_hdr)
+		sobj_chunk_num = sobj_hdr->num_chunks;
+
+	mobj_hdr = kzalloc((uobj_chunk_num + sobj_chunk_num) *
+			   sizeof(*mobj_hdr), GFP_KERNEL);
+	if (!mobj_hdr)
+		return -ENOMEM;
+
+	mobj_handle->obj_table.obj_hdr = mobj_hdr;
+	valid_chunk = &mobj_handle->obj_table.num_objs;
+	uobj_chunkhdr = (struct icp_qat_mof_obj_chunkhdr *)
+			 ((uintptr_t)uobj_hdr + sizeof(*uobj_hdr));
+	sobj_chunkhdr = (struct icp_qat_mof_obj_chunkhdr *)
+			((uintptr_t)sobj_hdr + sizeof(*sobj_hdr));
+
+	/* map uof objects */
+	for (i = 0; i < uobj_chunk_num; i++) {
+		ret = qat_uclo_map_obj_from_mof(mobj_handle,
+						&mobj_hdr[*valid_chunk],
+						&uobj_chunkhdr[i]);
+		if (ret)
+			return ret;
+		(*valid_chunk)++;
+	}
+
+	/* map suof objects */
+	for (i = 0; i < sobj_chunk_num; i++) {
+		ret = qat_uclo_map_obj_from_mof(mobj_handle,
+						&mobj_hdr[*valid_chunk],
+						&sobj_chunkhdr[i]);
+		if (ret)
+			return ret;
+		(*valid_chunk)++;
+	}
+
+	if ((uobj_chunk_num + sobj_chunk_num) != *valid_chunk) {
+		pr_err("QAT: inconsistent UOF/SUOF chunk amount\n");
+		return -EINVAL;
+	}
+	return 0;
+}
+
+static void qat_uclo_map_mof_symobjs(struct icp_qat_mof_handle *mobj_handle,
+				     struct icp_qat_mof_chunkhdr *mof_chunkhdr)
+{
+	char **sym_str = (char **)&mobj_handle->sym_str;
+	unsigned int *sym_size = &mobj_handle->sym_size;
+	struct icp_qat_mof_str_table *str_table_obj;
+
+	*sym_size = *(unsigned int *)(uintptr_t)
+		    (mof_chunkhdr->offset + mobj_handle->mof_buf);
+	*sym_str = (char *)(uintptr_t)
+		   (mobj_handle->mof_buf + mof_chunkhdr->offset +
+		    sizeof(str_table_obj->tab_len));
+}
+
+static void qat_uclo_map_mof_chunk(struct icp_qat_mof_handle *mobj_handle,
+				   struct icp_qat_mof_chunkhdr *mof_chunkhdr)
+{
+	char *chunk_id = mof_chunkhdr->chunk_id;
+
+	if (!strncmp(chunk_id, ICP_QAT_MOF_SYM_OBJS, ICP_QAT_MOF_OBJ_ID_LEN))
+		qat_uclo_map_mof_symobjs(mobj_handle, mof_chunkhdr);
+	else if (!strncmp(chunk_id, ICP_QAT_UOF_OBJS, ICP_QAT_MOF_OBJ_ID_LEN))
+		mobj_handle->uobjs_hdr = mobj_handle->mof_buf +
+					 mof_chunkhdr->offset;
+	else if (!strncmp(chunk_id, ICP_QAT_SUOF_OBJS, ICP_QAT_MOF_OBJ_ID_LEN))
+		mobj_handle->sobjs_hdr = mobj_handle->mof_buf +
+					 mof_chunkhdr->offset;
+}
+
+static int qat_uclo_check_mof_format(struct icp_qat_mof_file_hdr *mof_hdr)
+{
+	int maj = mof_hdr->maj_ver & 0xff;
+	int min = mof_hdr->min_ver & 0xff;
+
+	if (mof_hdr->file_id != ICP_QAT_MOF_FID) {
+		pr_err("QAT: invalid header 0x%x\n", mof_hdr->file_id);
+		return -EINVAL;
+	}
+
+	if (mof_hdr->num_chunks <= 0x1) {
+		pr_err("QAT: MOF chunk amount is incorrect\n");
+		return -EINVAL;
+	}
+	if (maj != ICP_QAT_MOF_MAJVER || min != ICP_QAT_MOF_MINVER) {
+		pr_err("QAT: bad MOF version, major 0x%x, minor 0x%x\n",
+		       maj, min);
+		return -EINVAL;
+	}
+	return 0;
+}
+
+static int qat_uclo_map_mof_obj(struct icp_qat_fw_loader_handle *handle,
+				struct icp_qat_mof_file_hdr *mof_ptr,
+				u32 mof_size, char *obj_name, char **obj_ptr,
+				unsigned int *obj_size)
+{
+	struct icp_qat_mof_chunkhdr *mof_chunkhdr;
+	unsigned int file_id = mof_ptr->file_id;
+	struct icp_qat_mof_handle *mobj_handle;
+	unsigned short chunks_num;
+	unsigned int i;
+	int ret;
+
+	if (file_id == ICP_QAT_UOF_FID || file_id == ICP_QAT_SUOF_FID) {
+		if (obj_ptr)
+			*obj_ptr = (char *)mof_ptr;
+		if (obj_size)
+			*obj_size = mof_size;
+		return 0;
+	}
+	if (qat_uclo_check_mof_format(mof_ptr))
+		return -EINVAL;
+
+	mobj_handle = kzalloc(sizeof(*mobj_handle), GFP_KERNEL);
+	if (!mobj_handle)
+		return -ENOMEM;
+
+	handle->mobj_handle = mobj_handle;
+	ret = qat_uclo_map_mof_file_hdr(handle, mof_ptr, mof_size);
+	if (ret)
+		return ret;
+
+	mof_chunkhdr = (void *)mof_ptr + sizeof(*mof_ptr);
+	chunks_num = mof_ptr->num_chunks;
+
+	/* Parse MOF file chunks */
+	for (i = 0; i < chunks_num; i++)
+		qat_uclo_map_mof_chunk(mobj_handle, &mof_chunkhdr[i]);
+
+	/* All sym_objs uobjs and sobjs should be available */
+	if (!mobj_handle->sym_str ||
+	    (!mobj_handle->uobjs_hdr && !mobj_handle->sobjs_hdr))
+		return -EINVAL;
+
+	ret = qat_uclo_map_objs_from_mof(mobj_handle);
+	if (ret)
+		return ret;
+
+	/* Seek specified uof object in MOF */
+	return qat_uclo_seek_obj_inside_mof(mobj_handle, obj_name,
+					    obj_ptr, obj_size);
+}
+
+int qat_uclo_map_obj(struct icp_qat_fw_loader_handle *handle,
+		     void *addr_ptr, u32 mem_size, char *obj_name)
+{
+	char *obj_addr;
+	u32 obj_size;
+	int ret;
+
+>>>>>>> upstream/android-13
 	BUILD_BUG_ON(ICP_QAT_UCLO_MAX_AE >=
 		     (sizeof(handle->hal_handle->ae_mask) * 8));
 
 	if (!handle || !addr_ptr || mem_size < 24)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return (handle->fw_auth) ?
 			qat_uclo_map_suof_obj(handle, addr_ptr, mem_size) :
 			qat_uclo_map_uof_obj(handle, addr_ptr, mem_size);
 }
 
 void qat_uclo_del_uof_obj(struct icp_qat_fw_loader_handle *handle)
+=======
+	if (obj_name) {
+		ret = qat_uclo_map_mof_obj(handle, addr_ptr, mem_size, obj_name,
+					   &obj_addr, &obj_size);
+		if (ret)
+			return ret;
+	} else {
+		obj_addr = addr_ptr;
+		obj_size = mem_size;
+	}
+
+	return (handle->chip_info->fw_auth) ?
+			qat_uclo_map_suof_obj(handle, obj_addr, obj_size) :
+			qat_uclo_map_uof_obj(handle, obj_addr, obj_size);
+}
+
+void qat_uclo_del_obj(struct icp_qat_fw_loader_handle *handle)
+>>>>>>> upstream/android-13
 {
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
 	unsigned int a;
 
+<<<<<<< HEAD
+=======
+	if (handle->mobj_handle)
+		qat_uclo_del_mof(handle);
+>>>>>>> upstream/android-13
 	if (handle->sobj_handle)
 		qat_uclo_del_suof(handle);
 	if (!obj_handle)
@@ -1519,16 +2269,25 @@ void qat_uclo_del_uof_obj(struct icp_qat_fw_loader_handle *handle)
 
 static void qat_uclo_fill_uwords(struct icp_qat_uclo_objhandle *obj_handle,
 				 struct icp_qat_uclo_encap_page *encap_page,
+<<<<<<< HEAD
 				 uint64_t *uword, unsigned int addr_p,
 				 unsigned int raddr, uint64_t fill)
 {
 	uint64_t uwrd = 0;
 	unsigned int i;
+=======
+				 u64 *uword, unsigned int addr_p,
+				 unsigned int raddr, u64 fill)
+{
+	unsigned int i, addr;
+	u64 uwrd = 0;
+>>>>>>> upstream/android-13
 
 	if (!encap_page) {
 		*uword = fill;
 		return;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < encap_page->uwblock_num; i++) {
 		if (raddr >= encap_page->uwblock[i].start_addr &&
 		    raddr <= encap_page->uwblock[i].start_addr +
@@ -1539,6 +2298,19 @@ static void qat_uclo_fill_uwords(struct icp_qat_uclo_objhandle *obj_handle,
 			       encap_page->uwblock[i].micro_words) + raddr),
 			       obj_handle->uword_in_bytes);
 			uwrd = uwrd & 0xbffffffffffull;
+=======
+	addr = (encap_page->page_region) ? raddr : addr_p;
+	for (i = 0; i < encap_page->uwblock_num; i++) {
+		if (addr >= encap_page->uwblock[i].start_addr &&
+		    addr <= encap_page->uwblock[i].start_addr +
+		    encap_page->uwblock[i].words_num - 1) {
+			addr -= encap_page->uwblock[i].start_addr;
+			addr *= obj_handle->uword_in_bytes;
+			memcpy(&uwrd, (void *)(((uintptr_t)
+			       encap_page->uwblock[i].micro_words) + addr),
+			       obj_handle->uword_in_bytes);
+			uwrd = uwrd & GENMASK_ULL(43, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 	*uword = uwrd;
@@ -1552,12 +2324,20 @@ static void qat_uclo_wr_uimage_raw_page(struct icp_qat_fw_loader_handle *handle,
 {
 	unsigned int uw_physical_addr, uw_relative_addr, i, words_num, cpylen;
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
+<<<<<<< HEAD
 	uint64_t fill_pat;
+=======
+	u64 fill_pat;
+>>>>>>> upstream/android-13
 
 	/* load the page starting at appropriate ustore address */
 	/* get fill-pattern from an image -- they are all the same */
 	memcpy(&fill_pat, obj_handle->ae_uimage[0].img_ptr->fill_pattern,
+<<<<<<< HEAD
 	       sizeof(uint64_t));
+=======
+	       sizeof(u64));
+>>>>>>> upstream/android-13
 	uw_physical_addr = encap_page->beg_addr_p;
 	uw_relative_addr = 0;
 	words_num = encap_page->micro_words_num;
@@ -1589,6 +2369,13 @@ static void qat_uclo_wr_uimage_page(struct icp_qat_fw_loader_handle *handle,
 				    struct icp_qat_uof_image *image)
 {
 	struct icp_qat_uclo_objhandle *obj_handle = handle->obj_handle;
+<<<<<<< HEAD
+=======
+	unsigned long ae_mask = handle->hal_handle->ae_mask;
+	unsigned long cfg_ae_mask = handle->cfg_ae_mask;
+	unsigned long ae_assigned = image->ae_assigned;
+	struct icp_qat_uclo_aedata *aed;
+>>>>>>> upstream/android-13
 	unsigned int ctx_mask, s;
 	struct icp_qat_uclo_page *page;
 	unsigned char ae;
@@ -1600,6 +2387,7 @@ static void qat_uclo_wr_uimage_page(struct icp_qat_fw_loader_handle *handle,
 		ctx_mask = 0x55;
 	/* load the default page and set assigned CTX PC
 	 * to the entrypoint address */
+<<<<<<< HEAD
 	for (ae = 0; ae < handle->hal_handle->ae_max_num; ae++) {
 		if (!test_bit(ae, (unsigned long *)&image->ae_assigned))
 			continue;
@@ -1612,13 +2400,38 @@ static void qat_uclo_wr_uimage_page(struct icp_qat_fw_loader_handle *handle,
 		if (s >= obj_handle->ae_data[ae].slice_num)
 			continue;
 		page = obj_handle->ae_data[ae].ae_slices[s].page;
+=======
+	for_each_set_bit(ae, &ae_mask, handle->hal_handle->ae_max_num) {
+		if (!test_bit(ae, &cfg_ae_mask))
+			continue;
+
+		if (!test_bit(ae, &ae_assigned))
+			continue;
+
+		aed = &obj_handle->ae_data[ae];
+		/* find the slice to which this image is assigned */
+		for (s = 0; s < aed->slice_num; s++) {
+			if (image->ctx_assigned &
+			    aed->ae_slices[s].ctx_mask_assigned)
+				break;
+		}
+		if (s >= aed->slice_num)
+			continue;
+		page = aed->ae_slices[s].page;
+>>>>>>> upstream/android-13
 		if (!page->encap_page->def_page)
 			continue;
 		qat_uclo_wr_uimage_raw_page(handle, page->encap_page, ae);
 
+<<<<<<< HEAD
 		page = obj_handle->ae_data[ae].ae_slices[s].page;
 		for (ctx = 0; ctx < ICP_QAT_UCLO_MAX_CTX; ctx++)
 			obj_handle->ae_data[ae].ae_slices[s].cur_page[ctx] =
+=======
+		page = aed->ae_slices[s].page;
+		for (ctx = 0; ctx < ICP_QAT_UCLO_MAX_CTX; ctx++)
+			aed->ae_slices[s].cur_page[ctx] =
+>>>>>>> upstream/android-13
 					(ctx_mask & (1 << ctx)) ? page : NULL;
 		qat_hal_set_live_ctx(handle, (unsigned char)ae,
 				     image->ctx_assigned);
@@ -1638,13 +2451,27 @@ static int qat_uclo_wr_suof_img(struct icp_qat_fw_loader_handle *handle)
 		if (qat_uclo_map_auth_fw(handle,
 					 (char *)simg_hdr[i].simg_buf,
 					 (unsigned int)
+<<<<<<< HEAD
 					 (simg_hdr[i].simg_len),
+=======
+					 simg_hdr[i].simg_len,
+>>>>>>> upstream/android-13
 					 &desc))
 			goto wr_err;
 		if (qat_uclo_auth_fw(handle, desc))
 			goto wr_err;
+<<<<<<< HEAD
 		if (qat_uclo_load_fw(handle, desc))
 			goto wr_err;
+=======
+		if (qat_uclo_is_broadcast(handle, i)) {
+			if (qat_uclo_broadcast_load_fw(handle, desc))
+				goto wr_err;
+		} else {
+			if (qat_uclo_load_fw(handle, desc))
+				goto wr_err;
+		}
+>>>>>>> upstream/android-13
 		qat_uclo_ummap_auth_fw(handle, &desc);
 	}
 	return 0;
@@ -1673,6 +2500,22 @@ static int qat_uclo_wr_uof_img(struct icp_qat_fw_loader_handle *handle)
 
 int qat_uclo_wr_all_uimage(struct icp_qat_fw_loader_handle *handle)
 {
+<<<<<<< HEAD
 	return (handle->fw_auth) ? qat_uclo_wr_suof_img(handle) :
 				   qat_uclo_wr_uof_img(handle);
 }
+=======
+	return (handle->chip_info->fw_auth) ? qat_uclo_wr_suof_img(handle) :
+				   qat_uclo_wr_uof_img(handle);
+}
+
+int qat_uclo_set_cfg_ae_mask(struct icp_qat_fw_loader_handle *handle,
+			     unsigned int cfg_ae_mask)
+{
+	if (!cfg_ae_mask)
+		return -EINVAL;
+
+	handle->cfg_ae_mask = cfg_ae_mask;
+	return 0;
+}
+>>>>>>> upstream/android-13

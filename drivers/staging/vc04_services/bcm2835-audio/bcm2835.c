@@ -6,13 +6,20 @@
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "bcm2835.h"
 
 static bool enable_hdmi;
 static bool enable_headphones;
 static bool enable_compat_alsa = true;
+<<<<<<< HEAD
+=======
+static int num_channels = MAX_SUBSTREAMS;
+>>>>>>> upstream/android-13
 
 module_param(enable_hdmi, bool, 0444);
 MODULE_PARM_DESC(enable_hdmi, "Enables HDMI virtual audio device");
@@ -21,6 +28,7 @@ MODULE_PARM_DESC(enable_headphones, "Enables Headphones virtual audio device");
 module_param(enable_compat_alsa, bool, 0444);
 MODULE_PARM_DESC(enable_compat_alsa,
 		 "Enables ALSA compatibility virtual audio device");
+<<<<<<< HEAD
 
 static void snd_devm_unregister_child(struct device *dev, void *res)
 {
@@ -53,6 +61,10 @@ static int snd_devm_add_child(struct device *dev, struct device *child)
 
 	return 0;
 }
+=======
+module_param(num_channels, int, 0644);
+MODULE_PARM_DESC(num_channels, "Number of audio channels (default: 8)");
+>>>>>>> upstream/android-13
 
 static void bcm2835_devm_free_vchi_ctx(struct device *dev, void *res)
 {
@@ -71,9 +83,13 @@ static int bcm2835_devm_add_vchi_ctx(struct device *dev)
 	if (!vchi_ctx)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(vchi_ctx, 0, sizeof(*vchi_ctx));
 
 	ret = bcm2835_new_vchi_ctx(vchi_ctx);
+=======
+	ret = bcm2835_new_vchi_ctx(dev, vchi_ctx);
+>>>>>>> upstream/android-13
 	if (ret) {
 		devres_free(vchi_ctx);
 		return ret;
@@ -84,6 +100,7 @@ static int bcm2835_devm_add_vchi_ctx(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_bcm2835_release(struct device *dev)
 {
 	struct bcm2835_chip *chip = dev_get_drvdata(dev);
@@ -179,6 +196,8 @@ static struct snd_card *snd_bcm2835_card_new(struct device *dev)
 	return card;
 }
 
+=======
+>>>>>>> upstream/android-13
 typedef int (*bcm2835_audio_newpcm_func)(struct bcm2835_chip *chip,
 					 const char *name,
 					 enum snd_bcm2835_route route,
@@ -203,17 +222,37 @@ static int bcm2835_audio_alsa_newpcm(struct bcm2835_chip *chip,
 {
 	int err;
 
+<<<<<<< HEAD
 	err = snd_bcm2835_new_pcm(chip, numchannels - 1);
 	if (err)
 		return err;
 
 	err = snd_bcm2835_new_spdif_pcm(chip);
+=======
+	err = snd_bcm2835_new_pcm(chip, "bcm2835 ALSA", 0, AUDIO_DEST_AUTO,
+				  numchannels - 1, false);
+	if (err)
+		return err;
+
+	err = snd_bcm2835_new_pcm(chip, "bcm2835 IEC958/HDMI", 1, 0, 1, true);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int bcm2835_audio_simple_newpcm(struct bcm2835_chip *chip,
+				       const char *name,
+				       enum snd_bcm2835_route route,
+				       u32 numchannels)
+{
+	return snd_bcm2835_new_pcm(chip, name, 0, route, numchannels, false);
+}
+
+>>>>>>> upstream/android-13
 static struct bcm2835_audio_driver bcm2835_audio_alsa = {
 	.driver = {
 		.name = "bcm2835_alsa",
@@ -234,7 +273,11 @@ static struct bcm2835_audio_driver bcm2835_audio_hdmi = {
 	.shortname = "bcm2835 HDMI",
 	.longname  = "bcm2835 HDMI",
 	.minchannels = 1,
+<<<<<<< HEAD
 	.newpcm = snd_bcm2835_new_simple_pcm,
+=======
+	.newpcm = bcm2835_audio_simple_newpcm,
+>>>>>>> upstream/android-13
 	.newctl = snd_bcm2835_new_hdmi_ctl,
 	.route = AUDIO_DEST_HDMI
 };
@@ -247,7 +290,11 @@ static struct bcm2835_audio_driver bcm2835_audio_headphones = {
 	.shortname = "bcm2835 Headphones",
 	.longname  = "bcm2835 Headphones",
 	.minchannels = 1,
+<<<<<<< HEAD
 	.newpcm = snd_bcm2835_new_simple_pcm,
+=======
+	.newpcm = bcm2835_audio_simple_newpcm,
+>>>>>>> upstream/android-13
 	.newctl = snd_bcm2835_new_headphones_ctl,
 	.route = AUDIO_DEST_HEADPHONES
 };
@@ -272,6 +319,7 @@ static struct bcm2835_audio_drivers children_devices[] = {
 	},
 };
 
+<<<<<<< HEAD
 static int snd_add_child_device(struct device *device,
 				struct bcm2835_audio_driver *audio_driver,
 				u32 numchans)
@@ -309,17 +357,59 @@ static int snd_add_child_device(struct device *device,
 	}
 
 	chip->dev = child;
+=======
+static void bcm2835_card_free(void *data)
+{
+	snd_card_free(data);
+}
+
+static int snd_add_child_device(struct device *dev,
+				struct bcm2835_audio_driver *audio_driver,
+				u32 numchans)
+{
+	struct bcm2835_chip *chip;
+	struct snd_card *card;
+	int err;
+
+	err = snd_card_new(dev, -1, NULL, THIS_MODULE, sizeof(*chip), &card);
+	if (err < 0) {
+		dev_err(dev, "Failed to create card");
+		return err;
+	}
+
+	chip = card->private_data;
+	chip->card = card;
+	chip->dev = dev;
+	mutex_init(&chip->audio_mutex);
+
+	chip->vchi_ctx = devres_find(dev,
+				     bcm2835_devm_free_vchi_ctx, NULL, NULL);
+	if (!chip->vchi_ctx) {
+		err = -ENODEV;
+		goto error;
+	}
+
+	strscpy(card->driver, audio_driver->driver.name, sizeof(card->driver));
+	strscpy(card->shortname, audio_driver->shortname, sizeof(card->shortname));
+	strscpy(card->longname, audio_driver->longname, sizeof(card->longname));
+>>>>>>> upstream/android-13
 
 	err = audio_driver->newpcm(chip, audio_driver->shortname,
 		audio_driver->route,
 		numchans);
 	if (err) {
+<<<<<<< HEAD
 		dev_err(child, "Failed to create pcm, error %d\n", err);
 		return err;
+=======
+		dev_err(dev, "Failed to create pcm, error %d\n", err);
+		goto error;
+>>>>>>> upstream/android-13
 	}
 
 	err = audio_driver->newctl(chip);
 	if (err) {
+<<<<<<< HEAD
 		dev_err(child, "Failed to create controls, error %d\n", err);
 		return err;
 	}
@@ -337,16 +427,51 @@ static int snd_add_child_device(struct device *device,
 	dev_info(child, "card created with %d channels\n", numchans);
 
 	return 0;
+=======
+		dev_err(dev, "Failed to create controls, error %d\n", err);
+		goto error;
+	}
+
+	err = snd_card_register(card);
+	if (err) {
+		dev_err(dev, "Failed to register card, error %d\n", err);
+		goto error;
+	}
+
+	dev_set_drvdata(dev, chip);
+
+	err = devm_add_action(dev, bcm2835_card_free, card);
+	if (err < 0) {
+		dev_err(dev, "Failed to add devm action, err %d\n", err);
+		goto error;
+	}
+
+	dev_info(dev, "card created with %d channels\n", numchans);
+	return 0;
+
+ error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int snd_add_child_devices(struct device *device, u32 numchans)
 {
+<<<<<<< HEAD
 	int i;
 	int count_devices = 0;
 	int minchannels = 0;
 	int extrachannels = 0;
 	int extrachannels_per_driver = 0;
 	int extrachannels_remainder = 0;
+=======
+	int extrachannels_per_driver = 0;
+	int extrachannels_remainder = 0;
+	int count_devices = 0;
+	int extrachannels = 0;
+	int minchannels = 0;
+	int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(children_devices); i++)
 		if (*children_devices[i].is_enabled)
@@ -374,9 +499,15 @@ static int snd_add_child_devices(struct device *device, u32 numchans)
 		extrachannels_remainder);
 
 	for (i = 0; i < ARRAY_SIZE(children_devices); i++) {
+<<<<<<< HEAD
 		int err;
 		int numchannels_this_device;
 		struct bcm2835_audio_driver *audio_driver;
+=======
+		struct bcm2835_audio_driver *audio_driver;
+		int numchannels_this_device;
+		int err;
+>>>>>>> upstream/android-13
 
 		if (!*children_devices[i].is_enabled)
 			continue;
@@ -407,6 +538,7 @@ static int snd_add_child_devices(struct device *device, u32 numchans)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_bcm2835_alsa_probe_dt(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -425,13 +557,28 @@ static int snd_bcm2835_alsa_probe_dt(struct platform_device *pdev)
 		dev_warn(dev,
 			 "Illegal 'brcm,pwm-channels' value, will use %u\n",
 			 numchans);
+=======
+static int snd_bcm2835_alsa_probe(struct platform_device *pdev)
+{
+	struct device *dev = &pdev->dev;
+	int err;
+
+	if (num_channels <= 0 || num_channels > MAX_SUBSTREAMS) {
+		num_channels = MAX_SUBSTREAMS;
+		dev_warn(dev, "Illegal num_channels value, will use %u\n",
+			 num_channels);
+>>>>>>> upstream/android-13
 	}
 
 	err = bcm2835_devm_add_vchi_ctx(dev);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = snd_add_child_devices(dev, numchans);
+=======
+	err = snd_add_child_devices(dev, num_channels);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -453,6 +600,7 @@ static int snd_bcm2835_alsa_resume(struct platform_device *pdev)
 
 #endif
 
+<<<<<<< HEAD
 static const struct of_device_id snd_bcm2835_of_match_table[] = {
 	{ .compatible = "brcm,bcm2835-audio",},
 	{},
@@ -461,12 +609,17 @@ MODULE_DEVICE_TABLE(of, snd_bcm2835_of_match_table);
 
 static struct platform_driver bcm2835_alsa0_driver = {
 	.probe = snd_bcm2835_alsa_probe_dt,
+=======
+static struct platform_driver bcm2835_alsa_driver = {
+	.probe = snd_bcm2835_alsa_probe,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend = snd_bcm2835_alsa_suspend,
 	.resume = snd_bcm2835_alsa_resume,
 #endif
 	.driver = {
 		.name = "bcm2835_audio",
+<<<<<<< HEAD
 		.of_match_table = snd_bcm2835_of_match_table,
 	},
 };
@@ -489,7 +642,16 @@ static void bcm2835_alsa_device_exit(void)
 
 late_initcall(bcm2835_alsa_device_init);
 module_exit(bcm2835_alsa_device_exit);
+=======
+	},
+};
+module_platform_driver(bcm2835_alsa_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Dom Cobley");
 MODULE_DESCRIPTION("Alsa driver for BCM2835 chip");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_ALIAS("platform:bcm2835_audio");
+>>>>>>> upstream/android-13

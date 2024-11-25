@@ -28,7 +28,12 @@
  *    Christian König <deathsimple@vodafone.de>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <linux/uaccess.h>
+
+>>>>>>> upstream/android-13
 #include "amdgpu.h"
 #include "amdgpu_trace.h"
 
@@ -49,15 +54,27 @@ static void amdgpu_bo_list_free(struct kref *ref)
 						   refcount);
 	struct amdgpu_bo_list_entry *e;
 
+<<<<<<< HEAD
 	amdgpu_bo_list_for_each_entry(e, list)
 		amdgpu_bo_unref(&e->robj);
+=======
+	amdgpu_bo_list_for_each_entry(e, list) {
+		struct amdgpu_bo *bo = ttm_to_amdgpu_bo(e->tv.bo);
+
+		amdgpu_bo_unref(&bo);
+	}
+>>>>>>> upstream/android-13
 
 	call_rcu(&list->rhead, amdgpu_bo_list_free_rcu);
 }
 
 int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
 			  struct drm_amdgpu_bo_list_entry *info,
+<<<<<<< HEAD
 			  unsigned num_entries, struct amdgpu_bo_list **result)
+=======
+			  size_t num_entries, struct amdgpu_bo_list **result)
+>>>>>>> upstream/android-13
 {
 	unsigned last_entry = 0, first_userptr = num_entries;
 	struct amdgpu_bo_list_entry *array;
@@ -78,9 +95,15 @@ int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
 		return -ENOMEM;
 
 	kref_init(&list->refcount);
+<<<<<<< HEAD
 	list->gds_obj = adev->gds.gds_gfx_bo;
 	list->gws_obj = adev->gds.gws_gfx_bo;
 	list->oa_obj = adev->gds.oa_gfx_bo;
+=======
+	list->gds_obj = NULL;
+	list->gws_obj = NULL;
+	list->oa_obj = NULL;
+>>>>>>> upstream/android-13
 
 	array = amdgpu_bo_list_array_entry(list, 0);
 	memset(array, 0, num_entries * sizeof(struct amdgpu_bo_list_entry));
@@ -98,7 +121,11 @@ int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
 		}
 
 		bo = amdgpu_bo_ref(gem_to_amdgpu_bo(gobj));
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(gobj);
+=======
+		drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 
 		usermm = amdgpu_ttm_tt_get_usermm(bo->tbo.ttm);
 		if (usermm) {
@@ -112,6 +139,7 @@ int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
 			entry = &array[last_entry++];
 		}
 
+<<<<<<< HEAD
 		entry->robj = bo;
 		entry->priority = min(info[i].bo_priority,
 				      AMDGPU_BO_LIST_MAX_PRIORITY);
@@ -127,6 +155,21 @@ int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
 
 		total_size += amdgpu_bo_size(entry->robj);
 		trace_amdgpu_bo_list_set(list, entry->robj);
+=======
+		entry->priority = min(info[i].bo_priority,
+				      AMDGPU_BO_LIST_MAX_PRIORITY);
+		entry->tv.bo = &bo->tbo;
+
+		if (bo->preferred_domains == AMDGPU_GEM_DOMAIN_GDS)
+			list->gds_obj = bo;
+		if (bo->preferred_domains == AMDGPU_GEM_DOMAIN_GWS)
+			list->gws_obj = bo;
+		if (bo->preferred_domains == AMDGPU_GEM_DOMAIN_OA)
+			list->oa_obj = bo;
+
+		total_size += amdgpu_bo_size(bo);
+		trace_amdgpu_bo_list_set(list, bo);
+>>>>>>> upstream/android-13
 	}
 
 	list->first_userptr = first_userptr;
@@ -138,8 +181,21 @@ int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
 	return 0;
 
 error_free:
+<<<<<<< HEAD
 	while (i--)
 		amdgpu_bo_unref(&array[i].robj);
+=======
+	for (i = 0; i < last_entry; ++i) {
+		struct amdgpu_bo *bo = ttm_to_amdgpu_bo(array[i].tv.bo);
+
+		amdgpu_bo_unref(&bo);
+	}
+	for (i = first_userptr; i < num_entries; ++i) {
+		struct amdgpu_bo *bo = ttm_to_amdgpu_bo(array[i].tv.bo);
+
+		amdgpu_bo_unref(&bo);
+	}
+>>>>>>> upstream/android-13
 	kvfree(list);
 	return r;
 
@@ -191,9 +247,16 @@ void amdgpu_bo_list_get_list(struct amdgpu_bo_list *list,
 	 * with the same priority, i.e. it must be stable.
 	 */
 	amdgpu_bo_list_for_each_entry(e, list) {
+<<<<<<< HEAD
 		unsigned priority = e->priority;
 
 		if (!e->robj->parent)
+=======
+		struct amdgpu_bo *bo = ttm_to_amdgpu_bo(e->tv.bo);
+		unsigned priority = e->priority;
+
+		if (!bo->parent)
+>>>>>>> upstream/android-13
 			list_add_tail(&e->tv.head, &bucket[priority]);
 
 		e->user_pages = NULL;
@@ -254,7 +317,11 @@ error_free:
 int amdgpu_bo_list_ioctl(struct drm_device *dev, void *data,
 				struct drm_file *filp)
 {
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_fpriv *fpriv = filp->driver_priv;
 	union drm_amdgpu_bo_list *args = data;
 	uint32_t handle = args->in.list_handle;

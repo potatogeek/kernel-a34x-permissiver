@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OSS compatible sequencer driver
  *
  * registration of device and proc
  *
  * Copyright (C) 1998,99 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -80,6 +87,7 @@ static int __init alsa_seq_oss_init(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	if ((rc = register_device()) < 0)
 		goto error;
 	if ((rc = register_proc()) < 0) {
@@ -87,6 +95,18 @@ static int __init alsa_seq_oss_init(void)
 		goto error;
 	}
 	if ((rc = snd_seq_oss_create_client()) < 0) {
+=======
+	rc = register_device();
+	if (rc < 0)
+		goto error;
+	rc = register_proc();
+	if (rc < 0) {
+		unregister_device();
+		goto error;
+	}
+	rc = snd_seq_oss_create_client();
+	if (rc < 0) {
+>>>>>>> upstream/android-13
 		unregister_proc();
 		unregister_device();
 		goto error;
@@ -146,7 +166,12 @@ odev_release(struct inode *inode, struct file *file)
 {
 	struct seq_oss_devinfo *dp;
 
+<<<<<<< HEAD
 	if ((dp = file->private_data) == NULL)
+=======
+	dp = file->private_data;
+	if (!dp)
+>>>>>>> upstream/android-13
 		return 0;
 
 	mutex_lock(&register_mutex);
@@ -239,16 +264,30 @@ register_device(void)
 	int rc;
 
 	mutex_lock(&register_mutex);
+<<<<<<< HEAD
 	if ((rc = snd_register_oss_device(SNDRV_OSS_DEVICE_TYPE_SEQUENCER,
 					  NULL, 0,
 					  &seq_oss_f_ops, NULL)) < 0) {
+=======
+	rc = snd_register_oss_device(SNDRV_OSS_DEVICE_TYPE_SEQUENCER,
+				     NULL, 0,
+				     &seq_oss_f_ops, NULL);
+	if (rc < 0) {
+>>>>>>> upstream/android-13
 		pr_err("ALSA: seq_oss: can't register device seq\n");
 		mutex_unlock(&register_mutex);
 		return rc;
 	}
+<<<<<<< HEAD
 	if ((rc = snd_register_oss_device(SNDRV_OSS_DEVICE_TYPE_MUSIC,
 					  NULL, 0,
 					  &seq_oss_f_ops, NULL)) < 0) {
+=======
+	rc = snd_register_oss_device(SNDRV_OSS_DEVICE_TYPE_MUSIC,
+				     NULL, 0,
+				     &seq_oss_f_ops, NULL);
+	if (rc < 0) {
+>>>>>>> upstream/android-13
 		pr_err("ALSA: seq_oss: can't register device music\n");
 		snd_unregister_oss_device(SNDRV_OSS_DEVICE_TYPE_SEQUENCER, NULL, 0);
 		mutex_unlock(&register_mutex);

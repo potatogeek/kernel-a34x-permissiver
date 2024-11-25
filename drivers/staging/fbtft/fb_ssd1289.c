@@ -10,7 +10,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "fbtft.h"
 
@@ -28,9 +31,12 @@ static int init_display(struct fbtft_par *par)
 {
 	par->fbtftops.reset(par);
 
+<<<<<<< HEAD
 	if (par->gpio.cs != -1)
 		gpio_set_value(par->gpio.cs, 0);  /* Activate chip */
 
+=======
+>>>>>>> upstream/android-13
 	write_reg(par, 0x00, 0x0001);
 	write_reg(par, 0x03, 0xA8A4);
 	write_reg(par, 0x0C, 0x0000);
@@ -129,7 +135,11 @@ static int set_var(struct fbtft_par *par)
 #define CURVE(num, idx)  curves[(num) * par->gamma.num_values + (idx)]
 static int set_gamma(struct fbtft_par *par, u32 *curves)
 {
+<<<<<<< HEAD
 	unsigned long mask[] = {
+=======
+	static const unsigned long mask[] = {
+>>>>>>> upstream/android-13
 		0x1f, 0x1f, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
 		0x1f, 0x1f, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07,
 	};

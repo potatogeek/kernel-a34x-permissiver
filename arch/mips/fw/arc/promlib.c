@@ -11,6 +11,24 @@
 #include <asm/bcache.h>
 #include <asm/setup.h>
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_64BIT) && defined(CONFIG_FW_ARC32)
+/*
+ * For 64bit kernels working with a 32bit ARC PROM pointer arguments
+ * for ARC calls need to reside in CKEG0/1. But as soon as the kernel
+ * switches to it's first kernel thread stack is set to an address in
+ * XKPHYS, so anything on stack can't be used anymore. This is solved
+ * by using a * static declartion variables are put into BSS, which is
+ * linked to a CKSEG0 address. Since this is only used on UP platforms
+ * there is not spinlock needed
+ */
+#define O32_STATIC	static
+#else
+#define O32_STATIC
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * IP22 boardcache is not compatible with board caches.	 Thus we disable it
  * during romvec action.  Since r4xx0.c is always compiled and linked with your
@@ -23,8 +41,15 @@
 
 void prom_putchar(char c)
 {
+<<<<<<< HEAD
 	ULONG cnt;
 	CHAR it = c;
+=======
+	O32_STATIC ULONG cnt;
+	O32_STATIC CHAR it;
+
+	it = c;
+>>>>>>> upstream/android-13
 
 	bc_disable();
 	ArcWrite(1, &it, 1, &cnt);
@@ -33,8 +58,13 @@ void prom_putchar(char c)
 
 char prom_getchar(void)
 {
+<<<<<<< HEAD
 	ULONG cnt;
 	CHAR c;
+=======
+	O32_STATIC ULONG cnt;
+	O32_STATIC CHAR c;
+>>>>>>> upstream/android-13
 
 	bc_disable();
 	ArcRead(0, &c, 1, &cnt);

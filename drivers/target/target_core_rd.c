@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_rd.c
  *
@@ -8,6 +12,7 @@
  *
  * Nicholas A. Bellinger <nab@kernel.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/string.h>
@@ -144,7 +151,11 @@ static int rd_allocate_sgl_table(struct rd_dev *rd_dev, struct rd_dev_sg_table *
 		if (sg_per_table < total_sg_needed)
 			chain_entry = 1;
 
+<<<<<<< HEAD
 		sg = kcalloc(sg_per_table + chain_entry, sizeof(*sg),
+=======
+		sg = kmalloc_array(sg_per_table + chain_entry, sizeof(*sg),
+>>>>>>> upstream/android-13
 				GFP_KERNEL);
 		if (!sg)
 			return -ENOMEM;
@@ -543,12 +554,20 @@ rd_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
 }
 
 enum {
+<<<<<<< HEAD
 	Opt_rd_pages, Opt_rd_nullio, Opt_err
+=======
+	Opt_rd_pages, Opt_rd_nullio, Opt_rd_dummy, Opt_err
+>>>>>>> upstream/android-13
 };
 
 static match_table_t tokens = {
 	{Opt_rd_pages, "rd_pages=%d"},
 	{Opt_rd_nullio, "rd_nullio=%d"},
+<<<<<<< HEAD
+=======
+	{Opt_rd_dummy, "rd_dummy=%d"},
+>>>>>>> upstream/android-13
 	{Opt_err, NULL}
 };
 
@@ -587,6 +606,17 @@ static ssize_t rd_set_configfs_dev_params(struct se_device *dev,
 			pr_debug("RAMDISK: Setting NULLIO flag: %d\n", arg);
 			rd_dev->rd_flags |= RDF_NULLIO;
 			break;
+<<<<<<< HEAD
+=======
+		case Opt_rd_dummy:
+			match_int(args, &arg);
+			if (arg != 1)
+				break;
+
+			pr_debug("RAMDISK: Setting DUMMY flag: %d\n", arg);
+			rd_dev->rd_flags |= RDF_DUMMY;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
@@ -603,12 +633,31 @@ static ssize_t rd_show_configfs_dev_params(struct se_device *dev, char *b)
 	ssize_t bl = sprintf(b, "TCM RamDisk ID: %u  RamDisk Makeup: rd_mcp\n",
 			rd_dev->rd_dev_id);
 	bl += sprintf(b + bl, "        PAGES/PAGE_SIZE: %u*%lu"
+<<<<<<< HEAD
 			"  SG_table_count: %u  nullio: %d\n", rd_dev->rd_page_count,
 			PAGE_SIZE, rd_dev->sg_table_count,
 			!!(rd_dev->rd_flags & RDF_NULLIO));
 	return bl;
 }
 
+=======
+			"  SG_table_count: %u  nullio: %d dummy: %d\n",
+			rd_dev->rd_page_count,
+			PAGE_SIZE, rd_dev->sg_table_count,
+			!!(rd_dev->rd_flags & RDF_NULLIO),
+			!!(rd_dev->rd_flags & RDF_DUMMY));
+	return bl;
+}
+
+static u32 rd_get_device_type(struct se_device *dev)
+{
+	if (RD_DEV(dev)->rd_flags & RDF_DUMMY)
+		return 0x3f; /* Unknown device type, not connected */
+	else
+		return sbc_get_device_type(dev);
+}
+
+>>>>>>> upstream/android-13
 static sector_t rd_get_blocks(struct se_device *dev)
 {
 	struct rd_dev *rd_dev = RD_DEV(dev);
@@ -660,7 +709,11 @@ static const struct target_backend_ops rd_mcp_ops = {
 	.parse_cdb		= rd_parse_cdb,
 	.set_configfs_dev_params = rd_set_configfs_dev_params,
 	.show_configfs_dev_params = rd_show_configfs_dev_params,
+<<<<<<< HEAD
 	.get_device_type	= sbc_get_device_type,
+=======
+	.get_device_type	= rd_get_device_type,
+>>>>>>> upstream/android-13
 	.get_blocks		= rd_get_blocks,
 	.init_prot		= rd_init_prot,
 	.free_prot		= rd_free_prot,

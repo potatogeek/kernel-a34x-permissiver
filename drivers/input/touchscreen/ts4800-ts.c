@@ -10,7 +10,10 @@
 
 #include <linux/bitops.h>
 #include <linux/input.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 #include <linux/kernel.h>
 #include <linux/mfd/syscon.h>
@@ -33,7 +36,11 @@
 #define Y_OFFSET		0x2
 
 struct ts4800_ts {
+<<<<<<< HEAD
 	struct input_polled_dev *poll_dev;
+=======
+	struct input_dev        *input;
+>>>>>>> upstream/android-13
 	struct device           *dev;
 	char                    phys[32];
 
@@ -46,14 +53,22 @@ struct ts4800_ts {
 	int                     debounce;
 };
 
+<<<<<<< HEAD
 static void ts4800_ts_open(struct input_polled_dev *dev)
 {
 	struct ts4800_ts *ts = dev->private;
 	int ret;
+=======
+static int ts4800_ts_open(struct input_dev *input_dev)
+{
+	struct ts4800_ts *ts = input_get_drvdata(input_dev);
+	int error;
+>>>>>>> upstream/android-13
 
 	ts->pendown = false;
 	ts->debounce = DEBOUNCE_COUNT;
 
+<<<<<<< HEAD
 	ret = regmap_update_bits(ts->regmap, ts->reg, ts->bit, ts->bit);
 	if (ret)
 		dev_warn(ts->dev, "Failed to enable touchscreen\n");
@@ -62,6 +77,20 @@ static void ts4800_ts_open(struct input_polled_dev *dev)
 static void ts4800_ts_close(struct input_polled_dev *dev)
 {
 	struct ts4800_ts *ts = dev->private;
+=======
+	error = regmap_update_bits(ts->regmap, ts->reg, ts->bit, ts->bit);
+	if (error) {
+		dev_warn(ts->dev, "Failed to enable touchscreen: %d\n", error);
+		return error;
+	}
+
+	return 0;
+}
+
+static void ts4800_ts_close(struct input_dev *input_dev)
+{
+	struct ts4800_ts *ts = input_get_drvdata(input_dev);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = regmap_update_bits(ts->regmap, ts->reg, ts->bit, 0);
@@ -70,10 +99,16 @@ static void ts4800_ts_close(struct input_polled_dev *dev)
 
 }
 
+<<<<<<< HEAD
 static void ts4800_ts_poll(struct input_polled_dev *dev)
 {
 	struct input_dev *input_dev = dev->input;
 	struct ts4800_ts *ts = dev->private;
+=======
+static void ts4800_ts_poll(struct input_dev *input_dev)
+{
+	struct ts4800_ts *ts = input_get_drvdata(input_dev);
+>>>>>>> upstream/android-13
 	u16 last_x = readw(ts->base + X_OFFSET);
 	u16 last_y = readw(ts->base + Y_OFFSET);
 	bool pendown = last_x & PENDOWN_MASK;
@@ -146,9 +181,14 @@ static int ts4800_parse_dt(struct platform_device *pdev,
 
 static int ts4800_ts_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct input_polled_dev *poll_dev;
 	struct ts4800_ts *ts;
 	struct resource *res;
+=======
+	struct input_dev *input_dev;
+	struct ts4800_ts *ts;
+>>>>>>> upstream/android-13
 	int error;
 
 	ts = devm_kzalloc(&pdev->dev, sizeof(*ts), GFP_KERNEL);
@@ -159,6 +199,7 @@ static int ts4800_ts_probe(struct platform_device *pdev)
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ts->base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(ts->base))
@@ -190,6 +231,44 @@ static int ts4800_ts_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev,
 			"Unabled to register polled input device (%d)\n",
 			error);
+=======
+	ts->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(ts->base))
+		return PTR_ERR(ts->base);
+
+	input_dev = devm_input_allocate_device(&pdev->dev);
+	if (!input_dev)
+		return -ENOMEM;
+
+	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&pdev->dev));
+	ts->input = input_dev;
+	ts->dev = &pdev->dev;
+
+	input_set_drvdata(input_dev, ts);
+
+	input_dev->name = "TS-4800 Touchscreen";
+	input_dev->phys = ts->phys;
+
+	input_dev->open = ts4800_ts_open;
+	input_dev->close = ts4800_ts_close;
+
+	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+
+	error = input_setup_polling(input_dev, ts4800_ts_poll);
+	if (error) {
+		dev_err(&pdev->dev, "Unable to set up polling: %d\n", error);
+		return error;
+	}
+
+	input_set_poll_interval(input_dev, POLL_INTERVAL);
+
+	error = input_register_device(input_dev);
+	if (error) {
+		dev_err(&pdev->dev,
+			"Unable to register input device: %d\n", error);
+>>>>>>> upstream/android-13
 		return error;
 	}
 

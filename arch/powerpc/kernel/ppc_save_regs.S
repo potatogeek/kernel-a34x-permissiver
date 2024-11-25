@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 1996 Paul Mackerras.
  *
@@ -6,6 +7,12 @@
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 1996 Paul Mackerras.
+ *
+>>>>>>> upstream/android-13
  * NOTE: assert(sizeof(buf) > 23 * sizeof(long))
  */
 #include <asm/processor.h>
@@ -59,14 +66,25 @@ _GLOBAL(ppc_save_regs)
 	PPC_STL	r29,29*SZL(r3)
 	PPC_STL	r30,30*SZL(r3)
 	PPC_STL	r31,31*SZL(r3)
+<<<<<<< HEAD
+=======
+	lbz	r0,PACAIRQSOFTMASK(r13)
+	PPC_STL	r0,SOFTE-STACK_FRAME_OVERHEAD(r3)
+>>>>>>> upstream/android-13
 #endif
 	/* go up one stack frame for SP */
 	PPC_LL	r4,0(r1)
 	PPC_STL	r4,1*SZL(r3)
 	/* get caller's LR */
 	PPC_LL	r0,LRSAVE(r4)
+<<<<<<< HEAD
 	PPC_STL	r0,_NIP-STACK_FRAME_OVERHEAD(r3)
 	PPC_STL	r0,_LINK-STACK_FRAME_OVERHEAD(r3)
+=======
+	PPC_STL	r0,_LINK-STACK_FRAME_OVERHEAD(r3)
+	mflr	r0
+	PPC_STL	r0,_NIP-STACK_FRAME_OVERHEAD(r3)
+>>>>>>> upstream/android-13
 	mfmsr	r0
 	PPC_STL	r0,_MSR-STACK_FRAME_OVERHEAD(r3)
 	mfctr	r0
@@ -77,4 +95,8 @@ _GLOBAL(ppc_save_regs)
 	PPC_STL	r0,_CCR-STACK_FRAME_OVERHEAD(r3)
 	li	r0,0
 	PPC_STL	r0,_TRAP-STACK_FRAME_OVERHEAD(r3)
+<<<<<<< HEAD
+=======
+	PPC_STL	r0,ORIG_GPR3-STACK_FRAME_OVERHEAD(r3)
+>>>>>>> upstream/android-13
 	blr

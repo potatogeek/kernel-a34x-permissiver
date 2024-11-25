@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hardware monitoring driver for UCD90xxx Sequencer and System Health
  * Controller series
  *
  * Copyright (C) 2011 Ericsson AB.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -28,11 +35,19 @@
 #include <linux/slab.h>
 #include <linux/i2c.h>
 #include <linux/pmbus.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/gpio/driver.h>
 #include "pmbus.h"
 
 enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd9090, ucd90910 };
+=======
+#include <linux/gpio/driver.h>
+#include "pmbus.h"
+
+enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd90320, ucd9090,
+	     ucd90910 };
+>>>>>>> upstream/android-13
 
 #define UCD9000_MONITOR_CONFIG		0xd5
 #define UCD9000_NUM_PAGES		0xd6
@@ -52,7 +67,11 @@ enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd9090, ucd90910 };
 #define UCD9000_GPIO_OUTPUT		1
 
 #define UCD9000_MON_TYPE(x)	(((x) >> 5) & 0x07)
+<<<<<<< HEAD
 #define UCD9000_MON_PAGE(x)	((x) & 0x0f)
+=======
+#define UCD9000_MON_PAGE(x)	((x) & 0x1f)
+>>>>>>> upstream/android-13
 
 #define UCD9000_MON_VOLTAGE	1
 #define UCD9000_MON_TEMPERATURE	2
@@ -64,10 +83,18 @@ enum chips { ucd9000, ucd90120, ucd90124, ucd90160, ucd9090, ucd90910 };
 #define UCD9000_GPIO_NAME_LEN	16
 #define UCD9090_NUM_GPIOS	23
 #define UCD901XX_NUM_GPIOS	26
+<<<<<<< HEAD
+=======
+#define UCD90320_NUM_GPIOS	84
+>>>>>>> upstream/android-13
 #define UCD90910_NUM_GPIOS	26
 
 #define UCD9000_DEBUGFS_NAME_LEN	24
 #define UCD9000_GPI_COUNT		8
+<<<<<<< HEAD
+=======
+#define UCD90320_GPI_COUNT		32
+>>>>>>> upstream/android-13
 
 struct ucd9000_data {
 	u8 fan_data[UCD9000_NUM_FAN][I2C_SMBUS_BLOCK_MAX];
@@ -145,13 +172,21 @@ static const struct i2c_device_id ucd9000_id[] = {
 	{"ucd90120", ucd90120},
 	{"ucd90124", ucd90124},
 	{"ucd90160", ucd90160},
+<<<<<<< HEAD
+=======
+	{"ucd90320", ucd90320},
+>>>>>>> upstream/android-13
 	{"ucd9090", ucd9090},
 	{"ucd90910", ucd90910},
 	{}
 };
 MODULE_DEVICE_TABLE(i2c, ucd9000_id);
 
+<<<<<<< HEAD
 static const struct of_device_id ucd9000_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused ucd9000_of_match[] = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "ti,ucd9000",
 		.data = (void *)ucd9000
@@ -169,6 +204,13 @@ static const struct of_device_id ucd9000_of_match[] = {
 		.data = (void *)ucd90160
 	},
 	{
+<<<<<<< HEAD
+=======
+		.compatible = "ti,ucd90320",
+		.data = (void *)ucd90320
+	},
+	{
+>>>>>>> upstream/android-13
 		.compatible = "ti,ucd9090",
 		.data = (void *)ucd9090
 	},
@@ -336,6 +378,12 @@ static void ucd9000_probe_gpio(struct i2c_client *client,
 	case ucd90160:
 		data->gpio.ngpio = UCD901XX_NUM_GPIOS;
 		break;
+<<<<<<< HEAD
+=======
+	case ucd90320:
+		data->gpio.ngpio = UCD90320_NUM_GPIOS;
+		break;
+>>>>>>> upstream/android-13
 	case ucd90910:
 		data->gpio.ngpio = UCD90910_NUM_GPIOS;
 		break;
@@ -373,7 +421,11 @@ static void ucd9000_probe_gpio(struct i2c_client *client,
 #ifdef CONFIG_DEBUG_FS
 static int ucd9000_get_mfr_status(struct i2c_client *client, u8 *buffer)
 {
+<<<<<<< HEAD
 	int ret = pmbus_set_page(client, 0);
+=======
+	int ret = pmbus_set_page(client, 0, 0xff);
+>>>>>>> upstream/android-13
 
 	if (ret < 0)
 		return ret;
@@ -386,17 +438,29 @@ static int ucd9000_debugfs_show_mfr_status_bit(void *data, u64 *val)
 	struct ucd9000_debugfs_entry *entry = data;
 	struct i2c_client *client = entry->client;
 	u8 buffer[I2C_SMBUS_BLOCK_MAX];
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	ret = ucd9000_get_mfr_status(client, buffer);
 	if (ret < 0)
 		return ret;
 
 	/*
+<<<<<<< HEAD
 	 * Attribute only created for devices with gpi fault bits at bits
 	 * 16-23, which is the second byte of the response.
 	 */
 	*val = !!(buffer[1] & BIT(entry->index));
+=======
+	 * GPI fault bits are in sets of 8, two bytes from end of response.
+	 */
+	i = ret - 3 - entry->index / 8;
+	if (i >= 0)
+		*val = !!(buffer[i] & BIT(entry->index % 8));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -436,7 +500,11 @@ static int ucd9000_init_debugfs(struct i2c_client *client,
 {
 	struct dentry *debugfs;
 	struct ucd9000_debugfs_entry *entries;
+<<<<<<< HEAD
 	int i;
+=======
+	int i, gpi_count;
+>>>>>>> upstream/android-13
 	char name[UCD9000_DEBUGFS_NAME_LEN];
 
 	debugfs = pmbus_get_debugfs_dir(client);
@@ -449,6 +517,7 @@ static int ucd9000_init_debugfs(struct i2c_client *client,
 
 	/*
 	 * Of the chips this driver supports, only the UCD9090, UCD90160,
+<<<<<<< HEAD
 	 * and UCD90910 report GPI faults in their MFR_STATUS register, so only
 	 * create the GPI fault debugfs attributes for those chips.
 	 */
@@ -456,11 +525,27 @@ static int ucd9000_init_debugfs(struct i2c_client *client,
 	    mid->driver_data == ucd90910) {
 		entries = devm_kcalloc(&client->dev,
 				       UCD9000_GPI_COUNT, sizeof(*entries),
+=======
+	 * UCD90320, and UCD90910 report GPI faults in their MFR_STATUS
+	 * register, so only create the GPI fault debugfs attributes for those
+	 * chips.
+	 */
+	if (mid->driver_data == ucd9090 || mid->driver_data == ucd90160 ||
+	    mid->driver_data == ucd90320 || mid->driver_data == ucd90910) {
+		gpi_count = mid->driver_data == ucd90320 ? UCD90320_GPI_COUNT
+							 : UCD9000_GPI_COUNT;
+		entries = devm_kcalloc(&client->dev,
+				       gpi_count, sizeof(*entries),
+>>>>>>> upstream/android-13
 				       GFP_KERNEL);
 		if (!entries)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		for (i = 0; i < UCD9000_GPI_COUNT; i++) {
+=======
+		for (i = 0; i < gpi_count; i++) {
+>>>>>>> upstream/android-13
 			entries[i].client = client;
 			entries[i].index = i;
 			scnprintf(name, UCD9000_DEBUGFS_NAME_LEN,
@@ -486,8 +571,12 @@ static int ucd9000_init_debugfs(struct i2c_client *client,
 }
 #endif /* CONFIG_DEBUG_FS */
 
+<<<<<<< HEAD
 static int ucd9000_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int ucd9000_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	u8 block_buffer[I2C_SMBUS_BLOCK_MAX + 1];
 	struct ucd9000_data *data;
@@ -522,12 +611,21 @@ static int ucd9000_probe(struct i2c_client *client,
 	if (client->dev.of_node)
 		chip = (enum chips)of_device_get_match_data(&client->dev);
 	else
+<<<<<<< HEAD
 		chip = id->driver_data;
 
 	if (chip != ucd9000 && chip != mid->driver_data)
 		dev_notice(&client->dev,
 			   "Device mismatch: Configured %s, detected %s\n",
 			   id->name, mid->name);
+=======
+		chip = mid->driver_data;
+
+	if (chip != ucd9000 && strcmp(client->name, mid->name) != 0)
+		dev_notice(&client->dev,
+			   "Device mismatch: Configured %s, detected %s\n",
+			   client->name, mid->name);
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(&client->dev, sizeof(struct ucd9000_data),
 			    GFP_KERNEL);
@@ -602,7 +700,11 @@ static int ucd9000_probe(struct i2c_client *client,
 
 	ucd9000_probe_gpio(client, mid, data);
 
+<<<<<<< HEAD
 	ret = pmbus_do_probe(client, mid, info);
+=======
+	ret = pmbus_do_probe(client, info);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -620,8 +722,12 @@ static struct i2c_driver ucd9000_driver = {
 		.name = "ucd9000",
 		.of_match_table = of_match_ptr(ucd9000_of_match),
 	},
+<<<<<<< HEAD
 	.probe = ucd9000_probe,
 	.remove = pmbus_do_remove,
+=======
+	.probe_new = ucd9000_probe,
+>>>>>>> upstream/android-13
 	.id_table = ucd9000_id,
 };
 
@@ -630,3 +736,7 @@ module_i2c_driver(ucd9000_driver);
 MODULE_AUTHOR("Guenter Roeck");
 MODULE_DESCRIPTION("PMBus driver for TI UCD90xxx");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(PMBUS);
+>>>>>>> upstream/android-13

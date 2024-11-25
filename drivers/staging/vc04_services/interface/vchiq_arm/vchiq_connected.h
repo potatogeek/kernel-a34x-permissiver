@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2010-2012 Broadcom. All rights reserved.
  *
@@ -30,10 +31,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/* Copyright (c) 2010-2012 Broadcom. All rights reserved. */
+>>>>>>> upstream/android-13
 
 #ifndef VCHIQ_CONNECTED_H
 #define VCHIQ_CONNECTED_H
 
+<<<<<<< HEAD
 /* ---- Include Files ----------------------------------------------------- */
 
 /* ---- Constants and Types ---------------------------------------------- */
@@ -44,6 +50,10 @@ typedef void (*VCHIQ_CONNECTED_CALLBACK_T)(void);
 
 /* ---- Function Prototypes ---------------------------------------------- */
 
+=======
+typedef void (*VCHIQ_CONNECTED_CALLBACK_T)(void);
+
+>>>>>>> upstream/android-13
 void vchiq_add_connected_callback(VCHIQ_CONNECTED_CALLBACK_T callback);
 void vchiq_call_connected_callbacks(void);
 

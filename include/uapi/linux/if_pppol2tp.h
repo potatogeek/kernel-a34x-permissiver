@@ -75,7 +75,11 @@ struct pppol2tpv3in6_addr {
 };
 
 /* Socket options:
+<<<<<<< HEAD
  * DEBUG	- bitmask of debug message categories
+=======
+ * DEBUG	- bitmask of debug message categories (not used)
+>>>>>>> upstream/android-13
  * SENDSEQ	- 0 => don't send packets with sequence numbers
  *		  1 => send packets with sequence numbers
  * RECVSEQ	- 0 => receive packet sequence numbers are optional

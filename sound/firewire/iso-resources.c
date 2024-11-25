@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * isochronous resources helper functions
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>

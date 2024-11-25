@@ -3,7 +3,11 @@
  *
  * Module Name: evgpe - General Purpose Event handling and dispatch
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -656,14 +660,22 @@ acpi_ev_detect_gpe(struct acpi_namespace_node *gpe_device,
 
 	/* GPE currently enabled (enable bit == 1)? */
 
+<<<<<<< HEAD
 	status = acpi_hw_read(&enable_reg, &gpe_register_info->enable_address);
+=======
+	status = acpi_hw_gpe_read(&enable_reg, &gpe_register_info->enable_address);
+>>>>>>> upstream/android-13
 	if (ACPI_FAILURE(status)) {
 		goto error_exit;
 	}
 
 	/* GPE currently active (status bit == 1)? */
 
+<<<<<<< HEAD
 	status = acpi_hw_read(&status_reg, &gpe_register_info->status_address);
+=======
+	status = acpi_hw_gpe_read(&status_reg, &gpe_register_info->status_address);
+>>>>>>> upstream/android-13
 	if (ACPI_FAILURE(status)) {
 		goto error_exit;
 	}
@@ -807,7 +819,11 @@ acpi_ev_gpe_dispatch(struct acpi_namespace_node *gpe_device,
 							      dispatch.handler->
 							      context);
 
+<<<<<<< HEAD
 		/* If requested, clear (if level-triggered) and reenable the GPE */
+=======
+		/* If requested, clear (if level-triggered) and re-enable the GPE */
+>>>>>>> upstream/android-13
 
 		if (return_value & ACPI_REENABLE_GPE) {
 			(void)acpi_ev_finish_gpe(gpe_event_info);

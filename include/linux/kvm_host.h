@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef __KVM_HOST_H
 #define __KVM_HOST_H
 
@@ -5,6 +6,12 @@
  * This work is licensed under the terms of the GNU GPL, version 2.  See
  * the COPYING file in the top-level directory.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+#ifndef __KVM_HOST_H
+#define __KVM_HOST_H
+
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 #include <linux/hardirq.h>
@@ -13,9 +20,19 @@
 #include <linux/spinlock.h>
 #include <linux/signal.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <linux/bug.h>
 #include <linux/mm.h>
 #include <linux/mmu_notifier.h>
+=======
+#include <linux/sched/stat.h>
+#include <linux/bug.h>
+#include <linux/minmax.h>
+#include <linux/mm.h>
+#include <linux/mmu_notifier.h>
+#include <linux/ftrace.h>
+#include <linux/instrumentation.h>
+>>>>>>> upstream/android-13
 #include <linux/preempt.h>
 #include <linux/msi.h>
 #include <linux/slab.h>
@@ -26,9 +43,16 @@
 #include <linux/irqflags.h>
 #include <linux/context_tracking.h>
 #include <linux/irqbypass.h>
+<<<<<<< HEAD
 #include <linux/swait.h>
 #include <linux/refcount.h>
 #include <linux/nospec.h>
+=======
+#include <linux/rcuwait.h>
+#include <linux/refcount.h>
+#include <linux/nospec.h>
+#include <linux/notifier.h>
+>>>>>>> upstream/android-13
 #include <asm/signal.h>
 
 #include <linux/kvm.h>
@@ -37,6 +61,10 @@
 #include <linux/kvm_types.h>
 
 #include <asm/kvm_host.h>
+<<<<<<< HEAD
+=======
+#include <linux/kvm_dirty_ring.h>
+>>>>>>> upstream/android-13
 
 #ifndef KVM_MAX_VCPU_ID
 #define KVM_MAX_VCPU_ID KVM_MAX_VCPUS
@@ -49,6 +77,30 @@
  */
 #define KVM_MEMSLOT_INVALID	(1UL << 16)
 
+<<<<<<< HEAD
+=======
+/*
+ * Bit 63 of the memslot generation number is an "update in-progress flag",
+ * e.g. is temporarily set for the duration of install_new_memslots().
+ * This flag effectively creates a unique generation number that is used to
+ * mark cached memslot data, e.g. MMIO accesses, as potentially being stale,
+ * i.e. may (or may not) have come from the previous memslots generation.
+ *
+ * This is necessary because the actual memslots update is not atomic with
+ * respect to the generation number update.  Updating the generation number
+ * first would allow a vCPU to cache a spte from the old memslots using the
+ * new generation number, and updating the generation number after switching
+ * to the new memslots would allow cache hits using the old generation number
+ * to reference the defunct memslots.
+ *
+ * This mechanism is used to prevent getting hits in KVM's caches while a
+ * memslot update is in-progress, and to prevent cache hits *after* updating
+ * the actual generation number against accesses that were inserted into the
+ * cache *before* the memslots were updated.
+ */
+#define KVM_MEMSLOT_GEN_UPDATE_IN_PROGRESS	BIT_ULL(63)
+
+>>>>>>> upstream/android-13
 /* Two fragments for cross MMIO pages. */
 #define KVM_MAX_MMIO_FRAGMENTS	2
 
@@ -126,21 +178,46 @@ static inline bool is_error_page(struct page *page)
  */
 #define KVM_REQ_TLB_FLUSH         (0 | KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
 #define KVM_REQ_MMU_RELOAD        (1 | KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
+<<<<<<< HEAD
 #define KVM_REQ_PENDING_TIMER     2
 #define KVM_REQ_UNHALT            3
 #define KVM_REQUEST_ARCH_BASE     8
 
 #define KVM_ARCH_REQ_FLAGS(nr, flags) ({ \
 	BUILD_BUG_ON((unsigned)(nr) >= (FIELD_SIZEOF(struct kvm_vcpu, requests) * 8) - KVM_REQUEST_ARCH_BASE); \
+=======
+#define KVM_REQ_UNBLOCK           2
+#define KVM_REQ_UNHALT            3
+#define KVM_REQ_VM_BUGGED         (4 | KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
+#define KVM_REQUEST_ARCH_BASE     8
+
+#define KVM_ARCH_REQ_FLAGS(nr, flags) ({ \
+	BUILD_BUG_ON((unsigned)(nr) >= (sizeof_field(struct kvm_vcpu, requests) * 8) - KVM_REQUEST_ARCH_BASE); \
+>>>>>>> upstream/android-13
 	(unsigned)(((nr) + KVM_REQUEST_ARCH_BASE) | (flags)); \
 })
 #define KVM_ARCH_REQ(nr)           KVM_ARCH_REQ_FLAGS(nr, 0)
 
+<<<<<<< HEAD
 #define KVM_USERSPACE_IRQ_SOURCE_ID		0
 #define KVM_IRQFD_RESAMPLE_IRQ_SOURCE_ID	1
 
 extern struct kmem_cache *kvm_vcpu_cache;
 
+=======
+bool kvm_make_vcpus_request_mask(struct kvm *kvm, unsigned int req,
+				 struct kvm_vcpu *except,
+				 unsigned long *vcpu_bitmap, cpumask_var_t tmp);
+bool kvm_make_all_cpus_request(struct kvm *kvm, unsigned int req);
+bool kvm_make_all_cpus_request_except(struct kvm *kvm, unsigned int req,
+				      struct kvm_vcpu *except);
+bool kvm_make_cpus_request_mask(struct kvm *kvm, unsigned int req,
+				unsigned long *vcpu_bitmap);
+
+#define KVM_USERSPACE_IRQ_SOURCE_ID		0
+#define KVM_IRQFD_RESAMPLE_IRQ_SOURCE_ID	1
+
+>>>>>>> upstream/android-13
 extern struct mutex kvm_lock;
 extern struct list_head vm_list;
 
@@ -174,8 +251,13 @@ int kvm_io_bus_read(struct kvm_vcpu *vcpu, enum kvm_bus bus_idx, gpa_t addr,
 		    int len, void *val);
 int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
 			    int len, struct kvm_io_device *dev);
+<<<<<<< HEAD
 void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
 			       struct kvm_io_device *dev);
+=======
+int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+			      struct kvm_io_device *dev);
+>>>>>>> upstream/android-13
 struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
 					 gpa_t addr);
 
@@ -190,15 +272,41 @@ struct kvm_async_pf {
 	unsigned long addr;
 	struct kvm_arch_async_pf arch;
 	bool   wakeup_all;
+<<<<<<< HEAD
+=======
+	bool notpresent_injected;
+>>>>>>> upstream/android-13
 };
 
 void kvm_clear_async_pf_completion_queue(struct kvm_vcpu *vcpu);
 void kvm_check_async_pf_completion(struct kvm_vcpu *vcpu);
+<<<<<<< HEAD
 int kvm_setup_async_pf(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
 		       unsigned long hva, struct kvm_arch_async_pf *arch);
 int kvm_async_pf_wakeup_all(struct kvm_vcpu *vcpu);
 #endif
 
+=======
+bool kvm_setup_async_pf(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+			unsigned long hva, struct kvm_arch_async_pf *arch);
+int kvm_async_pf_wakeup_all(struct kvm_vcpu *vcpu);
+#endif
+
+#ifdef KVM_ARCH_WANT_MMU_NOTIFIER
+struct kvm_gfn_range {
+	struct kvm_memory_slot *slot;
+	gfn_t start;
+	gfn_t end;
+	pte_t pte;
+	bool may_block;
+};
+bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range);
+bool kvm_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range);
+bool kvm_test_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range);
+bool kvm_set_spte_gfn(struct kvm *kvm, struct kvm_gfn_range *range);
+#endif
+
+>>>>>>> upstream/android-13
 enum {
 	OUTSIDE_GUEST_MODE,
 	IN_GUEST_MODE,
@@ -232,6 +340,14 @@ static inline bool kvm_vcpu_mapped(struct kvm_host_map *map)
 	return !!map->hva;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool kvm_vcpu_can_poll(ktime_t cur, ktime_t stop)
+{
+	return single_task_running() && !need_resched() && ktime_before(cur, stop);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Sometimes a large or cross-page mmio needs to be broken up into separate
  * exits for userspace servicing.
@@ -248,7 +364,12 @@ struct kvm_vcpu {
 	struct preempt_notifier preempt_notifier;
 #endif
 	int cpu;
+<<<<<<< HEAD
 	int vcpu_id;
+=======
+	int vcpu_id; /* id given by userspace at creation */
+	int vcpu_idx; /* index in kvm->vcpus array */
+>>>>>>> upstream/android-13
 	int srcu_idx;
 	int mode;
 	u64 requests;
@@ -260,12 +381,19 @@ struct kvm_vcpu {
 	struct mutex mutex;
 	struct kvm_run *run;
 
+<<<<<<< HEAD
 	int guest_xcr0_loaded;
 	struct swait_queue_head wq;
 	struct pid __rcu *pid;
 	int sigset_active;
 	sigset_t sigset;
 	struct kvm_vcpu_stat stat;
+=======
+	struct rcuwait wait;
+	struct pid __rcu *pid;
+	int sigset_active;
+	sigset_t sigset;
+>>>>>>> upstream/android-13
 	unsigned int halt_poll_ns;
 	bool valid_wakeup;
 
@@ -300,10 +428,176 @@ struct kvm_vcpu {
 	} spin_loop;
 #endif
 	bool preempted;
+<<<<<<< HEAD
 	struct kvm_vcpu_arch arch;
 	struct dentry *debugfs_dentry;
 };
 
+=======
+	bool ready;
+	struct kvm_vcpu_arch arch;
+	struct kvm_vcpu_stat stat;
+	char stats_id[KVM_STATS_NAME_SIZE];
+	struct kvm_dirty_ring dirty_ring;
+
+	/*
+	 * The index of the most recently used memslot by this vCPU. It's ok
+	 * if this becomes stale due to memslot changes since we always check
+	 * it is a valid slot.
+	 */
+	int last_used_slot;
+};
+
+/*
+ * Start accounting time towards a guest.
+ * Must be called before entering guest context.
+ */
+static __always_inline void guest_timing_enter_irqoff(void)
+{
+	/*
+	 * This is running in ioctl context so its safe to assume that it's the
+	 * stime pending cputime to flush.
+	 */
+	instrumentation_begin();
+	vtime_account_guest_enter();
+	instrumentation_end();
+}
+
+/*
+ * Enter guest context and enter an RCU extended quiescent state.
+ *
+ * Between guest_context_enter_irqoff() and guest_context_exit_irqoff() it is
+ * unsafe to use any code which may directly or indirectly use RCU, tracing
+ * (including IRQ flag tracing), or lockdep. All code in this period must be
+ * non-instrumentable.
+ */
+static __always_inline void guest_context_enter_irqoff(void)
+{
+	/*
+	 * KVM does not hold any references to rcu protected data when it
+	 * switches CPU into a guest mode. In fact switching to a guest mode
+	 * is very similar to exiting to userspace from rcu point of view. In
+	 * addition CPU may stay in a guest mode for quite a long time (up to
+	 * one time slice). Lets treat guest mode as quiescent state, just like
+	 * we do with user-mode execution.
+	 */
+	if (!context_tracking_guest_enter()) {
+		instrumentation_begin();
+		rcu_virt_note_context_switch(smp_processor_id());
+		instrumentation_end();
+	}
+}
+
+/*
+ * Deprecated. Architectures should move to guest_timing_enter_irqoff() and
+ * guest_state_enter_irqoff().
+ */
+static __always_inline void guest_enter_irqoff(void)
+{
+	guest_timing_enter_irqoff();
+	guest_context_enter_irqoff();
+}
+
+/**
+ * guest_state_enter_irqoff - Fixup state when entering a guest
+ *
+ * Entry to a guest will enable interrupts, but the kernel state is interrupts
+ * disabled when this is invoked. Also tell RCU about it.
+ *
+ * 1) Trace interrupts on state
+ * 2) Invoke context tracking if enabled to adjust RCU state
+ * 3) Tell lockdep that interrupts are enabled
+ *
+ * Invoked from architecture specific code before entering a guest.
+ * Must be called with interrupts disabled and the caller must be
+ * non-instrumentable.
+ * The caller has to invoke guest_timing_enter_irqoff() before this.
+ *
+ * Note: this is analogous to exit_to_user_mode().
+ */
+static __always_inline void guest_state_enter_irqoff(void)
+{
+	instrumentation_begin();
+	trace_hardirqs_on_prepare();
+	lockdep_hardirqs_on_prepare(CALLER_ADDR0);
+	instrumentation_end();
+
+	guest_context_enter_irqoff();
+	lockdep_hardirqs_on(CALLER_ADDR0);
+}
+
+/*
+ * Exit guest context and exit an RCU extended quiescent state.
+ *
+ * Between guest_context_enter_irqoff() and guest_context_exit_irqoff() it is
+ * unsafe to use any code which may directly or indirectly use RCU, tracing
+ * (including IRQ flag tracing), or lockdep. All code in this period must be
+ * non-instrumentable.
+ */
+static __always_inline void guest_context_exit_irqoff(void)
+{
+	context_tracking_guest_exit();
+}
+
+/*
+ * Stop accounting time towards a guest.
+ * Must be called after exiting guest context.
+ */
+static __always_inline void guest_timing_exit_irqoff(void)
+{
+	instrumentation_begin();
+	/* Flush the guest cputime we spent on the guest */
+	vtime_account_guest_exit();
+	instrumentation_end();
+}
+
+/*
+ * Deprecated. Architectures should move to guest_state_exit_irqoff() and
+ * guest_timing_exit_irqoff().
+ */
+static __always_inline void guest_exit_irqoff(void)
+{
+	guest_context_exit_irqoff();
+	guest_timing_exit_irqoff();
+}
+
+static inline void guest_exit(void)
+{
+	unsigned long flags;
+
+	local_irq_save(flags);
+	guest_exit_irqoff();
+	local_irq_restore(flags);
+}
+
+/**
+ * guest_state_exit_irqoff - Establish state when returning from guest mode
+ *
+ * Entry from a guest disables interrupts, but guest mode is traced as
+ * interrupts enabled. Also with NO_HZ_FULL RCU might be idle.
+ *
+ * 1) Tell lockdep that interrupts are disabled
+ * 2) Invoke context tracking if enabled to reactivate RCU
+ * 3) Trace interrupts off state
+ *
+ * Invoked from architecture specific code after exiting a guest.
+ * Must be invoked with interrupts disabled and the caller must be
+ * non-instrumentable.
+ * The caller has to invoke guest_timing_exit_irqoff() after this.
+ *
+ * Note: this is analogous to enter_from_user_mode().
+ */
+static __always_inline void guest_state_exit_irqoff(void)
+{
+	lockdep_hardirqs_off(CALLER_ADDR0);
+	guest_context_exit_irqoff();
+
+	instrumentation_begin();
+	trace_hardirqs_off_finish();
+	instrumentation_end();
+}
+
+>>>>>>> upstream/android-13
 static inline int kvm_vcpu_exiting_guest_mode(struct kvm_vcpu *vcpu)
 {
 	/*
@@ -329,8 +623,19 @@ struct kvm_memory_slot {
 	unsigned long userspace_addr;
 	u32 flags;
 	short id;
+<<<<<<< HEAD
 };
 
+=======
+	u16 as_id;
+};
+
+static inline bool kvm_slot_dirty_track_enabled(struct kvm_memory_slot *slot)
+{
+	return slot->flags & KVM_MEM_LOG_DIRTY_PAGES;
+}
+
+>>>>>>> upstream/android-13
 static inline unsigned long kvm_dirty_bitmap_bytes(struct kvm_memory_slot *memslot)
 {
 	return ALIGN(memslot->npages, BITS_PER_LONG) / 8;
@@ -343,6 +648,13 @@ static inline unsigned long *kvm_second_dirty_bitmap(struct kvm_memory_slot *mem
 	return memslot->dirty_bitmap + len / sizeof(*memslot->dirty_bitmap);
 }
 
+<<<<<<< HEAD
+=======
+#ifndef KVM_DIRTY_LOG_MANUAL_CAPS
+#define KVM_DIRTY_LOG_MANUAL_CAPS KVM_DIRTY_LOG_MANUAL_PROTECT_ENABLE
+#endif
+
+>>>>>>> upstream/android-13
 struct kvm_s390_adapter_int {
 	u64 ind_addr;
 	u64 summary_addr;
@@ -388,7 +700,11 @@ struct kvm_irq_routing_table {
 	 * Array indexed by gsi. Each entry contains list of irq chips
 	 * the gsi is connected to.
 	 */
+<<<<<<< HEAD
 	struct hlist_head map[0];
+=======
+	struct hlist_head map[];
+>>>>>>> upstream/android-13
 };
 #endif
 
@@ -396,9 +712,14 @@ struct kvm_irq_routing_table {
 #define KVM_PRIVATE_MEM_SLOTS 0
 #endif
 
+<<<<<<< HEAD
 #ifndef KVM_MEM_SLOTS_NUM
 #define KVM_MEM_SLOTS_NUM (KVM_USER_MEM_SLOTS + KVM_PRIVATE_MEM_SLOTS)
 #endif
+=======
+#define KVM_MEM_SLOTS_NUM SHRT_MAX
+#define KVM_USER_MEM_SLOTS (KVM_MEM_SLOTS_NUM - KVM_PRIVATE_MEM_SLOTS)
+>>>>>>> upstream/android-13
 
 #ifndef __KVM_VCPU_MULTIPLE_ADDRESS_SPACE
 static inline int kvm_arch_vcpu_memslots_id(struct kvm_vcpu *vcpu)
@@ -414,6 +735,7 @@ static inline int kvm_arch_vcpu_memslots_id(struct kvm_vcpu *vcpu)
  */
 struct kvm_memslots {
 	u64 generation;
+<<<<<<< HEAD
 	struct kvm_memory_slot memslots[KVM_MEM_SLOTS_NUM];
 	/* The mapping table from slot id to the index in memslots[]. */
 	short id_to_index[KVM_MEM_SLOTS_NUM];
@@ -424,10 +746,44 @@ struct kvm_memslots {
 struct kvm {
 	spinlock_t mmu_lock;
 	struct mutex slots_lock;
+=======
+	/* The mapping table from slot id to the index in memslots[]. */
+	short id_to_index[KVM_MEM_SLOTS_NUM];
+	atomic_t last_used_slot;
+	int used_slots;
+	struct kvm_memory_slot memslots[];
+};
+
+struct kvm {
+#ifdef KVM_HAVE_MMU_RWLOCK
+	rwlock_t mmu_lock;
+#else
+	spinlock_t mmu_lock;
+#endif /* KVM_HAVE_MMU_RWLOCK */
+
+	struct mutex slots_lock;
+
+	/*
+	 * Protects the arch-specific fields of struct kvm_memory_slots in
+	 * use by the VM. To be used under the slots_lock (above) or in a
+	 * kvm->srcu critical section where acquiring the slots_lock would
+	 * lead to deadlock with the synchronize_srcu in
+	 * install_new_memslots.
+	 */
+	struct mutex slots_arch_lock;
+>>>>>>> upstream/android-13
 	struct mm_struct *mm; /* userspace tied to this vm */
 	struct kvm_memslots __rcu *memslots[KVM_ADDRESS_SPACE_NUM];
 	struct kvm_vcpu *vcpus[KVM_MAX_VCPUS];
 
+<<<<<<< HEAD
+=======
+	/* Used to wait for completion of MMU notifiers.  */
+	spinlock_t mn_invalidate_lock;
+	unsigned long mn_active_invalidate_count;
+	struct rcuwait mn_memslots_update_rcuwait;
+
+>>>>>>> upstream/android-13
 	/*
 	 * created_vcpus is protected by kvm->lock, and is incremented
 	 * at the beginning of KVM_CREATE_VCPU.  online_vcpus is only
@@ -473,14 +829,33 @@ struct kvm {
 	struct mmu_notifier mmu_notifier;
 	unsigned long mmu_notifier_seq;
 	long mmu_notifier_count;
+<<<<<<< HEAD
 #endif
 	long tlbs_dirty;
 	struct list_head devices;
+=======
+	unsigned long mmu_notifier_range_start;
+	unsigned long mmu_notifier_range_end;
+#endif
+	struct list_head devices;
+	u64 manual_dirty_log_protect;
+>>>>>>> upstream/android-13
 	struct dentry *debugfs_dentry;
 	struct kvm_stat_data **debugfs_stat_data;
 	struct srcu_struct srcu;
 	struct srcu_struct irq_srcu;
 	pid_t userspace_pid;
+<<<<<<< HEAD
+=======
+	unsigned int max_halt_poll_ns;
+	u32 dirty_ring_size;
+	bool vm_bugged;
+
+#ifdef CONFIG_HAVE_KVM_PM_NOTIFIER
+	struct notifier_block pm_notifier;
+#endif
+	char stats_id[KVM_STATS_NAME_SIZE];
+>>>>>>> upstream/android-13
 };
 
 #define kvm_err(fmt, ...) \
@@ -509,6 +884,38 @@ struct kvm {
 #define vcpu_err(vcpu, fmt, ...)					\
 	kvm_err("vcpu%i " fmt, (vcpu)->vcpu_id, ## __VA_ARGS__)
 
+<<<<<<< HEAD
+=======
+static inline void kvm_vm_bugged(struct kvm *kvm)
+{
+	kvm->vm_bugged = true;
+	kvm_make_all_cpus_request(kvm, KVM_REQ_VM_BUGGED);
+}
+
+#define KVM_BUG(cond, kvm, fmt...)				\
+({								\
+	int __ret = (cond);					\
+								\
+	if (WARN_ONCE(__ret && !(kvm)->vm_bugged, fmt))		\
+		kvm_vm_bugged(kvm);				\
+	unlikely(__ret);					\
+})
+
+#define KVM_BUG_ON(cond, kvm)					\
+({								\
+	int __ret = (cond);					\
+								\
+	if (WARN_ON_ONCE(__ret && !(kvm)->vm_bugged))		\
+		kvm_vm_bugged(kvm);				\
+	unlikely(__ret);					\
+})
+
+static inline bool kvm_dirty_log_manual_protect_and_init_set(struct kvm *kvm)
+{
+	return !!(kvm->manual_dirty_log_protect & KVM_DIRTY_LOG_INITIALLY_SET);
+}
+
+>>>>>>> upstream/android-13
 static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
 {
 	return srcu_dereference_check(kvm->buses[idx], &kvm->srcu,
@@ -549,6 +956,7 @@ static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
 {
 	struct kvm_vcpu *tmp;
@@ -567,6 +975,15 @@ static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
 
 int kvm_vcpu_init(struct kvm_vcpu *vcpu, struct kvm *kvm, unsigned id);
 void kvm_vcpu_uninit(struct kvm_vcpu *vcpu);
+=======
+#define kvm_for_each_memslot(memslot, slots)				\
+	for (memslot = &slots->memslots[0];				\
+	     memslot < slots->memslots + slots->used_slots; memslot++)	\
+		if (WARN_ON_ONCE(!memslot->npages)) {			\
+		} else
+
+void kvm_vcpu_destroy(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 
 void vcpu_load(struct kvm_vcpu *vcpu);
 void vcpu_put(struct kvm_vcpu *vcpu);
@@ -601,7 +1018,14 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
 void kvm_exit(void);
 
 void kvm_get_kvm(struct kvm *kvm);
+<<<<<<< HEAD
 void kvm_put_kvm(struct kvm *kvm);
+=======
+bool kvm_get_kvm_safe(struct kvm *kvm);
+void kvm_put_kvm(struct kvm *kvm);
+bool file_is_kvm(struct file *file);
+void kvm_put_kvm_no_destroy(struct kvm *kvm);
+>>>>>>> upstream/android-13
 
 static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
 {
@@ -623,12 +1047,23 @@ static inline struct kvm_memslots *kvm_vcpu_memslots(struct kvm_vcpu *vcpu)
 	return __kvm_memslots(vcpu->kvm, as_id);
 }
 
+<<<<<<< HEAD
 static inline struct kvm_memory_slot *
 id_to_memslot(struct kvm_memslots *slots, int id)
+=======
+static inline
+struct kvm_memory_slot *id_to_memslot(struct kvm_memslots *slots, int id)
+>>>>>>> upstream/android-13
 {
 	int index = slots->id_to_index[id];
 	struct kvm_memory_slot *slot;
 
+<<<<<<< HEAD
+=======
+	if (index < 0)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	slot = &slots->memslots[index];
 
 	WARN_ON(slot->id != id);
@@ -657,10 +1092,14 @@ int kvm_set_memory_region(struct kvm *kvm,
 			  const struct kvm_userspace_memory_region *mem);
 int __kvm_set_memory_region(struct kvm *kvm,
 			    const struct kvm_userspace_memory_region *mem);
+<<<<<<< HEAD
 void kvm_arch_free_memslot(struct kvm *kvm, struct kvm_memory_slot *free,
 			   struct kvm_memory_slot *dont);
 int kvm_arch_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
 			    unsigned long npages);
+=======
+void kvm_arch_free_memslot(struct kvm *kvm, struct kvm_memory_slot *slot);
+>>>>>>> upstream/android-13
 void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen);
 int kvm_arch_prepare_memory_region(struct kvm *kvm,
 				struct kvm_memory_slot *memslot,
@@ -668,11 +1107,17 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
 				enum kvm_mr_change change);
 void kvm_arch_commit_memory_region(struct kvm *kvm,
 				const struct kvm_userspace_memory_region *mem,
+<<<<<<< HEAD
 				const struct kvm_memory_slot *old,
 				const struct kvm_memory_slot *new,
 				enum kvm_mr_change change);
 bool kvm_largepages_enabled(void);
 void kvm_disable_largepages(void);
+=======
+				struct kvm_memory_slot *old,
+				const struct kvm_memory_slot *new,
+				enum kvm_mr_change change);
+>>>>>>> upstream/android-13
 /* flush all memory translations */
 void kvm_arch_flush_shadow_all(struct kvm *kvm);
 /* flush memory translations pointing to 'slot' */
@@ -692,7 +1137,10 @@ void kvm_release_page_clean(struct page *page);
 void kvm_release_page_dirty(struct page *page);
 void kvm_set_page_accessed(struct page *page);
 
+<<<<<<< HEAD
 kvm_pfn_t gfn_to_pfn_atomic(struct kvm *kvm, gfn_t gfn);
+=======
+>>>>>>> upstream/android-13
 kvm_pfn_t gfn_to_pfn(struct kvm *kvm, gfn_t gfn);
 kvm_pfn_t gfn_to_pfn_prot(struct kvm *kvm, gfn_t gfn, bool write_fault,
 		      bool *writable);
@@ -700,22 +1148,38 @@ kvm_pfn_t gfn_to_pfn_memslot(struct kvm_memory_slot *slot, gfn_t gfn);
 kvm_pfn_t gfn_to_pfn_memslot_atomic(struct kvm_memory_slot *slot, gfn_t gfn);
 kvm_pfn_t __gfn_to_pfn_memslot(struct kvm_memory_slot *slot, gfn_t gfn,
 			       bool atomic, bool *async, bool write_fault,
+<<<<<<< HEAD
 			       bool *writable);
+=======
+			       bool *writable, hva_t *hva);
+>>>>>>> upstream/android-13
 
 void kvm_release_pfn_clean(kvm_pfn_t pfn);
 void kvm_release_pfn_dirty(kvm_pfn_t pfn);
 void kvm_set_pfn_dirty(kvm_pfn_t pfn);
 void kvm_set_pfn_accessed(kvm_pfn_t pfn);
+<<<<<<< HEAD
 void kvm_get_pfn(kvm_pfn_t pfn);
+=======
+>>>>>>> upstream/android-13
 
 void kvm_release_pfn(kvm_pfn_t pfn, bool dirty, struct gfn_to_pfn_cache *cache);
 int kvm_read_guest_page(struct kvm *kvm, gfn_t gfn, void *data, int offset,
 			int len);
+<<<<<<< HEAD
 int kvm_read_guest_atomic(struct kvm *kvm, gpa_t gpa, void *data,
 			  unsigned long len);
 int kvm_read_guest(struct kvm *kvm, gpa_t gpa, void *data, unsigned long len);
 int kvm_read_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
 			   void *data, unsigned long len);
+=======
+int kvm_read_guest(struct kvm *kvm, gpa_t gpa, void *data, unsigned long len);
+int kvm_read_guest_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+			   void *data, unsigned long len);
+int kvm_read_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
+				 void *data, unsigned int offset,
+				 unsigned long len);
+>>>>>>> upstream/android-13
 int kvm_write_guest_page(struct kvm *kvm, gfn_t gfn, const void *data,
 			 int offset, int len);
 int kvm_write_guest(struct kvm *kvm, gpa_t gpa, const void *data,
@@ -727,11 +1191,63 @@ int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
 				  unsigned long len);
 int kvm_gfn_to_hva_cache_init(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
 			      gpa_t gpa, unsigned long len);
+<<<<<<< HEAD
 int kvm_clear_guest_page(struct kvm *kvm, gfn_t gfn, int offset, int len);
 int kvm_clear_guest(struct kvm *kvm, gpa_t gpa, unsigned long len);
 struct kvm_memory_slot *gfn_to_memslot(struct kvm *kvm, gfn_t gfn);
 bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn);
 unsigned long kvm_host_page_size(struct kvm_vcpu *vcpu, gfn_t gfn);
+=======
+
+#define __kvm_get_guest(kvm, gfn, offset, v)				\
+({									\
+	unsigned long __addr = gfn_to_hva(kvm, gfn);			\
+	typeof(v) __user *__uaddr = (typeof(__uaddr))(__addr + offset);	\
+	int __ret = -EFAULT;						\
+									\
+	if (!kvm_is_error_hva(__addr))					\
+		__ret = get_user(v, __uaddr);				\
+	__ret;								\
+})
+
+#define kvm_get_guest(kvm, gpa, v)					\
+({									\
+	gpa_t __gpa = gpa;						\
+	struct kvm *__kvm = kvm;					\
+									\
+	__kvm_get_guest(__kvm, __gpa >> PAGE_SHIFT,			\
+			offset_in_page(__gpa), v);			\
+})
+
+#define __kvm_put_guest(kvm, gfn, offset, v)				\
+({									\
+	unsigned long __addr = gfn_to_hva(kvm, gfn);			\
+	typeof(v) __user *__uaddr = (typeof(__uaddr))(__addr + offset);	\
+	int __ret = -EFAULT;						\
+									\
+	if (!kvm_is_error_hva(__addr))					\
+		__ret = put_user(v, __uaddr);				\
+	if (!__ret)							\
+		mark_page_dirty(kvm, gfn);				\
+	__ret;								\
+})
+
+#define kvm_put_guest(kvm, gpa, v)					\
+({									\
+	gpa_t __gpa = gpa;						\
+	struct kvm *__kvm = kvm;					\
+									\
+	__kvm_put_guest(__kvm, __gpa >> PAGE_SHIFT,			\
+			offset_in_page(__gpa), v);			\
+})
+
+int kvm_clear_guest(struct kvm *kvm, gpa_t gpa, unsigned long len);
+struct kvm_memory_slot *gfn_to_memslot(struct kvm *kvm, gfn_t gfn);
+bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn);
+bool kvm_vcpu_is_visible_gfn(struct kvm_vcpu *vcpu, gfn_t gfn);
+unsigned long kvm_host_page_size(struct kvm_vcpu *vcpu, gfn_t gfn);
+void mark_page_dirty_in_slot(struct kvm *kvm, struct kvm_memory_slot *memslot, gfn_t gfn);
+>>>>>>> upstream/android-13
 void mark_page_dirty(struct kvm *kvm, gfn_t gfn);
 
 struct kvm_memslots *kvm_vcpu_memslots(struct kvm_vcpu *vcpu);
@@ -773,9 +1289,23 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *vcpu, bool usermode_vcpu_not_eligible);
 void kvm_flush_remote_tlbs(struct kvm *kvm);
 void kvm_reload_remote_mmus(struct kvm *kvm);
 
+<<<<<<< HEAD
 bool kvm_make_vcpus_request_mask(struct kvm *kvm, unsigned int req,
 				 unsigned long *vcpu_bitmap, cpumask_var_t tmp);
 bool kvm_make_all_cpus_request(struct kvm *kvm, unsigned int req);
+=======
+#ifdef KVM_ARCH_NR_OBJS_PER_MEMORY_CACHE
+int kvm_mmu_topup_memory_cache(struct kvm_mmu_memory_cache *mc, int min);
+int kvm_mmu_memory_cache_nr_free_objects(struct kvm_mmu_memory_cache *mc);
+void kvm_mmu_free_memory_cache(struct kvm_mmu_memory_cache *mc);
+void *kvm_mmu_memory_cache_alloc(struct kvm_mmu_memory_cache *mc);
+#endif
+
+void kvm_inc_notifier_count(struct kvm *kvm, unsigned long start,
+				   unsigned long end);
+void kvm_dec_notifier_count(struct kvm *kvm, unsigned long start,
+				   unsigned long end);
+>>>>>>> upstream/android-13
 
 long kvm_arch_dev_ioctl(struct file *filp,
 			unsigned int ioctl, unsigned long arg);
@@ -785,22 +1315,43 @@ vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf);
 
 int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext);
 
+<<<<<<< HEAD
 int kvm_get_dirty_log(struct kvm *kvm,
 			struct kvm_dirty_log *log, int *is_dirty);
 
 int kvm_get_dirty_log_protect(struct kvm *kvm,
 			struct kvm_dirty_log *log, bool *is_dirty);
 
+=======
+>>>>>>> upstream/android-13
 void kvm_arch_mmu_enable_log_dirty_pt_masked(struct kvm *kvm,
 					struct kvm_memory_slot *slot,
 					gfn_t gfn_offset,
 					unsigned long mask);
+<<<<<<< HEAD
 
 int kvm_vm_ioctl_get_dirty_log(struct kvm *kvm,
 				struct kvm_dirty_log *log);
 
 int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_level,
 			bool line_status);
+=======
+void kvm_arch_sync_dirty_log(struct kvm *kvm, struct kvm_memory_slot *memslot);
+
+#ifdef CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT
+void kvm_arch_flush_remote_tlbs_memslot(struct kvm *kvm,
+					const struct kvm_memory_slot *memslot);
+#else /* !CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT */
+int kvm_vm_ioctl_get_dirty_log(struct kvm *kvm, struct kvm_dirty_log *log);
+int kvm_get_dirty_log(struct kvm *kvm, struct kvm_dirty_log *log,
+		      int *is_dirty, struct kvm_memory_slot **memslot);
+#endif
+
+int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_level,
+			bool line_status);
+int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
+			    struct kvm_enable_cap *cap);
+>>>>>>> upstream/android-13
 long kvm_arch_vm_ioctl(struct file *filp,
 		       unsigned int ioctl, unsigned long arg);
 
@@ -822,11 +1373,16 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
 				    struct kvm_mp_state *mp_state);
 int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
 					struct kvm_guest_debug *dbg);
+<<<<<<< HEAD
 int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run);
+=======
+int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 
 int kvm_arch_init(void *opaque);
 void kvm_arch_exit(void);
 
+<<<<<<< HEAD
 int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu);
 void kvm_arch_vcpu_uninit(struct kvm_vcpu *vcpu);
 
@@ -848,10 +1404,41 @@ void kvm_arch_hardware_disable(void);
 int kvm_arch_hardware_setup(void);
 void kvm_arch_hardware_unsetup(void);
 void kvm_arch_check_processor_compat(void *rtn);
+=======
+void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu);
+
+void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu);
+void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu);
+int kvm_arch_vcpu_precreate(struct kvm *kvm, unsigned int id);
+int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu);
+void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu);
+void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu);
+
+#ifdef CONFIG_HAVE_KVM_PM_NOTIFIER
+int kvm_arch_pm_notifier(struct kvm *kvm, unsigned long state);
+#endif
+
+#ifdef __KVM_HAVE_ARCH_VCPU_DEBUGFS
+void kvm_arch_create_vcpu_debugfs(struct kvm_vcpu *vcpu, struct dentry *debugfs_dentry);
+#endif
+
+int kvm_arch_hardware_enable(void);
+void kvm_arch_hardware_disable(void);
+int kvm_arch_hardware_setup(void *opaque);
+void kvm_arch_hardware_unsetup(void);
+int kvm_arch_check_processor_compat(void *opaque);
+>>>>>>> upstream/android-13
 int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
 bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu);
 int kvm_arch_vcpu_should_kick(struct kvm_vcpu *vcpu);
 bool kvm_arch_dy_runnable(struct kvm_vcpu *vcpu);
+<<<<<<< HEAD
+=======
+bool kvm_arch_dy_has_pending_interrupt(struct kvm_vcpu *vcpu);
+int kvm_arch_post_init_vm(struct kvm *kvm);
+void kvm_arch_pre_destroy_vm(struct kvm *kvm);
+int kvm_arch_create_vm_debugfs(struct kvm *kvm);
+>>>>>>> upstream/android-13
 
 #ifndef __KVM_HAVE_ARCH_VM_ALLOC
 /*
@@ -913,12 +1500,21 @@ static inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
 }
 #endif
 
+<<<<<<< HEAD
 static inline struct swait_queue_head *kvm_arch_vcpu_wq(struct kvm_vcpu *vcpu)
 {
 #ifdef __KVM_HAVE_ARCH_WQP
 	return vcpu->arch.wqp;
 #else
 	return &vcpu->wq;
+=======
+static inline struct rcuwait *kvm_arch_vcpu_get_wait(struct kvm_vcpu *vcpu)
+{
+#ifdef __KVM_HAVE_ARCH_WQP
+	return vcpu->arch.waitp;
+#else
+	return &vcpu->wait;
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -941,7 +1537,10 @@ void kvm_arch_destroy_vm(struct kvm *kvm);
 void kvm_arch_sync_events(struct kvm *kvm);
 
 int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu);
+<<<<<<< HEAD
 void kvm_vcpu_kick(struct kvm_vcpu *vcpu);
+=======
+>>>>>>> upstream/android-13
 
 bool kvm_is_reserved_pfn(kvm_pfn_t pfn);
 bool kvm_is_zone_device_pfn(kvm_pfn_t pfn);
@@ -972,6 +1571,7 @@ void kvm_unregister_irq_ack_notifier(struct kvm *kvm,
 				   struct kvm_irq_ack_notifier *kian);
 int kvm_request_irq_source_id(struct kvm *kvm);
 void kvm_free_irq_source_id(struct kvm *kvm, int irq_source_id);
+<<<<<<< HEAD
 
 /*
  * search_memslots() and __gfn_to_memslot() are here because they are
@@ -992,6 +1592,54 @@ search_memslots(struct kvm_memslots *slots, gfn_t gfn)
 
 	while (start < end) {
 		slot = start + (end - start) / 2;
+=======
+bool kvm_arch_irqfd_allowed(struct kvm *kvm, struct kvm_irqfd *args);
+
+/*
+ * Returns a pointer to the memslot at slot_index if it contains gfn.
+ * Otherwise returns NULL.
+ */
+static inline struct kvm_memory_slot *
+try_get_memslot(struct kvm_memslots *slots, int slot_index, gfn_t gfn)
+{
+	struct kvm_memory_slot *slot;
+
+	if (slot_index < 0 || slot_index >= slots->used_slots)
+		return NULL;
+
+	/*
+	 * slot_index can come from vcpu->last_used_slot which is not kept
+	 * in sync with userspace-controllable memslot deletion. So use nospec
+	 * to prevent the CPU from speculating past the end of memslots[].
+	 */
+	slot_index = array_index_nospec(slot_index, slots->used_slots);
+	slot = &slots->memslots[slot_index];
+
+	if (gfn >= slot->base_gfn && gfn < slot->base_gfn + slot->npages)
+		return slot;
+	else
+		return NULL;
+}
+
+/*
+ * Returns a pointer to the memslot that contains gfn and records the index of
+ * the slot in index. Otherwise returns NULL.
+ *
+ * IMPORTANT: Slots are sorted from highest GFN to lowest GFN!
+ */
+static inline struct kvm_memory_slot *
+search_memslots(struct kvm_memslots *slots, gfn_t gfn, int *index)
+{
+	int start = 0, end = slots->used_slots;
+	struct kvm_memory_slot *memslots = slots->memslots;
+	struct kvm_memory_slot *slot;
+
+	if (unlikely(!slots->used_slots))
+		return NULL;
+
+	while (start < end) {
+		int slot = start + (end - start) / 2;
+>>>>>>> upstream/android-13
 
 		if (gfn >= memslots[slot].base_gfn)
 			end = slot;
@@ -999,15 +1647,23 @@ search_memslots(struct kvm_memslots *slots, gfn_t gfn)
 			start = slot + 1;
 	}
 
+<<<<<<< HEAD
 	if (start < slots->used_slots && gfn >= memslots[start].base_gfn &&
 	    gfn < memslots[start].base_gfn + memslots[start].npages) {
 		atomic_set(&slots->lru_slot, start);
 		return &memslots[start];
+=======
+	slot = try_get_memslot(slots, start, gfn);
+	if (slot) {
+		*index = start;
+		return slot;
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
 }
 
+<<<<<<< HEAD
 static inline struct kvm_memory_slot *
 __gfn_to_memslot(struct kvm_memslots *slots, gfn_t gfn)
 {
@@ -1018,6 +1674,44 @@ static inline unsigned long
 __gfn_to_hva_memslot(struct kvm_memory_slot *slot, gfn_t gfn)
 {
 	return slot->userspace_addr + (gfn - slot->base_gfn) * PAGE_SIZE;
+=======
+/*
+ * __gfn_to_memslot() and its descendants are here because it is called from
+ * non-modular code in arch/powerpc/kvm/book3s_64_vio{,_hv}.c. gfn_to_memslot()
+ * itself isn't here as an inline because that would bloat other code too much.
+ */
+static inline struct kvm_memory_slot *
+__gfn_to_memslot(struct kvm_memslots *slots, gfn_t gfn)
+{
+	struct kvm_memory_slot *slot;
+	int slot_index = atomic_read(&slots->last_used_slot);
+
+	slot = try_get_memslot(slots, slot_index, gfn);
+	if (slot)
+		return slot;
+
+	slot = search_memslots(slots, gfn, &slot_index);
+	if (slot) {
+		atomic_set(&slots->last_used_slot, slot_index);
+		return slot;
+	}
+
+	return NULL;
+}
+
+static inline unsigned long
+__gfn_to_hva_memslot(const struct kvm_memory_slot *slot, gfn_t gfn)
+{
+	/*
+	 * The index was checked originally in search_memslots.  To avoid
+	 * that a malicious guest builds a Spectre gadget out of e.g. page
+	 * table walks, do not let the processor speculate loads outside
+	 * the guest's registered memslots.
+	 */
+	unsigned long offset = gfn - slot->base_gfn;
+	offset = array_index_nospec(offset, slot->npages);
+	return slot->userspace_addr + offset * PAGE_SIZE;
+>>>>>>> upstream/android-13
 }
 
 static inline int memslot_id(struct kvm *kvm, gfn_t gfn)
@@ -1067,6 +1761,7 @@ enum kvm_stat_kind {
 };
 
 struct kvm_stat_data {
+<<<<<<< HEAD
 	int offset;
 	int mode;
 	struct kvm *kvm;
@@ -1081,6 +1776,176 @@ struct kvm_stats_debugfs_item {
 extern struct kvm_stats_debugfs_item debugfs_entries[];
 extern struct dentry *kvm_debugfs_dir;
 
+=======
+	struct kvm *kvm;
+	const struct _kvm_stats_desc *desc;
+	enum kvm_stat_kind kind;
+};
+
+struct _kvm_stats_desc {
+	struct kvm_stats_desc desc;
+	char name[KVM_STATS_NAME_SIZE];
+};
+
+#define STATS_DESC_COMMON(type, unit, base, exp, sz, bsz)		       \
+	.flags = type | unit | base |					       \
+		 BUILD_BUG_ON_ZERO(type & ~KVM_STATS_TYPE_MASK) |	       \
+		 BUILD_BUG_ON_ZERO(unit & ~KVM_STATS_UNIT_MASK) |	       \
+		 BUILD_BUG_ON_ZERO(base & ~KVM_STATS_BASE_MASK),	       \
+	.exponent = exp,						       \
+	.size = sz,							       \
+	.bucket_size = bsz
+
+#define VM_GENERIC_STATS_DESC(stat, type, unit, base, exp, sz, bsz)	       \
+	{								       \
+		{							       \
+			STATS_DESC_COMMON(type, unit, base, exp, sz, bsz),     \
+			.offset = offsetof(struct kvm_vm_stat, generic.stat)   \
+		},							       \
+		.name = #stat,						       \
+	}
+#define VCPU_GENERIC_STATS_DESC(stat, type, unit, base, exp, sz, bsz)	       \
+	{								       \
+		{							       \
+			STATS_DESC_COMMON(type, unit, base, exp, sz, bsz),     \
+			.offset = offsetof(struct kvm_vcpu_stat, generic.stat) \
+		},							       \
+		.name = #stat,						       \
+	}
+#define VM_STATS_DESC(stat, type, unit, base, exp, sz, bsz)		       \
+	{								       \
+		{							       \
+			STATS_DESC_COMMON(type, unit, base, exp, sz, bsz),     \
+			.offset = offsetof(struct kvm_vm_stat, stat)	       \
+		},							       \
+		.name = #stat,						       \
+	}
+#define VCPU_STATS_DESC(stat, type, unit, base, exp, sz, bsz)		       \
+	{								       \
+		{							       \
+			STATS_DESC_COMMON(type, unit, base, exp, sz, bsz),     \
+			.offset = offsetof(struct kvm_vcpu_stat, stat)	       \
+		},							       \
+		.name = #stat,						       \
+	}
+/* SCOPE: VM, VM_GENERIC, VCPU, VCPU_GENERIC */
+#define STATS_DESC(SCOPE, stat, type, unit, base, exp, sz, bsz)		       \
+	SCOPE##_STATS_DESC(stat, type, unit, base, exp, sz, bsz)
+
+#define STATS_DESC_CUMULATIVE(SCOPE, name, unit, base, exponent)	       \
+	STATS_DESC(SCOPE, name, KVM_STATS_TYPE_CUMULATIVE,		       \
+		unit, base, exponent, 1, 0)
+#define STATS_DESC_INSTANT(SCOPE, name, unit, base, exponent)		       \
+	STATS_DESC(SCOPE, name, KVM_STATS_TYPE_INSTANT,			       \
+		unit, base, exponent, 1, 0)
+#define STATS_DESC_PEAK(SCOPE, name, unit, base, exponent)		       \
+	STATS_DESC(SCOPE, name, KVM_STATS_TYPE_PEAK,			       \
+		unit, base, exponent, 1, 0)
+#define STATS_DESC_LINEAR_HIST(SCOPE, name, unit, base, exponent, sz, bsz)     \
+	STATS_DESC(SCOPE, name, KVM_STATS_TYPE_LINEAR_HIST,		       \
+		unit, base, exponent, sz, bsz)
+#define STATS_DESC_LOG_HIST(SCOPE, name, unit, base, exponent, sz)	       \
+	STATS_DESC(SCOPE, name, KVM_STATS_TYPE_LOG_HIST,		       \
+		unit, base, exponent, sz, 0)
+
+/* Cumulative counter, read/write */
+#define STATS_DESC_COUNTER(SCOPE, name)					       \
+	STATS_DESC_CUMULATIVE(SCOPE, name, KVM_STATS_UNIT_NONE,		       \
+		KVM_STATS_BASE_POW10, 0)
+/* Instantaneous counter, read only */
+#define STATS_DESC_ICOUNTER(SCOPE, name)				       \
+	STATS_DESC_INSTANT(SCOPE, name, KVM_STATS_UNIT_NONE,		       \
+		KVM_STATS_BASE_POW10, 0)
+/* Peak counter, read/write */
+#define STATS_DESC_PCOUNTER(SCOPE, name)				       \
+	STATS_DESC_PEAK(SCOPE, name, KVM_STATS_UNIT_NONE,		       \
+		KVM_STATS_BASE_POW10, 0)
+
+/* Cumulative time in nanosecond */
+#define STATS_DESC_TIME_NSEC(SCOPE, name)				       \
+	STATS_DESC_CUMULATIVE(SCOPE, name, KVM_STATS_UNIT_SECONDS,	       \
+		KVM_STATS_BASE_POW10, -9)
+/* Linear histogram for time in nanosecond */
+#define STATS_DESC_LINHIST_TIME_NSEC(SCOPE, name, sz, bsz)		       \
+	STATS_DESC_LINEAR_HIST(SCOPE, name, KVM_STATS_UNIT_SECONDS,	       \
+		KVM_STATS_BASE_POW10, -9, sz, bsz)
+/* Logarithmic histogram for time in nanosecond */
+#define STATS_DESC_LOGHIST_TIME_NSEC(SCOPE, name, sz)			       \
+	STATS_DESC_LOG_HIST(SCOPE, name, KVM_STATS_UNIT_SECONDS,	       \
+		KVM_STATS_BASE_POW10, -9, sz)
+
+#define KVM_GENERIC_VM_STATS()						       \
+	STATS_DESC_COUNTER(VM_GENERIC, remote_tlb_flush),		       \
+	STATS_DESC_COUNTER(VM_GENERIC, remote_tlb_flush_requests)
+
+#define KVM_GENERIC_VCPU_STATS()					       \
+	STATS_DESC_COUNTER(VCPU_GENERIC, halt_successful_poll),		       \
+	STATS_DESC_COUNTER(VCPU_GENERIC, halt_attempted_poll),		       \
+	STATS_DESC_COUNTER(VCPU_GENERIC, halt_poll_invalid),		       \
+	STATS_DESC_COUNTER(VCPU_GENERIC, halt_wakeup),			       \
+	STATS_DESC_TIME_NSEC(VCPU_GENERIC, halt_poll_success_ns),	       \
+	STATS_DESC_TIME_NSEC(VCPU_GENERIC, halt_poll_fail_ns),		       \
+	STATS_DESC_TIME_NSEC(VCPU_GENERIC, halt_wait_ns),		       \
+	STATS_DESC_LOGHIST_TIME_NSEC(VCPU_GENERIC, halt_poll_success_hist,     \
+			HALT_POLL_HIST_COUNT),				       \
+	STATS_DESC_LOGHIST_TIME_NSEC(VCPU_GENERIC, halt_poll_fail_hist,	       \
+			HALT_POLL_HIST_COUNT),				       \
+	STATS_DESC_LOGHIST_TIME_NSEC(VCPU_GENERIC, halt_wait_hist,	       \
+			HALT_POLL_HIST_COUNT)
+
+extern struct dentry *kvm_debugfs_dir;
+
+ssize_t kvm_stats_read(char *id, const struct kvm_stats_header *header,
+		       const struct _kvm_stats_desc *desc,
+		       void *stats, size_t size_stats,
+		       char __user *user_buffer, size_t size, loff_t *offset);
+
+/**
+ * kvm_stats_linear_hist_update() - Update bucket value for linear histogram
+ * statistics data.
+ *
+ * @data: start address of the stats data
+ * @size: the number of bucket of the stats data
+ * @value: the new value used to update the linear histogram's bucket
+ * @bucket_size: the size (width) of a bucket
+ */
+static inline void kvm_stats_linear_hist_update(u64 *data, size_t size,
+						u64 value, size_t bucket_size)
+{
+	size_t index = div64_u64(value, bucket_size);
+
+	index = min(index, size - 1);
+	++data[index];
+}
+
+/**
+ * kvm_stats_log_hist_update() - Update bucket value for logarithmic histogram
+ * statistics data.
+ *
+ * @data: start address of the stats data
+ * @size: the number of bucket of the stats data
+ * @value: the new value used to update the logarithmic histogram's bucket
+ */
+static inline void kvm_stats_log_hist_update(u64 *data, size_t size, u64 value)
+{
+	size_t index = fls64(value);
+
+	index = min(index, size - 1);
+	++data[index];
+}
+
+#define KVM_STATS_LINEAR_HIST_UPDATE(array, value, bsize)		       \
+	kvm_stats_linear_hist_update(array, ARRAY_SIZE(array), value, bsize)
+#define KVM_STATS_LOG_HIST_UPDATE(array, value)				       \
+	kvm_stats_log_hist_update(array, ARRAY_SIZE(array), value)
+
+
+extern const struct kvm_stats_header kvm_vm_stats_header;
+extern const struct _kvm_stats_desc kvm_vm_stats_desc[];
+extern const struct kvm_stats_header kvm_vcpu_stats_header;
+extern const struct _kvm_stats_desc kvm_vcpu_stats_desc[];
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_MMU_NOTIFIER) && defined(KVM_ARCH_WANT_MMU_NOTIFIER)
 static inline int mmu_notifier_retry(struct kvm *kvm, unsigned long mmu_seq)
 {
@@ -1101,6 +1966,29 @@ static inline int mmu_notifier_retry(struct kvm *kvm, unsigned long mmu_seq)
 		return 1;
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static inline int mmu_notifier_retry_hva(struct kvm *kvm,
+					 unsigned long mmu_seq,
+					 unsigned long hva)
+{
+	lockdep_assert_held(&kvm->mmu_lock);
+	/*
+	 * If mmu_notifier_count is non-zero, then the range maintained by
+	 * kvm_mmu_notifier_invalidate_range_start contains all addresses that
+	 * might be being invalidated. Note that it may include some false
+	 * positives, due to shortcuts when handing concurrent invalidations.
+	 */
+	if (unlikely(kvm->mmu_notifier_count) &&
+	    hva >= kvm->mmu_notifier_range_start &&
+	    hva < kvm->mmu_notifier_range_end)
+		return 1;
+	if (kvm->mmu_notifier_seq != mmu_seq)
+		return 1;
+	return 0;
+}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_HAVE_KVM_IRQ_ROUTING
@@ -1214,10 +2102,18 @@ extern bool kvm_rebooting;
 
 extern unsigned int halt_poll_ns;
 extern unsigned int halt_poll_ns_grow;
+<<<<<<< HEAD
 extern unsigned int halt_poll_ns_shrink;
 
 struct kvm_device {
 	struct kvm_device_ops *ops;
+=======
+extern unsigned int halt_poll_ns_grow_start;
+extern unsigned int halt_poll_ns_shrink;
+
+struct kvm_device {
+	const struct kvm_device_ops *ops;
+>>>>>>> upstream/android-13
 	struct kvm *kvm;
 	void *private;
 	struct list_head vm_node;
@@ -1250,17 +2146,37 @@ struct kvm_device_ops {
 	 */
 	void (*destroy)(struct kvm_device *dev);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Release is an alternative method to free the device. It is
+	 * called when the device file descriptor is closed. Once
+	 * release is called, the destroy method will not be called
+	 * anymore as the device is removed from the device list of
+	 * the VM. kvm->lock is held.
+	 */
+	void (*release)(struct kvm_device *dev);
+
+>>>>>>> upstream/android-13
 	int (*set_attr)(struct kvm_device *dev, struct kvm_device_attr *attr);
 	int (*get_attr)(struct kvm_device *dev, struct kvm_device_attr *attr);
 	int (*has_attr)(struct kvm_device *dev, struct kvm_device_attr *attr);
 	long (*ioctl)(struct kvm_device *dev, unsigned int ioctl,
 		      unsigned long arg);
+<<<<<<< HEAD
+=======
+	int (*mmap)(struct kvm_device *dev, struct vm_area_struct *vma);
+>>>>>>> upstream/android-13
 };
 
 void kvm_device_get(struct kvm_device *dev);
 void kvm_device_put(struct kvm_device *dev);
 struct kvm_device *kvm_device_from_filp(struct file *filp);
+<<<<<<< HEAD
 int kvm_register_device_ops(struct kvm_device_ops *ops, u32 type);
+=======
+int kvm_register_device_ops(const struct kvm_device_ops *ops, u32 type);
+>>>>>>> upstream/android-13
 void kvm_unregister_device_ops(u32 type);
 
 extern struct kvm_device_ops kvm_mpic_ops;
@@ -1289,6 +2205,18 @@ static inline void kvm_vcpu_set_dy_eligible(struct kvm_vcpu *vcpu, bool val)
 }
 #endif /* CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT */
 
+<<<<<<< HEAD
+=======
+static inline bool kvm_is_visible_memslot(struct kvm_memory_slot *memslot)
+{
+	return (memslot && memslot->id < KVM_USER_MEM_SLOTS &&
+		!(memslot->flags & KVM_MEMSLOT_INVALID));
+}
+
+struct kvm_vcpu *kvm_get_running_vcpu(void);
+struct kvm_vcpu * __percpu *kvm_get_running_vcpus(void);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HAVE_KVM_IRQ_BYPASS
 bool kvm_arch_has_irq_bypass(void);
 int kvm_arch_irq_bypass_add_producer(struct irq_bypass_consumer *,
@@ -1315,6 +2243,19 @@ static inline bool vcpu_valid_wakeup(struct kvm_vcpu *vcpu)
 }
 #endif /* CONFIG_HAVE_KVM_INVALID_WAKEUPS */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAVE_KVM_NO_POLL
+/* Callback that tells if we must not poll */
+bool kvm_arch_no_poll(struct kvm_vcpu *vcpu);
+#else
+static inline bool kvm_arch_no_poll(struct kvm_vcpu *vcpu)
+{
+	return false;
+}
+#endif /* CONFIG_HAVE_KVM_NO_POLL */
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL
 long kvm_arch_vcpu_async_ioctl(struct file *filp,
 			       unsigned int ioctl, unsigned long arg);
@@ -1345,4 +2286,25 @@ int kvm_vm_create_worker_thread(struct kvm *kvm, kvm_vm_thread_fn_t thread_fn,
 				uintptr_t data, const char *name,
 				struct task_struct **thread_ptr);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KVM_XFER_TO_GUEST_WORK
+static inline void kvm_handle_signal_exit(struct kvm_vcpu *vcpu)
+{
+	vcpu->run->exit_reason = KVM_EXIT_INTR;
+	vcpu->stat.signal_exits++;
+}
+#endif /* CONFIG_KVM_XFER_TO_GUEST_WORK */
+
+/*
+ * This defines how many reserved entries we want to keep before we
+ * kick the vcpu to the userspace to avoid dirty ring full.  This
+ * value can be tuned to higher if e.g. PML is enabled on the host.
+ */
+#define  KVM_DIRTY_RING_RSVD_ENTRIES  64
+
+/* Max number of entries allowed for each kvm dirty ring */
+#define  KVM_DIRTY_RING_MAX_ENTRIES  65536
+
+>>>>>>> upstream/android-13
 #endif

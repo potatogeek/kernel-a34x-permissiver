@@ -2,6 +2,11 @@
 #ifndef _ASM_POWERPC_MSGBUF_H
 #define _ASM_POWERPC_MSGBUF_H
 
+<<<<<<< HEAD
+=======
+#include <asm/ipcbuf.h>
+
+>>>>>>> upstream/android-13
 /*
  * The msqid64_ds structure for the PowerPC architecture.
  * Note extra padding because this structure is passed back and forth
@@ -11,9 +16,15 @@
 struct msqid64_ds {
 	struct ipc64_perm msg_perm;
 #ifdef __powerpc64__
+<<<<<<< HEAD
 	__kernel_time_t msg_stime;	/* last msgsnd time */
 	__kernel_time_t msg_rtime;	/* last msgrcv time */
 	__kernel_time_t msg_ctime;	/* last change time */
+=======
+	long		 msg_stime;	/* last msgsnd time */
+	long		 msg_rtime;	/* last msgrcv time */
+	long		 msg_ctime;	/* last change time */
+>>>>>>> upstream/android-13
 #else
 	unsigned long  msg_stime_high;
 	unsigned long  msg_stime;	/* last msgsnd time */

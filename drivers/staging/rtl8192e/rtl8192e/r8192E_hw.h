@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -14,6 +15,14 @@
  *****************************************************************************/
 
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #ifndef R8180_HW
 #define R8180_HW
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
  /*
     tda9840 - i2c-driver for the tda9840 by SGS Thomson
 
@@ -7,6 +11,7 @@
     The tda9840 is a stereo/dual sound processor with digital
     identification. It can be found at address 0x84 on the i2c-bus.
 
+<<<<<<< HEAD
     For detailed informations download the specifications directly
     from SGS Thomson at http://www.st.com
 
@@ -23,6 +28,11 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+    For detailed information download the specifications directly
+    from SGS Thomson at http://www.st.com
+
+>>>>>>> upstream/android-13
   */
 
 

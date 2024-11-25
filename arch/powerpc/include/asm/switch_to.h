@@ -5,6 +5,10 @@
 #ifndef _ASM_POWERPC_SWITCH_TO_H
 #define _ASM_POWERPC_SWITCH_TO_H
 
+<<<<<<< HEAD
+=======
+#include <linux/sched.h>
+>>>>>>> upstream/android-13
 #include <asm/reg.h>
 
 struct thread_struct;
@@ -22,6 +26,19 @@ extern void switch_booke_debug_regs(struct debug_reg *new_debug);
 
 extern int emulate_altivec(struct pt_regs *);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PPC_BOOK3S_64
+void restore_math(struct pt_regs *regs);
+#else
+static inline void restore_math(struct pt_regs *regs)
+{
+}
+#endif
+
+void restore_tm_state(struct pt_regs *regs);
+
+>>>>>>> upstream/android-13
 extern void flush_all_to_thread(struct task_struct *);
 extern void giveup_all(struct task_struct *);
 
@@ -60,6 +77,19 @@ static inline void disable_kernel_vsx(void)
 {
 	msr_check_and_clear(MSR_FP|MSR_VEC|MSR_VSX);
 }
+<<<<<<< HEAD
+=======
+#else
+static inline void enable_kernel_vsx(void)
+{
+	BUILD_BUG();
+}
+
+static inline void disable_kernel_vsx(void)
+{
+	BUILD_BUG();
+}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_SPE
@@ -91,8 +121,11 @@ static inline void clear_task_ebb(struct task_struct *t)
 #endif
 }
 
+<<<<<<< HEAD
 extern int set_thread_uses_vas(void);
 
+=======
+>>>>>>> upstream/android-13
 extern int set_thread_tidr(struct task_struct *t);
 
 #endif /* _ASM_POWERPC_SWITCH_TO_H */

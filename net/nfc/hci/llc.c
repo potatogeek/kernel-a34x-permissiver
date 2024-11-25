@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Link Layer Control manager
  *
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <net/nfc/llc.h>
@@ -22,7 +29,11 @@
 
 static LIST_HEAD(llc_engines);
 
+<<<<<<< HEAD
 int nfc_llc_init(void)
+=======
+int __init nfc_llc_init(void)
+>>>>>>> upstream/android-13
 {
 	int r;
 
@@ -52,7 +63,11 @@ void nfc_llc_exit(void)
 	}
 }
 
+<<<<<<< HEAD
 int nfc_llc_register(const char *name, struct nfc_llc_ops *ops)
+=======
+int nfc_llc_register(const char *name, const struct nfc_llc_ops *ops)
+>>>>>>> upstream/android-13
 {
 	struct nfc_llc_engine *llc_engine;
 

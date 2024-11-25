@@ -105,7 +105,10 @@ static struct usb_function *f_msg;
  */
 static int acm_ms_do_config(struct usb_configuration *c)
 {
+<<<<<<< HEAD
 	struct fsg_opts *opts;
+=======
+>>>>>>> upstream/android-13
 	int	status;
 
 	if (gadget_is_otg(c->cdev->gadget)) {
@@ -113,8 +116,11 @@ static int acm_ms_do_config(struct usb_configuration *c)
 		c->bmAttributes |= USB_CONFIG_ATT_WAKEUP;
 	}
 
+<<<<<<< HEAD
 	opts = fsg_opts_from_func_inst(fi_msg);
 
+=======
+>>>>>>> upstream/android-13
 	f_acm = usb_get_function(f_acm_inst);
 	if (IS_ERR(f_acm))
 		return PTR_ERR(f_acm);

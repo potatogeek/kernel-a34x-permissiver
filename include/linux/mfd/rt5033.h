@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * MFD core driver for the RT5033
  *
  * Copyright (C) 2014 Samsung Electronics
  * Author: Beomho Seo <beomho.seo@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published bythe Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __RT5033_H__

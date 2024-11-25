@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 = NVMEM(Non Volatile Memory) Data Device Tree Bindings =
 
 This binding is intended to represent the location of hardware
@@ -78,3 +79,6 @@ For example:
 		nvmem-cells = <&tsens_calibration>;
 		nvmem-cell-names = "calibration";
 	};
+=======
+This file has been moved to nvmem.yaml and nvmem-consumer.yaml.
+>>>>>>> upstream/android-13

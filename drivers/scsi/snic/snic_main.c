@@ -127,7 +127,10 @@ static struct scsi_host_template snic_host_template = {
 	.this_id = -1,
 	.cmd_per_lun = SNIC_DFLT_QUEUE_DEPTH,
 	.can_queue = SNIC_MAX_IO_REQ,
+<<<<<<< HEAD
 	.use_clustering = ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.sg_tablesize = SNIC_MAX_SG_DESC_CNT,
 	.max_sectors = 0x800,
 	.shost_attrs = snic_attrs,
@@ -398,12 +401,16 @@ snic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		       PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn));
 #ifdef CONFIG_SCSI_SNIC_DEBUG_FS
 	/* Per snic debugfs init */
+<<<<<<< HEAD
 	ret = snic_stats_debugfs_init(snic);
 	if (ret) {
 		SNIC_HOST_ERR(snic->shost,
 			      "Failed to initialize debugfs stats\n");
 		snic_stats_debugfs_remove(snic);
 	}
+=======
+	snic_stats_debugfs_init(snic);
+>>>>>>> upstream/android-13
 #endif
 
 	/* Setup PCI Resources */
@@ -435,13 +442,20 @@ snic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 * limitation for the device. Try 43-bit first, and
 	 * fail to 32-bit.
 	 */
+<<<<<<< HEAD
 	ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(43));
 	if (ret) {
 		ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(43));
+	if (ret) {
+		ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (ret) {
 			SNIC_HOST_ERR(shost,
 				      "No Usable DMA Configuration, aborting %d\n",
 				      ret);
+<<<<<<< HEAD
 
 			goto err_rel_regions;
 		}
@@ -461,11 +475,16 @@ snic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 				      "Unable to obtain 43-bit DMA for consistent allocations. aborting: %d\n",
 				      ret);
 
+=======
+>>>>>>> upstream/android-13
 			goto err_rel_regions;
 		}
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* Map vNIC resources from BAR0 */
 	if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM)) {
 		SNIC_HOST_ERR(shost, "BAR0 not memory mappable aborting.\n");
@@ -871,12 +890,16 @@ snic_global_data_init(void)
 #ifdef CONFIG_SCSI_SNIC_DEBUG_FS
 	/* Debugfs related Initialization */
 	/* Create debugfs entries for snic */
+<<<<<<< HEAD
 	ret = snic_debugfs_init();
 	if (ret < 0) {
 		SNIC_ERR("Failed to create sysfs dir for tracing and stats.\n");
 		snic_debugfs_term();
 		/* continue even if it fails */
 	}
+=======
+	snic_debugfs_init();
+>>>>>>> upstream/android-13
 
 	/* Trace related Initialization */
 	/* Allocate memory for trace buffer */

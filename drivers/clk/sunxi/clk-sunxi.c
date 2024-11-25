@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2013 Emilio López
  *
  * Emilio López <emilio@elopez.com.ar>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +17,17 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/reset-controller.h>
@@ -31,7 +42,11 @@ static DEFINE_SPINLOCK(clk_lock);
 /* Maximum number of parents our clocks have */
 #define SUNXI_MAX_PARENTS	5
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun4i_get_pll1_factors() - calculates n, k, m, p factors for PLL1
  * PLL1 rate is calculated as follows
  * rate = (parent_rate * n * (k + 1) >> p) / (m + 1);
@@ -79,7 +94,11 @@ static void sun4i_get_pll1_factors(struct factors_request *req)
 	req->n = div / 4;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun6i_a31_get_pll1_factors() - calculates n, k and m factors for PLL1
  * PLL1 rate is calculated as follows
  * rate = parent_rate * (n + 1) * (k + 1) / (m + 1);
@@ -155,7 +174,11 @@ static void sun6i_a31_get_pll1_factors(struct factors_request *req)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun8i_a23_get_pll1_factors() - calculates n, k, m, p factors for PLL1
  * PLL1 rate is calculated as follows
  * rate = (parent_rate * (n + 1) * (k + 1) >> p) / (m + 1);
@@ -199,7 +222,11 @@ static void sun8i_a23_get_pll1_factors(struct factors_request *req)
 	req->n = div / 4 - 1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun4i_get_pll5_factors() - calculates n, k factors for PLL5
  * PLL5 rate is calculated as follows
  * rate = parent_rate * n * (k + 1)
@@ -226,7 +253,11 @@ static void sun4i_get_pll5_factors(struct factors_request *req)
 	req->n = DIV_ROUND_UP(div, (req->k + 1));
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun6i_a31_get_pll6_factors() - calculates n, k factors for A31 PLL6x2
  * PLL6x2 rate is calculated as follows
  * rate = parent_rate * (n + 1) * (k + 1)
@@ -248,7 +279,11 @@ static void sun6i_a31_get_pll6_factors(struct factors_request *req)
 	req->n = DIV_ROUND_UP(div, (req->k + 1)) - 1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun5i_a13_get_ahb_factors() - calculates m, p factors for AHB
  * AHB rate is calculated as follows
  * rate = parent_rate >> p
@@ -284,7 +319,11 @@ static void sun5i_a13_get_ahb_factors(struct factors_request *req)
 
 #define SUN6I_AHB1_PARENT_PLL6	3
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun6i_a31_get_ahb_factors() - calculates m, p factors for AHB
  * AHB rate is calculated as follows
  * rate = parent_rate >> p
@@ -328,7 +367,11 @@ static void sun6i_get_ahb1_factors(struct factors_request *req)
 	req->m = calcm - 1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun6i_ahb1_recalc() - calculates AHB clock rate from m, p factors and
  *			 parent index
  */
@@ -344,7 +387,11 @@ static void sun6i_ahb1_recalc(struct factors_request *req)
 	req->rate >>= req->p;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun4i_get_apb1_factors() - calculates m, p factors for APB1
  * APB1 rate is calculated as follows
  * rate = (parent_rate >> p) / (m + 1);
@@ -383,7 +430,11 @@ static void sun4i_get_apb1_factors(struct factors_request *req)
 
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sun7i_a20_get_out_factors() - calculates m, p factors for CLK_OUT_A/B
  * CLK_OUT rate is calculated as follows
  * rate = (parent_rate >> p) / (m + 1);
@@ -416,7 +467,11 @@ static void sun7i_a20_get_out_factors(struct factors_request *req)
 	req->p = calcp;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sunxi_factors_clk_setup() - Setup function for factor clocks
  */
 
@@ -568,8 +623,13 @@ static struct clk * __init sunxi_factors_clk_setup(struct device_node *node,
 
 	reg = of_iomap(node, 0);
 	if (!reg) {
+<<<<<<< HEAD
 		pr_err("Could not get registers for factors-clk: %s\n",
 		       node->name);
+=======
+		pr_err("Could not get registers for factors-clk: %pOFn\n",
+		       node);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -633,7 +693,11 @@ CLK_OF_DECLARE(sun7i_out, "allwinner,sun7i-a20-out-clk",
 	       sun7i_out_clk_setup);
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sunxi_mux_clk_setup() - Setup function for muxes
  */
 
@@ -725,7 +789,11 @@ CLK_OF_DECLARE(sun8i_ahb2, "allwinner,sun8i-h3-ahb2-clk",
 	       sun8i_ahb2_clk_setup);
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sunxi_divider_clk_setup() - Setup function for simple divider clocks
  */
 
@@ -861,7 +929,11 @@ CLK_OF_DECLARE(sun8i_axi, "allwinner,sun8i-a23-axi-clk",
 
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sunxi_gates_clk_setup() - Setup function for leaf gates on clocks
  */
 
@@ -871,7 +943,11 @@ struct gates_data {
 	DECLARE_BITMAP(mask, SUNXI_GATES_MAX_SIZE);
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sunxi_divs_clk_setup() helper data
  */
 
@@ -937,7 +1013,11 @@ static const struct divs_data sun6i_a31_pll6_divs_data __initconst = {
 	}
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sunxi_divs_clk_setup() - Setup function for leaf divisors on clocks
  *
  * These clocks look something like this
@@ -988,6 +1068,11 @@ static struct clk ** __init sunxi_divs_clk_setup(struct device_node *node,
 		if (endp) {
 			derived_name = kstrndup(clk_name, endp - clk_name,
 						GFP_KERNEL);
+<<<<<<< HEAD
+=======
+			if (!derived_name)
+				return NULL;
+>>>>>>> upstream/android-13
 			factors.name = derived_name;
 		} else {
 			factors.name = clk_name;

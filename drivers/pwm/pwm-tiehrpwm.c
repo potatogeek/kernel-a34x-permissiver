@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * EHRPWM PWM driver
  *
@@ -16,6 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * EHRPWM PWM driver
+ *
+ * Copyright (C) 2012 Texas Instruments, Inc. - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -434,7 +442,10 @@ static int ehrpwm_pwm_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct ehrpwm_pwm_chip *pc;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	int ret;
 
@@ -450,10 +461,15 @@ static int ehrpwm_pwm_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	if (IS_ERR(clk)) {
 		dev_err(&pdev->dev, "failed to get clock\n");
 		return PTR_ERR(clk);
 	}
+=======
+	if (IS_ERR(clk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(clk), "Failed to get fck\n");
+>>>>>>> upstream/android-13
 
 	pc->clk_rate = clk_get_rate(clk);
 	if (!pc->clk_rate) {
@@ -463,6 +479,7 @@ static int ehrpwm_pwm_probe(struct platform_device *pdev)
 
 	pc->chip.dev = &pdev->dev;
 	pc->chip.ops = &ehrpwm_pwm_ops;
+<<<<<<< HEAD
 	pc->chip.of_xlate = of_pwm_xlate_with_flags;
 	pc->chip.of_pwm_n_cells = 3;
 	pc->chip.base = -1;
@@ -470,15 +487,25 @@ static int ehrpwm_pwm_probe(struct platform_device *pdev)
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pc->mmio_base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	pc->chip.npwm = NUM_PWM_CHANNEL;
+
+	pc->mmio_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pc->mmio_base))
 		return PTR_ERR(pc->mmio_base);
 
 	/* Acquire tbclk for Time Base EHRPWM submodule */
 	pc->tbclk = devm_clk_get(&pdev->dev, "tbclk");
+<<<<<<< HEAD
 	if (IS_ERR(pc->tbclk)) {
 		dev_err(&pdev->dev, "Failed to get tbclk\n");
 		return PTR_ERR(pc->tbclk);
 	}
+=======
+	if (IS_ERR(pc->tbclk))
+		return dev_err_probe(&pdev->dev, PTR_ERR(pc->tbclk), "Failed to get tbclk\n");
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare(pc->tbclk);
 	if (ret < 0) {
@@ -507,11 +534,20 @@ static int ehrpwm_pwm_remove(struct platform_device *pdev)
 {
 	struct ehrpwm_pwm_chip *pc = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
+=======
+	pwmchip_remove(&pc->chip);
+
+>>>>>>> upstream/android-13
 	clk_unprepare(pc->tbclk);
 
 	pm_runtime_disable(&pdev->dev);
 
+<<<<<<< HEAD
 	return pwmchip_remove(&pc->chip);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP

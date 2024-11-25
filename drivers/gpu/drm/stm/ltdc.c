@@ -10,12 +10,24 @@
 
 #include <linux/clk.h>
 #include <linux/component.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
 #include <linux/of_graph.h>
+=======
+#include <linux/delay.h>
+#include <linux/interrupt.h>
+#include <linux/module.h>
+#include <linux/of_address.h>
+#include <linux/of_graph.h>
+#include <linux/pinctrl/consumer.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 #include <linux/reset.h>
 
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
+<<<<<<< HEAD
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_cma_helper.h>
 #include <drm/drm_gem_cma_helper.h>
@@ -23,6 +35,19 @@
 #include <drm/drm_of.h>
 #include <drm/drm_bridge.h>
 #include <drm/drm_plane_helper.h>
+=======
+#include <drm/drm_bridge.h>
+#include <drm/drm_device.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_of.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include <video/videomode.h>
 
@@ -33,8 +58,11 @@
 
 #define MAX_IRQ 4
 
+<<<<<<< HEAD
 #define MAX_ENDPOINTS 2
 
+=======
+>>>>>>> upstream/android-13
 #define HWVER_10200 0x010200
 #define HWVER_10300 0x010300
 #define HWVER_20101 0x020101
@@ -149,6 +177,11 @@
 #define IER_TERRIE	BIT(2)		/* Transfer ERRor Interrupt Enable */
 #define IER_RRIE	BIT(3)		/* Register Reload Interrupt enable */
 
+<<<<<<< HEAD
+=======
+#define CPSR_CYPOS	GENMASK(15, 0)	/* Current Y position */
+
+>>>>>>> upstream/android-13
 #define ISR_LIF		BIT(0)		/* Line Interrupt Flag */
 #define ISR_FUIF	BIT(1)		/* Fifo Underrun Interrupt Flag */
 #define ISR_TERRIF	BIT(2)		/* Transfer ERRor Interrupt Flag */
@@ -224,6 +257,14 @@ static const enum ltdc_pix_fmt ltdc_pix_fmt_a1[NB_PF] = {
 	PF_ARGB4444		/* 0x07 */
 };
 
+<<<<<<< HEAD
+=======
+static const u64 ltdc_format_modifiers[] = {
+	DRM_FORMAT_MOD_LINEAR,
+	DRM_FORMAT_MOD_INVALID
+};
+
+>>>>>>> upstream/android-13
 static inline u32 reg_read(void __iomem *base, u32 reg)
 {
 	return readl_relaxed(base + reg);
@@ -406,44 +447,76 @@ static void ltdc_crtc_update_clut(struct drm_crtc *crtc)
 }
 
 static void ltdc_crtc_atomic_enable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *old_state)
 {
 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
 
 	DRM_DEBUG_DRIVER("\n");
 
+=======
+				    struct drm_atomic_state *state)
+{
+	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+	struct drm_device *ddev = crtc->dev;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	pm_runtime_get_sync(ddev->dev);
+
+>>>>>>> upstream/android-13
 	/* Sets the background color value */
 	reg_write(ldev->regs, LTDC_BCCR, BCCR_BCBLACK);
 
 	/* Enable IRQ */
 	reg_set(ldev->regs, LTDC_IER, IER_RRIE | IER_FUIE | IER_TERRIE);
 
+<<<<<<< HEAD
 	/* Immediately commit the planes */
 	reg_set(ldev->regs, LTDC_SRCR, SRCR_IMR);
 
 	/* Enable LTDC */
 	reg_set(ldev->regs, LTDC_GCR, GCR_LTDCEN);
+=======
+	/* Commit shadow registers = update planes at next vblank */
+	reg_set(ldev->regs, LTDC_SRCR, SRCR_VBR);
+>>>>>>> upstream/android-13
 
 	drm_crtc_vblank_on(crtc);
 }
 
 static void ltdc_crtc_atomic_disable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				     struct drm_crtc_state *old_state)
 {
 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+=======
+				     struct drm_atomic_state *state)
+{
+	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+	struct drm_device *ddev = crtc->dev;
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG_DRIVER("\n");
 
 	drm_crtc_vblank_off(crtc);
 
+<<<<<<< HEAD
 	/* disable LTDC */
 	reg_clear(ldev->regs, LTDC_GCR, GCR_LTDCEN);
 
+=======
+>>>>>>> upstream/android-13
 	/* disable IRQ */
 	reg_clear(ldev->regs, LTDC_IER, IER_RRIE | IER_FUIE | IER_TERRIE);
 
 	/* immediately commit disable of layers before switching off LTDC */
 	reg_set(ldev->regs, LTDC_SRCR, SRCR_IMR);
+<<<<<<< HEAD
+=======
+
+	pm_runtime_put_sync(ddev->dev);
+>>>>>>> upstream/android-13
 }
 
 #define CLK_TOLERANCE_HZ 50
@@ -494,26 +567,39 @@ static bool ltdc_crtc_mode_fixup(struct drm_crtc *crtc,
 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
 	int rate = mode->clock * 1000;
 
+<<<<<<< HEAD
 	/*
 	 * TODO clk_round_rate() does not work yet. When ready, it can
 	 * be used instead of clk_set_rate() then clk_get_rate().
 	 */
 
 	clk_disable(ldev->pixel_clk);
+=======
+>>>>>>> upstream/android-13
 	if (clk_set_rate(ldev->pixel_clk, rate) < 0) {
 		DRM_ERROR("Cannot set rate (%dHz) for pixel clk\n", rate);
 		return false;
 	}
+<<<<<<< HEAD
 	clk_enable(ldev->pixel_clk);
 
 	adjusted_mode->clock = clk_get_rate(ldev->pixel_clk) / 1000;
 
+=======
+
+	adjusted_mode->clock = clk_get_rate(ldev->pixel_clk) / 1000;
+
+	DRM_DEBUG_DRIVER("requested clock %dkHz, adjusted clock %dkHz\n",
+			 mode->clock, adjusted_mode->clock);
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
 static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
 {
 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+<<<<<<< HEAD
 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
 	struct videomode vm;
 	u32 hsync, vsync, accum_hbp, accum_vbp, accum_act_w, accum_act_h;
@@ -537,10 +623,76 @@ static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
 	accum_act_h = accum_vbp + vm.vactive;
 	total_width = accum_act_w + vm.hfront_porch;
 	total_height = accum_act_h + vm.vfront_porch;
+=======
+	struct drm_device *ddev = crtc->dev;
+	struct drm_connector_list_iter iter;
+	struct drm_connector *connector = NULL;
+	struct drm_encoder *encoder = NULL;
+	struct drm_bridge *bridge = NULL;
+	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
+	u32 hsync, vsync, accum_hbp, accum_vbp, accum_act_w, accum_act_h;
+	u32 total_width, total_height;
+	u32 bus_flags = 0;
+	u32 val;
+	int ret;
+
+	/* get encoder from crtc */
+	drm_for_each_encoder(encoder, ddev)
+		if (encoder->crtc == crtc)
+			break;
+
+	if (encoder) {
+		/* get bridge from encoder */
+		list_for_each_entry(bridge, &encoder->bridge_chain, chain_node)
+			if (bridge->encoder == encoder)
+				break;
+
+		/* Get the connector from encoder */
+		drm_connector_list_iter_begin(ddev, &iter);
+		drm_for_each_connector_iter(connector, &iter)
+			if (connector->encoder == encoder)
+				break;
+		drm_connector_list_iter_end(&iter);
+	}
+
+	if (bridge && bridge->timings)
+		bus_flags = bridge->timings->input_bus_flags;
+	else if (connector)
+		bus_flags = connector->display_info.bus_flags;
+
+	if (!pm_runtime_active(ddev->dev)) {
+		ret = pm_runtime_get_sync(ddev->dev);
+		if (ret) {
+			DRM_ERROR("Failed to set mode, cannot get sync\n");
+			return;
+		}
+	}
+
+	DRM_DEBUG_DRIVER("CRTC:%d mode:%s\n", crtc->base.id, mode->name);
+	DRM_DEBUG_DRIVER("Video mode: %dx%d", mode->hdisplay, mode->vdisplay);
+	DRM_DEBUG_DRIVER(" hfp %d hbp %d hsl %d vfp %d vbp %d vsl %d\n",
+			 mode->hsync_start - mode->hdisplay,
+			 mode->htotal - mode->hsync_end,
+			 mode->hsync_end - mode->hsync_start,
+			 mode->vsync_start - mode->vdisplay,
+			 mode->vtotal - mode->vsync_end,
+			 mode->vsync_end - mode->vsync_start);
+
+	/* Convert video timings to ltdc timings */
+	hsync = mode->hsync_end - mode->hsync_start - 1;
+	vsync = mode->vsync_end - mode->vsync_start - 1;
+	accum_hbp = mode->htotal - mode->hsync_start - 1;
+	accum_vbp = mode->vtotal - mode->vsync_start - 1;
+	accum_act_w = accum_hbp + mode->hdisplay;
+	accum_act_h = accum_vbp + mode->vdisplay;
+	total_width = mode->htotal - 1;
+	total_height = mode->vtotal - 1;
+>>>>>>> upstream/android-13
 
 	/* Configures the HS, VS, DE and PC polarities. Default Active Low */
 	val = 0;
 
+<<<<<<< HEAD
 	if (vm.flags & DISPLAY_FLAGS_HSYNC_HIGH)
 		val |= GCR_HSPOL;
 
@@ -551,6 +703,18 @@ static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
 		val |= GCR_DEPOL;
 
 	if (vm.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
+=======
+	if (mode->flags & DRM_MODE_FLAG_PHSYNC)
+		val |= GCR_HSPOL;
+
+	if (mode->flags & DRM_MODE_FLAG_PVSYNC)
+		val |= GCR_VSPOL;
+
+	if (bus_flags & DRM_BUS_FLAG_DE_LOW)
+		val |= GCR_DEPOL;
+
+	if (bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
+>>>>>>> upstream/android-13
 		val |= GCR_PCPOL;
 
 	reg_update_bits(ldev->regs, LTDC_GCR,
@@ -576,9 +740,16 @@ static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
 }
 
 static void ltdc_crtc_atomic_flush(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				   struct drm_crtc_state *old_crtc_state)
 {
 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+=======
+				   struct drm_atomic_state *state)
+{
+	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+	struct drm_device *ddev = crtc->dev;
+>>>>>>> upstream/android-13
 	struct drm_pending_vblank_event *event = crtc->state->event;
 
 	DRM_DEBUG_ATOMIC("\n");
@@ -591,15 +762,75 @@ static void ltdc_crtc_atomic_flush(struct drm_crtc *crtc,
 	if (event) {
 		crtc->state->event = NULL;
 
+<<<<<<< HEAD
 		spin_lock_irq(&crtc->dev->event_lock);
+=======
+		spin_lock_irq(&ddev->event_lock);
+>>>>>>> upstream/android-13
 		if (drm_crtc_vblank_get(crtc) == 0)
 			drm_crtc_arm_vblank_event(crtc, event);
 		else
 			drm_crtc_send_vblank_event(crtc, event);
+<<<<<<< HEAD
 		spin_unlock_irq(&crtc->dev->event_lock);
 	}
 }
 
+=======
+		spin_unlock_irq(&ddev->event_lock);
+	}
+}
+
+static bool ltdc_crtc_get_scanout_position(struct drm_crtc *crtc,
+					   bool in_vblank_irq,
+					   int *vpos, int *hpos,
+					   ktime_t *stime, ktime_t *etime,
+					   const struct drm_display_mode *mode)
+{
+	struct drm_device *ddev = crtc->dev;
+	struct ltdc_device *ldev = ddev->dev_private;
+	int line, vactive_start, vactive_end, vtotal;
+
+	if (stime)
+		*stime = ktime_get();
+
+	/* The active area starts after vsync + front porch and ends
+	 * at vsync + front porc + display size.
+	 * The total height also include back porch.
+	 * We have 3 possible cases to handle:
+	 * - line < vactive_start: vpos = line - vactive_start and will be
+	 * negative
+	 * - vactive_start < line < vactive_end: vpos = line - vactive_start
+	 * and will be positive
+	 * - line > vactive_end: vpos = line - vtotal - vactive_start
+	 * and will negative
+	 *
+	 * Computation for the two first cases are identical so we can
+	 * simplify the code and only test if line > vactive_end
+	 */
+	if (pm_runtime_active(ddev->dev)) {
+		line = reg_read(ldev->regs, LTDC_CPSR) & CPSR_CYPOS;
+		vactive_start = reg_read(ldev->regs, LTDC_BPCR) & BPCR_AVBP;
+		vactive_end = reg_read(ldev->regs, LTDC_AWCR) & AWCR_AAH;
+		vtotal = reg_read(ldev->regs, LTDC_TWCR) & TWCR_TOTALH;
+
+		if (line > vactive_end)
+			*vpos = line - vtotal - vactive_start;
+		else
+			*vpos = line - vactive_start;
+	} else {
+		*vpos = 0;
+	}
+
+	*hpos = 0;
+
+	if (etime)
+		*etime = ktime_get();
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static const struct drm_crtc_helper_funcs ltdc_crtc_helper_funcs = {
 	.mode_valid = ltdc_crtc_mode_valid,
 	.mode_fixup = ltdc_crtc_mode_fixup,
@@ -607,14 +838,29 @@ static const struct drm_crtc_helper_funcs ltdc_crtc_helper_funcs = {
 	.atomic_flush = ltdc_crtc_atomic_flush,
 	.atomic_enable = ltdc_crtc_atomic_enable,
 	.atomic_disable = ltdc_crtc_atomic_disable,
+<<<<<<< HEAD
+=======
+	.get_scanout_position = ltdc_crtc_get_scanout_position,
+>>>>>>> upstream/android-13
 };
 
 static int ltdc_crtc_enable_vblank(struct drm_crtc *crtc)
 {
 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+<<<<<<< HEAD
 
 	DRM_DEBUG_DRIVER("\n");
 	reg_set(ldev->regs, LTDC_IER, IER_LIE);
+=======
+	struct drm_crtc_state *state = crtc->state;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	if (state->enable)
+		reg_set(ldev->regs, LTDC_IER, IER_LIE);
+	else
+		return -EPERM;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -636,7 +882,11 @@ static const struct drm_crtc_funcs ltdc_crtc_funcs = {
 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
 	.enable_vblank = ltdc_crtc_enable_vblank,
 	.disable_vblank = ltdc_crtc_disable_vblank,
+<<<<<<< HEAD
 	.gamma_set = drm_atomic_helper_legacy_gamma_set,
+=======
+	.get_vblank_timestamp = drm_crtc_vblank_helper_get_vblank_timestamp,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -644,10 +894,19 @@ static const struct drm_crtc_funcs ltdc_crtc_funcs = {
  */
 
 static int ltdc_plane_atomic_check(struct drm_plane *plane,
+<<<<<<< HEAD
 				   struct drm_plane_state *state)
 {
 	struct drm_framebuffer *fb = state->fb;
 	u32 src_x, src_y, src_w, src_h;
+=======
+				   struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct drm_framebuffer *fb = new_plane_state->fb;
+	u32 src_w, src_h;
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG_DRIVER("\n");
 
@@ -655,6 +914,7 @@ static int ltdc_plane_atomic_check(struct drm_plane *plane,
 		return 0;
 
 	/* convert src_ from 16:16 format */
+<<<<<<< HEAD
 	src_x = state->src_x >> 16;
 	src_y = state->src_y >> 16;
 	src_w = state->src_w >> 16;
@@ -662,6 +922,13 @@ static int ltdc_plane_atomic_check(struct drm_plane *plane,
 
 	/* Reject scaling */
 	if (src_w != state->crtc_w || src_h != state->crtc_h) {
+=======
+	src_w = new_plane_state->src_w >> 16;
+	src_h = new_plane_state->src_h >> 16;
+
+	/* Reject scaling */
+	if (src_w != new_plane_state->crtc_w || src_h != new_plane_state->crtc_h) {
+>>>>>>> upstream/android-13
 		DRM_ERROR("Scaling is not supported");
 		return -EINVAL;
 	}
@@ -670,6 +937,7 @@ static int ltdc_plane_atomic_check(struct drm_plane *plane,
 }
 
 static void ltdc_plane_atomic_update(struct drm_plane *plane,
+<<<<<<< HEAD
 				     struct drm_plane_state *oldstate)
 {
 	struct ltdc_device *ldev = plane_to_ltdc(plane);
@@ -680,26 +948,55 @@ static void ltdc_plane_atomic_update(struct drm_plane *plane,
 	u32 x1 = state->crtc_x + state->crtc_w - 1;
 	u32 y0 = state->crtc_y;
 	u32 y1 = state->crtc_y + state->crtc_h - 1;
+=======
+				     struct drm_atomic_state *state)
+{
+	struct ltdc_device *ldev = plane_to_ltdc(plane);
+	struct drm_plane_state *newstate = drm_atomic_get_new_plane_state(state,
+									  plane);
+	struct drm_framebuffer *fb = newstate->fb;
+	u32 lofs = plane->index * LAY_OFS;
+	u32 x0 = newstate->crtc_x;
+	u32 x1 = newstate->crtc_x + newstate->crtc_w - 1;
+	u32 y0 = newstate->crtc_y;
+	u32 y1 = newstate->crtc_y + newstate->crtc_h - 1;
+>>>>>>> upstream/android-13
 	u32 src_x, src_y, src_w, src_h;
 	u32 val, pitch_in_bytes, line_length, paddr, ahbp, avbp, bpcr;
 	enum ltdc_pix_fmt pf;
 
+<<<<<<< HEAD
 	if (!state->crtc || !fb) {
+=======
+	if (!newstate->crtc || !fb) {
+>>>>>>> upstream/android-13
 		DRM_DEBUG_DRIVER("fb or crtc NULL");
 		return;
 	}
 
 	/* convert src_ from 16:16 format */
+<<<<<<< HEAD
 	src_x = state->src_x >> 16;
 	src_y = state->src_y >> 16;
 	src_w = state->src_w >> 16;
 	src_h = state->src_h >> 16;
+=======
+	src_x = newstate->src_x >> 16;
+	src_y = newstate->src_y >> 16;
+	src_w = newstate->src_w >> 16;
+	src_h = newstate->src_h >> 16;
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG_DRIVER("plane:%d fb:%d (%dx%d)@(%d,%d) -> (%dx%d)@(%d,%d)\n",
 			 plane->base.id, fb->base.id,
 			 src_w, src_h, src_x, src_y,
+<<<<<<< HEAD
 			 state->crtc_w, state->crtc_h,
 			 state->crtc_x, state->crtc_y);
+=======
+			 newstate->crtc_w, newstate->crtc_h,
+			 newstate->crtc_x, newstate->crtc_y);
+>>>>>>> upstream/android-13
 
 	bpcr = reg_read(ldev->regs, LTDC_BPCR);
 	ahbp = (bpcr & BPCR_AHBP) >> 16;
@@ -730,7 +1027,11 @@ static void ltdc_plane_atomic_update(struct drm_plane *plane,
 
 	/* Configures the color frame buffer pitch in bytes & line length */
 	pitch_in_bytes = fb->pitches[0];
+<<<<<<< HEAD
 	line_length = drm_format_plane_cpp(fb->format->format, 0) *
+=======
+	line_length = fb->format->cpp[0] *
+>>>>>>> upstream/android-13
 		      (x1 - x0 + 1) + (ldev->caps.bus_width >> 3) - 1;
 	val = ((pitch_in_bytes << 16) | line_length);
 	reg_update_bits(ldev->regs, LTDC_L1CFBLR + lofs,
@@ -758,7 +1059,11 @@ static void ltdc_plane_atomic_update(struct drm_plane *plane,
 	reg_update_bits(ldev->regs, LTDC_L1CFBLNR + lofs, LXCFBLNR_CFBLN, val);
 
 	/* Sets the FB address */
+<<<<<<< HEAD
 	paddr = (u32)drm_fb_cma_get_gem_addr(fb, state, 0);
+=======
+	paddr = (u32)drm_fb_cma_get_gem_addr(fb, newstate, 0);
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG_DRIVER("fb: phys 0x%08x", paddr);
 	reg_write(ldev->regs, LTDC_L1CFBAR + lofs, paddr);
@@ -773,19 +1078,34 @@ static void ltdc_plane_atomic_update(struct drm_plane *plane,
 
 	mutex_lock(&ldev->err_lock);
 	if (ldev->error_status & ISR_FUIF) {
+<<<<<<< HEAD
 		DRM_DEBUG_DRIVER("Fifo underrun\n");
 		ldev->error_status &= ~ISR_FUIF;
 	}
 	if (ldev->error_status & ISR_TERRIF) {
 		DRM_DEBUG_DRIVER("Transfer error\n");
+=======
+		DRM_WARN("ltdc fifo underrun: please verify display mode\n");
+		ldev->error_status &= ~ISR_FUIF;
+	}
+	if (ldev->error_status & ISR_TERRIF) {
+		DRM_WARN("ltdc transfer error\n");
+>>>>>>> upstream/android-13
 		ldev->error_status &= ~ISR_TERRIF;
 	}
 	mutex_unlock(&ldev->err_lock);
 }
 
 static void ltdc_plane_atomic_disable(struct drm_plane *plane,
+<<<<<<< HEAD
 				      struct drm_plane_state *oldstate)
 {
+=======
+				      struct drm_atomic_state *state)
+{
+	struct drm_plane_state *oldstate = drm_atomic_get_old_plane_state(state,
+									  plane);
+>>>>>>> upstream/android-13
 	struct ltdc_device *ldev = plane_to_ltdc(plane);
 	u32 lofs = plane->index * LAY_OFS;
 
@@ -815,6 +1135,19 @@ static void ltdc_plane_atomic_print_state(struct drm_printer *p,
 	fpsi->counter = 0;
 }
 
+<<<<<<< HEAD
+=======
+static bool ltdc_plane_format_mod_supported(struct drm_plane *plane,
+					    u32 format,
+					    u64 modifier)
+{
+	if (modifier == DRM_FORMAT_MOD_LINEAR)
+		return true;
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static const struct drm_plane_funcs ltdc_plane_funcs = {
 	.update_plane = drm_atomic_helper_update_plane,
 	.disable_plane = drm_atomic_helper_disable_plane,
@@ -823,10 +1156,17 @@ static const struct drm_plane_funcs ltdc_plane_funcs = {
 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
 	.atomic_print_state = ltdc_plane_atomic_print_state,
+<<<<<<< HEAD
 };
 
 static const struct drm_plane_helper_funcs ltdc_plane_helper_funcs = {
 	.prepare_fb = drm_gem_fb_prepare_fb,
+=======
+	.format_mod_supported = ltdc_plane_format_mod_supported,
+};
+
+static const struct drm_plane_helper_funcs ltdc_plane_helper_funcs = {
+>>>>>>> upstream/android-13
 	.atomic_check = ltdc_plane_atomic_check,
 	.atomic_update = ltdc_plane_atomic_update,
 	.atomic_disable = ltdc_plane_atomic_disable,
@@ -842,6 +1182,10 @@ static struct drm_plane *ltdc_plane_create(struct drm_device *ddev,
 	unsigned int i, nb_fmt = 0;
 	u32 formats[NB_PF * 2];
 	u32 drm_fmt, drm_fmt_no_alpha;
+<<<<<<< HEAD
+=======
+	const u64 *modifiers = ltdc_format_modifiers;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Get supported pixel formats */
@@ -870,7 +1214,11 @@ static struct drm_plane *ltdc_plane_create(struct drm_device *ddev,
 
 	ret = drm_universal_plane_init(ddev, plane, possible_crtcs,
 				       &ltdc_plane_funcs, formats, nb_fmt,
+<<<<<<< HEAD
 				       NULL, type, NULL);
+=======
+				       modifiers, type, NULL);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return NULL;
 
@@ -934,12 +1282,61 @@ cleanup:
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * DRM_ENCODER
  */
 
 static const struct drm_encoder_funcs ltdc_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
+=======
+static void ltdc_encoder_disable(struct drm_encoder *encoder)
+{
+	struct drm_device *ddev = encoder->dev;
+	struct ltdc_device *ldev = ddev->dev_private;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	/* Disable LTDC */
+	reg_clear(ldev->regs, LTDC_GCR, GCR_LTDCEN);
+
+	/* Set to sleep state the pinctrl whatever type of encoder */
+	pinctrl_pm_select_sleep_state(ddev->dev);
+}
+
+static void ltdc_encoder_enable(struct drm_encoder *encoder)
+{
+	struct drm_device *ddev = encoder->dev;
+	struct ltdc_device *ldev = ddev->dev_private;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	/* Enable LTDC */
+	reg_set(ldev->regs, LTDC_GCR, GCR_LTDCEN);
+}
+
+static void ltdc_encoder_mode_set(struct drm_encoder *encoder,
+				  struct drm_display_mode *mode,
+				  struct drm_display_mode *adjusted_mode)
+{
+	struct drm_device *ddev = encoder->dev;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	/*
+	 * Set to default state the pinctrl only with DPI type.
+	 * Others types like DSI, don't need pinctrl due to
+	 * internal bridge (the signals do not come out of the chipset).
+	 */
+	if (encoder->encoder_type == DRM_MODE_ENCODER_DPI)
+		pinctrl_pm_select_default_state(ddev->dev);
+}
+
+static const struct drm_encoder_helper_funcs ltdc_encoder_helper_funcs = {
+	.disable = ltdc_encoder_disable,
+	.enable = ltdc_encoder_enable,
+	.mode_set = ltdc_encoder_mode_set,
+>>>>>>> upstream/android-13
 };
 
 static int ltdc_encoder_init(struct drm_device *ddev, struct drm_bridge *bridge)
@@ -954,6 +1351,7 @@ static int ltdc_encoder_init(struct drm_device *ddev, struct drm_bridge *bridge)
 	encoder->possible_crtcs = CRTC_MASK;
 	encoder->possible_clones = 0;	/* No cloning support */
 
+<<<<<<< HEAD
 	drm_encoder_init(ddev, encoder, &ltdc_encoder_funcs,
 			 DRM_MODE_ENCODER_DPI, NULL);
 
@@ -961,6 +1359,17 @@ static int ltdc_encoder_init(struct drm_device *ddev, struct drm_bridge *bridge)
 	if (ret) {
 		drm_encoder_cleanup(encoder);
 		return -EINVAL;
+=======
+	drm_simple_encoder_init(ddev, encoder, DRM_MODE_ENCODER_DPI);
+
+	drm_encoder_helper_add(encoder, &ltdc_encoder_helper_funcs);
+
+	ret = drm_bridge_attach(encoder, bridge, NULL, 0);
+	if (ret) {
+		if (ret != -EPROBE_DEFER)
+			drm_encoder_cleanup(encoder);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	DRM_DEBUG_DRIVER("Bridge encoder:%d created\n", encoder->base.id);
@@ -973,10 +1382,20 @@ static int ltdc_get_caps(struct drm_device *ddev)
 	struct ltdc_device *ldev = ddev->dev_private;
 	u32 bus_width_log2, lcr, gc2r;
 
+<<<<<<< HEAD
 	/* at least 1 layer must be managed */
 	lcr = reg_read(ldev->regs, LTDC_LCR);
 
 	ldev->caps.nb_layers = max_t(int, lcr, 1);
+=======
+	/*
+	 * at least 1 layer must be managed & the number of layers
+	 * must not exceed LTDC_MAX_LAYER
+	 */
+	lcr = reg_read(ldev->regs, LTDC_LCR);
+
+	ldev->caps.nb_layers = clamp((int)lcr, 1, LTDC_MAX_LAYER);
+>>>>>>> upstream/android-13
 
 	/* set data bus width */
 	gc2r = reg_read(ldev->regs, LTDC_GC2R);
@@ -1000,12 +1419,20 @@ static int ltdc_get_caps(struct drm_device *ddev)
 		ldev->caps.pad_max_freq_hz = 90000000;
 		if (ldev->caps.hw_version == HWVER_10200)
 			ldev->caps.pad_max_freq_hz = 65000000;
+<<<<<<< HEAD
+=======
+		ldev->caps.nb_irq = 2;
+>>>>>>> upstream/android-13
 		break;
 	case HWVER_20101:
 		ldev->caps.reg_ofs = REG_OFS_4;
 		ldev->caps.pix_fmt_hw = ltdc_pix_fmt_a1;
 		ldev->caps.non_alpha_only_l1 = false;
 		ldev->caps.pad_max_freq_hz = 150000000;
+<<<<<<< HEAD
+=======
+		ldev->caps.nb_irq = 4;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -ENODEV;
@@ -1014,12 +1441,40 @@ static int ltdc_get_caps(struct drm_device *ddev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+void ltdc_suspend(struct drm_device *ddev)
+{
+	struct ltdc_device *ldev = ddev->dev_private;
+
+	DRM_DEBUG_DRIVER("\n");
+	clk_disable_unprepare(ldev->pixel_clk);
+}
+
+int ltdc_resume(struct drm_device *ddev)
+{
+	struct ltdc_device *ldev = ddev->dev_private;
+	int ret;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	ret = clk_prepare_enable(ldev->pixel_clk);
+	if (ret) {
+		DRM_ERROR("failed to enable pixel clock (%d)\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int ltdc_load(struct drm_device *ddev)
 {
 	struct platform_device *pdev = to_platform_device(ddev->dev);
 	struct ltdc_device *ldev = ddev->dev_private;
 	struct device *dev = ddev->dev;
 	struct device_node *np = dev->of_node;
+<<<<<<< HEAD
 	struct drm_bridge *bridge[MAX_ENDPOINTS] = {NULL};
 	struct drm_panel *panel[MAX_ENDPOINTS] = {NULL};
 	struct drm_crtc *crtc;
@@ -1055,6 +1510,28 @@ int ltdc_load(struct drm_device *ddev)
 	if (IS_ERR(ldev->pixel_clk)) {
 		DRM_ERROR("Unable to get lcd clock\n");
 		return -ENODEV;
+=======
+	struct drm_bridge *bridge;
+	struct drm_panel *panel;
+	struct drm_crtc *crtc;
+	struct reset_control *rstc;
+	struct resource *res;
+	int irq, i, nb_endpoints;
+	int ret = -ENODEV;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	/* Get number of endpoints */
+	nb_endpoints = of_graph_get_endpoint_count(np);
+	if (!nb_endpoints)
+		return -ENODEV;
+
+	ldev->pixel_clk = devm_clk_get(dev, "lcd");
+	if (IS_ERR(ldev->pixel_clk)) {
+		if (PTR_ERR(ldev->pixel_clk) != -EPROBE_DEFER)
+			DRM_ERROR("Unable to get lcd clock\n");
+		return PTR_ERR(ldev->pixel_clk);
+>>>>>>> upstream/android-13
 	}
 
 	if (clk_prepare_enable(ldev->pixel_clk)) {
@@ -1062,6 +1539,53 @@ int ltdc_load(struct drm_device *ddev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Get endpoints if any */
+	for (i = 0; i < nb_endpoints; i++) {
+		ret = drm_of_find_panel_or_bridge(np, 0, i, &panel, &bridge);
+
+		/*
+		 * If at least one endpoint is -ENODEV, continue probing,
+		 * else if at least one endpoint returned an error
+		 * (ie -EPROBE_DEFER) then stop probing.
+		 */
+		if (ret == -ENODEV)
+			continue;
+		else if (ret)
+			goto err;
+
+		if (panel) {
+			bridge = drm_panel_bridge_add_typed(panel,
+							    DRM_MODE_CONNECTOR_DPI);
+			if (IS_ERR(bridge)) {
+				DRM_ERROR("panel-bridge endpoint %d\n", i);
+				ret = PTR_ERR(bridge);
+				goto err;
+			}
+		}
+
+		if (bridge) {
+			ret = ltdc_encoder_init(ddev, bridge);
+			if (ret) {
+				if (ret != -EPROBE_DEFER)
+					DRM_ERROR("init encoder endpoint %d\n", i);
+				goto err;
+			}
+		}
+	}
+
+	rstc = devm_reset_control_get_exclusive(dev, NULL);
+
+	mutex_init(&ldev->err_lock);
+
+	if (!IS_ERR(rstc)) {
+		reset_control_assert(rstc);
+		usleep_range(10, 20);
+		reset_control_deassert(rstc);
+	}
+
+>>>>>>> upstream/android-13
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ldev->regs = devm_ioremap_resource(dev, res);
 	if (IS_ERR(ldev->regs)) {
@@ -1070,6 +1594,7 @@ int ltdc_load(struct drm_device *ddev)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < MAX_IRQ; i++) {
 		irq = platform_get_irq(pdev, i);
 		if (irq < 0)
@@ -1090,6 +1615,8 @@ int ltdc_load(struct drm_device *ddev)
 		reset_control_deassert(rstc);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Disable interrupts */
 	reg_clear(ldev->regs, LTDC_IER,
 		  IER_LIE | IER_RRIE | IER_FUIE | IER_TERRIE);
@@ -1101,6 +1628,7 @@ int ltdc_load(struct drm_device *ddev)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	DRM_INFO("ltdc hw version 0x%08x - ready\n", ldev->caps.hw_version);
 
 	/* Add endpoints panels or bridges if any */
@@ -1122,6 +1650,25 @@ int ltdc_load(struct drm_device *ddev)
 				goto err;
 			}
 		}
+=======
+	DRM_DEBUG_DRIVER("ltdc hw version 0x%08x\n", ldev->caps.hw_version);
+
+	for (i = 0; i < ldev->caps.nb_irq; i++) {
+		irq = platform_get_irq(pdev, i);
+		if (irq < 0) {
+			ret = irq;
+			goto err;
+		}
+
+		ret = devm_request_threaded_irq(dev, irq, ltdc_irq,
+						ltdc_irq_thread, IRQF_ONESHOT,
+						dev_name(dev), ddev);
+		if (ret) {
+			DRM_ERROR("Failed to register LTDC interrupt\n");
+			goto err;
+		}
+
+>>>>>>> upstream/android-13
 	}
 
 	crtc = devm_kzalloc(dev, sizeof(*crtc), GFP_KERNEL);
@@ -1143,6 +1690,7 @@ int ltdc_load(struct drm_device *ddev)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	/* Allow usage of vblank without having to call drm_irq_install */
 	ddev->irq_enabled = 1;
 
@@ -1151,6 +1699,18 @@ int ltdc_load(struct drm_device *ddev)
 err:
 	for (i = 0; i < MAX_ENDPOINTS; i++)
 		drm_panel_bridge_remove(bridge[i]);
+=======
+	clk_disable_unprepare(ldev->pixel_clk);
+
+	pinctrl_pm_select_sleep_state(ddev->dev);
+
+	pm_runtime_enable(ddev->dev);
+
+	return 0;
+err:
+	for (i = 0; i < nb_endpoints; i++)
+		drm_of_panel_bridge_remove(ddev->dev->of_node, 0, i);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(ldev->pixel_clk);
 
@@ -1159,6 +1719,7 @@ err:
 
 void ltdc_unload(struct drm_device *ddev)
 {
+<<<<<<< HEAD
 	struct ltdc_device *ldev = ddev->dev_private;
 	int i;
 
@@ -1168,6 +1729,19 @@ void ltdc_unload(struct drm_device *ddev)
 		drm_of_panel_bridge_remove(ddev->dev->of_node, 0, i);
 
 	clk_disable_unprepare(ldev->pixel_clk);
+=======
+	struct device *dev = ddev->dev;
+	int nb_endpoints, i;
+
+	DRM_DEBUG_DRIVER("\n");
+
+	nb_endpoints = of_graph_get_endpoint_count(dev->of_node);
+
+	for (i = 0; i < nb_endpoints; i++)
+		drm_of_panel_bridge_remove(ddev->dev->of_node, 0, i);
+
+	pm_runtime_disable(ddev->dev);
+>>>>>>> upstream/android-13
 }
 
 MODULE_AUTHOR("Philippe Cornu <philippe.cornu@st.com>");

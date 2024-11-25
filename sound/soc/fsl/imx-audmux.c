@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  * Copyright 2012 Linaro Ltd.
@@ -16,6 +17,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright 2012 Freescale Semiconductor, Inc.
+// Copyright 2012 Linaro Ltd.
+// Copyright 2009 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
+//
+// Initial development of this code was funded by
+// Phytec Messtechnik GmbH, https://www.phytec.de
+>>>>>>> upstream/android-13
 
 #include <linux/clk.h>
 #include <linux/debugfs.h>
@@ -33,6 +44,11 @@
 
 static struct clk *audmux_clk;
 static void __iomem *audmux_base;
+<<<<<<< HEAD
+=======
+static u32 *regcache;
+static u32 reg_max;
+>>>>>>> upstream/android-13
 
 #define IMX_AUDMUX_V2_PTCR(x)		((x) * 8)
 #define IMX_AUDMUX_V2_PDCR(x)		((x) * 8 + 4)
@@ -151,6 +167,7 @@ static void audmux_debugfs_init(void)
 	char buf[20];
 
 	audmux_debugfs_root = debugfs_create_dir("audmux", NULL);
+<<<<<<< HEAD
 	if (!audmux_debugfs_root) {
 		pr_warning("Failed to create AUDMUX debugfs root\n");
 		return;
@@ -162,6 +179,13 @@ static void audmux_debugfs_init(void)
 					 (void *)i, &audmux_debugfs_fops))
 			pr_warning("Failed to create AUDMUX port %lu debugfs file\n",
 				   i);
+=======
+
+	for (i = 0; i < MX31_AUDMUX_PORT7_SSI_PINS_7 + 1; i++) {
+		snprintf(buf, sizeof(buf), "ssi%lu", i);
+		debugfs_create_file(buf, 0444, audmux_debugfs_root,
+				    (void *)i, &audmux_debugfs_fops);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -184,6 +208,7 @@ static enum imx_audmux_type {
 	IMX31_AUDMUX,
 } audmux_type;
 
+<<<<<<< HEAD
 static const struct platform_device_id imx_audmux_ids[] = {
 	{
 		.name = "imx21-audmux",
@@ -200,6 +225,11 @@ MODULE_DEVICE_TABLE(platform, imx_audmux_ids);
 static const struct of_device_id imx_audmux_dt_ids[] = {
 	{ .compatible = "fsl,imx21-audmux", .data = &imx_audmux_ids[0], },
 	{ .compatible = "fsl,imx31-audmux", .data = &imx_audmux_ids[1], },
+=======
+static const struct of_device_id imx_audmux_dt_ids[] = {
+	{ .compatible = "fsl,imx21-audmux", .data = (void *)IMX21_AUDMUX, },
+	{ .compatible = "fsl,imx31-audmux", .data = (void *)IMX31_AUDMUX, },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, imx_audmux_dt_ids);
@@ -314,12 +344,16 @@ static int imx_audmux_parse_dt_defaults(struct platform_device *pdev,
 
 static int imx_audmux_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	const struct of_device_id *of_id =
 			of_match_device(imx_audmux_dt_ids, &pdev->dev);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	audmux_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	audmux_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(audmux_base))
 		return PTR_ERR(audmux_base);
 
@@ -330,6 +364,7 @@ static int imx_audmux_probe(struct platform_device *pdev)
 		audmux_clk = NULL;
 	}
 
+<<<<<<< HEAD
 	if (of_id)
 		pdev->id_entry = of_id->data;
 	audmux_type = pdev->id_entry->driver_data;
@@ -338,6 +373,28 @@ static int imx_audmux_probe(struct platform_device *pdev)
 
 	if (of_id)
 		imx_audmux_parse_dt_defaults(pdev, pdev->dev.of_node);
+=======
+	audmux_type = (enum imx_audmux_type)of_device_get_match_data(&pdev->dev);
+
+	switch (audmux_type) {
+	case IMX31_AUDMUX:
+		audmux_debugfs_init();
+		reg_max = 14;
+		break;
+	case IMX21_AUDMUX:
+		reg_max = 6;
+		break;
+	default:
+		dev_err(&pdev->dev, "unsupported version!\n");
+		return -EINVAL;
+	}
+
+	regcache = devm_kzalloc(&pdev->dev, sizeof(u32) * reg_max, GFP_KERNEL);
+	if (!regcache)
+		return -ENOMEM;
+
+	imx_audmux_parse_dt_defaults(pdev, pdev->dev.of_node);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -350,12 +407,55 @@ static int imx_audmux_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct platform_driver imx_audmux_driver = {
 	.probe		= imx_audmux_probe,
 	.remove		= imx_audmux_remove,
 	.id_table	= imx_audmux_ids,
 	.driver	= {
 		.name	= DRIVER_NAME,
+=======
+#ifdef CONFIG_PM_SLEEP
+static int imx_audmux_suspend(struct device *dev)
+{
+	int i;
+
+	clk_prepare_enable(audmux_clk);
+
+	for (i = 0; i < reg_max; i++)
+		regcache[i] = readl(audmux_base + i * 4);
+
+	clk_disable_unprepare(audmux_clk);
+
+	return 0;
+}
+
+static int imx_audmux_resume(struct device *dev)
+{
+	int i;
+
+	clk_prepare_enable(audmux_clk);
+
+	for (i = 0; i < reg_max; i++)
+		writel(regcache[i], audmux_base + i * 4);
+
+	clk_disable_unprepare(audmux_clk);
+
+	return 0;
+}
+#endif /* CONFIG_PM_SLEEP */
+
+static const struct dev_pm_ops imx_audmux_pm = {
+	SET_SYSTEM_SLEEP_PM_OPS(imx_audmux_suspend, imx_audmux_resume)
+};
+
+static struct platform_driver imx_audmux_driver = {
+	.probe		= imx_audmux_probe,
+	.remove		= imx_audmux_remove,
+	.driver	= {
+		.name	= DRIVER_NAME,
+		.pm = &imx_audmux_pm,
+>>>>>>> upstream/android-13
 		.of_match_table = imx_audmux_dt_ids,
 	}
 };

@@ -13,6 +13,13 @@ BEGIN {
 	system("uname -a")
 	printf("\n")
 
+<<<<<<< HEAD
+=======
+	vernum = "[0-9]+([.]?[0-9]+)+"
+	libc = "libc[.]so[.][0-9]+$"
+	libcpp = "(libg|stdc)[+]+[.]so([.][0-9]+)+$"
+
+>>>>>>> upstream/android-13
 	printversion("GNU C", version("gcc -dumpversion"))
 	printversion("GNU Make", version("make --version"))
 	printversion("Binutils", version("ld -v"))
@@ -30,6 +37,7 @@ BEGIN {
 	printversion("PPP", version("pppd --version"))
 	printversion("Isdn4k-utils", version("isdnctrl"))
 	printversion("Nfs-utils", version("showmount --version"))
+<<<<<<< HEAD
 
 	while (getline <"/proc/self/maps" > 0) {
 		if (/libc.*\.so$/) {
@@ -51,11 +59,25 @@ BEGIN {
 		}
 	}
 	printversion("Linux C++ Library", version("readlink " libcpp))
+=======
+	printversion("Bison", version("bison --version"))
+	printversion("Flex", version("flex --version"))
+
+	while ("ldconfig -p 2>/dev/null" | getline > 0)
+		if ($NF ~ libc || $NF ~ libcpp)
+			if (!seen[ver = version("readlink " $NF)]++)
+				printversion("Linux C" ($NF ~ libcpp? "++" : "") " Library", ver)
+
+	printversion("Dynamic linker (ldd)", version("ldd --version"))
+>>>>>>> upstream/android-13
 	printversion("Procps", version("ps --version"))
 	printversion("Net-tools", version("ifconfig --version"))
 	printversion("Kbd", version("loadkeys -V"))
 	printversion("Console-tools", version("loadkeys -V"))
+<<<<<<< HEAD
 	printversion("Oprofile", version("oprofiled --version"))
+=======
+>>>>>>> upstream/android-13
 	printversion("Sh-utils", version("expr --v"))
 	printversion("Udev", version("udevadm --version"))
 	printversion("Wireless-tools", version("iwconfig --version"))
@@ -70,7 +92,11 @@ BEGIN {
 function version(cmd,    ver) {
 	cmd = cmd " 2>&1"
 	while (cmd | getline > 0) {
+<<<<<<< HEAD
 		if (match($0, /[0-9]+([.]?[0-9]+)+/)) {
+=======
+		if (match($0, vernum)) {
+>>>>>>> upstream/android-13
 			ver = substr($0, RSTART, RLENGTH)
 			break
 		}

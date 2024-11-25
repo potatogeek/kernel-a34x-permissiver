@@ -10,6 +10,10 @@ Required properties:
 	phandle, specifies a reference to the syscon ppe node
 	port, port number connected to the controller
 	channel, recv channel start from channel * number (RX_DESC_NUM)
+<<<<<<< HEAD
+=======
+	group, field in the pkg desc, in general, it is the same as the port.
+>>>>>>> upstream/android-13
 - phy-mode: see ethernet.txt [1].
 
 Optional properties:
@@ -66,7 +70,11 @@ Example:
 		reg = <0x28b0000 0x10000>;
 		interrupts = <0 413 4>;
 		phy-mode = "mii";
+<<<<<<< HEAD
 		port-handle = <&ppe 31 0>;
+=======
+		port-handle = <&ppe 31 0 31>;
+>>>>>>> upstream/android-13
 	};
 
 	ge0: ethernet@2800000 {
@@ -74,7 +82,11 @@ Example:
 		reg = <0x2800000 0x10000>;
 		interrupts = <0 402 4>;
 		phy-mode = "sgmii";
+<<<<<<< HEAD
 		port-handle = <&ppe 0 1>;
+=======
+		port-handle = <&ppe 0 1 0>;
+>>>>>>> upstream/android-13
 		phy-handle = <&phy0>;
 	};
 
@@ -83,6 +95,10 @@ Example:
 		reg = <0x2880000 0x10000>;
 		interrupts = <0 410 4>;
 		phy-mode = "sgmii";
+<<<<<<< HEAD
 		port-handle = <&ppe 8 2>;
+=======
+		port-handle = <&ppe 8 2 8>;
+>>>>>>> upstream/android-13
 		phy-handle = <&phy1>;
 	};

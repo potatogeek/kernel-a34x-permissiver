@@ -4,7 +4,11 @@
  * Module Name: dscontrol - Support for execution control opcodes -
  *                          if/else/while/return
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -62,7 +66,11 @@ acpi_ds_exec_begin_control_op(struct acpi_walk_state *walk_state,
 			}
 		}
 
+<<<<<<< HEAD
 		/*lint -fallthrough */
+=======
+		ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 	case AML_IF_OP:
 		/*
@@ -85,7 +93,11 @@ acpi_ds_exec_begin_control_op(struct acpi_walk_state *walk_state,
 		    walk_state->parser_state.pkg_end;
 		control_state->control.opcode = op->common.aml_opcode;
 		control_state->control.loop_timeout = acpi_os_get_timer() +
+<<<<<<< HEAD
 		    (u64)(acpi_gbl_max_loop_iterations * ACPI_100NSEC_PER_SEC);
+=======
+		    ((u64)acpi_gbl_max_loop_iterations * ACPI_100NSEC_PER_SEC);
+>>>>>>> upstream/android-13
 
 		/* Push the control state on this walk's control stack */
 

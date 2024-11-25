@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # Resolver/Synchro drivers
 #
 menu "Resolver to digital converters"
 
+<<<<<<< HEAD
 config AD2S90
 	tristate "Analog Devices ad2s90 driver"
 	depends on SPI
@@ -13,6 +18,8 @@ config AD2S90
 	  To compile this driver as a module, choose M here: the
 	  module will be called ad2s90.
 
+=======
+>>>>>>> upstream/android-13
 config AD2S1210
 	tristate "Analog Devices ad2s1210 driver"
 	depends on SPI

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * File: drivers/input/keyboard/adp5588_keys.c
  * Description:  keypad driver for ADP5588 and ADP5587
@@ -5,7 +9,10 @@
  * Bugs: Enter bugs at http://blackfin.uclinux.org/
  *
  * Copyright (C) 2008-2010 Analog Devices Inc.
+<<<<<<< HEAD
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -17,7 +24,11 @@
 #include <linux/platform_device.h>
 #include <linux/input.h>
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 #include <linux/platform_data/adp5588.h>

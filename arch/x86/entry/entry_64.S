@@ -8,15 +8,23 @@
  *
  * entry.S contains the system-call and fault low-level handling routines.
  *
+<<<<<<< HEAD
  * Some of this is documented in Documentation/x86/entry_64.txt
+=======
+ * Some of this is documented in Documentation/x86/entry_64.rst
+>>>>>>> upstream/android-13
  *
  * A note on terminology:
  * - iret frame:	Architecture defined interrupt frame from SS to RIP
  *			at the top of the kernel process stack.
  *
  * Some macro usage:
+<<<<<<< HEAD
  * - ENTRY/END:		Define functions in the symbol table.
  * - TRACE_IRQ_*:	Trace hardirq state for lock debugging.
+=======
+ * - SYM_FUNC_START/END:Define functions in the symbol table.
+>>>>>>> upstream/android-13
  * - idtentry:		Define exception entry points.
  */
 #include <linux/linkage.h>
@@ -37,7 +45,13 @@
 #include <asm/pgtable_types.h>
 #include <asm/export.h>
 #include <asm/frame.h>
+<<<<<<< HEAD
 #include <asm/nospec-branch.h>
+=======
+#include <asm/trapnr.h>
+#include <asm/nospec-branch.h>
+#include <asm/fsgsbase.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 
 #include "calling.h"
@@ -45,6 +59,7 @@
 .code64
 .section .entry.text, "ax"
 
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
 ENTRY(native_usergs_sysret64)
 	UNWIND_HINT_EMPTY
@@ -104,6 +119,8 @@ END(native_usergs_sysret64)
 # define TRACE_IRQS_IRETQ_DEBUG			TRACE_IRQS_IRETQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * 64-bit SYSCALL instruction entry. Up to 6 arguments in registers.
  *
@@ -142,6 +159,7 @@ END(native_usergs_sysret64)
  * with them due to bugs in both AMD and Intel CPUs.
  */
 
+<<<<<<< HEAD
 	.pushsection .entry_trampoline, "ax"
 
 /*
@@ -239,11 +257,50 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
 
 	TRACE_IRQS_IRETQ		/* we're about to change IF */
 
+=======
+SYM_CODE_START(entry_SYSCALL_64)
+	UNWIND_HINT_EMPTY
+
+	swapgs
+	/* tss.sp2 is scratch space. */
+	movq	%rsp, PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
+	SWITCH_TO_KERNEL_CR3 scratch_reg=%rsp
+	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+
+SYM_INNER_LABEL(entry_SYSCALL_64_safe_stack, SYM_L_GLOBAL)
+
+	/* Construct struct pt_regs on stack */
+	pushq	$__USER_DS				/* pt_regs->ss */
+	pushq	PER_CPU_VAR(cpu_tss_rw + TSS_sp2)	/* pt_regs->sp */
+	pushq	%r11					/* pt_regs->flags */
+	pushq	$__USER_CS				/* pt_regs->cs */
+	pushq	%rcx					/* pt_regs->ip */
+SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
+	pushq	%rax					/* pt_regs->orig_ax */
+
+	PUSH_AND_CLEAR_REGS rax=$-ENOSYS
+
+	/* IRQs are off. */
+	movq	%rsp, %rdi
+	/* Sign extend the lower 32bit as syscall numbers are treated as int */
+	movslq	%eax, %rsi
+	call	do_syscall_64		/* returns with IRQs disabled */
+
+>>>>>>> upstream/android-13
 	/*
 	 * Try to use SYSRET instead of IRET if we're returning to
 	 * a completely clean 64-bit userspace context.  If we're not,
 	 * go to the slow exit path.
+<<<<<<< HEAD
 	 */
+=======
+	 * In the Xen PV case we must use iret anyway.
+	 */
+
+	ALTERNATIVE "", "jmp	swapgs_restore_regs_and_return_to_usermode", \
+		X86_FEATURE_XENPV
+
+>>>>>>> upstream/android-13
 	movq	RCX(%rsp), %rcx
 	movq	RIP(%rsp), %r11
 
@@ -329,19 +386,35 @@ syscall_return_via_sysret:
 	 * We are on the trampoline stack.  All regs except RDI are live.
 	 * We can do future final exit work right here.
 	 */
+<<<<<<< HEAD
+=======
+	STACKLEAK_ERASE_NOCLOBBER
+
+>>>>>>> upstream/android-13
 	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi
 
 	popq	%rdi
 	popq	%rsp
+<<<<<<< HEAD
 	USERGS_SYSRET64
 END(entry_SYSCALL_64)
+=======
+	swapgs
+	sysretq
+SYM_CODE_END(entry_SYSCALL_64)
+>>>>>>> upstream/android-13
 
 /*
  * %rdi: prev task
  * %rsi: next task
  */
+<<<<<<< HEAD
 ENTRY(__switch_to_asm)
 	UNWIND_HINT_FUNC
+=======
+.pushsection .text, "ax"
+SYM_FUNC_START(__switch_to_asm)
+>>>>>>> upstream/android-13
 	/*
 	 * Save callee-saved registers
 	 * This must match the order in inactive_task_frame
@@ -352,7 +425,10 @@ ENTRY(__switch_to_asm)
 	pushq	%r13
 	pushq	%r14
 	pushq	%r15
+<<<<<<< HEAD
 	pushfq
+=======
+>>>>>>> upstream/android-13
 
 	/* switch stack */
 	movq	%rsp, TASK_threadsp(%rdi)
@@ -360,7 +436,11 @@ ENTRY(__switch_to_asm)
 
 #ifdef CONFIG_STACKPROTECTOR
 	movq	TASK_stack_canary(%rsi), %rbx
+<<<<<<< HEAD
 	movq	%rbx, PER_CPU_VAR(irq_stack_union)+stack_canary_offset
+=======
+	movq	%rbx, PER_CPU_VAR(fixed_percpu_data) + stack_canary_offset
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_RETPOLINE
@@ -375,7 +455,10 @@ ENTRY(__switch_to_asm)
 #endif
 
 	/* restore callee-saved registers */
+<<<<<<< HEAD
 	popfq
+=======
+>>>>>>> upstream/android-13
 	popq	%r15
 	popq	%r14
 	popq	%r13
@@ -384,7 +467,12 @@ ENTRY(__switch_to_asm)
 	popq	%rbp
 
 	jmp	__switch_to
+<<<<<<< HEAD
 END(__switch_to_asm)
+=======
+SYM_FUNC_END(__switch_to_asm)
+.popsection
+>>>>>>> upstream/android-13
 
 /*
  * A newly forked process directly context switches into this address.
@@ -393,7 +481,12 @@ END(__switch_to_asm)
  * rbx: kernel thread func (NULL for user thread)
  * r12: kernel thread arg
  */
+<<<<<<< HEAD
 ENTRY(ret_from_fork)
+=======
+.pushsection .text, "ax"
+SYM_CODE_START(ret_from_fork)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_EMPTY
 	movq	%rax, %rdi
 	call	schedule_tail			/* rdi: 'prev' task parameter */
@@ -404,22 +497,34 @@ ENTRY(ret_from_fork)
 2:
 	UNWIND_HINT_REGS
 	movq	%rsp, %rdi
+<<<<<<< HEAD
 	call	syscall_return_slowpath	/* returns with IRQs disabled */
 	TRACE_IRQS_ON			/* user mode is traced as IRQS on */
+=======
+	call	syscall_exit_to_user_mode	/* returns with IRQs disabled */
+>>>>>>> upstream/android-13
 	jmp	swapgs_restore_regs_and_return_to_usermode
 
 1:
 	/* kernel thread */
 	UNWIND_HINT_EMPTY
 	movq	%r12, %rdi
+<<<<<<< HEAD
 	CALL_NOSPEC %rbx
 	/*
 	 * A kernel thread is allowed to return here after successfully
 	 * calling do_execve().  Exit to userspace to complete the execve()
+=======
+	CALL_NOSPEC rbx
+	/*
+	 * A kernel thread is allowed to return here after successfully
+	 * calling kernel_execve().  Exit to userspace to complete the execve()
+>>>>>>> upstream/android-13
 	 * syscall.
 	 */
 	movq	$0, RAX(%rsp)
 	jmp	2b
+<<<<<<< HEAD
 END(ret_from_fork)
 
 /*
@@ -449,11 +554,19 @@ ENTRY(spurious_entries_start)
 	vector=vector+1
     .endr
 END(spurious_entries_start)
+=======
+SYM_CODE_END(ret_from_fork)
+.popsection
+>>>>>>> upstream/android-13
 
 .macro DEBUG_ENTRY_ASSERT_IRQS_OFF
 #ifdef CONFIG_DEBUG_ENTRY
 	pushq %rax
+<<<<<<< HEAD
 	SAVE_FLAGS(CLBR_RAX)
+=======
+	SAVE_FLAGS
+>>>>>>> upstream/android-13
 	testl $X86_EFLAGS_IF, %eax
 	jz .Lokay_\@
 	ud2
@@ -462,6 +575,7 @@ END(spurious_entries_start)
 #endif
 .endm
 
+<<<<<<< HEAD
 /*
  * Enters the IRQ stack if we're not already using it.  NMI-safe.  Clobbers
  * flags and puts old RSP into old_rsp, and leaves all other GPRs alone.
@@ -685,6 +799,260 @@ GLOBAL(retint_user)
 	TRACE_IRQS_IRETQ
 
 GLOBAL(swapgs_restore_regs_and_return_to_usermode)
+=======
+/**
+ * idtentry_body - Macro to emit code calling the C function
+ * @cfunc:		C function to be called
+ * @has_error_code:	Hardware pushed error code on stack
+ */
+.macro idtentry_body cfunc has_error_code:req
+
+	call	error_entry
+	UNWIND_HINT_REGS
+
+	movq	%rsp, %rdi			/* pt_regs pointer into 1st argument*/
+
+	.if \has_error_code == 1
+		movq	ORIG_RAX(%rsp), %rsi	/* get error code into 2nd argument*/
+		movq	$-1, ORIG_RAX(%rsp)	/* no syscall to restart */
+	.endif
+
+	call	\cfunc
+
+	jmp	error_return
+.endm
+
+/**
+ * idtentry - Macro to generate entry stubs for simple IDT entries
+ * @vector:		Vector number
+ * @asmsym:		ASM symbol for the entry point
+ * @cfunc:		C function to be called
+ * @has_error_code:	Hardware pushed error code on stack
+ *
+ * The macro emits code to set up the kernel context for straight forward
+ * and simple IDT entries. No IST stack, no paranoid entry checks.
+ */
+.macro idtentry vector asmsym cfunc has_error_code:req
+SYM_CODE_START(\asmsym)
+	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
+	ASM_CLAC
+
+	.if \has_error_code == 0
+		pushq	$-1			/* ORIG_RAX: no syscall to restart */
+	.endif
+
+	.if \vector == X86_TRAP_BP
+		/*
+		 * If coming from kernel space, create a 6-word gap to allow the
+		 * int3 handler to emulate a call instruction.
+		 */
+		testb	$3, CS-ORIG_RAX(%rsp)
+		jnz	.Lfrom_usermode_no_gap_\@
+		.rept	6
+		pushq	5*8(%rsp)
+		.endr
+		UNWIND_HINT_IRET_REGS offset=8
+.Lfrom_usermode_no_gap_\@:
+	.endif
+
+	idtentry_body \cfunc \has_error_code
+
+_ASM_NOKPROBE(\asmsym)
+SYM_CODE_END(\asmsym)
+.endm
+
+/*
+ * Interrupt entry/exit.
+ *
+ + The interrupt stubs push (vector) onto the stack, which is the error_code
+ * position of idtentry exceptions, and jump to one of the two idtentry points
+ * (common/spurious).
+ *
+ * common_interrupt is a hotpath, align it to a cache line
+ */
+.macro idtentry_irq vector cfunc
+	.p2align CONFIG_X86_L1_CACHE_SHIFT
+	idtentry \vector asm_\cfunc \cfunc has_error_code=1
+.endm
+
+/*
+ * System vectors which invoke their handlers directly and are not
+ * going through the regular common device interrupt handling code.
+ */
+.macro idtentry_sysvec vector cfunc
+	idtentry \vector asm_\cfunc \cfunc has_error_code=0
+.endm
+
+/**
+ * idtentry_mce_db - Macro to generate entry stubs for #MC and #DB
+ * @vector:		Vector number
+ * @asmsym:		ASM symbol for the entry point
+ * @cfunc:		C function to be called
+ *
+ * The macro emits code to set up the kernel context for #MC and #DB
+ *
+ * If the entry comes from user space it uses the normal entry path
+ * including the return to user space work and preemption checks on
+ * exit.
+ *
+ * If hits in kernel mode then it needs to go through the paranoid
+ * entry as the exception can hit any random state. No preemption
+ * check on exit to keep the paranoid path simple.
+ */
+.macro idtentry_mce_db vector asmsym cfunc
+SYM_CODE_START(\asmsym)
+	UNWIND_HINT_IRET_REGS
+	ASM_CLAC
+
+	pushq	$-1			/* ORIG_RAX: no syscall to restart */
+
+	/*
+	 * If the entry is from userspace, switch stacks and treat it as
+	 * a normal entry.
+	 */
+	testb	$3, CS-ORIG_RAX(%rsp)
+	jnz	.Lfrom_usermode_switch_stack_\@
+
+	/* paranoid_entry returns GS information for paranoid_exit in EBX. */
+	call	paranoid_entry
+
+	UNWIND_HINT_REGS
+
+	movq	%rsp, %rdi		/* pt_regs pointer */
+
+	call	\cfunc
+
+	jmp	paranoid_exit
+
+	/* Switch to the regular task stack and use the noist entry point */
+.Lfrom_usermode_switch_stack_\@:
+	idtentry_body noist_\cfunc, has_error_code=0
+
+_ASM_NOKPROBE(\asmsym)
+SYM_CODE_END(\asmsym)
+.endm
+
+#ifdef CONFIG_AMD_MEM_ENCRYPT
+/**
+ * idtentry_vc - Macro to generate entry stub for #VC
+ * @vector:		Vector number
+ * @asmsym:		ASM symbol for the entry point
+ * @cfunc:		C function to be called
+ *
+ * The macro emits code to set up the kernel context for #VC. The #VC handler
+ * runs on an IST stack and needs to be able to cause nested #VC exceptions.
+ *
+ * To make this work the #VC entry code tries its best to pretend it doesn't use
+ * an IST stack by switching to the task stack if coming from user-space (which
+ * includes early SYSCALL entry path) or back to the stack in the IRET frame if
+ * entered from kernel-mode.
+ *
+ * If entered from kernel-mode the return stack is validated first, and if it is
+ * not safe to use (e.g. because it points to the entry stack) the #VC handler
+ * will switch to a fall-back stack (VC2) and call a special handler function.
+ *
+ * The macro is only used for one vector, but it is planned to be extended in
+ * the future for the #HV exception.
+ */
+.macro idtentry_vc vector asmsym cfunc
+SYM_CODE_START(\asmsym)
+	UNWIND_HINT_IRET_REGS
+	ASM_CLAC
+
+	/*
+	 * If the entry is from userspace, switch stacks and treat it as
+	 * a normal entry.
+	 */
+	testb	$3, CS-ORIG_RAX(%rsp)
+	jnz	.Lfrom_usermode_switch_stack_\@
+
+	/*
+	 * paranoid_entry returns SWAPGS flag for paranoid_exit in EBX.
+	 * EBX == 0 -> SWAPGS, EBX == 1 -> no SWAPGS
+	 */
+	call	paranoid_entry
+
+	UNWIND_HINT_REGS
+
+	/*
+	 * Switch off the IST stack to make it free for nested exceptions. The
+	 * vc_switch_off_ist() function will switch back to the interrupted
+	 * stack if it is safe to do so. If not it switches to the VC fall-back
+	 * stack.
+	 */
+	movq	%rsp, %rdi		/* pt_regs pointer */
+	call	vc_switch_off_ist
+	movq	%rax, %rsp		/* Switch to new stack */
+
+	UNWIND_HINT_REGS
+
+	/* Update pt_regs */
+	movq	ORIG_RAX(%rsp), %rsi	/* get error code into 2nd argument*/
+	movq	$-1, ORIG_RAX(%rsp)	/* no syscall to restart */
+
+	movq	%rsp, %rdi		/* pt_regs pointer */
+
+	call	kernel_\cfunc
+
+	/*
+	 * No need to switch back to the IST stack. The current stack is either
+	 * identical to the stack in the IRET frame or the VC fall-back stack,
+	 * so it is definitely mapped even with PTI enabled.
+	 */
+	jmp	paranoid_exit
+
+	/* Switch to the regular task stack */
+.Lfrom_usermode_switch_stack_\@:
+	idtentry_body user_\cfunc, has_error_code=1
+
+_ASM_NOKPROBE(\asmsym)
+SYM_CODE_END(\asmsym)
+.endm
+#endif
+
+/*
+ * Double fault entry. Straight paranoid. No checks from which context
+ * this comes because for the espfix induced #DF this would do the wrong
+ * thing.
+ */
+.macro idtentry_df vector asmsym cfunc
+SYM_CODE_START(\asmsym)
+	UNWIND_HINT_IRET_REGS offset=8
+	ASM_CLAC
+
+	/* paranoid_entry returns GS information for paranoid_exit in EBX. */
+	call	paranoid_entry
+	UNWIND_HINT_REGS
+
+	movq	%rsp, %rdi		/* pt_regs pointer into first argument */
+	movq	ORIG_RAX(%rsp), %rsi	/* get error code into 2nd argument*/
+	movq	$-1, ORIG_RAX(%rsp)	/* no syscall to restart */
+	call	\cfunc
+
+	jmp	paranoid_exit
+
+_ASM_NOKPROBE(\asmsym)
+SYM_CODE_END(\asmsym)
+.endm
+
+/*
+ * Include the defines which emit the idt entries which are shared
+ * shared between 32 and 64 bit and emit the __irqentry_text_* markers
+ * so the stacktrace boundary checks work.
+ */
+	.align 16
+	.globl __irqentry_text_start
+__irqentry_text_start:
+
+#include <asm/idtentry.h>
+
+	.align 16
+	.globl __irqentry_text_end
+__irqentry_text_end:
+
+SYM_CODE_START_LOCAL(common_interrupt_return)
+SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_ENTRY
 	/* Assert that pt_regs indicates user mode. */
 	testb	$3, CS(%rsp)
@@ -692,6 +1060,13 @@ GLOBAL(swapgs_restore_regs_and_return_to_usermode)
 	ud2
 1:
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XEN_PV
+	ALTERNATIVE "", "jmp xenpv_restore_regs_and_return_to_usermode", X86_FEATURE_XENPV
+#endif
+
+>>>>>>> upstream/android-13
 	POP_REGS pop_rdi=0
 
 	/*
@@ -716,6 +1091,10 @@ GLOBAL(swapgs_restore_regs_and_return_to_usermode)
 	 * We are on the trampoline stack.  All regs except RDI are live.
 	 * We can do future final exit work right here.
 	 */
+<<<<<<< HEAD
+=======
+	STACKLEAK_ERASE_NOCLOBBER
+>>>>>>> upstream/android-13
 
 	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi
 
@@ -725,6 +1104,7 @@ GLOBAL(swapgs_restore_regs_and_return_to_usermode)
 	INTERRUPT_RETURN
 
 
+<<<<<<< HEAD
 /* Returning to kernel space */
 retint_kernel:
 #ifdef CONFIG_PREEMPT
@@ -744,6 +1124,9 @@ retint_kernel:
 	TRACE_IRQS_IRETQ
 
 GLOBAL(restore_regs_and_return_to_kernel)
+=======
+SYM_INNER_LABEL(restore_regs_and_return_to_kernel, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_ENTRY
 	/* Assert that pt_regs indicates kernel mode. */
 	testb	$3, CS(%rsp)
@@ -759,7 +1142,11 @@ GLOBAL(restore_regs_and_return_to_kernel)
 	 */
 	INTERRUPT_RETURN
 
+<<<<<<< HEAD
 ENTRY(native_iret)
+=======
+SYM_INNER_LABEL_ALIGN(native_iret, SYM_L_GLOBAL)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_IRET_REGS
 	/*
 	 * Are we returning to a stack segment from the LDT?  Note: in
@@ -770,12 +1157,20 @@ ENTRY(native_iret)
 	jnz	native_irq_return_ldt
 #endif
 
+<<<<<<< HEAD
 .global native_irq_return_iret
 native_irq_return_iret:
 	/*
 	 * This may fault.  Non-paranoid faults on return to userspace are
 	 * handled by fixup_bad_iret.  These include #SS, #GP, and #NP.
 	 * Double-faults due to espfix64 are handled in do_double_fault.
+=======
+SYM_INNER_LABEL(native_irq_return_iret, SYM_L_GLOBAL)
+	/*
+	 * This may fault.  Non-paranoid faults on return to userspace are
+	 * handled by fixup_bad_iret.  These include #SS, #GP, and #NP.
+	 * Double-faults due to espfix64 are handled in exc_double_fault.
+>>>>>>> upstream/android-13
 	 * Other faults here are fatal.
 	 */
 	iretq
@@ -804,7 +1199,11 @@ native_irq_return_ldt:
 	 */
 
 	pushq	%rdi				/* Stash user RDI */
+<<<<<<< HEAD
 	SWAPGS					/* to kernel GS */
+=======
+	swapgs					/* to kernel GS */
+>>>>>>> upstream/android-13
 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rdi	/* to kernel CR3 */
 
 	movq	PER_CPU_VAR(espfix_waddr), %rdi
@@ -834,7 +1233,11 @@ native_irq_return_ldt:
 	orq	PER_CPU_VAR(espfix_stack), %rax
 
 	SWITCH_TO_USER_CR3_STACK scratch_reg=%rdi
+<<<<<<< HEAD
 	SWAPGS					/* to user GS */
+=======
+	swapgs					/* to user GS */
+>>>>>>> upstream/android-13
 	popq	%rdi				/* Restore user RDI */
 
 	movq	%rax, %rsp
@@ -853,6 +1256,7 @@ native_irq_return_ldt:
 	 */
 	jmp	native_irq_return_iret
 #endif
+<<<<<<< HEAD
 END(common_interrupt)
 _ASM_NOKPROBE(common_interrupt)
 
@@ -1073,6 +1477,34 @@ EXPORT_SYMBOL(native_load_gs_index)
 	/* running with kernelgs */
 bad_gs:
 	SWAPGS					/* switch back to user gs */
+=======
+SYM_CODE_END(common_interrupt_return)
+_ASM_NOKPROBE(common_interrupt_return)
+
+/*
+ * Reload gs selector with exception handling
+ * edi:  new selector
+ *
+ * Is in entry.text as it shouldn't be instrumented.
+ */
+SYM_FUNC_START(asm_load_gs_index)
+	FRAME_BEGIN
+	swapgs
+.Lgs_change:
+	movl	%edi, %gs
+2:	ALTERNATIVE "", "mfence", X86_BUG_SWAPGS_FENCE
+	swapgs
+	FRAME_END
+	RET
+SYM_FUNC_END(asm_load_gs_index)
+EXPORT_SYMBOL(asm_load_gs_index)
+
+	_ASM_EXTABLE(.Lgs_change, .Lbad_gs)
+	.section .fixup, "ax"
+	/* running with kernelgs */
+SYM_CODE_START_LOCAL_NOALIGN(.Lbad_gs)
+	swapgs					/* switch back to user gs */
+>>>>>>> upstream/android-13
 .macro ZAP_GS
 	/* This can't be a string because the preprocessor needs to see it. */
 	movl $__USER_DS, %eax
@@ -1082,6 +1514,7 @@ bad_gs:
 	xorl	%eax, %eax
 	movl	%eax, %gs
 	jmp	2b
+<<<<<<< HEAD
 	.previous
 
 /* Call softirq on interrupt stack. Interrupts are off. */
@@ -1098,6 +1531,12 @@ ENDPROC(do_softirq_own_stack)
 #ifdef CONFIG_XEN
 idtentry hypervisor_callback xen_do_hypervisor_callback has_error_code=0
 
+=======
+SYM_CODE_END(.Lbad_gs)
+	.previous
+
+#ifdef CONFIG_XEN_PV
+>>>>>>> upstream/android-13
 /*
  * A note on the "critical region" in our callback handler.
  * We want to avoid stacking callback handlers due to events occurring
@@ -1110,8 +1549,15 @@ idtentry hypervisor_callback xen_do_hypervisor_callback has_error_code=0
  * So, on entry to the handler we detect whether we interrupted an
  * existing activation in its critical region -- if so, we pop the current
  * activation and restart the handler using the previous one.
+<<<<<<< HEAD
  */
 ENTRY(xen_do_hypervisor_callback)		/* do_hypervisor_callback(struct *pt_regs) */
+=======
+ *
+ * C calling convention: exc_xen_hypervisor_callback(struct *pt_regs)
+ */
+SYM_CODE_START_LOCAL(exc_xen_hypervisor_callback)
+>>>>>>> upstream/android-13
 
 /*
  * Since we don't modify %rdi, evtchn_do_upall(struct *pt_regs) will
@@ -1121,6 +1567,7 @@ ENTRY(xen_do_hypervisor_callback)		/* do_hypervisor_callback(struct *pt_regs) */
 	movq	%rdi, %rsp			/* we don't return, adjust the stack frame */
 	UNWIND_HINT_REGS
 
+<<<<<<< HEAD
 	ENTER_IRQ_STACK old_rsp=%r10
 	call	xen_evtchn_do_upcall
 	LEAVE_IRQ_STACK
@@ -1130,6 +1577,12 @@ ENTRY(xen_do_hypervisor_callback)		/* do_hypervisor_callback(struct *pt_regs) */
 #endif
 	jmp	error_exit
 END(xen_do_hypervisor_callback)
+=======
+	call	xen_pv_evtchn_do_upcall
+
+	jmp	error_return
+SYM_CODE_END(exc_xen_hypervisor_callback)
+>>>>>>> upstream/android-13
 
 /*
  * Hypervisor uses this for application faults while it executes.
@@ -1144,7 +1597,11 @@ END(xen_do_hypervisor_callback)
  * We distinguish between categories by comparing each saved segment register
  * with its current contents: any discrepancy means we in category 1.
  */
+<<<<<<< HEAD
 ENTRY(xen_failsafe_callback)
+=======
+SYM_CODE_START(xen_failsafe_callback)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_EMPTY
 	movl	%ds, %ecx
 	cmpw	%cx, 0x10(%rsp)
@@ -1164,7 +1621,11 @@ ENTRY(xen_failsafe_callback)
 	addq	$0x30, %rsp
 	pushq	$0				/* RIP */
 	UNWIND_HINT_IRET_REGS offset=8
+<<<<<<< HEAD
 	jmp	general_protection
+=======
+	jmp	asm_exc_general_protection
+>>>>>>> upstream/android-13
 1:	/* Segment mismatch => Category 1 (Bad segment). Retry the IRET. */
 	movq	(%rsp), %rcx
 	movq	8(%rsp), %r11
@@ -1173,6 +1634,7 @@ ENTRY(xen_failsafe_callback)
 	pushq	$-1 /* orig_ax = -1 => not a system call */
 	PUSH_AND_CLEAR_REGS
 	ENCODE_FRAME_POINTER
+<<<<<<< HEAD
 	jmp	error_exit
 END(xen_failsafe_callback)
 
@@ -1218,10 +1680,28 @@ idtentry machine_check		do_mce			has_error_code=0	paranoid=1
  * Return: ebx=0: need swapgs on exit, ebx=1: otherwise
  */
 ENTRY(paranoid_entry)
+=======
+	jmp	error_return
+SYM_CODE_END(xen_failsafe_callback)
+#endif /* CONFIG_XEN_PV */
+
+/*
+ * Save all registers in pt_regs. Return GSBASE related information
+ * in EBX depending on the availability of the FSGSBASE instructions:
+ *
+ * FSGSBASE	R/EBX
+ *     N        0 -> SWAPGS on exit
+ *              1 -> no SWAPGS on exit
+ *
+ *     Y        GSBASE value at entry, must be restored in paranoid_exit
+ */
+SYM_CODE_START_LOCAL(paranoid_entry)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_FUNC
 	cld
 	PUSH_AND_CLEAR_REGS save_ret=1
 	ENCODE_FRAME_POINTER 8
+<<<<<<< HEAD
 	movl	$1, %ebx
 	movl	$MSR_GS_BASE, %ecx
 	rdmsr
@@ -1231,6 +1711,9 @@ ENTRY(paranoid_entry)
 	xorl	%ebx, %ebx
 
 1:
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Always stash CR3 in %r14.  This value will be restored,
 	 * verbatim, at exit.  Needed if paranoid_entry interrupted
@@ -1240,10 +1723,19 @@ ENTRY(paranoid_entry)
 	 * This is also why CS (stashed in the "iret frame" by the
 	 * hardware at entry) can not be used: this may be a return
 	 * to kernel code, but with a user CR3 value.
+<<<<<<< HEAD
+=======
+	 *
+	 * Switching CR3 does not depend on kernel GSBASE so it can
+	 * be done before switching to the kernel GSBASE. This is
+	 * required for FSGSBASE because the kernel GSBASE has to
+	 * be retrieved from a kernel internal table.
+>>>>>>> upstream/android-13
 	 */
 	SAVE_AND_SWITCH_TO_KERNEL_CR3 scratch_reg=%rax save_reg=%r14
 
 	/*
+<<<<<<< HEAD
 	 * The above SAVE_AND_SWITCH_TO_KERNEL_CR3 macro doesn't do an
 	 * unconditional CR3 write, even in the PTI case.  So do an lfence
 	 * to prevent GS speculation, regardless of whether PTI is enabled.
@@ -1252,6 +1744,50 @@ ENTRY(paranoid_entry)
 
 	ret
 END(paranoid_entry)
+=======
+	 * Handling GSBASE depends on the availability of FSGSBASE.
+	 *
+	 * Without FSGSBASE the kernel enforces that negative GSBASE
+	 * values indicate kernel GSBASE. With FSGSBASE no assumptions
+	 * can be made about the GSBASE value when entering from user
+	 * space.
+	 */
+	ALTERNATIVE "jmp .Lparanoid_entry_checkgs", "", X86_FEATURE_FSGSBASE
+
+	/*
+	 * Read the current GSBASE and store it in %rbx unconditionally,
+	 * retrieve and set the current CPUs kernel GSBASE. The stored value
+	 * has to be restored in paranoid_exit unconditionally.
+	 *
+	 * The unconditional write to GS base below ensures that no subsequent
+	 * loads based on a mispredicted GS base can happen, therefore no LFENCE
+	 * is needed here.
+	 */
+	SAVE_AND_SET_GSBASE scratch_reg=%rax save_reg=%rbx
+	RET
+
+.Lparanoid_entry_checkgs:
+	/* EBX = 1 -> kernel GSBASE active, no restore required */
+	movl	$1, %ebx
+
+	/*
+	 * The kernel-enforced convention is a negative GSBASE indicates
+	 * a kernel value. No SWAPGS needed on entry and exit.
+	 */
+	movl	$MSR_GS_BASE, %ecx
+	rdmsr
+	testl	%edx, %edx
+	js	.Lparanoid_kernel_gsbase
+
+	/* EBX = 0 -> SWAPGS required on exit */
+	xorl	%ebx, %ebx
+	swapgs
+.Lparanoid_kernel_gsbase:
+
+	FENCE_SWAPGS_KERNEL_ENTRY
+	RET
+SYM_CODE_END(paranoid_entry)
+>>>>>>> upstream/android-13
 
 /*
  * "Paranoid" exit path from exception stack.  This is invoked
@@ -1260,6 +1796,7 @@ END(paranoid_entry)
  *
  * We may be returning to very strange contexts (e.g. very early
  * in syscall entry), so checking for preemption here would
+<<<<<<< HEAD
  * be complicated.  Fortunately, we there's no good reason
  * to try to handle preemption here.
  *
@@ -1283,11 +1820,57 @@ ENTRY(paranoid_exit)
 .Lparanoid_exit_restore:
 	jmp restore_regs_and_return_to_kernel
 END(paranoid_exit)
+=======
+ * be complicated.  Fortunately, there's no good reason to try
+ * to handle preemption here.
+ *
+ * R/EBX contains the GSBASE related information depending on the
+ * availability of the FSGSBASE instructions:
+ *
+ * FSGSBASE	R/EBX
+ *     N        0 -> SWAPGS on exit
+ *              1 -> no SWAPGS on exit
+ *
+ *     Y        User space GSBASE, must be restored unconditionally
+ */
+SYM_CODE_START_LOCAL(paranoid_exit)
+	UNWIND_HINT_REGS
+	/*
+	 * The order of operations is important. RESTORE_CR3 requires
+	 * kernel GSBASE.
+	 *
+	 * NB to anyone to try to optimize this code: this code does
+	 * not execute at all for exceptions from user mode. Those
+	 * exceptions go through error_exit instead.
+	 */
+	RESTORE_CR3	scratch_reg=%rax save_reg=%r14
+
+	/* Handle the three GSBASE cases */
+	ALTERNATIVE "jmp .Lparanoid_exit_checkgs", "", X86_FEATURE_FSGSBASE
+
+	/* With FSGSBASE enabled, unconditionally restore GSBASE */
+	wrgsbase	%rbx
+	jmp		restore_regs_and_return_to_kernel
+
+.Lparanoid_exit_checkgs:
+	/* On non-FSGSBASE systems, conditionally do SWAPGS */
+	testl		%ebx, %ebx
+	jnz		restore_regs_and_return_to_kernel
+
+	/* We are returning to a context with user GSBASE */
+	swapgs
+	jmp		restore_regs_and_return_to_kernel
+SYM_CODE_END(paranoid_exit)
+>>>>>>> upstream/android-13
 
 /*
  * Save all registers in pt_regs, and switch GS if needed.
  */
+<<<<<<< HEAD
 ENTRY(error_entry)
+=======
+SYM_CODE_START_LOCAL(error_entry)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_FUNC
 	cld
 	PUSH_AND_CLEAR_REGS save_ret=1
@@ -1312,6 +1895,7 @@ ENTRY(error_entry)
 	movq	%rax, %rsp			/* switch stack */
 	ENCODE_FRAME_POINTER
 	pushq	%r12
+<<<<<<< HEAD
 
 	/*
 	 * We need to tell lockdep that IRQs are off.  We can't do this until
@@ -1327,6 +1911,9 @@ ENTRY(error_entry)
 .Lerror_entry_done:
 	TRACE_IRQS_OFF
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 	/*
 	 * There are two places in the kernel that can potentially fault with
@@ -1350,9 +1937,20 @@ ENTRY(error_entry)
 	 * .Lgs_change's error handler with kernel gsbase.
 	 */
 	SWAPGS
+<<<<<<< HEAD
 	FENCE_SWAPGS_USER_ENTRY
 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
 	jmp .Lerror_entry_done
+=======
+
+	/*
+	 * Issue an LFENCE to prevent GS speculation, regardless of whether it is a
+	 * kernel or user gsbase.
+	 */
+.Lerror_entry_done_lfence:
+	FENCE_SWAPGS_KERNEL_ENTRY
+	RET
+>>>>>>> upstream/android-13
 
 .Lbstep_iret:
 	/* Fix truncated RIP */
@@ -1376,6 +1974,7 @@ ENTRY(error_entry)
 	call	fixup_bad_iret
 	mov	%rax, %rsp
 	jmp	.Lerror_entry_from_usermode_after_swapgs
+<<<<<<< HEAD
 END(error_entry)
 
 ENTRY(error_exit)
@@ -1386,6 +1985,17 @@ ENTRY(error_exit)
 	jz	retint_kernel
 	jmp	retint_user
 END(error_exit)
+=======
+SYM_CODE_END(error_entry)
+
+SYM_CODE_START_LOCAL(error_return)
+	UNWIND_HINT_REGS
+	DEBUG_ENTRY_ASSERT_IRQS_OFF
+	testb	$3, CS(%rsp)
+	jz	restore_regs_and_return_to_kernel
+	jmp	swapgs_restore_regs_and_return_to_usermode
+SYM_CODE_END(error_return)
+>>>>>>> upstream/android-13
 
 /*
  * Runs on exception stack.  Xen PV does not go through this path at all,
@@ -1395,7 +2005,11 @@ END(error_exit)
  *	%r14: Used to save/restore the CR3 of the interrupted context
  *	      when PAGE_TABLE_ISOLATION is in use.  Do not clobber.
  */
+<<<<<<< HEAD
 ENTRY(nmi)
+=======
+SYM_CODE_START(asm_exc_nmi)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_IRET_REGS
 
 	/*
@@ -1480,7 +2094,11 @@ ENTRY(nmi)
 
 	movq	%rsp, %rdi
 	movq	$-1, %rsi
+<<<<<<< HEAD
 	call	do_nmi
+=======
+	call	exc_nmi
+>>>>>>> upstream/android-13
 
 	/*
 	 * Return back to user mode.  We must *not* do the normal exit
@@ -1537,7 +2155,11 @@ ENTRY(nmi)
 	 * end_repeat_nmi, then we are a nested NMI.  We must not
 	 * modify the "iret" frame because it's being written by
 	 * the outer NMI.  That's okay; the outer NMI handler is
+<<<<<<< HEAD
 	 * about to about to call do_nmi anyway, so we can just
+=======
+	 * about to about to call exc_nmi() anyway, so we can just
+>>>>>>> upstream/android-13
 	 * resume the outer NMI.
 	 */
 
@@ -1656,7 +2278,11 @@ repeat_nmi:
 	 * RSP is pointing to "outermost RIP".  gsbase is unknown, but, if
 	 * we're repeating an NMI, gsbase has the same value that it had on
 	 * the first iteration.  paranoid_entry will load the kernel
+<<<<<<< HEAD
 	 * gsbase if needed before we call do_nmi.  "NMI executing"
+=======
+	 * gsbase if needed before we call exc_nmi().  "NMI executing"
+>>>>>>> upstream/android-13
 	 * is zero.
 	 */
 	movq	$1, 10*8(%rsp)		/* Set "NMI executing". */
@@ -1690,18 +2316,48 @@ end_repeat_nmi:
 	call	paranoid_entry
 	UNWIND_HINT_REGS
 
+<<<<<<< HEAD
 	/* paranoidentry do_nmi, 0; without TRACE_IRQS_OFF */
 	movq	%rsp, %rdi
 	movq	$-1, %rsi
 	call	do_nmi
+=======
+	movq	%rsp, %rdi
+	movq	$-1, %rsi
+	call	exc_nmi
+>>>>>>> upstream/android-13
 
 	/* Always restore stashed CR3 value (see paranoid_entry) */
 	RESTORE_CR3 scratch_reg=%r15 save_reg=%r14
 
+<<<<<<< HEAD
 	testl	%ebx, %ebx			/* swapgs needed? */
 	jnz	nmi_restore
 nmi_swapgs:
 	SWAPGS_UNSAFE_STACK
+=======
+	/*
+	 * The above invocation of paranoid_entry stored the GSBASE
+	 * related information in R/EBX depending on the availability
+	 * of FSGSBASE.
+	 *
+	 * If FSGSBASE is enabled, restore the saved GSBASE value
+	 * unconditionally, otherwise take the conditional SWAPGS path.
+	 */
+	ALTERNATIVE "jmp nmi_no_fsgsbase", "", X86_FEATURE_FSGSBASE
+
+	wrgsbase	%rbx
+	jmp	nmi_restore
+
+nmi_no_fsgsbase:
+	/* EBX == 0 -> invoke SWAPGS */
+	testl	%ebx, %ebx
+	jnz	nmi_restore
+
+nmi_swapgs:
+	swapgs
+
+>>>>>>> upstream/android-13
 nmi_restore:
 	POP_REGS
 
@@ -1730,6 +2386,7 @@ nmi_restore:
 	 * about espfix64 on the way back to kernel mode.
 	 */
 	iretq
+<<<<<<< HEAD
 END(nmi)
 
 ENTRY(ignore_sysret)
@@ -1739,6 +2396,24 @@ ENTRY(ignore_sysret)
 END(ignore_sysret)
 
 ENTRY(rewind_stack_do_exit)
+=======
+SYM_CODE_END(asm_exc_nmi)
+
+#ifndef CONFIG_IA32_EMULATION
+/*
+ * This handles SYSCALL from 32-bit code.  There is no way to program
+ * MSRs to fully disable 32-bit SYSCALL.
+ */
+SYM_CODE_START(ignore_sysret)
+	UNWIND_HINT_EMPTY
+	mov	$-ENOSYS, %eax
+	sysretl
+SYM_CODE_END(ignore_sysret)
+#endif
+
+.pushsection .text, "ax"
+SYM_CODE_START(rewind_stack_do_exit)
+>>>>>>> upstream/android-13
 	UNWIND_HINT_FUNC
 	/* Prevent any naive code from trying to unwind to our caller. */
 	xorl	%ebp, %ebp
@@ -1748,4 +2423,9 @@ ENTRY(rewind_stack_do_exit)
 	UNWIND_HINT_REGS
 
 	call	do_exit
+<<<<<<< HEAD
 END(rewind_stack_do_exit)
+=======
+SYM_CODE_END(rewind_stack_do_exit)
+.popsection
+>>>>>>> upstream/android-13

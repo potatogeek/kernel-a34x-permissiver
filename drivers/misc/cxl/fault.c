@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/workqueue.h>
@@ -168,7 +174,11 @@ int cxl_handle_mm_fault(struct mm_struct *mm, u64 dsisr, u64 dar)
 		if (dsisr & CXL_PSL_DSISR_An_S)
 			access |= _PAGE_WRITE;
 
+<<<<<<< HEAD
 		if (!mm && (REGION_ID(dar) != USER_REGION_ID))
+=======
+		if (!mm && (get_region_id(dar) != USER_REGION_ID))
+>>>>>>> upstream/android-13
 			access |= _PAGE_PRIVILEGED;
 
 		if (dsisr & DSISR_NOHPTE)
@@ -204,7 +214,11 @@ static struct mm_struct *get_mem_context(struct cxl_context *ctx)
 	if (ctx->mm == NULL)
 		return NULL;
 
+<<<<<<< HEAD
 	if (!atomic_inc_not_zero(&ctx->mm->mm_users))
+=======
+	if (!mmget_not_zero(ctx->mm))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	return ctx->mm;
@@ -325,7 +339,11 @@ static void cxl_prefault_vma(struct cxl_context *ctx)
 		return;
 	}
 
+<<<<<<< HEAD
 	down_read(&mm->mmap_sem);
+=======
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
 		for (ea = vma->vm_start; ea < vma->vm_end;
 				ea = next_segment(ea, slb.vsid)) {
@@ -340,7 +358,11 @@ static void cxl_prefault_vma(struct cxl_context *ctx)
 			last_esid = slb.esid;
 		}
 	}
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 
 	mmput(mm);
 }

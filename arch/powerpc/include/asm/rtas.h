@@ -1,35 +1,64 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _POWERPC_RTAS_H
 #define _POWERPC_RTAS_H
 #ifdef __KERNEL__
 
 #include <linux/spinlock.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <linux/time.h>
+=======
+#include <asm/rtas-types.h>
+#include <linux/time.h>
+#include <linux/cpumask.h>
+>>>>>>> upstream/android-13
 
 /*
  * Definitions for talking to the RTAS on CHRP machines.
  *
  * Copyright (C) 2001 Peter Bergner
  * Copyright (C) 2001 PPC 64 Team, IBM Corp
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define RTAS_UNKNOWN_SERVICE (-1)
 #define RTAS_INSTANTIATE_MAX (1ULL<<30) /* Don't instantiate rtas at/above this value */
 
+<<<<<<< HEAD
 /* Buffer size for ppc_rtas system call. */
 #define RTAS_RMOBUF_MAX (64 * 1024)
 
 /* RTAS return status codes */
 #define RTAS_NOT_SUSPENDABLE	-9004
+=======
+/* Memory set aside for sys_rtas to use with calls that need a work area. */
+#define RTAS_USER_REGION_SIZE (64 * 1024)
+
+/* RTAS return status codes */
+>>>>>>> upstream/android-13
 #define RTAS_BUSY		-2    /* RTAS Busy */
 #define RTAS_EXTENDED_DELAY_MIN	9900
 #define RTAS_EXTENDED_DELAY_MAX	9905
 
+<<<<<<< HEAD
+=======
+/* statuses specific to ibm,suspend-me */
+#define RTAS_SUSPEND_ABORTED     9000 /* Suspension aborted */
+#define RTAS_NOT_SUSPENDABLE    -9004 /* Partition not suspendable */
+#define RTAS_THREADS_ACTIVE     -9005 /* Multiple processor threads active */
+#define RTAS_OUTSTANDING_COPROC -9006 /* Outstanding coprocessor operations */
+
+>>>>>>> upstream/android-13
 /*
  * In general to call RTAS use rtas_token("string") to lookup
  * an RTAS token for the given string (e.g. "event-scan").
@@ -45,6 +74,7 @@
  *
  */
 
+<<<<<<< HEAD
 typedef __be32 rtas_arg_t;
 
 struct rtas_args {
@@ -72,6 +102,8 @@ struct rtas_suspend_me_data {
 	struct completion *complete; /* wait on this until working == 0 */
 };
 
+=======
+>>>>>>> upstream/android-13
 /* RTAS event classes */
 #define RTAS_INTERNAL_ERROR		0x80000000 /* set bit 0 */
 #define RTAS_EPOW_WARNING		0x40000000 /* set bit 1 */
@@ -125,6 +157,10 @@ struct rtas_suspend_me_data {
 #define RTAS_TYPE_INFO			0xE2
 #define RTAS_TYPE_DEALLOC		0xE3
 #define RTAS_TYPE_DUMP			0xE4
+<<<<<<< HEAD
+=======
+#define RTAS_TYPE_HOTPLUG		0xE5
+>>>>>>> upstream/android-13
 /* I don't add PowerMGM events right now, this is a different topic */ 
 #define RTAS_TYPE_PMGM_POWER_SW_ON	0x60
 #define RTAS_TYPE_PMGM_POWER_SW_OFF	0x61
@@ -150,6 +186,7 @@ struct rtas_suspend_me_data {
 /* RTAS check-exception vector offset */
 #define RTAS_VECTOR_EXTERNAL_INTERRUPT	0x500
 
+<<<<<<< HEAD
 struct rtas_error_log {
 	/* Byte 0 */
 	uint8_t		byte0;			/* Architectural version */
@@ -175,6 +212,8 @@ struct rtas_error_log {
 						/* Variable length.      */
 };
 
+=======
+>>>>>>> upstream/android-13
 static inline uint8_t rtas_error_severity(const struct rtas_error_log *elog)
 {
 	return (elog->byte1 & 0xE0) >> 5;
@@ -185,11 +224,29 @@ static inline uint8_t rtas_error_disposition(const struct rtas_error_log *elog)
 	return (elog->byte1 & 0x18) >> 3;
 }
 
+<<<<<<< HEAD
+=======
+static inline
+void rtas_set_disposition_recovered(struct rtas_error_log *elog)
+{
+	elog->byte1 &= ~0x18;
+	elog->byte1 |= (RTAS_DISP_FULLY_RECOVERED << 3);
+}
+
+>>>>>>> upstream/android-13
 static inline uint8_t rtas_error_extended(const struct rtas_error_log *elog)
 {
 	return (elog->byte1 & 0x04) >> 2;
 }
 
+<<<<<<< HEAD
+=======
+static inline uint8_t rtas_error_initiator(const struct rtas_error_log *elog)
+{
+	return (elog->byte2 & 0xf0) >> 4;
+}
+
+>>>>>>> upstream/android-13
 #define rtas_error_type(x)	((x)->byte3)
 
 static inline
@@ -202,6 +259,7 @@ uint32_t rtas_error_extended_log_length(const struct rtas_error_log *elog)
 
 #define RTAS_V6EXT_COMPANY_ID_IBM	(('I' << 24) | ('B' << 16) | ('M' << 8))
 
+<<<<<<< HEAD
 /* RTAS general extended event log, Version 6. The extended log starts
  * from "buffer" field of struct rtas_error_log defined above.
  */
@@ -243,6 +301,8 @@ struct rtas_ext_event_log_v6 {
 					/* Variable length.		*/
 };
 
+=======
+>>>>>>> upstream/android-13
 static
 inline uint8_t rtas_ext_event_log_format(struct rtas_ext_event_log_v6 *ext_log)
 {
@@ -275,6 +335,7 @@ inline uint32_t rtas_ext_event_company_id(struct rtas_ext_event_log_v6 *ext_log)
 #define PSERIES_ELOG_SECT_ID_CALL_HOME		(('C' << 8) | 'H')
 #define PSERIES_ELOG_SECT_ID_USER_DEF		(('U' << 8) | 'D')
 #define PSERIES_ELOG_SECT_ID_HOTPLUG		(('H' << 8) | 'P')
+<<<<<<< HEAD
 
 /* Vendor specific Platform Event Log Format, Version 6, section header */
 struct pseries_errorlog {
@@ -285,6 +346,9 @@ struct pseries_errorlog {
 	__be16 creator_component;	/* 0x06 Creator component ID	*/
 	uint8_t data[];			/* 0x08 Start of section data	*/
 };
+=======
+#define PSERIES_ELOG_SECT_ID_MCE		(('M' << 8) | 'C')
+>>>>>>> upstream/android-13
 
 static
 inline uint16_t pseries_errorlog_id(struct pseries_errorlog *sect)
@@ -298,6 +362,7 @@ inline uint16_t pseries_errorlog_length(struct pseries_errorlog *sect)
 	return be16_to_cpu(sect->length);
 }
 
+<<<<<<< HEAD
 /* RTAS pseries hotplug errorlog section */
 struct pseries_hp_errorlog {
 	u8	resource;
@@ -312,14 +377,23 @@ struct pseries_hp_errorlog {
 	} _drc_u;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define PSERIES_HP_ELOG_RESOURCE_CPU	1
 #define PSERIES_HP_ELOG_RESOURCE_MEM	2
 #define PSERIES_HP_ELOG_RESOURCE_SLOT	3
 #define PSERIES_HP_ELOG_RESOURCE_PHB	4
+<<<<<<< HEAD
 
 #define PSERIES_HP_ELOG_ACTION_ADD	1
 #define PSERIES_HP_ELOG_ACTION_REMOVE	2
 #define PSERIES_HP_ELOG_ACTION_READD	3
+=======
+#define PSERIES_HP_ELOG_RESOURCE_PMEM   6
+
+#define PSERIES_HP_ELOG_ACTION_ADD	1
+#define PSERIES_HP_ELOG_ACTION_REMOVE	2
+>>>>>>> upstream/android-13
 
 #define PSERIES_HP_ELOG_ID_DRC_NAME	1
 #define PSERIES_HP_ELOG_ID_DRC_INDEX	2
@@ -340,12 +414,20 @@ extern struct rtas_t rtas;
 extern int rtas_token(const char *service);
 extern int rtas_service_present(const char *service);
 extern int rtas_call(int token, int, int, int *, ...);
+<<<<<<< HEAD
+=======
+int rtas_call_reentrant(int token, int nargs, int nret, int *outputs, ...);
+>>>>>>> upstream/android-13
 void rtas_call_unlocked(struct rtas_args *args, int token, int nargs,
 			int nret, ...);
 extern void __noreturn rtas_restart(char *cmd);
 extern void rtas_power_off(void);
 extern void __noreturn rtas_halt(void);
 extern void rtas_os_term(char *str);
+<<<<<<< HEAD
+=======
+void rtas_activate_firmware(void);
+>>>>>>> upstream/android-13
 extern int rtas_get_sensor(int sensor, int index, int *state);
 extern int rtas_get_sensor_fast(int sensor, int index, int *state);
 extern int rtas_get_power_level(int powerdomain, int *level);
@@ -354,11 +436,15 @@ extern bool rtas_indicator_present(int token, int *maxindex);
 extern int rtas_set_indicator(int indicator, int index, int new_value);
 extern int rtas_set_indicator_fast(int indicator, int index, int new_value);
 extern void rtas_progress(char *s, unsigned short hex);
+<<<<<<< HEAD
 extern int rtas_suspend_cpu(struct rtas_suspend_me_data *data);
 extern int rtas_suspend_last_cpu(struct rtas_suspend_me_data *data);
 extern int rtas_online_cpus_mask(cpumask_var_t cpus);
 extern int rtas_offline_cpus_mask(cpumask_var_t cpus);
 extern int rtas_ibm_suspend_me(u64 handle);
+=======
+int rtas_ibm_suspend_me(int *fw_status);
+>>>>>>> upstream/android-13
 
 struct rtc_time;
 extern time64_t rtas_get_boot_time(void);
@@ -378,8 +464,18 @@ extern time64_t last_rtas_event;
 extern int clobbering_unread_rtas_event(void);
 extern int pseries_devicetree_update(s32 scope);
 extern void post_mobility_fixup(void);
+<<<<<<< HEAD
 #else
 static inline int clobbering_unread_rtas_event(void) { return 0; }
+=======
+int rtas_syscall_dispatch_ibm_suspend_me(u64 handle);
+#else
+static inline int clobbering_unread_rtas_event(void) { return 0; }
+static inline int rtas_syscall_dispatch_ibm_suspend_me(u64 handle)
+{
+	return -EINVAL;
+}
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_PPC_RTAS_DAEMON
@@ -454,7 +550,11 @@ extern void rtas_take_timebase(void);
 static inline int page_is_rtas_user_buf(unsigned long pfn)
 {
 	unsigned long paddr = (pfn << PAGE_SHIFT);
+<<<<<<< HEAD
 	if (paddr >= rtas_rmo_buf && paddr < (rtas_rmo_buf + RTAS_RMOBUF_MAX))
+=======
+	if (paddr >= rtas_rmo_buf && paddr < (rtas_rmo_buf + RTAS_USER_REGION_SIZE))
+>>>>>>> upstream/android-13
 		return 1;
 	return 0;
 }
@@ -466,10 +566,23 @@ void rtas_initialize(void);
 #else
 static inline int page_is_rtas_user_buf(unsigned long pfn) { return 0;}
 static inline void pSeries_coalesce_init(void) { }
+<<<<<<< HEAD
 static inline void rtas_initialize(void) { };
+=======
+static inline void rtas_initialize(void) { }
+>>>>>>> upstream/android-13
 #endif
 
 extern int call_rtas(const char *, int, int, unsigned long *, ...);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HV_PERF_CTRS
+void read_24x7_sys_info(void);
+#else
+static inline void read_24x7_sys_info(void) { }
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif /* _POWERPC_RTAS_H */

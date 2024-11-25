@@ -128,8 +128,13 @@ static int find_console_handle(void)
 	 */
 	iprop = of_get_property(np, "hv-handle", NULL);
 	if (!iprop) {
+<<<<<<< HEAD
 		pr_err("ehv-bc: no 'hv-handle' property in %s node\n",
 		       np->name);
+=======
+		pr_err("ehv-bc: no 'hv-handle' property in %pOFn node\n",
+		       np);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	stdout_bc = be32_to_cpu(*iprop);
@@ -536,11 +541,19 @@ static void ehv_bc_tty_close(struct tty_struct *ttys, struct file *filp)
  * how much write room the driver can guarantee will be sent OR BUFFERED.  This
  * driver MUST honor the return value.
  */
+<<<<<<< HEAD
 static int ehv_bc_tty_write_room(struct tty_struct *ttys)
 {
 	struct ehv_bc_data *bc = ttys->driver_data;
 	unsigned long flags;
 	int count;
+=======
+static unsigned int ehv_bc_tty_write_room(struct tty_struct *ttys)
+{
+	struct ehv_bc_data *bc = ttys->driver_data;
+	unsigned long flags;
+	unsigned int count;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&bc->lock, flags);
 	count = CIRC_SPACE(bc->head, bc->tail, BUF_SIZE);
@@ -676,8 +689,13 @@ static int ehv_bc_tty_probe(struct platform_device *pdev)
 
 	iprop = of_get_property(np, "hv-handle", NULL);
 	if (!iprop) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "no 'hv-handle' property in %s node\n",
 			np->name);
+=======
+		dev_err(&pdev->dev, "no 'hv-handle' property in %pOFn node\n",
+			np);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -697,8 +715,13 @@ static int ehv_bc_tty_probe(struct platform_device *pdev)
 	bc->rx_irq = irq_of_parse_and_map(np, 0);
 	bc->tx_irq = irq_of_parse_and_map(np, 1);
 	if ((bc->rx_irq == NO_IRQ) || (bc->tx_irq == NO_IRQ)) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "no 'interrupts' property in %s node\n",
 			np->name);
+=======
+		dev_err(&pdev->dev, "no 'interrupts' property in %pOFn node\n",
+			np);
+>>>>>>> upstream/android-13
 		ret = -ENODEV;
 		goto error;
 	}
@@ -751,6 +774,10 @@ static struct platform_driver ehv_bc_tty_driver = {
  */
 static int __init ehv_bc_init(void)
 {
+<<<<<<< HEAD
+=======
+	struct tty_driver *driver;
+>>>>>>> upstream/android-13
 	struct device_node *np;
 	unsigned int count = 0; /* Number of elements in bcs[] */
 	int ret;
@@ -773,6 +800,7 @@ static int __init ehv_bc_init(void)
 	if (!bcs)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ehv_bc_driver = alloc_tty_driver(count);
 	if (!ehv_bc_driver) {
 		ret = -ENOMEM;
@@ -793,6 +821,30 @@ static int __init ehv_bc_init(void)
 		goto err_put_tty_driver;
 	}
 
+=======
+	driver = tty_alloc_driver(count, TTY_DRIVER_REAL_RAW |
+			TTY_DRIVER_DYNAMIC_DEV);
+	if (IS_ERR(driver)) {
+		ret = PTR_ERR(driver);
+		goto err_free_bcs;
+	}
+
+	driver->driver_name = "ehv-bc";
+	driver->name = ehv_bc_console.name;
+	driver->type = TTY_DRIVER_TYPE_CONSOLE;
+	driver->subtype = SYSTEM_TYPE_CONSOLE;
+	driver->init_termios = tty_std_termios;
+	tty_set_operations(driver, &ehv_bc_ops);
+
+	ret = tty_register_driver(driver);
+	if (ret) {
+		pr_err("ehv-bc: could not register tty driver (ret=%i)\n", ret);
+		goto err_tty_driver_kref_put;
+	}
+
+	ehv_bc_driver = driver;
+
+>>>>>>> upstream/android-13
 	ret = platform_driver_register(&ehv_bc_tty_driver);
 	if (ret) {
 		pr_err("ehv-bc: could not register platform driver (ret=%i)\n",
@@ -803,9 +855,16 @@ static int __init ehv_bc_init(void)
 	return 0;
 
 err_deregister_tty_driver:
+<<<<<<< HEAD
 	tty_unregister_driver(ehv_bc_driver);
 err_put_tty_driver:
 	put_tty_driver(ehv_bc_driver);
+=======
+	ehv_bc_driver = NULL;
+	tty_unregister_driver(driver);
+err_tty_driver_kref_put:
+	tty_driver_kref_put(driver);
+>>>>>>> upstream/android-13
 err_free_bcs:
 	kfree(bcs);
 

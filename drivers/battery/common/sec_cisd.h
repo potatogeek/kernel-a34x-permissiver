@@ -132,6 +132,25 @@ enum cisd_data_per_day {
 };
 
 enum {
+<<<<<<< HEAD
+=======
+	WC_DATA_INDEX = 0,
+	WC_UNKNOWN,
+	WC_SNGL_NOBLE,
+	WC_SNGL_VEHICLE,
+	WC_SNGL_MINI,
+	WC_SNGL_ZERO,
+	WC_SNGL_DREAM,
+	WC_STAND_HERO,
+	WC_STAND_DREAM,
+	WC_EXT_PACK,
+	WC_EXT_PACK_TA,
+
+	WC_DATA_MAX,
+};
+
+enum {
+>>>>>>> upstream/android-13
 	CISD_CABLE_TA = 0,
 	CISD_CABLE_AFC,
 	CISD_CABLE_AFC_FAIL,
@@ -140,7 +159,10 @@ enum {
 	CISD_CABLE_PD,
 	CISD_CABLE_PD_HIGH,
 	CISD_CABLE_HV_WC_20,
+<<<<<<< HEAD
 	CISD_CABLE_FPDO_DC,
+=======
+>>>>>>> upstream/android-13
 
 	CISD_CABLE_TYPE_MAX,
 };

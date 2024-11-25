@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /**************************************************************************
  * Copyright (c) 2011, Intel Corporation.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -27,6 +32,20 @@
 #include "intel_bios.h"
 #include "psb_device.h"
 #include "gma_device.h"
+=======
+ **************************************************************************/
+
+#include <linux/backlight.h>
+
+#include <drm/drm.h>
+
+#include "gma_device.h"
+#include "intel_bios.h"
+#include "psb_device.h"
+#include "psb_drv.h"
+#include "psb_intel_reg.h"
+#include "psb_reg.h"
+>>>>>>> upstream/android-13
 
 static int psb_output_init(struct drm_device *dev)
 {
@@ -330,7 +349,10 @@ static void psb_chip_teardown(struct drm_device *dev)
 
 const struct psb_ops psb_chip_ops = {
 	.name = "Poulsbo",
+<<<<<<< HEAD
 	.accel_2d = 1,
+=======
+>>>>>>> upstream/android-13
 	.pipes = 2,
 	.crtcs = 2,
 	.hdmi_mask = (1 << 0),
@@ -342,7 +364,11 @@ const struct psb_ops psb_chip_ops = {
 	.chip_teardown = psb_chip_teardown,
 
 	.crtc_helper = &psb_intel_helper_funcs,
+<<<<<<< HEAD
 	.crtc_funcs = &psb_intel_crtc_funcs,
+=======
+	.crtc_funcs = &gma_intel_crtc_funcs,
+>>>>>>> upstream/android-13
 	.clock_funcs = &psb_clock_funcs,
 
 	.output_init = psb_output_init,

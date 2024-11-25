@@ -35,7 +35,11 @@
 	.macro	setup_c0_status set clr
 	.set	push
 	mfc0	t0, CP0_STATUS
+<<<<<<< HEAD
 	or	t0, ST0_CU0|\set|0x1f|\clr
+=======
+	or	t0, ST0_KERNEL_CUMASK|\set|0x1f|\clr
+>>>>>>> upstream/android-13
 	xor	t0, 0x1f|\clr
 	mtc0	t0, CP0_STATUS
 	.set	noreorder
@@ -77,7 +81,11 @@ EXPORT(_stext)
 	 */
 FEXPORT(__kernel_entry)
 	j	kernel_entry
+<<<<<<< HEAD
 #endif
+=======
+#endif /* CONFIG_BOOT_RAW */
+>>>>>>> upstream/android-13
 
 	__REF
 
@@ -93,6 +101,7 @@ NESTED(kernel_entry, 16, sp)			# kernel entry point
 	jr	t0
 0:
 
+<<<<<<< HEAD
 #ifdef CONFIG_USE_OF
 #ifdef CONFIG_MIPS_RAW_APPENDED_DTB
 	PTR_LA		t2, __appended_dtb
@@ -112,6 +121,8 @@ NESTED(kernel_entry, 16, sp)			# kernel entry point
 	li		t2, 0
 dtb_found:
 #endif
+=======
+>>>>>>> upstream/android-13
 	PTR_LA		t0, __bss_start		# clear .bss
 	LONG_S		zero, (t0)
 	PTR_LA		t1, __bss_stop - LONGSIZE
@@ -125,11 +136,18 @@ dtb_found:
 	LONG_S		a2, fw_arg2
 	LONG_S		a3, fw_arg3
 
+<<<<<<< HEAD
 #ifdef CONFIG_USE_OF
 	LONG_S		t2, fw_passed_dtb
 #endif
 
 	MTC0		zero, CP0_CONTEXT	# clear context register
+=======
+	MTC0		zero, CP0_CONTEXT	# clear context register
+#ifdef CONFIG_64BIT
+	MTC0		zero, CP0_XCONTEXT
+#endif
+>>>>>>> upstream/android-13
 	PTR_LA		$28, init_thread_union
 	/* Set the SP after an empty pt_regs.  */
 	PTR_LI		sp, _THREAD_SIZE - 32 - PT_SIZE
@@ -156,9 +174,15 @@ dtb_found:
 	 * newly sync'd icache.
 	 */
 	jr.hb		v0
+<<<<<<< HEAD
 #else
 	j		start_kernel
 #endif
+=======
+#else  /* !CONFIG_RELOCATABLE */
+	j		start_kernel
+#endif /* !CONFIG_RELOCATABLE */
+>>>>>>> upstream/android-13
 	END(kernel_entry)
 
 #ifdef CONFIG_SMP

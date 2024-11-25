@@ -12,6 +12,10 @@
 
 #include <linux/clk-provider.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 #include "clk.h"
@@ -193,6 +197,33 @@ static void clk_sdmmc_mux_disable(struct clk_hw *hw)
 	gate_ops->disable(gate_hw);
 }
 
+<<<<<<< HEAD
+=======
+static void clk_sdmmc_mux_disable_unused(struct clk_hw *hw)
+{
+	struct tegra_sdmmc_mux *sdmmc_mux = to_clk_sdmmc_mux(hw);
+	const struct clk_ops *gate_ops = sdmmc_mux->gate_ops;
+	struct clk_hw *gate_hw = &sdmmc_mux->gate.hw;
+
+	gate_ops->disable_unused(gate_hw);
+}
+
+static void clk_sdmmc_mux_restore_context(struct clk_hw *hw)
+{
+	struct clk_hw *parent = clk_hw_get_parent(hw);
+	unsigned long parent_rate = clk_hw_get_rate(parent);
+	unsigned long rate = clk_hw_get_rate(hw);
+	int parent_id;
+
+	parent_id = clk_hw_get_parent_index(hw);
+	if (WARN_ON(parent_id < 0))
+		return;
+
+	clk_sdmmc_mux_set_parent(hw, parent_id);
+	clk_sdmmc_mux_set_rate(hw, rate, parent_rate);
+}
+
+>>>>>>> upstream/android-13
 static const struct clk_ops tegra_clk_sdmmc_mux_ops = {
 	.get_parent = clk_sdmmc_mux_get_parent,
 	.set_parent = clk_sdmmc_mux_set_parent,
@@ -202,6 +233,11 @@ static const struct clk_ops tegra_clk_sdmmc_mux_ops = {
 	.is_enabled = clk_sdmmc_mux_is_enabled,
 	.enable = clk_sdmmc_mux_enable,
 	.disable = clk_sdmmc_mux_disable,
+<<<<<<< HEAD
+=======
+	.disable_unused = clk_sdmmc_mux_disable_unused,
+	.restore_context = clk_sdmmc_mux_restore_context,
+>>>>>>> upstream/android-13
 };
 
 struct clk *tegra_clk_register_sdmmc_mux_div(const char *name,
@@ -209,7 +245,11 @@ struct clk *tegra_clk_register_sdmmc_mux_div(const char *name,
 	unsigned long flags, void *lock)
 {
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	const struct tegra_clk_periph_regs *bank;
 	struct tegra_sdmmc_mux *sdmmc_mux;
 

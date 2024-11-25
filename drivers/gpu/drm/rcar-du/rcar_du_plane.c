@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * rcar_du_plane.c  --  R-Car Display Unit Planes
  *
  * Copyright (C) 2013-2015 Renesas Electronics Corporation
  *
  * Contact: Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,16 @@
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+ */
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_device.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_plane_helper.h>
 
@@ -132,7 +147,11 @@ static int rcar_du_plane_hwalloc(struct rcar_du_plane *plane,
 int rcar_du_atomic_check_planes(struct drm_device *dev,
 				struct drm_atomic_state *state)
 {
+<<<<<<< HEAD
 	struct rcar_du_device *rcdu = dev->dev_private;
+=======
+	struct rcar_du_device *rcdu = to_rcar_du_device(dev);
+>>>>>>> upstream/android-13
 	unsigned int group_freed_planes[RCAR_DU_MAX_GROUPS] = { 0, };
 	unsigned int group_free_planes[RCAR_DU_MAX_GROUPS] = { 0, };
 	bool needs_realloc = false;
@@ -611,6 +630,7 @@ int __rcar_du_plane_atomic_check(struct drm_plane *plane,
 }
 
 static int rcar_du_plane_atomic_check(struct drm_plane *plane,
+<<<<<<< HEAD
 				      struct drm_plane_state *state)
 {
 	struct rcar_du_plane_state *rstate = to_rcar_plane_state(state);
@@ -621,11 +641,32 @@ static int rcar_du_plane_atomic_check(struct drm_plane *plane,
 static void rcar_du_plane_atomic_update(struct drm_plane *plane,
 					struct drm_plane_state *old_state)
 {
+=======
+				      struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct rcar_du_plane_state *rstate = to_rcar_plane_state(new_plane_state);
+
+	return __rcar_du_plane_atomic_check(plane, new_plane_state,
+					    &rstate->format);
+}
+
+static void rcar_du_plane_atomic_update(struct drm_plane *plane,
+					struct drm_atomic_state *state)
+{
+	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state, plane);
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state, plane);
+>>>>>>> upstream/android-13
 	struct rcar_du_plane *rplane = to_rcar_plane(plane);
 	struct rcar_du_plane_state *old_rstate;
 	struct rcar_du_plane_state *new_rstate;
 
+<<<<<<< HEAD
 	if (!plane->state->visible)
+=======
+	if (!new_state->visible)
+>>>>>>> upstream/android-13
 		return;
 
 	rcar_du_plane_setup(rplane);
@@ -639,7 +680,11 @@ static void rcar_du_plane_atomic_update(struct drm_plane *plane,
 	 * bit. We thus need to restart the group if the source changes.
 	 */
 	old_rstate = to_rcar_plane_state(old_state);
+<<<<<<< HEAD
 	new_rstate = to_rcar_plane_state(plane->state);
+=======
+	new_rstate = to_rcar_plane_state(new_state);
+>>>>>>> upstream/android-13
 
 	if ((old_rstate->source == RCAR_DU_PLANE_MEMORY) !=
 	    (new_rstate->source == RCAR_DU_PLANE_MEMORY))
@@ -690,14 +735,22 @@ static void rcar_du_plane_reset(struct drm_plane *plane)
 	if (state == NULL)
 		return;
 
+<<<<<<< HEAD
+=======
+	__drm_atomic_helper_plane_reset(plane, &state->state);
+
+>>>>>>> upstream/android-13
 	state->hwindex = -1;
 	state->source = RCAR_DU_PLANE_MEMORY;
 	state->colorkey = RCAR_DU_COLORKEY_NONE;
 	state->state.zpos = plane->type == DRM_PLANE_TYPE_PRIMARY ? 0 : 1;
+<<<<<<< HEAD
 
 	plane->state = &state->state;
 	plane->state->alpha = DRM_BLEND_ALPHA_OPAQUE;
 	plane->state->plane = plane;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int rcar_du_plane_atomic_set_property(struct drm_plane *plane,
@@ -779,9 +832,15 @@ int rcar_du_planes_init(struct rcar_du_group *rgrp)
 
 		plane->group = rgrp;
 
+<<<<<<< HEAD
 		ret = drm_universal_plane_init(rcdu->ddev, &plane->plane, crtcs,
 					       &rcar_du_plane_funcs, formats,
 					       ARRAY_SIZE(formats),
+=======
+		ret = drm_universal_plane_init(&rcdu->ddev, &plane->plane,
+					       crtcs, &rcar_du_plane_funcs,
+					       formats, ARRAY_SIZE(formats),
+>>>>>>> upstream/android-13
 					       NULL, type, NULL);
 		if (ret < 0)
 			return ret;
@@ -789,6 +848,7 @@ int rcar_du_planes_init(struct rcar_du_group *rgrp)
 		drm_plane_helper_add(&plane->plane,
 				     &rcar_du_plane_helper_funcs);
 
+<<<<<<< HEAD
 		if (type == DRM_PLANE_TYPE_PRIMARY)
 			continue;
 
@@ -797,6 +857,19 @@ int rcar_du_planes_init(struct rcar_du_group *rgrp)
 					   RCAR_DU_COLORKEY_NONE);
 		drm_plane_create_alpha_property(&plane->plane);
 		drm_plane_create_zpos_property(&plane->plane, 1, 1, 7);
+=======
+		drm_plane_create_alpha_property(&plane->plane);
+
+		if (type == DRM_PLANE_TYPE_PRIMARY) {
+			drm_plane_create_zpos_immutable_property(&plane->plane,
+								 0);
+		} else {
+			drm_object_attach_property(&plane->plane.base,
+						   rcdu->props.colorkey,
+						   RCAR_DU_COLORKEY_NONE);
+			drm_plane_create_zpos_property(&plane->plane, 1, 1, 7);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

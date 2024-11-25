@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cistpl.c -- 16-bit PCMCIA Card Information Structure parser
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * cistpl.c -- 16-bit PCMCIA Card Information Structure parser
+ *
+>>>>>>> upstream/android-13
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
@@ -24,12 +31,20 @@
 #include <linux/pci.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 
 #include <pcmcia/ss.h>
 #include <pcmcia/cisreg.h>
 #include <pcmcia/cistpl.h>
+<<<<<<< HEAD
+=======
+#include <pcmcia/ds.h>
+>>>>>>> upstream/android-13
 #include "cs_internal.h"
 
 static const u_char mantissa[] = {
@@ -76,7 +91,11 @@ void release_cis_mem(struct pcmcia_socket *s)
 	mutex_unlock(&s->ops_mutex);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * set_cis_map() - map the card memory at "card_offset" into virtual space.
  *
  * If flags & MAP_ATTRIB, map the attribute space, otherwise
@@ -127,7 +146,11 @@ static void __iomem *set_cis_map(struct pcmcia_socket *s,
 #define IS_ATTR		1
 #define IS_INDIRECT	8
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pcmcia_read_cis_mem() - low-level function to read CIS memory
  *
  * must be called with ops_mutex held
@@ -207,7 +230,11 @@ int pcmcia_read_cis_mem(struct pcmcia_socket *s, int attr, u_int addr,
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pcmcia_write_cis_mem() - low-level function to write CIS memory
  *
  * Probably only useful for writing one-byte registers. Must be called
@@ -278,7 +305,11 @@ int pcmcia_write_cis_mem(struct pcmcia_socket *s, int attr, u_int addr,
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * read_cis_cache() - read CIS memory or its associated cache
  *
  * This is a wrapper around read_cis_mem, with the same interface,
@@ -366,7 +397,11 @@ void destroy_cis_cache(struct pcmcia_socket *s)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * verify_cis_cache() - does the CIS match what is in the CIS cache?
  */
 int verify_cis_cache(struct pcmcia_socket *s)
@@ -402,7 +437,11 @@ int verify_cis_cache(struct pcmcia_socket *s)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pcmcia_replace_cis() - use a replacement CIS instead of the card's CIS
  *
  * For really bad cards, we provide a facility for uploading a
@@ -1555,7 +1594,11 @@ static ssize_t pccard_show_cis(struct file *filp, struct kobject *kobj,
 		if (off + count > size)
 			count = size - off;
 
+<<<<<<< HEAD
 		s = to_socket(container_of(kobj, struct device, kobj));
+=======
+		s = to_socket(kobj_to_dev(kobj));
+>>>>>>> upstream/android-13
 
 		if (!(s->state & SOCKET_PRESENT))
 			return -ENODEV;
@@ -1578,7 +1621,15 @@ static ssize_t pccard_store_cis(struct file *filp, struct kobject *kobj,
 	struct pcmcia_socket *s;
 	int error;
 
+<<<<<<< HEAD
 	s = to_socket(container_of(kobj, struct device, kobj));
+=======
+	error = security_locked_down(LOCKDOWN_PCMCIA_CIS);
+	if (error)
+		return error;
+
+	s = to_socket(kobj_to_dev(kobj));
+>>>>>>> upstream/android-13
 
 	if (off)
 		return -EINVAL;

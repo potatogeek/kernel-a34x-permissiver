@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/atm/suni.c - S/UNI PHY driver
  *
@@ -20,7 +24,10 @@
 #include <linux/timer.h>
 #include <linux/init.h>
 #include <linux/capability.h>
+<<<<<<< HEAD
 #include <linux/atm_suni.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <asm/param.h>
 #include <linux/uaccess.h>

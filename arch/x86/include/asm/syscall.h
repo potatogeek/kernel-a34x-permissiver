@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Access to user system call parameters and results
  *
  * Copyright (C) 2008-2009 Red Hat, Inc.  All rights reserved.
  *
+<<<<<<< HEAD
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2.
  *
+=======
+>>>>>>> upstream/android-13
  * See asm-generic/syscall.h for descriptions of what we must do here.
  */
 
@@ -16,6 +23,7 @@
 #include <uapi/linux/audit.h>
 #include <linux/sched.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <asm/asm-offsets.h>	/* For NR_syscalls */
 #include <asm/thread_info.h>	/* for TS_COMPAT */
 #include <asm/unistd.h>
@@ -27,16 +35,32 @@ typedef asmlinkage long (*sys_call_ptr_t)(unsigned long, unsigned long,
 					  unsigned long, unsigned long,
 					  unsigned long, unsigned long);
 #endif /* CONFIG_X86_64 */
+=======
+#include <asm/thread_info.h>	/* for TS_COMPAT */
+#include <asm/unistd.h>
+
+typedef long (*sys_call_ptr_t)(const struct pt_regs *);
+>>>>>>> upstream/android-13
 extern const sys_call_ptr_t sys_call_table[];
 
 #if defined(CONFIG_X86_32)
 #define ia32_sys_call_table sys_call_table
+<<<<<<< HEAD
 #define __NR_syscall_compat_max __NR_syscall_max
 #define IA32_NR_syscalls NR_syscalls
 #endif
 
 #if defined(CONFIG_IA32_EMULATION)
 extern const sys_call_ptr_t ia32_sys_call_table[];
+=======
+#else
+/*
+ * These may not exist, but still put the prototypes in so we
+ * can use IS_ENABLED().
+ */
+extern const sys_call_ptr_t ia32_sys_call_table[];
+extern const sys_call_ptr_t x32_sys_call_table[];
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -91,11 +115,17 @@ static inline void syscall_set_return_value(struct task_struct *task,
 
 static inline void syscall_get_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 unsigned long *args)
 {
 	BUG_ON(i + n > 6);
 	memcpy(args, &regs->bx + i, n * sizeof(args[0]));
+=======
+					 unsigned long *args)
+{
+	memcpy(args, &regs->bx, 6 * sizeof(args[0]));
+>>>>>>> upstream/android-13
 }
 
 static inline void syscall_set_arguments(struct task_struct *task,
@@ -107,7 +137,11 @@ static inline void syscall_set_arguments(struct task_struct *task,
 	memcpy(&regs->bx + i, args, n * sizeof(args[0]));
 }
 
+<<<<<<< HEAD
 static inline int syscall_get_arch(void)
+=======
+static inline int syscall_get_arch(struct task_struct *task)
+>>>>>>> upstream/android-13
 {
 	return AUDIT_ARCH_I386;
 }
@@ -116,6 +150,7 @@ static inline int syscall_get_arch(void)
 
 static inline void syscall_get_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 unsigned long *args)
 {
@@ -173,10 +208,33 @@ static inline void syscall_get_arguments(struct task_struct *task,
 			BUG();
 			break;
 		}
+=======
+					 unsigned long *args)
+{
+# ifdef CONFIG_IA32_EMULATION
+	if (task->thread_info.status & TS_COMPAT) {
+		*args++ = regs->bx;
+		*args++ = regs->cx;
+		*args++ = regs->dx;
+		*args++ = regs->si;
+		*args++ = regs->di;
+		*args   = regs->bp;
+	} else
+# endif
+	{
+		*args++ = regs->di;
+		*args++ = regs->si;
+		*args++ = regs->dx;
+		*args++ = regs->r10;
+		*args++ = regs->r8;
+		*args   = regs->r9;
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline void syscall_set_arguments(struct task_struct *task,
 					 struct pt_regs *regs,
+<<<<<<< HEAD
 					 unsigned int i, unsigned int n,
 					 const unsigned long *args)
 {
@@ -241,6 +299,42 @@ static inline int syscall_get_arch(void)
 	/* x32 tasks should be considered AUDIT_ARCH_X86_64. */
 	return in_ia32_syscall() ? AUDIT_ARCH_I386 : AUDIT_ARCH_X86_64;
 }
+=======
+					 const unsigned long *args)
+{
+# ifdef CONFIG_IA32_EMULATION
+	if (task->thread_info.status & TS_COMPAT) {
+		regs->bx = *args++;
+		regs->cx = *args++;
+		regs->dx = *args++;
+		regs->si = *args++;
+		regs->di = *args++;
+		regs->bp = *args;
+	} else
+# endif
+	{
+		regs->di = *args++;
+		regs->si = *args++;
+		regs->dx = *args++;
+		regs->r10 = *args++;
+		regs->r8 = *args++;
+		regs->r9 = *args;
+	}
+}
+
+static inline int syscall_get_arch(struct task_struct *task)
+{
+	/* x32 tasks should be considered AUDIT_ARCH_X86_64. */
+	return (IS_ENABLED(CONFIG_IA32_EMULATION) &&
+		task->thread_info.status & TS_COMPAT)
+		? AUDIT_ARCH_I386 : AUDIT_ARCH_X86_64;
+}
+
+void do_syscall_64(struct pt_regs *regs, int nr);
+void do_int80_syscall_32(struct pt_regs *regs);
+long do_fast_syscall_32(struct pt_regs *regs);
+
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_X86_32 */
 
 #endif	/* _ASM_X86_SYSCALL_H */

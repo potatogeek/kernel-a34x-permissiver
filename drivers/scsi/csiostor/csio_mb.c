@@ -1210,7 +1210,11 @@ csio_mb_issue(struct csio_hw *hw, struct csio_mb *mbp)
 		   !csio_is_hw_intr_enabled(hw)) {
 		csio_err(hw, "Cannot issue mailbox in interrupt mode 0x%x\n",
 			 *((uint8_t *)mbp->mb));
+<<<<<<< HEAD
 			goto error_out;
+=======
+		goto error_out;
+>>>>>>> upstream/android-13
 	}
 
 	if (mbm->mcurrent != NULL) {

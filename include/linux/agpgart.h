@@ -30,8 +30,11 @@
 #include <linux/agp_backend.h>
 #include <uapi/linux/agpgart.h>
 
+<<<<<<< HEAD
 #define AGPGART_MINOR 175
 
+=======
+>>>>>>> upstream/android-13
 struct agp_info {
 	struct agp_version version;	/* version of the driver        */
 	u32 bridge_id;		/* bridge vendor/device         */

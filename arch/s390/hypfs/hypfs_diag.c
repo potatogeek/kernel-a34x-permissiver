@@ -440,11 +440,18 @@ __init int hypfs_diag_init(void)
 		pr_err("The hardware system does not support hypfs\n");
 		return -ENODATA;
 	}
+<<<<<<< HEAD
 	if (diag204_info_type == DIAG204_INFO_EXT) {
 		rc = hypfs_dbfs_create_file(&dbfs_file_d204);
 		if (rc)
 			return rc;
 	}
+=======
+
+	if (diag204_info_type == DIAG204_INFO_EXT)
+		hypfs_dbfs_create_file(&dbfs_file_d204);
+
+>>>>>>> upstream/android-13
 	if (MACHINE_IS_LPAR) {
 		rc = diag224_get_name_table();
 		if (rc) {

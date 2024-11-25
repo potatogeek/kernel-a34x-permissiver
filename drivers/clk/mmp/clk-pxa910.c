@@ -10,6 +10,10 @@
  */
 
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk/mmp.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/spinlock.h>

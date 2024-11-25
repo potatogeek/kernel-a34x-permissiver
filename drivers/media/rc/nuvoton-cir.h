@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for Nuvoton Technology Corporation w83667hg/w83677hg-i CIR
  *
@@ -8,6 +12,7 @@
  * sample code upon which portions of this driver are based. Indirect
  * thanks also to Maxim Levitsky, whose ene_ir driver this driver is
  * modeled after.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,6 +23,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -103,7 +110,11 @@ struct nvt_dev {
 #define CIR_IOREG_LENGTH	0x0f
 
 /* RX limit length, 8 high bits for SLCH, 8 low bits for SLCL */
+<<<<<<< HEAD
 #define CIR_RX_LIMIT_COUNT  (IR_DEFAULT_TIMEOUT / US_TO_NS(SAMPLE_PERIOD))
+=======
+#define CIR_RX_LIMIT_COUNT  (IR_DEFAULT_TIMEOUT / SAMPLE_PERIOD)
+>>>>>>> upstream/android-13
 
 /* CIR Regs */
 #define CIR_IRCON	0x00

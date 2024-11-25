@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (c) Copyright 2006, 2007 Hewlett-Packard Development Company, L.P.
  *	Bjorn Helgaas <bjorn.helgaas@hp.com>
@@ -5,12 +6,22 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * (c) Copyright 2006, 2007 Hewlett-Packard Development Company, L.P.
+ *	Bjorn Helgaas <bjorn.helgaas@hp.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/compiler.h>
 #include <linux/module.h>
 #include <linux/efi.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <linux/vmalloc.h>
 #include <asm/io.h>
 #include <asm/meminit.h>
@@ -45,7 +56,11 @@ ioremap (unsigned long phys_addr, unsigned long size)
 	/*
 	 * For things in kern_memmap, we must use the same attribute
 	 * as the rest of the kernel.  For more details, see
+<<<<<<< HEAD
 	 * Documentation/ia64/aliasing.txt.
+=======
+	 * Documentation/ia64/aliasing.rst.
+>>>>>>> upstream/android-13
 	 */
 	attr = kern_mem_attribute(phys_addr, size);
 	if (attr & EFI_MEMORY_WB)
@@ -102,14 +117,22 @@ ioremap (unsigned long phys_addr, unsigned long size)
 EXPORT_SYMBOL(ioremap);
 
 void __iomem *
+<<<<<<< HEAD
 ioremap_nocache (unsigned long phys_addr, unsigned long size)
+=======
+ioremap_uc(unsigned long phys_addr, unsigned long size)
+>>>>>>> upstream/android-13
 {
 	if (kern_mem_attribute(phys_addr, size) & EFI_MEMORY_WB)
 		return NULL;
 
 	return __ioremap_uc(phys_addr);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(ioremap_nocache);
+=======
+EXPORT_SYMBOL(ioremap_uc);
+>>>>>>> upstream/android-13
 
 void
 early_iounmap (volatile void __iomem *addr, unsigned long size)

@@ -9,24 +9,42 @@
 #include "ufs.h"
 #include "ufs-sysfs.h"
 
+<<<<<<< HEAD
 static const char *ufschd_uic_link_state_to_string(
+=======
+#include <trace/hooks/ufshcd.h>
+
+static const char *ufshcd_uic_link_state_to_string(
+>>>>>>> upstream/android-13
 			enum uic_link_state state)
 {
 	switch (state) {
 	case UIC_LINK_OFF_STATE:	return "OFF";
 	case UIC_LINK_ACTIVE_STATE:	return "ACTIVE";
 	case UIC_LINK_HIBERN8_STATE:	return "HIBERN8";
+<<<<<<< HEAD
+=======
+	case UIC_LINK_BROKEN_STATE:	return "BROKEN";
+>>>>>>> upstream/android-13
 	default:			return "UNKNOWN";
 	}
 }
 
+<<<<<<< HEAD
 static const char *ufschd_ufs_dev_pwr_mode_to_string(
+=======
+static const char *ufshcd_ufs_dev_pwr_mode_to_string(
+>>>>>>> upstream/android-13
 			enum ufs_dev_pwr_mode state)
 {
 	switch (state) {
 	case UFS_ACTIVE_PWR_MODE:	return "ACTIVE";
 	case UFS_SLEEP_PWR_MODE:	return "SLEEP";
 	case UFS_POWERDOWN_PWR_MODE:	return "POWERDOWN";
+<<<<<<< HEAD
+=======
+	case UFS_DEEPSLEEP_PWR_MODE:	return "DEEPSLEEP";
+>>>>>>> upstream/android-13
 	default:			return "UNKNOWN";
 	}
 }
@@ -37,6 +55,10 @@ static inline ssize_t ufs_sysfs_pm_lvl_store(struct device *dev,
 					     bool rpm)
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
+<<<<<<< HEAD
+=======
+	struct ufs_dev_info *dev_info = &hba->dev_info;
+>>>>>>> upstream/android-13
 	unsigned long flags, value;
 
 	if (kstrtoul(buf, 0, &value))
@@ -45,6 +67,14 @@ static inline ssize_t ufs_sysfs_pm_lvl_store(struct device *dev,
 	if (value >= UFS_PM_LVL_MAX)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (ufs_pm_lvl_states[value].dev_state == UFS_DEEPSLEEP_PWR_MODE &&
+	    (!(hba->caps & UFSHCD_CAP_DEEPSLEEP) ||
+	     !(dev_info->wspecversion >= 0x310)))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(hba->host->host_lock, flags);
 	if (rpm)
 		hba->rpm_lvl = value;
@@ -59,7 +89,11 @@ static ssize_t rpm_lvl_show(struct device *dev,
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", hba->rpm_lvl);
+=======
+	return sysfs_emit(buf, "%d\n", hba->rpm_lvl);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t rpm_lvl_store(struct device *dev,
@@ -73,7 +107,11 @@ static ssize_t rpm_target_dev_state_show(struct device *dev,
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", ufschd_ufs_dev_pwr_mode_to_string(
+=======
+	return sysfs_emit(buf, "%s\n", ufshcd_ufs_dev_pwr_mode_to_string(
+>>>>>>> upstream/android-13
 			ufs_pm_lvl_states[hba->rpm_lvl].dev_state));
 }
 
@@ -82,7 +120,11 @@ static ssize_t rpm_target_link_state_show(struct device *dev,
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", ufschd_uic_link_state_to_string(
+=======
+	return sysfs_emit(buf, "%s\n", ufshcd_uic_link_state_to_string(
+>>>>>>> upstream/android-13
 			ufs_pm_lvl_states[hba->rpm_lvl].link_state));
 }
 
@@ -91,7 +133,11 @@ static ssize_t spm_lvl_show(struct device *dev,
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", hba->spm_lvl);
+=======
+	return sysfs_emit(buf, "%d\n", hba->spm_lvl);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spm_lvl_store(struct device *dev,
@@ -105,7 +151,11 @@ static ssize_t spm_target_dev_state_show(struct device *dev,
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", ufschd_ufs_dev_pwr_mode_to_string(
+=======
+	return sysfs_emit(buf, "%s\n", ufshcd_ufs_dev_pwr_mode_to_string(
+>>>>>>> upstream/android-13
 				ufs_pm_lvl_states[hba->spm_lvl].dev_state));
 }
 
@@ -114,7 +164,11 @@ static ssize_t spm_target_link_state_show(struct device *dev,
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", ufschd_uic_link_state_to_string(
+=======
+	return sysfs_emit(buf, "%s\n", ufshcd_uic_link_state_to_string(
+>>>>>>> upstream/android-13
 				ufs_pm_lvl_states[hba->spm_lvl].link_state));
 }
 
@@ -145,12 +199,37 @@ static u32 ufshcd_us_to_ahit(unsigned int timer)
 static ssize_t auto_hibern8_show(struct device *dev,
 				 struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
+=======
+	u32 ahit;
+	int ret;
+>>>>>>> upstream/android-13
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 
 	if (!ufshcd_is_auto_hibern8_supported(hba))
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", ufshcd_ahit_to_us(hba->ahit));
+=======
+	down(&hba->host_sem);
+	if (!ufshcd_is_user_access_allowed(hba)) {
+		ret = -EBUSY;
+		goto out;
+	}
+
+	pm_runtime_get_sync(hba->dev);
+	ufshcd_hold(hba, false);
+	ahit = ufshcd_readl(hba, REG_AUTO_HIBERNATE_IDLE_TIMER);
+	ufshcd_release(hba);
+	pm_runtime_put_sync(hba->dev);
+
+	ret = sysfs_emit(buf, "%d\n", ufshcd_ahit_to_us(ahit));
+
+out:
+	up(&hba->host_sem);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t auto_hibern8_store(struct device *dev,
@@ -159,6 +238,10 @@ static ssize_t auto_hibern8_store(struct device *dev,
 {
 	struct ufs_hba *hba = dev_get_drvdata(dev);
 	unsigned int timer;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (!ufshcd_is_auto_hibern8_supported(hba))
 		return -EOPNOTSUPP;
@@ -169,9 +252,68 @@ static ssize_t auto_hibern8_store(struct device *dev,
 	if (timer > UFSHCI_AHIBERN8_MAX)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ufshcd_auto_hibern8_update(hba, ufshcd_us_to_ahit(timer));
 
 	return count;
+=======
+	down(&hba->host_sem);
+	if (!ufshcd_is_user_access_allowed(hba)) {
+		ret = -EBUSY;
+		goto out;
+	}
+
+	ufshcd_auto_hibern8_update(hba, ufshcd_us_to_ahit(timer));
+
+out:
+	up(&hba->host_sem);
+	return ret ? ret : count;
+}
+
+static ssize_t wb_on_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%d\n", hba->dev_info.wb_enabled);
+}
+
+static ssize_t wb_on_store(struct device *dev, struct device_attribute *attr,
+			   const char *buf, size_t count)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+	unsigned int wb_enable;
+	ssize_t res;
+
+	if (!ufshcd_is_wb_allowed(hba) || (ufshcd_is_clkscaling_supported(hba)
+		&& ufshcd_enable_wb_if_scaling_up(hba))) {
+		/*
+		 * If the platform supports UFSHCD_CAP_CLK_SCALING, turn WB
+		 * on/off will be done while clock scaling up/down.
+		 */
+		dev_warn(dev, "To control WB through wb_on is not allowed!\n");
+		return -EOPNOTSUPP;
+	}
+
+	if (kstrtouint(buf, 0, &wb_enable))
+		return -EINVAL;
+
+	if (wb_enable != 0 && wb_enable != 1)
+		return -EINVAL;
+
+	down(&hba->host_sem);
+	if (!ufshcd_is_user_access_allowed(hba)) {
+		res = -EBUSY;
+		goto out;
+	}
+
+	ufshcd_rpm_get_sync(hba);
+	res = ufshcd_wb_toggle(hba, wb_enable);
+	ufshcd_rpm_put_sync(hba);
+out:
+	up(&hba->host_sem);
+	return res < 0 ? res : count;
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RW(rpm_lvl);
@@ -181,6 +323,10 @@ static DEVICE_ATTR_RW(spm_lvl);
 static DEVICE_ATTR_RO(spm_target_dev_state);
 static DEVICE_ATTR_RO(spm_target_link_state);
 static DEVICE_ATTR_RW(auto_hibern8);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR_RW(wb_on);
+>>>>>>> upstream/android-13
 
 static struct attribute *ufs_sysfs_ufshcd_attrs[] = {
 	&dev_attr_rpm_lvl.attr,
@@ -190,6 +336,10 @@ static struct attribute *ufs_sysfs_ufshcd_attrs[] = {
 	&dev_attr_spm_target_dev_state.attr,
 	&dev_attr_spm_target_link_state.attr,
 	&dev_attr_auto_hibern8.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_wb_on.attr,
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -197,6 +347,245 @@ static const struct attribute_group ufs_sysfs_default_group = {
 	.attrs = ufs_sysfs_ufshcd_attrs,
 };
 
+<<<<<<< HEAD
+=======
+static ssize_t monitor_enable_show(struct device *dev,
+				   struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%d\n", hba->monitor.enabled);
+}
+
+static ssize_t monitor_enable_store(struct device *dev,
+				    struct device_attribute *attr,
+				    const char *buf, size_t count)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+	unsigned long value, flags;
+
+	if (kstrtoul(buf, 0, &value))
+		return -EINVAL;
+
+	value = !!value;
+	spin_lock_irqsave(hba->host->host_lock, flags);
+	if (value == hba->monitor.enabled)
+		goto out_unlock;
+
+	if (!value) {
+		memset(&hba->monitor, 0, sizeof(hba->monitor));
+	} else {
+		hba->monitor.enabled = true;
+		hba->monitor.enabled_ts = ktime_get();
+	}
+
+out_unlock:
+	spin_unlock_irqrestore(hba->host->host_lock, flags);
+	return count;
+}
+
+static ssize_t monitor_chunk_size_show(struct device *dev,
+				   struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%lu\n", hba->monitor.chunk_size);
+}
+
+static ssize_t monitor_chunk_size_store(struct device *dev,
+				    struct device_attribute *attr,
+				    const char *buf, size_t count)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+	unsigned long value, flags;
+
+	if (kstrtoul(buf, 0, &value))
+		return -EINVAL;
+
+	spin_lock_irqsave(hba->host->host_lock, flags);
+	/* Only allow chunk size change when monitor is disabled */
+	if (!hba->monitor.enabled)
+		hba->monitor.chunk_size = value;
+	spin_unlock_irqrestore(hba->host->host_lock, flags);
+	return count;
+}
+
+static ssize_t read_total_sectors_show(struct device *dev,
+				       struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%lu\n", hba->monitor.nr_sec_rw[READ]);
+}
+
+static ssize_t read_total_busy_show(struct device *dev,
+				    struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.total_busy[READ]));
+}
+
+static ssize_t read_nr_requests_show(struct device *dev,
+				     struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%lu\n", hba->monitor.nr_req[READ]);
+}
+
+static ssize_t read_req_latency_avg_show(struct device *dev,
+					 struct device_attribute *attr,
+					 char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+	struct ufs_hba_monitor *m = &hba->monitor;
+
+	return sysfs_emit(buf, "%llu\n", div_u64(ktime_to_us(m->lat_sum[READ]),
+						 m->nr_req[READ]));
+}
+
+static ssize_t read_req_latency_max_show(struct device *dev,
+					 struct device_attribute *attr,
+					 char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.lat_max[READ]));
+}
+
+static ssize_t read_req_latency_min_show(struct device *dev,
+					 struct device_attribute *attr,
+					 char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.lat_min[READ]));
+}
+
+static ssize_t read_req_latency_sum_show(struct device *dev,
+					 struct device_attribute *attr,
+					 char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.lat_sum[READ]));
+}
+
+static ssize_t write_total_sectors_show(struct device *dev,
+					struct device_attribute *attr,
+					char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%lu\n", hba->monitor.nr_sec_rw[WRITE]);
+}
+
+static ssize_t write_total_busy_show(struct device *dev,
+				     struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.total_busy[WRITE]));
+}
+
+static ssize_t write_nr_requests_show(struct device *dev,
+				      struct device_attribute *attr, char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%lu\n", hba->monitor.nr_req[WRITE]);
+}
+
+static ssize_t write_req_latency_avg_show(struct device *dev,
+					  struct device_attribute *attr,
+					  char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+	struct ufs_hba_monitor *m = &hba->monitor;
+
+	return sysfs_emit(buf, "%llu\n", div_u64(ktime_to_us(m->lat_sum[WRITE]),
+						 m->nr_req[WRITE]));
+}
+
+static ssize_t write_req_latency_max_show(struct device *dev,
+					  struct device_attribute *attr,
+					  char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.lat_max[WRITE]));
+}
+
+static ssize_t write_req_latency_min_show(struct device *dev,
+					  struct device_attribute *attr,
+					  char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.lat_min[WRITE]));
+}
+
+static ssize_t write_req_latency_sum_show(struct device *dev,
+					  struct device_attribute *attr,
+					  char *buf)
+{
+	struct ufs_hba *hba = dev_get_drvdata(dev);
+
+	return sysfs_emit(buf, "%llu\n",
+			  ktime_to_us(hba->monitor.lat_sum[WRITE]));
+}
+
+static DEVICE_ATTR_RW(monitor_enable);
+static DEVICE_ATTR_RW(monitor_chunk_size);
+static DEVICE_ATTR_RO(read_total_sectors);
+static DEVICE_ATTR_RO(read_total_busy);
+static DEVICE_ATTR_RO(read_nr_requests);
+static DEVICE_ATTR_RO(read_req_latency_avg);
+static DEVICE_ATTR_RO(read_req_latency_max);
+static DEVICE_ATTR_RO(read_req_latency_min);
+static DEVICE_ATTR_RO(read_req_latency_sum);
+static DEVICE_ATTR_RO(write_total_sectors);
+static DEVICE_ATTR_RO(write_total_busy);
+static DEVICE_ATTR_RO(write_nr_requests);
+static DEVICE_ATTR_RO(write_req_latency_avg);
+static DEVICE_ATTR_RO(write_req_latency_max);
+static DEVICE_ATTR_RO(write_req_latency_min);
+static DEVICE_ATTR_RO(write_req_latency_sum);
+
+static struct attribute *ufs_sysfs_monitor_attrs[] = {
+	&dev_attr_monitor_enable.attr,
+	&dev_attr_monitor_chunk_size.attr,
+	&dev_attr_read_total_sectors.attr,
+	&dev_attr_read_total_busy.attr,
+	&dev_attr_read_nr_requests.attr,
+	&dev_attr_read_req_latency_avg.attr,
+	&dev_attr_read_req_latency_max.attr,
+	&dev_attr_read_req_latency_min.attr,
+	&dev_attr_read_req_latency_sum.attr,
+	&dev_attr_write_total_sectors.attr,
+	&dev_attr_write_total_busy.attr,
+	&dev_attr_write_nr_requests.attr,
+	&dev_attr_write_req_latency_avg.attr,
+	&dev_attr_write_req_latency_max.attr,
+	&dev_attr_write_req_latency_min.attr,
+	&dev_attr_write_req_latency_sum.attr,
+	NULL
+};
+
+static const struct attribute_group ufs_sysfs_monitor_group = {
+	.name = "monitor",
+	.attrs = ufs_sysfs_monitor_attrs,
+};
+
+>>>>>>> upstream/android-13
 static ssize_t ufs_sysfs_read_desc_param(struct ufs_hba *hba,
 				  enum desc_idn desc_id,
 				  u8 desc_index,
@@ -210,6 +599,7 @@ static ssize_t ufs_sysfs_read_desc_param(struct ufs_hba *hba,
 	if (param_size > 8)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = ufshcd_read_desc_param(hba, desc_id, desc_index,
 				param_offset, desc_buf, param_size);
 	if (ret)
@@ -228,10 +618,46 @@ static ssize_t ufs_sysfs_read_desc_param(struct ufs_hba *hba,
 		break;
 	case 8:
 		ret = sprintf(sysfs_buf, "0x%016llX\n",
+=======
+	down(&hba->host_sem);
+	if (!ufshcd_is_user_access_allowed(hba)) {
+		ret = -EBUSY;
+		goto out;
+	}
+
+	ufshcd_rpm_get_sync(hba);
+	ret = ufshcd_read_desc_param(hba, desc_id, desc_index,
+				param_offset, desc_buf, param_size);
+	ufshcd_rpm_put_sync(hba);
+	if (ret) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	switch (param_size) {
+	case 1:
+		ret = sysfs_emit(sysfs_buf, "0x%02X\n", *desc_buf);
+		break;
+	case 2:
+		ret = sysfs_emit(sysfs_buf, "0x%04X\n",
+			get_unaligned_be16(desc_buf));
+		break;
+	case 4:
+		ret = sysfs_emit(sysfs_buf, "0x%08X\n",
+			get_unaligned_be32(desc_buf));
+		break;
+	case 8:
+		ret = sysfs_emit(sysfs_buf, "0x%016llX\n",
+>>>>>>> upstream/android-13
 			get_unaligned_be64(desc_buf));
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+out:
+	up(&hba->host_sem);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -267,13 +693,26 @@ UFS_DEVICE_DESC_PARAM(manufacturing_date, _MANF_DATE, 2);
 UFS_DEVICE_DESC_PARAM(manufacturer_id, _MANF_ID, 2);
 UFS_DEVICE_DESC_PARAM(rtt_capability, _RTT_CAP, 1);
 UFS_DEVICE_DESC_PARAM(rtc_update, _FRQ_RTC, 2);
+<<<<<<< HEAD
 UFS_DEVICE_DESC_PARAM(ufs_features, _FEAT_SUP, 1);
+=======
+UFS_DEVICE_DESC_PARAM(ufs_features, _UFS_FEAT, 1);
+>>>>>>> upstream/android-13
 UFS_DEVICE_DESC_PARAM(ffu_timeout, _FFU_TMT, 1);
 UFS_DEVICE_DESC_PARAM(queue_depth, _Q_DPTH, 1);
 UFS_DEVICE_DESC_PARAM(device_version, _DEV_VER, 2);
 UFS_DEVICE_DESC_PARAM(number_of_secure_wpa, _NUM_SEC_WPA, 1);
 UFS_DEVICE_DESC_PARAM(psa_max_data_size, _PSA_MAX_DATA, 4);
 UFS_DEVICE_DESC_PARAM(psa_state_timeout, _PSA_TMT, 1);
+<<<<<<< HEAD
+=======
+UFS_DEVICE_DESC_PARAM(hpb_version, _HPB_VER, 2);
+UFS_DEVICE_DESC_PARAM(hpb_control, _HPB_CONTROL, 1);
+UFS_DEVICE_DESC_PARAM(ext_feature_sup, _EXT_UFS_FEATURE_SUP, 4);
+UFS_DEVICE_DESC_PARAM(wb_presv_us_en, _WB_PRESRV_USRSPC_EN, 1);
+UFS_DEVICE_DESC_PARAM(wb_type, _WB_TYPE, 1);
+UFS_DEVICE_DESC_PARAM(wb_shared_alloc_units, _WB_SHARED_ALLOC_UNITS, 4);
+>>>>>>> upstream/android-13
 
 static struct attribute *ufs_sysfs_device_descriptor[] = {
 	&dev_attr_device_type.attr,
@@ -302,6 +741,15 @@ static struct attribute *ufs_sysfs_device_descriptor[] = {
 	&dev_attr_number_of_secure_wpa.attr,
 	&dev_attr_psa_max_data_size.attr,
 	&dev_attr_psa_state_timeout.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_hpb_version.attr,
+	&dev_attr_hpb_control.attr,
+	&dev_attr_ext_feature_sup.attr,
+	&dev_attr_wb_presv_us_en.attr,
+	&dev_attr_wb_type.attr,
+	&dev_attr_wb_shared_alloc_units.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -371,6 +819,19 @@ UFS_GEOMETRY_DESC_PARAM(enh4_memory_max_alloc_units,
 	_ENM4_MAX_NUM_UNITS, 4);
 UFS_GEOMETRY_DESC_PARAM(enh4_memory_capacity_adjustment_factor,
 	_ENM4_CAP_ADJ_FCTR, 2);
+<<<<<<< HEAD
+=======
+UFS_GEOMETRY_DESC_PARAM(hpb_region_size, _HPB_REGION_SIZE, 1);
+UFS_GEOMETRY_DESC_PARAM(hpb_number_lu, _HPB_NUMBER_LU, 1);
+UFS_GEOMETRY_DESC_PARAM(hpb_subregion_size, _HPB_SUBREGION_SIZE, 1);
+UFS_GEOMETRY_DESC_PARAM(hpb_max_active_regions, _HPB_MAX_ACTIVE_REGS, 2);
+UFS_GEOMETRY_DESC_PARAM(wb_max_alloc_units, _WB_MAX_ALLOC_UNITS, 4);
+UFS_GEOMETRY_DESC_PARAM(wb_max_wb_luns, _WB_MAX_WB_LUNS, 1);
+UFS_GEOMETRY_DESC_PARAM(wb_buff_cap_adj, _WB_BUFF_CAP_ADJ, 1);
+UFS_GEOMETRY_DESC_PARAM(wb_sup_red_type, _WB_SUP_RED_TYPE, 1);
+UFS_GEOMETRY_DESC_PARAM(wb_sup_wb_type, _WB_SUP_WB_TYPE, 1);
+
+>>>>>>> upstream/android-13
 
 static struct attribute *ufs_sysfs_geometry_descriptor[] = {
 	&dev_attr_raw_device_capacity.attr,
@@ -402,6 +863,18 @@ static struct attribute *ufs_sysfs_geometry_descriptor[] = {
 	&dev_attr_enh3_memory_capacity_adjustment_factor.attr,
 	&dev_attr_enh4_memory_max_alloc_units.attr,
 	&dev_attr_enh4_memory_capacity_adjustment_factor.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_hpb_region_size.attr,
+	&dev_attr_hpb_number_lu.attr,
+	&dev_attr_hpb_subregion_size.attr,
+	&dev_attr_hpb_max_active_regions.attr,
+	&dev_attr_wb_max_alloc_units.attr,
+	&dev_attr_wb_max_wb_luns.attr,
+	&dev_attr_wb_buff_cap_adj.attr,
+	&dev_attr_wb_sup_red_type.attr,
+	&dev_attr_wb_sup_wb_type.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -555,9 +1028,23 @@ static ssize_t _name##_show(struct device *dev,				\
 	int desc_len = QUERY_DESC_MAX_SIZE;				\
 	u8 *desc_buf;							\
 									\
+<<<<<<< HEAD
 	desc_buf = kzalloc(QUERY_DESC_MAX_SIZE, GFP_ATOMIC);		\
 	if (!desc_buf)                                                  \
 		return -ENOMEM;                                         \
+=======
+	down(&hba->host_sem);						\
+	if (!ufshcd_is_user_access_allowed(hba)) {			\
+		up(&hba->host_sem);					\
+		return -EBUSY;						\
+	}								\
+	desc_buf = kzalloc(QUERY_DESC_MAX_SIZE, GFP_ATOMIC);		\
+	if (!desc_buf) {						\
+		up(&hba->host_sem);					\
+		return -ENOMEM;						\
+	}								\
+	ufshcd_rpm_get_sync(hba);					\
+>>>>>>> upstream/android-13
 	ret = ufshcd_query_descriptor_retry(hba,			\
 		UPIU_QUERY_OPCODE_READ_DESC, QUERY_DESC_IDN_DEVICE,	\
 		0, 0, desc_buf, &desc_len);				\
@@ -572,9 +1059,17 @@ static ssize_t _name##_show(struct device *dev,				\
 				      SD_ASCII_STD);			\
 	if (ret < 0)							\
 		goto out;						\
+<<<<<<< HEAD
 	ret = snprintf(buf, PAGE_SIZE, "%s\n", desc_buf);		\
 out:									\
 	kfree(desc_buf);						\
+=======
+	ret = sysfs_emit(buf, "%s\n", desc_buf);			\
+out:									\
+	ufshcd_rpm_put_sync(hba);					\
+	kfree(desc_buf);						\
+	up(&hba->host_sem);						\
+>>>>>>> upstream/android-13
 	return ret;							\
 }									\
 static DEVICE_ATTR_RO(_name)
@@ -599,16 +1094,51 @@ static const struct attribute_group ufs_sysfs_string_descriptors_group = {
 	.attrs = ufs_sysfs_string_descriptors,
 };
 
+<<<<<<< HEAD
+=======
+static inline bool ufshcd_is_wb_flags(enum flag_idn idn)
+{
+	return idn >= QUERY_FLAG_IDN_WB_EN &&
+		idn <= QUERY_FLAG_IDN_WB_BUFF_FLUSH_DURING_HIBERN8;
+}
+
+>>>>>>> upstream/android-13
 #define UFS_FLAG(_name, _uname)						\
 static ssize_t _name##_show(struct device *dev,				\
 	struct device_attribute *attr, char *buf)			\
 {									\
 	bool flag;							\
+<<<<<<< HEAD
 	struct ufs_hba *hba = dev_get_drvdata(dev);			\
 	if (ufshcd_query_flag(hba, UPIU_QUERY_OPCODE_READ_FLAG,		\
 		QUERY_FLAG_IDN##_uname, &flag))				\
 		return -EINVAL;						\
 	return sprintf(buf, "%s\n", flag ? "true" : "false");		\
+=======
+	u8 index = 0;							\
+	int ret;							\
+	struct ufs_hba *hba = dev_get_drvdata(dev);			\
+									\
+	down(&hba->host_sem);						\
+	if (!ufshcd_is_user_access_allowed(hba)) {			\
+		up(&hba->host_sem);					\
+		return -EBUSY;						\
+	}								\
+	if (ufshcd_is_wb_flags(QUERY_FLAG_IDN##_uname))			\
+		index = ufshcd_wb_get_query_index(hba);			\
+	ufshcd_rpm_get_sync(hba);					\
+	ret = ufshcd_query_flag(hba, UPIU_QUERY_OPCODE_READ_FLAG,	\
+		QUERY_FLAG_IDN##_uname, index, &flag);			\
+	ufshcd_rpm_put_sync(hba);					\
+	if (ret) {							\
+		ret = -EINVAL;						\
+		goto out;						\
+	}								\
+	ret = sysfs_emit(buf, "%s\n", flag ? "true" : "false");		\
+out:									\
+	up(&hba->host_sem);						\
+	return ret;							\
+>>>>>>> upstream/android-13
 }									\
 static DEVICE_ATTR_RO(_name)
 
@@ -620,6 +1150,13 @@ UFS_FLAG(life_span_mode_enable, _LIFE_SPAN_MODE_ENABLE);
 UFS_FLAG(phy_resource_removal, _FPHYRESOURCEREMOVAL);
 UFS_FLAG(busy_rtc, _BUSY_RTC);
 UFS_FLAG(disable_fw_update, _PERMANENTLY_DISABLE_FW_UPDATE);
+<<<<<<< HEAD
+=======
+UFS_FLAG(wb_enable, _WB_EN);
+UFS_FLAG(wb_flush_en, _WB_BUFF_FLUSH_EN);
+UFS_FLAG(wb_flush_during_h8, _WB_BUFF_FLUSH_DURING_HIBERN8);
+UFS_FLAG(hpb_enable, _HPB_EN);
+>>>>>>> upstream/android-13
 
 static struct attribute *ufs_sysfs_device_flags[] = {
 	&dev_attr_device_init.attr,
@@ -630,6 +1167,13 @@ static struct attribute *ufs_sysfs_device_flags[] = {
 	&dev_attr_phy_resource_removal.attr,
 	&dev_attr_busy_rtc.attr,
 	&dev_attr_disable_fw_update.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_wb_enable.attr,
+	&dev_attr_wb_flush_en.attr,
+	&dev_attr_wb_flush_during_h8.attr,
+	&dev_attr_hpb_enable.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -638,20 +1182,58 @@ static const struct attribute_group ufs_sysfs_flags_group = {
 	.attrs = ufs_sysfs_device_flags,
 };
 
+<<<<<<< HEAD
+=======
+static inline bool ufshcd_is_wb_attrs(enum attr_idn idn)
+{
+	return idn >= QUERY_ATTR_IDN_WB_FLUSH_STATUS &&
+		idn <= QUERY_ATTR_IDN_CURR_WB_BUFF_SIZE;
+}
+
+>>>>>>> upstream/android-13
 #define UFS_ATTRIBUTE(_name, _uname)					\
 static ssize_t _name##_show(struct device *dev,				\
 	struct device_attribute *attr, char *buf)			\
 {									\
 	struct ufs_hba *hba = dev_get_drvdata(dev);			\
 	u32 value;							\
+<<<<<<< HEAD
 	if (ufshcd_query_attr(hba, UPIU_QUERY_OPCODE_READ_ATTR,		\
 		QUERY_ATTR_IDN##_uname, 0, 0, &value))			\
 		return -EINVAL;						\
 	return sprintf(buf, "0x%08X\n", value);				\
+=======
+	int ret;							\
+	u8 index = 0;							\
+									\
+	down(&hba->host_sem);						\
+	if (!ufshcd_is_user_access_allowed(hba)) {			\
+		up(&hba->host_sem);					\
+		return -EBUSY;						\
+	}								\
+	if (ufshcd_is_wb_attrs(QUERY_ATTR_IDN##_uname))			\
+		index = ufshcd_wb_get_query_index(hba);			\
+	ufshcd_rpm_get_sync(hba);					\
+	ret = ufshcd_query_attr(hba, UPIU_QUERY_OPCODE_READ_ATTR,	\
+		QUERY_ATTR_IDN##_uname, index, 0, &value);		\
+	ufshcd_rpm_put_sync(hba);					\
+	if (ret) {							\
+		ret = -EINVAL;						\
+		goto out;						\
+	}								\
+	ret = sysfs_emit(buf, "0x%08X\n", value);			\
+out:									\
+	up(&hba->host_sem);						\
+	return ret;							\
+>>>>>>> upstream/android-13
 }									\
 static DEVICE_ATTR_RO(_name)
 
 UFS_ATTRIBUTE(boot_lun_enabled, _BOOT_LU_EN);
+<<<<<<< HEAD
+=======
+UFS_ATTRIBUTE(max_data_size_hpb_single_cmd, _MAX_HPB_SINGLE_CMD);
+>>>>>>> upstream/android-13
 UFS_ATTRIBUTE(current_power_mode, _POWER_MODE);
 UFS_ATTRIBUTE(active_icc_level, _ACTIVE_ICC_LVL);
 UFS_ATTRIBUTE(ooo_data_enabled, _OOO_DATA_EN);
@@ -667,9 +1249,21 @@ UFS_ATTRIBUTE(exception_event_status, _EE_STATUS);
 UFS_ATTRIBUTE(ffu_status, _FFU_STATUS);
 UFS_ATTRIBUTE(psa_state, _PSA_STATE);
 UFS_ATTRIBUTE(psa_data_size, _PSA_DATA_SIZE);
+<<<<<<< HEAD
 
 static struct attribute *ufs_sysfs_attributes[] = {
 	&dev_attr_boot_lun_enabled.attr,
+=======
+UFS_ATTRIBUTE(wb_flush_status, _WB_FLUSH_STATUS);
+UFS_ATTRIBUTE(wb_avail_buf, _AVAIL_WB_BUFF_SIZE);
+UFS_ATTRIBUTE(wb_life_time_est, _WB_BUFF_LIFE_TIME_EST);
+UFS_ATTRIBUTE(wb_cur_buf, _CURR_WB_BUFF_SIZE);
+
+
+static struct attribute *ufs_sysfs_attributes[] = {
+	&dev_attr_boot_lun_enabled.attr,
+	&dev_attr_max_data_size_hpb_single_cmd.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_current_power_mode.attr,
 	&dev_attr_active_icc_level.attr,
 	&dev_attr_ooo_data_enabled.attr,
@@ -685,6 +1279,13 @@ static struct attribute *ufs_sysfs_attributes[] = {
 	&dev_attr_ffu_status.attr,
 	&dev_attr_psa_state.attr,
 	&dev_attr_psa_data_size.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_wb_flush_status.attr,
+	&dev_attr_wb_avail_buf.attr,
+	&dev_attr_wb_life_time_est.attr,
+	&dev_attr_wb_cur_buf.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -695,6 +1296,10 @@ static const struct attribute_group ufs_sysfs_attributes_group = {
 
 static const struct attribute_group *ufs_sysfs_groups[] = {
 	&ufs_sysfs_default_group,
+<<<<<<< HEAD
+=======
+	&ufs_sysfs_monitor_group,
+>>>>>>> upstream/android-13
 	&ufs_sysfs_device_descriptor_group,
 	&ufs_sysfs_interconnect_descriptor_group,
 	&ufs_sysfs_geometry_descriptor_group,
@@ -713,7 +1318,12 @@ static ssize_t _pname##_show(struct device *dev,			\
 	struct scsi_device *sdev = to_scsi_device(dev);			\
 	struct ufs_hba *hba = shost_priv(sdev->host);			\
 	u8 lun = ufshcd_scsi_to_upiu_lun(sdev->lun);			\
+<<<<<<< HEAD
 	if (!ufs_is_valid_unit_desc_lun(lun))		\
+=======
+	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun,		\
+				_duname##_DESC_PARAM##_puname))		\
+>>>>>>> upstream/android-13
 		return -EINVAL;						\
 	return ufs_sysfs_read_desc_param(hba, QUERY_DESC_IDN_##_duname,	\
 		lun, _duname##_DESC_PARAM##_puname, buf, _size);	\
@@ -723,6 +1333,10 @@ static DEVICE_ATTR_RO(_pname)
 #define UFS_UNIT_DESC_PARAM(_name, _uname, _size)			\
 	UFS_LUN_DESC_PARAM(_name, _uname, UNIT, _size)
 
+<<<<<<< HEAD
+=======
+UFS_UNIT_DESC_PARAM(lu_enable, _LU_ENABLE, 1);
+>>>>>>> upstream/android-13
 UFS_UNIT_DESC_PARAM(boot_lun_id, _BOOT_LUN_ID, 1);
 UFS_UNIT_DESC_PARAM(lun_write_protect, _LU_WR_PROTECT, 1);
 UFS_UNIT_DESC_PARAM(lun_queue_depth, _LU_Q_DEPTH, 1);
@@ -736,8 +1350,18 @@ UFS_UNIT_DESC_PARAM(provisioning_type, _PROVISIONING_TYPE, 1);
 UFS_UNIT_DESC_PARAM(physical_memory_resourse_count, _PHY_MEM_RSRC_CNT, 8);
 UFS_UNIT_DESC_PARAM(context_capabilities, _CTX_CAPABILITIES, 2);
 UFS_UNIT_DESC_PARAM(large_unit_granularity, _LARGE_UNIT_SIZE_M1, 1);
+<<<<<<< HEAD
 
 static struct attribute *ufs_sysfs_unit_descriptor[] = {
+=======
+UFS_UNIT_DESC_PARAM(hpb_lu_max_active_regions, _HPB_LU_MAX_ACTIVE_RGNS, 2);
+UFS_UNIT_DESC_PARAM(hpb_pinned_region_start_offset, _HPB_PIN_RGN_START_OFF, 2);
+UFS_UNIT_DESC_PARAM(hpb_number_pinned_regions, _HPB_NUM_PIN_RGNS, 2);
+UFS_UNIT_DESC_PARAM(wb_buf_alloc_units, _WB_BUF_ALLOC_UNITS, 4);
+
+static struct attribute *ufs_sysfs_unit_descriptor[] = {
+	&dev_attr_lu_enable.attr,
+>>>>>>> upstream/android-13
 	&dev_attr_boot_lun_id.attr,
 	&dev_attr_lun_write_protect.attr,
 	&dev_attr_lun_queue_depth.attr,
@@ -751,6 +1375,13 @@ static struct attribute *ufs_sysfs_unit_descriptor[] = {
 	&dev_attr_physical_memory_resourse_count.attr,
 	&dev_attr_context_capabilities.attr,
 	&dev_attr_large_unit_granularity.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_hpb_lu_max_active_regions.attr,
+	&dev_attr_hpb_pinned_region_start_offset.attr,
+	&dev_attr_hpb_number_pinned_regions.attr,
+	&dev_attr_wb_buf_alloc_units.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -766,11 +1397,36 @@ static ssize_t dyn_cap_needed_attribute_show(struct device *dev,
 	struct scsi_device *sdev = to_scsi_device(dev);
 	struct ufs_hba *hba = shost_priv(sdev->host);
 	u8 lun = ufshcd_scsi_to_upiu_lun(sdev->lun);
+<<<<<<< HEAD
 
 	if (ufshcd_query_attr(hba, UPIU_QUERY_OPCODE_READ_ATTR,
 		QUERY_ATTR_IDN_DYN_CAP_NEEDED, lun, 0, &value))
 		return -EINVAL;
 	return sprintf(buf, "0x%08X\n", value);
+=======
+	int ret;
+
+	down(&hba->host_sem);
+	if (!ufshcd_is_user_access_allowed(hba)) {
+		ret = -EBUSY;
+		goto out;
+	}
+
+	ufshcd_rpm_get_sync(hba);
+	ret = ufshcd_query_attr(hba, UPIU_QUERY_OPCODE_READ_ATTR,
+		QUERY_ATTR_IDN_DYN_CAP_NEEDED, lun, 0, &value);
+	ufshcd_rpm_put_sync(hba);
+	if (ret) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	ret = sysfs_emit(buf, "0x%08X\n", value);
+
+out:
+	up(&hba->host_sem);
+	return ret;
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(dyn_cap_needed_attribute);
 
@@ -783,6 +1439,7 @@ const struct attribute_group ufs_sysfs_lun_attributes_group = {
 	.attrs = ufs_sysfs_lun_attributes,
 };
 
+<<<<<<< HEAD
 void ufs_sysfs_add_nodes(struct device *dev)
 {
 	int ret;
@@ -792,6 +1449,21 @@ void ufs_sysfs_add_nodes(struct device *dev)
 		dev_err(dev,
 			"%s: sysfs groups creation failed (err = %d)\n",
 			__func__, ret);
+=======
+void ufs_sysfs_add_nodes(struct ufs_hba *hba)
+{
+	int ret;
+
+	ret = sysfs_create_groups(&hba->dev->kobj, ufs_sysfs_groups);
+	if (ret) {
+		dev_err(hba->dev,
+			"%s: sysfs groups creation failed (err = %d)\n",
+			__func__, ret);
+		return;
+	}
+
+	trace_android_vh_ufs_update_sysfs(hba);
+>>>>>>> upstream/android-13
 }
 
 void ufs_sysfs_remove_nodes(struct device *dev)

@@ -10,13 +10,20 @@
 #include <linux/slab.h>
 #include <linux/export.h>
 #include <linux/iommu-helper.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/vmalloc.h>
 #include <linux/pci.h>
 #include <asm/pci_dma.h>
 
+<<<<<<< HEAD
 #define S390_MAPPING_ERROR		(~(dma_addr_t) 0x0)
 
+=======
+>>>>>>> upstream/android-13
 static struct kmem_cache *dma_region_table_cache;
 static struct kmem_cache *dma_page_table_cache;
 static int s390_iommu_strict;
@@ -263,6 +270,7 @@ static unsigned long __dma_alloc_iommu(struct device *dev,
 				       unsigned long start, int size)
 {
 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+<<<<<<< HEAD
 	unsigned long boundary_size;
 
 	boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
@@ -270,6 +278,13 @@ static unsigned long __dma_alloc_iommu(struct device *dev,
 	return iommu_area_alloc(zdev->iommu_bitmap, zdev->iommu_pages,
 				start, size, zdev->start_dma >> PAGE_SHIFT,
 				boundary_size, 0);
+=======
+
+	return iommu_area_alloc(zdev->iommu_bitmap, zdev->iommu_pages,
+				start, size, zdev->start_dma >> PAGE_SHIFT,
+				dma_get_seg_boundary_nr_pages(dev, PAGE_SHIFT),
+				0);
+>>>>>>> upstream/android-13
 }
 
 static dma_addr_t dma_alloc_address(struct device *dev, int size)
@@ -301,7 +316,11 @@ static dma_addr_t dma_alloc_address(struct device *dev, int size)
 
 out_error:
 	spin_unlock_irqrestore(&zdev->iommu_bitmap_lock, flags);
+<<<<<<< HEAD
 	return S390_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 static void dma_free_address(struct device *dev, dma_addr_t dma_addr, int size)
@@ -349,7 +368,11 @@ static dma_addr_t s390_dma_map_pages(struct device *dev, struct page *page,
 	/* This rounds up number of pages based on size and offset */
 	nr_pages = iommu_num_pages(pa, size, PAGE_SIZE);
 	dma_addr = dma_alloc_address(dev, nr_pages);
+<<<<<<< HEAD
 	if (dma_addr == S390_MAPPING_ERROR) {
+=======
+	if (dma_addr == DMA_MAPPING_ERROR) {
+>>>>>>> upstream/android-13
 		ret = -ENOSPC;
 		goto out_err;
 	}
@@ -372,7 +395,11 @@ out_free:
 out_err:
 	zpci_err("map error:\n");
 	zpci_err_dma(ret, pa);
+<<<<<<< HEAD
 	return S390_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 static void s390_dma_unmap_pages(struct device *dev, dma_addr_t dma_addr,
@@ -406,7 +433,11 @@ static void *s390_dma_alloc(struct device *dev, size_t size,
 	dma_addr_t map;
 
 	size = PAGE_ALIGN(size);
+<<<<<<< HEAD
 	page = alloc_pages(flag, get_order(size));
+=======
+	page = alloc_pages(flag | __GFP_ZERO, get_order(size));
+>>>>>>> upstream/android-13
 	if (!page)
 		return NULL;
 
@@ -449,7 +480,11 @@ static int __s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
 	int ret;
 
 	dma_addr_base = dma_alloc_address(dev, nr_pages);
+<<<<<<< HEAD
 	if (dma_addr_base == S390_MAPPING_ERROR)
+=======
+	if (dma_addr_base == DMA_MAPPING_ERROR)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	dma_addr = dma_addr_base;
@@ -491,18 +526,31 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
 	unsigned int max = dma_get_max_seg_size(dev);
 	unsigned int size = s->offset + s->length;
 	unsigned int offset = s->offset;
+<<<<<<< HEAD
 	int count = 0, i;
+=======
+	int count = 0, i, ret;
+>>>>>>> upstream/android-13
 
 	for (i = 1; i < nr_elements; i++) {
 		s = sg_next(s);
 
+<<<<<<< HEAD
 		s->dma_address = S390_MAPPING_ERROR;
+=======
+>>>>>>> upstream/android-13
 		s->dma_length = 0;
 
 		if (s->offset || (size & ~PAGE_MASK) ||
 		    size + s->length > max) {
+<<<<<<< HEAD
 			if (__s390_dma_map_sg(dev, start, size,
 					      &dma->dma_address, dir))
+=======
+			ret = __s390_dma_map_sg(dev, start, size,
+						&dma->dma_address, dir);
+			if (ret)
+>>>>>>> upstream/android-13
 				goto unmap;
 
 			dma->dma_address += offset;
@@ -515,7 +563,12 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
 		}
 		size += s->length;
 	}
+<<<<<<< HEAD
 	if (__s390_dma_map_sg(dev, start, size, &dma->dma_address, dir))
+=======
+	ret = __s390_dma_map_sg(dev, start, size, &dma->dma_address, dir);
+	if (ret)
+>>>>>>> upstream/android-13
 		goto unmap;
 
 	dma->dma_address += offset;
@@ -527,7 +580,11 @@ unmap:
 		s390_dma_unmap_pages(dev, sg_dma_address(s), sg_dma_len(s),
 				     dir, attrs);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void s390_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
@@ -546,11 +603,14 @@ static void s390_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
 	}
 }
 	
+<<<<<<< HEAD
 static int s390_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return dma_addr == S390_MAPPING_ERROR;
 }
 
+=======
+>>>>>>> upstream/android-13
 int zpci_dma_init_device(struct zpci_dev *zdev)
 {
 	int rc;
@@ -599,10 +659,18 @@ int zpci_dma_init_device(struct zpci_dev *zdev)
 		}
 
 	}
+<<<<<<< HEAD
 	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
 				(u64) zdev->dma_table);
 	if (rc)
 		goto free_bitmap;
+=======
+	if (zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+			       (u64)zdev->dma_table)) {
+		rc = -EIO;
+		goto free_bitmap;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 free_bitmap:
@@ -617,17 +685,36 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 void zpci_dma_exit_device(struct zpci_dev *zdev)
 {
+=======
+int zpci_dma_exit_device(struct zpci_dev *zdev)
+{
+	int cc = 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * At this point, if the device is part of an IOMMU domain, this would
 	 * be a strong hint towards a bug in the IOMMU API (common) code and/or
 	 * simultaneous access via IOMMU and DMA API. So let's issue a warning.
 	 */
 	WARN_ON(zdev->s390_domain);
+<<<<<<< HEAD
 
 	if (zpci_unregister_ioat(zdev, 0))
 		return;
+=======
+	if (zdev_enabled(zdev))
+		cc = zpci_unregister_ioat(zdev, 0);
+	/*
+	 * cc == 3 indicates the function is gone already. This can happen
+	 * if the function was deconfigured/disabled suddenly and we have not
+	 * received a new handle yet.
+	 */
+	if (cc && cc != 3)
+		return -EIO;
+>>>>>>> upstream/android-13
 
 	dma_cleanup_tables(zdev->dma_table);
 	zdev->dma_table = NULL;
@@ -635,8 +722,13 @@ void zpci_dma_exit_device(struct zpci_dev *zdev)
 	zdev->iommu_bitmap = NULL;
 	vfree(zdev->lazy_bitmap);
 	zdev->lazy_bitmap = NULL;
+<<<<<<< HEAD
 
 	zdev->next_bit = 0;
+=======
+	zdev->next_bit = 0;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __init dma_alloc_cpu_table_caches(void)
@@ -675,16 +767,29 @@ const struct dma_map_ops s390_pci_dma_ops = {
 	.unmap_sg	= s390_dma_unmap_sg,
 	.map_page	= s390_dma_map_pages,
 	.unmap_page	= s390_dma_unmap_pages,
+<<<<<<< HEAD
 	.mapping_error	= s390_mapping_error,
+=======
+	.mmap		= dma_common_mmap,
+	.get_sgtable	= dma_common_get_sgtable,
+	.alloc_pages	= dma_common_alloc_pages,
+	.free_pages	= dma_common_free_pages,
+>>>>>>> upstream/android-13
 	/* dma_supported is unconditionally true without a callback */
 };
 EXPORT_SYMBOL_GPL(s390_pci_dma_ops);
 
 static int __init s390_iommu_setup(char *str)
 {
+<<<<<<< HEAD
 	if (!strncmp(str, "strict", 6))
 		s390_iommu_strict = 1;
 	return 0;
+=======
+	if (!strcmp(str, "strict"))
+		s390_iommu_strict = 1;
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 __setup("s390_iommu=", s390_iommu_setup);

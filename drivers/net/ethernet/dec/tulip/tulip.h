@@ -381,7 +381,11 @@ struct mediatable {
 	unsigned has_reset:6;
 	u32 csr15dir;
 	u32 csr15val;		/* 21143 NWay setting. */
+<<<<<<< HEAD
 	struct medialeaf mleaf[0];
+=======
+	struct medialeaf mleaf[];
+>>>>>>> upstream/android-13
 };
 
 
@@ -478,7 +482,10 @@ void t21142_lnk_change(struct net_device *dev, int csr5);
 void pnic2_lnk_change(struct net_device *dev, int csr5);
 void pnic2_timer(struct timer_list *t);
 void pnic2_start_nway(struct net_device *dev);
+<<<<<<< HEAD
 void pnic2_lnk_change(struct net_device *dev, int csr5);
+=======
+>>>>>>> upstream/android-13
 
 /* eeprom.c */
 void tulip_parse_eeprom(struct net_device *dev);

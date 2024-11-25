@@ -43,7 +43,11 @@
 			d-cache-size = <32768>;
 			dcr-controller;
 			dcr-access-method = "native";
+<<<<<<< HEAD
 			status = "ok";
+=======
+			status = "okay";
+>>>>>>> upstream/android-13
 		};
 		cpu@1 {
 			device_type = "cpu";

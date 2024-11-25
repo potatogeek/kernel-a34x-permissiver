@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2014  Realtek Corporation.
@@ -19,6 +20,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2014  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef	__RTL8723BE_DM_H__
 #define __RTL8723BE_DM_H__

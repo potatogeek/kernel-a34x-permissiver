@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * include/asm-sh/spinlock-cas.h
  *
@@ -6,6 +7,13 @@
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * include/asm-sh/spinlock-cas.h
+ *
+ * Copyright (C) 2015 SEI
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_SH_SPINLOCK_CAS_H
 #define __ASM_SH_SPINLOCK_CAS_H

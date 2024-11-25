@@ -3,6 +3,51 @@
 #
 # Run a series of udpgso benchmarks
 
+<<<<<<< HEAD
+=======
+readonly GREEN='\033[0;92m'
+readonly YELLOW='\033[0;33m'
+readonly RED='\033[0;31m'
+readonly NC='\033[0m' # No Color
+
+readonly KSFT_PASS=0
+readonly KSFT_FAIL=1
+readonly KSFT_SKIP=4
+
+num_pass=0
+num_err=0
+num_skip=0
+
+kselftest_test_exitcode() {
+	local -r exitcode=$1
+
+	if [[ ${exitcode} -eq ${KSFT_PASS} ]]; then
+		num_pass=$(( $num_pass + 1 ))
+	elif [[ ${exitcode} -eq ${KSFT_SKIP} ]]; then
+		num_skip=$(( $num_skip + 1 ))
+	else
+		num_err=$(( $num_err + 1 ))
+	fi
+}
+
+kselftest_exit() {
+	echo -e "$(basename $0): PASS=${num_pass} SKIP=${num_skip} FAIL=${num_err}"
+
+	if [[ $num_err -ne 0 ]]; then
+		echo -e "$(basename $0): ${RED}FAIL${NC}"
+		exit ${KSFT_FAIL}
+	fi
+
+	if [[ $num_skip -ne 0 ]]; then
+		echo -e "$(basename $0): ${YELLOW}SKIP${NC}"
+		exit ${KSFT_SKIP}
+	fi
+
+	echo -e "$(basename $0): ${GREEN}PASS${NC}"
+	exit ${KSFT_PASS}
+}
+
+>>>>>>> upstream/android-13
 wake_children() {
 	local -r jobs="$(jobs -p)"
 
@@ -25,6 +70,10 @@ run_in_netns() {
 	local -r args=$@
 
 	./in_netns.sh $0 __subprocess ${args}
+<<<<<<< HEAD
+=======
+	kselftest_test_exitcode $?
+>>>>>>> upstream/android-13
 }
 
 run_udp() {
@@ -34,7 +83,26 @@ run_udp() {
 	run_in_netns ${args}
 
 	echo "udp gso"
+<<<<<<< HEAD
 	run_in_netns ${args} -S
+=======
+	run_in_netns ${args} -S 0
+
+	echo "udp gso zerocopy"
+	run_in_netns ${args} -S 0 -z
+
+	echo "udp gso timestamp"
+	run_in_netns ${args} -S 0 -T
+
+	echo "udp gso zerocopy audit"
+	run_in_netns ${args} -S 0 -z -a
+
+	echo "udp gso timestamp audit"
+	run_in_netns ${args} -S 0 -T -a
+
+	echo "udp gso zerocopy timestamp audit"
+	run_in_netns ${args} -S 0 -T -z -a
+>>>>>>> upstream/android-13
 }
 
 run_tcp() {
@@ -45,10 +113,22 @@ run_tcp() {
 
 	echo "tcp zerocopy"
 	run_in_netns ${args} -t -z
+<<<<<<< HEAD
 }
 
 run_all() {
 	local -r core_args="-l 4"
+=======
+
+	# excluding for now because test fails intermittently
+	# add -P option to include poll() to reduce possibility of lost messages
+	#echo "tcp zerocopy audit"
+	#run_in_netns ${args} -t -z -P -a
+}
+
+run_all() {
+	local -r core_args="-l 3"
+>>>>>>> upstream/android-13
 	local -r ipv4_args="${core_args} -4 -D 127.0.0.1"
 	local -r ipv6_args="${core_args} -6 -D ::1"
 
@@ -63,6 +143,10 @@ run_all() {
 
 if [[ $# -eq 0 ]]; then
 	run_all
+<<<<<<< HEAD
+=======
+	kselftest_exit
+>>>>>>> upstream/android-13
 elif [[ $1 == "__subprocess" ]]; then
 	shift
 	run_one $@

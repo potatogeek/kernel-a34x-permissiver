@@ -5,7 +5,10 @@
  */
 #include <linux/kernel.h>
 #include <linux/fsl/mc.h>
+<<<<<<< HEAD
 #include <linux/fsl/mc.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "fsl-mc-private.h"
 

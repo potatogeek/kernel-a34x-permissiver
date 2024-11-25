@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-ixp4xx/include/mach/ixp4xx-regs.h
  *
@@ -8,11 +12,14 @@
  *
  * Copyright (C) 2002 Intel Corporation.
  * Copyright (C) 2003-2004 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_ARM_IXP4XX_H_
@@ -43,29 +50,44 @@
  * Queue Manager
  */
 #define IXP4XX_QMGR_BASE_PHYS		0x60000000
+<<<<<<< HEAD
 #define IXP4XX_QMGR_BASE_VIRT		IOMEM(0xFEF15000)
 #define IXP4XX_QMGR_REGION_SIZE		0x00004000
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Peripheral space, including debug UART. Must be section-aligned so that
  * it can be used with the low-level debug code.
  */
 #define IXP4XX_PERIPHERAL_BASE_PHYS	0xC8000000
+<<<<<<< HEAD
 #define IXP4XX_PERIPHERAL_BASE_VIRT	IOMEM(0xFEF00000)
+=======
+#define IXP4XX_PERIPHERAL_BASE_VIRT	IOMEM(0xFEC00000)
+>>>>>>> upstream/android-13
 #define IXP4XX_PERIPHERAL_REGION_SIZE	0x00013000
 
 /*
  * PCI Config registers
  */
 #define IXP4XX_PCI_CFG_BASE_PHYS	0xC0000000
+<<<<<<< HEAD
 #define IXP4XX_PCI_CFG_BASE_VIRT	IOMEM(0xFEF13000)
+=======
+#define IXP4XX_PCI_CFG_BASE_VIRT	IOMEM(0xFEC13000)
+>>>>>>> upstream/android-13
 #define IXP4XX_PCI_CFG_REGION_SIZE	0x00001000
 
 /*
  * Expansion BUS Configuration registers
  */
 #define IXP4XX_EXP_CFG_BASE_PHYS	0xC4000000
+<<<<<<< HEAD
 #define IXP4XX_EXP_CFG_BASE_VIRT	0xFEF14000
+=======
+#define IXP4XX_EXP_CFG_BASE_VIRT	0xFEC14000
+>>>>>>> upstream/android-13
 #define IXP4XX_EXP_CFG_REGION_SIZE	0x00001000
 
 #define IXP4XX_EXP_CS0_OFFSET	0x00
@@ -126,15 +148,22 @@
 #define IXP4XX_SSP_BASE_PHYS		(IXP4XX_PERIPHERAL_BASE_PHYS + 0x12000)
 
 
+<<<<<<< HEAD
+=======
+/* The UART is explicitly put in the beginning of fixmap */
+>>>>>>> upstream/android-13
 #define IXP4XX_UART1_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x0000)
 #define IXP4XX_UART2_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x1000)
 #define IXP4XX_PMU_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x2000)
 #define IXP4XX_INTC_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x3000)
 #define IXP4XX_GPIO_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x4000)
 #define IXP4XX_TIMER_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x5000)
+<<<<<<< HEAD
 #define IXP4XX_NPEA_BASE_VIRT   	(IXP4XX_PERIPHERAL_BASE_VIRT + 0x6000)
 #define IXP4XX_NPEB_BASE_VIRT   	(IXP4XX_PERIPHERAL_BASE_VIRT + 0x7000)
 #define IXP4XX_NPEC_BASE_VIRT   	(IXP4XX_PERIPHERAL_BASE_VIRT + 0x8000)
+=======
+>>>>>>> upstream/android-13
 #define IXP4XX_EthB_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x9000)
 #define IXP4XX_EthC_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0xA000)
 #define IXP4XX_USB_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0xB000)
@@ -148,6 +177,7 @@
 #define IXP4XX_SSP_BASE_VIRT		(IXP4XX_PERIPHERAL_BASE_VIRT + 0x12000)
 
 /*
+<<<<<<< HEAD
  * Constants to make it easy to access  Interrupt Controller registers
  */
 #define IXP4XX_ICPR_OFFSET	0x00 /* Interrupt Status */
@@ -237,6 +267,8 @@
 #define IXP4XX_GPIO_STYLE_SIZE		3
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Constants to make it easy to access Timer Control/Status registers
  */
 #define IXP4XX_OSTS_OFFSET	0x00  /* Continious TimeStamp */
@@ -315,6 +347,7 @@
 /*
  * PCI Control/Status Registers
  */
+<<<<<<< HEAD
 #define IXP4XX_PCI_CSR(x) ((volatile u32 *)(IXP4XX_PCI_CFG_BASE_VIRT+(x)))
 
 #define PCI_NP_AD               IXP4XX_PCI_CSR(PCI_NP_AD_OFFSET)
@@ -339,6 +372,32 @@
 #define PCI_ATPDMA1_AHBADDR     IXP4XX_PCI_CSR(PCI_ATPDMA1_AHBADDR_OFFSET)
 #define PCI_ATPDMA1_PCIADDR     IXP4XX_PCI_CSR(PCI_ATPDMA1_PCIADDR_OFFSET)
 #define PCI_ATPDMA1_LENADDR     IXP4XX_PCI_CSR(PCI_ATPDMA1_LENADDR_OFFSET)
+=======
+#define _IXP4XX_PCI_CSR(x) ((volatile u32 *)(IXP4XX_PCI_CFG_BASE_VIRT+(x)))
+
+#define PCI_NP_AD               _IXP4XX_PCI_CSR(PCI_NP_AD_OFFSET)
+#define PCI_NP_CBE              _IXP4XX_PCI_CSR(PCI_NP_CBE_OFFSET)
+#define PCI_NP_WDATA            _IXP4XX_PCI_CSR(PCI_NP_WDATA_OFFSET)
+#define PCI_NP_RDATA            _IXP4XX_PCI_CSR(PCI_NP_RDATA_OFFSET)
+#define PCI_CRP_AD_CBE          _IXP4XX_PCI_CSR(PCI_CRP_AD_CBE_OFFSET)
+#define PCI_CRP_WDATA           _IXP4XX_PCI_CSR(PCI_CRP_WDATA_OFFSET)
+#define PCI_CRP_RDATA           _IXP4XX_PCI_CSR(PCI_CRP_RDATA_OFFSET)
+#define PCI_CSR                 _IXP4XX_PCI_CSR(PCI_CSR_OFFSET) 
+#define PCI_ISR                 _IXP4XX_PCI_CSR(PCI_ISR_OFFSET)
+#define PCI_INTEN               _IXP4XX_PCI_CSR(PCI_INTEN_OFFSET)
+#define PCI_DMACTRL             _IXP4XX_PCI_CSR(PCI_DMACTRL_OFFSET)
+#define PCI_AHBMEMBASE          _IXP4XX_PCI_CSR(PCI_AHBMEMBASE_OFFSET)
+#define PCI_AHBIOBASE           _IXP4XX_PCI_CSR(PCI_AHBIOBASE_OFFSET)
+#define PCI_PCIMEMBASE          _IXP4XX_PCI_CSR(PCI_PCIMEMBASE_OFFSET)
+#define PCI_AHBDOORBELL         _IXP4XX_PCI_CSR(PCI_AHBDOORBELL_OFFSET)
+#define PCI_PCIDOORBELL         _IXP4XX_PCI_CSR(PCI_PCIDOORBELL_OFFSET)
+#define PCI_ATPDMA0_AHBADDR     _IXP4XX_PCI_CSR(PCI_ATPDMA0_AHBADDR_OFFSET)
+#define PCI_ATPDMA0_PCIADDR     _IXP4XX_PCI_CSR(PCI_ATPDMA0_PCIADDR_OFFSET)
+#define PCI_ATPDMA0_LENADDR     _IXP4XX_PCI_CSR(PCI_ATPDMA0_LENADDR_OFFSET)
+#define PCI_ATPDMA1_AHBADDR     _IXP4XX_PCI_CSR(PCI_ATPDMA1_AHBADDR_OFFSET)
+#define PCI_ATPDMA1_PCIADDR     _IXP4XX_PCI_CSR(PCI_ATPDMA1_PCIADDR_OFFSET)
+#define PCI_ATPDMA1_LENADDR     _IXP4XX_PCI_CSR(PCI_ATPDMA1_LENADDR_OFFSET)
+>>>>>>> upstream/android-13
 
 /*
  * PCI register values and bit definitions 
@@ -397,6 +456,7 @@
 
 #define DCMD_LENGTH	0x01fff		/* length mask (max = 8K - 1) */
 
+<<<<<<< HEAD
 /* "fuse" bits of IXP_EXP_CFG2 */
 /* All IXP4xx CPUs */
 #define IXP4XX_FEATURE_RCOMP		(1 << 0)
@@ -451,4 +511,6 @@
 					 IXP4XX_FEATURE_NPEB_ETH_1_TO_3  | \
 					 IXP4XX_FEATURE_RSA)
 
+=======
+>>>>>>> upstream/android-13
 #endif

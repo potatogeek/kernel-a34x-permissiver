@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Traps/Non-MMU Exception handling for ARC
  *
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * vineetg: May 2011
  *  -user-space unaligned access emulation
  *
@@ -23,11 +30,14 @@
 #include <asm/unaligned.h>
 #include <asm/kprobes.h>
 
+<<<<<<< HEAD
 void __init trap_init(void)
 {
 	return;
 }
 
+=======
+>>>>>>> upstream/android-13
 void die(const char *str, struct pt_regs *regs, unsigned long address)
 {
 	show_kernel_fault_diag(str, regs, address);
@@ -42,21 +52,36 @@ void die(const char *str, struct pt_regs *regs, unsigned long address)
  *  -for kernel, chk if due to copy_(to|from)_user, otherwise die()
  */
 static noinline int
+<<<<<<< HEAD
 unhandled_exception(const char *str, struct pt_regs *regs, siginfo_t *info)
+=======
+unhandled_exception(const char *str, struct pt_regs *regs,
+		    int signo, int si_code, void __user *addr)
+>>>>>>> upstream/android-13
 {
 	if (user_mode(regs)) {
 		struct task_struct *tsk = current;
 
+<<<<<<< HEAD
 		tsk->thread.fault_address = (__force unsigned int)info->si_addr;
 
 		force_sig_info(info->si_signo, info, tsk);
+=======
+		tsk->thread.fault_address = (__force unsigned int)addr;
+
+		force_sig_fault(signo, si_code, addr);
+>>>>>>> upstream/android-13
 
 	} else {
 		/* If not due to copy_(to|from)_user, we are doomed */
 		if (fixup_exception(regs))
 			return 0;
 
+<<<<<<< HEAD
 		die(str, regs, (unsigned long)info->si_addr);
+=======
+		die(str, regs, (unsigned long)addr);
+>>>>>>> upstream/android-13
 	}
 
 	return 1;
@@ -64,6 +89,7 @@ unhandled_exception(const char *str, struct pt_regs *regs, siginfo_t *info)
 
 #define DO_ERROR_INFO(signr, str, name, sicode) \
 int name(unsigned long address, struct pt_regs *regs) \
+<<<<<<< HEAD
 {						\
 	siginfo_t info;				\
 						\
@@ -74,6 +100,11 @@ int name(unsigned long address, struct pt_regs *regs) \
 	info.si_addr = (void __user *)address;	\
 						\
 	return unhandled_exception(str, regs, &info);\
+=======
+{								\
+	return unhandled_exception(str, regs, signr, sicode,	\
+				   (void __user *)address);	\
+>>>>>>> upstream/android-13
 }
 
 /*

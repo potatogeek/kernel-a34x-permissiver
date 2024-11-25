@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Cyril Bur, IBM Corp.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2015, Cyril Bur, IBM Corp.
+ *
+>>>>>>> upstream/android-13
  * This test attempts to see if the FPU registers change across preemption.
  * Two things should be noted here a) The check_fpu function in asm only checks
  * the non volatile registers as it is reused from the syscall test b) There is

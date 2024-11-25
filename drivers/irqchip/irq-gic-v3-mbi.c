@@ -84,6 +84,10 @@ static void mbi_free_msi(struct mbi_range *mbi, unsigned int hwirq,
 static int mbi_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 				   unsigned int nr_irqs, void *args)
 {
+<<<<<<< HEAD
+=======
+	msi_alloc_info_t *info = args;
+>>>>>>> upstream/android-13
 	struct mbi_range *mbi = NULL;
 	int hwirq, offset, i, err = 0;
 
@@ -104,6 +108,14 @@ static int mbi_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 
 	hwirq = mbi->spi_start + offset;
 
+<<<<<<< HEAD
+=======
+	err = iommu_dma_prepare_msi(info->desc,
+				    mbi_phys_base + GICD_SETSPI_NSR);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < nr_irqs; i++) {
 		err = mbi_irq_gic_domain_alloc(domain, virq + i, hwirq + i);
 		if (err)
@@ -142,7 +154,11 @@ static void mbi_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
 	msg[0].address_lo = lower_32_bits(mbi_phys_base + GICD_SETSPI_NSR);
 	msg[0].data = data->parent_data->hwirq;
 
+<<<<<<< HEAD
 	iommu_dma_map_msi_msg(data->irq, msg);
+=======
+	iommu_dma_compose_msi_msg(irq_data_get_msi_desc(data), msg);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PCI_MSI
@@ -202,7 +218,11 @@ static void mbi_compose_mbi_msg(struct irq_data *data, struct msi_msg *msg)
 	msg[1].address_lo = lower_32_bits(mbi_phys_base + GICD_CLRSPI_NSR);
 	msg[1].data = data->parent_data->hwirq;
 
+<<<<<<< HEAD
 	iommu_dma_map_msi_msg(data->irq, &msg[1]);
+=======
+	iommu_dma_compose_msi_msg(irq_data_get_msi_desc(data), &msg[1]);
+>>>>>>> upstream/android-13
 }
 
 /* Platform-MSI specific irqchip */
@@ -284,8 +304,12 @@ int __init mbi_init(struct fwnode_handle *fwnode, struct irq_domain *parent)
 		if (ret)
 			goto err_free_mbi;
 
+<<<<<<< HEAD
 		mbi_ranges[n].bm = kcalloc(BITS_TO_LONGS(mbi_ranges[n].nr_spis),
 					   sizeof(long), GFP_KERNEL);
+=======
+		mbi_ranges[n].bm = bitmap_zalloc(mbi_ranges[n].nr_spis, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!mbi_ranges[n].bm) {
 			ret = -ENOMEM;
 			goto err_free_mbi;
@@ -323,7 +347,11 @@ int __init mbi_init(struct fwnode_handle *fwnode, struct irq_domain *parent)
 err_free_mbi:
 	if (mbi_ranges) {
 		for (n = 0; n < mbi_range_nr; n++)
+<<<<<<< HEAD
 			kfree(mbi_ranges[n].bm);
+=======
+			bitmap_free(mbi_ranges[n].bm);
+>>>>>>> upstream/android-13
 		kfree(mbi_ranges);
 	}
 

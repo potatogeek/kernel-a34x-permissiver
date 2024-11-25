@@ -143,7 +143,11 @@ void kgdb_arch_exit(void)
 /*
  * Global data
  */
+<<<<<<< HEAD
 struct kgdb_arch arch_kgdb_ops = {
+=======
+const struct kgdb_arch arch_kgdb_ops = {
+>>>>>>> upstream/android-13
 #ifdef __MICROBLAZEEL__
 	.gdb_bpt_instr = {0x18, 0x00, 0x0c, 0xba}, /* brki r16, 0x18 */
 #else

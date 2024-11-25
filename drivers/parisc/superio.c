@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*      National Semiconductor NS87560UBD Super I/O controller used in
  *      HP [BCJ]x000 workstations.
  *
@@ -14,11 +18,14 @@
  *	(C) Copyright 2005 Kyle McMartin <kyle@parisc-linux.org>
  *	(C) Copyright 2006 Helge Deller <deller@gmx.de>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License as
  *	published by the Free Software Foundation; either version 2 of
  *	the License, or (at your option) any later version.  
  *
+=======
+>>>>>>> upstream/android-13
  *	The initial version of this is by Martin Peterson.  Alex deVries
  *	has spent a bit of time trying to coax it into working.
  *

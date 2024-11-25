@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Tomasz Figa <tomasz.figa@gmail.com>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014 Tomasz Figa <tomasz.figa@gmail.com>
+ *
+>>>>>>> upstream/android-13
  * This header provides constants for Samsung audio subsystem
  * clock controller.
  *

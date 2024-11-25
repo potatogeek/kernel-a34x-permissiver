@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Shujuan Chen (shujuan.chen@stericsson.com)
  * Author: Joakim Bech (joakim.xx.bech@stericsson.com)
  * Author: Berne Hebark (berne.hebark@stericsson.com))
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _HASH_ALG_H
 #define _HASH_ALG_H
@@ -366,10 +373,17 @@ struct hash_device_data {
 	phys_addr_t             phybase;
 	struct klist_node	list_node;
 	struct device		*dev;
+<<<<<<< HEAD
 	struct spinlock		ctx_lock;
 	struct hash_ctx		*current_ctx;
 	bool			power_state;
 	struct spinlock		power_state_lock;
+=======
+	spinlock_t		ctx_lock;
+	struct hash_ctx		*current_ctx;
+	bool			power_state;
+	spinlock_t		power_state_lock;
+>>>>>>> upstream/android-13
 	struct regulator	*regulator;
 	struct clk		*clk;
 	bool			restore_dev_state;

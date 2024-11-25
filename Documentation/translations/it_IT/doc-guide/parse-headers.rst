@@ -17,7 +17,11 @@ con le modifiche del kernel.
 Il programma :ref:`parse_headers.pl <it_parse_headers>` genera questi riferimenti.
 Esso dev'essere invocato attraverso un Makefile, mentre si genera la
 documentazione. Per avere un esempio su come utilizzarlo all'interno del kernel
+<<<<<<< HEAD
 consultate ``Documentation/media/Makefile``.
+=======
+consultate ``Documentation/userspace-api/media/Makefile``.
+>>>>>>> upstream/android-13
 
 .. _it_parse_headers:
 

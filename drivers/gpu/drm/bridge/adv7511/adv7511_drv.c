@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Analog Devices ADV7511 HDMI transmitter driver
  *
  * Copyright 2012 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
  */
 
+=======
+ */
+
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/clk.h>
 
 #include <drm/drmP.h>
@@ -19,6 +30,16 @@
 #include <drm/drm_edid.h>
 
 #include <media/cec.h>
+=======
+
+#include <media/cec.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "adv7511.h"
 
@@ -351,11 +372,25 @@ static void __adv7511_power_on(struct adv7511 *adv7511)
 	 * from standby or are enabled. When the HPD goes low the adv7511 is
 	 * reset and the outputs are disabled which might cause the monitor to
 	 * go to standby again. To avoid this we ignore the HPD pin for the
+<<<<<<< HEAD
 	 * first few seconds after enabling the output.
 	 */
 	regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
 			   ADV7511_REG_POWER2_HPD_SRC_MASK,
 			   ADV7511_REG_POWER2_HPD_SRC_NONE);
+=======
+	 * first few seconds after enabling the output. On the other hand
+	 * adv7535 require to enable HPD Override bit for proper HPD.
+	 */
+	if (adv7511->type == ADV7535)
+		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
+				   ADV7535_REG_POWER2_HPD_OVERRIDE,
+				   ADV7535_REG_POWER2_HPD_OVERRIDE);
+	else
+		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
+				   ADV7511_REG_POWER2_HPD_SRC_MASK,
+				   ADV7511_REG_POWER2_HPD_SRC_NONE);
+>>>>>>> upstream/android-13
 }
 
 static void adv7511_power_on(struct adv7511 *adv7511)
@@ -367,7 +402,11 @@ static void adv7511_power_on(struct adv7511 *adv7511)
 	 */
 	regcache_sync(adv7511->regmap);
 
+<<<<<<< HEAD
 	if (adv7511->type == ADV7533)
+=======
+	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
+>>>>>>> upstream/android-13
 		adv7533_dsi_power_on(adv7511);
 	adv7511->powered = true;
 }
@@ -375,6 +414,13 @@ static void adv7511_power_on(struct adv7511 *adv7511)
 static void __adv7511_power_off(struct adv7511 *adv7511)
 {
 	/* TODO: setup additional power down modes */
+<<<<<<< HEAD
+=======
+	if (adv7511->type == ADV7535)
+		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
+				   ADV7535_REG_POWER2_HPD_OVERRIDE, 0);
+
+>>>>>>> upstream/android-13
 	regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER,
 			   ADV7511_POWER_POWER_DOWN,
 			   ADV7511_POWER_POWER_DOWN);
@@ -387,7 +433,11 @@ static void __adv7511_power_off(struct adv7511 *adv7511)
 static void adv7511_power_off(struct adv7511 *adv7511)
 {
 	__adv7511_power_off(adv7511);
+<<<<<<< HEAD
 	if (adv7511->type == ADV7533)
+=======
+	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
+>>>>>>> upstream/android-13
 		adv7533_dsi_power_off(adv7511);
 	adv7511->powered = false;
 }
@@ -443,9 +493,20 @@ static void adv7511_hpd_work(struct work_struct *work)
 
 	if (adv7511->connector.status != status) {
 		adv7511->connector.status = status;
+<<<<<<< HEAD
 		if (status == connector_status_disconnected)
 			cec_phys_addr_invalidate(adv7511->cec_adap);
 		drm_kms_helper_hotplug_event(adv7511->connector.dev);
+=======
+
+		if (adv7511->connector.dev) {
+			if (status == connector_status_disconnected)
+				cec_phys_addr_invalidate(adv7511->cec_adap);
+			drm_kms_helper_hotplug_event(adv7511->connector.dev);
+		} else {
+			drm_bridge_hpd_notify(&adv7511->bridge, status);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -589,11 +650,18 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
  * ADV75xx helpers
  */
 
+<<<<<<< HEAD
 static int adv7511_get_modes(struct adv7511 *adv7511,
 			     struct drm_connector *connector)
 {
 	struct edid *edid;
 	unsigned int count;
+=======
+static struct edid *adv7511_get_edid(struct adv7511 *adv7511,
+				     struct drm_connector *connector)
+{
+	struct edid *edid;
+>>>>>>> upstream/android-13
 
 	/* Reading the EDID only works if the device is powered */
 	if (!adv7511->powered) {
@@ -612,15 +680,35 @@ static int adv7511_get_modes(struct adv7511 *adv7511,
 	if (!adv7511->powered)
 		__adv7511_power_off(adv7511);
 
+<<<<<<< HEAD
 
 	drm_connector_update_edid_property(connector, edid);
 	count = drm_add_edid_modes(connector, edid);
 
+=======
+>>>>>>> upstream/android-13
 	adv7511_set_config_csc(adv7511, connector, adv7511->rgb,
 			       drm_detect_hdmi_monitor(edid));
 
 	cec_s_phys_addr_from_edid(adv7511->cec_adap, edid);
 
+<<<<<<< HEAD
+=======
+	return edid;
+}
+
+static int adv7511_get_modes(struct adv7511 *adv7511,
+			     struct drm_connector *connector)
+{
+	struct edid *edid;
+	unsigned int count;
+
+	edid = adv7511_get_edid(adv7511, connector);
+
+	drm_connector_update_edid_property(connector, edid);
+	count = drm_add_edid_modes(connector, edid);
+
+>>>>>>> upstream/android-13
 	kfree(edid);
 
 	return count;
@@ -652,14 +740,30 @@ adv7511_detect(struct adv7511 *adv7511, struct drm_connector *connector)
 	if (status == connector_status_connected && hpd && adv7511->powered) {
 		regcache_mark_dirty(adv7511->regmap);
 		adv7511_power_on(adv7511);
+<<<<<<< HEAD
 		adv7511_get_modes(adv7511, connector);
+=======
+		if (connector)
+			adv7511_get_modes(adv7511, connector);
+>>>>>>> upstream/android-13
 		if (adv7511->status == connector_status_connected)
 			status = connector_status_disconnected;
 	} else {
 		/* Renable HPD sensing */
+<<<<<<< HEAD
 		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
 				   ADV7511_REG_POWER2_HPD_SRC_MASK,
 				   ADV7511_REG_POWER2_HPD_SRC_BOTH);
+=======
+		if (adv7511->type == ADV7535)
+			regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
+					   ADV7535_REG_POWER2_HPD_OVERRIDE,
+					   ADV7535_REG_POWER2_HPD_OVERRIDE);
+		else
+			regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
+					   ADV7511_REG_POWER2_HPD_SRC_MASK,
+					   ADV7511_REG_POWER2_HPD_SRC_BOTH);
+>>>>>>> upstream/android-13
 	}
 
 	adv7511->status = status;
@@ -676,8 +780,13 @@ static enum drm_mode_status adv7511_mode_valid(struct adv7511 *adv7511,
 }
 
 static void adv7511_mode_set(struct adv7511 *adv7511,
+<<<<<<< HEAD
 			     struct drm_display_mode *mode,
 			     struct drm_display_mode *adj_mode)
+=======
+			     const struct drm_display_mode *mode,
+			     const struct drm_display_mode *adj_mode)
+>>>>>>> upstream/android-13
 {
 	unsigned int low_refresh_rate;
 	unsigned int hsync_polarity = 0;
@@ -761,7 +870,11 @@ static void adv7511_mode_set(struct adv7511 *adv7511,
 	regmap_update_bits(adv7511->regmap, 0x17,
 		0x60, (vsync_polarity << 6) | (hsync_polarity << 5));
 
+<<<<<<< HEAD
 	if (adv7511->type == ADV7533)
+=======
+	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
+>>>>>>> upstream/android-13
 		adv7533_mode_set(adv7511, adj_mode);
 
 	drm_mode_copy(&adv7511->curr_mode, adj_mode);
@@ -774,7 +887,14 @@ static void adv7511_mode_set(struct adv7511 *adv7511,
 	adv7511->f_tmds = mode->clock;
 }
 
+<<<<<<< HEAD
 /* Connector funcs */
+=======
+/* -----------------------------------------------------------------------------
+ * DRM Connector Operations
+ */
+
+>>>>>>> upstream/android-13
 static struct adv7511 *connector_to_adv7511(struct drm_connector *connector)
 {
 	return container_of(connector, struct adv7511, connector);
@@ -818,7 +938,44 @@ static const struct drm_connector_funcs adv7511_connector_funcs = {
 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
 };
 
+<<<<<<< HEAD
 /* Bridge funcs */
+=======
+static int adv7511_connector_init(struct adv7511 *adv)
+{
+	struct drm_bridge *bridge = &adv->bridge;
+	int ret;
+
+	if (!bridge->encoder) {
+		DRM_ERROR("Parent encoder object not found");
+		return -ENODEV;
+	}
+
+	if (adv->i2c_main->irq)
+		adv->connector.polled = DRM_CONNECTOR_POLL_HPD;
+	else
+		adv->connector.polled = DRM_CONNECTOR_POLL_CONNECT |
+				DRM_CONNECTOR_POLL_DISCONNECT;
+
+	ret = drm_connector_init(bridge->dev, &adv->connector,
+				 &adv7511_connector_funcs,
+				 DRM_MODE_CONNECTOR_HDMIA);
+	if (ret < 0) {
+		DRM_ERROR("Failed to initialize connector with drm\n");
+		return ret;
+	}
+	drm_connector_helper_add(&adv->connector,
+				 &adv7511_connector_helper_funcs);
+	drm_connector_attach_encoder(&adv->connector, bridge->encoder);
+
+	return 0;
+}
+
+/* -----------------------------------------------------------------------------
+ * DRM Bridge Operations
+ */
+
+>>>>>>> upstream/android-13
 static struct adv7511 *bridge_to_adv7511(struct drm_bridge *bridge)
 {
 	return container_of(bridge, struct adv7511, bridge);
@@ -839,14 +996,20 @@ static void adv7511_bridge_disable(struct drm_bridge *bridge)
 }
 
 static void adv7511_bridge_mode_set(struct drm_bridge *bridge,
+<<<<<<< HEAD
 				    struct drm_display_mode *mode,
 				    struct drm_display_mode *adj_mode)
+=======
+				    const struct drm_display_mode *mode,
+				    const struct drm_display_mode *adj_mode)
+>>>>>>> upstream/android-13
 {
 	struct adv7511 *adv = bridge_to_adv7511(bridge);
 
 	adv7511_mode_set(adv, mode, adj_mode);
 }
 
+<<<<<<< HEAD
 static int adv7511_bridge_attach(struct drm_bridge *bridge)
 {
 	struct adv7511 *adv = bridge_to_adv7511(bridge);
@@ -875,6 +1038,21 @@ static int adv7511_bridge_attach(struct drm_bridge *bridge)
 	drm_connector_attach_encoder(&adv->connector, bridge->encoder);
 
 	if (adv->type == ADV7533)
+=======
+static int adv7511_bridge_attach(struct drm_bridge *bridge,
+				 enum drm_bridge_attach_flags flags)
+{
+	struct adv7511 *adv = bridge_to_adv7511(bridge);
+	int ret = 0;
+
+	if (!(flags & DRM_BRIDGE_ATTACH_NO_CONNECTOR)) {
+		ret = adv7511_connector_init(adv);
+		if (ret < 0)
+			return ret;
+	}
+
+	if (adv->type == ADV7533 || adv->type == ADV7535)
+>>>>>>> upstream/android-13
 		ret = adv7533_attach_dsi(adv);
 
 	if (adv->i2c_main->irq)
@@ -884,11 +1062,44 @@ static int adv7511_bridge_attach(struct drm_bridge *bridge)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static enum drm_connector_status adv7511_bridge_detect(struct drm_bridge *bridge)
+{
+	struct adv7511 *adv = bridge_to_adv7511(bridge);
+
+	return adv7511_detect(adv, NULL);
+}
+
+static struct edid *adv7511_bridge_get_edid(struct drm_bridge *bridge,
+					    struct drm_connector *connector)
+{
+	struct adv7511 *adv = bridge_to_adv7511(bridge);
+
+	return adv7511_get_edid(adv, connector);
+}
+
+static void adv7511_bridge_hpd_notify(struct drm_bridge *bridge,
+				      enum drm_connector_status status)
+{
+	struct adv7511 *adv = bridge_to_adv7511(bridge);
+
+	if (status == connector_status_disconnected)
+		cec_phys_addr_invalidate(adv->cec_adap);
+}
+
+>>>>>>> upstream/android-13
 static const struct drm_bridge_funcs adv7511_bridge_funcs = {
 	.enable = adv7511_bridge_enable,
 	.disable = adv7511_bridge_disable,
 	.mode_set = adv7511_bridge_mode_set,
 	.attach = adv7511_bridge_attach,
+<<<<<<< HEAD
+=======
+	.detect = adv7511_bridge_detect,
+	.get_edid = adv7511_bridge_get_edid,
+	.hpd_notify = adv7511_bridge_hpd_notify,
+>>>>>>> upstream/android-13
 };
 
 /* -----------------------------------------------------------------------------
@@ -952,7 +1163,11 @@ static bool adv7511_cec_register_volatile(struct device *dev, unsigned int reg)
 	struct i2c_client *i2c = to_i2c_client(dev);
 	struct adv7511 *adv7511 = i2c_get_clientdata(i2c);
 
+<<<<<<< HEAD
 	if (adv7511->type == ADV7533)
+=======
+	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
+>>>>>>> upstream/android-13
 		reg -= ADV7533_REG_CEC_OFFSET;
 
 	switch (reg) {
@@ -981,10 +1196,17 @@ static int adv7511_init_cec_regmap(struct adv7511 *adv)
 {
 	int ret;
 
+<<<<<<< HEAD
 	adv->i2c_cec = i2c_new_secondary_device(adv->i2c_main, "cec",
 						ADV7511_CEC_I2C_ADDR_DEFAULT);
 	if (!adv->i2c_cec)
 		return -EINVAL;
+=======
+	adv->i2c_cec = i2c_new_ancillary_device(adv->i2c_main, "cec",
+						ADV7511_CEC_I2C_ADDR_DEFAULT);
+	if (IS_ERR(adv->i2c_cec))
+		return PTR_ERR(adv->i2c_cec);
+>>>>>>> upstream/android-13
 	i2c_set_clientdata(adv->i2c_cec, adv);
 
 	adv->regmap_cec = devm_regmap_init_i2c(adv->i2c_cec,
@@ -994,7 +1216,11 @@ static int adv7511_init_cec_regmap(struct adv7511 *adv)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	if (adv->type == ADV7533) {
+=======
+	if (adv->type == ADV7533 || adv->type == ADV7535) {
+>>>>>>> upstream/android-13
 		ret = adv7533_patch_cec_registers(adv);
 		if (ret)
 			goto err;
@@ -1165,20 +1391,34 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 
 	adv7511_packet_disable(adv7511, 0xffff);
 
+<<<<<<< HEAD
 	adv7511->i2c_edid = i2c_new_secondary_device(i2c, "edid",
 					ADV7511_EDID_I2C_ADDR_DEFAULT);
 	if (!adv7511->i2c_edid) {
 		ret = -EINVAL;
+=======
+	adv7511->i2c_edid = i2c_new_ancillary_device(i2c, "edid",
+					ADV7511_EDID_I2C_ADDR_DEFAULT);
+	if (IS_ERR(adv7511->i2c_edid)) {
+		ret = PTR_ERR(adv7511->i2c_edid);
+>>>>>>> upstream/android-13
 		goto uninit_regulators;
 	}
 
 	regmap_write(adv7511->regmap, ADV7511_REG_EDID_I2C_ADDR,
 		     adv7511->i2c_edid->addr << 1);
 
+<<<<<<< HEAD
 	adv7511->i2c_packet = i2c_new_secondary_device(i2c, "packet",
 					ADV7511_PACKET_I2C_ADDR_DEFAULT);
 	if (!adv7511->i2c_packet) {
 		ret = -EINVAL;
+=======
+	adv7511->i2c_packet = i2c_new_ancillary_device(i2c, "packet",
+					ADV7511_PACKET_I2C_ADDR_DEFAULT);
+	if (IS_ERR(adv7511->i2c_packet)) {
+		ret = PTR_ERR(adv7511->i2c_packet);
+>>>>>>> upstream/android-13
 		goto err_i2c_unregister_edid;
 	}
 
@@ -1217,7 +1457,14 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 		goto err_unregister_cec;
 
 	adv7511->bridge.funcs = &adv7511_bridge_funcs;
+<<<<<<< HEAD
 	adv7511->bridge.of_node = dev->of_node;
+=======
+	adv7511->bridge.ops = DRM_BRIDGE_OP_DETECT | DRM_BRIDGE_OP_EDID
+			    | DRM_BRIDGE_OP_HPD;
+	adv7511->bridge.of_node = dev->of_node;
+	adv7511->bridge.type = DRM_MODE_CONNECTOR_HDMIA;
+>>>>>>> upstream/android-13
 
 	drm_bridge_add(&adv7511->bridge);
 
@@ -1226,8 +1473,12 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 
 err_unregister_cec:
 	i2c_unregister_device(adv7511->i2c_cec);
+<<<<<<< HEAD
 	if (adv7511->cec_clk)
 		clk_disable_unprepare(adv7511->cec_clk);
+=======
+	clk_disable_unprepare(adv7511->cec_clk);
+>>>>>>> upstream/android-13
 err_i2c_unregister_packet:
 	i2c_unregister_device(adv7511->i2c_packet);
 err_i2c_unregister_edid:
@@ -1242,11 +1493,18 @@ static int adv7511_remove(struct i2c_client *i2c)
 {
 	struct adv7511 *adv7511 = i2c_get_clientdata(i2c);
 
+<<<<<<< HEAD
 	if (adv7511->type == ADV7533)
 		adv7533_detach_dsi(adv7511);
 	i2c_unregister_device(adv7511->i2c_cec);
 	if (adv7511->cec_clk)
 		clk_disable_unprepare(adv7511->cec_clk);
+=======
+	if (adv7511->type == ADV7533 || adv7511->type == ADV7535)
+		adv7533_detach_dsi(adv7511);
+	i2c_unregister_device(adv7511->i2c_cec);
+	clk_disable_unprepare(adv7511->cec_clk);
+>>>>>>> upstream/android-13
 
 	adv7511_uninit_regulators(adv7511);
 
@@ -1266,9 +1524,14 @@ static const struct i2c_device_id adv7511_i2c_ids[] = {
 	{ "adv7511", ADV7511 },
 	{ "adv7511w", ADV7511 },
 	{ "adv7513", ADV7511 },
+<<<<<<< HEAD
 #ifdef CONFIG_DRM_I2C_ADV7533
 	{ "adv7533", ADV7533 },
 #endif
+=======
+	{ "adv7533", ADV7533 },
+	{ "adv7535", ADV7535 },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, adv7511_i2c_ids);
@@ -1277,9 +1540,14 @@ static const struct of_device_id adv7511_of_ids[] = {
 	{ .compatible = "adi,adv7511", .data = (void *)ADV7511 },
 	{ .compatible = "adi,adv7511w", .data = (void *)ADV7511 },
 	{ .compatible = "adi,adv7513", .data = (void *)ADV7511 },
+<<<<<<< HEAD
 #ifdef CONFIG_DRM_I2C_ADV7533
 	{ .compatible = "adi,adv7533", .data = (void *)ADV7533 },
 #endif
+=======
+	{ .compatible = "adi,adv7533", .data = (void *)ADV7533 },
+	{ .compatible = "adi,adv7535", .data = (void *)ADV7535 },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, adv7511_of_ids);

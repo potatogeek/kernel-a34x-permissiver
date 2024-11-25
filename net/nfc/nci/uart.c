@@ -192,10 +192,15 @@ static void nci_uart_tty_close(struct tty_struct *tty)
 	if (!nu)
 		return;
 
+<<<<<<< HEAD
 	if (nu->tx_skb)
 		kfree_skb(nu->tx_skb);
 	if (nu->rx_skb)
 		kfree_skb(nu->rx_skb);
+=======
+	kfree_skb(nu->tx_skb);
+	kfree_skb(nu->rx_skb);
+>>>>>>> upstream/android-13
 
 	skb_queue_purge(&nu->tx_q);
 
@@ -231,6 +236,7 @@ static void nci_uart_tty_wakeup(struct tty_struct *tty)
 	nci_uart_tx_wakeup(nu);
 }
 
+<<<<<<< HEAD
 /* nci_uart_tty_receive()
  *
  *     Called by tty low level driver when receive data is
@@ -322,6 +328,8 @@ static int nci_uart_send(struct nci_uart *nu, struct sk_buff *skb)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* -- Default recv_buf handler --
  *
  * This handler supposes that NCI frames are sent over UART link without any
@@ -329,7 +337,11 @@ static int nci_uart_send(struct nci_uart *nu, struct sk_buff *skb)
  * bytes are received it passes it to nci_uart driver for processing.
  */
 static int nci_uart_default_recv_buf(struct nci_uart *nu, const u8 *data,
+<<<<<<< HEAD
 				     char *flags, int count)
+=======
+				     int count)
+>>>>>>> upstream/android-13
 {
 	int chunk_len;
 
@@ -375,7 +387,11 @@ static int nci_uart_default_recv_buf(struct nci_uart *nu, const u8 *data,
 		data += chunk_len;
 		count -= chunk_len;
 
+<<<<<<< HEAD
 		/* Chcek if packet is fully received */
+=======
+		/* Check if packet is fully received */
+>>>>>>> upstream/android-13
 		if (nu->rx_packet_len == nu->rx_skb->len) {
 			/* Pass RX packet to driver */
 			if (nu->ops.recv(nu, nu->rx_skb) != 0)
@@ -388,10 +404,103 @@ static int nci_uart_default_recv_buf(struct nci_uart *nu, const u8 *data,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* -- Default recv handler -- */
 static int nci_uart_default_recv(struct nci_uart *nu, struct sk_buff *skb)
 {
 	return nci_recv_frame(nu->ndev, skb);
+=======
+/* nci_uart_tty_receive()
+ *
+ *     Called by tty low level driver when receive data is
+ *     available.
+ *
+ * Arguments:  tty          pointer to tty instance data
+ *             data         pointer to received data
+ *             flags        pointer to flags for data
+ *             count        count of received data in bytes
+ *
+ * Return Value:    None
+ */
+static void nci_uart_tty_receive(struct tty_struct *tty, const u8 *data,
+				 const char *flags, int count)
+{
+	struct nci_uart *nu = (void *)tty->disc_data;
+
+	if (!nu || tty != nu->tty)
+		return;
+
+	spin_lock(&nu->rx_lock);
+	nci_uart_default_recv_buf(nu, data, count);
+	spin_unlock(&nu->rx_lock);
+
+	tty_unthrottle(tty);
+}
+
+/* nci_uart_tty_ioctl()
+ *
+ *    Process IOCTL system call for the tty device.
+ *
+ * Arguments:
+ *
+ *    tty        pointer to tty instance data
+ *    file       pointer to open file object for device
+ *    cmd        IOCTL command code
+ *    arg        argument for IOCTL call (cmd dependent)
+ *
+ * Return Value:    Command dependent
+ */
+static int nci_uart_tty_ioctl(struct tty_struct *tty, struct file *file,
+			      unsigned int cmd, unsigned long arg)
+{
+	struct nci_uart *nu = (void *)tty->disc_data;
+	int err = 0;
+
+	switch (cmd) {
+	case NCIUARTSETDRIVER:
+		if (!nu)
+			return nci_uart_set_driver(tty, (unsigned int)arg);
+		else
+			return -EBUSY;
+		break;
+	default:
+		err = n_tty_ioctl_helper(tty, file, cmd, arg);
+		break;
+	}
+
+	return err;
+}
+
+/* We don't provide read/write/poll interface for user space. */
+static ssize_t nci_uart_tty_read(struct tty_struct *tty, struct file *file,
+				 unsigned char *buf, size_t nr,
+				 void **cookie, unsigned long offset)
+{
+	return 0;
+}
+
+static ssize_t nci_uart_tty_write(struct tty_struct *tty, struct file *file,
+				  const unsigned char *data, size_t count)
+{
+	return 0;
+}
+
+static __poll_t nci_uart_tty_poll(struct tty_struct *tty,
+				      struct file *filp, poll_table *wait)
+{
+	return 0;
+}
+
+static int nci_uart_send(struct nci_uart *nu, struct sk_buff *skb)
+{
+	/* Queue TX packet */
+	skb_queue_tail(&nu->tx_q, skb);
+
+	/* Try to start TX (if possible) */
+	nci_uart_tx_wakeup(nu);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int nci_uart_register(struct nci_uart *nu)
@@ -403,12 +512,15 @@ int nci_uart_register(struct nci_uart *nu)
 	/* Set the send callback */
 	nu->ops.send = nci_uart_send;
 
+<<<<<<< HEAD
 	/* Install default handlers if not overridden */
 	if (!nu->ops.recv_buf)
 		nu->ops.recv_buf = nci_uart_default_recv_buf;
 	if (!nu->ops.recv)
 		nu->ops.recv = nci_uart_default_recv;
 
+=======
+>>>>>>> upstream/android-13
 	/* Add this driver in the driver list */
 	if (nci_uart_drivers[nu->driver]) {
 		pr_err("driver %d is already registered\n", nu->driver);
@@ -454,8 +566,13 @@ void nci_uart_set_config(struct nci_uart *nu, int baudrate, int flow_ctrl)
 EXPORT_SYMBOL_GPL(nci_uart_set_config);
 
 static struct tty_ldisc_ops nci_uart_ldisc = {
+<<<<<<< HEAD
 	.magic		= TTY_LDISC_MAGIC,
 	.owner		= THIS_MODULE,
+=======
+	.owner		= THIS_MODULE,
+	.num		= N_NCI,
+>>>>>>> upstream/android-13
 	.name		= "n_nci",
 	.open		= nci_uart_tty_open,
 	.close		= nci_uart_tty_close,
@@ -465,17 +582,29 @@ static struct tty_ldisc_ops nci_uart_ldisc = {
 	.receive_buf	= nci_uart_tty_receive,
 	.write_wakeup	= nci_uart_tty_wakeup,
 	.ioctl		= nci_uart_tty_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= nci_uart_tty_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static int __init nci_uart_init(void)
 {
+<<<<<<< HEAD
 	memset(nci_uart_drivers, 0, sizeof(nci_uart_drivers));
 	return tty_register_ldisc(N_NCI, &nci_uart_ldisc);
+=======
+	return tty_register_ldisc(&nci_uart_ldisc);
+>>>>>>> upstream/android-13
 }
 
 static void __exit nci_uart_exit(void)
 {
+<<<<<<< HEAD
 	tty_unregister_ldisc(N_NCI);
+=======
+	tty_unregister_ldisc(&nci_uart_ldisc);
+>>>>>>> upstream/android-13
 }
 
 module_init(nci_uart_init);

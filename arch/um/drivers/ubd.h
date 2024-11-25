@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /* 
  * Copyright (C) 2000 Jeff Dike (jdike@karaya.com)
  * Copyright (C) 2001 RidgeRun, Inc (glonnon@ridgerun.com)
  * Licensed under the GPL
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* 
+ * Copyright (C) 2000 Jeff Dike (jdike@karaya.com)
+ * Copyright (C) 2001 RidgeRun, Inc (glonnon@ridgerun.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef __UM_UBD_USER_H

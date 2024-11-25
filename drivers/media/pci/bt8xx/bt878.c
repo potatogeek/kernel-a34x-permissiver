@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * bt878.c: part of the driver for the Pinnacle PCTV Sat DVB PCI card
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 1996,97,98 Ralph  Metzler (rjkm@metzlerbros.de)
  *                        & Marcus Metzler (mocm@metzlerbros.de)
  * (c) 1999,2000 Gerd Knorr <kraxel@goldbach.in-berlin.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,14 +30,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  * Or, point your browser to http://www.gnu.org/copyleft/gpl.html
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <asm/io.h>
 #include <linux/ioport.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/io.h>
+#include <linux/ioport.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <linux/types.h>
 #include <linux/interrupt.h>
@@ -84,14 +97,24 @@ EXPORT_SYMBOL(bt878);
 static void bt878_mem_free(struct bt878 *bt)
 {
 	if (bt->buf_cpu) {
+<<<<<<< HEAD
 		pci_free_consistent(bt->dev, bt->buf_size, bt->buf_cpu,
 				    bt->buf_dma);
+=======
+		dma_free_coherent(&bt->dev->dev, bt->buf_size, bt->buf_cpu,
+				  bt->buf_dma);
+>>>>>>> upstream/android-13
 		bt->buf_cpu = NULL;
 	}
 
 	if (bt->risc_cpu) {
+<<<<<<< HEAD
 		pci_free_consistent(bt->dev, bt->risc_size, bt->risc_cpu,
 				    bt->risc_dma);
+=======
+		dma_free_coherent(&bt->dev->dev, bt->risc_size, bt->risc_cpu,
+				  bt->risc_dma);
+>>>>>>> upstream/android-13
 		bt->risc_cpu = NULL;
 	}
 }
@@ -101,16 +124,26 @@ static int bt878_mem_alloc(struct bt878 *bt)
 	if (!bt->buf_cpu) {
 		bt->buf_size = 128 * 1024;
 
+<<<<<<< HEAD
 		bt->buf_cpu = pci_zalloc_consistent(bt->dev, bt->buf_size,
 						    &bt->buf_dma);
+=======
+		bt->buf_cpu = dma_alloc_coherent(&bt->dev->dev, bt->buf_size,
+						 &bt->buf_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!bt->buf_cpu)
 			return -ENOMEM;
 	}
 
 	if (!bt->risc_cpu) {
 		bt->risc_size = PAGE_SIZE;
+<<<<<<< HEAD
 		bt->risc_cpu = pci_zalloc_consistent(bt->dev, bt->risc_size,
 						     &bt->risc_dma);
+=======
+		bt->risc_cpu = dma_alloc_coherent(&bt->dev->dev, bt->risc_size,
+						  &bt->risc_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!bt->risc_cpu) {
 			bt878_mem_free(bt);
 			return -ENOMEM;
@@ -317,7 +350,12 @@ static irqreturn_t bt878_irq(int irq, void *dev_id)
 		}
 		if (astat & BT878_ARISCI) {
 			bt->finished_block = (stat & BT878_ARISCS) >> 28;
+<<<<<<< HEAD
 			tasklet_schedule(&bt->tasklet);
+=======
+			if (bt->tasklet.callback)
+				tasklet_schedule(&bt->tasklet);
+>>>>>>> upstream/android-13
 			break;
 		}
 		count++;
@@ -494,6 +532,12 @@ static int bt878_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
 	btwrite(0, BT878_AINT_MASK);
 	bt878_num++;
 
+<<<<<<< HEAD
+=======
+	if (!bt->tasklet.func)
+		tasklet_disable(&bt->tasklet);
+
+>>>>>>> upstream/android-13
 	return 0;
 
       fail2:

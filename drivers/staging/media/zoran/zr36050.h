@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Zoran ZR36050 basic configuration functions - header file
  *
  * Copyright (C) 2001 Wolfgang Scherr <scherr@net4you.at>
+<<<<<<< HEAD
  *
  * $Id: zr36050.h,v 1.1.2.2 2003/01/14 21:18:22 rbultje Exp $
  *
@@ -18,6 +23,8 @@
  * GNU General Public License for more details.
  *
  * ------------------------------------------------------------------------
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ZR36050_H
@@ -85,10 +92,17 @@ struct zr36050 {
 #define ZR050_ACT_MH              0x01b
 #define ZR050_ACT_ML              0x01c
 #define ZR050_ACT_LO              0x01d
+<<<<<<< HEAD
 #define ZR050_ACV_TRUN_HI         0x01e
 #define ZR050_ACV_TRUN_MH         0x01f
 #define ZR050_ACV_TRUN_ML         0x020
 #define ZR050_ACV_TRUN_LO         0x021
+=======
+#define ZR050_ACV_TURN_HI         0x01e
+#define ZR050_ACV_TURN_MH         0x01f
+#define ZR050_ACV_TURN_ML         0x020
+#define ZR050_ACV_TURN_LO         0x021
+>>>>>>> upstream/android-13
 #define ZR050_STATUS_0            0x02e
 #define ZR050_STATUS_1            0x02f
 
@@ -145,7 +159,10 @@ struct zr36050 {
 #define ZR050_OP_NSCN_8              0xE0
 #define ZR050_OP_OVF                 0x10
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* zr36050 markers-enable register bits */
 
 #define ZR050_ME_APP                 0x80

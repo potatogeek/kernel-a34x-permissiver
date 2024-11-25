@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * kernfs.h - pseudo filesystem decoupled from vfs locking
  *
  * This file is released under the GPLv2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * kernfs.h - pseudo filesystem decoupled from vfs locking
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_KERNFS_H
@@ -27,7 +33,13 @@ struct vm_area_struct;
 struct super_block;
 struct file_system_type;
 struct poll_table_struct;
+<<<<<<< HEAD
 
+=======
+struct fs_context;
+
+struct kernfs_fs_context;
+>>>>>>> upstream/android-13
 struct kernfs_open_node;
 struct kernfs_iattrs;
 
@@ -37,8 +49,15 @@ enum kernfs_node_type {
 	KERNFS_LINK		= 0x0004,
 };
 
+<<<<<<< HEAD
 #define KERNFS_TYPE_MASK	0x000f
 #define KERNFS_FLAG_MASK	~KERNFS_TYPE_MASK
+=======
+#define KERNFS_TYPE_MASK		0x000f
+#define KERNFS_FLAG_MASK		~KERNFS_TYPE_MASK
+#define KERNFS_MAX_USER_XATTRS		128
+#define KERNFS_USER_XATTR_SIZE_LIMIT	(128 << 10)
+>>>>>>> upstream/android-13
 
 enum kernfs_node_flag {
 	KERNFS_ACTIVATED	= 0x0010,
@@ -63,7 +82,11 @@ enum kernfs_root_flag {
 	KERNFS_ROOT_CREATE_DEACTIVATED		= 0x0001,
 
 	/*
+<<<<<<< HEAD
 	 * For regular flies, if the opener has CAP_DAC_OVERRIDE, open(2)
+=======
+	 * For regular files, if the opener has CAP_DAC_OVERRIDE, open(2)
+>>>>>>> upstream/android-13
 	 * succeeds regardless of the RW permissions.  sysfs had an extra
 	 * layer of enforcement where open(2) fails with -EACCES regardless
 	 * of CAP_DAC_OVERRIDE if the permission doesn't have the
@@ -78,6 +101,14 @@ enum kernfs_root_flag {
 	 * fhandle to access nodes of the fs.
 	 */
 	KERNFS_ROOT_SUPPORT_EXPORTOP		= 0x0004,
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Support user xattrs to be written to nodes rooted at this root.
+	 */
+	KERNFS_ROOT_SUPPORT_USER_XATTR		= 0x0008,
+>>>>>>> upstream/android-13
 };
 
 /* type-specific structures for kernfs_node union members */
@@ -91,6 +122,14 @@ struct kernfs_elem_dir {
 	 * better directly in kernfs_node but is here to save space.
 	 */
 	struct kernfs_root	*root;
+<<<<<<< HEAD
+=======
+	/*
+	 * Monotonic revision counter, used to identify if a directory
+	 * node has changed during negative dentry revalidation.
+	 */
+	unsigned long		rev;
+>>>>>>> upstream/android-13
 };
 
 struct kernfs_elem_symlink {
@@ -104,6 +143,7 @@ struct kernfs_elem_attr {
 	struct kernfs_node	*notify_next;	/* for kernfs_notify() */
 };
 
+<<<<<<< HEAD
 /* represent a kernfs node */
 union kernfs_node_id {
 	struct {
@@ -119,12 +159,18 @@ union kernfs_node_id {
 	u64			id;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * kernfs_node - the building block of kernfs hierarchy.  Each and every
  * kernfs node is represented by single kernfs_node.  Most fields are
  * private to kernfs and shouldn't be accessed directly by kernfs users.
  *
+<<<<<<< HEAD
  * As long as s_count reference is held, the kernfs_node itself is
+=======
+ * As long as count reference is held, the kernfs_node itself is
+>>>>>>> upstream/android-13
  * accessible.  Dereferencing elem or any other outer entity requires
  * active reference.
  */
@@ -155,10 +201,24 @@ struct kernfs_node {
 
 	void			*priv;
 
+<<<<<<< HEAD
 	union kernfs_node_id	id;
 	unsigned short		flags;
 	umode_t			mode;
 	struct kernfs_iattrs	*iattr;
+=======
+	/*
+	 * 64bit unique ID.  On 64bit ino setups, id is the ino.  On 32bit,
+	 * the low 32bits are ino and upper generation.
+	 */
+	u64			id;
+
+	unsigned short		flags;
+	umode_t			mode;
+	struct kernfs_iattrs	*iattr;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -169,7 +229,10 @@ struct kernfs_node {
  * kernfs_node parameter.
  */
 struct kernfs_syscall_ops {
+<<<<<<< HEAD
 	int (*remount_fs)(struct kernfs_root *root, int *flags, char *data);
+=======
+>>>>>>> upstream/android-13
 	int (*show_options)(struct seq_file *sf, struct kernfs_root *root);
 
 	int (*mkdir)(struct kernfs_node *parent, const char *name,
@@ -193,6 +256,7 @@ struct kernfs_root {
 
 	/* private fields, do not use outside kernfs proper */
 	struct idr		ino_idr;
+<<<<<<< HEAD
 	u32			last_ino;
 	u32			next_generation;
 	struct kernfs_syscall_ops *syscall_ops;
@@ -201,6 +265,18 @@ struct kernfs_root {
 	struct list_head	supers;
 
 	wait_queue_head_t	deactivate_waitq;
+=======
+	u32			last_id_lowbits;
+	u32			id_highbits;
+	struct kernfs_syscall_ops *syscall_ops;
+
+	/* list of kernfs_super_info of this root, protected by kernfs_rwsem */
+	struct list_head	supers;
+
+	wait_queue_head_t	deactivate_waitq;
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct kernfs_open_file {
@@ -221,6 +297,11 @@ struct kernfs_open_file {
 	bool			mmapped:1;
 	bool			released:1;
 	const struct vm_operations_struct *vm_ops;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 struct kernfs_ops {
@@ -282,6 +363,21 @@ struct kernfs_ops {
 	ANDROID_KABI_RESERVE(2);
 };
 
+<<<<<<< HEAD
+=======
+/*
+ * The kernfs superblock creation/mount parameter context.
+ */
+struct kernfs_fs_context {
+	struct kernfs_root	*root;		/* Root of the hierarchy being mounted */
+	void			*ns_tag;	/* Namespace tag of the mount (or NULL) */
+	unsigned long		magic;		/* File system specific magic number */
+
+	/* The following are set/used by kernfs_mount() */
+	bool			new_sb_created;	/* Set to T if we allocated a new sb */
+};
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KERNFS
 
 static inline enum kernfs_node_type kernfs_type(struct kernfs_node *kn)
@@ -289,6 +385,37 @@ static inline enum kernfs_node_type kernfs_type(struct kernfs_node *kn)
 	return kn->flags & KERNFS_TYPE_MASK;
 }
 
+<<<<<<< HEAD
+=======
+static inline ino_t kernfs_id_ino(u64 id)
+{
+	/* id is ino if ino_t is 64bit; otherwise, low 32bits */
+	if (sizeof(ino_t) >= sizeof(u64))
+		return id;
+	else
+		return (u32)id;
+}
+
+static inline u32 kernfs_id_gen(u64 id)
+{
+	/* gen is fixed at 1 if ino_t is 64bit; otherwise, high 32bits */
+	if (sizeof(ino_t) >= sizeof(u64))
+		return 1;
+	else
+		return id >> 32;
+}
+
+static inline ino_t kernfs_ino(struct kernfs_node *kn)
+{
+	return kernfs_id_ino(kn->id);
+}
+
+static inline ino_t kernfs_gen(struct kernfs_node *kn)
+{
+	return kernfs_id_gen(kn->id);
+}
+
+>>>>>>> upstream/android-13
 /**
  * kernfs_enable_ns - enable namespace under a directory
  * @kn: directory of interest, should be empty
@@ -368,6 +495,7 @@ __poll_t kernfs_generic_poll(struct kernfs_open_file *of,
 			     struct poll_table_struct *pt);
 void kernfs_notify(struct kernfs_node *kn);
 
+<<<<<<< HEAD
 const void *kernfs_super_ns(struct super_block *sb);
 struct dentry *kernfs_mount_ns(struct file_system_type *fs_type, int flags,
 			       struct kernfs_root *root, unsigned long magic,
@@ -379,6 +507,22 @@ void kernfs_init(void);
 
 struct kernfs_node *kernfs_get_node_by_id(struct kernfs_root *root,
 	const union kernfs_node_id *id);
+=======
+int kernfs_xattr_get(struct kernfs_node *kn, const char *name,
+		     void *value, size_t size);
+int kernfs_xattr_set(struct kernfs_node *kn, const char *name,
+		     const void *value, size_t size, int flags);
+
+const void *kernfs_super_ns(struct super_block *sb);
+int kernfs_get_tree(struct fs_context *fc);
+void kernfs_free_fs_context(struct fs_context *fc);
+void kernfs_kill_sb(struct super_block *sb);
+
+void kernfs_init(void);
+
+struct kernfs_node *kernfs_find_and_get_node_by_id(struct kernfs_root *root,
+						   u64 id);
+>>>>>>> upstream/android-13
 #else	/* CONFIG_KERNFS */
 
 static inline enum kernfs_node_type kernfs_type(struct kernfs_node *kn)
@@ -472,6 +616,7 @@ static inline int kernfs_setattr(struct kernfs_node *kn,
 
 static inline void kernfs_notify(struct kernfs_node *kn) { }
 
+<<<<<<< HEAD
 static inline const void *kernfs_super_ns(struct super_block *sb)
 { return NULL; }
 
@@ -480,6 +625,23 @@ kernfs_mount_ns(struct file_system_type *fs_type, int flags,
 		struct kernfs_root *root, unsigned long magic,
 		bool *new_sb_created, const void *ns)
 { return ERR_PTR(-ENOSYS); }
+=======
+static inline int kernfs_xattr_get(struct kernfs_node *kn, const char *name,
+				   void *value, size_t size)
+{ return -ENOSYS; }
+
+static inline int kernfs_xattr_set(struct kernfs_node *kn, const char *name,
+				   const void *value, size_t size, int flags)
+{ return -ENOSYS; }
+
+static inline const void *kernfs_super_ns(struct super_block *sb)
+{ return NULL; }
+
+static inline int kernfs_get_tree(struct fs_context *fc)
+{ return -ENOSYS; }
+
+static inline void kernfs_free_fs_context(struct fs_context *fc) { }
+>>>>>>> upstream/android-13
 
 static inline void kernfs_kill_sb(struct super_block *sb) { }
 
@@ -493,10 +655,18 @@ static inline void kernfs_init(void) { }
  * @buf: buffer to copy @kn's name into
  * @buflen: size of @buf
  *
+<<<<<<< HEAD
  * Builds and returns the full path of @kn in @buf of @buflen bytes.  The
  * path is built from the end of @buf so the returned pointer usually
  * doesn't match @buf.  If @buf isn't long enough, @buf is nul terminated
  * and %NULL is returned.
+=======
+ * If @kn is NULL result will be "(null)".
+ *
+ * Returns the length of the full path.  If the full length is equal to or
+ * greater than @buflen, @buf contains the truncated path with the trailing
+ * '\0'.  On error, -errno is returned.
+>>>>>>> upstream/android-13
  */
 static inline int kernfs_path(struct kernfs_node *kn, char *buf, size_t buflen)
 {
@@ -561,6 +731,7 @@ static inline int kernfs_rename(struct kernfs_node *kn,
 	return kernfs_rename_ns(kn, new_parent, new_name, NULL);
 }
 
+<<<<<<< HEAD
 static inline struct dentry *
 kernfs_mount(struct file_system_type *fs_type, int flags,
 		struct kernfs_root *root, unsigned long magic,
@@ -570,4 +741,6 @@ kernfs_mount(struct file_system_type *fs_type, int flags,
 				magic, new_sb_created, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* __LINUX_KERNFS_H */

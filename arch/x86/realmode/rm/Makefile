@@ -6,13 +6,24 @@
 # for more details.
 #
 #
+<<<<<<< HEAD
 KASAN_SANITIZE			:= n
+=======
+
+# Sanitizer runtimes are unavailable and cannot be linked here.
+KASAN_SANITIZE			:= n
+KCSAN_SANITIZE			:= n
+>>>>>>> upstream/android-13
 OBJECT_FILES_NON_STANDARD	:= y
 
 # Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
 KCOV_INSTRUMENT		:= n
 
+<<<<<<< HEAD
 always := realmode.bin realmode.relocs
+=======
+always-y := realmode.bin realmode.relocs
+>>>>>>> upstream/android-13
 
 wakeup-objs	:= wakeup_asm.o wakemain.o video-mode.o
 wakeup-objs	+= copy.o bioscall.o regs.o
@@ -37,8 +48,12 @@ REALMODE_OBJS = $(addprefix $(obj)/,$(realmode-y))
 sed-pasyms := -n -r -e 's/^([0-9a-fA-F]+) [ABCDGRSTVW] (.+)$$/pa_\2 = \2;/p'
 
 quiet_cmd_pasyms = PASYMS  $@
+<<<<<<< HEAD
       cmd_pasyms = $(NM) $(filter-out FORCE,$^) | \
 		   sed $(sed-pasyms) | sort | uniq > $@
+=======
+      cmd_pasyms = $(NM) $(real-prereqs) | sed $(sed-pasyms) | sort | uniq > $@
+>>>>>>> upstream/android-13
 
 targets += pasyms.h
 $(obj)/pasyms.h: $(REALMODE_OBJS) FORCE
@@ -72,5 +87,9 @@ $(obj)/realmode.relocs: $(obj)/realmode.elf FORCE
 KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP -D_WAKEUP \
 		   -I$(srctree)/arch/x86/boot
 KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY__
+<<<<<<< HEAD
+=======
+KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
+>>>>>>> upstream/android-13
 GCOV_PROFILE := n
 UBSAN_SANITIZE := n

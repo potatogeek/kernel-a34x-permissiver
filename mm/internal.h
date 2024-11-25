@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* internal.h: mm/ internal definitions
  *
  * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __MM_INTERNAL_H
 #define __MM_INTERNAL_H
@@ -40,6 +47,7 @@ void page_writeback_init(void);
 
 vm_fault_t do_swap_page(struct vm_fault *vmf);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 extern struct vm_area_struct *get_vma(struct mm_struct *mm,
 				      unsigned long addr);
@@ -64,6 +72,12 @@ void free_pgtables(struct mmu_gather *tlb, struct vm_area_struct *start_vma,
 		unsigned long floor, unsigned long ceiling);
 
 static inline bool can_madv_dontneed_vma(struct vm_area_struct *vma)
+=======
+void free_pgtables(struct mmu_gather *tlb, struct vm_area_struct *start_vma,
+		unsigned long floor, unsigned long ceiling);
+
+static inline bool can_madv_lru_vma(struct vm_area_struct *vma)
+>>>>>>> upstream/android-13
 {
 	return !(vma->vm_flags & (VM_LOCKED|VM_HUGETLB|VM_PFNMAP));
 }
@@ -73,6 +87,7 @@ void unmap_page_range(struct mmu_gather *tlb,
 			     unsigned long addr, unsigned long end,
 			     struct zap_details *details);
 
+<<<<<<< HEAD
 extern unsigned int __do_page_cache_readahead(struct address_space *mapping,
 		struct file *filp, pgoff_t offset, unsigned long nr_to_read,
 		unsigned long lookahead_size);
@@ -85,6 +100,42 @@ static inline unsigned long ra_submit(struct file_ra_state *ra,
 {
 	return __do_page_cache_readahead(mapping, filp,
 					ra->start, ra->size, ra->async_size);
+=======
+void do_page_cache_ra(struct readahead_control *, unsigned long nr_to_read,
+		unsigned long lookahead_size);
+void force_page_cache_ra(struct readahead_control *, unsigned long nr);
+static inline void force_page_cache_readahead(struct address_space *mapping,
+		struct file *file, pgoff_t index, unsigned long nr_to_read)
+{
+	DEFINE_READAHEAD(ractl, file, &file->f_ra, mapping, index);
+	force_page_cache_ra(&ractl, nr_to_read);
+}
+
+unsigned find_lock_entries(struct address_space *mapping, pgoff_t start,
+		pgoff_t end, struct pagevec *pvec, pgoff_t *indices);
+
+/**
+ * page_evictable - test whether a page is evictable
+ * @page: the page to test
+ *
+ * Test whether page is evictable--i.e., should be placed on active/inactive
+ * lists vs unevictable list.
+ *
+ * Reasons page might not be evictable:
+ * (1) page's mapping marked unevictable
+ * (2) page is part of an mlocked VMA
+ *
+ */
+static inline bool page_evictable(struct page *page)
+{
+	bool ret;
+
+	/* Prevent address_space of inode and swap cache from being freed */
+	rcu_read_lock();
+	ret = !mapping_unevictable(page_mapping(page)) && !PageMlocked(page);
+	rcu_read_unlock();
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -118,6 +169,14 @@ extern void putback_lru_page(struct page *page);
 extern pmd_t *mm_find_pmd(struct mm_struct *mm, unsigned long address);
 
 /*
+<<<<<<< HEAD
+=======
+ * in mm/memcontrol.c:
+ */
+extern bool cgroup_memory_nokmem;
+
+/*
+>>>>>>> upstream/android-13
  * in mm/page_alloc.c
  */
 
@@ -126,12 +185,21 @@ extern pmd_t *mm_find_pmd(struct mm_struct *mm, unsigned long address);
  * between functions involved in allocations, including the alloc_pages*
  * family of functions.
  *
+<<<<<<< HEAD
  * nodemask, migratetype and high_zoneidx are initialized only once in
  * __alloc_pages_nodemask() and then never change.
  *
  * zonelist, preferred_zone and classzone_idx are set first in
  * __alloc_pages_nodemask() for the fast path, and might be later changed
  * in __alloc_pages_slowpath(). All other functions pass the whole strucure
+=======
+ * nodemask, migratetype and highest_zoneidx are initialized only once in
+ * __alloc_pages() and then never change.
+ *
+ * zonelist, preferred_zone and highest_zoneidx are set first in
+ * __alloc_pages() for the fast path, and might be later changed
+ * in __alloc_pages_slowpath(). All other functions pass the whole structure
+>>>>>>> upstream/android-13
  * by a const pointer.
  */
 struct alloc_context {
@@ -139,12 +207,30 @@ struct alloc_context {
 	nodemask_t *nodemask;
 	struct zoneref *preferred_zoneref;
 	int migratetype;
+<<<<<<< HEAD
 	enum zone_type high_zoneidx;
 	bool spread_dirty_pages;
 };
 
 #define ac_classzone_idx(ac) zonelist_zone_idx(ac->preferred_zoneref)
 
+=======
+
+	/*
+	 * highest_zoneidx represents highest usable zone index of
+	 * the allocation request. Due to the nature of the zone,
+	 * memory on lower zone than the highest_zoneidx will be
+	 * protected by lowmem_reserve[highest_zoneidx].
+	 *
+	 * highest_zoneidx is also used by reclaim/compaction to limit
+	 * the target zone since higher zone than this index cannot be
+	 * usable for this allocation request.
+	 */
+	enum zone_type highest_zoneidx;
+	bool spread_dirty_pages;
+};
+
+>>>>>>> upstream/android-13
 /*
  * Locate the struct page for both the matching buddy in our
  * pair (buddy1) and the combined O(n+1) page they form (page).
@@ -181,13 +267,36 @@ static inline struct page *pageblock_pfn_to_page(unsigned long start_pfn,
 }
 
 extern int __isolate_free_page(struct page *page, unsigned int order);
+<<<<<<< HEAD
 extern void __free_pages_bootmem(struct page *page, unsigned long pfn,
 					unsigned int order);
+=======
+extern void __putback_isolated_page(struct page *page, unsigned int order,
+				    int mt);
+extern void memblock_free_pages(struct page *page, unsigned long pfn,
+					unsigned int order);
+extern void __free_pages_core(struct page *page, unsigned int order);
+>>>>>>> upstream/android-13
 extern void prep_compound_page(struct page *page, unsigned int order);
 extern void post_alloc_hook(struct page *page, unsigned int order,
 					gfp_t gfp_flags);
 extern int user_min_free_kbytes;
 
+<<<<<<< HEAD
+=======
+extern void free_unref_page(struct page *page, unsigned int order);
+extern void free_unref_page_list(struct list_head *list);
+
+extern void zone_pcp_update(struct zone *zone, int cpu_online);
+extern void zone_pcp_reset(struct zone *zone);
+extern void zone_pcp_disable(struct zone *zone);
+extern void zone_pcp_enable(struct zone *zone);
+
+extern void *memmap_alloc(phys_addr_t size, phys_addr_t align,
+			  phys_addr_t min_addr,
+			  int nid, bool exact_nid);
+
+>>>>>>> upstream/android-13
 #if defined CONFIG_COMPACTION || defined CONFIG_CMA
 
 /*
@@ -203,6 +312,7 @@ extern int user_min_free_kbytes;
 struct compact_control {
 	struct list_head freepages;	/* List of free pages to migrate to */
 	struct list_head migratepages;	/* List of pages being migrated */
+<<<<<<< HEAD
 	struct zone *zone;
 	unsigned long nr_freepages;	/* Number of isolated free pages */
 	unsigned long nr_migratepages;	/* Number of pages to migrate */
@@ -211,24 +321,64 @@ struct compact_control {
 	unsigned long free_pfn;		/* isolate_freepages search base */
 	unsigned long migrate_pfn;	/* isolate_migratepages search base */
 	unsigned long last_migrated_pfn;/* Not yet flushed page being freed */
+=======
+	unsigned int nr_freepages;	/* Number of isolated free pages */
+	unsigned int nr_migratepages;	/* Number of pages to migrate */
+	unsigned long free_pfn;		/* isolate_freepages search base */
+	/*
+	 * Acts as an in/out parameter to page isolation for migration.
+	 * isolate_migratepages uses it as a search base.
+	 * isolate_migratepages_block will update the value to the next pfn
+	 * after the last isolated one.
+	 */
+	unsigned long migrate_pfn;
+	unsigned long fast_start_pfn;	/* a pfn to start linear scan from */
+	struct zone *zone;
+	unsigned long total_migrate_scanned;
+	unsigned long total_free_scanned;
+	unsigned short fast_search_fail;/* failures to use free list searches */
+	short search_order;		/* order to start a fast search at */
+>>>>>>> upstream/android-13
 	const gfp_t gfp_mask;		/* gfp mask of a direct compactor */
 	int order;			/* order a direct compactor needs */
 	int migratetype;		/* migratetype of direct compactor */
 	const unsigned int alloc_flags;	/* alloc flags of a direct compactor */
+<<<<<<< HEAD
 	const int classzone_idx;	/* zone index of a direct compactor */
+=======
+	const int highest_zoneidx;	/* zone index of a direct compactor */
+>>>>>>> upstream/android-13
 	enum migrate_mode mode;		/* Async or sync migration mode */
 	bool ignore_skip_hint;		/* Scan blocks even if marked skip */
 	bool no_set_skip_hint;		/* Don't mark blocks for skipping */
 	bool ignore_block_suitable;	/* Scan blocks considered unsuitable */
 	bool direct_compaction;		/* False from kcompactd or /proc/... */
+<<<<<<< HEAD
 	bool whole_zone;		/* Whole zone should/has been scanned */
 	bool contended;			/* Signal lock or sched contention */
 	bool finishing_block;		/* Finishing current pageblock */
+=======
+	bool proactive_compaction;	/* kcompactd proactive compaction */
+	bool whole_zone;		/* Whole zone should/has been scanned */
+	bool contended;			/* Signal lock or sched contention */
+	bool rescan;			/* Rescanning the same pageblock */
+	bool alloc_contig;		/* alloc_contig_range allocation */
+};
+
+/*
+ * Used in direct compaction when a page should be taken from the freelists
+ * immediately when one is created during the free path.
+ */
+struct capture_control {
+	struct compact_control *cc;
+	struct page *page;
+>>>>>>> upstream/android-13
 };
 
 unsigned long
 isolate_freepages_range(struct compact_control *cc,
 			unsigned long start_pfn, unsigned long end_pfn);
+<<<<<<< HEAD
 unsigned long
 isolate_migratepages_range(struct compact_control *cc,
 			   unsigned long low_pfn, unsigned long end_pfn);
@@ -237,22 +387,41 @@ int find_suitable_fallback(struct free_area *area, unsigned int order,
 
 #endif
 
+=======
+int
+isolate_migratepages_range(struct compact_control *cc,
+			   unsigned long low_pfn, unsigned long end_pfn);
+#endif
+int find_suitable_fallback(struct free_area *area, unsigned int order,
+			int migratetype, bool only_stealable, bool *can_steal);
+
+>>>>>>> upstream/android-13
 /*
  * This function returns the order of a free page in the buddy system. In
  * general, page_zone(page)->lock must be held by the caller to prevent the
  * page from being allocated in parallel and returning garbage as the order.
  * If a caller does not hold page_zone(page)->lock, it must guarantee that the
  * page cannot be allocated or merged in parallel. Alternatively, it must
+<<<<<<< HEAD
  * handle invalid values gracefully, and use page_order_unsafe() below.
  */
 static inline unsigned int page_order(struct page *page)
+=======
+ * handle invalid values gracefully, and use buddy_order_unsafe() below.
+ */
+static inline unsigned int buddy_order(struct page *page)
+>>>>>>> upstream/android-13
 {
 	/* PageBuddy() must be checked by the caller */
 	return page_private(page);
 }
 
 /*
+<<<<<<< HEAD
  * Like page_order(), but for callers who cannot afford to hold the zone lock.
+=======
+ * Like buddy_order(), but for callers who cannot afford to hold the zone lock.
+>>>>>>> upstream/android-13
  * PageBuddy() should be checked first by the caller to minimize race window,
  * and invalid values must be handled gracefully.
  *
@@ -262,12 +431,16 @@ static inline unsigned int page_order(struct page *page)
  * times, potentially observing different values in the tests and the actual
  * use of the result.
  */
+<<<<<<< HEAD
 #define page_order_unsafe(page)		READ_ONCE(page_private(page))
 
 static inline bool is_cow_mapping(vm_flags_t flags)
 {
 	return (flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE;
 }
+=======
+#define buddy_order_unsafe(page)	READ_ONCE(page_private(page))
+>>>>>>> upstream/android-13
 
 /*
  * These three helpers classifies VMAs for virtual memory accounting.
@@ -282,7 +455,11 @@ static inline bool is_exec_mapping(vm_flags_t flags)
 }
 
 /*
+<<<<<<< HEAD
  * Stack area - atomatically grows in one direction
+=======
+ * Stack area - automatically grows in one direction
+>>>>>>> upstream/android-13
  *
  * VM_GROWSUP / VM_GROWSDOWN VMAs are always private anonymous:
  * do_mmap() forbids all other combinations.
@@ -302,11 +479,23 @@ static inline bool is_data_mapping(vm_flags_t flags)
 
 /* mm/util.c */
 void __vma_link_list(struct mm_struct *mm, struct vm_area_struct *vma,
+<<<<<<< HEAD
 		struct vm_area_struct *prev, struct rb_node *rb_parent);
 
 #ifdef CONFIG_MMU
 extern long populate_vma_page_range(struct vm_area_struct *vma,
 		unsigned long start, unsigned long end, int *nonblocking);
+=======
+		struct vm_area_struct *prev);
+void __vma_unlink_list(struct mm_struct *mm, struct vm_area_struct *vma);
+
+#ifdef CONFIG_MMU
+extern long populate_vma_page_range(struct vm_area_struct *vma,
+		unsigned long start, unsigned long end, int *locked);
+extern long faultin_vma_page_range(struct vm_area_struct *vma,
+				   unsigned long start, unsigned long end,
+				   bool write, int *locked);
+>>>>>>> upstream/android-13
 extern void munlock_vma_pages_range(struct vm_area_struct *vma,
 			unsigned long start, unsigned long end);
 static inline void munlock_vma_pages_all(struct vm_area_struct *vma)
@@ -315,11 +504,21 @@ static inline void munlock_vma_pages_all(struct vm_area_struct *vma)
 }
 
 /*
+<<<<<<< HEAD
  * must be called with vma's mmap_sem held for read or write, and page locked.
+=======
+ * must be called with vma's mmap_lock held for read or write, and page locked.
+>>>>>>> upstream/android-13
  */
 extern void mlock_vma_page(struct page *page);
 extern unsigned int munlock_vma_page(struct page *page);
 
+<<<<<<< HEAD
+=======
+extern int mlock_future_check(struct mm_struct *mm, unsigned long flags,
+			      unsigned long len);
+
+>>>>>>> upstream/android-13
 /*
  * Clear the page's PageMlocked().  This can be useful in a situation where
  * we want to unconditionally remove a page from the pagecache -- e.g.,
@@ -331,6 +530,7 @@ extern unsigned int munlock_vma_page(struct page *page);
  */
 extern void clear_page_mlock(struct page *page);
 
+<<<<<<< HEAD
 /*
  * mlock_migrate_page - called only from migrate_misplaced_transhuge_page()
  * (because that does not go through the full procedure of migration ptes):
@@ -372,13 +572,91 @@ vma_address(struct page *page, struct vm_area_struct *vma)
 	VM_BUG_ON_VMA(end < vma->vm_start || start >= vma->vm_end, vma);
 
 	return max(start, vma->vm_start);
+=======
+extern pmd_t maybe_pmd_mkwrite(pmd_t pmd, struct vm_area_struct *vma);
+
+/*
+ * At what user virtual address is page expected in vma?
+ * Returns -EFAULT if all of the page is outside the range of vma.
+ * If page is a compound head, the entire compound page is considered.
+ */
+static inline unsigned long
+vma_address(struct page *page, struct vm_area_struct *vma)
+{
+	pgoff_t pgoff;
+	unsigned long address;
+
+	VM_BUG_ON_PAGE(PageKsm(page), page);	/* KSM page->index unusable */
+	pgoff = page_to_pgoff(page);
+	if (pgoff >= vma->vm_pgoff) {
+		address = vma->vm_start +
+			((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
+		/* Check for address beyond vma (or wrapped through 0?) */
+		if (address < vma->vm_start || address >= vma->vm_end)
+			address = -EFAULT;
+	} else if (PageHead(page) &&
+		   pgoff + compound_nr(page) - 1 >= vma->vm_pgoff) {
+		/* Test above avoids possibility of wrap to 0 on 32-bit */
+		address = vma->vm_start;
+	} else {
+		address = -EFAULT;
+	}
+	return address;
+}
+
+/*
+ * Then at what user virtual address will none of the page be found in vma?
+ * Assumes that vma_address() already returned a good starting address.
+ * If page is a compound head, the entire compound page is considered.
+ */
+static inline unsigned long
+vma_address_end(struct page *page, struct vm_area_struct *vma)
+{
+	pgoff_t pgoff;
+	unsigned long address;
+
+	VM_BUG_ON_PAGE(PageKsm(page), page);	/* KSM page->index unusable */
+	pgoff = page_to_pgoff(page) + compound_nr(page);
+	address = vma->vm_start + ((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
+	/* Check for address beyond vma (or wrapped through 0?) */
+	if (address < vma->vm_start || address > vma->vm_end)
+		address = vma->vm_end;
+	return address;
+}
+
+static inline struct file *maybe_unlock_mmap_for_io(struct vm_fault *vmf,
+						    struct file *fpin)
+{
+	int flags = vmf->flags;
+
+	if (fpin)
+		return fpin;
+
+	/*
+	 * FAULT_FLAG_RETRY_NOWAIT means we don't want to wait on page locks or
+	 * anything, so we only pin the file and drop the mmap_lock if only
+	 * FAULT_FLAG_ALLOW_RETRY is set, while this is the first attempt.
+	 */
+	if (fault_flag_allow_retry_first(flags) &&
+	    !(flags & FAULT_FLAG_RETRY_NOWAIT)) {
+		fpin = get_file(vmf->vma->vm_file);
+		mmap_read_unlock(vmf->vma->vm_mm);
+	}
+	return fpin;
+>>>>>>> upstream/android-13
 }
 
 #else /* !CONFIG_MMU */
 static inline void clear_page_mlock(struct page *page) { }
 static inline void mlock_vma_page(struct page *page) { }
+<<<<<<< HEAD
 static inline void mlock_migrate_page(struct page *new, struct page *old) { }
 
+=======
+static inline void vunmap_range_noflush(unsigned long start, unsigned long end)
+{
+}
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_MMU */
 
 /*
@@ -466,12 +744,23 @@ static inline void mminit_validate_memmodel_limits(unsigned long *start_pfn,
 
 #ifdef CONFIG_NUMA
 extern int node_reclaim(struct pglist_data *, gfp_t, unsigned int);
+<<<<<<< HEAD
+=======
+extern int find_next_best_node(int node, nodemask_t *used_node_mask);
+>>>>>>> upstream/android-13
 #else
 static inline int node_reclaim(struct pglist_data *pgdat, gfp_t mask,
 				unsigned int order)
 {
 	return NODE_RECLAIM_NOSCAN;
 }
+<<<<<<< HEAD
+=======
+static inline int find_next_best_node(int node, nodemask_t *used_node_mask)
+{
+	return NUMA_NO_NODE;
+}
+>>>>>>> upstream/android-13
 #endif
 
 extern int hwpoison_filter(struct page *p);
@@ -488,7 +777,11 @@ extern unsigned long  __must_check vm_mmap_pgoff(struct file *, unsigned long,
         unsigned long, unsigned long);
 
 extern void set_pageblock_order(void);
+<<<<<<< HEAD
 unsigned long reclaim_clean_pages_from_list(struct zone *zone,
+=======
+unsigned int reclaim_clean_pages_from_list(struct zone *zone,
+>>>>>>> upstream/android-13
 					    struct list_head *page_list);
 /* The ALLOC_WMARK bits are used as an index to zone->watermark */
 #define ALLOC_WMARK_MIN		WMARK_MIN
@@ -510,10 +803,23 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
 #define ALLOC_OOM		ALLOC_NO_WATERMARKS
 #endif
 
+<<<<<<< HEAD
 #define ALLOC_HARDER		0x10 /* try to alloc harder */
 #define ALLOC_HIGH		0x20 /* __GFP_HIGH set */
 #define ALLOC_CPUSET		0x40 /* check for correct cpuset */
 #define ALLOC_CMA		0x80 /* allow allocations from CMA areas */
+=======
+#define ALLOC_HARDER		 0x10 /* try to alloc harder */
+#define ALLOC_HIGH		 0x20 /* __GFP_HIGH set */
+#define ALLOC_CPUSET		 0x40 /* check for correct cpuset */
+#define ALLOC_CMA		 0x80 /* allow allocations from CMA areas */
+#ifdef CONFIG_ZONE_DMA32
+#define ALLOC_NOFRAGMENT	0x100 /* avoid mixing pageblock types */
+#else
+#define ALLOC_NOFRAGMENT	  0x0
+#endif
+#define ALLOC_KSWAPD		0x800 /* allow waking of kswapd, __GFP_KSWAPD_RECLAIM set */
+>>>>>>> upstream/android-13
 
 enum ttu_flags;
 struct tlbflush_unmap_batch;
@@ -556,9 +862,56 @@ static inline bool is_migrate_highatomic_page(struct page *page)
 }
 
 void setup_zone_pageset(struct zone *zone);
+<<<<<<< HEAD
 extern struct page *alloc_new_node_page(struct page *page, unsigned long node);
 #ifdef CONFIG_PAGE_OWNER
 ssize_t print_max_page_owner(void);
 #endif
 
+=======
+
+struct migration_target_control {
+	int nid;		/* preferred node id */
+	nodemask_t *nmask;
+	gfp_t gfp_mask;
+};
+
+/*
+ * mm/vmalloc.c
+ */
+#ifdef CONFIG_MMU
+int vmap_pages_range_noflush(unsigned long addr, unsigned long end,
+                pgprot_t prot, struct page **pages, unsigned int page_shift);
+#else
+static inline
+int vmap_pages_range_noflush(unsigned long addr, unsigned long end,
+                pgprot_t prot, struct page **pages, unsigned int page_shift)
+{
+	return -EINVAL;
+}
+#endif
+
+void vunmap_range_noflush(unsigned long start, unsigned long end);
+
+int numa_migrate_prep(struct page *page, struct vm_area_struct *vma,
+		      unsigned long addr, int page_nid, int *flags);
+/*
+ * A cached value of the page's pageblock's migratetype, used when the page is
+ * put on a pcplist. Used to avoid the pageblock migratetype lookup when
+ * freeing from pcplists in most cases, at the cost of possibly becoming stale.
+ * Also the migratetype set in the page does not necessarily match the pcplist
+ * index, e.g. page might have MIGRATE_CMA set but be on a pcplist with any
+ * other index - this ensures that it will be put on the correct CMA freelist.
+ */
+static inline int get_pcppage_migratetype(struct page *page)
+{
+	return page->index;
+}
+
+static inline void set_pcppage_migratetype(struct page *page, int migratetype)
+{
+	page->index = migratetype;
+}
+
+>>>>>>> upstream/android-13
 #endif	/* __MM_INTERNAL_H */

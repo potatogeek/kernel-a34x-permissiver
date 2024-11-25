@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Accouting handling for netfilter. */
 
 /*
@@ -6,6 +7,13 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Accounting handling for netfilter. */
+
+/*
+ * (C) 2008 Krzysztof Piotr Oledzki <ole@ans.pl>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -25,6 +33,7 @@ static bool nf_ct_acct __read_mostly;
 module_param_named(acct, nf_ct_acct, bool, 0644);
 MODULE_PARM_DESC(acct, "Enable connection tracking flow accounting.");
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
 static struct ctl_table acct_sysctl_table[] = {
 	{
@@ -57,12 +66,15 @@ seq_print_acct(struct seq_file *s, const struct nf_conn *ct, int dir)
 };
 EXPORT_SYMBOL_GPL(seq_print_acct);
 
+=======
+>>>>>>> upstream/android-13
 static const struct nf_ct_ext_type acct_extend = {
 	.len	= sizeof(struct nf_conn_acct),
 	.align	= __alignof__(struct nf_conn_acct),
 	.id	= NF_CT_EXT_ACCT,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_SYSCTL
 static int nf_conntrack_acct_init_sysctl(struct net *net)
 {
@@ -121,6 +133,11 @@ int nf_conntrack_acct_pernet_init(struct net *net)
 void nf_conntrack_acct_pernet_fini(struct net *net)
 {
 	nf_conntrack_acct_fini_sysctl(net);
+=======
+void nf_conntrack_acct_pernet_init(struct net *net)
+{
+	net->ct.sysctl_acct = nf_ct_acct;
+>>>>>>> upstream/android-13
 }
 
 int nf_conntrack_acct_init(void)

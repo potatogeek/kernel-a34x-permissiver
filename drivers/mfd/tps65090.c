@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Core driver for TI TPS65090 PMIC family
  *
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+<<<<<<< HEAD
 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,12 +19,20 @@
 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+ *
+ * Author: Venu Byravarasu <vbyravarasu@nvidia.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
@@ -47,7 +60,11 @@
 #define TPS65090_INT2_MASK_OVERLOAD_FET6		6
 #define TPS65090_INT2_MASK_OVERLOAD_FET7		7
 
+<<<<<<< HEAD
 static struct resource charger_resources[] = {
+=======
+static const struct resource charger_resources[] = {
+>>>>>>> upstream/android-13
 	{
 		.start  = TPS65090_IRQ_VAC_STATUS_CHANGE,
 		.end    = TPS65090_IRQ_VAC_STATUS_CHANGE,
@@ -171,7 +188,10 @@ static const struct of_device_id tps65090_of_match[] = {
 	{ .compatible = "ti,tps65090",},
 	{},
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(of, tps65090_of_match);
+=======
+>>>>>>> upstream/android-13
 #endif
 
 static int tps65090_i2c_probe(struct i2c_client *client,
@@ -236,6 +256,7 @@ err_irq_exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int tps65090_i2c_remove(struct i2c_client *client)
 {
 	struct tps65090 *tps65090 = i2c_get_clientdata(client);
@@ -246,20 +267,32 @@ static int tps65090_i2c_remove(struct i2c_client *client)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 static const struct i2c_device_id tps65090_id_table[] = {
 	{ "tps65090", 0 },
 	{ },
 };
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(i2c, tps65090_id_table);
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver tps65090_driver = {
 	.driver	= {
 		.name	= "tps65090",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(tps65090_of_match),
 	},
 	.probe		= tps65090_i2c_probe,
 	.remove		= tps65090_i2c_remove,
+=======
+		.suppress_bind_attrs = true,
+		.of_match_table = of_match_ptr(tps65090_of_match),
+	},
+	.probe		= tps65090_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table	= tps65090_id_table,
 };
 
@@ -268,6 +301,7 @@ static int __init tps65090_init(void)
 	return i2c_add_driver(&tps65090_driver);
 }
 subsys_initcall(tps65090_init);
+<<<<<<< HEAD
 
 static void __exit tps65090_exit(void)
 {
@@ -278,3 +312,5 @@ module_exit(tps65090_exit);
 MODULE_DESCRIPTION("TPS65090 core driver");
 MODULE_AUTHOR("Venu Byravarasu <vbyravarasu@nvidia.com>");
 MODULE_LICENSE("GPL v2");
+=======
+>>>>>>> upstream/android-13

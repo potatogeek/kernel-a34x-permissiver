@@ -139,7 +139,11 @@ static void __exit poly1305_mod_exit(void)
 	crypto_unregister_shash(&poly1305_alg);
 }
 
+<<<<<<< HEAD
 module_init(poly1305_mod_init);
+=======
+subsys_initcall(poly1305_mod_init);
+>>>>>>> upstream/android-13
 module_exit(poly1305_mod_exit);
 
 MODULE_LICENSE("GPL");

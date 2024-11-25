@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -57,6 +63,7 @@ struct nicpf {
 #define	NIC_GET_BGX_FROM_VF_LMAC_MAP(map)	((map >> 4) & 0xF)
 #define	NIC_GET_LMAC_FROM_VF_LMAC_MAP(map)	(map & 0xF)
 	u8			*vf_lmac_map;
+<<<<<<< HEAD
 	struct delayed_work     dwork;
 	struct workqueue_struct *check_link;
 	u8			*link;
@@ -65,6 +72,10 @@ struct nicpf {
 	u16			cpi_base[MAX_NUM_VFS_SUPPORTED];
 	u16			rssi_base[MAX_NUM_VFS_SUPPORTED];
 	bool			mbx_lock[MAX_NUM_VFS_SUPPORTED];
+=======
+	u16			cpi_base[MAX_NUM_VFS_SUPPORTED];
+	u16			rssi_base[MAX_NUM_VFS_SUPPORTED];
+>>>>>>> upstream/android-13
 
 	/* MSI-X */
 	u8			num_vec;
@@ -929,6 +940,38 @@ static void nic_config_timestamp(struct nicpf *nic, int vf, struct set_ptp *ptp)
 	nic_reg_write(nic, NIC_PF_PKIND_0_15_CFG | (pkind_idx << 3), pkind_val);
 }
 
+<<<<<<< HEAD
+=======
+/* Get BGX LMAC link status and update corresponding VF
+ * if there is a change, valid only if internal L2 switch
+ * is not present otherwise VF link is always treated as up
+ */
+static void nic_link_status_get(struct nicpf *nic, u8 vf)
+{
+	union nic_mbx mbx = {};
+	struct bgx_link_status link;
+	u8 bgx, lmac;
+
+	mbx.link_status.msg = NIC_MBOX_MSG_BGX_LINK_CHANGE;
+
+	/* Get BGX, LMAC indices for the VF */
+	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+
+	/* Get interface link status */
+	bgx_get_lmac_link_state(nic->node, bgx, lmac, &link);
+
+	/* Send a mbox message to VF with current link status */
+	mbx.link_status.link_up = link.link_up;
+	mbx.link_status.duplex = link.duplex;
+	mbx.link_status.speed = link.speed;
+	mbx.link_status.mac_type = link.mac_type;
+
+	/* reply with link status */
+	nic_send_msg_to_vf(nic, vf, &mbx);
+}
+
+>>>>>>> upstream/android-13
 /* Interrupt handler to handle mailbox messages from VFs */
 static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 {
@@ -941,8 +984,11 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 	int i;
 	int ret = 0;
 
+<<<<<<< HEAD
 	nic->mbx_lock[vf] = true;
 
+=======
+>>>>>>> upstream/android-13
 	mbx_addr = nic_get_mbx_addr(vf);
 	mbx_data = (u64 *)&mbx;
 
@@ -957,12 +1003,16 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 	switch (mbx.msg.msg) {
 	case NIC_MBOX_MSG_READY:
 		nic_mbx_send_ready(nic, vf);
+<<<<<<< HEAD
 		if (vf < nic->num_vf_en) {
 			nic->link[vf] = 0;
 			nic->duplex[vf] = 0;
 			nic->speed[vf] = 0;
 		}
 		goto unlock;
+=======
+		return;
+>>>>>>> upstream/android-13
 	case NIC_MBOX_MSG_QS_CFG:
 		reg_addr = NIC_PF_QSET_0_127_CFG |
 			   (mbx.qs.num << NIC_QS_ID_SHIFT);
@@ -1031,7 +1081,11 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		break;
 	case NIC_MBOX_MSG_RSS_SIZE:
 		nic_send_rss_size(nic, vf);
+<<<<<<< HEAD
 		goto unlock;
+=======
+		return;
+>>>>>>> upstream/android-13
 	case NIC_MBOX_MSG_RSS_CFG:
 	case NIC_MBOX_MSG_RSS_CFG_CONT:
 		nic_config_rss(nic, &mbx.rss_cfg);
@@ -1049,12 +1103,17 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		break;
 	case NIC_MBOX_MSG_ALLOC_SQS:
 		nic_alloc_sqs(nic, &mbx.sqs_alloc);
+<<<<<<< HEAD
 		goto unlock;
+=======
+		return;
+>>>>>>> upstream/android-13
 	case NIC_MBOX_MSG_NICVF_PTR:
 		nic->nicvf[vf] = mbx.nicvf.nicvf;
 		break;
 	case NIC_MBOX_MSG_PNICVF_PTR:
 		nic_send_pnicvf(nic, vf);
+<<<<<<< HEAD
 		goto unlock;
 	case NIC_MBOX_MSG_SNICVF_PTR:
 		nic_send_snicvf(nic, &mbx.nicvf);
@@ -1062,6 +1121,15 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 	case NIC_MBOX_MSG_BGX_STATS:
 		nic_get_bgx_stats(nic, &mbx.bgx_stats);
 		goto unlock;
+=======
+		return;
+	case NIC_MBOX_MSG_SNICVF_PTR:
+		nic_send_snicvf(nic, &mbx.nicvf);
+		return;
+	case NIC_MBOX_MSG_BGX_STATS:
+		nic_get_bgx_stats(nic, &mbx.bgx_stats);
+		return;
+>>>>>>> upstream/android-13
 	case NIC_MBOX_MSG_LOOPBACK:
 		ret = nic_config_loopback(nic, &mbx.lbk);
 		break;
@@ -1070,7 +1138,11 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		break;
 	case NIC_MBOX_MSG_PFC:
 		nic_pause_frame(nic, vf, &mbx.pfc);
+<<<<<<< HEAD
 		goto unlock;
+=======
+		return;
+>>>>>>> upstream/android-13
 	case NIC_MBOX_MSG_PTP_CFG:
 		nic_config_timestamp(nic, vf, &mbx.ptp);
 		break;
@@ -1094,7 +1166,11 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
 		lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
 		bgx_set_dmac_cam_filter(nic->node, bgx, lmac,
+<<<<<<< HEAD
 					mbx.xcast.data.mac,
+=======
+					mbx.xcast.mac,
+>>>>>>> upstream/android-13
 					vf < NIC_VF_PER_MBX_REG ? vf :
 					vf - NIC_VF_PER_MBX_REG);
 		break;
@@ -1106,8 +1182,20 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 		}
 		bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
 		lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vf]);
+<<<<<<< HEAD
 		bgx_set_xcast_mode(nic->node, bgx, lmac, mbx.xcast.data.mode);
 		break;
+=======
+		bgx_set_xcast_mode(nic->node, bgx, lmac, mbx.xcast.mode);
+		break;
+	case NIC_MBOX_MSG_BGX_LINK_CHANGE:
+		if (vf >= nic->num_vf_en) {
+			ret = -1; /* NACK */
+			break;
+		}
+		nic_link_status_get(nic, vf);
+		return;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(&nic->pdev->dev,
 			"Invalid msg from VF%d, msg 0x%x\n", vf, mbx.msg.msg);
@@ -1121,8 +1209,11 @@ static void nic_handle_mbx_intr(struct nicpf *nic, int vf)
 			mbx.msg.msg, vf);
 		nic_mbx_send_nack(nic, vf);
 	}
+<<<<<<< HEAD
 unlock:
 	nic->mbx_lock[vf] = false;
+=======
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t nic_mbx_intr_handler(int irq, void *nic_irq)
@@ -1175,7 +1266,11 @@ static int nic_register_interrupts(struct nicpf *nic)
 		dev_err(&nic->pdev->dev,
 			"Request for #%d msix vectors failed, returned %d\n",
 			   nic->num_vec, ret);
+<<<<<<< HEAD
 		return 1;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	/* Register mailbox interrupt handler */
@@ -1270,6 +1365,7 @@ static int nic_sriov_init(struct pci_dev *pdev, struct nicpf *nic)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Poll for BGX LMAC link status and update corresponding VF
  * if there is a change, valid only if internal L2 switch
  * is not present otherwise VF link is always treated as up
@@ -1316,6 +1412,8 @@ static void nic_poll_for_link(struct work_struct *work)
 	queue_delayed_work(nic->check_link, &nic->dwork, HZ * 2);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int nic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	struct device *dev = &pdev->dev;
@@ -1350,18 +1448,25 @@ static int nic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto err_disable_device;
 	}
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(48));
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(48));
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(dev, "Unable to get usable DMA configuration\n");
 		goto err_release_regions;
 	}
 
+<<<<<<< HEAD
 	err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(48));
 	if (err) {
 		dev_err(dev, "Unable to get 48-bit DMA for consistent allocations\n");
 		goto err_release_regions;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* MAP PF's configuration registers */
 	nic->reg_base = pcim_iomap(pdev, PCI_CFG_REG_BAR_NUM, 0);
 	if (!nic->reg_base) {
@@ -1384,6 +1489,7 @@ static int nic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!nic->vf_lmac_map)
 		goto err_release_regions;
 
+<<<<<<< HEAD
 	nic->link = devm_kmalloc_array(dev, max_lmac, sizeof(u8), GFP_KERNEL);
 	if (!nic->link)
 		goto err_release_regions;
@@ -1396,6 +1502,8 @@ static int nic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!nic->speed)
 		goto err_release_regions;
 
+=======
+>>>>>>> upstream/android-13
 	/* Initialize hardware */
 	nic_init_hw(nic);
 
@@ -1411,6 +1519,7 @@ static int nic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (err)
 		goto err_unregister_interrupts;
 
+<<<<<<< HEAD
 	/* Register a physical link status poll fn() */
 	nic->check_link = alloc_workqueue("check_link_status",
 					  WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
@@ -1427,6 +1536,10 @@ static int nic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 err_disable_sriov:
 	if (nic->flags & NIC_SRIOV_ENABLED)
 		pci_disable_sriov(pdev);
+=======
+	return 0;
+
+>>>>>>> upstream/android-13
 err_unregister_interrupts:
 	nic_unregister_interrupts(nic);
 err_release_regions:
@@ -1447,12 +1560,15 @@ static void nic_remove(struct pci_dev *pdev)
 	if (nic->flags & NIC_SRIOV_ENABLED)
 		pci_disable_sriov(pdev);
 
+<<<<<<< HEAD
 	if (nic->check_link) {
 		/* Destroy work Queue */
 		cancel_delayed_work_sync(&nic->dwork);
 		destroy_workqueue(nic->check_link);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	nic_unregister_interrupts(nic);
 	pci_release_regions(pdev);
 

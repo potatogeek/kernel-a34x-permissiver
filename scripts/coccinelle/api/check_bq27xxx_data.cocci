@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Detect BQ27XXX_DATA structures with identical registers, dm registers or
 /// properties.
 //# Doesn't unfold macros used in register or property fields.
 //# Requires OCaml scripting
 ///
 // Confidence: High
+<<<<<<< HEAD
 // Copyright: (C) 2017 Julia Lawall, Inria/LIP6, GPLv2.
+=======
+// Copyright: (C) 2017 Julia Lawall, Inria/LIP6,
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Requires: 1.0.7
 // Keywords: BQ27XXX_DATA

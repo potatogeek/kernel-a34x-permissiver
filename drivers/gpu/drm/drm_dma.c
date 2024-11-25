@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * \file drm_dma.c
  * DMA IOCTL and function support
  *
@@ -34,6 +38,7 @@
  */
 
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "drm_legacy.h"
 
@@ -42,6 +47,20 @@
  *
  * \param dev DRM device.
  * \return zero on success or a negative value on failure.
+=======
+#include <linux/pci.h>
+
+#include <drm/drm_drv.h>
+#include <drm/drm_print.h>
+
+#include "drm_legacy.h"
+
+/**
+ * drm_legacy_dma_setup() - Initialize the DMA data.
+ *
+ * @dev: DRM device.
+ * Return: zero on success or a negative value on failure.
+>>>>>>> upstream/android-13
  *
  * Allocate and initialize a drm_device_dma structure.
  */
@@ -67,9 +86,15 @@ int drm_legacy_dma_setup(struct drm_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * Cleanup the DMA resources.
  *
  * \param dev DRM device.
+=======
+ * drm_legacy_dma_takedown() - Cleanup the DMA resources.
+ *
+ * @dev: DRM device.
+>>>>>>> upstream/android-13
  *
  * Free all pages associated with DMA buffers, the buffers and pages lists, and
  * finally the drm_device::dma structure itself.
@@ -77,6 +102,10 @@ int drm_legacy_dma_setup(struct drm_device *dev)
 void drm_legacy_dma_takedown(struct drm_device *dev)
 {
 	struct drm_device_dma *dma = dev->dma;
+<<<<<<< HEAD
+=======
+	drm_dma_handle_t *dmah;
+>>>>>>> upstream/android-13
 	int i, j;
 
 	if (!drm_core_check_feature(dev, DRIVER_HAVE_DMA) ||
@@ -96,7 +125,16 @@ void drm_legacy_dma_takedown(struct drm_device *dev)
 				  dma->bufs[i].seg_count);
 			for (j = 0; j < dma->bufs[i].seg_count; j++) {
 				if (dma->bufs[i].seglist[j]) {
+<<<<<<< HEAD
 					drm_pci_free(dev, dma->bufs[i].seglist[j]);
+=======
+					dmah = dma->bufs[i].seglist[j];
+					dma_free_coherent(dev->dev,
+							  dmah->size,
+							  dmah->vaddr,
+							  dmah->busaddr);
+					kfree(dmah);
+>>>>>>> upstream/android-13
 				}
 			}
 			kfree(dma->bufs[i].seglist);
@@ -116,10 +154,17 @@ void drm_legacy_dma_takedown(struct drm_device *dev)
 }
 
 /**
+<<<<<<< HEAD
  * Free a buffer.
  *
  * \param dev DRM device.
  * \param buf buffer to free.
+=======
+ * drm_legacy_free_buffer() - Free a buffer.
+ *
+ * @dev: DRM device.
+ * @buf: buffer to free.
+>>>>>>> upstream/android-13
  *
  * Resets the fields of \p buf.
  */
@@ -135,9 +180,16 @@ void drm_legacy_free_buffer(struct drm_device *dev, struct drm_buf * buf)
 }
 
 /**
+<<<<<<< HEAD
  * Reclaim the buffers.
  *
  * \param file_priv DRM file private.
+=======
+ * drm_legacy_reclaim_buffers() - Reclaim the buffers.
+ *
+ * @dev: DRM device.
+ * @file_priv: DRM file private.
+>>>>>>> upstream/android-13
  *
  * Frees each buffer associated with \p file_priv not already on the hardware.
  */

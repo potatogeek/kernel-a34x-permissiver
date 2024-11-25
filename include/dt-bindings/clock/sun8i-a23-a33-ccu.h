@@ -43,6 +43,11 @@
 #ifndef _DT_BINDINGS_CLK_SUN8I_A23_A33_H_
 #define _DT_BINDINGS_CLK_SUN8I_A23_A33_H_
 
+<<<<<<< HEAD
+=======
+#define CLK_PLL_MIPI		13
+
+>>>>>>> upstream/android-13
 #define CLK_CPUX		18
 
 #define CLK_BUS_MIPI_DSI	23

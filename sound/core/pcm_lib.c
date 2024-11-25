@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Digital Audio (PCM) abstract layer
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *                   Abramo Bagnara <abramo@alsa-project.org>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -45,9 +52,12 @@
 #define trace_applptr(substream, prev, curr)
 #endif
 
+<<<<<<< HEAD
 #define STRING_LENGTH_OF_INT 12
 #define MAX_USR_CTRL_CNT 128
 
+=======
+>>>>>>> upstream/android-13
 static int fill_silence_frames(struct snd_pcm_substream *substream,
 			       snd_pcm_uframes_t off, snd_pcm_uframes_t frames);
 
@@ -162,8 +172,18 @@ void __snd_pcm_xrun(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
 	trace_xrun(substream);
+<<<<<<< HEAD
 	if (runtime->tstamp_mode == SNDRV_PCM_TSTAMP_ENABLE)
 		snd_pcm_gettime(runtime, (struct timespec *)&runtime->status->tstamp);
+=======
+	if (runtime->tstamp_mode == SNDRV_PCM_TSTAMP_ENABLE) {
+		struct timespec64 tstamp;
+
+		snd_pcm_gettime(runtime, &tstamp);
+		runtime->status->tstamp.tv_sec = tstamp.tv_sec;
+		runtime->status->tstamp.tv_nsec = tstamp.tv_nsec;
+	}
+>>>>>>> upstream/android-13
 	snd_pcm_stop(substream, SNDRV_PCM_STATE_XRUN);
 	if (xrun_debug(substream, XRUN_DEBUG_BASIC)) {
 		char name[16];
@@ -218,12 +238,21 @@ int snd_pcm_update_state(struct snd_pcm_substream *substream,
 }
 
 static void update_audio_tstamp(struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 				struct timespec *curr_tstamp,
 				struct timespec *audio_tstamp)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	u64 audio_frames, audio_nsecs;
 	struct timespec driver_tstamp;
+=======
+				struct timespec64 *curr_tstamp,
+				struct timespec64 *audio_tstamp)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	u64 audio_frames, audio_nsecs;
+	struct timespec64 driver_tstamp;
+>>>>>>> upstream/android-13
 
 	if (runtime->tstamp_mode != SNDRV_PCM_TSTAMP_ENABLE)
 		return;
@@ -247,6 +276,7 @@ static void update_audio_tstamp(struct snd_pcm_substream *substream,
 		}
 		audio_nsecs = div_u64(audio_frames * 1000000000LL,
 				runtime->rate);
+<<<<<<< HEAD
 		*audio_tstamp = ns_to_timespec(audio_nsecs);
 	}
 	if (!timespec_equal(&runtime->status->audio_tstamp, audio_tstamp)) {
@@ -254,11 +284,29 @@ static void update_audio_tstamp(struct snd_pcm_substream *substream,
 		runtime->status->tstamp = *curr_tstamp;
 	}
 
+=======
+		*audio_tstamp = ns_to_timespec64(audio_nsecs);
+	}
+
+	if (runtime->status->audio_tstamp.tv_sec != audio_tstamp->tv_sec ||
+	    runtime->status->audio_tstamp.tv_nsec != audio_tstamp->tv_nsec) {
+		runtime->status->audio_tstamp.tv_sec = audio_tstamp->tv_sec;
+		runtime->status->audio_tstamp.tv_nsec = audio_tstamp->tv_nsec;
+		runtime->status->tstamp.tv_sec = curr_tstamp->tv_sec;
+		runtime->status->tstamp.tv_nsec = curr_tstamp->tv_nsec;
+	}
+
+
+>>>>>>> upstream/android-13
 	/*
 	 * re-take a driver timestamp to let apps detect if the reference tstamp
 	 * read by low-level hardware was provided with a delay
 	 */
+<<<<<<< HEAD
 	snd_pcm_gettime(substream->runtime, (struct timespec *)&driver_tstamp);
+=======
+	snd_pcm_gettime(substream->runtime, &driver_tstamp);
+>>>>>>> upstream/android-13
 	runtime->driver_tstamp = driver_tstamp;
 }
 
@@ -271,8 +319,13 @@ static int snd_pcm_update_hw_ptr0(struct snd_pcm_substream *substream,
 	snd_pcm_sframes_t hdelta, delta;
 	unsigned long jdelta;
 	unsigned long curr_jiffies;
+<<<<<<< HEAD
 	struct timespec curr_tstamp;
 	struct timespec audio_tstamp;
+=======
+	struct timespec64 curr_tstamp;
+	struct timespec64 audio_tstamp;
+>>>>>>> upstream/android-13
 	int crossed_boundary = 0;
 
 	old_hw_ptr = runtime->status->hw_ptr;
@@ -295,9 +348,15 @@ static int snd_pcm_update_hw_ptr0(struct snd_pcm_substream *substream,
 
 			/* re-test in case tstamp type is not supported in hardware and was demoted to DEFAULT */
 			if (runtime->audio_tstamp_report.actual_type == SNDRV_PCM_AUDIO_TSTAMP_TYPE_DEFAULT)
+<<<<<<< HEAD
 				snd_pcm_gettime(runtime, (struct timespec *)&curr_tstamp);
 		} else
 			snd_pcm_gettime(runtime, (struct timespec *)&curr_tstamp);
+=======
+				snd_pcm_gettime(runtime, &curr_tstamp);
+		} else
+			snd_pcm_gettime(runtime, &curr_tstamp);
+>>>>>>> upstream/android-13
 	}
 
 	if (pos == SNDRV_PCM_POS_XRUN) {
@@ -498,7 +557,11 @@ void snd_pcm_set_ops(struct snd_pcm *pcm, int direction,
 EXPORT_SYMBOL(snd_pcm_set_ops);
 
 /**
+<<<<<<< HEAD
  * snd_pcm_sync - set the PCM sync id
+=======
+ * snd_pcm_set_sync - set the PCM sync id
+>>>>>>> upstream/android-13
  * @substream: the pcm substream
  *
  * Sets the PCM sync identifier for the card.
@@ -1137,8 +1200,13 @@ int snd_pcm_hw_rule_add(struct snd_pcm_runtime *runtime, unsigned int cond,
 	if (constrs->rules_num >= constrs->rules_all) {
 		struct snd_pcm_hw_rule *new;
 		unsigned int new_rules = constrs->rules_all + 16;
+<<<<<<< HEAD
 		new = krealloc(constrs->rules, new_rules * sizeof(*c),
 			       GFP_KERNEL);
+=======
+		new = krealloc_array(constrs->rules, new_rules,
+				     sizeof(*c), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!new) {
 			va_end(args);
 			return -ENOMEM;
@@ -1461,7 +1529,11 @@ EXPORT_SYMBOL(snd_pcm_hw_constraint_step);
 
 static int snd_pcm_hw_rule_pow2(struct snd_pcm_hw_params *params, struct snd_pcm_hw_rule *rule)
 {
+<<<<<<< HEAD
 	static unsigned int pow2_sizes[] = {
+=======
+	static const unsigned int pow2_sizes[] = {
+>>>>>>> upstream/android-13
 		1<<0, 1<<1, 1<<2, 1<<3, 1<<4, 1<<5, 1<<6, 1<<7,
 		1<<8, 1<<9, 1<<10, 1<<11, 1<<12, 1<<13, 1<<14, 1<<15,
 		1<<16, 1<<17, 1<<18, 1<<19, 1<<20, 1<<21, 1<<22, 1<<23,
@@ -1754,7 +1826,11 @@ static int snd_pcm_lib_ioctl_fifo_size(struct snd_pcm_substream *substream,
 		channels = params_channels(params);
 		frame_size = snd_pcm_format_size(format, channels);
 		if (frame_size > 0)
+<<<<<<< HEAD
 			params->fifo_size /= (unsigned)frame_size;
+=======
+			params->fifo_size /= frame_size;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -1786,6 +1862,7 @@ int snd_pcm_lib_ioctl(struct snd_pcm_substream *substream,
 EXPORT_SYMBOL(snd_pcm_lib_ioctl);
 
 /**
+<<<<<<< HEAD
  * snd_pcm_period_elapsed - update the pcm status for the next period
  * @substream: the pcm substream instance
  *
@@ -1807,6 +1884,40 @@ void snd_pcm_period_elapsed(struct snd_pcm_substream *substream)
 	snd_pcm_stream_lock_irqsave(substream, flags);
 	if (PCM_RUNTIME_CHECK(substream))
 		goto _unlock;
+=======
+ * snd_pcm_period_elapsed_under_stream_lock() - update the status of runtime for the next period
+ *						under acquired lock of PCM substream.
+ * @substream: the instance of pcm substream.
+ *
+ * This function is called when the batch of audio data frames as the same size as the period of
+ * buffer is already processed in audio data transmission.
+ *
+ * The call of function updates the status of runtime with the latest position of audio data
+ * transmission, checks overrun and underrun over buffer, awaken user processes from waiting for
+ * available audio data frames, sampling audio timestamp, and performs stop or drain the PCM
+ * substream according to configured threshold.
+ *
+ * The function is intended to use for the case that PCM driver operates audio data frames under
+ * acquired lock of PCM substream; e.g. in callback of any operation of &snd_pcm_ops in process
+ * context. In any interrupt context, it's preferrable to use ``snd_pcm_period_elapsed()`` instead
+ * since lock of PCM substream should be acquired in advance.
+ *
+ * Developer should pay enough attention that some callbacks in &snd_pcm_ops are done by the call of
+ * function:
+ *
+ * - .pointer - to retrieve current position of audio data transmission by frame count or XRUN state.
+ * - .trigger - with SNDRV_PCM_TRIGGER_STOP at XRUN or DRAINING state.
+ * - .get_time_info - to retrieve audio time stamp if needed.
+ *
+ * Even if more than one periods have elapsed since the last call, you have to call this only once.
+ */
+void snd_pcm_period_elapsed_under_stream_lock(struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_runtime *runtime;
+
+	if (PCM_RUNTIME_CHECK(substream))
+		return;
+>>>>>>> upstream/android-13
 	runtime = substream->runtime;
 
 	if (!snd_pcm_running(substream) ||
@@ -1819,7 +1930,34 @@ void snd_pcm_period_elapsed(struct snd_pcm_substream *substream)
 #endif
  _end:
 	kill_fasync(&runtime->fasync, SIGIO, POLL_IN);
+<<<<<<< HEAD
  _unlock:
+=======
+}
+EXPORT_SYMBOL(snd_pcm_period_elapsed_under_stream_lock);
+
+/**
+ * snd_pcm_period_elapsed() - update the status of runtime for the next period by acquiring lock of
+ *			      PCM substream.
+ * @substream: the instance of PCM substream.
+ *
+ * This function is mostly similar to ``snd_pcm_period_elapsed_under_stream_lock()`` except for
+ * acquiring lock of PCM substream voluntarily.
+ *
+ * It's typically called by any type of IRQ handler when hardware IRQ occurs to notify event that
+ * the batch of audio data frames as the same size as the period of buffer is already processed in
+ * audio data transmission.
+ */
+void snd_pcm_period_elapsed(struct snd_pcm_substream *substream)
+{
+	unsigned long flags;
+
+	if (snd_BUG_ON(!substream))
+		return;
+
+	snd_pcm_stream_lock_irqsave(substream, flags);
+	snd_pcm_period_elapsed_under_stream_lock(substream);
+>>>>>>> upstream/android-13
 	snd_pcm_stream_unlock_irqrestore(substream, flags);
 }
 EXPORT_SYMBOL(snd_pcm_period_elapsed);
@@ -1851,7 +1989,11 @@ static int wait_for_avail(struct snd_pcm_substream *substream,
 		if (substream->wait_time) {
 			wait_time = substream->wait_time;
 		} else {
+<<<<<<< HEAD
 			wait_time = 2; /* 10 Modified by MTK */
+=======
+			wait_time = 10;
+>>>>>>> upstream/android-13
 
 			if (runtime->rate) {
 				long t = runtime->period_size * 2 /
@@ -2180,6 +2322,17 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
 	if (err < 0)
 		goto _end_unlock;
 
+<<<<<<< HEAD
+=======
+	runtime->twake = runtime->control->avail_min ? : 1;
+	if (runtime->status->state == SNDRV_PCM_STATE_RUNNING)
+		snd_pcm_update_hw_ptr(substream);
+
+	/*
+	 * If size < start_threshold, wait indefinitely. Another
+	 * thread may start capture
+	 */
+>>>>>>> upstream/android-13
 	if (!is_playback &&
 	    runtime->status->state == SNDRV_PCM_STATE_PREPARED &&
 	    size >= runtime->start_threshold) {
@@ -2188,10 +2341,15 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
 			goto _end_unlock;
 	}
 
+<<<<<<< HEAD
 	runtime->twake = runtime->control->avail_min ? : 1;
 	if (runtime->status->state == SNDRV_PCM_STATE_RUNNING)
 		snd_pcm_update_hw_ptr(substream);
 	avail = snd_pcm_avail(substream);
+=======
+	avail = snd_pcm_avail(substream);
+
+>>>>>>> upstream/android-13
 	while (size > 0) {
 		snd_pcm_uframes_t frames, appl_ptr, appl_ofs;
 		snd_pcm_uframes_t cont;
@@ -2220,14 +2378,27 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
 		if (frames > cont)
 			frames = cont;
 		if (snd_BUG_ON(!frames)) {
+<<<<<<< HEAD
 			runtime->twake = 0;
 			snd_pcm_stream_unlock_irq(substream);
 			return -EINVAL;
+=======
+			err = -EINVAL;
+			goto _end_unlock;
+		}
+		if (!atomic_inc_unless_negative(&runtime->buffer_accessing)) {
+			err = -EBUSY;
+			goto _end_unlock;
+>>>>>>> upstream/android-13
 		}
 		snd_pcm_stream_unlock_irq(substream);
 		err = writer(substream, appl_ofs, data, offset, frames,
 			     transfer);
 		snd_pcm_stream_lock_irq(substream);
+<<<<<<< HEAD
+=======
+		atomic_dec(&runtime->buffer_accessing);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto _end_unlock;
 		err = pcm_accessible_state(runtime);
@@ -2322,7 +2493,10 @@ static int pcm_chmap_ctl_info(struct snd_kcontrol *kcontrol,
 	struct snd_pcm_chmap *info = snd_kcontrol_chip(kcontrol);
 
 	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
+<<<<<<< HEAD
 	uinfo->count = 0;
+=======
+>>>>>>> upstream/android-13
 	uinfo->count = info->max_channels;
 	uinfo->value.integer.min = 0;
 	uinfo->value.integer.max = SNDRV_CHMAP_LAST;
@@ -2346,7 +2520,11 @@ static int pcm_chmap_ctl_get(struct snd_kcontrol *kcontrol,
 	if (!substream)
 		return -ENODEV;
 	memset(ucontrol->value.integer.value, 0,
+<<<<<<< HEAD
 	       sizeof(ucontrol->value.integer.value));
+=======
+	       sizeof(long) * info->max_channels);
+>>>>>>> upstream/android-13
 	if (!substream->runtime)
 		return 0; /* no channels set */
 	for (map = info->chmap; map->channels; map++) {
@@ -2414,6 +2592,7 @@ static void pcm_chmap_ctl_private_free(struct snd_kcontrol *kcontrol)
 	kfree(info);
 }
 
+<<<<<<< HEAD
 static int pcm_volume_ctl_info(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_info *uinfo)
 {
@@ -2432,6 +2611,8 @@ static void pcm_volume_ctl_private_free(struct snd_kcontrol *kcontrol)
 	kfree(info);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * snd_pcm_add_chmap_ctls - create channel-mapping control elements
  * @pcm: the assigned PCM instance
@@ -2485,16 +2666,22 @@ int snd_pcm_add_chmap_ctls(struct snd_pcm *pcm, int stream,
 	}
 	info->kctl->private_free = pcm_chmap_ctl_private_free;
 	err = snd_ctl_add(pcm->card, info->kctl);
+<<<<<<< HEAD
 	if (err < 0) {
 		kfree(info);
 		return -ENOMEM;
 	}
+=======
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	pcm->streams[stream].chmap_kctl = info->kctl;
 	if (info_ret)
 		*info_ret = info;
 	return 0;
 }
 EXPORT_SYMBOL_GPL(snd_pcm_add_chmap_ctls);
+<<<<<<< HEAD
 
 /**
  * snd_pcm_add_volume_ctls - create volume control elements
@@ -2658,3 +2845,5 @@ int snd_pcm_add_usr_ctls(struct snd_pcm *pcm, int stream,
 	return 0;
 }
 EXPORT_SYMBOL(snd_pcm_add_usr_ctls);
+=======
+>>>>>>> upstream/android-13

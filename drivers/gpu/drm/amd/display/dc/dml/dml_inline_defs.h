@@ -26,7 +26,10 @@
 #ifndef __DML_INLINE_DEFS_H__
 #define __DML_INLINE_DEFS_H__
 
+<<<<<<< HEAD
 #include "dml_common_defs.h"
+=======
+>>>>>>> upstream/android-13
 #include "dcn_calc_math.h"
 #include "dml_logger.h"
 
@@ -75,9 +78,38 @@ static inline double dml_floor(double a, double granularity)
 	return (double) dcn_bw_floor2(a, granularity);
 }
 
+<<<<<<< HEAD
 static inline int dml_log2(double x)
 {
 	return dml_round((double)dcn_bw_log(x, 2));
+=======
+static inline double dml_round(double a)
+{
+	double round_pt = 0.5;
+	double ceil = dml_ceil(a, 1);
+	double floor = dml_floor(a, 1);
+
+	if (a - floor >= round_pt)
+		return ceil;
+	else
+		return floor;
+}
+
+/* float
+static inline int dml_log2(float x)
+{
+	unsigned int ix = *((unsigned int *)&x);
+
+	return (int)((ix >> 23) & 0xff) - 127;
+}*/
+
+/* double */
+static inline int dml_log2(double x)
+{
+	unsigned long long ix = *((unsigned long long *)&x);
+
+	return (int)((ix >> 52) & 0x7ff) - 1023;
+>>>>>>> upstream/android-13
 }
 
 static inline double dml_pow(double a, int exp)
@@ -105,6 +137,7 @@ static inline double dml_floor_ex(double x, double granularity)
 	return (double) dcn_bw_floor2(x, granularity);
 }
 
+<<<<<<< HEAD
 static inline double dml_log(double x, double base)
 {
 	return (double) dcn_bw_log(x, base);
@@ -113,6 +146,11 @@ static inline double dml_log(double x, double base)
 static inline unsigned int dml_round_to_multiple(unsigned int num,
 						 unsigned int multiple,
 						 bool up)
+=======
+static inline unsigned int dml_round_to_multiple(unsigned int num,
+						 unsigned int multiple,
+						 unsigned char up)
+>>>>>>> upstream/android-13
 {
 	unsigned int remainder;
 
@@ -129,4 +167,15 @@ static inline unsigned int dml_round_to_multiple(unsigned int num,
 	else
 		return (num - remainder);
 }
+<<<<<<< HEAD
+=======
+static inline double dml_abs(double a)
+{
+	if (a > 0)
+		return a;
+	else
+		return (a*(-1));
+}
+
+>>>>>>> upstream/android-13
 #endif

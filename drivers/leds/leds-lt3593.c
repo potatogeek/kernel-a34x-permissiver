@@ -5,6 +5,7 @@
 #include <linux/platform_device.h>
 #include <linux/leds.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/gpio/consumer.h>
 #include <linux/slab.h>
@@ -14,6 +15,17 @@
 
 struct lt3593_led_data {
 	char name[LED_MAX_NAME_SIZE];
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/slab.h>
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/property.h>
+
+#define LED_LT3593_NAME "lt3593"
+
+struct lt3593_led_data {
+>>>>>>> upstream/android-13
 	struct led_classdev cdev;
 	struct gpio_desc *gpiod;
 };
@@ -60,6 +72,7 @@ static int lt3593_led_set(struct led_classdev *led_cdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct lt3593_led_data *lt3593_led_probe_pdata(struct device *dev)
 {
 	struct gpio_led_platform_data *pdata = dev_get_platdata(dev);
@@ -104,12 +117,15 @@ static struct lt3593_led_data *lt3593_led_probe_pdata(struct device *dev)
 	return led_data;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int lt3593_led_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct lt3593_led_data *led_data;
 	struct fwnode_handle *child;
 	int ret, state = LEDS_GPIO_DEFSTATE_OFF;
+<<<<<<< HEAD
 	enum gpiod_flags flags = GPIOD_OUT_LOW;
 	const char *tmp;
 
@@ -124,6 +140,11 @@ static int lt3593_led_probe(struct platform_device *pdev)
 	if (!dev->of_node)
 		return -ENODEV;
 
+=======
+	struct led_init_data init_data = {};
+	const char *tmp;
+
+>>>>>>> upstream/android-13
 	led_data = devm_kzalloc(dev, sizeof(*led_data), GFP_KERNEL);
 	if (!led_data)
 		return -ENOMEM;
@@ -139,6 +160,7 @@ static int lt3593_led_probe(struct platform_device *pdev)
 
 	child = device_get_next_child_node(dev, NULL);
 
+<<<<<<< HEAD
 	ret = fwnode_property_read_string(child, "label", &tmp);
 	if (ret < 0)
 		snprintf(led_data->name, sizeof(led_data->name),
@@ -173,24 +195,53 @@ static int lt3593_led_probe(struct platform_device *pdev)
 	led_data->cdev.dev->of_node = dev->of_node;
 
 out:
+=======
+	if (!fwnode_property_read_string(child, "default-state", &tmp)) {
+		if (!strcmp(tmp, "on"))
+			state = LEDS_GPIO_DEFSTATE_ON;
+	}
+
+	led_data->cdev.brightness_set_blocking = lt3593_led_set;
+	led_data->cdev.brightness = state ? LED_FULL : LED_OFF;
+
+	init_data.fwnode = child;
+	init_data.devicename = LED_LT3593_NAME;
+	init_data.default_label = ":";
+
+	ret = devm_led_classdev_register_ext(dev, &led_data->cdev, &init_data);
+	fwnode_handle_put(child);
+	if (ret < 0)
+		return ret;
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, led_data);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id of_lt3593_leds_match[] = {
 	{ .compatible = "lltc,lt3593", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, of_lt3593_leds_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver lt3593_led_driver = {
 	.probe		= lt3593_led_probe,
 	.driver		= {
 		.name	= "leds-lt3593",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(of_lt3593_leds_match),
+=======
+		.of_match_table = of_lt3593_leds_match,
+>>>>>>> upstream/android-13
 	},
 };
 

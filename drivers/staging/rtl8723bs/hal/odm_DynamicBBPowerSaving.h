@@ -8,7 +8,11 @@
 #ifndef	__ODMDYNAMICBBPOWERSAVING_H__
 #define    __ODMDYNAMICBBPOWERSAVING_H__
 
+<<<<<<< HEAD
 typedef struct _Dynamic_Power_Saving_ {
+=======
+struct ps_t { /* _Dynamic_Power_Saving_ */
+>>>>>>> upstream/android-13
 	u8 PreCCAState;
 	u8 CurCCAState;
 
@@ -20,7 +24,11 @@ typedef struct _Dynamic_Power_Saving_ {
 	u8 initialize;
 	u32 Reg874, RegC70, Reg85C, RegA74;
 
+<<<<<<< HEAD
 } PS_T, *pPS_T;
+=======
+};
+>>>>>>> upstream/android-13
 
 #define dm_RF_Saving ODM_RF_Saving
 

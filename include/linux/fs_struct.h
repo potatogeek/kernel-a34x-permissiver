@@ -9,7 +9,11 @@
 struct fs_struct {
 	int users;
 	spinlock_t lock;
+<<<<<<< HEAD
 	seqcount_t seq;
+=======
+	seqcount_spinlock_t seq;
+>>>>>>> upstream/android-13
 	int umask;
 	int in_exec;
 	struct path root, pwd;

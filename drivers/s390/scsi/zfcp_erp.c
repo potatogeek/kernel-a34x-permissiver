@@ -4,7 +4,11 @@
  *
  * Error Recovery Procedures (ERP).
  *
+<<<<<<< HEAD
  * Copyright IBM Corp. 2002, 2016
+=======
+ * Copyright IBM Corp. 2002, 2020
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "zfcp"
@@ -14,6 +18,10 @@
 #include <linux/bug.h>
 #include "zfcp_ext.h"
 #include "zfcp_reqlist.h"
+<<<<<<< HEAD
+=======
+#include "zfcp_diag.h"
+>>>>>>> upstream/android-13
 
 #define ZFCP_MAX_ERPS                   3
 
@@ -25,6 +33,7 @@ enum zfcp_erp_act_flags {
 	ZFCP_STATUS_ERP_NO_REF		= 0x00800000,
 };
 
+<<<<<<< HEAD
 enum zfcp_erp_steps {
 	ZFCP_ERP_STEP_UNINITIALIZED	= 0x0000,
 	ZFCP_ERP_STEP_PHYS_PORT_CLOSING	= 0x0010,
@@ -57,6 +66,20 @@ enum zfcp_erp_act_type {
 	ZFCP_ERP_ACTION_NONE		   = 0xc0,
 	ZFCP_ERP_ACTION_FAILED		   = 0xe0,
 };
+=======
+/*
+ * Eyecatcher pseudo flag to bitwise or-combine with enum zfcp_erp_act_type.
+ * Used to indicate that an ERP action could not be set up despite a detected
+ * need for some recovery.
+ */
+#define ZFCP_ERP_ACTION_NONE		0xc0
+/*
+ * Eyecatcher pseudo flag to bitwise or-combine with enum zfcp_erp_act_type.
+ * Used to indicate that ERP not needed because the object has
+ * ZFCP_STATUS_COMMON_ERP_FAILED.
+ */
+#define ZFCP_ERP_ACTION_FAILED		0xe0
+>>>>>>> upstream/android-13
 
 enum zfcp_erp_act_result {
 	ZFCP_ERP_SUCCEEDED = 0,
@@ -87,7 +110,11 @@ static void zfcp_erp_action_ready(struct zfcp_erp_action *act)
 {
 	struct zfcp_adapter *adapter = act->adapter;
 
+<<<<<<< HEAD
 	list_move(&act->list, &act->adapter->erp_ready_head);
+=======
+	list_move(&act->list, &adapter->erp_ready_head);
+>>>>>>> upstream/android-13
 	zfcp_dbf_rec_run("erardy1", act);
 	wake_up(&adapter->erp_ready_wq);
 	zfcp_dbf_rec_run("erardy2", act);
@@ -137,11 +164,19 @@ static void zfcp_erp_action_dismiss_adapter(struct zfcp_adapter *adapter)
 	}
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_handle_failed(int want, struct zfcp_adapter *adapter,
 				  struct zfcp_port *port,
 				  struct scsi_device *sdev)
 {
 	int need = want;
+=======
+static enum zfcp_erp_act_type zfcp_erp_handle_failed(
+	enum zfcp_erp_act_type want, struct zfcp_adapter *adapter,
+	struct zfcp_port *port,	struct scsi_device *sdev)
+{
+	enum zfcp_erp_act_type need = want;
+>>>>>>> upstream/android-13
 	struct zfcp_scsi_dev *zsdev;
 
 	switch (want) {
@@ -177,11 +212,20 @@ static int zfcp_erp_handle_failed(int want, struct zfcp_adapter *adapter,
 	return need;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_required_act(int want, struct zfcp_adapter *adapter,
 				 struct zfcp_port *port,
 				 struct scsi_device *sdev)
 {
 	int need = want;
+=======
+static enum zfcp_erp_act_type zfcp_erp_required_act(enum zfcp_erp_act_type want,
+				 struct zfcp_adapter *adapter,
+				 struct zfcp_port *port,
+				 struct scsi_device *sdev)
+{
+	enum zfcp_erp_act_type need = want;
+>>>>>>> upstream/android-13
 	int l_status, p_status, a_status;
 	struct zfcp_scsi_dev *zfcp_sdev;
 
@@ -193,29 +237,49 @@ static int zfcp_erp_required_act(int want, struct zfcp_adapter *adapter,
 			return 0;
 		p_status = atomic_read(&port->status);
 		if (!(p_status & ZFCP_STATUS_COMMON_RUNNING) ||
+<<<<<<< HEAD
 		      p_status & ZFCP_STATUS_COMMON_ERP_FAILED)
 			return 0;
 		if (!(p_status & ZFCP_STATUS_COMMON_UNBLOCKED))
 			need = ZFCP_ERP_ACTION_REOPEN_PORT;
 		/* fall through */
+=======
+		    p_status & ZFCP_STATUS_COMMON_ERP_FAILED)
+			return 0;
+		if (!(p_status & ZFCP_STATUS_COMMON_UNBLOCKED))
+			need = ZFCP_ERP_ACTION_REOPEN_PORT;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
 		p_status = atomic_read(&port->status);
 		if (!(p_status & ZFCP_STATUS_COMMON_OPEN))
 			need = ZFCP_ERP_ACTION_REOPEN_PORT;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_PORT:
 		p_status = atomic_read(&port->status);
 		if (p_status & ZFCP_STATUS_COMMON_ERP_INUSE)
 			return 0;
 		a_status = atomic_read(&adapter->status);
 		if (!(a_status & ZFCP_STATUS_COMMON_RUNNING) ||
+<<<<<<< HEAD
 		      a_status & ZFCP_STATUS_COMMON_ERP_FAILED)
+=======
+		    a_status & ZFCP_STATUS_COMMON_ERP_FAILED)
+>>>>>>> upstream/android-13
 			return 0;
 		if (p_status & ZFCP_STATUS_COMMON_NOESC)
 			return need;
 		if (!(a_status & ZFCP_STATUS_COMMON_UNBLOCKED))
 			need = ZFCP_ERP_ACTION_REOPEN_ADAPTER;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
 		a_status = atomic_read(&adapter->status);
 		if (a_status & ZFCP_STATUS_COMMON_ERP_INUSE)
@@ -228,7 +292,12 @@ static int zfcp_erp_required_act(int want, struct zfcp_adapter *adapter,
 	return need;
 }
 
+<<<<<<< HEAD
 static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
+=======
+static struct zfcp_erp_action *zfcp_erp_setup_act(enum zfcp_erp_act_type need,
+						  u32 act_status,
+>>>>>>> upstream/android-13
 						  struct zfcp_adapter *adapter,
 						  struct zfcp_port *port,
 						  struct scsi_device *sdev)
@@ -282,9 +351,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
 		      ZFCP_STATUS_COMMON_RUNNING))
 			act_status |= ZFCP_STATUS_ERP_CLOSE_ONLY;
 		break;
+<<<<<<< HEAD
 
 	default:
 		return NULL;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	WARN_ON_ONCE(erp_action->adapter != adapter);
@@ -292,18 +364,32 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
 	memset(&erp_action->timer, 0, sizeof(erp_action->timer));
 	erp_action->step = ZFCP_ERP_STEP_UNINITIALIZED;
 	erp_action->fsf_req_id = 0;
+<<<<<<< HEAD
 	erp_action->action = need;
+=======
+	erp_action->type = need;
+>>>>>>> upstream/android-13
 	erp_action->status = act_status;
 
 	return erp_action;
 }
 
+<<<<<<< HEAD
 static void zfcp_erp_action_enqueue(int want, struct zfcp_adapter *adapter,
 				    struct zfcp_port *port,
 				    struct scsi_device *sdev,
 				    char *id, u32 act_status)
 {
 	int need;
+=======
+static void zfcp_erp_action_enqueue(enum zfcp_erp_act_type want,
+				    struct zfcp_adapter *adapter,
+				    struct zfcp_port *port,
+				    struct scsi_device *sdev,
+				    char *dbftag, u32 act_status)
+{
+	enum zfcp_erp_act_type need;
+>>>>>>> upstream/android-13
 	struct zfcp_erp_action *act;
 
 	need = zfcp_erp_handle_failed(want, adapter, port, sdev);
@@ -331,10 +417,18 @@ static void zfcp_erp_action_enqueue(int want, struct zfcp_adapter *adapter,
 	list_add_tail(&act->list, &adapter->erp_ready_head);
 	wake_up(&adapter->erp_ready_wq);
  out:
+<<<<<<< HEAD
 	zfcp_dbf_rec_trig(id, adapter, port, sdev, want, need);
 }
 
 void zfcp_erp_port_forced_no_port_dbf(char *id, struct zfcp_adapter *adapter,
+=======
+	zfcp_dbf_rec_trig(dbftag, adapter, port, sdev, want, need);
+}
+
+void zfcp_erp_port_forced_no_port_dbf(char *dbftag,
+				      struct zfcp_adapter *adapter,
+>>>>>>> upstream/android-13
 				      u64 port_name, u32 port_id)
 {
 	unsigned long flags;
@@ -348,29 +442,48 @@ void zfcp_erp_port_forced_no_port_dbf(char *id, struct zfcp_adapter *adapter,
 	atomic_set(&tmpport.status, -1); /* unknown */
 	tmpport.wwpn = port_name;
 	tmpport.d_id = port_id;
+<<<<<<< HEAD
 	zfcp_dbf_rec_trig(id, adapter, &tmpport, NULL,
+=======
+	zfcp_dbf_rec_trig(dbftag, adapter, &tmpport, NULL,
+>>>>>>> upstream/android-13
 			  ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
 			  ZFCP_ERP_ACTION_NONE);
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 }
 
 static void _zfcp_erp_adapter_reopen(struct zfcp_adapter *adapter,
+<<<<<<< HEAD
 				    int clear_mask, char *id)
+=======
+				    int clear_mask, char *dbftag)
+>>>>>>> upstream/android-13
 {
 	zfcp_erp_adapter_block(adapter, clear_mask);
 	zfcp_scsi_schedule_rports_block(adapter);
 
 	zfcp_erp_action_enqueue(ZFCP_ERP_ACTION_REOPEN_ADAPTER,
+<<<<<<< HEAD
 				adapter, NULL, NULL, id, 0);
+=======
+				adapter, NULL, NULL, dbftag, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
  * zfcp_erp_adapter_reopen - Reopen adapter.
  * @adapter: Adapter to reopen.
  * @clear: Status flags to clear.
+<<<<<<< HEAD
  * @id: Id for debug trace event.
  */
 void zfcp_erp_adapter_reopen(struct zfcp_adapter *adapter, int clear, char *id)
+=======
+ * @dbftag: Tag for debug trace event.
+ */
+void zfcp_erp_adapter_reopen(struct zfcp_adapter *adapter, int clear,
+			     char *dbftag)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
@@ -379,7 +492,11 @@ void zfcp_erp_adapter_reopen(struct zfcp_adapter *adapter, int clear, char *id)
 
 	write_lock_irqsave(&adapter->erp_lock, flags);
 	zfcp_erp_action_enqueue(ZFCP_ERP_ACTION_REOPEN_ADAPTER, adapter,
+<<<<<<< HEAD
 				NULL, NULL, id, 0);
+=======
+				NULL, NULL, dbftag, 0);
+>>>>>>> upstream/android-13
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 }
 
@@ -387,6 +504,7 @@ void zfcp_erp_adapter_reopen(struct zfcp_adapter *adapter, int clear, char *id)
  * zfcp_erp_adapter_shutdown - Shutdown adapter.
  * @adapter: Adapter to shut down.
  * @clear: Status flags to clear.
+<<<<<<< HEAD
  * @id: Id for debug trace event.
  */
 void zfcp_erp_adapter_shutdown(struct zfcp_adapter *adapter, int clear,
@@ -394,18 +512,36 @@ void zfcp_erp_adapter_shutdown(struct zfcp_adapter *adapter, int clear,
 {
 	int flags = ZFCP_STATUS_COMMON_RUNNING | ZFCP_STATUS_COMMON_ERP_FAILED;
 	zfcp_erp_adapter_reopen(adapter, clear | flags, id);
+=======
+ * @dbftag: Tag for debug trace event.
+ */
+void zfcp_erp_adapter_shutdown(struct zfcp_adapter *adapter, int clear,
+			       char *dbftag)
+{
+	int flags = ZFCP_STATUS_COMMON_RUNNING | ZFCP_STATUS_COMMON_ERP_FAILED;
+	zfcp_erp_adapter_reopen(adapter, clear | flags, dbftag);
+>>>>>>> upstream/android-13
 }
 
 /**
  * zfcp_erp_port_shutdown - Shutdown port
  * @port: Port to shut down.
  * @clear: Status flags to clear.
+<<<<<<< HEAD
  * @id: Id for debug trace event.
  */
 void zfcp_erp_port_shutdown(struct zfcp_port *port, int clear, char *id)
 {
 	int flags = ZFCP_STATUS_COMMON_RUNNING | ZFCP_STATUS_COMMON_ERP_FAILED;
 	zfcp_erp_port_reopen(port, clear | flags, id);
+=======
+ * @dbftag: Tag for debug trace event.
+ */
+void zfcp_erp_port_shutdown(struct zfcp_port *port, int clear, char *dbftag)
+{
+	int flags = ZFCP_STATUS_COMMON_RUNNING | ZFCP_STATUS_COMMON_ERP_FAILED;
+	zfcp_erp_port_reopen(port, clear | flags, dbftag);
+>>>>>>> upstream/android-13
 }
 
 static void zfcp_erp_port_block(struct zfcp_port *port, int clear)
@@ -415,53 +551,92 @@ static void zfcp_erp_port_block(struct zfcp_port *port, int clear)
 }
 
 static void _zfcp_erp_port_forced_reopen(struct zfcp_port *port, int clear,
+<<<<<<< HEAD
 					 char *id)
+=======
+					 char *dbftag)
+>>>>>>> upstream/android-13
 {
 	zfcp_erp_port_block(port, clear);
 	zfcp_scsi_schedule_rport_block(port);
 
 	zfcp_erp_action_enqueue(ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
+<<<<<<< HEAD
 				port->adapter, port, NULL, id, 0);
+=======
+				port->adapter, port, NULL, dbftag, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
  * zfcp_erp_port_forced_reopen - Forced close of port and open again
  * @port: Port to force close and to reopen.
  * @clear: Status flags to clear.
+<<<<<<< HEAD
  * @id: Id for debug trace event.
  */
 void zfcp_erp_port_forced_reopen(struct zfcp_port *port, int clear, char *id)
+=======
+ * @dbftag: Tag for debug trace event.
+ */
+void zfcp_erp_port_forced_reopen(struct zfcp_port *port, int clear,
+				 char *dbftag)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct zfcp_adapter *adapter = port->adapter;
 
 	write_lock_irqsave(&adapter->erp_lock, flags);
+<<<<<<< HEAD
 	_zfcp_erp_port_forced_reopen(port, clear, id);
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 }
 
 static void _zfcp_erp_port_reopen(struct zfcp_port *port, int clear, char *id)
+=======
+	_zfcp_erp_port_forced_reopen(port, clear, dbftag);
+	write_unlock_irqrestore(&adapter->erp_lock, flags);
+}
+
+static void _zfcp_erp_port_reopen(struct zfcp_port *port, int clear,
+				  char *dbftag)
+>>>>>>> upstream/android-13
 {
 	zfcp_erp_port_block(port, clear);
 	zfcp_scsi_schedule_rport_block(port);
 
 	zfcp_erp_action_enqueue(ZFCP_ERP_ACTION_REOPEN_PORT,
+<<<<<<< HEAD
 				port->adapter, port, NULL, id, 0);
+=======
+				port->adapter, port, NULL, dbftag, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
  * zfcp_erp_port_reopen - trigger remote port recovery
  * @port: port to recover
+<<<<<<< HEAD
  * @clear_mask: flags in port status to be cleared
  * @id: Id for debug trace event.
  */
 void zfcp_erp_port_reopen(struct zfcp_port *port, int clear, char *id)
+=======
+ * @clear: flags in port status to be cleared
+ * @dbftag: Tag for debug trace event.
+ */
+void zfcp_erp_port_reopen(struct zfcp_port *port, int clear, char *dbftag)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct zfcp_adapter *adapter = port->adapter;
 
 	write_lock_irqsave(&adapter->erp_lock, flags);
+<<<<<<< HEAD
 	_zfcp_erp_port_reopen(port, clear, id);
+=======
+	_zfcp_erp_port_reopen(port, clear, dbftag);
+>>>>>>> upstream/android-13
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 }
 
@@ -471,8 +646,13 @@ static void zfcp_erp_lun_block(struct scsi_device *sdev, int clear_mask)
 				  ZFCP_STATUS_COMMON_UNBLOCKED | clear_mask);
 }
 
+<<<<<<< HEAD
 static void _zfcp_erp_lun_reopen(struct scsi_device *sdev, int clear, char *id,
 				 u32 act_status)
+=======
+static void _zfcp_erp_lun_reopen(struct scsi_device *sdev, int clear,
+				 char *dbftag, u32 act_status)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
 	struct zfcp_adapter *adapter = zfcp_sdev->port->adapter;
@@ -480,18 +660,31 @@ static void _zfcp_erp_lun_reopen(struct scsi_device *sdev, int clear, char *id,
 	zfcp_erp_lun_block(sdev, clear);
 
 	zfcp_erp_action_enqueue(ZFCP_ERP_ACTION_REOPEN_LUN, adapter,
+<<<<<<< HEAD
 				zfcp_sdev->port, sdev, id, act_status);
+=======
+				zfcp_sdev->port, sdev, dbftag, act_status);
+>>>>>>> upstream/android-13
 }
 
 /**
  * zfcp_erp_lun_reopen - initiate reopen of a LUN
  * @sdev: SCSI device / LUN to be reopened
+<<<<<<< HEAD
  * @clear_mask: specifies flags in LUN status to be cleared
  * @id: Id for debug trace event.
  *
  * Return: 0 on success, < 0 on error
  */
 void zfcp_erp_lun_reopen(struct scsi_device *sdev, int clear, char *id)
+=======
+ * @clear: specifies flags in LUN status to be cleared
+ * @dbftag: Tag for debug trace event.
+ *
+ * Return: 0 on success, < 0 on error
+ */
+void zfcp_erp_lun_reopen(struct scsi_device *sdev, int clear, char *dbftag)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
@@ -499,7 +692,11 @@ void zfcp_erp_lun_reopen(struct scsi_device *sdev, int clear, char *id)
 	struct zfcp_adapter *adapter = port->adapter;
 
 	write_lock_irqsave(&adapter->erp_lock, flags);
+<<<<<<< HEAD
 	_zfcp_erp_lun_reopen(sdev, clear, id, 0);
+=======
+	_zfcp_erp_lun_reopen(sdev, clear, dbftag, 0);
+>>>>>>> upstream/android-13
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 }
 
@@ -507,25 +704,42 @@ void zfcp_erp_lun_reopen(struct scsi_device *sdev, int clear, char *id)
  * zfcp_erp_lun_shutdown - Shutdown LUN
  * @sdev: SCSI device / LUN to shut down.
  * @clear: Status flags to clear.
+<<<<<<< HEAD
  * @id: Id for debug trace event.
  */
 void zfcp_erp_lun_shutdown(struct scsi_device *sdev, int clear, char *id)
 {
 	int flags = ZFCP_STATUS_COMMON_RUNNING | ZFCP_STATUS_COMMON_ERP_FAILED;
 	zfcp_erp_lun_reopen(sdev, clear | flags, id);
+=======
+ * @dbftag: Tag for debug trace event.
+ */
+void zfcp_erp_lun_shutdown(struct scsi_device *sdev, int clear, char *dbftag)
+{
+	int flags = ZFCP_STATUS_COMMON_RUNNING | ZFCP_STATUS_COMMON_ERP_FAILED;
+	zfcp_erp_lun_reopen(sdev, clear | flags, dbftag);
+>>>>>>> upstream/android-13
 }
 
 /**
  * zfcp_erp_lun_shutdown_wait - Shutdown LUN and wait for erp completion
  * @sdev: SCSI device / LUN to shut down.
+<<<<<<< HEAD
  * @id: Id for debug trace event.
+=======
+ * @dbftag: Tag for debug trace event.
+>>>>>>> upstream/android-13
  *
  * Do not acquire a reference for the LUN when creating the ERP
  * action. It is safe, because this function waits for the ERP to
  * complete first. This allows to shutdown the LUN, even when the SCSI
  * device is in the state SDEV_DEL when scsi_device_get will fail.
  */
+<<<<<<< HEAD
 void zfcp_erp_lun_shutdown_wait(struct scsi_device *sdev, char *id)
+=======
+void zfcp_erp_lun_shutdown_wait(struct scsi_device *sdev, char *dbftag)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
@@ -534,7 +748,11 @@ void zfcp_erp_lun_shutdown_wait(struct scsi_device *sdev, char *id)
 	int clear = ZFCP_STATUS_COMMON_RUNNING | ZFCP_STATUS_COMMON_ERP_FAILED;
 
 	write_lock_irqsave(&adapter->erp_lock, flags);
+<<<<<<< HEAD
 	_zfcp_erp_lun_reopen(sdev, clear, id, ZFCP_STATUS_ERP_NO_REF);
+=======
+	_zfcp_erp_lun_reopen(sdev, clear, dbftag, ZFCP_STATUS_ERP_NO_REF);
+>>>>>>> upstream/android-13
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 
 	zfcp_erp_wait(adapter);
@@ -626,7 +844,11 @@ void zfcp_erp_notify(struct zfcp_erp_action *erp_action, unsigned long set_mask)
 
 /**
  * zfcp_erp_timeout_handler - Trigger ERP action from timed out ERP request
+<<<<<<< HEAD
  * @data: ERP action (from timer data)
+=======
+ * @t: timer list entry embedded in zfcp FSF request
+>>>>>>> upstream/android-13
  */
 void zfcp_erp_timeout_handler(struct timer_list *t)
 {
@@ -671,31 +893,51 @@ void zfcp_erp_port_forced_reopen_all(struct zfcp_adapter *adapter,
 }
 
 static void _zfcp_erp_port_reopen_all(struct zfcp_adapter *adapter,
+<<<<<<< HEAD
 				      int clear, char *id)
+=======
+				      int clear, char *dbftag)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_port *port;
 
 	read_lock(&adapter->port_list_lock);
 	list_for_each_entry(port, &adapter->port_list, list)
+<<<<<<< HEAD
 		_zfcp_erp_port_reopen(port, clear, id);
+=======
+		_zfcp_erp_port_reopen(port, clear, dbftag);
+>>>>>>> upstream/android-13
 	read_unlock(&adapter->port_list_lock);
 }
 
 static void _zfcp_erp_lun_reopen_all(struct zfcp_port *port, int clear,
+<<<<<<< HEAD
 				     char *id)
+=======
+				     char *dbftag)
+>>>>>>> upstream/android-13
 {
 	struct scsi_device *sdev;
 
 	spin_lock(port->adapter->scsi_host->host_lock);
 	__shost_for_each_device(sdev, port->adapter->scsi_host)
 		if (sdev_to_zfcp(sdev)->port == port)
+<<<<<<< HEAD
 			_zfcp_erp_lun_reopen(sdev, clear, id, 0);
+=======
+			_zfcp_erp_lun_reopen(sdev, clear, dbftag, 0);
+>>>>>>> upstream/android-13
 	spin_unlock(port->adapter->scsi_host->host_lock);
 }
 
 static void zfcp_erp_strategy_followup_failed(struct zfcp_erp_action *act)
 {
+<<<<<<< HEAD
 	switch (act->action) {
+=======
+	switch (act->type) {
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
 		_zfcp_erp_adapter_reopen(act->adapter, 0, "ersff_1");
 		break;
@@ -713,7 +955,11 @@ static void zfcp_erp_strategy_followup_failed(struct zfcp_erp_action *act)
 
 static void zfcp_erp_strategy_followup_success(struct zfcp_erp_action *act)
 {
+<<<<<<< HEAD
 	switch (act->action) {
+=======
+	switch (act->type) {
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
 		_zfcp_erp_port_reopen_all(act->adapter, 0, "ersfs_1");
 		break;
@@ -723,6 +969,12 @@ static void zfcp_erp_strategy_followup_success(struct zfcp_erp_action *act)
 	case ZFCP_ERP_ACTION_REOPEN_PORT:
 		_zfcp_erp_lun_reopen_all(act->port, 0, "ersfs_3");
 		break;
+<<<<<<< HEAD
+=======
+	case ZFCP_ERP_ACTION_REOPEN_LUN:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -750,7 +1002,12 @@ static void zfcp_erp_enqueue_ptp_port(struct zfcp_adapter *adapter)
 	zfcp_erp_port_reopen(port, 0, "ereptp1");
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_adapter_strat_fsf_xconf(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_adapter_strat_fsf_xconf(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	int retries;
 	int sleep = 1;
@@ -789,6 +1046,7 @@ static int zfcp_erp_adapter_strat_fsf_xconf(struct zfcp_erp_action *erp_action)
 	if (!(atomic_read(&adapter->status) & ZFCP_STATUS_ADAPTER_XCONFIG_OK))
 		return ZFCP_ERP_FAILED;
 
+<<<<<<< HEAD
 	if (fc_host_port_type(adapter->scsi_host) == FC_PORTTYPE_PTP)
 		zfcp_erp_enqueue_ptp_port(adapter);
 
@@ -796,6 +1054,20 @@ static int zfcp_erp_adapter_strat_fsf_xconf(struct zfcp_erp_action *erp_action)
 }
 
 static int zfcp_erp_adapter_strategy_open_fsf_xport(struct zfcp_erp_action *act)
+=======
+	return ZFCP_ERP_SUCCEEDED;
+}
+
+static void
+zfcp_erp_adapter_strategy_open_ptp_port(struct zfcp_adapter *const adapter)
+{
+	if (fc_host_port_type(adapter->scsi_host) == FC_PORTTYPE_PTP)
+		zfcp_erp_enqueue_ptp_port(adapter);
+}
+
+static enum zfcp_erp_act_result zfcp_erp_adapter_strategy_open_fsf_xport(
+	struct zfcp_erp_action *act)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct zfcp_adapter *adapter = act->adapter;
@@ -820,7 +1092,65 @@ static int zfcp_erp_adapter_strategy_open_fsf_xport(struct zfcp_erp_action *act)
 	return ZFCP_ERP_SUCCEEDED;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_adapter_strategy_open_fsf(struct zfcp_erp_action *act)
+=======
+static enum zfcp_erp_act_result
+zfcp_erp_adapter_strategy_alloc_shost(struct zfcp_adapter *const adapter)
+{
+	struct zfcp_diag_adapter_config_data *const config_data =
+		&adapter->diagnostics->config_data;
+	struct zfcp_diag_adapter_port_data *const port_data =
+		&adapter->diagnostics->port_data;
+	unsigned long flags;
+	int rc;
+
+	rc = zfcp_scsi_adapter_register(adapter);
+	if (rc == -EEXIST)
+		return ZFCP_ERP_SUCCEEDED;
+	else if (rc)
+		return ZFCP_ERP_FAILED;
+
+	/*
+	 * We allocated the shost for the first time. Before it was NULL,
+	 * and so we deferred all updates in the xconf- and xport-data
+	 * handlers. We need to make up for that now, and make all the updates
+	 * that would have been done before.
+	 *
+	 * We can be sure that xconf- and xport-data succeeded, because
+	 * otherwise this function is not called. But they might have been
+	 * incomplete.
+	 */
+
+	spin_lock_irqsave(&config_data->header.access_lock, flags);
+	zfcp_scsi_shost_update_config_data(adapter, &config_data->data,
+					   !!config_data->header.incomplete);
+	spin_unlock_irqrestore(&config_data->header.access_lock, flags);
+
+	if (adapter->adapter_features & FSF_FEATURE_HBAAPI_MANAGEMENT) {
+		spin_lock_irqsave(&port_data->header.access_lock, flags);
+		zfcp_scsi_shost_update_port_data(adapter, &port_data->data);
+		spin_unlock_irqrestore(&port_data->header.access_lock, flags);
+	}
+
+	/*
+	 * There is a remote possibility that the 'Exchange Port Data' request
+	 * reports a different connectivity status than 'Exchange Config Data'.
+	 * But any change to the connectivity status of the local optic that
+	 * happens after the initial xconf request is expected to be reported
+	 * to us, as soon as we post Status Read Buffers to the FCP channel
+	 * firmware after this function. So any resulting inconsistency will
+	 * only be momentary.
+	 */
+	if (config_data->header.incomplete)
+		zfcp_fsf_fc_host_link_down(adapter);
+
+	return ZFCP_ERP_SUCCEEDED;
+}
+
+static enum zfcp_erp_act_result zfcp_erp_adapter_strategy_open_fsf(
+	struct zfcp_erp_action *act)
+>>>>>>> upstream/android-13
 {
 	if (zfcp_erp_adapter_strat_fsf_xconf(act) == ZFCP_ERP_FAILED)
 		return ZFCP_ERP_FAILED;
@@ -828,6 +1158,15 @@ static int zfcp_erp_adapter_strategy_open_fsf(struct zfcp_erp_action *act)
 	if (zfcp_erp_adapter_strategy_open_fsf_xport(act) == ZFCP_ERP_FAILED)
 		return ZFCP_ERP_FAILED;
 
+<<<<<<< HEAD
+=======
+	if (zfcp_erp_adapter_strategy_alloc_shost(act->adapter) ==
+	    ZFCP_ERP_FAILED)
+		return ZFCP_ERP_FAILED;
+
+	zfcp_erp_adapter_strategy_open_ptp_port(act->adapter);
+
+>>>>>>> upstream/android-13
 	if (mempool_resize(act->adapter->pool.sr_data,
 			   act->adapter->stat_read_buf_num))
 		return ZFCP_ERP_FAILED;
@@ -859,7 +1198,12 @@ static void zfcp_erp_adapter_strategy_close(struct zfcp_erp_action *act)
 			  ZFCP_STATUS_ADAPTER_LINK_UNPLUGGED, &adapter->status);
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_adapter_strategy_open(struct zfcp_erp_action *act)
+=======
+static enum zfcp_erp_act_result zfcp_erp_adapter_strategy_open(
+	struct zfcp_erp_action *act)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_adapter *adapter = act->adapter;
 
@@ -880,7 +1224,12 @@ static int zfcp_erp_adapter_strategy_open(struct zfcp_erp_action *act)
 	return ZFCP_ERP_SUCCEEDED;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_adapter_strategy(struct zfcp_erp_action *act)
+=======
+static enum zfcp_erp_act_result zfcp_erp_adapter_strategy(
+	struct zfcp_erp_action *act)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_adapter *adapter = act->adapter;
 
@@ -898,7 +1247,12 @@ static int zfcp_erp_adapter_strategy(struct zfcp_erp_action *act)
 	return ZFCP_ERP_SUCCEEDED;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_port_forced_strategy_close(struct zfcp_erp_action *act)
+=======
+static enum zfcp_erp_act_result zfcp_erp_port_forced_strategy_close(
+	struct zfcp_erp_action *act)
+>>>>>>> upstream/android-13
 {
 	int retval;
 
@@ -912,7 +1266,12 @@ static int zfcp_erp_port_forced_strategy_close(struct zfcp_erp_action *act)
 	return ZFCP_ERP_CONTINUES;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_port_forced_strategy(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_port_forced_strategy(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_port *port = erp_action->port;
 	int status = atomic_read(&port->status);
@@ -928,11 +1287,26 @@ static int zfcp_erp_port_forced_strategy(struct zfcp_erp_action *erp_action)
 	case ZFCP_ERP_STEP_PHYS_PORT_CLOSING:
 		if (!(status & ZFCP_STATUS_PORT_PHYS_OPEN))
 			return ZFCP_ERP_SUCCEEDED;
+<<<<<<< HEAD
+=======
+		break;
+	case ZFCP_ERP_STEP_PORT_CLOSING:
+	case ZFCP_ERP_STEP_PORT_OPENING:
+	case ZFCP_ERP_STEP_LUN_CLOSING:
+	case ZFCP_ERP_STEP_LUN_OPENING:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 	return ZFCP_ERP_FAILED;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_port_strategy_close(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_port_strategy_close(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	int retval;
 
@@ -945,7 +1319,12 @@ static int zfcp_erp_port_strategy_close(struct zfcp_erp_action *erp_action)
 	return ZFCP_ERP_CONTINUES;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_port_strategy_open_port(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_port_strategy_open_port(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	int retval;
 
@@ -971,7 +1350,12 @@ static int zfcp_erp_open_ptp_port(struct zfcp_erp_action *act)
 	return zfcp_erp_port_strategy_open_port(act);
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_port_strategy_open_common(struct zfcp_erp_action *act)
+=======
+static enum zfcp_erp_act_result zfcp_erp_port_strategy_open_common(
+	struct zfcp_erp_action *act)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_adapter *adapter = act->adapter;
 	struct zfcp_port *port = act->port;
@@ -1002,12 +1386,26 @@ static int zfcp_erp_port_strategy_open_common(struct zfcp_erp_action *act)
 			port->d_id = 0;
 			return ZFCP_ERP_FAILED;
 		}
+<<<<<<< HEAD
 		/* fall through otherwise */
+=======
+		/* no early return otherwise, continue after switch case */
+		break;
+	case ZFCP_ERP_STEP_LUN_CLOSING:
+	case ZFCP_ERP_STEP_LUN_OPENING:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 	return ZFCP_ERP_FAILED;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_port_strategy(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_port_strategy(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_port *port = erp_action->port;
 	int p_status = atomic_read(&port->status);
@@ -1026,6 +1424,15 @@ static int zfcp_erp_port_strategy(struct zfcp_erp_action *erp_action)
 		if (p_status & ZFCP_STATUS_COMMON_OPEN)
 			return ZFCP_ERP_FAILED;
 		break;
+<<<<<<< HEAD
+=======
+	case ZFCP_ERP_STEP_PHYS_PORT_CLOSING:
+	case ZFCP_ERP_STEP_PORT_OPENING:
+	case ZFCP_ERP_STEP_LUN_CLOSING:
+	case ZFCP_ERP_STEP_LUN_OPENING:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 
 close_init_done:
@@ -1043,7 +1450,12 @@ static void zfcp_erp_lun_strategy_clearstati(struct scsi_device *sdev)
 			  &zfcp_sdev->status);
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_lun_strategy_close(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_lun_strategy_close(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	int retval = zfcp_fsf_close_lun(erp_action);
 	if (retval == -ENOMEM)
@@ -1054,7 +1466,12 @@ static int zfcp_erp_lun_strategy_close(struct zfcp_erp_action *erp_action)
 	return ZFCP_ERP_CONTINUES;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_lun_strategy_open(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_lun_strategy_open(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	int retval = zfcp_fsf_open_lun(erp_action);
 	if (retval == -ENOMEM)
@@ -1065,7 +1482,12 @@ static int zfcp_erp_lun_strategy_open(struct zfcp_erp_action *erp_action)
 	return ZFCP_ERP_CONTINUES;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_lun_strategy(struct zfcp_erp_action *erp_action)
+=======
+static enum zfcp_erp_act_result zfcp_erp_lun_strategy(
+	struct zfcp_erp_action *erp_action)
+>>>>>>> upstream/android-13
 {
 	struct scsi_device *sdev = erp_action->sdev;
 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
@@ -1075,7 +1497,12 @@ static int zfcp_erp_lun_strategy(struct zfcp_erp_action *erp_action)
 		zfcp_erp_lun_strategy_clearstati(sdev);
 		if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
 			return zfcp_erp_lun_strategy_close(erp_action);
+<<<<<<< HEAD
 		/* already closed, fall through */
+=======
+		/* already closed */
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_STEP_LUN_CLOSING:
 		if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
 			return ZFCP_ERP_FAILED;
@@ -1086,11 +1513,25 @@ static int zfcp_erp_lun_strategy(struct zfcp_erp_action *erp_action)
 	case ZFCP_ERP_STEP_LUN_OPENING:
 		if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
 			return ZFCP_ERP_SUCCEEDED;
+<<<<<<< HEAD
+=======
+		break;
+	case ZFCP_ERP_STEP_PHYS_PORT_CLOSING:
+	case ZFCP_ERP_STEP_PORT_CLOSING:
+	case ZFCP_ERP_STEP_PORT_OPENING:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 	return ZFCP_ERP_FAILED;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_strategy_check_lun(struct scsi_device *sdev, int result)
+=======
+static enum zfcp_erp_act_result zfcp_erp_strategy_check_lun(
+	struct scsi_device *sdev, enum zfcp_erp_act_result result)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_scsi_dev *zfcp_sdev = sdev_to_zfcp(sdev);
 
@@ -1111,6 +1552,15 @@ static int zfcp_erp_strategy_check_lun(struct scsi_device *sdev, int result)
 						ZFCP_STATUS_COMMON_ERP_FAILED);
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case ZFCP_ERP_CONTINUES:
+	case ZFCP_ERP_EXIT:
+	case ZFCP_ERP_DISMISSED:
+	case ZFCP_ERP_NOMEM:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_ERP_FAILED) {
@@ -1120,7 +1570,12 @@ static int zfcp_erp_strategy_check_lun(struct scsi_device *sdev, int result)
 	return result;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_strategy_check_port(struct zfcp_port *port, int result)
+=======
+static enum zfcp_erp_act_result zfcp_erp_strategy_check_port(
+	struct zfcp_port *port, enum zfcp_erp_act_result result)
+>>>>>>> upstream/android-13
 {
 	switch (result) {
 	case ZFCP_ERP_SUCCEEDED :
@@ -1142,6 +1597,15 @@ static int zfcp_erp_strategy_check_port(struct zfcp_port *port, int result)
 					 ZFCP_STATUS_COMMON_ERP_FAILED);
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case ZFCP_ERP_CONTINUES:
+	case ZFCP_ERP_EXIT:
+	case ZFCP_ERP_DISMISSED:
+	case ZFCP_ERP_NOMEM:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (atomic_read(&port->status) & ZFCP_STATUS_COMMON_ERP_FAILED) {
@@ -1151,8 +1615,13 @@ static int zfcp_erp_strategy_check_port(struct zfcp_port *port, int result)
 	return result;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_strategy_check_adapter(struct zfcp_adapter *adapter,
 					   int result)
+=======
+static enum zfcp_erp_act_result zfcp_erp_strategy_check_adapter(
+	struct zfcp_adapter *adapter, enum zfcp_erp_act_result result)
+>>>>>>> upstream/android-13
 {
 	switch (result) {
 	case ZFCP_ERP_SUCCEEDED :
@@ -1170,6 +1639,15 @@ static int zfcp_erp_strategy_check_adapter(struct zfcp_adapter *adapter,
 					    ZFCP_STATUS_COMMON_ERP_FAILED);
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case ZFCP_ERP_CONTINUES:
+	case ZFCP_ERP_EXIT:
+	case ZFCP_ERP_DISMISSED:
+	case ZFCP_ERP_NOMEM:
+		/* NOP */
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (atomic_read(&adapter->status) & ZFCP_STATUS_COMMON_ERP_FAILED) {
@@ -1179,14 +1657,23 @@ static int zfcp_erp_strategy_check_adapter(struct zfcp_adapter *adapter,
 	return result;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_strategy_check_target(struct zfcp_erp_action *erp_action,
 					  int result)
+=======
+static enum zfcp_erp_act_result zfcp_erp_strategy_check_target(
+	struct zfcp_erp_action *erp_action, enum zfcp_erp_act_result result)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_adapter *adapter = erp_action->adapter;
 	struct zfcp_port *port = erp_action->port;
 	struct scsi_device *sdev = erp_action->sdev;
 
+<<<<<<< HEAD
 	switch (erp_action->action) {
+=======
+	switch (erp_action->type) {
+>>>>>>> upstream/android-13
 
 	case ZFCP_ERP_ACTION_REOPEN_LUN:
 		result = zfcp_erp_strategy_check_lun(sdev, result);
@@ -1219,16 +1706,27 @@ static int zfcp_erp_strat_change_det(atomic_t *target_status, u32 erp_status)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_strategy_statechange(struct zfcp_erp_action *act, int ret)
 {
 	int action = act->action;
+=======
+static enum zfcp_erp_act_result zfcp_erp_strategy_statechange(
+	struct zfcp_erp_action *act, enum zfcp_erp_act_result result)
+{
+	enum zfcp_erp_act_type type = act->type;
+>>>>>>> upstream/android-13
 	struct zfcp_adapter *adapter = act->adapter;
 	struct zfcp_port *port = act->port;
 	struct scsi_device *sdev = act->sdev;
 	struct zfcp_scsi_dev *zfcp_sdev;
 	u32 erp_status = act->status;
 
+<<<<<<< HEAD
 	switch (action) {
+=======
+	switch (type) {
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
 		if (zfcp_erp_strat_change_det(&adapter->status, erp_status)) {
 			_zfcp_erp_adapter_reopen(adapter,
@@ -1258,7 +1756,11 @@ static int zfcp_erp_strategy_statechange(struct zfcp_erp_action *act, int ret)
 		}
 		break;
 	}
+<<<<<<< HEAD
 	return ret;
+=======
+	return result;
+>>>>>>> upstream/android-13
 }
 
 static void zfcp_erp_action_dequeue(struct zfcp_erp_action *erp_action)
@@ -1275,7 +1777,11 @@ static void zfcp_erp_action_dequeue(struct zfcp_erp_action *erp_action)
 	list_del(&erp_action->list);
 	zfcp_dbf_rec_run("eractd1", erp_action);
 
+<<<<<<< HEAD
 	switch (erp_action->action) {
+=======
+	switch (erp_action->type) {
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_LUN:
 		zfcp_sdev = sdev_to_zfcp(erp_action->sdev);
 		atomic_andnot(ZFCP_STATUS_COMMON_ERP_INUSE,
@@ -1354,13 +1860,22 @@ static void zfcp_erp_try_rport_unblock(struct zfcp_port *port)
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 }
 
+<<<<<<< HEAD
 static void zfcp_erp_action_cleanup(struct zfcp_erp_action *act, int result)
+=======
+static void zfcp_erp_action_cleanup(struct zfcp_erp_action *act,
+				    enum zfcp_erp_act_result result)
+>>>>>>> upstream/android-13
 {
 	struct zfcp_adapter *adapter = act->adapter;
 	struct zfcp_port *port = act->port;
 	struct scsi_device *sdev = act->sdev;
 
+<<<<<<< HEAD
 	switch (act->action) {
+=======
+	switch (act->type) {
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_LUN:
 		if (!(act->status & ZFCP_STATUS_ERP_NO_REF))
 			scsi_device_put(sdev);
@@ -1376,7 +1891,11 @@ static void zfcp_erp_action_cleanup(struct zfcp_erp_action *act, int result)
 		if (act->step != ZFCP_ERP_STEP_UNINITIALIZED)
 			if (result == ZFCP_ERP_SUCCEEDED)
 				zfcp_erp_try_rport_unblock(port);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
 		put_device(&port->dev);
 		break;
@@ -1394,9 +1913,16 @@ static void zfcp_erp_action_cleanup(struct zfcp_erp_action *act, int result)
 	}
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_strategy_do_action(struct zfcp_erp_action *erp_action)
 {
 	switch (erp_action->action) {
+=======
+static enum zfcp_erp_act_result zfcp_erp_strategy_do_action(
+	struct zfcp_erp_action *erp_action)
+{
+	switch (erp_action->type) {
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
 		return zfcp_erp_adapter_strategy(erp_action);
 	case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
@@ -1409,9 +1935,16 @@ static int zfcp_erp_strategy_do_action(struct zfcp_erp_action *erp_action)
 	return ZFCP_ERP_FAILED;
 }
 
+<<<<<<< HEAD
 static int zfcp_erp_strategy(struct zfcp_erp_action *erp_action)
 {
 	int retval;
+=======
+static enum zfcp_erp_act_result zfcp_erp_strategy(
+	struct zfcp_erp_action *erp_action)
+{
+	enum zfcp_erp_act_result result;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct zfcp_adapter *adapter = erp_action->adapter;
 
@@ -1422,12 +1955,20 @@ static int zfcp_erp_strategy(struct zfcp_erp_action *erp_action)
 
 	if (erp_action->status & ZFCP_STATUS_ERP_DISMISSED) {
 		zfcp_erp_action_dequeue(erp_action);
+<<<<<<< HEAD
 		retval = ZFCP_ERP_DISMISSED;
+=======
+		result = ZFCP_ERP_DISMISSED;
+>>>>>>> upstream/android-13
 		goto unlock;
 	}
 
 	if (erp_action->status & ZFCP_STATUS_ERP_TIMEDOUT) {
+<<<<<<< HEAD
 		retval = ZFCP_ERP_FAILED;
+=======
+		result = ZFCP_ERP_FAILED;
+>>>>>>> upstream/android-13
 		goto check_target;
 	}
 
@@ -1435,6 +1976,7 @@ static int zfcp_erp_strategy(struct zfcp_erp_action *erp_action)
 
 	/* no lock to allow for blocking operations */
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
+<<<<<<< HEAD
 	retval = zfcp_erp_strategy_do_action(erp_action);
 	write_lock_irqsave(&adapter->erp_lock, flags);
 
@@ -1442,6 +1984,15 @@ static int zfcp_erp_strategy(struct zfcp_erp_action *erp_action)
 		retval = ZFCP_ERP_CONTINUES;
 
 	switch (retval) {
+=======
+	result = zfcp_erp_strategy_do_action(erp_action);
+	write_lock_irqsave(&adapter->erp_lock, flags);
+
+	if (erp_action->status & ZFCP_STATUS_ERP_DISMISSED)
+		result = ZFCP_ERP_CONTINUES;
+
+	switch (result) {
+>>>>>>> upstream/android-13
 	case ZFCP_ERP_NOMEM:
 		if (!(erp_action->status & ZFCP_STATUS_ERP_LOWMEM)) {
 			++adapter->erp_low_mem_count;
@@ -1451,7 +2002,11 @@ static int zfcp_erp_strategy(struct zfcp_erp_action *erp_action)
 			_zfcp_erp_adapter_reopen(adapter, 0, "erstgy1");
 		else {
 			zfcp_erp_strategy_memwait(erp_action);
+<<<<<<< HEAD
 			retval = ZFCP_ERP_CONTINUES;
+=======
+			result = ZFCP_ERP_CONTINUES;
+>>>>>>> upstream/android-13
 		}
 		goto unlock;
 
@@ -1461,6 +2016,7 @@ static int zfcp_erp_strategy(struct zfcp_erp_action *erp_action)
 			erp_action->status &= ~ZFCP_STATUS_ERP_LOWMEM;
 		}
 		goto unlock;
+<<<<<<< HEAD
 	}
 
 check_target:
@@ -1472,22 +2028,52 @@ check_target:
 	if (retval == ZFCP_ERP_SUCCEEDED)
 		zfcp_erp_strategy_followup_success(erp_action);
 	if (retval == ZFCP_ERP_FAILED)
+=======
+	case ZFCP_ERP_SUCCEEDED:
+	case ZFCP_ERP_FAILED:
+	case ZFCP_ERP_EXIT:
+	case ZFCP_ERP_DISMISSED:
+		/* NOP */
+		break;
+	}
+
+check_target:
+	result = zfcp_erp_strategy_check_target(erp_action, result);
+	zfcp_erp_action_dequeue(erp_action);
+	result = zfcp_erp_strategy_statechange(erp_action, result);
+	if (result == ZFCP_ERP_EXIT)
+		goto unlock;
+	if (result == ZFCP_ERP_SUCCEEDED)
+		zfcp_erp_strategy_followup_success(erp_action);
+	if (result == ZFCP_ERP_FAILED)
+>>>>>>> upstream/android-13
 		zfcp_erp_strategy_followup_failed(erp_action);
 
  unlock:
 	write_unlock_irqrestore(&adapter->erp_lock, flags);
 
+<<<<<<< HEAD
 	if (retval != ZFCP_ERP_CONTINUES)
 		zfcp_erp_action_cleanup(erp_action, retval);
 
 	kref_put(&adapter->ref, zfcp_adapter_release);
 	return retval;
+=======
+	if (result != ZFCP_ERP_CONTINUES)
+		zfcp_erp_action_cleanup(erp_action, result);
+
+	kref_put(&adapter->ref, zfcp_adapter_release);
+	return result;
+>>>>>>> upstream/android-13
 }
 
 static int zfcp_erp_thread(void *data)
 {
 	struct zfcp_adapter *adapter = (struct zfcp_adapter *) data;
+<<<<<<< HEAD
 	struct list_head *next;
+=======
+>>>>>>> upstream/android-13
 	struct zfcp_erp_action *act;
 	unsigned long flags;
 
@@ -1500,12 +2086,20 @@ static int zfcp_erp_thread(void *data)
 			break;
 
 		write_lock_irqsave(&adapter->erp_lock, flags);
+<<<<<<< HEAD
 		next = adapter->erp_ready_head.next;
 		write_unlock_irqrestore(&adapter->erp_lock, flags);
 
 		if (next != &adapter->erp_ready_head) {
 			act = list_entry(next, struct zfcp_erp_action, list);
 
+=======
+		act = list_first_entry_or_null(&adapter->erp_ready_head,
+					       struct zfcp_erp_action, list);
+		write_unlock_irqrestore(&adapter->erp_lock, flags);
+
+		if (act) {
+>>>>>>> upstream/android-13
 			/* there is more to come after dismission, no notify */
 			if (zfcp_erp_strategy(act) != ZFCP_ERP_DISMISSED)
 				zfcp_erp_wakeup(adapter);
@@ -1519,7 +2113,11 @@ static int zfcp_erp_thread(void *data)
  * zfcp_erp_thread_setup - Start ERP thread for adapter
  * @adapter: Adapter to start the ERP thread for
  *
+<<<<<<< HEAD
  * Returns 0 on success or error code from kernel_thread()
+=======
+ * Return: 0 on success, or error code from kthread_run().
+>>>>>>> upstream/android-13
  */
 int zfcp_erp_thread_setup(struct zfcp_adapter *adapter)
 {
@@ -1589,6 +2187,16 @@ void zfcp_erp_set_adapter_status(struct zfcp_adapter *adapter, u32 mask)
 		atomic_or(common_mask, &port->status);
 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * if `scsi_host` is missing, xconfig/xport data has never completed
+	 * yet, so we can't access it, but there are also no SDEVs yet
+	 */
+	if (adapter->scsi_host == NULL)
+		return;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(adapter->scsi_host->host_lock, flags);
 	__shost_for_each_device(sdev, adapter->scsi_host)
 		atomic_or(common_mask, &sdev_to_zfcp(sdev)->status);
@@ -1626,6 +2234,16 @@ void zfcp_erp_clear_adapter_status(struct zfcp_adapter *adapter, u32 mask)
 	}
 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * if `scsi_host` is missing, xconfig/xport data has never completed
+	 * yet, so we can't access it, but there are also no SDEVs yet
+	 */
+	if (adapter->scsi_host == NULL)
+		return;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(adapter->scsi_host->host_lock, flags);
 	__shost_for_each_device(sdev, adapter->scsi_host) {
 		atomic_andnot(common_mask, &sdev_to_zfcp(sdev)->status);
@@ -1724,11 +2342,20 @@ void zfcp_erp_clear_lun_status(struct scsi_device *sdev, u32 mask)
 /**
  * zfcp_erp_adapter_reset_sync() - Really reopen adapter and wait.
  * @adapter: Pointer to zfcp_adapter to reopen.
+<<<<<<< HEAD
  * @id: Trace tag string of length %ZFCP_DBF_TAG_LEN.
  */
 void zfcp_erp_adapter_reset_sync(struct zfcp_adapter *adapter, char *id)
 {
 	zfcp_erp_set_adapter_status(adapter, ZFCP_STATUS_COMMON_RUNNING);
 	zfcp_erp_adapter_reopen(adapter, ZFCP_STATUS_COMMON_ERP_FAILED, id);
+=======
+ * @dbftag: Trace tag string of length %ZFCP_DBF_TAG_LEN.
+ */
+void zfcp_erp_adapter_reset_sync(struct zfcp_adapter *adapter, char *dbftag)
+{
+	zfcp_erp_set_adapter_status(adapter, ZFCP_STATUS_COMMON_RUNNING);
+	zfcp_erp_adapter_reopen(adapter, ZFCP_STATUS_COMMON_ERP_FAILED, dbftag);
+>>>>>>> upstream/android-13
 	zfcp_erp_wait(adapter);
 }

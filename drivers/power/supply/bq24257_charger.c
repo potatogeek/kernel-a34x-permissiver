@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TI BQ24257 charger driver
  *
  * Copyright (C) 2015 Intel Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,12 @@
  * http://www.ti.com/product/bq24250
  * http://www.ti.com/product/bq24251
  * http://www.ti.com/product/bq24257
+=======
+ * Datasheets:
+ * https://www.ti.com/product/bq24250
+ * https://www.ti.com/product/bq24251
+ * https://www.ti.com/product/bq24257
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -845,7 +856,11 @@ static DEVICE_ATTR(high_impedance_enable, S_IWUSR | S_IRUGO,
 static DEVICE_ATTR(sysoff_enable, S_IWUSR | S_IRUGO,
 		   bq24257_sysfs_show_enable, bq24257_sysfs_set_enable);
 
+<<<<<<< HEAD
 static struct attribute *bq24257_charger_attr[] = {
+=======
+static struct attribute *bq24257_charger_sysfs_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_ovp_voltage.attr,
 	&dev_attr_in_dpm_voltage.attr,
 	&dev_attr_high_impedance_enable.attr,
@@ -853,14 +868,22 @@ static struct attribute *bq24257_charger_attr[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static const struct attribute_group bq24257_attr_group = {
 	.attrs = bq24257_charger_attr,
 };
+=======
+ATTRIBUTE_GROUPS(bq24257_charger_sysfs);
+>>>>>>> upstream/android-13
 
 static int bq24257_power_supply_init(struct bq24257_device *bq)
 {
 	struct power_supply_config psy_cfg = { .drv_data = bq, };
 
+<<<<<<< HEAD
+=======
+	psy_cfg.attr_grp = bq24257_charger_sysfs_groups;
+>>>>>>> upstream/android-13
 	psy_cfg.supplied_to = bq24257_charger_supplied_to;
 	psy_cfg.num_supplicants = ARRAY_SIZE(bq24257_charger_supplied_to);
 
@@ -960,7 +983,11 @@ static int bq24257_fw_probe(struct bq24257_device *bq)
 static int bq24257_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+=======
+	struct i2c_adapter *adapter = client->adapter;
+>>>>>>> upstream/android-13
 	struct device *dev = &client->dev;
 	const struct acpi_device_id *acpi_id;
 	struct bq24257_device *bq;
@@ -1084,12 +1111,15 @@ static int bq24257_probe(struct i2c_client *client,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = sysfs_create_group(&bq->charger->dev.kobj, &bq24257_attr_group);
 	if (ret < 0) {
 		dev_err(dev, "Can't create sysfs entries\n");
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1100,8 +1130,11 @@ static int bq24257_remove(struct i2c_client *client)
 	if (bq->iilimit_autoset_enable)
 		cancel_delayed_work_sync(&bq->iilimit_setup_work);
 
+<<<<<<< HEAD
 	sysfs_remove_group(&bq->charger->dev.kobj, &bq24257_attr_group);
 
+=======
+>>>>>>> upstream/android-13
 	bq24257_field_write(bq, F_RESET, 1); /* reset to defaults */
 
 	return 0;
@@ -1170,6 +1203,10 @@ static const struct of_device_id bq24257_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, bq24257_of_match);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI
+>>>>>>> upstream/android-13
 static const struct acpi_device_id bq24257_acpi_match[] = {
 	{ "BQ242500", BQ24250 },
 	{ "BQ242510", BQ24251 },
@@ -1177,6 +1214,10 @@ static const struct acpi_device_id bq24257_acpi_match[] = {
 	{},
 };
 MODULE_DEVICE_TABLE(acpi, bq24257_acpi_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct i2c_driver bq24257_driver = {
 	.driver = {

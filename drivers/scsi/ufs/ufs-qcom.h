@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -9,11 +10,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef UFS_QCOM_H_
 #define UFS_QCOM_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/reset-controller.h>
+#include <linux/reset.h>
+
+>>>>>>> upstream/android-13
 #define MAX_UFS_QCOM_HOSTS	1
 #define MAX_U32                 (~(u32)0)
 #define MPHY_TX_FSM_STATE       0x41
@@ -33,6 +44,7 @@
 #define SLOW 1
 #define FAST 2
 
+<<<<<<< HEAD
 #define UFS_QCOM_LIMIT_NUM_LANES_RX	2
 #define UFS_QCOM_LIMIT_NUM_LANES_TX	2
 #define UFS_QCOM_LIMIT_HSGEAR_RX	UFS_HS_G3
@@ -45,6 +57,9 @@
 #define UFS_QCOM_LIMIT_TX_PWR_HS	FAST_MODE
 #define UFS_QCOM_LIMIT_HS_RATE		PA_HS_MODE_B
 #define UFS_QCOM_LIMIT_DESIRED_MODE	FAST
+=======
+#define UFS_QCOM_LIMIT_HS_RATE		PA_HS_MODE_B
+>>>>>>> upstream/android-13
 
 /* QCOM UFS host controller vendor specific registers */
 enum {
@@ -129,11 +144,14 @@ enum {
 	MASK_CLK_NS_REG                     = 0xFFFC00,
 };
 
+<<<<<<< HEAD
 enum ufs_qcom_phy_init_type {
 	UFS_PHY_INIT_FULL,
 	UFS_PHY_INIT_CFG_RESTORE,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* QCOM UFS debug print bit mask */
 #define UFS_QCOM_DBG_PRINT_REGS_EN	BIT(0)
 #define UFS_QCOM_DBG_PRINT_ICE_REGS_EN	BIT(1)
@@ -185,6 +203,7 @@ static inline void ufs_qcom_deassert_reset(struct ufs_hba *hba)
 	mb();
 }
 
+<<<<<<< HEAD
 struct ufs_qcom_bus_vote {
 	uint32_t client_handle;
 	uint32_t curr_vote;
@@ -195,6 +214,8 @@ struct ufs_qcom_bus_vote {
 	struct device_attribute max_bus_bw;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Host controller hardware version: major.minor.step */
 struct ufs_hw_version {
 	u16 step;
@@ -207,6 +228,11 @@ struct ufs_qcom_testbus {
 	u8 select_minor;
 };
 
+<<<<<<< HEAD
+=======
+struct gpio_desc;
+
+>>>>>>> upstream/android-13
 struct ufs_qcom_host {
 	/*
 	 * Set this capability if host controller supports the QUniPro mode
@@ -225,7 +251,10 @@ struct ufs_qcom_host {
 
 	struct phy *generic_phy;
 	struct ufs_hba *hba;
+<<<<<<< HEAD
 	struct ufs_qcom_bus_vote bus_vote;
+=======
+>>>>>>> upstream/android-13
 	struct ufs_pa_layer_attr dev_req_params;
 	struct clk *rx_l0_sync_clk;
 	struct clk *tx_l0_sync_clk;
@@ -236,12 +265,27 @@ struct ufs_qcom_host {
 	void __iomem *dev_ref_clk_ctrl_mmio;
 	bool is_dev_ref_clk_enabled;
 	struct ufs_hw_version hw_ver;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SCSI_UFS_CRYPTO
+	void __iomem *ice_mmio;
+#endif
+>>>>>>> upstream/android-13
 
 	u32 dev_ref_clk_en_mask;
 
 	/* Bitmask for enabling debug prints */
 	u32 dbg_print_en;
 	struct ufs_qcom_testbus testbus;
+<<<<<<< HEAD
+=======
+
+	/* Reset control of HCI */
+	struct reset_control *core_reset;
+	struct reset_controller_dev rcdev;
+
+	struct gpio_desc *device_reset;
+>>>>>>> upstream/android-13
 };
 
 static inline u32
@@ -267,4 +311,31 @@ static inline bool ufs_qcom_cap_qunipro(struct ufs_qcom_host *host)
 		return false;
 }
 
+<<<<<<< HEAD
+=======
+/* ufs-qcom-ice.c */
+
+#ifdef CONFIG_SCSI_UFS_CRYPTO
+int ufs_qcom_ice_init(struct ufs_qcom_host *host);
+int ufs_qcom_ice_enable(struct ufs_qcom_host *host);
+int ufs_qcom_ice_resume(struct ufs_qcom_host *host);
+int ufs_qcom_ice_program_key(struct ufs_hba *hba,
+			     const union ufs_crypto_cfg_entry *cfg, int slot);
+#else
+static inline int ufs_qcom_ice_init(struct ufs_qcom_host *host)
+{
+	return 0;
+}
+static inline int ufs_qcom_ice_enable(struct ufs_qcom_host *host)
+{
+	return 0;
+}
+static inline int ufs_qcom_ice_resume(struct ufs_qcom_host *host)
+{
+	return 0;
+}
+#define ufs_qcom_ice_program_key NULL
+#endif /* !CONFIG_SCSI_UFS_CRYPTO */
+
+>>>>>>> upstream/android-13
 #endif /* UFS_QCOM_H_ */

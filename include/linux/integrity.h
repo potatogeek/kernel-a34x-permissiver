@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 IBM Corporation
  * Author: Mimi Zohar <zohar@us.ibm.com>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2009 IBM Corporation
+ * Author: Mimi Zohar <zohar@us.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_INTEGRITY_H
@@ -16,6 +23,10 @@ enum integrity_status {
 	INTEGRITY_PASS = 0,
 	INTEGRITY_PASS_IMMUTABLE,
 	INTEGRITY_FAIL,
+<<<<<<< HEAD
+=======
+	INTEGRITY_FAIL_IMMUTABLE,
+>>>>>>> upstream/android-13
 	INTEGRITY_NOLABEL,
 	INTEGRITY_NOXATTRS,
 	INTEGRITY_UNKNOWN,

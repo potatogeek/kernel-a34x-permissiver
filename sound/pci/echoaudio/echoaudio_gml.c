@@ -194,7 +194,12 @@ static int set_professional_spdif(struct echoaudio *chip, char prof)
 		}
 	}
 
+<<<<<<< HEAD
 	if ((err = write_control_reg(chip, control_reg, false)))
+=======
+	err = write_control_reg(chip, control_reg, false);
+	if (err)
+>>>>>>> upstream/android-13
 		return err;
 	chip->professional_spdif = prof;
 	dev_dbg(chip->card->dev, "set_professional_spdif to %s\n",

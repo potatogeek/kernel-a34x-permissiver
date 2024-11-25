@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * parport-to-butterfly adapter
  *
  * Copyright (C) 2005 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -32,7 +39,11 @@
  * with a battery powered AVR microcontroller and lots of goodies.  You
  * can use GCC to develop firmware for this.
  *
+<<<<<<< HEAD
  * See Documentation/spi/butterfly for information about how to build
+=======
+ * See Documentation/spi/butterfly.rst for information about how to build
+>>>>>>> upstream/android-13
  * and use this custom parallel port cable.
  */
 
@@ -326,6 +337,7 @@ static struct parport_driver butterfly_driver = {
 	.detach =	butterfly_detach,
 	.devmodel = true,
 };
+<<<<<<< HEAD
 
 static int __init butterfly_init(void)
 {
@@ -338,6 +350,9 @@ static void __exit butterfly_exit(void)
 	parport_unregister_driver(&butterfly_driver);
 }
 module_exit(butterfly_exit);
+=======
+module_parport_driver(butterfly_driver);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("Parport Adapter driver for AVR Butterfly");
 MODULE_LICENSE("GPL");

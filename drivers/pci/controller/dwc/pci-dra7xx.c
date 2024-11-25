@@ -2,7 +2,11 @@
 /*
  * pcie-dra7xx - PCIe controller driver for TI DRA7xx SoCs
  *
+<<<<<<< HEAD
  * Copyright (C) 2013-2014 Texas Instruments Incorporated - http://www.ti.com
+=======
+ * Copyright (C) 2013-2014 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * Authors: Kishon Vijay Abraham I <kishon@ti.com>
  */
@@ -73,8 +77,11 @@
 #define	LINK_UP						BIT(16)
 #define	DRA7XX_CPU_TO_BUS_ADDR				0x0FFFFFFF
 
+<<<<<<< HEAD
 #define EXP_CAP_ID_OFFSET				0x70
 
+=======
+>>>>>>> upstream/android-13
 #define	PCIECTRL_TI_CONF_INTX_ASSERT			0x0124
 #define	PCIECTRL_TI_CONF_INTX_DEASSERT			0x0128
 
@@ -82,18 +89,32 @@
 #define MSI_REQ_GRANT					BIT(0)
 #define MSI_VECTOR_SHIFT				7
 
+<<<<<<< HEAD
+=======
+#define PCIE_1LANE_2LANE_SELECTION			BIT(13)
+#define PCIE_B1C0_MODE_SEL				BIT(2)
+#define PCIE_B0_B1_TSYNCEN				BIT(0)
+
+>>>>>>> upstream/android-13
 struct dra7xx_pcie {
 	struct dw_pcie		*pci;
 	void __iomem		*base;		/* DT ti_conf */
 	int			phy_count;	/* DT phy-names count */
 	struct phy		**phy;
+<<<<<<< HEAD
 	int			link_gen;
+=======
+>>>>>>> upstream/android-13
 	struct irq_domain	*irq_domain;
 	enum dw_pcie_device_mode mode;
 };
 
 struct dra7xx_pcie_of_data {
 	enum dw_pcie_device_mode mode;
+<<<<<<< HEAD
+=======
+	u32 b1co_mode_sel_mask;
+>>>>>>> upstream/android-13
 };
 
 #define to_dra7xx_pcie(x)	dev_get_drvdata((x)->dev)
@@ -137,13 +158,17 @@ static int dra7xx_pcie_establish_link(struct dw_pcie *pci)
 	struct dra7xx_pcie *dra7xx = to_dra7xx_pcie(pci);
 	struct device *dev = pci->dev;
 	u32 reg;
+<<<<<<< HEAD
 	u32 exp_cap_off = EXP_CAP_ID_OFFSET;
+=======
+>>>>>>> upstream/android-13
 
 	if (dw_pcie_link_up(pci)) {
 		dev_err(dev, "link is already up\n");
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (dra7xx->link_gen == 1) {
 		dw_pcie_read(pci->dbi_base + exp_cap_off + PCI_EXP_LNKCAP,
 			     4, &reg);
@@ -164,6 +189,8 @@ static int dra7xx_pcie_establish_link(struct dw_pcie *pci)
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	reg = dra7xx_pcie_readl(dra7xx, PCIECTRL_DRA7XX_CONF_DEVICE_CMD);
 	reg |= LTSSM_EN;
 	dra7xx_pcie_writel(dra7xx, PCIECTRL_DRA7XX_CONF_DEVICE_CMD, reg);
@@ -200,20 +227,26 @@ static int dra7xx_pcie_host_init(struct pcie_port *pp)
 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
 	struct dra7xx_pcie *dra7xx = to_dra7xx_pcie(pci);
 
+<<<<<<< HEAD
 	dw_pcie_setup_rc(pp);
 
 	dra7xx_pcie_establish_link(pci);
 	dw_pcie_wait_for_link(pci);
 	dw_pcie_msi_init(pp);
+=======
+>>>>>>> upstream/android-13
 	dra7xx_pcie_enable_interrupts(dra7xx);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct dw_pcie_host_ops dra7xx_pcie_host_ops = {
 	.host_init = dra7xx_pcie_host_init,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int dra7xx_pcie_intx_map(struct irq_domain *domain, unsigned int irq,
 				irq_hw_number_t hwirq)
 {
@@ -228,6 +261,7 @@ static const struct irq_domain_ops intx_domain_ops = {
 	.xlate = pci_irqd_intx_xlate,
 };
 
+<<<<<<< HEAD
 static int dra7xx_pcie_init_irq_domain(struct pcie_port *pp)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
@@ -264,11 +298,84 @@ static irqreturn_t dra7xx_pcie_msi_irq_handler(int irq, void *arg)
 	switch (reg) {
 	case MSI:
 		dw_handle_msi_irq(pp);
+=======
+static int dra7xx_pcie_handle_msi(struct pcie_port *pp, int index)
+{
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+	unsigned long val;
+	int pos;
+
+	val = dw_pcie_readl_dbi(pci, PCIE_MSI_INTR0_STATUS +
+				   (index * MSI_REG_CTRL_BLOCK_SIZE));
+	if (!val)
+		return 0;
+
+	pos = find_next_bit(&val, MAX_MSI_IRQS_PER_CTRL, 0);
+	while (pos != MAX_MSI_IRQS_PER_CTRL) {
+		generic_handle_domain_irq(pp->irq_domain,
+					  (index * MAX_MSI_IRQS_PER_CTRL) + pos);
+		pos++;
+		pos = find_next_bit(&val, MAX_MSI_IRQS_PER_CTRL, pos);
+	}
+
+	return 1;
+}
+
+static void dra7xx_pcie_handle_msi_irq(struct pcie_port *pp)
+{
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+	int ret, i, count, num_ctrls;
+
+	num_ctrls = pp->num_vectors / MAX_MSI_IRQS_PER_CTRL;
+
+	/**
+	 * Need to make sure all MSI status bits read 0 before exiting.
+	 * Else, new MSI IRQs are not registered by the wrapper. Have an
+	 * upperbound for the loop and exit the IRQ in case of IRQ flood
+	 * to avoid locking up system in interrupt context.
+	 */
+	count = 0;
+	do {
+		ret = 0;
+
+		for (i = 0; i < num_ctrls; i++)
+			ret |= dra7xx_pcie_handle_msi(pp, i);
+		count++;
+	} while (ret && count <= 1000);
+
+	if (count > 1000)
+		dev_warn_ratelimited(pci->dev,
+				     "Too many MSI IRQs to handle\n");
+}
+
+static void dra7xx_pcie_msi_irq_handler(struct irq_desc *desc)
+{
+	struct irq_chip *chip = irq_desc_get_chip(desc);
+	struct dra7xx_pcie *dra7xx;
+	struct dw_pcie *pci;
+	struct pcie_port *pp;
+	unsigned long reg;
+	u32 bit;
+
+	chained_irq_enter(chip, desc);
+
+	pp = irq_desc_get_handler_data(desc);
+	pci = to_dw_pcie_from_pp(pp);
+	dra7xx = to_dra7xx_pcie(pci);
+
+	reg = dra7xx_pcie_readl(dra7xx, PCIECTRL_DRA7XX_CONF_IRQSTATUS_MSI);
+	dra7xx_pcie_writel(dra7xx, PCIECTRL_DRA7XX_CONF_IRQSTATUS_MSI, reg);
+
+	switch (reg) {
+	case MSI:
+		dra7xx_pcie_handle_msi_irq(pp);
+>>>>>>> upstream/android-13
 		break;
 	case INTA:
 	case INTB:
 	case INTC:
 	case INTD:
+<<<<<<< HEAD
 		for_each_set_bit(bit, &reg, PCI_NUM_INTX) {
 			virq = irq_find_mapping(dra7xx->irq_domain, bit);
 			if (virq)
@@ -280,6 +387,14 @@ static irqreturn_t dra7xx_pcie_msi_irq_handler(int irq, void *arg)
 	dra7xx_pcie_writel(dra7xx, PCIECTRL_DRA7XX_CONF_IRQSTATUS_MSI, reg);
 
 	return IRQ_HANDLED;
+=======
+		for_each_set_bit(bit, &reg, PCI_NUM_INTX)
+			generic_handle_domain_irq(dra7xx->irq_domain, bit);
+		break;
+	}
+
+	chained_irq_exit(chip, desc);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t dra7xx_pcie_irq_handler(int irq, void *arg)
@@ -341,13 +456,50 @@ static irqreturn_t dra7xx_pcie_irq_handler(int irq, void *arg)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static int dra7xx_pcie_init_irq_domain(struct pcie_port *pp)
+{
+	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
+	struct device *dev = pci->dev;
+	struct dra7xx_pcie *dra7xx = to_dra7xx_pcie(pci);
+	struct device_node *node = dev->of_node;
+	struct device_node *pcie_intc_node =  of_get_next_child(node, NULL);
+
+	if (!pcie_intc_node) {
+		dev_err(dev, "No PCIe Intc node found\n");
+		return -ENODEV;
+	}
+
+	irq_set_chained_handler_and_data(pp->irq, dra7xx_pcie_msi_irq_handler,
+					 pp);
+	dra7xx->irq_domain = irq_domain_add_linear(pcie_intc_node, PCI_NUM_INTX,
+						   &intx_domain_ops, pp);
+	of_node_put(pcie_intc_node);
+	if (!dra7xx->irq_domain) {
+		dev_err(dev, "Failed to get a INTx IRQ domain\n");
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
+static const struct dw_pcie_host_ops dra7xx_pcie_host_ops = {
+	.host_init = dra7xx_pcie_host_init,
+};
+
+>>>>>>> upstream/android-13
 static void dra7xx_pcie_ep_init(struct dw_pcie_ep *ep)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
 	struct dra7xx_pcie *dra7xx = to_dra7xx_pcie(pci);
 	enum pci_barno bar;
 
+<<<<<<< HEAD
 	for (bar = BAR_0; bar <= BAR_5; bar++)
+=======
+	for (bar = 0; bar < PCI_STD_NUM_BARS; bar++)
+>>>>>>> upstream/android-13
 		dw_pcie_ep_reset_bar(pci, bar);
 
 	dra7xx_pcie_enable_wrapper_interrupts(dra7xx);
@@ -390,6 +542,7 @@ static int dra7xx_pcie_raise_irq(struct dw_pcie_ep *ep, u8 func_no,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dw_pcie_ep_ops pcie_ep_ops = {
 	.ep_init = dra7xx_pcie_ep_init,
 	.raise_irq = dra7xx_pcie_raise_irq,
@@ -401,12 +554,38 @@ static int __init dra7xx_add_pcie_ep(struct dra7xx_pcie *dra7xx,
 	int ret;
 	struct dw_pcie_ep *ep;
 	struct resource *res;
+=======
+static const struct pci_epc_features dra7xx_pcie_epc_features = {
+	.linkup_notifier = true,
+	.msi_capable = true,
+	.msix_capable = false,
+};
+
+static const struct pci_epc_features*
+dra7xx_pcie_get_features(struct dw_pcie_ep *ep)
+{
+	return &dra7xx_pcie_epc_features;
+}
+
+static const struct dw_pcie_ep_ops pcie_ep_ops = {
+	.ep_init = dra7xx_pcie_ep_init,
+	.raise_irq = dra7xx_pcie_raise_irq,
+	.get_features = dra7xx_pcie_get_features,
+};
+
+static int dra7xx_add_pcie_ep(struct dra7xx_pcie *dra7xx,
+			      struct platform_device *pdev)
+{
+	int ret;
+	struct dw_pcie_ep *ep;
+>>>>>>> upstream/android-13
 	struct device *dev = &pdev->dev;
 	struct dw_pcie *pci = dra7xx->pci;
 
 	ep = &pci->ep;
 	ep->ops = &pcie_ep_ops;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ep_dbics");
 	pci->dbi_base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(pci->dbi_base))
@@ -424,6 +603,17 @@ static int __init dra7xx_add_pcie_ep(struct dra7xx_pcie *dra7xx,
 	ep->phys_base = res->start;
 	ep->addr_size = resource_size(res);
 
+=======
+	pci->dbi_base = devm_platform_ioremap_resource_byname(pdev, "ep_dbics");
+	if (IS_ERR(pci->dbi_base))
+		return PTR_ERR(pci->dbi_base);
+
+	pci->dbi_base2 =
+		devm_platform_ioremap_resource_byname(pdev, "ep_dbics2");
+	if (IS_ERR(pci->dbi_base2))
+		return PTR_ERR(pci->dbi_base2);
+
+>>>>>>> upstream/android-13
 	ret = dw_pcie_ep_init(ep);
 	if (ret) {
 		dev_err(dev, "failed to initialize endpoint\n");
@@ -433,13 +623,19 @@ static int __init dra7xx_add_pcie_ep(struct dra7xx_pcie *dra7xx,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __init dra7xx_add_pcie_port(struct dra7xx_pcie *dra7xx,
 				       struct platform_device *pdev)
+=======
+static int dra7xx_add_pcie_port(struct dra7xx_pcie *dra7xx,
+				struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct dw_pcie *pci = dra7xx->pci;
 	struct pcie_port *pp = &pci->pp;
 	struct device *dev = pci->dev;
+<<<<<<< HEAD
 	struct resource *res;
 
 	pp->irq = platform_get_irq(pdev, 1);
@@ -455,13 +651,26 @@ static int __init dra7xx_add_pcie_port(struct dra7xx_pcie *dra7xx,
 		dev_err(dev, "failed to request irq\n");
 		return ret;
 	}
+=======
+
+	pp->irq = platform_get_irq(pdev, 1);
+	if (pp->irq < 0)
+		return pp->irq;
+
+	/* MSI IRQ is muxed */
+	pp->msi_irq = -ENODEV;
+>>>>>>> upstream/android-13
 
 	ret = dra7xx_pcie_init_irq_domain(pp);
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "rc_dbics");
 	pci->dbi_base = devm_ioremap_resource(dev, res);
+=======
+	pci->dbi_base = devm_platform_ioremap_resource_byname(pdev, "rc_dbics");
+>>>>>>> upstream/android-13
 	if (IS_ERR(pci->dbi_base))
 		return PTR_ERR(pci->dbi_base);
 
@@ -500,6 +709,13 @@ static int dra7xx_pcie_enable_phy(struct dra7xx_pcie *dra7xx)
 	int i;
 
 	for (i = 0; i < phy_count; i++) {
+<<<<<<< HEAD
+=======
+		ret = phy_set_mode(dra7xx->phy[i], PHY_MODE_PCIE);
+		if (ret < 0)
+			goto err_phy;
+
+>>>>>>> upstream/android-13
 		ret = phy_init(dra7xx->phy[i]);
 		if (ret < 0)
 			goto err_phy;
@@ -530,6 +746,29 @@ static const struct dra7xx_pcie_of_data dra7xx_pcie_ep_of_data = {
 	.mode = DW_PCIE_EP_TYPE,
 };
 
+<<<<<<< HEAD
+=======
+static const struct dra7xx_pcie_of_data dra746_pcie_rc_of_data = {
+	.b1co_mode_sel_mask = BIT(2),
+	.mode = DW_PCIE_RC_TYPE,
+};
+
+static const struct dra7xx_pcie_of_data dra726_pcie_rc_of_data = {
+	.b1co_mode_sel_mask = GENMASK(3, 2),
+	.mode = DW_PCIE_RC_TYPE,
+};
+
+static const struct dra7xx_pcie_of_data dra746_pcie_ep_of_data = {
+	.b1co_mode_sel_mask = BIT(2),
+	.mode = DW_PCIE_EP_TYPE,
+};
+
+static const struct dra7xx_pcie_of_data dra726_pcie_ep_of_data = {
+	.b1co_mode_sel_mask = GENMASK(3, 2),
+	.mode = DW_PCIE_EP_TYPE,
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id of_dra7xx_pcie_match[] = {
 	{
 		.compatible = "ti,dra7-pcie",
@@ -539,6 +778,25 @@ static const struct of_device_id of_dra7xx_pcie_match[] = {
 		.compatible = "ti,dra7-pcie-ep",
 		.data = &dra7xx_pcie_ep_of_data,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible = "ti,dra746-pcie-rc",
+		.data = &dra746_pcie_rc_of_data,
+	},
+	{
+		.compatible = "ti,dra726-pcie-rc",
+		.data = &dra726_pcie_rc_of_data,
+	},
+	{
+		.compatible = "ti,dra746-pcie-ep",
+		.data = &dra746_pcie_ep_of_data,
+	},
+	{
+		.compatible = "ti,dra726-pcie-ep",
+		.data = &dra726_pcie_ep_of_data,
+	},
+>>>>>>> upstream/android-13
 	{},
 };
 
@@ -584,7 +842,39 @@ static int dra7xx_pcie_unaligned_memaccess(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int __init dra7xx_pcie_probe(struct platform_device *pdev)
+=======
+static int dra7xx_pcie_configure_two_lane(struct device *dev,
+					  u32 b1co_mode_sel_mask)
+{
+	struct device_node *np = dev->of_node;
+	struct regmap *pcie_syscon;
+	unsigned int pcie_reg;
+	u32 mask;
+	u32 val;
+
+	pcie_syscon = syscon_regmap_lookup_by_phandle(np, "ti,syscon-lane-sel");
+	if (IS_ERR(pcie_syscon)) {
+		dev_err(dev, "unable to get ti,syscon-lane-sel\n");
+		return -EINVAL;
+	}
+
+	if (of_property_read_u32_index(np, "ti,syscon-lane-sel", 1,
+				       &pcie_reg)) {
+		dev_err(dev, "couldn't get lane selection reg offset\n");
+		return -EINVAL;
+	}
+
+	mask = b1co_mode_sel_mask | PCIE_B0_B1_TSYNCEN;
+	val = PCIE_B1C0_MODE_SEL | PCIE_B0_B1_TSYNCEN;
+	regmap_update_bits(pcie_syscon, pcie_reg, mask, val);
+
+	return 0;
+}
+
+static int dra7xx_pcie_probe(struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	u32 reg;
 	int ret;
@@ -594,7 +884,10 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 	struct phy **phy;
 	struct device_link **link;
 	void __iomem *base;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct dw_pcie *pci;
 	struct dra7xx_pcie *dra7xx;
 	struct device *dev = &pdev->dev;
@@ -604,6 +897,10 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 	const struct of_device_id *match;
 	const struct dra7xx_pcie_of_data *data;
 	enum dw_pcie_device_mode mode;
+<<<<<<< HEAD
+=======
+	u32 b1co_mode_sel_mask;
+>>>>>>> upstream/android-13
 
 	match = of_match_device(of_match_ptr(of_dra7xx_pcie_match), dev);
 	if (!match)
@@ -611,6 +908,10 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 
 	data = (struct dra7xx_pcie_of_data *)match->data;
 	mode = (enum dw_pcie_device_mode)data->mode;
+<<<<<<< HEAD
+=======
+	b1co_mode_sel_mask = data->b1co_mode_sel_mask;
+>>>>>>> upstream/android-13
 
 	dra7xx = devm_kzalloc(dev, sizeof(*dra7xx), GFP_KERNEL);
 	if (!dra7xx)
@@ -624,6 +925,7 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 	pci->ops = &dw_pcie_ops;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "missing IRQ resource: %d\n", irq);
 		return irq;
@@ -633,6 +935,14 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 	base = devm_ioremap_nocache(dev, res->start, resource_size(res));
 	if (!base)
 		return -ENOMEM;
+=======
+	if (irq < 0)
+		return irq;
+
+	base = devm_platform_ioremap_resource_byname(pdev, "ti_conf");
+	if (IS_ERR(base))
+		return PTR_ERR(base);
+>>>>>>> upstream/android-13
 
 	phy_count = of_property_count_strings(np, "phy-names");
 	if (phy_count < 0) {
@@ -666,6 +976,15 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 	dra7xx->pci = pci;
 	dra7xx->phy_count = phy_count;
 
+<<<<<<< HEAD
+=======
+	if (phy_count == 2) {
+		ret = dra7xx_pcie_configure_two_lane(dev, b1co_mode_sel_mask);
+		if (ret < 0)
+			dra7xx->phy_count = 1; /* Fallback to x1 lane mode */
+	}
+
+>>>>>>> upstream/android-13
 	ret = dra7xx_pcie_enable_phy(dra7xx);
 	if (ret) {
 		dev_err(dev, "failed to enable phy\n");
@@ -692,10 +1011,13 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 	reg &= ~LTSSM_EN;
 	dra7xx_pcie_writel(dra7xx, PCIECTRL_DRA7XX_CONF_DEVICE_CMD, reg);
 
+<<<<<<< HEAD
 	dra7xx->link_gen = of_pci_get_max_link_speed(np);
 	if (dra7xx->link_gen < 0 || dra7xx->link_gen > 2)
 		dra7xx->link_gen = 2;
 
+=======
+>>>>>>> upstream/android-13
 	switch (mode) {
 	case DW_PCIE_RC_TYPE:
 		if (!IS_ENABLED(CONFIG_PCI_DRA7XX_HOST)) {
@@ -746,9 +1068,14 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
 	return 0;
 
 err_gpio:
+<<<<<<< HEAD
 	pm_runtime_put(dev);
 
 err_get_sync:
+=======
+err_get_sync:
+	pm_runtime_put(dev);
+>>>>>>> upstream/android-13
 	pm_runtime_disable(dev);
 	dra7xx_pcie_disable_phy(dra7xx);
 
@@ -841,6 +1168,10 @@ static const struct dev_pm_ops dra7xx_pcie_pm_ops = {
 };
 
 static struct platform_driver dra7xx_pcie_driver = {
+<<<<<<< HEAD
+=======
+	.probe = dra7xx_pcie_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name	= "dra7-pcie",
 		.of_match_table = of_dra7xx_pcie_match,
@@ -849,4 +1180,8 @@ static struct platform_driver dra7xx_pcie_driver = {
 	},
 	.shutdown = dra7xx_pcie_shutdown,
 };
+<<<<<<< HEAD
 builtin_platform_driver_probe(dra7xx_pcie_driver, dra7xx_pcie_probe);
+=======
+builtin_platform_driver(dra7xx_pcie_driver);
+>>>>>>> upstream/android-13

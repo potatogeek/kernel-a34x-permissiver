@@ -73,12 +73,20 @@ static int get_low_record_time_index(struct mlx4_ib_dev *dev, u8 port,
 				     int *resched_delay_sec);
 
 void mlx4_ib_update_cache_on_guid_change(struct mlx4_ib_dev *dev, int block_num,
+<<<<<<< HEAD
 					 u8 port_num, u8 *p_data)
+=======
+					 u32 port_num, u8 *p_data)
+>>>>>>> upstream/android-13
 {
 	int i;
 	u64 guid_indexes;
 	int slave_id;
+<<<<<<< HEAD
 	int port_index = port_num - 1;
+=======
+	u32 port_index = port_num - 1;
+>>>>>>> upstream/android-13
 
 	if (!mlx4_is_master(dev->dev))
 		return;
@@ -86,7 +94,11 @@ void mlx4_ib_update_cache_on_guid_change(struct mlx4_ib_dev *dev, int block_num,
 	guid_indexes = be64_to_cpu((__force __be64) dev->sriov.alias_guid.
 				   ports_guid[port_num - 1].
 				   all_rec_per_port[block_num].guid_indexes);
+<<<<<<< HEAD
 	pr_debug("port: %d, guid_indexes: 0x%llx\n", port_num, guid_indexes);
+=======
+	pr_debug("port: %u, guid_indexes: 0x%llx\n", port_num, guid_indexes);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < NUM_ALIAS_GUID_IN_REC; i++) {
 		/* The location of the specific index starts from bit number 4
@@ -184,7 +196,11 @@ unlock:
  * port_number - 1 or 2
  */
 void mlx4_ib_notify_slaves_on_guid_change(struct mlx4_ib_dev *dev,
+<<<<<<< HEAD
 					  int block_num, u8 port_num,
+=======
+					  int block_num, u32 port_num,
+>>>>>>> upstream/android-13
 					  u8 *p_data)
 {
 	int i;
@@ -206,7 +222,11 @@ void mlx4_ib_notify_slaves_on_guid_change(struct mlx4_ib_dev *dev,
 	guid_indexes = be64_to_cpu((__force __be64) dev->sriov.alias_guid.
 				   ports_guid[port_num - 1].
 				   all_rec_per_port[block_num].guid_indexes);
+<<<<<<< HEAD
 	pr_debug("port: %d, guid_indexes: 0x%llx\n", port_num, guid_indexes);
+=======
+	pr_debug("port: %u, guid_indexes: 0x%llx\n", port_num, guid_indexes);
+>>>>>>> upstream/android-13
 
 	/*calculate the slaves and notify them*/
 	for (i = 0; i < NUM_ALIAS_GUID_IN_REC; i++) {
@@ -260,11 +280,19 @@ void mlx4_ib_notify_slaves_on_guid_change(struct mlx4_ib_dev *dev,
 			new_state = set_and_calc_slave_port_state(dev->dev, slave_id, port_num,
 								  MLX4_PORT_STATE_IB_PORT_STATE_EVENT_GID_VALID,
 								  &gen_event);
+<<<<<<< HEAD
 			pr_debug("slave: %d, port: %d prev_port_state: %d,"
 				 " new_port_state: %d, gen_event: %d\n",
 				 slave_id, port_num, prev_state, new_state, gen_event);
 			if (gen_event == SLAVE_PORT_GEN_EVENT_UP) {
 				pr_debug("sending PORT_UP event to slave: %d, port: %d\n",
+=======
+			pr_debug("slave: %d, port: %u prev_port_state: %d,"
+				 " new_port_state: %d, gen_event: %d\n",
+				 slave_id, port_num, prev_state, new_state, gen_event);
+			if (gen_event == SLAVE_PORT_GEN_EVENT_UP) {
+				pr_debug("sending PORT_UP event to slave: %d, port: %u\n",
+>>>>>>> upstream/android-13
 					 slave_id, port_num);
 				mlx4_gen_port_state_change_eqe(dev->dev, slave_id,
 							       port_num, MLX4_PORT_CHANGE_SUBTYPE_ACTIVE);
@@ -274,7 +302,11 @@ void mlx4_ib_notify_slaves_on_guid_change(struct mlx4_ib_dev *dev,
 						      MLX4_PORT_STATE_IB_EVENT_GID_INVALID,
 						      &gen_event);
 			if (gen_event == SLAVE_PORT_GEN_EVENT_DOWN) {
+<<<<<<< HEAD
 				pr_debug("sending PORT DOWN event to slave: %d, port: %d\n",
+=======
+				pr_debug("sending PORT DOWN event to slave: %d, port: %u\n",
+>>>>>>> upstream/android-13
 					 slave_id, port_num);
 				mlx4_gen_port_state_change_eqe(dev->dev,
 							       slave_id,
@@ -310,7 +342,11 @@ static void aliasguid_query_handler(int status,
 	if (status) {
 		pr_debug("(port: %d) failed: status = %d\n",
 			 cb_ctx->port, status);
+<<<<<<< HEAD
 		rec->time_to_run = ktime_get_boot_ns() + 1 * NSEC_PER_SEC;
+=======
+		rec->time_to_run = ktime_get_boottime_ns() + 1 * NSEC_PER_SEC;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -416,7 +452,11 @@ next_entry:
 			 be64_to_cpu((__force __be64)rec->guid_indexes),
 			 be64_to_cpu((__force __be64)applied_guid_indexes),
 			 be64_to_cpu((__force __be64)declined_guid_indexes));
+<<<<<<< HEAD
 		rec->time_to_run = ktime_get_boot_ns() +
+=======
+		rec->time_to_run = ktime_get_boottime_ns() +
+>>>>>>> upstream/android-13
 			resched_delay_sec * NSEC_PER_SEC;
 	} else {
 		rec->status = MLX4_GUID_INFO_STATUS_SET;
@@ -709,7 +749,11 @@ static int get_low_record_time_index(struct mlx4_ib_dev *dev, u8 port,
 		}
 	}
 	if (resched_delay_sec) {
+<<<<<<< HEAD
 		u64 curr_time = ktime_get_boot_ns();
+=======
+		u64 curr_time = ktime_get_boottime_ns();
+>>>>>>> upstream/android-13
 
 		*resched_delay_sec = (low_record_time < curr_time) ? 0 :
 			div_u64((low_record_time - curr_time), NSEC_PER_SEC);
@@ -849,7 +893,11 @@ int mlx4_ib_init_alias_guid_service(struct mlx4_ib_dev *dev)
 	spin_lock_init(&dev->sriov.alias_guid.ag_work_lock);
 
 	for (i = 1; i <= dev->num_ports; ++i) {
+<<<<<<< HEAD
 		if (dev->ib_dev.query_gid(&dev->ib_dev , i, 0, &gid)) {
+=======
+		if (dev->ib_dev.ops.query_gid(&dev->ib_dev, i, 0, &gid)) {
+>>>>>>> upstream/android-13
 			ret = -EFAULT;
 			goto err_unregister;
 		}

@@ -6,9 +6,25 @@
 #include "nitrox_dev.h"
 #include "nitrox_csr.h"
 #include "nitrox_common.h"
+<<<<<<< HEAD
 
 #define NR_RING_VECTORS 3
 #define NPS_CORE_INT_ACTIVE_ENTRY 192
+=======
+#include "nitrox_hal.h"
+#include "nitrox_isr.h"
+#include "nitrox_mbx.h"
+
+/*
+ * One vector for each type of ring
+ *  - NPS packet ring, AQMQ ring and ZQMQ ring
+ */
+#define NR_RING_VECTORS 3
+#define NR_NON_RING_VECTORS 1
+/* base entry for packet ring/port */
+#define PKT_RING_MSIX_BASE 0
+#define NON_RING_MSIX_BASE 192
+>>>>>>> upstream/android-13
 
 /**
  * nps_pkt_slc_isr - IRQ handler for NPS solicit port
@@ -17,6 +33,7 @@
  */
 static irqreturn_t nps_pkt_slc_isr(int irq, void *data)
 {
+<<<<<<< HEAD
 	struct bh_data *slc = data;
 	union nps_pkt_slc_cnts pkt_slc_cnts;
 
@@ -24,6 +41,16 @@ static irqreturn_t nps_pkt_slc_isr(int irq, void *data)
 	/* New packet on SLC output port */
 	if (pkt_slc_cnts.s.slc_int)
 		tasklet_hi_schedule(&slc->resp_handler);
+=======
+	struct nitrox_q_vector *qvec = data;
+	union nps_pkt_slc_cnts slc_cnts;
+	struct nitrox_cmdq *cmdq = qvec->cmdq;
+
+	slc_cnts.value = readq(cmdq->compl_cnt_csr_addr);
+	/* New packet on SLC output port */
+	if (slc_cnts.s.slc_int)
+		tasklet_hi_schedule(&qvec->resp_tasklet);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -190,6 +217,7 @@ static void clear_bmi_err_intr(struct nitrox_device *ndev)
 	dev_err_ratelimited(DEV(ndev), "BMI_INT  0x%016llx\n", value);
 }
 
+<<<<<<< HEAD
 /**
  * clear_nps_core_int_active - clear NPS_CORE_INT_ACTIVE interrupts
  * @ndev: NITROX device
@@ -231,15 +259,108 @@ static irqreturn_t nps_core_int_isr(int irq, void *data)
 	struct nitrox_device *ndev = data;
 
 	clear_nps_core_int_active(ndev);
+=======
+static void nps_core_int_tasklet(unsigned long data)
+{
+	struct nitrox_q_vector *qvec = (void *)(uintptr_t)(data);
+	struct nitrox_device *ndev = qvec->ndev;
+
+	/* if pf mode do queue recovery */
+	if (ndev->mode == __NDEV_MODE_PF) {
+	} else {
+		/**
+		 * if VF(s) enabled communicate the error information
+		 * to VF(s)
+		 */
+	}
+}
+
+/*
+ * nps_core_int_isr - interrupt handler for NITROX errors and
+ *   mailbox communication
+ */
+static irqreturn_t nps_core_int_isr(int irq, void *data)
+{
+	struct nitrox_q_vector *qvec = data;
+	struct nitrox_device *ndev = qvec->ndev;
+	union nps_core_int_active core_int;
+
+	core_int.value = nitrox_read_csr(ndev, NPS_CORE_INT_ACTIVE);
+
+	if (core_int.s.nps_core)
+		clear_nps_core_err_intr(ndev);
+
+	if (core_int.s.nps_pkt)
+		clear_nps_pkt_err_intr(ndev);
+
+	if (core_int.s.pom)
+		clear_pom_err_intr(ndev);
+
+	if (core_int.s.pem)
+		clear_pem_err_intr(ndev);
+
+	if (core_int.s.lbc)
+		clear_lbc_err_intr(ndev);
+
+	if (core_int.s.efl)
+		clear_efl_err_intr(ndev);
+
+	if (core_int.s.bmi)
+		clear_bmi_err_intr(ndev);
+
+	/* Mailbox interrupt */
+	if (core_int.s.mbox)
+		nitrox_pf2vf_mbox_handler(ndev);
+
+	/* If more work callback the ISR, set resend */
+	core_int.s.resend = 1;
+	nitrox_write_csr(ndev, NPS_CORE_INT_ACTIVE, core_int.value);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int nitrox_enable_msix(struct nitrox_device *ndev)
 {
 	struct msix_entry *entries;
 	char **names;
 	int i, nr_entries, ret;
+=======
+void nitrox_unregister_interrupts(struct nitrox_device *ndev)
+{
+	struct pci_dev *pdev = ndev->pdev;
+	int i;
+
+	for (i = 0; i < ndev->num_vecs; i++) {
+		struct nitrox_q_vector *qvec;
+		int vec;
+
+		qvec = ndev->qvec + i;
+		if (!qvec->valid)
+			continue;
+
+		/* get the vector number */
+		vec = pci_irq_vector(pdev, i);
+		irq_set_affinity_hint(vec, NULL);
+		free_irq(vec, qvec);
+
+		tasklet_disable(&qvec->resp_tasklet);
+		tasklet_kill(&qvec->resp_tasklet);
+		qvec->valid = false;
+	}
+	kfree(ndev->qvec);
+	ndev->qvec = NULL;
+	pci_free_irq_vectors(pdev);
+}
+
+int nitrox_register_interrupts(struct nitrox_device *ndev)
+{
+	struct pci_dev *pdev = ndev->pdev;
+	struct nitrox_q_vector *qvec;
+	int nr_vecs, vec, cpu;
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	/*
 	 * PF MSI-X vectors
@@ -253,6 +374,7 @@ static int nitrox_enable_msix(struct nitrox_device *ndev)
 	 * ....
 	 * Entry 192: NPS_CORE_INT_ACTIVE
 	 */
+<<<<<<< HEAD
 	nr_entries = (ndev->nr_queues * NR_RING_VECTORS) + 1;
 	entries = kcalloc_node(nr_entries, sizeof(struct msix_entry),
 			       GFP_KERNEL, ndev->node);
@@ -457,12 +579,162 @@ int nitrox_pf_init_isr(struct nitrox_device *ndev)
 	err = nitrox_request_irqs(ndev);
 	if (err)
 		goto irq_fail;
+=======
+	nr_vecs = pci_msix_vec_count(pdev);
+	if (nr_vecs < 0) {
+		dev_err(DEV(ndev), "Error in getting vec count %d\n", nr_vecs);
+		return nr_vecs;
+	}
+
+	/* Enable MSI-X */
+	ret = pci_alloc_irq_vectors(pdev, nr_vecs, nr_vecs, PCI_IRQ_MSIX);
+	if (ret < 0) {
+		dev_err(DEV(ndev), "msix vectors %d alloc failed\n", nr_vecs);
+		return ret;
+	}
+	ndev->num_vecs = nr_vecs;
+
+	ndev->qvec = kcalloc(nr_vecs, sizeof(*qvec), GFP_KERNEL);
+	if (!ndev->qvec) {
+		pci_free_irq_vectors(pdev);
+		return -ENOMEM;
+	}
+
+	/* request irqs for packet rings/ports */
+	for (i = PKT_RING_MSIX_BASE; i < (nr_vecs - 1); i += NR_RING_VECTORS) {
+		qvec = &ndev->qvec[i];
+
+		qvec->ring = i / NR_RING_VECTORS;
+		if (qvec->ring >= ndev->nr_queues)
+			break;
+
+		qvec->cmdq = &ndev->pkt_inq[qvec->ring];
+		snprintf(qvec->name, IRQ_NAMESZ, "nitrox-pkt%d", qvec->ring);
+		/* get the vector number */
+		vec = pci_irq_vector(pdev, i);
+		ret = request_irq(vec, nps_pkt_slc_isr, 0, qvec->name, qvec);
+		if (ret) {
+			dev_err(DEV(ndev), "irq failed for pkt ring/port%d\n",
+				qvec->ring);
+			goto irq_fail;
+		}
+		cpu = qvec->ring % num_online_cpus();
+		irq_set_affinity_hint(vec, get_cpu_mask(cpu));
+
+		tasklet_init(&qvec->resp_tasklet, pkt_slc_resp_tasklet,
+			     (unsigned long)qvec);
+		qvec->valid = true;
+	}
+
+	/* request irqs for non ring vectors */
+	i = NON_RING_MSIX_BASE;
+	qvec = &ndev->qvec[i];
+	qvec->ndev = ndev;
+
+	snprintf(qvec->name, IRQ_NAMESZ, "nitrox-core-int%d", i);
+	/* get the vector number */
+	vec = pci_irq_vector(pdev, i);
+	ret = request_irq(vec, nps_core_int_isr, 0, qvec->name, qvec);
+	if (ret) {
+		dev_err(DEV(ndev), "irq failed for nitrox-core-int%d\n", i);
+		goto irq_fail;
+	}
+	cpu = num_online_cpus();
+	irq_set_affinity_hint(vec, get_cpu_mask(cpu));
+
+	tasklet_init(&qvec->resp_tasklet, nps_core_int_tasklet,
+		     (unsigned long)qvec);
+	qvec->valid = true;
+>>>>>>> upstream/android-13
 
 	return 0;
 
 irq_fail:
+<<<<<<< HEAD
 	nitrox_disable_msix(ndev);
 msix_fail:
 	nitrox_cleanup_pkt_slc_bh(ndev);
 	return err;
+=======
+	nitrox_unregister_interrupts(ndev);
+	return ret;
+}
+
+void nitrox_sriov_unregister_interrupts(struct nitrox_device *ndev)
+{
+	struct pci_dev *pdev = ndev->pdev;
+	int i;
+
+	for (i = 0; i < ndev->num_vecs; i++) {
+		struct nitrox_q_vector *qvec;
+		int vec;
+
+		qvec = ndev->qvec + i;
+		if (!qvec->valid)
+			continue;
+
+		vec = ndev->iov.msix.vector;
+		irq_set_affinity_hint(vec, NULL);
+		free_irq(vec, qvec);
+
+		tasklet_disable(&qvec->resp_tasklet);
+		tasklet_kill(&qvec->resp_tasklet);
+		qvec->valid = false;
+	}
+	kfree(ndev->qvec);
+	ndev->qvec = NULL;
+	pci_disable_msix(pdev);
+}
+
+int nitrox_sriov_register_interupts(struct nitrox_device *ndev)
+{
+	struct pci_dev *pdev = ndev->pdev;
+	struct nitrox_q_vector *qvec;
+	int vec, cpu;
+	int ret;
+
+	/**
+	 * only non ring vectors i.e Entry 192 is available
+	 * for PF in SR-IOV mode.
+	 */
+	ndev->iov.msix.entry = NON_RING_MSIX_BASE;
+	ret = pci_enable_msix_exact(pdev, &ndev->iov.msix, NR_NON_RING_VECTORS);
+	if (ret) {
+		dev_err(DEV(ndev), "failed to allocate nps-core-int%d\n",
+			NON_RING_MSIX_BASE);
+		return ret;
+	}
+
+	qvec = kcalloc(NR_NON_RING_VECTORS, sizeof(*qvec), GFP_KERNEL);
+	if (!qvec) {
+		pci_disable_msix(pdev);
+		return -ENOMEM;
+	}
+	qvec->ndev = ndev;
+
+	ndev->qvec = qvec;
+	ndev->num_vecs = NR_NON_RING_VECTORS;
+	snprintf(qvec->name, IRQ_NAMESZ, "nitrox-core-int%d",
+		 NON_RING_MSIX_BASE);
+
+	vec = ndev->iov.msix.vector;
+	ret = request_irq(vec, nps_core_int_isr, 0, qvec->name, qvec);
+	if (ret) {
+		dev_err(DEV(ndev), "irq failed for nitrox-core-int%d\n",
+			NON_RING_MSIX_BASE);
+		goto iov_irq_fail;
+	}
+	cpu = num_online_cpus();
+	irq_set_affinity_hint(vec, get_cpu_mask(cpu));
+
+	tasklet_init(&qvec->resp_tasklet, nps_core_int_tasklet,
+		     (unsigned long)qvec);
+	qvec->valid = true;
+
+	return 0;
+
+iov_irq_fail:
+	nitrox_sriov_unregister_interrupts(ndev);
+	return ret;
+>>>>>>> upstream/android-13
 }

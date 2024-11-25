@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2017 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007-2017 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -22,7 +28,10 @@
 #include <linux/in.h>
 #include <linux/ip.h>
 #include <linux/openvswitch.h>
+<<<<<<< HEAD
 #include <linux/netfilter_ipv6.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/sctp.h>
 #include <linux/tcp.h>
 #include <linux/udp.h>
@@ -44,6 +53,10 @@
 #include "conntrack.h"
 #include "vport.h"
 #include "flow_netlink.h"
+<<<<<<< HEAD
+=======
+#include "openvswitch_trace.h"
+>>>>>>> upstream/android-13
 
 struct deferred_action {
 	struct sk_buff *skb;
@@ -169,6 +182,7 @@ static int clone_execute(struct datapath *dp, struct sk_buff *skb,
 			 const struct nlattr *actions, int len,
 			 bool last, bool clone_flow_key);
 
+<<<<<<< HEAD
 static void update_ethertype(struct sk_buff *skb, struct ethhdr *hdr,
 			     __be16 ethertype)
 {
@@ -212,6 +226,23 @@ static int push_mpls(struct sk_buff *skb, struct sw_flow_key *key,
 	if (ovs_key_mac_proto(key) == MAC_PROTO_ETHERNET)
 		update_ethertype(skb, eth_hdr(skb), mpls->mpls_ethertype);
 	skb->protocol = mpls->mpls_ethertype;
+=======
+static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
+			      struct sw_flow_key *key,
+			      const struct nlattr *attr, int len);
+
+static int push_mpls(struct sk_buff *skb, struct sw_flow_key *key,
+		     __be32 mpls_lse, __be16 mpls_ethertype, __u16 mac_len)
+{
+	int err;
+
+	err = skb_mpls_push(skb, mpls_lse, mpls_ethertype, mac_len, !!mac_len);
+	if (err)
+		return err;
+
+	if (!mac_len)
+		key->mac_proto = MAC_PROTO_NONE;
+>>>>>>> upstream/android-13
 
 	invalidate_flow_key(key);
 	return 0;
@@ -222,6 +253,7 @@ static int pop_mpls(struct sk_buff *skb, struct sw_flow_key *key,
 {
 	int err;
 
+<<<<<<< HEAD
 	err = skb_ensure_writable(skb, skb->mac_len + MPLS_HLEN);
 	if (unlikely(err))
 		return err;
@@ -246,6 +278,15 @@ static int pop_mpls(struct sk_buff *skb, struct sw_flow_key *key,
 	}
 	if (eth_p_mpls(skb->protocol))
 		skb->protocol = ethertype;
+=======
+	err = skb_mpls_pop(skb, ethertype, skb->mac_len,
+			   ovs_key_mac_proto(key) == MAC_PROTO_ETHERNET);
+	if (err)
+		return err;
+
+	if (ethertype == htons(ETH_P_TEB))
+		key->mac_proto = MAC_PROTO_ETHERNET;
+>>>>>>> upstream/android-13
 
 	invalidate_flow_key(key);
 	return 0;
@@ -258,6 +299,7 @@ static int set_mpls(struct sk_buff *skb, struct sw_flow_key *flow_key,
 	__be32 lse;
 	int err;
 
+<<<<<<< HEAD
 	err = skb_ensure_writable(skb, skb->mac_len + MPLS_HLEN);
 	if (unlikely(err))
 		return err;
@@ -272,6 +314,18 @@ static int set_mpls(struct sk_buff *skb, struct sw_flow_key *flow_key,
 
 	stack->label_stack_entry = lse;
 	flow_key->mpls.top_lse = lse;
+=======
+	if (!pskb_may_pull(skb, skb_network_offset(skb) + MPLS_HLEN))
+		return -ENOMEM;
+
+	stack = mpls_hdr(skb);
+	lse = OVS_MASKED(stack->label_stack_entry, *mpls_lse, *mask);
+	err = skb_mpls_update_lse(skb, lse);
+	if (err)
+		return err;
+
+	flow_key->mpls.lse[0] = lse;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -299,7 +353,11 @@ static int push_vlan(struct sk_buff *skb, struct sw_flow_key *key,
 		key->eth.vlan.tpid = vlan->vlan_tpid;
 	}
 	return skb_vlan_push(skb, vlan->vlan_tpid,
+<<<<<<< HEAD
 			     ntohs(vlan->vlan_tci) & ~VLAN_TAG_PRESENT);
+=======
+			     ntohs(vlan->vlan_tci) & ~VLAN_CFI_MASK);
+>>>>>>> upstream/android-13
 }
 
 /* 'src' is already properly masked. */
@@ -343,9 +401,17 @@ static int set_eth_addr(struct sk_buff *skb, struct sw_flow_key *flow_key,
  */
 static int pop_eth(struct sk_buff *skb, struct sw_flow_key *key)
 {
+<<<<<<< HEAD
 	skb_pull_rcsum(skb, ETH_HLEN);
 	skb_reset_mac_header(skb);
 	skb_reset_mac_len(skb);
+=======
+	int err;
+
+	err = skb_eth_pop(skb);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	/* safe right before invalidate_flow_key */
 	key->mac_proto = MAC_PROTO_NONE;
@@ -356,6 +422,7 @@ static int pop_eth(struct sk_buff *skb, struct sw_flow_key *key)
 static int push_eth(struct sk_buff *skb, struct sw_flow_key *key,
 		    const struct ovs_action_push_eth *ethh)
 {
+<<<<<<< HEAD
 	struct ethhdr *hdr;
 
 	/* Add the new Ethernet header */
@@ -372,6 +439,14 @@ static int push_eth(struct sk_buff *skb, struct sw_flow_key *key,
 	hdr->h_proto = skb->protocol;
 
 	skb_postpush_rcsum(skb, hdr, ETH_HLEN);
+=======
+	int err;
+
+	err = skb_eth_push(skb, ethh->addresses.eth_dst,
+			   ethh->addresses.eth_src);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	/* safe right before invalidate_flow_key */
 	key->mac_proto = MAC_PROTO_ETHERNET;
@@ -493,12 +568,52 @@ static void set_ipv6_addr(struct sk_buff *skb, u8 l4_proto,
 	memcpy(addr, new_addr, sizeof(__be32[4]));
 }
 
+<<<<<<< HEAD
 static void set_ipv6_fl(struct ipv6hdr *nh, u32 fl, u32 mask)
 {
 	/* Bits 21-24 are always unmasked, so this retains their values. */
 	OVS_SET_MASKED(nh->flow_lbl[0], (u8)(fl >> 16), (u8)(mask >> 16));
 	OVS_SET_MASKED(nh->flow_lbl[1], (u8)(fl >> 8), (u8)(mask >> 8));
 	OVS_SET_MASKED(nh->flow_lbl[2], (u8)fl, (u8)mask);
+=======
+static void set_ipv6_dsfield(struct sk_buff *skb, struct ipv6hdr *nh, u8 ipv6_tclass, u8 mask)
+{
+	u8 old_ipv6_tclass = ipv6_get_dsfield(nh);
+
+	ipv6_tclass = OVS_MASKED(old_ipv6_tclass, ipv6_tclass, mask);
+
+	if (skb->ip_summed == CHECKSUM_COMPLETE)
+		csum_replace(&skb->csum, (__force __wsum)(old_ipv6_tclass << 12),
+			     (__force __wsum)(ipv6_tclass << 12));
+
+	ipv6_change_dsfield(nh, ~mask, ipv6_tclass);
+}
+
+static void set_ipv6_fl(struct sk_buff *skb, struct ipv6hdr *nh, u32 fl, u32 mask)
+{
+	u32 ofl;
+
+	ofl = nh->flow_lbl[0] << 16 |  nh->flow_lbl[1] << 8 |  nh->flow_lbl[2];
+	fl = OVS_MASKED(ofl, fl, mask);
+
+	/* Bits 21-24 are always unmasked, so this retains their values. */
+	nh->flow_lbl[0] = (u8)(fl >> 16);
+	nh->flow_lbl[1] = (u8)(fl >> 8);
+	nh->flow_lbl[2] = (u8)fl;
+
+	if (skb->ip_summed == CHECKSUM_COMPLETE)
+		csum_replace(&skb->csum, (__force __wsum)htonl(ofl), (__force __wsum)htonl(fl));
+}
+
+static void set_ipv6_ttl(struct sk_buff *skb, struct ipv6hdr *nh, u8 new_ttl, u8 mask)
+{
+	new_ttl = OVS_MASKED(nh->hop_limit, new_ttl, mask);
+
+	if (skb->ip_summed == CHECKSUM_COMPLETE)
+		csum_replace(&skb->csum, (__force __wsum)(nh->hop_limit << 8),
+			     (__force __wsum)(new_ttl << 8));
+	nh->hop_limit = new_ttl;
+>>>>>>> upstream/android-13
 }
 
 static void set_ip_ttl(struct sk_buff *skb, struct iphdr *nh, u8 new_ttl,
@@ -616,18 +731,30 @@ static int set_ipv6(struct sk_buff *skb, struct sw_flow_key *flow_key,
 		}
 	}
 	if (mask->ipv6_tclass) {
+<<<<<<< HEAD
 		ipv6_change_dsfield(nh, ~mask->ipv6_tclass, key->ipv6_tclass);
 		flow_key->ip.tos = ipv6_get_dsfield(nh);
 	}
 	if (mask->ipv6_label) {
 		set_ipv6_fl(nh, ntohl(key->ipv6_label),
+=======
+		set_ipv6_dsfield(skb, nh, key->ipv6_tclass, mask->ipv6_tclass);
+		flow_key->ip.tos = ipv6_get_dsfield(nh);
+	}
+	if (mask->ipv6_label) {
+		set_ipv6_fl(skb, nh, ntohl(key->ipv6_label),
+>>>>>>> upstream/android-13
 			    ntohl(mask->ipv6_label));
 		flow_key->ipv6.label =
 		    *(__be32 *)nh & htonl(IPV6_FLOWINFO_FLOWLABEL);
 	}
 	if (mask->ipv6_hlimit) {
+<<<<<<< HEAD
 		OVS_SET_MASKED(nh->hop_limit, key->ipv6_hlimit,
 			       mask->ipv6_hlimit);
+=======
+		set_ipv6_ttl(skb, nh, key->ipv6_hlimit, mask->ipv6_hlimit);
+>>>>>>> upstream/android-13
 		flow_key->ip.ttl = nh->hop_limit;
 	}
 	return 0;
@@ -807,7 +934,12 @@ static int set_sctp(struct sk_buff *skb, struct sw_flow_key *flow_key,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ovs_vport_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+=======
+static int ovs_vport_output(struct net *net, struct sock *sk,
+			    struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct ovs_frag_data *data = this_cpu_ptr(&ovs_frag_data_storage);
 	struct vport *vport = data->vport;
@@ -820,8 +952,15 @@ static int ovs_vport_output(struct net *net, struct sock *sk, struct sk_buff *sk
 	__skb_dst_copy(skb, data->dst);
 	*OVS_CB(skb) = data->cb;
 	skb->inner_protocol = data->inner_protocol;
+<<<<<<< HEAD
 	skb->vlan_tci = data->vlan_tci;
 	skb->vlan_proto = data->vlan_proto;
+=======
+	if (data->vlan_tci & VLAN_CFI_MASK)
+		__vlan_hwaccel_put_tag(skb, data->vlan_proto, data->vlan_tci & ~VLAN_CFI_MASK);
+	else
+		__vlan_hwaccel_clear_tag(skb);
+>>>>>>> upstream/android-13
 
 	/* Reconstruct the MAC header.  */
 	skb_push(skb, data->l2_len);
@@ -865,7 +1004,14 @@ static void prepare_frag(struct vport *vport, struct sk_buff *skb,
 	data->cb = *OVS_CB(skb);
 	data->inner_protocol = skb->inner_protocol;
 	data->network_offset = orig_network_offset;
+<<<<<<< HEAD
 	data->vlan_tci = skb->vlan_tci;
+=======
+	if (skb_vlan_tag_present(skb))
+		data->vlan_tci = skb_vlan_tag_get(skb) | VLAN_CFI_MASK;
+	else
+		data->vlan_tci = 0;
+>>>>>>> upstream/android-13
 	data->vlan_proto = skb->vlan_proto;
 	data->mac_proto = mac_proto;
 	data->l2_len = hlen;
@@ -908,6 +1054,7 @@ static void ovs_fragment(struct net *net, struct vport *vport,
 		ip_do_fragment(net, skb->sk, skb, ovs_vport_output);
 		refdst_drop(orig_dst);
 	} else if (key->eth.type == htons(ETH_P_IPV6)) {
+<<<<<<< HEAD
 		const struct nf_ipv6_ops *v6ops = nf_get_ipv6_ops();
 		unsigned long orig_dst;
 		struct rt6_info ovs_rt;
@@ -915,6 +1062,11 @@ static void ovs_fragment(struct net *net, struct vport *vport,
 		if (!v6ops)
 			goto err;
 
+=======
+		unsigned long orig_dst;
+		struct rt6_info ovs_rt;
+
+>>>>>>> upstream/android-13
 		prepare_frag(vport, skb, orig_network_offset,
 			     ovs_key_mac_proto(key));
 		memset(&ovs_rt, 0, sizeof(ovs_rt));
@@ -926,7 +1078,11 @@ static void ovs_fragment(struct net *net, struct vport *vport,
 		skb_dst_set_noref(skb, &ovs_rt.dst);
 		IP6CB(skb)->frag_max_size = mru;
 
+<<<<<<< HEAD
 		v6ops->fragment(net, skb->sk, skb, ovs_vport_output);
+=======
+		ipv6_stub->ipv6_fragment(net, skb->sk, skb, ovs_vport_output);
+>>>>>>> upstream/android-13
 		refdst_drop(orig_dst);
 	} else {
 		WARN_ONCE(1, "Failed fragment ->%s: eth=%04x, MRU=%d, MTU=%d.",
@@ -985,14 +1141,28 @@ static int output_userspace(struct datapath *dp, struct sk_buff *skb,
 	upcall.mru = OVS_CB(skb)->mru;
 
 	for (a = nla_data(attr), rem = nla_len(attr); rem > 0;
+<<<<<<< HEAD
 		 a = nla_next(a, &rem)) {
+=======
+	     a = nla_next(a, &rem)) {
+>>>>>>> upstream/android-13
 		switch (nla_type(a)) {
 		case OVS_USERSPACE_ATTR_USERDATA:
 			upcall.userdata = a;
 			break;
 
 		case OVS_USERSPACE_ATTR_PID:
+<<<<<<< HEAD
 			upcall.portid = nla_get_u32(a);
+=======
+			if (dp->user_features &
+			    OVS_DP_F_DISPATCH_UPCALL_PER_CPU)
+				upcall.portid =
+				  ovs_dp_get_upcall_portid(dp,
+							   smp_processor_id());
+			else
+				upcall.portid = nla_get_u32(a);
+>>>>>>> upstream/android-13
 			break;
 
 		case OVS_USERSPACE_ATTR_EGRESS_TUN_PORT: {
@@ -1024,6 +1194,24 @@ static int output_userspace(struct datapath *dp, struct sk_buff *skb,
 	return ovs_dp_upcall(dp, skb, key, &upcall, cutlen);
 }
 
+<<<<<<< HEAD
+=======
+static int dec_ttl_exception_handler(struct datapath *dp, struct sk_buff *skb,
+				     struct sw_flow_key *key,
+				     const struct nlattr *attr)
+{
+	/* The first attribute is always 'OVS_DEC_TTL_ATTR_ACTION'. */
+	struct nlattr *actions = nla_data(attr);
+
+	if (nla_len(actions))
+		return clone_execute(dp, skb, key, 0, nla_data(actions),
+				     nla_len(actions), true, false);
+
+	consume_skb(skb);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* When 'last' is true, sample() should always consume the 'skb'.
  * Otherwise, sample() should keep 'skb' intact regardless what
  * actions are executed within sample().
@@ -1068,7 +1256,11 @@ static int clone(struct datapath *dp, struct sk_buff *skb,
 	int rem = nla_len(attr);
 	bool dont_clone_flow_key;
 
+<<<<<<< HEAD
 	/* The first action is always 'OVS_CLONE_ATTR_ARG'. */
+=======
+	/* The first action is always 'OVS_CLONE_ATTR_EXEC'. */
+>>>>>>> upstream/android-13
 	clone_arg = nla_data(attr);
 	dont_clone_flow_key = nla_get_u32(clone_arg);
 	actions = nla_next(clone_arg, &rem);
@@ -1206,6 +1398,87 @@ static int execute_recirc(struct datapath *dp, struct sk_buff *skb,
 	return clone_execute(dp, skb, key, recirc_id, NULL, 0, last, true);
 }
 
+<<<<<<< HEAD
+=======
+static int execute_check_pkt_len(struct datapath *dp, struct sk_buff *skb,
+				 struct sw_flow_key *key,
+				 const struct nlattr *attr, bool last)
+{
+	struct ovs_skb_cb *ovs_cb = OVS_CB(skb);
+	const struct nlattr *actions, *cpl_arg;
+	int len, max_len, rem = nla_len(attr);
+	const struct check_pkt_len_arg *arg;
+	bool clone_flow_key;
+
+	/* The first netlink attribute in 'attr' is always
+	 * 'OVS_CHECK_PKT_LEN_ATTR_ARG'.
+	 */
+	cpl_arg = nla_data(attr);
+	arg = nla_data(cpl_arg);
+
+	len = ovs_cb->mru ? ovs_cb->mru + skb->mac_len : skb->len;
+	max_len = arg->pkt_len;
+
+	if ((skb_is_gso(skb) && skb_gso_validate_mac_len(skb, max_len)) ||
+	    len <= max_len) {
+		/* Second netlink attribute in 'attr' is always
+		 * 'OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL'.
+		 */
+		actions = nla_next(cpl_arg, &rem);
+		clone_flow_key = !arg->exec_for_lesser_equal;
+	} else {
+		/* Third netlink attribute in 'attr' is always
+		 * 'OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER'.
+		 */
+		actions = nla_next(cpl_arg, &rem);
+		actions = nla_next(actions, &rem);
+		clone_flow_key = !arg->exec_for_greater;
+	}
+
+	return clone_execute(dp, skb, key, 0, nla_data(actions),
+			     nla_len(actions), last, clone_flow_key);
+}
+
+static int execute_dec_ttl(struct sk_buff *skb, struct sw_flow_key *key)
+{
+	int err;
+
+	if (skb->protocol == htons(ETH_P_IPV6)) {
+		struct ipv6hdr *nh;
+
+		err = skb_ensure_writable(skb, skb_network_offset(skb) +
+					  sizeof(*nh));
+		if (unlikely(err))
+			return err;
+
+		nh = ipv6_hdr(skb);
+
+		if (nh->hop_limit <= 1)
+			return -EHOSTUNREACH;
+
+		key->ip.ttl = --nh->hop_limit;
+	} else if (skb->protocol == htons(ETH_P_IP)) {
+		struct iphdr *nh;
+		u8 old_ttl;
+
+		err = skb_ensure_writable(skb, skb_network_offset(skb) +
+					  sizeof(*nh));
+		if (unlikely(err))
+			return err;
+
+		nh = ip_hdr(skb);
+		if (nh->ttl <= 1)
+			return -EHOSTUNREACH;
+
+		old_ttl = nh->ttl--;
+		csum_replace2(&nh->check, htons(old_ttl << 8),
+			      htons(nh->ttl << 8));
+		key->ip.ttl = nh->ttl;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Execute a list of actions against 'skb'. */
 static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
 			      struct sw_flow_key *key,
@@ -1218,6 +1491,12 @@ static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
 	     a = nla_next(a, &rem)) {
 		int err = 0;
 
+<<<<<<< HEAD
+=======
+		if (trace_ovs_do_execute_action_enabled())
+			trace_ovs_do_execute_action(dp, skb, key, a, rem);
+
+>>>>>>> upstream/android-13
 		switch (nla_type(a)) {
 		case OVS_ACTION_ATTR_OUTPUT: {
 			int port = nla_get_u32(a);
@@ -1259,10 +1538,31 @@ static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
 			execute_hash(skb, key, a);
 			break;
 
+<<<<<<< HEAD
 		case OVS_ACTION_ATTR_PUSH_MPLS:
 			err = push_mpls(skb, key, nla_data(a));
 			break;
 
+=======
+		case OVS_ACTION_ATTR_PUSH_MPLS: {
+			struct ovs_action_push_mpls *mpls = nla_data(a);
+
+			err = push_mpls(skb, key, mpls->mpls_lse,
+					mpls->mpls_ethertype, skb->mac_len);
+			break;
+		}
+		case OVS_ACTION_ATTR_ADD_MPLS: {
+			struct ovs_action_add_mpls *mpls = nla_data(a);
+			__u16 mac_len = 0;
+
+			if (mpls->tun_flags & OVS_MPLS_L3_TUNNEL_FLAG_MASK)
+				mac_len = skb->mac_len;
+
+			err = push_mpls(skb, key, mpls->mpls_lse,
+					mpls->mpls_ethertype, mac_len);
+			break;
+		}
+>>>>>>> upstream/android-13
 		case OVS_ACTION_ATTR_POP_MPLS:
 			err = pop_mpls(skb, key, nla_get_be16(a));
 			break;
@@ -1367,6 +1667,26 @@ static int do_execute_actions(struct datapath *dp, struct sk_buff *skb,
 
 			break;
 		}
+<<<<<<< HEAD
+=======
+
+		case OVS_ACTION_ATTR_CHECK_PKT_LEN: {
+			bool last = nla_is_last(a, rem);
+
+			err = execute_check_pkt_len(dp, skb, key, a, last);
+			if (last)
+				return err;
+
+			break;
+		}
+
+		case OVS_ACTION_ATTR_DEC_TTL:
+			err = execute_dec_ttl(skb, key);
+			if (err == -EHOSTUNREACH)
+				return dec_ttl_exception_handler(dp, skb,
+								 key, a);
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		if (unlikely(err)) {

@@ -8,11 +8,21 @@
 
 #include <linux/clk.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_plane_helper.h>
+=======
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_device.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "sti_compositor.h"
 #include "sti_crtc.h"
@@ -21,7 +31,11 @@
 #include "sti_vtg.h"
 
 static void sti_crtc_atomic_enable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				   struct drm_crtc_state *old_state)
+=======
+				   struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct sti_mixer *mixer = to_sti_mixer(crtc);
 
@@ -33,13 +47,22 @@ static void sti_crtc_atomic_enable(struct drm_crtc *crtc,
 }
 
 static void sti_crtc_atomic_disable(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				    struct drm_crtc_state *old_state)
+=======
+				    struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct sti_mixer *mixer = to_sti_mixer(crtc);
 
 	DRM_DEBUG_DRIVER("\n");
 
 	mixer->status = STI_MIXER_DISABLING;
+<<<<<<< HEAD
+=======
+
+	drm_crtc_wait_one_vblank(crtc);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -51,6 +74,7 @@ sti_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode *mode)
 	struct clk *compo_clk, *pix_clk;
 	int rate = mode->clock * 1000;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("CRTC:%d (%s) mode:%d (%s)\n",
 		      crtc->base.id, sti_mixer_to_str(mixer),
 		      mode->base.id, mode->name);
@@ -63,6 +87,12 @@ sti_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode *mode)
 		      mode->vdisplay,
 		      mode->vsync_start, mode->vsync_end,
 		      mode->vtotal, mode->type, mode->flags);
+=======
+	DRM_DEBUG_KMS("CRTC:%d (%s) mode: (%s)\n",
+		      crtc->base.id, sti_mixer_to_str(mixer), mode->name);
+
+	DRM_DEBUG_KMS(DRM_MODE_FMT "\n", DRM_MODE_ARG(mode));
+>>>>>>> upstream/android-13
 
 	if (mixer->id == STI_MIXER_MAIN) {
 		compo_clk = compo->clk_compo_main;
@@ -137,7 +167,11 @@ sti_crtc_mode_set_nofb(struct drm_crtc *crtc)
 }
 
 static void sti_crtc_atomic_flush(struct drm_crtc *crtc,
+<<<<<<< HEAD
 				  struct drm_crtc_state *old_crtc_state)
+=======
+				  struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *drm_dev = crtc->dev;
 	struct sti_mixer *mixer = to_sti_mixer(crtc);
@@ -250,10 +284,15 @@ int sti_crtc_vblank_cb(struct notifier_block *nb,
 	struct sti_compositor *compo;
 	struct drm_crtc *crtc = data;
 	struct sti_mixer *mixer;
+<<<<<<< HEAD
 	struct sti_private *priv;
 	unsigned int pipe;
 
 	priv = crtc->dev->dev_private;
+=======
+	unsigned int pipe;
+
+>>>>>>> upstream/android-13
 	pipe = drm_crtc_index(crtc);
 	compo = container_of(nb, struct sti_compositor, vtg_vblank_nb[pipe]);
 	mixer = compo->mixer[pipe];
@@ -285,12 +324,22 @@ int sti_crtc_vblank_cb(struct notifier_block *nb,
 	return 0;
 }
 
+<<<<<<< HEAD
 int sti_crtc_enable_vblank(struct drm_device *dev, unsigned int pipe)
 {
 	struct sti_private *dev_priv = dev->dev_private;
 	struct sti_compositor *compo = dev_priv->compo;
 	struct notifier_block *vtg_vblank_nb = &compo->vtg_vblank_nb[pipe];
 	struct drm_crtc *crtc = &compo->mixer[pipe]->drm_crtc;
+=======
+static int sti_crtc_enable_vblank(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = crtc->index;
+	struct sti_private *dev_priv = dev->dev_private;
+	struct sti_compositor *compo = dev_priv->compo;
+	struct notifier_block *vtg_vblank_nb = &compo->vtg_vblank_nb[pipe];
+>>>>>>> upstream/android-13
 	struct sti_vtg *vtg = compo->vtg[pipe];
 
 	DRM_DEBUG_DRIVER("\n");
@@ -303,8 +352,15 @@ int sti_crtc_enable_vblank(struct drm_device *dev, unsigned int pipe)
 	return 0;
 }
 
+<<<<<<< HEAD
 void sti_crtc_disable_vblank(struct drm_device *drm_dev, unsigned int pipe)
 {
+=======
+static void sti_crtc_disable_vblank(struct drm_crtc *crtc)
+{
+	struct drm_device *drm_dev = crtc->dev;
+	unsigned int pipe = crtc->index;
+>>>>>>> upstream/android-13
 	struct sti_private *priv = drm_dev->dev_private;
 	struct sti_compositor *compo = priv->compo;
 	struct notifier_block *vtg_vblank_nb = &compo->vtg_vblank_nb[pipe];
@@ -322,7 +378,11 @@ static int sti_crtc_late_register(struct drm_crtc *crtc)
 	struct sti_compositor *compo = dev_get_drvdata(mixer->dev);
 
 	if (drm_crtc_index(crtc) == 0)
+<<<<<<< HEAD
 		return sti_compositor_debugfs_init(compo, crtc->dev->primary);
+=======
+		sti_compositor_debugfs_init(compo, crtc->dev->primary);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -336,6 +396,11 @@ static const struct drm_crtc_funcs sti_crtc_funcs = {
 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
 	.late_register = sti_crtc_late_register,
+<<<<<<< HEAD
+=======
+	.enable_vblank = sti_crtc_enable_vblank,
+	.disable_vblank = sti_crtc_disable_vblank,
+>>>>>>> upstream/android-13
 };
 
 bool sti_crtc_is_main(struct drm_crtc *crtc)

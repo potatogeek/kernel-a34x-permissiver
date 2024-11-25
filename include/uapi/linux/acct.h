@@ -49,6 +49,10 @@ struct acct
 	__u16		ac_uid16;		/* LSB of Real User ID */
 	__u16		ac_gid16;		/* LSB of Real Group ID */
 	__u16		ac_tty;			/* Control Terminal */
+<<<<<<< HEAD
+=======
+	/* __u32 range means times from 1970 to 2106 */
+>>>>>>> upstream/android-13
 	__u32		ac_btime;		/* Process Creation Time */
 	comp_t		ac_utime;		/* User Time */
 	comp_t		ac_stime;		/* System Time */
@@ -81,6 +85,10 @@ struct acct_v3
 	__u32		ac_gid;			/* Real Group ID */
 	__u32		ac_pid;			/* Process ID */
 	__u32		ac_ppid;		/* Parent Process ID */
+<<<<<<< HEAD
+=======
+	/* __u32 range means times from 1970 to 2106 */
+>>>>>>> upstream/android-13
 	__u32		ac_btime;		/* Process Creation Time */
 #ifdef __KERNEL__
 	__u32		ac_etime;		/* Elapsed Time */

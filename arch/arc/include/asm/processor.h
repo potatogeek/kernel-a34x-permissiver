@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+ *
+>>>>>>> upstream/android-13
  * vineetg: March 2009
  *  -Implemented task_pt_regs( )
  *
@@ -17,6 +24,7 @@
 #ifndef __ASSEMBLY__
 
 #include <asm/ptrace.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_ARC_FPU_SAVE_RESTORE
 /* These DPFP regs need to be saved/restored across ctx-sw */
@@ -33,6 +41,10 @@ struct eznps_dp {
 	unsigned int gpa1;
 };
 #endif
+=======
+#include <asm/dsp.h>
+#include <asm/fpu.h>
+>>>>>>> upstream/android-13
 
 /* Arch specific stuff which needs to be saved per task.
  * However these items are not so important so as to earn a place in
@@ -42,12 +54,21 @@ struct thread_struct {
 	unsigned long ksp;	/* kernel mode stack pointer */
 	unsigned long callee_reg;	/* pointer to callee regs */
 	unsigned long fault_address;	/* dbls as brkpt holder as well */
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_FPU_SAVE_RESTORE
 	struct arc_fpu fpu;
 #endif
 #ifdef CONFIG_ARC_PLAT_EZNPS
 	struct eznps_dp dp;
 #endif
+=======
+#ifdef CONFIG_ARC_DSP_SAVE_RESTORE_REGS
+	struct dsp_callee_regs dsp;
+#endif
+#ifdef CONFIG_ARC_FPU_SAVE_RESTORE
+	struct arc_fpu fpu;
+#endif
+>>>>>>> upstream/android-13
 };
 
 #define INIT_THREAD  {                          \
@@ -67,6 +88,7 @@ struct task_struct;
  * A lot of busy-wait loops in SMP are based off of non-volatile data otherwise
  * get optimised away by gcc
  */
+<<<<<<< HEAD
 #ifndef CONFIG_EZNPS_MTM_EXT
 
 #define cpu_relax()		barrier()
@@ -78,6 +100,10 @@ struct task_struct;
 
 #endif
 
+=======
+#define cpu_relax()		barrier()
+
+>>>>>>> upstream/android-13
 #define KSTK_EIP(tsk)   (task_pt_regs(tsk)->ret)
 #define KSTK_ESP(tsk)   (task_pt_regs(tsk)->sp)
 
@@ -98,6 +124,7 @@ extern void start_thread(struct pt_regs * regs, unsigned long pc,
 
 extern unsigned int get_wchan(struct task_struct *p);
 
+<<<<<<< HEAD
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
@@ -106,6 +133,8 @@ extern unsigned int get_wchan(struct task_struct *p);
  */
 #define current_text_addr() ({ __label__ _l; _l: &&_l; })
 
+=======
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 /*
@@ -127,12 +156,17 @@ extern unsigned int get_wchan(struct task_struct *p);
 #define VMALLOC_START	(PAGE_OFFSET - (CONFIG_ARC_KVADDR_SIZE << 20))
 
 /* 1 PGDIR_SIZE each for fixmap/pkmap, 2 PGDIR_SIZE gutter (see asm/highmem.h) */
+<<<<<<< HEAD
 #define VMALLOC_SIZE	((CONFIG_ARC_KVADDR_SIZE << 20) - PGDIR_SIZE * 4)
+=======
+#define VMALLOC_SIZE	((CONFIG_ARC_KVADDR_SIZE << 20) - PMD_SIZE * 4)
+>>>>>>> upstream/android-13
 
 #define VMALLOC_END	(VMALLOC_START + VMALLOC_SIZE)
 
 #define USER_KERNEL_GUTTER    (VMALLOC_START - TASK_SIZE)
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 /* NPS architecture defines special window of 129M in user address space for
  * special memory areas, when accessing this window the MMU do not use TLB.
@@ -152,6 +186,9 @@ extern unsigned int get_wchan(struct task_struct *p);
 #define STACK_TOP       TASK_SIZE
 #endif
 
+=======
+#define STACK_TOP       TASK_SIZE
+>>>>>>> upstream/android-13
 #define STACK_TOP_MAX   STACK_TOP
 
 /* This decides where the kernel will search for a free chunk of vm

@@ -23,6 +23,7 @@ struct pxad_param {
 	enum pxad_chan_prio prio;
 };
 
+<<<<<<< HEAD
 struct dma_chan;
 
 #ifdef CONFIG_PXA_DMA
@@ -34,4 +35,6 @@ static inline bool pxad_filter_fn(struct dma_chan *chan, void *param)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _PXA_DMA_H_ */

@@ -93,6 +93,10 @@ static const struct xattr_handler * const ext4_xattr_handler_map[] = {
 #ifdef CONFIG_EXT4_FS_SECURITY
 	[EXT4_XATTR_INDEX_SECURITY]	     = &ext4_xattr_security_handler,
 #endif
+<<<<<<< HEAD
+=======
+	[EXT4_XATTR_INDEX_HURD]		     = &ext4_xattr_hurd_handler,
+>>>>>>> upstream/android-13
 };
 
 const struct xattr_handler *ext4_xattr_handlers[] = {
@@ -105,6 +109,10 @@ const struct xattr_handler *ext4_xattr_handlers[] = {
 #ifdef CONFIG_EXT4_FS_SECURITY
 	&ext4_xattr_security_handler,
 #endif
+<<<<<<< HEAD
+=======
+	&ext4_xattr_hurd_handler,
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -244,12 +252,19 @@ __ext4_xattr_check_block(struct inode *inode, struct buffer_head *bh,
 	error = ext4_xattr_check_entries(BFIRST(bh), bh->b_data + bh->b_size,
 					 bh->b_data);
 errout:
+<<<<<<< HEAD
 	if (error) {
 		print_bh(inode->i_sb, bh, 0, EXT4_BLOCK_SIZE(inode->i_sb));
 		__ext4_error_inode(inode, function, line, 0,
 				   "corrupted xattr block %llu",
 				   (unsigned long long) bh->b_blocknr);
 	}
+=======
+	if (error)
+		__ext4_error_inode(inode, function, line, 0, -error,
+				   "corrupted xattr block %llu",
+				   (unsigned long long) bh->b_blocknr);
+>>>>>>> upstream/android-13
 	else
 		set_buffer_verified(bh);
 	return error;
@@ -270,6 +285,12 @@ __xattr_check_inode(struct inode *inode, struct ext4_xattr_ibody_header *header,
 		goto errout;
 	error = ext4_xattr_check_entries(IFIRST(header), end, IFIRST(header));
 errout:
+<<<<<<< HEAD
+=======
+	if (error)
+		__ext4_error_inode(inode, function, line, 0, -error,
+				   "corrupted in-inode xattr");
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -588,12 +609,17 @@ ext4_xattr_ibody_get(struct inode *inode, int name_index, const char *name,
 	header = IHDR(inode, raw_inode);
 	end = (void *)raw_inode + EXT4_SB(inode->i_sb)->s_inode_size;
 	error = xattr_check_inode(inode, header, end);
+<<<<<<< HEAD
 	if (error) {
 		__ext4_error_inode(inode, __func__, __LINE__, 0,
 				   "corrupted in-inode xattr");
 		print_iloc_info(inode->i_sb, iloc);
 		goto cleanup;
 	}
+=======
+	if (error)
+		goto cleanup;
+>>>>>>> upstream/android-13
 	entry = IFIRST(header);
 	error = xattr_find_entry(inode, &entry, end, name_index, name, 0);
 	if (error)
@@ -737,12 +763,17 @@ ext4_xattr_ibody_list(struct dentry *dentry, char *buffer, size_t buffer_size)
 	header = IHDR(inode, raw_inode);
 	end = (void *)raw_inode + EXT4_SB(inode->i_sb)->s_inode_size;
 	error = xattr_check_inode(inode, header, end);
+<<<<<<< HEAD
 	if (error) {
 		print_iloc_info(inode->i_sb, iloc);
 		__ext4_error_inode(inode, __func__, __LINE__, 0,
 				   "corrupted in-inode xattr");
 		goto cleanup;
 	}
+=======
+	if (error)
+		goto cleanup;
+>>>>>>> upstream/android-13
 	error = ext4_xattr_list_entries(dentry, IFIRST(header),
 					buffer, buffer_size);
 
@@ -796,9 +827,19 @@ static void ext4_xattr_update_super_block(handle_t *handle,
 		return;
 
 	BUFFER_TRACE(EXT4_SB(sb)->s_sbh, "get_write_access");
+<<<<<<< HEAD
 	if (ext4_journal_get_write_access(handle, EXT4_SB(sb)->s_sbh) == 0) {
 		ext4_set_feature_xattr(sb);
 		ext4_handle_dirty_super(handle, sb);
+=======
+	if (ext4_journal_get_write_access(handle, sb, EXT4_SB(sb)->s_sbh,
+					  EXT4_JTR_NONE) == 0) {
+		lock_buffer(EXT4_SB(sb)->s_sbh);
+		ext4_set_feature_xattr(sb);
+		ext4_superblock_csum_set(sb);
+		unlock_buffer(EXT4_SB(sb)->s_sbh);
+		ext4_handle_dirty_metadata(handle, NULL, EXT4_SB(sb)->s_sbh);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -823,12 +864,17 @@ int ext4_get_inode_usage(struct inode *inode, qsize_t *usage)
 		header = IHDR(inode, raw_inode);
 		end = (void *)raw_inode + EXT4_SB(inode->i_sb)->s_inode_size;
 		ret = xattr_check_inode(inode, header, end);
+<<<<<<< HEAD
 		if (ret) {
 			print_iloc_info(inode->i_sb, iloc);
 			__ext4_error_inode(inode, __func__, __LINE__, 0,
 					   "corrupted in-inode xattr");
 			goto out;
 		}
+=======
+		if (ret)
+			goto out;
+>>>>>>> upstream/android-13
 
 		for (entry = IFIRST(header); !IS_LAST_ENTRY(entry);
 		     entry = EXT4_XATTR_NEXT(entry))
@@ -978,6 +1024,7 @@ int __ext4_xattr_set_credits(struct super_block *sb, struct inode *inode,
 	return credits;
 }
 
+<<<<<<< HEAD
 static int ext4_xattr_ensure_credits(handle_t *handle, struct inode *inode,
 				     int credits, struct buffer_head *bh,
 				     bool dirty, bool block_csum)
@@ -1027,6 +1074,8 @@ static int ext4_xattr_ensure_credits(handle_t *handle, struct inode *inode,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
 				       int ref_change)
 {
@@ -1039,10 +1088,15 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
 	inode_lock(ea_inode);
 
 	ret = ext4_reserve_inode_write(handle, ea_inode, &iloc);
+<<<<<<< HEAD
 	if (ret) {
 		iloc.bh = NULL;
 		goto out;
 	}
+=======
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	ref_count = ext4_xattr_inode_get_ref(ea_inode);
 	ref_count += ref_change;
@@ -1088,12 +1142,18 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
 	}
 
 	ret = ext4_mark_iloc_dirty(handle, ea_inode, &iloc);
+<<<<<<< HEAD
 	iloc.bh = NULL;
+=======
+>>>>>>> upstream/android-13
 	if (ret)
 		ext4_warning_inode(ea_inode,
 				   "ext4_mark_iloc_dirty() failed ret=%d", ret);
 out:
+<<<<<<< HEAD
 	brelse(iloc.bh);
+=======
+>>>>>>> upstream/android-13
 	inode_unlock(ea_inode);
 	return ret;
 }
@@ -1164,6 +1224,27 @@ cleanup:
 	return saved_err;
 }
 
+<<<<<<< HEAD
+=======
+static int ext4_xattr_restart_fn(handle_t *handle, struct inode *inode,
+			struct buffer_head *bh, bool block_csum, bool dirty)
+{
+	int error;
+
+	if (bh && dirty) {
+		if (block_csum)
+			ext4_xattr_block_csum_set(inode, bh);
+		error = ext4_handle_dirty_metadata(handle, NULL, bh);
+		if (error) {
+			ext4_warning(inode->i_sb, "Handle metadata (error %d)",
+				     error);
+			return error;
+		}
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void
 ext4_xattr_inode_dec_ref_all(handle_t *handle, struct inode *parent,
 			     struct buffer_head *bh,
@@ -1200,13 +1281,34 @@ ext4_xattr_inode_dec_ref_all(handle_t *handle, struct inode *parent,
 			continue;
 		}
 
+<<<<<<< HEAD
 		err = ext4_xattr_ensure_credits(handle, parent, credits, bh,
 						dirty, block_csum);
 		if (err) {
+=======
+		err = ext4_journal_ensure_credits_fn(handle, credits, credits,
+			ext4_free_metadata_revoke_credits(parent->i_sb, 1),
+			ext4_xattr_restart_fn(handle, parent, bh, block_csum,
+					      dirty));
+		if (err < 0) {
+>>>>>>> upstream/android-13
 			ext4_warning_inode(ea_inode, "Ensure credits err=%d",
 					   err);
 			continue;
 		}
+<<<<<<< HEAD
+=======
+		if (err > 0) {
+			err = ext4_journal_get_write_access(handle,
+					parent->i_sb, bh, EXT4_JTR_NONE);
+			if (err) {
+				ext4_warning_inode(ea_inode,
+						"Re-get write access err=%d",
+						err);
+				continue;
+			}
+		}
+>>>>>>> upstream/android-13
 
 		err = ext4_xattr_inode_dec_ref(handle, ea_inode);
 		if (err) {
@@ -1260,7 +1362,12 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
 	int error = 0;
 
 	BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 	error = ext4_journal_get_write_access(handle, bh);
+=======
+	error = ext4_journal_get_write_access(handle, inode->i_sb, bh,
+					      EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -1362,7 +1469,11 @@ static int ext4_xattr_inode_write(handle_t *handle, struct inode *ea_inode,
 	int blocksize = ea_inode->i_sb->s_blocksize;
 	int max_blocks = (bufsize + blocksize - 1) >> ea_inode->i_blkbits;
 	int csize, wsize = 0;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret = 0, ret2 = 0;
+>>>>>>> upstream/android-13
 	int retries = 0;
 
 retry:
@@ -1389,8 +1500,12 @@ retry:
 
 	block = 0;
 	while (wsize < bufsize) {
+<<<<<<< HEAD
 		if (bh != NULL)
 			brelse(bh);
+=======
+		brelse(bh);
+>>>>>>> upstream/android-13
 		csize = (bufsize - wsize) > blocksize ? blocksize :
 								bufsize - wsize;
 		bh = ext4_getblk(handle, ea_inode, block, 0);
@@ -1402,7 +1517,12 @@ retry:
 					 "ext4_getblk() return bh = NULL");
 			return -EFSCORRUPTED;
 		}
+<<<<<<< HEAD
 		ret = ext4_journal_get_write_access(handle, bh);
+=======
+		ret = ext4_journal_get_write_access(handle, ea_inode->i_sb, bh,
+						   EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out;
 
@@ -1420,7 +1540,13 @@ retry:
 	ext4_update_i_disksize(ea_inode, wsize);
 	inode_unlock(ea_inode);
 
+<<<<<<< HEAD
 	ext4_mark_inode_dirty(handle, ea_inode);
+=======
+	ret2 = ext4_mark_inode_dirty(handle, ea_inode);
+	if (unlikely(ret2 && !ret))
+		ret = ret2;
+>>>>>>> upstream/android-13
 
 out:
 	brelse(bh);
@@ -1494,7 +1620,11 @@ ext4_xattr_inode_cache_find(struct inode *inode, const void *value,
 	WARN_ON_ONCE(ext4_handle_valid(journal_current_handle()) &&
 		     !(current->flags & PF_MEMALLOC_NOFS));
 
+<<<<<<< HEAD
 	ea_data = ext4_kvmalloc(value_len, GFP_NOFS);
+=======
+	ea_data = kvmalloc(value_len, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ea_data) {
 		mb_cache_entry_put(ea_inode_cache, ce);
 		return NULL;
@@ -1646,7 +1776,11 @@ static int ext4_xattr_set_entry(struct ext4_xattr_info *i,
 		 * If storing the value in an external inode is an option,
 		 * reserve space for xattr entries/names in the external
 		 * attribute block so that a long value does not occupy the
+<<<<<<< HEAD
 		 * whole space and prevent futher entries being added.
+=======
+		 * whole space and prevent further entries being added.
+>>>>>>> upstream/android-13
 		 */
 		if (ext4_has_feature_ea_inode(inode->i_sb) &&
 		    new_size && is_block &&
@@ -1884,7 +2018,12 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
 
 	if (s->base) {
 		BUFFER_TRACE(bs->bh, "get_write_access");
+<<<<<<< HEAD
 		error = ext4_journal_get_write_access(handle, bs->bh);
+=======
+		error = ext4_journal_get_write_access(handle, sb, bs->bh,
+						      EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (error)
 			goto cleanup;
 		lock_buffer(bs->bh);
@@ -1962,7 +2101,10 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
 	} else {
 		/* Allocate a buffer where we construct the new block. */
 		s->base = kzalloc(sb->s_blocksize, GFP_NOFS);
+<<<<<<< HEAD
 		/* assert(header == s->base) */
+=======
+>>>>>>> upstream/android-13
 		error = -ENOMEM;
 		if (s->base == NULL)
 			goto cleanup;
@@ -2017,8 +2159,14 @@ inserted:
 				if (error)
 					goto cleanup;
 				BUFFER_TRACE(new_bh, "get_write_access");
+<<<<<<< HEAD
 				error = ext4_journal_get_write_access(handle,
 								      new_bh);
+=======
+				error = ext4_journal_get_write_access(
+						handle, sb, new_bh,
+						EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 				if (error)
 					goto cleanup_dquot;
 				lock_buffer(new_bh);
@@ -2122,7 +2270,12 @@ getblk_failed:
 			}
 
 			lock_buffer(new_bh);
+<<<<<<< HEAD
 			error = ext4_journal_get_create_access(handle, new_bh);
+=======
+			error = ext4_journal_get_create_access(handle, sb,
+							new_bh, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 			if (error) {
 				unlock_buffer(new_bh);
 				error = -EIO;
@@ -2208,12 +2361,17 @@ int ext4_xattr_ibody_find(struct inode *inode, struct ext4_xattr_info *i,
 	is->s.end = (void *)raw_inode + EXT4_SB(inode->i_sb)->s_inode_size;
 	if (ext4_test_inode_state(inode, EXT4_STATE_XATTR)) {
 		error = xattr_check_inode(inode, header, is->s.end);
+<<<<<<< HEAD
 		if (error) {
 			print_iloc_info(inode->i_sb, is->iloc);
 			__ext4_error_inode(inode, __func__, __LINE__, 0,
 					   "corrupted in-inode xattr");
 			return error;
 		}
+=======
+		if (error)
+			return error;
+>>>>>>> upstream/android-13
 		/* Find the named attribute. */
 		error = xattr_find_entry(inode, &is->s.here, is->s.end,
 					 i->name_index, i->name, 0);
@@ -2224,7 +2382,11 @@ int ext4_xattr_ibody_find(struct inode *inode, struct ext4_xattr_info *i,
 	return 0;
 }
 
+<<<<<<< HEAD
 int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
+=======
+int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
+>>>>>>> upstream/android-13
 				struct ext4_xattr_info *i,
 				struct ext4_xattr_ibody_find *is)
 {
@@ -2232,6 +2394,7 @@ int ext4_xattr_ibody_inline_set(handle_t *handle, struct inode *inode,
 	struct ext4_xattr_search *s = &is->s;
 	int error;
 
+<<<<<<< HEAD
 	/* @fs.sec -- ec294112f1af9d4be72e6292e7e994e522fccbeb -- */
 	if (EXT4_I(inode)->i_extra_isize == 0 ||
 			(void *) EXT4_XATTR_NEXT(s->first) >= s->end)
@@ -2261,6 +2424,9 @@ static int ext4_xattr_ibody_set(handle_t *handle, struct inode *inode,
 	/* @fs.sec -- 27aa4ade7b90e77a75b0f821924eaac228cfdd43 -- */
 	if (EXT4_I(inode)->i_extra_isize == 0 ||
 			(void *) EXT4_XATTR_NEXT(s->first) >= s->end)
+=======
+	if (EXT4_I(inode)->i_extra_isize == 0)
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 	error = ext4_xattr_set_entry(i, s, handle, inode, false /* is_block */);
 	if (error)
@@ -2364,7 +2530,11 @@ ext4_xattr_set_handle(handle_t *handle, struct inode *inode, int name_index,
 						   flags & XATTR_CREATE);
 		brelse(bh);
 
+<<<<<<< HEAD
 		if (!ext4_handle_has_enough_credits(handle, credits)) {
+=======
+		if (jbd2_handle_buffer_credits(handle) < credits) {
+>>>>>>> upstream/android-13
 			error = -ENOSPC;
 			goto cleanup;
 		}
@@ -2463,6 +2633,10 @@ retry_inode:
 		if (IS_SYNC(inode))
 			ext4_handle_sync(handle);
 	}
+<<<<<<< HEAD
+=======
+	ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR, handle);
+>>>>>>> upstream/android-13
 
 cleanup:
 	brelse(is.iloc.bh);
@@ -2540,6 +2714,10 @@ retry:
 		if (error == 0)
 			error = error2;
 	}
+<<<<<<< HEAD
+=======
+	ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR, NULL);
+>>>>>>> upstream/android-13
 
 	return error;
 }
@@ -2756,6 +2934,7 @@ retry:
 	total_ino = sizeof(struct ext4_xattr_ibody_header) + sizeof(u32);
 
 	error = xattr_check_inode(inode, header, end);
+<<<<<<< HEAD
 	if (error) {
 		printk(KERN_ERR "printing inode..\n");
 		print_block_data(inode->i_sb, 0, (unsigned char *)raw_inode,
@@ -2764,6 +2943,10 @@ retry:
 				   "corrupted in-inode xattr");
 		goto cleanup;
 	}
+=======
+	if (error)
+		goto cleanup;
+>>>>>>> upstream/android-13
 
 	ifree = ext4_xattr_free_space(base, &min_offs, base, &total_ino);
 	if (ifree >= isize_diff)
@@ -2898,11 +3081,17 @@ int ext4_xattr_delete_inode(handle_t *handle, struct inode *inode,
 	struct inode *ea_inode;
 	int error;
 
+<<<<<<< HEAD
 	error = ext4_xattr_ensure_credits(handle, inode, extra_credits,
 					  NULL /* bh */,
 					  false /* dirty */,
 					  false /* block_csum */);
 	if (error) {
+=======
+	error = ext4_journal_ensure_credits(handle, extra_credits,
+			ext4_free_metadata_revoke_credits(inode->i_sb, 1));
+	if (error < 0) {
+>>>>>>> upstream/android-13
 		EXT4_ERROR_INODE(inode, "ensure credits (error %d)", error);
 		goto cleanup;
 	}
@@ -2916,7 +3105,12 @@ int ext4_xattr_delete_inode(handle_t *handle, struct inode *inode,
 			goto cleanup;
 		}
 
+<<<<<<< HEAD
 		error = ext4_journal_get_write_access(handle, iloc.bh);
+=======
+		error = ext4_journal_get_write_access(handle, inode->i_sb,
+						iloc.bh, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (error) {
 			EXT4_ERROR_INODE(inode, "write access (error %d)",
 					 error);
@@ -2937,9 +3131,17 @@ int ext4_xattr_delete_inode(handle_t *handle, struct inode *inode,
 		bh = ext4_sb_bread(inode->i_sb, EXT4_I(inode)->i_file_acl, REQ_PRIO);
 		if (IS_ERR(bh)) {
 			error = PTR_ERR(bh);
+<<<<<<< HEAD
 			if (error == -EIO)
 				EXT4_ERROR_INODE(inode, "block %llu read error",
 						 EXT4_I(inode)->i_file_acl);
+=======
+			if (error == -EIO) {
+				EXT4_ERROR_INODE_ERR(inode, EIO,
+						     "block %llu read error",
+						     EXT4_I(inode)->i_file_acl);
+			}
+>>>>>>> upstream/android-13
 			bh = NULL;
 			goto cleanup;
 		}
@@ -2978,6 +3180,10 @@ int ext4_xattr_delete_inode(handle_t *handle, struct inode *inode,
 					 error);
 			goto cleanup;
 		}
+<<<<<<< HEAD
+=======
+		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR, handle);
+>>>>>>> upstream/android-13
 	}
 	error = 0;
 cleanup:

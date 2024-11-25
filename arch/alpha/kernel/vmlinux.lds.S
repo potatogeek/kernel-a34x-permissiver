@@ -1,4 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
+=======
+
+#define EMITS_PT_NOTE
+#define RO_EXCEPTION_TABLE_ALIGN	16
+
+>>>>>>> upstream/android-13
 #include <asm-generic/vmlinux.lds.h>
 #include <asm/thread_info.h>
 #include <asm/cache.h>
@@ -8,7 +15,11 @@
 OUTPUT_FORMAT("elf64-alpha")
 OUTPUT_ARCH(alpha)
 ENTRY(__start)
+<<<<<<< HEAD
 PHDRS { kernel PT_LOAD; note PT_NOTE; }
+=======
+PHDRS { text PT_LOAD; note PT_NOTE; }
+>>>>>>> upstream/android-13
 jiffies = jiffies_64;
 SECTIONS
 {
@@ -27,6 +38,7 @@ SECTIONS
 		LOCK_TEXT
 		*(.fixup)
 		*(.gnu.warning)
+<<<<<<< HEAD
 	} :kernel
 	swapper_pg_dir = SWAPPER_PGD;
 	_etext = .;	/* End of text section */
@@ -38,6 +50,13 @@ SECTIONS
 
 	RODATA
 	EXCEPTION_TABLE(16)
+=======
+	} :text
+	swapper_pg_dir = SWAPPER_PGD;
+	_etext = .;	/* End of text section */
+
+	RO_DATA(4096)
+>>>>>>> upstream/android-13
 
 	/* Will be freed after init */
 	__init_begin = ALIGN(PAGE_SIZE);
@@ -52,7 +71,11 @@ SECTIONS
 
 	_sdata = .;	/* Start of rw data section */
 	_data = .;
+<<<<<<< HEAD
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+=======
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+>>>>>>> upstream/android-13
 
 	.got : {
 		*(.got)
@@ -74,6 +97,10 @@ SECTIONS
 
 	STABS_DEBUG
 	DWARF_DEBUG
+<<<<<<< HEAD
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	DISCARDS
 }

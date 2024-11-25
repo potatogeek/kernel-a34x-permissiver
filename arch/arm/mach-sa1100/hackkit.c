@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-sa1100/hackkit.c
  *
@@ -5,11 +9,14 @@
  *
  * This file contains all HackKit tweaks. Based on original work from
  * Nicolas Pitre's assabet fixes
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -26,11 +33,18 @@
 #include <linux/gpio.h>
 #include <linux/leds.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mach-types.h>
 #include <asm/setup.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/mach/arch.h>
 #include <asm/mach/flash.h>
@@ -49,8 +63,11 @@
 /* init funcs */
 static void __init hackkit_map_io(void);
 
+<<<<<<< HEAD
 static u_int hackkit_get_mctrl(struct uart_port *port);
 static void hackkit_set_mctrl(struct uart_port *port, u_int mctrl);
+=======
+>>>>>>> upstream/android-13
 static void hackkit_uart_pm(struct uart_port *port, u_int state, u_int oldstate);
 
 /**********************************************************************
@@ -71,8 +88,11 @@ static struct map_desc hackkit_io_desc[] __initdata = {
 };
 
 static struct sa1100_port_fns hackkit_port_fns __initdata = {
+<<<<<<< HEAD
 	.set_mctrl	= hackkit_set_mctrl,
 	.get_mctrl	= hackkit_get_mctrl,
+=======
+>>>>>>> upstream/android-13
 	.pm		= hackkit_uart_pm,
 };
 
@@ -105,6 +125,7 @@ static void hackkit_uart_pm(struct uart_port *port, u_int state, u_int oldstate)
 	/* TODO: switch on/off uart in powersave mode */
 }
 
+<<<<<<< HEAD
 /*
  * Note! this can be called from IRQ context.
  * FIXME: No modem ctrl lines yet.
@@ -149,6 +170,8 @@ static u_int hackkit_get_mctrl(struct uart_port *port)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct mtd_partition hackkit_partitions[] = {
 	{
 		.name		= "BLOB",

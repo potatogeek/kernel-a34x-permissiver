@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /*
  * Copied from arch/arm64/include/asm/hwcap.h
  *
  * Copyright (C) 2012 ARM Ltd.
  * Copyright (C) 2017 SiFive
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,11 +23,20 @@
  */
 #ifndef __UAPI_ASM_HWCAP_H
 #define __UAPI_ASM_HWCAP_H
+=======
+ */
+#ifndef _UAPI_ASM_RISCV_HWCAP_H
+#define _UAPI_ASM_RISCV_HWCAP_H
+>>>>>>> upstream/android-13
 
 /*
  * Linux saves the floating-point registers according to the ISA Linux is
  * executing on, as opposed to the ISA the user program is compiled for.  This
+<<<<<<< HEAD
  * is necessary for a handful of esoteric use cases: for example, userpsace
+=======
+ * is necessary for a handful of esoteric use cases: for example, userspace
+>>>>>>> upstream/android-13
  * threading libraries must be able to examine the actual machine state in
  * order to fully reconstruct the state of a thread.
  */
@@ -33,4 +47,8 @@
 #define COMPAT_HWCAP_ISA_D	(1 << ('D' - 'A'))
 #define COMPAT_HWCAP_ISA_C	(1 << ('C' - 'A'))
 
+<<<<<<< HEAD
 #endif
+=======
+#endif /* _UAPI_ASM_RISCV_HWCAP_H */
+>>>>>>> upstream/android-13

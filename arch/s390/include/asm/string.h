@@ -12,15 +12,32 @@
 #include <linux/types.h>
 #endif
 
+<<<<<<< HEAD
 #define __HAVE_ARCH_MEMCHR	/* inline & arch function */
 #define __HAVE_ARCH_MEMCMP	/* arch function */
 #define __HAVE_ARCH_MEMCPY	/* gcc builtin & arch function */
 #define __HAVE_ARCH_MEMMOVE	/* gcc builtin & arch function */
 #define __HAVE_ARCH_MEMSCAN	/* inline & arch function */
+=======
+#define __HAVE_ARCH_MEMCPY	/* gcc builtin & arch function */
+#define __HAVE_ARCH_MEMMOVE	/* gcc builtin & arch function */
+>>>>>>> upstream/android-13
 #define __HAVE_ARCH_MEMSET	/* gcc builtin & arch function */
 #define __HAVE_ARCH_MEMSET16	/* arch function */
 #define __HAVE_ARCH_MEMSET32	/* arch function */
 #define __HAVE_ARCH_MEMSET64	/* arch function */
+<<<<<<< HEAD
+=======
+
+void *memcpy(void *dest, const void *src, size_t n);
+void *memset(void *s, int c, size_t n);
+void *memmove(void *dest, const void *src, size_t n);
+
+#ifndef CONFIG_KASAN
+#define __HAVE_ARCH_MEMCHR	/* inline & arch function */
+#define __HAVE_ARCH_MEMCMP	/* arch function */
+#define __HAVE_ARCH_MEMSCAN	/* inline & arch function */
+>>>>>>> upstream/android-13
 #define __HAVE_ARCH_STRCAT	/* inline & arch function */
 #define __HAVE_ARCH_STRCMP	/* arch function */
 #define __HAVE_ARCH_STRCPY	/* inline & arch function */
@@ -35,9 +52,12 @@
 
 /* Prototypes for non-inlined arch strings functions. */
 int memcmp(const void *s1, const void *s2, size_t n);
+<<<<<<< HEAD
 void *memcpy(void *dest, const void *src, size_t n);
 void *memset(void *s, int c, size_t n);
 void *memmove(void *dest, const void *src, size_t n);
+=======
+>>>>>>> upstream/android-13
 int strcmp(const char *s1, const char *s2);
 size_t strlcat(char *dest, const char *src, size_t n);
 size_t strlcpy(char *dest, const char *src, size_t size);
@@ -45,6 +65,10 @@ char *strncat(char *dest, const char *src, size_t n);
 char *strncpy(char *dest, const char *src, size_t n);
 char *strrchr(const char *s, int c);
 char *strstr(const char *s1, const char *s2);
+<<<<<<< HEAD
+=======
+#endif /* !CONFIG_KASAN */
+>>>>>>> upstream/android-13
 
 #undef __HAVE_ARCH_STRCHR
 #undef __HAVE_ARCH_STRNCHR
@@ -53,6 +77,35 @@ char *strstr(const char *s1, const char *s2);
 #undef __HAVE_ARCH_STRSEP
 #undef __HAVE_ARCH_STRSPN
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
+
+extern void *__memcpy(void *dest, const void *src, size_t n);
+extern void *__memset(void *s, int c, size_t n);
+extern void *__memmove(void *dest, const void *src, size_t n);
+
+/*
+ * For files that are not instrumented (e.g. mm/slub.c) we
+ * should use not instrumented version of mem* functions.
+ */
+
+#define memcpy(dst, src, len) __memcpy(dst, src, len)
+#define memmove(dst, src, len) __memmove(dst, src, len)
+#define memset(s, c, n) __memset(s, c, n)
+#define strlen(s) __strlen(s)
+
+#define __no_sanitize_prefix_strfunc(x) __##x
+
+#ifndef __NO_FORTIFY
+#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
+#endif
+
+#else
+#define __no_sanitize_prefix_strfunc(x) x
+#endif /* defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__) */
+
+>>>>>>> upstream/android-13
 void *__memset16(uint16_t *s, uint16_t v, size_t count);
 void *__memset32(uint32_t *s, uint32_t v, size_t count);
 void *__memset64(uint64_t *s, uint64_t v, size_t count);
@@ -74,6 +127,7 @@ static inline void *memset64(uint64_t *s, uint64_t v, size_t count)
 
 #if !defined(IN_ARCH_STRING_C) && (!defined(CONFIG_FORTIFY_SOURCE) || defined(__NO_FORTIFY))
 
+<<<<<<< HEAD
 static inline void *memchr(const void * s, int c, size_t n)
 {
 	register int r0 asm("0") = (char) c;
@@ -145,15 +199,119 @@ static inline size_t strlen(const char *s)
 static inline size_t strnlen(const char * s, size_t n)
 {
 	register int r0 asm("0") = 0;
+=======
+#ifdef __HAVE_ARCH_MEMCHR
+static inline void *memchr(const void * s, int c, size_t n)
+{
+	const void *ret = s + n;
+
+	asm volatile(
+		"	lgr	0,%[c]\n"
+		"0:	srst	%[ret],%[s]\n"
+		"	jo	0b\n"
+		"	jl	1f\n"
+		"	la	%[ret],0\n"
+		"1:"
+		: [ret] "+&a" (ret), [s] "+&a" (s)
+		: [c] "d" (c)
+		: "cc", "memory", "0");
+	return (void *) ret;
+}
+#endif
+
+#ifdef __HAVE_ARCH_MEMSCAN
+static inline void *memscan(void *s, int c, size_t n)
+{
+	const void *ret = s + n;
+
+	asm volatile(
+		"	lgr	0,%[c]\n"
+		"0:	srst	%[ret],%[s]\n"
+		"	jo	0b\n"
+		: [ret] "+&a" (ret), [s] "+&a" (s)
+		: [c] "d" (c)
+		: "cc", "memory", "0");
+	return (void *) ret;
+}
+#endif
+
+#ifdef __HAVE_ARCH_STRCAT
+static inline char *strcat(char *dst, const char *src)
+{
+	unsigned long dummy = 0;
+	char *ret = dst;
+
+	asm volatile(
+		"	lghi	0,0\n"
+		"0:	srst	%[dummy],%[dst]\n"
+		"	jo	0b\n"
+		"1:	mvst	%[dummy],%[src]\n"
+		"	jo	1b"
+		: [dummy] "+&a" (dummy), [dst] "+&a" (dst), [src] "+&a" (src)
+		:
+		: "cc", "memory", "0");
+	return ret;
+}
+#endif
+
+#ifdef __HAVE_ARCH_STRCPY
+static inline char *strcpy(char *dst, const char *src)
+{
+	char *ret = dst;
+
+	asm volatile(
+		"	lghi	0,0\n"
+		"0:	mvst	%[dst],%[src]\n"
+		"	jo	0b"
+		: [dst] "+&a" (dst), [src] "+&a" (src)
+		:
+		: "cc", "memory", "0");
+	return ret;
+}
+#endif
+
+#if defined(__HAVE_ARCH_STRLEN) || (defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__))
+static inline size_t __no_sanitize_prefix_strfunc(strlen)(const char *s)
+{
+	unsigned long end = 0;
+	const char *tmp = s;
+
+	asm volatile(
+		"	lghi	0,0\n"
+		"0:	srst	%[end],%[tmp]\n"
+		"	jo	0b"
+		: [end] "+&a" (end), [tmp] "+&a" (tmp)
+		:
+		: "cc", "memory", "0");
+	return end - (unsigned long)s;
+}
+#endif
+
+#ifdef __HAVE_ARCH_STRNLEN
+static inline size_t strnlen(const char * s, size_t n)
+{
+>>>>>>> upstream/android-13
 	const char *tmp = s;
 	const char *end = s + n;
 
 	asm volatile(
+<<<<<<< HEAD
 		"0:	srst	%0,%1\n"
 		"	jo	0b"
 		: "+a" (end), "+a" (tmp) : "d" (r0)  : "cc", "memory");
 	return end - s;
 }
+=======
+		"	lghi	0,0\n"
+		"0:	srst	%[end],%[tmp]\n"
+		"	jo	0b"
+		: [end] "+&a" (end), [tmp] "+&a" (tmp)
+		:
+		: "cc", "memory", "0");
+	return end - s;
+}
+#endif
+>>>>>>> upstream/android-13
 #else /* IN_ARCH_STRING_C */
 void *memchr(const void * s, int c, size_t n);
 void *memscan(void *s, int c, size_t n);

@@ -26,9 +26,15 @@ Example:
 	&i2c1 {
 		...
 
+<<<<<<< HEAD
 		ov5645: ov5645@78 {
 			compatible = "ovti,ov5645";
 			reg = <0x78>;
+=======
+		ov5645: ov5645@3c {
+			compatible = "ovti,ov5645";
+			reg = <0x3c>;
+>>>>>>> upstream/android-13
 
 			enable-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
 			reset-gpios = <&gpio5 20 GPIO_ACTIVE_LOW>;
@@ -37,7 +43,11 @@ Example:
 
 			clocks = <&clks 200>;
 			clock-names = "xclk";
+<<<<<<< HEAD
 			clock-frequency = <23880000>;
+=======
+			clock-frequency = <24000000>;
+>>>>>>> upstream/android-13
 
 			vdddo-supply = <&camera_dovdd_1v8>;
 			vdda-supply = <&camera_avdd_2v8>;

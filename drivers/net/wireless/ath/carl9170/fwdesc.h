@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Shared CARL9170 Header
  *
  * Firmware descriptor format
  *
  * Copyright 2009-2011 Christian Lamparter <chunkeey@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; see the file COPYING.  If not, see
  * http://www.gnu.org/licenses/.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CARL9170_SHARED_FWDESC_H

@@ -31,7 +31,11 @@ extern int iscsit_reset_np_thread(struct iscsi_np *, struct iscsi_tpg_np *,
 				struct iscsi_portal_group *, bool);
 extern int iscsit_del_np(struct iscsi_np *);
 extern int iscsit_reject_cmd(struct iscsi_cmd *cmd, u8, unsigned char *);
+<<<<<<< HEAD
 extern void iscsit_set_unsoliticed_dataout(struct iscsi_cmd *);
+=======
+extern void iscsit_set_unsolicited_dataout(struct iscsi_cmd *);
+>>>>>>> upstream/android-13
 extern int iscsit_logout_closesession(struct iscsi_cmd *, struct iscsi_conn *);
 extern int iscsit_logout_closeconnection(struct iscsi_cmd *, struct iscsi_conn *);
 extern int iscsit_logout_removeconnforrecovery(struct iscsi_cmd *, struct iscsi_conn *);
@@ -41,7 +45,11 @@ extern void iscsit_thread_get_cpumask(struct iscsi_conn *);
 extern int iscsi_target_tx_thread(void *);
 extern int iscsi_target_rx_thread(void *);
 extern int iscsit_close_connection(struct iscsi_conn *);
+<<<<<<< HEAD
 extern int iscsit_close_session(struct iscsi_session *);
+=======
+extern int iscsit_close_session(struct iscsi_session *, bool can_sleep);
+>>>>>>> upstream/android-13
 extern void iscsit_fail_session(struct iscsi_session *);
 extern void iscsit_stop_session(struct iscsi_session *, int, int);
 extern int iscsit_release_sessions_for_tpg(struct iscsi_portal_group *, int);

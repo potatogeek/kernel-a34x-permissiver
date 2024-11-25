@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *      FarSync X21 driver for Linux
  *
@@ -6,11 +10,14 @@
  *      Copyright (C) 2001 FarSite Communications Ltd.
  *      www.farsite.co.uk
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *      Author: R.J.Dunlop      <bob.dunlop@farsite.co.uk>
  *
  *      For the most part this file only contains structures and information
@@ -69,7 +76,11 @@
 struct fstioc_write {
         unsigned int  size;
         unsigned int  offset;
+<<<<<<< HEAD
         unsigned char data[0];
+=======
+	unsigned char data[];
+>>>>>>> upstream/android-13
 };
 
 

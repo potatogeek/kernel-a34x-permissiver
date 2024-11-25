@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * acenic.c: Linux driver for the Alteon AceNIC Gigabit Ethernet card
  *           and other Tigon based cards.
@@ -12,11 +16,14 @@
  * about the driver. Send mail to linux-acenic-help@sunsite.auc.dk to
  * see how to subscribe.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Additional credits:
  *   Pete Wyckoff <wyckoff@ca.sandia.gov>: Initial Linux/Alpha and trace
  *       dump support. The trace dump support has not been
@@ -441,7 +448,11 @@ static const struct ethtool_ops ace_ethtool_ops = {
 	.set_link_ksettings = ace_set_link_ksettings,
 };
 
+<<<<<<< HEAD
 static void ace_watchdog(struct net_device *dev);
+=======
+static void ace_watchdog(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 
 static const struct net_device_ops ace_netdev_ops = {
 	.ndo_open		= ace_open,
@@ -469,6 +480,10 @@ static int acenic_probe_one(struct pci_dev *pdev,
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
 	ap = netdev_priv(dev);
+<<<<<<< HEAD
+=======
+	ap->ndev = dev;
+>>>>>>> upstream/android-13
 	ap->pdev = pdev;
 	ap->name = pci_name(pdev);
 
@@ -551,7 +566,11 @@ static int acenic_probe_one(struct pci_dev *pdev,
 			       ap->name);
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PCI_VENDOR_ID_SGI:
 		printk(KERN_INFO "%s: SGI AceNIC ", ap->name);
 		break;
@@ -646,9 +665,14 @@ static void acenic_remove_one(struct pci_dev *pdev)
 
 			ringp = &ap->skb->rx_std_skbuff[i];
 			mapping = dma_unmap_addr(ringp, mapping);
+<<<<<<< HEAD
 			pci_unmap_page(ap->pdev, mapping,
 				       ACE_STD_BUFSIZE,
 				       PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_page(&ap->pdev->dev, mapping,
+				       ACE_STD_BUFSIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 			ap->rx_std_ring[i].size = 0;
 			ap->skb->rx_std_skbuff[i].skb = NULL;
@@ -666,9 +690,15 @@ static void acenic_remove_one(struct pci_dev *pdev)
 
 				ringp = &ap->skb->rx_mini_skbuff[i];
 				mapping = dma_unmap_addr(ringp,mapping);
+<<<<<<< HEAD
 				pci_unmap_page(ap->pdev, mapping,
 					       ACE_MINI_BUFSIZE,
 					       PCI_DMA_FROMDEVICE);
+=======
+				dma_unmap_page(&ap->pdev->dev, mapping,
+					       ACE_MINI_BUFSIZE,
+					       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 				ap->rx_mini_ring[i].size = 0;
 				ap->skb->rx_mini_skbuff[i].skb = NULL;
@@ -685,9 +715,14 @@ static void acenic_remove_one(struct pci_dev *pdev)
 
 			ringp = &ap->skb->rx_jumbo_skbuff[i];
 			mapping = dma_unmap_addr(ringp, mapping);
+<<<<<<< HEAD
 			pci_unmap_page(ap->pdev, mapping,
 				       ACE_JUMBO_BUFSIZE,
 				       PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_page(&ap->pdev->dev, mapping,
+				       ACE_JUMBO_BUFSIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 			ap->rx_jumbo_ring[i].size = 0;
 			ap->skb->rx_jumbo_skbuff[i].skb = NULL;
@@ -717,8 +752,13 @@ static void ace_free_descriptors(struct net_device *dev)
 			 RX_JUMBO_RING_ENTRIES +
 			 RX_MINI_RING_ENTRIES +
 			 RX_RETURN_RING_ENTRIES));
+<<<<<<< HEAD
 		pci_free_consistent(ap->pdev, size, ap->rx_std_ring,
 				    ap->rx_ring_base_dma);
+=======
+		dma_free_coherent(&ap->pdev->dev, size, ap->rx_std_ring,
+				  ap->rx_ring_base_dma);
+>>>>>>> upstream/android-13
 		ap->rx_std_ring = NULL;
 		ap->rx_jumbo_ring = NULL;
 		ap->rx_mini_ring = NULL;
@@ -726,18 +766,29 @@ static void ace_free_descriptors(struct net_device *dev)
 	}
 	if (ap->evt_ring != NULL) {
 		size = (sizeof(struct event) * EVT_RING_ENTRIES);
+<<<<<<< HEAD
 		pci_free_consistent(ap->pdev, size, ap->evt_ring,
 				    ap->evt_ring_dma);
+=======
+		dma_free_coherent(&ap->pdev->dev, size, ap->evt_ring,
+				  ap->evt_ring_dma);
+>>>>>>> upstream/android-13
 		ap->evt_ring = NULL;
 	}
 	if (ap->tx_ring != NULL && !ACE_IS_TIGON_I(ap)) {
 		size = (sizeof(struct tx_desc) * MAX_TX_RING_ENTRIES);
+<<<<<<< HEAD
 		pci_free_consistent(ap->pdev, size, ap->tx_ring,
 				    ap->tx_ring_dma);
+=======
+		dma_free_coherent(&ap->pdev->dev, size, ap->tx_ring,
+				  ap->tx_ring_dma);
+>>>>>>> upstream/android-13
 	}
 	ap->tx_ring = NULL;
 
 	if (ap->evt_prd != NULL) {
+<<<<<<< HEAD
 		pci_free_consistent(ap->pdev, sizeof(u32),
 				    (void *)ap->evt_prd, ap->evt_prd_dma);
 		ap->evt_prd = NULL;
@@ -751,6 +802,20 @@ static void ace_free_descriptors(struct net_device *dev)
 	if (ap->tx_csm != NULL) {
 		pci_free_consistent(ap->pdev, sizeof(u32),
 				    (void *)ap->tx_csm, ap->tx_csm_dma);
+=======
+		dma_free_coherent(&ap->pdev->dev, sizeof(u32),
+				  (void *)ap->evt_prd, ap->evt_prd_dma);
+		ap->evt_prd = NULL;
+	}
+	if (ap->rx_ret_prd != NULL) {
+		dma_free_coherent(&ap->pdev->dev, sizeof(u32),
+				  (void *)ap->rx_ret_prd, ap->rx_ret_prd_dma);
+		ap->rx_ret_prd = NULL;
+	}
+	if (ap->tx_csm != NULL) {
+		dma_free_coherent(&ap->pdev->dev, sizeof(u32),
+				  (void *)ap->tx_csm, ap->tx_csm_dma);
+>>>>>>> upstream/android-13
 		ap->tx_csm = NULL;
 	}
 }
@@ -767,8 +832,13 @@ static int ace_allocate_descriptors(struct net_device *dev)
 		 RX_MINI_RING_ENTRIES +
 		 RX_RETURN_RING_ENTRIES));
 
+<<<<<<< HEAD
 	ap->rx_std_ring = pci_alloc_consistent(ap->pdev, size,
 					       &ap->rx_ring_base_dma);
+=======
+	ap->rx_std_ring = dma_alloc_coherent(&ap->pdev->dev, size,
+					     &ap->rx_ring_base_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ap->rx_std_ring == NULL)
 		goto fail;
 
@@ -778,7 +848,12 @@ static int ace_allocate_descriptors(struct net_device *dev)
 
 	size = (sizeof(struct event) * EVT_RING_ENTRIES);
 
+<<<<<<< HEAD
 	ap->evt_ring = pci_alloc_consistent(ap->pdev, size, &ap->evt_ring_dma);
+=======
+	ap->evt_ring = dma_alloc_coherent(&ap->pdev->dev, size,
+					  &ap->evt_ring_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (ap->evt_ring == NULL)
 		goto fail;
@@ -790,13 +865,19 @@ static int ace_allocate_descriptors(struct net_device *dev)
 	if (!ACE_IS_TIGON_I(ap)) {
 		size = (sizeof(struct tx_desc) * MAX_TX_RING_ENTRIES);
 
+<<<<<<< HEAD
 		ap->tx_ring = pci_alloc_consistent(ap->pdev, size,
 						   &ap->tx_ring_dma);
+=======
+		ap->tx_ring = dma_alloc_coherent(&ap->pdev->dev, size,
+						 &ap->tx_ring_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 		if (ap->tx_ring == NULL)
 			goto fail;
 	}
 
+<<<<<<< HEAD
 	ap->evt_prd = pci_alloc_consistent(ap->pdev, sizeof(u32),
 					   &ap->evt_prd_dma);
 	if (ap->evt_prd == NULL)
@@ -809,6 +890,20 @@ static int ace_allocate_descriptors(struct net_device *dev)
 
 	ap->tx_csm = pci_alloc_consistent(ap->pdev, sizeof(u32),
 					  &ap->tx_csm_dma);
+=======
+	ap->evt_prd = dma_alloc_coherent(&ap->pdev->dev, sizeof(u32),
+					 &ap->evt_prd_dma, GFP_KERNEL);
+	if (ap->evt_prd == NULL)
+		goto fail;
+
+	ap->rx_ret_prd = dma_alloc_coherent(&ap->pdev->dev, sizeof(u32),
+					    &ap->rx_ret_prd_dma, GFP_KERNEL);
+	if (ap->rx_ret_prd == NULL)
+		goto fail;
+
+	ap->tx_csm = dma_alloc_coherent(&ap->pdev->dev, sizeof(u32),
+					&ap->tx_csm_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ap->tx_csm == NULL)
 		goto fail;
 
@@ -834,8 +929,13 @@ static void ace_init_cleanup(struct net_device *dev)
 	ace_free_descriptors(dev);
 
 	if (ap->info)
+<<<<<<< HEAD
 		pci_free_consistent(ap->pdev, sizeof(struct ace_info),
 				    ap->info, ap->info_dma);
+=======
+		dma_free_coherent(&ap->pdev->dev, sizeof(struct ace_info),
+				  ap->info, ap->info_dma);
+>>>>>>> upstream/android-13
 	kfree(ap->skb);
 	kfree(ap->trace_buf);
 
@@ -1133,9 +1233,15 @@ static int ace_init(struct net_device *dev)
 	/*
 	 * Configure DMA attributes.
 	 */
+<<<<<<< HEAD
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		ap->pci_using_dac = 1;
 	} else if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
+		ap->pci_using_dac = 1;
+	} else if (!dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		ap->pci_using_dac = 0;
 	} else {
 		ecode = -ENODEV;
@@ -1147,8 +1253,13 @@ static int ace_init(struct net_device *dev)
 	 * and the control blocks for the transmit and receive rings
 	 * as they need to be setup once and for all.
 	 */
+<<<<<<< HEAD
 	if (!(info = pci_alloc_consistent(ap->pdev, sizeof(struct ace_info),
 					  &ap->info_dma))) {
+=======
+	if (!(info = dma_alloc_coherent(&ap->pdev->dev, sizeof(struct ace_info),
+					&ap->info_dma, GFP_KERNEL))) {
+>>>>>>> upstream/android-13
 		ecode = -EAGAIN;
 		goto init_error;
 	}
@@ -1157,7 +1268,11 @@ static int ace_init(struct net_device *dev)
 	/*
 	 * Get the memory for the skb rings.
 	 */
+<<<<<<< HEAD
 	if (!(ap->skb = kmalloc(sizeof(struct ace_skb), GFP_KERNEL))) {
+=======
+	if (!(ap->skb = kzalloc(sizeof(struct ace_skb), GFP_KERNEL))) {
+>>>>>>> upstream/android-13
 		ecode = -EAGAIN;
 		goto init_error;
 	}
@@ -1178,9 +1293,12 @@ static int ace_init(struct net_device *dev)
 	ap->last_mini_rx = 0;
 #endif
 
+<<<<<<< HEAD
 	memset(ap->info, 0, sizeof(struct ace_info));
 	memset(ap->skb, 0, sizeof(struct ace_skb));
 
+=======
+>>>>>>> upstream/android-13
 	ecode = ace_load_firmware(dev);
 	if (ecode)
 		goto init_error;
@@ -1546,7 +1664,11 @@ static void ace_set_rxtx_parms(struct net_device *dev, int jumbo)
 }
 
 
+<<<<<<< HEAD
 static void ace_watchdog(struct net_device *data)
+=======
+static void ace_watchdog(struct net_device *data, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev = data;
 	struct ace_private *ap = netdev_priv(dev);
@@ -1571,10 +1693,17 @@ static void ace_watchdog(struct net_device *data)
 }
 
 
+<<<<<<< HEAD
 static void ace_tasklet(unsigned long arg)
 {
 	struct net_device *dev = (struct net_device *) arg;
 	struct ace_private *ap = netdev_priv(dev);
+=======
+static void ace_tasklet(struct tasklet_struct *t)
+{
+	struct ace_private *ap = from_tasklet(ap, t, ace_tasklet);
+	struct net_device *dev = ap->ndev;
+>>>>>>> upstream/android-13
 	int cur_size;
 
 	cur_size = atomic_read(&ap->cur_rx_bufs);
@@ -1650,10 +1779,17 @@ static void ace_load_std_rx_ring(struct net_device *dev, int nr_bufs)
 		if (!skb)
 			break;
 
+<<<<<<< HEAD
 		mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
 				       offset_in_page(skb->data),
 				       ACE_STD_BUFSIZE,
 				       PCI_DMA_FROMDEVICE);
+=======
+		mapping = dma_map_page(&ap->pdev->dev,
+				       virt_to_page(skb->data),
+				       offset_in_page(skb->data),
+				       ACE_STD_BUFSIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		ap->skb->rx_std_skbuff[idx].skb = skb;
 		dma_unmap_addr_set(&ap->skb->rx_std_skbuff[idx],
 				   mapping, mapping);
@@ -1711,10 +1847,17 @@ static void ace_load_mini_rx_ring(struct net_device *dev, int nr_bufs)
 		if (!skb)
 			break;
 
+<<<<<<< HEAD
 		mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
 				       offset_in_page(skb->data),
 				       ACE_MINI_BUFSIZE,
 				       PCI_DMA_FROMDEVICE);
+=======
+		mapping = dma_map_page(&ap->pdev->dev,
+				       virt_to_page(skb->data),
+				       offset_in_page(skb->data),
+				       ACE_MINI_BUFSIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		ap->skb->rx_mini_skbuff[idx].skb = skb;
 		dma_unmap_addr_set(&ap->skb->rx_mini_skbuff[idx],
 				   mapping, mapping);
@@ -1767,10 +1910,17 @@ static void ace_load_jumbo_rx_ring(struct net_device *dev, int nr_bufs)
 		if (!skb)
 			break;
 
+<<<<<<< HEAD
 		mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
 				       offset_in_page(skb->data),
 				       ACE_JUMBO_BUFSIZE,
 				       PCI_DMA_FROMDEVICE);
+=======
+		mapping = dma_map_page(&ap->pdev->dev,
+				       virt_to_page(skb->data),
+				       offset_in_page(skb->data),
+				       ACE_JUMBO_BUFSIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		ap->skb->rx_jumbo_skbuff[idx].skb = skb;
 		dma_unmap_addr_set(&ap->skb->rx_jumbo_skbuff[idx],
 				   mapping, mapping);
@@ -1891,6 +2041,7 @@ static u32 ace_handle_event(struct net_device *dev, u32 evtcsm, u32 evtprd)
 				}
 			}
 
+<<<<<<< HEAD
  			if (ACE_IS_TIGON_I(ap)) {
  				struct cmd cmd;
  				cmd.evt = C_SET_RX_JUMBO_PRD_IDX;
@@ -1901,6 +2052,18 @@ static u32 ace_handle_event(struct net_device *dev, u32 evtcsm, u32 evtprd)
  				writel(0, &((ap->regs)->RxJumboPrd));
  				wmb();
  			}
+=======
+			if (ACE_IS_TIGON_I(ap)) {
+				struct cmd cmd;
+				cmd.evt = C_SET_RX_JUMBO_PRD_IDX;
+				cmd.code = 0;
+				cmd.idx = 0;
+				ace_issue_cmd(ap->regs, &cmd);
+			} else {
+				writel(0, &((ap->regs)->RxJumboPrd));
+				wmb();
+			}
+>>>>>>> upstream/android-13
 
 			ap->jumbo = 0;
 			ap->rx_jumbo_skbprd = 0;
@@ -1981,10 +2144,15 @@ static void ace_rx_int(struct net_device *dev, u32 rxretprd, u32 rxretcsm)
 
 		skb = rip->skb;
 		rip->skb = NULL;
+<<<<<<< HEAD
 		pci_unmap_page(ap->pdev,
 			       dma_unmap_addr(rip, mapping),
 			       mapsize,
 			       PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_page(&ap->pdev->dev, dma_unmap_addr(rip, mapping),
+			       mapsize, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		skb_put(skb, retdesc->size);
 
 		/*
@@ -2050,16 +2218,27 @@ static inline void ace_tx_int(struct net_device *dev,
 		skb = info->skb;
 
 		if (dma_unmap_len(info, maplen)) {
+<<<<<<< HEAD
 			pci_unmap_page(ap->pdev, dma_unmap_addr(info, mapping),
 				       dma_unmap_len(info, maplen),
 				       PCI_DMA_TODEVICE);
+=======
+			dma_unmap_page(&ap->pdev->dev,
+				       dma_unmap_addr(info, mapping),
+				       dma_unmap_len(info, maplen),
+				       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dma_unmap_len_set(info, maplen, 0);
 		}
 
 		if (skb) {
 			dev->stats.tx_packets++;
 			dev->stats.tx_bytes += skb->len;
+<<<<<<< HEAD
 			dev_kfree_skb_irq(skb);
+=======
+			dev_consume_skb_irq(skb);
+>>>>>>> upstream/android-13
 			info->skb = NULL;
 		}
 
@@ -2279,7 +2458,11 @@ static int ace_open(struct net_device *dev)
 	/*
 	 * Setup the bottom half rx ring refill handler
 	 */
+<<<<<<< HEAD
 	tasklet_init(&ap->ace_tasklet, ace_tasklet, (unsigned long)dev);
+=======
+	tasklet_setup(&ap->ace_tasklet, ace_tasklet);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2341,9 +2524,16 @@ static int ace_close(struct net_device *dev)
 			} else
 				memset(ap->tx_ring + i, 0,
 				       sizeof(struct tx_desc));
+<<<<<<< HEAD
 			pci_unmap_page(ap->pdev, dma_unmap_addr(info, mapping),
 				       dma_unmap_len(info, maplen),
 				       PCI_DMA_TODEVICE);
+=======
+			dma_unmap_page(&ap->pdev->dev,
+				       dma_unmap_addr(info, mapping),
+				       dma_unmap_len(info, maplen),
+				       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dma_unmap_len_set(info, maplen, 0);
 		}
 		if (skb) {
@@ -2373,9 +2563,15 @@ ace_map_tx_skb(struct ace_private *ap, struct sk_buff *skb,
 	dma_addr_t mapping;
 	struct tx_ring_info *info;
 
+<<<<<<< HEAD
 	mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
 			       offset_in_page(skb->data),
 			       skb->len, PCI_DMA_TODEVICE);
+=======
+	mapping = dma_map_page(&ap->pdev->dev, virt_to_page(skb->data),
+			       offset_in_page(skb->data), skb->len,
+			       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	info = ap->skb->tx_skbuff + idx;
 	info->skb = tail;
@@ -2497,9 +2693,15 @@ restart:
 		}
 	}
 
+<<<<<<< HEAD
  	wmb();
  	ap->tx_prd = idx;
  	ace_set_txprd(regs, ap, idx);
+=======
+	wmb();
+	ap->tx_prd = idx;
+	ace_set_txprd(regs, ap, idx);
+>>>>>>> upstream/android-13
 
 	if (flagsize & BD_FLG_COAL_NOW) {
 		netif_stop_queue(dev);
@@ -2703,9 +2905,14 @@ static void ace_get_drvinfo(struct net_device *dev,
 	struct ace_private *ap = netdev_priv(dev);
 
 	strlcpy(info->driver, "acenic", sizeof(info->driver));
+<<<<<<< HEAD
 	snprintf(info->version, sizeof(info->version), "%i.%i.%i",
 		 ap->firmware_major, ap->firmware_minor,
 		 ap->firmware_fix);
+=======
+	snprintf(info->fw_version, sizeof(info->version), "%i.%i.%i",
+		 ap->firmware_major, ap->firmware_minor, ap->firmware_fix);
+>>>>>>> upstream/android-13
 
 	if (ap->pdev)
 		strlcpy(info->bus_info, pci_name(ap->pdev),

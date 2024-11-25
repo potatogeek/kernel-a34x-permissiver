@@ -13,6 +13,7 @@
  */
 
 #include <net/xfrm.h>
+<<<<<<< HEAD
 #include <linux/pfkeyv2.h>
 #include <linux/ipsec.h>
 #include <linux/netfilter_ipv6.h>
@@ -167,10 +168,13 @@ int xfrm6_extract_header(struct sk_buff *skb)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 static struct xfrm_state_afinfo xfrm6_state_afinfo = {
 	.family			= AF_INET6,
 	.proto			= IPPROTO_IPV6,
+<<<<<<< HEAD
 	.eth_proto		= htons(ETH_P_IPV6),
 	.owner			= THIS_MODULE,
 	.init_tempsel		= __xfrm6_init_tempsel,
@@ -181,6 +185,9 @@ static struct xfrm_state_afinfo xfrm6_state_afinfo = {
 	.output_finish		= xfrm6_output_finish,
 	.extract_input		= xfrm6_extract_input,
 	.extract_output		= xfrm6_extract_output,
+=======
+	.output			= xfrm6_output,
+>>>>>>> upstream/android-13
 	.transport_finish	= xfrm6_transport_finish,
 	.local_error		= xfrm6_local_error,
 };

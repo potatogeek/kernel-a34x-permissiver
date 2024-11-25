@@ -99,7 +99,11 @@ struct snic_stats {
 	atomic64_t io_cmpl_skip;
 };
 
+<<<<<<< HEAD
 int snic_stats_debugfs_init(struct snic *);
+=======
+void snic_stats_debugfs_init(struct snic *);
+>>>>>>> upstream/android-13
 void snic_stats_debugfs_remove(struct snic *);
 
 /* Auxillary function to update active IO counter */

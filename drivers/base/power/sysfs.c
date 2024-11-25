@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * drivers/base/power/sysfs.c - sysfs entries for device PM
  */
 
 #include <linux/device.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* sysfs entries for device PM */
+#include <linux/device.h>
+#include <linux/kobject.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/export.h>
 #include <linux/pm_qos.h>
@@ -102,8 +109,13 @@ static const char ctrl_on[] = "on";
 static ssize_t control_show(struct device *dev, struct device_attribute *attr,
 			    char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n",
 				dev->power.runtime_auto ? ctrl_auto : ctrl_on);
+=======
+	return sysfs_emit(buf, "%s\n",
+			  dev->power.runtime_auto ? ctrl_auto : ctrl_on);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t control_store(struct device * dev, struct device_attribute *attr,
@@ -123,6 +135,7 @@ static ssize_t control_store(struct device * dev, struct device_attribute *attr,
 static DEVICE_ATTR_RW(control);
 
 static ssize_t runtime_active_time_show(struct device *dev,
+<<<<<<< HEAD
 				struct device_attribute *attr, char *buf)
 {
 	int ret;
@@ -131,11 +144,22 @@ static ssize_t runtime_active_time_show(struct device *dev,
 	ret = sprintf(buf, "%i\n", jiffies_to_msecs(dev->power.active_jiffies));
 	spin_unlock_irq(&dev->power.lock);
 	return ret;
+=======
+					struct device_attribute *attr,
+					char *buf)
+{
+	u64 tmp = pm_runtime_active_time(dev);
+
+	do_div(tmp, NSEC_PER_MSEC);
+
+	return sysfs_emit(buf, "%llu\n", tmp);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(runtime_active_time);
 
 static ssize_t runtime_suspended_time_show(struct device *dev,
+<<<<<<< HEAD
 				struct device_attribute *attr, char *buf)
 {
 	int ret;
@@ -145,11 +169,22 @@ static ssize_t runtime_suspended_time_show(struct device *dev,
 		jiffies_to_msecs(dev->power.suspended_jiffies));
 	spin_unlock_irq(&dev->power.lock);
 	return ret;
+=======
+					   struct device_attribute *attr,
+					   char *buf)
+{
+	u64 tmp = pm_runtime_suspended_time(dev);
+
+	do_div(tmp, NSEC_PER_MSEC);
+
+	return sysfs_emit(buf, "%llu\n", tmp);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(runtime_suspended_time);
 
 static ssize_t runtime_status_show(struct device *dev,
+<<<<<<< HEAD
 				struct device_attribute *attr, char *buf)
 {
 	const char *p;
@@ -171,22 +206,59 @@ static ssize_t runtime_status_show(struct device *dev,
 			break;
 		case RPM_ACTIVE:
 			p = "active\n";
+=======
+				   struct device_attribute *attr, char *buf)
+{
+	const char *output;
+
+	if (dev->power.runtime_error) {
+		output = "error";
+	} else if (dev->power.disable_depth) {
+		output = "unsupported";
+	} else {
+		switch (dev->power.runtime_status) {
+		case RPM_SUSPENDED:
+			output = "suspended";
+			break;
+		case RPM_SUSPENDING:
+			output = "suspending";
+			break;
+		case RPM_RESUMING:
+			output = "resuming";
+			break;
+		case RPM_ACTIVE:
+			output = "active";
+>>>>>>> upstream/android-13
 			break;
 		default:
 			return -EIO;
 		}
 	}
+<<<<<<< HEAD
 	return sprintf(buf, p);
+=======
+	return sysfs_emit(buf, "%s\n", output);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(runtime_status);
 
 static ssize_t autosuspend_delay_ms_show(struct device *dev,
+<<<<<<< HEAD
 		struct device_attribute *attr, char *buf)
 {
 	if (!dev->power.use_autosuspend)
 		return -EIO;
 	return sprintf(buf, "%d\n", dev->power.autosuspend_delay);
+=======
+					 struct device_attribute *attr,
+					 char *buf)
+{
+	if (!dev->power.use_autosuspend)
+		return -EIO;
+
+	return sysfs_emit(buf, "%d\n", dev->power.autosuspend_delay);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t autosuspend_delay_ms_store(struct device *dev,
@@ -215,11 +287,19 @@ static ssize_t pm_qos_resume_latency_us_show(struct device *dev,
 	s32 value = dev_pm_qos_requested_resume_latency(dev);
 
 	if (value == 0)
+<<<<<<< HEAD
 		return sprintf(buf, "n/a\n");
 	if (value == PM_QOS_RESUME_LATENCY_NO_CONSTRAINT)
 		value = 0;
 
 	return sprintf(buf, "%d\n", value);
+=======
+		return sysfs_emit(buf, "n/a\n");
+	if (value == PM_QOS_RESUME_LATENCY_NO_CONSTRAINT)
+		value = 0;
+
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t pm_qos_resume_latency_us_store(struct device *dev,
@@ -259,11 +339,19 @@ static ssize_t pm_qos_latency_tolerance_us_show(struct device *dev,
 	s32 value = dev_pm_qos_get_user_latency_tolerance(dev);
 
 	if (value < 0)
+<<<<<<< HEAD
 		return sprintf(buf, "auto\n");
 	if (value == PM_QOS_LATENCY_ANY)
 		return sprintf(buf, "any\n");
 
 	return sprintf(buf, "%d\n", value);
+=======
+		return sysfs_emit(buf, "%s\n", "auto");
+	if (value == PM_QOS_LATENCY_ANY)
+		return sysfs_emit(buf, "%s\n", "any");
+
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t pm_qos_latency_tolerance_us_store(struct device *dev,
@@ -295,8 +383,13 @@ static ssize_t pm_qos_no_power_off_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", !!(dev_pm_qos_requested_flags(dev)
 					& PM_QOS_FLAG_NO_POWER_OFF));
+=======
+	return sysfs_emit(buf, "%d\n", !!(dev_pm_qos_requested_flags(dev)
+					  & PM_QOS_FLAG_NO_POWER_OFF));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t pm_qos_no_power_off_store(struct device *dev,
@@ -324,9 +417,15 @@ static const char _disabled[] = "disabled";
 static ssize_t wakeup_show(struct device *dev, struct device_attribute *attr,
 			   char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n", device_can_wakeup(dev)
 		? (device_may_wakeup(dev) ? _enabled : _disabled)
 		: "");
+=======
+	return sysfs_emit(buf, "%s\n", device_can_wakeup(dev)
+			  ? (device_may_wakeup(dev) ? _enabled : _disabled)
+			  : "");
+>>>>>>> upstream/android-13
 }
 
 static ssize_t wakeup_store(struct device *dev, struct device_attribute *attr,
@@ -349,7 +448,11 @@ static DEVICE_ATTR_RW(wakeup);
 static ssize_t wakeup_count_show(struct device *dev,
 				 struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	unsigned long count = 0;
+=======
+	unsigned long count;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -358,7 +461,14 @@ static ssize_t wakeup_count_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lu\n", count) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lu\n", count);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_count);
@@ -367,7 +477,11 @@ static ssize_t wakeup_active_count_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
+<<<<<<< HEAD
 	unsigned long count = 0;
+=======
+	unsigned long count;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -376,7 +490,14 @@ static ssize_t wakeup_active_count_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lu\n", count) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lu\n", count);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_active_count);
@@ -385,7 +506,11 @@ static ssize_t wakeup_abort_count_show(struct device *dev,
 				       struct device_attribute *attr,
 				       char *buf)
 {
+<<<<<<< HEAD
 	unsigned long count = 0;
+=======
+	unsigned long count;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -394,7 +519,14 @@ static ssize_t wakeup_abort_count_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lu\n", count) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lu\n", count);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_abort_count);
@@ -403,7 +535,11 @@ static ssize_t wakeup_expire_count_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
+<<<<<<< HEAD
 	unsigned long count = 0;
+=======
+	unsigned long count;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -412,7 +548,14 @@ static ssize_t wakeup_expire_count_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lu\n", count) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lu\n", count);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_expire_count);
@@ -420,7 +563,11 @@ static DEVICE_ATTR_RO(wakeup_expire_count);
 static ssize_t wakeup_active_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	unsigned int active = 0;
+=======
+	unsigned int active;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -429,7 +576,14 @@ static ssize_t wakeup_active_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%u\n", active) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%u\n", active);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_active);
@@ -438,7 +592,11 @@ static ssize_t wakeup_total_time_ms_show(struct device *dev,
 					 struct device_attribute *attr,
 					 char *buf)
 {
+<<<<<<< HEAD
 	s64 msec = 0;
+=======
+	s64 msec;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -447,7 +605,14 @@ static ssize_t wakeup_total_time_ms_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lld\n", msec) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lld\n", msec);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_total_time_ms);
@@ -455,7 +620,11 @@ static DEVICE_ATTR_RO(wakeup_total_time_ms);
 static ssize_t wakeup_max_time_ms_show(struct device *dev,
 				       struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	s64 msec = 0;
+=======
+	s64 msec;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -464,7 +633,14 @@ static ssize_t wakeup_max_time_ms_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lld\n", msec) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lld\n", msec);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_max_time_ms);
@@ -473,7 +649,11 @@ static ssize_t wakeup_last_time_ms_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
+<<<<<<< HEAD
 	s64 msec = 0;
+=======
+	s64 msec;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -482,7 +662,22 @@ static ssize_t wakeup_last_time_ms_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lld\n", msec) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lld\n", msec);
+}
+
+static inline int dpm_sysfs_wakeup_change_owner(struct device *dev, kuid_t kuid,
+						kgid_t kgid)
+{
+	if (dev->power.wakeup && dev->power.wakeup->dev)
+		return device_change_owner(dev->power.wakeup->dev, kuid, kgid);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_last_time_ms);
@@ -492,7 +687,11 @@ static ssize_t wakeup_prevent_sleep_time_ms_show(struct device *dev,
 						 struct device_attribute *attr,
 						 char *buf)
 {
+<<<<<<< HEAD
 	s64 msec = 0;
+=======
+	s64 msec;
+>>>>>>> upstream/android-13
 	bool enabled = false;
 
 	spin_lock_irq(&dev->power.lock);
@@ -501,18 +700,39 @@ static ssize_t wakeup_prevent_sleep_time_ms_show(struct device *dev,
 		enabled = true;
 	}
 	spin_unlock_irq(&dev->power.lock);
+<<<<<<< HEAD
 	return enabled ? sprintf(buf, "%lld\n", msec) : sprintf(buf, "\n");
+=======
+
+	if (!enabled)
+		return sysfs_emit(buf, "\n");
+	return sysfs_emit(buf, "%lld\n", msec);
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR_RO(wakeup_prevent_sleep_time_ms);
 #endif /* CONFIG_PM_AUTOSLEEP */
+<<<<<<< HEAD
 #endif /* CONFIG_PM_SLEEP */
+=======
+#else /* CONFIG_PM_SLEEP */
+static inline int dpm_sysfs_wakeup_change_owner(struct device *dev, kuid_t kuid,
+						kgid_t kgid)
+{
+	return 0;
+}
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM_ADVANCED_DEBUG
 static ssize_t runtime_usage_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", atomic_read(&dev->power.usage_count));
+=======
+	return sysfs_emit(buf, "%d\n", atomic_read(&dev->power.usage_count));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(runtime_usage);
 
@@ -520,14 +740,20 @@ static ssize_t runtime_active_kids_show(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", dev->power.ignore_children ?
 		0 : atomic_read(&dev->power.child_count));
+=======
+	return sysfs_emit(buf, "%d\n", dev->power.ignore_children ?
+			  0 : atomic_read(&dev->power.child_count));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(runtime_active_kids);
 
 static ssize_t runtime_enabled_show(struct device *dev,
 				    struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	if (dev->power.disable_depth && (dev->power.runtime_auto == false))
 		return sprintf(buf, "disabled & forbidden\n");
 	if (dev->power.disable_depth)
@@ -535,6 +761,20 @@ static ssize_t runtime_enabled_show(struct device *dev,
 	if (dev->power.runtime_auto == false)
 		return sprintf(buf, "forbidden\n");
 	return sprintf(buf, "enabled\n");
+=======
+	const char *output;
+
+	if (dev->power.disable_depth && !dev->power.runtime_auto)
+		output = "disabled & forbidden";
+	else if (dev->power.disable_depth)
+		output = "disabled";
+	else if (!dev->power.runtime_auto)
+		output = "forbidden";
+	else
+		output = "enabled";
+
+	return sysfs_emit(buf, "%s\n", output);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(runtime_enabled);
 
@@ -542,9 +782,15 @@ static DEVICE_ATTR_RO(runtime_enabled);
 static ssize_t async_show(struct device *dev, struct device_attribute *attr,
 			  char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "%s\n",
 			device_async_suspend_enabled(dev) ?
 				_enabled : _disabled);
+=======
+	return sysfs_emit(buf, "%s\n",
+			  device_async_suspend_enabled(dev) ?
+			  _enabled : _disabled);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t async_store(struct device *dev, struct device_attribute *attr,
@@ -657,7 +903,11 @@ int dpm_sysfs_add(struct device *dev)
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	if (pm_runtime_callbacks_present(dev)) {
+=======
+	if (!pm_runtime_has_no_callbacks(dev)) {
+>>>>>>> upstream/android-13
 		rc = sysfs_merge_group(&dev->kobj, &pm_runtime_attr_group);
 		if (rc)
 			goto err_out;
@@ -689,14 +939,68 @@ int dpm_sysfs_add(struct device *dev)
 	return rc;
 }
 
+<<<<<<< HEAD
 int wakeup_sysfs_add(struct device *dev)
 {
 	return sysfs_merge_group(&dev->kobj, &pm_wakeup_attr_group);
+=======
+int dpm_sysfs_change_owner(struct device *dev, kuid_t kuid, kgid_t kgid)
+{
+	int rc;
+
+	if (device_pm_not_required(dev))
+		return 0;
+
+	rc = sysfs_group_change_owner(&dev->kobj, &pm_attr_group, kuid, kgid);
+	if (rc)
+		return rc;
+
+	if (!pm_runtime_has_no_callbacks(dev)) {
+		rc = sysfs_group_change_owner(
+			&dev->kobj, &pm_runtime_attr_group, kuid, kgid);
+		if (rc)
+			return rc;
+	}
+
+	if (device_can_wakeup(dev)) {
+		rc = sysfs_group_change_owner(&dev->kobj, &pm_wakeup_attr_group,
+					      kuid, kgid);
+		if (rc)
+			return rc;
+
+		rc = dpm_sysfs_wakeup_change_owner(dev, kuid, kgid);
+		if (rc)
+			return rc;
+	}
+
+	if (dev->power.set_latency_tolerance) {
+		rc = sysfs_group_change_owner(
+			&dev->kobj, &pm_qos_latency_tolerance_attr_group, kuid,
+			kgid);
+		if (rc)
+			return rc;
+	}
+	return 0;
+}
+
+int wakeup_sysfs_add(struct device *dev)
+{
+	int ret = sysfs_merge_group(&dev->kobj, &pm_wakeup_attr_group);
+
+	if (!ret)
+		kobject_uevent(&dev->kobj, KOBJ_CHANGE);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 void wakeup_sysfs_remove(struct device *dev)
 {
 	sysfs_unmerge_group(&dev->kobj, &pm_wakeup_attr_group);
+<<<<<<< HEAD
+=======
+	kobject_uevent(&dev->kobj, KOBJ_CHANGE);
+>>>>>>> upstream/android-13
 }
 
 int pm_qos_sysfs_add_resume_latency(struct device *dev)

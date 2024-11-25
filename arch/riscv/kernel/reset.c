@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Regents of the University of California
  *
@@ -16,6 +17,23 @@
 #include <asm/sbi.h>
 
 void (*pm_power_off)(void) = machine_power_off;
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Regents of the University of California
+ */
+
+#include <linux/reboot.h>
+#include <linux/pm.h>
+
+static void default_power_off(void)
+{
+	while (1)
+		wait_for_interrupt();
+}
+
+void (*pm_power_off)(void) = default_power_off;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(pm_power_off);
 
 void machine_restart(char *cmd)
@@ -26,11 +44,19 @@ void machine_restart(char *cmd)
 
 void machine_halt(void)
 {
+<<<<<<< HEAD
 	machine_power_off();
+=======
+	pm_power_off();
+>>>>>>> upstream/android-13
 }
 
 void machine_power_off(void)
 {
+<<<<<<< HEAD
 	sbi_shutdown();
 	while (1);
+=======
+	pm_power_off();
+>>>>>>> upstream/android-13
 }

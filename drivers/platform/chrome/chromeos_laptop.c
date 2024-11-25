@@ -52,23 +52,41 @@ struct i2c_peripheral {
 	enum i2c_adapter_type type;
 	u32 pci_devid;
 
+<<<<<<< HEAD
+=======
+	const struct property_entry *properties;
+
+>>>>>>> upstream/android-13
 	struct i2c_client *client;
 };
 
 struct acpi_peripheral {
 	char hid[ACPI_ID_LEN];
+<<<<<<< HEAD
 	const struct property_entry *properties;
+=======
+	struct software_node swnode;
+	struct i2c_client *client;
+>>>>>>> upstream/android-13
 };
 
 struct chromeos_laptop {
 	/*
 	 * Note that we can't mark this pointer as const because
+<<<<<<< HEAD
 	 * i2c_new_probed_device() changes passed in I2C board info, so.
+=======
+	 * i2c_new_scanned_device() changes passed in I2C board info, so.
+>>>>>>> upstream/android-13
 	 */
 	struct i2c_peripheral *i2c_peripherals;
 	unsigned int num_i2c_peripherals;
 
+<<<<<<< HEAD
 	const struct acpi_peripheral *acpi_peripherals;
+=======
+	struct acpi_peripheral *acpi_peripherals;
+>>>>>>> upstream/android-13
 	unsigned int num_acpi_peripherals;
 };
 
@@ -87,8 +105,13 @@ chromes_laptop_instantiate_i2c_device(struct i2c_adapter *adapter,
 	 * address we scan secondary addresses. In any case the client
 	 * structure gets assigned primary address.
 	 */
+<<<<<<< HEAD
 	client = i2c_new_probed_device(adapter, info, addr_list, NULL);
 	if (!client && alt_addr) {
+=======
+	client = i2c_new_scanned_device(adapter, info, addr_list, NULL);
+	if (IS_ERR(client) && alt_addr) {
+>>>>>>> upstream/android-13
 		struct i2c_board_info dummy_info = {
 			I2C_BOARD_INFO("dummy", info->addr),
 		};
@@ -97,6 +120,7 @@ chromes_laptop_instantiate_i2c_device(struct i2c_adapter *adapter,
 		};
 		struct i2c_client *dummy;
 
+<<<<<<< HEAD
 		dummy = i2c_new_probed_device(adapter, &dummy_info,
 					      alt_addr_list, NULL);
 		if (dummy) {
@@ -113,6 +137,26 @@ chromes_laptop_instantiate_i2c_device(struct i2c_adapter *adapter,
 	else
 		pr_debug("added i2c device %d-%02x\n",
 			 adapter->nr, info->addr);
+=======
+		dummy = i2c_new_scanned_device(adapter, &dummy_info,
+					       alt_addr_list, NULL);
+		if (!IS_ERR(dummy)) {
+			pr_debug("%d-%02x is probed at %02x\n",
+				 adapter->nr, info->addr, dummy->addr);
+			i2c_unregister_device(dummy);
+			client = i2c_new_client_device(adapter, info);
+		}
+	}
+
+	if (IS_ERR(client)) {
+		client = NULL;
+		pr_debug("failed to register device %d-%02x\n",
+			 adapter->nr, info->addr);
+	} else {
+		pr_debug("added i2c device %d-%02x\n",
+			 adapter->nr, info->addr);
+	}
+>>>>>>> upstream/android-13
 
 	return client;
 }
@@ -125,7 +169,11 @@ static bool chromeos_laptop_match_adapter_devid(struct device *dev, u32 devid)
 		return false;
 
 	pdev = to_pci_dev(dev);
+<<<<<<< HEAD
 	return devid == PCI_DEVID(pdev->bus->number, pdev->devfn);
+=======
+	return devid == pci_dev_id(pdev);
+>>>>>>> upstream/android-13
 }
 
 static void chromeos_laptop_check_adapter(struct i2c_adapter *adapter)
@@ -159,7 +207,11 @@ static void chromeos_laptop_check_adapter(struct i2c_adapter *adapter)
 
 static bool chromeos_laptop_adjust_client(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	const struct acpi_peripheral *acpi_dev;
+=======
+	struct acpi_peripheral *acpi_dev;
+>>>>>>> upstream/android-13
 	struct acpi_device_id acpi_ids[2] = { };
 	int i;
 	int error;
@@ -173,8 +225,12 @@ static bool chromeos_laptop_adjust_client(struct i2c_client *client)
 		memcpy(acpi_ids[0].id, acpi_dev->hid, ACPI_ID_LEN);
 
 		if (acpi_match_device(acpi_ids, &client->dev)) {
+<<<<<<< HEAD
 			error = device_add_properties(&client->dev,
 						      acpi_dev->properties);
+=======
+			error = device_add_software_node(&client->dev, &acpi_dev->swnode);
+>>>>>>> upstream/android-13
 			if (error) {
 				dev_err(&client->dev,
 					"failed to add properties: %d\n",
@@ -182,6 +238,11 @@ static bool chromeos_laptop_adjust_client(struct i2c_client *client)
 				break;
 			}
 
+<<<<<<< HEAD
+=======
+			acpi_dev->client = client;
+
+>>>>>>> upstream/android-13
 			return true;
 		}
 	}
@@ -191,6 +252,7 @@ static bool chromeos_laptop_adjust_client(struct i2c_client *client)
 
 static void chromeos_laptop_detach_i2c_client(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	struct i2c_peripheral *i2c_dev;
 	int i;
 
@@ -200,6 +262,30 @@ static void chromeos_laptop_detach_i2c_client(struct i2c_client *client)
 		if (i2c_dev->client == client)
 			i2c_dev->client = NULL;
 	}
+=======
+	struct acpi_peripheral *acpi_dev;
+	struct i2c_peripheral *i2c_dev;
+	int i;
+
+	if (has_acpi_companion(&client->dev))
+		for (i = 0; i < cros_laptop->num_acpi_peripherals; i++) {
+			acpi_dev = &cros_laptop->acpi_peripherals[i];
+
+			if (acpi_dev->client == client) {
+				acpi_dev->client = NULL;
+				return;
+			}
+		}
+	else
+		for (i = 0; i < cros_laptop->num_i2c_peripherals; i++) {
+			i2c_dev = &cros_laptop->i2c_peripherals[i];
+
+			if (i2c_dev->client == client) {
+				i2c_dev->client = NULL;
+				return;
+			}
+		}
+>>>>>>> upstream/android-13
 }
 
 static int chromeos_laptop_i2c_notifier_call(struct notifier_block *nb,
@@ -300,28 +386,42 @@ static struct i2c_peripheral chromebook_pixel_peripherals[] __initdata = {
 		.board_info	= {
 			I2C_BOARD_INFO("atmel_mxt_ts",
 					ATMEL_TS_I2C_ADDR),
+<<<<<<< HEAD
 			.properties	=
 				chromebook_atmel_touchscreen_props,
+=======
+>>>>>>> upstream/android-13
 			.flags		= I2C_CLIENT_WAKE,
 		},
 		.dmi_name	= "touchscreen",
 		.irqflags	= IRQF_TRIGGER_FALLING,
 		.type		= I2C_ADAPTER_PANEL,
 		.alt_addr	= ATMEL_TS_I2C_BL_ADDR,
+<<<<<<< HEAD
+=======
+		.properties	= chromebook_atmel_touchscreen_props,
+>>>>>>> upstream/android-13
 	},
 	/* Touchpad. */
 	{
 		.board_info	= {
 			I2C_BOARD_INFO("atmel_mxt_tp",
 					ATMEL_TP_I2C_ADDR),
+<<<<<<< HEAD
 			.properties	=
 				chromebook_pixel_trackpad_props,
+=======
+>>>>>>> upstream/android-13
 			.flags		= I2C_CLIENT_WAKE,
 		},
 		.dmi_name	= "trackpad",
 		.irqflags	= IRQF_TRIGGER_FALLING,
 		.type		= I2C_ADAPTER_VGADDC,
 		.alt_addr	= ATMEL_TP_I2C_BL_ADDR,
+<<<<<<< HEAD
+=======
+		.properties	= chromebook_pixel_trackpad_props,
+>>>>>>> upstream/android-13
 	},
 	/* Light Sensor. */
 	{
@@ -412,8 +512,11 @@ static struct i2c_peripheral acer_c720_peripherals[] __initdata = {
 		.board_info	= {
 			I2C_BOARD_INFO("atmel_mxt_ts",
 					ATMEL_TS_I2C_ADDR),
+<<<<<<< HEAD
 			.properties	=
 				chromebook_atmel_touchscreen_props,
+=======
+>>>>>>> upstream/android-13
 			.flags		= I2C_CLIENT_WAKE,
 		},
 		.dmi_name	= "touchscreen",
@@ -421,6 +524,10 @@ static struct i2c_peripheral acer_c720_peripherals[] __initdata = {
 		.type		= I2C_ADAPTER_DESIGNWARE,
 		.pci_devid	= PCI_DEVID(0, PCI_DEVFN(0x15, 0x2)),
 		.alt_addr	= ATMEL_TS_I2C_BL_ADDR,
+<<<<<<< HEAD
+=======
+		.properties	= chromebook_atmel_touchscreen_props,
+>>>>>>> upstream/android-13
 	},
 	/* Touchpad. */
 	{
@@ -496,12 +603,24 @@ static struct acpi_peripheral samus_peripherals[] __initdata = {
 	/* Touchpad */
 	{
 		.hid		= "ATML0000",
+<<<<<<< HEAD
 		.properties	= samus_trackpad_props,
+=======
+		.swnode		= {
+			.properties = samus_trackpad_props,
+		},
+>>>>>>> upstream/android-13
 	},
 	/* Touchsceen */
 	{
 		.hid		= "ATML0001",
+<<<<<<< HEAD
 		.properties	= chromebook_atmel_touchscreen_props,
+=======
+		.swnode		= {
+			.properties = chromebook_atmel_touchscreen_props,
+		},
+>>>>>>> upstream/android-13
 	},
 };
 DECLARE_ACPI_CROS_LAPTOP(samus);
@@ -510,12 +629,24 @@ static struct acpi_peripheral generic_atmel_peripherals[] __initdata = {
 	/* Touchpad */
 	{
 		.hid		= "ATML0000",
+<<<<<<< HEAD
 		.properties	= chromebook_pixel_trackpad_props,
+=======
+		.swnode		= {
+			.properties = chromebook_pixel_trackpad_props,
+		},
+>>>>>>> upstream/android-13
 	},
 	/* Touchsceen */
 	{
 		.hid		= "ATML0001",
+<<<<<<< HEAD
 		.properties	= chromebook_atmel_touchscreen_props,
+=======
+		.swnode		= {
+			.properties = chromebook_atmel_touchscreen_props,
+		},
+>>>>>>> upstream/android-13
 	},
 };
 DECLARE_ACPI_CROS_LAPTOP(generic_atmel);
@@ -741,12 +872,20 @@ chromeos_laptop_prepare_i2c_peripherals(struct chromeos_laptop *cros_laptop,
 		if (error)
 			goto err_out;
 
+<<<<<<< HEAD
 		/* We need to deep-copy properties */
 		if (info->properties) {
 			info->properties =
 				property_entries_dup(info->properties);
 			if (IS_ERR(info->properties)) {
 				error = PTR_ERR(info->properties);
+=======
+		/* Create primary fwnode for the device - copies everything */
+		if (i2c_dev->properties) {
+			info->fwnode = fwnode_create_software_node(i2c_dev->properties, NULL);
+			if (IS_ERR(info->fwnode)) {
+				error = PTR_ERR(info->fwnode);
+>>>>>>> upstream/android-13
 				goto err_out;
 			}
 		}
@@ -758,8 +897,13 @@ err_out:
 	while (--i >= 0) {
 		i2c_dev = &cros_laptop->i2c_peripherals[i];
 		info = &i2c_dev->board_info;
+<<<<<<< HEAD
 		if (info->properties)
 			property_entries_free(info->properties);
+=======
+		if (!IS_ERR_OR_NULL(info->fwnode))
+			fwnode_remove_software_node(info->fwnode);
+>>>>>>> upstream/android-13
 	}
 	kfree(cros_laptop->i2c_peripherals);
 	return error;
@@ -799,11 +943,19 @@ chromeos_laptop_prepare_acpi_peripherals(struct chromeos_laptop *cros_laptop,
 		*acpi_dev = *src_dev;
 
 		/* We need to deep-copy properties */
+<<<<<<< HEAD
 		if (src_dev->properties) {
 			acpi_dev->properties =
 				property_entries_dup(src_dev->properties);
 			if (IS_ERR(acpi_dev->properties)) {
 				error = PTR_ERR(acpi_dev->properties);
+=======
+		if (src_dev->swnode.properties) {
+			acpi_dev->swnode.properties =
+				property_entries_dup(src_dev->swnode.properties);
+			if (IS_ERR(acpi_dev->swnode.properties)) {
+				error = PTR_ERR(acpi_dev->swnode.properties);
+>>>>>>> upstream/android-13
 				goto err_out;
 			}
 		}
@@ -819,8 +971,13 @@ chromeos_laptop_prepare_acpi_peripherals(struct chromeos_laptop *cros_laptop,
 err_out:
 	while (--i >= 0) {
 		acpi_dev = &acpi_peripherals[i];
+<<<<<<< HEAD
 		if (acpi_dev->properties)
 			property_entries_free(acpi_dev->properties);
+=======
+		if (!IS_ERR_OR_NULL(acpi_dev->swnode.properties))
+			property_entries_free(acpi_dev->swnode.properties);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(acpi_peripherals);
@@ -831,11 +988,15 @@ static void chromeos_laptop_destroy(const struct chromeos_laptop *cros_laptop)
 {
 	const struct acpi_peripheral *acpi_dev;
 	struct i2c_peripheral *i2c_dev;
+<<<<<<< HEAD
 	struct i2c_board_info *info;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	for (i = 0; i < cros_laptop->num_i2c_peripherals; i++) {
 		i2c_dev = &cros_laptop->i2c_peripherals[i];
+<<<<<<< HEAD
 		info = &i2c_dev->board_info;
 
 		if (i2c_dev->client)
@@ -843,13 +1004,23 @@ static void chromeos_laptop_destroy(const struct chromeos_laptop *cros_laptop)
 
 		if (info->properties)
 			property_entries_free(info->properties);
+=======
+		i2c_unregister_device(i2c_dev->client);
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < cros_laptop->num_acpi_peripherals; i++) {
 		acpi_dev = &cros_laptop->acpi_peripherals[i];
 
+<<<<<<< HEAD
 		if (acpi_dev->properties)
 			property_entries_free(acpi_dev->properties);
+=======
+		if (acpi_dev->client)
+			device_remove_software_node(&acpi_dev->client->dev);
+
+		property_entries_free(acpi_dev->swnode.properties);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(cros_laptop->i2c_peripherals);

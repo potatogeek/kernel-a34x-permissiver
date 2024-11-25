@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -61,7 +67,11 @@ static int clk_fixup_div_set_rate(struct clk_hw *hw, unsigned long rate,
 	struct clk_fixup_div *fixup_div = to_clk_fixup_div(hw);
 	struct clk_divider *div = to_clk_divider(hw);
 	unsigned int divider, value;
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	u32 val;
 
 	divider = parent_rate / rate;
@@ -91,13 +101,23 @@ static const struct clk_ops clk_fixup_div_ops = {
 	.set_rate = clk_fixup_div_set_rate,
 };
 
+<<<<<<< HEAD
 struct clk *imx_clk_fixup_divider(const char *name, const char *parent,
+=======
+struct clk_hw *imx_clk_hw_fixup_divider(const char *name, const char *parent,
+>>>>>>> upstream/android-13
 				  void __iomem *reg, u8 shift, u8 width,
 				  void (*fixup)(u32 *val))
 {
 	struct clk_fixup_div *fixup_div;
+<<<<<<< HEAD
 	struct clk *clk;
 	struct clk_init_data init = {};
+=======
+	struct clk_hw *hw;
+	struct clk_init_data init;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!fixup)
 		return ERR_PTR(-EINVAL);
@@ -120,9 +140,21 @@ struct clk *imx_clk_fixup_divider(const char *name, const char *parent,
 	fixup_div->ops = &clk_divider_ops;
 	fixup_div->fixup = fixup;
 
+<<<<<<< HEAD
 	clk = clk_register(NULL, &fixup_div->divider.hw);
 	if (IS_ERR(clk))
 		kfree(fixup_div);
 
 	return clk;
+=======
+	hw = &fixup_div->divider.hw;
+
+	ret = clk_hw_register(NULL, hw);
+	if (ret) {
+		kfree(fixup_div);
+		return ERR_PTR(ret);
+	}
+
+	return hw;
+>>>>>>> upstream/android-13
 }

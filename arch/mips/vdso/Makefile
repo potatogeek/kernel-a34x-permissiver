@@ -19,6 +19,13 @@ ccflags-vdso := \
 	$(CLANG_FLAGS) \
 	-D__VDSO__
 
+<<<<<<< HEAD
+=======
+ifndef CONFIG_64BIT
+ccflags-vdso += -DBUILD_VDSO32
+endif
+
+>>>>>>> upstream/android-13
 #
 # The -fno-jump-tables flag only prevents the compiler from generating
 # jump tables but does not prevent the compiler from emitting absolute
@@ -26,9 +33,15 @@ ccflags-vdso := \
 cflags-vdso := $(ccflags-vdso) \
 	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
 	-O3 -g -fPIC -fno-strict-aliasing -fno-common -fno-builtin -G 0 \
+<<<<<<< HEAD
 	-fno-stack-protector -fno-jump-tables -DDISABLE_BRANCH_PROFILING \
 	$(call cc-option, -fno-asynchronous-unwind-tables) \
 	$(call cc-option, -fno-stack-protector)
+=======
+	-mrelax-pic-calls $(call cc-option, -mexplicit-relocs) \
+	-fno-stack-protector -fno-jump-tables -DDISABLE_BRANCH_PROFILING \
+	$(call cc-option, -fno-asynchronous-unwind-tables)
+>>>>>>> upstream/android-13
 aflags-vdso := $(ccflags-vdso) \
 	-D__ASSEMBLY__ -Wa,-gdwarf-2
 
@@ -42,6 +55,7 @@ CFLAGS_vgettimeofday-o32.o = -include $(srctree)/$(src)/config-n32-o32-env.c -in
 CFLAGS_vgettimeofday-n32.o = -include $(srctree)/$(src)/config-n32-o32-env.c -include $(c-gettimeofday-y)
 endif
 
+<<<<<<< HEAD
 CFLAGS_REMOVE_vgettimeofday.o = -pg
 
 #
@@ -73,17 +87,48 @@ VDSO_LDFLAGS := \
 CFLAGS_REMOVE_vdso.o = -pg
 
 GCOV_PROFILE := n
+=======
+CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE)
+
+ifdef CONFIG_MIPS_DISABLE_VDSO
+  ifndef CONFIG_MIPS_LD_CAN_LINK_VDSO
+    $(warning MIPS VDSO requires binutils >= 2.25)
+  endif
+  obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
+endif
+
+# VDSO linker flags.
+ldflags-y := -Bsymbolic --no-undefined -soname=linux-vdso.so.1 \
+	$(filter -E%,$(KBUILD_CFLAGS)) -nostdlib -shared \
+	-G 0 --eh-frame-hdr --hash-style=sysv --build-id=sha1 -T
+
+CFLAGS_REMOVE_vdso.o = $(CC_FLAGS_FTRACE)
+
+GCOV_PROFILE := n
+UBSAN_SANITIZE := n
+KCOV_INSTRUMENT := n
+
+# Check that we don't have PIC 'jalr t9' calls left
+quiet_cmd_vdso_mips_check = VDSOCHK $@
+      cmd_vdso_mips_check = if $(OBJDUMP) --disassemble $@ | egrep -h "jalr.*t9" > /dev/null; \
+		       then (echo >&2 "$@: PIC 'jalr t9' calls are not supported"; \
+			     rm -f $@; /bin/false); fi
+>>>>>>> upstream/android-13
 
 #
 # Shared build commands.
 #
 
 quiet_cmd_vdsold_and_vdso_check = LD      $@
+<<<<<<< HEAD
       cmd_vdsold_and_vdso_check = $(cmd_vdsold); $(cmd_vdso_check)
 
 quiet_cmd_vdsold = VDSO    $@
       cmd_vdsold = $(CC) $(c_flags) $(VDSO_LDFLAGS) \
                    -Wl,-T $(filter %.lds,$^) $(filter %.o,$^) -o $@
+=======
+      cmd_vdsold_and_vdso_check = $(cmd_ld); $(cmd_vdso_check); $(cmd_vdso_mips_check)
+>>>>>>> upstream/android-13
 
 quiet_cmd_vdsoas_o_S = AS      $@
       cmd_vdsoas_o_S = $(CC) $(a_flags) -c -o $@ $<
@@ -93,7 +138,11 @@ $(obj)/%.so.raw: OBJCOPYFLAGS := -S
 $(obj)/%.so.raw: $(obj)/%.so.dbg.raw FORCE
 	$(call if_changed,objcopy)
 
+<<<<<<< HEAD
 hostprogs-y := genvdso
+=======
+hostprogs := genvdso
+>>>>>>> upstream/android-13
 
 quiet_cmd_genvdso = GENVDSO $@
 define cmd_genvdso

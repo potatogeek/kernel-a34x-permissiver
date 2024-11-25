@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /***************************************************************************
 			  msnd_pinnacle_mixer.c  -  description
 			     -------------------
@@ -8,10 +12,13 @@
 
 /***************************************************************************
  *							      		   *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.				   *
+=======
+>>>>>>> upstream/android-13
  *									   *
  ***************************************************************************/
 
@@ -222,11 +229,17 @@ static int snd_msndmix_set(struct snd_msnd *dev, int d, int left, int right)
 	case MSND_MIXER_VOLUME:		/* master volume */
 		writew(wLeft, dev->SMA + SMA_wCurrMastVolLeft);
 		writew(wRight, dev->SMA + SMA_wCurrMastVolRight);
+<<<<<<< HEAD
 		/* fall through */
 
 	case MSND_MIXER_AUX:			/* aux pot control */
 		/* scaled by master volume */
 		/* fall through */
+=======
+		fallthrough;
+	case MSND_MIXER_AUX:			/* aux pot control */
+		/* scaled by master volume */
+>>>>>>> upstream/android-13
 
 		/* digital controls */
 	case MSND_MIXER_SYNTH:			/* synth vol (dsp mix) */
@@ -278,7 +291,11 @@ static int snd_msndmix_volume_put(struct snd_kcontrol *kcontrol,
   .private_value = addr }
 
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_msnd_controls[] = {
+=======
+static const struct snd_kcontrol_new snd_msnd_controls[] = {
+>>>>>>> upstream/android-13
 DUMMY_VOLUME("Master Volume", 0, MSND_MIXER_VOLUME),
 DUMMY_VOLUME("PCM Volume", 0, MSND_MIXER_PCM),
 DUMMY_VOLUME("Aux Volume", 0, MSND_MIXER_AUX),

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2014 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -58,13 +64,23 @@ static const struct clk_ops clk_gate_exclusive_ops = {
 	.is_enabled = clk_gate_exclusive_is_enabled,
 };
 
+<<<<<<< HEAD
 struct clk *imx_clk_gate_exclusive(const char *name, const char *parent,
+=======
+struct clk_hw *imx_clk_hw_gate_exclusive(const char *name, const char *parent,
+>>>>>>> upstream/android-13
 	 void __iomem *reg, u8 shift, u32 exclusive_mask)
 {
 	struct clk_gate_exclusive *exgate;
 	struct clk_gate *gate;
+<<<<<<< HEAD
 	struct clk *clk;
 	struct clk_init_data init = {};
+=======
+	struct clk_hw *hw;
+	struct clk_init_data init;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (exclusive_mask == 0)
 		return ERR_PTR(-EINVAL);
@@ -86,9 +102,21 @@ struct clk *imx_clk_gate_exclusive(const char *name, const char *parent,
 	gate->hw.init = &init;
 	exgate->exclusive_mask = exclusive_mask;
 
+<<<<<<< HEAD
 	clk = clk_register(NULL, &gate->hw);
 	if (IS_ERR(clk))
 		kfree(exgate);
 
 	return clk;
+=======
+	hw = &gate->hw;
+
+	ret = clk_hw_register(NULL, hw);
+	if (ret) {
+		kfree(gate);
+		return ERR_PTR(ret);
+	}
+
+	return hw;
+>>>>>>> upstream/android-13
 }

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Xtfpga I2S controller driver
  *
  * Copyright (c) 2014 Cadence Design Systems Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -368,6 +375,7 @@ static const struct snd_pcm_hardware xtfpga_pcm_hardware = {
 	.fifo_size		= 16,
 };
 
+<<<<<<< HEAD
 static int xtfpga_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -376,21 +384,44 @@ static int xtfpga_pcm_open(struct snd_pcm_substream *substream)
 
 	snd_soc_set_runtime_hwparams(substream, &xtfpga_pcm_hardware);
 	p = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+static int xtfpga_pcm_open(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	void *p;
+
+	snd_soc_set_runtime_hwparams(substream, &xtfpga_pcm_hardware);
+	p = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 	runtime->private_data = p;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xtfpga_pcm_close(struct snd_pcm_substream *substream)
+=======
+static int xtfpga_pcm_close(struct snd_soc_component *component,
+			    struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	synchronize_rcu();
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xtfpga_pcm_hw_params(struct snd_pcm_substream *substream,
 				struct snd_pcm_hw_params *hw_params)
 {
 	int ret;
+=======
+static int xtfpga_pcm_hw_params(struct snd_soc_component *component,
+				struct snd_pcm_substream *substream,
+				struct snd_pcm_hw_params *hw_params)
+{
+>>>>>>> upstream/android-13
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct xtfpga_i2s *i2s = runtime->private_data;
 	unsigned channels = params_channels(hw_params);
@@ -422,12 +453,20 @@ static int xtfpga_pcm_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ret = snd_pcm_lib_malloc_pages(substream,
 				       params_buffer_bytes(hw_params));
 	return ret;
 }
 
 static int xtfpga_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
+=======
+	return 0;
+}
+
+static int xtfpga_pcm_trigger(struct snd_soc_component *component,
+			      struct snd_pcm_substream *substream, int cmd)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -455,7 +494,12 @@ static int xtfpga_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	return ret;
 }
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t xtfpga_pcm_pointer(struct snd_pcm_substream *substream)
+=======
+static snd_pcm_uframes_t xtfpga_pcm_pointer(struct snd_soc_component *component,
+					    struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct xtfpga_i2s *i2s = runtime->private_data;
@@ -464,11 +508,17 @@ static snd_pcm_uframes_t xtfpga_pcm_pointer(struct snd_pcm_substream *substream)
 	return pos < runtime->buffer_size ? pos : 0;
 }
 
+<<<<<<< HEAD
 static int xtfpga_pcm_new(struct snd_soc_pcm_runtime *rtd)
+=======
+static int xtfpga_pcm_new(struct snd_soc_component *component,
+			  struct snd_soc_pcm_runtime *rtd)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card = rtd->card->snd_card;
 	size_t size = xtfpga_pcm_hardware.buffer_bytes_max;
 
+<<<<<<< HEAD
 	return snd_pcm_lib_preallocate_pages_for_all(rtd->pcm,
 						     SNDRV_DMA_TYPE_DEV,
 						     card->dev, size, size);
@@ -487,6 +537,21 @@ static const struct snd_soc_component_driver xtfpga_i2s_component = {
 	.name		= DRV_NAME,
 	.pcm_new	= xtfpga_pcm_new,
 	.ops		= &xtfpga_pcm_ops,
+=======
+	snd_pcm_set_managed_buffer_all(rtd->pcm, SNDRV_DMA_TYPE_DEV,
+				       card->dev, size, size);
+	return 0;
+}
+
+static const struct snd_soc_component_driver xtfpga_i2s_component = {
+	.name		= DRV_NAME,
+	.open		= xtfpga_pcm_open,
+	.close		= xtfpga_pcm_close,
+	.hw_params	= xtfpga_pcm_hw_params,
+	.trigger	= xtfpga_pcm_trigger,
+	.pointer	= xtfpga_pcm_pointer,
+	.pcm_construct	= xtfpga_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_dai_ops xtfpga_i2s_dai_ops = {
@@ -534,7 +599,10 @@ static int xtfpga_i2s_runtime_resume(struct device *dev)
 static int xtfpga_i2s_probe(struct platform_device *pdev)
 {
 	struct xtfpga_i2s *i2s;
+<<<<<<< HEAD
 	struct resource *mem;
+=======
+>>>>>>> upstream/android-13
 	int err, irq;
 
 	i2s = devm_kzalloc(&pdev->dev, sizeof(*i2s), GFP_KERNEL);
@@ -546,8 +614,12 @@ static int xtfpga_i2s_probe(struct platform_device *pdev)
 	i2s->dev = &pdev->dev;
 	dev_dbg(&pdev->dev, "dev: %p, i2s: %p\n", &pdev->dev, i2s);
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	i2s->regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	i2s->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(i2s->regs)) {
 		err = PTR_ERR(i2s->regs);
 		goto err;
@@ -575,7 +647,10 @@ static int xtfpga_i2s_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "No IRQ resource\n");
+=======
+>>>>>>> upstream/android-13
 		err = irq;
 		goto err;
 	}

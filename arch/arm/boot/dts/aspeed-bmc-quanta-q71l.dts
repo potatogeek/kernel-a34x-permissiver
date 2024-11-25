@@ -7,9 +7,34 @@
 	model = "Quanta Q71L BMC";
 	compatible = "quanta,q71l-bmc", "aspeed,ast2400";
 
+<<<<<<< HEAD
 	chosen {
 		stdout-path = &uart5;
 		bootargs = "console=ttyS4,115200 earlyprintk";
+=======
+	aliases {
+		i2c14 = &i2c_pcie2;
+		i2c15 = &i2c_pcie3;
+		i2c16 = &i2c_pcie6;
+		i2c17 = &i2c_pcie7;
+		i2c18 = &i2c_pcie1;
+		i2c19 = &i2c_pcie4;
+		i2c20 = &i2c_pcie5;
+		i2c21 = &i2c_pcie8;
+		i2c22 = &i2c_pcie9;
+		i2c23 = &i2c_pcie10;
+		i2c24 = &i2c_ssd1;
+		i2c25 = &i2c_ssd2;
+		i2c26 = &i2c_psu4;
+		i2c27 = &i2c_psu1;
+		i2c28 = &i2c_psu3;
+		i2c29 = &i2c_psu2;
+	};
+
+	chosen {
+		stdout-path = &uart5;
+		bootargs = "console=ttyS4,115200 earlycon";
+>>>>>>> upstream/android-13
 	};
 
 	memory@40000000 {
@@ -93,6 +118,22 @@
 			&pinctrl_ddcclk_default &pinctrl_ddcdat_default>;
 };
 
+<<<<<<< HEAD
+=======
+&p2a {
+	status = "okay";
+	memory-region = <&vga_memory>;
+};
+
+&ibt {
+	status = "okay";
+};
+
+&lpc_ctrl {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &lpc_snoop {
 	status = "okay";
 	snoop-ports = <0x80>;
@@ -111,6 +152,13 @@
 	pinctrl-0 = <&pinctrl_rgmii2_default &pinctrl_mdio2_default>;
 };
 
+<<<<<<< HEAD
+=======
+&uart1 {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &uart5 {
 	status = "okay";
 };
@@ -299,24 +347,56 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
+<<<<<<< HEAD
+=======
+
+			psu@59 {
+				compatible = "pmbus";
+				reg = <0x59>;
+			};
+>>>>>>> upstream/android-13
 		};
 
 		i2c_psu1: i2c@1 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <1>;
+<<<<<<< HEAD
+=======
+
+			psu@58 {
+				compatible = "pmbus";
+				reg = <0x58>;
+			};
+>>>>>>> upstream/android-13
 		};
 
 		i2c_psu3: i2c@2 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
+<<<<<<< HEAD
+=======
+
+			psu@58 {
+				compatible = "pmbus";
+				reg = <0x58>;
+			};
+>>>>>>> upstream/android-13
 		};
 
 		i2c_psu2: i2c@3 {
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <3>;
+<<<<<<< HEAD
+=======
+
+			psu@59 {
+				compatible = "pmbus";
+				reg = <0x59>;
+			};
+>>>>>>> upstream/android-13
 		};
 	};
 
@@ -345,6 +425,13 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&adc {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &pwm_tacho {
 	status = "okay";
 

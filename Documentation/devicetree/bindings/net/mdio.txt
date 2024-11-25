@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Common MDIO bus properties.
 
 These are generic properties that can apply to any MDIO bus.
@@ -35,3 +36,6 @@ required for the TI Davinci MDIO driver.
 			reg = <3>;
 		};
 	};
+=======
+This file has moved to mdio.yaml.
+>>>>>>> upstream/android-13

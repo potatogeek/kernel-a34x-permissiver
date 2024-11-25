@@ -162,7 +162,10 @@ struct pxafb_info {
 
 #ifdef CONFIG_CPU_FREQ
 	struct notifier_block	freq_transition;
+<<<<<<< HEAD
 	struct notifier_block	freq_policy;
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	struct regulator *lcd_supply;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  HP Compaq TC1100 Tablet WMI Extras Driver
  *
@@ -5,6 +9,7 @@
  *  Copyright (C) 2004 Jamey Hicks <jamey.hicks@hp.com>
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -23,6 +28,8 @@
  *  59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -173,7 +180,11 @@ static struct attribute *tc1100_attributes[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group tc1100_attribute_group = {
+=======
+static const struct attribute_group tc1100_attribute_group = {
+>>>>>>> upstream/android-13
 	.attrs	= tc1100_attributes,
 };
 

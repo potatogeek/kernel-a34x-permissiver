@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * stk-webcam.c : Driver for Syntek 1125 USB webcam controller
  *
@@ -6,6 +10,7 @@
  *
  * Some parts are inspired from cafe_ccic.c
  * Copyright 2006-2007 Jonathan Corbet
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -116,6 +123,16 @@ static const struct dmi_system_id stk_upside_down_dmi_table[] = {
 			DMI_MATCH(DMI_PRODUCT_NAME, "T12Rg-H")
 		}
 	},
+<<<<<<< HEAD
+=======
+	{
+		.ident = "ASUS A6VM",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK Computer Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "A6VM")
+		}
+	},
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -796,6 +813,7 @@ static int stk_vidioc_querycap(struct file *filp,
 {
 	struct stk_camera *dev = video_drvdata(filp);
 
+<<<<<<< HEAD
 	strcpy(cap->driver, "stk");
 	strcpy(cap->card, "stk");
 	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
@@ -803,6 +821,11 @@ static int stk_vidioc_querycap(struct file *filp,
 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE
 		| V4L2_CAP_READWRITE | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, "stk", sizeof(cap->driver));
+	strscpy(cap->card, "stk", sizeof(cap->card));
+	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -812,7 +835,11 @@ static int stk_vidioc_enum_input(struct file *filp,
 	if (input->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(input->name, "Syntek USB Camera");
+=======
+	strscpy(input->name, "Syntek USB Camera", sizeof(input->name));
+>>>>>>> upstream/android-13
 	input->type = V4L2_INPUT_TYPE_CAMERA;
 	return 0;
 }
@@ -862,6 +889,7 @@ static int stk_vidioc_enum_fmt_vid_cap(struct file *filp,
 	switch (fmtd->index) {
 	case 0:
 		fmtd->pixelformat = V4L2_PIX_FMT_RGB565;
+<<<<<<< HEAD
 		strcpy(fmtd->description, "r5g6b5");
 		break;
 	case 1:
@@ -879,6 +907,20 @@ static int stk_vidioc_enum_fmt_vid_cap(struct file *filp,
 	case 4:
 		fmtd->pixelformat = V4L2_PIX_FMT_YUYV;
 		strcpy(fmtd->description, "yuv4:2:2");
+=======
+		break;
+	case 1:
+		fmtd->pixelformat = V4L2_PIX_FMT_RGB565X;
+		break;
+	case 2:
+		fmtd->pixelformat = V4L2_PIX_FMT_UYVY;
+		break;
+	case 3:
+		fmtd->pixelformat = V4L2_PIX_FMT_SBGGR8;
+		break;
+	case 4:
+		fmtd->pixelformat = V4L2_PIX_FMT_YUYV;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -998,7 +1040,11 @@ static int stk_setup_format(struct stk_camera *dev)
 		stk_camera_write_reg(dev, 0x001c, 0x46);
 	/*
 	 * Registers 0x0115 0x0114 are the size of each line (bytes),
+<<<<<<< HEAD
 	 * regs 0x0117 0x0116 are the heigth of the image.
+=======
+	 * regs 0x0117 0x0116 are the height of the image.
+>>>>>>> upstream/android-13
 	 */
 	stk_camera_write_reg(dev, 0x0115,
 		((stk_sizes[i].w * depth) >> 8) & 0xff);
@@ -1136,7 +1182,11 @@ static int stk_vidioc_dqbuf(struct file *filp,
 	sbuf->v4lbuf.flags &= ~V4L2_BUF_FLAG_QUEUED;
 	sbuf->v4lbuf.flags |= V4L2_BUF_FLAG_DONE;
 	sbuf->v4lbuf.sequence = ++dev->sequence;
+<<<<<<< HEAD
 	v4l2_get_timestamp(&sbuf->v4lbuf.timestamp);
+=======
+	v4l2_buffer_set_timestamp(&sbuf->v4lbuf, ktime_get_ns());
+>>>>>>> upstream/android-13
 
 	*buf = sbuf->v4lbuf;
 	return 0;
@@ -1262,8 +1312,15 @@ static int stk_register_video_device(struct stk_camera *dev)
 	dev->vdev = stk_v4l_data;
 	dev->vdev.lock = &dev->lock;
 	dev->vdev.v4l2_dev = &dev->v4l2_dev;
+<<<<<<< HEAD
 	video_set_drvdata(&dev->vdev, dev);
 	err = video_register_device(&dev->vdev, VFL_TYPE_GRABBER, -1);
+=======
+	dev->vdev.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+				V4L2_CAP_STREAMING;
+	video_set_drvdata(&dev->vdev, dev);
+	err = video_register_device(&dev->vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (err)
 		pr_err("v4l registration failed\n");
 	else
@@ -1355,7 +1412,11 @@ static int stk_camera_probe(struct usb_interface *interface,
 	if (!dev->isoc_ep) {
 		pr_err("Could not find isoc-in endpoint\n");
 		err = -ENODEV;
+<<<<<<< HEAD
 		goto error;
+=======
+		goto error_put;
+>>>>>>> upstream/android-13
 	}
 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
 	dev->vsettings.mode = MODE_VGA;
@@ -1368,10 +1429,19 @@ static int stk_camera_probe(struct usb_interface *interface,
 
 	err = stk_register_video_device(dev);
 	if (err)
+<<<<<<< HEAD
 		goto error;
 
 	return 0;
 
+=======
+		goto error_put;
+
+	return 0;
+
+error_put:
+	usb_put_intf(interface);
+>>>>>>> upstream/android-13
 error:
 	v4l2_ctrl_handler_free(hdl);
 	v4l2_device_unregister(&dev->v4l2_dev);

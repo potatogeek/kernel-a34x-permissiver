@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  The driver for the EMU10K1 (SB Live!) based soundcards
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *
  *  Copyright (c) by James Courtier-Dutton <James@superbug.demon.co.uk>
  *      Added support for Audigy 2 Value.
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  * 
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -34,8 +41,11 @@
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("EMU10K1");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Creative Labs,SB Live!/PCI512/E-mu APS},"
 	       "{Creative Labs,SB Audigy}}");
+=======
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_SND_SEQUENCER)
 #define ENABLE_SYNTH
@@ -117,14 +127,24 @@ static int snd_card_emu10k1_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
 		return err;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*emu), &card);
+	if (err < 0)
+		return err;
+	emu = card->private_data;
+
+>>>>>>> upstream/android-13
 	if (max_buffer_size[dev] < 32)
 		max_buffer_size[dev] = 32;
 	else if (max_buffer_size[dev] > 1024)
 		max_buffer_size[dev] = 1024;
+<<<<<<< HEAD
 	if ((err = snd_emu10k1_create(card, pci, extin[dev], extout[dev],
 				      (long)max_buffer_size[dev] * 1024 * 1024,
 				      enable_ir[dev], subsystem[dev],
@@ -166,6 +186,59 @@ static int snd_card_emu10k1_probe(struct pci_dev *pci,
 	}
 	if ((err = snd_emu10k1_fx8010_new(emu, 0)) < 0)
 		goto error;
+=======
+	err = snd_emu10k1_create(card, pci, extin[dev], extout[dev],
+				 (long)max_buffer_size[dev] * 1024 * 1024,
+				 enable_ir[dev], subsystem[dev]);
+	if (err < 0)
+		return err;
+	emu->delay_pcm_irq = delay_pcm_irq[dev] & 0x1f;
+	err = snd_emu10k1_pcm(emu, 0);
+	if (err < 0)
+		return err;
+	err = snd_emu10k1_pcm_mic(emu, 1);
+	if (err < 0)
+		return err;
+	err = snd_emu10k1_pcm_efx(emu, 2);
+	if (err < 0)
+		return err;
+	/* This stores the periods table. */
+	if (emu->card_capabilities->ca0151_chip) { /* P16V */	
+		emu->p16v_buffer =
+			snd_devm_alloc_pages(&pci->dev, SNDRV_DMA_TYPE_DEV, 1024);
+		if (!emu->p16v_buffer)
+			return -ENOMEM;
+	}
+
+	err = snd_emu10k1_mixer(emu, 0, 3);
+	if (err < 0)
+		return err;
+	
+	err = snd_emu10k1_timer(emu, 0);
+	if (err < 0)
+		return err;
+
+	err = snd_emu10k1_pcm_multi(emu, 3);
+	if (err < 0)
+		return err;
+	if (emu->card_capabilities->ca0151_chip) { /* P16V */
+		err = snd_p16v_pcm(emu, 4);
+		if (err < 0)
+			return err;
+	}
+	if (emu->audigy) {
+		err = snd_emu10k1_audigy_midi(emu);
+		if (err < 0)
+			return err;
+	} else {
+		err = snd_emu10k1_midi(emu);
+		if (err < 0)
+			return err;
+	}
+	err = snd_emu10k1_fx8010_new(emu, 0);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 #ifdef ENABLE_SYNTH
 	if (snd_seq_device_new(card, 1, SNDRV_SEQ_DEV_ID_EMU10K1_SYNTH,
 			       sizeof(struct snd_emu10k1_synth_arg), &wave) < 0 ||
@@ -183,16 +256,28 @@ static int snd_card_emu10k1_probe(struct pci_dev *pci,
 	}
 #endif
  
+<<<<<<< HEAD
 	strlcpy(card->driver, emu->card_capabilities->driver,
 		sizeof(card->driver));
 	strlcpy(card->shortname, emu->card_capabilities->name,
+=======
+	strscpy(card->driver, emu->card_capabilities->driver,
+		sizeof(card->driver));
+	strscpy(card->shortname, emu->card_capabilities->name,
+>>>>>>> upstream/android-13
 		sizeof(card->shortname));
 	snprintf(card->longname, sizeof(card->longname),
 		 "%s (rev.%d, serial:0x%x) at 0x%lx, irq %i",
 		 card->shortname, emu->revision, emu->serial, emu->port, emu->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0)
 		goto error;
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	if (emu->card_capabilities->emu_model)
 		schedule_delayed_work(&emu->emu1010.firmware_work, 0);
@@ -200,6 +285,7 @@ static int snd_card_emu10k1_probe(struct pci_dev *pci,
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
+<<<<<<< HEAD
 
  error:
 	snd_card_free(card);
@@ -212,6 +298,10 @@ static void snd_card_emu10k1_remove(struct pci_dev *pci)
 }
 
 
+=======
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int snd_emu10k1_suspend(struct device *dev)
 {
@@ -224,12 +314,15 @@ static int snd_emu10k1_suspend(struct device *dev)
 
 	cancel_delayed_work_sync(&emu->emu1010.firmware_work);
 
+<<<<<<< HEAD
 	snd_pcm_suspend_all(emu->pcm);
 	snd_pcm_suspend_all(emu->pcm_mic);
 	snd_pcm_suspend_all(emu->pcm_efx);
 	snd_pcm_suspend_all(emu->pcm_multi);
 	snd_pcm_suspend_all(emu->pcm_p16v);
 
+=======
+>>>>>>> upstream/android-13
 	snd_ac97_suspend(emu->ac97);
 
 	snd_emu10k1_efx_suspend(emu);
@@ -274,7 +367,10 @@ static struct pci_driver emu10k1_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_emu10k1_ids,
 	.probe = snd_card_emu10k1_probe,
+<<<<<<< HEAD
 	.remove = snd_card_emu10k1_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.pm = SND_EMU10K1_PM_OPS,
 	},

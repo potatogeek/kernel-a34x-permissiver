@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL8723E_DEF_H__
 #define __RTL8723E_DEF_H__
@@ -33,6 +38,7 @@
 #define RX_MPDU_QUEUE						0
 #define RX_CMD_QUEUE						1
 
+<<<<<<< HEAD
 #define	C2H_RX_CMD_HDR_LEN					8
 #define	GET_C2H_CMD_CMD_LEN(__prxhdr)		\
 	LE_BITS_TO_4BYTE((__prxhdr), 0, 16)
@@ -64,6 +70,8 @@
 #define	GET_C2H_CMD_FEEDBACK_CCX_SEQ(__pcmdfbhdr)		\
 	LE_BITS_TO_4BYTE(((__pcmdfbhdr) + 4), 20, 12)
 
+=======
+>>>>>>> upstream/android-13
 #define CHIP_BONDING_IDENTIFIER(_value)	(((_value)>>22)&0x3)
 #define	CHIP_BONDING_92C_1T2R		0x1
 
@@ -116,7 +124,11 @@
 #define IS_VENDOR_8723A_B_CUT(version)	((IS_8723_SERIES(version))\
 		? ((GET_CVID_CUT_VERSION(version) == \
 		B_CUT_VERSION) ? true : false) : false)
+<<<<<<< HEAD
 #define IS_81xxC_VENDOR_UMC_B_CUT(version)	((IS_CHIP_VENDOR_UMC(version))\
+=======
+#define IS_81XXC_VENDOR_UMC_B_CUT(version)	((IS_CHIP_VENDOR_UMC(version))\
+>>>>>>> upstream/android-13
 		? ((GET_CVID_CUT_VERSION(version) == \
 		B_CUT_VERSION) ? true : false) : false)
 

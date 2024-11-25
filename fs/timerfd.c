@@ -26,7 +26,11 @@
 #include <linux/syscalls.h>
 #include <linux/compat.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
 #include <linux/rtc.h>
+=======
+#include <linux/time_namespace.h>
+>>>>>>> upstream/android-13
 
 struct timerfd_ctx {
 	union {
@@ -115,6 +119,25 @@ void timerfd_clock_was_set(void)
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
+=======
+static void timerfd_resume_work(struct work_struct *work)
+{
+	timerfd_clock_was_set();
+}
+
+static DECLARE_WORK(timerfd_work, timerfd_resume_work);
+
+/*
+ * Invoked from timekeeping_resume(). Defer the actual update to work so
+ * timerfd_clock_was_set() runs in task context.
+ */
+void timerfd_resume(void)
+{
+	schedule_work(&timerfd_work);
+}
+
+>>>>>>> upstream/android-13
 static void __timerfd_remove_cancel(struct timerfd_ctx *ctx)
 {
 	if (ctx->might_cancel) {
@@ -162,9 +185,12 @@ static ktime_t timerfd_get_remaining(struct timerfd_ctx *ctx)
 {
 	ktime_t remaining;
 
+<<<<<<< HEAD
 	if (ctx->clockid == CLOCK_POWER_OFF_ALARM)
 		return ktime_set(0, 0);
 
+=======
+>>>>>>> upstream/android-13
 	if (isalarm(ctx))
 		remaining = alarm_expires_remaining(&ctx->t.alarm);
 	else
@@ -200,6 +226,11 @@ static int timerfd_setup(struct timerfd_ctx *ctx, int flags,
 	}
 
 	if (texp != 0) {
+<<<<<<< HEAD
+=======
+		if (flags & TFD_TIMER_ABSTIME)
+			texp = timens_ktime_to_host(clockid, texp);
+>>>>>>> upstream/android-13
 		if (isalarm(ctx)) {
 			if (flags & TFD_TIMER_ABSTIME)
 				alarm_start(&ctx->t.alarm, texp);
@@ -223,12 +254,19 @@ static int timerfd_release(struct inode *inode, struct file *file)
 
 	timerfd_remove_cancel(ctx);
 
+<<<<<<< HEAD
 	if (ctx->clockid != CLOCK_POWER_OFF_ALARM) {
 		if (isalarm(ctx))
 			alarm_cancel(&ctx->t.alarm);
 		else
 			hrtimer_cancel(&ctx->t.tmr);
 	}
+=======
+	if (isalarm(ctx))
+		alarm_cancel(&ctx->t.alarm);
+	else
+		hrtimer_cancel(&ctx->t.tmr);
+>>>>>>> upstream/android-13
 	kfree_rcu(ctx, rcu);
 	return 0;
 }
@@ -308,11 +346,19 @@ static ssize_t timerfd_read(struct file *file, char __user *buf, size_t count,
 static void timerfd_show(struct seq_file *m, struct file *file)
 {
 	struct timerfd_ctx *ctx = file->private_data;
+<<<<<<< HEAD
 	struct itimerspec t;
 
 	spin_lock_irq(&ctx->wqh.lock);
 	t.it_value = ktime_to_timespec(timerfd_get_remaining(ctx));
 	t.it_interval = ktime_to_timespec(ctx->tintv);
+=======
+	struct timespec64 value, interval;
+
+	spin_lock_irq(&ctx->wqh.lock);
+	value = ktime_to_timespec64(timerfd_get_remaining(ctx));
+	interval = ktime_to_timespec64(ctx->tintv);
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&ctx->wqh.lock);
 
 	seq_printf(m,
@@ -324,10 +370,17 @@ static void timerfd_show(struct seq_file *m, struct file *file)
 		   ctx->clockid,
 		   (unsigned long long)ctx->ticks,
 		   ctx->settime_flags,
+<<<<<<< HEAD
 		   (unsigned long long)t.it_value.tv_sec,
 		   (unsigned long long)t.it_value.tv_nsec,
 		   (unsigned long long)t.it_interval.tv_sec,
 		   (unsigned long long)t.it_interval.tv_nsec);
+=======
+		   (unsigned long long)value.tv_sec,
+		   (unsigned long long)value.tv_nsec,
+		   (unsigned long long)interval.tv_sec,
+		   (unsigned long long)interval.tv_nsec);
+>>>>>>> upstream/android-13
 }
 #else
 #define timerfd_show NULL
@@ -404,8 +457,12 @@ SYSCALL_DEFINE2(timerfd_create, int, clockid, int, flags)
 	     clockid != CLOCK_REALTIME &&
 	     clockid != CLOCK_REALTIME_ALARM &&
 	     clockid != CLOCK_BOOTTIME &&
+<<<<<<< HEAD
 	     clockid != CLOCK_BOOTTIME_ALARM &&
 	     clockid != CLOCK_POWER_OFF_ALARM))
+=======
+	     clockid != CLOCK_BOOTTIME_ALARM))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if ((clockid == CLOCK_REALTIME_ALARM ||
@@ -421,6 +478,7 @@ SYSCALL_DEFINE2(timerfd_create, int, clockid, int, flags)
 	spin_lock_init(&ctx->cancel_lock);
 	ctx->clockid = clockid;
 
+<<<<<<< HEAD
 	if (clockid != CLOCK_POWER_OFF_ALARM) {
 		if (isalarm(ctx))
 			alarm_init(&ctx->t.alarm,
@@ -430,6 +488,15 @@ SYSCALL_DEFINE2(timerfd_create, int, clockid, int, flags)
 		else
 			hrtimer_init(&ctx->t.tmr, clockid, HRTIMER_MODE_ABS);
 	}
+=======
+	if (isalarm(ctx))
+		alarm_init(&ctx->t.alarm,
+			   ctx->clockid == CLOCK_REALTIME_ALARM ?
+			   ALARM_REALTIME : ALARM_BOOTTIME,
+			   timerfd_alarmproc);
+	else
+		hrtimer_init(&ctx->t.tmr, clockid, HRTIMER_MODE_ABS);
+>>>>>>> upstream/android-13
 
 	ctx->moffs = ktime_mono_to_real(0);
 
@@ -441,6 +508,7 @@ SYSCALL_DEFINE2(timerfd_create, int, clockid, int, flags)
 	return ufd;
 }
 
+<<<<<<< HEAD
 static void alarm_set_power_on(struct timespec64 new_pwron_time, bool logo)
 {
 	unsigned long pwron_time;
@@ -461,6 +529,8 @@ static void alarm_set_power_on(struct timespec64 new_pwron_time, bool logo)
 	rtc_set_alarm_poweron(alarm_rtc_dev, &alm);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int do_timerfd_settime(int ufd, int flags, 
 		const struct itimerspec64 *new,
 		struct itimerspec64 *old)
@@ -478,11 +548,14 @@ static int do_timerfd_settime(int ufd, int flags,
 		return ret;
 	ctx = f.file->private_data;
 
+<<<<<<< HEAD
 	if (ctx->clockid == CLOCK_POWER_OFF_ALARM) {
 		alarm_set_power_on(new->it_value, true);
 		return 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (isalarm(ctx) && !capable(CAP_WAKE_ALARM)) {
 		fdput(f);
 		return -EPERM;
@@ -505,7 +578,15 @@ static int do_timerfd_settime(int ufd, int flags,
 				break;
 		}
 		spin_unlock_irq(&ctx->wqh.lock);
+<<<<<<< HEAD
 		cpu_relax();
+=======
+
+		if (isalarm(ctx))
+			hrtimer_cancel_wait_running(&ctx->t.alarm.timer);
+		else
+			hrtimer_cancel_wait_running(&ctx->t.tmr);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -594,30 +675,53 @@ SYSCALL_DEFINE2(timerfd_gettime, int, ufd, struct __kernel_itimerspec __user *, 
 }
 
 #ifdef CONFIG_COMPAT_32BIT_TIME
+<<<<<<< HEAD
 COMPAT_SYSCALL_DEFINE4(timerfd_settime, int, ufd, int, flags,
 		const struct compat_itimerspec __user *, utmr,
 		struct compat_itimerspec __user *, otmr)
+=======
+SYSCALL_DEFINE4(timerfd_settime32, int, ufd, int, flags,
+		const struct old_itimerspec32 __user *, utmr,
+		struct old_itimerspec32 __user *, otmr)
+>>>>>>> upstream/android-13
 {
 	struct itimerspec64 new, old;
 	int ret;
 
+<<<<<<< HEAD
 	if (get_compat_itimerspec64(&new, utmr))
+=======
+	if (get_old_itimerspec32(&new, utmr))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	ret = do_timerfd_settime(ufd, flags, &new, &old);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	if (otmr && put_compat_itimerspec64(&old, otmr))
+=======
+	if (otmr && put_old_itimerspec32(&old, otmr))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return ret;
 }
 
+<<<<<<< HEAD
 COMPAT_SYSCALL_DEFINE2(timerfd_gettime, int, ufd,
 		struct compat_itimerspec __user *, otmr)
+=======
+SYSCALL_DEFINE2(timerfd_gettime32, int, ufd,
+		struct old_itimerspec32 __user *, otmr)
+>>>>>>> upstream/android-13
 {
 	struct itimerspec64 kotmr;
 	int ret = do_timerfd_gettime(ufd, &kotmr);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	return put_compat_itimerspec64(&kotmr, otmr) ? -EFAULT : 0;
+=======
+	return put_old_itimerspec32(&kotmr, otmr) ? -EFAULT : 0;
+>>>>>>> upstream/android-13
 }
 #endif

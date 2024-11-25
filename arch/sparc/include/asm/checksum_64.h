@@ -38,6 +38,7 @@ __wsum csum_partial(const void * buff, int len, __wsum sum);
  * here even more important to align src and dst on a 32-bit (or even
  * better 64-bit) boundary
  */
+<<<<<<< HEAD
 __wsum csum_partial_copy_nocheck(const void *src, void *dst,
 				 int len, __wsum sum);
 
@@ -74,6 +75,11 @@ csum_and_copy_to_user(const void *src,
 		*err = -EFAULT;
 	return (__force __wsum) ret;
 }
+=======
+__wsum csum_partial_copy_nocheck(const void *src, void *dst, int len);
+__wsum csum_and_copy_from_user(const void __user *src, void *dst, int len);
+__wsum csum_and_copy_to_user(const void *src, void __user *dst, int len);
+>>>>>>> upstream/android-13
 
 /* ihl is always 5 or greater, almost always is 5, and iph is word aligned
  * the majority of the time.

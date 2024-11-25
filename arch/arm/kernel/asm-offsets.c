@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 1995-2003 Russell King
  *               2001-2002 Keith Owens
@@ -5,18 +9,24 @@
  * Generate definitions needed by assembly language modules.
  * This code generates raw asm output which is post-processed to extract
  * and format the required data.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/compiler.h>
 #include <linux/sched.h>
 #include <linux/mm.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
 #ifdef CONFIG_KVM_ARM_HOST
 #include <linux/kvm_host.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/kexec-internal.h>
 #include <asm/glue-df.h>
@@ -39,6 +49,7 @@
 #if defined(__APCS_26__)
 #error Sorry, your compiler targets APCS-26 but this kernel requires APCS-32
 #endif
+<<<<<<< HEAD
 /*
  * GCC 4.8.0-4.8.2: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58854
  *	      miscompiles find_get_entry(), and can result in EXT3 and EXT4
@@ -48,6 +59,8 @@
 #error Your compiler is too buggy; it is known to miscompile kernels
 #error and result in filesystem corruption and oopses.
 #endif
+=======
+>>>>>>> upstream/android-13
 
 int main(void)
 {
@@ -58,11 +71,18 @@ int main(void)
   BLANK();
   DEFINE(TI_FLAGS,		offsetof(struct thread_info, flags));
   DEFINE(TI_PREEMPT,		offsetof(struct thread_info, preempt_count));
+<<<<<<< HEAD
   DEFINE(TI_ADDR_LIMIT,		offsetof(struct thread_info, addr_limit));
+=======
+>>>>>>> upstream/android-13
   DEFINE(TI_TASK,		offsetof(struct thread_info, task));
   DEFINE(TI_CPU,		offsetof(struct thread_info, cpu));
   DEFINE(TI_CPU_DOMAIN,		offsetof(struct thread_info, cpu_domain));
   DEFINE(TI_CPU_SAVE,		offsetof(struct thread_info, cpu_context));
+<<<<<<< HEAD
+=======
+  DEFINE(TI_ABI_SYSCALL,	offsetof(struct thread_info, abi_syscall));
+>>>>>>> upstream/android-13
   DEFINE(TI_USED_CP,		offsetof(struct thread_info, used_cp));
   DEFINE(TI_TP_VALUE,		offsetof(struct thread_info, tp_value));
   DEFINE(TI_FPSTATE,		offsetof(struct thread_info, fpstate));
@@ -78,9 +98,16 @@ int main(void)
 #ifdef CONFIG_IWMMXT
   DEFINE(TI_IWMMXT_STATE,	offsetof(struct thread_info, fpstate.iwmmxt));
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_CRUNCH
   DEFINE(TI_CRUNCH_STATE,	offsetof(struct thread_info, crunchstate));
 #endif
+=======
+#ifdef CONFIG_STACKPROTECTOR_PER_TASK
+  DEFINE(TI_STACK_CANARY,	offsetof(struct thread_info, stack_canary));
+#endif
+  DEFINE(THREAD_SZ_ORDER,	THREAD_SIZE_ORDER);
+>>>>>>> upstream/android-13
   BLANK();
   DEFINE(S_R0,			offsetof(struct pt_regs, ARM_r0));
   DEFINE(S_R1,			offsetof(struct pt_regs, ARM_r1));
@@ -102,7 +129,10 @@ int main(void)
   DEFINE(S_OLD_R0,		offsetof(struct pt_regs, ARM_ORIG_r0));
   DEFINE(PT_REGS_SIZE,		sizeof(struct pt_regs));
   DEFINE(SVC_DACR,		offsetof(struct svc_pt_regs, dacr));
+<<<<<<< HEAD
   DEFINE(SVC_ADDR_LIMIT,	offsetof(struct svc_pt_regs, addr_limit));
+=======
+>>>>>>> upstream/android-13
   DEFINE(SVC_REGS_SIZE,		sizeof(struct svc_pt_regs));
   BLANK();
   DEFINE(SIGFRAME_RC3_OFFSET,	offsetof(struct sigframe, retcode[3]));
@@ -170,6 +200,7 @@ int main(void)
   DEFINE(CACHE_WRITEBACK_ORDER, __CACHE_WRITEBACK_ORDER);
   DEFINE(CACHE_WRITEBACK_GRANULE, __CACHE_WRITEBACK_GRANULE);
   BLANK();
+<<<<<<< HEAD
 #ifdef CONFIG_KVM_ARM_HOST
   DEFINE(VCPU_GUEST_CTXT,	offsetof(struct kvm_vcpu, arch.ctxt));
   DEFINE(VCPU_HOST_CTXT,	offsetof(struct kvm_vcpu, arch.host_cpu_context));
@@ -178,6 +209,8 @@ int main(void)
   DEFINE(GP_REGS_USR,		offsetof(struct kvm_regs, usr_regs));
 #endif
   BLANK();
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VDSO
   DEFINE(VDSO_DATA_SIZE,	sizeof(union vdso_data_store));
 #endif

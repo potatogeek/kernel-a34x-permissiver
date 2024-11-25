@@ -274,7 +274,11 @@ nv31_mpeg_ = {
 
 int
 nv31_mpeg_new_(const struct nv31_mpeg_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	       int index, struct nvkm_engine **pmpeg)
+=======
+	       enum nvkm_subdev_type type, int inst, struct nvkm_engine **pmpeg)
+>>>>>>> upstream/android-13
 {
 	struct nv31_mpeg *mpeg;
 
@@ -283,8 +287,12 @@ nv31_mpeg_new_(const struct nv31_mpeg_func *func, struct nvkm_device *device,
 	mpeg->func = func;
 	*pmpeg = &mpeg->engine;
 
+<<<<<<< HEAD
 	return nvkm_engine_ctor(&nv31_mpeg_, device, index,
 				true, &mpeg->engine);
+=======
+	return nvkm_engine_ctor(&nv31_mpeg_, device, type, inst, true, &mpeg->engine);
+>>>>>>> upstream/android-13
 }
 
 static const struct nv31_mpeg_func
@@ -293,7 +301,14 @@ nv31_mpeg = {
 };
 
 int
+<<<<<<< HEAD
 nv31_mpeg_new(struct nvkm_device *device, int index, struct nvkm_engine **pmpeg)
 {
 	return nv31_mpeg_new_(&nv31_mpeg, device, index, pmpeg);
+=======
+nv31_mpeg_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_engine **pmpeg)
+{
+	return nv31_mpeg_new_(&nv31_mpeg, device, type, inst, pmpeg);
+>>>>>>> upstream/android-13
 }

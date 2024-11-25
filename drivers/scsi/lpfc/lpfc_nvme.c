@@ -1,7 +1,11 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Broadcom. All Rights Reserved. The term *
+=======
+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+>>>>>>> upstream/android-13
  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.  *
  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -36,9 +40,12 @@
 #include <scsi/scsi_transport_fc.h>
 #include <scsi/fc/fc_fs.h>
 
+<<<<<<< HEAD
 #include <linux/nvme.h>
 #include <linux/nvme-fc-driver.h>
 #include <linux/nvme-fc.h>
+=======
+>>>>>>> upstream/android-13
 #include "lpfc_version.h"
 #include "lpfc_hw4.h"
 #include "lpfc_hw.h"
@@ -56,6 +63,7 @@
 
 /* NVME initiator-based functions */
 
+<<<<<<< HEAD
 static struct lpfc_nvme_buf *
 lpfc_get_nvme_buf(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
 		  int expedite);
@@ -199,6 +207,22 @@ lpfc_nvme_cmd_template(void)
  * lpfc_nvme_create_queue -
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
  * @qidx: An cpu index used to affinitize IO queues and MSIX vectors.
+=======
+static struct lpfc_io_buf *
+lpfc_get_nvme_buf(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
+		  int idx, int expedite);
+
+static void
+lpfc_release_nvme_buf(struct lpfc_hba *, struct lpfc_io_buf *);
+
+static struct nvme_fc_port_template lpfc_nvme_template;
+
+/**
+ * lpfc_nvme_create_queue -
+ * @pnvme_lport: Transport localport that LS is to be issued from
+ * @qidx: An cpu index used to affinitize IO queues and MSIX vectors.
+ * @qsize: Size of the queue in bytes
+>>>>>>> upstream/android-13
  * @handle: An opaque driver handle used in follow-up calls.
  *
  * Driver registers this routine to preallocate and initialize any
@@ -229,7 +253,11 @@ lpfc_nvme_create_queue(struct nvme_fc_local_port *pnvme_lport,
 	if (qhandle == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	qhandle->cpu_id = smp_processor_id();
+=======
+	qhandle->cpu_id = raw_smp_processor_id();
+>>>>>>> upstream/android-13
 	qhandle->qidx = qidx;
 	/*
 	 * NVME qidx == 0 is the admin queue, so both admin queue
@@ -239,7 +267,11 @@ lpfc_nvme_create_queue(struct nvme_fc_local_port *pnvme_lport,
 	if (qidx) {
 		str = "IO ";  /* IO queue */
 		qhandle->index = ((qidx - 1) %
+<<<<<<< HEAD
 			vport->phba->cfg_nvme_io_channel);
+=======
+			lpfc_nvme_template.max_hw_queues);
+>>>>>>> upstream/android-13
 	} else {
 		str = "ADM";  /* Admin queue */
 		qhandle->index = qidx;
@@ -247,7 +279,11 @@ lpfc_nvme_create_queue(struct nvme_fc_local_port *pnvme_lport,
 
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
 			 "6073 Binding %s HdwQueue %d  (cpu %d) to "
+<<<<<<< HEAD
 			 "io_channel %d qhandle %p\n", str,
+=======
+			 "hdw_queue %d qhandle x%px\n", str,
+>>>>>>> upstream/android-13
 			 qidx, qhandle->cpu_id, qhandle->index, qhandle);
 	*handle = (void *)qhandle;
 	return 0;
@@ -255,7 +291,11 @@ lpfc_nvme_create_queue(struct nvme_fc_local_port *pnvme_lport,
 
 /**
  * lpfc_nvme_delete_queue -
+<<<<<<< HEAD
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
+=======
+ * @pnvme_lport: Transport localport that LS is to be issued from
+>>>>>>> upstream/android-13
  * @qidx: An cpu index used to affinitize IO queues and MSIX vectors.
  * @handle: An opaque driver handle from lpfc_nvme_create_queue
  *
@@ -282,7 +322,11 @@ lpfc_nvme_delete_queue(struct nvme_fc_local_port *pnvme_lport,
 	vport = lport->vport;
 
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
+<<<<<<< HEAD
 			"6001 ENTER.  lpfc_pnvme %p, qidx x%x qhandle %p\n",
+=======
+			"6001 ENTER.  lpfc_pnvme x%px, qidx x%x qhandle x%px\n",
+>>>>>>> upstream/android-13
 			lport, qidx, handle);
 	kfree(handle);
 }
@@ -293,7 +337,11 @@ lpfc_nvme_localport_delete(struct nvme_fc_local_port *localport)
 	struct lpfc_nvme_lport *lport = localport->private;
 
 	lpfc_printf_vlog(lport->vport, KERN_INFO, LOG_NVME,
+<<<<<<< HEAD
 			 "6173 localport %p delete complete\n",
+=======
+			 "6173 localport x%px delete complete\n",
+>>>>>>> upstream/android-13
 			 lport);
 
 	/* release any threads waiting for the unreg to complete */
@@ -312,12 +360,17 @@ lpfc_nvme_localport_delete(struct nvme_fc_local_port *localport)
  * Return value :
  * None
  */
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 lpfc_nvme_remoteport_delete(struct nvme_fc_remote_port *remoteport)
 {
 	struct lpfc_nvme_rport *rport = remoteport->private;
 	struct lpfc_vport *vport;
 	struct lpfc_nodelist *ndlp;
+<<<<<<< HEAD
 
 	ndlp = rport->ndlp;
 	if (!ndlp)
@@ -326,19 +379,46 @@ lpfc_nvme_remoteport_delete(struct nvme_fc_remote_port *remoteport)
 	vport = ndlp->vport;
 	if (!vport)
 		goto rport_err;
+=======
+	u32 fc4_xpt_flags;
+
+	ndlp = rport->ndlp;
+	if (!ndlp) {
+		pr_err("**** %s: NULL ndlp on rport x%px remoteport x%px\n",
+		       __func__, rport, remoteport);
+		goto rport_err;
+	}
+
+	vport = ndlp->vport;
+	if (!vport) {
+		pr_err("**** %s: Null vport on ndlp x%px, ste x%x rport x%px\n",
+		       __func__, ndlp, ndlp->nlp_state, rport);
+		goto rport_err;
+	}
+
+	fc4_xpt_flags = NVME_XPT_REGD | SCSI_XPT_REGD;
+>>>>>>> upstream/android-13
 
 	/* Remove this rport from the lport's list - memory is owned by the
 	 * transport. Remove the ndlp reference for the NVME transport before
 	 * calling state machine to remove the node.
 	 */
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+<<<<<<< HEAD
 			"6146 remoteport delete of remoteport %p\n",
 			remoteport);
 	spin_lock_irq(&vport->phba->hbalock);
+=======
+			 "6146 remoteport delete of remoteport x%px, ndlp x%px "
+			 "DID x%x xflags x%x\n",
+			 remoteport, ndlp, ndlp->nlp_DID, ndlp->fc4_xpt_flags);
+	spin_lock_irq(&ndlp->lock);
+>>>>>>> upstream/android-13
 
 	/* The register rebind might have occurred before the delete
 	 * downcall.  Guard against this race.
 	 */
+<<<<<<< HEAD
 	if (ndlp->upcall_flags & NLP_WAIT_FOR_UNREG) {
 		ndlp->nrport = NULL;
 		ndlp->upcall_flags &= ~NLP_WAIT_FOR_UNREG;
@@ -351,23 +431,162 @@ lpfc_nvme_remoteport_delete(struct nvme_fc_remote_port *remoteport)
 	} else {
 		spin_unlock_irq(&vport->phba->hbalock);
 	}
+=======
+	if (ndlp->fc4_xpt_flags & NVME_XPT_UNREG_WAIT)
+		ndlp->fc4_xpt_flags &= ~(NVME_XPT_UNREG_WAIT | NVME_XPT_REGD);
+
+	spin_unlock_irq(&ndlp->lock);
+
+	/* On a devloss timeout event, one more put is executed provided the
+	 * NVME and SCSI rport unregister requests are complete.  If the vport
+	 * is unloading, this extra put is executed by lpfc_drop_node.
+	 */
+	if (!(ndlp->fc4_xpt_flags & fc4_xpt_flags))
+		lpfc_disc_state_machine(vport, ndlp, NULL, NLP_EVT_DEVICE_RM);
+>>>>>>> upstream/android-13
 
  rport_err:
 	return;
 }
 
+<<<<<<< HEAD
 static void
 lpfc_nvme_cmpl_gen_req(struct lpfc_hba *phba, struct lpfc_iocbq *cmdwqe,
+=======
+/**
+ * lpfc_nvme_handle_lsreq - Process an unsolicited NVME LS request
+ * @phba: pointer to lpfc hba data structure.
+ * @axchg: pointer to exchange context for the NVME LS request
+ *
+ * This routine is used for processing an asychronously received NVME LS
+ * request. Any remaining validation is done and the LS is then forwarded
+ * to the nvme-fc transport via nvme_fc_rcv_ls_req().
+ *
+ * The calling sequence should be: nvme_fc_rcv_ls_req() -> (processing)
+ * -> lpfc_nvme_xmt_ls_rsp/cmp -> req->done.
+ * __lpfc_nvme_xmt_ls_rsp_cmp should free the allocated axchg.
+ *
+ * Returns 0 if LS was handled and delivered to the transport
+ * Returns 1 if LS failed to be handled and should be dropped
+ */
+int
+lpfc_nvme_handle_lsreq(struct lpfc_hba *phba,
+			struct lpfc_async_xchg_ctx *axchg)
+{
+#if (IS_ENABLED(CONFIG_NVME_FC))
+	struct lpfc_vport *vport;
+	struct lpfc_nvme_rport *lpfc_rport;
+	struct nvme_fc_remote_port *remoteport;
+	struct lpfc_nvme_lport *lport;
+	uint32_t *payload = axchg->payload;
+	int rc;
+
+	vport = axchg->ndlp->vport;
+	lpfc_rport = axchg->ndlp->nrport;
+	if (!lpfc_rport)
+		return -EINVAL;
+
+	remoteport = lpfc_rport->remoteport;
+	if (!vport->localport)
+		return -EINVAL;
+
+	lport = vport->localport->private;
+	if (!lport)
+		return -EINVAL;
+
+	rc = nvme_fc_rcv_ls_req(remoteport, &axchg->ls_rsp, axchg->payload,
+				axchg->size);
+
+	lpfc_printf_log(phba, KERN_INFO, LOG_NVME_DISC,
+			"6205 NVME Unsol rcv: sz %d rc %d: %08x %08x %08x "
+			"%08x %08x %08x\n",
+			axchg->size, rc,
+			*payload, *(payload+1), *(payload+2),
+			*(payload+3), *(payload+4), *(payload+5));
+
+	if (!rc)
+		return 0;
+#endif
+	return 1;
+}
+
+/**
+ * __lpfc_nvme_ls_req_cmp - Generic completion handler for a NVME
+ *        LS request.
+ * @phba: Pointer to HBA context object
+ * @vport: The local port that issued the LS
+ * @cmdwqe: Pointer to driver command WQE object.
+ * @wcqe: Pointer to driver response CQE object.
+ *
+ * This function is the generic completion handler for NVME LS requests.
+ * The function updates any states and statistics, calls the transport
+ * ls_req done() routine, then tears down the command and buffers used
+ * for the LS request.
+ **/
+void
+__lpfc_nvme_ls_req_cmp(struct lpfc_hba *phba,  struct lpfc_vport *vport,
+			struct lpfc_iocbq *cmdwqe,
+			struct lpfc_wcqe_complete *wcqe)
+{
+	struct nvmefc_ls_req *pnvme_lsreq;
+	struct lpfc_dmabuf *buf_ptr;
+	struct lpfc_nodelist *ndlp;
+	uint32_t status;
+
+	pnvme_lsreq = (struct nvmefc_ls_req *)cmdwqe->context2;
+	ndlp = (struct lpfc_nodelist *)cmdwqe->context1;
+	status = bf_get(lpfc_wcqe_c_status, wcqe) & LPFC_IOCB_STATUS_MASK;
+
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+			 "6047 NVMEx LS REQ x%px cmpl DID %x Xri: %x "
+			 "status %x reason x%x cmd:x%px lsreg:x%px bmp:x%px "
+			 "ndlp:x%px\n",
+			 pnvme_lsreq, ndlp ? ndlp->nlp_DID : 0,
+			 cmdwqe->sli4_xritag, status,
+			 (wcqe->parameter & 0xffff),
+			 cmdwqe, pnvme_lsreq, cmdwqe->context3, ndlp);
+
+	lpfc_nvmeio_data(phba, "NVMEx LS CMPL: xri x%x stat x%x parm x%x\n",
+			 cmdwqe->sli4_xritag, status, wcqe->parameter);
+
+	if (cmdwqe->context3) {
+		buf_ptr = (struct lpfc_dmabuf *)cmdwqe->context3;
+		lpfc_mbuf_free(phba, buf_ptr->virt, buf_ptr->phys);
+		kfree(buf_ptr);
+		cmdwqe->context3 = NULL;
+	}
+	if (pnvme_lsreq->done)
+		pnvme_lsreq->done(pnvme_lsreq, status);
+	else
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6046 NVMEx cmpl without done call back? "
+				 "Data x%px DID %x Xri: %x status %x\n",
+				pnvme_lsreq, ndlp ? ndlp->nlp_DID : 0,
+				cmdwqe->sli4_xritag, status);
+	if (ndlp) {
+		lpfc_nlp_put(ndlp);
+		cmdwqe->context1 = NULL;
+	}
+	lpfc_sli_release_iocbq(phba, cmdwqe);
+}
+
+static void
+lpfc_nvme_ls_req_cmp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdwqe,
+>>>>>>> upstream/android-13
 		       struct lpfc_wcqe_complete *wcqe)
 {
 	struct lpfc_vport *vport = cmdwqe->vport;
 	struct lpfc_nvme_lport *lport;
 	uint32_t status;
+<<<<<<< HEAD
 	struct nvmefc_ls_req *pnvme_lsreq;
 	struct lpfc_dmabuf *buf_ptr;
 	struct lpfc_nodelist *ndlp;
 
 	pnvme_lsreq = (struct nvmefc_ls_req *)cmdwqe->context2;
+=======
+
+>>>>>>> upstream/android-13
 	status = bf_get(lpfc_wcqe_c_status, wcqe) & LPFC_IOCB_STATUS_MASK;
 
 	if (vport->localport) {
@@ -382,6 +601,7 @@ lpfc_nvme_cmpl_gen_req(struct lpfc_hba *phba, struct lpfc_iocbq *cmdwqe,
 		}
 	}
 
+<<<<<<< HEAD
 	ndlp = (struct lpfc_nodelist *)cmdwqe->context1;
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
 			 "6047 nvme cmpl Enter "
@@ -414,6 +634,9 @@ lpfc_nvme_cmpl_gen_req(struct lpfc_hba *phba, struct lpfc_iocbq *cmdwqe,
 		cmdwqe->context1 = NULL;
 	}
 	lpfc_sli_release_iocbq(phba, cmdwqe);
+=======
+	__lpfc_nvme_ls_req_cmp(phba, vport, cmdwqe, wcqe);
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -438,6 +661,10 @@ lpfc_nvme_gen_req(struct lpfc_vport *vport, struct lpfc_dmabuf *bmp,
 		return 1;
 
 	wqe = &genwqe->wqe;
+<<<<<<< HEAD
+=======
+	/* Initialize only 64 bytes */
+>>>>>>> upstream/android-13
 	memset(wqe, 0, sizeof(union lpfc_wqe));
 
 	genwqe->context3 = (uint8_t *)bmp;
@@ -445,6 +672,16 @@ lpfc_nvme_gen_req(struct lpfc_vport *vport, struct lpfc_dmabuf *bmp,
 
 	/* Save for completion so we can release these resources */
 	genwqe->context1 = lpfc_nlp_get(ndlp);
+<<<<<<< HEAD
+=======
+	if (!genwqe->context1) {
+		dev_warn(&phba->pcidev->dev,
+			 "Warning: Failed node ref, not sending LS_REQ\n");
+		lpfc_sli_release_iocbq(phba, genwqe);
+		return 1;
+	}
+
+>>>>>>> upstream/android-13
 	genwqe->context2 = (uint8_t *)pnvme_lsreq;
 	/* Fill in payload, bp points to frame payload */
 
@@ -492,7 +729,11 @@ lpfc_nvme_gen_req(struct lpfc_vport *vport, struct lpfc_dmabuf *bmp,
 	bf_set(wqe_xri_tag, &wqe->gen_req.wqe_com, genwqe->sli4_xritag);
 
 	/* Word 7 */
+<<<<<<< HEAD
 	bf_set(wqe_tmo, &wqe->gen_req.wqe_com, (vport->phba->fc_ratov-1));
+=======
+	bf_set(wqe_tmo, &wqe->gen_req.wqe_com, tmo);
+>>>>>>> upstream/android-13
 	bf_set(wqe_class, &wqe->gen_req.wqe_com, CLASS3);
 	bf_set(wqe_cmnd, &wqe->gen_req.wqe_com, CMD_GEN_REQUEST64_WQE);
 	bf_set(wqe_ct, &wqe->gen_req.wqe_com, SLI4_CT_RPI);
@@ -516,12 +757,15 @@ lpfc_nvme_gen_req(struct lpfc_vport *vport, struct lpfc_dmabuf *bmp,
 
 
 	/* Issue GEN REQ WQE for NPORT <did> */
+<<<<<<< HEAD
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS,
 			 "6050 Issue GEN REQ WQE to NPORT x%x "
 			 "Data: x%x x%x wq:%p lsreq:%p bmp:%p xmit:%d 1st:%d\n",
 			 ndlp->nlp_DID, genwqe->iotag,
 			 vport->port_state,
 			genwqe, pnvme_lsreq, bmp, xmit_len, first_len);
+=======
+>>>>>>> upstream/android-13
 	genwqe->wqe_cmpl = cmpl;
 	genwqe->iocb_cmpl = NULL;
 	genwqe->drvrTimeout = tmo + LPFC_DRVR_TIMEOUT;
@@ -531,6 +775,7 @@ lpfc_nvme_gen_req(struct lpfc_vport *vport, struct lpfc_dmabuf *bmp,
 	lpfc_nvmeio_data(phba, "NVME LS  XMIT: xri x%x iotag x%x to x%06x\n",
 			 genwqe->sli4_xritag, genwqe->iotag, ndlp->nlp_DID);
 
+<<<<<<< HEAD
 	rc = lpfc_sli4_issue_wqe(phba, LPFC_ELS_RING, genwqe);
 	if (rc) {
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_ELS,
@@ -604,10 +849,70 @@ lpfc_nvme_ls_req(struct nvme_fc_local_port *pnvme_lport,
 	/* The remote node has to be a mapped nvme target or an
 	 * unmapped nvme initiator or it's an error.
 	 */
+=======
+	rc = lpfc_sli4_issue_wqe(phba, &phba->sli4_hba.hdwq[0], genwqe);
+	if (rc) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6045 Issue GEN REQ WQE to NPORT x%x "
+				 "Data: x%x x%x  rc x%x\n",
+				 ndlp->nlp_DID, genwqe->iotag,
+				 vport->port_state, rc);
+		lpfc_nlp_put(ndlp);
+		lpfc_sli_release_iocbq(phba, genwqe);
+		return 1;
+	}
+
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC | LOG_ELS,
+			 "6050 Issue GEN REQ WQE to NPORT x%x "
+			 "Data: oxid: x%x state: x%x wq:x%px lsreq:x%px "
+			 "bmp:x%px xmit:%d 1st:%d\n",
+			 ndlp->nlp_DID, genwqe->sli4_xritag,
+			 vport->port_state,
+			 genwqe, pnvme_lsreq, bmp, xmit_len, first_len);
+	return 0;
+}
+
+
+/**
+ * __lpfc_nvme_ls_req - Generic service routine to issue an NVME LS request
+ * @vport: The local port issuing the LS
+ * @ndlp: The remote port to send the LS to
+ * @pnvme_lsreq: Pointer to LS request structure from the transport
+ * @gen_req_cmp: Completion call-back
+ *
+ * Routine validates the ndlp, builds buffers and sends a GEN_REQUEST
+ * WQE to perform the LS operation.
+ *
+ * Return value :
+ *   0 - Success
+ *   non-zero: various error codes, in form of -Exxx
+ **/
+int
+__lpfc_nvme_ls_req(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+		      struct nvmefc_ls_req *pnvme_lsreq,
+		      void (*gen_req_cmp)(struct lpfc_hba *phba,
+				struct lpfc_iocbq *cmdwqe,
+				struct lpfc_wcqe_complete *wcqe))
+{
+	struct lpfc_dmabuf *bmp;
+	struct ulp_bde64 *bpl;
+	int ret;
+	uint16_t ntype, nstate;
+
+	if (!ndlp) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6051 NVMEx LS REQ: Bad NDLP x%px, Failing "
+				 "LS Req\n",
+				 ndlp);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	ntype = ndlp->nlp_type;
 	nstate = ndlp->nlp_state;
 	if ((ntype & NLP_NVME_TARGET && nstate != NLP_STE_MAPPED_NODE) ||
 	    (ntype & NLP_NVME_INITIATOR && nstate != NLP_STE_UNMAPPED_NODE)) {
+<<<<<<< HEAD
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NODE | LOG_NVME_IOERR,
 				 "6088 DID x%06x not ready for "
 				 "IO. State x%x, Type x%x\n",
@@ -632,6 +937,51 @@ lpfc_nvme_ls_req(struct nvme_fc_local_port *pnvme_lport,
 		kfree(bmp);
 		return 3;
 	}
+=======
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6088 NVMEx LS REQ: Fail DID x%06x not "
+				 "ready for IO. Type x%x, State x%x\n",
+				 ndlp->nlp_DID, ntype, nstate);
+		return -ENODEV;
+	}
+
+	if (!vport->phba->sli4_hba.nvmels_wq)
+		return -ENOMEM;
+
+	/*
+	 * there are two dma buf in the request, actually there is one and
+	 * the second one is just the start address + cmd size.
+	 * Before calling lpfc_nvme_gen_req these buffers need to be wrapped
+	 * in a lpfc_dmabuf struct. When freeing we just free the wrapper
+	 * because the nvem layer owns the data bufs.
+	 * We do not have to break these packets open, we don't care what is
+	 * in them. And we do not have to look at the resonse data, we only
+	 * care that we got a response. All of the caring is going to happen
+	 * in the nvme-fc layer.
+	 */
+
+	bmp = kmalloc(sizeof(*bmp), GFP_KERNEL);
+	if (!bmp) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6044 NVMEx LS REQ: Could not alloc LS buf "
+				 "for DID %x\n",
+				 ndlp->nlp_DID);
+		return -ENOMEM;
+	}
+
+	bmp->virt = lpfc_mbuf_alloc(vport->phba, MEM_PRI, &(bmp->phys));
+	if (!bmp->virt) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6042 NVMEx LS REQ: Could not alloc mbuf "
+				 "for DID %x\n",
+				 ndlp->nlp_DID);
+		kfree(bmp);
+		return -ENOMEM;
+	}
+
+	INIT_LIST_HEAD(&bmp->list);
+
+>>>>>>> upstream/android-13
 	bpl = (struct ulp_bde64 *)bmp->virt;
 	bpl->addrHigh = le32_to_cpu(putPaddrHigh(pnvme_lsreq->rqstdma));
 	bpl->addrLow = le32_to_cpu(putPaddrLow(pnvme_lsreq->rqstdma));
@@ -646,6 +996,7 @@ lpfc_nvme_ls_req(struct nvme_fc_local_port *pnvme_lport,
 	bpl->tus.f.bdeSize = pnvme_lsreq->rsplen;
 	bpl->tus.w = le32_to_cpu(bpl->tus.w);
 
+<<<<<<< HEAD
 	/* Expand print to include key fields. */
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
 			 "6149 Issue LS Req to DID 0x%06x lport %p, rport %p "
@@ -685,13 +1036,183 @@ lpfc_nvme_ls_req(struct nvme_fc_local_port *pnvme_lport,
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
  * @lpfc_nvme_lport: Pointer to the driver's local port data
  * @lpfc_nvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
+=======
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+			"6149 NVMEx LS REQ: Issue to DID 0x%06x lsreq x%px, "
+			"rqstlen:%d rsplen:%d %pad %pad\n",
+			ndlp->nlp_DID, pnvme_lsreq, pnvme_lsreq->rqstlen,
+			pnvme_lsreq->rsplen, &pnvme_lsreq->rqstdma,
+			&pnvme_lsreq->rspdma);
+
+	ret = lpfc_nvme_gen_req(vport, bmp, pnvme_lsreq->rqstaddr,
+				pnvme_lsreq, gen_req_cmp, ndlp, 2,
+				pnvme_lsreq->timeout, 0);
+	if (ret != WQE_SUCCESS) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6052 NVMEx REQ: EXIT. issue ls wqe failed "
+				 "lsreq x%px Status %x DID %x\n",
+				 pnvme_lsreq, ret, ndlp->nlp_DID);
+		lpfc_mbuf_free(vport->phba, bmp->virt, bmp->phys);
+		kfree(bmp);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+/**
+ * lpfc_nvme_ls_req - Issue an NVME Link Service request
+ * @pnvme_lport: Transport localport that LS is to be issued from.
+ * @pnvme_rport: Transport remoteport that LS is to be sent to.
+ * @pnvme_lsreq: the transport nvme_ls_req structure for the LS
+>>>>>>> upstream/android-13
  *
  * Driver registers this routine to handle any link service request
  * from the nvme_fc transport to a remote nvme-aware port.
  *
  * Return value :
  *   0 - Success
+<<<<<<< HEAD
  *   TODO: What are the failure codes.
+=======
+ *   non-zero: various error codes, in form of -Exxx
+ **/
+static int
+lpfc_nvme_ls_req(struct nvme_fc_local_port *pnvme_lport,
+		 struct nvme_fc_remote_port *pnvme_rport,
+		 struct nvmefc_ls_req *pnvme_lsreq)
+{
+	struct lpfc_nvme_lport *lport;
+	struct lpfc_nvme_rport *rport;
+	struct lpfc_vport *vport;
+	int ret;
+
+	lport = (struct lpfc_nvme_lport *)pnvme_lport->private;
+	rport = (struct lpfc_nvme_rport *)pnvme_rport->private;
+	if (unlikely(!lport) || unlikely(!rport))
+		return -EINVAL;
+
+	vport = lport->vport;
+	if (vport->load_flag & FC_UNLOADING)
+		return -ENODEV;
+
+	atomic_inc(&lport->fc4NvmeLsRequests);
+
+	ret = __lpfc_nvme_ls_req(vport, rport->ndlp, pnvme_lsreq,
+				 lpfc_nvme_ls_req_cmp);
+	if (ret)
+		atomic_inc(&lport->xmt_ls_err);
+
+	return ret;
+}
+
+/**
+ * __lpfc_nvme_ls_abort - Generic service routine to abort a prior
+ *         NVME LS request
+ * @vport: The local port that issued the LS
+ * @ndlp: The remote port the LS was sent to
+ * @pnvme_lsreq: Pointer to LS request structure from the transport
+ *
+ * The driver validates the ndlp, looks for the LS, and aborts the
+ * LS if found.
+ *
+ * Returns:
+ * 0 : if LS found and aborted
+ * non-zero: various error conditions in form -Exxx
+ **/
+int
+__lpfc_nvme_ls_abort(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+			struct nvmefc_ls_req *pnvme_lsreq)
+{
+	struct lpfc_hba *phba = vport->phba;
+	struct lpfc_sli_ring *pring;
+	struct lpfc_iocbq *wqe, *next_wqe;
+	bool foundit = false;
+
+	if (!ndlp) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				"6049 NVMEx LS REQ Abort: Bad NDLP x%px DID "
+				"x%06x, Failing LS Req\n",
+				ndlp, ndlp ? ndlp->nlp_DID : 0);
+		return -EINVAL;
+	}
+
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC | LOG_NVME_ABTS,
+			 "6040 NVMEx LS REQ Abort: Issue LS_ABORT for lsreq "
+			 "x%px rqstlen:%d rsplen:%d %pad %pad\n",
+			 pnvme_lsreq, pnvme_lsreq->rqstlen,
+			 pnvme_lsreq->rsplen, &pnvme_lsreq->rqstdma,
+			 &pnvme_lsreq->rspdma);
+
+	/*
+	 * Lock the ELS ring txcmplq and look for the wqe that matches
+	 * this ELS. If found, issue an abort on the wqe.
+	 */
+	pring = phba->sli4_hba.nvmels_wq->pring;
+	spin_lock_irq(&phba->hbalock);
+	spin_lock(&pring->ring_lock);
+	list_for_each_entry_safe(wqe, next_wqe, &pring->txcmplq, list) {
+		if (wqe->context2 == pnvme_lsreq) {
+			wqe->iocb_flag |= LPFC_DRIVER_ABORTED;
+			foundit = true;
+			break;
+		}
+	}
+	spin_unlock(&pring->ring_lock);
+
+	if (foundit)
+		lpfc_sli_issue_abort_iotag(phba, pring, wqe, NULL);
+	spin_unlock_irq(&phba->hbalock);
+
+	if (foundit)
+		return 0;
+
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC | LOG_NVME_ABTS,
+			 "6213 NVMEx LS REQ Abort: Unable to locate req x%px\n",
+			 pnvme_lsreq);
+	return -EINVAL;
+}
+
+static int
+lpfc_nvme_xmt_ls_rsp(struct nvme_fc_local_port *localport,
+		     struct nvme_fc_remote_port *remoteport,
+		     struct nvmefc_ls_rsp *ls_rsp)
+{
+	struct lpfc_async_xchg_ctx *axchg =
+		container_of(ls_rsp, struct lpfc_async_xchg_ctx, ls_rsp);
+	struct lpfc_nvme_lport *lport;
+	int rc;
+
+	if (axchg->phba->pport->load_flag & FC_UNLOADING)
+		return -ENODEV;
+
+	lport = (struct lpfc_nvme_lport *)localport->private;
+
+	rc = __lpfc_nvme_xmt_ls_rsp(axchg, ls_rsp, __lpfc_nvme_xmt_ls_rsp_cmp);
+
+	if (rc) {
+		/*
+		 * unless the failure is due to having already sent
+		 * the response, an abort will be generated for the
+		 * exchange if the rsp can't be sent.
+		 */
+		if (rc != -EALREADY)
+			atomic_inc(&lport->xmt_ls_abort);
+		return rc;
+	}
+
+	return 0;
+}
+
+/**
+ * lpfc_nvme_ls_abort - Abort a prior NVME LS request
+ * @pnvme_lport: Transport localport that LS is to be issued from.
+ * @pnvme_rport: Transport remoteport that LS is to be sent to.
+ * @pnvme_lsreq: the transport nvme_ls_req structure for the LS
+ *
+ * Driver registers this routine to abort a NVME LS request that is
+ * in progress (from the transports perspective).
+>>>>>>> upstream/android-13
  **/
 static void
 lpfc_nvme_ls_abort(struct nvme_fc_local_port *pnvme_lport,
@@ -700,22 +1221,31 @@ lpfc_nvme_ls_abort(struct nvme_fc_local_port *pnvme_lport,
 {
 	struct lpfc_nvme_lport *lport;
 	struct lpfc_vport *vport;
+<<<<<<< HEAD
 	struct lpfc_hba *phba;
 	struct lpfc_nodelist *ndlp;
 	LIST_HEAD(abort_list);
 	struct lpfc_sli_ring *pring;
 	struct lpfc_iocbq *wqe, *next_wqe;
+=======
+	struct lpfc_nodelist *ndlp;
+	int ret;
+>>>>>>> upstream/android-13
 
 	lport = (struct lpfc_nvme_lport *)pnvme_lport->private;
 	if (unlikely(!lport))
 		return;
 	vport = lport->vport;
+<<<<<<< HEAD
 	phba = vport->phba;
+=======
+>>>>>>> upstream/android-13
 
 	if (vport->load_flag & FC_UNLOADING)
 		return;
 
 	ndlp = lpfc_findnode_did(vport, pnvme_rport->port_id);
+<<<<<<< HEAD
 	if (!ndlp) {
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_ABTS,
 				 "6049 Could not find node for DID %x\n",
@@ -758,12 +1288,22 @@ lpfc_nvme_ls_abort(struct nvme_fc_local_port *pnvme_lport,
 		lpfc_sli_issue_abort_iotag(phba, pring, wqe);
 		spin_unlock_irq(&phba->hbalock);
 	}
+=======
+
+	ret = __lpfc_nvme_ls_abort(vport, ndlp, pnvme_lsreq);
+	if (!ret)
+		atomic_inc(&lport->xmt_ls_abort);
+>>>>>>> upstream/android-13
 }
 
 /* Fix up the existing sgls for NVME IO. */
 static inline void
 lpfc_nvme_adj_fcp_sgls(struct lpfc_vport *vport,
+<<<<<<< HEAD
 		       struct lpfc_nvme_buf *lpfc_ncmd,
+=======
+		       struct lpfc_io_buf *lpfc_ncmd,
+>>>>>>> upstream/android-13
 		       struct nvmefc_fcp_req *nCmd)
 {
 	struct lpfc_hba  *phba = vport->phba;
@@ -786,7 +1326,11 @@ lpfc_nvme_adj_fcp_sgls(struct lpfc_vport *vport,
 	 * rather than the virtual memory to ease the restore
 	 * operation.
 	 */
+<<<<<<< HEAD
 	sgl = lpfc_ncmd->nvme_sgl;
+=======
+	sgl = lpfc_ncmd->dma_sgl;
+>>>>>>> upstream/android-13
 	sgl->sge_len = cpu_to_le32(nCmd->cmdlen);
 	if (phba->cfg_nvme_embed_cmd) {
 		sgl->addr_hi = 0;
@@ -857,6 +1401,7 @@ lpfc_nvme_adj_fcp_sgls(struct lpfc_vport *vport,
 	sgl->sge_len = cpu_to_le32(nCmd->rsplen);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
 static void
 lpfc_nvme_ktime(struct lpfc_hba *phba,
@@ -945,6 +1490,11 @@ lpfc_nvme_ktime(struct lpfc_hba *phba,
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
  * @lpfc_nvme_lport: Pointer to the driver's local port data
  * @lpfc_nvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
+=======
+
+/*
+ * lpfc_nvme_io_cmd_wqe_cmpl - Complete an NVME-over-FCP IO
+>>>>>>> upstream/android-13
  *
  * Driver registers this routine as it io request handler.  This
  * routine issues an fcp WQE with data from the @lpfc_nvme_fcpreq
@@ -958,12 +1508,18 @@ static void
 lpfc_nvme_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
 			  struct lpfc_wcqe_complete *wcqe)
 {
+<<<<<<< HEAD
 	struct lpfc_nvme_buf *lpfc_ncmd =
 		(struct lpfc_nvme_buf *)pwqeIn->context1;
+=======
+	struct lpfc_io_buf *lpfc_ncmd =
+		(struct lpfc_io_buf *)pwqeIn->context1;
+>>>>>>> upstream/android-13
 	struct lpfc_vport *vport = pwqeIn->vport;
 	struct nvmefc_fcp_req *nCmd;
 	struct nvme_fc_ersp_iu *ep;
 	struct nvme_fc_cmd_iu *cp;
+<<<<<<< HEAD
 	struct lpfc_nvme_rport *rport;
 	struct lpfc_nodelist *ndlp;
 	struct lpfc_nvme_fcpreq_priv *freqpriv;
@@ -989,12 +1545,44 @@ lpfc_nvme_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
 				 "nvmeCmd %p nrport %p\n",
 				 lpfc_ncmd, lpfc_ncmd->nvmeCmd,
 				 lpfc_ncmd->nrport);
+=======
+	struct lpfc_nodelist *ndlp;
+	struct lpfc_nvme_fcpreq_priv *freqpriv;
+	struct lpfc_nvme_lport *lport;
+	uint32_t code, status, idx;
+	uint16_t cid, sqhd, data;
+	uint32_t *ptr;
+	uint32_t lat;
+	bool call_done = false;
+#ifdef CONFIG_SCSI_LPFC_DEBUG_FS
+	int cpu;
+#endif
+
+	/* Sanity check on return of outstanding command */
+	if (!lpfc_ncmd) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6071 Null lpfc_ncmd pointer. No "
+				 "release, skip completion\n");
+		return;
+	}
+
+	/* Guard against abort handler being called at same time */
+	spin_lock(&lpfc_ncmd->buf_lock);
+
+	if (!lpfc_ncmd->nvmeCmd) {
+		spin_unlock(&lpfc_ncmd->buf_lock);
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6066 Missing cmpl ptrs: lpfc_ncmd x%px, "
+				 "nvmeCmd x%px\n",
+				 lpfc_ncmd, lpfc_ncmd->nvmeCmd);
+>>>>>>> upstream/android-13
 
 		/* Release the lpfc_ncmd regardless of the missing elements. */
 		lpfc_release_nvme_buf(phba, lpfc_ncmd);
 		return;
 	}
 	nCmd = lpfc_ncmd->nvmeCmd;
+<<<<<<< HEAD
 	rport = lpfc_ncmd->nrport;
 	status = bf_get(lpfc_wcqe_c_status, wcqe);
 
@@ -1009,6 +1597,19 @@ lpfc_nvme_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
 					atomic_inc(&lport->cmpl_fcp_xb);
 				atomic_inc(&lport->cmpl_fcp_err);
 			}
+=======
+	status = bf_get(lpfc_wcqe_c_status, wcqe);
+
+	idx = lpfc_ncmd->cur_iocbq.hba_wqidx;
+	phba->sli4_hba.hdwq[idx].nvme_cstat.io_cmpls++;
+
+	if (unlikely(status && vport->localport)) {
+		lport = (struct lpfc_nvme_lport *)vport->localport->private;
+		if (lport) {
+			if (bf_get(lpfc_wcqe_c_xb, wcqe))
+				atomic_inc(&lport->cmpl_fcp_xb);
+			atomic_inc(&lport->cmpl_fcp_err);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1019,6 +1620,7 @@ lpfc_nvme_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
 	 * Catch race where our node has transitioned, but the
 	 * transport is still transitioning.
 	 */
+<<<<<<< HEAD
 	ndlp = rport->ndlp;
 	if (!ndlp || !NLP_CHK_NODE_ACT(ndlp)) {
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NODE | LOG_NVME_IOERR,
@@ -1031,6 +1633,13 @@ lpfc_nvme_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
 					 "6062 Ignoring NVME cmpl.  No ndlp\n");
 			goto out_err;
 		}
+=======
+	ndlp = lpfc_ncmd->ndlp;
+	if (!ndlp) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6062 Ignoring NVME cmpl.  No ndlp\n");
+		goto out_err;
+>>>>>>> upstream/android-13
 	}
 
 	code = bf_get(lpfc_wcqe_c_code, wcqe);
@@ -1096,10 +1705,27 @@ lpfc_nvme_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
 			nCmd->transferred_length = wcqe->total_data_placed;
 			nCmd->rcv_rsplen = wcqe->parameter;
 			nCmd->status = 0;
+<<<<<<< HEAD
 			/* Sanity check */
 			if (nCmd->rcv_rsplen == LPFC_NVME_ERSP_LEN)
 				break;
 			lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_IOERR,
+=======
+
+			/* Check if this is really an ERSP */
+			if (nCmd->rcv_rsplen == LPFC_NVME_ERSP_LEN) {
+				lpfc_ncmd->status = IOSTAT_SUCCESS;
+				lpfc_ncmd->result = 0;
+
+				lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
+					 "6084 NVME Completion ERSP: "
+					 "xri %x placed x%x\n",
+					 lpfc_ncmd->cur_iocbq.sli4_xritag,
+					 wcqe->total_data_placed);
+				break;
+			}
+			lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 					 "6081 NVME Completion Protocol Error: "
 					 "xri %x status x%x result x%x "
 					 "placed x%x\n",
@@ -1112,19 +1738,36 @@ lpfc_nvme_io_cmd_wqe_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
 			if (lpfc_ncmd->result == IOERR_ABORT_REQUESTED)
 				lpfc_printf_vlog(vport, KERN_INFO,
 					 LOG_NVME_IOERR,
+<<<<<<< HEAD
 					 "6032 Delay Aborted cmd %p "
 					 "nvme cmd %p, xri x%x, "
+=======
+					 "6032 Delay Aborted cmd x%px "
+					 "nvme cmd x%px, xri x%x, "
+>>>>>>> upstream/android-13
 					 "xb %d\n",
 					 lpfc_ncmd, nCmd,
 					 lpfc_ncmd->cur_iocbq.sli4_xritag,
 					 bf_get(lpfc_wcqe_c_xb, wcqe));
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 out_err:
 			lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_IOERR,
 					 "6072 NVME Completion Error: xri %x "
+<<<<<<< HEAD
 					 "status x%x result x%x placed x%x\n",
 					 lpfc_ncmd->cur_iocbq.sli4_xritag,
 					 lpfc_ncmd->status, lpfc_ncmd->result,
+=======
+					 "status x%x result x%x [x%x] "
+					 "placed x%x\n",
+					 lpfc_ncmd->cur_iocbq.sli4_xritag,
+					 lpfc_ncmd->status, lpfc_ncmd->result,
+					 wcqe->parameter,
+>>>>>>> upstream/android-13
 					 wcqe->total_data_placed);
 			nCmd->transferred_length = 0;
 			nCmd->rcv_rsplen = 0;
@@ -1145,6 +1788,7 @@ out_err:
 #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
 	if (lpfc_ncmd->ts_cmd_start) {
 		lpfc_ncmd->ts_isr_cmpl = pwqeIn->isr_timestamp;
+<<<<<<< HEAD
 		lpfc_ncmd->ts_data_nvme = ktime_get_ns();
 		phba->ktime_last_cmd = lpfc_ncmd->ts_data_nvme;
 		lpfc_nvme_ktime(phba, lpfc_ncmd);
@@ -1157,6 +1801,21 @@ out_err:
 					 smp_processor_id(), lpfc_ncmd->cpu);
 		if (lpfc_ncmd->cpu < LPFC_CHECK_CPU_CNT)
 			phba->cpucheck_cmpl_io[lpfc_ncmd->cpu]++;
+=======
+		lpfc_ncmd->ts_data_io = ktime_get_ns();
+		phba->ktime_last_cmd = lpfc_ncmd->ts_data_io;
+		lpfc_io_ktime(phba, lpfc_ncmd);
+	}
+	if (unlikely(phba->hdwqstat_on & LPFC_CHECK_NVME_IO)) {
+		cpu = raw_smp_processor_id();
+		this_cpu_inc(phba->sli4_hba.c_stat->cmpl_io);
+		if (lpfc_ncmd->cpu != cpu)
+			lpfc_printf_vlog(vport,
+					 KERN_INFO, LOG_NVME_IOERR,
+					 "6701 CPU Check cmpl: "
+					 "cpu %d expect %d\n",
+					 cpu, lpfc_ncmd->cpu);
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -1167,6 +1826,7 @@ out_err:
 	if (!(lpfc_ncmd->flags & LPFC_SBUF_XBUSY)) {
 		freqpriv = nCmd->private;
 		freqpriv->nvme_buf = NULL;
+<<<<<<< HEAD
 		nCmd->done(nCmd);
 		lpfc_ncmd->nvmeCmd = NULL;
 	}
@@ -1174,6 +1834,24 @@ out_err:
 	spin_lock_irqsave(&phba->hbalock, flags);
 	lpfc_ncmd->nrport = NULL;
 	spin_unlock_irqrestore(&phba->hbalock, flags);
+=======
+		lpfc_ncmd->nvmeCmd = NULL;
+		call_done = true;
+	}
+	spin_unlock(&lpfc_ncmd->buf_lock);
+
+	/* Check if IO qualified for CMF */
+	if (phba->cmf_active_mode != LPFC_CFG_OFF &&
+	    nCmd->io_dir == NVMEFC_FCP_READ &&
+	    nCmd->payload_length) {
+		/* Used when calculating average latency */
+		lat = ktime_get_ns() - lpfc_ncmd->rx_cmd_start;
+		lpfc_update_cmf_cmpl(phba, lat, nCmd->payload_length, NULL);
+	}
+
+	if (call_done)
+		nCmd->done(nCmd);
+>>>>>>> upstream/android-13
 
 	/* Call release with XB=1 to queue the IO into the abort list. */
 	lpfc_release_nvme_buf(phba, lpfc_ncmd);
@@ -1182,11 +1860,18 @@ out_err:
 
 /**
  * lpfc_nvme_prep_io_cmd - Issue an NVME-over-FCP IO
+<<<<<<< HEAD
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
  * @lpfc_nvme_lport: Pointer to the driver's local port data
  * @lpfc_nvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
  * @lpfc_nvme_fcreq: IO request from nvme fc to driver.
  * @hw_queue_handle: Driver-returned handle in lpfc_nvme_create_queue
+=======
+ * @vport: pointer to a host virtual N_Port data structure
+ * @lpfc_ncmd: Pointer to lpfc scsi command
+ * @pnode: pointer to a node-list data structure
+ * @cstat: pointer to the control status structure
+>>>>>>> upstream/android-13
  *
  * Driver registers this routine as it io request handler.  This
  * routine issues an fcp WQE with data from the @lpfc_nvme_fcpreq
@@ -1198,9 +1883,15 @@ out_err:
  **/
 static int
 lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
+<<<<<<< HEAD
 		      struct lpfc_nvme_buf *lpfc_ncmd,
 		      struct lpfc_nodelist *pnode,
 		      struct lpfc_nvme_ctrl_stat *cstat)
+=======
+		      struct lpfc_io_buf *lpfc_ncmd,
+		      struct lpfc_nodelist *pnode,
+		      struct lpfc_fc4_ctrl_stat *cstat)
+>>>>>>> upstream/android-13
 {
 	struct lpfc_hba *phba = vport->phba;
 	struct nvmefc_fcp_req *nCmd = lpfc_ncmd->nvmeCmd;
@@ -1208,9 +1899,12 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
 	union lpfc_wqe128 *wqe = &pwqeq->wqe;
 	uint32_t req_len;
 
+<<<<<<< HEAD
 	if (!pnode || !NLP_CHK_NODE_ACT(pnode))
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * There are three possibilities here - use scatter-gather segment, use
 	 * the single mapping, or neither.
@@ -1238,7 +1932,11 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
 			} else {
 				wqe->fcp_iwrite.initial_xfer_len = 0;
 			}
+<<<<<<< HEAD
 			atomic_inc(&cstat->fc4NvmeOutputRequests);
+=======
+			cstat->output_requests++;
+>>>>>>> upstream/android-13
 		} else {
 			/* From the iread template, initialize words 7 - 11 */
 			memcpy(&wqe->words[7],
@@ -1251,14 +1949,30 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
 			/* Word 5 */
 			wqe->fcp_iread.rsrvd5 = 0;
 
+<<<<<<< HEAD
 			atomic_inc(&cstat->fc4NvmeInputRequests);
+=======
+			/* For a CMF Managed port, iod must be zero'ed */
+			if (phba->cmf_active_mode == LPFC_CFG_MANAGED)
+				bf_set(wqe_iod, &wqe->fcp_iread.wqe_com,
+				       LPFC_WQE_IOD_NONE);
+			cstat->input_requests++;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/* From the icmnd template, initialize words 4 - 11 */
 		memcpy(&wqe->words[4], &lpfc_icmnd_cmd_template.words[4],
 		       sizeof(uint32_t) * 8);
+<<<<<<< HEAD
 		atomic_inc(&cstat->fc4NvmeControlRequests);
 	}
+=======
+		cstat->control_requests++;
+	}
+
+	if (pnode->nlp_nvme_info & NLP_NVME_NSLER)
+		bf_set(wqe_erp, &wqe->generic.wqe_com, 1);
+>>>>>>> upstream/android-13
 	/*
 	 * Finish initializing those WQE fields that are independent
 	 * of the nvme_cmnd request_buffer
@@ -1279,6 +1993,12 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
 	/* Word 9 */
 	bf_set(wqe_reqtag, &wqe->generic.wqe_com, pwqeq->iotag);
 
+<<<<<<< HEAD
+=======
+	/* Word 10 */
+	bf_set(wqe_xchg, &wqe->fcp_iwrite.wqe_com, LPFC_NVME_XCHG);
+
+>>>>>>> upstream/android-13
 	/* Words 13 14 15 are for PBDE support */
 
 	pwqeq->vport = vport;
@@ -1288,11 +2008,16 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
 
 /**
  * lpfc_nvme_prep_io_dma - Issue an NVME-over-FCP IO
+<<<<<<< HEAD
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
  * @lpfc_nvme_lport: Pointer to the driver's local port data
  * @lpfc_nvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
  * @lpfc_nvme_fcreq: IO request from nvme fc to driver.
  * @hw_queue_handle: Driver-returned handle in lpfc_nvme_create_queue
+=======
+ * @vport: pointer to a host virtual N_Port data structure
+ * @lpfc_ncmd: Pointer to lpfc scsi command
+>>>>>>> upstream/android-13
  *
  * Driver registers this routine as it io request handler.  This
  * routine issues an fcp WQE with data from the @lpfc_nvme_fcpreq
@@ -1304,11 +2029,16 @@ lpfc_nvme_prep_io_cmd(struct lpfc_vport *vport,
  **/
 static int
 lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
+<<<<<<< HEAD
 		      struct lpfc_nvme_buf *lpfc_ncmd)
+=======
+		      struct lpfc_io_buf *lpfc_ncmd)
+>>>>>>> upstream/android-13
 {
 	struct lpfc_hba *phba = vport->phba;
 	struct nvmefc_fcp_req *nCmd = lpfc_ncmd->nvmeCmd;
 	union lpfc_wqe128 *wqe = &lpfc_ncmd->cur_iocbq.wqe;
+<<<<<<< HEAD
 	struct sli4_sge *sgl = lpfc_ncmd->nvme_sgl;
 	struct scatterlist *data_sg;
 	struct sli4_sge *first_data_sgl;
@@ -1318,6 +2048,19 @@ lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
 	uint32_t dma_len;
 	uint32_t dma_offset = 0;
 	int nseg, i;
+=======
+	struct sli4_sge *sgl = lpfc_ncmd->dma_sgl;
+	struct sli4_hybrid_sgl *sgl_xtra = NULL;
+	struct scatterlist *data_sg;
+	struct sli4_sge *first_data_sgl;
+	struct ulp_bde64 *bde;
+	dma_addr_t physaddr = 0;
+	uint32_t num_bde = 0;
+	uint32_t dma_len = 0;
+	uint32_t dma_offset = 0;
+	int nseg, i, j;
+	bool lsp_just_set = false;
+>>>>>>> upstream/android-13
 
 	/* Fix up the command and response DMA stuff. */
 	lpfc_nvme_adj_fcp_sgls(vport, lpfc_ncmd, nCmd);
@@ -1336,7 +2079,11 @@ lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
 		first_data_sgl = sgl;
 		lpfc_ncmd->seg_cnt = nCmd->sg_cnt;
 		if (lpfc_ncmd->seg_cnt > lpfc_nvme_template.max_sgl_segments) {
+<<<<<<< HEAD
 			lpfc_printf_log(phba, KERN_ERR, LOG_NVME_IOERR,
+=======
+			lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 					"6058 Too many sg segments from "
 					"NVME Transport.  Max %d, "
 					"nvmeIO sg_cnt %d\n",
@@ -1354,14 +2101,24 @@ lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
 		 */
 		nseg = nCmd->sg_cnt;
 		data_sg = nCmd->first_sgl;
+<<<<<<< HEAD
 		for (i = 0; i < nseg; i++) {
 			if (data_sg == NULL) {
 				lpfc_printf_log(phba, KERN_ERR, LOG_NVME_IOERR,
+=======
+
+		/* for tracking the segment boundaries */
+		j = 2;
+		for (i = 0; i < nseg; i++) {
+			if (data_sg == NULL) {
+				lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 						"6059 dptr err %d, nseg %d\n",
 						i, nseg);
 				lpfc_ncmd->seg_cnt = 0;
 				return 1;
 			}
+<<<<<<< HEAD
 			physaddr = data_sg->dma_address;
 			dma_len = data_sg->length;
 			sgl->addr_lo = cpu_to_le32(putPaddrLow(physaddr));
@@ -1379,6 +2136,78 @@ lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
 			dma_offset += dma_len;
 			data_sg = sg_next(data_sg);
 			sgl++;
+=======
+
+			sgl->word2 = 0;
+			if ((num_bde + 1) == nseg) {
+				bf_set(lpfc_sli4_sge_last, sgl, 1);
+				bf_set(lpfc_sli4_sge_type, sgl,
+				       LPFC_SGE_TYPE_DATA);
+			} else {
+				bf_set(lpfc_sli4_sge_last, sgl, 0);
+
+				/* expand the segment */
+				if (!lsp_just_set &&
+				    !((j + 1) % phba->border_sge_num) &&
+				    ((nseg - 1) != i)) {
+					/* set LSP type */
+					bf_set(lpfc_sli4_sge_type, sgl,
+					       LPFC_SGE_TYPE_LSP);
+
+					sgl_xtra = lpfc_get_sgl_per_hdwq(
+							phba, lpfc_ncmd);
+
+					if (unlikely(!sgl_xtra)) {
+						lpfc_ncmd->seg_cnt = 0;
+						return 1;
+					}
+					sgl->addr_lo = cpu_to_le32(putPaddrLow(
+						       sgl_xtra->dma_phys_sgl));
+					sgl->addr_hi = cpu_to_le32(putPaddrHigh(
+						       sgl_xtra->dma_phys_sgl));
+
+				} else {
+					bf_set(lpfc_sli4_sge_type, sgl,
+					       LPFC_SGE_TYPE_DATA);
+				}
+			}
+
+			if (!(bf_get(lpfc_sli4_sge_type, sgl) &
+				     LPFC_SGE_TYPE_LSP)) {
+				if ((nseg - 1) == i)
+					bf_set(lpfc_sli4_sge_last, sgl, 1);
+
+				physaddr = data_sg->dma_address;
+				dma_len = data_sg->length;
+				sgl->addr_lo = cpu_to_le32(
+							 putPaddrLow(physaddr));
+				sgl->addr_hi = cpu_to_le32(
+							putPaddrHigh(physaddr));
+
+				bf_set(lpfc_sli4_sge_offset, sgl, dma_offset);
+				sgl->word2 = cpu_to_le32(sgl->word2);
+				sgl->sge_len = cpu_to_le32(dma_len);
+
+				dma_offset += dma_len;
+				data_sg = sg_next(data_sg);
+
+				sgl++;
+
+				lsp_just_set = false;
+			} else {
+				sgl->word2 = cpu_to_le32(sgl->word2);
+
+				sgl->sge_len = cpu_to_le32(
+						     phba->cfg_sg_dma_buf_size);
+
+				sgl = (struct sli4_sge *)sgl_xtra->dma_sgl;
+				i = i - 1;
+
+				lsp_just_set = true;
+			}
+
+			j++;
+>>>>>>> upstream/android-13
 		}
 		if (phba->cfg_enable_pbde) {
 			/* Use PBDE support for first SGL only, offset == 0 */
@@ -1391,18 +2220,33 @@ lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
 				le32_to_cpu(first_data_sgl->sge_len);
 			bde->tus.f.bdeFlags = BUFF_TYPE_BDE_64;
 			bde->tus.w = cpu_to_le32(bde->tus.w);
+<<<<<<< HEAD
 			/* wqe_pbde is 1 in template */
+=======
+
+			/* Word 11 */
+			bf_set(wqe_pbde, &wqe->generic.wqe_com, 1);
+>>>>>>> upstream/android-13
 		} else {
 			memset(&wqe->words[13], 0, (sizeof(uint32_t) * 3));
 			bf_set(wqe_pbde, &wqe->generic.wqe_com, 0);
 		}
 
 	} else {
+<<<<<<< HEAD
+=======
+		lpfc_ncmd->seg_cnt = 0;
+
+>>>>>>> upstream/android-13
 		/* For this clause to be valid, the payload_length
 		 * and sg_cnt must zero.
 		 */
 		if (nCmd->payload_length != 0) {
+<<<<<<< HEAD
 			lpfc_printf_log(phba, KERN_ERR, LOG_NVME_IOERR,
+=======
+			lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 					"6063 NVME DMA Prep Err: sg_cnt %d "
 					"payload_length x%x\n",
 					nCmd->sg_cnt, nCmd->payload_length);
@@ -1414,6 +2258,7 @@ lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
 
 /**
  * lpfc_nvme_fcp_io_submit - Issue an NVME-over-FCP IO
+<<<<<<< HEAD
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
  * @lpfc_nvme_lport: Pointer to the driver's local port data
  * @lpfc_nvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
@@ -1424,6 +2269,16 @@ lpfc_nvme_prep_io_dma(struct lpfc_vport *vport,
  * routine issues an fcp WQE with data from the @lpfc_nvme_fcpreq
  * data structure to the rport
  indicated in @lpfc_nvme_rport.
+=======
+ * @pnvme_lport: Pointer to the driver's local port data
+ * @pnvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
+ * @hw_queue_handle: Driver-returned handle in lpfc_nvme_create_queue
+ * @pnvme_fcreq: IO request from nvme fc to driver.
+ *
+ * Driver registers this routine as it io request handler.  This
+ * routine issues an fcp WQE with data from the @lpfc_nvme_fcpreq
+ * data structure to the rport indicated in @lpfc_nvme_rport.
+>>>>>>> upstream/android-13
  *
  * Return value :
  *   0 - Success
@@ -1437,6 +2292,7 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 {
 	int ret = 0;
 	int expedite = 0;
+<<<<<<< HEAD
 	int idx;
 	struct lpfc_nvme_lport *lport;
 	struct lpfc_nvme_ctrl_stat *cstat;
@@ -1444,13 +2300,26 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 	struct lpfc_hba *phba;
 	struct lpfc_nodelist *ndlp;
 	struct lpfc_nvme_buf *lpfc_ncmd;
+=======
+	int idx, cpu;
+	struct lpfc_nvme_lport *lport;
+	struct lpfc_fc4_ctrl_stat *cstat;
+	struct lpfc_vport *vport;
+	struct lpfc_hba *phba;
+	struct lpfc_nodelist *ndlp;
+	struct lpfc_io_buf *lpfc_ncmd;
+>>>>>>> upstream/android-13
 	struct lpfc_nvme_rport *rport;
 	struct lpfc_nvme_qhandle *lpfc_queue_info;
 	struct lpfc_nvme_fcpreq_priv *freqpriv;
 	struct nvme_common_command *sqe;
+<<<<<<< HEAD
 #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
 	uint64_t start = 0;
 #endif
+=======
+	uint64_t start = 0;
+>>>>>>> upstream/android-13
 
 	/* Validate pointers. LLDD fault handling with transport does
 	 * have timing races.
@@ -1473,12 +2342,16 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 
 	phba = vport->phba;
 
+<<<<<<< HEAD
 	if (vport->load_flag & FC_UNLOADING) {
 		ret = -ENODEV;
 		goto out_fail;
 	}
 
 	if (vport->load_flag & FC_UNLOADING) {
+=======
+	if (unlikely(vport->load_flag & FC_UNLOADING)) {
+>>>>>>> upstream/android-13
 		lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_IOERR,
 				 "6124 Fail IO, Driver unload\n");
 		atomic_inc(&lport->xmt_fcp_err);
@@ -1507,10 +2380,17 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 	 * transport is still transitioning.
 	 */
 	ndlp = rport->ndlp;
+<<<<<<< HEAD
 	if (!ndlp || !NLP_CHK_NODE_ACT(ndlp)) {
 		lpfc_printf_vlog(vport, KERN_INFO, LOG_NODE | LOG_NVME_IOERR,
 				 "6053 Fail IO, ndlp not ready: rport %p "
 				  "ndlp %p, DID x%06x\n",
+=======
+	if (!ndlp) {
+		lpfc_printf_vlog(vport, KERN_INFO, LOG_NODE | LOG_NVME_IOERR,
+				 "6053 Busy IO, ndlp not ready: rport x%px "
+				  "ndlp x%px, DID x%06x\n",
+>>>>>>> upstream/android-13
 				 rport, ndlp, pnvme_rport->port_id);
 		atomic_inc(&lport->xmt_fcp_err);
 		ret = -EBUSY;
@@ -1525,7 +2405,11 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 				 "IO. State x%x, Type x%x Flg x%x\n",
 				 pnvme_rport->port_id,
 				 ndlp->nlp_state, ndlp->nlp_type,
+<<<<<<< HEAD
 				 ndlp->upcall_flags);
+=======
+				 ndlp->fc4_xpt_flags);
+>>>>>>> upstream/android-13
 		atomic_inc(&lport->xmt_fcp_bad_ndlp);
 		ret = -EBUSY;
 		goto out_fail;
@@ -1543,6 +2427,22 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 			expedite = 1;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Check if IO qualifies for CMF */
+	if (phba->cmf_active_mode != LPFC_CFG_OFF &&
+	    pnvme_fcreq->io_dir == NVMEFC_FCP_READ &&
+	    pnvme_fcreq->payload_length) {
+		ret = lpfc_update_cmf_cmd(phba, pnvme_fcreq->payload_length);
+		if (ret) {
+			ret = -EBUSY;
+			goto out_fail;
+		}
+		/* Get start time for IO latency */
+		start = ktime_get_ns();
+	}
+
+>>>>>>> upstream/android-13
 	/* The node is shared with FCP IO, make sure the IO pending count does
 	 * not exceed the programmed depth.
 	 */
@@ -1557,11 +2457,27 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 					 ndlp->cmd_qdepth);
 			atomic_inc(&lport->xmt_fcp_qdepth);
 			ret = -EBUSY;
+<<<<<<< HEAD
 			goto out_fail;
 		}
 	}
 
 	lpfc_ncmd = lpfc_get_nvme_buf(phba, ndlp, expedite);
+=======
+			goto out_fail1;
+		}
+	}
+
+	/* Lookup Hardware Queue index based on fcp_io_sched module parameter */
+	if (phba->cfg_fcp_io_sched == LPFC_FCP_SCHED_BY_HDWQ) {
+		idx = lpfc_queue_info->index;
+	} else {
+		cpu = raw_smp_processor_id();
+		idx = phba->sli4_hba.cpu_map[cpu].hdwq;
+	}
+
+	lpfc_ncmd = lpfc_get_nvme_buf(phba, ndlp, idx, expedite);
+>>>>>>> upstream/android-13
 	if (lpfc_ncmd == NULL) {
 		atomic_inc(&lport->xmt_fcp_noxri);
 		lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_IOERR,
@@ -1569,7 +2485,11 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 				 "idx %d DID %x\n",
 				 lpfc_queue_info->index, ndlp->nlp_DID);
 		ret = -EBUSY;
+<<<<<<< HEAD
 		goto out_fail;
+=======
+		goto out_fail1;
+>>>>>>> upstream/android-13
 	}
 #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
 	if (start) {
@@ -1579,6 +2499,10 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 		lpfc_ncmd->ts_cmd_start = 0;
 	}
 #endif
+<<<<<<< HEAD
+=======
+	lpfc_ncmd->rx_cmd_start = start;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Store the data needed by the driver to issue, abort, and complete
@@ -1588,9 +2512,14 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 	 */
 	freqpriv->nvme_buf = lpfc_ncmd;
 	lpfc_ncmd->nvmeCmd = pnvme_fcreq;
+<<<<<<< HEAD
 	lpfc_ncmd->nrport = rport;
 	lpfc_ncmd->ndlp = ndlp;
 	lpfc_ncmd->start_time = jiffies;
+=======
+	lpfc_ncmd->ndlp = ndlp;
+	lpfc_ncmd->qidx = lpfc_queue_info->qidx;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Issue the IO on the WQ indicated by index in the hw_queue_handle.
@@ -1600,9 +2529,14 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 	 * index to use and that they have affinitized a CPU to this hardware
 	 * queue. A hardware queue maps to a driver MSI-X vector/EQ/CQ/WQ.
 	 */
+<<<<<<< HEAD
 	idx = lpfc_queue_info->index;
 	lpfc_ncmd->cur_iocbq.hba_wqidx = idx;
 	cstat = &lport->cstat[idx];
+=======
+	lpfc_ncmd->cur_iocbq.hba_wqidx = idx;
+	cstat = &phba->sli4_hba.hdwq[idx].nvme_cstat;
+>>>>>>> upstream/android-13
 
 	lpfc_nvme_prep_io_cmd(vport, lpfc_ncmd, ndlp, cstat);
 	ret = lpfc_nvme_prep_io_dma(vport, lpfc_ncmd);
@@ -1620,7 +2554,11 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 			 lpfc_ncmd->cur_iocbq.sli4_xritag,
 			 lpfc_queue_info->index, ndlp->nlp_DID);
 
+<<<<<<< HEAD
 	ret = lpfc_sli4_issue_wqe(phba, LPFC_FCP_RING, &lpfc_ncmd->cur_iocbq);
+=======
+	ret = lpfc_sli4_issue_wqe(phba, lpfc_ncmd->hdwq, &lpfc_ncmd->cur_iocbq);
+>>>>>>> upstream/android-13
 	if (ret) {
 		atomic_inc(&lport->xmt_fcp_wqerr);
 		lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_IOERR,
@@ -1631,10 +2569,17 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 		goto out_free_nvme_buf;
 	}
 
+<<<<<<< HEAD
+=======
+	if (phba->cfg_xri_rebalancing)
+		lpfc_keep_pvt_pool_above_lowwm(phba, lpfc_ncmd->hdwq_no);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
 	if (lpfc_ncmd->ts_cmd_start)
 		lpfc_ncmd->ts_cmd_wqput = ktime_get_ns();
 
+<<<<<<< HEAD
 	if (phba->cpucheck_on & LPFC_CHECK_NVME_IO) {
 		lpfc_ncmd->cpu = smp_processor_id();
 		if (lpfc_ncmd->cpu != lpfc_queue_info->index) {
@@ -1651,6 +2596,19 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
 		}
 		if (lpfc_ncmd->cpu < LPFC_CHECK_CPU_CNT)
 			phba->cpucheck_xmt_io[lpfc_ncmd->cpu]++;
+=======
+	if (phba->hdwqstat_on & LPFC_CHECK_NVME_IO) {
+		cpu = raw_smp_processor_id();
+		this_cpu_inc(phba->sli4_hba.c_stat->xmt_io);
+		lpfc_ncmd->cpu = cpu;
+		if (idx != cpu)
+			lpfc_printf_vlog(vport,
+					 KERN_INFO, LOG_NVME_IOERR,
+					"6702 CPU Check cmd: "
+					"cpu %d wq %d\n",
+					lpfc_ncmd->cpu,
+					lpfc_queue_info->index);
+>>>>>>> upstream/android-13
 	}
 #endif
 	return 0;
@@ -1658,12 +2616,24 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
  out_free_nvme_buf:
 	if (lpfc_ncmd->nvmeCmd->sg_cnt) {
 		if (lpfc_ncmd->nvmeCmd->io_dir == NVMEFC_FCP_WRITE)
+<<<<<<< HEAD
 			atomic_dec(&cstat->fc4NvmeOutputRequests);
 		else
 			atomic_dec(&cstat->fc4NvmeInputRequests);
 	} else
 		atomic_dec(&cstat->fc4NvmeControlRequests);
 	lpfc_release_nvme_buf(phba, lpfc_ncmd);
+=======
+			cstat->output_requests--;
+		else
+			cstat->input_requests--;
+	} else
+		cstat->control_requests--;
+	lpfc_release_nvme_buf(phba, lpfc_ncmd);
+ out_fail1:
+	lpfc_update_cmf_cmpl(phba, LPFC_CGN_NOT_SENT,
+			     pnvme_fcreq->payload_length, NULL);
+>>>>>>> upstream/android-13
  out_fail:
 	return ret;
 }
@@ -1672,7 +2642,11 @@ lpfc_nvme_fcp_io_submit(struct nvme_fc_local_port *pnvme_lport,
  * lpfc_nvme_abort_fcreq_cmpl - Complete an NVME FCP abort request.
  * @phba: Pointer to HBA context object
  * @cmdiocb: Pointer to command iocb object.
+<<<<<<< HEAD
  * @rspiocb: Pointer to response iocb object.
+=======
+ * @abts_cmpl: Pointer to wcqe complete object.
+>>>>>>> upstream/android-13
  *
  * This is the callback function for any NVME FCP IO that was aborted.
  *
@@ -1698,11 +2672,18 @@ lpfc_nvme_abort_fcreq_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
 
 /**
  * lpfc_nvme_fcp_abort - Issue an NVME-over-FCP ABTS
+<<<<<<< HEAD
  * @lpfc_pnvme: Pointer to the driver's nvme instance data
  * @lpfc_nvme_lport: Pointer to the driver's local port data
  * @lpfc_nvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
  * @lpfc_nvme_fcreq: IO request from nvme fc to driver.
  * @hw_queue_handle: Driver-returned handle in lpfc_nvme_create_queue
+=======
+ * @pnvme_lport: Pointer to the driver's local port data
+ * @pnvme_rport: Pointer to the rport getting the @lpfc_nvme_ereq
+ * @hw_queue_handle: Driver-returned handle in lpfc_nvme_create_queue
+ * @pnvme_fcreq: IO request from nvme fc to driver.
+>>>>>>> upstream/android-13
  *
  * Driver registers this routine as its nvme request io abort handler.  This
  * routine issues an fcp Abort WQE with data from the @lpfc_nvme_fcpreq
@@ -1722,11 +2703,17 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 	struct lpfc_nvme_lport *lport;
 	struct lpfc_vport *vport;
 	struct lpfc_hba *phba;
+<<<<<<< HEAD
 	struct lpfc_nvme_buf *lpfc_nbuf;
 	struct lpfc_iocbq *abts_buf;
 	struct lpfc_iocbq *nvmereq_wqe;
 	struct lpfc_nvme_fcpreq_priv *freqpriv;
 	union lpfc_wqe128 *abts_wqe;
+=======
+	struct lpfc_io_buf *lpfc_nbuf;
+	struct lpfc_iocbq *nvmereq_wqe;
+	struct lpfc_nvme_fcpreq_priv *freqpriv;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret_val;
 
@@ -1756,7 +2743,11 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 	/* Announce entry to new IO submit field. */
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_ABTS,
 			 "6002 Abort Request to rport DID x%06x "
+<<<<<<< HEAD
 			 "for nvme_fc_req %p\n",
+=======
+			 "for nvme_fc_req x%px\n",
+>>>>>>> upstream/android-13
 			 pnvme_rport->port_id,
 			 pnvme_fcreq);
 
@@ -1765,9 +2756,15 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 	 */
 	spin_lock_irqsave(&phba->hbalock, flags);
 	/* driver queued commands are in process of being flushed */
+<<<<<<< HEAD
 	if (phba->hba_flag & HBA_NVME_IOQ_FLUSH) {
 		spin_unlock_irqrestore(&phba->hbalock, flags);
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_ABTS,
+=======
+	if (phba->hba_flag & HBA_IOQ_FLUSH) {
+		spin_unlock_irqrestore(&phba->hbalock, flags);
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 				 "6139 Driver in reset cleanup - flushing "
 				 "NVME Req now.  hba_flag x%x\n",
 				 phba->hba_flag);
@@ -1777,19 +2774,33 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 	lpfc_nbuf = freqpriv->nvme_buf;
 	if (!lpfc_nbuf) {
 		spin_unlock_irqrestore(&phba->hbalock, flags);
+<<<<<<< HEAD
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_ABTS,
+=======
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 				 "6140 NVME IO req has no matching lpfc nvme "
 				 "io buffer.  Skipping abort req.\n");
 		return;
 	} else if (!lpfc_nbuf->nvmeCmd) {
 		spin_unlock_irqrestore(&phba->hbalock, flags);
+<<<<<<< HEAD
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_ABTS,
+=======
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 				 "6141 lpfc NVME IO req has no nvme_fcreq "
 				 "io buffer.  Skipping abort req.\n");
 		return;
 	}
 	nvmereq_wqe = &lpfc_nbuf->cur_iocbq;
 
+<<<<<<< HEAD
+=======
+	/* Guard against IO completion being called at same time */
+	spin_lock(&lpfc_nbuf->buf_lock);
+
+>>>>>>> upstream/android-13
 	/*
 	 * The lpfc_nbuf and the mapped nvme_fcreq in the driver's
 	 * state must match the nvme_fcreq passed by the nvme
@@ -1798,6 +2809,7 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 	 * has not seen it yet.
 	 */
 	if (lpfc_nbuf->nvmeCmd != pnvme_fcreq) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&phba->hbalock, flags);
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_ABTS,
 				 "6143 NVME req mismatch: "
@@ -1806,16 +2818,33 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 				 lpfc_nbuf, lpfc_nbuf->nvmeCmd,
 				 pnvme_fcreq, nvmereq_wqe->sli4_xritag);
 		return;
+=======
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6143 NVME req mismatch: "
+				 "lpfc_nbuf x%px nvmeCmd x%px, "
+				 "pnvme_fcreq x%px.  Skipping Abort xri x%x\n",
+				 lpfc_nbuf, lpfc_nbuf->nvmeCmd,
+				 pnvme_fcreq, nvmereq_wqe->sli4_xritag);
+		goto out_unlock;
+>>>>>>> upstream/android-13
 	}
 
 	/* Don't abort IOs no longer on the pending queue. */
 	if (!(nvmereq_wqe->iocb_flag & LPFC_IO_ON_TXCMPLQ)) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&phba->hbalock, flags);
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_ABTS,
 				 "6142 NVME IO req %p not queued - skipping "
 				 "abort req xri x%x\n",
 				 pnvme_fcreq, nvmereq_wqe->sli4_xritag);
 		return;
+=======
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6142 NVME IO req x%px not queued - skipping "
+				 "abort req xri x%x\n",
+				 pnvme_fcreq, nvmereq_wqe->sli4_xritag);
+		goto out_unlock;
+>>>>>>> upstream/android-13
 	}
 
 	atomic_inc(&lport->xmt_fcp_abort);
@@ -1825,6 +2854,7 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 
 	/* Outstanding abort is in progress */
 	if (nvmereq_wqe->iocb_flag & LPFC_DRIVER_ABORTED) {
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&phba->hbalock, flags);
 		lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_ABTS,
 				 "6144 Outstanding NVME I/O Abort Request "
@@ -1893,14 +2923,50 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
 				 "for nvme_fcreq %p.\n",
 				 ret_val, pnvme_fcreq);
 		lpfc_sli_release_iocbq(phba, abts_buf);
+=======
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6144 Outstanding NVME I/O Abort Request "
+				 "still pending on nvme_fcreq x%px, "
+				 "lpfc_ncmd x%px xri x%x\n",
+				 pnvme_fcreq, lpfc_nbuf,
+				 nvmereq_wqe->sli4_xritag);
+		goto out_unlock;
+	}
+
+	ret_val = lpfc_sli4_issue_abort_iotag(phba, nvmereq_wqe,
+					      lpfc_nvme_abort_fcreq_cmpl);
+
+	spin_unlock(&lpfc_nbuf->buf_lock);
+	spin_unlock_irqrestore(&phba->hbalock, flags);
+
+	/* Make sure HBA is alive */
+	lpfc_issue_hb_tmo(phba);
+
+	if (ret_val != WQE_SUCCESS) {
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6137 Failed abts issue_wqe with status x%x "
+				 "for nvme_fcreq x%px.\n",
+				 ret_val, pnvme_fcreq);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_ABTS,
 			 "6138 Transport Abort NVME Request Issued for "
+<<<<<<< HEAD
 			 "ox_id x%x on reqtag x%x\n",
 			 nvmereq_wqe->sli4_xritag,
 			 abts_buf->iotag);
+=======
+			 "ox_id x%x\n",
+			 nvmereq_wqe->sli4_xritag);
+	return;
+
+out_unlock:
+	spin_unlock(&lpfc_nbuf->buf_lock);
+	spin_unlock_irqrestore(&phba->hbalock, flags);
+	return;
+>>>>>>> upstream/android-13
 }
 
 /* Declare and initialization an instance of the FC NVME template. */
@@ -1914,6 +2980,10 @@ static struct nvme_fc_port_template lpfc_nvme_template = {
 	.fcp_io       = lpfc_nvme_fcp_io_submit,
 	.ls_abort     = lpfc_nvme_ls_abort,
 	.fcp_abort    = lpfc_nvme_fcp_abort,
+<<<<<<< HEAD
+=======
+	.xmt_ls_rsp   = lpfc_nvme_xmt_ls_rsp,
+>>>>>>> upstream/android-13
 
 	.max_hw_queues = 1,
 	.max_sgl_segments = LPFC_NVME_DEFAULT_SEGS,
@@ -1929,6 +2999,7 @@ static struct nvme_fc_port_template lpfc_nvme_template = {
 	.fcprqst_priv_sz = sizeof(struct lpfc_nvme_fcpreq_priv),
 };
 
+<<<<<<< HEAD
 /**
  * lpfc_sli4_post_nvme_sgl_block - post a block of nvme sgl list to firmware
  * @phba: pointer to lpfc hba data structure.
@@ -2347,12 +3418,19 @@ lpfc_nvme_buf(struct lpfc_hba *phba)
  * @phba: The HBA for which this call is being executed.
  *
  * This routine removes a nvme buffer from head of @phba lpfc_nvme_buf_list list
+=======
+/*
+ * lpfc_get_nvme_buf - Get a nvme buffer from io_buf_list of the HBA
+ *
+ * This routine removes a nvme buffer from head of @hdwq io_buf_list
+>>>>>>> upstream/android-13
  * and returns to caller.
  *
  * Return codes:
  *   NULL - Error
  *   Pointer to lpfc_nvme_buf - Success
  **/
+<<<<<<< HEAD
 static struct lpfc_nvme_buf *
 lpfc_get_nvme_buf(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
 		  int expedite)
@@ -2380,6 +3458,55 @@ lpfc_get_nvme_buf(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
 		atomic_inc(&ndlp->cmd_pending);
 		lpfc_ncmd->flags |= LPFC_BUMP_QDEPTH;
 	}
+=======
+static struct lpfc_io_buf *
+lpfc_get_nvme_buf(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
+		  int idx, int expedite)
+{
+	struct lpfc_io_buf *lpfc_ncmd;
+	struct lpfc_sli4_hdw_queue *qp;
+	struct sli4_sge *sgl;
+	struct lpfc_iocbq *pwqeq;
+	union lpfc_wqe128 *wqe;
+
+	lpfc_ncmd = lpfc_get_io_buf(phba, NULL, idx, expedite);
+
+	if (lpfc_ncmd) {
+		pwqeq = &(lpfc_ncmd->cur_iocbq);
+		wqe = &pwqeq->wqe;
+
+		/* Setup key fields in buffer that may have been changed
+		 * if other protocols used this buffer.
+		 */
+		pwqeq->iocb_flag = LPFC_IO_NVME;
+		pwqeq->wqe_cmpl = lpfc_nvme_io_cmd_wqe_cmpl;
+		lpfc_ncmd->start_time = jiffies;
+		lpfc_ncmd->flags = 0;
+
+		/* Rsp SGE will be filled in when we rcv an IO
+		 * from the NVME Layer to be sent.
+		 * The cmd is going to be embedded so we need a SKIP SGE.
+		 */
+		sgl = lpfc_ncmd->dma_sgl;
+		bf_set(lpfc_sli4_sge_type, sgl, LPFC_SGE_TYPE_SKIP);
+		bf_set(lpfc_sli4_sge_last, sgl, 0);
+		sgl->word2 = cpu_to_le32(sgl->word2);
+		/* Fill in word 3 / sgl_len during cmd submission */
+
+		/* Initialize 64 bytes only */
+		memset(wqe, 0, sizeof(union lpfc_wqe));
+
+		if (lpfc_ndlp_check_qdepth(phba, ndlp)) {
+			atomic_inc(&ndlp->cmd_pending);
+			lpfc_ncmd->flags |= LPFC_SBUF_BUMP_QDEPTH;
+		}
+
+	} else {
+		qp = &phba->sli4_hba.hdwq[idx];
+		qp->empty_io_bufs++;
+	}
+
+>>>>>>> upstream/android-13
 	return  lpfc_ncmd;
 }
 
@@ -2389,11 +3516,16 @@ lpfc_get_nvme_buf(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
  * @lpfc_ncmd: The nvme buffer which is being released.
  *
  * This routine releases @lpfc_ncmd nvme buffer by adding it to tail of @phba
+<<<<<<< HEAD
  * lpfc_nvme_buf_list list. For SLI4 XRI's are tied to the nvme buffer
+=======
+ * lpfc_io_buf_list list. For SLI4 XRI's are tied to the nvme buffer
+>>>>>>> upstream/android-13
  * and cannot be reused for at least RA_TOV amount of time if it was
  * aborted.
  **/
 static void
+<<<<<<< HEAD
 lpfc_release_nvme_buf(struct lpfc_hba *phba, struct lpfc_nvme_buf *lpfc_ncmd)
 {
 	unsigned long iflag = 0;
@@ -2406,12 +3538,28 @@ lpfc_release_nvme_buf(struct lpfc_hba *phba, struct lpfc_nvme_buf *lpfc_ncmd)
 	lpfc_ncmd->flags &= ~LPFC_BUMP_QDEPTH;
 
 	if (lpfc_ncmd->flags & LPFC_SBUF_XBUSY) {
+=======
+lpfc_release_nvme_buf(struct lpfc_hba *phba, struct lpfc_io_buf *lpfc_ncmd)
+{
+	struct lpfc_sli4_hdw_queue *qp;
+	unsigned long iflag = 0;
+
+	if ((lpfc_ncmd->flags & LPFC_SBUF_BUMP_QDEPTH) && lpfc_ncmd->ndlp)
+		atomic_dec(&lpfc_ncmd->ndlp->cmd_pending);
+
+	lpfc_ncmd->ndlp = NULL;
+	lpfc_ncmd->flags &= ~LPFC_SBUF_BUMP_QDEPTH;
+
+	qp = lpfc_ncmd->hdwq;
+	if (unlikely(lpfc_ncmd->flags & LPFC_SBUF_XBUSY)) {
+>>>>>>> upstream/android-13
 		lpfc_printf_log(phba, KERN_INFO, LOG_NVME_ABTS,
 				"6310 XB release deferred for "
 				"ox_id x%x on reqtag x%x\n",
 				lpfc_ncmd->cur_iocbq.sli4_xritag,
 				lpfc_ncmd->cur_iocbq.iotag);
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&phba->sli4_hba.abts_nvme_buf_list_lock,
 					iflag);
 		list_add_tail(&lpfc_ncmd->list,
@@ -2426,11 +3574,24 @@ lpfc_release_nvme_buf(struct lpfc_hba *phba, struct lpfc_nvme_buf *lpfc_ncmd)
 		phba->put_nvme_bufs++;
 		spin_unlock_irqrestore(&phba->nvme_buf_list_put_lock, iflag);
 	}
+=======
+		spin_lock_irqsave(&qp->abts_io_buf_list_lock, iflag);
+		list_add_tail(&lpfc_ncmd->list,
+			&qp->lpfc_abts_io_buf_list);
+		qp->abts_nvme_io_bufs++;
+		spin_unlock_irqrestore(&qp->abts_io_buf_list_lock, iflag);
+	} else
+		lpfc_release_io_buf(phba, (struct lpfc_io_buf *)lpfc_ncmd, qp);
+>>>>>>> upstream/android-13
 }
 
 /**
  * lpfc_nvme_create_localport - Create/Bind an nvme localport instance.
+<<<<<<< HEAD
  * @pvport - the lpfc_vport instance requesting a localport.
+=======
+ * @vport: the lpfc_vport instance requesting a localport.
+>>>>>>> upstream/android-13
  *
  * This routine is invoked to create an nvme localport instance to bind
  * to the nvme_fc_transport.  It is called once during driver load
@@ -2452,8 +3613,11 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
 	struct nvme_fc_port_info nfcp_info;
 	struct nvme_fc_local_port *localport;
 	struct lpfc_nvme_lport *lport;
+<<<<<<< HEAD
 	struct lpfc_nvme_ctrl_stat *cstat;
 	int len, i;
+=======
+>>>>>>> upstream/android-13
 
 	/* Initialize this localport instance.  The vport wwn usage ensures
 	 * that NPIV is accounted for.
@@ -2463,6 +3627,7 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
 	nfcp_info.node_name = wwn_to_u64(vport->fc_nodename.u.wwn);
 	nfcp_info.port_name = wwn_to_u64(vport->fc_portname.u.wwn);
 
+<<<<<<< HEAD
 	/* Limit to LPFC_MAX_NVME_SEG_CNT.
 	 * For now need + 1 to get around NVME transport logic.
 	 */
@@ -2476,15 +3641,30 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
 	}
 	lpfc_nvme_template.max_sgl_segments = phba->cfg_nvme_seg_cnt + 1;
 	lpfc_nvme_template.max_hw_queues = phba->cfg_nvme_io_channel;
+=======
+	/* We need to tell the transport layer + 1 because it takes page
+	 * alignment into account. When space for the SGL is allocated we
+	 * allocate + 3, one for cmd, one for rsp and one for this alignment
+	 */
+	lpfc_nvme_template.max_sgl_segments = phba->cfg_nvme_seg_cnt + 1;
+
+	/* Advertise how many hw queues we support based on cfg_hdw_queue,
+	 * which will not exceed cpu count.
+	 */
+	lpfc_nvme_template.max_hw_queues = phba->cfg_hdw_queue;
+>>>>>>> upstream/android-13
 
 	if (!IS_ENABLED(CONFIG_NVME_FC))
 		return ret;
 
+<<<<<<< HEAD
 	cstat = kmalloc((sizeof(struct lpfc_nvme_ctrl_stat) *
 			phba->cfg_nvme_io_channel), GFP_KERNEL);
 	if (!cstat)
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	/* localport is allocated from the stack, but the registration
 	 * call allocates heap memory as well as the private area.
 	 */
@@ -2494,8 +3674,13 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
 	if (!ret) {
 		lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME | LOG_NVME_DISC,
 				 "6005 Successfully registered local "
+<<<<<<< HEAD
 				 "NVME port num %d, localP %p, private %p, "
 				 "sg_seg %d\n",
+=======
+				 "NVME port num %d, localP x%px, private "
+				 "x%px, sg_seg %d\n",
+>>>>>>> upstream/android-13
 				 localport->port_num, localport,
 				 localport->private,
 				 lpfc_nvme_template.max_sgl_segments);
@@ -2504,7 +3689,10 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
 		lport = (struct lpfc_nvme_lport *)localport->private;
 		vport->localport = localport;
 		lport->vport = vport;
+<<<<<<< HEAD
 		lport->cstat = cstat;
+=======
+>>>>>>> upstream/android-13
 		vport->nvmei_support = 1;
 
 		atomic_set(&lport->xmt_fcp_noxri, 0);
@@ -2519,6 +3707,7 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
 		atomic_set(&lport->cmpl_fcp_err, 0);
 		atomic_set(&lport->cmpl_ls_xb, 0);
 		atomic_set(&lport->cmpl_ls_err, 0);
+<<<<<<< HEAD
 		atomic_set(&lport->fc4NvmeLsRequests, 0);
 		atomic_set(&lport->fc4NvmeLsCmpls, 0);
 
@@ -2540,11 +3729,20 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
 		}
 	} else {
 		kfree(cstat);
+=======
+
+		atomic_set(&lport->fc4NvmeLsRequests, 0);
+		atomic_set(&lport->fc4NvmeLsCmpls, 0);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#if (IS_ENABLED(CONFIG_NVME_FC))
+>>>>>>> upstream/android-13
 /* lpfc_nvme_lport_unreg_wait - Wait for the host to complete an lport unreg.
  *
  * The driver has to wait for the host nvme transport to callback
@@ -2555,14 +3753,27 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
  * An uninterruptible wait is used because of the risk of transport-to-
  * driver state mismatch.
  */
+<<<<<<< HEAD
 void
+=======
+static void
+>>>>>>> upstream/android-13
 lpfc_nvme_lport_unreg_wait(struct lpfc_vport *vport,
 			   struct lpfc_nvme_lport *lport,
 			   struct completion *lport_unreg_cmp)
 {
+<<<<<<< HEAD
 #if (IS_ENABLED(CONFIG_NVME_FC))
 	u32 wait_tmo;
 	int ret;
+=======
+	u32 wait_tmo;
+	int ret, i, pending = 0;
+	struct lpfc_sli_ring  *pring;
+	struct lpfc_hba  *phba = vport->phba;
+	struct lpfc_sli4_hdw_queue *qp;
+	int abts_scsi, abts_nvme;
+>>>>>>> upstream/android-13
 
 	/* Host transport has to clean up and confirm requiring an indefinite
 	 * wait. Print a message if a 10 second wait expires and renew the
@@ -2572,15 +3783,37 @@ lpfc_nvme_lport_unreg_wait(struct lpfc_vport *vport,
 	while (true) {
 		ret = wait_for_completion_timeout(lport_unreg_cmp, wait_tmo);
 		if (unlikely(!ret)) {
+<<<<<<< HEAD
 			lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_IOERR,
 					 "6176 Lport %p Localport %p wait "
 					 "timed out. Renewing.\n",
 					 lport, vport->localport);
+=======
+			pending = 0;
+			abts_scsi = 0;
+			abts_nvme = 0;
+			for (i = 0; i < phba->cfg_hdw_queue; i++) {
+				qp = &phba->sli4_hba.hdwq[i];
+				pring = qp->io_wq->pring;
+				if (!pring)
+					continue;
+				pending += pring->txcmplq_cnt;
+				abts_scsi += qp->abts_scsi_io_bufs;
+				abts_nvme += qp->abts_nvme_io_bufs;
+			}
+			lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+					 "6176 Lport x%px Localport x%px wait "
+					 "timed out. Pending %d [%d:%d]. "
+					 "Renewing.\n",
+					 lport, vport->localport, pending,
+					 abts_scsi, abts_nvme);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		break;
 	}
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_IOERR,
+<<<<<<< HEAD
 			 "6177 Lport %p Localport %p Complete Success\n",
 			 lport, vport->localport);
 #endif
@@ -2589,6 +3822,16 @@ lpfc_nvme_lport_unreg_wait(struct lpfc_vport *vport,
 /**
  * lpfc_nvme_destroy_localport - Destroy lpfc_nvme bound to nvme transport.
  * @pnvme: pointer to lpfc nvme data structure.
+=======
+			 "6177 Lport x%px Localport x%px Complete Success\n",
+			 lport, vport->localport);
+}
+#endif
+
+/**
+ * lpfc_nvme_destroy_localport - Destroy lpfc_nvme bound to nvme transport.
+ * @vport: pointer to a host virtual N_Port data structure
+>>>>>>> upstream/android-13
  *
  * This routine is invoked to destroy all lports bound to the phba.
  * The lport memory was allocated by the nvme fc transport and is
@@ -2602,7 +3845,10 @@ lpfc_nvme_destroy_localport(struct lpfc_vport *vport)
 #if (IS_ENABLED(CONFIG_NVME_FC))
 	struct nvme_fc_local_port *localport;
 	struct lpfc_nvme_lport *lport;
+<<<<<<< HEAD
 	struct lpfc_nvme_ctrl_stat *cstat;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 	DECLARE_COMPLETION_ONSTACK(lport_unreg_cmp);
 
@@ -2611,10 +3857,16 @@ lpfc_nvme_destroy_localport(struct lpfc_vport *vport)
 
 	localport = vport->localport;
 	lport = (struct lpfc_nvme_lport *)localport->private;
+<<<<<<< HEAD
 	cstat = lport->cstat;
 
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
 			 "6011 Destroying NVME localport %p\n",
+=======
+
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
+			 "6011 Destroying NVME localport x%px\n",
+>>>>>>> upstream/android-13
 			 localport);
 
 	/* lport's rport list is clear.  Unregister
@@ -2628,7 +3880,10 @@ lpfc_nvme_destroy_localport(struct lpfc_vport *vport)
 	 */
 	lpfc_nvme_lport_unreg_wait(vport, lport, &lport_unreg_cmp);
 	vport->localport = NULL;
+<<<<<<< HEAD
 	kfree(cstat);
+=======
+>>>>>>> upstream/android-13
 
 	/* Regardless of the unregister upcall response, clear
 	 * nvmei_support.  All rports are unregistered and the
@@ -2665,12 +3920,20 @@ lpfc_nvme_update_localport(struct lpfc_vport *vport)
 	lport = (struct lpfc_nvme_lport *)localport->private;
 	if (!lport) {
 		lpfc_printf_vlog(vport, KERN_WARNING, LOG_NVME,
+<<<<<<< HEAD
 				 "6171 Update NVME fail. localP %p, No lport\n",
+=======
+				 "6171 Update NVME fail. localP x%px, No lport\n",
+>>>>>>> upstream/android-13
 				 localport);
 		return;
 	}
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
+<<<<<<< HEAD
 			 "6012 Update NVME lport %p did x%x\n",
+=======
+			 "6012 Update NVME lport x%px did x%x\n",
+>>>>>>> upstream/android-13
 			 localport, vport->fc_myDID);
 
 	localport->port_id = vport->fc_myDID;
@@ -2680,7 +3943,11 @@ lpfc_nvme_update_localport(struct lpfc_vport *vport)
 		localport->port_role = FC_PORT_ROLE_NVME_INITIATOR;
 
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+<<<<<<< HEAD
 			 "6030 bound lport %p to DID x%06x\n",
+=======
+			 "6030 bound lport x%px to DID x%06x\n",
+>>>>>>> upstream/android-13
 			 lport, localport->port_id);
 #endif
 }
@@ -2697,6 +3964,10 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 	struct nvme_fc_remote_port *remote_port;
 	struct nvme_fc_port_info rpinfo;
 	struct lpfc_nodelist *prev_ndlp = NULL;
+<<<<<<< HEAD
+=======
+	struct fc_rport *srport = ndlp->rport;
+>>>>>>> upstream/android-13
 
 	lpfc_printf_vlog(ndlp->vport, KERN_INFO, LOG_NVME_DISC,
 			 "6006 Register NVME PORT. DID x%06x nlptype x%x\n",
@@ -2726,12 +3997,33 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 
 	rpinfo.port_name = wwn_to_u64(ndlp->nlp_portname.u.wwn);
 	rpinfo.node_name = wwn_to_u64(ndlp->nlp_nodename.u.wwn);
+<<<<<<< HEAD
 
 	spin_lock_irq(&vport->phba->hbalock);
 	oldrport = lpfc_ndlp_get_nrport(ndlp);
 	spin_unlock_irq(&vport->phba->hbalock);
 	if (!oldrport)
 		lpfc_nlp_get(ndlp);
+=======
+	if (srport)
+		rpinfo.dev_loss_tmo = srport->dev_loss_tmo;
+	else
+		rpinfo.dev_loss_tmo = vport->cfg_devloss_tmo;
+
+	spin_lock_irq(&ndlp->lock);
+	oldrport = lpfc_ndlp_get_nrport(ndlp);
+	if (oldrport) {
+		prev_ndlp = oldrport->ndlp;
+		spin_unlock_irq(&ndlp->lock);
+	} else {
+		spin_unlock_irq(&ndlp->lock);
+		if (!lpfc_nlp_get(ndlp)) {
+			dev_warn(&vport->phba->pcidev->dev,
+				 "Warning - No node ref - exit register\n");
+			return 0;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	ret = nvme_fc_register_remoteport(localport, &rpinfo, &remote_port);
 	if (!ret) {
@@ -2742,6 +4034,7 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 		/* Guard against an unregister/reregister
 		 * race that leaves the WAIT flag set.
 		 */
+<<<<<<< HEAD
 		spin_lock_irq(&vport->phba->hbalock);
 		ndlp->upcall_flags &= ~NLP_WAIT_FOR_UNREG;
 		spin_unlock_irq(&vport->phba->hbalock);
@@ -2770,15 +4063,30 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 						 ndlp->nlp_DID);
 				return 0;
 			}
+=======
+		spin_lock_irq(&ndlp->lock);
+		ndlp->fc4_xpt_flags &= ~NVME_XPT_UNREG_WAIT;
+		ndlp->fc4_xpt_flags |= NVME_XPT_REGD;
+		spin_unlock_irq(&ndlp->lock);
+		rport = remote_port->private;
+		if (oldrport) {
+>>>>>>> upstream/android-13
 
 			/* Sever the ndlp<->rport association
 			 * before dropping the ndlp ref from
 			 * register.
 			 */
+<<<<<<< HEAD
 			spin_lock_irq(&vport->phba->hbalock);
 			ndlp->nrport = NULL;
 			ndlp->upcall_flags &= ~NLP_WAIT_FOR_UNREG;
 			spin_unlock_irq(&vport->phba->hbalock);
+=======
+			spin_lock_irq(&ndlp->lock);
+			ndlp->nrport = NULL;
+			ndlp->fc4_xpt_flags &= ~NVME_XPT_UNREG_WAIT;
+			spin_unlock_irq(&ndlp->lock);
+>>>>>>> upstream/android-13
 			rport->ndlp = NULL;
 			rport->remoteport = NULL;
 
@@ -2787,8 +4095,12 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 			 * reference would cause a premature cleanup.
 			 */
 			if (prev_ndlp && prev_ndlp != ndlp) {
+<<<<<<< HEAD
 				if ((!NLP_CHK_NODE_ACT(prev_ndlp)) ||
 				    (!prev_ndlp->nrport))
+=======
+				if (!prev_ndlp->nrport)
+>>>>>>> upstream/android-13
 					lpfc_nlp_put(prev_ndlp);
 			}
 		}
@@ -2797,6 +4109,7 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 		rport->remoteport = remote_port;
 		rport->lport = lport;
 		rport->ndlp = ndlp;
+<<<<<<< HEAD
 		spin_lock_irq(&vport->phba->hbalock);
 		ndlp->nrport = rport;
 		spin_unlock_irq(&vport->phba->hbalock);
@@ -2806,13 +4119,28 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 				 "lport %p Remoteport %p rport %p WWNN 0x%llx, "
 				 "Rport WWPN 0x%llx DID "
 				 "x%06x Role x%x, ndlp %p prev_ndlp %p\n",
+=======
+		spin_lock_irq(&ndlp->lock);
+		ndlp->nrport = rport;
+		spin_unlock_irq(&ndlp->lock);
+		lpfc_printf_vlog(vport, KERN_INFO,
+				 LOG_NVME_DISC | LOG_NODE,
+				 "6022 Bind lport x%px to remoteport x%px "
+				 "rport x%px WWNN 0x%llx, "
+				 "Rport WWPN 0x%llx DID "
+				 "x%06x Role x%x, ndlp %p prev_ndlp x%px\n",
+>>>>>>> upstream/android-13
 				 lport, remote_port, rport,
 				 rpinfo.node_name, rpinfo.port_name,
 				 rpinfo.port_id, rpinfo.port_role,
 				 ndlp, prev_ndlp);
 	} else {
 		lpfc_printf_vlog(vport, KERN_ERR,
+<<<<<<< HEAD
 				 LOG_NVME_DISC | LOG_NODE,
+=======
+				 LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 				 "6031 RemotePort Registration failed "
 				 "err: %d, DID x%06x\n",
 				 ret, ndlp->nlp_DID);
@@ -2824,6 +4152,56 @@ lpfc_nvme_register_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * lpfc_nvme_rescan_port - Check to see if we should rescan this remoteport
+ *
+ * If the ndlp represents an NVME Target, that we are logged into,
+ * ping the NVME FC Transport layer to initiate a device rescan
+ * on this remote NPort.
+ */
+void
+lpfc_nvme_rescan_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
+{
+#if (IS_ENABLED(CONFIG_NVME_FC))
+	struct lpfc_nvme_rport *nrport;
+	struct nvme_fc_remote_port *remoteport = NULL;
+
+	spin_lock_irq(&ndlp->lock);
+	nrport = lpfc_ndlp_get_nrport(ndlp);
+	if (nrport)
+		remoteport = nrport->remoteport;
+	spin_unlock_irq(&ndlp->lock);
+
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+			 "6170 Rescan NPort DID x%06x type x%x "
+			 "state x%x nrport x%px remoteport x%px\n",
+			 ndlp->nlp_DID, ndlp->nlp_type, ndlp->nlp_state,
+			 nrport, remoteport);
+
+	if (!nrport || !remoteport)
+		goto rescan_exit;
+
+	/* Only rescan if we are an NVME target in the MAPPED state */
+	if (remoteport->port_role & FC_PORT_ROLE_NVME_DISCOVERY &&
+	    ndlp->nlp_state == NLP_STE_MAPPED_NODE) {
+		nvme_fc_rescan_remoteport(remoteport);
+
+		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+				 "6172 NVME rescanned DID x%06x "
+				 "port_state x%x\n",
+				 ndlp->nlp_DID, remoteport->port_state);
+	}
+	return;
+ rescan_exit:
+	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+			 "6169 Skip NVME Rport Rescan, NVME remoteport "
+			 "unregistered\n");
+#endif
+}
+
+>>>>>>> upstream/android-13
 /* lpfc_nvme_unregister_port - unbind the DID and port_role from this rport.
  *
  * There is no notion of Devloss or rport recovery from the current
@@ -2858,20 +4236,37 @@ lpfc_nvme_unregister_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 	if (!lport)
 		goto input_err;
 
+<<<<<<< HEAD
 	spin_lock_irq(&vport->phba->hbalock);
 	rport = lpfc_ndlp_get_nrport(ndlp);
 	if (rport)
 		remoteport = rport->remoteport;
 	spin_unlock_irq(&vport->phba->hbalock);
+=======
+	spin_lock_irq(&ndlp->lock);
+	rport = lpfc_ndlp_get_nrport(ndlp);
+	if (rport)
+		remoteport = rport->remoteport;
+	spin_unlock_irq(&ndlp->lock);
+>>>>>>> upstream/android-13
 	if (!remoteport)
 		goto input_err;
 
 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+<<<<<<< HEAD
 			 "6033 Unreg nvme remoteport %p, portname x%llx, "
 			 "port_id x%06x, portstate x%x port type x%x\n",
 			 remoteport, remoteport->port_name,
 			 remoteport->port_id, remoteport->port_state,
 			 ndlp->nlp_type);
+=======
+			 "6033 Unreg nvme remoteport x%px, portname x%llx, "
+			 "port_id x%06x, portstate x%x port type x%x "
+			 "refcnt %d\n",
+			 remoteport, remoteport->port_name,
+			 remoteport->port_id, remoteport->port_state,
+			 ndlp->nlp_type, kref_read(&ndlp->kref));
+>>>>>>> upstream/android-13
 
 	/* Sanity check ndlp type.  Only call for NVME ports. Don't
 	 * clear any rport state until the transport calls back.
@@ -2881,7 +4276,13 @@ lpfc_nvme_unregister_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 		/* No concern about the role change on the nvme remoteport.
 		 * The transport will update it.
 		 */
+<<<<<<< HEAD
 		ndlp->upcall_flags |= NLP_WAIT_FOR_UNREG;
+=======
+		spin_lock_irq(&vport->phba->hbalock);
+		ndlp->fc4_xpt_flags |= NVME_XPT_UNREG_WAIT;
+		spin_unlock_irq(&vport->phba->hbalock);
+>>>>>>> upstream/android-13
 
 		/* Don't let the host nvme transport keep sending keep-alives
 		 * on this remoteport. Vport is unloading, no recovery. The
@@ -2892,9 +4293,22 @@ lpfc_nvme_unregister_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 			(void)nvme_fc_set_remoteport_devloss(remoteport, 0);
 
 		ret = nvme_fc_unregister_remoteport(remoteport);
+<<<<<<< HEAD
 		if (ret != 0) {
 			lpfc_nlp_put(ndlp);
 			lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_DISC,
+=======
+
+		/* The driver no longer knows if the nrport memory is valid.
+		 * because the controller teardown process has begun and
+		 * is asynchronous.  Break the binding in the ndlp. Also
+		 * remove the register ndlp reference to setup node release.
+		 */
+		ndlp->nrport = NULL;
+		lpfc_nlp_put(ndlp);
+		if (ret != 0) {
+			lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 					 "6167 NVME unregister failed %d "
 					 "port_state x%x\n",
 					 ret, remoteport->port_state);
@@ -2904,8 +4318,13 @@ lpfc_nvme_unregister_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 
  input_err:
 #endif
+<<<<<<< HEAD
 	lpfc_printf_vlog(vport, KERN_ERR, LOG_NVME_DISC,
 			 "6168 State error: lport %p, rport%p FCID x%06x\n",
+=======
+	lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
+			 "6168 State error: lport x%px, rport x%px FCID x%06x\n",
+>>>>>>> upstream/android-13
 			 vport->localport, ndlp->rport, ndlp->nlp_DID);
 }
 
@@ -2913,6 +4332,10 @@ lpfc_nvme_unregister_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
  * lpfc_sli4_nvme_xri_aborted - Fast-path process of NVME xri abort
  * @phba: pointer to lpfc hba data structure.
  * @axri: pointer to the fcp xri abort wcqe structure.
+<<<<<<< HEAD
+=======
+ * @lpfc_ncmd: The nvme job structure for the request being aborted.
+>>>>>>> upstream/android-13
  *
  * This routine is invoked by the worker thread to process a SLI4 fast-path
  * NVME aborted xri.  Aborted NVME IO commands are completed to the transport
@@ -2920,6 +4343,7 @@ lpfc_nvme_unregister_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
  **/
 void
 lpfc_sli4_nvme_xri_aborted(struct lpfc_hba *phba,
+<<<<<<< HEAD
 			   struct sli4_wcqe_xri_aborted *axri)
 {
 	uint16_t xri = bf_get(lpfc_wcqe_xa_xri, axri);
@@ -2972,6 +4396,35 @@ lpfc_sli4_nvme_xri_aborted(struct lpfc_hba *phba,
 	lpfc_printf_log(phba, KERN_INFO, LOG_NVME_ABTS,
 			"6312 XRI Aborted xri x%x not found\n", xri);
 
+=======
+			   struct sli4_wcqe_xri_aborted *axri,
+			   struct lpfc_io_buf *lpfc_ncmd)
+{
+	uint16_t xri = bf_get(lpfc_wcqe_xa_xri, axri);
+	struct nvmefc_fcp_req *nvme_cmd = NULL;
+	struct lpfc_nodelist *ndlp = lpfc_ncmd->ndlp;
+
+
+	if (ndlp)
+		lpfc_sli4_abts_err_handler(phba, ndlp, axri);
+
+	lpfc_printf_log(phba, KERN_INFO, LOG_NVME_ABTS,
+			"6311 nvme_cmd %p xri x%x tag x%x abort complete and "
+			"xri released\n",
+			lpfc_ncmd->nvmeCmd, xri,
+			lpfc_ncmd->cur_iocbq.iotag);
+
+	/* Aborted NVME commands are required to not complete
+	 * before the abort exchange command fully completes.
+	 * Once completed, it is available via the put list.
+	 */
+	if (lpfc_ncmd->nvmeCmd) {
+		nvme_cmd = lpfc_ncmd->nvmeCmd;
+		nvme_cmd->done(nvme_cmd);
+		lpfc_ncmd->nvmeCmd = NULL;
+	}
+	lpfc_release_nvme_buf(phba, lpfc_ncmd);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2990,6 +4443,7 @@ lpfc_nvme_wait_for_io_drain(struct lpfc_hba *phba)
 	struct lpfc_sli_ring  *pring;
 	u32 i, wait_cnt = 0;
 
+<<<<<<< HEAD
 	if (phba->sli_rev < LPFC_SLI_REV4 || !phba->sli4_hba.nvme_wq)
 		return;
 
@@ -2998,6 +4452,18 @@ lpfc_nvme_wait_for_io_drain(struct lpfc_hba *phba)
 	 */
 	for (i = 0; i < phba->cfg_nvme_io_channel; i++) {
 		pring = phba->sli4_hba.nvme_wq[i]->pring;
+=======
+	if (phba->sli_rev < LPFC_SLI_REV4 || !phba->sli4_hba.hdwq)
+		return;
+
+	/* Cycle through all IO rings and make sure all outstanding
+	 * WQEs have been removed from the txcmplqs.
+	 */
+	for (i = 0; i < phba->cfg_hdw_queue; i++) {
+		if (!phba->sli4_hba.hdwq[i].io_wq)
+			continue;
+		pring = phba->sli4_hba.hdwq[i].io_wq->pring;
+>>>>>>> upstream/android-13
 
 		if (!pring)
 			continue;
@@ -3011,10 +4477,69 @@ lpfc_nvme_wait_for_io_drain(struct lpfc_hba *phba)
 			 * dump a message.  Something is wrong.
 			 */
 			if ((wait_cnt % 1000) == 0) {
+<<<<<<< HEAD
 				lpfc_printf_log(phba, KERN_ERR, LOG_NVME_IOERR,
+=======
+				lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+>>>>>>> upstream/android-13
 						"6178 NVME IO not empty, "
 						"cnt %d\n", wait_cnt);
 			}
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	/* Make sure HBA is alive */
+	lpfc_issue_hb_tmo(phba);
+
+}
+
+void
+lpfc_nvme_cancel_iocb(struct lpfc_hba *phba, struct lpfc_iocbq *pwqeIn,
+		      uint32_t stat, uint32_t param)
+{
+#if (IS_ENABLED(CONFIG_NVME_FC))
+	struct lpfc_io_buf *lpfc_ncmd;
+	struct nvmefc_fcp_req *nCmd;
+	struct lpfc_wcqe_complete wcqe;
+	struct lpfc_wcqe_complete *wcqep = &wcqe;
+
+	lpfc_ncmd = (struct lpfc_io_buf *)pwqeIn->context1;
+	if (!lpfc_ncmd) {
+		lpfc_sli_release_iocbq(phba, pwqeIn);
+		return;
+	}
+	/* For abort iocb just return, IO iocb will do a done call */
+	if (bf_get(wqe_cmnd, &pwqeIn->wqe.gen_req.wqe_com) ==
+	    CMD_ABORT_XRI_CX) {
+		lpfc_sli_release_iocbq(phba, pwqeIn);
+		return;
+	}
+
+	spin_lock(&lpfc_ncmd->buf_lock);
+	nCmd = lpfc_ncmd->nvmeCmd;
+	if (!nCmd) {
+		spin_unlock(&lpfc_ncmd->buf_lock);
+		lpfc_release_nvme_buf(phba, lpfc_ncmd);
+		return;
+	}
+	spin_unlock(&lpfc_ncmd->buf_lock);
+
+	lpfc_printf_log(phba, KERN_INFO, LOG_NVME_IOERR,
+			"6194 NVME Cancel xri %x\n",
+			lpfc_ncmd->cur_iocbq.sli4_xritag);
+
+	wcqep->word0 = 0;
+	bf_set(lpfc_wcqe_c_status, wcqep, stat);
+	wcqep->parameter = param;
+	wcqep->word3 = 0; /* xb is 0 */
+
+	/* Call release with XB=1 to queue the IO into the abort list. */
+	if (phba->sli.sli_flag & LPFC_SLI_ACTIVE)
+		bf_set(lpfc_wcqe_c_xb, wcqep, 1);
+
+	(pwqeIn->wqe_cmpl)(phba, pwqeIn, wcqep);
+#endif
+>>>>>>> upstream/android-13
 }

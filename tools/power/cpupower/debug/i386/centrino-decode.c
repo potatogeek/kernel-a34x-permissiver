@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  *  (C) 2003 - 2004  Dominik Brodowski <linux@dominikbrodowski.de>
  *
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2003 - 2004  Dominik Brodowski <linux@dominikbrodowski.de>
+ *
+>>>>>>> upstream/android-13
  * Based on code found in
  * linux/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
  * and originally developed by Jeremy Fitzhardinge.

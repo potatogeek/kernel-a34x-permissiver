@@ -25,6 +25,7 @@
  * See Documentation/memory-barriers.txt for ACQUIRE/RELEASE definitions.
  */
 
+<<<<<<< HEAD
 #ifndef atomic_read_acquire
 #define  atomic_read_acquire(v)		smp_load_acquire(&(v)->counter)
 #endif
@@ -32,6 +33,13 @@
 #ifndef atomic_set_release
 #define  atomic_set_release(v, i)	smp_store_release(&(v)->counter, (i))
 #endif
+=======
+#define atomic_cond_read_acquire(v, c) smp_cond_load_acquire(&(v)->counter, (c))
+#define atomic_cond_read_relaxed(v, c) smp_cond_load_relaxed(&(v)->counter, (c))
+
+#define atomic64_cond_read_acquire(v, c) smp_cond_load_acquire(&(v)->counter, (c))
+#define atomic64_cond_read_relaxed(v, c) smp_cond_load_relaxed(&(v)->counter, (c))
+>>>>>>> upstream/android-13
 
 /*
  * The idea here is to build acquire/release variants by adding explicit
@@ -79,6 +87,7 @@
 	__ret;								\
 })
 
+<<<<<<< HEAD
 /* atomic_add_return_relaxed */
 #ifndef atomic_add_return_relaxed
 #define  atomic_add_return_relaxed	atomic_add_return
@@ -1313,5 +1322,10 @@ static inline long long atomic64_dec_if_positive(atomic64_t *v)
 #define atomic64_cond_read_acquire(v, c)	smp_cond_load_acquire(&(v)->counter, (c))
 
 #include <asm-generic/atomic-long.h>
+=======
+#include <linux/atomic/atomic-arch-fallback.h>
+#include <linux/atomic/atomic-long.h>
+#include <linux/atomic/atomic-instrumented.h>
+>>>>>>> upstream/android-13
 
 #endif /* _LINUX_ATOMIC_H */

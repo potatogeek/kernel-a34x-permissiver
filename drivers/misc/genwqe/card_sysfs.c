@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * IBM Accelerator Family 'GenWQE'
  *
  * (C) Copyright IBM Corp. 2013
@@ -7,6 +12,7 @@
  * Author: Joerg-Stephan Vogt <jsvogt@de.ibm.com>
  * Author: Michael Jung <mijung@gmx.net>
  * Author: Michael Ruettger <michael@ibmra.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (version 2 only)
@@ -16,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -137,7 +145,11 @@ static ssize_t base_clock_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(base_clock);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * curr_bitstream_show() - Show the current bitstream id
  *
  * There is a bug in some old versions of the CPLD which selects the
@@ -164,7 +176,11 @@ static ssize_t curr_bitstream_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(curr_bitstream);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * next_bitstream_show() - Show the next activated bitstream
  *
  * IO_SLC_CFGREG_SOFTRESET: This register can only be accessed by the PF.
@@ -268,7 +284,11 @@ static struct attribute *genwqe_normal_attributes[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * genwqe_is_visible() - Determine if sysfs attribute should be visible or not
  *
  * VFs have restricted mmio capabilities, so not all sysfs entries

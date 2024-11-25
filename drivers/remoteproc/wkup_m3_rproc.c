@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI AMx3 Wakeup M3 Remote Processor driver
  *
@@ -5,6 +9,7 @@
  *
  * Dave Gerlach <d-gerlach@ti.com>
  * Suman Anna <s-anna@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -25,6 +32,10 @@
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/remoteproc.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 
 #include <linux/platform_data/wkup_m3.h>
 
@@ -51,11 +62,19 @@ struct wkup_m3_mem {
  * @rproc: rproc handle
  * @pdev: pointer to platform device
  * @mem: WkupM3 memory information
+<<<<<<< HEAD
+=======
+ * @rsts: reset control
+>>>>>>> upstream/android-13
  */
 struct wkup_m3_rproc {
 	struct rproc *rproc;
 	struct platform_device *pdev;
 	struct wkup_m3_mem mem[WKUPM3_MEM_MAX];
+<<<<<<< HEAD
+=======
+	struct reset_control *rsts;
+>>>>>>> upstream/android-13
 };
 
 static int wkup_m3_rproc_start(struct rproc *rproc)
@@ -64,6 +83,7 @@ static int wkup_m3_rproc_start(struct rproc *rproc)
 	struct platform_device *pdev = wkupm3->pdev;
 	struct device *dev = &pdev->dev;
 	struct wkup_m3_platform_data *pdata = dev_get_platdata(dev);
+<<<<<<< HEAD
 
 	if (pdata->deassert_reset(pdev, pdata->reset_name)) {
 		dev_err(dev, "Unable to reset wkup_m3!\n");
@@ -71,6 +91,18 @@ static int wkup_m3_rproc_start(struct rproc *rproc)
 	}
 
 	return 0;
+=======
+	int error = 0;
+
+	error = reset_control_deassert(wkupm3->rsts);
+
+	if (!wkupm3->rsts && pdata->deassert_reset(pdev, pdata->reset_name)) {
+		dev_err(dev, "Unable to reset wkup_m3!\n");
+		error = -ENODEV;
+	}
+
+	return error;
+>>>>>>> upstream/android-13
 }
 
 static int wkup_m3_rproc_stop(struct rproc *rproc)
@@ -79,6 +111,7 @@ static int wkup_m3_rproc_stop(struct rproc *rproc)
 	struct platform_device *pdev = wkupm3->pdev;
 	struct device *dev = &pdev->dev;
 	struct wkup_m3_platform_data *pdata = dev_get_platdata(dev);
+<<<<<<< HEAD
 
 	if (pdata->assert_reset(pdev, pdata->reset_name)) {
 		dev_err(dev, "Unable to assert reset of wkup_m3!\n");
@@ -89,13 +122,32 @@ static int wkup_m3_rproc_stop(struct rproc *rproc)
 }
 
 static void *wkup_m3_rproc_da_to_va(struct rproc *rproc, u64 da, int len)
+=======
+	int error = 0;
+
+	error = reset_control_assert(wkupm3->rsts);
+
+	if (!wkupm3->rsts && pdata->assert_reset(pdev, pdata->reset_name)) {
+		dev_err(dev, "Unable to assert reset of wkup_m3!\n");
+		error = -ENODEV;
+	}
+
+	return error;
+}
+
+static void *wkup_m3_rproc_da_to_va(struct rproc *rproc, u64 da, size_t len, bool *is_iomem)
+>>>>>>> upstream/android-13
 {
 	struct wkup_m3_rproc *wkupm3 = rproc->priv;
 	void *va = NULL;
 	int i;
 	u32 offset;
 
+<<<<<<< HEAD
 	if (len <= 0)
+=======
+	if (len == 0)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	for (i = 0; i < WKUPM3_MEM_MAX; i++) {
@@ -140,12 +192,15 @@ static int wkup_m3_rproc_probe(struct platform_device *pdev)
 	int ret;
 	int i;
 
+<<<<<<< HEAD
 	if (!(pdata && pdata->deassert_reset && pdata->assert_reset &&
 	      pdata->reset_name)) {
 		dev_err(dev, "Platform data missing!\n");
 		return -ENODEV;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = of_property_read_string(dev->of_node, "ti,pm-firmware",
 				      &fw_name);
 	if (ret) {
@@ -173,6 +228,21 @@ static int wkup_m3_rproc_probe(struct platform_device *pdev)
 	wkupm3->rproc = rproc;
 	wkupm3->pdev = pdev;
 
+<<<<<<< HEAD
+=======
+	wkupm3->rsts = devm_reset_control_get_optional_shared(dev, "rstctrl");
+	if (IS_ERR(wkupm3->rsts))
+		return PTR_ERR(wkupm3->rsts);
+	if (!wkupm3->rsts) {
+		if (!(pdata && pdata->deassert_reset && pdata->assert_reset &&
+		      pdata->reset_name)) {
+			dev_err(dev, "Platform data missing!\n");
+			ret = -ENODEV;
+			goto err_put_rproc;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(mem_names); i++) {
 		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 						   mem_names[i]);
@@ -181,7 +251,11 @@ static int wkup_m3_rproc_probe(struct platform_device *pdev)
 			dev_err(&pdev->dev, "devm_ioremap_resource failed for resource %d\n",
 				i);
 			ret = PTR_ERR(wkupm3->mem[i].cpu_addr);
+<<<<<<< HEAD
 			goto err;
+=======
+			goto err_put_rproc;
+>>>>>>> upstream/android-13
 		}
 		wkupm3->mem[i].bus_addr = res->start;
 		wkupm3->mem[i].size = resource_size(res);

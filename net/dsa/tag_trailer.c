@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/dsa/tag_trailer.c - Trailer tag format handling
  * Copyright (c) 2008-2009 Marvell Semiconductor
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * net/dsa/tag_trailer.c - Trailer tag format handling
+ * Copyright (c) 2008-2009 Marvell Semiconductor
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -17,6 +24,7 @@
 static struct sk_buff *trailer_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct dsa_port *dp = dsa_slave_to_port(dev);
+<<<<<<< HEAD
 	struct sk_buff *nskb;
 	int padlen;
 	u8 *trailer;
@@ -47,16 +55,28 @@ static struct sk_buff *trailer_xmit(struct sk_buff *skb, struct net_device *dev)
 	}
 
 	trailer = skb_put(nskb, 4);
+=======
+	u8 *trailer;
+
+	trailer = skb_put(skb, 4);
+>>>>>>> upstream/android-13
 	trailer[0] = 0x80;
 	trailer[1] = 1 << dp->index;
 	trailer[2] = 0x10;
 	trailer[3] = 0x00;
 
+<<<<<<< HEAD
 	return nskb;
 }
 
 static struct sk_buff *trailer_rcv(struct sk_buff *skb, struct net_device *dev,
 				   struct packet_type *pt)
+=======
+	return skb;
+}
+
+static struct sk_buff *trailer_rcv(struct sk_buff *skb, struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	u8 *trailer;
 	int source_port;
@@ -81,7 +101,22 @@ static struct sk_buff *trailer_rcv(struct sk_buff *skb, struct net_device *dev,
 	return skb;
 }
 
+<<<<<<< HEAD
 const struct dsa_device_ops trailer_netdev_ops = {
 	.xmit	= trailer_xmit,
 	.rcv	= trailer_rcv,
 };
+=======
+static const struct dsa_device_ops trailer_netdev_ops = {
+	.name	= "trailer",
+	.proto	= DSA_TAG_PROTO_TRAILER,
+	.xmit	= trailer_xmit,
+	.rcv	= trailer_rcv,
+	.needed_tailroom = 4,
+};
+
+MODULE_LICENSE("GPL");
+MODULE_ALIAS_DSA_TAG_DRIVER(DSA_TAG_PROTO_TRAILER);
+
+module_dsa_tag_driver(trailer_netdev_ops);
+>>>>>>> upstream/android-13

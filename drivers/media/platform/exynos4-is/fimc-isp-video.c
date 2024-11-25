@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Samsung EXYNOS4x12 FIMC-IS (Imaging Subsystem) driver
  *
@@ -8,10 +12,13 @@
  *
  * The hardware handling code derived from a driver written by
  * Younghwan Joo <yhwan.joo@samsung.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -278,7 +285,11 @@ static int isp_video_open(struct file *file)
 	if (ret < 0)
 		goto unlock;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&isp->pdev->dev);
+=======
+	ret = pm_runtime_resume_and_get(&isp->pdev->dev);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto rel_fh;
 
@@ -308,17 +319,31 @@ static int isp_video_release(struct file *file)
 	struct fimc_is_video *ivc = &isp->video_capture;
 	struct media_entity *entity = &ivc->ve.vdev.entity;
 	struct media_device *mdev = entity->graph_obj.mdev;
+<<<<<<< HEAD
 
 	mutex_lock(&isp->video_lock);
 
 	if (v4l2_fh_is_singular_file(file) && ivc->streaming) {
+=======
+	bool is_singular_file;
+
+	mutex_lock(&isp->video_lock);
+
+	is_singular_file = v4l2_fh_is_singular_file(file);
+
+	if (is_singular_file && ivc->streaming) {
+>>>>>>> upstream/android-13
 		media_pipeline_stop(entity);
 		ivc->streaming = 0;
 	}
 
 	_vb2_fop_release(file, NULL);
 
+<<<<<<< HEAD
 	if (v4l2_fh_is_singular_file(file)) {
+=======
+	if (is_singular_file) {
+>>>>>>> upstream/android-13
 		fimc_pipeline_call(&ivc->ve, close);
 
 		mutex_lock(&mdev->graph_mutex);
@@ -349,12 +374,21 @@ static int isp_video_querycap(struct file *file, void *priv,
 {
 	struct fimc_isp *isp = video_drvdata(file);
 
+<<<<<<< HEAD
 	__fimc_vidioc_querycap(&isp->pdev->dev, cap, V4L2_CAP_STREAMING);
 	return 0;
 }
 
 static int isp_video_enum_fmt_mplane(struct file *file, void *priv,
 					struct v4l2_fmtdesc *f)
+=======
+	__fimc_vidioc_querycap(&isp->pdev->dev, cap);
+	return 0;
+}
+
+static int isp_video_enum_fmt(struct file *file, void *priv,
+			      struct v4l2_fmtdesc *f)
+>>>>>>> upstream/android-13
 {
 	const struct fimc_fmt *fmt;
 
@@ -365,7 +399,10 @@ static int isp_video_enum_fmt_mplane(struct file *file, void *priv,
 	if (WARN_ON(fmt == NULL))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, fmt->name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = fmt->fourcc;
 
 	return 0;
@@ -551,7 +588,11 @@ static int isp_video_reqbufs(struct file *file, void *priv,
 
 static const struct v4l2_ioctl_ops isp_video_ioctl_ops = {
 	.vidioc_querycap		= isp_video_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= isp_video_enum_fmt_mplane,
+=======
+	.vidioc_enum_fmt_vid_cap	= isp_video_enum_fmt,
+>>>>>>> upstream/android-13
 	.vidioc_try_fmt_vid_cap_mplane	= isp_video_try_fmt_mplane,
 	.vidioc_s_fmt_vid_cap_mplane	= isp_video_s_fmt_mplane,
 	.vidioc_g_fmt_vid_cap_mplane	= isp_video_g_fmt_mplane,
@@ -606,9 +647,13 @@ int fimc_isp_video_device_register(struct fimc_isp *isp,
 
 	vdev = &iv->ve.vdev;
 	memset(vdev, 0, sizeof(*vdev));
+<<<<<<< HEAD
 	snprintf(vdev->name, sizeof(vdev->name), "fimc-is-isp.%s",
 			type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ?
 			"capture" : "output");
+=======
+	strscpy(vdev->name, "fimc-is-isp.capture", sizeof(vdev->name));
+>>>>>>> upstream/android-13
 	vdev->queue = q;
 	vdev->fops = &isp_video_fops;
 	vdev->ioctl_ops = &isp_video_ioctl_ops;
@@ -616,6 +661,10 @@ int fimc_isp_video_device_register(struct fimc_isp *isp,
 	vdev->minor = -1;
 	vdev->release = video_device_release_empty;
 	vdev->lock = &isp->video_lock;
+<<<<<<< HEAD
+=======
+	vdev->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_CAPTURE_MPLANE;
+>>>>>>> upstream/android-13
 
 	iv->pad.flags = MEDIA_PAD_FL_SINK;
 	ret = media_entity_pads_init(&vdev->entity, 1, &iv->pad);
@@ -624,7 +673,11 @@ int fimc_isp_video_device_register(struct fimc_isp *isp,
 
 	video_set_drvdata(vdev, isp);
 
+<<<<<<< HEAD
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		media_entity_cleanup(&vdev->entity);
 		return ret;

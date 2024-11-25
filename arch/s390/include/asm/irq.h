@@ -47,7 +47,10 @@ enum interruption_class {
 	IRQEXT_CMC,
 	IRQEXT_FTP,
 	IRQIO_CIO,
+<<<<<<< HEAD
 	IRQIO_QAI,
+=======
+>>>>>>> upstream/android-13
 	IRQIO_DAS,
 	IRQIO_C15,
 	IRQIO_C70,
@@ -55,6 +58,7 @@ enum interruption_class {
 	IRQIO_VMR,
 	IRQIO_LCS,
 	IRQIO_CTC,
+<<<<<<< HEAD
 	IRQIO_APB,
 	IRQIO_ADM,
 	IRQIO_CSC,
@@ -62,6 +66,18 @@ enum interruption_class {
 	IRQIO_MSI,
 	IRQIO_VIR,
 	IRQIO_VAI,
+=======
+	IRQIO_ADM,
+	IRQIO_CSC,
+	IRQIO_VIR,
+	IRQIO_QAI,
+	IRQIO_APB,
+	IRQIO_PCF,
+	IRQIO_PCD,
+	IRQIO_MSI,
+	IRQIO_VAI,
+	IRQIO_GAL,
+>>>>>>> upstream/android-13
 	NMI_NMI,
 	CPU_RST,
 	NR_ARCH_IRQS

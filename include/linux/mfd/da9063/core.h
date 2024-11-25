@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Definitions for DA9063 MFD driver
  *
@@ -5,12 +9,15 @@
  *
  * Author: Michal Hajduk, Dialog Semiconductor
  * Author: Krystian Garbaciak, Dialog Semiconductor
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MFD_DA9063_CORE_H__
@@ -40,6 +47,10 @@ enum da9063_variant_codes {
 	PMIC_DA9063_AD = 0x3,
 	PMIC_DA9063_BB = 0x5,
 	PMIC_DA9063_CA = 0x6,
+<<<<<<< HEAD
+=======
+	PMIC_DA9063_DA = 0x7,
+>>>>>>> upstream/android-13
 };
 
 /* Interrupts */

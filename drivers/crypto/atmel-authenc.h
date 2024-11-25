@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * API for Atmel Secure Protocol Layers Improved Performances (SPLIP)
  *
@@ -5,6 +9,7 @@
  *
  * Author: Cyrille Pitchen <cyrille.pitchen@atmel.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver is based on drivers/mtd/spi-nor/fsl-quadspi.c from Freescale.
  */
 
@@ -27,7 +34,12 @@
 
 #include <crypto/authenc.h>
 #include <crypto/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include "atmel-sha-regs.h"
 
 struct atmel_aes_dev;
@@ -41,8 +53,12 @@ unsigned int atmel_sha_authenc_get_reqsize(void);
 struct atmel_sha_authenc_ctx *atmel_sha_authenc_spawn(unsigned long mode);
 void atmel_sha_authenc_free(struct atmel_sha_authenc_ctx *auth);
 int atmel_sha_authenc_setkey(struct atmel_sha_authenc_ctx *auth,
+<<<<<<< HEAD
 			     const u8 *key, unsigned int keylen,
 			     u32 *flags);
+=======
+			     const u8 *key, unsigned int keylen, u32 flags);
+>>>>>>> upstream/android-13
 
 int atmel_sha_authenc_schedule(struct ahash_request *req,
 			       struct atmel_sha_authenc_ctx *auth,

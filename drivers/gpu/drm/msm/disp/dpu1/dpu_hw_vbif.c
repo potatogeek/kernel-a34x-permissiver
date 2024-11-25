@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,12 +9,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include "dpu_hwio.h"
 #include "dpu_hw_catalog.h"
 #include "dpu_hw_vbif.h"
+<<<<<<< HEAD
 #include "dpu_dbg.h"
+=======
+>>>>>>> upstream/android-13
 
 #define VBIF_VERSION			0x0000
 #define VBIF_CLK_FORCE_CTRL0		0x0008
@@ -39,7 +47,11 @@
 #define VBIF_XIN_HALT_CTRL0		0x0200
 #define VBIF_XIN_HALT_CTRL1		0x0204
 #define VBIF_XINL_QOS_RP_REMAP_000	0x0550
+<<<<<<< HEAD
 #define VBIF_XINL_QOS_LVL_REMAP_000	0x0590
+=======
+#define VBIF_XINL_QOS_LVL_REMAP_000(v)	(v < DPU_HW_VER_400 ? 0x570 : 0x0590)
+>>>>>>> upstream/android-13
 
 static void dpu_hw_clear_errors(struct dpu_hw_vbif *vbif,
 		u32 *pnd_errors, u32 *src_errors)
@@ -165,18 +177,30 @@ static void dpu_hw_set_qos_remap(struct dpu_hw_vbif *vbif,
 		u32 xin_id, u32 level, u32 remap_level)
 {
 	struct dpu_hw_blk_reg_map *c;
+<<<<<<< HEAD
 	u32 reg_val, reg_val_lvl, mask, reg_high, reg_shift;
+=======
+	u32 reg_lvl, reg_val, reg_val_lvl, mask, reg_high, reg_shift;
+>>>>>>> upstream/android-13
 
 	if (!vbif)
 		return;
 
 	c = &vbif->hw;
 
+<<<<<<< HEAD
+=======
+	reg_lvl = VBIF_XINL_QOS_LVL_REMAP_000(c->hwversion);
+>>>>>>> upstream/android-13
 	reg_high = ((xin_id & 0x8) >> 3) * 4 + (level * 8);
 	reg_shift = (xin_id & 0x7) * 4;
 
 	reg_val = DPU_REG_READ(c, VBIF_XINL_QOS_RP_REMAP_000 + reg_high);
+<<<<<<< HEAD
 	reg_val_lvl = DPU_REG_READ(c, VBIF_XINL_QOS_LVL_REMAP_000 + reg_high);
+=======
+	reg_val_lvl = DPU_REG_READ(c, reg_lvl + reg_high);
+>>>>>>> upstream/android-13
 
 	mask = 0x7 << reg_shift;
 
@@ -187,7 +211,11 @@ static void dpu_hw_set_qos_remap(struct dpu_hw_vbif *vbif,
 	reg_val_lvl |= (remap_level << reg_shift) & mask;
 
 	DPU_REG_WRITE(c, VBIF_XINL_QOS_RP_REMAP_000 + reg_high, reg_val);
+<<<<<<< HEAD
 	DPU_REG_WRITE(c, VBIF_XINL_QOS_LVL_REMAP_000 + reg_high, reg_val_lvl);
+=======
+	DPU_REG_WRITE(c, reg_lvl + reg_high, reg_val_lvl);
+>>>>>>> upstream/android-13
 }
 
 static void dpu_hw_set_write_gather_en(struct dpu_hw_vbif *vbif, u32 xin_id)

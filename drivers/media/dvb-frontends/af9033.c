@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Afatech AF9033 demodulator driver
  *
  * Copyright (C) 2009 Antti Palosaari <crope@iki.fi>
  * Copyright (C) 2012 Antti Palosaari <crope@iki.fi>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "af9033_priv.h"
@@ -134,6 +141,10 @@ static int af9033_init(struct dvb_frontend *fe)
 	if (i == ARRAY_SIZE(clock_adc_lut)) {
 		dev_err(&client->dev, "Couldn't find ADC config for clock %d\n",
 			dev->cfg.clock);
+<<<<<<< HEAD
+=======
+		ret = -ENODEV;
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -861,6 +872,10 @@ static int af9033_read_snr(struct dvb_frontend *fe, u16 *snr)
 				*snr = *snr * 0xffff / 32;
 				break;
 			default:
+<<<<<<< HEAD
+=======
+				ret = -EINVAL;
+>>>>>>> upstream/android-13
 				goto err;
 			}
 		}
@@ -1137,6 +1152,7 @@ static int af9033_probe(struct i2c_client *client,
 		 buf[4], buf[5], buf[6], buf[7]);
 
 	/* Sleep as chip seems to be partly active by default */
+<<<<<<< HEAD
 	switch (dev->cfg.tuner) {
 	case AF9033_TUNER_IT9135_38:
 	case AF9033_TUNER_IT9135_51:
@@ -1147,6 +1163,10 @@ static int af9033_probe(struct i2c_client *client,
 		/* IT9135 did not like to sleep at that early */
 		break;
 	default:
+=======
+	/* IT9135 did not like to sleep at that early */
+	if (dev->is_af9035) {
+>>>>>>> upstream/android-13
 		ret = regmap_write(dev->regmap, 0x80004c, 0x01);
 		if (ret)
 			goto err_regmap_exit;

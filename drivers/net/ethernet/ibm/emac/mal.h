@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * drivers/net/ethernet/ibm/emac/mal.h
  *
@@ -14,12 +18,15 @@
  * Based on original work by
  *      Armin Kuster <akuster@mvista.com>
  *      Copyright 2002 MontaVista Softare Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __IBM_NEWEMAC_MAL_H
 #define __IBM_NEWEMAC_MAL_H
@@ -136,7 +143,11 @@ static inline int mal_rx_size(int len)
 
 static inline int mal_tx_chunks(int len)
 {
+<<<<<<< HEAD
 	return (len + MAL_MAX_TX_SIZE - 1) / MAL_MAX_TX_SIZE;
+=======
+	return DIV_ROUND_UP(len, MAL_MAX_TX_SIZE);
+>>>>>>> upstream/android-13
 }
 
 #define MAL_CHAN_MASK(n)	(0x80000000 >> (n))

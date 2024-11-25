@@ -34,10 +34,16 @@ struct pressure_data {
 
 struct sensor_chipset_init_funcs *get_pressure_bmp580_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_pressure_lps22hh_function_pointer(char *name);
+<<<<<<< HEAD
 struct sensor_chipset_init_funcs *get_pressure_lps22df_function_pointer(char *name);
 
 int save_pressure_sw_offset_file(int offset);
 
 #define PRESSURE_SUBCMD_ESN	126
 
+=======
+
+int save_pressure_sw_offset_file(int offset);
+
+>>>>>>> upstream/android-13
 #endif /* __SHUB_PRESSURE_H_ */

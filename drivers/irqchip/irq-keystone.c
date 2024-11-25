@@ -89,7 +89,11 @@ static irqreturn_t keystone_irq_handler(int irq, void *keystone_irq)
 	struct keystone_irq_device *kirq = keystone_irq;
 	unsigned long wa_lock_flags;
 	unsigned long pending;
+<<<<<<< HEAD
 	int src, virq;
+=======
+	int src, err;
+>>>>>>> upstream/android-13
 
 	dev_dbg(kirq->dev, "start irq %d\n", irq);
 
@@ -104,6 +108,7 @@ static irqreturn_t keystone_irq_handler(int irq, void *keystone_irq)
 
 	for (src = 0; src < KEYSTONE_N_IRQ; src++) {
 		if (BIT(src) & pending) {
+<<<<<<< HEAD
 			virq = irq_find_mapping(kirq->irqd, src);
 			dev_dbg(kirq->dev, "dispatch bit %d, virq %d\n",
 				src, virq);
@@ -114,6 +119,16 @@ static irqreturn_t keystone_irq_handler(int irq, void *keystone_irq)
 			generic_handle_irq(virq);
 			raw_spin_unlock_irqrestore(&kirq->wa_lock,
 						   wa_lock_flags);
+=======
+			raw_spin_lock_irqsave(&kirq->wa_lock, wa_lock_flags);
+			err = generic_handle_domain_irq(kirq->irqd, src);
+			raw_spin_unlock_irqrestore(&kirq->wa_lock,
+						   wa_lock_flags);
+
+			if (err)
+				dev_warn_ratelimited(kirq->dev, "spurious irq detected hwirq %d\n",
+						     src);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -164,10 +179,15 @@ static int keystone_irq_probe(struct platform_device *pdev)
 	}
 
 	kirq->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (kirq->irq < 0) {
 		dev_err(dev, "no irq resource %d\n", kirq->irq);
 		return kirq->irq;
 	}
+=======
+	if (kirq->irq < 0)
+		return kirq->irq;
+>>>>>>> upstream/android-13
 
 	kirq->dev = dev;
 	kirq->mask = ~0x0;

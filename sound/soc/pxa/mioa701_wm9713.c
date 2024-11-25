@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Handles the Mitac mioa701 SoC system
  *
  * Copyright (C) 2008 Robert Jarzmik
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation in version 2 of the License.
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  * This is a little schema of the sound interconnections :
  *
  *    Sagem X200                 Wolfson WM9713
@@ -63,6 +70,7 @@ static int rear_amp_power(struct snd_soc_component *component, int power)
 	unsigned short reg;
 
 	if (power) {
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, AC97_GPIO_CFG);
 		snd_soc_component_write(component, AC97_GPIO_CFG, reg | 0x0100);
 		reg = snd_soc_component_read32(component, AC97_GPIO_PULL);
@@ -71,6 +79,16 @@ static int rear_amp_power(struct snd_soc_component *component, int power)
 		reg = snd_soc_component_read32(component, AC97_GPIO_CFG);
 		snd_soc_component_write(component, AC97_GPIO_CFG, reg & ~0x0100);
 		reg = snd_soc_component_read32(component, AC97_GPIO_PULL);
+=======
+		reg = snd_soc_component_read(component, AC97_GPIO_CFG);
+		snd_soc_component_write(component, AC97_GPIO_CFG, reg | 0x0100);
+		reg = snd_soc_component_read(component, AC97_GPIO_PULL);
+		snd_soc_component_write(component, AC97_GPIO_PULL, reg | (1<<15));
+	} else {
+		reg = snd_soc_component_read(component, AC97_GPIO_CFG);
+		snd_soc_component_write(component, AC97_GPIO_CFG, reg & ~0x0100);
+		reg = snd_soc_component_read(component, AC97_GPIO_PULL);
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, AC97_GPIO_PULL, reg & ~(1<<15));
 	}
 
@@ -84,8 +102,13 @@ static int rear_amp_event(struct snd_soc_dapm_widget *widget,
 	struct snd_soc_pcm_runtime *rtd;
 	struct snd_soc_component *component;
 
+<<<<<<< HEAD
 	rtd = snd_soc_get_pcm_runtime(card, card->dai_link[0].name);
 	component = rtd->codec_dai->component;
+=======
+	rtd = snd_soc_get_pcm_runtime(card, &card->dai_link[0]);
+	component = asoc_rtd_to_codec(rtd, 0)->component;
+>>>>>>> upstream/android-13
 	return rear_amp_power(component, SND_SOC_DAPM_EVENT_ON(event));
 }
 
@@ -129,7 +152,11 @@ static const struct snd_soc_dapm_route audio_map[] = {
 
 static int mioa701_wm9713_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_component *component = rtd->codec_dai->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(rtd, 0)->component;
+>>>>>>> upstream/android-13
 
 	/* Prepare GPIO8 for rear speaker amplifier */
 	snd_soc_component_update_bits(component, AC97_GPIO_CFG, 0x100, 0x100);
@@ -142,25 +169,49 @@ static int mioa701_wm9713_init(struct snd_soc_pcm_runtime *rtd)
 
 static struct snd_soc_ops mioa701_ops;
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(ac97,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9713-codec", "wm9713-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+SND_SOC_DAILINK_DEFS(ac97_aux,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97-aux")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9713-codec", "wm9713-aux")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link mioa701_dai[] = {
 	{
 		.name = "AC97",
 		.stream_name = "AC97 HiFi",
+<<<<<<< HEAD
 		.cpu_dai_name = "pxa2xx-ac97",
 		.codec_dai_name = "wm9713-hifi",
 		.codec_name = "wm9713-codec",
 		.init = mioa701_wm9713_init,
 		.platform_name = "pxa-pcm-audio",
 		.ops = &mioa701_ops,
+=======
+		.init = mioa701_wm9713_init,
+		.ops = &mioa701_ops,
+		SND_SOC_DAILINK_REG(ac97),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "AC97 Aux",
 		.stream_name = "AC97 Aux",
+<<<<<<< HEAD
 		.cpu_dai_name = "pxa2xx-ac97-aux",
 		.codec_dai_name = "wm9713-aux",
 		.codec_name = "wm9713-codec",
 		.platform_name = "pxa-pcm-audio",
 		.ops = &mioa701_ops,
+=======
+		.ops = &mioa701_ops,
+		SND_SOC_DAILINK_REG(ac97_aux),
+>>>>>>> upstream/android-13
 	},
 };
 

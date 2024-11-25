@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2014 Marek Vasut <marex@denx.de>
+>>>>>>> upstream/android-13
  */
 
 #include "imx28.dtsi"
@@ -16,12 +22,20 @@
 	compatible = "aries,m28", "denx,m28", "fsl,imx28";
 
 	memory@40000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x40000000 0x08000000>;
 	};
 
 	apb@80000000 {
 		apbh@80000000 {
+<<<<<<< HEAD
 			gpmi-nand@8000c000 {
+=======
+			nand-controller@8000c000 {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <1>;
 				pinctrl-names = "default";

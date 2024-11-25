@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2012 by Oracle Inc
  * Author: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
  *
+<<<<<<< HEAD
  * This code borrows ideas from https://lkml.org/lkml/2011/11/30/249
  * so many thanks go to Kevin Tian <kevin.tian@intel.com>
  * and Yu Ke <ke.yu@intel.com>.
@@ -15,6 +20,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+ * This code borrows ideas from
+ * https://lore.kernel.org/lkml/1322673664-14642-6-git-send-email-konrad.wilk@oracle.com
+ * so many thanks go to Kevin Tian <kevin.tian@intel.com>
+ * and Yu Ke <ke.yu@intel.com>.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -410,6 +421,7 @@ static int check_acpi_ids(struct acpi_processor *pr_backup)
 	/* All online CPUs have been processed at this stage. Now verify
 	 * whether in fact "online CPUs" == physical CPUs.
 	 */
+<<<<<<< HEAD
 	acpi_id_present = kcalloc(BITS_TO_LONGS(nr_acpi_bits), sizeof(unsigned long), GFP_KERNEL);
 	if (!acpi_id_present)
 		return -ENOMEM;
@@ -417,14 +429,28 @@ static int check_acpi_ids(struct acpi_processor *pr_backup)
 	acpi_id_cst_present = kcalloc(BITS_TO_LONGS(nr_acpi_bits), sizeof(unsigned long), GFP_KERNEL);
 	if (!acpi_id_cst_present) {
 		kfree(acpi_id_present);
+=======
+	acpi_id_present = bitmap_zalloc(nr_acpi_bits, GFP_KERNEL);
+	if (!acpi_id_present)
+		return -ENOMEM;
+
+	acpi_id_cst_present = bitmap_zalloc(nr_acpi_bits, GFP_KERNEL);
+	if (!acpi_id_cst_present) {
+		bitmap_free(acpi_id_present);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	acpi_psd = kcalloc(nr_acpi_bits, sizeof(struct acpi_psd_package),
 			   GFP_KERNEL);
 	if (!acpi_psd) {
+<<<<<<< HEAD
 		kfree(acpi_id_present);
 		kfree(acpi_id_cst_present);
+=======
+		bitmap_free(acpi_id_present);
+		bitmap_free(acpi_id_cst_present);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -533,14 +559,22 @@ static int __init xen_acpi_processor_init(void)
 		return -ENODEV;
 
 	nr_acpi_bits = get_max_acpi_id() + 1;
+<<<<<<< HEAD
 	acpi_ids_done = kcalloc(BITS_TO_LONGS(nr_acpi_bits), sizeof(unsigned long), GFP_KERNEL);
+=======
+	acpi_ids_done = bitmap_zalloc(nr_acpi_bits, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!acpi_ids_done)
 		return -ENOMEM;
 
 	acpi_perf_data = alloc_percpu(struct acpi_processor_performance);
 	if (!acpi_perf_data) {
 		pr_debug("Memory allocation error for acpi_perf_data\n");
+<<<<<<< HEAD
 		kfree(acpi_ids_done);
+=======
+		bitmap_free(acpi_ids_done);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 	for_each_possible_cpu(i) {
@@ -584,7 +618,11 @@ err_unregister:
 err_out:
 	/* Freeing a NULL pointer is OK: alloc_percpu zeroes. */
 	free_acpi_perf_data();
+<<<<<<< HEAD
 	kfree(acpi_ids_done);
+=======
+	bitmap_free(acpi_ids_done);
+>>>>>>> upstream/android-13
 	return rc;
 }
 static void __exit xen_acpi_processor_exit(void)
@@ -592,9 +630,15 @@ static void __exit xen_acpi_processor_exit(void)
 	int i;
 
 	unregister_syscore_ops(&xap_syscore_ops);
+<<<<<<< HEAD
 	kfree(acpi_ids_done);
 	kfree(acpi_id_present);
 	kfree(acpi_id_cst_present);
+=======
+	bitmap_free(acpi_ids_done);
+	bitmap_free(acpi_id_present);
+	bitmap_free(acpi_id_cst_present);
+>>>>>>> upstream/android-13
 	kfree(acpi_psd);
 	for_each_possible_cpu(i)
 		acpi_processor_unregister_performance(i);

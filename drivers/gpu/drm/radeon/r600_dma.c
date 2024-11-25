@@ -21,6 +21,7 @@
  *
  * Authors: Alex Deucher
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "radeon_asic.h"
@@ -28,6 +29,14 @@
 
 u32 r600_gpu_check_soft_reset(struct radeon_device *rdev);
 
+=======
+
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "r600.h"
+#include "r600d.h"
+
+>>>>>>> upstream/android-13
 /*
  * DMA
  * Starting with R600, the GPU has an asynchronous
@@ -261,7 +270,11 @@ int r600_dma_ring_test(struct radeon_device *rdev,
 		tmp = le32_to_cpu(rdev->wb.wb[index/4]);
 		if (tmp == 0xDEADBEEF)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 	if (i < rdev->usec_timeout) {
@@ -382,7 +395,11 @@ int r600_dma_ib_test(struct radeon_device *rdev, struct radeon_ring *ring)
 		tmp = le32_to_cpu(rdev->wb.wb[index/4]);
 		if (tmp == 0xDEADBEEF)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 	if (i < rdev->usec_timeout) {
 		DRM_INFO("ib test on ring %d succeeded in %u usecs\n", ib.fence->ring, i);
@@ -444,7 +461,11 @@ void r600_dma_ring_ib_execute(struct radeon_device *rdev, struct radeon_ib *ib)
 struct radeon_fence *r600_copy_dma(struct radeon_device *rdev,
 				   uint64_t src_offset, uint64_t dst_offset,
 				   unsigned num_gpu_pages,
+<<<<<<< HEAD
 				   struct reservation_object *resv)
+=======
+				   struct dma_resv *resv)
+>>>>>>> upstream/android-13
 {
 	struct radeon_fence *fence;
 	struct radeon_sync sync;

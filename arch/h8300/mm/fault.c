@@ -18,7 +18,10 @@
 #include <linux/kernel.h>
 #include <linux/ptrace.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 void die(const char *str, struct pt_regs *fp, unsigned long err);
 

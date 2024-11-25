@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Texas Instruments
  * Author: Jyri Sarha <jsarha@ti.com>
@@ -6,11 +7,25 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Texas Instruments
+ * Author: Jyri Sarha <jsarha@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/component.h>
 #include <linux/of_graph.h>
+<<<<<<< HEAD
 #include <drm/drm_of.h>
+=======
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_of.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "tilcdc_drv.h"
 #include "tilcdc_external.h"
@@ -40,6 +55,7 @@ static const struct tilcdc_panel_info panel_info_default = {
 		.raster_order           = 0,
 };
 
+<<<<<<< HEAD
 static int tilcdc_external_mode_valid(struct drm_connector *connector,
 				      struct drm_display_mode *mode)
 {
@@ -98,6 +114,8 @@ static int tilcdc_add_external_connector(struct drm_device *dev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static
 struct drm_connector *tilcdc_encoder_find_connector(struct drm_device *ddev,
 						    struct drm_encoder *encoder)
@@ -118,7 +136,10 @@ struct drm_connector *tilcdc_encoder_find_connector(struct drm_device *ddev,
 int tilcdc_add_component_encoder(struct drm_device *ddev)
 {
 	struct tilcdc_drm_private *priv = ddev->dev_private;
+<<<<<<< HEAD
 	struct drm_connector *connector;
+=======
+>>>>>>> upstream/android-13
 	struct drm_encoder *encoder;
 
 	list_for_each_entry(encoder, &ddev->mode_config.encoder_list, head)
@@ -130,15 +151,23 @@ int tilcdc_add_component_encoder(struct drm_device *ddev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	connector = tilcdc_encoder_find_connector(ddev, encoder);
 
 	if (!connector)
+=======
+	priv->external_connector =
+		tilcdc_encoder_find_connector(ddev, encoder);
+
+	if (!priv->external_connector)
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	/* Only tda998x is supported at the moment. */
 	tilcdc_crtc_set_simulate_vesa_sync(priv->crtc, true);
 	tilcdc_crtc_set_panel_info(priv->crtc, &panel_info_tda998x);
 
+<<<<<<< HEAD
 	return tilcdc_add_external_connector(ddev, connector);
 }
 
@@ -158,15 +187,24 @@ static const struct drm_encoder_funcs tilcdc_external_encoder_funcs = {
 	.destroy	= drm_encoder_cleanup,
 };
 
+=======
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static
 int tilcdc_attach_bridge(struct drm_device *ddev, struct drm_bridge *bridge)
 {
 	struct tilcdc_drm_private *priv = ddev->dev_private;
+<<<<<<< HEAD
 	struct drm_connector *connector;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	priv->external_encoder->possible_crtcs = BIT(0);
 
+<<<<<<< HEAD
 	ret = drm_bridge_attach(priv->external_encoder, bridge, NULL);
 	if (ret) {
 		dev_err(ddev->dev, "drm_bridge_attach() failed %d\n", ret);
@@ -182,6 +220,20 @@ int tilcdc_attach_bridge(struct drm_device *ddev, struct drm_bridge *bridge)
 	ret = tilcdc_add_external_connector(ddev, connector);
 
 	return ret;
+=======
+	ret = drm_bridge_attach(priv->external_encoder, bridge, NULL, 0);
+	if (ret)
+		return ret;
+
+	tilcdc_crtc_set_panel_info(priv->crtc, &panel_info_default);
+
+	priv->external_connector =
+		tilcdc_encoder_find_connector(ddev, priv->external_encoder);
+	if (!priv->external_connector)
+		return -ENODEV;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int tilcdc_attach_external_device(struct drm_device *ddev)
@@ -204,17 +256,27 @@ int tilcdc_attach_external_device(struct drm_device *ddev)
 	if (!priv->external_encoder)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = drm_encoder_init(ddev, priv->external_encoder,
 			       &tilcdc_external_encoder_funcs,
 			       DRM_MODE_ENCODER_NONE, NULL);
+=======
+	ret = drm_simple_encoder_init(ddev, priv->external_encoder,
+				      DRM_MODE_ENCODER_NONE);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(ddev->dev, "drm_encoder_init() failed %d\n", ret);
 		return ret;
 	}
 
 	if (panel) {
+<<<<<<< HEAD
 		bridge = devm_drm_panel_bridge_add(ddev->dev, panel,
 						   DRM_MODE_CONNECTOR_DPI);
+=======
+		bridge = devm_drm_panel_bridge_add_typed(ddev->dev, panel,
+							 DRM_MODE_CONNECTOR_DPI);
+>>>>>>> upstream/android-13
 		if (IS_ERR(bridge)) {
 			ret = PTR_ERR(bridge);
 			goto err_encoder_cleanup;

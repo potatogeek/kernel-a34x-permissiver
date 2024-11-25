@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2005-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/socket.h>
@@ -20,8 +27,16 @@
 #include <linux/iommu.h>
 #include <net/ip.h>
 #include <net/checksum.h>
+<<<<<<< HEAD
 #include "net_driver.h"
 #include "efx.h"
+=======
+#include <net/xdp.h>
+#include <linux/bpf_trace.h>
+#include "net_driver.h"
+#include "efx.h"
+#include "rx_common.h"
+>>>>>>> upstream/android-13
 #include "filter.h"
 #include "nic.h"
 #include "selftest.h"
@@ -30,25 +45,34 @@
 /* Preferred number of descriptors to fill at once */
 #define EFX_RX_PREFERRED_BATCH 8U
 
+<<<<<<< HEAD
 /* Number of RX buffers to recycle pages for.  When creating the RX page recycle
  * ring, this number is divided by the number of buffers per page to calculate
  * the number of pages to store in the RX page recycle ring.
  */
 #define EFX_RECYCLE_RING_SIZE_IOMMU 4096
 #define EFX_RECYCLE_RING_SIZE_NOIOMMU (2 * EFX_RX_PREFERRED_BATCH)
+=======
+/* Maximum rx prefix used by any architecture. */
+#define EFX_MAX_RX_PREFIX_SIZE 16
+>>>>>>> upstream/android-13
 
 /* Size of buffer allocated for skb header area. */
 #define EFX_SKB_HEADERS  128u
 
+<<<<<<< HEAD
 /* This is the percentage fill level below which new RX descriptors
  * will be added to the RX descriptor ring.
  */
 static unsigned int rx_refill_threshold;
 
+=======
+>>>>>>> upstream/android-13
 /* Each packet can consume up to ceil(max_frame_len / buffer_size) buffers */
 #define EFX_RX_MAX_FRAGS DIV_ROUND_UP(EFX_MAX_FRAME_LEN(EFX_MAX_MTU), \
 				      EFX_RX_USR_BUF_SIZE)
 
+<<<<<<< HEAD
 /*
  * RX maximum head room required.
  *
@@ -385,6 +409,8 @@ void efx_rx_slow_fill(struct timer_list *t)
 	++rx_queue->slow_fill_count;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void efx_rx_packet__check_len(struct efx_rx_queue *rx_queue,
 				     struct efx_rx_buffer *rx_buf,
 				     int len)
@@ -408,6 +434,7 @@ static void efx_rx_packet__check_len(struct efx_rx_queue *rx_queue,
 	efx_rx_queue_channel(rx_queue)->n_rx_overlength++;
 }
 
+<<<<<<< HEAD
 /* Pass a received packet up through GRO.  GRO can handle pages
  * regardless of checksum state and skbs with a good checksum.
  */
@@ -458,6 +485,8 @@ efx_rx_packet_gro(struct efx_channel *channel, struct efx_rx_buffer *rx_buf,
 		channel->irq_mod_score += 2;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Allocate and construct an SKB around page fragments */
 static struct sk_buff *efx_rx_mk_skb(struct efx_channel *channel,
 				     struct efx_rx_buffer *rx_buf,
@@ -489,12 +518,20 @@ static struct sk_buff *efx_rx_mk_skb(struct efx_channel *channel,
 		rx_buf->len -= hdr_len;
 
 		for (;;) {
+<<<<<<< HEAD
 			skb_fill_page_desc(skb, skb_shinfo(skb)->nr_frags,
 					   rx_buf->page, rx_buf->page_offset,
 					   rx_buf->len);
 			rx_buf->page = NULL;
 			skb->len += rx_buf->len;
 			skb->data_len += rx_buf->len;
+=======
+			skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags,
+					rx_buf->page, rx_buf->page_offset,
+					rx_buf->len, efx->rx_buffer_truesize);
+			rx_buf->page = NULL;
+
+>>>>>>> upstream/android-13
 			if (skb_shinfo(skb)->nr_frags == n_frags)
 				break;
 
@@ -506,8 +543,11 @@ static struct sk_buff *efx_rx_mk_skb(struct efx_channel *channel,
 		n_frags = 0;
 	}
 
+<<<<<<< HEAD
 	skb->truesize += n_frags * efx->rx_buffer_truesize;
 
+=======
+>>>>>>> upstream/android-13
 	/* Move past the ethernet header */
 	skb->protocol = eth_type_trans(skb, efx->net_dev);
 
@@ -642,6 +682,121 @@ static void efx_rx_deliver(struct efx_channel *channel, u8 *eh,
 		netif_receive_skb(skb);
 }
 
+<<<<<<< HEAD
+=======
+/** efx_do_xdp: perform XDP processing on a received packet
+ *
+ * Returns true if packet should still be delivered.
+ */
+static bool efx_do_xdp(struct efx_nic *efx, struct efx_channel *channel,
+		       struct efx_rx_buffer *rx_buf, u8 **ehp)
+{
+	u8 rx_prefix[EFX_MAX_RX_PREFIX_SIZE];
+	struct efx_rx_queue *rx_queue;
+	struct bpf_prog *xdp_prog;
+	struct xdp_frame *xdpf;
+	struct xdp_buff xdp;
+	u32 xdp_act;
+	s16 offset;
+	int err;
+
+	xdp_prog = rcu_dereference_bh(efx->xdp_prog);
+	if (!xdp_prog)
+		return true;
+
+	rx_queue = efx_channel_get_rx_queue(channel);
+
+	if (unlikely(channel->rx_pkt_n_frags > 1)) {
+		/* We can't do XDP on fragmented packets - drop. */
+		efx_free_rx_buffers(rx_queue, rx_buf,
+				    channel->rx_pkt_n_frags);
+		if (net_ratelimit())
+			netif_err(efx, rx_err, efx->net_dev,
+				  "XDP is not possible with multiple receive fragments (%d)\n",
+				  channel->rx_pkt_n_frags);
+		channel->n_rx_xdp_bad_drops++;
+		return false;
+	}
+
+	dma_sync_single_for_cpu(&efx->pci_dev->dev, rx_buf->dma_addr,
+				rx_buf->len, DMA_FROM_DEVICE);
+
+	/* Save the rx prefix. */
+	EFX_WARN_ON_PARANOID(efx->rx_prefix_size > EFX_MAX_RX_PREFIX_SIZE);
+	memcpy(rx_prefix, *ehp - efx->rx_prefix_size,
+	       efx->rx_prefix_size);
+
+	xdp_init_buff(&xdp, efx->rx_page_buf_step, &rx_queue->xdp_rxq_info);
+	/* No support yet for XDP metadata */
+	xdp_prepare_buff(&xdp, *ehp - EFX_XDP_HEADROOM, EFX_XDP_HEADROOM,
+			 rx_buf->len, false);
+
+	xdp_act = bpf_prog_run_xdp(xdp_prog, &xdp);
+
+	offset = (u8 *)xdp.data - *ehp;
+
+	switch (xdp_act) {
+	case XDP_PASS:
+		/* Fix up rx prefix. */
+		if (offset) {
+			*ehp += offset;
+			rx_buf->page_offset += offset;
+			rx_buf->len -= offset;
+			memcpy(*ehp - efx->rx_prefix_size, rx_prefix,
+			       efx->rx_prefix_size);
+		}
+		break;
+
+	case XDP_TX:
+		/* Buffer ownership passes to tx on success. */
+		xdpf = xdp_convert_buff_to_frame(&xdp);
+		err = efx_xdp_tx_buffers(efx, 1, &xdpf, true);
+		if (unlikely(err != 1)) {
+			efx_free_rx_buffers(rx_queue, rx_buf, 1);
+			if (net_ratelimit())
+				netif_err(efx, rx_err, efx->net_dev,
+					  "XDP TX failed (%d)\n", err);
+			channel->n_rx_xdp_bad_drops++;
+			trace_xdp_exception(efx->net_dev, xdp_prog, xdp_act);
+		} else {
+			channel->n_rx_xdp_tx++;
+		}
+		break;
+
+	case XDP_REDIRECT:
+		err = xdp_do_redirect(efx->net_dev, &xdp, xdp_prog);
+		if (unlikely(err)) {
+			efx_free_rx_buffers(rx_queue, rx_buf, 1);
+			if (net_ratelimit())
+				netif_err(efx, rx_err, efx->net_dev,
+					  "XDP redirect failed (%d)\n", err);
+			channel->n_rx_xdp_bad_drops++;
+			trace_xdp_exception(efx->net_dev, xdp_prog, xdp_act);
+		} else {
+			channel->n_rx_xdp_redirect++;
+		}
+		break;
+
+	default:
+		bpf_warn_invalid_xdp_action(xdp_act);
+		efx_free_rx_buffers(rx_queue, rx_buf, 1);
+		channel->n_rx_xdp_bad_drops++;
+		trace_xdp_exception(efx->net_dev, xdp_prog, xdp_act);
+		break;
+
+	case XDP_ABORTED:
+		trace_xdp_exception(efx->net_dev, xdp_prog, xdp_act);
+		fallthrough;
+	case XDP_DROP:
+		efx_free_rx_buffers(rx_queue, rx_buf, 1);
+		channel->n_rx_xdp_drops++;
+		break;
+	}
+
+	return xdp_act == XDP_PASS;
+}
+
+>>>>>>> upstream/android-13
 /* Handle a received packet.  Second half: Touches packet payload. */
 void __efx_rx_packet(struct efx_channel *channel)
 {
@@ -670,16 +825,27 @@ void __efx_rx_packet(struct efx_channel *channel)
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!efx_do_xdp(efx, channel, rx_buf, &eh))
+		goto out;
+
+>>>>>>> upstream/android-13
 	if (unlikely(!(efx->net_dev->features & NETIF_F_RXCSUM)))
 		rx_buf->flags &= ~EFX_RX_PKT_CSUMMED;
 
 	if ((rx_buf->flags & EFX_RX_PKT_TCP) && !channel->type->receive_skb)
+<<<<<<< HEAD
 		efx_rx_packet_gro(channel, rx_buf, channel->rx_pkt_n_frags, eh);
+=======
+		efx_rx_packet_gro(channel, rx_buf, channel->rx_pkt_n_frags, eh, 0);
+>>>>>>> upstream/android-13
 	else
 		efx_rx_deliver(channel, eh, rx_buf, channel->rx_pkt_n_frags);
 out:
 	channel->rx_pkt_n_frags = 0;
 }
+<<<<<<< HEAD
 
 int efx_probe_rx_queue(struct efx_rx_queue *rx_queue)
 {
@@ -1067,3 +1233,5 @@ bool efx_filter_is_mc_recipient(const struct efx_filter_spec *spec)
 
 	return false;
 }
+=======
+>>>>>>> upstream/android-13

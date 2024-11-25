@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2009, Oracle.  All rights reserved.
  *
@@ -161,8 +165,15 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
 			      const size_t buflen, const char *delim,
 			      struct sockaddr_in6 *sin6)
 {
+<<<<<<< HEAD
 	char *p;
 	size_t len;
+=======
+	char p[IPV6_SCOPE_ID_LEN + 1];
+	size_t len;
+	u32 scope_id = 0;
+	struct net_device *dev;
+>>>>>>> upstream/android-13
 
 	if ((buf + buflen) == delim)
 		return 1;
@@ -174,6 +185,7 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
 		return 0;
 
 	len = (buf + buflen) - delim - 1;
+<<<<<<< HEAD
 	p = kstrndup(delim + 1, len, GFP_KERNEL);
 	if (p) {
 		u32 scope_id = 0;
@@ -197,6 +209,25 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
 	}
 
 	return 0;
+=======
+	if (len > IPV6_SCOPE_ID_LEN)
+		return 0;
+
+	memcpy(p, delim + 1, len);
+	p[len] = 0;
+
+	dev = dev_get_by_name(net, p);
+	if (dev != NULL) {
+		scope_id = dev->ifindex;
+		dev_put(dev);
+	} else {
+		if (kstrtou32(p, 10, &scope_id) != 0)
+			return 0;
+	}
+
+	sin6->sin6_scope_id = scope_id;
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static size_t rpc_pton6(struct net *net, const char *buf, const size_t buflen,

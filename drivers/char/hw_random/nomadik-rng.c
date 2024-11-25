@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Nomadik RNG support
  *  Copyright 2009 Alessandro Rubini
@@ -6,6 +7,12 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Nomadik RNG support
+ *  Copyright 2009 Alessandro Rubini
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -61,7 +68,11 @@ static int nmk_rng_probe(struct amba_device *dev, const struct amba_id *id)
 	if (!base)
 		goto out_release;
 	nmk_rng.priv = (unsigned long)base;
+<<<<<<< HEAD
 	ret = hwrng_register(&nmk_rng);
+=======
+	ret = devm_hwrng_register(&dev->dev, &nmk_rng);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_release;
 	return 0;
@@ -69,6 +80,7 @@ static int nmk_rng_probe(struct amba_device *dev, const struct amba_id *id)
 out_release:
 	amba_release_regions(dev);
 out_clk:
+<<<<<<< HEAD
 	clk_disable(rng_clk);
 	return ret;
 }
@@ -82,6 +94,19 @@ static int nmk_rng_remove(struct amba_device *dev)
 }
 
 static struct amba_id nmk_rng_ids[] = {
+=======
+	clk_disable_unprepare(rng_clk);
+	return ret;
+}
+
+static void nmk_rng_remove(struct amba_device *dev)
+{
+	amba_release_regions(dev);
+	clk_disable_unprepare(rng_clk);
+}
+
+static const struct amba_id nmk_rng_ids[] = {
+>>>>>>> upstream/android-13
 	{
 		.id	= 0x000805e1,
 		.mask	= 0x000fffff, /* top bits are rev and cfg: accept all */

@@ -7,6 +7,7 @@
 
 #include <linux/interrupt.h>
 #include <linux/irqchip.h>
+<<<<<<< HEAD
 #include <linux/irqdomain.h>
 
 /*
@@ -51,9 +52,23 @@ asmlinkage void __irq_entry do_IRQ(struct pt_regs *regs, unsigned long cause)
 	irq_exit();
 
 	set_irq_regs(old_regs);
+=======
+#include <linux/seq_file.h>
+#include <asm/smp.h>
+
+int arch_show_interrupts(struct seq_file *p, int prec)
+{
+	show_ipi_stats(p, prec);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void __init init_IRQ(void)
 {
 	irqchip_init();
+<<<<<<< HEAD
+=======
+	if (!handle_arch_irq)
+		panic("No interrupt controller found.");
+>>>>>>> upstream/android-13
 }

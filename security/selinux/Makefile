@@ -3,6 +3,7 @@
 # Makefile for building the SELinux module as part of the kernel tree.
 #
 
+<<<<<<< HEAD
 # [ SEC_SELINUX_PORTING_COMMON
 ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
 ifeq ($(TARGET_BUILD_VARIANT), eng)
@@ -29,11 +30,27 @@ selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
 	     netnode.o netport.o ibpkey.o exports.o \
 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
+=======
+obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
+
+selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
+	     netnode.o netport.o status.o \
+	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
+	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/context.o
+>>>>>>> upstream/android-13
 
 selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
 
 selinux-$(CONFIG_NETLABEL) += netlabel.o
 
+<<<<<<< HEAD
+=======
+selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
+
+selinux-$(CONFIG_IMA) += ima.o
+
+ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+>>>>>>> upstream/android-13
 
 $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
 

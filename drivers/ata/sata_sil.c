@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_sil.c - Silicon Image SATA
  *
@@ -8,6 +12,7 @@
  *  Copyright 2003-2005 Red Hat, Inc.
  *  Copyright 2003 Benjamin Herrenschmidt
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
@@ -31,7 +38,10 @@
  *  http://gkernel.sourceforge.net/specs/sii/3112A_SiI-DS-0095-B2.pdf.bz2
  *
  *  Other errata and documentation available under NDA.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -775,10 +785,14 @@ static int sil_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		return rc;
 	host->iomap = pcim_iomap_table(pdev);
 
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, ATA_DMA_MASK);
 	if (rc)
 		return rc;
 	rc = dma_set_coherent_mask(&pdev->dev, ATA_DMA_MASK);
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, ATA_DMA_MASK);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 

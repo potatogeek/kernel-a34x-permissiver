@@ -2,6 +2,11 @@
 TEST_GEN_PROGS := gettimeofday context_switch fork mmap_bench futex_bench null_syscall
 TEST_GEN_FILES := exec_target
 
+<<<<<<< HEAD
+=======
+TEST_FILES := settings
+
+>>>>>>> upstream/android-13
 CFLAGS += -O2
 
 top_srcdir = ../../../../..

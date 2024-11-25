@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: BSD-3-Clause
+>>>>>>> upstream/android-13
 /*
  * linux/net/sunrpc/auth_gss/auth_gss.c
  *
@@ -8,6 +12,7 @@
  *
  *  Dug Song       <dugsong@monkey.org>
  *  Andy Adamson   <andros@umich.edu>
+<<<<<<< HEAD
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -36,6 +41,10 @@
  */
 
 
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/types.h>
@@ -45,6 +54,10 @@
 #include <linux/sunrpc/clnt.h>
 #include <linux/sunrpc/auth.h>
 #include <linux/sunrpc/auth_gss.h>
+<<<<<<< HEAD
+=======
+#include <linux/sunrpc/gss_krb5.h>
+>>>>>>> upstream/android-13
 #include <linux/sunrpc/svcauth_gss.h>
 #include <linux/sunrpc/gss_err.h>
 #include <linux/workqueue.h>
@@ -56,6 +69,11 @@
 #include "auth_gss_internal.h"
 #include "../netns.h"
 
+<<<<<<< HEAD
+=======
+#include <trace/events/rpcgss.h>
+
+>>>>>>> upstream/android-13
 static const struct rpc_authops authgss_ops;
 
 static const struct rpc_credops gss_credops;
@@ -232,6 +250,10 @@ gss_fill_context(const void *p, const void *end, struct gss_cl_ctx *ctx, struct 
 	}
 	ret = gss_import_sec_context(p, seclen, gm, &ctx->gc_gss_ctx, NULL, GFP_NOFS);
 	if (ret < 0) {
+<<<<<<< HEAD
+=======
+		trace_rpcgss_import_ctx(ret);
+>>>>>>> upstream/android-13
 		p = ERR_PTR(ret);
 		goto err;
 	}
@@ -247,12 +269,18 @@ gss_fill_context(const void *p, const void *end, struct gss_cl_ctx *ctx, struct 
 	if (IS_ERR(p))
 		goto err;
 done:
+<<<<<<< HEAD
 	dprintk("RPC:       %s Success. gc_expiry %lu now %lu timeout %u acceptor %.*s\n",
 		__func__, ctx->gc_expiry, now, timeout, ctx->gc_acceptor.len,
 		ctx->gc_acceptor.data);
 	return p;
 err:
 	dprintk("RPC:       %s returns error %ld\n", __func__, -PTR_ERR(p));
+=======
+	trace_rpcgss_context(window_size, ctx->gc_expiry, now, timeout,
+			     ctx->gc_acceptor.len, ctx->gc_acceptor.data);
+err:
+>>>>>>> upstream/android-13
 	return p;
 }
 
@@ -266,6 +294,10 @@ err:
 struct gss_upcall_msg {
 	refcount_t count;
 	kuid_t	uid;
+<<<<<<< HEAD
+=======
+	const char *service_name;
+>>>>>>> upstream/android-13
 	struct rpc_pipe_msg msg;
 	struct list_head list;
 	struct gss_auth *auth;
@@ -313,6 +345,10 @@ gss_release_msg(struct gss_upcall_msg *gss_msg)
 		gss_put_ctx(gss_msg->ctx);
 	rpc_destroy_wait_queue(&gss_msg->rpc_waitqueue);
 	gss_put_auth(gss_msg->auth);
+<<<<<<< HEAD
+=======
+	kfree_const(gss_msg->service_name);
+>>>>>>> upstream/android-13
 	kfree(gss_msg);
 }
 
@@ -326,10 +362,15 @@ __gss_find_upcall(struct rpc_pipe *pipe, kuid_t uid, const struct gss_auth *auth
 		if (auth && pos->auth->service != auth->service)
 			continue;
 		refcount_inc(&pos->count);
+<<<<<<< HEAD
 		dprintk("RPC:       %s found msg %p\n", __func__, pos);
 		return pos;
 	}
 	dprintk("RPC:       %s found nothing\n", __func__);
+=======
+		return pos;
+	}
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -409,9 +450,18 @@ gss_upcall_callback(struct rpc_task *task)
 	gss_release_msg(gss_msg);
 }
 
+<<<<<<< HEAD
 static void gss_encode_v0_msg(struct gss_upcall_msg *gss_msg)
 {
 	uid_t uid = from_kuid(&init_user_ns, gss_msg->uid);
+=======
+static void gss_encode_v0_msg(struct gss_upcall_msg *gss_msg,
+			      const struct cred *cred)
+{
+	struct user_namespace *userns = cred->user_ns;
+
+	uid_t uid = from_kuid_munged(userns, gss_msg->uid);
+>>>>>>> upstream/android-13
 	memcpy(gss_msg->databuf, &uid, sizeof(uid));
 	gss_msg->msg.data = gss_msg->databuf;
 	gss_msg->msg.len = sizeof(uid);
@@ -419,17 +469,43 @@ static void gss_encode_v0_msg(struct gss_upcall_msg *gss_msg)
 	BUILD_BUG_ON(sizeof(uid) > sizeof(gss_msg->databuf));
 }
 
+<<<<<<< HEAD
 static int gss_encode_v1_msg(struct gss_upcall_msg *gss_msg,
 				const char *service_name,
 				const char *target_name)
 {
+=======
+static ssize_t
+gss_v0_upcall(struct file *file, struct rpc_pipe_msg *msg,
+		char __user *buf, size_t buflen)
+{
+	struct gss_upcall_msg *gss_msg = container_of(msg,
+						      struct gss_upcall_msg,
+						      msg);
+	if (msg->copied == 0)
+		gss_encode_v0_msg(gss_msg, file->f_cred);
+	return rpc_pipe_generic_upcall(file, msg, buf, buflen);
+}
+
+static int gss_encode_v1_msg(struct gss_upcall_msg *gss_msg,
+				const char *service_name,
+				const char *target_name,
+				const struct cred *cred)
+{
+	struct user_namespace *userns = cred->user_ns;
+>>>>>>> upstream/android-13
 	struct gss_api_mech *mech = gss_msg->auth->mech;
 	char *p = gss_msg->databuf;
 	size_t buflen = sizeof(gss_msg->databuf);
 	int len;
 
+<<<<<<< HEAD
 	len = scnprintf(p, buflen, "mech=%s uid=%d ", mech->gm_name,
 			from_kuid(&init_user_ns, gss_msg->uid));
+=======
+	len = scnprintf(p, buflen, "mech=%s uid=%d", mech->gm_name,
+			from_kuid_munged(userns, gss_msg->uid));
+>>>>>>> upstream/android-13
 	buflen -= len;
 	p += len;
 	gss_msg->msg.len = len;
@@ -439,7 +515,11 @@ static int gss_encode_v1_msg(struct gss_upcall_msg *gss_msg,
 	 * identity that we are authenticating to.
 	 */
 	if (target_name) {
+<<<<<<< HEAD
 		len = scnprintf(p, buflen, "target=%s ", target_name);
+=======
+		len = scnprintf(p, buflen, " target=%s", target_name);
+>>>>>>> upstream/android-13
 		buflen -= len;
 		p += len;
 		gss_msg->msg.len += len;
@@ -459,11 +539,19 @@ static int gss_encode_v1_msg(struct gss_upcall_msg *gss_msg,
 		char *c = strchr(service_name, '@');
 
 		if (!c)
+<<<<<<< HEAD
 			len = scnprintf(p, buflen, "service=%s ",
 					service_name);
 		else
 			len = scnprintf(p, buflen,
 					"service=%.*s srchost=%s ",
+=======
+			len = scnprintf(p, buflen, " service=%s",
+					service_name);
+		else
+			len = scnprintf(p, buflen,
+					" service=%.*s srchost=%s",
+>>>>>>> upstream/android-13
 					(int)(c - service_name),
 					service_name, c + 1);
 		buflen -= len;
@@ -472,17 +560,28 @@ static int gss_encode_v1_msg(struct gss_upcall_msg *gss_msg,
 	}
 
 	if (mech->gm_upcall_enctypes) {
+<<<<<<< HEAD
 		len = scnprintf(p, buflen, "enctypes=%s ",
+=======
+		len = scnprintf(p, buflen, " enctypes=%s",
+>>>>>>> upstream/android-13
 				mech->gm_upcall_enctypes);
 		buflen -= len;
 		p += len;
 		gss_msg->msg.len += len;
 	}
+<<<<<<< HEAD
+=======
+	trace_rpcgss_upcall_msg(gss_msg->databuf);
+>>>>>>> upstream/android-13
 	len = scnprintf(p, buflen, "\n");
 	if (len == 0)
 		goto out_overflow;
 	gss_msg->msg.len += len;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	gss_msg->msg.data = gss_msg->databuf;
 	return 0;
 out_overflow:
@@ -490,6 +589,28 @@ out_overflow:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t
+gss_v1_upcall(struct file *file, struct rpc_pipe_msg *msg,
+		char __user *buf, size_t buflen)
+{
+	struct gss_upcall_msg *gss_msg = container_of(msg,
+						      struct gss_upcall_msg,
+						      msg);
+	int err;
+	if (msg->copied == 0) {
+		err = gss_encode_v1_msg(gss_msg,
+					gss_msg->service_name,
+					gss_msg->auth->target_name,
+					file->f_cred);
+		if (err)
+			return err;
+	}
+	return rpc_pipe_generic_upcall(file, msg, buf, buflen);
+}
+
+>>>>>>> upstream/android-13
 static struct gss_upcall_msg *
 gss_alloc_msg(struct gss_auth *gss_auth,
 		kuid_t uid, const char *service_name)
@@ -512,6 +633,7 @@ gss_alloc_msg(struct gss_auth *gss_auth,
 	refcount_set(&gss_msg->count, 1);
 	gss_msg->uid = uid;
 	gss_msg->auth = gss_auth;
+<<<<<<< HEAD
 	switch (vers) {
 	case 0:
 		gss_encode_v0_msg(gss_msg);
@@ -522,6 +644,16 @@ gss_alloc_msg(struct gss_auth *gss_auth,
 			goto err_put_pipe_version;
 	}
 	kref_get(&gss_auth->kref);
+=======
+	kref_get(&gss_auth->kref);
+	if (service_name) {
+		gss_msg->service_name = kstrdup_const(service_name, GFP_NOFS);
+		if (!gss_msg->service_name) {
+			err = -ENOMEM;
+			goto err_put_pipe_version;
+		}
+	}
+>>>>>>> upstream/android-13
 	return gss_msg;
 err_put_pipe_version:
 	put_pipe_version(gss_auth->net);
@@ -537,7 +669,11 @@ gss_setup_upcall(struct gss_auth *gss_auth, struct rpc_cred *cred)
 	struct gss_cred *gss_cred = container_of(cred,
 			struct gss_cred, gc_base);
 	struct gss_upcall_msg *gss_new, *gss_msg;
+<<<<<<< HEAD
 	kuid_t uid = cred->cr_uid;
+=======
+	kuid_t uid = cred->cr_cred->fsuid;
+>>>>>>> upstream/android-13
 
 	gss_new = gss_alloc_msg(gss_auth, uid, gss_cred->gc_principal);
 	if (IS_ERR(gss_new))
@@ -575,16 +711,26 @@ gss_refresh_upcall(struct rpc_task *task)
 	struct rpc_pipe *pipe;
 	int err = 0;
 
+<<<<<<< HEAD
 	dprintk("RPC: %5u %s for uid %u\n",
 		task->tk_pid, __func__, from_kuid(&init_user_ns, cred->cr_uid));
+=======
+>>>>>>> upstream/android-13
 	gss_msg = gss_setup_upcall(gss_auth, cred);
 	if (PTR_ERR(gss_msg) == -EAGAIN) {
 		/* XXX: warning on the first, under the assumption we
 		 * shouldn't normally hit this case on a refresh. */
 		warn_gssd();
+<<<<<<< HEAD
 		task->tk_timeout = 15*HZ;
 		rpc_sleep_on(&pipe_version_rpc_waitqueue, task, NULL);
 		return -EAGAIN;
+=======
+		rpc_sleep_on_timeout(&pipe_version_rpc_waitqueue,
+				task, NULL, jiffies + (15 * HZ));
+		err = -EAGAIN;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 	if (IS_ERR(gss_msg)) {
 		err = PTR_ERR(gss_msg);
@@ -595,7 +741,10 @@ gss_refresh_upcall(struct rpc_task *task)
 	if (gss_cred->gc_upcall != NULL)
 		rpc_sleep_on(&gss_cred->gc_upcall->rpc_waitqueue, task, NULL);
 	else if (gss_msg->ctx == NULL && gss_msg->msg.errno >= 0) {
+<<<<<<< HEAD
 		task->tk_timeout = 0;
+=======
+>>>>>>> upstream/android-13
 		gss_cred->gc_upcall = gss_msg;
 		/* gss_upcall_callback will release the reference to gss_upcall_msg */
 		refcount_inc(&gss_msg->count);
@@ -607,9 +756,14 @@ gss_refresh_upcall(struct rpc_task *task)
 	spin_unlock(&pipe->lock);
 	gss_release_msg(gss_msg);
 out:
+<<<<<<< HEAD
 	dprintk("RPC: %5u %s for uid %u result %d\n",
 		task->tk_pid, __func__,
 		from_kuid(&init_user_ns, cred->cr_uid),	err);
+=======
+	trace_rpcgss_upcall_result(from_kuid(&init_user_ns,
+					     cred->cr_cred->fsuid), err);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -624,14 +778,22 @@ gss_create_upcall(struct gss_auth *gss_auth, struct gss_cred *gss_cred)
 	DEFINE_WAIT(wait);
 	int err;
 
+<<<<<<< HEAD
 	dprintk("RPC:       %s for uid %u\n",
 		__func__, from_kuid(&init_user_ns, cred->cr_uid));
+=======
+>>>>>>> upstream/android-13
 retry:
 	err = 0;
 	/* if gssd is down, just skip upcalling altogether */
 	if (!gssd_running(net)) {
 		warn_gssd();
+<<<<<<< HEAD
 		return -EACCES;
+=======
+		err = -EACCES;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 	gss_msg = gss_setup_upcall(gss_auth, cred);
 	if (PTR_ERR(gss_msg) == -EAGAIN) {
@@ -663,17 +825,31 @@ retry:
 		}
 		schedule();
 	}
+<<<<<<< HEAD
 	if (gss_msg->ctx)
 		gss_cred_set_ctx(cred, gss_msg->ctx);
 	else
 		err = gss_msg->msg.errno;
+=======
+	if (gss_msg->ctx) {
+		trace_rpcgss_ctx_init(gss_cred);
+		gss_cred_set_ctx(cred, gss_msg->ctx);
+	} else {
+		err = gss_msg->msg.errno;
+	}
+>>>>>>> upstream/android-13
 	spin_unlock(&pipe->lock);
 out_intr:
 	finish_wait(&gss_msg->waitqueue, &wait);
 	gss_release_msg(gss_msg);
 out:
+<<<<<<< HEAD
 	dprintk("RPC:       %s for uid %u result %d\n",
 		__func__, from_kuid(&init_user_ns, cred->cr_uid), err);
+=======
+	trace_rpcgss_upcall_result(from_kuid(&init_user_ns,
+					     cred->cr_cred->fsuid), err);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -709,7 +885,11 @@ gss_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	uid = make_kuid(&init_user_ns, id);
+=======
+	uid = make_kuid(current_user_ns(), id);
+>>>>>>> upstream/android-13
 	if (!uid_valid(uid)) {
 		err = -EINVAL;
 		goto err;
@@ -766,7 +946,10 @@ err_put_ctx:
 err:
 	kfree(buf);
 out:
+<<<<<<< HEAD
 	dprintk("RPC:       %s returning %zd\n", __func__, err);
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -835,8 +1018,11 @@ gss_pipe_destroy_msg(struct rpc_pipe_msg *msg)
 	struct gss_upcall_msg *gss_msg = container_of(msg, struct gss_upcall_msg, msg);
 
 	if (msg->errno < 0) {
+<<<<<<< HEAD
 		dprintk("RPC:       %s releasing msg %p\n",
 			__func__, gss_msg);
+=======
+>>>>>>> upstream/android-13
 		refcount_inc(&gss_msg->count);
 		gss_unhash_msg(gss_msg);
 		if (msg->errno == -ETIMEDOUT)
@@ -996,8 +1182,11 @@ gss_create_new(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
 	struct rpc_auth * auth;
 	int err = -ENOMEM; /* XXX? */
 
+<<<<<<< HEAD
 	dprintk("RPC:       creating GSS authenticator for client %p\n", clnt);
 
+=======
+>>>>>>> upstream/android-13
 	if (!try_module_get(THIS_MODULE))
 		return ERR_PTR(err);
 	if (!(gss_auth = kmalloc(sizeof(*gss_auth), GFP_KERNEL)))
@@ -1013,10 +1202,15 @@ gss_create_new(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
 	gss_auth->net = get_net(rpc_net_ns(clnt));
 	err = -EINVAL;
 	gss_auth->mech = gss_mech_get_by_pseudoflavor(flavor);
+<<<<<<< HEAD
 	if (!gss_auth->mech) {
 		dprintk("RPC:       Pseudoflavor %d not found!\n", flavor);
 		goto err_put_net;
 	}
+=======
+	if (!gss_auth->mech)
+		goto err_put_net;
+>>>>>>> upstream/android-13
 	gss_auth->service = gss_pseudoflavor_to_service(gss_auth->mech, flavor);
 	if (gss_auth->service == 0)
 		goto err_put_mech;
@@ -1024,6 +1218,7 @@ gss_create_new(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
 		goto err_put_mech;
 	auth = &gss_auth->rpc_auth;
 	auth->au_cslack = GSS_CRED_SLACK >> 2;
+<<<<<<< HEAD
 	auth->au_rslack = GSS_VERF_SLACK >> 2;
 	auth->au_flags = 0;
 	auth->au_ops = &authgss_ops;
@@ -1031,6 +1226,17 @@ gss_create_new(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
 	if (gss_pseudoflavor_to_datatouch(gss_auth->mech, flavor))
 		auth->au_flags |= RPCAUTH_AUTH_DATATOUCH;
 	atomic_set(&auth->au_count, 1);
+=======
+	auth->au_rslack = GSS_KRB5_MAX_SLACK_NEEDED >> 2;
+	auth->au_verfsize = GSS_VERF_SLACK >> 2;
+	auth->au_ralign = GSS_VERF_SLACK >> 2;
+	__set_bit(RPCAUTH_AUTH_UPDATE_SLACK, &auth->au_flags);
+	auth->au_ops = &authgss_ops;
+	auth->au_flavor = flavor;
+	if (gss_pseudoflavor_to_datatouch(gss_auth->mech, flavor))
+		__set_bit(RPCAUTH_AUTH_DATATOUCH, &auth->au_flags);
+	refcount_set(&auth->au_count, 1);
+>>>>>>> upstream/android-13
 	kref_init(&gss_auth->kref);
 
 	err = rpcauth_init_credcache(auth);
@@ -1071,6 +1277,10 @@ err_free:
 	kfree(gss_auth);
 out_dec:
 	module_put(THIS_MODULE);
+<<<<<<< HEAD
+=======
+	trace_rpcgss_createauth(flavor, err);
+>>>>>>> upstream/android-13
 	return ERR_PTR(err);
 }
 
@@ -1107,9 +1317,12 @@ gss_destroy(struct rpc_auth *auth)
 	struct gss_auth *gss_auth = container_of(auth,
 			struct gss_auth, rpc_auth);
 
+<<<<<<< HEAD
 	dprintk("RPC:       destroying GSS authenticator %p flavor %d\n",
 			auth, auth->au_flavor);
 
+=======
+>>>>>>> upstream/android-13
 	if (hash_hashed(&gss_auth->hash)) {
 		spin_lock(&gss_auth_hash_lock);
 		hash_del(&gss_auth->hash);
@@ -1159,7 +1372,11 @@ gss_auth_find_or_add_hashed(const struct rpc_auth_create_args *args,
 			if (strcmp(gss_auth->target_name, args->target_name))
 				continue;
 		}
+<<<<<<< HEAD
 		if (!atomic_inc_not_zero(&gss_auth->rpc_auth.au_count))
+=======
+		if (!refcount_inc_not_zero(&gss_auth->rpc_auth.au_count))
+>>>>>>> upstream/android-13
 			continue;
 		goto out;
 	}
@@ -1211,18 +1428,56 @@ gss_create(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
 	return &gss_auth->rpc_auth;
 }
 
+<<<<<<< HEAD
 /*
  * gss_destroying_context will cause the RPCSEC_GSS to send a NULL RPC call
+=======
+static struct gss_cred *
+gss_dup_cred(struct gss_auth *gss_auth, struct gss_cred *gss_cred)
+{
+	struct gss_cred *new;
+
+	/* Make a copy of the cred so that we can reference count it */
+	new = kzalloc(sizeof(*gss_cred), GFP_NOFS);
+	if (new) {
+		struct auth_cred acred = {
+			.cred = gss_cred->gc_base.cr_cred,
+		};
+		struct gss_cl_ctx *ctx =
+			rcu_dereference_protected(gss_cred->gc_ctx, 1);
+
+		rpcauth_init_cred(&new->gc_base, &acred,
+				&gss_auth->rpc_auth,
+				&gss_nullops);
+		new->gc_base.cr_flags = 1UL << RPCAUTH_CRED_UPTODATE;
+		new->gc_service = gss_cred->gc_service;
+		new->gc_principal = gss_cred->gc_principal;
+		kref_get(&gss_auth->kref);
+		rcu_assign_pointer(new->gc_ctx, ctx);
+		gss_get_ctx(ctx);
+	}
+	return new;
+}
+
+/*
+ * gss_send_destroy_context will cause the RPCSEC_GSS to send a NULL RPC call
+>>>>>>> upstream/android-13
  * to the server with the GSS control procedure field set to
  * RPC_GSS_PROC_DESTROY. This should normally cause the server to release
  * all RPCSEC_GSS state associated with that context.
  */
+<<<<<<< HEAD
 static int
 gss_destroying_context(struct rpc_cred *cred)
+=======
+static void
+gss_send_destroy_context(struct rpc_cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct gss_cred *gss_cred = container_of(cred, struct gss_cred, gc_base);
 	struct gss_auth *gss_auth = container_of(cred->cr_auth, struct gss_auth, rpc_auth);
 	struct gss_cl_ctx *ctx = rcu_dereference_protected(gss_cred->gc_ctx, 1);
+<<<<<<< HEAD
 	struct rpc_task *task;
 
 	if (test_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags) == 0)
@@ -1241,6 +1496,23 @@ gss_destroying_context(struct rpc_cred *cred)
 
 	put_rpccred(cred);
 	return 1;
+=======
+	struct gss_cred *new;
+	struct rpc_task *task;
+
+	new = gss_dup_cred(gss_auth, gss_cred);
+	if (new) {
+		ctx->gc_proc = RPC_GSS_PROC_DESTROY;
+
+		trace_rpcgss_ctx_destroy(gss_cred);
+		task = rpc_call_null(gss_auth->client, &new->gc_base,
+				     RPC_TASK_ASYNC);
+		if (!IS_ERR(task))
+			rpc_put_task(task);
+
+		put_rpccred(&new->gc_base);
+	}
+>>>>>>> upstream/android-13
 }
 
 /* gss_destroy_cred (and gss_free_ctx) are used to clean up after failure
@@ -1249,8 +1521,11 @@ gss_destroying_context(struct rpc_cred *cred)
 static void
 gss_do_free_ctx(struct gss_cl_ctx *ctx)
 {
+<<<<<<< HEAD
 	dprintk("RPC:       %s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	gss_delete_sec_context(&ctx->gc_gss_ctx);
 	kfree(ctx->gc_wire_ctx.data);
 	kfree(ctx->gc_acceptor.data);
@@ -1273,7 +1548,10 @@ gss_free_ctx(struct gss_cl_ctx *ctx)
 static void
 gss_free_cred(struct gss_cred *gss_cred)
 {
+<<<<<<< HEAD
 	dprintk("RPC:       %s cred=%p\n", __func__, gss_cred);
+=======
+>>>>>>> upstream/android-13
 	kfree(gss_cred);
 }
 
@@ -1292,6 +1570,10 @@ gss_destroy_nullcred(struct rpc_cred *cred)
 	struct gss_cl_ctx *ctx = rcu_dereference_protected(gss_cred->gc_ctx, 1);
 
 	RCU_INIT_POINTER(gss_cred->gc_ctx, NULL);
+<<<<<<< HEAD
+=======
+	put_cred(cred->cr_cred);
+>>>>>>> upstream/android-13
 	call_rcu(&cred->cr_rcu, gss_free_cred_callback);
 	if (ctx)
 		gss_put_ctx(ctx);
@@ -1301,16 +1583,25 @@ gss_destroy_nullcred(struct rpc_cred *cred)
 static void
 gss_destroy_cred(struct rpc_cred *cred)
 {
+<<<<<<< HEAD
 
 	if (gss_destroying_context(cred))
 		return;
+=======
+	if (test_and_clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags) != 0)
+		gss_send_destroy_context(cred);
+>>>>>>> upstream/android-13
 	gss_destroy_nullcred(cred);
 }
 
 static int
 gss_hash_cred(struct auth_cred *acred, unsigned int hashbits)
 {
+<<<<<<< HEAD
 	return hash_64(from_kuid(&init_user_ns, acred->uid), hashbits);
+=======
+	return hash_64(from_kuid(&init_user_ns, acred->cred->fsuid), hashbits);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1329,10 +1620,13 @@ gss_create_cred(struct rpc_auth *auth, struct auth_cred *acred, int flags, gfp_t
 	struct gss_cred	*cred = NULL;
 	int err = -ENOMEM;
 
+<<<<<<< HEAD
 	dprintk("RPC:       %s for uid %d, flavor %d\n",
 		__func__, from_kuid(&init_user_ns, acred->uid),
 		auth->au_flavor);
 
+=======
+>>>>>>> upstream/android-13
 	if (!(cred = kzalloc(sizeof(*cred), gfp)))
 		goto out_err;
 
@@ -1343,14 +1637,21 @@ gss_create_cred(struct rpc_auth *auth, struct auth_cred *acred, int flags, gfp_t
 	 */
 	cred->gc_base.cr_flags = 1UL << RPCAUTH_CRED_NEW;
 	cred->gc_service = gss_auth->service;
+<<<<<<< HEAD
 	cred->gc_principal = NULL;
 	if (acred->machine_cred)
 		cred->gc_principal = acred->principal;
+=======
+	cred->gc_principal = acred->principal;
+>>>>>>> upstream/android-13
 	kref_get(&gss_auth->kref);
 	return &cred->gc_base;
 
 out_err:
+<<<<<<< HEAD
 	dprintk("RPC:       %s failed with error %d\n", __func__, err);
+=======
+>>>>>>> upstream/android-13
 	return ERR_PTR(err);
 }
 
@@ -1467,6 +1768,7 @@ out:
 		if (gss_cred->gc_principal == NULL)
 			return 0;
 		ret = strcmp(acred->principal, gss_cred->gc_principal) == 0;
+<<<<<<< HEAD
 		goto check_expire;
 	}
 	if (gss_cred->gc_principal != NULL)
@@ -1484,27 +1786,48 @@ check_expire:
 		test_and_clear_bit(RPC_CRED_NOTIFY_TIMEOUT, &acred->ac_flags);
 		/* tell NFS layer that key will expire soon */
 		set_bit(RPC_CRED_KEY_EXPIRE_SOON, &acred->ac_flags);
+=======
+	} else {
+		if (gss_cred->gc_principal != NULL)
+			return 0;
+		ret = uid_eq(rc->cr_cred->fsuid, acred->cred->fsuid);
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
 
 /*
+<<<<<<< HEAD
 * Marshal credentials.
 * Maybe we should keep a cached credential for performance reasons.
 */
 static __be32 *
 gss_marshal(struct rpc_task *task, __be32 *p)
+=======
+ * Marshal credentials.
+ *
+ * The expensive part is computing the verifier. We can't cache a
+ * pre-computed version of the verifier because the seqno, which
+ * is different every time, is included in the MIC.
+ */
+static int gss_marshal(struct rpc_task *task, struct xdr_stream *xdr)
+>>>>>>> upstream/android-13
 {
 	struct rpc_rqst *req = task->tk_rqstp;
 	struct rpc_cred *cred = req->rq_cred;
 	struct gss_cred	*gss_cred = container_of(cred, struct gss_cred,
 						 gc_base);
 	struct gss_cl_ctx	*ctx = gss_cred_get_ctx(cred);
+<<<<<<< HEAD
 	__be32		*cred_len;
+=======
+	__be32		*p, *cred_len;
+>>>>>>> upstream/android-13
 	u32             maj_stat = 0;
 	struct xdr_netobj mic;
 	struct kvec	iov;
 	struct xdr_buf	verf_buf;
+<<<<<<< HEAD
 
 	dprintk("RPC: %5u %s\n", task->tk_pid, __func__);
 
@@ -1546,6 +1869,68 @@ gss_marshal(struct rpc_task *task, __be32 *p)
 out_put_ctx:
 	gss_put_ctx(ctx);
 	return NULL;
+=======
+	int status;
+
+	/* Credential */
+
+	p = xdr_reserve_space(xdr, 7 * sizeof(*p) +
+			      ctx->gc_wire_ctx.len);
+	if (!p)
+		goto marshal_failed;
+	*p++ = rpc_auth_gss;
+	cred_len = p++;
+
+	spin_lock(&ctx->gc_seq_lock);
+	req->rq_seqno = (ctx->gc_seq < MAXSEQ) ? ctx->gc_seq++ : MAXSEQ;
+	spin_unlock(&ctx->gc_seq_lock);
+	if (req->rq_seqno == MAXSEQ)
+		goto expired;
+	trace_rpcgss_seqno(task);
+
+	*p++ = cpu_to_be32(RPC_GSS_VERSION);
+	*p++ = cpu_to_be32(ctx->gc_proc);
+	*p++ = cpu_to_be32(req->rq_seqno);
+	*p++ = cpu_to_be32(gss_cred->gc_service);
+	p = xdr_encode_netobj(p, &ctx->gc_wire_ctx);
+	*cred_len = cpu_to_be32((p - (cred_len + 1)) << 2);
+
+	/* Verifier */
+
+	/* We compute the checksum for the verifier over the xdr-encoded bytes
+	 * starting with the xid and ending at the end of the credential: */
+	iov.iov_base = req->rq_snd_buf.head[0].iov_base;
+	iov.iov_len = (u8 *)p - (u8 *)iov.iov_base;
+	xdr_buf_from_iov(&iov, &verf_buf);
+
+	p = xdr_reserve_space(xdr, sizeof(*p));
+	if (!p)
+		goto marshal_failed;
+	*p++ = rpc_auth_gss;
+	mic.data = (u8 *)(p + 1);
+	maj_stat = gss_get_mic(ctx->gc_gss_ctx, &verf_buf, &mic);
+	if (maj_stat == GSS_S_CONTEXT_EXPIRED)
+		goto expired;
+	else if (maj_stat != 0)
+		goto bad_mic;
+	if (xdr_stream_encode_opaque_inline(xdr, (void **)&p, mic.len) < 0)
+		goto marshal_failed;
+	status = 0;
+out:
+	gss_put_ctx(ctx);
+	return status;
+expired:
+	clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags);
+	status = -EKEYEXPIRED;
+	goto out;
+marshal_failed:
+	status = -EMSGSIZE;
+	goto out;
+bad_mic:
+	trace_rpcgss_get_mic(task, maj_stat);
+	status = -EIO;
+	goto out;
+>>>>>>> upstream/android-13
 }
 
 static int gss_renew_cred(struct rpc_task *task)
@@ -1556,15 +1941,24 @@ static int gss_renew_cred(struct rpc_task *task)
 						 gc_base);
 	struct rpc_auth *auth = oldcred->cr_auth;
 	struct auth_cred acred = {
+<<<<<<< HEAD
 		.uid = oldcred->cr_uid,
 		.principal = gss_cred->gc_principal,
 		.machine_cred = (gss_cred->gc_principal != NULL ? 1 : 0),
+=======
+		.cred = oldcred->cr_cred,
+		.principal = gss_cred->gc_principal,
+>>>>>>> upstream/android-13
 	};
 	struct rpc_cred *new;
 
 	new = gss_lookup_cred(auth, &acred, RPCAUTH_LOOKUP_NEW);
 	if (IS_ERR(new))
 		return PTR_ERR(new);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	task->tk_rqstp->rq_cred = new;
 	put_rpccred(oldcred);
 	return 0;
@@ -1620,6 +2014,7 @@ gss_refresh_null(struct rpc_task *task)
 	return 0;
 }
 
+<<<<<<< HEAD
 static __be32 *
 gss_validate(struct rpc_task *task, __be32 *p)
 {
@@ -1644,11 +2039,42 @@ gss_validate(struct rpc_task *task, __be32 *p)
 	if (!seq)
 		goto out_bad;
 	*seq = htonl(task->tk_rqstp->rq_seqno);
+=======
+static int
+gss_validate(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	struct rpc_cred *cred = task->tk_rqstp->rq_cred;
+	struct gss_cl_ctx *ctx = gss_cred_get_ctx(cred);
+	__be32		*p, *seq = NULL;
+	struct kvec	iov;
+	struct xdr_buf	verf_buf;
+	struct xdr_netobj mic;
+	u32		len, maj_stat;
+	int		status;
+
+	p = xdr_inline_decode(xdr, 2 * sizeof(*p));
+	if (!p)
+		goto validate_failed;
+	if (*p++ != rpc_auth_gss)
+		goto validate_failed;
+	len = be32_to_cpup(p);
+	if (len > RPC_MAX_AUTH_SIZE)
+		goto validate_failed;
+	p = xdr_inline_decode(xdr, len);
+	if (!p)
+		goto validate_failed;
+
+	seq = kmalloc(4, GFP_NOFS);
+	if (!seq)
+		goto validate_failed;
+	*seq = cpu_to_be32(task->tk_rqstp->rq_seqno);
+>>>>>>> upstream/android-13
 	iov.iov_base = seq;
 	iov.iov_len = 4;
 	xdr_buf_from_iov(&iov, &verf_buf);
 	mic.data = (u8 *)p;
 	mic.len = len;
+<<<<<<< HEAD
 
 	ret = ERR_PTR(-EACCES);
 	maj_stat = gss_verify_mic(ctx->gc_gss_ctx, &verf_buf, &mic);
@@ -1730,6 +2156,76 @@ gss_wrap_req_integ(struct rpc_cred *cred, struct gss_cl_ctx *ctx,
 	iov->iov_len += offset;
 	snd_buf->len += offset;
 	return 0;
+=======
+	maj_stat = gss_verify_mic(ctx->gc_gss_ctx, &verf_buf, &mic);
+	if (maj_stat == GSS_S_CONTEXT_EXPIRED)
+		clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags);
+	if (maj_stat)
+		goto bad_mic;
+
+	/* We leave it to unwrap to calculate au_rslack. For now we just
+	 * calculate the length of the verifier: */
+	if (test_bit(RPCAUTH_AUTH_UPDATE_SLACK, &cred->cr_auth->au_flags))
+		cred->cr_auth->au_verfsize = XDR_QUADLEN(len) + 2;
+	status = 0;
+out:
+	gss_put_ctx(ctx);
+	kfree(seq);
+	return status;
+
+validate_failed:
+	status = -EIO;
+	goto out;
+bad_mic:
+	trace_rpcgss_verify_mic(task, maj_stat);
+	status = -EACCES;
+	goto out;
+}
+
+static noinline_for_stack int
+gss_wrap_req_integ(struct rpc_cred *cred, struct gss_cl_ctx *ctx,
+		   struct rpc_task *task, struct xdr_stream *xdr)
+{
+	struct rpc_rqst *rqstp = task->tk_rqstp;
+	struct xdr_buf integ_buf, *snd_buf = &rqstp->rq_snd_buf;
+	struct xdr_netobj mic;
+	__be32 *p, *integ_len;
+	u32 offset, maj_stat;
+
+	p = xdr_reserve_space(xdr, 2 * sizeof(*p));
+	if (!p)
+		goto wrap_failed;
+	integ_len = p++;
+	*p = cpu_to_be32(rqstp->rq_seqno);
+
+	if (rpcauth_wrap_req_encode(task, xdr))
+		goto wrap_failed;
+
+	offset = (u8 *)p - (u8 *)snd_buf->head[0].iov_base;
+	if (xdr_buf_subsegment(snd_buf, &integ_buf,
+				offset, snd_buf->len - offset))
+		goto wrap_failed;
+	*integ_len = cpu_to_be32(integ_buf.len);
+
+	p = xdr_reserve_space(xdr, 0);
+	if (!p)
+		goto wrap_failed;
+	mic.data = (u8 *)(p + 1);
+	maj_stat = gss_get_mic(ctx->gc_gss_ctx, &integ_buf, &mic);
+	if (maj_stat == GSS_S_CONTEXT_EXPIRED)
+		clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags);
+	else if (maj_stat)
+		goto bad_mic;
+	/* Check that the trailing MIC fit in the buffer, after the fact */
+	if (xdr_stream_encode_opaque_inline(xdr, (void **)&p, mic.len) < 0)
+		goto wrap_failed;
+	return 0;
+wrap_failed:
+	return -EMSGSIZE;
+bad_mic:
+	trace_rpcgss_get_mic(task, maj_stat);
+	return -EIO;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1780,6 +2276,7 @@ out:
 	return -EAGAIN;
 }
 
+<<<<<<< HEAD
 static inline int
 gss_wrap_req_priv(struct rpc_cred *cred, struct gss_cl_ctx *ctx,
 		  kxdreproc_t encode, struct rpc_rqst *rqstp,
@@ -1805,11 +2302,40 @@ gss_wrap_req_priv(struct rpc_cred *cred, struct gss_cl_ctx *ctx,
 	status = alloc_enc_pages(rqstp);
 	if (status)
 		return status;
+=======
+static noinline_for_stack int
+gss_wrap_req_priv(struct rpc_cred *cred, struct gss_cl_ctx *ctx,
+		  struct rpc_task *task, struct xdr_stream *xdr)
+{
+	struct rpc_rqst *rqstp = task->tk_rqstp;
+	struct xdr_buf	*snd_buf = &rqstp->rq_snd_buf;
+	u32		pad, offset, maj_stat;
+	int		status;
+	__be32		*p, *opaque_len;
+	struct page	**inpages;
+	int		first;
+	struct kvec	*iov;
+
+	status = -EIO;
+	p = xdr_reserve_space(xdr, 2 * sizeof(*p));
+	if (!p)
+		goto wrap_failed;
+	opaque_len = p++;
+	*p = cpu_to_be32(rqstp->rq_seqno);
+
+	if (rpcauth_wrap_req_encode(task, xdr))
+		goto wrap_failed;
+
+	status = alloc_enc_pages(rqstp);
+	if (unlikely(status))
+		goto wrap_failed;
+>>>>>>> upstream/android-13
 	first = snd_buf->page_base >> PAGE_SHIFT;
 	inpages = snd_buf->pages + first;
 	snd_buf->pages = rqstp->rq_enc_pages;
 	snd_buf->page_base -= first << PAGE_SHIFT;
 	/*
+<<<<<<< HEAD
 	 * Give the tail its own page, in case we need extra space in the
 	 * head when wrapping:
 	 *
@@ -1818,57 +2344,108 @@ gss_wrap_req_priv(struct rpc_cred *cred, struct gss_cl_ctx *ctx,
 	 * For GSS, slack is GSS_CRED_SLACK.
 	 */
 	if (snd_buf->page_len || snd_buf->tail[0].iov_len) {
+=======
+	 * Move the tail into its own page, in case gss_wrap needs
+	 * more space in the head when wrapping.
+	 *
+	 * Still... Why can't gss_wrap just slide the tail down?
+	 */
+	if (snd_buf->page_len || snd_buf->tail[0].iov_len) {
+		char *tmp;
+
+>>>>>>> upstream/android-13
 		tmp = page_address(rqstp->rq_enc_pages[rqstp->rq_enc_pages_num - 1]);
 		memcpy(tmp, snd_buf->tail[0].iov_base, snd_buf->tail[0].iov_len);
 		snd_buf->tail[0].iov_base = tmp;
 	}
+<<<<<<< HEAD
 	maj_stat = gss_wrap(ctx->gc_gss_ctx, offset, snd_buf, inpages);
 	/* slack space should prevent this ever happening: */
 	BUG_ON(snd_buf->len > snd_buf->buflen);
 	status = -EIO;
+=======
+	offset = (u8 *)p - (u8 *)snd_buf->head[0].iov_base;
+	maj_stat = gss_wrap(ctx->gc_gss_ctx, offset, snd_buf, inpages);
+	/* slack space should prevent this ever happening: */
+	if (unlikely(snd_buf->len > snd_buf->buflen))
+		goto wrap_failed;
+>>>>>>> upstream/android-13
 	/* We're assuming that when GSS_S_CONTEXT_EXPIRED, the encryption was
 	 * done anyway, so it's safe to put the request on the wire: */
 	if (maj_stat == GSS_S_CONTEXT_EXPIRED)
 		clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags);
 	else if (maj_stat)
+<<<<<<< HEAD
 		return status;
 
 	*opaque_len = htonl(snd_buf->len - offset);
 	/* guess whether we're in the head or the tail: */
+=======
+		goto bad_wrap;
+
+	*opaque_len = cpu_to_be32(snd_buf->len - offset);
+	/* guess whether the pad goes into the head or the tail: */
+>>>>>>> upstream/android-13
 	if (snd_buf->page_len || snd_buf->tail[0].iov_len)
 		iov = snd_buf->tail;
 	else
 		iov = snd_buf->head;
 	p = iov->iov_base + iov->iov_len;
+<<<<<<< HEAD
 	pad = 3 - ((snd_buf->len - offset - 1) & 3);
+=======
+	pad = xdr_pad_size(snd_buf->len - offset);
+>>>>>>> upstream/android-13
 	memset(p, 0, pad);
 	iov->iov_len += pad;
 	snd_buf->len += pad;
 
 	return 0;
+<<<<<<< HEAD
 }
 
 static int
 gss_wrap_req(struct rpc_task *task,
 	     kxdreproc_t encode, void *rqstp, __be32 *p, void *obj)
+=======
+wrap_failed:
+	return status;
+bad_wrap:
+	trace_rpcgss_wrap(task, maj_stat);
+	return -EIO;
+}
+
+static int gss_wrap_req(struct rpc_task *task, struct xdr_stream *xdr)
+>>>>>>> upstream/android-13
 {
 	struct rpc_cred *cred = task->tk_rqstp->rq_cred;
 	struct gss_cred	*gss_cred = container_of(cred, struct gss_cred,
 			gc_base);
 	struct gss_cl_ctx *ctx = gss_cred_get_ctx(cred);
+<<<<<<< HEAD
 	int             status = -EIO;
 
 	dprintk("RPC: %5u %s\n", task->tk_pid, __func__);
+=======
+	int status;
+
+	status = -EIO;
+>>>>>>> upstream/android-13
 	if (ctx->gc_proc != RPC_GSS_PROC_DATA) {
 		/* The spec seems a little ambiguous here, but I think that not
 		 * wrapping context destruction requests makes the most sense.
 		 */
+<<<<<<< HEAD
 		gss_wrap_req_encode(encode, rqstp, p, obj);
 		status = 0;
+=======
+		status = rpcauth_wrap_req_encode(task, xdr);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	switch (gss_cred->gc_service) {
 	case RPC_GSS_SVC_NONE:
+<<<<<<< HEAD
 		gss_wrap_req_encode(encode, rqstp, p, obj);
 		status = 0;
 		break;
@@ -1972,11 +2549,242 @@ gss_unwrap_resp(struct rpc_task *task,
 	struct kvec	*head = ((struct rpc_rqst *)rqstp)->rq_rcv_buf.head;
 	int		savedlen = head->iov_len;
 	int             status = -EIO;
+=======
+		status = rpcauth_wrap_req_encode(task, xdr);
+		break;
+	case RPC_GSS_SVC_INTEGRITY:
+		status = gss_wrap_req_integ(cred, ctx, task, xdr);
+		break;
+	case RPC_GSS_SVC_PRIVACY:
+		status = gss_wrap_req_priv(cred, ctx, task, xdr);
+		break;
+	default:
+		status = -EIO;
+	}
+out:
+	gss_put_ctx(ctx);
+	return status;
+}
+
+/**
+ * gss_update_rslack - Possibly update RPC receive buffer size estimates
+ * @task: rpc_task for incoming RPC Reply being unwrapped
+ * @cred: controlling rpc_cred for @task
+ * @before: XDR words needed before each RPC Reply message
+ * @after: XDR words needed following each RPC Reply message
+ *
+ */
+static void gss_update_rslack(struct rpc_task *task, struct rpc_cred *cred,
+			      unsigned int before, unsigned int after)
+{
+	struct rpc_auth *auth = cred->cr_auth;
+
+	if (test_and_clear_bit(RPCAUTH_AUTH_UPDATE_SLACK, &auth->au_flags)) {
+		auth->au_ralign = auth->au_verfsize + before;
+		auth->au_rslack = auth->au_verfsize + after;
+		trace_rpcgss_update_slack(task, auth);
+	}
+}
+
+static int
+gss_unwrap_resp_auth(struct rpc_task *task, struct rpc_cred *cred)
+{
+	gss_update_rslack(task, cred, 0, 0);
+	return 0;
+}
+
+/*
+ * RFC 2203, Section 5.3.2.2
+ *
+ *	struct rpc_gss_integ_data {
+ *		opaque databody_integ<>;
+ *		opaque checksum<>;
+ *	};
+ *
+ *	struct rpc_gss_data_t {
+ *		unsigned int seq_num;
+ *		proc_req_arg_t arg;
+ *	};
+ */
+static noinline_for_stack int
+gss_unwrap_resp_integ(struct rpc_task *task, struct rpc_cred *cred,
+		      struct gss_cl_ctx *ctx, struct rpc_rqst *rqstp,
+		      struct xdr_stream *xdr)
+{
+	struct xdr_buf gss_data, *rcv_buf = &rqstp->rq_rcv_buf;
+	u32 len, offset, seqno, maj_stat;
+	struct xdr_netobj mic;
+	int ret;
+
+	ret = -EIO;
+	mic.data = NULL;
+
+	/* opaque databody_integ<>; */
+	if (xdr_stream_decode_u32(xdr, &len))
+		goto unwrap_failed;
+	if (len & 3)
+		goto unwrap_failed;
+	offset = rcv_buf->len - xdr_stream_remaining(xdr);
+	if (xdr_stream_decode_u32(xdr, &seqno))
+		goto unwrap_failed;
+	if (seqno != rqstp->rq_seqno)
+		goto bad_seqno;
+	if (xdr_buf_subsegment(rcv_buf, &gss_data, offset, len))
+		goto unwrap_failed;
+
+	/*
+	 * The xdr_stream now points to the beginning of the
+	 * upper layer payload, to be passed below to
+	 * rpcauth_unwrap_resp_decode(). The checksum, which
+	 * follows the upper layer payload in @rcv_buf, is
+	 * located and parsed without updating the xdr_stream.
+	 */
+
+	/* opaque checksum<>; */
+	offset += len;
+	if (xdr_decode_word(rcv_buf, offset, &len))
+		goto unwrap_failed;
+	offset += sizeof(__be32);
+	if (offset + len > rcv_buf->len)
+		goto unwrap_failed;
+	mic.len = len;
+	mic.data = kmalloc(len, GFP_NOFS);
+	if (!mic.data)
+		goto unwrap_failed;
+	if (read_bytes_from_xdr_buf(rcv_buf, offset, mic.data, mic.len))
+		goto unwrap_failed;
+
+	maj_stat = gss_verify_mic(ctx->gc_gss_ctx, &gss_data, &mic);
+	if (maj_stat == GSS_S_CONTEXT_EXPIRED)
+		clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags);
+	if (maj_stat != GSS_S_COMPLETE)
+		goto bad_mic;
+
+	gss_update_rslack(task, cred, 2, 2 + 1 + XDR_QUADLEN(mic.len));
+	ret = 0;
+
+out:
+	kfree(mic.data);
+	return ret;
+
+unwrap_failed:
+	trace_rpcgss_unwrap_failed(task);
+	goto out;
+bad_seqno:
+	trace_rpcgss_bad_seqno(task, rqstp->rq_seqno, seqno);
+	goto out;
+bad_mic:
+	trace_rpcgss_verify_mic(task, maj_stat);
+	goto out;
+}
+
+static noinline_for_stack int
+gss_unwrap_resp_priv(struct rpc_task *task, struct rpc_cred *cred,
+		     struct gss_cl_ctx *ctx, struct rpc_rqst *rqstp,
+		     struct xdr_stream *xdr)
+{
+	struct xdr_buf *rcv_buf = &rqstp->rq_rcv_buf;
+	struct kvec *head = rqstp->rq_rcv_buf.head;
+	u32 offset, opaque_len, maj_stat;
+	__be32 *p;
+
+	p = xdr_inline_decode(xdr, 2 * sizeof(*p));
+	if (unlikely(!p))
+		goto unwrap_failed;
+	opaque_len = be32_to_cpup(p++);
+	offset = (u8 *)(p) - (u8 *)head->iov_base;
+	if (offset + opaque_len > rcv_buf->len)
+		goto unwrap_failed;
+
+	maj_stat = gss_unwrap(ctx->gc_gss_ctx, offset,
+			      offset + opaque_len, rcv_buf);
+	if (maj_stat == GSS_S_CONTEXT_EXPIRED)
+		clear_bit(RPCAUTH_CRED_UPTODATE, &cred->cr_flags);
+	if (maj_stat != GSS_S_COMPLETE)
+		goto bad_unwrap;
+	/* gss_unwrap decrypted the sequence number */
+	if (be32_to_cpup(p++) != rqstp->rq_seqno)
+		goto bad_seqno;
+
+	/* gss_unwrap redacts the opaque blob from the head iovec.
+	 * rcv_buf has changed, thus the stream needs to be reset.
+	 */
+	xdr_init_decode(xdr, rcv_buf, p, rqstp);
+
+	gss_update_rslack(task, cred, 2 + ctx->gc_gss_ctx->align,
+			  2 + ctx->gc_gss_ctx->slack);
+
+	return 0;
+unwrap_failed:
+	trace_rpcgss_unwrap_failed(task);
+	return -EIO;
+bad_seqno:
+	trace_rpcgss_bad_seqno(task, rqstp->rq_seqno, be32_to_cpup(--p));
+	return -EIO;
+bad_unwrap:
+	trace_rpcgss_unwrap(task, maj_stat);
+	return -EIO;
+}
+
+static bool
+gss_seq_is_newer(u32 new, u32 old)
+{
+	return (s32)(new - old) > 0;
+}
+
+static bool
+gss_xmit_need_reencode(struct rpc_task *task)
+{
+	struct rpc_rqst *req = task->tk_rqstp;
+	struct rpc_cred *cred = req->rq_cred;
+	struct gss_cl_ctx *ctx = gss_cred_get_ctx(cred);
+	u32 win, seq_xmit = 0;
+	bool ret = true;
+
+	if (!ctx)
+		goto out;
+
+	if (gss_seq_is_newer(req->rq_seqno, READ_ONCE(ctx->gc_seq)))
+		goto out_ctx;
+
+	seq_xmit = READ_ONCE(ctx->gc_seq_xmit);
+	while (gss_seq_is_newer(req->rq_seqno, seq_xmit)) {
+		u32 tmp = seq_xmit;
+
+		seq_xmit = cmpxchg(&ctx->gc_seq_xmit, tmp, req->rq_seqno);
+		if (seq_xmit == tmp) {
+			ret = false;
+			goto out_ctx;
+		}
+	}
+
+	win = ctx->gc_win;
+	if (win > 0)
+		ret = !gss_seq_is_newer(req->rq_seqno, seq_xmit - win);
+
+out_ctx:
+	gss_put_ctx(ctx);
+out:
+	trace_rpcgss_need_reencode(task, seq_xmit, ret);
+	return ret;
+}
+
+static int
+gss_unwrap_resp(struct rpc_task *task, struct xdr_stream *xdr)
+{
+	struct rpc_rqst *rqstp = task->tk_rqstp;
+	struct rpc_cred *cred = rqstp->rq_cred;
+	struct gss_cred *gss_cred = container_of(cred, struct gss_cred,
+			gc_base);
+	struct gss_cl_ctx *ctx = gss_cred_get_ctx(cred);
+	int status = -EIO;
+>>>>>>> upstream/android-13
 
 	if (ctx->gc_proc != RPC_GSS_PROC_DATA)
 		goto out_decode;
 	switch (gss_cred->gc_service) {
 	case RPC_GSS_SVC_NONE:
+<<<<<<< HEAD
 		break;
 	case RPC_GSS_SVC_INTEGRITY:
 		status = gss_unwrap_resp_integ(cred, ctx, rqstp, &p);
@@ -1998,6 +2806,24 @@ out:
 	gss_put_ctx(ctx);
 	dprintk("RPC: %5u %s returning %d\n",
 		task->tk_pid, __func__, status);
+=======
+		status = gss_unwrap_resp_auth(task, cred);
+		break;
+	case RPC_GSS_SVC_INTEGRITY:
+		status = gss_unwrap_resp_integ(task, cred, ctx, rqstp, xdr);
+		break;
+	case RPC_GSS_SVC_PRIVACY:
+		status = gss_unwrap_resp_priv(task, cred, ctx, rqstp, xdr);
+		break;
+	}
+	if (status)
+		goto out;
+
+out_decode:
+	status = rpcauth_unwrap_resp_decode(task, xdr);
+out:
+	gss_put_ctx(ctx);
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -2010,7 +2836,10 @@ static const struct rpc_authops authgss_ops = {
 	.hash_cred	= gss_hash_cred,
 	.lookup_cred	= gss_lookup_cred,
 	.crcreate	= gss_create_cred,
+<<<<<<< HEAD
 	.list_pseudoflavors = gss_mech_list_pseudoflavors,
+=======
+>>>>>>> upstream/android-13
 	.info2flavor	= gss_mech_info2flavor,
 	.flavor2info	= gss_mech_flavor2info,
 };
@@ -2019,7 +2848,10 @@ static const struct rpc_credops gss_credops = {
 	.cr_name		= "AUTH_GSS",
 	.crdestroy		= gss_destroy_cred,
 	.cr_init		= gss_cred_init,
+<<<<<<< HEAD
 	.crbind			= rpcauth_generic_bind_cred,
+=======
+>>>>>>> upstream/android-13
 	.crmatch		= gss_match,
 	.crmarshal		= gss_marshal,
 	.crrefresh		= gss_refresh,
@@ -2028,12 +2860,19 @@ static const struct rpc_credops gss_credops = {
 	.crunwrap_resp		= gss_unwrap_resp,
 	.crkey_timeout		= gss_key_timeout,
 	.crstringify_acceptor	= gss_stringify_acceptor,
+<<<<<<< HEAD
+=======
+	.crneed_reencode	= gss_xmit_need_reencode,
+>>>>>>> upstream/android-13
 };
 
 static const struct rpc_credops gss_nullops = {
 	.cr_name		= "AUTH_GSS",
 	.crdestroy		= gss_destroy_nullcred,
+<<<<<<< HEAD
 	.crbind			= rpcauth_generic_bind_cred,
+=======
+>>>>>>> upstream/android-13
 	.crmatch		= gss_match,
 	.crmarshal		= gss_marshal,
 	.crrefresh		= gss_refresh_null,
@@ -2044,7 +2883,11 @@ static const struct rpc_credops gss_nullops = {
 };
 
 static const struct rpc_pipe_ops gss_upcall_ops_v0 = {
+<<<<<<< HEAD
 	.upcall		= rpc_pipe_generic_upcall,
+=======
+	.upcall		= gss_v0_upcall,
+>>>>>>> upstream/android-13
 	.downcall	= gss_pipe_downcall,
 	.destroy_msg	= gss_pipe_destroy_msg,
 	.open_pipe	= gss_pipe_open_v0,
@@ -2052,7 +2895,11 @@ static const struct rpc_pipe_ops gss_upcall_ops_v0 = {
 };
 
 static const struct rpc_pipe_ops gss_upcall_ops_v1 = {
+<<<<<<< HEAD
 	.upcall		= rpc_pipe_generic_upcall,
+=======
+	.upcall		= gss_v1_upcall,
+>>>>>>> upstream/android-13
 	.downcall	= gss_pipe_downcall,
 	.destroy_msg	= gss_pipe_destroy_msg,
 	.open_pipe	= gss_pipe_open_v1,

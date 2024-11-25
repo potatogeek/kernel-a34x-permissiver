@@ -7,6 +7,11 @@
  * Copyright (C) 2009 Rafael J. Wysocki <rjw@sisk.pl>, Novell Inc.
  */
 
+<<<<<<< HEAD
+=======
+#define dev_fmt(fmt) "PME: " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/kernel.h>
 #include <linux/errno.h>
@@ -194,14 +199,23 @@ static void pcie_pme_handle_request(struct pci_dev *port, u16 req_id)
 		 * assuming that the PME was reported by a PCIe-PCI bridge that
 		 * used devfn different from zero.
 		 */
+<<<<<<< HEAD
 		pci_dbg(port, "PME interrupt generated for non-existent device %02x:%02x.%d\n",
 			busnr, PCI_SLOT(devfn), PCI_FUNC(devfn));
+=======
+		pci_info(port, "interrupt generated for non-existent device %02x:%02x.%d\n",
+			 busnr, PCI_SLOT(devfn), PCI_FUNC(devfn));
+>>>>>>> upstream/android-13
 		found = pcie_pme_from_pci_bridge(bus, 0);
 	}
 
  out:
 	if (!found)
+<<<<<<< HEAD
 		pci_dbg(port, "Spurious native PME interrupt!\n");
+=======
+		pci_info(port, "Spurious native interrupt!\n");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -308,7 +322,14 @@ static int pcie_pme_can_wakeup(struct pci_dev *dev, void *ign)
 static void pcie_pme_mark_devices(struct pci_dev *port)
 {
 	pcie_pme_can_wakeup(port, NULL);
+<<<<<<< HEAD
 	if (port->subordinate)
+=======
+
+	if (pci_pcie_type(port) == PCI_EXP_TYPE_RC_EC)
+		pcie_walk_rcec(port, pcie_pme_can_wakeup, NULL);
+	else if (port->subordinate)
+>>>>>>> upstream/android-13
 		pci_walk_bus(port->subordinate, pcie_pme_can_wakeup, NULL);
 }
 
@@ -318,10 +339,23 @@ static void pcie_pme_mark_devices(struct pci_dev *port)
  */
 static int pcie_pme_probe(struct pcie_device *srv)
 {
+<<<<<<< HEAD
 	struct pci_dev *port;
 	struct pcie_pme_service_data *data;
 	int ret;
 
+=======
+	struct pci_dev *port = srv->port;
+	struct pcie_pme_service_data *data;
+	int type = pci_pcie_type(port);
+	int ret;
+
+	/* Limit to Root Ports or Root Complex Event Collectors */
+	if (type != PCI_EXP_TYPE_RC_EC &&
+	    type != PCI_EXP_TYPE_ROOT_PORT)
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	data = kzalloc(sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
@@ -331,7 +365,10 @@ static int pcie_pme_probe(struct pcie_device *srv)
 	data->srv = srv;
 	set_service_data(srv, data);
 
+<<<<<<< HEAD
 	port = srv->port;
+=======
+>>>>>>> upstream/android-13
 	pcie_pme_interrupt_enable(port, false);
 	pcie_clear_root_pme_status(port);
 
@@ -341,7 +378,11 @@ static int pcie_pme_probe(struct pcie_device *srv)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	pci_info(port, "Signaling PME with IRQ %d\n", srv->irq);
+=======
+	pci_info(port, "Signaling with IRQ %d\n", srv->irq);
+>>>>>>> upstream/android-13
 
 	pcie_pme_mark_devices(port);
 	pcie_pme_interrupt_enable(port, true);
@@ -406,7 +447,11 @@ static int pcie_pme_suspend(struct pcie_device *srv)
 
 /**
  * pcie_pme_resume - Resume PCIe PME service device.
+<<<<<<< HEAD
  * @srv - PCIe service device to resume.
+=======
+ * @srv: PCIe service device to resume.
+>>>>>>> upstream/android-13
  */
 static int pcie_pme_resume(struct pcie_device *srv)
 {
@@ -429,7 +474,11 @@ static int pcie_pme_resume(struct pcie_device *srv)
 
 /**
  * pcie_pme_remove - Prepare PCIe PME service device for removal.
+<<<<<<< HEAD
  * @srv - PCIe service device to remove.
+=======
+ * @srv: PCIe service device to remove.
+>>>>>>> upstream/android-13
  */
 static void pcie_pme_remove(struct pcie_device *srv)
 {
@@ -443,7 +492,11 @@ static void pcie_pme_remove(struct pcie_device *srv)
 
 static struct pcie_port_service_driver pcie_pme_driver = {
 	.name		= "pcie_pme",
+<<<<<<< HEAD
 	.port_type	= PCI_EXP_TYPE_ROOT_PORT,
+=======
+	.port_type	= PCIE_ANY_PORT,
+>>>>>>> upstream/android-13
 	.service	= PCIE_PORT_SERVICE_PME,
 
 	.probe		= pcie_pme_probe,
@@ -453,7 +506,11 @@ static struct pcie_port_service_driver pcie_pme_driver = {
 };
 
 /**
+<<<<<<< HEAD
  * pcie_pme_service_init - Register the PCIe PME service driver.
+=======
+ * pcie_pme_init - Register the PCIe PME service driver.
+>>>>>>> upstream/android-13
  */
 int __init pcie_pme_init(void)
 {

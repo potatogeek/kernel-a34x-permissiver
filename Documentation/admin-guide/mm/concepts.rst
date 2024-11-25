@@ -4,6 +4,7 @@
 Concepts overview
 =================
 
+<<<<<<< HEAD
 The memory management in Linux is complex system that evolved over the
 years and included more and more functionality to support variety of
 systems from MMU-less microcontrollers to supercomputers. The memory
@@ -11,6 +12,15 @@ management for systems without MMU is called ``nommu`` and it
 definitely deserves a dedicated document, which hopefully will be
 eventually written. Yet, although some of the concepts are the same,
 here we assume that MMU is available and CPU can translate a virtual
+=======
+The memory management in Linux is a complex system that evolved over the
+years and included more and more functionality to support a variety of
+systems from MMU-less microcontrollers to supercomputers. The memory
+management for systems without an MMU is called ``nommu`` and it
+definitely deserves a dedicated document, which hopefully will be
+eventually written. Yet, although some of the concepts are the same,
+here we assume that an MMU is available and a CPU can translate a virtual
+>>>>>>> upstream/android-13
 address to a physical address.
 
 .. contents:: :local:
@@ -21,10 +31,17 @@ Virtual Memory Primer
 The physical memory in a computer system is a limited resource and
 even for systems that support memory hotplug there is a hard limit on
 the amount of memory that can be installed. The physical memory is not
+<<<<<<< HEAD
 necessary contiguous, it might be accessible as a set of distinct
 address ranges. Besides, different CPU architectures, and even
 different implementations of the same architecture have different view
 how these address ranges defined.
+=======
+necessarily contiguous; it might be accessible as a set of distinct
+address ranges. Besides, different CPU architectures, and even
+different implementations of the same architecture have different views
+of how these address ranges are defined.
+>>>>>>> upstream/android-13
 
 All this makes dealing directly with physical memory quite complex and
 to avoid this complexity a concept of virtual memory was developed.
@@ -35,7 +52,11 @@ physical memory (demand paging) and provides a mechanism for the
 protection and controlled sharing of data between processes.
 
 With virtual memory, each and every memory access uses a virtual
+<<<<<<< HEAD
 address. When the CPU decodes the an instruction that reads (or
+=======
+address. When the CPU decodes an instruction that reads (or
+>>>>>>> upstream/android-13
 writes) from (or to) the system memory, it translates the `virtual`
 address encoded in that instruction to a `physical` address that the
 memory controller can understand.
@@ -48,8 +69,13 @@ appropriate kernel configuration option.
 
 Each physical memory page can be mapped as one or more virtual
 pages. These mappings are described by page tables that allow
+<<<<<<< HEAD
 translation from virtual address used by programs to real address in
 the physical memory. The page tables organized hierarchically.
+=======
+translation from a virtual address used by programs to the physical
+memory address. The page tables are organized hierarchically.
+>>>>>>> upstream/android-13
 
 The tables at the lowest level of the hierarchy contain physical
 addresses of actual pages used by the software. The tables at higher
@@ -121,8 +147,13 @@ Nodes
 Many multi-processor machines are NUMA - Non-Uniform Memory Access -
 systems. In such systems the memory is arranged into banks that have
 different access latency depending on the "distance" from the
+<<<<<<< HEAD
 processor. Each bank is referred as `node` and for each node Linux
 constructs an independent memory management subsystem. A node has it's
+=======
+processor. Each bank is referred to as a `node` and for each node Linux
+constructs an independent memory management subsystem. A node has its
+>>>>>>> upstream/android-13
 own set of zones, lists of free and used pages and various statistics
 counters. You can find more details about NUMA in
 :ref:`Documentation/vm/numa.rst <numa>` and in
@@ -149,9 +180,15 @@ for program's stack and heap or by explicit calls to mmap(2) system
 call. Usually, the anonymous mappings only define virtual memory areas
 that the program is allowed to access. The read accesses will result
 in creation of a page table entry that references a special physical
+<<<<<<< HEAD
 page filled with zeroes. When the program performs a write, regular
 physical page will be allocated to hold the written data. The page
 will be marked dirty and if the kernel will decide to repurpose it,
+=======
+page filled with zeroes. When the program performs a write, a regular
+physical page will be allocated to hold the written data. The page
+will be marked dirty and if the kernel decides to repurpose it,
+>>>>>>> upstream/android-13
 the dirty page will be swapped out.
 
 Reclaim
@@ -181,16 +218,27 @@ pressure.
 The process of freeing the reclaimable physical memory pages and
 repurposing them is called (surprise!) `reclaim`. Linux can reclaim
 pages either asynchronously or synchronously, depending on the state
+<<<<<<< HEAD
 of the system. When system is not loaded, most of the memory is free
 and allocation request will be satisfied immediately from the free
 pages supply. As the load increases, the amount of the free pages goes
 down and when it reaches a certain threshold (high watermark), an
+=======
+of the system. When the system is not loaded, most of the memory is free
+and allocation requests will be satisfied immediately from the free
+pages supply. As the load increases, the amount of the free pages goes
+down and when it reaches a certain threshold (low watermark), an
+>>>>>>> upstream/android-13
 allocation request will awaken the ``kswapd`` daemon. It will
 asynchronously scan memory pages and either just free them if the data
 they contain is available elsewhere, or evict to the backing storage
 device (remember those dirty pages?). As memory usage increases even
 more and reaches another threshold - min watermark - an allocation
+<<<<<<< HEAD
 will trigger the `direct reclaim`. In this case allocation is stalled
+=======
+will trigger `direct reclaim`. In this case allocation is stalled
+>>>>>>> upstream/android-13
 until enough memory pages are reclaimed to satisfy the request.
 
 Compaction
@@ -200,7 +248,11 @@ As the system runs, tasks allocate and free the memory and it becomes
 fragmented. Although with virtual memory it is possible to present
 scattered physical pages as virtually contiguous range, sometimes it is
 necessary to allocate large physically contiguous memory areas. Such
+<<<<<<< HEAD
 need may arise, for instance, when a device driver requires large
+=======
+need may arise, for instance, when a device driver requires a large
+>>>>>>> upstream/android-13
 buffer for DMA, or when THP allocates a huge page. Memory `compaction`
 addresses the fragmentation issue. This mechanism moves occupied pages
 from the lower part of a memory zone to free pages in the upper part
@@ -208,15 +260,30 @@ of the zone. When a compaction scan is finished free pages are grouped
 together at the beginning of the zone and allocations of large
 physically contiguous areas become possible.
 
+<<<<<<< HEAD
 Like reclaim, the compaction may happen asynchronously in ``kcompactd``
 daemon or synchronously as a result of memory allocation request.
+=======
+Like reclaim, the compaction may happen asynchronously in the ``kcompactd``
+daemon or synchronously as a result of a memory allocation request.
+>>>>>>> upstream/android-13
 
 OOM killer
 ==========
 
+<<<<<<< HEAD
 It may happen, that on a loaded machine memory will be exhausted. When
 the kernel detects that the system runs out of memory (OOM) it invokes
 `OOM killer`. Its mission is simple: all it has to do is to select a
 task to sacrifice for the sake of the overall system health. The
 selected task is killed in a hope that after it exits enough memory
 will be freed to continue normal operation.
+=======
+It is possible that on a loaded machine memory will be exhausted and the
+kernel will be unable to reclaim enough memory to continue to operate. In
+order to save the rest of the system, it invokes the `OOM killer`.
+
+The `OOM killer` selects a task to sacrifice for the sake of the overall
+system health. The selected task is killed in a hope that after it exits
+enough memory will be freed to continue normal operation.
+>>>>>>> upstream/android-13

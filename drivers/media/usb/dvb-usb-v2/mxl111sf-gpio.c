@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  mxl111sf-gpio.c - driver for the MaxLinear MXL111SF
  *
  *  Copyright (C) 2010-2014 Michael Krufky <mkrufky@linuxtv.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "mxl111sf-gpio.h"
@@ -641,7 +648,11 @@ int mxl111sf_set_gpio(struct mxl111sf_state *state, int gpio, int val)
 	default:
 		mxl_printk(KERN_ERR,
 			   "gpio_port_expander undefined, assuming PCA9534");
+<<<<<<< HEAD
 		/* fall-thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case mxl111sf_PCA9534:
 		return pca9534_set_gpio(state, gpio, val);
 	case mxl111sf_gpio_hw:
@@ -702,7 +713,11 @@ int mxl111sf_init_port_expander(struct mxl111sf_state *state)
 	default:
 		mxl_printk(KERN_ERR,
 			   "gpio_port_expander undefined, assuming PCA9534");
+<<<<<<< HEAD
 		/* fall-thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case mxl111sf_PCA9534:
 		return pca9534_init_port_expander(state);
 	case mxl111sf_gpio_hw:

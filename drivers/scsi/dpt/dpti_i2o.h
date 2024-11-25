@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _SCSI_I2O_H
 #define _SCSI_I2O_H
 
@@ -5,16 +9,22 @@
  *
  * (c) Copyright 1999, 2000 Red Hat Software
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *************************************************************************
  *
  * This header file defined the I2O APIs/structures for use by
  * the I2O kernel modules.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifdef __KERNEL__       /* This file to be included by kernel only */

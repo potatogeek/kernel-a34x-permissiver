@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_device.c (based on iscsi_target_device.c)
  *
@@ -8,6 +12,7 @@
  *
  * Nicholas A. Bellinger <nab@kernel.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/net.h>
@@ -58,7 +65,11 @@ static struct se_hba *lun0_hba;
 struct se_device *g_lun0_dev;
 
 sense_reason_t
+<<<<<<< HEAD
 transport_lookup_cmd_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
+=======
+transport_lookup_cmd_lun(struct se_cmd *se_cmd)
+>>>>>>> upstream/android-13
 {
 	struct se_lun *se_lun = NULL;
 	struct se_session *se_sess = se_cmd->se_sess;
@@ -67,7 +78,11 @@ transport_lookup_cmd_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
 	sense_reason_t ret = TCM_NO_SENSE;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	deve = target_nacl_find_deve(nacl, unpacked_lun);
+=======
+	deve = target_nacl_find_deve(nacl, se_cmd->orig_fe_lun);
+>>>>>>> upstream/android-13
 	if (deve) {
 		atomic_long_inc(&deve->total_cmds);
 
@@ -78,6 +93,19 @@ transport_lookup_cmd_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
 			atomic_long_add(se_cmd->data_length,
 					&deve->read_bytes);
 
+<<<<<<< HEAD
+=======
+		if ((se_cmd->data_direction == DMA_TO_DEVICE) &&
+		    deve->lun_access_ro) {
+			pr_err("TARGET_CORE[%s]: Detected WRITE_PROTECTED LUN"
+				" Access for 0x%08llx\n",
+				se_cmd->se_tfo->fabric_name,
+				se_cmd->orig_fe_lun);
+			rcu_read_unlock();
+			return TCM_WRITE_PROTECTED;
+		}
+
+>>>>>>> upstream/android-13
 		se_lun = rcu_dereference(deve->se_lun);
 
 		if (!percpu_ref_tryget_live(&se_lun->lun_ref)) {
@@ -87,6 +115,7 @@ transport_lookup_cmd_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
 
 		se_cmd->se_lun = se_lun;
 		se_cmd->pr_res_key = deve->pr_res_key;
+<<<<<<< HEAD
 		se_cmd->orig_fe_lun = unpacked_lun;
 		se_cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
 		se_cmd->lun_ref_active = true;
@@ -101,6 +130,10 @@ transport_lookup_cmd_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
 			ret = TCM_WRITE_PROTECTED;
 			goto ref_dev;
 		}
+=======
+		se_cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
+		se_cmd->lun_ref_active = true;
+>>>>>>> upstream/android-13
 	}
 out_unlock:
 	rcu_read_unlock();
@@ -111,6 +144,7 @@ out_unlock:
 		 * REPORT_LUNS, et al to be returned when no active
 		 * MappedLUN=0 exists for this Initiator Port.
 		 */
+<<<<<<< HEAD
 		if (unpacked_lun != 0) {
 			pr_err("TARGET_CORE[%s]: Detected NON_EXISTENT_LUN"
 				" Access for 0x%08llx\n",
@@ -127,14 +161,38 @@ out_unlock:
 		percpu_ref_get(&se_lun->lun_ref);
 		se_cmd->lun_ref_active = true;
 
+=======
+		if (se_cmd->orig_fe_lun != 0) {
+			pr_err("TARGET_CORE[%s]: Detected NON_EXISTENT_LUN"
+				" Access for 0x%08llx from %s\n",
+				se_cmd->se_tfo->fabric_name,
+				se_cmd->orig_fe_lun,
+				nacl->initiatorname);
+			return TCM_NON_EXISTENT_LUN;
+		}
+
+>>>>>>> upstream/android-13
 		/*
 		 * Force WRITE PROTECT for virtual LUN 0
 		 */
 		if ((se_cmd->data_direction != DMA_FROM_DEVICE) &&
+<<<<<<< HEAD
 		    (se_cmd->data_direction != DMA_NONE)) {
 			ret = TCM_WRITE_PROTECTED;
 			goto ref_dev;
 		}
+=======
+		    (se_cmd->data_direction != DMA_NONE))
+			return TCM_WRITE_PROTECTED;
+
+		se_lun = se_sess->se_tpg->tpg_virt_lun0;
+		if (!percpu_ref_tryget_live(&se_lun->lun_ref))
+			return TCM_NON_EXISTENT_LUN;
+
+		se_cmd->se_lun = se_sess->se_tpg->tpg_virt_lun0;
+		se_cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
+		se_cmd->lun_ref_active = true;
+>>>>>>> upstream/android-13
 	}
 	/*
 	 * RCU reference protected by percpu se_lun->lun_ref taken above that
@@ -142,7 +200,10 @@ out_unlock:
 	 * pointer can be kfree_rcu() by the final se_lun->lun_group put via
 	 * target_core_fabric_configfs.c:target_fabric_port_release
 	 */
+<<<<<<< HEAD
 ref_dev:
+=======
+>>>>>>> upstream/android-13
 	se_cmd->se_dev = rcu_dereference_raw(se_lun->lun_se_dev);
 	atomic_long_inc(&se_cmd->se_dev->num_cmds);
 
@@ -157,7 +218,11 @@ ref_dev:
 }
 EXPORT_SYMBOL(transport_lookup_cmd_lun);
 
+<<<<<<< HEAD
 int transport_lookup_tmr_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
+=======
+int transport_lookup_tmr_lun(struct se_cmd *se_cmd)
+>>>>>>> upstream/android-13
 {
 	struct se_dev_entry *deve;
 	struct se_lun *se_lun = NULL;
@@ -167,7 +232,11 @@ int transport_lookup_tmr_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
 	unsigned long flags;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	deve = target_nacl_find_deve(nacl, unpacked_lun);
+=======
+	deve = target_nacl_find_deve(nacl, se_cmd->orig_fe_lun);
+>>>>>>> upstream/android-13
 	if (deve) {
 		se_lun = rcu_dereference(deve->se_lun);
 
@@ -178,7 +247,10 @@ int transport_lookup_tmr_lun(struct se_cmd *se_cmd, u64 unpacked_lun)
 
 		se_cmd->se_lun = se_lun;
 		se_cmd->pr_res_key = deve->pr_res_key;
+<<<<<<< HEAD
 		se_cmd->orig_fe_lun = unpacked_lun;
+=======
+>>>>>>> upstream/android-13
 		se_cmd->se_cmd_flags |= SCF_SE_LUN_CMD;
 		se_cmd->lun_ref_active = true;
 	}
@@ -187,9 +259,16 @@ out_unlock:
 
 	if (!se_lun) {
 		pr_debug("TARGET_CORE[%s]: Detected NON_EXISTENT_LUN"
+<<<<<<< HEAD
 			" Access for 0x%08llx\n",
 			se_cmd->se_tfo->get_fabric_name(),
 			unpacked_lun);
+=======
+			" Access for 0x%08llx for %s\n",
+			se_cmd->se_tfo->fabric_name,
+			se_cmd->orig_fe_lun,
+			nacl->initiatorname);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 	se_cmd->se_dev = rcu_dereference_raw(se_lun->lun_se_dev);
@@ -237,7 +316,11 @@ struct se_dev_entry *core_get_se_deve_from_rtpi(
 		if (!lun) {
 			pr_err("%s device entries device pointer is"
 				" NULL, but Initiator has access.\n",
+<<<<<<< HEAD
 				tpg->se_tpg_tfo->get_fabric_name());
+=======
+				tpg->se_tpg_tfo->fabric_name);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		if (lun->lun_rtpi != rtpi)
@@ -404,9 +487,12 @@ int core_enable_device_list_for_node(
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  *	Called with se_node_acl->lun_entry_mutex held.
  */
+=======
+>>>>>>> upstream/android-13
 void core_disable_device_list_for_node(
 	struct se_lun *lun,
 	struct se_dev_entry *orig,
@@ -418,6 +504,12 @@ void core_disable_device_list_for_node(
 	 * reference to se_device->dev_group.
 	 */
 	struct se_device *dev = rcu_dereference_raw(lun->lun_se_dev);
+<<<<<<< HEAD
+=======
+
+	lockdep_assert_held(&nacl->lun_entry_mutex);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If the MappedLUN entry is being disabled, the entry in
 	 * lun->lun_deve_list must be removed now before clearing the
@@ -571,9 +663,15 @@ int core_dev_add_lun(
 		return rc;
 
 	pr_debug("%s_TPG[%u]_LUN[%llu] - Activated %s Logical Unit from"
+<<<<<<< HEAD
 		" CORE HBA: %u\n", tpg->se_tpg_tfo->get_fabric_name(),
 		tpg->se_tpg_tfo->tpg_get_tag(tpg), lun->unpacked_lun,
 		tpg->se_tpg_tfo->get_fabric_name(), dev->se_hba->hba_id);
+=======
+		" CORE HBA: %u\n", tpg->se_tpg_tfo->fabric_name,
+		tpg->se_tpg_tfo->tpg_get_tag(tpg), lun->unpacked_lun,
+		tpg->se_tpg_tfo->fabric_name, dev->se_hba->hba_id);
+>>>>>>> upstream/android-13
 	/*
 	 * Update LUN maps for dynamically added initiators when
 	 * generate_node_acl is enabled.
@@ -604,9 +702,15 @@ void core_dev_del_lun(
 	struct se_lun *lun)
 {
 	pr_debug("%s_TPG[%u]_LUN[%llu] - Deactivating %s Logical Unit from"
+<<<<<<< HEAD
 		" device object\n", tpg->se_tpg_tfo->get_fabric_name(),
 		tpg->se_tpg_tfo->tpg_get_tag(tpg), lun->unpacked_lun,
 		tpg->se_tpg_tfo->get_fabric_name());
+=======
+		" device object\n", tpg->se_tpg_tfo->fabric_name,
+		tpg->se_tpg_tfo->tpg_get_tag(tpg), lun->unpacked_lun,
+		tpg->se_tpg_tfo->fabric_name);
+>>>>>>> upstream/android-13
 
 	core_tpg_remove_lun(tpg, lun);
 }
@@ -621,7 +725,11 @@ struct se_lun_acl *core_dev_init_initiator_node_lun_acl(
 
 	if (strlen(nacl->initiatorname) >= TRANSPORT_IQN_LEN) {
 		pr_err("%s InitiatorName exceeds maximum size.\n",
+<<<<<<< HEAD
 			tpg->se_tpg_tfo->get_fabric_name());
+=======
+			tpg->se_tpg_tfo->fabric_name);
+>>>>>>> upstream/android-13
 		*ret = -EOVERFLOW;
 		return NULL;
 	}
@@ -664,7 +772,11 @@ int core_dev_add_initiator_node_lun_acl(
 		return -EINVAL;
 
 	pr_debug("%s_TPG[%hu]_LUN[%llu->%llu] - Added %s ACL for "
+<<<<<<< HEAD
 		" InitiatorNode: %s\n", tpg->se_tpg_tfo->get_fabric_name(),
+=======
+		" InitiatorNode: %s\n", tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 		tpg->se_tpg_tfo->tpg_get_tag(tpg), lun->unpacked_lun, lacl->mapped_lun,
 		lun_access_ro ? "RO" : "RW",
 		nacl->initiatorname);
@@ -697,7 +809,11 @@ int core_dev_del_initiator_node_lun_acl(
 
 	pr_debug("%s_TPG[%hu]_LUN[%llu] - Removed ACL for"
 		" InitiatorNode: %s Mapped LUN: %llu\n",
+<<<<<<< HEAD
 		tpg->se_tpg_tfo->get_fabric_name(),
+=======
+		tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 		tpg->se_tpg_tfo->tpg_get_tag(tpg), lun->unpacked_lun,
 		nacl->initiatorname, lacl->mapped_lun);
 
@@ -709,9 +825,15 @@ void core_dev_free_initiator_node_lun_acl(
 	struct se_lun_acl *lacl)
 {
 	pr_debug("%s_TPG[%hu] - Freeing ACL for %s InitiatorNode: %s"
+<<<<<<< HEAD
 		" Mapped LUN: %llu\n", tpg->se_tpg_tfo->get_fabric_name(),
 		tpg->se_tpg_tfo->tpg_get_tag(tpg),
 		tpg->se_tpg_tfo->get_fabric_name(),
+=======
+		" Mapped LUN: %llu\n", tpg->se_tpg_tfo->fabric_name,
+		tpg->se_tpg_tfo->tpg_get_tag(tpg),
+		tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 		lacl->se_lun_nacl->initiatorname, lacl->mapped_lun);
 
 	kfree(lacl);
@@ -720,6 +842,7 @@ void core_dev_free_initiator_node_lun_acl(
 static void scsi_dump_inquiry(struct se_device *dev)
 {
 	struct t10_wwn *wwn = &dev->t10_wwn;
+<<<<<<< HEAD
 	char buf[17];
 	int i, device_type;
 	/*
@@ -750,6 +873,19 @@ static void scsi_dump_inquiry(struct se_device *dev)
 	pr_debug("  Revision: %s\n", buf);
 
 	device_type = dev->transport->get_device_type(dev);
+=======
+	int device_type = dev->transport->get_device_type(dev);
+
+	/*
+	 * Print Linux/SCSI style INQUIRY formatting to the kernel ring buffer
+	 */
+	pr_debug("  Vendor: %-" __stringify(INQUIRY_VENDOR_LEN) "s\n",
+		wwn->vendor);
+	pr_debug("  Model: %-" __stringify(INQUIRY_MODEL_LEN) "s\n",
+		wwn->model);
+	pr_debug("  Revision: %-" __stringify(INQUIRY_REVISION_LEN) "s\n",
+		wwn->revision);
+>>>>>>> upstream/android-13
 	pr_debug("  Type:   %s ", scsi_device_type(device_type));
 }
 
@@ -757,22 +893,54 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
 {
 	struct se_device *dev;
 	struct se_lun *xcopy_lun;
+<<<<<<< HEAD
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	dev = hba->backend->ops->alloc_device(hba, name);
 	if (!dev)
 		return NULL;
 
+<<<<<<< HEAD
 	dev->se_hba = hba;
 	dev->transport = hba->backend->ops;
+=======
+	dev->queues = kcalloc(nr_cpu_ids, sizeof(*dev->queues), GFP_KERNEL);
+	if (!dev->queues) {
+		dev->transport->free_device(dev);
+		return NULL;
+	}
+
+	dev->queue_cnt = nr_cpu_ids;
+	for (i = 0; i < dev->queue_cnt; i++) {
+		struct se_device_queue *q;
+
+		q = &dev->queues[i];
+		INIT_LIST_HEAD(&q->state_list);
+		spin_lock_init(&q->lock);
+
+		init_llist_head(&q->sq.cmd_list);
+		INIT_WORK(&q->sq.work, target_queued_submit_work);
+	}
+
+	dev->se_hba = hba;
+	dev->transport = hba->backend->ops;
+	dev->transport_flags = dev->transport->transport_flags_default;
+>>>>>>> upstream/android-13
 	dev->prot_length = sizeof(struct t10_pi_tuple);
 	dev->hba_index = hba->hba_index;
 
 	INIT_LIST_HEAD(&dev->dev_sep_list);
 	INIT_LIST_HEAD(&dev->dev_tmr_list);
 	INIT_LIST_HEAD(&dev->delayed_cmd_list);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&dev->state_list);
 	INIT_LIST_HEAD(&dev->qf_cmd_list);
 	spin_lock_init(&dev->execute_task_lock);
+=======
+	INIT_LIST_HEAD(&dev->qf_cmd_list);
+>>>>>>> upstream/android-13
 	spin_lock_init(&dev->delayed_cmd_lock);
 	spin_lock_init(&dev->dev_reservation_lock);
 	spin_lock_init(&dev->se_port_lock);
@@ -790,7 +958,18 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
 	INIT_LIST_HEAD(&dev->t10_alua.lba_map_list);
 	spin_lock_init(&dev->t10_alua.lba_map_lock);
 
+<<<<<<< HEAD
 	dev->t10_wwn.t10_dev = dev;
+=======
+	INIT_WORK(&dev->delayed_cmd_work, target_do_delayed_work);
+
+	dev->t10_wwn.t10_dev = dev;
+	/*
+	 * Use OpenFabrics IEEE Company ID: 00 14 05
+	 */
+	dev->t10_wwn.company_id = 0x001405;
+
+>>>>>>> upstream/android-13
 	dev->t10_alua.t10_dev = dev;
 
 	dev->dev_attrib.da_dev = dev;
@@ -799,12 +978,20 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
 	dev->dev_attrib.emulate_fua_write = 1;
 	dev->dev_attrib.emulate_fua_read = 1;
 	dev->dev_attrib.emulate_write_cache = DA_EMULATE_WRITE_CACHE;
+<<<<<<< HEAD
 	dev->dev_attrib.emulate_ua_intlck_ctrl = DA_EMULATE_UA_INTLLCK_CTRL;
+=======
+	dev->dev_attrib.emulate_ua_intlck_ctrl = TARGET_UA_INTLCK_CTRL_CLEAR;
+>>>>>>> upstream/android-13
 	dev->dev_attrib.emulate_tas = DA_EMULATE_TAS;
 	dev->dev_attrib.emulate_tpu = DA_EMULATE_TPU;
 	dev->dev_attrib.emulate_tpws = DA_EMULATE_TPWS;
 	dev->dev_attrib.emulate_caw = DA_EMULATE_CAW;
 	dev->dev_attrib.emulate_3pc = DA_EMULATE_3PC;
+<<<<<<< HEAD
+=======
+	dev->dev_attrib.emulate_pr = DA_EMULATE_PR;
+>>>>>>> upstream/android-13
 	dev->dev_attrib.pi_prot_type = TARGET_DIF_TYPE0_PROT;
 	dev->dev_attrib.enforce_pr_isids = DA_ENFORCE_PR_ISIDS;
 	dev->dev_attrib.force_pr_aptpl = DA_FORCE_PR_APTPL;
@@ -822,13 +1009,26 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
 
 	xcopy_lun = &dev->xcopy_lun;
 	rcu_assign_pointer(xcopy_lun->lun_se_dev, dev);
+<<<<<<< HEAD
 	init_completion(&xcopy_lun->lun_ref_comp);
+=======
+>>>>>>> upstream/android-13
 	init_completion(&xcopy_lun->lun_shutdown_comp);
 	INIT_LIST_HEAD(&xcopy_lun->lun_deve_list);
 	INIT_LIST_HEAD(&xcopy_lun->lun_dev_link);
 	mutex_init(&xcopy_lun->lun_tg_pt_md_mutex);
 	xcopy_lun->lun_tpg = &xcopy_pt_tpg;
 
+<<<<<<< HEAD
+=======
+	/* Preload the default INQUIRY const values */
+	strlcpy(dev->t10_wwn.vendor, "LIO-ORG", sizeof(dev->t10_wwn.vendor));
+	strlcpy(dev->t10_wwn.model, dev->transport->inquiry_prod,
+		sizeof(dev->t10_wwn.model));
+	strlcpy(dev->t10_wwn.revision, dev->transport->inquiry_rev,
+		sizeof(dev->t10_wwn.revision));
+
+>>>>>>> upstream/android-13
 	return dev;
 }
 
@@ -854,7 +1054,11 @@ bool target_configure_unmap_from_queue(struct se_dev_attrib *attrib,
 	attrib->unmap_granularity = q->limits.discard_granularity / block_size;
 	attrib->unmap_granularity_alignment = q->limits.discard_alignment /
 								block_size;
+<<<<<<< HEAD
 	attrib->unmap_zeroes_data = (q->limits.max_write_zeroes_sectors);
+=======
+	attrib->unmap_zeroes_data = !!(q->limits.max_write_zeroes_sectors);
+>>>>>>> upstream/android-13
 	return true;
 }
 EXPORT_SYMBOL(target_configure_unmap_from_queue);
@@ -987,6 +1191,7 @@ int target_configure_device(struct se_device *dev)
 		goto out_destroy_device;
 
 	/*
+<<<<<<< HEAD
 	 * Startup the struct se_device processing thread
 	 */
 	dev->tmr_wq = alloc_workqueue("tmr-%s", WQ_MEM_RECLAIM | WQ_UNBOUND, 1,
@@ -999,10 +1204,13 @@ int target_configure_device(struct se_device *dev)
 	}
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Setup work_queue for QUEUE_FULL
 	 */
 	INIT_WORK(&dev->qf_work_queue, target_qf_do_work);
 
+<<<<<<< HEAD
 	/*
 	 * Preload the initial INQUIRY const values if we are doing
 	 * anything virtual (IBLOCK, FILEIO, RAMDISK), but not for TCM/pSCSI
@@ -1016,6 +1224,8 @@ int target_configure_device(struct se_device *dev)
 			dev->transport->inquiry_rev, 4);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	scsi_dump_inquiry(dev);
 
 	spin_lock(&hba->device_lock);
@@ -1026,8 +1236,11 @@ int target_configure_device(struct se_device *dev)
 
 	return 0;
 
+<<<<<<< HEAD
 out_free_alua:
 	core_alua_free_lu_gp_mem(dev);
+=======
+>>>>>>> upstream/android-13
 out_destroy_device:
 	dev->transport->destroy_device(dev);
 out_free_index:
@@ -1046,8 +1259,11 @@ void target_free_device(struct se_device *dev)
 	WARN_ON(!list_empty(&dev->dev_sep_list));
 
 	if (target_dev_configured(dev)) {
+<<<<<<< HEAD
 		destroy_workqueue(dev->tmr_wq);
 
+=======
+>>>>>>> upstream/android-13
 		dev->transport->destroy_device(dev);
 
 		mutex_lock(&device_mutex);
@@ -1067,6 +1283,10 @@ void target_free_device(struct se_device *dev)
 	if (dev->transport->free_prot)
 		dev->transport->free_prot(dev);
 
+<<<<<<< HEAD
+=======
+	kfree(dev->queues);
+>>>>>>> upstream/android-13
 	dev->transport->free_device(dev);
 }
 
@@ -1074,7 +1294,11 @@ int core_dev_setup_virtual_lun0(void)
 {
 	struct se_hba *hba;
 	struct se_device *dev;
+<<<<<<< HEAD
 	char buf[] = "rd_pages=8,rd_nullio=1";
+=======
+	char buf[] = "rd_pages=8,rd_nullio=1,rd_dummy=1";
+>>>>>>> upstream/android-13
 	int ret;
 
 	hba = core_alloc_hba("rd_mcp", 0, HBA_FLAGS_INTERNAL_USE);
@@ -1138,11 +1362,30 @@ passthrough_parse_cdb(struct se_cmd *cmd,
 	}
 
 	/*
+<<<<<<< HEAD
+=======
+	 * With emulate_pr disabled, all reservation requests should fail,
+	 * regardless of whether or not TRANSPORT_FLAG_PASSTHROUGH_PGR is set.
+	 */
+	if (!dev->dev_attrib.emulate_pr &&
+	    ((cdb[0] == PERSISTENT_RESERVE_IN) ||
+	     (cdb[0] == PERSISTENT_RESERVE_OUT) ||
+	     (cdb[0] == RELEASE || cdb[0] == RELEASE_10) ||
+	     (cdb[0] == RESERVE || cdb[0] == RESERVE_10))) {
+		return TCM_UNSUPPORTED_SCSI_OPCODE;
+	}
+
+	/*
+>>>>>>> upstream/android-13
 	 * For PERSISTENT RESERVE IN/OUT, RELEASE, and RESERVE we need to
 	 * emulate the response, since tcmu does not have the information
 	 * required to process these commands.
 	 */
+<<<<<<< HEAD
 	if (!(dev->transport->transport_flags &
+=======
+	if (!(dev->transport_flags &
+>>>>>>> upstream/android-13
 	      TRANSPORT_FLAG_PASSTHROUGH_PGR)) {
 		if (cdb[0] == PERSISTENT_RESERVE_IN) {
 			cmd->execute_cmd = target_scsi3_emulate_pr_in;

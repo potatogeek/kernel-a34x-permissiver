@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Driver for USB Mass Storage compliant devices
  * Unusual Devices File
@@ -44,7 +48,11 @@
  * mode.  Existing userspace solutions are superior.
  *
  * New mode switching devices should instead be added to the database
+<<<<<<< HEAD
  * maintained at http://www.draisberghof.de/usb_modeswitch/
+=======
+ * maintained at https://www.draisberghof.de/usb_modeswitch/
+>>>>>>> upstream/android-13
  */
 
 #if !defined(CONFIG_USB_STORAGE_SDDR09) && \
@@ -407,6 +415,19 @@ UNUSUAL_DEV(  0x04b8, 0x0602, 0x0110, 0x0110,
 		USB_SC_SCSI, USB_PR_BULK, NULL, US_FL_SINGLE_LUN),
 
 /*
+<<<<<<< HEAD
+=======
+ * Reported by James Buren <braewoods+lkml@braewoods.net>
+ * Virtual ISOs cannot be remounted if ejected while the device is locked
+ * Disable locking to mimic Windows behavior that bypasses the issue
+ */
+UNUSUAL_DEV(  0x04c5, 0x2028, 0x0001, 0x0001,
+		"iODD",
+		"2531/2541",
+		USB_SC_DEVICE, USB_PR_DEVICE, NULL, US_FL_NOT_LOCKABLE),
+
+/*
+>>>>>>> upstream/android-13
  * Not sure who reported this originally but
  * Pavel Machek <pavel@ucw.cz> reported that the extra US_FL_SINGLE_LUN
  * flag be added */
@@ -416,9 +437,22 @@ UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x2210,
 		USB_SC_UFI, USB_PR_DEVICE, NULL, US_FL_FIX_INQUIRY | US_FL_SINGLE_LUN),
 
 /*
+<<<<<<< HEAD
  * Reported by Ondrej Zary <linux@rainbow-software.org>
  * The device reports one sector more and breaks when that sector is accessed
  */
+=======
+ * Reported by Ondrej Zary <linux@zary.sk>
+ * The device reports one sector more and breaks when that sector is accessed
+ * Firmwares older than 2.6c (the latest one and the only that claims Linux
+ * support) have also broken tag handling
+ */
+UNUSUAL_DEV(  0x04ce, 0x0002, 0x0000, 0x026b,
+		"ScanLogic",
+		"SL11R-IDE",
+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+		US_FL_FIX_CAPACITY | US_FL_BULK_IGNORE_TAG),
+>>>>>>> upstream/android-13
 UNUSUAL_DEV(  0x04ce, 0x0002, 0x026c, 0x026c,
 		"ScanLogic",
 		"SL11R-IDE",
@@ -2284,6 +2318,19 @@ UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x9999,
 		USB_SC_DEVICE, USB_PR_DEVICE, usb_stor_euscsi_init,
 		US_FL_SCM_MULT_TARG ),
 
+<<<<<<< HEAD
+=======
+/*
+ * Reported by DocMAX <mail@vacharakis.de>
+ * and Thomas Weißschuh <linux@weissschuh.net>
+ */
+UNUSUAL_DEV( 0x2109, 0x0715, 0x9999, 0x9999,
+		"VIA Labs, Inc.",
+		"VL817 SATA Bridge",
+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+		US_FL_IGNORE_UAS),
+
+>>>>>>> upstream/android-13
 UNUSUAL_DEV( 0x2116, 0x0320, 0x0001, 0x0001,
 		"ST",
 		"2A",

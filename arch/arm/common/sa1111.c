@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/common/sa1111.c
  *
@@ -5,10 +9,13 @@
  *
  * Original code by John Dorsey
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This file contains all generic SA1111 support.
  *
  * All initialization functions provided here are intended to be called
@@ -25,14 +32,22 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/io.h>
 
 #include <mach/hardware.h>
 #include <asm/mach/irq.h>
 #include <asm/mach-types.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #include <asm/hardware/sa1111.h>
 
@@ -199,6 +214,7 @@ static int sa1111_map_irq(struct sa1111 *sachip, irq_hw_number_t hwirq)
 	return irq_create_mapping(sachip->irqdomain, hwirq);
 }
 
+<<<<<<< HEAD
 static void sa1111_handle_irqdomain(struct irq_domain *irqdomain, int irq)
 {
 	struct irq_desc *d = irq_to_desc(irq_linear_revmap(irqdomain, irq));
@@ -207,6 +223,8 @@ static void sa1111_handle_irqdomain(struct irq_domain *irqdomain, int irq)
 		generic_handle_irq_desc(d);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * SA1111 interrupt support.  Since clearing an IRQ while there are
  * active IRQs causes the interrupt output to pulse, the upper levels
@@ -237,11 +255,19 @@ static void sa1111_irq_handler(struct irq_desc *desc)
 
 	for (i = 0; stat0; i++, stat0 >>= 1)
 		if (stat0 & 1)
+<<<<<<< HEAD
 			sa1111_handle_irqdomain(irqdomain, i);
 
 	for (i = 32; stat1; i++, stat1 >>= 1)
 		if (stat1 & 1)
 			sa1111_handle_irqdomain(irqdomain, i);
+=======
+			generic_handle_domain_irq(irqdomain, i);
+
+	for (i = 32; stat1; i++, stat1 >>= 1)
+		if (stat1 & 1)
+			generic_handle_domain_irq(irqdomain, i);
+>>>>>>> upstream/android-13
 
 	/* For level-based interrupts */
 	desc->irq_data.chip->irq_unmask(&desc->irq_data);
@@ -305,10 +331,20 @@ static int sa1111_retrigger_irq(struct irq_data *d)
 			break;
 	}
 
+<<<<<<< HEAD
 	if (i == 8)
 		pr_err("Danger Will Robinson: failed to re-trigger IRQ%d\n",
 		       d->irq);
 	return i == 8 ? -1 : 0;
+=======
+	if (i == 8) {
+		pr_err("Danger Will Robinson: failed to re-trigger IRQ%d\n",
+		       d->irq);
+		return 0;
+	}
+
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static int sa1111_type_irq(struct irq_data *d, unsigned int flags)
@@ -1282,6 +1318,7 @@ int sa1111_get_audio_rate(struct sa1111_dev *sadev)
 }
 EXPORT_SYMBOL(sa1111_get_audio_rate);
 
+<<<<<<< HEAD
 void sa1111_set_io_dir(struct sa1111_dev *sadev,
 		       unsigned int bits, unsigned int dir,
 		       unsigned int sleep_dir)
@@ -1341,6 +1378,8 @@ void sa1111_set_sleep_io(struct sa1111_dev *sadev, unsigned int bits, unsigned i
 }
 EXPORT_SYMBOL(sa1111_set_sleep_io);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Individual device operations.
  */
@@ -1423,6 +1462,7 @@ static int sa1111_bus_probe(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int sa1111_bus_remove(struct device *dev)
 {
 	struct sa1111_dev *sadev = to_sa1111_device(dev);
@@ -1432,6 +1472,15 @@ static int sa1111_bus_remove(struct device *dev)
 	if (drv->remove)
 		ret = drv->remove(sadev);
 	return ret;
+=======
+static void sa1111_bus_remove(struct device *dev)
+{
+	struct sa1111_dev *sadev = to_sa1111_device(dev);
+	struct sa1111_driver *drv = SA1111_DRV(dev->driver);
+
+	if (drv->remove)
+		drv->remove(sadev);
+>>>>>>> upstream/android-13
 }
 
 struct bus_type sa1111_bus_type = {

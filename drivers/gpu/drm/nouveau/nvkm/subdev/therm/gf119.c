@@ -41,6 +41,10 @@ pwm_info(struct nvkm_therm *therm, int line)
 		default:
 			break;
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -146,8 +150,15 @@ gf119_therm = {
 };
 
 int
+<<<<<<< HEAD
 gf119_therm_new(struct nvkm_device *device, int index,
 	       struct nvkm_therm **ptherm)
 {
 	return nvkm_therm_new_(&gf119_therm, device, index, ptherm);
+=======
+gf119_therm_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+		struct nvkm_therm **ptherm)
+{
+	return nvkm_therm_new_(&gf119_therm, device, type, inst, ptherm);
+>>>>>>> upstream/android-13
 }

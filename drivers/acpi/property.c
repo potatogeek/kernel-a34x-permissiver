@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ACPI device specific properties support.
  *
@@ -7,10 +11,13 @@
  * Authors: Mika Westerberg <mika.westerberg@linux.intel.com>
  *          Darren Hart <dvhart@linux.intel.com>
  *          Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/acpi.h>
@@ -24,10 +31,42 @@ static int acpi_data_get_property_array(const struct acpi_device_data *data,
 					acpi_object_type type,
 					const union acpi_object **obj);
 
+<<<<<<< HEAD
 /* ACPI _DSD device properties GUID: daffd814-6eba-4d8c-8a91-bc9bbf4aa301 */
 static const guid_t prp_guid =
 	GUID_INIT(0xdaffd814, 0x6eba, 0x4d8c,
 		  0x8a, 0x91, 0xbc, 0x9b, 0xbf, 0x4a, 0xa3, 0x01);
+=======
+/*
+ * The GUIDs here are made equivalent to each other in order to avoid extra
+ * complexity in the properties handling code, with the caveat that the
+ * kernel will accept certain combinations of GUID and properties that are
+ * not defined without a warning. For instance if any of the properties
+ * from different GUID appear in a property list of another, it will be
+ * accepted by the kernel. Firmware validation tools should catch these.
+ */
+static const guid_t prp_guids[] = {
+	/* ACPI _DSD device properties GUID: daffd814-6eba-4d8c-8a91-bc9bbf4aa301 */
+	GUID_INIT(0xdaffd814, 0x6eba, 0x4d8c,
+		  0x8a, 0x91, 0xbc, 0x9b, 0xbf, 0x4a, 0xa3, 0x01),
+	/* Hotplug in D3 GUID: 6211e2c0-58a3-4af3-90e1-927a4e0c55a4 */
+	GUID_INIT(0x6211e2c0, 0x58a3, 0x4af3,
+		  0x90, 0xe1, 0x92, 0x7a, 0x4e, 0x0c, 0x55, 0xa4),
+	/* External facing port GUID: efcc06cc-73ac-4bc3-bff0-76143807c389 */
+	GUID_INIT(0xefcc06cc, 0x73ac, 0x4bc3,
+		  0xbf, 0xf0, 0x76, 0x14, 0x38, 0x07, 0xc3, 0x89),
+	/* Thunderbolt GUID for IMR_VALID: c44d002f-69f9-4e7d-a904-a7baabdf43f7 */
+	GUID_INIT(0xc44d002f, 0x69f9, 0x4e7d,
+		  0xa9, 0x04, 0xa7, 0xba, 0xab, 0xdf, 0x43, 0xf7),
+	/* Thunderbolt GUID for WAKE_SUPPORTED: 6c501103-c189-4296-ba72-9bf5a26ebe5d */
+	GUID_INIT(0x6c501103, 0xc189, 0x4296,
+		  0xba, 0x72, 0x9b, 0xf5, 0xa2, 0x6e, 0xbe, 0x5d),
+	/* Storage device needs D3 GUID: 5025030f-842f-4ab4-a561-99a5189762d0 */
+	GUID_INIT(0x5025030f, 0x842f, 0x4ab4,
+		  0xa5, 0x61, 0x99, 0xa5, 0x18, 0x97, 0x62, 0xd0),
+};
+
+>>>>>>> upstream/android-13
 /* ACPI _DSD data subnodes GUID: dbb8e3e6-5886-4ba6-8795-1319f52a966b */
 static const guid_t ads_guid =
 	GUID_INIT(0xdbb8e3e6, 0x5886, 0x4ba6,
@@ -54,8 +93,14 @@ static bool acpi_nondev_subnode_extract(const union acpi_object *desc,
 		return false;
 
 	dn->name = link->package.elements[0].string.pointer;
+<<<<<<< HEAD
 	dn->fwnode.ops = &acpi_data_fwnode_ops;
 	dn->parent = parent;
+=======
+	fwnode_init(&dn->fwnode, &acpi_data_fwnode_ops);
+	dn->parent = parent;
+	INIT_LIST_HEAD(&dn->data.properties);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&dn->data.subnodes);
 
 	result = acpi_extract_properties(desc, &dn->data);
@@ -288,6 +333,38 @@ static void acpi_init_of_compatible(struct acpi_device *adev)
 	adev->flags.of_compatible_ok = 1;
 }
 
+<<<<<<< HEAD
+=======
+static bool acpi_is_property_guid(const guid_t *guid)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(prp_guids); i++) {
+		if (guid_equal(guid, &prp_guids[i]))
+			return true;
+	}
+
+	return false;
+}
+
+struct acpi_device_properties *
+acpi_data_add_props(struct acpi_device_data *data, const guid_t *guid,
+		    const union acpi_object *properties)
+{
+	struct acpi_device_properties *props;
+
+	props = kzalloc(sizeof(*props), GFP_KERNEL);
+	if (props) {
+		INIT_LIST_HEAD(&props->list);
+		props->guid = guid;
+		props->properties = properties;
+		list_add_tail(&props->list, &data->properties);
+	}
+
+	return props;
+}
+
+>>>>>>> upstream/android-13
 static bool acpi_extract_properties(const union acpi_object *desc,
 				    struct acpi_device_data *data)
 {
@@ -312,7 +389,11 @@ static bool acpi_extract_properties(const union acpi_object *desc,
 		    properties->type != ACPI_TYPE_PACKAGE)
 			break;
 
+<<<<<<< HEAD
 		if (!guid_equal((guid_t *)guid->buffer.pointer, &prp_guid))
+=======
+		if (!acpi_is_property_guid((guid_t *)guid->buffer.pointer))
+>>>>>>> upstream/android-13
 			continue;
 
 		/*
@@ -320,6 +401,7 @@ static bool acpi_extract_properties(const union acpi_object *desc,
 		 * package immediately following it.
 		 */
 		if (!acpi_properties_format_valid(properties))
+<<<<<<< HEAD
 			break;
 
 		data->properties = properties;
@@ -327,6 +409,15 @@ static bool acpi_extract_properties(const union acpi_object *desc,
 	}
 
 	return false;
+=======
+			continue;
+
+		acpi_data_add_props(data, (const guid_t *)guid->buffer.pointer,
+				    properties);
+	}
+
+	return !list_empty(&data->properties);
+>>>>>>> upstream/android-13
 }
 
 void acpi_init_properties(struct acpi_device *adev)
@@ -336,6 +427,10 @@ void acpi_init_properties(struct acpi_device *adev)
 	acpi_status status;
 	bool acpi_of = false;
 
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&adev->data.properties);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&adev->data.subnodes);
 
 	if (!adev->handle)
@@ -398,11 +493,23 @@ static void acpi_destroy_nondev_subnodes(struct list_head *list)
 
 void acpi_free_properties(struct acpi_device *adev)
 {
+<<<<<<< HEAD
+=======
+	struct acpi_device_properties *props, *tmp;
+
+>>>>>>> upstream/android-13
 	acpi_destroy_nondev_subnodes(&adev->data.subnodes);
 	ACPI_FREE((void *)adev->data.pointer);
 	adev->data.of_compatible = NULL;
 	adev->data.pointer = NULL;
+<<<<<<< HEAD
 	adev->data.properties = NULL;
+=======
+	list_for_each_entry_safe(props, tmp, &adev->data.properties, list) {
+		list_del(&props->list);
+		kfree(props);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -427,12 +534,17 @@ static int acpi_data_get_property(const struct acpi_device_data *data,
 				  const char *name, acpi_object_type type,
 				  const union acpi_object **obj)
 {
+<<<<<<< HEAD
 	const union acpi_object *properties;
 	int i;
+=======
+	const struct acpi_device_properties *props;
+>>>>>>> upstream/android-13
 
 	if (!data || !name)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!data->pointer || !data->properties)
 		return -EINVAL;
 
@@ -453,6 +565,34 @@ static int acpi_data_get_property(const struct acpi_device_data *data,
 				*obj = propvalue;
 
 			return 0;
+=======
+	if (!data->pointer || list_empty(&data->properties))
+		return -EINVAL;
+
+	list_for_each_entry(props, &data->properties, list) {
+		const union acpi_object *properties;
+		unsigned int i;
+
+		properties = props->properties;
+		for (i = 0; i < properties->package.count; i++) {
+			const union acpi_object *propname, *propvalue;
+			const union acpi_object *property;
+
+			property = &properties->package.elements[i];
+
+			propname = &property->package.elements[0];
+			propvalue = &property->package.elements[1];
+
+			if (!strcmp(name, propname->string.pointer)) {
+				if (type != ACPI_TYPE_ANY &&
+				    propvalue->type != type)
+					return -EPROTO;
+				if (obj)
+					*obj = propvalue;
+
+				return 0;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	return -EINVAL;
@@ -501,7 +641,11 @@ int acpi_node_prop_get(const struct fwnode_handle *fwnode,
 
 /**
  * acpi_data_get_property_array - return an ACPI array property with given name
+<<<<<<< HEAD
  * @adev: ACPI data object to get the property from
+=======
+ * @data: ACPI data object to get the property from
+>>>>>>> upstream/android-13
  * @name: Name of the property
  * @type: Expected type of array elements
  * @obj: Location to store a pointer to the property value (if not NULL)
@@ -548,6 +692,7 @@ acpi_fwnode_get_named_child_node(const struct fwnode_handle *fwnode,
 {
 	struct fwnode_handle *child;
 
+<<<<<<< HEAD
 	/*
 	 * Find first matching named child node of this fwnode.
 	 * For ACPI this will be a data only sub-node.
@@ -555,6 +700,19 @@ acpi_fwnode_get_named_child_node(const struct fwnode_handle *fwnode,
 	fwnode_for_each_child_node(fwnode, child)
 		if (acpi_data_node_match(child, childname))
 			return child;
+=======
+	fwnode_for_each_child_node(fwnode, child) {
+		if (is_acpi_data_node(child)) {
+			if (acpi_data_node_match(child, childname))
+				return child;
+			continue;
+		}
+
+		if (!strncmp(acpi_device_bid(to_acpi_device_node(child)),
+			     childname, ACPI_NAMESEG_SIZE))
+			return child;
+	}
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
@@ -618,7 +776,11 @@ int __acpi_node_get_property_reference(const struct fwnode_handle *fwnode,
 	 */
 	if (obj->type == ACPI_TYPE_LOCAL_REFERENCE) {
 		if (index)
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			return -ENOENT;
+>>>>>>> upstream/android-13
 
 		ret = acpi_bus_get_device(obj->reference.handle, &device);
 		if (ret)
@@ -774,6 +936,7 @@ static int acpi_data_prop_read_single(const struct acpi_device_data *data,
 	return ret;
 }
 
+<<<<<<< HEAD
 int acpi_dev_prop_read_single(struct acpi_device *adev, const char *propname,
 			      enum dev_prop_type proptype, void *val)
 {
@@ -788,6 +951,8 @@ int acpi_dev_prop_read_single(struct acpi_device *adev, const char *propname,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int acpi_copy_property_array_u8(const union acpi_object *items, u8 *val,
 				       size_t nval)
 {
@@ -928,12 +1093,15 @@ static int acpi_data_prop_read(const struct acpi_device_data *data,
 	return ret;
 }
 
+<<<<<<< HEAD
 int acpi_dev_prop_read(const struct acpi_device *adev, const char *propname,
 		       enum dev_prop_type proptype, void *val, size_t nval)
 {
 	return adev ? acpi_data_prop_read(&adev->data, propname, proptype, val, nval) : -EINVAL;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * acpi_node_prop_read - retrieve the value of an ACPI property with given name.
  * @fwnode: Firmware node to get the property from.
@@ -946,9 +1114,15 @@ int acpi_dev_prop_read(const struct acpi_device *adev, const char *propname,
  * of the property.  Otherwise, read at most @nval values to the array at the
  * location pointed to by @val.
  */
+<<<<<<< HEAD
 int acpi_node_prop_read(const struct fwnode_handle *fwnode,
 			const char *propname, enum dev_prop_type proptype,
 			void *val, size_t nval)
+=======
+static int acpi_node_prop_read(const struct fwnode_handle *fwnode,
+			       const char *propname, enum dev_prop_type proptype,
+			       void *val, size_t nval)
+>>>>>>> upstream/android-13
 {
 	return acpi_data_prop_read(acpi_device_data_of_node(fwnode),
 				   propname, proptype, val, nval);
@@ -1043,6 +1217,7 @@ struct fwnode_handle *acpi_node_get_parent(const struct fwnode_handle *fwnode)
 		/* All data nodes have parent pointer so just return that */
 		return to_acpi_data_node(fwnode)->parent;
 	} else if (is_acpi_device_node(fwnode)) {
+<<<<<<< HEAD
 		acpi_handle handle, parent_handle;
 
 		handle = to_acpi_device_node(fwnode)->handle;
@@ -1052,6 +1227,12 @@ struct fwnode_handle *acpi_node_get_parent(const struct fwnode_handle *fwnode)
 			if (!acpi_bus_get_device(parent_handle, &adev))
 				return acpi_fwnode_handle(adev);
 		}
+=======
+		struct device *dev = to_acpi_device_node(fwnode)->dev.parent;
+
+		if (dev)
+			return acpi_fwnode_handle(to_acpi_device(dev));
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
@@ -1164,9 +1345,14 @@ static struct fwnode_handle *acpi_graph_get_child_prop_value(
 
 
 /**
+<<<<<<< HEAD
  * acpi_graph_get_remote_enpoint - Parses and returns remote end of an endpoint
  * @fwnode: Endpoint firmware node pointing to a remote device
  * @endpoint: Firmware node of remote endpoint is filled here if not %NULL
+=======
+ * acpi_graph_get_remote_endpoint - Parses and returns remote end of an endpoint
+ * @__fwnode: Endpoint firmware node pointing to a remote device
+>>>>>>> upstream/android-13
  *
  * Returns the remote endpoint corresponding to @__fwnode. NULL on error.
  */
@@ -1265,6 +1451,55 @@ acpi_fwnode_get_reference_args(const struct fwnode_handle *fwnode,
 						  args_count, args);
 }
 
+<<<<<<< HEAD
+=======
+static const char *acpi_fwnode_get_name(const struct fwnode_handle *fwnode)
+{
+	const struct acpi_device *adev;
+	struct fwnode_handle *parent;
+
+	/* Is this the root node? */
+	parent = fwnode_get_parent(fwnode);
+	if (!parent)
+		return "\\";
+
+	fwnode_handle_put(parent);
+
+	if (is_acpi_data_node(fwnode)) {
+		const struct acpi_data_node *dn = to_acpi_data_node(fwnode);
+
+		return dn->name;
+	}
+
+	adev = to_acpi_device_node(fwnode);
+	if (WARN_ON(!adev))
+		return NULL;
+
+	return acpi_device_bid(adev);
+}
+
+static const char *
+acpi_fwnode_get_name_prefix(const struct fwnode_handle *fwnode)
+{
+	struct fwnode_handle *parent;
+
+	/* Is this the root node? */
+	parent = fwnode_get_parent(fwnode);
+	if (!parent)
+		return "";
+
+	/* Is this 2nd node from the root? */
+	parent = fwnode_get_next_parent(parent);
+	if (!parent)
+		return "";
+
+	fwnode_handle_put(parent);
+
+	/* ACPI device or data node. */
+	return ".";
+}
+
+>>>>>>> upstream/android-13
 static struct fwnode_handle *
 acpi_fwnode_get_parent(struct fwnode_handle *fwnode)
 {
@@ -1305,6 +1540,11 @@ acpi_fwnode_device_get_match_data(const struct fwnode_handle *fwnode,
 		.get_parent = acpi_node_get_parent,			\
 		.get_next_child_node = acpi_get_next_subnode,		\
 		.get_named_child_node = acpi_fwnode_get_named_child_node, \
+<<<<<<< HEAD
+=======
+		.get_name = acpi_fwnode_get_name,			\
+		.get_name_prefix = acpi_fwnode_get_name_prefix,		\
+>>>>>>> upstream/android-13
 		.get_reference_args = acpi_fwnode_get_reference_args,	\
 		.graph_get_next_endpoint =				\
 			acpi_graph_get_next_endpoint,			\

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SPU file system -- file contents
  *
  * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
  *
  * Author: Arnd Bergmann <arndb@de.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +23,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
 
+<<<<<<< HEAD
+=======
+#include <linux/coredump.h>
+>>>>>>> upstream/android-13
 #include <linux/fs.h>
 #include <linux/ioctl.h>
 #include <linux/export.h>
@@ -142,6 +153,17 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t spufs_dump_emit(struct coredump_params *cprm, void *buf,
+		size_t size)
+{
+	if (!dump_emit(cprm, buf, size))
+		return -EIO;
+	return size;
+}
+
+>>>>>>> upstream/android-13
 #define DEFINE_SPUFS_SIMPLE_ATTRIBUTE(__fops, __get, __set, __fmt)	\
 static int __fops ## _open(struct inode *inode, struct file *file)	\
 {									\
@@ -185,12 +207,18 @@ spufs_mem_release(struct inode *inode, struct file *file)
 }
 
 static ssize_t
+<<<<<<< HEAD
 __spufs_mem_read(struct spu_context *ctx, char __user *buffer,
 			size_t size, loff_t *pos)
 {
 	char *local_store = ctx->ops->get_ls(ctx);
 	return simple_read_from_buffer(buffer, size, pos, local_store,
 					LS_SIZE);
+=======
+spufs_mem_dump(struct spu_context *ctx, struct coredump_params *cprm)
+{
+	return spufs_dump_emit(cprm, ctx->ops->get_ls(ctx), LS_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -203,7 +231,12 @@ spufs_mem_read(struct file *file, char __user *buffer,
 	ret = spu_acquire(ctx);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	ret = __spufs_mem_read(ctx, buffer, size, pos);
+=======
+	ret = simple_read_from_buffer(buffer, size, pos, ctx->ops->get_ls(ctx),
+				      LS_SIZE);
+>>>>>>> upstream/android-13
 	spu_release(ctx);
 
 	return ret;
@@ -331,7 +364,11 @@ static vm_fault_t spufs_ps_fault(struct vm_fault *vmf,
 		return VM_FAULT_SIGBUS;
 
 	/*
+<<<<<<< HEAD
 	 * Because we release the mmap_sem, the context may be destroyed while
+=======
+	 * Because we release the mmap_lock, the context may be destroyed while
+>>>>>>> upstream/android-13
 	 * we're in spu_wait. Grab an extra reference so it isn't destroyed
 	 * in the meantime.
 	 */
@@ -340,8 +377,13 @@ static vm_fault_t spufs_ps_fault(struct vm_fault *vmf,
 	/*
 	 * We have to wait for context to be loaded before we have
 	 * pages to hand out to the user, but we don't want to wait
+<<<<<<< HEAD
 	 * with the mmap_sem held.
 	 * It is possible to drop the mmap_sem here, but then we need
+=======
+	 * with the mmap_lock held.
+	 * It is possible to drop the mmap_lock here, but then we need
+>>>>>>> upstream/android-13
 	 * to return VM_FAULT_NOPAGE because the mappings may have
 	 * hanged.
 	 */
@@ -349,11 +391,19 @@ static vm_fault_t spufs_ps_fault(struct vm_fault *vmf,
 		goto refault;
 
 	if (ctx->state == SPU_STATE_SAVED) {
+<<<<<<< HEAD
 		up_read(&current->mm->mmap_sem);
 		spu_context_nospu_trace(spufs_ps_fault__sleep, ctx);
 		err = spufs_wait(ctx->run_wq, ctx->state == SPU_STATE_RUNNABLE);
 		spu_context_trace(spufs_ps_fault__wake, ctx, ctx->spu);
 		down_read(&current->mm->mmap_sem);
+=======
+		mmap_read_unlock(current->mm);
+		spu_context_nospu_trace(spufs_ps_fault__sleep, ctx);
+		err = spufs_wait(ctx->run_wq, ctx->state == SPU_STATE_RUNNABLE);
+		spu_context_trace(spufs_ps_fault__wake, ctx, ctx->spu);
+		mmap_read_lock(current->mm);
+>>>>>>> upstream/android-13
 	} else {
 		area = ctx->spu->problem_phys + ps_offs;
 		ret = vmf_insert_pfn(vmf->vma, vmf->address,
@@ -459,7 +509,11 @@ static const struct file_operations spufs_cntl_fops = {
 	.release = spufs_cntl_release,
 	.read = simple_attr_read,
 	.write = simple_attr_write,
+<<<<<<< HEAD
 	.llseek	= generic_file_llseek,
+=======
+	.llseek	= no_llseek,
+>>>>>>> upstream/android-13
 	.mmap = spufs_cntl_mmap,
 };
 
@@ -472,12 +526,19 @@ spufs_regs_open(struct inode *inode, struct file *file)
 }
 
 static ssize_t
+<<<<<<< HEAD
 __spufs_regs_read(struct spu_context *ctx, char __user *buffer,
 			size_t size, loff_t *pos)
 {
 	struct spu_lscsa *lscsa = ctx->csa.lscsa;
 	return simple_read_from_buffer(buffer, size, pos,
 				      lscsa->gprs, sizeof lscsa->gprs);
+=======
+spufs_regs_dump(struct spu_context *ctx, struct coredump_params *cprm)
+{
+	return spufs_dump_emit(cprm, ctx->csa.lscsa->gprs,
+			       sizeof(ctx->csa.lscsa->gprs));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -495,7 +556,12 @@ spufs_regs_read(struct file *file, char __user *buffer,
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	ret = __spufs_regs_read(ctx, buffer, size, pos);
+=======
+	ret = simple_read_from_buffer(buffer, size, pos, ctx->csa.lscsa->gprs,
+				      sizeof(ctx->csa.lscsa->gprs));
+>>>>>>> upstream/android-13
 	spu_release_saved(ctx);
 	return ret;
 }
@@ -530,12 +596,19 @@ static const struct file_operations spufs_regs_fops = {
 };
 
 static ssize_t
+<<<<<<< HEAD
 __spufs_fpcr_read(struct spu_context *ctx, char __user * buffer,
 			size_t size, loff_t * pos)
 {
 	struct spu_lscsa *lscsa = ctx->csa.lscsa;
 	return simple_read_from_buffer(buffer, size, pos,
 				      &lscsa->fpcr, sizeof(lscsa->fpcr));
+=======
+spufs_fpcr_dump(struct spu_context *ctx, struct coredump_params *cprm)
+{
+	return spufs_dump_emit(cprm, &ctx->csa.lscsa->fpcr,
+			       sizeof(ctx->csa.lscsa->fpcr));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -548,7 +621,12 @@ spufs_fpcr_read(struct file *file, char __user * buffer,
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	ret = __spufs_fpcr_read(ctx, buffer, size, pos);
+=======
+	ret = simple_read_from_buffer(buffer, size, pos, &ctx->csa.lscsa->fpcr,
+				      sizeof(ctx->csa.lscsa->fpcr));
+>>>>>>> upstream/android-13
 	spu_release_saved(ctx);
 	return ret;
 }
@@ -588,7 +666,11 @@ static int spufs_pipe_open(struct inode *inode, struct file *file)
 	struct spufs_inode_info *i = SPUFS_I(inode);
 	file->private_data = i->i_ctx;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -603,17 +685,24 @@ static ssize_t spufs_mbox_read(struct file *file, char __user *buf,
 			size_t len, loff_t *pos)
 {
 	struct spu_context *ctx = file->private_data;
+<<<<<<< HEAD
 	u32 mbox_data, __user *udata;
+=======
+	u32 mbox_data, __user *udata = (void __user *)buf;
+>>>>>>> upstream/android-13
 	ssize_t count;
 
 	if (len < 4)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, len))
 		return -EFAULT;
 
 	udata = (void __user *)buf;
 
+=======
+>>>>>>> upstream/android-13
 	count = spu_acquire(ctx);
 	if (count)
 		return count;
@@ -629,7 +718,11 @@ static ssize_t spufs_mbox_read(struct file *file, char __user *buf,
 		 * but still need to return the data we have
 		 * read successfully so far.
 		 */
+<<<<<<< HEAD
 		ret = __put_user(mbox_data, udata);
+=======
+		ret = put_user(mbox_data, udata);
+>>>>>>> upstream/android-13
 		if (ret) {
 			if (!count)
 				count = -EFAULT;
@@ -711,17 +804,24 @@ static ssize_t spufs_ibox_read(struct file *file, char __user *buf,
 			size_t len, loff_t *pos)
 {
 	struct spu_context *ctx = file->private_data;
+<<<<<<< HEAD
 	u32 ibox_data, __user *udata;
+=======
+	u32 ibox_data, __user *udata = (void __user *)buf;
+>>>>>>> upstream/android-13
 	ssize_t count;
 
 	if (len < 4)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, len))
 		return -EFAULT;
 
 	udata = (void __user *)buf;
 
+=======
+>>>>>>> upstream/android-13
 	count = spu_acquire(ctx);
 	if (count)
 		goto out;
@@ -740,7 +840,11 @@ static ssize_t spufs_ibox_read(struct file *file, char __user *buf,
 	}
 
 	/* if we can't write at all, return -EFAULT */
+<<<<<<< HEAD
 	count = __put_user(ibox_data, udata);
+=======
+	count = put_user(ibox_data, udata);
+>>>>>>> upstream/android-13
 	if (count)
 		goto out_unlock;
 
@@ -754,7 +858,11 @@ static ssize_t spufs_ibox_read(struct file *file, char __user *buf,
 		 * but still need to return the data we have
 		 * read successfully so far.
 		 */
+<<<<<<< HEAD
 		ret = __put_user(ibox_data, udata);
+=======
+		ret = put_user(ibox_data, udata);
+>>>>>>> upstream/android-13
 		if (ret)
 			break;
 	}
@@ -849,17 +957,25 @@ static ssize_t spufs_wbox_write(struct file *file, const char __user *buf,
 			size_t len, loff_t *pos)
 {
 	struct spu_context *ctx = file->private_data;
+<<<<<<< HEAD
 	u32 wbox_data, __user *udata;
+=======
+	u32 wbox_data, __user *udata = (void __user *)buf;
+>>>>>>> upstream/android-13
 	ssize_t count;
 
 	if (len < 4)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	udata = (void __user *)buf;
 	if (!access_ok(VERIFY_READ, buf, len))
 		return -EFAULT;
 
 	if (__get_user(wbox_data, udata))
+=======
+	if (get_user(wbox_data, udata))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	count = spu_acquire(ctx);
@@ -886,7 +1002,11 @@ static ssize_t spufs_wbox_write(struct file *file, const char __user *buf,
 	/* write as much as possible */
 	for (count = 4, udata++; (count + 4) <= len; count += 4, udata++) {
 		int ret;
+<<<<<<< HEAD
 		ret = __get_user(wbox_data, udata);
+=======
+		ret = get_user(wbox_data, udata);
+>>>>>>> upstream/android-13
 		if (ret)
 			break;
 
@@ -980,6 +1100,7 @@ spufs_signal1_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t __spufs_signal1_read(struct spu_context *ctx, char __user *buf,
 			size_t len, loff_t *pos)
 {
@@ -1002,6 +1123,28 @@ static ssize_t __spufs_signal1_read(struct spu_context *ctx, char __user *buf,
 
 out:
 	return ret;
+=======
+static ssize_t spufs_signal1_dump(struct spu_context *ctx,
+		struct coredump_params *cprm)
+{
+	if (!ctx->csa.spu_chnlcnt_RW[3])
+		return 0;
+	return spufs_dump_emit(cprm, &ctx->csa.spu_chnldata_RW[3],
+			       sizeof(ctx->csa.spu_chnldata_RW[3]));
+}
+
+static ssize_t __spufs_signal1_read(struct spu_context *ctx, char __user *buf,
+			size_t len)
+{
+	if (len < sizeof(ctx->csa.spu_chnldata_RW[3]))
+		return -EINVAL;
+	if (!ctx->csa.spu_chnlcnt_RW[3])
+		return 0;
+	if (copy_to_user(buf, &ctx->csa.spu_chnldata_RW[3],
+			 sizeof(ctx->csa.spu_chnldata_RW[3])))
+		return -EFAULT;
+	return sizeof(ctx->csa.spu_chnldata_RW[3]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spufs_signal1_read(struct file *file, char __user *buf,
@@ -1013,7 +1156,11 @@ static ssize_t spufs_signal1_read(struct file *file, char __user *buf,
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	ret = __spufs_signal1_read(ctx, buf, len, pos);
+=======
+	ret = __spufs_signal1_read(ctx, buf, len);
+>>>>>>> upstream/android-13
 	spu_release_saved(ctx);
 
 	return ret;
@@ -1117,6 +1264,7 @@ spufs_signal2_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t __spufs_signal2_read(struct spu_context *ctx, char __user *buf,
 			size_t len, loff_t *pos)
 {
@@ -1139,6 +1287,28 @@ static ssize_t __spufs_signal2_read(struct spu_context *ctx, char __user *buf,
 
 out:
 	return ret;
+=======
+static ssize_t spufs_signal2_dump(struct spu_context *ctx,
+		struct coredump_params *cprm)
+{
+	if (!ctx->csa.spu_chnlcnt_RW[4])
+		return 0;
+	return spufs_dump_emit(cprm, &ctx->csa.spu_chnldata_RW[4],
+			       sizeof(ctx->csa.spu_chnldata_RW[4]));
+}
+
+static ssize_t __spufs_signal2_read(struct spu_context *ctx, char __user *buf,
+			size_t len)
+{
+	if (len < sizeof(ctx->csa.spu_chnldata_RW[4]))
+		return -EINVAL;
+	if (!ctx->csa.spu_chnlcnt_RW[4])
+		return 0;
+	if (copy_to_user(buf, &ctx->csa.spu_chnldata_RW[4],
+			 sizeof(ctx->csa.spu_chnldata_RW[4])))
+		return -EFAULT;
+	return sizeof(ctx->csa.spu_chnldata_RW[4]);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spufs_signal2_read(struct file *file, char __user *buf,
@@ -1150,7 +1320,11 @@ static ssize_t spufs_signal2_read(struct file *file, char __user *buf,
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	ret = __spufs_signal2_read(ctx, buf, len, pos);
+=======
+	ret = __spufs_signal2_read(ctx, buf, len);
+>>>>>>> upstream/android-13
 	spu_release_saved(ctx);
 
 	return ret;
@@ -1974,6 +2148,7 @@ static const struct file_operations spufs_caps_fops = {
 	.release	= single_release,
 };
 
+<<<<<<< HEAD
 static ssize_t __spufs_mbox_info_read(struct spu_context *ctx,
 			char __user *buf, size_t len, loff_t *pos)
 {
@@ -1986,6 +2161,15 @@ static ssize_t __spufs_mbox_info_read(struct spu_context *ctx,
 	data = ctx->csa.prob.pu_mb_R;
 
 	return simple_read_from_buffer(buf, len, pos, &data, sizeof data);
+=======
+static ssize_t spufs_mbox_info_dump(struct spu_context *ctx,
+		struct coredump_params *cprm)
+{
+	if (!(ctx->csa.prob.mb_stat_R & 0x0000ff))
+		return 0;
+	return spufs_dump_emit(cprm, &ctx->csa.prob.pu_mb_R,
+			       sizeof(ctx->csa.prob.pu_mb_R));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spufs_mbox_info_read(struct file *file, char __user *buf,
@@ -1995,9 +2179,12 @@ static ssize_t spufs_mbox_info_read(struct file *file, char __user *buf,
 	u32 stat, data;
 	int ret;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, len))
 		return -EFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
@@ -2020,6 +2207,7 @@ static const struct file_operations spufs_mbox_info_fops = {
 	.llseek  = generic_file_llseek,
 };
 
+<<<<<<< HEAD
 static ssize_t __spufs_ibox_info_read(struct spu_context *ctx,
 				char __user *buf, size_t len, loff_t *pos)
 {
@@ -2032,6 +2220,15 @@ static ssize_t __spufs_ibox_info_read(struct spu_context *ctx,
 	data = ctx->csa.priv2.puint_mb_R;
 
 	return simple_read_from_buffer(buf, len, pos, &data, sizeof data);
+=======
+static ssize_t spufs_ibox_info_dump(struct spu_context *ctx,
+		struct coredump_params *cprm)
+{
+	if (!(ctx->csa.prob.mb_stat_R & 0xff0000))
+		return 0;
+	return spufs_dump_emit(cprm, &ctx->csa.priv2.puint_mb_R,
+			       sizeof(ctx->csa.priv2.puint_mb_R));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spufs_ibox_info_read(struct file *file, char __user *buf,
@@ -2041,9 +2238,12 @@ static ssize_t spufs_ibox_info_read(struct file *file, char __user *buf,
 	u32 stat, data;
 	int ret;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, len))
 		return -EFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
@@ -2071,6 +2271,7 @@ static size_t spufs_wbox_info_cnt(struct spu_context *ctx)
 	return (4 - ((ctx->csa.prob.mb_stat_R & 0x00ff00) >> 8)) * sizeof(u32);
 }
 
+<<<<<<< HEAD
 static ssize_t __spufs_wbox_info_read(struct spu_context *ctx,
 			char __user *buf, size_t len, loff_t *pos)
 {
@@ -2086,6 +2287,13 @@ static ssize_t __spufs_wbox_info_read(struct spu_context *ctx,
 
 	return simple_read_from_buffer(buf, len, pos, &data,
 				cnt * sizeof(u32));
+=======
+static ssize_t spufs_wbox_info_dump(struct spu_context *ctx,
+		struct coredump_params *cprm)
+{
+	return spufs_dump_emit(cprm, &ctx->csa.spu_mailbox_data,
+			spufs_wbox_info_cnt(ctx));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spufs_wbox_info_read(struct file *file, char __user *buf,
@@ -2095,9 +2303,12 @@ static ssize_t spufs_wbox_info_read(struct file *file, char __user *buf,
 	u32 data[ARRAY_SIZE(ctx->csa.spu_mailbox_data)];
 	int ret, count;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, len))
 		return -EFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
@@ -2138,15 +2349,24 @@ static void spufs_get_dma_info(struct spu_context *ctx,
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t __spufs_dma_info_read(struct spu_context *ctx,
 			char __user *buf, size_t len, loff_t *pos)
+=======
+static ssize_t spufs_dma_info_dump(struct spu_context *ctx,
+		struct coredump_params *cprm)
+>>>>>>> upstream/android-13
 {
 	struct spu_dma_info info;
 
 	spufs_get_dma_info(ctx, &info);
+<<<<<<< HEAD
 
 	return simple_read_from_buffer(buf, len, pos, &info,
 				sizeof info);
+=======
+	return spufs_dump_emit(cprm, &info, sizeof(info));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spufs_dma_info_read(struct file *file, char __user *buf,
@@ -2156,9 +2376,12 @@ static ssize_t spufs_dma_info_read(struct file *file, char __user *buf,
 	struct spu_dma_info info;
 	int ret;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, len))
 		return -EFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
@@ -2197,6 +2420,7 @@ static void spufs_get_proxydma_info(struct spu_context *ctx,
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t __spufs_proxydma_info_read(struct spu_context *ctx,
 			char __user *buf, size_t len, loff_t *pos)
 {
@@ -2213,6 +2437,15 @@ static ssize_t __spufs_proxydma_info_read(struct spu_context *ctx,
 
 	return simple_read_from_buffer(buf, len, pos, &info,
 				sizeof info);
+=======
+static ssize_t spufs_proxydma_info_dump(struct spu_context *ctx,
+		struct coredump_params *cprm)
+{
+	struct spu_proxydma_info info;
+
+	spufs_get_proxydma_info(ctx, &info);
+	return spufs_dump_emit(cprm, &info, sizeof(info));
+>>>>>>> upstream/android-13
 }
 
 static ssize_t spufs_proxydma_info_read(struct file *file, char __user *buf,
@@ -2222,6 +2455,12 @@ static ssize_t spufs_proxydma_info_read(struct file *file, char __user *buf,
 	struct spu_proxydma_info info;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (len < sizeof(info))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	ret = spu_acquire_saved(ctx);
 	if (ret)
 		return ret;
@@ -2375,9 +2614,14 @@ static int spufs_switch_log_open(struct inode *inode, struct file *file)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ctx->switch_log = kmalloc(sizeof(struct switch_log) +
 		SWITCH_LOG_BUFSIZE * sizeof(struct switch_log_entry),
 		GFP_KERNEL);
+=======
+	ctx->switch_log = kmalloc(struct_size(ctx->switch_log, log,
+				  SWITCH_LOG_BUFSIZE), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!ctx->switch_log) {
 		rc = -ENOMEM;
@@ -2676,6 +2920,7 @@ const struct spufs_tree_descr spufs_dir_debug_contents[] = {
 };
 
 const struct spufs_coredump_reader spufs_coredump_read[] = {
+<<<<<<< HEAD
 	{ "regs", __spufs_regs_read, NULL, sizeof(struct spu_reg128[128])},
 	{ "fpcr", __spufs_fpcr_read, NULL, sizeof(struct spu_reg128) },
 	{ "lslr", NULL, spufs_lslr_get, 19 },
@@ -2693,6 +2938,25 @@ const struct spufs_coredump_reader spufs_coredump_read[] = {
 	{ "wbox_info", __spufs_wbox_info_read, NULL, 4 * sizeof(u32)},
 	{ "dma_info", __spufs_dma_info_read, NULL, sizeof(struct spu_dma_info)},
 	{ "proxydma_info", __spufs_proxydma_info_read,
+=======
+	{ "regs", spufs_regs_dump, NULL, sizeof(struct spu_reg128[128])},
+	{ "fpcr", spufs_fpcr_dump, NULL, sizeof(struct spu_reg128) },
+	{ "lslr", NULL, spufs_lslr_get, 19 },
+	{ "decr", NULL, spufs_decr_get, 19 },
+	{ "decr_status", NULL, spufs_decr_status_get, 19 },
+	{ "mem", spufs_mem_dump, NULL, LS_SIZE, },
+	{ "signal1", spufs_signal1_dump, NULL, sizeof(u32) },
+	{ "signal1_type", NULL, spufs_signal1_type_get, 19 },
+	{ "signal2", spufs_signal2_dump, NULL, sizeof(u32) },
+	{ "signal2_type", NULL, spufs_signal2_type_get, 19 },
+	{ "event_mask", NULL, spufs_event_mask_get, 19 },
+	{ "event_status", NULL, spufs_event_status_get, 19 },
+	{ "mbox_info", spufs_mbox_info_dump, NULL, sizeof(u32) },
+	{ "ibox_info", spufs_ibox_info_dump, NULL, sizeof(u32) },
+	{ "wbox_info", spufs_wbox_info_dump, NULL, 4 * sizeof(u32)},
+	{ "dma_info", spufs_dma_info_dump, NULL, sizeof(struct spu_dma_info)},
+	{ "proxydma_info", spufs_proxydma_info_dump,
+>>>>>>> upstream/android-13
 			   NULL, sizeof(struct spu_proxydma_info)},
 	{ "object-id", NULL, spufs_object_id_get, 19 },
 	{ "npc", NULL, spufs_npc_get, 19 },

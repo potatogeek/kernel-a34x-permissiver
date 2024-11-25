@@ -457,6 +457,7 @@ struct quota_format_type {
 };
 
 /**
+<<<<<<< HEAD
  * Quota state flags - they actually come in two flavors - for users and groups.
  *
  * Actual typed flags layout:
@@ -468,6 +469,20 @@ struct quota_format_type {
  * Following bits are used for non-typed flags:
  *  DQUOT_QUOTA_SYS_FILE	0x0040
  *  DQUOT_NEGATIVE_USAGE	0x0080
+=======
+ * Quota state flags - they come in three flavors - for users, groups and projects.
+ *
+ * Actual typed flags layout:
+ *				USRQUOTA	GRPQUOTA	PRJQUOTA
+ *  DQUOT_USAGE_ENABLED		0x0001		0x0002		0x0004
+ *  DQUOT_LIMITS_ENABLED	0x0008		0x0010		0x0020
+ *  DQUOT_SUSPENDED		0x0040		0x0080		0x0100
+ *
+ * Following bits are used for non-typed flags:
+ *  DQUOT_QUOTA_SYS_FILE	0x0200
+ *  DQUOT_NEGATIVE_USAGE	0x0400
+ *  DQUOT_NOLIST_DIRTY		0x0800
+>>>>>>> upstream/android-13
  */
 enum {
 	_DQUOT_USAGE_ENABLED = 0,		/* Track disk usage for users */

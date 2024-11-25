@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7770 Setup
  *
  *  Copyright (C) 2006 - 2008  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/init.h>
@@ -14,6 +21,10 @@
 #include <linux/sh_timer.h>
 #include <linux/sh_intc.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 static struct plat_sci_port scif0_platform_data = {
 	.scscr		= SCSCR_REIE | SCSCR_TOIE,
@@ -319,7 +330,11 @@ static struct platform_device *sh7770_early_devices[] __initdata = {
 
 void __init plat_early_device_setup(void)
 {
+<<<<<<< HEAD
 	early_platform_add_devices(sh7770_early_devices,
+=======
+	sh_early_platform_add_devices(sh7770_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(sh7770_early_devices));
 }
 

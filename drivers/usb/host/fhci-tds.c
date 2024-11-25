@@ -467,17 +467,26 @@ u32 fhci_host_transaction(struct fhci_usb *usb,
 /* Reset the Tx BD ring */
 void fhci_flush_bds(struct fhci_usb *usb)
 {
+<<<<<<< HEAD
 	u16 extra_data;
 	u16 td_status;
 	u32 buf;
+=======
+	u16 td_status;
+>>>>>>> upstream/android-13
 	struct usb_td __iomem *td;
 	struct endpoint *ep = usb->ep0;
 
 	td = ep->td_base;
 	while (1) {
 		td_status = in_be16(&td->status);
+<<<<<<< HEAD
 		buf = in_be32(&td->buf_ptr);
 		extra_data = in_be16(&td->extra);
+=======
+		in_be32(&td->buf_ptr);
+		in_be16(&td->extra);
+>>>>>>> upstream/android-13
 
 		/* if the TD is not empty - we'll confirm it as Timeout */
 		if (td_status & TD_R)
@@ -524,7 +533,10 @@ void fhci_flush_actual_frame(struct fhci_usb *usb)
 {
 	u8 mode;
 	u16 tb_ptr;
+<<<<<<< HEAD
 	u16 extra_data;
+=======
+>>>>>>> upstream/android-13
 	u16 td_status;
 	u32 buf_ptr;
 	struct usb_td __iomem *td;
@@ -538,7 +550,11 @@ void fhci_flush_actual_frame(struct fhci_usb *usb)
 	td = cpm_muram_addr(tb_ptr);
 	td_status = in_be16(&td->status);
 	buf_ptr = in_be32(&td->buf_ptr);
+<<<<<<< HEAD
 	extra_data = in_be16(&td->extra);
+=======
+	in_be16(&td->extra);
+>>>>>>> upstream/android-13
 	do {
 		if (td_status & TD_R) {
 			out_be16(&td->status, (td_status & ~TD_R) | TD_TO);
@@ -552,7 +568,11 @@ void fhci_flush_actual_frame(struct fhci_usb *usb)
 		td = next_bd(ep->td_base, td, td_status);
 		td_status = in_be16(&td->status);
 		buf_ptr = in_be32(&td->buf_ptr);
+<<<<<<< HEAD
 		extra_data = in_be16(&td->extra);
+=======
+		in_be16(&td->extra);
+>>>>>>> upstream/android-13
 	} while ((td_status & TD_R) || buf_ptr);
 
 	fhci_td_transaction_confirm(usb);

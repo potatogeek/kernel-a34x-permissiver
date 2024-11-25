@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -1115,6 +1120,10 @@ vortex_adbdma_setbuffers(vortex_t * vortex, int adbdma,
 		hwwrite(vortex->mmio,
 			VORTEX_ADBDMA_BUFBASE + (adbdma << 4) + 0xc,
 			snd_pcm_sgbuf_get_addr(dma->substream, psize * 3));
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* 3 pages */
 	case 3:
 		dma->cfg0 |= 0x12000000;
@@ -1122,12 +1131,20 @@ vortex_adbdma_setbuffers(vortex_t * vortex, int adbdma,
 		hwwrite(vortex->mmio,
 			VORTEX_ADBDMA_BUFBASE + (adbdma << 4) + 0x8,
 			snd_pcm_sgbuf_get_addr(dma->substream, psize * 2));
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* 2 pages */
 	case 2:
 		dma->cfg0 |= 0x88000000 | 0x44000000 | 0x10000000 | (psize - 1);
 		hwwrite(vortex->mmio,
 			VORTEX_ADBDMA_BUFBASE + (adbdma << 4) + 0x4,
 			snd_pcm_sgbuf_get_addr(dma->substream, psize));
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* 1 page */
 	case 1:
 		dma->cfg0 |= 0x80000000 | 0x40000000 | ((psize - 1) << 0xc);
@@ -1390,17 +1407,29 @@ vortex_wtdma_setbuffers(vortex_t * vortex, int wtdma,
 		dma->cfg1 |= 0x88000000 | 0x44000000 | 0x30000000 | (psize-1);
 		hwwrite(vortex->mmio, VORTEX_WTDMA_BUFBASE + (wtdma << 4) + 0xc,
 			snd_pcm_sgbuf_get_addr(dma->substream, psize * 3));
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* 3 pages */
 	case 3:
 		dma->cfg0 |= 0x12000000;
 		dma->cfg1 |= 0x80000000 | 0x40000000 | ((psize-1) << 0xc);
 		hwwrite(vortex->mmio, VORTEX_WTDMA_BUFBASE + (wtdma << 4)  + 0x8,
 			snd_pcm_sgbuf_get_addr(dma->substream, psize * 2));
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* 2 pages */
 	case 2:
 		dma->cfg0 |= 0x88000000 | 0x44000000 | 0x10000000 | (psize-1);
 		hwwrite(vortex->mmio, VORTEX_WTDMA_BUFBASE + (wtdma << 4) + 0x4,
 			snd_pcm_sgbuf_get_addr(dma->substream, psize));
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 		/* 1 page */
 	case 1:
 		dma->cfg0 |= 0x80000000 | 0x40000000 | ((psize-1) << 0xc);
@@ -1995,7 +2024,11 @@ vortex_connect_codecrec(vortex_t * vortex, int en, unsigned char mixin0,
 // Higher level ADB audio path (de)allocator.
 
 /* Resource manager */
+<<<<<<< HEAD
 static int resnum[VORTEX_RESOURCE_LAST] =
+=======
+static const int resnum[VORTEX_RESOURCE_LAST] =
+>>>>>>> upstream/android-13
     { NR_ADB, NR_SRC, NR_MIXIN, NR_MIXOUT, NR_A3D };
 /*
  Checkout/Checkin resource of given type. 
@@ -2126,9 +2159,15 @@ vortex_adb_allocroute(vortex_t *vortex, int dma, int nr_ch, int dir,
 				      VORTEX_RESOURCE_DMA);
 	} else {
 		en = 1;
+<<<<<<< HEAD
 		if ((dma =
 		     vortex_adb_checkinout(vortex, NULL, en,
 					   VORTEX_RESOURCE_DMA)) < 0)
+=======
+		dma = vortex_adb_checkinout(vortex, NULL, en,
+					    VORTEX_RESOURCE_DMA);
+		if (dma < 0)
+>>>>>>> upstream/android-13
 			return -EBUSY;
 	}
 
@@ -2146,18 +2185,33 @@ vortex_adb_allocroute(vortex_t *vortex, int dma, int nr_ch, int dir,
 		/* Get SRC and MIXER hardware resources. */
 		if (stream->type != VORTEX_PCM_SPDIF) {
 			for (i = 0; i < nr_ch; i++) {
+<<<<<<< HEAD
 				if ((src[i] = vortex_adb_checkinout(vortex,
 							   stream->resources, en,
 							   VORTEX_RESOURCE_SRC)) < 0) {
+=======
+				src[i] = vortex_adb_checkinout(vortex,
+							       stream->resources, en,
+							       VORTEX_RESOURCE_SRC);
+				if (src[i] < 0) {
+>>>>>>> upstream/android-13
 					memset(stream->resources, 0,
 					       sizeof(stream->resources));
 					return -EBUSY;
 				}
 				if (stream->type != VORTEX_PCM_A3D) {
+<<<<<<< HEAD
 					if ((mix[i] = vortex_adb_checkinout(vortex,
 								   stream->resources,
 								   en,
 								   VORTEX_RESOURCE_MIXIN)) < 0) {
+=======
+					mix[i] = vortex_adb_checkinout(vortex,
+								       stream->resources,
+								       en,
+								       VORTEX_RESOURCE_MIXIN);
+					if (mix[i] < 0) {
+>>>>>>> upstream/android-13
 						memset(stream->resources,
 						       0,
 						       sizeof(stream->resources));
@@ -2168,10 +2222,17 @@ vortex_adb_allocroute(vortex_t *vortex, int dma, int nr_ch, int dir,
 		}
 #ifndef CHIP_AU8820
 		if (stream->type == VORTEX_PCM_A3D) {
+<<<<<<< HEAD
 			if ((a3d =
 			     vortex_adb_checkinout(vortex,
 						   stream->resources, en,
 						   VORTEX_RESOURCE_A3D)) < 0) {
+=======
+			a3d = vortex_adb_checkinout(vortex,
+						    stream->resources, en,
+						    VORTEX_RESOURCE_A3D);
+			if (a3d < 0) {
+>>>>>>> upstream/android-13
 				memset(stream->resources, 0,
 				       sizeof(stream->resources));
 				dev_err(vortex->card->dev,
@@ -2284,19 +2345,33 @@ vortex_adb_allocroute(vortex_t *vortex, int dma, int nr_ch, int dir,
 
 		/* Get SRC and MIXER hardware resources. */
 		for (i = 0; i < nr_ch; i++) {
+<<<<<<< HEAD
 			if ((mix[i] =
 			     vortex_adb_checkinout(vortex,
 						   stream->resources, en,
 						   VORTEX_RESOURCE_MIXOUT))
 			    < 0) {
+=======
+			mix[i] = vortex_adb_checkinout(vortex,
+						       stream->resources, en,
+						       VORTEX_RESOURCE_MIXOUT);
+			if (mix[i] < 0) {
+>>>>>>> upstream/android-13
 				memset(stream->resources, 0,
 				       sizeof(stream->resources));
 				return -EBUSY;
 			}
+<<<<<<< HEAD
 			if ((src[i] =
 			     vortex_adb_checkinout(vortex,
 						   stream->resources, en,
 						   VORTEX_RESOURCE_SRC)) < 0) {
+=======
+			src[i] = vortex_adb_checkinout(vortex,
+						       stream->resources, en,
+						       VORTEX_RESOURCE_SRC);
+			if (src[i] < 0) {
+>>>>>>> upstream/android-13
 				memset(stream->resources, 0,
 				       sizeof(stream->resources));
 				return -EBUSY;

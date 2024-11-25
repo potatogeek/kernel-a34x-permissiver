@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000 MIPS Technologies, Inc.  All rights reserved.
@@ -14,6 +15,12 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Carsten Langgaard, carstenl@mips.com
+ * Copyright (C) 2000 MIPS Technologies, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/ioport.h>
@@ -69,6 +76,10 @@ const char *get_system_type(void)
 		case TITAN_CHIP_1060:
 			return "TI AR7 (TNETV1060)";
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return "TI AR7 (unknown)";
 	}

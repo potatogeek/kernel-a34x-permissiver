@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_OPL3_H
 #define __SOUND_OPL3_H
 
@@ -7,7 +11,10 @@
  * Copyright (c) by Jaroslav Kysela <perex@perex.cz>,
  *                  Hannu Savolainen 1993-1996
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *      The OPL-3 mode is switched on by writing 0x01, to the offset 5
  *      of the right side.
  *
@@ -33,6 +40,7 @@
  *      The stereo connection bits are located in the FEEDBACK_CONNECTION
  *      register of the voice (0xC0-0xC8). In 4 OP voices these bits are
  *      in the second half of the voice.
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -49,6 +57,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/core.h>

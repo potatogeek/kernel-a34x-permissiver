@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * GE watchdog userspace interface
  *
@@ -5,11 +9,14 @@
  *
  * Copyright 2008 GE Intelligent Platforms Embedded Systems, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on: mv64x60_wdt.c (MV64X60 watchdog userspace interface)
  *   Author: James Chapman <jchapman@katalix.com>
  */
@@ -205,7 +212,11 @@ static long gef_wdt_ioctl(struct file *file, unsigned int cmd,
 		if (get_user(timeout, (int __user *)argp))
 			return -EFAULT;
 		gef_wdt_set_timeout(timeout);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case WDIOC_GETTIMEOUT:
 		if (put_user(gef_wdt_timeout, (int __user *)argp))
@@ -229,7 +240,11 @@ static int gef_wdt_open(struct inode *inode, struct file *file)
 
 	gef_wdt_handler_enable();
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int gef_wdt_release(struct inode *inode, struct file *file)
@@ -252,6 +267,10 @@ static const struct file_operations gef_wdt_fops = {
 	.llseek = no_llseek,
 	.write = gef_wdt_write,
 	.unlocked_ioctl = gef_wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open = gef_wdt_open,
 	.release = gef_wdt_release,
 };

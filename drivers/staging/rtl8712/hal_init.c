@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /******************************************************************************
  * hal_init.c
+=======
+// SPDX-License-Identifier: GPL-2.0
+/******************************************************************************
+>>>>>>> upstream/android-13
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -13,6 +19,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -35,6 +43,7 @@
 #include "usb_osintf.h"
 
 #define FWBUFF_ALIGN_SZ 512
+<<<<<<< HEAD
 #define MAX_DUMP_FWSZ	49152 /*default = 49152 (48k)*/
 
 static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
@@ -54,6 +63,41 @@ static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
 	padapter->fw = firmware;
 	/* firmware available - start netdev */
 	register_netdev(padapter->pnetdev);
+=======
+#define MAX_DUMP_FWSZ (48 * 1024)
+
+static void rtl871x_load_fw_fail(struct _adapter *adapter)
+{
+	struct usb_device *udev = adapter->dvobjpriv.pusbdev;
+	struct device *dev = &udev->dev;
+	struct device *parent = dev->parent;
+
+	complete(&adapter->rtl8712_fw_ready);
+
+	dev_err(&udev->dev, "r8712u: Firmware request failed\n");
+
+	if (parent)
+		device_lock(parent);
+
+	device_release_driver(dev);
+
+	if (parent)
+		device_unlock(parent);
+}
+
+static void rtl871x_load_fw_cb(const struct firmware *firmware, void *context)
+{
+	struct _adapter *adapter = context;
+
+	if (!firmware) {
+		rtl871x_load_fw_fail(adapter);
+		return;
+	}
+	adapter->fw = firmware;
+	/* firmware available - start netdev */
+	register_netdev(adapter->pnetdev);
+	complete(&adapter->rtl8712_fw_ready);
+>>>>>>> upstream/android-13
 }
 
 static const char firmware_file[] = "rtlwifi/rtl8712u.bin";
@@ -73,6 +117,7 @@ int rtl871x_load_fw(struct _adapter *padapter)
 }
 MODULE_FIRMWARE("rtlwifi/rtl8712u.bin");
 
+<<<<<<< HEAD
 static u32 rtl871x_open_fw(struct _adapter *padapter, const u8 **ppmappedfw)
 {
 	const struct firmware **praw = &padapter->fw;
@@ -113,6 +158,47 @@ static void fill_fwpriv(struct _adapter *padapter, struct fw_priv *pfwpriv)
 	/* default enable turboMode */
 	pfwpriv->turboMode = ((pregpriv->wifi_test == 1) ? 0 : 1);
 	pfwpriv->lowPowerMode = pregpriv->low_power;
+=======
+static u32 rtl871x_open_fw(struct _adapter *adapter, const u8 **mappedfw)
+{
+	if (adapter->fw->size > 200000) {
+		dev_err(&adapter->pnetdev->dev, "r8712u: Bad fw->size of %zu\n",
+			adapter->fw->size);
+		return 0;
+	}
+	*mappedfw = adapter->fw->data;
+	return adapter->fw->size;
+}
+
+static void fill_fwpriv(struct _adapter *adapter, struct fw_priv *fwpriv)
+{
+	struct dvobj_priv *dvobj = &adapter->dvobjpriv;
+	struct registry_priv *regpriv = &adapter->registrypriv;
+
+	memset(fwpriv, 0, sizeof(struct fw_priv));
+	/* todo: check if needs endian conversion */
+	fwpriv->hci_sel =  RTL8712_HCI_TYPE_72USB;
+	fwpriv->usb_ep_num = (u8)dvobj->nr_endpoint;
+	fwpriv->bw_40MHz_en = regpriv->cbw40_enable;
+	switch (regpriv->rf_config) {
+	case RTL8712_RF_1T1R:
+		fwpriv->rf_config = RTL8712_RFC_1T1R;
+		break;
+	case RTL8712_RF_2T2R:
+		fwpriv->rf_config = RTL8712_RFC_2T2R;
+		break;
+	case RTL8712_RF_1T2R:
+	default:
+		fwpriv->rf_config = RTL8712_RFC_1T2R;
+	}
+	fwpriv->mp_mode = (regpriv->mp_mode == 1);
+	/* 0:off 1:on 2:auto */
+	fwpriv->vcs_type = regpriv->vrtl_carrier_sense;
+	fwpriv->vcs_mode = regpriv->vcs_type; /* 1:RTS/CTS 2:CTS to self */
+	/* default enable turbo_mode */
+	fwpriv->turbo_mode = (regpriv->wifi_test != 1);
+	fwpriv->low_power_mode = regpriv->low_power;
+>>>>>>> upstream/android-13
 }
 
 static void update_fwhdr(struct fw_hdr	*pfwhdr, const u8 *pmappedfw)
@@ -140,7 +226,11 @@ static u8 chk_fwhdr(struct fw_hdr *pfwhdr, u32 ulfilelength)
 	if (pfwhdr->fw_priv_sz != sizeof(struct fw_priv))
 		return _FAIL;
 	/* check fw_sz & image_fw_sz */
+<<<<<<< HEAD
 	fwhdrsz = FIELD_OFFSET(struct fw_hdr, fwpriv) + pfwhdr->fw_priv_sz;
+=======
+	fwhdrsz = offsetof(struct fw_hdr, fwpriv) + pfwhdr->fw_priv_sz;
+>>>>>>> upstream/android-13
 	fw_sz =  fwhdrsz + pfwhdr->img_IMEM_size + pfwhdr->img_SRAM_size +
 		 pfwhdr->dmem_size;
 	if (fw_sz != ulfilelength)
@@ -148,7 +238,11 @@ static u8 chk_fwhdr(struct fw_hdr *pfwhdr, u32 ulfilelength)
 	return _SUCCESS;
 }
 
+<<<<<<< HEAD
 static u8 rtl8712_dl_fw(struct _adapter *padapter)
+=======
+static u8 rtl8712_dl_fw(struct _adapter *adapter)
+>>>>>>> upstream/android-13
 {
 	sint i;
 	u8 tmp8, tmp8_a;
@@ -157,6 +251,7 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 	uint dump_imem_sz, imem_sz, dump_emem_sz, emem_sz; /* max = 49152; */
 	struct fw_hdr fwhdr;
 	u32 ulfilelength;	/* FW file size */
+<<<<<<< HEAD
 	const u8 *pmappedfw = NULL;
 	u8 *ptmpchar = NULL, *ppayload, *ptr;
 	struct tx_desc *ptx_desc;
@@ -169,10 +264,25 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 		if (chk_fwhdr(&fwhdr, ulfilelength) == _FAIL)
 			return ret;
 		fill_fwpriv(padapter, &fwhdr.fwpriv);
+=======
+	const u8 *mappedfw = NULL;
+	u8 *tmpchar = NULL, *payload, *ptr;
+	struct tx_desc *txdesc;
+	u32 txdscp_sz = sizeof(struct tx_desc);
+	u8 ret = _FAIL;
+
+	ulfilelength = rtl871x_open_fw(adapter, &mappedfw);
+	if (mappedfw && (ulfilelength > 0)) {
+		update_fwhdr(&fwhdr, mappedfw);
+		if (chk_fwhdr(&fwhdr, ulfilelength) == _FAIL)
+			return ret;
+		fill_fwpriv(adapter, &fwhdr.fwpriv);
+>>>>>>> upstream/android-13
 		/* firmware check ok */
 		maxlen = (fwhdr.img_IMEM_size > fwhdr.img_SRAM_size) ?
 			  fwhdr.img_IMEM_size : fwhdr.img_SRAM_size;
 		maxlen += txdscp_sz;
+<<<<<<< HEAD
 		ptmpchar = kmalloc(maxlen + FWBUFF_ALIGN_SZ, GFP_KERNEL);
 		if (!ptmpchar)
 			return ret;
@@ -181,16 +291,31 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 			    ((addr_t)(ptmpchar) & (FWBUFF_ALIGN_SZ - 1)));
 		ppayload = (u8 *)(ptx_desc) + txdscp_sz;
 		ptr = (u8 *)pmappedfw + FIELD_OFFSET(struct fw_hdr, fwpriv) +
+=======
+		tmpchar = kmalloc(maxlen + FWBUFF_ALIGN_SZ, GFP_KERNEL);
+		if (!tmpchar)
+			return ret;
+
+		txdesc = (struct tx_desc *)(tmpchar + FWBUFF_ALIGN_SZ -
+			    ((addr_t)(tmpchar) & (FWBUFF_ALIGN_SZ - 1)));
+		payload = (u8 *)(txdesc) + txdscp_sz;
+		ptr = (u8 *)mappedfw + offsetof(struct fw_hdr, fwpriv) +
+>>>>>>> upstream/android-13
 		      fwhdr.fw_priv_sz;
 		/* Download FirmWare */
 		/* 1. determine IMEM code size and Load IMEM Code Section */
 		imem_sz = fwhdr.img_IMEM_size;
 		do {
+<<<<<<< HEAD
 			memset(ptx_desc, 0, TXDESC_SIZE);
+=======
+			memset(txdesc, 0, TXDESC_SIZE);
+>>>>>>> upstream/android-13
 			if (imem_sz >  MAX_DUMP_FWSZ/*49152*/) {
 				dump_imem_sz = MAX_DUMP_FWSZ;
 			} else {
 				dump_imem_sz = imem_sz;
+<<<<<<< HEAD
 				ptx_desc->txdw0 |= cpu_to_le32(BIT(28));
 			}
 			ptx_desc->txdw0 |= cpu_to_le32(dump_imem_sz &
@@ -199,14 +324,31 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 			r8712_write_mem(padapter, RTL8712_DMA_VOQ,
 					dump_imem_sz + TXDESC_SIZE,
 					(u8 *)ptx_desc);
+=======
+				txdesc->txdw0 |= cpu_to_le32(BIT(28));
+			}
+			txdesc->txdw0 |= cpu_to_le32(dump_imem_sz &
+						       0x0000ffff);
+			memcpy(payload, ptr, dump_imem_sz);
+			r8712_write_mem(adapter, RTL8712_DMA_VOQ,
+					dump_imem_sz + TXDESC_SIZE,
+					(u8 *)txdesc);
+>>>>>>> upstream/android-13
 			ptr += dump_imem_sz;
 			imem_sz -= dump_imem_sz;
 		} while (imem_sz > 0);
 		i = 10;
+<<<<<<< HEAD
 		tmp16 = r8712_read16(padapter, TCR);
 		while (((tmp16 & _IMEM_CODE_DONE) == 0) && (i > 0)) {
 			usleep_range(10, 1000);
 			tmp16 = r8712_read16(padapter, TCR);
+=======
+		tmp16 = r8712_read16(adapter, TCR);
+		while (((tmp16 & _IMEM_CODE_DONE) == 0) && (i > 0)) {
+			usleep_range(10, 1000);
+			tmp16 = r8712_read16(adapter, TCR);
+>>>>>>> upstream/android-13
 			i--;
 		}
 		if (i == 0 || (tmp16 & _IMEM_CHK_RPT) == 0)
@@ -215,11 +357,16 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 		/* 2.Download EMEM code size and Load EMEM Code Section */
 		emem_sz = fwhdr.img_SRAM_size;
 		do {
+<<<<<<< HEAD
 			memset(ptx_desc, 0, TXDESC_SIZE);
+=======
+			memset(txdesc, 0, TXDESC_SIZE);
+>>>>>>> upstream/android-13
 			if (emem_sz >  MAX_DUMP_FWSZ) { /* max=48k */
 				dump_emem_sz = MAX_DUMP_FWSZ;
 			} else {
 				dump_emem_sz = emem_sz;
+<<<<<<< HEAD
 				ptx_desc->txdw0 |= cpu_to_le32(BIT(28));
 			}
 			ptx_desc->txdw0 |= cpu_to_le32(dump_emem_sz &
@@ -228,20 +375,38 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 			r8712_write_mem(padapter, RTL8712_DMA_VOQ,
 					dump_emem_sz + TXDESC_SIZE,
 					(u8 *)ptx_desc);
+=======
+				txdesc->txdw0 |= cpu_to_le32(BIT(28));
+			}
+			txdesc->txdw0 |= cpu_to_le32(dump_emem_sz &
+						       0x0000ffff);
+			memcpy(payload, ptr, dump_emem_sz);
+			r8712_write_mem(adapter, RTL8712_DMA_VOQ,
+					dump_emem_sz + TXDESC_SIZE,
+					(u8 *)txdesc);
+>>>>>>> upstream/android-13
 			ptr += dump_emem_sz;
 			emem_sz -= dump_emem_sz;
 		} while (emem_sz > 0);
 		i = 5;
+<<<<<<< HEAD
 		tmp16 = r8712_read16(padapter, TCR);
 		while (((tmp16 & _EMEM_CODE_DONE) == 0) && (i > 0)) {
 			usleep_range(10, 1000);
 			tmp16 = r8712_read16(padapter, TCR);
+=======
+		tmp16 = r8712_read16(adapter, TCR);
+		while (((tmp16 & _EMEM_CODE_DONE) == 0) && (i > 0)) {
+			usleep_range(10, 1000);
+			tmp16 = r8712_read16(adapter, TCR);
+>>>>>>> upstream/android-13
 			i--;
 		}
 		if (i == 0 || (tmp16 & _EMEM_CHK_RPT) == 0)
 			goto exit_fail;
 
 		/* 3.Enable CPU */
+<<<<<<< HEAD
 		tmp8 = r8712_read8(padapter, SYS_CLKR);
 		r8712_write8(padapter, SYS_CLKR, tmp8 | BIT(2));
 		tmp8_a = r8712_read8(padapter, SYS_CLKR);
@@ -287,22 +452,80 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 		while (((tmp16 & _DMEM_CODE_DONE) == 0) && (i > 0)) {
 			msleep(20);
 			tmp16 = r8712_read16(padapter, TCR);
+=======
+		tmp8 = r8712_read8(adapter, SYS_CLKR);
+		r8712_write8(adapter, SYS_CLKR, tmp8 | BIT(2));
+		tmp8_a = r8712_read8(adapter, SYS_CLKR);
+		if (tmp8_a != (tmp8 | BIT(2)))
+			goto exit_fail;
+
+		tmp8 = r8712_read8(adapter, SYS_FUNC_EN + 1);
+		r8712_write8(adapter, SYS_FUNC_EN + 1, tmp8 | BIT(2));
+		tmp8_a = r8712_read8(adapter, SYS_FUNC_EN + 1);
+		if (tmp8_a != (tmp8 | BIT(2)))
+			goto exit_fail;
+
+		r8712_read32(adapter, TCR);
+
+		/* 4.polling IMEM Ready */
+		i = 100;
+		tmp16 = r8712_read16(adapter, TCR);
+		while (((tmp16 & _IMEM_RDY) == 0) && (i > 0)) {
+			msleep(20);
+			tmp16 = r8712_read16(adapter, TCR);
+			i--;
+		}
+		if (i == 0) {
+			r8712_write16(adapter, 0x10250348, 0xc000);
+			r8712_write16(adapter, 0x10250348, 0xc001);
+			r8712_write16(adapter, 0x10250348, 0x2000);
+			r8712_write16(adapter, 0x10250348, 0x2001);
+			r8712_write16(adapter, 0x10250348, 0x2002);
+			r8712_write16(adapter, 0x10250348, 0x2003);
+			goto exit_fail;
+		}
+		/* 5.Download DMEM code size and Load EMEM Code Section */
+		memset(txdesc, 0, TXDESC_SIZE);
+		txdesc->txdw0 |= cpu_to_le32(fwhdr.fw_priv_sz & 0x0000ffff);
+		txdesc->txdw0 |= cpu_to_le32(BIT(28));
+		memcpy(payload, &fwhdr.fwpriv, fwhdr.fw_priv_sz);
+		r8712_write_mem(adapter, RTL8712_DMA_VOQ,
+				fwhdr.fw_priv_sz + TXDESC_SIZE, (u8 *)txdesc);
+
+		/* polling dmem code done */
+		i = 100;
+		tmp16 = r8712_read16(adapter, TCR);
+		while (((tmp16 & _DMEM_CODE_DONE) == 0) && (i > 0)) {
+			msleep(20);
+			tmp16 = r8712_read16(adapter, TCR);
+>>>>>>> upstream/android-13
 			i--;
 		}
 		if (i == 0)
 			goto exit_fail;
 
+<<<<<<< HEAD
 		tmp8 = r8712_read8(padapter, 0x1025000A);
+=======
+		tmp8 = r8712_read8(adapter, 0x1025000A);
+>>>>>>> upstream/android-13
 		if (tmp8 & BIT(4)) /* When boot from EEPROM,
 				    * & FW need more time to read EEPROM
 				    */
 			i = 60;
 		else			/* boot from EFUSE */
 			i = 30;
+<<<<<<< HEAD
 		tmp16 = r8712_read16(padapter, TCR);
 		while (((tmp16 & _FWRDY) == 0) && (i > 0)) {
 			msleep(100);
 			tmp16 = r8712_read16(padapter, TCR);
+=======
+		tmp16 = r8712_read16(adapter, TCR);
+		while (((tmp16 & _FWRDY) == 0) && (i > 0)) {
+			msleep(100);
+			tmp16 = r8712_read16(adapter, TCR);
+>>>>>>> upstream/android-13
 			i--;
 		}
 		if (i == 0)
@@ -313,7 +536,11 @@ static u8 rtl8712_dl_fw(struct _adapter *padapter)
 	ret = _SUCCESS;
 
 exit_fail:
+<<<<<<< HEAD
 	kfree(ptmpchar);
+=======
+	kfree(tmpchar);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -350,7 +577,11 @@ uint rtl8712_hal_init(struct _adapter *padapter)
 	/* Fix the RX FIFO issue(USB error) */
 	r8712_write8(padapter, 0x1025fe5C, r8712_read8(padapter, 0x1025fe5C)
 		     | BIT(7));
+<<<<<<< HEAD
 	for (i = 0; i < 6; i++)
+=======
+	for (i = 0; i < ETH_ALEN; i++)
+>>>>>>> upstream/android-13
 		padapter->eeprompriv.mac_addr[i] = r8712_read8(padapter,
 							       MACID + i);
 	return _SUCCESS;

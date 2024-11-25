@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ltc2497.c - Driver for Analog Devices/Linear Technology LTC2497 ADC
  *
  * Copyright (C) 2017 Analog Devices Inc.
  *
+<<<<<<< HEAD
  * Licensed under the GPL-2.
  *
  * Datasheet: http://cds.linear.com/docs/en/datasheet/2497fd.pdf
@@ -29,6 +34,23 @@ struct ltc2497_st {
 	struct regulator *ref;
 	ktime_t	time_prev;
 	u8 addr_prev;
+=======
+ * Datasheet: http://cds.linear.com/docs/en/datasheet/2497fd.pdf
+ */
+
+#include <linux/i2c.h>
+#include <linux/iio/iio.h>
+#include <linux/iio/driver.h>
+#include <linux/module.h>
+#include <linux/mod_devicetable.h>
+
+#include "ltc2497.h"
+
+struct ltc2497_driverdata {
+	/* this must be the first member */
+	struct ltc2497core_driverdata common_ddata;
+	struct i2c_client *client;
+>>>>>>> upstream/android-13
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
 	 * transfer buffers to live in their own cache lines.
@@ -36,6 +58,7 @@ struct ltc2497_st {
 	__be32 buf ____cacheline_aligned;
 };
 
+<<<<<<< HEAD
 static int ltc2497_wait_conv(struct ltc2497_st *st)
 {
 	s64 time_elapsed;
@@ -188,25 +211,62 @@ static const struct iio_info ltc2497_info = {
 	.read_raw = ltc2497_read_raw,
 };
 
+=======
+static int ltc2497_result_and_measure(struct ltc2497core_driverdata *ddata,
+				      u8 address, int *val)
+{
+	struct ltc2497_driverdata *st =
+		container_of(ddata, struct ltc2497_driverdata, common_ddata);
+	int ret;
+
+	if (val) {
+		ret = i2c_master_recv(st->client, (char *)&st->buf, 3);
+		if (ret < 0) {
+			dev_err(&st->client->dev, "i2c_master_recv failed\n");
+			return ret;
+		}
+
+		*val = (be32_to_cpu(st->buf) >> 14) - (1 << 17);
+	}
+
+	ret = i2c_smbus_write_byte(st->client,
+				   LTC2497_ENABLE | address);
+	if (ret)
+		dev_err(&st->client->dev, "i2c transfer failed: %pe\n",
+			ERR_PTR(ret));
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int ltc2497_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
 	struct iio_dev *indio_dev;
+<<<<<<< HEAD
 	struct ltc2497_st *st;
 	struct iio_map *plat_data;
 	int ret;
+=======
+	struct ltc2497_driverdata *st;
+	struct device *dev = &client->dev;
+>>>>>>> upstream/android-13
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
 				     I2C_FUNC_SMBUS_WRITE_BYTE))
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*st));
+=======
+	indio_dev = devm_iio_device_alloc(dev, sizeof(*st));
+>>>>>>> upstream/android-13
 	if (!indio_dev)
 		return -ENOMEM;
 
 	st = iio_priv(indio_dev);
 	i2c_set_clientdata(client, indio_dev);
 	st->client = client;
+<<<<<<< HEAD
 
 	indio_dev->dev.parent = &client->dev;
 	indio_dev->name = id->name;
@@ -252,16 +312,26 @@ err_regulator_disable:
 	regulator_disable(st->ref);
 
 	return ret;
+=======
+	st->common_ddata.result_and_measure = ltc2497_result_and_measure;
+
+	return ltc2497core_probe(dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static int ltc2497_remove(struct i2c_client *client)
 {
 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+<<<<<<< HEAD
 	struct ltc2497_st *st = iio_priv(indio_dev);
 
 	iio_map_array_unregister(indio_dev);
 	iio_device_unregister(indio_dev);
 	regulator_disable(st->ref);
+=======
+
+	ltc2497core_remove(indio_dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -281,7 +351,11 @@ MODULE_DEVICE_TABLE(of, ltc2497_of_match);
 static struct i2c_driver ltc2497_driver = {
 	.driver = {
 		.name = "ltc2497",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ltc2497_of_match),
+=======
+		.of_match_table = ltc2497_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = ltc2497_probe,
 	.remove = ltc2497_remove,

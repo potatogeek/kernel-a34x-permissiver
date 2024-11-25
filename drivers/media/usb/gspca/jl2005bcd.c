@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Jeilin JL2005B/C/D library
  *
  * Copyright (C) 2011 Theodore Kilgore <kilgota@auburn.edu>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define MODULE_NAME "jl2005bcd"
@@ -174,7 +181,11 @@ static int jl2005c_get_firmware_id(struct gspca_dev *gspca_dev)
 {
 	struct sd *sd = (struct sd *)gspca_dev;
 	int i = 0;
+<<<<<<< HEAD
 	int retval = -1;
+=======
+	int retval;
+>>>>>>> upstream/android-13
 	unsigned char regs_to_read[] = {0x57, 0x02, 0x03, 0x5d, 0x5e, 0x5f};
 
 	gspca_dbg(gspca_dev, D_PROBE, "Running jl2005c_get_firmware_id\n");

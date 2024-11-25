@@ -459,6 +459,7 @@ static const u32 ar5416Common_9100[][2] = {
 	{0x0000a3e0, 0x000001ce},
 };
 
+<<<<<<< HEAD
 static const u32 ar5416Bank6_9100[][3] = {
 	/* Addr      5G          2G        */
 	{0x0000989c, 0x00000000, 0x00000000},
@@ -496,6 +497,8 @@ static const u32 ar5416Bank6_9100[][3] = {
 	{0x000098d0, 0x0000000f, 0x0010000f},
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u32 ar5416Bank6TPC_9100[][3] = {
 	/* Addr      5G          2G        */
 	{0x0000989c, 0x00000000, 0x00000000},

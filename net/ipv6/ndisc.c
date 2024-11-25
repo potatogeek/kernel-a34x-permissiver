@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Neighbour Discovery for IPv6
  *	Linux INET6 implementation
@@ -5,11 +9,14 @@
  *	Authors:
  *	Pedro Roque		<roque@di.fc.ul.pt>
  *	Mike Shaver		<shaver@ingenia.com>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -73,22 +80,34 @@
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv6.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_SRIL_SUPPORT
 #define NET_IF_NAME	"rmnet"
 #else
 #define NET_IF_NAME	"ccmni"
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static u32 ndisc_hash(const void *pkey,
 		      const struct net_device *dev,
 		      __u32 *hash_rnd);
 static bool ndisc_key_eq(const struct neighbour *neigh, const void *pkey);
+<<<<<<< HEAD
+=======
+static bool ndisc_allow_add(const struct net_device *dev,
+			    struct netlink_ext_ack *extack);
+>>>>>>> upstream/android-13
 static int ndisc_constructor(struct neighbour *neigh);
 static void ndisc_solicit(struct neighbour *neigh, struct sk_buff *skb);
 static void ndisc_error_report(struct neighbour *neigh, struct sk_buff *skb);
 static int pndisc_constructor(struct pneigh_entry *n);
 static void pndisc_destructor(struct pneigh_entry *n);
 static void pndisc_redo(struct sk_buff *skb);
+<<<<<<< HEAD
+=======
+static int ndisc_is_multicast(const void *pkey);
+>>>>>>> upstream/android-13
 
 static const struct neigh_ops ndisc_generic_ops = {
 	.family =		AF_INET6,
@@ -123,6 +142,11 @@ struct neigh_table nd_tbl = {
 	.pconstructor =	pndisc_constructor,
 	.pdestructor =	pndisc_destructor,
 	.proxy_redo =	pndisc_redo,
+<<<<<<< HEAD
+=======
+	.is_multicast =	ndisc_is_multicast,
+	.allow_add  =   ndisc_allow_add,
+>>>>>>> upstream/android-13
 	.id =		"ndisc_cache",
 	.parms = {
 		.tbl			= &nd_tbl,
@@ -400,6 +424,23 @@ static void pndisc_destructor(struct pneigh_entry *n)
 	ipv6_dev_mc_dec(dev, &maddr);
 }
 
+<<<<<<< HEAD
+=======
+/* called with rtnl held */
+static bool ndisc_allow_add(const struct net_device *dev,
+			    struct netlink_ext_ack *extack)
+{
+	struct inet6_dev *idev = __in6_dev_get(dev);
+
+	if (!idev || idev->cnf.disable_ipv6) {
+		NL_SET_ERR_MSG(extack, "IPv6 is disabled on this device");
+		return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static struct sk_buff *ndisc_alloc_skb(struct net_device *dev,
 				       int len)
 {
@@ -928,6 +969,7 @@ have_ifp:
 			     NEIGH_UPDATE_F_WEAK_OVERRIDE|
 			     NEIGH_UPDATE_F_OVERRIDE,
 			     NDISC_NEIGHBOUR_SOLICITATION, &ndopts);
+<<<<<<< HEAD
 
 	if (neigh != NULL && neigh->dev != NULL && !strcmp(neigh->dev->name, "aware_data0")) {
 		pr_info("ipv6 neigh_lookup is done by receiving NS"
@@ -937,6 +979,8 @@ have_ifp:
 			neigh->dev->name);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (neigh || !dev->header_ops) {
 		ndisc_send_na(dev, saddr, &msg->target, !!is_router,
 			      true, (ifp != NULL && inc), inc);
@@ -1053,6 +1097,7 @@ static void ndisc_recv_na(struct sk_buff *skb)
 			     (msg->icmph.icmp6_router ? NEIGH_UPDATE_F_ISROUTER : 0),
 			     NDISC_NEIGHBOUR_ADVERTISEMENT, &ndopts);
 
+<<<<<<< HEAD
 		if (neigh->dev != NULL && !strcmp(neigh->dev->name, "aware_data0")) {
 			pr_info("ipv6 neigh_lookup is done by receiving NA"
 				" from [:%02x%02x] to [:%02x%02x] for %s\n",
@@ -1061,6 +1106,8 @@ static void ndisc_recv_na(struct sk_buff *skb)
 				dev->name);
 		}
 
+=======
+>>>>>>> upstream/android-13
 		if ((old_flags & ~neigh->flags) & NTF_ROUTER) {
 			/*
 			 * Change: router to host
@@ -1181,6 +1228,10 @@ static void ndisc_router_discovery(struct sk_buff *skb)
 	struct neighbour *neigh = NULL;
 	struct inet6_dev *in6_dev;
 	struct fib6_info *rt = NULL;
+<<<<<<< HEAD
+=======
+	u32 defrtr_usr_metric;
+>>>>>>> upstream/android-13
 	struct net *net;
 	int lifetime;
 	struct ndisc_options ndopts;
@@ -1254,6 +1305,7 @@ static void ndisc_router_discovery(struct sk_buff *skb)
 		in6_dev->if_flags |= IF_RA_RCVD;
 	}
 
+<<<<<<< HEAD
 	if ((sysctl_optr == MTK_IPV6_VZW_ALL ||
 	    sysctl_optr == MTK_IPV6_EX_RS_INTERVAL) &&
 	    (strncmp(in6_dev->dev->name, NET_IF_NAME, 2) == 0)) {
@@ -1262,6 +1314,8 @@ static void ndisc_router_discovery(struct sk_buff *skb)
 			in6_dev->if_flags &= ~IF_RS_VZW_SENT;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Remember the managed/otherconf flags from most recently
 	 * received RA message (RFC 2462) -- yoshfuji
@@ -1305,12 +1359,20 @@ static void ndisc_router_discovery(struct sk_buff *skb)
 	    !in6_dev->cnf.accept_ra_rtr_pref)
 		pref = ICMPV6_ROUTER_PREF_MEDIUM;
 #endif
+<<<<<<< HEAD
 
 	rt = rt6_get_dflt_router(net, &ipv6_hdr(skb)->saddr, skb->dev);
 
 	if (rt) {
 		neigh = ip6_neigh_lookup(&rt->fib6_nh.nh_gw,
 					 rt->fib6_nh.nh_dev, NULL,
+=======
+	/* routes added from RAs do not use nexthop objects */
+	rt = rt6_get_dflt_router(net, &ipv6_hdr(skb)->saddr, skb->dev);
+	if (rt) {
+		neigh = ip6_neigh_lookup(&rt->fib6_nh->fib_nh_gw6,
+					 rt->fib6_nh->fib_nh_dev, NULL,
+>>>>>>> upstream/android-13
 					  &ipv6_hdr(skb)->saddr);
 		if (!neigh) {
 			ND_PRINTK(0, err,
@@ -1320,6 +1382,7 @@ static void ndisc_router_discovery(struct sk_buff *skb)
 			return;
 		}
 	}
+<<<<<<< HEAD
 	if (rt && lifetime == 0) {
 		ip6_del_rt(net, rt);
 		rt = NULL;
@@ -1327,11 +1390,27 @@ static void ndisc_router_discovery(struct sk_buff *skb)
 
 	ND_PRINTK(3, info, "RA: rt: %p  lifetime: %d, for dev: %s\n",
 		  rt, lifetime, skb->dev->name);
+=======
+	/* Set default route metric as specified by user */
+	defrtr_usr_metric = in6_dev->cnf.ra_defrtr_metric;
+	/* delete the route if lifetime is 0 or if metric needs change */
+	if (rt && (lifetime == 0 || rt->fib6_metric != defrtr_usr_metric)) {
+		ip6_del_rt(net, rt, false);
+		rt = NULL;
+	}
+
+	ND_PRINTK(3, info, "RA: rt: %p  lifetime: %d, metric: %d, for dev: %s\n",
+		  rt, lifetime, defrtr_usr_metric, skb->dev->name);
+>>>>>>> upstream/android-13
 	if (!rt && lifetime) {
 		ND_PRINTK(3, info, "RA: adding default router\n");
 
 		rt = rt6_add_dflt_router(net, &ipv6_hdr(skb)->saddr,
+<<<<<<< HEAD
 					 skb->dev, pref);
+=======
+					 skb->dev, pref, defrtr_usr_metric);
+>>>>>>> upstream/android-13
 		if (!rt) {
 			ND_PRINTK(0, err,
 				  "RA: %s failed to add default route\n",
@@ -1339,8 +1418,13 @@ static void ndisc_router_discovery(struct sk_buff *skb)
 			return;
 		}
 
+<<<<<<< HEAD
 		neigh = ip6_neigh_lookup(&rt->fib6_nh.nh_gw,
 					 rt->fib6_nh.nh_dev, NULL,
+=======
+		neigh = ip6_neigh_lookup(&rt->fib6_nh->fib_nh_gw6,
+					 rt->fib6_nh->fib_nh_dev, NULL,
+>>>>>>> upstream/android-13
 					  &ipv6_hdr(skb)->saddr);
 		if (!neigh) {
 			ND_PRINTK(0, err,
@@ -1378,8 +1462,13 @@ skip_defrtr:
 
 		if (rtime && rtime/1000 < MAX_SCHEDULE_TIMEOUT/HZ) {
 			rtime = (rtime*HZ)/1000;
+<<<<<<< HEAD
 			if (rtime < HZ/10)
 				rtime = HZ/10;
+=======
+			if (rtime < HZ/100)
+				rtime = HZ/100;
+>>>>>>> upstream/android-13
 			NEIGH_VAR_SET(in6_dev->nd_parms, RETRANS_TIME, rtime);
 			in6_dev->tstamp = jiffies;
 			send_ifinfo_notify = true;
@@ -1404,12 +1493,15 @@ skip_defrtr:
 		}
 	}
 
+<<<<<<< HEAD
 	/*
 	 *	Send a notify if RA changed managed/otherconf flags or timer settings
 	 */
 	if (send_ifinfo_notify)
 		inet6_ifinfo_notify(RTM_NEWLINK, in6_dev);
 
+=======
+>>>>>>> upstream/android-13
 skip_linkparms:
 
 	/*
@@ -1509,9 +1601,15 @@ skip_routeinfo:
 		memcpy(&n, ((u8 *)(ndopts.nd_opts_mtu+1))+2, sizeof(mtu));
 		mtu = ntohl(n);
 
+<<<<<<< HEAD
 		if (in6_dev->cnf.ra_mtu != mtu) {
 			in6_dev->cnf.ra_mtu = mtu;
 			pr_info("[mtk_net]update ra_mtu to %d\n", in6_dev->cnf.ra_mtu);
+=======
+		if (in6_dev->ra_mtu != mtu) {
+			in6_dev->ra_mtu = mtu;
+			send_ifinfo_notify = true;
+>>>>>>> upstream/android-13
 		}
 
 		if (mtu < IPV6_MIN_MTU || mtu > skb->dev->mtu) {
@@ -1537,6 +1635,15 @@ skip_routeinfo:
 		ND_PRINTK(2, warn, "RA: invalid RA options\n");
 	}
 out:
+<<<<<<< HEAD
+=======
+	/* Send a notify if RA changed managed/otherconf flags or
+	 * timer settings or ra_mtu value
+	 */
+	if (send_ifinfo_notify)
+		inet6_ifinfo_notify(RTM_NEWLINK, in6_dev);
+
+>>>>>>> upstream/android-13
 	fib6_info_release(rt);
 	if (neigh)
 		neigh_release(neigh);
@@ -1571,7 +1678,11 @@ static void ndisc_redirect_rcv(struct sk_buff *skb)
 
 	if (!ndopts.nd_opts_rh) {
 		ip6_redirect_no_header(skb, dev_net(skb->dev),
+<<<<<<< HEAD
 					skb->dev->ifindex, 0);
+=======
+					skb->dev->ifindex);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1730,6 +1841,14 @@ static void pndisc_redo(struct sk_buff *skb)
 	kfree_skb(skb);
 }
 
+<<<<<<< HEAD
+=======
+static int ndisc_is_multicast(const void *pkey)
+{
+	return ipv6_addr_is_multicast((struct in6_addr *)pkey);
+}
+
+>>>>>>> upstream/android-13
 static bool ndisc_suppress_frag_ndisc(struct sk_buff *skb)
 {
 	struct inet6_dev *idev = __in6_dev_get(skb->dev);
@@ -1807,7 +1926,11 @@ static int ndisc_netdev_event(struct notifier_block *this, unsigned long event, 
 	case NETDEV_CHANGEADDR:
 		neigh_changeaddr(&nd_tbl, dev);
 		fib6_run_gc(0, net, false);
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NETDEV_UP:
 		idev = in6_dev_get(dev);
 		if (!idev)
@@ -1821,6 +1944,11 @@ static int ndisc_netdev_event(struct notifier_block *this, unsigned long event, 
 		change_info = ptr;
 		if (change_info->flags_changed & IFF_NOARP)
 			neigh_changeaddr(&nd_tbl, dev);
+<<<<<<< HEAD
+=======
+		if (!netif_carrier_ok(dev))
+			neigh_carrier_down(&nd_tbl, dev);
+>>>>>>> upstream/android-13
 		break;
 	case NETDEV_DOWN:
 		neigh_ifdown(&nd_tbl, dev);
@@ -1857,7 +1985,12 @@ static void ndisc_warn_deprecated_sysctl(struct ctl_table *ctl,
 	}
 }
 
+<<<<<<< HEAD
 int ndisc_ifinfo_sysctl_change(struct ctl_table *ctl, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+int ndisc_ifinfo_sysctl_change(struct ctl_table *ctl, int write, void *buffer,
+		size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev = ctl->extra1;
 	struct inet6_dev *idev;

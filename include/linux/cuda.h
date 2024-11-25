@@ -8,6 +8,10 @@
 #ifndef _LINUX_CUDA_H
 #define _LINUX_CUDA_H
 
+<<<<<<< HEAD
+=======
+#include <linux/rtc.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/cuda.h>
 
 
@@ -16,4 +20,10 @@ extern int cuda_request(struct adb_request *req,
 			void (*done)(struct adb_request *), int nbytes, ...);
 extern void cuda_poll(void);
 
+<<<<<<< HEAD
+=======
+extern time64_t cuda_get_time(void);
+extern int cuda_set_rtc_time(struct rtc_time *tm);
+
+>>>>>>> upstream/android-13
 #endif /* _LINUX_CUDA_H */

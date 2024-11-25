@@ -34,7 +34,11 @@
  * the config symbols are rebuilt.
  *
  * So if the user changes his CONFIG_HIS_DRIVER option, only the objects
+<<<<<<< HEAD
  * which depend on "include/config/his/driver.h" will be rebuilt,
+=======
+ * which depend on "include/config/HIS_DRIVER" will be rebuilt,
+>>>>>>> upstream/android-13
  * so most likely only his driver ;-)
  *
  * The idea above dates, by the way, back to Michael E Chastain, AFAIK.
@@ -74,6 +78,7 @@
  *
  * and then basically copies the .<target>.d file to stdout, in the
  * process filtering out the dependency on autoconf.h and adding
+<<<<<<< HEAD
  * dependencies on include/config/my/option.h for every
  * CONFIG_MY_OPTION encountered in any of the prerequisites.
  *
@@ -82,6 +87,11 @@
  * to date before even starting the recursive build, so it's too late
  * at this point anyway.
  *
+=======
+ * dependencies on include/config/MY_OPTION for every
+ * CONFIG_MY_OPTION encountered in any of the prerequisites.
+ *
+>>>>>>> upstream/android-13
  * We don't even try to really parse the header files, but
  * merely grep, i.e. if CONFIG_FOO is mentioned in a comment, it will
  * be picked up as well. It's not a problem with respect to
@@ -99,18 +109,27 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+<<<<<<< HEAD
+=======
+#include <stdarg.h>
+>>>>>>> upstream/android-13
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 
 static void usage(void)
 {
+<<<<<<< HEAD
 	fprintf(stderr, "Usage: fixdep [-e] <depfile> <target> <cmdline>\n");
 	fprintf(stderr, " -e  insert extra dependencies given on stdin\n");
+=======
+	fprintf(stderr, "Usage: fixdep <depfile> <target> <cmdline>\n");
+>>>>>>> upstream/android-13
 	exit(1);
 }
 
 /*
+<<<<<<< HEAD
  * Print out a dependency path from a symbol name
  */
 static void print_dep(const char *m, int slen, const char *dir)
@@ -144,13 +163,35 @@ static void do_extra_deps(void)
 		}
 		print_dep(buf, len - 1, "include/ksym");
 	}
+=======
+ * In the intended usage of this program, the stdout is redirected to .*.cmd
+ * files. The return value of printf() must be checked to catch any error,
+ * e.g. "No space left on device".
+ */
+static void xprintf(const char *format, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = vprintf(format, ap);
+	if (ret < 0) {
+		perror("fixdep");
+		exit(1);
+	}
+	va_end(ap);
+>>>>>>> upstream/android-13
 }
 
 struct item {
 	struct item	*next;
 	unsigned int	len;
 	unsigned int	hash;
+<<<<<<< HEAD
 	char		name[0];
+=======
+	char		name[];
+>>>>>>> upstream/android-13
 };
 
 #define HASHSZ 256
@@ -210,7 +251,12 @@ static void use_config(const char *m, int slen)
 	    return;
 
 	define_config(m, slen, hash);
+<<<<<<< HEAD
 	print_dep(m, slen, "include/config");
+=======
+	/* Print out a dependency path from a symbol name. */
+	xprintf("    $(wildcard include/config/%.*s) \\\n", slen, m);
+>>>>>>> upstream/android-13
 }
 
 /* test if s ends in sub */
@@ -236,7 +282,11 @@ static void parse_config_file(const char *p)
 		}
 		p += 7;
 		q = p;
+<<<<<<< HEAD
 		while (*q && (isalnum(*q) || *q == '_'))
+=======
+		while (isalnum(*q) || *q == '_')
+>>>>>>> upstream/android-13
 			q++;
 		if (str_ends_with(p, q - p, "_MODULE"))
 			r = q - 7;
@@ -284,8 +334,12 @@ static void *read_file(const char *filename)
 static int is_ignored_file(const char *s, int len)
 {
 	return str_ends_with(s, len, "include/generated/autoconf.h") ||
+<<<<<<< HEAD
 	       str_ends_with(s, len, "include/generated/autoksyms.h") ||
 	       str_ends_with(s, len, ".ver");
+=======
+	       str_ends_with(s, len, "include/generated/autoksyms.h");
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -293,7 +347,11 @@ static int is_ignored_file(const char *s, int len)
  * assignments are parsed not only by make, but also by the rather simple
  * parser in scripts/mod/sumversion.c.
  */
+<<<<<<< HEAD
 static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
+=======
+static void parse_dep_file(char *m, const char *target)
+>>>>>>> upstream/android-13
 {
 	char *p;
 	int is_last, is_target;
@@ -340,6 +398,7 @@ static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
 				 */
 				if (!saw_any_target) {
 					saw_any_target = 1;
+<<<<<<< HEAD
 					printf("source_%s := %s\n\n",
 					       target, m);
 					printf("deps_%s := \\\n", target);
@@ -347,6 +406,15 @@ static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
 				is_first_dep = 0;
 			} else {
 				printf("  %s \\\n", m);
+=======
+					xprintf("source_%s := %s\n\n",
+						target, m);
+					xprintf("deps_%s := \\\n", target);
+				}
+				is_first_dep = 0;
+			} else {
+				xprintf("  %s \\\n", m);
+>>>>>>> upstream/android-13
 			}
 
 			buf = read_file(m);
@@ -369,16 +437,22 @@ static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
 		exit(1);
 	}
 
+<<<<<<< HEAD
 	if (insert_extra_deps)
 		do_extra_deps();
 
 	printf("\n%s: $(deps_%s)\n\n", target, target);
 	printf("$(deps_%s):\n", target);
+=======
+	xprintf("\n%s: $(deps_%s)\n\n", target, target);
+	xprintf("$(deps_%s):\n", target);
+>>>>>>> upstream/android-13
 }
 
 int main(int argc, char *argv[])
 {
 	const char *depfile, *target, *cmdline;
+<<<<<<< HEAD
 	int insert_extra_deps = 0;
 	void *buf;
 
@@ -386,16 +460,28 @@ int main(int argc, char *argv[])
 		insert_extra_deps = 1;
 		argv++;
 	} else if (argc != 4)
+=======
+	void *buf;
+
+	if (argc != 4)
+>>>>>>> upstream/android-13
 		usage();
 
 	depfile = argv[1];
 	target = argv[2];
 	cmdline = argv[3];
 
+<<<<<<< HEAD
 	printf("cmd_%s := %s\n\n", target, cmdline);
 
 	buf = read_file(depfile);
 	parse_dep_file(buf, target, insert_extra_deps);
+=======
+	xprintf("cmd_%s := %s\n\n", target, cmdline);
+
+	buf = read_file(depfile);
+	parse_dep_file(buf, target);
+>>>>>>> upstream/android-13
 	free(buf);
 
 	return 0;

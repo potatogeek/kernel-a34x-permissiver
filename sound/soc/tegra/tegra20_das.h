@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * tegra20_das.h - Definitions for Tegra20 DAS driver
  *
  * Author: Stephen Warren <swarren@nvidia.com>
  * Copyright (C) 2010,2012 - NVIDIA, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TEGRA20_DAS_H__
@@ -105,6 +112,7 @@ struct tegra20_das {
  */
 
 /*
+<<<<<<< HEAD
  * Connect a DAP to to a DAC
  * dap_id: DAP to connect: TEGRA20_DAS_DAP_ID_*
  * dac_sel: DAC to connect to: TEGRA20_DAS_DAP_SEL_DAC*
@@ -113,13 +121,27 @@ extern int tegra20_das_connect_dap_to_dac(int dap_id, int dac_sel);
 
 /*
  * Connect a DAP to to another DAP
+=======
+ * Connect a DAP to a DAC
+ * dap_id: DAP to connect: TEGRA20_DAS_DAP_ID_*
+ * dac_sel: DAC to connect to: TEGRA20_DAS_DAP_SEL_DAC*
+ */
+extern int tegra20_das_connect_dap_to_dac(int dap, int dac);
+
+/*
+ * Connect a DAP to another DAP
+>>>>>>> upstream/android-13
  * dap_id: DAP to connect: TEGRA20_DAS_DAP_ID_*
  * other_dap_sel: DAP to connect to: TEGRA20_DAS_DAP_SEL_DAP*
  * master: Is this DAP the master (1) or slave (0)
  * sdata1rx: Is this DAP's SDATA1 pin RX (1) or TX (0)
  * sdata2rx: Is this DAP's SDATA2 pin RX (1) or TX (0)
  */
+<<<<<<< HEAD
 extern int tegra20_das_connect_dap_to_dap(int dap_id, int other_dap_sel,
+=======
+extern int tegra20_das_connect_dap_to_dap(int dap, int otherdap,
+>>>>>>> upstream/android-13
 					  int master, int sdata1rx,
 					  int sdata2rx);
 
@@ -129,6 +151,10 @@ extern int tegra20_das_connect_dap_to_dap(int dap_id, int other_dap_sel,
  * dac_id: DAC ID to connect: TEGRA20_DAS_DAC_ID_*
  * dap_sel: DAP to receive input from: TEGRA20_DAS_DAC_SEL_DAP*
  */
+<<<<<<< HEAD
 extern int tegra20_das_connect_dac_to_dap(int dac_id, int dap_sel);
+=======
+extern int tegra20_das_connect_dac_to_dap(int dac, int dap);
+>>>>>>> upstream/android-13
 
 #endif

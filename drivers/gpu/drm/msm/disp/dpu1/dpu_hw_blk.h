@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_HW_BLK_H
@@ -15,6 +20,7 @@
 
 #include <linux/types.h>
 #include <linux/list.h>
+<<<<<<< HEAD
 #include <linux/atomic.h>
 
 struct dpu_hw_blk;
@@ -28,6 +34,11 @@ struct dpu_hw_blk_ops {
 	int (*start)(struct dpu_hw_blk *);
 	void (*stop)(struct dpu_hw_blk *);
 };
+=======
+
+struct dpu_hw_blk;
+
+>>>>>>> upstream/android-13
 
 /**
  * struct dpu_hw_blk - definition of hardware block object
@@ -37,6 +48,7 @@ struct dpu_hw_blk_ops {
  * @refcount: reference/usage count
  */
 struct dpu_hw_blk {
+<<<<<<< HEAD
 	struct list_head list;
 	u32 type;
 	int id;
@@ -50,4 +62,9 @@ void dpu_hw_blk_destroy(struct dpu_hw_blk *hw_blk);
 
 struct dpu_hw_blk *dpu_hw_blk_get(struct dpu_hw_blk *hw_blk, u32 type, int id);
 void dpu_hw_blk_put(struct dpu_hw_blk *hw_blk);
+=======
+	/* opaque */
+};
+
+>>>>>>> upstream/android-13
 #endif /*_DPU_HW_BLK_H */

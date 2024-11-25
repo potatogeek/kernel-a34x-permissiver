@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Regmap tables for CS47L85 codec
  *
  * Copyright (C) 2015-2017 Cirrus Logic
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -402,7 +409,10 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x00000174, 0x007d }, /* R372 (0x174) - FLL1 Control 4 */
 	{ 0x00000175, 0x0000 }, /* R373 (0x175) - FLL1 Control 5 */
 	{ 0x00000176, 0x0000 }, /* R374 (0x176) - FLL1 Control 6 */
+<<<<<<< HEAD
 	{ 0x00000177, 0x0281 }, /* R375 (0x177) - FLL1 Loop Filter Test 1 */
+=======
+>>>>>>> upstream/android-13
 	{ 0x00000179, 0x0000 }, /* R377 (0x179) - FLL1 Control 7 */
 	{ 0x00000181, 0x0000 }, /* R385 (0x181) - FLL1 Synchroniser 1 */
 	{ 0x00000182, 0x0000 }, /* R386 (0x182) - FLL1 Synchroniser 2 */
@@ -419,7 +429,10 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x00000194, 0x007d }, /* R404 (0x194) - FLL2 Control 4 */
 	{ 0x00000195, 0x0000 }, /* R405 (0x195) - FLL2 Control 5 */
 	{ 0x00000196, 0x0000 }, /* R406 (0x196) - FLL2 Control 6 */
+<<<<<<< HEAD
 	{ 0x00000197, 0x0281 }, /* R407 (0x197) - FLL2 Loop Filter Test 1 */
+=======
+>>>>>>> upstream/android-13
 	{ 0x00000199, 0x0000 }, /* R409 (0x199) - FLL2 Control 7 */
 	{ 0x000001a1, 0x0000 }, /* R417 (0x1a1) - FLL2 Synchroniser 1 */
 	{ 0x000001a2, 0x0000 }, /* R418 (0x1a2) - FLL2 Synchroniser 2 */
@@ -436,7 +449,10 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x000001b4, 0x007d }, /* R436 (0x1b4) - FLL3 Control 4 */
 	{ 0x000001b5, 0x0000 }, /* R437 (0x1b5) - FLL3 Control 5 */
 	{ 0x000001b6, 0x0000 }, /* R438 (0x1b6) - FLL3 Control 6 */
+<<<<<<< HEAD
 	{ 0x000001b7, 0x0281 }, /* R439 (0x1b7) - FLL3 Loop Filter Test 1 */
+=======
+>>>>>>> upstream/android-13
 	{ 0x000001b9, 0x0000 }, /* R441 (0x1b9) - FLL3 Control 7 */
 	{ 0x000001c1, 0x0000 }, /* R449 (0x1c1) - FLL3 Synchroniser 1 */
 	{ 0x000001c2, 0x0000 }, /* R450 (0x1c2) - FLL3 Synchroniser 2 */
@@ -546,9 +562,12 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x0000043c, 0x0000 }, /* R1084 (0x43c) - Output Path Config 6R */
 	{ 0x0000043d, 0x0180 }, /* R1085 (0x43d) - DAC Digital Volume 6R */
 	{ 0x0000043f, 0x0800 }, /* R1087 (0x43f) - Noise Gate Select 6R */
+<<<<<<< HEAD
 	{ 0x00000440, 0x003f }, /* R1088 (0x440) - DRE Enable */
 	{ 0x00000448, 0x003f }, /* R1096 (0x448) - EDRE Enable */
 	{ 0x0000044a, 0x0000 }, /* R1098 (0x44a) - EDRE Manual */
+=======
+>>>>>>> upstream/android-13
 	{ 0x00000450, 0x0000 }, /* R1104 (0x450) - DAC AEC Control 1 */
 	{ 0x00000451, 0x0000 }, /* R1105 (0x451) - DAC AEC Control 2 */
 	{ 0x00000458, 0x0000 }, /* R1112 (0x458) - Noise Gate Control */
@@ -556,7 +575,11 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x00000491, 0x0000 }, /* R1169 (0x491) - PDM SPK1 CTRL 2 */
 	{ 0x00000492, 0x0069 }, /* R1170 (0x492) - PDM SPK2 CTRL 1 */
 	{ 0x00000493, 0x0000 }, /* R1171 (0x493) - PDM SPK2 CTRL 2 */
+<<<<<<< HEAD
 	{ 0x000004a0, 0x3210 }, /* R1184 (0x4a0) - HP1 Short Circuit Ctrl */
+=======
+	{ 0x000004a0, 0x3280 }, /* R1184 (0x4a0) - HP1 Short Circuit Ctrl */
+>>>>>>> upstream/android-13
 	{ 0x000004a1, 0x3200 }, /* R1185 (0x4a1) - HP2 Short Circuit Ctrl */
 	{ 0x000004a2, 0x3200 }, /* R1186 (0x4a2) - HP3 Short Circuit Ctrl */
 	{ 0x000004a8, 0x7020 }, /* R1192 (0x4a8) - HP Test Ctrl 5 */
@@ -1365,11 +1388,19 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x00000e82, 0x0018 }, /* R3714 (0xe82) - DRC1 ctrl3 */
 	{ 0x00000e83, 0x0000 }, /* R3715 (0xe83) - DRC1 ctrl4 */
 	{ 0x00000e84, 0x0000 }, /* R3716 (0xe84) - DRC1 ctrl5 */
+<<<<<<< HEAD
 	{ 0x00000e88, 0x0933 }, /* R3720 (0xe88) - DRC2 ctrl1 */
 	{ 0x00000e89, 0x0018 }, /* R3721 (0xe89) - DRC2 ctrl2 */
 	{ 0x00000e8a, 0x0000 }, /* R3722 (0xe8a) - DRC2 ctrl3 */
 	{ 0x00000e8b, 0x0000 }, /* R3723 (0xe8b) - DRC2 ctrl4 */
 	{ 0x00000e8c, 0x0040 }, /* R3724 (0xe8c) - DRC2 ctrl5 */
+=======
+	{ 0x00000e88, 0x0018 }, /* R3720 (0xe88) - DRC2 ctrl1 */
+	{ 0x00000e89, 0x0933 }, /* R3721 (0xe89) - DRC2 ctrl2 */
+	{ 0x00000e8a, 0x0018 }, /* R3722 (0xe8a) - DRC2 ctrl3 */
+	{ 0x00000e8b, 0x0000 }, /* R3723 (0xe8b) - DRC2 ctrl4 */
+	{ 0x00000e8c, 0x0000 }, /* R3724 (0xe8c) - DRC2 ctrl5 */
+>>>>>>> upstream/android-13
 	{ 0x00000ec0, 0x0000 }, /* R3776 (0xec0) - HPLPF1_1 */
 	{ 0x00000ec1, 0x0000 }, /* R3777 (0xec1) - HPLPF1_2 */
 	{ 0x00000ec4, 0x0000 }, /* R3780 (0xec4) - HPLPF2_1 */
@@ -1577,6 +1608,7 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x00000fc3, 0x0000 }, /* R4035 (0xfc3) - ANC Coefficient */
 	{ 0x00000fc4, 0x0000 }, /* R4036 (0xfc4) - ANC Coefficient */
 	{ 0x00000fc5, 0x0000 }, /* R4037 (0xfc5) - ANC Coefficient */
+<<<<<<< HEAD
 	{ 0x00001300, 0x0000 }, /* R4864 (0x1300) - DAC Comp 1 */
 	{ 0x00001302, 0x0000 }, /* R4866 (0x1302) - DAC Comp 2 */
 	{ 0x00001380, 0x0000 }, /* R4992 (0x1380) - FRF Coefficient 1L 1 */
@@ -1627,6 +1659,8 @@ static const struct reg_default cs47l85_reg_default[] = {
 	{ 0x00001431, 0x0000 }, /* R5169 (0x1431) - FRF Coefficient 6R 2 */
 	{ 0x00001432, 0x0000 }, /* R5170 (0x1432) - FRF Coefficient 6R 3 */
 	{ 0x00001433, 0x0000 }, /* R5171 (0x1433) - FRF Coefficient 6R 4 */
+=======
+>>>>>>> upstream/android-13
 	{ 0x00001700, 0x2001 }, /* R5888 (0x1700) - GPIO1 Control 1 */
 	{ 0x00001701, 0xe000 }, /* R5889 (0x1701) - GPIO1 Control 2 */
 	{ 0x00001702, 0x2001 }, /* R5890 (0x1702) - GPIO2 Control 1 */
@@ -1845,7 +1879,10 @@ static bool cs47l85_16bit_readable_register(struct device *dev,
 	case MADERA_FLL1_CONTROL_5:
 	case MADERA_FLL1_CONTROL_6:
 	case MADERA_FLL1_CONTROL_7:
+<<<<<<< HEAD
 	case MADERA_FLL1_LOOP_FILTER_TEST_1:
+=======
+>>>>>>> upstream/android-13
 	case MADERA_FLL1_SYNCHRONISER_1:
 	case MADERA_FLL1_SYNCHRONISER_2:
 	case MADERA_FLL1_SYNCHRONISER_3:
@@ -1862,7 +1899,10 @@ static bool cs47l85_16bit_readable_register(struct device *dev,
 	case MADERA_FLL2_CONTROL_5:
 	case MADERA_FLL2_CONTROL_6:
 	case MADERA_FLL2_CONTROL_7:
+<<<<<<< HEAD
 	case MADERA_FLL2_LOOP_FILTER_TEST_1:
+=======
+>>>>>>> upstream/android-13
 	case MADERA_FLL2_SYNCHRONISER_1:
 	case MADERA_FLL2_SYNCHRONISER_2:
 	case MADERA_FLL2_SYNCHRONISER_3:
@@ -1879,7 +1919,10 @@ static bool cs47l85_16bit_readable_register(struct device *dev,
 	case MADERA_FLL3_CONTROL_5:
 	case MADERA_FLL3_CONTROL_6:
 	case MADERA_FLL3_CONTROL_7:
+<<<<<<< HEAD
 	case MADERA_FLL3_LOOP_FILTER_TEST_1:
+=======
+>>>>>>> upstream/android-13
 	case MADERA_FLL3_SYNCHRONISER_1:
 	case MADERA_FLL3_SYNCHRONISER_2:
 	case MADERA_FLL3_SYNCHRONISER_3:
@@ -2004,9 +2047,12 @@ static bool cs47l85_16bit_readable_register(struct device *dev,
 	case MADERA_OUTPUT_PATH_CONFIG_6R:
 	case MADERA_DAC_DIGITAL_VOLUME_6R:
 	case MADERA_NOISE_GATE_SELECT_6R:
+<<<<<<< HEAD
 	case MADERA_DRE_ENABLE:
 	case MADERA_EDRE_ENABLE:
 	case MADERA_EDRE_MANUAL:
+=======
+>>>>>>> upstream/android-13
 	case MADERA_DAC_AEC_CONTROL_1:
 	case MADERA_DAC_AEC_CONTROL_2:
 	case MADERA_NOISE_GATE_CONTROL:
@@ -2792,6 +2838,7 @@ static bool cs47l85_16bit_readable_register(struct device *dev,
 	case MADERA_FCR_FILTER_CONTROL:
 	case MADERA_FCR_ADC_REFORMATTER_CONTROL:
 	case MADERA_FCR_COEFF_START ... MADERA_FCR_COEFF_END:
+<<<<<<< HEAD
 	case MADERA_DAC_COMP_1:
 	case MADERA_DAC_COMP_2:
 	case MADERA_FRF_COEFFICIENT_1L_1:
@@ -2842,6 +2889,8 @@ static bool cs47l85_16bit_readable_register(struct device *dev,
 	case MADERA_FRF_COEFFICIENT_6R_2:
 	case MADERA_FRF_COEFFICIENT_6R_3:
 	case MADERA_FRF_COEFFICIENT_6R_4:
+=======
+>>>>>>> upstream/android-13
 	case MADERA_GPIO1_CTRL_1 ... MADERA_GPIO40_CTRL_2:
 	case MADERA_IRQ1_STATUS_1 ... MADERA_IRQ1_STATUS_33:
 	case MADERA_IRQ1_MASK_1 ... MADERA_IRQ1_MASK_33:

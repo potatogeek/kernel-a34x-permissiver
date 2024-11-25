@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mmc/host/pxa.c - PXA MMCI driver
  *
  *  Copyright (C) 2003 Russell King, All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  This hardware is really sick:
  *   - No way to clear interrupts.
  *   - Have to turn off the clock whenever we touch the device.
@@ -30,6 +37,7 @@
 #include <linux/mmc/slot-gpio.h>
 #include <linux/io.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/gfp.h>
 #include <linux/of.h>
@@ -37,6 +45,14 @@
 #include <linux/of_device.h>
 
 #include <asm/sizes.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/gfp.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 
 #include <mach/hardware.h>
 #include <linux/platform_data/mmc-pxamci.h>
@@ -63,6 +79,11 @@ struct pxamci_host {
 	unsigned int		imask;
 	unsigned int		power_mode;
 	unsigned long		detect_delay_ms;
+<<<<<<< HEAD
+=======
+	bool			use_ro_gpio;
+	struct gpio_desc	*power;
+>>>>>>> upstream/android-13
 	struct pxamci_platform_data *pdata;
 
 	struct mmc_request	*mrq;
@@ -101,16 +122,25 @@ static inline int pxamci_set_power(struct pxamci_host *host,
 {
 	struct mmc_host *mmc = host->mmc;
 	struct regulator *supply = mmc->supply.vmmc;
+<<<<<<< HEAD
 	int on;
+=======
+>>>>>>> upstream/android-13
 
 	if (!IS_ERR(supply))
 		return mmc_regulator_set_ocr(mmc, supply, vdd);
 
+<<<<<<< HEAD
 	if (host->pdata &&
 	    gpio_is_valid(host->pdata->gpio_power)) {
 		on = ((1 << vdd) & host->pdata->ocr_mask);
 		gpio_set_value(host->pdata->gpio_power,
 			       !!on ^ host->pdata->gpio_power_invert);
+=======
+	if (host->power) {
+		bool on = !!((1 << vdd) & host->pdata->ocr_mask);
+		gpiod_set_value(host->power, on);
+>>>>>>> upstream/android-13
 	}
 
 	if (host->pdata && host->pdata->setpower)
@@ -432,7 +462,11 @@ static int pxamci_get_ro(struct mmc_host *mmc)
 {
 	struct pxamci_host *host = mmc_priv(mmc);
 
+<<<<<<< HEAD
 	if (host->pdata && gpio_is_valid(host->pdata->gpio_card_ro))
+=======
+	if (host->use_ro_gpio)
+>>>>>>> upstream/android-13
 		return mmc_gpio_get_ro(mmc);
 	if (host->pdata && host->pdata->get_ro)
 		return !!host->pdata->get_ro(mmc_dev(mmc));
@@ -715,6 +749,7 @@ static int pxamci_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, mmc);
 
+<<<<<<< HEAD
 	host->dma_chan_rx = dma_request_slave_channel(dev, "rx");
 	if (host->dma_chan_rx == NULL) {
 		dev_err(dev, "unable to request rx dma channel\n");
@@ -726,10 +761,26 @@ static int pxamci_probe(struct platform_device *pdev)
 	if (host->dma_chan_tx == NULL) {
 		dev_err(dev, "unable to request tx dma channel\n");
 		ret = -ENODEV;
+=======
+	host->dma_chan_rx = dma_request_chan(dev, "rx");
+	if (IS_ERR(host->dma_chan_rx)) {
+		dev_err(dev, "unable to request rx dma channel\n");
+		ret = PTR_ERR(host->dma_chan_rx);
+		host->dma_chan_rx = NULL;
+		goto out;
+	}
+
+	host->dma_chan_tx = dma_request_chan(dev, "tx");
+	if (IS_ERR(host->dma_chan_tx)) {
+		dev_err(dev, "unable to request tx dma channel\n");
+		ret = PTR_ERR(host->dma_chan_tx);
+		host->dma_chan_tx = NULL;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	if (host->pdata) {
+<<<<<<< HEAD
 		int gpio_cd = host->pdata->gpio_card_detect;
 		int gpio_ro = host->pdata->gpio_card_ro;
 		int gpio_power = host->pdata->gpio_power;
@@ -776,6 +827,41 @@ static int pxamci_probe(struct platform_device *pdev)
 		if (gpio_is_valid(gpio_power) && host->pdata->setpower)
 			dev_warn(dev, "gpio_power and setpower() both defined\n");
 		if (gpio_is_valid(gpio_ro) && host->pdata->get_ro)
+=======
+		host->detect_delay_ms = host->pdata->detect_delay_ms;
+
+		host->power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
+		if (IS_ERR(host->power)) {
+			ret = PTR_ERR(host->power);
+			dev_err(dev, "Failed requesting gpio_power\n");
+			goto out;
+		}
+
+		/* FIXME: should we pass detection delay to debounce? */
+		ret = mmc_gpiod_request_cd(mmc, "cd", 0, false, 0);
+		if (ret && ret != -ENOENT) {
+			dev_err(dev, "Failed requesting gpio_cd\n");
+			goto out;
+		}
+
+		if (!host->pdata->gpio_card_ro_invert)
+			mmc->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
+
+		ret = mmc_gpiod_request_ro(mmc, "wp", 0, 0);
+		if (ret && ret != -ENOENT) {
+			dev_err(dev, "Failed requesting gpio_ro\n");
+			goto out;
+		}
+		if (!ret)
+			host->use_ro_gpio = true;
+
+		if (host->pdata->init)
+			host->pdata->init(dev, pxamci_detect_irq, mmc);
+
+		if (host->power && host->pdata->setpower)
+			dev_warn(dev, "gpio_power and setpower() both defined\n");
+		if (host->use_ro_gpio && host->pdata->get_ro)
+>>>>>>> upstream/android-13
 			dev_warn(dev, "gpio_ro and get_ro() both defined\n");
 	}
 
@@ -828,6 +914,10 @@ static struct platform_driver pxamci_driver = {
 	.remove		= pxamci_remove,
 	.driver		= {
 		.name	= DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(pxa_mmc_dt_ids),
 	},
 };

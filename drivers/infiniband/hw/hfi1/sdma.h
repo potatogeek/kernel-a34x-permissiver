@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef _HFI1_SDMA_H
 #define _HFI1_SDMA_H
 /*
@@ -46,6 +47,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015 - 2018 Intel Corporation.
+ */
+
+#ifndef _HFI1_SDMA_H
+#define _HFI1_SDMA_H
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 #include <linux/list.h>
@@ -62,6 +72,7 @@
 /* Hardware limit for SDMA packet size */
 #define MAX_SDMA_PKT_SIZE ((16 * 1024) - 1)
 
+<<<<<<< HEAD
 #define SDMA_TXREQ_S_OK        0
 #define SDMA_TXREQ_S_SENDERROR 1
 #define SDMA_TXREQ_S_ABORTED   2
@@ -72,6 +83,8 @@
 #define SDMA_TXREQ_F_AHG_COPY     0x0002
 #define SDMA_TXREQ_F_USE_AHG      0x0004
 
+=======
+>>>>>>> upstream/android-13
 #define SDMA_MAP_NONE          0
 #define SDMA_MAP_SINGLE        1
 #define SDMA_MAP_PAGE          2
@@ -392,6 +405,10 @@ struct sdma_engine {
 	u64                     progress_int_cnt;
 
 	/* private: */
+<<<<<<< HEAD
+=======
+	seqlock_t            waitlock;
+>>>>>>> upstream/android-13
 	struct list_head      dmawait;
 
 	/* CONFIG SDMA for now, just blindly duplicate */
@@ -415,6 +432,10 @@ struct sdma_engine {
 	struct list_head flushlist;
 	struct cpumask cpu_mask;
 	struct kobject kobj;
+<<<<<<< HEAD
+=======
+	u32 msix_intr;
+>>>>>>> upstream/android-13
 };
 
 int sdma_init(struct hfi1_devdata *dd, u8 port);
@@ -849,6 +870,7 @@ static inline int sdma_txadd_kvaddr(
 			dd, SDMA_MAP_SINGLE, tx, addr, len);
 }
 
+<<<<<<< HEAD
 struct iowait;
 
 int sdma_send_txreq(struct sdma_engine *sde,
@@ -859,6 +881,18 @@ int sdma_send_txlist(struct sdma_engine *sde,
 		     struct iowait *wait,
 		     struct list_head *tx_list,
 		     u32 *count);
+=======
+struct iowait_work;
+
+int sdma_send_txreq(struct sdma_engine *sde,
+		    struct iowait_work *wait,
+		    struct sdma_txreq *tx,
+		    bool pkts_sent);
+int sdma_send_txlist(struct sdma_engine *sde,
+		     struct iowait_work *wait,
+		     struct list_head *tx_list,
+		     u16 *count_out);
+>>>>>>> upstream/android-13
 
 int sdma_ahg_alloc(struct sdma_engine *sde);
 void sdma_ahg_free(struct sdma_engine *sde, int ahg_index);
@@ -915,6 +949,7 @@ static inline unsigned sdma_progress(struct sdma_engine *sde, unsigned seq,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * sdma_iowait_schedule() - initialize wait structure
  * @sde: sdma_engine to schedule
@@ -933,6 +968,8 @@ static inline void sdma_iowait_schedule(
 	iowait_schedule(wait, ppd->hfi1_wq, sde->cpu);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* for use by interrupt handling */
 void sdma_engine_error(struct sdma_engine *sde, u64 status);
 void sdma_engine_interrupt(struct sdma_engine *sde, u64 status);
@@ -1010,7 +1047,11 @@ void sdma_engine_interrupt(struct sdma_engine *sde, u64 status);
  */
 struct sdma_map_elem {
 	u32 mask;
+<<<<<<< HEAD
 	struct sdma_engine *sde[0];
+=======
+	struct sdma_engine *sde[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1032,7 +1073,11 @@ struct sdma_vl_map {
 	u32 mask;
 	u8 actual_vls;
 	u8 vls;
+<<<<<<< HEAD
 	struct sdma_map_elem *map[0];
+=======
+	struct sdma_map_elem *map[];
+>>>>>>> upstream/android-13
 };
 
 int sdma_map_init(

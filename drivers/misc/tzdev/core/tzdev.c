@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -43,15 +47,27 @@
 #include "tzdev_internal.h"
 #include "core/cdev.h"
 #include "core/deploy_tzar.h"
+<<<<<<< HEAD
+=======
+#include "core/iw_events.h"
+#include "core/iw_mem.h"
+#include "core/iw_shmem.h"
+>>>>>>> upstream/android-13
 #include "core/iwio.h"
 #include "core/iwlog.h"
 #include "core/iwservice.h"
 #include "core/iwsock.h"
 #include "core/kthread_pool.h"
 #include "core/log.h"
+<<<<<<< HEAD
 #include "core/mem.h"
 #include "core/notifier.h"
 #include "core/platform.h"
+=======
+#include "core/notifier.h"
+#include "core/platform.h"
+#include "core/smc_channel.h"
+>>>>>>> upstream/android-13
 #include "core/subsystem.h"
 #include "core/sysdep.h"
 #include "debug/iw_boot_log.h"
@@ -66,6 +82,12 @@ MODULE_AUTHOR("Vasily Leonenko <v.leonenko@samsung.com>");
 MODULE_AUTHOR("Alex Matveev <alex.matveev@samsung.com>");
 MODULE_DESCRIPTION("TZDEV driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SAMSUNG_GKI_KERNEL
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+#endif /* CONFIG_SAMSUNG_GKI_KERNEL */
+>>>>>>> upstream/android-13
 
 enum tzdev_swd_state {
 	TZDEV_SWD_DOWN,
@@ -81,6 +103,10 @@ enum tzdev_iwi_id {
 struct tzdev_fd_data {
 	unsigned int boost_state;
 	struct mutex mutex;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	void *platform_data;
 };
 
@@ -265,7 +291,13 @@ static unsigned int tzdev_virq_to_hwirq(unsigned int virq)
 	struct irq_desc *desc = irq_to_desc(virq);
 	struct irq_data *data = irq_desc_get_irq_data(desc);
 
+<<<<<<< HEAD
 	data = data->parent_data ? : data;
+=======
+#ifdef CONFIG_IRQ_DOMAIN_HIERARCHY
+	data = data->parent_data ? : data;
+#endif
+>>>>>>> upstream/android-13
 
 	return irqd_to_hwirq(data);
 }
@@ -288,6 +320,23 @@ static unsigned int tzdev_get_iwi(unsigned int idx)
 	return iwi;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TZDEV_TVM
+static int tzdev_register_iwis(void)
+{
+	(void)tzdev_get_iwi;
+	(void)tzdev_virq_to_hwirq;
+	(void)tzdev_event_handler;
+
+	/* IWI event is implemented via doorbells */
+	iwi_event = 0;
+	iwi_panic = 0;
+
+	return 0;
+}
+#else /* !CONFIG_TZDEV_TVM */
+>>>>>>> upstream/android-13
 static int tzdev_register_iwis(void)
 {
 	int ret;
@@ -330,6 +379,10 @@ static int tzdev_register_iwis(void)
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+#endif /* CONFIG_TZDEV_TVM */
+>>>>>>> upstream/android-13
 
 static void tzdev_unregister_iwis(void)
 {
@@ -413,13 +466,21 @@ int tzdev_smc(struct tzdev_smc_data *data)
 	tzdev_atomic_notifier_run(TZDEV_PRE_SMC_NOTIFIER);
 	tzprofiler_pre_smc_call_direct();
 
+<<<<<<< HEAD
 	log_debug(tzdev, "enter: args={0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x}\n",
+=======
+	log_debug(tzdev, "enter: args={0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx}\n",
+>>>>>>> upstream/android-13
 			data->args[0], data->args[1], data->args[2], data->args[3],
 			data->args[4], data->args[5], data->args[6]);
 
 	ret = tzdev_platform_smc_call(data);
 
+<<<<<<< HEAD
 	log_debug(tzdev, "tzdev_smc_cmd: exit: args={0x%x 0x%x 0x%x 0x%x} ret=%d\n",
+=======
+	log_debug(tzdev, "tzdev_smc_cmd: exit: args={0x%lx 0x%lx 0x%lx 0x%lx} ret=%d\n",
+>>>>>>> upstream/android-13
 			data->args[0], data->args[1], data->args[2], data->args[3], ret);
 
 	tzdev_atomic_notifier_run(TZDEV_POST_SMC_NOTIFIER);
@@ -439,6 +500,11 @@ int tzdev_run_init_sequence(void)
 
 	if (tzdev_check_version())
 		goto out;
+<<<<<<< HEAD
+=======
+	if (tzdev_smc_channel_init())
+		goto out;
+>>>>>>> upstream/android-13
 	if (tz_iwio_init())
 		goto out;
 	if (tz_iwservice_init())
@@ -448,11 +514,21 @@ int tzdev_run_init_sequence(void)
 	if (tz_iwlog_init())
 		goto out;
 
+<<<<<<< HEAD
 	/* IW log initialized, time to read boot log */
 	tz_iw_boot_log_read();
 
 	if (tzdev_mem_init())
 		goto tzdev_mem_init_failed;
+=======
+	tz_iw_mem_init();
+
+	/* IW log initialized, time to read boot log */
+	tz_iw_boot_log_read();
+
+	if (tzdev_iw_events_init())
+		goto tzdev_iw_events_init_failed;
+>>>>>>> upstream/android-13
 	if (tz_iwsock_init())
 		goto tz_iwsock_init_failed;
 	if (tzdev_register_iwis())
@@ -488,8 +564,13 @@ tzdev_sysconf_init_failed:
 tzdev_register_iwis_failed:
 	tz_iwsock_fini();
 tz_iwsock_init_failed:
+<<<<<<< HEAD
 	tzdev_mem_fini();
 tzdev_mem_init_failed:
+=======
+	tzdev_iw_events_fini();
+tzdev_iw_events_init_failed:
+>>>>>>> upstream/android-13
 	tz_iwlog_fini();
 out:
 	return ret;
@@ -505,6 +586,10 @@ void tzdev_run_fini_sequence(void)
 	tzdev_unregister_iwis();
 	tz_kthread_pool_fini();
 	tz_iwsock_fini();
+<<<<<<< HEAD
+=======
+	tzdev_iw_events_fini();
+>>>>>>> upstream/android-13
 	tz_iwlog_fini();
 }
 

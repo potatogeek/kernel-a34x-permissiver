@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * zylonite.c  --  SoC audio for Zylonite
  *
  * Copyright 2008 Wolfson Microelectronics PLC.
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -71,7 +78,11 @@ static const struct snd_soc_dapm_route audio_map[] = {
 static int zylonite_wm9713_init(struct snd_soc_pcm_runtime *rtd)
 {
 	if (clk_pout)
+<<<<<<< HEAD
 		snd_soc_dai_set_pll(rtd->codec_dai, 0, 0,
+=======
+		snd_soc_dai_set_pll(asoc_rtd_to_codec(rtd, 0), 0, 0,
+>>>>>>> upstream/android-13
 				    clk_get_rate(pout), 0);
 
 	return 0;
@@ -80,9 +91,15 @@ static int zylonite_wm9713_init(struct snd_soc_pcm_runtime *rtd)
 static int zylonite_voice_hw_params(struct snd_pcm_substream *substream,
 				    struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	unsigned int wm9713_div = 0;
 	int ret = 0;
 	int rate = params_rate(params);
@@ -127,27 +144,55 @@ static const struct snd_soc_ops zylonite_voice_ops = {
 	.hw_params = zylonite_voice_hw_params,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(ac97,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9713-codec", "wm9713-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+SND_SOC_DAILINK_DEFS(ac97_aux,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97-aux")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9713-codec", "wm9713-aux")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+SND_SOC_DAILINK_DEFS(voice,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa-ssp-dai.2")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9713-codec", "wm9713-voice")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link zylonite_dai[] = {
 {
 	.name = "AC97",
 	.stream_name = "AC97 HiFi",
+<<<<<<< HEAD
 	.codec_name = "wm9713-codec",
 	.platform_name = "pxa-pcm-audio",
 	.cpu_dai_name = "pxa2xx-ac97",
 	.codec_dai_name = "wm9713-hifi",
 	.init = zylonite_wm9713_init,
+=======
+	.init = zylonite_wm9713_init,
+	SND_SOC_DAILINK_REG(ac97),
+>>>>>>> upstream/android-13
 },
 {
 	.name = "AC97 Aux",
 	.stream_name = "AC97 Aux",
+<<<<<<< HEAD
 	.codec_name = "wm9713-codec",
 	.platform_name = "pxa-pcm-audio",
 	.cpu_dai_name = "pxa2xx-ac97-aux",
 	.codec_dai_name = "wm9713-aux",
+=======
+	SND_SOC_DAILINK_REG(ac97_aux),
+>>>>>>> upstream/android-13
 },
 {
 	.name = "WM9713 Voice",
 	.stream_name = "WM9713 Voice",
+<<<<<<< HEAD
 	.codec_name = "wm9713-codec",
 	.platform_name = "pxa-pcm-audio",
 	.cpu_dai_name = "pxa-ssp-dai.2",
@@ -155,6 +200,12 @@ static struct snd_soc_dai_link zylonite_dai[] = {
 	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 		   SND_SOC_DAIFMT_CBS_CFS,
 	.ops = &zylonite_voice_ops,
+=======
+	.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+		   SND_SOC_DAIFMT_CBS_CFS,
+	.ops = &zylonite_voice_ops,
+	SND_SOC_DAILINK_REG(voice),
+>>>>>>> upstream/android-13
 },
 };
 

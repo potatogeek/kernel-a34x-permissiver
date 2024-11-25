@@ -18,6 +18,10 @@
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/serdev.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 static int tty_port_default_receive_buf(struct tty_port *port,
 					const unsigned char *p,
@@ -280,7 +284,10 @@ EXPORT_SYMBOL(tty_port_put);
  *	Return a refcount protected tty instance or NULL if the port is not
  *	associated with a tty (eg due to close or hangup)
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct tty_struct *tty_port_tty_get(struct tty_port *port)
 {
 	unsigned long flags;
@@ -301,7 +308,10 @@ EXPORT_SYMBOL(tty_port_tty_get);
  *	Associate the port and tty pair. Manages any internal refcounts.
  *	Pass NULL to deassociate a port
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void tty_port_tty_set(struct tty_port *port, struct tty_struct *tty)
 {
 	unsigned long flags;
@@ -344,7 +354,10 @@ out:
  *
  *	Caller holds tty lock.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void tty_port_hangup(struct tty_port *port)
 {
 	struct tty_struct *tty;
@@ -400,7 +413,10 @@ EXPORT_SYMBOL_GPL(tty_port_tty_wakeup);
  *	to hide some internal details. This will eventually become entirely
  *	internal to the tty port.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 int tty_port_carrier_raised(struct tty_port *port)
 {
 	if (port->ops->carrier_raised == NULL)
@@ -417,7 +433,10 @@ EXPORT_SYMBOL(tty_port_carrier_raised);
  *	to hide some internal details. This will eventually become entirely
  *	internal to the tty port.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void tty_port_raise_dtr_rts(struct tty_port *port)
 {
 	if (port->ops->dtr_rts)
@@ -433,7 +452,10 @@ EXPORT_SYMBOL(tty_port_raise_dtr_rts);
  *	to hide some internal details. This will eventually become entirely
  *	internal to the tty port.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 void tty_port_lower_dtr_rts(struct tty_port *port)
 {
 	if (port->ops->dtr_rts)
@@ -465,7 +487,10 @@ EXPORT_SYMBOL(tty_port_lower_dtr_rts);
  *      NB: May drop and reacquire tty lock when blocking, so tty and tty_port
  *      may have changed state (eg., may have been hung up).
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 int tty_port_block_til_ready(struct tty_port *port,
 				struct tty_struct *tty, struct file *filp)
 {
@@ -474,7 +499,12 @@ int tty_port_block_til_ready(struct tty_port *port,
 	DEFINE_WAIT(wait);
 
 	/* if non-blocking mode is set we can pass directly to open unless
+<<<<<<< HEAD
 	   the port has just hung up or is in another error state */
+=======
+	 * the port has just hung up or is in another error state.
+	 */
+>>>>>>> upstream/android-13
 	if (tty_io_error(tty)) {
 		tty_port_set_active(port, 1);
 		return 0;
@@ -491,8 +521,14 @@ int tty_port_block_til_ready(struct tty_port *port,
 		do_clocal = 1;
 
 	/* Block waiting until we can proceed. We may need to wait for the
+<<<<<<< HEAD
 	   carrier, but we must also wait for any close that is in progress
 	   before the next open may complete */
+=======
+	 * carrier, but we must also wait for any close that is in progress
+	 * before the next open may complete.
+	 */
+>>>>>>> upstream/android-13
 
 	retval = 0;
 
@@ -509,7 +545,12 @@ int tty_port_block_til_ready(struct tty_port *port,
 
 		prepare_to_wait(&port->open_wait, &wait, TASK_INTERRUPTIBLE);
 		/* Check for a hangup or uninitialised port.
+<<<<<<< HEAD
 							Return accordingly */
+=======
+		 * Return accordingly.
+		 */
+>>>>>>> upstream/android-13
 		if (tty_hung_up_p(filp) || !tty_port_initialized(port)) {
 			if (port->flags & ASYNC_HUP_NOTIFY)
 				retval = -EAGAIN;
@@ -536,7 +577,12 @@ int tty_port_block_til_ready(struct tty_port *port,
 	finish_wait(&port->open_wait, &wait);
 
 	/* Update counts. A parallel hangup will have set count to zero and
+<<<<<<< HEAD
 	   we must not mess that up further */
+=======
+	 * we must not mess that up further.
+	 */
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&port->lock, flags);
 	if (!tty_hung_up_p(filp))
 		port->count++;
@@ -593,7 +639,11 @@ int tty_port_close_start(struct tty_port *port,
 
 	if (tty_port_initialized(port)) {
 		/* Don't block on a stalled port, just pull the chain */
+<<<<<<< HEAD
 		if (tty->flow_stopped)
+=======
+		if (tty->flow.tco_stopped)
+>>>>>>> upstream/android-13
 			tty_driver_flush_buffer(tty);
 		if (port->closing_wait != ASYNC_CLOSING_WAIT_NONE)
 			tty_wait_until_sent(tty, port->closing_wait);
@@ -630,7 +680,11 @@ void tty_port_close_end(struct tty_port *port, struct tty_struct *tty)
 }
 EXPORT_SYMBOL(tty_port_close_end);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * tty_port_close
  *
  * Caller holds tty lock
@@ -666,7 +720,11 @@ int tty_port_install(struct tty_port *port, struct tty_driver *driver,
 }
 EXPORT_SYMBOL_GPL(tty_port_install);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * tty_port_open
  *
  * Caller holds tty lock.
@@ -694,6 +752,10 @@ int tty_port_open(struct tty_port *port, struct tty_struct *tty,
 		clear_bit(TTY_IO_ERROR, &tty->flags);
 		if (port->ops->activate) {
 			int retval = port->ops->activate(port, tty);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (retval) {
 				mutex_unlock(&port->mutex);
 				return retval;
@@ -704,5 +766,8 @@ int tty_port_open(struct tty_port *port, struct tty_struct *tty,
 	mutex_unlock(&port->mutex);
 	return tty_port_block_til_ready(port, tty, filp);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(tty_port_open);

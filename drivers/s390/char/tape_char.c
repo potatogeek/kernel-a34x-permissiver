@@ -290,7 +290,11 @@ tapechar_open (struct inode *inode, struct file *filp)
 	rc = tape_open(device);
 	if (rc == 0) {
 		filp->private_data = device;
+<<<<<<< HEAD
 		nonseekable_open(inode, filp);
+=======
+		stream_open(inode, filp);
+>>>>>>> upstream/android-13
 	} else
 		tape_put_device(device);
 
@@ -341,14 +345,22 @@ tapechar_release(struct inode *inode, struct file *filp)
  */
 static int
 __tapechar_ioctl(struct tape_device *device,
+<<<<<<< HEAD
 		 unsigned int no, unsigned long data)
+=======
+		 unsigned int no, void __user *data)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
 	if (no == MTIOCTOP) {
 		struct mtop op;
 
+<<<<<<< HEAD
 		if (copy_from_user(&op, (char __user *) data, sizeof(op)) != 0)
+=======
+		if (copy_from_user(&op, data, sizeof(op)) != 0)
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		if (op.mt_count < 0)
 			return -EINVAL;
@@ -371,8 +383,11 @@ __tapechar_ioctl(struct tape_device *device,
 			case MTSEEK:
 				if (device->required_tapemarks)
 					tape_std_terminate_write(device);
+<<<<<<< HEAD
 			default:
 				;
+=======
+>>>>>>> upstream/android-13
 		}
 		rc = tape_mtop(device, op.mt_op, op.mt_count);
 
@@ -392,9 +407,13 @@ __tapechar_ioctl(struct tape_device *device,
 		if (rc < 0)
 			return rc;
 		pos.mt_blkno = rc;
+<<<<<<< HEAD
 		if (copy_to_user((char __user *) data, &pos, sizeof(pos)) != 0)
 			return -EFAULT;
 		return 0;
+=======
+		return put_user_mtpos(data, &pos);
+>>>>>>> upstream/android-13
 	}
 	if (no == MTIOCGET) {
 		/* MTIOCGET: query the tape drive status. */
@@ -424,15 +443,23 @@ __tapechar_ioctl(struct tape_device *device,
 			get.mt_blkno = rc;
 		}
 
+<<<<<<< HEAD
 		if (copy_to_user((char __user *) data, &get, sizeof(get)) != 0)
 			return -EFAULT;
 
 		return 0;
+=======
+		return put_user_mtget(data, &get);
+>>>>>>> upstream/android-13
 	}
 	/* Try the discipline ioctl function. */
 	if (device->discipline->ioctl_fn == NULL)
 		return -EINVAL;
+<<<<<<< HEAD
 	return device->discipline->ioctl_fn(device, no, data);
+=======
+	return device->discipline->ioctl_fn(device, no, (unsigned long)data);
+>>>>>>> upstream/android-13
 }
 
 static long
@@ -445,7 +472,11 @@ tapechar_ioctl(struct file *filp, unsigned int no, unsigned long data)
 
 	device = (struct tape_device *) filp->private_data;
 	mutex_lock(&device->mutex);
+<<<<<<< HEAD
 	rc = __tapechar_ioctl(device, no, data);
+=======
+	rc = __tapechar_ioctl(device, no, (void __user *)data);
+>>>>>>> upstream/android-13
 	mutex_unlock(&device->mutex);
 	return rc;
 }
@@ -455,6 +486,7 @@ static long
 tapechar_compat_ioctl(struct file *filp, unsigned int no, unsigned long data)
 {
 	struct tape_device *device = filp->private_data;
+<<<<<<< HEAD
 	int rval = -ENOIOCTLCMD;
 	unsigned long argp;
 
@@ -472,6 +504,19 @@ tapechar_compat_ioctl(struct file *filp, unsigned int no, unsigned long data)
 	}
 
 	return rval;
+=======
+	long rc;
+
+	if (no == MTIOCPOS32)
+		no = MTIOCPOS;
+	else if (no == MTIOCGET32)
+		no = MTIOCGET;
+
+	mutex_lock(&device->mutex);
+	rc = __tapechar_ioctl(device, no, compat_ptr(data));
+	mutex_unlock(&device->mutex);
+	return rc;
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_COMPAT */
 

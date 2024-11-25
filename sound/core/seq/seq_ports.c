@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA sequencer Ports
  *   Copyright (c) 1998 by Frank van de Pol <fvdpol@coil.demon.nl>
  *                         Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/core.h>
@@ -128,7 +135,10 @@ static void port_subs_info_init(struct snd_seq_port_subs_info *grp)
 struct snd_seq_client_port *snd_seq_create_port(struct snd_seq_client *client,
 						int port)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	struct snd_seq_client_port *new_port, *p;
 	int num = -1;
 	
@@ -157,7 +167,11 @@ struct snd_seq_client_port *snd_seq_create_port(struct snd_seq_client *client,
 
 	num = port >= 0 ? port : 0;
 	mutex_lock(&client->ports_mutex);
+<<<<<<< HEAD
 	write_lock_irqsave(&client->ports_lock, flags);
+=======
+	write_lock_irq(&client->ports_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(p, &client->ports_list_head, list) {
 		if (p->addr.port > num)
 			break;
@@ -169,7 +183,11 @@ struct snd_seq_client_port *snd_seq_create_port(struct snd_seq_client *client,
 	client->num_ports++;
 	new_port->addr.port = num;	/* store the port number in the port */
 	sprintf(new_port->name, "port-%d", num);
+<<<<<<< HEAD
 	write_unlock_irqrestore(&client->ports_lock, flags);
+=======
+	write_unlock_irq(&client->ports_lock);
+>>>>>>> upstream/android-13
 	mutex_unlock(&client->ports_mutex);
 
 	return new_port;
@@ -283,11 +301,18 @@ static int port_delete(struct snd_seq_client *client,
 /* delete a port with the given port id */
 int snd_seq_delete_port(struct snd_seq_client *client, int port)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	struct snd_seq_client_port *found = NULL, *p;
 
 	mutex_lock(&client->ports_mutex);
 	write_lock_irqsave(&client->ports_lock, flags);
+=======
+	struct snd_seq_client_port *found = NULL, *p;
+
+	mutex_lock(&client->ports_mutex);
+	write_lock_irq(&client->ports_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(p, &client->ports_list_head, list) {
 		if (p->addr.port == port) {
 			/* ok found.  delete from the list at first */
@@ -297,7 +322,11 @@ int snd_seq_delete_port(struct snd_seq_client *client, int port)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	write_unlock_irqrestore(&client->ports_lock, flags);
+=======
+	write_unlock_irq(&client->ports_lock);
+>>>>>>> upstream/android-13
 	mutex_unlock(&client->ports_mutex);
 	if (found)
 		return port_delete(client, found);
@@ -308,7 +337,10 @@ int snd_seq_delete_port(struct snd_seq_client *client, int port)
 /* delete the all ports belonging to the given client */
 int snd_seq_delete_all_ports(struct snd_seq_client *client)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	struct list_head deleted_list;
 	struct snd_seq_client_port *port, *tmp;
 	
@@ -316,7 +348,11 @@ int snd_seq_delete_all_ports(struct snd_seq_client *client)
 	 * clear the port list in the client data.
 	 */
 	mutex_lock(&client->ports_mutex);
+<<<<<<< HEAD
 	write_lock_irqsave(&client->ports_lock, flags);
+=======
+	write_lock_irq(&client->ports_lock);
+>>>>>>> upstream/android-13
 	if (! list_empty(&client->ports_list_head)) {
 		list_add(&deleted_list, &client->ports_list_head);
 		list_del_init(&client->ports_list_head);
@@ -324,7 +360,11 @@ int snd_seq_delete_all_ports(struct snd_seq_client *client)
 		INIT_LIST_HEAD(&deleted_list);
 	}
 	client->num_ports = 0;
+<<<<<<< HEAD
 	write_unlock_irqrestore(&client->ports_lock, flags);
+=======
+	write_unlock_irq(&client->ports_lock);
+>>>>>>> upstream/android-13
 
 	/* remove each port in deleted_list */
 	list_for_each_entry_safe(port, tmp, &deleted_list, list) {
@@ -345,7 +385,11 @@ int snd_seq_set_port_info(struct snd_seq_client_port * port,
 
 	/* set port name */
 	if (info->name[0])
+<<<<<<< HEAD
 		strlcpy(port->name, info->name, sizeof(port->name));
+=======
+		strscpy(port->name, info->name, sizeof(port->name));
+>>>>>>> upstream/android-13
 	
 	/* set capabilities */
 	port->capability = info->capability;
@@ -374,7 +418,11 @@ int snd_seq_get_port_info(struct snd_seq_client_port * port,
 		return -EINVAL;
 
 	/* get port name */
+<<<<<<< HEAD
 	strlcpy(info->name, port->name, sizeof(info->name));
+=======
+	strscpy(info->name, port->name, sizeof(info->name));
+>>>>>>> upstream/android-13
 	
 	/* get capabilities */
 	info->capability = port->capability;
@@ -532,10 +580,18 @@ static int check_and_subscribe_port(struct snd_seq_client *client,
 	return err;
 }
 
+<<<<<<< HEAD
 static void delete_and_unsubscribe_port(struct snd_seq_client *client,
 					struct snd_seq_client_port *port,
 					struct snd_seq_subscribers *subs,
 					bool is_src, bool ack)
+=======
+/* called with grp->list_mutex held */
+static void __delete_and_unsubscribe_port(struct snd_seq_client *client,
+					  struct snd_seq_client_port *port,
+					  struct snd_seq_subscribers *subs,
+					  bool is_src, bool ack)
+>>>>>>> upstream/android-13
 {
 	struct snd_seq_port_subs_info *grp;
 	struct list_head *list;
@@ -543,7 +599,10 @@ static void delete_and_unsubscribe_port(struct snd_seq_client *client,
 
 	grp = is_src ? &port->c_src : &port->c_dest;
 	list = is_src ? &subs->src_list : &subs->dest_list;
+<<<<<<< HEAD
 	down_write(&grp->list_mutex);
+=======
+>>>>>>> upstream/android-13
 	write_lock_irq(&grp->list_lock);
 	empty = list_empty(list);
 	if (!empty)
@@ -553,6 +612,21 @@ static void delete_and_unsubscribe_port(struct snd_seq_client *client,
 
 	if (!empty)
 		unsubscribe_port(client, port, grp, &subs->info, ack);
+<<<<<<< HEAD
+=======
+}
+
+static void delete_and_unsubscribe_port(struct snd_seq_client *client,
+					struct snd_seq_client_port *port,
+					struct snd_seq_subscribers *subs,
+					bool is_src, bool ack)
+{
+	struct snd_seq_port_subs_info *grp;
+
+	grp = is_src ? &port->c_src : &port->c_dest;
+	down_write(&grp->list_mutex);
+	__delete_and_unsubscribe_port(client, port, subs, is_src, ack);
+>>>>>>> upstream/android-13
 	up_write(&grp->list_mutex);
 }
 
@@ -608,6 +682,7 @@ int snd_seq_port_disconnect(struct snd_seq_client *connector,
 			    struct snd_seq_client_port *dest_port,
 			    struct snd_seq_port_subscribe *info)
 {
+<<<<<<< HEAD
 	struct snd_seq_port_subs_info *src = &src_port->c_src;
 	struct snd_seq_subscribers *subs;
 	int err = -ENOENT;
@@ -617,18 +692,41 @@ int snd_seq_port_disconnect(struct snd_seq_client *connector,
 	list_for_each_entry(subs, &src->list_head, src_list) {
 		if (match_subs_info(info, &subs->info)) {
 			atomic_dec(&subs->ref_count); /* mark as not ready */
+=======
+	struct snd_seq_port_subs_info *dest = &dest_port->c_dest;
+	struct snd_seq_subscribers *subs;
+	int err = -ENOENT;
+
+	/* always start from deleting the dest port for avoiding concurrent
+	 * deletions
+	 */
+	down_write(&dest->list_mutex);
+	/* look for the connection */
+	list_for_each_entry(subs, &dest->list_head, dest_list) {
+		if (match_subs_info(info, &subs->info)) {
+			__delete_and_unsubscribe_port(dest_client, dest_port,
+						      subs, false,
+						      connector->number != dest_client->number);
+>>>>>>> upstream/android-13
 			err = 0;
 			break;
 		}
 	}
+<<<<<<< HEAD
 	up_write(&src->list_mutex);
+=======
+	up_write(&dest->list_mutex);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	delete_and_unsubscribe_port(src_client, src_port, subs, true,
 				    connector->number != src_client->number);
+<<<<<<< HEAD
 	delete_and_unsubscribe_port(dest_client, dest_port, subs, false,
 				    connector->number != dest_client->number);
+=======
+>>>>>>> upstream/android-13
 	kfree(subs);
 	return 0;
 }
@@ -672,7 +770,11 @@ int snd_seq_event_port_attach(int client,
 	/* Set up the port */
 	memset(&portinfo, 0, sizeof(portinfo));
 	portinfo.addr.client = client;
+<<<<<<< HEAD
 	strlcpy(portinfo.name, portname ? portname : "Unnamed port",
+=======
+	strscpy(portinfo.name, portname ? portname : "Unnamed port",
+>>>>>>> upstream/android-13
 		sizeof(portinfo.name));
 
 	portinfo.capability = cap;

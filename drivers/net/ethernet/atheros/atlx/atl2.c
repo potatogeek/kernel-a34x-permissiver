@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright(c) 2006 - 2007 Atheros Corporation. All rights reserved.
  * Copyright(c) 2007 - 2008 Chris Snook <csnook@redhat.com>
  *
  * Derived from Intel e1000 driver
  * Copyright(c) 1999 - 2005 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59
  * Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -49,18 +56,25 @@
 
 #include "atl2.h"
 
+<<<<<<< HEAD
 #define ATL2_DRV_VERSION "2.2.3"
 
 static const char atl2_driver_name[] = "atl2";
 static const char atl2_driver_string[] = "Atheros(R) L2 Ethernet Driver";
 static const char atl2_copyright[] = "Copyright (c) 2007 Atheros Corporation.";
 static const char atl2_driver_version[] = ATL2_DRV_VERSION;
+=======
+static const char atl2_driver_name[] = "atl2";
+>>>>>>> upstream/android-13
 static const struct ethtool_ops atl2_ethtool_ops;
 
 MODULE_AUTHOR("Atheros Corporation <xiong.huang@atheros.com>, Chris Snook <csnook@redhat.com>");
 MODULE_DESCRIPTION("Atheros Fast Ethernet Network Driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION(ATL2_DRV_VERSION);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * atl2_pci_tbl - PCI Device ID Table
@@ -300,11 +314,18 @@ static s32 atl2_setup_ring_resources(struct atl2_adapter *adapter)
 		adapter->txs_ring_size * 4 + 7 +	/* dword align */
 		adapter->rxd_ring_size * 1536 + 127;	/* 128bytes align */
 
+<<<<<<< HEAD
 	adapter->ring_vir_addr = pci_alloc_consistent(pdev, size,
 		&adapter->ring_dma);
 	if (!adapter->ring_vir_addr)
 		return -ENOMEM;
 	memset(adapter->ring_vir_addr, 0, adapter->ring_size);
+=======
+	adapter->ring_vir_addr = dma_alloc_coherent(&pdev->dev, size,
+						    &adapter->ring_dma, GFP_KERNEL);
+	if (!adapter->ring_vir_addr)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Init TXD Ring */
 	adapter->txd_dma = adapter->ring_dma ;
@@ -553,7 +574,11 @@ static void atl2_intr_tx(struct atl2_adapter *adapter)
 			netdev->stats.tx_aborted_errors++;
 		if (txs->late_col)
 			netdev->stats.tx_window_errors++;
+<<<<<<< HEAD
 		if (txs->underun)
+=======
+		if (txs->underrun)
+>>>>>>> upstream/android-13
 			netdev->stats.tx_fifo_errors++;
 	} while (1);
 
@@ -683,8 +708,13 @@ static int atl2_request_irq(struct atl2_adapter *adapter)
 static void atl2_free_ring_resources(struct atl2_adapter *adapter)
 {
 	struct pci_dev *pdev = adapter->pdev;
+<<<<<<< HEAD
 	pci_free_consistent(pdev, adapter->ring_size, adapter->ring_vir_addr,
 		adapter->ring_dma);
+=======
+	dma_free_coherent(&pdev->dev, adapter->ring_size,
+			  adapter->ring_vir_addr, adapter->ring_dma);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -908,8 +938,12 @@ static netdev_tx_t atl2_xmit_frame(struct sk_buff *skb,
 	ATL2_WRITE_REGW(&adapter->hw, REG_MB_TXD_WR_IDX,
 		(adapter->txd_write_ptr >> 2));
 
+<<<<<<< HEAD
 	mmiowb();
 	dev_kfree_skb_any(skb);
+=======
+	dev_consume_skb_any(skb);
+>>>>>>> upstream/android-13
 	return NETDEV_TX_OK;
 }
 
@@ -1015,8 +1049,14 @@ static int atl2_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd)
 /**
  * atl2_tx_timeout - Respond to a Tx Hang
  * @netdev: network interface device structure
+<<<<<<< HEAD
  */
 static void atl2_tx_timeout(struct net_device *netdev)
+=======
+ * @txqueue: index of the hanging transmit queue
+ */
+static void atl2_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct atl2_adapter *adapter = netdev_priv(netdev);
 
@@ -1026,7 +1066,11 @@ static void atl2_tx_timeout(struct net_device *netdev)
 
 /**
  * atl2_watchdog - Timer Call-back
+<<<<<<< HEAD
  * @data: pointer to netdev cast into an unsigned long
+=======
+ * @t: timer list containing a pointer to netdev cast into an unsigned long
+>>>>>>> upstream/android-13
  */
 static void atl2_watchdog(struct timer_list *t)
 {
@@ -1051,7 +1095,11 @@ static void atl2_watchdog(struct timer_list *t)
 
 /**
  * atl2_phy_config - Timer Call-back
+<<<<<<< HEAD
  * @data: pointer to netdev cast into an unsigned long
+=======
+ * @t: timer list containing a pointer to netdev cast into an unsigned long
+>>>>>>> upstream/android-13
  */
 static void atl2_phy_config(struct timer_list *t)
 {
@@ -1106,7 +1154,10 @@ err_up:
 
 static void atl2_reinit_locked(struct atl2_adapter *adapter)
 {
+<<<<<<< HEAD
 	WARN_ON(in_interrupt());
+=======
+>>>>>>> upstream/android-13
 	while (test_and_set_bit(__ATL2_RESETTING, &adapter->flags))
 		msleep(1);
 	atl2_down(adapter);
@@ -1256,6 +1307,10 @@ static int atl2_check_link(struct atl2_adapter *adapter)
 
 /**
  * atl2_link_chg_task - deal with link change event Out of interrupt context
+<<<<<<< HEAD
+=======
+ * @work: pointer to work struct with private info
+>>>>>>> upstream/android-13
  */
 static void atl2_link_chg_task(struct work_struct *work)
 {
@@ -1313,7 +1368,11 @@ static const struct net_device_ops atl2_netdev_ops = {
 	.ndo_change_mtu		= atl2_change_mtu,
 	.ndo_fix_features	= atl2_fix_features,
 	.ndo_set_features	= atl2_set_features,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= atl2_ioctl,
+=======
+	.ndo_eth_ioctl		= atl2_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_tx_timeout		= atl2_tx_timeout,
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	= atl2_poll_controller,
@@ -1349,8 +1408,13 @@ static int atl2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 * until the kernel has the proper infrastructure to support 64-bit DMA
 	 * on these devices.
 	 */
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) &&
 		pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32)) &&
+	    dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "atl2: No usable DMA configuration, aborting\n");
 		err = -EIO;
 		goto err_dma;
@@ -1695,6 +1759,7 @@ static struct pci_driver atl2_driver = {
 	.shutdown = atl2_shutdown,
 };
 
+<<<<<<< HEAD
 /**
  * atl2_init_module - Driver Registration Routine
  *
@@ -1721,6 +1786,9 @@ static void __exit atl2_exit_module(void)
 	pci_unregister_driver(&atl2_driver);
 }
 module_exit(atl2_exit_module);
+=======
+module_pci_driver(atl2_driver);
+>>>>>>> upstream/android-13
 
 static void atl2_read_pci_cfg(struct atl2_hw *hw, u32 reg, u16 *value)
 {
@@ -2026,8 +2094,11 @@ static void atl2_get_drvinfo(struct net_device *netdev,
 	struct atl2_adapter *adapter = netdev_priv(netdev);
 
 	strlcpy(drvinfo->driver,  atl2_driver_name, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, atl2_driver_version,
 		sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(drvinfo->fw_version, "L2", sizeof(drvinfo->fw_version));
 	strlcpy(drvinfo->bus_info, pci_name(adapter->pdev),
 		sizeof(drvinfo->bus_info));
@@ -2574,7 +2645,10 @@ static s32 atl2_write_phy_reg(struct atl2_hw *hw, u32 reg_addr, u16 phy_data)
  */
 static s32 atl2_phy_setup_autoneg_adv(struct atl2_hw *hw)
 {
+<<<<<<< HEAD
 	s32 ret_val;
+=======
+>>>>>>> upstream/android-13
 	s16 mii_autoneg_adv_reg;
 
 	/* Read the MII Auto-Neg Advertisement Register (Address 4). */
@@ -2630,12 +2704,16 @@ static s32 atl2_phy_setup_autoneg_adv(struct atl2_hw *hw)
 
 	hw->mii_autoneg_adv_reg = mii_autoneg_adv_reg;
 
+<<<<<<< HEAD
 	ret_val = atl2_write_phy_reg(hw, MII_ADVERTISE, mii_autoneg_adv_reg);
 
 	if (ret_val)
 		return ret_val;
 
 	return 0;
+=======
+	return atl2_write_phy_reg(hw, MII_ADVERTISE, mii_autoneg_adv_reg);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2944,7 +3022,11 @@ static int atl2_validate_option(int *value, struct atl2_option *opt)
 			if (*value == ent->i) {
 				if (ent->str[0] != '\0')
 					printk(KERN_INFO "%s\n", ent->str);
+<<<<<<< HEAD
 			return 0;
+=======
+				return 0;
+>>>>>>> upstream/android-13
 			}
 		}
 		break;

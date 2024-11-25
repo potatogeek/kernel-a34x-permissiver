@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 #include <asm/regs.h>
 #include <asm/asmmacro.h>
 #include <asm/cacheasm.h>

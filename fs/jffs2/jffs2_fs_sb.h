@@ -38,6 +38,10 @@ struct jffs2_mount_opts {
 	 * users. This is implemented simply by means of not allowing the
 	 * latter users to write to the file system if the amount if the
 	 * available space is less then 'rp_size'. */
+<<<<<<< HEAD
+=======
+	bool set_rp_size;
+>>>>>>> upstream/android-13
 	unsigned int rp_size;
 };
 

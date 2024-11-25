@@ -49,11 +49,19 @@ struct floppy_struct {
 #define FDCLRPRM _IO(2, 0x41)
 /* clear user-defined parameters */
 
+<<<<<<< HEAD
 #define FDSETPRM _IOW(2, 0x42, struct floppy_struct) 
 #define FDSETMEDIAPRM FDSETPRM
 /* set user-defined parameters for current media */
 
 #define FDDEFPRM _IOW(2, 0x43, struct floppy_struct) 
+=======
+#define FDSETPRM _IOW(2, 0x42, struct floppy_struct)
+#define FDSETMEDIAPRM FDSETPRM
+/* set user-defined parameters for current media */
+
+#define FDDEFPRM _IOW(2, 0x43, struct floppy_struct)
+>>>>>>> upstream/android-13
 #define FDGETPRM _IOR(2, 0x04, struct floppy_struct)
 #define FDDEFMEDIAPRM FDDEFPRM
 #define FDGETMEDIAPRM FDGETPRM
@@ -65,7 +73,11 @@ struct floppy_struct {
 /* issue/don't issue kernel messages on media type change */
 
 
+<<<<<<< HEAD
 /* 
+=======
+/*
+>>>>>>> upstream/android-13
  * Formatting (obsolete)
  */
 #define FD_FILL_BYTE 0xF6 /* format fill byte. */
@@ -126,13 +138,22 @@ typedef char floppy_drive_name[16];
  */
 struct floppy_drive_params {
 	signed char cmos;		/* CMOS type */
+<<<<<<< HEAD
 	
 	/* Spec2 is (HLD<<1 | ND), where HLD is head load time (1=2ms, 2=4 ms 
+=======
+
+	/* Spec2 is (HLD<<1 | ND), where HLD is head load time (1=2ms, 2=4 ms
+>>>>>>> upstream/android-13
 	 * etc) and ND is set means no DMA. Hardcoded to 6 (HLD=6ms, use DMA).
 	 */
 	unsigned long max_dtr;		/* Step rate, usec */
 	unsigned long hlt;     		/* Head load/settle time, msec */
+<<<<<<< HEAD
 	unsigned long hut;     		/* Head unload time (remnant of 
+=======
+	unsigned long hut;     		/* Head unload time (remnant of
+>>>>>>> upstream/android-13
 					 * 8" drives) */
 	unsigned long srt;     		/* Step rate, usec */
 
@@ -145,12 +166,21 @@ struct floppy_drive_params {
 	unsigned char rps;		/* rotations per second */
 	unsigned char tracks;		/* maximum number of tracks */
 	unsigned long timeout;		/* timeout for interrupt requests */
+<<<<<<< HEAD
 	
 	unsigned char interleave_sect;	/* if there are more sectors, use 
 					 * interleave */
 	
 	struct floppy_max_errors max_errors;
 	
+=======
+
+	unsigned char interleave_sect;	/* if there are more sectors, use
+					 * interleave */
+
+	struct floppy_max_errors max_errors;
+
+>>>>>>> upstream/android-13
 	char flags;			/* various flags, including ftd_msg */
 /*
  * Announce successful media type detection and media information loss after
@@ -162,7 +192,11 @@ struct floppy_drive_params {
 #define FD_BROKEN_DCL 0x20
 #define FD_DEBUG 0x02
 #define FD_SILENT_DCL_CLEAR 0x4
+<<<<<<< HEAD
 #define FD_INVERTED_DCL 0x80 /* must be 0x80, because of hardware 
+=======
+#define FD_INVERTED_DCL 0x80 /* must be 0x80, because of hardware
+>>>>>>> upstream/android-13
 				considerations */
 
 	char read_track;		/* use readtrack during probing? */
@@ -172,9 +206,18 @@ struct floppy_drive_params {
  * used in succession to try to read the disk. If the FDC cannot lock onto
  * the disk, the next format is tried. This uses the variable 'probing'.
  */
+<<<<<<< HEAD
 	short autodetect[8];		/* autodetected formats */
 	
 	int checkfreq; /* how often should the drive be checked for disk 
+=======
+
+#define FD_AUTODETECT_SIZE 8
+
+	short autodetect[FD_AUTODETECT_SIZE]; /* autodetected formats */
+
+	int checkfreq; /* how often should the drive be checked for disk
+>>>>>>> upstream/android-13
 			* changes */
 	int native_format; /* native format of this drive */
 };
@@ -222,6 +265,7 @@ struct floppy_drive_struct {
  * decremented after each probe.
  */
 	int keep_data;
+<<<<<<< HEAD
 	
 	/* Prevent "aliased" accesses. */
 	int fd_ref;
@@ -229,6 +273,15 @@ struct floppy_drive_struct {
 	unsigned long last_checked; /* when was the drive last checked for a disk 
 			   * change? */
 	
+=======
+
+	/* Prevent "aliased" accesses. */
+	int fd_ref;
+	int fd_device;
+	unsigned long last_checked; /* when was the drive last checked for a disk
+			   * change? */
+
+>>>>>>> upstream/android-13
 	char *dmabuf;
 	int bufblocks;
 };
@@ -252,7 +305,11 @@ enum reset_mode {
 /*
  * FDC state
  */
+<<<<<<< HEAD
 struct floppy_fdc_state {	
+=======
+struct floppy_fdc_state {
+>>>>>>> upstream/android-13
 	int spec1;		/* spec1 value last used */
 	int spec2;		/* spec2 value last used */
 	int dtr;
@@ -299,16 +356,27 @@ struct floppy_write_errors {
 	 * to the user process are not counted.
 	 */
 
+<<<<<<< HEAD
 	unsigned int write_errors;  /* number of physical write errors 
 				     * encountered */
 	
+=======
+	unsigned int write_errors;  /* number of physical write errors
+				     * encountered */
+
+>>>>>>> upstream/android-13
 	/* position of first and last write errors */
 	unsigned long first_error_sector;
 	int           first_error_generation;
 	unsigned long last_error_sector;
 	int           last_error_generation;
+<<<<<<< HEAD
 	
 	unsigned int badness; /* highest retry count for a read or write 
+=======
+
+	unsigned int badness; /* highest retry count for a read or write
+>>>>>>> upstream/android-13
 			       * operation */
 };
 
@@ -332,7 +400,11 @@ struct floppy_raw_cmd {
 #define FD_RAW_DISK_CHANGE 4 /* out: disk change flag was set */
 #define FD_RAW_INTR 8    /* wait for an interrupt */
 #define FD_RAW_SPIN 0x10 /* spin up the disk for this command */
+<<<<<<< HEAD
 #define FD_RAW_NO_MOTOR_AFTER 0x20 /* switch the motor off after command 
+=======
+#define FD_RAW_NO_MOTOR_AFTER 0x20 /* switch the motor off after command
+>>>>>>> upstream/android-13
 				    * completion */
 #define FD_RAW_NEED_DISK 0x40  /* this command needs a disk to be present */
 #define FD_RAW_NEED_SEEK 0x80  /* this command uses an implied seek (soft) */
@@ -350,17 +422,43 @@ struct floppy_raw_cmd {
 
 	void __user *data;
 	char *kernel_data; /* location of data buffer in the kernel */
+<<<<<<< HEAD
 	struct floppy_raw_cmd *next; /* used for chaining of raw cmd's 
+=======
+	struct floppy_raw_cmd *next; /* used for chaining of raw cmd's
+>>>>>>> upstream/android-13
 				      * within the kernel */
 	long length; /* in: length of dma transfer. out: remaining bytes */
 	long phys_length; /* physical length, if different from dma length */
 	int buffer_length; /* length of allocated buffer */
 
 	unsigned char rate;
+<<<<<<< HEAD
 	unsigned char cmd_count;
 	unsigned char cmd[16];
 	unsigned char reply_count;
 	unsigned char reply[16];
+=======
+
+#define FD_RAW_CMD_SIZE 16
+#define FD_RAW_REPLY_SIZE 16
+#define FD_RAW_CMD_FULLSIZE (FD_RAW_CMD_SIZE + 1 + FD_RAW_REPLY_SIZE)
+
+	/* The command may take up the space initially intended for the reply
+	 * and the reply count. Needed for long 82078 commands such as RESTORE,
+	 * which takes 17 command bytes.
+	 */
+
+	unsigned char cmd_count;
+	union {
+		struct {
+			unsigned char cmd[FD_RAW_CMD_SIZE];
+			unsigned char reply_count;
+			unsigned char reply[FD_RAW_REPLY_SIZE];
+		};
+		unsigned char fullcmd[FD_RAW_CMD_FULLSIZE];
+	};
+>>>>>>> upstream/android-13
 	int track;
 	int resultcode;
 

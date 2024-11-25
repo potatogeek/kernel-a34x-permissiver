@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  QLogic FCoE Offload Driver
  *  Copyright (c) 2016-2018 Cavium Inc.
@@ -5,6 +6,12 @@
  *  This software is available under the terms of the GNU General Public License
  *  (GPL) Version 2, available from the file COPYING in the main directory of
  *  this source tree.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  QLogic FCoE Offload Driver
+ *  Copyright (c) 2016-2018 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 #ifndef _QEDF_DBG_H_
 #define _QEDF_DBG_H_
@@ -13,7 +20,10 @@
 #include <linux/kernel.h>
 #include <linux/compiler.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/delay.h>
 #include <scsi/scsi_transport.h>
@@ -45,7 +55,11 @@ extern uint qedf_debug;
 #define QEDF_LOG_LPORT		0x4000		/* lport logs */
 #define QEDF_LOG_ELS		0x8000		/* ELS logs */
 #define QEDF_LOG_NPIV		0x10000		/* NPIV logs */
+<<<<<<< HEAD
 #define QEDF_LOG_SESS		0x20000		/* Conection setup, cleanup */
+=======
+#define QEDF_LOG_SESS		0x20000		/* Connection setup, cleanup */
+>>>>>>> upstream/android-13
 #define QEDF_LOG_TID		0x80000         /*
 						 * FW TID context acquire
 						 * free

@@ -69,7 +69,11 @@ bool ocrdma_alloc_stats_resources(struct ocrdma_dev *dev);
 void ocrdma_release_stats_resources(struct ocrdma_dev *dev);
 void ocrdma_rem_port_stats(struct ocrdma_dev *dev);
 void ocrdma_add_port_stats(struct ocrdma_dev *dev);
+<<<<<<< HEAD
 int ocrdma_pma_counters(struct ocrdma_dev *dev,
 			struct ib_mad *out_mad);
+=======
+void ocrdma_pma_counters(struct ocrdma_dev *dev, struct ib_mad *out_mad);
+>>>>>>> upstream/android-13
 
 #endif	/* __OCRDMA_STATS_H__ */

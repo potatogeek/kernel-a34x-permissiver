@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	w1_ds2423.c
  *
@@ -6,6 +10,7 @@
  * This driver will read and write the value of 4 counters to w1_slave file in
  * sys filesystem.
  * Inspired by the w1_therm and w1_ds2431 drivers.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the therms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -130,7 +137,11 @@ static struct attribute *w1_f1d_attrs[] = {
 };
 ATTRIBUTE_GROUPS(w1_f1d);
 
+<<<<<<< HEAD
 static struct w1_family_ops w1_f1d_fops = {
+=======
+static const struct w1_family_ops w1_f1d_fops = {
+>>>>>>> upstream/android-13
 	.groups		= w1_f1d_groups,
 };
 

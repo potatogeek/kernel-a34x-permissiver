@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -20,6 +21,13 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * dlmconvert.h
+ *
+ * Copyright (C) 2004 Oracle.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef DLMCONVERT_H

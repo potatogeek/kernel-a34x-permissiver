@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  DS1287 clockevent driver
  *
  *  Copyright (C) 2008	Yoichi Yuasa <yuasa@linux-mips.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clockchips.h>
 #include <linux/init.h>
@@ -113,6 +120,7 @@ static irqreturn_t ds1287_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction ds1287_irqaction = {
 	.handler	= ds1287_interrupt,
 	.flags		= IRQF_PERCPU | IRQF_TIMER,
@@ -121,6 +129,11 @@ static struct irqaction ds1287_irqaction = {
 
 int __init ds1287_clockevent_init(int irq)
 {
+=======
+int __init ds1287_clockevent_init(int irq)
+{
+	unsigned long flags = IRQF_PERCPU | IRQF_TIMER;
+>>>>>>> upstream/android-13
 	struct clock_event_device *cd;
 
 	cd = &ds1287_clockevent;
@@ -135,5 +148,9 @@ int __init ds1287_clockevent_init(int irq)
 
 	clockevents_register_device(&ds1287_clockevent);
 
+<<<<<<< HEAD
 	return setup_irq(irq, &ds1287_irqaction);
+=======
+	return request_irq(irq, ds1287_interrupt, flags, "ds1287", NULL);
+>>>>>>> upstream/android-13
 }

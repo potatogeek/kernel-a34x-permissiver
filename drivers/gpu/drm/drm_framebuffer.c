@@ -21,6 +21,7 @@
  */
 
 #include <linux/export.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_auth.h>
 #include <drm/drm_framebuffer.h>
@@ -29,6 +30,26 @@
 
 #include "drm_internal.h"
 #include "drm_crtc_internal.h"
+=======
+#include <linux/uaccess.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_uapi.h>
+#include <drm/drm_auth.h>
+#include <drm/drm_debugfs.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_framebuffer.h>
+#include <drm/drm_gem.h>
+#include <drm/drm_print.h>
+#include <drm/drm_util.h>
+
+#include <trace/hooks/drm_framebuffer.h>
+
+#include "drm_crtc_internal.h"
+#include "drm_internal.h"
+>>>>>>> upstream/android-13
 
 /**
  * DOC: overview
@@ -112,11 +133,24 @@ int drm_mode_addfb(struct drm_device *dev, struct drm_mode_fb_cmd *or,
 	struct drm_mode_fb_cmd2 r = {};
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+		return -EOPNOTSUPP;
+
+	r.pixel_format = drm_driver_legacy_fb_format(dev, or->bpp, or->depth);
+	if (r.pixel_format == DRM_FORMAT_INVALID) {
+		DRM_DEBUG("bad {bpp:%d, depth:%d}\n", or->bpp, or->depth);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	/* convert to new format and call new ioctl */
 	r.fb_id = or->fb_id;
 	r.width = or->width;
 	r.height = or->height;
 	r.pitches[0] = or->pitch;
+<<<<<<< HEAD
 	r.pixel_format = drm_mode_legacy_fb_format(or->bpp, or->depth);
 	r.handles[0] = or->handle;
 
@@ -124,6 +158,10 @@ int drm_mode_addfb(struct drm_device *dev, struct drm_mode_fb_cmd *or,
 	    dev->driver->driver_features & DRIVER_PREFER_XBGR_30BPP)
 		r.pixel_format = DRM_FORMAT_XBGR2101010;
 
+=======
+	r.handles[0] = or->handle;
+
+>>>>>>> upstream/android-13
 	ret = drm_mode_addfb2(dev, &r, file_priv);
 	if (ret)
 		return ret;
@@ -164,6 +202,7 @@ static int framebuffer_check(struct drm_device *dev,
 	int i;
 
 	/* check if the format is supported at all */
+<<<<<<< HEAD
 	info = __drm_format_info(r->pixel_format & ~DRM_FORMAT_BIG_ENDIAN);
 	if (!info) {
 		struct drm_format_name_buf format_name;
@@ -177,6 +216,14 @@ static int framebuffer_check(struct drm_device *dev,
 	/* now let the driver pick its own format info */
 	info = drm_get_format_info(dev, r);
 
+=======
+	if (!__drm_format_info(r->pixel_format)) {
+		DRM_DEBUG_KMS("bad framebuffer format %p4cc\n",
+			      &r->pixel_format);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (r->width == 0) {
 		DRM_DEBUG_KMS("bad framebuffer width %u\n", r->width);
 		return -EINVAL;
@@ -187,23 +234,47 @@ static int framebuffer_check(struct drm_device *dev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < info->num_planes; i++) {
 		unsigned int width = fb_plane_width(r->width, info, i);
 		unsigned int height = fb_plane_height(r->height, info, i);
 		unsigned int cpp = info->cpp[i];
+=======
+	/* now let the driver pick its own format info */
+	info = drm_get_format_info(dev, r);
+
+	for (i = 0; i < info->num_planes; i++) {
+		unsigned int width = fb_plane_width(r->width, info, i);
+		unsigned int height = fb_plane_height(r->height, info, i);
+		unsigned int block_size = info->char_per_block[i];
+		u64 min_pitch = drm_format_info_min_pitch(info, i, width);
+
+		if (!block_size && (r->modifier[i] == DRM_FORMAT_MOD_LINEAR)) {
+			DRM_DEBUG_KMS("Format requires non-linear modifier for plane %d\n", i);
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 
 		if (!r->handles[i]) {
 			DRM_DEBUG_KMS("no buffer object handle for plane %d\n", i);
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		if ((uint64_t) width * cpp > UINT_MAX)
+=======
+		if (min_pitch > UINT_MAX)
+>>>>>>> upstream/android-13
 			return -ERANGE;
 
 		if ((uint64_t) height * r->pitches[i] + r->offsets[i] > UINT_MAX)
 			return -ERANGE;
 
+<<<<<<< HEAD
 		if (r->pitches[i] < width * cpp) {
+=======
+		if (block_size && r->pitches[i] < min_pitch) {
+>>>>>>> upstream/android-13
 			DRM_DEBUG_KMS("bad pitch %u for plane %d\n", r->pitches[i], i);
 			return -EINVAL;
 		}
@@ -278,8 +349,12 @@ drm_internal_framebuffer_create(struct drm_device *dev,
 	struct drm_framebuffer *fb;
 	int ret;
 
+<<<<<<< HEAD
 	if (r->flags & ~(DRM_MODE_FB_INTERLACED | DRM_MODE_FB_MODIFIERS |
 			DRM_MODE_FB_SECURE)) {
+=======
+	if (r->flags & ~(DRM_MODE_FB_INTERLACED | DRM_MODE_FB_MODIFIERS)) {
+>>>>>>> upstream/android-13
 		DRM_DEBUG_KMS("bad framebuffer flags 0x%08x\n", r->flags);
 		return ERR_PTR(-EINVAL);
 	}
@@ -313,6 +388,10 @@ drm_internal_framebuffer_create(struct drm_device *dev,
 
 	return fb;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_FOR_TESTS_ONLY(drm_internal_framebuffer_create);
+>>>>>>> upstream/android-13
 
 /**
  * drm_mode_addfb2 - add an FB to the graphics configuration
@@ -336,7 +415,11 @@ int drm_mode_addfb2(struct drm_device *dev,
 	struct drm_framebuffer *fb;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	fb = drm_internal_framebuffer_create(dev, r, file_priv);
 	if (IS_ERR(fb))
@@ -353,6 +436,33 @@ int drm_mode_addfb2(struct drm_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int drm_mode_addfb2_ioctl(struct drm_device *dev,
+			  void *data, struct drm_file *file_priv)
+{
+#ifdef __BIG_ENDIAN
+	if (!dev->mode_config.quirk_addfb_prefer_host_byte_order) {
+		/*
+		 * Drivers must set the
+		 * quirk_addfb_prefer_host_byte_order quirk to make
+		 * the drm_mode_addfb() compat code work correctly on
+		 * bigendian machines.
+		 *
+		 * If they don't they interpret pixel_format values
+		 * incorrectly for bug compatibility, which in turn
+		 * implies the ADDFB2 ioctl does not work correctly
+		 * then.  So block it to make userspace fallback to
+		 * ADDFB.
+		 */
+		DRM_DEBUG_KMS("addfb2 broken on bigendian");
+		return -EOPNOTSUPP;
+	}
+#endif
+	return drm_mode_addfb2(dev, data, file_priv);
+}
+
+>>>>>>> upstream/android-13
 struct drm_mode_rmfb_work {
 	struct work_struct work;
 	struct list_head fbs;
@@ -366,6 +476,12 @@ static void drm_mode_rmfb_work_fn(struct work_struct *w)
 		struct drm_framebuffer *fb =
 			list_first_entry(&arg->fbs, typeof(*fb), filp_head);
 
+<<<<<<< HEAD
+=======
+		drm_dbg_kms(fb->dev,
+			    "Removing [FB:%d] from all active usage due to RMFB ioctl\n",
+			    fb->base.id);
+>>>>>>> upstream/android-13
 		list_del_init(&fb->filp_head);
 		drm_framebuffer_remove(fb);
 	}
@@ -392,7 +508,11 @@ int drm_mode_rmfb(struct drm_device *dev, u32 fb_id,
 	int found = 0;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	fb = drm_framebuffer_lookup(dev, file_priv, fb_id);
 	if (!fb)
@@ -469,7 +589,11 @@ int drm_mode_getfb(struct drm_device *dev,
 	int ret;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	fb = drm_framebuffer_lookup(dev, file_priv, r->fb_id);
 	if (!fb)
@@ -507,7 +631,132 @@ int drm_mode_getfb(struct drm_device *dev,
 
 out:
 	drm_framebuffer_put(fb);
+<<<<<<< HEAD
 
+=======
+	return ret;
+}
+
+/**
+ * drm_mode_getfb2_ioctl - get extended FB info
+ * @dev: drm device for the ioctl
+ * @data: data pointer for the ioctl
+ * @file_priv: drm file for the ioctl call
+ *
+ * Lookup the FB given its ID and return info about it.
+ *
+ * Called by the user via ioctl.
+ *
+ * Returns:
+ * Zero on success, negative errno on failure.
+ */
+int drm_mode_getfb2_ioctl(struct drm_device *dev,
+			  void *data, struct drm_file *file_priv)
+{
+	struct drm_mode_fb_cmd2 *r = data;
+	struct drm_framebuffer *fb;
+	unsigned int i;
+	int ret;
+
+	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+		return -EINVAL;
+
+	fb = drm_framebuffer_lookup(dev, file_priv, r->fb_id);
+	if (!fb)
+		return -ENOENT;
+
+	/* For multi-plane framebuffers, we require the driver to place the
+	 * GEM objects directly in the drm_framebuffer. For single-plane
+	 * framebuffers, we can fall back to create_handle.
+	 */
+	if (!fb->obj[0] &&
+	    (fb->format->num_planes > 1 || !fb->funcs->create_handle)) {
+		ret = -ENODEV;
+		goto out;
+	}
+
+	r->height = fb->height;
+	r->width = fb->width;
+	r->pixel_format = fb->format->format;
+
+	r->flags = 0;
+	if (dev->mode_config.allow_fb_modifiers)
+		r->flags |= DRM_MODE_FB_MODIFIERS;
+
+	for (i = 0; i < ARRAY_SIZE(r->handles); i++) {
+		r->handles[i] = 0;
+		r->pitches[i] = 0;
+		r->offsets[i] = 0;
+		r->modifier[i] = 0;
+	}
+
+	for (i = 0; i < fb->format->num_planes; i++) {
+		r->pitches[i] = fb->pitches[i];
+		r->offsets[i] = fb->offsets[i];
+		if (dev->mode_config.allow_fb_modifiers)
+			r->modifier[i] = fb->modifier;
+	}
+
+	/* GET_FB2() is an unprivileged ioctl so we must not return a
+	 * buffer-handle to non master/root processes! To match GET_FB()
+	 * just return invalid handles (0) for non masters/root
+	 * rather than making GET_FB2() privileged.
+	 */
+	if (!drm_is_current_master(file_priv) && !capable(CAP_SYS_ADMIN)) {
+		ret = 0;
+		goto out;
+	}
+
+	for (i = 0; i < fb->format->num_planes; i++) {
+		int j;
+
+		/* If we reuse the same object for multiple planes, also
+		 * return the same handle.
+		 */
+		for (j = 0; j < i; j++) {
+			if (fb->obj[i] == fb->obj[j]) {
+				r->handles[i] = r->handles[j];
+				break;
+			}
+		}
+
+		if (r->handles[i])
+			continue;
+
+		if (fb->obj[i]) {
+			ret = drm_gem_handle_create(file_priv, fb->obj[i],
+						    &r->handles[i]);
+		} else {
+			WARN_ON(i > 0);
+			ret = fb->funcs->create_handle(fb, file_priv,
+						       &r->handles[i]);
+		}
+
+		if (ret != 0)
+			goto out;
+	}
+
+out:
+	if (ret != 0) {
+		/* Delete any previously-created handles on failure. */
+		for (i = 0; i < ARRAY_SIZE(r->handles); i++) {
+			int j;
+
+			if (r->handles[i])
+				drm_gem_handle_delete(file_priv, r->handles[i]);
+
+			/* Zero out any handles identical to the one we just
+			 * deleted.
+			 */
+			for (j = i + 1; j < ARRAY_SIZE(r->handles); j++) {
+				if (r->handles[j] == r->handles[i])
+					r->handles[j] = 0;
+			}
+		}
+	}
+
+	drm_framebuffer_put(fb);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -542,7 +791,11 @@ int drm_mode_dirtyfb_ioctl(struct drm_device *dev,
 	int ret;
 
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 
 	fb = drm_framebuffer_lookup(dev, file_priv, r->fb_id);
 	if (!fb)
@@ -737,7 +990,11 @@ EXPORT_SYMBOL(drm_framebuffer_lookup);
  * @fb: fb to unregister
  *
  * Drivers need to call this when cleaning up driver-private framebuffers, e.g.
+<<<<<<< HEAD
  * those used for fbdev. Note that the caller must hold a reference of it's own,
+=======
+ * those used for fbdev. Note that the caller must hold a reference of its own,
+>>>>>>> upstream/android-13
  * i.e. the object may not be destroyed through this call (since it'll lead to a
  * locking inversion).
  *
@@ -799,6 +1056,10 @@ static int atomic_remove_fb(struct drm_framebuffer *fb)
 	int i, ret;
 	unsigned plane_mask;
 	bool disable_crtcs = false;
+<<<<<<< HEAD
+=======
+	bool allow = false;
+>>>>>>> upstream/android-13
 
 retry_disable:
 	drm_modeset_acquire_init(&ctx, 0);
@@ -822,6 +1083,13 @@ retry:
 		if (plane->state->fb != fb)
 			continue;
 
+<<<<<<< HEAD
+=======
+		drm_dbg_kms(dev,
+			    "Disabling [PLANE:%d:%s] because [FB:%d] is removed\n",
+			    plane->base.id, plane->name, fb->base.id);
+
+>>>>>>> upstream/android-13
 		plane_state = drm_atomic_get_plane_state(state, plane);
 		if (IS_ERR(plane_state)) {
 			ret = PTR_ERR(plane_state);
@@ -831,6 +1099,14 @@ retry:
 		if (disable_crtcs && plane_state->crtc->primary == plane) {
 			struct drm_crtc_state *crtc_state;
 
+<<<<<<< HEAD
+=======
+			drm_dbg_kms(dev,
+				    "Disabling [CRTC:%d:%s] because [FB:%d] is removed\n",
+				    plane_state->crtc->base.id,
+				    plane_state->crtc->name, fb->base.id);
+
+>>>>>>> upstream/android-13
 			crtc_state = drm_atomic_get_existing_crtc_state(state, plane_state->crtc);
 
 			ret = drm_atomic_add_affected_connectors(state, plane_state->crtc);
@@ -859,6 +1135,13 @@ retry:
 			goto unlock;
 	}
 
+<<<<<<< HEAD
+=======
+	trace_android_vh_atomic_remove_fb(fb, &allow);
+	if (allow)
+		goto unlock;
+
+>>>>>>> upstream/android-13
 	if (plane_mask)
 		ret = drm_atomic_commit(state);
 
@@ -893,6 +1176,13 @@ static void legacy_remove_fb(struct drm_framebuffer *fb)
 	/* remove from any CRTC */
 	drm_for_each_crtc(crtc, dev) {
 		if (crtc->primary->fb == fb) {
+<<<<<<< HEAD
+=======
+			drm_dbg_kms(dev,
+				    "Disabling [CRTC:%d:%s] because [FB:%d] is removed\n",
+				    crtc->base.id, crtc->name, fb->base.id);
+
+>>>>>>> upstream/android-13
 			/* should turn off the crtc */
 			if (drm_crtc_force_disable(crtc))
 				DRM_ERROR("failed to reset crtc %p when fb was deleted\n", crtc);
@@ -900,8 +1190,17 @@ static void legacy_remove_fb(struct drm_framebuffer *fb)
 	}
 
 	drm_for_each_plane(plane, dev) {
+<<<<<<< HEAD
 		if (plane->fb == fb)
 			drm_plane_force_disable(plane);
+=======
+		if (plane->fb == fb) {
+			drm_dbg_kms(dev,
+				    "Disabling [PLANE:%d:%s] because [FB:%d] is removed\n",
+				    plane->base.id, plane->name, fb->base.id);
+			drm_plane_force_disable(plane);
+		}
+>>>>>>> upstream/android-13
 	}
 	drm_modeset_unlock_all(dev);
 }
@@ -931,7 +1230,11 @@ void drm_framebuffer_remove(struct drm_framebuffer *fb)
 
 	/*
 	 * drm ABI mandates that we remove any deleted framebuffers from active
+<<<<<<< HEAD
 	 * useage. But since most sane clients only remove framebuffers they no
+=======
+	 * usage. But since most sane clients only remove framebuffers they no
+>>>>>>> upstream/android-13
 	 * longer need, try to optimize this away.
 	 *
 	 * Since we're holding a reference ourselves, observing a refcount of 1
@@ -947,6 +1250,10 @@ void drm_framebuffer_remove(struct drm_framebuffer *fb)
 	if (drm_framebuffer_read_refcount(fb) > 1) {
 		if (drm_drv_uses_atomic_modeset(dev)) {
 			int ret = atomic_remove_fb(fb);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			WARN(ret, "atomic remove_fb failed with %i\n", ret);
 		} else
 			legacy_remove_fb(fb);
@@ -997,14 +1304,21 @@ EXPORT_SYMBOL(drm_framebuffer_plane_height);
 void drm_framebuffer_print_info(struct drm_printer *p, unsigned int indent,
 				const struct drm_framebuffer *fb)
 {
+<<<<<<< HEAD
 	struct drm_format_name_buf format_name;
+=======
+>>>>>>> upstream/android-13
 	unsigned int i;
 
 	drm_printf_indent(p, indent, "allocated by = %s\n", fb->comm);
 	drm_printf_indent(p, indent, "refcount=%u\n",
 			  drm_framebuffer_read_refcount(fb));
+<<<<<<< HEAD
 	drm_printf_indent(p, indent, "format=%s\n",
 			  drm_get_format_name(fb->format->format, &format_name));
+=======
+	drm_printf_indent(p, indent, "format=%p4cc\n", &fb->format->format);
+>>>>>>> upstream/android-13
 	drm_printf_indent(p, indent, "modifier=0x%llx\n", fb->modifier);
 	drm_printf_indent(p, indent, "size=%ux%u\n", fb->width, fb->height);
 	drm_printf_indent(p, indent, "layers:\n");
@@ -1044,10 +1358,18 @@ static const struct drm_info_list drm_framebuffer_debugfs_list[] = {
 	{ "framebuffer", drm_framebuffer_info, 0 },
 };
 
+<<<<<<< HEAD
 int drm_framebuffer_debugfs_init(struct drm_minor *minor)
 {
 	return drm_debugfs_create_files(drm_framebuffer_debugfs_list,
 				ARRAY_SIZE(drm_framebuffer_debugfs_list),
 				minor->debugfs_root, minor);
+=======
+void drm_framebuffer_debugfs_init(struct drm_minor *minor)
+{
+	drm_debugfs_create_files(drm_framebuffer_debugfs_list,
+				 ARRAY_SIZE(drm_framebuffer_debugfs_list),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 #endif

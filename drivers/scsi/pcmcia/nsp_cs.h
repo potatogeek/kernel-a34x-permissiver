@@ -326,10 +326,13 @@ static struct Scsi_Host *nsp_detect(struct scsi_host_template *sht);
 /* Interrupt handler */
 //static irqreturn_t nspintr(int irq, void *dev_id);
 
+<<<<<<< HEAD
 /* Module entry point*/
 static int  __init nsp_cs_init(void);
 static void __exit nsp_cs_exit(void);
 
+=======
+>>>>>>> upstream/android-13
 /* Debug */
 #ifdef NSP_DEBUG
 static void show_command (struct scsi_cmnd *SCpnt);
@@ -374,6 +377,7 @@ enum _burst_mode {
 	BURST_MEM32 = 2,
 };
 
+<<<<<<< HEAD
 /**************************************************************************
  * SCSI messaage
  */
@@ -385,6 +389,8 @@ enum _burst_mode {
 
 #define MSG_EXT_SDTR         0x01
 
+=======
+>>>>>>> upstream/android-13
 /* scatter-gather table */
 #  define BUFFER_ADDR ((char *)((sg_virt(SCpnt->SCp.buffer))))
 

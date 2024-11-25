@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sky81452.c	SKY81452 MFD driver
  *
  * Copyright 2014 Skyworks Solutions Inc.
  * Author : Gyungoh Yoo <jack.yoo@skyworksinc.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -58,8 +65,11 @@ static int sky81452_probe(struct i2c_client *client,
 	memset(cells, 0, sizeof(cells));
 	cells[0].name = "sky81452-backlight";
 	cells[0].of_compatible = "skyworks,sky81452-backlight";
+<<<<<<< HEAD
 	cells[0].platform_data = pdata->bl_pdata;
 	cells[0].pdata_size = sizeof(*pdata->bl_pdata);
+=======
+>>>>>>> upstream/android-13
 	cells[1].name = "sky81452-regulator";
 	cells[1].platform_data = pdata->regulator_init_data;
 	cells[1].pdata_size = sizeof(*pdata->regulator_init_data);

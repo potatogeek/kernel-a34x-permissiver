@@ -128,7 +128,10 @@
 #define PTRS_PER_PGD_SHIFT	PTRS_PER_PTD_SHIFT
 #define PTRS_PER_PGD		(1UL << PTRS_PER_PGD_SHIFT)
 #define USER_PTRS_PER_PGD	(5*PTRS_PER_PGD/8)	/* regions 0-4 are user regions */
+<<<<<<< HEAD
 #define FIRST_USER_ADDRESS	0UL
+=======
+>>>>>>> upstream/android-13
 
 /*
  * All the normal masks have the "page accessed" bits on, as any time
@@ -223,10 +226,13 @@ ia64_phys_addr_valid (unsigned long addr)
 
 
 #define VMALLOC_START		(RGN_BASE(RGN_GATE) + 0x200000000UL)
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTUAL_MEM_MAP
 # define VMALLOC_END_INIT	(RGN_BASE(RGN_GATE) + (1UL << (4*PAGE_SHIFT - 9)))
 extern unsigned long VMALLOC_END;
 #else
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_SPARSEMEM) && defined(CONFIG_SPARSEMEM_VMEMMAP)
 /* SPARSEMEM_VMEMMAP uses half of vmalloc... */
 # define VMALLOC_END		(RGN_BASE(RGN_GATE) + (1UL << (4*PAGE_SHIFT - 10)))
@@ -234,7 +240,10 @@ extern unsigned long VMALLOC_END;
 #else
 # define VMALLOC_END		(RGN_BASE(RGN_GATE) + (1UL << (4*PAGE_SHIFT - 9)))
 #endif
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /* fs/proc/kcore.c */
 #define	kc_vaddr_to_offset(v) ((v) - RGN_BASE(RGN_GATE))
@@ -279,6 +288,7 @@ extern unsigned long VMALLOC_END;
 #define pud_bad(pud)			(!ia64_phys_addr_valid(pud_val(pud)))
 #define pud_present(pud)		(pud_val(pud) != 0UL)
 #define pud_clear(pudp)			(pud_val(*(pudp)) = 0UL)
+<<<<<<< HEAD
 #define pud_page_vaddr(pud)		((unsigned long) __va(pud_val(pud) & _PFN_MASK))
 #define pud_page(pud)			virt_to_page((pud_val(pud) + PAGE_OFFSET))
 
@@ -289,6 +299,18 @@ extern unsigned long VMALLOC_END;
 #define pgd_clear(pgdp)			(pgd_val(*(pgdp)) = 0UL)
 #define pgd_page_vaddr(pgd)		((unsigned long) __va(pgd_val(pgd) & _PFN_MASK))
 #define pgd_page(pgd)			virt_to_page((pgd_val(pgd) + PAGE_OFFSET))
+=======
+#define pud_pgtable(pud)		((pmd_t *) __va(pud_val(pud) & _PFN_MASK))
+#define pud_page(pud)			virt_to_page((pud_val(pud) + PAGE_OFFSET))
+
+#if CONFIG_PGTABLE_LEVELS == 4
+#define p4d_none(p4d)			(!p4d_val(p4d))
+#define p4d_bad(p4d)			(!ia64_phys_addr_valid(p4d_val(p4d)))
+#define p4d_present(p4d)		(p4d_val(p4d) != 0UL)
+#define p4d_clear(p4dp)			(p4d_val(*(p4dp)) = 0UL)
+#define p4d_pgtable(p4d)		((pud_t *) __va(p4d_val(p4d) & _PFN_MASK))
+#define p4d_page(p4d)			virt_to_page((p4d_val(p4d) + PAGE_OFFSET))
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -298,7 +320,10 @@ extern unsigned long VMALLOC_END;
 #define pte_exec(pte)		((pte_val(pte) & _PAGE_AR_RX) != 0)
 #define pte_dirty(pte)		((pte_val(pte) & _PAGE_D) != 0)
 #define pte_young(pte)		((pte_val(pte) & _PAGE_A) != 0)
+<<<<<<< HEAD
 #define pte_special(pte)	0
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Note: we convert AR_RWX to AR_RX and AR_RW to AR_R by clearing the 2nd bit in the
@@ -311,7 +336,10 @@ extern unsigned long VMALLOC_END;
 #define pte_mkclean(pte)	(__pte(pte_val(pte) & ~_PAGE_D))
 #define pte_mkdirty(pte)	(__pte(pte_val(pte) | _PAGE_D))
 #define pte_mkhuge(pte)		(__pte(pte_val(pte)))
+<<<<<<< HEAD
 #define pte_mkspecial(pte)	(pte)
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Because ia64's Icache and Dcache is not coherent (on a cpu), we need to
@@ -330,7 +358,11 @@ extern void __ia64_sync_icache_dcache(pte_t pteval);
 static inline void set_pte(pte_t *ptep, pte_t pteval)
 {
 	/* page is present && page is user  && page is executable
+<<<<<<< HEAD
 	 * && (page swapin or new page or page migraton
+=======
+	 * && (page swapin or new page or page migration
+>>>>>>> upstream/android-13
 	 *	|| copy_on_write with page copying.)
 	 */
 	if (pte_present_exec_user(pteval) &&
@@ -366,6 +398,7 @@ pgd_index (unsigned long address)
 
 	return (region << (PAGE_SHIFT - 6)) | l1index;
 }
+<<<<<<< HEAD
 
 /* The offset in the 1-level directory is given by the 3 region bits
    (61..63) and the level-1 bits.  */
@@ -377,6 +410,16 @@ pgd_offset (const struct mm_struct *mm, unsigned long address)
 
 /* In the kernel's mapped region we completely ignore the region number
    (since we know it's in region number 5). */
+=======
+#define pgd_index pgd_index
+
+/*
+ * In the kernel's mapped region we know everything is in region number 5, so
+ * as an optimisation its PGD already points to the area for that region.
+ * However, this also means that we cannot use pgd_index() and we must
+ * never add the region here.
+ */
+>>>>>>> upstream/android-13
 #define pgd_offset_k(addr) \
 	(init_mm.pgd + (((addr) >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1)))
 
@@ -385,6 +428,7 @@ pgd_offset (const struct mm_struct *mm, unsigned long address)
    here.  */
 #define pgd_offset_gate(mm, addr)	pgd_offset_k(addr)
 
+<<<<<<< HEAD
 #if CONFIG_PGTABLE_LEVELS == 4
 /* Find an entry in the second-level page table.. */
 #define pud_offset(dir,addr) \
@@ -404,6 +448,8 @@ pgd_offset (const struct mm_struct *mm, unsigned long address)
 #define pte_offset_map(dir,addr)	pte_offset_kernel(dir, addr)
 #define pte_unmap(pte)			do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* atomic versions of the some PTE manipulations: */
 
 static inline int
@@ -541,6 +587,7 @@ extern struct page *zero_page_memmap_ptr;
 	__changed;							\
 })
 #endif
+<<<<<<< HEAD
 
 #  ifdef CONFIG_VIRTUAL_MEM_MAP
   /* arch mem_map init routine is needed due to holes in a virtual mem_map */
@@ -548,6 +595,8 @@ extern struct page *zero_page_memmap_ptr;
     extern void memmap_init (unsigned long size, int nid, unsigned long zone,
 			     unsigned long start_pfn);
 #  endif /* CONFIG_VIRTUAL_MEM_MAP */
+=======
+>>>>>>> upstream/android-13
 # endif /* !__ASSEMBLY__ */
 
 /*
@@ -567,11 +616,14 @@ extern struct page *zero_page_memmap_ptr;
 #define KERNEL_TR_PAGE_SHIFT	_PAGE_SIZE_64M
 #define KERNEL_TR_PAGE_SIZE	(1 << KERNEL_TR_PAGE_SHIFT)
 
+<<<<<<< HEAD
 /*
  * No page table caches to initialise
  */
 #define pgtable_cache_init()	do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* These tell get_user_pages() that the first gate page is accessible from user-level.  */
 #define FIXADDR_USER_START	GATE_ADDR
 #ifdef HAVE_BUGGY_SEGREL
@@ -588,10 +640,16 @@ extern struct page *zero_page_memmap_ptr;
 
 
 #if CONFIG_PGTABLE_LEVELS == 3
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
 #include <asm-generic/pgtable-nopud.h>
 #endif
 #include <asm-generic/5level-fixup.h>
 #include <asm-generic/pgtable.h>
+=======
+#include <asm-generic/pgtable-nopud.h>
+#endif
+#include <asm-generic/pgtable-nop4d.h>
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_IA64_PGTABLE_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/9p/vfs_super.c
  *
@@ -6,6 +10,7 @@
  *
  *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -22,6 +27,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -73,7 +80,11 @@ static int v9fs_set_super(struct super_block *s, void *data)
 
 static int
 v9fs_fill_super(struct super_block *sb, struct v9fs_session_info *v9ses,
+<<<<<<< HEAD
 		int flags, void *data)
+=======
+		int flags)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -84,15 +95,31 @@ v9fs_fill_super(struct super_block *sb, struct v9fs_session_info *v9ses,
 	if (v9fs_proto_dotl(v9ses)) {
 		sb->s_op = &v9fs_super_ops_dotl;
 		sb->s_xattr = v9fs_xattr_handlers;
+<<<<<<< HEAD
 	} else
 		sb->s_op = &v9fs_super_ops;
+=======
+	} else {
+		sb->s_op = &v9fs_super_ops;
+		sb->s_time_max = U32_MAX;
+	}
+
+	sb->s_time_min = 0;
+>>>>>>> upstream/android-13
 
 	ret = super_setup_bdi(sb);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (v9ses->cache)
 		sb->s_bdi->ra_pages = (VM_MAX_READAHEAD * 1024)/PAGE_SIZE;
+=======
+	if (!v9ses->cache) {
+		sb->s_bdi->ra_pages = 0;
+		sb->s_bdi->io_pages = 0;
+	}
+>>>>>>> upstream/android-13
 
 	sb->s_flags |= SB_ACTIVE | SB_DIRSYNC;
 	if (!v9ses->cache)
@@ -143,7 +170,11 @@ static struct dentry *v9fs_mount(struct file_system_type *fs_type, int flags,
 		retval = PTR_ERR(sb);
 		goto clunk_fid;
 	}
+<<<<<<< HEAD
 	retval = v9fs_fill_super(sb, v9ses, flags, data);
+=======
+	retval = v9fs_fill_super(sb, v9ses, flags);
+>>>>>>> upstream/android-13
 	if (retval)
 		goto release_sb;
 
@@ -269,8 +300,12 @@ static int v9fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 			buf->f_bavail = rs.bavail;
 			buf->f_files = rs.files;
 			buf->f_ffree = rs.ffree;
+<<<<<<< HEAD
 			buf->f_fsid.val[0] = rs.fsid & 0xFFFFFFFFUL;
 			buf->f_fsid.val[1] = (rs.fsid >> 32) & 0xFFFFFFFFUL;
+=======
+			buf->f_fsid = u64_to_fsid(rs.fsid);
+>>>>>>> upstream/android-13
 			buf->f_namelen = rs.namelen;
 		}
 		if (res != -ENOSYS)
@@ -278,6 +313,10 @@ static int v9fs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	}
 	res = simple_statfs(dentry, buf);
 done:
+<<<<<<< HEAD
+=======
+	p9_client_clunk(fid);
+>>>>>>> upstream/android-13
 	return res;
 }
 
@@ -344,7 +383,11 @@ static int v9fs_write_inode_dotl(struct inode *inode,
 
 static const struct super_operations v9fs_super_ops = {
 	.alloc_inode = v9fs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode = v9fs_destroy_inode,
+=======
+	.free_inode = v9fs_free_inode,
+>>>>>>> upstream/android-13
 	.statfs = simple_statfs,
 	.evict_inode = v9fs_evict_inode,
 	.show_options = v9fs_show_options,
@@ -354,7 +397,11 @@ static const struct super_operations v9fs_super_ops = {
 
 static const struct super_operations v9fs_super_ops_dotl = {
 	.alloc_inode = v9fs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode = v9fs_destroy_inode,
+=======
+	.free_inode = v9fs_free_inode,
+>>>>>>> upstream/android-13
 	.statfs = v9fs_statfs,
 	.drop_inode = v9fs_drop_inode,
 	.evict_inode = v9fs_evict_inode,

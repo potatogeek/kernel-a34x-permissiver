@@ -119,7 +119,10 @@
 #include <linux/tcp.h>
 #include <linux/if_vlan.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <net/busy_poll.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/if_ether.h>
 #include <linux/net_tstamp.h>
@@ -404,9 +407,15 @@ static bool xgbe_ecc_ded(struct xgbe_prv_data *pdata, unsigned long *period,
 	return false;
 }
 
+<<<<<<< HEAD
 static void xgbe_ecc_isr_task(unsigned long data)
 {
 	struct xgbe_prv_data *pdata = (struct xgbe_prv_data *)data;
+=======
+static void xgbe_ecc_isr_task(struct tasklet_struct *t)
+{
+	struct xgbe_prv_data *pdata = from_tasklet(pdata, t, tasklet_ecc);
+>>>>>>> upstream/android-13
 	unsigned int ecc_isr;
 	bool stop = false;
 
@@ -469,14 +478,24 @@ static irqreturn_t xgbe_ecc_isr(int irq, void *data)
 	if (pdata->isr_as_tasklet)
 		tasklet_schedule(&pdata->tasklet_ecc);
 	else
+<<<<<<< HEAD
 		xgbe_ecc_isr_task((unsigned long)pdata);
+=======
+		xgbe_ecc_isr_task(&pdata->tasklet_ecc);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void xgbe_isr_task(unsigned long data)
 {
 	struct xgbe_prv_data *pdata = (struct xgbe_prv_data *)data;
+=======
+static void xgbe_isr_task(struct tasklet_struct *t)
+{
+	struct xgbe_prv_data *pdata = from_tasklet(pdata, t, tasklet_dev);
+>>>>>>> upstream/android-13
 	struct xgbe_hw_if *hw_if = &pdata->hw_if;
 	struct xgbe_channel *channel;
 	unsigned int dma_isr, dma_ch_isr;
@@ -583,7 +602,11 @@ isr_done:
 
 	/* If there is not a separate ECC irq, handle it here */
 	if (pdata->vdata->ecc_support && (pdata->dev_irq == pdata->ecc_irq))
+<<<<<<< HEAD
 		xgbe_ecc_isr_task((unsigned long)pdata);
+=======
+		xgbe_ecc_isr_task(&pdata->tasklet_ecc);
+>>>>>>> upstream/android-13
 
 	/* If there is not a separate I2C irq, handle it here */
 	if (pdata->vdata->i2c_support && (pdata->dev_irq == pdata->i2c_irq))
@@ -608,7 +631,11 @@ static irqreturn_t xgbe_isr(int irq, void *data)
 	if (pdata->isr_as_tasklet)
 		tasklet_schedule(&pdata->tasklet_dev);
 	else
+<<<<<<< HEAD
 		xgbe_isr_task((unsigned long)pdata);
+=======
+		xgbe_isr_task(&pdata->tasklet_dev);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -722,7 +749,13 @@ static void xgbe_stop_timers(struct xgbe_prv_data *pdata)
 		if (!channel->tx_ring)
 			break;
 
+<<<<<<< HEAD
 		del_timer_sync(&channel->tx_timer);
+=======
+		/* Deactivate the Tx timer */
+		del_timer_sync(&channel->tx_timer);
+		channel->tx_timer_active = 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -905,6 +938,7 @@ void xgbe_get_all_hw_features(struct xgbe_prv_data *pdata)
 	}
 }
 
+<<<<<<< HEAD
 static void xgbe_disable_vxlan_offloads(struct xgbe_prv_data *pdata)
 {
 	struct net_device *netdev = pdata->netdev;
@@ -1013,6 +1047,42 @@ static void xgbe_reset_vxlan_accel(struct xgbe_prv_data *pdata)
 		xgbe_enable_vxlan_offloads(pdata);
 
 	pdata->vxlan_force_disable = 0;
+=======
+static int xgbe_vxlan_set_port(struct net_device *netdev, unsigned int table,
+			       unsigned int entry, struct udp_tunnel_info *ti)
+{
+	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+
+	pdata->vxlan_port = be16_to_cpu(ti->port);
+	pdata->hw_if.enable_vxlan(pdata);
+
+	return 0;
+}
+
+static int xgbe_vxlan_unset_port(struct net_device *netdev, unsigned int table,
+				 unsigned int entry, struct udp_tunnel_info *ti)
+{
+	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+
+	pdata->hw_if.disable_vxlan(pdata);
+	pdata->vxlan_port = 0;
+
+	return 0;
+}
+
+static const struct udp_tunnel_nic_info xgbe_udp_tunnels = {
+	.set_port	= xgbe_vxlan_set_port,
+	.unset_port	= xgbe_vxlan_unset_port,
+	.flags		= UDP_TUNNEL_NIC_INFO_OPEN_ONLY,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN, },
+	},
+};
+
+const struct udp_tunnel_nic_info *xgbe_get_udp_tunnel_info(void)
+{
+	return &xgbe_udp_tunnels;
+>>>>>>> upstream/android-13
 }
 
 static void xgbe_napi_enable(struct xgbe_prv_data *pdata, unsigned int add)
@@ -1066,9 +1136,14 @@ static int xgbe_request_irqs(struct xgbe_prv_data *pdata)
 	unsigned int i;
 	int ret;
 
+<<<<<<< HEAD
 	tasklet_init(&pdata->tasklet_dev, xgbe_isr_task, (unsigned long)pdata);
 	tasklet_init(&pdata->tasklet_ecc, xgbe_ecc_isr_task,
 		     (unsigned long)pdata);
+=======
+	tasklet_setup(&pdata->tasklet_dev, xgbe_isr_task);
+	tasklet_setup(&pdata->tasklet_ecc, xgbe_ecc_isr_task);
+>>>>>>> upstream/android-13
 
 	ret = devm_request_irq(pdata->dev, pdata->dev_irq, xgbe_isr, 0,
 			       netdev_name(netdev), pdata);
@@ -1407,7 +1482,11 @@ static int xgbe_start(struct xgbe_prv_data *pdata)
 	hw_if->enable_tx(pdata);
 	hw_if->enable_rx(pdata);
 
+<<<<<<< HEAD
 	udp_tunnel_get_rx_info(netdev);
+=======
+	udp_tunnel_nic_reset_ntf(netdev);
+>>>>>>> upstream/android-13
 
 	netif_tx_start_all_queues(netdev);
 
@@ -1449,7 +1528,11 @@ static void xgbe_stop(struct xgbe_prv_data *pdata)
 	xgbe_stop_timers(pdata);
 	flush_workqueue(pdata->dev_workqueue);
 
+<<<<<<< HEAD
 	xgbe_reset_vxlan_accel(pdata);
+=======
+	xgbe_vxlan_unset_port(netdev, 0, 0, NULL);
+>>>>>>> upstream/android-13
 
 	hw_if->disable_tx(pdata);
 	hw_if->disable_rx(pdata);
@@ -1614,7 +1697,11 @@ static int xgbe_set_hwtstamp_settings(struct xgbe_prv_data *pdata,
 	/* PTP v2, UDP, any kind of event packet */
 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSVER2ENA, 1);
+<<<<<<< HEAD
 	/* PTP v1, UDP, any kind of event packet */
+=======
+		fallthrough;	/* to PTP v1, UDP, any kind of event packet */
+>>>>>>> upstream/android-13
 	case HWTSTAMP_FILTER_PTP_V1_L4_EVENT:
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSIPV4ENA, 1);
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSIPV6ENA, 1);
@@ -1625,7 +1712,11 @@ static int xgbe_set_hwtstamp_settings(struct xgbe_prv_data *pdata,
 	/* PTP v2, UDP, Sync packet */
 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSVER2ENA, 1);
+<<<<<<< HEAD
 	/* PTP v1, UDP, Sync packet */
+=======
+		fallthrough;	/* to PTP v1, UDP, Sync packet */
+>>>>>>> upstream/android-13
 	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSIPV4ENA, 1);
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSIPV6ENA, 1);
@@ -1636,7 +1727,11 @@ static int xgbe_set_hwtstamp_settings(struct xgbe_prv_data *pdata,
 	/* PTP v2, UDP, Delay_req packet */
 	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSVER2ENA, 1);
+<<<<<<< HEAD
 	/* PTP v1, UDP, Delay_req packet */
+=======
+		fallthrough;	/* to PTP v1, UDP, Delay_req packet */
+>>>>>>> upstream/android-13
 	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSIPV4ENA, 1);
 		XGMAC_SET_BITS(mac_tscr, MAC_TSCR, TSIPV6ENA, 1);
@@ -1775,6 +1870,7 @@ static int xgbe_prep_tso(struct sk_buff *skb, struct xgbe_packet_data *packet)
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool xgbe_is_vxlan(struct xgbe_prv_data *pdata, struct sk_buff *skb)
 {
 	struct xgbe_vxlan_data *vdata;
@@ -1782,6 +1878,10 @@ static bool xgbe_is_vxlan(struct xgbe_prv_data *pdata, struct sk_buff *skb)
 	if (pdata->vxlan_force_disable)
 		return false;
 
+=======
+static bool xgbe_is_vxlan(struct sk_buff *skb)
+{
+>>>>>>> upstream/android-13
 	if (!skb->encapsulation)
 		return false;
 
@@ -1803,6 +1903,7 @@ static bool xgbe_is_vxlan(struct xgbe_prv_data *pdata, struct sk_buff *skb)
 		return false;
 	}
 
+<<<<<<< HEAD
 	/* See if we have the UDP port in our list */
 	list_for_each_entry(vdata, &pdata->vxlan_ports, list) {
 		if ((skb->protocol == htons(ETH_P_IP)) &&
@@ -1816,6 +1917,15 @@ static bool xgbe_is_vxlan(struct xgbe_prv_data *pdata, struct sk_buff *skb)
 	}
 
 	return false;
+=======
+	if (skb->inner_protocol_type != ENCAP_TYPE_ETHER ||
+	    skb->inner_protocol != htons(ETH_P_TEB) ||
+	    (skb_inner_mac_header(skb) - skb_transport_header(skb) !=
+	     sizeof(struct udphdr) + sizeof(struct vxlanhdr)))
+		return false;
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static int xgbe_is_tso(struct sk_buff *skb)
@@ -1835,7 +1945,11 @@ static void xgbe_packet_info(struct xgbe_prv_data *pdata,
 			     struct xgbe_ring *ring, struct sk_buff *skb,
 			     struct xgbe_packet_data *packet)
 {
+<<<<<<< HEAD
 	struct skb_frag_struct *frag;
+=======
+	skb_frag_t *frag;
+>>>>>>> upstream/android-13
 	unsigned int context_desc;
 	unsigned int len;
 	unsigned int i;
@@ -1866,7 +1980,11 @@ static void xgbe_packet_info(struct xgbe_prv_data *pdata,
 		XGMAC_SET_BITS(packet->attributes, TX_PACKET_ATTRIBUTES,
 			       CSUM_ENABLE, 1);
 
+<<<<<<< HEAD
 	if (xgbe_is_vxlan(pdata, skb))
+=======
+	if (xgbe_is_vxlan(skb))
+>>>>>>> upstream/android-13
 		XGMAC_SET_BITS(packet->attributes, TX_PACKET_ATTRIBUTES,
 			       VXLAN, 1);
 
@@ -2154,7 +2272,11 @@ static int xgbe_change_mtu(struct net_device *netdev, int mtu)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void xgbe_tx_timeout(struct net_device *netdev)
+=======
+static void xgbe_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
 
@@ -2273,6 +2395,7 @@ static netdev_features_t xgbe_fix_features(struct net_device *netdev,
 					   netdev_features_t features)
 {
 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+<<<<<<< HEAD
 	netdev_features_t vxlan_base, vxlan_mask;
 
 	vxlan_base = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_RX_UDP_TUNNEL_PORT;
@@ -2290,6 +2413,14 @@ static netdev_features_t xgbe_fix_features(struct net_device *netdev,
 	 */
 	if (!pdata->hw_feat.vxn)
 		return features & ~vxlan_mask;
+=======
+	netdev_features_t vxlan_base;
+
+	vxlan_base = NETIF_F_GSO_UDP_TUNNEL | NETIF_F_RX_UDP_TUNNEL_PORT;
+
+	if (!pdata->hw_feat.vxn)
+		return features;
+>>>>>>> upstream/android-13
 
 	/* VXLAN CSUM requires VXLAN base */
 	if ((features & NETIF_F_GSO_UDP_TUNNEL_CSUM) &&
@@ -2320,6 +2451,7 @@ static netdev_features_t xgbe_fix_features(struct net_device *netdev,
 		}
 	}
 
+<<<<<<< HEAD
 	pdata->vxlan_features = features & vxlan_mask;
 
 	/* Adjust UDP Tunnel based on current state */
@@ -2329,6 +2461,8 @@ static netdev_features_t xgbe_fix_features(struct net_device *netdev,
 		features &= ~vxlan_mask;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return features;
 }
 
@@ -2338,14 +2472,20 @@ static int xgbe_set_features(struct net_device *netdev,
 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
 	struct xgbe_hw_if *hw_if = &pdata->hw_if;
 	netdev_features_t rxhash, rxcsum, rxvlan, rxvlan_filter;
+<<<<<<< HEAD
 	netdev_features_t udp_tunnel;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	rxhash = pdata->netdev_features & NETIF_F_RXHASH;
 	rxcsum = pdata->netdev_features & NETIF_F_RXCSUM;
 	rxvlan = pdata->netdev_features & NETIF_F_HW_VLAN_CTAG_RX;
 	rxvlan_filter = pdata->netdev_features & NETIF_F_HW_VLAN_CTAG_FILTER;
+<<<<<<< HEAD
 	udp_tunnel = pdata->netdev_features & NETIF_F_GSO_UDP_TUNNEL;
+=======
+>>>>>>> upstream/android-13
 
 	if ((features & NETIF_F_RXHASH) && !rxhash)
 		ret = hw_if->enable_rss(pdata);
@@ -2369,11 +2509,14 @@ static int xgbe_set_features(struct net_device *netdev,
 	else if (!(features & NETIF_F_HW_VLAN_CTAG_FILTER) && rxvlan_filter)
 		hw_if->disable_rx_vlan_filtering(pdata);
 
+<<<<<<< HEAD
 	if ((features & NETIF_F_GSO_UDP_TUNNEL) && !udp_tunnel)
 		xgbe_enable_vxlan_accel(pdata);
 	else if (!(features & NETIF_F_GSO_UDP_TUNNEL) && udp_tunnel)
 		xgbe_disable_vxlan_accel(pdata);
 
+=======
+>>>>>>> upstream/android-13
 	pdata->netdev_features = features;
 
 	DBGPR("<--xgbe_set_features\n");
@@ -2381,6 +2524,7 @@ static int xgbe_set_features(struct net_device *netdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void xgbe_udp_tunnel_add(struct net_device *netdev,
 				struct udp_tunnel_info *ti)
 {
@@ -2476,6 +2620,8 @@ static void xgbe_udp_tunnel_del(struct net_device *netdev,
 	pdata->hw_if.set_vxlan_id(pdata);
 }
 
+=======
+>>>>>>> upstream/android-13
 static netdev_features_t xgbe_features_check(struct sk_buff *skb,
 					     struct net_device *netdev,
 					     netdev_features_t features)
@@ -2493,7 +2639,11 @@ static const struct net_device_ops xgbe_netdev_ops = {
 	.ndo_set_rx_mode	= xgbe_set_rx_mode,
 	.ndo_set_mac_address	= xgbe_set_mac_address,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= xgbe_ioctl,
+=======
+	.ndo_eth_ioctl		= xgbe_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= xgbe_change_mtu,
 	.ndo_tx_timeout		= xgbe_tx_timeout,
 	.ndo_get_stats64	= xgbe_get_stats64,
@@ -2505,8 +2655,11 @@ static const struct net_device_ops xgbe_netdev_ops = {
 	.ndo_setup_tc		= xgbe_setup_tc,
 	.ndo_fix_features	= xgbe_fix_features,
 	.ndo_set_features	= xgbe_set_features,
+<<<<<<< HEAD
 	.ndo_udp_tunnel_add	= xgbe_udp_tunnel_add,
 	.ndo_udp_tunnel_del	= xgbe_udp_tunnel_del,
+=======
+>>>>>>> upstream/android-13
 	.ndo_features_check	= xgbe_features_check,
 };
 
@@ -2766,6 +2919,17 @@ read_again:
 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
 			len += buf2_len;
 
+<<<<<<< HEAD
+=======
+			if (buf2_len > rdata->rx.buf.dma_len) {
+				/* Hardware inconsistency within the descriptors
+				 * that has resulted in a length underflow.
+				 */
+				error = 1;
+				goto skip_data;
+			}
+
+>>>>>>> upstream/android-13
 			if (!skb) {
 				skb = xgbe_create_skb(pdata, napi, rdata,
 						      buf1_len);
@@ -2795,8 +2959,15 @@ skip_data:
 		if (!last || context_next)
 			goto read_again;
 
+<<<<<<< HEAD
 		if (!skb)
 			goto next_packet;
+=======
+		if (!skb || error) {
+			dev_kfree_skb(skb);
+			goto next_packet;
+		}
+>>>>>>> upstream/android-13
 
 		/* Be sure we don't exceed the configured MTU */
 		max_len = netdev->mtu + ETH_HLEN;

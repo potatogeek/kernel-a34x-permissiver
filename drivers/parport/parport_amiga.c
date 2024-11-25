@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Low-level parallel port routines for the Amiga built-in port
  *
  * Author: Joerg Dorchain <joerg@dorchain.net>
@@ -27,6 +31,7 @@
 #include <asm/amigaints.h>
 
 #undef DEBUG
+<<<<<<< HEAD
 #ifdef DEBUG
 #define DPRINTK printk
 #else
@@ -37,6 +42,12 @@
 static void amiga_write_data(struct parport *p, unsigned char data)
 {
 	DPRINTK(KERN_DEBUG "write_data %c\n",data);
+=======
+
+static void amiga_write_data(struct parport *p, unsigned char data)
+{
+	pr_debug("write_data %c\n", data);
+>>>>>>> upstream/android-13
 	/* Triggers also /STROBE. This behavior cannot be changed */
 	ciaa.prb = data;
 	mb();
@@ -58,13 +69,21 @@ static unsigned char control_amiga_to_pc(unsigned char control)
 
 static void amiga_write_control(struct parport *p, unsigned char control)
 {
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "write_control %02x\n",control);
+=======
+	pr_debug("write_control %02x\n", control);
+>>>>>>> upstream/android-13
 	/* No implementation possible */
 }
 	
 static unsigned char amiga_read_control( struct parport *p)
 {
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "read_control \n");
+=======
+	pr_debug("read_control\n");
+>>>>>>> upstream/android-13
 	return control_amiga_to_pc(0);
 }
 
@@ -72,7 +91,11 @@ static unsigned char amiga_frob_control( struct parport *p, unsigned char mask, 
 {
 	unsigned char old;
 
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "frob_control mask %02x, value %02x\n",mask,val);
+=======
+	pr_debug("frob_control mask %02x, value %02x\n", mask, val);
+>>>>>>> upstream/android-13
 	old = amiga_read_control(p);
 	amiga_write_control(p, (old & ~mask) ^ val);
 	return old;
@@ -98,7 +121,11 @@ static unsigned char amiga_read_status(struct parport *p)
 	unsigned char status;
 
 	status = status_amiga_to_pc(ciab.pra & 7);
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "read_status %02x\n", status);
+=======
+	pr_debug("read_status %02x\n", status);
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -114,14 +141,22 @@ static void amiga_disable_irq(struct parport *p)
 
 static void amiga_data_forward(struct parport *p)
 {
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "forward\n");
+=======
+	pr_debug("forward\n");
+>>>>>>> upstream/android-13
 	ciaa.ddrb = 0xff; /* all pins output */
 	mb();
 }
 
 static void amiga_data_reverse(struct parport *p)
 {
+<<<<<<< HEAD
 	DPRINTK(KERN_DEBUG "reverse\n");
+=======
+	pr_debug("reverse\n");
+>>>>>>> upstream/android-13
 	ciaa.ddrb = 0; /* all pins input */
 	mb();
 }
@@ -211,7 +246,11 @@ static int __init amiga_parallel_probe(struct platform_device *pdev)
 	if (err)
 		goto out_irq;
 
+<<<<<<< HEAD
 	printk(KERN_INFO "%s: Amiga built-in port using irq\n", p->name);
+=======
+	pr_info("%s: Amiga built-in port using irq\n", p->name);
+>>>>>>> upstream/android-13
 	/* XXX: set operating mode */
 	parport_announce_port(p);
 
@@ -246,6 +285,9 @@ module_platform_driver_probe(amiga_parallel_driver, amiga_parallel_probe);
 
 MODULE_AUTHOR("Joerg Dorchain <joerg@dorchain.net>");
 MODULE_DESCRIPTION("Parport Driver for Amiga builtin Port");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Amiga builtin Parallel Port");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:amiga-parallel");

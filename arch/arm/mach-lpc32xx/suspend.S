@@ -11,8 +11,12 @@
  */
 #include <linux/linkage.h>
 #include <asm/assembler.h>
+<<<<<<< HEAD
 #include <mach/platform.h>
 #include <mach/hardware.h>
+=======
+#include "lpc32xx.h"
+>>>>>>> upstream/android-13
 
 /* Using named register defines makes the code easier to follow */
 #define WORK1_REG			r0

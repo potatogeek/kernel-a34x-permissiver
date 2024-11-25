@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *	intel TCO Watchdog Driver
  *
  *	(c) Copyright 2006-2011 Wim Van Sebroeck <wim@iguana.be>.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Neither Wim Van Sebroeck nor Iguana vzw. admit liability nor
  *	provide warranty for any of this software. This material is
  *	provided "AS-IS" and at no charge.
@@ -44,14 +51,21 @@
  *	Includes, defines, variables, module parameters, ...
  */
 
+<<<<<<< HEAD
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+=======
+>>>>>>> upstream/android-13
 /* Module and version information */
 #define DRV_NAME	"iTCO_wdt"
 #define DRV_VERSION	"1.11"
 
 /* Includes */
 #include <linux/acpi.h>			/* For ACPI support */
+<<<<<<< HEAD
+=======
+#include <linux/bits.h>			/* For BIT() */
+>>>>>>> upstream/android-13
 #include <linux/module.h>		/* For module specific items */
 #include <linux/moduleparam.h>		/* For new moduleparam's */
 #include <linux/types.h>		/* For standard types (like size_t) */
@@ -67,6 +81,10 @@
 #include <linux/uaccess.h>		/* For copy_to_user/put_user/... */
 #include <linux/io.h>			/* For inb/outb/... */
 #include <linux/platform_data/itco_wdt.h>
+<<<<<<< HEAD
+=======
+#include <linux/mfd/intel_pmc_bxt.h>
+>>>>>>> upstream/android-13
 
 #include "iTCO_vendor.h"
 
@@ -219,6 +237,7 @@ static int update_no_reboot_bit_mem(void *priv, bool set)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void iTCO_wdt_no_reboot_bit_setup(struct iTCO_wdt_private *p,
 		struct itco_wdt_platform_data *pdata)
 {
@@ -229,6 +248,49 @@ static void iTCO_wdt_no_reboot_bit_setup(struct iTCO_wdt_private *p,
 	}
 
 	if (p->iTCO_version >= 2)
+=======
+static int update_no_reboot_bit_cnt(void *priv, bool set)
+{
+	struct iTCO_wdt_private *p = priv;
+	u16 val, newval;
+
+	val = inw(TCO1_CNT(p));
+	if (set)
+		val |= BIT(0);
+	else
+		val &= ~BIT(0);
+	outw(val, TCO1_CNT(p));
+	newval = inw(TCO1_CNT(p));
+
+	/* make sure the update is successful */
+	return val != newval ? -EIO : 0;
+}
+
+static int update_no_reboot_bit_pmc(void *priv, bool set)
+{
+	struct intel_pmc_dev *pmc = priv;
+	u32 bits = PMC_CFG_NO_REBOOT_EN;
+	u32 value = set ? bits : 0;
+
+	return intel_pmc_gcr_update(pmc, PMC_GCR_PMC_CFG_REG, bits, value);
+}
+
+static void iTCO_wdt_no_reboot_bit_setup(struct iTCO_wdt_private *p,
+					 struct platform_device *pdev,
+					 struct itco_wdt_platform_data *pdata)
+{
+	if (pdata->no_reboot_use_pmc) {
+		struct intel_pmc_dev *pmc = dev_get_drvdata(pdev->dev.parent);
+
+		p->update_no_reboot_bit = update_no_reboot_bit_pmc;
+		p->no_reboot_priv = pmc;
+		return;
+	}
+
+	if (p->iTCO_version >= 6)
+		p->update_no_reboot_bit = update_no_reboot_bit_cnt;
+	else if (p->iTCO_version >= 2)
+>>>>>>> upstream/android-13
 		p->update_no_reboot_bit = update_no_reboot_bit_mem;
 	else if (p->iTCO_version == 1)
 		p->update_no_reboot_bit = update_no_reboot_bit_pci;
@@ -250,7 +312,11 @@ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
 	/* disable chipset's NO_REBOOT bit */
 	if (p->update_no_reboot_bit(p->no_reboot_priv, false)) {
 		spin_unlock(&p->io_lock);
+<<<<<<< HEAD
 		pr_err("failed to reset NO_REBOOT flag, reboot disabled by hardware/BIOS\n");
+=======
+		dev_err(wd_dev->parent, "failed to reset NO_REBOOT flag, reboot disabled by hardware/BIOS\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -304,8 +370,11 @@ static int iTCO_wdt_ping(struct watchdog_device *wd_dev)
 
 	spin_lock(&p->io_lock);
 
+<<<<<<< HEAD
 	iTCO_vendor_pre_keepalive(p->smi_res, wd_dev->timeout);
 
+=======
+>>>>>>> upstream/android-13
 	/* Reload the timer by writing to the TCO Timer Counter register */
 	if (p->iTCO_version >= 2) {
 		outw(0x01, TCO_RLD(p));
@@ -342,8 +411,11 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
 	    (p->iTCO_version == 1 && tmrval > 0x03f))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	iTCO_vendor_pre_set_heartbeat(tmrval);
 
+=======
+>>>>>>> upstream/android-13
 	/* Write new heartbeat to watchdog */
 	if (p->iTCO_version >= 2) {
 		spin_lock(&p->io_lock);
@@ -447,6 +519,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 	if (!p->tco_res)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	p->smi_res = platform_get_resource(pdev, IORESOURCE_IO, ICH_RES_IO_SMI);
 	if (!p->smi_res)
 		return -ENODEV;
@@ -455,12 +528,39 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 	p->pci_dev = to_pci_dev(dev->parent);
 
 	iTCO_wdt_no_reboot_bit_setup(p, pdata);
+=======
+	p->iTCO_version = pdata->version;
+	p->pci_dev = to_pci_dev(dev->parent);
+
+	p->smi_res = platform_get_resource(pdev, IORESOURCE_IO, ICH_RES_IO_SMI);
+	if (p->smi_res) {
+		/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
+		if (!devm_request_region(dev, p->smi_res->start,
+					 resource_size(p->smi_res),
+					 pdev->name)) {
+			dev_err(dev, "I/O address 0x%04llx already in use, device disabled\n",
+			       (u64)SMI_EN(p));
+			return -EBUSY;
+		}
+	} else if (iTCO_vendorsupport ||
+		   turn_SMI_watchdog_clear_off >= p->iTCO_version) {
+		dev_err(dev, "SMI I/O resource is missing\n");
+		return -ENODEV;
+	}
+
+	iTCO_wdt_no_reboot_bit_setup(p, pdev, pdata);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Get the Memory-Mapped GCS or PMC register, we need it for the
 	 * NO_REBOOT flag (TCO v2 and v3).
 	 */
+<<<<<<< HEAD
 	if (p->iTCO_version >= 2 && !pdata->update_no_reboot_bit) {
+=======
+	if (p->iTCO_version >= 2 && p->iTCO_version < 6 &&
+	    !pdata->no_reboot_use_pmc) {
+>>>>>>> upstream/android-13
 		p->gcs_pmc_res = platform_get_resource(pdev,
 						       IORESOURCE_MEM,
 						       ICH_RES_MEM_GCS_PMC);
@@ -472,13 +572,18 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 	/* Check chipset's NO_REBOOT bit */
 	if (p->update_no_reboot_bit(p->no_reboot_priv, false) &&
 	    iTCO_vendor_check_noreboot_on()) {
+<<<<<<< HEAD
 		pr_info("unable to reset NO_REBOOT flag, device disabled by hardware/BIOS\n");
+=======
+		dev_info(dev, "unable to reset NO_REBOOT flag, device disabled by hardware/BIOS\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;	/* Cannot reset NO_REBOOT bit */
 	}
 
 	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
 	p->update_no_reboot_bit(p->no_reboot_priv, true);
 
+<<<<<<< HEAD
 	/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
 	if (!devm_request_region(dev, p->smi_res->start,
 				 resource_size(p->smi_res),
@@ -487,6 +592,8 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 		       (u64)SMI_EN(p));
 		return -EBUSY;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (turn_SMI_watchdog_clear_off >= p->iTCO_version) {
 		/*
 		 * Bit 13: TCO_EN -> 0
@@ -500,16 +607,28 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 	if (!devm_request_region(dev, p->tco_res->start,
 				 resource_size(p->tco_res),
 				 pdev->name)) {
+<<<<<<< HEAD
 		pr_err("I/O address 0x%04llx already in use, device disabled\n",
+=======
+		dev_err(dev, "I/O address 0x%04llx already in use, device disabled\n",
+>>>>>>> upstream/android-13
 		       (u64)TCOBASE(p));
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	pr_info("Found a %s TCO device (Version=%d, TCOBASE=0x%04llx)\n",
+=======
+	dev_info(dev, "Found a %s TCO device (Version=%d, TCOBASE=0x%04llx)\n",
+>>>>>>> upstream/android-13
 		pdata->name, pdata->version, (u64)TCOBASE(p));
 
 	/* Clear out the (probably old) status */
 	switch (p->iTCO_version) {
+<<<<<<< HEAD
+=======
+	case 6:
+>>>>>>> upstream/android-13
 	case 5:
 	case 4:
 		outw(0x0008, TCO1_STS(p)); /* Clear the Time Out Status bit */
@@ -527,7 +646,11 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 		break;
 	}
 
+<<<<<<< HEAD
 	p->wddev.info =	&ident,
+=======
+	p->wddev.info = &ident,
+>>>>>>> upstream/android-13
 	p->wddev.ops = &iTCO_wdt_ops,
 	p->wddev.bootstatus = 0;
 	p->wddev.timeout = WATCHDOG_TIMEOUT;
@@ -544,11 +667,16 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 	   if not reset to the default */
 	if (iTCO_wdt_set_timeout(&p->wddev, heartbeat)) {
 		iTCO_wdt_set_timeout(&p->wddev, WATCHDOG_TIMEOUT);
+<<<<<<< HEAD
 		pr_info("timeout value out of range, using %d\n",
+=======
+		dev_info(dev, "timeout value out of range, using %d\n",
+>>>>>>> upstream/android-13
 			WATCHDOG_TIMEOUT);
 	}
 
 	watchdog_stop_on_reboot(&p->wddev);
+<<<<<<< HEAD
 	ret = devm_watchdog_register_device(dev, &p->wddev);
 	if (ret != 0) {
 		pr_err("cannot register watchdog device (err=%d)\n", ret);
@@ -556,11 +684,22 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
 	}
 
 	pr_info("initialized. heartbeat=%d sec (nowayout=%d)\n",
+=======
+	watchdog_stop_on_unregister(&p->wddev);
+	ret = devm_watchdog_register_device(dev, &p->wddev);
+	if (ret != 0) {
+		dev_err(dev, "cannot register watchdog device (err=%d)\n", ret);
+		return ret;
+	}
+
+	dev_info(dev, "initialized. heartbeat=%d sec (nowayout=%d)\n",
+>>>>>>> upstream/android-13
 		heartbeat, nowayout);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int iTCO_wdt_remove(struct platform_device *pdev)
 {
 	struct iTCO_wdt_private *p = platform_get_drvdata(pdev);
@@ -572,6 +711,8 @@ static int iTCO_wdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 /*
  * Suspend-to-idle requires this, because it stops the ticks and timekeeping, so
@@ -624,13 +765,17 @@ static const struct dev_pm_ops iTCO_wdt_pm = {
 
 static struct platform_driver iTCO_wdt_driver = {
 	.probe          = iTCO_wdt_probe,
+<<<<<<< HEAD
 	.remove         = iTCO_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver         = {
 		.name   = DRV_NAME,
 		.pm     = ITCO_WDT_PM_OPS,
 	},
 };
 
+<<<<<<< HEAD
 static int __init iTCO_wdt_init_module(void)
 {
 	pr_info("Intel TCO WatchDog Timer Driver v%s\n", DRV_VERSION);
@@ -646,6 +791,9 @@ static void __exit iTCO_wdt_cleanup_module(void)
 
 module_init(iTCO_wdt_init_module);
 module_exit(iTCO_wdt_cleanup_module);
+=======
+module_platform_driver(iTCO_wdt_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Wim Van Sebroeck <wim@iguana.be>");
 MODULE_DESCRIPTION("Intel TCO WatchDog Timer Driver");

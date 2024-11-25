@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  cx18 functions to query card hardware
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2007  Hans Verkuil <hverkuil@xs4all.nl>
  *  Copyright (C) 2008  Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* hardware flags */
@@ -83,7 +90,11 @@ struct cx18_gpio_i2c_slave_reset {
 	u32 active_hi_mask; /* GPIO outputs that reset i2c chips when high */
 	int msecs_asserted; /* time period reset must remain asserted */
 	int msecs_recovery; /* time after deassert for chips to be ready */
+<<<<<<< HEAD
 	u32 ir_reset_mask;  /* GPIO to reset the Zilog Z8F0811 IR contoller */
+=======
+	u32 ir_reset_mask;  /* GPIO to reset the Zilog Z8F0811 IR controller */
+>>>>>>> upstream/android-13
 };
 
 struct cx18_gpio_audio_input {	/* select tuner/line in input */

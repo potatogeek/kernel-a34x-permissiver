@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92C_PHY_H__
 #define __RTL92C_PHY_H__
@@ -48,7 +53,11 @@
 #define MAX_STALL_TIME				50
 #define ANTENNADIVERSITYVALUE			0x80
 #define MAX_TXPWR_IDX_NMODE_92S			63
+<<<<<<< HEAD
 #define Reset_Cnt_Limit				3
+=======
+#define reset_cnt_limit				3
+>>>>>>> upstream/android-13
 
 #define IQK_ADDA_REG_NUM			16
 #define IQK_MAC_REG_NUM				4

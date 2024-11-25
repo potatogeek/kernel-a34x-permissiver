@@ -1,16 +1,24 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef EFX_NIC_H
 #define EFX_NIC_H
 
+<<<<<<< HEAD
 #include <linux/net_tstamp.h>
 #include <linux/i2c-algo-bit.h>
 #include "net_driver.h"
@@ -138,6 +146,13 @@ efx_rx_desc(struct efx_rx_queue *rx_queue, unsigned int index)
 	return ((efx_qword_t *) (rx_queue->rxd.buf.addr)) + index;
 }
 
+=======
+#include "nic_common.h"
+#include "efx.h"
+
+u32 efx_farch_fpga_ver(struct efx_nic *efx);
+
+>>>>>>> upstream/android-13
 enum {
 	PHY_TYPE_NONE = 0,
 	PHY_TYPE_TXC43128 = 1,
@@ -150,6 +165,7 @@ enum {
 	PHY_TYPE_SFT9001B = 10,
 };
 
+<<<<<<< HEAD
 /* Alignment of PCIe DMA boundaries (4KB) */
 #define EFX_PAGE_SIZE	4096
 /* Size and alignment of buffer table entries (same) */
@@ -162,6 +178,8 @@ enum {
 	GENERIC_STAT_COUNT
 };
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	SIENA_STAT_tx_bytes = GENERIC_STAT_COUNT,
 	SIENA_STAT_tx_good_bytes,
@@ -363,10 +381,13 @@ enum {
  * @warm_boot_count: Last seen MC warm boot count
  * @vi_base: Absolute index of first VI in this function
  * @n_allocated_vis: Number of VIs allocated to this function
+<<<<<<< HEAD
  * @must_realloc_vis: Flag: VIs have yet to be reallocated after MC reboot
  * @must_restore_rss_contexts: Flag: RSS contexts have yet to be restored after
  *	MC reboot
  * @must_restore_filters: Flag: filters have yet to be restored after MC reboot
+=======
+>>>>>>> upstream/android-13
  * @n_piobufs: Number of PIO buffers allocated to this function
  * @wc_membase: Base address of write-combining mapping of the memory BAR
  * @pio_write_base: Base address for writing PIO buffers
@@ -375,7 +396,11 @@ enum {
  * @piobuf_size: size of a single PIO buffer
  * @must_restore_piobufs: Flag: PIO buffers have yet to be restored after MC
  *	reboot
+<<<<<<< HEAD
  * @rx_rss_context_exclusive: Whether our RSS context is exclusive or shared
+=======
+ * @mc_stats: Scratch buffer for converting statistics to the kernel's format
+>>>>>>> upstream/android-13
  * @stats: Hardware statistics
  * @workaround_35388: Flag: firmware supports workaround for bug 35388
  * @workaround_26807: Flag: firmware supports workaround for bug 26807
@@ -388,7 +413,10 @@ enum {
  * %MC_CMD_GET_CAPABILITIES response)
  * @rx_dpcpu_fw_id: Firmware ID of the RxDPCPU
  * @tx_dpcpu_fw_id: Firmware ID of the TxDPCPU
+<<<<<<< HEAD
  * @vport_id: The function's vport ID, only relevant for PFs
+=======
+>>>>>>> upstream/android-13
  * @must_probe_vswitching: Flag: vswitching has yet to be setup after MC reboot
  * @pf_index: The number for this PF, or the parent PF if this is a VF
 #ifdef CONFIG_SFC_SRIOV
@@ -407,16 +435,23 @@ struct efx_ef10_nic_data {
 	u16 warm_boot_count;
 	unsigned int vi_base;
 	unsigned int n_allocated_vis;
+<<<<<<< HEAD
 	bool must_realloc_vis;
 	bool must_restore_rss_contexts;
 	bool must_restore_filters;
+=======
+>>>>>>> upstream/android-13
 	unsigned int n_piobufs;
 	void __iomem *wc_membase, *pio_write_base;
 	unsigned int pio_write_vi_base;
 	unsigned int piobuf_handle[EF10_TX_PIOBUF_COUNT];
 	u16 piobuf_size;
 	bool must_restore_piobufs;
+<<<<<<< HEAD
 	bool rx_rss_context_exclusive;
+=======
+	__le64 *mc_stats;
+>>>>>>> upstream/android-13
 	u64 stats[EF10_STAT_COUNT];
 	bool workaround_35388;
 	bool workaround_26807;
@@ -426,7 +461,10 @@ struct efx_ef10_nic_data {
 	u32 datapath_caps2;
 	unsigned int rx_dpcpu_fw_id;
 	unsigned int tx_dpcpu_fw_id;
+<<<<<<< HEAD
 	unsigned int vport_id;
+=======
+>>>>>>> upstream/android-13
 	bool must_probe_vswitching;
 	unsigned int pf_index;
 	u8 port_id[ETH_ALEN];
@@ -443,6 +481,7 @@ struct efx_ef10_nic_data {
 	u64 licensed_features;
 };
 
+<<<<<<< HEAD
 int efx_init_sriov(void);
 void efx_fini_sriov(void);
 
@@ -478,10 +517,20 @@ ktime_t efx_ptp_nic_to_kernel_time(struct efx_tx_queue *tx_queue);
 
 extern const struct efx_nic_type falcon_a1_nic_type;
 extern const struct efx_nic_type falcon_b0_nic_type;
+=======
+/* TSOv2 */
+int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue, struct sk_buff *skb,
+			 bool *data_mapped);
+
+int efx_init_sriov(void);
+void efx_fini_sriov(void);
+
+>>>>>>> upstream/android-13
 extern const struct efx_nic_type siena_a0_nic_type;
 extern const struct efx_nic_type efx_hunt_a0_nic_type;
 extern const struct efx_nic_type efx_hunt_a0_vf_nic_type;
 
+<<<<<<< HEAD
 /**************************************************************************
  *
  * Externs
@@ -559,6 +608,10 @@ static inline void efx_nic_eventq_read_ack(struct efx_channel *channel)
 }
 void efx_nic_event_test_start(struct efx_channel *channel);
 
+=======
+int falcon_probe_board(struct efx_nic *efx, u16 revision_info);
+
+>>>>>>> upstream/android-13
 /* Falcon/Siena queue operations */
 int efx_farch_tx_probe(struct efx_tx_queue *tx_queue);
 void efx_farch_tx_init(struct efx_tx_queue *tx_queue);
@@ -608,6 +661,7 @@ bool efx_farch_filter_rfs_expire_one(struct efx_nic *efx, u32 flow_id,
 #endif
 void efx_farch_filter_sync_rx_mode(struct efx_nic *efx);
 
+<<<<<<< HEAD
 bool efx_nic_event_present(struct efx_channel *channel);
 
 /* Some statistics are computed as A - B where A and B each increase
@@ -633,6 +687,8 @@ int efx_nic_init_interrupt(struct efx_nic *efx);
 int efx_nic_irq_test_start(struct efx_nic *efx);
 void efx_nic_fini_interrupt(struct efx_nic *efx);
 
+=======
+>>>>>>> upstream/android-13
 /* Falcon/Siena interrupts */
 void efx_farch_irq_enable_master(struct efx_nic *efx);
 int efx_farch_irq_test_generate(struct efx_nic *efx);
@@ -641,6 +697,7 @@ irqreturn_t efx_farch_msi_interrupt(int irq, void *dev_id);
 irqreturn_t efx_farch_legacy_interrupt(int irq, void *dev_id);
 irqreturn_t efx_farch_fatal_interrupt(struct efx_nic *efx);
 
+<<<<<<< HEAD
 static inline int efx_nic_event_test_irq_cpu(struct efx_channel *channel)
 {
 	return READ_ONCE(channel->event_test_cpu);
@@ -652,6 +709,9 @@ static inline int efx_nic_irq_test_irq_cpu(struct efx_nic *efx)
 
 /* Global Resources */
 int efx_nic_flush_queues(struct efx_nic *efx);
+=======
+/* Global Resources */
+>>>>>>> upstream/android-13
 void siena_prepare_flush(struct efx_nic *efx);
 int efx_farch_fini_dmaq(struct efx_nic *efx);
 void efx_farch_finish_flr(struct efx_nic *efx);
@@ -661,6 +721,7 @@ void falcon_stop_nic_stats(struct efx_nic *efx);
 int falcon_reset_xaui(struct efx_nic *efx);
 void efx_farch_dimension_resources(struct efx_nic *efx, unsigned sram_lim_qw);
 void efx_farch_init_common(struct efx_nic *efx);
+<<<<<<< HEAD
 void efx_ef10_handle_drain_event(struct efx_nic *efx);
 void efx_farch_rx_push_indir_table(struct efx_nic *efx);
 void efx_farch_rx_pull_indir_table(struct efx_nic *efx);
@@ -669,15 +730,25 @@ int efx_nic_alloc_buffer(struct efx_nic *efx, struct efx_buffer *buffer,
 			 unsigned int len, gfp_t gfp_flags);
 void efx_nic_free_buffer(struct efx_nic *efx, struct efx_buffer *buffer);
 
+=======
+void efx_farch_rx_push_indir_table(struct efx_nic *efx);
+void efx_farch_rx_pull_indir_table(struct efx_nic *efx);
+
+>>>>>>> upstream/android-13
 /* Tests */
 struct efx_farch_register_test {
 	unsigned address;
 	efx_oword_t mask;
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 int efx_farch_test_registers(struct efx_nic *efx,
 			     const struct efx_farch_register_test *regs,
 			     size_t n_regs);
 
+<<<<<<< HEAD
 size_t efx_nic_get_regs_len(struct efx_nic *efx);
 void efx_nic_get_regs(struct efx_nic *efx, void *buf);
 
@@ -690,6 +761,8 @@ void efx_nic_fix_nodesc_drop_stat(struct efx_nic *efx, u64 *stat);
 
 #define EFX_MAX_FLUSH_TIME 5000
 
+=======
+>>>>>>> upstream/android-13
 void efx_farch_generate_event(struct efx_nic *efx, unsigned int evq,
 			      efx_qword_t *event);
 

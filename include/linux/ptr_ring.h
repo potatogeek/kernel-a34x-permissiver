@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *	Definitions for the 'struct ptr_ring' datastructure.
  *
@@ -6,11 +10,14 @@
  *
  *	Copyright (C) 2016 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the
  *	Free Software Foundation; either version 2 of the License, or (at your
  *	option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	This is a limited-size FIFO maintaining pointers in FIFO order, with
  *	one CPU producing entries and another consuming entries from a FIFO.
  *
@@ -26,8 +33,13 @@
 #include <linux/cache.h>
 #include <linux/types.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
 #include <linux/cache.h>
 #include <linux/slab.h>
+=======
+#include <linux/slab.h>
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include <asm/errno.h>
 #endif
 
@@ -111,7 +123,11 @@ static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
 		return -ENOSPC;
 
 	/* Make sure the pointer we are storing points to a valid data. */
+<<<<<<< HEAD
 	/* Pairs with smp_read_barrier_depends in __ptr_ring_consume. */
+=======
+	/* Pairs with the dependency ordering in __ptr_ring_consume. */
+>>>>>>> upstream/android-13
 	smp_wmb();
 
 	WRITE_ONCE(r->queue[r->producer++], ptr);

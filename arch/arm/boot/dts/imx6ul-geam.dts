@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
@@ -38,6 +39,12 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR X11
+/*
+ * Copyright (C) 2016 Amarula Solutions B.V.
+ * Copyright (C) 2016 Engicam S.r.l.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -192,7 +199,11 @@
 };
 
 &i2c2 {
+<<<<<<< HEAD
 	clock_frequency = <100000>;
+=======
+	clock-frequency = <100000>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
@@ -205,7 +216,11 @@
 	display = <&display0>;
 	status = "okay";
 
+<<<<<<< HEAD
 	display0: display {
+=======
+	display0: display0 {
+>>>>>>> upstream/android-13
 		bits-per-pixel = <16>;
 		bus-width = <18>;
 
@@ -231,6 +246,10 @@
 };
 
 &pwm8 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm8>;
 	status = "okay";
@@ -329,7 +348,11 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	pinctrl_gpmi_nand: gpmi-nand {
+=======
+	pinctrl_gpmi_nand: gpminandgrp {
+>>>>>>> upstream/android-13
 		fsl,pins = <
 			MX6UL_PAD_NAND_CLE__RAWNAND_CLE         0xb0b1
 			MX6UL_PAD_NAND_ALE__RAWNAND_ALE         0xb0b1

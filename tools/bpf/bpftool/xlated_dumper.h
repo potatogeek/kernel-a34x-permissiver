@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 /*
  * Copyright (C) 2018 Netronome Systems, Inc.
@@ -34,12 +35,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 #ifndef __BPF_TOOL_XLATED_DUMPER_H
 #define __BPF_TOOL_XLATED_DUMPER_H
 
 #define SYM_MAX_NAME	256
 
+<<<<<<< HEAD
+=======
+struct bpf_prog_linfo;
+
+>>>>>>> upstream/android-13
 struct kernel_sym {
 	unsigned long address;
 	char name[SYM_MAX_NAME];
@@ -51,6 +61,13 @@ struct dump_data {
 	__u32 sym_count;
 	__u64 *jited_ksyms;
 	__u32 nr_jited_ksyms;
+<<<<<<< HEAD
+=======
+	struct btf *btf;
+	void *func_info;
+	__u32 finfo_rec_size;
+	const struct bpf_prog_linfo *prog_linfo;
+>>>>>>> upstream/android-13
 	char scratch_buff[SYM_MAX_NAME + 8];
 };
 
@@ -58,9 +75,15 @@ void kernel_syms_load(struct dump_data *dd);
 void kernel_syms_destroy(struct dump_data *dd);
 struct kernel_sym *kernel_syms_search(struct dump_data *dd, unsigned long key);
 void dump_xlated_json(struct dump_data *dd, void *buf, unsigned int len,
+<<<<<<< HEAD
 		      bool opcodes);
 void dump_xlated_plain(struct dump_data *dd, void *buf, unsigned int len,
 		       bool opcodes);
+=======
+		       bool opcodes, bool linum);
+void dump_xlated_plain(struct dump_data *dd, void *buf, unsigned int len,
+		       bool opcodes, bool linum);
+>>>>>>> upstream/android-13
 void dump_xlated_for_graph(struct dump_data *dd, void *buf, void *buf_end,
 			   unsigned int start_index);
 

@@ -20,7 +20,11 @@
 &cspi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_cspi>;
+<<<<<<< HEAD
 	cs-gpios = <&gpio4 11 0>, <&gpio4 13 0>;
+=======
+	cs-gpios = <&gpio4 11 GPIO_ACTIVE_LOW>, <&gpio4 13 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	flash: m25p32@1 {

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Backlight control code for Sharp Zaurus SL-5500
  *
  * Copyright 2005 John Lenz <lenz@cs.wisc.edu>
  * Maintainer: Pavel Machek <pavel@ucw.cz> (unless John wants to :-)
+<<<<<<< HEAD
  * GPL v2
+=======
+>>>>>>> upstream/android-13
  *
  * This driver assumes single CPU. That's okay, because collie is
  * slightly old hardware, and no one is going to retrofit second CPU to
@@ -111,12 +118,17 @@ static int current_intensity;
 
 static int locomolcd_set_intensity(struct backlight_device *bd)
 {
+<<<<<<< HEAD
 	int intensity = bd->props.brightness;
 
 	if (bd->props.power != FB_BLANK_UNBLANK)
 		intensity = 0;
 	if (bd->props.fb_blank != FB_BLANK_UNBLANK)
 		intensity = 0;
+=======
+	int intensity = backlight_get_brightness(bd);
+
+>>>>>>> upstream/android-13
 	if (locomolcd_flags & LOCOMOLCD_SUSPENDED)
 		intensity = 0;
 
@@ -212,7 +224,11 @@ static int locomolcd_probe(struct locomo_dev *ldev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int locomolcd_remove(struct locomo_dev *dev)
+=======
+static void locomolcd_remove(struct locomo_dev *dev)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 
@@ -224,7 +240,10 @@ static int locomolcd_remove(struct locomo_dev *dev)
 	local_irq_save(flags);
 	locomolcd_dev = NULL;
 	local_irq_restore(flags);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct locomo_driver poodle_lcd_driver = {

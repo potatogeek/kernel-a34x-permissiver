@@ -144,7 +144,11 @@ UCAN_COMMAND_SET_BITTIMING
 
 *Host2Dev; mandatory*
 
+<<<<<<< HEAD
 Setup bittiming by sending the the structure
+=======
+Setup bittiming by sending the structure
+>>>>>>> upstream/android-13
 ``ucan_ctl_payload_t.cmd_set_bittiming`` (see ``struct bittiming`` for
 details)
 
@@ -232,7 +236,11 @@ UCAN_IN_TX_COMPLETE
   zero
 
 The CAN device has sent a message to the CAN bus. It answers with a
+<<<<<<< HEAD
 list of of tuples <echo-ids, flags>.
+=======
+list of tuples <echo-ids, flags>.
+>>>>>>> upstream/android-13
 
 The echo-id identifies the frame from (echos the id from a previous
 UCAN_OUT_TX message). The flag indicates the result of the

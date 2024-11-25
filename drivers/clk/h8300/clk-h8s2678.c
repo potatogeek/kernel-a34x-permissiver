@@ -6,8 +6,14 @@
  */
 
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include <linux/err.h>
 #include <linux/device.h>
+=======
+#include <linux/device.h>
+#include <linux/io.h>
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/slab.h>
 
@@ -88,7 +94,11 @@ static void __init h8s2678_pll_clk_setup(struct device_node *node)
 	const char *clk_name = node->name;
 	const char *parent_name;
 	struct pll_clock *pll_clock;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	num_parents = of_clk_get_parent_count(node);
@@ -117,7 +127,11 @@ static void __init h8s2678_pll_clk_setup(struct device_node *node)
 	parent_name = of_clk_get_parent_name(node, 0);
 	init.name = clk_name;
 	init.ops = &pll_ops;
+<<<<<<< HEAD
 	init.flags = CLK_IS_BASIC;
+=======
+	init.flags = 0;
+>>>>>>> upstream/android-13
 	init.parent_names = &parent_name;
 	init.num_parents = 1;
 	pll_clock->hw.init = &init;

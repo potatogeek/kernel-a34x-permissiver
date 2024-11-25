@@ -17,6 +17,10 @@
 #define P_ALL		0
 #define P_PID		1
 #define P_PGID		2
+<<<<<<< HEAD
+=======
+#define P_PIDFD		3
+>>>>>>> upstream/android-13
 
 
 #endif /* _UAPI_LINUX_WAIT_H */

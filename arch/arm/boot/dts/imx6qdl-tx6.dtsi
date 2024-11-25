@@ -62,6 +62,10 @@
 	};
 
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0>; /* will be filled by U-Boot */
 	};
 
@@ -737,14 +741,20 @@
 &pwm1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
+<<<<<<< HEAD
 	#pwm-cells = <3>;
+=======
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
 &pwm2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm2>;
+<<<<<<< HEAD
 	#pwm-cells = <3>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

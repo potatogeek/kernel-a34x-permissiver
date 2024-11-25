@@ -32,7 +32,11 @@
 };
 
 &i2c_7 {
+<<<<<<< HEAD
 	max98090: codec@10 {
+=======
+	max98090: audio-codec@10 {
+>>>>>>> upstream/android-13
 		compatible = "maxim,max98090";
 		reg = <0x10>;
 		interrupts = <4 IRQ_TYPE_NONE>;

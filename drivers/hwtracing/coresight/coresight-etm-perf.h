@@ -11,6 +11,10 @@
 #include "coresight-priv.h"
 
 struct coresight_device;
+<<<<<<< HEAD
+=======
+struct cscfg_config_desc;
+>>>>>>> upstream/android-13
 
 /*
  * In both ETMv3 and v4 the maximum number of address comparator implentable
@@ -48,16 +52,28 @@ struct etm_filters {
  * @work:		Handle to free allocated memory outside IRQ context.
  * @mask:		Hold the CPU(s) this event was set for.
  * @snk_config:		The sink configuration.
+<<<<<<< HEAD
+=======
+ * @cfg_hash:		The hash id of any coresight config selected.
+>>>>>>> upstream/android-13
  * @path:		An array of path, each slot for one CPU.
  */
 struct etm_event_data {
 	struct work_struct work;
 	cpumask_t mask;
 	void *snk_config;
+<<<<<<< HEAD
 	struct list_head * __percpu *path;
 };
 
 #ifdef CONFIG_CORESIGHT
+=======
+	u32 cfg_hash;
+	struct list_head * __percpu *path;
+};
+
+#if IS_ENABLED(CONFIG_CORESIGHT)
+>>>>>>> upstream/android-13
 int etm_perf_symlink(struct coresight_device *csdev, bool link);
 int etm_perf_add_symlink_sink(struct coresight_device *csdev);
 void etm_perf_del_symlink_sink(struct coresight_device *csdev);
@@ -69,6 +85,12 @@ static inline void *etm_perf_sink_config(struct perf_output_handle *handle)
 		return data->snk_config;
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+int etm_perf_add_symlink_cscfg(struct device *dev,
+			       struct cscfg_config_desc *config_desc);
+void etm_perf_del_symlink_cscfg(struct cscfg_config_desc *config_desc);
+>>>>>>> upstream/android-13
 #else
 static inline int etm_perf_symlink(struct coresight_device *csdev, bool link)
 { return -EINVAL; }
@@ -79,7 +101,20 @@ static inline void *etm_perf_sink_config(struct perf_output_handle *handle)
 {
 	return NULL;
 }
+<<<<<<< HEAD
 
 #endif /* CONFIG_CORESIGHT */
 
+=======
+int etm_perf_add_symlink_cscfg(struct device *dev,
+			       struct cscfg_config_desc *config_desc)
+{ return -EINVAL; }
+void etm_perf_del_symlink_cscfg(struct cscfg_config_desc *config_desc) {}
+
+#endif /* CONFIG_CORESIGHT */
+
+int __init etm_perf_init(void);
+void etm_perf_exit(void);
+
+>>>>>>> upstream/android-13
 #endif

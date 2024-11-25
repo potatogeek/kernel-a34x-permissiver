@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013-2016 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -17,6 +18,21 @@
 
 #ifdef CONFIG_DEBUG_FS
 #include <linux/debugfs.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013-2016 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#ifdef CONFIG_DEBUG_FS
+
+#include <linux/debugfs.h>
+
+#include <drm/drm_debugfs.h>
+#include <drm/drm_file.h>
+
+>>>>>>> upstream/android-13
 #include "msm_drv.h"
 #include "msm_gpu.h"
 #include "msm_kms.h"
@@ -71,7 +87,11 @@ static int msm_gpu_open(struct inode *inode, struct file *file)
 	struct msm_gpu_show_priv *show_priv;
 	int ret;
 
+<<<<<<< HEAD
 	if (!gpu)
+=======
+	if (!gpu || !gpu->funcs->gpu_state_get)
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	show_priv = kmalloc(sizeof(*show_priv), GFP_KERNEL);
@@ -83,6 +103,10 @@ static int msm_gpu_open(struct inode *inode, struct file *file)
 		goto free_priv;
 
 	pm_runtime_get_sync(&gpu->pdev->dev);
+<<<<<<< HEAD
+=======
+	msm_gpu_hw_init(gpu);
+>>>>>>> upstream/android-13
 	show_priv->state = gpu->funcs->gpu_state_get(gpu);
 	pm_runtime_put_sync(&gpu->pdev->dev);
 
@@ -114,6 +138,7 @@ static const struct file_operations msm_gpu_fops = {
 	.release = msm_gpu_release,
 };
 
+<<<<<<< HEAD
 static int msm_gem_show(struct drm_device *dev, struct seq_file *m)
 {
 	struct msm_drm_private *priv = dev->dev_private;
@@ -126,6 +151,45 @@ static int msm_gem_show(struct drm_device *dev, struct seq_file *m)
 
 	seq_printf(m, "Inactive Objects:\n");
 	msm_gem_describe_objects(&priv->inactive_list, m);
+=======
+static unsigned long last_shrink_freed;
+
+static int
+shrink_get(void *data, u64 *val)
+{
+	*val = last_shrink_freed;
+
+	return 0;
+}
+
+static int
+shrink_set(void *data, u64 val)
+{
+	struct drm_device *dev = data;
+
+	last_shrink_freed = msm_gem_shrinker_shrink(dev, val);
+
+	return 0;
+}
+
+DEFINE_SIMPLE_ATTRIBUTE(shrink_fops,
+			shrink_get, shrink_set,
+			"0x%08llx\n");
+
+
+static int msm_gem_show(struct drm_device *dev, struct seq_file *m)
+{
+	struct msm_drm_private *priv = dev->dev_private;
+	int ret;
+
+	ret = mutex_lock_interruptible(&priv->obj_lock);
+	if (ret)
+		return ret;
+
+	msm_gem_describe_objects(&priv->objects, m);
+
+	mutex_unlock(&priv->obj_lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -197,13 +261,21 @@ static int late_init_minor(struct drm_minor *minor)
 
 	ret = msm_rd_debugfs_init(minor);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(minor->dev->dev, "could not install rd debugfs\n");
+=======
+		DRM_DEV_ERROR(minor->dev->dev, "could not install rd debugfs\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	ret = msm_perf_debugfs_init(minor);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(minor->dev->dev, "could not install perf debugfs\n");
+=======
+		DRM_DEV_ERROR(minor->dev->dev, "could not install perf debugfs\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -220,6 +292,7 @@ int msm_debugfs_late_init(struct drm_device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 int msm_debugfs_init(struct drm_minor *minor)
 {
 	struct drm_device *dev = minor->dev;
@@ -234,10 +307,21 @@ int msm_debugfs_init(struct drm_minor *minor)
 		dev_err(dev->dev, "could not install msm_debugfs_list\n");
 		return ret;
 	}
+=======
+void msm_debugfs_init(struct drm_minor *minor)
+{
+	struct drm_device *dev = minor->dev;
+	struct msm_drm_private *priv = dev->dev_private;
+
+	drm_debugfs_create_files(msm_debugfs_list,
+				 ARRAY_SIZE(msm_debugfs_list),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 
 	debugfs_create_file("gpu", S_IRUSR, minor->debugfs_root,
 		dev, &msm_gpu_fops);
 
+<<<<<<< HEAD
 	if (priv->kms->funcs->debugfs_init) {
 		ret = priv->kms->funcs->debugfs_init(priv->kms, minor);
 		if (ret)
@@ -245,6 +329,16 @@ int msm_debugfs_init(struct drm_minor *minor)
 	}
 
 	return ret;
+=======
+	debugfs_create_u32("hangcheck_period_ms", 0600, minor->debugfs_root,
+		&priv->hangcheck_period);
+
+	debugfs_create_file("shrink", S_IRWXU, minor->debugfs_root,
+		dev, &shrink_fops);
+
+	if (priv->kms && priv->kms->funcs->debugfs_init)
+		priv->kms->funcs->debugfs_init(priv->kms, minor);
+>>>>>>> upstream/android-13
 }
 #endif
 

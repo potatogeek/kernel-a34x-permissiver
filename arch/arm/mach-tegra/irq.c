@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 Google, Inc.
  *
@@ -5,6 +9,7 @@
  *	Colin Cross <ccross@android.com>
  *
  * Copyright (C) 2010,2013, NVIDIA Corporation
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu_pm.h>
@@ -27,9 +34,16 @@
 #include <linux/of.h>
 #include <linux/syscore_ops.h>
 
+<<<<<<< HEAD
 #include "board.h"
 #include "iomap.h"
 #include "irq.h"
+=======
+#include <soc/tegra/irq.h>
+
+#include "board.h"
+#include "iomap.h"
+>>>>>>> upstream/android-13
 
 #define SGI_MASK 0xFFFF
 
@@ -72,7 +86,11 @@ static const struct of_device_id tegra114_dt_gic_match[] __initconst = {
 	{ }
 };
 
+<<<<<<< HEAD
 static void tegra114_gic_cpu_pm_registration(void)
+=======
+static void __init tegra114_gic_cpu_pm_registration(void)
+>>>>>>> upstream/android-13
 {
 	struct device_node *dn;
 
@@ -85,7 +103,11 @@ static void tegra114_gic_cpu_pm_registration(void)
 	cpu_pm_register_notifier(&tegra_gic_notifier_block);
 }
 #else
+<<<<<<< HEAD
 static void tegra114_gic_cpu_pm_registration(void) { }
+=======
+static void __init tegra114_gic_cpu_pm_registration(void) { }
+>>>>>>> upstream/android-13
 #endif
 
 static const struct of_device_id tegra_ictlr_match[] __initconst = {

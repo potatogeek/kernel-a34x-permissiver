@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PowerNV system parameter code
  *
  * Copyright (C) 2013 IBM
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kobject.h>
@@ -194,7 +201,11 @@ void __init opal_sys_param_init(void)
 	count = of_property_count_strings(sysparam, "param-name");
 	if (count < 0) {
 		pr_err("SYSPARAM: No string found of property param-name in "
+<<<<<<< HEAD
 				"the node %s\n", sysparam->name);
+=======
+				"the node %pOFn\n", sysparam);
+>>>>>>> upstream/android-13
 		goto out_param_buf;
 	}
 

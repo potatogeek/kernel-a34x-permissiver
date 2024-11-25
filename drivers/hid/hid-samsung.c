@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  HID driver for some samsung "special" devices
  *
@@ -8,7 +12,10 @@
  *  Copyright (c) 2008 Jiri Slaby
  *  Copyright (c) 2010 Don Prince <dhprince.devel@yahoo.co.uk>
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  This driver supports several HID devices:
  *
  *  [0419:0001] Samsung IrDA remote controller (reports as Cypress USB Mouse).
@@ -17,6 +24,7 @@
  *  [0419:0600] Creative Desktop Wireless 6000 keyboard/mouse combo
  *	several key mappings used from the consumer usage page
  *	deviate from the USB HUT 1.12 standard.
+<<<<<<< HEAD
  *
  */
 
@@ -25,6 +33,11 @@
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+ */
+
+/*
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -192,6 +205,13 @@ static int samsung_kbd_input_mapping(struct hid_device *hdev,
 		case 0x223:
 			samsung_kbd_mouse_map_key_clear(KEY_HOMEPAGE);
 			break;
+<<<<<<< HEAD
+=======
+		/* Smtart Voice Key */
+		case 0x300:
+			samsung_kbd_mouse_map_key_clear(BTN_TRIGGER_HAPPY13);
+			break;
+>>>>>>> upstream/android-13
 		/* RECENTAPPS */
 		case 0x301:
 			samsung_kbd_mouse_map_key_clear(BTN_TRIGGER_HAPPY1);

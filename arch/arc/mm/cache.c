@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ARC Cache Management
  *
  * Copyright (C) 2014-15 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -113,10 +120,31 @@ static void read_decode_cache_bcr_arcv2(int cpu)
 	}
 
 	READ_BCR(ARC_REG_CLUSTER_BCR, cbcr);
+<<<<<<< HEAD
 	if (cbcr.c)
 		ioc_exists = 1;
 	else
 		ioc_enable = 0;
+=======
+	if (cbcr.c) {
+		ioc_exists = 1;
+
+		/*
+		 * As for today we don't support both IOC and ZONE_HIGHMEM enabled
+		 * simultaneously. This happens because as of today IOC aperture covers
+		 * only ZONE_NORMAL (low mem) and any dma transactions outside this
+		 * region won't be HW coherent.
+		 * If we want to use both IOC and ZONE_HIGHMEM we can use
+		 * bounce_buffer to handle dma transactions to HIGHMEM.
+		 * Also it is possible to modify dma_direct cache ops or increase IOC
+		 * aperture size if we are planning to use HIGHMEM without PAE.
+		 */
+		if (IS_ENABLED(CONFIG_HIGHMEM) || is_pae40_enabled())
+			ioc_enable = 0;
+	} else {
+		ioc_enable = 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* HS 2.0 didn't have AUX_VOL */
 	if (cpuinfo_arc700[cpu].core.family > 0x51) {
@@ -194,6 +222,7 @@ slc_chk:
 #define OP_INV_IC	0x4
 
 /*
+<<<<<<< HEAD
  *		I-Cache Aliasing in ARC700 VIPT caches (MMU v1-v3)
  *
  * ARC VIPT I-cache uses vaddr to index into cache and paddr to match the tag.
@@ -281,6 +310,26 @@ void __cache_line_loop_v2(phys_addr_t paddr, unsigned long vaddr,
  *    (non aliasing I-cache version doesn't; while D-cache can't possibly alias)
  */
 static inline
+=======
+ * Cache Flush programming model
+ *
+ * ARC700 MMUv3 I$ and D$ are both VIPT and can potentially alias.
+ * Programming model requires both paddr and vaddr irrespecive of aliasing
+ * considerations:
+ *  - vaddr in {I,D}C_IV?L
+ *  - paddr in {I,D}C_PTAG
+ *
+ * In HS38x (MMUv4), D$ is PIPT, I$ is VIPT and can still alias.
+ * Programming model is different for aliasing vs. non-aliasing I$
+ *  - D$ / Non-aliasing I$: only paddr in {I,D}C_IV?L
+ *  - Aliasing I$: same as ARC700 above (so MMUv3 routine used for MMUv4 I$)
+ *
+ *  - If PAE40 is enabled, independent of aliasing considerations, the higher
+ *    bits needs to be written into PTAG_HI
+ */
+
+static inline
+>>>>>>> upstream/android-13
 void __cache_line_loop_v3(phys_addr_t paddr, unsigned long vaddr,
 			  unsigned long sz, const int op, const int full_page)
 {
@@ -339,6 +388,7 @@ void __cache_line_loop_v3(phys_addr_t paddr, unsigned long vaddr,
 #ifndef USE_RGN_FLSH
 
 /*
+<<<<<<< HEAD
  * In HS38x (MMU v4), I-cache is VIPT (can alias), D-cache is PIPT
  * Here's how cache ops are implemented
  *
@@ -350,6 +400,8 @@ void __cache_line_loop_v3(phys_addr_t paddr, unsigned long vaddr,
  *
  * If PAE40 is enabled, independent of aliasing considerations, the higher bits
  * needs to be written into PTAG_HI
+=======
+>>>>>>> upstream/android-13
  */
 static inline
 void __cache_line_loop_v4(phys_addr_t paddr, unsigned long vaddr,
@@ -449,11 +501,17 @@ void __cache_line_loop_v4(phys_addr_t paddr, unsigned long vaddr,
 
 #endif
 
+<<<<<<< HEAD
 #if (CONFIG_ARC_MMU_VER < 3)
 #define __cache_line_loop	__cache_line_loop_v2
 #elif (CONFIG_ARC_MMU_VER == 3)
 #define __cache_line_loop	__cache_line_loop_v3
 #elif (CONFIG_ARC_MMU_VER > 3)
+=======
+#ifdef CONFIG_ARC_MMU_V3
+#define __cache_line_loop	__cache_line_loop_v3
+#else
+>>>>>>> upstream/android-13
 #define __cache_line_loop	__cache_line_loop_v4
 #endif
 
@@ -1112,7 +1170,11 @@ void clear_user_page(void *to, unsigned long u_vaddr, struct page *page)
 	clear_page(to);
 	clear_bit(PG_dc_clean, &page->flags);
 }
+<<<<<<< HEAD
 
+=======
+EXPORT_SYMBOL(clear_user_page);
+>>>>>>> upstream/android-13
 
 /**********************************************************************
  * Explicit Cache flush request from user space via syscall
@@ -1158,6 +1220,7 @@ noinline void __init arc_ioc_setup(void)
 	if (!ioc_enable)
 		return;
 
+<<<<<<< HEAD
 	/*
 	 * As for today we don't support both IOC and ZONE_HIGHMEM enabled
 	 * simultaneously. This happens because as of today IOC aperture covers
@@ -1171,6 +1234,8 @@ noinline void __init arc_ioc_setup(void)
 	if (IS_ENABLED(CONFIG_HIGHMEM))
 		panic("IOC and HIGHMEM can't be used simultaneously");
 
+=======
+>>>>>>> upstream/android-13
 	/* Flush + invalidate + disable L1 dcache */
 	__dc_disable();
 
@@ -1294,7 +1359,11 @@ void __init arc_cache_init_master(void)
 	/*
 	 * In case of IOC (say IOC+SLC case), pointers above could still be set
 	 * but end up not being relevant as the first function in chain is not
+<<<<<<< HEAD
 	 * called at all for @dma_direct_ops
+=======
+	 * called at all for devices using coherent DMA.
+>>>>>>> upstream/android-13
 	 *     arch_sync_dma_for_cpu() -> dma_cache_*() -> __dma_cache_*()
 	 */
 }

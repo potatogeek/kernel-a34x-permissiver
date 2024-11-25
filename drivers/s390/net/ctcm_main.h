@@ -298,11 +298,14 @@ struct mpc_group *ctcmpc_init_mpc_group(struct ctcm_priv *priv);
 /* test if struct ctcm_priv of struct net_device has MPC protocol setting */
 #define IS_MPCDEV(dev) IS_MPC((struct ctcm_priv *)dev->ml_priv)
 
+<<<<<<< HEAD
 static inline gfp_t gfp_type(void)
 {
 	return in_interrupt() ? GFP_ATOMIC : GFP_KERNEL;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Definition of our link level header.
  */

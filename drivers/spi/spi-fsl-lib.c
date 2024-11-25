@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale SPI/eSPI controller driver library.
  *
@@ -10,11 +14,14 @@
  * Author: Anton Vorontsov <avorontsov@ru.mvista.com>
  *
  * Copyright 2010 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/dma-mapping.h>
 #include <linux/fsl_devices.h>

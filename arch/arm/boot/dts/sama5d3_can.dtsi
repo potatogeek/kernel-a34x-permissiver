@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sama5d3_can.dtsi - Device Tree Include file for SAMA5D3 SoC with
  * CAN support
  *
  * Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/pinctrl/at91.h>
@@ -32,6 +39,7 @@
 
 			};
 
+<<<<<<< HEAD
 			pmc: pmc@fffffc00 {
 				periphck {
 					can0_clk: can0_clk {
@@ -48,13 +56,19 @@
 				};
 			};
 
+=======
+>>>>>>> upstream/android-13
 			can0: can@f000c000 {
 				compatible = "atmel,at91sam9x5-can";
 				reg = <0xf000c000 0x300>;
 				interrupts = <40 IRQ_TYPE_LEVEL_HIGH 3>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_can0_rx_tx>;
+<<<<<<< HEAD
 				clocks = <&can0_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 40>;
+>>>>>>> upstream/android-13
 				clock-names = "can_clk";
 				status = "disabled";
 			};
@@ -65,7 +79,11 @@
 				interrupts = <41 IRQ_TYPE_LEVEL_HIGH 3>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_can1_rx_tx>;
+<<<<<<< HEAD
 				clocks = <&can1_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 41>;
+>>>>>>> upstream/android-13
 				clock-names = "can_clk";
 				status = "disabled";
 			};

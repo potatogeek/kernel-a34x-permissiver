@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Wind River Systems, Inc.
  *
@@ -12,6 +13,13 @@
  *
  * Author:  Anders Wallin <anders.wallin@windriver.com>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2011 Wind River Systems, Inc.
+ *
+ * Author:  Anders Wallin <anders.wallin@windriver.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __STA2X11_VIP_H
@@ -23,6 +31,11 @@
  * @pwr_pin: ADV powerdown pin
  * @reset_name: ADV reset name
  * @reset_pin: ADV reset pin
+<<<<<<< HEAD
+=======
+ * @i2c_id: ADV i2c adapter ID
+ * @i2c_addr: ADV i2c address
+>>>>>>> upstream/android-13
  */
 struct vip_config {
 	const char *pwr_name;

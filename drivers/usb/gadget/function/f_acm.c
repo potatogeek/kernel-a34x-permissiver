@@ -19,7 +19,10 @@
 
 #include "u_serial.h"
 
+<<<<<<< HEAD
 #define ACM_LOG "USB_ACM"
+=======
+>>>>>>> upstream/android-13
 
 /*
  * This CDC ACM function support just wraps control functions and
@@ -331,11 +334,14 @@ static void acm_complete_set_line_coding(struct usb_ep *ep,
 		 * nothing unless we control a real RS232 line.
 		 */
 		acm->port_line_coding = *value;
+<<<<<<< HEAD
 		pr_notice("[XLOG_INFO][USB_ACM] %s: rate=%d, stop=%d, parity=%d, data=%d\n",
 				__func__, acm->port_line_coding.dwDTERate,
 				acm->port_line_coding.bCharFormat,
 				acm->port_line_coding.bParityType,
 				acm->port_line_coding.bDataBits);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -357,6 +363,7 @@ static int acm_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 	 * to them by stalling.  Options include get/set/clear comm features
 	 * (not that useful) and SEND_BREAK.
 	 */
+<<<<<<< HEAD
 	{
 		static DEFINE_RATELIMIT_STATE(ratelimit, 1 * HZ, 10);
 		static int skip_cnt;
@@ -371,6 +378,8 @@ static int acm_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 		} else
 			skip_cnt++;
 	}
+=======
+>>>>>>> upstream/android-13
 	switch ((ctrl->bRequestType << 8) | ctrl->bRequest) {
 
 	/* SET_LINE_CODING ... just read and save what the host sends */
@@ -394,6 +403,7 @@ static int acm_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 		value = min_t(unsigned, w_length,
 				sizeof(struct usb_cdc_line_coding));
 		memcpy(req->buf, &acm->port_line_coding, value);
+<<<<<<< HEAD
 		{
 			static DEFINE_RATELIMIT_STATE(ratelimit, 1 * HZ, 10);
 			static int skip_cnt;
@@ -416,6 +426,8 @@ static int acm_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
 			} else
 				skip_cnt++;
 		}
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	/* SET_CONTROL_LINE_STATE ... save what the host sent */
@@ -467,9 +479,17 @@ static int acm_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 	/* we know alt == 0, so this is an activation or a reset */
 
 	if (intf == acm->ctrl_id) {
+<<<<<<< HEAD
 		dev_vdbg(&cdev->gadget->dev,
 				"reset acm control interface %d\n", intf);
 		usb_ep_disable(acm->notify);
+=======
+		if (acm->notify->enabled) {
+			dev_vdbg(&cdev->gadget->dev,
+					"reset acm control interface %d\n", intf);
+			usb_ep_disable(acm->notify);
+		}
+>>>>>>> upstream/android-13
 
 		if (!acm->notify->desc)
 			if (config_ep_by_speed(cdev->gadget, f, acm->notify))
@@ -508,7 +528,10 @@ static void acm_disable(struct usb_function *f)
 	struct f_acm	*acm = func_to_acm(f);
 	struct usb_composite_dev *cdev = f->config->cdev;
 
+<<<<<<< HEAD
 	INFO(cdev, "acm ttyGS%d deactivated\n", acm->port_num);
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(&cdev->gadget->dev, "acm ttyGS%d deactivated\n", acm->port_num);
 	gserial_disconnect(&acm->port);
 	usb_ep_disable(acm->notify);
@@ -731,6 +754,7 @@ acm_bind(struct usb_configuration *c, struct usb_function *f)
 	if (status)
 		goto fail;
 
+<<<<<<< HEAD
 	pr_notice("[XLOG_INFO][USB_ACM]%s: ttyGS%d: %s speed IN/%s OUT/%s NOTIFY/%s\n",
 			__func__, acm->port_num,
 			gadget_is_superspeed(c->cdev->gadget) ? "super" :
@@ -738,6 +762,8 @@ acm_bind(struct usb_configuration *c, struct usb_function *f)
 			acm->port.in->name,
 			acm->port.out->name,
 			acm->notify->name);
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(&cdev->gadget->dev,
 		"acm ttyGS%d: %s speed IN/%s OUT/%s NOTIFY/%s\n",
 		acm->port_num,
@@ -773,6 +799,23 @@ static void acm_free_func(struct usb_function *f)
 	kfree(acm);
 }
 
+<<<<<<< HEAD
+=======
+static void acm_resume(struct usb_function *f)
+{
+	struct f_acm *acm = func_to_acm(f);
+
+	gserial_resume(&acm->port);
+}
+
+static void acm_suspend(struct usb_function *f)
+{
+	struct f_acm *acm = func_to_acm(f);
+
+	gserial_suspend(&acm->port);
+}
+
+>>>>>>> upstream/android-13
 static struct usb_function *acm_alloc_func(struct usb_function_instance *fi)
 {
 	struct f_serial_opts *opts;
@@ -800,6 +843,11 @@ static struct usb_function *acm_alloc_func(struct usb_function_instance *fi)
 	acm->port_num = opts->port_num;
 	acm->port.func.unbind = acm_unbind;
 	acm->port.func.free_func = acm_free_func;
+<<<<<<< HEAD
+=======
+	acm->port.func.resume = acm_resume;
+	acm->port.func.suspend = acm_suspend;
+>>>>>>> upstream/android-13
 
 	return &acm->port.func;
 }
@@ -821,6 +869,27 @@ static struct configfs_item_operations acm_item_ops = {
 	.release                = acm_attr_release,
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_U_SERIAL_CONSOLE
+
+static ssize_t f_acm_console_store(struct config_item *item,
+		const char *page, size_t count)
+{
+	return gserial_set_console(to_f_serial_opts(item)->port_num,
+				   page, count);
+}
+
+static ssize_t f_acm_console_show(struct config_item *item, char *page)
+{
+	return gserial_get_console(to_f_serial_opts(item)->port_num, page);
+}
+
+CONFIGFS_ATTR(f_acm_, console);
+
+#endif /* CONFIG_U_SERIAL_CONSOLE */
+
+>>>>>>> upstream/android-13
 static ssize_t f_acm_port_num_show(struct config_item *item, char *page)
 {
 	return sprintf(page, "%u\n", to_f_serial_opts(item)->port_num);
@@ -829,6 +898,12 @@ static ssize_t f_acm_port_num_show(struct config_item *item, char *page)
 CONFIGFS_ATTR_RO(f_acm_, port_num);
 
 static struct configfs_attribute *acm_attrs[] = {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_U_SERIAL_CONSOLE
+	&f_acm_attr_console,
+#endif
+>>>>>>> upstream/android-13
 	&f_acm_attr_port_num,
 	NULL,
 };
@@ -862,9 +937,12 @@ static struct usb_function_instance *acm_alloc_instance(void)
 		kfree(opts);
 		return ERR_PTR(ret);
 	}
+<<<<<<< HEAD
 
 	pr_info("%s opts->port_num=%d\n", __func__, opts->port_num);
 
+=======
+>>>>>>> upstream/android-13
 	config_group_init_type_name(&opts->func_inst.group, "",
 			&acm_func_type);
 	return &opts->func_inst;

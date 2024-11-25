@@ -60,7 +60,10 @@ enum {
 #define WLAN_STA_HT BIT(11)
 #define WLAN_STA_WPS BIT(12)
 #define WLAN_STA_MAYBE_WPS BIT(13)
+<<<<<<< HEAD
 #define WLAN_STA_VHT BIT(14)
+=======
+>>>>>>> upstream/android-13
 #define WLAN_STA_NONERP BIT(31)
 
 #define IEEE_CMD_SET_WPA_PARAM			1
@@ -98,8 +101,13 @@ enum {
 
 
 #define WPA_SELECTOR_LEN 4
+<<<<<<< HEAD
 extern u8 RTW_WPA_OUI_TYPE[] ;
 extern u16 RTW_WPA_VERSION ;
+=======
+extern u8 RTW_WPA_OUI_TYPE[];
+extern u16 RTW_WPA_VERSION;
+>>>>>>> upstream/android-13
 extern u8 WPA_AUTH_KEY_MGMT_NONE[];
 extern u8 WPA_AUTH_KEY_MGMT_UNSPEC_802_1X[];
 extern u8 WPA_AUTH_KEY_MGMT_PSK_OVER_802_1X[];
@@ -125,7 +133,11 @@ extern u8 RSN_CIPHER_SUITE_CCMP[];
 extern u8 RSN_CIPHER_SUITE_WEP104[];
 
 
+<<<<<<< HEAD
 typedef enum _RATEID_IDX_ {
+=======
+enum {
+>>>>>>> upstream/android-13
 	RATEID_IDX_BGN_40M_2SS = 0,
 	RATEID_IDX_BGN_40M_1SS = 1,
 	RATEID_IDX_BGN_20M_2SS_BN = 2,
@@ -135,6 +147,7 @@ typedef enum _RATEID_IDX_ {
 	RATEID_IDX_BG = 6,
 	RATEID_IDX_G = 7,
 	RATEID_IDX_B = 8,
+<<<<<<< HEAD
 	RATEID_IDX_VHT_2SS = 9,
 	RATEID_IDX_VHT_1SS = 10,
 } RATEID_IDX, *PRATEID_IDX;
@@ -154,20 +167,31 @@ typedef enum _RATR_TABLE_MODE{
 
 enum NETWORK_TYPE
 {
+=======
+};
+
+enum network_type {
+>>>>>>> upstream/android-13
 	WIRELESS_INVALID = 0,
 	/* Sub-Element */
 	WIRELESS_11B = BIT(0), /*  tx: cck only , rx: cck only, hw: cck */
 	WIRELESS_11G = BIT(1), /*  tx: ofdm only, rx: ofdm & cck, hw: cck & ofdm */
+<<<<<<< HEAD
 	WIRELESS_11A = BIT(2), /*  tx: ofdm only, rx: ofdm only, hw: ofdm only */
 	WIRELESS_11_24N = BIT(3), /*  tx: MCS only, rx: MCS & cck, hw: MCS & cck */
 	WIRELESS_11_5N = BIT(4), /*  tx: MCS only, rx: MCS & ofdm, hw: ofdm only */
 	WIRELESS_AUTO = BIT(5),
 	WIRELESS_11AC = BIT(6),
+=======
+	WIRELESS_11_24N = BIT(3), /*  tx: MCS only, rx: MCS & cck, hw: MCS & cck */
+	WIRELESS_AUTO = BIT(5),
+>>>>>>> upstream/android-13
 
 	/* Combination */
 	/* Type for current wireless mode */
 	WIRELESS_11BG = (WIRELESS_11B|WIRELESS_11G), /*  tx: cck & ofdm, rx: cck & ofdm & MCS, hw: cck & ofdm */
 	WIRELESS_11G_24N = (WIRELESS_11G|WIRELESS_11_24N), /*  tx: ofdm & MCS, rx: ofdm & cck & MCS, hw: cck & ofdm */
+<<<<<<< HEAD
 	WIRELESS_11A_5N = (WIRELESS_11A|WIRELESS_11_5N), /*  tx: ofdm & MCS, rx: ofdm & MCS, hw: ofdm only */
 	WIRELESS_11B_24N = (WIRELESS_11B|WIRELESS_11_24N), /*  tx: ofdm & cck & MCS, rx: ofdm & cck & MCS, hw: ofdm & cck */
 	WIRELESS_11BG_24N = (WIRELESS_11B|WIRELESS_11G|WIRELESS_11_24N), /*  tx: ofdm & cck & MCS, rx: ofdm & cck & MCS, hw: ofdm & cck */
@@ -180,10 +204,15 @@ enum NETWORK_TYPE
 	WIRELESS_11ABGN = (WIRELESS_11A|WIRELESS_11B|WIRELESS_11G|WIRELESS_11_24N|WIRELESS_11_5N),
 	WIRELESS_MODE_24G = (WIRELESS_11B|WIRELESS_11G|WIRELESS_11_24N|WIRELESS_11AC),
 	WIRELESS_MODE_MAX = (WIRELESS_11A|WIRELESS_11B|WIRELESS_11G|WIRELESS_11_24N|WIRELESS_11_5N|WIRELESS_11AC),
+=======
+	WIRELESS_11B_24N = (WIRELESS_11B|WIRELESS_11_24N), /*  tx: ofdm & cck & MCS, rx: ofdm & cck & MCS, hw: ofdm & cck */
+	WIRELESS_11BG_24N = (WIRELESS_11B|WIRELESS_11G|WIRELESS_11_24N), /*  tx: ofdm & cck & MCS, rx: ofdm & cck & MCS, hw: ofdm & cck */
+>>>>>>> upstream/android-13
 };
 
 #define SUPPORTED_24G_NETTYPE_MSK (WIRELESS_11B | WIRELESS_11G | WIRELESS_11_24N)
 
+<<<<<<< HEAD
 #define IsLegacyOnly(NetType)  ((NetType) == ((NetType) & (WIRELESS_11BG|WIRELESS_11A)))
 
 #define IsSupported24G(NetType) ((NetType) & SUPPORTED_24G_NETTYPE_MSK ? true : false)
@@ -203,6 +232,16 @@ enum NETWORK_TYPE
 
 
 typedef struct ieee_param {
+=======
+#define is_legacy_only(net_type)  ((net_type) == ((net_type) & (WIRELESS_11BG)))
+
+#define is_supported_24g(net_type) ((net_type) & SUPPORTED_24G_NETTYPE_MSK ? true : false)
+
+#define is_supported_tx_cck(net_type) (((net_type) & (WIRELESS_11B)) ? true : false)
+#define is_supported_ht(net_type) (((net_type) & (WIRELESS_11_24N)) ? true : false)
+
+struct ieee_param {
+>>>>>>> upstream/android-13
 	u32 cmd;
 	u8 sta_addr[ETH_ALEN];
 	union {
@@ -233,13 +272,18 @@ typedef struct ieee_param {
 			u16 capability;
 			int flags;
 			u8 tx_supp_rates[16];
+<<<<<<< HEAD
 			struct rtw_ieee80211_ht_cap ht_cap;
+=======
+			struct ieee80211_ht_cap ht_cap;
+>>>>>>> upstream/android-13
 		} add_sta;
 		struct {
 			u8 reserved[2];/* for set max_num_sta */
 			u8 buf[0];
 		} bcn_ie;
 	} u;
+<<<<<<< HEAD
 }ieee_param;
 
 typedef struct ieee_param_ex {
@@ -249,13 +293,28 @@ typedef struct ieee_param_ex {
 }ieee_param_ex;
 
 struct sta_data{
+=======
+};
+
+struct ieee_param_ex {
+	u32 cmd;
+	u8 sta_addr[ETH_ALEN];
+	u8 data[0];
+};
+
+struct sta_data {
+>>>>>>> upstream/android-13
 	u16 aid;
 	u16 capability;
 	int flags;
 	u32 sta_set;
 	u8 tx_supp_rates[16];
 	u32 tx_supp_rates_len;
+<<<<<<< HEAD
 	struct rtw_ieee80211_ht_cap ht_cap;
+=======
+	struct ieee80211_ht_cap ht_cap;
+>>>>>>> upstream/android-13
 	u64	rx_pkts;
 	u64	rx_bytes;
 	u64	rx_drops;
@@ -267,6 +326,7 @@ struct sta_data{
 /* this is stolen from ipw2200 driver */
 #define IEEE_IBSS_MAC_HASH_SIZE 31
 
+<<<<<<< HEAD
 struct ieee_ibss_seq {
 	u8 mac[ETH_ALEN];
 	u16 seq_num;
@@ -275,6 +335,8 @@ struct ieee_ibss_seq {
 	struct list_head	list;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct eapol {
 	u8 snap[6];
 	u16 ethertype;
@@ -283,6 +345,7 @@ struct eapol {
 	u16 length;
 } __attribute__ ((packed));
 
+<<<<<<< HEAD
 enum eap_type {
 	EAP_PACKET = 0,
 	EAPOL_START,
@@ -291,6 +354,8 @@ enum eap_type {
 	EAPOL_ENCAP_ASF_ALERT
 };
 
+=======
+>>>>>>> upstream/android-13
 #define IEEE80211_FCS_LEN    4
 
 #define MIN_FRAG_THRESHOLD     256U
@@ -344,6 +409,7 @@ struct ieee80211_snap_hdr {
 #define WLAN_GET_SEQ_FRAG(seq) ((seq) & RTW_IEEE80211_SCTL_FRAG)
 #define WLAN_GET_SEQ_SEQ(seq)  ((seq) & RTW_IEEE80211_SCTL_SEQ)
 
+<<<<<<< HEAD
 /* Authentication algorithms */
 #define WLAN_CAPABILITY_BSS (1<<0)
 #define WLAN_CAPABILITY_SHORT_SLOT (1<<10)
@@ -351,11 +417,14 @@ struct ieee80211_snap_hdr {
 /* 802.11b */
 #define WLAN_STATUS_ASSOC_DENIED_NOSHORT 19
 
+=======
+>>>>>>> upstream/android-13
 /* Reason codes */
 #define WLAN_REASON_ACTIVE_ROAM 65533
 #define WLAN_REASON_JOIN_WRONG_CHANNEL       65534
 #define WLAN_REASON_EXPIRATION_CHK 65535
 
+<<<<<<< HEAD
 /* EIDs defined by IEEE 802.11h - END */
 #define WLAN_EID_HT_CAP 45
 #define WLAN_EID_20_40_BSS_COEXISTENCE 72
@@ -364,6 +433,8 @@ struct ieee80211_snap_hdr {
 #define WLAN_EID_GENERIC (WLAN_EID_VENDOR_SPECIFIC)
 #define WLAN_EID_VHT_OP_MODE_NOTIFY 199
 
+=======
+>>>>>>> upstream/android-13
 #define IEEE80211_MGMT_HDR_LEN 24
 #define IEEE80211_DATA_HDR3_LEN 24
 #define IEEE80211_DATA_HDR4_LEN 30
@@ -439,7 +510,11 @@ struct ieee80211_snap_hdr {
 #define IEEE80211_OFDM_SHIFT_MASK_A         4
 
 
+<<<<<<< HEAD
 enum MGN_RATE{
+=======
+enum {
+>>>>>>> upstream/android-13
 	MGN_1M		= 0x02,
 	MGN_2M		= 0x04,
 	MGN_5_5M	= 0x0B,
@@ -461,6 +536,7 @@ enum MGN_RATE{
 	MGN_MCS5,
 	MGN_MCS6,
 	MGN_MCS7,
+<<<<<<< HEAD
 	MGN_MCS8,
 	MGN_MCS9,
 	MGN_MCS10,
@@ -525,11 +601,16 @@ enum MGN_RATE{
 	MGN_VHT4SS_MCS7,
 	MGN_VHT4SS_MCS8,
 	MGN_VHT4SS_MCS9,
+=======
+>>>>>>> upstream/android-13
 	MGN_UNKNOWN
 };
 
 #define IS_HT_RATE(_rate)				(_rate >= MGN_MCS0 && _rate <= MGN_MCS31)
+<<<<<<< HEAD
 #define IS_VHT_RATE(_rate)				(_rate >= MGN_VHT1SS_MCS0 && _rate <= MGN_VHT4SS_MCS9)
+=======
+>>>>>>> upstream/android-13
 #define IS_CCK_RATE(_rate)				(MGN_1M == _rate || _rate == MGN_2M || _rate == MGN_5_5M || _rate == MGN_11M)
 #define IS_OFDM_RATE(_rate)				(MGN_6M <= _rate && _rate <= MGN_54M  && _rate != MGN_11M)
 
@@ -537,6 +618,7 @@ enum MGN_RATE{
 /* NOTE: This data is for statistical purposes; not all hardware provides this
  *       information for frames received.  Not setting these will not cause
  *       any adverse affects. */
+<<<<<<< HEAD
 struct ieee80211_rx_stats {
 	s8 rssi;
 	u8 signal;
@@ -547,6 +629,8 @@ struct ieee80211_rx_stats {
 	u8 freq;
 	u16 len;
 };
+=======
+>>>>>>> upstream/android-13
 
 /* IEEE 802.11 requires that STA supports concurrent reception of at least
  * three fragmented frames. This define can be increased to support more
@@ -554,6 +638,7 @@ struct ieee80211_rx_stats {
  * 2 kB of RAM and increasing cache size will slow down frame reassembly. */
 #define IEEE80211_FRAG_CACHE_LEN 4
 
+<<<<<<< HEAD
 struct ieee80211_frag_entry {
 	u32 first_frag_time;
 	uint seq;
@@ -609,6 +694,8 @@ struct ieee80211_softmac_stats {
 	uint swtxawake;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define SEC_KEY_1         (1<<0)
 #define SEC_KEY_2         (1<<1)
 #define SEC_KEY_3         (1<<2)
@@ -631,6 +718,7 @@ struct ieee80211_softmac_stats {
 #define BIP_MAX_KEYID 5
 #define BIP_AAD_SIZE  20
 
+<<<<<<< HEAD
 struct ieee80211_security {
 	u16 active_key:2,
             enabled:1,
@@ -643,6 +731,8 @@ struct ieee80211_security {
 	u16 flags;
 } __attribute__ ((packed));
 
+=======
+>>>>>>> upstream/android-13
 /*
 
  802.11 data frame from AP
@@ -658,6 +748,7 @@ Total: 28-2340 bytes
 
 */
 
+<<<<<<< HEAD
 struct ieee80211_header_data {
 	u16 frame_ctl;
 	u16 duration_id;
@@ -667,6 +758,8 @@ struct ieee80211_header_data {
 	u16 seq_ctrl;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define BEACON_PROBE_SSID_ID_POSITION 12
 
 /* Management Frame Information Element Types */
@@ -683,6 +776,7 @@ struct ieee80211_header_data {
 #define MFIE_TYPE_RATES_EX   50
 #define MFIE_TYPE_GENERIC    221
 
+<<<<<<< HEAD
 struct ieee80211_info_element_hdr {
 	u8 id;
 	u8 len;
@@ -762,6 +856,8 @@ struct ieee80211_txb {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 /* SWEEP TABLE ENTRIES NUMBER*/
 #define MAX_SWEEP_TAB_ENTRIES		  42
 #define MAX_SWEEP_TAB_ENTRIES_PER_PACKET  7
@@ -804,6 +900,7 @@ join_res:
 > 0: TID
 */
 
+<<<<<<< HEAD
 enum ieee80211_state {
 
 	/* the card is not linked at all */
@@ -848,6 +945,11 @@ enum ieee80211_state {
 #define MAC_FMT "%pM"
 #define MAC_ARG(x) (x)
 #define IP_FMT "%pI4"
+=======
+#define DEFAULT_MAX_SCAN_AGE (15 * HZ)
+#define DEFAULT_FTS 2346
+#define MAC_ARG(x) (x)
+>>>>>>> upstream/android-13
 #define IP_ARG(x) (x)
 
 static inline int is_multicast_mac_addr(const u8 *addr)
@@ -870,6 +972,7 @@ static inline int is_zero_mac_addr(const u8 *addr)
 #define CFG_IEEE80211_RESERVE_FCS (1<<0)
 #define CFG_IEEE80211_COMPUTE_FCS (1<<1)
 
+<<<<<<< HEAD
 typedef struct tx_pending_t{
 	int frag;
 	struct ieee80211_txb *txb;
@@ -877,6 +980,8 @@ typedef struct tx_pending_t{
 
 
 
+=======
+>>>>>>> upstream/android-13
 #define MAXTID	16
 
 #define IEEE_A            (1<<0)
@@ -885,7 +990,11 @@ typedef struct tx_pending_t{
 #define IEEE_MODE_MASK    (IEEE_A|IEEE_B|IEEE_G)
 
 /* Action category code */
+<<<<<<< HEAD
 enum rtw_ieee80211_category {
+=======
+enum {
+>>>>>>> upstream/android-13
 	RTW_WLAN_CATEGORY_SPECTRUM_MGMT = 0,
 	RTW_WLAN_CATEGORY_QOS = 1,
 	RTW_WLAN_CATEGORY_DLS = 2,
@@ -899,6 +1008,7 @@ enum rtw_ieee80211_category {
 	RTW_WLAN_CATEGORY_TDLS = 12,
 	RTW_WLAN_CATEGORY_SELF_PROTECTED = 15, /*  add for CONFIG_IEEE80211W, none 11w also can use */
 	RTW_WLAN_CATEGORY_WMM = 17,
+<<<<<<< HEAD
 	RTW_WLAN_CATEGORY_VHT = 21,
 	RTW_WLAN_CATEGORY_P2P = 0x7f,/* P2P action frames */
 };
@@ -914,6 +1024,12 @@ enum rtw_ieee80211_spectrum_mgmt_actioncode {
 };
 
 enum _PUBLIC_ACTION{
+=======
+	RTW_WLAN_CATEGORY_P2P = 0x7f,/* P2P action frames */
+};
+
+enum {
+>>>>>>> upstream/android-13
 	ACT_PUBLIC_BSSCOEXIST = 0, /*  20/40 BSS Coexistence */
 	ACT_PUBLIC_DSE_ENABLE = 1,
 	ACT_PUBLIC_DSE_DEENABLE = 2,
@@ -933,6 +1049,7 @@ enum _PUBLIC_ACTION{
 	ACT_PUBLIC_MAX
 };
 
+<<<<<<< HEAD
 /* BACK action code */
 enum rtw_ieee80211_back_actioncode {
 	RTW_WLAN_ACTION_ADDBA_REQ = 0,
@@ -967,6 +1084,8 @@ enum rtw_ieee80211_vht_actioncode{
 };
 
 
+=======
+>>>>>>> upstream/android-13
 #define OUI_MICROSOFT 0x0050f2 /* Microsoft (also used in Wi-Fi specs)
 				* 00:50:F2 */
 #define WME_OUI_TYPE 2
@@ -1116,13 +1235,20 @@ struct rtw_ieee802_11_elems {
 	u8 vht_op_mode_notify_len;
 };
 
+<<<<<<< HEAD
 typedef enum { ParseOK = 0, ParseUnknown = 1, ParseFailed = -1 } ParseRes;
 
 ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
+=======
+enum ParseRes { ParseOK = 0, ParseUnknown = 1, ParseFailed = -1 };
+
+enum ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
+>>>>>>> upstream/android-13
 				struct rtw_ieee802_11_elems *elems,
 				int show_errors);
 
 u8 *rtw_set_fixed_ie(unsigned char *pbuf, unsigned int len, unsigned char *source, unsigned int *frlen);
+<<<<<<< HEAD
 u8 *rtw_set_ie(u8 *pbuf, sint index, uint len, u8 *source, uint *frlen);
 
 enum secondary_ch_offset {
@@ -1136,6 +1262,15 @@ u8 *rtw_get_ie_ex(u8 *in_ie, uint in_len, u8 eid, u8 *oui, u8 oui_len, u8 *ie, u
 int rtw_ies_remove_ie(u8 *ies, uint *ies_len, uint offset, u8 eid, u8 *oui, u8 oui_len);
 
 void rtw_set_supported_rate(u8 *SupportedRates, uint mode) ;
+=======
+u8 *rtw_set_ie(u8 *pbuf, signed int index, uint len, u8 *source, uint *frlen);
+
+u8 *rtw_get_ie(u8 *pbuf, signed int index, signed int *len, signed int limit);
+u8 *rtw_get_ie_ex(u8 *in_ie, uint in_len, u8 eid, u8 *oui, u8 oui_len, u8 *ie, uint *ielen);
+int rtw_ies_remove_ie(u8 *ies, uint *ies_len, uint offset, u8 eid, u8 *oui, u8 oui_len);
+
+void rtw_set_supported_rate(u8 *SupportedRates, uint mode);
+>>>>>>> upstream/android-13
 
 unsigned char *rtw_get_wpa_ie(unsigned char *pie, int *wpa_ie_len, int limit);
 unsigned char *rtw_get_wpa2_ie(unsigned char *pie, int *rsn_ie_len, int limit);
@@ -1145,12 +1280,21 @@ int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len);
 int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwise_cipher, int *is_8021x);
 int rtw_parse_wpa2_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwise_cipher, int *is_8021x);
 
+<<<<<<< HEAD
 int rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie, u16 *wpa_len);
 
 u8 rtw_is_wps_ie(u8 *ie_ptr, uint *wps_ielen);
 u8 *rtw_get_wps_ie(u8 *in_ie, uint in_len, u8 *wps_ie, uint *wps_ielen);
 u8 *rtw_get_wps_attr(u8 *wps_ie, uint wps_ielen, u16 target_attr_id , u8 *buf_attr, u32 *len_attr);
 u8 *rtw_get_wps_attr_content(u8 *wps_ie, uint wps_ielen, u16 target_attr_id , u8 *buf_content, uint *len_content);
+=======
+void rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie, u16 *wpa_len);
+
+u8 rtw_is_wps_ie(u8 *ie_ptr, uint *wps_ielen);
+u8 *rtw_get_wps_ie(u8 *in_ie, uint in_len, u8 *wps_ie, uint *wps_ielen);
+u8 *rtw_get_wps_attr(u8 *wps_ie, uint wps_ielen, u16 target_attr_id, u8 *buf_attr, u32 *len_attr);
+u8 *rtw_get_wps_attr_content(u8 *wps_ie, uint wps_ielen, u16 target_attr_id, u8 *buf_content, uint *len_content);
+>>>>>>> upstream/android-13
 
 /**
  * for_each_ie - iterate over continuous IEs
@@ -1159,7 +1303,12 @@ u8 *rtw_get_wps_attr_content(u8 *wps_ie, uint wps_ielen, u16 target_attr_id , u8
  * @buf_len:
  */
 #define for_each_ie(ie, buf, buf_len) \
+<<<<<<< HEAD
 	for (ie = (void*)buf; (((u8 *)ie) - ((u8 *)buf) + 1) < buf_len; ie = (void*)(((u8 *)ie) + *(((u8 *)ie)+1) + 2))
+=======
+	for (ie = (void *)buf; (((u8 *)ie) - ((u8 *)buf) + 1) < buf_len; \
+		ie = (void *)(((u8 *)ie) + *(((u8 *)ie) + 1) + 2))
+>>>>>>> upstream/android-13
 
 uint	rtw_get_rateset_len(u8 *rateset);
 
@@ -1179,7 +1328,11 @@ void rtw_get_bcn_info(struct wlan_network *pnetwork);
 
 void rtw_macaddr_cfg(struct device *dev, u8 *mac_addr);
 
+<<<<<<< HEAD
 u16 rtw_mcs_rate(u8 rf_type, u8 bw_40MHz, u8 short_GI, unsigned char * MCS_rate);
+=======
+u16 rtw_mcs_rate(u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate);
+>>>>>>> upstream/android-13
 
 int rtw_action_frame_parse(const u8 *frame, u32 frame_len, u8 *category, u8 *action);
 const char *action_public_str(u8 action);

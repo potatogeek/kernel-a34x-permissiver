@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for the NXP SAA7164 PCIe bridge
  *
  *  Copyright (c) 2010-2015 Steven Toth <stoth@kernellabs.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/wait.h>
@@ -559,9 +566,12 @@ int saa7164_cmd_send(struct saa7164_dev *dev, u8 id, enum tmComResCmd command,
 		/* See of other commands are on the bus */
 		if (saa7164_cmd_dequeue(dev) != SAA_OK)
 			printk(KERN_ERR "dequeue(3) failed\n");
+<<<<<<< HEAD
 
 		continue;
 
+=======
+>>>>>>> upstream/android-13
 	} /* (loop) */
 
 	/* Release the sequence number allocation */

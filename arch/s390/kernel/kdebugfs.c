@@ -9,8 +9,11 @@ EXPORT_SYMBOL(arch_debugfs_dir);
 static int __init arch_kdebugfs_init(void)
 {
 	arch_debugfs_dir = debugfs_create_dir("s390", NULL);
+<<<<<<< HEAD
 	if (IS_ERR(arch_debugfs_dir))
 		arch_debugfs_dir = NULL;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 postcore_initcall(arch_kdebugfs_init);

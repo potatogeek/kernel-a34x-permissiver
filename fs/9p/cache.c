@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * V9FS cache definitions.
  *
  *  Copyright (C) 2009 by Abhishek Kulkarni <adkulkar@umail.iu.edu>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -18,6 +23,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/jiffies.h>
@@ -38,7 +45,11 @@ struct fscache_netfs v9fs_cache_netfs = {
 	.version 	= 0,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * v9fs_random_cachetag - Generate a random tag to be associated
  *			  with a new cache session.
  *
@@ -248,7 +259,11 @@ static void v9fs_vfs_readpage_complete(struct page *page, void *data,
 	unlock_page(page);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __v9fs_readpage_from_fscache - read a page from cache
  *
  * Returns 0 if the pages are in cache and a BIO is submitted,
@@ -283,7 +298,11 @@ int __v9fs_readpage_from_fscache(struct inode *inode, struct page *page)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __v9fs_readpages_from_fscache - read multiple pages from cache
  *
  * Returns 0 if the pages are in cache and a BIO is submitted,
@@ -323,7 +342,11 @@ int __v9fs_readpages_from_fscache(struct inode *inode,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __v9fs_readpage_to_fscache - write a page to the cache
  *
  */

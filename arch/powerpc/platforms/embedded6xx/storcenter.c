@@ -66,13 +66,24 @@ static int __init storcenter_add_bridge(struct device_node *dev)
 
 static void __init storcenter_setup_arch(void)
 {
+<<<<<<< HEAD
+=======
+	printk(KERN_INFO "IOMEGA StorCenter\n");
+}
+
+static void __init storcenter_setup_pci(void)
+{
+>>>>>>> upstream/android-13
 	struct device_node *np;
 
 	/* Lookup PCI host bridges */
 	for_each_compatible_node(np, "pci", "mpc10x-pci")
 		storcenter_add_bridge(np);
+<<<<<<< HEAD
 
 	printk(KERN_INFO "IOMEGA StorCenter\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -101,7 +112,12 @@ static void __noreturn storcenter_restart(char *cmd)
 	local_irq_disable();
 
 	/* Set exception prefix high - to the firmware */
+<<<<<<< HEAD
 	_nmask_and_or_msr(0, MSR_IP);
+=======
+	mtmsr(mfmsr() | MSR_IP);
+	isync();
+>>>>>>> upstream/android-13
 
 	/* Wait for reset to happen */
 	for (;;) ;
@@ -116,6 +132,10 @@ define_machine(storcenter){
 	.name 			= "IOMEGA StorCenter",
 	.probe 			= storcenter_probe,
 	.setup_arch 		= storcenter_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs 		= storcenter_setup_pci,
+>>>>>>> upstream/android-13
 	.init_IRQ 		= storcenter_init_IRQ,
 	.get_irq 		= mpic_get_irq,
 	.restart 		= storcenter_restart,

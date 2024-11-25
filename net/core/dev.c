@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *      NET3    Protocol independent device support routines.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *      NET3    Protocol independent device support routines.
+ *
+>>>>>>> upstream/android-13
  *	Derived from the non IP parts of dev.c 1.0.19
  *              Authors:	Ross Biro
  *				Fred N. van Kempen, <waltje@uWalt.NL.Mugnet.ORG>
@@ -95,6 +102,10 @@
 #include <linux/etherdevice.h>
 #include <linux/ethtool.h>
 #include <linux/skbuff.h>
+<<<<<<< HEAD
+=======
+#include <linux/kthread.h>
+>>>>>>> upstream/android-13
 #include <linux/bpf.h>
 #include <linux/bpf_trace.h>
 #include <net/net_namespace.h>
@@ -102,8 +113,15 @@
 #include <net/busy_poll.h>
 #include <linux/rtnetlink.h>
 #include <linux/stat.h>
+<<<<<<< HEAD
 #include <net/dst.h>
 #include <net/dst_metadata.h>
+=======
+#include <net/dsa.h>
+#include <net/dst.h>
+#include <net/dst_metadata.h>
+#include <net/gro.h>
+>>>>>>> upstream/android-13
 #include <net/pkt_sched.h>
 #include <net/pkt_cls.h>
 #include <net/checksum.h>
@@ -132,7 +150,11 @@
 #include <trace/events/napi.h>
 #include <trace/events/net.h>
 #include <trace/events/skb.h>
+<<<<<<< HEAD
 #include <linux/pci.h>
+=======
+#include <trace/events/qdisc.h>
+>>>>>>> upstream/android-13
 #include <linux/inetdevice.h>
 #include <linux/cpu_rmap.h>
 #include <linux/static_key.h>
@@ -146,11 +168,23 @@
 #include <linux/sctp.h>
 #include <net/udp_tunnel.h>
 #include <linux/net_namespace.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+#include <net/devlink.h>
+#include <linux/pm_runtime.h>
+#include <linux/prandom.h>
+#include <linux/once_lite.h>
+#include <trace/hooks/net.h>
+>>>>>>> upstream/android-13
 
 #include "net-sysfs.h"
 
 #define MAX_GRO_SKBS 8
+<<<<<<< HEAD
 #define MAX_NEST_DEV 8
+=======
+>>>>>>> upstream/android-13
 
 /* This should be increased if a protocol with a bigger head is added. */
 #define GRO_MAX_HEAD (MAX_HEADER + 128)
@@ -164,6 +198,12 @@ static struct list_head offload_base __read_mostly;
 static int netif_rx_internal(struct sk_buff *skb);
 static int call_netdevice_notifiers_info(unsigned long val,
 					 struct netdev_notifier_info *info);
+<<<<<<< HEAD
+=======
+static int call_netdevice_notifiers_extack(unsigned long val,
+					   struct net_device *dev,
+					   struct netlink_ext_ack *extack);
+>>>>>>> upstream/android-13
 static struct napi_struct *napi_by_id(unsigned int napi_id);
 
 /*
@@ -230,6 +270,131 @@ static inline void rps_unlock(struct softnet_data *sd)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static struct netdev_name_node *netdev_name_node_alloc(struct net_device *dev,
+						       const char *name)
+{
+	struct netdev_name_node *name_node;
+
+	name_node = kmalloc(sizeof(*name_node), GFP_KERNEL);
+	if (!name_node)
+		return NULL;
+	INIT_HLIST_NODE(&name_node->hlist);
+	name_node->dev = dev;
+	name_node->name = name;
+	return name_node;
+}
+
+static struct netdev_name_node *
+netdev_name_node_head_alloc(struct net_device *dev)
+{
+	struct netdev_name_node *name_node;
+
+	name_node = netdev_name_node_alloc(dev, dev->name);
+	if (!name_node)
+		return NULL;
+	INIT_LIST_HEAD(&name_node->list);
+	return name_node;
+}
+
+static void netdev_name_node_free(struct netdev_name_node *name_node)
+{
+	kfree(name_node);
+}
+
+static void netdev_name_node_add(struct net *net,
+				 struct netdev_name_node *name_node)
+{
+	hlist_add_head_rcu(&name_node->hlist,
+			   dev_name_hash(net, name_node->name));
+}
+
+static void netdev_name_node_del(struct netdev_name_node *name_node)
+{
+	hlist_del_rcu(&name_node->hlist);
+}
+
+static struct netdev_name_node *netdev_name_node_lookup(struct net *net,
+							const char *name)
+{
+	struct hlist_head *head = dev_name_hash(net, name);
+	struct netdev_name_node *name_node;
+
+	hlist_for_each_entry(name_node, head, hlist)
+		if (!strcmp(name_node->name, name))
+			return name_node;
+	return NULL;
+}
+
+static struct netdev_name_node *netdev_name_node_lookup_rcu(struct net *net,
+							    const char *name)
+{
+	struct hlist_head *head = dev_name_hash(net, name);
+	struct netdev_name_node *name_node;
+
+	hlist_for_each_entry_rcu(name_node, head, hlist)
+		if (!strcmp(name_node->name, name))
+			return name_node;
+	return NULL;
+}
+
+int netdev_name_node_alt_create(struct net_device *dev, const char *name)
+{
+	struct netdev_name_node *name_node;
+	struct net *net = dev_net(dev);
+
+	name_node = netdev_name_node_lookup(net, name);
+	if (name_node)
+		return -EEXIST;
+	name_node = netdev_name_node_alloc(dev, name);
+	if (!name_node)
+		return -ENOMEM;
+	netdev_name_node_add(net, name_node);
+	/* The node that holds dev->name acts as a head of per-device list. */
+	list_add_tail(&name_node->list, &dev->name_node->list);
+
+	return 0;
+}
+EXPORT_SYMBOL(netdev_name_node_alt_create);
+
+static void __netdev_name_node_alt_destroy(struct netdev_name_node *name_node)
+{
+	list_del(&name_node->list);
+	netdev_name_node_del(name_node);
+	kfree(name_node->name);
+	netdev_name_node_free(name_node);
+}
+
+int netdev_name_node_alt_destroy(struct net_device *dev, const char *name)
+{
+	struct netdev_name_node *name_node;
+	struct net *net = dev_net(dev);
+
+	name_node = netdev_name_node_lookup(net, name);
+	if (!name_node)
+		return -ENOENT;
+	/* lookup might have found our primary name or a name belonging
+	 * to another device.
+	 */
+	if (name_node == dev->name_node || name_node->dev != dev)
+		return -EINVAL;
+
+	__netdev_name_node_alt_destroy(name_node);
+
+	return 0;
+}
+EXPORT_SYMBOL(netdev_name_node_alt_destroy);
+
+static void netdev_name_node_alt_flush(struct net_device *dev)
+{
+	struct netdev_name_node *name_node, *tmp;
+
+	list_for_each_entry_safe(name_node, tmp, &dev->name_node->list, list)
+		__netdev_name_node_alt_destroy(name_node);
+}
+
+>>>>>>> upstream/android-13
 /* Device list insertion */
 static void list_netdevice(struct net_device *dev)
 {
@@ -239,7 +404,11 @@ static void list_netdevice(struct net_device *dev)
 
 	write_lock_bh(&dev_base_lock);
 	list_add_tail_rcu(&dev->dev_list, &net->dev_base_head);
+<<<<<<< HEAD
 	hlist_add_head_rcu(&dev->name_hlist, dev_name_hash(net, dev->name));
+=======
+	netdev_name_node_add(net, dev->name_node);
+>>>>>>> upstream/android-13
 	hlist_add_head_rcu(&dev->index_hlist,
 			   dev_index_hash(net, dev->ifindex));
 	write_unlock_bh(&dev_base_lock);
@@ -257,7 +426,11 @@ static void unlist_netdevice(struct net_device *dev)
 	/* Unlink dev from the device chain */
 	write_lock_bh(&dev_base_lock);
 	list_del_rcu(&dev->dev_list);
+<<<<<<< HEAD
 	hlist_del_rcu(&dev->name_hlist);
+=======
+	netdev_name_node_del(dev->name_node);
+>>>>>>> upstream/android-13
 	hlist_del_rcu(&dev->index_hlist);
 	write_unlock_bh(&dev_base_lock);
 
@@ -355,6 +528,10 @@ static inline void netdev_set_xmit_lockdep_class(spinlock_t *lock,
 						 unsigned short dev_type)
 {
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static inline void netdev_set_addr_lockdep_class(struct net_device *dev)
 {
 }
@@ -385,6 +562,15 @@ static inline void netdev_set_addr_lockdep_class(struct net_device *dev)
 
 static inline struct list_head *ptype_head(const struct packet_type *pt)
 {
+<<<<<<< HEAD
+=======
+	struct list_head vendor_pt = { .next  = NULL, };
+
+	trace_android_vh_ptype_head(pt, &vendor_pt);
+	if (vendor_pt.next)
+		return vendor_pt.next;
+
+>>>>>>> upstream/android-13
 	if (pt->type == htons(ETH_P_ALL))
 		return pt->dev ? &pt->dev->ptype_all : &ptype_all;
 	else
@@ -547,6 +733,7 @@ void dev_remove_offload(struct packet_offload *po)
 }
 EXPORT_SYMBOL(dev_remove_offload);
 
+<<<<<<< HEAD
 /******************************************************************************
  *
  *		      Device Boot-time Settings Routines
@@ -672,6 +859,8 @@ int __init netdev_boot_setup(char *str)
 
 __setup("netdev=", netdev_boot_setup);
 
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  *			    Device Interface Subroutines
@@ -721,6 +910,55 @@ int dev_fill_metadata_dst(struct net_device *dev, struct sk_buff *skb)
 }
 EXPORT_SYMBOL_GPL(dev_fill_metadata_dst);
 
+<<<<<<< HEAD
+=======
+static struct net_device_path *dev_fwd_path(struct net_device_path_stack *stack)
+{
+	int k = stack->num_paths++;
+
+	if (WARN_ON_ONCE(k >= NET_DEVICE_PATH_STACK_MAX))
+		return NULL;
+
+	return &stack->path[k];
+}
+
+int dev_fill_forward_path(const struct net_device *dev, const u8 *daddr,
+			  struct net_device_path_stack *stack)
+{
+	const struct net_device *last_dev;
+	struct net_device_path_ctx ctx = {
+		.dev	= dev,
+	};
+	struct net_device_path *path;
+	int ret = 0;
+
+	memcpy(ctx.daddr, daddr, sizeof(ctx.daddr));
+	stack->num_paths = 0;
+	while (ctx.dev && ctx.dev->netdev_ops->ndo_fill_forward_path) {
+		last_dev = ctx.dev;
+		path = dev_fwd_path(stack);
+		if (!path)
+			return -1;
+
+		memset(path, 0, sizeof(struct net_device_path));
+		ret = ctx.dev->netdev_ops->ndo_fill_forward_path(&ctx, path);
+		if (ret < 0)
+			return -1;
+
+		if (WARN_ON_ONCE(last_dev == ctx.dev))
+			return -1;
+	}
+	path = dev_fwd_path(stack);
+	if (!path)
+		return -1;
+	path->type = DEV_PATH_ETHERNET;
+	path->dev = ctx.dev;
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(dev_fill_forward_path);
+
+>>>>>>> upstream/android-13
 /**
  *	__dev_get_by_name	- find a device by its name
  *	@net: the applicable net namespace
@@ -735,6 +973,7 @@ EXPORT_SYMBOL_GPL(dev_fill_metadata_dst);
 
 struct net_device *__dev_get_by_name(struct net *net, const char *name)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
 	struct hlist_head *head = dev_name_hash(net, name);
 
@@ -743,6 +982,12 @@ struct net_device *__dev_get_by_name(struct net *net, const char *name)
 			return dev;
 
 	return NULL;
+=======
+	struct netdev_name_node *node_name;
+
+	node_name = netdev_name_node_lookup(net, name);
+	return node_name ? node_name->dev : NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__dev_get_by_name);
 
@@ -760,6 +1005,7 @@ EXPORT_SYMBOL(__dev_get_by_name);
 
 struct net_device *dev_get_by_name_rcu(struct net *net, const char *name)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
 	struct hlist_head *head = dev_name_hash(net, name);
 
@@ -768,6 +1014,12 @@ struct net_device *dev_get_by_name_rcu(struct net *net, const char *name)
 			return dev;
 
 	return NULL;
+=======
+	struct netdev_name_node *node_name;
+
+	node_name = netdev_name_node_lookup_rcu(net, name);
+	return node_name ? node_name->dev : NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(dev_get_by_name_rcu);
 
@@ -789,8 +1041,12 @@ struct net_device *dev_get_by_name(struct net *net, const char *name)
 
 	rcu_read_lock();
 	dev = dev_get_by_name_rcu(net, name);
+<<<<<<< HEAD
 	if (dev)
 		dev_hold(dev);
+=======
+	dev_hold(dev);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return dev;
 }
@@ -863,8 +1119,12 @@ struct net_device *dev_get_by_index(struct net *net, int ifindex)
 
 	rcu_read_lock();
 	dev = dev_get_by_index_rcu(net, ifindex);
+<<<<<<< HEAD
 	if (dev)
 		dev_hold(dev);
+=======
+	dev_hold(dev);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return dev;
 }
@@ -952,6 +1212,7 @@ struct net_device *dev_getbyhwaddr_rcu(struct net *net, unsigned short type,
 }
 EXPORT_SYMBOL(dev_getbyhwaddr_rcu);
 
+<<<<<<< HEAD
 struct net_device *__dev_getfirstbyhwtype(struct net *net, unsigned short type)
 {
 	struct net_device *dev;
@@ -965,6 +1226,8 @@ struct net_device *__dev_getfirstbyhwtype(struct net *net, unsigned short type)
 }
 EXPORT_SYMBOL(__dev_getfirstbyhwtype);
 
+=======
+>>>>>>> upstream/android-13
 struct net_device *dev_getfirstbyhwtype(struct net *net, unsigned short type)
 {
 	struct net_device *dev, *ret = NULL;
@@ -1015,7 +1278,11 @@ EXPORT_SYMBOL(__dev_get_by_flags);
  *	@name: name string
  *
  *	Network device names need to be valid file names to
+<<<<<<< HEAD
  *	to allow sysfs to work.  We also disallow any kind of
+=======
+ *	allow sysfs to work.  We also disallow any kind of
+>>>>>>> upstream/android-13
  *	whitespace.
  */
 bool dev_valid_name(const char *name)
@@ -1078,6 +1345,21 @@ static int __dev_alloc_name(struct net *net, const char *name, char *buf)
 			return -ENOMEM;
 
 		for_each_netdev(net, d) {
+<<<<<<< HEAD
+=======
+			struct netdev_name_node *name_node;
+			list_for_each_entry(name_node, &d->name_node->list, list) {
+				if (!sscanf(name_node->name, name, &i))
+					continue;
+				if (i < 0 || i >= max_netdevices)
+					continue;
+
+				/*  avoid cases where sscanf is not exact inverse of printf */
+				snprintf(buf, IFNAMSIZ, name, i);
+				if (!strncmp(buf, name_node->name, IFNAMSIZ))
+					set_bit(i, inuse);
+			}
+>>>>>>> upstream/android-13
 			if (!sscanf(d->name, name, &i))
 				continue;
 			if (i < 0 || i >= max_netdevices)
@@ -1138,8 +1420,13 @@ int dev_alloc_name(struct net_device *dev, const char *name)
 }
 EXPORT_SYMBOL(dev_alloc_name);
 
+<<<<<<< HEAD
 int dev_get_valid_name(struct net *net, struct net_device *dev,
 		       const char *name)
+=======
+static int dev_get_valid_name(struct net *net, struct net_device *dev,
+			      const char *name)
+>>>>>>> upstream/android-13
 {
 	BUG_ON(!net);
 
@@ -1155,7 +1442,10 @@ int dev_get_valid_name(struct net *net, struct net_device *dev,
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(dev_get_valid_name);
+=======
+>>>>>>> upstream/android-13
 
 /**
  *	dev_change_name - change name of a device
@@ -1229,13 +1519,21 @@ rollback:
 	netdev_adjacent_rename_links(dev, oldname);
 
 	write_lock_bh(&dev_base_lock);
+<<<<<<< HEAD
 	hlist_del_rcu(&dev->name_hlist);
+=======
+	netdev_name_node_del(dev->name_node);
+>>>>>>> upstream/android-13
 	write_unlock_bh(&dev_base_lock);
 
 	synchronize_rcu();
 
 	write_lock_bh(&dev_base_lock);
+<<<<<<< HEAD
 	hlist_add_head_rcu(&dev->name_hlist, dev_name_hash(net, dev->name));
+=======
+	netdev_name_node_add(net, dev->name_node);
+>>>>>>> upstream/android-13
 	write_unlock_bh(&dev_base_lock);
 
 	ret = call_netdevice_notifiers(NETDEV_CHANGENAME, dev);
@@ -1285,8 +1583,13 @@ int dev_set_alias(struct net_device *dev, const char *alias, size_t len)
 	}
 
 	mutex_lock(&ifalias_mutex);
+<<<<<<< HEAD
 	rcu_swap_protected(dev->ifalias, new_alias,
 			   mutex_is_locked(&ifalias_mutex));
+=======
+	new_alias = rcu_replace_pointer(dev->ifalias, new_alias,
+					mutex_is_locked(&ifalias_mutex));
+>>>>>>> upstream/android-13
 	mutex_unlock(&ifalias_mutex);
 
 	if (new_alias)
@@ -1354,6 +1657,28 @@ void netdev_state_change(struct net_device *dev)
 EXPORT_SYMBOL(netdev_state_change);
 
 /**
+<<<<<<< HEAD
+=======
+ * __netdev_notify_peers - notify network peers about existence of @dev,
+ * to be called when rtnl lock is already held.
+ * @dev: network device
+ *
+ * Generate traffic such that interested network peers are aware of
+ * @dev, such as by generating a gratuitous ARP. This may be used when
+ * a device wants to inform the rest of the network about some sort of
+ * reconfiguration such as a failover event or virtual machine
+ * migration.
+ */
+void __netdev_notify_peers(struct net_device *dev)
+{
+	ASSERT_RTNL();
+	call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, dev);
+	call_netdevice_notifiers(NETDEV_RESEND_IGMP, dev);
+}
+EXPORT_SYMBOL(__netdev_notify_peers);
+
+/**
+>>>>>>> upstream/android-13
  * netdev_notify_peers - notify network peers about existence of @dev
  * @dev: network device
  *
@@ -1366,21 +1691,60 @@ EXPORT_SYMBOL(netdev_state_change);
 void netdev_notify_peers(struct net_device *dev)
 {
 	rtnl_lock();
+<<<<<<< HEAD
 	call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, dev);
 	call_netdevice_notifiers(NETDEV_RESEND_IGMP, dev);
+=======
+	__netdev_notify_peers(dev);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 }
 EXPORT_SYMBOL(netdev_notify_peers);
 
+<<<<<<< HEAD
 static int __dev_open(struct net_device *dev)
+=======
+static int napi_threaded_poll(void *data);
+
+static int napi_kthread_create(struct napi_struct *n)
+{
+	int err = 0;
+
+	/* Create and wake up the kthread once to put it in
+	 * TASK_INTERRUPTIBLE mode to avoid the blocked task
+	 * warning and work with loadavg.
+	 */
+	n->thread = kthread_run(napi_threaded_poll, n, "napi/%s-%d",
+				n->dev->name, n->napi_id);
+	if (IS_ERR(n->thread)) {
+		err = PTR_ERR(n->thread);
+		pr_err("kthread_run failed with err %d\n", err);
+		n->thread = NULL;
+	}
+
+	return err;
+}
+
+static int __dev_open(struct net_device *dev, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	const struct net_device_ops *ops = dev->netdev_ops;
 	int ret;
 
 	ASSERT_RTNL();
 
+<<<<<<< HEAD
 	if (!netif_device_present(dev))
 		return -ENODEV;
+=======
+	if (!netif_device_present(dev)) {
+		/* may be detached because parent is runtime-suspended */
+		if (dev->dev.parent)
+			pm_runtime_resume(dev->dev.parent);
+		if (!netif_device_present(dev))
+			return -ENODEV;
+	}
+>>>>>>> upstream/android-13
 
 	/* Block netpoll from trying to do any rx path servicing.
 	 * If we don't do this there is a chance ndo_poll_controller
@@ -1388,7 +1752,11 @@ static int __dev_open(struct net_device *dev)
 	 */
 	netpoll_poll_disable(dev);
 
+<<<<<<< HEAD
 	ret = call_netdevice_notifiers(NETDEV_PRE_UP, dev);
+=======
+	ret = call_netdevice_notifiers_extack(NETDEV_PRE_UP, dev, extack);
+>>>>>>> upstream/android-13
 	ret = notifier_to_errno(ret);
 	if (ret)
 		return ret;
@@ -1417,7 +1785,12 @@ static int __dev_open(struct net_device *dev)
 
 /**
  *	dev_open	- prepare an interface for use.
+<<<<<<< HEAD
  *	@dev:	device to open
+=======
+ *	@dev: device to open
+ *	@extack: netlink extended ack
+>>>>>>> upstream/android-13
  *
  *	Takes a device from down to up state. The device's private open
  *	function is invoked and then the multicast lists are loaded. Finally
@@ -1427,14 +1800,22 @@ static int __dev_open(struct net_device *dev)
  *	Calling this function on an active interface is a nop. On a failure
  *	a negative errno code is returned.
  */
+<<<<<<< HEAD
 int dev_open(struct net_device *dev)
+=======
+int dev_open(struct net_device *dev, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	if (dev->flags & IFF_UP)
 		return 0;
 
+<<<<<<< HEAD
 	ret = __dev_open(dev);
+=======
+	ret = __dev_open(dev, extack);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -1596,6 +1977,10 @@ const char *netdev_cmd_to_name(enum netdev_cmd cmd)
 	N(UDP_TUNNEL_DROP_INFO) N(CHANGE_TX_QUEUE_LEN)
 	N(CVLAN_FILTER_PUSH_INFO) N(CVLAN_FILTER_DROP_INFO)
 	N(SVLAN_FILTER_PUSH_INFO) N(SVLAN_FILTER_DROP_INFO)
+<<<<<<< HEAD
+=======
+	N(PRE_CHANGEADDR)
+>>>>>>> upstream/android-13
 	}
 #undef N
 	return "UNKNOWN_NETDEV_EVENT";
@@ -1612,6 +1997,65 @@ static int call_netdevice_notifier(struct notifier_block *nb, unsigned long val,
 	return nb->notifier_call(nb, val, &info);
 }
 
+<<<<<<< HEAD
+=======
+static int call_netdevice_register_notifiers(struct notifier_block *nb,
+					     struct net_device *dev)
+{
+	int err;
+
+	err = call_netdevice_notifier(nb, NETDEV_REGISTER, dev);
+	err = notifier_to_errno(err);
+	if (err)
+		return err;
+
+	if (!(dev->flags & IFF_UP))
+		return 0;
+
+	call_netdevice_notifier(nb, NETDEV_UP, dev);
+	return 0;
+}
+
+static void call_netdevice_unregister_notifiers(struct notifier_block *nb,
+						struct net_device *dev)
+{
+	if (dev->flags & IFF_UP) {
+		call_netdevice_notifier(nb, NETDEV_GOING_DOWN,
+					dev);
+		call_netdevice_notifier(nb, NETDEV_DOWN, dev);
+	}
+	call_netdevice_notifier(nb, NETDEV_UNREGISTER, dev);
+}
+
+static int call_netdevice_register_net_notifiers(struct notifier_block *nb,
+						 struct net *net)
+{
+	struct net_device *dev;
+	int err;
+
+	for_each_netdev(net, dev) {
+		err = call_netdevice_register_notifiers(nb, dev);
+		if (err)
+			goto rollback;
+	}
+	return 0;
+
+rollback:
+	for_each_netdev_continue_reverse(net, dev)
+		call_netdevice_unregister_notifiers(nb, dev);
+	return err;
+}
+
+static void call_netdevice_unregister_net_notifiers(struct notifier_block *nb,
+						    struct net *net)
+{
+	struct net_device *dev;
+
+	for_each_netdev(net, dev)
+		call_netdevice_unregister_notifiers(nb, dev);
+}
+
+>>>>>>> upstream/android-13
 static int dev_boot_phase = 1;
 
 /**
@@ -1630,8 +2074,11 @@ static int dev_boot_phase = 1;
 
 int register_netdevice_notifier(struct notifier_block *nb)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
 	struct net_device *last;
+=======
+>>>>>>> upstream/android-13
 	struct net *net;
 	int err;
 
@@ -1644,6 +2091,7 @@ int register_netdevice_notifier(struct notifier_block *nb)
 	if (dev_boot_phase)
 		goto unlock;
 	for_each_net(net) {
+<<<<<<< HEAD
 		for_each_netdev(net, dev) {
 			err = call_netdevice_notifier(nb, NETDEV_REGISTER, dev);
 			err = notifier_to_errno(err);
@@ -1655,6 +2103,11 @@ int register_netdevice_notifier(struct notifier_block *nb)
 
 			call_netdevice_notifier(nb, NETDEV_UP, dev);
 		}
+=======
+		err = call_netdevice_register_net_notifiers(nb, net);
+		if (err)
+			goto rollback;
+>>>>>>> upstream/android-13
 	}
 
 unlock:
@@ -1663,6 +2116,7 @@ unlock:
 	return err;
 
 rollback:
+<<<<<<< HEAD
 	last = dev;
 	for_each_net(net) {
 		for_each_netdev(net, dev) {
@@ -1679,6 +2133,11 @@ rollback:
 	}
 
 outroll:
+=======
+	for_each_net_continue_reverse(net)
+		call_netdevice_unregister_net_notifiers(nb, net);
+
+>>>>>>> upstream/android-13
 	raw_notifier_chain_unregister(&netdev_chain, nb);
 	goto unlock;
 }
@@ -1700,7 +2159,10 @@ EXPORT_SYMBOL(register_netdevice_notifier);
 
 int unregister_netdevice_notifier(struct notifier_block *nb)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
+=======
+>>>>>>> upstream/android-13
 	struct net *net;
 	int err;
 
@@ -1711,6 +2173,7 @@ int unregister_netdevice_notifier(struct notifier_block *nb)
 	if (err)
 		goto unlock;
 
+<<<<<<< HEAD
 	for_each_net(net) {
 		for_each_netdev(net, dev) {
 			if (dev->flags & IFF_UP) {
@@ -1721,6 +2184,11 @@ int unregister_netdevice_notifier(struct notifier_block *nb)
 			call_netdevice_notifier(nb, NETDEV_UNREGISTER, dev);
 		}
 	}
+=======
+	for_each_net(net)
+		call_netdevice_unregister_net_notifiers(nb, net);
+
+>>>>>>> upstream/android-13
 unlock:
 	rtnl_unlock();
 	up_write(&pernet_ops_rwsem);
@@ -1728,6 +2196,141 @@ unlock:
 }
 EXPORT_SYMBOL(unregister_netdevice_notifier);
 
+<<<<<<< HEAD
+=======
+static int __register_netdevice_notifier_net(struct net *net,
+					     struct notifier_block *nb,
+					     bool ignore_call_fail)
+{
+	int err;
+
+	err = raw_notifier_chain_register(&net->netdev_chain, nb);
+	if (err)
+		return err;
+	if (dev_boot_phase)
+		return 0;
+
+	err = call_netdevice_register_net_notifiers(nb, net);
+	if (err && !ignore_call_fail)
+		goto chain_unregister;
+
+	return 0;
+
+chain_unregister:
+	raw_notifier_chain_unregister(&net->netdev_chain, nb);
+	return err;
+}
+
+static int __unregister_netdevice_notifier_net(struct net *net,
+					       struct notifier_block *nb)
+{
+	int err;
+
+	err = raw_notifier_chain_unregister(&net->netdev_chain, nb);
+	if (err)
+		return err;
+
+	call_netdevice_unregister_net_notifiers(nb, net);
+	return 0;
+}
+
+/**
+ * register_netdevice_notifier_net - register a per-netns network notifier block
+ * @net: network namespace
+ * @nb: notifier
+ *
+ * Register a notifier to be called when network device events occur.
+ * The notifier passed is linked into the kernel structures and must
+ * not be reused until it has been unregistered. A negative errno code
+ * is returned on a failure.
+ *
+ * When registered all registration and up events are replayed
+ * to the new notifier to allow device to have a race free
+ * view of the network device list.
+ */
+
+int register_netdevice_notifier_net(struct net *net, struct notifier_block *nb)
+{
+	int err;
+
+	rtnl_lock();
+	err = __register_netdevice_notifier_net(net, nb, false);
+	rtnl_unlock();
+	return err;
+}
+EXPORT_SYMBOL(register_netdevice_notifier_net);
+
+/**
+ * unregister_netdevice_notifier_net - unregister a per-netns
+ *                                     network notifier block
+ * @net: network namespace
+ * @nb: notifier
+ *
+ * Unregister a notifier previously registered by
+ * register_netdevice_notifier(). The notifier is unlinked into the
+ * kernel structures and may then be reused. A negative errno code
+ * is returned on a failure.
+ *
+ * After unregistering unregister and down device events are synthesized
+ * for all devices on the device list to the removed notifier to remove
+ * the need for special case cleanup code.
+ */
+
+int unregister_netdevice_notifier_net(struct net *net,
+				      struct notifier_block *nb)
+{
+	int err;
+
+	rtnl_lock();
+	err = __unregister_netdevice_notifier_net(net, nb);
+	rtnl_unlock();
+	return err;
+}
+EXPORT_SYMBOL(unregister_netdevice_notifier_net);
+
+int register_netdevice_notifier_dev_net(struct net_device *dev,
+					struct notifier_block *nb,
+					struct netdev_net_notifier *nn)
+{
+	int err;
+
+	rtnl_lock();
+	err = __register_netdevice_notifier_net(dev_net(dev), nb, false);
+	if (!err) {
+		nn->nb = nb;
+		list_add(&nn->list, &dev->net_notifier_list);
+	}
+	rtnl_unlock();
+	return err;
+}
+EXPORT_SYMBOL(register_netdevice_notifier_dev_net);
+
+int unregister_netdevice_notifier_dev_net(struct net_device *dev,
+					  struct notifier_block *nb,
+					  struct netdev_net_notifier *nn)
+{
+	int err;
+
+	rtnl_lock();
+	list_del(&nn->list);
+	err = __unregister_netdevice_notifier_net(dev_net(dev), nb);
+	rtnl_unlock();
+	return err;
+}
+EXPORT_SYMBOL(unregister_netdevice_notifier_dev_net);
+
+static void move_netdevice_notifiers_dev_net(struct net_device *dev,
+					     struct net *net)
+{
+	struct netdev_net_notifier *nn;
+
+	list_for_each_entry(nn, &dev->net_notifier_list, list) {
+		__unregister_netdevice_notifier_net(dev_net(dev), nn->nb);
+		__register_netdevice_notifier_net(net, nn->nb, true);
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  *	call_netdevice_notifiers_info - call all network notifier blocks
  *	@val: value passed unmodified to notifier function
@@ -1740,10 +2343,40 @@ EXPORT_SYMBOL(unregister_netdevice_notifier);
 static int call_netdevice_notifiers_info(unsigned long val,
 					 struct netdev_notifier_info *info)
 {
+<<<<<<< HEAD
 	ASSERT_RTNL();
 	return raw_notifier_call_chain(&netdev_chain, val, info);
 }
 
+=======
+	struct net *net = dev_net(info->dev);
+	int ret;
+
+	ASSERT_RTNL();
+
+	/* Run per-netns notifier block chain first, then run the global one.
+	 * Hopefully, one day, the global one is going to be removed after
+	 * all notifier block registrators get converted to be per-netns.
+	 */
+	ret = raw_notifier_call_chain(&net->netdev_chain, val, info);
+	if (ret & NOTIFY_STOP_MASK)
+		return ret;
+	return raw_notifier_call_chain(&netdev_chain, val, info);
+}
+
+static int call_netdevice_notifiers_extack(unsigned long val,
+					   struct net_device *dev,
+					   struct netlink_ext_ack *extack)
+{
+	struct netdev_notifier_info info = {
+		.dev = dev,
+		.extack = extack,
+	};
+
+	return call_netdevice_notifiers_info(val, &info);
+}
+
+>>>>>>> upstream/android-13
 /**
  *	call_netdevice_notifiers - call all network notifier blocks
  *      @val: value passed unmodified to notifier function
@@ -1755,11 +2388,15 @@ static int call_netdevice_notifiers_info(unsigned long val,
 
 int call_netdevice_notifiers(unsigned long val, struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct netdev_notifier_info info = {
 		.dev = dev,
 	};
 
 	return call_netdevice_notifiers_info(val, &info);
+=======
+	return call_netdevice_notifiers_extack(val, dev, NULL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(call_netdevice_notifiers);
 
@@ -1983,6 +2620,20 @@ static inline bool skb_loop_sk(struct packet_type *ptype, struct sk_buff *skb)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * dev_nit_active - return true if any network interface taps are in use
+ *
+ * @dev: network device to check for the presence of taps
+ */
+bool dev_nit_active(struct net_device *dev)
+{
+	return !list_empty(&ptype_all) || !list_empty(&dev->ptype_all);
+}
+EXPORT_SYMBOL_GPL(dev_nit_active);
+
+>>>>>>> upstream/android-13
 /*
  *	Support routine. Sends outgoing frames to any network
  *	taps currently in use.
@@ -1998,6 +2649,12 @@ void dev_queue_xmit_nit(struct sk_buff *skb, struct net_device *dev)
 	rcu_read_lock();
 again:
 	list_for_each_entry_rcu(ptype, ptype_list, list) {
+<<<<<<< HEAD
+=======
+		if (ptype->ignore_outgoing)
+			continue;
+
+>>>>>>> upstream/android-13
 		/* Never send packets back to the socket
 		 * they originated from - MvS (miquels@drinkel.ow.org)
 		 */
@@ -2110,16 +2767,25 @@ int netdev_txq_to_tc(struct net_device *dev, unsigned int txq)
 EXPORT_SYMBOL(netdev_txq_to_tc);
 
 #ifdef CONFIG_XPS
+<<<<<<< HEAD
 struct static_key xps_needed __read_mostly;
 EXPORT_SYMBOL(xps_needed);
 struct static_key xps_rxqs_needed __read_mostly;
 EXPORT_SYMBOL(xps_rxqs_needed);
+=======
+static struct static_key xps_needed __read_mostly;
+static struct static_key xps_rxqs_needed __read_mostly;
+>>>>>>> upstream/android-13
 static DEFINE_MUTEX(xps_map_mutex);
 #define xmap_dereference(P)		\
 	rcu_dereference_protected((P), lockdep_is_held(&xps_map_mutex))
 
 static bool remove_xps_queue(struct xps_dev_maps *dev_maps,
+<<<<<<< HEAD
 			     int tci, u16 index)
+=======
+			     struct xps_dev_maps *old_maps, int tci, u16 index)
+>>>>>>> upstream/android-13
 {
 	struct xps_map *map = NULL;
 	int pos;
@@ -2138,6 +2804,11 @@ static bool remove_xps_queue(struct xps_dev_maps *dev_maps,
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		if (old_maps)
+			RCU_INIT_POINTER(old_maps->attr_map[tci], NULL);
+>>>>>>> upstream/android-13
 		RCU_INIT_POINTER(dev_maps->attr_map[tci], NULL);
 		kfree_rcu(map, rcu);
 		return false;
@@ -2150,7 +2821,11 @@ static bool remove_xps_queue_cpu(struct net_device *dev,
 				 struct xps_dev_maps *dev_maps,
 				 int cpu, u16 offset, u16 count)
 {
+<<<<<<< HEAD
 	int num_tc = dev->num_tc ? : 1;
+=======
+	int num_tc = dev_maps->num_tc;
+>>>>>>> upstream/android-13
 	bool active = false;
 	int tci;
 
@@ -2158,7 +2833,11 @@ static bool remove_xps_queue_cpu(struct net_device *dev,
 		int i, j;
 
 		for (i = count, j = offset; i--; j++) {
+<<<<<<< HEAD
 			if (!remove_xps_queue(dev_maps, tci, j))
+=======
+			if (!remove_xps_queue(dev_maps, NULL, tci, j))
+>>>>>>> upstream/android-13
 				break;
 		}
 
@@ -2170,6 +2849,7 @@ static bool remove_xps_queue_cpu(struct net_device *dev,
 
 static void reset_xps_maps(struct net_device *dev,
 			   struct xps_dev_maps *dev_maps,
+<<<<<<< HEAD
 			   bool is_rxqs_map)
 {
 	if (is_rxqs_map) {
@@ -2202,22 +2882,59 @@ static void clean_xps_maps(struct net_device *dev, const unsigned long *mask,
 				netdev_get_tx_queue(dev, i),
 				NUMA_NO_NODE);
 		}
+=======
+			   enum xps_map_type type)
+{
+	static_key_slow_dec_cpuslocked(&xps_needed);
+	if (type == XPS_RXQS)
+		static_key_slow_dec_cpuslocked(&xps_rxqs_needed);
+
+	RCU_INIT_POINTER(dev->xps_maps[type], NULL);
+
+	kfree_rcu(dev_maps, rcu);
+}
+
+static void clean_xps_maps(struct net_device *dev, enum xps_map_type type,
+			   u16 offset, u16 count)
+{
+	struct xps_dev_maps *dev_maps;
+	bool active = false;
+	int i, j;
+
+	dev_maps = xmap_dereference(dev->xps_maps[type]);
+	if (!dev_maps)
+		return;
+
+	for (j = 0; j < dev_maps->nr_ids; j++)
+		active |= remove_xps_queue_cpu(dev, dev_maps, j, offset, count);
+	if (!active)
+		reset_xps_maps(dev, dev_maps, type);
+
+	if (type == XPS_CPUS) {
+		for (i = offset + (count - 1); count--; i--)
+			netdev_queue_numa_node_write(
+				netdev_get_tx_queue(dev, i), NUMA_NO_NODE);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void netif_reset_xps_queues(struct net_device *dev, u16 offset,
 				   u16 count)
 {
+<<<<<<< HEAD
 	const unsigned long *possible_mask = NULL;
 	struct xps_dev_maps *dev_maps;
 	unsigned int nr_ids;
 
+=======
+>>>>>>> upstream/android-13
 	if (!static_key_false(&xps_needed))
 		return;
 
 	cpus_read_lock();
 	mutex_lock(&xps_map_mutex);
 
+<<<<<<< HEAD
 	if (static_key_false(&xps_rxqs_needed)) {
 		dev_maps = xmap_dereference(dev->xps_rxqs_map);
 		if (dev_maps) {
@@ -2238,6 +2955,13 @@ static void netif_reset_xps_queues(struct net_device *dev, u16 offset,
 		       false);
 
 out_no_maps:
+=======
+	if (static_key_false(&xps_rxqs_needed))
+		clean_xps_maps(dev, XPS_RXQS, offset, count);
+
+	clean_xps_maps(dev, XPS_CPUS, offset, count);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&xps_map_mutex);
 	cpus_read_unlock();
 }
@@ -2287,6 +3011,7 @@ static struct xps_map *expand_xps_map(struct xps_map *map, int attr_index,
 	return new_map;
 }
 
+<<<<<<< HEAD
 /* Must be called under cpus_read_lock */
 int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 			  u16 index, bool is_rxqs_map)
@@ -2297,6 +3022,37 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 	int maps_sz, num_tc = 1, tc = 0;
 	struct xps_map *map, *new_map;
 	bool active = false;
+=======
+/* Copy xps maps at a given index */
+static void xps_copy_dev_maps(struct xps_dev_maps *dev_maps,
+			      struct xps_dev_maps *new_dev_maps, int index,
+			      int tc, bool skip_tc)
+{
+	int i, tci = index * dev_maps->num_tc;
+	struct xps_map *map;
+
+	/* copy maps belonging to foreign traffic classes */
+	for (i = 0; i < dev_maps->num_tc; i++, tci++) {
+		if (i == tc && skip_tc)
+			continue;
+
+		/* fill in the new device map from the old device map */
+		map = xmap_dereference(dev_maps->attr_map[tci]);
+		RCU_INIT_POINTER(new_dev_maps->attr_map[tci], map);
+	}
+}
+
+/* Must be called under cpus_read_lock */
+int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
+			  u16 index, enum xps_map_type type)
+{
+	struct xps_dev_maps *dev_maps, *new_dev_maps = NULL, *old_dev_maps = NULL;
+	const unsigned long *online_mask = NULL;
+	bool active = false, copy = false;
+	int i, j, tci, numa_node_id = -2;
+	int maps_sz, num_tc = 1, tc = 0;
+	struct xps_map *map, *new_map;
+>>>>>>> upstream/android-13
 	unsigned int nr_ids;
 
 	if (dev->num_tc) {
@@ -2314,6 +3070,7 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 	}
 
 	mutex_lock(&xps_map_mutex);
+<<<<<<< HEAD
 	if (is_rxqs_map) {
 		maps_sz = XPS_RXQ_DEV_MAPS_SIZE(num_tc, dev->num_rx_queues);
 		dev_maps = xmap_dereference(dev->xps_rxqs_map);
@@ -2325,12 +3082,24 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 			possible_mask = cpumask_bits(cpu_possible_mask);
 		}
 		dev_maps = xmap_dereference(dev->xps_cpus_map);
+=======
+
+	dev_maps = xmap_dereference(dev->xps_maps[type]);
+	if (type == XPS_RXQS) {
+		maps_sz = XPS_RXQ_DEV_MAPS_SIZE(num_tc, dev->num_rx_queues);
+		nr_ids = dev->num_rx_queues;
+	} else {
+		maps_sz = XPS_CPU_DEV_MAPS_SIZE(num_tc);
+		if (num_possible_cpus() > 1)
+			online_mask = cpumask_bits(cpu_online_mask);
+>>>>>>> upstream/android-13
 		nr_ids = nr_cpu_ids;
 	}
 
 	if (maps_sz < L1_CACHE_BYTES)
 		maps_sz = L1_CACHE_BYTES;
 
+<<<<<<< HEAD
 	/* allocate memory for queue storage */
 	for (j = -1; j = netif_attrmask_next_and(j, online_mask, mask, nr_ids),
 	     j < nr_ids;) {
@@ -2346,6 +3115,35 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 				 NULL;
 
 		map = expand_xps_map(map, j, index, is_rxqs_map);
+=======
+	/* The old dev_maps could be larger or smaller than the one we're
+	 * setting up now, as dev->num_tc or nr_ids could have been updated in
+	 * between. We could try to be smart, but let's be safe instead and only
+	 * copy foreign traffic classes if the two map sizes match.
+	 */
+	if (dev_maps &&
+	    dev_maps->num_tc == num_tc && dev_maps->nr_ids == nr_ids)
+		copy = true;
+
+	/* allocate memory for queue storage */
+	for (j = -1; j = netif_attrmask_next_and(j, online_mask, mask, nr_ids),
+	     j < nr_ids;) {
+		if (!new_dev_maps) {
+			new_dev_maps = kzalloc(maps_sz, GFP_KERNEL);
+			if (!new_dev_maps) {
+				mutex_unlock(&xps_map_mutex);
+				return -ENOMEM;
+			}
+
+			new_dev_maps->nr_ids = nr_ids;
+			new_dev_maps->num_tc = num_tc;
+		}
+
+		tci = j * num_tc + tc;
+		map = copy ? xmap_dereference(dev_maps->attr_map[tci]) : NULL;
+
+		map = expand_xps_map(map, j, index, type == XPS_RXQS);
+>>>>>>> upstream/android-13
 		if (!map)
 			goto error;
 
@@ -2358,6 +3156,7 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 	if (!dev_maps) {
 		/* Increment static keys at most once per type */
 		static_key_slow_inc_cpuslocked(&xps_needed);
+<<<<<<< HEAD
 		if (is_rxqs_map)
 			static_key_slow_inc_cpuslocked(&xps_rxqs_needed);
 	}
@@ -2376,11 +3175,26 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 		 */
 		tci = j * num_tc + tc;
 
+=======
+		if (type == XPS_RXQS)
+			static_key_slow_inc_cpuslocked(&xps_rxqs_needed);
+	}
+
+	for (j = 0; j < nr_ids; j++) {
+		bool skip_tc = false;
+
+		tci = j * num_tc + tc;
+>>>>>>> upstream/android-13
 		if (netif_attr_test_mask(j, mask, nr_ids) &&
 		    netif_attr_test_online(j, online_mask, nr_ids)) {
 			/* add tx-queue to CPU/rx-queue maps */
 			int pos = 0;
 
+<<<<<<< HEAD
+=======
+			skip_tc = true;
+
+>>>>>>> upstream/android-13
 			map = xmap_dereference(new_dev_maps->attr_map[tci]);
 			while ((pos < map->len) && (map->queues[pos] != index))
 				pos++;
@@ -2388,13 +3202,18 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 			if (pos == map->len)
 				map->queues[map->len++] = index;
 #ifdef CONFIG_NUMA
+<<<<<<< HEAD
 			if (!is_rxqs_map) {
+=======
+			if (type == XPS_CPUS) {
+>>>>>>> upstream/android-13
 				if (numa_node_id == -2)
 					numa_node_id = cpu_to_node(j);
 				else if (numa_node_id != cpu_to_node(j))
 					numa_node_id = -1;
 			}
 #endif
+<<<<<<< HEAD
 		} else if (dev_maps) {
 			/* fill in the new device map from the old device map */
 			map = xmap_dereference(dev_maps->attr_map[tci]);
@@ -2413,11 +3232,22 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 		rcu_assign_pointer(dev->xps_rxqs_map, new_dev_maps);
 	else
 		rcu_assign_pointer(dev->xps_cpus_map, new_dev_maps);
+=======
+		}
+
+		if (copy)
+			xps_copy_dev_maps(dev_maps, new_dev_maps, j, tc,
+					  skip_tc);
+	}
+
+	rcu_assign_pointer(dev->xps_maps[type], new_dev_maps);
+>>>>>>> upstream/android-13
 
 	/* Cleanup old maps */
 	if (!dev_maps)
 		goto out_no_old_maps;
 
+<<<<<<< HEAD
 	for (j = -1; j = netif_attrmask_next(j, possible_mask, nr_ids),
 	     j < nr_ids;) {
 		for (i = num_tc, tci = j * num_tc; i--; tci++) {
@@ -2429,23 +3259,51 @@ int __netif_set_xps_queue(struct net_device *dev, const unsigned long *mask,
 	}
 
 	kfree_rcu(dev_maps, rcu);
+=======
+	for (j = 0; j < dev_maps->nr_ids; j++) {
+		for (i = num_tc, tci = j * dev_maps->num_tc; i--; tci++) {
+			map = xmap_dereference(dev_maps->attr_map[tci]);
+			if (!map)
+				continue;
+
+			if (copy) {
+				new_map = xmap_dereference(new_dev_maps->attr_map[tci]);
+				if (map == new_map)
+					continue;
+			}
+
+			RCU_INIT_POINTER(dev_maps->attr_map[tci], NULL);
+			kfree_rcu(map, rcu);
+		}
+	}
+
+	old_dev_maps = dev_maps;
+>>>>>>> upstream/android-13
 
 out_no_old_maps:
 	dev_maps = new_dev_maps;
 	active = true;
 
 out_no_new_maps:
+<<<<<<< HEAD
 	if (!is_rxqs_map) {
+=======
+	if (type == XPS_CPUS)
+>>>>>>> upstream/android-13
 		/* update Tx queue numa node */
 		netdev_queue_numa_node_write(netdev_get_tx_queue(dev, index),
 					     (numa_node_id >= 0) ?
 					     numa_node_id : NUMA_NO_NODE);
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (!dev_maps)
 		goto out_no_maps;
 
 	/* removes tx-queue from unused CPUs/rx-queues */
+<<<<<<< HEAD
 	for (j = -1; j = netif_attrmask_next(j, possible_mask, nr_ids),
 	     j < nr_ids;) {
 		for (i = tc, tci = j * num_tc; i--; tci++)
@@ -2460,6 +3318,29 @@ out_no_new_maps:
 	/* free map if not active */
 	if (!active)
 		reset_xps_maps(dev, dev_maps, is_rxqs_map);
+=======
+	for (j = 0; j < dev_maps->nr_ids; j++) {
+		tci = j * dev_maps->num_tc;
+
+		for (i = 0; i < dev_maps->num_tc; i++, tci++) {
+			if (i == tc &&
+			    netif_attr_test_mask(j, mask, dev_maps->nr_ids) &&
+			    netif_attr_test_online(j, online_mask, dev_maps->nr_ids))
+				continue;
+
+			active |= remove_xps_queue(dev_maps,
+						   copy ? old_dev_maps : NULL,
+						   tci, index);
+		}
+	}
+
+	if (old_dev_maps)
+		kfree_rcu(old_dev_maps, rcu);
+
+	/* free map if not active */
+	if (!active)
+		reset_xps_maps(dev, dev_maps, type);
+>>>>>>> upstream/android-13
 
 out_no_maps:
 	mutex_unlock(&xps_map_mutex);
@@ -2467,11 +3348,18 @@ out_no_maps:
 	return 0;
 error:
 	/* remove any maps that we added */
+<<<<<<< HEAD
 	for (j = -1; j = netif_attrmask_next(j, possible_mask, nr_ids),
 	     j < nr_ids;) {
 		for (i = num_tc, tci = j * num_tc; i--; tci++) {
 			new_map = xmap_dereference(new_dev_maps->attr_map[tci]);
 			map = dev_maps ?
+=======
+	for (j = 0; j < nr_ids; j++) {
+		for (i = num_tc, tci = j * num_tc; i--; tci++) {
+			new_map = xmap_dereference(new_dev_maps->attr_map[tci]);
+			map = copy ?
+>>>>>>> upstream/android-13
 			      xmap_dereference(dev_maps->attr_map[tci]) :
 			      NULL;
 			if (new_map && new_map != map)
@@ -2492,7 +3380,11 @@ int netif_set_xps_queue(struct net_device *dev, const struct cpumask *mask,
 	int ret;
 
 	cpus_read_lock();
+<<<<<<< HEAD
 	ret =  __netif_set_xps_queue(dev, cpumask_bits(mask), index, false);
+=======
+	ret =  __netif_set_xps_queue(dev, cpumask_bits(mask), index, XPS_CPUS);
+>>>>>>> upstream/android-13
 	cpus_read_unlock();
 
 	return ret;
@@ -2644,6 +3536,11 @@ int netif_set_real_num_tx_queues(struct net_device *dev, unsigned int txq)
 		if (dev->num_tc)
 			netif_setup_tc(dev, txq);
 
+<<<<<<< HEAD
+=======
+		dev_qdisc_change_real_num_tx(dev, txq);
+
+>>>>>>> upstream/android-13
 		dev->real_num_tx_queues = txq;
 
 		if (disabling) {
@@ -2695,6 +3592,53 @@ EXPORT_SYMBOL(netif_set_real_num_rx_queues);
 #endif
 
 /**
+<<<<<<< HEAD
+=======
+ *	netif_set_real_num_queues - set actual number of RX and TX queues used
+ *	@dev: Network device
+ *	@txq: Actual number of TX queues
+ *	@rxq: Actual number of RX queues
+ *
+ *	Set the real number of both TX and RX queues.
+ *	Does nothing if the number of queues is already correct.
+ */
+int netif_set_real_num_queues(struct net_device *dev,
+			      unsigned int txq, unsigned int rxq)
+{
+	unsigned int old_rxq = dev->real_num_rx_queues;
+	int err;
+
+	if (txq < 1 || txq > dev->num_tx_queues ||
+	    rxq < 1 || rxq > dev->num_rx_queues)
+		return -EINVAL;
+
+	/* Start from increases, so the error path only does decreases -
+	 * decreases can't fail.
+	 */
+	if (rxq > dev->real_num_rx_queues) {
+		err = netif_set_real_num_rx_queues(dev, rxq);
+		if (err)
+			return err;
+	}
+	if (txq > dev->real_num_tx_queues) {
+		err = netif_set_real_num_tx_queues(dev, txq);
+		if (err)
+			goto undo_rx;
+	}
+	if (rxq < dev->real_num_rx_queues)
+		WARN_ON(netif_set_real_num_rx_queues(dev, rxq));
+	if (txq < dev->real_num_tx_queues)
+		WARN_ON(netif_set_real_num_tx_queues(dev, txq));
+
+	return 0;
+undo_rx:
+	WARN_ON(netif_set_real_num_rx_queues(dev, old_rxq));
+	return err;
+}
+EXPORT_SYMBOL(netif_set_real_num_queues);
+
+/**
+>>>>>>> upstream/android-13
  * netif_get_num_default_rss_queues - default number of RSS queues
  *
  * This routine should set an upper limit on the number of RSS queues
@@ -2740,7 +3684,11 @@ static struct dev_kfree_skb_cb *get_kfree_skb_cb(const struct sk_buff *skb)
 void netif_schedule_queue(struct netdev_queue *txq)
 {
 	rcu_read_lock();
+<<<<<<< HEAD
 	if (!(txq->state & QUEUE_STATE_ANY_XOFF)) {
+=======
+	if (!netif_xmit_stopped(txq)) {
+>>>>>>> upstream/android-13
 		struct Qdisc *q = rcu_dereference(txq->qdisc);
 
 		__netif_schedule(q);
@@ -2786,7 +3734,11 @@ EXPORT_SYMBOL(__dev_kfree_skb_irq);
 
 void __dev_kfree_skb_any(struct sk_buff *skb, enum skb_free_reason reason)
 {
+<<<<<<< HEAD
 	if (in_irq() || irqs_disabled())
+=======
+	if (in_hardirq() || irqs_disabled())
+>>>>>>> upstream/android-13
 		__dev_kfree_skb_irq(skb, reason);
 	else
 		dev_kfree_skb(skb);
@@ -2842,6 +3794,15 @@ static u16 skb_tx_hash(const struct net_device *dev,
 
 		qoffset = sb_dev->tc_to_txq[tc].offset;
 		qcount = sb_dev->tc_to_txq[tc].count;
+<<<<<<< HEAD
+=======
+		if (unlikely(!qcount)) {
+			net_warn_ratelimited("%s: invalid qcount, qoffset %u for tc %u\n",
+					     sb_dev->name, qoffset, tc);
+			qoffset = 0;
+			qcount = dev->real_num_tx_queues;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (skb_rx_queue_recorded(skb)) {
@@ -2871,12 +3832,19 @@ static void skb_warn_bad_offload(const struct sk_buff *skb)
 		else
 			name = netdev_name(dev);
 	}
+<<<<<<< HEAD
 	WARN(1, "%s: caps=(%pNF, %pNF) len=%d data_len=%d gso_size=%d "
 	     "gso_type=%d ip_summed=%d\n",
 	     name, dev ? &dev->features : &null_features,
 	     skb->sk ? &skb->sk->sk_route_caps : &null_features,
 	     skb->len, skb->data_len, skb_shinfo(skb)->gso_size,
 	     skb_shinfo(skb)->gso_type, skb->ip_summed);
+=======
+	skb_dump(KERN_WARNING, skb, false);
+	WARN(1, "%s: caps=(%pNF, %pNF)\n",
+	     name, dev ? &dev->features : &null_features,
+	     skb->sk ? &skb->sk->sk_route_caps : &null_features);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2891,7 +3859,11 @@ int skb_checksum_help(struct sk_buff *skb)
 	if (skb->ip_summed == CHECKSUM_COMPLETE)
 		goto out_set_summed;
 
+<<<<<<< HEAD
 	if (unlikely(skb_shinfo(skb)->gso_size)) {
+=======
+	if (unlikely(skb_is_gso(skb))) {
+>>>>>>> upstream/android-13
 		skb_warn_bad_offload(skb);
 		return -EINVAL;
 	}
@@ -2912,12 +3884,18 @@ int skb_checksum_help(struct sk_buff *skb)
 	offset += skb->csum_offset;
 	BUG_ON(offset + sizeof(__sum16) > skb_headlen(skb));
 
+<<<<<<< HEAD
 	if (skb_cloned(skb) &&
 	    !skb_clone_writable(skb, offset + sizeof(__sum16))) {
 		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
 		if (ret)
 			goto out;
 	}
+=======
+	ret = skb_ensure_writable(skb, offset + sizeof(__sum16));
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	*(__sum16 *)(skb->data + offset) = csum_fold(csum) ?: CSUM_MANGLED_0;
 out_set_summed:
@@ -2952,12 +3930,20 @@ int skb_crc32c_csum_help(struct sk_buff *skb)
 		ret = -EINVAL;
 		goto out;
 	}
+<<<<<<< HEAD
 	if (skb_cloned(skb) &&
 	    !skb_clone_writable(skb, offset + sizeof(__le32))) {
 		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
 		if (ret)
 			goto out;
 	}
+=======
+
+	ret = skb_ensure_writable(skb, offset + sizeof(__le32));
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	crc32c_csum = cpu_to_le32(~__skb_checksum(skb, start,
 						  skb->len - start, ~(__u32)0,
 						  crc32c_csum_stub));
@@ -3042,7 +4028,11 @@ static inline bool skb_needs_check(struct sk_buff *skb, bool tx_path)
  *	It may return NULL if the skb requires no segmentation.  This is
  *	only possible when GSO is used for verifying header integrity.
  *
+<<<<<<< HEAD
  *	Segmentation preserves SKB_SGO_CB_OFFSET bytes of previous skb cb.
+=======
+ *	Segmentation preserves SKB_GSO_CB_OFFSET bytes of previous skb cb.
+>>>>>>> upstream/android-13
  */
 struct sk_buff *__skb_gso_segment(struct sk_buff *skb,
 				  netdev_features_t features, bool tx_path)
@@ -3071,7 +4061,11 @@ struct sk_buff *__skb_gso_segment(struct sk_buff *skb,
 			features &= ~NETIF_F_GSO_PARTIAL;
 	}
 
+<<<<<<< HEAD
 	BUILD_BUG_ON(SKB_SGO_CB_OFFSET +
+=======
+	BUILD_BUG_ON(SKB_GSO_CB_OFFSET +
+>>>>>>> upstream/android-13
 		     sizeof(*SKB_GSO_CB(skb)) > sizeof(skb->cb));
 
 	SKB_GSO_CB(skb)->mac_offset = skb_headroom(skb);
@@ -3082,7 +4076,11 @@ struct sk_buff *__skb_gso_segment(struct sk_buff *skb,
 
 	segs = skb_mac_gso_segment(skb, features);
 
+<<<<<<< HEAD
 	if (unlikely(skb_needs_check(skb, tx_path) && !IS_ERR(segs)))
+=======
+	if (segs != skb && unlikely(skb_needs_check(skb, tx_path) && !IS_ERR(segs)))
+>>>>>>> upstream/android-13
 		skb_warn_bad_offload(skb);
 
 	return segs;
@@ -3091,12 +4089,25 @@ EXPORT_SYMBOL(__skb_gso_segment);
 
 /* Take action when hardware reception checksum errors are detected. */
 #ifdef CONFIG_BUG
+<<<<<<< HEAD
 void netdev_rx_csum_fault(struct net_device *dev)
 {
 	if (net_ratelimit()) {
 		pr_err("%s: hw csum failure\n", dev ? dev->name : "<unknown>");
 		dump_stack();
 	}
+=======
+static void do_netdev_rx_csum_fault(struct net_device *dev, struct sk_buff *skb)
+{
+	pr_err("%s: hw csum failure\n", dev ? dev->name : "<unknown>");
+	skb_dump(KERN_ERR, skb, true);
+	dump_stack();
+}
+
+void netdev_rx_csum_fault(struct net_device *dev, struct sk_buff *skb)
+{
+	DO_ONCE_LITE(do_netdev_rx_csum_fault, dev, skb);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(netdev_rx_csum_fault);
 #endif
@@ -3144,10 +4155,16 @@ static netdev_features_t net_mpls_features(struct sk_buff *skb,
 static netdev_features_t harmonize_features(struct sk_buff *skb,
 	netdev_features_t features)
 {
+<<<<<<< HEAD
 	int tmp;
 	__be16 type;
 
 	type = skb_network_protocol(skb, &tmp);
+=======
+	__be16 type;
+
+	type = skb_network_protocol(skb, NULL);
+>>>>>>> upstream/android-13
 	features = net_mpls_features(skb, features, type);
 
 	if (skb->ip_summed != CHECKSUM_NONE &&
@@ -3184,6 +4201,14 @@ static netdev_features_t gso_features_check(const struct sk_buff *skb,
 	if (gso_segs > dev->gso_max_segs)
 		return features & ~NETIF_F_GSO_MASK;
 
+<<<<<<< HEAD
+=======
+	if (!skb_shinfo(skb)->gso_type) {
+		skb_warn_bad_offload(skb);
+		return features & ~NETIF_F_GSO_MASK;
+	}
+
+>>>>>>> upstream/android-13
 	/* Support for GSO partial features requires software
 	 * intervention before we can actually process the packets
 	 * so we need to strip support for any partial features now
@@ -3244,10 +4269,18 @@ static int xmit_one(struct sk_buff *skb, struct net_device *dev,
 	unsigned int len;
 	int rc;
 
+<<<<<<< HEAD
 	if (!list_empty(&ptype_all) || !list_empty(&dev->ptype_all))
 		dev_queue_xmit_nit(skb, dev);
 
 	len = skb->len;
+=======
+	if (dev_nit_active(dev))
+		dev_queue_xmit_nit(skb, dev);
+
+	len = skb->len;
+	PRANDOM_ADD_NOISE(skb, dev, txq, len + jiffies);
+>>>>>>> upstream/android-13
 	trace_net_dev_start_xmit(skb, dev);
 	rc = netdev_start_xmit(skb, dev, txq, more);
 	trace_net_dev_xmit(skb, rc, dev, len);
@@ -3264,7 +4297,11 @@ struct sk_buff *dev_hard_start_xmit(struct sk_buff *first, struct net_device *de
 	while (skb) {
 		struct sk_buff *next = skb->next;
 
+<<<<<<< HEAD
 		skb->next = NULL;
+=======
+		skb_mark_not_on_list(skb);
+>>>>>>> upstream/android-13
 		rc = xmit_one(skb, dev, txq, next != NULL);
 		if (unlikely(!dev_xmit_complete(rc))) {
 			skb->next = next;
@@ -3295,11 +4332,30 @@ static struct sk_buff *validate_xmit_vlan(struct sk_buff *skb,
 int skb_csum_hwoffload_help(struct sk_buff *skb,
 			    const netdev_features_t features)
 {
+<<<<<<< HEAD
 	if (unlikely(skb->csum_not_inet))
 		return !!(features & NETIF_F_SCTP_CRC) ? 0 :
 			skb_crc32c_csum_help(skb);
 
 	return !!(features & NETIF_F_CSUM_MASK) ? 0 : skb_checksum_help(skb);
+=======
+	if (unlikely(skb_csum_is_sctp(skb)))
+		return !!(features & NETIF_F_SCTP_CRC) ? 0 :
+			skb_crc32c_csum_help(skb);
+
+	if (features & NETIF_F_HW_CSUM)
+		return 0;
+
+	if (features & (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM)) {
+		switch (skb->csum_offset) {
+		case offsetof(struct tcphdr, check):
+		case offsetof(struct udphdr, check):
+			return 0;
+		}
+	}
+
+	return skb_checksum_help(skb);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(skb_csum_hwoffload_help);
 
@@ -3364,7 +4420,11 @@ struct sk_buff *validate_xmit_skb_list(struct sk_buff *skb, struct net_device *d
 
 	for (; skb != NULL; skb = next) {
 		next = skb->next;
+<<<<<<< HEAD
 		skb->next = NULL;
+=======
+		skb_mark_not_on_list(skb);
+>>>>>>> upstream/android-13
 
 		/* in case skb wont be segmented, point to itself */
 		skb->prev = skb;
@@ -3395,7 +4455,11 @@ static void qdisc_pkt_len_init(struct sk_buff *skb)
 	/* To get more precise estimation of bytes sent on wire,
 	 * we add to pkt_len the headers size of all segments
 	 */
+<<<<<<< HEAD
 	if (shinfo->gso_size)  {
+=======
+	if (shinfo->gso_size && skb_transport_header_was_set(skb)) {
+>>>>>>> upstream/android-13
 		unsigned int hdr_len;
 		u16 gso_segs = shinfo->gso_segs;
 
@@ -3427,6 +4491,21 @@ static void qdisc_pkt_len_init(struct sk_buff *skb)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static int dev_qdisc_enqueue(struct sk_buff *skb, struct Qdisc *q,
+			     struct sk_buff **to_free,
+			     struct netdev_queue *txq)
+{
+	int rc;
+
+	rc = q->enqueue(skb, q, to_free) & NET_XMIT_MASK;
+	if (rc == NET_XMIT_SUCCESS)
+		trace_qdisc_enqueue(q, txq, skb);
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
 				 struct net_device *dev,
 				 struct netdev_queue *txq)
@@ -3439,6 +4518,7 @@ static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
 	qdisc_calculate_pkt_len(skb, q);
 
 	if (q->flags & TCQ_F_NOLOCK) {
+<<<<<<< HEAD
 		if (unlikely(test_bit(__QDISC_STATE_DEACTIVATED, &q->state))) {
 			__qdisc_drop(skb, &to_free);
 			rc = NET_XMIT_DROP;
@@ -3447,6 +4527,34 @@ static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
 			qdisc_run(q);
 		}
 
+=======
+		if (q->flags & TCQ_F_CAN_BYPASS && nolock_qdisc_is_empty(q) &&
+		    qdisc_run_begin(q)) {
+			/* Retest nolock_qdisc_is_empty() within the protection
+			 * of q->seqlock to protect from racing with requeuing.
+			 */
+			if (unlikely(!nolock_qdisc_is_empty(q))) {
+				rc = dev_qdisc_enqueue(skb, q, &to_free, txq);
+				__qdisc_run(q);
+				qdisc_run_end(q);
+
+				goto no_lock_out;
+			}
+
+			qdisc_bstats_cpu_update(q, skb);
+			if (sch_direct_xmit(skb, q, dev, txq, NULL, true) &&
+			    !nolock_qdisc_is_empty(q))
+				__qdisc_run(q);
+
+			qdisc_run_end(q);
+			return NET_XMIT_SUCCESS;
+		}
+
+		rc = dev_qdisc_enqueue(skb, q, &to_free, txq);
+		qdisc_run(q);
+
+no_lock_out:
+>>>>>>> upstream/android-13
 		if (unlikely(to_free))
 			kfree_skb_list(to_free);
 		return rc;
@@ -3487,7 +4595,11 @@ static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
 		qdisc_run_end(q);
 		rc = NET_XMIT_SUCCESS;
 	} else {
+<<<<<<< HEAD
 		rc = q->enqueue(skb, q, &to_free) & NET_XMIT_MASK;
+=======
+		rc = dev_qdisc_enqueue(skb, q, &to_free, txq);
+>>>>>>> upstream/android-13
 		if (qdisc_run_begin(q)) {
 			if (unlikely(contended)) {
 				spin_unlock(&q->busylock);
@@ -3541,7 +4653,12 @@ int dev_loopback_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
 	skb_reset_mac_header(skb);
 	__skb_pull(skb, skb_network_offset(skb));
 	skb->pkt_type = PACKET_LOOPBACK;
+<<<<<<< HEAD
 	skb->ip_summed = CHECKSUM_UNNECESSARY;
+=======
+	if (skb->ip_summed == CHECKSUM_NONE)
+		skb->ip_summed = CHECKSUM_UNNECESSARY;
+>>>>>>> upstream/android-13
 	WARN_ON(!skb_dst(skb));
 	skb_dst_force(skb);
 	netif_rx_ni(skb);
@@ -3560,9 +4677,17 @@ sch_handle_egress(struct sk_buff *skb, int *ret, struct net_device *dev)
 		return skb;
 
 	/* qdisc_skb_cb(skb)->pkt_len was already set by the caller. */
+<<<<<<< HEAD
 	mini_qdisc_bstats_cpu_update(miniq, skb);
 
 	switch (tcf_classify(skb, miniq->filter_list, &cl_res, false)) {
+=======
+	tc_skb_cb(skb)->mru = 0;
+	tc_skb_cb(skb)->post_ct = false;
+	mini_qdisc_bstats_cpu_update(miniq, skb);
+
+	switch (tcf_classify(skb, miniq->block, miniq->filter_list, &cl_res, false)) {
+>>>>>>> upstream/android-13
 	case TC_ACT_OK:
 	case TC_ACT_RECLASSIFY:
 		skb->tc_index = TC_H_MIN(cl_res.classid);
@@ -3595,6 +4720,7 @@ sch_handle_egress(struct sk_buff *skb, int *ret, struct net_device *dev)
 static int __get_xps_queue_idx(struct net_device *dev, struct sk_buff *skb,
 			       struct xps_dev_maps *dev_maps, unsigned int tci)
 {
+<<<<<<< HEAD
 	struct xps_map *map;
 	int queue_index = -1;
 
@@ -3602,6 +4728,17 @@ static int __get_xps_queue_idx(struct net_device *dev, struct sk_buff *skb,
 		tci *= dev->num_tc;
 		tci += netdev_get_prio_tc_map(dev, skb->priority);
 	}
+=======
+	int tc = netdev_get_prio_tc_map(dev, skb->priority);
+	struct xps_map *map;
+	int queue_index = -1;
+
+	if (tc >= dev_maps->num_tc || tci >= dev_maps->nr_ids)
+		return queue_index;
+
+	tci *= dev_maps->num_tc;
+	tci += tc;
+>>>>>>> upstream/android-13
 
 	map = rcu_dereference(dev_maps->attr_map[tci]);
 	if (map) {
@@ -3632,18 +4769,30 @@ static int get_xps_queue(struct net_device *dev, struct net_device *sb_dev,
 	if (!static_key_false(&xps_rxqs_needed))
 		goto get_cpus_map;
 
+<<<<<<< HEAD
 	dev_maps = rcu_dereference(sb_dev->xps_rxqs_map);
 	if (dev_maps) {
 		int tci = sk_rx_queue_get(sk);
 
 		if (tci >= 0 && tci < dev->num_rx_queues)
+=======
+	dev_maps = rcu_dereference(sb_dev->xps_maps[XPS_RXQS]);
+	if (dev_maps) {
+		int tci = sk_rx_queue_get(sk);
+
+		if (tci >= 0)
+>>>>>>> upstream/android-13
 			queue_index = __get_xps_queue_idx(dev, skb, dev_maps,
 							  tci);
 	}
 
 get_cpus_map:
 	if (queue_index < 0) {
+<<<<<<< HEAD
 		dev_maps = rcu_dereference(sb_dev->xps_cpus_map);
+=======
+		dev_maps = rcu_dereference(sb_dev->xps_maps[XPS_CPUS]);
+>>>>>>> upstream/android-13
 		if (dev_maps) {
 			unsigned int tci = skb->sender_cpu - 1;
 
@@ -3660,23 +4809,36 @@ get_cpus_map:
 }
 
 u16 dev_pick_tx_zero(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 		     struct net_device *sb_dev,
 		     select_queue_fallback_t fallback)
+=======
+		     struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 EXPORT_SYMBOL(dev_pick_tx_zero);
 
 u16 dev_pick_tx_cpu_id(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 		       struct net_device *sb_dev,
 		       select_queue_fallback_t fallback)
+=======
+		       struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	return (u16)raw_smp_processor_id() % dev->real_num_tx_queues;
 }
 EXPORT_SYMBOL(dev_pick_tx_cpu_id);
 
+<<<<<<< HEAD
 static u16 __netdev_pick_tx(struct net_device *dev, struct sk_buff *skb,
 			    struct net_device *sb_dev)
+=======
+u16 netdev_pick_tx(struct net_device *dev, struct sk_buff *skb,
+		     struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = skb->sk;
 	int queue_index = sk_tx_queue_get(sk);
@@ -3700,10 +4862,18 @@ static u16 __netdev_pick_tx(struct net_device *dev, struct sk_buff *skb,
 
 	return queue_index;
 }
+<<<<<<< HEAD
 
 struct netdev_queue *netdev_pick_tx(struct net_device *dev,
 				    struct sk_buff *skb,
 				    struct net_device *sb_dev)
+=======
+EXPORT_SYMBOL(netdev_pick_tx);
+
+struct netdev_queue *netdev_core_pick_tx(struct net_device *dev,
+					 struct sk_buff *skb,
+					 struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	int queue_index = 0;
 
@@ -3718,10 +4888,16 @@ struct netdev_queue *netdev_pick_tx(struct net_device *dev,
 		const struct net_device_ops *ops = dev->netdev_ops;
 
 		if (ops->ndo_select_queue)
+<<<<<<< HEAD
 			queue_index = ops->ndo_select_queue(dev, skb, sb_dev,
 							    __netdev_pick_tx);
 		else
 			queue_index = __netdev_pick_tx(dev, skb, sb_dev);
+=======
+			queue_index = ops->ndo_select_queue(dev, skb, sb_dev);
+		else
+			queue_index = netdev_pick_tx(dev, skb, sb_dev);
+>>>>>>> upstream/android-13
 
 		queue_index = netdev_cap_txqueue(dev, queue_index);
 	}
@@ -3767,7 +4943,11 @@ static int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
 	skb_reset_mac_header(skb);
 
 	if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_SCHED_TSTAMP))
+<<<<<<< HEAD
 		__skb_tstamp_tx(skb, NULL, skb->sk, SCM_TSTAMP_SCHED);
+=======
+		__skb_tstamp_tx(skb, NULL, NULL, skb->sk, SCM_TSTAMP_SCHED);
+>>>>>>> upstream/android-13
 
 	/* Disable soft irqs for various locks below. Also
 	 * stops preemption for RCU.
@@ -3795,7 +4975,11 @@ static int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
 	else
 		skb_dst_force(skb);
 
+<<<<<<< HEAD
 	txq = netdev_pick_tx(dev, skb, sb_dev);
+=======
+	txq = netdev_core_pick_tx(dev, skb, sb_dev);
+>>>>>>> upstream/android-13
 	q = rcu_dereference_bh(txq->qdisc);
 
 	trace_net_dev_queue(skb);
@@ -3819,7 +5003,14 @@ static int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
 	if (dev->flags & IFF_UP) {
 		int cpu = smp_processor_id(); /* ok because BHs are off */
 
+<<<<<<< HEAD
 		if (txq->xmit_lock_owner != cpu) {
+=======
+		/* Other cpus might concurrently change txq->xmit_lock_owner
+		 * to -1 or to their cpu id, but not to our id.
+		 */
+		if (READ_ONCE(txq->xmit_lock_owner) != cpu) {
+>>>>>>> upstream/android-13
 			if (dev_xmit_recursion())
 				goto recursion_alert;
 
@@ -3827,6 +5018,10 @@ static int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
 			if (!skb)
 				goto out;
 
+<<<<<<< HEAD
+=======
+			PRANDOM_ADD_NOISE(skb, dev, txq, jiffies);
+>>>>>>> upstream/android-13
 			HARD_TX_LOCK(dev, txq, cpu);
 
 			if (!netif_xmit_stopped(txq)) {
@@ -3874,7 +5069,11 @@ int dev_queue_xmit_accel(struct sk_buff *skb, struct net_device *sb_dev)
 }
 EXPORT_SYMBOL(dev_queue_xmit_accel);
 
+<<<<<<< HEAD
 int dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
+=======
+int __dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev = skb->dev;
 	struct sk_buff *orig_skb = skb;
@@ -3892,6 +5091,10 @@ int dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
 
 	skb_set_queue_mapping(skb, queue_id);
 	txq = skb_get_tx_queue(dev, skb);
+<<<<<<< HEAD
+=======
+	PRANDOM_ADD_NOISE(skb, dev, txq, jiffies);
+>>>>>>> upstream/android-13
 
 	local_bh_disable();
 
@@ -3903,17 +5106,24 @@ int dev_direct_xmit(struct sk_buff *skb, u16 queue_id)
 	dev_xmit_recursion_dec();
 
 	local_bh_enable();
+<<<<<<< HEAD
 
 	if (!dev_xmit_complete(ret))
 		kfree_skb(skb);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 drop:
 	atomic_long_inc(&dev->tx_dropped);
 	kfree_skb_list(skb);
 	return NET_XMIT_DROP;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(dev_direct_xmit);
+=======
+EXPORT_SYMBOL(__dev_direct_xmit);
+>>>>>>> upstream/android-13
 
 /*************************************************************************
  *			Receiver routines
@@ -3931,11 +5141,42 @@ int dev_weight_rx_bias __read_mostly = 1;  /* bias for backlog weight */
 int dev_weight_tx_bias __read_mostly = 1;  /* bias for output_queue quota */
 int dev_rx_weight __read_mostly = 64;
 int dev_tx_weight __read_mostly = 64;
+<<<<<<< HEAD
+=======
+/* Maximum number of GRO_NORMAL skbs to batch up for list-RX */
+int gro_normal_batch __read_mostly = 8;
+>>>>>>> upstream/android-13
 
 /* Called with irq disabled */
 static inline void ____napi_schedule(struct softnet_data *sd,
 				     struct napi_struct *napi)
 {
+<<<<<<< HEAD
+=======
+	struct task_struct *thread;
+
+	if (test_bit(NAPI_STATE_THREADED, &napi->state)) {
+		/* Paired with smp_mb__before_atomic() in
+		 * napi_enable()/dev_set_threaded().
+		 * Use READ_ONCE() to guarantee a complete
+		 * read on napi->thread. Only call
+		 * wake_up_process() when it's not NULL.
+		 */
+		thread = READ_ONCE(napi->thread);
+		if (thread) {
+			/* Avoid doing set_bit() if the thread is in
+			 * INTERRUPTIBLE state, cause napi_thread_wait()
+			 * makes sure to proceed with napi polling
+			 * if the thread is explicitly woken from here.
+			 */
+			if (READ_ONCE(thread->__state) != TASK_INTERRUPTIBLE)
+				set_bit(NAPI_STATE_SCHED_THREADED, &napi->state);
+			wake_up_process(thread);
+			return;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	list_add_tail(&napi->poll_list, &sd->poll_list);
 	__raise_softirq_irqoff(NET_RX_SOFTIRQ);
 }
@@ -3948,9 +5189,15 @@ EXPORT_SYMBOL(rps_sock_flow_table);
 u32 rps_cpu_mask __read_mostly;
 EXPORT_SYMBOL(rps_cpu_mask);
 
+<<<<<<< HEAD
 struct static_key rps_needed __read_mostly;
 EXPORT_SYMBOL(rps_needed);
 struct static_key rfs_needed __read_mostly;
+=======
+struct static_key_false rps_needed __read_mostly;
+EXPORT_SYMBOL(rps_needed);
+struct static_key_false rfs_needed __read_mostly;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(rfs_needed);
 
 static struct rps_dev_flow *
@@ -4283,10 +5530,102 @@ static struct netdev_rx_queue *netif_get_rxqueue(struct sk_buff *skb)
 	return rxqueue;
 }
 
+<<<<<<< HEAD
+=======
+u32 bpf_prog_run_generic_xdp(struct sk_buff *skb, struct xdp_buff *xdp,
+			     struct bpf_prog *xdp_prog)
+{
+	void *orig_data, *orig_data_end, *hard_start;
+	struct netdev_rx_queue *rxqueue;
+	bool orig_bcast, orig_host;
+	u32 mac_len, frame_sz;
+	__be16 orig_eth_type;
+	struct ethhdr *eth;
+	u32 metalen, act;
+	int off;
+
+	/* The XDP program wants to see the packet starting at the MAC
+	 * header.
+	 */
+	mac_len = skb->data - skb_mac_header(skb);
+	hard_start = skb->data - skb_headroom(skb);
+
+	/* SKB "head" area always have tailroom for skb_shared_info */
+	frame_sz = (void *)skb_end_pointer(skb) - hard_start;
+	frame_sz += SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+
+	rxqueue = netif_get_rxqueue(skb);
+	xdp_init_buff(xdp, frame_sz, &rxqueue->xdp_rxq);
+	xdp_prepare_buff(xdp, hard_start, skb_headroom(skb) - mac_len,
+			 skb_headlen(skb) + mac_len, true);
+
+	orig_data_end = xdp->data_end;
+	orig_data = xdp->data;
+	eth = (struct ethhdr *)xdp->data;
+	orig_host = ether_addr_equal_64bits(eth->h_dest, skb->dev->dev_addr);
+	orig_bcast = is_multicast_ether_addr_64bits(eth->h_dest);
+	orig_eth_type = eth->h_proto;
+
+	act = bpf_prog_run_xdp(xdp_prog, xdp);
+
+	/* check if bpf_xdp_adjust_head was used */
+	off = xdp->data - orig_data;
+	if (off) {
+		if (off > 0)
+			__skb_pull(skb, off);
+		else if (off < 0)
+			__skb_push(skb, -off);
+
+		skb->mac_header += off;
+		skb_reset_network_header(skb);
+	}
+
+	/* check if bpf_xdp_adjust_tail was used */
+	off = xdp->data_end - orig_data_end;
+	if (off != 0) {
+		skb_set_tail_pointer(skb, xdp->data_end - xdp->data);
+		skb->len += off; /* positive on grow, negative on shrink */
+	}
+
+	/* check if XDP changed eth hdr such SKB needs update */
+	eth = (struct ethhdr *)xdp->data;
+	if ((orig_eth_type != eth->h_proto) ||
+	    (orig_host != ether_addr_equal_64bits(eth->h_dest,
+						  skb->dev->dev_addr)) ||
+	    (orig_bcast != is_multicast_ether_addr_64bits(eth->h_dest))) {
+		__skb_push(skb, ETH_HLEN);
+		skb->pkt_type = PACKET_HOST;
+		skb->protocol = eth_type_trans(skb, skb->dev);
+	}
+
+	/* Redirect/Tx gives L2 packet, code that will reuse skb must __skb_pull
+	 * before calling us again on redirect path. We do not call do_redirect
+	 * as we leave that up to the caller.
+	 *
+	 * Caller is responsible for managing lifetime of skb (i.e. calling
+	 * kfree_skb in response to actions it cannot handle/XDP_DROP).
+	 */
+	switch (act) {
+	case XDP_REDIRECT:
+	case XDP_TX:
+		__skb_push(skb, mac_len);
+		break;
+	case XDP_PASS:
+		metalen = xdp->data - xdp->data_meta;
+		if (metalen)
+			skb_metadata_set(skb, metalen);
+		break;
+	}
+
+	return act;
+}
+
+>>>>>>> upstream/android-13
 static u32 netif_receive_generic_xdp(struct sk_buff *skb,
 				     struct xdp_buff *xdp,
 				     struct bpf_prog *xdp_prog)
 {
+<<<<<<< HEAD
 	struct netdev_rx_queue *rxqueue;
 	void *orig_data, *orig_data_end;
 	u32 metalen, act = XDP_DROP;
@@ -4295,11 +5634,18 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
 	bool orig_bcast;
 	int hlen, off;
 	u32 mac_len;
+=======
+	u32 act = XDP_DROP;
+>>>>>>> upstream/android-13
 
 	/* Reinjected packets coming from act_mirred or similar should
 	 * not get XDP generic processing.
 	 */
+<<<<<<< HEAD
 	if (skb_is_tc_redirected(skb))
+=======
+	if (skb_is_redirected(skb))
+>>>>>>> upstream/android-13
 		return XDP_PASS;
 
 	/* XDP packets must be linear and must have sufficient headroom
@@ -4322,6 +5668,7 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
 			goto do_drop;
 	}
 
+<<<<<<< HEAD
 	/* The XDP program wants to see the packet starting at the MAC
 	 * header.
 	 */
@@ -4388,6 +5735,20 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
 	case XDP_ABORTED:
 		trace_xdp_exception(skb->dev, xdp_prog, act);
 		/* fall through */
+=======
+	act = bpf_prog_run_generic_xdp(skb, xdp, xdp_prog);
+	switch (act) {
+	case XDP_REDIRECT:
+	case XDP_TX:
+	case XDP_PASS:
+		break;
+	default:
+		bpf_warn_invalid_xdp_action(act);
+		fallthrough;
+	case XDP_ABORTED:
+		trace_xdp_exception(skb->dev, xdp_prog, act);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case XDP_DROP:
 	do_drop:
 		kfree_skb(skb);
@@ -4407,7 +5768,11 @@ void generic_xdp_tx(struct sk_buff *skb, struct bpf_prog *xdp_prog)
 	bool free_skb = true;
 	int cpu, rc;
 
+<<<<<<< HEAD
 	txq = netdev_pick_tx(dev, skb, NULL);
+=======
+	txq = netdev_core_pick_tx(dev, skb, NULL);
+>>>>>>> upstream/android-13
 	cpu = smp_processor_id();
 	HARD_TX_LOCK(dev, txq, cpu);
 	if (!netif_xmit_stopped(txq)) {
@@ -4421,7 +5786,10 @@ void generic_xdp_tx(struct sk_buff *skb, struct bpf_prog *xdp_prog)
 		kfree_skb(skb);
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(generic_xdp_tx);
+=======
+>>>>>>> upstream/android-13
 
 static DEFINE_STATIC_KEY_FALSE(generic_xdp_needed_key);
 
@@ -4464,7 +5832,11 @@ static int netif_rx_internal(struct sk_buff *skb)
 	trace_netif_rx(skb);
 
 #ifdef CONFIG_RPS
+<<<<<<< HEAD
 	if (static_key_false(&rps_needed)) {
+=======
+	if (static_branch_unlikely(&rps_needed)) {
+>>>>>>> upstream/android-13
 		struct rps_dev_flow voidflow, *rflow = &voidflow;
 		int cpu;
 
@@ -4507,9 +5879,20 @@ static int netif_rx_internal(struct sk_buff *skb)
 
 int netif_rx(struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	trace_netif_rx_entry(skb);
 
 	return netif_rx_internal(skb);
+=======
+	int ret;
+
+	trace_netif_rx_entry(skb);
+
+	ret = netif_rx_internal(skb);
+	trace_netif_rx_exit(ret);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(netif_rx);
 
@@ -4524,11 +5907,33 @@ int netif_rx_ni(struct sk_buff *skb)
 	if (local_softirq_pending())
 		do_softirq();
 	preempt_enable();
+<<<<<<< HEAD
+=======
+	trace_netif_rx_ni_exit(err);
+>>>>>>> upstream/android-13
 
 	return err;
 }
 EXPORT_SYMBOL(netif_rx_ni);
 
+<<<<<<< HEAD
+=======
+int netif_rx_any_context(struct sk_buff *skb)
+{
+	/*
+	 * If invoked from contexts which do not invoke bottom half
+	 * processing either at return from interrupt or when softrqs are
+	 * reenabled, use netif_rx_ni() which invokes bottomhalf processing
+	 * directly.
+	 */
+	if (in_interrupt())
+		return netif_rx(skb);
+	else
+		return netif_rx_ni(skb);
+}
+EXPORT_SYMBOL(netif_rx_any_context);
+
+>>>>>>> upstream/android-13
 static __latent_entropy void net_tx_action(struct softirq_action *h)
 {
 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
@@ -4557,8 +5962,11 @@ static __latent_entropy void net_tx_action(struct softirq_action *h)
 			else
 				__kfree_skb_defer(skb);
 		}
+<<<<<<< HEAD
 
 		__kfree_skb_flush();
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (sd->output_queue) {
@@ -4570,25 +5978,59 @@ static __latent_entropy void net_tx_action(struct softirq_action *h)
 		sd->output_queue_tailp = &sd->output_queue;
 		local_irq_enable();
 
+<<<<<<< HEAD
+=======
+		rcu_read_lock();
+
+>>>>>>> upstream/android-13
 		while (head) {
 			struct Qdisc *q = head;
 			spinlock_t *root_lock = NULL;
 
 			head = head->next_sched;
 
+<<<<<<< HEAD
 			if (!(q->flags & TCQ_F_NOLOCK)) {
 				root_lock = qdisc_lock(q);
 				spin_lock(root_lock);
 			}
+=======
+>>>>>>> upstream/android-13
 			/* We need to make sure head->next_sched is read
 			 * before clearing __QDISC_STATE_SCHED
 			 */
 			smp_mb__before_atomic();
+<<<<<<< HEAD
+=======
+
+			if (!(q->flags & TCQ_F_NOLOCK)) {
+				root_lock = qdisc_lock(q);
+				spin_lock(root_lock);
+			} else if (unlikely(test_bit(__QDISC_STATE_DEACTIVATED,
+						     &q->state))) {
+				/* There is a synchronize_net() between
+				 * STATE_DEACTIVATED flag being set and
+				 * qdisc_reset()/some_qdisc_is_busy() in
+				 * dev_deactivate(), so we can safely bail out
+				 * early here to avoid data race between
+				 * qdisc_deactivate() and some_qdisc_is_busy()
+				 * for lockless qdisc.
+				 */
+				clear_bit(__QDISC_STATE_SCHED, &q->state);
+				continue;
+			}
+
+>>>>>>> upstream/android-13
 			clear_bit(__QDISC_STATE_SCHED, &q->state);
 			qdisc_run(q);
 			if (root_lock)
 				spin_unlock(root_lock);
 		}
+<<<<<<< HEAD
+=======
+
+		rcu_read_unlock();
+>>>>>>> upstream/android-13
 	}
 
 	xfrm_dev_backlog(sd);
@@ -4603,7 +6045,11 @@ EXPORT_SYMBOL_GPL(br_fdb_test_addr_hook);
 
 static inline struct sk_buff *
 sch_handle_ingress(struct sk_buff *skb, struct packet_type **pt_prev, int *ret,
+<<<<<<< HEAD
 		   struct net_device *orig_dev)
+=======
+		   struct net_device *orig_dev, bool *another)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_NET_CLS_ACT
 	struct mini_Qdisc *miniq = rcu_dereference_bh(skb->dev->miniq_ingress);
@@ -4623,10 +6069,19 @@ sch_handle_ingress(struct sk_buff *skb, struct packet_type **pt_prev, int *ret,
 	}
 
 	qdisc_skb_cb(skb)->pkt_len = skb->len;
+<<<<<<< HEAD
 	skb->tc_at_ingress = 1;
 	mini_qdisc_bstats_cpu_update(miniq, skb);
 
 	switch (tcf_classify(skb, miniq->filter_list, &cl_res, false)) {
+=======
+	tc_skb_cb(skb)->mru = 0;
+	tc_skb_cb(skb)->post_ct = false;
+	skb->tc_at_ingress = 1;
+	mini_qdisc_bstats_cpu_update(miniq, skb);
+
+	switch (tcf_classify(skb, miniq->block, miniq->filter_list, &cl_res, false)) {
+>>>>>>> upstream/android-13
 	case TC_ACT_OK:
 	case TC_ACT_RECLASSIFY:
 		skb->tc_index = TC_H_MIN(cl_res.classid);
@@ -4646,11 +6101,21 @@ sch_handle_ingress(struct sk_buff *skb, struct packet_type **pt_prev, int *ret,
 		 * redirecting to another netdev
 		 */
 		__skb_push(skb, skb->mac_len);
+<<<<<<< HEAD
 		skb_do_redirect(skb);
 		return NULL;
 	case TC_ACT_REINSERT:
 		/* this does not scrub the packet, and updates stats on error */
 		skb_tc_reinsert(skb, &cl_res);
+=======
+		if (skb_do_redirect(skb) == -EAGAIN) {
+			__skb_pull(skb, skb->mac_len);
+			*another = true;
+			break;
+		}
+		return NULL;
+	case TC_ACT_CONSUMED:
+>>>>>>> upstream/android-13
 		return NULL;
 	default:
 		break;
@@ -4750,7 +6215,10 @@ static bool skb_pfmemalloc_protocol(struct sk_buff *skb)
 static inline int nf_ingress(struct sk_buff *skb, struct packet_type **pt_prev,
 			     int *ret, struct net_device *orig_dev)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NETFILTER_INGRESS
+=======
+>>>>>>> upstream/android-13
 	if (nf_hook_ingress_active(skb)) {
 		int ingress_retval;
 
@@ -4764,7 +6232,10 @@ static inline int nf_ingress(struct sk_buff *skb, struct packet_type **pt_prev,
 		rcu_read_unlock();
 		return ingress_retval;
 	}
+<<<<<<< HEAD
 #endif /* CONFIG_NETFILTER_INGRESS */
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4800,19 +6271,31 @@ another_round:
 	if (static_branch_unlikely(&generic_xdp_needed_key)) {
 		int ret2;
 
+<<<<<<< HEAD
 		preempt_disable();
 		ret2 = do_xdp_generic(rcu_dereference(skb->dev->xdp_prog), skb);
 		preempt_enable();
+=======
+		migrate_disable();
+		ret2 = do_xdp_generic(rcu_dereference(skb->dev->xdp_prog), skb);
+		migrate_enable();
+>>>>>>> upstream/android-13
 
 		if (ret2 != XDP_PASS) {
 			ret = NET_RX_DROP;
 			goto out;
 		}
+<<<<<<< HEAD
 		skb_reset_mac_len(skb);
 	}
 
 	if (skb->protocol == cpu_to_be16(ETH_P_8021Q) ||
 	    skb->protocol == cpu_to_be16(ETH_P_8021AD)) {
+=======
+	}
+
+	if (eth_type_vlan(skb->protocol)) {
+>>>>>>> upstream/android-13
 		skb = skb_vlan_untag(skb);
 		if (unlikely(!skb))
 			goto out;
@@ -4839,7 +6322,16 @@ another_round:
 skip_taps:
 #ifdef CONFIG_NET_INGRESS
 	if (static_branch_unlikely(&ingress_needed_key)) {
+<<<<<<< HEAD
 		skb = sch_handle_ingress(skb, &pt_prev, &ret, orig_dev);
+=======
+		bool another = false;
+
+		skb = sch_handle_ingress(skb, &pt_prev, &ret, orig_dev,
+					 &another);
+		if (another)
+			goto another_round;
+>>>>>>> upstream/android-13
 		if (!skb)
 			goto out;
 
@@ -4847,7 +6339,11 @@ skip_taps:
 			goto out;
 	}
 #endif
+<<<<<<< HEAD
 	skb_reset_tc(skb);
+=======
+	skb_reset_redirect(skb);
+>>>>>>> upstream/android-13
 skip_classify:
 	if (pfmemalloc && !skb_pfmemalloc_protocol(skb))
 		goto drop;
@@ -4877,6 +6373,10 @@ skip_classify:
 			goto another_round;
 		case RX_HANDLER_EXACT:
 			deliver_exact = true;
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		case RX_HANDLER_PASS:
 			break;
 		default:
@@ -4884,14 +6384,51 @@ skip_classify:
 		}
 	}
 
+<<<<<<< HEAD
 	if (unlikely(skb_vlan_tag_present(skb))) {
 		if (skb_vlan_tag_get_id(skb))
 			skb->pkt_type = PACKET_OTHERHOST;
+=======
+	if (unlikely(skb_vlan_tag_present(skb)) && !netdev_uses_dsa(skb->dev)) {
+check_vlan_id:
+		if (skb_vlan_tag_get_id(skb)) {
+			/* Vlan id is non 0 and vlan_do_receive() above couldn't
+			 * find vlan device.
+			 */
+			skb->pkt_type = PACKET_OTHERHOST;
+		} else if (eth_type_vlan(skb->protocol)) {
+			/* Outer header is 802.1P with vlan 0, inner header is
+			 * 802.1Q or 802.1AD and vlan_do_receive() above could
+			 * not find vlan dev for vlan id 0.
+			 */
+			__vlan_hwaccel_clear_tag(skb);
+			skb = skb_vlan_untag(skb);
+			if (unlikely(!skb))
+				goto out;
+			if (vlan_do_receive(&skb))
+				/* After stripping off 802.1P header with vlan 0
+				 * vlan dev is found for inner header.
+				 */
+				goto another_round;
+			else if (unlikely(!skb))
+				goto out;
+			else
+				/* We have stripped outer 802.1P vlan 0 header.
+				 * But could not find vlan dev.
+				 * check again for vlan id to set OTHERHOST.
+				 */
+				goto check_vlan_id;
+		}
+>>>>>>> upstream/android-13
 		/* Note: we might in the future use prio bits
 		 * and set skb->priority like in vlan_do_receive()
 		 * For the time being, just ignore Priority Code Point
 		 */
+<<<<<<< HEAD
 		skb->vlan_tci = 0;
+=======
+		__vlan_hwaccel_clear_tag(skb);
+>>>>>>> upstream/android-13
 	}
 
 	type = skb->protocol;
@@ -4947,7 +6484,12 @@ static int __netif_receive_skb_one_core(struct sk_buff *skb, bool pfmemalloc)
 
 	ret = __netif_receive_skb_core(&skb, pfmemalloc, &pt_prev);
 	if (pt_prev)
+<<<<<<< HEAD
 		ret = pt_prev->func(skb, skb->dev, pt_prev, orig_dev);
+=======
+		ret = INDIRECT_CALL_INET(pt_prev->func, ipv6_rcv, ip_rcv, skb,
+					 skb->dev, pt_prev, orig_dev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -4957,7 +6499,11 @@ static int __netif_receive_skb_one_core(struct sk_buff *skb, bool pfmemalloc)
  *
  *	More direct receive version of netif_receive_skb().  It should
  *	only be used by callers that have a need to skip RPS and Generic XDP.
+<<<<<<< HEAD
  *	Caller must also take care of handling if (page_is_)pfmemalloc.
+=======
+ *	Caller must also take care of handling if ``(page_is_)pfmemalloc``.
+>>>>>>> upstream/android-13
  *
  *	This function may only be called from softirq context and interrupts
  *	should be enabled.
@@ -4989,7 +6535,12 @@ static inline void __netif_receive_skb_list_ptype(struct list_head *head,
 	if (list_empty(head))
 		return;
 	if (pt_prev->list_func != NULL)
+<<<<<<< HEAD
 		pt_prev->list_func(head, pt_prev, orig_dev);
+=======
+		INDIRECT_CALL_INET(pt_prev->list_func, ipv6_list_rcv,
+				   ip_list_rcv, head, pt_prev, orig_dev);
+>>>>>>> upstream/android-13
 	else
 		list_for_each_entry_safe(skb, next, head, list) {
 			skb_list_del_init(skb);
@@ -5115,10 +6666,13 @@ static int generic_xdp_install(struct net_device *dev, struct netdev_bpf *xdp)
 		}
 		break;
 
+<<<<<<< HEAD
 	case XDP_QUERY_PROG:
 		xdp->prog_id = old ? old->aux->id : 0;
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	default:
 		ret = -EINVAL;
 		break;
@@ -5138,7 +6692,11 @@ static int netif_receive_skb_internal(struct sk_buff *skb)
 
 	rcu_read_lock();
 #ifdef CONFIG_RPS
+<<<<<<< HEAD
 	if (static_key_false(&rps_needed)) {
+=======
+	if (static_branch_unlikely(&rps_needed)) {
+>>>>>>> upstream/android-13
 		struct rps_dev_flow voidflow, *rflow = &voidflow;
 		int cpu = get_rps_cpu(skb->dev, skb, &rflow);
 
@@ -5170,7 +6728,11 @@ static void netif_receive_skb_list_internal(struct list_head *head)
 
 	rcu_read_lock();
 #ifdef CONFIG_RPS
+<<<<<<< HEAD
 	if (static_key_false(&rps_needed)) {
+=======
+	if (static_branch_unlikely(&rps_needed)) {
+>>>>>>> upstream/android-13
 		list_for_each_entry_safe(skb, next, head, list) {
 			struct rps_dev_flow voidflow, *rflow = &voidflow;
 			int cpu = get_rps_cpu(skb->dev, skb, &rflow);
@@ -5204,9 +6766,20 @@ static void netif_receive_skb_list_internal(struct list_head *head)
  */
 int netif_receive_skb(struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	trace_netif_receive_skb_entry(skb);
 
 	return netif_receive_skb_internal(skb);
+=======
+	int ret;
+
+	trace_netif_receive_skb_entry(skb);
+
+	ret = netif_receive_skb_internal(skb);
+	trace_netif_receive_skb_exit(ret);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(netif_receive_skb);
 
@@ -5226,6 +6799,7 @@ void netif_receive_skb_list(struct list_head *head)
 
 	if (list_empty(head))
 		return;
+<<<<<<< HEAD
 	list_for_each_entry(skb, head, list)
 		trace_netif_receive_skb_list_entry(skb);
 	netif_receive_skb_list_internal(head);
@@ -5233,6 +6807,18 @@ void netif_receive_skb_list(struct list_head *head)
 EXPORT_SYMBOL(netif_receive_skb_list);
 
 DEFINE_PER_CPU(struct work_struct, flush_works);
+=======
+	if (trace_netif_receive_skb_list_entry_enabled()) {
+		list_for_each_entry(skb, head, list)
+			trace_netif_receive_skb_list_entry(skb);
+	}
+	netif_receive_skb_list_internal(head);
+	trace_netif_receive_skb_list_exit(0);
+}
+EXPORT_SYMBOL(netif_receive_skb_list);
+
+static DEFINE_PER_CPU(struct work_struct, flush_works);
+>>>>>>> upstream/android-13
 
 /* Network device is going away, flush any packets still pending */
 static void flush_backlog(struct work_struct *work)
@@ -5265,6 +6851,7 @@ static void flush_backlog(struct work_struct *work)
 	local_bh_enable();
 }
 
+<<<<<<< HEAD
 static void flush_all_backlogs(void)
 {
 	unsigned int cpu;
@@ -5282,6 +6869,89 @@ static void flush_all_backlogs(void)
 }
 
 static int napi_gro_complete(struct sk_buff *skb)
+=======
+static bool flush_required(int cpu)
+{
+#if IS_ENABLED(CONFIG_RPS)
+	struct softnet_data *sd = &per_cpu(softnet_data, cpu);
+	bool do_flush;
+
+	local_irq_disable();
+	rps_lock(sd);
+
+	/* as insertion into process_queue happens with the rps lock held,
+	 * process_queue access may race only with dequeue
+	 */
+	do_flush = !skb_queue_empty(&sd->input_pkt_queue) ||
+		   !skb_queue_empty_lockless(&sd->process_queue);
+	rps_unlock(sd);
+	local_irq_enable();
+
+	return do_flush;
+#endif
+	/* without RPS we can't safely check input_pkt_queue: during a
+	 * concurrent remote skb_queue_splice() we can detect as empty both
+	 * input_pkt_queue and process_queue even if the latter could end-up
+	 * containing a lot of packets.
+	 */
+	return true;
+}
+
+static void flush_all_backlogs(void)
+{
+	static cpumask_t flush_cpus;
+	unsigned int cpu;
+
+	/* since we are under rtnl lock protection we can use static data
+	 * for the cpumask and avoid allocating on stack the possibly
+	 * large mask
+	 */
+	ASSERT_RTNL();
+
+	cpus_read_lock();
+
+	cpumask_clear(&flush_cpus);
+	for_each_online_cpu(cpu) {
+		if (flush_required(cpu)) {
+			queue_work_on(cpu, system_highpri_wq,
+				      per_cpu_ptr(&flush_works, cpu));
+			cpumask_set_cpu(cpu, &flush_cpus);
+		}
+	}
+
+	/* we can have in flight packet[s] on the cpus we are not flushing,
+	 * synchronize_net() in unregister_netdevice_many() will take care of
+	 * them
+	 */
+	for_each_cpu(cpu, &flush_cpus)
+		flush_work(per_cpu_ptr(&flush_works, cpu));
+
+	cpus_read_unlock();
+}
+
+/* Pass the currently batched GRO_NORMAL SKBs up to the stack. */
+static void gro_normal_list(struct napi_struct *napi)
+{
+	if (!napi->rx_count)
+		return;
+	netif_receive_skb_list_internal(&napi->rx_list);
+	INIT_LIST_HEAD(&napi->rx_list);
+	napi->rx_count = 0;
+}
+
+/* Queue one GRO_NORMAL SKB up for list processing. If batch size exceeded,
+ * pass the whole batch up to the stack.
+ */
+static void gro_normal_one(struct napi_struct *napi, struct sk_buff *skb, int segs)
+{
+	list_add_tail(&skb->list, &napi->rx_list);
+	napi->rx_count += segs;
+	if (napi->rx_count >= gro_normal_batch)
+		gro_normal_list(napi);
+}
+
+static int napi_gro_complete(struct napi_struct *napi, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct packet_offload *ptype;
 	__be16 type = skb->protocol;
@@ -5300,7 +6970,13 @@ static int napi_gro_complete(struct sk_buff *skb)
 		if (ptype->type != type || !ptype->callbacks.gro_complete)
 			continue;
 
+<<<<<<< HEAD
 		err = ptype->callbacks.gro_complete(skb, 0);
+=======
+		err = INDIRECT_CALL_INET(ptype->callbacks.gro_complete,
+					 ipv6_gro_complete, inet_gro_complete,
+					 skb, 0);
+>>>>>>> upstream/android-13
 		break;
 	}
 	rcu_read_unlock();
@@ -5312,7 +6988,12 @@ static int napi_gro_complete(struct sk_buff *skb)
 	}
 
 out:
+<<<<<<< HEAD
 	return netif_receive_skb_internal(skb);
+=======
+	gro_normal_one(napi, skb, NAPI_GRO_CB(skb)->count);
+	return NET_RX_SUCCESS;
+>>>>>>> upstream/android-13
 }
 
 static void __napi_gro_flush_chain(struct napi_struct *napi, u32 index,
@@ -5324,9 +7005,14 @@ static void __napi_gro_flush_chain(struct napi_struct *napi, u32 index,
 	list_for_each_entry_safe_reverse(skb, p, head, list) {
 		if (flush_old && NAPI_GRO_CB(skb)->age == jiffies)
 			return;
+<<<<<<< HEAD
 		list_del(&skb->list);
 		skb->next = NULL;
 		napi_gro_complete(skb);
+=======
+		skb_list_del_init(skb);
+		napi_gro_complete(napi, skb);
+>>>>>>> upstream/android-13
 		napi->gro_hash[index].count--;
 	}
 
@@ -5340,15 +7026,26 @@ static void __napi_gro_flush_chain(struct napi_struct *napi, u32 index,
  */
 void napi_gro_flush(struct napi_struct *napi, bool flush_old)
 {
+<<<<<<< HEAD
 	u32 i;
 
 	for (i = 0; i < GRO_HASH_BUCKETS; i++) {
 		if (test_bit(i, &napi->gro_bitmask))
 			__napi_gro_flush_chain(napi, i, flush_old);
+=======
+	unsigned long bitmask = napi->gro_bitmask;
+	unsigned int i, base = ~0U;
+
+	while ((i = ffs(bitmask)) != 0) {
+		bitmask >>= i;
+		base += i;
+		__napi_gro_flush_chain(napi, base, flush_old);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(napi_gro_flush);
 
+<<<<<<< HEAD
 static struct list_head *gro_list_prepare(struct napi_struct *napi,
 					  struct sk_buff *skb)
 {
@@ -5358,6 +7055,15 @@ static struct list_head *gro_list_prepare(struct napi_struct *napi,
 	struct sk_buff *p;
 
 	head = &napi->gro_hash[hash & (GRO_HASH_BUCKETS - 1)].list;
+=======
+static void gro_list_prepare(const struct list_head *head,
+			     const struct sk_buff *skb)
+{
+	unsigned int maclen = skb->dev->hard_header_len;
+	u32 hash = skb_get_hash_raw(skb);
+	struct sk_buff *p;
+
+>>>>>>> upstream/android-13
 	list_for_each_entry(p, head, list) {
 		unsigned long diffs;
 
@@ -5369,8 +7075,14 @@ static struct list_head *gro_list_prepare(struct napi_struct *napi,
 		}
 
 		diffs = (unsigned long)p->dev ^ (unsigned long)skb->dev;
+<<<<<<< HEAD
 		diffs |= p->vlan_tci ^ skb->vlan_tci;
 		diffs |= skb_metadata_dst_cmp(p, skb);
+=======
+		diffs |= skb_vlan_tag_present(p) ^ skb_vlan_tag_present(skb);
+		if (skb_vlan_tag_present(p))
+			diffs |= skb_vlan_tag_get(p) ^ skb_vlan_tag_get(skb);
+>>>>>>> upstream/android-13
 		diffs |= skb_metadata_differs(p, skb);
 		if (maclen == ETH_HLEN)
 			diffs |= compare_ether_header(skb_mac_header(p),
@@ -5379,6 +7091,7 @@ static struct list_head *gro_list_prepare(struct napi_struct *napi,
 			diffs = memcmp(skb_mac_header(p),
 				       skb_mac_header(skb),
 				       maclen);
+<<<<<<< HEAD
 		NAPI_GRO_CB(p)->same_flow = !diffs;
 	}
 
@@ -5386,6 +7099,39 @@ static struct list_head *gro_list_prepare(struct napi_struct *napi,
 }
 
 static void skb_gro_reset_offset(struct sk_buff *skb)
+=======
+
+		/* in most common scenarions 'slow_gro' is 0
+		 * otherwise we are already on some slower paths
+		 * either skip all the infrequent tests altogether or
+		 * avoid trying too hard to skip each of them individually
+		 */
+		if (!diffs && unlikely(skb->slow_gro | p->slow_gro)) {
+#if IS_ENABLED(CONFIG_SKB_EXTENSIONS) && IS_ENABLED(CONFIG_NET_TC_SKB_EXT)
+			struct tc_skb_ext *skb_ext;
+			struct tc_skb_ext *p_ext;
+#endif
+
+			diffs |= p->sk != skb->sk;
+			diffs |= skb_metadata_dst_cmp(p, skb);
+			diffs |= skb_get_nfct(p) ^ skb_get_nfct(skb);
+
+#if IS_ENABLED(CONFIG_SKB_EXTENSIONS) && IS_ENABLED(CONFIG_NET_TC_SKB_EXT)
+			skb_ext = skb_ext_find(skb, TC_SKB_EXT);
+			p_ext = skb_ext_find(p, TC_SKB_EXT);
+
+			diffs |= (!!p_ext) ^ (!!skb_ext);
+			if (!diffs && unlikely(skb_ext))
+				diffs |= p_ext->chain ^ skb_ext->chain;
+#endif
+		}
+
+		NAPI_GRO_CB(p)->same_flow = !diffs;
+	}
+}
+
+static inline void skb_gro_reset_offset(struct sk_buff *skb, u32 nhoff)
+>>>>>>> upstream/android-13
 {
 	const struct skb_shared_info *pinfo = skb_shinfo(skb);
 	const skb_frag_t *frag0 = &pinfo->frags[0];
@@ -5394,9 +7140,15 @@ static void skb_gro_reset_offset(struct sk_buff *skb)
 	NAPI_GRO_CB(skb)->frag0 = NULL;
 	NAPI_GRO_CB(skb)->frag0_len = 0;
 
+<<<<<<< HEAD
 	if (skb_mac_header(skb) == skb_tail_pointer(skb) &&
 	    pinfo->nr_frags &&
 	    !PageHighMem(skb_frag_page(frag0))) {
+=======
+	if (!skb_headlen(skb) && pinfo->nr_frags &&
+	    !PageHighMem(skb_frag_page(frag0)) &&
+	    (!NET_IP_ALIGN || !((skb_frag_off(frag0) + nhoff) & 3))) {
+>>>>>>> upstream/android-13
 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
 						    skb_frag_size(frag0),
@@ -5415,7 +7167,11 @@ static void gro_pull_from_frag0(struct sk_buff *skb, int grow)
 	skb->data_len -= grow;
 	skb->tail += grow;
 
+<<<<<<< HEAD
 	pinfo->frags[0].page_offset += grow;
+=======
+	skb_frag_off_add(&pinfo->frags[0], grow);
+>>>>>>> upstream/android-13
 	skb_frag_size_sub(&pinfo->frags[0], grow);
 
 	if (unlikely(!skb_frag_size(&pinfo->frags[0]))) {
@@ -5425,7 +7181,11 @@ static void gro_pull_from_frag0(struct sk_buff *skb, int grow)
 	}
 }
 
+<<<<<<< HEAD
 static void gro_flush_oldest(struct list_head *head)
+=======
+static void gro_flush_oldest(struct napi_struct *napi, struct list_head *head)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *oldest;
 
@@ -5440,18 +7200,31 @@ static void gro_flush_oldest(struct list_head *head)
 	/* Do not adjust napi->gro_hash[].count, caller is adding a new
 	 * SKB to the chain.
 	 */
+<<<<<<< HEAD
 	list_del(&oldest->list);
 	oldest->next = NULL;
 	napi_gro_complete(oldest);
+=======
+	skb_list_del_init(oldest);
+	napi_gro_complete(napi, oldest);
+>>>>>>> upstream/android-13
 }
 
 static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	u32 hash = skb_get_hash_raw(skb) & (GRO_HASH_BUCKETS - 1);
 	struct list_head *head = &offload_base;
 	struct packet_offload *ptype;
 	__be16 type = skb->protocol;
 	struct list_head *gro_head;
+=======
+	u32 bucket = skb_get_hash_raw(skb) & (GRO_HASH_BUCKETS - 1);
+	struct gro_list *gro_list = &napi->gro_hash[bucket];
+	struct list_head *head = &offload_base;
+	struct packet_offload *ptype;
+	__be16 type = skb->protocol;
+>>>>>>> upstream/android-13
 	struct sk_buff *pp = NULL;
 	enum gro_result ret;
 	int same_flow;
@@ -5460,7 +7233,11 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 	if (netif_elide_gro(skb->dev))
 		goto normal;
 
+<<<<<<< HEAD
 	gro_head = gro_list_prepare(napi, skb);
+=======
+	gro_list_prepare(&gro_list->list, skb);
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	list_for_each_entry_rcu(ptype, head, list) {
@@ -5494,7 +7271,13 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 			NAPI_GRO_CB(skb)->csum_valid = 0;
 		}
 
+<<<<<<< HEAD
 		pp = ptype->callbacks.gro_receive(gro_head, skb);
+=======
+		pp = INDIRECT_CALL_INET(ptype->callbacks.gro_receive,
+					ipv6_gro_receive, inet_gro_receive,
+					&gro_list->list, skb);
+>>>>>>> upstream/android-13
 		break;
 	}
 	rcu_read_unlock();
@@ -5502,7 +7285,11 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 	if (&ptype->list == head)
 		goto normal;
 
+<<<<<<< HEAD
 	if (IS_ERR(pp) && PTR_ERR(pp) == -EINPROGRESS) {
+=======
+	if (PTR_ERR(pp) == -EINPROGRESS) {
+>>>>>>> upstream/android-13
 		ret = GRO_CONSUMED;
 		goto ok;
 	}
@@ -5511,10 +7298,16 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 	ret = NAPI_GRO_CB(skb)->free ? GRO_MERGED_FREE : GRO_MERGED;
 
 	if (pp) {
+<<<<<<< HEAD
 		list_del(&pp->list);
 		pp->next = NULL;
 		napi_gro_complete(pp);
 		napi->gro_hash[hash].count--;
+=======
+		skb_list_del_init(pp);
+		napi_gro_complete(napi, pp);
+		gro_list->count--;
+>>>>>>> upstream/android-13
 	}
 
 	if (same_flow)
@@ -5523,16 +7316,28 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff 
 	if (NAPI_GRO_CB(skb)->flush)
 		goto normal;
 
+<<<<<<< HEAD
 	if (unlikely(napi->gro_hash[hash].count >= MAX_GRO_SKBS)) {
 		gro_flush_oldest(gro_head);
 	} else {
 		napi->gro_hash[hash].count++;
 	}
+=======
+	if (unlikely(gro_list->count >= MAX_GRO_SKBS))
+		gro_flush_oldest(napi, &gro_list->list);
+	else
+		gro_list->count++;
+
+>>>>>>> upstream/android-13
 	NAPI_GRO_CB(skb)->count = 1;
 	NAPI_GRO_CB(skb)->age = jiffies;
 	NAPI_GRO_CB(skb)->last = skb;
 	skb_shinfo(skb)->gso_size = skb_gro_len(skb);
+<<<<<<< HEAD
 	list_add(&skb->list, gro_head);
+=======
+	list_add(&skb->list, &gro_list->list);
+>>>>>>> upstream/android-13
 	ret = GRO_HELD;
 
 pull:
@@ -5540,11 +7345,19 @@ pull:
 	if (grow > 0)
 		gro_pull_from_frag0(skb, grow);
 ok:
+<<<<<<< HEAD
 	if (napi->gro_hash[hash].count) {
 		if (!test_bit(hash, &napi->gro_bitmask))
 			__set_bit(hash, &napi->gro_bitmask);
 	} else if (test_bit(hash, &napi->gro_bitmask)) {
 		__clear_bit(hash, &napi->gro_bitmask);
+=======
+	if (gro_list->count) {
+		if (!test_bit(bucket, &napi->gro_bitmask))
+			__set_bit(bucket, &napi->gro_bitmask);
+	} else if (test_bit(bucket, &napi->gro_bitmask)) {
+		__clear_bit(bucket, &napi->gro_bitmask);
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -5582,6 +7395,7 @@ struct packet_offload *gro_find_complete_by_type(__be16 type)
 }
 EXPORT_SYMBOL(gro_find_complete_by_type);
 
+<<<<<<< HEAD
 static void napi_skb_free_stolen_head(struct sk_buff *skb)
 {
 	skb_dst_drop(skb);
@@ -5599,13 +7413,29 @@ static gro_result_t napi_skb_finish(gro_result_t ret, struct sk_buff *skb)
 
 	case GRO_DROP:
 		kfree_skb(skb);
+=======
+static gro_result_t napi_skb_finish(struct napi_struct *napi,
+				    struct sk_buff *skb,
+				    gro_result_t ret)
+{
+	switch (ret) {
+	case GRO_NORMAL:
+		gro_normal_one(napi, skb, 1);
+>>>>>>> upstream/android-13
 		break;
 
 	case GRO_MERGED_FREE:
 		if (NAPI_GRO_CB(skb)->free == NAPI_GRO_FREE_STOLEN_HEAD)
 			napi_skb_free_stolen_head(skb);
+<<<<<<< HEAD
 		else
 			__kfree_skb(skb);
+=======
+		else if (skb->fclone != SKB_FCLONE_UNAVAILABLE)
+			__kfree_skb(skb);
+		else
+			__kfree_skb_defer(skb);
+>>>>>>> upstream/android-13
 		break;
 
 	case GRO_HELD:
@@ -5619,12 +7449,26 @@ static gro_result_t napi_skb_finish(gro_result_t ret, struct sk_buff *skb)
 
 gro_result_t napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	skb_mark_napi_id(skb, napi);
 	trace_napi_gro_receive_entry(skb);
 
 	skb_gro_reset_offset(skb);
 
 	return napi_skb_finish(dev_gro_receive(napi, skb), skb);
+=======
+	gro_result_t ret;
+
+	skb_mark_napi_id(skb, napi);
+	trace_napi_gro_receive_entry(skb);
+
+	skb_gro_reset_offset(skb, 0);
+
+	ret = napi_skb_finish(napi, skb, dev_gro_receive(napi, skb));
+	trace_napi_gro_receive_exit(ret);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(napi_gro_receive);
 
@@ -5637,7 +7481,11 @@ static void napi_reuse_skb(struct napi_struct *napi, struct sk_buff *skb)
 	__skb_pull(skb, skb_headlen(skb));
 	/* restore the reserve we had after netdev_alloc_skb_ip_align() */
 	skb_reserve(skb, NET_SKB_PAD + NET_IP_ALIGN - skb_headroom(skb));
+<<<<<<< HEAD
 	skb->vlan_tci = 0;
+=======
+	__vlan_hwaccel_clear_tag(skb);
+>>>>>>> upstream/android-13
 	skb->dev = napi->dev;
 	skb->skb_iif = 0;
 
@@ -5647,7 +7495,16 @@ static void napi_reuse_skb(struct napi_struct *napi, struct sk_buff *skb)
 	skb->encapsulation = 0;
 	skb_shinfo(skb)->gso_type = 0;
 	skb->truesize = SKB_TRUESIZE(skb_end_offset(skb));
+<<<<<<< HEAD
 	secpath_reset(skb);
+=======
+	if (unlikely(skb->slow_gro)) {
+		skb_orphan(skb);
+		skb_ext_reset(skb);
+		nf_reset_ct(skb);
+		skb->slow_gro = 0;
+	}
+>>>>>>> upstream/android-13
 
 	napi->skb = skb;
 }
@@ -5676,12 +7533,17 @@ static gro_result_t napi_frags_finish(struct napi_struct *napi,
 	case GRO_HELD:
 		__skb_push(skb, ETH_HLEN);
 		skb->protocol = eth_type_trans(skb, skb->dev);
+<<<<<<< HEAD
 		if (ret == GRO_NORMAL && netif_receive_skb_internal(skb))
 			ret = GRO_DROP;
 		break;
 
 	case GRO_DROP:
 		napi_reuse_skb(napi, skb);
+=======
+		if (ret == GRO_NORMAL)
+			gro_normal_one(napi, skb, 1);
+>>>>>>> upstream/android-13
 		break;
 
 	case GRO_MERGED_FREE:
@@ -5712,7 +7574,11 @@ static struct sk_buff *napi_frags_skb(struct napi_struct *napi)
 	napi->skb = NULL;
 
 	skb_reset_mac_header(skb);
+<<<<<<< HEAD
 	skb_gro_reset_offset(skb);
+=======
+	skb_gro_reset_offset(skb, hlen);
+>>>>>>> upstream/android-13
 
 	if (unlikely(skb_gro_header_hard(skb, hlen))) {
 		eth = skb_gro_header_slow(skb, hlen, 0);
@@ -5742,6 +7608,7 @@ static struct sk_buff *napi_frags_skb(struct napi_struct *napi)
 
 gro_result_t napi_gro_frags(struct napi_struct *napi)
 {
+<<<<<<< HEAD
 	struct sk_buff *skb = napi_frags_skb(napi);
 
 	if (!skb)
@@ -5750,6 +7617,17 @@ gro_result_t napi_gro_frags(struct napi_struct *napi)
 	trace_napi_gro_frags_entry(skb);
 
 	return napi_frags_finish(napi, skb, dev_gro_receive(napi, skb));
+=======
+	gro_result_t ret;
+	struct sk_buff *skb = napi_frags_skb(napi);
+
+	trace_napi_gro_frags_entry(skb);
+
+	ret = napi_frags_finish(napi, skb, dev_gro_receive(napi, skb));
+	trace_napi_gro_frags_exit(ret);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(napi_gro_frags);
 
@@ -5765,10 +7643,18 @@ __sum16 __skb_gro_checksum_complete(struct sk_buff *skb)
 
 	/* NAPI_GRO_CB(skb)->csum holds pseudo checksum */
 	sum = csum_fold(csum_add(NAPI_GRO_CB(skb)->csum, wsum));
+<<<<<<< HEAD
 	if (likely(!sum)) {
 		if (unlikely(skb->ip_summed == CHECKSUM_COMPLETE) &&
 		    !skb->csum_complete_sw)
 			netdev_rx_csum_fault(skb->dev);
+=======
+	/* See comments in __skb_checksum_complete(). */
+	if (likely(!sum)) {
+		if (unlikely(skb->ip_summed == CHECKSUM_COMPLETE) &&
+		    !skb->csum_complete_sw)
+			netdev_rx_csum_fault(skb->dev, skb);
+>>>>>>> upstream/android-13
 	}
 
 	NAPI_GRO_CB(skb)->csum = wsum;
@@ -5845,7 +7731,12 @@ static int process_backlog(struct napi_struct *napi, int quota)
 			rcu_read_unlock();
 			input_queue_head_incr(sd);
 			if (++work >= quota)
+<<<<<<< HEAD
 				goto state_changed;
+=======
+				return work;
+
+>>>>>>> upstream/android-13
 		}
 
 		local_irq_disable();
@@ -5869,10 +7760,13 @@ static int process_backlog(struct napi_struct *napi, int quota)
 		local_irq_enable();
 	}
 
+<<<<<<< HEAD
 state_changed:
 	napi_gro_flush(napi, false);
 	sd->current_napi = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	return work;
 }
 
@@ -5898,7 +7792,11 @@ EXPORT_SYMBOL(__napi_schedule);
  *	@n: napi context
  *
  * Test if NAPI routine is already running, and if not mark
+<<<<<<< HEAD
  * it as running.  This is used as a condition variable
+=======
+ * it as running.  This is used as a condition variable to
+>>>>>>> upstream/android-13
  * insure only one NAPI poll instance runs.  We also make
  * sure there is no pending NAPI disable.
  */
@@ -5930,17 +7828,37 @@ EXPORT_SYMBOL(napi_schedule_prep);
  * __napi_schedule_irqoff - schedule for receive
  * @n: entry to schedule
  *
+<<<<<<< HEAD
  * Variant of __napi_schedule() assuming hard irqs are masked
  */
 void __napi_schedule_irqoff(struct napi_struct *n)
 {
 	____napi_schedule(this_cpu_ptr(&softnet_data), n);
+=======
+ * Variant of __napi_schedule() assuming hard irqs are masked.
+ *
+ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
+ * because the interrupt disabled assumption might not be true
+ * due to force-threaded interrupts and spinlock substitution.
+ */
+void __napi_schedule_irqoff(struct napi_struct *n)
+{
+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
+		____napi_schedule(this_cpu_ptr(&softnet_data), n);
+	else
+		__napi_schedule(n);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(__napi_schedule_irqoff);
 
 bool napi_complete_done(struct napi_struct *n, int work_done)
 {
+<<<<<<< HEAD
 	unsigned long flags, val, new;
+=======
+	unsigned long flags, val, new, timeout = 0;
+	bool ret = true;
+>>>>>>> upstream/android-13
 
 	/*
 	 * 1) Don't let napi dequeue from the cpu poll list
@@ -5952,17 +7870,33 @@ bool napi_complete_done(struct napi_struct *n, int work_done)
 				 NAPIF_STATE_IN_BUSY_POLL)))
 		return false;
 
+<<<<<<< HEAD
 	if (n->gro_bitmask) {
 		unsigned long timeout = 0;
 
 		if (work_done)
 			timeout = n->dev->gro_flush_timeout;
 
+=======
+	if (work_done) {
+		if (n->gro_bitmask)
+			timeout = READ_ONCE(n->dev->gro_flush_timeout);
+		n->defer_hard_irqs_count = READ_ONCE(n->dev->napi_defer_hard_irqs);
+	}
+	if (n->defer_hard_irqs_count > 0) {
+		n->defer_hard_irqs_count--;
+		timeout = READ_ONCE(n->dev->gro_flush_timeout);
+		if (timeout)
+			ret = false;
+	}
+	if (n->gro_bitmask) {
+>>>>>>> upstream/android-13
 		/* When the NAPI instance uses a timeout and keeps postponing
 		 * it, we need to bound somehow the time packets are kept in
 		 * the GRO layer
 		 */
 		napi_gro_flush(n, !!timeout);
+<<<<<<< HEAD
 		if (timeout)
 			hrtimer_start(&n->timer, ns_to_ktime(timeout),
 				      HRTIMER_MODE_REL_PINNED);
@@ -5974,6 +7908,16 @@ bool napi_complete_done(struct napi_struct *n, int work_done)
 		local_irq_save(flags);
 		list_del_init(&n->poll_list);
 		sd->current_napi = NULL;
+=======
+	}
+
+	gro_normal_list(n);
+
+	if (unlikely(!list_empty(&n->poll_list))) {
+		/* If n->poll_list is not empty, we need to mask irqs */
+		local_irq_save(flags);
+		list_del_init(&n->poll_list);
+>>>>>>> upstream/android-13
 		local_irq_restore(flags);
 	}
 
@@ -5982,7 +7926,13 @@ bool napi_complete_done(struct napi_struct *n, int work_done)
 
 		WARN_ON_ONCE(!(val & NAPIF_STATE_SCHED));
 
+<<<<<<< HEAD
 		new = val & ~(NAPIF_STATE_MISSED | NAPIF_STATE_SCHED);
+=======
+		new = val & ~(NAPIF_STATE_MISSED | NAPIF_STATE_SCHED |
+			      NAPIF_STATE_SCHED_THREADED |
+			      NAPIF_STATE_PREFER_BUSY_POLL);
+>>>>>>> upstream/android-13
 
 		/* If STATE_MISSED was set, leave STATE_SCHED set,
 		 * because we will call napi->poll() one more time.
@@ -5997,7 +7947,14 @@ bool napi_complete_done(struct napi_struct *n, int work_done)
 		return false;
 	}
 
+<<<<<<< HEAD
 	return true;
+=======
+	if (timeout)
+		hrtimer_start(&n->timer, ns_to_ktime(timeout),
+			      HRTIMER_MODE_REL_PINNED);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(napi_complete_done);
 
@@ -6016,10 +7973,37 @@ static struct napi_struct *napi_by_id(unsigned int napi_id)
 
 #if defined(CONFIG_NET_RX_BUSY_POLL)
 
+<<<<<<< HEAD
 #define BUSY_POLL_BUDGET 8
 
 static void busy_poll_stop(struct napi_struct *napi, void *have_poll_lock)
 {
+=======
+static void __busy_poll_stop(struct napi_struct *napi, bool skip_schedule)
+{
+	if (!skip_schedule) {
+		gro_normal_list(napi);
+		__napi_schedule(napi);
+		return;
+	}
+
+	if (napi->gro_bitmask) {
+		/* flush too old packets
+		 * If HZ < 1000, flush all packets.
+		 */
+		napi_gro_flush(napi, HZ >= 1000);
+	}
+
+	gro_normal_list(napi);
+	clear_bit(NAPI_STATE_SCHED, &napi->state);
+}
+
+static void busy_poll_stop(struct napi_struct *napi, void *have_poll_lock, bool prefer_busy_poll,
+			   u16 budget)
+{
+	bool skip_schedule = false;
+	unsigned long timeout;
+>>>>>>> upstream/android-13
 	int rc;
 
 	/* Busy polling means there is a high chance device driver hard irq
@@ -6036,6 +8020,7 @@ static void busy_poll_stop(struct napi_struct *napi, void *have_poll_lock)
 
 	local_bh_disable();
 
+<<<<<<< HEAD
 	/* All we really want here is to re-enable device interrupts.
 	 * Ideally, a new ndo_busy_poll_stop() could avoid another round.
 	 */
@@ -6044,12 +8029,39 @@ static void busy_poll_stop(struct napi_struct *napi, void *have_poll_lock)
 	netpoll_poll_unlock(have_poll_lock);
 	if (rc == BUSY_POLL_BUDGET)
 		__napi_schedule(napi);
+=======
+	if (prefer_busy_poll) {
+		napi->defer_hard_irqs_count = READ_ONCE(napi->dev->napi_defer_hard_irqs);
+		timeout = READ_ONCE(napi->dev->gro_flush_timeout);
+		if (napi->defer_hard_irqs_count && timeout) {
+			hrtimer_start(&napi->timer, ns_to_ktime(timeout), HRTIMER_MODE_REL_PINNED);
+			skip_schedule = true;
+		}
+	}
+
+	/* All we really want here is to re-enable device interrupts.
+	 * Ideally, a new ndo_busy_poll_stop() could avoid another round.
+	 */
+	rc = napi->poll(napi, budget);
+	/* We can't gro_normal_list() here, because napi->poll() might have
+	 * rearmed the napi (napi_complete_done()) in which case it could
+	 * already be running on another CPU.
+	 */
+	trace_napi_poll(napi, rc, budget);
+	netpoll_poll_unlock(have_poll_lock);
+	if (rc == budget)
+		__busy_poll_stop(napi, skip_schedule);
+>>>>>>> upstream/android-13
 	local_bh_enable();
 }
 
 void napi_busy_loop(unsigned int napi_id,
 		    bool (*loop_end)(void *, unsigned long),
+<<<<<<< HEAD
 		    void *loop_end_arg)
+=======
+		    void *loop_end_arg, bool prefer_busy_poll, u16 budget)
+>>>>>>> upstream/android-13
 {
 	unsigned long start_time = loop_end ? busy_loop_current_time() : 0;
 	int (*napi_poll)(struct napi_struct *napi, int budget);
@@ -6077,6 +8089,7 @@ restart:
 			 * we avoid dirtying napi->state as much as we can.
 			 */
 			if (val & (NAPIF_STATE_DISABLE | NAPIF_STATE_SCHED |
+<<<<<<< HEAD
 				   NAPIF_STATE_IN_BUSY_POLL))
 				goto count;
 			if (cmpxchg(&napi->state, val,
@@ -6088,6 +8101,26 @@ restart:
 		}
 		work = napi_poll(napi, BUSY_POLL_BUDGET);
 		trace_napi_poll(napi, work, BUSY_POLL_BUDGET);
+=======
+				   NAPIF_STATE_IN_BUSY_POLL)) {
+				if (prefer_busy_poll)
+					set_bit(NAPI_STATE_PREFER_BUSY_POLL, &napi->state);
+				goto count;
+			}
+			if (cmpxchg(&napi->state, val,
+				    val | NAPIF_STATE_IN_BUSY_POLL |
+					  NAPIF_STATE_SCHED) != val) {
+				if (prefer_busy_poll)
+					set_bit(NAPI_STATE_PREFER_BUSY_POLL, &napi->state);
+				goto count;
+			}
+			have_poll_lock = netpoll_poll_lock(napi);
+			napi_poll = napi->poll;
+		}
+		work = napi_poll(napi, budget);
+		trace_napi_poll(napi, work, budget);
+		gro_normal_list(napi);
+>>>>>>> upstream/android-13
 count:
 		if (work > 0)
 			__NET_ADD_STATS(dev_net(napi->dev),
@@ -6099,7 +8132,11 @@ count:
 
 		if (unlikely(need_resched())) {
 			if (napi_poll)
+<<<<<<< HEAD
 				busy_poll_stop(napi, have_poll_lock);
+=======
+				busy_poll_stop(napi, have_poll_lock, prefer_busy_poll, budget);
+>>>>>>> upstream/android-13
 			preempt_enable();
 			rcu_read_unlock();
 			cond_resched();
@@ -6110,7 +8147,11 @@ count:
 		cpu_relax();
 	}
 	if (napi_poll)
+<<<<<<< HEAD
 		busy_poll_stop(napi, have_poll_lock);
+=======
+		busy_poll_stop(napi, have_poll_lock, prefer_busy_poll, budget);
+>>>>>>> upstream/android-13
 	preempt_enable();
 out:
 	rcu_read_unlock();
@@ -6121,8 +8162,12 @@ EXPORT_SYMBOL(napi_busy_loop);
 
 static void napi_hash_add(struct napi_struct *napi)
 {
+<<<<<<< HEAD
 	if (test_bit(NAPI_STATE_NO_BUSY_POLL, &napi->state) ||
 	    test_and_set_bit(NAPI_STATE_HASHED, &napi->state))
+=======
+	if (test_bit(NAPI_STATE_NO_BUSY_POLL, &napi->state))
+>>>>>>> upstream/android-13
 		return;
 
 	spin_lock(&napi_hash_lock);
@@ -6143,6 +8188,7 @@ static void napi_hash_add(struct napi_struct *napi)
 /* Warning : caller is responsible to make sure rcu grace period
  * is respected before freeing memory containing @napi
  */
+<<<<<<< HEAD
 bool napi_hash_del(struct napi_struct *napi)
 {
 	bool rcu_sync_needed = false;
@@ -6157,6 +8203,16 @@ bool napi_hash_del(struct napi_struct *napi)
 	return rcu_sync_needed;
 }
 EXPORT_SYMBOL_GPL(napi_hash_del);
+=======
+static void napi_hash_del(struct napi_struct *napi)
+{
+	spin_lock(&napi_hash_lock);
+
+	hlist_del_init_rcu(&napi->napi_hash_node);
+
+	spin_unlock(&napi_hash_lock);
+}
+>>>>>>> upstream/android-13
 
 static enum hrtimer_restart napi_watchdog(struct hrtimer *timer)
 {
@@ -6167,9 +8223,17 @@ static enum hrtimer_restart napi_watchdog(struct hrtimer *timer)
 	/* Note : we use a relaxed variant of napi_schedule_prep() not setting
 	 * NAPI_STATE_MISSED, since we do not react to a device IRQ.
 	 */
+<<<<<<< HEAD
 	if (napi->gro_bitmask && !napi_disable_pending(napi) &&
 	    !test_and_set_bit(NAPI_STATE_SCHED, &napi->state))
 		__napi_schedule_irqoff(napi);
+=======
+	if (!napi_disable_pending(napi) &&
+	    !test_and_set_bit(NAPI_STATE_SCHED, &napi->state)) {
+		clear_bit(NAPI_STATE_PREFER_BUSY_POLL, &napi->state);
+		__napi_schedule_irqoff(napi);
+	}
+>>>>>>> upstream/android-13
 
 	return HRTIMER_NORESTART;
 }
@@ -6185,18 +8249,82 @@ static void init_gro_hash(struct napi_struct *napi)
 	napi->gro_bitmask = 0;
 }
 
+<<<<<<< HEAD
 void netif_napi_add(struct net_device *dev, struct napi_struct *napi,
 		    int (*poll)(struct napi_struct *, int), int weight)
 {
 	INIT_LIST_HEAD(&napi->poll_list);
+=======
+int dev_set_threaded(struct net_device *dev, bool threaded)
+{
+	struct napi_struct *napi;
+	int err = 0;
+
+	if (dev->threaded == threaded)
+		return 0;
+
+	if (threaded) {
+		list_for_each_entry(napi, &dev->napi_list, dev_list) {
+			if (!napi->thread) {
+				err = napi_kthread_create(napi);
+				if (err) {
+					threaded = false;
+					break;
+				}
+			}
+		}
+	}
+
+	dev->threaded = threaded;
+
+	/* Make sure kthread is created before THREADED bit
+	 * is set.
+	 */
+	smp_mb__before_atomic();
+
+	/* Setting/unsetting threaded mode on a napi might not immediately
+	 * take effect, if the current napi instance is actively being
+	 * polled. In this case, the switch between threaded mode and
+	 * softirq mode will happen in the next round of napi_schedule().
+	 * This should not cause hiccups/stalls to the live traffic.
+	 */
+	list_for_each_entry(napi, &dev->napi_list, dev_list) {
+		if (threaded)
+			set_bit(NAPI_STATE_THREADED, &napi->state);
+		else
+			clear_bit(NAPI_STATE_THREADED, &napi->state);
+	}
+
+	return err;
+}
+EXPORT_SYMBOL(dev_set_threaded);
+
+void netif_napi_add(struct net_device *dev, struct napi_struct *napi,
+		    int (*poll)(struct napi_struct *, int), int weight)
+{
+	if (WARN_ON(test_and_set_bit(NAPI_STATE_LISTED, &napi->state)))
+		return;
+
+	INIT_LIST_HEAD(&napi->poll_list);
+	INIT_HLIST_NODE(&napi->napi_hash_node);
+>>>>>>> upstream/android-13
 	hrtimer_init(&napi->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_PINNED);
 	napi->timer.function = napi_watchdog;
 	init_gro_hash(napi);
 	napi->skb = NULL;
+<<<<<<< HEAD
 	napi->poll = poll;
 	if (weight > NAPI_POLL_WEIGHT)
 		pr_err_once("netif_napi_add() called with weight %d on device %s\n",
 			    weight, dev->name);
+=======
+	INIT_LIST_HEAD(&napi->rx_list);
+	napi->rx_count = 0;
+	napi->poll = poll;
+	if (weight > NAPI_POLL_WEIGHT)
+		netdev_err_once(dev, "%s() called with weight %d\n", __func__,
+				weight);
+>>>>>>> upstream/android-13
 	napi->weight = weight;
 	napi->dev = dev;
 #ifdef CONFIG_NETPOLL
@@ -6206,6 +8334,15 @@ void netif_napi_add(struct net_device *dev, struct napi_struct *napi,
 	set_bit(NAPI_STATE_NPSVC, &napi->state);
 	list_add_rcu(&napi->dev_list, &dev->napi_list);
 	napi_hash_add(napi);
+<<<<<<< HEAD
+=======
+	/* Create kthread for this napi if dev->threaded is set.
+	 * Clear dev->threaded if kthread creation failed so that
+	 * threaded mode will not be enabled in napi_enable().
+	 */
+	if (dev->threaded && napi_kthread_create(napi))
+		dev->threaded = 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(netif_napi_add);
 
@@ -6221,10 +8358,41 @@ void napi_disable(struct napi_struct *n)
 
 	hrtimer_cancel(&n->timer);
 
+<<<<<<< HEAD
 	clear_bit(NAPI_STATE_DISABLE, &n->state);
 }
 EXPORT_SYMBOL(napi_disable);
 
+=======
+	clear_bit(NAPI_STATE_PREFER_BUSY_POLL, &n->state);
+	clear_bit(NAPI_STATE_DISABLE, &n->state);
+	clear_bit(NAPI_STATE_THREADED, &n->state);
+}
+EXPORT_SYMBOL(napi_disable);
+
+/**
+ *	napi_enable - enable NAPI scheduling
+ *	@n: NAPI context
+ *
+ * Resume NAPI from being scheduled on this context.
+ * Must be paired with napi_disable.
+ */
+void napi_enable(struct napi_struct *n)
+{
+	unsigned long val, new;
+
+	do {
+		val = READ_ONCE(n->state);
+		BUG_ON(!test_bit(NAPI_STATE_SCHED, &val));
+
+		new = val & ~(NAPIF_STATE_SCHED | NAPIF_STATE_NPSVC);
+		if (n->dev->threaded && n->thread)
+			new |= NAPIF_STATE_THREADED;
+	} while (cmpxchg(&n->state, val, new) != val);
+}
+EXPORT_SYMBOL(napi_enable);
+
+>>>>>>> upstream/android-13
 static void flush_gro_hash(struct napi_struct *napi)
 {
 	int i;
@@ -6239,16 +8407,27 @@ static void flush_gro_hash(struct napi_struct *napi)
 }
 
 /* Must be called in process context */
+<<<<<<< HEAD
 void netif_napi_del(struct napi_struct *napi)
 {
 	might_sleep();
 	if (napi_hash_del(napi))
 		synchronize_net();
 	list_del_init(&napi->dev_list);
+=======
+void __netif_napi_del(struct napi_struct *napi)
+{
+	if (!test_and_clear_bit(NAPI_STATE_LISTED, &napi->state))
+		return;
+
+	napi_hash_del(napi);
+	list_del_rcu(&napi->dev_list);
+>>>>>>> upstream/android-13
 	napi_free_frags(napi);
 
 	flush_gro_hash(napi);
 	napi->gro_bitmask = 0;
+<<<<<<< HEAD
 }
 EXPORT_SYMBOL(netif_napi_del);
 
@@ -6269,6 +8448,20 @@ static int napi_poll(struct napi_struct *n, struct list_head *repoll)
 
 	have = netpoll_poll_lock(n);
 
+=======
+
+	if (napi->thread) {
+		kthread_stop(napi->thread);
+		napi->thread = NULL;
+	}
+}
+EXPORT_SYMBOL(__netif_napi_del);
+
+static int __napi_poll(struct napi_struct *n, bool *repoll)
+{
+	int work, weight;
+
+>>>>>>> upstream/android-13
 	weight = n->weight;
 
 	/* This NAPI_STATE_SCHED test is for avoiding a race
@@ -6279,17 +8472,29 @@ static int napi_poll(struct napi_struct *n, struct list_head *repoll)
 	 */
 	work = 0;
 	if (test_bit(NAPI_STATE_SCHED, &n->state)) {
+<<<<<<< HEAD
 		struct softnet_data *sd = this_cpu_ptr(&softnet_data);
 
 		sd->current_napi = n;
+=======
+>>>>>>> upstream/android-13
 		work = n->poll(n, weight);
 		trace_napi_poll(n, work, weight);
 	}
 
+<<<<<<< HEAD
 	WARN_ON_ONCE(work > weight);
 
 	if (likely(work < weight))
 		goto out_unlock;
+=======
+	if (unlikely(work > weight))
+		pr_err_once("NAPI poll function %pS returned %d, exceeding its budget of %d.\n",
+			    n->poll, work, weight);
+
+	if (likely(work < weight))
+		return work;
+>>>>>>> upstream/android-13
 
 	/* Drivers must not modify the NAPI state if they
 	 * consume the entire weight.  In such cases this code
@@ -6298,7 +8503,24 @@ static int napi_poll(struct napi_struct *n, struct list_head *repoll)
 	 */
 	if (unlikely(napi_disable_pending(n))) {
 		napi_complete(n);
+<<<<<<< HEAD
 		goto out_unlock;
+=======
+		return work;
+	}
+
+	/* The NAPI context has more processing work, but busy-polling
+	 * is preferred. Exit early.
+	 */
+	if (napi_prefer_busy_poll(n)) {
+		if (napi_complete_done(n, work)) {
+			/* If timeout is not set, we need to make sure
+			 * that the NAPI is re-scheduled.
+			 */
+			napi_schedule(n);
+		}
+		return work;
+>>>>>>> upstream/android-13
 	}
 
 	if (n->gro_bitmask) {
@@ -6308,23 +8530,111 @@ static int napi_poll(struct napi_struct *n, struct list_head *repoll)
 		napi_gro_flush(n, HZ >= 1000);
 	}
 
+<<<<<<< HEAD
+=======
+	gro_normal_list(n);
+
+>>>>>>> upstream/android-13
 	/* Some drivers may have called napi_schedule
 	 * prior to exhausting their budget.
 	 */
 	if (unlikely(!list_empty(&n->poll_list))) {
 		pr_warn_once("%s: Budget exhausted after napi rescheduled\n",
 			     n->dev ? n->dev->name : "backlog");
+<<<<<<< HEAD
 		goto out_unlock;
 	}
 
 	list_add_tail(&n->poll_list, repoll);
 
 out_unlock:
+=======
+		return work;
+	}
+
+	*repoll = true;
+
+	return work;
+}
+
+static int napi_poll(struct napi_struct *n, struct list_head *repoll)
+{
+	bool do_repoll = false;
+	void *have;
+	int work;
+
+	list_del_init(&n->poll_list);
+
+	have = netpoll_poll_lock(n);
+
+	work = __napi_poll(n, &do_repoll);
+
+	if (do_repoll)
+		list_add_tail(&n->poll_list, repoll);
+
+>>>>>>> upstream/android-13
 	netpoll_poll_unlock(have);
 
 	return work;
 }
 
+<<<<<<< HEAD
+=======
+static int napi_thread_wait(struct napi_struct *napi)
+{
+	bool woken = false;
+
+	set_current_state(TASK_INTERRUPTIBLE);
+
+	while (!kthread_should_stop()) {
+		/* Testing SCHED_THREADED bit here to make sure the current
+		 * kthread owns this napi and could poll on this napi.
+		 * Testing SCHED bit is not enough because SCHED bit might be
+		 * set by some other busy poll thread or by napi_disable().
+		 */
+		if (test_bit(NAPI_STATE_SCHED_THREADED, &napi->state) || woken) {
+			WARN_ON(!list_empty(&napi->poll_list));
+			__set_current_state(TASK_RUNNING);
+			return 0;
+		}
+
+		schedule();
+		/* woken being true indicates this thread owns this napi. */
+		woken = true;
+		set_current_state(TASK_INTERRUPTIBLE);
+	}
+	__set_current_state(TASK_RUNNING);
+
+	return -1;
+}
+
+static int napi_threaded_poll(void *data)
+{
+	struct napi_struct *napi = data;
+	void *have;
+
+	while (!napi_thread_wait(napi)) {
+		for (;;) {
+			bool repoll = false;
+
+			local_bh_disable();
+
+			have = netpoll_poll_lock(napi);
+			__napi_poll(napi, &repoll);
+			netpoll_poll_unlock(have);
+
+			local_bh_enable();
+
+			if (!repoll)
+				break;
+
+			cond_resched();
+		}
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static __latent_entropy void net_rx_action(struct softirq_action *h)
 {
 	struct softnet_data *sd = this_cpu_ptr(&softnet_data);
@@ -6343,7 +8653,11 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
 
 		if (list_empty(&list)) {
 			if (!sd_has_rps_ipi_waiting(sd) && list_empty(&repoll))
+<<<<<<< HEAD
 				goto out;
+=======
+				return;
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -6370,8 +8684,11 @@ static __latent_entropy void net_rx_action(struct softirq_action *h)
 		__raise_softirq_irqoff(NET_RX_SOFTIRQ);
 
 	net_rps_action_and_irq_enable(sd);
+<<<<<<< HEAD
 out:
 	__kfree_skb_flush();
+=======
+>>>>>>> upstream/android-13
 }
 
 struct netdev_adjacent {
@@ -6380,6 +8697,12 @@ struct netdev_adjacent {
 	/* upper master flag, there can only be one master device per list */
 	bool master;
 
+<<<<<<< HEAD
+=======
+	/* lookup ignore flag */
+	bool ignore;
+
+>>>>>>> upstream/android-13
 	/* counter for the number of times this device was added to us */
 	u16 ref_nr;
 
@@ -6402,9 +8725,16 @@ static struct netdev_adjacent *__netdev_find_adj(struct net_device *adj_dev,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int __netdev_has_upper_dev(struct net_device *upper_dev, void *data)
 {
 	struct net_device *dev = data;
+=======
+static int ____netdev_has_upper_dev(struct net_device *upper_dev,
+				    struct netdev_nested_priv *priv)
+{
+	struct net_device *dev = (struct net_device *)priv->data;
+>>>>>>> upstream/android-13
 
 	return upper_dev == dev;
 }
@@ -6421,15 +8751,30 @@ static int __netdev_has_upper_dev(struct net_device *upper_dev, void *data)
 bool netdev_has_upper_dev(struct net_device *dev,
 			  struct net_device *upper_dev)
 {
+<<<<<<< HEAD
 	ASSERT_RTNL();
 
 	return netdev_walk_all_upper_dev_rcu(dev, __netdev_has_upper_dev,
 					     upper_dev);
+=======
+	struct netdev_nested_priv priv = {
+		.data = (void *)upper_dev,
+	};
+
+	ASSERT_RTNL();
+
+	return netdev_walk_all_upper_dev_rcu(dev, ____netdev_has_upper_dev,
+					     &priv);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(netdev_has_upper_dev);
 
 /**
+<<<<<<< HEAD
  * netdev_has_upper_dev_all - Check if device is linked to an upper device
+=======
+ * netdev_has_upper_dev_all_rcu - Check if device is linked to an upper device
+>>>>>>> upstream/android-13
  * @dev: device
  * @upper_dev: upper device to check
  *
@@ -6441,8 +8786,17 @@ EXPORT_SYMBOL(netdev_has_upper_dev);
 bool netdev_has_upper_dev_all_rcu(struct net_device *dev,
 				  struct net_device *upper_dev)
 {
+<<<<<<< HEAD
 	return !!netdev_walk_all_upper_dev_rcu(dev, __netdev_has_upper_dev,
 					       upper_dev);
+=======
+	struct netdev_nested_priv priv = {
+		.data = (void *)upper_dev,
+	};
+
+	return !!netdev_walk_all_upper_dev_rcu(dev, ____netdev_has_upper_dev,
+					       &priv);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(netdev_has_upper_dev_all_rcu);
 
@@ -6485,6 +8839,25 @@ struct net_device *netdev_master_upper_dev_get(struct net_device *dev)
 }
 EXPORT_SYMBOL(netdev_master_upper_dev_get);
 
+<<<<<<< HEAD
+=======
+static struct net_device *__netdev_master_upper_dev_get(struct net_device *dev)
+{
+	struct netdev_adjacent *upper;
+
+	ASSERT_RTNL();
+
+	if (list_empty(&dev->adj_list.upper))
+		return NULL;
+
+	upper = list_first_entry(&dev->adj_list.upper,
+				 struct netdev_adjacent, list);
+	if (likely(upper->master) && !upper->ignore)
+		return upper->dev;
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 /**
  * netdev_has_any_lower_dev - Check if device is linked to some device
  * @dev: device
@@ -6535,8 +8908,14 @@ struct net_device *netdev_upper_get_next_dev_rcu(struct net_device *dev,
 }
 EXPORT_SYMBOL(netdev_upper_get_next_dev_rcu);
 
+<<<<<<< HEAD
 static struct net_device *netdev_next_upper_dev(struct net_device *dev,
 						struct list_head **iter)
+=======
+static struct net_device *__netdev_next_upper_dev(struct net_device *dev,
+						  struct list_head **iter,
+						  bool *ignore)
+>>>>>>> upstream/android-13
 {
 	struct netdev_adjacent *upper;
 
@@ -6546,6 +8925,10 @@ static struct net_device *netdev_next_upper_dev(struct net_device *dev,
 		return NULL;
 
 	*iter = &upper->list;
+<<<<<<< HEAD
+=======
+	*ignore = upper->ignore;
+>>>>>>> upstream/android-13
 
 	return upper->dev;
 }
@@ -6567,30 +8950,53 @@ static struct net_device *netdev_next_upper_dev_rcu(struct net_device *dev,
 	return upper->dev;
 }
 
+<<<<<<< HEAD
 static int netdev_walk_all_upper_dev(struct net_device *dev,
 				     int (*fn)(struct net_device *dev,
 					       void *data),
 				     void *data)
+=======
+static int __netdev_walk_all_upper_dev(struct net_device *dev,
+				       int (*fn)(struct net_device *dev,
+					 struct netdev_nested_priv *priv),
+				       struct netdev_nested_priv *priv)
+>>>>>>> upstream/android-13
 {
 	struct net_device *udev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
 	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
 	int ret, cur = 0;
+<<<<<<< HEAD
+=======
+	bool ignore;
+>>>>>>> upstream/android-13
 
 	now = dev;
 	iter = &dev->adj_list.upper;
 
 	while (1) {
 		if (now != dev) {
+<<<<<<< HEAD
 			ret = fn(now, data);
+=======
+			ret = fn(now, priv);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 		}
 
 		next = NULL;
 		while (1) {
+<<<<<<< HEAD
 			udev = netdev_next_upper_dev(now, &iter);
 			if (!udev)
 				break;
+=======
+			udev = __netdev_next_upper_dev(now, &iter, &ignore);
+			if (!udev)
+				break;
+			if (ignore)
+				continue;
+>>>>>>> upstream/android-13
 
 			next = udev;
 			niter = &udev->adj_list.upper;
@@ -6615,8 +9021,13 @@ static int netdev_walk_all_upper_dev(struct net_device *dev,
 
 int netdev_walk_all_upper_dev_rcu(struct net_device *dev,
 				  int (*fn)(struct net_device *dev,
+<<<<<<< HEAD
 					    void *data),
 				  void *data)
+=======
+					    struct netdev_nested_priv *priv),
+				  struct netdev_nested_priv *priv)
+>>>>>>> upstream/android-13
 {
 	struct net_device *udev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
 	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
@@ -6627,7 +9038,11 @@ int netdev_walk_all_upper_dev_rcu(struct net_device *dev,
 
 	while (1) {
 		if (now != dev) {
+<<<<<<< HEAD
 			ret = fn(now, data);
+=======
+			ret = fn(now, priv);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 		}
@@ -6660,6 +9075,23 @@ int netdev_walk_all_upper_dev_rcu(struct net_device *dev,
 }
 EXPORT_SYMBOL_GPL(netdev_walk_all_upper_dev_rcu);
 
+<<<<<<< HEAD
+=======
+static bool __netdev_has_upper_dev(struct net_device *dev,
+				   struct net_device *upper_dev)
+{
+	struct netdev_nested_priv priv = {
+		.flags = 0,
+		.data = (void *)upper_dev,
+	};
+
+	ASSERT_RTNL();
+
+	return __netdev_walk_all_upper_dev(dev, ____netdev_has_upper_dev,
+					   &priv);
+}
+
+>>>>>>> upstream/android-13
 /**
  * netdev_lower_get_next_private - Get the next ->private from the
  *				   lower neighbour list
@@ -6702,7 +9134,11 @@ void *netdev_lower_get_next_private_rcu(struct net_device *dev,
 {
 	struct netdev_adjacent *lower;
 
+<<<<<<< HEAD
 	WARN_ON_ONCE(!rcu_read_lock_held());
+=======
+	WARN_ON_ONCE(!rcu_read_lock_held() && !rcu_read_lock_bh_held());
+>>>>>>> upstream/android-13
 
 	lower = list_entry_rcu((*iter)->next, struct netdev_adjacent, list);
 
@@ -6756,10 +9192,34 @@ static struct net_device *netdev_next_lower_dev(struct net_device *dev,
 	return lower->dev;
 }
 
+<<<<<<< HEAD
 int netdev_walk_all_lower_dev(struct net_device *dev,
 			      int (*fn)(struct net_device *dev,
 					void *data),
 			      void *data)
+=======
+static struct net_device *__netdev_next_lower_dev(struct net_device *dev,
+						  struct list_head **iter,
+						  bool *ignore)
+{
+	struct netdev_adjacent *lower;
+
+	lower = list_entry((*iter)->next, struct netdev_adjacent, list);
+
+	if (&lower->list == &dev->adj_list.lower)
+		return NULL;
+
+	*iter = &lower->list;
+	*ignore = lower->ignore;
+
+	return lower->dev;
+}
+
+int netdev_walk_all_lower_dev(struct net_device *dev,
+			      int (*fn)(struct net_device *dev,
+					struct netdev_nested_priv *priv),
+			      struct netdev_nested_priv *priv)
+>>>>>>> upstream/android-13
 {
 	struct net_device *ldev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
 	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
@@ -6770,7 +9230,11 @@ int netdev_walk_all_lower_dev(struct net_device *dev,
 
 	while (1) {
 		if (now != dev) {
+<<<<<<< HEAD
 			ret = fn(now, data);
+=======
+			ret = fn(now, priv);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 		}
@@ -6803,8 +9267,62 @@ int netdev_walk_all_lower_dev(struct net_device *dev,
 }
 EXPORT_SYMBOL_GPL(netdev_walk_all_lower_dev);
 
+<<<<<<< HEAD
 static struct net_device *netdev_next_lower_dev_rcu(struct net_device *dev,
 						    struct list_head **iter)
+=======
+static int __netdev_walk_all_lower_dev(struct net_device *dev,
+				       int (*fn)(struct net_device *dev,
+					 struct netdev_nested_priv *priv),
+				       struct netdev_nested_priv *priv)
+{
+	struct net_device *ldev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
+	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
+	int ret, cur = 0;
+	bool ignore;
+
+	now = dev;
+	iter = &dev->adj_list.lower;
+
+	while (1) {
+		if (now != dev) {
+			ret = fn(now, priv);
+			if (ret)
+				return ret;
+		}
+
+		next = NULL;
+		while (1) {
+			ldev = __netdev_next_lower_dev(now, &iter, &ignore);
+			if (!ldev)
+				break;
+			if (ignore)
+				continue;
+
+			next = ldev;
+			niter = &ldev->adj_list.lower;
+			dev_stack[cur] = now;
+			iter_stack[cur++] = iter;
+			break;
+		}
+
+		if (!next) {
+			if (!cur)
+				return 0;
+			next = dev_stack[--cur];
+			niter = iter_stack[cur];
+		}
+
+		now = next;
+		iter = niter;
+	}
+
+	return 0;
+}
+
+struct net_device *netdev_next_lower_dev_rcu(struct net_device *dev,
+					     struct list_head **iter)
+>>>>>>> upstream/android-13
 {
 	struct netdev_adjacent *lower;
 
@@ -6816,17 +9334,32 @@ static struct net_device *netdev_next_lower_dev_rcu(struct net_device *dev,
 
 	return lower->dev;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(netdev_next_lower_dev_rcu);
+>>>>>>> upstream/android-13
 
 static u8 __netdev_upper_depth(struct net_device *dev)
 {
 	struct net_device *udev;
 	struct list_head *iter;
 	u8 max_depth = 0;
+<<<<<<< HEAD
 
 	for (iter = &dev->adj_list.upper,
 	     udev = netdev_next_upper_dev(dev, &iter);
 	     udev;
 	     udev = netdev_next_upper_dev(dev, &iter)) {
+=======
+	bool ignore;
+
+	for (iter = &dev->adj_list.upper,
+	     udev = __netdev_next_upper_dev(dev, &iter, &ignore);
+	     udev;
+	     udev = __netdev_next_upper_dev(dev, &iter, &ignore)) {
+		if (ignore)
+			continue;
+>>>>>>> upstream/android-13
 		if (max_depth < udev->upper_level)
 			max_depth = udev->upper_level;
 	}
@@ -6839,11 +9372,22 @@ static u8 __netdev_lower_depth(struct net_device *dev)
 	struct net_device *ldev;
 	struct list_head *iter;
 	u8 max_depth = 0;
+<<<<<<< HEAD
 
 	for (iter = &dev->adj_list.lower,
 	     ldev = netdev_next_lower_dev(dev, &iter);
 	     ldev;
 	     ldev = netdev_next_lower_dev(dev, &iter)) {
+=======
+	bool ignore;
+
+	for (iter = &dev->adj_list.lower,
+	     ldev = __netdev_next_lower_dev(dev, &iter, &ignore);
+	     ldev;
+	     ldev = __netdev_next_lower_dev(dev, &iter, &ignore)) {
+		if (ignore)
+			continue;
+>>>>>>> upstream/android-13
 		if (max_depth < ldev->lower_level)
 			max_depth = ldev->lower_level;
 	}
@@ -6851,22 +9395,49 @@ static u8 __netdev_lower_depth(struct net_device *dev)
 	return max_depth;
 }
 
+<<<<<<< HEAD
 static int __netdev_update_upper_level(struct net_device *dev, void *data)
+=======
+static int __netdev_update_upper_level(struct net_device *dev,
+				       struct netdev_nested_priv *__unused)
+>>>>>>> upstream/android-13
 {
 	dev->upper_level = __netdev_upper_depth(dev) + 1;
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __netdev_update_lower_level(struct net_device *dev, void *data)
 {
 	dev->lower_level = __netdev_lower_depth(dev) + 1;
+=======
+static int __netdev_update_lower_level(struct net_device *dev,
+				       struct netdev_nested_priv *priv)
+{
+	dev->lower_level = __netdev_lower_depth(dev) + 1;
+
+#ifdef CONFIG_LOCKDEP
+	if (!priv)
+		return 0;
+
+	if (priv->flags & NESTED_SYNC_IMM)
+		dev->nested_level = dev->lower_level - 1;
+	if (priv->flags & NESTED_SYNC_TODO)
+		net_unlink_todo(dev);
+#endif
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 int netdev_walk_all_lower_dev_rcu(struct net_device *dev,
 				  int (*fn)(struct net_device *dev,
+<<<<<<< HEAD
 					    void *data),
 				  void *data)
+=======
+					    struct netdev_nested_priv *priv),
+				  struct netdev_nested_priv *priv)
+>>>>>>> upstream/android-13
 {
 	struct net_device *ldev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
 	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
@@ -6877,7 +9448,11 @@ int netdev_walk_all_lower_dev_rcu(struct net_device *dev,
 
 	while (1) {
 		if (now != dev) {
+<<<<<<< HEAD
 			ret = fn(now, data);
+=======
+			ret = fn(now, priv);
+>>>>>>> upstream/android-13
 			if (ret)
 				return ret;
 		}
@@ -7007,6 +9582,10 @@ static int __netdev_adjacent_dev_insert(struct net_device *dev,
 	adj->master = master;
 	adj->ref_nr = 1;
 	adj->private = private;
+<<<<<<< HEAD
+=======
+	adj->ignore = false;
+>>>>>>> upstream/android-13
 	dev_hold(adj_dev);
 
 	pr_debug("Insert adjacency: dev %s adj_dev %s adj->ref_nr %d; dev_hold on %s\n",
@@ -7136,6 +9715,10 @@ static void __netdev_adjacent_dev_unlink_neighbour(struct net_device *dev,
 static int __netdev_upper_dev_link(struct net_device *dev,
 				   struct net_device *upper_dev, bool master,
 				   void *upper_priv, void *upper_info,
+<<<<<<< HEAD
+=======
+				   struct netdev_nested_priv *priv,
+>>>>>>> upstream/android-13
 				   struct netlink_ext_ack *extack)
 {
 	struct netdev_notifier_changeupper_info changeupper_info = {
@@ -7157,17 +9740,28 @@ static int __netdev_upper_dev_link(struct net_device *dev,
 		return -EBUSY;
 
 	/* To prevent loops, check if dev is not upper device to upper_dev. */
+<<<<<<< HEAD
 	if (netdev_has_upper_dev(upper_dev, dev))
+=======
+	if (__netdev_has_upper_dev(upper_dev, dev))
+>>>>>>> upstream/android-13
 		return -EBUSY;
 
 	if ((dev->lower_level + upper_dev->upper_level) > MAX_NEST_DEV)
 		return -EMLINK;
 
 	if (!master) {
+<<<<<<< HEAD
 		if (netdev_has_upper_dev(dev, upper_dev))
 			return -EEXIST;
 	} else {
 		master_dev = netdev_master_upper_dev_get(dev);
+=======
+		if (__netdev_has_upper_dev(dev, upper_dev))
+			return -EEXIST;
+	} else {
+		master_dev = __netdev_master_upper_dev_get(dev);
+>>>>>>> upstream/android-13
 		if (master_dev)
 			return master_dev == upper_dev ? -EEXIST : -EBUSY;
 	}
@@ -7190,10 +9784,18 @@ static int __netdev_upper_dev_link(struct net_device *dev,
 		goto rollback;
 
 	__netdev_update_upper_level(dev, NULL);
+<<<<<<< HEAD
 	netdev_walk_all_lower_dev(dev, __netdev_update_upper_level, NULL);
 
 	__netdev_update_lower_level(upper_dev, NULL);
 	netdev_walk_all_upper_dev(upper_dev, __netdev_update_lower_level, NULL);
+=======
+	__netdev_walk_all_lower_dev(dev, __netdev_update_upper_level, NULL);
+
+	__netdev_update_lower_level(upper_dev, priv);
+	__netdev_walk_all_upper_dev(upper_dev, __netdev_update_lower_level,
+				    priv);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -7218,8 +9820,18 @@ int netdev_upper_dev_link(struct net_device *dev,
 			  struct net_device *upper_dev,
 			  struct netlink_ext_ack *extack)
 {
+<<<<<<< HEAD
 	return __netdev_upper_dev_link(dev, upper_dev, false,
 				       NULL, NULL, extack);
+=======
+	struct netdev_nested_priv priv = {
+		.flags = NESTED_SYNC_IMM | NESTED_SYNC_TODO,
+		.data = NULL,
+	};
+
+	return __netdev_upper_dev_link(dev, upper_dev, false,
+				       NULL, NULL, &priv, extack);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(netdev_upper_dev_link);
 
@@ -7242,6 +9854,7 @@ int netdev_master_upper_dev_link(struct net_device *dev,
 				 void *upper_priv, void *upper_info,
 				 struct netlink_ext_ack *extack)
 {
+<<<<<<< HEAD
 	return __netdev_upper_dev_link(dev, upper_dev, true,
 				       upper_priv, upper_info, extack);
 }
@@ -7257,6 +9870,21 @@ EXPORT_SYMBOL(netdev_master_upper_dev_link);
  */
 void netdev_upper_dev_unlink(struct net_device *dev,
 			     struct net_device *upper_dev)
+=======
+	struct netdev_nested_priv priv = {
+		.flags = NESTED_SYNC_IMM | NESTED_SYNC_TODO,
+		.data = NULL,
+	};
+
+	return __netdev_upper_dev_link(dev, upper_dev, true,
+				       upper_priv, upper_info, &priv, extack);
+}
+EXPORT_SYMBOL(netdev_master_upper_dev_link);
+
+static void __netdev_upper_dev_unlink(struct net_device *dev,
+				      struct net_device *upper_dev,
+				      struct netdev_nested_priv *priv)
+>>>>>>> upstream/android-13
 {
 	struct netdev_notifier_changeupper_info changeupper_info = {
 		.info = {
@@ -7279,6 +9907,7 @@ void netdev_upper_dev_unlink(struct net_device *dev,
 				      &changeupper_info.info);
 
 	__netdev_update_upper_level(dev, NULL);
+<<<<<<< HEAD
 	netdev_walk_all_lower_dev(dev, __netdev_update_upper_level, NULL);
 
 	__netdev_update_lower_level(upper_dev, NULL);
@@ -7286,6 +9915,129 @@ void netdev_upper_dev_unlink(struct net_device *dev,
 }
 EXPORT_SYMBOL(netdev_upper_dev_unlink);
 
+=======
+	__netdev_walk_all_lower_dev(dev, __netdev_update_upper_level, NULL);
+
+	__netdev_update_lower_level(upper_dev, priv);
+	__netdev_walk_all_upper_dev(upper_dev, __netdev_update_lower_level,
+				    priv);
+}
+
+/**
+ * netdev_upper_dev_unlink - Removes a link to upper device
+ * @dev: device
+ * @upper_dev: new upper device
+ *
+ * Removes a link to device which is upper to this one. The caller must hold
+ * the RTNL lock.
+ */
+void netdev_upper_dev_unlink(struct net_device *dev,
+			     struct net_device *upper_dev)
+{
+	struct netdev_nested_priv priv = {
+		.flags = NESTED_SYNC_TODO,
+		.data = NULL,
+	};
+
+	__netdev_upper_dev_unlink(dev, upper_dev, &priv);
+}
+EXPORT_SYMBOL(netdev_upper_dev_unlink);
+
+static void __netdev_adjacent_dev_set(struct net_device *upper_dev,
+				      struct net_device *lower_dev,
+				      bool val)
+{
+	struct netdev_adjacent *adj;
+
+	adj = __netdev_find_adj(lower_dev, &upper_dev->adj_list.lower);
+	if (adj)
+		adj->ignore = val;
+
+	adj = __netdev_find_adj(upper_dev, &lower_dev->adj_list.upper);
+	if (adj)
+		adj->ignore = val;
+}
+
+static void netdev_adjacent_dev_disable(struct net_device *upper_dev,
+					struct net_device *lower_dev)
+{
+	__netdev_adjacent_dev_set(upper_dev, lower_dev, true);
+}
+
+static void netdev_adjacent_dev_enable(struct net_device *upper_dev,
+				       struct net_device *lower_dev)
+{
+	__netdev_adjacent_dev_set(upper_dev, lower_dev, false);
+}
+
+int netdev_adjacent_change_prepare(struct net_device *old_dev,
+				   struct net_device *new_dev,
+				   struct net_device *dev,
+				   struct netlink_ext_ack *extack)
+{
+	struct netdev_nested_priv priv = {
+		.flags = 0,
+		.data = NULL,
+	};
+	int err;
+
+	if (!new_dev)
+		return 0;
+
+	if (old_dev && new_dev != old_dev)
+		netdev_adjacent_dev_disable(dev, old_dev);
+	err = __netdev_upper_dev_link(new_dev, dev, false, NULL, NULL, &priv,
+				      extack);
+	if (err) {
+		if (old_dev && new_dev != old_dev)
+			netdev_adjacent_dev_enable(dev, old_dev);
+		return err;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL(netdev_adjacent_change_prepare);
+
+void netdev_adjacent_change_commit(struct net_device *old_dev,
+				   struct net_device *new_dev,
+				   struct net_device *dev)
+{
+	struct netdev_nested_priv priv = {
+		.flags = NESTED_SYNC_IMM | NESTED_SYNC_TODO,
+		.data = NULL,
+	};
+
+	if (!new_dev || !old_dev)
+		return;
+
+	if (new_dev == old_dev)
+		return;
+
+	netdev_adjacent_dev_enable(dev, old_dev);
+	__netdev_upper_dev_unlink(old_dev, dev, &priv);
+}
+EXPORT_SYMBOL(netdev_adjacent_change_commit);
+
+void netdev_adjacent_change_abort(struct net_device *old_dev,
+				  struct net_device *new_dev,
+				  struct net_device *dev)
+{
+	struct netdev_nested_priv priv = {
+		.flags = 0,
+		.data = NULL,
+	};
+
+	if (!new_dev)
+		return;
+
+	if (old_dev && new_dev != old_dev)
+		netdev_adjacent_dev_enable(dev, old_dev);
+
+	__netdev_upper_dev_unlink(new_dev, dev, &priv);
+}
+EXPORT_SYMBOL(netdev_adjacent_change_abort);
+
+>>>>>>> upstream/android-13
 /**
  * netdev_bonding_info_change - Dispatch event about slave change
  * @dev: device
@@ -7308,6 +10060,65 @@ void netdev_bonding_info_change(struct net_device *dev,
 }
 EXPORT_SYMBOL(netdev_bonding_info_change);
 
+<<<<<<< HEAD
+=======
+/**
+ * netdev_get_xmit_slave - Get the xmit slave of master device
+ * @dev: device
+ * @skb: The packet
+ * @all_slaves: assume all the slaves are active
+ *
+ * The reference counters are not incremented so the caller must be
+ * careful with locks. The caller must hold RCU lock.
+ * %NULL is returned if no slave is found.
+ */
+
+struct net_device *netdev_get_xmit_slave(struct net_device *dev,
+					 struct sk_buff *skb,
+					 bool all_slaves)
+{
+	const struct net_device_ops *ops = dev->netdev_ops;
+
+	if (!ops->ndo_get_xmit_slave)
+		return NULL;
+	return ops->ndo_get_xmit_slave(dev, skb, all_slaves);
+}
+EXPORT_SYMBOL(netdev_get_xmit_slave);
+
+static struct net_device *netdev_sk_get_lower_dev(struct net_device *dev,
+						  struct sock *sk)
+{
+	const struct net_device_ops *ops = dev->netdev_ops;
+
+	if (!ops->ndo_sk_get_lower_dev)
+		return NULL;
+	return ops->ndo_sk_get_lower_dev(dev, sk);
+}
+
+/**
+ * netdev_sk_get_lowest_dev - Get the lowest device in chain given device and socket
+ * @dev: device
+ * @sk: the socket
+ *
+ * %NULL is returned if no lower device is found.
+ */
+
+struct net_device *netdev_sk_get_lowest_dev(struct net_device *dev,
+					    struct sock *sk)
+{
+	struct net_device *lower;
+
+	lower = netdev_sk_get_lower_dev(dev, sk);
+	while (lower) {
+		dev = lower;
+		lower = netdev_sk_get_lower_dev(dev, sk);
+	}
+
+	return dev;
+}
+EXPORT_SYMBOL(netdev_sk_get_lowest_dev);
+
+>>>>>>> upstream/android-13
 static void netdev_adjacent_add_links(struct net_device *dev)
 {
 	struct netdev_adjacent *iter;
@@ -7399,6 +10210,7 @@ void *netdev_lower_dev_get_private(struct net_device *dev,
 EXPORT_SYMBOL(netdev_lower_dev_get_private);
 
 
+<<<<<<< HEAD
 int dev_get_nest_level(struct net_device *dev)
 {
 	struct net_device *lower = NULL;
@@ -7420,6 +10232,10 @@ EXPORT_SYMBOL(dev_get_nest_level);
 
 /**
  * netdev_lower_change - Dispatch event about lower device state change
+=======
+/**
+ * netdev_lower_state_changed - Dispatch event about lower device state change
+>>>>>>> upstream/android-13
  * @lower_dev: device
  * @lower_state_info: state to dispatch
  *
@@ -7644,7 +10460,12 @@ unsigned int dev_get_flags(const struct net_device *dev)
 }
 EXPORT_SYMBOL(dev_get_flags);
 
+<<<<<<< HEAD
 int __dev_change_flags(struct net_device *dev, unsigned int flags)
+=======
+int __dev_change_flags(struct net_device *dev, unsigned int flags,
+		       struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	unsigned int old_flags = dev->flags;
 	int ret;
@@ -7681,7 +10502,11 @@ int __dev_change_flags(struct net_device *dev, unsigned int flags)
 		if (old_flags & IFF_UP)
 			__dev_close(dev);
 		else
+<<<<<<< HEAD
 			ret = __dev_open(dev);
+=======
+			ret = __dev_open(dev, extack);
+>>>>>>> upstream/android-13
 	}
 
 	if ((flags ^ dev->gflags) & IFF_PROMISC) {
@@ -7741,16 +10566,29 @@ void __dev_notify_flags(struct net_device *dev, unsigned int old_flags,
  *	dev_change_flags - change device settings
  *	@dev: device
  *	@flags: device state flags
+<<<<<<< HEAD
+=======
+ *	@extack: netlink extended ack
+>>>>>>> upstream/android-13
  *
  *	Change settings on device based state flags. The flags are
  *	in the userspace exported format.
  */
+<<<<<<< HEAD
 int dev_change_flags(struct net_device *dev, unsigned int flags)
+=======
+int dev_change_flags(struct net_device *dev, unsigned int flags,
+		     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	unsigned int changes, old_flags = dev->flags, old_gflags = dev->gflags;
 
+<<<<<<< HEAD
 	ret = __dev_change_flags(dev, flags);
+=======
+	ret = __dev_change_flags(dev, flags, extack);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -7893,6 +10731,7 @@ void dev_set_group(struct net_device *dev, int new_group)
 EXPORT_SYMBOL(dev_set_group);
 
 /**
+<<<<<<< HEAD
  *	dev_set_mac_address - Change Media Access Control Address
  *	@dev: device
  *	@sa: new address
@@ -7900,6 +10739,38 @@ EXPORT_SYMBOL(dev_set_group);
  *	Change the hardware (MAC) address of the device
  */
 int dev_set_mac_address(struct net_device *dev, struct sockaddr *sa)
+=======
+ *	dev_pre_changeaddr_notify - Call NETDEV_PRE_CHANGEADDR.
+ *	@dev: device
+ *	@addr: new address
+ *	@extack: netlink extended ack
+ */
+int dev_pre_changeaddr_notify(struct net_device *dev, const char *addr,
+			      struct netlink_ext_ack *extack)
+{
+	struct netdev_notifier_pre_changeaddr_info info = {
+		.info.dev = dev,
+		.info.extack = extack,
+		.dev_addr = addr,
+	};
+	int rc;
+
+	rc = call_netdevice_notifiers_info(NETDEV_PRE_CHANGEADDR, &info.info);
+	return notifier_to_errno(rc);
+}
+EXPORT_SYMBOL(dev_pre_changeaddr_notify);
+
+/**
+ *	dev_set_mac_address - Change Media Access Control Address
+ *	@dev: device
+ *	@sa: new address
+ *	@extack: netlink extended ack
+ *
+ *	Change the hardware (MAC) address of the device
+ */
+int dev_set_mac_address(struct net_device *dev, struct sockaddr *sa,
+			struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	const struct net_device_ops *ops = dev->netdev_ops;
 	int err;
@@ -7910,6 +10781,12 @@ int dev_set_mac_address(struct net_device *dev, struct sockaddr *sa)
 		return -EINVAL;
 	if (!netif_device_present(dev))
 		return -ENODEV;
+<<<<<<< HEAD
+=======
+	err = dev_pre_changeaddr_notify(dev, sa->sa_data, extack);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 	err = ops->ndo_set_mac_address(dev, sa);
 	if (err)
 		return err;
@@ -7920,6 +10797,51 @@ int dev_set_mac_address(struct net_device *dev, struct sockaddr *sa)
 }
 EXPORT_SYMBOL(dev_set_mac_address);
 
+<<<<<<< HEAD
+=======
+static DECLARE_RWSEM(dev_addr_sem);
+
+int dev_set_mac_address_user(struct net_device *dev, struct sockaddr *sa,
+			     struct netlink_ext_ack *extack)
+{
+	int ret;
+
+	down_write(&dev_addr_sem);
+	ret = dev_set_mac_address(dev, sa, extack);
+	up_write(&dev_addr_sem);
+	return ret;
+}
+EXPORT_SYMBOL(dev_set_mac_address_user);
+
+int dev_get_mac_address(struct sockaddr *sa, struct net *net, char *dev_name)
+{
+	size_t size = sizeof(sa->sa_data);
+	struct net_device *dev;
+	int ret = 0;
+
+	down_read(&dev_addr_sem);
+	rcu_read_lock();
+
+	dev = dev_get_by_name_rcu(net, dev_name);
+	if (!dev) {
+		ret = -ENODEV;
+		goto unlock;
+	}
+	if (!dev->addr_len)
+		memset(sa->sa_data, 0, size);
+	else
+		memcpy(sa->sa_data, dev->dev_addr,
+		       min_t(size_t, size, dev->addr_len));
+	sa->sa_family = dev->type;
+
+unlock:
+	rcu_read_unlock();
+	up_read(&dev_addr_sem);
+	return ret;
+}
+EXPORT_SYMBOL(dev_get_mac_address);
+
+>>>>>>> upstream/android-13
 /**
  *	dev_change_carrier - Change device carrier
  *	@dev: device
@@ -7969,14 +10891,92 @@ int dev_get_phys_port_name(struct net_device *dev,
 			   char *name, size_t len)
 {
 	const struct net_device_ops *ops = dev->netdev_ops;
+<<<<<<< HEAD
 
 	if (!ops->ndo_get_phys_port_name)
 		return -EOPNOTSUPP;
 	return ops->ndo_get_phys_port_name(dev, name, len);
+=======
+	int err;
+
+	if (ops->ndo_get_phys_port_name) {
+		err = ops->ndo_get_phys_port_name(dev, name, len);
+		if (err != -EOPNOTSUPP)
+			return err;
+	}
+	return devlink_compat_phys_port_name_get(dev, name, len);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(dev_get_phys_port_name);
 
 /**
+<<<<<<< HEAD
+=======
+ *	dev_get_port_parent_id - Get the device's port parent identifier
+ *	@dev: network device
+ *	@ppid: pointer to a storage for the port's parent identifier
+ *	@recurse: allow/disallow recursion to lower devices
+ *
+ *	Get the devices's port parent identifier
+ */
+int dev_get_port_parent_id(struct net_device *dev,
+			   struct netdev_phys_item_id *ppid,
+			   bool recurse)
+{
+	const struct net_device_ops *ops = dev->netdev_ops;
+	struct netdev_phys_item_id first = { };
+	struct net_device *lower_dev;
+	struct list_head *iter;
+	int err;
+
+	if (ops->ndo_get_port_parent_id) {
+		err = ops->ndo_get_port_parent_id(dev, ppid);
+		if (err != -EOPNOTSUPP)
+			return err;
+	}
+
+	err = devlink_compat_switch_id_get(dev, ppid);
+	if (!err || err != -EOPNOTSUPP)
+		return err;
+
+	if (!recurse)
+		return -EOPNOTSUPP;
+
+	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+		err = dev_get_port_parent_id(lower_dev, ppid, recurse);
+		if (err)
+			break;
+		if (!first.id_len)
+			first = *ppid;
+		else if (memcmp(&first, ppid, sizeof(*ppid)))
+			return -EOPNOTSUPP;
+	}
+
+	return err;
+}
+EXPORT_SYMBOL(dev_get_port_parent_id);
+
+/**
+ *	netdev_port_same_parent_id - Indicate if two network devices have
+ *	the same port parent identifier
+ *	@a: first network device
+ *	@b: second network device
+ */
+bool netdev_port_same_parent_id(struct net_device *a, struct net_device *b)
+{
+	struct netdev_phys_item_id a_id = { };
+	struct netdev_phys_item_id b_id = { };
+
+	if (dev_get_port_parent_id(a, &a_id, true) ||
+	    dev_get_port_parent_id(b, &b_id, true))
+		return false;
+
+	return netdev_phys_item_id_same(&a_id, &b_id);
+}
+EXPORT_SYMBOL(netdev_port_same_parent_id);
+
+/**
+>>>>>>> upstream/android-13
  *	dev_change_proto_down - update protocol port state information
  *	@dev: device
  *	@proto_down: new value
@@ -7996,6 +10996,7 @@ int dev_change_proto_down(struct net_device *dev, bool proto_down)
 }
 EXPORT_SYMBOL(dev_change_proto_down);
 
+<<<<<<< HEAD
 u32 __dev_xdp_query(struct net_device *dev, bpf_op_t bpf_op,
 		    enum bpf_netdev_command cmd)
 {
@@ -8024,15 +11025,172 @@ static int dev_xdp_install(struct net_device *dev, bpf_op_t bpf_op,
 		xdp.command = XDP_SETUP_PROG_HW;
 	else
 		xdp.command = XDP_SETUP_PROG;
+=======
+/**
+ *	dev_change_proto_down_generic - generic implementation for
+ * 	ndo_change_proto_down that sets carrier according to
+ * 	proto_down.
+ *
+ *	@dev: device
+ *	@proto_down: new value
+ */
+int dev_change_proto_down_generic(struct net_device *dev, bool proto_down)
+{
+	if (proto_down)
+		netif_carrier_off(dev);
+	else
+		netif_carrier_on(dev);
+	dev->proto_down = proto_down;
+	return 0;
+}
+EXPORT_SYMBOL(dev_change_proto_down_generic);
+
+/**
+ *	dev_change_proto_down_reason - proto down reason
+ *
+ *	@dev: device
+ *	@mask: proto down mask
+ *	@value: proto down value
+ */
+void dev_change_proto_down_reason(struct net_device *dev, unsigned long mask,
+				  u32 value)
+{
+	int b;
+
+	if (!mask) {
+		dev->proto_down_reason = value;
+	} else {
+		for_each_set_bit(b, &mask, 32) {
+			if (value & (1 << b))
+				dev->proto_down_reason |= BIT(b);
+			else
+				dev->proto_down_reason &= ~BIT(b);
+		}
+	}
+}
+EXPORT_SYMBOL(dev_change_proto_down_reason);
+
+struct bpf_xdp_link {
+	struct bpf_link link;
+	struct net_device *dev; /* protected by rtnl_lock, no refcnt held */
+	int flags;
+};
+
+static enum bpf_xdp_mode dev_xdp_mode(struct net_device *dev, u32 flags)
+{
+	if (flags & XDP_FLAGS_HW_MODE)
+		return XDP_MODE_HW;
+	if (flags & XDP_FLAGS_DRV_MODE)
+		return XDP_MODE_DRV;
+	if (flags & XDP_FLAGS_SKB_MODE)
+		return XDP_MODE_SKB;
+	return dev->netdev_ops->ndo_bpf ? XDP_MODE_DRV : XDP_MODE_SKB;
+}
+
+static bpf_op_t dev_xdp_bpf_op(struct net_device *dev, enum bpf_xdp_mode mode)
+{
+	switch (mode) {
+	case XDP_MODE_SKB:
+		return generic_xdp_install;
+	case XDP_MODE_DRV:
+	case XDP_MODE_HW:
+		return dev->netdev_ops->ndo_bpf;
+	default:
+		return NULL;
+	}
+}
+
+static struct bpf_xdp_link *dev_xdp_link(struct net_device *dev,
+					 enum bpf_xdp_mode mode)
+{
+	return dev->xdp_state[mode].link;
+}
+
+static struct bpf_prog *dev_xdp_prog(struct net_device *dev,
+				     enum bpf_xdp_mode mode)
+{
+	struct bpf_xdp_link *link = dev_xdp_link(dev, mode);
+
+	if (link)
+		return link->link.prog;
+	return dev->xdp_state[mode].prog;
+}
+
+u8 dev_xdp_prog_count(struct net_device *dev)
+{
+	u8 count = 0;
+	int i;
+
+	for (i = 0; i < __MAX_XDP_MODE; i++)
+		if (dev->xdp_state[i].prog || dev->xdp_state[i].link)
+			count++;
+	return count;
+}
+EXPORT_SYMBOL_GPL(dev_xdp_prog_count);
+
+u32 dev_xdp_prog_id(struct net_device *dev, enum bpf_xdp_mode mode)
+{
+	struct bpf_prog *prog = dev_xdp_prog(dev, mode);
+
+	return prog ? prog->aux->id : 0;
+}
+
+static void dev_xdp_set_link(struct net_device *dev, enum bpf_xdp_mode mode,
+			     struct bpf_xdp_link *link)
+{
+	dev->xdp_state[mode].link = link;
+	dev->xdp_state[mode].prog = NULL;
+}
+
+static void dev_xdp_set_prog(struct net_device *dev, enum bpf_xdp_mode mode,
+			     struct bpf_prog *prog)
+{
+	dev->xdp_state[mode].link = NULL;
+	dev->xdp_state[mode].prog = prog;
+}
+
+static int dev_xdp_install(struct net_device *dev, enum bpf_xdp_mode mode,
+			   bpf_op_t bpf_op, struct netlink_ext_ack *extack,
+			   u32 flags, struct bpf_prog *prog)
+{
+	struct netdev_bpf xdp;
+	int err;
+
+	memset(&xdp, 0, sizeof(xdp));
+	xdp.command = mode == XDP_MODE_HW ? XDP_SETUP_PROG_HW : XDP_SETUP_PROG;
+>>>>>>> upstream/android-13
 	xdp.extack = extack;
 	xdp.flags = flags;
 	xdp.prog = prog;
 
+<<<<<<< HEAD
 	return bpf_op(dev, &xdp);
+=======
+	/* Drivers assume refcnt is already incremented (i.e, prog pointer is
+	 * "moved" into driver), so they don't increment it on their own, but
+	 * they do decrement refcnt when program is detached or replaced.
+	 * Given net_device also owns link/prog, we need to bump refcnt here
+	 * to prevent drivers from underflowing it.
+	 */
+	if (prog)
+		bpf_prog_inc(prog);
+	err = bpf_op(dev, &xdp);
+	if (err) {
+		if (prog)
+			bpf_prog_put(prog);
+		return err;
+	}
+
+	if (mode != XDP_MODE_HW)
+		bpf_prog_change_xdp(dev_xdp_prog(dev, mode), prog);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void dev_xdp_uninstall(struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct netdev_bpf xdp;
 	bpf_op_t ndo_bpf;
 
@@ -8057,6 +11215,349 @@ static void dev_xdp_uninstall(struct net_device *dev)
 	if (!ndo_bpf(dev, &xdp) && xdp.prog_id)
 		WARN_ON(dev_xdp_install(dev, ndo_bpf, NULL, xdp.prog_flags,
 					NULL));
+=======
+	struct bpf_xdp_link *link;
+	struct bpf_prog *prog;
+	enum bpf_xdp_mode mode;
+	bpf_op_t bpf_op;
+
+	ASSERT_RTNL();
+
+	for (mode = XDP_MODE_SKB; mode < __MAX_XDP_MODE; mode++) {
+		prog = dev_xdp_prog(dev, mode);
+		if (!prog)
+			continue;
+
+		bpf_op = dev_xdp_bpf_op(dev, mode);
+		if (!bpf_op)
+			continue;
+
+		WARN_ON(dev_xdp_install(dev, mode, bpf_op, NULL, 0, NULL));
+
+		/* auto-detach link from net device */
+		link = dev_xdp_link(dev, mode);
+		if (link)
+			link->dev = NULL;
+		else
+			bpf_prog_put(prog);
+
+		dev_xdp_set_link(dev, mode, NULL);
+	}
+}
+
+static int dev_xdp_attach(struct net_device *dev, struct netlink_ext_ack *extack,
+			  struct bpf_xdp_link *link, struct bpf_prog *new_prog,
+			  struct bpf_prog *old_prog, u32 flags)
+{
+	unsigned int num_modes = hweight32(flags & XDP_FLAGS_MODES);
+	struct bpf_prog *cur_prog;
+	struct net_device *upper;
+	struct list_head *iter;
+	enum bpf_xdp_mode mode;
+	bpf_op_t bpf_op;
+	int err;
+
+	ASSERT_RTNL();
+
+	/* either link or prog attachment, never both */
+	if (link && (new_prog || old_prog))
+		return -EINVAL;
+	/* link supports only XDP mode flags */
+	if (link && (flags & ~XDP_FLAGS_MODES)) {
+		NL_SET_ERR_MSG(extack, "Invalid XDP flags for BPF link attachment");
+		return -EINVAL;
+	}
+	/* just one XDP mode bit should be set, zero defaults to drv/skb mode */
+	if (num_modes > 1) {
+		NL_SET_ERR_MSG(extack, "Only one XDP mode flag can be set");
+		return -EINVAL;
+	}
+	/* avoid ambiguity if offload + drv/skb mode progs are both loaded */
+	if (!num_modes && dev_xdp_prog_count(dev) > 1) {
+		NL_SET_ERR_MSG(extack,
+			       "More than one program loaded, unset mode is ambiguous");
+		return -EINVAL;
+	}
+	/* old_prog != NULL implies XDP_FLAGS_REPLACE is set */
+	if (old_prog && !(flags & XDP_FLAGS_REPLACE)) {
+		NL_SET_ERR_MSG(extack, "XDP_FLAGS_REPLACE is not specified");
+		return -EINVAL;
+	}
+
+	mode = dev_xdp_mode(dev, flags);
+	/* can't replace attached link */
+	if (dev_xdp_link(dev, mode)) {
+		NL_SET_ERR_MSG(extack, "Can't replace active BPF XDP link");
+		return -EBUSY;
+	}
+
+	/* don't allow if an upper device already has a program */
+	netdev_for_each_upper_dev_rcu(dev, upper, iter) {
+		if (dev_xdp_prog_count(upper) > 0) {
+			NL_SET_ERR_MSG(extack, "Cannot attach when an upper device already has a program");
+			return -EEXIST;
+		}
+	}
+
+	cur_prog = dev_xdp_prog(dev, mode);
+	/* can't replace attached prog with link */
+	if (link && cur_prog) {
+		NL_SET_ERR_MSG(extack, "Can't replace active XDP program with BPF link");
+		return -EBUSY;
+	}
+	if ((flags & XDP_FLAGS_REPLACE) && cur_prog != old_prog) {
+		NL_SET_ERR_MSG(extack, "Active program does not match expected");
+		return -EEXIST;
+	}
+
+	/* put effective new program into new_prog */
+	if (link)
+		new_prog = link->link.prog;
+
+	if (new_prog) {
+		bool offload = mode == XDP_MODE_HW;
+		enum bpf_xdp_mode other_mode = mode == XDP_MODE_SKB
+					       ? XDP_MODE_DRV : XDP_MODE_SKB;
+
+		if ((flags & XDP_FLAGS_UPDATE_IF_NOEXIST) && cur_prog) {
+			NL_SET_ERR_MSG(extack, "XDP program already attached");
+			return -EBUSY;
+		}
+		if (!offload && dev_xdp_prog(dev, other_mode)) {
+			NL_SET_ERR_MSG(extack, "Native and generic XDP can't be active at the same time");
+			return -EEXIST;
+		}
+		if (!offload && bpf_prog_is_dev_bound(new_prog->aux)) {
+			NL_SET_ERR_MSG(extack, "Using device-bound program without HW_MODE flag is not supported");
+			return -EINVAL;
+		}
+		if (new_prog->expected_attach_type == BPF_XDP_DEVMAP) {
+			NL_SET_ERR_MSG(extack, "BPF_XDP_DEVMAP programs can not be attached to a device");
+			return -EINVAL;
+		}
+		if (new_prog->expected_attach_type == BPF_XDP_CPUMAP) {
+			NL_SET_ERR_MSG(extack, "BPF_XDP_CPUMAP programs can not be attached to a device");
+			return -EINVAL;
+		}
+	}
+
+	/* don't call drivers if the effective program didn't change */
+	if (new_prog != cur_prog) {
+		bpf_op = dev_xdp_bpf_op(dev, mode);
+		if (!bpf_op) {
+			NL_SET_ERR_MSG(extack, "Underlying driver does not support XDP in native mode");
+			return -EOPNOTSUPP;
+		}
+
+		err = dev_xdp_install(dev, mode, bpf_op, extack, flags, new_prog);
+		if (err)
+			return err;
+	}
+
+	if (link)
+		dev_xdp_set_link(dev, mode, link);
+	else
+		dev_xdp_set_prog(dev, mode, new_prog);
+	if (cur_prog)
+		bpf_prog_put(cur_prog);
+
+	return 0;
+}
+
+static int dev_xdp_attach_link(struct net_device *dev,
+			       struct netlink_ext_ack *extack,
+			       struct bpf_xdp_link *link)
+{
+	return dev_xdp_attach(dev, extack, link, NULL, NULL, link->flags);
+}
+
+static int dev_xdp_detach_link(struct net_device *dev,
+			       struct netlink_ext_ack *extack,
+			       struct bpf_xdp_link *link)
+{
+	enum bpf_xdp_mode mode;
+	bpf_op_t bpf_op;
+
+	ASSERT_RTNL();
+
+	mode = dev_xdp_mode(dev, link->flags);
+	if (dev_xdp_link(dev, mode) != link)
+		return -EINVAL;
+
+	bpf_op = dev_xdp_bpf_op(dev, mode);
+	WARN_ON(dev_xdp_install(dev, mode, bpf_op, NULL, 0, NULL));
+	dev_xdp_set_link(dev, mode, NULL);
+	return 0;
+}
+
+static void bpf_xdp_link_release(struct bpf_link *link)
+{
+	struct bpf_xdp_link *xdp_link = container_of(link, struct bpf_xdp_link, link);
+
+	rtnl_lock();
+
+	/* if racing with net_device's tear down, xdp_link->dev might be
+	 * already NULL, in which case link was already auto-detached
+	 */
+	if (xdp_link->dev) {
+		WARN_ON(dev_xdp_detach_link(xdp_link->dev, NULL, xdp_link));
+		xdp_link->dev = NULL;
+	}
+
+	rtnl_unlock();
+}
+
+static int bpf_xdp_link_detach(struct bpf_link *link)
+{
+	bpf_xdp_link_release(link);
+	return 0;
+}
+
+static void bpf_xdp_link_dealloc(struct bpf_link *link)
+{
+	struct bpf_xdp_link *xdp_link = container_of(link, struct bpf_xdp_link, link);
+
+	kfree(xdp_link);
+}
+
+static void bpf_xdp_link_show_fdinfo(const struct bpf_link *link,
+				     struct seq_file *seq)
+{
+	struct bpf_xdp_link *xdp_link = container_of(link, struct bpf_xdp_link, link);
+	u32 ifindex = 0;
+
+	rtnl_lock();
+	if (xdp_link->dev)
+		ifindex = xdp_link->dev->ifindex;
+	rtnl_unlock();
+
+	seq_printf(seq, "ifindex:\t%u\n", ifindex);
+}
+
+static int bpf_xdp_link_fill_link_info(const struct bpf_link *link,
+				       struct bpf_link_info *info)
+{
+	struct bpf_xdp_link *xdp_link = container_of(link, struct bpf_xdp_link, link);
+	u32 ifindex = 0;
+
+	rtnl_lock();
+	if (xdp_link->dev)
+		ifindex = xdp_link->dev->ifindex;
+	rtnl_unlock();
+
+	info->xdp.ifindex = ifindex;
+	return 0;
+}
+
+static int bpf_xdp_link_update(struct bpf_link *link, struct bpf_prog *new_prog,
+			       struct bpf_prog *old_prog)
+{
+	struct bpf_xdp_link *xdp_link = container_of(link, struct bpf_xdp_link, link);
+	enum bpf_xdp_mode mode;
+	bpf_op_t bpf_op;
+	int err = 0;
+
+	rtnl_lock();
+
+	/* link might have been auto-released already, so fail */
+	if (!xdp_link->dev) {
+		err = -ENOLINK;
+		goto out_unlock;
+	}
+
+	if (old_prog && link->prog != old_prog) {
+		err = -EPERM;
+		goto out_unlock;
+	}
+	old_prog = link->prog;
+	if (old_prog->type != new_prog->type ||
+	    old_prog->expected_attach_type != new_prog->expected_attach_type) {
+		err = -EINVAL;
+		goto out_unlock;
+	}
+
+	if (old_prog == new_prog) {
+		/* no-op, don't disturb drivers */
+		bpf_prog_put(new_prog);
+		goto out_unlock;
+	}
+
+	mode = dev_xdp_mode(xdp_link->dev, xdp_link->flags);
+	bpf_op = dev_xdp_bpf_op(xdp_link->dev, mode);
+	err = dev_xdp_install(xdp_link->dev, mode, bpf_op, NULL,
+			      xdp_link->flags, new_prog);
+	if (err)
+		goto out_unlock;
+
+	old_prog = xchg(&link->prog, new_prog);
+	bpf_prog_put(old_prog);
+
+out_unlock:
+	rtnl_unlock();
+	return err;
+}
+
+static const struct bpf_link_ops bpf_xdp_link_lops = {
+	.release = bpf_xdp_link_release,
+	.dealloc = bpf_xdp_link_dealloc,
+	.detach = bpf_xdp_link_detach,
+	.show_fdinfo = bpf_xdp_link_show_fdinfo,
+	.fill_link_info = bpf_xdp_link_fill_link_info,
+	.update_prog = bpf_xdp_link_update,
+};
+
+int bpf_xdp_link_attach(const union bpf_attr *attr, struct bpf_prog *prog)
+{
+	struct net *net = current->nsproxy->net_ns;
+	struct bpf_link_primer link_primer;
+	struct bpf_xdp_link *link;
+	struct net_device *dev;
+	int err, fd;
+
+	rtnl_lock();
+	dev = dev_get_by_index(net, attr->link_create.target_ifindex);
+	if (!dev) {
+		rtnl_unlock();
+		return -EINVAL;
+	}
+
+	link = kzalloc(sizeof(*link), GFP_USER);
+	if (!link) {
+		err = -ENOMEM;
+		goto unlock;
+	}
+
+	bpf_link_init(&link->link, BPF_LINK_TYPE_XDP, &bpf_xdp_link_lops, prog);
+	link->dev = dev;
+	link->flags = attr->link_create.flags;
+
+	err = bpf_link_prime(&link->link, &link_primer);
+	if (err) {
+		kfree(link);
+		goto unlock;
+	}
+
+	err = dev_xdp_attach_link(dev, NULL, link);
+	rtnl_unlock();
+
+	if (err) {
+		link->dev = NULL;
+		bpf_link_cleanup(&link_primer);
+		goto out_put_dev;
+	}
+
+	fd = bpf_link_settle(&link_primer);
+	/* link itself doesn't hold dev's refcnt to not complicate shutdown */
+	dev_put(dev);
+	return fd;
+
+unlock:
+	rtnl_unlock();
+
+out_put_dev:
+	dev_put(dev);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -8064,21 +11565,33 @@ static void dev_xdp_uninstall(struct net_device *dev)
  *	@dev: device
  *	@extack: netlink extended ack
  *	@fd: new program fd or negative value to clear
+<<<<<<< HEAD
+=======
+ *	@expected_fd: old program fd that userspace expects to replace or clear
+>>>>>>> upstream/android-13
  *	@flags: xdp-related flags
  *
  *	Set or clear a bpf program for a device
  */
 int dev_change_xdp_fd(struct net_device *dev, struct netlink_ext_ack *extack,
+<<<<<<< HEAD
 		      int fd, u32 flags)
 {
 	const struct net_device_ops *ops = dev->netdev_ops;
 	enum bpf_netdev_command query;
 	struct bpf_prog *prog = NULL;
 	bpf_op_t bpf_op, bpf_chk;
+=======
+		      int fd, int expected_fd, u32 flags)
+{
+	enum bpf_xdp_mode mode = dev_xdp_mode(dev, flags);
+	struct bpf_prog *new_prog = NULL, *old_prog = NULL;
+>>>>>>> upstream/android-13
 	int err;
 
 	ASSERT_RTNL();
 
+<<<<<<< HEAD
 	query = flags & XDP_FLAGS_HW_MODE ? XDP_QUERY_PROG_HW : XDP_QUERY_PROG;
 
 	bpf_op = bpf_chk = ops->ndo_bpf;
@@ -8114,6 +11627,32 @@ int dev_change_xdp_fd(struct net_device *dev, struct netlink_ext_ack *extack,
 	if (err < 0 && prog)
 		bpf_prog_put(prog);
 
+=======
+	if (fd >= 0) {
+		new_prog = bpf_prog_get_type_dev(fd, BPF_PROG_TYPE_XDP,
+						 mode != XDP_MODE_SKB);
+		if (IS_ERR(new_prog))
+			return PTR_ERR(new_prog);
+	}
+
+	if (expected_fd >= 0) {
+		old_prog = bpf_prog_get_type_dev(expected_fd, BPF_PROG_TYPE_XDP,
+						 mode != XDP_MODE_SKB);
+		if (IS_ERR(old_prog)) {
+			err = PTR_ERR(old_prog);
+			old_prog = NULL;
+			goto err_out;
+		}
+	}
+
+	err = dev_xdp_attach(dev, extack, NULL, new_prog, old_prog, flags);
+
+err_out:
+	if (err && new_prog)
+		bpf_prog_put(new_prog);
+	if (old_prog)
+		bpf_prog_put(old_prog);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -8147,6 +11686,7 @@ static void net_set_todo(struct net_device *dev)
 	dev_net(dev)->dev_unreg_count++;
 }
 
+<<<<<<< HEAD
 static void rollback_registered_many(struct list_head *head)
 {
 	struct net_device *dev, *tmp;
@@ -8244,6 +11784,8 @@ static void rollback_registered(struct net_device *dev)
 	list_del(&single);
 }
 
+=======
+>>>>>>> upstream/android-13
 static netdev_features_t netdev_sync_upper_features(struct net_device *lower,
 	struct net_device *upper, netdev_features_t features)
 {
@@ -8364,6 +11906,20 @@ static netdev_features_t netdev_fix_features(struct net_device *dev,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (features & NETIF_F_HW_TLS_TX) {
+		bool ip_csum = (features & (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM)) ==
+			(NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
+		bool hw_csum = features & NETIF_F_HW_CSUM;
+
+		if (!ip_csum && !hw_csum) {
+			netdev_dbg(dev, "Dropping TLS TX HW offload feature since no CSUM feature.\n");
+			features &= ~NETIF_F_HW_TLS_TX;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if ((features & NETIF_F_HW_TLS_RX) && !(features & NETIF_F_RXCSUM)) {
 		netdev_dbg(dev, "Dropping TLS RX HW offload feature since no RXCSUM feature.\n");
 		features &= ~NETIF_F_HW_TLS_RX;
@@ -8389,7 +11945,11 @@ int __netdev_update_features(struct net_device *dev)
 	/* driver might be less strict about feature dependencies */
 	features = netdev_fix_features(dev, features);
 
+<<<<<<< HEAD
 	/* some features can't be enabled if they're off an an upper device */
+=======
+	/* some features can't be enabled if they're off on an upper device */
+>>>>>>> upstream/android-13
 	netdev_for_each_upper_dev_rcu(dev, upper, iter)
 		features = netdev_sync_upper_features(dev, upper, features);
 
@@ -8513,6 +12073,14 @@ void netif_stacked_transfer_operstate(const struct net_device *rootdev,
 	else
 		netif_dormant_off(dev);
 
+<<<<<<< HEAD
+=======
+	if (rootdev->operstate == IF_OPER_TESTING)
+		netif_testing_on(dev);
+	else
+		netif_testing_off(dev);
+
+>>>>>>> upstream/android-13
 	if (netif_carrier_ok(rootdev))
 		netif_carrier_on(dev);
 	else
@@ -8529,7 +12097,11 @@ static int netif_alloc_rx_queues(struct net_device *dev)
 
 	BUG_ON(count < 1);
 
+<<<<<<< HEAD
 	rx = kvzalloc(sz, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+=======
+	rx = kvzalloc(sz, GFP_KERNEL_ACCOUNT | __GFP_RETRY_MAYFAIL);
+>>>>>>> upstream/android-13
 	if (!rx)
 		return -ENOMEM;
 
@@ -8539,7 +12111,11 @@ static int netif_alloc_rx_queues(struct net_device *dev)
 		rx[i].dev = dev;
 
 		/* XDP RX-queue setup */
+<<<<<<< HEAD
 		err = xdp_rxq_info_reg(&rx[i].xdp_rxq, dev, i);
+=======
+		err = xdp_rxq_info_reg(&rx[i].xdp_rxq, dev, i, 0);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			goto err_rxq_info;
 	}
@@ -8596,7 +12172,11 @@ static int netif_alloc_netdev_queues(struct net_device *dev)
 	if (count < 1 || count > 0xffff)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	tx = kvzalloc(sz, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+=======
+	tx = kvzalloc(sz, GFP_KERNEL_ACCOUNT | __GFP_RETRY_MAYFAIL);
+>>>>>>> upstream/android-13
 	if (!tx)
 		return -ENOMEM;
 
@@ -8653,6 +12233,13 @@ int register_netdevice(struct net_device *dev)
 	BUG_ON(dev->reg_state != NETREG_UNINITIALIZED);
 	BUG_ON(!net);
 
+<<<<<<< HEAD
+=======
+	ret = ethtool_check_ops(dev->ethtool_ops);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&dev->addr_list_lock);
 	netdev_set_addr_lockdep_class(dev);
 
@@ -8660,13 +12247,25 @@ int register_netdevice(struct net_device *dev)
 	if (ret < 0)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	ret = -ENOMEM;
+	dev->name_node = netdev_name_node_head_alloc(dev);
+	if (!dev->name_node)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/* Init, if this function is available */
 	if (dev->netdev_ops->ndo_init) {
 		ret = dev->netdev_ops->ndo_init(dev);
 		if (ret) {
 			if (ret > 0)
 				ret = -EIO;
+<<<<<<< HEAD
 			goto out;
+=======
+			goto err_free_name;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -8688,10 +12287,17 @@ int register_netdevice(struct net_device *dev)
 	/* Transfer changeable features to wanted_features and enable
 	 * software offloads (GSO and GRO).
 	 */
+<<<<<<< HEAD
 	dev->hw_features |= NETIF_F_SOFT_FEATURES;
 	dev->features |= NETIF_F_SOFT_FEATURES;
 
 	if (dev->netdev_ops->ndo_udp_tunnel_add) {
+=======
+	dev->hw_features |= (NETIF_F_SOFT_FEATURES | NETIF_F_SOFT_FEATURES_OFF);
+	dev->features |= NETIF_F_SOFT_FEATURES;
+
+	if (dev->udp_tunnel_nic_info) {
+>>>>>>> upstream/android-13
 		dev->features |= NETIF_F_RX_UDP_TUNNEL_PORT;
 		dev->hw_features |= NETIF_F_RX_UDP_TUNNEL_PORT;
 	}
@@ -8766,6 +12372,7 @@ int register_netdevice(struct net_device *dev)
 	ret = call_netdevice_notifiers(NETDEV_REGISTER, dev);
 	ret = notifier_to_errno(ret);
 	if (ret) {
+<<<<<<< HEAD
 		rollback_registered(dev);
 		rcu_barrier();
 
@@ -8777,6 +12384,12 @@ int register_netdevice(struct net_device *dev)
 		 * kobject is being hold.
 		 */
 		kobject_put(&dev->dev.kobj);
+=======
+		/* Expect explicit free_netdev() on failure */
+		dev->needs_free_netdev = false;
+		unregister_netdevice_queue(dev, NULL);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 	/*
 	 *	Prevent userspace races by waiting until the network
@@ -8794,6 +12407,11 @@ err_uninit:
 		dev->netdev_ops->ndo_uninit(dev);
 	if (dev->priv_destructor)
 		dev->priv_destructor(dev);
+<<<<<<< HEAD
+=======
+err_free_name:
+	netdev_name_node_free(dev->name_node);
+>>>>>>> upstream/android-13
 	goto out;
 }
 EXPORT_SYMBOL(register_netdevice);
@@ -8869,14 +12487,31 @@ EXPORT_SYMBOL(register_netdev);
 
 int netdev_refcnt_read(const struct net_device *dev)
 {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCPU_DEV_REFCNT
+>>>>>>> upstream/android-13
 	int i, refcnt = 0;
 
 	for_each_possible_cpu(i)
 		refcnt += *per_cpu_ptr(dev->pcpu_refcnt, i);
 	return refcnt;
+<<<<<<< HEAD
 }
 EXPORT_SYMBOL(netdev_refcnt_read);
 
+=======
+#else
+	return refcount_read(&dev->dev_refcnt);
+#endif
+}
+EXPORT_SYMBOL(netdev_refcnt_read);
+
+int netdev_unregister_timeout_secs __read_mostly = 10;
+
+#define WAIT_REFS_MIN_MSECS 1
+#define WAIT_REFS_MAX_MSECS 250
+>>>>>>> upstream/android-13
 /**
  * netdev_wait_allrefs - wait until all references are gone.
  * @dev: target net_device
@@ -8892,14 +12527,22 @@ EXPORT_SYMBOL(netdev_refcnt_read);
 static void netdev_wait_allrefs(struct net_device *dev)
 {
 	unsigned long rebroadcast_time, warning_time;
+<<<<<<< HEAD
 	int refcnt;
+=======
+	int wait = 0, refcnt;
+>>>>>>> upstream/android-13
 
 	linkwatch_forget_dev(dev);
 
 	rebroadcast_time = warning_time = jiffies;
 	refcnt = netdev_refcnt_read(dev);
 
+<<<<<<< HEAD
 	while (refcnt != 0) {
+=======
+	while (refcnt != 1) {
+>>>>>>> upstream/android-13
 		if (time_after(jiffies, rebroadcast_time + 1 * HZ)) {
 			rtnl_lock();
 
@@ -8926,11 +12569,27 @@ static void netdev_wait_allrefs(struct net_device *dev)
 			rebroadcast_time = jiffies;
 		}
 
+<<<<<<< HEAD
 		msleep(250);
 
 		refcnt = netdev_refcnt_read(dev);
 
 		if (refcnt && time_after(jiffies, warning_time + 10 * HZ)) {
+=======
+		if (!wait) {
+			rcu_barrier();
+			wait = WAIT_REFS_MIN_MSECS;
+		} else {
+			msleep(wait);
+			wait = min(wait << 1, WAIT_REFS_MAX_MSECS);
+		}
+
+		refcnt = netdev_refcnt_read(dev);
+
+		if (refcnt != 1 &&
+		    time_after(jiffies, warning_time +
+			       netdev_unregister_timeout_secs * HZ)) {
+>>>>>>> upstream/android-13
 			pr_emerg("unregister_netdevice: waiting for %s to become free. Usage count = %d\n",
 				 dev->name, refcnt);
 			warning_time = jiffies;
@@ -8965,6 +12624,22 @@ static void netdev_wait_allrefs(struct net_device *dev)
 void netdev_run_todo(void)
 {
 	struct list_head list;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_LOCKDEP
+	struct list_head unlink_list;
+
+	list_replace_init(&net_unlink_list, &unlink_list);
+
+	while (!list_empty(&unlink_list)) {
+		struct net_device *dev = list_first_entry(&unlink_list,
+							  struct net_device,
+							  unlink_list);
+		list_del_init(&dev->unlink_list);
+		dev->nested_level = dev->lower_level - 1;
+	}
+#endif
+>>>>>>> upstream/android-13
 
 	/* Snapshot list, allow later requests */
 	list_replace_init(&net_todo_list, &list);
@@ -8993,7 +12668,11 @@ void netdev_run_todo(void)
 		netdev_wait_allrefs(dev);
 
 		/* paranoia */
+<<<<<<< HEAD
 		BUG_ON(netdev_refcnt_read(dev));
+=======
+		BUG_ON(netdev_refcnt_read(dev) != 1);
+>>>>>>> upstream/android-13
 		BUG_ON(!list_empty(&dev->ptype_all));
 		BUG_ON(!list_empty(&dev->ptype_specific));
 		WARN_ON(rcu_access_pointer(dev->ip_ptr));
@@ -9076,6 +12755,58 @@ struct rtnl_link_stats64 *dev_get_stats(struct net_device *dev,
 }
 EXPORT_SYMBOL(dev_get_stats);
 
+<<<<<<< HEAD
+=======
+/**
+ *	dev_fetch_sw_netstats - get per-cpu network device statistics
+ *	@s: place to store stats
+ *	@netstats: per-cpu network stats to read from
+ *
+ *	Read per-cpu network statistics and populate the related fields in @s.
+ */
+void dev_fetch_sw_netstats(struct rtnl_link_stats64 *s,
+			   const struct pcpu_sw_netstats __percpu *netstats)
+{
+	int cpu;
+
+	for_each_possible_cpu(cpu) {
+		const struct pcpu_sw_netstats *stats;
+		struct pcpu_sw_netstats tmp;
+		unsigned int start;
+
+		stats = per_cpu_ptr(netstats, cpu);
+		do {
+			start = u64_stats_fetch_begin_irq(&stats->syncp);
+			tmp.rx_packets = stats->rx_packets;
+			tmp.rx_bytes   = stats->rx_bytes;
+			tmp.tx_packets = stats->tx_packets;
+			tmp.tx_bytes   = stats->tx_bytes;
+		} while (u64_stats_fetch_retry_irq(&stats->syncp, start));
+
+		s->rx_packets += tmp.rx_packets;
+		s->rx_bytes   += tmp.rx_bytes;
+		s->tx_packets += tmp.tx_packets;
+		s->tx_bytes   += tmp.tx_bytes;
+	}
+}
+EXPORT_SYMBOL_GPL(dev_fetch_sw_netstats);
+
+/**
+ *	dev_get_tstats64 - ndo_get_stats64 implementation
+ *	@dev: device to get statistics from
+ *	@s: place to store stats
+ *
+ *	Populate @s from dev->stats and dev->tstats. Can be used as
+ *	ndo_get_stats64() callback.
+ */
+void dev_get_tstats64(struct net_device *dev, struct rtnl_link_stats64 *s)
+{
+	netdev_stats_to_stats64(s, &dev->stats);
+	dev_fetch_sw_netstats(s, dev->tstats);
+}
+EXPORT_SYMBOL_GPL(dev_get_tstats64);
+
+>>>>>>> upstream/android-13
 struct netdev_queue *dev_ingress_queue_create(struct net_device *dev)
 {
 	struct netdev_queue *queue = dev_ingress_queue(dev);
@@ -9154,16 +12885,31 @@ struct net_device *alloc_netdev_mqs(int sizeof_priv, const char *name,
 	/* ensure 32-byte alignment of whole construct */
 	alloc_size += NETDEV_ALIGN - 1;
 
+<<<<<<< HEAD
 	p = kvzalloc(alloc_size, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+=======
+	p = kvzalloc(alloc_size, GFP_KERNEL_ACCOUNT | __GFP_RETRY_MAYFAIL);
+>>>>>>> upstream/android-13
 	if (!p)
 		return NULL;
 
 	dev = PTR_ALIGN(p, NETDEV_ALIGN);
 	dev->padded = (char *)dev - (char *)p;
 
+<<<<<<< HEAD
 	dev->pcpu_refcnt = alloc_percpu(int);
 	if (!dev->pcpu_refcnt)
 		goto free_dev;
+=======
+#ifdef CONFIG_PCPU_DEV_REFCNT
+	dev->pcpu_refcnt = alloc_percpu(int);
+	if (!dev->pcpu_refcnt)
+		goto free_dev;
+	dev_hold(dev);
+#else
+	refcount_set(&dev->dev_refcnt, 1);
+#endif
+>>>>>>> upstream/android-13
 
 	if (dev_addr_init(dev))
 		goto free_pcpu;
@@ -9177,6 +12923,13 @@ struct net_device *alloc_netdev_mqs(int sizeof_priv, const char *name,
 	dev->gso_max_segs = GSO_MAX_SEGS;
 	dev->upper_level = 1;
 	dev->lower_level = 1;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_LOCKDEP
+	dev->nested_level = 0;
+	INIT_LIST_HEAD(&dev->unlink_list);
+#endif
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&dev->napi_list);
 	INIT_LIST_HEAD(&dev->unreg_list);
@@ -9186,6 +12939,10 @@ struct net_device *alloc_netdev_mqs(int sizeof_priv, const char *name,
 	INIT_LIST_HEAD(&dev->adj_list.lower);
 	INIT_LIST_HEAD(&dev->ptype_all);
 	INIT_LIST_HEAD(&dev->ptype_specific);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&dev->net_notifier_list);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_SCHED
 	hash_init(dev->qdisc_hash);
 #endif
@@ -9222,8 +12979,15 @@ free_all:
 	return NULL;
 
 free_pcpu:
+<<<<<<< HEAD
 	free_percpu(dev->pcpu_refcnt);
 free_dev:
+=======
+#ifdef CONFIG_PCPU_DEV_REFCNT
+	free_percpu(dev->pcpu_refcnt);
+free_dev:
+#endif
+>>>>>>> upstream/android-13
 	netdev_freemem(dev);
 	return NULL;
 }
@@ -9243,6 +13007,20 @@ void free_netdev(struct net_device *dev)
 	struct napi_struct *p, *n;
 
 	might_sleep();
+<<<<<<< HEAD
+=======
+
+	/* When called immediately after register_netdevice() failed the unwind
+	 * handling may still be dismantling the device. Handle that case by
+	 * deferring the free.
+	 */
+	if (dev->reg_state == NETREG_UNREGISTERING) {
+		ASSERT_RTNL();
+		dev->needs_free_netdev = true;
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	netif_free_tx_queues(dev);
 	netif_free_rx_queues(dev);
 
@@ -9254,8 +13032,17 @@ void free_netdev(struct net_device *dev)
 	list_for_each_entry_safe(p, n, &dev->napi_list, dev_list)
 		netif_napi_del(p);
 
+<<<<<<< HEAD
 	free_percpu(dev->pcpu_refcnt);
 	dev->pcpu_refcnt = NULL;
+=======
+#ifdef CONFIG_PCPU_DEV_REFCNT
+	free_percpu(dev->pcpu_refcnt);
+	dev->pcpu_refcnt = NULL;
+#endif
+	free_percpu(dev->xdp_bulkq);
+	dev->xdp_bulkq = NULL;
+>>>>>>> upstream/android-13
 
 	/*  Compatibility with error handling in drivers */
 	if (dev->reg_state == NETREG_UNINITIALIZED) {
@@ -9307,9 +13094,16 @@ void unregister_netdevice_queue(struct net_device *dev, struct list_head *head)
 	if (head) {
 		list_move_tail(&dev->unreg_list, head);
 	} else {
+<<<<<<< HEAD
 		rollback_registered(dev);
 		/* Finish processing unregister after unlock */
 		net_set_todo(dev);
+=======
+		LIST_HEAD(single);
+
+		list_add(&dev->unreg_list, &single);
+		unregister_netdevice_many(&single);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(unregister_netdevice_queue);
@@ -9323,6 +13117,7 @@ EXPORT_SYMBOL(unregister_netdevice_queue);
  */
 void unregister_netdevice_many(struct list_head *head)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
 
 	if (!list_empty(head)) {
@@ -9331,6 +13126,102 @@ void unregister_netdevice_many(struct list_head *head)
 			net_set_todo(dev);
 		list_del(head);
 	}
+=======
+	struct net_device *dev, *tmp;
+	LIST_HEAD(close_head);
+
+	BUG_ON(dev_boot_phase);
+	ASSERT_RTNL();
+
+	if (list_empty(head))
+		return;
+
+	list_for_each_entry_safe(dev, tmp, head, unreg_list) {
+		/* Some devices call without registering
+		 * for initialization unwind. Remove those
+		 * devices and proceed with the remaining.
+		 */
+		if (dev->reg_state == NETREG_UNINITIALIZED) {
+			pr_debug("unregister_netdevice: device %s/%p never was registered\n",
+				 dev->name, dev);
+
+			WARN_ON(1);
+			list_del(&dev->unreg_list);
+			continue;
+		}
+		dev->dismantle = true;
+		BUG_ON(dev->reg_state != NETREG_REGISTERED);
+	}
+
+	/* If device is running, close it first. */
+	list_for_each_entry(dev, head, unreg_list)
+		list_add_tail(&dev->close_list, &close_head);
+	dev_close_many(&close_head, true);
+
+	list_for_each_entry(dev, head, unreg_list) {
+		/* And unlink it from device chain. */
+		unlist_netdevice(dev);
+
+		dev->reg_state = NETREG_UNREGISTERING;
+	}
+	flush_all_backlogs();
+
+	synchronize_net();
+
+	list_for_each_entry(dev, head, unreg_list) {
+		struct sk_buff *skb = NULL;
+
+		/* Shutdown queueing discipline. */
+		dev_shutdown(dev);
+
+		dev_xdp_uninstall(dev);
+
+		/* Notify protocols, that we are about to destroy
+		 * this device. They should clean all the things.
+		 */
+		call_netdevice_notifiers(NETDEV_UNREGISTER, dev);
+
+		if (!dev->rtnl_link_ops ||
+		    dev->rtnl_link_state == RTNL_LINK_INITIALIZED)
+			skb = rtmsg_ifinfo_build_skb(RTM_DELLINK, dev, ~0U, 0,
+						     GFP_KERNEL, NULL, 0);
+
+		/*
+		 *	Flush the unicast and multicast chains
+		 */
+		dev_uc_flush(dev);
+		dev_mc_flush(dev);
+
+		netdev_name_node_alt_flush(dev);
+		netdev_name_node_free(dev->name_node);
+
+		if (dev->netdev_ops->ndo_uninit)
+			dev->netdev_ops->ndo_uninit(dev);
+
+		if (skb)
+			rtmsg_ifinfo_send(skb, dev, GFP_KERNEL);
+
+		/* Notifier chain MUST detach us all upper devices. */
+		WARN_ON(netdev_has_any_upper_dev(dev));
+		WARN_ON(netdev_has_any_lower_dev(dev));
+
+		/* Remove entries from kobject tree */
+		netdev_unregister_kobject(dev);
+#ifdef CONFIG_XPS
+		/* Remove XPS queueing entries */
+		netif_reset_xps_queues_gt(dev, 0);
+#endif
+	}
+
+	synchronize_net();
+
+	list_for_each_entry(dev, head, unreg_list) {
+		dev_put(dev);
+		net_set_todo(dev);
+	}
+
+	list_del(head);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(unregister_netdevice_many);
 
@@ -9354,11 +13245,20 @@ void unregister_netdev(struct net_device *dev)
 EXPORT_SYMBOL(unregister_netdev);
 
 /**
+<<<<<<< HEAD
  *	dev_change_net_namespace - move device to different nethost namespace
+=======
+ *	__dev_change_net_namespace - move device to different nethost namespace
+>>>>>>> upstream/android-13
  *	@dev: device
  *	@net: network namespace
  *	@pat: If not NULL name pattern to try if the current device name
  *	      is already taken in the destination network namespace.
+<<<<<<< HEAD
+=======
+ *	@new_ifindex: If not zero, specifies device index in the target
+ *	              namespace.
+>>>>>>> upstream/android-13
  *
  *	This function shuts down a device interface and moves it
  *	to a new network namespace. On success 0 is returned, on
@@ -9367,9 +13267,17 @@ EXPORT_SYMBOL(unregister_netdev);
  *	Callers must hold the rtnl semaphore.
  */
 
+<<<<<<< HEAD
 int dev_change_net_namespace(struct net_device *dev, struct net *net, const char *pat)
 {
 	int err, new_nsid, new_ifindex;
+=======
+int __dev_change_net_namespace(struct net_device *dev, struct net *net,
+			       const char *pat, int new_ifindex)
+{
+	struct net *net_old = dev_net(dev);
+	int err, new_nsid;
+>>>>>>> upstream/android-13
 
 	ASSERT_RTNL();
 
@@ -9384,7 +13292,11 @@ int dev_change_net_namespace(struct net_device *dev, struct net *net, const char
 
 	/* Get out if there is nothing todo */
 	err = 0;
+<<<<<<< HEAD
 	if (net_eq(dev_net(dev), net))
+=======
+	if (net_eq(net_old, net))
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* Pick the destination device name, and ensure
@@ -9400,6 +13312,14 @@ int dev_change_net_namespace(struct net_device *dev, struct net *net, const char
 			goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Check that new_ifindex isn't used yet. */
+	err = -EBUSY;
+	if (new_ifindex && __dev_get_by_index(net, new_ifindex))
+		goto out;
+
+>>>>>>> upstream/android-13
 	/*
 	 * And now a mini version of register_netdevice unregister_netdevice.
 	 */
@@ -9427,10 +13347,19 @@ int dev_change_net_namespace(struct net_device *dev, struct net *net, const char
 
 	new_nsid = peernet2id_alloc(dev_net(dev), net, GFP_KERNEL);
 	/* If there is an ifindex conflict assign a new one */
+<<<<<<< HEAD
 	if (__dev_get_by_index(net, dev->ifindex))
 		new_ifindex = dev_new_index(net);
 	else
 		new_ifindex = dev->ifindex;
+=======
+	if (!new_ifindex) {
+		if (__dev_get_by_index(net, dev->ifindex))
+			new_ifindex = dev_new_index(net);
+		else
+			new_ifindex = dev->ifindex;
+	}
+>>>>>>> upstream/android-13
 
 	rtmsg_ifinfo_newnet(RTM_DELLINK, dev, ~0U, GFP_KERNEL, &new_nsid,
 			    new_ifindex);
@@ -9445,6 +13374,12 @@ int dev_change_net_namespace(struct net_device *dev, struct net *net, const char
 	kobject_uevent(&dev->dev.kobj, KOBJ_REMOVE);
 	netdev_adjacent_del_links(dev);
 
+<<<<<<< HEAD
+=======
+	/* Move per-net netdevice notifiers that are following the netdevice */
+	move_netdevice_notifiers_dev_net(dev, net);
+
+>>>>>>> upstream/android-13
 	/* Actually switch the network namespace */
 	dev_net_set(dev, net);
 	dev->ifindex = new_ifindex;
@@ -9457,6 +13392,15 @@ int dev_change_net_namespace(struct net_device *dev, struct net *net, const char
 	err = device_rename(&dev->dev, dev->name);
 	WARN_ON(err);
 
+<<<<<<< HEAD
+=======
+	/* Adapt owner in case owning user namespace of target network
+	 * namespace is different from the original one.
+	 */
+	err = netdev_change_owner(dev, net_old, net);
+	WARN_ON(err);
+
+>>>>>>> upstream/android-13
 	/* Add the device back in the hashes */
 	list_netdevice(dev);
 
@@ -9474,7 +13418,11 @@ int dev_change_net_namespace(struct net_device *dev, struct net *net, const char
 out:
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(dev_change_net_namespace);
+=======
+EXPORT_SYMBOL_GPL(__dev_change_net_namespace);
+>>>>>>> upstream/android-13
 
 static int dev_cpu_dead(unsigned int oldcpu)
 {
@@ -9587,10 +13535,16 @@ static struct hlist_head * __net_init netdev_create_hash(void)
 static int __net_init netdev_init(struct net *net)
 {
 	BUILD_BUG_ON(GRO_HASH_BUCKETS >
+<<<<<<< HEAD
 		     8 * FIELD_SIZEOF(struct napi_struct, gro_bitmask));
 
 	if (net != &init_net)
 		INIT_LIST_HEAD(&net->dev_base_head);
+=======
+		     8 * sizeof_field(struct napi_struct, gro_bitmask));
+
+	INIT_LIST_HEAD(&net->dev_base_head);
+>>>>>>> upstream/android-13
 
 	net->dev_name_head = netdev_create_hash();
 	if (net->dev_name_head == NULL)
@@ -9600,6 +13554,11 @@ static int __net_init netdev_init(struct net *net)
 	if (net->dev_index_head == NULL)
 		goto err_idx;
 
+<<<<<<< HEAD
+=======
+	RAW_INIT_NOTIFIER_HEAD(&net->netdev_chain);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_idx:
@@ -9721,7 +13680,11 @@ static void __net_exit default_device_exit(struct net *net)
 			continue;
 
 		/* Leave virtual devices for the generic cleanup */
+<<<<<<< HEAD
 		if (dev->rtnl_link_ops)
+=======
+		if (dev->rtnl_link_ops && !dev->rtnl_link_ops->netns_refund)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* Push remaining network devices to init_net */
@@ -9856,8 +13819,12 @@ static int __init net_dev_init(void)
 		INIT_LIST_HEAD(&sd->poll_list);
 		sd->output_queue_tailp = &sd->output_queue;
 #ifdef CONFIG_RPS
+<<<<<<< HEAD
 		sd->csd.func = rps_trigger_softirq;
 		sd->csd.info = sd;
+=======
+		INIT_CSD(&sd->csd, rps_trigger_softirq, sd);
+>>>>>>> upstream/android-13
 		sd->cpu = i;
 #endif
 

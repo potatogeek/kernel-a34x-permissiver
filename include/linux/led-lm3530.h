@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 ST-Ericsson SA.
  * Copyright (C) 2009 Motorola, Inc.
  *
+<<<<<<< HEAD
  * License Terms: GNU General Public License v2
  *
+=======
+>>>>>>> upstream/android-13
  * Simple driver for National Semiconductor LM35330 Backlight driver chip
  *
  * Author: Shreshtha Kumar SAHU <shreshthakumar.sahu@stericsson.com>

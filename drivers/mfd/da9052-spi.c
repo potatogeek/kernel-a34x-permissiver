@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SPI access for Dialog DA9052 PMICs.
  *
  * Copyright(c) 2011 Dialog Semiconductor Ltd.
  *
  * Author: David Dajun Chen <dchen@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -46,7 +53,12 @@ static int da9052_spi_probe(struct spi_device *spi)
 	config.reg_bits = 7;
 	config.pad_bits = 1;
 	config.val_bits = 8;
+<<<<<<< HEAD
 	config.use_single_rw = 1;
+=======
+	config.use_single_read = true;
+	config.use_single_write = true;
+>>>>>>> upstream/android-13
 
 	da9052->regmap = devm_regmap_init_spi(spi, &config);
 	if (IS_ERR(da9052->regmap)) {

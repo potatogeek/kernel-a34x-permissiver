@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * reservations.c
  *
  * Allocation reservations implementation
@@ -13,6 +18,7 @@
  * Universite Pierre et Marie Curie (Paris VI)
  *
  * The rest is copyright (C) 2010 Novell.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -41,9 +49,12 @@
 
 static DEFINE_SPINLOCK(resv_lock);
 
+<<<<<<< HEAD
 #define	OCFS2_MIN_RESV_WINDOW_BITS	8
 #define	OCFS2_MAX_RESV_WINDOW_BITS	1024
 
+=======
+>>>>>>> upstream/android-13
 int ocfs2_dir_resv_allowed(struct ocfs2_super *osb)
 {
 	return (osb->osb_resv_level && osb->osb_dir_resv_level);

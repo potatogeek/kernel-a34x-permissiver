@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * sound/soc/rockchip/rockchip_i2s.h
  *
@@ -5,10 +9,13 @@
  *
  * Copyright (c) 2014 Rockchip Electronics Co. Ltd.
  * Author: Jianqun xu <jay.xu@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ROCKCHIP_IIS_H
@@ -91,6 +98,7 @@
 #define I2S_CKR_MSS_SLAVE	(1 << I2S_CKR_MSS_SHIFT)
 #define I2S_CKR_MSS_MASK	(1 << I2S_CKR_MSS_SHIFT)
 #define I2S_CKR_CKP_SHIFT	26
+<<<<<<< HEAD
 #define I2S_CKR_CKP_NEG		(0 << I2S_CKR_CKP_SHIFT)
 #define I2S_CKR_CKP_POS		(1 << I2S_CKR_CKP_SHIFT)
 #define I2S_CKR_CKP_MASK	(1 << I2S_CKR_CKP_SHIFT)
@@ -100,6 +108,19 @@
 #define I2S_CKR_TLP_SHIFT	24
 #define I2S_CKR_TLP_NORMAL	(0 << I2S_CKR_TLP_SHIFT)
 #define I2S_CKR_TLP_OPPSITE	(1 << I2S_CKR_TLP_SHIFT)
+=======
+#define I2S_CKR_CKP_NORMAL	(0 << I2S_CKR_CKP_SHIFT)
+#define I2S_CKR_CKP_INVERTED	(1 << I2S_CKR_CKP_SHIFT)
+#define I2S_CKR_CKP_MASK	(1 << I2S_CKR_CKP_SHIFT)
+#define I2S_CKR_RLP_SHIFT	25
+#define I2S_CKR_RLP_NORMAL	(0 << I2S_CKR_RLP_SHIFT)
+#define I2S_CKR_RLP_INVERTED	(1 << I2S_CKR_RLP_SHIFT)
+#define I2S_CKR_RLP_MASK	(1 << I2S_CKR_RLP_SHIFT)
+#define I2S_CKR_TLP_SHIFT	24
+#define I2S_CKR_TLP_NORMAL	(0 << I2S_CKR_TLP_SHIFT)
+#define I2S_CKR_TLP_INVERTED	(1 << I2S_CKR_TLP_SHIFT)
+#define I2S_CKR_TLP_MASK	(1 << I2S_CKR_TLP_SHIFT)
+>>>>>>> upstream/android-13
 #define I2S_CKR_MDIV_SHIFT	16
 #define I2S_CKR_MDIV(x)		((x - 1) << I2S_CKR_MDIV_SHIFT)
 #define I2S_CKR_MDIV_MASK	(0xff << I2S_CKR_MDIV_SHIFT)

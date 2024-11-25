@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2012-2015, 2017-2018, The Linux Foundation.
  * All rights reserved.
  *
@@ -9,12 +10,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2012-2015, 2017-2018, The Linux Foundation.
+ * All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/clk/clk-conf.h>
 #include <linux/err.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 
 #include "dpu_io_util.h"
 
@@ -98,6 +110,7 @@ int msm_dss_enable_clk(struct dss_clk *clk_arry, int num_clk, int enable)
 			DEV_DBG("%pS->%s: enable '%s'\n",
 				__builtin_return_address(0), __func__,
 				clk_arry[i].clk_name);
+<<<<<<< HEAD
 			if (clk_arry[i].clk) {
 				rc = clk_prepare_enable(clk_arry[i].clk);
 				if (rc)
@@ -115,6 +128,18 @@ int msm_dss_enable_clk(struct dss_clk *clk_arry, int num_clk, int enable)
 			if (rc) {
 				msm_dss_enable_clk(&clk_arry[i],
 					i, false);
+=======
+			rc = clk_prepare_enable(clk_arry[i].clk);
+			if (rc)
+				DEV_ERR("%pS->%s: %s en fail. rc=%d\n",
+					__builtin_return_address(0),
+					__func__,
+					clk_arry[i].clk_name, rc);
+
+			if (rc && i) {
+				msm_dss_enable_clk(&clk_arry[i - 1],
+					i - 1, false);
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
@@ -124,12 +149,16 @@ int msm_dss_enable_clk(struct dss_clk *clk_arry, int num_clk, int enable)
 				__builtin_return_address(0), __func__,
 				clk_arry[i].clk_name);
 
+<<<<<<< HEAD
 			if (clk_arry[i].clk)
 				clk_disable_unprepare(clk_arry[i].clk);
 			else
 				DEV_ERR("%pS->%s: '%s' is not available\n",
 					__builtin_return_address(0), __func__,
 					clk_arry[i].clk_name);
+=======
+			clk_disable_unprepare(clk_arry[i].clk);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -164,7 +193,11 @@ int msm_dss_parse_clock(struct platform_device *pdev,
 						   "clock-names", i,
 						   &clock_name);
 		if (rc) {
+<<<<<<< HEAD
 			dev_err(&pdev->dev, "Failed to get clock name for %d\n",
+=======
+			DRM_DEV_ERROR(&pdev->dev, "Failed to get clock name for %d\n",
+>>>>>>> upstream/android-13
 				i);
 			break;
 		}
@@ -176,13 +209,21 @@ int msm_dss_parse_clock(struct platform_device *pdev,
 
 	rc = msm_dss_get_clk(&pdev->dev, mp->clk_config, num_clk);
 	if (rc) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to get clock refs %d\n", rc);
+=======
+		DRM_DEV_ERROR(&pdev->dev, "Failed to get clock refs %d\n", rc);
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
 	rc = of_clk_set_defaults(pdev->dev.of_node, false);
 	if (rc) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to set clock defaults %d\n", rc);
+=======
+		DRM_DEV_ERROR(&pdev->dev, "Failed to set clock defaults %d\n", rc);
+>>>>>>> upstream/android-13
 		goto err;
 	}
 
@@ -192,6 +233,10 @@ int msm_dss_parse_clock(struct platform_device *pdev,
 			continue;
 		mp->clk_config[i].rate = rate;
 		mp->clk_config[i].type = DSS_CLK_PCLK;
+<<<<<<< HEAD
+=======
+		mp->clk_config[i].max_rate = rate;
+>>>>>>> upstream/android-13
 	}
 
 	mp->num_clk = num_clk;

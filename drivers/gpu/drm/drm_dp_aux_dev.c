@@ -27,6 +27,7 @@
 
 #include <linux/device.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -36,6 +37,20 @@
 #include <drm/drm_dp_helper.h>
 #include <drm/drm_crtc.h>
 #include <drm/drmP.h>
+=======
+#include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/sched/signal.h>
+#include <linux/slab.h>
+#include <linux/uaccess.h>
+#include <linux/uio.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_dp_helper.h>
+#include <drm/drm_dp_mst_helper.h>
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 
 #include "drm_crtc_helper_internal.h"
 
@@ -80,8 +95,12 @@ static struct drm_dp_aux_dev *alloc_drm_dp_aux_dev(struct drm_dp_aux *aux)
 	kref_init(&aux_dev->refcount);
 
 	mutex_lock(&aux_idr_mutex);
+<<<<<<< HEAD
 	index = idr_alloc_cyclic(&aux_idr, aux_dev, 0, DRM_AUX_MINORS,
 				 GFP_KERNEL);
+=======
+	index = idr_alloc(&aux_idr, aux_dev, 0, DRM_AUX_MINORS, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	mutex_unlock(&aux_idr_mutex);
 	if (index < 0) {
 		kfree(aux_dev);
@@ -162,6 +181,10 @@ static ssize_t auxdev_read_iter(struct kiocb *iocb, struct iov_iter *to)
 		}
 
 		res = drm_dp_dpcd_read(aux_dev->aux, pos, buf, todo);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (res <= 0)
 			break;
 
@@ -209,6 +232,10 @@ static ssize_t auxdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
 		}
 
 		res = drm_dp_dpcd_write(aux_dev->aux, pos, buf, todo);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (res <= 0)
 			break;
 
@@ -274,6 +301,15 @@ void drm_dp_aux_unregister_devnode(struct drm_dp_aux *aux)
 	if (!aux_dev) /* attach must have failed */
 		return;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * As some AUX adapters may exist as platform devices which outlive their respective DRM
+	 * devices, we clear drm_dev to ensure that we never accidentally reference a stale pointer
+	 */
+	aux->drm_dev = NULL;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&aux_idr_mutex);
 	idr_remove(&aux_idr, aux_dev->index);
 	mutex_unlock(&aux_idr_mutex);

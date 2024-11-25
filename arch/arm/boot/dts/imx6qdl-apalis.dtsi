@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014-2017 Toradex AG
  * Copyright 2012 Freescale Semiconductor, Inc.
@@ -39,6 +40,13 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2014-2020 Toradex
+ * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -49,6 +57,10 @@
 
 	/* Will be filled by the bootloader */
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0>;
 	};
 
@@ -147,20 +159,36 @@
 };
 
 &can1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexcan1>;
+=======
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&pinctrl_flexcan1_default>;
+	pinctrl-1 = <&pinctrl_flexcan1_sleep>;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
 &can2 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexcan2>;
+=======
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&pinctrl_flexcan2_default>;
+	pinctrl-1 = <&pinctrl_flexcan2_sleep>;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
 /* Apalis SPI1 */
 &ecspi1 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio5 25 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio5 25 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "disabled";
@@ -168,7 +196,11 @@
 
 /* Apalis SPI2 */
 &ecspi2 {
+<<<<<<< HEAD
 	cs-gpios = <&gpio2 26 GPIO_ACTIVE_HIGH>;
+=======
+	cs-gpios = <&gpio2 26 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi2>;
 	status = "disabled";
@@ -177,7 +209,11 @@
 &fec {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
+<<<<<<< HEAD
 	phy-mode = "rgmii";
+=======
+	phy-mode = "rgmii-id";
+>>>>>>> upstream/android-13
 	phy-handle = <&ethphy>;
 	phy-reset-duration = <10>;
 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
@@ -197,15 +233,27 @@
 
 &hdmi {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&pinctrl_hdmi_ddc>;
+=======
+	pinctrl-0 = <&pinctrl_hdmi_ddc &pinctrl_hdmi_cec>;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
 /* I2C1_SDA/SCL on MXM3 209/211 (e.g. RTC on carrier board) */
 &i2c1 {
 	clock-frequency = <100000>;
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c1>;
+=======
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c1>;
+	pinctrl-1 = <&pinctrl_i2c1_gpio>;
+	scl-gpios = <&gpio5 27 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio5 26 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
@@ -215,8 +263,16 @@
  */
 &i2c2 {
 	clock-frequency = <100000>;
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c2>;
+=======
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c2>;
+	pinctrl-1 = <&pinctrl_i2c2_gpio>;
+	scl-gpios = <&gpio4 12 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio4 13 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+>>>>>>> upstream/android-13
 	status = "okay";
 
 	pmic: pfuze100@8 {
@@ -313,6 +369,11 @@
 	codec: sgtl5000@a {
 		compatible = "fsl,sgtl5000";
 		reg = <0x0a>;
+<<<<<<< HEAD
+=======
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_sgtl5000>;
+>>>>>>> upstream/android-13
 		clocks = <&clks IMX6QDL_CLK_CKO>;
 		VDDA-supply = <&reg_module_3v3_audio>;
 		VDDIO-supply = <&reg_module_3v3>;
@@ -331,11 +392,25 @@
 		id = <0>;
 		blocks = <0x5>;
 		irq-trigger = <0x1>;
+<<<<<<< HEAD
 
 		stmpe_touchscreen {
 			compatible = "st,stmpe-ts";
 			/* 3.25 MHz ADC clock speed */
 			st,adc-freq = <1>;
+=======
+		/* 3.25 MHz ADC clock speed */
+		st,adc-freq = <1>;
+		/* 12-bit ADC */
+		st,mod-12b = <1>;
+		/* internal ADC reference */
+		st,ref-sel = <0>;
+		/* ADC converstion time: 80 clocks */
+		st,sample-time = <4>;
+
+		stmpe_touchscreen {
+			compatible = "st,stmpe-ts";
+>>>>>>> upstream/android-13
 			/* 8 sample average control */
 			st,ave-ctrl = <3>;
 			/* 7 length fractional part in z */
@@ -345,17 +420,29 @@
 			 * current limit value
 			 */
 			st,i-drive = <1>;
+<<<<<<< HEAD
 			/* 12-bit ADC */
 			st,mod-12b = <1>;
 			/* internal ADC reference */
 			st,ref-sel = <0>;
 			/* ADC converstion time: 80 clocks */
 			st,sample-time = <4>;
+=======
+>>>>>>> upstream/android-13
 			/* 1 ms panel driver settling time */
 			st,settling = <3>;
 			/* 5 ms touch detect interrupt delay */
 			st,touch-det-delay = <5>;
 		};
+<<<<<<< HEAD
+=======
+
+		stmpe_adc {
+			compatible = "st,stmpe-adc";
+			/* forbid to use ADC channels 3-0 (touch) */
+			st,norequest-mask = <0x0F>;
+		};
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -365,11 +452,19 @@
  */
 &i2c3 {
 	clock-frequency = <100000>;
+<<<<<<< HEAD
 	pinctrl-names = "default", "recovery";
 	pinctrl-0 = <&pinctrl_i2c3>;
 	pinctrl-1 = <&pinctrl_i2c3_recovery>;
 	scl-gpios = <&gpio3 17 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio3 18 GPIO_ACTIVE_HIGH>;
+=======
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c3>;
+	pinctrl-1 = <&pinctrl_i2c3_gpio>;
+	scl-gpios = <&gpio3 17 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio3 18 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
@@ -392,6 +487,10 @@
 };
 
 &pwm4 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm4>;
 	status = "disabled";
@@ -482,10 +581,13 @@
 };
 
 &iomuxc {
+<<<<<<< HEAD
 	/* pins used on module */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_reset_moci>;
 
+=======
+>>>>>>> upstream/android-13
 	pinctrl_apalis_gpio1: gpio2io04grp {
 		fsl,pins = <
 			MX6QDL_PAD_NANDF_D4__GPIO2_IO04 0x130b0
@@ -540,8 +642,11 @@
 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD	0x130b0
 			MX6QDL_PAD_DISP0_DAT22__AUD4_TXFS	0x130b0
 			MX6QDL_PAD_DISP0_DAT23__AUD4_RXD	0x130b0
+<<<<<<< HEAD
 			/* SGTL5000 sys_mclk */
 			MX6QDL_PAD_GPIO_5__CCM_CLKO1		0x130b0
+=======
+>>>>>>> upstream/android-13
 		>;
 	};
 
@@ -596,19 +701,43 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	pinctrl_flexcan1: flexcan1grp {
+=======
+	pinctrl_flexcan1_default: flexcan1defgrp {
+>>>>>>> upstream/android-13
 		fsl,pins = <
 			MX6QDL_PAD_GPIO_7__FLEXCAN1_TX 0x1b0b0
 			MX6QDL_PAD_GPIO_8__FLEXCAN1_RX 0x1b0b0
 		>;
 	};
 
+<<<<<<< HEAD
 	pinctrl_flexcan2: flexcan2grp {
+=======
+	pinctrl_flexcan1_sleep: flexcan1slpgrp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_7__GPIO1_IO07 0x0
+			MX6QDL_PAD_GPIO_8__GPIO1_IO08 0x0
+		>;
+	};
+
+	pinctrl_flexcan2_default: flexcan2defgrp {
+>>>>>>> upstream/android-13
 		fsl,pins = <
 			MX6QDL_PAD_KEY_COL4__FLEXCAN2_TX 0x1b0b0
 			MX6QDL_PAD_KEY_ROW4__FLEXCAN2_RX 0x1b0b0
 		>;
 	};
+<<<<<<< HEAD
+=======
+	pinctrl_flexcan2_sleep: flexcan2slpgrp {
+		fsl,pins = <
+			MX6QDL_PAD_KEY_COL4__GPIO4_IO14 0x0
+			MX6QDL_PAD_KEY_ROW4__GPIO4_IO15 0x0
+		>;
+	};
+>>>>>>> upstream/android-13
 
 	pinctrl_gpio_bl_on: gpioblon {
 		fsl,pins = <
@@ -643,6 +772,16 @@
 		>;
 	};
 
+<<<<<<< HEAD
+=======
+	pinctrl_i2c1_gpio: i2c1gpiogrp {
+		fsl,pins = <
+			MX6QDL_PAD_CSI0_DAT8__GPIO5_IO26 0x4001b8b1
+			MX6QDL_PAD_CSI0_DAT9__GPIO5_IO27 0x4001b8b1
+		>;
+	};
+
+>>>>>>> upstream/android-13
 	pinctrl_i2c2: i2c2grp {
 		fsl,pins = <
 			MX6QDL_PAD_KEY_COL3__I2C2_SCL 0x4001b8b1
@@ -650,6 +789,16 @@
 		>;
 	};
 
+<<<<<<< HEAD
+=======
+	pinctrl_i2c2_gpio: i2c2gpiogrp {
+		fsl,pins = <
+			MX6QDL_PAD_KEY_COL3__GPIO4_IO12 0x4001b8b1
+			MX6QDL_PAD_KEY_ROW3__GPIO4_IO13 0x4001b8b1
+		>;
+	};
+
+>>>>>>> upstream/android-13
 	pinctrl_i2c3: i2c3grp {
 		fsl,pins = <
 			MX6QDL_PAD_EIM_D17__I2C3_SCL 0x4001b8b1
@@ -657,7 +806,11 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	pinctrl_i2c3_recovery: i2c3recoverygrp {
+=======
+	pinctrl_i2c3_gpio: i2c3gpiogrp {
+>>>>>>> upstream/android-13
 		fsl,pins = <
 			MX6QDL_PAD_EIM_D17__GPIO3_IO17 0x4001b8b1
 			MX6QDL_PAD_EIM_D18__GPIO3_IO18 0x4001b8b1
@@ -807,6 +960,15 @@
 		>;
 	};
 
+<<<<<<< HEAD
+=======
+	pinctrl_sgtl5000: sgtl5000grp {
+		fsl,pins = <
+			MX6QDL_PAD_GPIO_5__CCM_CLKO1	0x130b0
+		>;
+	};
+
+>>>>>>> upstream/android-13
 	pinctrl_spdif: spdifgrp {
 		fsl,pins = <
 			MX6QDL_PAD_GPIO_16__SPDIF_IN  0x1b0b0

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000, 2001, 2002, 2003, 2004 Broadcom Corporation
  * Copyright (C) 2004 by Ralf Baechle (ralf@linux-mips.org)
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2000, 2001, 2002, 2003, 2004 Broadcom Corporation
+ * Copyright (C) 2004 by Ralf Baechle (ralf@linux-mips.org)
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -23,7 +30,11 @@
 
 #include <linux/spinlock.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/blkdev.h>
 #include <linux/init.h>
 #include <linux/kernel.h>

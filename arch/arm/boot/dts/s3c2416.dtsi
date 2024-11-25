@@ -18,6 +18,7 @@
 	};
 
 	cpus {
+<<<<<<< HEAD
 		cpu {
 			compatible = "arm,arm926ej-s";
 		};
@@ -25,6 +26,16 @@
 
 	interrupt-controller@4a000000 {
 		compatible = "samsung,s3c2416-irq";
+=======
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,arm926ej-s";
+			reg = <0x0>;
+		};
+>>>>>>> upstream/android-13
 	};
 
 	clocks: clock-controller@4c000000 {
@@ -33,6 +44,7 @@
 		#clock-cells = <1>;
 	};
 
+<<<<<<< HEAD
 	pinctrl@56000000 {
 		compatible = "samsung,s3c2416-pinctrl";
 	};
@@ -66,6 +78,8 @@
 				<&clocks SCLK_UART>;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	uart_3: serial@5000c000 {
 		compatible = "samsung,s3c2440-uart";
 		reg = <0x5000C000 0x4000>;
@@ -98,6 +112,7 @@
 				<&clocks MUX_HSMMC1>;
 		status = "disabled";
 	};
+<<<<<<< HEAD
 
 	watchdog: watchdog@53000000 {
 		interrupts = <1 9 27 3>;
@@ -116,4 +131,61 @@
 		clocks = <&clocks PCLK_I2C0>;
 		clock-names = "i2c";
 	};
+=======
+};
+
+&i2c {
+	compatible = "samsung,s3c2440-i2c";
+	clocks = <&clocks PCLK_I2C0>;
+	clock-names = "i2c";
+};
+
+&intc {
+	compatible = "samsung,s3c2416-irq";
+};
+
+&pinctrl_0 {
+	compatible = "samsung,s3c2416-pinctrl";
+};
+
+&rtc {
+	compatible = "samsung,s3c2416-rtc";
+	clocks = <&clocks PCLK_RTC>;
+	clock-names = "rtc";
+};
+
+&timer {
+	clocks = <&clocks PCLK_PWM>;
+	clock-names = "timers";
+};
+
+&uart_0 {
+	compatible = "samsung,s3c2440-uart";
+	clock-names = "uart", "clk_uart_baud2",
+			"clk_uart_baud3";
+	clocks = <&clocks PCLK_UART0>, <&clocks PCLK_UART0>,
+			<&clocks SCLK_UART>;
+};
+
+&uart_1 {
+	compatible = "samsung,s3c2440-uart";
+	clock-names = "uart", "clk_uart_baud2",
+			"clk_uart_baud3";
+	clocks = <&clocks PCLK_UART1>, <&clocks PCLK_UART1>,
+			<&clocks SCLK_UART>;
+};
+
+&uart_2 {
+	compatible = "samsung,s3c2440-uart";
+	clock-names = "uart", "clk_uart_baud2",
+			"clk_uart_baud3";
+	clocks = <&clocks PCLK_UART2>, <&clocks PCLK_UART2>,
+			<&clocks SCLK_UART>;
+};
+
+&watchdog {
+	interrupts = <1 9 27 3>;
+	clocks = <&clocks PCLK_WDT>;
+	clock-names = "watchdog";
+>>>>>>> upstream/android-13
 };

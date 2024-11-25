@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+==================
+>>>>>>> upstream/android-13
 STM32F769 Overview
 ==================
 
@@ -30,6 +34,10 @@ Datasheet and reference manual are publicly available on ST website (STM32F769_)
 
 .. _STM32F769: http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32-high-performance-mcus/stm32f7-series/stm32f7x9/stm32f769ni.html
 
+<<<<<<< HEAD
 :Authors:
 
 Alexandre Torgue <alexandre.torgue@st.com>
+=======
+:Authors: Alexandre Torgue <alexandre.torgue@st.com>
+>>>>>>> upstream/android-13

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2009-2010 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>
@@ -40,6 +47,7 @@
 #include "wl12xx_80211.h"
 #include "io.h"
 
+<<<<<<< HEAD
 #ifndef SDIO_VENDOR_ID_TI
 #define SDIO_VENDOR_ID_TI		0x0097
 #endif
@@ -48,6 +56,8 @@
 #define SDIO_DEVICE_ID_TI_WL1271	0x4076
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static bool dump = false;
 
 struct wl12xx_sdio_glue {
@@ -240,7 +250,11 @@ static const struct of_device_id wlcore_sdio_of_match_table[] = {
 	{ }
 };
 
+<<<<<<< HEAD
 static int wlcore_probe_of(struct device *dev, int *irq,
+=======
+static int wlcore_probe_of(struct device *dev, int *irq, int *wakeirq,
+>>>>>>> upstream/android-13
 			   struct wlcore_platdev_data *pdev_data)
 {
 	struct device_node *np = dev->of_node;
@@ -258,6 +272,11 @@ static int wlcore_probe_of(struct device *dev, int *irq,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	*wakeirq = irq_of_parse_and_map(np, 1);
+
+>>>>>>> upstream/android-13
 	/* optional clock frequency params */
 	of_property_read_u32(np, "ref-clock-frequency",
 			     &pdev_data->ref_clock_freq);
@@ -267,7 +286,11 @@ static int wlcore_probe_of(struct device *dev, int *irq,
 	return 0;
 }
 #else
+<<<<<<< HEAD
 static int wlcore_probe_of(struct device *dev, int *irq,
+=======
+static int wlcore_probe_of(struct device *dev, int *irq, int *wakeirq,
+>>>>>>> upstream/android-13
 			   struct wlcore_platdev_data *pdev_data)
 {
 	return -ENODATA;
@@ -279,10 +302,17 @@ static int wl1271_probe(struct sdio_func *func,
 {
 	struct wlcore_platdev_data *pdev_data;
 	struct wl12xx_sdio_glue *glue;
+<<<<<<< HEAD
 	struct resource res[1];
 	mmc_pm_flag_t mmcflags;
 	int ret = -ENOMEM;
 	int irq;
+=======
+	struct resource res[2];
+	mmc_pm_flag_t mmcflags;
+	int ret = -ENOMEM;
+	int irq, wakeirq, num_irqs;
+>>>>>>> upstream/android-13
 	const char *chip_family;
 
 	/* We are only able to handle the wlan function */
@@ -307,7 +337,11 @@ static int wl1271_probe(struct sdio_func *func,
 	/* Use block mode for transferring over one block size of data */
 	func->card->quirks |= MMC_QUIRK_BLKSZ_FOR_BYTE_MODE;
 
+<<<<<<< HEAD
 	ret = wlcore_probe_of(&func->dev, &irq, pdev_data);
+=======
+	ret = wlcore_probe_of(&func->dev, &irq, &wakeirq, pdev_data);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -350,7 +384,21 @@ static int wl1271_probe(struct sdio_func *func,
 		       irqd_get_trigger_type(irq_get_irq_data(irq));
 	res[0].name = "irq";
 
+<<<<<<< HEAD
 	ret = platform_device_add_resources(glue->core, res, ARRAY_SIZE(res));
+=======
+
+	if (wakeirq > 0) {
+		res[1].start = wakeirq;
+		res[1].flags = IORESOURCE_IRQ |
+			       irqd_get_trigger_type(irq_get_irq_data(wakeirq));
+		res[1].name = "wakeirq";
+		num_irqs = 2;
+	} else {
+		num_irqs = 1;
+	}
+	ret = platform_device_add_resources(glue->core, res, num_irqs);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(glue->dev, "can't add resources\n");
 		goto out_dev_put;

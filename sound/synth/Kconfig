@@ -1,2 +1,6 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config SND_SYNTH_EMUX
 	tristate

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, NVIDIA Corporation.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015, NVIDIA Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _FALCON_H_
@@ -77,6 +83,7 @@ struct falcon_fw_os_header_v1 {
 	u32 data_size;
 };
 
+<<<<<<< HEAD
 struct falcon;
 
 struct falcon_ops {
@@ -86,6 +93,8 @@ struct falcon_ops {
 		     dma_addr_t paddr, void *vaddr);
 };
 
+=======
+>>>>>>> upstream/android-13
 struct falcon_firmware_section {
 	unsigned long offset;
 	size_t size;
@@ -96,8 +105,14 @@ struct falcon_firmware {
 	const struct firmware *firmware;
 
 	/* Raw firmware data */
+<<<<<<< HEAD
 	dma_addr_t paddr;
 	void *vaddr;
+=======
+	dma_addr_t iova;
+	dma_addr_t phys;
+	void *virt;
+>>>>>>> upstream/android-13
 	size_t size;
 
 	/* Parsed firmware information */
@@ -110,8 +125,11 @@ struct falcon {
 	/* Set by falcon client */
 	struct device *dev;
 	void __iomem *regs;
+<<<<<<< HEAD
 	const struct falcon_ops *ops;
 	void *data;
+=======
+>>>>>>> upstream/android-13
 
 	struct falcon_firmware firmware;
 };

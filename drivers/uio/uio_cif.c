@@ -43,12 +43,20 @@ static int hilscher_pci_probe(struct pci_dev *dev,
 {
 	struct uio_info *info;
 
+<<<<<<< HEAD
 	info = kzalloc(sizeof(struct uio_info), GFP_KERNEL);
+=======
+	info = devm_kzalloc(&dev->dev, sizeof(struct uio_info), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!info)
 		return -ENOMEM;
 
 	if (pci_enable_device(dev))
+<<<<<<< HEAD
 		goto out_free;
+=======
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	if (pci_request_regions(dev, "hilscher"))
 		goto out_disable;
@@ -92,8 +100,11 @@ out_release:
 	pci_release_regions(dev);
 out_disable:
 	pci_disable_device(dev);
+<<<<<<< HEAD
 out_free:
 	kfree (info);
+=======
+>>>>>>> upstream/android-13
 	return -ENODEV;
 }
 
@@ -105,8 +116,11 @@ static void hilscher_pci_remove(struct pci_dev *dev)
 	pci_release_regions(dev);
 	pci_disable_device(dev);
 	iounmap(info->mem[0].internal_addr);
+<<<<<<< HEAD
 
 	kfree (info);
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct pci_device_id hilscher_pci_ids[] = {

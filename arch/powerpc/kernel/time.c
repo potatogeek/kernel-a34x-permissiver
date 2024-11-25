@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Common time routines among all ppc machines.
  *
@@ -24,17 +28,24 @@
  *
  * 1997-09-10  Updated NTP code according to technical memorandum Jan '96
  *             "A Kernel Model for Precision Timekeeping" by Dave Mills
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
 #include <linux/export.h>
 #include <linux/sched.h>
 #include <linux/sched/clock.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/cputime.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/param.h>
 #include <linux/string.h>
@@ -43,7 +54,10 @@
 #include <linux/timex.h>
 #include <linux/kernel_stat.h>
 #include <linux/time.h>
+<<<<<<< HEAD
 #include <linux/clockchips.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/profile.h>
 #include <linux/cpu.h>
@@ -55,6 +69,7 @@
 #include <linux/irq.h>
 #include <linux/delay.h>
 #include <linux/irq_work.h>
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
 #include <linux/suspend.h>
 #include <linux/rtc.h>
@@ -62,6 +77,14 @@
 #include <linux/processor.h>
 #include <asm/trace.h>
 
+=======
+#include <linux/of_clk.h>
+#include <linux/suspend.h>
+#include <linux/processor.h>
+#include <asm/trace.h>
+
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/nvram.h>
 #include <asm/cache.h>
@@ -81,6 +104,7 @@
 #include <linux/clockchips.h>
 #include <linux/timekeeper_internal.h>
 
+<<<<<<< HEAD
 static u64 rtc_read(struct clocksource *);
 static struct clocksource clocksource_rtc = {
 	.name         = "rtc",
@@ -90,6 +114,8 @@ static struct clocksource clocksource_rtc = {
 	.read         = rtc_read,
 };
 
+=======
+>>>>>>> upstream/android-13
 static u64 timebase_read(struct clocksource *);
 static struct clocksource clocksource_timebase = {
 	.name         = "timebase",
@@ -97,6 +123,10 @@ static struct clocksource clocksource_timebase = {
 	.flags        = CLOCK_SOURCE_IS_CONTINUOUS,
 	.mask         = CLOCKSOURCE_MASK(64),
 	.read         = timebase_read,
+<<<<<<< HEAD
+=======
+	.vdso_clock_mode	= VDSO_CLOCKMODE_ARCHTIMER,
+>>>>>>> upstream/android-13
 };
 
 #define DECREMENTER_DEFAULT_MAX 0x7FFFFFFF
@@ -111,6 +141,10 @@ struct clock_event_device decrementer_clockevent = {
 	.rating			= 200,
 	.irq			= 0,
 	.set_next_event		= decrementer_set_next_event,
+<<<<<<< HEAD
+=======
+	.set_state_oneshot_stopped = decrementer_shutdown,
+>>>>>>> upstream/android-13
 	.set_state_shutdown	= decrementer_shutdown,
 	.tick_resume		= decrementer_shutdown,
 	.features		= CLOCK_EVT_FEAT_ONESHOT |
@@ -151,6 +185,11 @@ EXPORT_SYMBOL_GPL(ppc_proc_freq);
 unsigned long ppc_tb_freq;
 EXPORT_SYMBOL_GPL(ppc_tb_freq);
 
+<<<<<<< HEAD
+=======
+bool tb_invalid;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
 /*
  * Factor for converting from cputime_t (timebase ticks) to
@@ -175,7 +214,11 @@ static void calc_cputime_factors(void)
  * Read the SPURR on systems that have it, otherwise the PURR,
  * or if that doesn't exist return the timebase value passed in.
  */
+<<<<<<< HEAD
 static unsigned long read_spurr(unsigned long tb)
+=======
+static inline unsigned long read_spurr(unsigned long tb)
+>>>>>>> upstream/android-13
 {
 	if (cpu_has_feature(CPU_FTR_SPURR))
 		return mfspr(SPRN_SPURR);
@@ -186,6 +229,11 @@ static unsigned long read_spurr(unsigned long tb)
 
 #ifdef CONFIG_PPC_SPLPAR
 
+<<<<<<< HEAD
+=======
+#include <asm/dtl.h>
+
+>>>>>>> upstream/android-13
 /*
  * Scan the dispatch trace log and count up the stolen time.
  * Should be called with interrupts disabled.
@@ -238,6 +286,7 @@ static u64 scan_dispatch_log(u64 stop_tb)
 void notrace accumulate_stolen_time(void)
 {
 	u64 sst, ust;
+<<<<<<< HEAD
 	unsigned long save_irq_soft_mask = irq_soft_mask_return();
 	struct cpu_accounting_data *acct = &local_paca->accounting;
 
@@ -249,13 +298,20 @@ void notrace accumulate_stolen_time(void)
 	 */
 	irq_soft_mask_set(IRQS_DISABLED);
 
+=======
+	struct cpu_accounting_data *acct = &local_paca->accounting;
+
+>>>>>>> upstream/android-13
 	sst = scan_dispatch_log(acct->starttime_user);
 	ust = scan_dispatch_log(acct->starttime);
 	acct->stime -= sst;
 	acct->utime -= ust;
 	acct->steal_time += ust + sst;
+<<<<<<< HEAD
 
 	irq_soft_mask_set(save_irq_soft_mask);
+=======
+>>>>>>> upstream/android-13
 }
 
 static inline u64 calculate_stolen_time(u64 stop_tb)
@@ -281,6 +337,7 @@ static inline u64 calculate_stolen_time(u64 stop_tb)
  * Account time for a transition between system, hard irq
  * or soft irq state.
  */
+<<<<<<< HEAD
 static unsigned long vtime_delta(struct task_struct *tsk,
 				 unsigned long *stime_scaled,
 				 unsigned long *steal_time)
@@ -301,6 +358,19 @@ static unsigned long vtime_delta(struct task_struct *tsk,
 
 	*steal_time = calculate_stolen_time(now);
 
+=======
+static unsigned long vtime_delta_scaled(struct cpu_accounting_data *acct,
+					unsigned long now, unsigned long stime)
+{
+	unsigned long stime_scaled = 0;
+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+	unsigned long nowscaled, deltascaled;
+	unsigned long utime, utime_scaled;
+
+	nowscaled = read_spurr(now);
+	deltascaled = nowscaled - acct->startspurr;
+	acct->startspurr = nowscaled;
+>>>>>>> upstream/android-13
 	utime = acct->utime - acct->utime_sspurr;
 	acct->utime_sspurr = acct->utime;
 
@@ -314,6 +384,7 @@ static unsigned long vtime_delta(struct task_struct *tsk,
 	 * the user ticks get saved up in paca->user_time_scaled to be
 	 * used by account_process_tick.
 	 */
+<<<<<<< HEAD
 	*stime_scaled = stime;
 	utime_scaled = utime;
 	if (deltascaled != stime + utime) {
@@ -325,10 +396,44 @@ static unsigned long vtime_delta(struct task_struct *tsk,
 		}
 	}
 	acct->utime_scaled += utime_scaled;
+=======
+	stime_scaled = stime;
+	utime_scaled = utime;
+	if (deltascaled != stime + utime) {
+		if (utime) {
+			stime_scaled = deltascaled * stime / (stime + utime);
+			utime_scaled = deltascaled - stime_scaled;
+		} else {
+			stime_scaled = deltascaled;
+		}
+	}
+	acct->utime_scaled += utime_scaled;
+#endif
+
+	return stime_scaled;
+}
+
+static unsigned long vtime_delta(struct cpu_accounting_data *acct,
+				 unsigned long *stime_scaled,
+				 unsigned long *steal_time)
+{
+	unsigned long now, stime;
+
+	WARN_ON_ONCE(!irqs_disabled());
+
+	now = mftb();
+	stime = now - acct->starttime;
+	acct->starttime = now;
+
+	*stime_scaled = vtime_delta_scaled(acct, now, stime);
+
+	*steal_time = calculate_stolen_time(now);
+>>>>>>> upstream/android-13
 
 	return stime;
 }
 
+<<<<<<< HEAD
 void vtime_account_system(struct task_struct *tsk)
 {
 	unsigned long stime, stime_scaled, steal_time;
@@ -354,12 +459,45 @@ void vtime_account_system(struct task_struct *tsk)
 	}
 }
 EXPORT_SYMBOL_GPL(vtime_account_system);
+=======
+static void vtime_delta_kernel(struct cpu_accounting_data *acct,
+			       unsigned long *stime, unsigned long *stime_scaled)
+{
+	unsigned long steal_time;
+
+	*stime = vtime_delta(acct, stime_scaled, &steal_time);
+	*stime -= min(*stime, steal_time);
+	acct->steal_time += steal_time;
+}
+
+void vtime_account_kernel(struct task_struct *tsk)
+{
+	struct cpu_accounting_data *acct = get_accounting(tsk);
+	unsigned long stime, stime_scaled;
+
+	vtime_delta_kernel(acct, &stime, &stime_scaled);
+
+	if (tsk->flags & PF_VCPU) {
+		acct->gtime += stime;
+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+		acct->utime_scaled += stime_scaled;
+#endif
+	} else {
+		acct->stime += stime;
+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+		acct->stime_scaled += stime_scaled;
+#endif
+	}
+}
+EXPORT_SYMBOL_GPL(vtime_account_kernel);
+>>>>>>> upstream/android-13
 
 void vtime_account_idle(struct task_struct *tsk)
 {
 	unsigned long stime, stime_scaled, steal_time;
 	struct cpu_accounting_data *acct = get_accounting(tsk);
 
+<<<<<<< HEAD
 	stime = vtime_delta(tsk, &stime_scaled, &steal_time);
 	acct->idle_time += stime + steal_time;
 }
@@ -368,6 +506,55 @@ void vtime_account_idle(struct task_struct *tsk)
  * Account the whole cputime accumulated in the paca
  * Must be called with interrupts disabled.
  * Assumes that vtime_account_system/idle() has been called
+=======
+	stime = vtime_delta(acct, &stime_scaled, &steal_time);
+	acct->idle_time += stime + steal_time;
+}
+
+static void vtime_account_irq_field(struct cpu_accounting_data *acct,
+				    unsigned long *field)
+{
+	unsigned long stime, stime_scaled;
+
+	vtime_delta_kernel(acct, &stime, &stime_scaled);
+	*field += stime;
+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+	acct->stime_scaled += stime_scaled;
+#endif
+}
+
+void vtime_account_softirq(struct task_struct *tsk)
+{
+	struct cpu_accounting_data *acct = get_accounting(tsk);
+	vtime_account_irq_field(acct, &acct->softirq_time);
+}
+
+void vtime_account_hardirq(struct task_struct *tsk)
+{
+	struct cpu_accounting_data *acct = get_accounting(tsk);
+	vtime_account_irq_field(acct, &acct->hardirq_time);
+}
+
+static void vtime_flush_scaled(struct task_struct *tsk,
+			       struct cpu_accounting_data *acct)
+{
+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+	if (acct->utime_scaled)
+		tsk->utimescaled += cputime_to_nsecs(acct->utime_scaled);
+	if (acct->stime_scaled)
+		tsk->stimescaled += cputime_to_nsecs(acct->stime_scaled);
+
+	acct->utime_scaled = 0;
+	acct->utime_sspurr = 0;
+	acct->stime_scaled = 0;
+#endif
+}
+
+/*
+ * Account the whole cputime accumulated in the paca
+ * Must be called with interrupts disabled.
+ * Assumes that vtime_account_kernel/idle() has been called
+>>>>>>> upstream/android-13
  * recently (i.e. since the last entry from usermode) so that
  * get_paca()->user_time_scaled is up to date.
  */
@@ -378,6 +565,7 @@ void vtime_flush(struct task_struct *tsk)
 	if (acct->utime)
 		account_user_time(tsk, cputime_to_nsecs(acct->utime));
 
+<<<<<<< HEAD
 	if (acct->utime_scaled)
 		tsk->utimescaled += cputime_to_nsecs(acct->utime_scaled);
 
@@ -386,6 +574,15 @@ void vtime_flush(struct task_struct *tsk)
 
 	if (acct->steal_time)
 		account_steal_time(cputime_to_nsecs(acct->steal_time));
+=======
+	if (acct->gtime)
+		account_guest_time(tsk, cputime_to_nsecs(acct->gtime));
+
+	if (IS_ENABLED(CONFIG_PPC_SPLPAR) && acct->steal_time) {
+		account_steal_time(cputime_to_nsecs(acct->steal_time));
+		acct->steal_time = 0;
+	}
+>>>>>>> upstream/android-13
 
 	if (acct->idle_time)
 		account_idle_time(cputime_to_nsecs(acct->idle_time));
@@ -393,8 +590,11 @@ void vtime_flush(struct task_struct *tsk)
 	if (acct->stime)
 		account_system_index_time(tsk, cputime_to_nsecs(acct->stime),
 					  CPUTIME_SYSTEM);
+<<<<<<< HEAD
 	if (acct->stime_scaled)
 		tsk->stimescaled += cputime_to_nsecs(acct->stime_scaled);
+=======
+>>>>>>> upstream/android-13
 
 	if (acct->hardirq_time)
 		account_system_index_time(tsk, cputime_to_nsecs(acct->hardirq_time),
@@ -403,6 +603,7 @@ void vtime_flush(struct task_struct *tsk)
 		account_system_index_time(tsk, cputime_to_nsecs(acct->softirq_time),
 					  CPUTIME_SOFTIRQ);
 
+<<<<<<< HEAD
 	acct->utime = 0;
 	acct->utime_scaled = 0;
 	acct->utime_sspurr = 0;
@@ -411,6 +612,14 @@ void vtime_flush(struct task_struct *tsk)
 	acct->idle_time = 0;
 	acct->stime = 0;
 	acct->stime_scaled = 0;
+=======
+	vtime_flush_scaled(tsk, acct);
+
+	acct->utime = 0;
+	acct->gtime = 0;
+	acct->idle_time = 0;
+	acct->stime = 0;
+>>>>>>> upstream/android-13
 	acct->hardirq_time = 0;
 	acct->softirq_time = 0;
 }
@@ -422,6 +631,7 @@ void vtime_flush(struct task_struct *tsk)
 void __delay(unsigned long loops)
 {
 	unsigned long start;
+<<<<<<< HEAD
 	int diff;
 
 	spin_begin();
@@ -437,6 +647,20 @@ void __delay(unsigned long loops)
 	} else {
 		start = get_tbl();
 		while (get_tbl() - start < loops)
+=======
+
+	spin_begin();
+	if (tb_invalid) {
+		/*
+		 * TB is in error state and isn't ticking anymore.
+		 * HMI handler was unable to recover from TB error.
+		 * Return immediately, so that kernel won't get stuck here.
+		 */
+		spin_cpu_relax();
+	} else {
+		start = mftb();
+		while (mftb() - start < loops)
+>>>>>>> upstream/android-13
 			spin_cpu_relax();
 	}
 	spin_end();
@@ -468,6 +692,7 @@ EXPORT_SYMBOL(profile_pc);
  * 64-bit uses a byte in the PACA, 32-bit uses a per-cpu variable...
  */
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 static inline unsigned long test_irq_work_pending(void)
 {
 	unsigned long x;
@@ -478,6 +703,8 @@ static inline unsigned long test_irq_work_pending(void)
 	return x;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void set_irq_work_pending_flag(void)
 {
 	asm volatile("stb %0,%1(13)" : :
@@ -532,13 +759,18 @@ void arch_irq_work_raise(void)
  * timer_interrupt - gets called when the decrementer overflows,
  * with interrupts disabled.
  */
+<<<<<<< HEAD
 void timer_interrupt(struct pt_regs *regs)
+=======
+DEFINE_INTERRUPT_HANDLER_ASYNC(timer_interrupt)
+>>>>>>> upstream/android-13
 {
 	struct clock_event_device *evt = this_cpu_ptr(&decrementers);
 	u64 *next_tb = this_cpu_ptr(&decrementers_next_tb);
 	struct pt_regs *old_regs;
 	u64 now;
 
+<<<<<<< HEAD
 	/* Some implementations of hotplug will get timer interrupts while
 	 * offline, just ignore these and we also need to set
 	 * decrementers_next_tb as MAX to make sure __check_irq_replay
@@ -547,6 +779,13 @@ void timer_interrupt(struct pt_regs *regs)
 	 */
 	if (unlikely(!cpu_online(smp_processor_id()))) {
 		*next_tb = ~(u64)0;
+=======
+	/*
+	 * Some implementations of hotplug will get timer interrupts while
+	 * offline, just ignore these.
+	 */
+	if (unlikely(!cpu_online(smp_processor_id()))) {
+>>>>>>> upstream/android-13
 		set_dec(decrementer_max);
 		return;
 	}
@@ -570,11 +809,19 @@ void timer_interrupt(struct pt_regs *regs)
 
 #if defined(CONFIG_PPC32) && defined(CONFIG_PPC_PMAC)
 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
+<<<<<<< HEAD
 		do_IRQ(regs);
 #endif
 
 	old_regs = set_irq_regs(regs);
 	irq_enter();
+=======
+		__do_IRQ(regs);
+#endif
+
+	old_regs = set_irq_regs(regs);
+
+>>>>>>> upstream/android-13
 	trace_timer_interrupt_entry(regs);
 
 	if (test_irq_work_pending()) {
@@ -582,7 +829,11 @@ void timer_interrupt(struct pt_regs *regs)
 		irq_work_run();
 	}
 
+<<<<<<< HEAD
 	now = get_tb_or_rtc();
+=======
+	now = get_tb();
+>>>>>>> upstream/android-13
 	if (now >= *next_tb) {
 		*next_tb = ~(u64)0;
 		if (evt->event_handler)
@@ -599,7 +850,11 @@ void timer_interrupt(struct pt_regs *regs)
 	}
 
 	trace_timer_interrupt_exit(regs);
+<<<<<<< HEAD
 	irq_exit();
+=======
+
+>>>>>>> upstream/android-13
 	set_irq_regs(old_regs);
 }
 EXPORT_SYMBOL(timer_interrupt);
@@ -615,6 +870,7 @@ void timer_broadcast_interrupt(void)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * Hypervisor decrementer interrupts shouldn't occur but are sometimes
  * left pending on exit from a KVM guest.  We don't need to do anything
@@ -624,6 +880,8 @@ void hdec_interrupt(struct pt_regs *regs)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SUSPEND
 static void generic_suspend_disable_irqs(void)
 {
@@ -673,8 +931,11 @@ EXPORT_SYMBOL_GPL(tb_to_ns);
  */
 notrace unsigned long long sched_clock(void)
 {
+<<<<<<< HEAD
 	if (__USE_RTC())
 		return get_rtc();
+=======
+>>>>>>> upstream/android-13
 	return mulhdu(get_tb() - boot_tb, tb_to_ns_scale) << tb_to_ns_shift;
 }
 
@@ -824,16 +1085,20 @@ void read_persistent_clock64(struct timespec64 *ts)
 }
 
 /* clocksource code */
+<<<<<<< HEAD
 static notrace u64 rtc_read(struct clocksource *cs)
 {
 	return (u64)get_rtc();
 }
 
+=======
+>>>>>>> upstream/android-13
 static notrace u64 timebase_read(struct clocksource *cs)
 {
 	return (u64)get_tb();
 }
 
+<<<<<<< HEAD
 
 void update_vsyscall(struct timekeeper *tk)
 {
@@ -930,6 +1195,11 @@ static void __init clocksource_init(void)
 		clock = &clocksource_rtc;
 	else
 		clock = &clocksource_timebase;
+=======
+static void __init clocksource_init(void)
+{
+	struct clocksource *clock = &clocksource_timebase;
+>>>>>>> upstream/android-13
 
 	if (clocksource_register_hz(clock, tb_ticks_per_sec)) {
 		printk(KERN_ERR "clocksource: %s is already registered\n",
@@ -944,7 +1214,11 @@ static void __init clocksource_init(void)
 static int decrementer_set_next_event(unsigned long evt,
 				      struct clock_event_device *dev)
 {
+<<<<<<< HEAD
 	__this_cpu_write(decrementers_next_tb, get_tb_or_rtc() + evt);
+=======
+	__this_cpu_write(decrementers_next_tb, get_tb() + evt);
+>>>>>>> upstream/android-13
 	set_dec(evt);
 
 	/* We may have raced with new irq work */
@@ -1047,6 +1321,7 @@ void __init time_init(void)
 	u64 scale;
 	unsigned shift;
 
+<<<<<<< HEAD
 	if (__USE_RTC()) {
 		/* 601 processor: dec counts down by 128 every 128ns */
 		ppc_tb_freq = 1000000000;
@@ -1058,6 +1333,14 @@ void __init time_init(void)
 		printk(KERN_DEBUG "time_init: processor frequency   = %lu.%.6lu MHz\n",
 		       ppc_proc_freq / 1000000, ppc_proc_freq % 1000000);
 	}
+=======
+	/* Normal PowerPC with timebase register */
+	ppc_md.calibrate_decr();
+	printk(KERN_DEBUG "time_init: decrementer frequency = %lu.%.6lu MHz\n",
+	       ppc_tb_freq / 1000000, ppc_tb_freq % 1000000);
+	printk(KERN_DEBUG "time_init: processor frequency   = %lu.%.6lu MHz\n",
+	       ppc_proc_freq / 1000000, ppc_proc_freq % 1000000);
+>>>>>>> upstream/android-13
 
 	tb_ticks_per_jiffy = ppc_tb_freq / HZ;
 	tb_ticks_per_sec = ppc_tb_freq;
@@ -1083,7 +1366,11 @@ void __init time_init(void)
 	tb_to_ns_scale = scale;
 	tb_to_ns_shift = shift;
 	/* Save the current timebase to pretty up CONFIG_PRINTK_TIME */
+<<<<<<< HEAD
 	boot_tb = get_tb_or_rtc();
+=======
+	boot_tb = get_tb();
+>>>>>>> upstream/android-13
 
 	/* If platform provided a timezone (pmac), we correct the time */
 	if (timezone_offset) {
@@ -1091,7 +1378,10 @@ void __init time_init(void)
 		sys_tz.tz_dsttime = 0;
 	}
 
+<<<<<<< HEAD
 	vdso_data->tb_update_count = 0;
+=======
+>>>>>>> upstream/android-13
 	vdso_data->tb_ticks_per_sec = tb_ticks_per_sec;
 
 	/* initialise and enable the large decrementer (if we have one) */
@@ -1109,9 +1399,14 @@ void __init time_init(void)
 	init_decrementer_clockevent();
 	tick_setup_hrtimer_broadcast();
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMMON_CLK
 	of_clk_init(NULL);
 #endif
+=======
+	of_clk_init(NULL);
+	enable_sched_clock_irqtime();
+>>>>>>> upstream/android-13
 }
 
 /*

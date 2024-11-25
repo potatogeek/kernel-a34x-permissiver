@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenFirmware bindings for the MMC-over-SPI driver
  *
  * Copyright (c) MontaVista Software, Inc. 2008.
  *
  * Author: Anton Vorontsov <avorontsov@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -16,15 +23,20 @@
 #include <linux/device.h>
 #include <linux/slab.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/mmc_spi.h>
 #include <linux/mmc/core.h>
 #include <linux/mmc/host.h>
 
+<<<<<<< HEAD
 /* For archs that don't support NO_IRQ (such as mips), provide a dummy value */
 #ifndef NO_IRQ
 #define NO_IRQ 0
@@ -43,6 +55,13 @@ struct of_mmc_spi {
 	bool alow_gpios[NUM_GPIOS];
 	int detect_irq;
 	struct mmc_spi_platform_data pdata;
+=======
+MODULE_LICENSE("GPL");
+
+struct of_mmc_spi {
+	struct mmc_spi_platform_data pdata;
+	int detect_irq;
+>>>>>>> upstream/android-13
 };
 
 static struct of_mmc_spi *to_of_mmc_spi(struct device *dev)
@@ -68,6 +87,7 @@ static void of_mmc_spi_exit(struct device *dev, void *mmc)
 
 struct mmc_spi_platform_data *mmc_spi_get_pdata(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct device *dev = &spi->dev;
 	struct device_node *np = dev->of_node;
 	struct of_mmc_spi *oms;
@@ -76,12 +96,20 @@ struct mmc_spi_platform_data *mmc_spi_get_pdata(struct spi_device *spi)
 	int i;
 
 	if (dev->platform_data || !np)
+=======
+	struct mmc_host *mmc = dev_get_drvdata(&spi->dev);
+	struct device *dev = &spi->dev;
+	struct of_mmc_spi *oms;
+
+	if (dev->platform_data || !dev_fwnode(dev))
+>>>>>>> upstream/android-13
 		return dev->platform_data;
 
 	oms = kzalloc(sizeof(*oms), GFP_KERNEL);
 	if (!oms)
 		return NULL;
 
+<<<<<<< HEAD
 	voltage_ranges = of_get_property(np, "voltage-ranges", &num_ranges);
 	num_ranges = num_ranges / sizeof(*voltage_ranges) / 2;
 	if (!voltage_ranges || !num_ranges) {
@@ -128,6 +156,13 @@ struct mmc_spi_platform_data *mmc_spi_get_pdata(struct spi_device *spi)
 
 	oms->detect_irq = irq_of_parse_and_map(np, 0);
 	if (oms->detect_irq != 0) {
+=======
+	if (mmc_of_parse_voltage(mmc, &oms->pdata.ocr_mask) < 0)
+		goto err_ocr;
+
+	oms->detect_irq = spi->irq;
+	if (oms->detect_irq > 0) {
+>>>>>>> upstream/android-13
 		oms->pdata.init = of_mmc_spi_init;
 		oms->pdata.exit = of_mmc_spi_exit;
 	} else {
@@ -145,10 +180,16 @@ EXPORT_SYMBOL(mmc_spi_get_pdata);
 void mmc_spi_put_pdata(struct spi_device *spi)
 {
 	struct device *dev = &spi->dev;
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	struct of_mmc_spi *oms = to_of_mmc_spi(dev);
 
 	if (!dev->platform_data || !np)
+=======
+	struct of_mmc_spi *oms = to_of_mmc_spi(dev);
+
+	if (!dev->platform_data || !dev_fwnode(dev))
+>>>>>>> upstream/android-13
 		return;
 
 	kfree(oms);

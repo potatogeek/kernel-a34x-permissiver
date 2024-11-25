@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_BITOPS_H
@@ -17,6 +23,7 @@
 
 #include <linux/types.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
 #include <asm/barrier.h>
 #ifndef CONFIG_ARC_HAS_LLSC
 #include <asm/smp.h>
@@ -253,6 +260,8 @@ test_bit(unsigned int nr, const volatile unsigned long *addr)
 
 	return ((mask & *addr) != 0);
 }
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ISA_ARCOMPACT
 
@@ -278,7 +287,11 @@ static inline __attribute__ ((const)) int clz(unsigned int x)
 	return res;
 }
 
+<<<<<<< HEAD
 static inline int constant_fls(int x)
+=======
+static inline int constant_fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int r = 32;
 
@@ -300,10 +313,15 @@ static inline int constant_fls(int x)
 		x <<= 2;
 		r -= 2;
 	}
+<<<<<<< HEAD
 	if (!(x & 0x80000000u)) {
 		x <<= 1;
 		r -= 1;
 	}
+=======
+	if (!(x & 0x80000000u))
+		r -= 1;
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -312,7 +330,11 @@ static inline int constant_fls(int x)
  * @result: [1-32]
  * fls(1) = 1, fls(0x80000000) = 32, fls(0) = 0
  */
+<<<<<<< HEAD
 static inline __attribute__ ((const)) int fls(unsigned long x)
+=======
+static inline __attribute__ ((const)) int fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	if (__builtin_constant_p(x))
 	       return constant_fls(x);
@@ -355,7 +377,11 @@ static inline __attribute__ ((const)) unsigned long __ffs(unsigned long word)
  * @result: [1-32]
  * fls(1) = 1, fls(0x80000000) = 32, fls(0) = 0
  */
+<<<<<<< HEAD
 static inline __attribute__ ((const)) int fls(unsigned long x)
+=======
+static inline __attribute__ ((const)) int fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int n;
 
@@ -382,7 +408,11 @@ static inline __attribute__ ((const)) int __fls(unsigned long x)
  * ffs = Find First Set in word (LSB to MSB)
  * @result: [1-32], 0 if all 0's
  */
+<<<<<<< HEAD
 static inline __attribute__ ((const)) int ffs(unsigned long x)
+=======
+static inline __attribute__ ((const)) int ffs(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int n;
 
@@ -427,6 +457,11 @@ static inline __attribute__ ((const)) unsigned long __ffs(unsigned long x)
 #include <asm-generic/bitops/fls64.h>
 #include <asm-generic/bitops/sched.h>
 #include <asm-generic/bitops/lock.h>
+<<<<<<< HEAD
+=======
+#include <asm-generic/bitops/atomic.h>
+#include <asm-generic/bitops/non-atomic.h>
+>>>>>>> upstream/android-13
 
 #include <asm-generic/bitops/find.h>
 #include <asm-generic/bitops/le.h>

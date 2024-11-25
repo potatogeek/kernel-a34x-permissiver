@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the Cirrus EP93xx matrix keypad controller.
  *
@@ -5,10 +9,13 @@
  *
  * Based on the pxa27x matrix keypad controller by Rodolfo Giometti.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * NOTE:
  *
  * The 3-key reset is triggered by pressing the 3 keys in
@@ -27,8 +34,12 @@
 #include <linux/io.h>
 #include <linux/input/matrix_keypad.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #include <mach/hardware.h>
+=======
+#include <linux/soc/cirrus/ep93xx.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/keypad-ep93xx.h>
 
 /*
@@ -137,10 +148,14 @@ static void ep93xx_keypad_config(struct ep93xx_keypad *keypad)
 	struct ep93xx_keypad_platform_data *pdata = keypad->pdata;
 	unsigned int val = 0;
 
+<<<<<<< HEAD
 	if (pdata->flags & EP93XX_KEYPAD_KDIV)
 		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLK_DIV4);
 	else
 		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLK_DIV16);
+=======
+	clk_set_rate(keypad->clk, pdata->clk_rate);
+>>>>>>> upstream/android-13
 
 	if (pdata->flags & EP93XX_KEYPAD_DISABLE_3_KEY)
 		val |= KEY_INIT_DIS3KY;
@@ -164,7 +179,11 @@ static int ep93xx_keypad_open(struct input_dev *pdev)
 
 	if (!keypad->enabled) {
 		ep93xx_keypad_config(keypad);
+<<<<<<< HEAD
 		clk_enable(keypad->clk);
+=======
+		clk_prepare_enable(keypad->clk);
+>>>>>>> upstream/android-13
 		keypad->enabled = true;
 	}
 
@@ -176,7 +195,11 @@ static void ep93xx_keypad_close(struct input_dev *pdev)
 	struct ep93xx_keypad *keypad = input_get_drvdata(pdev);
 
 	if (keypad->enabled) {
+<<<<<<< HEAD
 		clk_disable(keypad->clk);
+=======
+		clk_disable_unprepare(keypad->clk);
+>>>>>>> upstream/android-13
 		keypad->enabled = false;
 	}
 }
@@ -215,7 +238,11 @@ static int ep93xx_keypad_resume(struct device *dev)
 
 	mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 	if (input_dev->users) {
+=======
+	if (input_device_enabled(input_dev)) {
+>>>>>>> upstream/android-13
 		if (!keypad->enabled) {
 			ep93xx_keypad_config(keypad);
 			clk_enable(keypad->clk);

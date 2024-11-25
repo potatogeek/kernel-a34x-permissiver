@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Dynapro serial touchscreen driver
  *
  * Copyright (c) 2009 Tias Guns
  * Based on the inexio driver (c) Vojtech Pavlik and Dan Streetman and
  * Richard Lemon
+<<<<<<< HEAD
  *
  */
 
@@ -12,6 +17,10 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
+=======
+ */
+
+>>>>>>> upstream/android-13
 
 /*
  * 2009/09/19 Tias Guns <tias@ulyssis.org>

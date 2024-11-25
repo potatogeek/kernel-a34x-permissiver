@@ -38,6 +38,7 @@
 #include <linux/android_kabi.h>
 
 struct device_node;
+<<<<<<< HEAD
 struct irq_domain;
 struct of_device_id;
 struct irq_chip;
@@ -47,6 +48,16 @@ struct seq_file;
 
 /* Number of irqs reserved for a legacy isa controller */
 #define NUM_ISA_INTERRUPTS	16
+=======
+struct fwnode_handle;
+struct irq_domain;
+struct irq_chip;
+struct irq_data;
+struct irq_desc;
+struct cpumask;
+struct seq_file;
+struct irq_affinity_desc;
+>>>>>>> upstream/android-13
 
 #define IRQ_DOMAIN_IRQ_SPEC_PARAMS 16
 
@@ -76,12 +87,22 @@ struct irq_fwspec {
 enum irq_domain_bus_token {
 	DOMAIN_BUS_ANY		= 0,
 	DOMAIN_BUS_WIRED,
+<<<<<<< HEAD
+=======
+	DOMAIN_BUS_GENERIC_MSI,
+>>>>>>> upstream/android-13
 	DOMAIN_BUS_PCI_MSI,
 	DOMAIN_BUS_PLATFORM_MSI,
 	DOMAIN_BUS_NEXUS,
 	DOMAIN_BUS_IPI,
 	DOMAIN_BUS_FSL_MC_MSI,
+<<<<<<< HEAD
 	DOMAIN_BUS_WAKEUP,
+=======
+	DOMAIN_BUS_TI_SCI_INTA_MSI,
+	DOMAIN_BUS_WAKEUP,
+	DOMAIN_BUS_VMD_MSI,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -147,6 +168,7 @@ struct irq_domain_chip_generic;
  *      setting up one or more generic chips for interrupt controllers
  *      drivers using the generic chip library which uses this pointer.
  * @parent: Pointer to parent irq_domain to support hierarchy irq_domains
+<<<<<<< HEAD
  * @debugfs_file: dentry for the domain debugfs file
  *
  * Revmap data, used internally by irq_domain
@@ -155,6 +177,14 @@ struct irq_domain_chip_generic;
  * @revmap_size: Size of the linear map table @linear_revmap[]
  * @revmap_tree: Radix map tree for hwirqs that don't fit in the linear map
  * @linear_revmap: Linear table of hwirq->virq reverse mappings
+=======
+ *
+ * Revmap data, used internally by irq_domain
+ * @revmap_size: Size of the linear map table @revmap[]
+ * @revmap_tree: Radix map tree for hwirqs that don't fit in the linear map
+ * @revmap_mutex: Lock for the revmap
+ * @revmap: Linear table of irq_data pointers
+>>>>>>> upstream/android-13
  */
 struct irq_domain {
 	struct list_head link;
@@ -171,9 +201,12 @@ struct irq_domain {
 #ifdef	CONFIG_IRQ_DOMAIN_HIERARCHY
 	struct irq_domain *parent;
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_GENERIC_IRQ_DEBUGFS
 	struct dentry		*debugfs_file;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -182,11 +215,18 @@ struct irq_domain {
 
 	/* reverse map data. The linear map gets appended to the irq_domain */
 	irq_hw_number_t hwirq_max;
+<<<<<<< HEAD
 	unsigned int revmap_direct_max_irq;
 	unsigned int revmap_size;
 	struct radix_tree_root revmap_tree;
 	struct mutex revmap_tree_mutex;
 	unsigned int linear_revmap[];
+=======
+	unsigned int revmap_size;
+	struct radix_tree_root revmap_tree;
+	struct mutex revmap_mutex;
+	struct irq_data __rcu *revmap[];
+>>>>>>> upstream/android-13
 };
 
 /* Irq domain flags */
@@ -216,6 +256,12 @@ enum {
 	 */
 	IRQ_DOMAIN_MSI_NOMASK_QUIRK	= (1 << 6),
 
+<<<<<<< HEAD
+=======
+	/* Irq domain doesn't translate anything */
+	IRQ_DOMAIN_FLAG_NO_MAP		= (1 << 7),
+
+>>>>>>> upstream/android-13
 	/*
 	 * Flags starting from IRQ_DOMAIN_FLAG_NONCORE are reserved
 	 * for implementation specific purposes and ignored by the
@@ -231,7 +277,11 @@ static inline struct device_node *irq_domain_get_of_node(struct irq_domain *d)
 
 #ifdef CONFIG_IRQ_DOMAIN
 struct fwnode_handle *__irq_domain_alloc_fwnode(unsigned int type, int id,
+<<<<<<< HEAD
 						const char *name, void *data);
+=======
+						const char *name, phys_addr_t *pa);
+>>>>>>> upstream/android-13
 
 enum {
 	IRQCHIP_FWNODE_REAL,
@@ -252,6 +302,7 @@ struct fwnode_handle *irq_domain_alloc_named_id_fwnode(const char *name, int id)
 					 NULL);
 }
 
+<<<<<<< HEAD
 static inline struct fwnode_handle *irq_domain_alloc_fwnode(void *data)
 {
 	return __irq_domain_alloc_fwnode(IRQCHIP_FWNODE_REAL, 0, NULL, data);
@@ -267,19 +318,52 @@ struct irq_domain *irq_domain_add_simple(struct device_node *of_node,
 					 unsigned int first_irq,
 					 const struct irq_domain_ops *ops,
 					 void *host_data);
+=======
+static inline struct fwnode_handle *irq_domain_alloc_fwnode(phys_addr_t *pa)
+{
+	return __irq_domain_alloc_fwnode(IRQCHIP_FWNODE_REAL, 0, NULL, pa);
+}
+
+void irq_domain_free_fwnode(struct fwnode_handle *fwnode);
+struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+				    irq_hw_number_t hwirq_max, int direct_max,
+				    const struct irq_domain_ops *ops,
+				    void *host_data);
+struct irq_domain *irq_domain_create_simple(struct fwnode_handle *fwnode,
+					    unsigned int size,
+					    unsigned int first_irq,
+					    const struct irq_domain_ops *ops,
+					    void *host_data);
+>>>>>>> upstream/android-13
 struct irq_domain *irq_domain_add_legacy(struct device_node *of_node,
 					 unsigned int size,
 					 unsigned int first_irq,
 					 irq_hw_number_t first_hwirq,
 					 const struct irq_domain_ops *ops,
 					 void *host_data);
+<<<<<<< HEAD
+=======
+struct irq_domain *irq_domain_create_legacy(struct fwnode_handle *fwnode,
+					    unsigned int size,
+					    unsigned int first_irq,
+					    irq_hw_number_t first_hwirq,
+					    const struct irq_domain_ops *ops,
+					    void *host_data);
+>>>>>>> upstream/android-13
 extern struct irq_domain *irq_find_matching_fwspec(struct irq_fwspec *fwspec,
 						   enum irq_domain_bus_token bus_token);
 extern bool irq_domain_check_msi_remap(void);
 extern void irq_set_default_host(struct irq_domain *host);
+<<<<<<< HEAD
 extern int irq_domain_alloc_descs(int virq, unsigned int nr_irqs,
 				  irq_hw_number_t hwirq, int node,
 				  const struct cpumask *affinity);
+=======
+extern struct irq_domain *irq_get_default_host(void);
+extern int irq_domain_alloc_descs(int virq, unsigned int nr_irqs,
+				  irq_hw_number_t hwirq, int node,
+				  const struct irq_affinity_desc *affinity);
+>>>>>>> upstream/android-13
 
 static inline struct fwnode_handle *of_node_to_fwnode(struct device_node *node)
 {
@@ -324,6 +408,18 @@ static inline struct irq_domain *irq_find_host(struct device_node *node)
 	return d;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct irq_domain *irq_domain_add_simple(struct device_node *of_node,
+						       unsigned int size,
+						       unsigned int first_irq,
+						       const struct irq_domain_ops *ops,
+						       void *host_data)
+{
+	return irq_domain_create_simple(of_node_to_fwnode(of_node), size, first_irq, ops, host_data);
+}
+
+>>>>>>> upstream/android-13
 /**
  * irq_domain_add_linear() - Allocate and register a linear revmap irq_domain.
  * @of_node: pointer to interrupt controller's device tree node.
@@ -338,6 +434,11 @@ static inline struct irq_domain *irq_domain_add_linear(struct device_node *of_no
 {
 	return __irq_domain_add(of_node_to_fwnode(of_node), size, size, 0, ops, host_data);
 }
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_IRQ_DOMAIN_NOMAP
+>>>>>>> upstream/android-13
 static inline struct irq_domain *irq_domain_add_nomap(struct device_node *of_node,
 					 unsigned int max_irq,
 					 const struct irq_domain_ops *ops,
@@ -345,6 +446,7 @@ static inline struct irq_domain *irq_domain_add_nomap(struct device_node *of_nod
 {
 	return __irq_domain_add(of_node_to_fwnode(of_node), 0, max_irq, max_irq, ops, host_data);
 }
+<<<<<<< HEAD
 static inline struct irq_domain *irq_domain_add_legacy_isa(
 				struct device_node *of_node,
 				const struct irq_domain_ops *ops,
@@ -353,6 +455,12 @@ static inline struct irq_domain *irq_domain_add_legacy_isa(
 	return irq_domain_add_legacy(of_node, NUM_ISA_INTERRUPTS, 0, 0, ops,
 				     host_data);
 }
+=======
+
+extern unsigned int irq_create_direct_mapping(struct irq_domain *host);
+#endif
+
+>>>>>>> upstream/android-13
 static inline struct irq_domain *irq_domain_add_tree(struct device_node *of_node,
 					 const struct irq_domain_ops *ops,
 					 void *host_data)
@@ -382,6 +490,7 @@ extern int irq_domain_associate(struct irq_domain *domain, unsigned int irq,
 extern void irq_domain_associate_many(struct irq_domain *domain,
 				      unsigned int irq_base,
 				      irq_hw_number_t hwirq_base, int count);
+<<<<<<< HEAD
 extern void irq_domain_disassociate(struct irq_domain *domain,
 				    unsigned int irq);
 
@@ -416,6 +525,51 @@ static inline int irq_create_identity_mapping(struct irq_domain *host,
 					      irq_hw_number_t hwirq)
 {
 	return irq_create_strict_mappings(host, hwirq, hwirq, 1);
+=======
+
+extern unsigned int irq_create_mapping_affinity(struct irq_domain *host,
+				      irq_hw_number_t hwirq,
+				      const struct irq_affinity_desc *affinity);
+extern unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec);
+extern void irq_dispose_mapping(unsigned int virq);
+
+static inline unsigned int irq_create_mapping(struct irq_domain *host,
+					      irq_hw_number_t hwirq)
+{
+	return irq_create_mapping_affinity(host, hwirq, NULL);
+}
+
+extern struct irq_desc *__irq_resolve_mapping(struct irq_domain *domain,
+					      irq_hw_number_t hwirq,
+					      unsigned int *irq);
+
+static inline struct irq_desc *irq_resolve_mapping(struct irq_domain *domain,
+						   irq_hw_number_t hwirq)
+{
+	return __irq_resolve_mapping(domain, hwirq, NULL);
+}
+
+/**
+ * irq_find_mapping() - Find a linux irq from a hw irq number.
+ * @domain: domain owning this hardware interrupt
+ * @hwirq: hardware irq number in that domain space
+ */
+static inline unsigned int irq_find_mapping(struct irq_domain *domain,
+					    irq_hw_number_t hwirq)
+{
+	unsigned int irq;
+
+	if (__irq_resolve_mapping(domain, hwirq, &irq))
+		return irq;
+
+	return 0;
+}
+
+static inline unsigned int irq_linear_revmap(struct irq_domain *domain,
+					     irq_hw_number_t hwirq)
+{
+	return irq_find_mapping(domain, hwirq);
+>>>>>>> upstream/android-13
 }
 
 extern const struct irq_domain_ops irq_domain_simple_ops;
@@ -431,6 +585,19 @@ int irq_domain_xlate_onetwocell(struct irq_domain *d, struct device_node *ctrlr,
 			const u32 *intspec, unsigned int intsize,
 			irq_hw_number_t *out_hwirq, unsigned int *out_type);
 
+<<<<<<< HEAD
+=======
+int irq_domain_translate_twocell(struct irq_domain *d,
+				 struct irq_fwspec *fwspec,
+				 unsigned long *out_hwirq,
+				 unsigned int *out_type);
+
+int irq_domain_translate_onecell(struct irq_domain *d,
+				 struct irq_fwspec *fwspec,
+				 unsigned long *out_hwirq,
+				 unsigned int *out_type);
+
+>>>>>>> upstream/android-13
 /* IPI functions */
 int irq_reserve_ipi(struct irq_domain *domain, const struct cpumask *dest);
 int irq_destroy_ipi(unsigned int irq, const struct cpumask *dest);
@@ -442,6 +609,10 @@ extern void irq_domain_set_info(struct irq_domain *domain, unsigned int virq,
 				irq_hw_number_t hwirq, struct irq_chip *chip,
 				void *chip_data, irq_flow_handler_t handler,
 				void *handler_data, const char *handler_name);
+<<<<<<< HEAD
+=======
+extern void irq_domain_reset_irq_data(struct irq_data *irq_data);
+>>>>>>> upstream/android-13
 #ifdef	CONFIG_IRQ_DOMAIN_HIERARCHY
 extern struct irq_domain *irq_domain_create_hierarchy(struct irq_domain *parent,
 			unsigned int flags, unsigned int size,
@@ -462,7 +633,12 @@ static inline struct irq_domain *irq_domain_add_hierarchy(struct irq_domain *par
 
 extern int __irq_domain_alloc_irqs(struct irq_domain *domain, int irq_base,
 				   unsigned int nr_irqs, int node, void *arg,
+<<<<<<< HEAD
 				   bool realloc, const struct cpumask *affinity);
+=======
+				   bool realloc,
+				   const struct irq_affinity_desc *affinity);
+>>>>>>> upstream/android-13
 extern void irq_domain_free_irqs(unsigned int virq, unsigned int nr_irqs);
 extern int irq_domain_activate_irq(struct irq_data *irq_data, bool early);
 extern void irq_domain_deactivate_irq(struct irq_data *irq_data);
@@ -482,7 +658,10 @@ extern int irq_domain_set_hwirq_and_chip(struct irq_domain *domain,
 					 irq_hw_number_t hwirq,
 					 struct irq_chip *chip,
 					 void *chip_data);
+<<<<<<< HEAD
 extern void irq_domain_reset_irq_data(struct irq_data *irq_data);
+=======
+>>>>>>> upstream/android-13
 extern void irq_domain_free_irqs_common(struct irq_domain *domain,
 					unsigned int virq,
 					unsigned int nr_irqs);
@@ -500,6 +679,12 @@ extern void irq_domain_free_irqs_parent(struct irq_domain *domain,
 					unsigned int irq_base,
 					unsigned int nr_irqs);
 
+<<<<<<< HEAD
+=======
+extern int irq_domain_disconnect_hierarchy(struct irq_domain *domain,
+					   unsigned int virq);
+
+>>>>>>> upstream/android-13
 static inline bool irq_domain_is_hierarchy(struct irq_domain *domain)
 {
 	return domain->flags & IRQ_DOMAIN_FLAG_HIERARCHY;

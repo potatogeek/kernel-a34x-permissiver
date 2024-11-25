@@ -40,10 +40,18 @@ nvkm_engine_unref(struct nvkm_engine **pengine)
 {
 	struct nvkm_engine *engine = *pengine;
 	if (engine) {
+<<<<<<< HEAD
 		mutex_lock(&engine->subdev.mutex);
 		if (--engine->usecount == 0)
 			nvkm_subdev_fini(&engine->subdev, false);
 		mutex_unlock(&engine->subdev.mutex);
+=======
+		if (refcount_dec_and_mutex_lock(&engine->use.refcount, &engine->use.mutex)) {
+			nvkm_subdev_fini(&engine->subdev, false);
+			engine->use.enabled = false;
+			mutex_unlock(&engine->use.mutex);
+		}
+>>>>>>> upstream/android-13
 		*pengine = NULL;
 	}
 }
@@ -51,6 +59,7 @@ nvkm_engine_unref(struct nvkm_engine **pengine)
 struct nvkm_engine *
 nvkm_engine_ref(struct nvkm_engine *engine)
 {
+<<<<<<< HEAD
 	if (engine) {
 		mutex_lock(&engine->subdev.mutex);
 		if (++engine->usecount == 1) {
@@ -62,6 +71,23 @@ nvkm_engine_ref(struct nvkm_engine *engine)
 			}
 		}
 		mutex_unlock(&engine->subdev.mutex);
+=======
+	int ret;
+	if (engine) {
+		if (!refcount_inc_not_zero(&engine->use.refcount)) {
+			mutex_lock(&engine->use.mutex);
+			if (!refcount_inc_not_zero(&engine->use.refcount)) {
+				engine->use.enabled = true;
+				if ((ret = nvkm_subdev_init(&engine->subdev))) {
+					engine->use.enabled = false;
+					mutex_unlock(&engine->use.mutex);
+					return ERR_PTR(ret);
+				}
+				refcount_set(&engine->use.refcount, 1);
+			}
+			mutex_unlock(&engine->use.mutex);
+		}
+>>>>>>> upstream/android-13
 	}
 	return engine;
 }
@@ -114,7 +140,11 @@ nvkm_engine_init(struct nvkm_subdev *subdev)
 	int ret = 0, i;
 	s64 time;
 
+<<<<<<< HEAD
 	if (!engine->usecount) {
+=======
+	if (!engine->use.enabled) {
+>>>>>>> upstream/android-13
 		nvkm_trace(subdev, "init skipped, engine has no users\n");
 		return ret;
 	}
@@ -156,11 +186,20 @@ nvkm_engine_dtor(struct nvkm_subdev *subdev)
 	struct nvkm_engine *engine = nvkm_engine(subdev);
 	if (engine->func->dtor)
 		return engine->func->dtor(engine);
+<<<<<<< HEAD
 	return engine;
 }
 
 static const struct nvkm_subdev_func
 nvkm_engine_func = {
+=======
+	mutex_destroy(&engine->use.mutex);
+	return engine;
+}
+
+const struct nvkm_subdev_func
+nvkm_engine = {
+>>>>>>> upstream/android-13
 	.dtor = nvkm_engine_dtor,
 	.preinit = nvkm_engine_preinit,
 	.init = nvkm_engine_init,
@@ -170,6 +209,7 @@ nvkm_engine_func = {
 };
 
 int
+<<<<<<< HEAD
 nvkm_engine_ctor(const struct nvkm_engine_func *func,
 		 struct nvkm_device *device, int index, bool enable,
 		 struct nvkm_engine *engine)
@@ -178,6 +218,17 @@ nvkm_engine_ctor(const struct nvkm_engine_func *func,
 	engine->func = func;
 
 	if (!nvkm_boolopt(device->cfgopt, nvkm_subdev_name[index], enable)) {
+=======
+nvkm_engine_ctor(const struct nvkm_engine_func *func, struct nvkm_device *device,
+		 enum nvkm_subdev_type type, int inst, bool enable, struct nvkm_engine *engine)
+{
+	nvkm_subdev_ctor(&nvkm_engine, device, type, inst, &engine->subdev);
+	engine->func = func;
+	refcount_set(&engine->use.refcount, 0);
+	mutex_init(&engine->use.mutex);
+
+	if (!nvkm_boolopt(device->cfgopt, engine->subdev.name, enable)) {
+>>>>>>> upstream/android-13
 		nvkm_debug(&engine->subdev, "disabled\n");
 		return -ENODEV;
 	}
@@ -187,11 +238,20 @@ nvkm_engine_ctor(const struct nvkm_engine_func *func,
 }
 
 int
+<<<<<<< HEAD
 nvkm_engine_new_(const struct nvkm_engine_func *func,
 		 struct nvkm_device *device, int index, bool enable,
+=======
+nvkm_engine_new_(const struct nvkm_engine_func *func, struct nvkm_device *device,
+		 enum nvkm_subdev_type type, int inst, bool enable,
+>>>>>>> upstream/android-13
 		 struct nvkm_engine **pengine)
 {
 	if (!(*pengine = kzalloc(sizeof(**pengine), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
 	return nvkm_engine_ctor(func, device, index, enable, *pengine);
+=======
+	return nvkm_engine_ctor(func, device, type, inst, enable, *pengine);
+>>>>>>> upstream/android-13
 }

@@ -2,24 +2,45 @@
 #include "builtin.h"
 #include "perf.h"
 
+<<<<<<< HEAD
 #include "util/evsel.h"
 #include "util/evlist.h"
 #include "util/term.h"
 #include "util/util.h"
 #include "util/cache.h"
+=======
+#include "util/build-id.h"
+#include "util/evsel.h"
+#include "util/evlist.h"
+#include "util/mmap.h"
+#include "util/term.h"
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 #include "util/thread.h"
 #include "util/header.h"
 #include "util/session.h"
 #include "util/intlist.h"
+<<<<<<< HEAD
+=======
+#include <subcmd/pager.h>
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "util/trace-event.h"
 #include "util/debug.h"
 #include "util/tool.h"
 #include "util/stat.h"
+<<<<<<< HEAD
 #include "util/top.h"
 #include "util/data.h"
 #include "util/ordered-events.h"
+=======
+#include "util/synthetic-events.h"
+#include "util/top.h"
+#include "util/data.h"
+#include "util/ordered-events.h"
+#include "util/kvm-stat.h"
+#include "ui/ui.h"
+>>>>>>> upstream/android-13
 
 #include <sys/prctl.h>
 #ifdef HAVE_TIMERFD_SUPPORT
@@ -30,8 +51,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/time64.h>
+=======
+#include <linux/err.h>
+#include <linux/kernel.h>
+#include <linux/string.h>
+#include <linux/time64.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 #include <errno.h>
 #include <inttypes.h>
 #include <poll.h>
@@ -39,6 +68,10 @@
 #include <semaphore.h>
 #include <signal.h>
 #include <math.h>
+<<<<<<< HEAD
+=======
+#include <perf/mmap.h>
+>>>>>>> upstream/android-13
 
 static const char *get_filename_for_perf_kvm(void)
 {
@@ -55,22 +88,38 @@ static const char *get_filename_for_perf_kvm(void)
 }
 
 #ifdef HAVE_KVM_STAT_SUPPORT
+<<<<<<< HEAD
 #include "util/kvm-stat.h"
 
 void exit_event_get_key(struct perf_evsel *evsel,
+=======
+
+void exit_event_get_key(struct evsel *evsel,
+>>>>>>> upstream/android-13
 			struct perf_sample *sample,
 			struct event_key *key)
 {
 	key->info = 0;
+<<<<<<< HEAD
 	key->key = perf_evsel__intval(evsel, sample, kvm_exit_reason);
 }
 
 bool kvm_exit_event(struct perf_evsel *evsel)
+=======
+	key->key  = evsel__intval(evsel, sample, kvm_exit_reason);
+}
+
+bool kvm_exit_event(struct evsel *evsel)
+>>>>>>> upstream/android-13
 {
 	return !strcmp(evsel->name, kvm_exit_trace);
 }
 
+<<<<<<< HEAD
 bool exit_event_begin(struct perf_evsel *evsel,
+=======
+bool exit_event_begin(struct evsel *evsel,
+>>>>>>> upstream/android-13
 		      struct perf_sample *sample, struct event_key *key)
 {
 	if (kvm_exit_event(evsel)) {
@@ -81,12 +130,20 @@ bool exit_event_begin(struct perf_evsel *evsel,
 	return false;
 }
 
+<<<<<<< HEAD
 bool kvm_entry_event(struct perf_evsel *evsel)
+=======
+bool kvm_entry_event(struct evsel *evsel)
+>>>>>>> upstream/android-13
 {
 	return !strcmp(evsel->name, kvm_entry_trace);
 }
 
+<<<<<<< HEAD
 bool exit_event_end(struct perf_evsel *evsel,
+=======
+bool exit_event_end(struct evsel *evsel,
+>>>>>>> upstream/android-13
 		    struct perf_sample *sample __maybe_unused,
 		    struct event_key *key __maybe_unused)
 {
@@ -286,7 +343,11 @@ static bool update_kvm_event(struct kvm_event *event, int vcpu_id,
 }
 
 static bool is_child_event(struct perf_kvm_stat *kvm,
+<<<<<<< HEAD
 			   struct perf_evsel *evsel,
+=======
+			   struct evsel *evsel,
+>>>>>>> upstream/android-13
 			   struct perf_sample *sample,
 			   struct event_key *key)
 {
@@ -396,7 +457,11 @@ static bool handle_end_event(struct perf_kvm_stat *kvm,
 
 static
 struct vcpu_event_record *per_vcpu_record(struct thread *thread,
+<<<<<<< HEAD
 					  struct perf_evsel *evsel,
+=======
+					  struct evsel *evsel,
+>>>>>>> upstream/android-13
 					  struct perf_sample *sample)
 {
 	/* Only kvm_entry records vcpu id. */
@@ -409,8 +474,12 @@ struct vcpu_event_record *per_vcpu_record(struct thread *thread,
 			return NULL;
 		}
 
+<<<<<<< HEAD
 		vcpu_record->vcpu_id = perf_evsel__intval(evsel, sample,
 							  vcpu_id_str);
+=======
+		vcpu_record->vcpu_id = evsel__intval(evsel, sample, vcpu_id_str);
+>>>>>>> upstream/android-13
 		thread__set_priv(thread, vcpu_record);
 	}
 
@@ -419,7 +488,11 @@ struct vcpu_event_record *per_vcpu_record(struct thread *thread,
 
 static bool handle_kvm_event(struct perf_kvm_stat *kvm,
 			     struct thread *thread,
+<<<<<<< HEAD
 			     struct perf_evsel *evsel,
+=======
+			     struct evsel *evsel,
+>>>>>>> upstream/android-13
 			     struct perf_sample *sample)
 {
 	struct vcpu_event_record *vcpu_record;
@@ -672,7 +745,11 @@ static bool skip_sample(struct perf_kvm_stat *kvm,
 static int process_sample_event(struct perf_tool *tool,
 				union perf_event *event,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
+=======
+				struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	int err = 0;
@@ -744,15 +821,22 @@ static bool verify_vcpu(int vcpu)
 static s64 perf_kvm__mmap_read_idx(struct perf_kvm_stat *kvm, int idx,
 				   u64 *mmap_time)
 {
+<<<<<<< HEAD
 	struct perf_evlist *evlist = kvm->evlist;
 	union perf_event *event;
 	struct perf_mmap *md;
+=======
+	struct evlist *evlist = kvm->evlist;
+	union perf_event *event;
+	struct mmap *md;
+>>>>>>> upstream/android-13
 	u64 timestamp;
 	s64 n = 0;
 	int err;
 
 	*mmap_time = ULLONG_MAX;
 	md = &evlist->mmap[idx];
+<<<<<<< HEAD
 	err = perf_mmap__read_init(md);
 	if (err < 0)
 		return (err == -EAGAIN) ? 0 : -1;
@@ -761,6 +845,16 @@ static s64 perf_kvm__mmap_read_idx(struct perf_kvm_stat *kvm, int idx,
 		err = perf_evlist__parse_sample_timestamp(evlist, event, &timestamp);
 		if (err) {
 			perf_mmap__consume(md);
+=======
+	err = perf_mmap__read_init(&md->core);
+	if (err < 0)
+		return (err == -EAGAIN) ? 0 : -1;
+
+	while ((event = perf_mmap__read_event(&md->core)) != NULL) {
+		err = evlist__parse_sample_timestamp(evlist, event, &timestamp);
+		if (err) {
+			perf_mmap__consume(&md->core);
+>>>>>>> upstream/android-13
 			pr_err("Failed to parse sample\n");
 			return -1;
 		}
@@ -770,7 +864,11 @@ static s64 perf_kvm__mmap_read_idx(struct perf_kvm_stat *kvm, int idx,
 		 * FIXME: Here we can't consume the event, as perf_session__queue_event will
 		 *        point to it, and it'll get possibly overwritten by the kernel.
 		 */
+<<<<<<< HEAD
 		perf_mmap__consume(md);
+=======
+		perf_mmap__consume(&md->core);
+>>>>>>> upstream/android-13
 
 		if (err) {
 			pr_err("Failed to enqueue sample: %d\n", err);
@@ -787,7 +885,11 @@ static s64 perf_kvm__mmap_read_idx(struct perf_kvm_stat *kvm, int idx,
 			break;
 	}
 
+<<<<<<< HEAD
 	perf_mmap__read_done(md);
+=======
+	perf_mmap__read_done(&md->core);
+>>>>>>> upstream/android-13
 	return n;
 }
 
@@ -797,7 +899,11 @@ static int perf_kvm__mmap_read(struct perf_kvm_stat *kvm)
 	s64 n, ntotal = 0;
 	u64 flush_time = ULLONG_MAX, mmap_time;
 
+<<<<<<< HEAD
 	for (i = 0; i < kvm->evlist->nr_mmaps; i++) {
+=======
+	for (i = 0; i < kvm->evlist->core.nr_mmaps; i++) {
+>>>>>>> upstream/android-13
 		n = perf_kvm__mmap_read_idx(kvm, i, &mmap_time);
 		if (n < 0)
 			return -1;
@@ -962,10 +1068,17 @@ static int kvm_events_live_report(struct perf_kvm_stat *kvm)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (perf_evlist__add_pollfd(kvm->evlist, kvm->timerfd) < 0)
 		goto out;
 
 	nr_stdin = perf_evlist__add_pollfd(kvm->evlist, fileno(stdin));
+=======
+	if (evlist__add_pollfd(kvm->evlist, kvm->timerfd) < 0)
+		goto out;
+
+	nr_stdin = evlist__add_pollfd(kvm->evlist, fileno(stdin));
+>>>>>>> upstream/android-13
 	if (nr_stdin < 0)
 		goto out;
 
@@ -973,10 +1086,17 @@ static int kvm_events_live_report(struct perf_kvm_stat *kvm)
 		goto out;
 
 	/* everything is good - enable the events and process */
+<<<<<<< HEAD
 	perf_evlist__enable(kvm->evlist);
 
 	while (!done) {
 		struct fdarray *fda = &kvm->evlist->pollfd;
+=======
+	evlist__enable(kvm->evlist);
+
+	while (!done) {
+		struct fdarray *fda = &kvm->evlist->core.pollfd;
+>>>>>>> upstream/android-13
 		int rc;
 
 		rc = perf_kvm__mmap_read(kvm);
@@ -991,10 +1111,17 @@ static int kvm_events_live_report(struct perf_kvm_stat *kvm)
 			done = perf_kvm__handle_stdin();
 
 		if (!rc && !done)
+<<<<<<< HEAD
 			err = fdarray__poll(fda, 100);
 	}
 
 	perf_evlist__disable(kvm->evlist);
+=======
+			err = evlist__poll(kvm->evlist, 100);
+	}
+
+	evlist__disable(kvm->evlist);
+>>>>>>> upstream/android-13
 
 	if (err == 0) {
 		sort_result(kvm);
@@ -1012,17 +1139,26 @@ out:
 static int kvm_live_open_events(struct perf_kvm_stat *kvm)
 {
 	int err, rc = -1;
+<<<<<<< HEAD
 	struct perf_evsel *pos;
 	struct perf_evlist *evlist = kvm->evlist;
 	char sbuf[STRERR_BUFSIZE];
 
 	perf_evlist__config(evlist, &kvm->opts, NULL);
+=======
+	struct evsel *pos;
+	struct evlist *evlist = kvm->evlist;
+	char sbuf[STRERR_BUFSIZE];
+
+	evlist__config(evlist, &kvm->opts, NULL);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note: exclude_{guest,host} do not apply here.
 	 *       This command processes KVM tracepoints from host only
 	 */
 	evlist__for_each_entry(evlist, pos) {
+<<<<<<< HEAD
 		struct perf_event_attr *attr = &pos->attr;
 
 		/* make sure these *are* set */
@@ -1036,6 +1172,21 @@ static int kvm_live_open_events(struct perf_kvm_stat *kvm)
 		perf_evsel__reset_sample_bit(pos, CALLCHAIN);
 		perf_evsel__reset_sample_bit(pos, ADDR);
 		perf_evsel__reset_sample_bit(pos, READ);
+=======
+		struct perf_event_attr *attr = &pos->core.attr;
+
+		/* make sure these *are* set */
+		evsel__set_sample_bit(pos, TID);
+		evsel__set_sample_bit(pos, TIME);
+		evsel__set_sample_bit(pos, CPU);
+		evsel__set_sample_bit(pos, RAW);
+		/* make sure these are *not*; want as small a sample as possible */
+		evsel__reset_sample_bit(pos, PERIOD);
+		evsel__reset_sample_bit(pos, IP);
+		evsel__reset_sample_bit(pos, CALLCHAIN);
+		evsel__reset_sample_bit(pos, ADDR);
+		evsel__reset_sample_bit(pos, READ);
+>>>>>>> upstream/android-13
 		attr->mmap = 0;
 		attr->comm = 0;
 		attr->task = 0;
@@ -1049,17 +1200,28 @@ static int kvm_live_open_events(struct perf_kvm_stat *kvm)
 		attr->disabled = 1;
 	}
 
+<<<<<<< HEAD
 	err = perf_evlist__open(evlist);
+=======
+	err = evlist__open(evlist);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		printf("Couldn't create the events: %s\n",
 		       str_error_r(errno, sbuf, sizeof(sbuf)));
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (perf_evlist__mmap(evlist, kvm->opts.mmap_pages) < 0) {
 		ui__error("Failed to mmap the events: %s\n",
 			  str_error_r(errno, sbuf, sizeof(sbuf)));
 		perf_evlist__close(evlist);
+=======
+	if (evlist__mmap(evlist, kvm->opts.mmap_pages) < 0) {
+		ui__error("Failed to mmap the events: %s\n",
+			  str_error_r(errno, sbuf, sizeof(sbuf)));
+		evlist__close(evlist);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -1081,6 +1243,7 @@ static int read_events(struct perf_kvm_stat *kvm)
 		.ordered_events		= true,
 	};
 	struct perf_data file = {
+<<<<<<< HEAD
 		.file      = {
 			.path = kvm->file_name,
 		},
@@ -1093,6 +1256,18 @@ static int read_events(struct perf_kvm_stat *kvm)
 	if (!kvm->session) {
 		pr_err("Initializing perf session failed\n");
 		return -1;
+=======
+		.path  = kvm->file_name,
+		.mode  = PERF_DATA_MODE_READ,
+		.force = kvm->force,
+	};
+
+	kvm->tool = eops;
+	kvm->session = perf_session__new(&file, &kvm->tool);
+	if (IS_ERR(kvm->session)) {
+		pr_err("Initializing perf session failed\n");
+		return PTR_ERR(kvm->session);
+>>>>>>> upstream/android-13
 	}
 
 	symbol__init(&kvm->session->header.env);
@@ -1286,14 +1461,24 @@ kvm_events_report(struct perf_kvm_stat *kvm, int argc, const char **argv)
 }
 
 #ifdef HAVE_TIMERFD_SUPPORT
+<<<<<<< HEAD
 static struct perf_evlist *kvm_live_event_list(void)
 {
 	struct perf_evlist *evlist;
+=======
+static struct evlist *kvm_live_event_list(void)
+{
+	struct evlist *evlist;
+>>>>>>> upstream/android-13
 	char *tp, *name, *sys;
 	int err = -1;
 	const char * const *events_tp;
 
+<<<<<<< HEAD
 	evlist = perf_evlist__new();
+=======
+	evlist = evlist__new();
+>>>>>>> upstream/android-13
 	if (evlist == NULL)
 		return NULL;
 
@@ -1315,7 +1500,11 @@ static struct perf_evlist *kvm_live_event_list(void)
 		*name = '\0';
 		name++;
 
+<<<<<<< HEAD
 		if (perf_evlist__add_newtp(evlist, sys, name, NULL)) {
+=======
+		if (evlist__add_newtp(evlist, sys, name, NULL)) {
+>>>>>>> upstream/android-13
 			pr_err("Failed to add %s tracepoint to the list\n", *events_tp);
 			free(tp);
 			goto out;
@@ -1328,7 +1517,11 @@ static struct perf_evlist *kvm_live_event_list(void)
 
 out:
 	if (err) {
+<<<<<<< HEAD
 		perf_evlist__delete(evlist);
+=======
+		evlist__delete(evlist);
+>>>>>>> upstream/android-13
 		evlist = NULL;
 	}
 
@@ -1345,8 +1538,12 @@ static int kvm_events_live(struct perf_kvm_stat *kvm,
 		OPT_STRING('p', "pid", &kvm->opts.target.pid, "pid",
 			"record events on existing process id"),
 		OPT_CALLBACK('m', "mmap-pages", &kvm->opts.mmap_pages, "pages",
+<<<<<<< HEAD
 			"number of mmap data pages",
 			perf_evlist__parse_mmap_pages),
+=======
+			"number of mmap data pages", evlist__parse_mmap_pages),
+>>>>>>> upstream/android-13
 		OPT_INCR('v', "verbose", &verbose,
 			"be more verbose (show counter open errors, etc)"),
 		OPT_BOOLEAN('a', "all-cpus", &kvm->opts.target.system_wide,
@@ -1365,7 +1562,11 @@ static int kvm_events_live(struct perf_kvm_stat *kvm,
 			"show events other than"
 			" HLT (x86 only) or Wait state (s390 only)"
 			" that take longer than duration usecs"),
+<<<<<<< HEAD
 		OPT_UINTEGER(0, "proc-map-timeout", &kvm->opts.proc_map_timeout,
+=======
+		OPT_UINTEGER(0, "proc-map-timeout", &proc_map_timeout,
+>>>>>>> upstream/android-13
 				"per thread proc mmap processing timeout in ms"),
 		OPT_END()
 	};
@@ -1395,7 +1596,10 @@ static int kvm_events_live(struct perf_kvm_stat *kvm,
 	kvm->opts.target.uses_mmap = false;
 	kvm->opts.target.uid_str = NULL;
 	kvm->opts.target.uid = UINT_MAX;
+<<<<<<< HEAD
 	kvm->opts.proc_map_timeout = 500;
+=======
+>>>>>>> upstream/android-13
 
 	symbol__init(NULL);
 	disable_buildid_cache();
@@ -1439,23 +1643,37 @@ static int kvm_events_live(struct perf_kvm_stat *kvm,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (perf_evlist__create_maps(kvm->evlist, &kvm->opts.target) < 0)
+=======
+	if (evlist__create_maps(kvm->evlist, &kvm->opts.target) < 0)
+>>>>>>> upstream/android-13
 		usage_with_options(live_usage, live_options);
 
 	/*
 	 * perf session
 	 */
+<<<<<<< HEAD
 	kvm->session = perf_session__new(&data, false, &kvm->tool);
 	if (kvm->session == NULL) {
 		err = -1;
+=======
+	kvm->session = perf_session__new(&data, &kvm->tool);
+	if (IS_ERR(kvm->session)) {
+		err = PTR_ERR(kvm->session);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	kvm->session->evlist = kvm->evlist;
 	perf_session__set_id_hdr_size(kvm->session);
 	ordered_events__set_copy_on_queue(&kvm->session->ordered_events, true);
 	machine__synthesize_threads(&kvm->session->machines.host, &kvm->opts.target,
+<<<<<<< HEAD
 				    kvm->evlist->threads, false,
 				    kvm->opts.proc_map_timeout, 1);
+=======
+				    kvm->evlist->core.threads, false, 1);
+>>>>>>> upstream/android-13
 	err = kvm_live_open_events(kvm);
 	if (err)
 		goto out;
@@ -1465,7 +1683,11 @@ static int kvm_events_live(struct perf_kvm_stat *kvm,
 out:
 	perf_session__delete(kvm->session);
 	kvm->session = NULL;
+<<<<<<< HEAD
 	perf_evlist__delete(kvm->evlist);
+=======
+	evlist__delete(kvm->evlist);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -1515,11 +1737,29 @@ perf_stat:
 }
 #endif /* HAVE_KVM_STAT_SUPPORT */
 
+<<<<<<< HEAD
 static int __cmd_record(const char *file_name, int argc, const char **argv)
 {
 	int rec_argc, i = 0, j;
 	const char **rec_argv;
 
+=======
+int __weak kvm_add_default_arch_event(int *argc __maybe_unused,
+					const char **argv __maybe_unused)
+{
+	return 0;
+}
+
+static int __cmd_record(const char *file_name, int argc, const char **argv)
+{
+	int rec_argc, i = 0, j, ret;
+	const char **rec_argv;
+
+	ret = kvm_add_default_arch_event(&argc, argv);
+	if (ret)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	rec_argc = argc + 2;
 	rec_argv = calloc(rec_argc + 1, sizeof(char *));
 	rec_argv[i++] = strdup("record");

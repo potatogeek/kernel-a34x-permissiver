@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-ep93xx/snappercl15.c
  * Bluewater Systems Snapper CL15 system module
@@ -8,12 +12,15 @@
  * NAND code adapted from driver by:
  *   Andre Renaud <andre@bluewatersys.com>
  *   James R. McKaskill
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -23,12 +30,20 @@
 #include <linux/i2c.h>
 #include <linux/fb.h>
 
+<<<<<<< HEAD
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/rawnand.h>
 
 #include <mach/hardware.h>
 #include <linux/platform_data/video-ep93xx.h>
 #include <mach/gpio-ep93xx.h>
+=======
+#include <linux/mtd/platnand.h>
+
+#include "hardware.h"
+#include <linux/platform_data/video-ep93xx.h>
+#include "gpio-ep93xx.h"
+>>>>>>> upstream/android-13
 
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -43,12 +58,20 @@
 #define SNAPPERCL15_NAND_CEN	(1 << 11) /* Chip enable (active low) */
 #define SNAPPERCL15_NAND_RDY	(1 << 14) /* Device ready */
 
+<<<<<<< HEAD
 #define NAND_CTRL_ADDR(chip) 	(chip->IO_ADDR_W + 0x40)
 
 static void snappercl15_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 				      unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+#define NAND_CTRL_ADDR(chip) 	(chip->legacy.IO_ADDR_W + 0x40)
+
+static void snappercl15_nand_cmd_ctrl(struct nand_chip *chip, int cmd,
+				      unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	static u16 nand_state = SNAPPERCL15_NAND_WPN;
 	u16 set;
 
@@ -70,6 +93,7 @@ static void snappercl15_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 	}
 
 	if (cmd != NAND_CMD_NONE)
+<<<<<<< HEAD
 		__raw_writew((cmd & 0xff) | nand_state, chip->IO_ADDR_W);
 }
 
@@ -77,6 +101,14 @@ static int snappercl15_nand_dev_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
 
+=======
+		__raw_writew((cmd & 0xff) | nand_state,
+			     chip->legacy.IO_ADDR_W);
+}
+
+static int snappercl15_nand_dev_ready(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	return !!(__raw_readw(NAND_CTRL_ADDR(chip)) & SNAPPERCL15_NAND_RDY);
 }
 
@@ -165,6 +197,9 @@ MACHINE_START(SNAPPER_CL15, "Bluewater Systems Snapper CL15")
 	.init_irq	= ep93xx_init_irq,
 	.init_time	= ep93xx_timer_init,
 	.init_machine	= snappercl15_init_machine,
+<<<<<<< HEAD
 	.init_late	= ep93xx_init_late,
+=======
+>>>>>>> upstream/android-13
 	.restart	= ep93xx_restart,
 MACHINE_END

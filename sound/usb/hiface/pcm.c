@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver for M2Tech hiFace compatible devices
  *
@@ -7,11 +11,14 @@
  *           Antonio Ospite <ao2@amarulasolutions.com>
  *
  * The driver is based on the work done in TerraTec DMX 6Fire USB
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -160,6 +167,7 @@ static int hiface_pcm_set_rate(struct pcm_runtime *rt, unsigned int rate)
 	 * This control message doesn't have any ack from the
 	 * other side
 	 */
+<<<<<<< HEAD
 	ret = usb_control_msg(device, usb_sndctrlpipe(device, 0),
 			      HIFACE_SET_RATE_REQUEST,
 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_OTHER,
@@ -170,6 +178,16 @@ static int hiface_pcm_set_rate(struct pcm_runtime *rt, unsigned int rate)
 	}
 
 	return 0;
+=======
+	ret = usb_control_msg_send(device, 0,
+				   HIFACE_SET_RATE_REQUEST,
+				   USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_OTHER,
+				   rate_value, 0, NULL, 0, 100, GFP_KERNEL);
+	if (ret)
+		dev_err(&device->dev, "Error setting samplerate %d.\n", rate);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static struct pcm_substream *hiface_pcm_get_substream(struct snd_pcm_substream
@@ -419,6 +437,7 @@ static int hiface_pcm_close(struct snd_pcm_substream *alsa_sub)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hiface_pcm_hw_params(struct snd_pcm_substream *alsa_sub,
 				struct snd_pcm_hw_params *hw_params)
 {
@@ -431,6 +450,8 @@ static int hiface_pcm_hw_free(struct snd_pcm_substream *alsa_sub)
 	return snd_pcm_lib_free_vmalloc_buffer(alsa_sub);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hiface_pcm_prepare(struct snd_pcm_substream *alsa_sub)
 {
 	struct pcm_runtime *rt = snd_pcm_substream_chip(alsa_sub);
@@ -516,6 +537,7 @@ static snd_pcm_uframes_t hiface_pcm_pointer(struct snd_pcm_substream *alsa_sub)
 static const struct snd_pcm_ops pcm_ops = {
 	.open = hiface_pcm_open,
 	.close = hiface_pcm_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = hiface_pcm_hw_params,
 	.hw_free = hiface_pcm_hw_free,
@@ -523,6 +545,11 @@ static const struct snd_pcm_ops pcm_ops = {
 	.trigger = hiface_pcm_trigger,
 	.pointer = hiface_pcm_pointer,
 	.page = snd_pcm_lib_get_vmalloc_page,
+=======
+	.prepare = hiface_pcm_prepare,
+	.trigger = hiface_pcm_trigger,
+	.pointer = hiface_pcm_pointer,
+>>>>>>> upstream/android-13
 };
 
 static int hiface_pcm_init_urb(struct pcm_urb *urb,
@@ -616,8 +643,15 @@ int hiface_pcm_init(struct hiface_chip *chip, u8 extra_freq)
 	pcm->private_data = rt;
 	pcm->private_free = hiface_pcm_free;
 
+<<<<<<< HEAD
 	strlcpy(pcm->name, "USB-SPDIF Audio", sizeof(pcm->name));
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &pcm_ops);
+=======
+	strscpy(pcm->name, "USB-SPDIF Audio", sizeof(pcm->name));
+	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &pcm_ops);
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC,
+				       NULL, 0, 0);
+>>>>>>> upstream/android-13
 
 	rt->instance = pcm;
 

@@ -9,7 +9,11 @@
  *
  */
 
+<<<<<<< HEAD
 
+=======
+#include <linux/security.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/slab.h>
 #include <linux/rbtree.h>
@@ -72,9 +76,13 @@ static void destroy_session(struct stat_session *session)
 	kfree(session);
 }
 
+<<<<<<< HEAD
 typedef int (*cmp_stat_t)(void *, void *);
 
 static int insert_stat(struct rb_root *root, void *stat, cmp_stat_t cmp)
+=======
+static int insert_stat(struct rb_root *root, void *stat, cmp_func_t cmp)
+>>>>>>> upstream/android-13
 {
 	struct rb_node **new = &(root->rb_node), *parent = NULL;
 	struct stat_node *data;
@@ -112,7 +120,11 @@ static int insert_stat(struct rb_root *root, void *stat, cmp_stat_t cmp)
  * This one will force an insertion as right-most node
  * in the rbtree.
  */
+<<<<<<< HEAD
 static int dummy_cmp(void *p1, void *p2)
+=======
+static int dummy_cmp(const void *p1, const void *p2)
+>>>>>>> upstream/android-13
 {
 	return -1;
 }
@@ -238,6 +250,13 @@ static int tracing_stat_open(struct inode *inode, struct file *file)
 	struct seq_file *m;
 	struct stat_session *session = inode->i_private;
 
+<<<<<<< HEAD
+=======
+	ret = security_locked_down(LOCKDOWN_TRACEFS);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	ret = stat_seq_init(session);
 	if (ret)
 		return ret;
@@ -274,6 +293,7 @@ static const struct file_operations tracing_stat_fops = {
 
 static int tracing_stat_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *d_tracing;
 
 	d_tracing = tracing_init_dentry();
@@ -281,6 +301,15 @@ static int tracing_stat_init(void)
 		return -ENODEV;
 
 	stat_dir = tracefs_create_dir("trace_stat", d_tracing);
+=======
+	int ret;
+
+	ret = tracing_init_dentry();
+	if (ret)
+		return -ENODEV;
+
+	stat_dir = tracefs_create_dir("trace_stat", NULL);
+>>>>>>> upstream/android-13
 	if (!stat_dir) {
 		pr_warn("Could not create tracefs 'trace_stat' entry\n");
 		return -ENOMEM;

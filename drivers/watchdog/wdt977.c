@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Wdt977	0.04:	A Watchdog Device for Netwinder W83977AF chip
  *
@@ -5,11 +9,14 @@
  *
  *			-----------------------
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *			-----------------------
  *      14-Dec-2001 Matt Domsch <Matt_Domsch@dell.com>
  *           Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
@@ -273,7 +280,11 @@ static int wdt977_open(struct inode *inode, struct file *file)
 		__module_get(THIS_MODULE);
 
 	wdt977_start();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int wdt977_release(struct inode *inode, struct file *file)
@@ -402,7 +413,11 @@ static long wdt977_ioctl(struct file *file, unsigned int cmd,
 			return -EINVAL;
 
 		wdt977_keepalive();
+<<<<<<< HEAD
 		/* Fall */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case WDIOC_GETTIMEOUT:
 		return put_user(timeout, uarg.i);
@@ -426,6 +441,10 @@ static const struct file_operations wdt977_fops = {
 	.llseek		= no_llseek,
 	.write		= wdt977_write,
 	.unlocked_ioctl	= wdt977_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= wdt977_open,
 	.release	= wdt977_release,
 };

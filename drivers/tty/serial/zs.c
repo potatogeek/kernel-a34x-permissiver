@@ -44,10 +44,13 @@
  * complicated and prevents the use of some automatic modes of operation.
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_ZS_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/bug.h>
 #include <linux/console.h>
 #include <linux/delay.h>
@@ -992,7 +995,11 @@ static void zs_release_port(struct uart_port *uport)
 static int zs_map_port(struct uart_port *uport)
 {
 	if (!uport->membase)
+<<<<<<< HEAD
 		uport->membase = ioremap_nocache(uport->mapbase,
+=======
+		uport->membase = ioremap(uport->mapbase,
+>>>>>>> upstream/android-13
 						 ZS_CHAN_IO_SIZE);
 	if (!uport->membase) {
 		printk(KERN_ERR "zs: Cannot map MMIO\n");
@@ -1106,6 +1113,10 @@ static int __init zs_probe_sccs(void)
 			zport->scc	= &zs_sccs[chip];
 			zport->clk_mode	= 16;
 
+<<<<<<< HEAD
+=======
+			uport->has_sysrq = IS_ENABLED(CONFIG_SERIAL_ZS_CONSOLE);
+>>>>>>> upstream/android-13
 			uport->irq	= zs_parms.irq[chip];
 			uport->uartclk	= ZS_CLOCK;
 			uport->fifosize	= 1;

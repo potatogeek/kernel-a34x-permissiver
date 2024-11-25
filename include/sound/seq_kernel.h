@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_SEQ_KERNEL_H
 #define __SOUND_SEQ_KERNEL_H
 
 /*
  *  Main kernel header file for the ALSA sequencer
  *  Copyright (c) 1998 by Frank van de Pol <fvdpol@coil.demon.nl>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/time.h>
 #include <sound/asequencer.h>
@@ -73,7 +80,12 @@ __printf(3, 4)
 int snd_seq_create_kernel_client(struct snd_card *card, int client_index,
 				 const char *name_fmt, ...);
 int snd_seq_delete_kernel_client(int client);
+<<<<<<< HEAD
 int snd_seq_kernel_client_enqueue(int client, struct snd_seq_event *ev, int atomic, int hop);
+=======
+int snd_seq_kernel_client_enqueue(int client, struct snd_seq_event *ev,
+				  struct file *file, bool blocking);
+>>>>>>> upstream/android-13
 int snd_seq_kernel_client_dispatch(int client, struct snd_seq_event *ev, int atomic, int hop);
 int snd_seq_kernel_client_ctl(int client, unsigned int cmd, void *arg);
 

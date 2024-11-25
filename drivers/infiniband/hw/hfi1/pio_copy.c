@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015, 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015, 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include "hfi.h"
@@ -55,6 +61,10 @@
 
 /**
  * pio_copy - copy data block to MMIO space
+<<<<<<< HEAD
+=======
+ * @dd: hfi1 dev data
+>>>>>>> upstream/android-13
  * @pbuf: a number of blocks allocated within a PIO send context
  * @pbc: PBC to send
  * @from: source, must be 8 byte aligned
@@ -191,6 +201,7 @@ static inline void jcopy(u8 *dest, const u8 *src, u32 n)
 	switch (n) {
 	case 7:
 		*dest++ = *src++;
+<<<<<<< HEAD
 		/* fall through */
 	case 6:
 		*dest++ = *src++;
@@ -210,6 +221,26 @@ static inline void jcopy(u8 *dest, const u8 *src, u32 n)
 	case 1:
 		*dest++ = *src++;
 		/* fall through */
+=======
+		fallthrough;
+	case 6:
+		*dest++ = *src++;
+		fallthrough;
+	case 5:
+		*dest++ = *src++;
+		fallthrough;
+	case 4:
+		*dest++ = *src++;
+		fallthrough;
+	case 3:
+		*dest++ = *src++;
+		fallthrough;
+	case 2:
+		*dest++ = *src++;
+		fallthrough;
+	case 1:
+		*dest++ = *src++;
+>>>>>>> upstream/android-13
 	}
 }
 

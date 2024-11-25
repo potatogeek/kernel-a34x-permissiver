@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 BayLibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +42,30 @@
 #include "meson_drv.h"
 #include "meson_venc.h"
 #include "meson_vclk.h"
+=======
+ */
+
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+#include <linux/of_graph.h>
+#include <linux/regulator/consumer.h>
+#include <linux/reset.h>
+
+#include <drm/bridge/dw_hdmi.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_device.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_print.h>
+
+#include <linux/videodev2.h>
+
+#include "meson_drv.h"
+>>>>>>> upstream/android-13
 #include "meson_dw_hdmi.h"
 #include "meson_registers.h"
 
@@ -105,6 +134,10 @@
 #define HDMITX_TOP_ADDR_REG	0x0
 #define HDMITX_TOP_DATA_REG	0x4
 #define HDMITX_TOP_CTRL_REG	0x8
+<<<<<<< HEAD
+=======
+#define HDMITX_TOP_G12A_OFFSET	0x8000
+>>>>>>> upstream/android-13
 
 /* Controller Communication Channel */
 #define HDMITX_DWC_ADDR_REG	0x10
@@ -118,6 +151,11 @@
 #define HHI_HDMI_PHY_CNTL1	0x3a4 /* 0xe9 */
 #define HHI_HDMI_PHY_CNTL2	0x3a8 /* 0xea */
 #define HHI_HDMI_PHY_CNTL3	0x3ac /* 0xeb */
+<<<<<<< HEAD
+=======
+#define HHI_HDMI_PHY_CNTL4	0x3b0 /* 0xec */
+#define HHI_HDMI_PHY_CNTL5	0x3b4 /* 0xed */
+>>>>>>> upstream/android-13
 
 static DEFINE_SPINLOCK(reg_lock);
 
@@ -127,12 +165,30 @@ enum meson_venc_source {
 	MESON_VENC_SOURCE_ENCP = 2,
 };
 
+<<<<<<< HEAD
 struct meson_dw_hdmi {
 	struct drm_encoder encoder;
+=======
+struct meson_dw_hdmi;
+
+struct meson_dw_hdmi_data {
+	unsigned int	(*top_read)(struct meson_dw_hdmi *dw_hdmi,
+				    unsigned int addr);
+	void		(*top_write)(struct meson_dw_hdmi *dw_hdmi,
+				     unsigned int addr, unsigned int data);
+	unsigned int	(*dwc_read)(struct meson_dw_hdmi *dw_hdmi,
+				    unsigned int addr);
+	void		(*dwc_write)(struct meson_dw_hdmi *dw_hdmi,
+				     unsigned int addr, unsigned int data);
+};
+
+struct meson_dw_hdmi {
+>>>>>>> upstream/android-13
 	struct dw_hdmi_plat_data dw_plat_data;
 	struct meson_drm *priv;
 	struct device *dev;
 	void __iomem *hdmitx;
+<<<<<<< HEAD
 	struct reset_control *hdmitx_apb;
 	struct reset_control *hdmitx_ctrl;
 	struct reset_control *hdmitx_phy;
@@ -144,6 +200,17 @@ struct meson_dw_hdmi {
 };
 #define encoder_to_meson_dw_hdmi(x) \
 	container_of(x, struct meson_dw_hdmi, encoder)
+=======
+	const struct meson_dw_hdmi_data *data;
+	struct reset_control *hdmitx_apb;
+	struct reset_control *hdmitx_ctrl;
+	struct reset_control *hdmitx_phy;
+	struct regulator *hdmi_supply;
+	u32 irq_stat;
+	struct dw_hdmi *hdmi;
+	struct drm_bridge *bridge;
+};
+>>>>>>> upstream/android-13
 
 static inline int dw_hdmi_is_compatible(struct meson_dw_hdmi *dw_hdmi,
 					const char *compat)
@@ -174,6 +241,15 @@ static unsigned int dw_hdmi_top_read(struct meson_dw_hdmi *dw_hdmi,
 	return data;
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int dw_hdmi_g12a_top_read(struct meson_dw_hdmi *dw_hdmi,
+					  unsigned int addr)
+{
+	return readl(dw_hdmi->hdmitx + HDMITX_TOP_G12A_OFFSET + (addr << 2));
+}
+
+>>>>>>> upstream/android-13
 static inline void dw_hdmi_top_write(struct meson_dw_hdmi *dw_hdmi,
 				     unsigned int addr, unsigned int data)
 {
@@ -191,18 +267,35 @@ static inline void dw_hdmi_top_write(struct meson_dw_hdmi *dw_hdmi,
 	spin_unlock_irqrestore(&reg_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static inline void dw_hdmi_g12a_top_write(struct meson_dw_hdmi *dw_hdmi,
+					  unsigned int addr, unsigned int data)
+{
+	writel(data, dw_hdmi->hdmitx + HDMITX_TOP_G12A_OFFSET + (addr << 2));
+}
+
+>>>>>>> upstream/android-13
 /* Helper to change specific bits in PHY registers */
 static inline void dw_hdmi_top_write_bits(struct meson_dw_hdmi *dw_hdmi,
 					  unsigned int addr,
 					  unsigned int mask,
 					  unsigned int val)
 {
+<<<<<<< HEAD
 	unsigned int data = dw_hdmi_top_read(dw_hdmi, addr);
+=======
+	unsigned int data = dw_hdmi->data->top_read(dw_hdmi, addr);
+>>>>>>> upstream/android-13
 
 	data &= ~mask;
 	data |= val;
 
+<<<<<<< HEAD
 	dw_hdmi_top_write(dw_hdmi, addr, data);
+=======
+	dw_hdmi->data->top_write(dw_hdmi, addr, data);
+>>>>>>> upstream/android-13
 }
 
 static unsigned int dw_hdmi_dwc_read(struct meson_dw_hdmi *dw_hdmi,
@@ -226,6 +319,15 @@ static unsigned int dw_hdmi_dwc_read(struct meson_dw_hdmi *dw_hdmi,
 	return data;
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int dw_hdmi_g12a_dwc_read(struct meson_dw_hdmi *dw_hdmi,
+					  unsigned int addr)
+{
+	return readb(dw_hdmi->hdmitx + addr);
+}
+
+>>>>>>> upstream/android-13
 static inline void dw_hdmi_dwc_write(struct meson_dw_hdmi *dw_hdmi,
 				     unsigned int addr, unsigned int data)
 {
@@ -243,29 +345,57 @@ static inline void dw_hdmi_dwc_write(struct meson_dw_hdmi *dw_hdmi,
 	spin_unlock_irqrestore(&reg_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static inline void dw_hdmi_g12a_dwc_write(struct meson_dw_hdmi *dw_hdmi,
+					  unsigned int addr, unsigned int data)
+{
+	writeb(data, dw_hdmi->hdmitx + addr);
+}
+
+>>>>>>> upstream/android-13
 /* Helper to change specific bits in controller registers */
 static inline void dw_hdmi_dwc_write_bits(struct meson_dw_hdmi *dw_hdmi,
 					  unsigned int addr,
 					  unsigned int mask,
 					  unsigned int val)
 {
+<<<<<<< HEAD
 	unsigned int data = dw_hdmi_dwc_read(dw_hdmi, addr);
+=======
+	unsigned int data = dw_hdmi->data->dwc_read(dw_hdmi, addr);
+>>>>>>> upstream/android-13
 
 	data &= ~mask;
 	data |= val;
 
+<<<<<<< HEAD
 	dw_hdmi_dwc_write(dw_hdmi, addr, data);
+=======
+	dw_hdmi->data->dwc_write(dw_hdmi, addr, data);
+>>>>>>> upstream/android-13
 }
 
 /* Bridge */
 
 /* Setup PHY bandwidth modes */
 static void meson_hdmi_phy_setup_mode(struct meson_dw_hdmi *dw_hdmi,
+<<<<<<< HEAD
 				      struct drm_display_mode *mode)
+=======
+				      const struct drm_display_mode *mode,
+				      bool mode_is_420)
+>>>>>>> upstream/android-13
 {
 	struct meson_drm *priv = dw_hdmi->priv;
 	unsigned int pixel_clock = mode->clock;
 
+<<<<<<< HEAD
+=======
+	/* For 420, pixel clock is half unlike venc clock */
+	if (mode_is_420) pixel_clock /= 2;
+
+>>>>>>> upstream/android-13
 	if (dw_hdmi_is_compatible(dw_hdmi, "amlogic,meson-gxl-dw-hdmi") ||
 	    dw_hdmi_is_compatible(dw_hdmi, "amlogic,meson-gxm-dw-hdmi")) {
 		if (pixel_clock >= 371250) {
@@ -300,6 +430,27 @@ static void meson_hdmi_phy_setup_mode(struct meson_dw_hdmi *dw_hdmi,
 			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL0, 0x33632122);
 			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL3, 0x2000115b);
 		}
+<<<<<<< HEAD
+=======
+	} else if (dw_hdmi_is_compatible(dw_hdmi,
+					 "amlogic,meson-g12a-dw-hdmi")) {
+		if (pixel_clock >= 371250) {
+			/* 5.94Gbps, 3.7125Gbps */
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL0, 0x37eb65c4);
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL5, 0x0000080b);
+		} else if (pixel_clock >= 297000) {
+			/* 2.97Gbps */
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL0, 0x33eb6262);
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL5, 0x00000003);
+		} else {
+			/* 1.485Gbps, and below */
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL0, 0x33eb4242);
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL3, 0x2ab0ff3b);
+			regmap_write(priv->hhi, HHI_HDMI_PHY_CNTL5, 0x00000003);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -318,6 +469,7 @@ static inline void meson_dw_hdmi_phy_reset(struct meson_dw_hdmi *dw_hdmi)
 	mdelay(2);
 }
 
+<<<<<<< HEAD
 static void dw_hdmi_set_vclk(struct meson_dw_hdmi *dw_hdmi,
 			     struct drm_display_mode *mode)
 {
@@ -366,6 +518,26 @@ static int dw_hdmi_phy_init(struct dw_hdmi *hdmi, void *data,
 		readl_relaxed(priv->io_base + _REG(VPU_HDMI_SETTING));
 
 	DRM_DEBUG_DRIVER("%d:\"%s\"\n", mode->base.id, mode->name);
+=======
+static int dw_hdmi_phy_init(struct dw_hdmi *hdmi, void *data,
+			    const struct drm_display_info *display,
+			    const struct drm_display_mode *mode)
+{
+	struct meson_dw_hdmi *dw_hdmi = (struct meson_dw_hdmi *)data;
+	bool is_hdmi2_sink = display->hdmi.scdc.supported;
+	struct meson_drm *priv = dw_hdmi->priv;
+	unsigned int wr_clk =
+		readl_relaxed(priv->io_base + _REG(VPU_HDMI_SETTING));
+	bool mode_is_420 = false;
+
+	DRM_DEBUG_DRIVER("\"%s\" div%d\n", mode->name,
+			 mode->clock > 340000 ? 40 : 10);
+
+	if (drm_mode_is_420_only(display, mode) ||
+	    (!is_hdmi2_sink &&
+	     drm_mode_is_420_also(display, mode)))
+		mode_is_420 = true;
+>>>>>>> upstream/android-13
 
 	/* Enable clocks */
 	regmap_update_bits(priv->hhi, HHI_HDMI_CLK_CNTL, 0xffff, 0x100);
@@ -374,15 +546,25 @@ static int dw_hdmi_phy_init(struct dw_hdmi *hdmi, void *data,
 	regmap_update_bits(priv->hhi, HHI_MEM_PD_REG0, 0xff << 8, 0);
 
 	/* Bring out of reset */
+<<<<<<< HEAD
 	dw_hdmi_top_write(dw_hdmi, HDMITX_TOP_SW_RESET,  0);
+=======
+	dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_SW_RESET,  0);
+>>>>>>> upstream/android-13
 
 	/* Enable internal pixclk, tmds_clk, spdif_clk, i2s_clk, cecclk */
 	dw_hdmi_top_write_bits(dw_hdmi, HDMITX_TOP_CLK_CNTL,
 			       0x3, 0x3);
+<<<<<<< HEAD
+=======
+
+	/* Enable cec_clk and hdcp22_tmdsclk_en */
+>>>>>>> upstream/android-13
 	dw_hdmi_top_write_bits(dw_hdmi, HDMITX_TOP_CLK_CNTL,
 			       0x3 << 4, 0x3 << 4);
 
 	/* Enable normal output to PHY */
+<<<<<<< HEAD
 	dw_hdmi_top_write(dw_hdmi, HDMITX_TOP_BIST_CNTL, BIT(12));
 
 	/* TMDS pattern setup (TOFIX pattern for 4k2k scrambling) */
@@ -396,6 +578,30 @@ static int dw_hdmi_phy_init(struct dw_hdmi *hdmi, void *data,
 
 	/* Setup PHY parameters */
 	meson_hdmi_phy_setup_mode(dw_hdmi, mode);
+=======
+	dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_BIST_CNTL, BIT(12));
+
+	/* TMDS pattern setup */
+	if (mode->clock > 340000 && !mode_is_420) {
+		dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_TMDS_CLK_PTTN_01,
+				  0);
+		dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_TMDS_CLK_PTTN_23,
+				  0x03ff03ff);
+	} else {
+		dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_TMDS_CLK_PTTN_01,
+				  0x001f001f);
+		dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_TMDS_CLK_PTTN_23,
+				  0x001f001f);
+	}
+
+	/* Load TMDS pattern */
+	dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x1);
+	msleep(20);
+	dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_TMDS_CLK_PTTN_CNTL, 0x2);
+
+	/* Setup PHY parameters */
+	meson_hdmi_phy_setup_mode(dw_hdmi, mode, mode_is_420);
+>>>>>>> upstream/android-13
 
 	/* Setup PHY */
 	regmap_update_bits(priv->hhi, HHI_HDMI_PHY_CNTL1,
@@ -403,7 +609,12 @@ static int dw_hdmi_phy_init(struct dw_hdmi *hdmi, void *data,
 
 	/* BIT_INVERT */
 	if (dw_hdmi_is_compatible(dw_hdmi, "amlogic,meson-gxl-dw-hdmi") ||
+<<<<<<< HEAD
 	    dw_hdmi_is_compatible(dw_hdmi, "amlogic,meson-gxm-dw-hdmi"))
+=======
+	    dw_hdmi_is_compatible(dw_hdmi, "amlogic,meson-gxm-dw-hdmi") ||
+	    dw_hdmi_is_compatible(dw_hdmi, "amlogic,meson-g12a-dw-hdmi"))
+>>>>>>> upstream/android-13
 		regmap_update_bits(priv->hhi, HHI_HDMI_PHY_CNTL1,
 				   BIT(17), 0);
 	else
@@ -413,6 +624,11 @@ static int dw_hdmi_phy_init(struct dw_hdmi *hdmi, void *data,
 	/* Disable clock, fifo, fifo_wr */
 	regmap_update_bits(priv->hhi, HHI_HDMI_PHY_CNTL1, 0xf, 0);
 
+<<<<<<< HEAD
+=======
+	dw_hdmi_set_high_tmds_clock_ratio(hdmi, display);
+
+>>>>>>> upstream/android-13
 	msleep(100);
 
 	/* Reset PHY 3 times in a row */
@@ -469,7 +685,11 @@ static enum drm_connector_status dw_hdmi_read_hpd(struct dw_hdmi *hdmi,
 {
 	struct meson_dw_hdmi *dw_hdmi = (struct meson_dw_hdmi *)data;
 
+<<<<<<< HEAD
 	return !!dw_hdmi_top_read(dw_hdmi, HDMITX_TOP_STAT0) ?
+=======
+	return !!dw_hdmi->data->top_read(dw_hdmi, HDMITX_TOP_STAT0) ?
+>>>>>>> upstream/android-13
 		connector_status_connected : connector_status_disconnected;
 }
 
@@ -479,11 +699,19 @@ static void dw_hdmi_setup_hpd(struct dw_hdmi *hdmi,
 	struct meson_dw_hdmi *dw_hdmi = (struct meson_dw_hdmi *)data;
 
 	/* Setup HPD Filter */
+<<<<<<< HEAD
 	dw_hdmi_top_write(dw_hdmi, HDMITX_TOP_HPD_FILTER,
 			  (0xa << 12) | 0xa0);
 
 	/* Clear interrupts */
 	dw_hdmi_top_write(dw_hdmi, HDMITX_TOP_INTR_STAT_CLR,
+=======
+	dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_HPD_FILTER,
+			  (0xa << 12) | 0xa0);
+
+	/* Clear interrupts */
+	dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_INTR_STAT_CLR,
+>>>>>>> upstream/android-13
 			  HDMITX_TOP_INTR_HPD_RISE | HDMITX_TOP_INTR_HPD_FALL);
 
 	/* Unmask interrupts */
@@ -504,8 +732,13 @@ static irqreturn_t dw_hdmi_top_irq(int irq, void *dev_id)
 	struct meson_dw_hdmi *dw_hdmi = dev_id;
 	u32 stat;
 
+<<<<<<< HEAD
 	stat = dw_hdmi_top_read(dw_hdmi, HDMITX_TOP_INTR_STAT);
 	dw_hdmi_top_write(dw_hdmi, HDMITX_TOP_INTR_STAT_CLR, stat);
+=======
+	stat = dw_hdmi->data->top_read(dw_hdmi, HDMITX_TOP_INTR_STAT);
+	dw_hdmi->data->top_write(dw_hdmi, HDMITX_TOP_INTR_STAT_CLR, stat);
+>>>>>>> upstream/android-13
 
 	/* HPD Events, handle in the threaded interrupt handler */
 	if (stat & (HDMITX_TOP_INTR_HPD_RISE | HDMITX_TOP_INTR_HPD_FALL)) {
@@ -538,12 +771,20 @@ static irqreturn_t dw_hdmi_top_thread_irq(int irq, void *dev_id)
 		dw_hdmi_setup_rx_sense(dw_hdmi->hdmi, hpd_connected,
 				       hpd_connected);
 
+<<<<<<< HEAD
 		drm_helper_hpd_irq_event(dw_hdmi->encoder.dev);
+=======
+		drm_helper_hpd_irq_event(dw_hdmi->bridge->dev);
+		drm_bridge_hpd_notify(dw_hdmi->bridge,
+				      hpd_connected ? connector_status_connected
+						    : connector_status_disconnected);
+>>>>>>> upstream/android-13
 	}
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static enum drm_mode_status
 dw_hdmi_mode_valid(struct drm_connector *connector,
 		   const struct drm_display_mode *mode)
@@ -681,12 +922,20 @@ static const struct drm_encoder_helper_funcs
 	.mode_set	= meson_venc_hdmi_encoder_mode_set,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* DW HDMI Regmap */
 
 static int meson_dw_hdmi_reg_read(void *context, unsigned int reg,
 				  unsigned int *result)
 {
+<<<<<<< HEAD
 	*result = dw_hdmi_dwc_read(context, reg);
+=======
+	struct meson_dw_hdmi *dw_hdmi = context;
+
+	*result = dw_hdmi->data->dwc_read(dw_hdmi, reg);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -695,7 +944,13 @@ static int meson_dw_hdmi_reg_read(void *context, unsigned int reg,
 static int meson_dw_hdmi_reg_write(void *context, unsigned int reg,
 				   unsigned int val)
 {
+<<<<<<< HEAD
 	dw_hdmi_dwc_write(context, reg, val);
+=======
+	struct meson_dw_hdmi *dw_hdmi = context;
+
+	dw_hdmi->data->dwc_write(dw_hdmi, reg, val);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -709,6 +964,7 @@ static const struct regmap_config meson_dw_hdmi_regmap_config = {
 	.fast_io = true,
 };
 
+<<<<<<< HEAD
 static bool meson_hdmi_connector_is_available(struct device *dev)
 {
 	struct device_node *ep, *remote;
@@ -729,25 +985,121 @@ static bool meson_hdmi_connector_is_available(struct device *dev)
 	of_node_put(remote);
 
 	return false;
+=======
+static const struct meson_dw_hdmi_data meson_dw_hdmi_gx_data = {
+	.top_read = dw_hdmi_top_read,
+	.top_write = dw_hdmi_top_write,
+	.dwc_read = dw_hdmi_dwc_read,
+	.dwc_write = dw_hdmi_dwc_write,
+};
+
+static const struct meson_dw_hdmi_data meson_dw_hdmi_g12a_data = {
+	.top_read = dw_hdmi_g12a_top_read,
+	.top_write = dw_hdmi_g12a_top_write,
+	.dwc_read = dw_hdmi_g12a_dwc_read,
+	.dwc_write = dw_hdmi_g12a_dwc_write,
+};
+
+static void meson_dw_hdmi_init(struct meson_dw_hdmi *meson_dw_hdmi)
+{
+	struct meson_drm *priv = meson_dw_hdmi->priv;
+
+	/* Enable clocks */
+	regmap_update_bits(priv->hhi, HHI_HDMI_CLK_CNTL, 0xffff, 0x100);
+
+	/* Bring HDMITX MEM output of power down */
+	regmap_update_bits(priv->hhi, HHI_MEM_PD_REG0, 0xff << 8, 0);
+
+	/* Reset HDMITX APB & TX & PHY */
+	reset_control_reset(meson_dw_hdmi->hdmitx_apb);
+	reset_control_reset(meson_dw_hdmi->hdmitx_ctrl);
+	reset_control_reset(meson_dw_hdmi->hdmitx_phy);
+
+	/* Enable APB3 fail on error */
+	if (!meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		writel_bits_relaxed(BIT(15), BIT(15),
+				    meson_dw_hdmi->hdmitx + HDMITX_TOP_CTRL_REG);
+		writel_bits_relaxed(BIT(15), BIT(15),
+				    meson_dw_hdmi->hdmitx + HDMITX_DWC_CTRL_REG);
+	}
+
+	/* Bring out of reset */
+	meson_dw_hdmi->data->top_write(meson_dw_hdmi,
+				       HDMITX_TOP_SW_RESET,  0);
+
+	msleep(20);
+
+	meson_dw_hdmi->data->top_write(meson_dw_hdmi,
+				       HDMITX_TOP_CLK_CNTL, 0xff);
+
+	/* Enable HDMI-TX Interrupt */
+	meson_dw_hdmi->data->top_write(meson_dw_hdmi, HDMITX_TOP_INTR_STAT_CLR,
+				       HDMITX_TOP_INTR_CORE);
+
+	meson_dw_hdmi->data->top_write(meson_dw_hdmi, HDMITX_TOP_INTR_MASKN,
+				       HDMITX_TOP_INTR_CORE);
+
+}
+
+static void meson_disable_regulator(void *data)
+{
+	regulator_disable(data);
+}
+
+static void meson_disable_clk(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+static int meson_enable_clk(struct device *dev, char *name)
+{
+	struct clk *clk;
+	int ret;
+
+	clk = devm_clk_get(dev, name);
+	if (IS_ERR(clk)) {
+		dev_err(dev, "Unable to get %s pclk\n", name);
+		return PTR_ERR(clk);
+	}
+
+	ret = clk_prepare_enable(clk);
+	if (!ret)
+		ret = devm_add_action_or_reset(dev, meson_disable_clk, clk);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 				void *data)
 {
 	struct platform_device *pdev = to_platform_device(dev);
+<<<<<<< HEAD
+=======
+	const struct meson_dw_hdmi_data *match;
+>>>>>>> upstream/android-13
 	struct meson_dw_hdmi *meson_dw_hdmi;
 	struct drm_device *drm = data;
 	struct meson_drm *priv = drm->dev_private;
 	struct dw_hdmi_plat_data *dw_plat_data;
+<<<<<<< HEAD
 	struct drm_encoder *encoder;
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int irq;
 	int ret;
 
 	DRM_DEBUG_DRIVER("\n");
 
+<<<<<<< HEAD
 	if (!meson_hdmi_connector_is_available(dev)) {
 		dev_info(drm->dev, "HDMI Output connector not available\n");
+=======
+	match = of_device_get_match_data(&pdev->dev);
+	if (!match) {
+		dev_err(&pdev->dev, "failed to get match data\n");
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -758,8 +1110,13 @@ static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 
 	meson_dw_hdmi->priv = priv;
 	meson_dw_hdmi->dev = dev;
+<<<<<<< HEAD
 	dw_plat_data = &meson_dw_hdmi->dw_plat_data;
 	encoder = &meson_dw_hdmi->encoder;
+=======
+	meson_dw_hdmi->data = match;
+	dw_plat_data = &meson_dw_hdmi->dw_plat_data;
+>>>>>>> upstream/android-13
 
 	meson_dw_hdmi->hdmi_supply = devm_regulator_get_optional(dev, "hdmi");
 	if (IS_ERR(meson_dw_hdmi->hdmi_supply)) {
@@ -770,6 +1127,13 @@ static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 		ret = regulator_enable(meson_dw_hdmi->hdmi_supply);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
+=======
+		ret = devm_add_action_or_reset(dev, meson_disable_regulator,
+					       meson_dw_hdmi->hdmi_supply);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	meson_dw_hdmi->hdmitx_apb = devm_reset_control_get_exclusive(dev,
@@ -793,6 +1157,7 @@ static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 		return PTR_ERR(meson_dw_hdmi->hdmitx_phy);
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	meson_dw_hdmi->hdmitx = devm_ioremap_resource(dev, res);
 	if (IS_ERR(meson_dw_hdmi->hdmitx))
@@ -811,6 +1176,23 @@ static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 		return PTR_ERR(meson_dw_hdmi->venci_clk);
 	}
 	clk_prepare_enable(meson_dw_hdmi->venci_clk);
+=======
+	meson_dw_hdmi->hdmitx = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(meson_dw_hdmi->hdmitx))
+		return PTR_ERR(meson_dw_hdmi->hdmitx);
+
+	ret = meson_enable_clk(dev, "isfr");
+	if (ret)
+		return ret;
+
+	ret = meson_enable_clk(dev, "iahb");
+	if (ret)
+		return ret;
+
+	ret = meson_enable_clk(dev, "venci");
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	dw_plat_data->regm = devm_regmap_init(dev, NULL, meson_dw_hdmi,
 					      &meson_dw_hdmi_regmap_config);
@@ -818,10 +1200,15 @@ static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 		return PTR_ERR(dw_plat_data->regm);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "Failed to get hdmi top irq\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = devm_request_threaded_irq(dev, irq, dw_hdmi_top_irq,
 					dw_hdmi_top_thread_irq, IRQF_SHARED,
@@ -831,6 +1218,7 @@ static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* Encoder */
 
 	drm_encoder_helper_add(encoder, &meson_venc_hdmi_encoder_helper_funcs);
@@ -893,6 +1281,33 @@ static int meson_dw_hdmi_bind(struct device *dev, struct device *master,
 	if (IS_ERR(meson_dw_hdmi->hdmi))
 		return PTR_ERR(meson_dw_hdmi->hdmi);
 
+=======
+	meson_dw_hdmi_init(meson_dw_hdmi);
+
+	/* Bridge / Connector */
+
+	dw_plat_data->priv_data = meson_dw_hdmi;
+	dw_plat_data->phy_ops = &meson_dw_hdmi_phy_ops;
+	dw_plat_data->phy_name = "meson_dw_hdmi_phy";
+	dw_plat_data->phy_data = meson_dw_hdmi;
+	dw_plat_data->input_bus_encoding = V4L2_YCBCR_ENC_709;
+	dw_plat_data->ycbcr_420_allowed = true;
+	dw_plat_data->disable_cec = true;
+
+	if (dw_hdmi_is_compatible(meson_dw_hdmi, "amlogic,meson-gxl-dw-hdmi") ||
+	    dw_hdmi_is_compatible(meson_dw_hdmi, "amlogic,meson-gxm-dw-hdmi") ||
+	    dw_hdmi_is_compatible(meson_dw_hdmi, "amlogic,meson-g12a-dw-hdmi"))
+		dw_plat_data->use_drm_infoframe = true;
+
+	platform_set_drvdata(pdev, meson_dw_hdmi);
+
+	meson_dw_hdmi->hdmi = dw_hdmi_probe(pdev, &meson_dw_hdmi->dw_plat_data);
+	if (IS_ERR(meson_dw_hdmi->hdmi))
+		return PTR_ERR(meson_dw_hdmi->hdmi);
+
+	meson_dw_hdmi->bridge = of_drm_find_bridge(pdev->dev.of_node);
+
+>>>>>>> upstream/android-13
 	DRM_DEBUG_DRIVER("HDMI controller initialized\n");
 
 	return 0;
@@ -911,6 +1326,37 @@ static const struct component_ops meson_dw_hdmi_ops = {
 	.unbind	= meson_dw_hdmi_unbind,
 };
 
+<<<<<<< HEAD
+=======
+static int __maybe_unused meson_dw_hdmi_pm_suspend(struct device *dev)
+{
+	struct meson_dw_hdmi *meson_dw_hdmi = dev_get_drvdata(dev);
+
+	if (!meson_dw_hdmi)
+		return 0;
+
+	/* Reset TOP */
+	meson_dw_hdmi->data->top_write(meson_dw_hdmi,
+				       HDMITX_TOP_SW_RESET, 0);
+
+	return 0;
+}
+
+static int __maybe_unused meson_dw_hdmi_pm_resume(struct device *dev)
+{
+	struct meson_dw_hdmi *meson_dw_hdmi = dev_get_drvdata(dev);
+
+	if (!meson_dw_hdmi)
+		return 0;
+
+	meson_dw_hdmi_init(meson_dw_hdmi);
+
+	dw_hdmi_resume(meson_dw_hdmi->hdmi);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int meson_dw_hdmi_probe(struct platform_device *pdev)
 {
 	return component_add(&pdev->dev, &meson_dw_hdmi_ops);
@@ -923,10 +1369,27 @@ static int meson_dw_hdmi_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id meson_dw_hdmi_of_table[] = {
 	{ .compatible = "amlogic,meson-gxbb-dw-hdmi" },
 	{ .compatible = "amlogic,meson-gxl-dw-hdmi" },
 	{ .compatible = "amlogic,meson-gxm-dw-hdmi" },
+=======
+static const struct dev_pm_ops meson_dw_hdmi_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(meson_dw_hdmi_pm_suspend,
+				meson_dw_hdmi_pm_resume)
+};
+
+static const struct of_device_id meson_dw_hdmi_of_table[] = {
+	{ .compatible = "amlogic,meson-gxbb-dw-hdmi",
+	  .data = &meson_dw_hdmi_gx_data },
+	{ .compatible = "amlogic,meson-gxl-dw-hdmi",
+	  .data = &meson_dw_hdmi_gx_data },
+	{ .compatible = "amlogic,meson-gxm-dw-hdmi",
+	  .data = &meson_dw_hdmi_gx_data },
+	{ .compatible = "amlogic,meson-g12a-dw-hdmi",
+	  .data = &meson_dw_hdmi_g12a_data },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, meson_dw_hdmi_of_table);
@@ -937,6 +1400,10 @@ static struct platform_driver meson_dw_hdmi_platform_driver = {
 	.driver		= {
 		.name		= DRIVER_NAME,
 		.of_match_table	= meson_dw_hdmi_of_table,
+<<<<<<< HEAD
+=======
+		.pm = &meson_dw_hdmi_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(meson_dw_hdmi_platform_driver);

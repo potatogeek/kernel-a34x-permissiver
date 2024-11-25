@@ -41,6 +41,10 @@
 #include <linux/delay.h>
 #include <linux/mutex.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/bitops.h>
+>>>>>>> upstream/android-13
 
 #include <linux/dvb/frontend.h>
 
@@ -141,10 +145,17 @@ struct analog_parameters {
  *	These devices have AUTO recovery capabilities from LOCK failure
  */
 enum dvbfe_algo {
+<<<<<<< HEAD
 	DVBFE_ALGO_HW			= (1 <<  0),
 	DVBFE_ALGO_SW			= (1 <<  1),
 	DVBFE_ALGO_CUSTOM		= (1 <<  2),
 	DVBFE_ALGO_RECOVERY		= (1 << 31)
+=======
+	DVBFE_ALGO_HW			= BIT(0),
+	DVBFE_ALGO_SW			= BIT(1),
+	DVBFE_ALGO_CUSTOM		= BIT(2),
+	DVBFE_ALGO_RECOVERY		= BIT(31),
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -160,7 +171,11 @@ enum dvbfe_algo {
  *	The frontend search for a signal failed
  *
  * @DVBFE_ALGO_SEARCH_INVALID:
+<<<<<<< HEAD
  *	The frontend search algorith was probably supplied with invalid
+=======
+ *	The frontend search algorithm was probably supplied with invalid
+>>>>>>> upstream/android-13
  *	parameters and the search is an invalid one
  *
  * @DVBFE_ALGO_SEARCH_ERROR:
@@ -170,12 +185,21 @@ enum dvbfe_algo {
  *	The frontend search algorithm was requested to search again
  */
 enum dvbfe_search {
+<<<<<<< HEAD
 	DVBFE_ALGO_SEARCH_SUCCESS	= (1 <<  0),
 	DVBFE_ALGO_SEARCH_ASLEEP	= (1 <<  1),
 	DVBFE_ALGO_SEARCH_FAILED	= (1 <<  2),
 	DVBFE_ALGO_SEARCH_INVALID	= (1 <<  3),
 	DVBFE_ALGO_SEARCH_AGAIN		= (1 <<  4),
 	DVBFE_ALGO_SEARCH_ERROR		= (1 << 31),
+=======
+	DVBFE_ALGO_SEARCH_SUCCESS	= BIT(0),
+	DVBFE_ALGO_SEARCH_ASLEEP	= BIT(1),
+	DVBFE_ALGO_SEARCH_FAILED	= BIT(2),
+	DVBFE_ALGO_SEARCH_INVALID	= BIT(3),
+	DVBFE_ALGO_SEARCH_AGAIN		= BIT(4),
+	DVBFE_ALGO_SEARCH_ERROR		= BIT(31),
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -204,7 +228,11 @@ enum dvbfe_search {
  * @set_config:		callback function used to send some tuner-specific
  *			parameters.
  * @get_frequency:	get the actual tuned frequency
+<<<<<<< HEAD
  * @get_bandwidth:	get the bandwitdh used by the low pass filters
+=======
+ * @get_bandwidth:	get the bandwidth used by the low pass filters
+>>>>>>> upstream/android-13
  * @get_if_frequency:	get the Intermediate Frequency, in Hz. For baseband,
  *			should return 0.
  * @get_status:		returns the frontend lock status
@@ -232,7 +260,11 @@ struct dvb_tuner_ops {
 	int (*suspend)(struct dvb_frontend *fe);
 	int (*resume)(struct dvb_frontend *fe);
 
+<<<<<<< HEAD
 	/* This is the recomended way to set the tuner */
+=======
+	/* This is the recommended way to set the tuner */
+>>>>>>> upstream/android-13
 	int (*set_params)(struct dvb_frontend *fe);
 	int (*set_analog_params)(struct dvb_frontend *fe, struct analog_parameters *p);
 
@@ -358,7 +390,11 @@ struct dvb_frontend_internal_info {
  * @release:		callback function called when frontend is ready to be
  *			freed.
  *			drivers should free any allocated memory.
+<<<<<<< HEAD
  * @release_sec:	callback function requesting that the Satelite Equipment
+=======
+ * @release_sec:	callback function requesting that the Satellite Equipment
+>>>>>>> upstream/android-13
  *			Control (SEC) driver to release and free any memory
  *			allocated by the driver.
  * @init:		callback function used to initialize the tuner device.

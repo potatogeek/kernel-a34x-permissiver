@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Zoran 364xx based USB webcam module version 0.73
  *
  * Allows you to use your USB webcam with V4L2 applications
+<<<<<<< HEAD
  * This is still in heavy developpement !
+=======
+ * This is still in heavy development !
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2004  Antoine Jacquet <royale@zerezo.com>
  * http://royale.zerezo.com/zr364xx/
@@ -11,6 +19,7 @@
  * V4L2 version inspired by meye.c driver
  *
  * Some video buffer code by Lamarque based on s2255drv.c and vivi.c drivers.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +30,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -29,7 +40,10 @@
 #include <linux/usb.h>
 #include <linux/vmalloc.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/proc_fs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <media/v4l2-common.h>
 #include <media/v4l2-ioctl.h>
@@ -150,7 +164,10 @@ struct zr364xx_pipeinfo {
 };
 
 struct zr364xx_fmt {
+<<<<<<< HEAD
 	char *name;
+=======
+>>>>>>> upstream/android-13
 	u32 fourcc;
 	int depth;
 };
@@ -158,7 +175,10 @@ struct zr364xx_fmt {
 /* image formats.  */
 static const struct zr364xx_fmt formats[] = {
 	{
+<<<<<<< HEAD
 		.name = "JPG",
+=======
+>>>>>>> upstream/android-13
 		.fourcc = V4L2_PIX_FMT_JPEG,
 		.depth = 24
 	}
@@ -208,12 +228,19 @@ static int send_control_msg(struct usb_device *udev, u8 request, u16 value,
 {
 	int status;
 
+<<<<<<< HEAD
 	unsigned char *transfer_buffer = kmalloc(size, GFP_KERNEL);
 	if (!transfer_buffer)
 		return -ENOMEM;
 
 	memcpy(transfer_buffer, cp, size);
 
+=======
+	unsigned char *transfer_buffer = kmemdup(cp, size, GFP_KERNEL);
+	if (!transfer_buffer)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	status = usb_control_msg(udev,
 				 usb_sndctrlpipe(udev, 0),
 				 request,
@@ -371,8 +398,11 @@ static void free_buffer(struct videobuf_queue *vq, struct zr364xx_buffer *buf)
 {
 	_DBG("%s\n", __func__);
 
+<<<<<<< HEAD
 	BUG_ON(in_interrupt());
 
+=======
+>>>>>>> upstream/android-13
 	videobuf_vmalloc_free(&buf->vb);
 	buf->vb.state = VIDEOBUF_NEEDS_INIT;
 }
@@ -385,8 +415,12 @@ static int buffer_prepare(struct videobuf_queue *vq, struct videobuf_buffer *vb,
 						  vb);
 	int rc;
 
+<<<<<<< HEAD
 	DBG("%s, field=%d, fmt name = %s\n", __func__, field,
 	    cam->fmt ? cam->fmt->name : "");
+=======
+	DBG("%s, field=%d\n", __func__, field);
+>>>>>>> upstream/android-13
 	if (!cam->fmt)
 		return -EINVAL;
 
@@ -521,7 +555,11 @@ static void zr364xx_fillbuff(struct zr364xx_camera *cam,
 	/* tell v4l buffer was filled */
 
 	buf->vb.field_count = cam->frame_count * 2;
+<<<<<<< HEAD
 	v4l2_get_timestamp(&buf->vb.ts);
+=======
+	buf->vb.ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 	buf->vb.state = VIDEOBUF_DONE;
 }
 
@@ -549,7 +587,11 @@ static int zr364xx_got_frame(struct zr364xx_camera *cam, int jpgsize)
 		goto unlock;
 	}
 	list_del(&buf->vb.queue);
+<<<<<<< HEAD
 	v4l2_get_timestamp(&buf->vb.ts);
+=======
+	buf->vb.ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 	DBG("[%p/%d] wakeup\n", buf, buf->vb.i);
 	zr364xx_fillbuff(cam, buf, jpgsize);
 	wake_up(&buf->vb.done);
@@ -570,14 +612,22 @@ static int zr364xx_read_video_callback(struct zr364xx_camera *cam,
 {
 	unsigned char *pdest;
 	unsigned char *psrc;
+<<<<<<< HEAD
 	s32 idx = -1;
 	struct zr364xx_framei *frm;
+=======
+	s32 idx = cam->cur_frame;
+	struct zr364xx_framei *frm = &cam->buffer.frame[idx];
+>>>>>>> upstream/android-13
 	int i = 0;
 	unsigned char *ptr = NULL;
 
 	_DBG("buffer to user\n");
+<<<<<<< HEAD
 	idx = cam->cur_frame;
 	frm = &cam->buffer.frame[idx];
+=======
+>>>>>>> upstream/android-13
 
 	/* swap bytes if camera needs it */
 	if (cam->method == METHOD0) {
@@ -702,6 +752,7 @@ static int zr364xx_vidioc_querycap(struct file *file, void *priv,
 {
 	struct zr364xx_camera *cam = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, DRIVER_DESC, sizeof(cap->driver));
 	if (cam->udev->product)
 		strlcpy(cap->card, cam->udev->product, sizeof(cap->card));
@@ -712,6 +763,13 @@ static int zr364xx_vidioc_querycap(struct file *file, void *priv,
 			    V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->driver, DRIVER_DESC, sizeof(cap->driver));
+	if (cam->udev->product)
+		strscpy(cap->card, cam->udev->product, sizeof(cap->card));
+	strscpy(cap->bus_info, dev_name(&cam->udev->dev),
+		sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -720,7 +778,11 @@ static int zr364xx_vidioc_enum_input(struct file *file, void *priv,
 {
 	if (i->index != 0)
 		return -EINVAL;
+<<<<<<< HEAD
 	strcpy(i->name, DRIVER_DESC " Camera");
+=======
+	strscpy(i->name, DRIVER_DESC " Camera", sizeof(i->name));
+>>>>>>> upstream/android-13
 	i->type = V4L2_INPUT_TYPE_CAMERA;
 	return 0;
 }
@@ -765,8 +827,11 @@ static int zr364xx_vidioc_enum_fmt_vid_cap(struct file *file,
 {
 	if (f->index > 0)
 		return -EINVAL;
+<<<<<<< HEAD
 	f->flags = V4L2_FMT_FLAG_COMPRESSED;
 	strcpy(f->description, formats[0].name);
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[0].fourcc;
 	return 0;
 }
@@ -1058,6 +1123,10 @@ static int zr364xx_start_readpipe(struct zr364xx_camera *cam)
 	DBG("submitting URB %p\n", pipe_info->stream_urb);
 	retval = usb_submit_urb(pipe_info->stream_urb, GFP_KERNEL);
 	if (retval) {
+<<<<<<< HEAD
+=======
+		usb_free_urb(pipe_info->stream_urb);
+>>>>>>> upstream/android-13
 		printk(KERN_ERR KBUILD_MODNAME ": start read pipe failed\n");
 		return retval;
 	}
@@ -1207,6 +1276,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static void zr364xx_release(struct v4l2_device *v4l2_dev)
 {
 	struct zr364xx_camera *cam =
@@ -1216,6 +1286,13 @@ static void zr364xx_release(struct v4l2_device *v4l2_dev)
 	v4l2_device_unregister(&cam->v4l2_dev);
 
 	videobuf_mmap_free(&cam->vb_vidq);
+=======
+static void zr364xx_board_uninit(struct zr364xx_camera *cam)
+{
+	unsigned long i;
+
+	zr364xx_stop_readpipe(cam);
+>>>>>>> upstream/android-13
 
 	/* release sys buffers */
 	for (i = 0; i < FRAMES; i++) {
@@ -1226,9 +1303,25 @@ static void zr364xx_release(struct v4l2_device *v4l2_dev)
 		cam->buffer.frame[i].lpvbits = NULL;
 	}
 
+<<<<<<< HEAD
 	v4l2_ctrl_handler_free(&cam->ctrl_handler);
 	/* release transfer buffer */
 	kfree(cam->pipe->transfer_buffer);
+=======
+	/* release transfer buffer */
+	kfree(cam->pipe->transfer_buffer);
+}
+
+static void zr364xx_release(struct v4l2_device *v4l2_dev)
+{
+	struct zr364xx_camera *cam =
+		container_of(v4l2_dev, struct zr364xx_camera, v4l2_dev);
+
+	videobuf_mmap_free(&cam->vb_vidq);
+	v4l2_ctrl_handler_free(&cam->ctrl_handler);
+	zr364xx_board_uninit(cam);
+	v4l2_device_unregister(&cam->v4l2_dev);
+>>>>>>> upstream/android-13
 	kfree(cam);
 }
 
@@ -1338,6 +1431,11 @@ static const struct video_device zr364xx_template = {
 	.fops = &zr364xx_fops,
 	.ioctl_ops = &zr364xx_ioctl_ops,
 	.release = video_device_release_empty,
+<<<<<<< HEAD
+=======
+	.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+		       V4L2_CAP_STREAMING,
+>>>>>>> upstream/android-13
 };
 
 
@@ -1349,6 +1447,10 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
 {
 	struct zr364xx_pipeinfo *pipe = cam->pipe;
 	unsigned long i;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	DBG("board init: %p\n", cam);
 	memset(pipe, 0, sizeof(*pipe));
@@ -1381,9 +1483,14 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
 
 	if (i == 0) {
 		printk(KERN_INFO KBUILD_MODNAME ": out of memory. Aborting\n");
+<<<<<<< HEAD
 		kfree(cam->pipe->transfer_buffer);
 		cam->pipe->transfer_buffer = NULL;
 		return -ENOMEM;
+=======
+		err = -ENOMEM;
+		goto err_free;
+>>>>>>> upstream/android-13
 	} else
 		cam->buffer.dwFrames = i;
 
@@ -1398,9 +1505,26 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
 	/*** end create system buffers ***/
 
 	/* start read pipe */
+<<<<<<< HEAD
 	zr364xx_start_readpipe(cam);
 	DBG(": board initialized\n");
 	return 0;
+=======
+	err = zr364xx_start_readpipe(cam);
+	if (err)
+		goto err_free_frames;
+
+	DBG(": board initialized\n");
+	return 0;
+
+err_free_frames:
+	for (i = 0; i < FRAMES; i++)
+		vfree(cam->buffer.frame[i].lpvbits);
+err_free:
+	kfree(cam->pipe->transfer_buffer);
+	cam->pipe->transfer_buffer = NULL;
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int zr364xx_probe(struct usb_interface *intf,
@@ -1425,12 +1549,19 @@ static int zr364xx_probe(struct usb_interface *intf,
 	if (!cam)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	cam->v4l2_dev.release = zr364xx_release;
 	err = v4l2_device_register(&intf->dev, &cam->v4l2_dev);
 	if (err < 0) {
 		dev_err(&udev->dev, "couldn't register v4l2_device\n");
 		kfree(cam);
 		return err;
+=======
+	err = v4l2_device_register(&intf->dev, &cam->v4l2_dev);
+	if (err < 0) {
+		dev_err(&udev->dev, "couldn't register v4l2_device\n");
+		goto free_cam;
+>>>>>>> upstream/android-13
 	}
 	hdl = &cam->ctrl_handler;
 	v4l2_ctrl_handler_init(hdl, 1);
@@ -1439,7 +1570,11 @@ static int zr364xx_probe(struct usb_interface *intf,
 	if (hdl->error) {
 		err = hdl->error;
 		dev_err(&udev->dev, "couldn't register control\n");
+<<<<<<< HEAD
 		goto fail;
+=======
+		goto free_hdlr_and_unreg_dev;
+>>>>>>> upstream/android-13
 	}
 	/* save the init method used by this camera */
 	cam->method = id->driver_info;
@@ -1512,7 +1647,11 @@ static int zr364xx_probe(struct usb_interface *intf,
 	if (!cam->read_endpoint) {
 		err = -ENOMEM;
 		dev_err(&intf->dev, "Could not find bulk-in endpoint\n");
+<<<<<<< HEAD
 		goto fail;
+=======
+		goto free_hdlr_and_unreg_dev;
+>>>>>>> upstream/android-13
 	}
 
 	/* v4l */
@@ -1523,10 +1662,18 @@ static int zr364xx_probe(struct usb_interface *intf,
 
 	/* load zr364xx board specific */
 	err = zr364xx_board_init(cam);
+<<<<<<< HEAD
 	if (!err)
 		err = v4l2_ctrl_handler_setup(hdl);
 	if (err)
 		goto fail;
+=======
+	if (err)
+		goto free_hdlr_and_unreg_dev;
+	err = v4l2_ctrl_handler_setup(hdl);
+	if (err)
+		goto board_uninit;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&cam->slock);
 
@@ -1538,19 +1685,37 @@ static int zr364xx_probe(struct usb_interface *intf,
 				    V4L2_FIELD_NONE,
 				    sizeof(struct zr364xx_buffer), cam, &cam->lock);
 
+<<<<<<< HEAD
 	err = video_register_device(&cam->vdev, VFL_TYPE_GRABBER, -1);
 	if (err) {
 		dev_err(&udev->dev, "video_register_device failed\n");
 		goto fail;
 	}
+=======
+	err = video_register_device(&cam->vdev, VFL_TYPE_VIDEO, -1);
+	if (err) {
+		dev_err(&udev->dev, "video_register_device failed\n");
+		goto board_uninit;
+	}
+	cam->v4l2_dev.release = zr364xx_release;
+>>>>>>> upstream/android-13
 
 	dev_info(&udev->dev, DRIVER_DESC " controlling device %s\n",
 		 video_device_node_name(&cam->vdev));
 	return 0;
 
+<<<<<<< HEAD
 fail:
 	v4l2_ctrl_handler_free(hdl);
 	v4l2_device_unregister(&cam->v4l2_dev);
+=======
+board_uninit:
+	zr364xx_board_uninit(cam);
+free_hdlr_and_unreg_dev:
+	v4l2_ctrl_handler_free(hdl);
+	v4l2_device_unregister(&cam->v4l2_dev);
+free_cam:
+>>>>>>> upstream/android-13
 	kfree(cam);
 	return err;
 }
@@ -1597,10 +1762,26 @@ static int zr364xx_resume(struct usb_interface *intf)
 	if (!cam->was_streaming)
 		return 0;
 
+<<<<<<< HEAD
 	zr364xx_start_readpipe(cam);
 	res = zr364xx_prepare(cam);
 	if (!res)
 		zr364xx_start_acquire(cam);
+=======
+	res = zr364xx_start_readpipe(cam);
+	if (res)
+		return res;
+
+	res = zr364xx_prepare(cam);
+	if (res)
+		goto err_prepare;
+
+	zr364xx_start_acquire(cam);
+	return 0;
+
+err_prepare:
+	zr364xx_stop_readpipe(cam);
+>>>>>>> upstream/android-13
 	return res;
 }
 #endif

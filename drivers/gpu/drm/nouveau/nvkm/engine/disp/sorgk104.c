@@ -43,6 +43,10 @@ gk104_sor = {
 	.hda = {
 		.hpd = gf119_hda_hpd,
 		.eld = gf119_hda_eld,
+<<<<<<< HEAD
+=======
+		.device_entry = gf119_hda_device_entry,
+>>>>>>> upstream/android-13
 	},
 };
 

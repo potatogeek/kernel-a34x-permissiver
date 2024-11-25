@@ -7,14 +7,18 @@
  * Author: Chunfeng Yun <chunfeng.yun@mediatek.com>
  */
 
+<<<<<<< HEAD
 #include <linux/usb/role.h>
 #include <linux/of_platform.h>
 #include <linux/iopoll.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "mtu3.h"
 #include "mtu3_dr.h"
 #include "mtu3_debug.h"
 
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_MT6779)
 #include <linux/soc/mediatek/mtk-pm-qos.h>
 #endif
@@ -48,14 +52,27 @@ static char *mailbox_state_string(enum mtu3_vbus_id_state state)
 	default:
 		return "UNKNOWN";
 	}
+=======
+#define USB2_PORT 2
+#define USB3_PORT 3
+
+static inline struct ssusb_mtk *otg_sx_to_ssusb(struct otg_switch_mtk *otg_sx)
+{
+	return container_of(otg_sx, struct ssusb_mtk, otg_switch);
+>>>>>>> upstream/android-13
 }
 
 static void toggle_opstate(struct ssusb_mtk *ssusb)
 {
+<<<<<<< HEAD
 	if (!ssusb->otg_switch.is_u3_drd) {
 		mtu3_setbits(ssusb->mac_base, U3D_DEVICE_CONTROL, DC_SESSION);
 		mtu3_setbits(ssusb->mac_base, U3D_POWER_MANAGEMENT, SOFT_CONN);
 	}
+=======
+	mtu3_setbits(ssusb->mac_base, U3D_DEVICE_CONTROL, DC_SESSION);
+	mtu3_setbits(ssusb->mac_base, U3D_POWER_MANAGEMENT, SOFT_CONN);
+>>>>>>> upstream/android-13
 }
 
 /* only port0 supports dual-role mode */
@@ -134,8 +151,12 @@ static void switch_port_to_device(struct ssusb_mtk *ssusb)
 
 int ssusb_set_vbus(struct otg_switch_mtk *otg_sx, int is_on)
 {
+<<<<<<< HEAD
 	struct ssusb_mtk *ssusb =
 		container_of(otg_sx, struct ssusb_mtk, otg_switch);
+=======
+	struct ssusb_mtk *ssusb = otg_sx_to_ssusb(otg_sx);
+>>>>>>> upstream/android-13
 	struct regulator *vbus = otg_sx->vbus;
 	int ret;
 
@@ -158,6 +179,7 @@ int ssusb_set_vbus(struct otg_switch_mtk *otg_sx, int is_on)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ssusb_gadget_disconnect(struct mtu3 *mtu)
 {
 	/* notify gadget driver */
@@ -250,12 +272,73 @@ static void ssusb_vbus_work(struct work_struct *work)
  * @ssusb_id_notifier is called in atomic context, but @ssusb_set_mailbox
  * may sleep, so use work queue here
  */
+=======
+static void ssusb_mode_sw_work(struct work_struct *work)
+{
+	struct otg_switch_mtk *otg_sx =
+		container_of(work, struct otg_switch_mtk, dr_work);
+	struct ssusb_mtk *ssusb = otg_sx_to_ssusb(otg_sx);
+	struct mtu3 *mtu = ssusb->u3d;
+	enum usb_role desired_role = otg_sx->desired_role;
+	enum usb_role current_role;
+
+	current_role = ssusb->is_host ? USB_ROLE_HOST : USB_ROLE_DEVICE;
+
+	if (desired_role == USB_ROLE_NONE) {
+		/* the default mode is host as probe does */
+		desired_role = USB_ROLE_HOST;
+		if (otg_sx->default_role == USB_ROLE_DEVICE)
+			desired_role = USB_ROLE_DEVICE;
+	}
+
+	if (current_role == desired_role)
+		return;
+
+	dev_dbg(ssusb->dev, "set role : %s\n", usb_role_string(desired_role));
+	mtu3_dbg_trace(ssusb->dev, "set role : %s", usb_role_string(desired_role));
+	pm_runtime_get_sync(ssusb->dev);
+
+	switch (desired_role) {
+	case USB_ROLE_HOST:
+		ssusb_set_force_mode(ssusb, MTU3_DR_FORCE_HOST);
+		mtu3_stop(mtu);
+		switch_port_to_host(ssusb);
+		ssusb_set_vbus(otg_sx, 1);
+		ssusb->is_host = true;
+		break;
+	case USB_ROLE_DEVICE:
+		ssusb_set_force_mode(ssusb, MTU3_DR_FORCE_DEVICE);
+		ssusb->is_host = false;
+		ssusb_set_vbus(otg_sx, 0);
+		switch_port_to_device(ssusb);
+		mtu3_start(mtu);
+		break;
+	case USB_ROLE_NONE:
+	default:
+		dev_err(ssusb->dev, "invalid role\n");
+	}
+	pm_runtime_put(ssusb->dev);
+}
+
+static void ssusb_set_mode(struct otg_switch_mtk *otg_sx, enum usb_role role)
+{
+	struct ssusb_mtk *ssusb = otg_sx_to_ssusb(otg_sx);
+
+	if (ssusb->dr_mode != USB_DR_MODE_OTG)
+		return;
+
+	otg_sx->desired_role = role;
+	queue_work(system_freezable_wq, &otg_sx->dr_work);
+}
+
+>>>>>>> upstream/android-13
 static int ssusb_id_notifier(struct notifier_block *nb,
 	unsigned long event, void *ptr)
 {
 	struct otg_switch_mtk *otg_sx =
 		container_of(nb, struct otg_switch_mtk, id_nb);
 
+<<<<<<< HEAD
 	otg_sx->id_event = event;
 	schedule_work(&otg_sx->id_work);
 
@@ -270,14 +353,21 @@ static int ssusb_vbus_notifier(struct notifier_block *nb,
 
 	otg_sx->vbus_event = event;
 	schedule_work(&otg_sx->vbus_work);
+=======
+	ssusb_set_mode(otg_sx, event ? USB_ROLE_HOST : USB_ROLE_DEVICE);
+>>>>>>> upstream/android-13
 
 	return NOTIFY_DONE;
 }
 
 static int ssusb_extcon_register(struct otg_switch_mtk *otg_sx)
 {
+<<<<<<< HEAD
 	struct ssusb_mtk *ssusb =
 		container_of(otg_sx, struct ssusb_mtk, otg_switch);
+=======
+	struct ssusb_mtk *ssusb = otg_sx_to_ssusb(otg_sx);
+>>>>>>> upstream/android-13
 	struct extcon_dev *edev = otg_sx->edev;
 	int ret;
 
@@ -285,6 +375,7 @@ static int ssusb_extcon_register(struct otg_switch_mtk *otg_sx)
 	if (!edev)
 		return 0;
 
+<<<<<<< HEAD
 	otg_sx->vbus_nb.notifier_call = ssusb_vbus_notifier;
 	ret = devm_extcon_register_notifier(ssusb->dev, edev, EXTCON_USB,
 					&otg_sx->vbus_nb);
@@ -293,6 +384,8 @@ static int ssusb_extcon_register(struct otg_switch_mtk *otg_sx)
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	otg_sx->id_nb.notifier_call = ssusb_id_notifier;
 	ret = devm_extcon_register_notifier(ssusb->dev, edev, EXTCON_USB_HOST,
 					&otg_sx->id_nb);
@@ -301,6 +394,7 @@ static int ssusb_extcon_register(struct otg_switch_mtk *otg_sx)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(ssusb->dev, "EXTCON_USB: %d, EXTCON_USB_HOST: %d\n",
 		extcon_get_state(edev, EXTCON_USB),
 		extcon_get_state(edev, EXTCON_USB_HOST));
@@ -310,6 +404,14 @@ static int ssusb_extcon_register(struct otg_switch_mtk *otg_sx)
 		ssusb_set_mailbox(otg_sx, MTU3_ID_FLOAT);
 	if (extcon_get_state(edev, EXTCON_USB) == true)
 		ssusb_set_mailbox(otg_sx, MTU3_VBUS_VALID);
+=======
+	ret = extcon_get_state(edev, EXTCON_USB_HOST);
+	dev_dbg(ssusb->dev, "EXTCON_USB_HOST: %d\n", ret);
+
+	/* default as host, switch to device mode if needed */
+	if (!ret)
+		ssusb_set_mode(otg_sx, USB_ROLE_DEVICE);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -324,6 +426,7 @@ void ssusb_mode_switch(struct ssusb_mtk *ssusb, int to_host)
 {
 	struct otg_switch_mtk *otg_sx = &ssusb->otg_switch;
 
+<<<<<<< HEAD
 	if (to_host) {
 		ssusb_set_force_mode(ssusb, MTU3_DR_FORCE_HOST);
 		ssusb_set_mailbox(otg_sx, MTU3_VBUS_OFF);
@@ -333,6 +436,9 @@ void ssusb_mode_switch(struct ssusb_mtk *ssusb, int to_host)
 		ssusb_set_mailbox(otg_sx, MTU3_ID_FLOAT);
 		ssusb_set_mailbox(otg_sx, MTU3_VBUS_VALID);
 	}
+=======
+	ssusb_set_mode(otg_sx, to_host ? USB_ROLE_HOST : USB_ROLE_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 void ssusb_set_force_mode(struct ssusb_mtk *ssusb,
@@ -358,6 +464,7 @@ void ssusb_set_force_mode(struct ssusb_mtk *ssusb,
 	mtu3_writel(ssusb->ippc_base, SSUSB_U2_CTRL(0), value);
 }
 
+<<<<<<< HEAD
 static void ssusb_ip_sleep(struct ssusb_mtk *ssusb)
 {
 
@@ -519,10 +626,19 @@ static int ssusb_role_sw_set(struct device *dev, enum usb_role role)
 					MTU3_RESOURCE_NONE);
 		}
 	}
+=======
+static int ssusb_role_sw_set(struct usb_role_switch *sw, enum usb_role role)
+{
+	struct ssusb_mtk *ssusb = usb_role_switch_get_drvdata(sw);
+	struct otg_switch_mtk *otg_sx = &ssusb->otg_switch;
+
+	ssusb_set_mode(otg_sx, role);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static enum usb_role ssusb_role_sw_get(struct device *dev)
 {
 	struct ssusb_mtk *ssusb = dev_get_drvdata(dev);
@@ -531,17 +647,31 @@ static enum usb_role ssusb_role_sw_get(struct device *dev)
 	role = ssusb->is_host ? USB_ROLE_HOST : USB_ROLE_DEVICE;
 
 	return role;
+=======
+static enum usb_role ssusb_role_sw_get(struct usb_role_switch *sw)
+{
+	struct ssusb_mtk *ssusb = usb_role_switch_get_drvdata(sw);
+
+	return ssusb->is_host ? USB_ROLE_HOST : USB_ROLE_DEVICE;
+>>>>>>> upstream/android-13
 }
 
 static int ssusb_role_sw_register(struct otg_switch_mtk *otg_sx)
 {
 	struct usb_role_switch_desc role_sx_desc = { 0 };
+<<<<<<< HEAD
 	struct ssusb_mtk *ssusb =
 		container_of(otg_sx, struct ssusb_mtk, otg_switch);
+=======
+	struct ssusb_mtk *ssusb = otg_sx_to_ssusb(otg_sx);
+	struct device *dev = ssusb->dev;
+	enum usb_dr_mode mode;
+>>>>>>> upstream/android-13
 
 	if (!otg_sx->role_sw_used)
 		return 0;
 
+<<<<<<< HEAD
 	role_sx_desc.set = ssusb_role_sw_set;
 	role_sx_desc.get = ssusb_role_sw_get;
 	role_sx_desc.allow_userspace_control = true;
@@ -552,10 +682,28 @@ static int ssusb_role_sw_register(struct otg_switch_mtk *otg_sx)
 
 	/* default to role none */
 	ssusb_role_sw_set(ssusb->dev, USB_ROLE_NONE);
+=======
+	mode = usb_get_role_switch_default_mode(dev);
+	if (mode == USB_DR_MODE_PERIPHERAL)
+		otg_sx->default_role = USB_ROLE_DEVICE;
+	else
+		otg_sx->default_role = USB_ROLE_HOST;
+
+	role_sx_desc.set = ssusb_role_sw_set;
+	role_sx_desc.get = ssusb_role_sw_get;
+	role_sx_desc.fwnode = dev_fwnode(dev);
+	role_sx_desc.driver_data = ssusb;
+	otg_sx->role_sw = usb_role_switch_register(dev, &role_sx_desc);
+	if (IS_ERR(otg_sx->role_sw))
+		return PTR_ERR(otg_sx->role_sw);
+
+	ssusb_set_mode(otg_sx, otg_sx->default_role);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t mode_store(struct device *dev,
 				 struct device_attribute *attr,
 				 const char *buf, size_t count)
@@ -705,11 +853,14 @@ static const struct attribute_group ssusb_dr_group = {
 	.attrs = ssusb_dr_attrs,
 };
 
+=======
+>>>>>>> upstream/android-13
 int ssusb_otg_switch_init(struct ssusb_mtk *ssusb)
 {
 	struct otg_switch_mtk *otg_sx = &ssusb->otg_switch;
 	int ret = 0;
 
+<<<<<<< HEAD
 	INIT_WORK(&otg_sx->id_work, ssusb_id_work);
 	INIT_WORK(&otg_sx->vbus_work, ssusb_vbus_work);
 
@@ -730,6 +881,9 @@ int ssusb_otg_switch_init(struct ssusb_mtk *ssusb)
 			MTK_PM_QOS_VCORE_OPP_DEFAULT_VALUE);
 	pr_info("%s: add default Vcore QOS request\n", __func__);
 	#endif
+=======
+	INIT_WORK(&otg_sx->dr_work, ssusb_mode_sw_work);
+>>>>>>> upstream/android-13
 
 	if (otg_sx->manual_drd_enabled)
 		ssusb_dr_debugfs_init(ssusb);
@@ -745,8 +899,13 @@ void ssusb_otg_switch_exit(struct ssusb_mtk *ssusb)
 {
 	struct otg_switch_mtk *otg_sx = &ssusb->otg_switch;
 
+<<<<<<< HEAD
 	cancel_work_sync(&otg_sx->id_work);
 	cancel_work_sync(&otg_sx->vbus_work);
 	usb_role_switch_unregister(otg_sx->role_sw);
 	sysfs_remove_group(&ssusb->dev->kobj, &ssusb_dr_group);
+=======
+	cancel_work_sync(&otg_sx->dr_work);
+	usb_role_switch_unregister(otg_sx->role_sw);
+>>>>>>> upstream/android-13
 }

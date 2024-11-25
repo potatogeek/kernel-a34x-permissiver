@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Generic page table allocator for IOMMUs.
  *
@@ -13,11 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Generic page table allocator for IOMMUs.
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) 2014 ARM Limited
  *
  * Author: Will Deacon <will.deacon@arm.com>
  */
 
+<<<<<<< HEAD
 #define pr_fmt(fmt)	"io-pgtable: " fmt
 
 #include <linux/bug.h>
@@ -28,6 +36,12 @@
 #include <linux/atomic.h>
 #include <linux/module.h>
 #include "io-pgtable.h"
+=======
+#include <linux/bug.h>
+#include <linux/io-pgtable.h>
+#include <linux/kernel.h>
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 static const struct io_pgtable_init_fns *
 io_pgtable_init_table[IO_PGTABLE_NUM_FMTS] = {
@@ -36,10 +50,16 @@ io_pgtable_init_table[IO_PGTABLE_NUM_FMTS] = {
 	[ARM_32_LPAE_S2] = &io_pgtable_arm_32_lpae_s2_init_fns,
 	[ARM_64_LPAE_S1] = &io_pgtable_arm_64_lpae_s1_init_fns,
 	[ARM_64_LPAE_S2] = &io_pgtable_arm_64_lpae_s2_init_fns,
+<<<<<<< HEAD
+=======
+	[ARM_MALI_LPAE] = &io_pgtable_arm_mali_lpae_init_fns,
+	[APPLE_DART] = &io_pgtable_apple_dart_init_fns,
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_IOMMU_IO_PGTABLE_ARMV7S
 	[ARM_V7S] = &io_pgtable_arm_v7s_init_fns,
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_IOMMU_IO_PGTABLE_FAST
 	[ARM_V8L_FAST] = &io_pgtable_av8l_fast_init_fns,
 #endif
@@ -47,6 +67,13 @@ io_pgtable_init_table[IO_PGTABLE_NUM_FMTS] = {
 
 static struct dentry *io_pgtable_top;
 
+=======
+#ifdef CONFIG_AMD_IOMMU
+	[AMD_IOMMU_V1] = &io_pgtable_amd_iommu_v1_init_fns,
+#endif
+};
+
+>>>>>>> upstream/android-13
 struct io_pgtable_ops *alloc_io_pgtable_ops(enum io_pgtable_fmt fmt,
 					    struct io_pgtable_cfg *cfg,
 					    void *cookie)
@@ -54,6 +81,7 @@ struct io_pgtable_ops *alloc_io_pgtable_ops(enum io_pgtable_fmt fmt,
 	struct io_pgtable *iop;
 	const struct io_pgtable_init_fns *fns;
 
+<<<<<<< HEAD
 	if (fmt >= IO_PGTABLE_NUM_FMTS) {
 		pr_notice("%s, %d, err fmt:0x%x, IO_PGTABLE_NUM_FMTS:0x%x\n",
 			__func__, __LINE__, fmt, IO_PGTABLE_NUM_FMTS);
@@ -71,6 +99,18 @@ struct io_pgtable_ops *alloc_io_pgtable_ops(enum io_pgtable_fmt fmt,
 		pr_notice("%s, %d, err iop\n", __func__, __LINE__);
 		return NULL;
 	}
+=======
+	if (fmt >= IO_PGTABLE_NUM_FMTS)
+		return NULL;
+
+	fns = io_pgtable_init_table[fmt];
+	if (!fns)
+		return NULL;
+
+	iop = fns->alloc(cfg, cookie);
+	if (!iop)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	iop->fmt	= fmt;
 	iop->cookie	= cookie;
@@ -91,11 +131,16 @@ void free_io_pgtable_ops(struct io_pgtable_ops *ops)
 	if (!ops)
 		return;
 
+<<<<<<< HEAD
 	iop = container_of(ops, struct io_pgtable, ops);
+=======
+	iop = io_pgtable_ops_to_pgtable(ops);
+>>>>>>> upstream/android-13
 	io_pgtable_tlb_flush_all(iop);
 	io_pgtable_init_table[iop->fmt]->free(iop);
 }
 EXPORT_SYMBOL_GPL(free_io_pgtable_ops);
+<<<<<<< HEAD
 
 static atomic_t pages_allocated;
 
@@ -144,3 +189,5 @@ static void __exit io_pgtable_exit(void)
 
 module_init(io_pgtable_init);
 module_exit(io_pgtable_exit);
+=======
+>>>>>>> upstream/android-13

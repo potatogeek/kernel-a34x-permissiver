@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 Neil Armstrong <narmstrong@baylibre.com>
  * Copyright (C) 2013 Ma Haijun <mahaijuns@gmail.com>
  * Copyright (C) 2002 ARM Ltd.
  * All Rights Reserved
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/io.h>
 #include <linux/delay.h>
@@ -19,7 +26,10 @@
 #include <asm/smp_scu.h>
 
 extern void ox820_secondary_startup(void);
+<<<<<<< HEAD
 extern void ox820_cpu_die(unsigned int cpu);
+=======
+>>>>>>> upstream/android-13
 
 static void __iomem *cpu_ctrl;
 static void __iomem *gic_cpu_ctrl;
@@ -31,7 +41,12 @@ static void __iomem *gic_cpu_ctrl;
 #define GIC_CPU_CTRL			0x00
 #define GIC_CPU_CTRL_ENABLE		1
 
+<<<<<<< HEAD
 int __init ox820_boot_secondary(unsigned int cpu, struct task_struct *idle)
+=======
+static int __init ox820_boot_secondary(unsigned int cpu,
+		struct task_struct *idle)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Write the address of secondary startup into the
@@ -94,9 +109,12 @@ unmap_scu:
 static const struct smp_operations ox820_smp_ops __initconst = {
 	.smp_prepare_cpus	= ox820_smp_prepare_cpus,
 	.smp_boot_secondary	= ox820_boot_secondary,
+<<<<<<< HEAD
 #ifdef CONFIG_HOTPLUG_CPU
 	.cpu_die		= ox820_cpu_die,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 CPU_METHOD_OF_DECLARE(ox820_smp, "oxsemi,ox820-smp", &ox820_smp_ops);

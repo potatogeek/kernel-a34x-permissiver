@@ -7,6 +7,7 @@
 #ifndef _WIFI_H_
 #define _WIFI_H_
 
+<<<<<<< HEAD
 
 #ifdef BIT
 /* error	"BIT define occurred earlier elsewhere!\n" */
@@ -15,6 +16,8 @@
 #define BIT(x)	(1 << (x))
 
 
+=======
+>>>>>>> upstream/android-13
 #define WLAN_ETHHDR_LEN		14
 #define WLAN_ETHADDR_LEN	6
 #define WLAN_IEEE_OUI_LEN	3
@@ -43,14 +46,22 @@
 /*  This test verifies the WLAN NIC can update the NAV through sending the CTS with large duration. */
 #define	WiFiNavUpperUs				30000	/*  30 ms */
 
+<<<<<<< HEAD
 enum WIFI_FRAME_TYPE {
+=======
+enum {
+>>>>>>> upstream/android-13
 	WIFI_MGT_TYPE  =	(0),
 	WIFI_CTRL_TYPE =	(BIT(2)),
 	WIFI_DATA_TYPE =	(BIT(3)),
 	WIFI_QOS_DATA_TYPE	= (BIT(7)|BIT(3)),	/*  QoS Data */
 };
 
+<<<<<<< HEAD
 enum WIFI_FRAME_SUBTYPE {
+=======
+enum {
+>>>>>>> upstream/android-13
 
     /*  below is for mgt frame */
     WIFI_ASSOCREQ       = (0 | WIFI_MGT_TYPE),
@@ -88,6 +99,7 @@ enum WIFI_FRAME_SUBTYPE {
     WIFI_QOS_DATA_NULL	= (BIT(6) | WIFI_QOS_DATA_TYPE),
 };
 
+<<<<<<< HEAD
 enum WIFI_REASON_CODE	{
 	_RSON_RESERVED_					= 0,
 	_RSON_UNSPECIFIED_				= 1,
@@ -189,6 +201,8 @@ enum WIFI_REG_DOMAIN {
 	DOMAIN_MAX
 };
 
+=======
+>>>>>>> upstream/android-13
 #define _TO_DS_		BIT(8)
 #define _FROM_DS_	BIT(9)
 #define _MORE_FRAG_	BIT(10)
@@ -199,6 +213,7 @@ enum WIFI_REG_DOMAIN {
 #define _ORDER_			BIT(15)
 
 #define SetToDs(pbuf)	\
+<<<<<<< HEAD
 	*(__le16 *)(pbuf) |= cpu_to_le16(_TO_DS_)
 
 #define GetToDs(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(_TO_DS_)) != 0)
@@ -218,46 +233,89 @@ enum WIFI_REG_DOMAIN {
 
 #define SetMFrag(pbuf)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16(_MORE_FRAG_)
+=======
+	(*(__le16 *)(pbuf) |= cpu_to_le16(_TO_DS_))
+
+#define GetToDs(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(_TO_DS_)) != 0)
+
+#define SetFrDs(pbuf)	\
+	(*(__le16 *)(pbuf) |= cpu_to_le16(_FROM_DS_))
+
+#define GetFrDs(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(_FROM_DS_)) != 0)
+
+#define get_tofr_ds(pframe)	((GetToDs(pframe) << 1) | GetFrDs(pframe))
+
+#define SetMFrag(pbuf)	\
+	(*(__le16 *)(pbuf) |= cpu_to_le16(_MORE_FRAG_))
+>>>>>>> upstream/android-13
 
 #define GetMFrag(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(_MORE_FRAG_)) != 0)
 
 #define ClearMFrag(pbuf)	\
+<<<<<<< HEAD
 	*(__le16 *)(pbuf) &= (~cpu_to_le16(_MORE_FRAG_))
 
 #define SetRetry(pbuf)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16(_RETRY_)
+=======
+	(*(__le16 *)(pbuf) &= (~cpu_to_le16(_MORE_FRAG_)))
+>>>>>>> upstream/android-13
 
 #define GetRetry(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(_RETRY_)) != 0)
 
 #define ClearRetry(pbuf)	\
+<<<<<<< HEAD
 	*(__le16 *)(pbuf) &= (~cpu_to_le16(_RETRY_))
 
 #define SetPwrMgt(pbuf)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16(_PWRMGT_)
+=======
+	(*(__le16 *)(pbuf) &= (~cpu_to_le16(_RETRY_)))
+
+#define SetPwrMgt(pbuf)	\
+	(*(__le16 *)(pbuf) |= cpu_to_le16(_PWRMGT_))
+>>>>>>> upstream/android-13
 
 #define GetPwrMgt(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(_PWRMGT_)) != 0)
 
 #define ClearPwrMgt(pbuf)	\
+<<<<<<< HEAD
 	*(__le16 *)(pbuf) &= (~cpu_to_le16(_PWRMGT_))
 
 #define SetMData(pbuf)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16(_MORE_DATA_)
+=======
+	(*(__le16 *)(pbuf) &= (~cpu_to_le16(_PWRMGT_)))
+
+#define SetMData(pbuf)	\
+	(*(__le16 *)(pbuf) |= cpu_to_le16(_MORE_DATA_))
+>>>>>>> upstream/android-13
 
 #define GetMData(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(_MORE_DATA_)) != 0)
 
 #define ClearMData(pbuf)	\
+<<<<<<< HEAD
 	*(__le16 *)(pbuf) &= (~cpu_to_le16(_MORE_DATA_))
 
 #define SetPrivacy(pbuf)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16(_PRIVACY_)
+=======
+	(*(__le16 *)(pbuf) &= (~cpu_to_le16(_MORE_DATA_)))
+
+#define SetPrivacy(pbuf)	\
+	(*(__le16 *)(pbuf) |= cpu_to_le16(_PRIVACY_))
+>>>>>>> upstream/android-13
 
 #define GetPrivacy(pbuf)					\
 	(((*(__le16 *)(pbuf)) & cpu_to_le16(_PRIVACY_)) != 0)
 
+<<<<<<< HEAD
 #define ClearPrivacy(pbuf)	\
 	*(__le16 *)(pbuf) &= (~cpu_to_le16(_PRIVACY_))
 
 
+=======
+>>>>>>> upstream/android-13
 #define GetOrder(pbuf)					\
 	(((*(__le16 *)(pbuf)) & cpu_to_le16(_ORDER_)) != 0)
 
@@ -266,8 +324,13 @@ enum WIFI_REG_DOMAIN {
 
 #define SetFrameType(pbuf, type)	\
 	do {	\
+<<<<<<< HEAD
 		*(unsigned short *)(pbuf) &= __constant_cpu_to_le16(~(BIT(3) | BIT(2))); \
 		*(unsigned short *)(pbuf) |= __constant_cpu_to_le16(type); \
+=======
+		*(unsigned short *)(pbuf) &= cpu_to_le16(~(BIT(3) | BIT(2))); \
+		*(unsigned short *)(pbuf) |= cpu_to_le16(type); \
+>>>>>>> upstream/android-13
 	} while (0)
 
 #define GetFrameSubType(pbuf)	(le16_to_cpu(*(__le16 *)(pbuf)) & (BIT(7) |\
@@ -305,24 +368,40 @@ enum WIFI_REG_DOMAIN {
 	} while (0)
 
 #define SetDuration(pbuf, dur) \
+<<<<<<< HEAD
 	*(__le16 *)((size_t)(pbuf) + 2) = cpu_to_le16(0xffff & (dur))
 
 
 #define SetPriority(pbuf, tid)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16(tid & 0xf)
+=======
+	(*(__le16 *)((size_t)(pbuf) + 2) = cpu_to_le16(0xffff & (dur)))
+
+
+#define SetPriority(pbuf, tid)	\
+	(*(__le16 *)(pbuf) |= cpu_to_le16(tid & 0xf))
+>>>>>>> upstream/android-13
 
 #define GetPriority(pbuf)	((le16_to_cpu(*(__le16 *)(pbuf))) & 0xf)
 
 #define SetEOSP(pbuf, eosp)	\
+<<<<<<< HEAD
 		*(__le16 *)(pbuf) |= cpu_to_le16((eosp & 1) << 4)
 
 #define SetAckpolicy(pbuf, ack)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16((ack & 3) << 5)
+=======
+		(*(__le16 *)(pbuf) |= cpu_to_le16((eosp & 1) << 4))
+
+#define SetAckpolicy(pbuf, ack)	\
+	(*(__le16 *)(pbuf) |= cpu_to_le16((ack & 3) << 5))
+>>>>>>> upstream/android-13
 
 #define GetAckpolicy(pbuf) (((le16_to_cpu(*(__le16 *)pbuf)) >> 5) & 0x3)
 
 #define GetAMsdu(pbuf) (((le16_to_cpu(*(__le16 *)pbuf)) >> 7) & 0x1)
 
+<<<<<<< HEAD
 #define SetAMsdu(pbuf, amsdu)	\
 	*(__le16 *)(pbuf) |= cpu_to_le16((amsdu & 1) << 7)
 
@@ -332,6 +411,10 @@ enum WIFI_REG_DOMAIN {
 			(((GetToDs(pbuf)<<1) | GetFrDs(pbuf)) == 3 ?	\
 			30 : 24))) & 0x000f)
 
+=======
+#define GetAid(pbuf)	(le16_to_cpu(*(__le16 *)((size_t)(pbuf) + 2)) & 0x3fff)
+
+>>>>>>> upstream/android-13
 #define GetAddr1Ptr(pbuf)	((unsigned char *)((size_t)(pbuf) + 4))
 
 #define GetAddr2Ptr(pbuf)	((unsigned char *)((size_t)(pbuf) + 10))
@@ -347,7 +430,11 @@ enum WIFI_REG_DOMAIN {
 	(addr[4] == 0xff) && (addr[5] == 0xff))  ? true : false \
 )
 
+<<<<<<< HEAD
 __inline static int IS_MCAST(unsigned char *da)
+=======
+static inline int IS_MCAST(unsigned char *da)
+>>>>>>> upstream/android-13
 {
 	if ((*da) & 0x01)
 		return true;
@@ -355,25 +442,38 @@ __inline static int IS_MCAST(unsigned char *da)
 		return false;
 }
 
+<<<<<<< HEAD
 __inline static unsigned char * get_ra(unsigned char *pframe)
+=======
+static inline unsigned char *rtl8723bs_get_ra(unsigned char *pframe)
+>>>>>>> upstream/android-13
 {
 	unsigned char *ra;
 	ra = GetAddr1Ptr(pframe);
 	return ra;
 }
+<<<<<<< HEAD
 __inline static unsigned char * get_ta(unsigned char *pframe)
+=======
+static inline unsigned char *get_ta(unsigned char *pframe)
+>>>>>>> upstream/android-13
 {
 	unsigned char *ta;
 	ta = GetAddr2Ptr(pframe);
 	return ta;
 }
 
+<<<<<<< HEAD
 __inline static unsigned char * get_da(unsigned char *pframe)
+=======
+static inline unsigned char *get_da(unsigned char *pframe)
+>>>>>>> upstream/android-13
 {
 	unsigned char *da;
 	unsigned int	to_fr_ds	= (GetToDs(pframe) << 1) | GetFrDs(pframe);
 
 	switch (to_fr_ds) {
+<<<<<<< HEAD
 		case 0x00:	/*  ToDs = 0, FromDs = 0 */
 			da = GetAddr1Ptr(pframe);
 			break;
@@ -386,18 +486,37 @@ __inline static unsigned char * get_da(unsigned char *pframe)
 		default:	/*  ToDs = 1, FromDs = 1 */
 			da = GetAddr3Ptr(pframe);
 			break;
+=======
+	case 0x00:	/*  ToDs = 0, FromDs = 0 */
+		da = GetAddr1Ptr(pframe);
+		break;
+	case 0x01:	/*  ToDs = 0, FromDs = 1 */
+		da = GetAddr1Ptr(pframe);
+		break;
+	case 0x02:	/*  ToDs = 1, FromDs = 0 */
+		da = GetAddr3Ptr(pframe);
+		break;
+	default:	/*  ToDs = 1, FromDs = 1 */
+		da = GetAddr3Ptr(pframe);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return da;
 }
 
 
+<<<<<<< HEAD
 __inline static unsigned char * get_sa(unsigned char *pframe)
+=======
+static inline unsigned char *get_sa(unsigned char *pframe)
+>>>>>>> upstream/android-13
 {
 	unsigned char *sa;
 	unsigned int	to_fr_ds	= (GetToDs(pframe) << 1) | GetFrDs(pframe);
 
 	switch (to_fr_ds) {
+<<<<<<< HEAD
 		case 0x00:	/*  ToDs = 0, FromDs = 0 */
 			sa = GetAddr2Ptr(pframe);
 			break;
@@ -410,17 +529,36 @@ __inline static unsigned char * get_sa(unsigned char *pframe)
 		default:	/*  ToDs = 1, FromDs = 1 */
 			sa = GetAddr4Ptr(pframe);
 			break;
+=======
+	case 0x00:	/*  ToDs = 0, FromDs = 0 */
+		sa = GetAddr2Ptr(pframe);
+		break;
+	case 0x01:	/*  ToDs = 0, FromDs = 1 */
+		sa = GetAddr3Ptr(pframe);
+		break;
+	case 0x02:	/*  ToDs = 1, FromDs = 0 */
+		sa = GetAddr2Ptr(pframe);
+		break;
+	default:	/*  ToDs = 1, FromDs = 1 */
+		sa = GetAddr4Ptr(pframe);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return sa;
 }
 
+<<<<<<< HEAD
 __inline static unsigned char * get_hdr_bssid(unsigned char *pframe)
+=======
+static inline unsigned char *get_hdr_bssid(unsigned char *pframe)
+>>>>>>> upstream/android-13
 {
 	unsigned char *sa = NULL;
 	unsigned int	to_fr_ds	= (GetToDs(pframe) << 1) | GetFrDs(pframe);
 
 	switch (to_fr_ds) {
+<<<<<<< HEAD
 		case 0x00:	/*  ToDs = 0, FromDs = 0 */
 			sa = GetAddr3Ptr(pframe);
 			break;
@@ -433,13 +571,31 @@ __inline static unsigned char * get_hdr_bssid(unsigned char *pframe)
 		case 0x03:	/*  ToDs = 1, FromDs = 1 */
 			sa = GetAddr1Ptr(pframe);
 			break;
+=======
+	case 0x00:	/*  ToDs = 0, FromDs = 0 */
+		sa = GetAddr3Ptr(pframe);
+		break;
+	case 0x01:	/*  ToDs = 0, FromDs = 1 */
+		sa = GetAddr2Ptr(pframe);
+		break;
+	case 0x02:	/*  ToDs = 1, FromDs = 0 */
+		sa = GetAddr1Ptr(pframe);
+		break;
+	case 0x03:	/*  ToDs = 1, FromDs = 1 */
+		sa = GetAddr1Ptr(pframe);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return sa;
 }
 
 
+<<<<<<< HEAD
 __inline static int IsFrameTypeCtrl(unsigned char *pframe)
+=======
+static inline int IsFrameTypeCtrl(unsigned char *pframe)
+>>>>>>> upstream/android-13
 {
 	if (WIFI_CTRL_TYPE == GetFrameType(pframe))
 		return true;
@@ -457,7 +613,10 @@ __inline static int IsFrameTypeCtrl(unsigned char *pframe)
 #define _PRE_ALLOCICVHDR_		5
 #define _PRE_ALLOCMICHDR_		6
 
+<<<<<<< HEAD
 #define _SIFSTIME_				((priv->pmib->dot11BssType.net_work_type&WIRELESS_11A)?16:10)
+=======
+>>>>>>> upstream/android-13
 #define _ACKCTSLNG_				14	/* 14 bytes long, including crclng */
 #define _CRCLNG_				4
 
@@ -474,6 +633,7 @@ __inline static int IsFrameTypeCtrl(unsigned char *pframe)
 
 #define _FIXED_IE_LENGTH_			_BEACON_IE_OFFSET_
 
+<<<<<<< HEAD
 #define _SSID_IE_				0
 #define _SUPPORTEDRATES_IE_	1
 #define _DSSET_IE_				3
@@ -582,6 +742,8 @@ enum ELEMENT_ID {
 	EID_OpModeNotification		= 199, /*  Based on 802.11ac D3.0 */
 };
 
+=======
+>>>>>>> upstream/android-13
 /* ---------------------------------------------------------------------------
 					Below is the fixed elements...
 -----------------------------------------------------------------------------*/
@@ -603,6 +765,7 @@ enum ELEMENT_ID {
 #define WLAN_ETHCONV_RFC1042	2
 #define WLAN_ETHCONV_8021h		3
 
+<<<<<<< HEAD
 #define cap_ESS BIT(0)
 #define cap_IBSS BIT(1)
 #define cap_CFPollable BIT(2)
@@ -615,6 +778,8 @@ enum ELEMENT_ID {
 #define cap_QoS	BIT(9)
 #define cap_ShortSlot	BIT(10)
 
+=======
+>>>>>>> upstream/android-13
 /*-----------------------------------------------------------------------------
 				Below is the definition for 802.11i / 802.1x
 ------------------------------------------------------------------------------*/
@@ -643,6 +808,7 @@ enum ELEMENT_ID {
 #define ACT_CAT_VENDOR				0x7F/* 127 */
 
 /**
+<<<<<<< HEAD
  * struct rtw_ieee80211_bar - HT Block Ack Request
  *
  * This structure refers to "HT BlockAckReq" as
@@ -679,6 +845,8 @@ struct rtw_ieee80211_ht_cap {
 } __attribute__ ((packed));
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct rtw_ieee80211_ht_cap - HT additional information
  *
  * This structure refers to "HT information element" as
@@ -693,12 +861,18 @@ struct ieee80211_ht_addt_info {
 } __attribute__ ((packed));
 
 
+<<<<<<< HEAD
 struct HT_caps_element
 {
 	union
 	{
 		struct
 		{
+=======
+struct HT_caps_element {
+	union {
+		struct {
+>>>>>>> upstream/android-13
 			__le16	HT_caps_info;
 			unsigned char AMPDU_para;
 			unsigned char MCS_rate[16];
@@ -707,38 +881,58 @@ struct HT_caps_element
 			unsigned char ASEL_caps;
 		} HT_cap_element;
 		unsigned char HT_cap[26];
+<<<<<<< HEAD
 	}u;
 } __attribute__ ((packed));
 
 struct HT_info_element
 {
+=======
+	} u;
+} __attribute__ ((packed));
+
+struct HT_info_element {
+>>>>>>> upstream/android-13
 	unsigned char primary_channel;
 	unsigned char infos[5];
 	unsigned char MCS_rate[16];
 }  __attribute__ ((packed));
 
+<<<<<<< HEAD
 struct AC_param
 {
+=======
+struct AC_param {
+>>>>>>> upstream/android-13
 	unsigned char 	ACI_AIFSN;
 	unsigned char 	CW;
 	__le16	TXOP_limit;
 }  __attribute__ ((packed));
 
+<<<<<<< HEAD
 struct WMM_para_element
 {
+=======
+struct WMM_para_element {
+>>>>>>> upstream/android-13
 	unsigned char 	QoS_info;
 	unsigned char 	reserved;
 	struct AC_param	ac_param[4];
 }  __attribute__ ((packed));
 
+<<<<<<< HEAD
 struct ADDBA_request
 {
+=======
+struct ADDBA_request {
+>>>>>>> upstream/android-13
 	unsigned char 	dialog_token;
 	__le16	BA_para_set;
 	__le16	BA_timeout_value;
 	__le16	BA_starting_seqctrl;
 }  __attribute__ ((packed));
 
+<<<<<<< HEAD
 enum HT_CAP_AMPDU_FACTOR {
 	MAX_AMPDU_FACTOR_8K		= 0,
 	MAX_AMPDU_FACTOR_16K	= 1,
@@ -746,6 +940,8 @@ enum HT_CAP_AMPDU_FACTOR {
 	MAX_AMPDU_FACTOR_64K	= 3,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* 802.11n HT capabilities masks */
 #define IEEE80211_HT_CAP_LDPC_CODING		0x0001
 #define IEEE80211_HT_CAP_SUP_WIDTH		0x0002
@@ -777,6 +973,7 @@ enum HT_CAP_AMPDU_FACTOR {
 #define IEEE80211_HT_CAP_TXBF_TX_NDP		0x00000010
 #define IEEE80211_HT_CAP_TXBF_EXPLICIT_COMP_STEERING_CAP	0x00000400
 
+<<<<<<< HEAD
 /* 802.11n HT IE masks */
 #define IEEE80211_HT_IE_CHA_SEC_OFFSET		0x03
 #define IEEE80211_HT_IE_CHA_SEC_NONE		0x00
@@ -837,6 +1034,8 @@ enum HT_CAP_AMPDU_FACTOR {
 
 
 
+=======
+>>>>>>> upstream/android-13
 /* endif */
 
 /* 	===============WPS Section =============== */
@@ -1021,7 +1220,11 @@ enum HT_CAP_AMPDU_FACTOR {
 
 #define	P2P_WILDCARD_SSID_LEN				7
 
+<<<<<<< HEAD
 #define	P2P_FINDPHASE_EX_NONE				0	/*  default value, used when: (1)p2p disabed or (2)p2p enabled but only do 1 scan phase */
+=======
+#define	P2P_FINDPHASE_EX_NONE				0	/*  default value, used when: (1)p2p disabled or (2)p2p enabled but only do 1 scan phase */
+>>>>>>> upstream/android-13
 #define	P2P_FINDPHASE_EX_FULL				1	/*  used when p2p enabled and want to do 1 scan phase and P2P_FINDPHASE_EX_MAX-1 find phase */
 #define	P2P_FINDPHASE_EX_SOCIAL_FIRST		(P2P_FINDPHASE_EX_FULL+1)
 #define	P2P_FINDPHASE_EX_MAX					4
@@ -1029,7 +1232,11 @@ enum HT_CAP_AMPDU_FACTOR {
 
 #define	P2P_PROVISION_TIMEOUT				5000	/* 	5 seconds timeout for sending the provision discovery request */
 #define	P2P_CONCURRENT_PROVISION_TIMEOUT	3000	/* 	3 seconds timeout for sending the provision discovery request under concurrent mode */
+<<<<<<< HEAD
 #define	P2P_GO_NEGO_TIMEOUT					5000	/* 	5 seconds timeout for receiving the group negotation response */
+=======
+#define	P2P_GO_NEGO_TIMEOUT					5000	/* 	5 seconds timeout for receiving the group negotiation response */
+>>>>>>> upstream/android-13
 #define	P2P_CONCURRENT_GO_NEGO_TIMEOUT		3000	/* 	3 seconds timeout for sending the negotiation request under concurrent mode */
 #define	P2P_TX_PRESCAN_TIMEOUT				100		/* 	100ms */
 #define	P2P_INVITE_TIMEOUT					5000	/* 	5 seconds timeout for sending the invitation request */
@@ -1053,14 +1260,22 @@ enum HT_CAP_AMPDU_FACTOR {
 #define	WPS_CM_SW_DISPLAY_PIN				0x2008
 #define	WPS_CM_LCD_DISPLAY_PIN				0x4008
 
+<<<<<<< HEAD
 enum P2P_ROLE {
+=======
+enum p2p_role {
+>>>>>>> upstream/android-13
 	P2P_ROLE_DISABLE = 0,
 	P2P_ROLE_DEVICE = 1,
 	P2P_ROLE_CLIENT = 2,
 	P2P_ROLE_GO = 3
 };
 
+<<<<<<< HEAD
 enum P2P_STATE {
+=======
+enum p2p_state {
+>>>>>>> upstream/android-13
 	P2P_STATE_NONE = 0,							/* 	P2P disable */
 	P2P_STATE_IDLE = 1,								/* 	P2P had enabled and do nothing */
 	P2P_STATE_LISTEN = 2,							/* 	In pure listen state */
@@ -1070,9 +1285,15 @@ enum P2P_STATE {
 	P2P_STATE_TX_PROVISION_DIS_REQ = 6,			/* 	In P2P provisioning discovery */
 	P2P_STATE_RX_PROVISION_DIS_RSP = 7,
 	P2P_STATE_RX_PROVISION_DIS_REQ = 8,
+<<<<<<< HEAD
 	P2P_STATE_GONEGO_ING = 9,						/* 	Doing the group owner negoitation handshake */
 	P2P_STATE_GONEGO_OK = 10,						/* 	finish the group negoitation handshake with success */
 	P2P_STATE_GONEGO_FAIL = 11,					/* 	finish the group negoitation handshake with failure */
+=======
+	P2P_STATE_GONEGO_ING = 9,						/* 	Doing the group owner negotiation handshake */
+	P2P_STATE_GONEGO_OK = 10,						/* 	finish the group negotiation handshake with success */
+	P2P_STATE_GONEGO_FAIL = 11,					/* 	finish the group negotiation handshake with failure */
+>>>>>>> upstream/android-13
 	P2P_STATE_RECV_INVITE_REQ_MATCH = 12,		/* 	receiving the P2P Invitation request and match with the profile. */
 	P2P_STATE_PROVISIONING_ING = 13,				/* 	Doing the P2P WPS */
 	P2P_STATE_PROVISIONING_DONE = 14,			/* 	Finish the P2P WPS */
@@ -1082,11 +1303,19 @@ enum P2P_STATE {
 	P2P_STATE_RECV_INVITE_REQ_GO = 18,			/* 	receiving the P2P Invitation request and this wifi is GO. */
 	P2P_STATE_RECV_INVITE_REQ_JOIN = 19,			/* 	receiving the P2P Invitation request to join an existing P2P Group. */
 	P2P_STATE_RX_INVITE_RESP_FAIL = 20,			/* 	recveing the P2P Invitation response with failure */
+<<<<<<< HEAD
 	P2P_STATE_RX_INFOR_NOREADY = 21,			/*  receiving p2p negoitation response with information is not available */
 	P2P_STATE_TX_INFOR_NOREADY = 22,			/*  sending p2p negoitation response with information is not available */
 };
 
 enum P2P_WPSINFO {
+=======
+	P2P_STATE_RX_INFOR_NOREADY = 21,			/*  receiving p2p negotiation response with information is not available */
+	P2P_STATE_TX_INFOR_NOREADY = 22,			/*  sending p2p negotiation response with information is not available */
+};
+
+enum p2p_wpsinfo {
+>>>>>>> upstream/android-13
 	P2P_NO_WPSINFO						= 0,
 	P2P_GOT_WPSINFO_PEER_DISPLAY_PIN	= 1,
 	P2P_GOT_WPSINFO_SELF_DISPLAY_PIN	= 2,
@@ -1095,6 +1324,7 @@ enum P2P_WPSINFO {
 
 #define	P2P_PRIVATE_IOCTL_SET_LEN		64
 
+<<<<<<< HEAD
 enum P2P_PROTO_WK_ID
 {
 	P2P_FIND_PHASE_WK = 0,
@@ -1106,6 +1336,8 @@ enum P2P_PROTO_WK_ID
 	P2P_RO_CH_WK = 6,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* 	=====================WFD Section ===================== */
 /* 	For Wi-Fi Display */
 #define	WFD_ATTR_DEVICE_INFO			0x00
@@ -1126,8 +1358,13 @@ enum P2P_PROTO_WK_ID
 #define	WFD_DEVINFO_PC_TDLS					0x0080
 #define	WFD_DEVINFO_HDCP_SUPPORT			0x0100
 
+<<<<<<< HEAD
 #define IP_MCAST_MAC(mac)		((mac[0]== 0x01) && (mac[1]== 0x00) && (mac[2]== 0x5e))
 #define ICMPV6_MCAST_MAC(mac)	((mac[0]== 0x33) && (mac[1]== 0x33) && (mac[2]!= 0xff))
+=======
+#define IP_MCAST_MAC(mac)		((mac[0] == 0x01) && (mac[1] == 0x00) && (mac[2] == 0x5e))
+#define ICMPV6_MCAST_MAC(mac)	((mac[0] == 0x33) && (mac[1] == 0x33) && (mac[2] != 0xff))
+>>>>>>> upstream/android-13
 
 /* Regulatroy Domain */
 struct regd_pair_mapping {

@@ -7,7 +7,10 @@
 # current variable will break so for 64-bit kernels we have to raise the start
 # address by 8kb.
 #
+<<<<<<< HEAD
 platform-$(CONFIG_SGI_IP22)		+= sgi-ip22/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_SGI_IP22)	+= -I$(srctree)/arch/mips/include/asm/mach-ip22
 ifdef CONFIG_32BIT
 load-$(CONFIG_SGI_IP22)		+= 0xffffffff88002000
@@ -29,6 +32,9 @@ ifdef CONFIG_SGI_IP28
       $(error gcc doesn't support needed option -mr10k-cache-barrier=store)
   endif
 endif
+<<<<<<< HEAD
 platform-$(CONFIG_SGI_IP28)		+= sgi-ip22/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_SGI_IP28)	+= -mr10k-cache-barrier=store -I$(srctree)/arch/mips/include/asm/mach-ip28
 load-$(CONFIG_SGI_IP28)		+= 0xa800000020004000

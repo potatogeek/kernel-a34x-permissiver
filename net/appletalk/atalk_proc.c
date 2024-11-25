@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 	atalk_proc.c - proc support for Appletalk
  *
  * 	Copyright(c) Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the
  *	Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -210,6 +217,7 @@ static const struct seq_operations atalk_seq_socket_ops = {
 	.show   = atalk_seq_socket_show,
 };
 
+<<<<<<< HEAD
 static struct proc_dir_entry *atalk_proc_dir;
 
 int __init atalk_proc_init(void)
@@ -253,13 +261,46 @@ out_route:
 out_interface:
 	remove_proc_entry("atalk", init_net.proc_net);
 	goto out;
+=======
+int __init atalk_proc_init(void)
+{
+	if (!proc_mkdir("atalk", init_net.proc_net))
+		return -ENOMEM;
+
+	if (!proc_create_seq("atalk/interface", 0444, init_net.proc_net,
+			    &atalk_seq_interface_ops))
+		goto out;
+
+	if (!proc_create_seq("atalk/route", 0444, init_net.proc_net,
+			    &atalk_seq_route_ops))
+		goto out;
+
+	if (!proc_create_seq("atalk/socket", 0444, init_net.proc_net,
+			    &atalk_seq_socket_ops))
+		goto out;
+
+	if (!proc_create_seq_private("atalk/arp", 0444, init_net.proc_net,
+				     &aarp_seq_ops,
+				     sizeof(struct aarp_iter_state), NULL))
+		goto out;
+
+	return 0;
+
+out:
+	remove_proc_subtree("atalk", init_net.proc_net);
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 void atalk_proc_exit(void)
 {
+<<<<<<< HEAD
 	remove_proc_entry("interface", atalk_proc_dir);
 	remove_proc_entry("route", atalk_proc_dir);
 	remove_proc_entry("socket", atalk_proc_dir);
 	remove_proc_entry("arp", atalk_proc_dir);
 	remove_proc_entry("atalk", init_net.proc_net);
+=======
+	remove_proc_subtree("atalk", init_net.proc_net);
+>>>>>>> upstream/android-13
 }

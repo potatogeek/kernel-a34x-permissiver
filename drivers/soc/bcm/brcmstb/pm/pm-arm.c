@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ARM-specific support for Broadcom STB S2/S3/S5 power management
  *
@@ -8,6 +12,7 @@
  *     treat this mode like a soft power-off, with wakeup allowed from AON
  *
  * Copyright © 2014-2017 Broadcom
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "brcmstb-pm: " fmt
@@ -36,6 +43,10 @@
 #include <linux/notifier.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm.h>
 #include <linux/printk.h>
@@ -119,6 +130,11 @@ enum bsp_initiate_command {
 
 static struct brcmstb_pm_control ctrl;
 
+<<<<<<< HEAD
+=======
+noinline int brcmstb_pm_s3_finish(void);
+
+>>>>>>> upstream/android-13
 static int (*brcmstb_pm_do_s2_sram)(void __iomem *aon_ctrl_base,
 		void __iomem *ddr_phy_pll_status);
 

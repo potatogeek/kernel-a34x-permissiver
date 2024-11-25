@@ -2,8 +2,17 @@
 #ifndef DRIVERS_PCI_H
 #define DRIVERS_PCI_H
 
+<<<<<<< HEAD
 #include <linux/android_kabi.h>
 
+=======
+#include <linux/pci.h>
+#include <linux/android_kabi.h>
+
+/* Number of possible devfns: 0.0 to 1f.7 inclusive */
+#define MAX_NR_DEVFNS 256
+
+>>>>>>> upstream/android-13
 #define PCI_FIND_CAP_TTL	48
 
 #define PCI_VSEC_ID_INTEL_TBT	0x1234	/* Thunderbolt */
@@ -12,11 +21,16 @@ extern const unsigned char pcie_link_speed[];
 extern bool pci_early_dump;
 
 bool pcie_cap_has_lnkctl(const struct pci_dev *dev);
+<<<<<<< HEAD
+=======
+bool pcie_cap_has_rtctl(const struct pci_dev *dev);
+>>>>>>> upstream/android-13
 
 /* Functions internal to the PCI core code */
 
 int pci_create_sysfs_dev_files(struct pci_dev *pdev);
 void pci_remove_sysfs_dev_files(struct pci_dev *pdev);
+<<<<<<< HEAD
 #if !defined(CONFIG_DMI) && !defined(CONFIG_ACPI)
 static inline void pci_create_firmware_label_files(struct pci_dev *pdev)
 { return; }
@@ -27,6 +41,12 @@ void pci_create_firmware_label_files(struct pci_dev *pdev);
 void pci_remove_firmware_label_files(struct pci_dev *pdev);
 #endif
 void pci_cleanup_rom(struct pci_dev *dev);
+=======
+void pci_cleanup_rom(struct pci_dev *dev);
+#ifdef CONFIG_DMI
+extern const struct attribute_group pci_dev_smbios_attr_group;
+#endif
+>>>>>>> upstream/android-13
 
 enum pci_mmap_api {
 	PCI_MMAP_SYSFS,	/* mmap on /sys/bus/pci/devices/<BDF>/resource<N> */
@@ -35,6 +55,7 @@ enum pci_mmap_api {
 int pci_mmap_fits(struct pci_dev *pdev, int resno, struct vm_area_struct *vmai,
 		  enum pci_mmap_api mmap_api);
 
+<<<<<<< HEAD
 int pci_probe_reset_function(struct pci_dev *dev);
 int pci_bridge_secondary_bus_reset(struct pci_dev *dev);
 int pci_bus_error_reset(struct pci_dev *dev);
@@ -42,6 +63,43 @@ int pci_bus_error_reset(struct pci_dev *dev);
 /**
  * struct pci_platform_pm_ops - Firmware PM callbacks
  *
+=======
+bool pci_reset_supported(struct pci_dev *dev);
+void pci_init_reset_methods(struct pci_dev *dev);
+int pci_bridge_secondary_bus_reset(struct pci_dev *dev);
+int pci_bus_error_reset(struct pci_dev *dev);
+
+struct pci_cap_saved_data {
+	u16		cap_nr;
+	bool		cap_extended;
+	unsigned int	size;
+	u32		data[];
+};
+
+struct pci_cap_saved_state {
+	struct hlist_node		next;
+	struct pci_cap_saved_data	cap;
+};
+
+void pci_allocate_cap_save_buffers(struct pci_dev *dev);
+void pci_free_cap_save_buffers(struct pci_dev *dev);
+int pci_add_cap_save_buffer(struct pci_dev *dev, char cap, unsigned int size);
+int pci_add_ext_cap_save_buffer(struct pci_dev *dev,
+				u16 cap, unsigned int size);
+struct pci_cap_saved_state *pci_find_saved_cap(struct pci_dev *dev, char cap);
+struct pci_cap_saved_state *pci_find_saved_ext_cap(struct pci_dev *dev,
+						   u16 cap);
+
+#define PCI_PM_D2_DELAY         200	/* usec; see PCIe r4.0, sec 5.9.1 */
+#define PCI_PM_D3HOT_WAIT       10	/* msec */
+#define PCI_PM_D3COLD_WAIT      100	/* msec */
+
+/**
+ * struct pci_platform_pm_ops - Firmware PM callbacks
+ *
+ * @bridge_d3: Does the bridge allow entering into D3
+ *
+>>>>>>> upstream/android-13
  * @is_manageable: returns 'true' if given device is power manageable by the
  *		   platform firmware
  *
@@ -49,6 +107,11 @@ int pci_bus_error_reset(struct pci_dev *dev);
  *
  * @get_state: queries the platform firmware for a device's current power state
  *
+<<<<<<< HEAD
+=======
+ * @refresh_state: asks the platform to refresh the device's power state data
+ *
+>>>>>>> upstream/android-13
  * @choose_state: returns PCI power state of given device preferred by the
  *		  platform; to be used during system-wide transitions from a
  *		  sleeping state to the working state and vice versa
@@ -63,9 +126,17 @@ int pci_bus_error_reset(struct pci_dev *dev);
  * these callbacks are mandatory.
  */
 struct pci_platform_pm_ops {
+<<<<<<< HEAD
 	bool (*is_manageable)(struct pci_dev *dev);
 	int (*set_state)(struct pci_dev *dev, pci_power_t state);
 	pci_power_t (*get_state)(struct pci_dev *dev);
+=======
+	bool (*bridge_d3)(struct pci_dev *dev);
+	bool (*is_manageable)(struct pci_dev *dev);
+	int (*set_state)(struct pci_dev *dev, pci_power_t state);
+	pci_power_t (*get_state)(struct pci_dev *dev);
+	void (*refresh_state)(struct pci_dev *dev);
+>>>>>>> upstream/android-13
 	pci_power_t (*choose_state)(struct pci_dev *dev);
 	int (*set_wakeup)(struct pci_dev *dev, bool enable);
 	bool (*need_resume)(struct pci_dev *dev);
@@ -73,6 +144,7 @@ struct pci_platform_pm_ops {
 
 int pci_set_platform_pm(const struct pci_platform_pm_ops *ops);
 void pci_update_current_state(struct pci_dev *dev, pci_power_t state);
+<<<<<<< HEAD
 void pci_power_up(struct pci_dev *dev);
 void pci_disable_enabled_device(struct pci_dev *dev);
 int pci_finish_runtime_suspend(struct pci_dev *dev);
@@ -80,15 +152,37 @@ void pcie_clear_root_pme_status(struct pci_dev *dev);
 int __pci_pme_wakeup(struct pci_dev *dev, void *ign);
 void pci_pme_restore(struct pci_dev *dev);
 bool pci_dev_keep_suspended(struct pci_dev *dev);
+=======
+void pci_refresh_power_state(struct pci_dev *dev);
+int pci_power_up(struct pci_dev *dev);
+void pci_disable_enabled_device(struct pci_dev *dev);
+int pci_finish_runtime_suspend(struct pci_dev *dev);
+void pcie_clear_device_status(struct pci_dev *dev);
+void pcie_clear_root_pme_status(struct pci_dev *dev);
+bool pci_check_pme_status(struct pci_dev *dev);
+void pci_pme_wakeup_bus(struct pci_bus *bus);
+int __pci_pme_wakeup(struct pci_dev *dev, void *ign);
+void pci_pme_restore(struct pci_dev *dev);
+bool pci_dev_need_resume(struct pci_dev *dev);
+void pci_dev_adjust_pme(struct pci_dev *dev);
+>>>>>>> upstream/android-13
 void pci_dev_complete_resume(struct pci_dev *pci_dev);
 void pci_config_pm_runtime_get(struct pci_dev *dev);
 void pci_config_pm_runtime_put(struct pci_dev *dev);
 void pci_pm_init(struct pci_dev *dev);
 void pci_ea_init(struct pci_dev *dev);
+<<<<<<< HEAD
 void pci_allocate_cap_save_buffers(struct pci_dev *dev);
 void pci_free_cap_save_buffers(struct pci_dev *dev);
 bool pci_bridge_d3_possible(struct pci_dev *dev);
 void pci_bridge_d3_update(struct pci_dev *dev);
+=======
+void pci_msi_init(struct pci_dev *dev);
+void pci_msix_init(struct pci_dev *dev);
+bool pci_bridge_d3_possible(struct pci_dev *dev);
+void pci_bridge_d3_update(struct pci_dev *dev);
+void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev);
+>>>>>>> upstream/android-13
 
 static inline void pci_wakeup_event(struct pci_dev *dev)
 {
@@ -110,10 +204,30 @@ static inline bool pci_power_manageable(struct pci_dev *pci_dev)
 	return !pci_has_subordinate(pci_dev) || pci_dev->bridge_d3;
 }
 
+<<<<<<< HEAD
 int pci_vpd_init(struct pci_dev *dev);
 void pci_vpd_release(struct pci_dev *dev);
 void pcie_vpd_create_sysfs_dev_files(struct pci_dev *dev);
 void pcie_vpd_remove_sysfs_dev_files(struct pci_dev *dev);
+=======
+static inline bool pcie_downstream_port(const struct pci_dev *dev)
+{
+	int type = pci_pcie_type(dev);
+
+	return type == PCI_EXP_TYPE_ROOT_PORT ||
+	       type == PCI_EXP_TYPE_DOWNSTREAM ||
+	       type == PCI_EXP_TYPE_PCIE_BRIDGE;
+}
+
+void pci_vpd_init(struct pci_dev *dev);
+void pci_vpd_release(struct pci_dev *dev);
+extern const struct attribute_group pci_dev_vpd_attr_group;
+
+/* PCI Virtual Channel */
+int pci_save_vc_state(struct pci_dev *dev);
+void pci_restore_vc_state(struct pci_dev *dev);
+void pci_allocate_vc_save_buffers(struct pci_dev *dev);
+>>>>>>> upstream/android-13
 
 /* PCI /proc functions */
 #ifdef CONFIG_PROC_FS
@@ -143,7 +257,11 @@ extern struct mutex pci_slot_mutex;
 
 extern raw_spinlock_t pci_lock;
 
+<<<<<<< HEAD
 extern unsigned int pci_pm_d3_delay;
+=======
+extern unsigned int pci_pm_d3hot_delay;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI_MSI
 void pci_no_msi(void);
@@ -151,6 +269,7 @@ void pci_no_msi(void);
 static inline void pci_no_msi(void) { }
 #endif
 
+<<<<<<< HEAD
 static inline void pci_msi_set_enable(struct pci_dev *dev, int enable)
 {
 	u16 control;
@@ -172,6 +291,8 @@ static inline void pci_msix_clear_and_set_ctrl(struct pci_dev *dev, u16 clear, u
 	pci_write_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, ctrl);
 }
 
+=======
+>>>>>>> upstream/android-13
 void pci_realloc_get_opt(char *);
 
 static inline int pci_no_d1d2(struct pci_dev *dev)
@@ -188,6 +309,13 @@ extern const struct attribute_group *pcibus_groups[];
 extern const struct device_type pci_dev_type;
 extern const struct attribute_group *pci_bus_groups[];
 
+<<<<<<< HEAD
+=======
+extern unsigned long pci_hotplug_io_size;
+extern unsigned long pci_hotplug_mmio_size;
+extern unsigned long pci_hotplug_mmio_pref_size;
+extern unsigned long pci_hotplug_bus_size;
+>>>>>>> upstream/android-13
 
 /**
  * pci_match_one_device - Tell if a PCI device structure has a matching
@@ -228,6 +356,12 @@ enum pci_bar_type {
 	pci_bar_mem64,		/* A 64-bit memory BAR */
 };
 
+<<<<<<< HEAD
+=======
+struct device *pci_get_host_bridge_device(struct pci_dev *dev);
+void pci_put_host_bridge_device(struct device *dev);
+
+>>>>>>> upstream/android-13
 int pci_configure_extended_tags(struct pci_dev *dev, void *ign);
 bool pci_bus_read_dev_vendor_id(struct pci_bus *bus, int devfn, u32 *pl,
 				int crs_timeout);
@@ -248,6 +382,7 @@ bool pci_bus_clip_resource(struct pci_dev *dev, int idx);
 
 void pci_reassigndev_resource_alignment(struct pci_dev *dev);
 void pci_disable_bridge_window(struct pci_dev *dev);
+<<<<<<< HEAD
 
 /* PCIe link information */
 #define PCIE_SPEED2STR(speed) \
@@ -260,16 +395,45 @@ void pci_disable_bridge_window(struct pci_dev *dev);
 /* PCIe speed to Mb/s reduced by encoding overhead */
 #define PCIE_SPEED2MBS_ENC(speed) \
 	((speed) == PCIE_SPEED_16_0GT ? 16000*128/130 : \
+=======
+struct pci_bus *pci_bus_get(struct pci_bus *bus);
+void pci_bus_put(struct pci_bus *bus);
+
+/* PCIe link information from Link Capabilities 2 */
+#define PCIE_LNKCAP2_SLS2SPEED(lnkcap2) \
+	((lnkcap2) & PCI_EXP_LNKCAP2_SLS_64_0GB ? PCIE_SPEED_64_0GT : \
+	 (lnkcap2) & PCI_EXP_LNKCAP2_SLS_32_0GB ? PCIE_SPEED_32_0GT : \
+	 (lnkcap2) & PCI_EXP_LNKCAP2_SLS_16_0GB ? PCIE_SPEED_16_0GT : \
+	 (lnkcap2) & PCI_EXP_LNKCAP2_SLS_8_0GB ? PCIE_SPEED_8_0GT : \
+	 (lnkcap2) & PCI_EXP_LNKCAP2_SLS_5_0GB ? PCIE_SPEED_5_0GT : \
+	 (lnkcap2) & PCI_EXP_LNKCAP2_SLS_2_5GB ? PCIE_SPEED_2_5GT : \
+	 PCI_SPEED_UNKNOWN)
+
+/* PCIe speed to Mb/s reduced by encoding overhead */
+#define PCIE_SPEED2MBS_ENC(speed) \
+	((speed) == PCIE_SPEED_64_0GT ? 64000*128/130 : \
+	 (speed) == PCIE_SPEED_32_0GT ? 32000*128/130 : \
+	 (speed) == PCIE_SPEED_16_0GT ? 16000*128/130 : \
+>>>>>>> upstream/android-13
 	 (speed) == PCIE_SPEED_8_0GT  ?  8000*128/130 : \
 	 (speed) == PCIE_SPEED_5_0GT  ?  5000*8/10 : \
 	 (speed) == PCIE_SPEED_2_5GT  ?  2500*8/10 : \
 	 0)
 
+<<<<<<< HEAD
+=======
+const char *pci_speed_string(enum pci_bus_speed speed);
+>>>>>>> upstream/android-13
 enum pci_bus_speed pcie_get_speed_cap(struct pci_dev *dev);
 enum pcie_link_width pcie_get_width_cap(struct pci_dev *dev);
 u32 pcie_bandwidth_capable(struct pci_dev *dev, enum pci_bus_speed *speed,
 			   enum pcie_link_width *width);
 void __pcie_print_link_status(struct pci_dev *dev, bool verbose);
+<<<<<<< HEAD
+=======
+void pcie_report_downtraining(struct pci_dev *dev);
+void pcie_update_link_speed(struct pci_bus *bus, u16 link_status);
+>>>>>>> upstream/android-13
 
 /* Single Root I/O Virtualization */
 struct pci_sriov {
@@ -302,6 +466,7 @@ struct pci_sriov {
 	ANDROID_KABI_RESERVE(4);
 };
 
+<<<<<<< HEAD
 /* pci_dev priv_flags */
 #define PCI_DEV_DISCONNECTED 0
 #define PCI_DEV_ADDED 1
@@ -309,14 +474,81 @@ struct pci_sriov {
 static inline int pci_dev_set_disconnected(struct pci_dev *dev, void *unused)
 {
 	set_bit(PCI_DEV_DISCONNECTED, &dev->priv_flags);
+=======
+/**
+ * pci_dev_set_io_state - Set the new error state if possible.
+ *
+ * @dev: PCI device to set new error_state
+ * @new: the state we want dev to be in
+ *
+ * Must be called with device_lock held.
+ *
+ * Returns true if state has been changed to the requested state.
+ */
+static inline bool pci_dev_set_io_state(struct pci_dev *dev,
+					pci_channel_state_t new)
+{
+	bool changed = false;
+
+	device_lock_assert(&dev->dev);
+	switch (new) {
+	case pci_channel_io_perm_failure:
+		switch (dev->error_state) {
+		case pci_channel_io_frozen:
+		case pci_channel_io_normal:
+		case pci_channel_io_perm_failure:
+			changed = true;
+			break;
+		}
+		break;
+	case pci_channel_io_frozen:
+		switch (dev->error_state) {
+		case pci_channel_io_frozen:
+		case pci_channel_io_normal:
+			changed = true;
+			break;
+		}
+		break;
+	case pci_channel_io_normal:
+		switch (dev->error_state) {
+		case pci_channel_io_frozen:
+		case pci_channel_io_normal:
+			changed = true;
+			break;
+		}
+		break;
+	}
+	if (changed)
+		dev->error_state = new;
+	return changed;
+}
+
+static inline int pci_dev_set_disconnected(struct pci_dev *dev, void *unused)
+{
+	device_lock(&dev->dev);
+	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
+	device_unlock(&dev->dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static inline bool pci_dev_is_disconnected(const struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	return test_bit(PCI_DEV_DISCONNECTED, &dev->priv_flags);
 }
 
+=======
+	return dev->error_state == pci_channel_io_perm_failure;
+}
+
+/* pci_dev priv_flags */
+#define PCI_DEV_ADDED 0
+#define PCI_DPC_RECOVERED 1
+#define PCI_DPC_RECOVERING 2
+
+>>>>>>> upstream/android-13
 static inline void pci_dev_assign_added(struct pci_dev *dev, bool added)
 {
 	assign_bit(PCI_DEV_ADDED, &dev->priv_flags, added);
@@ -355,6 +587,7 @@ int aer_get_device_error_info(struct pci_dev *dev, struct aer_err_info *info);
 void aer_print_error(struct pci_dev *dev, struct aer_err_info *info);
 #endif	/* CONFIG_PCIEAER */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI_ATS
 void pci_restore_ats_state(struct pci_dev *dev);
 #else
@@ -363,6 +596,72 @@ static inline void pci_restore_ats_state(struct pci_dev *dev)
 }
 #endif /* CONFIG_PCI_ATS */
 
+=======
+#ifdef CONFIG_PCIEPORTBUS
+/* Cached RCEC Endpoint Association */
+struct rcec_ea {
+	u8		nextbusn;
+	u8		lastbusn;
+	u32		bitmap;
+};
+#endif
+
+#ifdef CONFIG_PCIE_DPC
+void pci_save_dpc_state(struct pci_dev *dev);
+void pci_restore_dpc_state(struct pci_dev *dev);
+void pci_dpc_init(struct pci_dev *pdev);
+void dpc_process_error(struct pci_dev *pdev);
+pci_ers_result_t dpc_reset_link(struct pci_dev *pdev);
+bool pci_dpc_recovered(struct pci_dev *pdev);
+#else
+static inline void pci_save_dpc_state(struct pci_dev *dev) {}
+static inline void pci_restore_dpc_state(struct pci_dev *dev) {}
+static inline void pci_dpc_init(struct pci_dev *pdev) {}
+static inline bool pci_dpc_recovered(struct pci_dev *pdev) { return false; }
+#endif
+
+#ifdef CONFIG_PCIEPORTBUS
+void pci_rcec_init(struct pci_dev *dev);
+void pci_rcec_exit(struct pci_dev *dev);
+void pcie_link_rcec(struct pci_dev *rcec);
+void pcie_walk_rcec(struct pci_dev *rcec,
+		    int (*cb)(struct pci_dev *, void *),
+		    void *userdata);
+#else
+static inline void pci_rcec_init(struct pci_dev *dev) {}
+static inline void pci_rcec_exit(struct pci_dev *dev) {}
+static inline void pcie_link_rcec(struct pci_dev *rcec) {}
+static inline void pcie_walk_rcec(struct pci_dev *rcec,
+				  int (*cb)(struct pci_dev *, void *),
+				  void *userdata) {}
+#endif
+
+#ifdef CONFIG_PCI_ATS
+/* Address Translation Service */
+void pci_ats_init(struct pci_dev *dev);
+void pci_restore_ats_state(struct pci_dev *dev);
+#else
+static inline void pci_ats_init(struct pci_dev *d) { }
+static inline void pci_restore_ats_state(struct pci_dev *dev) { }
+#endif /* CONFIG_PCI_ATS */
+
+#ifdef CONFIG_PCI_PRI
+void pci_pri_init(struct pci_dev *dev);
+void pci_restore_pri_state(struct pci_dev *pdev);
+#else
+static inline void pci_pri_init(struct pci_dev *dev) { }
+static inline void pci_restore_pri_state(struct pci_dev *pdev) { }
+#endif
+
+#ifdef CONFIG_PCI_PASID
+void pci_pasid_init(struct pci_dev *dev);
+void pci_restore_pasid_state(struct pci_dev *pdev);
+#else
+static inline void pci_pasid_init(struct pci_dev *dev) { }
+static inline void pci_restore_pasid_state(struct pci_dev *pdev) { }
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PCI_IOV
 int pci_iov_init(struct pci_dev *dev);
 void pci_iov_release(struct pci_dev *dev);
@@ -371,7 +670,12 @@ void pci_iov_update_resource(struct pci_dev *dev, int resno);
 resource_size_t pci_sriov_resource_alignment(struct pci_dev *dev, int resno);
 void pci_restore_iov_state(struct pci_dev *dev);
 int pci_iov_bus_range(struct pci_bus *bus);
+<<<<<<< HEAD
 
+=======
+extern const struct attribute_group sriov_pf_dev_attr_group;
+extern const struct attribute_group sriov_vf_dev_attr_group;
+>>>>>>> upstream/android-13
 #else
 static inline int pci_iov_init(struct pci_dev *dev)
 {
@@ -394,6 +698,19 @@ static inline int pci_iov_bus_range(struct pci_bus *bus)
 
 #endif /* CONFIG_PCI_IOV */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCIE_PTM
+void pci_save_ptm_state(struct pci_dev *dev);
+void pci_restore_ptm_state(struct pci_dev *dev);
+void pci_disable_ptm(struct pci_dev *dev);
+#else
+static inline void pci_save_ptm_state(struct pci_dev *dev) { }
+static inline void pci_restore_ptm_state(struct pci_dev *dev) { }
+static inline void pci_disable_ptm(struct pci_dev *dev) { }
+#endif
+
+>>>>>>> upstream/android-13
 unsigned long pci_cardbus_resource_alignment(struct resource *);
 
 static inline resource_size_t pci_resource_alignment(struct pci_dev *dev,
@@ -410,7 +727,11 @@ static inline resource_size_t pci_resource_alignment(struct pci_dev *dev,
 	return resource_alignment(res);
 }
 
+<<<<<<< HEAD
 void pci_enable_acs(struct pci_dev *dev);
+=======
+void pci_acs_init(struct pci_dev *dev);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PCI_QUIRKS
 int pci_dev_specific_acs_enabled(struct pci_dev *dev, u16 acs_flags);
 int pci_dev_specific_enable_acs(struct pci_dev *dev);
@@ -432,8 +753,14 @@ static inline int pci_dev_specific_disable_acs_redir(struct pci_dev *dev)
 #endif
 
 /* PCI error reporting and recovery */
+<<<<<<< HEAD
 void pcie_do_fatal_recovery(struct pci_dev *dev, u32 service);
 void pcie_do_nonfatal_recovery(struct pci_dev *dev);
+=======
+pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
+		pci_channel_state_t state,
+		pci_ers_result_t (*reset_subordinates)(struct pci_dev *pdev));
+>>>>>>> upstream/android-13
 
 bool pcie_wait_for_link(struct pci_dev *pdev, bool active);
 #ifdef CONFIG_PCIEASPM
@@ -448,12 +775,21 @@ static inline void pcie_aspm_pm_state_change(struct pci_dev *pdev) { }
 static inline void pcie_aspm_powersave_config_link(struct pci_dev *pdev) { }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCIEASPM_DEBUG
 void pcie_aspm_create_sysfs_dev_files(struct pci_dev *pdev);
 void pcie_aspm_remove_sysfs_dev_files(struct pci_dev *pdev);
 #else
 static inline void pcie_aspm_create_sysfs_dev_files(struct pci_dev *pdev) { }
 static inline void pcie_aspm_remove_sysfs_dev_files(struct pci_dev *pdev) { }
+=======
+#ifdef CONFIG_PCIE_ECRC
+void pcie_set_ecrc_checking(struct pci_dev *dev);
+void pcie_ecrc_get_policy(char *str);
+#else
+static inline void pcie_set_ecrc_checking(struct pci_dev *dev) { }
+static inline void pcie_ecrc_get_policy(char *str) { }
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_PCIE_PTM
@@ -465,6 +801,7 @@ static inline void pci_ptm_init(struct pci_dev *dev) { }
 struct pci_dev_reset_methods {
 	u16 vendor;
 	u16 device;
+<<<<<<< HEAD
 	int (*reset)(struct pci_dev *dev, int probe);
 };
 
@@ -472,6 +809,20 @@ struct pci_dev_reset_methods {
 int pci_dev_specific_reset(struct pci_dev *dev, int probe);
 #else
 static inline int pci_dev_specific_reset(struct pci_dev *dev, int probe)
+=======
+	int (*reset)(struct pci_dev *dev, bool probe);
+};
+
+struct pci_reset_fn_method {
+	int (*reset_fn)(struct pci_dev *pdev, bool probe);
+	char *name;
+};
+
+#ifdef CONFIG_PCI_QUIRKS
+int pci_dev_specific_reset(struct pci_dev *dev, bool probe);
+#else
+static inline int pci_dev_specific_reset(struct pci_dev *dev, bool probe)
+>>>>>>> upstream/android-13
 {
 	return -ENOTTY;
 }
@@ -488,7 +839,10 @@ static inline int acpi_get_rc_resources(struct device *dev, const char *hid,
 }
 #endif
 
+<<<<<<< HEAD
 u32 pci_rebar_get_possible_sizes(struct pci_dev *pdev, int bar);
+=======
+>>>>>>> upstream/android-13
 int pci_rebar_get_current_size(struct pci_dev *pdev, int bar);
 int pci_rebar_set_size(struct pci_dev *pdev, int bar, int size);
 static inline u64 pci_rebar_size_to_bytes(int size)
@@ -502,6 +856,15 @@ struct device_node;
 int of_pci_parse_bus_range(struct device_node *node, struct resource *res);
 int of_get_pci_domain_nr(struct device_node *node);
 int of_pci_get_max_link_speed(struct device_node *node);
+<<<<<<< HEAD
+=======
+void pci_set_of_node(struct pci_dev *dev);
+void pci_release_of_node(struct pci_dev *dev);
+void pci_set_bus_of_node(struct pci_bus *bus);
+void pci_release_bus_of_node(struct pci_bus *bus);
+
+int devm_of_pci_bridge_init(struct device *dev, struct pci_host_bridge *bridge);
+>>>>>>> upstream/android-13
 
 #else
 static inline int
@@ -521,6 +884,7 @@ of_pci_get_max_link_speed(struct device_node *node)
 {
 	return -EINVAL;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_OF */
 
 #if defined(CONFIG_OF_ADDRESS)
@@ -535,6 +899,20 @@ static inline int devm_of_pci_get_host_bridge_resources(struct device *dev,
 	return -EINVAL;
 }
 #endif
+=======
+
+static inline void pci_set_of_node(struct pci_dev *dev) { }
+static inline void pci_release_of_node(struct pci_dev *dev) { }
+static inline void pci_set_bus_of_node(struct pci_bus *bus) { }
+static inline void pci_release_bus_of_node(struct pci_bus *bus) { }
+
+static inline int devm_of_pci_bridge_init(struct device *dev, struct pci_host_bridge *bridge)
+{
+	return 0;
+}
+
+#endif /* CONFIG_OF */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCIEAER
 void pci_no_aer(void);
@@ -542,13 +920,49 @@ void pci_aer_init(struct pci_dev *dev);
 void pci_aer_exit(struct pci_dev *dev);
 extern const struct attribute_group aer_stats_attr_group;
 void pci_aer_clear_fatal_status(struct pci_dev *dev);
+<<<<<<< HEAD
 void pci_aer_clear_device_status(struct pci_dev *dev);
+=======
+int pci_aer_clear_status(struct pci_dev *dev);
+int pci_aer_raw_clear_status(struct pci_dev *dev);
+>>>>>>> upstream/android-13
 #else
 static inline void pci_no_aer(void) { }
 static inline void pci_aer_init(struct pci_dev *d) { }
 static inline void pci_aer_exit(struct pci_dev *d) { }
 static inline void pci_aer_clear_fatal_status(struct pci_dev *dev) { }
+<<<<<<< HEAD
 static inline void pci_aer_clear_device_status(struct pci_dev *dev) { }
 #endif
 
+=======
+static inline int pci_aer_clear_status(struct pci_dev *dev) { return -EINVAL; }
+static inline int pci_aer_raw_clear_status(struct pci_dev *dev) { return -EINVAL; }
+#endif
+
+#ifdef CONFIG_ACPI
+int pci_acpi_program_hp_params(struct pci_dev *dev);
+extern const struct attribute_group pci_dev_acpi_attr_group;
+void pci_set_acpi_fwnode(struct pci_dev *dev);
+int pci_dev_acpi_reset(struct pci_dev *dev, bool probe);
+#else
+static inline int pci_dev_acpi_reset(struct pci_dev *dev, bool probe)
+{
+	return -ENOTTY;
+}
+
+static inline void pci_set_acpi_fwnode(struct pci_dev *dev) {}
+static inline int pci_acpi_program_hp_params(struct pci_dev *dev)
+{
+	return -ENODEV;
+}
+#endif
+
+#ifdef CONFIG_PCIEASPM
+extern const struct attribute_group aspm_ctrl_attr_group;
+#endif
+
+extern const struct attribute_group pci_dev_reset_method_attr_group;
+
+>>>>>>> upstream/android-13
 #endif /* DRIVERS_PCI_H */

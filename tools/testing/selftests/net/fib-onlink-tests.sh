@@ -4,6 +4,10 @@
 # IPv4 and IPv6 onlink tests
 
 PAUSE_ON_FAIL=${PAUSE_ON_FAIL:=no}
+<<<<<<< HEAD
+=======
+VERBOSE=0
+>>>>>>> upstream/android-13
 
 # Network interfaces
 # - odd in current namespace; even in peer ns
@@ -91,10 +95,17 @@ log_test()
 
 	if [ ${rc} -eq ${expected} ]; then
 		nsuccess=$((nsuccess+1))
+<<<<<<< HEAD
 		printf "\n    TEST: %-50s  [ OK ]\n" "${msg}"
 	else
 		nfail=$((nfail+1))
 		printf "\n    TEST: %-50s  [FAIL]\n" "${msg}"
+=======
+		printf "    TEST: %-50s  [ OK ]\n" "${msg}"
+	else
+		nfail=$((nfail+1))
+		printf "    TEST: %-50s  [FAIL]\n" "${msg}"
+>>>>>>> upstream/android-13
 		if [ "${PAUSE_ON_FAIL}" = "yes" ]; then
 			echo
 			echo "hit enter to continue, 'q' to quit"
@@ -121,9 +132,29 @@ log_subsection()
 
 run_cmd()
 {
+<<<<<<< HEAD
 	echo
 	echo "COMMAND: $*"
 	eval $*
+=======
+	local cmd="$*"
+	local out
+	local rc
+
+	if [ "$VERBOSE" = "1" ]; then
+		printf "    COMMAND: $cmd\n"
+	fi
+
+	out=$(eval $cmd 2>&1)
+	rc=$?
+	if [ "$VERBOSE" = "1" -a -n "$out" ]; then
+		echo "    $out"
+	fi
+
+	[ "$VERBOSE" = "1" ] && echo
+
+	return $rc
+>>>>>>> upstream/android-13
 }
 
 get_linklocal()
@@ -451,11 +482,40 @@ run_onlink_tests()
 }
 
 ################################################################################
+<<<<<<< HEAD
+=======
+# usage
+
+usage()
+{
+	cat <<EOF
+usage: ${0##*/} OPTS
+
+        -p          Pause on fail
+        -v          verbose mode (show commands and output)
+EOF
+}
+
+################################################################################
+>>>>>>> upstream/android-13
 # main
 
 nsuccess=0
 nfail=0
 
+<<<<<<< HEAD
+=======
+while getopts :t:pPhv o
+do
+	case $o in
+		p) PAUSE_ON_FAIL=yes;;
+		v) VERBOSE=$(($VERBOSE + 1));;
+		h) usage; exit 0;;
+		*) usage; exit 1;;
+	esac
+done
+
+>>>>>>> upstream/android-13
 cleanup
 setup
 run_onlink_tests

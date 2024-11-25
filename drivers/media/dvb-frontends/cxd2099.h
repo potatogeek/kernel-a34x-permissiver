@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * cxd2099.h: Driver for the Sony CXD2099AR Common Interface Controller
  *

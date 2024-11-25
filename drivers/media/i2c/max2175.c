@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Maxim Integrated MAX2175 RF to Bits tuner driver
  *
@@ -6,6 +10,7 @@
  *
  * Copyright (C) 2016 Maxim Integrated Products
  * Copyright (C) 2017 Renesas Electronics Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -599,8 +606,13 @@ static int max2175_set_lo_freq(struct max2175 *ctx, u32 lo_freq)
 		lo_freq *= lo_mult;
 
 	int_desired = lo_freq / ctx->xtal_freq;
+<<<<<<< HEAD
 	frac_desired = div_u64((u64)(lo_freq % ctx->xtal_freq) << 20,
 			       ctx->xtal_freq);
+=======
+	frac_desired = div64_ul((u64)(lo_freq % ctx->xtal_freq) << 20,
+				ctx->xtal_freq);
+>>>>>>> upstream/android-13
 
 	/* Check CSM is not busy */
 	ret = max2175_poll_csm_ready(ctx);
@@ -1133,7 +1145,10 @@ static int max2175_g_frequency(struct v4l2_subdev *sd,
 			       struct v4l2_frequency *vf)
 {
 	struct max2175 *ctx = max2175_from_sd(sd);
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (vf->tuner != 0)
 		return -EINVAL;
@@ -1142,7 +1157,11 @@ static int max2175_g_frequency(struct v4l2_subdev *sd,
 	vf->type = V4L2_TUNER_RF;
 	vf->frequency = ctx->freq;
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int max2175_enum_freq_bands(struct v4l2_subdev *sd,
@@ -1165,7 +1184,11 @@ static int max2175_g_tuner(struct v4l2_subdev *sd, struct v4l2_tuner *vt)
 	if (vt->index > 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(vt->name, "RF", sizeof(vt->name));
+=======
+	strscpy(vt->name, "RF", sizeof(vt->name));
+>>>>>>> upstream/android-13
 	vt->type = V4L2_TUNER_RF;
 	vt->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 	vt->rangelow = ctx->bands_rf->rangelow;
@@ -1202,7 +1225,11 @@ static const struct v4l2_ctrl_ops max2175_ctrl_ops = {
 
 /*
  * I2S output enable/disable configuration. This is a private control.
+<<<<<<< HEAD
  * Refer to Documentation/media/v4l-drivers/max2175.rst for more details.
+=======
+ * Refer to Documentation/userspace-api/media/drivers/max2175.rst for more details.
+>>>>>>> upstream/android-13
  */
 static const struct v4l2_ctrl_config max2175_i2s_en = {
 	.ops = &max2175_ctrl_ops,
@@ -1218,7 +1245,11 @@ static const struct v4l2_ctrl_config max2175_i2s_en = {
 
 /*
  * HSLS value control LO freq adjacent location configuration.
+<<<<<<< HEAD
  * Refer to Documentation/media/v4l-drivers/max2175.rst for more details.
+=======
+ * Refer to Documentation/userspace-api/media/drivers/max2175.rst for more details.
+>>>>>>> upstream/android-13
  */
 static const struct v4l2_ctrl_config max2175_hsls = {
 	.ops = &max2175_ctrl_ops,
@@ -1234,7 +1265,11 @@ static const struct v4l2_ctrl_config max2175_hsls = {
 /*
  * Rx modes below are a set of preset configurations that decides the tuner's
  * sck and sample rate of transmission. They are separate for EU & NA regions.
+<<<<<<< HEAD
  * Refer to Documentation/media/v4l-drivers/max2175.rst for more details.
+=======
+ * Refer to Documentation/userspace-api/media/drivers/max2175.rst for more details.
+>>>>>>> upstream/android-13
  */
 static const char * const max2175_ctrl_eu_rx_modes[] = {
 	[MAX2175_EU_FM_1_2]	= "EU FM 1.2",
@@ -1279,8 +1314,12 @@ static int max2175_refout_load_to_bits(struct i2c_client *client, u32 load,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int max2175_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int max2175_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	bool master = true, am_hiz = false;
 	u32 refout_load, refout_bits = 0;	/* REFOUT disabled */
@@ -1441,7 +1480,11 @@ static struct i2c_driver max2175_driver = {
 		.name	= DRIVER_NAME,
 		.of_match_table = max2175_of_ids,
 	},
+<<<<<<< HEAD
 	.probe		= max2175_probe,
+=======
+	.probe_new	= max2175_probe,
+>>>>>>> upstream/android-13
 	.remove		= max2175_remove,
 	.id_table	= max2175_id,
 };

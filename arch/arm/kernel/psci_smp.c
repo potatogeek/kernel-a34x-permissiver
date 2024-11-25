@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,6 +8,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2012 ARM Limited
  *
@@ -58,7 +63,11 @@ static int psci_boot_secondary(unsigned int cpu, struct task_struct *idle)
 }
 
 #ifdef CONFIG_HOTPLUG_CPU
+<<<<<<< HEAD
 int psci_cpu_disable(unsigned int cpu)
+=======
+static int psci_cpu_disable(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	/* Fail early if we don't have CPU_OFF support */
 	if (!psci_ops.cpu_off)
@@ -71,7 +80,11 @@ int psci_cpu_disable(unsigned int cpu)
 	return 0;
 }
 
+<<<<<<< HEAD
 void psci_cpu_die(unsigned int cpu)
+=======
+static void psci_cpu_die(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	u32 state = PSCI_POWER_STATE_TYPE_POWER_DOWN <<
 		    PSCI_0_2_POWER_STATE_TYPE_SHIFT;
@@ -83,7 +96,11 @@ void psci_cpu_die(unsigned int cpu)
 	panic("psci: cpu %d failed to shutdown\n", cpu);
 }
 
+<<<<<<< HEAD
 int psci_cpu_kill(unsigned int cpu)
+=======
+static int psci_cpu_kill(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	int err, i;
 

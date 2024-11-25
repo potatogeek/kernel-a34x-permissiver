@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Linux driver for digital TV devices equipped with B2C2 FlexcopII(b)/III
  * flexcop-usb.c - covers the USB part
@@ -14,8 +18,13 @@
 
 /* debug */
 #ifdef CONFIG_DVB_B2C2_FLEXCOP_DEBUG
+<<<<<<< HEAD
 #define dprintk(level,args...) \
 	do { if ((debug & level)) printk(args); } while (0)
+=======
+#define dprintk(level, args...) \
+	do { if ((debug & (level))) printk(args); } while (0)
+>>>>>>> upstream/android-13
 
 #define debug_dump(b, l, method) do {\
 	int i; \
@@ -26,8 +35,13 @@
 
 #define DEBSTATUS ""
 #else
+<<<<<<< HEAD
 #define dprintk(level, args...)
 #define debug_dump(b, l, method)
+=======
+#define dprintk(level, args...) no_printk(args)
+#define debug_dump(b, l, method) do { } while (0)
+>>>>>>> upstream/android-13
 #define DEBSTATUS " (debugging is not enabled)"
 #endif
 
@@ -86,7 +100,11 @@ static int flexcop_usb_readwrite_dw(struct flexcop_device *fc, u16 wRegOffsPCI, 
 			0,
 			fc_usb->data,
 			sizeof(u32),
+<<<<<<< HEAD
 			B2C2_WAIT_FOR_OPERATION_RDW * HZ);
+=======
+			B2C2_WAIT_FOR_OPERATION_RDW);
+>>>>>>> upstream/android-13
 
 	if (ret != sizeof(u32)) {
 		err("error while %s dword from %d (%d).", read ? "reading" :
@@ -154,7 +172,11 @@ static int flexcop_usb_v8_memory_req(struct flexcop_usb *fc_usb,
 			wIndex,
 			fc_usb->data,
 			buflen,
+<<<<<<< HEAD
 			nWaitTime * HZ);
+=======
+			nWaitTime);
+>>>>>>> upstream/android-13
 	if (ret != buflen)
 		ret = -EIO;
 
@@ -194,7 +216,10 @@ static int flexcop_usb_memory_req(struct flexcop_usb *fc_usb,
 		break;
 	default:
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 	for (i = 0; i < len;) {
 		pagechunk =
@@ -248,13 +273,21 @@ static int flexcop_usb_i2c_req(struct flexcop_i2c_adapter *i2c,
 		/* DKT 020208 - add this to support special case of DiSEqC */
 	case USB_FUNC_I2C_CHECKWRITE:
 		pipe = B2C2_USB_CTRL_PIPE_OUT;
+<<<<<<< HEAD
 		nWaitTime = 2;
+=======
+		nWaitTime = 2000;
+>>>>>>> upstream/android-13
 		request_type |= USB_DIR_OUT;
 		break;
 	case USB_FUNC_I2C_READ:
 	case USB_FUNC_I2C_REPEATREAD:
 		pipe = B2C2_USB_CTRL_PIPE_IN;
+<<<<<<< HEAD
 		nWaitTime = 2;
+=======
+		nWaitTime = 2000;
+>>>>>>> upstream/android-13
 		request_type |= USB_DIR_IN;
 		break;
 	default:
@@ -281,7 +314,11 @@ static int flexcop_usb_i2c_req(struct flexcop_i2c_adapter *i2c,
 			wIndex,
 			fc_usb->data,
 			buflen,
+<<<<<<< HEAD
 			nWaitTime * HZ);
+=======
+			nWaitTime);
+>>>>>>> upstream/android-13
 
 	if (ret != buflen)
 		ret = -EIO;
@@ -418,10 +455,16 @@ static void flexcop_usb_transfer_exit(struct flexcop_usb *fc_usb)
 			usb_free_urb(fc_usb->iso_urb[i]);
 		}
 
+<<<<<<< HEAD
 	if (fc_usb->iso_buffer != NULL)
 		usb_free_coherent(fc_usb->udev,
 			fc_usb->buffer_size, fc_usb->iso_buffer,
 			fc_usb->dma_addr);
+=======
+	usb_free_coherent(fc_usb->udev, fc_usb->buffer_size,
+			  fc_usb->iso_buffer, fc_usb->dma_addr);
+
+>>>>>>> upstream/android-13
 }
 
 static int flexcop_usb_transfer_init(struct flexcop_usb *fc_usb)
@@ -512,6 +555,11 @@ static int flexcop_usb_init(struct flexcop_usb *fc_usb)
 
 	if (fc_usb->uintf->cur_altsetting->desc.bNumEndpoints < 1)
 		return -ENODEV;
+<<<<<<< HEAD
+=======
+	if (!usb_endpoint_is_isoc_in(&fc_usb->uintf->cur_altsetting->endpoint[1].desc))
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	switch (fc_usb->udev->speed) {
 	case USB_SPEED_LOW:
@@ -524,7 +572,11 @@ static int flexcop_usb_init(struct flexcop_usb *fc_usb)
 	case USB_SPEED_HIGH:
 		info("running at HIGH speed.");
 		break;
+<<<<<<< HEAD
 	case USB_SPEED_UNKNOWN: /* fall through */
+=======
+	case USB_SPEED_UNKNOWN:
+>>>>>>> upstream/android-13
 	default:
 		err("cannot handle USB speed because it is unknown.");
 		return -ENODEV;

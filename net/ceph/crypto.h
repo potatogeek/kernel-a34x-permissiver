@@ -5,6 +5,12 @@
 #include <linux/ceph/types.h>
 #include <linux/ceph/buffer.h>
 
+<<<<<<< HEAD
+=======
+#define CEPH_KEY_LEN			16
+#define CEPH_MAX_CON_SECRET_LEN		64
+
+>>>>>>> upstream/android-13
 /*
  * cryptographic secret
  */
@@ -13,7 +19,11 @@ struct ceph_crypto_key {
 	struct ceph_timespec created;
 	int len;
 	void *key;
+<<<<<<< HEAD
 	struct crypto_skcipher *tfm;
+=======
+	struct crypto_sync_skcipher *tfm;
+>>>>>>> upstream/android-13
 };
 
 int ceph_crypto_key_clone(struct ceph_crypto_key *dst,

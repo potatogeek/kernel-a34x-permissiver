@@ -28,7 +28,10 @@
  *    Christian König <christian.koenig@amd.com>
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_trace.h"
 
@@ -80,6 +83,10 @@ void radeon_sync_fence(struct radeon_sync *sync,
 /**
  * radeon_sync_resv - use the semaphores to sync to a reservation object
  *
+<<<<<<< HEAD
+=======
+ * @rdev: radeon_device pointer
+>>>>>>> upstream/android-13
  * @sync: sync object to add fences from reservation object to
  * @resv: reservation object with embedded fence
  * @shared: true if we should only sync to the exclusive fence
@@ -88,30 +95,49 @@ void radeon_sync_fence(struct radeon_sync *sync,
  */
 int radeon_sync_resv(struct radeon_device *rdev,
 		     struct radeon_sync *sync,
+<<<<<<< HEAD
 		     struct reservation_object *resv,
 		     bool shared)
 {
 	struct reservation_object_list *flist;
+=======
+		     struct dma_resv *resv,
+		     bool shared)
+{
+	struct dma_resv_list *flist;
+>>>>>>> upstream/android-13
 	struct dma_fence *f;
 	struct radeon_fence *fence;
 	unsigned i;
 	int r = 0;
 
 	/* always sync to the exclusive fence */
+<<<<<<< HEAD
 	f = reservation_object_get_excl(resv);
+=======
+	f = dma_resv_excl_fence(resv);
+>>>>>>> upstream/android-13
 	fence = f ? to_radeon_fence(f) : NULL;
 	if (fence && fence->rdev == rdev)
 		radeon_sync_fence(sync, fence);
 	else if (f)
 		r = dma_fence_wait(f, true);
 
+<<<<<<< HEAD
 	flist = reservation_object_get_list(resv);
+=======
+	flist = dma_resv_shared_list(resv);
+>>>>>>> upstream/android-13
 	if (shared || !flist || r)
 		return r;
 
 	for (i = 0; i < flist->shared_count; ++i) {
 		f = rcu_dereference_protected(flist->shared[i],
+<<<<<<< HEAD
 					      reservation_object_held(resv));
+=======
+					      dma_resv_held(resv));
+>>>>>>> upstream/android-13
 		fence = to_radeon_fence(f);
 		if (fence && fence->rdev == rdev)
 			radeon_sync_fence(sync, fence);

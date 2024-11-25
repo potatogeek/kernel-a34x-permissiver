@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Analog Devices AD-FMCOMMS1-EBZ board I2C-SPI bridge driver
  *
  * Copyright 2012 Analog Devices Inc.
  * Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -189,8 +196,12 @@ static int spi_xcomm_transfer_one(struct spi_master *master,
 		}
 		status = 0;
 
+<<<<<<< HEAD
 		if (t->delay_usecs)
 			udelay(t->delay_usecs);
+=======
+		spi_transfer_delay_exec(t);
+>>>>>>> upstream/android-13
 
 		is_first = false;
 	}

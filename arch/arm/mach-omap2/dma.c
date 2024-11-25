@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP2+ DMA driver
  *
@@ -12,6 +16,7 @@
  * Copyright (C) 2009 Texas Instruments
  * Added OMAP4 support - Santosh Shilimkar <santosh.shilimkar@ti.com>
  *
+<<<<<<< HEAD
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
  * Converted DMA library into platform driver
  *	- G, Manjunath Kondaiah <manjugk@ti.com>
@@ -19,6 +24,11 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
+ * Converted DMA library into platform driver
+ *	- G, Manjunath Kondaiah <manjugk@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -33,10 +43,13 @@
 #include <linux/omap-dma.h>
 
 #include "soc.h"
+<<<<<<< HEAD
 #include "omap_hwmod.h"
 #include "omap_device.h"
 
 static enum omap_reg_offsets dma_common_ch_end;
+=======
+>>>>>>> upstream/android-13
 
 static const struct omap_dma_reg reg_map[] = {
 	[REVISION]	= { 0x0000, 0x00, OMAP_DMA_REG_32BIT },
@@ -84,6 +97,7 @@ static const struct omap_dma_reg reg_map[] = {
 	[CCDN]		= { 0x00d8, 0x60, OMAP_DMA_REG_32BIT },
 };
 
+<<<<<<< HEAD
 static void __iomem *dma_base;
 static inline void dma_write(u32 val, int reg, int lch)
 {
@@ -120,6 +134,8 @@ static void omap2_show_dma_caps(void)
 				revision >> 4, revision & 0xf);
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned configure_dma_errata(void)
 {
 	unsigned errata = 0;
@@ -214,6 +230,7 @@ static const struct dma_slave_map omap24xx_sdma_dt_map[] = {
 	{ "musb-hdrc.1.auto", "dmareq5", SDMA_FILTER_PARAM(64) }, /* OMAP2420 only */
 };
 
+<<<<<<< HEAD
 static struct omap_system_dma_plat_info dma_plat_info __initdata = {
 	.reg_map	= reg_map,
 	.channel_stride	= 0x60,
@@ -292,4 +309,37 @@ static int __init omap2_system_dma_init(void)
 	return omap_hwmod_for_each_by_class("dma",
 			omap2_system_dma_init_dev, NULL);
 }
+=======
+static struct omap_dma_dev_attr dma_attr = {
+	.dev_caps = RESERVE_CHANNEL | DMA_LINKED_LCH | GLOBAL_PRIORITY |
+		    IS_CSSA_32 | IS_CDSA_32,
+	.lch_count = 32,
+};
+
+struct omap_system_dma_plat_info dma_plat_info = {
+	.reg_map	= reg_map,
+	.channel_stride	= 0x60,
+	.dma_attr	= &dma_attr,
+};
+
+/* One time initializations */
+static int __init omap2_system_dma_init(void)
+{
+	dma_plat_info.errata = configure_dma_errata();
+
+	if (soc_is_omap24xx()) {
+		/* DMA slave map for drivers not yet converted to DT */
+		dma_plat_info.slave_map = omap24xx_sdma_dt_map;
+		dma_plat_info.slavecnt = ARRAY_SIZE(omap24xx_sdma_dt_map);
+	}
+
+	if (!soc_is_omap242x())
+		dma_attr.dev_caps |= IS_RW_PRIORITY;
+
+	if (soc_is_omap34xx() && (omap_type() != OMAP2_DEVICE_TYPE_GP))
+		dma_attr.dev_caps |= HS_CHANNELS_RESERVED;
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 omap_arch_initcall(omap2_system_dma_init);

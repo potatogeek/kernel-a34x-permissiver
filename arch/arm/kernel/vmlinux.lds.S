@@ -8,15 +8,23 @@
 #include "vmlinux-xip.lds.S"
 #else
 
+<<<<<<< HEAD
 #include <asm-generic/vmlinux.lds.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/vmlinux.lds.h>
+>>>>>>> upstream/android-13
 #include <asm/cache.h>
 #include <asm/thread_info.h>
 #include <asm/memory.h>
 #include <asm/mpu.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 
 #include "vmlinux.lds.h"
+=======
+>>>>>>> upstream/android-13
 
 OUTPUT_ARCH(arm)
 ENTRY(stext)
@@ -43,9 +51,19 @@ SECTIONS
 #ifndef CONFIG_SMP_ON_UP
 		*(.alt.smp.init)
 #endif
+<<<<<<< HEAD
 	}
 
 	. = PAGE_OFFSET + TEXT_OFFSET;
+=======
+#ifndef CONFIG_ARM_UNWIND
+		*(.ARM.exidx) *(.ARM.exidx.*)
+		*(.ARM.extab) *(.ARM.extab.*)
+#endif
+	}
+
+	. = KERNEL_OFFSET + TEXT_OFFSET;
+>>>>>>> upstream/android-13
 	.head.text : {
 		_text = .;
 		HEAD_TEXT
@@ -81,8 +99,11 @@ SECTIONS
 	ARM_UNWIND_SECTIONS
 #endif
 
+<<<<<<< HEAD
 	NOTES
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_STRICT_KERNEL_RWX
 	. = ALIGN(1<<SECTION_SHIFT);
 #else
@@ -143,7 +164,11 @@ SECTIONS
 	__init_end = .;
 
 	_sdata = .;
+<<<<<<< HEAD
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+=======
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+>>>>>>> upstream/android-13
 	_edata = .;
 
 	BSS_SECTION(0, 0, 0)
@@ -153,6 +178,13 @@ SECTIONS
 	_end = .;
 
 	STABS_DEBUG
+<<<<<<< HEAD
+=======
+	DWARF_DEBUG
+	ARM_DETAILS
+
+	ARM_ASSERTS
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_STRICT_KERNEL_RWX
@@ -172,6 +204,7 @@ __start_rodata_section_aligned = ALIGN(__start_rodata, 1 << SECTION_SHIFT);
 ASSERT((__proc_info_end - __proc_info_begin), "missing CPU support")
 ASSERT((__arch_info_end - __arch_info_begin), "no machine record defined")
 
+<<<<<<< HEAD
 /*
  * The HYP init code can't be more than a page long,
  * and should not cross a page boundary.
@@ -180,4 +213,6 @@ ASSERT((__arch_info_end - __arch_info_begin), "no machine record defined")
 ASSERT(__hyp_idmap_text_end - (__hyp_idmap_text_start & PAGE_MASK) <= PAGE_SIZE,
 	"HYP init code too big or misaligned")
 
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_XIP_KERNEL */

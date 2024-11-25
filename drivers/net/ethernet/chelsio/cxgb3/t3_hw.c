@@ -1082,7 +1082,11 @@ int t3_check_fw_version(struct adapter *adapter)
 		CH_WARN(adapter, "found newer FW version(%u.%u), "
 		        "driver compiled for version %u.%u\n", major, minor,
 			FW_VERSION_MAJOR, FW_VERSION_MINOR);
+<<<<<<< HEAD
 			return 0;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 	}
 	return -EINVAL;
 }
@@ -2195,7 +2199,11 @@ static int t3_sge_write_context(struct adapter *adapter, unsigned int id,
 
 /**
  *	clear_sge_ctxt - completely clear an SGE context
+<<<<<<< HEAD
  *	@adapter: the adapter
+=======
+ *	@adap: the adapter
+>>>>>>> upstream/android-13
  *	@id: the context id
  *	@type: the context type
  *
@@ -2484,6 +2492,10 @@ int t3_sge_disable_cqcntxt(struct adapter *adapter, unsigned int id)
  *	@adapter: the adapter
  *	@id: the context id
  *	@op: the operation to perform
+<<<<<<< HEAD
+=======
+ *	@credits: credit value to write
+>>>>>>> upstream/android-13
  *
  *	Perform the selected operation on an SGE completion queue context.
  *	The caller is responsible for ensuring only one context operation
@@ -2885,7 +2897,11 @@ static void init_cong_ctrl(unsigned short *a, unsigned short *b)
  *	t3_load_mtus - write the MTU and congestion control HW tables
  *	@adap: the adapter
  *	@mtus: the unrestricted values for the MTU table
+<<<<<<< HEAD
  *	@alphs: the values for the congestion control alpha parameter
+=======
+ *	@alpha: the values for the congestion control alpha parameter
+>>>>>>> upstream/android-13
  *	@beta: the values for the congestion control beta parameter
  *	@mtu_cap: the maximum permitted effective MTU
  *
@@ -2966,7 +2982,11 @@ static void ulp_config(struct adapter *adap, const struct tp_params *p)
 
 /**
  *	t3_set_proto_sram - set the contents of the protocol sram
+<<<<<<< HEAD
  *	@adapter: the adapter
+=======
+ *	@adap: the adapter
+>>>>>>> upstream/android-13
  *	@data: the protocol image
  *
  *	Write the contents of the protocol SRAM.
@@ -3483,7 +3503,11 @@ static void get_pci_mode(struct adapter *adapter, struct pci_params *p)
 /**
  *	init_link_config - initialize a link's SW state
  *	@lc: structure holding the link state
+<<<<<<< HEAD
  *	@ai: information about the current card
+=======
+ *	@caps: information about the current card
+>>>>>>> upstream/android-13
  *
  *	Initializes the SW state maintained for each link, including the link's
  *	capabilities and default speed/duplex/flow-control/autonegotiation
@@ -3619,7 +3643,11 @@ int t3_reset_adapter(struct adapter *adapter)
 
 static int init_parity(struct adapter *adap)
 {
+<<<<<<< HEAD
 		int i, err, addr;
+=======
+	int i, err, addr;
+>>>>>>> upstream/android-13
 
 	if (t3_read_reg(adap, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
 		return -EBUSY;
@@ -3677,6 +3705,11 @@ int t3_prep_adapter(struct adapter *adapter, const struct adapter_info *ai,
 	    MAC_STATS_ACCUM_SECS : (MAC_STATS_ACCUM_SECS * 10);
 	adapter->params.pci.vpd_cap_addr =
 	    pci_find_capability(adapter->pdev, PCI_CAP_ID_VPD);
+<<<<<<< HEAD
+=======
+	if (!adapter->params.pci.vpd_cap_addr)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	ret = get_vpd_params(adapter, &adapter->params.vpd);
 	if (ret < 0)
 		return ret;
@@ -3806,6 +3839,10 @@ int t3_replay_prep_adapter(struct adapter *adapter)
 		p->phy.ops->power_down(&p->phy, 1);
 	}
 
+<<<<<<< HEAD
 return 0;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 

@@ -16,6 +16,7 @@
 #include <linux/if_vlan.h>
 #include <linux/ip.h>
 #include <linux/ipv6.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 #include "xdp_tx_iptunnel_common.h"
 
@@ -32,6 +33,24 @@ struct bpf_map_def SEC("maps") vip2tnl = {
 	.value_size = sizeof(struct iptnl_info),
 	.max_entries = MAX_IPTNL_ENTRIES,
 };
+=======
+#include <bpf/bpf_helpers.h>
+#include "xdp_tx_iptunnel_common.h"
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+	__type(key, __u32);
+	__type(value, __u64);
+	__uint(max_entries, 256);
+} rxcnt SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, struct vip);
+	__type(value, struct iptnl_info);
+	__uint(max_entries, MAX_IPTNL_ENTRIES);
+} vip2tnl SEC(".maps");
+>>>>>>> upstream/android-13
 
 static __always_inline void count_tx(u32 protocol)
 {

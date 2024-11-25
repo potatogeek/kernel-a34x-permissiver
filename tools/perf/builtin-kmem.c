@@ -2,10 +2,18 @@
 #include "builtin.h"
 #include "perf.h"
 
+<<<<<<< HEAD
 #include "util/evlist.h"
 #include "util/evsel.h"
 #include "util/util.h"
 #include "util/config.h"
+=======
+#include "util/dso.h"
+#include "util/evlist.h"
+#include "util/evsel.h"
+#include "util/config.h"
+#include "util/map.h"
+>>>>>>> upstream/android-13
 #include "util/symbol.h"
 #include "util/thread.h"
 #include "util/header.h"
@@ -13,23 +21,41 @@
 #include "util/tool.h"
 #include "util/callchain.h"
 #include "util/time-utils.h"
+<<<<<<< HEAD
 
+=======
+#include <linux/err.h>
+
+#include <subcmd/pager.h>
+>>>>>>> upstream/android-13
 #include <subcmd/parse-options.h>
 #include "util/trace-event.h"
 #include "util/data.h"
 #include "util/cpumap.h"
 
 #include "util/debug.h"
+<<<<<<< HEAD
+=======
+#include "util/string2.h"
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/rbtree.h>
 #include <linux/string.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 #include <errno.h>
 #include <inttypes.h>
 #include <locale.h>
 #include <regex.h>
 
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 
 static int	kmem_slab;
 static int	kmem_page;
@@ -164,6 +190,7 @@ static int insert_caller_stat(unsigned long call_site,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_alloc_event(struct perf_evsel *evsel,
 					   struct perf_sample *sample)
 {
@@ -171,6 +198,14 @@ static int perf_evsel__process_alloc_event(struct perf_evsel *evsel,
 		      call_site = perf_evsel__intval(evsel, sample, "call_site");
 	int bytes_req = perf_evsel__intval(evsel, sample, "bytes_req"),
 	    bytes_alloc = perf_evsel__intval(evsel, sample, "bytes_alloc");
+=======
+static int evsel__process_alloc_event(struct evsel *evsel, struct perf_sample *sample)
+{
+	unsigned long ptr = evsel__intval(evsel, sample, "ptr"),
+		      call_site = evsel__intval(evsel, sample, "call_site");
+	int bytes_req = evsel__intval(evsel, sample, "bytes_req"),
+	    bytes_alloc = evsel__intval(evsel, sample, "bytes_alloc");
+>>>>>>> upstream/android-13
 
 	if (insert_alloc_stat(call_site, ptr, bytes_req, bytes_alloc, sample->cpu) ||
 	    insert_caller_stat(call_site, bytes_req, bytes_alloc))
@@ -183,6 +218,7 @@ static int perf_evsel__process_alloc_event(struct perf_evsel *evsel,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_alloc_node_event(struct perf_evsel *evsel,
 						struct perf_sample *sample)
 {
@@ -191,6 +227,15 @@ static int perf_evsel__process_alloc_node_event(struct perf_evsel *evsel,
 	if (!ret) {
 		int node1 = cpu__get_node(sample->cpu),
 		    node2 = perf_evsel__intval(evsel, sample, "node");
+=======
+static int evsel__process_alloc_node_event(struct evsel *evsel, struct perf_sample *sample)
+{
+	int ret = evsel__process_alloc_event(evsel, sample);
+
+	if (!ret) {
+		int node1 = cpu__get_node(sample->cpu),
+		    node2 = evsel__intval(evsel, sample, "node");
+>>>>>>> upstream/android-13
 
 		if (node1 != node2)
 			nr_cross_allocs++;
@@ -227,10 +272,16 @@ static struct alloc_stat *search_alloc_stat(unsigned long ptr,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_free_event(struct perf_evsel *evsel,
 					  struct perf_sample *sample)
 {
 	unsigned long ptr = perf_evsel__intval(evsel, sample, "ptr");
+=======
+static int evsel__process_free_event(struct evsel *evsel, struct perf_sample *sample)
+{
+	unsigned long ptr = evsel__intval(evsel, sample, "ptr");
+>>>>>>> upstream/android-13
 	struct alloc_stat *s_alloc, *s_caller;
 
 	s_alloc = search_alloc_stat(ptr, 0, &root_alloc_stat, ptr_cmp);
@@ -334,7 +385,11 @@ static int build_alloc_func_list(void)
 	struct alloc_func *func;
 	struct machine *machine = &kmem_session->machines.host;
 	regex_t alloc_func_regex;
+<<<<<<< HEAD
 	const char pattern[] = "^_?_?(alloc|get_free|get_zeroed)_pages?";
+=======
+	static const char pattern[] = "^_?_?(alloc|get_free|get_zeroed)_pages?";
+>>>>>>> upstream/android-13
 
 	ret = regcomp(&alloc_func_regex, pattern, REG_EXTENDED);
 	if (ret) {
@@ -379,7 +434,11 @@ static int build_alloc_func_list(void)
  * Find first non-memory allocation function from callchain.
  * The allocation functions are in the 'alloc_func_list'.
  */
+<<<<<<< HEAD
 static u64 find_callsite(struct perf_evsel *evsel, struct perf_sample *sample)
+=======
+static u64 find_callsite(struct evsel *evsel, struct perf_sample *sample)
+>>>>>>> upstream/android-13
 {
 	struct addr_location al;
 	struct machine *machine = &kmem_session->machines.host;
@@ -407,8 +466,13 @@ static u64 find_callsite(struct perf_evsel *evsel, struct perf_sample *sample)
 				 sizeof(key), callcmp);
 		if (!caller) {
 			/* found */
+<<<<<<< HEAD
 			if (node->map)
 				addr = map__unmap_ip(node->map, node->ip);
+=======
+			if (node->ms.map)
+				addr = map__unmap_ip(node->ms.map, node->ip);
+>>>>>>> upstream/android-13
 			else
 				addr = node->ip;
 
@@ -727,7 +791,11 @@ static char *compact_gfp_string(unsigned long gfp_flags)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int parse_gfp_flags(struct perf_evsel *evsel, struct perf_sample *sample,
+=======
+static int parse_gfp_flags(struct evsel *evsel, struct perf_sample *sample,
+>>>>>>> upstream/android-13
 			   unsigned int gfp_flags)
 {
 	struct tep_record record = {
@@ -748,7 +816,12 @@ static int parse_gfp_flags(struct perf_evsel *evsel, struct perf_sample *sample,
 	}
 
 	trace_seq_init(&seq);
+<<<<<<< HEAD
 	tep_event_info(&seq, evsel->tp_format, &record);
+=======
+	tep_print_event(evsel->tp_format->tep,
+			&seq, &record, "%s", TEP_PRINT_INFO);
+>>>>>>> upstream/android-13
 
 	str = strtok_r(seq.buffer, " ", &pos);
 	while (str) {
@@ -778,6 +851,7 @@ static int parse_gfp_flags(struct perf_evsel *evsel, struct perf_sample *sample,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_page_alloc_event(struct perf_evsel *evsel,
 						struct perf_sample *sample)
 {
@@ -785,6 +859,14 @@ static int perf_evsel__process_page_alloc_event(struct perf_evsel *evsel,
 	unsigned int order = perf_evsel__intval(evsel, sample, "order");
 	unsigned int gfp_flags = perf_evsel__intval(evsel, sample, "gfp_flags");
 	unsigned int migrate_type = perf_evsel__intval(evsel, sample,
+=======
+static int evsel__process_page_alloc_event(struct evsel *evsel, struct perf_sample *sample)
+{
+	u64 page;
+	unsigned int order = evsel__intval(evsel, sample, "order");
+	unsigned int gfp_flags = evsel__intval(evsel, sample, "gfp_flags");
+	unsigned int migrate_type = evsel__intval(evsel, sample,
+>>>>>>> upstream/android-13
 						       "migratetype");
 	u64 bytes = kmem_page_size << order;
 	u64 callsite;
@@ -796,9 +878,15 @@ static int perf_evsel__process_page_alloc_event(struct perf_evsel *evsel,
 	};
 
 	if (use_pfn)
+<<<<<<< HEAD
 		page = perf_evsel__intval(evsel, sample, "pfn");
 	else
 		page = perf_evsel__intval(evsel, sample, "page");
+=======
+		page = evsel__intval(evsel, sample, "pfn");
+	else
+		page = evsel__intval(evsel, sample, "page");
+>>>>>>> upstream/android-13
 
 	nr_page_allocs++;
 	total_page_alloc_bytes += bytes;
@@ -851,11 +939,18 @@ static int perf_evsel__process_page_alloc_event(struct perf_evsel *evsel,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int perf_evsel__process_page_free_event(struct perf_evsel *evsel,
 						struct perf_sample *sample)
 {
 	u64 page;
 	unsigned int order = perf_evsel__intval(evsel, sample, "order");
+=======
+static int evsel__process_page_free_event(struct evsel *evsel, struct perf_sample *sample)
+{
+	u64 page;
+	unsigned int order = evsel__intval(evsel, sample, "order");
+>>>>>>> upstream/android-13
 	u64 bytes = kmem_page_size << order;
 	struct page_stat *pstat;
 	struct page_stat this = {
@@ -863,9 +958,15 @@ static int perf_evsel__process_page_free_event(struct perf_evsel *evsel,
 	};
 
 	if (use_pfn)
+<<<<<<< HEAD
 		page = perf_evsel__intval(evsel, sample, "pfn");
 	else
 		page = perf_evsel__intval(evsel, sample, "page");
+=======
+		page = evsel__intval(evsel, sample, "pfn");
+	else
+		page = evsel__intval(evsel, sample, "page");
+>>>>>>> upstream/android-13
 
 	nr_page_frees++;
 	total_page_free_bytes += bytes;
@@ -929,13 +1030,21 @@ static bool perf_kmem__skip_sample(struct perf_sample *sample)
 	return false;
 }
 
+<<<<<<< HEAD
 typedef int (*tracepoint_handler)(struct perf_evsel *evsel,
+=======
+typedef int (*tracepoint_handler)(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				  struct perf_sample *sample);
 
 static int process_sample_event(struct perf_tool *tool __maybe_unused,
 				union perf_event *event,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
+=======
+				struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	int err = 0;
@@ -1362,6 +1471,7 @@ static void sort_result(void)
 static int __cmd_kmem(struct perf_session *session)
 {
 	int err = -EINVAL;
+<<<<<<< HEAD
 	struct perf_evsel *evsel;
 	const struct perf_evsel_str_handler kmem_tracepoints[] = {
 		/* slab allocator */
@@ -1374,6 +1484,20 @@ static int __cmd_kmem(struct perf_session *session)
 		/* page allocator */
 		{ "kmem:mm_page_alloc",		perf_evsel__process_page_alloc_event, },
 		{ "kmem:mm_page_free",		perf_evsel__process_page_free_event, },
+=======
+	struct evsel *evsel;
+	const struct evsel_str_handler kmem_tracepoints[] = {
+		/* slab allocator */
+		{ "kmem:kmalloc",		evsel__process_alloc_event, },
+		{ "kmem:kmem_cache_alloc",	evsel__process_alloc_event, },
+		{ "kmem:kmalloc_node",		evsel__process_alloc_node_event, },
+		{ "kmem:kmem_cache_alloc_node", evsel__process_alloc_node_event, },
+		{ "kmem:kfree",			evsel__process_free_event, },
+		{ "kmem:kmem_cache_free",	evsel__process_free_event, },
+		/* page allocator */
+		{ "kmem:mm_page_alloc",		evsel__process_page_alloc_event, },
+		{ "kmem:mm_page_free",		evsel__process_page_free_event, },
+>>>>>>> upstream/android-13
 	};
 
 	if (!perf_session__has_traces(session, "kmem record"))
@@ -1385,8 +1509,13 @@ static int __cmd_kmem(struct perf_session *session)
 	}
 
 	evlist__for_each_entry(session->evlist, evsel) {
+<<<<<<< HEAD
 		if (!strcmp(perf_evsel__name(evsel), "kmem:mm_page_alloc") &&
 		    perf_evsel__field(evsel, "pfn")) {
+=======
+		if (!strcmp(evsel__name(evsel), "kmem:mm_page_alloc") &&
+		    evsel__field(evsel, "pfn")) {
+>>>>>>> upstream/android-13
 			use_pfn = true;
 			break;
 		}
@@ -1925,14 +2054,23 @@ int cmd_kmem(int argc, const char **argv)
 		NULL
 	};
 	struct perf_session *session;
+<<<<<<< HEAD
 	const char errmsg[] = "No %s allocation events found.  Have you run 'perf kmem record --%s'?\n";
+=======
+	static const char errmsg[] = "No %s allocation events found.  Have you run 'perf kmem record --%s'?\n";
+>>>>>>> upstream/android-13
 	int ret = perf_config(kmem_config, NULL);
 
 	if (ret)
 		return ret;
 
 	argc = parse_options_subcommand(argc, argv, kmem_options,
+<<<<<<< HEAD
 					kmem_subcommands, kmem_usage, 0);
+=======
+					kmem_subcommands, kmem_usage,
+					PARSE_OPT_STOP_AT_NON_OPTION);
+>>>>>>> upstream/android-13
 
 	if (!argc)
 		usage_with_options(kmem_usage, kmem_options);
@@ -1949,33 +2087,54 @@ int cmd_kmem(int argc, const char **argv)
 		return __cmd_record(argc, argv);
 	}
 
+<<<<<<< HEAD
 	data.file.path = input_name;
 
 	kmem_session = session = perf_session__new(&data, false, &perf_kmem);
 	if (session == NULL)
 		return -1;
+=======
+	data.path = input_name;
+
+	kmem_session = session = perf_session__new(&data, &perf_kmem);
+	if (IS_ERR(session))
+		return PTR_ERR(session);
+>>>>>>> upstream/android-13
 
 	ret = -1;
 
 	if (kmem_slab) {
+<<<<<<< HEAD
 		if (!perf_evlist__find_tracepoint_by_name(session->evlist,
 							  "kmem:kmalloc")) {
+=======
+		if (!evlist__find_tracepoint_by_name(session->evlist, "kmem:kmalloc")) {
+>>>>>>> upstream/android-13
 			pr_err(errmsg, "slab", "slab");
 			goto out_delete;
 		}
 	}
 
 	if (kmem_page) {
+<<<<<<< HEAD
 		struct perf_evsel *evsel;
 
 		evsel = perf_evlist__find_tracepoint_by_name(session->evlist,
 							     "kmem:mm_page_alloc");
+=======
+		struct evsel *evsel = evlist__find_tracepoint_by_name(session->evlist, "kmem:mm_page_alloc");
+
+>>>>>>> upstream/android-13
 		if (evsel == NULL) {
 			pr_err(errmsg, "page", "page");
 			goto out_delete;
 		}
 
+<<<<<<< HEAD
 		kmem_page_size = tep_get_page_size(evsel->tp_format->pevent);
+=======
+		kmem_page_size = tep_get_page_size(evsel->tp_format->tep);
+>>>>>>> upstream/android-13
 		symbol_conf.use_callchain = true;
 	}
 

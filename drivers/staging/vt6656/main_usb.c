@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: main_usb.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: driver entry for initial, open, close, tx and rx.
  *
  * Author: Lyndon Chen
@@ -21,8 +24,15 @@
  */
 #undef __NO_VERSION__
 
+<<<<<<< HEAD
 #include <linux/etherdevice.h>
 #include <linux/file.h>
+=======
+#include <linux/bits.h>
+#include <linux/etherdevice.h>
+#include <linux/file.h>
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include "device.h"
 #include "card.h"
 #include "baseband.h"
@@ -30,12 +40,18 @@
 #include "power.h"
 #include "wcmd.h"
 #include "rxtx.h"
+<<<<<<< HEAD
 #include "dpc.h"
 #include "rf.h"
 #include "firmware.h"
 #include "usbpipe.h"
 #include "channel.h"
 #include "int.h"
+=======
+#include "rf.h"
+#include "usbpipe.h"
+#include "channel.h"
+>>>>>>> upstream/android-13
 
 /*
  * define module options
@@ -60,8 +76,11 @@ MODULE_PARM_DESC(tx_buffers, "Number of receive usb tx buffers");
 
 #define RTS_THRESH_DEF     2347
 #define FRAG_THRESH_DEF     2346
+<<<<<<< HEAD
 #define SHORT_RETRY_DEF     8
 #define LONG_RETRY_DEF     4
+=======
+>>>>>>> upstream/android-13
 
 /* BasebandType[] baseband type selected
  * 0: indicate 802.11a type
@@ -94,6 +113,7 @@ static void vnt_set_options(struct vnt_private *priv)
 	else
 		priv->num_rcb = vnt_rx_buffers;
 
+<<<<<<< HEAD
 	priv->short_retry_limit = SHORT_RETRY_DEF;
 	priv->long_retry_limit = LONG_RETRY_DEF;
 	priv->op_mode = NL80211_IFTYPE_UNSPECIFIED;
@@ -104,22 +124,117 @@ static void vnt_set_options(struct vnt_private *priv)
 	priv->exist_sw_net_addr = false;
 }
 
+=======
+	priv->op_mode = NL80211_IFTYPE_UNSPECIFIED;
+	priv->bb_type = BBP_TYPE_DEF;
+	priv->packet_type = priv->bb_type;
+	priv->preamble_type = PREAMBLE_LONG;
+	priv->exist_sw_net_addr = false;
+}
+
+static int vnt_download_firmware(struct vnt_private *priv)
+{
+	struct device *dev = &priv->usb->dev;
+	const struct firmware *fw;
+	u16 length;
+	int ii;
+	int ret = 0;
+
+	dev_dbg(dev, "---->Download firmware\n");
+
+	ret = request_firmware(&fw, FIRMWARE_NAME, dev);
+	if (ret) {
+		dev_err(dev, "firmware file %s request failed (%d)\n",
+			FIRMWARE_NAME, ret);
+		goto end;
+	}
+
+	for (ii = 0; ii < fw->size; ii += FIRMWARE_CHUNK_SIZE) {
+		length = min_t(int, fw->size - ii, FIRMWARE_CHUNK_SIZE);
+
+		ret = vnt_control_out(priv, 0, 0x1200 + ii, 0x0000, length,
+				      fw->data + ii);
+		if (ret)
+			goto free_fw;
+
+		dev_dbg(dev, "Download firmware...%d %zu\n", ii, fw->size);
+	}
+
+free_fw:
+	release_firmware(fw);
+end:
+	return ret;
+}
+
+static int vnt_firmware_branch_to_sram(struct vnt_private *priv)
+{
+	dev_dbg(&priv->usb->dev, "---->Branch to Sram\n");
+
+	return vnt_control_out(priv, 1, 0x1200, 0x0000, 0, NULL);
+}
+
+static int vnt_check_firmware_version(struct vnt_private *priv)
+{
+	int ret = 0;
+
+	ret = vnt_control_in(priv, MESSAGE_TYPE_READ, 0,
+			     MESSAGE_REQUEST_VERSION, 2,
+			     (u8 *)&priv->firmware_version);
+	if (ret) {
+		dev_dbg(&priv->usb->dev,
+			"Could not get firmware version: %d.\n", ret);
+		goto end;
+	}
+
+	dev_dbg(&priv->usb->dev, "Firmware Version [%04x]\n",
+		priv->firmware_version);
+
+	if (priv->firmware_version == 0xFFFF) {
+		dev_dbg(&priv->usb->dev, "In Loader.\n");
+		ret = -EINVAL;
+		goto end;
+	}
+
+	if (priv->firmware_version < FIRMWARE_VERSION) {
+		/* branch to loader for download new firmware */
+		ret = vnt_firmware_branch_to_sram(priv);
+		if (ret) {
+			dev_dbg(&priv->usb->dev,
+				"Could not branch to SRAM: %d.\n", ret);
+		} else {
+			ret = -EINVAL;
+		}
+	}
+
+end:
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /*
  * initialization of MAC & BBP registers
  */
 static int vnt_init_registers(struct vnt_private *priv)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct vnt_cmd_card_init *init_cmd = &priv->init_command;
 	struct vnt_rsp_card_init *init_rsp = &priv->init_response;
 	u8 antenna;
 	int ii;
+<<<<<<< HEAD
 	int status = STATUS_SUCCESS;
+=======
+>>>>>>> upstream/android-13
 	u8 tmp;
 	u8 calib_tx_iq = 0, calib_tx_dc = 0, calib_rx_iq = 0;
 
 	dev_dbg(&priv->usb->dev, "---->INIbInitAdapter. [%d][%d]\n",
 		DEVICE_INIT_COLD, priv->packet_type);
 
+<<<<<<< HEAD
 	if (!vnt_check_firmware_version(priv)) {
 		if (vnt_download_firmware(priv) == true) {
 			if (vnt_firmware_branch_to_sram(priv) == false) {
@@ -136,10 +251,34 @@ static int vnt_init_registers(struct vnt_private *priv)
 	if (!vnt_vt3184_init(priv)) {
 		dev_dbg(&priv->usb->dev, "vnt_vt3184_init fail\n");
 		return false;
+=======
+	ret = vnt_check_firmware_version(priv);
+	if (ret) {
+		ret = vnt_download_firmware(priv);
+		if (ret) {
+			dev_dbg(&priv->usb->dev,
+				"Could not download firmware: %d.\n", ret);
+			goto end;
+		}
+
+		ret = vnt_firmware_branch_to_sram(priv);
+		if (ret) {
+			dev_dbg(&priv->usb->dev,
+				"Could not branch to SRAM: %d.\n", ret);
+			goto end;
+		}
+	}
+
+	ret = vnt_vt3184_init(priv);
+	if (ret) {
+		dev_dbg(&priv->usb->dev, "vnt_vt3184_init fail\n");
+		goto end;
+>>>>>>> upstream/android-13
 	}
 
 	init_cmd->init_class = DEVICE_INIT_COLD;
 	init_cmd->exist_sw_net_addr = priv->exist_sw_net_addr;
+<<<<<<< HEAD
 	for (ii = 0; ii < 6; ii++)
 		init_cmd->sw_net_addr[ii] = priv->current_net_addr[ii];
 	init_cmd->short_retry_limit = priv->short_retry_limit;
@@ -168,6 +307,35 @@ static int vnt_init_registers(struct vnt_private *priv)
 				MESSAGE_REQUEST_MACREG, 1, &priv->local_id);
 	if (status != STATUS_SUCCESS)
 		return false;
+=======
+	for (ii = 0; ii < ARRAY_SIZE(init_cmd->sw_net_addr); ii++)
+		init_cmd->sw_net_addr[ii] = priv->current_net_addr[ii];
+	init_cmd->short_retry_limit = priv->hw->wiphy->retry_short;
+	init_cmd->long_retry_limit = priv->hw->wiphy->retry_long;
+
+	/* issue card_init command to device */
+	ret = vnt_control_out(priv, MESSAGE_TYPE_CARDINIT, 0, 0,
+			      sizeof(struct vnt_cmd_card_init),
+			      (u8 *)init_cmd);
+	if (ret) {
+		dev_dbg(&priv->usb->dev, "Issue Card init fail\n");
+		goto end;
+	}
+
+	ret = vnt_control_in(priv, MESSAGE_TYPE_INIT_RSP, 0, 0,
+			     sizeof(struct vnt_rsp_card_init),
+			     (u8 *)init_rsp);
+	if (ret) {
+		dev_dbg(&priv->usb->dev, "Cardinit request in status fail!\n");
+		goto end;
+	}
+
+	/* local ID for AES functions */
+	ret = vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_LOCALID,
+			     MESSAGE_REQUEST_MACREG, 1, &priv->local_id);
+	if (ret)
+		goto end;
+>>>>>>> upstream/android-13
 
 	/* do MACbSoftwareReset in MACvInitialize */
 
@@ -180,7 +348,11 @@ static int vnt_init_registers(struct vnt_private *priv)
 	priv->cck_pwr = priv->eeprom[EEP_OFS_PWR_CCK];
 	priv->ofdm_pwr_g = priv->eeprom[EEP_OFS_PWR_OFDMG];
 	/* load power table */
+<<<<<<< HEAD
 	for (ii = 0; ii < 14; ii++) {
+=======
+	for (ii = 0; ii < ARRAY_SIZE(priv->cck_pwr_tbl); ii++) {
+>>>>>>> upstream/android-13
 		priv->cck_pwr_tbl[ii] =
 			priv->eeprom[ii + EEP_OFS_CCK_PWR_TBL];
 		if (priv->cck_pwr_tbl[ii] == 0)
@@ -196,7 +368,11 @@ static int vnt_init_registers(struct vnt_private *priv)
 	 * original zonetype is USA, but custom zonetype is Europe,
 	 * then need to recover 12, 13, 14 channels with 11 channel
 	 */
+<<<<<<< HEAD
 	for (ii = 11; ii < 14; ii++) {
+=======
+	for (ii = 11; ii < ARRAY_SIZE(priv->cck_pwr_tbl); ii++) {
+>>>>>>> upstream/android-13
 		priv->cck_pwr_tbl[ii] = priv->cck_pwr_tbl[10];
 		priv->ofdm_pwr_tbl[ii] = priv->ofdm_pwr_tbl[10];
 	}
@@ -245,18 +421,31 @@ static int vnt_init_registers(struct vnt_private *priv)
 		} else {
 			priv->tx_antenna_mode = ANT_B;
 
+<<<<<<< HEAD
 		if (priv->tx_rx_ant_inv)
 			priv->rx_antenna_mode = ANT_A;
 		else
 			priv->rx_antenna_mode = ANT_B;
+=======
+			if (priv->tx_rx_ant_inv)
+				priv->rx_antenna_mode = ANT_A;
+			else
+				priv->rx_antenna_mode = ANT_B;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	/* Set initial antenna mode */
+<<<<<<< HEAD
 	vnt_set_antenna_mode(priv, priv->rx_antenna_mode);
 
 	/* get Auto Fall Back type */
 	priv->auto_fb_ctrl = AUTO_FB_0;
+=======
+	ret = vnt_set_antenna_mode(priv, priv->rx_antenna_mode);
+	if (ret)
+		goto end;
+>>>>>>> upstream/android-13
 
 	/* default Auto Mode */
 	priv->bb_type = BB_TYPE_11G;
@@ -275,6 +464,7 @@ static int vnt_init_registers(struct vnt_private *priv)
 				/* CR255, enable TX/RX IQ and
 				 * DC compensation mode
 				 */
+<<<<<<< HEAD
 				vnt_control_out_u8(priv,
 						   MESSAGE_REQUEST_BBREG,
 						   0xff,
@@ -294,14 +484,50 @@ static int vnt_init_registers(struct vnt_private *priv)
 						   MESSAGE_REQUEST_BBREG,
 						   0xfd,
 						   calib_rx_iq);
+=======
+				ret = vnt_control_out_u8(priv,
+							 MESSAGE_REQUEST_BBREG,
+							 0xff, 0x03);
+				if (ret)
+					goto end;
+
+				/* CR251, TX I/Q Imbalance Calibration */
+				ret = vnt_control_out_u8(priv,
+							 MESSAGE_REQUEST_BBREG,
+							 0xfb, calib_tx_iq);
+				if (ret)
+					goto end;
+
+				/* CR252, TX DC-Offset Calibration */
+				ret = vnt_control_out_u8(priv,
+							 MESSAGE_REQUEST_BBREG,
+							 0xfC, calib_tx_dc);
+				if (ret)
+					goto end;
+
+				/* CR253, RX I/Q Imbalance Calibration */
+				ret = vnt_control_out_u8(priv,
+							 MESSAGE_REQUEST_BBREG,
+							 0xfd, calib_rx_iq);
+				if (ret)
+					goto end;
+>>>>>>> upstream/android-13
 			} else {
 				/* CR255, turn off
 				 * BB Calibration compensation
 				 */
+<<<<<<< HEAD
 				vnt_control_out_u8(priv,
 						   MESSAGE_REQUEST_BBREG,
 						   0xff,
 						   0x0);
+=======
+				ret = vnt_control_out_u8(priv,
+							 MESSAGE_REQUEST_BBREG,
+							 0xff, 0x0);
+				if (ret)
+					goto end;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -314,6 +540,7 @@ static int vnt_init_registers(struct vnt_private *priv)
 	dev_dbg(&priv->usb->dev, "Network address = %pM\n",
 		priv->current_net_addr);
 
+<<<<<<< HEAD
 	/*
 	 * set BB and packet type at the same time
 	 * set Short Slot Time, xIFS, and RSPINF
@@ -354,6 +581,49 @@ static int vnt_init_registers(struct vnt_private *priv)
 	dev_dbg(&priv->usb->dev, "<----INIbInitAdapter Exit\n");
 
 	return true;
+=======
+	priv->radio_ctl = priv->eeprom[EEP_OFS_RADIOCTL];
+
+	if ((priv->radio_ctl & EEP_RADIOCTL_ENABLE) != 0) {
+		ret = vnt_control_in(priv, MESSAGE_TYPE_READ,
+				     MAC_REG_GPIOCTL1, MESSAGE_REQUEST_MACREG,
+				     1, &tmp);
+		if (ret)
+			goto end;
+
+		if ((tmp & GPIO3_DATA) == 0) {
+			ret = vnt_mac_reg_bits_on(priv, MAC_REG_GPIOCTL1,
+						  GPIO3_INTMD);
+		} else {
+			ret = vnt_mac_reg_bits_off(priv, MAC_REG_GPIOCTL1,
+						   GPIO3_INTMD);
+		}
+
+		if (ret)
+			goto end;
+	}
+
+	ret = vnt_mac_set_led(priv, LEDSTS_TMLEN, 0x38);
+	if (ret)
+		goto end;
+
+	ret = vnt_mac_set_led(priv, LEDSTS_STS, LEDSTS_SLOW);
+	if (ret)
+		goto end;
+
+	ret = vnt_mac_reg_bits_on(priv, MAC_REG_GPIOCTL0, BIT(0));
+	if (ret)
+		goto end;
+
+	ret = vnt_radio_power_on(priv);
+	if (ret)
+		goto end;
+
+	dev_dbg(&priv->usb->dev, "<----INIbInitAdapter Exit\n");
+
+end:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void vnt_free_tx_bufs(struct vnt_private *priv)
@@ -361,6 +631,7 @@ static void vnt_free_tx_bufs(struct vnt_private *priv)
 	struct vnt_usb_send_context *tx_context;
 	int ii;
 
+<<<<<<< HEAD
 	for (ii = 0; ii < priv->num_tx_context; ii++) {
 		tx_context = priv->tx_context[ii];
 		/* deallocate URBs */
@@ -368,6 +639,14 @@ static void vnt_free_tx_bufs(struct vnt_private *priv)
 			usb_kill_urb(tx_context->urb);
 			usb_free_urb(tx_context->urb);
 		}
+=======
+	usb_kill_anchored_urbs(&priv->tx_submitted);
+
+	for (ii = 0; ii < priv->num_tx_context; ii++) {
+		tx_context = priv->tx_context[ii];
+		if (!tx_context)
+			continue;
+>>>>>>> upstream/android-13
 
 		kfree(tx_context);
 	}
@@ -404,11 +683,20 @@ static void vnt_free_int_bufs(struct vnt_private *priv)
 
 static int vnt_alloc_bufs(struct vnt_private *priv)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct vnt_usb_send_context *tx_context;
 	struct vnt_rcb *rcb;
 	int ii;
 
+<<<<<<< HEAD
+=======
+	init_usb_anchor(&priv->tx_submitted);
+
+>>>>>>> upstream/android-13
 	for (ii = 0; ii < priv->num_tx_context; ii++) {
 		tx_context = kmalloc(sizeof(*tx_context), GFP_KERNEL);
 		if (!tx_context) {
@@ -419,6 +707,7 @@ static int vnt_alloc_bufs(struct vnt_private *priv)
 		priv->tx_context[ii] = tx_context;
 		tx_context->priv = priv;
 		tx_context->pkt_no = ii;
+<<<<<<< HEAD
 
 		/* allocate URBs */
 		tx_context->urb = usb_alloc_urb(0, GFP_KERNEL);
@@ -427,6 +716,8 @@ static int vnt_alloc_bufs(struct vnt_private *priv)
 			goto free_tx;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		tx_context->in_use = false;
 	}
 
@@ -453,9 +744,12 @@ static int vnt_alloc_bufs(struct vnt_private *priv)
 			ret = -ENOMEM;
 			goto free_rx_tx;
 		}
+<<<<<<< HEAD
 
 		rcb->in_use = false;
 
+=======
+>>>>>>> upstream/android-13
 		/* submit rx urb */
 		ret = vnt_submit_rx_urb(priv, rcb);
 		if (ret)
@@ -497,28 +791,55 @@ static void vnt_tx_80211(struct ieee80211_hw *hw,
 
 static int vnt_start(struct ieee80211_hw *hw)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct vnt_private *priv = hw->priv;
 
 	priv->rx_buf_sz = MAX_TOTAL_SIZE_WITH_ALL_HEADERS;
 
+<<<<<<< HEAD
 	if (!vnt_alloc_bufs(priv)) {
 		dev_dbg(&priv->usb->dev, "vnt_alloc_bufs fail...\n");
 		return -ENOMEM;
+=======
+	ret = vnt_alloc_bufs(priv);
+	if (ret) {
+		dev_dbg(&priv->usb->dev, "vnt_alloc_bufs fail...\n");
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	clear_bit(DEVICE_FLAGS_DISCONNECTED, &priv->flags);
 
+<<<<<<< HEAD
 	if (vnt_init_registers(priv) == false) {
+=======
+	ret = vnt_init_registers(priv);
+	if (ret) {
+>>>>>>> upstream/android-13
 		dev_dbg(&priv->usb->dev, " init register fail\n");
 		goto free_all;
 	}
 
+<<<<<<< HEAD
 	if (vnt_key_init_table(priv))
+=======
+	ret = vnt_key_init_table(priv);
+	if (ret)
+>>>>>>> upstream/android-13
 		goto free_all;
 
 	priv->int_interval = 1;  /* bInterval is set to 1 */
 
+<<<<<<< HEAD
 	vnt_int_start_interrupt(priv);
+=======
+	ret = vnt_start_interrupt_urb(priv);
+	if (ret)
+		goto free_all;
+>>>>>>> upstream/android-13
 
 	ieee80211_wake_queues(hw);
 
@@ -531,8 +852,13 @@ free_all:
 
 	usb_kill_urb(priv->interrupt_urb);
 	usb_free_urb(priv->interrupt_urb);
+<<<<<<< HEAD
 
 	return -ENOMEM;
+=======
+err:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void vnt_stop(struct ieee80211_hw *hw)
@@ -653,6 +979,7 @@ static int vnt_config(struct ieee80211_hw *hw, u32 changed)
 			priv->bb_type = BB_TYPE_11G;
 	}
 
+<<<<<<< HEAD
 	if (changed & IEEE80211_CONF_CHANGE_POWER) {
 		if (priv->bb_type == BB_TYPE_11B)
 			priv->current_rate = RATE_1M;
@@ -662,6 +989,16 @@ static int vnt_config(struct ieee80211_hw *hw, u32 changed)
 		vnt_rf_setpower(priv, priv->current_rate,
 				conf->chandef.chan->hw_value);
 	}
+=======
+	if (changed & IEEE80211_CONF_CHANGE_POWER)
+		vnt_rf_setpower(priv, conf->chandef.chan);
+
+	if (conf->flags & (IEEE80211_CONF_OFFCHANNEL | IEEE80211_CONF_IDLE))
+		/* Set max sensitivity*/
+		vnt_update_pre_ed_threshold(priv, true);
+	else
+		vnt_update_pre_ed_threshold(priv, false);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -688,10 +1025,17 @@ static void vnt_bss_info_changed(struct ieee80211_hw *hw,
 	if (changed & BSS_CHANGED_ERP_PREAMBLE) {
 		if (conf->use_short_preamble) {
 			vnt_mac_enable_barker_preamble_mode(priv);
+<<<<<<< HEAD
 			priv->preamble_type = true;
 		} else {
 			vnt_mac_disable_barker_preamble_mode(priv);
 			priv->preamble_type = false;
+=======
+			priv->preamble_type = PREAMBLE_SHORT;
+		} else {
+			vnt_mac_disable_barker_preamble_mode(priv);
+			priv->preamble_type = PREAMBLE_LONG;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -710,16 +1054,24 @@ static void vnt_bss_info_changed(struct ieee80211_hw *hw,
 
 		vnt_set_short_slot_time(priv);
 		vnt_set_vga_gain_offset(priv, priv->bb_vga[0]);
+<<<<<<< HEAD
 		vnt_update_pre_ed_threshold(priv, false);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (changed & (BSS_CHANGED_BASIC_RATES | BSS_CHANGED_ERP_PREAMBLE |
 		       BSS_CHANGED_ERP_SLOT))
 		vnt_set_bss_mode(priv);
 
+<<<<<<< HEAD
 	if (changed & BSS_CHANGED_TXPOWER)
 		vnt_rf_setpower(priv, priv->current_rate,
 				conf->chandef.chan->hw_value);
+=======
+	if (changed & (BSS_CHANGED_TXPOWER | BSS_CHANGED_BANDWIDTH))
+		vnt_rf_setpower(priv, conf->chandef.chan);
+>>>>>>> upstream/android-13
 
 	if (changed & BSS_CHANGED_BEACON_ENABLED) {
 		dev_dbg(&priv->usb->dev,
@@ -737,10 +1089,24 @@ static void vnt_bss_info_changed(struct ieee80211_hw *hw,
 	if (changed & (BSS_CHANGED_ASSOC | BSS_CHANGED_BEACON_INFO) &&
 	    priv->op_mode != NL80211_IFTYPE_AP) {
 		if (conf->assoc && conf->beacon_rate) {
+<<<<<<< HEAD
 			vnt_mac_reg_bits_on(priv, MAC_REG_TFTCTL,
 					    TFTCTL_TSFCNTREN);
 
 			vnt_mac_set_beacon_interval(priv, conf->beacon_int);
+=======
+			u16 ps_beacon_int = conf->beacon_int;
+
+			if (conf->dtim_period)
+				ps_beacon_int *= conf->dtim_period;
+			else if (hw->conf.listen_interval)
+				ps_beacon_int *= hw->conf.listen_interval;
+
+			vnt_mac_reg_bits_on(priv, MAC_REG_TFTCTL,
+					    TFTCTL_TSFCNTREN);
+
+			vnt_mac_set_beacon_interval(priv, ps_beacon_int);
+>>>>>>> upstream/android-13
 
 			vnt_reset_next_tbtt(priv, conf->beacon_int);
 
@@ -748,7 +1114,11 @@ static void vnt_bss_info_changed(struct ieee80211_hw *hw,
 				       conf->sync_tsf, priv->current_tsf);
 
 			vnt_update_next_tbtt(priv,
+<<<<<<< HEAD
 					     conf->sync_tsf, conf->beacon_int);
+=======
+					     conf->sync_tsf, ps_beacon_int);
+>>>>>>> upstream/android-13
 		} else {
 			vnt_clear_current_tsf(priv);
 
@@ -764,12 +1134,20 @@ static u64 vnt_prepare_multicast(struct ieee80211_hw *hw,
 	struct vnt_private *priv = hw->priv;
 	struct netdev_hw_addr *ha;
 	u64 mc_filter = 0;
+<<<<<<< HEAD
 	u32 bit_nr = 0;
 
 	netdev_hw_addr_list_for_each(ha, mc_list) {
 		bit_nr = ether_crc(ETH_ALEN, ha->addr) >> 26;
 
 		mc_filter |= 1ULL << (bit_nr & 0x3f);
+=======
+	u32 bit_nr;
+
+	netdev_hw_addr_list_for_each(ha, mc_list) {
+		bit_nr = ether_crc(ETH_ALEN, ha->addr) >> 26;
+		mc_filter |= BIT_ULL(bit_nr);
+>>>>>>> upstream/android-13
 	}
 
 	priv->mc_list_count = mc_list->count;
@@ -824,15 +1202,23 @@ static int vnt_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 
 	switch (cmd) {
 	case SET_KEY:
+<<<<<<< HEAD
 		if (vnt_set_keys(hw, sta, vif, key))
 			return -EOPNOTSUPP;
 		break;
+=======
+		return vnt_set_keys(hw, sta, vif, key);
+>>>>>>> upstream/android-13
 	case DISABLE_KEY:
 		if (test_bit(key->hw_key_idx, &priv->key_entry_inuse)) {
 			clear_bit(key->hw_key_idx, &priv->key_entry_inuse);
 
 			vnt_mac_disable_keyentry(priv, key->hw_key_idx);
 		}
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	default:
 		break;
@@ -841,6 +1227,7 @@ static int vnt_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void vnt_sw_scan_start(struct ieee80211_hw *hw,
 			      struct ieee80211_vif *vif,
 			      const u8 *addr)
@@ -860,6 +1247,8 @@ static void vnt_sw_scan_complete(struct ieee80211_hw *hw,
 	vnt_update_pre_ed_threshold(priv, false);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vnt_get_stats(struct ieee80211_hw *hw,
 			 struct ieee80211_low_level_stats *stats)
 {
@@ -905,8 +1294,11 @@ static const struct ieee80211_ops vnt_mac_ops = {
 	.prepare_multicast	= vnt_prepare_multicast,
 	.configure_filter	= vnt_configure,
 	.set_key		= vnt_set_key,
+<<<<<<< HEAD
 	.sw_scan_start		= vnt_sw_scan_start,
 	.sw_scan_complete	= vnt_sw_scan_complete,
+=======
+>>>>>>> upstream/android-13
 	.get_stats		= vnt_get_stats,
 	.get_tsf		= vnt_get_tsf,
 	.set_tsf		= vnt_set_tsf,
@@ -915,7 +1307,11 @@ static const struct ieee80211_ops vnt_mac_ops = {
 
 int vnt_init(struct vnt_private *priv)
 {
+<<<<<<< HEAD
 	if (!(vnt_init_registers(priv)))
+=======
+	if (vnt_init_registers(priv))
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 
 	SET_IEEE80211_PERM_ADDR(priv->hw, priv->permanent_net_addr);
@@ -939,7 +1335,11 @@ vt6656_probe(struct usb_interface *intf, const struct usb_device_id *id)
 	struct vnt_private *priv;
 	struct ieee80211_hw *hw;
 	struct wiphy *wiphy;
+<<<<<<< HEAD
 	int rc = 0;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	udev = usb_get_dev(interface_to_usbdev(intf));
 
@@ -983,6 +1383,11 @@ vt6656_probe(struct usb_interface *intf, const struct usb_device_id *id)
 	ieee80211_hw_set(priv->hw, SUPPORTS_PS);
 	ieee80211_hw_set(priv->hw, PS_NULLFUNC_STACK);
 
+<<<<<<< HEAD
+=======
+	priv->hw->extra_tx_headroom =
+		sizeof(struct vnt_tx_buffer) + sizeof(struct vnt_tx_usb_header);
+>>>>>>> upstream/android-13
 	priv->hw->max_signal = 100;
 
 	SET_IEEE80211_DEV(priv->hw, &intf->dev);
@@ -1051,3 +1456,8 @@ static struct usb_driver vt6656_driver = {
 };
 
 module_usb_driver(vt6656_driver);
+<<<<<<< HEAD
+=======
+
+MODULE_FIRMWARE(FIRMWARE_NAME);
+>>>>>>> upstream/android-13

@@ -120,17 +120,29 @@ static int pcsp_pcspkr_put(struct snd_kcontrol *kcontrol,
 	.put =		pcsp_##ctl_type##_put, \
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pcsp_controls_pcm[] = {
+=======
+static const struct snd_kcontrol_new snd_pcsp_controls_pcm[] = {
+>>>>>>> upstream/android-13
 	PCSP_MIXER_CONTROL(enable, "Master Playback Switch"),
 	PCSP_MIXER_CONTROL(treble, "BaseFRQ Playback Volume"),
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_pcsp_controls_spkr[] = {
+=======
+static const struct snd_kcontrol_new snd_pcsp_controls_spkr[] = {
+>>>>>>> upstream/android-13
 	PCSP_MIXER_CONTROL(pcspkr, "Beep Playback Switch"),
 };
 
 static int snd_pcsp_ctls_add(struct snd_pcsp *chip,
+<<<<<<< HEAD
 			     struct snd_kcontrol_new *ctls, int num)
+=======
+			     const struct snd_kcontrol_new *ctls, int num)
+>>>>>>> upstream/android-13
 {
 	int i, err;
 	struct snd_card *card = chip->card;

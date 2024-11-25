@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -12,6 +13,14 @@
  * Contact Information:
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #ifndef _RTL819XU_HTTYPE_H_
 #define _RTL819XU_HTTYPE_H_
 
@@ -187,6 +196,7 @@ struct rt_hi_throughput {
 } __packed;
 
 struct bss_ht {
+<<<<<<< HEAD
 
 	u8				bdSupportHT;
 
@@ -202,6 +212,22 @@ struct bss_ht {
 	u8					bdRT2RTLongSlotTime;
 	u8					RT2RT_HT_Mode;
 	u8					bdHT1R;
+=======
+	u8 bd_support_ht;
+
+	u8 bd_ht_cap_buf[32];
+	u16 bd_ht_cap_len;
+	u8 bd_ht_info_buf[32];
+	u16 bd_ht_info_len;
+
+	enum ht_spec_ver bd_ht_spec_ver;
+	enum ht_channel_width bd_bandwidth;
+
+	u8 bd_rt2rt_aggregation;
+	u8 bd_rt2rt_long_slot_time;
+	u8 rt2rt_ht_mode;
+	u8 bd_ht_1r;
+>>>>>>> upstream/android-13
 };
 
 extern u8 MCS_FILTER_ALL[16];

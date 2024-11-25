@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ip_vs_nfct.c:	Netfilter connection tracking support for IPVS
  *
@@ -7,6 +11,7 @@
  * Portions Copyright (C) 2003-2010
  * Julian Anastasov
  *
+<<<<<<< HEAD
  *
  * This code is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +27,17 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * Authors:
  * Ben North <ben@redfrontdoor.org>
  * Julian Anastasov <ja@ssi.bg>		Reorganize and sync with latest kernels
  * Hannes Eder <heder@google.com>	Extend NFCT support for FTP, ipvs match
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Current status:
  *
  * - provide conntrack confirmation for new and related connections, by
@@ -43,7 +53,10 @@
  * when RELATED conntrack is created from real server (Active FTP DATA)
  * - if iptables_nat is not loaded the Passive FTP will not work (the
  * PASV response can not be NAT-ed) but Active FTP should work
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"
@@ -247,7 +260,11 @@ void ip_vs_nfct_expect_related(struct sk_buff *skb, struct nf_conn *ct,
 
 	IP_VS_DBG_BUF(7, "%s: ct=%p, expect tuple=" FMT_TUPLE "\n",
 		      __func__, ct, ARG_TUPLE(&exp->tuple));
+<<<<<<< HEAD
 	nf_ct_expect_related(exp);
+=======
+	nf_ct_expect_related(exp, 0);
+>>>>>>> upstream/android-13
 	nf_ct_expect_put(exp);
 }
 EXPORT_SYMBOL(ip_vs_nfct_expect_related);

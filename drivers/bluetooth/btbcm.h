@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *
  *  Bluetooth support for Broadcom devices
  *
  *  Copyright (C) 2015  Intel Corporation
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define BCM_UART_CLOCK_48MHZ	0x01
@@ -69,13 +76,25 @@ struct bcm_set_pcm_format_params {
 int btbcm_check_bdaddr(struct hci_dev *hdev);
 int btbcm_set_bdaddr(struct hci_dev *hdev, const bdaddr_t *bdaddr);
 int btbcm_patchram(struct hci_dev *hdev, const struct firmware *fw);
+<<<<<<< HEAD
+=======
+int btbcm_read_pcm_int_params(struct hci_dev *hdev,
+			      struct bcm_set_pcm_int_params *params);
+int btbcm_write_pcm_int_params(struct hci_dev *hdev,
+			       const struct bcm_set_pcm_int_params *params);
+>>>>>>> upstream/android-13
 
 int btbcm_setup_patchram(struct hci_dev *hdev);
 int btbcm_setup_apple(struct hci_dev *hdev);
 
+<<<<<<< HEAD
 int btbcm_initialize(struct hci_dev *hdev, char *fw_name, size_t len,
 		     bool reinit);
 int btbcm_finalize(struct hci_dev *hdev);
+=======
+int btbcm_initialize(struct hci_dev *hdev, bool *fw_load_done);
+int btbcm_finalize(struct hci_dev *hdev, bool *fw_load_done);
+>>>>>>> upstream/android-13
 
 #else
 
@@ -89,6 +108,21 @@ static inline int btbcm_set_bdaddr(struct hci_dev *hdev, const bdaddr_t *bdaddr)
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
+=======
+static inline int btbcm_read_pcm_int_params(struct hci_dev *hdev,
+			      struct bcm_set_pcm_int_params *params)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline int btbcm_write_pcm_int_params(struct hci_dev *hdev,
+			       const struct bcm_set_pcm_int_params *params)
+{
+	return -EOPNOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 static inline int btbcm_patchram(struct hci_dev *hdev, const struct firmware *fw)
 {
 	return -EOPNOTSUPP;
@@ -104,13 +138,21 @@ static inline int btbcm_setup_apple(struct hci_dev *hdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int btbcm_initialize(struct hci_dev *hdev, char *fw_name,
 				   size_t len, bool reinit)
+=======
+static inline int btbcm_initialize(struct hci_dev *hdev, bool *fw_load_done)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int btbcm_finalize(struct hci_dev *hdev)
+=======
+static inline int btbcm_finalize(struct hci_dev *hdev, bool *fw_load_done)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }

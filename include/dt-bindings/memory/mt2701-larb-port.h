@@ -1,11 +1,20 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015 MediaTek Inc.
  * Author: Honghui Zhang <honghui.zhang@mediatek.com>
  */
 
+<<<<<<< HEAD
 #ifndef _MT2701_LARB_PORT_H_
 #define _MT2701_LARB_PORT_H_
+=======
+#ifndef _DT_BINDINGS_MEMORY_MT2701_LARB_PORT_H_
+#define _DT_BINDINGS_MEMORY_MT2701_LARB_PORT_H_
+>>>>>>> upstream/android-13
 
 /*
  * Mediatek m4u generation 1 such as mt2701 has flat m4u port numbers,

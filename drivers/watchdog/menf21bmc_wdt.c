@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  MEN 14F021P00 Board Management Controller (BMC) Watchdog Driver.
  *
  *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -117,12 +124,21 @@ static const struct watchdog_ops menf21bmc_wdt_ops = {
 
 static int menf21bmc_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int ret, bmc_timeout;
 	struct menf21bmc_wdt *drv_data;
 	struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
 
 	drv_data = devm_kzalloc(&pdev->dev,
 				sizeof(struct menf21bmc_wdt), GFP_KERNEL);
+=======
+	struct device *dev = &pdev->dev;
+	int ret, bmc_timeout;
+	struct menf21bmc_wdt *drv_data;
+	struct i2c_client *i2c_client = to_i2c_client(dev->parent);
+
+	drv_data = devm_kzalloc(dev, sizeof(struct menf21bmc_wdt), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!drv_data)
 		return -ENOMEM;
 
@@ -130,7 +146,11 @@ static int menf21bmc_wdt_probe(struct platform_device *pdev)
 	drv_data->wdt.info = &menf21bmc_wdt_info;
 	drv_data->wdt.min_timeout = BMC_WD_TIMEOUT_MIN;
 	drv_data->wdt.max_timeout = BMC_WD_TIMEOUT_MAX;
+<<<<<<< HEAD
 	drv_data->wdt.parent = &pdev->dev;
+=======
+	drv_data->wdt.parent = dev;
+>>>>>>> upstream/android-13
 	drv_data->i2c_client = i2c_client;
 
 	/*
@@ -140,17 +160,26 @@ static int menf21bmc_wdt_probe(struct platform_device *pdev)
 	bmc_timeout = i2c_smbus_read_word_data(drv_data->i2c_client,
 					       BMC_CMD_WD_TIME);
 	if (bmc_timeout < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to get current WDT timeout\n");
 		return bmc_timeout;
 	}
 
 	watchdog_init_timeout(&drv_data->wdt, bmc_timeout / 10, &pdev->dev);
+=======
+		dev_err(dev, "failed to get current WDT timeout\n");
+		return bmc_timeout;
+	}
+
+	watchdog_init_timeout(&drv_data->wdt, bmc_timeout / 10, dev);
+>>>>>>> upstream/android-13
 	watchdog_set_nowayout(&drv_data->wdt, nowayout);
 	watchdog_set_drvdata(&drv_data->wdt, drv_data);
 	platform_set_drvdata(pdev, drv_data);
 
 	ret = menf21bmc_wdt_set_bootstatus(drv_data);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to set Watchdog bootstatus\n");
 		return ret;
 	}
@@ -174,6 +203,17 @@ static int menf21bmc_wdt_remove(struct platform_device *pdev)
 		 "Unregister MEN 14F021P00 BMC Watchdog device, board may reset\n");
 
 	watchdog_unregister_device(&drv_data->wdt);
+=======
+		dev_err(dev, "failed to set Watchdog bootstatus\n");
+		return ret;
+	}
+
+	ret = devm_watchdog_register_device(dev, &drv_data->wdt);
+	if (ret)
+		return ret;
+
+	dev_info(dev, "MEN 14F021P00 BMC Watchdog device enabled\n");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -191,7 +231,10 @@ static struct  platform_driver menf21bmc_wdt = {
 		.name	= DEVNAME,
 	},
 	.probe		= menf21bmc_wdt_probe,
+<<<<<<< HEAD
 	.remove		= menf21bmc_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.shutdown	= menf21bmc_wdt_shutdown,
 };
 

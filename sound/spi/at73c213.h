@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for the AT73C213 16-bit stereo DAC on Atmel ATSTK1000
  *
  * Copyright (C) 2006 - 2007 Atmel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +25,8 @@
  *
  * The full GNU General Public License is included in this
  * distribution in the file called COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SND_AT73C213_H

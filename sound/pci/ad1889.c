@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Analog Devices 1889 audio driver
  *
  * This is a driver for the AD1889 PCI audio chipset found
@@ -7,6 +11,7 @@
  * Copyright (C) 2005, Thibaut Varene <varenet@parisc-linux.org>
  *   Based on the OSS AD1889 driver by Randolph Chung <tausq@debian.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *	Do we need to take care of CCS register?
  *	Maybe we could use finer grained locking (separate locks for pb/cap)?
@@ -55,7 +62,10 @@
 MODULE_AUTHOR("Kyle McMartin <kyle@parisc-linux.org>, Thibaut Varene <t-bone@parisc-linux.org>");
 MODULE_DESCRIPTION("Analog Devices AD1889 ALSA sound driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Analog Devices,AD1889}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
 module_param_array(index, int, NULL, 0444);
@@ -269,6 +279,7 @@ snd_ad1889_ac97_ready(struct snd_ad1889 *chip)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int 
 snd_ad1889_hw_params(struct snd_pcm_substream *substream,
 			struct snd_pcm_hw_params *hw_params)
@@ -283,6 +294,8 @@ snd_ad1889_hw_free(struct snd_pcm_substream *substream)
 	return snd_pcm_lib_free_pages(substream);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct snd_pcm_hardware snd_ad1889_playback_hw = {
 	.info = SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_INTERLEAVED |
 		SNDRV_PCM_INFO_MMAP_VALID | SNDRV_PCM_INFO_BLOCK_TRANSFER,
@@ -574,9 +587,12 @@ snd_ad1889_capture_pointer(struct snd_pcm_substream *ss)
 static const struct snd_pcm_ops snd_ad1889_playback_ops = {
 	.open = snd_ad1889_playback_open,
 	.close = snd_ad1889_playback_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_ad1889_hw_params,
 	.hw_free = snd_ad1889_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_ad1889_playback_prepare,
 	.trigger = snd_ad1889_playback_trigger,
 	.pointer = snd_ad1889_playback_pointer, 
@@ -585,9 +601,12 @@ static const struct snd_pcm_ops snd_ad1889_playback_ops = {
 static const struct snd_pcm_ops snd_ad1889_capture_ops = {
 	.open = snd_ad1889_capture_open,
 	.close = snd_ad1889_capture_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_ad1889_hw_params,
 	.hw_free = snd_ad1889_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_ad1889_capture_prepare,
 	.trigger = snd_ad1889_capture_trigger,
 	.pointer = snd_ad1889_capture_pointer, 
@@ -644,6 +663,7 @@ snd_ad1889_pcm_init(struct snd_ad1889 *chip, int device)
 	chip->psubs = NULL;
 	chip->csubs = NULL;
 
+<<<<<<< HEAD
 	err = snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 						snd_dma_pci_data(chip->pci),
 						BUFFER_BYTES_MAX / 2,
@@ -654,6 +674,11 @@ snd_ad1889_pcm_init(struct snd_ad1889 *chip, int device)
 		return err;
 	}
 	
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV, &chip->pci->dev,
+				       BUFFER_BYTES_MAX / 2, BUFFER_BYTES_MAX);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -741,10 +766,15 @@ snd_ad1889_proc_read(struct snd_info_entry *entry, struct snd_info_buffer *buffe
 static void
 snd_ad1889_proc_init(struct snd_ad1889 *chip)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 
 	if (!snd_card_proc_new(chip->card, chip->card->driver, &entry))
 		snd_info_set_text_ops(entry, chip, snd_ad1889_proc_read);
+=======
+	snd_card_ro_proc_new(chip->card, chip->card->driver,
+			     chip, snd_ad1889_proc_read);
+>>>>>>> upstream/android-13
 }
 
 static const struct ac97_quirk ac97_quirks[] = {
@@ -782,6 +812,7 @@ snd_ad1889_ac97_xinit(struct snd_ad1889 *chip)
 
 }
 
+<<<<<<< HEAD
 static void
 snd_ad1889_ac97_bus_free(struct snd_ac97_bus *bus)
 {
@@ -796,12 +827,18 @@ snd_ad1889_ac97_free(struct snd_ac97 *ac97)
 	chip->ac97 = NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 snd_ad1889_ac97_init(struct snd_ad1889 *chip, const char *quirk_override)
 {
 	int err;
 	struct snd_ac97_template ac97;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_ad1889_ac97_write,
 		.read = snd_ad1889_ac97_read,
 	};
@@ -813,11 +850,16 @@ snd_ad1889_ac97_init(struct snd_ad1889 *chip, const char *quirk_override)
 	if (err < 0)
 		return err;
 	
+<<<<<<< HEAD
 	chip->ac97_bus->private_free = snd_ad1889_ac97_bus_free;
 
 	memset(&ac97, 0, sizeof(ac97));
 	ac97.private_data = chip;
 	ac97.private_free = snd_ad1889_ac97_free;
+=======
+	memset(&ac97, 0, sizeof(ac97));
+	ac97.private_data = chip;
+>>>>>>> upstream/android-13
 	ac97.pci = chip->pci;
 
 	err = snd_ac97_mixer(chip->ac97_bus, &ac97, &chip->ac97);
@@ -829,11 +871,18 @@ snd_ad1889_ac97_init(struct snd_ad1889 *chip, const char *quirk_override)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 snd_ad1889_free(struct snd_ad1889 *chip)
 {
 	if (chip->irq < 0)
 		goto skip_hw;
+=======
+static void
+snd_ad1889_free(struct snd_card *card)
+{
+	struct snd_ad1889 *chip = card->private_data;
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&chip->lock);
 
@@ -847,6 +896,7 @@ snd_ad1889_free(struct snd_ad1889 *chip)
 	ad1889_readl(chip, AD_DMA_DISR);	/* flush, dammit! */
 
 	spin_unlock_irq(&chip->lock);
+<<<<<<< HEAD
 
 	if (chip->irq >= 0)
 		free_irq(chip->irq, chip);
@@ -869,6 +919,53 @@ snd_ad1889_dev_free(struct snd_device *device)
 static int
 snd_ad1889_init(struct snd_ad1889 *chip) 
 {
+=======
+}
+
+static int
+snd_ad1889_create(struct snd_card *card, struct pci_dev *pci)
+{
+	struct snd_ad1889 *chip = card->private_data;
+	int err;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+	/* check PCI availability (32bit DMA) */
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(32))) {
+		dev_err(card->dev, "error setting 32-bit DMA mask.\n");
+		return -ENXIO;
+	}
+
+	chip->card = card;
+	chip->pci = pci;
+	chip->irq = -1;
+
+	/* (1) PCI resource allocation */
+	err = pcim_iomap_regions(pci, 1 << 0, card->driver);
+	if (err < 0)
+		return err;
+
+	chip->bar = pci_resource_start(pci, 0);
+	chip->iobase = pcim_iomap_table(pci)[0];
+	
+	pci_set_master(pci);
+
+	spin_lock_init(&chip->lock);	/* only now can we call ad1889_free */
+
+	if (devm_request_irq(&pci->dev, pci->irq, snd_ad1889_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, chip)) {
+		dev_err(card->dev, "cannot obtain IRQ %d\n", pci->irq);
+		return -EBUSY;
+	}
+
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_ad1889_free;
+
+	/* (2) initialization of the chip hardware */
+>>>>>>> upstream/android-13
 	ad1889_writew(chip, AD_DS_CCS, AD_DS_CCS_CLKEN); /* turn on clock */
 	ad1889_readw(chip, AD_DS_CCS);	/* flush posted write */
 
@@ -881,6 +978,7 @@ snd_ad1889_init(struct snd_ad1889 *chip)
 }
 
 static int
+<<<<<<< HEAD
 snd_ad1889_create(struct snd_card *card,
 		  struct pci_dev *pci,
 		  struct snd_ad1889 **rchip)
@@ -967,6 +1065,10 @@ free_and_ret:
 static int
 snd_ad1889_probe(struct pci_dev *pci,
 		 const struct pci_device_id *pci_id)
+=======
+__snd_ad1889_probe(struct pci_dev *pci,
+		   const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	int err;
 	static int devno;
@@ -982,19 +1084,33 @@ snd_ad1889_probe(struct pci_dev *pci,
 	}
 
 	/* (2) */
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[devno], id[devno], THIS_MODULE,
 			   0, &card);
 	/* XXX REVISIT: we can probably allocate chip in this call */
 	if (err < 0)
 		return err;
+=======
+	err = snd_devm_card_new(&pci->dev, index[devno], id[devno], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, "AD1889");
 	strcpy(card->shortname, "Analog Devices AD1889");
 
 	/* (3) */
+<<<<<<< HEAD
 	err = snd_ad1889_create(card, pci, &chip);
 	if (err < 0)
 		goto free_and_ret;
+=======
+	err = snd_ad1889_create(card, pci);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	/* (4) */
 	sprintf(card->longname, "%s at 0x%lx irq %i",
@@ -1004,11 +1120,19 @@ snd_ad1889_probe(struct pci_dev *pci,
 	/* register AC97 mixer */
 	err = snd_ad1889_ac97_init(chip, ac97_quirk[devno]);
 	if (err < 0)
+<<<<<<< HEAD
 		goto free_and_ret;
 	
 	err = snd_ad1889_pcm_init(chip, 0);
 	if (err < 0)
 		goto free_and_ret;
+=======
+		return err;
+	
+	err = snd_ad1889_pcm_init(chip, 0);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	/* register proc interface */
 	snd_ad1889_proc_init(chip);
@@ -1016,13 +1140,18 @@ snd_ad1889_probe(struct pci_dev *pci,
 	/* (6) */
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto free_and_ret;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	/* (7) */
 	pci_set_drvdata(pci, card);
 
 	devno++;
 	return 0;
+<<<<<<< HEAD
 
 free_and_ret:
 	snd_card_free(card);
@@ -1033,6 +1162,14 @@ static void
 snd_ad1889_remove(struct pci_dev *pci)
 {
 	snd_card_free(pci_get_drvdata(pci));
+=======
+}
+
+static int snd_ad1889_probe(struct pci_dev *pci,
+			    const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_ad1889_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id snd_ad1889_ids[] = {
@@ -1045,7 +1182,10 @@ static struct pci_driver ad1889_pci_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_ad1889_ids,
 	.probe = snd_ad1889_probe,
+<<<<<<< HEAD
 	.remove = snd_ad1889_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(ad1889_pci_driver);

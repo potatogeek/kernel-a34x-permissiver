@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,6 +12,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -42,6 +47,10 @@
 #include <linux/platform_device.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/dma-direct.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/delay.h>
 #include <linux/bitops.h>
@@ -181,12 +190,20 @@ static inline dma_addr_t ar2315_dev_offset(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 dma_addr_t __phys_to_dma(struct device *dev, phys_addr_t paddr)
+=======
+dma_addr_t phys_to_dma(struct device *dev, phys_addr_t paddr)
+>>>>>>> upstream/android-13
 {
 	return paddr + ar2315_dev_offset(dev);
 }
 
+<<<<<<< HEAD
 phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t dma_addr)
+=======
+phys_addr_t dma_to_phys(struct device *dev, dma_addr_t dma_addr)
+>>>>>>> upstream/android-13
 {
 	return dma_addr - ar2315_dev_offset(dev);
 }
@@ -347,6 +364,7 @@ static void ar2315_pci_irq_handler(struct irq_desc *desc)
 	struct ar2315_pci_ctrl *apc = irq_desc_get_handler_data(desc);
 	u32 pending = ar2315_pci_reg_read(apc, AR2315_PCI_ISR) &
 		      ar2315_pci_reg_read(apc, AR2315_PCI_IMR);
+<<<<<<< HEAD
 	unsigned pci_irq = 0;
 
 	if (pending)
@@ -355,6 +373,14 @@ static void ar2315_pci_irq_handler(struct irq_desc *desc)
 	if (pci_irq)
 		generic_handle_irq(pci_irq);
 	else
+=======
+	int ret = 0;
+
+	if (pending)
+		ret = generic_handle_domain_irq(apc->domain, __ffs(pending));
+
+	if (!pending || ret)
+>>>>>>> upstream/android-13
 		spurious_interrupt();
 }
 
@@ -434,9 +460,14 @@ static int ar2315_pci_probe(struct platform_device *pdev)
 		return -EINVAL;
 	apc->irq = irq;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 					   "ar2315-pci-ctrl");
 	apc->mmr_mem = devm_ioremap_resource(dev, res);
+=======
+	apc->mmr_mem = devm_platform_ioremap_resource_byname(pdev,
+							     "ar2315-pci-ctrl");
+>>>>>>> upstream/android-13
 	if (IS_ERR(apc->mmr_mem))
 		return PTR_ERR(apc->mmr_mem);
 
@@ -452,7 +483,11 @@ static int ar2315_pci_probe(struct platform_device *pdev)
 	apc->mem_res.flags = IORESOURCE_MEM;
 
 	/* Remap PCI config space */
+<<<<<<< HEAD
 	apc->cfg_mem = devm_ioremap_nocache(dev, res->start,
+=======
+	apc->cfg_mem = devm_ioremap(dev, res->start,
+>>>>>>> upstream/android-13
 					    AR2315_PCI_CFG_SIZE);
 	if (!apc->cfg_mem) {
 		dev_err(dev, "failed to remap PCI config space\n");
@@ -495,11 +530,19 @@ static int ar2315_pci_probe(struct platform_device *pdev)
 	apc->io_res.name = "AR2315 IO space";
 	apc->io_res.start = 0;
 	apc->io_res.end = 0;
+<<<<<<< HEAD
 	apc->io_res.flags = IORESOURCE_IO,
 
 	apc->pci_ctrl.pci_ops = &ar2315_pci_ops;
 	apc->pci_ctrl.mem_resource = &apc->mem_res,
 	apc->pci_ctrl.io_resource = &apc->io_res,
+=======
+	apc->io_res.flags = IORESOURCE_IO;
+
+	apc->pci_ctrl.pci_ops = &ar2315_pci_ops;
+	apc->pci_ctrl.mem_resource = &apc->mem_res;
+	apc->pci_ctrl.io_resource = &apc->io_res;
+>>>>>>> upstream/android-13
 
 	register_pci_controller(&apc->pci_ctrl);
 

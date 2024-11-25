@@ -39,7 +39,11 @@
 
 #define DRV_NAME		"fnic"
 #define DRV_DESCRIPTION		"Cisco FCoE HBA Driver"
+<<<<<<< HEAD
 #define DRV_VERSION		"1.6.0.34"
+=======
+#define DRV_VERSION		"1.6.0.53"
+>>>>>>> upstream/android-13
 #define PFX			DRV_NAME ": "
 #define DFX                     DRV_NAME "%d: "
 
@@ -49,7 +53,11 @@
 #define FNIC_MAX_IO_REQ		1024 /* scsi_cmnd tag map entries */
 #define FNIC_DFLT_IO_REQ        256 /* Default scsi_cmnd tag map entries */
 #define	FNIC_IO_LOCKS		64 /* IO locks: power of 2 */
+<<<<<<< HEAD
 #define FNIC_DFLT_QUEUE_DEPTH	32
+=======
+#define FNIC_DFLT_QUEUE_DEPTH	256
+>>>>>>> upstream/android-13
 #define	FNIC_STATS_RATE_LIMIT	4 /* limit rate at which stats are pulled up */
 
 /*
@@ -128,6 +136,10 @@
 	__fnic_set_state_flags(fnicp, st_flags, 1)
 
 extern unsigned int fnic_log_level;
+<<<<<<< HEAD
+=======
+extern unsigned int io_completions;
+>>>>>>> upstream/android-13
 
 #define FNIC_MAIN_LOGGING 0x01
 #define FNIC_FCS_LOGGING 0x02
@@ -196,6 +208,10 @@ enum fnic_state {
 #define FNIC_WQ_MAX 1
 #define FNIC_RQ_MAX 1
 #define FNIC_CQ_MAX (FNIC_WQ_COPY_MAX + FNIC_WQ_MAX + FNIC_RQ_MAX)
+<<<<<<< HEAD
+=======
+#define FNIC_DFLT_IO_COMPLETIONS 256
+>>>>>>> upstream/android-13
 
 struct mempool;
 
@@ -243,6 +259,10 @@ struct fnic {
 	u32 vlan_hw_insert:1;	        /* let hw insert the tag */
 	u32 in_remove:1;                /* fnic device in removal */
 	u32 stop_rx_link_events:1;      /* stop proc. rx frames, link events */
+<<<<<<< HEAD
+=======
+	u32 link_events:1;              /* set when we get any link event*/
+>>>>>>> upstream/android-13
 
 	struct completion *remove_wait; /* device remove thread blocks */
 

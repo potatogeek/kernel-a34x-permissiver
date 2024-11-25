@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2000, 2004, 2005  MIPS Technologies, Inc.
  *	All rights reserved.
  *	Authors: Carsten Langgaard <carstenl@mips.com>
  *		 Maciej W. Rozycki <macro@mips.com>
  * Copyright (C) 2005 Ralf Baechle (ralf@linux-mips.org)
+<<<<<<< HEAD
  *
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_GT64120_H
 #define _ASM_GT64120_H

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "IRQ subsystem"
 # Options selectable by the architecture code
 
@@ -25,11 +29,14 @@ config GENERIC_IRQ_SHOW_LEVEL
 config GENERIC_IRQ_EFFECTIVE_AFF_MASK
        bool
 
+<<<<<<< HEAD
 # Facility to allocate a hardware interrupt. This is legacy support
 # and should not be used in new code. Use irq domains instead.
 config GENERIC_IRQ_LEGACY_ALLOC_HWIRQ
        bool
 
+=======
+>>>>>>> upstream/android-13
 # Support for delayed migration from interrupt context
 config GENERIC_PENDING_IRQ
 	bool
@@ -42,14 +49,24 @@ config GENERIC_IRQ_MIGRATION
 config AUTO_IRQ_AFFINITY
        bool
 
+<<<<<<< HEAD
+=======
+# Interrupt injection mechanism
+config GENERIC_IRQ_INJECTION
+	bool
+
+>>>>>>> upstream/android-13
 # Tasklet based software resend for pending interrupts on enable_irq()
 config HARDIRQS_SW_RESEND
        bool
 
+<<<<<<< HEAD
 # Preflow handler support for fasteoi (sparc64)
 config IRQ_PREFLOW_FASTEOI
        bool
 
+=======
+>>>>>>> upstream/android-13
 # Edge style eoi based handler (cell)
 config IRQ_EDGE_EOI_HANDLER
        bool
@@ -67,12 +84,24 @@ config IRQ_DOMAIN
 config IRQ_SIM
 	bool
 	select IRQ_WORK
+<<<<<<< HEAD
+=======
+	select IRQ_DOMAIN
+>>>>>>> upstream/android-13
 
 # Support for hierarchical irq domains
 config IRQ_DOMAIN_HIERARCHY
 	bool
 	select IRQ_DOMAIN
 
+<<<<<<< HEAD
+=======
+# Support for obsolete non-mapping irq domains
+config IRQ_DOMAIN_NOMAP
+	bool
+	select IRQ_DOMAIN
+
+>>>>>>> upstream/android-13
 # Support for hierarchical fasteoi+edge and fasteoi+level handlers
 config IRQ_FASTEOI_HIERARCHY_HANDLERS
 	bool
@@ -92,6 +121,12 @@ config GENERIC_MSI_IRQ_DOMAIN
 	select IRQ_DOMAIN_HIERARCHY
 	select GENERIC_MSI_IRQ
 
+<<<<<<< HEAD
+=======
+config IRQ_MSI_IOMMU
+	bool
+
+>>>>>>> upstream/android-13
 config HANDLE_DOMAIN_IRQ
 	bool
 
@@ -104,13 +139,23 @@ config GENERIC_IRQ_MATRIX_ALLOCATOR
 config GENERIC_IRQ_RESERVATION_MODE
 	bool
 
+<<<<<<< HEAD
+=======
+config ARCH_WANTS_IRQ_RAW
+	bool
+
+>>>>>>> upstream/android-13
 # Support forced irq threading
 config IRQ_FORCED_THREADING
        bool
 
 config SPARSE_IRQ
 	bool "Support sparse irq numbering" if MAY_HAVE_SPARSE_IRQ
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 
 	  Sparse irq numbering is useful for distro kernels that want
 	  to define a high CONFIG_NR_CPUS value but still want to have
@@ -124,8 +169,14 @@ config SPARSE_IRQ
 config GENERIC_IRQ_DEBUGFS
 	bool "Expose irq internals in debugfs"
 	depends on DEBUG_FS
+<<<<<<< HEAD
 	default n
 	---help---
+=======
+	select GENERIC_IRQ_INJECTION
+	default n
+	help
+>>>>>>> upstream/android-13
 
 	  Exposes internal state information through debugfs. Mostly for
 	  developers and debugging of hard to diagnose interrupt problems.

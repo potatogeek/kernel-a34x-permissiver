@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hisilicon clock driver
  *
@@ -7,6 +11,7 @@
  * Author: Kai Zhao <zhaokai1@hisilicon.com>
  *	    Tao Wang <kevin.wangtao@hisilicon.com>
  *	    Leo Yan <leo.yan@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +23,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/mailbox_client.h>
 #include <linux/module.h>
 #include <linux/of.h>

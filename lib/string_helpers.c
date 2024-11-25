@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Helpers for formatting and printing strings
  *
@@ -230,6 +234,7 @@ static bool unescape_special(char **src, char **dst)
  * @src:	source buffer (escaped)
  * @dst:	destination buffer (unescaped)
  * @size:	size of the destination buffer (0 to unlimit)
+<<<<<<< HEAD
  * @flags:	combination of the flags (bitwise OR):
  *	%UNESCAPE_SPACE:
  *		'\f' - form feed
@@ -248,6 +253,9 @@ static bool unescape_special(char **src, char **dst)
  *		'\e' - escape
  *	%UNESCAPE_ANY:
  *		all previous together
+=======
+ * @flags:	combination of the flags.
+>>>>>>> upstream/android-13
  *
  * Description:
  * The function unquotes characters in the given string.
@@ -257,7 +265,29 @@ static bool unescape_special(char **src, char **dst)
  *
  * Caller must provide valid source and destination pointers. Be aware that
  * destination buffer will always be NULL-terminated. Source string must be
+<<<<<<< HEAD
  * NULL-terminated as well.
+=======
+ * NULL-terminated as well.  The supported flags are::
+ *
+ *	UNESCAPE_SPACE:
+ *		'\f' - form feed
+ *		'\n' - new line
+ *		'\r' - carriage return
+ *		'\t' - horizontal tab
+ *		'\v' - vertical tab
+ *	UNESCAPE_OCTAL:
+ *		'\NNN' - byte with octal value NNN (1 to 3 digits)
+ *	UNESCAPE_HEX:
+ *		'\xHH' - byte with hexadecimal value HH (1 to 2 digits)
+ *	UNESCAPE_SPECIAL:
+ *		'\"' - double quote
+ *		'\\' - backslash
+ *		'\a' - alert (BEL)
+ *		'\e' - escape
+ *	UNESCAPE_ANY:
+ *		all previous together
+>>>>>>> upstream/android-13
  *
  * Return:
  * The amount of the characters processed to the destination buffer excluding
@@ -359,6 +389,12 @@ static bool escape_special(unsigned char c, char **dst, char *end)
 	case '\e':
 		to = 'e';
 		break;
+<<<<<<< HEAD
+=======
+	case '"':
+		to = '"';
+		break;
+>>>>>>> upstream/android-13
 	default:
 		return false;
 	}
@@ -440,7 +476,35 @@ static bool escape_hex(unsigned char c, char **dst, char *end)
  * @isz:	source buffer size
  * @dst:	destination buffer (escaped)
  * @osz:	destination buffer size
+<<<<<<< HEAD
  * @flags:	combination of the flags (bitwise OR):
+=======
+ * @flags:	combination of the flags
+ * @only:	NULL-terminated string containing characters used to limit
+ *		the selected escape class. If characters are included in @only
+ *		that would not normally be escaped by the classes selected
+ *		in @flags, they will be copied to @dst unescaped.
+ *
+ * Description:
+ * The process of escaping byte buffer includes several parts. They are applied
+ * in the following sequence.
+ *
+ *	1. The character is not matched to the one from @only string and thus
+ *	   must go as-is to the output.
+ *	2. The character is matched to the printable and ASCII classes, if asked,
+ *	   and in case of match it passes through to the output.
+ *	3. The character is matched to the printable or ASCII class, if asked,
+ *	   and in case of match it passes through to the output.
+ *	4. The character is checked if it falls into the class given by @flags.
+ *	   %ESCAPE_OCTAL and %ESCAPE_HEX are going last since they cover any
+ *	   character. Note that they actually can't go together, otherwise
+ *	   %ESCAPE_HEX will be ignored.
+ *
+ * Caller must provide valid source and destination pointers. Be aware that
+ * destination buffer will not be NULL-terminated, thus caller have to append
+ * it if needs. The supported flags are::
+ *
+>>>>>>> upstream/android-13
  *	%ESCAPE_SPACE: (special white space, not space itself)
  *		'\f' - form feed
  *		'\n' - new line
@@ -448,6 +512,10 @@ static bool escape_hex(unsigned char c, char **dst, char *end)
  *		'\t' - horizontal tab
  *		'\v' - vertical tab
  *	%ESCAPE_SPECIAL:
+<<<<<<< HEAD
+=======
+ *		'\"' - double quote
+>>>>>>> upstream/android-13
  *		'\\' - backslash
  *		'\a' - alert (BEL)
  *		'\e' - escape
@@ -458,11 +526,16 @@ static bool escape_hex(unsigned char c, char **dst, char *end)
  *	%ESCAPE_ANY:
  *		all previous together
  *	%ESCAPE_NP:
+<<<<<<< HEAD
  *		escape only non-printable characters (checked by isprint)
+=======
+ *		escape only non-printable characters, checked by isprint()
+>>>>>>> upstream/android-13
  *	%ESCAPE_ANY_NP:
  *		all previous together
  *	%ESCAPE_HEX:
  *		'\xHH' - byte with hexadecimal value HH (2 digits)
+<<<<<<< HEAD
  * @only:	NULL-terminated string containing characters used to limit
  *		the selected escape class. If characters are included in @only
  *		that would not normally be escaped by the classes selected
@@ -483,6 +556,24 @@ static bool escape_hex(unsigned char c, char **dst, char *end)
  * Caller must provide valid source and destination pointers. Be aware that
  * destination buffer will not be NULL-terminated, thus caller have to append
  * it if needs.
+=======
+ *	%ESCAPE_NA:
+ *		escape only non-ascii characters, checked by isascii()
+ *	%ESCAPE_NAP:
+ *		escape only non-printable or non-ascii characters
+ *	%ESCAPE_APPEND:
+ *		append characters from @only to be escaped by the given classes
+ *
+ * %ESCAPE_APPEND would help to pass additional characters to the escaped, when
+ * one of %ESCAPE_NP, %ESCAPE_NA, or %ESCAPE_NAP is provided.
+ *
+ * One notable caveat, the %ESCAPE_NAP, %ESCAPE_NP and %ESCAPE_NA have the
+ * higher priority than the rest of the flags (%ESCAPE_NAP is the highest).
+ * It doesn't make much sense to use either of them without %ESCAPE_OCTAL
+ * or %ESCAPE_HEX, because they cover most of the other character classes.
+ * %ESCAPE_NAP can utilize %ESCAPE_SPACE or %ESCAPE_SPECIAL in addition to
+ * the above.
+>>>>>>> upstream/android-13
  *
  * Return:
  * The total size of the escaped output that would be generated for
@@ -496,6 +587,7 @@ int string_escape_mem(const char *src, size_t isz, char *dst, size_t osz,
 	char *p = dst;
 	char *end = p + osz;
 	bool is_dict = only && *only;
+<<<<<<< HEAD
 
 	while (isz--) {
 		unsigned char c = *src++;
@@ -506,10 +598,29 @@ int string_escape_mem(const char *src, size_t isz, char *dst, size_t osz,
 		 *	  %ESCAPE_NP bit set
 		 *	- the @only string is supplied and does not contain a
 		 *	  character under question
+=======
+	bool is_append = flags & ESCAPE_APPEND;
+
+	while (isz--) {
+		unsigned char c = *src++;
+		bool in_dict = is_dict && strchr(only, c);
+
+		/*
+		 * Apply rules in the following sequence:
+		 *	- the @only string is supplied and does not contain a
+		 *	  character under question
+		 *	- the character is printable and ASCII, when @flags has
+		 *	  %ESCAPE_NAP bit set
+		 *	- the character is printable, when @flags has
+		 *	  %ESCAPE_NP bit set
+		 *	- the character is ASCII, when @flags has
+		 *	  %ESCAPE_NA bit set
+>>>>>>> upstream/android-13
 		 *	- the character doesn't fall into a class of symbols
 		 *	  defined by given @flags
 		 * In these cases we just pass through a character to the
 		 * output buffer.
+<<<<<<< HEAD
 		 */
 		if ((flags & ESCAPE_NP && isprint(c)) ||
 		    (is_dict && !strchr(only, c))) {
@@ -531,6 +642,44 @@ int string_escape_mem(const char *src, size_t isz, char *dst, size_t osz,
 			if (flags & ESCAPE_HEX && escape_hex(c, &p, end))
 				continue;
 		}
+=======
+		 *
+		 * When %ESCAPE_APPEND is passed, the characters from @only
+		 * have been excluded from the %ESCAPE_NAP, %ESCAPE_NP, and
+		 * %ESCAPE_NA cases.
+		 */
+		if (!(is_append || in_dict) && is_dict &&
+					  escape_passthrough(c, &p, end))
+			continue;
+
+		if (!(is_append && in_dict) && isascii(c) && isprint(c) &&
+		    flags & ESCAPE_NAP && escape_passthrough(c, &p, end))
+			continue;
+
+		if (!(is_append && in_dict) && isprint(c) &&
+		    flags & ESCAPE_NP && escape_passthrough(c, &p, end))
+			continue;
+
+		if (!(is_append && in_dict) && isascii(c) &&
+		    flags & ESCAPE_NA && escape_passthrough(c, &p, end))
+			continue;
+
+		if (flags & ESCAPE_SPACE && escape_space(c, &p, end))
+			continue;
+
+		if (flags & ESCAPE_SPECIAL && escape_special(c, &p, end))
+			continue;
+
+		if (flags & ESCAPE_NULL && escape_null(c, &p, end))
+			continue;
+
+		/* ESCAPE_OCTAL and ESCAPE_HEX always go last */
+		if (flags & ESCAPE_OCTAL && escape_octal(c, &p, end))
+			continue;
+
+		if (flags & ESCAPE_HEX && escape_hex(c, &p, end))
+			continue;
+>>>>>>> upstream/android-13
 
 		escape_passthrough(c, &p, end);
 	}
@@ -626,3 +775,49 @@ char *kstrdup_quotable_file(struct file *file, gfp_t gfp)
 	return pathname;
 }
 EXPORT_SYMBOL_GPL(kstrdup_quotable_file);
+<<<<<<< HEAD
+=======
+
+/**
+ * kfree_strarray - free a number of dynamically allocated strings contained
+ *                  in an array and the array itself
+ *
+ * @array: Dynamically allocated array of strings to free.
+ * @n: Number of strings (starting from the beginning of the array) to free.
+ *
+ * Passing a non-NULL @array and @n == 0 as well as NULL @array are valid
+ * use-cases. If @array is NULL, the function does nothing.
+ */
+void kfree_strarray(char **array, size_t n)
+{
+	unsigned int i;
+
+	if (!array)
+		return;
+
+	for (i = 0; i < n; i++)
+		kfree(array[i]);
+	kfree(array);
+}
+EXPORT_SYMBOL_GPL(kfree_strarray);
+
+/**
+ * memcpy_and_pad - Copy one buffer to another with padding
+ * @dest: Where to copy to
+ * @dest_len: The destination buffer size
+ * @src: Where to copy from
+ * @count: The number of bytes to copy
+ * @pad: Character to use for padding if space is left in destination.
+ */
+void memcpy_and_pad(void *dest, size_t dest_len, const void *src, size_t count,
+		    int pad)
+{
+	if (dest_len > count) {
+		memcpy(dest, src, count);
+		memset(dest + count, pad,  dest_len - count);
+	} else {
+		memcpy(dest, src, dest_len);
+	}
+}
+EXPORT_SYMBOL(memcpy_and_pad);
+>>>>>>> upstream/android-13

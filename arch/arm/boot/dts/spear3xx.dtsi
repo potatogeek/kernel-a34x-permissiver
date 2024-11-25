@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DTS file for all SPEAr3xx SoCs
  *
  * Copyright 2012 Viresh Kumar <vireshk@kernel.org>
+<<<<<<< HEAD
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -14,6 +19,13 @@
 /include/ "skeleton.dtsi"
 
 / {
+=======
+ */
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	interrupt-parent = <&vic>;
 
 	cpus {
@@ -53,7 +65,11 @@
 		};
 
 		gmac: eth@e0800000 {
+<<<<<<< HEAD
 			compatible = "st,spear600-gmac";
+=======
+			compatible = "snps,dwmac-3.40a";
+>>>>>>> upstream/android-13
 			reg = <0xe0800000 0x8000>;
 			interrupts = <23 22>;
 			interrupt-names = "macirq", "eth_wake_irq";

@@ -10,7 +10,11 @@ Required properties:
 			  transition and not stable yet.
 	Please refer to Documentation/devicetree/bindings/clock/clock-bindings.txt for
 	generic clock consumer properties.
+<<<<<<< HEAD
 - operating-points-v2: Please refer to Documentation/devicetree/bindings/opp/opp.txt
+=======
+- operating-points-v2: Please refer to Documentation/devicetree/bindings/opp/opp-v2.yaml
+>>>>>>> upstream/android-13
 	for detail.
 - proc-supply: Regulator for Vproc of CPU cluster.
 
@@ -21,8 +25,13 @@ Optional properties:
 	       flow is handled by hardware, hence no software "voltage tracking" is
 	       needed.
 - #cooling-cells:
+<<<<<<< HEAD
 	Please refer to Documentation/devicetree/bindings/thermal/thermal.txt
 	for detail.
+=======
+	For details, please refer to
+	Documentation/devicetree/bindings/thermal/thermal-cooling-devices.yaml
+>>>>>>> upstream/android-13
 
 Example 1 (MT7623 SoC):
 
@@ -202,11 +211,19 @@ Example 2 (MT8173 SoC):
 
 	cpu2: cpu@100 {
 		device_type = "cpu";
+<<<<<<< HEAD
 		compatible = "arm,cortex-a57";
 		reg = <0x100>;
 		enable-method = "psci";
 		cpu-idle-states = <&CPU_SLEEP_0>;
 		clocks = <&infracfg CLK_INFRA_CA57SEL>,
+=======
+		compatible = "arm,cortex-a72";
+		reg = <0x100>;
+		enable-method = "psci";
+		cpu-idle-states = <&CPU_SLEEP_0>;
+		clocks = <&infracfg CLK_INFRA_CA72SEL>,
+>>>>>>> upstream/android-13
 			 <&apmixedsys CLK_APMIXED_MAINPLL>;
 		clock-names = "cpu", "intermediate";
 		operating-points-v2 = <&cpu_opp_table_b>;
@@ -214,11 +231,19 @@ Example 2 (MT8173 SoC):
 
 	cpu3: cpu@101 {
 		device_type = "cpu";
+<<<<<<< HEAD
 		compatible = "arm,cortex-a57";
 		reg = <0x101>;
 		enable-method = "psci";
 		cpu-idle-states = <&CPU_SLEEP_0>;
 		clocks = <&infracfg CLK_INFRA_CA57SEL>,
+=======
+		compatible = "arm,cortex-a72";
+		reg = <0x101>;
+		enable-method = "psci";
+		cpu-idle-states = <&CPU_SLEEP_0>;
+		clocks = <&infracfg CLK_INFRA_CA72SEL>,
+>>>>>>> upstream/android-13
 			 <&apmixedsys CLK_APMIXED_MAINPLL>;
 		clock-names = "cpu", "intermediate";
 		operating-points-v2 = <&cpu_opp_table_b>;

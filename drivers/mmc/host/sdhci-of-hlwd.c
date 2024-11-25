@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/mmc/host/sdhci-of-hlwd.c
  *
@@ -12,11 +16,14 @@
  *
  * Authors: Xiaobo Xie <X.Xie@freescale.com>
  *	    Anton Vorontsov <avorontsov@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -84,6 +91,10 @@ MODULE_DEVICE_TABLE(of, sdhci_hlwd_of_match);
 static struct platform_driver sdhci_hlwd_driver = {
 	.driver = {
 		.name = "sdhci-hlwd",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = sdhci_hlwd_of_match,
 		.pm = &sdhci_pltfm_pmops,
 	},

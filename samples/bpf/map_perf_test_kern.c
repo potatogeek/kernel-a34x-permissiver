@@ -8,11 +8,19 @@
 #include <linux/netdevice.h>
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+#include <bpf/bpf_core_read.h>
+#include "trace_common.h"
+>>>>>>> upstream/android-13
 
 #define MAX_ENTRIES 1000
 #define MAX_NR_CPUS 1024
 
+<<<<<<< HEAD
 struct bpf_map_def SEC("maps") hash_map = {
 	.type = BPF_MAP_TYPE_HASH,
 	.key_size = sizeof(u32),
@@ -96,6 +104,95 @@ struct bpf_map_def SEC("maps") lru_hash_lookup_map = {
 };
 
 SEC("kprobe/sys_getuid")
+=======
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, MAX_ENTRIES);
+} hash_map SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_LRU_HASH);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, 10000);
+} lru_hash_map SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_LRU_HASH);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, 10000);
+	__uint(map_flags, BPF_F_NO_COMMON_LRU);
+} nocommon_lru_hash_map SEC(".maps");
+
+struct inner_lru {
+	__uint(type, BPF_MAP_TYPE_LRU_HASH);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, MAX_ENTRIES);
+	__uint(map_flags, BPF_F_NUMA_NODE);
+	__uint(numa_node, 0);
+} inner_lru_hash_map SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);
+	__uint(max_entries, MAX_NR_CPUS);
+	__uint(key_size, sizeof(u32));
+	__array(values, struct inner_lru); /* use inner_lru as inner map */
+} array_of_lru_hashs SEC(".maps") = {
+	/* statically initialize the first element */
+	.values = { &inner_lru_hash_map },
+};
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
+	__uint(key_size, sizeof(u32));
+	__uint(value_size, sizeof(long));
+	__uint(max_entries, MAX_ENTRIES);
+} percpu_hash_map SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, MAX_ENTRIES);
+	__uint(map_flags, BPF_F_NO_PREALLOC);
+} hash_map_alloc SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_PERCPU_HASH);
+	__uint(key_size, sizeof(u32));
+	__uint(value_size, sizeof(long));
+	__uint(max_entries, MAX_ENTRIES);
+	__uint(map_flags, BPF_F_NO_PREALLOC);
+} percpu_hash_map_alloc SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_LPM_TRIE);
+	__uint(key_size, 8);
+	__uint(value_size, sizeof(long));
+	__uint(max_entries, 10000);
+	__uint(map_flags, BPF_F_NO_PREALLOC);
+} lpm_trie_map_alloc SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_ARRAY);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, MAX_ENTRIES);
+} array_map SEC(".maps");
+
+struct {
+	__uint(type, BPF_MAP_TYPE_LRU_HASH);
+	__type(key, u32);
+	__type(value, long);
+	__uint(max_entries, MAX_ENTRIES);
+} lru_hash_lookup_map SEC(".maps");
+
+SEC("kprobe/" SYSCALL(sys_getuid))
+>>>>>>> upstream/android-13
 int stress_hmap(struct pt_regs *ctx)
 {
 	u32 key = bpf_get_current_pid_tgid();
@@ -110,7 +207,11 @@ int stress_hmap(struct pt_regs *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_geteuid")
+=======
+SEC("kprobe/" SYSCALL(sys_geteuid))
+>>>>>>> upstream/android-13
 int stress_percpu_hmap(struct pt_regs *ctx)
 {
 	u32 key = bpf_get_current_pid_tgid();
@@ -124,7 +225,11 @@ int stress_percpu_hmap(struct pt_regs *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_getgid")
+=======
+SEC("kprobe/" SYSCALL(sys_getgid))
+>>>>>>> upstream/android-13
 int stress_hmap_alloc(struct pt_regs *ctx)
 {
 	u32 key = bpf_get_current_pid_tgid();
@@ -138,7 +243,11 @@ int stress_hmap_alloc(struct pt_regs *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_getegid")
+=======
+SEC("kprobe/" SYSCALL(sys_getegid))
+>>>>>>> upstream/android-13
 int stress_percpu_hmap_alloc(struct pt_regs *ctx)
 {
 	u32 key = bpf_get_current_pid_tgid();
@@ -152,9 +261,16 @@ int stress_percpu_hmap_alloc(struct pt_regs *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_connect")
 int stress_lru_hmap_alloc(struct pt_regs *ctx)
 {
+=======
+SEC("kprobe/" SYSCALL(sys_connect))
+int stress_lru_hmap_alloc(struct pt_regs *ctx)
+{
+	struct pt_regs *real_regs = (struct pt_regs *)PT_REGS_PARM1_CORE(ctx);
+>>>>>>> upstream/android-13
 	char fmt[] = "Failed at stress_lru_hmap_alloc. ret:%dn";
 	union {
 		u16 dst6[8];
@@ -173,14 +289,24 @@ int stress_lru_hmap_alloc(struct pt_regs *ctx)
 	long val = 1;
 	u32 key = 0;
 
+<<<<<<< HEAD
 	in6 = (struct sockaddr_in6 *)PT_REGS_PARM2(ctx);
 	addrlen = (int)PT_REGS_PARM3(ctx);
+=======
+	in6 = (struct sockaddr_in6 *)PT_REGS_PARM2_CORE(real_regs);
+	addrlen = (int)PT_REGS_PARM3_CORE(real_regs);
+>>>>>>> upstream/android-13
 
 	if (addrlen != sizeof(*in6))
 		return 0;
 
+<<<<<<< HEAD
 	ret = bpf_probe_read(test_params.dst6, sizeof(test_params.dst6),
 			     &in6->sin6_addr);
+=======
+	ret = bpf_probe_read_user(test_params.dst6, sizeof(test_params.dst6),
+				  &in6->sin6_addr);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto done;
 
@@ -231,7 +357,11 @@ done:
 	return 0;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_gettid")
+=======
+SEC("kprobe/" SYSCALL(sys_gettid))
+>>>>>>> upstream/android-13
 int stress_lpm_trie_map_alloc(struct pt_regs *ctx)
 {
 	union {
@@ -253,7 +383,11 @@ int stress_lpm_trie_map_alloc(struct pt_regs *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_getpgid")
+=======
+SEC("kprobe/" SYSCALL(sys_getpgid))
+>>>>>>> upstream/android-13
 int stress_hash_map_lookup(struct pt_regs *ctx)
 {
 	u32 key = 1, i;
@@ -266,7 +400,11 @@ int stress_hash_map_lookup(struct pt_regs *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_getppid")
+=======
+SEC("kprobe/" SYSCALL(sys_getppid))
+>>>>>>> upstream/android-13
 int stress_array_map_lookup(struct pt_regs *ctx)
 {
 	u32 key = 1, i;

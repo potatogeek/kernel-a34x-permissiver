@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  a.out loader for x86-64
  *
@@ -29,7 +33,10 @@
 #include <linux/sched/task_stack.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/cacheflush.h>
 #include <asm/user32.h>
 #include <asm/ia32.h>
@@ -39,6 +46,7 @@
 static int load_aout_binary(struct linux_binprm *);
 static int load_aout_library(struct file *);
 
+<<<<<<< HEAD
 #ifdef CONFIG_COREDUMP
 static int aout_core_dump(struct coredump_params *);
 
@@ -107,14 +115,19 @@ static void fill_dump(struct pt_regs *regs, struct user32 *dump)
 
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static struct linux_binfmt aout_format = {
 	.module		= THIS_MODULE,
 	.load_binary	= load_aout_binary,
 	.load_shlib	= load_aout_library,
+<<<<<<< HEAD
 #ifdef CONFIG_COREDUMP
 	.core_dump	= aout_core_dump,
 #endif
 	.min_coredump	= PAGE_SIZE
+=======
+>>>>>>> upstream/android-13
 };
 
 static int set_brk(unsigned long start, unsigned long end)
@@ -126,6 +139,7 @@ static int set_brk(unsigned long start, unsigned long end)
 	return vm_brk(start, end - start);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COREDUMP
 /*
  * These are the only things you should do on a core-file: use only these
@@ -213,6 +227,8 @@ end_coredump:
 	return has_dumped;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * create_aout_tables() parses the env- and arg-strings in new user
@@ -289,7 +305,11 @@ static int load_aout_binary(struct linux_binprm *bprm)
 		return -ENOMEM;
 
 	/* Flush all traces of the currently running executable */
+<<<<<<< HEAD
 	retval = flush_old_exec(bprm);
+=======
+	retval = begin_new_exec(bprm);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 
@@ -314,8 +334,11 @@ static int load_aout_binary(struct linux_binprm *bprm)
 	if (retval < 0)
 		return retval;
 
+<<<<<<< HEAD
 	install_exec_creds(bprm);
 
+=======
+>>>>>>> upstream/android-13
 	if (N_MAGIC(ex) == OMAGIC) {
 		unsigned long text_addr, map_size;
 
@@ -363,8 +386,12 @@ static int load_aout_binary(struct linux_binprm *bprm)
 
 		error = vm_mmap(bprm->file, N_TXTADDR(ex), ex.a_text,
 				PROT_READ | PROT_EXEC,
+<<<<<<< HEAD
 				MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE |
 				MAP_EXECUTABLE | MAP_32BIT,
+=======
+				MAP_FIXED | MAP_PRIVATE | MAP_32BIT,
+>>>>>>> upstream/android-13
 				fd_offset);
 
 		if (error != N_TXTADDR(ex))
@@ -372,8 +399,12 @@ static int load_aout_binary(struct linux_binprm *bprm)
 
 		error = vm_mmap(bprm->file, N_DATADDR(ex), ex.a_data,
 				PROT_READ | PROT_WRITE | PROT_EXEC,
+<<<<<<< HEAD
 				MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE |
 				MAP_EXECUTABLE | MAP_32BIT,
+=======
+				MAP_FIXED | MAP_PRIVATE | MAP_32BIT,
+>>>>>>> upstream/android-13
 				fd_offset + ex.a_text);
 		if (error != N_DATADDR(ex))
 			return error;
@@ -400,7 +431,10 @@ beyond_if:
 	(regs)->ss = __USER32_DS;
 	regs->r8 = regs->r9 = regs->r10 = regs->r11 =
 	regs->r12 = regs->r13 = regs->r14 = regs->r15 = 0;
+<<<<<<< HEAD
 	set_fs(USER_DS);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -455,7 +489,11 @@ static int load_aout_library(struct file *file)
 	/* Now use mmap to map the library into memory. */
 	error = vm_mmap(file, start_addr, ex.a_text + ex.a_data,
 			PROT_READ | PROT_WRITE | PROT_EXEC,
+<<<<<<< HEAD
 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE | MAP_32BIT,
+=======
+			MAP_FIXED | MAP_PRIVATE | MAP_32BIT,
+>>>>>>> upstream/android-13
 			N_TXTOFF(ex));
 	retval = error;
 	if (error != start_addr)

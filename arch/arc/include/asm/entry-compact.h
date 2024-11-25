@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014-15 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Vineetg: March 2009 (Supporting 2 levels of Interrupts)
  *  Stack switching code can no longer reliably rely on the fact that
  *  if we are NOT in user mode, stack is switched to kernel mode.
@@ -36,10 +43,13 @@
 #include <asm/irqflags-compact.h>
 #include <asm/thread_info.h>	/* For THREAD_SIZE */
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 #include <plat/ctop.h>
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*--------------------------------------------------------------
  * Switch to Kernel Mode stack if SP points to User Mode stack
  *
@@ -133,6 +143,7 @@
  * to be saved again on kernel mode stack, as part of pt_regs.
  *-------------------------------------------------------------*/
 .macro PROLOG_FREEUP_REG	reg, mem
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 	sr  \reg, [ARC_REG_SCRATCH_DATA0]
 #else
@@ -146,6 +157,13 @@
 #else
 	ld  \reg, [\mem]
 #endif
+=======
+	st  \reg, [\mem]
+.endm
+
+.macro PROLOG_RESTORE_REG	reg, mem
+	ld  \reg, [\mem]
+>>>>>>> upstream/android-13
 .endm
 
 /*--------------------------------------------------------------
@@ -192,6 +210,7 @@
 	PUSHAX	lp_start
 	PUSHAX	erbta
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 	.word CTOP_INST_SCHD_RW
 	PUSHAX  CTOP_AUX_GPA1
@@ -200,6 +219,10 @@
 
 	lr	r9, [ecr]
 	st      r9, [sp, PT_event]    /* EV_Trap expects r9 to have ECR */
+=======
+	lr	r10, [ecr]
+	st      r10, [sp, PT_event]    /* EV_Trap expects r10 to have ECR */
+>>>>>>> upstream/android-13
 .endm
 
 /*--------------------------------------------------------------
@@ -214,11 +237,14 @@
  * by hardware and that is not good.
  *-------------------------------------------------------------*/
 .macro EXCEPTION_EPILOGUE
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 	.word CTOP_INST_SCHD_RW
 	POPAX   CTOP_AUX_EFLAGS
 	POPAX   CTOP_AUX_GPA1
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	POPAX	erbta
 	POPAX	lp_start
@@ -281,11 +307,14 @@
 	PUSHAX	lp_start
 	PUSHAX	bta_l\LVL\()
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 	.word CTOP_INST_SCHD_RW
 	PUSHAX  CTOP_AUX_GPA1
 	PUSHAX  CTOP_AUX_EFLAGS
 #endif
+=======
+>>>>>>> upstream/android-13
 .endm
 
 /*--------------------------------------------------------------
@@ -298,11 +327,14 @@
  * by hardware and that is not good.
  *-------------------------------------------------------------*/
 .macro INTERRUPT_EPILOGUE  LVL
+<<<<<<< HEAD
 #ifdef CONFIG_ARC_PLAT_EZNPS
 	.word CTOP_INST_SCHD_RW
 	POPAX   CTOP_AUX_EFLAGS
 	POPAX   CTOP_AUX_GPA1
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	POPAX	bta_l\LVL\()
 	POPAX	lp_start
@@ -330,13 +362,19 @@
 	bic \reg, sp, (THREAD_SIZE - 1)
 .endm
 
+<<<<<<< HEAD
 #ifndef CONFIG_ARC_PLAT_EZNPS
+=======
+>>>>>>> upstream/android-13
 /* Get CPU-ID of this core */
 .macro  GET_CPU_ID  reg
 	lr  \reg, [identity]
 	lsr \reg, \reg, 8
 	bmsk \reg, \reg, 7
 .endm
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #endif  /* __ASM_ARC_ENTRY_COMPACT_H */

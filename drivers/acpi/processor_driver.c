@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * processor_driver.c - ACPI Processor Driver
  *
@@ -8,6 +12,7 @@
  *  			- Added processor hotplug support
  *  Copyright (C) 2013, Intel Corporation
  *                      Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -22,6 +27,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -41,9 +48,12 @@
 #define ACPI_PROCESSOR_NOTIFY_POWER	0x81
 #define ACPI_PROCESSOR_NOTIFY_THROTTLING	0x82
 
+<<<<<<< HEAD
 #define _COMPONENT		ACPI_PROCESSOR_COMPONENT
 ACPI_MODULE_NAME("processor_driver");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Paul Diefenbaugh");
 MODULE_DESCRIPTION("ACPI Processor Driver");
 MODULE_LICENSE("GPL");
@@ -100,8 +110,12 @@ static void acpi_processor_notify(acpi_handle handle, u32 event, void *data)
 						  dev_name(&device->dev), event, 0);
 		break;
 	default:
+<<<<<<< HEAD
 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 				  "Unsupported event [0x%x]\n", event));
+=======
+		acpi_handle_debug(handle, "Unsupported event [0x%x]\n", event);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -297,6 +311,31 @@ static int acpi_processor_stop(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+bool acpi_processor_cpufreq_init;
+
+static int acpi_processor_notifier(struct notifier_block *nb,
+				   unsigned long event, void *data)
+{
+	struct cpufreq_policy *policy = data;
+
+	if (event == CPUFREQ_CREATE_POLICY) {
+		acpi_thermal_cpufreq_init(policy);
+		acpi_processor_ppc_init(policy);
+	} else if (event == CPUFREQ_REMOVE_POLICY) {
+		acpi_processor_ppc_exit(policy);
+		acpi_thermal_cpufreq_exit(policy);
+	}
+
+	return 0;
+}
+
+static struct notifier_block acpi_processor_notifier_block = {
+	.notifier_call = acpi_processor_notifier,
+};
+
+>>>>>>> upstream/android-13
 /*
  * We keep the driver loaded even when ACPI is not running.
  * This is needed for the powernow-k8 driver, that works even without
@@ -323,8 +362,17 @@ static int __init acpi_processor_driver_init(void)
 	cpuhp_setup_state_nocalls(CPUHP_ACPI_CPUDRV_DEAD, "acpi/cpu-drv:dead",
 				  NULL, acpi_soft_cpu_dead);
 
+<<<<<<< HEAD
 	acpi_thermal_cpufreq_init();
 	acpi_processor_ppc_init();
+=======
+	if (!cpufreq_register_notifier(&acpi_processor_notifier_block,
+				       CPUFREQ_POLICY_NOTIFIER)) {
+		acpi_processor_cpufreq_init = true;
+		acpi_processor_ignore_ppc_init();
+	}
+
+>>>>>>> upstream/android-13
 	acpi_processor_throttling_init();
 	return 0;
 err:
@@ -337,8 +385,17 @@ static void __exit acpi_processor_driver_exit(void)
 	if (acpi_disabled)
 		return;
 
+<<<<<<< HEAD
 	acpi_processor_ppc_exit();
 	acpi_thermal_cpufreq_exit();
+=======
+	if (acpi_processor_cpufreq_init) {
+		cpufreq_unregister_notifier(&acpi_processor_notifier_block,
+					    CPUFREQ_POLICY_NOTIFIER);
+		acpi_processor_cpufreq_init = false;
+	}
+
+>>>>>>> upstream/android-13
 	cpuhp_remove_state_nocalls(hp_online);
 	cpuhp_remove_state_nocalls(CPUHP_ACPI_CPUDRV_DEAD);
 	driver_unregister(&acpi_processor_driver);

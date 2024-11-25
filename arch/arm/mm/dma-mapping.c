@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/dma-mapping.c
  *
  *  Copyright (C) 2000-2004 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -10,6 +15,10 @@
  *  DMA uncached mapping support.
  */
 #include <linux/bootmem.h>
+=======
+ *  DMA uncached mapping support.
+ */
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/mm.h>
 #include <linux/genalloc.h>
@@ -18,8 +27,13 @@
 #include <linux/list.h>
 #include <linux/init.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
 #include <linux/dma-contiguous.h>
+=======
+#include <linux/dma-direct.h>
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/memblock.h>
 #include <linux/slab.h>
@@ -37,7 +51,11 @@
 #include <asm/dma-iommu.h>
 #include <asm/mach/map.h>
 #include <asm/system_info.h>
+<<<<<<< HEAD
 #include <asm/dma-contiguous.h>
+=======
+#include <xen/swiotlb-xen.h>
+>>>>>>> upstream/android-13
 
 #include "dma.h"
 #include "mm.h"
@@ -180,26 +198,58 @@ static void arm_dma_sync_single_for_device(struct device *dev,
 	__dma_page_cpu_to_dev(page, offset, size, dir);
 }
 
+<<<<<<< HEAD
 static int arm_dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return dma_addr == ARM_MAPPING_ERROR;
+=======
+/*
+ * Return whether the given device DMA address mask can be supported
+ * properly.  For example, if your device can only drive the low 24-bits
+ * during bus mastering, then you would pass 0x00ffffff as the mask
+ * to this function.
+ */
+static int arm_dma_supported(struct device *dev, u64 mask)
+{
+	unsigned long max_dma_pfn = min(max_pfn - 1, arm_dma_pfn_limit);
+
+	/*
+	 * Translate the device's DMA mask to a PFN limit.  This
+	 * PFN number includes the page which we can DMA to.
+	 */
+	return dma_to_pfn(dev, mask) >= max_dma_pfn;
+>>>>>>> upstream/android-13
 }
 
 const struct dma_map_ops arm_dma_ops = {
 	.alloc			= arm_dma_alloc,
 	.free			= arm_dma_free,
+<<<<<<< HEAD
+=======
+	.alloc_pages		= dma_direct_alloc_pages,
+	.free_pages		= dma_direct_free_pages,
+>>>>>>> upstream/android-13
 	.mmap			= arm_dma_mmap,
 	.get_sgtable		= arm_dma_get_sgtable,
 	.map_page		= arm_dma_map_page,
 	.unmap_page		= arm_dma_unmap_page,
 	.map_sg			= arm_dma_map_sg,
 	.unmap_sg		= arm_dma_unmap_sg,
+<<<<<<< HEAD
+=======
+	.map_resource		= dma_direct_map_resource,
+>>>>>>> upstream/android-13
 	.sync_single_for_cpu	= arm_dma_sync_single_for_cpu,
 	.sync_single_for_device	= arm_dma_sync_single_for_device,
 	.sync_sg_for_cpu	= arm_dma_sync_sg_for_cpu,
 	.sync_sg_for_device	= arm_dma_sync_sg_for_device,
+<<<<<<< HEAD
 	.mapping_error		= arm_dma_mapping_error,
 	.dma_supported		= arm_dma_supported,
+=======
+	.dma_supported		= arm_dma_supported,
+	.get_required_mask	= dma_direct_get_required_mask,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL(arm_dma_ops);
 
@@ -214,10 +264,16 @@ static int arm_coherent_dma_mmap(struct device *dev, struct vm_area_struct *vma,
 const struct dma_map_ops arm_coherent_dma_ops = {
 	.alloc			= arm_coherent_dma_alloc,
 	.free			= arm_coherent_dma_free,
+<<<<<<< HEAD
+=======
+	.alloc_pages		= dma_direct_alloc_pages,
+	.free_pages		= dma_direct_free_pages,
+>>>>>>> upstream/android-13
 	.mmap			= arm_coherent_dma_mmap,
 	.get_sgtable		= arm_dma_get_sgtable,
 	.map_page		= arm_coherent_dma_map_page,
 	.map_sg			= arm_dma_map_sg,
+<<<<<<< HEAD
 	.mapping_error		= arm_dma_mapping_error,
 	.dma_supported		= arm_dma_supported,
 };
@@ -284,6 +340,14 @@ static u64 get_coherent_dma_mask(struct device *dev)
 	return mask;
 }
 
+=======
+	.map_resource		= dma_direct_map_resource,
+	.dma_supported		= arm_dma_supported,
+	.get_required_mask	= dma_direct_get_required_mask,
+};
+EXPORT_SYMBOL(arm_coherent_dma_ops);
+
+>>>>>>> upstream/android-13
 static void __dma_clear_buffer(struct page *page, size_t size, int coherent_flag)
 {
 	/*
@@ -362,6 +426,7 @@ static void *__alloc_remap_buffer(struct device *dev, size_t size, gfp_t gfp,
 				 pgprot_t prot, struct page **ret_page,
 				 const void *caller, bool want_vaddr);
 
+<<<<<<< HEAD
 static void *
 __dma_alloc_remap(struct page *page, size_t size, gfp_t gfp, pgprot_t prot,
 	const void *caller)
@@ -381,6 +446,8 @@ static void __dma_free_remap(void *cpu_addr, size_t size)
 			VM_ARM_DMA_CONSISTENT | VM_USERMAP, false);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define DEFAULT_DMA_COHERENT_POOL_SIZE	SZ_256K
 static struct gen_pool *atomic_pool __ro_after_init;
 
@@ -502,8 +569,12 @@ void __init dma_contiguous_remap(void)
 	}
 }
 
+<<<<<<< HEAD
 static int __dma_update_pte(pte_t *pte, pgtable_t token, unsigned long addr,
 			    void *data)
+=======
+static int __dma_update_pte(pte_t *pte, unsigned long addr, void *data)
+>>>>>>> upstream/android-13
 {
 	struct page *page = virt_to_page(addr);
 	pgprot_t prot = *(pgprot_t *)data;
@@ -537,7 +608,11 @@ static void *__alloc_remap_buffer(struct device *dev, size_t size, gfp_t gfp,
 	if (!want_vaddr)
 		goto out;
 
+<<<<<<< HEAD
 	ptr = __dma_alloc_remap(page, size, gfp, prot, caller);
+=======
+	ptr = dma_common_contiguous_remap(page, size, prot, caller);
+>>>>>>> upstream/android-13
 	if (!ptr) {
 		__dma_free_buffer(page, size);
 		return NULL;
@@ -571,7 +646,11 @@ static void *__alloc_from_pool(size_t size, struct page **ret_page)
 
 static bool __in_atomic_pool(void *start, size_t size)
 {
+<<<<<<< HEAD
 	return addr_in_gen_pool(atomic_pool, (unsigned long)start, size);
+=======
+	return gen_pool_has_addr(atomic_pool, (unsigned long)start, size);
+>>>>>>> upstream/android-13
 }
 
 static int __free_from_pool(void *start, size_t size)
@@ -604,7 +683,11 @@ static void *__alloc_from_contiguous(struct device *dev, size_t size,
 		goto out;
 
 	if (PageHighMem(page)) {
+<<<<<<< HEAD
 		ptr = __dma_alloc_remap(page, size, GFP_KERNEL, prot, caller);
+=======
+		ptr = dma_common_contiguous_remap(page, size, prot, caller);
+>>>>>>> upstream/android-13
 		if (!ptr) {
 			dma_release_from_contiguous(dev, page, count);
 			return NULL;
@@ -624,7 +707,11 @@ static void __free_from_contiguous(struct device *dev, struct page *page,
 {
 	if (want_vaddr) {
 		if (PageHighMem(page))
+<<<<<<< HEAD
 			__dma_free_remap(cpu_addr, size);
+=======
+			dma_common_free_remap(cpu_addr, size);
+>>>>>>> upstream/android-13
 		else
 			__dma_remap(page, size, PAGE_KERNEL);
 	}
@@ -716,7 +803,11 @@ static void *remap_allocator_alloc(struct arm_dma_alloc_args *args,
 static void remap_allocator_free(struct arm_dma_free_args *args)
 {
 	if (args->want_vaddr)
+<<<<<<< HEAD
 		__dma_free_remap(args->cpu_addr, args->size);
+=======
+		dma_common_free_remap(args->cpu_addr, args->size);
+>>>>>>> upstream/android-13
 
 	__dma_free_buffer(args->page, args->size);
 }
@@ -730,7 +821,11 @@ static void *__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
 			 gfp_t gfp, pgprot_t prot, bool is_coherent,
 			 unsigned long attrs, const void *caller)
 {
+<<<<<<< HEAD
 	u64 mask = get_coherent_dma_mask(dev);
+=======
+	u64 mask = min_not_zero(dev->coherent_dma_mask, dev->bus_dma_limit);
+>>>>>>> upstream/android-13
 	struct page *page = NULL;
 	void *addr;
 	bool allowblock, cma;
@@ -754,9 +849,12 @@ static void *__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
 	}
 #endif
 
+<<<<<<< HEAD
 	if (!mask)
 		return NULL;
 
+=======
+>>>>>>> upstream/android-13
 	buf = kzalloc(sizeof(*buf),
 		      gfp & ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM));
 	if (!buf)
@@ -775,7 +873,11 @@ static void *__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
 	gfp &= ~(__GFP_COMP);
 	args.gfp = gfp;
 
+<<<<<<< HEAD
 	*handle = ARM_MAPPING_ERROR;
+=======
+	*handle = DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	allowblock = gfpflags_allow_blocking(gfp);
 	cma = allowblock ? dev_get_cma_area(dev) : false;
 
@@ -904,6 +1006,7 @@ static void arm_coherent_dma_free(struct device *dev, size_t size, void *cpu_add
 	__arm_dma_free(dev, size, cpu_addr, handle, attrs, true);
 }
 
+<<<<<<< HEAD
 /*
  * The whole dma_get_sgtable() idea is fundamentally unsafe - it seems
  * that the intention is to allow exporting memory allocated via the
@@ -915,6 +1018,8 @@ static void arm_coherent_dma_free(struct device *dev, size_t size, void *cpu_add
  *    as we will try to flush the memory through a different alias to that
  *    actually being used (and the flushes are redundant.)
  */
+=======
+>>>>>>> upstream/android-13
 int arm_dma_get_sgtable(struct device *dev, struct sg_table *sgt,
 		 void *cpu_addr, dma_addr_t handle, size_t size,
 		 unsigned long attrs)
@@ -1061,7 +1166,11 @@ int arm_dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
 {
 	const struct dma_map_ops *ops = get_dma_ops(dev);
 	struct scatterlist *s;
+<<<<<<< HEAD
 	int i, j;
+=======
+	int i, j, ret;
+>>>>>>> upstream/android-13
 
 	for_each_sg(sg, s, nents, i) {
 #ifdef CONFIG_NEED_SG_DMA_LENGTH
@@ -1069,15 +1178,26 @@ int arm_dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
 #endif
 		s->dma_address = ops->map_page(dev, sg_page(s), s->offset,
 						s->length, dir, attrs);
+<<<<<<< HEAD
 		if (dma_mapping_error(dev, s->dma_address))
 			goto bad_mapping;
+=======
+		if (dma_mapping_error(dev, s->dma_address)) {
+			ret = -EIO;
+			goto bad_mapping;
+		}
+>>>>>>> upstream/android-13
 	}
 	return nents;
 
  bad_mapping:
 	for_each_sg(sg, s, i, j)
 		ops->unmap_page(dev, sg_dma_address(s), sg_dma_len(s), dir, attrs);
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1140,6 +1260,7 @@ void arm_dma_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
 					    dir);
 }
 
+<<<<<<< HEAD
 /*
  * Return whether the given device DMA address mask can be supported
  * properly.  For example, if your device can only drive the low 24-bits
@@ -1153,6 +1274,19 @@ int arm_dma_supported(struct device *dev, u64 mask)
 
 static const struct dma_map_ops *arm_get_dma_map_ops(bool coherent)
 {
+=======
+static const struct dma_map_ops *arm_get_dma_map_ops(bool coherent)
+{
+	/*
+	 * When CONFIG_ARM_LPAE is set, physical address can extend above
+	 * 32-bits, which then can't be addressed by devices that only support
+	 * 32-bit DMA.
+	 * Use the generic dma-direct / swiotlb ops code in that case, as that
+	 * handles bounce buffering for us.
+	 */
+	if (IS_ENABLED(CONFIG_ARM_LPAE))
+		return NULL;
+>>>>>>> upstream/android-13
 	return coherent ? &arm_coherent_dma_ops : &arm_dma_ops;
 }
 
@@ -1218,7 +1352,11 @@ static inline dma_addr_t __alloc_iova(struct dma_iommu_mapping *mapping,
 	if (i == mapping->nr_bitmaps) {
 		if (extend_iommu_mapping(mapping)) {
 			spin_unlock_irqrestore(&mapping->lock, flags);
+<<<<<<< HEAD
 			return ARM_MAPPING_ERROR;
+=======
+			return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 		}
 
 		start = bitmap_find_next_zero_area(mapping->bitmaps[i],
@@ -1226,7 +1364,11 @@ static inline dma_addr_t __alloc_iova(struct dma_iommu_mapping *mapping,
 
 		if (start > mapping->bits) {
 			spin_unlock_irqrestore(&mapping->lock, flags);
+<<<<<<< HEAD
 			return ARM_MAPPING_ERROR;
+=======
+			return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 		}
 
 		bitmap_set(mapping->bitmaps[i], start, count);
@@ -1387,6 +1529,7 @@ static int __iommu_free_buffer(struct device *dev, struct page **pages,
 }
 
 /*
+<<<<<<< HEAD
  * Create a CPU mapping for a specified pages
  */
 static void *
@@ -1398,6 +1541,8 @@ __iommu_alloc_remap(struct page **pages, size_t size, gfp_t gfp, pgprot_t prot,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Create a mapping in device IO address space for specified pages
  */
 static dma_addr_t
@@ -1410,7 +1555,11 @@ __iommu_create_mapping(struct device *dev, struct page **pages, size_t size,
 	int i;
 
 	dma_addr = __alloc_iova(mapping, size);
+<<<<<<< HEAD
 	if (dma_addr == ARM_MAPPING_ERROR)
+=======
+	if (dma_addr == DMA_MAPPING_ERROR)
+>>>>>>> upstream/android-13
 		return dma_addr;
 
 	iova = dma_addr;
@@ -1437,7 +1586,11 @@ __iommu_create_mapping(struct device *dev, struct page **pages, size_t size,
 fail:
 	iommu_unmap(mapping->domain, dma_addr, iova-dma_addr);
 	__free_iova(mapping, dma_addr, size);
+<<<<<<< HEAD
 	return ARM_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 static int __iommu_remove_mapping(struct device *dev, dma_addr_t iova, size_t size)
@@ -1469,18 +1622,25 @@ static struct page **__atomic_get_pages(void *addr)
 
 static struct page **__iommu_get_pages(void *cpu_addr, unsigned long attrs)
 {
+<<<<<<< HEAD
 	struct vm_struct *area;
 
+=======
+>>>>>>> upstream/android-13
 	if (__in_atomic_pool(cpu_addr, PAGE_SIZE))
 		return __atomic_get_pages(cpu_addr);
 
 	if (attrs & DMA_ATTR_NO_KERNEL_MAPPING)
 		return cpu_addr;
 
+<<<<<<< HEAD
 	area = find_vm_area(cpu_addr);
 	if (area && (area->flags & VM_ARM_DMA_CONSISTENT))
 		return area->pages;
 	return NULL;
+=======
+	return dma_common_find_pages(cpu_addr);
+>>>>>>> upstream/android-13
 }
 
 static void *__iommu_alloc_simple(struct device *dev, size_t size, gfp_t gfp,
@@ -1498,7 +1658,11 @@ static void *__iommu_alloc_simple(struct device *dev, size_t size, gfp_t gfp,
 		return NULL;
 
 	*handle = __iommu_create_mapping(dev, &page, size, attrs);
+<<<<<<< HEAD
 	if (*handle == ARM_MAPPING_ERROR)
+=======
+	if (*handle == DMA_MAPPING_ERROR)
+>>>>>>> upstream/android-13
 		goto err_mapping;
 
 	return addr;
@@ -1526,7 +1690,11 @@ static void *__arm_iommu_alloc_attrs(struct device *dev, size_t size,
 	struct page **pages;
 	void *addr = NULL;
 
+<<<<<<< HEAD
 	*handle = ARM_MAPPING_ERROR;
+=======
+	*handle = DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	size = PAGE_ALIGN(size);
 
 	if (coherent_flag  == COHERENT || !gfpflags_allow_blocking(gfp))
@@ -1547,13 +1715,21 @@ static void *__arm_iommu_alloc_attrs(struct device *dev, size_t size,
 		return NULL;
 
 	*handle = __iommu_create_mapping(dev, pages, size, attrs);
+<<<<<<< HEAD
 	if (*handle == ARM_MAPPING_ERROR)
+=======
+	if (*handle == DMA_MAPPING_ERROR)
+>>>>>>> upstream/android-13
 		goto err_buffer;
 
 	if (attrs & DMA_ATTR_NO_KERNEL_MAPPING)
 		return pages;
 
+<<<<<<< HEAD
 	addr = __iommu_alloc_remap(pages, size, gfp, prot,
+=======
+	addr = dma_common_pages_remap(pages, size, prot,
+>>>>>>> upstream/android-13
 				   __builtin_return_address(0));
 	if (!addr)
 		goto err_mapping;
@@ -1583,15 +1759,22 @@ static int __arm_iommu_mmap_attrs(struct device *dev, struct vm_area_struct *vma
 		    void *cpu_addr, dma_addr_t dma_addr, size_t size,
 		    unsigned long attrs)
 {
+<<<<<<< HEAD
 	unsigned long uaddr = vma->vm_start;
 	unsigned long usize = vma->vm_end - vma->vm_start;
 	struct page **pages = __iommu_get_pages(cpu_addr, attrs);
 	unsigned long nr_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
 	unsigned long off = vma->vm_pgoff;
+=======
+	struct page **pages = __iommu_get_pages(cpu_addr, attrs);
+	unsigned long nr_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
+	int err;
+>>>>>>> upstream/android-13
 
 	if (!pages)
 		return -ENXIO;
 
+<<<<<<< HEAD
 	if (off >= nr_pages || (usize >> PAGE_SHIFT) > nr_pages - off)
 		return -ENXIO;
 
@@ -1608,6 +1791,16 @@ static int __arm_iommu_mmap_attrs(struct device *dev, struct vm_area_struct *vma
 	} while (usize > 0);
 
 	return 0;
+=======
+	if (vma->vm_pgoff >= nr_pages)
+		return -ENXIO;
+
+	err = vm_map_pages(vma, pages, nr_pages);
+	if (err)
+		pr_err("Remapping memory failed: %d\n", err);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 static int arm_iommu_mmap_attrs(struct device *dev,
 		struct vm_area_struct *vma, void *cpu_addr,
@@ -1629,7 +1822,11 @@ static int arm_coherent_iommu_mmap_attrs(struct device *dev,
  * free a page as defined by the above mapping.
  * Must not be called with IRQs disabled.
  */
+<<<<<<< HEAD
 void __arm_iommu_free_attrs(struct device *dev, size_t size, void *cpu_addr,
+=======
+static void __arm_iommu_free_attrs(struct device *dev, size_t size, void *cpu_addr,
+>>>>>>> upstream/android-13
 	dma_addr_t handle, unsigned long attrs, int coherent_flag)
 {
 	struct page **pages;
@@ -1646,22 +1843,37 @@ void __arm_iommu_free_attrs(struct device *dev, size_t size, void *cpu_addr,
 		return;
 	}
 
+<<<<<<< HEAD
 	if ((attrs & DMA_ATTR_NO_KERNEL_MAPPING) == 0) {
 		dma_common_free_remap(cpu_addr, size,
 			VM_ARM_DMA_CONSISTENT | VM_USERMAP, false);
 	}
+=======
+	if ((attrs & DMA_ATTR_NO_KERNEL_MAPPING) == 0)
+		dma_common_free_remap(cpu_addr, size);
+>>>>>>> upstream/android-13
 
 	__iommu_remove_mapping(dev, handle, size);
 	__iommu_free_buffer(dev, pages, size, attrs);
 }
 
+<<<<<<< HEAD
 void arm_iommu_free_attrs(struct device *dev, size_t size,
 		    void *cpu_addr, dma_addr_t handle, unsigned long attrs)
+=======
+static void arm_iommu_free_attrs(struct device *dev, size_t size,
+				 void *cpu_addr, dma_addr_t handle,
+				 unsigned long attrs)
+>>>>>>> upstream/android-13
 {
 	__arm_iommu_free_attrs(dev, size, cpu_addr, handle, attrs, NORMAL);
 }
 
+<<<<<<< HEAD
 void arm_coherent_iommu_free_attrs(struct device *dev, size_t size,
+=======
+static void arm_coherent_iommu_free_attrs(struct device *dev, size_t size,
+>>>>>>> upstream/android-13
 		    void *cpu_addr, dma_addr_t handle, unsigned long attrs)
 {
 	__arm_iommu_free_attrs(dev, size, cpu_addr, handle, attrs, COHERENT);
@@ -1697,10 +1909,17 @@ static int __map_sg_chunk(struct device *dev, struct scatterlist *sg,
 	int prot;
 
 	size = PAGE_ALIGN(size);
+<<<<<<< HEAD
 	*handle = ARM_MAPPING_ERROR;
 
 	iova_base = iova = __alloc_iova(mapping, size);
 	if (iova == ARM_MAPPING_ERROR)
+=======
+	*handle = DMA_MAPPING_ERROR;
+
+	iova_base = iova = __alloc_iova(mapping, size);
+	if (iova == DMA_MAPPING_ERROR)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	for (count = 0, s = sg; count < (size >> PAGE_SHIFT); s = sg_next(s)) {
@@ -1732,7 +1951,11 @@ static int __iommu_map_sg(struct device *dev, struct scatterlist *sg, int nents,
 		     bool is_coherent)
 {
 	struct scatterlist *s = sg, *dma = sg, *start = sg;
+<<<<<<< HEAD
 	int i, count = 0;
+=======
+	int i, count = 0, ret;
+>>>>>>> upstream/android-13
 	unsigned int offset = s->offset;
 	unsigned int size = s->offset + s->length;
 	unsigned int max = dma_get_max_seg_size(dev);
@@ -1740,12 +1963,22 @@ static int __iommu_map_sg(struct device *dev, struct scatterlist *sg, int nents,
 	for (i = 1; i < nents; i++) {
 		s = sg_next(s);
 
+<<<<<<< HEAD
 		s->dma_address = ARM_MAPPING_ERROR;
 		s->dma_length = 0;
 
 		if (s->offset || (size & ~PAGE_MASK) || size + s->length > max) {
 			if (__map_sg_chunk(dev, start, size, &dma->dma_address,
 			    dir, attrs, is_coherent) < 0)
+=======
+		s->dma_length = 0;
+
+		if (s->offset || (size & ~PAGE_MASK) || size + s->length > max) {
+			ret = __map_sg_chunk(dev, start, size,
+					     &dma->dma_address, dir, attrs,
+					     is_coherent);
+			if (ret < 0)
+>>>>>>> upstream/android-13
 				goto bad_mapping;
 
 			dma->dma_address += offset;
@@ -1758,8 +1991,14 @@ static int __iommu_map_sg(struct device *dev, struct scatterlist *sg, int nents,
 		}
 		size += s->length;
 	}
+<<<<<<< HEAD
 	if (__map_sg_chunk(dev, start, size, &dma->dma_address, dir, attrs,
 		is_coherent) < 0)
+=======
+	ret = __map_sg_chunk(dev, start, size, &dma->dma_address, dir, attrs,
+			     is_coherent);
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		goto bad_mapping;
 
 	dma->dma_address += offset;
@@ -1770,7 +2009,13 @@ static int __iommu_map_sg(struct device *dev, struct scatterlist *sg, int nents,
 bad_mapping:
 	for_each_sg(sg, s, count, i)
 		__iommu_remove_mapping(dev, sg_dma_address(s), sg_dma_len(s));
+<<<<<<< HEAD
 	return 0;
+=======
+	if (ret == -ENOMEM)
+		return ret;
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1785,7 +2030,11 @@ bad_mapping:
  * possible) and tagged with the appropriate dma address and length. They are
  * obtained via sg_dma_{address,length}.
  */
+<<<<<<< HEAD
 int arm_coherent_iommu_map_sg(struct device *dev, struct scatterlist *sg,
+=======
+static int arm_coherent_iommu_map_sg(struct device *dev, struct scatterlist *sg,
+>>>>>>> upstream/android-13
 		int nents, enum dma_data_direction dir, unsigned long attrs)
 {
 	return __iommu_map_sg(dev, sg, nents, dir, attrs, true);
@@ -1803,7 +2052,11 @@ int arm_coherent_iommu_map_sg(struct device *dev, struct scatterlist *sg,
  * tagged with the appropriate dma address and length. They are obtained via
  * sg_dma_{address,length}.
  */
+<<<<<<< HEAD
 int arm_iommu_map_sg(struct device *dev, struct scatterlist *sg,
+=======
+static int arm_iommu_map_sg(struct device *dev, struct scatterlist *sg,
+>>>>>>> upstream/android-13
 		int nents, enum dma_data_direction dir, unsigned long attrs)
 {
 	return __iommu_map_sg(dev, sg, nents, dir, attrs, false);
@@ -1836,8 +2089,13 @@ static void __iommu_unmap_sg(struct device *dev, struct scatterlist *sg,
  * Unmap a set of streaming mode DMA translations.  Again, CPU access
  * rules concerning calls here are the same as for dma_unmap_single().
  */
+<<<<<<< HEAD
 void arm_coherent_iommu_unmap_sg(struct device *dev, struct scatterlist *sg,
 		int nents, enum dma_data_direction dir,
+=======
+static void arm_coherent_iommu_unmap_sg(struct device *dev,
+		struct scatterlist *sg, int nents, enum dma_data_direction dir,
+>>>>>>> upstream/android-13
 		unsigned long attrs)
 {
 	__iommu_unmap_sg(dev, sg, nents, dir, attrs, true);
@@ -1853,9 +2111,16 @@ void arm_coherent_iommu_unmap_sg(struct device *dev, struct scatterlist *sg,
  * Unmap a set of streaming mode DMA translations.  Again, CPU access
  * rules concerning calls here are the same as for dma_unmap_single().
  */
+<<<<<<< HEAD
 void arm_iommu_unmap_sg(struct device *dev, struct scatterlist *sg, int nents,
 			enum dma_data_direction dir,
 			unsigned long attrs)
+=======
+static void arm_iommu_unmap_sg(struct device *dev,
+			       struct scatterlist *sg, int nents,
+			       enum dma_data_direction dir,
+			       unsigned long attrs)
+>>>>>>> upstream/android-13
 {
 	__iommu_unmap_sg(dev, sg, nents, dir, attrs, false);
 }
@@ -1867,7 +2132,12 @@ void arm_iommu_unmap_sg(struct device *dev, struct scatterlist *sg, int nents,
  * @nents: number of buffers to map (returned from dma_map_sg)
  * @dir: DMA transfer direction (same as was passed to dma_map_sg)
  */
+<<<<<<< HEAD
 void arm_iommu_sync_sg_for_cpu(struct device *dev, struct scatterlist *sg,
+=======
+static void arm_iommu_sync_sg_for_cpu(struct device *dev,
+			struct scatterlist *sg,
+>>>>>>> upstream/android-13
 			int nents, enum dma_data_direction dir)
 {
 	struct scatterlist *s;
@@ -1885,7 +2155,12 @@ void arm_iommu_sync_sg_for_cpu(struct device *dev, struct scatterlist *sg,
  * @nents: number of buffers to map (returned from dma_map_sg)
  * @dir: DMA transfer direction (same as was passed to dma_map_sg)
  */
+<<<<<<< HEAD
 void arm_iommu_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
+=======
+static void arm_iommu_sync_sg_for_device(struct device *dev,
+			struct scatterlist *sg,
+>>>>>>> upstream/android-13
 			int nents, enum dma_data_direction dir)
 {
 	struct scatterlist *s;
@@ -1915,7 +2190,11 @@ static dma_addr_t arm_coherent_iommu_map_page(struct device *dev, struct page *p
 	int ret, prot, len = PAGE_ALIGN(size + offset);
 
 	dma_addr = __alloc_iova(mapping, len);
+<<<<<<< HEAD
 	if (dma_addr == ARM_MAPPING_ERROR)
+=======
+	if (dma_addr == DMA_MAPPING_ERROR)
+>>>>>>> upstream/android-13
 		return dma_addr;
 
 	prot = __dma_info_to_prot(dir, attrs);
@@ -1927,7 +2206,11 @@ static dma_addr_t arm_coherent_iommu_map_page(struct device *dev, struct page *p
 	return dma_addr + offset;
 fail:
 	__free_iova(mapping, dma_addr, len);
+<<<<<<< HEAD
 	return ARM_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2021,7 +2304,11 @@ static dma_addr_t arm_iommu_map_resource(struct device *dev,
 	size_t len = PAGE_ALIGN(size + offset);
 
 	dma_addr = __alloc_iova(mapping, len);
+<<<<<<< HEAD
 	if (dma_addr == ARM_MAPPING_ERROR)
+=======
+	if (dma_addr == DMA_MAPPING_ERROR)
+>>>>>>> upstream/android-13
 		return dma_addr;
 
 	prot = __dma_info_to_prot(dir, attrs) | IOMMU_MMIO;
@@ -2033,7 +2320,11 @@ static dma_addr_t arm_iommu_map_resource(struct device *dev,
 	return dma_addr + offset;
 fail:
 	__free_iova(mapping, dma_addr, len);
+<<<<<<< HEAD
 	return ARM_MAPPING_ERROR;
+=======
+	return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2087,7 +2378,11 @@ static void arm_iommu_sync_single_for_device(struct device *dev,
 	__dma_page_cpu_to_dev(page, offset, size, dir);
 }
 
+<<<<<<< HEAD
 const struct dma_map_ops iommu_ops = {
+=======
+static const struct dma_map_ops iommu_ops = {
+>>>>>>> upstream/android-13
 	.alloc		= arm_iommu_alloc_attrs,
 	.free		= arm_iommu_free_attrs,
 	.mmap		= arm_iommu_mmap_attrs,
@@ -2106,11 +2401,18 @@ const struct dma_map_ops iommu_ops = {
 	.map_resource		= arm_iommu_map_resource,
 	.unmap_resource		= arm_iommu_unmap_resource,
 
+<<<<<<< HEAD
 	.mapping_error		= arm_dma_mapping_error,
 	.dma_supported		= arm_dma_supported,
 };
 
 const struct dma_map_ops iommu_coherent_ops = {
+=======
+	.dma_supported		= arm_dma_supported,
+};
+
+static const struct dma_map_ops iommu_coherent_ops = {
+>>>>>>> upstream/android-13
 	.alloc		= arm_coherent_iommu_alloc_attrs,
 	.free		= arm_coherent_iommu_free_attrs,
 	.mmap		= arm_coherent_iommu_mmap_attrs,
@@ -2125,7 +2427,10 @@ const struct dma_map_ops iommu_coherent_ops = {
 	.map_resource	= arm_iommu_map_resource,
 	.unmap_resource	= arm_iommu_unmap_resource,
 
+<<<<<<< HEAD
 	.mapping_error		= arm_dma_mapping_error,
+=======
+>>>>>>> upstream/android-13
 	.dma_supported		= arm_dma_supported,
 };
 
@@ -2287,7 +2592,11 @@ EXPORT_SYMBOL_GPL(arm_iommu_attach_device);
  * @dev: valid struct device pointer
  *
  * Detaches the provided device from a previously attached map.
+<<<<<<< HEAD
  * This voids the dma operations (dma_map_ops pointer)
+=======
+ * This overwrites the dma_ops pointer with appropriate non-IOMMU ops.
+>>>>>>> upstream/android-13
  */
 void arm_iommu_detach_device(struct device *dev)
 {
@@ -2369,6 +2678,12 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 	const struct dma_map_ops *dma_ops;
 
 	dev->archdata.dma_coherent = coherent;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SWIOTLB
+	dev->dma_coherent = coherent;
+#endif
+>>>>>>> upstream/android-13
 
 	/*
 	 * Don't override the dma_ops if they have already been set. Ideally
@@ -2386,6 +2701,7 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 	set_dma_ops(dev, dma_ops);
 
 #ifdef CONFIG_XEN
+<<<<<<< HEAD
 	if (xen_initial_domain()) {
 		dev->archdata.dev_dma_ops = dev->dma_ops;
 		dev->dma_ops = xen_dma_ops;
@@ -2394,6 +2710,13 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 	dev->archdata.dma_ops_setup = true;
 }
 EXPORT_SYMBOL_GPL(arch_setup_dma_ops);
+=======
+	if (xen_initial_domain())
+		dev->dma_ops = &xen_swiotlb_dma_ops;
+#endif
+	dev->archdata.dma_ops_setup = true;
+}
+>>>>>>> upstream/android-13
 
 void arch_teardown_dma_ops(struct device *dev)
 {
@@ -2404,3 +2727,36 @@ void arch_teardown_dma_ops(struct device *dev)
 	/* Let arch_setup_dma_ops() start again from scratch upon re-probe */
 	set_dma_ops(dev, NULL);
 }
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_SWIOTLB
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+{
+	__dma_page_cpu_to_dev(phys_to_page(paddr), paddr & (PAGE_SIZE - 1),
+			      size, dir);
+}
+
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+{
+	__dma_page_dev_to_cpu(phys_to_page(paddr), paddr & (PAGE_SIZE - 1),
+			      size, dir);
+}
+
+void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+		gfp_t gfp, unsigned long attrs)
+{
+	return __dma_alloc(dev, size, dma_handle, gfp,
+			   __get_dma_pgprot(attrs, PAGE_KERNEL), false,
+			   attrs, __builtin_return_address(0));
+}
+
+void arch_dma_free(struct device *dev, size_t size, void *cpu_addr,
+		dma_addr_t dma_handle, unsigned long attrs)
+{
+	__arm_dma_free(dev, size, cpu_addr, dma_handle, attrs, false);
+}
+#endif /* CONFIG_SWIOTLB */
+>>>>>>> upstream/android-13

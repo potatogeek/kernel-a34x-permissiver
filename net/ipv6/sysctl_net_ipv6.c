@@ -16,6 +16,7 @@
 #include <net/ipv6.h>
 #include <net/addrconf.h>
 #include <net/inet_frag.h>
+<<<<<<< HEAD
 #include <net/ip6_route.h>
 #include <net/netevent.h>
 #ifdef CONFIG_NETLABEL
@@ -30,13 +31,53 @@ static int auto_flowlabels_max = IP6_AUTO_FLOW_LABEL_MAX;
 static int proc_rt6_multipath_hash_policy(struct ctl_table *table, int write,
 					  void __user *buffer, size_t *lenp,
 					  loff_t *ppos)
+=======
+#include <net/netevent.h>
+#include <net/ip_fib.h>
+#ifdef CONFIG_NETLABEL
+#include <net/calipso.h>
+#endif
+#include <linux/ioam6.h>
+
+static int two = 2;
+static int three = 3;
+static int flowlabel_reflect_max = 0x7;
+static int auto_flowlabels_max = IP6_AUTO_FLOW_LABEL_MAX;
+static u32 rt6_multipath_hash_fields_all_mask =
+	FIB_MULTIPATH_HASH_FIELD_ALL_MASK;
+static u32 ioam6_id_max = IOAM6_DEFAULT_ID;
+static u64 ioam6_id_wide_max = IOAM6_DEFAULT_ID_WIDE;
+
+static int proc_rt6_multipath_hash_policy(struct ctl_table *table, int write,
+					  void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct net *net;
 	int ret;
 
 	net = container_of(table->data, struct net,
 			   ipv6.sysctl.multipath_hash_policy);
+<<<<<<< HEAD
 	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
+=======
+	ret = proc_dou8vec_minmax(table, write, buffer, lenp, ppos);
+	if (write && ret == 0)
+		call_netevent_notifiers(NETEVENT_IPV6_MPATH_HASH_UPDATE, net);
+
+	return ret;
+}
+
+static int
+proc_rt6_multipath_hash_fields(struct ctl_table *table, int write, void *buffer,
+			       size_t *lenp, loff_t *ppos)
+{
+	struct net *net;
+	int ret;
+
+	net = container_of(table->data, struct net,
+			   ipv6.sysctl.multipath_hash_fields);
+	ret = proc_douintvec_minmax(table, write, buffer, lenp, ppos);
+>>>>>>> upstream/android-13
 	if (write && ret == 0)
 		call_netevent_notifiers(NETEVENT_IPV6_MPATH_HASH_UPDATE, net);
 
@@ -47,39 +88,69 @@ static struct ctl_table ipv6_table_template[] = {
 	{
 		.procname	= "bindv6only",
 		.data		= &init_net.ipv6.sysctl.bindv6only,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "anycast_src_echo_reply",
 		.data		= &init_net.ipv6.sysctl.anycast_src_echo_reply,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "flowlabel_consistency",
 		.data		= &init_net.ipv6.sysctl.flowlabel_consistency,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "auto_flowlabels",
 		.data		= &init_net.ipv6.sysctl.auto_flowlabels,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &auto_flowlabels_min,
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+>>>>>>> upstream/android-13
 		.extra2		= &auto_flowlabels_max
 	},
 	{
 		.procname	= "fwmark_reflect",
 		.data		= &init_net.ipv6.sysctl.fwmark_reflect,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "idgen_retries",
@@ -98,23 +169,41 @@ static struct ctl_table ipv6_table_template[] = {
 	{
 		.procname	= "flowlabel_state_ranges",
 		.data		= &init_net.ipv6.sysctl.flowlabel_state_ranges,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "ip_nonlocal_bind",
 		.data		= &init_net.ipv6.sysctl.ip_nonlocal_bind,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "flowlabel_reflect",
 		.data		= &init_net.ipv6.sysctl.flowlabel_reflect,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
+<<<<<<< HEAD
 		.proc_handler	= proc_dointvec,
+=======
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= SYSCTL_ZERO,
+		.extra2		= &flowlabel_reflect_max,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "max_dst_opts_number",
@@ -147,11 +236,28 @@ static struct ctl_table ipv6_table_template[] = {
 	{
 		.procname	= "fib_multipath_hash_policy",
 		.data		= &init_net.ipv6.sysctl.multipath_hash_policy,
+<<<<<<< HEAD
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler   = proc_rt6_multipath_hash_policy,
 		.extra1		= &zero,
 		.extra2		= &one,
+=======
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler   = proc_rt6_multipath_hash_policy,
+		.extra1		= SYSCTL_ZERO,
+		.extra2		= &three,
+	},
+	{
+		.procname	= "fib_multipath_hash_fields",
+		.data		= &init_net.ipv6.sysctl.multipath_hash_fields,
+		.maxlen		= sizeof(u32),
+		.mode		= 0644,
+		.proc_handler	= proc_rt6_multipath_hash_fields,
+		.extra1		= SYSCTL_ONE,
+		.extra2		= &rt6_multipath_hash_fields_all_mask,
+>>>>>>> upstream/android-13
 	},
 	{
 		.procname	= "seg6_flowlabel",
@@ -160,6 +266,34 @@ static struct ctl_table ipv6_table_template[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec
 	},
+<<<<<<< HEAD
+=======
+	{
+		.procname	= "fib_notify_on_flag_change",
+		.data		= &init_net.ipv6.sysctl.fib_notify_on_flag_change,
+		.maxlen		= sizeof(u8),
+		.mode		= 0644,
+		.proc_handler	= proc_dou8vec_minmax,
+		.extra1         = SYSCTL_ZERO,
+		.extra2         = &two,
+	},
+	{
+		.procname	= "ioam6_id",
+		.data		= &init_net.ipv6.sysctl.ioam6_id,
+		.maxlen		= sizeof(u32),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec_minmax,
+		.extra2		= &ioam6_id_max,
+	},
+	{
+		.procname	= "ioam6_id_wide",
+		.data		= &init_net.ipv6.sysctl.ioam6_id_wide,
+		.maxlen		= sizeof(u64),
+		.mode		= 0644,
+		.proc_handler	= proc_doulongvec_minmax,
+		.extra2		= &ioam6_id_wide_max,
+	},
+>>>>>>> upstream/android-13
 	{ }
 };
 
@@ -177,7 +311,11 @@ static struct ctl_table ipv6_rotable[] = {
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
+<<<<<<< HEAD
 		.extra1		= &one
+=======
+		.extra1		= SYSCTL_ONE
+>>>>>>> upstream/android-13
 	},
 #ifdef CONFIG_NETLABEL
 	{
@@ -198,6 +336,7 @@ static struct ctl_table ipv6_rotable[] = {
 	{ }
 };
 
+<<<<<<< HEAD
 static struct ctl_table net_table[] = {
 	{
 		.procname = "optr",
@@ -209,19 +348,26 @@ static struct ctl_table net_table[] = {
 	{ }
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __net_init ipv6_sysctl_net_init(struct net *net)
 {
 	struct ctl_table *ipv6_table;
 	struct ctl_table *ipv6_route_table;
 	struct ctl_table *ipv6_icmp_table;
+<<<<<<< HEAD
 	struct ctl_table_header *vzw_hdr;
 	int err;
+=======
+	int err, i;
+>>>>>>> upstream/android-13
 
 	err = -ENOMEM;
 	ipv6_table = kmemdup(ipv6_table_template, sizeof(ipv6_table_template),
 			     GFP_KERNEL);
 	if (!ipv6_table)
 		goto out;
+<<<<<<< HEAD
 	ipv6_table[0].data = &net->ipv6.sysctl.bindv6only;
 	ipv6_table[1].data = &net->ipv6.sysctl.anycast_src_echo_reply;
 	ipv6_table[2].data = &net->ipv6.sysctl.flowlabel_consistency;
@@ -238,6 +384,11 @@ static int __net_init ipv6_sysctl_net_init(struct net *net)
 	ipv6_table[13].data = &net->ipv6.sysctl.max_hbh_opts_len;
 	ipv6_table[14].data = &net->ipv6.sysctl.multipath_hash_policy,
 	ipv6_table[15].data = &net->ipv6.sysctl.seg6_flowlabel;
+=======
+	/* Update the variables to point into the current struct net */
+	for (i = 0; i < ARRAY_SIZE(ipv6_table_template) - 1; i++)
+		ipv6_table[i].data += (void *)net - (void *)&init_net;
+>>>>>>> upstream/android-13
 
 	ipv6_route_table = ipv6_route_sysctl_init(net);
 	if (!ipv6_route_table)
@@ -251,10 +402,13 @@ static int __net_init ipv6_sysctl_net_init(struct net *net)
 	if (!net->ipv6.sysctl.hdr)
 		goto out_ipv6_icmp_table;
 
+<<<<<<< HEAD
 	vzw_hdr = register_net_sysctl(net, "net", net_table);
 	if (!vzw_hdr)
 		pr_info("[mtk_net] register net sysctl optr is fail.\n");
 
+=======
+>>>>>>> upstream/android-13
 	net->ipv6.sysctl.route_hdr =
 		register_net_sysctl(net, "net/ipv6/route", ipv6_route_table);
 	if (!net->ipv6.sysctl.route_hdr)

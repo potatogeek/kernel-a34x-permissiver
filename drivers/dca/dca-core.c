@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2007 - 2009 Intel Corporation. All rights reserved.
  *
@@ -17,6 +18,11 @@
  *
  * The full GNU General Public License is included in this distribution in the
  * file called COPYING.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright(c) 2007 - 2009 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 /*

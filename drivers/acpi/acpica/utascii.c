@@ -3,7 +3,11 @@
  *
  * Module Name: utascii - Utility ascii functions
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -30,7 +34,11 @@ u8 acpi_ut_valid_nameseg(char *name)
 
 	/* Validate each character in the signature */
 
+<<<<<<< HEAD
 	for (i = 0; i < ACPI_NAME_SIZE; i++) {
+=======
+	for (i = 0; i < ACPI_NAMESEG_SIZE; i++) {
+>>>>>>> upstream/android-13
 		if (!acpi_ut_valid_name_char(name[i], i)) {
 			return (FALSE);
 		}

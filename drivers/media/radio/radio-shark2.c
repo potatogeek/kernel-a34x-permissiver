@@ -310,7 +310,11 @@ static int usb_shark_probe(struct usb_interface *intf,
 	shark->tea.ops = &shark_tea_ops;
 	shark->tea.has_am = true;
 	shark->tea.write_before_read = true;
+<<<<<<< HEAD
 	strlcpy(shark->tea.card, "Griffin radioSHARK2",
+=======
+	strscpy(shark->tea.card, "Griffin radioSHARK2",
+>>>>>>> upstream/android-13
 		sizeof(shark->tea.card));
 	usb_make_path(shark->usbdev, shark->tea.bus_info,
 		sizeof(shark->tea.bus_info));

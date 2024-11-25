@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: power.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Handles 802.11 power management functions
  *
  * Author: Lyndon Chen
@@ -63,6 +66,7 @@ void vnt_enable_power_saving(struct vnt_private *priv, u16 listen_interval)
 	 */
 	vnt_mac_reg_bits_on(priv, MAC_REG_PSCTL, PSCTL_GO2DOZE);
 
+<<<<<<< HEAD
 	if (listen_interval >= 2) {
 		/* clear always listen beacon */
 		vnt_mac_reg_bits_off(priv, MAC_REG_PSCTL, PSCTL_ALBCN);
@@ -73,10 +77,15 @@ void vnt_enable_power_saving(struct vnt_private *priv, u16 listen_interval)
 		/* always listen beacon */
 		vnt_mac_reg_bits_on(priv, MAC_REG_PSCTL, PSCTL_ALBCN);
 	}
+=======
+	/* always listen beacon */
+	vnt_mac_reg_bits_on(priv, MAC_REG_PSCTL, PSCTL_ALBCN);
+>>>>>>> upstream/android-13
 
 	dev_dbg(&priv->usb->dev,  "PS:Power Saving Mode Enable...\n");
 }
 
+<<<<<<< HEAD
 /*
  *
  * Routine Description:
@@ -92,12 +101,28 @@ void vnt_disable_power_saving(struct vnt_private *priv)
 	/* disable power saving hw function */
 	vnt_control_out(priv, MESSAGE_TYPE_DISABLE_PS, 0,
 			0, 0, NULL);
+=======
+int vnt_disable_power_saving(struct vnt_private *priv)
+{
+	int ret;
+
+	/* disable power saving hw function */
+	ret = vnt_control_out(priv, MESSAGE_TYPE_DISABLE_PS, 0,
+			      0, 0, NULL);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* clear AutoSleep */
 	vnt_mac_reg_bits_off(priv, MAC_REG_PSCFG, PSCFG_AUTOSLEEP);
 
 	/* set always listen beacon */
 	vnt_mac_reg_bits_on(priv, MAC_REG_PSCTL, PSCTL_ALBCN);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*

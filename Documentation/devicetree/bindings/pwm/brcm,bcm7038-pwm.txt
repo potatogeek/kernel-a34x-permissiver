@@ -4,7 +4,11 @@ Required properties:
 
 - compatible: must be "brcm,bcm7038-pwm"
 - reg: physical base address and length for this controller
+<<<<<<< HEAD
 - #pwm-cells: should be 2. See pwm.txt in this directory for a description
+=======
+- #pwm-cells: should be 2. See pwm.yaml in this directory for a description
+>>>>>>> upstream/android-13
   of the cells format
 - clocks: a phandle to the reference clock for this block which is fed through
   its internal variable clock frequency generator

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * net/9p/protocol.h
  *
@@ -7,6 +11,7 @@
  *
  *  Base on code from Anthony Liguori <aliguori@us.ibm.com>
  *  Copyright (C) 2008 by IBM, Corp.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -23,6 +28,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 int p9pdu_vwritef(struct p9_fcall *pdu, int proto_version, const char *fmt,

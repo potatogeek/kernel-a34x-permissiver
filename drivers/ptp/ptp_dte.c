@@ -240,12 +240,16 @@ static int ptp_dte_probe(struct platform_device *pdev)
 {
 	struct ptp_dte *ptp_dte;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 
 	ptp_dte = devm_kzalloc(dev, sizeof(struct ptp_dte), GFP_KERNEL);
 	if (!ptp_dte)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ptp_dte->regs = devm_ioremap_resource(dev, res);
 	if (IS_ERR(ptp_dte->regs)) {
@@ -253,6 +257,11 @@ static int ptp_dte_probe(struct platform_device *pdev)
 			"%s: io remap failed\n", __func__);
 		return PTR_ERR(ptp_dte->regs);
 	}
+=======
+	ptp_dte->regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(ptp_dte->regs))
+		return PTR_ERR(ptp_dte->regs);
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&ptp_dte->lock);
 
@@ -288,8 +297,12 @@ static int ptp_dte_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int ptp_dte_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct ptp_dte *ptp_dte = platform_get_drvdata(pdev);
+=======
+	struct ptp_dte *ptp_dte = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	u8 i;
 
 	for (i = 0; i < DTE_NUM_REGS_TO_RESTORE; i++) {
@@ -305,8 +318,12 @@ static int ptp_dte_suspend(struct device *dev)
 
 static int ptp_dte_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct ptp_dte *ptp_dte = platform_get_drvdata(pdev);
+=======
+	struct ptp_dte *ptp_dte = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	u8 i;
 
 	for (i = 0; i < DTE_NUM_REGS_TO_RESTORE; i++) {

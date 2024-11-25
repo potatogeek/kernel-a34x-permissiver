@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2004 - 2006 rt2x00 SourceForge Project
  * <http://rt2x00.serialmonkey.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Module: eeprom_93cx6
  * Abstract: EEPROM reader routines for 93cx6 chipsets.
  * Supported chipsets: 93c46 & 93c66.
@@ -237,7 +244,11 @@ EXPORT_SYMBOL_GPL(eeprom_93cx6_multiread);
 /**
  * eeprom_93cx6_readb - Read a byte from eeprom
  * @eeprom: Pointer to eeprom structure
+<<<<<<< HEAD
  * @word: Byte index from where we should start reading
+=======
+ * @byte: Byte index from where we should start reading
+>>>>>>> upstream/android-13
  * @data: target pointer where the information will have to be stored
  *
  * This function will read a byte of the eeprom data
@@ -279,7 +290,11 @@ EXPORT_SYMBOL_GPL(eeprom_93cx6_readb);
  * @eeprom: Pointer to eeprom structure
  * @byte: Index from where we should start reading
  * @data: target pointer where the information will have to be stored
+<<<<<<< HEAD
  * @words: Number of bytes that should be read.
+=======
+ * @bytes: Number of bytes that should be read.
+>>>>>>> upstream/android-13
  *
  * This function will read all requested bytes from the eeprom,
  * this is done by calling eeprom_93cx6_readb() multiple times.

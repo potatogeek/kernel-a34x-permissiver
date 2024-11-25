@@ -26,7 +26,11 @@ struct bio *bch_bbio_alloc(struct cache_set *c)
 	struct bbio *b = mempool_alloc(&c->bio_meta, GFP_NOIO);
 	struct bio *bio = &b->bio;
 
+<<<<<<< HEAD
 	bio_init(bio, bio->bi_inline_vecs, bucket_pages(c));
+=======
+	bio_init(bio, bio->bi_inline_vecs, meta_bucket_pages(&c->cache->sb));
+>>>>>>> upstream/android-13
 
 	return bio;
 }
@@ -36,7 +40,11 @@ void __bch_submit_bbio(struct bio *bio, struct cache_set *c)
 	struct bbio *b = container_of(bio, struct bbio, bio);
 
 	bio->bi_iter.bi_sector	= PTR_OFFSET(&b->key, 0);
+<<<<<<< HEAD
 	bio_set_dev(bio, PTR_CACHE(c, &b->key, 0)->bdev);
+=======
+	bio_set_dev(bio, c->cache->bdev);
+>>>>>>> upstream/android-13
 
 	b->submit_time_us = local_clock_us();
 	closure_bio_submit(c, bio, bio->bi_private);
@@ -65,14 +73,22 @@ void bch_count_backing_io_errors(struct cached_dev *dc, struct bio *bio)
 	 * we shouldn't count failed REQ_RAHEAD bio to dc->io_errors.
 	 */
 	if (bio->bi_opf & REQ_RAHEAD) {
+<<<<<<< HEAD
 		pr_warn_ratelimited("%s: Read-ahead I/O failed on backing device, ignore",
+=======
+		pr_warn_ratelimited("%s: Read-ahead I/O failed on backing device, ignore\n",
+>>>>>>> upstream/android-13
 				    dc->backing_dev_name);
 		return;
 	}
 
 	errors = atomic_add_return(1, &dc->io_errors);
 	if (errors < dc->error_limit)
+<<<<<<< HEAD
 		pr_err("%s: IO error on backing device, unrecoverable",
+=======
+		pr_err("%s: IO error on backing device, unrecoverable\n",
+>>>>>>> upstream/android-13
 			dc->backing_dev_name);
 	else
 		bch_cached_dev_error(dc);
@@ -123,12 +139,20 @@ void bch_count_io_errors(struct cache *ca,
 		errors >>= IO_ERROR_SHIFT;
 
 		if (errors < ca->set->error_limit)
+<<<<<<< HEAD
 			pr_err("%s: IO error on %s%s",
+=======
+			pr_err("%s: IO error on %s%s\n",
+>>>>>>> upstream/android-13
 			       ca->cache_dev_name, m,
 			       is_read ? ", recovering." : ".");
 		else
 			bch_cache_set_error(ca->set,
+<<<<<<< HEAD
 					    "%s: too many IO errors %s",
+=======
+					    "%s: too many IO errors %s\n",
+>>>>>>> upstream/android-13
 					    ca->cache_dev_name, m);
 	}
 }
@@ -137,7 +161,11 @@ void bch_bbio_count_io_errors(struct cache_set *c, struct bio *bio,
 			      blk_status_t error, const char *m)
 {
 	struct bbio *b = container_of(bio, struct bbio, bio);
+<<<<<<< HEAD
 	struct cache *ca = PTR_CACHE(c, &b->key, 0);
+=======
+	struct cache *ca = c->cache;
+>>>>>>> upstream/android-13
 	int is_read = (bio_data_dir(bio) == READ ? 1 : 0);
 
 	unsigned int threshold = op_is_write(bio_op(bio))

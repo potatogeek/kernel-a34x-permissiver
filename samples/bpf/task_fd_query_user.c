@@ -13,13 +13,26 @@
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+<<<<<<< HEAD
 
 #include "libbpf.h"
 #include "bpf_load.h"
+=======
+#include <linux/perf_event.h>
+
+#include <bpf/bpf.h>
+#include <bpf/libbpf.h>
+>>>>>>> upstream/android-13
 #include "bpf_util.h"
 #include "perf-sys.h"
 #include "trace_helpers.h"
 
+<<<<<<< HEAD
+=======
+static struct bpf_program *progs[2];
+static struct bpf_link *links[2];
+
+>>>>>>> upstream/android-13
 #define CHECK_PERROR_RET(condition) ({			\
 	int __ret = !!(condition);			\
 	if (__ret) {					\
@@ -85,21 +98,38 @@ static int bpf_get_retprobe_bit(const char *event_type)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int test_debug_fs_kprobe(int prog_fd_idx, const char *fn_name,
+=======
+static int test_debug_fs_kprobe(int link_idx, const char *fn_name,
+>>>>>>> upstream/android-13
 				__u32 expected_fd_type)
 {
 	__u64 probe_offset, probe_addr;
 	__u32 len, prog_id, fd_type;
+<<<<<<< HEAD
 	char buf[256];
 	int err;
 
 	len = sizeof(buf);
 	err = bpf_task_fd_query(getpid(), event_fd[prog_fd_idx], 0, buf, &len,
+=======
+	int err, event_fd;
+	char buf[256];
+
+	len = sizeof(buf);
+	event_fd = bpf_link__fd(links[link_idx]);
+	err = bpf_task_fd_query(getpid(), event_fd, 0, buf, &len,
+>>>>>>> upstream/android-13
 				&prog_id, &fd_type, &probe_offset,
 				&probe_addr);
 	if (err < 0) {
 		printf("FAIL: %s, for event_fd idx %d, fn_name %s\n",
+<<<<<<< HEAD
 		       __func__, prog_fd_idx, fn_name);
+=======
+		       __func__, link_idx, fn_name);
+>>>>>>> upstream/android-13
 		perror("    :");
 		return -1;
 	}
@@ -107,7 +137,11 @@ static int test_debug_fs_kprobe(int prog_fd_idx, const char *fn_name,
 	    fd_type != expected_fd_type ||
 	    probe_offset != 0x0 || probe_addr != 0x0) {
 		printf("FAIL: bpf_trace_event_query(event_fd[%d]):\n",
+<<<<<<< HEAD
 		       prog_fd_idx);
+=======
+		       link_idx);
+>>>>>>> upstream/android-13
 		printf("buf: %s, fd_type: %u, probe_offset: 0x%llx,"
 		       " probe_addr: 0x%llx\n",
 		       buf, fd_type, probe_offset, probe_addr);
@@ -124,12 +158,21 @@ static int test_nondebug_fs_kuprobe_common(const char *event_type,
 	int is_return_bit = bpf_get_retprobe_bit(event_type);
 	int type = bpf_find_probe_type(event_type);
 	struct perf_event_attr attr = {};
+<<<<<<< HEAD
 	int fd;
+=======
+	struct bpf_link *link;
+	int fd, err = -1;
+>>>>>>> upstream/android-13
 
 	if (type < 0 || is_return_bit < 0) {
 		printf("FAIL: %s incorrect type (%d) or is_return_bit (%d)\n",
 			__func__, type, is_return_bit);
+<<<<<<< HEAD
 		return -1;
+=======
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	attr.sample_period = 1;
@@ -148,6 +191,7 @@ static int test_nondebug_fs_kuprobe_common(const char *event_type,
 	attr.type = type;
 
 	fd = sys_perf_event_open(&attr, -1, 0, -1, 0);
+<<<<<<< HEAD
 	CHECK_PERROR_RET(fd < 0);
 
 	CHECK_PERROR_RET(ioctl(fd, PERF_EVENT_IOC_ENABLE, 0) < 0);
@@ -156,6 +200,23 @@ static int test_nondebug_fs_kuprobe_common(const char *event_type,
 			 prog_id, fd_type, probe_offset, probe_addr) < 0);
 
 	return 0;
+=======
+	link = bpf_program__attach_perf_event(progs[0], fd);
+	if (libbpf_get_error(link)) {
+		printf("ERROR: bpf_program__attach_perf_event failed\n");
+		link = NULL;
+		close(fd);
+		goto cleanup;
+	}
+
+	CHECK_PERROR_RET(bpf_task_fd_query(getpid(), fd, 0, buf, buf_len,
+			 prog_id, fd_type, probe_offset, probe_addr) < 0);
+	err = 0;
+
+cleanup:
+	bpf_link__destroy(link);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int test_nondebug_fs_probe(const char *event_type, const char *name,
@@ -214,17 +275,31 @@ static int test_nondebug_fs_probe(const char *event_type, const char *name,
 
 static int test_debug_fs_uprobe(char *binary_path, long offset, bool is_return)
 {
+<<<<<<< HEAD
 	const char *event_type = "uprobe";
 	struct perf_event_attr attr = {};
 	char buf[256], event_alias[sizeof("test_1234567890")];
 	__u64 probe_offset, probe_addr;
 	__u32 len, prog_id, fd_type;
 	int err, res, kfd, efd;
+=======
+	char buf[256], event_alias[sizeof("test_1234567890")];
+	const char *event_type = "uprobe";
+	struct perf_event_attr attr = {};
+	__u64 probe_offset, probe_addr;
+	__u32 len, prog_id, fd_type;
+	int err = -1, res, kfd, efd;
+	struct bpf_link *link;
+>>>>>>> upstream/android-13
 	ssize_t bytes;
 
 	snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/%s_events",
 		 event_type);
+<<<<<<< HEAD
 	kfd = open(buf, O_WRONLY | O_APPEND, 0);
+=======
+	kfd = open(buf, O_WRONLY | O_TRUNC, 0);
+>>>>>>> upstream/android-13
 	CHECK_PERROR_RET(kfd < 0);
 
 	res = snprintf(event_alias, sizeof(event_alias), "test_%d", getpid());
@@ -253,10 +328,22 @@ static int test_debug_fs_uprobe(char *binary_path, long offset, bool is_return)
 	attr.type = PERF_TYPE_TRACEPOINT;
 	attr.sample_period = 1;
 	attr.wakeup_events = 1;
+<<<<<<< HEAD
 	kfd = sys_perf_event_open(&attr, -1, 0, -1, PERF_FLAG_FD_CLOEXEC);
 	CHECK_PERROR_RET(kfd < 0);
 	CHECK_PERROR_RET(ioctl(kfd, PERF_EVENT_IOC_SET_BPF, prog_fd[0]) < 0);
 	CHECK_PERROR_RET(ioctl(kfd, PERF_EVENT_IOC_ENABLE, 0) < 0);
+=======
+
+	kfd = sys_perf_event_open(&attr, -1, 0, -1, PERF_FLAG_FD_CLOEXEC);
+	link = bpf_program__attach_perf_event(progs[0], kfd);
+	if (libbpf_get_error(link)) {
+		printf("ERROR: bpf_program__attach_perf_event failed\n");
+		link = NULL;
+		close(kfd);
+		goto cleanup;
+	}
+>>>>>>> upstream/android-13
 
 	len = sizeof(buf);
 	err = bpf_task_fd_query(getpid(), kfd, 0, buf, &len,
@@ -282,13 +369,22 @@ static int test_debug_fs_uprobe(char *binary_path, long offset, bool is_return)
 		       probe_offset);
 		return -1;
 	}
+<<<<<<< HEAD
 
 	close(kfd);
 	return 0;
+=======
+	err = 0;
+
+cleanup:
+	bpf_link__destroy(link);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 int main(int argc, char **argv)
 {
+<<<<<<< HEAD
 	struct rlimit r = {1024*1024, RLIM_INFINITY};
 	extern char __executable_start;
 	char filename[256], buf[256];
@@ -314,6 +410,48 @@ int main(int argc, char **argv)
 	CHECK_AND_RET(test_debug_fs_kprobe(0, "blk_start_request",
 					   BPF_FD_TYPE_KPROBE));
 	CHECK_AND_RET(test_debug_fs_kprobe(1, "blk_account_io_completion",
+=======
+	extern char __executable_start;
+	char filename[256], buf[256];
+	__u64 uprobe_file_offset;
+	struct bpf_program *prog;
+	struct bpf_object *obj;
+	int i = 0, err = -1;
+
+	if (load_kallsyms()) {
+		printf("failed to process /proc/kallsyms\n");
+		return err;
+	}
+
+	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
+	obj = bpf_object__open_file(filename, NULL);
+	if (libbpf_get_error(obj)) {
+		fprintf(stderr, "ERROR: opening BPF object file failed\n");
+		return err;
+	}
+
+	/* load BPF program */
+	if (bpf_object__load(obj)) {
+		fprintf(stderr, "ERROR: loading BPF object file failed\n");
+		goto cleanup;
+	}
+
+	bpf_object__for_each_program(prog, obj) {
+		progs[i] = prog;
+		links[i] = bpf_program__attach(progs[i]);
+		if (libbpf_get_error(links[i])) {
+			fprintf(stderr, "ERROR: bpf_program__attach failed\n");
+			links[i] = NULL;
+			goto cleanup;
+		}
+		i++;
+	}
+
+	/* test two functions in the corresponding *_kern.c file */
+	CHECK_AND_RET(test_debug_fs_kprobe(0, "blk_mq_start_request",
+					   BPF_FD_TYPE_KPROBE));
+	CHECK_AND_RET(test_debug_fs_kprobe(1, "blk_account_io_done",
+>>>>>>> upstream/android-13
 					   BPF_FD_TYPE_KRETPROBE));
 
 	/* test nondebug fs kprobe */
@@ -360,7 +498,11 @@ int main(int argc, char **argv)
 	 * on different systems with different compilers. The right way is
 	 * to parse the ELF file. We took a shortcut here.
 	 */
+<<<<<<< HEAD
 	uprobe_file_offset = (__u64)main - (__u64)&__executable_start;
+=======
+	uprobe_file_offset = (unsigned long)main - (unsigned long)&__executable_start;
+>>>>>>> upstream/android-13
 	CHECK_AND_RET(test_nondebug_fs_probe("uprobe", (char *)argv[0],
 					     uprobe_file_offset, 0x0, false,
 					     BPF_FD_TYPE_UPROBE,
@@ -377,6 +519,17 @@ int main(int argc, char **argv)
 					   false));
 	CHECK_AND_RET(test_debug_fs_uprobe((char *)argv[0], uprobe_file_offset,
 					   true));
+<<<<<<< HEAD
 
 	return 0;
+=======
+	err = 0;
+
+cleanup:
+	for (i--; i >= 0; i--)
+		bpf_link__destroy(links[i]);
+
+	bpf_object__close(obj);
+	return err;
+>>>>>>> upstream/android-13
 }

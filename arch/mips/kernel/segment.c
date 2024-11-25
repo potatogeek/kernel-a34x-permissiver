@@ -95,6 +95,7 @@ static const struct file_operations segments_fops = {
 
 static int __init segments_info(void)
 {
+<<<<<<< HEAD
 	struct dentry *segments;
 
 	if (cpu_has_segments) {
@@ -107,6 +108,11 @@ static int __init segments_info(void)
 		if (!segments)
 			return -ENOMEM;
 	}
+=======
+	if (cpu_has_segments)
+		debugfs_create_file("segments", S_IRUGO, mips_debugfs_dir, NULL,
+				    &segments_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

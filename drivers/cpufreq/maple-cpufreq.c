@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2011 Dmitry Eremin-Solenikov
  *  Copyright (C) 2002 - 2005 Benjamin Herrenschmidt <benh@kernel.crashing.org>
  *  and                       Markus Demleitner <msdemlei@cl.uni-heidelberg.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver adds basic cpufreq support for SMU & 970FX based G5 Macs,
  * that is iMac G5 and latest single CPU desktop.
  */
@@ -143,7 +150,12 @@ static unsigned int maple_cpufreq_get_speed(unsigned int cpu)
 
 static int maple_cpufreq_cpu_init(struct cpufreq_policy *policy)
 {
+<<<<<<< HEAD
 	return cpufreq_generic_init(policy, maple_cpu_freqs, 12000);
+=======
+	cpufreq_generic_init(policy, maple_cpu_freqs, 12000);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct cpufreq_driver maple_cpufreq_driver = {
@@ -210,7 +222,11 @@ static int __init maple_cpufreq_init(void)
 	 */
 	valp = of_get_property(cpunode, "clock-frequency", NULL);
 	if (!valp)
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		goto bail_noprops;
+>>>>>>> upstream/android-13
 	max_freq = (*valp)/1000;
 	maple_cpu_freqs[0].frequency = max_freq;
 	maple_cpu_freqs[1].frequency = max_freq/2;
@@ -231,10 +247,13 @@ static int __init maple_cpufreq_init(void)
 
 	rc = cpufreq_register_driver(&maple_cpufreq_driver);
 
+<<<<<<< HEAD
 	of_node_put(cpunode);
 
 	return rc;
 
+=======
+>>>>>>> upstream/android-13
 bail_noprops:
 	of_node_put(cpunode);
 

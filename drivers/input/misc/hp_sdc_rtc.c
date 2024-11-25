@@ -53,11 +53,15 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 #define RTC_VERSION "1.10d"
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(hp_sdc_rtc_mutex);
+=======
+>>>>>>> upstream/android-13
 static unsigned long epoch = 2000;
 
 static struct semaphore i8042tregs;
 
+<<<<<<< HEAD
 static hp_sdc_irqhook hp_sdc_rtc_isr;
 
 static struct fasync_struct *hp_sdc_rtc_async_queue;
@@ -75,6 +79,8 @@ static unsigned int hp_sdc_rtc_poll(struct file *file, poll_table *wait);
 static int hp_sdc_rtc_open(struct inode *inode, struct file *file);
 static int hp_sdc_rtc_fasync (int fd, struct file *filp, int on);
 
+=======
+>>>>>>> upstream/android-13
 static void hp_sdc_rtc_isr (int irq, void *dev_id, 
 			    uint8_t status, uint8_t data) 
 {
@@ -283,6 +289,7 @@ static inline int hp_sdc_rtc_read_ct(struct timespec64 *res) {
 	return 0;
 }
 
+<<<<<<< HEAD
 
 #if 0 /* not used yet */
 /* Set the i8042 real-time clock */
@@ -428,6 +435,8 @@ static int hp_sdc_rtc_fasync (int fd, struct file *filp, int on)
         return fasync_helper (fd, filp, on, &hp_sdc_rtc_async_queue);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hp_sdc_rtc_proc_show(struct seq_file *m, void *v)
 {
 #define YN(bit) ("no")
@@ -441,12 +450,19 @@ static int hp_sdc_rtc_proc_show(struct seq_file *m, void *v)
 		seq_puts(m, "BBRTC\t\t: READ FAILED!\n");
 	} else {
 		seq_printf(m,
+<<<<<<< HEAD
 			     "rtc_time\t: %02d:%02d:%02d\n"
 			     "rtc_date\t: %04d-%02d-%02d\n"
 			     "rtc_epoch\t: %04lu\n",
 			     tm.tm_hour, tm.tm_min, tm.tm_sec,
 			     tm.tm_year + 1900, tm.tm_mon + 1, 
 			     tm.tm_mday, epoch);
+=======
+			     "rtc_time\t: %ptRt\n"
+			     "rtc_date\t: %ptRd\n"
+			     "rtc_epoch\t: %04lu\n",
+			     &tm, &tm, epoch);
+>>>>>>> upstream/android-13
 	}
 
 	if (hp_sdc_rtc_read_rt(&tv)) {
@@ -509,6 +525,7 @@ static int hp_sdc_rtc_proc_show(struct seq_file *m, void *v)
 #undef NY
 }
 
+<<<<<<< HEAD
 static int hp_sdc_rtc_ioctl(struct file *file, 
 			    unsigned int cmd, unsigned long arg)
 {
@@ -685,6 +702,8 @@ static struct miscdevice hp_sdc_rtc_dev = {
         .fops =		&hp_sdc_rtc_fops
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init hp_sdc_rtc_init(void)
 {
 	int ret;
@@ -698,8 +717,11 @@ static int __init hp_sdc_rtc_init(void)
 
 	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
 		return ret;
+<<<<<<< HEAD
 	if (misc_register(&hp_sdc_rtc_dev) != 0)
 		printk(KERN_INFO "Could not register misc. dev for i8042 rtc\n");
+=======
+>>>>>>> upstream/android-13
 
         proc_create_single("driver/rtc", 0, NULL, hp_sdc_rtc_proc_show);
 
@@ -712,7 +734,10 @@ static int __init hp_sdc_rtc_init(void)
 static void __exit hp_sdc_rtc_exit(void)
 {
 	remove_proc_entry ("driver/rtc", NULL);
+<<<<<<< HEAD
         misc_deregister(&hp_sdc_rtc_dev);
+=======
+>>>>>>> upstream/android-13
 	hp_sdc_release_timer_irq(hp_sdc_rtc_isr);
         printk(KERN_INFO "HP i8042 SDC + MSM-58321 RTC support unloaded\n");
 }

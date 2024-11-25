@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PS3 virtual uart
  *
  *  Copyright (C) 2006 Sony Computer Entertainment Inc.
  *  Copyright 2006 Sony Corp.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -370,7 +377,11 @@ static int ps3_vuart_raw_write(struct ps3_system_bus_device *dev,
 		ps3_mm_phys_to_lpar(__pa(buf)), bytes, bytes_written);
 
 	if (result) {
+<<<<<<< HEAD
 		dev_dbg(&dev->core, "%s:%d: lv1_write_virtual_uart failed: "
+=======
+		dev_warn(&dev->core, "%s:%d: lv1_write_virtual_uart failed: "
+>>>>>>> upstream/android-13
 			"%s\n", __func__, __LINE__, ps3_result(result));
 		return result;
 	}
@@ -870,13 +881,21 @@ static int ps3_vuart_handle_port_interrupt(struct ps3_system_bus_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 struct vuart_bus_priv {
+=======
+static struct vuart_bus_priv {
+>>>>>>> upstream/android-13
 	struct ports_bmp *bmp;
 	unsigned int virq;
 	struct mutex probe_mutex;
 	int use_count;
 	struct ps3_system_bus_device *devices[PORT_COUNT];
+<<<<<<< HEAD
 } static vuart_bus_priv;
+=======
+} vuart_bus_priv;
+>>>>>>> upstream/android-13
 
 /**
  * ps3_vuart_irq_handler - first stage interrupt handler
@@ -929,7 +948,10 @@ static int ps3_vuart_bus_interrupt_get(void)
 	vuart_bus_priv.bmp = kzalloc(sizeof(struct ports_bmp), GFP_KERNEL);
 
 	if (!vuart_bus_priv.bmp) {
+<<<<<<< HEAD
 		pr_debug("%s:%d: kzalloc failed.\n", __func__, __LINE__);
+=======
+>>>>>>> upstream/android-13
 		result = -ENOMEM;
 		goto fail_bmp_malloc;
 	}
@@ -1115,7 +1137,11 @@ static int ps3_vuart_cleanup(struct ps3_system_bus_device *dev)
  * device can no longer be used.
  */
 
+<<<<<<< HEAD
 static int ps3_vuart_remove(struct ps3_system_bus_device *dev)
+=======
+static void ps3_vuart_remove(struct ps3_system_bus_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct ps3_vuart_port_priv *priv = to_port_priv(dev);
 	struct ps3_vuart_port_driver *drv;
@@ -1131,7 +1157,11 @@ static int ps3_vuart_remove(struct ps3_system_bus_device *dev)
 		dev_dbg(&dev->core, "%s:%d: no driver bound\n", __func__,
 			__LINE__);
 		mutex_unlock(&vuart_bus_priv.probe_mutex);
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	drv = ps3_system_bus_dev_to_vuart_drv(dev);
@@ -1154,7 +1184,10 @@ static int ps3_vuart_remove(struct ps3_system_bus_device *dev)
 
 	dev_dbg(&dev->core, " <- %s:%d\n", __func__, __LINE__);
 	mutex_unlock(&vuart_bus_priv.probe_mutex);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1167,7 +1200,11 @@ static int ps3_vuart_remove(struct ps3_system_bus_device *dev)
  * sequence.
  */
 
+<<<<<<< HEAD
 static int ps3_vuart_shutdown(struct ps3_system_bus_device *dev)
+=======
+static void ps3_vuart_shutdown(struct ps3_system_bus_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct ps3_vuart_port_driver *drv;
 
@@ -1182,7 +1219,11 @@ static int ps3_vuart_shutdown(struct ps3_system_bus_device *dev)
 		dev_dbg(&dev->core, "%s:%d: no driver bound\n", __func__,
 			__LINE__);
 		mutex_unlock(&vuart_bus_priv.probe_mutex);
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	drv = ps3_system_bus_dev_to_vuart_drv(dev);
@@ -1206,7 +1247,10 @@ static int ps3_vuart_shutdown(struct ps3_system_bus_device *dev)
 	dev_dbg(&dev->core, " <- %s:%d\n", __func__, __LINE__);
 
 	mutex_unlock(&vuart_bus_priv.probe_mutex);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __init ps3_vuart_bus_init(void)

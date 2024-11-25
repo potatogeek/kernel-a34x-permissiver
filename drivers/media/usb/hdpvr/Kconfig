@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 config VIDEO_HDPVR
 	tristate "Hauppauge HD PVR support"
 	depends on VIDEO_DEV && VIDEO_V4L2
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This is a video4linux driver for Hauppauge's HD PVR USB device.
 
 	  To compile this driver as a module, choose M here: the

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/boot/compressed/head.S
  *
  *  Copyright (C) 1996-2002 Russell King
  *  Copyright (C) 2004 Hyok S. Choi (MPU support)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 #include <asm/assembler.h>
@@ -14,6 +21,15 @@
 
 #include "efi-header.S"
 
+<<<<<<< HEAD
+=======
+#ifdef __ARMEB__
+#define OF_DT_MAGIC 0xd00dfeed
+#else
+#define OF_DT_MAGIC 0xedfe0dd0
+#endif
+
+>>>>>>> upstream/android-13
  AR_CLASS(	.arch	armv7-a	)
  M_CLASS(	.arch	armv7-m	)
 
@@ -31,19 +47,31 @@
 #if defined(CONFIG_CPU_V6) || defined(CONFIG_CPU_V6K) || defined(CONFIG_CPU_V7)
 		.macro	loadsp, rb, tmp1, tmp2
 		.endm
+<<<<<<< HEAD
 		.macro	writeb, ch, rb
+=======
+		.macro	writeb, ch, rb, tmp
+>>>>>>> upstream/android-13
 		mcr	p14, 0, \ch, c0, c5, 0
 		.endm
 #elif defined(CONFIG_CPU_XSCALE)
 		.macro	loadsp, rb, tmp1, tmp2
 		.endm
+<<<<<<< HEAD
 		.macro	writeb, ch, rb
+=======
+		.macro	writeb, ch, rb, tmp
+>>>>>>> upstream/android-13
 		mcr	p14, 0, \ch, c8, c0, 0
 		.endm
 #else
 		.macro	loadsp, rb, tmp1, tmp2
 		.endm
+<<<<<<< HEAD
 		.macro	writeb, ch, rb
+=======
+		.macro	writeb, ch, rb, tmp
+>>>>>>> upstream/android-13
 		mcr	p14, 0, \ch, c1, c0, 0
 		.endm
 #endif
@@ -52,8 +80,18 @@
 
 #include CONFIG_DEBUG_LL_INCLUDE
 
+<<<<<<< HEAD
 		.macro	writeb,	ch, rb
 		senduart \ch, \rb
+=======
+		.macro	writeb,	ch, rb, tmp
+#ifdef CONFIG_DEBUG_UART_FLOW_CONTROL
+		waituartcts \tmp, \rb
+#endif
+		waituarttxrdy \tmp, \rb
+		senduart \ch, \rb
+		busyuart \tmp, \rb
+>>>>>>> upstream/android-13
 		.endm
 
 #if defined(CONFIG_ARCH_SA1100)
@@ -84,6 +122,7 @@
 		bl	phex
 		.endm
 
+<<<<<<< HEAD
 		.macro	debug_reloc_start
 #ifdef DEBUG
 		kputc	#'\n'
@@ -101,10 +140,36 @@
 		kphex	r9, 8		/* decompressed kernel end  */
 		kputc	#'>'
 		kphex	r4, 8		/* kernel execution address */
+=======
+		/*
+		 * Debug kernel copy by printing the memory addresses involved
+		 */
+		.macro dbgkc, begin, end, cbegin, cend
+#ifdef DEBUG
+		kputc   #'C'
+		kputc   #':'
+		kputc   #'0'
+		kputc   #'x'
+		kphex   \begin, 8	/* Start of compressed kernel */
+		kputc	#'-'
+		kputc	#'0'
+		kputc	#'x'
+		kphex	\end, 8		/* End of compressed kernel */
+		kputc	#'-'
+		kputc	#'>'
+		kputc   #'0'
+		kputc   #'x'
+		kphex   \cbegin, 8	/* Start of kernel copy */
+		kputc	#'-'
+		kputc	#'0'
+		kputc	#'x'
+		kphex	\cend, 8	/* End of kernel copy */
+>>>>>>> upstream/android-13
 		kputc	#'\n'
 #endif
 		.endm
 
+<<<<<<< HEAD
 		.macro	debug_reloc_end
 #ifdef DEBUG
 		kphex	r5, 8		/* end of kernel */
@@ -115,6 +180,68 @@
 		.endm
 
 		.section ".start", #alloc, #execinstr
+=======
+		/*
+		 * Debug print of the final appended DTB location
+		 */
+		.macro dbgadtb, begin, size
+#ifdef DEBUG
+		kputc   #'D'
+		kputc   #'T'
+		kputc   #'B'
+		kputc   #':'
+		kputc   #'0'
+		kputc   #'x'
+		kphex   \begin, 8	/* Start of appended DTB */
+		kputc	#' '
+		kputc	#'('
+		kputc	#'0'
+		kputc	#'x'
+		kphex	\size, 8	/* Size of appended DTB */
+		kputc	#')'
+		kputc	#'\n'
+#endif
+		.endm
+
+		.macro	enable_cp15_barriers, reg
+		mrc	p15, 0, \reg, c1, c0, 0	@ read SCTLR
+		tst	\reg, #(1 << 5)		@ CP15BEN bit set?
+		bne	.L_\@
+		orr	\reg, \reg, #(1 << 5)	@ CP15 barrier instructions
+		mcr	p15, 0, \reg, c1, c0, 0	@ write SCTLR
+ ARM(		.inst   0xf57ff06f		@ v7+ isb	)
+ THUMB(		isb						)
+.L_\@:
+		.endm
+
+		/*
+		 * The kernel build system appends the size of the
+		 * decompressed kernel at the end of the compressed data
+		 * in little-endian form.
+		 */
+		.macro	get_inflated_image_size, res:req, tmp1:req, tmp2:req
+		adr	\res, .Linflated_image_size_offset
+		ldr	\tmp1, [\res]
+		add	\tmp1, \tmp1, \res	@ address of inflated image size
+
+		ldrb	\res, [\tmp1]		@ get_unaligned_le32
+		ldrb	\tmp2, [\tmp1, #1]
+		orr	\res, \res, \tmp2, lsl #8
+		ldrb	\tmp2, [\tmp1, #2]
+		ldrb	\tmp1, [\tmp1, #3]
+		orr	\res, \res, \tmp2, lsl #16
+		orr	\res, \res, \tmp1, lsl #24
+		.endm
+
+		.macro	be32tocpu, val, tmp
+#ifndef __ARMEB__
+		/* convert to little endian */
+		rev_l	\val, \tmp
+#endif
+		.endm
+
+		.section ".start", "ax"
+>>>>>>> upstream/android-13
 /*
  * sort out different calling conventions
  */
@@ -127,11 +254,32 @@
  AR_CLASS(	.arm	)
 start:
 		.type	start,#function
+<<<<<<< HEAD
 		.rept	7
 		__nop
 		.endr
 #ifndef CONFIG_THUMB2_KERNEL
 		mov	r0, r0
+=======
+		/*
+		 * These 7 nops along with the 1 nop immediately below for
+		 * !THUMB2 form 8 nops that make the compressed kernel bootable
+		 * on legacy ARM systems that were assuming the kernel in a.out
+		 * binary format. The boot loaders on these systems would
+		 * jump 32 bytes into the image to skip the a.out header.
+		 * with these 8 nops filling exactly 32 bytes, things still
+		 * work as expected on these legacy systems. Thumb2 mode keeps
+		 * 7 of the nops as it turns out that some boot loaders
+		 * were patching the initial instructions of the kernel, i.e
+		 * had started to exploit this "patch area".
+		 */
+		__initial_nops
+		.rept	5
+		__nop
+		.endr
+#ifndef CONFIG_THUMB2_KERNEL
+		__nop
+>>>>>>> upstream/android-13
 #else
  AR_CLASS(	sub	pc, pc, #3	)	@ A/R: switch to Thumb2 mode
   M_CLASS(	nop.w			)	@ M: already in Thumb2 mode
@@ -203,10 +351,47 @@ not_angel:
 		 * are already placing their zImage in (eg) the top 64MB
 		 * of this range.
 		 */
+<<<<<<< HEAD
 		mov	r4, pc
 		and	r4, r4, #0xf8000000
 		/* Determine final kernel image address. */
 		add	r4, r4, #TEXT_OFFSET
+=======
+		mov	r0, pc
+		and	r0, r0, #0xf8000000
+#ifdef CONFIG_USE_OF
+		adr	r1, LC1
+#ifdef CONFIG_ARM_APPENDED_DTB
+		/*
+		 * Look for an appended DTB.  If found, we cannot use it to
+		 * validate the calculated start of physical memory, as its
+		 * memory nodes may need to be augmented by ATAGS stored at
+		 * an offset from the same start of physical memory.
+		 */
+		ldr	r2, [r1, #4]	@ get &_edata
+		add	r2, r2, r1	@ relocate it
+		ldr	r2, [r2]	@ get DTB signature
+		ldr	r3, =OF_DT_MAGIC
+		cmp	r2, r3		@ do we have a DTB there?
+		beq	1f		@ if yes, skip validation
+#endif /* CONFIG_ARM_APPENDED_DTB */
+
+		/*
+		 * Make sure we have some stack before calling C code.
+		 * No GOT fixup has occurred yet, but none of the code we're
+		 * about to call uses any global variables.
+		 */
+		ldr	sp, [r1]	@ get stack location
+		add	sp, sp, r1	@ apply relocation
+
+		/* Validate calculated start against passed DTB */
+		mov	r1, r8
+		bl	fdt_check_mem_start
+1:
+#endif /* CONFIG_USE_OF */
+		/* Determine final kernel image address. */
+		add	r4, r0, #TEXT_OFFSET
+>>>>>>> upstream/android-13
 #else
 		ldr	r4, =zreladdr
 #endif
@@ -219,12 +404,17 @@ not_angel:
 		 */
 		mov	r0, pc
 		cmp	r0, r4
+<<<<<<< HEAD
 		ldrcc	r0, LC0+32
+=======
+		ldrcc	r0, .Lheadroom
+>>>>>>> upstream/android-13
 		addcc	r0, r0, pc
 		cmpcc	r4, r0
 		orrcc	r4, r4, #1		@ remember we skipped cache_on
 		blcs	cache_on
 
+<<<<<<< HEAD
 restart:	adr	r0, LC0
 		ldmia	r0, {r1, r2, r3, r6, r10, r11, r12}
 		ldr	sp, [r0, #28]
@@ -254,6 +444,19 @@ restart:	adr	r0, LC0
 		/* malloc space is above the relocated stack (64k max) */
 		add	sp, sp, r0
 		add	r10, sp, #0x10000
+=======
+restart:	adr	r0, LC1
+		ldr	sp, [r0]
+		ldr	r6, [r0, #4]
+		add	sp, sp, r0
+		add	r6, r6, r0
+
+		get_inflated_image_size	r9, r10, lr
+
+#ifndef CONFIG_ZBOOT_ROM
+		/* malloc space is above the relocated stack (64k max) */
+		add	r10, sp, #MALLOC_SIZE
+>>>>>>> upstream/android-13
 #else
 		/*
 		 * With ZBOOT_ROM the bss/stack is non relocatable,
@@ -266,9 +469,12 @@ restart:	adr	r0, LC0
 		mov	r5, #0			@ init dtb size to 0
 #ifdef CONFIG_ARM_APPENDED_DTB
 /*
+<<<<<<< HEAD
  *   r0  = delta
  *   r2  = BSS start
  *   r3  = BSS end
+=======
+>>>>>>> upstream/android-13
  *   r4  = final kernel address (possibly with LSB set)
  *   r5  = appended dtb size (still unknown)
  *   r6  = _edata
@@ -276,8 +482,11 @@ restart:	adr	r0, LC0
  *   r8  = atags/device tree pointer
  *   r9  = size of decompressed image
  *   r10 = end of this image, including  bss/stack/malloc space if non XIP
+<<<<<<< HEAD
  *   r11 = GOT start
  *   r12 = GOT end
+=======
+>>>>>>> upstream/android-13
  *   sp  = stack pointer
  *
  * if there are device trees (dtb) appended to zImage, advance r10 so that the
@@ -285,11 +494,15 @@ restart:	adr	r0, LC0
  */
 
 		ldr	lr, [r6, #0]
+<<<<<<< HEAD
 #ifndef __ARMEB__
 		ldr	r1, =0xedfe0dd0		@ sig is 0xd00dfeed big endian
 #else
 		ldr	r1, =0xd00dfeed
 #endif
+=======
+		ldr	r1, =OF_DT_MAGIC
+>>>>>>> upstream/android-13
 		cmp	lr, r1
 		bne	dtb_check_done		@ not found
 
@@ -305,6 +518,7 @@ restart:	adr	r0, LC0
 
 		/* Get the initial DTB size */
 		ldr	r5, [r6, #4]
+<<<<<<< HEAD
 #ifndef __ARMEB__
 		/* convert to little endian */
 		eor	r1, r5, r5, ror #16
@@ -312,6 +526,10 @@ restart:	adr	r0, LC0
 		mov	r5, r5, ror #8
 		eor	r5, r5, r1, lsr #8
 #endif
+=======
+		be32tocpu r5, r1
+		dbgadtb	r6, r5
+>>>>>>> upstream/android-13
 		/* 50% DTB growth should be good enough */
 		add	r5, r5, r5, lsr #1
 		/* preserve 64-bit alignment */
@@ -325,7 +543,10 @@ restart:	adr	r0, LC0
 		/* temporarily relocate the stack past the DTB work space */
 		add	sp, sp, r5
 
+<<<<<<< HEAD
 		stmfd	sp!, {r0-r3, ip, lr}
+=======
+>>>>>>> upstream/android-13
 		mov	r0, r8
 		mov	r1, r6
 		mov	r2, r5
@@ -344,7 +565,10 @@ restart:	adr	r0, LC0
 		mov	r2, r5
 		bleq	atags_to_fdt
 
+<<<<<<< HEAD
 		ldmfd	sp!, {r0-r3, ip, lr}
+=======
+>>>>>>> upstream/android-13
 		sub	sp, sp, r5
 #endif
 
@@ -364,6 +588,7 @@ restart:	adr	r0, LC0
 
 		/* Get the current DTB size */
 		ldr	r5, [r6, #4]
+<<<<<<< HEAD
 #ifndef __ARMEB__
 		/* convert r5 (dtb size) to little endian */
 		eor	r1, r5, r5, ror #16
@@ -371,6 +596,9 @@ restart:	adr	r0, LC0
 		mov	r5, r5, ror #8
 		eor	r5, r5, r1, lsr #8
 #endif
+=======
+		be32tocpu r5, r1
+>>>>>>> upstream/android-13
 
 		/* preserve 64-bit alignment */
 		add	r5, r5, #7
@@ -429,6 +657,7 @@ dtb_check_done:
 
 		/*
 		 * Compute the address of the hyp vectors after relocation.
+<<<<<<< HEAD
 		 * This requires some arithmetic since we cannot directly
 		 * reference __hyp_stub_vectors in a PC-relative way.
 		 * Call __hyp_set_vectors with the new address so that we
@@ -438,6 +667,12 @@ dtb_check_done:
 		movw	r1, #:lower16:__hyp_stub_vectors - 0b
 		movt	r1, #:upper16:__hyp_stub_vectors - 0b
 		add	r0, r0, r1
+=======
+		 * Call __hyp_set_vectors with the new address so that we
+		 * can HVC again after the copy.
+		 */
+		adr_l	r0, __hyp_stub_vectors
+>>>>>>> upstream/android-13
 		sub	r0, r0, r5
 		add	r0, r0, r10
 		bl	__hyp_set_vectors
@@ -450,6 +685,23 @@ dtb_check_done:
 		add	r6, r9, r5
 		add	r9, r9, r10
 
+<<<<<<< HEAD
+=======
+#ifdef DEBUG
+		sub     r10, r6, r5
+		sub     r10, r9, r10
+		/*
+		 * We are about to copy the kernel to a new memory area.
+		 * The boundaries of the new memory area can be found in
+		 * r10 and r9, whilst r5 and r6 contain the boundaries
+		 * of the memory we are going to copy.
+		 * Calling dbgkc will help with the printing of this
+		 * information.
+		 */
+		dbgkc	r5, r6, r10, r9
+#endif
+
+>>>>>>> upstream/android-13
 1:		ldmdb	r6!, {r0 - r3, r10 - r12, lr}
 		cmp	r6, r5
 		stmdb	r9!, {r0 - r3, r10 - r12, lr}
@@ -458,11 +710,16 @@ dtb_check_done:
 		/* Preserve offset to relocated code. */
 		sub	r6, r9, r6
 
+<<<<<<< HEAD
 #ifndef CONFIG_ZBOOT_ROM
 		/* cache_clean_flush may use the stack, so relocate it */
 		add	sp, sp, r6
 #endif
 
+=======
+		mov	r0, r9			@ start of relocated zImage
+		add	r1, sp, r6		@ end of relocated zImage
+>>>>>>> upstream/android-13
 		bl	cache_clean_flush
 
 		badr	r0, restart
@@ -470,6 +727,13 @@ dtb_check_done:
 		mov	pc, r0
 
 wont_overwrite:
+<<<<<<< HEAD
+=======
+		adr	r0, LC0
+		ldmia	r0, {r1, r2, r3, r11, r12}
+		sub	r0, r0, r1		@ calculate the delta offset
+
+>>>>>>> upstream/android-13
 /*
  * If delta is zero, we are running at the address we were linked at.
  *   r0  = delta
@@ -556,9 +820,20 @@ not_relocated:	mov	r0, #0
  */
 		mov	r0, r4
 		mov	r1, sp			@ malloc space above stack
+<<<<<<< HEAD
 		add	r2, sp, #0x10000	@ 64k max
 		mov	r3, r7
 		bl	decompress_kernel
+=======
+		add	r2, sp, #MALLOC_SIZE	@ 64k max
+		mov	r3, r7
+		bl	decompress_kernel
+
+		get_inflated_image_size	r1, r2, r3
+
+		mov	r0, r4			@ start of inflated image
+		add	r1, r1, r0		@ end of inflated image
+>>>>>>> upstream/android-13
 		bl	cache_clean_flush
 		bl	cache_off
 
@@ -568,17 +843,24 @@ not_relocated:	mov	r0, #0
 		cmp	r0, #HYP_MODE		@ if not booted in HYP mode...
 		bne	__enter_kernel		@ boot kernel directly
 
+<<<<<<< HEAD
 		adr	r12, .L__hyp_reentry_vectors_offset
 		ldr	r0, [r12]
 		add	r0, r0, r12
 
+=======
+		adr_l	r0, __hyp_reentry_vectors
+>>>>>>> upstream/android-13
 		bl	__hyp_set_vectors
 		__HVC(0)			@ otherwise bounce to hyp mode
 
 		b	.			@ should never be reached
+<<<<<<< HEAD
 
 		.align	2
 .L__hyp_reentry_vectors_offset:	.long	__hyp_reentry_vectors - .
+=======
+>>>>>>> upstream/android-13
 #else
 		b	__enter_kernel
 #endif
@@ -588,6 +870,7 @@ not_relocated:	mov	r0, #0
 LC0:		.word	LC0			@ r1
 		.word	__bss_start		@ r2
 		.word	_end			@ r3
+<<<<<<< HEAD
 		.word	_edata			@ r6
 		.word	input_data_end - 4	@ r10 (inflated size location)
 		.word	_got_start		@ r11
@@ -596,6 +879,23 @@ LC0:		.word	LC0			@ r1
 		.word	_end - restart + 16384 + 1024*1024
 		.size	LC0, . - LC0
 
+=======
+		.word	_got_start		@ r11
+		.word	_got_end		@ ip
+		.size	LC0, . - LC0
+
+		.type	LC1, #object
+LC1:		.word	.L_user_stack_end - LC1	@ sp
+		.word	_edata - LC1		@ r6
+		.size	LC1, . - LC1
+
+.Lheadroom:
+		.word	_end - restart + 16384 + 1024*1024
+
+.Linflated_image_size_offset:
+		.long	(input_data_end - 4) - .
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARCH_RPC
 		.globl	params
 params:		ldr	r0, =0x10000100		@ params_phys for RPC
@@ -605,6 +905,27 @@ params:		ldr	r0, =0x10000100		@ params_phys for RPC
 #endif
 
 /*
+<<<<<<< HEAD
+=======
+ * dcache_line_size - get the minimum D-cache line size from the CTR register
+ * on ARMv7.
+ */
+		.macro	dcache_line_size, reg, tmp
+#ifdef CONFIG_CPU_V7M
+		movw	\tmp, #:lower16:BASEADDR_V7M_SCB + V7M_SCB_CTR
+		movt	\tmp, #:upper16:BASEADDR_V7M_SCB + V7M_SCB_CTR
+		ldr	\tmp, [\tmp]
+#else
+		mrc	p15, 0, \tmp, c0, c0, 1		@ read ctr
+#endif
+		lsr	\tmp, \tmp, #16
+		and	\tmp, \tmp, #0xf		@ cache line size encoding
+		mov	\reg, #4			@ bytes per word
+		mov	\reg, \reg, lsl \tmp		@ actual cache line size
+		.endm
+
+/*
+>>>>>>> upstream/android-13
  * Turn on the cache.  We need to setup some page tables so that we
  * can have both the I and D caches on.
  *
@@ -768,6 +1089,10 @@ __armv4_mmu_cache_on:
 		mov	pc, r12
 
 __armv7_mmu_cache_on:
+<<<<<<< HEAD
+=======
+		enable_cp15_barriers	r11
+>>>>>>> upstream/android-13
 		mov	r12, lr
 #ifdef CONFIG_MMU
 		mrc	p15, 0, r11, c0, c1, 4	@ read ID_MMFR0
@@ -1095,8 +1420,11 @@ __armv7_mmu_cache_off:
 		bic	r0, r0, #0x0004
 #endif
 		mcr	p15, 0, r0, c1, c0	@ turn MMU and cache off
+<<<<<<< HEAD
 		mov	r12, lr
 		bl	__armv7_mmu_cache_flush
+=======
+>>>>>>> upstream/android-13
 		mov	r0, #0
 #ifdef CONFIG_MMU
 		mcr	p15, 0, r0, c8, c7, 0	@ invalidate whole TLB
@@ -1104,11 +1432,21 @@ __armv7_mmu_cache_off:
 		mcr	p15, 0, r0, c7, c5, 6	@ invalidate BTC
 		mcr	p15, 0, r0, c7, c10, 4	@ DSB
 		mcr	p15, 0, r0, c7, c5, 4	@ ISB
+<<<<<<< HEAD
 		mov	pc, r12
+=======
+		mov	pc, lr
+>>>>>>> upstream/android-13
 
 /*
  * Clean and flush the cache to maintain consistency.
  *
+<<<<<<< HEAD
+=======
+ * On entry,
+ *  r0 = start address
+ *  r1 = end address (exclusive)
+>>>>>>> upstream/android-13
  * On exit,
  *  r1, r2, r3, r9, r10, r11, r12 corrupted
  * This routine must preserve:
@@ -1117,6 +1455,10 @@ __armv7_mmu_cache_off:
 		.align	5
 cache_clean_flush:
 		mov	r3, #16
+<<<<<<< HEAD
+=======
+		mov	r11, r1
+>>>>>>> upstream/android-13
 		b	call_cache_fn
 
 __armv4_mpu_cache_flush:
@@ -1157,6 +1499,10 @@ __armv6_mmu_cache_flush:
 		mov	pc, lr
 
 __armv7_mmu_cache_flush:
+<<<<<<< HEAD
+=======
+		enable_cp15_barriers	r10
+>>>>>>> upstream/android-13
 		tst	r4, #1
 		bne	iflush
 		mrc	p15, 0, r10, c0, c1, 5	@ read ID_MMFR1
@@ -1166,6 +1512,7 @@ __armv7_mmu_cache_flush:
 		mcr	p15, 0, r10, c7, c14, 0	@ clean+invalidate D
 		b	iflush
 hierarchical:
+<<<<<<< HEAD
 		mcr	p15, 0, r10, c7, c10, 5	@ DMB
 		stmfd	sp!, {r0-r7, r9-r11}
 		mrc	p15, 1, r0, c0, c0, 1	@ read clidr
@@ -1211,6 +1558,18 @@ finished:
 		ldmfd	sp!, {r0-r7, r9-r11}
 		mov	r10, #0			@ switch back to cache level 0
 		mcr	p15, 2, r10, c0, c0, 0	@ select current cache level in cssr
+=======
+		dcache_line_size r1, r2		@ r1 := dcache min line size
+		sub	r2, r1, #1		@ r2 := line size mask
+		bic	r0, r0, r2		@ round down start to line size
+		sub	r11, r11, #1		@ end address is exclusive
+		bic	r11, r11, r2		@ round down end to line size
+0:		cmp	r0, r11			@ finished?
+		bgt	iflush
+		mcr	p15, 0, r0, c7, c14, 1	@ Dcache clean/invalidate by VA
+		add	r0, r0, r1
+		b	0b
+>>>>>>> upstream/android-13
 iflush:
 		mcr	p15, 0, r10, c7, c10, 4	@ DSB
 		mcr	p15, 0, r10, c7, c5, 0	@ invalidate I+BTB
@@ -1221,7 +1580,11 @@ iflush:
 __armv5tej_mmu_cache_flush:
 		tst	r4, #1
 		movne	pc, lr
+<<<<<<< HEAD
 1:		mrc	p15, 0, r15, c7, c14, 3	@ test,clean,invalidate D cache
+=======
+1:		mrc	p15, 0, APSR_nzcv, c7, c14, 3	@ test,clean,invalidate D cache
+>>>>>>> upstream/android-13
 		bne	1b
 		mcr	p15, 0, r0, c7, c5, 0	@ flush I cache
 		mcr	p15, 0, r0, c7, c10, 4	@ drain WB
@@ -1299,7 +1662,11 @@ puts:		loadsp	r3, r2, r1
 1:		ldrb	r2, [r0], #1
 		teq	r2, #0
 		moveq	pc, lr
+<<<<<<< HEAD
 2:		writeb	r2, r3
+=======
+2:		writeb	r2, r3, r1
+>>>>>>> upstream/android-13
 		mov	r1, #0x00020000
 3:		subs	r1, r1, #1
 		bne	3b
@@ -1353,7 +1720,15 @@ memdump:	mov	r12, r0
 __hyp_reentry_vectors:
 		W(b)	.			@ reset
 		W(b)	.			@ undef
+<<<<<<< HEAD
 		W(b)	.			@ svc
+=======
+#ifdef CONFIG_EFI_STUB
+		W(b)	__enter_kernel_from_hyp	@ hvc from HYP
+#else
+		W(b)	.			@ svc
+#endif
+>>>>>>> upstream/android-13
 		W(b)	.			@ pabort
 		W(b)	.			@ dabort
 		W(b)	__enter_kernel		@ hyp
@@ -1372,6 +1747,7 @@ __enter_kernel:
 reloc_code_end:
 
 #ifdef CONFIG_EFI_STUB
+<<<<<<< HEAD
 		.align	2
 _start:		.long	start - .
 
@@ -1430,6 +1806,89 @@ efi_load_fail:
 		ldr	r0, =0x80000001
 		ldmfd	sp!, {ip, pc}
 ENDPROC(efi_stub_entry)
+=======
+__enter_kernel_from_hyp:
+		mrc	p15, 4, r0, c1, c0, 0	@ read HSCTLR
+		bic	r0, r0, #0x5		@ disable MMU and caches
+		mcr	p15, 4, r0, c1, c0, 0	@ write HSCTLR
+		isb
+		b	__enter_kernel
+
+ENTRY(efi_enter_kernel)
+		mov	r4, r0			@ preserve image base
+		mov	r8, r1			@ preserve DT pointer
+
+		adr_l	r0, call_cache_fn
+		adr	r1, 0f			@ clean the region of code we
+		bl	cache_clean_flush	@ may run with the MMU off
+
+#ifdef CONFIG_ARM_VIRT_EXT
+		@
+		@ The EFI spec does not support booting on ARM in HYP mode,
+		@ since it mandates that the MMU and caches are on, with all
+		@ 32-bit addressable DRAM mapped 1:1 using short descriptors.
+		@
+		@ While the EDK2 reference implementation adheres to this,
+		@ U-Boot might decide to enter the EFI stub in HYP mode
+		@ anyway, with the MMU and caches either on or off.
+		@
+		mrs	r0, cpsr		@ get the current mode
+		msr	spsr_cxsf, r0		@ record boot mode
+		and	r0, r0, #MODE_MASK	@ are we running in HYP mode?
+		cmp	r0, #HYP_MODE
+		bne	.Lefi_svc
+
+		mrc	p15, 4, r1, c1, c0, 0	@ read HSCTLR
+		tst	r1, #0x1		@ MMU enabled at HYP?
+		beq	1f
+
+		@
+		@ When running in HYP mode with the caches on, we're better
+		@ off just carrying on using the cached 1:1 mapping that the
+		@ firmware provided. Set up the HYP vectors so HVC instructions
+		@ issued from HYP mode take us to the correct handler code. We
+		@ will disable the MMU before jumping to the kernel proper.
+		@
+ ARM(		bic	r1, r1, #(1 << 30)	) @ clear HSCTLR.TE
+ THUMB(		orr	r1, r1, #(1 << 30)	) @ set HSCTLR.TE
+		mcr	p15, 4, r1, c1, c0, 0
+		adr	r0, __hyp_reentry_vectors
+		mcr	p15, 4, r0, c12, c0, 0	@ set HYP vector base (HVBAR)
+		isb
+		b	.Lefi_hyp
+
+		@
+		@ When running in HYP mode with the caches off, we need to drop
+		@ into SVC mode now, and let the decompressor set up its cached
+		@ 1:1 mapping as usual.
+		@
+1:		mov	r9, r4			@ preserve image base
+		bl	__hyp_stub_install	@ install HYP stub vectors
+		safe_svcmode_maskall	r1	@ drop to SVC mode
+		msr	spsr_cxsf, r0		@ record boot mode
+		orr	r4, r9, #1		@ restore image base and set LSB
+		b	.Lefi_hyp
+.Lefi_svc:
+#endif
+		mrc	p15, 0, r0, c1, c0, 0	@ read SCTLR
+		tst	r0, #0x1		@ MMU enabled?
+		orreq	r4, r4, #1		@ set LSB if not
+
+.Lefi_hyp:
+		mov	r0, r8			@ DT start
+		add	r1, r8, r2		@ DT end
+		bl	cache_clean_flush
+
+		adr	r0, 0f			@ switch to our stack
+		ldr	sp, [r0]
+		add	sp, sp, r0
+
+		mov	r5, #0			@ appended DTB size
+		mov	r7, #0xFFFFFFFF		@ machine ID
+		b	wont_overwrite
+ENDPROC(efi_enter_kernel)
+0:		.long	.L_user_stack_end - .
+>>>>>>> upstream/android-13
 #endif
 
 		.align

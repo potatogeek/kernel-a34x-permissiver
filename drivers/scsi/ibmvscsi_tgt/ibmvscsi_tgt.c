@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * IBM Virtual SCSI Target Driver
  * Copyright (C) 2003-2005 Dave Boutcher (boutcher@us.ibm.com) IBM Corp.
@@ -10,6 +14,7 @@
  * Authors: Bryant G. Ly <bryantly@linux.vnet.ibm.com>
  * Authors: Michael Cyr <mikecyr@linux.vnet.ibm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  ****************************************************************************/
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
@@ -31,6 +38,10 @@
 #include <linux/list.h>
 #include <linux/string.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 
 #include <target/target_core_base.h>
 #include <target/target_core_fabric.h>
@@ -44,7 +55,11 @@
 
 #define IBMVSCSIS_VERSION	"v0.2"
 
+<<<<<<< HEAD
 #define	INITIAL_SRP_LIMIT	800
+=======
+#define	INITIAL_SRP_LIMIT	1024
+>>>>>>> upstream/android-13
 #define	DEFAULT_MAX_SECTORS	256
 #define MAX_TXU			1024 * 1024
 
@@ -137,10 +152,17 @@ static bool connection_broken(struct scsi_info *vscsi)
  * This function calls h_free_q then frees the interrupt bit etc.
  * It must release the lock before doing so because of the time it can take
  * for h_free_crq in PHYP
+<<<<<<< HEAD
  * NOTE: the caller must make sure that state and or flags will prevent
  *	 interrupt handler from scheduling work.
  * NOTE: anyone calling this function may need to set the CRQ_CLOSED flag
  *	 we can't do it here, because we don't have the lock
+=======
+ * NOTE: * the caller must make sure that state and or flags will prevent
+ *	   interrupt handler from scheduling work.
+ *       * anyone calling this function may need to set the CRQ_CLOSED flag
+ *	   we can't do it here, because we don't have the lock
+>>>>>>> upstream/android-13
  *
  * EXECUTION ENVIRONMENT:
  *	Process level
@@ -1590,6 +1612,10 @@ static long ibmvscsis_adapter_info(struct scsi_info *vscsi,
 	case H_PERMISSION:
 		if (connection_broken(vscsi))
 			flag_bits = (RESPONSE_Q_DOWN | CLIENT_FAILED);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(&vscsi->dev, "adapter_info: h_copy_rdma to client failed, rc %ld\n",
 			rc);
@@ -1885,7 +1911,10 @@ static void ibmvscsis_send_messages(struct scsi_info *vscsi)
 	 */
 	struct viosrp_crq *crq = (struct viosrp_crq *)&msg_hi;
 	struct ibmvscsis_cmd *cmd, *nxt;
+<<<<<<< HEAD
 	struct iu_entry *iue;
+=======
+>>>>>>> upstream/android-13
 	long rc = ADAPT_SUCCESS;
 	bool retry = false;
 
@@ -1939,8 +1968,11 @@ static void ibmvscsis_send_messages(struct scsi_info *vscsi)
 					 */
 					vscsi->credit += 1;
 				} else {
+<<<<<<< HEAD
 					iue = cmd->iue;
 
+=======
+>>>>>>> upstream/android-13
 					crq->valid = VALID_CMD_RESP_EL;
 					crq->format = cmd->rsp.format;
 
@@ -2266,7 +2298,10 @@ static int ibmvscsis_drop_nexus(struct ibmvscsis_tport *tport)
 	/*
 	 * Release the SCSI I_T Nexus to the emulated ibmvscsis Target Port
 	 */
+<<<<<<< HEAD
 	target_wait_for_sess_cmds(se_sess);
+=======
+>>>>>>> upstream/android-13
 	target_remove_session(se_sess);
 	tport->ibmv_nexus = NULL;
 	kfree(nexus);
@@ -2363,7 +2398,10 @@ static long ibmvscsis_srp_i_logout(struct scsi_info *vscsi,
 {
 	struct iu_entry *iue = cmd->iue;
 	struct srp_i_logout *log_out = &vio_iu(iue)->srp.i_logout;
+<<<<<<< HEAD
 	long rc = ADAPT_SUCCESS;
+=======
+>>>>>>> upstream/android-13
 
 	if ((vscsi->debit > 0) || !list_empty(&vscsi->schedule_q) ||
 	    !list_empty(&vscsi->waiting_rsp)) {
@@ -2379,7 +2417,11 @@ static long ibmvscsis_srp_i_logout(struct scsi_info *vscsi,
 		ibmvscsis_post_disconnect(vscsi, WAIT_IDLE, 0);
 	}
 
+<<<<<<< HEAD
 	return rc;
+=======
+	return ADAPT_SUCCESS;
+>>>>>>> upstream/android-13
 }
 
 /* Called with intr lock held */
@@ -2502,8 +2544,15 @@ static long ibmvscsis_ping_response(struct scsi_info *vscsi)
 		break;
 	case H_CLOSED:
 		vscsi->flags |= CLIENT_FAILED;
+<<<<<<< HEAD
 	case H_DROPPED:
 		vscsi->flags |= RESPONSE_Q_DOWN;
+=======
+		fallthrough;
+	case H_DROPPED:
+		vscsi->flags |= RESPONSE_Q_DOWN;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case H_REMOTE_PARM:
 		dev_err(&vscsi->dev, "ping_response: h_send_crq failed, rc %ld\n",
 			rc);
@@ -2681,7 +2730,10 @@ static void ibmvscsis_parse_cmd(struct scsi_info *vscsi,
 	u64 data_len = 0;
 	enum dma_data_direction dir;
 	int attr = 0;
+<<<<<<< HEAD
 	int rc = 0;
+=======
+>>>>>>> upstream/android-13
 
 	nexus = vscsi->tport.ibmv_nexus;
 	/*
@@ -2736,6 +2788,7 @@ static void ibmvscsis_parse_cmd(struct scsi_info *vscsi,
 
 	srp->lun.scsi_lun[0] &= 0x3f;
 
+<<<<<<< HEAD
 	rc = target_submit_cmd(&cmd->se_cmd, nexus->se_sess, srp->cdb,
 			       cmd->sense_buf, scsilun_to_int(&srp->lun),
 			       data_len, attr, dir, 0);
@@ -2747,6 +2800,11 @@ static void ibmvscsis_parse_cmd(struct scsi_info *vscsi,
 		spin_unlock_bh(&vscsi->intr_lock);
 		goto fail;
 	}
+=======
+	target_submit_cmd(&cmd->se_cmd, nexus->se_sess, srp->cdb,
+			  cmd->sense_buf, scsilun_to_int(&srp->lun),
+			  data_len, attr, dir, 0);
+>>>>>>> upstream/android-13
 	return;
 
 fail:
@@ -3606,7 +3664,11 @@ free_adapter:
 	return rc;
 }
 
+<<<<<<< HEAD
 static int ibmvscsis_remove(struct vio_dev *vdev)
+=======
+static void ibmvscsis_remove(struct vio_dev *vdev)
+>>>>>>> upstream/android-13
 {
 	struct scsi_info *vscsi = dev_get_drvdata(&vdev->dev);
 
@@ -3633,8 +3695,11 @@ static int ibmvscsis_remove(struct vio_dev *vdev)
 	list_del(&vscsi->list);
 	spin_unlock_bh(&ibmvscsis_dev_lock);
 	kfree(vscsi);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static ssize_t system_id_show(struct device *dev,
@@ -3696,11 +3761,14 @@ static int ibmvscsis_get_system_info(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static char *ibmvscsis_get_fabric_name(void)
 {
 	return "ibmvscsis";
 }
 
+=======
+>>>>>>> upstream/android-13
 static char *ibmvscsis_get_fabric_wwn(struct se_portal_group *se_tpg)
 {
 	struct ibmvscsis_tport *tport =
@@ -3794,11 +3862,14 @@ static int ibmvscsis_write_pending(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ibmvscsis_write_pending_status(struct se_cmd *se_cmd)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void ibmvscsis_set_default_node_attrs(struct se_node_acl *nacl)
 {
 }
@@ -3814,7 +3885,10 @@ static int ibmvscsis_queue_data_in(struct se_cmd *se_cmd)
 						 se_cmd);
 	struct iu_entry *iue = cmd->iue;
 	struct scsi_info *vscsi = cmd->adapter;
+<<<<<<< HEAD
 	char *sd;
+=======
+>>>>>>> upstream/android-13
 	uint len = 0;
 	int rc;
 
@@ -3822,7 +3896,10 @@ static int ibmvscsis_queue_data_in(struct se_cmd *se_cmd)
 			       1);
 	if (rc) {
 		dev_err(&vscsi->dev, "srp_transfer_data failed: %d\n", rc);
+<<<<<<< HEAD
 		sd = se_cmd->sense_buffer;
+=======
+>>>>>>> upstream/android-13
 		se_cmd->scsi_sense_length = 18;
 		memset(se_cmd->sense_buffer, 0, se_cmd->scsi_sense_length);
 		/* Logical Unit Communication Time-out asc/ascq = 0x0801 */
@@ -4045,9 +4122,14 @@ static struct configfs_attribute *ibmvscsis_tpg_attrs[] = {
 
 static const struct target_core_fabric_ops ibmvscsis_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "ibmvscsis",
 	.max_data_sg_nents		= MAX_TXU / PAGE_SIZE,
 	.get_fabric_name		= ibmvscsis_get_fabric_name,
+=======
+	.fabric_name			= "ibmvscsis",
+	.max_data_sg_nents		= MAX_TXU / PAGE_SIZE,
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= ibmvscsis_get_fabric_wwn,
 	.tpg_get_tag			= ibmvscsis_get_tag,
 	.tpg_get_default_depth		= ibmvscsis_get_default_depth,
@@ -4060,7 +4142,10 @@ static const struct target_core_fabric_ops ibmvscsis_ops = {
 	.release_cmd			= ibmvscsis_release_cmd,
 	.sess_get_index			= ibmvscsis_sess_get_index,
 	.write_pending			= ibmvscsis_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= ibmvscsis_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= ibmvscsis_set_default_node_attrs,
 	.get_cmd_state			= ibmvscsis_get_cmd_state,
 	.queue_data_in			= ibmvscsis_queue_data_in,

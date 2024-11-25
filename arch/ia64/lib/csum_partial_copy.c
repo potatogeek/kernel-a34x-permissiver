@@ -12,7 +12,11 @@
 #include <linux/types.h>
 #include <linux/string.h>
 
+<<<<<<< HEAD
 #include <linux/uaccess.h>
+=======
+#include <net/checksum.h>
+>>>>>>> upstream/android-13
 
 /*
  * XXX Fixme: those 2 inlines are meant for debugging and will go away
@@ -96,6 +100,7 @@ unsigned long do_csum_c(const unsigned char * buff, int len, unsigned int psum)
 out:
 	return result;
 }
+<<<<<<< HEAD
 
 /*
  * XXX Fixme
@@ -139,3 +144,5 @@ csum_partial_copy_nocheck(const void *src, void *dst, int len, __wsum sum)
 }
 
 EXPORT_SYMBOL(csum_partial_copy_nocheck);
+=======
+>>>>>>> upstream/android-13

@@ -5,6 +5,7 @@
 #include <linux/mm.h>
 #include <linux/sched.h>
 #include <linux/atomic.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
 #include <asm-generic/mm_hooks.h>
@@ -13,12 +14,21 @@ static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {
 }
 
+=======
+#include <linux/spinlock.h>
+#include <asm-generic/mm_hooks.h>
+
+>>>>>>> upstream/android-13
 /* on PA-RISC, we actually have enough contexts to justify an allocator
  * for them.  prumpf */
 
 extern unsigned long alloc_sid(void);
 extern void free_sid(unsigned long);
 
+<<<<<<< HEAD
+=======
+#define init_new_context init_new_context
+>>>>>>> upstream/android-13
 static inline int
 init_new_context(struct task_struct *tsk, struct mm_struct *mm)
 {
@@ -28,6 +38,10 @@ init_new_context(struct task_struct *tsk, struct mm_struct *mm)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#define destroy_context destroy_context
+>>>>>>> upstream/android-13
 static inline void
 destroy_context(struct mm_struct *mm)
 {
@@ -54,6 +68,15 @@ static inline void switch_mm_irqs_off(struct mm_struct *prev,
 		struct mm_struct *next, struct task_struct *tsk)
 {
 	if (prev != next) {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TLB_PTLOCK
+		/* put physical address of page_table_lock in cr28 (tr4)
+		   for TLB faults */
+		spinlock_t *pgd_lock = &next->page_table_lock;
+		mtctl(__pa(__ldcw_align(&pgd_lock->rlock.raw_lock)), 28);
+#endif
+>>>>>>> upstream/android-13
 		mtctl(__pa(next->pgd), 25);
 		load_context(next->context);
 	}
@@ -73,8 +96,12 @@ static inline void switch_mm(struct mm_struct *prev,
 }
 #define switch_mm_irqs_off switch_mm_irqs_off
 
+<<<<<<< HEAD
 #define deactivate_mm(tsk,mm)	do { } while (0)
 
+=======
+#define activate_mm activate_mm
+>>>>>>> upstream/android-13
 static inline void activate_mm(struct mm_struct *prev, struct mm_struct *next)
 {
 	/*
@@ -92,4 +119,10 @@ static inline void activate_mm(struct mm_struct *prev, struct mm_struct *next)
 
 	switch_mm(prev,next,current);
 }
+<<<<<<< HEAD
+=======
+
+#include <asm-generic/mmu_context.h>
+
+>>>>>>> upstream/android-13
 #endif

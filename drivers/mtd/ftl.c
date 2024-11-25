@@ -1029,7 +1029,11 @@ static void ftl_add_mtd(struct mtd_blktrans_ops *tr, struct mtd_info *mtd)
 
 		partition->mbd.tr = tr;
 		partition->mbd.devnum = -1;
+<<<<<<< HEAD
 		if (!add_mtd_blktrans_dev((void *)partition))
+=======
+		if (!add_mtd_blktrans_dev(&partition->mbd))
+>>>>>>> upstream/android-13
 			return;
 	}
 
@@ -1056,6 +1060,7 @@ static struct mtd_blktrans_ops ftl_tr = {
 	.owner		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
 static int __init init_ftl(void)
 {
 	return register_mtd_blktrans(&ftl_tr);
@@ -1069,6 +1074,9 @@ static void __exit cleanup_ftl(void)
 module_init(init_ftl);
 module_exit(cleanup_ftl);
 
+=======
+module_mtd_blktrans(ftl_tr);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("Dual MPL/GPL");
 MODULE_AUTHOR("David Hinds <dahinds@users.sourceforge.net>");

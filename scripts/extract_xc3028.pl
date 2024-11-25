@@ -1,7 +1,13 @@
 #!/usr/bin/env perl
+<<<<<<< HEAD
 
 # Copyright (c) Mauro Carvalho Chehab <mchehab@kernel.org>
 # Released under GPLv2
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+
+# Copyright (c) Mauro Carvalho Chehab <mchehab@kernel.org>
+>>>>>>> upstream/android-13
 #
 # In order to use, you need to:
 #	1) Download the windows driver with something like:

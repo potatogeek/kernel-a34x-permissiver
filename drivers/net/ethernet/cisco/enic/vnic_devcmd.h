@@ -541,7 +541,11 @@ struct vnic_devcmd_notify {
 struct vnic_devcmd_provinfo {
 	u8 oui[3];
 	u8 type;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 /* These are used in flags field of different filters to denote
@@ -648,9 +652,15 @@ enum {
 #define FILTER_MAX_BUF_SIZE 100
 
 struct filter_tlv {
+<<<<<<< HEAD
 	u_int32_t type;
 	u_int32_t length;
 	u_int32_t val[0];
+=======
+	u32 type;
+	u32 length;
+	u32 val[];
+>>>>>>> upstream/android-13
 };
 
 enum {

@@ -191,15 +191,25 @@ static ssize_t axp20x_store_attr_shutdown(struct device *dev,
 				 axp20x_pek->info->shutdown_mask, buf, count);
 }
 
+<<<<<<< HEAD
 DEVICE_ATTR(startup, 0644, axp20x_show_attr_startup, axp20x_store_attr_startup);
 DEVICE_ATTR(shutdown, 0644, axp20x_show_attr_shutdown,
 	    axp20x_store_attr_shutdown);
 
 static struct attribute *axp20x_attributes[] = {
+=======
+static DEVICE_ATTR(startup, 0644, axp20x_show_attr_startup,
+		   axp20x_store_attr_startup);
+static DEVICE_ATTR(shutdown, 0644, axp20x_show_attr_shutdown,
+		   axp20x_store_attr_shutdown);
+
+static struct attribute *axp20x_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_startup.attr,
 	&dev_attr_shutdown.attr,
 	NULL,
 };
+<<<<<<< HEAD
 
 static const struct attribute_group axp20x_attribute_group = {
 	.attrs = axp20x_attributes,
@@ -209,6 +219,17 @@ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
 {
 	struct input_dev *idev = pwr;
 	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
+=======
+ATTRIBUTE_GROUPS(axp20x);
+
+static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+{
+	struct axp20x_pek *axp20x_pek = pwr;
+	struct input_dev *idev = axp20x_pek->input;
+
+	if (!idev)
+		return IRQ_HANDLED;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The power-button is connected to ground so a falling edge (dbf)
@@ -227,6 +248,7 @@ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
 static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
 					 struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct axp20x_dev *axp20x = axp20x_pek->axp20x;
 	struct input_dev *idev;
 	int error;
@@ -249,6 +271,11 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
 	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
 						  axp20x_pek->irq_dbf);
 
+=======
+	struct input_dev *idev;
+	int error;
+
+>>>>>>> upstream/android-13
 	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
 	if (!axp20x_pek->input)
 		return -ENOMEM;
@@ -263,6 +290,7 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
 
 	input_set_drvdata(idev, axp20x_pek);
 
+<<<<<<< HEAD
 	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
 					     axp20x_pek_irq, 0,
 					     "axp20x-pek-dbr", idev);
@@ -281,6 +309,8 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
 		return error;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	error = input_register_device(idev);
 	if (error) {
 		dev_err(&pdev->dev, "Can't register input device: %d\n",
@@ -288,9 +318,12 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
 		return error;
 	}
 
+<<<<<<< HEAD
 	if (axp20x_pek->axp20x->variant == AXP288_ID)
 		enable_irq_wake(axp20x_pek->irq_dbr);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -348,6 +381,21 @@ static int axp20x_pek_probe(struct platform_device *pdev)
 
 	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
 
+<<<<<<< HEAD
+=======
+	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
+	if (axp20x_pek->irq_dbr < 0)
+		return axp20x_pek->irq_dbr;
+	axp20x_pek->irq_dbr = regmap_irq_get_virq(
+			axp20x_pek->axp20x->regmap_irqc, axp20x_pek->irq_dbr);
+
+	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
+	if (axp20x_pek->irq_dbf < 0)
+		return axp20x_pek->irq_dbf;
+	axp20x_pek->irq_dbf = regmap_irq_get_virq(
+			axp20x_pek->axp20x->regmap_irqc, axp20x_pek->irq_dbf);
+
+>>>>>>> upstream/android-13
 	if (axp20x_pek_should_register_input(axp20x_pek, pdev)) {
 		error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
 		if (error)
@@ -356,6 +404,7 @@ static int axp20x_pek_probe(struct platform_device *pdev)
 
 	axp20x_pek->info = (struct axp20x_info *)match->driver_data;
 
+<<<<<<< HEAD
 	error = devm_device_add_group(&pdev->dev, &axp20x_attribute_group);
 	if (error) {
 		dev_err(&pdev->dev, "Failed to create sysfs attributes: %d\n",
@@ -363,11 +412,70 @@ static int axp20x_pek_probe(struct platform_device *pdev)
 		return error;
 	}
 
+=======
+	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
+					     axp20x_pek_irq, 0,
+					     "axp20x-pek-dbr", axp20x_pek);
+	if (error < 0) {
+		dev_err(&pdev->dev, "Failed to request dbr IRQ#%d: %d\n",
+			axp20x_pek->irq_dbr, error);
+		return error;
+	}
+
+	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbf,
+					  axp20x_pek_irq, 0,
+					  "axp20x-pek-dbf", axp20x_pek);
+	if (error < 0) {
+		dev_err(&pdev->dev, "Failed to request dbf IRQ#%d: %d\n",
+			axp20x_pek->irq_dbf, error);
+		return error;
+	}
+
+	device_init_wakeup(&pdev->dev, true);
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, axp20x_pek);
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int __maybe_unused axp20x_pek_suspend(struct device *dev)
+{
+	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+
+	/*
+	 * As nested threaded IRQs are not automatically disabled during
+	 * suspend, we must explicitly disable non-wakeup IRQs.
+	 */
+	if (device_may_wakeup(dev)) {
+		enable_irq_wake(axp20x_pek->irq_dbf);
+		enable_irq_wake(axp20x_pek->irq_dbr);
+	} else {
+		disable_irq(axp20x_pek->irq_dbf);
+		disable_irq(axp20x_pek->irq_dbr);
+	}
+
+	return 0;
+}
+
+static int __maybe_unused axp20x_pek_resume(struct device *dev)
+{
+	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+
+	if (device_may_wakeup(dev)) {
+		disable_irq_wake(axp20x_pek->irq_dbf);
+		disable_irq_wake(axp20x_pek->irq_dbr);
+	} else {
+		enable_irq(axp20x_pek->irq_dbf);
+		enable_irq(axp20x_pek->irq_dbr);
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int __maybe_unused axp20x_pek_resume_noirq(struct device *dev)
 {
 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
@@ -387,6 +495,10 @@ static int __maybe_unused axp20x_pek_resume_noirq(struct device *dev)
 }
 
 static const struct dev_pm_ops axp20x_pek_pm_ops = {
+<<<<<<< HEAD
+=======
+	SET_SYSTEM_SLEEP_PM_OPS(axp20x_pek_suspend, axp20x_pek_resume)
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 	.resume_noirq = axp20x_pek_resume_noirq,
 #endif
@@ -411,6 +523,10 @@ static struct platform_driver axp20x_pek_driver = {
 	.driver		= {
 		.name		= "axp20x-pek",
 		.pm		= &axp20x_pek_pm_ops,
+<<<<<<< HEAD
+=======
+		.dev_groups	= axp20x_groups,
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(axp20x_pek_driver);

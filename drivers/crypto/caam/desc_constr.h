@@ -3,6 +3,10 @@
  * caam descriptor construction helper functions
  *
  * Copyright 2008-2012 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
+=======
+ * Copyright 2019 NXP
+>>>>>>> upstream/android-13
  */
 
 #ifndef DESC_CONSTR_H
@@ -13,9 +17,47 @@
 
 #define IMMEDIATE (1 << 23)
 #define CAAM_CMD_SZ sizeof(u32)
+<<<<<<< HEAD
 #define CAAM_PTR_SZ sizeof(dma_addr_t)
 #define CAAM_DESC_BYTES_MAX (CAAM_CMD_SZ * MAX_CAAM_DESCSIZE)
 #define DESC_JOB_IO_LEN (CAAM_CMD_SZ * 5 + CAAM_PTR_SZ * 3)
+=======
+#define CAAM_PTR_SZ caam_ptr_sz
+#define CAAM_PTR_SZ_MAX sizeof(dma_addr_t)
+#define CAAM_PTR_SZ_MIN sizeof(u32)
+#define CAAM_DESC_BYTES_MAX (CAAM_CMD_SZ * MAX_CAAM_DESCSIZE)
+#define __DESC_JOB_IO_LEN(n) (CAAM_CMD_SZ * 5 + (n) * 3)
+#define DESC_JOB_IO_LEN __DESC_JOB_IO_LEN(CAAM_PTR_SZ)
+#define DESC_JOB_IO_LEN_MAX __DESC_JOB_IO_LEN(CAAM_PTR_SZ_MAX)
+#define DESC_JOB_IO_LEN_MIN __DESC_JOB_IO_LEN(CAAM_PTR_SZ_MIN)
+
+/*
+ * The CAAM QI hardware constructs a job descriptor which points
+ * to shared descriptor (as pointed by context_a of FQ to CAAM).
+ * When the job descriptor is executed by deco, the whole job
+ * descriptor together with shared descriptor gets loaded in
+ * deco buffer which is 64 words long (each 32-bit).
+ *
+ * The job descriptor constructed by QI hardware has layout:
+ *
+ *	HEADER		(1 word)
+ *	Shdesc ptr	(1 or 2 words)
+ *	SEQ_OUT_PTR	(1 word)
+ *	Out ptr		(1 or 2 words)
+ *	Out length	(1 word)
+ *	SEQ_IN_PTR	(1 word)
+ *	In ptr		(1 or 2 words)
+ *	In length	(1 word)
+ *
+ * The shdesc ptr is used to fetch shared descriptor contents
+ * into deco buffer.
+ *
+ * Apart from shdesc contents, the total number of words that
+ * get loaded in deco buffer are '8' or '11'. The remaining words
+ * in deco buffer can be used for storing shared descriptor.
+ */
+#define MAX_SDLEN	((CAAM_DESC_BYTES_MAX - DESC_JOB_IO_LEN_MIN) / CAAM_CMD_SZ)
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 #define PRINT_POS do { printk(KERN_DEBUG "%02d: %s\n", desc_len(desc),\
@@ -36,6 +78,20 @@
 			       (LDOFF_ENABLE_AUTO_NFIFO << LDST_OFFSET_SHIFT))
 
 extern bool caam_little_end;
+<<<<<<< HEAD
+=======
+extern size_t caam_ptr_sz;
+
+/*
+ * HW fetches 4 S/G table entries at a time, irrespective of how many entries
+ * are in the table. It's SW's responsibility to make sure these accesses
+ * do not have side effects.
+ */
+static inline int pad_sg_nents(int sg_nents)
+{
+	return ALIGN(sg_nents, 4);
+}
+>>>>>>> upstream/android-13
 
 static inline int desc_len(u32 * const desc)
 {
@@ -92,9 +148,21 @@ static inline void init_job_desc_pdb(u32 * const desc, u32 options,
 
 static inline void append_ptr(u32 * const desc, dma_addr_t ptr)
 {
+<<<<<<< HEAD
 	dma_addr_t *offset = (dma_addr_t *)desc_end(desc);
 
 	*offset = cpu_to_caam_dma(ptr);
+=======
+	if (caam_ptr_sz == sizeof(dma_addr_t)) {
+		dma_addr_t *offset = (dma_addr_t *)desc_end(desc);
+
+		*offset = cpu_to_caam_dma(ptr);
+	} else {
+		u32 *offset = (u32 *)desc_end(desc);
+
+		*offset = cpu_to_caam_dma(ptr);
+	}
+>>>>>>> upstream/android-13
 
 	(*desc) = cpu_to_caam32(caam32_to_cpu(*desc) +
 				CAAM_PTR_SZ / CAAM_CMD_SZ);
@@ -189,6 +257,10 @@ static inline u32 *append_##cmd(u32 * const desc, u32 options) \
 }
 APPEND_CMD_RET(jump, JUMP)
 APPEND_CMD_RET(move, MOVE)
+<<<<<<< HEAD
+=======
+APPEND_CMD_RET(move_len, MOVE_LEN)
+>>>>>>> upstream/android-13
 
 static inline void set_jump_tgt_here(u32 * const desc, u32 *jump_cmd)
 {
@@ -327,7 +399,15 @@ static inline void append_##cmd##_imm_##type(u32 * const desc, type immediate, \
 					     u32 options) \
 { \
 	PRINT_POS; \
+<<<<<<< HEAD
 	append_cmd(desc, CMD_##op | IMMEDIATE | options | sizeof(type)); \
+=======
+	if (options & LDST_LEN_MASK) \
+		append_cmd(desc, CMD_##op | IMMEDIATE | options); \
+	else \
+		append_cmd(desc, CMD_##op | IMMEDIATE | options | \
+			   sizeof(type)); \
+>>>>>>> upstream/android-13
 	append_cmd(desc, immediate); \
 }
 APPEND_CMD_RAW_IMM(load, LOAD, u32);
@@ -441,8 +521,13 @@ do { \
  *           functions where it is used.
  * @keylen: length of the provided algorithm key, in bytes
  * @keylen_pad: padded length of the provided algorithm key, in bytes
+<<<<<<< HEAD
  * @key: address where algorithm key resides; virtual address if key_inline
  *       is true, dma (bus) address if key_inline is false.
+=======
+ * @key_dma: dma (bus) address where algorithm key resides
+ * @key_virt: virtual address where algorithm key resides
+>>>>>>> upstream/android-13
  * @key_inline: true - key can be inlined in the descriptor; false - key is
  *              referenced by the descriptor
  */
@@ -450,10 +535,15 @@ struct alginfo {
 	u32 algtype;
 	unsigned int keylen;
 	unsigned int keylen_pad;
+<<<<<<< HEAD
 	union {
 		dma_addr_t key_dma;
 		const void *key_virt;
 	};
+=======
+	dma_addr_t key_dma;
+	const void *key_virt;
+>>>>>>> upstream/android-13
 	bool key_inline;
 };
 
@@ -519,6 +609,7 @@ static inline void append_proto_dkp(u32 * const desc, struct alginfo *adata)
 	if (adata->key_inline) {
 		int words;
 
+<<<<<<< HEAD
 		append_operation(desc, OP_TYPE_UNI_PROTOCOL | protid |
 				 OP_PCL_DKP_SRC_IMM | OP_PCL_DKP_DST_IMM |
 				 adata->keylen);
@@ -527,6 +618,28 @@ static inline void append_proto_dkp(u32 * const desc, struct alginfo *adata)
 		/* Reserve space in descriptor buffer for the derived key */
 		words = (ALIGN(adata->keylen_pad, CAAM_CMD_SZ) -
 			 ALIGN(adata->keylen, CAAM_CMD_SZ)) / CAAM_CMD_SZ;
+=======
+		if (adata->keylen > adata->keylen_pad) {
+			append_operation(desc, OP_TYPE_UNI_PROTOCOL | protid |
+					 OP_PCL_DKP_SRC_PTR |
+					 OP_PCL_DKP_DST_IMM | adata->keylen);
+			append_ptr(desc, adata->key_dma);
+
+			words = (ALIGN(adata->keylen_pad, CAAM_CMD_SZ) -
+				 CAAM_PTR_SZ) / CAAM_CMD_SZ;
+		} else {
+			append_operation(desc, OP_TYPE_UNI_PROTOCOL | protid |
+					 OP_PCL_DKP_SRC_IMM |
+					 OP_PCL_DKP_DST_IMM | adata->keylen);
+			append_data(desc, adata->key_virt, adata->keylen);
+
+			words = (ALIGN(adata->keylen_pad, CAAM_CMD_SZ) -
+				 ALIGN(adata->keylen, CAAM_CMD_SZ)) /
+				CAAM_CMD_SZ;
+		}
+
+		/* Reserve space in descriptor buffer for the derived key */
+>>>>>>> upstream/android-13
 		if (words)
 			(*desc) = cpu_to_caam32(caam32_to_cpu(*desc) + words);
 	} else {

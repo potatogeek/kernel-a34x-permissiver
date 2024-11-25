@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * intel_scu_ipc.c: Driver for the Intel SCU IPC mechanism
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Driver for the Intel SCU IPC mechanism
+>>>>>>> upstream/android-13
  *
  * (C) Copyright 2008-2010 Intel Corporation
  * Author: Sreedhara DS (sreedhara.ds@intel.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
@@ -22,11 +29,33 @@
 #include <linux/uaccess.h>
 #include <linux/slab.h>
 #include <linux/init.h>
+=======
+ * This driver provides IOCTL interfaces to call Intel SCU IPC driver API.
+ */
+
+#include <linux/errno.h>
+#include <linux/fcntl.h>
+#include <linux/fs.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+#include <linux/types.h>
+#include <linux/uaccess.h>
+
+>>>>>>> upstream/android-13
 #include <asm/intel_scu_ipc.h>
 
 static int major;
 
+<<<<<<< HEAD
 /* ioctl commnds */
+=======
+struct intel_scu_ipc_dev *scu;
+static DEFINE_MUTEX(scu_lock);
+
+/* IOCTL commands */
+>>>>>>> upstream/android-13
 #define	INTE_SCU_IPC_REGISTER_READ	0
 #define INTE_SCU_IPC_REGISTER_WRITE	1
 #define INTE_SCU_IPC_REGISTER_UPDATE	2
@@ -56,12 +85,21 @@ static int scu_reg_access(u32 cmd, struct scu_ipc_data  *data)
 
 	switch (cmd) {
 	case INTE_SCU_IPC_REGISTER_READ:
+<<<<<<< HEAD
 		return intel_scu_ipc_readv(data->addr, data->data, count);
 	case INTE_SCU_IPC_REGISTER_WRITE:
 		return intel_scu_ipc_writev(data->addr, data->data, count);
 	case INTE_SCU_IPC_REGISTER_UPDATE:
 		return intel_scu_ipc_update_register(data->addr[0],
 						    data->data[0], data->mask);
+=======
+		return intel_scu_ipc_dev_readv(scu, data->addr, data->data, count);
+	case INTE_SCU_IPC_REGISTER_WRITE:
+		return intel_scu_ipc_dev_writev(scu, data->addr, data->data, count);
+	case INTE_SCU_IPC_REGISTER_UPDATE:
+		return intel_scu_ipc_dev_update(scu, data->addr[0], data->data[0],
+						data->mask);
+>>>>>>> upstream/android-13
 	default:
 		return -ENOTTY;
 	}
@@ -95,8 +133,45 @@ static long scu_ipc_ioctl(struct file *fp, unsigned int cmd,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations scu_ipc_fops = {
 	.unlocked_ioctl = scu_ipc_ioctl,
+=======
+static int scu_ipc_open(struct inode *inode, struct file *file)
+{
+	int ret = 0;
+
+	/* Only single open at the time */
+	mutex_lock(&scu_lock);
+	if (scu) {
+		ret = -EBUSY;
+		goto unlock;
+	}
+
+	scu = intel_scu_ipc_dev_get();
+	if (!scu)
+		ret = -ENODEV;
+
+unlock:
+	mutex_unlock(&scu_lock);
+	return ret;
+}
+
+static int scu_ipc_release(struct inode *inode, struct file *file)
+{
+	mutex_lock(&scu_lock);
+	intel_scu_ipc_dev_put(scu);
+	scu = NULL;
+	mutex_unlock(&scu_lock);
+
+	return 0;
+}
+
+static const struct file_operations scu_ipc_fops = {
+	.unlocked_ioctl = scu_ipc_ioctl,
+	.open = scu_ipc_open,
+	.release = scu_ipc_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init ipc_module_init(void)

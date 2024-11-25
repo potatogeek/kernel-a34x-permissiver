@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/sh/mm/tlb-sh4.c
  *
@@ -5,8 +9,11 @@
  *
  * Copyright (C) 1999  Niibe Yutaka
  * Copyright (C) 2002 - 2007 Paul Mundt
+<<<<<<< HEAD
  *
  * Released under the terms of the GNU GPL v2.0.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/mm.h>

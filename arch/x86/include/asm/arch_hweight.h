@@ -5,6 +5,7 @@
 #include <asm/cpufeatures.h>
 
 #ifdef CONFIG_64BIT
+<<<<<<< HEAD
 /* popcnt %edi, %eax */
 #define POPCNT32 ".byte 0xf3,0x0f,0xb8,0xc7"
 /* popcnt %rdi, %rax */
@@ -14,17 +15,29 @@
 #else
 /* popcnt %eax, %eax */
 #define POPCNT32 ".byte 0xf3,0x0f,0xb8,0xc0"
+=======
+#define REG_IN "D"
+#define REG_OUT "a"
+#else
+>>>>>>> upstream/android-13
 #define REG_IN "a"
 #define REG_OUT "a"
 #endif
 
+<<<<<<< HEAD
 #define __HAVE_ARCH_SW_HWEIGHT
 
+=======
+>>>>>>> upstream/android-13
 static __always_inline unsigned int __arch_hweight32(unsigned int w)
 {
 	unsigned int res;
 
+<<<<<<< HEAD
 	asm (ALTERNATIVE("call __sw_hweight32", POPCNT32, X86_FEATURE_POPCNT)
+=======
+	asm (ALTERNATIVE("call __sw_hweight32", "popcntl %1, %0", X86_FEATURE_POPCNT)
+>>>>>>> upstream/android-13
 			 : "="REG_OUT (res)
 			 : REG_IN (w));
 
@@ -52,7 +65,11 @@ static __always_inline unsigned long __arch_hweight64(__u64 w)
 {
 	unsigned long res;
 
+<<<<<<< HEAD
 	asm (ALTERNATIVE("call __sw_hweight64", POPCNT64, X86_FEATURE_POPCNT)
+=======
+	asm (ALTERNATIVE("call __sw_hweight64", "popcntq %1, %0", X86_FEATURE_POPCNT)
+>>>>>>> upstream/android-13
 			 : "="REG_OUT (res)
 			 : REG_IN (w));
 

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/kernel/topology.c
  *
  *  Copyright (C) 2007  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/cpumask.h>
@@ -49,7 +56,11 @@ static int __init topology_init(void)
 {
 	int i, ret;
 
+<<<<<<< HEAD
 #ifdef CONFIG_NEED_MULTIPLE_NODES
+=======
+#ifdef CONFIG_NUMA
+>>>>>>> upstream/android-13
 	for_each_online_node(i)
 		register_one_node(i);
 #endif

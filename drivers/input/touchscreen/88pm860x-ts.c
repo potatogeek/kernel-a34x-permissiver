@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Touchscreen driver for Marvell 88PM860x
  *
  * Copyright (C) 2009 Marvell International Ltd.
  * 	Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -188,10 +195,15 @@ static int pm860x_touch_probe(struct platform_device *pdev)
 	int irq, ret, res_x = 0, data = 0;
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "No IRQ resource!\n");
 		return -EINVAL;
 	}
+=======
+	if (irq < 0)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (pm860x_touch_dt_init(pdev, chip, &res_x)) {
 		if (pdata) {

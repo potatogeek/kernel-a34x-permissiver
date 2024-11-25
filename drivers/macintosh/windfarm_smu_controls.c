@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control. SMU based controls
  *
  * (c) Copyright 2005 Benjamin Herrenschmidt, IBM Corp.
  *                    <benh@kernel.crashing.org>
+<<<<<<< HEAD
  *
  * Released under the term of the GNU GPL v2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -95,7 +102,11 @@ static int smu_set_fan(int pwm, u8 id, u16 value)
 		return rc;
 	wait_for_completion(&comp);
 
+<<<<<<< HEAD
 	/* Handle fallback (see coment above) */
+=======
+	/* Handle fallback (see comment above) */
+>>>>>>> upstream/android-13
 	if (cmd.status != 0 && smu_supports_new_fans_ops) {
 		printk(KERN_WARNING "windfarm: SMU failed new fan command "
 		       "falling back to old method\n");
@@ -267,7 +278,11 @@ static int __init smu_controls_init(void)
 
 	/* Look for RPM fans */
 	for (fans = NULL; (fans = of_get_next_child(smu, fans)) != NULL;)
+<<<<<<< HEAD
 		if (!strcmp(fans->name, "rpm-fans") ||
+=======
+		if (of_node_name_eq(fans, "rpm-fans") ||
+>>>>>>> upstream/android-13
 		    of_device_is_compatible(fans, "smu-rpm-fans"))
 			break;
 	for (fan = NULL;
@@ -277,7 +292,11 @@ static int __init smu_controls_init(void)
 		fct = smu_fan_create(fan, 0);
 		if (fct == NULL) {
 			printk(KERN_WARNING "windfarm: Failed to create SMU "
+<<<<<<< HEAD
 			       "RPM fan %s\n", fan->name);
+=======
+			       "RPM fan %pOFn\n", fan);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		list_add(&fct->link, &smu_fans);
@@ -287,7 +306,11 @@ static int __init smu_controls_init(void)
 
 	/* Look for PWM fans */
 	for (fans = NULL; (fans = of_get_next_child(smu, fans)) != NULL;)
+<<<<<<< HEAD
 		if (!strcmp(fans->name, "pwm-fans"))
+=======
+		if (of_node_name_eq(fans, "pwm-fans"))
+>>>>>>> upstream/android-13
 			break;
 	for (fan = NULL;
 	     fans && (fan = of_get_next_child(fans, fan)) != NULL;) {
@@ -296,7 +319,11 @@ static int __init smu_controls_init(void)
 		fct = smu_fan_create(fan, 1);
 		if (fct == NULL) {
 			printk(KERN_WARNING "windfarm: Failed to create SMU "
+<<<<<<< HEAD
 			       "PWM fan %s\n", fan->name);
+=======
+			       "PWM fan %pOFn\n", fan);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		list_add(&fct->link, &smu_fans);

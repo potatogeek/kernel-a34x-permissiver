@@ -12,9 +12,16 @@
 #include <linux/smp.h>
 #include <linux/delay.h>
 #include <linux/crash_dump.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/kexec.h>
 #include <linux/elfcore.h>
+=======
+#include <linux/memblock.h>
+#include <linux/kexec.h>
+#include <linux/elfcore.h>
+#include <linux/reboot.h>
+>>>>>>> upstream/android-13
 #include <linux/sysctl.h>
 #include <linux/init.h>
 #include <linux/kdebug.h>
@@ -43,7 +50,11 @@ crash_save_this_cpu(void)
 
 	elf_greg_t *dst = (elf_greg_t *)&(prstatus->pr_reg);
 	memset(prstatus, 0, sizeof(*prstatus));
+<<<<<<< HEAD
 	prstatus->pr_pid = current->pid;
+=======
+	prstatus->common.pr_pid = current->pid;
+>>>>>>> upstream/android-13
 
 	ia64_dump_cpu_regs(dst);
 	cfm = dst[43];
@@ -163,7 +174,11 @@ kdump_init_notifier(struct notifier_block *self, unsigned long val, void *data)
 		case DIE_INIT_MONARCH_LEAVE:
 			if (!kdump_freeze_monarch)
 				break;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case DIE_INIT_SLAVE_LEAVE:
 		case DIE_INIT_MONARCH_ENTER:
 		case DIE_MCA_RENDZVOUS_LEAVE:

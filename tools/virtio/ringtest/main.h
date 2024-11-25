@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Red Hat, Inc.
  * Author: Michael S. Tsirkin <mst@redhat.com>
  * This work is licensed under the terms of the GNU GPL, version 2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2016 Red Hat, Inc.
+ * Author: Michael S. Tsirkin <mst@redhat.com>
+>>>>>>> upstream/android-13
  *
  * Common macros and functions for ring benchmarking.
  */

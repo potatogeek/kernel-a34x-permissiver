@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * FireDTV driver -- firewire I/O backend
  */
@@ -429,4 +433,7 @@ MODULE_AUTHOR("Andreas Monitzer <andy@monitzer.com>");
 MODULE_AUTHOR("Ben Backx <ben@bbackx.com>");
 MODULE_DESCRIPTION("FireDTV DVB Driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("FireDTV DVB");
+=======
+>>>>>>> upstream/android-13

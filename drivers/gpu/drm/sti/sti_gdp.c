@@ -5,10 +5,21 @@
  *          Fabien Dessenne <fabien.dessenne@st.com>
  *          for STMicroelectronics.
  */
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 
 #include <drm/drm_atomic.h>
 #include <drm/drm_fb_cma_helper.h>
+=======
+
+#include <linux/dma-mapping.h>
+#include <linux/seq_file.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_device.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_gem_cma_helper.h>
 
 #include "sti_compositor.h"
@@ -99,7 +110,11 @@ struct sti_gdp_node_list {
 	dma_addr_t btm_field_paddr;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * STI GDP structure
  *
  * @sti_plane:          sti_plane structure
@@ -339,9 +354,16 @@ static int gdp_debugfs_init(struct sti_gdp *gdp, struct drm_minor *minor)
 	for (i = 0; i < nb_files; i++)
 		gdp_debugfs_files[i].data = gdp;
 
+<<<<<<< HEAD
 	return drm_debugfs_create_files(gdp_debugfs_files,
 					nb_files,
 					minor->debugfs_root, minor);
+=======
+	drm_debugfs_create_files(gdp_debugfs_files,
+				 nb_files,
+				 minor->debugfs_root, minor);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int sti_gdp_fourcc2format(int fourcc)
@@ -517,7 +539,11 @@ static void sti_gdp_init(struct sti_gdp *gdp)
 	/* Allocate all the nodes within a single memory page */
 	size = sizeof(struct sti_gdp_node) *
 	    GDP_NODE_PER_FIELD * GDP_NODE_NB_BANK;
+<<<<<<< HEAD
 	base = dma_alloc_wc(gdp->dev, size, &dma_addr, GFP_KERNEL | GFP_DMA);
+=======
+	base = dma_alloc_wc(gdp->dev, size, &dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!base) {
 		DRM_ERROR("Failed to allocate memory for GDP node\n");
@@ -610,12 +636,23 @@ static int sti_gdp_get_dst(struct device *dev, int dst, int src)
 }
 
 static int sti_gdp_atomic_check(struct drm_plane *drm_plane,
+<<<<<<< HEAD
 				struct drm_plane_state *state)
 {
 	struct sti_plane *plane = to_sti_plane(drm_plane);
 	struct sti_gdp *gdp = to_sti_gdp(plane);
 	struct drm_crtc *crtc = state->crtc;
 	struct drm_framebuffer *fb =  state->fb;
+=======
+				struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 drm_plane);
+	struct sti_plane *plane = to_sti_plane(drm_plane);
+	struct sti_gdp *gdp = to_sti_gdp(plane);
+	struct drm_crtc *crtc = new_plane_state->crtc;
+	struct drm_framebuffer *fb =  new_plane_state->fb;
+>>>>>>> upstream/android-13
 	struct drm_crtc_state *crtc_state;
 	struct sti_mixer *mixer;
 	struct drm_display_mode *mode;
@@ -628,6 +665,7 @@ static int sti_gdp_atomic_check(struct drm_plane *drm_plane,
 		return 0;
 
 	mixer = to_sti_mixer(crtc);
+<<<<<<< HEAD
 	crtc_state = drm_atomic_get_crtc_state(state->state, crtc);
 	mode = &crtc_state->mode;
 	dst_x = state->crtc_x;
@@ -639,6 +677,21 @@ static int sti_gdp_atomic_check(struct drm_plane *drm_plane,
 	src_y = state->src_y >> 16;
 	src_w = clamp_val(state->src_w >> 16, 0, GAM_GDP_SIZE_MAX_WIDTH);
 	src_h = clamp_val(state->src_h >> 16, 0, GAM_GDP_SIZE_MAX_HEIGHT);
+=======
+	crtc_state = drm_atomic_get_crtc_state(state, crtc);
+	mode = &crtc_state->mode;
+	dst_x = new_plane_state->crtc_x;
+	dst_y = new_plane_state->crtc_y;
+	dst_w = clamp_val(new_plane_state->crtc_w, 0, mode->hdisplay - dst_x);
+	dst_h = clamp_val(new_plane_state->crtc_h, 0, mode->vdisplay - dst_y);
+	/* src_x are in 16.16 format */
+	src_x = new_plane_state->src_x >> 16;
+	src_y = new_plane_state->src_y >> 16;
+	src_w = clamp_val(new_plane_state->src_w >> 16, 0,
+			  GAM_GDP_SIZE_MAX_WIDTH);
+	src_h = clamp_val(new_plane_state->src_h >> 16, 0,
+			  GAM_GDP_SIZE_MAX_HEIGHT);
+>>>>>>> upstream/android-13
 
 	format = sti_gdp_fourcc2format(fb->format->format);
 	if (format == -1) {
@@ -690,6 +743,7 @@ static int sti_gdp_atomic_check(struct drm_plane *drm_plane,
 }
 
 static void sti_gdp_atomic_update(struct drm_plane *drm_plane,
+<<<<<<< HEAD
 				  struct drm_plane_state *oldstate)
 {
 	struct drm_plane_state *state = drm_plane->state;
@@ -697,6 +751,18 @@ static void sti_gdp_atomic_update(struct drm_plane *drm_plane,
 	struct sti_gdp *gdp = to_sti_gdp(plane);
 	struct drm_crtc *crtc = state->crtc;
 	struct drm_framebuffer *fb =  state->fb;
+=======
+				  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *oldstate = drm_atomic_get_old_plane_state(state,
+									  drm_plane);
+	struct drm_plane_state *newstate = drm_atomic_get_new_plane_state(state,
+									  drm_plane);
+	struct sti_plane *plane = to_sti_plane(drm_plane);
+	struct sti_gdp *gdp = to_sti_gdp(plane);
+	struct drm_crtc *crtc = newstate->crtc;
+	struct drm_framebuffer *fb =  newstate->fb;
+>>>>>>> upstream/android-13
 	struct drm_display_mode *mode;
 	int dst_x, dst_y, dst_w, dst_h;
 	int src_x, src_y, src_w, src_h;
@@ -713,6 +779,7 @@ static void sti_gdp_atomic_update(struct drm_plane *drm_plane,
 	if (!crtc || !fb)
 		return;
 
+<<<<<<< HEAD
 	if ((oldstate->fb == state->fb) &&
 	    (oldstate->crtc_x == state->crtc_x) &&
 	    (oldstate->crtc_y == state->crtc_y) &&
@@ -722,6 +789,17 @@ static void sti_gdp_atomic_update(struct drm_plane *drm_plane,
 	    (oldstate->src_y == state->src_y) &&
 	    (oldstate->src_w == state->src_w) &&
 	    (oldstate->src_h == state->src_h)) {
+=======
+	if ((oldstate->fb == newstate->fb) &&
+	    (oldstate->crtc_x == newstate->crtc_x) &&
+	    (oldstate->crtc_y == newstate->crtc_y) &&
+	    (oldstate->crtc_w == newstate->crtc_w) &&
+	    (oldstate->crtc_h == newstate->crtc_h) &&
+	    (oldstate->src_x == newstate->src_x) &&
+	    (oldstate->src_y == newstate->src_y) &&
+	    (oldstate->src_w == newstate->src_w) &&
+	    (oldstate->src_h == newstate->src_h)) {
+>>>>>>> upstream/android-13
 		/* No change since last update, do not post cmd */
 		DRM_DEBUG_DRIVER("No change, not posting cmd\n");
 		plane->status = STI_PLANE_UPDATED;
@@ -739,6 +817,7 @@ static void sti_gdp_atomic_update(struct drm_plane *drm_plane,
 	}
 
 	mode = &crtc->mode;
+<<<<<<< HEAD
 	dst_x = state->crtc_x;
 	dst_y = state->crtc_y;
 	dst_w = clamp_val(state->crtc_w, 0, mode->hdisplay - dst_x);
@@ -748,6 +827,17 @@ static void sti_gdp_atomic_update(struct drm_plane *drm_plane,
 	src_y = state->src_y >> 16;
 	src_w = clamp_val(state->src_w >> 16, 0, GAM_GDP_SIZE_MAX_WIDTH);
 	src_h = clamp_val(state->src_h >> 16, 0, GAM_GDP_SIZE_MAX_HEIGHT);
+=======
+	dst_x = newstate->crtc_x;
+	dst_y = newstate->crtc_y;
+	dst_w = clamp_val(newstate->crtc_w, 0, mode->hdisplay - dst_x);
+	dst_h = clamp_val(newstate->crtc_h, 0, mode->vdisplay - dst_y);
+	/* src_x are in 16.16 format */
+	src_x = newstate->src_x >> 16;
+	src_y = newstate->src_y >> 16;
+	src_w = clamp_val(newstate->src_w >> 16, 0, GAM_GDP_SIZE_MAX_WIDTH);
+	src_h = clamp_val(newstate->src_h >> 16, 0, GAM_GDP_SIZE_MAX_HEIGHT);
+>>>>>>> upstream/android-13
 
 	list = sti_gdp_get_free_nodes(gdp);
 	top_field = list->top_field;
@@ -855,8 +945,15 @@ end:
 }
 
 static void sti_gdp_atomic_disable(struct drm_plane *drm_plane,
+<<<<<<< HEAD
 				   struct drm_plane_state *oldstate)
 {
+=======
+				   struct drm_atomic_state *state)
+{
+	struct drm_plane_state *oldstate = drm_atomic_get_old_plane_state(state,
+									  drm_plane);
+>>>>>>> upstream/android-13
 	struct sti_plane *plane = to_sti_plane(drm_plane);
 
 	if (!oldstate->crtc) {
@@ -879,6 +976,7 @@ static const struct drm_plane_helper_funcs sti_gdp_helpers_funcs = {
 	.atomic_disable = sti_gdp_atomic_disable,
 };
 
+<<<<<<< HEAD
 static void sti_gdp_destroy(struct drm_plane *drm_plane)
 {
 	DRM_DEBUG_DRIVER("\n");
@@ -887,6 +985,8 @@ static void sti_gdp_destroy(struct drm_plane *drm_plane)
 	drm_plane_cleanup(drm_plane);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int sti_gdp_late_register(struct drm_plane *drm_plane)
 {
 	struct sti_plane *plane = to_sti_plane(drm_plane);
@@ -898,7 +998,11 @@ static int sti_gdp_late_register(struct drm_plane *drm_plane)
 static const struct drm_plane_funcs sti_gdp_plane_helpers_funcs = {
 	.update_plane = drm_atomic_helper_update_plane,
 	.disable_plane = drm_atomic_helper_disable_plane,
+<<<<<<< HEAD
 	.destroy = sti_gdp_destroy,
+=======
+	.destroy = drm_plane_cleanup,
+>>>>>>> upstream/android-13
 	.reset = sti_plane_reset,
 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,

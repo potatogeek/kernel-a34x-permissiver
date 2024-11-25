@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/param.h>
+<<<<<<< HEAD
 
 #include "parse-events.h"
 #include "evlist.h"
@@ -16,11 +17,37 @@
 #include "cpumap.h"
 #include "machine.h"
 #include "event.h"
+=======
+#include <perf/cpumap.h>
+#include <perf/evlist.h>
+#include <perf/mmap.h>
+
+#include "debug.h"
+#include "dso.h"
+#include "env.h"
+#include "parse-events.h"
+#include "trace-event.h"
+#include "evlist.h"
+#include "evsel.h"
+#include "thread_map.h"
+#include "machine.h"
+#include "map.h"
+#include "symbol.h"
+#include "event.h"
+#include "record.h"
+#include "util/mmap.h"
+#include "util/string2.h"
+#include "util/synthetic-events.h"
+>>>>>>> upstream/android-13
 #include "thread.h"
 
 #include "tests.h"
 
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 
 #define BUFSZ	1024
 #define READLEN	128
@@ -30,6 +57,7 @@ struct state {
 	size_t done_cnt;
 };
 
+<<<<<<< HEAD
 static unsigned int hex(char c)
 {
 	if (c >= '0' && c <= '9')
@@ -39,6 +67,8 @@ static unsigned int hex(char c)
 	return c - 'A' + 10;
 }
 
+=======
+>>>>>>> upstream/android-13
 static size_t read_objdump_chunk(const char **line, unsigned char **buf,
 				 size_t *buf_len)
 {
@@ -226,8 +256,13 @@ static int read_object_code(u64 addr, size_t len, u8 cpumode,
 			    struct thread *thread, struct state *state)
 {
 	struct addr_location al;
+<<<<<<< HEAD
 	unsigned char buf1[BUFSZ];
 	unsigned char buf2[BUFSZ];
+=======
+	unsigned char buf1[BUFSZ] = {0};
+	unsigned char buf2[BUFSZ] = {0};
+>>>>>>> upstream/android-13
 	size_t ret_len;
 	u64 objdump_addr;
 	const char *objdump_name;
@@ -265,7 +300,11 @@ static int read_object_code(u64 addr, size_t len, u8 cpumode,
 		len = al.map->end - addr;
 
 	/* Read the object code using perf */
+<<<<<<< HEAD
 	ret_len = dso__data_read_offset(al.map->dso, thread->mg->machine,
+=======
+	ret_len = dso__data_read_offset(al.map->dso, thread->maps->machine,
+>>>>>>> upstream/android-13
 					al.addr, buf1, len);
 	if (ret_len != len) {
 		pr_debug("dso__data_read_offset failed\n");
@@ -360,15 +399,24 @@ static int read_object_code(u64 addr, size_t len, u8 cpumode,
 }
 
 static int process_sample_event(struct machine *machine,
+<<<<<<< HEAD
 				struct perf_evlist *evlist,
+=======
+				struct evlist *evlist,
+>>>>>>> upstream/android-13
 				union perf_event *event, struct state *state)
 {
 	struct perf_sample sample;
 	struct thread *thread;
 	int ret;
 
+<<<<<<< HEAD
 	if (perf_evlist__parse_sample(evlist, event, &sample)) {
 		pr_debug("perf_evlist__parse_sample failed\n");
+=======
+	if (evlist__parse_sample(evlist, event, &sample)) {
+		pr_debug("evlist__parse_sample failed\n");
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -383,7 +431,11 @@ static int process_sample_event(struct machine *machine,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int process_event(struct machine *machine, struct perf_evlist *evlist,
+=======
+static int process_event(struct machine *machine, struct evlist *evlist,
+>>>>>>> upstream/android-13
 			 union perf_event *event, struct state *state)
 {
 	if (event->header.type == PERF_RECORD_SAMPLE)
@@ -406,6 +458,7 @@ static int process_event(struct machine *machine, struct perf_evlist *evlist,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int process_events(struct machine *machine, struct perf_evlist *evlist,
 			  struct state *state)
 {
@@ -425,6 +478,27 @@ static int process_events(struct machine *machine, struct perf_evlist *evlist,
 				return ret;
 		}
 		perf_mmap__read_done(md);
+=======
+static int process_events(struct machine *machine, struct evlist *evlist,
+			  struct state *state)
+{
+	union perf_event *event;
+	struct mmap *md;
+	int i, ret;
+
+	for (i = 0; i < evlist->core.nr_mmaps; i++) {
+		md = &evlist->mmap[i];
+		if (perf_mmap__read_init(&md->core) < 0)
+			continue;
+
+		while ((event = perf_mmap__read_event(&md->core)) != NULL) {
+			ret = process_event(machine, evlist, event, state);
+			perf_mmap__consume(&md->core);
+			if (ret < 0)
+				return ret;
+		}
+		perf_mmap__read_done(&md->core);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -489,6 +563,13 @@ static void fs_something(void)
 	}
 }
 
+<<<<<<< HEAD
+=======
+#ifdef __s390x__
+#include "header.h" // for get_cpuid()
+#endif
+
+>>>>>>> upstream/android-13
 static const char *do_determine_event(bool excl_kernel)
 {
 	const char *event = excl_kernel ? "cycles:u" : "cycles";
@@ -550,10 +631,17 @@ static int do_test_code_reading(bool try_kcore)
 	struct state state = {
 		.done_cnt = 0,
 	};
+<<<<<<< HEAD
 	struct thread_map *threads = NULL;
 	struct cpu_map *cpus = NULL;
 	struct perf_evlist *evlist = NULL;
 	struct perf_evsel *evsel = NULL;
+=======
+	struct perf_thread_map *threads = NULL;
+	struct perf_cpu_map *cpus = NULL;
+	struct evlist *evlist = NULL;
+	struct evsel *evsel = NULL;
+>>>>>>> upstream/android-13
 	int err = -1, ret;
 	pid_t pid;
 	struct map *map;
@@ -599,7 +687,11 @@ static int do_test_code_reading(bool try_kcore)
 	}
 
 	ret = perf_event__synthesize_thread_map(NULL, threads,
+<<<<<<< HEAD
 						perf_event__process, machine, false, 500);
+=======
+						perf_event__process, machine, false);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		pr_debug("perf_event__synthesize_thread_map failed\n");
 		goto out_err;
@@ -611,15 +703,22 @@ static int do_test_code_reading(bool try_kcore)
 		goto out_put;
 	}
 
+<<<<<<< HEAD
 	cpus = cpu_map__new(NULL);
 	if (!cpus) {
 		pr_debug("cpu_map__new failed\n");
+=======
+	cpus = perf_cpu_map__new(NULL);
+	if (!cpus) {
+		pr_debug("perf_cpu_map__new failed\n");
+>>>>>>> upstream/android-13
 		goto out_put;
 	}
 
 	while (1) {
 		const char *str;
 
+<<<<<<< HEAD
 		evlist = perf_evlist__new();
 		if (!evlist) {
 			pr_debug("perf_evlist__new failed\n");
@@ -627,6 +726,15 @@ static int do_test_code_reading(bool try_kcore)
 		}
 
 		perf_evlist__set_maps(evlist, cpus, threads);
+=======
+		evlist = evlist__new();
+		if (!evlist) {
+			pr_debug("evlist__new failed\n");
+			goto out_put;
+		}
+
+		perf_evlist__set_maps(&evlist->core, cpus, threads);
+>>>>>>> upstream/android-13
 
 		str = do_determine_event(excl_kernel);
 		pr_debug("Parsing event '%s'\n", str);
@@ -636,6 +744,7 @@ static int do_test_code_reading(bool try_kcore)
 			goto out_put;
 		}
 
+<<<<<<< HEAD
 		perf_evlist__config(evlist, &opts, NULL);
 
 		evsel = perf_evlist__first(evlist);
@@ -645,25 +754,49 @@ static int do_test_code_reading(bool try_kcore)
 		evsel->attr.enable_on_exec = 0;
 
 		ret = perf_evlist__open(evlist);
+=======
+		evlist__config(evlist, &opts, NULL);
+
+		evsel = evlist__first(evlist);
+
+		evsel->core.attr.comm = 1;
+		evsel->core.attr.disabled = 1;
+		evsel->core.attr.enable_on_exec = 0;
+
+		ret = evlist__open(evlist);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			if (!excl_kernel) {
 				excl_kernel = true;
 				/*
 				 * Both cpus and threads are now owned by evlist
 				 * and will be freed by following perf_evlist__set_maps
+<<<<<<< HEAD
 				 * call. Getting refference to keep them alive.
 				 */
 				cpu_map__get(cpus);
 				thread_map__get(threads);
 				perf_evlist__set_maps(evlist, NULL, NULL);
 				perf_evlist__delete(evlist);
+=======
+				 * call. Getting reference to keep them alive.
+				 */
+				perf_cpu_map__get(cpus);
+				perf_thread_map__get(threads);
+				perf_evlist__set_maps(&evlist->core, NULL, NULL);
+				evlist__delete(evlist);
+>>>>>>> upstream/android-13
 				evlist = NULL;
 				continue;
 			}
 
 			if (verbose > 0) {
 				char errbuf[512];
+<<<<<<< HEAD
 				perf_evlist__strerror_open(evlist, errno, errbuf, sizeof(errbuf));
+=======
+				evlist__strerror_open(evlist, errno, errbuf, sizeof(errbuf));
+>>>>>>> upstream/android-13
 				pr_debug("perf_evlist__open() failed!\n%s\n", errbuf);
 			}
 
@@ -672,6 +805,7 @@ static int do_test_code_reading(bool try_kcore)
 		break;
 	}
 
+<<<<<<< HEAD
 	ret = perf_evlist__mmap(evlist, UINT_MAX);
 	if (ret < 0) {
 		pr_debug("perf_evlist__mmap failed\n");
@@ -683,6 +817,19 @@ static int do_test_code_reading(bool try_kcore)
 	do_something();
 
 	perf_evlist__disable(evlist);
+=======
+	ret = evlist__mmap(evlist, UINT_MAX);
+	if (ret < 0) {
+		pr_debug("evlist__mmap failed\n");
+		goto out_put;
+	}
+
+	evlist__enable(evlist);
+
+	do_something();
+
+	evlist__disable(evlist);
+>>>>>>> upstream/android-13
 
 	ret = process_events(machine, evlist, &state);
 	if (ret < 0)
@@ -699,6 +846,7 @@ static int do_test_code_reading(bool try_kcore)
 out_put:
 	thread__put(thread);
 out_err:
+<<<<<<< HEAD
 
 	if (evlist) {
 		perf_evlist__delete(evlist);
@@ -706,6 +854,11 @@ out_err:
 		cpu_map__put(cpus);
 		thread_map__put(threads);
 	}
+=======
+	evlist__delete(evlist);
+	perf_cpu_map__put(cpus);
+	perf_thread_map__put(threads);
+>>>>>>> upstream/android-13
 	machine__delete_threads(machine);
 	machine__delete(machine);
 

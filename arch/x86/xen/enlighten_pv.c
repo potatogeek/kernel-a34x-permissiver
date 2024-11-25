@@ -23,17 +23,28 @@
 #include <linux/start_kernel.h>
 #include <linux/sched.h>
 #include <linux/kprobes.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/mm.h>
 #include <linux/page-flags.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
 #include <linux/console.h>
 #include <linux/pci.h>
 #include <linux/gfp.h>
 #include <linux/memblock.h>
 #include <linux/edd.h>
 #include <linux/frame.h>
+=======
+#include <linux/pci.h>
+#include <linux/gfp.h>
+#include <linux/edd.h>
+#include <linux/objtool.h>
+>>>>>>> upstream/android-13
 
 #include <xen/xen.h>
 #include <xen/events.h>
@@ -64,7 +75,10 @@
 #include <asm/setup.h>
 #include <asm/desc.h>
 #include <asm/pgalloc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 #include <asm/reboot.h>
 #include <asm/stackprotector.h>
@@ -73,6 +87,12 @@
 #include <asm/mwait.h>
 #include <asm/pci_x86.h>
 #include <asm/cpu.h>
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_IOPL_IOPERM
+#include <asm/io_bitmap.h>
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ACPI
 #include <linux/acpi.h>
@@ -108,6 +128,7 @@ struct tls_descs {
  */
 static DEFINE_PER_CPU(struct tls_descs, shadow_tls_desc);
 
+<<<<<<< HEAD
 static void __init xen_banner(void)
 {
 	unsigned version = HYPERVISOR_xen_version(XENVER_version, NULL);
@@ -120,6 +141,8 @@ static void __init xen_banner(void)
 	       xen_feature(XENFEAT_mmu_pt_update_preserve_ad) ? " (preserve-AD)" : "");
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init xen_pv_init_platform(void)
 {
 	populate_extra_pte(fix_to_virt(FIX_PARAVIRT_BOOTMAP));
@@ -142,6 +165,7 @@ static void __init xen_pv_guest_late_init(void)
 #endif
 }
 
+<<<<<<< HEAD
 /* Check if running on Xen version (major, minor) or later */
 bool
 xen_running_on_version_or_later(unsigned int major, unsigned int minor)
@@ -158,6 +182,8 @@ xen_running_on_version_or_later(unsigned int major, unsigned int minor)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static __read_mostly unsigned int cpuid_leaf5_ecx_val;
 static __read_mostly unsigned int cpuid_leaf5_edx_val;
 
@@ -344,15 +370,23 @@ static void set_aliased_prot(void *v, pgprot_t prot)
 	pte_t *ptep;
 	pte_t pte;
 	unsigned long pfn;
+<<<<<<< HEAD
 	struct page *page;
 	unsigned char dummy;
+=======
+	unsigned char dummy;
+	void *va;
+>>>>>>> upstream/android-13
 
 	ptep = lookup_address((unsigned long)v, &level);
 	BUG_ON(ptep == NULL);
 
 	pfn = pte_pfn(*ptep);
+<<<<<<< HEAD
 	page = pfn_to_page(pfn);
 
+=======
+>>>>>>> upstream/android-13
 	pte = pfn_pte(pfn, prot);
 
 	/*
@@ -377,11 +411,16 @@ static void set_aliased_prot(void *v, pgprot_t prot)
 
 	preempt_disable();
 
+<<<<<<< HEAD
 	probe_kernel_read(&dummy, v, 1);
+=======
+	copy_from_kernel_nofault(&dummy, v, 1);
+>>>>>>> upstream/android-13
 
 	if (HYPERVISOR_update_va_mapping((unsigned long)v, pte, 0))
 		BUG();
 
+<<<<<<< HEAD
 	if (!PageHighMem(page)) {
 		void *av = __va(PFN_PHYS(pfn));
 
@@ -390,6 +429,12 @@ static void set_aliased_prot(void *v, pgprot_t prot)
 				BUG();
 	} else
 		kmap_flush_unused();
+=======
+	va = __va(PFN_PHYS(pfn));
+
+	if (va != v && HYPERVISOR_update_va_mapping((unsigned long)va, pte, 0))
+		BUG();
+>>>>>>> upstream/android-13
 
 	preempt_enable();
 }
@@ -529,6 +574,7 @@ static void load_TLS_descriptor(struct thread_struct *t,
 static void xen_load_tls(struct thread_struct *t, unsigned int cpu)
 {
 	/*
+<<<<<<< HEAD
 	 * XXX sleazy hack: If we're being called in a lazy-cpu zone
 	 * and lazy gs handling is enabled, it means we're in a
 	 * context switch, and %gs has just been saved.  This means we
@@ -553,6 +599,14 @@ static void xen_load_tls(struct thread_struct *t, unsigned int cpu)
 		loadsegment(fs, 0);
 #endif
 	}
+=======
+	 * In lazy mode we need to zero %fs, otherwise we may get an
+	 * exception between the new %fs descriptor being loaded and
+	 * %fs being effectively cleared at __switch_to().
+	 */
+	if (paravirt_get_lazy_mode() == PARAVIRT_LAZY_CPU)
+		loadsegment(fs, 0);
+>>>>>>> upstream/android-13
 
 	xen_mc_batch();
 
@@ -563,13 +617,19 @@ static void xen_load_tls(struct thread_struct *t, unsigned int cpu)
 	xen_mc_issue(PARAVIRT_LAZY_CPU);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
+=======
+>>>>>>> upstream/android-13
 static void xen_load_gs_index(unsigned int idx)
 {
 	if (HYPERVISOR_set_segment_base(SEGBASE_GS_USER_SEL, idx))
 		BUG();
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static void xen_write_ldt_entry(struct desc_struct *dt, int entrynum,
 				const void *ptr)
@@ -588,13 +648,66 @@ static void xen_write_ldt_entry(struct desc_struct *dt, int entrynum,
 	preempt_enable();
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
+=======
+void noist_exc_debug(struct pt_regs *regs);
+
+DEFINE_IDTENTRY_RAW(xenpv_exc_nmi)
+{
+	/* On Xen PV, NMI doesn't use IST.  The C part is the same as native. */
+	exc_nmi(regs);
+}
+
+DEFINE_IDTENTRY_RAW_ERRORCODE(xenpv_exc_double_fault)
+{
+	/* On Xen PV, DF doesn't use IST.  The C part is the same as native. */
+	exc_double_fault(regs, error_code);
+}
+
+DEFINE_IDTENTRY_RAW(xenpv_exc_debug)
+{
+	/*
+	 * There's no IST on Xen PV, but we still need to dispatch
+	 * to the correct handler.
+	 */
+	if (user_mode(regs))
+		noist_exc_debug(regs);
+	else
+		exc_debug(regs);
+}
+
+DEFINE_IDTENTRY_RAW(exc_xen_unknown_trap)
+{
+	/* This should never happen and there is no way to handle it. */
+	instrumentation_begin();
+	pr_err("Unknown trap in Xen PV mode.");
+	BUG();
+	instrumentation_end();
+}
+
+#ifdef CONFIG_X86_MCE
+DEFINE_IDTENTRY_RAW(xenpv_exc_machine_check)
+{
+	/*
+	 * There's no IST on Xen PV, but we still need to dispatch
+	 * to the correct handler.
+	 */
+	if (user_mode(regs))
+		noist_exc_machine_check(regs);
+	else
+		exc_machine_check(regs);
+}
+#endif
+
+>>>>>>> upstream/android-13
 struct trap_array_entry {
 	void (*orig)(void);
 	void (*xen)(void);
 	bool ist_okay;
 };
 
+<<<<<<< HEAD
 static struct trap_array_entry trap_array[] = {
 	{ debug,                       xen_xendebug,                    true },
 	{ double_fault,                xen_double_fault,                true },
@@ -621,18 +734,64 @@ static struct trap_array_entry trap_array[] = {
 	{ coprocessor_error,           xen_coprocessor_error,           false },
 	{ alignment_check,             xen_alignment_check,             false },
 	{ simd_coprocessor_error,      xen_simd_coprocessor_error,      false },
+=======
+#define TRAP_ENTRY(func, ist_ok) {			\
+	.orig		= asm_##func,			\
+	.xen		= xen_asm_##func,		\
+	.ist_okay	= ist_ok }
+
+#define TRAP_ENTRY_REDIR(func, ist_ok) {		\
+	.orig		= asm_##func,			\
+	.xen		= xen_asm_xenpv_##func,		\
+	.ist_okay	= ist_ok }
+
+static struct trap_array_entry trap_array[] = {
+	TRAP_ENTRY_REDIR(exc_debug,			true  ),
+	TRAP_ENTRY_REDIR(exc_double_fault,		true  ),
+#ifdef CONFIG_X86_MCE
+	TRAP_ENTRY_REDIR(exc_machine_check,		true  ),
+#endif
+	TRAP_ENTRY_REDIR(exc_nmi,			true  ),
+	TRAP_ENTRY(exc_int3,				false ),
+	TRAP_ENTRY(exc_overflow,			false ),
+#ifdef CONFIG_IA32_EMULATION
+	{ entry_INT80_compat,          xen_entry_INT80_compat,          false },
+#endif
+	TRAP_ENTRY(exc_page_fault,			false ),
+	TRAP_ENTRY(exc_divide_error,			false ),
+	TRAP_ENTRY(exc_bounds,				false ),
+	TRAP_ENTRY(exc_invalid_op,			false ),
+	TRAP_ENTRY(exc_device_not_available,		false ),
+	TRAP_ENTRY(exc_coproc_segment_overrun,		false ),
+	TRAP_ENTRY(exc_invalid_tss,			false ),
+	TRAP_ENTRY(exc_segment_not_present,		false ),
+	TRAP_ENTRY(exc_stack_segment,			false ),
+	TRAP_ENTRY(exc_general_protection,		false ),
+	TRAP_ENTRY(exc_spurious_interrupt_bug,		false ),
+	TRAP_ENTRY(exc_coprocessor_error,		false ),
+	TRAP_ENTRY(exc_alignment_check,			false ),
+	TRAP_ENTRY(exc_simd_coprocessor_error,		false ),
+>>>>>>> upstream/android-13
 };
 
 static bool __ref get_trap_addr(void **addr, unsigned int ist)
 {
 	unsigned int nr;
 	bool ist_okay = false;
+<<<<<<< HEAD
+=======
+	bool found = false;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Replace trap handler addresses by Xen specific ones.
 	 * Check for known traps using IST and whitelist them.
 	 * The debugger ones are the only ones we care about.
+<<<<<<< HEAD
 	 * Xen will handle faults like double_fault, * so we should never see
+=======
+	 * Xen will handle faults like double_fault, so we should never see
+>>>>>>> upstream/android-13
 	 * them.  Warn if there's an unexpected IST-using fault handler.
 	 */
 	for (nr = 0; nr < ARRAY_SIZE(trap_array); nr++) {
@@ -641,6 +800,10 @@ static bool __ref get_trap_addr(void **addr, unsigned int ist)
 		if (*addr == entry->orig) {
 			*addr = entry->xen;
 			ist_okay = entry->ist_okay;
+<<<<<<< HEAD
+=======
+			found = true;
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -651,14 +814,27 @@ static bool __ref get_trap_addr(void **addr, unsigned int ist)
 		nr = (*addr - (void *)early_idt_handler_array[0]) /
 		     EARLY_IDT_HANDLER_SIZE;
 		*addr = (void *)xen_early_idt_handler_array[nr];
+<<<<<<< HEAD
 	}
 
 	if (WARN_ON(ist != 0 && !ist_okay))
+=======
+		found = true;
+	}
+
+	if (!found)
+		*addr = (void *)xen_asm_exc_xen_unknown_trap;
+
+	if (WARN_ON(found && ist != 0 && !ist_okay))
+>>>>>>> upstream/android-13
 		return false;
 
 	return true;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static int cvt_gate_to_trap(int vector, const gate_desc *val,
 			    struct trap_info *info)
@@ -671,10 +847,15 @@ static int cvt_gate_to_trap(int vector, const gate_desc *val,
 	info->vector = vector;
 
 	addr = gate_offset(val);
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 	if (!get_trap_addr((void **)&addr, val->bits.ist))
 		return 0;
 #endif	/* CONFIG_X86_64 */
+=======
+	if (!get_trap_addr((void **)&addr, val->bits.ist))
+		return 0;
+>>>>>>> upstream/android-13
 	info->address = addr;
 
 	info->cs = gate_segment(val);
@@ -720,8 +901,13 @@ static void xen_write_idt_entry(gate_desc *dt, int entrynum, const gate_desc *g)
 	preempt_enable();
 }
 
+<<<<<<< HEAD
 static void xen_convert_trap_info(const struct desc_ptr *desc,
 				  struct trap_info *traps)
+=======
+static unsigned xen_convert_trap_info(const struct desc_ptr *desc,
+				      struct trap_info *traps, bool full)
+>>>>>>> upstream/android-13
 {
 	unsigned in, out, count;
 
@@ -731,17 +917,29 @@ static void xen_convert_trap_info(const struct desc_ptr *desc,
 	for (in = out = 0; in < count; in++) {
 		gate_desc *entry = (gate_desc *)(desc->address) + in;
 
+<<<<<<< HEAD
 		if (cvt_gate_to_trap(in, entry, &traps[out]))
 			out++;
 	}
 	traps[out].address = 0;
+=======
+		if (cvt_gate_to_trap(in, entry, &traps[out]) || full)
+			out++;
+	}
+
+	return out;
+>>>>>>> upstream/android-13
 }
 
 void xen_copy_trap_info(struct trap_info *traps)
 {
 	const struct desc_ptr *desc = this_cpu_ptr(&idt_desc);
 
+<<<<<<< HEAD
 	xen_convert_trap_info(desc, traps);
+=======
+	xen_convert_trap_info(desc, traps, true);
+>>>>>>> upstream/android-13
 }
 
 /* Load a new IDT into Xen.  In principle this can be per-CPU, so we
@@ -751,6 +949,10 @@ static void xen_load_idt(const struct desc_ptr *desc)
 {
 	static DEFINE_SPINLOCK(lock);
 	static struct trap_info traps[257];
+<<<<<<< HEAD
+=======
+	unsigned out;
+>>>>>>> upstream/android-13
 
 	trace_xen_cpu_load_idt(desc);
 
@@ -758,7 +960,12 @@ static void xen_load_idt(const struct desc_ptr *desc)
 
 	memcpy(this_cpu_ptr(&idt_desc), desc, sizeof(idt_desc));
 
+<<<<<<< HEAD
 	xen_convert_trap_info(desc, traps);
+=======
+	out = xen_convert_trap_info(desc, traps, false);
+	memset(&traps[out], 0, sizeof(traps[0]));
+>>>>>>> upstream/android-13
 
 	xen_mc_flush();
 	if (HYPERVISOR_set_trap_table(traps))
@@ -830,6 +1037,7 @@ static void xen_load_sp0(unsigned long sp0)
 	this_cpu_write(cpu_tss_rw.x86_tss.sp0, sp0);
 }
 
+<<<<<<< HEAD
 void xen_set_iopl_mask(unsigned mask)
 {
 	struct physdev_set_iopl set_iopl;
@@ -839,6 +1047,38 @@ void xen_set_iopl_mask(unsigned mask)
 	HYPERVISOR_physdev_op(PHYSDEVOP_set_iopl, &set_iopl);
 }
 
+=======
+#ifdef CONFIG_X86_IOPL_IOPERM
+static void xen_invalidate_io_bitmap(void)
+{
+	struct physdev_set_iobitmap iobitmap = {
+		.bitmap = NULL,
+		.nr_ports = 0,
+	};
+
+	native_tss_invalidate_io_bitmap();
+	HYPERVISOR_physdev_op(PHYSDEVOP_set_iobitmap, &iobitmap);
+}
+
+static void xen_update_io_bitmap(void)
+{
+	struct physdev_set_iobitmap iobitmap;
+	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
+
+	native_tss_update_io_bitmap();
+
+	iobitmap.bitmap = (uint8_t *)(&tss->x86_tss) +
+			  tss->x86_tss.io_bitmap_base;
+	if (tss->x86_tss.io_bitmap_base == IO_BITMAP_OFFSET_INVALID)
+		iobitmap.nr_ports = 0;
+	else
+		iobitmap.nr_ports = IO_BITMAP_BITS;
+
+	HYPERVISOR_physdev_op(PHYSDEVOP_set_iobitmap, &iobitmap);
+}
+#endif
+
+>>>>>>> upstream/android-13
 static void xen_io_delay(void)
 {
 }
@@ -878,6 +1118,7 @@ static void xen_write_cr4(unsigned long cr4)
 
 	native_write_cr4(cr4);
 }
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 static inline unsigned long xen_read_cr8(void)
 {
@@ -888,6 +1129,8 @@ static inline void xen_write_cr8(unsigned long val)
 	BUG_ON(val);
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static u64 xen_read_msr_safe(unsigned int msr, int *err)
 {
@@ -908,15 +1151,23 @@ static u64 xen_read_msr_safe(unsigned int msr, int *err)
 static int xen_write_msr_safe(unsigned int msr, unsigned low, unsigned high)
 {
 	int ret;
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 	unsigned int which;
 	u64 base;
 #endif
+=======
+	unsigned int which;
+	u64 base;
+>>>>>>> upstream/android-13
 
 	ret = 0;
 
 	switch (msr) {
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
+=======
+>>>>>>> upstream/android-13
 	case MSR_FS_BASE:		which = SEGBASE_FS; goto set;
 	case MSR_KERNEL_GS_BASE:	which = SEGBASE_GS_USER; goto set;
 	case MSR_GS_BASE:		which = SEGBASE_GS_KERNEL; goto set;
@@ -926,7 +1177,10 @@ static int xen_write_msr_safe(unsigned int msr, unsigned low, unsigned high)
 		if (HYPERVISOR_set_segment_base(which, base) != 0)
 			ret = -EIO;
 		break;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	case MSR_STAR:
 	case MSR_CSTAR:
@@ -993,20 +1247,34 @@ void __init xen_setup_vcpu_info_placement(void)
 	 * percpu area for all cpus, so make use of it.
 	 */
 	if (xen_have_vcpu_info_placement) {
+<<<<<<< HEAD
 		pv_irq_ops.save_fl = __PV_IS_CALLEE_SAVE(xen_save_fl_direct);
 		pv_irq_ops.restore_fl = __PV_IS_CALLEE_SAVE(xen_restore_fl_direct);
 		pv_irq_ops.irq_disable = __PV_IS_CALLEE_SAVE(xen_irq_disable_direct);
 		pv_irq_ops.irq_enable = __PV_IS_CALLEE_SAVE(xen_irq_enable_direct);
 		pv_mmu_ops.read_cr2 = xen_read_cr2_direct;
+=======
+		pv_ops.irq.save_fl = __PV_IS_CALLEE_SAVE(xen_save_fl_direct);
+		pv_ops.irq.irq_disable =
+			__PV_IS_CALLEE_SAVE(xen_irq_disable_direct);
+		pv_ops.irq.irq_enable =
+			__PV_IS_CALLEE_SAVE(xen_irq_enable_direct);
+		pv_ops.mmu.read_cr2 =
+			__PV_IS_CALLEE_SAVE(xen_read_cr2_direct);
+>>>>>>> upstream/android-13
 	}
 }
 
 static const struct pv_info xen_info __initconst = {
+<<<<<<< HEAD
 	.shared_kernel_pmd = 0,
 
 #ifdef CONFIG_X86_64
 	.extra_user_64bit_cs = FLAT_USER_CS64,
 #endif
+=======
+	.extra_user_64bit_cs = FLAT_USER_CS64,
+>>>>>>> upstream/android-13
 	.name = "Xen",
 };
 
@@ -1021,11 +1289,14 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
 
 	.write_cr4 = xen_write_cr4,
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 	.read_cr8 = xen_read_cr8,
 	.write_cr8 = xen_write_cr8,
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	.wbinvd = native_wbinvd,
 
 	.read_msr = xen_read_msr,
@@ -1036,19 +1307,26 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
 
 	.read_pmc = xen_read_pmc,
 
+<<<<<<< HEAD
 	.iret = xen_iret,
 #ifdef CONFIG_X86_64
 	.usergs_sysret64 = xen_sysret64,
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	.load_tr_desc = paravirt_nop,
 	.set_ldt = xen_set_ldt,
 	.load_gdt = xen_load_gdt,
 	.load_idt = xen_load_idt,
 	.load_tls = xen_load_tls,
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 	.load_gs_index = xen_load_gs_index,
 #endif
+=======
+	.load_gs_index = xen_load_gs_index,
+>>>>>>> upstream/android-13
 
 	.alloc_ldt = xen_alloc_ldt,
 	.free_ldt = xen_free_ldt,
@@ -1060,12 +1338,21 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
 	.write_idt_entry = xen_write_idt_entry,
 	.load_sp0 = xen_load_sp0,
 
+<<<<<<< HEAD
 	.set_iopl_mask = xen_set_iopl_mask,
 	.io_delay = xen_io_delay,
 
 	/* Xen takes care of %gs when switching to usermode for us */
 	.swapgs = paravirt_nop,
 
+=======
+#ifdef CONFIG_X86_IOPL_IOPERM
+	.invalidate_io_bitmap = xen_invalidate_io_bitmap,
+	.update_io_bitmap = xen_update_io_bitmap,
+#endif
+	.io_delay = xen_io_delay,
+
+>>>>>>> upstream/android-13
 	.start_context_switch = paravirt_start_context_switch,
 	.end_context_switch = xen_end_context_switch,
 };
@@ -1172,6 +1459,7 @@ static void __init xen_boot_params_init_edd(void)
  */
 static void __init xen_setup_gdt(int cpu)
 {
+<<<<<<< HEAD
 	pv_cpu_ops.write_gdt_entry = xen_write_gdt_entry_boot;
 	pv_cpu_ops.load_gdt = xen_load_gdt_boot;
 
@@ -1180,6 +1468,15 @@ static void __init xen_setup_gdt(int cpu)
 
 	pv_cpu_ops.write_gdt_entry = xen_write_gdt_entry;
 	pv_cpu_ops.load_gdt = xen_load_gdt;
+=======
+	pv_ops.cpu.write_gdt_entry = xen_write_gdt_entry_boot;
+	pv_ops.cpu.load_gdt = xen_load_gdt_boot;
+
+	switch_to_new_gdt(cpu);
+
+	pv_ops.cpu.write_gdt_entry = xen_write_gdt_entry;
+	pv_ops.cpu.load_gdt = xen_load_gdt;
+>>>>>>> upstream/android-13
 }
 
 static void __init xen_dom0_set_legacy_features(void)
@@ -1187,6 +1484,14 @@ static void __init xen_dom0_set_legacy_features(void)
 	x86_platform.legacy.rtc = 1;
 }
 
+<<<<<<< HEAD
+=======
+static void __init xen_domu_set_legacy_features(void)
+{
+	x86_platform.legacy.rtc = 0;
+}
+
+>>>>>>> upstream/android-13
 /* First C function to be called on Xen boot */
 asmlinkage __visible void __init xen_start_kernel(void)
 {
@@ -1204,8 +1509,13 @@ asmlinkage __visible void __init xen_start_kernel(void)
 
 	/* Install Xen paravirt ops */
 	pv_info = xen_info;
+<<<<<<< HEAD
 	pv_init_ops.patch = paravirt_patch_default;
 	pv_cpu_ops = xen_cpu_ops;
+=======
+	pv_ops.cpu = xen_cpu_ops;
+	paravirt_iret = xen_iret;
+>>>>>>> upstream/android-13
 	xen_init_irq_ops();
 
 	/*
@@ -1220,6 +1530,10 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	x86_platform.get_nmi_reason = xen_get_nmi_reason;
 
 	x86_init.resources.memory_setup = xen_memory_setup;
+<<<<<<< HEAD
+=======
+	x86_init.irqs.intr_mode_select	= x86_init_noop;
+>>>>>>> upstream/android-13
 	x86_init.irqs.intr_mode_init	= x86_init_noop;
 	x86_init.oem.arch_setup = xen_arch_setup;
 	x86_init.oem.banner = xen_banner;
@@ -1246,16 +1560,26 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	/* Get mfn list */
 	xen_build_dynamic_phys_to_machine();
 
+<<<<<<< HEAD
+=======
+	/* Work out if we support NX */
+	get_cpu_cap(&boot_cpu_data);
+	x86_configure_nx();
+
+>>>>>>> upstream/android-13
 	/*
 	 * Set up kernel GDT and segment registers, mainly so that
 	 * -fstack-protector code can be executed.
 	 */
 	xen_setup_gdt(0);
 
+<<<<<<< HEAD
 	/* Work out if we support NX */
 	get_cpu_cap(&boot_cpu_data);
 	x86_configure_nx();
 
+=======
+>>>>>>> upstream/android-13
 	/* Determine virtual and physical address sizes */
 	get_cpu_address_sizes(&boot_cpu_data);
 
@@ -1273,11 +1597,14 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	xen_init_apic();
 #endif
 
+<<<<<<< HEAD
 	if (xen_feature(XENFEAT_mmu_pt_update_preserve_ad)) {
 		pv_mmu_ops.ptep_modify_prot_start = xen_ptep_modify_prot_start;
 		pv_mmu_ops.ptep_modify_prot_commit = xen_ptep_modify_prot_commit;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	machine_ops = xen_machine_ops;
 
 	/*
@@ -1295,7 +1622,11 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	 * any NUMA information the kernel tries to get from ACPI will
 	 * be meaningless.  Prevent it from trying.
 	 */
+<<<<<<< HEAD
 	acpi_numa = -1;
+=======
+	disable_srat();
+>>>>>>> upstream/android-13
 #endif
 	WARN_ON(xen_cpuhp_setup(xen_cpu_up_prepare_pv, xen_cpu_dead_pv));
 
@@ -1307,6 +1638,7 @@ asmlinkage __visible void __init xen_start_kernel(void)
 				   xen_start_info->nr_pages);
 	xen_reserve_special_pages();
 
+<<<<<<< HEAD
 	/* keep using Xen gdt for now; no urgent need to change it */
 
 #ifdef CONFIG_X86_32
@@ -1319,6 +1651,8 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	/* set the limit of our address space */
 	xen_reserve_top();
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * We used to do this in xen_arch_setup, but that is too late
 	 * on AMD were early_cpu_init (run before ->arch_setup()) calls
@@ -1329,12 +1663,15 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	if (rc != 0)
 		xen_raw_printk("physdev_op failed %d\n", rc);
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	/* set up basic CPUID stuff */
 	cpu_detect(&new_cpu_data);
 	set_cpu_cap(&new_cpu_data, X86_FEATURE_FPU);
 	new_cpu_data.x86_capability[CPUID_1_EDX] = cpuid_edx(1);
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	if (xen_start_info->mod_start) {
 	    if (xen_start_info->flags & SIF_MOD_START_PFN)
@@ -1351,9 +1688,16 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	boot_params.hdr.hardware_subarch = X86_SUBARCH_XEN;
 
 	if (!xen_initial_domain()) {
+<<<<<<< HEAD
 		add_preferred_console("xenboot", 0, NULL);
 		if (pci_xen)
 			x86_init.pci.arch_init = pci_xen_init;
+=======
+		if (pci_xen)
+			x86_init.pci.arch_init = pci_xen_init;
+		x86_platform.set_legacy_features =
+				xen_domu_set_legacy_features;
+>>>>>>> upstream/android-13
 	} else {
 		const struct dom0_vga_console_info *info =
 			(void *)((char *)xen_start_info +
@@ -1378,10 +1722,13 @@ asmlinkage __visible void __init xen_start_kernel(void)
 
 		xen_acpi_sleep_register();
 
+<<<<<<< HEAD
 		/* Avoid searching for BIOS MP tables */
 		x86_init.mpparse.find_smp_config = x86_init_noop;
 		x86_init.mpparse.get_smp_config = x86_init_uint_noop;
 
+=======
+>>>>>>> upstream/android-13
 		xen_boot_params_init_edd();
 
 #ifdef CONFIG_ACPI
@@ -1394,11 +1741,15 @@ asmlinkage __visible void __init xen_start_kernel(void)
 #endif
 	}
 
+<<<<<<< HEAD
 	if (!boot_params.screen_info.orig_video_isVGA)
 		add_preferred_console("tty", 0, NULL);
 	add_preferred_console("hvc", 0, NULL);
 	if (boot_params.screen_info.orig_video_isVGA)
 		add_preferred_console("tty", 0, NULL);
+=======
+	xen_add_preferred_consoles();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PCI
 	/* PCI BIOS service won't work from a PV guest. */
@@ -1412,12 +1763,17 @@ asmlinkage __visible void __init xen_start_kernel(void)
 	xen_efi_init(&boot_params);
 
 	/* Start the world */
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	i386_start_kernel();
 #else
 	cr4_init_shadow(); /* 32b kernel does this in i386_start_kernel() */
 	x86_64_start_reservations((char *)__pa_symbol(&boot_params));
 #endif
+=======
+	cr4_init_shadow(); /* 32b kernel does this in i386_start_kernel() */
+	x86_64_start_reservations((char *)__pa_symbol(&boot_params));
+>>>>>>> upstream/android-13
 }
 
 static int xen_cpu_up_prepare_pv(unsigned int cpu)
@@ -1469,4 +1825,8 @@ const __initconst struct hypervisor_x86 x86_hyper_xen_pv = {
 	.detect                 = xen_platform_pv,
 	.type			= X86_HYPER_XEN_PV,
 	.runtime.pin_vcpu       = xen_pin_vcpu,
+<<<<<<< HEAD
+=======
+	.ignore_nopv		= true,
+>>>>>>> upstream/android-13
 };

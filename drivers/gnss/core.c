@@ -42,7 +42,11 @@ static int gnss_open(struct inode *inode, struct file *file)
 
 	get_device(&gdev->dev);
 
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 	file->private_data = gdev;
 
 	down_write(&gdev->rwsem);
@@ -334,6 +338,10 @@ static const char * const gnss_type_names[GNSS_TYPE_COUNT] = {
 	[GNSS_TYPE_NMEA]	= "NMEA",
 	[GNSS_TYPE_SIRF]	= "SiRF",
 	[GNSS_TYPE_UBX]		= "UBX",
+<<<<<<< HEAD
+=======
+	[GNSS_TYPE_MTK]		= "MTK",
+>>>>>>> upstream/android-13
 };
 
 static const char *gnss_type_name(struct gnss_device *gdev)

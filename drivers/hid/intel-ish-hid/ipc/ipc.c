@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * H/W layer of ISHTP provider device (ISH)
  *
  * Copyright (c) 2014-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -201,6 +208,36 @@ static void ish_clr_host_rdy(struct ishtp_device *dev)
 	ish_reg_write(dev, IPC_REG_HOST_COMM, host_status);
 }
 
+<<<<<<< HEAD
+=======
+static bool ish_chk_host_rdy(struct ishtp_device *dev)
+{
+	uint32_t host_status = ish_reg_read(dev, IPC_REG_HOST_COMM);
+
+	return (host_status & IPC_HOSTCOMM_READY_BIT);
+}
+
+/**
+ * ish_set_host_ready() - reconfig ipc host registers
+ * @dev: ishtp device pointer
+ *
+ * Set host to ready state
+ * This API is called in some case:
+ *    fw is still on, but ipc is powered down.
+ *    such as OOB case.
+ *
+ * Return: 0 for success else error fault code
+ */
+void ish_set_host_ready(struct ishtp_device *dev)
+{
+	if (ish_chk_host_rdy(dev))
+		return;
+
+	ish_set_host_rdy(dev);
+	set_host_ready(dev);
+}
+
+>>>>>>> upstream/android-13
 /**
  * _ishtp_read_hdr() - Read message header
  * @dev: ISHTP device pointer
@@ -259,6 +296,7 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
 	int	i;
 	void	(*ipc_send_compl)(void *);
 	void	*ipc_send_compl_prm;
+<<<<<<< HEAD
 	static int	out_ipc_locked;
 	unsigned long	out_ipc_flags;
 
@@ -279,10 +317,23 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
 	spin_unlock_irqrestore(&dev->out_ipc_spinlock, out_ipc_flags);
 
 	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
+=======
+
+	if (dev->dev_state == ISHTP_DEV_DISABLED)
+		return -EINVAL;
+
+	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
+	if (!ish_is_input_ready(dev)) {
+		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+		return -EBUSY;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * if tx send list is empty - return 0;
 	 * may happen, as RX_COMPLETE handler doesn't check list emptiness.
 	 */
+<<<<<<< HEAD
 	if (list_empty(&dev->wr_processing_list_head.link)) {
 		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
 		out_ipc_locked = 0;
@@ -291,6 +342,15 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
 
 	ipc_link = list_entry(dev->wr_processing_list_head.link.next,
 			      struct wr_msg_ctl_info, link);
+=======
+	if (list_empty(&dev->wr_processing_list)) {
+		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+		return	0;
+	}
+
+	ipc_link = list_first_entry(&dev->wr_processing_list,
+				    struct wr_msg_ctl_info, link);
+>>>>>>> upstream/android-13
 	/* first 4 bytes of the data is the doorbell value (IPC header) */
 	length = ipc_link->length - sizeof(uint32_t);
 	doorbell_val = *(uint32_t *)ipc_link->inline_data;
@@ -328,6 +388,11 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
 		memcpy(&reg, &r_buf[length >> 2], rem);
 		ish_reg_write(dev, reg_addr, reg);
 	}
+<<<<<<< HEAD
+=======
+	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, doorbell_val);
+
+>>>>>>> upstream/android-13
 	/* Flush writes to msg registers and doorbell */
 	ish_reg_read(dev, IPC_REG_ISH_HOST_FWSTS);
 
@@ -335,6 +400,7 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
 	++dev->ipc_tx_cnt;
 	dev->ipc_tx_bytes_cnt += IPC_HEADER_GET_LENGTH(doorbell_val);
 
+<<<<<<< HEAD
 	ish_reg_write(dev, IPC_REG_HOST2ISH_DRBL, doorbell_val);
 	out_ipc_locked = 0;
 
@@ -342,6 +408,12 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
 	ipc_send_compl_prm = ipc_link->ipc_send_compl_prm;
 	list_del_init(&ipc_link->link);
 	list_add_tail(&ipc_link->link, &dev->wr_free_list_head.link);
+=======
+	ipc_send_compl = ipc_link->ipc_send_compl;
+	ipc_send_compl_prm = ipc_link->ipc_send_compl_prm;
+	list_del_init(&ipc_link->link);
+	list_add(&ipc_link->link, &dev->wr_free_list);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
 
 	/*
@@ -375,18 +447,31 @@ static int write_ipc_to_queue(struct ishtp_device *dev,
 	unsigned char *msg, int length)
 {
 	struct wr_msg_ctl_info *ipc_link;
+<<<<<<< HEAD
 	unsigned long	flags;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	if (length > IPC_FULL_MSG_SIZE)
 		return -EMSGSIZE;
 
 	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
+<<<<<<< HEAD
 	if (list_empty(&dev->wr_free_list_head.link)) {
 		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
 		return -ENOMEM;
 	}
 	ipc_link = list_entry(dev->wr_free_list_head.link.next,
 		struct wr_msg_ctl_info, link);
+=======
+	if (list_empty(&dev->wr_free_list)) {
+		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+		return -ENOMEM;
+	}
+	ipc_link = list_first_entry(&dev->wr_free_list,
+				    struct wr_msg_ctl_info, link);
+>>>>>>> upstream/android-13
 	list_del_init(&ipc_link->link);
 
 	ipc_link->ipc_send_compl = ipc_send_compl;
@@ -394,7 +479,11 @@ static int write_ipc_to_queue(struct ishtp_device *dev,
 	ipc_link->length = length;
 	memcpy(ipc_link->inline_data, msg, length);
 
+<<<<<<< HEAD
 	list_add_tail(&ipc_link->link, &dev->wr_processing_list_head.link);
+=======
+	list_add_tail(&ipc_link->link, &dev->wr_processing_list);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
 
 	write_ipc_from_queue(dev);
@@ -490,17 +579,24 @@ static int ish_fw_reset_handler(struct ishtp_device *dev)
 {
 	uint32_t	reset_id;
 	unsigned long	flags;
+<<<<<<< HEAD
 	struct wr_msg_ctl_info *processing, *next;
+=======
+>>>>>>> upstream/android-13
 
 	/* Read reset ID */
 	reset_id = ish_reg_read(dev, IPC_REG_ISH2HOST_MSG) & 0xFFFF;
 
 	/* Clear IPC output queue */
 	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
+<<<<<<< HEAD
 	list_for_each_entry_safe(processing, next,
 			&dev->wr_processing_list_head.link, link) {
 		list_move_tail(&processing->link, &dev->wr_free_list_head.link);
 	}
+=======
+	list_splice_init(&dev->wr_processing_list, &dev->wr_free_list);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
 
 	/* ISHTP notification in IPC_RESET */
@@ -541,7 +637,11 @@ static int ish_fw_reset_handler(struct ishtp_device *dev)
 #define TIMEOUT_FOR_HW_RDY_MS			300
 
 /**
+<<<<<<< HEAD
  * ish_fw_reset_work_fn() - FW reset worker function
+=======
+ * fw_reset_work_fn() - FW reset worker function
+>>>>>>> upstream/android-13
  * @unused: not used
  *
  * Call ish_fw_reset_handler to complete FW reset
@@ -696,7 +796,11 @@ eoi:
  *
  * Return: 0 for success else error code.
  */
+<<<<<<< HEAD
 static int ish_disable_dma(struct ishtp_device *dev)
+=======
+int ish_disable_dma(struct ishtp_device *dev)
+>>>>>>> upstream/android-13
 {
 	unsigned int	dma_delay;
 
@@ -779,7 +883,11 @@ static int _ish_hw_reset(struct ishtp_device *dev)
 	csr |= PCI_D3hot;
 	pci_write_config_word(pdev, pdev->pm_cap + PCI_PM_CTRL, csr);
 
+<<<<<<< HEAD
 	mdelay(pdev->d3_delay);
+=======
+	mdelay(pdev->d3hot_delay);
+>>>>>>> upstream/android-13
 
 	csr &= ~PCI_PM_CTRL_STATE_MASK;
 	csr |= PCI_D0;
@@ -886,6 +994,32 @@ static uint32_t ish_ipc_get_header(struct ishtp_device *dev, int length,
 	return drbl_val;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * _dma_no_cache_snooping()
+ *
+ * Check on current platform, DMA supports cache snooping or not.
+ * This callback is used to notify uplayer driver if manully cache
+ * flush is needed when do DMA operation.
+ *
+ * Please pay attention to this callback implementation, if declare
+ * having cache snooping on a cache snooping not supported platform
+ * will cause uplayer driver receiving mismatched data; and if
+ * declare no cache snooping on a cache snooping supported platform
+ * will cause cache be flushed twice and performance hit.
+ *
+ * @dev: ishtp device pointer
+ *
+ * Return: false - has cache snooping capability
+ *         true - no cache snooping, need manually cache flush
+ */
+static bool _dma_no_cache_snooping(struct ishtp_device *dev)
+{
+	return dev->pdev->device == EHL_Ax_DEVICE_ID;
+}
+
+>>>>>>> upstream/android-13
 static const struct ishtp_hw_ops ish_hw_ops = {
 	.hw_reset = _ish_hw_reset,
 	.ipc_reset = _ish_ipc_reset,
@@ -894,7 +1028,12 @@ static const struct ishtp_hw_ops ish_hw_ops = {
 	.write = write_ipc_to_queue,
 	.get_fw_status = _ish_read_fw_sts_reg,
 	.sync_fw_clock = _ish_sync_fw_clock,
+<<<<<<< HEAD
 	.ishtp_read_hdr = _ishtp_read_hdr
+=======
+	.ishtp_read_hdr = _ishtp_read_hdr,
+	.dma_no_cache_snooping = _dma_no_cache_snooping
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -921,12 +1060,20 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
 	init_waitqueue_head(&dev->wait_hw_ready);
 
 	spin_lock_init(&dev->wr_processing_spinlock);
+<<<<<<< HEAD
 	spin_lock_init(&dev->out_ipc_spinlock);
 
 	/* Init IPC processing and free lists */
 	INIT_LIST_HEAD(&dev->wr_processing_list_head.link);
 	INIT_LIST_HEAD(&dev->wr_free_list_head.link);
 	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
+=======
+
+	/* Init IPC processing and free lists */
+	INIT_LIST_HEAD(&dev->wr_processing_list);
+	INIT_LIST_HEAD(&dev->wr_free_list);
+	for (i = 0; i < IPC_TX_FIFO_SIZE; i++) {
+>>>>>>> upstream/android-13
 		struct wr_msg_ctl_info	*tx_buf;
 
 		tx_buf = devm_kzalloc(&pdev->dev,
@@ -942,7 +1089,11 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
 				i);
 			break;
 		}
+<<<<<<< HEAD
 		list_add_tail(&tx_buf->link, &dev->wr_free_list_head.link);
+=======
+		list_add_tail(&tx_buf->link, &dev->wr_free_list);
+>>>>>>> upstream/android-13
 	}
 
 	dev->ops = &ish_hw_ops;

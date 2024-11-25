@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015 - 2020 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -66,7 +72,11 @@ MODULE_PARM_DESC(qp_table_size, "QP table size");
 static void flush_tx_list(struct rvt_qp *qp);
 static int iowait_sleep(
 	struct sdma_engine *sde,
+<<<<<<< HEAD
 	struct iowait *wait,
+=======
+	struct iowait_work *wait,
+>>>>>>> upstream/android-13
 	struct sdma_txreq *stx,
 	unsigned int seq,
 	bool pkts_sent);
@@ -132,6 +142,7 @@ const struct rvt_operation_params hfi1_post_parms[RVT_OPERATION_MAX] = {
 	.qpt_support = BIT(IB_QPT_RC),
 },
 
+<<<<<<< HEAD
 };
 
 static void flush_tx_list(struct rvt_qp *qp)
@@ -143,6 +154,29 @@ static void flush_tx_list(struct rvt_qp *qp)
 
 		tx = list_first_entry(
 			&priv->s_iowait.tx_head,
+=======
+[IB_WR_OPFN] = {
+	.length = sizeof(struct ib_atomic_wr),
+	.qpt_support = BIT(IB_QPT_RC),
+	.flags = RVT_OPERATION_USE_RESERVE,
+},
+
+[IB_WR_TID_RDMA_WRITE] = {
+	.length = sizeof(struct ib_rdma_wr),
+	.qpt_support = BIT(IB_QPT_RC),
+	.flags = RVT_OPERATION_IGN_RNR_CNT,
+},
+
+};
+
+static void flush_list_head(struct list_head *l)
+{
+	while (!list_empty(l)) {
+		struct sdma_txreq *tx;
+
+		tx = list_first_entry(
+			l,
+>>>>>>> upstream/android-13
 			struct sdma_txreq,
 			list);
 		list_del_init(&tx->list);
@@ -151,6 +185,17 @@ static void flush_tx_list(struct rvt_qp *qp)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void flush_tx_list(struct rvt_qp *qp)
+{
+	struct hfi1_qp_priv *priv = qp->priv;
+
+	flush_list_head(&iowait_get_ib_work(&priv->s_iowait)->tx_head);
+	flush_list_head(&iowait_get_tid_work(&priv->s_iowait)->tx_head);
+}
+
+>>>>>>> upstream/android-13
 static void flush_iowait(struct rvt_qp *qp)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
@@ -168,6 +213,7 @@ static void flush_iowait(struct rvt_qp *qp)
 	write_sequnlock_irqrestore(lock, flags);
 }
 
+<<<<<<< HEAD
 static inline int opa_mtu_enum_to_int(int mtu)
 {
 	switch (mtu) {
@@ -178,12 +224,16 @@ static inline int opa_mtu_enum_to_int(int mtu)
 }
 
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * This function is what we would push to the core layer if we wanted to be a
  * "first class citizen".  Instead we hide this here and rely on Verbs ULPs
  * to blindly pass the MTU enum value from the PathRecord to us.
  */
 static inline int verbs_mtu_enum_to_int(struct ib_device *dev, enum ib_mtu mtu)
 {
+<<<<<<< HEAD
 	int val;
 
 	/* Constraining 10KB packets to 8KB packets */
@@ -193,6 +243,12 @@ static inline int verbs_mtu_enum_to_int(struct ib_device *dev, enum ib_mtu mtu)
 	if (val > 0)
 		return val;
 	return ib_mtu_enum_to_int(mtu);
+=======
+	/* Constraining 10KB packets to 8KB packets */
+	if (mtu == (enum ib_mtu)OPA_MTU_10240)
+		mtu = (enum ib_mtu)OPA_MTU_8192;
+	return opa_mtu_enum_to_int((enum opa_mtu)mtu);
+>>>>>>> upstream/android-13
 }
 
 int hfi1_check_modify_qp(struct rvt_qp *qp, struct ib_qp_attr *attr,
@@ -279,6 +335,7 @@ void hfi1_modify_qp(struct rvt_qp *qp, struct ib_qp_attr *attr,
 		priv->s_sendcontext = qp_to_send_context(qp, priv->s_sc);
 		qp_set_16b(qp);
 	}
+<<<<<<< HEAD
 }
 
 /**
@@ -290,10 +347,28 @@ void hfi1_modify_qp(struct rvt_qp *qp, struct ib_qp_attr *attr,
  * prior to inserting the wqe into
  * the ring but after the wqe has been
  * setup.
+=======
+
+	opfn_qp_init(qp, attr, attr_mask);
+}
+
+/**
+ * hfi1_setup_wqe - set up the wqe
+ * @qp: The qp
+ * @wqe: The built wqe
+ * @call_send: Determine if the send should be posted or scheduled.
+ *
+ * Perform setup of the wqe.  This is called
+ * prior to inserting the wqe into the ring but after
+ * the wqe has been setup by RDMAVT. This function
+ * allows the driver the opportunity to perform
+ * validation and additional setup of the wqe.
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success, -EINVAL on failure
  *
  */
+<<<<<<< HEAD
 int hfi1_check_send_wqe(struct rvt_qp *qp,
 			struct rvt_swqe *wqe)
 {
@@ -309,19 +384,68 @@ int hfi1_check_send_wqe(struct rvt_qp *qp,
 	case IB_QPT_SMI:
 		ah = ibah_to_rvtah(wqe->ud_wr.ah);
 		if (wqe->length > (1 << ah->log_pmtu))
+=======
+int hfi1_setup_wqe(struct rvt_qp *qp, struct rvt_swqe *wqe, bool *call_send)
+{
+	struct hfi1_ibport *ibp = to_iport(qp->ibqp.device, qp->port_num);
+	struct rvt_ah *ah;
+	struct hfi1_pportdata *ppd;
+	struct hfi1_devdata *dd;
+
+	switch (qp->ibqp.qp_type) {
+	case IB_QPT_RC:
+		hfi1_setup_tid_rdma_wqe(qp, wqe);
+		fallthrough;
+	case IB_QPT_UC:
+		if (wqe->length > 0x80000000U)
+			return -EINVAL;
+		if (wqe->length > qp->pmtu)
+			*call_send = false;
+		break;
+	case IB_QPT_SMI:
+		/*
+		 * SM packets should exclusively use VL15 and their SL is
+		 * ignored (IBTA v1.3, Section 3.5.8.2). Therefore, when ah
+		 * is created, SL is 0 in most cases and as a result some
+		 * fields (vl and pmtu) in ah may not be set correctly,
+		 * depending on the SL2SC and SC2VL tables at the time.
+		 */
+		ppd = ppd_from_ibp(ibp);
+		dd = dd_from_ppd(ppd);
+		if (wqe->length > dd->vld[15].mtu)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		break;
 	case IB_QPT_GSI:
 	case IB_QPT_UD:
+<<<<<<< HEAD
 		ah = ibah_to_rvtah(wqe->ud_wr.ah);
+=======
+		ah = rvt_get_swqe_ah(wqe);
+>>>>>>> upstream/android-13
 		if (wqe->length > (1 << ah->log_pmtu))
 			return -EINVAL;
 		if (ibp->sl_to_sc[rdma_ah_get_sl(&ah->attr)] == 0xf)
 			return -EINVAL;
+<<<<<<< HEAD
 	default:
 		break;
 	}
 	return wqe->length <= piothreshold;
+=======
+		break;
+	default:
+		break;
+	}
+
+	/*
+	 * System latency between send and schedule is large enough that
+	 * forcing call_send to true for piothreshold packets is necessary.
+	 */
+	if (wqe->length <= piothreshold)
+		*call_send = true;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -333,27 +457,47 @@ int hfi1_check_send_wqe(struct rvt_qp *qp,
  * It is only used in the post send, which doesn't hold
  * the s_lock.
  */
+<<<<<<< HEAD
 void _hfi1_schedule_send(struct rvt_qp *qp)
+=======
+bool _hfi1_schedule_send(struct rvt_qp *qp)
+>>>>>>> upstream/android-13
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 	struct hfi1_ibport *ibp =
 		to_iport(qp->ibqp.device, qp->port_num);
 	struct hfi1_pportdata *ppd = ppd_from_ibp(ibp);
+<<<<<<< HEAD
 	struct hfi1_devdata *dd = dd_from_ibdev(qp->ibqp.device);
 
 	iowait_schedule(&priv->s_iowait, ppd->hfi1_wq,
 			priv->s_sde ?
 			priv->s_sde->cpu :
 			cpumask_first(cpumask_of_node(dd->node)));
+=======
+	struct hfi1_devdata *dd = ppd->dd;
+
+	if (dd->flags & HFI1_SHUTDOWN)
+		return true;
+
+	return iowait_schedule(&priv->s_iowait, ppd->hfi1_wq,
+			       priv->s_sde ?
+			       priv->s_sde->cpu :
+			       cpumask_first(cpumask_of_node(dd->node)));
+>>>>>>> upstream/android-13
 }
 
 static void qp_pio_drain(struct rvt_qp *qp)
 {
+<<<<<<< HEAD
 	struct hfi1_ibdev *dev;
+=======
+>>>>>>> upstream/android-13
 	struct hfi1_qp_priv *priv = qp->priv;
 
 	if (!priv->s_sendcontext)
 		return;
+<<<<<<< HEAD
 	dev = to_idev(qp->ibqp.device);
 	while (iowait_pio_pending(&priv->s_iowait)) {
 		write_seqlock_irq(&dev->iowait_lock);
@@ -363,6 +507,16 @@ static void qp_pio_drain(struct rvt_qp *qp)
 		write_seqlock_irq(&dev->iowait_lock);
 		hfi1_sc_wantpiobuf_intr(priv->s_sendcontext, 0);
 		write_sequnlock_irq(&dev->iowait_lock);
+=======
+	while (iowait_pio_pending(&priv->s_iowait)) {
+		write_seqlock_irq(&priv->s_sendcontext->waitlock);
+		hfi1_sc_wantpiobuf_intr(priv->s_sendcontext, 1);
+		write_sequnlock_irq(&priv->s_sendcontext->waitlock);
+		iowait_pio_drain(&priv->s_iowait);
+		write_seqlock_irq(&priv->s_sendcontext->waitlock);
+		hfi1_sc_wantpiobuf_intr(priv->s_sendcontext, 0);
+		write_sequnlock_irq(&priv->s_sendcontext->waitlock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -372,12 +526,46 @@ static void qp_pio_drain(struct rvt_qp *qp)
  *
  * This schedules qp progress and caller should hold
  * the s_lock.
+<<<<<<< HEAD
  */
 void hfi1_schedule_send(struct rvt_qp *qp)
 {
 	lockdep_assert_held(&qp->s_lock);
 	if (hfi1_send_ok(qp))
 		_hfi1_schedule_send(qp);
+=======
+ * @return true if the first leg is scheduled;
+ * false if the first leg is not scheduled.
+ */
+bool hfi1_schedule_send(struct rvt_qp *qp)
+{
+	lockdep_assert_held(&qp->s_lock);
+	if (hfi1_send_ok(qp)) {
+		_hfi1_schedule_send(qp);
+		return true;
+	}
+	if (qp->s_flags & HFI1_S_ANY_WAIT_IO)
+		iowait_set_flag(&((struct hfi1_qp_priv *)qp->priv)->s_iowait,
+				IOWAIT_PENDING_IB);
+	return false;
+}
+
+static void hfi1_qp_schedule(struct rvt_qp *qp)
+{
+	struct hfi1_qp_priv *priv = qp->priv;
+	bool ret;
+
+	if (iowait_flag_set(&priv->s_iowait, IOWAIT_PENDING_IB)) {
+		ret = hfi1_schedule_send(qp);
+		if (ret)
+			iowait_clear_flag(&priv->s_iowait, IOWAIT_PENDING_IB);
+	}
+	if (iowait_flag_set(&priv->s_iowait, IOWAIT_PENDING_TID)) {
+		ret = hfi1_schedule_tid_send(qp);
+		if (ret)
+			iowait_clear_flag(&priv->s_iowait, IOWAIT_PENDING_TID);
+	}
+>>>>>>> upstream/android-13
 }
 
 void hfi1_qp_wakeup(struct rvt_qp *qp, u32 flag)
@@ -388,16 +576,51 @@ void hfi1_qp_wakeup(struct rvt_qp *qp, u32 flag)
 	if (qp->s_flags & flag) {
 		qp->s_flags &= ~flag;
 		trace_hfi1_qpwakeup(qp, flag);
+<<<<<<< HEAD
 		hfi1_schedule_send(qp);
+=======
+		hfi1_qp_schedule(qp);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&qp->s_lock, flags);
 	/* Notify hfi1_destroy_qp() if it is waiting. */
 	rvt_put_qp(qp);
 }
 
+<<<<<<< HEAD
 static int iowait_sleep(
 	struct sdma_engine *sde,
 	struct iowait *wait,
+=======
+void hfi1_qp_unbusy(struct rvt_qp *qp, struct iowait_work *wait)
+{
+	struct hfi1_qp_priv *priv = qp->priv;
+
+	if (iowait_set_work_flag(wait) == IOWAIT_IB_SE) {
+		qp->s_flags &= ~RVT_S_BUSY;
+		/*
+		 * If we are sending a first-leg packet from the second leg,
+		 * we need to clear the busy flag from priv->s_flags to
+		 * avoid a race condition when the qp wakes up before
+		 * the call to hfi1_verbs_send() returns to the second
+		 * leg. In that case, the second leg will terminate without
+		 * being re-scheduled, resulting in failure to send TID RDMA
+		 * WRITE DATA and TID RDMA ACK packets.
+		 */
+		if (priv->s_flags & HFI1_S_TID_BUSY_SET) {
+			priv->s_flags &= ~(HFI1_S_TID_BUSY_SET |
+					   RVT_S_BUSY);
+			iowait_set_flag(&priv->s_iowait, IOWAIT_PENDING_TID);
+		}
+	} else {
+		priv->s_flags &= ~RVT_S_BUSY;
+	}
+}
+
+static int iowait_sleep(
+	struct sdma_engine *sde,
+	struct iowait_work *wait,
+>>>>>>> upstream/android-13
 	struct sdma_txreq *stx,
 	uint seq,
 	bool pkts_sent)
@@ -407,7 +630,10 @@ static int iowait_sleep(
 	struct hfi1_qp_priv *priv;
 	unsigned long flags;
 	int ret = 0;
+<<<<<<< HEAD
 	struct hfi1_ibdev *dev;
+=======
+>>>>>>> upstream/android-13
 
 	qp = tx->qp;
 	priv = qp->priv;
@@ -420,9 +646,14 @@ static int iowait_sleep(
 		 * buffer and undoing the side effects of the copy.
 		 */
 		/* Make a common routine? */
+<<<<<<< HEAD
 		dev = &sde->dd->verbs_dev;
 		list_add_tail(&stx->list, &wait->tx_head);
 		write_seqlock(&dev->iowait_lock);
+=======
+		list_add_tail(&stx->list, &wait->tx_head);
+		write_seqlock(&sde->waitlock);
+>>>>>>> upstream/android-13
 		if (sdma_progress(sde, seq, stx))
 			goto eagain;
 		if (list_empty(&priv->s_iowait.list)) {
@@ -431,6 +662,7 @@ static int iowait_sleep(
 
 			ibp->rvp.n_dmawait++;
 			qp->s_flags |= RVT_S_WAIT_DMA_DESC;
+<<<<<<< HEAD
 			iowait_queue(pkts_sent, &priv->s_iowait,
 				     &sde->dmawait);
 			priv->s_iowait.lock = &dev->iowait_lock;
@@ -439,6 +671,17 @@ static int iowait_sleep(
 		}
 		write_sequnlock(&dev->iowait_lock);
 		qp->s_flags &= ~RVT_S_BUSY;
+=======
+			iowait_get_priority(&priv->s_iowait);
+			iowait_queue(pkts_sent, &priv->s_iowait,
+				     &sde->dmawait);
+			priv->s_iowait.lock = &sde->waitlock;
+			trace_hfi1_qpsleep(qp, RVT_S_WAIT_DMA_DESC);
+			rvt_get_qp(qp);
+		}
+		write_sequnlock(&sde->waitlock);
+		hfi1_qp_unbusy(qp, wait);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&qp->s_lock, flags);
 		ret = -EBUSY;
 	} else {
@@ -447,7 +690,11 @@ static int iowait_sleep(
 	}
 	return ret;
 eagain:
+<<<<<<< HEAD
 	write_sequnlock(&dev->iowait_lock);
+=======
+	write_sequnlock(&sde->waitlock);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&qp->s_lock, flags);
 	list_del_init(&stx->list);
 	return -EAGAIN;
@@ -480,6 +727,20 @@ static void iowait_sdma_drained(struct iowait *wait)
 	spin_unlock_irqrestore(&qp->s_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void hfi1_init_priority(struct iowait *w)
+{
+	struct rvt_qp *qp = iowait_to_qp(w);
+	struct hfi1_qp_priv *priv = qp->priv;
+
+	if (qp->s_flags & RVT_S_ACK_PENDING)
+		w->priority++;
+	if (priv->s_flags & RVT_S_ACK_PENDING)
+		w->priority++;
+}
+
+>>>>>>> upstream/android-13
 /**
  * qp_to_sdma_engine - map a qp to a send engine
  * @qp: the QP
@@ -505,7 +766,11 @@ struct sdma_engine *qp_to_sdma_engine(struct rvt_qp *qp, u8 sc5)
 	return sde;
 }
 
+<<<<<<< HEAD
 /*
+=======
+/**
+>>>>>>> upstream/android-13
  * qp_to_send_context - map a qp to a send context
  * @qp: the QP
  * @sc5: the 5 bit sc
@@ -602,8 +867,13 @@ void qp_iter_print(struct seq_file *s, struct rvt_qp_iter *iter)
 		   sde ? sde->this_idx : 0,
 		   send_context,
 		   send_context ? send_context->sw_index : 0,
+<<<<<<< HEAD
 		   ibcq_to_rvtcq(qp->ibqp.send_cq)->queue->head,
 		   ibcq_to_rvtcq(qp->ibqp.send_cq)->queue->tail,
+=======
+		   ib_cq_head(qp->ibqp.send_cq),
+		   ib_cq_tail(qp->ibqp.send_cq),
+>>>>>>> upstream/android-13
 		   qp->pid,
 		   qp->s_state,
 		   qp->s_ack_state,
@@ -637,9 +907,19 @@ void *qp_priv_alloc(struct rvt_dev_info *rdi, struct rvt_qp *qp)
 		&priv->s_iowait,
 		1,
 		_hfi1_do_send,
+<<<<<<< HEAD
 		iowait_sleep,
 		iowait_wakeup,
 		iowait_sdma_drained);
+=======
+		_hfi1_do_tid_send,
+		iowait_sleep,
+		iowait_wakeup,
+		iowait_sdma_drained,
+		hfi1_init_priority);
+	/* Init to a value to start the running average correctly */
+	priv->s_running_pkt_size = piothreshold / 2;
+>>>>>>> upstream/android-13
 	return priv;
 }
 
@@ -647,6 +927,10 @@ void qp_priv_free(struct rvt_dev_info *rdi, struct rvt_qp *qp)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 
+<<<<<<< HEAD
+=======
+	hfi1_qp_priv_tid_free(rdi, qp);
+>>>>>>> upstream/android-13
 	kfree(priv->s_ahg);
 	kfree(priv);
 }
@@ -680,19 +964,34 @@ void flush_qp_waiters(struct rvt_qp *qp)
 {
 	lockdep_assert_held(&qp->s_lock);
 	flush_iowait(qp);
+<<<<<<< HEAD
+=======
+	hfi1_tid_rdma_flush_wait(qp);
+>>>>>>> upstream/android-13
 }
 
 void stop_send_queue(struct rvt_qp *qp)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 
+<<<<<<< HEAD
 	cancel_work_sync(&priv->s_iowait.iowork);
+=======
+	iowait_cancel_work(&priv->s_iowait);
+	if (cancel_work_sync(&priv->tid_rdma.trigger_work))
+		rvt_put_qp(qp);
+>>>>>>> upstream/android-13
 }
 
 void quiesce_qp(struct rvt_qp *qp)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 
+<<<<<<< HEAD
+=======
+	hfi1_del_tid_reap_timer(qp);
+	hfi1_del_tid_retry_timer(qp);
+>>>>>>> upstream/android-13
 	iowait_sdma_drain(&priv->s_iowait);
 	qp_pio_drain(qp);
 	flush_tx_list(qp);
@@ -700,8 +999,18 @@ void quiesce_qp(struct rvt_qp *qp)
 
 void notify_qp_reset(struct rvt_qp *qp)
 {
+<<<<<<< HEAD
 	qp->r_adefered = 0;
 	clear_ahg(qp);
+=======
+	hfi1_qp_kern_exp_rcv_clear_all(qp);
+	qp->r_adefered = 0;
+	clear_ahg(qp);
+
+	/* Clear any OPFN state */
+	if (qp->ibqp.qp_type == IB_QPT_RC)
+		opfn_conn_error(qp);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -783,8 +1092,16 @@ void notify_error_qp(struct rvt_qp *qp)
 	if (lock) {
 		write_seqlock(lock);
 		if (!list_empty(&priv->s_iowait.list) &&
+<<<<<<< HEAD
 		    !(qp->s_flags & RVT_S_BUSY)) {
 			qp->s_flags &= ~HFI1_S_ANY_WAIT_IO;
+=======
+		    !(qp->s_flags & RVT_S_BUSY) &&
+		    !(priv->s_flags & RVT_S_BUSY)) {
+			qp->s_flags &= ~HFI1_S_ANY_WAIT_IO;
+			iowait_clear_flag(&priv->s_iowait, IOWAIT_PENDING_IB);
+			iowait_clear_flag(&priv->s_iowait, IOWAIT_PENDING_TID);
+>>>>>>> upstream/android-13
 			list_del_init(&priv->s_iowait.list);
 			priv->s_iowait.lock = NULL;
 			rvt_put_qp(qp);
@@ -792,7 +1109,12 @@ void notify_error_qp(struct rvt_qp *qp)
 		write_sequnlock(lock);
 	}
 
+<<<<<<< HEAD
 	if (!(qp->s_flags & RVT_S_BUSY)) {
+=======
+	if (!(qp->s_flags & RVT_S_BUSY) && !(priv->s_flags & RVT_S_BUSY)) {
+		qp->s_hdrwords = 0;
+>>>>>>> upstream/android-13
 		if (qp->s_rdma_mr) {
 			rvt_put_mr(qp->s_rdma_mr);
 			qp->s_rdma_mr = NULL;
@@ -803,8 +1125,13 @@ void notify_error_qp(struct rvt_qp *qp)
 
 /**
  * hfi1_qp_iter_cb - callback for iterator
+<<<<<<< HEAD
  * @qp - the qp
  * @v - the sl in low bits of v
+=======
+ * @qp: the qp
+ * @v: the sl in low bits of v
+>>>>>>> upstream/android-13
  *
  * This is called from the iterator callback to work
  * on an individual qp.

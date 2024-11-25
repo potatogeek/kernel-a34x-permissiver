@@ -19,6 +19,12 @@
 #include "ath9k.h"
 #include "btcoex.h"
 
+<<<<<<< HEAD
+=======
+static void ath9k_flush(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+			u32 queues, bool drop);
+
+>>>>>>> upstream/android-13
 u8 ath9k_parse_mpdudensity(u8 mpdudensity)
 {
 	/*
@@ -304,6 +310,14 @@ static int ath_reset_internal(struct ath_softc *sc, struct ath9k_channel *hchan)
 		hchan = ah->curchan;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!hchan) {
+		fastcc = false;
+		hchan = ath9k_cmn_get_channel(sc->hw, ah, &sc->cur_chan->chandef);
+	}
+
+>>>>>>> upstream/android-13
 	if (!ath_prepare_reset(sc))
 		fastcc = false;
 
@@ -368,9 +382,15 @@ static void ath_node_detach(struct ath_softc *sc, struct ieee80211_sta *sta)
 	ath_dynack_node_deinit(sc->sc_ah, an);
 }
 
+<<<<<<< HEAD
 void ath9k_tasklet(unsigned long data)
 {
 	struct ath_softc *sc = (struct ath_softc *)data;
+=======
+void ath9k_tasklet(struct tasklet_struct *t)
+{
+	struct ath_softc *sc = from_tasklet(sc, t, intr_tq);
+>>>>>>> upstream/android-13
 	struct ath_hw *ah = sc->sc_ah;
 	struct ath_common *common = ath9k_hw_common(ah);
 	enum ath_reset_type type;
@@ -525,8 +545,15 @@ irqreturn_t ath_isr(int irq, void *dev)
 	ath9k_debug_sync_cause(sc, sync_cause);
 	status &= ah->imask;	/* discard unasked-for bits */
 
+<<<<<<< HEAD
 	if (test_bit(ATH_OP_HW_RESET, &common->op_flags))
 		return IRQ_HANDLED;
+=======
+	if (test_bit(ATH_OP_HW_RESET, &common->op_flags)) {
+		ath9k_hw_kill_interrupts(sc->sc_ah);
+		return IRQ_HANDLED;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * If there are no status bits set, then this interrupt was not
@@ -809,7 +836,11 @@ static void ath9k_tx(struct ieee80211_hw *hw,
 
 	if (ath_tx_start(hw, skb, &txctl) != 0) {
 		ath_dbg(common, XMIT, "TX failed\n");
+<<<<<<< HEAD
 		TX_STAT_INC(txctl.txq->axq_qnum, txfailed);
+=======
+		TX_STAT_INC(sc, txctl.txq->axq_qnum, txfailed);
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
@@ -818,12 +849,86 @@ exit:
 	ieee80211_free_txskb(hw, skb);
 }
 
+<<<<<<< HEAD
+=======
+static bool ath9k_txq_list_has_key(struct list_head *txq_list, u32 keyix)
+{
+	struct ath_buf *bf;
+	struct ieee80211_tx_info *txinfo;
+	struct ath_frame_info *fi;
+
+	list_for_each_entry(bf, txq_list, list) {
+		if (bf->bf_state.stale || !bf->bf_mpdu)
+			continue;
+
+		txinfo = IEEE80211_SKB_CB(bf->bf_mpdu);
+		fi = (struct ath_frame_info *)&txinfo->status.status_driver_data[0];
+		if (fi->keyix == keyix)
+			return true;
+	}
+
+	return false;
+}
+
+static bool ath9k_txq_has_key(struct ath_softc *sc, u32 keyix)
+{
+	struct ath_hw *ah = sc->sc_ah;
+	int i;
+	struct ath_txq *txq;
+	bool key_in_use = false;
+
+	for (i = 0; !key_in_use && i < ATH9K_NUM_TX_QUEUES; i++) {
+		if (!ATH_TXQ_SETUP(sc, i))
+			continue;
+		txq = &sc->tx.txq[i];
+		if (!txq->axq_depth)
+			continue;
+		if (!ath9k_hw_numtxpending(ah, txq->axq_qnum))
+			continue;
+
+		ath_txq_lock(sc, txq);
+		key_in_use = ath9k_txq_list_has_key(&txq->axq_q, keyix);
+		if (sc->sc_ah->caps.hw_caps & ATH9K_HW_CAP_EDMA) {
+			int idx = txq->txq_tailidx;
+
+			while (!key_in_use &&
+			       !list_empty(&txq->txq_fifo[idx])) {
+				key_in_use = ath9k_txq_list_has_key(
+					&txq->txq_fifo[idx], keyix);
+				INCR(idx, ATH_TXFIFO_DEPTH);
+			}
+		}
+		ath_txq_unlock(sc, txq);
+	}
+
+	return key_in_use;
+}
+
+static void ath9k_pending_key_del(struct ath_softc *sc, u8 keyix)
+{
+	struct ath_hw *ah = sc->sc_ah;
+	struct ath_common *common = ath9k_hw_common(ah);
+
+	if (!test_bit(keyix, ah->pending_del_keymap) ||
+	    ath9k_txq_has_key(sc, keyix))
+		return;
+
+	/* No more TXQ frames point to this key cache entry, so delete it. */
+	clear_bit(keyix, ah->pending_del_keymap);
+	ath_key_delete(common, keyix);
+}
+
+>>>>>>> upstream/android-13
 static void ath9k_stop(struct ieee80211_hw *hw)
 {
 	struct ath_softc *sc = hw->priv;
 	struct ath_hw *ah = sc->sc_ah;
 	struct ath_common *common = ath9k_hw_common(ah);
 	bool prev_idle;
+<<<<<<< HEAD
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	ath9k_deinit_channel_context(sc);
 
@@ -891,6 +996,17 @@ static void ath9k_stop(struct ieee80211_hw *hw)
 
 	spin_unlock_bh(&sc->sc_pcu_lock);
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < ATH_KEYMAX; i++)
+		ath9k_pending_key_del(sc, i);
+
+	/* Clear key cache entries explicitly to get rid of any potentially
+	 * remaining keys.
+	 */
+	ath9k_cmn_init_crypto(sc->sc_ah);
+
+>>>>>>> upstream/android-13
 	ath9k_ps_restore(sc);
 
 	sc->ps_idle = prev_idle;
@@ -970,9 +1086,12 @@ static void ath9k_vif_iter(struct ath9k_vif_iter_data *iter_data,
 		if (vif->bss_conf.enable_beacon)
 			ath9k_vif_iter_set_beacon(iter_data, vif);
 		break;
+<<<<<<< HEAD
 	case NL80211_IFTYPE_WDS:
 		iter_data->nwds++;
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1133,8 +1252,11 @@ void ath9k_calculate_summary_state(struct ath_softc *sc,
 			ah->opmode = NL80211_IFTYPE_MESH_POINT;
 		else if (iter_data.nocbs)
 			ah->opmode = NL80211_IFTYPE_OCB;
+<<<<<<< HEAD
 		else if (iter_data.nwds)
 			ah->opmode = NL80211_IFTYPE_AP;
+=======
+>>>>>>> upstream/android-13
 		else if (iter_data.nadhocs)
 			ah->opmode = NL80211_IFTYPE_ADHOC;
 		else
@@ -1196,6 +1318,12 @@ static void ath9k_tpc_vif_iter(void *data, u8 *mac, struct ieee80211_vif *vif)
 {
 	int *power = data;
 
+<<<<<<< HEAD
+=======
+	if (vif->bss_conf.txpower == INT_MIN)
+		return;
+
+>>>>>>> upstream/android-13
 	if (*power < vif->bss_conf.txpower)
 		*power = vif->bss_conf.txpower;
 }
@@ -1473,6 +1601,10 @@ static int ath9k_config(struct ieee80211_hw *hw, u32 changed)
 	FIF_OTHER_BSS |				\
 	FIF_BCN_PRBRESP_PROMISC |		\
 	FIF_PROBE_REQ |				\
+<<<<<<< HEAD
+=======
+	FIF_MCAST_ACTION |			\
+>>>>>>> upstream/android-13
 	FIF_FCSFAIL)
 
 /* FIXME: sc->sc_full_reset ? */
@@ -1536,12 +1668,19 @@ static void ath9k_del_ps_key(struct ath_softc *sc,
 {
 	struct ath_common *common = ath9k_hw_common(sc->sc_ah);
 	struct ath_node *an = (struct ath_node *) sta->drv_priv;
+<<<<<<< HEAD
 	struct ieee80211_key_conf ps_key = { .hw_key_idx = an->ps_key };
+=======
+>>>>>>> upstream/android-13
 
 	if (!an->ps_key)
 	    return;
 
+<<<<<<< HEAD
 	ath_key_delete(common, &ps_key);
+=======
+	ath_key_delete(common, an->ps_key);
+>>>>>>> upstream/android-13
 	an->ps_key = 0;
 	an->key_idx[0] = 0;
 }
@@ -1697,12 +1836,33 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
+=======
+	/* There may be MPDUs queued for the outgoing PTK key. Flush queues to
+	 * make sure these are not send unencrypted or with a wrong (new) key
+	 */
+	if (cmd == DISABLE_KEY && key->flags & IEEE80211_KEY_FLAG_PAIRWISE) {
+		ieee80211_stop_queues(hw);
+		ath9k_flush(hw, vif, 0, true);
+		ieee80211_wake_queues(hw);
+	}
+
+>>>>>>> upstream/android-13
 	mutex_lock(&sc->mutex);
 	ath9k_ps_wakeup(sc);
 	ath_dbg(common, CONFIG, "Set HW Key %d\n", cmd);
 	if (sta)
 		an = (struct ath_node *)sta->drv_priv;
 
+<<<<<<< HEAD
+=======
+	/* Delete pending key cache entries if no more frames are pointing to
+	 * them in TXQs.
+	 */
+	for (i = 0; i < ATH_KEYMAX; i++)
+		ath9k_pending_key_del(sc, i);
+
+>>>>>>> upstream/android-13
 	switch (cmd) {
 	case SET_KEY:
 		if (sta)
@@ -1732,7 +1892,19 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
 		}
 		break;
 	case DISABLE_KEY:
+<<<<<<< HEAD
 		ath_key_delete(common, key);
+=======
+		if (ath9k_txq_has_key(sc, key->hw_key_idx)) {
+			/* Delay key cache entry deletion until there are no
+			 * remaining TXQ frames pointing to this entry.
+			 */
+			set_bit(key->hw_key_idx, sc->sc_ah->pending_del_keymap);
+			ath_hw_keysetmac(common, key->hw_key_idx, NULL);
+		} else {
+			ath_key_delete(common, key->hw_key_idx);
+		}
+>>>>>>> upstream/android-13
 		if (an) {
 			for (i = 0; i < ARRAY_SIZE(an->key_idx); i++) {
 				if (an->key_idx[i] != key->hw_key_idx)
@@ -1924,13 +2096,21 @@ static int ath9k_ampdu_action(struct ieee80211_hw *hw,
 		ath9k_ps_wakeup(sc);
 		ret = ath_tx_aggr_start(sc, sta, tid, ssn);
 		if (!ret)
+<<<<<<< HEAD
 			ieee80211_start_tx_ba_cb_irqsafe(vif, sta->addr, tid);
+=======
+			ret = IEEE80211_AMPDU_TX_START_IMMEDIATE;
+>>>>>>> upstream/android-13
 		ath9k_ps_restore(sc);
 		break;
 	case IEEE80211_AMPDU_TX_STOP_FLUSH:
 	case IEEE80211_AMPDU_TX_STOP_FLUSH_CONT:
 		flush = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IEEE80211_AMPDU_TX_STOP_CONT:
 		ath9k_ps_wakeup(sc);
 		ath_tx_aggr_stop(sc, sta, tid);
@@ -2395,7 +2575,12 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ath9k_cancel_remain_on_channel(struct ieee80211_hw *hw)
+=======
+static int ath9k_cancel_remain_on_channel(struct ieee80211_hw *hw,
+					  struct ieee80211_vif *vif)
+>>>>>>> upstream/android-13
 {
 	struct ath_softc *sc = hw->priv;
 	struct ath_common *common = ath9k_hw_common(sc->sc_ah);
@@ -2548,7 +2733,11 @@ static void ath9k_unassign_vif_chanctx(struct ieee80211_hw *hw,
 
 static void ath9k_mgd_prepare_tx(struct ieee80211_hw *hw,
 				 struct ieee80211_vif *vif,
+<<<<<<< HEAD
 				 u16 duration)
+=======
+				 struct ieee80211_prep_tx_info *info)
+>>>>>>> upstream/android-13
 {
 	struct ath_softc *sc = hw->priv;
 	struct ath_common *common = ath9k_hw_common(sc->sc_ah);

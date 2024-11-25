@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Atheros device configuration
 #
@@ -5,8 +9,13 @@
 config NET_VENDOR_ATHEROS
 	bool "Atheros devices"
 	default y
+<<<<<<< HEAD
 	depends on PCI
 	---help---
+=======
+	depends on (PCI || ATH79)
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -16,12 +25,28 @@ config NET_VENDOR_ATHEROS
 
 if NET_VENDOR_ATHEROS
 
+<<<<<<< HEAD
+=======
+config AG71XX
+	tristate "Atheros AR7XXX/AR9XXX built-in ethernet mac support"
+	depends on ATH79
+	select PHYLINK
+	imply NET_SELFTESTS
+	help
+	  If you wish to compile a kernel for AR7XXX/91XXX and enable
+	  ethernet support, then you should always answer Y to this.
+
+>>>>>>> upstream/android-13
 config ATL2
 	tristate "Atheros L2 Fast Ethernet support"
 	depends on PCI
 	select CRC32
 	select MII
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports the Atheros L2 fast ethernet adapter.
 
 	  To compile this driver as a module, choose M here.  The module
@@ -32,7 +57,11 @@ config ATL1
 	depends on PCI
 	select CRC32
 	select MII
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports the Atheros/Attansic L1 gigabit ethernet
 	  adapter.
 
@@ -44,7 +73,11 @@ config ATL1E
 	depends on PCI
 	select CRC32
 	select MII
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports the Atheros L1E gigabit ethernet adapter.
 
 	  To compile this driver as a module, choose M here.  The module
@@ -55,7 +88,11 @@ config ATL1C
 	depends on PCI
 	select CRC32
 	select MII
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This driver supports the Atheros L1C gigabit ethernet adapter.
 
 	  To compile this driver as a module, choose M here.  The module

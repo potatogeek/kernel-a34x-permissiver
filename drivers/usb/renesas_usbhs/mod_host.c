@@ -340,7 +340,11 @@ static void usbhsh_pipe_detach(struct usbhsh_hpriv *hpriv,
 	pipe = usbhsh_uep_to_pipe(uep);
 
 	if (unlikely(!pipe)) {
+<<<<<<< HEAD
 		dev_err(dev, "uep doens't have pipe\n");
+=======
+		dev_err(dev, "uep doesn't have pipe\n");
+>>>>>>> upstream/android-13
 	} else if (1 == uep->counter--) { /* last user */
 		struct usb_host_endpoint *ep = usbhsh_uep_to_ep(uep);
 		struct usbhsh_device *udev = usbhsh_uep_to_udev(uep);
@@ -1283,7 +1287,11 @@ static const struct hc_driver usbhsh_driver = {
 	/*
 	 * generic hardware linkage
 	 */
+<<<<<<< HEAD
 	.flags =		HCD_USB2,
+=======
+	.flags =		HCD_DMA | HCD_USB2,
+>>>>>>> upstream/android-13
 
 	.start =		usbhsh_host_start,
 	.stop =			usbhsh_host_stop,

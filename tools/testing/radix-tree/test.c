@@ -25,11 +25,14 @@ int item_tag_get(struct radix_tree_root *root, unsigned long index, int tag)
 	return radix_tree_tag_get(root, index, tag);
 }
 
+<<<<<<< HEAD
 int __item_insert(struct radix_tree_root *root, struct item *item)
 {
 	return __radix_tree_insert(root, item->index, item->order, item);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct item *item_create(unsigned long index, unsigned int order)
 {
 	struct item *ret = malloc(sizeof(*ret));
@@ -39,21 +42,31 @@ struct item *item_create(unsigned long index, unsigned int order)
 	return ret;
 }
 
+<<<<<<< HEAD
 int item_insert_order(struct radix_tree_root *root, unsigned long index,
 			unsigned order)
 {
 	struct item *item = item_create(index, order);
 	int err = __item_insert(root, item);
+=======
+int item_insert(struct radix_tree_root *root, unsigned long index)
+{
+	struct item *item = item_create(index, 0);
+	int err = radix_tree_insert(root, item->index, item);
+>>>>>>> upstream/android-13
 	if (err)
 		free(item);
 	return err;
 }
 
+<<<<<<< HEAD
 int item_insert(struct radix_tree_root *root, unsigned long index)
 {
 	return item_insert_order(root, index, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 void item_sanity(struct item *item, unsigned long index)
 {
 	unsigned long mask;
@@ -63,16 +76,33 @@ void item_sanity(struct item *item, unsigned long index)
 	assert((item->index | mask) == (index | mask));
 }
 
+<<<<<<< HEAD
+=======
+void item_free(struct item *item, unsigned long index)
+{
+	item_sanity(item, index);
+	free(item);
+}
+
+>>>>>>> upstream/android-13
 int item_delete(struct radix_tree_root *root, unsigned long index)
 {
 	struct item *item = radix_tree_delete(root, index);
 
+<<<<<<< HEAD
 	if (item) {
 		item_sanity(item, index);
 		free(item);
 		return 1;
 	}
 	return 0;
+=======
+	if (!item)
+		return 0;
+
+	item_free(item, index);
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 static void item_free_rcu(struct rcu_head *head)
@@ -82,9 +112,15 @@ static void item_free_rcu(struct rcu_head *head)
 	free(item);
 }
 
+<<<<<<< HEAD
 int item_delete_rcu(struct radix_tree_root *root, unsigned long index)
 {
 	struct item *item = radix_tree_delete(root, index);
+=======
+int item_delete_rcu(struct xarray *xa, unsigned long index)
+{
+	struct item *item = xa_erase(xa, index);
+>>>>>>> upstream/android-13
 
 	if (item) {
 		item_sanity(item, index);
@@ -176,6 +212,7 @@ void item_full_scan(struct radix_tree_root *root, unsigned long start,
 }
 
 /* Use the same pattern as tag_pages_for_writeback() in mm/page-writeback.c */
+<<<<<<< HEAD
 int tag_tagged_items(struct radix_tree_root *root, pthread_mutex_t *lock,
 			unsigned long start, unsigned long end, unsigned batch,
 			unsigned iftag, unsigned thentag)
@@ -183,10 +220,19 @@ int tag_tagged_items(struct radix_tree_root *root, pthread_mutex_t *lock,
 	unsigned long tagged = 0;
 	struct radix_tree_iter iter;
 	void **slot;
+=======
+int tag_tagged_items(struct xarray *xa, unsigned long start, unsigned long end,
+		unsigned batch, xa_mark_t iftag, xa_mark_t thentag)
+{
+	XA_STATE(xas, xa, start);
+	unsigned int tagged = 0;
+	struct item *item;
+>>>>>>> upstream/android-13
 
 	if (batch == 0)
 		batch = 1;
 
+<<<<<<< HEAD
 	if (lock)
 		pthread_mutex_lock(lock);
 	radix_tree_for_each_tagged(slot, root, &iter, start, iftag) {
@@ -205,10 +251,25 @@ int tag_tagged_items(struct radix_tree_root *root, pthread_mutex_t *lock,
 	}
 	if (lock)
 		pthread_mutex_unlock(lock);
+=======
+	xas_lock_irq(&xas);
+	xas_for_each_marked(&xas, item, end, iftag) {
+		xas_set_mark(&xas, thentag);
+		if (++tagged % batch)
+			continue;
+
+		xas_pause(&xas);
+		xas_unlock_irq(&xas);
+		rcu_barrier();
+		xas_lock_irq(&xas);
+	}
+	xas_unlock_irq(&xas);
+>>>>>>> upstream/android-13
 
 	return tagged;
 }
 
+<<<<<<< HEAD
 /* Use the same pattern as find_swap_entry() in mm/shmem.c */
 unsigned long find_item(struct radix_tree_root *root, void *item)
 {
@@ -231,6 +292,8 @@ unsigned long find_item(struct radix_tree_root *root, void *item)
 	return found;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int verify_node(struct radix_tree_node *slot, unsigned int tag,
 			int tagged)
 {
@@ -281,12 +344,17 @@ static int verify_node(struct radix_tree_node *slot, unsigned int tag,
 
 void verify_tag_consistency(struct radix_tree_root *root, unsigned int tag)
 {
+<<<<<<< HEAD
 	struct radix_tree_node *node = root->rnode;
+=======
+	struct radix_tree_node *node = root->xa_head;
+>>>>>>> upstream/android-13
 	if (!radix_tree_is_internal_node(node))
 		return;
 	verify_node(node, tag, !!root_tag_get(root, tag));
 }
 
+<<<<<<< HEAD
 void item_kill_tree(struct radix_tree_root *root)
 {
 	struct radix_tree_iter iter;
@@ -312,12 +380,31 @@ void item_kill_tree(struct radix_tree_root *root)
 	}
 	assert(radix_tree_gang_lookup(root, (void **)items, 0, 32) == 0);
 	assert(root->rnode == NULL);
+=======
+void item_kill_tree(struct xarray *xa)
+{
+	XA_STATE(xas, xa, 0);
+	void *entry;
+
+	xas_for_each(&xas, entry, ULONG_MAX) {
+		if (!xa_is_value(entry)) {
+			item_free(entry, xas.xa_index);
+		}
+		xas_store(&xas, NULL);
+	}
+
+	assert(xa_empty(xa));
+>>>>>>> upstream/android-13
 }
 
 void tree_verify_min_height(struct radix_tree_root *root, int maxindex)
 {
 	unsigned shift;
+<<<<<<< HEAD
 	struct radix_tree_node *node = root->rnode;
+=======
+	struct radix_tree_node *node = root->xa_head;
+>>>>>>> upstream/android-13
 	if (!radix_tree_is_internal_node(node)) {
 		assert(maxindex == 0);
 		return;

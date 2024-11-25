@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Fraunhofer ITWM
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Fraunhofer ITWM
+ *
+>>>>>>> upstream/android-13
  * Written by:
  * Phoebe Buckheister <phoebe.buckheister@itwm.fraunhofer.de>
  */

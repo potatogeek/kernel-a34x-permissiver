@@ -49,9 +49,18 @@
 #include <linux/module.h>
 #include <linux/ratelimit.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 
 
 /* number of characters left in xmit buffer before select has we have room */
+=======
+#include "tty.h"
+
+/*
+ * Until this number of characters is queued in the xmit buffer, select will
+ * return "we have room for writes".
+ */
+>>>>>>> upstream/android-13
 #define WAKEUP_CHARS 256
 
 /*
@@ -82,9 +91,17 @@
 #ifdef N_TTY_TRACE
 # define n_tty_trace(f, args...)	trace_printk(f, ##args)
 #else
+<<<<<<< HEAD
 # define n_tty_trace(f, args...)
 #endif
 
+=======
+# define n_tty_trace(f, args...)	no_printk(f, ##args)
+#endif
+
+#define BLUETOOTH_UART_PORT_LINE 1
+
+>>>>>>> upstream/android-13
 struct n_tty_data {
 	/* producer-published */
 	size_t read_head;
@@ -162,12 +179,17 @@ static void zero_buffer(struct tty_struct *tty, u8 *buffer, int size)
 		memset(buffer, 0x00, size);
 }
 
+<<<<<<< HEAD
 static int tty_copy_to_user(struct tty_struct *tty, void __user *to,
 			    size_t tail, size_t n)
+=======
+static void tty_copy(struct tty_struct *tty, void *to, size_t tail, size_t n)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	size_t size = N_TTY_BUF_SIZE - tail;
 	void *from = read_buf_addr(ldata, tail);
+<<<<<<< HEAD
 	int uncopied;
 
 	if (n > size) {
@@ -176,15 +198,27 @@ static int tty_copy_to_user(struct tty_struct *tty, void __user *to,
 		zero_buffer(tty, from, size - uncopied);
 		if (uncopied)
 			return uncopied;
+=======
+
+	if (n > size) {
+		tty_audit_add_data(tty, from, size);
+		memcpy(to, from, size);
+		zero_buffer(tty, from, size);
+>>>>>>> upstream/android-13
 		to += size;
 		n -= size;
 		from = ldata->read_buf;
 	}
 
 	tty_audit_add_data(tty, from, n);
+<<<<<<< HEAD
 	uncopied = copy_to_user(to, from, n);
 	zero_buffer(tty, from, n - uncopied);
 	return uncopied;
+=======
+	memcpy(to, from, n);
+	zero_buffer(tty, from, n);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -320,7 +354,11 @@ static inline void put_tty_queue(unsigned char c, struct n_tty_data *ldata)
 
 /**
  *	reset_buffer_flags	-	reset buffer state
+<<<<<<< HEAD
  *	@tty: terminal to reset
+=======
+ *	@ldata: line disc data to reset
+>>>>>>> upstream/android-13
  *
  *	Reset the read buffer counters and clear the flags.
  *	Called from n_tty_open() and n_tty_flush_buffer().
@@ -344,10 +382,17 @@ static void n_tty_packet_mode_flush(struct tty_struct *tty)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (tty->link->packet) {
 		spin_lock_irqsave(&tty->ctrl_lock, flags);
 		tty->ctrl_status |= TIOCPKT_FLUSHREAD;
 		spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+	if (tty->link->ctrl.packet) {
+		spin_lock_irqsave(&tty->ctrl.lock, flags);
+		tty->ctrl.pktstatus |= TIOCPKT_FLUSHREAD;
+		spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 		wake_up_interruptible(&tty->link->read_wait);
 	}
 }
@@ -363,7 +408,11 @@ static void n_tty_packet_mode_flush(struct tty_struct *tty)
  *	Holds termios_rwsem to exclude producer/consumer while
  *	buffer indices are reset.
  *
+<<<<<<< HEAD
  *	Locking: ctrl_lock, exclusive termios_rwsem
+=======
+ *	Locking: ctrl.lock, exclusive termios_rwsem
+>>>>>>> upstream/android-13
  */
 
 static void n_tty_flush_buffer(struct tty_struct *tty)
@@ -394,6 +443,10 @@ static inline int is_utf8_continuation(unsigned char c)
 /**
  *	is_continuation		-	multibyte check
  *	@c: byte to check
+<<<<<<< HEAD
+=======
+ *	@tty: terminal device
+>>>>>>> upstream/android-13
  *
  *	Returns true if the utf8 character 'c' is a multibyte continuation
  *	character and the terminal is in unicode mode.
@@ -548,9 +601,15 @@ static ssize_t process_output_block(struct tty_struct *tty,
 	mutex_lock(&ldata->output_lock);
 
 	space = tty_write_room(tty);
+<<<<<<< HEAD
 	if (!space) {
 		mutex_unlock(&ldata->output_lock);
 		return 0;
+=======
+	if (space <= 0) {
+		mutex_unlock(&ldata->output_lock);
+		return space;
+>>>>>>> upstream/android-13
 	}
 	if (nr > space)
 		nr = space;
@@ -652,9 +711,15 @@ static size_t __process_echoes(struct tty_struct *tty)
 			op = echo_buf(ldata, tail + 1);
 
 			switch (op) {
+<<<<<<< HEAD
 				unsigned int num_chars, num_bs;
 
 			case ECHO_OP_ERASE_TAB:
+=======
+			case ECHO_OP_ERASE_TAB: {
+				unsigned int num_chars, num_bs;
+
+>>>>>>> upstream/android-13
 				if (MASK(ldata->echo_commit) == MASK(tail + 2))
 					goto not_yet_stored;
 				num_chars = echo_buf(ldata, tail + 2);
@@ -685,7 +750,11 @@ static size_t __process_echoes(struct tty_struct *tty)
 				}
 				tail += 3;
 				break;
+<<<<<<< HEAD
 
+=======
+			}
+>>>>>>> upstream/android-13
 			case ECHO_OP_SET_CANON_COL:
 				ldata->canon_column = ldata->column;
 				tail += 2;
@@ -904,7 +973,11 @@ static void echo_erase_tab(unsigned int num_chars, int after_tab,
 /**
  *	echo_char_raw	-	echo a character raw
  *	@c: unicode byte to echo
+<<<<<<< HEAD
  *	@tty: terminal device
+=======
+ *	@ldata: line disc data
+>>>>>>> upstream/android-13
  *
  *	Echo user input back onto the screen. This must be called only when
  *	L_ECHO(tty) is true. Called from the driver receive_buf path.
@@ -1104,7 +1177,11 @@ static void eraser(unsigned char c, struct tty_struct *tty)
  *	buffer is 'output'. The signal is processed first to alert any current
  *	readers or writers to discontinue and exit their i/o loops.
  *
+<<<<<<< HEAD
  *	Locking: ctrl_lock
+=======
+ *	Locking: ctrl.lock
+>>>>>>> upstream/android-13
  */
 
 static void __isig(int sig, struct tty_struct *tty)
@@ -1246,7 +1323,10 @@ n_tty_receive_signal_char(struct tty_struct *tty, int signal, unsigned char c)
 		commit_echoes(tty);
 	} else
 		process_echoes(tty);
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1261,12 +1341,17 @@ n_tty_receive_signal_char(struct tty_struct *tty, int signal, unsigned char c)
  *	n_tty_receive_buf()/producer path:
  *		caller holds non-exclusive termios_rwsem
  *		publishes canon_head if canonical mode is active
+<<<<<<< HEAD
  *
  *	Returns 1 if LNEXT was received, else returns 0
  */
 
 static int
 n_tty_receive_char_special(struct tty_struct *tty, unsigned char c)
+=======
+ */
+static void n_tty_receive_char_special(struct tty_struct *tty, unsigned char c)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 
@@ -1274,17 +1359,26 @@ n_tty_receive_char_special(struct tty_struct *tty, unsigned char c)
 		if (c == START_CHAR(tty)) {
 			start_tty(tty);
 			process_echoes(tty);
+<<<<<<< HEAD
 			return 0;
 		}
 		if (c == STOP_CHAR(tty)) {
 			stop_tty(tty);
 			return 0;
+=======
+			return;
+		}
+		if (c == STOP_CHAR(tty)) {
+			stop_tty(tty);
+			return;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (L_ISIG(tty)) {
 		if (c == INTR_CHAR(tty)) {
 			n_tty_receive_signal_char(tty, SIGINT, c);
+<<<<<<< HEAD
 			return 0;
 		} else if (c == QUIT_CHAR(tty)) {
 			n_tty_receive_signal_char(tty, SIGQUIT, c);
@@ -1296,13 +1390,30 @@ n_tty_receive_char_special(struct tty_struct *tty, unsigned char c)
 	}
 
 	if (tty->stopped && !tty->flow_stopped && I_IXON(tty) && I_IXANY(tty)) {
+=======
+			return;
+		} else if (c == QUIT_CHAR(tty)) {
+			n_tty_receive_signal_char(tty, SIGQUIT, c);
+			return;
+		} else if (c == SUSP_CHAR(tty)) {
+			n_tty_receive_signal_char(tty, SIGTSTP, c);
+			return;
+		}
+	}
+
+	if (tty->flow.stopped && !tty->flow.tco_stopped && I_IXON(tty) && I_IXANY(tty)) {
+>>>>>>> upstream/android-13
 		start_tty(tty);
 		process_echoes(tty);
 	}
 
 	if (c == '\r') {
 		if (I_IGNCR(tty))
+<<<<<<< HEAD
 			return 0;
+=======
+			return;
+>>>>>>> upstream/android-13
 		if (I_ICRNL(tty))
 			c = '\n';
 	} else if (c == '\n' && I_INLCR(tty))
@@ -1313,7 +1424,11 @@ n_tty_receive_char_special(struct tty_struct *tty, unsigned char c)
 		    (c == WERASE_CHAR(tty) && L_IEXTEN(tty))) {
 			eraser(c, tty);
 			commit_echoes(tty);
+<<<<<<< HEAD
 			return 0;
+=======
+			return;
+>>>>>>> upstream/android-13
 		}
 		if (c == LNEXT_CHAR(tty) && L_IEXTEN(tty)) {
 			ldata->lnext = 1;
@@ -1325,7 +1440,11 @@ n_tty_receive_char_special(struct tty_struct *tty, unsigned char c)
 					commit_echoes(tty);
 				}
 			}
+<<<<<<< HEAD
 			return 1;
+=======
+			return;
+>>>>>>> upstream/android-13
 		}
 		if (c == REPRINT_CHAR(tty) && L_ECHO(tty) && L_IEXTEN(tty)) {
 			size_t tail = ldata->canon_head;
@@ -1338,7 +1457,11 @@ n_tty_receive_char_special(struct tty_struct *tty, unsigned char c)
 				tail++;
 			}
 			commit_echoes(tty);
+<<<<<<< HEAD
 			return 0;
+=======
+			return;
+>>>>>>> upstream/android-13
 		}
 		if (c == '\n') {
 			if (L_ECHO(tty) || L_ECHONL(tty)) {
@@ -1375,8 +1498,13 @@ handle_newline:
 			put_tty_queue(c, ldata);
 			smp_store_release(&ldata->canon_head, ldata->read_head);
 			kill_fasync(&tty->fasync, SIGIO, POLL_IN);
+<<<<<<< HEAD
 			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
 			return 0;
+=======
+			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
+			return;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1398,6 +1526,7 @@ handle_newline:
 		put_tty_queue(c, ldata);
 
 	put_tty_queue(c, ldata);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -1407,6 +1536,15 @@ n_tty_receive_char_inline(struct tty_struct *tty, unsigned char c)
 	struct n_tty_data *ldata = tty->disc_data;
 
 	if (tty->stopped && !tty->flow_stopped && I_IXON(tty) && I_IXANY(tty)) {
+=======
+}
+
+static void n_tty_receive_char(struct tty_struct *tty, unsigned char c)
+{
+	struct n_tty_data *ldata = tty->disc_data;
+
+	if (tty->flow.stopped && !tty->flow.tco_stopped && I_IXON(tty) && I_IXANY(tty)) {
+>>>>>>> upstream/android-13
 		start_tty(tty);
 		process_echoes(tty);
 	}
@@ -1424,6 +1562,7 @@ n_tty_receive_char_inline(struct tty_struct *tty, unsigned char c)
 	put_tty_queue(c, ldata);
 }
 
+<<<<<<< HEAD
 static void n_tty_receive_char(struct tty_struct *tty, unsigned char c)
 {
 	n_tty_receive_char_inline(tty, c);
@@ -1449,6 +1588,8 @@ n_tty_receive_char_fast(struct tty_struct *tty, unsigned char c)
 	put_tty_queue(c, ldata);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void n_tty_receive_char_closing(struct tty_struct *tty, unsigned char c)
 {
 	if (I_ISTRIP(tty))
@@ -1460,7 +1601,11 @@ static void n_tty_receive_char_closing(struct tty_struct *tty, unsigned char c)
 		if (c == STOP_CHAR(tty))
 			stop_tty(tty);
 		else if (c == START_CHAR(tty) ||
+<<<<<<< HEAD
 			 (tty->stopped && !tty->flow_stopped && I_IXANY(tty) &&
+=======
+			 (tty->flow.stopped && !tty->flow.tco_stopped && I_IXANY(tty) &&
+>>>>>>> upstream/android-13
 			  c != INTR_CHAR(tty) && c != QUIT_CHAR(tty) &&
 			  c != SUSP_CHAR(tty))) {
 			start_tty(tty);
@@ -1507,7 +1652,11 @@ n_tty_receive_char_lnext(struct tty_struct *tty, unsigned char c, char flag)
 
 static void
 n_tty_receive_buf_real_raw(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 			   char *fp, int count)
+=======
+			   const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	size_t n, head;
@@ -1527,7 +1676,11 @@ n_tty_receive_buf_real_raw(struct tty_struct *tty, const unsigned char *cp,
 
 static void
 n_tty_receive_buf_raw(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 		      char *fp, int count)
+=======
+		      const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	char flag = TTY_NORMAL;
@@ -1544,7 +1697,11 @@ n_tty_receive_buf_raw(struct tty_struct *tty, const unsigned char *cp,
 
 static void
 n_tty_receive_buf_closing(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 			  char *fp, int count)
+=======
+			  const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	char flag = TTY_NORMAL;
 
@@ -1556,14 +1713,20 @@ n_tty_receive_buf_closing(struct tty_struct *tty, const unsigned char *cp,
 	}
 }
 
+<<<<<<< HEAD
 static void
 n_tty_receive_buf_standard(struct tty_struct *tty, const unsigned char *cp,
 			  char *fp, int count)
+=======
+static void n_tty_receive_buf_standard(struct tty_struct *tty,
+		const unsigned char *cp, const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	char flag = TTY_NORMAL;
 
 	while (count--) {
+<<<<<<< HEAD
 		if (fp)
 			flag = *fp++;
 		if (likely(flag == TTY_NORMAL)) {
@@ -1613,11 +1776,45 @@ n_tty_receive_buf_fast(struct tty_struct *tty, const unsigned char *cp,
 			}
 		} else
 			n_tty_receive_char_flagged(tty, *cp++, flag);
+=======
+		unsigned char c = *cp++;
+
+		if (fp)
+			flag = *fp++;
+
+		if (ldata->lnext) {
+			n_tty_receive_char_lnext(tty, c, flag);
+			continue;
+		}
+
+		if (unlikely(flag != TTY_NORMAL)) {
+			n_tty_receive_char_flagged(tty, c, flag);
+			continue;
+		}
+
+		if (I_ISTRIP(tty))
+			c &= 0x7f;
+		if (I_IUCLC(tty) && L_IEXTEN(tty))
+			c = tolower(c);
+		if (L_EXTPROC(tty)) {
+			put_tty_queue(c, ldata);
+			continue;
+		}
+
+		if (test_bit(c, ldata->char_map))
+			n_tty_receive_char_special(tty, c);
+		else
+			n_tty_receive_char(tty, c);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void __receive_buf(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 			  char *fp, int count)
+=======
+			  const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	bool preops = I_ISTRIP(tty) || (I_IUCLC(tty) && L_IEXTEN(tty));
@@ -1629,6 +1826,7 @@ static void __receive_buf(struct tty_struct *tty, const unsigned char *cp,
 	else if (tty->closing && !L_EXTPROC(tty))
 		n_tty_receive_buf_closing(tty, cp, fp, count);
 	else {
+<<<<<<< HEAD
 		if (ldata->lnext) {
 			char flag = TTY_NORMAL;
 
@@ -1642,6 +1840,9 @@ static void __receive_buf(struct tty_struct *tty, const unsigned char *cp,
 			n_tty_receive_buf_fast(tty, cp, fp, count);
 		else
 			n_tty_receive_buf_standard(tty, cp, fp, count);
+=======
+		n_tty_receive_buf_standard(tty, cp, fp, count);
+>>>>>>> upstream/android-13
 
 		flush_echoes(tty);
 		if (tty->ops->flush_chars)
@@ -1656,7 +1857,11 @@ static void __receive_buf(struct tty_struct *tty, const unsigned char *cp,
 
 	if (read_cnt(ldata)) {
 		kill_fasync(&tty->fasync, SIGIO, POLL_IN);
+<<<<<<< HEAD
 		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
+=======
+		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1666,6 +1871,10 @@ static void __receive_buf(struct tty_struct *tty, const unsigned char *cp,
  *	@cp: input chars
  *	@fp: flags for each char (if NULL, all chars are TTY_NORMAL)
  *	@count: number of input chars in @cp
+<<<<<<< HEAD
+=======
+ *	@flow: enable flow control
+>>>>>>> upstream/android-13
  *
  *	Called by the terminal driver when a block of characters has
  *	been received. This function must be called from soft contexts
@@ -1695,7 +1904,11 @@ static void __receive_buf(struct tty_struct *tty, const unsigned char *cp,
  */
 static int
 n_tty_receive_buf_common(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 			 char *fp, int count, int flow)
+=======
+			 const char *fp, int count, int flow)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	int room, n, rcvd = 0, overflow;
@@ -1764,13 +1977,21 @@ n_tty_receive_buf_common(struct tty_struct *tty, const unsigned char *cp,
 }
 
 static void n_tty_receive_buf(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 			      char *fp, int count)
+=======
+			      const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	n_tty_receive_buf_common(tty, cp, fp, count, 0);
 }
 
 static int n_tty_receive_buf2(struct tty_struct *tty, const unsigned char *cp,
+<<<<<<< HEAD
 			      char *fp, int count)
+=======
+			      const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	return n_tty_receive_buf_common(tty, cp, fp, count, 1);
 }
@@ -1863,7 +2084,11 @@ static void n_tty_set_termios(struct tty_struct *tty, struct ktermios *old)
 	 * Fix tty hang when I_IXON(tty) is cleared, but the tty
 	 * been stopped by STOP_CHAR(tty) before it.
 	 */
+<<<<<<< HEAD
 	if (!I_IXON(tty) && old && (old->c_iflag & IXON) && !tty->flow_stopped) {
+=======
+	if (!I_IXON(tty) && old && (old->c_iflag & IXON) && !tty->flow.tco_stopped) {
+>>>>>>> upstream/android-13
 		start_tty(tty);
 		process_echoes(tty);
 	}
@@ -1890,8 +2115,15 @@ static void n_tty_close(struct tty_struct *tty)
 	if (tty->link)
 		n_tty_packet_mode_flush(tty);
 
+<<<<<<< HEAD
 	vfree(ldata);
 	tty->disc_data = NULL;
+=======
+	down_write(&tty->termios_rwsem);
+	vfree(ldata);
+	tty->disc_data = NULL;
+	up_write(&tty->termios_rwsem);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1940,6 +2172,7 @@ static inline int input_available_p(struct tty_struct *tty, int poll)
 /**
  *	copy_from_read_buf	-	copy read data directly
  *	@tty: terminal device
+<<<<<<< HEAD
  *	@b: user data
  *	@nr: size of data
  *
@@ -1952,30 +2185,58 @@ static inline int input_available_p(struct tty_struct *tty, int poll)
  *
  *	Called under the ldata->atomic_read_lock sem
  *
+=======
+ *	@kbp: data
+ *	@nr: size of data
+ *
+ *	Helper function to speed up n_tty_read.  It is only called when
+ *	ICANON is off; it copies characters straight from the tty queue.
+ *
+ *	Called under the ldata->atomic_read_lock sem
+ *
+ *	Returns true if it successfully copied data, but there is still
+ *	more data to be had.
+ *
+>>>>>>> upstream/android-13
  *	n_tty_read()/consumer path:
  *		caller holds non-exclusive termios_rwsem
  *		read_tail published
  */
 
+<<<<<<< HEAD
 static int copy_from_read_buf(struct tty_struct *tty,
 				      unsigned char __user **b,
+=======
+static bool copy_from_read_buf(struct tty_struct *tty,
+				      unsigned char **kbp,
+>>>>>>> upstream/android-13
 				      size_t *nr)
 
 {
 	struct n_tty_data *ldata = tty->disc_data;
+<<<<<<< HEAD
 	int retval;
+=======
+>>>>>>> upstream/android-13
 	size_t n;
 	bool is_eof;
 	size_t head = smp_load_acquire(&ldata->commit_head);
 	size_t tail = ldata->read_tail & (N_TTY_BUF_SIZE - 1);
 
+<<<<<<< HEAD
 	retval = 0;
+=======
+>>>>>>> upstream/android-13
 	n = min(head - ldata->read_tail, N_TTY_BUF_SIZE - tail);
 	n = min(*nr, n);
 	if (n) {
 		unsigned char *from = read_buf_addr(ldata, tail);
+<<<<<<< HEAD
 		retval = copy_to_user(*b, from, n);
 		n -= retval;
+=======
+		memcpy(*kbp, from, n);
+>>>>>>> upstream/android-13
 		is_eof = n == 1 && *from == EOF_CHAR(tty);
 		tty_audit_add_data(tty, from, n);
 		zero_buffer(tty, from, n);
@@ -1983,22 +2244,41 @@ static int copy_from_read_buf(struct tty_struct *tty,
 		/* Turn single EOF into zero-length read */
 		if (L_EXTPROC(tty) && ldata->icanon && is_eof &&
 		    (head == ldata->read_tail))
+<<<<<<< HEAD
 			n = 0;
 		*b += n;
 		*nr -= n;
 	}
 	return retval;
+=======
+			return false;
+		*kbp += n;
+		*nr -= n;
+
+		/* If we have more to copy, let the caller know */
+		return head != ldata->read_tail;
+	}
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /**
  *	canon_copy_from_read_buf	-	copy read data in canonical mode
  *	@tty: terminal device
+<<<<<<< HEAD
  *	@b: user data
+=======
+ *	@kbp: data
+>>>>>>> upstream/android-13
  *	@nr: size of data
  *
  *	Helper function for n_tty_read.  It is only called when ICANON is on;
  *	it copies one line of input up to and including the line-delimiting
+<<<<<<< HEAD
  *	character into the user-space buffer.
+=======
+ *	character into the result buffer.
+>>>>>>> upstream/android-13
  *
  *	NB: When termios is changed from non-canonical to canonical mode and
  *	the read buffer contains data, n_tty_set_termios() simulates an EOF
@@ -2013,13 +2293,20 @@ static int copy_from_read_buf(struct tty_struct *tty,
  *		read_tail published
  */
 
+<<<<<<< HEAD
 static int canon_copy_from_read_buf(struct tty_struct *tty,
 				    unsigned char __user **b,
 				    size_t *nr)
+=======
+static bool canon_copy_from_read_buf(struct tty_struct *tty,
+				     unsigned char **kbp,
+				     size_t *nr)
+>>>>>>> upstream/android-13
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	size_t n, size, more, c;
 	size_t eol;
+<<<<<<< HEAD
 	size_t tail;
 	int ret, found = 0;
 
@@ -2028,6 +2315,17 @@ static int canon_copy_from_read_buf(struct tty_struct *tty,
 		return 0;
 
 	n = min(*nr + 1, smp_load_acquire(&ldata->canon_head) - ldata->read_tail);
+=======
+	size_t tail, canon_head;
+	int found = 0;
+
+	/* N.B. avoid overrun if nr == 0 */
+	if (!*nr)
+		return false;
+
+	canon_head = smp_load_acquire(&ldata->canon_head);
+	n = min(*nr, canon_head - ldata->read_tail);
+>>>>>>> upstream/android-13
 
 	tail = ldata->read_tail & (N_TTY_BUF_SIZE - 1);
 	size = min_t(size_t, tail + n, N_TTY_BUF_SIZE);
@@ -2049,18 +2347,28 @@ static int canon_copy_from_read_buf(struct tty_struct *tty,
 		n += N_TTY_BUF_SIZE;
 	c = n + found;
 
+<<<<<<< HEAD
 	if (!found || read_buf(ldata, eol) != __DISABLED_CHAR) {
 		c = min(*nr, c);
 		n = c;
 	}
+=======
+	if (!found || read_buf(ldata, eol) != __DISABLED_CHAR)
+		n = c;
+>>>>>>> upstream/android-13
 
 	n_tty_trace("%s: eol:%zu found:%d n:%zu c:%zu tail:%zu more:%zu\n",
 		    __func__, eol, found, n, c, tail, more);
 
+<<<<<<< HEAD
 	ret = tty_copy_to_user(tty, *b, tail, n);
 	if (ret)
 		return -EFAULT;
 	*b += n;
+=======
+	tty_copy(tty, *kbp, tail, n);
+	*kbp += n;
+>>>>>>> upstream/android-13
 	*nr -= n;
 
 	if (found)
@@ -2073,12 +2381,21 @@ static int canon_copy_from_read_buf(struct tty_struct *tty,
 		else
 			ldata->push = 0;
 		tty_audit_push();
+<<<<<<< HEAD
 	}
 	return 0;
 }
 
 extern ssize_t redirected_tty_write(struct file *, const char __user *,
 							size_t, loff_t *);
+=======
+		return false;
+	}
+
+	/* No EOL found - do a continuation retry if there is more data */
+	return ldata->read_tail != canon_head;
+}
+>>>>>>> upstream/android-13
 
 /**
  *	job_control		-	check job control
@@ -2091,7 +2408,11 @@ extern ssize_t redirected_tty_write(struct file *, const char __user *,
  *
  *	Locking: redirected write test is safe
  *		 current->signal->tty check is safe
+<<<<<<< HEAD
  *		 ctrl_lock to safely reference tty->pgrp
+=======
+ *		 ctrl.lock to safely reference tty->ctrl.pgrp
+>>>>>>> upstream/android-13
  */
 
 static int job_control(struct tty_struct *tty, struct file *file)
@@ -2101,7 +2422,11 @@ static int job_control(struct tty_struct *tty, struct file *file)
 	/* NOTE: not yet done after every sleep pending a thorough
 	   check of the logic of this change. -- jlc */
 	/* don't stop on /dev/console */
+<<<<<<< HEAD
 	if (file->f_op->write == redirected_tty_write)
+=======
+	if (file->f_op->write_iter == redirected_tty_write)
+>>>>>>> upstream/android-13
 		return 0;
 
 	return __tty_check_change(tty, SIGTTIN);
@@ -2128,18 +2453,56 @@ static int job_control(struct tty_struct *tty, struct file *file)
  */
 
 static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
+<<<<<<< HEAD
 			 unsigned char __user *buf, size_t nr)
 {
 	struct n_tty_data *ldata = tty->disc_data;
 	unsigned char __user *b = buf;
+=======
+			  unsigned char *kbuf, size_t nr,
+			  void **cookie, unsigned long offset)
+{
+	struct n_tty_data *ldata = tty->disc_data;
+	unsigned char *kb = kbuf;
+>>>>>>> upstream/android-13
 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
 	int c;
 	int minimum, time;
 	ssize_t retval = 0;
 	long timeout;
+<<<<<<< HEAD
 	int packet;
 	size_t tail;
 
+=======
+	bool packet;
+	size_t tail;
+
+	/*
+	 * Is this a continuation of a read started earler?
+	 *
+	 * If so, we still hold the atomic_read_lock and the
+	 * termios_rwsem, and can just continue to copy data.
+	 */
+	if (*cookie) {
+		if (ldata->icanon && !L_EXTPROC(tty)) {
+			if (canon_copy_from_read_buf(tty, &kb, &nr))
+				return kb - kbuf;
+		} else {
+			if (copy_from_read_buf(tty, &kb, &nr))
+				return kb - kbuf;
+		}
+
+		/* No more data - release locks and stop retries */
+		n_tty_kick_worker(tty);
+		n_tty_check_unthrottle(tty);
+		up_read(&tty->termios_rwsem);
+		mutex_unlock(&ldata->atomic_read_lock);
+		*cookie = NULL;
+		return kb - kbuf;
+	}
+
+>>>>>>> upstream/android-13
 	c = job_control(tty, file);
 	if (c < 0)
 		return c;
@@ -2169,12 +2532,17 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
 		}
 	}
 
+<<<<<<< HEAD
 	packet = tty->packet;
+=======
+	packet = tty->ctrl.packet;
+>>>>>>> upstream/android-13
 	tail = ldata->read_tail;
 
 	add_wait_queue(&tty->read_wait, &wait);
 	while (nr) {
 		/* First test for status change. */
+<<<<<<< HEAD
 		if (packet && tty->link->ctrl_status) {
 			unsigned char cs;
 			if (b != buf)
@@ -2188,6 +2556,17 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
 				break;
 			}
 			b++;
+=======
+		if (packet && tty->link->ctrl.pktstatus) {
+			unsigned char cs;
+			if (kb != kbuf)
+				break;
+			spin_lock_irq(&tty->link->ctrl.lock);
+			cs = tty->link->ctrl.pktstatus;
+			tty->link->ctrl.pktstatus = 0;
+			spin_unlock_irq(&tty->link->ctrl.lock);
+			*kb++ = cs;
+>>>>>>> upstream/android-13
 			nr--;
 			break;
 		}
@@ -2230,6 +2609,7 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
 		}
 
 		if (ldata->icanon && !L_EXTPROC(tty)) {
+<<<<<<< HEAD
 			retval = canon_copy_from_read_buf(tty, &b, &nr);
 			if (retval)
 				break;
@@ -2251,12 +2631,41 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
 			if (uncopied) {
 				retval = -EFAULT;
 				break;
+=======
+			if (canon_copy_from_read_buf(tty, &kb, &nr))
+				goto more_to_be_read;
+		} else {
+			/* Deal with packet mode. */
+			if (packet && kb == kbuf) {
+				*kb++ = TIOCPKT_DATA;
+				nr--;
+			}
+
+			/*
+			 * Copy data, and if there is more to be had
+			 * and we have nothing more to wait for, then
+			 * let's mark us for retries.
+			 *
+			 * NOTE! We return here with both the termios_sem
+			 * and atomic_read_lock still held, the retries
+			 * will release them when done.
+			 */
+			if (copy_from_read_buf(tty, &kb, &nr) && kb - kbuf >= minimum) {
+more_to_be_read:
+				remove_wait_queue(&tty->read_wait, &wait);
+				*cookie = cookie;
+				return kb - kbuf;
+>>>>>>> upstream/android-13
 			}
 		}
 
 		n_tty_check_unthrottle(tty);
 
+<<<<<<< HEAD
 		if (b - buf >= minimum)
+=======
+		if (kb - kbuf >= minimum)
+>>>>>>> upstream/android-13
 			break;
 		if (time)
 			timeout = time;
@@ -2268,8 +2677,13 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
 	remove_wait_queue(&tty->read_wait, &wait);
 	mutex_unlock(&ldata->atomic_read_lock);
 
+<<<<<<< HEAD
 	if (b - buf)
 		retval = b - buf;
+=======
+	if (kb - kbuf)
+		retval = kb - kbuf;
+>>>>>>> upstream/android-13
 
 	return retval;
 }
@@ -2305,7 +2719,11 @@ static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
 	ssize_t retval = 0;
 
 	/* Job control check -- must be done at start (POSIX.1 7.1.1.4). */
+<<<<<<< HEAD
 	if (L_TOSTOP(tty) && file->f_op->write != redirected_tty_write) {
+=======
+	if (L_TOSTOP(tty) && file->f_op->write_iter != redirected_tty_write) {
+>>>>>>> upstream/android-13
 		retval = tty_check_change(tty);
 		if (retval)
 			return retval;
@@ -2319,8 +2737,15 @@ static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
 	add_wait_queue(&tty->write_wait, &wait);
 	while (1) {
 		if (signal_pending(current)) {
+<<<<<<< HEAD
 			retval = -ERESTARTSYS;
 			break;
+=======
+			if (tty->index != BLUETOOTH_UART_PORT_LINE) {
+				retval = -ERESTARTSYS;
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 		if (tty_hung_up_p(file) || (tty->link && !tty->link->count)) {
 			retval = -EIO;
@@ -2411,7 +2836,11 @@ static __poll_t n_tty_poll(struct tty_struct *tty, struct file *file,
 		if (input_available_p(tty, 1))
 			mask |= EPOLLIN | EPOLLRDNORM;
 	}
+<<<<<<< HEAD
 	if (tty->packet && tty->link->ctrl_status)
+=======
+	if (tty->ctrl.packet && tty->link->ctrl.pktstatus)
+>>>>>>> upstream/android-13
 		mask |= EPOLLPRI | EPOLLIN | EPOLLRDNORM;
 	if (test_bit(TTY_OTHER_CLOSED, &tty->flags))
 		mask |= EPOLLHUP;
@@ -2466,7 +2895,12 @@ static int n_tty_ioctl(struct tty_struct *tty, struct file *file,
 }
 
 static struct tty_ldisc_ops n_tty_ops = {
+<<<<<<< HEAD
 	.magic           = TTY_LDISC_MAGIC,
+=======
+	.owner		 = THIS_MODULE,
+	.num		 = N_TTY,
+>>>>>>> upstream/android-13
 	.name            = "n_tty",
 	.open            = n_tty_open,
 	.close           = n_tty_close,
@@ -2492,11 +2926,19 @@ void n_tty_inherit_ops(struct tty_ldisc_ops *ops)
 {
 	*ops = n_tty_ops;
 	ops->owner = NULL;
+<<<<<<< HEAD
 	ops->refcount = ops->flags = 0;
+=======
+	ops->flags = 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(n_tty_inherit_ops);
 
 void __init n_tty_init(void)
 {
+<<<<<<< HEAD
 	tty_register_ldisc(N_TTY, &n_tty_ops);
+=======
+	tty_register_ldisc(&n_tty_ops);
+>>>>>>> upstream/android-13
 }

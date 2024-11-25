@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/device.h>
 #include <linux/export.h>
@@ -57,8 +61,13 @@ static void devm_clk_bulk_release(struct device *dev, void *res)
 	clk_bulk_put(devres->num_clks, devres->clks);
 }
 
+<<<<<<< HEAD
 int __must_check devm_clk_bulk_get(struct device *dev, int num_clks,
 		      struct clk_bulk_data *clks)
+=======
+static int __devm_clk_bulk_get(struct device *dev, int num_clks,
+			       struct clk_bulk_data *clks, bool optional)
+>>>>>>> upstream/android-13
 {
 	struct clk_bulk_devres *devres;
 	int ret;
@@ -68,7 +77,14 @@ int __must_check devm_clk_bulk_get(struct device *dev, int num_clks,
 	if (!devres)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = clk_bulk_get(dev, num_clks, clks);
+=======
+	if (optional)
+		ret = clk_bulk_get_optional(dev, num_clks, clks);
+	else
+		ret = clk_bulk_get(dev, num_clks, clks);
+>>>>>>> upstream/android-13
 	if (!ret) {
 		devres->clks = clks;
 		devres->num_clks = num_clks;
@@ -79,8 +95,57 @@ int __must_check devm_clk_bulk_get(struct device *dev, int num_clks,
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(devm_clk_bulk_get);
 
+=======
+
+int __must_check devm_clk_bulk_get(struct device *dev, int num_clks,
+		      struct clk_bulk_data *clks)
+{
+	return __devm_clk_bulk_get(dev, num_clks, clks, false);
+}
+EXPORT_SYMBOL_GPL(devm_clk_bulk_get);
+
+int __must_check devm_clk_bulk_get_optional(struct device *dev, int num_clks,
+		      struct clk_bulk_data *clks)
+{
+	return __devm_clk_bulk_get(dev, num_clks, clks, true);
+}
+EXPORT_SYMBOL_GPL(devm_clk_bulk_get_optional);
+
+static void devm_clk_bulk_release_all(struct device *dev, void *res)
+{
+	struct clk_bulk_devres *devres = res;
+
+	clk_bulk_put_all(devres->num_clks, devres->clks);
+}
+
+int __must_check devm_clk_bulk_get_all(struct device *dev,
+				       struct clk_bulk_data **clks)
+{
+	struct clk_bulk_devres *devres;
+	int ret;
+
+	devres = devres_alloc(devm_clk_bulk_release_all,
+			      sizeof(*devres), GFP_KERNEL);
+	if (!devres)
+		return -ENOMEM;
+
+	ret = clk_bulk_get_all(dev, &devres->clks);
+	if (ret > 0) {
+		*clks = devres->clks;
+		devres->num_clks = ret;
+		devres_add(dev, devres);
+	} else {
+		devres_free(devres);
+	}
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(devm_clk_bulk_get_all);
+
+>>>>>>> upstream/android-13
 static int devm_clk_match(struct device *dev, void *res, void *data)
 {
 	struct clk **c = res;

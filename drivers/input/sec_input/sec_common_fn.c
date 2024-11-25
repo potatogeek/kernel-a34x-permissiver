@@ -62,7 +62,11 @@ int sec_input_get_lcd_id(struct device *dev)
 #if !IS_ENABLED(CONFIG_SMCDSD_PANEL)
 	int lcdtype = 0;
 #endif
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL) || IS_ENABLED(CONFIG_USDM_PANEL)
+=======
+#if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL)
+>>>>>>> upstream/android-13
 	int connected;
 #endif
 	int lcd_id_param = 0;
@@ -75,7 +79,11 @@ int sec_input_get_lcd_id(struct device *dev)
 	}
 #endif
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL) || IS_ENABLED(CONFIG_USDM_PANEL)
+=======
+#if IS_ENABLED(CONFIG_EXYNOS_DPU30) || IS_ENABLED(CONFIG_MCD_PANEL)
+>>>>>>> upstream/android-13
 	connected = get_lcd_info("connected");
 	if (connected < 0) {
 		input_err(true, dev, "%s: Failed to get lcd info(connected)\n", __func__);
@@ -146,6 +154,7 @@ static void sec_input_handler_wait_resume_work(struct work_struct *work)
 		desc->action->thread_fn(irq, desc->action->dev_id);
 	}
 out:
+<<<<<<< HEAD
 	if (!desc)
 		return;
 
@@ -153,6 +162,9 @@ out:
 		enable_irq(irq);
 		input_info(true, pdata->dev, "%s: depth: %d\n", __func__, desc->depth);
 	}
+=======
+	enable_irq(irq);
+>>>>>>> upstream/android-13
 }
 
 int sec_input_handler_start(struct device *dev)
@@ -770,7 +782,11 @@ static void sec_input_coord_log(struct device *dev, u8 t_id, int action)
 	}
 }
 
+<<<<<<< HEAD
 void sec_input_coord_event_fill_slot(struct device *dev, int t_id)
+=======
+void sec_input_coord_event(struct device *dev, int t_id)
+>>>>>>> upstream/android-13
 {
 	struct sec_ts_plat_data *pdata = dev->platform_data;
 
@@ -826,6 +842,7 @@ void sec_input_coord_event_fill_slot(struct device *dev, int t_id)
 		}
 	}
 
+<<<<<<< HEAD
 	pdata->fill_slot = true;
 
 }
@@ -840,6 +857,11 @@ void sec_input_coord_event_sync_slot(struct device *dev)
 	pdata->fill_slot = false;
 }
 EXPORT_SYMBOL(sec_input_coord_event_sync_slot);
+=======
+	input_sync(pdata->input_dev);
+}
+EXPORT_SYMBOL(sec_input_coord_event);
+>>>>>>> upstream/android-13
 
 void sec_input_release_all_finger(struct device *dev)
 {
@@ -1316,10 +1338,18 @@ void sec_input_unregister_vbus_notifier(struct device *dev)
 #if IS_ENABLED(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
 	manager_notifier_unregister(&pdata->ccic_nb);
 #endif
+<<<<<<< HEAD
 	vbus_notifier_unregister(&pdata->vbus_nb);
 	cancel_work_sync(&pdata->vbus_notifier_work);
 	flush_workqueue(pdata->vbus_notifier_workqueue);
 	destroy_workqueue(pdata->vbus_notifier_workqueue);
+=======
+	cancel_work_sync(&pdata->vbus_notifier_work);
+	flush_workqueue(pdata->vbus_notifier_workqueue);
+	destroy_workqueue(pdata->vbus_notifier_workqueue);
+
+	vbus_notifier_unregister(&pdata->vbus_nb);
+>>>>>>> upstream/android-13
 #endif
 }
 EXPORT_SYMBOL(sec_input_unregister_vbus_notifier);

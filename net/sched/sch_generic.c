@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/sch_generic.c	Generic packet scheduler routines.
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/sch_generic.c	Generic packet scheduler routines.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *              Jamal Hadi Salim, <hadi@cyberus.ca> 990601
  *              - Ingress support
@@ -32,12 +39,40 @@
 #include <net/pkt_sched.h>
 #include <net/dst.h>
 #include <trace/events/qdisc.h>
+<<<<<<< HEAD
+=======
+#include <trace/events/net.h>
+>>>>>>> upstream/android-13
 #include <net/xfrm.h>
 
 /* Qdisc to use by default */
 const struct Qdisc_ops *default_qdisc_ops = &pfifo_fast_ops;
 EXPORT_SYMBOL(default_qdisc_ops);
 
+<<<<<<< HEAD
+=======
+static void qdisc_maybe_clear_missed(struct Qdisc *q,
+				     const struct netdev_queue *txq)
+{
+	clear_bit(__QDISC_STATE_MISSED, &q->state);
+
+	/* Make sure the below netif_xmit_frozen_or_stopped()
+	 * checking happens after clearing STATE_MISSED.
+	 */
+	smp_mb__after_atomic();
+
+	/* Checking netif_xmit_frozen_or_stopped() again to
+	 * make sure STATE_MISSED is set if the STATE_MISSED
+	 * set by netif_tx_wake_queue()'s rescheduling of
+	 * net_tx_action() is cleared by the above clear_bit().
+	 */
+	if (!netif_xmit_frozen_or_stopped(txq))
+		set_bit(__QDISC_STATE_MISSED, &q->state);
+	else
+		set_bit(__QDISC_STATE_DRAINING, &q->state);
+}
+
+>>>>>>> upstream/android-13
 /* Main transmission queue. */
 
 /* Modifications to data participating in scheduling must be protected with
@@ -70,13 +105,21 @@ static inline struct sk_buff *__skb_dequeue_bad_txq(struct Qdisc *q)
 			skb = __skb_dequeue(&q->skb_bad_txq);
 			if (qdisc_is_percpu_stats(q)) {
 				qdisc_qstats_cpu_backlog_dec(q, skb);
+<<<<<<< HEAD
 				qdisc_qstats_atomic_qlen_dec(q);
+=======
+				qdisc_qstats_cpu_qlen_dec(q);
+>>>>>>> upstream/android-13
 			} else {
 				qdisc_qstats_backlog_dec(q, skb);
 				q->q.qlen--;
 			}
 		} else {
 			skb = SKB_XOFF_MAGIC;
+<<<<<<< HEAD
+=======
+			qdisc_maybe_clear_missed(q, txq);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -110,7 +153,11 @@ static inline void qdisc_enqueue_skb_bad_txq(struct Qdisc *q,
 
 	if (qdisc_is_percpu_stats(q)) {
 		qdisc_qstats_cpu_backlog_inc(q, skb);
+<<<<<<< HEAD
 		qdisc_qstats_atomic_qlen_inc(q);
+=======
+		qdisc_qstats_cpu_qlen_inc(q);
+>>>>>>> upstream/android-13
 	} else {
 		qdisc_qstats_backlog_inc(q, skb);
 		q->q.qlen++;
@@ -120,6 +167,7 @@ static inline void qdisc_enqueue_skb_bad_txq(struct Qdisc *q,
 		spin_unlock(lock);
 }
 
+<<<<<<< HEAD
 static inline int __dev_requeue_skb(struct sk_buff *skb, struct Qdisc *q)
 {
 	while (skb) {
@@ -142,11 +190,23 @@ static inline int dev_requeue_skb_locked(struct sk_buff *skb, struct Qdisc *q)
 	spinlock_t *lock = qdisc_lock(q);
 
 	spin_lock(lock);
+=======
+static inline void dev_requeue_skb(struct sk_buff *skb, struct Qdisc *q)
+{
+	spinlock_t *lock = NULL;
+
+	if (q->flags & TCQ_F_NOLOCK) {
+		lock = qdisc_lock(q);
+		spin_lock(lock);
+	}
+
+>>>>>>> upstream/android-13
 	while (skb) {
 		struct sk_buff *next = skb->next;
 
 		__skb_queue_tail(&q->gso_skb, skb);
 
+<<<<<<< HEAD
 		qdisc_qstats_cpu_requeues_inc(q);
 		qdisc_qstats_cpu_backlog_inc(q, skb);
 		qdisc_qstats_atomic_qlen_inc(q);
@@ -166,6 +226,28 @@ static inline int dev_requeue_skb(struct sk_buff *skb, struct Qdisc *q)
 		return dev_requeue_skb_locked(skb, q);
 	else
 		return __dev_requeue_skb(skb, q);
+=======
+		/* it's still part of the queue */
+		if (qdisc_is_percpu_stats(q)) {
+			qdisc_qstats_cpu_requeues_inc(q);
+			qdisc_qstats_cpu_backlog_inc(q, skb);
+			qdisc_qstats_cpu_qlen_inc(q);
+		} else {
+			q->qstats.requeues++;
+			qdisc_qstats_backlog_inc(q, skb);
+			q->q.qlen++;
+		}
+
+		skb = next;
+	}
+
+	if (lock) {
+		spin_unlock(lock);
+		set_bit(__QDISC_STATE_MISSED, &q->state);
+	} else {
+		__netif_schedule(q);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void try_bulk_dequeue_skb(struct Qdisc *q,
@@ -186,7 +268,11 @@ static void try_bulk_dequeue_skb(struct Qdisc *q,
 		skb = nskb;
 		(*packets)++; /* GSO counts as one pkt */
 	}
+<<<<<<< HEAD
 	skb->next = NULL;
+=======
+	skb_mark_not_on_list(skb);
+>>>>>>> upstream/android-13
 }
 
 /* This variant of try_bulk_dequeue_skb() makes sure
@@ -212,7 +298,11 @@ static void try_bulk_dequeue_skb_slow(struct Qdisc *q,
 		skb = nskb;
 	} while (++cnt < 8);
 	(*packets) += cnt;
+<<<<<<< HEAD
 	skb->next = NULL;
+=======
+	skb_mark_not_on_list(skb);
+>>>>>>> upstream/android-13
 }
 
 /* Note that dequeue_skb can possibly return a SKB list (via skb->next).
@@ -254,13 +344,21 @@ static struct sk_buff *dequeue_skb(struct Qdisc *q, bool *validate,
 			skb = __skb_dequeue(&q->gso_skb);
 			if (qdisc_is_percpu_stats(q)) {
 				qdisc_qstats_cpu_backlog_dec(q, skb);
+<<<<<<< HEAD
 				qdisc_qstats_atomic_qlen_dec(q);
+=======
+				qdisc_qstats_cpu_qlen_dec(q);
+>>>>>>> upstream/android-13
 			} else {
 				qdisc_qstats_backlog_dec(q, skb);
 				q->q.qlen--;
 			}
 		} else {
 			skb = NULL;
+<<<<<<< HEAD
+=======
+			qdisc_maybe_clear_missed(q, txq);
+>>>>>>> upstream/android-13
 		}
 		if (lock)
 			spin_unlock(lock);
@@ -270,8 +368,15 @@ validate:
 	*validate = true;
 
 	if ((q->flags & TCQ_F_ONETXQUEUE) &&
+<<<<<<< HEAD
 	    netif_xmit_frozen_or_stopped(txq))
 		return skb;
+=======
+	    netif_xmit_frozen_or_stopped(txq)) {
+		qdisc_maybe_clear_missed(q, txq);
+		return skb;
+	}
+>>>>>>> upstream/android-13
 
 	skb = qdisc_dequeue_skb_bad_txq(q);
 	if (unlikely(skb)) {
@@ -330,6 +435,11 @@ bool sch_direct_xmit(struct sk_buff *skb, struct Qdisc *q,
 		HARD_TX_LOCK(dev, txq, smp_processor_id());
 		if (!netif_xmit_frozen_or_stopped(txq))
 			skb = dev_hard_start_xmit(skb, dev, txq, &ret);
+<<<<<<< HEAD
+=======
+		else
+			qdisc_maybe_clear_missed(q, txq);
+>>>>>>> upstream/android-13
 
 		HARD_TX_UNLOCK(dev, txq);
 	} else {
@@ -401,6 +511,7 @@ void __qdisc_run(struct Qdisc *q)
 	int packets;
 
 	while (qdisc_restart(q, &packets)) {
+<<<<<<< HEAD
 		/*
 		 * Ordered by possible occurrence: Postpone processing if
 		 * 1. we've exceeded packet quota
@@ -409,6 +520,15 @@ void __qdisc_run(struct Qdisc *q)
 		quota -= packets;
 		if (quota <= 0 || need_resched()) {
 			__netif_schedule(q);
+=======
+		quota -= packets;
+		if (quota <= 0) {
+			if (q->flags & TCQ_F_NOLOCK)
+				set_bit(__QDISC_STATE_MISSED, &q->state);
+			else
+				__netif_schedule(q);
+
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -462,9 +582,16 @@ static void dev_watchdog(struct timer_list *t)
 			}
 
 			if (some_queue_timedout) {
+<<<<<<< HEAD
 				WARN_ONCE(1, KERN_INFO "NETDEV WATCHDOG: %s (%s): transmit queue %u timed out\n",
 				       dev->name, netdev_drivername(dev), i);
 				dev->netdev_ops->ndo_tx_timeout(dev);
+=======
+				trace_net_dev_xmit_timeout(dev, i);
+				WARN_ONCE(1, KERN_INFO "NETDEV WATCHDOG: %s (%s): transmit queue %u timed out\n",
+				       dev->name, netdev_drivername(dev), i);
+				dev->netdev_ops->ndo_tx_timeout(dev, i);
+>>>>>>> upstream/android-13
 			}
 			if (!mod_timer(&dev->watchdog_timer,
 				       round_jiffies(jiffies +
@@ -506,7 +633,11 @@ static void dev_watchdog_down(struct net_device *dev)
  *	netif_carrier_on - set carrier
  *	@dev: network device
  *
+<<<<<<< HEAD
  * Device has detected that carrier.
+=======
+ * Device has detected acquisition of carrier.
+>>>>>>> upstream/android-13
  */
 void netif_carrier_on(struct net_device *dev)
 {
@@ -538,6 +669,27 @@ void netif_carrier_off(struct net_device *dev)
 }
 EXPORT_SYMBOL(netif_carrier_off);
 
+<<<<<<< HEAD
+=======
+/**
+ *	netif_carrier_event - report carrier state event
+ *	@dev: network device
+ *
+ * Device has detected a carrier event but the carrier state wasn't changed.
+ * Use in drivers when querying carrier state asynchronously, to avoid missing
+ * events (link flaps) if link recovers before it's queried.
+ */
+void netif_carrier_event(struct net_device *dev)
+{
+	if (dev->reg_state == NETREG_UNINITIALIZED)
+		return;
+	atomic_inc(&dev->carrier_up_count);
+	atomic_inc(&dev->carrier_down_count);
+	linkwatch_fire_event(dev);
+}
+EXPORT_SYMBOL_GPL(netif_carrier_event);
+
+>>>>>>> upstream/android-13
 /* "NOOP" scheduler: the best scheduler, recommended for all interfaces
    under all circumstances. It is difficult to invent anything faster or
    cheaper.
@@ -565,7 +717,11 @@ struct Qdisc_ops noop_qdisc_ops __read_mostly = {
 };
 
 static struct netdev_queue noop_netdev_queue = {
+<<<<<<< HEAD
 	.qdisc		=	&noop_qdisc,
+=======
+	RCU_POINTER_INITIALIZER(qdisc, &noop_qdisc),
+>>>>>>> upstream/android-13
 	.qdisc_sleeping	=	&noop_qdisc,
 };
 
@@ -648,6 +804,7 @@ static int pfifo_fast_enqueue(struct sk_buff *skb, struct Qdisc *qdisc,
 
 	err = skb_array_produce(q, skb);
 
+<<<<<<< HEAD
 	if (unlikely(err))
 		return qdisc_drop_cpu(skb, qdisc, to_free);
 
@@ -656,6 +813,16 @@ static int pfifo_fast_enqueue(struct sk_buff *skb, struct Qdisc *qdisc,
 	 * so we better not use qdisc_qstats_cpu_backlog_inc()
 	 */
 	this_cpu_add(qdisc->cpu_qstats->backlog, pkt_len);
+=======
+	if (unlikely(err)) {
+		if (qdisc_is_percpu_stats(qdisc))
+			return qdisc_drop_cpu(skb, qdisc, to_free);
+		else
+			return qdisc_drop(skb, qdisc, to_free);
+	}
+
+	qdisc_update_stats_at_enqueue(qdisc, pkt_len);
+>>>>>>> upstream/android-13
 	return NET_XMIT_SUCCESS;
 }
 
@@ -663,8 +830,15 @@ static struct sk_buff *pfifo_fast_dequeue(struct Qdisc *qdisc)
 {
 	struct pfifo_fast_priv *priv = qdisc_priv(qdisc);
 	struct sk_buff *skb = NULL;
+<<<<<<< HEAD
 	int band;
 
+=======
+	bool need_retry = true;
+	int band;
+
+retry:
+>>>>>>> upstream/android-13
 	for (band = 0; band < PFIFO_FAST_BANDS && !skb; band++) {
 		struct skb_array *q = band2list(priv, band);
 
@@ -674,9 +848,31 @@ static struct sk_buff *pfifo_fast_dequeue(struct Qdisc *qdisc)
 		skb = __skb_array_consume(q);
 	}
 	if (likely(skb)) {
+<<<<<<< HEAD
 		qdisc_qstats_cpu_backlog_dec(qdisc, skb);
 		qdisc_bstats_cpu_update(qdisc, skb);
 		qdisc_qstats_atomic_qlen_dec(qdisc);
+=======
+		qdisc_update_stats_at_dequeue(qdisc, skb);
+	} else if (need_retry &&
+		   READ_ONCE(qdisc->state) & QDISC_STATE_NON_EMPTY) {
+		/* Delay clearing the STATE_MISSED here to reduce
+		 * the overhead of the second spin_trylock() in
+		 * qdisc_run_begin() and __netif_schedule() calling
+		 * in qdisc_run_end().
+		 */
+		clear_bit(__QDISC_STATE_MISSED, &qdisc->state);
+		clear_bit(__QDISC_STATE_DRAINING, &qdisc->state);
+
+		/* Make sure dequeuing happens after clearing
+		 * STATE_MISSED.
+		 */
+		smp_mb__after_atomic();
+
+		need_retry = false;
+
+		goto retry;
+>>>>>>> upstream/android-13
 	}
 
 	return skb;
@@ -716,10 +912,21 @@ static void pfifo_fast_reset(struct Qdisc *qdisc)
 			kfree_skb(skb);
 	}
 
+<<<<<<< HEAD
 	for_each_possible_cpu(i) {
 		struct gnet_stats_queue *q = per_cpu_ptr(qdisc->cpu_qstats, i);
 
 		q->backlog = 0;
+=======
+	if (qdisc_is_percpu_stats(qdisc)) {
+		for_each_possible_cpu(i) {
+			struct gnet_stats_queue *q;
+
+			q = per_cpu_ptr(qdisc->cpu_qstats, i);
+			q->backlog = 0;
+			q->qlen = 0;
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -821,9 +1028,14 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
 			  const struct Qdisc_ops *ops,
 			  struct netlink_ext_ack *extack)
 {
+<<<<<<< HEAD
 	void *p;
 	struct Qdisc *sch;
 	unsigned int size = QDISC_ALIGN(sizeof(*sch)) + ops->priv_size;
+=======
+	struct Qdisc *sch;
+	unsigned int size = sizeof(*sch) + ops->priv_size;
+>>>>>>> upstream/android-13
 	int err = -ENOBUFS;
 	struct net_device *dev;
 
@@ -834,6 +1046,7 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
 	}
 
 	dev = dev_queue->dev;
+<<<<<<< HEAD
 	p = kzalloc_node(size, GFP_KERNEL,
 			 netdev_queue_numa_node_read(dev_queue));
 
@@ -850,6 +1063,12 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
 		sch = (struct Qdisc *) QDISC_ALIGN((unsigned long) p);
 		sch->padded = (char *) sch - (char *) p;
 	}
+=======
+	sch = kzalloc_node(size, GFP_KERNEL, netdev_queue_numa_node_read(dev_queue));
+
+	if (!sch)
+		goto errout;
+>>>>>>> upstream/android-13
 	__skb_queue_head_init(&sch->gso_skb);
 	__skb_queue_head_init(&sch->skb_bad_txq);
 	qdisc_skb_head_init(&sch->q);
@@ -874,7 +1093,11 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
 
 	/* seqlock has the same scope of busylock, for NOLOCK qdisc */
 	spin_lock_init(&sch->seqlock);
+<<<<<<< HEAD
 	lockdep_set_class(&sch->busylock,
+=======
+	lockdep_set_class(&sch->seqlock,
+>>>>>>> upstream/android-13
 			  dev->qdisc_tx_busylock ?: &qdisc_tx_busylock);
 
 	seqcount_init(&sch->running);
@@ -891,7 +1114,11 @@ struct Qdisc *qdisc_alloc(struct netdev_queue *dev_queue,
 
 	return sch;
 errout1:
+<<<<<<< HEAD
 	kfree(p);
+=======
+	kfree(sch);
+>>>>>>> upstream/android-13
 errout:
 	return ERR_PTR(err);
 }
@@ -915,10 +1142,19 @@ struct Qdisc *qdisc_create_dflt(struct netdev_queue *dev_queue,
 	}
 	sch->parent = parentid;
 
+<<<<<<< HEAD
 	if (!ops->init || ops->init(sch, NULL, extack) == 0)
 		return sch;
 
 	qdisc_destroy(sch);
+=======
+	if (!ops->init || ops->init(sch, NULL, extack) == 0) {
+		trace_qdisc_create(ops, dev_queue->dev, parentid);
+		return sch;
+	}
+
+	qdisc_put(sch);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 EXPORT_SYMBOL(qdisc_create_dflt);
@@ -930,6 +1166,11 @@ void qdisc_reset(struct Qdisc *qdisc)
 	const struct Qdisc_ops *ops = qdisc->ops;
 	struct sk_buff *skb, *tmp;
 
+<<<<<<< HEAD
+=======
+	trace_qdisc_reset(qdisc);
+
+>>>>>>> upstream/android-13
 	if (ops->reset)
 		ops->reset(qdisc);
 
@@ -955,6 +1196,7 @@ void qdisc_free(struct Qdisc *qdisc)
 		free_percpu(qdisc->cpu_qstats);
 	}
 
+<<<<<<< HEAD
 	kfree((char *) qdisc - qdisc->padded);
 }
 
@@ -970,6 +1212,21 @@ void qdisc_destroy(struct Qdisc *qdisc)
 	if (qdisc->flags & TCQ_F_BUILTIN ||
 	    !refcount_dec_and_test(&qdisc->refcnt))
 		return;
+=======
+	kfree(qdisc);
+}
+
+static void qdisc_free_cb(struct rcu_head *head)
+{
+	struct Qdisc *q = container_of(head, struct Qdisc, rcu);
+
+	qdisc_free(q);
+}
+
+static void qdisc_destroy(struct Qdisc *qdisc)
+{
+	const struct Qdisc_ops  *ops = qdisc->ops;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NET_SCHED
 	qdisc_hash_del(qdisc);
@@ -977,14 +1234,21 @@ void qdisc_destroy(struct Qdisc *qdisc)
 	qdisc_put_stab(rtnl_dereference(qdisc->stab));
 #endif
 	gen_kill_estimator(&qdisc->rate_est);
+<<<<<<< HEAD
 	if (ops->reset)
 		ops->reset(qdisc);
+=======
+
+	qdisc_reset(qdisc);
+
+>>>>>>> upstream/android-13
 	if (ops->destroy)
 		ops->destroy(qdisc);
 
 	module_put(ops->owner);
 	dev_put(qdisc_dev(qdisc));
 
+<<<<<<< HEAD
 	skb_queue_walk_safe(&qdisc->gso_skb, skb, tmp) {
 		__skb_unlink(skb, &qdisc->gso_skb);
 		kfree_skb_list(skb);
@@ -998,6 +1262,41 @@ void qdisc_destroy(struct Qdisc *qdisc)
 	qdisc_free(qdisc);
 }
 EXPORT_SYMBOL(qdisc_destroy);
+=======
+	trace_qdisc_destroy(qdisc);
+
+	call_rcu(&qdisc->rcu, qdisc_free_cb);
+}
+
+void qdisc_put(struct Qdisc *qdisc)
+{
+	if (!qdisc)
+		return;
+
+	if (qdisc->flags & TCQ_F_BUILTIN ||
+	    !refcount_dec_and_test(&qdisc->refcnt))
+		return;
+
+	qdisc_destroy(qdisc);
+}
+EXPORT_SYMBOL(qdisc_put);
+
+/* Version of qdisc_put() that is called with rtnl mutex unlocked.
+ * Intended to be used as optimization, this function only takes rtnl lock if
+ * qdisc reference counter reached zero.
+ */
+
+void qdisc_put_unlocked(struct Qdisc *qdisc)
+{
+	if (qdisc->flags & TCQ_F_BUILTIN ||
+	    !refcount_dec_and_rtnl_lock(&qdisc->refcnt))
+		return;
+
+	qdisc_destroy(qdisc);
+	rtnl_unlock();
+}
+EXPORT_SYMBOL(qdisc_put_unlocked);
+>>>>>>> upstream/android-13
 
 /* Attach toplevel qdisc to device queue. */
 struct Qdisc *dev_graft_qdisc(struct netdev_queue *dev_queue,
@@ -1030,12 +1329,22 @@ static void attach_one_default_qdisc(struct net_device *dev,
 
 	if (dev->priv_flags & IFF_NO_QUEUE)
 		ops = &noqueue_qdisc_ops;
+<<<<<<< HEAD
 
 	qdisc = qdisc_create_dflt(dev_queue, ops, TC_H_ROOT, NULL);
 	if (!qdisc) {
 		netdev_info(dev, "activation failed\n");
 		return;
 	}
+=======
+	else if(dev->type == ARPHRD_CAN)
+		ops = &pfifo_fast_ops;
+
+	qdisc = qdisc_create_dflt(dev_queue, ops, TC_H_ROOT, NULL);
+	if (!qdisc)
+		return;
+
+>>>>>>> upstream/android-13
 	if (!netif_is_multiqueue(dev))
 		qdisc->flags |= TCQ_F_ONETXQUEUE | TCQ_F_NOPARENT;
 	dev_queue->qdisc_sleeping = qdisc;
@@ -1051,6 +1360,7 @@ static void attach_default_qdiscs(struct net_device *dev)
 	if (!netif_is_multiqueue(dev) ||
 	    dev->priv_flags & IFF_NO_QUEUE) {
 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
+<<<<<<< HEAD
 		dev->qdisc = txq->qdisc_sleeping;
 		qdisc_refcount_inc(dev->qdisc);
 	} else {
@@ -1063,6 +1373,35 @@ static void attach_default_qdiscs(struct net_device *dev)
 #ifdef CONFIG_NET_SCHED
 	if (dev->qdisc != &noop_qdisc)
 		qdisc_hash_add(dev->qdisc, false);
+=======
+		qdisc = txq->qdisc_sleeping;
+		rcu_assign_pointer(dev->qdisc, qdisc);
+		qdisc_refcount_inc(qdisc);
+	} else {
+		qdisc = qdisc_create_dflt(txq, &mq_qdisc_ops, TC_H_ROOT, NULL);
+		if (qdisc) {
+			rcu_assign_pointer(dev->qdisc, qdisc);
+			qdisc->ops->attach(qdisc);
+		}
+	}
+	qdisc = rtnl_dereference(dev->qdisc);
+
+	/* Detect default qdisc setup/init failed and fallback to "noqueue" */
+	if (qdisc == &noop_qdisc) {
+		netdev_warn(dev, "default qdisc (%s) fail, fallback to %s\n",
+			    default_qdisc_ops->id, noqueue_qdisc_ops.id);
+		dev->priv_flags |= IFF_NO_QUEUE;
+		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
+		qdisc = txq->qdisc_sleeping;
+		rcu_assign_pointer(dev->qdisc, qdisc);
+		qdisc_refcount_inc(qdisc);
+		dev->priv_flags ^= IFF_NO_QUEUE;
+	}
+
+#ifdef CONFIG_NET_SCHED
+	if (qdisc != &noop_qdisc)
+		qdisc_hash_add(qdisc, false);
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -1092,7 +1431,11 @@ void dev_activate(struct net_device *dev)
 	 * and noqueue_qdisc for virtual interfaces
 	 */
 
+<<<<<<< HEAD
 	if (dev->qdisc == &noop_qdisc)
+=======
+	if (rtnl_dereference(dev->qdisc) == &noop_qdisc)
+>>>>>>> upstream/android-13
 		attach_default_qdiscs(dev);
 
 	if (!netif_carrier_ok(dev))
@@ -1111,10 +1454,22 @@ void dev_activate(struct net_device *dev)
 }
 EXPORT_SYMBOL(dev_activate);
 
+<<<<<<< HEAD
+=======
+static void qdisc_deactivate(struct Qdisc *qdisc)
+{
+	if (qdisc->flags & TCQ_F_BUILTIN)
+		return;
+
+	set_bit(__QDISC_STATE_DEACTIVATED, &qdisc->state);
+}
+
+>>>>>>> upstream/android-13
 static void dev_deactivate_queue(struct net_device *dev,
 				 struct netdev_queue *dev_queue,
 				 void *_qdisc_default)
 {
+<<<<<<< HEAD
 	struct Qdisc *qdisc = rtnl_dereference(dev_queue->qdisc);
 	struct Qdisc *qdisc_default = _qdisc_default;
 
@@ -1122,6 +1477,14 @@ static void dev_deactivate_queue(struct net_device *dev,
 		if (!(qdisc->flags & TCQ_F_BUILTIN))
 			set_bit(__QDISC_STATE_DEACTIVATED, &qdisc->state);
 
+=======
+	struct Qdisc *qdisc_default = _qdisc_default;
+	struct Qdisc *qdisc;
+
+	qdisc = rtnl_dereference(dev_queue->qdisc);
+	if (qdisc) {
+		qdisc_deactivate(qdisc);
+>>>>>>> upstream/android-13
 		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
 	}
 }
@@ -1146,8 +1509,16 @@ static void dev_reset_queue(struct net_device *dev,
 	qdisc_reset(qdisc);
 
 	spin_unlock_bh(qdisc_lock(qdisc));
+<<<<<<< HEAD
 	if (nolock)
 		spin_unlock_bh(&qdisc->seqlock);
+=======
+	if (nolock) {
+		clear_bit(__QDISC_STATE_MISSED, &qdisc->state);
+		clear_bit(__QDISC_STATE_DRAINING, &qdisc->state);
+		spin_unlock_bh(&qdisc->seqlock);
+	}
+>>>>>>> upstream/android-13
 }
 
 static bool some_qdisc_is_busy(struct net_device *dev)
@@ -1177,6 +1548,7 @@ static bool some_qdisc_is_busy(struct net_device *dev)
 	return false;
 }
 
+<<<<<<< HEAD
 static void dev_qdisc_reset(struct net_device *dev,
 			    struct netdev_queue *dev_queue,
 			    void *none)
@@ -1187,6 +1559,8 @@ static void dev_qdisc_reset(struct net_device *dev,
 		qdisc_reset(qdisc);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * 	dev_deactivate_many - deactivate transmissions on several devices
  * 	@head: list of devices to deactivate
@@ -1224,6 +1598,7 @@ void dev_deactivate_many(struct list_head *head)
 
 	/* Wait for outstanding qdisc_run calls. */
 	list_for_each_entry(dev, head, close_list) {
+<<<<<<< HEAD
 		while (some_qdisc_is_busy(dev))
 			yield();
 		/* The new qdisc is assigned at this point so we can safely
@@ -1232,6 +1607,15 @@ void dev_deactivate_many(struct list_head *head)
 		netdev_for_each_tx_queue(dev, dev_qdisc_reset, NULL);
 		if (dev_ingress_queue(dev))
 			dev_qdisc_reset(dev, dev_ingress_queue(dev), NULL);
+=======
+		while (some_qdisc_is_busy(dev)) {
+			/* wait_event() would avoid this sleep-loop but would
+			 * require expensive checks in the fast paths of packet
+			 * processing which isn't worth it.
+			 */
+			schedule_timeout_uninterruptible(1);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1256,6 +1640,18 @@ static int qdisc_change_tx_queue_len(struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+void dev_qdisc_change_real_num_tx(struct net_device *dev,
+				  unsigned int new_real_tx)
+{
+	struct Qdisc *qdisc = rtnl_dereference(dev->qdisc);
+
+	if (qdisc->ops->change_real_num_tx)
+		qdisc->ops->change_real_num_tx(qdisc, new_real_tx);
+}
+
+>>>>>>> upstream/android-13
 int dev_qdisc_change_tx_queue_len(struct net_device *dev)
 {
 	bool up = dev->flags & IFF_UP;
@@ -1290,7 +1686,11 @@ static void dev_init_scheduler_queue(struct net_device *dev,
 
 void dev_init_scheduler(struct net_device *dev)
 {
+<<<<<<< HEAD
 	dev->qdisc = &noop_qdisc;
+=======
+	rcu_assign_pointer(dev->qdisc, &noop_qdisc);
+>>>>>>> upstream/android-13
 	netdev_for_each_tx_queue(dev, dev_init_scheduler_queue, &noop_qdisc);
 	if (dev_ingress_queue(dev))
 		dev_init_scheduler_queue(dev, dev_ingress_queue(dev), &noop_qdisc);
@@ -1309,7 +1709,11 @@ static void shutdown_scheduler_queue(struct net_device *dev,
 		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
 		dev_queue->qdisc_sleeping = qdisc_default;
 
+<<<<<<< HEAD
 		qdisc_destroy(qdisc);
+=======
+		qdisc_put(qdisc);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1318,18 +1722,69 @@ void dev_shutdown(struct net_device *dev)
 	netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
 	if (dev_ingress_queue(dev))
 		shutdown_scheduler_queue(dev, dev_ingress_queue(dev), &noop_qdisc);
+<<<<<<< HEAD
 	qdisc_destroy(dev->qdisc);
 	dev->qdisc = &noop_qdisc;
+=======
+	qdisc_put(rtnl_dereference(dev->qdisc));
+	rcu_assign_pointer(dev->qdisc, &noop_qdisc);
+>>>>>>> upstream/android-13
 
 	WARN_ON(timer_pending(&dev->watchdog_timer));
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * psched_ratecfg_precompute__() - Pre-compute values for reciprocal division
+ * @rate:   Rate to compute reciprocal division values of
+ * @mult:   Multiplier for reciprocal division
+ * @shift:  Shift for reciprocal division
+ *
+ * The multiplier and shift for reciprocal division by rate are stored
+ * in mult and shift.
+ *
+ * The deal here is to replace a divide by a reciprocal one
+ * in fast path (a reciprocal divide is a multiply and a shift)
+ *
+ * Normal formula would be :
+ *  time_in_ns = (NSEC_PER_SEC * len) / rate_bps
+ *
+ * We compute mult/shift to use instead :
+ *  time_in_ns = (len * mult) >> shift;
+ *
+ * We try to get the highest possible mult value for accuracy,
+ * but have to make sure no overflows will ever happen.
+ *
+ * reciprocal_value() is not used here it doesn't handle 64-bit values.
+ */
+static void psched_ratecfg_precompute__(u64 rate, u32 *mult, u8 *shift)
+{
+	u64 factor = NSEC_PER_SEC;
+
+	*mult = 1;
+	*shift = 0;
+
+	if (rate <= 0)
+		return;
+
+	for (;;) {
+		*mult = div64_u64(factor, rate);
+		if (*mult & (1U << 31) || factor & (1ULL << 63))
+			break;
+		factor <<= 1;
+		(*shift)++;
+	}
+}
+
+>>>>>>> upstream/android-13
 void psched_ratecfg_precompute(struct psched_ratecfg *r,
 			       const struct tc_ratespec *conf,
 			       u64 rate64)
 {
 	memset(r, 0, sizeof(*r));
 	r->overhead = conf->overhead;
+<<<<<<< HEAD
 	r->rate_bytes_ps = max_t(u64, conf->rate, rate64);
 	r->linklayer = (conf->linklayer & TC_LINKLAYER_MASK);
 	r->mult = 1;
@@ -1360,6 +1815,22 @@ void psched_ratecfg_precompute(struct psched_ratecfg *r,
 }
 EXPORT_SYMBOL(psched_ratecfg_precompute);
 
+=======
+	r->mpu = conf->mpu;
+	r->rate_bytes_ps = max_t(u64, conf->rate, rate64);
+	r->linklayer = (conf->linklayer & TC_LINKLAYER_MASK);
+	psched_ratecfg_precompute__(r->rate_bytes_ps, &r->mult, &r->shift);
+}
+EXPORT_SYMBOL(psched_ratecfg_precompute);
+
+void psched_ppscfg_precompute(struct psched_pktrate *r, u64 pktrate64)
+{
+	r->rate_pkts_ps = pktrate64;
+	psched_ratecfg_precompute__(r->rate_pkts_ps, &r->mult, &r->shift);
+}
+EXPORT_SYMBOL(psched_ppscfg_precompute);
+
+>>>>>>> upstream/android-13
 static void mini_qdisc_rcu_func(struct rcu_head *head)
 {
 }
@@ -1367,13 +1838,25 @@ static void mini_qdisc_rcu_func(struct rcu_head *head)
 void mini_qdisc_pair_swap(struct mini_Qdisc_pair *miniqp,
 			  struct tcf_proto *tp_head)
 {
+<<<<<<< HEAD
 	struct mini_Qdisc *miniq_old = rtnl_dereference(*miniqp->p_miniq);
+=======
+	/* Protected with chain0->filter_chain_lock.
+	 * Can't access chain directly because tp_head can be NULL.
+	 */
+	struct mini_Qdisc *miniq_old =
+		rcu_dereference_protected(*miniqp->p_miniq, 1);
+>>>>>>> upstream/android-13
 	struct mini_Qdisc *miniq;
 
 	if (!tp_head) {
 		RCU_INIT_POINTER(*miniqp->p_miniq, NULL);
 		/* Wait for flying RCU callback before it is freed. */
+<<<<<<< HEAD
 		rcu_barrier_bh();
+=======
+		rcu_barrier();
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1381,10 +1864,17 @@ void mini_qdisc_pair_swap(struct mini_Qdisc_pair *miniqp,
 		&miniqp->miniq1 : &miniqp->miniq2;
 
 	/* We need to make sure that readers won't see the miniq
+<<<<<<< HEAD
 	 * we are about to modify. So wait until previous call_rcu_bh callback
 	 * is done.
 	 */
 	rcu_barrier_bh();
+=======
+	 * we are about to modify. So wait until previous call_rcu callback
+	 * is done.
+	 */
+	rcu_barrier();
+>>>>>>> upstream/android-13
 	miniq->filter_list = tp_head;
 	rcu_assign_pointer(*miniqp->p_miniq, miniq);
 
@@ -1393,10 +1883,25 @@ void mini_qdisc_pair_swap(struct mini_Qdisc_pair *miniqp,
 		 * block potential new user of miniq_old until all readers
 		 * are not seeing it.
 		 */
+<<<<<<< HEAD
 		call_rcu_bh(&miniq_old->rcu, mini_qdisc_rcu_func);
 }
 EXPORT_SYMBOL(mini_qdisc_pair_swap);
 
+=======
+		call_rcu(&miniq_old->rcu, mini_qdisc_rcu_func);
+}
+EXPORT_SYMBOL(mini_qdisc_pair_swap);
+
+void mini_qdisc_pair_block_init(struct mini_Qdisc_pair *miniqp,
+				struct tcf_block *block)
+{
+	miniqp->miniq1.block = block;
+	miniqp->miniq2.block = block;
+}
+EXPORT_SYMBOL(mini_qdisc_pair_block_init);
+
+>>>>>>> upstream/android-13
 void mini_qdisc_pair_init(struct mini_Qdisc_pair *miniqp, struct Qdisc *qdisc,
 			  struct mini_Qdisc __rcu **p_miniq)
 {

@@ -20,6 +20,7 @@
 #include "shub_vendor_type.h"
 
 #include <linux/rtc.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 
 #define SENSOR_NAME_MAX 40
@@ -30,6 +31,11 @@
         buffer = NULL;  \
 	} while (0)
 
+=======
+
+#define SENSOR_NAME_MAX 40
+
+>>>>>>> upstream/android-13
 struct sensor_event {
 	u64 received_timestamp;
 	u64 timestamp;
@@ -103,14 +109,20 @@ struct shub_sensor {
 
 	bool hal_sensor;
 
+<<<<<<< HEAD
 	u64 change_timestamp;
+=======
+>>>>>>> upstream/android-13
 	u64 enable_timestamp;
 	u64 disable_timestamp;
 	struct rtc_time enable_time;
 	struct rtc_time disable_time;
 
 	struct sensor_event event_buffer;
+<<<<<<< HEAD
 	struct sensor_event last_event_buffer;
+=======
+>>>>>>> upstream/android-13
 
 	void *data;
 	struct sensor_funcs *funcs;
@@ -120,6 +132,9 @@ struct shub_sensor {
 typedef int (*init_sensor)(bool en);
 
 int init_shub_sensor(struct shub_sensor *sensor);
+<<<<<<< HEAD
 int init_default_func(struct shub_sensor *sensor, const char *name, int receive_size, int report_size, int buffer_size);
 void destroy_default_func(struct shub_sensor *sensor);
+=======
+>>>>>>> upstream/android-13
 #endif /* __SHUB_SENSOR_H_ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Allwinner sun4i USB phy driver
  *
@@ -6,6 +10,7 @@
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  *
+<<<<<<< HEAD
  * Modelled after: Samsung S5P/EXYNOS SoC series MIPI CSIS/DSIM DPHY driver
  * Copyright (C) 2013 Samsung Electronics Co., Ltd.
  * Author: Sylwester Nawrocki <s.nawrocki@samsung.com>
@@ -19,12 +24,21 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+ * Modelled after: Samsung S5P/Exynos SoC series MIPI CSIS/DSIM DPHY driver
+ * Copyright (C) 2013 Samsung Electronics Co., Ltd.
+ * Author: Sylwester Nawrocki <s.nawrocki@samsung.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/extcon-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/io.h>
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
@@ -115,6 +129,10 @@ enum sun4i_usb_phy_type {
 	sun8i_r40_phy,
 	sun8i_v3s_phy,
 	sun50i_a64_phy,
+<<<<<<< HEAD
+=======
+	sun50i_h6_phy,
+>>>>>>> upstream/android-13
 };
 
 struct sun4i_usb_phy_cfg {
@@ -295,7 +313,12 @@ static int sun4i_usb_phy_init(struct phy *_phy)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (data->cfg->type == sun8i_a83t_phy) {
+=======
+	if (data->cfg->type == sun8i_a83t_phy ||
+	    data->cfg->type == sun50i_h6_phy) {
+>>>>>>> upstream/android-13
 		if (phy->index == 0) {
 			val = readl(data->base + data->cfg->phyctl_offset);
 			val |= PHY_CTL_VBUSVLDEXT;
@@ -344,7 +367,12 @@ static int sun4i_usb_phy_exit(struct phy *_phy)
 	struct sun4i_usb_phy_data *data = to_sun4i_usb_phy_data(phy);
 
 	if (phy->index == 0) {
+<<<<<<< HEAD
 		if (data->cfg->type == sun8i_a83t_phy) {
+=======
+		if (data->cfg->type == sun8i_a83t_phy ||
+		    data->cfg->type == sun50i_h6_phy) {
+>>>>>>> upstream/android-13
 			void __iomem *phyctl = data->base +
 				data->cfg->phyctl_offset;
 
@@ -691,7 +719,10 @@ static int sun4i_usb_phy_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct device_node *np = dev->of_node;
 	struct phy_provider *phy_provider;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int i, ret;
 
 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
@@ -705,8 +736,12 @@ static int sun4i_usb_phy_probe(struct platform_device *pdev)
 	if (!data->cfg)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "phy_ctrl");
 	data->base = devm_ioremap_resource(dev, res);
+=======
+	data->base = devm_platform_ioremap_resource_byname(pdev, "phy_ctrl");
+>>>>>>> upstream/android-13
 	if (IS_ERR(data->base))
 		return PTR_ERR(data->base);
 
@@ -801,9 +836,13 @@ static int sun4i_usb_phy_probe(struct platform_device *pdev)
 
 		if (i || data->cfg->phy0_dual_route) { /* No pmu for musb */
 			snprintf(name, sizeof(name), "pmu%d", i);
+<<<<<<< HEAD
 			res = platform_get_resource_byname(pdev,
 							IORESOURCE_MEM, name);
 			phy->pmu = devm_ioremap_resource(dev, res);
+=======
+			phy->pmu = devm_platform_ioremap_resource_byname(pdev, name);
+>>>>>>> upstream/android-13
 			if (IS_ERR(phy->pmu))
 				return PTR_ERR(phy->pmu);
 		}
@@ -968,6 +1007,19 @@ static const struct sun4i_usb_phy_cfg sun50i_a64_cfg = {
 	.phy0_dual_route = true,
 };
 
+<<<<<<< HEAD
+=======
+static const struct sun4i_usb_phy_cfg sun50i_h6_cfg = {
+	.num_phys = 4,
+	.type = sun50i_h6_phy,
+	.disc_thresh = 3,
+	.phyctl_offset = REG_PHYCTL_A33,
+	.dedicated_clocks = true,
+	.phy0_dual_route = true,
+	.missing_phys = BIT(1) | BIT(2),
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id sun4i_usb_phy_of_match[] = {
 	{ .compatible = "allwinner,sun4i-a10-usb-phy", .data = &sun4i_a10_cfg },
 	{ .compatible = "allwinner,sun5i-a13-usb-phy", .data = &sun5i_a13_cfg },
@@ -981,6 +1033,10 @@ static const struct of_device_id sun4i_usb_phy_of_match[] = {
 	{ .compatible = "allwinner,sun8i-v3s-usb-phy", .data = &sun8i_v3s_cfg },
 	{ .compatible = "allwinner,sun50i-a64-usb-phy",
 	  .data = &sun50i_a64_cfg},
+<<<<<<< HEAD
+=======
+	{ .compatible = "allwinner,sun50i-h6-usb-phy", .data = &sun50i_h6_cfg },
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(of, sun4i_usb_phy_of_match);

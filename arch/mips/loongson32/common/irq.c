@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2011 Zhang, Keguang <keguang.zhang@gmail.com>
  *
@@ -5,6 +6,11 @@
  * under  the terms of	the GNU General	 Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2011 Zhang, Keguang <keguang.zhang@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -153,12 +159,15 @@ asmlinkage void plat_irq_dispatch(void)
 
 }
 
+<<<<<<< HEAD
 static struct irqaction cascade_irqaction = {
 	.handler = no_action,
 	.name = "cascade",
 	.flags = IRQF_NO_THREAD,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init ls1x_irq_init(int base)
 {
 	int n;
@@ -180,12 +189,26 @@ static void __init ls1x_irq_init(int base)
 					 handle_level_irq);
 	}
 
+<<<<<<< HEAD
 	setup_irq(INT0_IRQ, &cascade_irqaction);
 	setup_irq(INT1_IRQ, &cascade_irqaction);
 	setup_irq(INT2_IRQ, &cascade_irqaction);
 	setup_irq(INT3_IRQ, &cascade_irqaction);
 #if defined(CONFIG_LOONGSON1_LS1C)
 	setup_irq(INT4_IRQ, &cascade_irqaction);
+=======
+	if (request_irq(INT0_IRQ, no_action, IRQF_NO_THREAD, "cascade", NULL))
+		pr_err("Failed to request irq %d (cascade)\n", INT0_IRQ);
+	if (request_irq(INT1_IRQ, no_action, IRQF_NO_THREAD, "cascade", NULL))
+		pr_err("Failed to request irq %d (cascade)\n", INT1_IRQ);
+	if (request_irq(INT2_IRQ, no_action, IRQF_NO_THREAD, "cascade", NULL))
+		pr_err("Failed to request irq %d (cascade)\n", INT2_IRQ);
+	if (request_irq(INT3_IRQ, no_action, IRQF_NO_THREAD, "cascade", NULL))
+		pr_err("Failed to request irq %d (cascade)\n", INT3_IRQ);
+#if defined(CONFIG_LOONGSON1_LS1C)
+	if (request_irq(INT4_IRQ, no_action, IRQF_NO_THREAD, "cascade", NULL))
+		pr_err("Failed to request irq %d (cascade)\n", INT4_IRQ);
+>>>>>>> upstream/android-13
 #endif
 }
 

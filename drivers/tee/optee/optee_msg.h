@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015-2016, Linaro Limited
  * All rights reserved.
@@ -23,6 +24,11 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause) */
+/*
+ * Copyright (c) 2015-2021, Linaro Limited
+>>>>>>> upstream/android-13
  */
 #ifndef _OPTEE_MSG_H
 #define _OPTEE_MSG_H
@@ -31,6 +37,7 @@
 #include <linux/types.h>
 
 /*
+<<<<<<< HEAD
  * This file defines the OP-TEE message protocol used to communicate
  * with an instance of OP-TEE running in secure world.
  *
@@ -39,6 +46,14 @@
  * 2. Requests from normal world
  * 3. Requests from secure world, Remote Procedure Call (RPC), handled by
  *    tee-supplicant.
+=======
+ * This file defines the OP-TEE message protocol (ABI) used to communicate
+ * with an instance of OP-TEE running in secure world.
+ *
+ * This file is divided into two sections.
+ * 1. Formatting of messages.
+ * 2. Requests from normal world
+>>>>>>> upstream/android-13
  */
 
 /*****************************************************************************
@@ -76,8 +91,13 @@
  * Every entry in buffer should point to a 4k page beginning (12 least
  * significant bits must be equal to zero).
  *
+<<<<<<< HEAD
  * 12 least significant bints of optee_msg_param.u.tmem.buf_ptr should hold page
  * offset of the user buffer.
+=======
+ * 12 least significant bits of optee_msg_param.u.tmem.buf_ptr should hold
+ * page offset of user buffer.
+>>>>>>> upstream/android-13
  *
  * So, entries should be placed like members of this structure:
  *
@@ -168,9 +188,16 @@ struct optee_msg_param_value {
  * @tmem:	parameter by temporary memory reference
  * @rmem:	parameter by registered memory reference
  * @value:	parameter by opaque value
+<<<<<<< HEAD
  *
  * @attr & OPTEE_MSG_ATTR_TYPE_MASK indicates if tmem, rmem or value is used in
  * the union. OPTEE_MSG_ATTR_TYPE_VALUE_* indicates value,
+=======
+ * @octets:	parameter by octet string
+ *
+ * @attr & OPTEE_MSG_ATTR_TYPE_MASK indicates if tmem, rmem or value is used in
+ * the union. OPTEE_MSG_ATTR_TYPE_VALUE_* indicates value or octets,
+>>>>>>> upstream/android-13
  * OPTEE_MSG_ATTR_TYPE_TMEM_* indicates @tmem and
  * OPTEE_MSG_ATTR_TYPE_RMEM_* indicates @rmem,
  * OPTEE_MSG_ATTR_TYPE_NONE indicates that none of the members are used.
@@ -181,6 +208,10 @@ struct optee_msg_param {
 		struct optee_msg_param_tmem tmem;
 		struct optee_msg_param_rmem rmem;
 		struct optee_msg_param_value value;
+<<<<<<< HEAD
+=======
+		u8 octets[24];
+>>>>>>> upstream/android-13
 	} u;
 };
 
@@ -198,6 +229,7 @@ struct optee_msg_param {
  * @params: the parameters supplied to the OS Command
  *
  * All normal calls to Trusted OS uses this struct. If cmd requires further
+<<<<<<< HEAD
  * information than what these field holds it can be passed as a parameter
  * tagged as meta (setting the OPTEE_MSG_ATTR_META bit in corresponding
  * attrs field). All parameters tagged as meta has to come first.
@@ -209,6 +241,11 @@ struct optee_msg_param {
  * OPTEE_MSG_ATTR_FRAGMENT bit set in attrs. Even if a memref is fragmented
  * it will still be presented as a single logical memref to the Trusted
  * Application.
+=======
+ * information than what these fields hold it can be passed as a parameter
+ * tagged as meta (setting the OPTEE_MSG_ATTR_META bit in corresponding
+ * attrs field). All parameters tagged as meta have to come first.
+>>>>>>> upstream/android-13
  */
 struct optee_msg_arg {
 	u32 cmd;
@@ -221,7 +258,11 @@ struct optee_msg_arg {
 	u32 num_params;
 
 	/* num_params tells the actual number of element in params */
+<<<<<<< HEAD
 	struct optee_msg_param params[0];
+=======
+	struct optee_msg_param params[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -312,6 +353,7 @@ struct optee_msg_arg {
  * OPTEE_MSG_CMD_REGISTER_SHM registers a shared memory reference. The
  * information is passed as:
  * [in] param[0].attr			OPTEE_MSG_ATTR_TYPE_TMEM_INPUT
+<<<<<<< HEAD
  *					[| OPTEE_MSG_ATTR_FRAGMENT]
  * [in] param[0].u.tmem.buf_ptr		physical address (of first fragment)
  * [in] param[0].u.tmem.size		size (of first fragment)
@@ -321,6 +363,14 @@ struct optee_msg_arg {
  * each other with all but the last with the OPTEE_MSG_ATTR_FRAGMENT bit set.
  *
  * OPTEE_MSG_CMD_UNREGISTER_SHM unregisteres a previously registered shared
+=======
+ *					[| OPTEE_MSG_ATTR_NONCONTIG]
+ * [in] param[0].u.tmem.buf_ptr		physical address (of first fragment)
+ * [in] param[0].u.tmem.size		size (of first fragment)
+ * [in] param[0].u.tmem.shm_ref		holds shared memory reference
+ *
+ * OPTEE_MSG_CMD_UNREGISTER_SHM unregisters a previously registered shared
+>>>>>>> upstream/android-13
  * memory reference. The information is passed as:
  * [in] param[0].attr			OPTEE_MSG_ATTR_TYPE_RMEM_INPUT
  * [in] param[0].u.rmem.shm_ref		holds shared memory reference
@@ -335,6 +385,7 @@ struct optee_msg_arg {
 #define OPTEE_MSG_CMD_UNREGISTER_SHM	5
 #define OPTEE_MSG_FUNCID_CALL_WITH_ARG	0x0004
 
+<<<<<<< HEAD
 /*****************************************************************************
  * Part 3 - Requests from secure world, RPC
  *****************************************************************************/
@@ -441,4 +492,6 @@ struct optee_msg_arg {
  */
 #define OPTEE_MSG_RPC_CMD_SHM_FREE	7
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _OPTEE_MSG_H */

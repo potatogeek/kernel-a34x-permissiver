@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2010-2011 Calxeda, Inc.
  *
@@ -12,11 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2010-2011 Calxeda, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/clk.h>
 #include <linux/clkdev.h>
 #include <linux/clocksource.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/input.h>
 #include <linux/io.h>
 #include <linux/irqchip.h>

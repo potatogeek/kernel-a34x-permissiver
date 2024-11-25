@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+>>>>>>> upstream/android-13
  * tuner-xc2028
  *
  * Copyright (c) 2007-2008 Mauro Carvalho Chehab <mchehab@kernel.org>

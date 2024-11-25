@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
 *
 * GPL LICENSE SUMMARY
@@ -21,6 +22,13 @@
 * The full GNU General Public License is included in this distribution
 * in the file called LICENSE.GPL.
 *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+*
+* Copyright(c) 2008 - 2011 Intel Corporation. All rights reserved.
+*
+>>>>>>> upstream/android-13
 * Contact Information:
 *  Intel Linux Wireless <ilw@linux.intel.com>
 * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497

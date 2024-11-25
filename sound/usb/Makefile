@@ -8,10 +8,20 @@ snd-usb-audio-objs := 	card.o \
 			endpoint.o \
 			format.o \
 			helper.o \
+<<<<<<< HEAD
 			mixer.o \
 			mixer_quirks.o \
 			mixer_scarlett.o \
 			mixer_us16x08.o \
+=======
+			implicit.o \
+			mixer.o \
+			mixer_quirks.o \
+			mixer_scarlett.o \
+			mixer_scarlett_gen2.o \
+			mixer_us16x08.o \
+			mixer_s1810c.o \
+>>>>>>> upstream/android-13
 			pcm.o \
 			power.o \
 			proc.o \
@@ -19,10 +29,22 @@ snd-usb-audio-objs := 	card.o \
 			stream.o \
 			validate.o
 
+<<<<<<< HEAD
+=======
+snd-usb-audio-$(CONFIG_SND_USB_AUDIO_USE_MEDIA_CONTROLLER) += media.o
+
+>>>>>>> upstream/android-13
 snd-usbmidi-lib-objs := midi.o
 
 # Toplevel Module Dependency
 obj-$(CONFIG_SND_USB_AUDIO) += snd-usb-audio.o snd-usbmidi-lib.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_SND_EXYNOS_USB_AUDIO_MODULE) += exynos-usb-audio-offloading.o
+exynos-usb-audio-offloading-y += exynos_usb_audio.o
+obj-$(CONFIG_SND_EXYNOS_USB_AUDIO_GIC) += exynos-usb-audio-offloading-gic.o
+exynos-usb-audio-offloading-gic-y += exynos_usb_audio_gic.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_SND_USB_UA101) += snd-usbmidi-lib.o
 obj-$(CONFIG_SND_USB_USX2Y) += snd-usbmidi-lib.o

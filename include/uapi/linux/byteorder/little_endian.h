@@ -9,6 +9,10 @@
 #define __LITTLE_ENDIAN_BITFIELD
 #endif
 
+<<<<<<< HEAD
+=======
+#include <linux/stddef.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/swab.h>
 

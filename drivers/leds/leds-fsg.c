@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * LED Driver for the Freecom FSG-3
  *
@@ -8,11 +12,14 @@
  * Based on leds-spitz.c
  * Copyright 2005-2006 Openedhand Ltd.
  * Author: Richard Purdie <rpurdie@openedhand.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config DRM_MESON
 	tristate "DRM Support for Amlogic Meson Display Controller"
 	depends on DRM && OF && (ARM || ARM64)
@@ -7,9 +11,17 @@ config DRM_MESON
 	select DRM_GEM_CMA_HELPER
 	select VIDEOMODE_HELPERS
 	select REGMAP_MMIO
+<<<<<<< HEAD
+=======
+	select MESON_CANVAS
+>>>>>>> upstream/android-13
 
 config DRM_MESON_DW_HDMI
 	tristate "HDMI Synopsys Controller support for Amlogic Meson Display"
 	depends on DRM_MESON
 	default y if DRM_MESON
 	select DRM_DW_HDMI
+<<<<<<< HEAD
+=======
+	imply DRM_DW_HDMI_I2S_AUDIO
+>>>>>>> upstream/android-13

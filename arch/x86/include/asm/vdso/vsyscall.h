@@ -10,8 +10,11 @@
 #include <asm/vgtod.h>
 #include <asm/vvar.h>
 
+<<<<<<< HEAD
 int vclocks_used __read_mostly;
 
+=======
+>>>>>>> upstream/android-13
 DEFINE_VVAR(struct vdso_data, _vdso_data);
 /*
  * Update the vDSO data page to keep in sync with kernel timekeeping.
@@ -23,6 +26,7 @@ struct vdso_data *__x86_get_k_vdso_data(void)
 }
 #define __arch_get_k_vdso_data __x86_get_k_vdso_data
 
+<<<<<<< HEAD
 static __always_inline
 int __x86_get_clock_mode(struct timekeeper *tk)
 {
@@ -36,6 +40,8 @@ int __x86_get_clock_mode(struct timekeeper *tk)
 }
 #define __arch_get_clock_mode __x86_get_clock_mode
 
+=======
+>>>>>>> upstream/android-13
 /* The asm-generic header needs to be included after the definitions above */
 #include <asm-generic/vdso/vsyscall.h>
 

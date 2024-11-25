@@ -5,7 +5,10 @@
 #include <linux/types.h>
 #include <linux/pkt_cls.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_MIRRED 8
+=======
+>>>>>>> upstream/android-13
 #define TCA_EGRESS_REDIR 1  /* packet redirect to EGRESS*/
 #define TCA_EGRESS_MIRROR 2 /* mirror packet to EGRESS */
 #define TCA_INGRESS_REDIR 3  /* packet redirect to INGRESS*/

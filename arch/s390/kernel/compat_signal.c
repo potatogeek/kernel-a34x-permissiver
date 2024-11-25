@@ -28,6 +28,10 @@
 #include <linux/uaccess.h>
 #include <asm/lowcore.h>
 #include <asm/switch_to.h>
+<<<<<<< HEAD
+=======
+#include <asm/vdso.h>
+>>>>>>> upstream/android-13
 #include "compat_linux.h"
 #include "compat_ptrace.h"
 #include "entry.h"
@@ -194,7 +198,11 @@ COMPAT_SYSCALL_DEFINE0(sigreturn)
 	load_sigregs();
 	return regs->gprs[2];
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -217,7 +225,11 @@ COMPAT_SYSCALL_DEFINE0(rt_sigreturn)
 	load_sigregs();
 	return regs->gprs[2];
 badframe:
+<<<<<<< HEAD
 	force_sig(SIGSEGV, current);
+=======
+	force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	return 0;
 }	
 
@@ -303,11 +315,15 @@ static int setup_frame32(struct ksignal *ksig, sigset_t *set,
 		restorer = (unsigned long __force)
 			ksig->ka.sa.sa_restorer | PSW32_ADDR_AMODE;
 	} else {
+<<<<<<< HEAD
 		/* Signal frames without vectors registers are short ! */
 		__u16 __user *svc = (void __user *) frame + frame_size - 2;
 		if (__put_user(S390_SYSCALL_OPCODE | __NR_sigreturn, svc))
 			return -EFAULT;
 		restorer = (unsigned long __force) svc | PSW32_ADDR_AMODE;
+=======
+		restorer = VDSO32_SYMBOL(current, sigreturn);
+>>>>>>> upstream/android-13
         }
 
 	/* Set up registers for signal handler */
@@ -370,10 +386,14 @@ static int setup_rt_frame32(struct ksignal *ksig, sigset_t *set,
 		restorer = (unsigned long __force)
 			ksig->ka.sa.sa_restorer | PSW32_ADDR_AMODE;
 	} else {
+<<<<<<< HEAD
 		__u16 __user *svc = &frame->svc_insn;
 		if (__put_user(S390_SYSCALL_OPCODE | __NR_rt_sigreturn, svc))
 			return -EFAULT;
 		restorer = (unsigned long __force) svc | PSW32_ADDR_AMODE;
+=======
+		restorer = VDSO32_SYMBOL(current, rt_sigreturn);
+>>>>>>> upstream/android-13
 	}
 
 	/* Create siginfo on the signal stack */

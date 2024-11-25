@@ -47,7 +47,10 @@
 
 #include <asm/setup.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/traps.h>
 #include <asm/ucontext.h>
 #include <asm/cacheflush.h>
@@ -62,6 +65,7 @@
 #define	FMT4SIZE	0
 #else
 #define	FORMAT		0
+<<<<<<< HEAD
 #define	FMT4SIZE	sizeof(((struct frame *)0)->un.fmt4)
 #endif
 
@@ -81,6 +85,27 @@ static const int frame_size_change[16] = {
   [13]	= -1, /* sizeof(((struct frame *)0)->un.fmtd), */
   [14]	= -1, /* sizeof(((struct frame *)0)->un.fmte), */
   [15]	= -1, /* sizeof(((struct frame *)0)->un.fmtf), */
+=======
+#define	FMT4SIZE	sizeof_field(struct frame, un.fmt4)
+#endif
+
+static const int frame_size_change[16] = {
+  [1]	= -1, /* sizeof_field(struct frame, un.fmt1), */
+  [2]	= sizeof_field(struct frame, un.fmt2),
+  [3]	= sizeof_field(struct frame, un.fmt3),
+  [4]	= FMT4SIZE,
+  [5]	= -1, /* sizeof_field(struct frame, un.fmt5), */
+  [6]	= -1, /* sizeof_field(struct frame, un.fmt6), */
+  [7]	= sizeof_field(struct frame, un.fmt7),
+  [8]	= -1, /* sizeof_field(struct frame, un.fmt8), */
+  [9]	= sizeof_field(struct frame, un.fmt9),
+  [10]	= sizeof_field(struct frame, un.fmta),
+  [11]	= sizeof_field(struct frame, un.fmtb),
+  [12]	= -1, /* sizeof_field(struct frame, un.fmtc), */
+  [13]	= -1, /* sizeof_field(struct frame, un.fmtd), */
+  [14]	= -1, /* sizeof_field(struct frame, un.fmte), */
+  [15]	= -1, /* sizeof_field(struct frame, un.fmtf), */
+>>>>>>> upstream/android-13
 };
 
 static inline int frame_extra_sizes(int f)
@@ -448,7 +473,11 @@ static inline void save_fpu_state(struct sigcontext *sc, struct pt_regs *regs)
 
 	if (CPU_IS_060 ? sc->sc_fpstate[2] : sc->sc_fpstate[0]) {
 		fpu_version = sc->sc_fpstate[0];
+<<<<<<< HEAD
 		if (CPU_IS_020_OR_030 &&
+=======
+		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+>>>>>>> upstream/android-13
 		    regs->vector >= (VEC_FPBRUC * 4) &&
 		    regs->vector <= (VEC_FPNAN * 4)) {
 			/* Clear pending exception in 68882 idle frame */
@@ -511,7 +540,11 @@ static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *
 		if (!(CPU_IS_060 || CPU_IS_COLDFIRE))
 			context_size = fpstate[1];
 		fpu_version = fpstate[0];
+<<<<<<< HEAD
 		if (CPU_IS_020_OR_030 &&
+=======
+		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+>>>>>>> upstream/android-13
 		    regs->vector >= (VEC_FPBRUC * 4) &&
 		    regs->vector <= (VEC_FPNAN * 4)) {
 			/* Clear pending exception in 68882 idle frame */
@@ -623,6 +656,13 @@ static inline void siginfo_build_tests(void)
 	/* _sigfault._addr_pkey */
 	BUILD_BUG_ON(offsetof(siginfo_t, si_pkey) != 0x12);
 
+<<<<<<< HEAD
+=======
+	/* _sigfault._perf */
+	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_data) != 0x10);
+	BUILD_BUG_ON(offsetof(siginfo_t, si_perf_type) != 0x14);
+
+>>>>>>> upstream/android-13
 	/* _sigpoll */
 	BUILD_BUG_ON(offsetof(siginfo_t, si_band)   != 0x0c);
 	BUILD_BUG_ON(offsetof(siginfo_t, si_fd)     != 0x10);
@@ -638,12 +678,20 @@ static inline void siginfo_build_tests(void)
 static int mangle_kernel_stack(struct pt_regs *regs, int formatvec,
 			       void __user *fp)
 {
+<<<<<<< HEAD
 	int fsize = frame_extra_sizes(formatvec >> 12);
 	if (fsize < 0) {
+=======
+	int extra = frame_extra_sizes(formatvec >> 12);
+	char buf[sizeof_field(struct frame, un)];
+
+	if (extra < 0) {
+>>>>>>> upstream/android-13
 		/*
 		 * user process trying to return with weird frame format
 		 */
 		pr_debug("user process returning with weird frame format\n");
+<<<<<<< HEAD
 		return 1;
 	}
 	if (!fsize) {
@@ -687,6 +735,29 @@ static int mangle_kernel_stack(struct pt_regs *regs, int formatvec,
 #undef frame_offset
 	}
 	return 0;
+=======
+		return -1;
+	}
+	if (extra && copy_from_user(buf, fp, extra))
+		return -1;
+	regs->format = formatvec >> 12;
+	regs->vector = formatvec & 0xfff;
+	if (extra) {
+		void *p = (struct switch_stack *)regs - 1;
+		struct frame *new = (void *)regs - extra;
+		int size = sizeof(struct pt_regs)+sizeof(struct switch_stack);
+
+		memmove(p - extra, p, size);
+		memcpy(p - extra + size, buf, extra);
+		current->thread.esp0 = (unsigned long)&new->ptregs;
+#ifdef CONFIG_M68040
+		/* on 68040 complete pending writebacks if any */
+		if (new->ptregs.format == 7) // bus error frame
+			berr_040cleanup(new);
+#endif
+	}
+	return extra;
+>>>>>>> upstream/android-13
 }
 
 static inline int
@@ -694,7 +765,10 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *usc, void __u
 {
 	int formatvec;
 	struct sigcontext context;
+<<<<<<< HEAD
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 
 	siginfo_build_tests();
 
@@ -703,7 +777,11 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *usc, void __u
 
 	/* get previous context */
 	if (copy_from_user(&context, usc, sizeof(context)))
+<<<<<<< HEAD
 		goto badframe;
+=======
+		return -1;
+>>>>>>> upstream/android-13
 
 	/* restore passed registers */
 	regs->d0 = context.sc_d0;
@@ -716,6 +794,7 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *usc, void __u
 	wrusp(context.sc_usp);
 	formatvec = context.sc_formatvec;
 
+<<<<<<< HEAD
 	err = restore_fpu_state(&context);
 
 	if (err || mangle_kernel_stack(regs, formatvec, fp))
@@ -725,6 +804,12 @@ restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *usc, void __u
 
 badframe:
 	return 1;
+=======
+	if (restore_fpu_state(&context))
+		return -1;
+
+	return mangle_kernel_stack(regs, formatvec, fp);
+>>>>>>> upstream/android-13
 }
 
 static inline int
@@ -741,7 +826,11 @@ rt_restore_ucontext(struct pt_regs *regs, struct switch_stack *sw,
 
 	err = __get_user(temp, &uc->uc_mcontext.version);
 	if (temp != MCONTEXT_VERSION)
+<<<<<<< HEAD
 		goto badframe;
+=======
+		return -1;
+>>>>>>> upstream/android-13
 	/* restore passed registers */
 	err |= __get_user(regs->d0, &gregs[0]);
 	err |= __get_user(regs->d1, &gregs[1]);
@@ -770,6 +859,7 @@ rt_restore_ucontext(struct pt_regs *regs, struct switch_stack *sw,
 	err |= restore_altstack(&uc->uc_stack);
 
 	if (err)
+<<<<<<< HEAD
 		goto badframe;
 
 	if (mangle_kernel_stack(regs, temp, &uc->uc_extra))
@@ -782,12 +872,26 @@ badframe:
 }
 
 asmlinkage int do_sigreturn(struct pt_regs *regs, struct switch_stack *sw)
+=======
+		return -1;
+
+	return mangle_kernel_stack(regs, temp, &uc->uc_extra);
+}
+
+asmlinkage void *do_sigreturn(struct pt_regs *regs, struct switch_stack *sw)
+>>>>>>> upstream/android-13
 {
 	unsigned long usp = rdusp();
 	struct sigframe __user *frame = (struct sigframe __user *)(usp - 4);
 	sigset_t set;
+<<<<<<< HEAD
 
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+=======
+	int size;
+
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 	if (__get_user(set.sig[0], &frame->sc.sc_mask) ||
 	    (_NSIG_WORDS > 1 &&
@@ -797,6 +901,7 @@ asmlinkage int do_sigreturn(struct pt_regs *regs, struct switch_stack *sw)
 
 	set_current_blocked(&set);
 
+<<<<<<< HEAD
 	if (restore_sigcontext(regs, &frame->sc, frame + 1))
 		goto badframe;
 	return regs->d0;
@@ -807,18 +912,38 @@ badframe:
 }
 
 asmlinkage int do_rt_sigreturn(struct pt_regs *regs, struct switch_stack *sw)
+=======
+	size = restore_sigcontext(regs, &frame->sc, frame + 1);
+	if (size < 0)
+		goto badframe;
+	return (void *)sw - size;
+
+badframe:
+	force_sig(SIGSEGV);
+	return sw;
+}
+
+asmlinkage void *do_rt_sigreturn(struct pt_regs *regs, struct switch_stack *sw)
+>>>>>>> upstream/android-13
 {
 	unsigned long usp = rdusp();
 	struct rt_sigframe __user *frame = (struct rt_sigframe __user *)(usp - 4);
 	sigset_t set;
+<<<<<<< HEAD
 
 	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+=======
+	int size;
+
+	if (!access_ok(frame, sizeof(*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
 		goto badframe;
 
 	set_current_blocked(&set);
 
+<<<<<<< HEAD
 	if (rt_restore_ucontext(regs, sw, &frame->uc))
 		goto badframe;
 	return regs->d0;
@@ -826,20 +951,45 @@ asmlinkage int do_rt_sigreturn(struct pt_regs *regs, struct switch_stack *sw)
 badframe:
 	force_sig(SIGSEGV, current);
 	return 0;
+=======
+	size = rt_restore_ucontext(regs, sw, &frame->uc);
+	if (size < 0)
+		goto badframe;
+	return (void *)sw - size;
+
+badframe:
+	force_sig(SIGSEGV);
+	return sw;
+}
+
+static inline struct pt_regs *rte_regs(struct pt_regs *regs)
+{
+	return (void *)regs + regs->stkadj;
+>>>>>>> upstream/android-13
 }
 
 static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
 			     unsigned long mask)
 {
+<<<<<<< HEAD
+=======
+	struct pt_regs *tregs = rte_regs(regs);
+>>>>>>> upstream/android-13
 	sc->sc_mask = mask;
 	sc->sc_usp = rdusp();
 	sc->sc_d0 = regs->d0;
 	sc->sc_d1 = regs->d1;
 	sc->sc_a0 = regs->a0;
 	sc->sc_a1 = regs->a1;
+<<<<<<< HEAD
 	sc->sc_sr = regs->sr;
 	sc->sc_pc = regs->pc;
 	sc->sc_formatvec = regs->format << 12 | regs->vector;
+=======
+	sc->sc_sr = tregs->sr;
+	sc->sc_pc = tregs->pc;
+	sc->sc_formatvec = tregs->format << 12 | tregs->vector;
+>>>>>>> upstream/android-13
 	save_a5_state(sc, regs);
 	save_fpu_state(sc, regs);
 }
@@ -847,6 +997,10 @@ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
 static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
 {
 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
+<<<<<<< HEAD
+=======
+	struct pt_regs *tregs = rte_regs(regs);
+>>>>>>> upstream/android-13
 	greg_t __user *gregs = uc->uc_mcontext.gregs;
 	int err = 0;
 
@@ -867,9 +1021,15 @@ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *
 	err |= __put_user(sw->a5, &gregs[13]);
 	err |= __put_user(sw->a6, &gregs[14]);
 	err |= __put_user(rdusp(), &gregs[15]);
+<<<<<<< HEAD
 	err |= __put_user(regs->pc, &gregs[16]);
 	err |= __put_user(regs->sr, &gregs[17]);
 	err |= __put_user((regs->format << 12) | regs->vector, &uc->uc_formatvec);
+=======
+	err |= __put_user(tregs->pc, &gregs[16]);
+	err |= __put_user(tregs->sr, &gregs[17]);
+	err |= __put_user((tregs->format << 12) | tregs->vector, &uc->uc_formatvec);
+>>>>>>> upstream/android-13
 	err |= rt_save_fpu_state(uc, regs);
 	return err;
 }
@@ -886,13 +1046,22 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 			struct pt_regs *regs)
 {
 	struct sigframe __user *frame;
+<<<<<<< HEAD
 	int fsize = frame_extra_sizes(regs->format);
+=======
+	struct pt_regs *tregs = rte_regs(regs);
+	int fsize = frame_extra_sizes(tregs->format);
+>>>>>>> upstream/android-13
 	struct sigcontext context;
 	int err = 0, sig = ksig->sig;
 
 	if (fsize < 0) {
 		pr_debug("setup_frame: Unknown frame format %#x\n",
+<<<<<<< HEAD
 			 regs->format);
+=======
+			 tregs->format);
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -903,7 +1072,11 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 
 	err |= __put_user(sig, &frame->sig);
 
+<<<<<<< HEAD
 	err |= __put_user(regs->vector, &frame->code);
+=======
+	err |= __put_user(tregs->vector, &frame->code);
+>>>>>>> upstream/android-13
 	err |= __put_user(&frame->sc, &frame->psc);
 
 	if (_NSIG_WORDS > 1)
@@ -920,7 +1093,12 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 	err |= __put_user(0x70004e40 + (__NR_sigreturn << 16),
 			  (long __user *)(frame->retcode));
 #else
+<<<<<<< HEAD
 	err |= __put_user((void *) ret_from_user_signal, &frame->pretcode);
+=======
+	err |= __put_user((long) ret_from_user_signal,
+			  (long __user *) &frame->pretcode);
+>>>>>>> upstream/android-13
 #endif
 
 	if (err)
@@ -929,6 +1107,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 	push_cache ((unsigned long) &frame->retcode);
 
 	/*
+<<<<<<< HEAD
 	 * Set up registers for signal handler.  All the state we are about
 	 * to destroy is successfully copied to sigframe.
 	 */
@@ -937,10 +1116,13 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 	adjustformat(regs);
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * This is subtle; if we build more than one sigframe, all but the
 	 * first one will see frame format 0 and have fsize == 0, so we won't
 	 * screw stkadj.
 	 */
+<<<<<<< HEAD
 	if (fsize)
 		regs->stkadj = fsize;
 
@@ -956,6 +1138,25 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
 		tregs->pc = regs->pc;
 		tregs->sr = regs->sr;
 	}
+=======
+	if (fsize) {
+		regs->stkadj = fsize;
+		tregs = rte_regs(regs);
+		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+		tregs->vector = 0;
+		tregs->format = 0;
+		tregs->sr = regs->sr;
+	}
+
+	/*
+	 * Set up registers for signal handler.  All the state we are about
+	 * to destroy is successfully copied to sigframe.
+	 */
+	wrusp ((unsigned long) frame);
+	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+	adjustformat(regs);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -963,7 +1164,12 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 			   struct pt_regs *regs)
 {
 	struct rt_sigframe __user *frame;
+<<<<<<< HEAD
 	int fsize = frame_extra_sizes(regs->format);
+=======
+	struct pt_regs *tregs = rte_regs(regs);
+	int fsize = frame_extra_sizes(tregs->format);
+>>>>>>> upstream/android-13
 	int err = 0, sig = ksig->sig;
 
 	if (fsize < 0) {
@@ -1004,7 +1210,12 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 	err |= __put_user(0x4e40, (short __user *)(frame->retcode + 4));
 #endif
 #else
+<<<<<<< HEAD
 	err |= __put_user((void *) ret_from_user_rt_signal, &frame->pretcode);
+=======
+	err |= __put_user((long) ret_from_user_rt_signal,
+			  (long __user *) &frame->pretcode);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MMU */
 
 	if (err)
@@ -1013,6 +1224,7 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 	push_cache ((unsigned long) &frame->retcode);
 
 	/*
+<<<<<<< HEAD
 	 * Set up registers for signal handler.  All the state we are about
 	 * to destroy is successfully copied to sigframe.
 	 */
@@ -1021,10 +1233,13 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 	adjustformat(regs);
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * This is subtle; if we build more than one sigframe, all but the
 	 * first one will see frame format 0 and have fsize == 0, so we won't
 	 * screw stkadj.
 	 */
+<<<<<<< HEAD
 	if (fsize)
 		regs->stkadj = fsize;
 
@@ -1040,6 +1255,24 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
 		tregs->pc = regs->pc;
 		tregs->sr = regs->sr;
 	}
+=======
+	if (fsize) {
+		regs->stkadj = fsize;
+		tregs = rte_regs(regs);
+		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+		tregs->vector = 0;
+		tregs->format = 0;
+		tregs->sr = regs->sr;
+	}
+
+	/*
+	 * Set up registers for signal handler.  All the state we are about
+	 * to destroy is successfully copied to sigframe.
+	 */
+	wrusp ((unsigned long) frame);
+	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+	adjustformat(regs);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1067,7 +1300,11 @@ handle_restart(struct pt_regs *regs, struct k_sigaction *ka, int has_handler)
 			regs->d0 = -EINTR;
 			break;
 		}
+<<<<<<< HEAD
 	/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -ERESTARTNOINTR:
 	do_restart:
 		regs->d0 = regs->orig_d0;
@@ -1131,9 +1368,17 @@ static void do_signal(struct pt_regs *regs)
 
 void do_notify_resume(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	if (test_thread_flag(TIF_SIGPENDING))
 		do_signal(regs);
 
 	if (test_and_clear_thread_flag(TIF_NOTIFY_RESUME))
+=======
+	if (test_thread_flag(TIF_NOTIFY_SIGNAL) ||
+	    test_thread_flag(TIF_SIGPENDING))
+		do_signal(regs);
+
+	if (test_thread_flag(TIF_NOTIFY_RESUME))
+>>>>>>> upstream/android-13
 		tracehook_notify_resume(regs);
 }

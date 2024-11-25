@@ -10,8 +10,11 @@
  *
  */
 
+<<<<<<< HEAD
 #define AVMB1_COMPAT
 
+=======
+>>>>>>> upstream/android-13
 #include "kcapi.h"
 #include <linux/module.h>
 #include <linux/mm.h>
@@ -31,18 +34,24 @@
 #include <linux/uaccess.h>
 #include <linux/isdn/capicmd.h>
 #include <linux/isdn/capiutil.h>
+<<<<<<< HEAD
 #ifdef AVMB1_COMPAT
 #include <linux/b1lli.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/rcupdate.h>
 
 static int showcapimsgs = 0;
 static struct workqueue_struct *kcapi_wq;
 
+<<<<<<< HEAD
 MODULE_DESCRIPTION("CAPI4Linux: kernel CAPI layer");
 MODULE_AUTHOR("Carsten Paeth");
 MODULE_LICENSE("GPL");
+=======
+>>>>>>> upstream/android-13
 module_param(showcapimsgs, uint, 0);
 
 /* ------------------------------------------------------------- */
@@ -61,9 +70,12 @@ static char capi_manufakturer[64] = "AVM Berlin";
 
 #define NCCI2CTRL(ncci)    (((ncci) >> 24) & 0x7f)
 
+<<<<<<< HEAD
 LIST_HEAD(capi_drivers);
 DEFINE_MUTEX(capi_drivers_lock);
 
+=======
+>>>>>>> upstream/android-13
 struct capi_ctr *capi_controller[CAPI_MAXCONTR];
 DEFINE_MUTEX(capi_controller_lock);
 
@@ -71,8 +83,11 @@ struct capi20_appl *capi_applications[CAPI_MAXAPPL];
 
 static int ncontrollers;
 
+<<<<<<< HEAD
 static BLOCKING_NOTIFIER_HEAD(ctr_notifier_list);
 
+=======
+>>>>>>> upstream/android-13
 /* -------- controller ref counting -------------------------------------- */
 
 static inline struct capi_ctr *
@@ -200,8 +215,11 @@ static void notify_up(u32 contr)
 			if (ap)
 				register_appl(ctr, applid, &ap->rparam);
 		}
+<<<<<<< HEAD
 
 		wake_up_interruptible_all(&ctr->state_wait_queue);
+=======
+>>>>>>> upstream/android-13
 	} else
 		printk(KERN_WARNING "%s: invalid contr %d\n", __func__, contr);
 
@@ -229,8 +247,11 @@ static void ctr_down(struct capi_ctr *ctr, int new_state)
 		if (ap)
 			capi_ctr_put(ctr);
 	}
+<<<<<<< HEAD
 
 	wake_up_interruptible_all(&ctr->state_wait_queue);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void notify_down(u32 contr)
@@ -251,6 +272,7 @@ static void notify_down(u32 contr)
 	mutex_unlock(&capi_controller_lock);
 }
 
+<<<<<<< HEAD
 static int
 notify_handler(struct notifier_block *nb, unsigned long val, void *v)
 {
@@ -267,11 +289,14 @@ notify_handler(struct notifier_block *nb, unsigned long val, void *v)
 	return NOTIFY_OK;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void do_notify_work(struct work_struct *work)
 {
 	struct capictr_event *event =
 		container_of(work, struct capictr_event, work);
 
+<<<<<<< HEAD
 	blocking_notifier_call_chain(&ctr_notifier_list, event->type,
 				     (void *)(long)event->controller);
 	kfree(event);
@@ -281,6 +306,20 @@ static void do_notify_work(struct work_struct *work)
  * The notifier will result in adding/deleteing of devices. Devices can
  * only removed in user process, not in bh.
  */
+=======
+	switch (event->type) {
+	case CAPICTR_UP:
+		notify_up(event->controller);
+		break;
+	case CAPICTR_DOWN:
+		notify_down(event->controller);
+		break;
+	}
+
+	kfree(event);
+}
+
+>>>>>>> upstream/android-13
 static int notify_push(unsigned int event_type, u32 controller)
 {
 	struct capictr_event *event = kmalloc(sizeof(*event), GFP_ATOMIC);
@@ -296,6 +335,7 @@ static int notify_push(unsigned int event_type, u32 controller)
 	return 0;
 }
 
+<<<<<<< HEAD
 int register_capictr_notifier(struct notifier_block *nb)
 {
 	return blocking_notifier_chain_register(&ctr_notifier_list, nb);
@@ -308,6 +348,8 @@ int unregister_capictr_notifier(struct notifier_block *nb)
 }
 EXPORT_SYMBOL_GPL(unregister_capictr_notifier);
 
+=======
+>>>>>>> upstream/android-13
 /* -------- Receiver ------------------------------------------ */
 
 static void recv_handler(struct work_struct *work)
@@ -454,6 +496,7 @@ void capi_ctr_down(struct capi_ctr *ctr)
 
 EXPORT_SYMBOL(capi_ctr_down);
 
+<<<<<<< HEAD
 /**
  * capi_ctr_suspend_output() - suspend controller
  * @ctr:	controller descriptor structure.
@@ -496,6 +539,8 @@ void capi_ctr_resume_output(struct capi_ctr *ctr)
 
 EXPORT_SYMBOL(capi_ctr_resume_output);
 
+=======
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------- */
 
 /**
@@ -531,7 +576,10 @@ int attach_capi_ctr(struct capi_ctr *ctr)
 	ctr->state = CAPI_CTR_DETECTED;
 	ctr->blocked = 0;
 	ctr->traceflag = showcapimsgs;
+<<<<<<< HEAD
 	init_waitqueue_head(&ctr->state_wait_queue);
+=======
+>>>>>>> upstream/android-13
 
 	sprintf(ctr->procfn, "capi/controllers/%d", ctr->cnr);
 	ctr->procent = proc_create_single_data(ctr->procfn, 0, NULL,
@@ -565,6 +613,14 @@ int detach_capi_ctr(struct capi_ctr *ctr)
 
 	ctr_down(ctr, CAPI_CTR_DETACHED);
 
+<<<<<<< HEAD
+=======
+	if (ctr->cnr < 1 || ctr->cnr - 1 >= CAPI_MAXCONTR) {
+		err = -EINVAL;
+		goto unlock_out;
+	}
+
+>>>>>>> upstream/android-13
 	if (capi_controller[ctr->cnr - 1] != ctr) {
 		err = -EINVAL;
 		goto unlock_out;
@@ -586,6 +642,7 @@ unlock_out:
 
 EXPORT_SYMBOL(detach_capi_ctr);
 
+<<<<<<< HEAD
 /**
  * register_capi_driver() - register CAPI driver
  * @driver:	driver descriptor structure.
@@ -618,6 +675,8 @@ void unregister_capi_driver(struct capi_driver *driver)
 
 EXPORT_SYMBOL(unregister_capi_driver);
 
+=======
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------- */
 /* -------- CAPI2.0 Interface ---------------------------------- */
 /* ------------------------------------------------------------- */
@@ -648,8 +707,11 @@ u16 capi20_isinstalled(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_isinstalled);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_register() - CAPI 2.0 operation CAPI_REGISTER
  * @ap:		CAPI application descriptor structure.
@@ -711,8 +773,11 @@ u16 capi20_register(struct capi20_appl *ap)
 	return CAPI_NOERROR;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_register);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_release() - CAPI 2.0 operation CAPI_RELEASE
  * @ap:		CAPI application descriptor structure.
@@ -755,8 +820,11 @@ u16 capi20_release(struct capi20_appl *ap)
 	return CAPI_NOERROR;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_release);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_put_message() - CAPI 2.0 operation CAPI_PUT_MESSAGE
  * @ap:		CAPI application descriptor structure.
@@ -834,8 +902,11 @@ u16 capi20_put_message(struct capi20_appl *ap, struct sk_buff *skb)
 	return ctr->send_message(ctr, skb);
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_put_message);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_get_manufacturer() - CAPI 2.0 operation CAPI_GET_MANUFACTURER
  * @contr:	controller number.
@@ -869,8 +940,11 @@ u16 capi20_get_manufacturer(u32 contr, u8 buf[CAPI_MANUFACTURER_LEN])
 	return ret;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_get_manufacturer);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_get_version() - CAPI 2.0 operation CAPI_GET_VERSION
  * @contr:	controller number.
@@ -904,8 +978,11 @@ u16 capi20_get_version(u32 contr, struct capi_version *verp)
 	return ret;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_get_version);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_get_serial() - CAPI 2.0 operation CAPI_GET_SERIAL_NUMBER
  * @contr:	controller number.
@@ -939,8 +1016,11 @@ u16 capi20_get_serial(u32 contr, u8 serial[CAPI_SERIAL_LEN])
 	return ret;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_get_serial);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_get_profile() - CAPI 2.0 operation CAPI_GET_PROFILE
  * @contr:	controller number.
@@ -974,6 +1054,7 @@ u16 capi20_get_profile(u32 contr, struct capi_profile *profp)
 	return ret;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_get_profile);
 
 /* Must be called with capi_controller_lock held. */
@@ -1177,6 +1258,8 @@ static int old_capi_manufacturer(unsigned int cmd, void __user *data)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * capi20_manufacturer() - CAPI 2.0 operation CAPI_MANUFACTURER
  * @cmd:	command.
@@ -1192,6 +1275,7 @@ int capi20_manufacturer(unsigned long cmd, void __user *data)
 	int retval;
 
 	switch (cmd) {
+<<<<<<< HEAD
 #ifdef AVMB1_COMPAT
 	case AVMB1_LOAD:
 	case AVMB1_LOAD_AND_CONFIG:
@@ -1200,6 +1284,8 @@ int capi20_manufacturer(unsigned long cmd, void __user *data)
 	case AVMB1_REMOVECARD:
 		return old_capi_manufacturer(cmd, data);
 #endif
+=======
+>>>>>>> upstream/android-13
 	case KCAPI_CMD_TRACE:
 	{
 		kcapi_flagdef fdef;
@@ -1222,6 +1308,7 @@ int capi20_manufacturer(unsigned long cmd, void __user *data)
 
 		return retval;
 	}
+<<<<<<< HEAD
 	case KCAPI_CMD_ADDCARD:
 	{
 		struct list_head *l;
@@ -1259,6 +1346,8 @@ int capi20_manufacturer(unsigned long cmd, void __user *data)
 		mutex_unlock(&capi_drivers_lock);
 		return retval;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	default:
 		printk(KERN_ERR "kcapi: manufacturer command %lu unknown.\n",
@@ -1269,8 +1358,11 @@ int capi20_manufacturer(unsigned long cmd, void __user *data)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(capi20_manufacturer);
 
+=======
+>>>>>>> upstream/android-13
 /* ------------------------------------------------------------- */
 /* -------- Init & Cleanup ------------------------------------- */
 /* ------------------------------------------------------------- */
@@ -1279,12 +1371,16 @@ EXPORT_SYMBOL(capi20_manufacturer);
  * init / exit functions
  */
 
+<<<<<<< HEAD
 static struct notifier_block capictr_nb = {
 	.notifier_call = notify_handler,
 	.priority = INT_MAX,
 };
 
 static int __init kcapi_init(void)
+=======
+int __init kcapi_init(void)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -1292,11 +1388,16 @@ static int __init kcapi_init(void)
 	if (!kcapi_wq)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	register_capictr_notifier(&capictr_nb);
 
 	err = cdebug_init();
 	if (err) {
 		unregister_capictr_notifier(&capictr_nb);
+=======
+	err = cdebug_init();
+	if (err) {
+>>>>>>> upstream/android-13
 		destroy_workqueue(kcapi_wq);
 		return err;
 	}
@@ -1305,6 +1406,7 @@ static int __init kcapi_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __exit kcapi_exit(void)
 {
 	kcapi_proc_exit();
@@ -1316,3 +1418,12 @@ static void __exit kcapi_exit(void)
 
 module_init(kcapi_init);
 module_exit(kcapi_exit);
+=======
+void kcapi_exit(void)
+{
+	kcapi_proc_exit();
+
+	cdebug_exit();
+	destroy_workqueue(kcapi_wq);
+}
+>>>>>>> upstream/android-13

@@ -11,10 +11,17 @@
 #include <linux/sched.h>
 #include <linux/time.h>
 #include <linux/bcd.h>
+<<<<<<< HEAD
 #include <linux/rtc.h>
 #include <linux/spinlock.h>
 #include <asm/io.h>
 #include <asm/rtc.h>
+=======
+#include <linux/spinlock.h>
+#include <linux/io.h>
+#include <linux/rtc.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 
 #define RTC_BASE	0xb0000000
 #define RTC_SEC1	(RTC_BASE + 0)
@@ -38,7 +45,11 @@
 
 static DEFINE_SPINLOCK(sh03_rtc_lock);
 
+<<<<<<< HEAD
 unsigned long get_cmos_time(void)
+=======
+static int sh03_rtc_gettimeofday(struct device *dev, struct rtc_time *tm)
+>>>>>>> upstream/android-13
 {
 	unsigned int year, mon, day, hour, min, sec;
 
@@ -75,6 +86,7 @@ unsigned long get_cmos_time(void)
 	}
 
 	spin_unlock(&sh03_rtc_lock);
+<<<<<<< HEAD
 	return mktime(year, mon, day, hour, min, sec);
 }
 
@@ -86,6 +98,20 @@ void sh03_rtc_gettimeofday(struct timespec *tv)
 }
 
 static int set_rtc_mmss(unsigned long nowtime)
+=======
+
+	tm->tm_sec  = sec;
+	tm->tm_min  = min;
+	tm->tm_hour = hour;
+	tm->tm_mday = day;
+	tm->tm_mon  = mon;
+	tm->tm_year = year - 1900;
+
+	return 0;
+}
+
+static int set_rtc_mmss(struct rtc_time *tm)
+>>>>>>> upstream/android-13
 {
 	int retval = 0;
 	int real_seconds, real_minutes, cmos_minutes;
@@ -97,8 +123,13 @@ static int set_rtc_mmss(unsigned long nowtime)
 		if (!(__raw_readb(RTC_CTL) & RTC_BUSY))
 			break;
 	cmos_minutes = (__raw_readb(RTC_MIN1) & 0xf) + (__raw_readb(RTC_MIN10) & 0xf) * 10;
+<<<<<<< HEAD
 	real_seconds = nowtime % 60;
 	real_minutes = nowtime / 60;
+=======
+	real_seconds = tm->tm_sec;
+	real_minutes = tm->tm_min;
+>>>>>>> upstream/android-13
 	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
 		real_minutes += 30;		/* correct for half hour time zone */
 	real_minutes %= 60;
@@ -112,13 +143,18 @@ static int set_rtc_mmss(unsigned long nowtime)
 		printk_once(KERN_NOTICE
 		       "set_rtc_mmss: can't update from %d to %d\n",
 		       cmos_minutes, real_minutes);
+<<<<<<< HEAD
 		retval = -1;
+=======
+		retval = -EINVAL;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&sh03_rtc_lock);
 
 	return retval;
 }
 
+<<<<<<< HEAD
 int sh03_rtc_settimeofday(const time_t secs)
 {
 	unsigned long nowtime = secs;
@@ -131,3 +167,26 @@ void sh03_time_init(void)
 	rtc_sh_get_time = sh03_rtc_gettimeofday;
 	rtc_sh_set_time = sh03_rtc_settimeofday;
 }
+=======
+int sh03_rtc_settimeofday(struct device *dev, struct rtc_time *tm)
+{
+	return set_rtc_mmss(tm);
+}
+
+static const struct rtc_class_ops rtc_generic_ops = {
+	.read_time = sh03_rtc_gettimeofday,
+	.set_time = sh03_rtc_settimeofday,
+};
+
+static int __init sh03_time_init(void)
+{
+	struct platform_device *pdev;
+
+	pdev = platform_device_register_data(NULL, "rtc-generic", -1,
+					     &rtc_generic_ops,
+					     sizeof(rtc_generic_ops));
+
+	return PTR_ERR_OR_ZERO(pdev);
+}
+arch_initcall(sh03_time_init);
+>>>>>>> upstream/android-13

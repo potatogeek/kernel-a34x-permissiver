@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015 - 2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -156,6 +162,7 @@ int hfi1_ruc_check_hdr(struct hfi1_ibport *ibp, struct hfi1_packet *packet)
 }
 
 /**
+<<<<<<< HEAD
  * ruc_loopback - handle UC and RC loopback requests
  * @sqp: the sending QP
  *
@@ -488,6 +495,8 @@ done:
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * hfi1_make_grh - construct a GRH header
  * @ibp: a pointer to the IB port
  * @hdr: a pointer to the GRH header being constructed
@@ -582,7 +591,10 @@ static inline void hfi1_make_ruc_bth(struct rvt_qp *qp,
 				     struct ib_other_headers *ohdr,
 				     u32 bth0, u32 bth1, u32 bth2)
 {
+<<<<<<< HEAD
 	bth1 |= qp->remote_qpn;
+=======
+>>>>>>> upstream/android-13
 	ohdr->bth[0] = cpu_to_be32(bth0);
 	ohdr->bth[1] = cpu_to_be32(bth1);
 	ohdr->bth[2] = cpu_to_be32(bth2);
@@ -593,6 +605,10 @@ static inline void hfi1_make_ruc_bth(struct rvt_qp *qp,
  * @qp: the queue pair
  * @ohdr: a pointer to the destination header memory
  * @bth0: bth0 passed in from the RC/UC builder
+<<<<<<< HEAD
+=======
+ * @bth1: bth1 passed in from the RC/UC builder
+>>>>>>> upstream/android-13
  * @bth2: bth2 passed in from the RC/UC builder
  * @middle: non zero implies indicates ahg "could" be used
  * @ps: the current packet state
@@ -604,13 +620,21 @@ static inline void hfi1_make_ruc_bth(struct rvt_qp *qp,
  */
 static inline void hfi1_make_ruc_header_16B(struct rvt_qp *qp,
 					    struct ib_other_headers *ohdr,
+<<<<<<< HEAD
 					    u32 bth0, u32 bth2, int middle,
+=======
+					    u32 bth0, u32 bth1, u32 bth2,
+					    int middle,
+>>>>>>> upstream/android-13
 					    struct hfi1_pkt_state *ps)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 	struct hfi1_ibport *ibp = ps->ibp;
 	struct hfi1_pportdata *ppd = ppd_from_ibp(ibp);
+<<<<<<< HEAD
 	u32 bth1 = 0;
+=======
+>>>>>>> upstream/android-13
 	u32 slid;
 	u16 pkey = hfi1_get_pkey(ibp, qp->s_pkey_index);
 	u8 l4 = OPA_16B_L4_IB_LOCAL;
@@ -681,6 +705,10 @@ static inline void hfi1_make_ruc_header_16B(struct rvt_qp *qp,
  * @qp: the queue pair
  * @ohdr: a pointer to the destination header memory
  * @bth0: bth0 passed in from the RC/UC builder
+<<<<<<< HEAD
+=======
+ * @bth1: bth1 passed in from the RC/UC builder
+>>>>>>> upstream/android-13
  * @bth2: bth2 passed in from the RC/UC builder
  * @middle: non zero implies indicates ahg "could" be used
  * @ps: the current packet state
@@ -692,12 +720,20 @@ static inline void hfi1_make_ruc_header_16B(struct rvt_qp *qp,
  */
 static inline void hfi1_make_ruc_header_9B(struct rvt_qp *qp,
 					   struct ib_other_headers *ohdr,
+<<<<<<< HEAD
 					   u32 bth0, u32 bth2, int middle,
+=======
+					   u32 bth0, u32 bth1, u32 bth2,
+					   int middle,
+>>>>>>> upstream/android-13
 					   struct hfi1_pkt_state *ps)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 	struct hfi1_ibport *ibp = ps->ibp;
+<<<<<<< HEAD
 	u32 bth1 = 0;
+=======
+>>>>>>> upstream/android-13
 	u16 pkey = hfi1_get_pkey(ibp, qp->s_pkey_index);
 	u16 lrh0 = HFI1_LRH_BTH;
 	u8 extra_bytes = -ps->s_txreq->s_cur_size & 3;
@@ -747,7 +783,11 @@ static inline void hfi1_make_ruc_header_9B(struct rvt_qp *qp,
 
 typedef void (*hfi1_make_ruc_hdr)(struct rvt_qp *qp,
 				  struct ib_other_headers *ohdr,
+<<<<<<< HEAD
 				  u32 bth0, u32 bth2, int middle,
+=======
+				  u32 bth0, u32 bth1, u32 bth2, int middle,
+>>>>>>> upstream/android-13
 				  struct hfi1_pkt_state *ps);
 
 /* We support only two types - 9B and 16B for now */
@@ -757,7 +797,11 @@ static const hfi1_make_ruc_hdr hfi1_ruc_header_tbl[2] = {
 };
 
 void hfi1_make_ruc_header(struct rvt_qp *qp, struct ib_other_headers *ohdr,
+<<<<<<< HEAD
 			  u32 bth0, u32 bth2, int middle,
+=======
+			  u32 bth0, u32 bth1, u32 bth2, int middle,
+>>>>>>> upstream/android-13
 			  struct hfi1_pkt_state *ps)
 {
 	struct hfi1_qp_priv *priv = qp->priv;
@@ -778,18 +822,32 @@ void hfi1_make_ruc_header(struct rvt_qp *qp, struct ib_other_headers *ohdr,
 	priv->s_ahg->ahgidx = 0;
 
 	/* Make the appropriate header */
+<<<<<<< HEAD
 	hfi1_ruc_header_tbl[priv->hdr_type](qp, ohdr, bth0, bth2, middle, ps);
+=======
+	hfi1_ruc_header_tbl[priv->hdr_type](qp, ohdr, bth0, bth1, bth2, middle,
+					    ps);
+>>>>>>> upstream/android-13
 }
 
 /* when sending, force a reschedule every one of these periods */
 #define SEND_RESCHED_TIMEOUT (5 * HZ)  /* 5s in jiffies */
 
 /**
+<<<<<<< HEAD
  * schedule_send_yield - test for a yield required for QP send engine
  * @timeout: Final time for timeout slice for jiffies
  * @qp: a pointer to QP
  * @ps: a pointer to a structure with commonly lookup values for
  *      the the send engine progress
+=======
+ * hfi1_schedule_send_yield - test for a yield required for QP
+ * send engine
+ * @qp: a pointer to QP
+ * @ps: a pointer to a structure with commonly lookup values for
+ *      the send engine progress
+ * @tid: true if it is the tid leg
+>>>>>>> upstream/android-13
  *
  * This routine checks if the time slice for the QP has expired
  * for RC QPs, if so an additional work entry is queued. At this
@@ -797,8 +855,13 @@ void hfi1_make_ruc_header(struct rvt_qp *qp, struct ib_other_headers *ohdr,
  * returns true if a yield is required, otherwise, false
  * is returned.
  */
+<<<<<<< HEAD
 static bool schedule_send_yield(struct rvt_qp *qp,
 				struct hfi1_pkt_state *ps)
+=======
+bool hfi1_schedule_send_yield(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
+			      bool tid)
+>>>>>>> upstream/android-13
 {
 	ps->pkts_sent = true;
 
@@ -806,8 +869,29 @@ static bool schedule_send_yield(struct rvt_qp *qp,
 		if (!ps->in_thread ||
 		    workqueue_congested(ps->cpu, ps->ppd->hfi1_wq)) {
 			spin_lock_irqsave(&qp->s_lock, ps->flags);
+<<<<<<< HEAD
 			qp->s_flags &= ~RVT_S_BUSY;
 			hfi1_schedule_send(qp);
+=======
+			if (!tid) {
+				qp->s_flags &= ~RVT_S_BUSY;
+				hfi1_schedule_send(qp);
+			} else {
+				struct hfi1_qp_priv *priv = qp->priv;
+
+				if (priv->s_flags &
+				    HFI1_S_TID_BUSY_SET) {
+					qp->s_flags &= ~RVT_S_BUSY;
+					priv->s_flags &=
+						~(HFI1_S_TID_BUSY_SET |
+						  RVT_S_BUSY);
+				} else {
+					priv->s_flags &= ~RVT_S_BUSY;
+				}
+				hfi1_schedule_tid_send(qp);
+			}
+
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&qp->s_lock, ps->flags);
 			this_cpu_inc(*ps->ppd->dd->send_schedule);
 			trace_hfi1_rc_expired_time_slice(qp, true);
@@ -830,15 +914,24 @@ void hfi1_do_send_from_rvt(struct rvt_qp *qp)
 
 void _hfi1_do_send(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct iowait *wait = container_of(work, struct iowait, iowork);
 	struct rvt_qp *qp = iowait_to_qp(wait);
+=======
+	struct iowait_work *w = container_of(work, struct iowait_work, iowork);
+	struct rvt_qp *qp = iowait_to_qp(w->iow);
+>>>>>>> upstream/android-13
 
 	hfi1_do_send(qp, true);
 }
 
 /**
  * hfi1_do_send - perform a send on a QP
+<<<<<<< HEAD
  * @work: contains a pointer to the QP
+=======
+ * @qp: a pointer to the QP
+>>>>>>> upstream/android-13
  * @in_thread: true if in a workqueue thread
  *
  * Process entries in the send work queue until credit or queue is
@@ -855,6 +948,10 @@ void hfi1_do_send(struct rvt_qp *qp, bool in_thread)
 	ps.ibp = to_iport(qp->ibqp.device, qp->port_num);
 	ps.ppd = ppd_from_ibp(ps.ibp);
 	ps.in_thread = in_thread;
+<<<<<<< HEAD
+=======
+	ps.wait = iowait_get_ib_work(&priv->s_iowait);
+>>>>>>> upstream/android-13
 
 	trace_hfi1_rc_do_send(qp, in_thread);
 
@@ -863,7 +960,11 @@ void hfi1_do_send(struct rvt_qp *qp, bool in_thread)
 		if (!loopback && ((rdma_ah_get_dlid(&qp->remote_ah_attr) &
 				   ~((1 << ps.ppd->lmc) - 1)) ==
 				  ps.ppd->lid)) {
+<<<<<<< HEAD
 			ruc_loopback(qp);
+=======
+			rvt_ruc_loopback(qp);
+>>>>>>> upstream/android-13
 			return;
 		}
 		make_req = hfi1_make_rc_req;
@@ -873,7 +974,11 @@ void hfi1_do_send(struct rvt_qp *qp, bool in_thread)
 		if (!loopback && ((rdma_ah_get_dlid(&qp->remote_ah_attr) &
 				   ~((1 << ps.ppd->lmc) - 1)) ==
 				  ps.ppd->lid)) {
+<<<<<<< HEAD
 			ruc_loopback(qp);
+=======
+			rvt_ruc_loopback(qp);
+>>>>>>> upstream/android-13
 			return;
 		}
 		make_req = hfi1_make_uc_req;
@@ -888,6 +993,11 @@ void hfi1_do_send(struct rvt_qp *qp, bool in_thread)
 
 	/* Return if we are already busy processing a work request. */
 	if (!hfi1_send_ok(qp)) {
+<<<<<<< HEAD
+=======
+		if (qp->s_flags & HFI1_S_ANY_WAIT_IO)
+			iowait_set_flag(&priv->s_iowait, IOWAIT_PENDING_IB);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&qp->s_lock, ps.flags);
 		return;
 	}
@@ -901,10 +1011,19 @@ void hfi1_do_send(struct rvt_qp *qp, bool in_thread)
 	ps.pkts_sent = false;
 
 	/* insure a pre-built packet is handled  */
+<<<<<<< HEAD
 	ps.s_txreq = get_waiting_verbs_txreq(qp);
 	do {
 		/* Check for a constructed packet to be sent. */
 		if (ps.s_txreq) {
+=======
+	ps.s_txreq = get_waiting_verbs_txreq(ps.wait);
+	do {
+		/* Check for a constructed packet to be sent. */
+		if (ps.s_txreq) {
+			if (priv->s_flags & HFI1_S_TID_BUSY_SET)
+				qp->s_flags |= RVT_S_BUSY;
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&qp->s_lock, ps.flags);
 			/*
 			 * If the packet cannot be sent now, return and
@@ -912,8 +1031,14 @@ void hfi1_do_send(struct rvt_qp *qp, bool in_thread)
 			 */
 			if (hfi1_verbs_send(qp, &ps))
 				return;
+<<<<<<< HEAD
 			/* allow other tasks to run */
 			if (schedule_send_yield(qp, &ps))
+=======
+
+			/* allow other tasks to run */
+			if (hfi1_schedule_send_yield(qp, &ps, false))
+>>>>>>> upstream/android-13
 				return;
 
 			spin_lock_irqsave(&qp->s_lock, ps.flags);
@@ -922,6 +1047,7 @@ void hfi1_do_send(struct rvt_qp *qp, bool in_thread)
 	iowait_starve_clear(ps.pkts_sent, &priv->s_iowait);
 	spin_unlock_irqrestore(&qp->s_lock, ps.flags);
 }
+<<<<<<< HEAD
 
 /*
  * This should be called with s_lock held.
@@ -963,3 +1089,5 @@ void hfi1_send_complete(struct rvt_qp *qp, struct rvt_swqe *wqe,
 	if (qp->state == IB_QPS_SQD && last == qp->s_cur)
 		qp->s_draining = 0;
 }
+=======
+>>>>>>> upstream/android-13

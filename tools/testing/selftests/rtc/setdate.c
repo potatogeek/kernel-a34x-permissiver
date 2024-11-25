@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Real Time Clock Driver Test
  *	by: Benjamin Gaignard (benjamin.gaignard@linaro.org)
  *
  * To build
  *	gcc rtctest_setdate.c -o rtctest_setdate
+<<<<<<< HEAD
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>

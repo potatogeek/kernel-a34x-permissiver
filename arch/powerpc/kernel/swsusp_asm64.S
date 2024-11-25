@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * PowerPC 64-bit swsusp implementation
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/threads.h>
@@ -262,7 +269,11 @@ END_FW_FTR_SECTION_IFCLR(FW_FEATURE_LPAR)
 
 	addi	r1,r1,-128
 #ifdef CONFIG_PPC_BOOK3S_64
+<<<<<<< HEAD
 	bl	slb_flush_and_rebolt
+=======
+	bl	slb_flush_and_restore_bolted
+>>>>>>> upstream/android-13
 #endif
 	bl	do_after_copyback
 	addi	r1,r1,128

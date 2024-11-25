@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-pxa/pxa25x.c
  *
@@ -7,10 +11,13 @@
  *
  * Code specific to PXA21x/25x/26x variants.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Since this file should be linked before any other machine specific file,
  * the __initcall() here will be executed first.  This serves as default
  * initialization stuff for PXA machines which can be overridden later if

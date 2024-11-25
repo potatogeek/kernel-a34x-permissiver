@@ -33,6 +33,7 @@ struct ocxl_ioctl_attach {
 };
 
 struct ocxl_ioctl_metadata {
+<<<<<<< HEAD
 	__u16 version; // struct version, always backwards compatible
 
 	// Version 0 fields
@@ -50,6 +51,25 @@ struct ocxl_ioctl_metadata {
 
 struct ocxl_ioctl_p9_wait {
 	__u16 thread_id; // The thread ID required to wake this thread
+=======
+	__u16 version; /* struct version, always backwards compatible */
+
+	/* Version 0 fields */
+	__u8  afu_version_major;
+	__u8  afu_version_minor;
+	__u32 pasid;		/* PASID assigned to the current context */
+
+	__u64 pp_mmio_size;	/* Per PASID MMIO size */
+	__u64 global_mmio_size;
+
+	/* End version 0 fields */
+
+	__u64 reserved[13]; /* Total of 16*u64 */
+};
+
+struct ocxl_ioctl_p9_wait {
+	__u16 thread_id; /* The thread ID required to wake this thread */
+>>>>>>> upstream/android-13
 	__u16 reserved1;
 	__u32 reserved2;
 	__u64 reserved3[3];

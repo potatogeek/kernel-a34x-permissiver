@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2013 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -10,10 +14,13 @@
  * Description:
  * This file is based on arch/powerpc/kvm/44x_tlb.c,
  * by Hollis Blanchard <hollisb@us.ibm.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -358,9 +365,15 @@ static inline int kvmppc_e500_shadow_map(struct kvmppc_vcpu_e500 *vcpu_e500,
 
 	if (tlbsel == 1) {
 		struct vm_area_struct *vma;
+<<<<<<< HEAD
 		down_read(&current->mm->mmap_sem);
 
 		vma = find_vma(current->mm, hva);
+=======
+		mmap_read_lock(kvm->mm);
+
+		vma = find_vma(kvm->mm, hva);
+>>>>>>> upstream/android-13
 		if (vma && hva >= vma->vm_start &&
 		    (vma->vm_flags & VM_PFNMAP)) {
 			/*
@@ -425,7 +438,11 @@ static inline int kvmppc_e500_shadow_map(struct kvmppc_vcpu_e500 *vcpu_e500,
 				break;
 			}
 		} else if (vma && hva >= vma->vm_start &&
+<<<<<<< HEAD
 			   (vma->vm_flags & VM_HUGETLB)) {
+=======
+			   is_vm_hugetlb_page(vma)) {
+>>>>>>> upstream/android-13
 			unsigned long psize = vma_kernel_pagesize(vma);
 
 			tsize = (gtlbe->mas1 & MAS1_TSIZE_MASK) >>
@@ -444,7 +461,11 @@ static inline int kvmppc_e500_shadow_map(struct kvmppc_vcpu_e500 *vcpu_e500,
 			tsize = max(BOOK3E_PAGESZ_4K, tsize & ~1);
 		}
 
+<<<<<<< HEAD
 		up_read(&current->mm->mmap_sem);
+=======
+		mmap_read_unlock(kvm->mm);
+>>>>>>> upstream/android-13
 	}
 
 	if (likely(!pfnmap)) {
@@ -724,14 +745,20 @@ int kvmppc_load_last_inst(struct kvm_vcpu *vcpu,
 
 /************* MMU Notifiers *************/
 
+<<<<<<< HEAD
 static int kvm_unmap_hva(struct kvm *kvm, unsigned long hva)
 {
 	trace_kvm_unmap_hva(hva);
 
+=======
+static bool kvm_e500_mmu_unmap_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Flush all shadow tlb entries everywhere. This is slow, but
 	 * we are 100% sure that we catch the to be unmapped page
 	 */
+<<<<<<< HEAD
 	kvm_flush_remote_tlbs(kvm);
 
 	return 0;
@@ -762,6 +789,32 @@ void kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte)
 {
 	/* The page will get remapped properly on its next fault */
 	kvm_unmap_hva(kvm, hva);
+=======
+	return true;
+}
+
+bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	return kvm_e500_mmu_unmap_gfn(kvm, range);
+}
+
+bool kvm_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	/* XXX could be more clever ;) */
+	return false;
+}
+
+bool kvm_test_age_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	/* XXX could be more clever ;) */
+	return false;
+}
+
+bool kvm_set_spte_gfn(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	/* The page will get remapped properly on its next fault */
+	return kvm_e500_mmu_unmap_gfn(kvm, range);
+>>>>>>> upstream/android-13
 }
 
 /*****************************************/

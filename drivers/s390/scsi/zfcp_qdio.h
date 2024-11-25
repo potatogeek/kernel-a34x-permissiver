@@ -10,6 +10,10 @@
 #ifndef ZFCP_QDIO_H
 #define ZFCP_QDIO_H
 
+<<<<<<< HEAD
+=======
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <asm/qdio.h>
 
 #define ZFCP_QDIO_SBALE_LEN	PAGE_SIZE
@@ -29,7 +33,16 @@
  * @req_q_util: used for accounting
  * @req_q_full: queue full incidents
  * @req_q_wq: used to wait for SBAL availability
+<<<<<<< HEAD
  * @adapter: adapter used in conjunction with this qdio structure
+=======
+ * @irq_tasklet: used for QDIO interrupt processing
+ * @request_tasklet: used for Request Queue completion processing
+ * @request_timer: used to trigger the Request Queue completion processing
+ * @adapter: adapter used in conjunction with this qdio structure
+ * @max_sbale_per_sbal: qdio limit per sbal
+ * @max_sbale_per_req: qdio limit per request
+>>>>>>> upstream/android-13
  */
 struct zfcp_qdio {
 	struct qdio_buffer	*res_q[QDIO_MAX_BUFFERS_PER_Q];
@@ -42,6 +55,12 @@ struct zfcp_qdio {
 	u64			req_q_util;
 	atomic_t		req_q_full;
 	wait_queue_head_t	req_q_wq;
+<<<<<<< HEAD
+=======
+	struct tasklet_struct	irq_tasklet;
+	struct tasklet_struct	request_tasklet;
+	struct timer_list	request_timer;
+>>>>>>> upstream/android-13
 	struct zfcp_adapter	*adapter;
 	u16			max_sbale_per_sbal;
 	u16			max_sbale_per_req;
@@ -70,7 +89,11 @@ struct zfcp_qdio_req {
 /**
  * zfcp_qdio_sbale_req - return pointer to sbale on req_q for a request
  * @qdio: pointer to struct zfcp_qdio
+<<<<<<< HEAD
  * @q_rec: pointer to struct zfcp_qdio_req
+=======
+ * @q_req: pointer to struct zfcp_qdio_req
+>>>>>>> upstream/android-13
  * Returns: pointer to qdio_buffer_element (sbale) structure
  */
 static inline struct qdio_buffer_element *
@@ -82,7 +105,11 @@ zfcp_qdio_sbale_req(struct zfcp_qdio *qdio, struct zfcp_qdio_req *q_req)
 /**
  * zfcp_qdio_sbale_curr - return current sbale on req_q for a request
  * @qdio: pointer to struct zfcp_qdio
+<<<<<<< HEAD
  * @fsf_req: pointer to struct zfcp_fsf_req
+=======
+ * @q_req: pointer to struct zfcp_qdio_req
+>>>>>>> upstream/android-13
  * Returns: pointer to qdio_buffer_element (sbale) structure
  */
 static inline struct qdio_buffer_element *
@@ -120,14 +147,22 @@ void zfcp_qdio_req_init(struct zfcp_qdio *qdio, struct zfcp_qdio_req *q_req,
 					% QDIO_MAX_BUFFERS_PER_Q;
 
 	sbale = zfcp_qdio_sbale_req(qdio, q_req);
+<<<<<<< HEAD
 	sbale->addr = (void *) req_id;
+=======
+	sbale->addr = req_id;
+>>>>>>> upstream/android-13
 	sbale->eflags = 0;
 	sbale->sflags = SBAL_SFLAGS0_COMMAND | sbtype;
 
 	if (unlikely(!data))
 		return;
 	sbale++;
+<<<<<<< HEAD
 	sbale->addr = data;
+=======
+	sbale->addr = virt_to_phys(data);
+>>>>>>> upstream/android-13
 	sbale->length = len;
 }
 
@@ -135,6 +170,11 @@ void zfcp_qdio_req_init(struct zfcp_qdio *qdio, struct zfcp_qdio_req *q_req,
  * zfcp_qdio_fill_next - Fill next sbale, only for single sbal requests
  * @qdio: pointer to struct zfcp_qdio
  * @q_req: pointer to struct zfcp_queue_req
+<<<<<<< HEAD
+=======
+ * @data: pointer to data
+ * @len: length of data
+>>>>>>> upstream/android-13
  *
  * This is only required for single sbal requests, calling it when
  * wrapping around to the next sbal is a bug.
@@ -148,7 +188,11 @@ void zfcp_qdio_fill_next(struct zfcp_qdio *qdio, struct zfcp_qdio_req *q_req,
 	BUG_ON(q_req->sbale_curr == qdio->max_sbale_per_sbal - 1);
 	q_req->sbale_curr++;
 	sbale = zfcp_qdio_sbale_curr(qdio, q_req);
+<<<<<<< HEAD
 	sbale->addr = data;
+=======
+	sbale->addr = virt_to_phys(data);
+>>>>>>> upstream/android-13
 	sbale->length = len;
 }
 
@@ -182,6 +226,10 @@ int zfcp_qdio_sg_one_sbale(struct scatterlist *sg)
 
 /**
  * zfcp_qdio_skip_to_last_sbale - skip to last sbale in sbal
+<<<<<<< HEAD
+=======
+ * @qdio: pointer to struct zfcp_qdio
+>>>>>>> upstream/android-13
  * @q_req: The current zfcp_qdio_req
  */
 static inline

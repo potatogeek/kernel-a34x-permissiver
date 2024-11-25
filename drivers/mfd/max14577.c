@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * max14577.c - mfd core driver for the Maxim 14577/77836
  *
@@ -17,6 +18,17 @@
  *
  * This driver is based on max8997.c
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// max14577.c - mfd core driver for the Maxim 14577/77836
+//
+// Copyright (C) 2014 Samsung Electronics
+// Chanwoo Choi <cw00.choi@samsung.com>
+// Krzysztof Kozlowski <krzk@kernel.org>
+//
+// This driver is based on max8997.c
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 #include <linux/module.h>
@@ -71,7 +83,11 @@ EXPORT_SYMBOL_GPL(maxim_charger_currents);
 int maxim_charger_calc_reg_current(const struct maxim_charger_current *limits,
 		unsigned int min_ua, unsigned int max_ua, u8 *dst)
 {
+<<<<<<< HEAD
 	unsigned int current_bits = 0xf;
+=======
+	unsigned int current_bits;
+>>>>>>> upstream/android-13
 
 	if (min_ua > max_ua)
 		return -EINVAL;
@@ -307,11 +323,19 @@ static int max77836_init(struct max14577 *max14577)
 	int ret;
 	u8 intsrc_mask;
 
+<<<<<<< HEAD
 	max14577->i2c_pmic = i2c_new_dummy(max14577->i2c->adapter,
 			I2C_ADDR_PMIC);
 	if (!max14577->i2c_pmic) {
 		dev_err(max14577->dev, "Failed to register PMIC I2C device\n");
 		return -ENODEV;
+=======
+	max14577->i2c_pmic = i2c_new_dummy_device(max14577->i2c->adapter,
+			I2C_ADDR_PMIC);
+	if (IS_ERR(max14577->i2c_pmic)) {
+		dev_err(max14577->dev, "Failed to register PMIC I2C device\n");
+		return PTR_ERR(max14577->i2c_pmic);
+>>>>>>> upstream/android-13
 	}
 	i2c_set_clientdata(max14577->i2c_pmic, max14577);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Enter and leave sleep state on chips with 6xx-style HID0
  * power management bits, which don't leave sleep state via reset.
@@ -5,10 +9,13 @@
  * Author: Scott Wood <scottwood@freescale.com>
  *
  * Copyright (c) 2006-2007 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/ppc_asm.h>
@@ -29,10 +36,16 @@ _GLOBAL(mpc6xx_enter_standby)
 	ori	r5, r5, ret_from_standby@l
 	mtlr	r5
 
+<<<<<<< HEAD
 	CURRENT_THREAD_INFO(r5, r1)
 	lwz	r6, TI_LOCAL_FLAGS(r5)
 	ori	r6, r6, _TLF_SLEEPING
 	stw	r6, TI_LOCAL_FLAGS(r5)
+=======
+	lwz	r6, TI_LOCAL_FLAGS(r2)
+	ori	r6, r6, _TLF_SLEEPING
+	stw	r6, TI_LOCAL_FLAGS(r2)
+>>>>>>> upstream/android-13
 
 	mfmsr	r5
 	ori	r5, r5, MSR_EE

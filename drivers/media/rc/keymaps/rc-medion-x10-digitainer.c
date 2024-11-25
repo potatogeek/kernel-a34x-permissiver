@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Medion X10 RF remote keytable (Digitainer variant)
  *
@@ -7,6 +11,7 @@
  * up/down buttons (tested with P/N 40009936 / 20018268), reportedly
  * originally shipped with Medion Digitainer but now sold separately simply as
  * an "X10" remote.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -76,6 +83,7 @@ static struct rc_map_table medion_x10_digitainer[] = {
 	{ 0x27, KEY_RECORD },
 	{ 0x26, KEY_FORWARD },
 
+<<<<<<< HEAD
 	{ 0x0d, KEY_1 },
 	{ 0x0e, KEY_2 },
 	{ 0x0f, KEY_3 },
@@ -86,6 +94,18 @@ static struct rc_map_table medion_x10_digitainer[] = {
 	{ 0x14, KEY_8 },
 	{ 0x15, KEY_9 },
 	{ 0x17, KEY_0 },
+=======
+	{ 0x0d, KEY_NUMERIC_1 },
+	{ 0x0e, KEY_NUMERIC_2 },
+	{ 0x0f, KEY_NUMERIC_3 },
+	{ 0x10, KEY_NUMERIC_4 },
+	{ 0x11, KEY_NUMERIC_5 },
+	{ 0x12, KEY_NUMERIC_6 },
+	{ 0x13, KEY_NUMERIC_7 },
+	{ 0x14, KEY_NUMERIC_8 },
+	{ 0x15, KEY_NUMERIC_9 },
+	{ 0x17, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	/* these do not actually exist on this remote, but these scancodes
 	 * exist on all other Medion X10 remotes and adding them here allows

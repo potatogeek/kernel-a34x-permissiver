@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * STK1160 driver
  *
@@ -7,6 +11,7 @@
  * Based on Easycap driver by R.M. Thomas
  *	Copyright (C) 2010 R.M. Thomas
  *	<rmthomas--a.t--sciolus.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -260,7 +267,11 @@ int stk1160_i2c_register(struct stk1160 *dev)
 
 	dev->i2c_adap = adap_template;
 	dev->i2c_adap.dev.parent = dev->dev;
+<<<<<<< HEAD
 	strcpy(dev->i2c_adap.name, "stk1160");
+=======
+	strscpy(dev->i2c_adap.name, "stk1160", sizeof(dev->i2c_adap.name));
+>>>>>>> upstream/android-13
 	dev->i2c_adap.algo_data = dev;
 
 	i2c_set_adapdata(&dev->i2c_adap, &dev->v4l2_dev);

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * linux/arch/sh/boards/renesas/sdk7780/irq.c
  *
  * Renesas Technology Europe SDK7780 Support.
  *
  * Copyright (C) 2008  Nicholas Beck <nbeck@mpc-data.co.uk>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/irq.h>

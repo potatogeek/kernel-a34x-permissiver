@@ -33,6 +33,10 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 
 #include "t4vf_common.h"
@@ -313,7 +317,21 @@ int t4vf_wr_mbox_core(struct adapter *adapter, const void *cmd, int size,
 	return ret;
 }
 
+<<<<<<< HEAD
 #define ADVERT_MASK (FW_PORT_CAP32_SPEED_V(FW_PORT_CAP32_SPEED_M) | \
+=======
+/* In the Physical Function Driver Common Code, the ADVERT_MASK is used to
+ * mask out bits in the Advertised Port Capabilities which are managed via
+ * separate controls, like Pause Frames and Forward Error Correction.  In the
+ * Virtual Function Common Code, since we never perform L1 Configuration on
+ * the Link, the only things we really need to filter out are things which
+ * we decode and report separately like Speed.
+ */
+#define ADVERT_MASK (FW_PORT_CAP32_SPEED_V(FW_PORT_CAP32_SPEED_M) | \
+		     FW_PORT_CAP32_802_3_PAUSE | \
+		     FW_PORT_CAP32_802_3_ASM_DIR | \
+		     FW_PORT_CAP32_FEC_V(FW_PORT_CAP32_FEC_M) | \
+>>>>>>> upstream/android-13
 		     FW_PORT_CAP32_ANEG)
 
 /**
@@ -379,9 +397,13 @@ static inline enum cc_fec fwcap_to_cc_fec(fw_port_cap32_t fw_fec)
 	return cc_fec;
 }
 
+<<<<<<< HEAD
 /**
  * Return the highest speed set in the port capabilities, in Mb/s.
  */
+=======
+/* Return the highest speed set in the port capabilities, in Mb/s. */
+>>>>>>> upstream/android-13
 static unsigned int fwcap_to_speed(fw_port_cap32_t caps)
 {
 	#define TEST_SPEED_RETURN(__caps_speed, __speed) \
@@ -1457,6 +1479,10 @@ int t4vf_identify_port(struct adapter *adapter, unsigned int viid,
  *	@bcast: 1 to enable broadcast Rx, 0 to disable it, -1 no change
  *	@vlanex: 1 to enable hardware VLAN Tag extraction, 0 to disable it,
  *		-1 no change
+<<<<<<< HEAD
+=======
+ *	@sleep_ok: call is allowed to sleep
+>>>>>>> upstream/android-13
  *
  *	Sets Rx properties of a virtual interface.
  */
@@ -1896,13 +1922,18 @@ static const char *t4vf_link_down_rc_str(unsigned char link_down_rc)
 /**
  *	t4vf_handle_get_port_info - process a FW reply message
  *	@pi: the port info
+<<<<<<< HEAD
  *	@rpl: start of the FW message
+=======
+ *	@cmd: start of the FW message
+>>>>>>> upstream/android-13
  *
  *	Processes a GET_PORT_INFO FW reply message.
  */
 static void t4vf_handle_get_port_info(struct port_info *pi,
 				      const struct fw_port_cmd *cmd)
 {
+<<<<<<< HEAD
 	int action = FW_PORT_CMD_ACTION_G(be32_to_cpu(cmd->action_to_len16));
 	struct adapter *adapter = pi->adapter;
 	struct link_config *lc = &pi->link_cfg;
@@ -1913,6 +1944,18 @@ static void t4vf_handle_get_port_info(struct port_info *pi,
 	fw_port_cap32_t pcaps, acaps, lpacaps, linkattr;
 
 	/* Extract the various fields from the Port Information message. */
+=======
+	fw_port_cap32_t pcaps, acaps, lpacaps, linkattr;
+	struct link_config *lc = &pi->link_cfg;
+	struct adapter *adapter = pi->adapter;
+	unsigned int speed, fc, fec, adv_fc;
+	enum fw_port_module_type mod_type;
+	int action, link_ok, linkdnrc;
+	enum fw_port_type port_type;
+
+	/* Extract the various fields from the Port Information message. */
+	action = FW_PORT_CMD_ACTION_G(be32_to_cpu(cmd->action_to_len16));
+>>>>>>> upstream/android-13
 	switch (action) {
 	case FW_PORT_ACTION_GET_PORT_INFO: {
 		u32 lstatus = be32_to_cpu(cmd->u.info.lstatus_to_modtype);
@@ -1972,6 +2015,10 @@ static void t4vf_handle_get_port_info(struct port_info *pi,
 	}
 
 	fec = fwcap_to_cc_fec(acaps);
+<<<<<<< HEAD
+=======
+	adv_fc = fwcap_to_cc_pause(acaps);
+>>>>>>> upstream/android-13
 	fc = fwcap_to_cc_pause(linkattr);
 	speed = fwcap_to_speed(linkattr);
 
@@ -2002,6 +2049,7 @@ static void t4vf_handle_get_port_info(struct port_info *pi,
 	}
 
 	if (link_ok != lc->link_ok || speed != lc->speed ||
+<<<<<<< HEAD
 	    fc != lc->fc || fec != lc->fec) {	/* something changed */
 		if (!link_ok && lc->link_ok) {
 			lc->link_down_rc = linkdnrc;
@@ -2010,6 +2058,21 @@ static void t4vf_handle_get_port_info(struct port_info *pi,
 		}
 		lc->link_ok = link_ok;
 		lc->speed = speed;
+=======
+	    fc != lc->fc || adv_fc != lc->advertised_fc ||
+	    fec != lc->fec) {
+		/* something changed */
+		if (!link_ok && lc->link_ok) {
+			lc->link_down_rc = linkdnrc;
+			dev_warn_ratelimited(adapter->pdev_dev,
+					     "Port %d link down, reason: %s\n",
+					     pi->port_id,
+					     t4vf_link_down_rc_str(linkdnrc));
+		}
+		lc->link_ok = link_ok;
+		lc->speed = speed;
+		lc->advertised_fc = adv_fc;
+>>>>>>> upstream/android-13
 		lc->fc = fc;
 		lc->fec = fec;
 
@@ -2121,8 +2184,11 @@ int t4vf_handle_fw_rpl(struct adapter *adapter, const __be64 *rpl)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  */
+=======
+>>>>>>> upstream/android-13
 int t4vf_prep_adapter(struct adapter *adapter)
 {
 	int err;
@@ -2174,14 +2240,22 @@ int t4vf_prep_adapter(struct adapter *adapter)
  *	t4vf_get_vf_mac_acl - Get the MAC address to be set to
  *			      the VI of this VF.
  *	@adapter: The adapter
+<<<<<<< HEAD
  *	@pf: The pf associated with vf
+=======
+ *	@port: The port associated with vf
+>>>>>>> upstream/android-13
  *	@naddr: the number of ACL MAC addresses returned in addr
  *	@addr: Placeholder for MAC addresses
  *
  *	Find the MAC address to be set to the VF's VI. The requested MAC address
  *	is from the host OS via callback in the PF driver.
  */
+<<<<<<< HEAD
 int t4vf_get_vf_mac_acl(struct adapter *adapter, unsigned int pf,
+=======
+int t4vf_get_vf_mac_acl(struct adapter *adapter, unsigned int port,
+>>>>>>> upstream/android-13
 			unsigned int *naddr, u8 *addr)
 {
 	struct fw_acl_mac_cmd cmd;
@@ -2199,7 +2273,11 @@ int t4vf_get_vf_mac_acl(struct adapter *adapter, unsigned int pf,
 	if (cmd.nmac < *naddr)
 		*naddr = cmd.nmac;
 
+<<<<<<< HEAD
 	switch (pf) {
+=======
+	switch (port) {
+>>>>>>> upstream/android-13
 	case 3:
 		memcpy(addr, cmd.macaddr3, sizeof(cmd.macaddr3));
 		break;

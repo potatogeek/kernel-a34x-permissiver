@@ -23,6 +23,11 @@
 #include <asm/inst.h>
 #include <asm/mipsregs.h>
 
+<<<<<<< HEAD
+=======
+#include <kvm/iodev.h>
+
+>>>>>>> upstream/android-13
 /* MIPS KVM register ids */
 #define MIPS_CP0_32(_R, _S)					\
 	(KVM_REG_MIPS_CP0 | KVM_REG_SIZE_U32 | (8 * (_R) + (_S)))
@@ -66,9 +71,17 @@
 #define KVM_REG_MIPS_CP0_CONFIG3	MIPS_CP0_32(16, 3)
 #define KVM_REG_MIPS_CP0_CONFIG4	MIPS_CP0_32(16, 4)
 #define KVM_REG_MIPS_CP0_CONFIG5	MIPS_CP0_32(16, 5)
+<<<<<<< HEAD
 #define KVM_REG_MIPS_CP0_CONFIG7	MIPS_CP0_32(16, 7)
 #define KVM_REG_MIPS_CP0_MAARI		MIPS_CP0_64(17, 2)
 #define KVM_REG_MIPS_CP0_XCONTEXT	MIPS_CP0_64(20, 0)
+=======
+#define KVM_REG_MIPS_CP0_CONFIG6	MIPS_CP0_32(16, 6)
+#define KVM_REG_MIPS_CP0_CONFIG7	MIPS_CP0_32(16, 7)
+#define KVM_REG_MIPS_CP0_MAARI		MIPS_CP0_64(17, 2)
+#define KVM_REG_MIPS_CP0_XCONTEXT	MIPS_CP0_64(20, 0)
+#define KVM_REG_MIPS_CP0_DIAG		MIPS_CP0_32(22, 0)
+>>>>>>> upstream/android-13
 #define KVM_REG_MIPS_CP0_ERROREPC	MIPS_CP0_64(30, 0)
 #define KVM_REG_MIPS_CP0_KSCRATCH1	MIPS_CP0_64(31, 2)
 #define KVM_REG_MIPS_CP0_KSCRATCH2	MIPS_CP0_64(31, 3)
@@ -78,13 +91,18 @@
 #define KVM_REG_MIPS_CP0_KSCRATCH6	MIPS_CP0_64(31, 7)
 
 
+<<<<<<< HEAD
 #define KVM_MAX_VCPUS		8
 #define KVM_USER_MEM_SLOTS	8
+=======
+#define KVM_MAX_VCPUS		16
+>>>>>>> upstream/android-13
 /* memory slots that does not exposed to userspace */
 #define KVM_PRIVATE_MEM_SLOTS	0
 
 #define KVM_HALT_POLL_NS_DEFAULT 500000
 
+<<<<<<< HEAD
 #ifdef CONFIG_KVM_MIPS_VZ
 extern unsigned long GUESTID_MASK;
 extern unsigned long GUESTID_FIRST_VERSION;
@@ -123,6 +141,12 @@ extern unsigned long GUESTID_VERSION_MASK;
 #define KVM_GUEST_KSEG23ADDR(a)		(KVM_GUEST_CPHYSADDR(a) | KVM_GUEST_KSEG23)
 
 #define KVM_INVALID_PAGE		0xdeadbeef
+=======
+extern unsigned long GUESTID_MASK;
+extern unsigned long GUESTID_FIRST_VERSION;
+extern unsigned long GUESTID_VERSION_MASK;
+
+>>>>>>> upstream/android-13
 #define KVM_INVALID_ADDR		0xdeadbeef
 
 /*
@@ -140,10 +164,18 @@ static inline bool kvm_is_error_hva(unsigned long addr)
 }
 
 struct kvm_vm_stat {
+<<<<<<< HEAD
 	ulong remote_tlb_flush;
 };
 
 struct kvm_vcpu_stat {
+=======
+	struct kvm_vm_stat_generic generic;
+};
+
+struct kvm_vcpu_stat {
+	struct kvm_vcpu_stat_generic generic;
+>>>>>>> upstream/android-13
 	u64 wait_exits;
 	u64 cache_exits;
 	u64 signal_exits;
@@ -162,7 +194,10 @@ struct kvm_vcpu_stat {
 	u64 fpe_exits;
 	u64 msa_disabled_exits;
 	u64 flush_dcache_exits;
+<<<<<<< HEAD
 #ifdef CONFIG_KVM_MIPS_VZ
+=======
+>>>>>>> upstream/android-13
 	u64 vz_gpsi_exits;
 	u64 vz_gsfc_exits;
 	u64 vz_hc_exits;
@@ -171,21 +206,61 @@ struct kvm_vcpu_stat {
 	u64 vz_ghfc_exits;
 	u64 vz_gpa_exits;
 	u64 vz_resvd_exits;
+<<<<<<< HEAD
 #endif
 	u64 halt_successful_poll;
 	u64 halt_attempted_poll;
 	u64 halt_poll_invalid;
 	u64 halt_wakeup;
+=======
+#ifdef CONFIG_CPU_LOONGSON64
+	u64 vz_cpucfg_exits;
+#endif
+>>>>>>> upstream/android-13
 };
 
 struct kvm_arch_memory_slot {
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CPU_LOONGSON64
+struct ipi_state {
+	uint32_t status;
+	uint32_t en;
+	uint32_t set;
+	uint32_t clear;
+	uint64_t buf[4];
+};
+
+struct loongson_kvm_ipi;
+
+struct ipi_io_device {
+	int node_id;
+	struct loongson_kvm_ipi *ipi;
+	struct kvm_io_device device;
+};
+
+struct loongson_kvm_ipi {
+	spinlock_t lock;
+	struct kvm *kvm;
+	struct ipi_state ipistate[16];
+	struct ipi_io_device dev_ipi[4];
+};
+#endif
+
+>>>>>>> upstream/android-13
 struct kvm_arch {
 	/* Guest physical mm */
 	struct mm_struct gpa_mm;
 	/* Mask of CPUs needing GPA ASID flush */
 	cpumask_t asid_flush_mask;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CPU_LOONGSON64
+	struct loongson_kvm_ipi ipi;
+#endif
+>>>>>>> upstream/android-13
 };
 
 #define N_MIPS_COPROC_REGS	32
@@ -223,6 +298,10 @@ struct mips_coproc {
 #define MIPS_CP0_WATCH_LO	18
 #define MIPS_CP0_WATCH_HI	19
 #define MIPS_CP0_TLB_XCONTEXT	20
+<<<<<<< HEAD
+=======
+#define MIPS_CP0_DIAG		22
+>>>>>>> upstream/android-13
 #define MIPS_CP0_ECC		26
 #define MIPS_CP0_CACHE_ERR	27
 #define MIPS_CP0_TAG_LO		28
@@ -266,6 +345,7 @@ enum emulation_result {
 	EMULATE_HYPERCALL,	/* HYPCALL instruction */
 };
 
+<<<<<<< HEAD
 #define mips3_paddr_to_tlbpfn(x) \
 	(((unsigned long)(x) >> MIPS3_PG_SHIFT) & MIPS3_PG_FRAME)
 #define mips3_tlbpfn_to_paddr(x) \
@@ -274,6 +354,8 @@ enum emulation_result {
 #define MIPS3_PG_SHIFT		6
 #define MIPS3_PG_FRAME		0x3fffffc0
 
+=======
+>>>>>>> upstream/android-13
 #if defined(CONFIG_64BIT)
 #define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
 #else
@@ -297,6 +379,7 @@ struct kvm_mips_tlb {
 	long tlb_lo[2];
 };
 
+<<<<<<< HEAD
 #define KVM_NR_MEM_OBJS     4
 
 /*
@@ -315,6 +398,14 @@ struct kvm_mmu_memory_cache {
 struct kvm_vcpu_arch {
 	void *guest_ebase;
 	int (*vcpu_run)(struct kvm_run *run, struct kvm_vcpu *vcpu);
+=======
+#define KVM_MIPS_AUX_FPU	0x1
+#define KVM_MIPS_AUX_MSA	0x2
+
+struct kvm_vcpu_arch {
+	void *guest_ebase;
+	int (*vcpu_run)(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 
 	/* Host registers preserved across guest mode execution */
 	unsigned long host_stack;
@@ -344,9 +435,12 @@ struct kvm_vcpu_arch {
 	/* COP0 State */
 	struct mips_coproc *cop0;
 
+<<<<<<< HEAD
 	/* Host KSEG0 address of the EI/DI offset */
 	void *kseg0_commpage;
 
+=======
+>>>>>>> upstream/android-13
 	/* Resume PC after MMIO completion */
 	unsigned long io_pc;
 	/* GPR used as IO source/target */
@@ -372,6 +466,7 @@ struct kvm_vcpu_arch {
 	/* Bitmask of pending exceptions to be cleared */
 	unsigned long pending_exceptions_clr;
 
+<<<<<<< HEAD
 	/* S/W Based TLB for guest */
 	struct kvm_mips_tlb guest_tlb[KVM_MIPS_GUEST_TLB_SIZE];
 
@@ -385,6 +480,11 @@ struct kvm_vcpu_arch {
 	struct kvm_mmu_memory_cache mmu_page_cache;
 
 #ifdef CONFIG_KVM_MIPS_VZ
+=======
+	/* Cache some mmu pages needed inside spinlock regions */
+	struct kvm_mmu_memory_cache mmu_page_cache;
+
+>>>>>>> upstream/android-13
 	/* vcpu's vzguestid is different on each host cpu in an smp system */
 	u32 vzguestid[NR_CPUS];
 
@@ -395,7 +495,10 @@ struct kvm_vcpu_arch {
 
 	/* emulated guest MAAR registers */
 	unsigned long maar[6];
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	/* Last CPU the VCPU state was loaded on */
 	int last_sched_cpu;
@@ -415,11 +518,19 @@ static inline void _kvm_atomic_set_c0_guest_reg(unsigned long *reg,
 	unsigned long temp;
 	do {
 		__asm__ __volatile__(
+<<<<<<< HEAD
+=======
+		"	.set	push				\n"
+>>>>>>> upstream/android-13
 		"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"
 		"	" __LL "%0, %1				\n"
 		"	or	%0, %2				\n"
 		"	" __SC	"%0, %1				\n"
+<<<<<<< HEAD
 		"	.set	mips0				\n"
+=======
+		"	.set	pop				\n"
+>>>>>>> upstream/android-13
 		: "=&r" (temp), "+m" (*reg)
 		: "r" (val));
 	} while (unlikely(!temp));
@@ -431,11 +542,19 @@ static inline void _kvm_atomic_clear_c0_guest_reg(unsigned long *reg,
 	unsigned long temp;
 	do {
 		__asm__ __volatile__(
+<<<<<<< HEAD
+=======
+		"	.set	push				\n"
+>>>>>>> upstream/android-13
 		"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"
 		"	" __LL "%0, %1				\n"
 		"	and	%0, %2				\n"
 		"	" __SC	"%0, %1				\n"
+<<<<<<< HEAD
 		"	.set	mips0				\n"
+=======
+		"	.set	pop				\n"
+>>>>>>> upstream/android-13
 		: "=&r" (temp), "+m" (*reg)
 		: "r" (~val));
 	} while (unlikely(!temp));
@@ -448,12 +567,20 @@ static inline void _kvm_atomic_change_c0_guest_reg(unsigned long *reg,
 	unsigned long temp;
 	do {
 		__asm__ __volatile__(
+<<<<<<< HEAD
+=======
+		"	.set	push				\n"
+>>>>>>> upstream/android-13
 		"	.set	"MIPS_ISA_ARCH_LEVEL"		\n"
 		"	" __LL "%0, %1				\n"
 		"	and	%0, %2				\n"
 		"	or	%0, %3				\n"
 		"	" __SC	"%0, %1				\n"
+<<<<<<< HEAD
 		"	.set	mips0				\n"
+=======
+		"	.set	pop				\n"
+>>>>>>> upstream/android-13
 		: "=&r" (temp), "+m" (*reg)
 		: "r" (~change), "r" (val & change));
 	} while (unlikely(!temp));
@@ -622,6 +749,7 @@ static inline void kvm_change_##name1(struct mips_coproc *cop0,		\
 	__BUILD_KVM_ATOMIC_SAVED(name, type, _reg, sel)			\
 	__BUILD_KVM_SET_WRAP(c0_guest_##name, sw_gc0_##name, type)
 
+<<<<<<< HEAD
 #ifndef CONFIG_KVM_MIPS_VZ
 
 /*
@@ -636,6 +764,8 @@ static inline void kvm_change_##name1(struct mips_coproc *cop0,		\
 
 #else
 
+=======
+>>>>>>> upstream/android-13
 /*
  * VZ (hardware assisted virtualisation)
  * These macros use the active guest state in VZ mode (hardware registers),
@@ -668,8 +798,11 @@ static inline void kvm_change_##name1(struct mips_coproc *cop0,		\
  */
 #define __BUILD_KVM_ATOMIC_HW	__BUILD_KVM_SET_HW
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Define accessors for CP0 registers that are accessible to the guest. These
  * are primarily used by common emulation code, which may need to access the
@@ -786,6 +919,7 @@ struct kvm_mips_callbacks {
 	int (*vcpu_init)(struct kvm_vcpu *vcpu);
 	void (*vcpu_uninit)(struct kvm_vcpu *vcpu);
 	int (*vcpu_setup)(struct kvm_vcpu *vcpu);
+<<<<<<< HEAD
 	void (*flush_shadow_all)(struct kvm *kvm);
 	/*
 	 * Must take care of flushing any cached GPA PTEs (e.g. guest entries in
@@ -794,6 +928,9 @@ struct kvm_mips_callbacks {
 	 */
 	void (*flush_shadow_memslot)(struct kvm *kvm,
 				     const struct kvm_memory_slot *slot);
+=======
+	void (*prepare_flush_shadow)(struct kvm *kvm);
+>>>>>>> upstream/android-13
 	gpa_t (*gva_to_gpa)(gva_t gva);
 	void (*queue_timer_int)(struct kvm_vcpu *vcpu);
 	void (*dequeue_timer_int)(struct kvm_vcpu *vcpu);
@@ -813,8 +950,13 @@ struct kvm_mips_callbacks {
 			   const struct kvm_one_reg *reg, s64 v);
 	int (*vcpu_load)(struct kvm_vcpu *vcpu, int cpu);
 	int (*vcpu_put)(struct kvm_vcpu *vcpu, int cpu);
+<<<<<<< HEAD
 	int (*vcpu_run)(struct kvm_run *run, struct kvm_vcpu *vcpu);
 	void (*vcpu_reenter)(struct kvm_run *run, struct kvm_vcpu *vcpu);
+=======
+	int (*vcpu_run)(struct kvm_vcpu *vcpu);
+	void (*vcpu_reenter)(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 };
 extern struct kvm_mips_callbacks *kvm_mips_callbacks;
 int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks);
@@ -822,7 +964,11 @@ int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks);
 /* Debug: dump vcpu state */
 int kvm_arch_vcpu_dump_regs(struct kvm_vcpu *vcpu);
 
+<<<<<<< HEAD
 extern int kvm_mips_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu);
+=======
+extern int kvm_mips_handle_exit(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 
 /* Building of entry/exception code */
 int kvm_mips_entry_setup(void);
@@ -845,6 +991,7 @@ void kvm_drop_fpu(struct kvm_vcpu *vcpu);
 void kvm_lose_fpu(struct kvm_vcpu *vcpu);
 
 /* TLB handling */
+<<<<<<< HEAD
 u32 kvm_get_kernel_asid(struct kvm_vcpu *vcpu);
 
 u32 kvm_get_user_asid(struct kvm_vcpu *vcpu);
@@ -882,6 +1029,11 @@ extern int kvm_mips_guest_tlb_lookup(struct kvm_vcpu *vcpu,
 				     unsigned long entryhi);
 
 #ifdef CONFIG_KVM_MIPS_VZ
+=======
+int kvm_mips_handle_vz_root_tlb_fault(unsigned long badvaddr,
+				      struct kvm_vcpu *vcpu, bool write_fault);
+
+>>>>>>> upstream/android-13
 int kvm_vz_host_tlb_inv(struct kvm_vcpu *vcpu, unsigned long entryhi);
 int kvm_vz_guest_tlb_lookup(struct kvm_vcpu *vcpu, unsigned long gva,
 			    unsigned long *gpa);
@@ -891,6 +1043,7 @@ void kvm_vz_save_guesttlb(struct kvm_mips_tlb *buf, unsigned int index,
 			  unsigned int count);
 void kvm_vz_load_guesttlb(const struct kvm_mips_tlb *buf, unsigned int index,
 			  unsigned int count);
+<<<<<<< HEAD
 #endif
 
 void kvm_mips_suspend_mm(int cpu);
@@ -913,10 +1066,20 @@ enum kvm_mips_flush {
 	KMF_GPA		= 0x2,
 };
 void kvm_mips_flush_gva_pt(pgd_t *pgd, enum kvm_mips_flush flags);
+=======
+#ifdef CONFIG_CPU_LOONGSON64
+void kvm_loongson_clear_guest_vtlb(void);
+void kvm_loongson_clear_guest_ftlb(void);
+#endif
+
+/* MMU handling */
+
+>>>>>>> upstream/android-13
 bool kvm_mips_flush_gpa_pt(struct kvm *kvm, gfn_t start_gfn, gfn_t end_gfn);
 int kvm_mips_mkclean_gpa_pt(struct kvm *kvm, gfn_t start_gfn, gfn_t end_gfn);
 pgd_t *kvm_pgd_alloc(void);
 void kvm_mmu_free_memory_caches(struct kvm_vcpu *vcpu);
+<<<<<<< HEAD
 void kvm_trap_emul_invalidate_gva(struct kvm_vcpu *vcpu, unsigned long addr,
 				  bool user);
 void kvm_trap_emul_gva_lockless_begin(struct kvm_vcpu *vcpu);
@@ -943,6 +1106,12 @@ int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
 
 /* Emulation */
 int kvm_get_inst(u32 *opc, struct kvm_vcpu *vcpu, u32 *out);
+=======
+
+#define KVM_ARCH_WANT_MMU_NOTIFIER
+
+/* Emulation */
+>>>>>>> upstream/android-13
 enum emulation_result update_pc(struct kvm_vcpu *vcpu, u32 cause);
 int kvm_get_badinstr(u32 *opc, struct kvm_vcpu *vcpu, u32 *out);
 int kvm_get_badinstrp(u32 *opc, struct kvm_vcpu *vcpu, u32 *out);
@@ -974,6 +1143,7 @@ static inline bool kvm_is_ifetch_fault(struct kvm_vcpu_arch *vcpu)
 	return false;
 }
 
+<<<<<<< HEAD
 extern enum emulation_result kvm_mips_emulate_inst(u32 cause,
 						   u32 *opc,
 						   struct kvm_run *run,
@@ -1053,6 +1223,9 @@ extern enum emulation_result kvm_mips_emulate_msadis_exc(u32 cause,
 
 extern enum emulation_result kvm_mips_complete_mmio_load(struct kvm_vcpu *vcpu,
 							 struct kvm_run *run);
+=======
+extern enum emulation_result kvm_mips_complete_mmio_load(struct kvm_vcpu *vcpu);
+>>>>>>> upstream/android-13
 
 u32 kvm_mips_read_count(struct kvm_vcpu *vcpu);
 void kvm_mips_write_count(struct kvm_vcpu *vcpu, u32 count);
@@ -1071,6 +1244,7 @@ ktime_t kvm_mips_freeze_hrtimer(struct kvm_vcpu *vcpu, u32 *count);
 int kvm_mips_restore_hrtimer(struct kvm_vcpu *vcpu, ktime_t before,
 			     u32 count, int min_drift);
 
+<<<<<<< HEAD
 #ifdef CONFIG_KVM_MIPS_VZ
 void kvm_vz_acquire_htimer(struct kvm_vcpu *vcpu);
 void kvm_vz_lose_htimer(struct kvm_vcpu *vcpu);
@@ -1101,22 +1275,36 @@ enum emulation_result kvm_mips_emulate_store(union mips_instruction inst,
 enum emulation_result kvm_mips_emulate_load(union mips_instruction inst,
 					    u32 cause,
 					    struct kvm_run *run,
+=======
+void kvm_vz_acquire_htimer(struct kvm_vcpu *vcpu);
+void kvm_vz_lose_htimer(struct kvm_vcpu *vcpu);
+
+enum emulation_result kvm_mips_emulate_store(union mips_instruction inst,
+					     u32 cause,
+					     struct kvm_vcpu *vcpu);
+enum emulation_result kvm_mips_emulate_load(union mips_instruction inst,
+					    u32 cause,
+>>>>>>> upstream/android-13
 					    struct kvm_vcpu *vcpu);
 
 /* COP0 */
 enum emulation_result kvm_mips_emul_wait(struct kvm_vcpu *vcpu);
 
+<<<<<<< HEAD
 unsigned int kvm_mips_config1_wrmask(struct kvm_vcpu *vcpu);
 unsigned int kvm_mips_config3_wrmask(struct kvm_vcpu *vcpu);
 unsigned int kvm_mips_config4_wrmask(struct kvm_vcpu *vcpu);
 unsigned int kvm_mips_config5_wrmask(struct kvm_vcpu *vcpu);
 
+=======
+>>>>>>> upstream/android-13
 /* Hypercalls (hypcall.c) */
 
 enum emulation_result kvm_mips_emul_hypcall(struct kvm_vcpu *vcpu,
 					    union mips_instruction inst);
 int kvm_mips_handle_hypcall(struct kvm_vcpu *vcpu);
 
+<<<<<<< HEAD
 /* Dynamic binary translation */
 extern int kvm_mips_trans_cache_index(union mips_instruction inst,
 				      u32 *opc, struct kvm_vcpu *vcpu);
@@ -1130,15 +1318,32 @@ extern int kvm_mips_trans_mtc0(union mips_instruction inst, u32 *opc,
 /* Misc */
 extern void kvm_mips_dump_stats(struct kvm_vcpu *vcpu);
 extern unsigned long kvm_mips_get_ramsize(struct kvm *kvm);
+=======
+/* Misc */
+extern void kvm_mips_dump_stats(struct kvm_vcpu *vcpu);
+extern unsigned long kvm_mips_get_ramsize(struct kvm *kvm);
+extern int kvm_vcpu_ioctl_interrupt(struct kvm_vcpu *vcpu,
+			     struct kvm_mips_interrupt *irq);
+>>>>>>> upstream/android-13
 
 static inline void kvm_arch_hardware_unsetup(void) {}
 static inline void kvm_arch_sync_events(struct kvm *kvm) {}
 static inline void kvm_arch_free_memslot(struct kvm *kvm,
+<<<<<<< HEAD
 		struct kvm_memory_slot *free, struct kvm_memory_slot *dont) {}
+=======
+					 struct kvm_memory_slot *slot) {}
+>>>>>>> upstream/android-13
 static inline void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen) {}
 static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
 static inline void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu) {}
 static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
 static inline void kvm_arch_vcpu_block_finish(struct kvm_vcpu *vcpu) {}
 
+<<<<<<< HEAD
+=======
+#define __KVM_HAVE_ARCH_FLUSH_REMOTE_TLB
+int kvm_arch_flush_remote_tlb(struct kvm *kvm);
+
+>>>>>>> upstream/android-13
 #endif /* __MIPS_KVM_HOST_H__ */

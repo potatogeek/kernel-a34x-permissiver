@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  The NFC Controller Interface is the communication protocol between an
  *  NFC Controller (NFCC) and a Device Host (DH).
@@ -10,6 +14,7 @@
  *  Acknowledgements:
  *  This file is based on hci_core.c, which was written
  *  by Maxim Krasnyansky.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -23,6 +28,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": %s: " fmt, __func__
@@ -65,9 +72,15 @@ struct nci_conn_info *nci_get_conn_info_by_conn_id(struct nci_dev *ndev,
 }
 
 int nci_get_conn_info_by_dest_type_params(struct nci_dev *ndev, u8 dest_type,
+<<<<<<< HEAD
 					  struct dest_spec_params *params)
 {
 	struct nci_conn_info *conn_info;
+=======
+					  const struct dest_spec_params *params)
+{
+	const struct nci_conn_info *conn_info;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(conn_info, &ndev->conn_info_list, list) {
 		if (conn_info->dest_type == dest_type) {
@@ -107,8 +120,13 @@ static void nci_req_cancel(struct nci_dev *ndev, int err)
 
 /* Execute request and wait for completion. */
 static int __nci_request(struct nci_dev *ndev,
+<<<<<<< HEAD
 			 void (*req)(struct nci_dev *ndev, unsigned long opt),
 			 unsigned long opt, __u32 timeout)
+=======
+			 void (*req)(struct nci_dev *ndev, const void *opt),
+			 const void *opt, __u32 timeout)
+>>>>>>> upstream/android-13
 {
 	int rc = 0;
 	long completion_rc;
@@ -151,6 +169,7 @@ static int __nci_request(struct nci_dev *ndev,
 
 inline int nci_request(struct nci_dev *ndev,
 		       void (*req)(struct nci_dev *ndev,
+<<<<<<< HEAD
 				   unsigned long opt),
 		       unsigned long opt, __u32 timeout)
 {
@@ -162,12 +181,32 @@ inline int nci_request(struct nci_dev *ndev,
 	/* Serialize all requests */
 	mutex_lock(&ndev->req_lock);
 	rc = __nci_request(ndev, req, opt, timeout);
+=======
+				   const void *opt),
+		       const void *opt, __u32 timeout)
+{
+	int rc;
+
+	/* Serialize all requests */
+	mutex_lock(&ndev->req_lock);
+	/* check the state after obtaing the lock against any races
+	 * from nci_close_device when the device gets removed.
+	 */
+	if (test_bit(NCI_UP, &ndev->flags))
+		rc = __nci_request(ndev, req, opt, timeout);
+	else
+		rc = -ENETDOWN;
+>>>>>>> upstream/android-13
 	mutex_unlock(&ndev->req_lock);
 
 	return rc;
 }
 
+<<<<<<< HEAD
 static void nci_reset_req(struct nci_dev *ndev, unsigned long opt)
+=======
+static void nci_reset_req(struct nci_dev *ndev, const void *opt)
+>>>>>>> upstream/android-13
 {
 	struct nci_core_reset_cmd cmd;
 
@@ -175,12 +214,26 @@ static void nci_reset_req(struct nci_dev *ndev, unsigned long opt)
 	nci_send_cmd(ndev, NCI_OP_CORE_RESET_CMD, 1, &cmd);
 }
 
+<<<<<<< HEAD
 static void nci_init_req(struct nci_dev *ndev, unsigned long opt)
 {
 	nci_send_cmd(ndev, NCI_OP_CORE_INIT_CMD, 0, NULL);
 }
 
 static void nci_init_complete_req(struct nci_dev *ndev, unsigned long opt)
+=======
+static void nci_init_req(struct nci_dev *ndev, const void *opt)
+{
+	u8 plen = 0;
+
+	if (opt)
+		plen = sizeof(struct nci_core_init_v2_cmd);
+
+	nci_send_cmd(ndev, NCI_OP_CORE_INIT_CMD, plen, opt);
+}
+
+static void nci_init_complete_req(struct nci_dev *ndev, const void *opt)
+>>>>>>> upstream/android-13
 {
 	struct nci_rf_disc_map_cmd cmd;
 	struct disc_map_config *cfg = cmd.mapping_configs;
@@ -217,6 +270,7 @@ static void nci_init_complete_req(struct nci_dev *ndev, unsigned long opt)
 }
 
 struct nci_set_config_param {
+<<<<<<< HEAD
 	__u8	id;
 	size_t	len;
 	__u8	*val;
@@ -225,6 +279,16 @@ struct nci_set_config_param {
 static void nci_set_config_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_set_config_param *param = (struct nci_set_config_param *)opt;
+=======
+	__u8		id;
+	size_t		len;
+	const __u8	*val;
+};
+
+static void nci_set_config_req(struct nci_dev *ndev, const void *opt)
+{
+	const struct nci_set_config_param *param = opt;
+>>>>>>> upstream/android-13
 	struct nci_core_set_config_cmd cmd;
 
 	BUG_ON(param->len > NCI_MAX_PARAM_LEN);
@@ -242,10 +306,16 @@ struct nci_rf_discover_param {
 	__u32	tm_protocols;
 };
 
+<<<<<<< HEAD
 static void nci_rf_discover_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_rf_discover_param *param =
 		(struct nci_rf_discover_param *)opt;
+=======
+static void nci_rf_discover_req(struct nci_dev *ndev, const void *opt)
+{
+	const struct nci_rf_discover_param *param = opt;
+>>>>>>> upstream/android-13
 	struct nci_rf_disc_cmd cmd;
 
 	cmd.num_disc_configs = 0;
@@ -308,10 +378,16 @@ struct nci_rf_discover_select_param {
 	__u8	rf_protocol;
 };
 
+<<<<<<< HEAD
 static void nci_rf_discover_select_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_rf_discover_select_param *param =
 		(struct nci_rf_discover_select_param *)opt;
+=======
+static void nci_rf_discover_select_req(struct nci_dev *ndev, const void *opt)
+{
+	const struct nci_rf_discover_select_param *param = opt;
+>>>>>>> upstream/android-13
 	struct nci_rf_discover_select_cmd cmd;
 
 	cmd.rf_discovery_id = param->rf_discovery_id;
@@ -335,11 +411,19 @@ static void nci_rf_discover_select_req(struct nci_dev *ndev, unsigned long opt)
 		     sizeof(struct nci_rf_discover_select_cmd), &cmd);
 }
 
+<<<<<<< HEAD
 static void nci_rf_deactivate_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_rf_deactivate_cmd cmd;
 
 	cmd.type = opt;
+=======
+static void nci_rf_deactivate_req(struct nci_dev *ndev, const void *opt)
+{
+	struct nci_rf_deactivate_cmd cmd;
+
+	cmd.type = (unsigned long)opt;
+>>>>>>> upstream/android-13
 
 	nci_send_cmd(ndev, NCI_OP_RF_DEACTIVATE_CMD,
 		     sizeof(struct nci_rf_deactivate_cmd), &cmd);
@@ -348,6 +432,7 @@ static void nci_rf_deactivate_req(struct nci_dev *ndev, unsigned long opt)
 struct nci_cmd_param {
 	__u16 opcode;
 	size_t len;
+<<<<<<< HEAD
 	__u8 *payload;
 };
 
@@ -355,11 +440,23 @@ static void nci_generic_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_cmd_param *param =
 		(struct nci_cmd_param *)opt;
+=======
+	const __u8 *payload;
+};
+
+static void nci_generic_req(struct nci_dev *ndev, const void *opt)
+{
+	const struct nci_cmd_param *param = opt;
+>>>>>>> upstream/android-13
 
 	nci_send_cmd(ndev, param->opcode, param->len, param->payload);
 }
 
+<<<<<<< HEAD
 int nci_prop_cmd(struct nci_dev *ndev, __u8 oid, size_t len, __u8 *payload)
+=======
+int nci_prop_cmd(struct nci_dev *ndev, __u8 oid, size_t len, const __u8 *payload)
+>>>>>>> upstream/android-13
 {
 	struct nci_cmd_param param;
 
@@ -367,12 +464,21 @@ int nci_prop_cmd(struct nci_dev *ndev, __u8 oid, size_t len, __u8 *payload)
 	param.len = len;
 	param.payload = payload;
 
+<<<<<<< HEAD
 	return __nci_request(ndev, nci_generic_req, (unsigned long)&param,
+=======
+	return __nci_request(ndev, nci_generic_req, &param,
+>>>>>>> upstream/android-13
 			     msecs_to_jiffies(NCI_CMD_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_prop_cmd);
 
+<<<<<<< HEAD
 int nci_core_cmd(struct nci_dev *ndev, __u16 opcode, size_t len, __u8 *payload)
+=======
+int nci_core_cmd(struct nci_dev *ndev, __u16 opcode, size_t len,
+		 const __u8 *payload)
+>>>>>>> upstream/android-13
 {
 	struct nci_cmd_param param;
 
@@ -380,21 +486,33 @@ int nci_core_cmd(struct nci_dev *ndev, __u16 opcode, size_t len, __u8 *payload)
 	param.len = len;
 	param.payload = payload;
 
+<<<<<<< HEAD
 	return __nci_request(ndev, nci_generic_req, (unsigned long)&param,
+=======
+	return __nci_request(ndev, nci_generic_req, &param,
+>>>>>>> upstream/android-13
 			     msecs_to_jiffies(NCI_CMD_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_core_cmd);
 
 int nci_core_reset(struct nci_dev *ndev)
 {
+<<<<<<< HEAD
 	return __nci_request(ndev, nci_reset_req, 0,
+=======
+	return __nci_request(ndev, nci_reset_req, (void *)0,
+>>>>>>> upstream/android-13
 			     msecs_to_jiffies(NCI_RESET_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_core_reset);
 
 int nci_core_init(struct nci_dev *ndev)
 {
+<<<<<<< HEAD
 	return __nci_request(ndev, nci_init_req, 0,
+=======
+	return __nci_request(ndev, nci_init_req, (void *)0,
+>>>>>>> upstream/android-13
 			     msecs_to_jiffies(NCI_INIT_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_core_init);
@@ -404,9 +522,15 @@ struct nci_loopback_data {
 	struct sk_buff *data;
 };
 
+<<<<<<< HEAD
 static void nci_send_data_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_loopback_data *data = (struct nci_loopback_data *)opt;
+=======
+static void nci_send_data_req(struct nci_dev *ndev, const void *opt)
+{
+	const struct nci_loopback_data *data = opt;
+>>>>>>> upstream/android-13
 
 	nci_send_data(ndev, data->conn_id, data->data);
 }
@@ -414,7 +538,11 @@ static void nci_send_data_req(struct nci_dev *ndev, unsigned long opt)
 static void nci_nfcc_loopback_cb(void *context, struct sk_buff *skb, int err)
 {
 	struct nci_dev *ndev = (struct nci_dev *)context;
+<<<<<<< HEAD
 	struct nci_conn_info    *conn_info;
+=======
+	struct nci_conn_info *conn_info;
+>>>>>>> upstream/android-13
 
 	conn_info = nci_get_conn_info_by_conn_id(ndev, ndev->cur_conn_id);
 	if (!conn_info) {
@@ -427,7 +555,11 @@ static void nci_nfcc_loopback_cb(void *context, struct sk_buff *skb, int err)
 	nci_req_complete(ndev, NCI_STATUS_OK);
 }
 
+<<<<<<< HEAD
 int nci_nfcc_loopback(struct nci_dev *ndev, void *data, size_t data_len,
+=======
+int nci_nfcc_loopback(struct nci_dev *ndev, const void *data, size_t data_len,
+>>>>>>> upstream/android-13
 		      struct sk_buff **resp)
 {
 	int r;
@@ -467,7 +599,11 @@ int nci_nfcc_loopback(struct nci_dev *ndev, void *data, size_t data_len,
 	loopback_data.data = skb;
 
 	ndev->cur_conn_id = conn_id;
+<<<<<<< HEAD
 	r = nci_request(ndev, nci_send_data_req, (unsigned long)&loopback_data,
+=======
+	r = nci_request(ndev, nci_send_data_req, &loopback_data,
+>>>>>>> upstream/android-13
 			msecs_to_jiffies(NCI_DATA_TIMEOUT));
 	if (r == NCI_STATUS_OK && resp)
 		*resp = conn_info->rx_skb;
@@ -482,6 +618,14 @@ static int nci_open_device(struct nci_dev *ndev)
 
 	mutex_lock(&ndev->req_lock);
 
+<<<<<<< HEAD
+=======
+	if (test_bit(NCI_UNREG, &ndev->flags)) {
+		rc = -ENODEV;
+		goto done;
+	}
+
+>>>>>>> upstream/android-13
 	if (test_bit(NCI_UP, &ndev->flags)) {
 		rc = -EALREADY;
 		goto done;
@@ -500,7 +644,11 @@ static int nci_open_device(struct nci_dev *ndev)
 		rc = ndev->ops->init(ndev);
 
 	if (!rc) {
+<<<<<<< HEAD
 		rc = __nci_request(ndev, nci_reset_req, 0,
+=======
+		rc = __nci_request(ndev, nci_reset_req, (void *)0,
+>>>>>>> upstream/android-13
 				   msecs_to_jiffies(NCI_RESET_TIMEOUT));
 	}
 
@@ -509,7 +657,20 @@ static int nci_open_device(struct nci_dev *ndev)
 	}
 
 	if (!rc) {
+<<<<<<< HEAD
 		rc = __nci_request(ndev, nci_init_req, 0,
+=======
+		struct nci_core_init_v2_cmd nci_init_v2_cmd = {
+			.feature1 = NCI_FEATURE_DISABLE,
+			.feature2 = NCI_FEATURE_DISABLE
+		};
+		const void *opt = NULL;
+
+		if (ndev->nci_ver & NCI_VER_2_MASK)
+			opt = &nci_init_v2_cmd;
+
+		rc = __nci_request(ndev, nci_init_req, opt,
+>>>>>>> upstream/android-13
 				   msecs_to_jiffies(NCI_INIT_TIMEOUT));
 	}
 
@@ -517,7 +678,11 @@ static int nci_open_device(struct nci_dev *ndev)
 		rc = ndev->ops->post_setup(ndev);
 
 	if (!rc) {
+<<<<<<< HEAD
 		rc = __nci_request(ndev, nci_init_complete_req, 0,
+=======
+		rc = __nci_request(ndev, nci_init_complete_req, (void *)0,
+>>>>>>> upstream/android-13
 				   msecs_to_jiffies(NCI_INIT_TIMEOUT));
 	}
 
@@ -545,9 +710,23 @@ done:
 static int nci_close_device(struct nci_dev *ndev)
 {
 	nci_req_cancel(ndev, ENODEV);
+<<<<<<< HEAD
 	mutex_lock(&ndev->req_lock);
 
 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
+=======
+
+	/* This mutex needs to be held as a barrier for
+	 * caller nci_unregister_device
+	 */
+	mutex_lock(&ndev->req_lock);
+
+	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
+		/* Need to flush the cmd wq in case
+		 * there is a queued/running cmd_work
+		 */
+		flush_workqueue(ndev->cmd_wq);
+>>>>>>> upstream/android-13
 		del_timer_sync(&ndev->cmd_timer);
 		del_timer_sync(&ndev->data_timer);
 		mutex_unlock(&ndev->req_lock);
@@ -567,7 +746,11 @@ static int nci_close_device(struct nci_dev *ndev)
 	atomic_set(&ndev->cmd_cnt, 1);
 
 	set_bit(NCI_INIT, &ndev->flags);
+<<<<<<< HEAD
 	__nci_request(ndev, nci_reset_req, 0,
+=======
+	__nci_request(ndev, nci_reset_req, (void *)0,
+>>>>>>> upstream/android-13
 		      msecs_to_jiffies(NCI_RESET_TIMEOUT));
 
 	/* After this point our queues are empty
@@ -577,6 +760,7 @@ static int nci_close_device(struct nci_dev *ndev)
 
 	clear_bit(NCI_INIT, &ndev->flags);
 
+<<<<<<< HEAD
 	del_timer_sync(&ndev->cmd_timer);
 
 	/* Flush cmd wq */
@@ -584,6 +768,15 @@ static int nci_close_device(struct nci_dev *ndev)
 
 	/* Clear flags */
 	ndev->flags = 0;
+=======
+	/* Flush cmd wq */
+	flush_workqueue(ndev->cmd_wq);
+
+	del_timer_sync(&ndev->cmd_timer);
+
+	/* Clear flags except NCI_UNREG */
+	ndev->flags &= BIT(NCI_UNREG);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&ndev->req_lock);
 
@@ -622,7 +815,11 @@ static int nci_dev_down(struct nfc_dev *nfc_dev)
 	return nci_close_device(ndev);
 }
 
+<<<<<<< HEAD
 int nci_set_config(struct nci_dev *ndev, __u8 id, size_t len, __u8 *val)
+=======
+int nci_set_config(struct nci_dev *ndev, __u8 id, size_t len, const __u8 *val)
+>>>>>>> upstream/android-13
 {
 	struct nci_set_config_param param;
 
@@ -633,15 +830,26 @@ int nci_set_config(struct nci_dev *ndev, __u8 id, size_t len, __u8 *val)
 	param.len = len;
 	param.val = val;
 
+<<<<<<< HEAD
 	return __nci_request(ndev, nci_set_config_req, (unsigned long)&param,
+=======
+	return __nci_request(ndev, nci_set_config_req, &param,
+>>>>>>> upstream/android-13
 			     msecs_to_jiffies(NCI_SET_CONFIG_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_set_config);
 
+<<<<<<< HEAD
 static void nci_nfcee_discover_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_nfcee_discover_cmd cmd;
 	__u8 action = opt;
+=======
+static void nci_nfcee_discover_req(struct nci_dev *ndev, const void *opt)
+{
+	struct nci_nfcee_discover_cmd cmd;
+	__u8 action = (unsigned long)opt;
+>>>>>>> upstream/android-13
 
 	cmd.discovery_action = action;
 
@@ -650,15 +858,27 @@ static void nci_nfcee_discover_req(struct nci_dev *ndev, unsigned long opt)
 
 int nci_nfcee_discover(struct nci_dev *ndev, u8 action)
 {
+<<<<<<< HEAD
 	return __nci_request(ndev, nci_nfcee_discover_req, action,
+=======
+	unsigned long opt = action;
+
+	return __nci_request(ndev, nci_nfcee_discover_req, (void *)opt,
+>>>>>>> upstream/android-13
 				msecs_to_jiffies(NCI_CMD_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_nfcee_discover);
 
+<<<<<<< HEAD
 static void nci_nfcee_mode_set_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct nci_nfcee_mode_set_cmd *cmd =
 					(struct nci_nfcee_mode_set_cmd *)opt;
+=======
+static void nci_nfcee_mode_set_req(struct nci_dev *ndev, const void *opt)
+{
+	const struct nci_nfcee_mode_set_cmd *cmd = opt;
+>>>>>>> upstream/android-13
 
 	nci_send_cmd(ndev, NCI_OP_NFCEE_MODE_SET_CMD,
 		     sizeof(struct nci_nfcee_mode_set_cmd), cmd);
@@ -671,16 +891,26 @@ int nci_nfcee_mode_set(struct nci_dev *ndev, u8 nfcee_id, u8 nfcee_mode)
 	cmd.nfcee_id = nfcee_id;
 	cmd.nfcee_mode = nfcee_mode;
 
+<<<<<<< HEAD
 	return __nci_request(ndev, nci_nfcee_mode_set_req,
 			     (unsigned long)&cmd,
+=======
+	return __nci_request(ndev, nci_nfcee_mode_set_req, &cmd,
+>>>>>>> upstream/android-13
 			     msecs_to_jiffies(NCI_CMD_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_nfcee_mode_set);
 
+<<<<<<< HEAD
 static void nci_core_conn_create_req(struct nci_dev *ndev, unsigned long opt)
 {
 	struct core_conn_create_data *data =
 					(struct core_conn_create_data *)opt;
+=======
+static void nci_core_conn_create_req(struct nci_dev *ndev, const void *opt)
+{
+	const struct core_conn_create_data *data = opt;
+>>>>>>> upstream/android-13
 
 	nci_send_cmd(ndev, NCI_OP_CORE_CONN_CREATE_CMD, data->length, data->cmd);
 }
@@ -688,7 +918,11 @@ static void nci_core_conn_create_req(struct nci_dev *ndev, unsigned long opt)
 int nci_core_conn_create(struct nci_dev *ndev, u8 destination_type,
 			 u8 number_destination_params,
 			 size_t params_len,
+<<<<<<< HEAD
 			 struct core_conn_create_dest_spec_params *params)
+=======
+			 const struct core_conn_create_dest_spec_params *params)
+>>>>>>> upstream/android-13
 {
 	int r;
 	struct nci_core_conn_create_cmd *cmd;
@@ -717,24 +951,41 @@ int nci_core_conn_create(struct nci_dev *ndev, u8 destination_type,
 	}
 	ndev->cur_dest_type = destination_type;
 
+<<<<<<< HEAD
 	r = __nci_request(ndev, nci_core_conn_create_req, (unsigned long)&data,
+=======
+	r = __nci_request(ndev, nci_core_conn_create_req, &data,
+>>>>>>> upstream/android-13
 			  msecs_to_jiffies(NCI_CMD_TIMEOUT));
 	kfree(cmd);
 	return r;
 }
 EXPORT_SYMBOL(nci_core_conn_create);
 
+<<<<<<< HEAD
 static void nci_core_conn_close_req(struct nci_dev *ndev, unsigned long opt)
 {
 	__u8 conn_id = opt;
+=======
+static void nci_core_conn_close_req(struct nci_dev *ndev, const void *opt)
+{
+	__u8 conn_id = (unsigned long)opt;
+>>>>>>> upstream/android-13
 
 	nci_send_cmd(ndev, NCI_OP_CORE_CONN_CLOSE_CMD, 1, &conn_id);
 }
 
 int nci_core_conn_close(struct nci_dev *ndev, u8 conn_id)
 {
+<<<<<<< HEAD
 	ndev->cur_conn_id = conn_id;
 	return __nci_request(ndev, nci_core_conn_close_req, conn_id,
+=======
+	unsigned long opt = conn_id;
+
+	ndev->cur_conn_id = conn_id;
+	return __nci_request(ndev, nci_core_conn_close_req, (void *)opt,
+>>>>>>> upstream/android-13
 			     msecs_to_jiffies(NCI_CMD_TIMEOUT));
 }
 EXPORT_SYMBOL(nci_core_conn_close);
@@ -754,14 +1005,22 @@ static int nci_set_local_general_bytes(struct nfc_dev *nfc_dev)
 
 	param.id = NCI_PN_ATR_REQ_GEN_BYTES;
 
+<<<<<<< HEAD
 	rc = nci_request(ndev, nci_set_config_req, (unsigned long)&param,
+=======
+	rc = nci_request(ndev, nci_set_config_req, &param,
+>>>>>>> upstream/android-13
 			 msecs_to_jiffies(NCI_SET_CONFIG_TIMEOUT));
 	if (rc)
 		return rc;
 
 	param.id = NCI_LN_ATR_RES_GEN_BYTES;
 
+<<<<<<< HEAD
 	return nci_request(ndev, nci_set_config_req, (unsigned long)&param,
+=======
+	return nci_request(ndev, nci_set_config_req, &param,
+>>>>>>> upstream/android-13
 			   msecs_to_jiffies(NCI_SET_CONFIG_TIMEOUT));
 }
 
@@ -811,7 +1070,11 @@ static int nci_start_poll(struct nfc_dev *nfc_dev,
 		pr_debug("target active or w4 select, implicitly deactivate\n");
 
 		rc = nci_request(ndev, nci_rf_deactivate_req,
+<<<<<<< HEAD
 				 NCI_DEACTIVATE_TYPE_IDLE_MODE,
+=======
+				 (void *)NCI_DEACTIVATE_TYPE_IDLE_MODE,
+>>>>>>> upstream/android-13
 				 msecs_to_jiffies(NCI_RF_DEACTIVATE_TIMEOUT));
 		if (rc)
 			return -EBUSY;
@@ -833,7 +1096,11 @@ static int nci_start_poll(struct nfc_dev *nfc_dev,
 
 	param.im_protocols = im_protocols;
 	param.tm_protocols = tm_protocols;
+<<<<<<< HEAD
 	rc = nci_request(ndev, nci_rf_discover_req, (unsigned long)&param,
+=======
+	rc = nci_request(ndev, nci_rf_discover_req, &param,
+>>>>>>> upstream/android-13
 			 msecs_to_jiffies(NCI_RF_DISC_TIMEOUT));
 
 	if (!rc)
@@ -852,7 +1119,12 @@ static void nci_stop_poll(struct nfc_dev *nfc_dev)
 		return;
 	}
 
+<<<<<<< HEAD
 	nci_request(ndev, nci_rf_deactivate_req, NCI_DEACTIVATE_TYPE_IDLE_MODE,
+=======
+	nci_request(ndev, nci_rf_deactivate_req,
+		    (void *)NCI_DEACTIVATE_TYPE_IDLE_MODE,
+>>>>>>> upstream/android-13
 		    msecs_to_jiffies(NCI_RF_DEACTIVATE_TIMEOUT));
 }
 
@@ -861,7 +1133,11 @@ static int nci_activate_target(struct nfc_dev *nfc_dev,
 {
 	struct nci_dev *ndev = nfc_get_drvdata(nfc_dev);
 	struct nci_rf_discover_select_param param;
+<<<<<<< HEAD
 	struct nfc_target *nci_target = NULL;
+=======
+	const struct nfc_target *nci_target = NULL;
+>>>>>>> upstream/android-13
 	int i;
 	int rc = 0;
 
@@ -911,8 +1187,12 @@ static int nci_activate_target(struct nfc_dev *nfc_dev,
 		else
 			param.rf_protocol = NCI_RF_PROTOCOL_NFC_DEP;
 
+<<<<<<< HEAD
 		rc = nci_request(ndev, nci_rf_discover_select_req,
 				 (unsigned long)&param,
+=======
+		rc = nci_request(ndev, nci_rf_discover_select_req, &param,
+>>>>>>> upstream/android-13
 				 msecs_to_jiffies(NCI_RF_DISC_SELECT_TIMEOUT));
 	}
 
@@ -927,7 +1207,11 @@ static void nci_deactivate_target(struct nfc_dev *nfc_dev,
 				  __u8 mode)
 {
 	struct nci_dev *ndev = nfc_get_drvdata(nfc_dev);
+<<<<<<< HEAD
 	u8 nci_mode = NCI_DEACTIVATE_TYPE_IDLE_MODE;
+=======
+	unsigned long nci_mode = NCI_DEACTIVATE_TYPE_IDLE_MODE;
+>>>>>>> upstream/android-13
 
 	pr_debug("entry\n");
 
@@ -945,7 +1229,11 @@ static void nci_deactivate_target(struct nfc_dev *nfc_dev,
 	}
 
 	if (atomic_read(&ndev->state) == NCI_POLL_ACTIVE) {
+<<<<<<< HEAD
 		nci_request(ndev, nci_rf_deactivate_req, nci_mode,
+=======
+		nci_request(ndev, nci_rf_deactivate_req, (void *)nci_mode,
+>>>>>>> upstream/android-13
 			    msecs_to_jiffies(NCI_RF_DEACTIVATE_TIMEOUT));
 	}
 }
@@ -983,8 +1271,13 @@ static int nci_dep_link_down(struct nfc_dev *nfc_dev)
 	} else {
 		if (atomic_read(&ndev->state) == NCI_LISTEN_ACTIVE ||
 		    atomic_read(&ndev->state) == NCI_DISCOVERY) {
+<<<<<<< HEAD
 			nci_request(ndev, nci_rf_deactivate_req, 0,
 				msecs_to_jiffies(NCI_RF_DEACTIVATE_TIMEOUT));
+=======
+			nci_request(ndev, nci_rf_deactivate_req, (void *)0,
+				    msecs_to_jiffies(NCI_RF_DEACTIVATE_TIMEOUT));
+>>>>>>> upstream/android-13
 		}
 
 		rc = nfc_tm_deactivated(nfc_dev);
@@ -1002,7 +1295,11 @@ static int nci_transceive(struct nfc_dev *nfc_dev, struct nfc_target *target,
 {
 	struct nci_dev *ndev = nfc_get_drvdata(nfc_dev);
 	int rc;
+<<<<<<< HEAD
 	struct nci_conn_info    *conn_info;
+=======
+	struct nci_conn_info *conn_info;
+>>>>>>> upstream/android-13
 
 	conn_info = ndev->rf_conn_info;
 	if (!conn_info)
@@ -1100,7 +1397,11 @@ static int nci_fw_download(struct nfc_dev *nfc_dev, const char *firmware_name)
 	return ndev->ops->fw_download(ndev, firmware_name);
 }
 
+<<<<<<< HEAD
 static struct nfc_ops nci_nfc_ops = {
+=======
+static const struct nfc_ops nci_nfc_ops = {
+>>>>>>> upstream/android-13
 	.dev_up = nci_dev_up,
 	.dev_down = nci_dev_down,
 	.start_poll = nci_start_poll,
@@ -1124,8 +1425,15 @@ static struct nfc_ops nci_nfc_ops = {
  *
  * @ops: device operations
  * @supported_protocols: NFC protocols supported by the device
+<<<<<<< HEAD
  */
 struct nci_dev *nci_allocate_device(struct nci_ops *ops,
+=======
+ * @tx_headroom: Reserved space at beginning of skb
+ * @tx_tailroom: Reserved space at end of skb
+ */
+struct nci_dev *nci_allocate_device(const struct nci_ops *ops,
+>>>>>>> upstream/android-13
 				    __u32 supported_protocols,
 				    int tx_headroom, int tx_tailroom)
 {
@@ -1148,8 +1456,12 @@ struct nci_dev *nci_allocate_device(struct nci_ops *ops,
 	if (ops->n_prop_ops > NCI_MAX_PROPRIETARY_CMD) {
 		pr_err("Too many proprietary commands: %zd\n",
 		       ops->n_prop_ops);
+<<<<<<< HEAD
 		ops->prop_ops = NULL;
 		ops->n_prop_ops = 0;
+=======
+		goto free_nci;
+>>>>>>> upstream/android-13
 	}
 
 	ndev->tx_headroom = tx_headroom;
@@ -1187,6 +1499,10 @@ EXPORT_SYMBOL(nci_allocate_device);
 void nci_free_device(struct nci_dev *ndev)
 {
 	nfc_free_device(ndev->nfc_dev);
+<<<<<<< HEAD
+=======
+	nci_hci_deallocate(ndev);
+>>>>>>> upstream/android-13
 	kfree(ndev);
 }
 EXPORT_SYMBOL(nci_free_device);
@@ -1194,7 +1510,11 @@ EXPORT_SYMBOL(nci_free_device);
 /**
  * nci_register_device - register a nci device in the nfc subsystem
  *
+<<<<<<< HEAD
  * @dev: The nci device to register
+=======
+ * @ndev: The nci device to register
+>>>>>>> upstream/android-13
  */
 int nci_register_device(struct nci_dev *ndev)
 {
@@ -1240,10 +1560,20 @@ int nci_register_device(struct nci_dev *ndev)
 
 	rc = nfc_register_device(ndev->nfc_dev);
 	if (rc)
+<<<<<<< HEAD
 		goto destroy_rx_wq_exit;
 
 	goto exit;
 
+=======
+		goto destroy_tx_wq_exit;
+
+	goto exit;
+
+destroy_tx_wq_exit:
+	destroy_workqueue(ndev->tx_wq);
+
+>>>>>>> upstream/android-13
 destroy_rx_wq_exit:
 	destroy_workqueue(ndev->rx_wq);
 
@@ -1258,11 +1588,25 @@ EXPORT_SYMBOL(nci_register_device);
 /**
  * nci_unregister_device - unregister a nci device in the nfc subsystem
  *
+<<<<<<< HEAD
  * @dev: The nci device to unregister
  */
 void nci_unregister_device(struct nci_dev *ndev)
 {
 	struct nci_conn_info    *conn_info, *n;
+=======
+ * @ndev: The nci device to unregister
+ */
+void nci_unregister_device(struct nci_dev *ndev)
+{
+	struct nci_conn_info *conn_info, *n;
+
+	/* This set_bit is not protected with specialized barrier,
+	 * However, it is fine because the mutex_lock(&ndev->req_lock);
+	 * in nci_close_device() will help to emit one.
+	 */
+	set_bit(NCI_UNREG, &ndev->flags);
+>>>>>>> upstream/android-13
 
 	nci_close_device(ndev);
 
@@ -1324,7 +1668,11 @@ int nci_send_frame(struct nci_dev *ndev, struct sk_buff *skb)
 EXPORT_SYMBOL(nci_send_frame);
 
 /* Send NCI command */
+<<<<<<< HEAD
 int nci_send_cmd(struct nci_dev *ndev, __u16 opcode, __u8 plen, void *payload)
+=======
+int nci_send_cmd(struct nci_dev *ndev, __u16 opcode, __u8 plen, const void *payload)
+>>>>>>> upstream/android-13
 {
 	struct nci_ctrl_hdr *hdr;
 	struct sk_buff *skb;
@@ -1356,12 +1704,21 @@ int nci_send_cmd(struct nci_dev *ndev, __u16 opcode, __u8 plen, void *payload)
 EXPORT_SYMBOL(nci_send_cmd);
 
 /* Proprietary commands API */
+<<<<<<< HEAD
 static struct nci_driver_ops *ops_cmd_lookup(struct nci_driver_ops *ops,
 					     size_t n_ops,
 					     __u16 opcode)
 {
 	size_t i;
 	struct nci_driver_ops *op;
+=======
+static const struct nci_driver_ops *ops_cmd_lookup(const struct nci_driver_ops *ops,
+						   size_t n_ops,
+						   __u16 opcode)
+{
+	size_t i;
+	const struct nci_driver_ops *op;
+>>>>>>> upstream/android-13
 
 	if (!ops || !n_ops)
 		return NULL;
@@ -1376,10 +1733,17 @@ static struct nci_driver_ops *ops_cmd_lookup(struct nci_driver_ops *ops,
 }
 
 static int nci_op_rsp_packet(struct nci_dev *ndev, __u16 rsp_opcode,
+<<<<<<< HEAD
 			     struct sk_buff *skb, struct nci_driver_ops *ops,
 			     size_t n_ops)
 {
 	struct nci_driver_ops *op;
+=======
+			     struct sk_buff *skb, const struct nci_driver_ops *ops,
+			     size_t n_ops)
+{
+	const struct nci_driver_ops *op;
+>>>>>>> upstream/android-13
 
 	op = ops_cmd_lookup(ops, n_ops, rsp_opcode);
 	if (!op || !op->rsp)
@@ -1389,10 +1753,17 @@ static int nci_op_rsp_packet(struct nci_dev *ndev, __u16 rsp_opcode,
 }
 
 static int nci_op_ntf_packet(struct nci_dev *ndev, __u16 ntf_opcode,
+<<<<<<< HEAD
 			     struct sk_buff *skb, struct nci_driver_ops *ops,
 			     size_t n_ops)
 {
 	struct nci_driver_ops *op;
+=======
+			     struct sk_buff *skb, const struct nci_driver_ops *ops,
+			     size_t n_ops)
+{
+	const struct nci_driver_ops *op;
+>>>>>>> upstream/android-13
 
 	op = ops_cmd_lookup(ops, n_ops, ntf_opcode);
 	if (!op || !op->ntf)
@@ -1434,7 +1805,11 @@ int nci_core_ntf_packet(struct nci_dev *ndev, __u16 opcode,
 static void nci_tx_work(struct work_struct *work)
 {
 	struct nci_dev *ndev = container_of(work, struct nci_dev, tx_work);
+<<<<<<< HEAD
 	struct nci_conn_info    *conn_info;
+=======
+	struct nci_conn_info *conn_info;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 
 	conn_info = nci_get_conn_info_by_conn_id(ndev, ndev->cur_conn_id);
@@ -1500,7 +1875,11 @@ static void nci_rx_work(struct work_struct *work)
 		}
 	}
 
+<<<<<<< HEAD
 	/* check if a data exchange timout has occurred */
+=======
+	/* check if a data exchange timeout has occurred */
+>>>>>>> upstream/android-13
 	if (test_bit(NCI_DATA_EXCHANGE_TO, &ndev->flags)) {
 		/* complete the data exchange transaction, if exists */
 		if (test_bit(NCI_DATA_EXCHANGE, &ndev->flags))

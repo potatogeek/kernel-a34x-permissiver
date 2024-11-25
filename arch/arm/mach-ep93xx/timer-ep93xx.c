@@ -117,6 +117,7 @@ static irqreturn_t ep93xx_timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction ep93xx_timer_irq = {
 	.name		= "ep93xx timer",
 	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
@@ -126,6 +127,13 @@ static struct irqaction ep93xx_timer_irq = {
 
 void __init ep93xx_timer_init(void)
 {
+=======
+void __init ep93xx_timer_init(void)
+{
+	int irq = IRQ_EP93XX_TIMER3;
+	unsigned long flags = IRQF_TIMER | IRQF_IRQPOLL;
+
+>>>>>>> upstream/android-13
 	/* Enable and register clocksource and sched_clock on timer 4 */
 	writel(EP93XX_TIMER4_VALUE_HIGH_ENABLE,
 	       EP93XX_TIMER4_VALUE_HIGH);
@@ -136,7 +144,13 @@ void __init ep93xx_timer_init(void)
 			     EP93XX_TIMER4_RATE);
 
 	/* Set up clockevent on timer 3 */
+<<<<<<< HEAD
 	setup_irq(IRQ_EP93XX_TIMER3, &ep93xx_timer_irq);
+=======
+	if (request_irq(irq, ep93xx_timer_interrupt, flags, "ep93xx timer",
+			&ep93xx_clockevent))
+		pr_err("Failed to request irq %d (ep93xx timer)\n", irq);
+>>>>>>> upstream/android-13
 	clockevents_config_and_register(&ep93xx_clockevent,
 					EP93XX_TIMER123_RATE,
 					1,

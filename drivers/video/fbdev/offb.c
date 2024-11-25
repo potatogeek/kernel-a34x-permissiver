@@ -141,6 +141,10 @@ static int offb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
 		/* Clear PALETTE_ACCESS_CNTL in DAC_CNTL */
 		out_le32(par->cmap_adr + 0x58,
 			 in_le32(par->cmap_adr + 0x58) & ~0x20);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case cmap_r128:
 		/* Set palette index & data */
 		out_8(par->cmap_adr + 0xb0, regno);
@@ -210,6 +214,10 @@ static int offb_blank(int blank, struct fb_info *info)
 				/* Clear PALETTE_ACCESS_CNTL in DAC_CNTL */
 				out_le32(par->cmap_adr + 0x58,
 					 in_le32(par->cmap_adr + 0x58) & ~0x20);
+<<<<<<< HEAD
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case cmap_r128:
 				/* Set palette index & data */
 				out_8(par->cmap_adr + 0xb0, i);
@@ -284,7 +292,11 @@ static void offb_destroy(struct fb_info *info)
 	framebuffer_release(info);
 }
 
+<<<<<<< HEAD
 static struct fb_ops offb_ops = {
+=======
+static const struct fb_ops offb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_destroy	= offb_destroy,
 	.fb_setcolreg	= offb_setcolreg,
@@ -318,6 +330,7 @@ static void __iomem *offb_map_reg(struct device_node *np, int index,
 }
 
 static void offb_init_palette_hacks(struct fb_info *info, struct device_node *dp,
+<<<<<<< HEAD
 				    const char *name, unsigned long address)
 {
 	struct offb_par *par = (struct offb_par *) info->par;
@@ -340,6 +353,30 @@ static void offb_init_palette_hacks(struct fb_info *info, struct device_node *dp
 		if (par->cmap_adr)
 			par->cmap_type = cmap_radeon;
 	} else if (!strncmp(name, "ATY,", 4)) {
+=======
+				    unsigned long address)
+{
+	struct offb_par *par = (struct offb_par *) info->par;
+
+	if (of_node_name_prefix(dp, "ATY,Rage128")) {
+		par->cmap_adr = offb_map_reg(dp, 2, 0, 0x1fff);
+		if (par->cmap_adr)
+			par->cmap_type = cmap_r128;
+	} else if (of_node_name_prefix(dp, "ATY,RageM3pA") ||
+		   of_node_name_prefix(dp, "ATY,RageM3p12A")) {
+		par->cmap_adr = offb_map_reg(dp, 2, 0, 0x1fff);
+		if (par->cmap_adr)
+			par->cmap_type = cmap_M3A;
+	} else if (of_node_name_prefix(dp, "ATY,RageM3pB")) {
+		par->cmap_adr = offb_map_reg(dp, 2, 0, 0x1fff);
+		if (par->cmap_adr)
+			par->cmap_type = cmap_M3B;
+	} else if (of_node_name_prefix(dp, "ATY,Rage6")) {
+		par->cmap_adr = offb_map_reg(dp, 1, 0, 0x1fff);
+		if (par->cmap_adr)
+			par->cmap_type = cmap_radeon;
+	} else if (of_node_name_prefix(dp, "ATY,")) {
+>>>>>>> upstream/android-13
 		unsigned long base = address & 0xff000000UL;
 		par->cmap_adr =
 			ioremap(base + 0x7ff000, 0x1000) + 0xcc0;
@@ -350,7 +387,11 @@ static void offb_init_palette_hacks(struct fb_info *info, struct device_node *dp
 		par->cmap_adr = offb_map_reg(dp, 0, 0x6000, 0x1000);
 		if (par->cmap_adr)
 			par->cmap_type = cmap_gxt2000;
+<<<<<<< HEAD
 	} else if (dp && !strncmp(name, "vga,Display-", 12)) {
+=======
+	} else if (of_node_name_prefix(dp, "vga,Display-")) {
+>>>>>>> upstream/android-13
 		/* Look for AVIVO initialized by SLOF */
 		struct device_node *pciparent = of_get_parent(dp);
 		const u32 *vid, *did;
@@ -419,9 +460,19 @@ static void __init offb_init_fb(const char *name,
 	var = &info->var;
 	info->par = par;
 
+<<<<<<< HEAD
 	strcpy(fix->id, "OFfb ");
 	strncat(fix->id, name, sizeof(fix->id) - sizeof("OFfb "));
 	fix->id[sizeof(fix->id) - 1] = '\0';
+=======
+	if (name) {
+		strcpy(fix->id, "OFfb ");
+		strncat(fix->id, name, sizeof(fix->id) - sizeof("OFfb "));
+		fix->id[sizeof(fix->id) - 1] = '\0';
+	} else
+		snprintf(fix->id, sizeof(fix->id), "OFfb %pOFn", dp);
+
+>>>>>>> upstream/android-13
 
 	var->xres = var->xres_virtual = width;
 	var->yres = var->yres_virtual = height;
@@ -434,7 +485,11 @@ static void __init offb_init_fb(const char *name,
 
 	par->cmap_type = cmap_unknown;
 	if (depth == 8)
+<<<<<<< HEAD
 		offb_init_palette_hacks(info, dp, name, address);
+=======
+		offb_init_palette_hacks(info, dp, address);
+>>>>>>> upstream/android-13
 	else
 		fix->visual = FB_VISUAL_TRUECOLOR;
 
@@ -642,9 +697,15 @@ static void __init offb_init_nodriver(struct device_node *dp, int no_real_node)
 		}
 #endif
 		/* kludge for valkyrie */
+<<<<<<< HEAD
 		if (strcmp(dp->name, "valkyrie") == 0)
 			address += 0x1000;
 		offb_init_fb(no_real_node ? "bootx" : dp->name,
+=======
+		if (of_node_name_eq(dp, "valkyrie"))
+			address += 0x1000;
+		offb_init_fb(no_real_node ? "bootx" : NULL,
+>>>>>>> upstream/android-13
 			     width, height, depth, pitch, address,
 			     foreign_endian, no_real_node ? NULL : dp);
 	}

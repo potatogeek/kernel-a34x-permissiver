@@ -73,7 +73,10 @@ struct cdrom_device_ops {
 	int (*drive_status) (struct cdrom_device_info *, int);
 	unsigned int (*check_events) (struct cdrom_device_info *cdi,
 				      unsigned int clearing, int slot);
+<<<<<<< HEAD
 	int (*media_changed) (struct cdrom_device_info *, int);
+=======
+>>>>>>> upstream/android-13
 	int (*tray_move) (struct cdrom_device_info *, int);
 	int (*lock_door) (struct cdrom_device_info *, int);
 	int (*select_speed) (struct cdrom_device_info *, int);
@@ -87,6 +90,7 @@ struct cdrom_device_ops {
 	/* play stuff */
 	int (*audio_ioctl) (struct cdrom_device_info *,unsigned int, void *);
 
+<<<<<<< HEAD
 /* driver specifications */
 	const int capability;   /* capability flags */
 	/* handle uniform packets for scsi type devices (scsi,atapi) */
@@ -94,6 +98,22 @@ struct cdrom_device_ops {
 			       struct packet_command *);
 };
 
+=======
+	/* handle uniform packets for scsi type devices (scsi,atapi) */
+	int (*generic_packet) (struct cdrom_device_info *,
+			       struct packet_command *);
+	int (*read_cdda_bpc)(struct cdrom_device_info *cdi, void __user *ubuf,
+			       u32 lba, u32 nframes, u8 *last_sense);
+/* driver specifications */
+	const int capability;   /* capability flags */
+};
+
+int cdrom_multisession(struct cdrom_device_info *cdi,
+		struct cdrom_multisession *info);
+int cdrom_read_tocentry(struct cdrom_device_info *cdi,
+		struct cdrom_tocentry *entry);
+
+>>>>>>> upstream/android-13
 /* the general block_device operations structure: */
 extern int cdrom_open(struct cdrom_device_info *cdi, struct block_device *bdev,
 			fmode_t mode);
@@ -102,9 +122,14 @@ extern int cdrom_ioctl(struct cdrom_device_info *cdi, struct block_device *bdev,
 		       fmode_t mode, unsigned int cmd, unsigned long arg);
 extern unsigned int cdrom_check_events(struct cdrom_device_info *cdi,
 				       unsigned int clearing);
+<<<<<<< HEAD
 extern int cdrom_media_changed(struct cdrom_device_info *);
 
 extern int register_cdrom(struct cdrom_device_info *cdi);
+=======
+
+extern int register_cdrom(struct gendisk *disk, struct cdrom_device_info *cdi);
+>>>>>>> upstream/android-13
 extern void unregister_cdrom(struct cdrom_device_info *cdi);
 
 typedef struct {

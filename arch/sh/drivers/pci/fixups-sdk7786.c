@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SDK7786 FPGA PCIe mux handling
  *
  * Copyright (C) 2010  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) "PCI: " fmt
 
@@ -56,7 +63,11 @@ static int __init sdk7786_pci_init(void)
 
 		/* Warn about forced rerouting if slot#3 is occupied */
 		if ((data & PCIECR_PRST3) == 0) {
+<<<<<<< HEAD
 			pr_warning("Unreachable card detected in slot#3\n");
+=======
+			pr_warn("Unreachable card detected in slot#3\n");
+>>>>>>> upstream/android-13
 			return -EBUSY;
 		}
 	} else

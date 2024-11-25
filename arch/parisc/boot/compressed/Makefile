@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # linux/arch/parisc/boot/compressed/Makefile
 #
@@ -11,10 +15,19 @@ UBSAN_SANITIZE := n
 targets := vmlinux.lds vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2
 targets += vmlinux.bin.xz vmlinux.bin.lzma vmlinux.bin.lzo vmlinux.bin.lz4
 targets += misc.o piggy.o sizes.h head.o real2.o firmware.o
+<<<<<<< HEAD
 
 KBUILD_CFLAGS := -D__KERNEL__ -O2 -DBOOTLOADER
 KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
 KBUILD_CFLAGS += $(cflags-y) -fno-delete-null-pointer-checks
+=======
+targets += real2.S firmware.c
+
+KBUILD_CFLAGS := -D__KERNEL__ -O2 -DBOOTLOADER
+KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
+KBUILD_CFLAGS += -fno-strict-aliasing
+KBUILD_CFLAGS += $(cflags-y) -fno-delete-null-pointer-checks -fno-builtin-printf
+>>>>>>> upstream/android-13
 KBUILD_CFLAGS += -fno-PIE -mno-space-regs -mdisable-fpregs -Os
 ifndef CONFIG_64BIT
 KBUILD_CFLAGS += -mfast-indirect-calls
@@ -22,9 +35,14 @@ endif
 
 OBJECTS += $(obj)/head.o $(obj)/real2.o $(obj)/firmware.o $(obj)/misc.o $(obj)/piggy.o
 
+<<<<<<< HEAD
 # LDFLAGS_vmlinux := -X --whole-archive -e startup -T
 LDFLAGS_vmlinux := -X -e startup --as-needed -T
 $(obj)/vmlinux: $(obj)/vmlinux.lds $(OBJECTS) $(LIBGCC)
+=======
+LDFLAGS_vmlinux := -X -e startup --as-needed -T
+$(obj)/vmlinux: $(obj)/vmlinux.lds $(OBJECTS) $(LIBGCC) FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,ld)
 
 sed-sizes := -e 's/^\([0-9a-fA-F]*\) . \(__bss_start\|_end\|parisc_kernel_start\)$$/\#define SZ\2 0x\1/p'
@@ -32,7 +50,11 @@ sed-sizes := -e 's/^\([0-9a-fA-F]*\) . \(__bss_start\|_end\|parisc_kernel_start\
 quiet_cmd_sizes = GEN $@
       cmd_sizes = $(NM) $< | sed -n $(sed-sizes) > $@
 
+<<<<<<< HEAD
 $(obj)/sizes.h: vmlinux
+=======
+$(obj)/sizes.h: vmlinux FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,sizes)
 
 AFLAGS_head.o += -I$(objtree)/$(obj) -DBOOTLOADER
@@ -55,8 +77,13 @@ $(obj)/misc.o: $(obj)/sizes.h
 CPPFLAGS_vmlinux.lds += -I$(objtree)/$(obj) -DBOOTLOADER
 $(obj)/vmlinux.lds: $(obj)/sizes.h
 
+<<<<<<< HEAD
 OBJCOPYFLAGS_vmlinux.bin := -O binary -R .comment -S
 $(obj)/vmlinux.bin: vmlinux
+=======
+OBJCOPYFLAGS_vmlinux.bin := -R .comment -R .note -S
+$(obj)/vmlinux.bin: vmlinux FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,objcopy)
 
 vmlinux.bin.all-y := $(obj)/vmlinux.bin
@@ -68,6 +95,7 @@ suffix-$(CONFIG_KERNEL_LZMA)  := lzma
 suffix-$(CONFIG_KERNEL_LZO)  := lzo
 suffix-$(CONFIG_KERNEL_XZ)  := xz
 
+<<<<<<< HEAD
 $(obj)/vmlinux.bin.gz: $(vmlinux.bin.all-y)
 	$(call if_changed,gzip)
 $(obj)/vmlinux.bin.bz2: $(vmlinux.bin.all-y)
@@ -83,4 +111,21 @@ $(obj)/vmlinux.bin.xz: $(vmlinux.bin.all-y)
 
 LDFLAGS_piggy.o := -r --format binary --oformat $(LD_BFD) -T
 $(obj)/piggy.o: $(obj)/vmlinux.scr $(obj)/vmlinux.bin.$(suffix-y)
+=======
+$(obj)/vmlinux.bin.gz: $(vmlinux.bin.all-y) FORCE
+	$(call if_changed,gzip)
+$(obj)/vmlinux.bin.bz2: $(vmlinux.bin.all-y) FORCE
+	$(call if_changed,bzip2)
+$(obj)/vmlinux.bin.lz4: $(vmlinux.bin.all-y) FORCE
+	$(call if_changed,lz4)
+$(obj)/vmlinux.bin.lzma: $(vmlinux.bin.all-y) FORCE
+	$(call if_changed,lzma)
+$(obj)/vmlinux.bin.lzo: $(vmlinux.bin.all-y) FORCE
+	$(call if_changed,lzo)
+$(obj)/vmlinux.bin.xz: $(vmlinux.bin.all-y) FORCE
+	$(call if_changed,xzkern)
+
+LDFLAGS_piggy.o := -r --format binary --oformat $(LD_BFD) -T
+$(obj)/piggy.o: $(obj)/vmlinux.scr $(obj)/vmlinux.bin.$(suffix-y) FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,ld)

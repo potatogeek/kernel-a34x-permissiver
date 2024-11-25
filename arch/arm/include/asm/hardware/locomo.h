@@ -188,7 +188,11 @@ struct locomo_driver {
 	struct device_driver	drv;
 	unsigned int		devid;
 	int (*probe)(struct locomo_dev *);
+<<<<<<< HEAD
 	int (*remove)(struct locomo_dev *);
+=======
+	void (*remove)(struct locomo_dev *);
+>>>>>>> upstream/android-13
 };
 
 #define LOCOMO_DRV(_d)	container_of((_d), struct locomo_driver, drv)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI Offload Driver
  * Copyright (c) 2016 Cavium Inc.
@@ -5,6 +6,12 @@
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic iSCSI Offload Driver
+ * Copyright (c) 2016 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QEDI_ISCSI_H_
@@ -83,6 +90,10 @@ struct qedi_endpoint {
 	u32 handle;
 	u32 fw_cid;
 	void __iomem *p_doorbell;
+<<<<<<< HEAD
+=======
+	struct iscsi_db_data db_data;
+>>>>>>> upstream/android-13
 
 	/* Send queue management */
 	struct iscsi_wqe *sq;
@@ -152,6 +163,10 @@ struct qedi_conn {
 	struct iscsi_cls_conn *cls_conn;
 	struct qedi_ctx *qedi;
 	struct qedi_endpoint *ep;
+<<<<<<< HEAD
+=======
+	struct iscsi_endpoint *iscsi_ep;
+>>>>>>> upstream/android-13
 	struct list_head active_cmd_list;
 	spinlock_t list_lock;		/* internal conn lock */
 	u32 active_cmd_count;
@@ -171,8 +186,13 @@ struct qedi_conn {
 	struct list_head tmf_work_list;
 	wait_queue_head_t wait_queue;
 	spinlock_t tmf_work_lock;	/* tmf work lock */
+<<<<<<< HEAD
 	unsigned long flags;
 #define QEDI_CONN_FW_CLEANUP	1
+=======
+	bool ep_disconnect_starting;
+	int fw_cleanup_works;
+>>>>>>> upstream/android-13
 };
 
 struct qedi_cmd {
@@ -214,6 +234,10 @@ struct qedi_cmd {
 struct qedi_work_map {
 	struct list_head list;
 	struct qedi_cmd *qedi_cmd;
+<<<<<<< HEAD
+=======
+	struct iscsi_task *ctask;
+>>>>>>> upstream/android-13
 	int rtid;
 
 	int state;

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * vt8500-bv07.dts - Device tree file for Benign BV07 Netbook
  *
  * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later
+=======
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;

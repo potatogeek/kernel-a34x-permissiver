@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI Offload Driver
  * Copyright (c) 2016 Cavium Inc.
@@ -5,6 +6,12 @@
  * This software is available under the terms of the GNU General Public License
  * (GPL) Version 2, available from the file COPYING in the main directory of
  * this source tree.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * QLogic iSCSI Offload Driver
+ * Copyright (c) 2016 Cavium Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _QEDI_H_
@@ -39,13 +46,21 @@ struct qedi_endpoint;
  */
 #define QEDI_MODE_NORMAL	0
 #define QEDI_MODE_RECOVERY	1
+<<<<<<< HEAD
+=======
+#define QEDI_MODE_SHUTDOWN	2
+>>>>>>> upstream/android-13
 
 #define ISCSI_WQE_SET_PTU_INVALIDATE	1
 #define QEDI_MAX_ISCSI_TASK		4096
 #define QEDI_MAX_TASK_NUM		0x0FFF
 #define QEDI_MAX_ISCSI_CONNS_PER_HBA	1024
 #define QEDI_ISCSI_MAX_BDS_PER_CMD	255	/* Firmware max BDs is 255 */
+<<<<<<< HEAD
 #define MAX_OUSTANDING_TASKS_PER_CON	1024
+=======
+#define MAX_OUTSTANDING_TASKS_PER_CON	1024
+>>>>>>> upstream/android-13
 
 #define QEDI_MAX_BD_LEN		0xffff
 #define QEDI_BD_SPLIT_SZ	0x1000
@@ -63,12 +78,18 @@ struct qedi_endpoint;
 #define QEDI_LOCAL_PORT_INVALID	0xffff
 #define TX_RX_RING		16
 #define RX_RING			(TX_RX_RING - 1)
+<<<<<<< HEAD
 #define LL2_SINGLE_BUF_SIZE	0x400
 #define QEDI_PAGE_SIZE		4096
 #define QEDI_PAGE_ALIGN(addr)	ALIGN(addr, QEDI_PAGE_SIZE)
 #define QEDI_PAGE_MASK		(~((QEDI_PAGE_SIZE) - 1))
 
 #define QEDI_PAGE_SIZE		4096
+=======
+#define QEDI_PAGE_ALIGN(addr)	ALIGN(addr, QEDI_PAGE_SIZE)
+#define QEDI_PAGE_MASK		(~((QEDI_PAGE_SIZE) - 1))
+
+>>>>>>> upstream/android-13
 #define QEDI_HW_DMA_BOUNDARY	0xfff
 #define QEDI_PATH_HANDLE	0xFE0000000UL
 
@@ -146,7 +167,11 @@ struct skb_work_list {
 };
 
 /* Queue sizes in number of elements */
+<<<<<<< HEAD
 #define QEDI_SQ_SIZE		MAX_OUSTANDING_TASKS_PER_CON
+=======
+#define QEDI_SQ_SIZE		MAX_OUTSTANDING_TASKS_PER_CON
+>>>>>>> upstream/android-13
 #define QEDI_CQ_SIZE		2048
 #define QEDI_CMDQ_SIZE		QEDI_MAX_ISCSI_TASK
 #define QEDI_PROTO_CQ_PROD_IDX	0
@@ -279,11 +304,23 @@ struct qedi_ctx {
 	spinlock_t ll2_lock;	/* Light L2 lock */
 	spinlock_t hba_lock;	/* per port lock */
 	struct task_struct *ll2_recv_thread;
+<<<<<<< HEAD
+=======
+	unsigned long qedi_err_flags;
+#define QEDI_ERR_ATTN_CLR_EN	0
+#define QEDI_ERR_IS_RECOVERABLE	2
+#define QEDI_ERR_OVERRIDE_EN	31
+>>>>>>> upstream/android-13
 	unsigned long flags;
 #define UIO_DEV_OPENED		1
 #define QEDI_IOTHREAD_WAKE	2
 #define QEDI_IN_RECOVERY	5
 #define QEDI_IN_OFFLINE		6
+<<<<<<< HEAD
+=======
+#define QEDI_IN_SHUTDOWN	7
+#define QEDI_BLOCK_IO		8
+>>>>>>> upstream/android-13
 
 	u8 mac[ETH_ALEN];
 	u32 src_ip[4];
@@ -309,6 +346,10 @@ struct qedi_ctx {
 	u32 max_sqes;
 	u8 num_queues;
 	u32 max_active_conns;
+<<<<<<< HEAD
+=======
+	s32 msix_count;
+>>>>>>> upstream/android-13
 
 	struct iscsi_cid_queue cid_que;
 	struct qedi_endpoint **ep_tbl;
@@ -337,6 +378,11 @@ struct qedi_ctx {
 	u16 ll2_mtu;
 
 	struct workqueue_struct *dpc_wq;
+<<<<<<< HEAD
+=======
+	struct delayed_work recovery_work;
+	struct delayed_work board_disable_work;
+>>>>>>> upstream/android-13
 
 	spinlock_t task_idx_lock;	/* To protect gbl context */
 	s32 last_tidx_alloc;

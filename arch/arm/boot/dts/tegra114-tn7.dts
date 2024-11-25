@@ -37,7 +37,11 @@
 		dsi@54300000 {
 			status = "okay";
 
+<<<<<<< HEAD
 			vdd-supply = <&vdd_1v2_ap>;
+=======
+			avdd-dsi-csi-supply = <&vdd_1v2_ap>;
+>>>>>>> upstream/android-13
 
 			panel@0 {
 				compatible = "lg,ld070wx3-sl01";
@@ -242,7 +246,11 @@
 	};
 
 	/* eMMC */
+<<<<<<< HEAD
 	sdhci@78000600 {
+=======
+	mmc@78000600 {
+>>>>>>> upstream/android-13
 		status = "okay";
 		bus-width = <8>;
 		non-removable;
@@ -273,6 +281,7 @@
 		power-supply = <&lcd_bl_en>;
 	};
 
+<<<<<<< HEAD
 	clocks {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -284,6 +293,12 @@
 			#clock-cells = <0>;
 			clock-frequency = <32768>;
 		};
+=======
+	clk32k_in: clock@0 {
+		compatible = "fixed-clock";
+		clock-frequency = <32768>;
+		#clock-cells = <0>;
+>>>>>>> upstream/android-13
 	};
 
 	gpio-keys {
@@ -309,6 +324,7 @@
 		};
 	};
 
+<<<<<<< HEAD
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -348,5 +364,37 @@
 			vin-supply = <&vdd_1v8>;
 			regulator-boot-on;
 		};
+=======
+	/* FIXME: output of BQ24192 */
+	vs_sys: regulator@0 {
+		compatible = "regulator-fixed";
+		regulator-name = "VS_SYS";
+		regulator-min-microvolt = <4200000>;
+		regulator-max-microvolt = <4200000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	lcd_bl_en: regulator@1 {
+		compatible = "regulator-fixed";
+		regulator-name = "VDD_LCD_BL";
+		regulator-min-microvolt = <16500000>;
+		regulator-max-microvolt = <16500000>;
+		gpio = <&gpio TEGRA_GPIO(H, 2) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&vs_sys>;
+		regulator-boot-on;
+	};
+
+	vdd_lcd: regulator@2 {
+		compatible = "regulator-fixed";
+		regulator-name = "VD_LCD_1V8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&palmas_gpio 4 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&vdd_1v8>;
+		regulator-boot-on;
+>>>>>>> upstream/android-13
 	};
 };

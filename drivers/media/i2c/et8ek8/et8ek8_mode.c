@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * et8ek8_mode.c
  *
@@ -5,6 +9,7 @@
  *
  * Contact: Sakari Ailus <sakari.ailus@iki.fi>
  *          Tuukka Toivonen <tuukkat76@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,6 +19,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "et8ek8_reg.h"
@@ -79,7 +86,11 @@ static struct et8ek8_reglist mode1_poweron_mode2_16vga_2592x1968_12_07fps = {
 		{ ET8EK8_REG_8BIT, 0x1258, 0x00 },
 		/* From parallel out to serial out */
 		{ ET8EK8_REG_8BIT, 0x125D, 0x88 },
+<<<<<<< HEAD
 		/* From w/ embeded data to w/o embeded data */
+=======
+		/* From w/ embedded data to w/o embedded data */
+>>>>>>> upstream/android-13
 		{ ET8EK8_REG_8BIT, 0x125E, 0xC0 },
 		/* CCP2 out is from STOP to ACTIVE */
 		{ ET8EK8_REG_8BIT, 0x1263, 0x98 },

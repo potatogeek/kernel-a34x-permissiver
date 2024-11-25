@@ -3,7 +3,11 @@
  *
  * Module Name: nsarguments - Validation of args for ACPI predefined methods
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -55,7 +59,13 @@ void acpi_ns_check_argument_types(struct acpi_evaluate_info *info)
 		arg_type = METHOD_GET_NEXT_TYPE(arg_type_list);
 		user_arg_type = info->parameters[i]->common.type;
 
+<<<<<<< HEAD
 		if (user_arg_type != arg_type) {
+=======
+		/* No typechecking for ACPI_TYPE_ANY */
+
+		if ((user_arg_type != arg_type) && (arg_type != ACPI_TYPE_ANY)) {
+>>>>>>> upstream/android-13
 			ACPI_WARN_PREDEFINED((AE_INFO, info->full_pathname,
 					      ACPI_WARN_ALWAYS,
 					      "Argument #%u type mismatch - "

@@ -311,6 +311,7 @@ __acquires(musb->lock)
 						goto stall;
 
 					switch (ctrlrequest->wIndex >> 8) {
+<<<<<<< HEAD
 					case 1:
 						pr_debug("TEST_J\n");
 						/* TEST_J */
@@ -332,6 +333,25 @@ __acquires(musb->lock)
 					case 4:
 						/* TEST_PACKET */
 						pr_debug("TEST_PACKET\n");
+=======
+					case USB_TEST_J:
+						pr_debug("USB_TEST_J\n");
+						musb->test_mode_nr =
+							MUSB_TEST_J;
+						break;
+					case USB_TEST_K:
+						pr_debug("USB_TEST_K\n");
+						musb->test_mode_nr =
+							MUSB_TEST_K;
+						break;
+					case USB_TEST_SE0_NAK:
+						pr_debug("USB_TEST_SE0_NAK\n");
+						musb->test_mode_nr =
+							MUSB_TEST_SE0_NAK;
+						break;
+					case USB_TEST_PACKET:
+						pr_debug("USB_TEST_PACKET\n");
+>>>>>>> upstream/android-13
 						musb->test_mode_nr =
 							MUSB_TEST_PACKET;
 						break;
@@ -739,7 +759,11 @@ irqreturn_t musb_g_ep0_irq(struct musb *musb)
 			musb_writeb(mbase, MUSB_TESTMODE,
 					musb->test_mode_nr);
 		}
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case MUSB_EP0_STAGE_STATUSOUT:
 		/* end of sequence #1: write to host (TX state) */
@@ -771,7 +795,11 @@ irqreturn_t musb_g_ep0_irq(struct musb *musb)
 		 */
 		retval = IRQ_HANDLED;
 		musb->ep0_state = MUSB_EP0_STAGE_SETUP;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case MUSB_EP0_STAGE_SETUP:
 setup:
@@ -1028,7 +1056,11 @@ static int musb_g_ep0_halt(struct usb_ep *e, int value)
 	case MUSB_EP0_STAGE_ACKWAIT:	/* STALL for zero-length data */
 	case MUSB_EP0_STAGE_RX:		/* control-OUT data */
 		csr = musb_readw(regs, MUSB_CSR0);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/* It's also OK to issue stalls during callbacks when a non-empty
 	 * DATA stage buffer has been read (or even written).

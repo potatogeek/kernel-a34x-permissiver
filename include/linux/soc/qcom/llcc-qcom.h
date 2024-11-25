@@ -16,6 +16,10 @@
 #define LLCC_AUDIO       6
 #define LLCC_MDMHPGRW    7
 #define LLCC_MDM         8
+<<<<<<< HEAD
+=======
+#define LLCC_MODHW       9
+>>>>>>> upstream/android-13
 #define LLCC_CMPT        10
 #define LLCC_GPUHTW      11
 #define LLCC_GPU         12
@@ -26,9 +30,21 @@
 #define LLCC_MDMHPFX     20
 #define LLCC_MDMPNG      21
 #define LLCC_AUDHW       22
+<<<<<<< HEAD
 
 /**
  * llcc_slice_desc - Cache slice descriptor
+=======
+#define LLCC_NPU         23
+#define LLCC_WLHW        24
+#define LLCC_CVP         28
+#define LLCC_MODPE       29
+#define LLCC_APTCM       30
+#define LLCC_WRCACHE     31
+
+/**
+ * struct llcc_slice_desc - Cache slice descriptor
+>>>>>>> upstream/android-13
  * @slice_id: llcc slice id
  * @slice_size: Size allocated for the llcc slice
  */
@@ -38,6 +54,7 @@ struct llcc_slice_desc {
 };
 
 /**
+<<<<<<< HEAD
  * llcc_slice_config - Data associated with the llcc slice
  * @usecase_id: usecase id for which the llcc slice is used
  * @slice_id: llcc slice id assigned to each slice
@@ -70,10 +87,40 @@ struct llcc_slice_config {
 /**
  * llcc_drv_data - Data associated with the llcc driver
  * @regmap: regmap associated with the llcc device
+=======
+ * struct llcc_edac_reg_data - llcc edac registers data for each error type
+ * @name: Name of the error
+ * @synd_reg: Syndrome register address
+ * @count_status_reg: Status register address to read the error count
+ * @ways_status_reg: Status register address to read the error ways
+ * @reg_cnt: Number of registers
+ * @count_mask: Mask value to get the error count
+ * @ways_mask: Mask value to get the error ways
+ * @count_shift: Shift value to get the error count
+ * @ways_shift: Shift value to get the error ways
+ */
+struct llcc_edac_reg_data {
+	char *name;
+	u64 synd_reg;
+	u64 count_status_reg;
+	u64 ways_status_reg;
+	u32 reg_cnt;
+	u32 count_mask;
+	u32 ways_mask;
+	u8  count_shift;
+	u8  ways_shift;
+};
+
+/**
+ * struct llcc_drv_data - Data associated with the llcc driver
+ * @regmap: regmap associated with the llcc device
+ * @bcast_regmap: regmap associated with llcc broadcast offset
+>>>>>>> upstream/android-13
  * @cfg: pointer to the data structure for slice configuration
  * @lock: mutex associated with each slice
  * @cfg_size: size of the config data table
  * @max_slices: max slices as read from device tree
+<<<<<<< HEAD
  * @bcast_off: Offset of the broadcast bank
  * @num_banks: Number of llcc banks
  * @bitmap: Bit map to track the active slice ids
@@ -81,14 +128,33 @@ struct llcc_slice_config {
  */
 struct llcc_drv_data {
 	struct regmap *regmap;
+=======
+ * @num_banks: Number of llcc banks
+ * @bitmap: Bit map to track the active slice ids
+ * @offsets: Pointer to the bank offsets array
+ * @ecc_irq: interrupt for llcc cache error detection and reporting
+ * @major_version: Indicates the LLCC major version
+ */
+struct llcc_drv_data {
+	struct regmap *regmap;
+	struct regmap *bcast_regmap;
+>>>>>>> upstream/android-13
 	const struct llcc_slice_config *cfg;
 	struct mutex lock;
 	u32 cfg_size;
 	u32 max_slices;
+<<<<<<< HEAD
 	u32 bcast_off;
 	u32 num_banks;
 	unsigned long *bitmap;
 	u32 *offsets;
+=======
+	u32 num_banks;
+	unsigned long *bitmap;
+	u32 *offsets;
+	int ecc_irq;
+	u32 major_version;
+>>>>>>> upstream/android-13
 };
 
 #if IS_ENABLED(CONFIG_QCOM_LLCC)
@@ -128,6 +194,7 @@ int llcc_slice_activate(struct llcc_slice_desc *desc);
  */
 int llcc_slice_deactivate(struct llcc_slice_desc *desc);
 
+<<<<<<< HEAD
 /**
  * qcom_llcc_probe - program the sct table
  * @pdev: platform device pointer
@@ -136,6 +203,8 @@ int llcc_slice_deactivate(struct llcc_slice_desc *desc);
  */
 int qcom_llcc_probe(struct platform_device *pdev,
 		      const struct llcc_slice_config *table, u32 sz);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline struct llcc_slice_desc *llcc_slice_getd(u32 uid)
 {
@@ -165,6 +234,7 @@ static inline int llcc_slice_deactivate(struct llcc_slice_desc *desc)
 {
 	return -EINVAL;
 }
+<<<<<<< HEAD
 static inline int qcom_llcc_probe(struct platform_device *pdev,
 		      const struct llcc_slice_config *table, u32 sz)
 {
@@ -175,6 +245,8 @@ static inline int qcom_llcc_remove(struct platform_device *pdev)
 {
 	return -ENODEV;
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #endif

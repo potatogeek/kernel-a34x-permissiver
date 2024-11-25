@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* bbc_i2c.c: I2C low-level driver for BBC device on UltraSPARC-III
  *            platforms.
  *

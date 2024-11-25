@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mt65xx pinctrl driver based on Allwinner A1X pinctrl driver.
  * Copyright (c) 2014 MediaTek Inc.
  * Author: Hongzhou.Yang <hongzhou.yang@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -41,7 +48,10 @@
 #include "mtk-eint.h"
 #include "pinctrl-mtk-common.h"
 
+<<<<<<< HEAD
 #define MAX_GPIO_MODE_PER_REG 5
+=======
+>>>>>>> upstream/android-13
 #define GPIO_MODE_BITS        3
 #define GPIO_MODE_PREFIX "GPIO"
 
@@ -69,7 +79,11 @@ static struct regmap *mtk_get_regmap(struct mtk_pinctrl *pctl,
 static unsigned int mtk_get_port(struct mtk_pinctrl *pctl, unsigned long pin)
 {
 	/* Different SoC has different mask and port shift. */
+<<<<<<< HEAD
 	return ((pin >> 4) & pctl->devdata->port_mask)
+=======
+	return ((pin >> pctl->devdata->mode_shf) & pctl->devdata->port_mask)
+>>>>>>> upstream/android-13
 			<< pctl->devdata->port_shf;
 }
 
@@ -82,7 +96,11 @@ static int mtk_pmx_gpio_set_direction(struct pinctrl_dev *pctldev,
 	struct mtk_pinctrl *pctl = pinctrl_dev_get_drvdata(pctldev);
 
 	reg_addr = mtk_get_port(pctl, offset) + pctl->devdata->dir_offset;
+<<<<<<< HEAD
 	bit = BIT(offset & 0xf);
+=======
+	bit = BIT(offset & pctl->devdata->mode_mask);
+>>>>>>> upstream/android-13
 
 	if (pctl->devdata->spec_dir_set)
 		pctl->devdata->spec_dir_set(&reg_addr, offset);
@@ -104,7 +122,11 @@ static void mtk_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
 	struct mtk_pinctrl *pctl = gpiochip_get_data(chip);
 
 	reg_addr = mtk_get_port(pctl, offset) + pctl->devdata->dout_offset;
+<<<<<<< HEAD
 	bit = BIT(offset & 0xf);
+=======
+	bit = BIT(offset & pctl->devdata->mode_mask);
+>>>>>>> upstream/android-13
 
 	if (value)
 		reg_addr = SET_ADDR(reg_addr, pctl);
@@ -143,13 +165,21 @@ static int mtk_pconf_set_ies_smt(struct mtk_pinctrl *pctl, unsigned pin,
 			pin, pctl->devdata->port_align, value, arg);
 	}
 
+<<<<<<< HEAD
 	bit = BIT(pin & 0xf);
 
+=======
+>>>>>>> upstream/android-13
 	if (arg == PIN_CONFIG_INPUT_ENABLE)
 		offset = pctl->devdata->ies_offset;
 	else
 		offset = pctl->devdata->smt_offset;
 
+<<<<<<< HEAD
+=======
+	bit = BIT(offset & pctl->devdata->mode_mask);
+
+>>>>>>> upstream/android-13
 	if (value)
 		reg_addr = SET_ADDR(mtk_get_port(pctl, pin) + offset, pctl);
 	else
@@ -319,7 +349,11 @@ static int mtk_pconf_set_pull_select(struct mtk_pinctrl *pctl,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	bit = BIT(pin & 0xf);
+=======
+	bit = BIT(pin & pctl->devdata->mode_mask);
+>>>>>>> upstream/android-13
 	if (enable)
 		reg_pullen = SET_ADDR(mtk_get_port(pctl, pin) +
 			pctl->devdata->pullen_offset, pctl);
@@ -514,8 +548,13 @@ static int mtk_pctrl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
 
 	pins = of_find_property(node, "pinmux", NULL);
 	if (!pins) {
+<<<<<<< HEAD
 		dev_err(pctl->dev, "missing pins property in node %s .\n",
 				node->name);
+=======
+		dev_err(pctl->dev, "missing pins property in node %pOFn .\n",
+				node);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -691,11 +730,19 @@ static int mtk_pmx_set_mode(struct pinctrl_dev *pctldev,
 		pctl->devdata->spec_pinmux_set(mtk_get_regmap(pctl, pin),
 					pin, mode);
 
+<<<<<<< HEAD
 	reg_addr = ((pin / MAX_GPIO_MODE_PER_REG) << pctl->devdata->port_shf)
 			+ pctl->devdata->pinmux_offset;
 
 	mode &= mask;
 	bit = pin % MAX_GPIO_MODE_PER_REG;
+=======
+	reg_addr = ((pin / pctl->devdata->mode_per_reg) << pctl->devdata->port_shf)
+			+ pctl->devdata->pinmux_offset;
+
+	mode &= mask;
+	bit = pin % pctl->devdata->mode_per_reg;
+>>>>>>> upstream/android-13
 	mask <<= (GPIO_MODE_BITS * bit);
 	val = (mode << (GPIO_MODE_BITS * bit));
 	return regmap_update_bits(mtk_get_regmap(pctl, pin),
@@ -806,13 +853,24 @@ static int mtk_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 	struct mtk_pinctrl *pctl = gpiochip_get_data(chip);
 
 	reg_addr =  mtk_get_port(pctl, offset) + pctl->devdata->dir_offset;
+<<<<<<< HEAD
 	bit = BIT(offset & 0xf);
+=======
+	bit = BIT(offset & pctl->devdata->mode_mask);
+>>>>>>> upstream/android-13
 
 	if (pctl->devdata->spec_dir_set)
 		pctl->devdata->spec_dir_set(&reg_addr, offset);
 
 	regmap_read(pctl->regmap1, reg_addr, &read_val);
+<<<<<<< HEAD
 	return !(read_val & bit);
+=======
+	if (read_val & bit)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int mtk_gpio_get(struct gpio_chip *chip, unsigned offset)
@@ -825,7 +883,11 @@ static int mtk_gpio_get(struct gpio_chip *chip, unsigned offset)
 	reg_addr = mtk_get_port(pctl, offset) +
 		pctl->devdata->din_offset;
 
+<<<<<<< HEAD
 	bit = BIT(offset & 0xf);
+=======
+	bit = BIT(offset & pctl->devdata->mode_mask);
+>>>>>>> upstream/android-13
 	regmap_read(pctl->regmap1, reg_addr, &read_val);
 	return !!(read_val & bit);
 }
@@ -990,7 +1052,10 @@ static const struct mtk_eint_xt mtk_eint_xt = {
 static int mtk_eint_init(struct mtk_pinctrl *pctl, struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 
 	if (!of_property_read_bool(np, "interrupt-controller"))
 		return -ENODEV;
@@ -999,8 +1064,12 @@ static int mtk_eint_init(struct mtk_pinctrl *pctl, struct platform_device *pdev)
 	if (!pctl->eint)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pctl->eint->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	pctl->eint->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pctl->eint->base))
 		return PTR_ERR(pctl->eint->base);
 
@@ -1046,6 +1115,10 @@ int mtk_pctrl_init(struct platform_device *pdev,
 	node = of_parse_phandle(np, "mediatek,pctl-regmap", 0);
 	if (node) {
 		pctl->regmap1 = syscon_node_to_regmap(node);
+<<<<<<< HEAD
+=======
+		of_node_put(node);
+>>>>>>> upstream/android-13
 		if (IS_ERR(pctl->regmap1))
 			return PTR_ERR(pctl->regmap1);
 	} else if (regmap) {
@@ -1059,6 +1132,10 @@ int mtk_pctrl_init(struct platform_device *pdev,
 	node = of_parse_phandle(np, "mediatek,pctl-regmap", 1);
 	if (node) {
 		pctl->regmap2 = syscon_node_to_regmap(node);
+<<<<<<< HEAD
+=======
+		of_node_put(node);
+>>>>>>> upstream/android-13
 		if (IS_ERR(pctl->regmap2))
 			return PTR_ERR(pctl->regmap2);
 	}

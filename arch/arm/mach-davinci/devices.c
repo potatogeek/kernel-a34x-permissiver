@@ -1,21 +1,35 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * mach-davinci/devices.c
  *
  * DaVinci platform device setup/initialization
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/platform_data/i2c-davinci.h>
+#include <linux/platform_data/mmc-davinci.h>
+#include <linux/platform_data/edma.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 #include <linux/io.h>
 #include <linux/reboot.h>
 
 #include <mach/hardware.h>
+<<<<<<< HEAD
 #include <linux/platform_data/i2c-davinci.h>
 #include <mach/irqs.h>
 #include <mach/cputype.h>
@@ -26,6 +40,13 @@
 
 
 #include "davinci.h"
+=======
+#include <mach/cputype.h>
+#include <mach/mux.h>
+
+#include "davinci.h"
+#include "irqs.h"
+>>>>>>> upstream/android-13
 
 #define DAVINCI_I2C_BASE	     0x01C21000
 #define DAVINCI_ATA_BASE	     0x01C66000
@@ -39,7 +60,11 @@ void __iomem  *davinci_sysmod_base;
 
 void davinci_map_sysmod(void)
 {
+<<<<<<< HEAD
 	davinci_sysmod_base = ioremap_nocache(DAVINCI_SYSTEM_MODULE_BASE,
+=======
+	davinci_sysmod_base = ioremap(DAVINCI_SYSTEM_MODULE_BASE,
+>>>>>>> upstream/android-13
 					      0x800);
 	/*
 	 * Throw a bug since a lot of board initialization code depends
@@ -56,7 +81,11 @@ static struct resource i2c_resources[] = {
 		.flags		= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start		= IRQ_I2C,
+=======
+		.start		= DAVINCI_INTC_IRQ(IRQ_I2C),
+>>>>>>> upstream/android-13
 		.flags		= IORESOURCE_IRQ,
 	},
 };
@@ -84,8 +113,13 @@ static struct resource ide_resources[] = {
 		.flags		= IORESOURCE_MEM,
 	},
 	{
+<<<<<<< HEAD
 		.start		= IRQ_IDE,
 		.end		= IRQ_IDE,
+=======
+		.start		= DAVINCI_INTC_IRQ(IRQ_IDE),
+		.end		= DAVINCI_INTC_IRQ(IRQ_IDE),
+>>>>>>> upstream/android-13
 		.flags		= IORESOURCE_IRQ,
 	},
 };
@@ -133,11 +167,19 @@ static struct resource mmcsd0_resources[] = {
 	},
 	/* IRQs:  MMC/SD, then SDIO */
 	{
+<<<<<<< HEAD
 		.start = IRQ_MMCINT,
 		.flags = IORESOURCE_IRQ,
 	}, {
 		/* different on dm355 */
 		.start = IRQ_SDIOINT,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_MMCINT),
+		.flags = IORESOURCE_IRQ,
+	}, {
+		/* different on dm355 */
+		.start = DAVINCI_INTC_IRQ(IRQ_SDIOINT),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -163,10 +205,17 @@ static struct resource mmcsd1_resources[] = {
 	},
 	/* IRQs:  MMC/SD, then SDIO */
 	{
+<<<<<<< HEAD
 		.start = IRQ_DM355_MMCINT1,
 		.flags = IORESOURCE_IRQ,
 	}, {
 		.start = IRQ_DM355_SDIOINT1,
+=======
+		.start = DAVINCI_INTC_IRQ(IRQ_DM355_MMCINT1),
+		.flags = IORESOURCE_IRQ,
+	}, {
+		.start = DAVINCI_INTC_IRQ(IRQ_DM355_SDIOINT1),
+>>>>>>> upstream/android-13
 		.flags = IORESOURCE_IRQ,
 	},
 };
@@ -219,7 +268,12 @@ void __init davinci_setup_mmc(int module, struct davinci_mmc_config *config)
 			mmcsd1_resources[0].start = DM365_MMCSD1_BASE;
 			mmcsd1_resources[0].end = DM365_MMCSD1_BASE +
 							SZ_4K - 1;
+<<<<<<< HEAD
 			mmcsd1_resources[2].start = IRQ_DM365_SDIOINT1;
+=======
+			mmcsd1_resources[2].start = DAVINCI_INTC_IRQ(
+							IRQ_DM365_SDIOINT1);
+>>>>>>> upstream/android-13
 			davinci_mmcsd1_device.name = "da830-mmc";
 		} else
 			break;
@@ -230,7 +284,12 @@ void __init davinci_setup_mmc(int module, struct davinci_mmc_config *config)
 		if (cpu_is_davinci_dm355()) {
 			mmcsd0_resources[0].start = DM355_MMCSD0_BASE;
 			mmcsd0_resources[0].end = DM355_MMCSD0_BASE + SZ_4K - 1;
+<<<<<<< HEAD
 			mmcsd0_resources[2].start = IRQ_DM355_SDIOINT0;
+=======
+			mmcsd0_resources[2].start = DAVINCI_INTC_IRQ(
+							IRQ_DM355_SDIOINT0);
+>>>>>>> upstream/android-13
 
 			/* expose all 6 MMC0 signals:  CLK, CMD, DATA[0..3] */
 			davinci_cfg_reg(DM355_MMCSD0);
@@ -241,7 +300,12 @@ void __init davinci_setup_mmc(int module, struct davinci_mmc_config *config)
 			mmcsd0_resources[0].start = DM365_MMCSD0_BASE;
 			mmcsd0_resources[0].end = DM365_MMCSD0_BASE +
 							SZ_4K - 1;
+<<<<<<< HEAD
 			mmcsd0_resources[2].start = IRQ_DM365_SDIOINT0;
+=======
+			mmcsd0_resources[2].start = DAVINCI_INTC_IRQ(
+							IRQ_DM365_SDIOINT0);
+>>>>>>> upstream/android-13
 			davinci_mmcsd0_device.name = "da830-mmc";
 		} else if (cpu_is_davinci_dm644x()) {
 			/* REVISIT: should this be in board-init code? */
@@ -305,6 +369,7 @@ int davinci_gpio_register(struct resource *res, int size, void *pdata)
 	davinci_gpio_device.dev.platform_data = pdata;
 	return platform_device_register(&davinci_gpio_device);
 }
+<<<<<<< HEAD
 
 /*-------------------------------------------------------------------------*/
 
@@ -323,3 +388,5 @@ struct davinci_timer_instance davinci_timer_instance[2] = {
 	},
 };
 
+=======
+>>>>>>> upstream/android-13

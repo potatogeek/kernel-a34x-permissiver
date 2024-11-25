@@ -13,6 +13,10 @@ openvswitch-y := \
 	flow_netlink.o \
 	flow_table.o \
 	meter.o \
+<<<<<<< HEAD
+=======
+	openvswitch_trace.o \
+>>>>>>> upstream/android-13
 	vport.o \
 	vport-internal_dev.o \
 	vport-netdev.o
@@ -24,3 +28,8 @@ endif
 obj-$(CONFIG_OPENVSWITCH_VXLAN)+= vport-vxlan.o
 obj-$(CONFIG_OPENVSWITCH_GENEVE)+= vport-geneve.o
 obj-$(CONFIG_OPENVSWITCH_GRE)	+= vport-gre.o
+<<<<<<< HEAD
+=======
+
+CFLAGS_openvswitch_trace.o = -I$(src)
+>>>>>>> upstream/android-13

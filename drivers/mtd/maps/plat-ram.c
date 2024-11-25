@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* drivers/mtd/maps/plat-ram.c
  *
  * (c) 2004-2005 Simtec Electronics
@@ -5,6 +9,7 @@
  *	Ben Dooks <ben@simtec.co.uk>
  *
  * Generic platform device based RAM map
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/module.h>
@@ -140,7 +147,10 @@ static int platram_probe(struct platform_device *pdev)
 	info->map.virt = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(info->map.virt)) {
 		err = PTR_ERR(info->map.virt);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to ioremap() region\n");
+=======
+>>>>>>> upstream/android-13
 		goto exit_free;
 	}
 
@@ -190,8 +200,17 @@ static int platram_probe(struct platform_device *pdev)
 	err = mtd_device_parse_register(info->mtd, pdata->probes, NULL,
 					pdata->partitions,
 					pdata->nr_partitions);
+<<<<<<< HEAD
 	if (!err)
 		dev_info(&pdev->dev, "registered mtd device\n");
+=======
+	if (err) {
+		dev_err(&pdev->dev, "failed to register mtd device\n");
+		goto exit_free;
+	}
+
+	dev_info(&pdev->dev, "registered mtd device\n");
+>>>>>>> upstream/android-13
 
 	if (pdata->nr_partitions) {
 		/* add the whole device. */
@@ -199,10 +218,18 @@ static int platram_probe(struct platform_device *pdev)
 		if (err) {
 			dev_err(&pdev->dev,
 				"failed to register the entire device\n");
+<<<<<<< HEAD
 		}
 	}
 
 	return err;
+=======
+			goto exit_free;
+		}
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 
  exit_free:
 	platram_remove(pdev);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * rrunner.c: Linux driver for the Essential RoadRunner HIPPI board.
  *
@@ -9,11 +13,14 @@
  * for sorting out the legal issues, with the NDA, allowing the code to
  * be released under the GPL.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Thanks to Jayaram Bhat from ODS/Essential for fixing some of the
  * stupid bugs in my code.
  *
@@ -67,7 +74,11 @@ static const char version[] =
 static const struct net_device_ops rr_netdev_ops = {
 	.ndo_open 		= rr_open,
 	.ndo_stop		= rr_close,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= rr_ioctl,
+=======
+	.ndo_siocdevprivate	= rr_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_start_xmit		= rr_start_xmit,
 	.ndo_set_mac_address	= hippi_mac_addr,
 };
@@ -155,7 +166,12 @@ static int rr_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tmpptr = pci_alloc_consistent(pdev, TX_TOTAL_SIZE, &ring_dma);
+=======
+	tmpptr = dma_alloc_coherent(&pdev->dev, TX_TOTAL_SIZE, &ring_dma,
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	rrpriv->tx_ring = tmpptr;
 	rrpriv->tx_ring_dma = ring_dma;
 
@@ -164,7 +180,12 @@ static int rr_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tmpptr = pci_alloc_consistent(pdev, RX_TOTAL_SIZE, &ring_dma);
+=======
+	tmpptr = dma_alloc_coherent(&pdev->dev, RX_TOTAL_SIZE, &ring_dma,
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	rrpriv->rx_ring = tmpptr;
 	rrpriv->rx_ring_dma = ring_dma;
 
@@ -173,7 +194,12 @@ static int rr_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tmpptr = pci_alloc_consistent(pdev, EVT_RING_SIZE, &ring_dma);
+=======
+	tmpptr = dma_alloc_coherent(&pdev->dev, EVT_RING_SIZE, &ring_dma,
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	rrpriv->evt_ring = tmpptr;
 	rrpriv->evt_ring_dma = ring_dma;
 
@@ -202,6 +228,7 @@ static int rr_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 
  out:
 	if (rrpriv->evt_ring)
+<<<<<<< HEAD
 		pci_free_consistent(pdev, EVT_RING_SIZE, rrpriv->evt_ring,
 				    rrpriv->evt_ring_dma);
 	if (rrpriv->rx_ring)
@@ -210,6 +237,16 @@ static int rr_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (rrpriv->tx_ring)
 		pci_free_consistent(pdev, TX_TOTAL_SIZE, rrpriv->tx_ring,
 				    rrpriv->tx_ring_dma);
+=======
+		dma_free_coherent(&pdev->dev, EVT_RING_SIZE, rrpriv->evt_ring,
+				  rrpriv->evt_ring_dma);
+	if (rrpriv->rx_ring)
+		dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, rrpriv->rx_ring,
+				  rrpriv->rx_ring_dma);
+	if (rrpriv->tx_ring)
+		dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, rrpriv->tx_ring,
+				  rrpriv->tx_ring_dma);
+>>>>>>> upstream/android-13
 	if (rrpriv->regs)
 		pci_iounmap(pdev, rrpriv->regs);
 	if (pdev)
@@ -232,12 +269,21 @@ static void rr_remove_one(struct pci_dev *pdev)
 	}
 
 	unregister_netdev(dev);
+<<<<<<< HEAD
 	pci_free_consistent(pdev, EVT_RING_SIZE, rr->evt_ring,
 			    rr->evt_ring_dma);
 	pci_free_consistent(pdev, RX_TOTAL_SIZE, rr->rx_ring,
 			    rr->rx_ring_dma);
 	pci_free_consistent(pdev, TX_TOTAL_SIZE, rr->tx_ring,
 			    rr->tx_ring_dma);
+=======
+	dma_free_coherent(&pdev->dev, EVT_RING_SIZE, rr->evt_ring,
+			  rr->evt_ring_dma);
+	dma_free_coherent(&pdev->dev, RX_TOTAL_SIZE, rr->rx_ring,
+			  rr->rx_ring_dma);
+	dma_free_coherent(&pdev->dev, TX_TOTAL_SIZE, rr->tx_ring,
+			  rr->tx_ring_dma);
+>>>>>>> upstream/android-13
 	pci_iounmap(pdev, rr->regs);
 	pci_release_regions(pdev);
 	pci_disable_device(pdev);
@@ -652,8 +698,13 @@ static int rr_init1(struct net_device *dev)
 			goto error;
 		}
 		rrpriv->rx_skbuff[i] = skb;
+<<<<<<< HEAD
 	        addr = pci_map_single(rrpriv->pci_dev, skb->data,
 			dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
+=======
+		addr = dma_map_single(&rrpriv->pci_dev->dev, skb->data,
+				      dev->mtu + HIPPI_HLEN, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		/*
 		 * Sanity test to see if we conflict with the DMA
 		 * limitations of the Roadrunner.
@@ -703,10 +754,17 @@ static int rr_init1(struct net_device *dev)
 		struct sk_buff *skb = rrpriv->rx_skbuff[i];
 
 		if (skb) {
+<<<<<<< HEAD
 	        	pci_unmap_single(rrpriv->pci_dev,
 					 rrpriv->rx_ring[i].addr.addrlo,
 					 dev->mtu + HIPPI_HLEN,
 					 PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&rrpriv->pci_dev->dev,
+					 rrpriv->rx_ring[i].addr.addrlo,
+					 dev->mtu + HIPPI_HLEN,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			rrpriv->rx_ring[i].size = 0;
 			set_rraddr(&rrpriv->rx_ring[i].addr, 0);
 			dev_kfree_skb(skb);
@@ -957,18 +1015,32 @@ static void rx_int(struct net_device *dev, u32 rxlimit, u32 index)
 					dev->stats.rx_dropped++;
 					goto defer;
 				} else {
+<<<<<<< HEAD
 					pci_dma_sync_single_for_cpu(rrpriv->pci_dev,
 								    desc->addr.addrlo,
 								    pkt_len,
 								    PCI_DMA_FROMDEVICE);
+=======
+					dma_sync_single_for_cpu(&rrpriv->pci_dev->dev,
+								desc->addr.addrlo,
+								pkt_len,
+								DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 					skb_put_data(skb, rx_skb->data,
 						     pkt_len);
 
+<<<<<<< HEAD
 					pci_dma_sync_single_for_device(rrpriv->pci_dev,
 								       desc->addr.addrlo,
 								       pkt_len,
 								       PCI_DMA_FROMDEVICE);
+=======
+					dma_sync_single_for_device(&rrpriv->pci_dev->dev,
+								   desc->addr.addrlo,
+								   pkt_len,
+								   DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				}
 			}else{
 				struct sk_buff *newskb;
@@ -978,6 +1050,7 @@ static void rx_int(struct net_device *dev, u32 rxlimit, u32 index)
 				if (newskb){
 					dma_addr_t addr;
 
+<<<<<<< HEAD
 	        			pci_unmap_single(rrpriv->pci_dev,
 						desc->addr.addrlo, dev->mtu +
 						HIPPI_HLEN, PCI_DMA_FROMDEVICE);
@@ -988,6 +1061,19 @@ static void rx_int(struct net_device *dev, u32 rxlimit, u32 index)
 						newskb->data,
 						dev->mtu + HIPPI_HLEN,
 						PCI_DMA_FROMDEVICE);
+=======
+					dma_unmap_single(&rrpriv->pci_dev->dev,
+							 desc->addr.addrlo,
+							 dev->mtu + HIPPI_HLEN,
+							 DMA_FROM_DEVICE);
+					skb = rx_skb;
+					skb_put(skb, pkt_len);
+					rrpriv->rx_skbuff[index] = newskb;
+					addr = dma_map_single(&rrpriv->pci_dev->dev,
+							      newskb->data,
+							      dev->mtu + HIPPI_HLEN,
+							      DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 					set_rraddr(&desc->addr, addr);
 				} else {
 					printk("%s: Out of memory, deferring "
@@ -1072,9 +1158,15 @@ static irqreturn_t rr_interrupt(int irq, void *dev_id)
 				dev->stats.tx_packets++;
 				dev->stats.tx_bytes += skb->len;
 
+<<<<<<< HEAD
 				pci_unmap_single(rrpriv->pci_dev,
 						 desc->addr.addrlo, skb->len,
 						 PCI_DMA_TODEVICE);
+=======
+				dma_unmap_single(&rrpriv->pci_dev->dev,
+						 desc->addr.addrlo, skb->len,
+						 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 				dev_kfree_skb_irq(skb);
 
 				rrpriv->tx_skbuff[txcon] = NULL;
@@ -1114,8 +1206,14 @@ static inline void rr_raz_tx(struct rr_private *rrpriv,
 		if (skb) {
 			struct tx_desc *desc = &(rrpriv->tx_ring[i]);
 
+<<<<<<< HEAD
 	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo,
 				skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&rrpriv->pci_dev->dev,
+					 desc->addr.addrlo, skb->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			desc->size = 0;
 			set_rraddr(&desc->addr, 0);
 			dev_kfree_skb(skb);
@@ -1136,8 +1234,15 @@ static inline void rr_raz_rx(struct rr_private *rrpriv,
 		if (skb) {
 			struct rx_desc *desc = &(rrpriv->rx_ring[i]);
 
+<<<<<<< HEAD
 	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo,
 				dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&rrpriv->pci_dev->dev,
+					 desc->addr.addrlo,
+					 dev->mtu + HIPPI_HLEN,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			desc->size = 0;
 			set_rraddr(&desc->addr, 0);
 			dev_kfree_skb(skb);
@@ -1192,24 +1297,39 @@ static int rr_open(struct net_device *dev)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	rrpriv->rx_ctrl = pci_alloc_consistent(pdev,
 					       256 * sizeof(struct ring_ctrl),
 					       &dma_addr);
+=======
+	rrpriv->rx_ctrl = dma_alloc_coherent(&pdev->dev,
+					     256 * sizeof(struct ring_ctrl),
+					     &dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rrpriv->rx_ctrl) {
 		ecode = -ENOMEM;
 		goto error;
 	}
 	rrpriv->rx_ctrl_dma = dma_addr;
+<<<<<<< HEAD
 	memset(rrpriv->rx_ctrl, 0, 256*sizeof(struct ring_ctrl));
 
 	rrpriv->info = pci_alloc_consistent(pdev, sizeof(struct rr_info),
 					    &dma_addr);
+=======
+
+	rrpriv->info = dma_alloc_coherent(&pdev->dev, sizeof(struct rr_info),
+					  &dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!rrpriv->info) {
 		ecode = -ENOMEM;
 		goto error;
 	}
 	rrpriv->info_dma = dma_addr;
+<<<<<<< HEAD
 	memset(rrpriv->info, 0, sizeof(struct rr_info));
+=======
+>>>>>>> upstream/android-13
 	wmb();
 
 	spin_lock_irqsave(&rrpriv->lock, flags);
@@ -1243,6 +1363,7 @@ static int rr_open(struct net_device *dev)
 	spin_unlock_irqrestore(&rrpriv->lock, flags);
 
 	if (rrpriv->info) {
+<<<<<<< HEAD
 		pci_free_consistent(pdev, sizeof(struct rr_info), rrpriv->info,
 				    rrpriv->info_dma);
 		rrpriv->info = NULL;
@@ -1250,6 +1371,15 @@ static int rr_open(struct net_device *dev)
 	if (rrpriv->rx_ctrl) {
 		pci_free_consistent(pdev, 256 * sizeof(struct ring_ctrl),
 				    rrpriv->rx_ctrl, rrpriv->rx_ctrl_dma);
+=======
+		dma_free_coherent(&pdev->dev, sizeof(struct rr_info),
+				  rrpriv->info, rrpriv->info_dma);
+		rrpriv->info = NULL;
+	}
+	if (rrpriv->rx_ctrl) {
+		dma_free_coherent(&pdev->dev, 256 * sizeof(struct ring_ctrl),
+				  rrpriv->rx_ctrl, rrpriv->rx_ctrl_dma);
+>>>>>>> upstream/android-13
 		rrpriv->rx_ctrl = NULL;
 	}
 
@@ -1298,11 +1428,19 @@ static void rr_dump(struct net_device *dev)
 	if (rrpriv->tx_skbuff[cons]){
 		len = min_t(int, 0x80, rrpriv->tx_skbuff[cons]->len);
 		printk("skbuff for cons %i is valid - dumping data (0x%x bytes - skbuff len 0x%x)\n", cons, len, rrpriv->tx_skbuff[cons]->len);
+<<<<<<< HEAD
 		printk("mode 0x%x, size 0x%x,\n phys %08Lx, skbuff-addr %08lx, truesize 0x%x\n",
 		       rrpriv->tx_ring[cons].mode,
 		       rrpriv->tx_ring[cons].size,
 		       (unsigned long long) rrpriv->tx_ring[cons].addr.addrlo,
 		       (unsigned long)rrpriv->tx_skbuff[cons]->data,
+=======
+		printk("mode 0x%x, size 0x%x,\n phys %08Lx, skbuff-addr %p, truesize 0x%x\n",
+		       rrpriv->tx_ring[cons].mode,
+		       rrpriv->tx_ring[cons].size,
+		       (unsigned long long) rrpriv->tx_ring[cons].addr.addrlo,
+		       rrpriv->tx_skbuff[cons]->data,
+>>>>>>> upstream/android-13
 		       (unsigned int)rrpriv->tx_skbuff[cons]->truesize);
 		for (i = 0; i < len; i++){
 			if (!(i & 7))
@@ -1352,7 +1490,13 @@ static int rr_close(struct net_device *dev)
 
 	rrpriv->fw_running = 0;
 
+<<<<<<< HEAD
 	del_timer_sync(&rrpriv->timer);
+=======
+	spin_unlock_irqrestore(&rrpriv->lock, flags);
+	del_timer_sync(&rrpriv->timer);
+	spin_lock_irqsave(&rrpriv->lock, flags);
+>>>>>>> upstream/android-13
 
 	writel(0, &regs->TxPi);
 	writel(0, &regs->IpRxPi);
@@ -1371,12 +1515,21 @@ static int rr_close(struct net_device *dev)
 	rr_raz_tx(rrpriv, dev);
 	rr_raz_rx(rrpriv, dev);
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, 256 * sizeof(struct ring_ctrl),
 			    rrpriv->rx_ctrl, rrpriv->rx_ctrl_dma);
 	rrpriv->rx_ctrl = NULL;
 
 	pci_free_consistent(pdev, sizeof(struct rr_info), rrpriv->info,
 			    rrpriv->info_dma);
+=======
+	dma_free_coherent(&pdev->dev, 256 * sizeof(struct ring_ctrl),
+			  rrpriv->rx_ctrl, rrpriv->rx_ctrl_dma);
+	rrpriv->rx_ctrl = NULL;
+
+	dma_free_coherent(&pdev->dev, sizeof(struct rr_info), rrpriv->info,
+			  rrpriv->info_dma);
+>>>>>>> upstream/android-13
 	rrpriv->info = NULL;
 
 	spin_unlock_irqrestore(&rrpriv->lock, flags);
@@ -1436,8 +1589,13 @@ static netdev_tx_t rr_start_xmit(struct sk_buff *skb,
 	index = txctrl->pi;
 
 	rrpriv->tx_skbuff[index] = skb;
+<<<<<<< HEAD
 	set_rraddr(&rrpriv->tx_ring[index].addr, pci_map_single(
 		rrpriv->pci_dev, skb->data, len + 8, PCI_DMA_TODEVICE));
+=======
+	set_rraddr(&rrpriv->tx_ring[index].addr,
+		   dma_map_single(&rrpriv->pci_dev->dev, skb->data, len + 8, DMA_TO_DEVICE));
+>>>>>>> upstream/android-13
 	rrpriv->tx_ring[index].size = len + 8; /* include IFIELD */
 	rrpriv->tx_ring[index].mode = PACKET_START | PACKET_END;
 	txctrl->pi = (index + 1) % TX_RING_ENTRIES;
@@ -1567,7 +1725,12 @@ out:
 }
 
 
+<<<<<<< HEAD
 static int rr_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+=======
+static int rr_siocdevprivate(struct net_device *dev, struct ifreq *rq,
+			     void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct rr_private *rrpriv;
 	unsigned char *image, *oldimage;
@@ -1602,7 +1765,11 @@ static int rr_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 			error = -EFAULT;
 			goto gf_out;
 		}
+<<<<<<< HEAD
 		error = copy_to_user(rq->ifr_data, image, EEPROM_BYTES);
+=======
+		error = copy_to_user(data, image, EEPROM_BYTES);
+>>>>>>> upstream/android-13
 		if (error)
 			error = -EFAULT;
 	gf_out:
@@ -1614,7 +1781,11 @@ static int rr_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 			return -EPERM;
 		}
 
+<<<<<<< HEAD
 		image = memdup_user(rq->ifr_data, EEPROM_BYTES);
+=======
+		image = memdup_user(data, EEPROM_BYTES);
+>>>>>>> upstream/android-13
 		if (IS_ERR(image))
 			return PTR_ERR(image);
 
@@ -1657,7 +1828,11 @@ static int rr_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 		return error;
 
 	case SIOCRRID:
+<<<<<<< HEAD
 		return put_user(0x52523032, (int __user *)rq->ifr_data);
+=======
+		return put_user(0x52523032, (int __user *)data);
+>>>>>>> upstream/android-13
 	default:
 		return error;
 	}

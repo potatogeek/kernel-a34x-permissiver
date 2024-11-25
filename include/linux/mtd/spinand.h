@@ -32,9 +32,15 @@
 		   SPI_MEM_OP_NO_DUMMY,					\
 		   SPI_MEM_OP_NO_DATA)
 
+<<<<<<< HEAD
 #define SPINAND_READID_OP(ndummy, buf, len)				\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0x9f, 1),				\
 		   SPI_MEM_OP_NO_ADDR,					\
+=======
+#define SPINAND_READID_OP(naddr, ndummy, buf, len)			\
+	SPI_MEM_OP(SPI_MEM_OP_CMD(0x9f, 1),				\
+		   SPI_MEM_OP_ADDR(naddr, 0, 1),			\
+>>>>>>> upstream/android-13
 		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
 		   SPI_MEM_OP_DATA_IN(len, buf, 1))
 
@@ -68,30 +74,75 @@
 		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
 		   SPI_MEM_OP_DATA_IN(len, buf, 1))
 
+<<<<<<< HEAD
+=======
+#define SPINAND_PAGE_READ_FROM_CACHE_OP_3A(fast, addr, ndummy, buf, len) \
+	SPI_MEM_OP(SPI_MEM_OP_CMD(fast ? 0x0b : 0x03, 1),		\
+		   SPI_MEM_OP_ADDR(3, addr, 1),				\
+		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
+		   SPI_MEM_OP_DATA_IN(len, buf, 1))
+
+>>>>>>> upstream/android-13
 #define SPINAND_PAGE_READ_FROM_CACHE_X2_OP(addr, ndummy, buf, len)	\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0x3b, 1),				\
 		   SPI_MEM_OP_ADDR(2, addr, 1),				\
 		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
 		   SPI_MEM_OP_DATA_IN(len, buf, 2))
 
+<<<<<<< HEAD
+=======
+#define SPINAND_PAGE_READ_FROM_CACHE_X2_OP_3A(addr, ndummy, buf, len)	\
+	SPI_MEM_OP(SPI_MEM_OP_CMD(0x3b, 1),				\
+		   SPI_MEM_OP_ADDR(3, addr, 1),				\
+		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
+		   SPI_MEM_OP_DATA_IN(len, buf, 2))
+
+>>>>>>> upstream/android-13
 #define SPINAND_PAGE_READ_FROM_CACHE_X4_OP(addr, ndummy, buf, len)	\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0x6b, 1),				\
 		   SPI_MEM_OP_ADDR(2, addr, 1),				\
 		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
 		   SPI_MEM_OP_DATA_IN(len, buf, 4))
 
+<<<<<<< HEAD
+=======
+#define SPINAND_PAGE_READ_FROM_CACHE_X4_OP_3A(addr, ndummy, buf, len)	\
+	SPI_MEM_OP(SPI_MEM_OP_CMD(0x6b, 1),				\
+		   SPI_MEM_OP_ADDR(3, addr, 1),				\
+		   SPI_MEM_OP_DUMMY(ndummy, 1),				\
+		   SPI_MEM_OP_DATA_IN(len, buf, 4))
+
+>>>>>>> upstream/android-13
 #define SPINAND_PAGE_READ_FROM_CACHE_DUALIO_OP(addr, ndummy, buf, len)	\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0xbb, 1),				\
 		   SPI_MEM_OP_ADDR(2, addr, 2),				\
 		   SPI_MEM_OP_DUMMY(ndummy, 2),				\
 		   SPI_MEM_OP_DATA_IN(len, buf, 2))
 
+<<<<<<< HEAD
+=======
+#define SPINAND_PAGE_READ_FROM_CACHE_DUALIO_OP_3A(addr, ndummy, buf, len) \
+	SPI_MEM_OP(SPI_MEM_OP_CMD(0xbb, 1),				\
+		   SPI_MEM_OP_ADDR(3, addr, 2),				\
+		   SPI_MEM_OP_DUMMY(ndummy, 2),				\
+		   SPI_MEM_OP_DATA_IN(len, buf, 2))
+
+>>>>>>> upstream/android-13
 #define SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(addr, ndummy, buf, len)	\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0xeb, 1),				\
 		   SPI_MEM_OP_ADDR(2, addr, 4),				\
 		   SPI_MEM_OP_DUMMY(ndummy, 4),				\
 		   SPI_MEM_OP_DATA_IN(len, buf, 4))
 
+<<<<<<< HEAD
+=======
+#define SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP_3A(addr, ndummy, buf, len) \
+	SPI_MEM_OP(SPI_MEM_OP_CMD(0xeb, 1),				\
+		   SPI_MEM_OP_ADDR(3, addr, 4),				\
+		   SPI_MEM_OP_DUMMY(ndummy, 4),				\
+		   SPI_MEM_OP_DATA_IN(len, buf, 4))
+
+>>>>>>> upstream/android-13
 #define SPINAND_PROG_EXEC_OP(addr)					\
 	SPI_MEM_OP(SPI_MEM_OP_CMD(0x10, 1),				\
 		   SPI_MEM_OP_ADDR(3, addr, 1),				\
@@ -140,23 +191,52 @@ struct spinand_op;
 struct spinand_device;
 
 #define SPINAND_MAX_ID_LEN	4
+<<<<<<< HEAD
+=======
+/*
+ * For erase, write and read operation, we got the following timings :
+ * tBERS (erase) 1ms to 4ms
+ * tPROG 300us to 400us
+ * tREAD 25us to 100us
+ * In order to minimize latency, the min value is divided by 4 for the
+ * initial delay, and dividing by 20 for the poll delay.
+ * For reset, 5us/10us/500us if the device is respectively
+ * reading/programming/erasing when the RESET occurs. Since we always
+ * issue a RESET when the device is IDLE, 5us is selected for both initial
+ * and poll delay.
+ */
+#define SPINAND_READ_INITIAL_DELAY_US	6
+#define SPINAND_READ_POLL_DELAY_US	5
+#define SPINAND_RESET_INITIAL_DELAY_US	5
+#define SPINAND_RESET_POLL_DELAY_US	5
+#define SPINAND_WRITE_INITIAL_DELAY_US	75
+#define SPINAND_WRITE_POLL_DELAY_US	15
+#define SPINAND_ERASE_INITIAL_DELAY_US	250
+#define SPINAND_ERASE_POLL_DELAY_US	50
+
+#define SPINAND_WAITRDY_TIMEOUT_MS	400
+>>>>>>> upstream/android-13
 
 /**
  * struct spinand_id - SPI NAND id structure
  * @data: buffer containing the id bytes. Currently 4 bytes large, but can
  *	  be extended if required
  * @len: ID length
+<<<<<<< HEAD
  *
  * struct_spinand_id->data contains all bytes returned after a READ_ID command,
  * including dummy bytes if the chip does not emit ID bytes right after the
  * READ_ID command. The responsibility to extract real ID bytes is left to
  * struct_manufacurer_ops->detect().
+=======
+>>>>>>> upstream/android-13
  */
 struct spinand_id {
 	u8 data[SPINAND_MAX_ID_LEN];
 	int len;
 };
 
+<<<<<<< HEAD
 /**
  * struct manufacurer_ops - SPI NAND manufacturer specific operations
  * @detect: detect a SPI NAND device. Every time a SPI NAND device is probed
@@ -169,14 +249,49 @@ struct spinand_id {
  *	    error code otherwise. When true is returned, the core assumes
  *	    that properties of the NAND chip (spinand->base.memorg and
  *	    spinand->base.eccreq) have been filled
+=======
+enum spinand_readid_method {
+	SPINAND_READID_METHOD_OPCODE,
+	SPINAND_READID_METHOD_OPCODE_ADDR,
+	SPINAND_READID_METHOD_OPCODE_DUMMY,
+};
+
+/**
+ * struct spinand_devid - SPI NAND device id structure
+ * @id: device id of current chip
+ * @len: number of bytes in device id
+ * @method: method to read chip id
+ *	    There are 3 possible variants:
+ *	    SPINAND_READID_METHOD_OPCODE: chip id is returned immediately
+ *	    after read_id opcode.
+ *	    SPINAND_READID_METHOD_OPCODE_ADDR: chip id is returned after
+ *	    read_id opcode + 1-byte address.
+ *	    SPINAND_READID_METHOD_OPCODE_DUMMY: chip id is returned after
+ *	    read_id opcode + 1 dummy byte.
+ */
+struct spinand_devid {
+	const u8 *id;
+	const u8 len;
+	const enum spinand_readid_method method;
+};
+
+/**
+ * struct manufacurer_ops - SPI NAND manufacturer specific operations
+>>>>>>> upstream/android-13
  * @init: initialize a SPI NAND device
  * @cleanup: cleanup a SPI NAND device
  *
  * Each SPI NAND manufacturer driver should implement this interface so that
+<<<<<<< HEAD
  * NAND chips coming from this vendor can be detected and initialized properly.
  */
 struct spinand_manufacturer_ops {
 	int (*detect)(struct spinand_device *spinand);
+=======
+ * NAND chips coming from this vendor can be initialized properly.
+ */
+struct spinand_manufacturer_ops {
+>>>>>>> upstream/android-13
 	int (*init)(struct spinand_device *spinand);
 	void (*cleanup)(struct spinand_device *spinand);
 };
@@ -185,17 +300,36 @@ struct spinand_manufacturer_ops {
  * struct spinand_manufacturer - SPI NAND manufacturer instance
  * @id: manufacturer ID
  * @name: manufacturer name
+<<<<<<< HEAD
+=======
+ * @devid_len: number of bytes in device ID
+ * @chips: supported SPI NANDs under current manufacturer
+ * @nchips: number of SPI NANDs available in chips array
+>>>>>>> upstream/android-13
  * @ops: manufacturer operations
  */
 struct spinand_manufacturer {
 	u8 id;
 	char *name;
+<<<<<<< HEAD
+=======
+	const struct spinand_info *chips;
+	const size_t nchips;
+>>>>>>> upstream/android-13
 	const struct spinand_manufacturer_ops *ops;
 };
 
 /* SPI NAND manufacturers */
+<<<<<<< HEAD
 extern const struct spinand_manufacturer macronix_spinand_manufacturer;
 extern const struct spinand_manufacturer micron_spinand_manufacturer;
+=======
+extern const struct spinand_manufacturer gigadevice_spinand_manufacturer;
+extern const struct spinand_manufacturer macronix_spinand_manufacturer;
+extern const struct spinand_manufacturer micron_spinand_manufacturer;
+extern const struct spinand_manufacturer paragon_spinand_manufacturer;
+extern const struct spinand_manufacturer toshiba_spinand_manufacturer;
+>>>>>>> upstream/android-13
 extern const struct spinand_manufacturer winbond_spinand_manufacturer;
 
 /**
@@ -237,6 +371,19 @@ struct spinand_ecc_info {
 };
 
 #define SPINAND_HAS_QE_BIT		BIT(0)
+<<<<<<< HEAD
+=======
+#define SPINAND_HAS_CR_FEAT_BIT		BIT(1)
+
+/**
+ * struct spinand_ondie_ecc_conf - private SPI-NAND on-die ECC engine structure
+ * @status: status of the last wait operation that will be used in case
+ *          ->get_status() is not populated by the spinand device.
+ */
+struct spinand_ondie_ecc_conf {
+	u8 status;
+};
+>>>>>>> upstream/android-13
 
 /**
  * struct spinand_info - Structure used to describe SPI NAND chips
@@ -258,10 +405,17 @@ struct spinand_ecc_info {
  */
 struct spinand_info {
 	const char *model;
+<<<<<<< HEAD
 	u8 devid;
 	u32 flags;
 	struct nand_memory_organization memorg;
 	struct nand_ecc_req eccreq;
+=======
+	struct spinand_devid devid;
+	u32 flags;
+	struct nand_memory_organization memorg;
+	struct nand_ecc_props eccreq;
+>>>>>>> upstream/android-13
 	struct spinand_ecc_info eccinfo;
 	struct {
 		const struct spinand_op_variants *read_cache;
@@ -272,6 +426,16 @@ struct spinand_info {
 			     unsigned int target);
 };
 
+<<<<<<< HEAD
+=======
+#define SPINAND_ID(__method, ...)					\
+	{								\
+		.id = (const u8[]){ __VA_ARGS__ },			\
+		.len = sizeof((u8[]){ __VA_ARGS__ }),			\
+		.method = __method,					\
+	}
+
+>>>>>>> upstream/android-13
 #define SPINAND_INFO_OP_VARIANTS(__read, __write, __update)		\
 	{								\
 		.read_cache = __read,					\
@@ -300,6 +464,14 @@ struct spinand_info {
 		__VA_ARGS__						\
 	}
 
+<<<<<<< HEAD
+=======
+struct spinand_dirmap {
+	struct spi_mem_dirmap_desc *wdesc;
+	struct spi_mem_dirmap_desc *rdesc;
+};
+
+>>>>>>> upstream/android-13
 /**
  * struct spinand_device - SPI NAND device instance
  * @base: NAND device instance
@@ -339,6 +511,11 @@ struct spinand_device {
 		const struct spi_mem_op *update_cache;
 	} op_templates;
 
+<<<<<<< HEAD
+=======
+	struct spinand_dirmap *dirmaps;
+
+>>>>>>> upstream/android-13
 	int (*select_target)(struct spinand_device *spinand,
 			     unsigned int target);
 	unsigned int cur_target;
@@ -411,9 +588,16 @@ static inline void spinand_set_of_node(struct spinand_device *spinand,
 	nanddev_set_of_node(&spinand->base, np);
 }
 
+<<<<<<< HEAD
 int spinand_match_and_init(struct spinand_device *dev,
 			   const struct spinand_info *table,
 			   unsigned int table_size, u8 devid);
+=======
+int spinand_match_and_init(struct spinand_device *spinand,
+			   const struct spinand_info *table,
+			   unsigned int table_size,
+			   enum spinand_readid_method rdid_method);
+>>>>>>> upstream/android-13
 
 int spinand_upd_cfg(struct spinand_device *spinand, u8 mask, u8 val);
 int spinand_select_target(struct spinand_device *spinand, unsigned int target);

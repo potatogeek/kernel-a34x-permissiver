@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2011-2012, Pavel Zubarev <pavel.zubarev@gmail.com>
  * Copyright 2011-2012, Marco Porsch <marco.porsch@s2005.tu-chemnitz.de>
  * Copyright 2011-2012, cozybit Inc.
+<<<<<<< HEAD
  * Copyright (C) 2021 Intel Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ieee80211_i.h"
@@ -39,12 +46,21 @@ struct sync_method {
 /**
  * mesh_peer_tbtt_adjusting - check if an mp is currently adjusting its TBTT
  *
+<<<<<<< HEAD
  * @cfg: mesh config element from the mesh peer (or %NULL)
  */
 static bool mesh_peer_tbtt_adjusting(const struct ieee80211_meshconf_ie *cfg)
 {
 	return cfg &&
 	       (cfg->meshconf_cap & IEEE80211_MESHCONF_CAPAB_TBTT_ADJUSTING);
+=======
+ * @ie: information elements of a management frame from the mesh peer
+ */
+static bool mesh_peer_tbtt_adjusting(struct ieee802_11_elems *ie)
+{
+	return (ie->mesh_config->meshconf_cap &
+			IEEE80211_MESHCONF_CAPAB_TBTT_ADJUSTING) != 0;
+>>>>>>> upstream/android-13
 }
 
 void mesh_sync_adjust_tsf(struct ieee80211_sub_if_data *sdata)
@@ -80,11 +96,19 @@ void mesh_sync_adjust_tsf(struct ieee80211_sub_if_data *sdata)
 	}
 }
 
+<<<<<<< HEAD
 static void
 mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata, u16 stype,
 			      struct ieee80211_mgmt *mgmt, unsigned int len,
 			      const struct ieee80211_meshconf_ie *mesh_cfg,
 			      struct ieee80211_rx_status *rx_status)
+=======
+static void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
+				   u16 stype,
+				   struct ieee80211_mgmt *mgmt,
+				   struct ieee802_11_elems *elems,
+				   struct ieee80211_rx_status *rx_status)
+>>>>>>> upstream/android-13
 {
 	struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
 	struct ieee80211_local *local = sdata->local;
@@ -105,7 +129,14 @@ mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata, u16 stype,
 	 */
 	if (ieee80211_have_rx_timestamp(rx_status))
 		t_r = ieee80211_calculate_rx_timestamp(local, rx_status,
+<<<<<<< HEAD
 								       len + FCS_LEN, 24);
+=======
+						       24 + 12 +
+						       elems->total_len +
+						       FCS_LEN,
+						       24);
+>>>>>>> upstream/android-13
 	else
 		t_r = drv_get_tsf(local, sdata);
 
@@ -120,7 +151,11 @@ mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata, u16 stype,
 	 * dot11MeshNbrOffsetMaxNeighbor non-peer non-MBSS neighbors
 	 */
 
+<<<<<<< HEAD
 	if (mesh_peer_tbtt_adjusting(mesh_cfg)) {
+=======
+	if (elems->mesh_config && mesh_peer_tbtt_adjusting(elems)) {
+>>>>>>> upstream/android-13
 		msync_dbg(sdata, "STA %pM : is adjusting TBTT\n",
 			  sta->sta.addr);
 		goto no_sync;

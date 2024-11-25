@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register map access API - SPMI support
  *
@@ -17,6 +18,18 @@
  * GNU General Public License for more details.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register map access API - SPMI support
+//
+// Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+//
+// Based on regmap-i2c.c:
+// Copyright 2011 Wolfson Microelectronics plc
+// Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/spmi.h>
 #include <linux/module.h>

@@ -28,7 +28,10 @@ void edac_mc_sysfs_exit(void);
 extern int edac_create_sysfs_mci_device(struct mem_ctl_info *mci,
 					const struct attribute_group **groups);
 extern void edac_remove_sysfs_mci_device(struct mem_ctl_info *mci);
+<<<<<<< HEAD
 void edac_unregister_sysfs(struct mem_ctl_info *mci);
+=======
+>>>>>>> upstream/android-13
 extern int edac_get_log_ue(void);
 extern int edac_get_log_ce(void);
 extern int edac_get_panic_on_ue(void);
@@ -69,15 +72,22 @@ extern void *edac_align_ptr(void **p, unsigned size, int n_elems);
 #define edac_debugfs_remove_recursive debugfs_remove_recursive
 #define edac_debugfs_remove debugfs_remove
 #ifdef CONFIG_EDAC_DEBUG
+<<<<<<< HEAD
 int edac_debugfs_init(void);
 void edac_debugfs_exit(void);
 int edac_create_debugfs_nodes(struct mem_ctl_info *mci);
+=======
+void edac_debugfs_init(void);
+void edac_debugfs_exit(void);
+void edac_create_debugfs_nodes(struct mem_ctl_info *mci);
+>>>>>>> upstream/android-13
 struct dentry *edac_debugfs_create_dir(const char *dirname);
 struct dentry *
 edac_debugfs_create_dir_at(const char *dirname, struct dentry *parent);
 struct dentry *
 edac_debugfs_create_file(const char *name, umode_t mode, struct dentry *parent,
 			 void *data, const struct file_operations *fops);
+<<<<<<< HEAD
 struct dentry *
 edac_debugfs_create_x8(const char *name, umode_t mode, struct dentry *parent, u8 *value);
 struct dentry *
@@ -86,18 +96,39 @@ edac_debugfs_create_x16(const char *name, umode_t mode, struct dentry *parent, u
 static inline int edac_debugfs_init(void)					{ return -ENODEV; }
 static inline void edac_debugfs_exit(void)					{ }
 static inline int edac_create_debugfs_nodes(struct mem_ctl_info *mci)		{ return 0; }
+=======
+void edac_debugfs_create_x8(const char *name, umode_t mode,
+			    struct dentry *parent, u8 *value);
+void edac_debugfs_create_x16(const char *name, umode_t mode,
+			     struct dentry *parent, u16 *value);
+void edac_debugfs_create_x32(const char *name, umode_t mode,
+			     struct dentry *parent, u32 *value);
+#else
+static inline void edac_debugfs_init(void)					{ }
+static inline void edac_debugfs_exit(void)					{ }
+static inline void edac_create_debugfs_nodes(struct mem_ctl_info *mci)		{ }
+>>>>>>> upstream/android-13
 static inline struct dentry *edac_debugfs_create_dir(const char *dirname)	{ return NULL; }
 static inline struct dentry *
 edac_debugfs_create_dir_at(const char *dirname, struct dentry *parent)		{ return NULL; }
 static inline struct dentry *
 edac_debugfs_create_file(const char *name, umode_t mode, struct dentry *parent,
 			 void *data, const struct file_operations *fops)	{ return NULL; }
+<<<<<<< HEAD
 static inline struct dentry *
 edac_debugfs_create_x8(const char *name, umode_t mode,
 		       struct dentry *parent, u8 *value)			{ return NULL; }
 static inline struct dentry *
 edac_debugfs_create_x16(const char *name, umode_t mode,
 		       struct dentry *parent, u16 *value)			{ return NULL; }
+=======
+static inline void edac_debugfs_create_x8(const char *name, umode_t mode,
+					  struct dentry *parent, u8 *value)	{ }
+static inline void edac_debugfs_create_x16(const char *name, umode_t mode,
+					   struct dentry *parent, u16 *value)	{ }
+static inline void edac_debugfs_create_x32(const char *name, umode_t mode,
+		       struct dentry *parent, u32 *value)			{ }
+>>>>>>> upstream/android-13
 #endif
 
 /*

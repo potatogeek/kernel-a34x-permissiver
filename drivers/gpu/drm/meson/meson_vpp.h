@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 BayLibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2016 BayLibre, SAS
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+>>>>>>> upstream/android-13
  */
 
 /* Video Post Process */
@@ -21,6 +28,12 @@
 #ifndef __MESON_VPP_H
 #define __MESON_VPP_H
 
+<<<<<<< HEAD
+=======
+struct drm_rect;
+struct meson_drm;
+
+>>>>>>> upstream/android-13
 /* Mux VIU/VPP to ENCI */
 #define MESON_VIU_VPP_MUX_ENCI	0x5
 /* Mux VIU/VPP to ENCP */

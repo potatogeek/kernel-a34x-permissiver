@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* binder_alloc.c
  *
  * Android IPC Subsystem
  *
  * Copyright (C) 2007-2017 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -31,12 +38,19 @@
 #include <asm/cacheflush.h>
 #include <linux/uaccess.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
 #include "binder_alloc.h"
 #include "binder_trace.h"
 
 #ifdef CONFIG_SAMSUNG_FREECESS
 #include <linux/freecess.h>
 #endif
+=======
+#include <linux/sizes.h>
+#include "binder_alloc.h"
+#include "binder_trace.h"
+#include <trace/hooks/binder.h>
+>>>>>>> upstream/android-13
 
 struct list_lru binder_alloc_lru;
 
@@ -169,7 +183,11 @@ static struct binder_buffer *binder_alloc_prepare_to_free_locked(
 }
 
 /**
+<<<<<<< HEAD
  * binder_alloc_buffer_lookup() - get buffer given user ptr
+=======
+ * binder_alloc_prepare_to_free() - get buffer given user ptr
+>>>>>>> upstream/android-13
  * @alloc:	binder_alloc for this proc
  * @user_ptr:	User pointer to buffer data
  *
@@ -224,7 +242,11 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
 		mm = alloc->vma_vm_mm;
 
 	if (mm) {
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
+=======
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 		vma = alloc->vma;
 	}
 
@@ -280,10 +302,16 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
 			alloc->pages_high = index + 1;
 
 		trace_binder_alloc_page_end(alloc, index);
+<<<<<<< HEAD
 		/* vm_insert_page does not seem to increment the refcount */
 	}
 	if (mm) {
 		up_read(&mm->mmap_sem);
+=======
+	}
+	if (mm) {
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 		mmput(mm);
 	}
 	return 0;
@@ -316,7 +344,11 @@ err_page_ptr_cleared:
 	}
 err_no_vma:
 	if (mm) {
+<<<<<<< HEAD
 		up_read(&mm->mmap_sem);
+=======
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 		mmput(mm);
 	}
 	return vma ? -ENOMEM : -ESRCH;
@@ -351,7 +383,11 @@ static inline struct vm_area_struct *binder_alloc_get_vma(
 	return vma;
 }
 
+<<<<<<< HEAD
 static void debug_low_async_space_locked(struct binder_alloc *alloc, int pid)
+=======
+static bool debug_low_async_space_locked(struct binder_alloc *alloc, int pid)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Find the amount and size of buffers allocated by the current caller;
@@ -360,7 +396,11 @@ static void debug_low_async_space_locked(struct binder_alloc *alloc, int pid)
 	 * and at some point we'll catch them in the act. This is more efficient
 	 * than keeping a map per pid.
 	 */
+<<<<<<< HEAD
 	struct rb_node *n = alloc->free_buffers.rb_node;
+=======
+	struct rb_node *n;
+>>>>>>> upstream/android-13
 	struct binder_buffer *buffer;
 	size_t total_alloc_size = 0;
 	size_t num_buffers = 0;
@@ -379,13 +419,27 @@ static void debug_low_async_space_locked(struct binder_alloc *alloc, int pid)
 
 	/*
 	 * Warn if this pid has more than 50 transactions, or more than 50% of
+<<<<<<< HEAD
 	 * async space (which is 25% of total buffer size).
+=======
+	 * async space (which is 25% of total buffer size). Oneway spam is only
+	 * detected when the threshold is exceeded.
+>>>>>>> upstream/android-13
 	 */
 	if (num_buffers > 50 || total_alloc_size > alloc->buffer_size / 4) {
 		binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
 			     "%d: pid %d spamming oneway? %zd buffers allocated for a total size of %zd\n",
 			      alloc->pid, pid, num_buffers, total_alloc_size);
+<<<<<<< HEAD
 	}
+=======
+		if (!alloc->oneway_spam_detected) {
+			alloc->oneway_spam_detected = true;
+			return true;
+		}
+	}
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static struct binder_buffer *binder_alloc_new_buf_locked(
@@ -428,6 +482,7 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 				alloc->pid, extra_buffers_size);
 		return ERR_PTR(-EINVAL);
 	}
+<<<<<<< HEAD
 
 #ifdef CONFIG_SAMSUNG_FREECESS
 	if (is_async && (alloc->free_async_space < 3*(size + sizeof(struct binder_buffer))
@@ -442,6 +497,9 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 	}
 #endif
 
+=======
+	trace_android_vh_binder_alloc_new_buf_locked(size, &alloc->free_async_space, is_async);
+>>>>>>> upstream/android-13
 	if (is_async &&
 	    alloc->free_async_space < size + sizeof(struct binder_buffer)) {
 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC,
@@ -552,6 +610,10 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 	buffer->async_transaction = is_async;
 	buffer->extra_buffers_size = extra_buffers_size;
 	buffer->pid = pid;
+<<<<<<< HEAD
+=======
+	buffer->oneway_spam_suspect = false;
+>>>>>>> upstream/android-13
 	if (is_async) {
 		alloc->free_async_space -= size + sizeof(struct binder_buffer);
 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC_ASYNC,
@@ -563,7 +625,13 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 			 * of async space left (which is less than 10% of total
 			 * buffer size).
 			 */
+<<<<<<< HEAD
 			debug_low_async_space_locked(alloc, pid);
+=======
+			buffer->oneway_spam_suspect = debug_low_async_space_locked(alloc, pid);
+		} else {
+			alloc->oneway_spam_detected = false;
+>>>>>>> upstream/android-13
 		}
 	}
 	return buffer;
@@ -623,6 +691,10 @@ static void binder_delete_free_buffer(struct binder_alloc *alloc,
 {
 	struct binder_buffer *prev, *next = NULL;
 	bool to_free = true;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	BUG_ON(alloc->buffers.next == &buffer->entry);
 	prev = binder_buffer_prev(buffer);
 	BUG_ON(!prev->free);
@@ -688,7 +760,11 @@ static void binder_free_buf_locked(struct binder_alloc *alloc,
 	BUG_ON(buffer->user_data > alloc->buffer + alloc->buffer_size);
 
 	if (buffer->async_transaction) {
+<<<<<<< HEAD
 		alloc->free_async_space += size + sizeof(struct binder_buffer);
+=======
+		alloc->free_async_space += buffer_size + sizeof(struct binder_buffer);
+>>>>>>> upstream/android-13
 
 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC_ASYNC,
 			     "%d: binder_free_buf size %zd async free %zd\n",
@@ -722,16 +798,40 @@ static void binder_free_buf_locked(struct binder_alloc *alloc,
 	binder_insert_free_buffer(alloc, buffer);
 }
 
+<<<<<<< HEAD
+=======
+static void binder_alloc_clear_buf(struct binder_alloc *alloc,
+				   struct binder_buffer *buffer);
+>>>>>>> upstream/android-13
 /**
  * binder_alloc_free_buf() - free a binder buffer
  * @alloc:	binder_alloc for this proc
  * @buffer:	kernel pointer to buffer
  *
+<<<<<<< HEAD
  * Free the buffer allocated via binder_alloc_new_buffer()
+=======
+ * Free the buffer allocated via binder_alloc_new_buf()
+>>>>>>> upstream/android-13
  */
 void binder_alloc_free_buf(struct binder_alloc *alloc,
 			    struct binder_buffer *buffer)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * We could eliminate the call to binder_alloc_clear_buf()
+	 * from binder_alloc_deferred_release() by moving this to
+	 * binder_alloc_free_buf_locked(). However, that could
+	 * increase contention for the alloc mutex if clear_on_free
+	 * is used frequently for large buffers. The mutex is not
+	 * needed for correctness here.
+	 */
+	if (buffer->clear_on_free) {
+		binder_alloc_clear_buf(alloc, buffer);
+		buffer->clear_on_free = false;
+	}
+>>>>>>> upstream/android-13
 	mutex_lock(&alloc->mutex);
 	binder_free_buf_locked(alloc, buffer);
 	mutex_unlock(&alloc->mutex);
@@ -758,16 +858,30 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
 	struct binder_buffer *buffer;
 
 	mutex_lock(&binder_alloc_mmap_lock);
+<<<<<<< HEAD
 	if (alloc->buffer) {
+=======
+	if (alloc->buffer_size) {
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 		failure_string = "already mapped";
 		goto err_already_mapped;
 	}
+<<<<<<< HEAD
 
 	alloc->buffer = (void __user *)vma->vm_start;
 	mutex_unlock(&binder_alloc_mmap_lock);
 
 	alloc->pages = kcalloc((vma->vm_end - vma->vm_start) / PAGE_SIZE,
+=======
+	alloc->buffer_size = min_t(unsigned long, vma->vm_end - vma->vm_start,
+				   SZ_4M);
+	mutex_unlock(&binder_alloc_mmap_lock);
+
+	alloc->buffer = (void __user *)vma->vm_start;
+
+	alloc->pages = kcalloc(alloc->buffer_size / PAGE_SIZE,
+>>>>>>> upstream/android-13
 			       sizeof(alloc->pages[0]),
 			       GFP_KERNEL);
 	if (alloc->pages == NULL) {
@@ -775,7 +889,10 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
 		failure_string = "alloc page array";
 		goto err_alloc_pages_failed;
 	}
+<<<<<<< HEAD
 	alloc->buffer_size = vma->vm_end - vma->vm_start;
+=======
+>>>>>>> upstream/android-13
 
 	buffer = kzalloc(sizeof(*buffer), GFP_KERNEL);
 	if (!buffer) {
@@ -798,8 +915,14 @@ err_alloc_buf_struct_failed:
 	kfree(alloc->pages);
 	alloc->pages = NULL;
 err_alloc_pages_failed:
+<<<<<<< HEAD
 	mutex_lock(&binder_alloc_mmap_lock);
 	alloc->buffer = NULL;
+=======
+	alloc->buffer = NULL;
+	mutex_lock(&binder_alloc_mmap_lock);
+	alloc->buffer_size = 0;
+>>>>>>> upstream/android-13
 err_already_mapped:
 	mutex_unlock(&binder_alloc_mmap_lock);
 	binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
@@ -826,6 +949,13 @@ void binder_alloc_deferred_release(struct binder_alloc *alloc)
 		/* Transaction should already have been freed */
 		BUG_ON(buffer->transaction);
 
+<<<<<<< HEAD
+=======
+		if (buffer->clear_on_free) {
+			binder_alloc_clear_buf(alloc, buffer);
+			buffer->clear_on_free = false;
+		}
+>>>>>>> upstream/android-13
 		binder_free_buf_locked(alloc, buffer);
 		buffers++;
 	}
@@ -982,6 +1112,10 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
 				       struct list_lru_one *lru,
 				       spinlock_t *lock,
 				       void *cb_arg)
+<<<<<<< HEAD
+=======
+	__must_hold(lock)
+>>>>>>> upstream/android-13
 {
 	struct mm_struct *mm = NULL;
 	struct binder_lru_page *page = container_of(item,
@@ -1005,8 +1139,13 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
 	mm = alloc->vma_vm_mm;
 	if (!mmget_not_zero(mm))
 		goto err_mmget;
+<<<<<<< HEAD
 	if (!down_read_trylock(&mm->mmap_sem))
 		goto err_down_read_mmap_sem_failed;
+=======
+	if (!mmap_read_trylock(mm))
+		goto err_mmap_read_lock_failed;
+>>>>>>> upstream/android-13
 	vma = binder_alloc_get_vma(alloc);
 
 	list_lru_isolate(lru, item);
@@ -1019,7 +1158,11 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
 
 		trace_binder_unmap_user_end(alloc, index);
 	}
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	mmput_async(mm);
 
 	trace_binder_unmap_kernel_start(alloc, index);
@@ -1033,7 +1176,11 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
 	mutex_unlock(&alloc->mutex);
 	return LRU_REMOVED_RETRY;
 
+<<<<<<< HEAD
 err_down_read_mmap_sem_failed:
+=======
+err_mmap_read_lock_failed:
+>>>>>>> upstream/android-13
 	mmput_async(mm);
 err_mmget:
 err_page_already_freed:
@@ -1159,6 +1306,39 @@ static struct page *binder_alloc_get_page(struct binder_alloc *alloc,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * binder_alloc_clear_buf() - zero out buffer
+ * @alloc: binder_alloc for this proc
+ * @buffer: binder buffer to be cleared
+ *
+ * memset the given buffer to 0
+ */
+static void binder_alloc_clear_buf(struct binder_alloc *alloc,
+				   struct binder_buffer *buffer)
+{
+	size_t bytes = binder_alloc_buffer_size(alloc, buffer);
+	binder_size_t buffer_offset = 0;
+
+	while (bytes) {
+		unsigned long size;
+		struct page *page;
+		pgoff_t pgoff;
+		void *kptr;
+
+		page = binder_alloc_get_page(alloc, buffer,
+					     buffer_offset, &pgoff);
+		size = min_t(size_t, bytes, PAGE_SIZE - pgoff);
+		kptr = kmap(page) + pgoff;
+		memset(kptr, 0, size);
+		kunmap(page);
+		bytes -= size;
+		buffer_offset += size;
+	}
+}
+
+/**
+>>>>>>> upstream/android-13
  * binder_alloc_copy_user_to_buffer() - copy src user to tgt user
  * @alloc: binder_alloc for this proc
  * @buffer: binder buffer to be accessed
@@ -1202,6 +1382,7 @@ binder_alloc_copy_user_to_buffer(struct binder_alloc *alloc,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void binder_alloc_do_buffer_copy(struct binder_alloc *alloc,
 					bool to_buffer,
 					struct binder_buffer *buffer,
@@ -1211,6 +1392,18 @@ static void binder_alloc_do_buffer_copy(struct binder_alloc *alloc,
 {
 	/* All copies must be 32-bit aligned and 32-bit size */
 	BUG_ON(!check_buffer(alloc, buffer, buffer_offset, bytes));
+=======
+static int binder_alloc_do_buffer_copy(struct binder_alloc *alloc,
+				       bool to_buffer,
+				       struct binder_buffer *buffer,
+				       binder_size_t buffer_offset,
+				       void *ptr,
+				       size_t bytes)
+{
+	/* All copies must be 32-bit aligned and 32-bit size */
+	if (!check_buffer(alloc, buffer, buffer_offset, bytes))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	while (bytes) {
 		unsigned long size;
@@ -1238,6 +1431,7 @@ static void binder_alloc_do_buffer_copy(struct binder_alloc *alloc,
 		ptr = ptr + size;
 		buffer_offset += size;
 	}
+<<<<<<< HEAD
 }
 
 void binder_alloc_copy_to_buffer(struct binder_alloc *alloc,
@@ -1258,5 +1452,28 @@ void binder_alloc_copy_from_buffer(struct binder_alloc *alloc,
 {
 	binder_alloc_do_buffer_copy(alloc, false, buffer, buffer_offset,
 				    dest, bytes);
+=======
+	return 0;
+}
+
+int binder_alloc_copy_to_buffer(struct binder_alloc *alloc,
+				struct binder_buffer *buffer,
+				binder_size_t buffer_offset,
+				void *src,
+				size_t bytes)
+{
+	return binder_alloc_do_buffer_copy(alloc, true, buffer, buffer_offset,
+					   src, bytes);
+}
+
+int binder_alloc_copy_from_buffer(struct binder_alloc *alloc,
+				  void *dest,
+				  struct binder_buffer *buffer,
+				  binder_size_t buffer_offset,
+				  size_t bytes)
+{
+	return binder_alloc_do_buffer_copy(alloc, false, buffer, buffer_offset,
+					   dest, bytes);
+>>>>>>> upstream/android-13
 }
 

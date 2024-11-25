@@ -117,6 +117,7 @@ struct scsi_sense_data
 #define SSD_FULL_SIZE sizeof(struct scsi_sense_data)
 };
 
+<<<<<<< HEAD
 /*
  * Status Byte
  */
@@ -132,6 +133,8 @@ struct scsi_sense_data
 #define SCSI_STATUS_ACA_ACTIVE		0x30
 #define SCSI_STATUS_TASK_ABORTED	0x40
 
+=======
+>>>>>>> upstream/android-13
 /************************* Large Disk Handling ********************************/
 static inline int
 aic_sector_div(sector_t capacity, int heads, int sectors)

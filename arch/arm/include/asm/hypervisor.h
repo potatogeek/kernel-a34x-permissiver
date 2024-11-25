@@ -4,4 +4,11 @@
 
 #include <asm/xen/hypervisor.h>
 
+<<<<<<< HEAD
+=======
+void kvm_init_hyp_services(void);
+bool kvm_arm_hyp_service_available(u32 func_id);
+void kvm_arm_init_hyp_services(void);
+
+>>>>>>> upstream/android-13
 #endif

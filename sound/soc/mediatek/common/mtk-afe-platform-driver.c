@@ -18,7 +18,11 @@ int mtk_afe_combine_sub_dai(struct mtk_base_afe *afe)
 	struct mtk_base_afe_dai *dai;
 	size_t num_dai_drivers = 0, dai_idx = 0;
 
+<<<<<<< HEAD
 	/* calculate total dai driver size */
+=======
+	/* calcualte total dai driver size */
+>>>>>>> upstream/android-13
 	list_for_each_entry(dai, &afe->sub_dais, list) {
 		num_dai_drivers += dai->num_dai_drivers;
 	}
@@ -77,6 +81,7 @@ int mtk_afe_add_sub_dai_control(struct snd_soc_component *component)
 }
 EXPORT_SYMBOL_GPL(mtk_afe_add_sub_dai_control);
 
+<<<<<<< HEAD
 unsigned int word_size_align(unsigned int in_size)
 {
 	unsigned int align_size;
@@ -94,6 +99,14 @@ static snd_pcm_uframes_t mtk_afe_pcm_pointer
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd, AFE_PCM_NAME);
 	struct mtk_base_afe *afe = snd_soc_component_get_drvdata(component);
 	struct mtk_base_afe_memif *memif = &afe->memif[rtd->cpu_dai->id];
+=======
+snd_pcm_uframes_t mtk_afe_pcm_pointer(struct snd_soc_component *component,
+				      struct snd_pcm_substream *substream)
+{
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct mtk_base_afe *afe = snd_soc_component_get_drvdata(component);
+	struct mtk_base_afe_memif *memif = &afe->memif[asoc_rtd_to_cpu(rtd, 0)->id];
+>>>>>>> upstream/android-13
 	const struct mtk_base_memif_data *memif_data = memif->data;
 	struct regmap *regmap = afe->regmap;
 	struct device *dev = afe->dev;
@@ -119,6 +132,7 @@ static snd_pcm_uframes_t mtk_afe_pcm_pointer
 	pcm_ptr_bytes = hw_ptr - hw_base;
 
 POINTER_RETURN_FRAMES:
+<<<<<<< HEAD
 	pcm_ptr_bytes = word_size_align(pcm_ptr_bytes);
 	return bytes_to_frames(substream->runtime, pcm_ptr_bytes);
 }
@@ -245,6 +259,30 @@ const struct snd_soc_component_driver mtk_afe_pcm_platform = {
 	.ops = &mtk_afe_pcm_ops,
 	.pcm_new = mtk_afe_pcm_new,
 	.pcm_free = mtk_afe_pcm_free,
+=======
+	return bytes_to_frames(substream->runtime, pcm_ptr_bytes);
+}
+EXPORT_SYMBOL_GPL(mtk_afe_pcm_pointer);
+
+int mtk_afe_pcm_new(struct snd_soc_component *component,
+		    struct snd_soc_pcm_runtime *rtd)
+{
+	size_t size;
+	struct snd_pcm *pcm = rtd->pcm;
+	struct mtk_base_afe *afe = snd_soc_component_get_drvdata(component);
+
+	size = afe->mtk_afe_hardware->buffer_bytes_max;
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       afe->dev, size, size);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(mtk_afe_pcm_new);
+
+const struct snd_soc_component_driver mtk_afe_pcm_platform = {
+	.name		= AFE_PCM_NAME,
+	.pointer	= mtk_afe_pcm_pointer,
+	.pcm_construct	= mtk_afe_pcm_new,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(mtk_afe_pcm_platform);
 

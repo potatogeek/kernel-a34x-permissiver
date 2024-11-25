@@ -37,6 +37,7 @@ import glob
 from docutils import nodes, statemachine
 from docutils.statemachine import ViewList
 from docutils.parsers.rst import directives, Directive
+<<<<<<< HEAD
 
 #
 # AutodocReporter is only good up to Sphinx 1.7
@@ -49,6 +50,10 @@ if Use_SSI:
 else:
     from sphinx.ext.autodoc import AutodocReporter
 
+=======
+import sphinx
+from sphinx.util.docutils import switch_source_input
+>>>>>>> upstream/android-13
 import kernellog
 
 __version__  = '1.0'
@@ -59,9 +64,17 @@ class KernelDocDirective(Directive):
     optional_arguments = 4
     option_spec = {
         'doc': directives.unchanged_required,
+<<<<<<< HEAD
         'functions': directives.unchanged,
         'export': directives.unchanged,
         'internal': directives.unchanged,
+=======
+        'export': directives.unchanged,
+        'internal': directives.unchanged,
+        'identifiers': directives.unchanged,
+        'no-identifiers': directives.unchanged,
+        'functions': directives.unchanged,
+>>>>>>> upstream/android-13
     }
     has_content = False
 
@@ -69,6 +82,14 @@ class KernelDocDirective(Directive):
         env = self.state.document.settings.env
         cmd = [env.config.kerneldoc_bin, '-rst', '-enable-lineno']
 
+<<<<<<< HEAD
+=======
+	# Pass the version string to kernel-doc, as it needs to use a different
+	# dialect, depending what the C domain supports for each specific
+	# Sphinx versions
+        cmd += ['-sphinx-version', sphinx.__version__]
+
+>>>>>>> upstream/android-13
         filename = env.config.kerneldoc_srctree + '/' + self.arguments[0]
         export_file_patterns = []
 
@@ -77,6 +98,13 @@ class KernelDocDirective(Directive):
 
         tab_width = self.options.get('tab-width', self.state.document.settings.tab_width)
 
+<<<<<<< HEAD
+=======
+        # 'function' is an alias of 'identifiers'
+        if 'functions' in self.options:
+            self.options['identifiers'] = self.options.get('functions')
+
+>>>>>>> upstream/android-13
         # FIXME: make this nicer and more robust against errors
         if 'export' in self.options:
             cmd += ['-export']
@@ -86,6 +114,7 @@ class KernelDocDirective(Directive):
             export_file_patterns = str(self.options.get('internal')).split()
         elif 'doc' in self.options:
             cmd += ['-function', str(self.options.get('doc'))]
+<<<<<<< HEAD
         elif 'functions' in self.options:
             functions = self.options.get('functions').split()
             if functions:
@@ -94,6 +123,22 @@ class KernelDocDirective(Directive):
             else:
                 cmd += ['-no-doc-sections']
 
+=======
+        elif 'identifiers' in self.options:
+            identifiers = self.options.get('identifiers').split()
+            if identifiers:
+                for i in identifiers:
+                    cmd += ['-function', i]
+            else:
+                cmd += ['-no-doc-sections']
+
+        if 'no-identifiers' in self.options:
+            no_identifiers = self.options.get('no-identifiers').split()
+            if no_identifiers:
+                for i in no_identifiers:
+                    cmd += ['-nosymbol', i]
+
+>>>>>>> upstream/android-13
         for pattern in export_file_patterns:
             for f in glob.glob(env.config.kerneldoc_srctree + '/' + pattern):
                 env.note_dependency(os.path.abspath(f))
@@ -131,7 +176,12 @@ class KernelDocDirective(Directive):
                     lineoffset = int(match.group(1)) - 1
                     # we must eat our comments since the upset the markup
                 else:
+<<<<<<< HEAD
                     result.append(line, filename, lineoffset)
+=======
+                    doc = env.srcdir + "/" + env.docname + ":" + str(self.lineno)
+                    result.append(line, doc + ": " + filename, lineoffset)
+>>>>>>> upstream/android-13
                     lineoffset += 1
 
             node = nodes.section()
@@ -145,6 +195,7 @@ class KernelDocDirective(Directive):
             return [nodes.error(None, nodes.paragraph(text = "kernel-doc missing"))]
 
     def do_parse(self, result, node):
+<<<<<<< HEAD
         if Use_SSI:
             with switch_source_input(self.state, result):
                 self.state.nested_parse(result, 0, node, match_titles=1)
@@ -157,6 +208,10 @@ class KernelDocDirective(Directive):
             finally:
                 self.state.memo.title_styles, self.state.memo.section_level, self.state.memo.reporter = save
 
+=======
+        with switch_source_input(self.state, result):
+            self.state.nested_parse(result, 0, node, match_titles=1)
+>>>>>>> upstream/android-13
 
 def setup(app):
     app.add_config_value('kerneldoc_bin', None, 'env')

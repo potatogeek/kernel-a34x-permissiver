@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __NVKM_I2C_PAD_H__
 #define __NVKM_I2C_PAD_H__
 #include <subdev/i2c.h>
+=======
+/* SPDX-License-Identifier: MIT */
+#ifndef __NVKM_I2C_PAD_H__
+#define __NVKM_I2C_PAD_H__
+#include "priv.h"
+>>>>>>> upstream/android-13
 
 struct nvkm_i2c_pad {
 	const struct nvkm_i2c_pad_func *func;

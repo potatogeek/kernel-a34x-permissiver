@@ -61,9 +61,16 @@ nf_ct_ecache_ext_add(struct nf_conn *ct, u16 ctmask, u16 expmask, gfp_t gfp)
 #else
 	return NULL;
 #endif
+<<<<<<< HEAD
 };
 
 #ifdef CONFIG_NF_CONNTRACK_EVENTS
+=======
+}
+
+#ifdef CONFIG_NF_CONNTRACK_EVENTS
+
+>>>>>>> upstream/android-13
 /* This structure is passed to event handler */
 struct nf_ct_event {
 	struct nf_conn *ct;
@@ -71,6 +78,7 @@ struct nf_ct_event {
 	int report;
 };
 
+<<<<<<< HEAD
 struct nf_ct_event_notifier {
 	int (*fcn)(unsigned int events, struct nf_ct_event *item);
 };
@@ -79,14 +87,53 @@ int nf_conntrack_register_notifier(struct net *net,
 				   struct nf_ct_event_notifier *nb);
 void nf_conntrack_unregister_notifier(struct net *net,
 				      struct nf_ct_event_notifier *nb);
+=======
+struct nf_exp_event {
+	struct nf_conntrack_expect *exp;
+	u32 portid;
+	int report;
+};
+
+struct nf_ct_event_notifier {
+	int (*ct_event)(unsigned int events, const struct nf_ct_event *item);
+	int (*exp_event)(unsigned int events, const struct nf_exp_event *item);
+};
+
+void nf_conntrack_register_notifier(struct net *net,
+				   const struct nf_ct_event_notifier *nb);
+void nf_conntrack_unregister_notifier(struct net *net);
+>>>>>>> upstream/android-13
 
 void nf_ct_deliver_cached_events(struct nf_conn *ct);
 int nf_conntrack_eventmask_report(unsigned int eventmask, struct nf_conn *ct,
 				  u32 portid, int report);
 
+<<<<<<< HEAD
 static inline void
 nf_conntrack_event_cache(enum ip_conntrack_events event, struct nf_conn *ct)
 {
+=======
+#else
+
+static inline void nf_ct_deliver_cached_events(const struct nf_conn *ct)
+{
+}
+
+static inline int nf_conntrack_eventmask_report(unsigned int eventmask,
+						struct nf_conn *ct,
+						u32 portid,
+						int report)
+{
+	return 0;
+}
+
+#endif
+
+static inline void
+nf_conntrack_event_cache(enum ip_conntrack_events event, struct nf_conn *ct)
+{
+#ifdef CONFIG_NF_CONNTRACK_EVENTS
+>>>>>>> upstream/android-13
 	struct net *net = nf_ct_net(ct);
 	struct nf_conntrack_ecache *e;
 
@@ -98,29 +145,48 @@ nf_conntrack_event_cache(enum ip_conntrack_events event, struct nf_conn *ct)
 		return;
 
 	set_bit(event, &e->cache);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline int
 nf_conntrack_event_report(enum ip_conntrack_events event, struct nf_conn *ct,
 			  u32 portid, int report)
 {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NF_CONNTRACK_EVENTS
+>>>>>>> upstream/android-13
 	const struct net *net = nf_ct_net(ct);
 
 	if (!rcu_access_pointer(net->ct.nf_conntrack_event_cb))
 		return 0;
 
 	return nf_conntrack_eventmask_report(1 << event, ct, portid, report);
+<<<<<<< HEAD
+=======
+#else
+	return 0;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline int
 nf_conntrack_event(enum ip_conntrack_events event, struct nf_conn *ct)
 {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NF_CONNTRACK_EVENTS
+>>>>>>> upstream/android-13
 	const struct net *net = nf_ct_net(ct);
 
 	if (!rcu_access_pointer(net->ct.nf_conntrack_event_cb))
 		return 0;
 
 	return nf_conntrack_eventmask_report(1 << event, ct, 0, 0);
+<<<<<<< HEAD
 }
 
 struct nf_exp_event {
@@ -138,16 +204,31 @@ int nf_ct_expect_register_notifier(struct net *net,
 void nf_ct_expect_unregister_notifier(struct net *net,
 				      struct nf_exp_event_notifier *nb);
 
+=======
+#else
+	return 0;
+#endif
+}
+
+#ifdef CONFIG_NF_CONNTRACK_EVENTS
+>>>>>>> upstream/android-13
 void nf_ct_expect_event_report(enum ip_conntrack_expect_events event,
 			       struct nf_conntrack_expect *exp,
 			       u32 portid, int report);
 
+<<<<<<< HEAD
 int nf_conntrack_ecache_pernet_init(struct net *net);
+=======
+void nf_conntrack_ecache_work(struct net *net, enum nf_ct_ecache_state state);
+
+void nf_conntrack_ecache_pernet_init(struct net *net);
+>>>>>>> upstream/android-13
 void nf_conntrack_ecache_pernet_fini(struct net *net);
 
 int nf_conntrack_ecache_init(void);
 void nf_conntrack_ecache_fini(void);
 
+<<<<<<< HEAD
 static inline void nf_conntrack_ecache_delayed_work(struct net *net)
 {
 	if (!delayed_work_pending(&net->ct.ecache_dwork)) {
@@ -185,6 +266,28 @@ static inline void nf_ct_expect_event_report(enum ip_conntrack_expect_events e,
 static inline int nf_conntrack_ecache_pernet_init(struct net *net)
 {
 	return 0;
+=======
+static inline bool nf_conntrack_ecache_dwork_pending(const struct net *net)
+{
+	return net->ct.ecache_dwork_pending;
+}
+#else /* CONFIG_NF_CONNTRACK_EVENTS */
+
+static inline void nf_ct_expect_event_report(enum ip_conntrack_expect_events e,
+					     struct nf_conntrack_expect *exp,
+					     u32 portid,
+					     int report)
+{
+}
+
+static inline void nf_conntrack_ecache_work(struct net *net,
+					    enum nf_ct_ecache_state s)
+{
+}
+
+static inline void nf_conntrack_ecache_pernet_init(struct net *net)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void nf_conntrack_ecache_pernet_fini(struct net *net)
@@ -200,6 +303,7 @@ static inline void nf_conntrack_ecache_fini(void)
 {
 }
 
+<<<<<<< HEAD
 static inline void nf_conntrack_ecache_delayed_work(struct net *net)
 {
 }
@@ -211,3 +315,8 @@ static inline void nf_conntrack_ecache_work(struct net *net)
 
 #endif /*_NF_CONNTRACK_ECACHE_H*/
 
+=======
+static inline bool nf_conntrack_ecache_dwork_pending(const struct net *net) { return false; }
+#endif /* CONFIG_NF_CONNTRACK_EVENTS */
+#endif /*_NF_CONNTRACK_ECACHE_H*/
+>>>>>>> upstream/android-13

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * AD7746 capacitive sensor driver supporting AD7745, AD7746 and AD7747
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -19,8 +26,11 @@
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 
+<<<<<<< HEAD
 #include "ad7746.h"
 
+=======
+>>>>>>> upstream/android-13
 /*
  * AD7746 Register Definition
  */
@@ -85,10 +95,13 @@
 #define AD7746_CAPDAC_DACEN		BIT(7)
 #define AD7746_CAPDAC_DACP(x)		((x) & 0x7F)
 
+<<<<<<< HEAD
 /*
  * struct ad7746_chip_info - chip specific information
  */
 
+=======
+>>>>>>> upstream/android-13
 struct ad7746_chip_info {
 	struct i2c_client *client;
 	struct mutex lock; /* protect sensor state */
@@ -216,6 +229,22 @@ static const unsigned char ad7746_cap_filter_rate_table[][2] = {
 	{16, 62 + 1}, {13, 77 + 1}, {11, 92 + 1}, {9, 110 + 1},
 };
 
+<<<<<<< HEAD
+=======
+static int ad7746_set_capdac(struct ad7746_chip_info *chip, int channel)
+{
+	int ret = i2c_smbus_write_byte_data(chip->client,
+					    AD7746_REG_CAPDACA,
+					    chip->capdac[channel][0]);
+	if (ret < 0)
+		return ret;
+
+	return i2c_smbus_write_byte_data(chip->client,
+					  AD7746_REG_CAPDACB,
+					  chip->capdac[channel][1]);
+}
+
+>>>>>>> upstream/android-13
 static int ad7746_select_channel(struct iio_dev *indio_dev,
 				 struct iio_chan_spec const *chan)
 {
@@ -231,6 +260,7 @@ static int ad7746_select_channel(struct iio_dev *indio_dev,
 			AD7746_CONF_CAPFS_SHIFT;
 		delay = ad7746_cap_filter_rate_table[idx][1];
 
+<<<<<<< HEAD
 		if (chip->capdac_set != chan->channel) {
 			ret = i2c_smbus_write_byte_data(chip->client,
 				AD7746_REG_CAPDACA,
@@ -242,6 +272,13 @@ static int ad7746_select_channel(struct iio_dev *indio_dev,
 				chip->capdac[chan->channel][1]);
 			if (ret < 0)
 				return ret;
+=======
+		ret = ad7746_set_capdac(chip, chan->channel);
+		if (ret < 0)
+			return ret;
+
+		if (chip->capdac_set != chan->channel) {
+>>>>>>> upstream/android-13
 
 			chip->capdac_set = chan->channel;
 		}
@@ -485,6 +522,7 @@ static int ad7746_write_raw(struct iio_dev *indio_dev,
 		chip->capdac[chan->channel][chan->differential] = val > 0 ?
 			AD7746_CAPDAC_DACP(val) | AD7746_CAPDAC_DACEN : 0;
 
+<<<<<<< HEAD
 		ret = i2c_smbus_write_byte_data(chip->client,
 						AD7746_REG_CAPDACA,
 						chip->capdac[chan->channel][0]);
@@ -493,6 +531,9 @@ static int ad7746_write_raw(struct iio_dev *indio_dev,
 		ret = i2c_smbus_write_byte_data(chip->client,
 						AD7746_REG_CAPDACB,
 						chip->capdac[chan->channel][1]);
+=======
+		ret = ad7746_set_capdac(chip, chan->channel);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto out;
 
@@ -565,10 +606,17 @@ static int ad7746_read_raw(struct iio_dev *indio_dev,
 
 		switch (chan->type) {
 		case IIO_TEMP:
+<<<<<<< HEAD
 		/*
 		 * temperature in milli degrees Celsius
 		 * T = ((*val / 2048) - 4096) * 1000
 		 */
+=======
+			/*
+			 * temperature in milli degrees Celsius
+			 * T = ((*val / 2048) - 4096) * 1000
+			 */
+>>>>>>> upstream/android-13
 			*val = (*val * 125) / 256;
 			break;
 		case IIO_VOLTAGE:
@@ -670,6 +718,7 @@ static const struct iio_info ad7746_info = {
 	.write_raw = ad7746_write_raw,
 };
 
+<<<<<<< HEAD
 /*
  * device probe and remove
  */
@@ -682,6 +731,17 @@ static int ad7746_probe(struct i2c_client *client,
 	struct iio_dev *indio_dev;
 	unsigned char regval = 0;
 	int ret = 0;
+=======
+static int ad7746_probe(struct i2c_client *client,
+			const struct i2c_device_id *id)
+{
+	struct device *dev = &client->dev;
+	struct ad7746_chip_info *chip;
+	struct iio_dev *indio_dev;
+	unsigned char regval = 0;
+	unsigned int vdd_permille;
+	int ret;
+>>>>>>> upstream/android-13
 
 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*chip));
 	if (!indio_dev)
@@ -694,15 +754,20 @@ static int ad7746_probe(struct i2c_client *client,
 	chip->client = client;
 	chip->capdac_set = -1;
 
+<<<<<<< HEAD
 	/* Establish that the iio_dev is a child of the i2c device */
 	indio_dev->name = id->name;
 	indio_dev->dev.parent = &client->dev;
+=======
+	indio_dev->name = id->name;
+>>>>>>> upstream/android-13
 	indio_dev->info = &ad7746_info;
 	indio_dev->channels = ad7746_channels;
 	if (id->driver_data == 7746)
 		indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
 	else
 		indio_dev->num_channels =  ARRAY_SIZE(ad7746_channels) - 2;
+<<<<<<< HEAD
 	indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
@@ -726,6 +791,43 @@ static int ad7746_probe(struct i2c_client *client,
 		dev_warn(&client->dev, "No platform data? using default\n");
 		regval = AD7746_EXCSETUP_EXCA | AD7746_EXCSETUP_EXCB |
 			AD7746_EXCSETUP_EXCLVL(3);
+=======
+	indio_dev->modes = INDIO_DIRECT_MODE;
+
+	if (device_property_read_bool(dev, "adi,exca-output-en")) {
+		if (device_property_read_bool(dev, "adi,exca-output-invert"))
+			regval |= AD7746_EXCSETUP_NEXCA;
+		else
+			regval |= AD7746_EXCSETUP_EXCA;
+	}
+
+	if (device_property_read_bool(dev, "adi,excb-output-en")) {
+		if (device_property_read_bool(dev, "adi,excb-output-invert"))
+			regval |= AD7746_EXCSETUP_NEXCB;
+		else
+			regval |= AD7746_EXCSETUP_EXCB;
+	}
+
+	ret = device_property_read_u32(dev, "adi,excitation-vdd-permille",
+				       &vdd_permille);
+	if (!ret) {
+		switch (vdd_permille) {
+		case 125:
+			regval |= AD7746_EXCSETUP_EXCLVL(0);
+			break;
+		case 250:
+			regval |= AD7746_EXCSETUP_EXCLVL(1);
+			break;
+		case 375:
+			regval |= AD7746_EXCSETUP_EXCLVL(2);
+			break;
+		case 500:
+			regval |= AD7746_EXCSETUP_EXCLVL(3);
+			break;
+		default:
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	ret = i2c_smbus_write_byte_data(chip->client,
@@ -733,11 +835,15 @@ static int ad7746_probe(struct i2c_client *client,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
 	if (ret)
 		return ret;
 
 	return 0;
+=======
+	return devm_iio_device_register(indio_dev->dev.parent, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id ad7746_id[] = {
@@ -749,15 +855,35 @@ static const struct i2c_device_id ad7746_id[] = {
 
 MODULE_DEVICE_TABLE(i2c, ad7746_id);
 
+<<<<<<< HEAD
 static struct i2c_driver ad7746_driver = {
 	.driver = {
 		.name = KBUILD_MODNAME,
+=======
+static const struct of_device_id ad7746_of_match[] = {
+	{ .compatible = "adi,ad7745" },
+	{ .compatible = "adi,ad7746" },
+	{ .compatible = "adi,ad7747" },
+	{ },
+};
+
+MODULE_DEVICE_TABLE(of, ad7746_of_match);
+
+static struct i2c_driver ad7746_driver = {
+	.driver = {
+		.name = KBUILD_MODNAME,
+		.of_match_table = ad7746_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = ad7746_probe,
 	.id_table = ad7746_id,
 };
 module_i2c_driver(ad7746_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Analog Devices AD7746/5/7 capacitive sensor driver");
 MODULE_LICENSE("GPL v2");

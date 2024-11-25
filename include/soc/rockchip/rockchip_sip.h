@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, Fuzhou Rockchip Electronics Co., Ltd
  * Author: Lin Huang <hl@rock-chips.com>
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2016, Fuzhou Rockchip Electronics Co., Ltd
+ * Author: Lin Huang <hl@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 #ifndef __SOC_ROCKCHIP_SIP_H
 #define __SOC_ROCKCHIP_SIP_H
@@ -23,5 +30,9 @@
 #define ROCKCHIP_SIP_CONFIG_DRAM_GET_RATE	0x05
 #define ROCKCHIP_SIP_CONFIG_DRAM_CLR_IRQ	0x06
 #define ROCKCHIP_SIP_CONFIG_DRAM_SET_PARAM	0x07
+<<<<<<< HEAD
+=======
+#define ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD	0x08
+>>>>>>> upstream/android-13
 
 #endif

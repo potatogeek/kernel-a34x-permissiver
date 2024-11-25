@@ -10,6 +10,7 @@
 
 #include <uapi/asm/unistd.h>
 
+<<<<<<< HEAD
 
 
 #define NR_syscalls			326 /* length of syscall table */
@@ -27,6 +28,12 @@
 #define __IGNORE_getpgrp	/* getpgid() */
 #define __IGNORE_vfork		/* clone() */
 #define __IGNORE_umount2	/* umount() */
+=======
+#define NR_syscalls		__NR_syscalls /* length of syscall table */
+
+#define __ARCH_WANT_NEW_STAT
+#define __ARCH_WANT_SYS_UTIME
+>>>>>>> upstream/android-13
 
 #if !defined(__ASSEMBLY__) && !defined(ASSEMBLER)
 

@@ -39,28 +39,42 @@
 #include <linux/kdebug.h>
 #include <linux/syscalls.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ldt.h>
 #include <asm/processor.h>
 #include <asm/fpu/internal.h>
 #include <asm/desc.h>
+<<<<<<< HEAD
 #ifdef CONFIG_MATH_EMULATION
 #include <asm/math_emu.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 
 #include <asm/tlbflush.h>
 #include <asm/cpu.h>
+<<<<<<< HEAD
 #include <asm/syscalls.h>
 #include <asm/debugreg.h>
 #include <asm/switch_to.h>
 #include <asm/vm86.h>
 #include <asm/intel_rdt_sched.h>
+=======
+#include <asm/debugreg.h>
+#include <asm/switch_to.h>
+#include <asm/vm86.h>
+#include <asm/resctrl.h>
+>>>>>>> upstream/android-13
 #include <asm/proto.h>
 
 #include "process.h"
 
+<<<<<<< HEAD
 void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 {
 	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L;
@@ -86,6 +100,28 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 		regs->si, regs->di, regs->bp, sp);
 	printk(KERN_DEFAULT "DS: %04x ES: %04x FS: %04x GS: %04x SS: %04x EFLAGS: %08lx\n",
 	       (u16)regs->ds, (u16)regs->es, (u16)regs->fs, gs, ss, regs->flags);
+=======
+void __show_regs(struct pt_regs *regs, enum show_regs_mode mode,
+		 const char *log_lvl)
+{
+	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L;
+	unsigned long d0, d1, d2, d3, d6, d7;
+	unsigned short gs;
+
+	if (user_mode(regs))
+		gs = get_user_gs(regs);
+	else
+		savesegment(gs, gs);
+
+	show_ip(regs, log_lvl);
+
+	printk("%sEAX: %08lx EBX: %08lx ECX: %08lx EDX: %08lx\n",
+		log_lvl, regs->ax, regs->bx, regs->cx, regs->dx);
+	printk("%sESI: %08lx EDI: %08lx EBP: %08lx ESP: %08lx\n",
+		log_lvl, regs->si, regs->di, regs->bp, regs->sp);
+	printk("%sDS: %04x ES: %04x FS: %04x GS: %04x SS: %04x EFLAGS: %08lx\n",
+	       log_lvl, (u16)regs->ds, (u16)regs->es, (u16)regs->fs, gs, regs->ss, regs->flags);
+>>>>>>> upstream/android-13
 
 	if (mode != SHOW_REGS_ALL)
 		return;
@@ -94,8 +130,13 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 	cr2 = read_cr2();
 	cr3 = __read_cr3();
 	cr4 = __read_cr4();
+<<<<<<< HEAD
 	printk(KERN_DEFAULT "CR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n",
 			cr0, cr2, cr3, cr4);
+=======
+	printk("%sCR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n",
+		log_lvl, cr0, cr2, cr3, cr4);
+>>>>>>> upstream/android-13
 
 	get_debugreg(d0, 0);
 	get_debugreg(d1, 1);
@@ -109,10 +150,17 @@ void __show_regs(struct pt_regs *regs, enum show_regs_mode mode)
 	    (d6 == DR6_RESERVED) && (d7 == 0x400))
 		return;
 
+<<<<<<< HEAD
 	printk(KERN_DEFAULT "DR0: %08lx DR1: %08lx DR2: %08lx DR3: %08lx\n",
 			d0, d1, d2, d3);
 	printk(KERN_DEFAULT "DR6: %08lx DR7: %08lx\n",
 			d6, d7);
+=======
+	printk("%sDR0: %08lx DR1: %08lx DR2: %08lx DR3: %08lx\n",
+		log_lvl, d0, d1, d2, d3);
+	printk("%sDR6: %08lx DR7: %08lx\n",
+		log_lvl, d6, d7);
+>>>>>>> upstream/android-13
 }
 
 void release_thread(struct task_struct *dead_task)
@@ -121,6 +169,7 @@ void release_thread(struct task_struct *dead_task)
 	release_vm86_irqs(dead_task);
 }
 
+<<<<<<< HEAD
 int copy_thread_tls(unsigned long clone_flags, unsigned long sp,
 	unsigned long arg, struct task_struct *p, unsigned long tls)
 {
@@ -189,6 +238,8 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long sp,
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 void
 start_thread(struct pt_regs *regs, unsigned long new_ip, unsigned long new_sp)
 {
@@ -201,7 +252,10 @@ start_thread(struct pt_regs *regs, unsigned long new_ip, unsigned long new_sp)
 	regs->ip		= new_ip;
 	regs->sp		= new_sp;
 	regs->flags		= X86_EFLAGS_IF;
+<<<<<<< HEAD
 	force_iret();
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(start_thread);
 
@@ -244,7 +298,12 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 
 	/* never put a printk in __switch_to... printk() calls wake_up*() indirectly */
 
+<<<<<<< HEAD
 	switch_fpu_prepare(prev_fpu, cpu);
+=======
+	if (!test_thread_flag(TIF_NEED_FPU_LOAD))
+		switch_fpu_prepare(prev_fpu, cpu);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Save away %gs. No need to save %fs, as it was saved on the
@@ -263,6 +322,7 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	 */
 	load_TLS(next, cpu);
 
+<<<<<<< HEAD
 	/*
 	 * Restore IOPL if needed.  In normal use, the flags restore
 	 * in the switch assembly will handle this.  But if the kernel
@@ -272,14 +332,20 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	if (get_kernel_rpl() && unlikely(prev->iopl != next->iopl))
 		set_iopl_mask(next->iopl);
 
+=======
+>>>>>>> upstream/android-13
 	switch_to_extra(prev_p, next_p);
 
 	/*
 	 * Leave lazy mode, flushing any hypercalls made here.
 	 * This must be done before restoring TLS segments so
+<<<<<<< HEAD
 	 * the GDT and LDT are properly updated, and must be
 	 * done before fpu__restore(), so the TS bit is up
 	 * to date.
+=======
+	 * the GDT and LDT are properly updated.
+>>>>>>> upstream/android-13
 	 */
 	arch_end_context_switch(next_p);
 
@@ -300,12 +366,21 @@ __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
 	if (prev->gs | next->gs)
 		lazy_load_gs(next->gs);
 
+<<<<<<< HEAD
 	switch_fpu_finish(next_fpu, cpu);
 
 	this_cpu_write(current_task, next_p);
 
 	/* Load the Intel cache allocation PQR MSR. */
 	intel_rdt_sched_in();
+=======
+	this_cpu_write(current_task, next_p);
+
+	switch_fpu_finish(next_fpu);
+
+	/* Load the Intel cache allocation PQR MSR. */
+	resctrl_sched_in();
+>>>>>>> upstream/android-13
 
 	return prev_p;
 }

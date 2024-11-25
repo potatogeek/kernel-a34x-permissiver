@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * altera.c
  *
@@ -6,6 +10,7 @@
  * Copyright (C) Altera Corporation 1998-2001
  * Copyright (C) 2010,2011 NetUP Inc.
  * Copyright (C) 2010,2011 Igor M. Liplianin <liplianin@netup.ru>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/unaligned.h>
@@ -2279,11 +2286,14 @@ static int altera_check_crc(u8 *p, s32 program_size)
 				"actual %04x\n", __func__, local_expected,
 				local_actual);
 			break;
+<<<<<<< HEAD
 		case -ENODATA:
 			printk(KERN_ERR "%s: expected CRC not found, "
 				"actual CRC = %04x\n", __func__,
 				local_actual);
 			break;
+=======
+>>>>>>> upstream/android-13
 		case -EIO:
 			printk(KERN_ERR "%s: error: format isn't "
 				"recognized.\n", __func__);

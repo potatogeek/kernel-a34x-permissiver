@@ -100,6 +100,10 @@
 #include	<linux/seq_file.h>
 #include	<linux/notifier.h>
 #include	<linux/kallsyms.h>
+<<<<<<< HEAD
+=======
+#include	<linux/kfence.h>
+>>>>>>> upstream/android-13
 #include	<linux/cpu.h>
 #include	<linux/sysctl.h>
 #include	<linux/module.h>
@@ -258,7 +262,11 @@ static void kmem_cache_node_init(struct kmem_cache_node *parent)
 
 #define BATCHREFILL_LIMIT	16
 /*
+<<<<<<< HEAD
  * Optimization question: fewer reaps means less probability for unnessary
+=======
+ * Optimization question: fewer reaps means less probability for unnecessary
+>>>>>>> upstream/android-13
  * cpucache drain/refill cycles.
  *
  * OTOH the cpuarrays can contain lots of objects,
@@ -272,7 +280,11 @@ static void kmem_cache_node_init(struct kmem_cache_node *parent)
 #define	STATS_DEC_ACTIVE(x)	((x)->num_active--)
 #define	STATS_INC_ALLOCED(x)	((x)->num_allocations++)
 #define	STATS_INC_GROWN(x)	((x)->grown++)
+<<<<<<< HEAD
 #define	STATS_ADD_REAPED(x,y)	((x)->reaped += (y))
+=======
+#define	STATS_ADD_REAPED(x, y)	((x)->reaped += (y))
+>>>>>>> upstream/android-13
 #define	STATS_SET_HIGH(x)						\
 	do {								\
 		if ((x)->num_active > (x)->high_mark)			\
@@ -296,7 +308,11 @@ static void kmem_cache_node_init(struct kmem_cache_node *parent)
 #define	STATS_DEC_ACTIVE(x)	do { } while (0)
 #define	STATS_INC_ALLOCED(x)	do { } while (0)
 #define	STATS_INC_GROWN(x)	do { } while (0)
+<<<<<<< HEAD
 #define	STATS_ADD_REAPED(x,y)	do { (void)(y); } while (0)
+=======
+#define	STATS_ADD_REAPED(x, y)	do { (void)(y); } while (0)
+>>>>>>> upstream/android-13
 #define	STATS_SET_HIGH(x)	do { } while (0)
 #define	STATS_INC_ERR(x)	do { } while (0)
 #define	STATS_INC_NODEALLOCS(x)	do { } while (0)
@@ -332,7 +348,11 @@ static int obj_offset(struct kmem_cache *cachep)
 static unsigned long long *dbg_redzone1(struct kmem_cache *cachep, void *objp)
 {
 	BUG_ON(!(cachep->flags & SLAB_RED_ZONE));
+<<<<<<< HEAD
 	return (unsigned long long*) (objp + obj_offset(cachep) -
+=======
+	return (unsigned long long *) (objp + obj_offset(cachep) -
+>>>>>>> upstream/android-13
 				      sizeof(unsigned long long));
 }
 
@@ -362,6 +382,7 @@ static void **dbg_userword(struct kmem_cache *cachep, void *objp)
 
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_SLAB_LEAK
 
 static inline bool is_store_user_clean(struct kmem_cache *cachep)
@@ -385,6 +406,8 @@ static inline void set_store_user_dirty(struct kmem_cache *cachep) {}
 
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Do not go above this order unless 0 objects fit into the slab or
  * overridden on the command line.
@@ -394,12 +417,15 @@ static inline void set_store_user_dirty(struct kmem_cache *cachep) {}
 static int slab_max_order = SLAB_MAX_ORDER_LO;
 static bool slab_max_order_set __initdata;
 
+<<<<<<< HEAD
 static inline struct kmem_cache *virt_to_cache(const void *obj)
 {
 	struct page *page = virt_to_head_page(obj);
 	return page->slab_cache;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void *index_to_obj(struct kmem_cache *cache, struct page *page,
 				 unsigned int idx)
 {
@@ -609,7 +635,11 @@ static int transfer_objects(struct array_cache *to,
 	if (!nr)
 		return 0;
 
+<<<<<<< HEAD
 	memcpy(to->entry + to->avail, from->entry + from->avail -nr,
+=======
+	memcpy(to->entry + to->avail, from->entry + from->avail - nr,
+>>>>>>> upstream/android-13
 			sizeof(void *) *nr);
 
 	from->avail -= nr;
@@ -617,6 +647,19 @@ static int transfer_objects(struct array_cache *to,
 	return nr;
 }
 
+<<<<<<< HEAD
+=======
+/* &alien->lock must be held by alien callers. */
+static __always_inline void __free_one(struct array_cache *ac, void *objp)
+{
+	/* Avoid trivial double-free. */
+	if (IS_ENABLED(CONFIG_SLAB_FREELIST_HARDENED) &&
+	    WARN_ON_ONCE(ac->avail > 0 && ac->entry[ac->avail - 1] == objp))
+		return;
+	ac->entry[ac->avail++] = objp;
+}
+
+>>>>>>> upstream/android-13
 #ifndef CONFIG_NUMA
 
 #define drain_alien_cache(cachep, alien) do { } while (0)
@@ -677,12 +720,19 @@ static struct alien_cache *__alloc_alien_cache(int node, int entries,
 static struct alien_cache **alloc_alien_cache(int node, int limit, gfp_t gfp)
 {
 	struct alien_cache **alc_ptr;
+<<<<<<< HEAD
 	size_t memsize = sizeof(void *) * nr_node_ids;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	if (limit > 1)
 		limit = 12;
+<<<<<<< HEAD
 	alc_ptr = kzalloc_node(memsize, gfp, node);
+=======
+	alc_ptr = kcalloc_node(nr_node_ids, sizeof(void *), gfp, node);
+>>>>>>> upstream/android-13
 	if (!alc_ptr)
 		return NULL;
 
@@ -797,7 +847,11 @@ static int __cache_free_alien(struct kmem_cache *cachep, void *objp,
 			STATS_INC_ACOVERFLOW(cachep);
 			__drain_alien_cache(cachep, ac, page_node, &list);
 		}
+<<<<<<< HEAD
 		ac->entry[ac->avail++] = objp;
+=======
+		__free_one(ac, objp);
+>>>>>>> upstream/android-13
 		spin_unlock(&alien->lock);
 		slabs_destroy(cachep, &list);
 	} else {
@@ -952,10 +1006,17 @@ static int setup_kmem_cache_node(struct kmem_cache *cachep,
 	 * To protect lockless access to n->shared during irq disabled context.
 	 * If n->shared isn't NULL in irq disabled context, accessing to it is
 	 * guaranteed to be valid until irq is re-enabled, because it will be
+<<<<<<< HEAD
 	 * freed after synchronize_sched().
 	 */
 	if (old_shared && force_change)
 		synchronize_sched();
+=======
+	 * freed after synchronize_rcu().
+	 */
+	if (old_shared && force_change)
+		synchronize_rcu();
+>>>>>>> upstream/android-13
 
 fail:
 	kfree(old_shared);
@@ -991,10 +1052,15 @@ static void cpuup_canceled(long cpu)
 
 		/* cpu is dead; no one can alloc from it. */
 		nc = per_cpu_ptr(cachep->cpu_cache, cpu);
+<<<<<<< HEAD
 		if (nc) {
 			free_block(cachep, nc->entry, nc->avail, node, &list);
 			nc->avail = 0;
 		}
+=======
+		free_block(cachep, nc->entry, nc->avail, node, &list);
+		nc->avail = 0;
+>>>>>>> upstream/android-13
 
 		if (!cpumask_empty(mask)) {
 			spin_unlock_irq(&n->list_lock);
@@ -1082,9 +1148,15 @@ int slab_prepare_cpu(unsigned int cpu)
  * offline.
  *
  * Even if all the cpus of a node are down, we don't free the
+<<<<<<< HEAD
  * kmem_list3 of any cache. This to avoid a race between cpu_down, and
  * a kmalloc allocation from another cpu for memory from the node of
  * the cpu going down.  The list3 structure is usually allocated from
+=======
+ * kmem_cache_node of any cache. This to avoid a race between cpu_down, and
+ * a kmalloc allocation from another cpu for memory from the node of
+ * the cpu going down.  The kmem_cache_node structure is usually allocated from
+>>>>>>> upstream/android-13
  * kmem_cache_create() and gets destroyed at kmem_cache_destroy().
  */
 int slab_dead_cpu(unsigned int cpu)
@@ -1116,7 +1188,11 @@ static int slab_offline_cpu(unsigned int cpu)
 	return 0;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_NUMA) && defined(CONFIG_MEMORY_HOTPLUG)
+=======
+#if defined(CONFIG_NUMA)
+>>>>>>> upstream/android-13
 /*
  * Drains freelist for a node on each slab cache, used for memory hot-remove.
  * Returns -EBUSY if all objects cannot be drained so that the node is not
@@ -1178,7 +1254,11 @@ static int __meminit slab_memory_callback(struct notifier_block *self,
 out:
 	return notifier_from_errno(ret);
 }
+<<<<<<< HEAD
 #endif /* CONFIG_NUMA && CONFIG_MEMORY_HOTPLUG */
+=======
+#endif /* CONFIG_NUMA */
+>>>>>>> upstream/android-13
 
 /*
  * swap the static kmem_cache_node with kmalloced memory
@@ -1238,7 +1318,11 @@ void __init kmem_cache_init(void)
 	 * page orders on machines with more than 32MB of memory if
 	 * not overridden on the command line.
 	 */
+<<<<<<< HEAD
 	if (!slab_max_order_set && totalram_pages > (32 << 20) >> PAGE_SHIFT)
+=======
+	if (!slab_max_order_set && totalram_pages() > (32 << 20) >> PAGE_SHIFT)
+>>>>>>> upstream/android-13
 		slab_max_order = SLAB_MAX_ORDER_HI;
 
 	/* Bootstrap is tricky, because several objects are allocated
@@ -1271,7 +1355,10 @@ void __init kmem_cache_init(void)
 				  nr_node_ids * sizeof(struct kmem_cache_node *),
 				  SLAB_HWCACHE_ALIGN, 0, 0);
 	list_add(&kmem_cache->list, &slab_caches);
+<<<<<<< HEAD
 	memcg_link_cache(kmem_cache);
+=======
+>>>>>>> upstream/android-13
 	slab_state = PARTIAL;
 
 	/*
@@ -1279,9 +1366,16 @@ void __init kmem_cache_init(void)
 	 * structures first.  Without this, further allocations will bug.
 	 */
 	kmalloc_caches[KMALLOC_NORMAL][INDEX_NODE] = create_kmalloc_cache(
+<<<<<<< HEAD
 				kmalloc_info[INDEX_NODE].name,
 				kmalloc_size(INDEX_NODE), ARCH_KMALLOC_FLAGS,
 				0, kmalloc_size(INDEX_NODE));
+=======
+				kmalloc_info[INDEX_NODE].name[KMALLOC_NORMAL],
+				kmalloc_info[INDEX_NODE].size,
+				ARCH_KMALLOC_FLAGS, 0,
+				kmalloc_info[INDEX_NODE].size);
+>>>>>>> upstream/android-13
 	slab_state = PARTIAL_NODE;
 	setup_kmalloc_cache_index_table();
 
@@ -1392,7 +1486,10 @@ static struct page *kmem_getpages(struct kmem_cache *cachep, gfp_t flags,
 								int nodeid)
 {
 	struct page *page;
+<<<<<<< HEAD
 	int nr_pages;
+=======
+>>>>>>> upstream/android-13
 
 	flags |= cachep->allocflags;
 
@@ -1402,6 +1499,7 @@ static struct page *kmem_getpages(struct kmem_cache *cachep, gfp_t flags,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	if (memcg_charge_slab(page, flags, cachep->gfporder, cachep)) {
 		__free_pages(page, cachep->gfporder);
 		return NULL;
@@ -1413,6 +1511,9 @@ static struct page *kmem_getpages(struct kmem_cache *cachep, gfp_t flags,
 	else
 		mod_lruvec_page_state(page, NR_SLAB_UNRECLAIMABLE, nr_pages);
 
+=======
+	account_slab_page(page, cachep->gfporder, cachep, flags);
+>>>>>>> upstream/android-13
 	__SetPageSlab(page);
 	/* Record if ALLOC_NO_WATERMARKS was set when allocating the slab */
 	if (sk_memalloc_socks() && page_is_pfmemalloc(page))
@@ -1427,22 +1528,34 @@ static struct page *kmem_getpages(struct kmem_cache *cachep, gfp_t flags,
 static void kmem_freepages(struct kmem_cache *cachep, struct page *page)
 {
 	int order = cachep->gfporder;
+<<<<<<< HEAD
 	unsigned long nr_freed = (1 << order);
 
 	if (cachep->flags & SLAB_RECLAIM_ACCOUNT)
 		mod_lruvec_page_state(page, NR_SLAB_RECLAIMABLE, -nr_freed);
 	else
 		mod_lruvec_page_state(page, NR_SLAB_UNRECLAIMABLE, -nr_freed);
+=======
+>>>>>>> upstream/android-13
 
 	BUG_ON(!PageSlab(page));
 	__ClearPageSlabPfmemalloc(page);
 	__ClearPageSlab(page);
 	page_mapcount_reset(page);
+<<<<<<< HEAD
 	page->mapping = NULL;
 
 	if (current->reclaim_state)
 		current->reclaim_state->reclaimed_slab += nr_freed;
 	memcg_uncharge_slab(page, order, cachep);
+=======
+	/* In union with page->mapping where page allocator expects NULL */
+	page->slab_cache = NULL;
+
+	if (current->reclaim_state)
+		current->reclaim_state->reclaimed_slab += 1 << order;
+	unaccount_slab_page(page, order, cachep);
+>>>>>>> upstream/android-13
 	__free_pages(page, order);
 }
 
@@ -1460,7 +1573,11 @@ static void kmem_rcu_free(struct rcu_head *head)
 #if DEBUG
 static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
 {
+<<<<<<< HEAD
 	if (debug_pagealloc_enabled() && OFF_SLAB(cachep) &&
+=======
+	if (debug_pagealloc_enabled_static() && OFF_SLAB(cachep) &&
+>>>>>>> upstream/android-13
 		(cachep->size % PAGE_SIZE) == 0)
 		return true;
 
@@ -1468,6 +1585,7 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
 }
 
 #ifdef CONFIG_DEBUG_PAGEALLOC
+<<<<<<< HEAD
 static void store_stackinfo(struct kmem_cache *cachep, unsigned long *addr,
 			    unsigned long caller)
 {
@@ -1502,19 +1620,30 @@ static void store_stackinfo(struct kmem_cache *cachep, unsigned long *addr,
 
 static void slab_kernel_map(struct kmem_cache *cachep, void *objp,
 				int map, unsigned long caller)
+=======
+static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
+>>>>>>> upstream/android-13
 {
 	if (!is_debug_pagealloc_cache(cachep))
 		return;
 
+<<<<<<< HEAD
 	if (caller)
 		store_stackinfo(cachep, objp, caller);
 
 	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
+=======
+	__kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
+>>>>>>> upstream/android-13
 }
 
 #else
 static inline void slab_kernel_map(struct kmem_cache *cachep, void *objp,
+<<<<<<< HEAD
 				int map, unsigned long caller) {}
+=======
+				int map) {}
+>>>>>>> upstream/android-13
 
 #endif
 
@@ -1662,7 +1791,11 @@ static void slab_destroy_debugcheck(struct kmem_cache *cachep,
 
 		if (cachep->flags & SLAB_POISON) {
 			check_poison_obj(cachep, objp);
+<<<<<<< HEAD
 			slab_kernel_map(cachep, objp, 1, 0);
+=======
+			slab_kernel_map(cachep, objp, 1);
+>>>>>>> upstream/android-13
 		}
 		if (cachep->flags & SLAB_RED_ZONE) {
 			if (*dbg_redzone1(cachep, objp) != RED_INACTIVE)
@@ -1707,12 +1840,24 @@ static void slab_destroy(struct kmem_cache *cachep, struct page *page)
 		kmem_cache_free(cachep->freelist_cache, freelist);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Update the size of the caches before calling slabs_destroy as it may
+ * recursively call kfree.
+ */
+>>>>>>> upstream/android-13
 static void slabs_destroy(struct kmem_cache *cachep, struct list_head *list)
 {
 	struct page *page, *n;
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(page, n, list, lru) {
 		list_del(&page->lru);
+=======
+	list_for_each_entry_safe(page, n, list, slab_list) {
+		list_del(&page->slab_list);
+>>>>>>> upstream/android-13
 		slab_destroy(cachep, page);
 	}
 }
@@ -1728,6 +1873,11 @@ static void slabs_destroy(struct kmem_cache *cachep, struct list_head *list)
  * This could be made much more intelligent.  For now, try to avoid using
  * high order pages for slabs.  When the gfp() functions are more friendly
  * towards high-order requests, this should be changed.
+<<<<<<< HEAD
+=======
+ *
+ * Return: number of left-over bytes in a slab
+>>>>>>> upstream/android-13
  */
 static size_t calculate_slab_order(struct kmem_cache *cachep,
 				size_t size, slab_flags_t flags)
@@ -1858,8 +2008,12 @@ static int __ref setup_cpu_cache(struct kmem_cache *cachep, gfp_t gfp)
 }
 
 slab_flags_t kmem_cache_flags(unsigned int object_size,
+<<<<<<< HEAD
 	slab_flags_t flags, const char *name,
 	void (*ctor)(void *))
+=======
+	slab_flags_t flags, const char *name)
+>>>>>>> upstream/android-13
 {
 	return flags;
 }
@@ -1984,6 +2138,11 @@ static bool set_on_slab_cache(struct kmem_cache *cachep,
  * %SLAB_HWCACHE_ALIGN - Align the objects in this cache to a hardware
  * cacheline.  This can be beneficial if you're counting cycles as closely
  * as davem.
+<<<<<<< HEAD
+=======
+ *
+ * Return: a pointer to the created cache or %NULL in case of error
+>>>>>>> upstream/android-13
  */
 int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
 {
@@ -2084,7 +2243,11 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
 	 * to check size >= 256. It guarantees that all necessary small
 	 * sized slab is initialized in current slab initialization sequence.
 	 */
+<<<<<<< HEAD
 	if (debug_pagealloc_enabled() && (flags & SLAB_POISON) &&
+=======
+	if (debug_pagealloc_enabled_static() && (flags & SLAB_POISON) &&
+>>>>>>> upstream/android-13
 		size >= 256 && cachep->object_size > cache_line_size()) {
 		if (size < PAGE_SIZE || size % PAGE_SIZE == 0) {
 			size_t tmp_size = ALIGN(size, PAGE_SIZE);
@@ -2224,8 +2387,13 @@ static void do_drain(void *arg)
 	spin_lock(&n->list_lock);
 	free_block(cachep, ac->entry, ac->avail, node, &list);
 	spin_unlock(&n->list_lock);
+<<<<<<< HEAD
 	slabs_destroy(cachep, &list);
 	ac->avail = 0;
+=======
+	ac->avail = 0;
+	slabs_destroy(cachep, &list);
+>>>>>>> upstream/android-13
 }
 
 static void drain_cpu_caches(struct kmem_cache *cachep)
@@ -2272,8 +2440,13 @@ static int drain_freelist(struct kmem_cache *cache,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		page = list_entry(p, struct page, lru);
 		list_del(&page->lru);
+=======
+		page = list_entry(p, struct page, slab_list);
+		list_del(&page->slab_list);
+>>>>>>> upstream/android-13
 		n->free_slabs--;
 		n->total_slabs--;
 		/*
@@ -2319,6 +2492,7 @@ int __kmem_cache_shrink(struct kmem_cache *cachep)
 	return (ret ? 1 : 0);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MEMCG
 void __kmemcg_cache_deactivate(struct kmem_cache *cachep)
 {
@@ -2326,6 +2500,8 @@ void __kmemcg_cache_deactivate(struct kmem_cache *cachep)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int __kmem_cache_shutdown(struct kmem_cache *cachep)
 {
 	return __kmem_cache_shrink(cachep);
@@ -2357,7 +2533,11 @@ void __kmem_cache_release(struct kmem_cache *cachep)
  * Because if it is the case, that means we defer the creation of
  * the kmalloc_{dma,}_cache of size sizeof(slab descriptor) to this point.
  * And we eventually call down to __kmem_cache_create(), which
+<<<<<<< HEAD
  * in turn looks up in the kmalloc_{dma,}_caches for the disired-size one.
+=======
+ * in turn looks up in the kmalloc_{dma,}_caches for the desired-size one.
+>>>>>>> upstream/android-13
  * This is a "chicken-and-egg" problem.
  *
  * So the off-slab slab descriptor shall come from the kmalloc_{dma,}_caches,
@@ -2379,8 +2559,11 @@ static void *alloc_slabmgmt(struct kmem_cache *cachep,
 		/* Slab management obj is off-slab. */
 		freelist = kmem_cache_alloc_node(cachep->freelist_cache,
 					      local_flags, nodeid);
+<<<<<<< HEAD
 		if (!freelist)
 			return NULL;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		/* We will use last bytes at the slab for freelist */
 		freelist = addr + (PAGE_SIZE << cachep->gfporder) -
@@ -2438,7 +2621,11 @@ static void cache_init_objs_debug(struct kmem_cache *cachep, struct page *page)
 		/* need to poison the objs? */
 		if (cachep->flags & SLAB_POISON) {
 			poison_obj(cachep, objp, POISON_FREE);
+<<<<<<< HEAD
 			slab_kernel_map(cachep, objp, 0, 0);
+=======
+			slab_kernel_map(cachep, objp, 0);
+>>>>>>> upstream/android-13
 		}
 	}
 #endif
@@ -2456,8 +2643,13 @@ union freelist_init_state {
 };
 
 /*
+<<<<<<< HEAD
  * Initialize the state based on the randomization methode available.
  * return true if the pre-computed list is available, false otherwize.
+=======
+ * Initialize the state based on the randomization method available.
+ * return true if the pre-computed list is available, false otherwise.
+>>>>>>> upstream/android-13
  */
 static bool freelist_state_initialize(union freelist_init_state *state,
 				struct kmem_cache *cachep,
@@ -2595,11 +2787,14 @@ static void *slab_get_obj(struct kmem_cache *cachep, struct page *page)
 	objp = index_to_obj(cachep, page, get_free_obj(page, page->active));
 	page->active++;
 
+<<<<<<< HEAD
 #if DEBUG
 	if (cachep->flags & SLAB_STORE_USER)
 		set_store_user_dirty(cachep);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	return objp;
 }
 
@@ -2656,6 +2851,7 @@ static struct page *cache_grow_begin(struct kmem_cache *cachep,
 	 * Be lazy and only check for valid flags here,  keeping it out of the
 	 * critical path in kmem_cache_alloc().
 	 */
+<<<<<<< HEAD
 	if (unlikely(flags & GFP_SLAB_BUG_MASK)) {
 		gfp_t invalid_mask = flags & GFP_SLAB_BUG_MASK;
 		flags &= ~GFP_SLAB_BUG_MASK;
@@ -2663,6 +2859,11 @@ static struct page *cache_grow_begin(struct kmem_cache *cachep,
 				invalid_mask, &invalid_mask, flags, &flags);
 		dump_stack();
 	}
+=======
+	if (unlikely(flags & GFP_SLAB_BUG_MASK))
+		flags = kmalloc_fix_flags(flags);
+
+>>>>>>> upstream/android-13
 	WARN_ON_ONCE(cachep->ctor && (flags & __GFP_ZERO));
 	local_flags = flags & (GFP_CONSTRAINT_MASK|GFP_RECLAIM_MASK);
 
@@ -2732,13 +2933,21 @@ static void cache_grow_end(struct kmem_cache *cachep, struct page *page)
 	if (!page)
 		return;
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&page->lru);
+=======
+	INIT_LIST_HEAD(&page->slab_list);
+>>>>>>> upstream/android-13
 	n = get_node(cachep, page_to_nid(page));
 
 	spin_lock(&n->list_lock);
 	n->total_slabs++;
 	if (!page->active) {
+<<<<<<< HEAD
 		list_add_tail(&page->lru, &(n->slabs_free));
+=======
+		list_add_tail(&page->slab_list, &n->slabs_free);
+>>>>>>> upstream/android-13
 		n->free_slabs++;
 	} else
 		fixup_slab_list(cachep, n, page, &list);
@@ -2805,10 +3014,15 @@ static void *cache_free_debugcheck(struct kmem_cache *cachep, void *objp,
 		*dbg_redzone1(cachep, objp) = RED_INACTIVE;
 		*dbg_redzone2(cachep, objp) = RED_INACTIVE;
 	}
+<<<<<<< HEAD
 	if (cachep->flags & SLAB_STORE_USER) {
 		set_store_user_dirty(cachep);
 		*dbg_userword(cachep, objp) = (void *)caller;
 	}
+=======
+	if (cachep->flags & SLAB_STORE_USER)
+		*dbg_userword(cachep, objp) = (void *)caller;
+>>>>>>> upstream/android-13
 
 	objnr = obj_to_index(cachep, page, objp);
 
@@ -2817,14 +3031,22 @@ static void *cache_free_debugcheck(struct kmem_cache *cachep, void *objp,
 
 	if (cachep->flags & SLAB_POISON) {
 		poison_obj(cachep, objp, POISON_FREE);
+<<<<<<< HEAD
 		slab_kernel_map(cachep, objp, 0, caller);
+=======
+		slab_kernel_map(cachep, objp, 0);
+>>>>>>> upstream/android-13
 	}
 	return objp;
 }
 
 #else
 #define kfree_debugcheck(x) do { } while(0)
+<<<<<<< HEAD
 #define cache_free_debugcheck(x,objp,z) (objp)
+=======
+#define cache_free_debugcheck(x, objp, z) (objp)
+>>>>>>> upstream/android-13
 #endif
 
 static inline void fixup_objfreelist_debug(struct kmem_cache *cachep,
@@ -2847,9 +3069,15 @@ static inline void fixup_slab_list(struct kmem_cache *cachep,
 				void **list)
 {
 	/* move slabp to correct slabp list: */
+<<<<<<< HEAD
 	list_del(&page->lru);
 	if (page->active == cachep->num) {
 		list_add(&page->lru, &n->slabs_full);
+=======
+	list_del(&page->slab_list);
+	if (page->active == cachep->num) {
+		list_add(&page->slab_list, &n->slabs_full);
+>>>>>>> upstream/android-13
 		if (OBJFREELIST_SLAB(cachep)) {
 #if DEBUG
 			/* Poisoning will be done without holding the lock */
@@ -2863,7 +3091,11 @@ static inline void fixup_slab_list(struct kmem_cache *cachep,
 			page->freelist = NULL;
 		}
 	} else
+<<<<<<< HEAD
 		list_add(&page->lru, &n->slabs_partial);
+=======
+		list_add(&page->slab_list, &n->slabs_partial);
+>>>>>>> upstream/android-13
 }
 
 /* Try to find non-pfmemalloc slab if needed */
@@ -2886,6 +3118,7 @@ static noinline struct page *get_valid_first_slab(struct kmem_cache_node *n,
 	}
 
 	/* Move pfmemalloc slab to the end of list to speed up next search */
+<<<<<<< HEAD
 	list_del(&page->lru);
 	if (!page->active) {
 		list_add_tail(&page->lru, &n->slabs_free);
@@ -2894,12 +3127,26 @@ static noinline struct page *get_valid_first_slab(struct kmem_cache_node *n,
 		list_add_tail(&page->lru, &n->slabs_partial);
 
 	list_for_each_entry(page, &n->slabs_partial, lru) {
+=======
+	list_del(&page->slab_list);
+	if (!page->active) {
+		list_add_tail(&page->slab_list, &n->slabs_free);
+		n->free_slabs++;
+	} else
+		list_add_tail(&page->slab_list, &n->slabs_partial);
+
+	list_for_each_entry(page, &n->slabs_partial, slab_list) {
+>>>>>>> upstream/android-13
 		if (!PageSlabPfmemalloc(page))
 			return page;
 	}
 
 	n->free_touched = 1;
+<<<<<<< HEAD
 	list_for_each_entry(page, &n->slabs_free, lru) {
+=======
+	list_for_each_entry(page, &n->slabs_free, slab_list) {
+>>>>>>> upstream/android-13
 		if (!PageSlabPfmemalloc(page)) {
 			n->free_slabs--;
 			return page;
@@ -2914,11 +3161,20 @@ static struct page *get_first_slab(struct kmem_cache_node *n, bool pfmemalloc)
 	struct page *page;
 
 	assert_spin_locked(&n->list_lock);
+<<<<<<< HEAD
 	page = list_first_entry_or_null(&n->slabs_partial, struct page, lru);
 	if (!page) {
 		n->free_touched = 1;
 		page = list_first_entry_or_null(&n->slabs_free, struct page,
 						lru);
+=======
+	page = list_first_entry_or_null(&n->slabs_partial, struct page,
+					slab_list);
+	if (!page) {
+		n->free_touched = 1;
+		page = list_first_entry_or_null(&n->slabs_free, struct page,
+						slab_list);
+>>>>>>> upstream/android-13
 		if (page)
 			n->free_slabs--;
 	}
@@ -3077,11 +3333,19 @@ static void *cache_alloc_debugcheck_after(struct kmem_cache *cachep,
 				gfp_t flags, void *objp, unsigned long caller)
 {
 	WARN_ON_ONCE(cachep->ctor && (flags & __GFP_ZERO));
+<<<<<<< HEAD
 	if (!objp)
 		return objp;
 	if (cachep->flags & SLAB_POISON) {
 		check_poison_obj(cachep, objp);
 		slab_kernel_map(cachep, objp, 1, 0);
+=======
+	if (!objp || is_kfence_address(objp))
+		return objp;
+	if (cachep->flags & SLAB_POISON) {
+		check_poison_obj(cachep, objp);
+		slab_kernel_map(cachep, objp, 1);
+>>>>>>> upstream/android-13
 		poison_obj(cachep, objp, POISON_INUSE);
 	}
 	if (cachep->flags & SLAB_STORE_USER)
@@ -3110,7 +3374,11 @@ static void *cache_alloc_debugcheck_after(struct kmem_cache *cachep,
 	return objp;
 }
 #else
+<<<<<<< HEAD
 #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
+=======
+#define cache_alloc_debugcheck_after(a, b, objp, d) (objp)
+>>>>>>> upstream/android-13
 #endif
 
 static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
@@ -3184,7 +3452,11 @@ static void *fallback_alloc(struct kmem_cache *cache, gfp_t flags)
 	struct zonelist *zonelist;
 	struct zoneref *z;
 	struct zone *zone;
+<<<<<<< HEAD
 	enum zone_type high_zoneidx = gfp_zone(flags);
+=======
+	enum zone_type highest_zoneidx = gfp_zone(flags);
+>>>>>>> upstream/android-13
 	void *obj = NULL;
 	struct page *page;
 	int nid;
@@ -3202,7 +3474,11 @@ retry:
 	 * Look through allowed nodes for objects available
 	 * from existing per node queues.
 	 */
+<<<<<<< HEAD
 	for_each_zone_zonelist(zone, z, zonelist, high_zoneidx) {
+=======
+	for_each_zone_zonelist(zone, z, zonelist, highest_zoneidx) {
+>>>>>>> upstream/android-13
 		nid = zone_to_nid(zone);
 
 		if (cpuset_zone_allowed(zone, flags) &&
@@ -3294,18 +3570,37 @@ must_grow:
 }
 
 static __always_inline void *
+<<<<<<< HEAD
 slab_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid,
+=======
+slab_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid, size_t orig_size,
+>>>>>>> upstream/android-13
 		   unsigned long caller)
 {
 	unsigned long save_flags;
 	void *ptr;
 	int slab_node = numa_mem_id();
+<<<<<<< HEAD
 
 	flags &= gfp_allowed_mask;
 	cachep = slab_pre_alloc_hook(cachep, flags);
 	if (unlikely(!cachep))
 		return NULL;
 
+=======
+	struct obj_cgroup *objcg = NULL;
+	bool init = false;
+
+	flags &= gfp_allowed_mask;
+	cachep = slab_pre_alloc_hook(cachep, &objcg, 1, flags);
+	if (unlikely(!cachep))
+		return NULL;
+
+	ptr = kfence_alloc(cachep, orig_size, flags);
+	if (unlikely(ptr))
+		goto out_hooks;
+
+>>>>>>> upstream/android-13
 	cache_alloc_debugcheck_before(cachep, flags);
 	local_irq_save(save_flags);
 
@@ -3334,11 +3629,18 @@ slab_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid,
   out:
 	local_irq_restore(save_flags);
 	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr, caller);
+<<<<<<< HEAD
 
 	if (unlikely(slab_want_init_on_alloc(flags, cachep)) && ptr)
 		memset(ptr, 0, cachep->object_size);
 
 	slab_post_alloc_hook(cachep, flags, 1, &ptr);
+=======
+	init = slab_want_init_on_alloc(flags, cachep);
+
+out_hooks:
+	slab_post_alloc_hook(cachep, objcg, flags, 1, &ptr, init);
+>>>>>>> upstream/android-13
 	return ptr;
 }
 
@@ -3375,6 +3677,7 @@ __do_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
 #endif /* CONFIG_NUMA */
 
 static __always_inline void *
+<<<<<<< HEAD
 slab_alloc(struct kmem_cache *cachep, gfp_t flags, unsigned long caller)
 {
 	unsigned long save_flags;
@@ -3385,17 +3688,42 @@ slab_alloc(struct kmem_cache *cachep, gfp_t flags, unsigned long caller)
 	if (unlikely(!cachep))
 		return NULL;
 
+=======
+slab_alloc(struct kmem_cache *cachep, gfp_t flags, size_t orig_size, unsigned long caller)
+{
+	unsigned long save_flags;
+	void *objp;
+	struct obj_cgroup *objcg = NULL;
+	bool init = false;
+
+	flags &= gfp_allowed_mask;
+	cachep = slab_pre_alloc_hook(cachep, &objcg, 1, flags);
+	if (unlikely(!cachep))
+		return NULL;
+
+	objp = kfence_alloc(cachep, orig_size, flags);
+	if (unlikely(objp))
+		goto out;
+
+>>>>>>> upstream/android-13
 	cache_alloc_debugcheck_before(cachep, flags);
 	local_irq_save(save_flags);
 	objp = __do_cache_alloc(cachep, flags);
 	local_irq_restore(save_flags);
 	objp = cache_alloc_debugcheck_after(cachep, flags, objp, caller);
 	prefetchw(objp);
+<<<<<<< HEAD
 
 	if (unlikely(slab_want_init_on_alloc(flags, cachep)) && objp)
 		memset(objp, 0, cachep->object_size);
 
 	slab_post_alloc_hook(cachep, flags, 1, &objp);
+=======
+	init = slab_want_init_on_alloc(flags, cachep);
+
+out:
+	slab_post_alloc_hook(cachep, objcg, flags, 1, &objp, init);
+>>>>>>> upstream/android-13
 	return objp;
 }
 
@@ -3419,29 +3747,46 @@ static void free_block(struct kmem_cache *cachep, void **objpp,
 		objp = objpp[i];
 
 		page = virt_to_head_page(objp);
+<<<<<<< HEAD
 		list_del(&page->lru);
+=======
+		list_del(&page->slab_list);
+>>>>>>> upstream/android-13
 		check_spinlock_acquired_node(cachep, node);
 		slab_put_obj(cachep, page, objp);
 		STATS_DEC_ACTIVE(cachep);
 
 		/* fixup slab chains */
 		if (page->active == 0) {
+<<<<<<< HEAD
 			list_add(&page->lru, &n->slabs_free);
+=======
+			list_add(&page->slab_list, &n->slabs_free);
+>>>>>>> upstream/android-13
 			n->free_slabs++;
 		} else {
 			/* Unconditionally move a slab to the end of the
 			 * partial list on free - maximum time for the
 			 * other objects to be freed, too.
 			 */
+<<<<<<< HEAD
 			list_add_tail(&page->lru, &n->slabs_partial);
+=======
+			list_add_tail(&page->slab_list, &n->slabs_partial);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	while (n->free_objects > n->free_limit && !list_empty(&n->slabs_free)) {
 		n->free_objects -= cachep->num;
 
+<<<<<<< HEAD
 		page = list_last_entry(&n->slabs_free, struct page, lru);
 		list_move(&page->lru, list);
+=======
+		page = list_last_entry(&n->slabs_free, struct page, slab_list);
+		list_move(&page->slab_list, list);
+>>>>>>> upstream/android-13
 		n->free_slabs--;
 		n->total_slabs--;
 	}
@@ -3479,7 +3824,11 @@ free_done:
 		int i = 0;
 		struct page *page;
 
+<<<<<<< HEAD
 		list_for_each_entry(page, &n->slabs_free, lru) {
+=======
+		list_for_each_entry(page, &n->slabs_free, slab_list) {
+>>>>>>> upstream/android-13
 			BUG_ON(page->active);
 
 			i++;
@@ -3488,9 +3837,15 @@ free_done:
 	}
 #endif
 	spin_unlock(&n->list_lock);
+<<<<<<< HEAD
 	slabs_destroy(cachep, &list);
 	ac->avail -= batchcount;
 	memmove(ac->entry, &(ac->entry[batchcount]), sizeof(void *)*ac->avail);
+=======
+	ac->avail -= batchcount;
+	memmove(ac->entry, &(ac->entry[batchcount]), sizeof(void *)*ac->avail);
+	slabs_destroy(cachep, &list);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3500,9 +3855,37 @@ free_done:
 static __always_inline void __cache_free(struct kmem_cache *cachep, void *objp,
 					 unsigned long caller)
 {
+<<<<<<< HEAD
 	/* Put the object into the quarantine, don't touch it for now. */
 	if (kasan_slab_free(cachep, objp, _RET_IP_))
 		return;
+=======
+	bool init;
+
+	if (is_kfence_address(objp)) {
+		kmemleak_free_recursive(objp, cachep->flags);
+		memcg_slab_free_hook(cachep, &objp, 1);
+		__kfence_free(objp);
+		return;
+	}
+
+	/*
+	 * As memory initialization might be integrated into KASAN,
+	 * kasan_slab_free and initialization memset must be
+	 * kept together to avoid discrepancies in behavior.
+	 */
+	init = slab_want_init_on_free(cachep);
+	if (init && !kasan_has_integrated_init())
+		memset(objp, 0, cachep->object_size);
+	/* KASAN might put objp into memory quarantine, delaying its reuse. */
+	if (kasan_slab_free(cachep, objp, init))
+		return;
+
+	/* Use KCSAN to help debug racy use-after-free. */
+	if (!(cachep->flags & SLAB_TYPESAFE_BY_RCU))
+		__kcsan_check_access(objp, cachep->object_size,
+				     KCSAN_ACCESS_WRITE | KCSAN_ACCESS_ASSERT);
+>>>>>>> upstream/android-13
 
 	___cache_free(cachep, objp, caller);
 }
@@ -3513,10 +3896,16 @@ void ___cache_free(struct kmem_cache *cachep, void *objp,
 	struct array_cache *ac = cpu_cache_get(cachep);
 
 	check_irq_off();
+<<<<<<< HEAD
 	if (unlikely(slab_want_init_on_free(cachep)))
 		memset(objp, 0, cachep->object_size);
 	kmemleak_free_recursive(objp, cachep->flags);
 	objp = cache_free_debugcheck(cachep, objp, caller);
+=======
+	kmemleak_free_recursive(objp, cachep->flags);
+	objp = cache_free_debugcheck(cachep, objp, caller);
+	memcg_slab_free_hook(cachep, &objp, 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Skip calling cache_free_alien() when the platform is not numa.
@@ -3544,7 +3933,11 @@ void ___cache_free(struct kmem_cache *cachep, void *objp,
 		}
 	}
 
+<<<<<<< HEAD
 	ac->entry[ac->avail++] = objp;
+=======
+	__free_one(ac, objp);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3554,10 +3947,19 @@ void ___cache_free(struct kmem_cache *cachep, void *objp,
  *
  * Allocate an object from this cache.  The flags are only relevant
  * if the cache has no available objects.
+<<<<<<< HEAD
  */
 void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
 {
 	void *ret = slab_alloc(cachep, flags, _RET_IP_);
+=======
+ *
+ * Return: pointer to the new object or %NULL in case of error
+ */
+void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+{
+	void *ret = slab_alloc(cachep, flags, cachep->object_size, _RET_IP_);
+>>>>>>> upstream/android-13
 
 	trace_kmem_cache_alloc(_RET_IP_, ret,
 			       cachep->object_size, cachep->size, flags);
@@ -3580,8 +3982,14 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
 			  void **p)
 {
 	size_t i;
+<<<<<<< HEAD
 
 	s = slab_pre_alloc_hook(s, flags);
+=======
+	struct obj_cgroup *objcg = NULL;
+
+	s = slab_pre_alloc_hook(s, &objcg, size, flags);
+>>>>>>> upstream/android-13
 	if (!s)
 		return 0;
 
@@ -3589,7 +3997,11 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
 
 	local_irq_disable();
 	for (i = 0; i < size; i++) {
+<<<<<<< HEAD
 		void *objp = __do_cache_alloc(s, flags);
+=======
+		void *objp = kfence_alloc(s, s->object_size, flags) ?: __do_cache_alloc(s, flags);
+>>>>>>> upstream/android-13
 
 		if (unlikely(!objp))
 			goto error;
@@ -3599,18 +4011,31 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
 
 	cache_alloc_debugcheck_after_bulk(s, flags, size, p, _RET_IP_);
 
+<<<<<<< HEAD
 	/* Clear memory outside IRQ disabled section */
 	if (unlikely(slab_want_init_on_alloc(flags, s)))
 		for (i = 0; i < size; i++)
 			memset(p[i], 0, s->object_size);
 
 	slab_post_alloc_hook(s, flags, size, p);
+=======
+	/*
+	 * memcg and kmem_cache debug support and memory initialization.
+	 * Done outside of the IRQ disabled section.
+	 */
+	slab_post_alloc_hook(s, objcg, flags, size, p,
+				slab_want_init_on_alloc(flags, s));
+>>>>>>> upstream/android-13
 	/* FIXME: Trace call missing. Christoph would like a bulk variant */
 	return size;
 error:
 	local_irq_enable();
 	cache_alloc_debugcheck_after_bulk(s, flags, i, p, _RET_IP_);
+<<<<<<< HEAD
 	slab_post_alloc_hook(s, flags, i, p);
+=======
+	slab_post_alloc_hook(s, objcg, flags, i, p, false);
+>>>>>>> upstream/android-13
 	__kmem_cache_free_bulk(s, i, p);
 	return 0;
 }
@@ -3622,7 +4047,11 @@ kmem_cache_alloc_trace(struct kmem_cache *cachep, gfp_t flags, size_t size)
 {
 	void *ret;
 
+<<<<<<< HEAD
 	ret = slab_alloc(cachep, flags, _RET_IP_);
+=======
+	ret = slab_alloc(cachep, flags, size, _RET_IP_);
+>>>>>>> upstream/android-13
 
 	ret = kasan_kmalloc(cachep, ret, size, flags);
 	trace_kmalloc(_RET_IP_, ret,
@@ -3643,10 +4072,19 @@ EXPORT_SYMBOL(kmem_cache_alloc_trace);
  * node, which can improve the performance for cpu bound structures.
  *
  * Fallback to other node is possible if __GFP_THISNODE is not set.
+<<<<<<< HEAD
  */
 void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
 {
 	void *ret = slab_alloc_node(cachep, flags, nodeid, _RET_IP_);
+=======
+ *
+ * Return: pointer to the new object or %NULL in case of error
+ */
+void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
+{
+	void *ret = slab_alloc_node(cachep, flags, nodeid, cachep->object_size, _RET_IP_);
+>>>>>>> upstream/android-13
 
 	trace_kmem_cache_alloc_node(_RET_IP_, ret,
 				    cachep->object_size, cachep->size,
@@ -3664,7 +4102,11 @@ void *kmem_cache_alloc_node_trace(struct kmem_cache *cachep,
 {
 	void *ret;
 
+<<<<<<< HEAD
 	ret = slab_alloc_node(cachep, flags, nodeid, _RET_IP_);
+=======
+	ret = slab_alloc_node(cachep, flags, nodeid, size, _RET_IP_);
+>>>>>>> upstream/android-13
 
 	ret = kasan_kmalloc(cachep, ret, size, flags);
 	trace_kmalloc_node(_RET_IP_, ret,
@@ -3706,11 +4148,41 @@ void *__kmalloc_node_track_caller(size_t size, gfp_t flags,
 EXPORT_SYMBOL(__kmalloc_node_track_caller);
 #endif /* CONFIG_NUMA */
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PRINTK
+void __kmem_obj_info(struct kmem_obj_info *kpp, void *object, struct page *page)
+{
+	struct kmem_cache *cachep;
+	unsigned int objnr;
+	void *objp;
+
+	kpp->kp_ptr = object;
+	kpp->kp_page = page;
+	cachep = page->slab_cache;
+	kpp->kp_slab_cache = cachep;
+	objp = object - obj_offset(cachep);
+	kpp->kp_data_offset = obj_offset(cachep);
+	page = virt_to_head_page(objp);
+	objnr = obj_to_index(cachep, page, objp);
+	objp = index_to_obj(cachep, page, objnr);
+	kpp->kp_objp = objp;
+	if (DEBUG && cachep->flags & SLAB_STORE_USER)
+		kpp->kp_ret = *dbg_userword(cachep, objp);
+}
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * __do_kmalloc - allocate memory
  * @size: how many bytes of memory are required.
  * @flags: the type of memory to allocate (see kmalloc).
  * @caller: function caller for debug tracking of the caller
+<<<<<<< HEAD
+=======
+ *
+ * Return: pointer to the allocated memory or %NULL in case of error
+>>>>>>> upstream/android-13
  */
 static __always_inline void *__do_kmalloc(size_t size, gfp_t flags,
 					  unsigned long caller)
@@ -3723,7 +4195,11 @@ static __always_inline void *__do_kmalloc(size_t size, gfp_t flags,
 	cachep = kmalloc_slab(size, flags);
 	if (unlikely(ZERO_OR_NULL_PTR(cachep)))
 		return cachep;
+<<<<<<< HEAD
 	ret = slab_alloc(cachep, flags, caller);
+=======
+	ret = slab_alloc(cachep, flags, size, caller);
+>>>>>>> upstream/android-13
 
 	ret = kasan_kmalloc(cachep, ret, size, flags);
 	trace_kmalloc(caller, ret,
@@ -3766,7 +4242,11 @@ void kmem_cache_free(struct kmem_cache *cachep, void *objp)
 	__cache_free(cachep, objp, _RET_IP_);
 	local_irq_restore(flags);
 
+<<<<<<< HEAD
 	trace_kmem_cache_free(_RET_IP_, objp);
+=======
+	trace_kmem_cache_free(_RET_IP_, objp, cachep->name);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(kmem_cache_free);
 
@@ -3783,6 +4263,11 @@ void kmem_cache_free_bulk(struct kmem_cache *orig_s, size_t size, void **p)
 			s = virt_to_cache(objp);
 		else
 			s = cache_from_obj(orig_s, objp);
+<<<<<<< HEAD
+=======
+		if (!s)
+			continue;
+>>>>>>> upstream/android-13
 
 		debug_check_no_locks_freed(objp, s->object_size);
 		if (!(s->flags & SLAB_DEBUG_OBJECTS))
@@ -3817,6 +4302,13 @@ void kfree(const void *objp)
 	local_irq_save(flags);
 	kfree_debugcheck(objp);
 	c = virt_to_cache(objp);
+<<<<<<< HEAD
+=======
+	if (!c) {
+		local_irq_restore(flags);
+		return;
+	}
+>>>>>>> upstream/android-13
 	debug_check_no_locks_freed(objp, c->object_size);
 
 	debug_check_no_obj_freed(objp, c->object_size);
@@ -3862,8 +4354,13 @@ fail:
 }
 
 /* Always called with the slab_mutex held */
+<<<<<<< HEAD
 static int __do_tune_cpucache(struct kmem_cache *cachep, int limit,
 				int batchcount, int shared, gfp_t gfp)
+=======
+static int do_tune_cpucache(struct kmem_cache *cachep, int limit,
+			    int batchcount, int shared, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	struct array_cache __percpu *cpu_cache, *prev;
 	int cpu;
@@ -3908,6 +4405,7 @@ setup_node:
 	return setup_kmem_cache_nodes(cachep, gfp);
 }
 
+<<<<<<< HEAD
 static int do_tune_cpucache(struct kmem_cache *cachep, int limit,
 				int batchcount, int shared, gfp_t gfp)
 {
@@ -3931,6 +4429,8 @@ static int do_tune_cpucache(struct kmem_cache *cachep, int limit,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Called with slab_mutex held always */
 static int enable_cpucache(struct kmem_cache *cachep, gfp_t gfp)
 {
@@ -3943,6 +4443,7 @@ static int enable_cpucache(struct kmem_cache *cachep, gfp_t gfp)
 	if (err)
 		goto end;
 
+<<<<<<< HEAD
 	if (!is_root_cache(cachep)) {
 		struct kmem_cache *root = memcg_root_cache(cachep);
 		limit = root->limit;
@@ -3950,6 +4451,8 @@ static int enable_cpucache(struct kmem_cache *cachep, gfp_t gfp)
 		batchcount = root->batchcount;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (limit && shared && batchcount)
 		goto skip_setup;
 	/*
@@ -4136,6 +4639,10 @@ void get_slabinfo(struct kmem_cache *cachep, struct slabinfo *sinfo)
 	sinfo->objects_per_slab = cachep->num;
 	sinfo->cache_order = cachep->gfporder;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_NS_GPL(get_slabinfo, MINIDUMP);
+>>>>>>> upstream/android-13
 
 void slabinfo_show_stats(struct seq_file *m, struct kmem_cache *cachep)
 {
@@ -4176,6 +4683,11 @@ void slabinfo_show_stats(struct seq_file *m, struct kmem_cache *cachep)
  * @buffer: user buffer
  * @count: data length
  * @ppos: unused
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success, negative error code otherwise.
+>>>>>>> upstream/android-13
  */
 ssize_t slabinfo_write(struct file *file, const char __user *buffer,
 		       size_t count, loff_t *ppos)
@@ -4220,6 +4732,7 @@ ssize_t slabinfo_write(struct file *file, const char __user *buffer,
 	return res;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_SLAB_LEAK
 
 static inline int add_caller(unsigned long *n, unsigned long v)
@@ -4414,6 +4927,8 @@ static int __init slab_proc_init(void)
 }
 module_init(slab_proc_init);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HARDENED_USERCOPY
 /*
  * Rejects incorrectly sized objects and objects that are to be copied
@@ -4438,7 +4953,14 @@ void __check_heap_object(const void *ptr, unsigned long n, struct page *page,
 	BUG_ON(objnr >= cachep->num);
 
 	/* Find offset within object. */
+<<<<<<< HEAD
 	offset = ptr - index_to_obj(cachep, page, objnr) - obj_offset(cachep);
+=======
+	if (is_kfence_address(ptr))
+		offset = ptr - kfence_object_start(ptr);
+	else
+		offset = ptr - index_to_obj(cachep, page, objnr) - obj_offset(cachep);
+>>>>>>> upstream/android-13
 
 	/* Allow address range falling entirely within usercopy region. */
 	if (offset >= cachep->useroffset &&
@@ -4464,6 +4986,7 @@ void __check_heap_object(const void *ptr, unsigned long n, struct page *page,
 #endif /* CONFIG_HARDENED_USERCOPY */
 
 /**
+<<<<<<< HEAD
  * ksize - get the actual amount of memory allocated for a given object
  * @objp: Pointer to the object
  *
@@ -4477,12 +5000,26 @@ void __check_heap_object(const void *ptr, unsigned long n, struct page *page,
  */
 size_t ksize(const void *objp)
 {
+=======
+ * __ksize -- Uninstrumented ksize.
+ * @objp: pointer to the object
+ *
+ * Unlike ksize(), __ksize() is uninstrumented, and does not provide the same
+ * safety checks as ksize() with KASAN instrumentation enabled.
+ *
+ * Return: size of the actual memory used by @objp in bytes
+ */
+size_t __ksize(const void *objp)
+{
+	struct kmem_cache *c;
+>>>>>>> upstream/android-13
 	size_t size;
 
 	BUG_ON(!objp);
 	if (unlikely(objp == ZERO_SIZE_PTR))
 		return 0;
 
+<<<<<<< HEAD
 	size = virt_to_cache(objp)->object_size;
 	/* We assume that ksize callers could use the whole allocated area,
 	 * so we need to unpoison this area.
@@ -4492,3 +5029,11 @@ size_t ksize(const void *objp)
 	return size;
 }
 EXPORT_SYMBOL(ksize);
+=======
+	c = virt_to_cache(objp);
+	size = c ? c->object_size : 0;
+
+	return size;
+}
+EXPORT_SYMBOL(__ksize);
+>>>>>>> upstream/android-13

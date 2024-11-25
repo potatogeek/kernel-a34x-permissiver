@@ -74,7 +74,11 @@ struct path_selector_type {
 	int (*start_io) (struct path_selector *ps, struct dm_path *path,
 			 size_t nr_bytes);
 	int (*end_io) (struct path_selector *ps, struct dm_path *path,
+<<<<<<< HEAD
 		       size_t nr_bytes);
+=======
+		       size_t nr_bytes, u64 start_time);
+>>>>>>> upstream/android-13
 };
 
 /* Register a path selector */

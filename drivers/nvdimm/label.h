@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright(c) 2013-2015 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #ifndef __LABEL_H__
 #define __LABEL_H__
@@ -70,7 +76,11 @@ struct nd_namespace_index {
 	__le16 major;
 	__le16 minor;
 	__le64 checksum;
+<<<<<<< HEAD
 	u8 free[0];
+=======
+	u8 free[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -136,16 +146,23 @@ static inline int nd_label_next_nsindex(int index)
 }
 
 struct nvdimm_drvdata;
+<<<<<<< HEAD
 int nd_label_validate(struct nvdimm_drvdata *ndd);
 void nd_label_copy(struct nvdimm_drvdata *ndd, struct nd_namespace_index *dst,
 		struct nd_namespace_index *src);
+=======
+int nd_label_data_init(struct nvdimm_drvdata *ndd);
+>>>>>>> upstream/android-13
 size_t sizeof_namespace_index(struct nvdimm_drvdata *ndd);
 int nd_label_active_count(struct nvdimm_drvdata *ndd);
 struct nd_namespace_label *nd_label_active(struct nvdimm_drvdata *ndd, int n);
 u32 nd_label_alloc_slot(struct nvdimm_drvdata *ndd);
 bool nd_label_free_slot(struct nvdimm_drvdata *ndd, u32 slot);
 u32 nd_label_nfree(struct nvdimm_drvdata *ndd);
+<<<<<<< HEAD
 enum nvdimm_claim_class to_nvdimm_cclass(guid_t *guid);
+=======
+>>>>>>> upstream/android-13
 struct nd_region;
 struct nd_namespace_pmem;
 struct nd_namespace_blk;

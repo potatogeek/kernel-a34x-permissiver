@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Shujuan Chen <shujuan.chen@stericsson.com> for ST-Ericsson.
  * Author: Jonas Linde <jonas.linde@stericsson.com> for ST-Ericsson.
  * Author: Niklas Hernaeus <niklas.hernaeus@stericsson.com> for ST-Ericsson.
  * Author: Joakim Bech <joakim.xx.bech@stericsson.com> for ST-Ericsson.
  * Author: Berne Hebark <berne.herbark@stericsson.com> for ST-Ericsson.
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -15,7 +23,11 @@
 #include "cryp_p.h"
 #include "cryp.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cryp_wait_until_done - wait until the device logic is not busy
  */
 void cryp_wait_until_done(struct cryp_device_data *device_data)
@@ -285,6 +297,10 @@ int cryp_configure_init_vector(struct cryp_device_data *device_data,
  *				other device context parameter
  * @device_data: Pointer to the device data struct for base address.
  * @ctx: Crypto device context
+<<<<<<< HEAD
+=======
+ * @cryp_mode: Mode: Polling, Interrupt or DMA
+>>>>>>> upstream/android-13
  */
 void cryp_save_device_context(struct cryp_device_data *device_data,
 			      struct cryp_device_context *ctx,
@@ -314,14 +330,26 @@ void cryp_save_device_context(struct cryp_device_data *device_data,
 	case CRYP_KEY_SIZE_256:
 		ctx->key_4_l = readl_relaxed(&src_reg->key_4_l);
 		ctx->key_4_r = readl_relaxed(&src_reg->key_4_r);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case CRYP_KEY_SIZE_192:
 		ctx->key_3_l = readl_relaxed(&src_reg->key_3_l);
 		ctx->key_3_r = readl_relaxed(&src_reg->key_3_r);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case CRYP_KEY_SIZE_128:
 		ctx->key_2_l = readl_relaxed(&src_reg->key_2_l);
 		ctx->key_2_r = readl_relaxed(&src_reg->key_2_r);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		ctx->key_1_l = readl_relaxed(&src_reg->key_1_l);
@@ -361,14 +389,26 @@ void cryp_restore_device_context(struct cryp_device_data *device_data,
 	case CRYP_KEY_SIZE_256:
 		writel_relaxed(ctx->key_4_l, &reg->key_4_l);
 		writel_relaxed(ctx->key_4_r, &reg->key_4_r);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case CRYP_KEY_SIZE_192:
 		writel_relaxed(ctx->key_3_l, &reg->key_3_l);
 		writel_relaxed(ctx->key_3_r, &reg->key_3_r);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case CRYP_KEY_SIZE_128:
 		writel_relaxed(ctx->key_2_l, &reg->key_2_l);
 		writel_relaxed(ctx->key_2_r, &reg->key_2_r);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		writel_relaxed(ctx->key_1_l, &reg->key_1_l);

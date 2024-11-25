@@ -9,6 +9,7 @@
 #include <linux/debugfs.h>
 #include <linux/hdmi.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
 #include <linux/reset.h>
@@ -17,6 +18,20 @@
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_edid.h>
+=======
+#include <linux/io.h>
+#include <linux/platform_device.h>
+#include <linux/reset.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_debugfs.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_file.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include <sound/hdmi-codec.h>
 
@@ -163,6 +178,15 @@ struct sti_hdmi_connector {
 #define to_sti_hdmi_connector(x) \
 	container_of(x, struct sti_hdmi_connector, drm_connector)
 
+<<<<<<< HEAD
+=======
+static const struct drm_prop_enum_list colorspace_mode_names[] = {
+	{ HDMI_COLORSPACE_RGB, "rgb" },
+	{ HDMI_COLORSPACE_YUV422, "yuv422" },
+	{ HDMI_COLORSPACE_YUV444, "yuv444" },
+};
+
+>>>>>>> upstream/android-13
 u32 hdmi_read(struct sti_hdmi *hdmi, int offset)
 {
 	return readl(hdmi->regs + offset);
@@ -330,7 +354,10 @@ static void hdmi_infoframe_reset(struct sti_hdmi *hdmi,
  * Helper to concatenate infoframe in 32 bits word
  *
  * @ptr: pointer on the hdmi internal structure
+<<<<<<< HEAD
  * @data: infoframe to write
+=======
+>>>>>>> upstream/android-13
  * @size: size to write
  */
 static inline unsigned int hdmi_infoframe_subpack(const u8 *ptr, size_t size)
@@ -434,7 +461,12 @@ static int hdmi_avi_infoframe_config(struct sti_hdmi *hdmi)
 
 	DRM_DEBUG_DRIVER("\n");
 
+<<<<<<< HEAD
 	ret = drm_hdmi_avi_infoframe_from_display_mode(&infoframe, mode, false);
+=======
+	ret = drm_hdmi_avi_infoframe_from_display_mode(&infoframe,
+						       hdmi->drm_connector, mode);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		DRM_ERROR("failed to setup AVI infoframe: %d\n", ret);
 		return ret;
@@ -539,13 +571,21 @@ static int hdmi_vendor_infoframe_config(struct sti_hdmi *hdmi)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#define HDMI_TIMEOUT_SWRESET  100   /*milliseconds */
+
+>>>>>>> upstream/android-13
 /**
  * Software reset of the hdmi subsystem
  *
  * @hdmi: pointer on the hdmi internal structure
  *
  */
+<<<<<<< HEAD
 #define HDMI_TIMEOUT_SWRESET  100   /*milliseconds */
+=======
+>>>>>>> upstream/android-13
 static void hdmi_swreset(struct sti_hdmi *hdmi)
 {
 	u32 val;
@@ -722,16 +762,26 @@ static struct drm_info_list hdmi_debugfs_files[] = {
 	{ "hdmi", hdmi_dbg_show, 0, NULL },
 };
 
+<<<<<<< HEAD
 static int hdmi_debugfs_init(struct sti_hdmi *hdmi, struct drm_minor *minor)
+=======
+static void hdmi_debugfs_init(struct sti_hdmi *hdmi, struct drm_minor *minor)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(hdmi_debugfs_files); i++)
 		hdmi_debugfs_files[i].data = hdmi;
 
+<<<<<<< HEAD
 	return drm_debugfs_create_files(hdmi_debugfs_files,
 					ARRAY_SIZE(hdmi_debugfs_files),
 					minor->debugfs_root, minor);
+=======
+	drm_debugfs_create_files(hdmi_debugfs_files,
+				 ARRAY_SIZE(hdmi_debugfs_files),
+				 minor->debugfs_root, minor);
+>>>>>>> upstream/android-13
 }
 
 static void sti_hdmi_disable(struct drm_bridge *bridge)
@@ -845,10 +895,20 @@ static int hdmi_audio_configure(struct sti_hdmi *hdmi)
 	switch (info->channels) {
 	case 8:
 		audio_cfg |= HDMI_AUD_CFG_CH78_VALID;
+<<<<<<< HEAD
 	case 6:
 		audio_cfg |= HDMI_AUD_CFG_CH56_VALID;
 	case 4:
 		audio_cfg |= HDMI_AUD_CFG_CH34_VALID | HDMI_AUD_CFG_8CH;
+=======
+		fallthrough;
+	case 6:
+		audio_cfg |= HDMI_AUD_CFG_CH56_VALID;
+		fallthrough;
+	case 4:
+		audio_cfg |= HDMI_AUD_CFG_CH34_VALID | HDMI_AUD_CFG_8CH;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		audio_cfg |= HDMI_AUD_CFG_CH12_VALID;
 		break;
@@ -917,8 +977,13 @@ static void sti_hdmi_pre_enable(struct drm_bridge *bridge)
 }
 
 static void sti_hdmi_set_mode(struct drm_bridge *bridge,
+<<<<<<< HEAD
 		struct drm_display_mode *mode,
 		struct drm_display_mode *adjusted_mode)
+=======
+			      const struct drm_display_mode *mode,
+			      const struct drm_display_mode *adjusted_mode)
+>>>>>>> upstream/android-13
 {
 	struct sti_hdmi *hdmi = bridge->driver_private;
 	int ret;
@@ -1105,10 +1170,14 @@ static int sti_hdmi_late_register(struct drm_connector *connector)
 		= to_sti_hdmi_connector(connector);
 	struct sti_hdmi *hdmi = hdmi_connector->hdmi;
 
+<<<<<<< HEAD
 	if (hdmi_debugfs_init(hdmi, hdmi->drm_dev->primary)) {
 		DRM_ERROR("HDMI debugfs setup failed\n");
 		return -EINVAL;
 	}
+=======
+	hdmi_debugfs_init(hdmi, hdmi->drm_dev->primary);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1186,7 +1255,12 @@ static int hdmi_audio_hw_params(struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hdmi_audio_digital_mute(struct device *dev, void *data, bool enable)
+=======
+static int hdmi_audio_mute(struct device *dev, void *data,
+			   bool enable, int direction)
+>>>>>>> upstream/android-13
 {
 	struct sti_hdmi *hdmi = dev_get_drvdata(dev);
 
@@ -1214,8 +1288,14 @@ static int hdmi_audio_get_eld(struct device *dev, void *data, uint8_t *buf, size
 static const struct hdmi_codec_ops audio_codec_ops = {
 	.hw_params = hdmi_audio_hw_params,
 	.audio_shutdown = hdmi_audio_shutdown,
+<<<<<<< HEAD
 	.digital_mute = hdmi_audio_digital_mute,
 	.get_eld = hdmi_audio_get_eld,
+=======
+	.mute_stream = hdmi_audio_mute,
+	.get_eld = hdmi_audio_get_eld,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static int sti_hdmi_register_audio_driver(struct device *dev,
@@ -1249,6 +1329,10 @@ static int sti_hdmi_bind(struct device *dev, struct device *master, void *data)
 	struct drm_device *drm_dev = data;
 	struct drm_encoder *encoder;
 	struct sti_hdmi_connector *connector;
+<<<<<<< HEAD
+=======
+	struct cec_connector_info conn_info;
+>>>>>>> upstream/android-13
 	struct drm_connector *drm_connector;
 	struct drm_bridge *bridge;
 	int err;
@@ -1272,7 +1356,11 @@ static int sti_hdmi_bind(struct device *dev, struct device *master, void *data)
 
 	bridge->driver_private = hdmi;
 	bridge->funcs = &sti_hdmi_bridge_funcs;
+<<<<<<< HEAD
 	drm_bridge_attach(encoder, bridge, NULL);
+=======
+	drm_bridge_attach(encoder, bridge, NULL, 0);
+>>>>>>> upstream/android-13
 
 	connector->encoder = encoder;
 
@@ -1280,8 +1368,15 @@ static int sti_hdmi_bind(struct device *dev, struct device *master, void *data)
 
 	drm_connector->polled = DRM_CONNECTOR_POLL_HPD;
 
+<<<<<<< HEAD
 	drm_connector_init(drm_dev, drm_connector,
 			&sti_hdmi_connector_funcs, DRM_MODE_CONNECTOR_HDMIA);
+=======
+	drm_connector_init_with_ddc(drm_dev, drm_connector,
+				    &sti_hdmi_connector_funcs,
+				    DRM_MODE_CONNECTOR_HDMIA,
+				    hdmi->ddc_adapt);
+>>>>>>> upstream/android-13
 	drm_connector_helper_add(drm_connector,
 			&sti_hdmi_connector_helper_funcs);
 
@@ -1309,6 +1404,17 @@ static int sti_hdmi_bind(struct device *dev, struct device *master, void *data)
 		goto err_sysfs;
 	}
 
+<<<<<<< HEAD
+=======
+	cec_fill_conn_info_from_drm(&conn_info, drm_connector);
+	hdmi->notifier = cec_notifier_conn_register(&hdmi->dev, NULL,
+						    &conn_info);
+	if (!hdmi->notifier) {
+		hdmi->drm_connector = NULL;
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	/* Enable default interrupts */
 	hdmi_write(hdmi, HDMI_DEFAULT_INT, HDMI_INT_EN);
 
@@ -1322,6 +1428,12 @@ err_sysfs:
 static void sti_hdmi_unbind(struct device *dev,
 		struct device *master, void *data)
 {
+<<<<<<< HEAD
+=======
+	struct sti_hdmi *hdmi = dev_get_drvdata(dev);
+
+	cec_notifier_conn_unregister(hdmi->notifier);
+>>>>>>> upstream/android-13
 }
 
 static const struct component_ops sti_hdmi_ops = {
@@ -1371,7 +1483,11 @@ static int sti_hdmi_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto release_adapter;
 	}
+<<<<<<< HEAD
 	hdmi->regs = devm_ioremap_nocache(dev, res->start, resource_size(res));
+=======
+	hdmi->regs = devm_ioremap(dev, res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!hdmi->regs) {
 		ret = -ENOMEM;
 		goto release_adapter;
@@ -1427,10 +1543,13 @@ static int sti_hdmi_probe(struct platform_device *pdev)
 		goto release_adapter;
 	}
 
+<<<<<<< HEAD
 	hdmi->notifier = cec_notifier_get(&pdev->dev);
 	if (!hdmi->notifier)
 		goto release_adapter;
 
+=======
+>>>>>>> upstream/android-13
 	hdmi->reset = devm_reset_control_get(dev, "hdmi");
 	/* Take hdmi out of reset */
 	if (!IS_ERR(hdmi->reset))
@@ -1450,14 +1569,20 @@ static int sti_hdmi_remove(struct platform_device *pdev)
 {
 	struct sti_hdmi *hdmi = dev_get_drvdata(&pdev->dev);
 
+<<<<<<< HEAD
 	cec_notifier_set_phys_addr(hdmi->notifier, CEC_PHYS_ADDR_INVALID);
 
+=======
+>>>>>>> upstream/android-13
 	i2c_put_adapter(hdmi->ddc_adapt);
 	if (hdmi->audio_pdev)
 		platform_device_unregister(hdmi->audio_pdev);
 	component_del(&pdev->dev, &sti_hdmi_ops);
 
+<<<<<<< HEAD
 	cec_notifier_put(hdmi->notifier);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

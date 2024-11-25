@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  * Header file
  *
@@ -16,6 +17,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -165,7 +174,11 @@
 #define DAT_PRTCT               0x07    /* read/write is desable            */
 #define BLNC_CHK                0x08    /* find blank/DOF in read           */
 					/* write to unblank area            */
+<<<<<<< HEAD
 #define CPY_ABRT                0x0a    /* Copy/Compare/Copy&Verify illgal  */
+=======
+#define CPY_ABRT                0x0a    /* Copy/Compare/Copy&Verify illegal */
+>>>>>>> upstream/android-13
 #define ABRT_CMD                0x0b    /* Target make the command in error */
 #define EQUAL                   0x0c    /* Search Data end with Equal       */
 #define VLM_OVRFLW              0x0d    /* Some data are left in buffer     */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
   This is the driver for the MAC 10/100 on-chip Ethernet controller
   currently tested on all the ST boards based on STb7109 and stx7200 SoCs.
@@ -9,6 +13,7 @@
 
   Copyright (C) 2007-2009  STMicroelectronics Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -20,6 +25,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -160,6 +167,21 @@ static void dwmac100_pmt(struct mac_device_info *hw, unsigned long mode)
 	return;
 }
 
+<<<<<<< HEAD
+=======
+static void dwmac100_set_mac_loopback(void __iomem *ioaddr, bool enable)
+{
+	u32 value = readl(ioaddr + MAC_CONTROL);
+
+	if (enable)
+		value |= MAC_CONTROL_OM;
+	else
+		value &= ~MAC_CONTROL_OM;
+
+	writel(value, ioaddr + MAC_CONTROL);
+}
+
+>>>>>>> upstream/android-13
 const struct stmmac_ops dwmac100_ops = {
 	.core_init = dwmac100_core_init,
 	.set_mac = stmmac_set_mac,
@@ -171,6 +193,10 @@ const struct stmmac_ops dwmac100_ops = {
 	.pmt = dwmac100_pmt,
 	.set_umac_addr = dwmac100_set_umac_addr,
 	.get_umac_addr = dwmac100_get_umac_addr,
+<<<<<<< HEAD
+=======
+	.set_mac_loopback = dwmac100_set_mac_loopback,
+>>>>>>> upstream/android-13
 };
 
 int dwmac100_setup(struct stmmac_priv *priv)

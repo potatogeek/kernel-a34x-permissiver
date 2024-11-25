@@ -5,6 +5,10 @@
  *
  * SGI UV architectural definitions
  *
+<<<<<<< HEAD
+=======
+ * (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+>>>>>>> upstream/android-13
  * Copyright (C) 2007-2014 Silicon Graphics, Inc. All rights reserved.
  */
 
@@ -19,6 +23,10 @@
 #include <linux/topology.h>
 #include <asm/types.h>
 #include <asm/percpu.h>
+<<<<<<< HEAD
+=======
+#include <asm/uv/uv.h>
+>>>>>>> upstream/android-13
 #include <asm/uv/uv_mmrs.h>
 #include <asm/uv/bios.h>
 #include <asm/irq_vectors.h>
@@ -128,6 +136,7 @@
  */
 #define UV_MAX_NASID_VALUE	(UV_MAX_NUMALINK_BLADES * 2)
 
+<<<<<<< HEAD
 /* System Controller Interface Reg info */
 struct uv_scir_s {
 	struct timer_list timer;
@@ -139,6 +148,8 @@ struct uv_scir_s {
 	unsigned char	enabled;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* GAM (globally addressed memory) range table */
 struct uv_gam_range_s {
 	u32	limit;		/* PA bits 56:26 (GAM_RANGE_SHFT) */
@@ -154,6 +165,11 @@ struct uv_gam_range_s {
  * available in the L3 cache on the cpu socket for the node.
  */
 struct uv_hub_info_s {
+<<<<<<< HEAD
+=======
+	unsigned int		hub_type;
+	unsigned char		hub_revision;
+>>>>>>> upstream/android-13
 	unsigned long		global_mmr_base;
 	unsigned long		global_mmr_shift;
 	unsigned long		gpa_mask;
@@ -166,9 +182,15 @@ struct uv_hub_info_s {
 	unsigned char		m_val;
 	unsigned char		n_val;
 	unsigned char		gr_table_len;
+<<<<<<< HEAD
 	unsigned char		hub_revision;
 	unsigned char		apic_pnode_shift;
 	unsigned char		gpa_shift;
+=======
+	unsigned char		apic_pnode_shift;
+	unsigned char		gpa_shift;
+	unsigned char		nasid_shift;
+>>>>>>> upstream/android-13
 	unsigned char		m_shift;
 	unsigned char		n_lshift;
 	unsigned int		gnode_extra;
@@ -190,16 +212,23 @@ struct uv_hub_info_s {
 struct uv_cpu_info_s {
 	void			*p_uv_hub_info;
 	unsigned char		blade_cpu_id;
+<<<<<<< HEAD
 	struct uv_scir_s	scir;
+=======
+	void			*reserved;
+>>>>>>> upstream/android-13
 };
 DECLARE_PER_CPU(struct uv_cpu_info_s, __uv_cpu_info);
 
 #define uv_cpu_info		this_cpu_ptr(&__uv_cpu_info)
 #define uv_cpu_info_per(cpu)	(&per_cpu(__uv_cpu_info, cpu))
 
+<<<<<<< HEAD
 #define	uv_scir_info		(&uv_cpu_info->scir)
 #define	uv_cpu_scir_info(cpu)	(&uv_cpu_info_per(cpu)->scir)
 
+=======
+>>>>>>> upstream/android-13
 /* Node specific hub common info struct */
 extern void **__uv_hub_info_list;
 static inline struct uv_hub_info_s *uv_hub_info_list(int node)
@@ -218,6 +247,7 @@ static inline struct uv_hub_info_s *uv_cpu_hub_info(int cpu)
 	return (struct uv_hub_info_s *)uv_cpu_info_per(cpu)->p_uv_hub_info;
 }
 
+<<<<<<< HEAD
 #define	UV_HUB_INFO_VERSION	0x7150
 extern int uv_hub_info_version(void);
 static inline int uv_hub_info_check(int version)
@@ -231,17 +261,33 @@ static inline int uv_hub_info_check(int version)
 	BUG();	/* Catastrophic - cannot continue on unknown UV system */
 }
 #define	_uv_hub_info_check()	uv_hub_info_check(UV_HUB_INFO_VERSION)
+=======
+static inline int uv_hub_type(void)
+{
+	return uv_hub_info->hub_type;
+}
+
+static inline __init void uv_hub_type_set(int uvmask)
+{
+	uv_hub_info->hub_type = uvmask;
+}
+
+>>>>>>> upstream/android-13
 
 /*
  * HUB revision ranges for each UV HUB architecture.
  * This is a software convention - NOT the hardware revision numbers in
  * the hub chip.
  */
+<<<<<<< HEAD
 #define UV1_HUB_REVISION_BASE		1
+=======
+>>>>>>> upstream/android-13
 #define UV2_HUB_REVISION_BASE		3
 #define UV3_HUB_REVISION_BASE		5
 #define UV4_HUB_REVISION_BASE		7
 #define UV4A_HUB_REVISION_BASE		8	/* UV4 (fixed) rev 2 */
+<<<<<<< HEAD
 
 #ifdef	UV1_HUB_IS_SUPPORTED
 static inline int is_uv1_hub(void)
@@ -321,6 +367,33 @@ static inline int is_uv_hub(void)
 #endif
 	return is_uvx_hub();
 }
+=======
+#define UV5_HUB_REVISION_BASE		9
+
+static inline int is_uv(int uvmask) { return uv_hub_type() & uvmask; }
+static inline int is_uv1_hub(void) { return 0; }
+static inline int is_uv2_hub(void) { return is_uv(UV2); }
+static inline int is_uv3_hub(void) { return is_uv(UV3); }
+static inline int is_uv4a_hub(void) { return is_uv(UV4A); }
+static inline int is_uv4_hub(void) { return is_uv(UV4); }
+static inline int is_uv5_hub(void) { return is_uv(UV5); }
+
+/*
+ * UV4A is a revision of UV4.  So on UV4A, both is_uv4_hub() and
+ * is_uv4a_hub() return true, While on UV4, only is_uv4_hub()
+ * returns true.  So to get true results, first test if is UV4A,
+ * then test if is UV4.
+ */
+
+/* UVX class: UV2,3,4 */
+static inline int is_uvx_hub(void) { return is_uv(UVX); }
+
+/* UVY class: UV5,..? */
+static inline int is_uvy_hub(void) { return is_uv(UVY); }
+
+/* Any UV Hubbed System */
+static inline int is_uv_hub(void) { return is_uv(UV_ANY); }
+>>>>>>> upstream/android-13
 
 union uvh_apicid {
     unsigned long       v;
@@ -342,6 +415,7 @@ union uvh_apicid {
  *		g -  GNODE (full 15-bit global nasid, right shifted 1)
  *		p -  PNODE (local part of nsids, right shifted 1)
  */
+<<<<<<< HEAD
 #define UV_NASID_TO_PNODE(n)		(((n) >> 1) & uv_hub_info->pnode_mask)
 #define UV_PNODE_TO_GNODE(p)		((p) |uv_hub_info->gnode_extra)
 #define UV_PNODE_TO_NASID(p)		(UV_PNODE_TO_GNODE(p) << 1)
@@ -350,6 +424,13 @@ union uvh_apicid {
 #define UV1_GLOBAL_MMR32_BASE		0xf8000000UL
 #define UV1_LOCAL_MMR_SIZE		(64UL * 1024 * 1024)
 #define UV1_GLOBAL_MMR32_SIZE		(64UL * 1024 * 1024)
+=======
+#define UV_NASID_TO_PNODE(n)		\
+		(((n) >> uv_hub_info->nasid_shift) & uv_hub_info->pnode_mask)
+#define UV_PNODE_TO_GNODE(p)		((p) |uv_hub_info->gnode_extra)
+#define UV_PNODE_TO_NASID(p)		\
+		(UV_PNODE_TO_GNODE(p) << uv_hub_info->nasid_shift)
+>>>>>>> upstream/android-13
 
 #define UV2_LOCAL_MMR_BASE		0xfa000000UL
 #define UV2_GLOBAL_MMR32_BASE		0xfc000000UL
@@ -362,6 +443,7 @@ union uvh_apicid {
 #define UV3_GLOBAL_MMR32_SIZE		(32UL * 1024 * 1024)
 
 #define UV4_LOCAL_MMR_BASE		0xfa000000UL
+<<<<<<< HEAD
 #define UV4_GLOBAL_MMR32_BASE		0xfc000000UL
 #define UV4_LOCAL_MMR_SIZE		(32UL * 1024 * 1024)
 #define UV4_GLOBAL_MMR32_SIZE		(16UL * 1024 * 1024)
@@ -389,6 +471,44 @@ union uvh_apicid {
 					is_uv2_hub() ? UV2_GLOBAL_MMR32_SIZE : \
 					is_uv3_hub() ? UV3_GLOBAL_MMR32_SIZE : \
 					/*is_uv4_hub*/ UV4_GLOBAL_MMR32_SIZE)
+=======
+#define UV4_GLOBAL_MMR32_BASE		0
+#define UV4_LOCAL_MMR_SIZE		(32UL * 1024 * 1024)
+#define UV4_GLOBAL_MMR32_SIZE		0
+
+#define UV5_LOCAL_MMR_BASE		0xfa000000UL
+#define UV5_GLOBAL_MMR32_BASE		0
+#define UV5_LOCAL_MMR_SIZE		(32UL * 1024 * 1024)
+#define UV5_GLOBAL_MMR32_SIZE		0
+
+#define UV_LOCAL_MMR_BASE		(				\
+					is_uv(UV2) ? UV2_LOCAL_MMR_BASE : \
+					is_uv(UV3) ? UV3_LOCAL_MMR_BASE : \
+					is_uv(UV4) ? UV4_LOCAL_MMR_BASE : \
+					is_uv(UV5) ? UV5_LOCAL_MMR_BASE : \
+					0)
+
+#define UV_GLOBAL_MMR32_BASE		(				\
+					is_uv(UV2) ? UV2_GLOBAL_MMR32_BASE : \
+					is_uv(UV3) ? UV3_GLOBAL_MMR32_BASE : \
+					is_uv(UV4) ? UV4_GLOBAL_MMR32_BASE : \
+					is_uv(UV5) ? UV5_GLOBAL_MMR32_BASE : \
+					0)
+
+#define UV_LOCAL_MMR_SIZE		(				\
+					is_uv(UV2) ? UV2_LOCAL_MMR_SIZE : \
+					is_uv(UV3) ? UV3_LOCAL_MMR_SIZE : \
+					is_uv(UV4) ? UV4_LOCAL_MMR_SIZE : \
+					is_uv(UV5) ? UV5_LOCAL_MMR_SIZE : \
+					0)
+
+#define UV_GLOBAL_MMR32_SIZE		(				\
+					is_uv(UV2) ? UV2_GLOBAL_MMR32_SIZE : \
+					is_uv(UV3) ? UV3_GLOBAL_MMR32_SIZE : \
+					is_uv(UV4) ? UV4_GLOBAL_MMR32_SIZE : \
+					is_uv(UV5) ? UV5_GLOBAL_MMR32_SIZE : \
+					0)
+>>>>>>> upstream/android-13
 
 #define UV_GLOBAL_MMR64_BASE		(uv_hub_info->global_mmr_base)
 
@@ -406,8 +526,11 @@ union uvh_apicid {
 #define UVH_APICID		0x002D0E00L
 #define UV_APIC_PNODE_SHIFT	6
 
+<<<<<<< HEAD
 #define UV_APICID_HIBIT_MASK	0xffff0000
 
+=======
+>>>>>>> upstream/android-13
 /* Local Bus from cpu's perspective */
 #define LOCAL_BUS_BASE		0x1c00000
 #define LOCAL_BUS_SIZE		(4 * 1024 * 1024)
@@ -417,7 +540,11 @@ union uvh_apicid {
  *
  * Note there are NO leds on a UV system.  This register is only
  * used by the system controller to monitor system-wide operation.
+<<<<<<< HEAD
  * There are 64 regs per node.  With Nahelem cpus (2 cores per node,
+=======
+ * There are 64 regs per node.  With Nehalem cpus (2 cores per node,
+>>>>>>> upstream/android-13
  * 8 cpus per core, 2 threads per cpu) there are 32 cpu threads on
  * a node.
  *
@@ -614,6 +741,7 @@ static inline int uv_apicid_to_pnode(int apicid)
 	return s2pn ? s2pn[pnode - uv_hub_info->min_socket] : pnode;
 }
 
+<<<<<<< HEAD
 /* Convert an apicid to the socket number on the blade */
 static inline int uv_apicid_to_socket(int apicid)
 {
@@ -623,6 +751,8 @@ static inline int uv_apicid_to_socket(int apicid)
 		return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Access global MMRs using the low memory MMR32 space. This region supports
  * faster MMR access but not all MMRs are accessible in this space.
@@ -713,9 +843,14 @@ static inline int uv_cpu_blade_processor_id(int cpu)
 {
 	return uv_cpu_info_per(cpu)->blade_cpu_id;
 }
+<<<<<<< HEAD
 #define _uv_cpu_blade_processor_id 1	/* indicate function available */
 
 /* Blade number to Node number (UV1..UV4 is 1:1) */
+=======
+
+/* Blade number to Node number (UV2..UV4 is 1:1) */
+>>>>>>> upstream/android-13
 static inline int uv_blade_to_node(int blade)
 {
 	return blade;
@@ -729,7 +864,11 @@ static inline int uv_numa_blade_id(void)
 
 /*
  * Convert linux node number to the UV blade number.
+<<<<<<< HEAD
  * .. Currently for UV1 thru UV4 the node and the blade are identical.
+=======
+ * .. Currently for UV2 thru UV4 the node and the blade are identical.
+>>>>>>> upstream/android-13
  * .. If this changes then you MUST check references to this function!
  */
 static inline int uv_node_to_blade_id(int nid)
@@ -737,7 +876,11 @@ static inline int uv_node_to_blade_id(int nid)
 	return nid;
 }
 
+<<<<<<< HEAD
 /* Convert a cpu number to the the UV blade number */
+=======
+/* Convert a CPU number to the UV blade number */
+>>>>>>> upstream/android-13
 static inline int uv_cpu_to_blade_id(int cpu)
 {
 	return uv_node_to_blade_id(cpu_to_node(cpu));
@@ -801,7 +944,11 @@ extern void uv_nmi_setup_hubless(void);
 #define UVH_TSC_SYNC_SHIFT_UV2K	16	/* UV2/3k have different bits */
 #define UVH_TSC_SYNC_MASK	3	/* 0011 */
 #define UVH_TSC_SYNC_VALID	3	/* 0011 */
+<<<<<<< HEAD
 #define UVH_TSC_SYNC_INVALID	2	/* 0010 */
+=======
+#define UVH_TSC_SYNC_UNKNOWN	0	/* 0000 */
+>>>>>>> upstream/android-13
 
 /* BMC sets a bit this MMR non-zero before sending an NMI */
 #define UVH_NMI_MMR		UVH_BIOS_KERNEL_MMR
@@ -809,6 +956,7 @@ extern void uv_nmi_setup_hubless(void);
 #define UVH_NMI_MMR_SHIFT	63
 #define UVH_NMI_MMR_TYPE	"SCRATCH5"
 
+<<<<<<< HEAD
 /* Newer SMM NMI handler, not present in all systems */
 #define UVH_NMI_MMRX		UVH_EVENT_OCCURRED0
 #define UVH_NMI_MMRX_CLEAR	UVH_EVENT_OCCURRED0_ALIAS
@@ -822,6 +970,8 @@ extern void uv_nmi_setup_hubless(void);
 #define UVH_NMI_MMRX_REQ	UVH_BIOS_KERNEL_MMR_ALIAS_2
 #define UVH_NMI_MMRX_REQ_SHIFT	62
 
+=======
+>>>>>>> upstream/android-13
 struct uv_hub_nmi_s {
 	raw_spinlock_t	nmi_lock;
 	atomic_t	in_nmi;		/* flag this node in UV NMI IRQ */
@@ -853,6 +1003,7 @@ DECLARE_PER_CPU(struct uv_cpu_nmi_s, uv_cpu_nmi);
 #define	UV_NMI_STATE_DUMP		2
 #define	UV_NMI_STATE_DUMP_DONE		3
 
+<<<<<<< HEAD
 /* Update SCIR state */
 static inline void uv_set_scir_bits(unsigned char value)
 {
@@ -898,6 +1049,8 @@ static inline void uv_hub_send_ipi(int pnode, int apicid, int vector)
 	uv_write_global_mmr64(pnode, UVH_IPI_INT, val);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Get the minimum revision number of the hub chips within the partition.
  * (See UVx_HUB_REVISION_BASE above for specific values.)

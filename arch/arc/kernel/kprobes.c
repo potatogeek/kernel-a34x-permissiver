@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -320,6 +326,7 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, unsigned long trapnr)
 		 * caused the fault.
 		 */
 
+<<<<<<< HEAD
 		/* We increment the nmissed count for accounting,
 		 * we can also use npre/npostfault count for accounting
 		 * these specific fault cases.
@@ -336,6 +343,8 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, unsigned long trapnr)
 		if (cur->fault_handler && cur->fault_handler(cur, regs, trapnr))
 			return 1;
 
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * In case the user-specified fault handler returned zero,
 		 * try to fix up.
@@ -391,6 +400,10 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 {
 
 	ri->ret_addr = (kprobe_opcode_t *) regs->blink;
+<<<<<<< HEAD
+=======
+	ri->fp = NULL;
+>>>>>>> upstream/android-13
 
 	/* Replace the return addr with trampoline addr */
 	regs->blink = (unsigned long)&kretprobe_trampoline;
@@ -399,6 +412,7 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 static int __kprobes trampoline_probe_handler(struct kprobe *p,
 					      struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct kretprobe_instance *ri = NULL;
 	struct hlist_head *head, empty_rp;
 	struct hlist_node *tmp;
@@ -451,6 +465,9 @@ static int __kprobes trampoline_probe_handler(struct kprobe *p,
 		hlist_del(&ri->hlist);
 		kfree(ri);
 	}
+=======
+	regs->ret = __kretprobe_trampoline_handler(regs, &kretprobe_trampoline, NULL);
+>>>>>>> upstream/android-13
 
 	/* By returning a non zero value, we are telling the kprobe handler
 	 * that we don't want the post_handler to run

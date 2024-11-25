@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * keymap imported from cxusb.c
  *
  * Copyright (C) 2016 Sean Young
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -38,6 +45,7 @@ static struct rc_map_table rc_map_dvico_mce_table[] = {
 	{ 0x0152, KEY_CAMERA },
 	{ 0x015a, KEY_TUNER },	/* Live */
 	{ 0x0119, KEY_OPEN },
+<<<<<<< HEAD
 	{ 0x010b, KEY_1 },
 	{ 0x0117, KEY_2 },
 	{ 0x011b, KEY_3 },
@@ -49,6 +57,19 @@ static struct rc_map_table rc_map_dvico_mce_table[] = {
 	{ 0x0158, KEY_9 },
 	{ 0x0113, KEY_ANGLE },	/* Aspect */
 	{ 0x0103, KEY_0 },
+=======
+	{ 0x010b, KEY_NUMERIC_1 },
+	{ 0x0117, KEY_NUMERIC_2 },
+	{ 0x011b, KEY_NUMERIC_3 },
+	{ 0x0107, KEY_NUMERIC_4 },
+	{ 0x0150, KEY_NUMERIC_5 },
+	{ 0x0154, KEY_NUMERIC_6 },
+	{ 0x0148, KEY_NUMERIC_7 },
+	{ 0x014c, KEY_NUMERIC_8 },
+	{ 0x0158, KEY_NUMERIC_9 },
+	{ 0x0113, KEY_ANGLE },	/* Aspect */
+	{ 0x0103, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 	{ 0x011f, KEY_ZOOM },
 	{ 0x0143, KEY_REWIND },
 	{ 0x0147, KEY_PLAYPAUSE },

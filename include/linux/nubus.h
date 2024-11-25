@@ -86,7 +86,11 @@ extern struct list_head nubus_func_rsrcs;
 struct nubus_driver {
 	struct device_driver driver;
 	int (*probe)(struct nubus_board *board);
+<<<<<<< HEAD
 	int (*remove)(struct nubus_board *board);
+=======
+	void (*remove)(struct nubus_board *board);
+>>>>>>> upstream/android-13
 };
 
 extern struct bus_type nubus_bus_type;

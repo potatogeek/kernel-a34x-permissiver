@@ -1,7 +1,10 @@
 #
 # SNI RM
 #
+<<<<<<< HEAD
 platform-$(CONFIG_SNI_RM)		+= sni/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_SNI_RM)		+= -I$(srctree)/arch/mips/include/asm/mach-rm
 ifdef CONFIG_CPU_LITTLE_ENDIAN
 load-$(CONFIG_SNI_RM)		+= 0xffffffff80600000

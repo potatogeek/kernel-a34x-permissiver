@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Simple NUMA memory policy for the Linux kernel.
  *
  * Copyright 2003,2004 Andi Kleen, SuSE Labs.
  * (C) Copyright 2005 Christoph Lameter, Silicon Graphics, Inc.
+<<<<<<< HEAD
  * Subject to the GNU Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  *
  * NUMA policy allows the user to give hints in which node(s) memory should
  * be allocated.
@@ -31,6 +38,12 @@
  *                but useful to set in a VMA when you have a non default
  *                process policy.
  *
+<<<<<<< HEAD
+=======
+ * preferred many Try a set of nodes first before normal fallback. This is
+ *                similar to preferred without the special case.
+ *
+>>>>>>> upstream/android-13
  * default        Allocate on the local node first, or when on a VMA
  *                use the process policy. This is what Linux always did
  *		  in a NUMA aware kernel and still does by, ahem, default.
@@ -68,7 +81,11 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/mempolicy.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
+=======
+#include <linux/pagewalk.h>
+>>>>>>> upstream/android-13
 #include <linux/highmem.h>
 #include <linux/hugetlb.h>
 #include <linux/kernel.h>
@@ -121,12 +138,45 @@ enum zone_type policy_zone = 0;
  */
 static struct mempolicy default_policy = {
 	.refcnt = ATOMIC_INIT(1), /* never free it */
+<<<<<<< HEAD
 	.mode = MPOL_PREFERRED,
 	.flags = MPOL_F_LOCAL,
+=======
+	.mode = MPOL_LOCAL,
+>>>>>>> upstream/android-13
 };
 
 static struct mempolicy preferred_node_policy[MAX_NUMNODES];
 
+<<<<<<< HEAD
+=======
+/**
+ * numa_map_to_online_node - Find closest online node
+ * @node: Node id to start the search
+ *
+ * Lookup the next closest node by distance if @nid is not online.
+ */
+int numa_map_to_online_node(int node)
+{
+	int min_dist = INT_MAX, dist, n, min_node;
+
+	if (node == NUMA_NO_NODE || node_online(node))
+		return node;
+
+	min_node = node;
+	for_each_online_node(n) {
+		dist = node_distance(node, n);
+		if (dist < min_dist) {
+			min_dist = dist;
+			min_node = n;
+		}
+	}
+
+	return min_node;
+}
+EXPORT_SYMBOL_GPL(numa_map_to_online_node);
+
+>>>>>>> upstream/android-13
 struct mempolicy *get_task_policy(struct task_struct *p)
 {
 	struct mempolicy *pol = p->mempolicy;
@@ -164,16 +214,25 @@ static void mpol_relative_nodemask(nodemask_t *ret, const nodemask_t *orig,
 	nodes_onto(*ret, tmp, *rel);
 }
 
+<<<<<<< HEAD
 static int mpol_new_interleave(struct mempolicy *pol, const nodemask_t *nodes)
 {
 	if (nodes_empty(*nodes))
 		return -EINVAL;
 	pol->v.nodes = *nodes;
+=======
+static int mpol_new_nodemask(struct mempolicy *pol, const nodemask_t *nodes)
+{
+	if (nodes_empty(*nodes))
+		return -EINVAL;
+	pol->nodes = *nodes;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int mpol_new_preferred(struct mempolicy *pol, const nodemask_t *nodes)
 {
+<<<<<<< HEAD
 	if (!nodes)
 		pol->flags |= MPOL_F_LOCAL;	/* local allocation */
 	else if (nodes_empty(*nodes))
@@ -188,31 +247,57 @@ static int mpol_new_bind(struct mempolicy *pol, const nodemask_t *nodes)
 	if (nodes_empty(*nodes))
 		return -EINVAL;
 	pol->v.nodes = *nodes;
+=======
+	if (nodes_empty(*nodes))
+		return -EINVAL;
+
+	nodes_clear(pol->nodes);
+	node_set(first_node(*nodes), pol->nodes);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /*
  * mpol_set_nodemask is called after mpol_new() to set up the nodemask, if
  * any, for the new policy.  mpol_new() has already validated the nodes
+<<<<<<< HEAD
  * parameter with respect to the policy mode and flags.  But, we need to
  * handle an empty nodemask with MPOL_PREFERRED here.
  *
  * Must be called holding task's alloc_lock to protect task's mems_allowed
  * and mempolicy.  May also be called holding the mmap_semaphore for write.
+=======
+ * parameter with respect to the policy mode and flags.
+ *
+ * Must be called holding task's alloc_lock to protect task's mems_allowed
+ * and mempolicy.  May also be called holding the mmap_lock for write.
+>>>>>>> upstream/android-13
  */
 static int mpol_set_nodemask(struct mempolicy *pol,
 		     const nodemask_t *nodes, struct nodemask_scratch *nsc)
 {
 	int ret;
 
+<<<<<<< HEAD
 	/* if mode is MPOL_DEFAULT, pol is NULL. This is right. */
 	if (pol == NULL)
 		return 0;
+=======
+	/*
+	 * Default (pol==NULL) resp. local memory policies are not a
+	 * subject of any remapping. They also do not need any special
+	 * constructor.
+	 */
+	if (!pol || pol->mode == MPOL_LOCAL)
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* Check N_MEMORY */
 	nodes_and(nsc->mask1,
 		  cpuset_current_mems_allowed, node_states[N_MEMORY]);
 
 	VM_BUG_ON(!nodes);
+<<<<<<< HEAD
 	if (pol->mode == MPOL_PREFERRED && nodes_empty(*nodes))
 		nodes = NULL;	/* explicit local allocation */
 	else {
@@ -232,6 +317,20 @@ static int mpol_set_nodemask(struct mempolicy *pol,
 		ret = mpol_ops[pol->mode].create(pol, &nsc->mask2);
 	else
 		ret = mpol_ops[pol->mode].create(pol, NULL);
+=======
+
+	if (pol->flags & MPOL_F_RELATIVE_NODES)
+		mpol_relative_nodemask(&nsc->mask2, nodes, &nsc->mask1);
+	else
+		nodes_and(nsc->mask2, *nodes, nsc->mask1);
+
+	if (mpol_store_user_nodemask(pol))
+		pol->w.user_nodemask = *nodes;
+	else
+		pol->w.cpuset_mems_allowed = cpuset_current_mems_allowed;
+
+	ret = mpol_ops[pol->mode].create(pol, &nsc->mask2);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -264,13 +363,21 @@ static struct mempolicy *mpol_new(unsigned short mode, unsigned short flags,
 			if (((flags & MPOL_F_STATIC_NODES) ||
 			     (flags & MPOL_F_RELATIVE_NODES)))
 				return ERR_PTR(-EINVAL);
+<<<<<<< HEAD
+=======
+
+			mode = MPOL_LOCAL;
+>>>>>>> upstream/android-13
 		}
 	} else if (mode == MPOL_LOCAL) {
 		if (!nodes_empty(*nodes) ||
 		    (flags & MPOL_F_STATIC_NODES) ||
 		    (flags & MPOL_F_RELATIVE_NODES))
 			return ERR_PTR(-EINVAL);
+<<<<<<< HEAD
 		mode = MPOL_PREFERRED;
+=======
+>>>>>>> upstream/android-13
 	} else if (nodes_empty(*nodes))
 		return ERR_PTR(-EINVAL);
 	policy = kmem_cache_alloc(policy_cache, GFP_KERNEL);
@@ -304,7 +411,11 @@ static void mpol_rebind_nodemask(struct mempolicy *pol, const nodemask_t *nodes)
 	else if (pol->flags & MPOL_F_RELATIVE_NODES)
 		mpol_relative_nodemask(&tmp, &pol->w.user_nodemask, nodes);
 	else {
+<<<<<<< HEAD
 		nodes_remap(tmp, pol->v.nodes,pol->w.cpuset_mems_allowed,
+=======
+		nodes_remap(tmp, pol->nodes, pol->w.cpuset_mems_allowed,
+>>>>>>> upstream/android-13
 								*nodes);
 		pol->w.cpuset_mems_allowed = *nodes;
 	}
@@ -312,12 +423,17 @@ static void mpol_rebind_nodemask(struct mempolicy *pol, const nodemask_t *nodes)
 	if (nodes_empty(tmp))
 		tmp = *nodes;
 
+<<<<<<< HEAD
 	pol->v.nodes = tmp;
+=======
+	pol->nodes = tmp;
+>>>>>>> upstream/android-13
 }
 
 static void mpol_rebind_preferred(struct mempolicy *pol,
 						const nodemask_t *nodes)
 {
+<<<<<<< HEAD
 	nodemask_t tmp;
 
 	if (pol->flags & MPOL_F_STATIC_NODES) {
@@ -337,12 +453,19 @@ static void mpol_rebind_preferred(struct mempolicy *pol,
 						   *nodes);
 		pol->w.cpuset_mems_allowed = *nodes;
 	}
+=======
+	pol->w.cpuset_mems_allowed = *nodes;
+>>>>>>> upstream/android-13
 }
 
 /*
  * mpol_rebind_policy - Migrate a policy to a different set of nodes
  *
+<<<<<<< HEAD
  * Per-vma policies are protected by mmap_sem. Allocations using per-task
+=======
+ * Per-vma policies are protected by mmap_lock. Allocations using per-task
+>>>>>>> upstream/android-13
  * policies are protected by task->mems_allowed_seq to prevent a premature
  * OOM/allocation failure due to parallel nodemask modification.
  */
@@ -350,7 +473,11 @@ static void mpol_rebind_policy(struct mempolicy *pol, const nodemask_t *newmask)
 {
 	if (!pol)
 		return;
+<<<<<<< HEAD
 	if (!mpol_store_user_nodemask(pol) && !(pol->flags & MPOL_F_LOCAL) &&
+=======
+	if (!mpol_store_user_nodemask(pol) &&
+>>>>>>> upstream/android-13
 	    nodes_equal(pol->w.cpuset_mems_allowed, *newmask))
 		return;
 
@@ -372,13 +499,18 @@ void mpol_rebind_task(struct task_struct *tsk, const nodemask_t *new)
 /*
  * Rebind each vma in mm to new nodemask.
  *
+<<<<<<< HEAD
  * Call holding a reference to mm.  Takes mm->mmap_sem during call.
+=======
+ * Call holding a reference to mm.  Takes mm->mmap_lock during call.
+>>>>>>> upstream/android-13
  */
 
 void mpol_rebind_mm(struct mm_struct *mm, nodemask_t *new)
 {
 	struct vm_area_struct *vma;
 
+<<<<<<< HEAD
 	down_write(&mm->mmap_sem);
 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
 		vm_write_begin(vma);
@@ -386,6 +518,12 @@ void mpol_rebind_mm(struct mm_struct *mm, nodemask_t *new)
 		vm_write_end(vma);
 	}
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_lock(mm);
+	for (vma = mm->mmap; vma; vma = vma->vm_next)
+		mpol_rebind_policy(vma->vm_policy, new);
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 }
 
 static const struct mempolicy_operations mpol_ops[MPOL_MAX] = {
@@ -393,7 +531,11 @@ static const struct mempolicy_operations mpol_ops[MPOL_MAX] = {
 		.rebind = mpol_rebind_default,
 	},
 	[MPOL_INTERLEAVE] = {
+<<<<<<< HEAD
 		.create = mpol_new_interleave,
+=======
+		.create = mpol_new_nodemask,
+>>>>>>> upstream/android-13
 		.rebind = mpol_rebind_nodemask,
 	},
 	[MPOL_PREFERRED] = {
@@ -401,9 +543,22 @@ static const struct mempolicy_operations mpol_ops[MPOL_MAX] = {
 		.rebind = mpol_rebind_preferred,
 	},
 	[MPOL_BIND] = {
+<<<<<<< HEAD
 		.create = mpol_new_bind,
 		.rebind = mpol_rebind_nodemask,
 	},
+=======
+		.create = mpol_new_nodemask,
+		.rebind = mpol_rebind_nodemask,
+	},
+	[MPOL_LOCAL] = {
+		.rebind = mpol_rebind_default,
+	},
+	[MPOL_PREFERRED_MANY] = {
+		.create = mpol_new_nodemask,
+		.rebind = mpol_rebind_preferred,
+	},
+>>>>>>> upstream/android-13
 };
 
 static int migrate_page_add(struct page *page, struct list_head *pagelist,
@@ -413,7 +568,13 @@ struct queue_pages {
 	struct list_head *pagelist;
 	unsigned long flags;
 	nodemask_t *nmask;
+<<<<<<< HEAD
 	struct vm_area_struct *prev;
+=======
+	unsigned long start;
+	unsigned long end;
+	struct vm_area_struct *first;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -433,7 +594,12 @@ static inline bool queue_pages_required(struct page *page,
 
 /*
  * queue_pages_pmd() has four possible return values:
+<<<<<<< HEAD
  * 0 - pages are placed on the right node or queued successfully.
+=======
+ * 0 - pages are placed on the right node or queued successfully, or
+ *     special page is met, i.e. huge zero page.
+>>>>>>> upstream/android-13
  * 1 - there is unmovable page, and MPOL_MF_MOVE* & MPOL_MF_STRICT were
  *     specified.
  * 2 - THP was split.
@@ -443,6 +609,10 @@ static inline bool queue_pages_required(struct page *page,
  */
 static int queue_pages_pmd(pmd_t *pmd, spinlock_t *ptl, unsigned long addr,
 				unsigned long end, struct mm_walk *walk)
+<<<<<<< HEAD
+=======
+	__releases(ptl)
+>>>>>>> upstream/android-13
 {
 	int ret = 0;
 	struct page *page;
@@ -456,8 +626,12 @@ static int queue_pages_pmd(pmd_t *pmd, spinlock_t *ptl, unsigned long addr,
 	page = pmd_page(*pmd);
 	if (is_huge_zero_page(page)) {
 		spin_unlock(ptl);
+<<<<<<< HEAD
 		__split_huge_pmd(walk->vma, pmd, addr, false, NULL);
 		ret = 2;
+=======
+		walk->action = ACTION_CONTINUE;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	if (!queue_pages_required(page, qp))
@@ -484,7 +658,12 @@ out:
  * and move them to the pagelist if they do.
  *
  * queue_pages_pte_range() has three possible return values:
+<<<<<<< HEAD
  * 0 - pages are placed on the right node or queued successfully.
+=======
+ * 0 - pages are placed on the right node or queued successfully, or
+ *     special page is met, i.e. zero page.
+>>>>>>> upstream/android-13
  * 1 - there is unmovable page, and MPOL_MF_MOVE* & MPOL_MF_STRICT were
  *     specified.
  * -EIO - only MPOL_MF_STRICT was specified and an existing page was already
@@ -558,9 +737,16 @@ static int queue_pages_hugetlb(pte_t *pte, unsigned long hmask,
 			       unsigned long addr, unsigned long end,
 			       struct mm_walk *walk)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_HUGETLB_PAGE
 	struct queue_pages *qp = walk->private;
 	unsigned long flags = qp->flags;
+=======
+	int ret = 0;
+#ifdef CONFIG_HUGETLB_PAGE
+	struct queue_pages *qp = walk->private;
+	unsigned long flags = (qp->flags & MPOL_MF_VALID);
+>>>>>>> upstream/android-13
 	struct page *page;
 	spinlock_t *ptl;
 	pte_t entry;
@@ -572,16 +758,55 @@ static int queue_pages_hugetlb(pte_t *pte, unsigned long hmask,
 	page = pte_page(entry);
 	if (!queue_pages_required(page, qp))
 		goto unlock;
+<<<<<<< HEAD
 	/* With MPOL_MF_MOVE, we migrate only unshared hugepage. */
 	if (flags & (MPOL_MF_MOVE_ALL) ||
 	    (flags & MPOL_MF_MOVE && page_mapcount(page) == 1))
 		isolate_huge_page(page, qp->pagelist);
+=======
+
+	if (flags == MPOL_MF_STRICT) {
+		/*
+		 * STRICT alone means only detecting misplaced page and no
+		 * need to further check other vma.
+		 */
+		ret = -EIO;
+		goto unlock;
+	}
+
+	if (!vma_migratable(walk->vma)) {
+		/*
+		 * Must be STRICT with MOVE*, otherwise .test_walk() have
+		 * stopped walking current vma.
+		 * Detecting misplaced page but allow migrating pages which
+		 * have been queued.
+		 */
+		ret = 1;
+		goto unlock;
+	}
+
+	/* With MPOL_MF_MOVE, we migrate only unshared hugepage. */
+	if (flags & (MPOL_MF_MOVE_ALL) ||
+	    (flags & MPOL_MF_MOVE && page_mapcount(page) == 1)) {
+		if (!isolate_huge_page(page, qp->pagelist) &&
+			(flags & MPOL_MF_STRICT))
+			/*
+			 * Failed to isolate page but allow migrating pages
+			 * which have been queued.
+			 */
+			ret = 1;
+	}
+>>>>>>> upstream/android-13
 unlock:
 	spin_unlock(ptl);
 #else
 	BUG();
 #endif
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_NUMA_BALANCING
@@ -599,11 +824,17 @@ unsigned long change_prot_numa(struct vm_area_struct *vma,
 {
 	int nr_updated;
 
+<<<<<<< HEAD
 	vm_write_begin(vma);
 	nr_updated = change_protection(vma, addr, end, PAGE_NONE, 0, 1);
 	if (nr_updated)
 		count_vm_numa_events(NUMA_PTE_UPDATES, nr_updated);
 	vm_write_end(vma);
+=======
+	nr_updated = change_protection(vma, addr, end, PAGE_NONE, MM_CP_PROT_NUMA);
+	if (nr_updated)
+		count_vm_numa_events(NUMA_PTE_UPDATES, nr_updated);
+>>>>>>> upstream/android-13
 
 	return nr_updated;
 }
@@ -623,6 +854,25 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
 	unsigned long endvma = vma->vm_end;
 	unsigned long flags = qp->flags;
 
+<<<<<<< HEAD
+=======
+	/* range check first */
+	VM_BUG_ON_VMA(!range_in_vma(vma, start, end), vma);
+
+	if (!qp->first) {
+		qp->first = vma;
+		if (!(flags & MPOL_MF_DISCONTIG_OK) &&
+			(qp->start < vma->vm_start))
+			/* hole at head side of range */
+			return -EFAULT;
+	}
+	if (!(flags & MPOL_MF_DISCONTIG_OK) &&
+		((vma->vm_end < qp->end) &&
+		(!vma->vm_next || vma->vm_end < vma->vm_next->vm_start)))
+		/* hole at middle or tail of range */
+		return -EFAULT;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Need check MPOL_MF_STRICT to return -EIO if possible
 	 * regardless of vma_migratable
@@ -633,6 +883,7 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
 
 	if (endvma > end)
 		endvma = end;
+<<<<<<< HEAD
 	if (vma->vm_start > start)
 		start = vma->vm_start;
 
@@ -649,6 +900,12 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
 		/* Similar to task_numa_work, skip inaccessible VMAs */
 		if (!is_vm_hugetlb_page(vma) &&
 			(vma->vm_flags & (VM_READ | VM_EXEC | VM_WRITE)) &&
+=======
+
+	if (flags & MPOL_MF_LAZY) {
+		/* Similar to task_numa_work, skip inaccessible VMAs */
+		if (!is_vm_hugetlb_page(vma) && vma_is_accessible(vma) &&
+>>>>>>> upstream/android-13
 			!(vma->vm_flags & VM_MIXEDMAP))
 			change_prot_numa(vma, start, endvma);
 		return 1;
@@ -660,6 +917,15 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static const struct mm_walk_ops queue_pages_walk_ops = {
+	.hugetlb_entry		= queue_pages_hugetlb,
+	.pmd_entry		= queue_pages_pte_range,
+	.test_walk		= queue_pages_test_walk,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Walk through page tables and collect pages to be migrated.
  *
@@ -680,10 +946,15 @@ queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
 		nodemask_t *nodes, unsigned long flags,
 		struct list_head *pagelist)
 {
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 	struct queue_pages qp = {
 		.pagelist = pagelist,
 		.flags = flags,
 		.nmask = nodes,
+<<<<<<< HEAD
 		.prev = NULL,
 	};
 	struct mm_walk queue_pages_walk = {
@@ -695,11 +966,29 @@ queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
 	};
 
 	return walk_page_range(start, end, &queue_pages_walk);
+=======
+		.start = start,
+		.end = end,
+		.first = NULL,
+	};
+
+	err = walk_page_range(mm, start, end, &queue_pages_walk_ops, &qp);
+
+	if (!qp.first)
+		/* whole range in hole */
+		err = -EFAULT;
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Apply policy to a single VMA
+<<<<<<< HEAD
  * This must be called with the mmap_sem held for writing.
+=======
+ * This must be called with the mmap_lock held for writing.
+>>>>>>> upstream/android-13
  */
 static int vma_replace_policy(struct vm_area_struct *vma,
 						struct mempolicy *pol)
@@ -717,7 +1006,10 @@ static int vma_replace_policy(struct vm_area_struct *vma,
 	if (IS_ERR(new))
 		return PTR_ERR(new);
 
+<<<<<<< HEAD
 	vm_write_begin(vma);
+=======
+>>>>>>> upstream/android-13
 	if (vma->vm_ops && vma->vm_ops->set_policy) {
 		err = vma->vm_ops->set_policy(vma, new);
 		if (err)
@@ -725,17 +1017,24 @@ static int vma_replace_policy(struct vm_area_struct *vma,
 	}
 
 	old = vma->vm_policy;
+<<<<<<< HEAD
 	/*
 	 * The speculative page fault handler accesses this field without
 	 * hodling the mmap_sem.
 	 */
 	WRITE_ONCE(vma->vm_policy,  new);
 	vm_write_end(vma);
+=======
+	vma->vm_policy = new; /* protected by mmap_lock */
+>>>>>>> upstream/android-13
 	mpol_put(old);
 
 	return 0;
  err_out:
+<<<<<<< HEAD
 	vm_write_end(vma);
+=======
+>>>>>>> upstream/android-13
 	mpol_put(new);
 	return err;
 }
@@ -744,7 +1043,10 @@ static int vma_replace_policy(struct vm_area_struct *vma,
 static int mbind_range(struct mm_struct *mm, unsigned long start,
 		       unsigned long end, struct mempolicy *new_pol)
 {
+<<<<<<< HEAD
 	struct vm_area_struct *next;
+=======
+>>>>>>> upstream/android-13
 	struct vm_area_struct *prev;
 	struct vm_area_struct *vma;
 	int err = 0;
@@ -753,15 +1055,23 @@ static int mbind_range(struct mm_struct *mm, unsigned long start,
 	unsigned long vmend;
 
 	vma = find_vma(mm, start);
+<<<<<<< HEAD
 	if (!vma || vma->vm_start > start)
 		return -EFAULT;
+=======
+	VM_BUG_ON(!vma);
+>>>>>>> upstream/android-13
 
 	prev = vma->vm_prev;
 	if (start > vma->vm_start)
 		prev = vma;
 
+<<<<<<< HEAD
 	for (; vma && vma->vm_start < end; prev = vma, vma = next) {
 		next = vma->vm_next;
+=======
+	for (; vma && vma->vm_start < end; prev = vma, vma = vma->vm_next) {
+>>>>>>> upstream/android-13
 		vmstart = max(start, vma->vm_start);
 		vmend   = min(end, vma->vm_end);
 
@@ -773,6 +1083,7 @@ static int mbind_range(struct mm_struct *mm, unsigned long start,
 		prev = vma_merge(mm, prev, vmstart, vmend, vma->vm_flags,
 				 vma->anon_vma, vma->vm_file, pgoff,
 				 new_pol, vma->vm_userfaultfd_ctx,
+<<<<<<< HEAD
 				 vma_get_anon_name(vma));
 		if (prev) {
 			vma = prev;
@@ -780,6 +1091,11 @@ static int mbind_range(struct mm_struct *mm, unsigned long start,
 			if (mpol_equal(vma_policy(vma), new_pol))
 				continue;
 			/* vma_merge() joined vma && vma->next, case 8 */
+=======
+				 anon_vma_name(vma));
+		if (prev) {
+			vma = prev;
+>>>>>>> upstream/android-13
 			goto replace;
 		}
 		if (vma->vm_start != vmstart) {
@@ -819,6 +1135,7 @@ static long do_set_mempolicy(unsigned short mode, unsigned short flags,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	task_lock(current);
 	ret = mpol_set_nodemask(new, nodes, scratch);
 	if (ret) {
@@ -826,6 +1143,14 @@ static long do_set_mempolicy(unsigned short mode, unsigned short flags,
 		mpol_put(new);
 		goto out;
 	}
+=======
+	ret = mpol_set_nodemask(new, nodes, scratch);
+	if (ret) {
+		mpol_put(new);
+		goto out;
+	}
+	task_lock(current);
+>>>>>>> upstream/android-13
 	old = current->mempolicy;
 	current->mempolicy = new;
 	if (new && new->mode == MPOL_INTERLEAVE)
@@ -851,6 +1176,7 @@ static void get_policy_nodemask(struct mempolicy *p, nodemask_t *nodes)
 
 	switch (p->mode) {
 	case MPOL_BIND:
+<<<<<<< HEAD
 		/* Fall through */
 	case MPOL_INTERLEAVE:
 		*nodes = p->v.nodes;
@@ -859,12 +1185,22 @@ static void get_policy_nodemask(struct mempolicy *p, nodemask_t *nodes)
 		if (!(p->flags & MPOL_F_LOCAL))
 			node_set(p->v.preferred_node, *nodes);
 		/* else return empty node mask for local allocation */
+=======
+	case MPOL_INTERLEAVE:
+	case MPOL_PREFERRED:
+	case MPOL_PREFERRED_MANY:
+		*nodes = p->nodes;
+		break;
+	case MPOL_LOCAL:
+		/* return empty node mask for local allocation */
+>>>>>>> upstream/android-13
 		break;
 	default:
 		BUG();
 	}
 }
 
+<<<<<<< HEAD
 static int lookup_node(unsigned long addr)
 {
 	struct page *p;
@@ -875,6 +1211,21 @@ static int lookup_node(unsigned long addr)
 		err = page_to_nid(p);
 		put_page(p);
 	}
+=======
+static int lookup_node(struct mm_struct *mm, unsigned long addr)
+{
+	struct page *p = NULL;
+	int err;
+
+	int locked = 1;
+	err = get_user_pages_locked(addr & PAGE_MASK, 1, 0, &p, &locked);
+	if (err > 0) {
+		err = page_to_nid(p);
+		put_page(p);
+	}
+	if (locked)
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -885,7 +1236,11 @@ static long do_get_mempolicy(int *policy, nodemask_t *nmask,
 	int err;
 	struct mm_struct *mm = current->mm;
 	struct vm_area_struct *vma = NULL;
+<<<<<<< HEAD
 	struct mempolicy *pol = current->mempolicy;
+=======
+	struct mempolicy *pol = current->mempolicy, *pol_refcount = NULL;
+>>>>>>> upstream/android-13
 
 	if (flags &
 		~(unsigned long)(MPOL_F_NODE|MPOL_F_ADDR|MPOL_F_MEMS_ALLOWED))
@@ -907,10 +1262,17 @@ static long do_get_mempolicy(int *policy, nodemask_t *nmask,
 		 * vma/shared policy at addr is NULL.  We
 		 * want to return MPOL_DEFAULT in this case.
 		 */
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
 		vma = find_vma_intersection(mm, addr, addr+1);
 		if (!vma) {
 			up_read(&mm->mmap_sem);
+=======
+		mmap_read_lock(mm);
+		vma = vma_lookup(mm, addr);
+		if (!vma) {
+			mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		}
 		if (vma->vm_ops && vma->vm_ops->get_policy)
@@ -925,13 +1287,30 @@ static long do_get_mempolicy(int *policy, nodemask_t *nmask,
 
 	if (flags & MPOL_F_NODE) {
 		if (flags & MPOL_F_ADDR) {
+<<<<<<< HEAD
 			err = lookup_node(addr);
+=======
+			/*
+			 * Take a refcount on the mpol, lookup_node()
+			 * will drop the mmap_lock, so after calling
+			 * lookup_node() only "pol" remains valid, "vma"
+			 * is stale.
+			 */
+			pol_refcount = pol;
+			vma = NULL;
+			mpol_get(pol);
+			err = lookup_node(mm, addr);
+>>>>>>> upstream/android-13
 			if (err < 0)
 				goto out;
 			*policy = err;
 		} else if (pol == current->mempolicy &&
 				pol->mode == MPOL_INTERLEAVE) {
+<<<<<<< HEAD
 			*policy = next_node_in(current->il_prev, pol->v.nodes);
+=======
+			*policy = next_node_in(current->il_prev, pol->nodes);
+>>>>>>> upstream/android-13
 		} else {
 			err = -EINVAL;
 			goto out;
@@ -960,7 +1339,13 @@ static long do_get_mempolicy(int *policy, nodemask_t *nmask,
  out:
 	mpol_cond_put(pol);
 	if (vma)
+<<<<<<< HEAD
 		up_read(&current->mm->mmap_sem);
+=======
+		mmap_read_unlock(mm);
+	if (pol_refcount)
+		mpol_put(pol_refcount);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -979,8 +1364,13 @@ static int migrate_page_add(struct page *page, struct list_head *pagelist,
 		if (!isolate_lru_page(head)) {
 			list_add_tail(&head->lru, pagelist);
 			mod_node_page_state(page_pgdat(head),
+<<<<<<< HEAD
 				NR_ISOLATED_ANON + page_is_file_cache(head),
 				hpage_nr_pages(head));
+=======
+				NR_ISOLATED_ANON + page_is_file_lru(head),
+				thp_nr_pages(head));
+>>>>>>> upstream/android-13
 		} else if (flags & MPOL_MF_STRICT) {
 			/*
 			 * Non-movable page may reach here.  And, there may be
@@ -996,6 +1386,7 @@ static int migrate_page_add(struct page *page, struct list_head *pagelist,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* page allocation callback for NUMA node migration */
 struct page *alloc_new_node_page(struct page *page, unsigned long node)
 {
@@ -1017,6 +1408,8 @@ struct page *alloc_new_node_page(struct page *page, unsigned long node)
 						    __GFP_THISNODE, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Migrate pages from one node to a target node.
  * Returns error or the number of pages not migrated.
@@ -1027,6 +1420,13 @@ static int migrate_to_node(struct mm_struct *mm, int source, int dest,
 	nodemask_t nmask;
 	LIST_HEAD(pagelist);
 	int err = 0;
+<<<<<<< HEAD
+=======
+	struct migration_target_control mtc = {
+		.nid = dest,
+		.gfp_mask = GFP_HIGHUSER_MOVABLE | __GFP_THISNODE,
+	};
+>>>>>>> upstream/android-13
 
 	nodes_clear(nmask);
 	node_set(source, nmask);
@@ -1041,8 +1441,13 @@ static int migrate_to_node(struct mm_struct *mm, int source, int dest,
 			flags | MPOL_MF_DISCONTIG_OK, &pagelist);
 
 	if (!list_empty(&pagelist)) {
+<<<<<<< HEAD
 		err = migrate_pages(&pagelist, alloc_new_node_page, NULL, dest,
 					MIGRATE_SYNC, MR_SYSCALL);
+=======
+		err = migrate_pages(&pagelist, alloc_migration_target, NULL,
+				(unsigned long)&mtc, MIGRATE_SYNC, MR_SYSCALL, NULL);
+>>>>>>> upstream/android-13
 		if (err)
 			putback_movable_pages(&pagelist);
 	}
@@ -1060,6 +1465,7 @@ int do_migrate_pages(struct mm_struct *mm, const nodemask_t *from,
 		     const nodemask_t *to, int flags)
 {
 	int busy = 0;
+<<<<<<< HEAD
 	int err;
 	nodemask_t tmp;
 
@@ -1068,6 +1474,14 @@ int do_migrate_pages(struct mm_struct *mm, const nodemask_t *from,
 		return err;
 
 	down_read(&mm->mmap_sem);
+=======
+	int err = 0;
+	nodemask_t tmp;
+
+	lru_cache_disable();
+
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Find a 'source' bit set in 'tmp' whose corresponding 'dest'
@@ -1102,7 +1516,11 @@ int do_migrate_pages(struct mm_struct *mm, const nodemask_t *from,
 
 	tmp = *from;
 	while (!nodes_empty(tmp)) {
+<<<<<<< HEAD
 		int s,d;
+=======
+		int s, d;
+>>>>>>> upstream/android-13
 		int source = NUMA_NO_NODE;
 		int dest = 0;
 
@@ -1148,7 +1566,13 @@ int do_migrate_pages(struct mm_struct *mm, const nodemask_t *from,
 		if (err < 0)
 			break;
 	}
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+
+	lru_cache_enable();
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	return busy;
@@ -1165,7 +1589,11 @@ int do_migrate_pages(struct mm_struct *mm, const nodemask_t *from,
 static struct page *new_page(struct page *page, unsigned long start)
 {
 	struct vm_area_struct *vma;
+<<<<<<< HEAD
 	unsigned long uninitialized_var(address);
+=======
+	unsigned long address;
+>>>>>>> upstream/android-13
 
 	vma = find_vma(current->mm, start);
 	while (vma) {
@@ -1264,19 +1692,30 @@ static long do_mbind(unsigned long start, unsigned long len,
 
 	if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) {
 
+<<<<<<< HEAD
 		err = migrate_prep();
 		if (err)
 			goto mpol_out;
+=======
+		lru_cache_disable();
+>>>>>>> upstream/android-13
 	}
 	{
 		NODEMASK_SCRATCH(scratch);
 		if (scratch) {
+<<<<<<< HEAD
 			down_write(&mm->mmap_sem);
 			task_lock(current);
 			err = mpol_set_nodemask(new, nmask, scratch);
 			task_unlock(current);
 			if (err)
 				up_write(&mm->mmap_sem);
+=======
+			mmap_write_lock(mm);
+			err = mpol_set_nodemask(new, nmask, scratch);
+			if (err)
+				mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 		} else
 			err = -ENOMEM;
 		NODEMASK_SCRATCH_FREE(scratch);
@@ -1300,7 +1739,11 @@ static long do_mbind(unsigned long start, unsigned long len,
 		if (!list_empty(&pagelist)) {
 			WARN_ON_ONCE(flags & MPOL_MF_LAZY);
 			nr_failed = migrate_pages(&pagelist, new_page, NULL,
+<<<<<<< HEAD
 				start, MIGRATE_SYNC, MR_MEMPOLICY_MBIND);
+=======
+				start, MIGRATE_SYNC, MR_MEMPOLICY_MBIND, NULL);
+>>>>>>> upstream/android-13
 			if (nr_failed)
 				putback_movable_pages(&pagelist);
 		}
@@ -1313,25 +1756,61 @@ up_out:
 			putback_movable_pages(&pagelist);
 	}
 
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
 mpol_out:
 	mpol_put(new);
+=======
+	mmap_write_unlock(mm);
+mpol_out:
+	mpol_put(new);
+	if (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL))
+		lru_cache_enable();
+>>>>>>> upstream/android-13
 	return err;
 }
 
 /*
  * User space interface with variable sized bitmaps for nodelists.
  */
+<<<<<<< HEAD
+=======
+static int get_bitmap(unsigned long *mask, const unsigned long __user *nmask,
+		      unsigned long maxnode)
+{
+	unsigned long nlongs = BITS_TO_LONGS(maxnode);
+	int ret;
+
+	if (in_compat_syscall())
+		ret = compat_get_bitmap(mask,
+					(const compat_ulong_t __user *)nmask,
+					maxnode);
+	else
+		ret = copy_from_user(mask, nmask,
+				     nlongs * sizeof(unsigned long));
+
+	if (ret)
+		return -EFAULT;
+
+	if (maxnode % BITS_PER_LONG)
+		mask[nlongs - 1] &= (1UL << (maxnode % BITS_PER_LONG)) - 1;
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /* Copy a node mask from user space. */
 static int get_nodes(nodemask_t *nodes, const unsigned long __user *nmask,
 		     unsigned long maxnode)
 {
+<<<<<<< HEAD
 	unsigned long k;
 	unsigned long t;
 	unsigned long nlongs;
 	unsigned long endmask;
 
+=======
+>>>>>>> upstream/android-13
 	--maxnode;
 	nodes_clear(*nodes);
 	if (maxnode == 0 || !nmask)
@@ -1339,6 +1818,7 @@ static int get_nodes(nodemask_t *nodes, const unsigned long __user *nmask,
 	if (maxnode > PAGE_SIZE*BITS_PER_BYTE)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	nlongs = BITS_TO_LONGS(maxnode);
 	if ((maxnode % BITS_PER_LONG) == 0)
 		endmask = ~0UL;
@@ -1382,6 +1862,31 @@ static int get_nodes(nodemask_t *nodes, const unsigned long __user *nmask,
 		return -EFAULT;
 	nodes_addr(*nodes)[nlongs-1] &= endmask;
 	return 0;
+=======
+	/*
+	 * When the user specified more nodes than supported just check
+	 * if the non supported part is all zero, one word at a time,
+	 * starting at the end.
+	 */
+	while (maxnode > MAX_NUMNODES) {
+		unsigned long bits = min_t(unsigned long, maxnode, BITS_PER_LONG);
+		unsigned long t;
+
+		if (get_bitmap(&t, &nmask[maxnode / BITS_PER_LONG], bits))
+			return -EFAULT;
+
+		if (maxnode - bits >= MAX_NUMNODES) {
+			maxnode -= bits;
+		} else {
+			maxnode = MAX_NUMNODES;
+			t &= ~((1UL << (MAX_NUMNODES % BITS_PER_LONG)) - 1);
+		}
+		if (t)
+			return -EINVAL;
+	}
+
+	return get_bitmap(nodes_addr(*nodes), nmask, maxnode);
+>>>>>>> upstream/android-13
 }
 
 /* Copy a kernel node mask to user space */
@@ -1390,6 +1895,13 @@ static int copy_nodes_to_user(unsigned long __user *mask, unsigned long maxnode,
 {
 	unsigned long copy = ALIGN(maxnode-1, 64) / 8;
 	unsigned int nbytes = BITS_TO_LONGS(nr_node_ids) * sizeof(long);
+<<<<<<< HEAD
+=======
+	bool compat = in_compat_syscall();
+
+	if (compat)
+		nbytes = BITS_TO_COMPAT_LONGS(nr_node_ids) * sizeof(compat_long_t);
+>>>>>>> upstream/android-13
 
 	if (copy > nbytes) {
 		if (copy > PAGE_SIZE)
@@ -1397,14 +1909,46 @@ static int copy_nodes_to_user(unsigned long __user *mask, unsigned long maxnode,
 		if (clear_user((char __user *)mask + nbytes, copy - nbytes))
 			return -EFAULT;
 		copy = nbytes;
+<<<<<<< HEAD
 	}
 	return copy_to_user(mask, nodes_addr(*nodes), copy) ? -EFAULT : 0;
 }
 
+=======
+		maxnode = nr_node_ids;
+	}
+
+	if (compat)
+		return compat_put_bitmap((compat_ulong_t __user *)mask,
+					 nodes_addr(*nodes), maxnode);
+
+	return copy_to_user(mask, nodes_addr(*nodes), copy) ? -EFAULT : 0;
+}
+
+/* Basic parameter sanity check used by both mbind() and set_mempolicy() */
+static inline int sanitize_mpol_flags(int *mode, unsigned short *flags)
+{
+	*flags = *mode & MPOL_MODE_FLAGS;
+	*mode &= ~MPOL_MODE_FLAGS;
+
+	if ((unsigned int)(*mode) >=  MPOL_MAX)
+		return -EINVAL;
+	if ((*flags & MPOL_F_STATIC_NODES) && (*flags & MPOL_F_RELATIVE_NODES))
+		return -EINVAL;
+	if (*flags & MPOL_F_NUMA_BALANCING) {
+		if (*mode != MPOL_BIND)
+			return -EINVAL;
+		*flags |= (MPOL_F_MOF | MPOL_F_MORON);
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static long kernel_mbind(unsigned long start, unsigned long len,
 			 unsigned long mode, const unsigned long __user *nmask,
 			 unsigned long maxnode, unsigned int flags)
 {
+<<<<<<< HEAD
 	nodemask_t nodes;
 	int err;
 	unsigned short mode_flags;
@@ -1421,6 +1965,23 @@ static long kernel_mbind(unsigned long start, unsigned long len,
 	if (err)
 		return err;
 	return do_mbind(start, len, mode, mode_flags, &nodes, flags);
+=======
+	unsigned short mode_flags;
+	nodemask_t nodes;
+	int lmode = mode;
+	int err;
+
+	start = untagged_addr(start);
+	err = sanitize_mpol_flags(&lmode, &mode_flags);
+	if (err)
+		return err;
+
+	err = get_nodes(&nodes, nmask, maxnode);
+	if (err)
+		return err;
+
+	return do_mbind(start, len, lmode, mode_flags, &nodes, flags);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE6(mbind, unsigned long, start, unsigned long, len,
@@ -1434,6 +1995,7 @@ SYSCALL_DEFINE6(mbind, unsigned long, start, unsigned long, len,
 static long kernel_set_mempolicy(int mode, const unsigned long __user *nmask,
 				 unsigned long maxnode)
 {
+<<<<<<< HEAD
 	int err;
 	nodemask_t nodes;
 	unsigned short flags;
@@ -1448,6 +2010,22 @@ static long kernel_set_mempolicy(int mode, const unsigned long __user *nmask,
 	if (err)
 		return err;
 	return do_set_mempolicy(mode, flags, &nodes);
+=======
+	unsigned short mode_flags;
+	nodemask_t nodes;
+	int lmode = mode;
+	int err;
+
+	err = sanitize_mpol_flags(&lmode, &mode_flags);
+	if (err)
+		return err;
+
+	err = get_nodes(&nodes, nmask, maxnode);
+	if (err)
+		return err;
+
+	return do_set_mempolicy(lmode, mode_flags, &nodes);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE3(set_mempolicy, int, mode, const unsigned long __user *, nmask,
@@ -1517,10 +2095,13 @@ static int kernel_migrate_pages(pid_t pid, unsigned long maxnode,
 	if (nodes_empty(*new))
 		goto out_put;
 
+<<<<<<< HEAD
 	nodes_and(*new, *new, node_states[N_MEMORY]);
 	if (nodes_empty(*new))
 		goto out_put;
 
+=======
+>>>>>>> upstream/android-13
 	err = security_task_movememory(task);
 	if (err)
 		goto out_put;
@@ -1564,6 +2145,7 @@ static int kernel_get_mempolicy(int __user *policy,
 				unsigned long flags)
 {
 	int err;
+<<<<<<< HEAD
 	int uninitialized_var(pval);
 	nodemask_t nodes;
 
@@ -1572,6 +2154,16 @@ static int kernel_get_mempolicy(int __user *policy,
 	if (nmask != NULL && maxnode < nr_node_ids)
 		return -EINVAL;
 
+=======
+	int pval;
+	nodemask_t nodes;
+
+	if (nmask != NULL && maxnode < nr_node_ids)
+		return -EINVAL;
+
+	addr = untagged_addr(addr);
+
+>>>>>>> upstream/android-13
 	err = do_get_mempolicy(&pval, &nodes, addr, flags);
 
 	if (err)
@@ -1593,6 +2185,7 @@ SYSCALL_DEFINE5(get_mempolicy, int __user *, policy,
 	return kernel_get_mempolicy(policy, nmask, maxnode, addr, flags);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 
 COMPAT_SYSCALL_DEFINE5(get_mempolicy, int __user *, policy,
@@ -1728,6 +2321,56 @@ struct mempolicy *__get_vma_policy(struct vm_area_struct *vma,
 		 */
 		if (mpol_needs_cond_ref(pol))
 			mpol_get(pol);
+=======
+bool vma_migratable(struct vm_area_struct *vma)
+{
+	if (vma->vm_flags & (VM_IO | VM_PFNMAP))
+		return false;
+
+	/*
+	 * DAX device mappings require predictable access latency, so avoid
+	 * incurring periodic faults.
+	 */
+	if (vma_is_dax(vma))
+		return false;
+
+	if (is_vm_hugetlb_page(vma) &&
+		!hugepage_migration_supported(hstate_vma(vma)))
+		return false;
+
+	/*
+	 * Migration allocates pages in the highest zone. If we cannot
+	 * do so then migration (at least from node to node) is not
+	 * possible.
+	 */
+	if (vma->vm_file &&
+		gfp_zone(mapping_gfp_mask(vma->vm_file->f_mapping))
+			< policy_zone)
+		return false;
+	return true;
+}
+
+struct mempolicy *__get_vma_policy(struct vm_area_struct *vma,
+						unsigned long addr)
+{
+	struct mempolicy *pol = NULL;
+
+	if (vma) {
+		if (vma->vm_ops && vma->vm_ops->get_policy) {
+			pol = vma->vm_ops->get_policy(vma, addr);
+		} else if (vma->vm_policy) {
+			pol = vma->vm_policy;
+
+			/*
+			 * shmem_alloc_page() passes MPOL_F_SHARED policy with
+			 * a pseudo vma whose vma->vm_ops=NULL. Take a reference
+			 * count on these policies which will be dropped by
+			 * mpol_cond_put() later
+			 */
+			if (mpol_needs_cond_ref(pol))
+				mpol_get(pol);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return pol;
@@ -1785,6 +2428,7 @@ static int apply_policy_zone(struct mempolicy *policy, enum zone_type zone)
 	BUG_ON(dynamic_policy_zone == ZONE_MOVABLE);
 
 	/*
+<<<<<<< HEAD
 	 * if policy->v.nodes has movable memory only,
 	 * we apply policy when gfp_zone(gfp) = ZONE_MOVABLE only.
 	 *
@@ -1793,6 +2437,16 @@ static int apply_policy_zone(struct mempolicy *policy, enum zone_type zone)
 	 * policy->v.nodes has movable memory only.
 	 */
 	if (!nodes_intersects(policy->v.nodes, node_states[N_HIGH_MEMORY]))
+=======
+	 * if policy->nodes has movable memory only,
+	 * we apply policy when gfp_zone(gfp) = ZONE_MOVABLE only.
+	 *
+	 * policy->nodes is intersect with node_states[N_MEMORY].
+	 * so if the following test fails, it implies
+	 * policy->nodes has movable memory only.
+	 */
+	if (!nodes_intersects(policy->nodes, node_states[N_HIGH_MEMORY]))
+>>>>>>> upstream/android-13
 		dynamic_policy_zone = ZONE_MOVABLE;
 
 	return zone >= dynamic_policy_zone;
@@ -1802,6 +2456,7 @@ static int apply_policy_zone(struct mempolicy *policy, enum zone_type zone)
  * Return a nodemask representing a mempolicy for filtering nodes for
  * page allocation
  */
+<<<<<<< HEAD
 static nodemask_t *policy_nodemask(gfp_t gfp, struct mempolicy *policy)
 {
 	/* Lower zones don't get a nodemask applied for MPOL_BIND */
@@ -1809,10 +2464,25 @@ static nodemask_t *policy_nodemask(gfp_t gfp, struct mempolicy *policy)
 			apply_policy_zone(policy, gfp_zone(gfp)) &&
 			cpuset_nodemask_valid_mems_allowed(&policy->v.nodes))
 		return &policy->v.nodes;
+=======
+nodemask_t *policy_nodemask(gfp_t gfp, struct mempolicy *policy)
+{
+	int mode = policy->mode;
+
+	/* Lower zones don't get a nodemask applied for MPOL_BIND */
+	if (unlikely(mode == MPOL_BIND) &&
+		apply_policy_zone(policy, gfp_zone(gfp)) &&
+		cpuset_nodemask_valid_mems_allowed(&policy->nodes))
+		return &policy->nodes;
+
+	if (mode == MPOL_PREFERRED_MANY)
+		return &policy->nodes;
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
 
+<<<<<<< HEAD
 /* Return the node id preferred by the given mempolicy, or the given id */
 static int policy_node(gfp_t gfp, struct mempolicy *policy,
 								int nd)
@@ -1820,6 +2490,20 @@ static int policy_node(gfp_t gfp, struct mempolicy *policy,
 	if (policy->mode == MPOL_PREFERRED && !(policy->flags & MPOL_F_LOCAL))
 		nd = policy->v.preferred_node;
 	else {
+=======
+/*
+ * Return the  preferred node id for 'prefer' mempolicy, and return
+ * the given id for all other policies.
+ *
+ * policy_node() is always coupled with policy_nodemask(), which
+ * secures the nodemask limit for 'bind' and 'prefer-many' policy.
+ */
+static int policy_node(gfp_t gfp, struct mempolicy *policy, int nd)
+{
+	if (policy->mode == MPOL_PREFERRED) {
+		nd = first_node(policy->nodes);
+	} else {
+>>>>>>> upstream/android-13
 		/*
 		 * __GFP_THISNODE shouldn't even be used with the bind policy
 		 * because we might easily break the expectation to stay on the
@@ -1837,7 +2521,11 @@ static unsigned interleave_nodes(struct mempolicy *policy)
 	unsigned next;
 	struct task_struct *me = current;
 
+<<<<<<< HEAD
 	next = next_node_in(me->il_prev, policy->v.nodes);
+=======
+	next = next_node_in(me->il_prev, policy->nodes);
+>>>>>>> upstream/android-13
 	if (next < MAX_NUMNODES)
 		me->il_prev = next;
 	return next;
@@ -1852,24 +2540,42 @@ unsigned int mempolicy_slab_node(void)
 	struct mempolicy *policy;
 	int node = numa_mem_id();
 
+<<<<<<< HEAD
 	if (in_interrupt())
 		return node;
 
 	policy = current->mempolicy;
 	if (!policy || policy->flags & MPOL_F_LOCAL)
+=======
+	if (!in_task())
+		return node;
+
+	policy = current->mempolicy;
+	if (!policy)
+>>>>>>> upstream/android-13
 		return node;
 
 	switch (policy->mode) {
 	case MPOL_PREFERRED:
+<<<<<<< HEAD
 		/*
 		 * handled MPOL_F_LOCAL above
 		 */
 		return policy->v.preferred_node;
+=======
+		return first_node(policy->nodes);
+>>>>>>> upstream/android-13
 
 	case MPOL_INTERLEAVE:
 		return interleave_nodes(policy);
 
+<<<<<<< HEAD
 	case MPOL_BIND: {
+=======
+	case MPOL_BIND:
+	case MPOL_PREFERRED_MANY:
+	{
+>>>>>>> upstream/android-13
 		struct zoneref *z;
 
 		/*
@@ -1880,9 +2586,17 @@ unsigned int mempolicy_slab_node(void)
 		enum zone_type highest_zoneidx = gfp_zone(GFP_KERNEL);
 		zonelist = &NODE_DATA(node)->node_zonelists[ZONELIST_FALLBACK];
 		z = first_zones_zonelist(zonelist, highest_zoneidx,
+<<<<<<< HEAD
 							&policy->v.nodes);
 		return z->zone ? zone_to_nid(z->zone) : node;
 	}
+=======
+							&policy->nodes);
+		return z->zone ? zone_to_nid(z->zone) : node;
+	}
+	case MPOL_LOCAL:
+		return node;
+>>>>>>> upstream/android-13
 
 	default:
 		BUG();
@@ -1891,11 +2605,16 @@ unsigned int mempolicy_slab_node(void)
 
 /*
  * Do static interleaving for a VMA with known offset @n.  Returns the n'th
+<<<<<<< HEAD
  * node in pol->v.nodes (starting from n=0), wrapping around if n exceeds the
+=======
+ * node in pol->nodes (starting from n=0), wrapping around if n exceeds the
+>>>>>>> upstream/android-13
  * number of present nodes.
  */
 static unsigned offset_il_node(struct mempolicy *pol, unsigned long n)
 {
+<<<<<<< HEAD
 	unsigned nnodes = nodes_weight(pol->v.nodes);
 	unsigned target;
 	int i;
@@ -1907,6 +2626,28 @@ static unsigned offset_il_node(struct mempolicy *pol, unsigned long n)
 	nid = first_node(pol->v.nodes);
 	for (i = 0; i < target; i++)
 		nid = next_node(nid, pol->v.nodes);
+=======
+	nodemask_t nodemask = pol->nodes;
+	unsigned int target, nnodes;
+	int i;
+	int nid;
+	/*
+	 * The barrier will stabilize the nodemask in a register or on
+	 * the stack so that it will stop changing under the code.
+	 *
+	 * Between first_node() and next_node(), pol->nodes could be changed
+	 * by other threads. So we put pol->nodes in a local stack.
+	 */
+	barrier();
+
+	nnodes = nodes_weight(nodemask);
+	if (!nnodes)
+		return numa_node_id();
+	target = (unsigned int)n % nnodes;
+	nid = first_node(nodemask);
+	for (i = 0; i < target; i++)
+		nid = next_node(nid, nodemask);
+>>>>>>> upstream/android-13
 	return nid;
 }
 
@@ -1939,12 +2680,21 @@ static inline unsigned interleave_nid(struct mempolicy *pol,
  * @addr: address in @vma for shared policy lookup and interleave policy
  * @gfp_flags: for requested zone
  * @mpol: pointer to mempolicy pointer for reference counted mempolicy
+<<<<<<< HEAD
  * @nodemask: pointer to nodemask pointer for MPOL_BIND nodemask
  *
  * Returns a nid suitable for a huge page allocation and a pointer
  * to the struct mempolicy for conditional unref after allocation.
  * If the effective policy is 'BIND, returns a pointer to the mempolicy's
  * @nodemask for filtering the zonelist.
+=======
+ * @nodemask: pointer to nodemask pointer for 'bind' and 'prefer-many' policy
+ *
+ * Returns a nid suitable for a huge page allocation and a pointer
+ * to the struct mempolicy for conditional unref after allocation.
+ * If the effective policy is 'bind' or 'prefer-many', returns a pointer
+ * to the mempolicy's @nodemask for filtering the zonelist.
+>>>>>>> upstream/android-13
  *
  * Must be protected by read_mems_allowed_begin()
  */
@@ -1952,17 +2702,32 @@ int huge_node(struct vm_area_struct *vma, unsigned long addr, gfp_t gfp_flags,
 				struct mempolicy **mpol, nodemask_t **nodemask)
 {
 	int nid;
+<<<<<<< HEAD
 
 	*mpol = get_vma_policy(vma, addr);
 	*nodemask = NULL;	/* assume !MPOL_BIND */
 
 	if (unlikely((*mpol)->mode == MPOL_INTERLEAVE)) {
+=======
+	int mode;
+
+	*mpol = get_vma_policy(vma, addr);
+	*nodemask = NULL;
+	mode = (*mpol)->mode;
+
+	if (unlikely(mode == MPOL_INTERLEAVE)) {
+>>>>>>> upstream/android-13
 		nid = interleave_nid(*mpol, vma, addr,
 					huge_page_shift(hstate_vma(vma)));
 	} else {
 		nid = policy_node(gfp_flags, *mpol, numa_node_id());
+<<<<<<< HEAD
 		if ((*mpol)->mode == MPOL_BIND)
 			*nodemask = &(*mpol)->v.nodes;
+=======
+		if (mode == MPOL_BIND || mode == MPOL_PREFERRED_MANY)
+			*nodemask = &(*mpol)->nodes;
+>>>>>>> upstream/android-13
 	}
 	return nid;
 }
@@ -1986,7 +2751,10 @@ int huge_node(struct vm_area_struct *vma, unsigned long addr, gfp_t gfp_flags,
 bool init_nodemask_of_mempolicy(nodemask_t *mask)
 {
 	struct mempolicy *mempolicy;
+<<<<<<< HEAD
 	int nid;
+=======
+>>>>>>> upstream/android-13
 
 	if (!(mask && current->mempolicy))
 		return false;
@@ -1995,6 +2763,7 @@ bool init_nodemask_of_mempolicy(nodemask_t *mask)
 	mempolicy = current->mempolicy;
 	switch (mempolicy->mode) {
 	case MPOL_PREFERRED:
+<<<<<<< HEAD
 		if (mempolicy->flags & MPOL_F_LOCAL)
 			nid = numa_node_id();
 		else
@@ -2006,6 +2775,16 @@ bool init_nodemask_of_mempolicy(nodemask_t *mask)
 		/* Fall through */
 	case MPOL_INTERLEAVE:
 		*mask =  mempolicy->v.nodes;
+=======
+	case MPOL_PREFERRED_MANY:
+	case MPOL_BIND:
+	case MPOL_INTERLEAVE:
+		*mask = mempolicy->nodes;
+		break;
+
+	case MPOL_LOCAL:
+		init_nodemask_of_node(mask, numa_node_id());
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -2018,6 +2797,7 @@ bool init_nodemask_of_mempolicy(nodemask_t *mask)
 #endif
 
 /*
+<<<<<<< HEAD
  * mempolicy_nodemask_intersects
  *
  * If tsk's mempolicy is "default" [NULL], return 'true' to indicate default
@@ -2028,6 +2808,18 @@ bool init_nodemask_of_mempolicy(nodemask_t *mask)
  * Takes task_lock(tsk) to prevent freeing of its mempolicy.
  */
 bool mempolicy_nodemask_intersects(struct task_struct *tsk,
+=======
+ * mempolicy_in_oom_domain
+ *
+ * If tsk's mempolicy is "bind", check for intersection between mask and
+ * the policy nodemask. Otherwise, return true for all other policies
+ * including "interleave", as a tsk with "interleave" policy may have
+ * memory allocated from all nodes in system.
+ *
+ * Takes task_lock(tsk) to prevent freeing of its mempolicy.
+ */
+bool mempolicy_in_oom_domain(struct task_struct *tsk,
+>>>>>>> upstream/android-13
 					const nodemask_t *mask)
 {
 	struct mempolicy *mempolicy;
@@ -2035,6 +2827,7 @@ bool mempolicy_nodemask_intersects(struct task_struct *tsk,
 
 	if (!mask)
 		return ret;
+<<<<<<< HEAD
 	task_lock(tsk);
 	mempolicy = tsk->mempolicy;
 	if (!mempolicy)
@@ -2058,6 +2851,15 @@ bool mempolicy_nodemask_intersects(struct task_struct *tsk,
 	}
 out:
 	task_unlock(tsk);
+=======
+
+	task_lock(tsk);
+	mempolicy = tsk->mempolicy;
+	if (mempolicy && mempolicy->mode == MPOL_BIND)
+		ret = nodes_intersects(mempolicy->nodes, *mask);
+	task_unlock(tsk);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2068,18 +2870,27 @@ static struct page *alloc_page_interleave(gfp_t gfp, unsigned order,
 {
 	struct page *page;
 
+<<<<<<< HEAD
 	page = __alloc_pages(gfp, order, nid);
+=======
+	page = __alloc_pages(gfp, order, nid, NULL);
+>>>>>>> upstream/android-13
 	/* skip NUMA_INTERLEAVE_HIT counter update if numa stats is disabled */
 	if (!static_branch_likely(&vm_numa_stat_key))
 		return page;
 	if (page && page_to_nid(page) == nid) {
 		preempt_disable();
+<<<<<<< HEAD
 		__inc_numa_state(page_zone(page), NUMA_INTERLEAVE_HIT);
+=======
+		__count_numa_event(page_zone(page), NUMA_INTERLEAVE_HIT);
+>>>>>>> upstream/android-13
 		preempt_enable();
 	}
 	return page;
 }
 
+<<<<<<< HEAD
 /**
  * 	alloc_pages_vma	- Allocate a page for a VMA.
  *
@@ -2105,6 +2916,46 @@ static struct page *alloc_page_interleave(gfp_t gfp, unsigned order,
  */
 struct page *
 alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
+=======
+static struct page *alloc_pages_preferred_many(gfp_t gfp, unsigned int order,
+						int nid, struct mempolicy *pol)
+{
+	struct page *page;
+	gfp_t preferred_gfp;
+
+	/*
+	 * This is a two pass approach. The first pass will only try the
+	 * preferred nodes but skip the direct reclaim and allow the
+	 * allocation to fail, while the second pass will try all the
+	 * nodes in system.
+	 */
+	preferred_gfp = gfp | __GFP_NOWARN;
+	preferred_gfp &= ~(__GFP_DIRECT_RECLAIM | __GFP_NOFAIL);
+	page = __alloc_pages(preferred_gfp, order, nid, &pol->nodes);
+	if (!page)
+		page = __alloc_pages(gfp, order, numa_node_id(), NULL);
+
+	return page;
+}
+
+/**
+ * alloc_pages_vma - Allocate a page for a VMA.
+ * @gfp: GFP flags.
+ * @order: Order of the GFP allocation.
+ * @vma: Pointer to VMA or NULL if not available.
+ * @addr: Virtual address of the allocation.  Must be inside @vma.
+ * @node: Which node to prefer for allocation (modulo policy).
+ * @hugepage: For hugepages try only the preferred node if possible.
+ *
+ * Allocate a page for a specific address in @vma, using the appropriate
+ * NUMA policy.  When @vma is not NULL the caller must hold the mmap_lock
+ * of the mm_struct of the VMA to prevent it from going away.  Should be
+ * used for all allocations for pages that will be mapped into user space.
+ *
+ * Return: The page on success or NULL if allocation fails.
+ */
+struct page *alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
+>>>>>>> upstream/android-13
 		unsigned long addr, int node, bool hugepage)
 {
 	struct mempolicy *pol;
@@ -2123,6 +2974,15 @@ alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	if (pol->mode == MPOL_PREFERRED_MANY) {
+		page = alloc_pages_preferred_many(gfp, order, node, pol);
+		mpol_cond_put(pol);
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	if (unlikely(IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && hugepage)) {
 		int hpage_node = node;
 
@@ -2133,17 +2993,26 @@ alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
 		 * node and don't fall back to other nodes, as the cost of
 		 * remote accesses would likely offset THP benefits.
 		 *
+<<<<<<< HEAD
 		 * If the policy is interleave, or does not allow the current
 		 * node in its nodemask, we allocate the standard way.
 		 */
 		if (pol->mode == MPOL_PREFERRED &&
 						!(pol->flags & MPOL_F_LOCAL))
 			hpage_node = pol->v.preferred_node;
+=======
+		 * If the policy is interleave or does not allow the current
+		 * node in its nodemask, we allocate the standard way.
+		 */
+		if (pol->mode == MPOL_PREFERRED)
+			hpage_node = first_node(pol->nodes);
+>>>>>>> upstream/android-13
 
 		nmask = policy_nodemask(gfp, pol);
 		if (!nmask || node_isset(hpage_node, *nmask)) {
 			mpol_cond_put(pol);
 			/*
+<<<<<<< HEAD
 			 * We cannot invoke reclaim if __GFP_THISNODE
 			 * is set. Invoking reclaim with
 			 * __GFP_THISNODE set, would cause THP
@@ -2173,17 +3042,39 @@ alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
 			if (!(gfp & __GFP_DIRECT_RECLAIM))
 				gfp |= __GFP_THISNODE;
 			page = __alloc_pages_node(hpage_node, gfp, order);
+=======
+			 * First, try to allocate THP only on local node, but
+			 * don't reclaim unnecessarily, just compact.
+			 */
+			page = __alloc_pages_node(hpage_node,
+				gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+
+			/*
+			 * If hugepage allocations are configured to always
+			 * synchronous compact or the vma has been madvised
+			 * to prefer hugepage backing, retry allowing remote
+			 * memory with both reclaim and compact as well.
+			 */
+			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+				page = __alloc_pages(gfp, order, hpage_node, nmask);
+
+>>>>>>> upstream/android-13
 			goto out;
 		}
 	}
 
 	nmask = policy_nodemask(gfp, pol);
 	preferred_nid = policy_node(gfp, pol, node);
+<<<<<<< HEAD
 	page = __alloc_pages_nodemask(gfp, order, preferred_nid, nmask);
+=======
+	page = __alloc_pages(gfp, order, preferred_nid, nmask);
+>>>>>>> upstream/android-13
 	mpol_cond_put(pol);
 out:
 	return page;
 }
+<<<<<<< HEAD
 
 /**
  * 	alloc_pages_current - Allocate pages.
@@ -2201,6 +3092,25 @@ out:
  *	Returns NULL when no page can be allocated.
  */
 struct page *alloc_pages_current(gfp_t gfp, unsigned order)
+=======
+EXPORT_SYMBOL(alloc_pages_vma);
+
+/**
+ * alloc_pages - Allocate pages.
+ * @gfp: GFP flags.
+ * @order: Power of two of number of pages to allocate.
+ *
+ * Allocate 1 << @order contiguous pages.  The physical address of the
+ * first page is naturally aligned (eg an order-3 allocation will be aligned
+ * to a multiple of 8 * PAGE_SIZE bytes).  The NUMA policy of the current
+ * process is honoured when in process context.
+ *
+ * Context: Can be called from any context, providing the appropriate GFP
+ * flags are used.
+ * Return: The page on success or NULL if allocation fails.
+ */
+struct page *alloc_pages(gfp_t gfp, unsigned order)
+>>>>>>> upstream/android-13
 {
 	struct mempolicy *pol = &default_policy;
 	struct page *page;
@@ -2214,14 +3124,26 @@ struct page *alloc_pages_current(gfp_t gfp, unsigned order)
 	 */
 	if (pol->mode == MPOL_INTERLEAVE)
 		page = alloc_page_interleave(gfp, order, interleave_nodes(pol));
+<<<<<<< HEAD
 	else
 		page = __alloc_pages_nodemask(gfp, order,
+=======
+	else if (pol->mode == MPOL_PREFERRED_MANY)
+		page = alloc_pages_preferred_many(gfp, order,
+				numa_node_id(), pol);
+	else
+		page = __alloc_pages(gfp, order,
+>>>>>>> upstream/android-13
 				policy_node(gfp, pol, numa_node_id()),
 				policy_nodemask(gfp, pol));
 
 	return page;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(alloc_pages_current);
+=======
+EXPORT_SYMBOL(alloc_pages);
+>>>>>>> upstream/android-13
 
 int vma_dup_policy(struct vm_area_struct *src, struct vm_area_struct *dst)
 {
@@ -2283,6 +3205,7 @@ bool __mpol_equal(struct mempolicy *a, struct mempolicy *b)
 
 	switch (a->mode) {
 	case MPOL_BIND:
+<<<<<<< HEAD
 		/* Fall through */
 	case MPOL_INTERLEAVE:
 		return !!nodes_equal(a->v.nodes, b->v.nodes);
@@ -2291,6 +3214,14 @@ bool __mpol_equal(struct mempolicy *a, struct mempolicy *b)
 		if (a->flags & MPOL_F_LOCAL)
 			return true;
 		return a->v.preferred_node == b->v.preferred_node;
+=======
+	case MPOL_INTERLEAVE:
+	case MPOL_PREFERRED:
+	case MPOL_PREFERRED_MANY:
+		return !!nodes_equal(a->nodes, b->nodes);
+	case MPOL_LOCAL:
+		return true;
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 		return false;
@@ -2399,6 +3330,7 @@ static void sp_free(struct sp_node *n)
  * @addr: virtual address where page mapped
  *
  * Lookup current policy node id for vma,addr and "compare to" page's
+<<<<<<< HEAD
  * node id.
  *
  * Returns:
@@ -2407,6 +3339,13 @@ static void sp_free(struct sp_node *n)
  *
  * Policy determination "mimics" alloc_page_vma().
  * Called from fault path where we know the vma and faulting address.
+=======
+ * node id.  Policy determination "mimics" alloc_page_vma().
+ * Called from fault path where we know the vma and faulting address.
+ *
+ * Return: NUMA_NO_NODE if the page is in a node that is valid for this
+ * policy, or a suitable node ID to allocate a replacement page from.
+>>>>>>> upstream/android-13
  */
 int mpol_misplaced(struct page *page, struct vm_area_struct *vma, unsigned long addr)
 {
@@ -2416,8 +3355,13 @@ int mpol_misplaced(struct page *page, struct vm_area_struct *vma, unsigned long 
 	unsigned long pgoff;
 	int thiscpu = raw_smp_processor_id();
 	int thisnid = cpu_to_node(thiscpu);
+<<<<<<< HEAD
 	int polnid = -1;
 	int ret = -1;
+=======
+	int polnid = NUMA_NO_NODE;
+	int ret = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	pol = get_vma_policy(vma, addr);
 	if (!(pol->flags & MPOL_F_MOF))
@@ -2431,6 +3375,7 @@ int mpol_misplaced(struct page *page, struct vm_area_struct *vma, unsigned long 
 		break;
 
 	case MPOL_PREFERRED:
+<<<<<<< HEAD
 		if (pol->flags & MPOL_F_LOCAL)
 			polnid = numa_node_id();
 		else
@@ -2441,16 +3386,46 @@ int mpol_misplaced(struct page *page, struct vm_area_struct *vma, unsigned long 
 
 		/*
 		 * allows binding to multiple nodes.
+=======
+		if (node_isset(curnid, pol->nodes))
+			goto out;
+		polnid = first_node(pol->nodes);
+		break;
+
+	case MPOL_LOCAL:
+		polnid = numa_node_id();
+		break;
+
+	case MPOL_BIND:
+		/* Optimize placement among multiple nodes via NUMA balancing */
+		if (pol->flags & MPOL_F_MORON) {
+			if (node_isset(thisnid, pol->nodes))
+				break;
+			goto out;
+		}
+		fallthrough;
+
+	case MPOL_PREFERRED_MANY:
+		/*
+>>>>>>> upstream/android-13
 		 * use current page if in policy nodemask,
 		 * else select nearest allowed node, if any.
 		 * If no allowed nodes, use current [!misplaced].
 		 */
+<<<<<<< HEAD
 		if (node_isset(curnid, pol->v.nodes))
+=======
+		if (node_isset(curnid, pol->nodes))
+>>>>>>> upstream/android-13
 			goto out;
 		z = first_zones_zonelist(
 				node_zonelist(numa_node_id(), GFP_HIGHUSER),
 				gfp_zone(GFP_HIGHUSER),
+<<<<<<< HEAD
 				&pol->v.nodes);
+=======
+				&pol->nodes);
+>>>>>>> upstream/android-13
 		polnid = zone_to_nid(z->zone);
 		break;
 
@@ -2590,6 +3565,10 @@ alloc_new:
 	mpol_new = kmem_cache_alloc(policy_cache, GFP_KERNEL);
 	if (!mpol_new)
 		goto err_out;
+<<<<<<< HEAD
+=======
+	atomic_set(&mpol_new->refcnt, 1);
+>>>>>>> upstream/android-13
 	goto restart;
 }
 
@@ -2653,7 +3632,11 @@ int mpol_set_shared_policy(struct shared_policy *info,
 		 vma->vm_pgoff,
 		 sz, npol ? npol->mode : -1,
 		 npol ? npol->flags : -1,
+<<<<<<< HEAD
 		 npol ? nodes_addr(npol->v.nodes)[0] : NUMA_NO_NODE);
+=======
+		 npol ? nodes_addr(npol->nodes)[0] : NUMA_NO_NODE);
+>>>>>>> upstream/android-13
 
 	if (npol) {
 		new = sp_alloc(vma->vm_pgoff, vma->vm_pgoff + sz, npol);
@@ -2751,7 +3734,11 @@ void __init numa_policy_init(void)
 			.refcnt = ATOMIC_INIT(1),
 			.mode = MPOL_PREFERRED,
 			.flags = MPOL_F_MOF | MPOL_F_MORON,
+<<<<<<< HEAD
 			.v = { .preferred_node = nid, },
+=======
+			.nodes = nodemask_of_node(nid),
+>>>>>>> upstream/android-13
 		};
 	}
 
@@ -2795,9 +3782,12 @@ void numa_default_policy(void)
  * Parse and format mempolicy from/to strings
  */
 
+<<<<<<< HEAD
 /*
  * "local" is implemented internally by MPOL_PREFERRED with MPOL_F_LOCAL flag.
  */
+=======
+>>>>>>> upstream/android-13
 static const char * const policy_modes[] =
 {
 	[MPOL_DEFAULT]    = "default",
@@ -2805,6 +3795,10 @@ static const char * const policy_modes[] =
 	[MPOL_BIND]       = "bind",
 	[MPOL_INTERLEAVE] = "interleave",
 	[MPOL_LOCAL]      = "local",
+<<<<<<< HEAD
+=======
+	[MPOL_PREFERRED_MANY]  = "prefer (many)",
+>>>>>>> upstream/android-13
 };
 
 
@@ -2822,12 +3816,19 @@ static const char * const policy_modes[] =
 int mpol_parse_str(char *str, struct mempolicy **mpol)
 {
 	struct mempolicy *new = NULL;
+<<<<<<< HEAD
 	unsigned short mode;
+=======
+>>>>>>> upstream/android-13
 	unsigned short mode_flags;
 	nodemask_t nodes;
 	char *nodelist = strchr(str, ':');
 	char *flags = strchr(str, '=');
+<<<<<<< HEAD
 	int err = 1;
+=======
+	int err = 1, mode;
+>>>>>>> upstream/android-13
 
 	if (flags)
 		*flags++ = '\0';	/* terminate mode string */
@@ -2842,12 +3843,17 @@ int mpol_parse_str(char *str, struct mempolicy **mpol)
 	} else
 		nodes_clear(nodes);
 
+<<<<<<< HEAD
 	for (mode = 0; mode < MPOL_MAX; mode++) {
 		if (!strcmp(str, policy_modes[mode])) {
 			break;
 		}
 	}
 	if (mode >= MPOL_MAX)
+=======
+	mode = match_string(policy_modes, MPOL_MAX, str);
+	if (mode < 0)
+>>>>>>> upstream/android-13
 		goto out;
 
 	switch (mode) {
@@ -2880,7 +3886,10 @@ int mpol_parse_str(char *str, struct mempolicy **mpol)
 		 */
 		if (nodelist)
 			goto out;
+<<<<<<< HEAD
 		mode = MPOL_PREFERRED;
+=======
+>>>>>>> upstream/android-13
 		break;
 	case MPOL_DEFAULT:
 		/*
@@ -2889,6 +3898,10 @@ int mpol_parse_str(char *str, struct mempolicy **mpol)
 		if (!nodelist)
 			err = 0;
 		goto out;
+<<<<<<< HEAD
+=======
+	case MPOL_PREFERRED_MANY:
+>>>>>>> upstream/android-13
 	case MPOL_BIND:
 		/*
 		 * Insist on a nodelist
@@ -2919,12 +3932,23 @@ int mpol_parse_str(char *str, struct mempolicy **mpol)
 	 * Save nodes for mpol_to_str() to show the tmpfs mount options
 	 * for /proc/mounts, /proc/pid/mounts and /proc/pid/mountinfo.
 	 */
+<<<<<<< HEAD
 	if (mode != MPOL_PREFERRED)
 		new->v.nodes = nodes;
 	else if (nodelist)
 		new->v.preferred_node = first_node(nodes);
 	else
 		new->flags |= MPOL_F_LOCAL;
+=======
+	if (mode != MPOL_PREFERRED) {
+		new->nodes = nodes;
+	} else if (nodelist) {
+		nodes_clear(new->nodes);
+		node_set(first_node(nodes), new->nodes);
+	} else {
+		new->mode = MPOL_LOCAL;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Save nodes for contextualization: this will be used to "clone"
@@ -2970,6 +3994,7 @@ void mpol_to_str(char *buffer, int maxlen, struct mempolicy *pol)
 
 	switch (mode) {
 	case MPOL_DEFAULT:
+<<<<<<< HEAD
 		break;
 	case MPOL_PREFERRED:
 		if (flags & MPOL_F_LOCAL)
@@ -2980,6 +4005,15 @@ void mpol_to_str(char *buffer, int maxlen, struct mempolicy *pol)
 	case MPOL_BIND:
 	case MPOL_INTERLEAVE:
 		nodes = pol->v.nodes;
+=======
+	case MPOL_LOCAL:
+		break;
+	case MPOL_PREFERRED:
+	case MPOL_PREFERRED_MANY:
+	case MPOL_BIND:
+	case MPOL_INTERLEAVE:
+		nodes = pol->nodes;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		WARN_ON_ONCE(1);
@@ -3005,3 +4039,67 @@ void mpol_to_str(char *buffer, int maxlen, struct mempolicy *pol)
 		p += scnprintf(p, buffer + maxlen - p, ":%*pbl",
 			       nodemask_pr_args(&nodes));
 }
+<<<<<<< HEAD
+=======
+
+bool numa_demotion_enabled = false;
+
+#ifdef CONFIG_SYSFS
+static ssize_t numa_demotion_enabled_show(struct kobject *kobj,
+					  struct kobj_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "%s\n",
+			  numa_demotion_enabled? "true" : "false");
+}
+
+static ssize_t numa_demotion_enabled_store(struct kobject *kobj,
+					   struct kobj_attribute *attr,
+					   const char *buf, size_t count)
+{
+	if (!strncmp(buf, "true", 4) || !strncmp(buf, "1", 1))
+		numa_demotion_enabled = true;
+	else if (!strncmp(buf, "false", 5) || !strncmp(buf, "0", 1))
+		numa_demotion_enabled = false;
+	else
+		return -EINVAL;
+
+	return count;
+}
+
+static struct kobj_attribute numa_demotion_enabled_attr =
+	__ATTR(demotion_enabled, 0644, numa_demotion_enabled_show,
+	       numa_demotion_enabled_store);
+
+static struct attribute *numa_attrs[] = {
+	&numa_demotion_enabled_attr.attr,
+	NULL,
+};
+
+static const struct attribute_group numa_attr_group = {
+	.attrs = numa_attrs,
+};
+
+static int __init numa_init_sysfs(void)
+{
+	int err;
+	struct kobject *numa_kobj;
+
+	numa_kobj = kobject_create_and_add("numa", mm_kobj);
+	if (!numa_kobj) {
+		pr_err("failed to create numa kobject\n");
+		return -ENOMEM;
+	}
+	err = sysfs_create_group(numa_kobj, &numa_attr_group);
+	if (err) {
+		pr_err("failed to register numa group\n");
+		goto delete_obj;
+	}
+	return 0;
+
+delete_obj:
+	kobject_put(numa_kobj);
+	return err;
+}
+subsys_initcall(numa_init_sysfs);
+#endif
+>>>>>>> upstream/android-13

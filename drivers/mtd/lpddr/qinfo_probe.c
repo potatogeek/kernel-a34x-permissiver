@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Probing flash chips with QINFO records.
  * (C) 2008 Korolev Alexey <akorolev@infradead.org>
  * (C) 2008 Vasiliy Leonenko <vasiliy.leonenko@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/types.h>
@@ -181,8 +188,13 @@ static struct lpddr_private *lpddr_probe_chip(struct map_info *map)
 	lpddr.numchips = 1;
 
 	numvirtchips = lpddr.numchips * lpddr.qinfo->HWPartsNum;
+<<<<<<< HEAD
 	retlpddr = kzalloc(sizeof(struct lpddr_private) +
 			numvirtchips * sizeof(struct flchip), GFP_KERNEL);
+=======
+	retlpddr = kzalloc(struct_size(retlpddr, chips, numvirtchips),
+			   GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!retlpddr)
 		return NULL;
 

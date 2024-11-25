@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Common functions for in-kernel torture tests.
  *
@@ -18,6 +19,15 @@
  * Copyright IBM Corporation, 2014
  *
  * Author: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Common functions for in-kernel torture tests.
+ *
+ * Copyright IBM Corporation, 2014
+ *
+ * Author: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_TORTURE_H
@@ -45,16 +55,45 @@
 #define TOROUT_STRING(s) \
 	pr_alert("%s" TORTURE_FLAG " %s\n", torture_type, s)
 #define VERBOSE_TOROUT_STRING(s) \
+<<<<<<< HEAD
 	do { if (verbose) pr_alert("%s" TORTURE_FLAG " %s\n", torture_type, s); } while (0)
 #define VERBOSE_TOROUT_ERRSTRING(s) \
 	do { if (verbose) pr_alert("%s" TORTURE_FLAG "!!! %s\n", torture_type, s); } while (0)
 
 /* Definitions for online/offline exerciser. */
+=======
+do {										\
+	if (verbose) {								\
+		verbose_torout_sleep();						\
+		pr_alert("%s" TORTURE_FLAG " %s\n", torture_type, s);		\
+	}									\
+} while (0)
+#define VERBOSE_TOROUT_ERRSTRING(s) \
+do {										\
+	if (verbose) {								\
+		verbose_torout_sleep();						\
+		pr_alert("%s" TORTURE_FLAG "!!! %s\n", torture_type, s);	\
+	}									\
+} while (0)
+void verbose_torout_sleep(void);
+
+/* Definitions for online/offline exerciser. */
+#ifdef CONFIG_HOTPLUG_CPU
+int torture_num_online_cpus(void);
+#else /* #ifdef CONFIG_HOTPLUG_CPU */
+static inline int torture_num_online_cpus(void) { return 1; }
+#endif /* #else #ifdef CONFIG_HOTPLUG_CPU */
+typedef void torture_ofl_func(void);
+>>>>>>> upstream/android-13
 bool torture_offline(int cpu, long *n_onl_attempts, long *n_onl_successes,
 		     unsigned long *sum_offl, int *min_onl, int *max_onl);
 bool torture_online(int cpu, long *n_onl_attempts, long *n_onl_successes,
 		    unsigned long *sum_onl, int *min_onl, int *max_onl);
+<<<<<<< HEAD
 int torture_onoff_init(long ooholdoff, long oointerval);
+=======
+int torture_onoff_init(long ooholdoff, long oointerval, torture_ofl_func *f);
+>>>>>>> upstream/android-13
 void torture_onoff_stats(void);
 bool torture_onoff_failures(void);
 
@@ -67,6 +106,21 @@ struct torture_random_state {
 #define DEFINE_TORTURE_RANDOM_PERCPU(name) \
 	DEFINE_PER_CPU(struct torture_random_state, name)
 unsigned long torture_random(struct torture_random_state *trsp);
+<<<<<<< HEAD
+=======
+static inline void torture_random_init(struct torture_random_state *trsp)
+{
+	trsp->trs_state = 0;
+	trsp->trs_count = 0;
+}
+
+/* Definitions for high-resolution-timer sleeps. */
+int torture_hrtimeout_ns(ktime_t baset_ns, u32 fuzzt_ns, struct torture_random_state *trsp);
+int torture_hrtimeout_us(u32 baset_us, u32 fuzzt_ns, struct torture_random_state *trsp);
+int torture_hrtimeout_ms(u32 baset_ms, u32 fuzzt_us, struct torture_random_state *trsp);
+int torture_hrtimeout_jiffies(u32 baset_j, struct torture_random_state *trsp);
+int torture_hrtimeout_s(u32 baset_s, u32 fuzzt_ms, struct torture_random_state *trsp);
+>>>>>>> upstream/android-13
 
 /* Task shuffler, which causes CPUs to occasionally go idle. */
 void torture_shuffle_task_register(struct task_struct *tp);
@@ -77,8 +131,13 @@ void torture_shutdown_absorb(const char *title);
 int torture_shutdown_init(int ssecs, void (*cleanup)(void));
 
 /* Task stuttering, which forces load/no-load transitions. */
+<<<<<<< HEAD
 void stutter_wait(const char *title);
 int torture_stutter_init(int s);
+=======
+bool stutter_wait(const char *title);
+int torture_stutter_init(int s, int sgap);
+>>>>>>> upstream/android-13
 
 /* Initialization and cleanup. */
 bool torture_init_begin(char *ttype, int v);
@@ -98,10 +157,17 @@ void _torture_stop_kthread(char *m, struct task_struct **tp);
 #define torture_stop_kthread(n, tp) \
 	_torture_stop_kthread("Stopping " #n " task", &(tp))
 
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
 #define torture_preempt_schedule() preempt_schedule()
 #else
 #define torture_preempt_schedule()
+=======
+#ifdef CONFIG_PREEMPTION
+#define torture_preempt_schedule() preempt_schedule()
+#else
+#define torture_preempt_schedule()	do { } while (0)
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* __LINUX_TORTURE_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * max7359_keypad.c - MAX7359 Key Switch Controller Driver
  *
@@ -6,10 +10,13 @@
  *
  * Based on pxa27x_keypad.c
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheet: http://www.maxim-ic.com/quick_view2.cfm/qv_pk/5456
  */
 

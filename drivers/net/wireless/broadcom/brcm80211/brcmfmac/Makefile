@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #
 # Makefile fragment for Broadcom 802.11n Networking Device Driver
 #
@@ -18,6 +19,18 @@
 ccflags-y += \
 	-Idrivers/net/wireless/broadcom/brcm80211/brcmfmac	\
 	-Idrivers/net/wireless/broadcom/brcm80211/include
+=======
+# SPDX-License-Identifier: ISC
+#
+# Makefile fragment for Broadcom 802.11 Networking Device Driver
+#
+# Copyright (c) 2010 Broadcom Corporation
+#
+
+ccflags-y += \
+	-I $(srctree)/$(src) \
+	-I $(srctree)/$(src)/../include
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_BRCMFMAC) += brcmfmac.o
 brcmfmac-objs += \
@@ -33,7 +46,12 @@ brcmfmac-objs += \
 		feature.o \
 		btcoex.o \
 		vendor.o \
+<<<<<<< HEAD
 		pno.o
+=======
+		pno.o \
+		xtlv.o
+>>>>>>> upstream/android-13
 brcmfmac-$(CONFIG_BRCMFMAC_PROTO_BCDC) += \
 		bcdc.o \
 		fwsignal.o
@@ -54,3 +72,8 @@ brcmfmac-$(CONFIG_BRCM_TRACING) += \
 		tracepoint.o
 brcmfmac-$(CONFIG_OF) += \
 		of.o
+<<<<<<< HEAD
+=======
+brcmfmac-$(CONFIG_DMI) += \
+		dmi.o
+>>>>>>> upstream/android-13

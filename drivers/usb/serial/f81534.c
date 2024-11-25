@@ -235,11 +235,17 @@ static int f81534_set_register(struct usb_serial *serial, u16 reg, u8 data)
 					 USB_TYPE_VENDOR | USB_DIR_OUT,
 					 reg, 0, tmp, sizeof(u8),
 					 F81534_USB_TIMEOUT);
+<<<<<<< HEAD
 		if (status > 0) {
 			status = 0;
 			break;
 		} else if (status == 0) {
 			status = -EIO;
+=======
+		if (status == sizeof(u8)) {
+			status = 0;
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1142,6 +1148,7 @@ static void f81534_close(struct usb_serial_port *port)
 	mutex_unlock(&serial_priv->urb_mutex);
 }
 
+<<<<<<< HEAD
 static int f81534_get_serial_info(struct usb_serial_port *port,
 				  struct serial_struct __user *retinfo)
 {
@@ -1177,6 +1184,16 @@ static int f81534_ioctl(struct tty_struct *tty, unsigned int cmd,
 	}
 
 	return -ENOIOCTLCMD;
+=======
+static void f81534_get_serial_info(struct tty_struct *tty, struct serial_struct *ss)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct f81534_port_private *port_priv;
+
+	port_priv = usb_get_serial_port_data(port);
+
+	ss->baud_base = port_priv->baud_base;
+>>>>>>> upstream/android-13
 }
 
 static void f81534_process_per_serial_block(struct usb_serial_port *port,
@@ -1260,7 +1277,11 @@ static void f81534_process_per_serial_block(struct usb_serial_port *port,
 			schedule_work(&port_priv->lsr_work);
 		}
 
+<<<<<<< HEAD
 		if (port->port.console && port->sysrq) {
+=======
+		if (port->sysrq) {
+>>>>>>> upstream/android-13
 			if (usb_serial_handle_sysrq_char(port, data[i]))
 				continue;
 		}
@@ -1454,12 +1475,19 @@ static int f81534_port_probe(struct usb_serial_port *port)
 	return f81534_set_port_output_pin(port);
 }
 
+<<<<<<< HEAD
 static int f81534_port_remove(struct usb_serial_port *port)
+=======
+static void f81534_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct f81534_port_private *port_priv = usb_get_serial_port_data(port);
 
 	flush_work(&port_priv->lsr_work);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int f81534_tiocmget(struct tty_struct *tty)
@@ -1595,7 +1623,11 @@ static struct usb_serial_driver f81534_device = {
 	.break_ctl =		f81534_break_ctl,
 	.dtr_rts =		f81534_dtr_rts,
 	.process_read_urb =	f81534_process_read_urb,
+<<<<<<< HEAD
 	.ioctl =		f81534_ioctl,
+=======
+	.get_serial =		f81534_get_serial_info,
+>>>>>>> upstream/android-13
 	.tiocmget =		f81534_tiocmget,
 	.tiocmset =		f81534_tiocmset,
 	.write_bulk_callback =	f81534_write_usb_callback,

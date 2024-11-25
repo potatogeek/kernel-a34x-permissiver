@@ -1,14 +1,24 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2000, 2001, 2002 Jeff Dike (jdike@karaya.com)
  * Copyright 2003 PathScale, Inc.
  * Derived from include/asm-i386/pgtable.h
+<<<<<<< HEAD
  * Licensed under the GPL
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __UM_PGTABLE_2LEVEL_H
 #define __UM_PGTABLE_2LEVEL_H
 
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/pgtable-nopmd.h>
 
 /* PGDIR_SHIFT determines what a third-level page table entry can map */
@@ -24,7 +34,10 @@
 #define PTRS_PER_PTE	1024
 #define USER_PTRS_PER_PGD ((TASK_SIZE + (PGDIR_SIZE - 1)) / PGDIR_SIZE)
 #define PTRS_PER_PGD	1024
+<<<<<<< HEAD
 #define FIRST_USER_ADDRESS	0UL
+=======
+>>>>>>> upstream/android-13
 
 #define pte_ERROR(e) \
         printk("%s:%d: bad pte %p(%08lx).\n", __FILE__, __LINE__, &(e), \

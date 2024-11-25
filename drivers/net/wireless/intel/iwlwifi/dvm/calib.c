@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,6 +61,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2005-2014 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <net/mac80211.h>
 
@@ -766,7 +773,11 @@ static inline u8 find_first_chain(u8 mask)
 	return CHAIN_C;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Run disconnected antenna algorithm to find out which antennas are
  * disconnected.
  */

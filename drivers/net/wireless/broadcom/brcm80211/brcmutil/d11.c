@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2013 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 /*********************channel spec common functions*********************/
 
@@ -128,7 +134,11 @@ static void brcmu_d11n_decchspec(struct brcmu_chan *ch)
 		}
 		break;
 	default:
+<<<<<<< HEAD
 		WARN_ON_ONCE(1);
+=======
+		WARN_ONCE(1, "Invalid chanspec 0x%04x\n", ch->chspec);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -140,7 +150,11 @@ static void brcmu_d11n_decchspec(struct brcmu_chan *ch)
 		ch->band = BRCMU_CHAN_BAND_2G;
 		break;
 	default:
+<<<<<<< HEAD
 		WARN_ON_ONCE(1);
+=======
+		WARN_ONCE(1, "Invalid chanspec 0x%04x\n", ch->chspec);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
@@ -167,7 +181,11 @@ static void brcmu_d11ac_decchspec(struct brcmu_chan *ch)
 			ch->sb = BRCMU_CHAN_SB_U;
 			ch->control_ch_num += CH_10MHZ_APART;
 		} else {
+<<<<<<< HEAD
 			WARN_ON_ONCE(1);
+=======
+			WARN_ONCE(1, "Invalid chanspec 0x%04x\n", ch->chspec);
+>>>>>>> upstream/android-13
 		}
 		break;
 	case BRCMU_CHSPEC_D11AC_BW_80:
@@ -188,7 +206,11 @@ static void brcmu_d11ac_decchspec(struct brcmu_chan *ch)
 			ch->control_ch_num += CH_30MHZ_APART;
 			break;
 		default:
+<<<<<<< HEAD
 			WARN_ON_ONCE(1);
+=======
+			WARN_ONCE(1, "Invalid chanspec 0x%04x\n", ch->chspec);
+>>>>>>> upstream/android-13
 			break;
 		}
 		break;
@@ -222,13 +244,21 @@ static void brcmu_d11ac_decchspec(struct brcmu_chan *ch)
 			ch->control_ch_num += CH_70MHZ_APART;
 			break;
 		default:
+<<<<<<< HEAD
 			WARN_ON_ONCE(1);
+=======
+			WARN_ONCE(1, "Invalid chanspec 0x%04x\n", ch->chspec);
+>>>>>>> upstream/android-13
 			break;
 		}
 		break;
 	case BRCMU_CHSPEC_D11AC_BW_8080:
 	default:
+<<<<<<< HEAD
 		WARN_ON_ONCE(1);
+=======
+		WARN_ONCE(1, "Invalid chanspec 0x%04x\n", ch->chspec);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -240,7 +270,11 @@ static void brcmu_d11ac_decchspec(struct brcmu_chan *ch)
 		ch->band = BRCMU_CHAN_BAND_2G;
 		break;
 	default:
+<<<<<<< HEAD
 		WARN_ON_ONCE(1);
+=======
+		WARN_ONCE(1, "Invalid chanspec 0x%04x\n", ch->chspec);
+>>>>>>> upstream/android-13
 		break;
 	}
 }

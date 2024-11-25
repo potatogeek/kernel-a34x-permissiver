@@ -3,7 +3,16 @@
 #ifndef _NF_CONNTRACK_PPTP_H
 #define _NF_CONNTRACK_PPTP_H
 
+<<<<<<< HEAD
 #include <linux/netfilter/nf_conntrack_common.h>
+=======
+#include <linux/netfilter.h>
+#include <linux/skbuff.h>
+#include <linux/types.h>
+#include <linux/netfilter/nf_conntrack_common.h>
+#include <net/netfilter/nf_conntrack_expect.h>
+#include <uapi/linux/netfilter/nf_conntrack_tuple_common.h>
+>>>>>>> upstream/android-13
 
 const char *pptp_msg_name(u_int16_t msg);
 
@@ -45,8 +54,11 @@ struct nf_nat_pptp {
 	__be16 pac_call_id;			/* NAT'ed PAC call id */
 };
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #define PPTP_CONTROL_PORT	1723
 
 #define PPTP_PACKET_CONTROL	1
@@ -297,10 +309,13 @@ union pptp_ctrl_union {
 	struct PptpSetLinkInfo		setlink;
 };
 
+<<<<<<< HEAD
 /* crap needed for nf_conntrack_compat.h */
 struct nf_conn;
 struct nf_conntrack_expect;
 
+=======
+>>>>>>> upstream/android-13
 extern int
 (*nf_nat_pptp_hook_outbound)(struct sk_buff *skb,
 			     struct nf_conn *ct, enum ip_conntrack_info ctinfo,
@@ -323,5 +338,8 @@ extern void
 (*nf_nat_pptp_hook_expectfn)(struct nf_conn *ct,
 			     struct nf_conntrack_expect *exp);
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* _NF_CONNTRACK_PPTP_H */

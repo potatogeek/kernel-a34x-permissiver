@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ELF register definitions..
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * ELF register definitions..
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_POWERPC_ELF_H
 #define _ASM_POWERPC_ELF_H
@@ -57,8 +63,11 @@ static inline void ppc_elf_core_copy_regs(elf_gregset_t elf_regs,
 }
 #define ELF_CORE_COPY_REGS(gregs, regs) ppc_elf_core_copy_regs(gregs, regs);
 
+<<<<<<< HEAD
 typedef elf_vrregset_t elf_fpxregset_t;
 
+=======
+>>>>>>> upstream/android-13
 /* ELF_HWCAP yields a mask that user programs can use to figure out what
    instruction set this cpu supports.  This could be done in userspace,
    but it's not easy, and we've already done it here.  */
@@ -174,9 +183,20 @@ do {									\
 	/* Cache size items */						\
 	NEW_AUX_ENT(AT_DCACHEBSIZE, dcache_bsize);			\
 	NEW_AUX_ENT(AT_ICACHEBSIZE, icache_bsize);			\
+<<<<<<< HEAD
 	NEW_AUX_ENT(AT_UCACHEBSIZE, ucache_bsize);			\
 	VDSO_AUX_ENT(AT_SYSINFO_EHDR, current->mm->context.vdso_base);	\
 	ARCH_DLINFO_CACHE_GEOMETRY;					\
 } while (0)
 
+=======
+	NEW_AUX_ENT(AT_UCACHEBSIZE, 0);					\
+	VDSO_AUX_ENT(AT_SYSINFO_EHDR, (unsigned long)current->mm->context.vdso);\
+	ARCH_DLINFO_CACHE_GEOMETRY;					\
+} while (0)
+
+/* Relocate the kernel image to @final_address */
+void relocate(unsigned long final_address);
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_POWERPC_ELF_H */

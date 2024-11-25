@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2002
  *   Portions Copyright (C) Christoph Hellwig, 2001-2002
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2002
+ *   Portions Copyright (C) Christoph Hellwig, 2001-2002
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>
@@ -98,12 +105,21 @@ static int jfs_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 int jfs_setattr(struct dentry *dentry, struct iattr *iattr)
+=======
+int jfs_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		struct iattr *iattr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	int rc;
 
+<<<<<<< HEAD
 	rc = setattr_prepare(dentry, iattr);
+=======
+	rc = setattr_prepare(&init_user_ns, dentry, iattr);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -131,17 +147,30 @@ int jfs_setattr(struct dentry *dentry, struct iattr *iattr)
 		jfs_truncate(inode);
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, iattr);
 	mark_inode_dirty(inode);
 
 	if (iattr->ia_valid & ATTR_MODE)
 		rc = posix_acl_chmod(inode, inode->i_mode);
+=======
+	setattr_copy(&init_user_ns, inode, iattr);
+	mark_inode_dirty(inode);
+
+	if (iattr->ia_valid & ATTR_MODE)
+		rc = posix_acl_chmod(&init_user_ns, inode, inode->i_mode);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 const struct inode_operations jfs_file_inode_operations = {
 	.listxattr	= jfs_listxattr,
 	.setattr	= jfs_setattr,
+<<<<<<< HEAD
+=======
+	.fileattr_get	= jfs_fileattr_get,
+	.fileattr_set	= jfs_fileattr_set,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_JFS_POSIX_ACL
 	.get_acl	= jfs_get_acl,
 	.set_acl	= jfs_set_acl,
@@ -159,7 +188,11 @@ const struct file_operations jfs_file_operations = {
 	.fsync		= jfs_fsync,
 	.release	= jfs_release,
 	.unlocked_ioctl = jfs_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= jfs_compat_ioctl,
 #endif
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };

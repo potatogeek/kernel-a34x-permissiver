@@ -241,7 +241,11 @@ void tpg_log_status(struct tpg_data *tpg);
 
 void tpg_set_font(const u8 *f);
 void tpg_gen_text(const struct tpg_data *tpg,
+<<<<<<< HEAD
 		u8 *basep[TPG_MAX_PLANES][2], int y, int x, char *text);
+=======
+		u8 *basep[TPG_MAX_PLANES][2], int y, int x, const char *text);
+>>>>>>> upstream/android-13
 void tpg_calc_text_basep(struct tpg_data *tpg,
 		u8 *basep[TPG_MAX_PLANES][2], unsigned p, u8 *vbuf);
 unsigned tpg_g_interleaved_plane(const struct tpg_data *tpg, unsigned buf_line);
@@ -252,6 +256,10 @@ void tpg_fillbuffer(struct tpg_data *tpg, v4l2_std_id std,
 bool tpg_s_fourcc(struct tpg_data *tpg, u32 fourcc);
 void tpg_s_crop_compose(struct tpg_data *tpg, const struct v4l2_rect *crop,
 		const struct v4l2_rect *compose);
+<<<<<<< HEAD
+=======
+const char *tpg_g_color_order(const struct tpg_data *tpg);
+>>>>>>> upstream/android-13
 
 static inline void tpg_s_pattern(struct tpg_data *tpg, enum tpg_pattern pattern)
 {
@@ -324,6 +332,10 @@ static inline void tpg_s_saturation(struct tpg_data *tpg,
 static inline void tpg_s_hue(struct tpg_data *tpg,
 					s16 hue)
 {
+<<<<<<< HEAD
+=======
+	hue = clamp_t(s16, hue, -128, 128);
+>>>>>>> upstream/android-13
 	if (tpg->hue == hue)
 		return;
 	tpg->hue = hue;

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Variant of atomic_t specialized for reference counts.
  *
  * The interface matches the atomic_t interface (to aid in porting) but only
@@ -33,6 +34,9 @@
  * Note that the allocator is responsible for ordering things between free()
  * and alloc().
  *
+=======
+ * Out-of-line refcount functions.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mutex.h>
@@ -40,6 +44,7 @@
 #include <linux/spinlock.h>
 #include <linux/bug.h>
 
+<<<<<<< HEAD
 /**
  * refcount_add_not_zero_checked - add a value to a refcount unless it is 0
  * @i: the value to add to the refcount
@@ -228,6 +233,35 @@ void refcount_dec_checked(refcount_t *r)
 	WARN_ONCE(refcount_dec_and_test_checked(r), "refcount_t: decrement hit 0; leaking memory.\n");
 }
 EXPORT_SYMBOL(refcount_dec_checked);
+=======
+#define REFCOUNT_WARN(str)	WARN_ONCE(1, "refcount_t: " str ".\n")
+
+void refcount_warn_saturate(refcount_t *r, enum refcount_saturation_type t)
+{
+	refcount_set(r, REFCOUNT_SATURATED);
+
+	switch (t) {
+	case REFCOUNT_ADD_NOT_ZERO_OVF:
+		REFCOUNT_WARN("saturated; leaking memory");
+		break;
+	case REFCOUNT_ADD_OVF:
+		REFCOUNT_WARN("saturated; leaking memory");
+		break;
+	case REFCOUNT_ADD_UAF:
+		REFCOUNT_WARN("addition on 0; use-after-free");
+		break;
+	case REFCOUNT_SUB_UAF:
+		REFCOUNT_WARN("underflow; use-after-free");
+		break;
+	case REFCOUNT_DEC_LEAK:
+		REFCOUNT_WARN("decrement hit 0; leaking memory");
+		break;
+	default:
+		REFCOUNT_WARN("unknown saturation event!?");
+	}
+}
+EXPORT_SYMBOL(refcount_warn_saturate);
+>>>>>>> upstream/android-13
 
 /**
  * refcount_dec_if_one - decrement a refcount if it is 1
@@ -269,7 +303,11 @@ bool refcount_dec_not_one(refcount_t *r)
 	unsigned int new, val = atomic_read(&r->refs);
 
 	do {
+<<<<<<< HEAD
 		if (unlikely(val == UINT_MAX))
+=======
+		if (unlikely(val == REFCOUNT_SATURATED))
+>>>>>>> upstream/android-13
 			return true;
 
 		if (val == 1)
@@ -294,7 +332,11 @@ EXPORT_SYMBOL(refcount_dec_not_one);
  * @lock: the mutex to be locked
  *
  * Similar to atomic_dec_and_mutex_lock(), it will WARN on underflow and fail
+<<<<<<< HEAD
  * to decrement when saturated at UINT_MAX.
+=======
+ * to decrement when saturated at REFCOUNT_SATURATED.
+>>>>>>> upstream/android-13
  *
  * Provides release memory ordering, such that prior loads and stores are done
  * before, and provides a control dependency such that free() must come after.
@@ -325,7 +367,11 @@ EXPORT_SYMBOL(refcount_dec_and_mutex_lock);
  * @lock: the spinlock to be locked
  *
  * Similar to atomic_dec_and_lock(), it will WARN on underflow and fail to
+<<<<<<< HEAD
  * decrement when saturated at UINT_MAX.
+=======
+ * decrement when saturated at REFCOUNT_SATURATED.
+>>>>>>> upstream/android-13
  *
  * Provides release memory ordering, such that prior loads and stores are done
  * before, and provides a control dependency such that free() must come after.
@@ -357,7 +403,11 @@ EXPORT_SYMBOL(refcount_dec_and_lock);
  * @flags: saved IRQ-flags if the is acquired
  *
  * Same as refcount_dec_and_lock() above except that the spinlock is acquired
+<<<<<<< HEAD
  * with disabled interupts.
+=======
+ * with disabled interrupts.
+>>>>>>> upstream/android-13
  *
  * Return: true and hold spinlock if able to decrement refcount to 0, false
  *         otherwise

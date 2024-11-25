@@ -17,7 +17,11 @@
 	.section ".data", "aw"
 
 	.balign	16
+<<<<<<< HEAD
 GLOBAL(wakeup_header)
+=======
+SYM_DATA_START(wakeup_header)
+>>>>>>> upstream/android-13
 	video_mode:	.short	0	/* Video mode number */
 	pmode_entry:	.long	0
 	pmode_cs:	.short	__KERNEL_CS
@@ -31,13 +35,21 @@ GLOBAL(wakeup_header)
 	realmode_flags:	.long	0
 	real_magic:	.long	0
 	signature:	.long	WAKEUP_HEADER_SIGNATURE
+<<<<<<< HEAD
 END(wakeup_header)
+=======
+SYM_DATA_END(wakeup_header)
+>>>>>>> upstream/android-13
 
 	.text
 	.code16
 
 	.balign	16
+<<<<<<< HEAD
 ENTRY(wakeup_start)
+=======
+SYM_CODE_START(wakeup_start)
+>>>>>>> upstream/android-13
 	cli
 	cld
 
@@ -73,7 +85,11 @@ ENTRY(wakeup_start)
 	movw	%ax, %fs
 	movw	%ax, %gs
 
+<<<<<<< HEAD
 	lidtl	wakeup_idt
+=======
+	lidtl	.Lwakeup_idt
+>>>>>>> upstream/android-13
 
 	/* Clear the EFLAGS */
 	pushl $0
@@ -135,6 +151,10 @@ ENTRY(wakeup_start)
 #else
 	jmp	trampoline_start
 #endif
+<<<<<<< HEAD
+=======
+SYM_CODE_END(wakeup_start)
+>>>>>>> upstream/android-13
 
 bogus_real_magic:
 1:
@@ -152,7 +172,11 @@ bogus_real_magic:
 	 */
 
 	.balign	16
+<<<<<<< HEAD
 GLOBAL(wakeup_gdt)
+=======
+SYM_DATA_START(wakeup_gdt)
+>>>>>>> upstream/android-13
 	.word	3*8-1		/* Self-descriptor */
 	.long	pa_wakeup_gdt
 	.word	0
@@ -164,15 +188,27 @@ GLOBAL(wakeup_gdt)
 	.word	0xffff		/* 16-bit data segment @ real_mode_base */
 	.long	0x93000000 + pa_real_mode_base
 	.word	0x008f		/* big real mode */
+<<<<<<< HEAD
 END(wakeup_gdt)
+=======
+SYM_DATA_END(wakeup_gdt)
+>>>>>>> upstream/android-13
 
 	.section ".rodata","a"
 	.balign	8
 
 	/* This is the standard real-mode IDT */
 	.balign	16
+<<<<<<< HEAD
 GLOBAL(wakeup_idt)
 	.word	0xffff		/* limit */
 	.long	0		/* address */
 	.word	0
 END(wakeup_idt)
+=======
+SYM_DATA_START_LOCAL(.Lwakeup_idt)
+	.word	0xffff		/* limit */
+	.long	0		/* address */
+	.word	0
+SYM_DATA_END(.Lwakeup_idt)
+>>>>>>> upstream/android-13

@@ -103,8 +103,11 @@ Required properties:
 
 Optional properties:
 - dma-coherent: Present if dma operations are coherent
+<<<<<<< HEAD
 - mac-address: See ethernet.txt in the same directory
 - local-mac-address: See ethernet.txt in the same directory
+=======
+>>>>>>> upstream/android-13
 - phy-reset-gpios: Phandle and specifier for any GPIO used to reset the PHY.
   See ../gpio/gpio.txt.
 - snps,en-lpi: If present it enables use of the AXI low-power interface
@@ -133,6 +136,12 @@ Optional properties:
     - device_type: Must be "ethernet-phy".
     - fixed-mode device tree subnode: see fixed-link.txt in the same directory
 
+<<<<<<< HEAD
+=======
+The MAC address will be determined using the optional properties
+defined in ethernet.txt.
+
+>>>>>>> upstream/android-13
 Examples:
 ethernet2@40010000 {
 	clock-names = "phy_ref_clk", "apb_pclk";

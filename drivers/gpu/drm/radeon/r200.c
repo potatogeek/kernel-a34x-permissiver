@@ -25,7 +25,11 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/radeon_drm.h>
 #include "radeon_reg.h"
 #include "radeon.h"
@@ -84,7 +88,11 @@ struct radeon_fence *r200_copy_dma(struct radeon_device *rdev,
 				   uint64_t src_offset,
 				   uint64_t dst_offset,
 				   unsigned num_gpu_pages,
+<<<<<<< HEAD
 				   struct reservation_object *resv)
+=======
+				   struct dma_resv *resv)
+>>>>>>> upstream/android-13
 {
 	struct radeon_ring *ring = &rdev->ring[RADEON_RING_TYPE_GFX_INDEX];
 	struct radeon_fence *fence;

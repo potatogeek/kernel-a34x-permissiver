@@ -10,7 +10,11 @@
  *
  * A B+Tree is a data structure for looking up arbitrary (currently allowing
  * unsigned long, u32, u64 and 2 * u64) keys into pointers. The data structure
+<<<<<<< HEAD
  * is described at http://en.wikipedia.org/wiki/B-tree, we currently do not
+=======
+ * is described at https://en.wikipedia.org/wiki/B-tree, we currently do not
+>>>>>>> upstream/android-13
  * use binary search to find the key on lookups.
  *
  * Each B+Tree consists of a head, that contains bookkeeping information and

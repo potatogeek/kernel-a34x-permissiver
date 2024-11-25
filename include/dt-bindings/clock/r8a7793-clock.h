@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * r8a7793 clock definition
  *
@@ -11,6 +12,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * r8a7793 clock definition
+ *
+ * Copyright (C) 2014  Renesas Electronics Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_CLOCK_R8A7793_H__

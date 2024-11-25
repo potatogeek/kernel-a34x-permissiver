@@ -9,10 +9,16 @@
 # Changed by: Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>
 
 wordsize=$1
+<<<<<<< HEAD
 gcc=$2
 input=$3
 
 if ! test -r $input; then
+=======
+SYSCALL_TBL=$2
+
+if ! test -r $SYSCALL_TBL; then
+>>>>>>> upstream/android-13
 	echo "Could not read input file" >&2
 	exit 1
 fi
@@ -20,18 +26,36 @@ fi
 create_table()
 {
 	local wordsize=$1
+<<<<<<< HEAD
 	local max_nr
 
 	echo "static const char *syscalltbl_powerpc_${wordsize}[] = {"
 	while read sc nr; do
 		printf '\t[%d] = "%s",\n' $nr $sc
 		max_nr=$nr
+=======
+	local max_nr nr abi sc discard
+	max_nr=-1
+	nr=0
+
+	echo "static const char *syscalltbl_powerpc_${wordsize}[] = {"
+	while read nr abi sc discard; do
+		if [ "$max_nr" -lt "$nr" ]; then
+			printf '\t[%d] = "%s",\n' $nr $sc
+			max_nr=$nr
+		fi
+>>>>>>> upstream/android-13
 	done
 	echo '};'
 	echo "#define SYSCALLTBL_POWERPC_${wordsize}_MAX_ID $max_nr"
 }
 
+<<<<<<< HEAD
 $gcc -m${wordsize} -E -dM -x c  $input	       \
 	|sed -ne 's/^#define __NR_//p' \
 	|sort -t' ' -k2 -nu	       \
+=======
+grep -E "^[[:digit:]]+[[:space:]]+(common|spu|nospu|${wordsize})" $SYSCALL_TBL \
+	|sort -k1 -n                                                           \
+>>>>>>> upstream/android-13
 	|create_table ${wordsize}

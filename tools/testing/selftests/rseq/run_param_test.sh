@@ -1,6 +1,11 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0+ or MIT
 
+<<<<<<< HEAD
+=======
+NR_CPUS=`grep '^processor' /proc/cpuinfo | wc -l`
+
+>>>>>>> upstream/android-13
 EXTRA_ARGS=${@}
 
 OLDIFS="$IFS"
@@ -13,6 +18,10 @@ TEST_LIST=(
 	"-T m"
 	"-T m -M"
 	"-T i"
+<<<<<<< HEAD
+=======
+	"-T r"
+>>>>>>> upstream/android-13
 )
 
 TEST_NAME=(
@@ -23,20 +32,34 @@ TEST_NAME=(
 	"memcpy"
 	"memcpy with barrier"
 	"increment"
+<<<<<<< HEAD
+=======
+	"membarrier"
+>>>>>>> upstream/android-13
 )
 IFS="$OLDIFS"
 
 REPS=1000
 SLOW_REPS=100
+<<<<<<< HEAD
+=======
+NR_THREADS=$((6*${NR_CPUS}))
+>>>>>>> upstream/android-13
 
 function do_tests()
 {
 	local i=0
 	while [ "$i" -lt "${#TEST_LIST[@]}" ]; do
 		echo "Running test ${TEST_NAME[$i]}"
+<<<<<<< HEAD
 		./param_test ${TEST_LIST[$i]} -r ${REPS} ${@} ${EXTRA_ARGS} || exit 1
 		echo "Running compare-twice test ${TEST_NAME[$i]}"
 		./param_test_compare_twice ${TEST_LIST[$i]} -r ${REPS} ${@} ${EXTRA_ARGS} || exit 1
+=======
+		./param_test ${TEST_LIST[$i]} -r ${REPS} -t ${NR_THREADS} ${@} ${EXTRA_ARGS} || exit 1
+		echo "Running compare-twice test ${TEST_NAME[$i]}"
+		./param_test_compare_twice ${TEST_LIST[$i]} -r ${REPS} -t ${NR_THREADS} ${@} ${EXTRA_ARGS} || exit 1
+>>>>>>> upstream/android-13
 		let "i++"
 	done
 }

@@ -11,8 +11,12 @@
 #include <linux/kernel.h>
 #include <linux/bug.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/platform_device.h>
 #include <linux/regulator/driver.h>
@@ -68,6 +72,7 @@
 #define MAX77686_REGULATORS	MAX77686_REG_MAX
 #define MAX77686_LDOS		26
 
+<<<<<<< HEAD
 enum max77686_ramp_rate {
 	RAMP_RATE_13P75MV,
 	RAMP_RATE_27P5MV,
@@ -76,6 +81,10 @@ enum max77686_ramp_rate {
 };
 
 struct max77686_data {
+=======
+struct max77686_data {
+	struct device *dev;
+>>>>>>> upstream/android-13
 	DECLARE_BITMAP(gpio_enabled, MAX77686_REGULATORS);
 
 	/* Array indexed by regulator id */
@@ -220,6 +229,7 @@ static int max77686_enable(struct regulator_dev *rdev)
 				  max77686->opmode[id] << shift);
 }
 
+<<<<<<< HEAD
 static int max77686_set_ramp_delay(struct regulator_dev *rdev, int ramp_delay)
 {
 	unsigned int ramp_value = RAMP_RATE_NO_CTRL;
@@ -245,36 +255,73 @@ static int max77686_set_ramp_delay(struct regulator_dev *rdev, int ramp_delay)
 				  MAX77686_RAMP_RATE_MASK, ramp_value << 6);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int max77686_of_parse_cb(struct device_node *np,
 		const struct regulator_desc *desc,
 		struct regulator_config *config)
 {
 	struct max77686_data *max77686 = config->driver_data;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	switch (desc->id) {
 	case MAX77686_BUCK8:
 	case MAX77686_BUCK9:
 	case MAX77686_LDO20 ... MAX77686_LDO22:
+<<<<<<< HEAD
 		config->ena_gpio = of_get_named_gpio(np,
 					"maxim,ena-gpios", 0);
 		config->ena_gpio_flags = GPIOF_OUT_INIT_HIGH;
 		config->ena_gpio_initialized = true;
+=======
+		config->ena_gpiod = fwnode_gpiod_get_index(
+				of_fwnode_handle(np),
+				"maxim,ena",
+				0,
+				GPIOD_OUT_HIGH | GPIOD_FLAGS_BIT_NONEXCLUSIVE,
+				"max77686-regulator");
+		if (IS_ERR(config->ena_gpiod))
+			config->ena_gpiod = NULL;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if (gpio_is_valid(config->ena_gpio)) {
 		set_bit(desc->id, max77686->gpio_enabled);
 
 		return regmap_update_bits(config->regmap, desc->enable_reg,
 					  desc->enable_mask,
 					  MAX77686_GPIO_CONTROL);
+=======
+	if (config->ena_gpiod) {
+		set_bit(desc->id, max77686->gpio_enabled);
+
+		ret = regmap_update_bits(config->regmap, desc->enable_reg,
+					 desc->enable_mask,
+					 MAX77686_GPIO_CONTROL);
+		if (ret) {
+			gpiod_put(config->ena_gpiod);
+			config->ena_gpiod = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const unsigned int max77686_buck_dvs_ramp_table[] = {
+	13750, 27500, 55000, 100000
+};
+
+>>>>>>> upstream/android-13
 static const struct regulator_ops max77686_ops = {
 	.list_voltage		= regulator_list_voltage_linear,
 	.map_voltage		= regulator_map_voltage_linear,
@@ -321,7 +368,11 @@ static const struct regulator_ops max77686_buck_dvs_ops = {
 	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
 	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
 	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
+<<<<<<< HEAD
 	.set_ramp_delay		= max77686_set_ramp_delay,
+=======
+	.set_ramp_delay		= regulator_set_ramp_delay_regmap,
+>>>>>>> upstream/android-13
 	.set_suspend_disable	= max77686_set_suspend_disable,
 };
 
@@ -453,6 +504,13 @@ static const struct regulator_ops max77686_buck_dvs_ops = {
 	.enable_reg	= MAX77686_REG_BUCK2CTRL1 + (num - 2) * 10,	\
 	.enable_mask	= MAX77686_OPMODE_MASK				\
 			<< MAX77686_OPMODE_BUCK234_SHIFT,		\
+<<<<<<< HEAD
+=======
+	.ramp_reg	= MAX77686_REG_BUCK2CTRL1 + (num - 2) * 10,	\
+	.ramp_mask	= MAX77686_RAMP_RATE_MASK,			\
+	.ramp_delay_table = max77686_buck_dvs_ramp_table,		\
+	.n_ramp_values	= ARRAY_SIZE(max77686_buck_dvs_ramp_table),	\
+>>>>>>> upstream/android-13
 }
 
 static const struct regulator_desc regulators[] = {
@@ -507,6 +565,10 @@ static int max77686_pmic_probe(struct platform_device *pdev)
 	if (!max77686)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	max77686->dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	config.dev = iodev->dev;
 	config.regmap = iodev->regmap;
 	config.driver_data = max77686;

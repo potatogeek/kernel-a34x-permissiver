@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,6 +8,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2014 ARM Limited
  */
@@ -167,7 +172,11 @@ struct arm_ccn_dt {
 
 	struct hrtimer hrtimer;
 
+<<<<<<< HEAD
 	cpumask_t cpu;
+=======
+	unsigned int cpu;
+>>>>>>> upstream/android-13
 	struct hlist_node node;
 
 	struct pmu pmu;
@@ -228,7 +237,11 @@ static ssize_t arm_ccn_pmu_format_show(struct device *dev,
 	struct dev_ext_attribute *ea = container_of(attr,
 			struct dev_ext_attribute, attr);
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%s\n", (char *)ea->var);
+=======
+	return sysfs_emit(buf, "%s\n", (char *)ea->var);
+>>>>>>> upstream/android-13
 }
 
 #define CCN_FORMAT_ATTR(_name, _config) \
@@ -333,6 +346,7 @@ static ssize_t arm_ccn_pmu_event_show(struct device *dev,
 	struct arm_ccn *ccn = pmu_to_arm_ccn(dev_get_drvdata(dev));
 	struct arm_ccn_pmu_event *event = container_of(attr,
 			struct arm_ccn_pmu_event, attr);
+<<<<<<< HEAD
 	ssize_t res;
 
 	res = snprintf(buf, PAGE_SIZE, "type=0x%x", event->type);
@@ -345,12 +359,24 @@ static ssize_t arm_ccn_pmu_event_show(struct device *dev,
 	if (event->mask)
 		res += snprintf(buf + res, PAGE_SIZE - res, ",mask=0x%x",
 				event->mask);
+=======
+	int res;
+
+	res = sysfs_emit(buf, "type=0x%x", event->type);
+	if (event->event)
+		res += sysfs_emit_at(buf, res, ",event=0x%x", event->event);
+	if (event->def)
+		res += sysfs_emit_at(buf, res, ",%s", event->def);
+	if (event->mask)
+		res += sysfs_emit_at(buf, res, ",mask=0x%x", event->mask);
+>>>>>>> upstream/android-13
 
 	/* Arguments required by an event */
 	switch (event->type) {
 	case CCN_TYPE_CYCLES:
 		break;
 	case CCN_TYPE_XP:
+<<<<<<< HEAD
 		res += snprintf(buf + res, PAGE_SIZE - res,
 				",xp=?,vc=?");
 		if (event->event == CCN_EVENT_WATCHPOINT)
@@ -370,6 +396,25 @@ static ssize_t arm_ccn_pmu_event_show(struct device *dev,
 	}
 
 	res += snprintf(buf + res, PAGE_SIZE - res, "\n");
+=======
+		res += sysfs_emit_at(buf, res, ",xp=?,vc=?");
+		if (event->event == CCN_EVENT_WATCHPOINT)
+			res += sysfs_emit_at(buf, res,
+					",port=?,dir=?,cmp_l=?,cmp_h=?,mask=?");
+		else
+			res += sysfs_emit_at(buf, res, ",bus=?");
+
+		break;
+	case CCN_TYPE_MN:
+		res += sysfs_emit_at(buf, res, ",node=%d", ccn->mn_id);
+		break;
+	default:
+		res += sysfs_emit_at(buf, res, ",node=?");
+		break;
+	}
+
+	res += sysfs_emit_at(buf, res, "\n");
+>>>>>>> upstream/android-13
 
 	return res;
 }
@@ -483,7 +528,11 @@ static ssize_t arm_ccn_pmu_cmp_mask_show(struct device *dev,
 	struct arm_ccn *ccn = pmu_to_arm_ccn(dev_get_drvdata(dev));
 	u64 *mask = arm_ccn_pmu_get_cmp_mask(ccn, attr->attr.name);
 
+<<<<<<< HEAD
 	return mask ? snprintf(buf, PAGE_SIZE, "0x%016llx\n", *mask) : -EINVAL;
+=======
+	return mask ? sysfs_emit(buf, "0x%016llx\n", *mask) : -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t arm_ccn_pmu_cmp_mask_store(struct device *dev,
@@ -559,7 +608,11 @@ static ssize_t arm_ccn_pmu_cpumask_show(struct device *dev,
 {
 	struct arm_ccn *ccn = pmu_to_arm_ccn(dev_get_drvdata(dev));
 
+<<<<<<< HEAD
 	return cpumap_print_to_pagebuf(true, buf, &ccn->dt.cpu);
+=======
+	return cpumap_print_to_pagebuf(true, buf, cpumask_of(ccn->dt.cpu));
+>>>>>>> upstream/android-13
 }
 
 static struct device_attribute arm_ccn_pmu_cpumask_attr =
@@ -741,10 +794,14 @@ static int arm_ccn_pmu_event_init(struct perf_event *event)
 		return -EOPNOTSUPP;
 	}
 
+<<<<<<< HEAD
 	if (has_branch_stack(event) || event->attr.exclude_user ||
 			event->attr.exclude_kernel || event->attr.exclude_hv ||
 			event->attr.exclude_idle || event->attr.exclude_host ||
 			event->attr.exclude_guest) {
+=======
+	if (has_branch_stack(event)) {
+>>>>>>> upstream/android-13
 		dev_dbg(ccn->dev, "Can't exclude execution levels!\n");
 		return -EINVAL;
 	}
@@ -762,7 +819,11 @@ static int arm_ccn_pmu_event_init(struct perf_event *event)
 	 * mitigate this, we enforce CPU assignment to one, selected
 	 * processor (the one described in the "cpumask" attribute).
 	 */
+<<<<<<< HEAD
 	event->cpu = cpumask_first(&ccn->dt.cpu);
+=======
+	event->cpu = ccn->dt.cpu;
+>>>>>>> upstream/android-13
 
 	node_xp = CCN_CONFIG_NODE(event->attr.config);
 	type = CCN_CONFIG_TYPE(event->attr.config);
@@ -1218,15 +1279,25 @@ static int arm_ccn_pmu_offline_cpu(unsigned int cpu, struct hlist_node *node)
 	struct arm_ccn *ccn = container_of(dt, struct arm_ccn, dt);
 	unsigned int target;
 
+<<<<<<< HEAD
 	if (!cpumask_test_and_clear_cpu(cpu, &dt->cpu))
+=======
+	if (cpu != dt->cpu)
+>>>>>>> upstream/android-13
 		return 0;
 	target = cpumask_any_but(cpu_online_mask, cpu);
 	if (target >= nr_cpu_ids)
 		return 0;
 	perf_pmu_migrate_context(&dt->pmu, cpu, target);
+<<<<<<< HEAD
 	cpumask_set_cpu(target, &dt->cpu);
 	if (ccn->irq)
 		WARN_ON(irq_set_affinity_hint(ccn->irq, &dt->cpu) != 0);
+=======
+	dt->cpu = target;
+	if (ccn->irq)
+		WARN_ON(irq_set_affinity(ccn->irq, cpumask_of(dt->cpu)));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1290,6 +1361,10 @@ static int arm_ccn_pmu_init(struct arm_ccn *ccn)
 		.read = arm_ccn_pmu_event_read,
 		.pmu_enable = arm_ccn_pmu_enable,
 		.pmu_disable = arm_ccn_pmu_disable,
+<<<<<<< HEAD
+=======
+		.capabilities = PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	};
 
 	/* No overflow interrupt? Have to use a timer instead. */
@@ -1301,21 +1376,36 @@ static int arm_ccn_pmu_init(struct arm_ccn *ccn)
 	}
 
 	/* Pick one CPU which we will use to collect data from CCN... */
+<<<<<<< HEAD
 	cpumask_set_cpu(get_cpu(), &ccn->dt.cpu);
 
 	/* Also make sure that the overflow interrupt is handled by this CPU */
 	if (ccn->irq) {
 		err = irq_set_affinity_hint(ccn->irq, &ccn->dt.cpu);
+=======
+	ccn->dt.cpu = raw_smp_processor_id();
+
+	/* Also make sure that the overflow interrupt is handled by this CPU */
+	if (ccn->irq) {
+		err = irq_set_affinity(ccn->irq, cpumask_of(ccn->dt.cpu));
+>>>>>>> upstream/android-13
 		if (err) {
 			dev_err(ccn->dev, "Failed to set interrupt affinity!\n");
 			goto error_set_affinity;
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	cpuhp_state_add_instance_nocalls(CPUHP_AP_PERF_ARM_CCN_ONLINE,
+					 &ccn->dt.node);
+
+>>>>>>> upstream/android-13
 	err = perf_pmu_register(&ccn->dt.pmu, name, -1);
 	if (err)
 		goto error_pmu_register;
 
+<<<<<<< HEAD
 	cpuhp_state_add_instance_nocalls(CPUHP_AP_PERF_ARM_CCN_ONLINE,
 					 &ccn->dt.node);
 	put_cpu();
@@ -1324,6 +1414,14 @@ static int arm_ccn_pmu_init(struct arm_ccn *ccn)
 error_pmu_register:
 error_set_affinity:
 	put_cpu();
+=======
+	return 0;
+
+error_pmu_register:
+	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_CCN_ONLINE,
+					    &ccn->dt.node);
+error_set_affinity:
+>>>>>>> upstream/android-13
 error_choose_name:
 	ida_simple_remove(&arm_ccn_pmu_ida, ccn->dt.id);
 	for (i = 0; i < ccn->num_xps; i++)
@@ -1338,8 +1436,11 @@ static void arm_ccn_pmu_cleanup(struct arm_ccn *ccn)
 
 	cpuhp_state_remove_instance_nocalls(CPUHP_AP_PERF_ARM_CCN_ONLINE,
 					    &ccn->dt.node);
+<<<<<<< HEAD
 	if (ccn->irq)
 		irq_set_affinity_hint(ccn->irq, NULL);
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < ccn->num_xps; i++)
 		writel(0, ccn->xp[i].base + CCN_XP_DT_CONTROL);
 	writel(0, ccn->dt.base + CCN_DT_PMCR);
@@ -1412,7 +1513,11 @@ static int arm_ccn_init_nodes(struct arm_ccn *ccn, int region,
 		break;
 	case CCN_TYPE_SBAS:
 		ccn->sbas_present = 1;
+<<<<<<< HEAD
 		/* Fall-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		component = &ccn->node[id];
 		break;
@@ -1485,8 +1590,12 @@ static int arm_ccn_probe(struct platform_device *pdev)
 	ccn->dev = &pdev->dev;
 	platform_set_drvdata(pdev, ccn);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ccn->base = devm_ioremap_resource(ccn->dev, res);
+=======
+	ccn->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ccn->base))
 		return PTR_ERR(ccn->base);
 
@@ -1545,6 +1654,10 @@ static int arm_ccn_remove(struct platform_device *pdev)
 static const struct of_device_id arm_ccn_match[] = {
 	{ .compatible = "arm,ccn-502", },
 	{ .compatible = "arm,ccn-504", },
+<<<<<<< HEAD
+=======
+	{ .compatible = "arm,ccn-512", },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, arm_ccn_match);
@@ -1553,6 +1666,10 @@ static struct platform_driver arm_ccn_driver = {
 	.driver = {
 		.name = "arm-ccn",
 		.of_match_table = arm_ccn_match,
+<<<<<<< HEAD
+=======
+		.suppress_bind_attrs = true,
+>>>>>>> upstream/android-13
 	},
 	.probe = arm_ccn_probe,
 	.remove = arm_ccn_remove,

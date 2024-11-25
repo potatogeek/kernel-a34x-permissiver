@@ -63,9 +63,17 @@
 #include "callback.h"
 #include "pnfs.h"
 #include "netns.h"
+<<<<<<< HEAD
 #include "nfs4idmap.h"
 #include "nfs4session.h"
 #include "fscache.h"
+=======
+#include "sysfs.h"
+#include "nfs4idmap.h"
+#include "nfs4session.h"
+#include "fscache.h"
+#include "nfs42.h"
+>>>>>>> upstream/android-13
 
 #include "nfs4trace.h"
 
@@ -91,14 +99,20 @@ struct nfs4_opendata;
 static int _nfs4_recover_proc_open(struct nfs4_opendata *data);
 static int nfs4_do_fsinfo(struct nfs_server *, struct nfs_fh *, struct nfs_fsinfo *);
 static void nfs_fixup_referral_attributes(struct nfs_fattr *fattr);
+<<<<<<< HEAD
 static int nfs4_proc_getattr(struct nfs_server *, struct nfs_fh *, struct nfs_fattr *, struct nfs4_label *label, struct inode *inode);
 static int _nfs4_proc_getattr(struct nfs_server *server, struct nfs_fh *fhandle, struct nfs_fattr *fattr, struct nfs4_label *label, struct inode *inode);
 static int nfs4_do_setattr(struct inode *inode, struct rpc_cred *cred,
+=======
+static int _nfs4_proc_getattr(struct nfs_server *server, struct nfs_fh *fhandle, struct nfs_fattr *fattr, struct nfs4_label *label, struct inode *inode);
+static int nfs4_do_setattr(struct inode *inode, const struct cred *cred,
+>>>>>>> upstream/android-13
 			    struct nfs_fattr *fattr, struct iattr *sattr,
 			    struct nfs_open_context *ctx, struct nfs4_label *ilabel,
 			    struct nfs4_label *olabel);
 #ifdef CONFIG_NFS_V4_1
 static struct rpc_task *_nfs41_proc_sequence(struct nfs_client *clp,
+<<<<<<< HEAD
 		struct rpc_cred *cred,
 		struct nfs4_slot *slot,
 		bool is_privileged);
@@ -107,6 +121,20 @@ static int nfs41_test_stateid(struct nfs_server *, nfs4_stateid *,
 static int nfs41_free_stateid(struct nfs_server *, const nfs4_stateid *,
 		struct rpc_cred *, bool);
 #endif
+=======
+		const struct cred *cred,
+		struct nfs4_slot *slot,
+		bool is_privileged);
+static int nfs41_test_stateid(struct nfs_server *, nfs4_stateid *,
+		const struct cred *);
+static int nfs41_free_stateid(struct nfs_server *, const nfs4_stateid *,
+		const struct cred *, bool);
+#endif
+static void nfs4_bitmask_set(__u32 bitmask[NFS4_BITMASK_SZ],
+			     const __u32 *src, struct inode *inode,
+			     struct nfs_server *server,
+			     struct nfs4_label *label);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NFS_V4_SECURITY_LABEL
 static inline struct nfs4_label *
@@ -122,7 +150,12 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
 		return NULL;
 
 	err = security_dentry_init_security(dentry, sattr->ia_mode,
+<<<<<<< HEAD
 				&dentry->d_name, (void **)&label->label, &label->len);
+=======
+				&dentry->d_name, NULL,
+				(void **)&label->label, &label->len);
+>>>>>>> upstream/android-13
 	if (err == 0)
 		return label;
 
@@ -176,6 +209,11 @@ static int nfs4_map_errors(int err)
 		return -EPROTONOSUPPORT;
 	case -NFS4ERR_FILE_OPEN:
 		return -EBUSY;
+<<<<<<< HEAD
+=======
+	case -NFS4ERR_NOT_SAME:
+		return -ENOTSYNC;
+>>>>>>> upstream/android-13
 	default:
 		dprintk("%s could not handle NFSv4 error %d\n",
 				__func__, -err);
@@ -257,6 +295,11 @@ const u32 nfs4_fsinfo_bitmap[3] = { FATTR4_WORD0_MAXFILESIZE
 			| FATTR4_WORD1_FS_LAYOUT_TYPES,
 			FATTR4_WORD2_LAYOUT_BLKSIZE
 			| FATTR4_WORD2_CLONE_BLKSIZE
+<<<<<<< HEAD
+=======
+			| FATTR4_WORD2_CHANGE_ATTR_TYPE
+			| FATTR4_WORD2_XATTR_SUPPORT
+>>>>>>> upstream/android-13
 };
 
 const u32 nfs4_fs_locations_bitmap[3] = {
@@ -276,7 +319,11 @@ const u32 nfs4_fs_locations_bitmap[3] = {
 };
 
 static void nfs4_bitmap_copy_adjust(__u32 *dst, const __u32 *src,
+<<<<<<< HEAD
 		struct inode *inode)
+=======
+				    struct inode *inode, unsigned long flags)
+>>>>>>> upstream/android-13
 {
 	unsigned long cache_validity;
 
@@ -284,22 +331,37 @@ static void nfs4_bitmap_copy_adjust(__u32 *dst, const __u32 *src,
 	if (!inode || !nfs4_have_delegation(inode, FMODE_READ))
 		return;
 
+<<<<<<< HEAD
 	cache_validity = READ_ONCE(NFS_I(inode)->cache_validity);
 	if (!(cache_validity & NFS_INO_REVAL_FORCED))
 		cache_validity &= ~(NFS_INO_INVALID_CHANGE
 				| NFS_INO_INVALID_SIZE);
 
+=======
+	cache_validity = READ_ONCE(NFS_I(inode)->cache_validity) | flags;
+
+	/* Remove the attributes over which we have full control */
+	dst[1] &= ~FATTR4_WORD1_RAWDEV;
+>>>>>>> upstream/android-13
 	if (!(cache_validity & NFS_INO_INVALID_SIZE))
 		dst[0] &= ~FATTR4_WORD0_SIZE;
 
 	if (!(cache_validity & NFS_INO_INVALID_CHANGE))
 		dst[0] &= ~FATTR4_WORD0_CHANGE;
+<<<<<<< HEAD
 }
 
 static void nfs4_bitmap_copy_adjust_setattr(__u32 *dst,
 		const __u32 *src, struct inode *inode)
 {
 	nfs4_bitmap_copy_adjust(dst, src, inode);
+=======
+
+	if (!(cache_validity & NFS_INO_INVALID_MODE))
+		dst[1] &= ~FATTR4_WORD1_MODE;
+	if (!(cache_validity & NFS_INO_INVALID_OTHER))
+		dst[1] &= ~(FATTR4_WORD1_OWNER | FATTR4_WORD1_OWNER_GROUP);
+>>>>>>> upstream/android-13
 }
 
 static void nfs4_setup_readdir(u64 cookie, __be32 *verifier, struct dentry *dentry,
@@ -359,9 +421,23 @@ static void nfs4_setup_readdir(u64 cookie, __be32 *verifier, struct dentry *dent
 	kunmap_atomic(start);
 }
 
+<<<<<<< HEAD
 static void nfs4_test_and_free_stateid(struct nfs_server *server,
 		nfs4_stateid *stateid,
 		struct rpc_cred *cred)
+=======
+static void nfs4_fattr_set_prechange(struct nfs_fattr *fattr, u64 version)
+{
+	if (!(fattr->valid & NFS_ATTR_FATTR_PRECHANGE)) {
+		fattr->pre_change_attr = version;
+		fattr->valid |= NFS_ATTR_FATTR_PRECHANGE;
+	}
+}
+
+static void nfs4_test_and_free_stateid(struct nfs_server *server,
+		nfs4_stateid *stateid,
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	const struct nfs4_minor_version_ops *ops = server->nfs_client->cl_mvops;
 
@@ -370,7 +446,11 @@ static void nfs4_test_and_free_stateid(struct nfs_server *server,
 
 static void __nfs4_free_revoked_stateid(struct nfs_server *server,
 		nfs4_stateid *stateid,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	stateid->type = NFS4_REVOKED_STATEID_TYPE;
 	nfs4_test_and_free_stateid(server, stateid, cred);
@@ -378,7 +458,11 @@ static void __nfs4_free_revoked_stateid(struct nfs_server *server,
 
 static void nfs4_free_revoked_stateid(struct nfs_server *server,
 		const nfs4_stateid *stateid,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	nfs4_stateid tmp;
 
@@ -400,17 +484,61 @@ static long nfs4_update_delay(long *timeout)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int nfs4_delay(struct rpc_clnt *clnt, long *timeout)
 {
 	int res = 0;
 
+=======
+static int nfs4_delay_killable(long *timeout)
+{
+>>>>>>> upstream/android-13
 	might_sleep();
 
 	freezable_schedule_timeout_killable_unsafe(
 		nfs4_update_delay(timeout));
+<<<<<<< HEAD
 	if (fatal_signal_pending(current))
 		res = -ERESTARTSYS;
 	return res;
+=======
+	if (!__fatal_signal_pending(current))
+		return 0;
+	return -EINTR;
+}
+
+static int nfs4_delay_interruptible(long *timeout)
+{
+	might_sleep();
+
+	freezable_schedule_timeout_interruptible_unsafe(nfs4_update_delay(timeout));
+	if (!signal_pending(current))
+		return 0;
+	return __fatal_signal_pending(current) ? -EINTR :-ERESTARTSYS;
+}
+
+static int nfs4_delay(long *timeout, bool interruptible)
+{
+	if (interruptible)
+		return nfs4_delay_interruptible(timeout);
+	return nfs4_delay_killable(timeout);
+}
+
+static const nfs4_stateid *
+nfs4_recoverable_stateid(const nfs4_stateid *stateid)
+{
+	if (!stateid)
+		return NULL;
+	switch (stateid->type) {
+	case NFS4_OPEN_STATEID_TYPE:
+	case NFS4_LOCK_STATEID_TYPE:
+	case NFS4_DELEGATION_STATEID_TYPE:
+		return stateid;
+	default:
+		break;
+	}
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /* This is the error handling routine for processes that are allowed
@@ -421,7 +549,11 @@ static int nfs4_do_handle_exception(struct nfs_server *server,
 {
 	struct nfs_client *clp = server->nfs_client;
 	struct nfs4_state *state = exception->state;
+<<<<<<< HEAD
 	const nfs4_stateid *stateid = exception->stateid;
+=======
+	const nfs4_stateid *stateid;
+>>>>>>> upstream/android-13
 	struct inode *inode = exception->inode;
 	int ret = errorcode;
 
@@ -429,8 +561,14 @@ static int nfs4_do_handle_exception(struct nfs_server *server,
 	exception->recovering = 0;
 	exception->retry = 0;
 
+<<<<<<< HEAD
 	if (stateid == NULL && state != NULL)
 		stateid = &state->stateid;
+=======
+	stateid = nfs4_recoverable_stateid(exception->stateid);
+	if (stateid == NULL && state != NULL)
+		stateid = nfs4_recoverable_stateid(&state->stateid);
+>>>>>>> upstream/android-13
 
 	switch(errorcode) {
 		case 0:
@@ -444,12 +582,20 @@ static int nfs4_do_handle_exception(struct nfs_server *server,
 		case -NFS4ERR_ADMIN_REVOKED:
 		case -NFS4ERR_EXPIRED:
 		case -NFS4ERR_BAD_STATEID:
+<<<<<<< HEAD
+=======
+		case -NFS4ERR_PARTNER_NO_AUTH:
+>>>>>>> upstream/android-13
 			if (inode != NULL && stateid != NULL) {
 				nfs_inode_find_state_and_recover(inode,
 						stateid);
 				goto wait_on_recovery;
 			}
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -NFS4ERR_OPENMODE:
 			if (inode) {
 				int err;
@@ -489,9 +635,13 @@ static int nfs4_do_handle_exception(struct nfs_server *server,
 		case -NFS4ERR_DEADSESSION:
 		case -NFS4ERR_SEQ_FALSE_RETRY:
 		case -NFS4ERR_SEQ_MISORDERED:
+<<<<<<< HEAD
 			dprintk("%s ERROR: %d Reset session\n", __func__,
 				errorcode);
 			nfs4_schedule_session_recovery(clp->cl_session, errorcode);
+=======
+			/* Handled in nfs41_sequence_process() */
+>>>>>>> upstream/android-13
 			goto wait_on_recovery;
 #endif /* defined(CONFIG_NFS_V4_1) */
 		case -NFS4ERR_FILE_OPEN:
@@ -502,10 +652,17 @@ static int nfs4_do_handle_exception(struct nfs_server *server,
 				ret = -EBUSY;
 				break;
 			}
+<<<<<<< HEAD
 			/* Fall through */
 		case -NFS4ERR_DELAY:
 			nfs_inc_server_stats(server, NFSIOS_DELAY);
 			/* Fall through */
+=======
+			fallthrough;
+		case -NFS4ERR_DELAY:
+			nfs_inc_server_stats(server, NFSIOS_DELAY);
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -NFS4ERR_GRACE:
 		case -NFS4ERR_LAYOUTTRYLATER:
 		case -NFS4ERR_RECALLCONFLICT:
@@ -546,10 +703,20 @@ int nfs4_handle_exception(struct nfs_server *server, int errorcode, struct nfs4_
 
 	ret = nfs4_do_handle_exception(server, errorcode, exception);
 	if (exception->delay) {
+<<<<<<< HEAD
 		ret = nfs4_delay(server->client, &exception->timeout);
 		goto out_retry;
 	}
 	if (exception->recovering) {
+=======
+		ret = nfs4_delay(&exception->timeout,
+				exception->interruptible);
+		goto out_retry;
+	}
+	if (exception->recovering) {
+		if (exception->task_is_privileged)
+			return -EDEADLOCK;
+>>>>>>> upstream/android-13
 		ret = nfs4_wait_clnt_recover(clp);
 		if (test_bit(NFS_MIG_FAILED, &server->mig_status))
 			return -EIO;
@@ -575,6 +742,11 @@ nfs4_async_handle_exception(struct rpc_task *task, struct nfs_server *server,
 		goto out_retry;
 	}
 	if (exception->recovering) {
+<<<<<<< HEAD
+=======
+		if (exception->task_is_privileged)
+			return -EDEADLOCK;
+>>>>>>> upstream/android-13
 		rpc_sleep_on(&clp->cl_rpcwaitq, task, NULL);
 		if (test_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) == 0)
 			rpc_wake_up_queued_task(&clp->cl_rpcwaitq, task);
@@ -730,18 +902,47 @@ static void nfs41_sequence_free_slot(struct nfs4_sequence_res *res)
 	res->sr_slot = NULL;
 }
 
+<<<<<<< HEAD
+=======
+static void nfs4_slot_sequence_record_sent(struct nfs4_slot *slot,
+		u32 seqnr)
+{
+	if ((s32)(seqnr - slot->seq_nr_highest_sent) > 0)
+		slot->seq_nr_highest_sent = seqnr;
+}
+static void nfs4_slot_sequence_acked(struct nfs4_slot *slot,
+		u32 seqnr)
+{
+	slot->seq_nr_highest_sent = seqnr;
+	slot->seq_nr_last_acked = seqnr;
+}
+
+static void nfs4_probe_sequence(struct nfs_client *client, const struct cred *cred,
+				struct nfs4_slot *slot)
+{
+	struct rpc_task *task = _nfs41_proc_sequence(client, cred, slot, true);
+	if (!IS_ERR(task))
+		rpc_put_task_async(task);
+}
+
+>>>>>>> upstream/android-13
 static int nfs41_sequence_process(struct rpc_task *task,
 		struct nfs4_sequence_res *res)
 {
 	struct nfs4_session *session;
 	struct nfs4_slot *slot = res->sr_slot;
 	struct nfs_client *clp;
+<<<<<<< HEAD
 	bool interrupted = false;
+=======
+	int status;
+>>>>>>> upstream/android-13
 	int ret = 1;
 
 	if (slot == NULL)
 		goto out_noaction;
 	/* don't increment the sequence number if the task wasn't sent */
+<<<<<<< HEAD
 	if (!RPC_WAS_SENT(task))
 		goto out;
 
@@ -760,6 +961,27 @@ static int nfs41_sequence_process(struct rpc_task *task,
 		/* Update the slot's sequence and clientid lease timer */
 		slot->seq_done = 1;
 		clp = session->clp;
+=======
+	if (!RPC_WAS_SENT(task) || slot->seq_done)
+		goto out;
+
+	session = slot->table->session;
+	clp = session->clp;
+
+	trace_nfs4_sequence_done(session, res);
+
+	status = res->sr_status;
+	if (task->tk_status == -NFS4ERR_DEADSESSION)
+		status = -NFS4ERR_DEADSESSION;
+
+	/* Check the SEQUENCE operation status */
+	switch (status) {
+	case 0:
+		/* Mark this sequence number as having been acked */
+		nfs4_slot_sequence_acked(slot, slot->seq_nr);
+		/* Update the slot's sequence and clientid lease timer */
+		slot->seq_done = 1;
+>>>>>>> upstream/android-13
 		do_renew_lease(clp, res->sr_timestamp);
 		/* Check sequence flags */
 		nfs41_handle_sequence_flag_errors(clp, res->sr_status_flags,
@@ -771,9 +993,15 @@ static int nfs41_sequence_process(struct rpc_task *task,
 		 * sr_status remains 1 if an RPC level error occurred.
 		 * The server may or may not have processed the sequence
 		 * operation..
+<<<<<<< HEAD
 		 * Mark the slot as having hosted an interrupted RPC call.
 		 */
 		slot->interrupted = 1;
+=======
+		 */
+		nfs4_slot_sequence_record_sent(slot, slot->seq_nr);
+		slot->seq_done = 1;
+>>>>>>> upstream/android-13
 		goto out;
 	case -NFS4ERR_DELAY:
 		/* The server detected a resend of the RPC call and
@@ -784,6 +1012,10 @@ static int nfs41_sequence_process(struct rpc_task *task,
 			__func__,
 			slot->slot_nr,
 			slot->seq_nr);
+<<<<<<< HEAD
+=======
+		nfs4_slot_sequence_acked(slot, slot->seq_nr);
+>>>>>>> upstream/android-13
 		goto out_retry;
 	case -NFS4ERR_RETRY_UNCACHED_REP:
 	case -NFS4ERR_SEQ_FALSE_RETRY:
@@ -791,6 +1023,10 @@ static int nfs41_sequence_process(struct rpc_task *task,
 		 * The server thinks we tried to replay a request.
 		 * Retry the call after bumping the sequence ID.
 		 */
+<<<<<<< HEAD
+=======
+		nfs4_slot_sequence_acked(slot, slot->seq_nr);
+>>>>>>> upstream/android-13
 		goto retry_new_seq;
 	case -NFS4ERR_BADSLOT:
 		/*
@@ -801,6 +1037,7 @@ static int nfs41_sequence_process(struct rpc_task *task,
 			goto session_recover;
 		goto retry_nowait;
 	case -NFS4ERR_SEQ_MISORDERED:
+<<<<<<< HEAD
 		/*
 		 * Was the last operation on this sequence interrupted?
 		 * If so, retry after bumping the sequence number.
@@ -815,6 +1052,41 @@ static int nfs41_sequence_process(struct rpc_task *task,
 			slot->seq_nr = 1;
 			goto retry_nowait;
 		}
+=======
+		nfs4_slot_sequence_record_sent(slot, slot->seq_nr);
+		/*
+		 * Were one or more calls using this slot interrupted?
+		 * If the server never received the request, then our
+		 * transmitted slot sequence number may be too high. However,
+		 * if the server did receive the request then it might
+		 * accidentally give us a reply with a mismatched operation.
+		 * We can sort this out by sending a lone sequence operation
+		 * to the server on the same slot.
+		 */
+		if ((s32)(slot->seq_nr - slot->seq_nr_last_acked) > 1) {
+			slot->seq_nr--;
+			if (task->tk_msg.rpc_proc != &nfs4_procedures[NFSPROC4_CLNT_SEQUENCE]) {
+				nfs4_probe_sequence(clp, task->tk_msg.rpc_cred, slot);
+				res->sr_slot = NULL;
+			}
+			goto retry_nowait;
+		}
+		/*
+		 * RFC5661:
+		 * A retry might be sent while the original request is
+		 * still in progress on the replier. The replier SHOULD
+		 * deal with the issue by returning NFS4ERR_DELAY as the
+		 * reply to SEQUENCE or CB_SEQUENCE operation, but
+		 * implementations MAY return NFS4ERR_SEQ_MISORDERED.
+		 *
+		 * Restart the search after a delay.
+		 */
+		slot->seq_nr = slot->seq_nr_highest_sent;
+		goto out_retry;
+	case -NFS4ERR_BADSESSION:
+	case -NFS4ERR_DEADSESSION:
+	case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
+>>>>>>> upstream/android-13
 		goto session_recover;
 	default:
 		/* Just update the slot sequence no. */
@@ -826,8 +1098,15 @@ out:
 out_noaction:
 	return ret;
 session_recover:
+<<<<<<< HEAD
 	nfs4_schedule_session_recovery(session, res->sr_status);
 	goto retry_nowait;
+=======
+	nfs4_schedule_session_recovery(session, status);
+	dprintk("%s ERROR: %d Reset session\n", __func__, status);
+	nfs41_sequence_free_slot(res);
+	goto out;
+>>>>>>> upstream/android-13
 retry_new_seq:
 	++slot->seq_nr;
 retry_nowait:
@@ -906,6 +1185,7 @@ static const struct rpc_call_ops nfs41_call_sync_ops = {
 	.rpc_call_done = nfs41_call_sync_done,
 };
 
+<<<<<<< HEAD
 static void
 nfs4_sequence_process_interrupted(struct nfs_client *client,
 		struct nfs4_slot *slot, struct rpc_cred *cred)
@@ -917,6 +1197,8 @@ nfs4_sequence_process_interrupted(struct nfs_client *client,
 		rpc_put_task_async(task);
 }
 
+=======
+>>>>>>> upstream/android-13
 #else	/* !CONFIG_NFS_V4_1 */
 
 static int nfs4_sequence_process(struct rpc_task *task, struct nfs4_sequence_res *res)
@@ -937,6 +1219,7 @@ int nfs4_sequence_done(struct rpc_task *task,
 }
 EXPORT_SYMBOL_GPL(nfs4_sequence_done);
 
+<<<<<<< HEAD
 static void
 nfs4_sequence_process_interrupted(struct nfs_client *client,
 		struct nfs4_slot *slot, struct rpc_cred *cred)
@@ -945,6 +1228,8 @@ nfs4_sequence_process_interrupted(struct nfs_client *client,
 	slot->interrupted = 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif	/* !CONFIG_NFS_V4_1 */
 
 static void nfs41_sequence_res_init(struct nfs4_sequence_res *res)
@@ -980,6 +1265,7 @@ int nfs4_setup_sequence(struct nfs_client *client,
 	if (res->sr_slot != NULL)
 		goto out_start;
 
+<<<<<<< HEAD
 	if (session) {
 		tbl = &session->fc_slot_table;
 		task->tk_timeout = 0;
@@ -1005,6 +1291,23 @@ int nfs4_setup_sequence(struct nfs_client *client,
 		nfs4_sequence_process_interrupted(client,
 				slot, task->tk_msg.rpc_cred);
 	}
+=======
+	if (session)
+		tbl = &session->fc_slot_table;
+
+	spin_lock(&tbl->slot_tbl_lock);
+	/* The state manager will wait until the slot table is empty */
+	if (nfs4_slot_tbl_draining(tbl) && !args->sa_privileged)
+		goto out_sleep;
+
+	slot = nfs4_alloc_slot(tbl);
+	if (IS_ERR(slot)) {
+		if (slot == ERR_PTR(-ENOMEM))
+			goto out_sleep_timeout;
+		goto out_sleep;
+	}
+	spin_unlock(&tbl->slot_tbl_lock);
+>>>>>>> upstream/android-13
 
 	nfs4_sequence_attach_slot(args, res, slot);
 
@@ -1013,11 +1316,28 @@ out_start:
 	nfs41_sequence_res_init(res);
 	rpc_call_start(task);
 	return 0;
+<<<<<<< HEAD
 
 out_sleep:
 	if (args->sa_privileged)
 		rpc_sleep_on_priority(&tbl->slot_tbl_waitq, task,
 				NULL, RPC_PRIORITY_PRIVILEGED);
+=======
+out_sleep_timeout:
+	/* Try again in 1/4 second */
+	if (args->sa_privileged)
+		rpc_sleep_on_priority_timeout(&tbl->slot_tbl_waitq, task,
+				jiffies + (HZ >> 2), RPC_PRIORITY_PRIVILEGED);
+	else
+		rpc_sleep_on_timeout(&tbl->slot_tbl_waitq, task,
+				NULL, jiffies + (HZ >> 2));
+	spin_unlock(&tbl->slot_tbl_lock);
+	return -EAGAIN;
+out_sleep:
+	if (args->sa_privileged)
+		rpc_sleep_on_priority(&tbl->slot_tbl_waitq, task,
+				RPC_PRIORITY_PRIVILEGED);
+>>>>>>> upstream/android-13
 	else
 		rpc_sleep_on(&tbl->slot_tbl_waitq, task, NULL);
 	spin_unlock(&tbl->slot_tbl_lock);
@@ -1043,6 +1363,7 @@ static const struct rpc_call_ops nfs40_call_sync_ops = {
 	.rpc_call_done = nfs40_call_sync_done,
 };
 
+<<<<<<< HEAD
 static int nfs4_call_sync_sequence(struct rpc_clnt *clnt,
 				   struct nfs_server *server,
 				   struct rpc_message *msg,
@@ -1051,6 +1372,29 @@ static int nfs4_call_sync_sequence(struct rpc_clnt *clnt,
 {
 	int ret;
 	struct rpc_task *task;
+=======
+static int nfs4_call_sync_custom(struct rpc_task_setup *task_setup)
+{
+	int ret;
+	struct rpc_task *task;
+
+	task = rpc_run_task(task_setup);
+	if (IS_ERR(task))
+		return PTR_ERR(task);
+
+	ret = task->tk_status;
+	rpc_put_task(task);
+	return ret;
+}
+
+static int nfs4_do_call_sync(struct rpc_clnt *clnt,
+			     struct nfs_server *server,
+			     struct rpc_message *msg,
+			     struct nfs4_sequence_args *args,
+			     struct nfs4_sequence_res *res,
+			     unsigned short task_flags)
+{
+>>>>>>> upstream/android-13
 	struct nfs_client *clp = server->nfs_client;
 	struct nfs4_call_sync_data data = {
 		.seq_server = server,
@@ -1061,6 +1405,7 @@ static int nfs4_call_sync_sequence(struct rpc_clnt *clnt,
 		.rpc_client = clnt,
 		.rpc_message = msg,
 		.callback_ops = clp->cl_mvops->call_sync_ops,
+<<<<<<< HEAD
 		.callback_data = &data
 	};
 
@@ -1074,6 +1419,29 @@ static int nfs4_call_sync_sequence(struct rpc_clnt *clnt,
 	return ret;
 }
 
+=======
+		.callback_data = &data,
+		.flags = task_flags,
+	};
+
+	return nfs4_call_sync_custom(&task_setup);
+}
+
+static int nfs4_call_sync_sequence(struct rpc_clnt *clnt,
+				   struct nfs_server *server,
+				   struct rpc_message *msg,
+				   struct nfs4_sequence_args *args,
+				   struct nfs4_sequence_res *res)
+{
+	unsigned short task_flags = 0;
+
+	if (server->nfs_client->cl_minorversion)
+		task_flags = RPC_TASK_MOVEABLE;
+	return nfs4_do_call_sync(clnt, server, msg, args, res, task_flags);
+}
+
+
+>>>>>>> upstream/android-13
 int nfs4_call_sync(struct rpc_clnt *clnt,
 		   struct nfs_server *server,
 		   struct rpc_message *msg,
@@ -1088,18 +1456,41 @@ int nfs4_call_sync(struct rpc_clnt *clnt,
 static void
 nfs4_inc_nlink_locked(struct inode *inode)
 {
+<<<<<<< HEAD
 	NFS_I(inode)->cache_validity |= NFS_INO_INVALID_OTHER;
+=======
+	nfs_set_cache_invalid(inode, NFS_INO_INVALID_CHANGE |
+					     NFS_INO_INVALID_CTIME |
+					     NFS_INO_INVALID_NLINK);
+>>>>>>> upstream/android-13
 	inc_nlink(inode);
+}
+
+static void
+<<<<<<< HEAD
+nfs4_dec_nlink_locked(struct inode *inode)
+{
+	NFS_I(inode)->cache_validity |= NFS_INO_INVALID_OTHER;
+=======
+nfs4_inc_nlink(struct inode *inode)
+{
+	spin_lock(&inode->i_lock);
+	nfs4_inc_nlink_locked(inode);
+	spin_unlock(&inode->i_lock);
 }
 
 static void
 nfs4_dec_nlink_locked(struct inode *inode)
 {
-	NFS_I(inode)->cache_validity |= NFS_INO_INVALID_OTHER;
+	nfs_set_cache_invalid(inode, NFS_INO_INVALID_CHANGE |
+					     NFS_INO_INVALID_CTIME |
+					     NFS_INO_INVALID_NLINK);
+>>>>>>> upstream/android-13
 	drop_nlink(inode);
 }
 
 static void
+<<<<<<< HEAD
 update_changeattr_locked(struct inode *dir, struct nfs4_change_info *cinfo,
 		unsigned long timestamp, unsigned long cache_validity)
 {
@@ -1131,6 +1522,56 @@ update_changeattr(struct inode *dir, struct nfs4_change_info *cinfo,
 {
 	spin_lock(&dir->i_lock);
 	update_changeattr_locked(dir, cinfo, timestamp, cache_validity);
+=======
+nfs4_update_changeattr_locked(struct inode *inode,
+		struct nfs4_change_info *cinfo,
+		unsigned long timestamp, unsigned long cache_validity)
+{
+	struct nfs_inode *nfsi = NFS_I(inode);
+	u64 change_attr = inode_peek_iversion_raw(inode);
+
+	cache_validity |= NFS_INO_INVALID_CTIME | NFS_INO_INVALID_MTIME;
+	if (S_ISDIR(inode->i_mode))
+		cache_validity |= NFS_INO_INVALID_DATA;
+
+	switch (NFS_SERVER(inode)->change_attr_type) {
+	case NFS4_CHANGE_TYPE_IS_UNDEFINED:
+		if (cinfo->after == change_attr)
+			goto out;
+		break;
+	default:
+		if ((s64)(change_attr - cinfo->after) >= 0)
+			goto out;
+	}
+
+	inode_set_iversion_raw(inode, cinfo->after);
+	if (!cinfo->atomic || cinfo->before != change_attr) {
+		if (S_ISDIR(inode->i_mode))
+			nfs_force_lookup_revalidate(inode);
+
+		if (!NFS_PROTO(inode)->have_delegation(inode, FMODE_READ))
+			cache_validity |=
+				NFS_INO_INVALID_ACCESS | NFS_INO_INVALID_ACL |
+				NFS_INO_INVALID_SIZE | NFS_INO_INVALID_OTHER |
+				NFS_INO_INVALID_BLOCKS | NFS_INO_INVALID_NLINK |
+				NFS_INO_INVALID_MODE | NFS_INO_INVALID_XATTR;
+		nfsi->attrtimeo = NFS_MINATTRTIMEO(inode);
+	}
+	nfsi->attrtimeo_timestamp = jiffies;
+	nfsi->read_cache_jiffies = timestamp;
+	nfsi->attr_gencount = nfs_inc_attr_generation_counter();
+	nfsi->cache_validity &= ~NFS_INO_INVALID_CHANGE;
+out:
+	nfs_set_cache_invalid(inode, cache_validity);
+}
+
+void
+nfs4_update_changeattr(struct inode *dir, struct nfs4_change_info *cinfo,
+		unsigned long timestamp, unsigned long cache_validity)
+{
+	spin_lock(&dir->i_lock);
+	nfs4_update_changeattr_locked(dir, cinfo, timestamp, cache_validity);
+>>>>>>> upstream/android-13
 	spin_unlock(&dir->i_lock);
 }
 
@@ -1152,6 +1593,21 @@ static bool nfs4_clear_cap_atomic_open_v1(struct nfs_server *server,
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static fmode_t _nfs4_ctx_to_accessmode(const struct nfs_open_context *ctx)
+{
+	 return ctx->mode & (FMODE_READ|FMODE_WRITE|FMODE_EXEC);
+}
+
+static fmode_t _nfs4_ctx_to_openmode(const struct nfs_open_context *ctx)
+{
+	fmode_t ret = ctx->mode & (FMODE_READ|FMODE_WRITE);
+
+	return (ctx->mode & FMODE_EXEC) ? FMODE_READ | ret : ret;
+}
+
+>>>>>>> upstream/android-13
 static u32
 nfs4_map_atomic_open_share(struct nfs_server *server,
 		fmode_t fmode, int openflags)
@@ -1271,6 +1727,15 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
 				NFS4_ACCESS_MODIFY |
 				NFS4_ACCESS_EXTEND |
 				NFS4_ACCESS_EXECUTE;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFS_V4_2
+			if (server->caps & NFS_CAP_XATTR)
+				p->o_arg.access |= NFS4_ACCESS_XAREAD |
+				    NFS4_ACCESS_XAWRITE |
+				    NFS4_ACCESS_XALIST;
+#endif
+>>>>>>> upstream/android-13
 		}
 	}
 	p->o_arg.clientid = server->nfs_client->cl_clientid;
@@ -1400,7 +1865,11 @@ static int can_open_delegated(struct nfs_delegation *delegation, fmode_t fmode,
 	case NFS4_OPEN_CLAIM_PREVIOUS:
 		if (!test_bit(NFS_DELEGATION_NEED_RECLAIM, &delegation->flags))
 			break;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
@@ -1442,6 +1911,7 @@ static void nfs_state_log_update_open_stateid(struct nfs4_state *state)
 		wake_up_all(&state->waitq);
 }
 
+<<<<<<< HEAD
 static void nfs_state_log_out_of_order_open_stateid(struct nfs4_state *state,
 		const nfs4_stateid *stateid)
 {
@@ -1455,6 +1925,8 @@ static void nfs_state_log_out_of_order_open_stateid(struct nfs4_state *state,
 		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void nfs_test_and_clear_all_open_stateid(struct nfs4_state *state)
 {
 	struct nfs_client *clp = state->owner->so_server->nfs_client;
@@ -1480,6 +1952,7 @@ static void nfs_test_and_clear_all_open_stateid(struct nfs4_state *state)
  * i.e. The stateid seqids have to be initialised to 1, and
  * are then incremented on every state transition.
  */
+<<<<<<< HEAD
 static bool nfs_need_update_open_stateid(struct nfs4_state *state,
 		const nfs4_stateid *stateid)
 {
@@ -1496,6 +1969,23 @@ static bool nfs_need_update_open_stateid(struct nfs4_state *state,
 		nfs_state_log_out_of_order_open_stateid(state, stateid);
 		return true;
 	}
+=======
+static bool nfs_stateid_is_sequential(struct nfs4_state *state,
+		const nfs4_stateid *stateid)
+{
+	if (test_bit(NFS_OPEN_STATE, &state->flags)) {
+		/* The common case - we're updating to a new sequence number */
+		if (nfs4_stateid_match_other(stateid, &state->open_stateid)) {
+			if (nfs4_stateid_is_next(&state->open_stateid, stateid))
+				return true;
+			return false;
+		}
+		/* The server returned a new stateid */
+	}
+	/* This is the first OPEN in this generation */
+	if (stateid->seqid == cpu_to_be32(1))
+		return true;
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -1559,21 +2049,38 @@ static void nfs_clear_open_stateid(struct nfs4_state *state,
 
 static void nfs_set_open_stateid_locked(struct nfs4_state *state,
 		const nfs4_stateid *stateid, nfs4_stateid *freeme)
+<<<<<<< HEAD
+=======
+	__must_hold(&state->owner->so_lock)
+	__must_hold(&state->seqlock)
+	__must_hold(RCU)
+
+>>>>>>> upstream/android-13
 {
 	DEFINE_WAIT(wait);
 	int status = 0;
 	for (;;) {
 
+<<<<<<< HEAD
 		if (!nfs_need_update_open_stateid(state, stateid))
 			return;
 		if (!test_bit(NFS_STATE_CHANGE_WAIT, &state->flags))
 			break;
+=======
+		if (nfs_stateid_is_sequential(state, stateid))
+			break;
+
+>>>>>>> upstream/android-13
 		if (status)
 			break;
 		/* Rely on seqids for serialisation with NFSv4.0 */
 		if (!nfs4_has_session(NFS_SERVER(state->inode)->nfs_client))
 			break;
 
+<<<<<<< HEAD
+=======
+		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
+>>>>>>> upstream/android-13
 		prepare_to_wait(&state->waitq, &wait, TASK_KILLABLE);
 		/*
 		 * Ensure we process the state changes in the same order
@@ -1584,7 +2091,12 @@ static void nfs_set_open_stateid_locked(struct nfs4_state *state,
 		spin_unlock(&state->owner->so_lock);
 		rcu_read_unlock();
 		trace_nfs4_open_stateid_update_wait(state->inode, stateid, 0);
+<<<<<<< HEAD
 		if (!signal_pending(current)) {
+=======
+
+		if (!fatal_signal_pending(current)) {
+>>>>>>> upstream/android-13
 			if (schedule_timeout(5*HZ) == 0)
 				status = -EAGAIN;
 			else
@@ -1635,6 +2147,17 @@ static void nfs_state_set_open_stateid(struct nfs4_state *state,
 	write_sequnlock(&state->seqlock);
 }
 
+<<<<<<< HEAD
+=======
+static void nfs_state_clear_open_state_flags(struct nfs4_state *state)
+{
+	clear_bit(NFS_O_RDWR_STATE, &state->flags);
+	clear_bit(NFS_O_WRONLY_STATE, &state->flags);
+	clear_bit(NFS_O_RDONLY_STATE, &state->flags);
+	clear_bit(NFS_OPEN_STATE, &state->flags);
+}
+
+>>>>>>> upstream/android-13
 static void nfs_state_set_delegation(struct nfs4_state *state,
 		const nfs4_stateid *deleg_stateid,
 		fmode_t fmode)
@@ -1657,7 +2180,11 @@ static void nfs_state_clear_delegation(struct nfs4_state *state)
 	write_sequnlock(&state->seqlock);
 }
 
+<<<<<<< HEAD
 static int update_open_stateid(struct nfs4_state *state,
+=======
+int update_open_stateid(struct nfs4_state *state,
+>>>>>>> upstream/android-13
 		const nfs4_stateid *open_stateid,
 		const nfs4_stateid *delegation,
 		fmode_t fmode)
@@ -1678,7 +2205,11 @@ static int update_open_stateid(struct nfs4_state *state,
 		ret = 1;
 	}
 
+<<<<<<< HEAD
 	deleg_cur = rcu_dereference(nfsi->delegation);
+=======
+	deleg_cur = nfs4_get_valid_delegation(state->inode);
+>>>>>>> upstream/android-13
 	if (deleg_cur == NULL)
 		goto no_delegation;
 
@@ -1690,7 +2221,11 @@ static int update_open_stateid(struct nfs4_state *state,
 
 	if (delegation == NULL)
 		delegation = &deleg_cur->stateid;
+<<<<<<< HEAD
 	else if (!nfs4_stateid_match(&deleg_cur->stateid, delegation))
+=======
+	else if (!nfs4_stateid_match_other(&deleg_cur->stateid, delegation))
+>>>>>>> upstream/android-13
 		goto no_delegation_unlock;
 
 	nfs_mark_delegation_referenced(deleg_cur);
@@ -1737,7 +2272,11 @@ static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmo
 
 	fmode &= FMODE_READ|FMODE_WRITE;
 	rcu_read_lock();
+<<<<<<< HEAD
 	delegation = rcu_dereference(NFS_I(inode)->delegation);
+=======
+	delegation = nfs4_get_valid_delegation(inode);
+>>>>>>> upstream/android-13
 	if (delegation == NULL || (delegation->type & fmode) == fmode) {
 		rcu_read_unlock();
 		return;
@@ -1788,7 +2327,11 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
 out:
 	return ERR_PTR(ret);
 out_return_state:
+<<<<<<< HEAD
 	atomic_inc(&state->count);
+=======
+	refcount_inc(&state->count);
+>>>>>>> upstream/android-13
 	return state;
 }
 
@@ -1858,9 +2401,16 @@ _nfs4_opendata_reclaim_to_nfs4_state(struct nfs4_opendata *data)
 	if (data->o_res.delegation_type != 0)
 		nfs4_opendata_check_deleg(data, state);
 update:
+<<<<<<< HEAD
 	update_open_stateid(state, &data->o_res.stateid, NULL,
 			    data->o_arg.fmode);
 	atomic_inc(&state->count);
+=======
+	if (!update_open_stateid(state, &data->o_res.stateid,
+				NULL, data->o_arg.fmode))
+		return ERR_PTR(-EAGAIN);
+	refcount_inc(&state->count);
+>>>>>>> upstream/android-13
 
 	return state;
 }
@@ -1898,7 +2448,11 @@ nfs4_opendata_find_nfs4_state(struct nfs4_opendata *data)
 		return ERR_CAST(inode);
 	if (data->state != NULL && data->state->inode == inode) {
 		state = data->state;
+<<<<<<< HEAD
 		atomic_inc(&state->count);
+=======
+		refcount_inc(&state->count);
+>>>>>>> upstream/android-13
 	} else
 		state = nfs4_get_open_state(inode, data->owner);
 	iput(inode);
@@ -1924,8 +2478,16 @@ _nfs4_opendata_to_nfs4_state(struct nfs4_opendata *data)
 
 	if (data->o_res.delegation_type != 0)
 		nfs4_opendata_check_deleg(data, state);
+<<<<<<< HEAD
 	update_open_stateid(state, &data->o_res.stateid, NULL,
 			data->o_arg.fmode);
+=======
+	if (!update_open_stateid(state, &data->o_res.stateid,
+				NULL, data->o_arg.fmode)) {
+		nfs4_put_open_state(state);
+		state = ERR_PTR(-EAGAIN);
+	}
+>>>>>>> upstream/android-13
 out:
 	nfs_release_seqid(data->o_arg.seqid);
 	return state;
@@ -1944,11 +2506,17 @@ nfs4_opendata_to_nfs4_state(struct nfs4_opendata *data)
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct nfs_open_context *nfs4_state_find_open_context(struct nfs4_state *state)
+=======
+static struct nfs_open_context *
+nfs4_state_find_open_context_mode(struct nfs4_state *state, fmode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct nfs_inode *nfsi = NFS_I(state->inode);
 	struct nfs_open_context *ctx;
 
+<<<<<<< HEAD
 	spin_lock(&state->inode->i_lock);
 	list_for_each_entry(ctx, &nfsi->open_files, list) {
 		if (ctx->state != state)
@@ -1961,6 +2529,37 @@ static struct nfs_open_context *nfs4_state_find_open_context(struct nfs4_state *
 	return ERR_PTR(-ENOENT);
 }
 
+=======
+	rcu_read_lock();
+	list_for_each_entry_rcu(ctx, &nfsi->open_files, list) {
+		if (ctx->state != state)
+			continue;
+		if ((ctx->mode & mode) != mode)
+			continue;
+		if (!get_nfs_open_context(ctx))
+			continue;
+		rcu_read_unlock();
+		return ctx;
+	}
+	rcu_read_unlock();
+	return ERR_PTR(-ENOENT);
+}
+
+static struct nfs_open_context *
+nfs4_state_find_open_context(struct nfs4_state *state)
+{
+	struct nfs_open_context *ctx;
+
+	ctx = nfs4_state_find_open_context_mode(state, FMODE_READ|FMODE_WRITE);
+	if (!IS_ERR(ctx))
+		return ctx;
+	ctx = nfs4_state_find_open_context_mode(state, FMODE_WRITE);
+	if (!IS_ERR(ctx))
+		return ctx;
+	return nfs4_state_find_open_context_mode(state, FMODE_READ);
+}
+
+>>>>>>> upstream/android-13
 static struct nfs4_opendata *nfs4_open_recoverdata_alloc(struct nfs_open_context *ctx,
 		struct nfs4_state *state, enum open_claim_type4 claim)
 {
@@ -1971,7 +2570,11 @@ static struct nfs4_opendata *nfs4_open_recoverdata_alloc(struct nfs_open_context
 	if (opendata == NULL)
 		return ERR_PTR(-ENOMEM);
 	opendata->state = state;
+<<<<<<< HEAD
 	atomic_inc(&state->count);
+=======
+	refcount_inc(&state->count);
+>>>>>>> upstream/android-13
 	return opendata;
 }
 
@@ -2007,6 +2610,7 @@ static int nfs4_open_recover(struct nfs4_opendata *opendata, struct nfs4_state *
 {
 	int ret;
 
+<<<<<<< HEAD
 	/* Don't trigger recovery in nfs_test_and_clear_all_open_stateid */
 	clear_bit(NFS_O_RDWR_STATE, &state->flags);
 	clear_bit(NFS_O_WRONLY_STATE, &state->flags);
@@ -2014,6 +2618,9 @@ static int nfs4_open_recover(struct nfs4_opendata *opendata, struct nfs4_state *
 	/* memory barrier prior to reading state->n_* */
 	clear_bit(NFS_DELEGATED_STATE, &state->flags);
 	clear_bit(NFS_OPEN_STATE, &state->flags);
+=======
+	/* memory barrier prior to reading state->n_* */
+>>>>>>> upstream/android-13
 	smp_rmb();
 	ret = nfs4_open_recover_helper(opendata, FMODE_READ|FMODE_WRITE);
 	if (ret != 0)
@@ -2089,6 +2696,11 @@ static int nfs4_open_reclaim(struct nfs4_state_owner *sp, struct nfs4_state *sta
 	ctx = nfs4_state_find_open_context(state);
 	if (IS_ERR(ctx))
 		return -EAGAIN;
+<<<<<<< HEAD
+=======
+	clear_bit(NFS_DELEGATED_STATE, &state->flags);
+	nfs_state_clear_open_state_flags(state);
+>>>>>>> upstream/android-13
 	ret = nfs4_do_open_reclaim(ctx, state);
 	put_nfs_open_context(ctx);
 	return ret;
@@ -2100,17 +2712,28 @@ static int nfs4_handle_delegation_recall_error(struct nfs_server *server, struct
 		default:
 			printk(KERN_ERR "NFS: %s: unhandled error "
 					"%d.\n", __func__, err);
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0:
 		case -ENOENT:
 		case -EAGAIN:
 		case -ESTALE:
+<<<<<<< HEAD
+=======
+		case -ETIMEDOUT:
+>>>>>>> upstream/android-13
 			break;
 		case -NFS4ERR_BADSESSION:
 		case -NFS4ERR_BADSLOT:
 		case -NFS4ERR_BAD_HIGH_SLOT:
 		case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
 		case -NFS4ERR_DEADSESSION:
+<<<<<<< HEAD
 			nfs4_schedule_session_recovery(server->nfs_client->cl_session, err);
+=======
+>>>>>>> upstream/android-13
 			return -EAGAIN;
 		case -NFS4ERR_STALE_CLIENTID:
 		case -NFS4ERR_STALE_STATEID:
@@ -2247,7 +2870,11 @@ static int _nfs4_proc_open_confirm(struct nfs4_opendata *data)
 		.callback_ops = &nfs4_open_confirm_ops,
 		.callback_data = data,
 		.workqueue = nfsiod_workqueue,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+>>>>>>> upstream/android-13
 	};
 	int status;
 
@@ -2304,7 +2931,11 @@ static void nfs4_open_prepare(struct rpc_task *task, void *calldata)
 	case NFS4_OPEN_CLAIM_DELEG_CUR_FH:
 	case NFS4_OPEN_CLAIM_DELEG_PREV_FH:
 		data->o_arg.open_bitmap = &nfs4_open_noattr_bitmap[0];
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NFS4_OPEN_CLAIM_FH:
 		task->tk_msg.rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_OPEN_NOATTR];
 	}
@@ -2412,10 +3043,20 @@ static int nfs4_run_open_task(struct nfs4_opendata *data,
 		.callback_ops = &nfs4_open_ops,
 		.callback_data = data,
 		.workqueue = nfsiod_workqueue,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
 	};
 	int status;
 
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+	};
+	int status;
+
+	if (server->nfs_client->cl_minorversion)
+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
+
+>>>>>>> upstream/android-13
 	kref_get(&data->kref);
 	data->rpc_done = false;
 	data->rpc_status = 0;
@@ -2424,6 +3065,10 @@ static int nfs4_run_open_task(struct nfs4_opendata *data,
 	if (!ctx) {
 		nfs4_init_sequence(&o_arg->seq_args, &o_res->seq_res, 1, 1);
 		data->is_recover = true;
+<<<<<<< HEAD
+=======
+		task_setup_data.flags |= RPC_TASK_TIMEOUT;
+>>>>>>> upstream/android-13
 	} else {
 		nfs4_init_sequence(&o_arg->seq_args, &o_res->seq_res, 1, 0);
 		pnfs_lgopen_prepare(data, ctx);
@@ -2468,7 +3113,11 @@ static int _nfs4_recover_proc_open(struct nfs4_opendata *data)
  * Note that in the non-execute case, we want to turn off permission
  * checking if we just created a new file (POSIX open() semantics).
  */
+<<<<<<< HEAD
 static int nfs4_opendata_access(struct rpc_cred *cred,
+=======
+static int nfs4_opendata_access(const struct cred *cred,
+>>>>>>> upstream/android-13
 				struct nfs4_opendata *opendata,
 				struct nfs4_state *state, fmode_t fmode,
 				int openflags)
@@ -2537,8 +3186,14 @@ static int _nfs4_proc_open(struct nfs4_opendata *data,
 			data->file_created = true;
 		if (data->file_created ||
 		    inode_peek_iversion_raw(dir) != o_res->cinfo.after)
+<<<<<<< HEAD
 			update_changeattr(dir, &o_res->cinfo,
 					o_res->f_attr->time_start, 0);
+=======
+			nfs4_update_changeattr(dir, &o_res->cinfo,
+					o_res->f_attr->time_start,
+					NFS_INO_INVALID_DATA);
+>>>>>>> upstream/android-13
 	}
 	if ((o_res->rflags & NFS4_OPEN_RESULT_LOCKTYPE_POSIX) == 0)
 		server->caps &= ~NFS_CAP_POSIX_LOCK;
@@ -2630,12 +3285,20 @@ static int nfs40_open_expired(struct nfs4_state_owner *sp, struct nfs4_state *st
 {
 	/* NFSv4.0 doesn't allow for delegation recovery on open expire */
 	nfs40_clear_delegation_stateid(state);
+<<<<<<< HEAD
+=======
+	nfs_state_clear_open_state_flags(state);
+>>>>>>> upstream/android-13
 	return nfs4_open_expired(sp, state);
 }
 
 static int nfs40_test_and_free_expired_stateid(struct nfs_server *server,
 		nfs4_stateid *stateid,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	return -NFS4ERR_BAD_STATEID;
 }
@@ -2643,7 +3306,11 @@ static int nfs40_test_and_free_expired_stateid(struct nfs_server *server,
 #if defined(CONFIG_NFS_V4_1)
 static int nfs41_test_and_free_expired_stateid(struct nfs_server *server,
 		nfs4_stateid *stateid,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int status;
 
@@ -2672,13 +3339,22 @@ out_free:
 	return -NFS4ERR_EXPIRED;
 }
 
+<<<<<<< HEAD
 static void nfs41_check_delegation_stateid(struct nfs4_state *state)
+=======
+static int nfs41_check_delegation_stateid(struct nfs4_state *state)
+>>>>>>> upstream/android-13
 {
 	struct nfs_server *server = NFS_SERVER(state->inode);
 	nfs4_stateid stateid;
 	struct nfs_delegation *delegation;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
 	int status;
+=======
+	const struct cred *cred = NULL;
+	int status, ret = NFS_OK;
+>>>>>>> upstream/android-13
 
 	/* Get the delegation credential for use by test/free_stateid */
 	rcu_read_lock();
@@ -2686,6 +3362,7 @@ static void nfs41_check_delegation_stateid(struct nfs4_state *state)
 	if (delegation == NULL) {
 		rcu_read_unlock();
 		nfs_state_clear_delegation(state);
+<<<<<<< HEAD
 		return;
 	}
 
@@ -2703,13 +3380,52 @@ static void nfs41_check_delegation_stateid(struct nfs4_state *state)
 	}
 
 	cred = get_rpccred(delegation->cred);
+=======
+		return NFS_OK;
+	}
+
+	spin_lock(&delegation->lock);
+	nfs4_stateid_copy(&stateid, &delegation->stateid);
+
+	if (!test_and_clear_bit(NFS_DELEGATION_TEST_EXPIRED,
+				&delegation->flags)) {
+		spin_unlock(&delegation->lock);
+		rcu_read_unlock();
+		return NFS_OK;
+	}
+
+	if (delegation->cred)
+		cred = get_cred(delegation->cred);
+	spin_unlock(&delegation->lock);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	status = nfs41_test_and_free_expired_stateid(server, &stateid, cred);
 	trace_nfs4_test_delegation_stateid(state, NULL, status);
 	if (status == -NFS4ERR_EXPIRED || status == -NFS4ERR_BAD_STATEID)
 		nfs_finish_clear_delegation_stateid(state, &stateid);
+<<<<<<< HEAD
 
 	put_rpccred(cred);
+=======
+	else
+		ret = status;
+
+	put_cred(cred);
+	return ret;
+}
+
+static void nfs41_delegation_recover_stateid(struct nfs4_state *state)
+{
+	nfs4_stateid tmp;
+
+	if (test_bit(NFS_DELEGATED_STATE, &state->flags) &&
+	    nfs4_copy_delegation_stateid(state->inode, state->state,
+				&tmp, NULL) &&
+	    nfs4_stateid_match_other(&state->stateid, &tmp))
+		nfs_state_set_delegation(state, &tmp, state->state);
+	else
+		nfs_state_clear_delegation(state);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2732,7 +3448,11 @@ static int nfs41_check_expired_locks(struct nfs4_state *state)
 	spin_lock(&state->state_lock);
 	list_for_each_entry(lsp, &state->lock_states, ls_locks) {
 		if (test_bit(NFS_LOCK_INITIALIZED, &lsp->ls_flags)) {
+<<<<<<< HEAD
 			struct rpc_cred *cred = lsp->ls_state->owner->so_cred;
+=======
+			const struct cred *cred = lsp->ls_state->owner->so_cred;
+>>>>>>> upstream/android-13
 
 			refcount_inc(&lsp->ls_count);
 			spin_unlock(&state->state_lock);
@@ -2776,6 +3496,7 @@ static int nfs41_check_open_stateid(struct nfs4_state *state)
 {
 	struct nfs_server *server = NFS_SERVER(state->inode);
 	nfs4_stateid *stateid = &state->open_stateid;
+<<<<<<< HEAD
 	struct rpc_cred *cred = state->owner->so_cred;
 	int status;
 
@@ -2794,6 +3515,17 @@ static int nfs41_check_open_stateid(struct nfs4_state *state)
 		clear_bit(NFS_O_WRONLY_STATE, &state->flags);
 		clear_bit(NFS_O_RDWR_STATE, &state->flags);
 		clear_bit(NFS_OPEN_STATE, &state->flags);
+=======
+	const struct cred *cred = state->owner->so_cred;
+	int status;
+
+	if (test_bit(NFS_OPEN_STATE, &state->flags) == 0)
+		return -NFS4ERR_BAD_STATEID;
+	status = nfs41_test_and_free_expired_stateid(server, stateid, cred);
+	trace_nfs4_test_open_stateid(state, NULL, status);
+	if (status == -NFS4ERR_EXPIRED || status == -NFS4ERR_BAD_STATEID) {
+		nfs_state_clear_open_state_flags(state);
+>>>>>>> upstream/android-13
 		stateid->type = NFS4_INVALID_STATEID_TYPE;
 		return status;
 	}
@@ -2806,7 +3538,15 @@ static int nfs41_open_expired(struct nfs4_state_owner *sp, struct nfs4_state *st
 {
 	int status;
 
+<<<<<<< HEAD
 	nfs41_check_delegation_stateid(state);
+=======
+	status = nfs41_check_delegation_stateid(state);
+	if (status != NFS_OK)
+		return status;
+	nfs41_delegation_recover_stateid(state);
+
+>>>>>>> upstream/android-13
 	status = nfs41_check_expired_locks(state);
 	if (status != NFS_OK)
 		return status;
@@ -2859,18 +3599,32 @@ static unsigned nfs4_exclusive_attrset(struct nfs4_opendata *opendata,
 }
 
 static int _nfs4_open_and_get_state(struct nfs4_opendata *opendata,
+<<<<<<< HEAD
 		fmode_t fmode,
 		int flags,
 		struct nfs_open_context *ctx)
+=======
+		int flags, struct nfs_open_context *ctx)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_state_owner *sp = opendata->owner;
 	struct nfs_server *server = sp->so_server;
 	struct dentry *dentry;
 	struct nfs4_state *state;
+<<<<<<< HEAD
+=======
+	fmode_t acc_mode = _nfs4_ctx_to_accessmode(ctx);
+	struct inode *dir = d_inode(opendata->dir);
+	unsigned long dir_verifier;
+>>>>>>> upstream/android-13
 	unsigned int seq;
 	int ret;
 
 	seq = raw_seqcount_begin(&sp->so_reclaim_seqcount);
+<<<<<<< HEAD
+=======
+	dir_verifier = nfs_save_change_attribute(dir);
+>>>>>>> upstream/android-13
 
 	ret = _nfs4_proc_open(opendata, ctx);
 	if (ret != 0)
@@ -2898,14 +3652,35 @@ static int _nfs4_open_and_get_state(struct nfs4_opendata *opendata,
 			dput(ctx->dentry);
 			ctx->dentry = dentry = alias;
 		}
+<<<<<<< HEAD
 		nfs_set_verifier(dentry,
 				nfs_save_change_attribute(d_inode(opendata->dir)));
+=======
+	}
+
+	switch(opendata->o_arg.claim) {
+	default:
+		break;
+	case NFS4_OPEN_CLAIM_NULL:
+	case NFS4_OPEN_CLAIM_DELEGATE_CUR:
+	case NFS4_OPEN_CLAIM_DELEGATE_PREV:
+		if (!opendata->rpc_done)
+			break;
+		if (opendata->o_res.delegation_type != 0)
+			dir_verifier = nfs_save_change_attribute(dir);
+		nfs_set_verifier(dentry, dir_verifier);
+>>>>>>> upstream/android-13
 	}
 
 	/* Parse layoutget results before we check for access */
 	pnfs_parse_lgopen(state->inode, opendata->lgp, ctx);
 
+<<<<<<< HEAD
 	ret = nfs4_opendata_access(sp->so_cred, opendata, state, fmode, flags);
+=======
+	ret = nfs4_opendata_access(sp->so_cred, opendata, state,
+			acc_mode, flags);
+>>>>>>> upstream/android-13
 	if (ret != 0)
 		goto out;
 
@@ -2935,9 +3710,15 @@ static int _nfs4_do_open(struct inode *dir,
 	struct nfs_server       *server = NFS_SERVER(dir);
 	struct nfs4_opendata *opendata;
 	struct dentry *dentry = ctx->dentry;
+<<<<<<< HEAD
 	struct rpc_cred *cred = ctx->cred;
 	struct nfs4_threshold **ctx_th = &ctx->mdsthreshold;
 	fmode_t fmode = ctx->mode & (FMODE_READ|FMODE_WRITE|FMODE_EXEC);
+=======
+	const struct cred *cred = ctx->cred;
+	struct nfs4_threshold **ctx_th = &ctx->mdsthreshold;
+	fmode_t fmode = _nfs4_ctx_to_openmode(ctx);
+>>>>>>> upstream/android-13
 	enum open_claim_type4 claim = NFS4_OPEN_CLAIM_NULL;
 	struct iattr *sattr = c->sattr;
 	struct nfs4_label *label = c->label;
@@ -2983,7 +3764,11 @@ static int _nfs4_do_open(struct inode *dir,
 	if (d_really_is_positive(dentry))
 		opendata->state = nfs4_get_open_state(d_inode(dentry), sp);
 
+<<<<<<< HEAD
 	status = _nfs4_open_and_get_state(opendata, fmode, flags, ctx);
+=======
+	status = _nfs4_open_and_get_state(opendata, flags, ctx);
+>>>>>>> upstream/android-13
 	if (status != 0)
 		goto err_free_label;
 	state = ctx->state;
@@ -3043,7 +3828,13 @@ static struct nfs4_state *nfs4_do_open(struct inode *dir,
 					int *opened)
 {
 	struct nfs_server *server = NFS_SERVER(dir);
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	struct nfs4_state *res;
 	struct nfs4_open_createattrs c = {
 		.label = label,
@@ -3110,7 +3901,11 @@ static struct nfs4_state *nfs4_do_open(struct inode *dir,
 static int _nfs4_do_setattr(struct inode *inode,
 			    struct nfs_setattrargs *arg,
 			    struct nfs_setattrres *res,
+<<<<<<< HEAD
 			    struct rpc_cred *cred,
+=======
+			    const struct cred *cred,
+>>>>>>> upstream/android-13
 			    struct nfs_open_context *ctx)
 {
 	struct nfs_server *server = NFS_SERVER(inode);
@@ -3120,7 +3915,11 @@ static int _nfs4_do_setattr(struct inode *inode,
 		.rpc_resp	= res,
 		.rpc_cred	= cred,
 	};
+<<<<<<< HEAD
 	struct rpc_cred *delegation_cred = NULL;
+=======
+	const struct cred *delegation_cred = NULL;
+>>>>>>> upstream/android-13
 	unsigned long timestamp = jiffies;
 	bool truncate;
 	int status;
@@ -3148,6 +3947,11 @@ static int _nfs4_do_setattr(struct inode *inode,
 		nfs_put_lock_context(l_ctx);
 		if (status == -EIO)
 			return -EBADF;
+<<<<<<< HEAD
+=======
+		else if (status == -EAGAIN)
+			goto zero_stateid;
+>>>>>>> upstream/android-13
 	} else {
 zero_stateid:
 		nfs4_stateid_copy(&arg->stateid, &zero_stateid);
@@ -3157,14 +3961,22 @@ zero_stateid:
 
 	status = nfs4_call_sync(server->client, server, &msg, &arg->seq_args, &res->seq_res, 1);
 
+<<<<<<< HEAD
 	put_rpccred(delegation_cred);
+=======
+	put_cred(delegation_cred);
+>>>>>>> upstream/android-13
 	if (status == 0 && ctx != NULL)
 		renew_lease(server, timestamp);
 	trace_nfs4_setattr(inode, &arg->stateid, status);
 	return status;
 }
 
+<<<<<<< HEAD
 static int nfs4_do_setattr(struct inode *inode, struct rpc_cred *cred,
+=======
+static int nfs4_do_setattr(struct inode *inode, const struct cred *cred,
+>>>>>>> upstream/android-13
 			   struct nfs_fattr *fattr, struct iattr *sattr,
 			   struct nfs_open_context *ctx, struct nfs4_label *ilabel,
 			   struct nfs4_label *olabel)
@@ -3189,12 +4001,26 @@ static int nfs4_do_setattr(struct inode *inode, struct rpc_cred *cred,
 		.inode = inode,
 		.stateid = &arg.stateid,
 	};
+<<<<<<< HEAD
 	int err;
 
 	do {
 		nfs4_bitmap_copy_adjust_setattr(bitmask,
 				nfs4_bitmask(server, olabel),
 				inode);
+=======
+	unsigned long adjust_flags = NFS_INO_INVALID_CHANGE;
+	int err;
+
+	if (sattr->ia_valid & (ATTR_MODE | ATTR_KILL_SUID | ATTR_KILL_SGID))
+		adjust_flags |= NFS_INO_INVALID_MODE;
+	if (sattr->ia_valid & (ATTR_UID | ATTR_GID))
+		adjust_flags |= NFS_INO_INVALID_OTHER;
+
+	do {
+		nfs4_bitmap_copy_adjust(bitmask, nfs4_bitmask(server, olabel),
+					inode, adjust_flags);
+>>>>>>> upstream/android-13
 
 		err = _nfs4_do_setattr(inode, &arg, &res, cred, ctx);
 		switch (err) {
@@ -3228,6 +4054,105 @@ nfs4_wait_on_layoutreturn(struct inode *inode, struct rpc_task *task)
 	return pnfs_wait_on_layoutreturn(inode, task);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Update the seqid of an open stateid
+ */
+static void nfs4_sync_open_stateid(nfs4_stateid *dst,
+		struct nfs4_state *state)
+{
+	__be32 seqid_open;
+	u32 dst_seqid;
+	int seq;
+
+	for (;;) {
+		if (!nfs4_valid_open_stateid(state))
+			break;
+		seq = read_seqbegin(&state->seqlock);
+		if (!nfs4_state_match_open_stateid_other(state, dst)) {
+			nfs4_stateid_copy(dst, &state->open_stateid);
+			if (read_seqretry(&state->seqlock, seq))
+				continue;
+			break;
+		}
+		seqid_open = state->open_stateid.seqid;
+		if (read_seqretry(&state->seqlock, seq))
+			continue;
+
+		dst_seqid = be32_to_cpu(dst->seqid);
+		if ((s32)(dst_seqid - be32_to_cpu(seqid_open)) < 0)
+			dst->seqid = seqid_open;
+		break;
+	}
+}
+
+/*
+ * Update the seqid of an open stateid after receiving
+ * NFS4ERR_OLD_STATEID
+ */
+static bool nfs4_refresh_open_old_stateid(nfs4_stateid *dst,
+		struct nfs4_state *state)
+{
+	__be32 seqid_open;
+	u32 dst_seqid;
+	bool ret;
+	int seq, status = -EAGAIN;
+	DEFINE_WAIT(wait);
+
+	for (;;) {
+		ret = false;
+		if (!nfs4_valid_open_stateid(state))
+			break;
+		seq = read_seqbegin(&state->seqlock);
+		if (!nfs4_state_match_open_stateid_other(state, dst)) {
+			if (read_seqretry(&state->seqlock, seq))
+				continue;
+			break;
+		}
+
+		write_seqlock(&state->seqlock);
+		seqid_open = state->open_stateid.seqid;
+
+		dst_seqid = be32_to_cpu(dst->seqid);
+
+		/* Did another OPEN bump the state's seqid?  try again: */
+		if ((s32)(be32_to_cpu(seqid_open) - dst_seqid) > 0) {
+			dst->seqid = seqid_open;
+			write_sequnlock(&state->seqlock);
+			ret = true;
+			break;
+		}
+
+		/* server says we're behind but we haven't seen the update yet */
+		set_bit(NFS_STATE_CHANGE_WAIT, &state->flags);
+		prepare_to_wait(&state->waitq, &wait, TASK_KILLABLE);
+		write_sequnlock(&state->seqlock);
+		trace_nfs4_close_stateid_update_wait(state->inode, dst, 0);
+
+		if (fatal_signal_pending(current))
+			status = -EINTR;
+		else
+			if (schedule_timeout(5*HZ) != 0)
+				status = 0;
+
+		finish_wait(&state->waitq, &wait);
+
+		if (!status)
+			continue;
+		if (status == -EINTR)
+			break;
+
+		/* we slept the whole 5 seconds, we must have lost a seqid */
+		dst->seqid = cpu_to_be32(dst_seqid + 1);
+		ret = true;
+		break;
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 struct nfs4_closedata {
 	struct inode *inode;
 	struct nfs4_state *state;
@@ -3278,6 +4203,7 @@ static void nfs4_close_done(struct rpc_task *task, void *data)
 	trace_nfs4_close(state, &calldata->arg, &calldata->res, task->tk_status);
 
 	/* Handle Layoutreturn errors */
+<<<<<<< HEAD
 	if (calldata->arg.lr_args && task->tk_status != 0) {
 		switch (calldata->res.lr_ret) {
 		default:
@@ -3304,6 +4230,11 @@ static void nfs4_close_done(struct rpc_task *task, void *data)
 			goto lr_restart;
 		}
 	}
+=======
+	if (pnfs_roc_done(task, &calldata->arg.lr_args, &calldata->res.lr_res,
+			  &calldata->res.lr_ret) == -EAGAIN)
+		goto out_restart;
+>>>>>>> upstream/android-13
 
 	/* hmm. we are done with the inode, and in the process of freeing
 	 * the state_owner. we keep this around to process errors
@@ -3323,7 +4254,11 @@ static void nfs4_close_done(struct rpc_task *task, void *data)
 			break;
 		case -NFS4ERR_OLD_STATEID:
 			/* Did we race with OPEN? */
+<<<<<<< HEAD
 			if (nfs4_refresh_open_stateid(&calldata->arg.stateid,
+=======
+			if (nfs4_refresh_open_old_stateid(&calldata->arg.stateid,
+>>>>>>> upstream/android-13
 						state))
 				goto out_restart;
 			goto out_release;
@@ -3333,9 +4268,17 @@ static void nfs4_close_done(struct rpc_task *task, void *data)
 			nfs4_free_revoked_stateid(server,
 					&calldata->arg.stateid,
 					task->tk_msg.rpc_cred);
+<<<<<<< HEAD
 			/* Fallthrough */
 		case -NFS4ERR_BAD_STATEID:
 			break;
+=======
+			fallthrough;
+		case -NFS4ERR_BAD_STATEID:
+			if (calldata->arg.fmode == 0)
+				break;
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			task->tk_status = nfs4_async_handle_exception(task,
 					server, task->tk_status, &exception);
@@ -3350,8 +4293,11 @@ out_release:
 	nfs_refresh_inode(calldata->inode, &calldata->fattr);
 	dprintk("%s: done, ret = %d!\n", __func__, task->tk_status);
 	return;
+<<<<<<< HEAD
 lr_restart:
 	calldata->res.lr_ret = 0;
+=======
+>>>>>>> upstream/android-13
 out_restart:
 	task->tk_status = 0;
 	rpc_restart_call_prepare(task);
@@ -3363,6 +4309,10 @@ static void nfs4_close_prepare(struct rpc_task *task, void *data)
 	struct nfs4_closedata *calldata = data;
 	struct nfs4_state *state = calldata->state;
 	struct inode *inode = calldata->inode;
+<<<<<<< HEAD
+=======
+	struct nfs_server *server = NFS_SERVER(inode);
+>>>>>>> upstream/android-13
 	struct pnfs_layout_hdr *lo;
 	bool is_rdonly, is_wronly, is_rdwr;
 	int call_close = 0;
@@ -3392,8 +4342,13 @@ static void nfs4_close_prepare(struct rpc_task *task, void *data)
 	} else if (is_rdwr)
 		calldata->arg.fmode |= FMODE_READ|FMODE_WRITE;
 
+<<<<<<< HEAD
 	if (!nfs4_valid_open_stateid(state) ||
 	    !nfs4_refresh_open_stateid(&calldata->arg.stateid, state))
+=======
+	nfs4_sync_open_stateid(&calldata->arg.stateid, state);
+	if (!nfs4_valid_open_stateid(state))
+>>>>>>> upstream/android-13
 		call_close = 0;
 	spin_unlock(&state->owner->so_lock);
 
@@ -3418,9 +4373,18 @@ static void nfs4_close_prepare(struct rpc_task *task, void *data)
 
 	if (calldata->arg.fmode == 0 || calldata->arg.fmode == FMODE_READ) {
 		/* Close-to-open cache consistency revalidation */
+<<<<<<< HEAD
 		if (!nfs4_have_delegation(inode, FMODE_READ))
 			calldata->arg.bitmask = NFS_SERVER(inode)->cache_consistency_bitmask;
 		else
+=======
+		if (!nfs4_have_delegation(inode, FMODE_READ)) {
+			nfs4_bitmask_set(calldata->arg.bitmask_store,
+					 server->cache_consistency_bitmask,
+					 inode, server, NULL);
+			calldata->arg.bitmask = calldata->arg.bitmask_store;
+		} else
+>>>>>>> upstream/android-13
 			calldata->arg.bitmask = NULL;
 	}
 
@@ -3479,10 +4443,20 @@ int nfs4_do_close(struct nfs4_state *state, gfp_t gfp_mask, int wait)
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_close_ops,
 		.workqueue = nfsiod_workqueue,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
 	};
 	int status = -ENOMEM;
 
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+	};
+	int status = -ENOMEM;
+
+	if (server->nfs_client->cl_minorversion)
+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
+
+>>>>>>> upstream/android-13
 	nfs4_state_protect(server->nfs_client, NFS_SP4_MACH_CRED_CLEANUP,
 		&task_setup_data.rpc_client, &msg);
 
@@ -3558,14 +4532,24 @@ static void nfs4_close_context(struct nfs_open_context *ctx, int is_sync)
 	if (ctx->state == NULL)
 		return;
 	if (is_sync)
+<<<<<<< HEAD
 		nfs4_close_sync(ctx->state, ctx->mode);
 	else
 		nfs4_close_state(ctx->state, ctx->mode);
+=======
+		nfs4_close_sync(ctx->state, _nfs4_ctx_to_openmode(ctx));
+	else
+		nfs4_close_state(ctx->state, _nfs4_ctx_to_openmode(ctx));
+>>>>>>> upstream/android-13
 }
 
 #define FATTR4_WORD1_NFS40_MASK (2*FATTR4_WORD1_MOUNTED_ON_FILEID - 1UL)
 #define FATTR4_WORD2_NFS41_MASK (2*FATTR4_WORD2_SUPPATTR_EXCLCREAT - 1UL)
+<<<<<<< HEAD
 #define FATTR4_WORD2_NFS42_MASK (2*FATTR4_WORD2_MODE_UMASK - 1UL)
+=======
+#define FATTR4_WORD2_NFS42_MASK (2*FATTR4_WORD2_XATTR_SUPPORT - 1UL)
+>>>>>>> upstream/android-13
 
 static int _nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *fhandle)
 {
@@ -3606,12 +4590,18 @@ static int _nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *f
 			res.attr_bitmask[2] &= FATTR4_WORD2_NFS42_MASK;
 		}
 		memcpy(server->attr_bitmask, res.attr_bitmask, sizeof(server->attr_bitmask));
+<<<<<<< HEAD
 		server->caps &= ~(NFS_CAP_ACLS|NFS_CAP_HARDLINKS|
 				NFS_CAP_SYMLINKS|NFS_CAP_FILEID|
 				NFS_CAP_MODE|NFS_CAP_NLINK|NFS_CAP_OWNER|
 				NFS_CAP_OWNER_GROUP|NFS_CAP_ATIME|
 				NFS_CAP_CTIME|NFS_CAP_MTIME|
 				NFS_CAP_SECURITY_LABEL);
+=======
+		server->caps &= ~(NFS_CAP_ACLS | NFS_CAP_HARDLINKS |
+				  NFS_CAP_SYMLINKS| NFS_CAP_SECURITY_LABEL);
+		server->fattr_valid = NFS_ATTR_FATTR_V4;
+>>>>>>> upstream/android-13
 		if (res.attr_bitmask[0] & FATTR4_WORD0_ACL &&
 				res.acl_bitmask & ACL4_SUPPORT_ALLOW_ACL)
 			server->caps |= NFS_CAP_ACLS;
@@ -3619,6 +4609,7 @@ static int _nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *f
 			server->caps |= NFS_CAP_HARDLINKS;
 		if (res.has_symlinks != 0)
 			server->caps |= NFS_CAP_SYMLINKS;
+<<<<<<< HEAD
 		if (res.attr_bitmask[0] & FATTR4_WORD0_FILEID)
 			server->caps |= NFS_CAP_FILEID;
 		if (res.attr_bitmask[1] & FATTR4_WORD1_MODE)
@@ -3635,10 +4626,37 @@ static int _nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *f
 			server->caps |= NFS_CAP_CTIME;
 		if (res.attr_bitmask[1] & FATTR4_WORD1_TIME_MODIFY)
 			server->caps |= NFS_CAP_MTIME;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NFS_V4_SECURITY_LABEL
 		if (res.attr_bitmask[2] & FATTR4_WORD2_SECURITY_LABEL)
 			server->caps |= NFS_CAP_SECURITY_LABEL;
 #endif
+<<<<<<< HEAD
+=======
+		if (res.attr_bitmask[0] & FATTR4_WORD0_FS_LOCATIONS)
+			server->caps |= NFS_CAP_FS_LOCATIONS;
+		if (!(res.attr_bitmask[0] & FATTR4_WORD0_FILEID))
+			server->fattr_valid &= ~NFS_ATTR_FATTR_FILEID;
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_MODE))
+			server->fattr_valid &= ~NFS_ATTR_FATTR_MODE;
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_NUMLINKS))
+			server->fattr_valid &= ~NFS_ATTR_FATTR_NLINK;
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_OWNER))
+			server->fattr_valid &= ~(NFS_ATTR_FATTR_OWNER |
+				NFS_ATTR_FATTR_OWNER_NAME);
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_OWNER_GROUP))
+			server->fattr_valid &= ~(NFS_ATTR_FATTR_GROUP |
+				NFS_ATTR_FATTR_GROUP_NAME);
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_SPACE_USED))
+			server->fattr_valid &= ~NFS_ATTR_FATTR_SPACE_USED;
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_TIME_ACCESS))
+			server->fattr_valid &= ~NFS_ATTR_FATTR_ATIME;
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_TIME_METADATA))
+			server->fattr_valid &= ~NFS_ATTR_FATTR_CTIME;
+		if (!(res.attr_bitmask[1] & FATTR4_WORD1_TIME_MODIFY))
+			server->fattr_valid &= ~NFS_ATTR_FATTR_MTIME;
+>>>>>>> upstream/android-13
 		memcpy(server->attr_bitmask_nl, res.attr_bitmask,
 				sizeof(server->attr_bitmask));
 		server->attr_bitmask_nl[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
@@ -3663,7 +4681,13 @@ static int _nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *f
 
 int nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *fhandle)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = nfs4_handle_exception(server,
@@ -3673,6 +4697,63 @@ int nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *fhandle)
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int _nfs4_discover_trunking(struct nfs_server *server,
+				   struct nfs_fh *fhandle)
+{
+	struct nfs4_fs_locations *locations = NULL;
+	struct page *page;
+	const struct cred *cred;
+	struct nfs_client *clp = server->nfs_client;
+	const struct nfs4_state_maintenance_ops *ops =
+		clp->cl_mvops->state_renewal_ops;
+	int status = -ENOMEM;
+
+	cred = ops->get_state_renewal_cred(clp);
+	if (cred == NULL) {
+		cred = nfs4_get_clid_cred(clp);
+		if (cred == NULL)
+			return -ENOKEY;
+	}
+
+	page = alloc_page(GFP_KERNEL);
+	locations = kmalloc(sizeof(struct nfs4_fs_locations), GFP_KERNEL);
+	if (page == NULL || locations == NULL)
+		goto out;
+
+	status = nfs4_proc_get_locations(server, fhandle, locations, page,
+					 cred);
+	if (status)
+		goto out;
+out:
+	if (page)
+		__free_page(page);
+	kfree(locations);
+	return status;
+}
+
+static int nfs4_discover_trunking(struct nfs_server *server,
+				  struct nfs_fh *fhandle)
+{
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+	struct nfs_client *clp = server->nfs_client;
+	int err = 0;
+
+	if (!nfs4_has_session(clp))
+		goto out;
+	do {
+		err = nfs4_handle_exception(server,
+				_nfs4_discover_trunking(server, fhandle),
+				&exception);
+	} while (exception.retry);
+out:
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int _nfs4_lookup_root(struct nfs_server *server, struct nfs_fh *fhandle,
 		struct nfs_fsinfo *info)
 {
@@ -3705,7 +4786,13 @@ static int _nfs4_lookup_root(struct nfs_server *server, struct nfs_fh *fhandle,
 static int nfs4_lookup_root(struct nfs_server *server, struct nfs_fh *fhandle,
 		struct nfs_fsinfo *info)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = _nfs4_lookup_root(server, fhandle, info);
@@ -3780,7 +4867,11 @@ static int nfs4_find_root_sec(struct nfs_server *server, struct nfs_fh *fhandle,
 	}
 
 	/*
+<<<<<<< HEAD
 	 * -EACCESS could mean that the user doesn't have correct permissions
+=======
+	 * -EACCES could mean that the user doesn't have correct permissions
+>>>>>>> upstream/android-13
 	 * to access the mount.  It could also mean that we tried to mount
 	 * with a gss auth flavor, but rpc.gssd isn't running.  Either way,
 	 * existing mount programs don't handle -EACCES very well so it should
@@ -3826,7 +4917,11 @@ static int nfs4_proc_get_root(struct nfs_server *server, struct nfs_fh *mntfh,
 {
 	int error;
 	struct nfs_fattr *fattr = info->fattr;
+<<<<<<< HEAD
 	struct nfs4_label *label = NULL;
+=======
+	struct nfs4_label *label = fattr->label;
+>>>>>>> upstream/android-13
 
 	error = nfs4_server_capabilities(server, mntfh);
 	if (error < 0) {
@@ -3834,6 +4929,7 @@ static int nfs4_proc_get_root(struct nfs_server *server, struct nfs_fh *mntfh,
 		return error;
 	}
 
+<<<<<<< HEAD
 	label = nfs4_label_alloc(server, GFP_KERNEL);
 	if (IS_ERR(label))
 		return PTR_ERR(label);
@@ -3842,15 +4938,25 @@ static int nfs4_proc_get_root(struct nfs_server *server, struct nfs_fh *mntfh,
 	if (error < 0) {
 		dprintk("nfs4_get_root: getattr error = %d\n", -error);
 		goto err_free_label;
+=======
+	error = nfs4_proc_getattr(server, mntfh, fattr, label, NULL);
+	if (error < 0) {
+		dprintk("nfs4_get_root: getattr error = %d\n", -error);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (fattr->valid & NFS_ATTR_FATTR_FSID &&
 	    !nfs_fsid_equal(&server->fsid, &fattr->fsid))
 		memcpy(&server->fsid, &fattr->fsid, sizeof(server->fsid));
 
+<<<<<<< HEAD
 err_free_label:
 	nfs4_label_free(label);
 
+=======
+out:
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -3921,6 +5027,7 @@ static int _nfs4_proc_getattr(struct nfs_server *server, struct nfs_fh *fhandle,
 		.rpc_argp = &args,
 		.rpc_resp = &res,
 	};
+<<<<<<< HEAD
 
 	nfs4_bitmap_copy_adjust(bitmask, nfs4_bitmask(server, label), inode);
 
@@ -3933,6 +5040,31 @@ static int nfs4_proc_getattr(struct nfs_server *server, struct nfs_fh *fhandle,
 				struct inode *inode)
 {
 	struct nfs4_exception exception = { };
+=======
+	unsigned short task_flags = 0;
+
+	if (nfs4_has_session(server->nfs_client))
+		task_flags = RPC_TASK_MOVEABLE;
+
+	/* Is this is an attribute revalidation, subject to softreval? */
+	if (inode && (server->flags & NFS_MOUNT_SOFTREVAL))
+		task_flags |= RPC_TASK_TIMEOUT;
+
+	nfs4_bitmap_copy_adjust(bitmask, nfs4_bitmask(server, label), inode, 0);
+	nfs_fattr_init(fattr);
+	nfs4_init_sequence(&args.seq_args, &res.seq_res, 0, 0);
+	return nfs4_do_call_sync(server->client, server, &msg,
+			&args.seq_args, &res.seq_res, task_flags);
+}
+
+int nfs4_proc_getattr(struct nfs_server *server, struct nfs_fh *fhandle,
+				struct nfs_fattr *fattr, struct nfs4_label *label,
+				struct inode *inode)
+{
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = _nfs4_proc_getattr(server, fhandle, fattr, label, inode);
@@ -3965,7 +5097,11 @@ nfs4_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
 		  struct iattr *sattr)
 {
 	struct inode *inode = d_inode(dentry);
+<<<<<<< HEAD
 	struct rpc_cred *cred = NULL;
+=======
+	const struct cred *cred = NULL;
+>>>>>>> upstream/android-13
 	struct nfs_open_context *ctx = NULL;
 	struct nfs4_label *label = NULL;
 	int status;
@@ -4011,7 +5147,11 @@ nfs4_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
 }
 
 static int _nfs4_proc_lookup(struct rpc_clnt *clnt, struct inode *dir,
+<<<<<<< HEAD
 		const struct qstr *name, struct nfs_fh *fhandle,
+=======
+		struct dentry *dentry, struct nfs_fh *fhandle,
+>>>>>>> upstream/android-13
 		struct nfs_fattr *fattr, struct nfs4_label *label)
 {
 	struct nfs_server *server = NFS_SERVER(dir);
@@ -4019,7 +5159,11 @@ static int _nfs4_proc_lookup(struct rpc_clnt *clnt, struct inode *dir,
 	struct nfs4_lookup_arg args = {
 		.bitmask = server->attr_bitmask,
 		.dir_fh = NFS_FH(dir),
+<<<<<<< HEAD
 		.name = name,
+=======
+		.name = &dentry->d_name,
+>>>>>>> upstream/android-13
 	};
 	struct nfs4_lookup_res res = {
 		.server = server,
@@ -4032,13 +5176,31 @@ static int _nfs4_proc_lookup(struct rpc_clnt *clnt, struct inode *dir,
 		.rpc_argp = &args,
 		.rpc_resp = &res,
 	};
+<<<<<<< HEAD
+=======
+	unsigned short task_flags = 0;
+
+	if (server->nfs_client->cl_minorversion)
+		task_flags = RPC_TASK_MOVEABLE;
+
+	/* Is this is an attribute revalidation, subject to softreval? */
+	if (nfs_lookup_is_soft_revalidate(dentry))
+		task_flags |= RPC_TASK_TIMEOUT;
+>>>>>>> upstream/android-13
 
 	args.bitmask = nfs4_bitmask(server, label);
 
 	nfs_fattr_init(fattr);
 
+<<<<<<< HEAD
 	dprintk("NFS call  lookup %s\n", name->name);
 	status = nfs4_call_sync(clnt, server, &msg, &args.seq_args, &res.seq_res, 0);
+=======
+	dprintk("NFS call  lookup %pd2\n", dentry);
+	nfs4_init_sequence(&args.seq_args, &res.seq_res, 0, 0);
+	status = nfs4_do_call_sync(clnt, server, &msg,
+			&args.seq_args, &res.seq_res, task_flags);
+>>>>>>> upstream/android-13
 	dprintk("NFS reply lookup: %d\n", status);
 	return status;
 }
@@ -4052,6 +5214,7 @@ static void nfs_fixup_secinfo_attributes(struct nfs_fattr *fattr)
 }
 
 static int nfs4_proc_lookup_common(struct rpc_clnt **clnt, struct inode *dir,
+<<<<<<< HEAD
 				   const struct qstr *name, struct nfs_fh *fhandle,
 				   struct nfs_fattr *fattr, struct nfs4_label *label)
 {
@@ -4060,6 +5223,19 @@ static int nfs4_proc_lookup_common(struct rpc_clnt **clnt, struct inode *dir,
 	int err;
 	do {
 		err = _nfs4_proc_lookup(client, dir, name, fhandle, fattr, label);
+=======
+				   struct dentry *dentry, struct nfs_fh *fhandle,
+				   struct nfs_fattr *fattr, struct nfs4_label *label)
+{
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+	struct rpc_clnt *client = *clnt;
+	const struct qstr *name = &dentry->d_name;
+	int err;
+	do {
+		err = _nfs4_proc_lookup(client, dir, dentry, fhandle, fattr, label);
+>>>>>>> upstream/android-13
 		trace_nfs4_lookup(dir, name, err);
 		switch (err) {
 		case -NFS4ERR_BADNAME:
@@ -4094,14 +5270,22 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int nfs4_proc_lookup(struct inode *dir, const struct qstr *name,
+=======
+static int nfs4_proc_lookup(struct inode *dir, struct dentry *dentry,
+>>>>>>> upstream/android-13
 			    struct nfs_fh *fhandle, struct nfs_fattr *fattr,
 			    struct nfs4_label *label)
 {
 	int status;
 	struct rpc_clnt *client = NFS_CLIENT(dir);
 
+<<<<<<< HEAD
 	status = nfs4_proc_lookup_common(&client, dir, name, fhandle, fattr, label);
+=======
+	status = nfs4_proc_lookup_common(&client, dir, dentry, fhandle, fattr, label);
+>>>>>>> upstream/android-13
 	if (client != NFS_CLIENT(dir)) {
 		rpc_shutdown_client(client);
 		nfs_fixup_secinfo_attributes(fattr);
@@ -4110,13 +5294,21 @@ static int nfs4_proc_lookup(struct inode *dir, const struct qstr *name,
 }
 
 struct rpc_clnt *
+<<<<<<< HEAD
 nfs4_proc_lookup_mountpoint(struct inode *dir, const struct qstr *name,
+=======
+nfs4_proc_lookup_mountpoint(struct inode *dir, struct dentry *dentry,
+>>>>>>> upstream/android-13
 			    struct nfs_fh *fhandle, struct nfs_fattr *fattr)
 {
 	struct rpc_clnt *client = NFS_CLIENT(dir);
 	int status;
 
+<<<<<<< HEAD
 	status = nfs4_proc_lookup_common(&client, dir, name, fhandle, fattr, NULL);
+=======
+	status = nfs4_proc_lookup_common(&client, dir, dentry, fhandle, fattr, NULL);
+>>>>>>> upstream/android-13
 	if (status < 0)
 		return ERR_PTR(status);
 	return (client == NFS_CLIENT(dir)) ? rpc_clone_client(client) : client;
@@ -4144,6 +5336,13 @@ static int _nfs4_proc_lookupp(struct inode *inode,
 		.rpc_argp = &args,
 		.rpc_resp = &res,
 	};
+<<<<<<< HEAD
+=======
+	unsigned short task_flags = 0;
+
+	if (NFS_SERVER(inode)->flags & NFS_MOUNT_SOFTREVAL)
+		task_flags |= RPC_TASK_TIMEOUT;
+>>>>>>> upstream/android-13
 
 	args.bitmask = nfs4_bitmask(server, label);
 
@@ -4151,7 +5350,11 @@ static int _nfs4_proc_lookupp(struct inode *inode,
 
 	dprintk("NFS call  lookupp ino=0x%lx\n", inode->i_ino);
 	status = nfs4_call_sync(clnt, server, &msg, &args.seq_args,
+<<<<<<< HEAD
 				&res.seq_res, 0);
+=======
+				&res.seq_res, task_flags);
+>>>>>>> upstream/android-13
 	dprintk("NFS reply lookupp: %d\n", status);
 	return status;
 }
@@ -4159,7 +5362,13 @@ static int _nfs4_proc_lookupp(struct inode *inode,
 static int nfs4_proc_lookupp(struct inode *inode, struct nfs_fh *fhandle,
 			     struct nfs_fattr *fattr, struct nfs4_label *label)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = _nfs4_proc_lookupp(inode, fhandle, fattr, label);
@@ -4194,7 +5403,10 @@ static int _nfs4_proc_access(struct inode *inode, struct nfs_access_entry *entry
 			return -ENOMEM;
 		args.bitmask = server->cache_consistency_bitmask;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	status = nfs4_call_sync(server->client, server, &msg, &args.seq_args, &res.seq_res, 0);
 	if (!status) {
 		nfs_access_set_mask(entry, res.access);
@@ -4207,7 +5419,13 @@ static int _nfs4_proc_access(struct inode *inode, struct nfs_access_entry *entry
 
 static int nfs4_proc_access(struct inode *inode, struct nfs_access_entry *entry)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = _nfs4_proc_access(inode, entry);
@@ -4262,7 +5480,13 @@ static int _nfs4_proc_readlink(struct inode *inode, struct page *page,
 static int nfs4_proc_readlink(struct inode *inode, struct page *page,
 		unsigned int pgbase, unsigned int pglen)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = _nfs4_proc_readlink(inode, page, pgbase, pglen);
@@ -4327,10 +5551,18 @@ _nfs4_proc_remove(struct inode *dir, const struct qstr *name, u32 ftype)
 	status = nfs4_call_sync(server->client, server, &msg, &args.seq_args, &res.seq_res, 1);
 	if (status == 0) {
 		spin_lock(&dir->i_lock);
+<<<<<<< HEAD
 		update_changeattr_locked(dir, &res.cinfo, timestamp, 0);
 		/* Removing a directory decrements nlink in the parent */
 		if (ftype == NF4DIR && dir->i_nlink > 2)
 			nfs4_dec_nlink_locked(dir);
+=======
+		/* Removing a directory decrements nlink in the parent */
+		if (ftype == NF4DIR && dir->i_nlink > 2)
+			nfs4_dec_nlink_locked(dir);
+		nfs4_update_changeattr_locked(dir, &res.cinfo, timestamp,
+					      NFS_INO_INVALID_DATA);
+>>>>>>> upstream/android-13
 		spin_unlock(&dir->i_lock);
 	}
 	return status;
@@ -4338,7 +5570,13 @@ _nfs4_proc_remove(struct inode *dir, const struct qstr *name, u32 ftype)
 
 static int nfs4_proc_remove(struct inode *dir, struct dentry *dentry)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	struct inode *inode = d_inode(dentry);
 	int err;
 
@@ -4359,7 +5597,13 @@ static int nfs4_proc_remove(struct inode *dir, struct dentry *dentry)
 
 static int nfs4_proc_rmdir(struct inode *dir, const struct qstr *name)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 
 	do {
@@ -4407,8 +5651,14 @@ static int nfs4_proc_unlink_done(struct rpc_task *task, struct inode *dir)
 				    &data->timeout) == -EAGAIN)
 		return 0;
 	if (task->tk_status == 0)
+<<<<<<< HEAD
 		update_changeattr(dir, &res->cinfo,
 				res->dir_attr->time_start, 0);
+=======
+		nfs4_update_changeattr(dir, &res->cinfo,
+				res->dir_attr->time_start,
+				NFS_INO_INVALID_DATA);
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -4452,6 +5702,7 @@ static int nfs4_proc_rename_done(struct rpc_task *task, struct inode *old_dir,
 	if (task->tk_status == 0) {
 		if (new_dir != old_dir) {
 			/* Note: If we moved a directory, nlink will change */
+<<<<<<< HEAD
 			update_changeattr(old_dir, &res->old_cinfo,
 					res->old_fattr->time_start,
 					NFS_INO_INVALID_OTHER);
@@ -4462,6 +5713,20 @@ static int nfs4_proc_rename_done(struct rpc_task *task, struct inode *old_dir,
 			update_changeattr(old_dir, &res->old_cinfo,
 					res->old_fattr->time_start,
 					0);
+=======
+			nfs4_update_changeattr(old_dir, &res->old_cinfo,
+					res->old_fattr->time_start,
+					NFS_INO_INVALID_NLINK |
+					    NFS_INO_INVALID_DATA);
+			nfs4_update_changeattr(new_dir, &res->new_cinfo,
+					res->new_fattr->time_start,
+					NFS_INO_INVALID_NLINK |
+					    NFS_INO_INVALID_DATA);
+		} else
+			nfs4_update_changeattr(old_dir, &res->old_cinfo,
+					res->old_fattr->time_start,
+					NFS_INO_INVALID_DATA);
+>>>>>>> upstream/android-13
 	}
 	return 1;
 }
@@ -4498,11 +5763,21 @@ static int _nfs4_proc_link(struct inode *inode, struct inode *dir, const struct 
 	}
 
 	nfs4_inode_make_writeable(inode);
+<<<<<<< HEAD
 	nfs4_bitmap_copy_adjust_setattr(bitmask, nfs4_bitmask(server, res.label), inode);
 
 	status = nfs4_call_sync(server->client, server, &msg, &arg.seq_args, &res.seq_res, 1);
 	if (!status) {
 		update_changeattr(dir, &res.cinfo, res.fattr->time_start, 0);
+=======
+	nfs4_bitmap_copy_adjust(bitmask, nfs4_bitmask(server, res.label), inode,
+				NFS_INO_INVALID_CHANGE);
+	status = nfs4_call_sync(server->client, server, &msg, &arg.seq_args, &res.seq_res, 1);
+	if (!status) {
+		nfs4_update_changeattr(dir, &res.cinfo, res.fattr->time_start,
+				       NFS_INO_INVALID_DATA);
+		nfs4_inc_nlink(inode);
+>>>>>>> upstream/android-13
 		status = nfs_post_op_update_inode(inode, res.fattr);
 		if (!status)
 			nfs_setsecurity(inode, res.fattr, res.label);
@@ -4518,7 +5793,13 @@ out:
 
 static int nfs4_proc_link(struct inode *inode, struct inode *dir, const struct qstr *name)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = nfs4_handle_exception(NFS_SERVER(inode),
@@ -4578,11 +5859,20 @@ static int nfs4_do_create(struct inode *dir, struct dentry *dentry, struct nfs4_
 				    &data->arg.seq_args, &data->res.seq_res, 1);
 	if (status == 0) {
 		spin_lock(&dir->i_lock);
+<<<<<<< HEAD
 		update_changeattr_locked(dir, &data->res.dir_cinfo,
 				data->res.fattr->time_start, 0);
 		/* Creating a directory bumps nlink in the parent */
 		if (data->arg.ftype == NF4DIR)
 			nfs4_inc_nlink_locked(dir);
+=======
+		/* Creating a directory bumps nlink in the parent */
+		if (data->arg.ftype == NF4DIR)
+			nfs4_inc_nlink_locked(dir);
+		nfs4_update_changeattr_locked(dir, &data->res.dir_cinfo,
+					      data->res.fattr->time_start,
+					      NFS_INO_INVALID_DATA);
+>>>>>>> upstream/android-13
 		spin_unlock(&dir->i_lock);
 		status = nfs_instantiate(dentry, data->res.fh, data->res.fattr, data->res.label);
 	}
@@ -4625,7 +5915,13 @@ out:
 static int nfs4_proc_symlink(struct inode *dir, struct dentry *dentry,
 		struct page *page, unsigned int len, struct iattr *sattr)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	struct nfs4_label l, *label = NULL;
 	int err;
 
@@ -4664,7 +5960,13 @@ static int nfs4_proc_mkdir(struct inode *dir, struct dentry *dentry,
 		struct iattr *sattr)
 {
 	struct nfs_server *server = NFS_SERVER(dir);
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	struct nfs4_label l, *label = NULL;
 	int err;
 
@@ -4683,6 +5985,7 @@ static int nfs4_proc_mkdir(struct inode *dir, struct dentry *dentry,
 	return err;
 }
 
+<<<<<<< HEAD
 static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 		u64 cookie, struct page **pages, unsigned int count, bool plus)
 {
@@ -4694,12 +5997,26 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 		.pgbase = 0,
 		.count = count,
 		.plus = plus,
+=======
+static int _nfs4_proc_readdir(struct nfs_readdir_arg *nr_arg,
+			      struct nfs_readdir_res *nr_res)
+{
+	struct inode		*dir = d_inode(nr_arg->dentry);
+	struct nfs_server	*server = NFS_SERVER(dir);
+	struct nfs4_readdir_arg args = {
+		.fh = NFS_FH(dir),
+		.pages = nr_arg->pages,
+		.pgbase = 0,
+		.count = nr_arg->page_len,
+		.plus = nr_arg->plus,
+>>>>>>> upstream/android-13
 	};
 	struct nfs4_readdir_res res;
 	struct rpc_message msg = {
 		.rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_READDIR],
 		.rpc_argp = &args,
 		.rpc_resp = &res,
+<<<<<<< HEAD
 		.rpc_cred = cred,
 	};
 	int			status;
@@ -4707,17 +6024,33 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 	dprintk("%s: dentry = %pd2, cookie = %Lu\n", __func__,
 			dentry,
 			(unsigned long long)cookie);
+=======
+		.rpc_cred = nr_arg->cred,
+	};
+	int			status;
+
+	dprintk("%s: dentry = %pd2, cookie = %llu\n", __func__,
+		nr_arg->dentry, (unsigned long long)nr_arg->cookie);
+>>>>>>> upstream/android-13
 	if (!(server->caps & NFS_CAP_SECURITY_LABEL))
 		args.bitmask = server->attr_bitmask_nl;
 	else
 		args.bitmask = server->attr_bitmask;
 
+<<<<<<< HEAD
 	nfs4_setup_readdir(cookie, NFS_I(dir)->cookieverf, dentry, &args);
+=======
+	nfs4_setup_readdir(nr_arg->cookie, nr_arg->verf, nr_arg->dentry, &args);
+>>>>>>> upstream/android-13
 	res.pgbase = args.pgbase;
 	status = nfs4_call_sync(server->client, server, &msg, &args.seq_args,
 			&res.seq_res, 0);
 	if (status >= 0) {
+<<<<<<< HEAD
 		memcpy(NFS_I(dir)->cookieverf, res.verifier.data, NFS4_VERIFIER_SIZE);
+=======
+		memcpy(nr_res->verf, res.verifier.data, NFS4_VERIFIER_SIZE);
+>>>>>>> upstream/android-13
 		status += args.pgbase;
 	}
 
@@ -4727,6 +6060,7 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 	return status;
 }
 
+<<<<<<< HEAD
 static int nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 		u64 cookie, struct page **pages, unsigned int count, bool plus)
 {
@@ -4738,6 +6072,20 @@ static int nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
 		trace_nfs4_readdir(d_inode(dentry), err);
 		err = nfs4_handle_exception(NFS_SERVER(d_inode(dentry)), err,
 				&exception);
+=======
+static int nfs4_proc_readdir(struct nfs_readdir_arg *arg,
+			     struct nfs_readdir_res *res)
+{
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+	int err;
+	do {
+		err = _nfs4_proc_readdir(arg, res);
+		trace_nfs4_readdir(d_inode(arg->dentry), err);
+		err = nfs4_handle_exception(NFS_SERVER(d_inode(arg->dentry)),
+					    err, &exception);
+>>>>>>> upstream/android-13
 	} while (exception.retry);
 	return err;
 }
@@ -4781,7 +6129,13 @@ static int nfs4_proc_mknod(struct inode *dir, struct dentry *dentry,
 		struct iattr *sattr, dev_t rdev)
 {
 	struct nfs_server *server = NFS_SERVER(dir);
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	struct nfs4_label l, *label = NULL;
 	int err;
 
@@ -4823,7 +6177,13 @@ static int _nfs4_proc_statfs(struct nfs_server *server, struct nfs_fh *fhandle,
 
 static int nfs4_proc_statfs(struct nfs_server *server, struct nfs_fh *fhandle, struct nfs_fsstat *fsstat)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = nfs4_handle_exception(server,
@@ -4854,17 +6214,27 @@ static int _nfs4_do_fsinfo(struct nfs_server *server, struct nfs_fh *fhandle,
 
 static int nfs4_do_fsinfo(struct nfs_server *server, struct nfs_fh *fhandle, struct nfs_fsinfo *fsinfo)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
 	unsigned long now = jiffies;
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 
 	do {
 		err = _nfs4_do_fsinfo(server, fhandle, fsinfo);
 		trace_nfs4_fsinfo(server, fhandle, fsinfo->fattr, err);
 		if (err == 0) {
+<<<<<<< HEAD
 			nfs4_set_lease_period(server->nfs_client,
 					fsinfo->lease_time * HZ,
 					now);
+=======
+			nfs4_set_lease_period(server->nfs_client, fsinfo->lease_time * HZ);
+>>>>>>> upstream/android-13
 			break;
 		}
 		err = nfs4_handle_exception(server, err, &exception);
@@ -4916,7 +6286,13 @@ static int _nfs4_proc_pathconf(struct nfs_server *server, struct nfs_fh *fhandle
 static int nfs4_proc_pathconf(struct nfs_server *server, struct nfs_fh *fhandle,
 		struct nfs_pathconf *pathconf)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 
 	do {
@@ -4941,12 +6317,21 @@ static bool nfs4_stateid_is_current(nfs4_stateid *stateid,
 		const struct nfs_lock_context *l_ctx,
 		fmode_t fmode)
 {
+<<<<<<< HEAD
 	nfs4_stateid current_stateid;
 
 	/* If the current stateid represents a lost lock, then exit */
 	if (nfs4_set_rw_stateid(&current_stateid, ctx, l_ctx, fmode) == -EIO)
 		return true;
 	return nfs4_stateid_match(stateid, &current_stateid);
+=======
+	nfs4_stateid _current_stateid;
+
+	/* If the current stateid represents a lost lock, then exit */
+	if (nfs4_set_rw_stateid(&_current_stateid, ctx, l_ctx, fmode) == -EIO)
+		return true;
+	return nfs4_stateid_match(stateid, &_current_stateid);
+>>>>>>> upstream/android-13
 }
 
 static bool nfs4_error_stateid_expired(int err)
@@ -5002,21 +6387,65 @@ static bool nfs4_read_stateid_changed(struct rpc_task *task,
 	return true;
 }
 
+<<<<<<< HEAD
 static int nfs4_read_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
 {
 
+=======
+static bool nfs4_read_plus_not_supported(struct rpc_task *task,
+					 struct nfs_pgio_header *hdr)
+{
+	struct nfs_server *server = NFS_SERVER(hdr->inode);
+	struct rpc_message *msg = &task->tk_msg;
+
+	if (msg->rpc_proc == &nfs4_procedures[NFSPROC4_CLNT_READ_PLUS] &&
+	    server->caps & NFS_CAP_READ_PLUS && task->tk_status == -ENOTSUPP) {
+		server->caps &= ~NFS_CAP_READ_PLUS;
+		msg->rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_READ];
+		rpc_restart_call_prepare(task);
+		return true;
+	}
+	return false;
+}
+
+static int nfs4_read_done(struct rpc_task *task, struct nfs_pgio_header *hdr)
+{
+>>>>>>> upstream/android-13
 	dprintk("--> %s\n", __func__);
 
 	if (!nfs4_sequence_done(task, &hdr->res.seq_res))
 		return -EAGAIN;
 	if (nfs4_read_stateid_changed(task, &hdr->args))
 		return -EAGAIN;
+<<<<<<< HEAD
+=======
+	if (nfs4_read_plus_not_supported(task, hdr))
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 	if (task->tk_status > 0)
 		nfs_invalidate_atime(hdr->inode);
 	return hdr->pgio_done_cb ? hdr->pgio_done_cb(task, hdr) :
 				    nfs4_read_done_cb(task, hdr);
 }
 
+<<<<<<< HEAD
+=======
+#if defined CONFIG_NFS_V4_2 && defined CONFIG_NFS_V4_2_READ_PLUS
+static void nfs42_read_plus_support(struct nfs_pgio_header *hdr,
+				    struct rpc_message *msg)
+{
+	/* Note: We don't use READ_PLUS with pNFS yet */
+	if (nfs_server_capable(hdr->inode, NFS_CAP_READ_PLUS) && !hdr->ds_clp)
+		msg->rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_READ_PLUS];
+}
+#else
+static void nfs42_read_plus_support(struct nfs_pgio_header *hdr,
+				    struct rpc_message *msg)
+{
+}
+#endif /* CONFIG_NFS_V4_2 */
+
+>>>>>>> upstream/android-13
 static void nfs4_proc_read_setup(struct nfs_pgio_header *hdr,
 				 struct rpc_message *msg)
 {
@@ -5024,6 +6453,10 @@ static void nfs4_proc_read_setup(struct nfs_pgio_header *hdr,
 	if (!hdr->pgio_done_cb)
 		hdr->pgio_done_cb = nfs4_read_done_cb;
 	msg->rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_READ];
+<<<<<<< HEAD
+=======
+	nfs42_read_plus_support(hdr, msg);
+>>>>>>> upstream/android-13
 	nfs4_init_sequence(&hdr->args.seq_args, &hdr->res.seq_res, 0, 0);
 }
 
@@ -5107,6 +6540,44 @@ bool nfs4_write_need_cache_consistency_data(struct nfs_pgio_header *hdr)
 	return nfs4_have_delegation(hdr->inode, FMODE_READ) == 0;
 }
 
+<<<<<<< HEAD
+=======
+static void nfs4_bitmask_set(__u32 bitmask[NFS4_BITMASK_SZ], const __u32 *src,
+			     struct inode *inode, struct nfs_server *server,
+			     struct nfs4_label *label)
+{
+	unsigned long cache_validity = READ_ONCE(NFS_I(inode)->cache_validity);
+	unsigned int i;
+
+	memcpy(bitmask, src, sizeof(*bitmask) * NFS4_BITMASK_SZ);
+
+	if (cache_validity & NFS_INO_INVALID_CHANGE)
+		bitmask[0] |= FATTR4_WORD0_CHANGE;
+	if (cache_validity & NFS_INO_INVALID_ATIME)
+		bitmask[1] |= FATTR4_WORD1_TIME_ACCESS;
+	if (cache_validity & NFS_INO_INVALID_MODE)
+		bitmask[1] |= FATTR4_WORD1_MODE;
+	if (cache_validity & NFS_INO_INVALID_OTHER)
+		bitmask[1] |= FATTR4_WORD1_OWNER | FATTR4_WORD1_OWNER_GROUP;
+	if (cache_validity & NFS_INO_INVALID_NLINK)
+		bitmask[1] |= FATTR4_WORD1_NUMLINKS;
+	if (label && label->len && cache_validity & NFS_INO_INVALID_LABEL)
+		bitmask[2] |= FATTR4_WORD2_SECURITY_LABEL;
+	if (cache_validity & NFS_INO_INVALID_CTIME)
+		bitmask[1] |= FATTR4_WORD1_TIME_METADATA;
+	if (cache_validity & NFS_INO_INVALID_MTIME)
+		bitmask[1] |= FATTR4_WORD1_TIME_MODIFY;
+	if (cache_validity & NFS_INO_INVALID_BLOCKS)
+		bitmask[1] |= FATTR4_WORD1_SPACE_USED;
+
+	if (cache_validity & NFS_INO_INVALID_SIZE)
+		bitmask[0] |= FATTR4_WORD0_SIZE;
+
+	for (i = 0; i < NFS4_BITMASK_SZ; i++)
+		bitmask[i] &= server->attr_bitmask[i];
+}
+
+>>>>>>> upstream/android-13
 static void nfs4_proc_write_setup(struct nfs_pgio_header *hdr,
 				  struct rpc_message *msg,
 				  struct rpc_clnt **clnt)
@@ -5116,8 +6587,17 @@ static void nfs4_proc_write_setup(struct nfs_pgio_header *hdr,
 	if (!nfs4_write_need_cache_consistency_data(hdr)) {
 		hdr->args.bitmask = NULL;
 		hdr->res.fattr = NULL;
+<<<<<<< HEAD
 	} else
 		hdr->args.bitmask = server->cache_consistency_bitmask;
+=======
+	} else {
+		nfs4_bitmask_set(hdr->args.bitmask_store,
+				 server->cache_consistency_bitmask,
+				 hdr->inode, server, NULL);
+		hdr->args.bitmask = hdr->args.bitmask_store;
+	}
+>>>>>>> upstream/android-13
 
 	if (!hdr->pgio_done_cb)
 		hdr->pgio_done_cb = nfs4_write_done_cb;
@@ -5255,7 +6735,11 @@ static const struct rpc_call_ops nfs4_renew_ops = {
 	.rpc_release = nfs4_renew_release,
 };
 
+<<<<<<< HEAD
 static int nfs4_proc_async_renew(struct nfs_client *clp, struct rpc_cred *cred, unsigned renew_flags)
+=======
+static int nfs4_proc_async_renew(struct nfs_client *clp, const struct cred *cred, unsigned renew_flags)
+>>>>>>> upstream/android-13
 {
 	struct rpc_message msg = {
 		.rpc_proc	= &nfs4_procedures[NFSPROC4_CLNT_RENEW],
@@ -5279,7 +6763,11 @@ static int nfs4_proc_async_renew(struct nfs_client *clp, struct rpc_cred *cred, 
 			&nfs4_renew_ops, data);
 }
 
+<<<<<<< HEAD
 static int nfs4_proc_renew(struct nfs_client *clp, struct rpc_cred *cred)
+=======
+static int nfs4_proc_renew(struct nfs_client *clp, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct rpc_message msg = {
 		.rpc_proc	= &nfs4_procedures[NFSPROC4_CLNT_RENEW],
@@ -5307,7 +6795,11 @@ static inline int nfs4_server_supports_acls(struct nfs_server *server)
  */
 #define NFS4ACL_MAXPAGES DIV_ROUND_UP(XATTR_SIZE_MAX, PAGE_SIZE)
 
+<<<<<<< HEAD
 static int buf_to_pages_noslab(const void *buf, size_t buflen,
+=======
+int nfs4_buf_to_pages_noslab(const void *buf, size_t buflen,
+>>>>>>> upstream/android-13
 		struct page **pages)
 {
 	struct page *newpage, **spages;
@@ -5339,7 +6831,11 @@ unwind:
 struct nfs4_cached_acl {
 	int cached;
 	size_t len;
+<<<<<<< HEAD
 	char data[0];
+=======
+	char data[];
+>>>>>>> upstream/android-13
 };
 
 static void nfs4_set_cached_acl(struct inode *inode, struct nfs4_cached_acl *acl)
@@ -5416,10 +6912,16 @@ out:
  */
 static ssize_t __nfs4_get_acl_uncached(struct inode *inode, void *buf, size_t buflen)
 {
+<<<<<<< HEAD
 	struct page *pages[NFS4ACL_MAXPAGES + 1] = {NULL, };
 	struct nfs_getaclargs args = {
 		.fh = NFS_FH(inode),
 		.acl_pages = pages,
+=======
+	struct page **pages;
+	struct nfs_getaclargs args = {
+		.fh = NFS_FH(inode),
+>>>>>>> upstream/android-13
 		.acl_len = buflen,
 	};
 	struct nfs_getaclres res = {
@@ -5430,11 +6932,27 @@ static ssize_t __nfs4_get_acl_uncached(struct inode *inode, void *buf, size_t bu
 		.rpc_argp = &args,
 		.rpc_resp = &res,
 	};
+<<<<<<< HEAD
 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE) + 1;
 	int ret = -ENOMEM, i;
 
 	if (npages > ARRAY_SIZE(pages))
 		return -ERANGE;
+=======
+	unsigned int npages;
+	int ret = -ENOMEM, i;
+	struct nfs_server *server = NFS_SERVER(inode);
+
+	if (buflen == 0)
+		buflen = server->rsize;
+
+	npages = DIV_ROUND_UP(buflen, PAGE_SIZE) + 1;
+	pages = kmalloc_array(npages, sizeof(struct page *), GFP_NOFS);
+	if (!pages)
+		return -ENOMEM;
+
+	args.acl_pages = pages;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < npages; i++) {
 		pages[i] = alloc_page(GFP_KERNEL);
@@ -5480,12 +6998,22 @@ out_free:
 			__free_page(pages[i]);
 	if (res.acl_scratch)
 		__free_page(res.acl_scratch);
+<<<<<<< HEAD
+=======
+	kfree(pages);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static ssize_t nfs4_get_acl_uncached(struct inode *inode, void *buf, size_t buflen)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	ssize_t ret;
 	do {
 		ret = __nfs4_get_acl_uncached(inode, buf, buflen);
@@ -5504,7 +7032,11 @@ static ssize_t nfs4_proc_get_acl(struct inode *inode, void *buf, size_t buflen)
 
 	if (!nfs4_server_supports_acls(server))
 		return -EOPNOTSUPP;
+<<<<<<< HEAD
 	ret = nfs_revalidate_inode(server, inode);
+=======
+	ret = nfs_revalidate_inode(inode, NFS_INO_INVALID_CHANGE);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	if (NFS_I(inode)->cache_validity & NFS_INO_INVALID_ACL)
@@ -5542,7 +7074,11 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
 		return -EOPNOTSUPP;
 	if (npages > ARRAY_SIZE(pages))
 		return -ERANGE;
+<<<<<<< HEAD
 	i = buf_to_pages_noslab(buf, buflen, arg.acl_pages);
+=======
+	i = nfs4_buf_to_pages_noslab(buf, buflen, arg.acl_pages);
+>>>>>>> upstream/android-13
 	if (i < 0)
 		return i;
 	nfs4_inode_make_writeable(inode);
@@ -5560,9 +7096,15 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
 	 * so mark the attribute cache invalid.
 	 */
 	spin_lock(&inode->i_lock);
+<<<<<<< HEAD
 	NFS_I(inode)->cache_validity |= NFS_INO_INVALID_CHANGE
 		| NFS_INO_INVALID_CTIME
 		| NFS_INO_REVAL_FORCED;
+=======
+	nfs_set_cache_invalid(inode, NFS_INO_INVALID_CHANGE |
+					     NFS_INO_INVALID_CTIME |
+					     NFS_INO_REVAL_FORCED);
+>>>>>>> upstream/android-13
 	spin_unlock(&inode->i_lock);
 	nfs_access_zap_cache(inode);
 	nfs_zap_acl_cache(inode);
@@ -5576,6 +7118,17 @@ static int nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t buflen
 	do {
 		err = __nfs4_proc_set_acl(inode, buf, buflen);
 		trace_nfs4_set_acl(inode, err);
+<<<<<<< HEAD
+=======
+		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
+			/*
+			 * no need to retry since the kernel
+			 * isn't involved in encoding the ACEs.
+			 */
+			err = -EINVAL;
+			break;
+		}
+>>>>>>> upstream/android-13
 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
 				&exception);
 	} while (exception.retry);
@@ -5620,7 +7173,13 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
 static int nfs4_get_security_label(struct inode *inode, void *buf,
 					size_t buflen)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!nfs_server_capable(inode, NFS_CAP_SECURITY_LABEL))
@@ -5695,7 +7254,10 @@ nfs4_set_security_label(struct inode *inode, const void *buf, size_t buflen)
 {
 	struct nfs4_label ilabel, *olabel = NULL;
 	struct nfs_fattr fattr;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+>>>>>>> upstream/android-13
 	int status;
 
 	if (!nfs_server_capable(inode, NFS_CAP_SECURITY_LABEL))
@@ -5708,10 +7270,13 @@ nfs4_set_security_label(struct inode *inode, const void *buf, size_t buflen)
 	ilabel.label = (char *)buf;
 	ilabel.len = buflen;
 
+<<<<<<< HEAD
 	cred = rpc_lookup_cred();
 	if (IS_ERR(cred))
 		return PTR_ERR(cred);
 
+=======
+>>>>>>> upstream/android-13
 	olabel = nfs4_label_alloc(NFS_SERVER(inode), GFP_KERNEL);
 	if (IS_ERR(olabel)) {
 		status = -PTR_ERR(olabel);
@@ -5724,7 +7289,10 @@ nfs4_set_security_label(struct inode *inode, const void *buf, size_t buflen)
 
 	nfs4_label_free(olabel);
 out:
+<<<<<<< HEAD
 	put_rpccred(cred);
+=======
+>>>>>>> upstream/android-13
 	return status;
 }
 #endif	/* CONFIG_NFS_V4_SECURITY_LABEL */
@@ -5750,9 +7318,40 @@ static void nfs4_init_boot_verifier(const struct nfs_client *clp,
 	memcpy(bootverf->data, verf, sizeof(bootverf->data));
 }
 
+<<<<<<< HEAD
 static int
 nfs4_init_nonuniform_client_string(struct nfs_client *clp)
 {
+=======
+static size_t
+nfs4_get_uniquifier(struct nfs_client *clp, char *buf, size_t buflen)
+{
+	struct nfs_net *nn = net_generic(clp->cl_net, nfs_net_id);
+	struct nfs_netns_client *nn_clp = nn->nfs_client;
+	const char *id;
+
+	buf[0] = '\0';
+
+	if (nn_clp) {
+		rcu_read_lock();
+		id = rcu_dereference(nn_clp->identifier);
+		if (id)
+			strscpy(buf, id, buflen);
+		rcu_read_unlock();
+	}
+
+	if (nfs4_client_id_uniquifier[0] != '\0' && buf[0] == '\0')
+		strscpy(buf, nfs4_client_id_uniquifier, buflen);
+
+	return strlen(buf);
+}
+
+static int
+nfs4_init_nonuniform_client_string(struct nfs_client *clp)
+{
+	char buf[NFS4_CLIENT_ID_UNIQ_LEN];
+	size_t buflen;
+>>>>>>> upstream/android-13
 	size_t len;
 	char *str;
 
@@ -5766,8 +7365,16 @@ nfs4_init_nonuniform_client_string(struct nfs_client *clp)
 		strlen(rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_ADDR)) +
 		1;
 	rcu_read_unlock();
+<<<<<<< HEAD
 	if (nfs4_client_id_uniquifier[0] != '\0')
 		len += strlen(nfs4_client_id_uniquifier) + 1;
+=======
+
+	buflen = nfs4_get_uniquifier(clp, buf, sizeof(buf));
+	if (buflen)
+		len += buflen + 1;
+
+>>>>>>> upstream/android-13
 	if (len > NFS4_OPAQUE_LIMIT + 1)
 		return -EINVAL;
 
@@ -5781,10 +7388,16 @@ nfs4_init_nonuniform_client_string(struct nfs_client *clp)
 		return -ENOMEM;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	if (nfs4_client_id_uniquifier[0] != '\0')
 		scnprintf(str, len, "Linux NFSv4.0 %s/%s/%s",
 			  clp->cl_rpcclient->cl_nodename,
 			  nfs4_client_id_uniquifier,
+=======
+	if (buflen)
+		scnprintf(str, len, "Linux NFSv4.0 %s/%s/%s",
+			  clp->cl_rpcclient->cl_nodename, buf,
+>>>>>>> upstream/android-13
 			  rpc_peeraddr2str(clp->cl_rpcclient,
 					   RPC_DISPLAY_ADDR));
 	else
@@ -5799,6 +7412,7 @@ nfs4_init_nonuniform_client_string(struct nfs_client *clp)
 }
 
 static int
+<<<<<<< HEAD
 nfs4_init_uniquifier_client_string(struct nfs_client *clp)
 {
 	size_t len;
@@ -5831,18 +7445,34 @@ nfs4_init_uniquifier_client_string(struct nfs_client *clp)
 static int
 nfs4_init_uniform_client_string(struct nfs_client *clp)
 {
+=======
+nfs4_init_uniform_client_string(struct nfs_client *clp)
+{
+	char buf[NFS4_CLIENT_ID_UNIQ_LEN];
+	size_t buflen;
+>>>>>>> upstream/android-13
 	size_t len;
 	char *str;
 
 	if (clp->cl_owner_id != NULL)
 		return 0;
 
+<<<<<<< HEAD
 	if (nfs4_client_id_uniquifier[0] != '\0')
 		return nfs4_init_uniquifier_client_string(clp);
 
 	len = 10 + 10 + 1 + 10 + 1 +
 		strlen(clp->cl_rpcclient->cl_nodename) + 1;
 
+=======
+	len = 10 + 10 + 1 + 10 + 1 +
+		strlen(clp->cl_rpcclient->cl_nodename) + 1;
+
+	buflen = nfs4_get_uniquifier(clp, buf, sizeof(buf));
+	if (buflen)
+		len += buflen + 1;
+
+>>>>>>> upstream/android-13
 	if (len > NFS4_OPAQUE_LIMIT + 1)
 		return -EINVAL;
 
@@ -5855,9 +7485,20 @@ nfs4_init_uniform_client_string(struct nfs_client *clp)
 	if (!str)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	scnprintf(str, len, "Linux NFSv%u.%u %s",
 			clp->rpc_ops->version, clp->cl_minorversion,
 			clp->cl_rpcclient->cl_nodename);
+=======
+	if (buflen)
+		scnprintf(str, len, "Linux NFSv%u.%u %s/%s",
+			  clp->rpc_ops->version, clp->cl_minorversion,
+			  buf, clp->cl_rpcclient->cl_nodename);
+	else
+		scnprintf(str, len, "Linux NFSv%u.%u %s",
+			  clp->rpc_ops->version, clp->cl_minorversion,
+			  clp->cl_rpcclient->cl_nodename);
+>>>>>>> upstream/android-13
 	clp->cl_owner_id = str;
 	return 0;
 }
@@ -5893,13 +7534,21 @@ static const struct rpc_call_ops nfs4_setclientid_ops = {
  * @clp: state data structure
  * @program: RPC program for NFSv4 callback service
  * @port: IP port number for NFS4 callback service
+<<<<<<< HEAD
  * @cred: RPC credential to use for this call
+=======
+ * @cred: credential to use for this call
+>>>>>>> upstream/android-13
  * @res: where to place the result
  *
  * Returns zero, a negative errno, or a negative NFS4ERR status code.
  */
 int nfs4_proc_setclientid(struct nfs_client *clp, u32 program,
+<<<<<<< HEAD
 		unsigned short port, struct rpc_cred *cred,
+=======
+		unsigned short port, const struct cred *cred,
+>>>>>>> upstream/android-13
 		struct nfs4_setclientid_res *res)
 {
 	nfs4_verifier sc_verifier;
@@ -5914,14 +7563,23 @@ int nfs4_proc_setclientid(struct nfs_client *clp, u32 program,
 		.rpc_resp = res,
 		.rpc_cred = cred,
 	};
+<<<<<<< HEAD
 	struct rpc_task *task;
+=======
+>>>>>>> upstream/android-13
 	struct rpc_task_setup task_setup_data = {
 		.rpc_client = clp->cl_rpcclient,
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_setclientid_ops,
 		.callback_data = &setclientid,
+<<<<<<< HEAD
 		.flags = RPC_TASK_TIMEOUT,
 	};
+=======
+		.flags = RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN,
+	};
+	unsigned long now = jiffies;
+>>>>>>> upstream/android-13
 	int status;
 
 	/* nfs_client_id4 */
@@ -5947,18 +7605,29 @@ int nfs4_proc_setclientid(struct nfs_client *clp, u32 program,
 	dprintk("NFS call  setclientid auth=%s, '%s'\n",
 		clp->cl_rpcclient->cl_auth->au_ops->au_name,
 		clp->cl_owner_id);
+<<<<<<< HEAD
 	task = rpc_run_task(&task_setup_data);
 	if (IS_ERR(task)) {
 		status = PTR_ERR(task);
 		goto out;
 	}
 	status = task->tk_status;
+=======
+
+	status = nfs4_call_sync_custom(&task_setup_data);
+>>>>>>> upstream/android-13
 	if (setclientid.sc_cred) {
 		kfree(clp->cl_acceptor);
 		clp->cl_acceptor = rpcauth_stringify_acceptor(setclientid.sc_cred);
 		put_rpccred(setclientid.sc_cred);
 	}
+<<<<<<< HEAD
 	rpc_put_task(task);
+=======
+
+	if (status == 0)
+		do_renew_lease(clp, now);
+>>>>>>> upstream/android-13
 out:
 	trace_nfs4_setclientid(clp, status);
 	dprintk("NFS reply setclientid: %d\n", status);
@@ -5968,14 +7637,23 @@ out:
 /**
  * nfs4_proc_setclientid_confirm - Confirm client ID
  * @clp: state data structure
+<<<<<<< HEAD
  * @res: result of a previous SETCLIENTID
  * @cred: RPC credential to use for this call
+=======
+ * @arg: result of a previous SETCLIENTID
+ * @cred: credential to use for this call
+>>>>>>> upstream/android-13
  *
  * Returns zero, a negative errno, or a negative NFS4ERR status code.
  */
 int nfs4_proc_setclientid_confirm(struct nfs_client *clp,
 		struct nfs4_setclientid_res *arg,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct rpc_message msg = {
 		.rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_SETCLIENTID_CONFIRM],
@@ -5987,7 +7665,12 @@ int nfs4_proc_setclientid_confirm(struct nfs_client *clp,
 	dprintk("NFS call  setclientid_confirm auth=%s, (client ID %llx)\n",
 		clp->cl_rpcclient->cl_auth->au_ops->au_name,
 		clp->cl_clientid);
+<<<<<<< HEAD
 	status = rpc_call_sync(clp->cl_rpcclient, &msg, RPC_TASK_TIMEOUT);
+=======
+	status = rpc_call_sync(clp->cl_rpcclient, &msg,
+			       RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN);
+>>>>>>> upstream/android-13
 	trace_nfs4_setclientid_confirm(clp, status);
 	dprintk("NFS reply setclientid_confirm: %d\n", status);
 	return status;
@@ -6017,6 +7700,10 @@ static void nfs4_delegreturn_done(struct rpc_task *task, void *calldata)
 	struct nfs4_exception exception = {
 		.inode = data->inode,
 		.stateid = &data->stateid,
+<<<<<<< HEAD
+=======
+		.task_is_privileged = data->args.seq_args.sa_privileged,
+>>>>>>> upstream/android-13
 	};
 
 	if (!nfs4_sequence_done(task, &data->res.seq_res))
@@ -6025,6 +7712,7 @@ static void nfs4_delegreturn_done(struct rpc_task *task, void *calldata)
 	trace_nfs4_delegreturn_exit(&data->args, &data->res, task->tk_status);
 
 	/* Handle Layoutreturn errors */
+<<<<<<< HEAD
 	if (data->args.lr_args && task->tk_status != 0) {
 		switch(data->res.lr_ret) {
 		default:
@@ -6051,6 +7739,11 @@ static void nfs4_delegreturn_done(struct rpc_task *task, void *calldata)
 			goto lr_restart;
 		}
 	}
+=======
+	if (pnfs_roc_done(task, &data->args.lr_args, &data->res.lr_res,
+			  &data->res.lr_ret) == -EAGAIN)
+		goto out_restart;
+>>>>>>> upstream/android-13
 
 	switch (task->tk_status) {
 	case 0:
@@ -6062,6 +7755,7 @@ static void nfs4_delegreturn_done(struct rpc_task *task, void *calldata)
 		nfs4_free_revoked_stateid(data->res.server,
 				data->args.stateid,
 				task->tk_msg.rpc_cred);
+<<<<<<< HEAD
 		/* Fallthrough */
 	case -NFS4ERR_BAD_STATEID:
 	case -NFS4ERR_STALE_STATEID:
@@ -6072,13 +7766,33 @@ static void nfs4_delegreturn_done(struct rpc_task *task, void *calldata)
 			goto out_restart;
 		task->tk_status = 0;
 		break;
+=======
+		fallthrough;
+	case -NFS4ERR_BAD_STATEID:
+	case -NFS4ERR_STALE_STATEID:
+	case -ETIMEDOUT:
+		task->tk_status = 0;
+		break;
+	case -NFS4ERR_OLD_STATEID:
+		if (!nfs4_refresh_delegation_stateid(&data->stateid, data->inode))
+			nfs4_stateid_seqid_inc(&data->stateid);
+		if (data->args.bitmask) {
+			data->args.bitmask = NULL;
+			data->res.fattr = NULL;
+		}
+		goto out_restart;
+>>>>>>> upstream/android-13
 	case -NFS4ERR_ACCESS:
 		if (data->args.bitmask) {
 			data->args.bitmask = NULL;
 			data->res.fattr = NULL;
 			goto out_restart;
 		}
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		task->tk_status = nfs4_async_handle_exception(task,
 				data->res.server, task->tk_status,
@@ -6086,10 +7800,16 @@ static void nfs4_delegreturn_done(struct rpc_task *task, void *calldata)
 		if (exception.retry)
 			goto out_restart;
 	}
+<<<<<<< HEAD
 	data->rpc_status = task->tk_status;
 	return;
 lr_restart:
 	data->res.lr_ret = 0;
+=======
+	nfs_delegation_mark_returned(data->inode, data->args.stateid);
+	data->rpc_status = task->tk_status;
+	return;
+>>>>>>> upstream/android-13
 out_restart:
 	task->tk_status = 0;
 	rpc_restart_call_prepare(task);
@@ -6100,11 +7820,21 @@ static void nfs4_delegreturn_release(void *calldata)
 	struct nfs4_delegreturndata *data = calldata;
 	struct inode *inode = data->inode;
 
+<<<<<<< HEAD
 	if (inode) {
 		if (data->lr.roc)
 			pnfs_roc_release(&data->lr.arg, &data->lr.res,
 					data->res.lr_ret);
 		nfs_post_op_update_inode_force_wcc(inode, &data->fattr);
+=======
+	if (data->lr.roc)
+		pnfs_roc_release(&data->lr.arg, &data->lr.res,
+				 data->res.lr_ret);
+	if (inode) {
+		nfs4_fattr_set_prechange(&data->fattr,
+					 inode_peek_iversion_raw(inode));
+		nfs_refresh_inode(inode, &data->fattr);
+>>>>>>> upstream/android-13
 		nfs_iput_and_deactive(inode);
 	}
 	kfree(calldata);
@@ -6140,7 +7870,11 @@ static const struct rpc_call_ops nfs4_delegreturn_ops = {
 	.rpc_release = nfs4_delegreturn_release,
 };
 
+<<<<<<< HEAD
 static int _nfs4_proc_delegreturn(struct inode *inode, struct rpc_cred *cred, const nfs4_stateid *stateid, int issync)
+=======
+static int _nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred, const nfs4_stateid *stateid, int issync)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_delegreturndata *data;
 	struct nfs_server *server = NFS_SERVER(inode);
@@ -6153,14 +7887,21 @@ static int _nfs4_proc_delegreturn(struct inode *inode, struct rpc_cred *cred, co
 		.rpc_client = server->client,
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_delegreturn_ops,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_TIMEOUT | RPC_TASK_MOVEABLE,
+>>>>>>> upstream/android-13
 	};
 	int status = 0;
 
 	data = kzalloc(sizeof(*data), GFP_NOFS);
 	if (data == NULL)
 		return -ENOMEM;
+<<<<<<< HEAD
 	nfs4_init_sequence(&data->args.seq_args, &data->res.seq_res, 1, 0);
+=======
+>>>>>>> upstream/android-13
 
 	nfs4_state_protect(server->nfs_client,
 			NFS_SP4_MACH_CRED_CLEANUP,
@@ -6168,7 +7909,14 @@ static int _nfs4_proc_delegreturn(struct inode *inode, struct rpc_cred *cred, co
 
 	data->args.fhandle = &data->fh;
 	data->args.stateid = &data->stateid;
+<<<<<<< HEAD
 	data->args.bitmask = server->cache_consistency_bitmask;
+=======
+	nfs4_bitmask_set(data->args.bitmask_store,
+			 server->cache_consistency_bitmask, inode, server,
+			 NULL);
+	data->args.bitmask = data->args.bitmask_store;
+>>>>>>> upstream/android-13
 	nfs_copy_fh(&data->fh, NFS_FH(inode));
 	nfs4_stateid_copy(&data->stateid, stateid);
 	data->res.fattr = &data->fattr;
@@ -6178,18 +7926,36 @@ static int _nfs4_proc_delegreturn(struct inode *inode, struct rpc_cred *cred, co
 	nfs_fattr_init(data->res.fattr);
 	data->timestamp = jiffies;
 	data->rpc_status = 0;
+<<<<<<< HEAD
 	data->lr.roc = pnfs_roc(inode, &data->lr.arg, &data->lr.res, cred);
 	data->inode = nfs_igrab_and_active(inode);
 	if (data->inode) {
+=======
+	data->inode = nfs_igrab_and_active(inode);
+	if (data->inode || issync) {
+		data->lr.roc = pnfs_roc(inode, &data->lr.arg, &data->lr.res,
+					cred);
+>>>>>>> upstream/android-13
 		if (data->lr.roc) {
 			data->args.lr_args = &data->lr.arg;
 			data->res.lr_res = &data->lr.res;
 		}
+<<<<<<< HEAD
 	} else if (data->lr.roc) {
 		pnfs_roc_release(&data->lr.arg, &data->lr.res, 0);
 		data->lr.roc = false;
 	}
 
+=======
+	}
+
+	if (!data->inode)
+		nfs4_init_sequence(&data->args.seq_args, &data->res.seq_res, 1,
+				   1);
+	else
+		nfs4_init_sequence(&data->args.seq_args, &data->res.seq_res, 1,
+				   0);
+>>>>>>> upstream/android-13
 	task_setup_data.callback_data = data;
 	msg.rpc_argp = &data->args;
 	msg.rpc_resp = &data->res;
@@ -6207,7 +7973,11 @@ out:
 	return status;
 }
 
+<<<<<<< HEAD
 int nfs4_proc_delegreturn(struct inode *inode, struct rpc_cred *cred, const nfs4_stateid *stateid, int issync)
+=======
+int nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred, const nfs4_stateid *stateid, int issync)
+>>>>>>> upstream/android-13
 {
 	struct nfs_server *server = NFS_SERVER(inode);
 	struct nfs4_exception exception = { };
@@ -6270,7 +8040,13 @@ out:
 
 static int nfs4_proc_getlk(struct nfs4_state *state, int cmd, struct file_lock *request)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 
 	do {
@@ -6282,6 +8058,45 @@ static int nfs4_proc_getlk(struct nfs4_state *state, int cmd, struct file_lock *
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Update the seqid of a lock stateid after receiving
+ * NFS4ERR_OLD_STATEID
+ */
+static bool nfs4_refresh_lock_old_stateid(nfs4_stateid *dst,
+		struct nfs4_lock_state *lsp)
+{
+	struct nfs4_state *state = lsp->ls_state;
+	bool ret = false;
+
+	spin_lock(&state->state_lock);
+	if (!nfs4_stateid_match_other(dst, &lsp->ls_stateid))
+		goto out;
+	if (!nfs4_stateid_is_newer(&lsp->ls_stateid, dst))
+		nfs4_stateid_seqid_inc(dst);
+	else
+		dst->seqid = lsp->ls_stateid.seqid;
+	ret = true;
+out:
+	spin_unlock(&state->state_lock);
+	return ret;
+}
+
+static bool nfs4_sync_lock_stateid(nfs4_stateid *dst,
+		struct nfs4_lock_state *lsp)
+{
+	struct nfs4_state *state = lsp->ls_state;
+	bool ret;
+
+	spin_lock(&state->state_lock);
+	ret = !nfs4_stateid_match_other(dst, &lsp->ls_stateid);
+	nfs4_stateid_copy(dst, &lsp->ls_stateid);
+	spin_unlock(&state->state_lock);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 struct nfs4_unlockdata {
 	struct nfs_locku_args arg;
 	struct nfs_locku_res res;
@@ -6299,7 +8114,12 @@ static struct nfs4_unlockdata *nfs4_alloc_unlockdata(struct file_lock *fl,
 		struct nfs_seqid *seqid)
 {
 	struct nfs4_unlockdata *p;
+<<<<<<< HEAD
 	struct inode *inode = lsp->ls_state->inode;
+=======
+	struct nfs4_state *state = lsp->ls_state;
+	struct inode *inode = state->inode;
+>>>>>>> upstream/android-13
 
 	p = kzalloc(sizeof(*p), GFP_NOFS);
 	if (p == NULL)
@@ -6309,12 +8129,24 @@ static struct nfs4_unlockdata *nfs4_alloc_unlockdata(struct file_lock *fl,
 	p->arg.seqid = seqid;
 	p->res.seqid = seqid;
 	p->lsp = lsp;
+<<<<<<< HEAD
 	refcount_inc(&lsp->ls_count);
 	/* Ensure we don't close file until we're done freeing locks! */
 	p->ctx = get_nfs_open_context(ctx);
 	p->l_ctx = nfs_get_lock_context(ctx);
 	memcpy(&p->fl, fl, sizeof(p->fl));
 	p->server = NFS_SERVER(inode);
+=======
+	/* Ensure we don't close file until we're done freeing locks! */
+	p->ctx = get_nfs_open_context(ctx);
+	p->l_ctx = nfs_get_lock_context(ctx);
+	locks_init_lock(&p->fl);
+	locks_copy_lock(&p->fl, fl);
+	p->server = NFS_SERVER(inode);
+	spin_lock(&state->state_lock);
+	nfs4_stateid_copy(&p->arg.stateid, &lsp->ls_stateid);
+	spin_unlock(&state->state_lock);
+>>>>>>> upstream/android-13
 	return p;
 }
 
@@ -6345,18 +8177,35 @@ static void nfs4_locku_done(struct rpc_task *task, void *data)
 			if (nfs4_update_lock_stateid(calldata->lsp,
 					&calldata->res.stateid))
 				break;
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case -NFS4ERR_ADMIN_REVOKED:
 		case -NFS4ERR_EXPIRED:
 			nfs4_free_revoked_stateid(calldata->server,
 					&calldata->arg.stateid,
 					task->tk_msg.rpc_cred);
+<<<<<<< HEAD
 			/* Fall through */
 		case -NFS4ERR_BAD_STATEID:
 		case -NFS4ERR_OLD_STATEID:
 		case -NFS4ERR_STALE_STATEID:
 			if (!nfs4_stateid_match(&calldata->arg.stateid,
 						&calldata->lsp->ls_stateid))
+=======
+			fallthrough;
+		case -NFS4ERR_BAD_STATEID:
+		case -NFS4ERR_STALE_STATEID:
+			if (nfs4_sync_lock_stateid(&calldata->arg.stateid,
+						calldata->lsp))
+				rpc_restart_call_prepare(task);
+			break;
+		case -NFS4ERR_OLD_STATEID:
+			if (nfs4_refresh_lock_old_stateid(&calldata->arg.stateid,
+						calldata->lsp))
+>>>>>>> upstream/android-13
 				rpc_restart_call_prepare(task);
 			break;
 		default:
@@ -6379,7 +8228,10 @@ static void nfs4_locku_prepare(struct rpc_task *task, void *data)
 
 	if (nfs_wait_on_sequence(calldata->arg.seqid, task) != 0)
 		goto out_wait;
+<<<<<<< HEAD
 	nfs4_stateid_copy(&calldata->arg.stateid, &calldata->lsp->ls_stateid);
+=======
+>>>>>>> upstream/android-13
 	if (test_bit(NFS_LOCK_INITIALIZED, &calldata->lsp->ls_flags) == 0) {
 		/* Note: exit _without_ running nfs4_locku_done */
 		goto out_no_action;
@@ -6420,6 +8272,14 @@ static struct rpc_task *nfs4_do_unlck(struct file_lock *fl,
 		.workqueue = nfsiod_workqueue,
 		.flags = RPC_TASK_ASYNC,
 	};
+<<<<<<< HEAD
+=======
+	struct nfs_client *client =
+		NFS_SERVER(lsp->ls_state->inode)->nfs_client;
+
+	if (client->cl_minorversion)
+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
+>>>>>>> upstream/android-13
 
 	nfs4_state_protect(NFS_SERVER(lsp->ls_state->inode)->nfs_client,
 		NFS_SP4_MACH_CRED_CLEANUP, &task_setup_data.rpc_client, &msg);
@@ -6533,9 +8393,15 @@ static struct nfs4_lockdata *nfs4_alloc_lockdata(struct file_lock *fl,
 	p->res.lock_seqid = p->arg.lock_seqid;
 	p->lsp = lsp;
 	p->server = server;
+<<<<<<< HEAD
 	refcount_inc(&lsp->ls_count);
 	p->ctx = get_nfs_open_context(ctx);
 	memcpy(&p->fl, fl, sizeof(p->fl));
+=======
+	p->ctx = get_nfs_open_context(ctx);
+	locks_init_lock(&p->fl);
+	locks_copy_lock(&p->fl, fl);
+>>>>>>> upstream/android-13
 	return p;
 out_free_seqid:
 	nfs_free_seqid(p->arg.open_seqid);
@@ -6675,7 +8541,11 @@ static void nfs4_handle_setlk_error(struct nfs_server *server, struct nfs4_lock_
 	case -NFS4ERR_STALE_STATEID:
 		lsp->ls_seqid.flags &= ~NFS_SEQID_CONFIRMED;
 		nfs4_schedule_lease_recovery(server->nfs_client);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static int _nfs4_do_setlk(struct nfs4_state *state, int cmd, struct file_lock *fl, int recovery_type)
@@ -6691,9 +8561,19 @@ static int _nfs4_do_setlk(struct nfs4_state *state, int cmd, struct file_lock *f
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_lock_ops,
 		.workqueue = nfsiod_workqueue,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
 	};
 	int ret;
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF,
+	};
+	int ret;
+	struct nfs_client *client = NFS_SERVER(state->inode)->nfs_client;
+
+	if (client->cl_minorversion)
+		task_setup_data.flags |= RPC_TASK_MOVEABLE;
+>>>>>>> upstream/android-13
 
 	dprintk("%s: begin!\n", __func__);
 	data = nfs4_alloc_lockdata(fl, nfs_file_open_context(fl->fl_file),
@@ -6834,6 +8714,10 @@ static int nfs4_proc_setlk(struct nfs4_state *state, int cmd, struct file_lock *
 	struct nfs4_exception exception = {
 		.state = state,
 		.inode = state->inode,
+<<<<<<< HEAD
+=======
+		.interruptible = true,
+>>>>>>> upstream/android-13
 	};
 	int err;
 
@@ -6871,22 +8755,37 @@ nfs4_retry_setlk_simple(struct nfs4_state *state, int cmd,
 
 #ifdef CONFIG_NFS_V4_1
 struct nfs4_lock_waiter {
+<<<<<<< HEAD
 	struct task_struct	*task;
 	struct inode		*inode;
 	struct nfs_lowner	*owner;
+=======
+	struct inode		*inode;
+	struct nfs_lowner	owner;
+	wait_queue_entry_t	wait;
+>>>>>>> upstream/android-13
 };
 
 static int
 nfs4_wake_lock_waiter(wait_queue_entry_t *wait, unsigned int mode, int flags, void *key)
 {
+<<<<<<< HEAD
 	int ret;
 	struct nfs4_lock_waiter	*waiter	= wait->private;
+=======
+	struct nfs4_lock_waiter	*waiter	=
+		container_of(wait, struct nfs4_lock_waiter, wait);
+>>>>>>> upstream/android-13
 
 	/* NULL key means to wake up everyone */
 	if (key) {
 		struct cb_notify_lock_args	*cbnl = key;
 		struct nfs_lowner		*lowner = &cbnl->cbnl_owner,
+<<<<<<< HEAD
 						*wowner = waiter->owner;
+=======
+						*wowner = &waiter->owner;
+>>>>>>> upstream/android-13
 
 		/* Only wake if the callback was for the same owner. */
 		if (lowner->id != wowner->id || lowner->s_dev != wowner->s_dev)
@@ -6897,6 +8796,7 @@ nfs4_wake_lock_waiter(wait_queue_entry_t *wait, unsigned int mode, int flags, vo
 			return 0;
 	}
 
+<<<<<<< HEAD
 	/* override "private" so we can use default_wake_function */
 	wait->private = waiter->task;
 	ret = woken_wake_function(wait, mode, flags, key);
@@ -6904,16 +8804,23 @@ nfs4_wake_lock_waiter(wait_queue_entry_t *wait, unsigned int mode, int flags, vo
 		list_del_init(&wait->entry);
 	wait->private = waiter;
 	return ret;
+=======
+	return woken_wake_function(wait, mode, flags, key);
+>>>>>>> upstream/android-13
 }
 
 static int
 nfs4_retry_setlk(struct nfs4_state *state, int cmd, struct file_lock *request)
 {
+<<<<<<< HEAD
 	int status = -ERESTARTSYS;
+=======
+>>>>>>> upstream/android-13
 	struct nfs4_lock_state *lsp = request->fl_u.nfs4_fl.owner;
 	struct nfs_server *server = NFS_SERVER(state->inode);
 	struct nfs_client *clp = server->nfs_client;
 	wait_queue_head_t *q = &clp->cl_lock_waitq;
+<<<<<<< HEAD
 	struct nfs_lowner owner = { .clientid = clp->cl_clientid,
 				    .id = lsp->ls_seqid.owner_id,
 				    .s_dev = server->s_dev };
@@ -6921,11 +8828,21 @@ nfs4_retry_setlk(struct nfs4_state *state, int cmd, struct file_lock *request)
 					   .inode = state->inode,
 					   .owner = &owner};
 	wait_queue_entry_t wait;
+=======
+	struct nfs4_lock_waiter waiter = {
+		.inode = state->inode,
+		.owner = { .clientid = clp->cl_clientid,
+			   .id = lsp->ls_seqid.owner_id,
+			   .s_dev = server->s_dev },
+	};
+	int status;
+>>>>>>> upstream/android-13
 
 	/* Don't bother with waitqueue if we don't expect a callback */
 	if (!test_bit(NFS_STATE_MAY_NOTIFY_LOCK, &state->flags))
 		return nfs4_retry_setlk_simple(state, cmd, request);
 
+<<<<<<< HEAD
 	init_wait(&wait);
 	wait.private = &waiter;
 	wait.func = nfs4_wake_lock_waiter;
@@ -6944,6 +8861,25 @@ nfs4_retry_setlk(struct nfs4_state *state, int cmd, struct file_lock *request)
 		freezer_count();
 		finish_wait(q, &wait);
 	}
+=======
+	init_wait(&waiter.wait);
+	waiter.wait.func = nfs4_wake_lock_waiter;
+	add_wait_queue(q, &waiter.wait);
+
+	do {
+		status = nfs4_proc_setlk(state, cmd, request);
+		if (status != -EAGAIN || IS_SETLK(cmd))
+			break;
+
+		status = -ERESTARTSYS;
+		freezer_do_not_count();
+		wait_woken(&waiter.wait, TASK_INTERRUPTIBLE,
+			   NFS4_LOCK_MAXTIMEOUT);
+		freezer_count();
+	} while (!signalled());
+
+	remove_wait_queue(q, &waiter.wait);
+>>>>>>> upstream/android-13
 
 	return status;
 }
@@ -7009,6 +8945,46 @@ nfs4_proc_lock(struct file *filp, int cmd, struct file_lock *request)
 	return nfs4_retry_setlk(state, cmd, request);
 }
 
+<<<<<<< HEAD
+=======
+static int nfs4_delete_lease(struct file *file, void **priv)
+{
+	return generic_setlease(file, F_UNLCK, NULL, priv);
+}
+
+static int nfs4_add_lease(struct file *file, long arg, struct file_lock **lease,
+			  void **priv)
+{
+	struct inode *inode = file_inode(file);
+	fmode_t type = arg == F_RDLCK ? FMODE_READ : FMODE_WRITE;
+	int ret;
+
+	/* No delegation, no lease */
+	if (!nfs4_have_delegation(inode, type))
+		return -EAGAIN;
+	ret = generic_setlease(file, arg, lease, priv);
+	if (ret || nfs4_have_delegation(inode, type))
+		return ret;
+	/* We raced with a delegation return */
+	nfs4_delete_lease(file, priv);
+	return -EAGAIN;
+}
+
+int nfs4_proc_setlease(struct file *file, long arg, struct file_lock **lease,
+		       void **priv)
+{
+	switch (arg) {
+	case F_RDLCK:
+	case F_WRLCK:
+		return nfs4_add_lease(file, arg, lease, priv);
+	case F_UNLCK:
+		return nfs4_delete_lease(file, priv);
+	default:
+		return -EINVAL;
+	}
+}
+
+>>>>>>> upstream/android-13
 int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state, const nfs4_stateid *stateid)
 {
 	struct nfs_server *server = NFS_SERVER(state->inode);
@@ -7109,6 +9085,10 @@ nfs4_release_lockowner(struct nfs_server *server, struct nfs4_lock_state *lsp)
 #define XATTR_NAME_NFSV4_ACL "system.nfs4_acl"
 
 static int nfs4_xattr_set_nfs4_acl(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				   struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				   struct dentry *unused, struct inode *inode,
 				   const char *key, const void *buf,
 				   size_t buflen, int flags)
@@ -7131,6 +9111,10 @@ static bool nfs4_xattr_list_nfs4_acl(struct dentry *dentry)
 #ifdef CONFIG_NFS_V4_SECURITY_LABEL
 
 static int nfs4_xattr_set_nfs4_label(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+				     struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 				     struct dentry *unused, struct inode *inode,
 				     const char *key, const void *buf,
 				     size_t buflen, int flags)
@@ -7157,7 +9141,11 @@ nfs4_listxattr_nfs4_label(struct inode *inode, char *list, size_t list_len)
 
 	if (nfs_server_capable(inode, NFS_CAP_SECURITY_LABEL)) {
 		len = security_inode_listsecurity(inode, list, list_len);
+<<<<<<< HEAD
 		if (list_len && len > list_len)
+=======
+		if (len >= 0 && list_len && len > list_len)
+>>>>>>> upstream/android-13
 			return -ERANGE;
 	}
 	return len;
@@ -7179,6 +9167,137 @@ nfs4_listxattr_nfs4_label(struct inode *inode, char *list, size_t list_len)
 
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFS_V4_2
+static int nfs4_xattr_set_nfs4_user(const struct xattr_handler *handler,
+				    struct user_namespace *mnt_userns,
+				    struct dentry *unused, struct inode *inode,
+				    const char *key, const void *buf,
+				    size_t buflen, int flags)
+{
+	u32 mask;
+	int ret;
+
+	if (!nfs_server_capable(inode, NFS_CAP_XATTR))
+		return -EOPNOTSUPP;
+
+	/*
+	 * There is no mapping from the MAY_* flags to the NFS_ACCESS_XA*
+	 * flags right now. Handling of xattr operations use the normal
+	 * file read/write permissions.
+	 *
+	 * Just in case the server has other ideas (which RFC 8276 allows),
+	 * do a cached access check for the XA* flags to possibly avoid
+	 * doing an RPC and getting EACCES back.
+	 */
+	if (!nfs_access_get_cached(inode, current_cred(), &mask, true)) {
+		if (!(mask & NFS_ACCESS_XAWRITE))
+			return -EACCES;
+	}
+
+	if (buf == NULL) {
+		ret = nfs42_proc_removexattr(inode, key);
+		if (!ret)
+			nfs4_xattr_cache_remove(inode, key);
+	} else {
+		ret = nfs42_proc_setxattr(inode, key, buf, buflen, flags);
+		if (!ret)
+			nfs4_xattr_cache_add(inode, key, buf, NULL, buflen);
+	}
+
+	return ret;
+}
+
+static int nfs4_xattr_get_nfs4_user(const struct xattr_handler *handler,
+				    struct dentry *unused, struct inode *inode,
+				    const char *key, void *buf, size_t buflen)
+{
+	u32 mask;
+	ssize_t ret;
+
+	if (!nfs_server_capable(inode, NFS_CAP_XATTR))
+		return -EOPNOTSUPP;
+
+	if (!nfs_access_get_cached(inode, current_cred(), &mask, true)) {
+		if (!(mask & NFS_ACCESS_XAREAD))
+			return -EACCES;
+	}
+
+	ret = nfs_revalidate_inode(inode, NFS_INO_INVALID_CHANGE);
+	if (ret)
+		return ret;
+
+	ret = nfs4_xattr_cache_get(inode, key, buf, buflen);
+	if (ret >= 0 || (ret < 0 && ret != -ENOENT))
+		return ret;
+
+	ret = nfs42_proc_getxattr(inode, key, buf, buflen);
+
+	return ret;
+}
+
+static ssize_t
+nfs4_listxattr_nfs4_user(struct inode *inode, char *list, size_t list_len)
+{
+	u64 cookie;
+	bool eof;
+	ssize_t ret, size;
+	char *buf;
+	size_t buflen;
+	u32 mask;
+
+	if (!nfs_server_capable(inode, NFS_CAP_XATTR))
+		return 0;
+
+	if (!nfs_access_get_cached(inode, current_cred(), &mask, true)) {
+		if (!(mask & NFS_ACCESS_XALIST))
+			return 0;
+	}
+
+	ret = nfs_revalidate_inode(inode, NFS_INO_INVALID_CHANGE);
+	if (ret)
+		return ret;
+
+	ret = nfs4_xattr_cache_list(inode, list, list_len);
+	if (ret >= 0 || (ret < 0 && ret != -ENOENT))
+		return ret;
+
+	cookie = 0;
+	eof = false;
+	buflen = list_len ? list_len : XATTR_LIST_MAX;
+	buf = list_len ? list : NULL;
+	size = 0;
+
+	while (!eof) {
+		ret = nfs42_proc_listxattrs(inode, buf, buflen,
+		    &cookie, &eof);
+		if (ret < 0)
+			return ret;
+
+		if (list_len) {
+			buf += ret;
+			buflen -= ret;
+		}
+		size += ret;
+	}
+
+	if (list_len)
+		nfs4_xattr_cache_set_list(inode, list, size);
+
+	return size;
+}
+
+#else
+
+static ssize_t
+nfs4_listxattr_nfs4_user(struct inode *inode, char *list, size_t list_len)
+{
+	return 0;
+}
+#endif /* CONFIG_NFS_V4_2 */
+
+>>>>>>> upstream/android-13
 /*
  * nfs_fhget will use either the mounted_on_fileid or the fileid
  */
@@ -7244,7 +9363,13 @@ int nfs4_proc_fs_locations(struct rpc_clnt *client, struct inode *dir,
 			   struct nfs4_fs_locations *fs_locations,
 			   struct page *page)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = _nfs4_proc_fs_locations(client, dir, name,
@@ -7263,18 +9388,30 @@ int nfs4_proc_fs_locations(struct rpc_clnt *client, struct inode *dir,
  * appended to this compound to identify the client ID which is
  * performing recovery.
  */
+<<<<<<< HEAD
 static int _nfs40_proc_get_locations(struct inode *inode,
 				     struct nfs4_fs_locations *locations,
 				     struct page *page, struct rpc_cred *cred)
 {
 	struct nfs_server *server = NFS_SERVER(inode);
+=======
+static int _nfs40_proc_get_locations(struct nfs_server *server,
+				     struct nfs_fh *fhandle,
+				     struct nfs4_fs_locations *locations,
+				     struct page *page, const struct cred *cred)
+{
+>>>>>>> upstream/android-13
 	struct rpc_clnt *clnt = server->client;
 	u32 bitmask[2] = {
 		[0] = FATTR4_WORD0_FSID | FATTR4_WORD0_FS_LOCATIONS,
 	};
 	struct nfs4_fs_locations_arg args = {
 		.clientid	= server->nfs_client->cl_clientid,
+<<<<<<< HEAD
 		.fh		= NFS_FH(inode),
+=======
+		.fh		= fhandle,
+>>>>>>> upstream/android-13
 		.page		= page,
 		.bitmask	= bitmask,
 		.migration	= 1,		/* skip LOOKUP */
@@ -7320,17 +9457,29 @@ static int _nfs40_proc_get_locations(struct inode *inode,
  * When the client supports GETATTR(fs_locations_info), it can
  * be plumbed in here.
  */
+<<<<<<< HEAD
 static int _nfs41_proc_get_locations(struct inode *inode,
 				     struct nfs4_fs_locations *locations,
 				     struct page *page, struct rpc_cred *cred)
 {
 	struct nfs_server *server = NFS_SERVER(inode);
+=======
+static int _nfs41_proc_get_locations(struct nfs_server *server,
+				     struct nfs_fh *fhandle,
+				     struct nfs4_fs_locations *locations,
+				     struct page *page, const struct cred *cred)
+{
+>>>>>>> upstream/android-13
 	struct rpc_clnt *clnt = server->client;
 	u32 bitmask[2] = {
 		[0] = FATTR4_WORD0_FSID | FATTR4_WORD0_FS_LOCATIONS,
 	};
 	struct nfs4_fs_locations_arg args = {
+<<<<<<< HEAD
 		.fh		= NFS_FH(inode),
+=======
+		.fh		= fhandle,
+>>>>>>> upstream/android-13
 		.page		= page,
 		.bitmask	= bitmask,
 		.migration	= 1,		/* skip LOOKUP */
@@ -7379,6 +9528,7 @@ static int _nfs41_proc_get_locations(struct inode *inode,
  * -NFS4ERR_LEASE_MOVED is returned if the server still has leases
  * from this client that require migration recovery.
  */
+<<<<<<< HEAD
 int nfs4_proc_get_locations(struct inode *inode,
 			    struct nfs4_fs_locations *locations,
 			    struct page *page, struct rpc_cred *cred)
@@ -7388,16 +9538,37 @@ int nfs4_proc_get_locations(struct inode *inode,
 	const struct nfs4_mig_recovery_ops *ops =
 					clp->cl_mvops->mig_recovery_ops;
 	struct nfs4_exception exception = { };
+=======
+int nfs4_proc_get_locations(struct nfs_server *server,
+			    struct nfs_fh *fhandle,
+			    struct nfs4_fs_locations *locations,
+			    struct page *page, const struct cred *cred)
+{
+	struct nfs_client *clp = server->nfs_client;
+	const struct nfs4_mig_recovery_ops *ops =
+					clp->cl_mvops->mig_recovery_ops;
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int status;
 
 	dprintk("%s: FSID %llx:%llx on \"%s\"\n", __func__,
 		(unsigned long long)server->fsid.major,
 		(unsigned long long)server->fsid.minor,
 		clp->cl_hostname);
+<<<<<<< HEAD
 	nfs_display_fhandle(NFS_FH(inode), __func__);
 
 	do {
 		status = ops->get_locations(inode, locations, page, cred);
+=======
+	nfs_display_fhandle(fhandle, __func__);
+
+	do {
+		status = ops->get_locations(server, fhandle, locations, page,
+					    cred);
+>>>>>>> upstream/android-13
 		if (status != -NFS4ERR_DELAY)
 			break;
 		nfs4_handle_exception(server, status, &exception);
@@ -7412,7 +9583,11 @@ int nfs4_proc_get_locations(struct inode *inode,
  * is appended to this compound to identify the client ID which is
  * performing recovery.
  */
+<<<<<<< HEAD
 static int _nfs40_proc_fsid_present(struct inode *inode, struct rpc_cred *cred)
+=======
+static int _nfs40_proc_fsid_present(struct inode *inode, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs_server *server = NFS_SERVER(inode);
 	struct nfs_client *clp = NFS_SERVER(inode)->nfs_client;
@@ -7458,7 +9633,11 @@ static int _nfs40_proc_fsid_present(struct inode *inode, struct rpc_cred *cred)
  * this operation is identified in the SEQUENCE operation in this
  * compound.
  */
+<<<<<<< HEAD
 static int _nfs41_proc_fsid_present(struct inode *inode, struct rpc_cred *cred)
+=======
+static int _nfs41_proc_fsid_present(struct inode *inode, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs_server *server = NFS_SERVER(inode);
 	struct rpc_clnt *clnt = server->client;
@@ -7505,13 +9684,23 @@ static int _nfs41_proc_fsid_present(struct inode *inode, struct rpc_cred *cred)
  *  NFS4ERR code if some error occurred on the server, or a
  *  negative errno if a local failure occurred.
  */
+<<<<<<< HEAD
 int nfs4_proc_fsid_present(struct inode *inode, struct rpc_cred *cred)
+=======
+int nfs4_proc_fsid_present(struct inode *inode, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs_server *server = NFS_SERVER(inode);
 	struct nfs_client *clp = server->nfs_client;
 	const struct nfs4_mig_recovery_ops *ops =
 					clp->cl_mvops->mig_recovery_ops;
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int status;
 
 	dprintk("%s: FSID %llx:%llx on \"%s\"\n", __func__,
@@ -7529,7 +9718,11 @@ int nfs4_proc_fsid_present(struct inode *inode, struct rpc_cred *cred)
 	return status;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * If 'use_integrity' is true and the state managment nfs_client
  * cl_rpcclient is using krb5i/p, use the integrity protected cl_rpcclient
  * and the machine credential as per RFC3530bis and RFC5661 Security
@@ -7539,6 +9732,11 @@ int nfs4_proc_fsid_present(struct inode *inode, struct rpc_cred *cred)
 static int _nfs4_proc_secinfo(struct inode *dir, const struct qstr *name, struct nfs4_secinfo_flavors *flavors, bool use_integrity)
 {
 	int status;
+<<<<<<< HEAD
+=======
+	struct rpc_clnt *clnt = NFS_SERVER(dir)->client;
+	struct nfs_client *clp = NFS_SERVER(dir)->nfs_client;
+>>>>>>> upstream/android-13
 	struct nfs4_secinfo_arg args = {
 		.dir_fh = NFS_FH(dir),
 		.name   = name,
@@ -7551,17 +9749,40 @@ static int _nfs4_proc_secinfo(struct inode *dir, const struct qstr *name, struct
 		.rpc_argp = &args,
 		.rpc_resp = &res,
 	};
+<<<<<<< HEAD
 	struct rpc_clnt *clnt = NFS_SERVER(dir)->client;
 	struct rpc_cred *cred = NULL;
 
 	if (use_integrity) {
 		clnt = NFS_SERVER(dir)->nfs_client->cl_rpcclient;
 		cred = nfs4_get_clid_cred(NFS_SERVER(dir)->nfs_client);
+=======
+	struct nfs4_call_sync_data data = {
+		.seq_server = NFS_SERVER(dir),
+		.seq_args = &args.seq_args,
+		.seq_res = &res.seq_res,
+	};
+	struct rpc_task_setup task_setup = {
+		.rpc_client = clnt,
+		.rpc_message = &msg,
+		.callback_ops = clp->cl_mvops->call_sync_ops,
+		.callback_data = &data,
+		.flags = RPC_TASK_NO_ROUND_ROBIN,
+	};
+	const struct cred *cred = NULL;
+
+	if (use_integrity) {
+		clnt = clp->cl_rpcclient;
+		task_setup.rpc_client = clnt;
+
+		cred = nfs4_get_clid_cred(clp);
+>>>>>>> upstream/android-13
 		msg.rpc_cred = cred;
 	}
 
 	dprintk("NFS call  secinfo %s\n", name->name);
 
+<<<<<<< HEAD
 	nfs4_state_protect(NFS_SERVER(dir)->nfs_client,
 		NFS_SP4_MACH_CRED_SECINFO, &clnt, &msg);
 
@@ -7572,13 +9793,28 @@ static int _nfs4_proc_secinfo(struct inode *dir, const struct qstr *name, struct
 	if (cred)
 		put_rpccred(cred);
 
+=======
+	nfs4_state_protect(clp, NFS_SP4_MACH_CRED_SECINFO, &clnt, &msg);
+	nfs4_init_sequence(&args.seq_args, &res.seq_res, 0, 0);
+	status = nfs4_call_sync_custom(&task_setup);
+
+	dprintk("NFS reply  secinfo: %d\n", status);
+
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	return status;
 }
 
 int nfs4_proc_secinfo(struct inode *dir, const struct qstr *name,
 		      struct nfs4_secinfo_flavors *flavors)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = -NFS4ERR_WRONGSEC;
@@ -7637,6 +9873,26 @@ nfs41_same_server_scope(struct nfs41_server_scope *a,
 static void
 nfs4_bind_one_conn_to_session_done(struct rpc_task *task, void *calldata)
 {
+<<<<<<< HEAD
+=======
+	struct nfs41_bind_conn_to_session_args *args = task->tk_msg.rpc_argp;
+	struct nfs41_bind_conn_to_session_res *res = task->tk_msg.rpc_resp;
+	struct nfs_client *clp = args->client;
+
+	switch (task->tk_status) {
+	case -NFS4ERR_BADSESSION:
+	case -NFS4ERR_DEADSESSION:
+		nfs4_schedule_session_recovery(clp->cl_session,
+				task->tk_status);
+		return;
+	}
+	if (args->dir == NFS4_CDFC4_FORE_OR_BOTH &&
+			res->dir != NFS4_CDFS4_BOTH) {
+		rpc_task_close_connection(task);
+		if (args->retries++ < MAX_BIND_CONN_TO_SESSION_RETRIES)
+			rpc_restart_call(task);
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct rpc_call_ops nfs4_bind_one_conn_to_session_ops = {
@@ -7653,12 +9909,20 @@ static
 int nfs4_proc_bind_one_conn_to_session(struct rpc_clnt *clnt,
 		struct rpc_xprt *xprt,
 		struct nfs_client *clp,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int status;
 	struct nfs41_bind_conn_to_session_args args = {
 		.client = clp,
 		.dir = NFS4_CDFC4_FORE_OR_BOTH,
+<<<<<<< HEAD
+=======
+		.retries = 0,
+>>>>>>> upstream/android-13
 	};
 	struct nfs41_bind_conn_to_session_res res;
 	struct rpc_message msg = {
@@ -7715,7 +9979,11 @@ int nfs4_proc_bind_one_conn_to_session(struct rpc_clnt *clnt,
 
 struct rpc_bind_conn_calldata {
 	struct nfs_client *clp;
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 };
 
 static int
@@ -7728,7 +9996,11 @@ nfs4_proc_bind_conn_to_session_callback(struct rpc_clnt *clnt,
 	return nfs4_proc_bind_one_conn_to_session(clnt, xprt, p->clp, p->cred);
 }
 
+<<<<<<< HEAD
 int nfs4_proc_bind_conn_to_session(struct nfs_client *clp, struct rpc_cred *cred)
+=======
+int nfs4_proc_bind_conn_to_session(struct nfs_client *clp, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct rpc_bind_conn_calldata data = {
 		.clp = clp,
@@ -7894,7 +10166,11 @@ static const struct rpc_call_ops nfs4_exchange_id_call_ops = {
  * Wrapper for EXCHANGE_ID operation.
  */
 static struct rpc_task *
+<<<<<<< HEAD
 nfs4_run_exchange_id(struct nfs_client *clp, struct rpc_cred *cred,
+=======
+nfs4_run_exchange_id(struct nfs_client *clp, const struct cred *cred,
+>>>>>>> upstream/android-13
 			u32 sp4_how, struct rpc_xprt *xprt)
 {
 	struct rpc_message msg = {
@@ -7905,7 +10181,11 @@ nfs4_run_exchange_id(struct nfs_client *clp, struct rpc_cred *cred,
 		.rpc_client = clp->cl_rpcclient,
 		.callback_ops = &nfs4_exchange_id_call_ops,
 		.rpc_message = &msg,
+<<<<<<< HEAD
 		.flags = RPC_TASK_TIMEOUT,
+=======
+		.flags = RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN,
+>>>>>>> upstream/android-13
 	};
 	struct nfs41_exchange_id_data *calldata;
 	int status;
@@ -7990,12 +10270,20 @@ out:
  *
  * Wrapper for EXCHANGE_ID operation.
  */
+<<<<<<< HEAD
 static int _nfs4_proc_exchange_id(struct nfs_client *clp, struct rpc_cred *cred,
+=======
+static int _nfs4_proc_exchange_id(struct nfs_client *clp, const struct cred *cred,
+>>>>>>> upstream/android-13
 			u32 sp4_how)
 {
 	struct rpc_task *task;
 	struct nfs41_exchange_id_args *argp;
 	struct nfs41_exchange_id_res *resp;
+<<<<<<< HEAD
+=======
+	unsigned long now = jiffies;
+>>>>>>> upstream/android-13
 	int status;
 
 	task = nfs4_run_exchange_id(clp, cred, sp4_how, NULL);
@@ -8017,6 +10305,11 @@ static int _nfs4_proc_exchange_id(struct nfs_client *clp, struct rpc_cred *cred,
 	if (status != 0)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	do_renew_lease(clp, now);
+
+>>>>>>> upstream/android-13
 	clp->cl_clientid = resp->clientid;
 	clp->cl_exchange_flags = resp->flags;
 	clp->cl_seqid = resp->seqid;
@@ -8058,7 +10351,11 @@ out:
  *
  * Will attempt to negotiate SP4_MACH_CRED if krb5i / krb5p auth is used.
  */
+<<<<<<< HEAD
 int nfs4_proc_exchange_id(struct nfs_client *clp, struct rpc_cred *cred)
+=======
+int nfs4_proc_exchange_id(struct nfs_client *clp, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	rpc_authflavor_t authflavor = clp->cl_rpcclient->cl_auth->au_flavor;
 	int status;
@@ -8090,7 +10387,11 @@ int nfs4_proc_exchange_id(struct nfs_client *clp, struct rpc_cred *cred)
  * @xprt: the rpc_xprt to test
  * @data: call data for _nfs4_proc_exchange_id.
  */
+<<<<<<< HEAD
 int nfs4_test_session_trunk(struct rpc_clnt *clnt, struct rpc_xprt *xprt,
+=======
+void nfs4_test_session_trunk(struct rpc_clnt *clnt, struct rpc_xprt *xprt,
+>>>>>>> upstream/android-13
 			    void *data)
 {
 	struct nfs4_add_xprt_data *adata = (struct nfs4_add_xprt_data *)data;
@@ -8107,20 +10408,35 @@ int nfs4_test_session_trunk(struct rpc_clnt *clnt, struct rpc_xprt *xprt,
 	/* Test connection for session trunking. Async exchange_id call */
 	task = nfs4_run_exchange_id(adata->clp, adata->cred, sp4_how, xprt);
 	if (IS_ERR(task))
+<<<<<<< HEAD
 		return PTR_ERR(task);
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	status = task->tk_status;
 	if (status == 0)
 		status = nfs4_detect_session_trunking(adata->clp,
 				task->tk_msg.rpc_resp, xprt);
 
+<<<<<<< HEAD
 	rpc_put_task(task);
 	return status;
+=======
+	if (status == 0)
+		rpc_clnt_xprt_switch_add_xprt(clnt, xprt);
+
+	rpc_put_task(task);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nfs4_test_session_trunk);
 
 static int _nfs4_proc_destroy_clientid(struct nfs_client *clp,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct rpc_message msg = {
 		.rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_DESTROY_CLIENTID],
@@ -8129,7 +10445,12 @@ static int _nfs4_proc_destroy_clientid(struct nfs_client *clp,
 	};
 	int status;
 
+<<<<<<< HEAD
 	status = rpc_call_sync(clp->cl_rpcclient, &msg, RPC_TASK_TIMEOUT);
+=======
+	status = rpc_call_sync(clp->cl_rpcclient, &msg,
+			       RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN);
+>>>>>>> upstream/android-13
 	trace_nfs4_destroy_clientid(clp, status);
 	if (status)
 		dprintk("NFS: Got error %d from the server %s on "
@@ -8138,7 +10459,11 @@ static int _nfs4_proc_destroy_clientid(struct nfs_client *clp,
 }
 
 static int nfs4_proc_destroy_clientid(struct nfs_client *clp,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	unsigned int loop;
 	int ret;
@@ -8159,7 +10484,11 @@ static int nfs4_proc_destroy_clientid(struct nfs_client *clp,
 
 int nfs4_destroy_clientid(struct nfs_client *clp)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred;
+=======
+	const struct cred *cred;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (clp->cl_mvops->minor_version < 1)
@@ -8170,8 +10499,12 @@ int nfs4_destroy_clientid(struct nfs_client *clp)
 		goto out;
 	cred = nfs4_get_clid_cred(clp);
 	ret = nfs4_proc_destroy_clientid(clp, cred);
+<<<<<<< HEAD
 	if (cred)
 		put_rpccred(cred);
+=======
+	put_cred(cred);
+>>>>>>> upstream/android-13
 	switch (ret) {
 	case 0:
 	case -NFS4ERR_STALE_CLIENTID:
@@ -8181,6 +10514,11 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#endif /* CONFIG_NFS_V4_1 */
+
+>>>>>>> upstream/android-13
 struct nfs4_get_lease_time_data {
 	struct nfs4_get_lease_time_args *args;
 	struct nfs4_get_lease_time_res *res;
@@ -8213,7 +10551,11 @@ static void nfs4_get_lease_time_done(struct rpc_task *task, void *calldata)
 			(struct nfs4_get_lease_time_data *)calldata;
 
 	dprintk("--> %s\n", __func__);
+<<<<<<< HEAD
 	if (!nfs41_sequence_done(task, &data->res->lr_seq_res))
+=======
+	if (!nfs4_sequence_done(task, &data->res->lr_seq_res))
+>>>>>>> upstream/android-13
 		return;
 	switch (task->tk_status) {
 	case -NFS4ERR_DELAY:
@@ -8221,7 +10563,11 @@ static void nfs4_get_lease_time_done(struct rpc_task *task, void *calldata)
 		dprintk("%s Retry: tk_status %d\n", __func__, task->tk_status);
 		rpc_delay(task, NFS4_POLL_RETRY_MIN);
 		task->tk_status = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -NFS4ERR_RETRY_UNCACHED_REP:
 		rpc_restart_call_prepare(task);
 		return;
@@ -8236,7 +10582,10 @@ static const struct rpc_call_ops nfs4_get_lease_time_ops = {
 
 int nfs4_proc_get_lease_time(struct nfs_client *clp, struct nfs_fsinfo *fsinfo)
 {
+<<<<<<< HEAD
 	struct rpc_task *task;
+=======
+>>>>>>> upstream/android-13
 	struct nfs4_get_lease_time_args args;
 	struct nfs4_get_lease_time_res res = {
 		.lr_fsinfo = fsinfo,
@@ -8258,6 +10607,7 @@ int nfs4_proc_get_lease_time(struct nfs_client *clp, struct nfs_fsinfo *fsinfo)
 		.callback_data = &data,
 		.flags = RPC_TASK_TIMEOUT,
 	};
+<<<<<<< HEAD
 	int status;
 
 	nfs4_init_sequence(&args.la_seq_args, &res.lr_seq_res, 0, 1);
@@ -8271,6 +10621,15 @@ int nfs4_proc_get_lease_time(struct nfs_client *clp, struct nfs_fsinfo *fsinfo)
 	return status;
 }
 
+=======
+
+	nfs4_init_sequence(&args.la_seq_args, &res.lr_seq_res, 0, 1);
+	return nfs4_call_sync_custom(&task_setup);
+}
+
+#ifdef CONFIG_NFS_V4_1
+
+>>>>>>> upstream/android-13
 /*
  * Initialize the values to be used by the client in CREATE_SESSION
  * If nfs4_init_session set the fore channel request and response sizes,
@@ -8285,6 +10644,10 @@ static void nfs4_init_channel_attrs(struct nfs41_create_session_args *args,
 {
 	unsigned int max_rqst_sz, max_resp_sz;
 	unsigned int max_bc_payload = rpc_max_bc_payload(clnt);
+<<<<<<< HEAD
+=======
+	unsigned int max_bc_slots = rpc_num_bc_slots(clnt);
+>>>>>>> upstream/android-13
 
 	max_rqst_sz = NFS_MAX_FILE_IO_SIZE + nfs41_maxwrite_overhead;
 	max_resp_sz = NFS_MAX_FILE_IO_SIZE + nfs41_maxread_overhead;
@@ -8307,6 +10670,11 @@ static void nfs4_init_channel_attrs(struct nfs41_create_session_args *args,
 	args->bc_attrs.max_resp_sz_cached = 0;
 	args->bc_attrs.max_ops = NFS4_MAX_BACK_CHANNEL_OPS;
 	args->bc_attrs.max_reqs = max_t(unsigned short, max_session_cb_slots, 1);
+<<<<<<< HEAD
+=======
+	if (args->bc_attrs.max_reqs > max_bc_slots)
+		args->bc_attrs.max_reqs = max_bc_slots;
+>>>>>>> upstream/android-13
 
 	dprintk("%s: Back Channel : max_rqst_sz=%u max_resp_sz=%u "
 		"max_resp_sz_cached=%u max_ops=%u max_reqs=%u\n",
@@ -8387,7 +10755,11 @@ static void nfs4_update_session(struct nfs4_session *session,
 }
 
 static int _nfs4_proc_create_session(struct nfs_client *clp,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_session *session = clp->cl_session;
 	struct nfs41_create_session_args args = {
@@ -8409,7 +10781,12 @@ static int _nfs4_proc_create_session(struct nfs_client *clp,
 	nfs4_init_channel_attrs(&args, clp->cl_rpcclient);
 	args.flags = (SESSION4_PERSIST | SESSION4_BACK_CHAN);
 
+<<<<<<< HEAD
 	status = rpc_call_sync(session->clp->cl_rpcclient, &msg, RPC_TASK_TIMEOUT);
+=======
+	status = rpc_call_sync(session->clp->cl_rpcclient, &msg,
+			       RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN);
+>>>>>>> upstream/android-13
 	trace_nfs4_create_session(clp, status);
 
 	switch (status) {
@@ -8419,7 +10796,11 @@ static int _nfs4_proc_create_session(struct nfs_client *clp,
 	case -EACCES:
 	case -EAGAIN:
 		goto out;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	clp->cl_seqid++;
 	if (!status) {
@@ -8439,7 +10820,11 @@ out:
  * It is the responsibility of the caller to verify the session is
  * expired before calling this routine.
  */
+<<<<<<< HEAD
 int nfs4_proc_create_session(struct nfs_client *clp, struct rpc_cred *cred)
+=======
+int nfs4_proc_create_session(struct nfs_client *clp, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int status;
 	unsigned *ptr;
@@ -8470,7 +10855,11 @@ out:
  * The caller must serialize access to this routine.
  */
 int nfs4_proc_destroy_session(struct nfs4_session *session,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct rpc_message msg = {
 		.rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_DESTROY_SESSION],
@@ -8485,7 +10874,12 @@ int nfs4_proc_destroy_session(struct nfs4_session *session,
 	if (!test_and_clear_bit(NFS4_SESSION_ESTABLISHED, &session->session_state))
 		return 0;
 
+<<<<<<< HEAD
 	status = rpc_call_sync(session->clp->cl_rpcclient, &msg, RPC_TASK_TIMEOUT);
+=======
+	status = rpc_call_sync(session->clp->cl_rpcclient, &msg,
+			       RPC_TASK_TIMEOUT | RPC_TASK_NO_ROUND_ROBIN);
+>>>>>>> upstream/android-13
 	trace_nfs4_destroy_session(session->clp, status);
 
 	if (status)
@@ -8572,7 +10966,11 @@ static const struct rpc_call_ops nfs41_sequence_ops = {
 };
 
 static struct rpc_task *_nfs41_proc_sequence(struct nfs_client *clp,
+<<<<<<< HEAD
 		struct rpc_cred *cred,
+=======
+		const struct cred *cred,
+>>>>>>> upstream/android-13
 		struct nfs4_slot *slot,
 		bool is_privileged)
 {
@@ -8585,7 +10983,11 @@ static struct rpc_task *_nfs41_proc_sequence(struct nfs_client *clp,
 		.rpc_client = clp->cl_rpcclient,
 		.rpc_message = &msg,
 		.callback_ops = &nfs41_sequence_ops,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC | RPC_TASK_TIMEOUT,
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_TIMEOUT | RPC_TASK_MOVEABLE,
+>>>>>>> upstream/android-13
 	};
 	struct rpc_task *ret;
 
@@ -8615,7 +11017,11 @@ out_err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int nfs41_proc_async_sequence(struct nfs_client *clp, struct rpc_cred *cred, unsigned renew_flags)
+=======
+static int nfs41_proc_async_sequence(struct nfs_client *clp, const struct cred *cred, unsigned renew_flags)
+>>>>>>> upstream/android-13
 {
 	struct rpc_task *task;
 	int ret = 0;
@@ -8631,7 +11037,11 @@ static int nfs41_proc_async_sequence(struct nfs_client *clp, struct rpc_cred *cr
 	return ret;
 }
 
+<<<<<<< HEAD
 static int nfs4_proc_sequence(struct nfs_client *clp, struct rpc_cred *cred)
+=======
+static int nfs4_proc_sequence(struct nfs_client *clp, const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct rpc_task *task;
 	int ret;
@@ -8671,20 +11081,31 @@ static int nfs41_reclaim_complete_handle_errors(struct rpc_task *task, struct nf
 	switch(task->tk_status) {
 	case 0:
 		wake_up_all(&clp->cl_lock_waitq);
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -NFS4ERR_COMPLETE_ALREADY:
 	case -NFS4ERR_WRONG_CRED: /* What to do here? */
 		break;
 	case -NFS4ERR_DELAY:
 		rpc_delay(task, NFS4_POLL_RETRY_MAX);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -NFS4ERR_RETRY_UNCACHED_REP:
 		return -EAGAIN;
 	case -NFS4ERR_BADSESSION:
 	case -NFS4ERR_DEADSESSION:
 	case -NFS4ERR_CONN_NOT_BOUND_TO_SESSION:
+<<<<<<< HEAD
 		nfs4_schedule_session_recovery(clp->cl_session,
 				task->tk_status);
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		nfs4_schedule_lease_recovery(clp);
@@ -8727,10 +11148,16 @@ static const struct rpc_call_ops nfs4_reclaim_complete_call_ops = {
  * Issue a global reclaim complete.
  */
 static int nfs41_proc_reclaim_complete(struct nfs_client *clp,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
 {
 	struct nfs4_reclaim_complete_data *calldata;
 	struct rpc_task *task;
+=======
+		const struct cred *cred)
+{
+	struct nfs4_reclaim_complete_data *calldata;
+>>>>>>> upstream/android-13
 	struct rpc_message msg = {
 		.rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_RECLAIM_COMPLETE],
 		.rpc_cred = cred,
@@ -8739,7 +11166,11 @@ static int nfs41_proc_reclaim_complete(struct nfs_client *clp,
 		.rpc_client = clp->cl_rpcclient,
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_reclaim_complete_call_ops,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
+=======
+		.flags = RPC_TASK_NO_ROUND_ROBIN,
+>>>>>>> upstream/android-13
 	};
 	int status = -ENOMEM;
 
@@ -8754,6 +11185,7 @@ static int nfs41_proc_reclaim_complete(struct nfs_client *clp,
 	msg.rpc_argp = &calldata->arg;
 	msg.rpc_resp = &calldata->res;
 	task_setup_data.callback_data = calldata;
+<<<<<<< HEAD
 	task = rpc_run_task(&task_setup_data);
 	if (IS_ERR(task)) {
 		status = PTR_ERR(task);
@@ -8763,6 +11195,9 @@ static int nfs41_proc_reclaim_complete(struct nfs_client *clp,
 	if (status == 0)
 		status = task->tk_status;
 	rpc_put_task(task);
+=======
+	status = nfs4_call_sync_custom(&task_setup_data);
+>>>>>>> upstream/android-13
 out:
 	dprintk("<-- %s status=%d\n", __func__, status);
 	return status;
@@ -8795,7 +11230,11 @@ nfs4_layoutget_handle_exception(struct rpc_task *task,
 {
 	struct inode *inode = lgp->args.inode;
 	struct nfs_server *server = NFS_SERVER(inode);
+<<<<<<< HEAD
 	struct pnfs_layout_hdr *lo;
+=======
+	struct pnfs_layout_hdr *lo = lgp->lo;
+>>>>>>> upstream/android-13
 	int nfs4err = task->tk_status;
 	int err, status = 0;
 	LIST_HEAD(head);
@@ -8847,7 +11286,10 @@ nfs4_layoutget_handle_exception(struct rpc_task *task,
 	case -NFS4ERR_BAD_STATEID:
 		exception->timeout = 0;
 		spin_lock(&inode->i_lock);
+<<<<<<< HEAD
 		lo = NFS_I(inode)->layout;
+=======
+>>>>>>> upstream/android-13
 		/* If the open stateid was bad, then recover it. */
 		if (!lo || test_bit(NFS_LAYOUT_INVALID_STID, &lo->plh_flags) ||
 		    !nfs4_stateid_match_other(&lgp->args.stateid, &lo->plh_stateid)) {
@@ -8919,7 +11361,12 @@ nfs4_proc_layoutget(struct nfs4_layoutget *lgp, long *timeout)
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_layoutget_call_ops,
 		.callback_data = lgp,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_CRED_NOREF |
+			 RPC_TASK_MOVEABLE,
+>>>>>>> upstream/android-13
 	};
 	struct pnfs_layout_segment *lseg = NULL;
 	struct nfs4_exception exception = {
@@ -8930,6 +11377,7 @@ nfs4_proc_layoutget(struct nfs4_layoutget *lgp, long *timeout)
 
 	dprintk("--> %s\n", __func__);
 
+<<<<<<< HEAD
 	/* nfs4_layoutget_release calls pnfs_put_layout_hdr */
 	pnfs_get_layout_hdr(NFS_I(inode)->layout);
 
@@ -8938,14 +11386,29 @@ nfs4_proc_layoutget(struct nfs4_layoutget *lgp, long *timeout)
 	task = rpc_run_task(&task_setup_data);
 	if (IS_ERR(task))
 		return ERR_CAST(task);
+=======
+	nfs4_init_sequence(&lgp->args.seq_args, &lgp->res.seq_res, 0, 0);
+
+	task = rpc_run_task(&task_setup_data);
+
+>>>>>>> upstream/android-13
 	status = rpc_wait_for_completion_task(task);
 	if (status != 0)
 		goto out;
 
+<<<<<<< HEAD
 	/* if layoutp->len is 0, nfs4_layoutget_prepare called rpc_exit */
 	if (task->tk_status < 0 || lgp->res.layoutp->len == 0) {
 		status = nfs4_layoutget_handle_exception(task, lgp, &exception);
 		*timeout = exception.timeout;
+=======
+	if (task->tk_status < 0) {
+		status = nfs4_layoutget_handle_exception(task, lgp, &exception);
+		*timeout = exception.timeout;
+	} else if (lgp->res.layoutp->len == 0) {
+		status = -EAGAIN;
+		*timeout = nfs4_update_delay(&exception.timeout);
+>>>>>>> upstream/android-13
 	} else
 		lseg = pnfs_layout_process(lgp);
 out:
@@ -8986,6 +11449,7 @@ static void nfs4_layoutreturn_done(struct rpc_task *task, void *calldata)
 	if (!nfs41_sequence_process(task, &lrp->res.seq_res))
 		return;
 
+<<<<<<< HEAD
 	server = NFS_SERVER(lrp->args.inode);
 	switch (task->tk_status) {
 	case -NFS4ERR_OLD_STATEID:
@@ -8997,6 +11461,28 @@ static void nfs4_layoutreturn_done(struct rpc_task *task, void *calldata)
 	default:
 		task->tk_status = 0;
 		/* Fallthrough */
+=======
+	/*
+	 * Was there an RPC level error? Assume the call succeeded,
+	 * and that we need to release the layout
+	 */
+	if (task->tk_rpc_status != 0 && RPC_WAS_SENT(task)) {
+		lrp->res.lrs_present = 0;
+		return;
+	}
+
+	server = NFS_SERVER(lrp->args.inode);
+	switch (task->tk_status) {
+	case -NFS4ERR_OLD_STATEID:
+		if (nfs4_layout_refresh_old_stateid(&lrp->args.stateid,
+					&lrp->args.range,
+					lrp->args.inode))
+			goto out_restart;
+		fallthrough;
+	default:
+		task->tk_status = 0;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		break;
 	case -NFS4ERR_DELAY:
@@ -9025,6 +11511,10 @@ static void nfs4_layoutreturn_release(void *calldata)
 		lrp->ld_private.ops->free(&lrp->ld_private);
 	pnfs_put_layout_hdr(lrp->args.layout);
 	nfs_iput_and_deactive(lrp->inode);
+<<<<<<< HEAD
+=======
+	put_cred(lrp->cred);
+>>>>>>> upstream/android-13
 	kfree(calldata);
 	dprintk("<-- %s\n", __func__);
 }
@@ -9049,6 +11539,10 @@ int nfs4_proc_layoutreturn(struct nfs4_layoutreturn *lrp, bool sync)
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_layoutreturn_call_ops,
 		.callback_data = lrp,
+<<<<<<< HEAD
+=======
+		.flags = RPC_TASK_MOVEABLE,
+>>>>>>> upstream/android-13
 	};
 	int status = 0;
 
@@ -9057,15 +11551,29 @@ int nfs4_proc_layoutreturn(struct nfs4_layoutreturn *lrp, bool sync)
 			&task_setup_data.rpc_client, &msg);
 
 	dprintk("--> %s\n", __func__);
+<<<<<<< HEAD
 	if (!sync) {
 		lrp->inode = nfs_igrab_and_active(lrp->args.inode);
+=======
+	lrp->inode = nfs_igrab_and_active(lrp->args.inode);
+	if (!sync) {
+>>>>>>> upstream/android-13
 		if (!lrp->inode) {
 			nfs4_layoutreturn_release(lrp);
 			return -EAGAIN;
 		}
 		task_setup_data.flags |= RPC_TASK_ASYNC;
 	}
+<<<<<<< HEAD
 	nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1, 0);
+=======
+	if (!lrp->inode)
+		nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1,
+				   1);
+	else
+		nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1,
+				   0);
+>>>>>>> upstream/android-13
 	task = rpc_run_task(&task_setup_data);
 	if (IS_ERR(task))
 		return PTR_ERR(task);
@@ -9080,7 +11588,11 @@ int nfs4_proc_layoutreturn(struct nfs4_layoutreturn *lrp, bool sync)
 static int
 _nfs4_proc_getdeviceinfo(struct nfs_server *server,
 		struct pnfs_device *pdev,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_getdeviceinfo_args args = {
 		.pdev = pdev,
@@ -9105,6 +11617,11 @@ _nfs4_proc_getdeviceinfo(struct nfs_server *server,
 	if (res.notification != args.notify_types)
 		pdev->nocache = 1;
 
+<<<<<<< HEAD
+=======
+	trace_nfs4_getdeviceinfo(server, &pdev->dev_id, status);
+
+>>>>>>> upstream/android-13
 	dprintk("<-- %s status=%d\n", __func__, status);
 
 	return status;
@@ -9112,7 +11629,11 @@ _nfs4_proc_getdeviceinfo(struct nfs_server *server,
 
 int nfs4_proc_getdeviceinfo(struct nfs_server *server,
 		struct pnfs_device *pdev,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	struct nfs4_exception exception = { };
 	int err;
@@ -9152,6 +11673,10 @@ nfs4_layoutcommit_done(struct rpc_task *task, void *calldata)
 	case -NFS4ERR_BADLAYOUT:     /* no layout */
 	case -NFS4ERR_GRACE:	    /* loca_recalim always false */
 		task->tk_status = 0;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case 0:
 		break;
 	default:
@@ -9169,7 +11694,11 @@ static void nfs4_layoutcommit_release(void *calldata)
 	pnfs_cleanup_layoutcommit(data);
 	nfs_post_op_update_inode_force_wcc(data->args.inode,
 					   data->res.fattr);
+<<<<<<< HEAD
 	put_rpccred(data->cred);
+=======
+	put_cred(data->cred);
+>>>>>>> upstream/android-13
 	nfs_iput_and_deactive(data->inode);
 	kfree(data);
 }
@@ -9195,6 +11724,10 @@ nfs4_proc_layoutcommit(struct nfs4_layoutcommit_data *data, bool sync)
 		.rpc_message = &msg,
 		.callback_ops = &nfs4_layoutcommit_ops,
 		.callback_data = data,
+<<<<<<< HEAD
+=======
+		.flags = RPC_TASK_MOVEABLE,
+>>>>>>> upstream/android-13
 	};
 	struct rpc_task *task;
 	int status = 0;
@@ -9224,7 +11757,11 @@ nfs4_proc_layoutcommit(struct nfs4_layoutcommit_data *data, bool sync)
 	return status;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Use the state managment nfs_client cl_rpcclient, which uses krb5i (if
  * possible) as per RFC3530bis and RFC5661 Security Considerations sections
  */
@@ -9244,23 +11781,52 @@ _nfs41_proc_secinfo_no_name(struct nfs_server *server, struct nfs_fh *fhandle,
 		.rpc_argp = &args,
 		.rpc_resp = &res,
 	};
+<<<<<<< HEAD
 	struct rpc_clnt *clnt = server->client;
 	struct rpc_cred *cred = NULL;
 	int status;
 
 	if (use_integrity) {
 		clnt = server->nfs_client->cl_rpcclient;
+=======
+	struct nfs4_call_sync_data data = {
+		.seq_server = server,
+		.seq_args = &args.seq_args,
+		.seq_res = &res.seq_res,
+	};
+	struct rpc_task_setup task_setup = {
+		.rpc_client = server->client,
+		.rpc_message = &msg,
+		.callback_ops = server->nfs_client->cl_mvops->call_sync_ops,
+		.callback_data = &data,
+		.flags = RPC_TASK_NO_ROUND_ROBIN,
+	};
+	const struct cred *cred = NULL;
+	int status;
+
+	if (use_integrity) {
+		task_setup.rpc_client = server->nfs_client->cl_rpcclient;
+
+>>>>>>> upstream/android-13
 		cred = nfs4_get_clid_cred(server->nfs_client);
 		msg.rpc_cred = cred;
 	}
 
 	dprintk("--> %s\n", __func__);
+<<<<<<< HEAD
 	status = nfs4_call_sync(clnt, server, &msg, &args.seq_args,
 				&res.seq_res, 0);
 	dprintk("<-- %s status=%d\n", __func__, status);
 
 	if (cred)
 		put_rpccred(cred);
+=======
+	nfs4_init_sequence(&args.seq_args, &res.seq_res, 0, 0);
+	status = nfs4_call_sync_custom(&task_setup);
+	dprintk("<-- %s status=%d\n", __func__, status);
+
+	put_cred(cred);
+>>>>>>> upstream/android-13
 
 	return status;
 }
@@ -9269,7 +11835,13 @@ static int
 nfs41_proc_secinfo_no_name(struct nfs_server *server, struct nfs_fh *fhandle,
 			   struct nfs_fsinfo *info, struct nfs4_secinfo_flavors *flavors)
 {
+<<<<<<< HEAD
 	struct nfs4_exception exception = { };
+=======
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		/* first try using integrity protection */
@@ -9373,7 +11945,11 @@ out:
 
 static int _nfs41_test_stateid(struct nfs_server *server,
 		nfs4_stateid *stateid,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
+=======
+		const struct cred *cred)
+>>>>>>> upstream/android-13
 {
 	int status;
 	struct nfs41_test_stateid_args args = {
@@ -9434,9 +12010,17 @@ static void nfs4_handle_delay_or_session_error(struct nfs_server *server,
  */
 static int nfs41_test_stateid(struct nfs_server *server,
 		nfs4_stateid *stateid,
+<<<<<<< HEAD
 		struct rpc_cred *cred)
 {
 	struct nfs4_exception exception = { };
+=======
+		const struct cred *cred)
+{
+	struct nfs4_exception exception = {
+		.interruptible = true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 	do {
 		err = _nfs41_test_stateid(server, stateid, cred);
@@ -9490,13 +12074,21 @@ static const struct rpc_call_ops nfs41_free_stateid_ops = {
  * @server: server / transport on which to perform the operation
  * @stateid: state ID to release
  * @cred: credential
+<<<<<<< HEAD
  * @is_recovery: set to true if this call needs to be privileged
+=======
+ * @privileged: set to true if this call needs to be privileged
+>>>>>>> upstream/android-13
  *
  * Note: this function is always asynchronous.
  */
 static int nfs41_free_stateid(struct nfs_server *server,
 		const nfs4_stateid *stateid,
+<<<<<<< HEAD
 		struct rpc_cred *cred,
+=======
+		const struct cred *cred,
+>>>>>>> upstream/android-13
 		bool privileged)
 {
 	struct rpc_message msg = {
@@ -9507,7 +12099,11 @@ static int nfs41_free_stateid(struct nfs_server *server,
 		.rpc_client = server->client,
 		.rpc_message = &msg,
 		.callback_ops = &nfs41_free_stateid_ops,
+<<<<<<< HEAD
 		.flags = RPC_TASK_ASYNC,
+=======
+		.flags = RPC_TASK_ASYNC | RPC_TASK_MOVEABLE,
+>>>>>>> upstream/android-13
 	};
 	struct nfs_free_stateid_data *data;
 	struct rpc_task *task;
@@ -9537,7 +12133,11 @@ static int nfs41_free_stateid(struct nfs_server *server,
 static void
 nfs41_free_lock_state(struct nfs_server *server, struct nfs4_lock_state *lsp)
 {
+<<<<<<< HEAD
 	struct rpc_cred *cred = lsp->ls_state->owner->so_cred;
+=======
+	const struct cred *cred = lsp->ls_state->owner->so_cred;
+>>>>>>> upstream/android-13
 
 	nfs41_free_stateid(server, &lsp->ls_stateid, cred, false);
 	nfs4_free_lock_state(server, lsp);
@@ -9608,14 +12208,22 @@ static const struct nfs4_state_recovery_ops nfs41_nograce_recovery_ops = {
 
 static const struct nfs4_state_maintenance_ops nfs40_state_renewal_ops = {
 	.sched_state_renewal = nfs4_proc_async_renew,
+<<<<<<< HEAD
 	.get_state_renewal_cred_locked = nfs4_get_renew_cred_locked,
+=======
+	.get_state_renewal_cred = nfs4_get_renew_cred,
+>>>>>>> upstream/android-13
 	.renew_lease = nfs4_proc_renew,
 };
 
 #if defined(CONFIG_NFS_V4_1)
 static const struct nfs4_state_maintenance_ops nfs41_state_renewal_ops = {
 	.sched_state_renewal = nfs41_proc_async_sequence,
+<<<<<<< HEAD
 	.get_state_renewal_cred_locked = nfs4_get_machine_cred_locked,
+=======
+	.get_state_renewal_cred = nfs4_get_machine_cred,
+>>>>>>> upstream/android-13
 	.renew_lease = nfs4_proc_sequence,
 };
 #endif
@@ -9694,10 +12302,20 @@ static const struct nfs4_minor_version_ops nfs_v4_2_minor_ops = {
 		| NFS_CAP_ALLOCATE
 		| NFS_CAP_COPY
 		| NFS_CAP_OFFLOAD_CANCEL
+<<<<<<< HEAD
 		| NFS_CAP_DEALLOCATE
 		| NFS_CAP_SEEK
 		| NFS_CAP_LAYOUTSTATS
 		| NFS_CAP_CLONE,
+=======
+		| NFS_CAP_COPY_NOTIFY
+		| NFS_CAP_DEALLOCATE
+		| NFS_CAP_SEEK
+		| NFS_CAP_LAYOUTSTATS
+		| NFS_CAP_CLONE
+		| NFS_CAP_LAYOUTERROR
+		| NFS_CAP_READ_PLUS,
+>>>>>>> upstream/android-13
 	.init_client = nfs41_init_client,
 	.shutdown_client = nfs41_shutdown_client,
 	.match_stateid = nfs41_match_stateid,
@@ -9726,7 +12344,11 @@ const struct nfs4_minor_version_ops *nfs_v4_minor_ops[] = {
 
 static ssize_t nfs4_listxattr(struct dentry *dentry, char *list, size_t size)
 {
+<<<<<<< HEAD
 	ssize_t error, error2;
+=======
+	ssize_t error, error2, error3;
+>>>>>>> upstream/android-13
 
 	error = generic_listxattr(dentry, list, size);
 	if (error < 0)
@@ -9739,7 +12361,21 @@ static ssize_t nfs4_listxattr(struct dentry *dentry, char *list, size_t size)
 	error2 = nfs4_listxattr_nfs4_label(d_inode(dentry), list, size);
 	if (error2 < 0)
 		return error2;
+<<<<<<< HEAD
 	return error + error2;
+=======
+
+	if (list) {
+		list += error2;
+		size -= error2;
+	}
+
+	error3 = nfs4_listxattr_nfs4_user(d_inode(dentry), list, size);
+	if (error3 < 0)
+		return error3;
+
+	return error + error2 + error3;
+>>>>>>> upstream/android-13
 }
 
 static const struct inode_operations nfs4_dir_inode_operations = {
@@ -9774,7 +12410,11 @@ const struct nfs_rpc_ops nfs_v4_clientops = {
 	.file_ops	= &nfs4_file_operations,
 	.getroot	= nfs4_proc_get_root,
 	.submount	= nfs4_submount,
+<<<<<<< HEAD
 	.try_mount	= nfs4_try_mount,
+=======
+	.try_get_tree	= nfs4_try_get_tree,
+>>>>>>> upstream/android-13
 	.getattr	= nfs4_proc_getattr,
 	.setattr	= nfs4_proc_setattr,
 	.lookup		= nfs4_proc_lookup,
@@ -9818,6 +12458,10 @@ const struct nfs_rpc_ops nfs_v4_clientops = {
 	.free_client	= nfs4_free_client,
 	.create_server	= nfs4_create_server,
 	.clone_server	= nfs_clone_server,
+<<<<<<< HEAD
+=======
+	.discover_trunking = nfs4_discover_trunking,
+>>>>>>> upstream/android-13
 };
 
 static const struct xattr_handler nfs4_xattr_nfs4_acl_handler = {
@@ -9827,11 +12471,23 @@ static const struct xattr_handler nfs4_xattr_nfs4_acl_handler = {
 	.set	= nfs4_xattr_set_nfs4_acl,
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NFS_V4_2
+static const struct xattr_handler nfs4_xattr_nfs4_user_handler = {
+	.prefix	= XATTR_USER_PREFIX,
+	.get	= nfs4_xattr_get_nfs4_user,
+	.set	= nfs4_xattr_set_nfs4_user,
+};
+#endif
+
+>>>>>>> upstream/android-13
 const struct xattr_handler *nfs4_xattr_handlers[] = {
 	&nfs4_xattr_nfs4_acl_handler,
 #ifdef CONFIG_NFS_V4_SECURITY_LABEL
 	&nfs4_xattr_nfs4_label_handler,
 #endif
+<<<<<<< HEAD
 	NULL
 };
 
@@ -9840,3 +12496,10 @@ const struct xattr_handler *nfs4_xattr_handlers[] = {
  *  c-basic-offset: 8
  * End:
  */
+=======
+#ifdef CONFIG_NFS_V4_2
+	&nfs4_xattr_nfs4_user_handler,
+#endif
+	NULL
+};
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/platforms/83xx/asp834x.c
  *
@@ -7,11 +11,14 @@
  * Copyright 2008 Codehermit
  *
  * Maintainer: Bryan O'Donoghue <bodonoghue@codhermit.ie>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -48,6 +55,10 @@ define_machine(asp834x) {
 	.name			= "ASP8347E",
 	.probe			= asp834x_probe,
 	.setup_arch		= asp834x_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs		= mpc83xx_setup_pci,
+>>>>>>> upstream/android-13
 	.init_IRQ		= mpc83xx_ipic_init_IRQ,
 	.get_irq		= ipic_get_irq,
 	.restart		= mpc83xx_restart,

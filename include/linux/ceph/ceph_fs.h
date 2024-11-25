@@ -93,8 +93,24 @@ struct ceph_dir_layout {
 #define CEPH_AUTH_NONE	 	0x1
 #define CEPH_AUTH_CEPHX	 	0x2
 
+<<<<<<< HEAD
 #define CEPH_AUTH_UID_DEFAULT ((__u64) -1)
 
+=======
+#define CEPH_AUTH_MODE_NONE		0
+#define CEPH_AUTH_MODE_AUTHORIZER	1
+#define CEPH_AUTH_MODE_MON		10
+
+/* msgr2 protocol modes */
+#define CEPH_CON_MODE_UNKNOWN	0x0
+#define CEPH_CON_MODE_CRC	0x1
+#define CEPH_CON_MODE_SECURE	0x2
+
+#define CEPH_AUTH_UID_DEFAULT ((__u64) -1)
+
+const char *ceph_auth_proto_name(int proto);
+const char *ceph_con_mode_name(int mode);
+>>>>>>> upstream/android-13
 
 /*********************************************
  * message layer
@@ -130,6 +146,10 @@ struct ceph_dir_layout {
 #define CEPH_MSG_CLIENT_REQUEST         24
 #define CEPH_MSG_CLIENT_REQUEST_FORWARD 25
 #define CEPH_MSG_CLIENT_REPLY           26
+<<<<<<< HEAD
+=======
+#define CEPH_MSG_CLIENT_METRICS         29
+>>>>>>> upstream/android-13
 #define CEPH_MSG_CLIENT_CAPS            0x310
 #define CEPH_MSG_CLIENT_LEASE           0x311
 #define CEPH_MSG_CLIENT_SNAP            0x312
@@ -287,6 +307,10 @@ enum {
 	CEPH_SESSION_FLUSHMSG_ACK,
 	CEPH_SESSION_FORCE_RO,
 	CEPH_SESSION_REJECT,
+<<<<<<< HEAD
+=======
+	CEPH_SESSION_REQUEST_FLUSH_MDLOG,
+>>>>>>> upstream/android-13
 };
 
 extern const char *ceph_session_op_name(int op);
@@ -423,6 +447,10 @@ union ceph_mds_request_args {
 	} __attribute__ ((packed)) open;
 	struct {
 		__le32 flags;
+<<<<<<< HEAD
+=======
+		__le32 osdmap_epoch; /* used for setting file/dir layouts */
+>>>>>>> upstream/android-13
 	} __attribute__ ((packed)) setxattr;
 	struct {
 		struct ceph_file_layout_legacy layout;
@@ -436,12 +464,42 @@ union ceph_mds_request_args {
 		__le64 length; /* num bytes to lock from start */
 		__u8 wait; /* will caller wait for lock to become available? */
 	} __attribute__ ((packed)) filelock_change;
+<<<<<<< HEAD
 } __attribute__ ((packed));
 
 #define CEPH_MDS_FLAG_REPLAY        1  /* this is a replayed op */
 #define CEPH_MDS_FLAG_WANT_DENTRY   2  /* want dentry in reply */
 
 struct ceph_mds_request_head {
+=======
+	struct {
+		__le32 mask;                 /* CEPH_CAP_* */
+		__le64 snapid;
+		__le64 parent;
+		__le32 hash;
+	} __attribute__ ((packed)) lookupino;
+} __attribute__ ((packed));
+
+union ceph_mds_request_args_ext {
+	union ceph_mds_request_args old;
+	struct {
+		__le32 mode;
+		__le32 uid;
+		__le32 gid;
+		struct ceph_timespec mtime;
+		struct ceph_timespec atime;
+		__le64 size, old_size;       /* old_size needed by truncate */
+		__le32 mask;                 /* CEPH_SETATTR_* */
+		struct ceph_timespec btime;
+	} __attribute__ ((packed)) setattr_ext;
+};
+
+#define CEPH_MDS_FLAG_REPLAY		1 /* this is a replayed op */
+#define CEPH_MDS_FLAG_WANT_DENTRY	2 /* want dentry in reply */
+#define CEPH_MDS_FLAG_ASYNC		4 /* request is asynchronous */
+
+struct ceph_mds_request_head_old {
+>>>>>>> upstream/android-13
 	__le64 oldest_client_tid;
 	__le32 mdsmap_epoch;           /* on client */
 	__le32 flags;                  /* CEPH_MDS_FLAG_* */
@@ -454,6 +512,25 @@ struct ceph_mds_request_head {
 	union ceph_mds_request_args args;
 } __attribute__ ((packed));
 
+<<<<<<< HEAD
+=======
+#define CEPH_MDS_REQUEST_HEAD_VERSION  1
+
+struct ceph_mds_request_head {
+	__le16 version;                /* struct version */
+	__le64 oldest_client_tid;
+	__le32 mdsmap_epoch;           /* on client */
+	__le32 flags;                  /* CEPH_MDS_FLAG_* */
+	__u8 num_retry, num_fwd;       /* count retry, fwd attempts */
+	__le16 num_releases;           /* # include cap/lease release records */
+	__le32 op;                     /* mds op code */
+	__le32 caller_uid, caller_gid;
+	__le64 ino;                    /* use this ino for openc, mkdir, mknod,
+					  etc. (if replaying) */
+	union ceph_mds_request_args_ext args;
+} __attribute__ ((packed));
+
+>>>>>>> upstream/android-13
 /* cap/lease release record */
 struct ceph_mds_request_release {
 	__le64 ino, cap_id;            /* ino and unique cap id */
@@ -524,6 +601,12 @@ struct ceph_mds_reply_lease {
 	__le32 seq;
 } __attribute__ ((packed));
 
+<<<<<<< HEAD
+=======
+#define CEPH_LEASE_VALID        (1 | 2) /* old and new bit values */
+#define CEPH_LEASE_PRIMARY_LINK 4       /* primary linkage */
+
+>>>>>>> upstream/android-13
 struct ceph_mds_reply_dirfrag {
 	__le32 frag;            /* fragment */
 	__le32 auth;            /* auth mds, if this is a delegation point */
@@ -558,6 +641,10 @@ struct ceph_filelock {
 #define CEPH_FILE_MODE_RDWR       3  /* RD | WR */
 #define CEPH_FILE_MODE_LAZY       4  /* lazy io */
 #define CEPH_FILE_MODE_BITS       4
+<<<<<<< HEAD
+=======
+#define CEPH_FILE_MODE_MASK       ((1 << CEPH_FILE_MODE_BITS) - 1)
+>>>>>>> upstream/android-13
 
 int ceph_flags_to_mode(int flags);
 
@@ -649,10 +736,25 @@ int ceph_flags_to_mode(int flags);
 #define CEPH_CAP_ANY      (CEPH_CAP_ANY_RD | CEPH_CAP_ANY_EXCL | \
 			   CEPH_CAP_ANY_FILE_WR | CEPH_CAP_FILE_LAZYIO | \
 			   CEPH_CAP_PIN)
+<<<<<<< HEAD
+=======
+#define CEPH_CAP_ALL_FILE (CEPH_CAP_PIN | CEPH_CAP_ANY_SHARED | \
+			   CEPH_CAP_AUTH_EXCL | CEPH_CAP_XATTR_EXCL | \
+			   CEPH_CAP_ANY_FILE_RD | CEPH_CAP_ANY_FILE_WR)
+>>>>>>> upstream/android-13
 
 #define CEPH_CAP_LOCKS (CEPH_LOCK_IFILE | CEPH_LOCK_IAUTH | CEPH_LOCK_ILINK | \
 			CEPH_LOCK_IXATTR)
 
+<<<<<<< HEAD
+=======
+/* cap masks async dir operations */
+#define CEPH_CAP_DIR_CREATE	CEPH_CAP_FILE_CACHE
+#define CEPH_CAP_DIR_UNLINK	CEPH_CAP_FILE_RD
+#define CEPH_CAP_ANY_DIR_OPS	(CEPH_CAP_FILE_CACHE | CEPH_CAP_FILE_RD | \
+				 CEPH_CAP_FILE_WREXTEND | CEPH_CAP_FILE_LAZYIO)
+
+>>>>>>> upstream/android-13
 int ceph_caps_for_mode(int mode);
 
 enum {
@@ -676,7 +778,11 @@ extern const char *ceph_cap_op_name(int op);
 /* flags field in client cap messages (version >= 10) */
 #define CEPH_CLIENT_CAPS_SYNC			(1<<0)
 #define CEPH_CLIENT_CAPS_NO_CAPSNAP		(1<<1)
+<<<<<<< HEAD
 #define CEPH_CLIENT_CAPS_PENDING_CAPSNAP	(1<<2);
+=======
+#define CEPH_CLIENT_CAPS_PENDING_CAPSNAP	(1<<2)
+>>>>>>> upstream/android-13
 
 /*
  * caps message, used for capability callbacks, acks, requests, etc.

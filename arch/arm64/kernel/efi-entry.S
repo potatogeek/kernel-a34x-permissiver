@@ -1,19 +1,27 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * EFI entry point.
  *
  * Copyright (C) 2013, 2014 Red Hat, Inc.
  * Author: Mark Salter <msalter@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
 
 #include <asm/assembler.h>
 
+<<<<<<< HEAD
 #define EFI_LOAD_ERROR 0x8000000000000001
 
 	__INIT
@@ -89,6 +97,38 @@ ENTRY(entry)
 	sub	x1, x1, x0
 	bl	__flush_dcache_area
 
+=======
+	__INIT
+
+SYM_CODE_START(efi_enter_kernel)
+	/*
+	 * efi_pe_entry() will have copied the kernel image if necessary and we
+	 * end up here with device tree address in x1 and the kernel entry
+	 * point stored in x0. Save those values in registers which are
+	 * callee preserved.
+	 */
+	ldr	w2, =primary_entry_offset
+	add	x19, x0, x2		// relocated Image entrypoint
+	mov	x20, x1			// DTB address
+
+	/*
+	 * Clean the copied Image to the PoC, and ensure it is not shadowed by
+	 * stale icache entries from before relocation.
+	 */
+	ldr	w1, =kernel_size
+	add	x1, x0, x1
+	bl	dcache_clean_poc
+	ic	ialluis
+
+	/*
+	 * Clean the remainder of this routine to the PoC
+	 * so that we can safely disable the MMU and caches.
+	 */
+	adr	x0, 0f
+	adr	x1, 3f
+	bl	dcache_clean_poc
+0:
+>>>>>>> upstream/android-13
 	/* Turn off Dcache and MMU */
 	mrs	x0, CurrentEL
 	cmp	x0, #CurrentEL_EL2
@@ -113,6 +153,7 @@ ENTRY(entry)
 	mov	x1, xzr
 	mov	x2, xzr
 	mov	x3, xzr
+<<<<<<< HEAD
 	br	x21
 
 efi_load_fail:
@@ -122,3 +163,8 @@ efi_load_fail:
 
 entry_end:
 ENDPROC(entry)
+=======
+	br	x19
+3:
+SYM_CODE_END(efi_enter_kernel)
+>>>>>>> upstream/android-13

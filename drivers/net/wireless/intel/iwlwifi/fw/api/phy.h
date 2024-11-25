@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,6 +61,14 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2019-2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_phy_h__
 #define __iwl_fw_api_phy_h__
 
@@ -90,6 +99,14 @@ enum iwl_phy_ops_subcmd_ids {
 	GEO_TX_POWER_LIMIT = 0x05,
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @PER_PLATFORM_ANT_GAIN_CMD: &struct iwl_ppag_table_cmd
+	 */
+	PER_PLATFORM_ANT_GAIN_CMD = 0x07,
+
+	/**
+>>>>>>> upstream/android-13
 	 * @CT_KILL_NOTIFICATION: &struct ct_kill_notif
 	 */
 	CT_KILL_NOTIFICATION = 0xFE,
@@ -207,6 +224,18 @@ struct iwl_dts_measurement_notif_v2 {
 } __packed; /* TEMPERATURE_MEASUREMENT_TRIGGER_NTFY_S_VER_2 */
 
 /**
+<<<<<<< HEAD
+=======
+ * struct iwl_dts_measurement_resp - measurements response
+ *
+ * @temp: the measured temperature
+ */
+struct iwl_dts_measurement_resp {
+	__le32 temp;
+} __packed; /* CMD_DTS_MEASUREMENT_RSP_API_S_VER_1 */
+
+/**
+>>>>>>> upstream/android-13
  * struct ct_kill_notif - CT-kill entry notification
  *
  * @temperature: the current temperature in celsius

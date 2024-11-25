@@ -75,6 +75,7 @@ EXPORT_SYMBOL(fb_get_options);
  *	NOTE: This function is a __setup and __init function.
  *            It only stores the options.  Drivers have to call
  *            fb_get_options() as necessary.
+<<<<<<< HEAD
  *
  *	Returns zero.
  *
@@ -97,14 +98,40 @@ static int __init video_setup(char *options)
 	}
 
 	if (!global) {
+=======
+ */
+static int __init video_setup(char *options)
+{
+	if (!options || !*options)
+		goto out;
+
+	if (!strncmp(options, "ofonly", 6)) {
+		ofonly = 1;
+		goto out;
+	}
+
+	if (strchr(options, ':')) {
+		/* named */
+		int i;
+
+>>>>>>> upstream/android-13
 		for (i = 0; i < FB_MAX; i++) {
 			if (video_options[i] == NULL) {
 				video_options[i] = options;
 				break;
 			}
 		}
+<<<<<<< HEAD
 	}
 
+=======
+	} else {
+		/* global */
+		fb_mode_option = options;
+	}
+
+out:
+>>>>>>> upstream/android-13
 	return 1;
 }
 __setup("video=", video_setup);

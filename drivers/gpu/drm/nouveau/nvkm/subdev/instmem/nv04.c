@@ -99,9 +99,15 @@ static void *
 nv04_instobj_dtor(struct nvkm_memory *memory)
 {
 	struct nv04_instobj *iobj = nv04_instobj(memory);
+<<<<<<< HEAD
 	mutex_lock(&iobj->imem->base.subdev.mutex);
 	nvkm_mm_free(&iobj->imem->heap, &iobj->node);
 	mutex_unlock(&iobj->imem->base.subdev.mutex);
+=======
+	mutex_lock(&iobj->imem->base.mutex);
+	nvkm_mm_free(&iobj->imem->heap, &iobj->node);
+	mutex_unlock(&iobj->imem->base.mutex);
+>>>>>>> upstream/android-13
 	nvkm_instobj_dtor(&iobj->imem->base, &iobj->base);
 	return iobj;
 }
@@ -132,10 +138,16 @@ nv04_instobj_new(struct nvkm_instmem *base, u32 size, u32 align, bool zero,
 	iobj->base.memory.ptrs = &nv04_instobj_ptrs;
 	iobj->imem = imem;
 
+<<<<<<< HEAD
 	mutex_lock(&imem->base.subdev.mutex);
 	ret = nvkm_mm_head(&imem->heap, 0, 1, size, size,
 			   align ? align : 1, &iobj->node);
 	mutex_unlock(&imem->base.subdev.mutex);
+=======
+	mutex_lock(&imem->base.mutex);
+	ret = nvkm_mm_head(&imem->heap, 0, 1, size, size, align ? align : 1, &iobj->node);
+	mutex_unlock(&imem->base.mutex);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -218,14 +230,22 @@ nv04_instmem = {
 };
 
 int
+<<<<<<< HEAD
 nv04_instmem_new(struct nvkm_device *device, int index,
+=======
+nv04_instmem_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+>>>>>>> upstream/android-13
 		 struct nvkm_instmem **pimem)
 {
 	struct nv04_instmem *imem;
 
 	if (!(imem = kzalloc(sizeof(*imem), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
 	nvkm_instmem_ctor(&nv04_instmem, device, index, &imem->base);
+=======
+	nvkm_instmem_ctor(&nv04_instmem, device, type, inst, &imem->base);
+>>>>>>> upstream/android-13
 	*pimem = &imem->base;
 	return 0;
 }

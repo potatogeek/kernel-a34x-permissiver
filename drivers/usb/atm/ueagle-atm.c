@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*-
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-2-Clause)
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) 2003, 2004
  *	Damien Bergamini <damien.bergamini@free.fr>. All rights reserved.
  *
  * Copyright (c) 2005-2007 Matthieu Castet <castet.matthieu@free.fr>
  * Copyright (c) 2005-2007 Stanislaw Gruszka <stf_xl@wp.pl>
  *
+<<<<<<< HEAD
  * This software is available to you under a choice of one of two
  * licenses. You may choose to be licensed under the terms of the GNU
  * General Public License (GPL) Version 2, available from the file
@@ -50,6 +56,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * HISTORY : some part of the code was base on ueagle 1.3 BSD driver,
  * Damien Bergamini agree to put his code under a DUAL GPL/BSD license.
  *
@@ -394,7 +402,11 @@ struct l1_code {
 	u8 string_header[E4_L1_STRING_HEADER];
 	u8 page_number_to_block_index[E4_MAX_PAGE_NUMBER];
 	struct block_index page_header[E4_NO_SWAPPAGE_HEADERS];
+<<<<<<< HEAD
 	u8 code[0];
+=======
+	u8 code[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* structures describing a block within a DSP page */
@@ -614,7 +626,11 @@ MODULE_PARM_DESC(annex,
 #define LOAD_INTERNAL     0xA0
 #define F8051_USBCS       0x7f92
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * uea_send_modem_cmd - Send a command for pre-firmware devices.
  */
 static int uea_send_modem_cmd(struct usb_device *usb,
@@ -716,7 +732,11 @@ err:
 	uea_leaves(usb);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * uea_load_firmware - Load usb firmware for pre-firmware devices.
  */
 static int uea_load_firmware(struct usb_device *usb, unsigned int ver)
@@ -2508,7 +2528,11 @@ static int claim_interface(struct usb_device *usb_dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct attribute *attrs[] = {
+=======
+static struct attribute *uea_attrs[] = {
+>>>>>>> upstream/android-13
 	&dev_attr_stat_status.attr,
 	&dev_attr_stat_mflags.attr,
 	&dev_attr_stat_human_status.attr,
@@ -2529,9 +2553,13 @@ static struct attribute *attrs[] = {
 	&dev_attr_stat_firmid.attr,
 	NULL,
 };
+<<<<<<< HEAD
 static const struct attribute_group attr_grp = {
 	.attrs = attrs,
 };
+=======
+ATTRIBUTE_GROUPS(uea);
+>>>>>>> upstream/android-13
 
 static int uea_bind(struct usbatm_data *usbatm, struct usb_interface *intf,
 		   const struct usb_device_id *id)
@@ -2600,6 +2628,7 @@ static int uea_bind(struct usbatm_data *usbatm, struct usb_interface *intf,
 		}
 	}
 
+<<<<<<< HEAD
 	ret = sysfs_create_group(&intf->dev.kobj, &attr_grp);
 	if (ret < 0)
 		goto error;
@@ -2612,6 +2641,14 @@ static int uea_bind(struct usbatm_data *usbatm, struct usb_interface *intf,
 
 error_rm_grp:
 	sysfs_remove_group(&intf->dev.kobj, &attr_grp);
+=======
+	ret = uea_boot(sc, intf);
+	if (ret < 0)
+		goto error;
+
+	return 0;
+
+>>>>>>> upstream/android-13
 error:
 	kfree(sc);
 	return ret;
@@ -2621,7 +2658,10 @@ static void uea_unbind(struct usbatm_data *usbatm, struct usb_interface *intf)
 {
 	struct uea_softc *sc = usbatm->driver_data;
 
+<<<<<<< HEAD
 	sysfs_remove_group(&intf->dev.kobj, &attr_grp);
+=======
+>>>>>>> upstream/android-13
 	uea_stop(sc);
 	kfree(sc);
 }
@@ -2771,6 +2811,10 @@ static struct usb_driver uea_driver = {
 	.id_table = uea_ids,
 	.probe = uea_probe,
 	.disconnect = uea_disconnect,
+<<<<<<< HEAD
+=======
+	.dev_groups = uea_groups,
+>>>>>>> upstream/android-13
 };
 
 MODULE_DEVICE_TABLE(usb, uea_ids);

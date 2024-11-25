@@ -82,7 +82,11 @@ static unsigned event_array_pages __read_mostly;
 
 #endif
 
+<<<<<<< HEAD
 static inline event_word_t *event_word_from_port(unsigned port)
+=======
+static inline event_word_t *event_word_from_port(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	unsigned i = port / EVENT_WORDS_PER_PAGE;
 
@@ -138,9 +142,14 @@ static void init_array_page(event_word_t *array_page)
 		array_page[i] = 1 << EVTCHN_FIFO_MASKED;
 }
 
+<<<<<<< HEAD
 static int evtchn_fifo_setup(struct irq_info *info)
 {
 	unsigned port = info->evtchn;
+=======
+static int evtchn_fifo_setup(evtchn_port_t port)
+{
+>>>>>>> upstream/android-13
 	unsigned new_array_pages;
 	int ret;
 
@@ -186,36 +195,61 @@ static int evtchn_fifo_setup(struct irq_info *info)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void evtchn_fifo_bind_to_cpu(struct irq_info *info, unsigned cpu)
+=======
+static void evtchn_fifo_bind_to_cpu(evtchn_port_t evtchn, unsigned int cpu, 
+				    unsigned int old_cpu)
+>>>>>>> upstream/android-13
 {
 	/* no-op */
 }
 
+<<<<<<< HEAD
 static void evtchn_fifo_clear_pending(unsigned port)
+=======
+static void evtchn_fifo_clear_pending(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	event_word_t *word = event_word_from_port(port);
 	sync_clear_bit(EVTCHN_FIFO_BIT(PENDING, word), BM(word));
 }
 
+<<<<<<< HEAD
 static void evtchn_fifo_set_pending(unsigned port)
+=======
+static void evtchn_fifo_set_pending(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	event_word_t *word = event_word_from_port(port);
 	sync_set_bit(EVTCHN_FIFO_BIT(PENDING, word), BM(word));
 }
 
+<<<<<<< HEAD
 static bool evtchn_fifo_is_pending(unsigned port)
+=======
+static bool evtchn_fifo_is_pending(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	event_word_t *word = event_word_from_port(port);
 	return sync_test_bit(EVTCHN_FIFO_BIT(PENDING, word), BM(word));
 }
 
+<<<<<<< HEAD
 static void evtchn_fifo_mask(unsigned port)
+=======
+static void evtchn_fifo_mask(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	event_word_t *word = event_word_from_port(port);
 	sync_set_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
 }
 
+<<<<<<< HEAD
 static bool evtchn_fifo_is_masked(unsigned port)
+=======
+static bool evtchn_fifo_is_masked(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	event_word_t *word = event_word_from_port(port);
 	return sync_test_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
@@ -231,6 +265,12 @@ static bool clear_masked_cond(volatile event_word_t *word)
 	w = *word;
 
 	do {
+<<<<<<< HEAD
+=======
+		if (!(w & (1 << EVTCHN_FIFO_MASKED)))
+			return true;
+
+>>>>>>> upstream/android-13
 		if (w & (1 << EVTCHN_FIFO_PENDING))
 			return false;
 
@@ -242,7 +282,11 @@ static bool clear_masked_cond(volatile event_word_t *word)
 	return true;
 }
 
+<<<<<<< HEAD
 static void evtchn_fifo_unmask(unsigned port)
+=======
+static void evtchn_fifo_unmask(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	event_word_t *word = event_word_from_port(port);
 
@@ -275,7 +319,11 @@ static void consume_one_event(unsigned cpu, struct evtchn_loop_ctrl *ctrl,
 {
 	struct evtchn_fifo_queue *q = &per_cpu(cpu_queue, cpu);
 	uint32_t head;
+<<<<<<< HEAD
 	unsigned port;
+=======
+	evtchn_port_t port;
+>>>>>>> upstream/android-13
 	event_word_t *word;
 
 	head = q->head[priority];

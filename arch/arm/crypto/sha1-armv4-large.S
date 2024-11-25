@@ -13,7 +13,11 @@
 @ Written by Andy Polyakov <appro@fy.chalmers.se> for the OpenSSL
 @ project. The module is, however, dual licensed under OpenSSL and
 @ CRYPTOGAMS licenses depending on where you obtain it. For further
+<<<<<<< HEAD
 @ details see http://www.openssl.org/~appro/cryptogams/.
+=======
+@ details see https://www.openssl.org/~appro/cryptogams/.
+>>>>>>> upstream/android-13
 @ ====================================================================
 
 @ sha1_block procedure for ARMv4.

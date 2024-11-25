@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Microchip ENC28J60 ethernet driver (MAC + PHY)
  *
@@ -5,11 +9,14 @@
  * Author: Claudio Lanconelli <lanconelli.claudio@eptar.com>
  * based on enc28j60.c written by David Anders for 2.4 kernel version
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * $Id: enc28j60.c,v 1.22 2007/12/20 10:47:01 claudio Exp $
  */
 
@@ -18,9 +25,15 @@
 #include <linux/types.h>
 #include <linux/fcntl.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/string.h>
 #include <linux/errno.h>
 #include <linux/init.h>
+=======
+#include <linux/property.h>
+#include <linux/string.h>
+#include <linux/errno.h>
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/ethtool.h>
@@ -28,7 +41,10 @@
 #include <linux/skbuff.h>
 #include <linux/delay.h>
 #include <linux/spi/spi.h>
+<<<<<<< HEAD
 #include <linux/of_net.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "enc28j60_hw.h"
 
@@ -41,10 +57,18 @@
 	(NETIF_MSG_PROBE | NETIF_MSG_IFUP | NETIF_MSG_IFDOWN | NETIF_MSG_LINK)
 
 /* Buffer size required for the largest SPI transfer (i.e., reading a
+<<<<<<< HEAD
  * frame). */
 #define SPI_TRANSFER_BUF_LEN	(4 + MAX_FRAMELEN)
 
 #define TX_TIMEOUT	(4 * HZ)
+=======
+ * frame).
+ */
+#define SPI_TRANSFER_BUF_LEN	(4 + MAX_FRAMELEN)
+
+#define TX_TIMEOUT		(4 * HZ)
+>>>>>>> upstream/android-13
 
 /* Max TX retries in case of collision as suggested by errata datasheet */
 #define MAX_TX_RETRYCOUNT	16
@@ -83,11 +107,19 @@ static struct {
 
 /*
  * SPI read buffer
+<<<<<<< HEAD
  * wait for the SPI transfer and copy received data to destination
+=======
+ * Wait for the SPI transfer and copy received data to destination.
+>>>>>>> upstream/android-13
  */
 static int
 spi_read_buf(struct enc28j60_net *priv, int len, u8 *data)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	u8 *rx_buf = priv->spi_transfer_buf + 4;
 	u8 *tx_buf = priv->spi_transfer_buf;
 	struct spi_transfer tx = {
@@ -113,8 +145,13 @@ spi_read_buf(struct enc28j60_net *priv, int len, u8 *data)
 		ret = msg.status;
 	}
 	if (ret && netif_msg_drv(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": %s() failed: ret = %d\n",
 			__func__, ret);
+=======
+		dev_printk(KERN_DEBUG, dev, "%s() failed: ret = %d\n",
+			   __func__, ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -122,9 +159,15 @@ spi_read_buf(struct enc28j60_net *priv, int len, u8 *data)
 /*
  * SPI write buffer
  */
+<<<<<<< HEAD
 static int spi_write_buf(struct enc28j60_net *priv, int len,
 			 const u8 *data)
 {
+=======
+static int spi_write_buf(struct enc28j60_net *priv, int len, const u8 *data)
+{
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (len > SPI_TRANSFER_BUF_LEN - 1 || len <= 0)
@@ -134,8 +177,13 @@ static int spi_write_buf(struct enc28j60_net *priv, int len,
 		memcpy(&priv->spi_transfer_buf[1], data, len);
 		ret = spi_write(priv->spi, priv->spi_transfer_buf, len + 1);
 		if (ret && netif_msg_drv(priv))
+<<<<<<< HEAD
 			printk(KERN_DEBUG DRV_NAME ": %s() failed: ret = %d\n",
 				__func__, ret);
+=======
+			dev_printk(KERN_DEBUG, dev, "%s() failed: ret = %d\n",
+				   __func__, ret);
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -143,9 +191,15 @@ static int spi_write_buf(struct enc28j60_net *priv, int len,
 /*
  * basic SPI read operation
  */
+<<<<<<< HEAD
 static u8 spi_read_op(struct enc28j60_net *priv, u8 op,
 			   u8 addr)
 {
+=======
+static u8 spi_read_op(struct enc28j60_net *priv, u8 op, u8 addr)
+{
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	u8 tx_buf[2];
 	u8 rx_buf[4];
 	u8 val = 0;
@@ -159,8 +213,13 @@ static u8 spi_read_op(struct enc28j60_net *priv, u8 op,
 	tx_buf[0] = op | (addr & ADDR_MASK);
 	ret = spi_write_then_read(priv->spi, tx_buf, 1, rx_buf, slen);
 	if (ret)
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": %s() failed: ret = %d\n",
 			__func__, ret);
+=======
+		dev_printk(KERN_DEBUG, dev, "%s() failed: ret = %d\n",
+			   __func__, ret);
+>>>>>>> upstream/android-13
 	else
 		val = rx_buf[slen - 1];
 
@@ -170,28 +229,45 @@ static u8 spi_read_op(struct enc28j60_net *priv, u8 op,
 /*
  * basic SPI write operation
  */
+<<<<<<< HEAD
 static int spi_write_op(struct enc28j60_net *priv, u8 op,
 			u8 addr, u8 val)
 {
+=======
+static int spi_write_op(struct enc28j60_net *priv, u8 op, u8 addr, u8 val)
+{
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	priv->spi_transfer_buf[0] = op | (addr & ADDR_MASK);
 	priv->spi_transfer_buf[1] = val;
 	ret = spi_write(priv->spi, priv->spi_transfer_buf, 2);
 	if (ret && netif_msg_drv(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": %s() failed: ret = %d\n",
 			__func__, ret);
+=======
+		dev_printk(KERN_DEBUG, dev, "%s() failed: ret = %d\n",
+			   __func__, ret);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void enc28j60_soft_reset(struct enc28j60_net *priv)
 {
+<<<<<<< HEAD
 	if (netif_msg_hw(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() enter\n", __func__);
 
 	spi_write_op(priv, ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
 	/* Errata workaround #1, CLKRDY check is unreliable,
 	 * delay at least 1 mS instead */
+=======
+	spi_write_op(priv, ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
+	/* Errata workaround #1, CLKRDY check is unreliable,
+	 * delay at least 1 ms instead */
+>>>>>>> upstream/android-13
 	udelay(2000);
 }
 
@@ -203,7 +279,11 @@ static void enc28j60_set_bank(struct enc28j60_net *priv, u8 addr)
 	u8 b = (addr & BANK_MASK) >> 5;
 
 	/* These registers (EIE, EIR, ESTAT, ECON2, ECON1)
+<<<<<<< HEAD
 	 * are present in all banks, no need to switch bank
+=======
+	 * are present in all banks, no need to switch bank.
+>>>>>>> upstream/android-13
 	 */
 	if (addr >= EIE && addr <= ECON1)
 		return;
@@ -242,15 +322,23 @@ static void enc28j60_set_bank(struct enc28j60_net *priv, u8 addr)
 /*
  * Register bit field Set
  */
+<<<<<<< HEAD
 static void nolock_reg_bfset(struct enc28j60_net *priv,
 				      u8 addr, u8 mask)
+=======
+static void nolock_reg_bfset(struct enc28j60_net *priv, u8 addr, u8 mask)
+>>>>>>> upstream/android-13
 {
 	enc28j60_set_bank(priv, addr);
 	spi_write_op(priv, ENC28J60_BIT_FIELD_SET, addr, mask);
 }
 
+<<<<<<< HEAD
 static void locked_reg_bfset(struct enc28j60_net *priv,
 				      u8 addr, u8 mask)
+=======
+static void locked_reg_bfset(struct enc28j60_net *priv, u8 addr, u8 mask)
+>>>>>>> upstream/android-13
 {
 	mutex_lock(&priv->lock);
 	nolock_reg_bfset(priv, addr, mask);
@@ -260,15 +348,23 @@ static void locked_reg_bfset(struct enc28j60_net *priv,
 /*
  * Register bit field Clear
  */
+<<<<<<< HEAD
 static void nolock_reg_bfclr(struct enc28j60_net *priv,
 				      u8 addr, u8 mask)
+=======
+static void nolock_reg_bfclr(struct enc28j60_net *priv, u8 addr, u8 mask)
+>>>>>>> upstream/android-13
 {
 	enc28j60_set_bank(priv, addr);
 	spi_write_op(priv, ENC28J60_BIT_FIELD_CLR, addr, mask);
 }
 
+<<<<<<< HEAD
 static void locked_reg_bfclr(struct enc28j60_net *priv,
 				      u8 addr, u8 mask)
+=======
+static void locked_reg_bfclr(struct enc28j60_net *priv, u8 addr, u8 mask)
+>>>>>>> upstream/android-13
 {
 	mutex_lock(&priv->lock);
 	nolock_reg_bfclr(priv, addr, mask);
@@ -278,15 +374,23 @@ static void locked_reg_bfclr(struct enc28j60_net *priv,
 /*
  * Register byte read
  */
+<<<<<<< HEAD
 static int nolock_regb_read(struct enc28j60_net *priv,
 				     u8 address)
+=======
+static int nolock_regb_read(struct enc28j60_net *priv, u8 address)
+>>>>>>> upstream/android-13
 {
 	enc28j60_set_bank(priv, address);
 	return spi_read_op(priv, ENC28J60_READ_CTRL_REG, address);
 }
 
+<<<<<<< HEAD
 static int locked_regb_read(struct enc28j60_net *priv,
 				     u8 address)
+=======
+static int locked_regb_read(struct enc28j60_net *priv, u8 address)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -300,8 +404,12 @@ static int locked_regb_read(struct enc28j60_net *priv,
 /*
  * Register word read
  */
+<<<<<<< HEAD
 static int nolock_regw_read(struct enc28j60_net *priv,
 				     u8 address)
+=======
+static int nolock_regw_read(struct enc28j60_net *priv, u8 address)
+>>>>>>> upstream/android-13
 {
 	int rl, rh;
 
@@ -312,8 +420,12 @@ static int nolock_regw_read(struct enc28j60_net *priv,
 	return (rh << 8) | rl;
 }
 
+<<<<<<< HEAD
 static int locked_regw_read(struct enc28j60_net *priv,
 				     u8 address)
+=======
+static int locked_regw_read(struct enc28j60_net *priv, u8 address)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -327,15 +439,23 @@ static int locked_regw_read(struct enc28j60_net *priv,
 /*
  * Register byte write
  */
+<<<<<<< HEAD
 static void nolock_regb_write(struct enc28j60_net *priv,
 				       u8 address, u8 data)
+=======
+static void nolock_regb_write(struct enc28j60_net *priv, u8 address, u8 data)
+>>>>>>> upstream/android-13
 {
 	enc28j60_set_bank(priv, address);
 	spi_write_op(priv, ENC28J60_WRITE_CTRL_REG, address, data);
 }
 
+<<<<<<< HEAD
 static void locked_regb_write(struct enc28j60_net *priv,
 				       u8 address, u8 data)
+=======
+static void locked_regb_write(struct enc28j60_net *priv, u8 address, u8 data)
+>>>>>>> upstream/android-13
 {
 	mutex_lock(&priv->lock);
 	nolock_regb_write(priv, address, data);
@@ -345,8 +465,12 @@ static void locked_regb_write(struct enc28j60_net *priv,
 /*
  * Register word write
  */
+<<<<<<< HEAD
 static void nolock_regw_write(struct enc28j60_net *priv,
 				       u8 address, u16 data)
+=======
+static void nolock_regw_write(struct enc28j60_net *priv, u8 address, u16 data)
+>>>>>>> upstream/android-13
 {
 	enc28j60_set_bank(priv, address);
 	spi_write_op(priv, ENC28J60_WRITE_CTRL_REG, address, (u8) data);
@@ -354,8 +478,12 @@ static void nolock_regw_write(struct enc28j60_net *priv,
 		     (u8) (data >> 8));
 }
 
+<<<<<<< HEAD
 static void locked_regw_write(struct enc28j60_net *priv,
 				       u8 address, u16 data)
+=======
+static void locked_regw_write(struct enc28j60_net *priv, u8 address, u16 data)
+>>>>>>> upstream/android-13
 {
 	mutex_lock(&priv->lock);
 	nolock_regw_write(priv, address, data);
@@ -364,20 +492,38 @@ static void locked_regw_write(struct enc28j60_net *priv,
 
 /*
  * Buffer memory read
+<<<<<<< HEAD
  * Select the starting address and execute a SPI buffer read
  */
 static void enc28j60_mem_read(struct enc28j60_net *priv,
 				     u16 addr, int len, u8 *data)
+=======
+ * Select the starting address and execute a SPI buffer read.
+ */
+static void enc28j60_mem_read(struct enc28j60_net *priv, u16 addr, int len,
+			      u8 *data)
+>>>>>>> upstream/android-13
 {
 	mutex_lock(&priv->lock);
 	nolock_regw_write(priv, ERDPTL, addr);
 #ifdef CONFIG_ENC28J60_WRITEVERIFY
 	if (netif_msg_drv(priv)) {
+<<<<<<< HEAD
 		u16 reg;
 		reg = nolock_regw_read(priv, ERDPTL);
 		if (reg != addr)
 			printk(KERN_DEBUG DRV_NAME ": %s() error writing ERDPT "
 				"(0x%04x - 0x%04x)\n", __func__, reg, addr);
+=======
+		struct device *dev = &priv->spi->dev;
+		u16 reg;
+
+		reg = nolock_regw_read(priv, ERDPTL);
+		if (reg != addr)
+			dev_printk(KERN_DEBUG, dev,
+				   "%s() error writing ERDPT (0x%04x - 0x%04x)\n",
+				   __func__, reg, addr);
+>>>>>>> upstream/android-13
 	}
 #endif
 	spi_read_buf(priv, len, data);
@@ -390,6 +536,11 @@ static void enc28j60_mem_read(struct enc28j60_net *priv,
 static void
 enc28j60_packet_write(struct enc28j60_net *priv, int len, const u8 *data)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &priv->spi->dev;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&priv->lock);
 	/* Set the write pointer to start of transmit buffer area */
 	nolock_regw_write(priv, EWRPTL, TXSTART_INIT);
@@ -398,9 +549,15 @@ enc28j60_packet_write(struct enc28j60_net *priv, int len, const u8 *data)
 		u16 reg;
 		reg = nolock_regw_read(priv, EWRPTL);
 		if (reg != TXSTART_INIT)
+<<<<<<< HEAD
 			printk(KERN_DEBUG DRV_NAME
 				": %s() ERWPT:0x%04x != 0x%04x\n",
 				__func__, reg, TXSTART_INIT);
+=======
+			dev_printk(KERN_DEBUG, dev,
+				   "%s() ERWPT:0x%04x != 0x%04x\n",
+				   __func__, reg, TXSTART_INIT);
+>>>>>>> upstream/android-13
 	}
 #endif
 	/* Set the TXND pointer to correspond to the packet size given */
@@ -408,6 +565,7 @@ enc28j60_packet_write(struct enc28j60_net *priv, int len, const u8 *data)
 	/* write per-packet control byte */
 	spi_write_op(priv, ENC28J60_WRITE_BUF_MEM, 0, 0x00);
 	if (netif_msg_hw(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME
 			": %s() after control byte ERWPT:0x%04x\n",
 			__func__, nolock_regw_read(priv, EWRPTL));
@@ -425,13 +583,35 @@ static unsigned long msec20_to_jiffies;
 static int poll_ready(struct enc28j60_net *priv, u8 reg, u8 mask, u8 val)
 {
 	unsigned long timeout = jiffies + msec20_to_jiffies;
+=======
+		dev_printk(KERN_DEBUG, dev,
+			   "%s() after control byte ERWPT:0x%04x\n",
+			   __func__, nolock_regw_read(priv, EWRPTL));
+	/* copy the packet into the transmit buffer */
+	spi_write_buf(priv, len, data);
+	if (netif_msg_hw(priv))
+		dev_printk(KERN_DEBUG, dev,
+			   "%s() after write packet ERWPT:0x%04x, len=%d\n",
+			   __func__, nolock_regw_read(priv, EWRPTL), len);
+	mutex_unlock(&priv->lock);
+}
+
+static int poll_ready(struct enc28j60_net *priv, u8 reg, u8 mask, u8 val)
+{
+	struct device *dev = &priv->spi->dev;
+	unsigned long timeout = jiffies + msecs_to_jiffies(20);
+>>>>>>> upstream/android-13
 
 	/* 20 msec timeout read */
 	while ((nolock_regb_read(priv, reg) & mask) != val) {
 		if (time_after(jiffies, timeout)) {
 			if (netif_msg_drv(priv))
+<<<<<<< HEAD
 				dev_dbg(&priv->spi->dev,
 					"reg %02x ready timeout!\n", reg);
+=======
+				dev_dbg(dev, "reg %02x ready timeout!\n", reg);
+>>>>>>> upstream/android-13
 			return -ETIMEDOUT;
 		}
 		cpu_relax();
@@ -449,7 +629,11 @@ static int wait_phy_ready(struct enc28j60_net *priv)
 
 /*
  * PHY register read
+<<<<<<< HEAD
  * PHY registers are not accessed directly, but through the MII
+=======
+ * PHY registers are not accessed directly, but through the MII.
+>>>>>>> upstream/android-13
  */
 static u16 enc28j60_phy_read(struct enc28j60_net *priv, u8 address)
 {
@@ -465,7 +649,11 @@ static u16 enc28j60_phy_read(struct enc28j60_net *priv, u8 address)
 	/* quit reading */
 	nolock_regb_write(priv, MICMD, 0x00);
 	/* return the data */
+<<<<<<< HEAD
 	ret  = nolock_regw_read(priv, MIRDL);
+=======
+	ret = nolock_regw_read(priv, MIRDL);
+>>>>>>> upstream/android-13
 	mutex_unlock(&priv->lock);
 
 	return ret;
@@ -494,13 +682,22 @@ static int enc28j60_set_hw_macaddr(struct net_device *ndev)
 {
 	int ret;
 	struct enc28j60_net *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&priv->lock);
 	if (!priv->hw_enable) {
 		if (netif_msg_drv(priv))
+<<<<<<< HEAD
 			printk(KERN_INFO DRV_NAME
 				": %s: Setting MAC address to %pM\n",
 				ndev->name, ndev->dev_addr);
+=======
+			dev_info(dev, "%s: Setting MAC address to %pM\n",
+				 ndev->name, ndev->dev_addr);
+>>>>>>> upstream/android-13
 		/* NOTE: MAC address in ENC28J60 is byte-backward */
 		nolock_regb_write(priv, MAADR5, ndev->dev_addr[0]);
 		nolock_regb_write(priv, MAADR4, ndev->dev_addr[1]);
@@ -511,9 +708,15 @@ static int enc28j60_set_hw_macaddr(struct net_device *ndev)
 		ret = 0;
 	} else {
 		if (netif_msg_drv(priv))
+<<<<<<< HEAD
 			printk(KERN_DEBUG DRV_NAME
 				": %s() Hardware must be disabled to set "
 				"Mac address\n", __func__);
+=======
+			dev_printk(KERN_DEBUG, dev,
+				   "%s() Hardware must be disabled to set Mac address\n",
+				   __func__);
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 	}
 	mutex_unlock(&priv->lock);
@@ -532,7 +735,11 @@ static int enc28j60_set_mac_address(struct net_device *dev, void *addr)
 	if (!is_valid_ether_addr(address->sa_data))
 		return -EADDRNOTAVAIL;
 
+<<<<<<< HEAD
 	memcpy(dev->dev_addr, address->sa_data, dev->addr_len);
+=======
+	ether_addr_copy(dev->dev_addr, address->sa_data);
+>>>>>>> upstream/android-13
 	return enc28j60_set_hw_macaddr(dev);
 }
 
@@ -541,6 +748,7 @@ static int enc28j60_set_mac_address(struct net_device *dev, void *addr)
  */
 static void enc28j60_dump_regs(struct enc28j60_net *priv, const char *msg)
 {
+<<<<<<< HEAD
 	mutex_lock(&priv->lock);
 	printk(KERN_DEBUG DRV_NAME " %s\n"
 		"HwRevID: 0x%02x\n"
@@ -568,6 +776,38 @@ static void enc28j60_dump_regs(struct enc28j60_net *priv, const char *msg)
 		nolock_regb_read(priv, MACLCON1),
 		nolock_regb_read(priv, MACLCON2),
 		nolock_regb_read(priv, MAPHSUP));
+=======
+	struct device *dev = &priv->spi->dev;
+
+	mutex_lock(&priv->lock);
+	dev_printk(KERN_DEBUG, dev,
+		   " %s\n"
+		   "HwRevID: 0x%02x\n"
+		   "Cntrl: ECON1 ECON2 ESTAT  EIR  EIE\n"
+		   "       0x%02x  0x%02x  0x%02x  0x%02x  0x%02x\n"
+		   "MAC  : MACON1 MACON3 MACON4\n"
+		   "       0x%02x   0x%02x   0x%02x\n"
+		   "Rx   : ERXST  ERXND  ERXWRPT ERXRDPT ERXFCON EPKTCNT MAMXFL\n"
+		   "       0x%04x 0x%04x 0x%04x  0x%04x  "
+		   "0x%02x    0x%02x    0x%04x\n"
+		   "Tx   : ETXST  ETXND  MACLCON1 MACLCON2 MAPHSUP\n"
+		   "       0x%04x 0x%04x 0x%02x     0x%02x     0x%02x\n",
+		   msg, nolock_regb_read(priv, EREVID),
+		   nolock_regb_read(priv, ECON1), nolock_regb_read(priv, ECON2),
+		   nolock_regb_read(priv, ESTAT), nolock_regb_read(priv, EIR),
+		   nolock_regb_read(priv, EIE), nolock_regb_read(priv, MACON1),
+		   nolock_regb_read(priv, MACON3), nolock_regb_read(priv, MACON4),
+		   nolock_regw_read(priv, ERXSTL), nolock_regw_read(priv, ERXNDL),
+		   nolock_regw_read(priv, ERXWRPTL),
+		   nolock_regw_read(priv, ERXRDPTL),
+		   nolock_regb_read(priv, ERXFCON),
+		   nolock_regb_read(priv, EPKTCNT),
+		   nolock_regw_read(priv, MAMXFLL), nolock_regw_read(priv, ETXSTL),
+		   nolock_regw_read(priv, ETXNDL),
+		   nolock_regb_read(priv, MACLCON1),
+		   nolock_regb_read(priv, MACLCON2),
+		   nolock_regb_read(priv, MAPHSUP));
+>>>>>>> upstream/android-13
 	mutex_unlock(&priv->lock);
 }
 
@@ -599,12 +839,21 @@ static u16 rx_packet_start(u16 ptr)
 
 static void nolock_rxfifo_init(struct enc28j60_net *priv, u16 start, u16 end)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	u16 erxrdpt;
 
 	if (start > 0x1FFF || end > 0x1FFF || start > end) {
 		if (netif_msg_drv(priv))
+<<<<<<< HEAD
 			printk(KERN_ERR DRV_NAME ": %s(%d, %d) RXFIFO "
 				"bad parameters!\n", __func__, start, end);
+=======
+			dev_err(dev, "%s(%d, %d) RXFIFO bad parameters!\n",
+				__func__, start, end);
+>>>>>>> upstream/android-13
 		return;
 	}
 	/* set receive buffer start + end */
@@ -617,10 +866,19 @@ static void nolock_rxfifo_init(struct enc28j60_net *priv, u16 start, u16 end)
 
 static void nolock_txfifo_init(struct enc28j60_net *priv, u16 start, u16 end)
 {
+<<<<<<< HEAD
 	if (start > 0x1FFF || end > 0x1FFF || start > end) {
 		if (netif_msg_drv(priv))
 			printk(KERN_ERR DRV_NAME ": %s(%d, %d) TXFIFO "
 				"bad parameters!\n", __func__, start, end);
+=======
+	struct device *dev = &priv->spi->dev;
+
+	if (start > 0x1FFF || end > 0x1FFF || start > end) {
+		if (netif_msg_drv(priv))
+			dev_err(dev, "%s(%d, %d) TXFIFO bad parameters!\n",
+				__func__, start, end);
+>>>>>>> upstream/android-13
 		return;
 	}
 	/* set transmit buffer start + end */
@@ -630,6 +888,7 @@ static void nolock_txfifo_init(struct enc28j60_net *priv, u16 start, u16 end)
 
 /*
  * Low power mode shrinks power consumption about 100x, so we'd like
+<<<<<<< HEAD
  * the chip to be in that mode whenever it's inactive.  (However, we
  * can't stay in lowpower mode during suspend with WOL active.)
  */
@@ -638,6 +897,17 @@ static void enc28j60_lowpower(struct enc28j60_net *priv, bool is_low)
 	if (netif_msg_drv(priv))
 		dev_dbg(&priv->spi->dev, "%s power...\n",
 				is_low ? "low" : "high");
+=======
+ * the chip to be in that mode whenever it's inactive. (However, we
+ * can't stay in low power mode during suspend with WOL active.)
+ */
+static void enc28j60_lowpower(struct enc28j60_net *priv, bool is_low)
+{
+	struct device *dev = &priv->spi->dev;
+
+	if (netif_msg_drv(priv))
+		dev_dbg(dev, "%s power...\n", is_low ? "low" : "high");
+>>>>>>> upstream/android-13
 
 	mutex_lock(&priv->lock);
 	if (is_low) {
@@ -656,11 +926,20 @@ static void enc28j60_lowpower(struct enc28j60_net *priv, bool is_low)
 
 static int enc28j60_hw_init(struct enc28j60_net *priv)
 {
+<<<<<<< HEAD
 	u8 reg;
 
 	if (netif_msg_drv(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() - %s\n", __func__,
 			priv->full_duplex ? "FullDuplex" : "HalfDuplex");
+=======
+	struct device *dev = &priv->spi->dev;
+	u8 reg;
+
+	if (netif_msg_drv(priv))
+		dev_printk(KERN_DEBUG, dev, "%s() - %s\n", __func__,
+			   priv->full_duplex ? "FullDuplex" : "HalfDuplex");
+>>>>>>> upstream/android-13
 
 	mutex_lock(&priv->lock);
 	/* first reset the chip */
@@ -682,6 +961,7 @@ static int enc28j60_hw_init(struct enc28j60_net *priv)
 	/*
 	 * Check the RevID.
 	 * If it's 0x00 or 0xFF probably the enc28j60 is not mounted or
+<<<<<<< HEAD
 	 * damaged
 	 */
 	reg = locked_regb_read(priv, EREVID);
@@ -691,6 +971,17 @@ static int enc28j60_hw_init(struct enc28j60_net *priv)
 		if (netif_msg_drv(priv))
 			printk(KERN_DEBUG DRV_NAME ": %s() Invalid RevId %d\n",
 				__func__, reg);
+=======
+	 * damaged.
+	 */
+	reg = locked_regb_read(priv, EREVID);
+	if (netif_msg_drv(priv))
+		dev_info(dev, "chip RevID: 0x%02x\n", reg);
+	if (reg == 0x00 || reg == 0xff) {
+		if (netif_msg_drv(priv))
+			dev_printk(KERN_DEBUG, dev, "%s() Invalid RevId %d\n",
+				   __func__, reg);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -723,7 +1014,11 @@ static int enc28j60_hw_init(struct enc28j60_net *priv)
 	/*
 	 * MACLCON1 (default)
 	 * MACLCON2 (default)
+<<<<<<< HEAD
 	 * Set the maximum packet size which the controller will accept
+=======
+	 * Set the maximum packet size which the controller will accept.
+>>>>>>> upstream/android-13
 	 */
 	locked_regw_write(priv, MAMXFLL, MAX_FRAMELEN);
 
@@ -750,10 +1045,19 @@ static int enc28j60_hw_init(struct enc28j60_net *priv)
 
 static void enc28j60_hw_enable(struct enc28j60_net *priv)
 {
+<<<<<<< HEAD
 	/* enable interrupts */
 	if (netif_msg_hw(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() enabling interrupts.\n",
 			__func__);
+=======
+	struct device *dev = &priv->spi->dev;
+
+	/* enable interrupts */
+	if (netif_msg_hw(priv))
+		dev_printk(KERN_DEBUG, dev, "%s() enabling interrupts.\n",
+			   __func__);
+>>>>>>> upstream/android-13
 
 	enc28j60_phy_write(priv, PHIE, PHIE_PGEIE | PHIE_PLNKIE);
 
@@ -772,7 +1076,11 @@ static void enc28j60_hw_enable(struct enc28j60_net *priv)
 static void enc28j60_hw_disable(struct enc28j60_net *priv)
 {
 	mutex_lock(&priv->lock);
+<<<<<<< HEAD
 	/* disable interrutps and packet reception */
+=======
+	/* disable interrupts and packet reception */
+>>>>>>> upstream/android-13
 	nolock_regb_write(priv, EIE, 0x00);
 	nolock_reg_bfclr(priv, ECON1, ECON1_RXEN);
 	priv->hw_enable = false;
@@ -793,14 +1101,22 @@ enc28j60_setlink(struct net_device *ndev, u8 autoneg, u16 speed, u8 duplex)
 			priv->full_duplex = (duplex == DUPLEX_FULL);
 		else {
 			if (netif_msg_link(priv))
+<<<<<<< HEAD
 				dev_warn(&ndev->dev,
 					"unsupported link setting\n");
+=======
+				netdev_warn(ndev, "unsupported link setting\n");
+>>>>>>> upstream/android-13
 			ret = -EOPNOTSUPP;
 		}
 	} else {
 		if (netif_msg_link(priv))
+<<<<<<< HEAD
 			dev_warn(&ndev->dev, "Warning: hw must be disabled "
 				"to set link mode\n");
+=======
+			netdev_warn(ndev, "Warning: hw must be disabled to set link mode\n");
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 	}
 	return ret;
@@ -811,21 +1127,39 @@ enc28j60_setlink(struct net_device *ndev, u8 autoneg, u16 speed, u8 duplex)
  */
 static void enc28j60_read_tsv(struct enc28j60_net *priv, u8 tsv[TSV_SIZE])
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	int endptr;
 
 	endptr = locked_regw_read(priv, ETXNDL);
 	if (netif_msg_hw(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": reading TSV at addr:0x%04x\n",
 			 endptr + 1);
+=======
+		dev_printk(KERN_DEBUG, dev, "reading TSV at addr:0x%04x\n",
+			   endptr + 1);
+>>>>>>> upstream/android-13
 	enc28j60_mem_read(priv, endptr + 1, TSV_SIZE, tsv);
 }
 
 static void enc28j60_dump_tsv(struct enc28j60_net *priv, const char *msg,
+<<<<<<< HEAD
 				u8 tsv[TSV_SIZE])
 {
 	u16 tmp1, tmp2;
 
 	printk(KERN_DEBUG DRV_NAME ": %s - TSV:\n", msg);
+=======
+			      u8 tsv[TSV_SIZE])
+{
+	struct device *dev = &priv->spi->dev;
+	u16 tmp1, tmp2;
+
+	dev_printk(KERN_DEBUG, dev, "%s - TSV:\n", msg);
+>>>>>>> upstream/android-13
 	tmp1 = tsv[1];
 	tmp1 <<= 8;
 	tmp1 |= tsv[0];
@@ -834,6 +1168,7 @@ static void enc28j60_dump_tsv(struct enc28j60_net *priv, const char *msg,
 	tmp2 <<= 8;
 	tmp2 |= tsv[4];
 
+<<<<<<< HEAD
 	printk(KERN_DEBUG DRV_NAME ": ByteCount: %d, CollisionCount: %d,"
 		" TotByteOnWire: %d\n", tmp1, tsv[2] & 0x0f, tmp2);
 	printk(KERN_DEBUG DRV_NAME ": TxDone: %d, CRCErr:%d, LenChkErr: %d,"
@@ -858,6 +1193,34 @@ static void enc28j60_dump_tsv(struct enc28j60_net *priv, const char *msg,
 		 TSV_GETBIT(tsv, TSV_TXPAUSEFRAME),
 		 TSV_GETBIT(tsv, TSV_BACKPRESSUREAPP),
 		 TSV_GETBIT(tsv, TSV_TXVLANTAGFRAME));
+=======
+	dev_printk(KERN_DEBUG, dev,
+		   "ByteCount: %d, CollisionCount: %d, TotByteOnWire: %d\n",
+		   tmp1, tsv[2] & 0x0f, tmp2);
+	dev_printk(KERN_DEBUG, dev,
+		   "TxDone: %d, CRCErr:%d, LenChkErr: %d, LenOutOfRange: %d\n",
+		   TSV_GETBIT(tsv, TSV_TXDONE),
+		   TSV_GETBIT(tsv, TSV_TXCRCERROR),
+		   TSV_GETBIT(tsv, TSV_TXLENCHKERROR),
+		   TSV_GETBIT(tsv, TSV_TXLENOUTOFRANGE));
+	dev_printk(KERN_DEBUG, dev,
+		   "Multicast: %d, Broadcast: %d, PacketDefer: %d, ExDefer: %d\n",
+		   TSV_GETBIT(tsv, TSV_TXMULTICAST),
+		   TSV_GETBIT(tsv, TSV_TXBROADCAST),
+		   TSV_GETBIT(tsv, TSV_TXPACKETDEFER),
+		   TSV_GETBIT(tsv, TSV_TXEXDEFER));
+	dev_printk(KERN_DEBUG, dev,
+		   "ExCollision: %d, LateCollision: %d, Giant: %d, Underrun: %d\n",
+		   TSV_GETBIT(tsv, TSV_TXEXCOLLISION),
+		   TSV_GETBIT(tsv, TSV_TXLATECOLLISION),
+		   TSV_GETBIT(tsv, TSV_TXGIANT), TSV_GETBIT(tsv, TSV_TXUNDERRUN));
+	dev_printk(KERN_DEBUG, dev,
+		   "ControlFrame: %d, PauseFrame: %d, BackPressApp: %d, VLanTagFrame: %d\n",
+		   TSV_GETBIT(tsv, TSV_TXCONTROLFRAME),
+		   TSV_GETBIT(tsv, TSV_TXPAUSEFRAME),
+		   TSV_GETBIT(tsv, TSV_BACKPRESSUREAPP),
+		   TSV_GETBIT(tsv, TSV_TXVLANTAGFRAME));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -866,6 +1229,7 @@ static void enc28j60_dump_tsv(struct enc28j60_net *priv, const char *msg,
 static void enc28j60_dump_rsv(struct enc28j60_net *priv, const char *msg,
 			      u16 pk_ptr, int len, u16 sts)
 {
+<<<<<<< HEAD
 	printk(KERN_DEBUG DRV_NAME ": %s - NextPk: 0x%04x - RSV:\n",
 		msg, pk_ptr);
 	printk(KERN_DEBUG DRV_NAME ": ByteCount: %d, DribbleNibble: %d\n", len,
@@ -887,6 +1251,31 @@ static void enc28j60_dump_rsv(struct enc28j60_net *priv, const char *msg,
 		 RSV_GETBIT(sts, RSV_RXPAUSEFRAME),
 		 RSV_GETBIT(sts, RSV_RXUNKNOWNOPCODE),
 		 RSV_GETBIT(sts, RSV_RXTYPEVLAN));
+=======
+	struct device *dev = &priv->spi->dev;
+
+	dev_printk(KERN_DEBUG, dev, "%s - NextPk: 0x%04x - RSV:\n", msg, pk_ptr);
+	dev_printk(KERN_DEBUG, dev, "ByteCount: %d, DribbleNibble: %d\n",
+		   len, RSV_GETBIT(sts, RSV_DRIBBLENIBBLE));
+	dev_printk(KERN_DEBUG, dev,
+		   "RxOK: %d, CRCErr:%d, LenChkErr: %d, LenOutOfRange: %d\n",
+		   RSV_GETBIT(sts, RSV_RXOK),
+		   RSV_GETBIT(sts, RSV_CRCERROR),
+		   RSV_GETBIT(sts, RSV_LENCHECKERR),
+		   RSV_GETBIT(sts, RSV_LENOUTOFRANGE));
+	dev_printk(KERN_DEBUG, dev,
+		   "Multicast: %d, Broadcast: %d, LongDropEvent: %d, CarrierEvent: %d\n",
+		   RSV_GETBIT(sts, RSV_RXMULTICAST),
+		   RSV_GETBIT(sts, RSV_RXBROADCAST),
+		   RSV_GETBIT(sts, RSV_RXLONGEVDROPEV),
+		   RSV_GETBIT(sts, RSV_CARRIEREV));
+	dev_printk(KERN_DEBUG, dev,
+		   "ControlFrame: %d, PauseFrame: %d, UnknownOp: %d, VLanTagFrame: %d\n",
+		   RSV_GETBIT(sts, RSV_RXCONTROLFRAME),
+		   RSV_GETBIT(sts, RSV_RXPAUSEFRAME),
+		   RSV_GETBIT(sts, RSV_RXUNKNOWNOPCODE),
+		   RSV_GETBIT(sts, RSV_RXTYPEVLAN));
+>>>>>>> upstream/android-13
 }
 
 static void dump_packet(const char *msg, int len, const char *data)
@@ -904,12 +1293,17 @@ static void dump_packet(const char *msg, int len, const char *data)
 static void enc28j60_hw_rx(struct net_device *ndev)
 {
 	struct enc28j60_net *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	struct sk_buff *skb = NULL;
 	u16 erxrdpt, next_packet, rxstat;
 	u8 rsv[RSV_SIZE];
 	int len;
 
 	if (netif_msg_rx_status(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": RX pk_addr:0x%04x\n",
 			priv->next_pk_ptr);
 
@@ -918,6 +1312,15 @@ static void enc28j60_hw_rx(struct net_device *ndev)
 			dev_err(&ndev->dev,
 				"%s() Invalid packet address!! 0x%04x\n",
 				__func__, priv->next_pk_ptr);
+=======
+		netdev_printk(KERN_DEBUG, ndev, "RX pk_addr:0x%04x\n",
+			      priv->next_pk_ptr);
+
+	if (unlikely(priv->next_pk_ptr > RXEND_INIT)) {
+		if (netif_msg_rx_err(priv))
+			netdev_err(ndev, "%s() Invalid packet address!! 0x%04x\n",
+				   __func__, priv->next_pk_ptr);
+>>>>>>> upstream/android-13
 		/* packet address corrupted: reset RX logic */
 		mutex_lock(&priv->lock);
 		nolock_reg_bfclr(priv, ECON1, ECON1_RXEN);
@@ -950,7 +1353,11 @@ static void enc28j60_hw_rx(struct net_device *ndev)
 
 	if (!RSV_GETBIT(rxstat, RSV_RXOK) || len > MAX_FRAMELEN) {
 		if (netif_msg_rx_err(priv))
+<<<<<<< HEAD
 			dev_err(&ndev->dev, "Rx Error (%04x)\n", rxstat);
+=======
+			netdev_err(ndev, "Rx Error (%04x)\n", rxstat);
+>>>>>>> upstream/android-13
 		ndev->stats.rx_errors++;
 		if (RSV_GETBIT(rxstat, RSV_CRCERROR))
 			ndev->stats.rx_crc_errors++;
@@ -962,8 +1369,12 @@ static void enc28j60_hw_rx(struct net_device *ndev)
 		skb = netdev_alloc_skb(ndev, len + NET_IP_ALIGN);
 		if (!skb) {
 			if (netif_msg_rx_err(priv))
+<<<<<<< HEAD
 				dev_err(&ndev->dev,
 					"out of memory for Rx'd frame\n");
+=======
+				netdev_err(ndev, "out of memory for Rx'd frame\n");
+>>>>>>> upstream/android-13
 			ndev->stats.rx_dropped++;
 		} else {
 			skb_reserve(skb, NET_IP_ALIGN);
@@ -983,12 +1394,21 @@ static void enc28j60_hw_rx(struct net_device *ndev)
 	/*
 	 * Move the RX read pointer to the start of the next
 	 * received packet.
+<<<<<<< HEAD
 	 * This frees the memory we just read out
 	 */
 	erxrdpt = erxrdpt_workaround(next_packet, RXSTART_INIT, RXEND_INIT);
 	if (netif_msg_hw(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() ERXRDPT:0x%04x\n",
 			__func__, erxrdpt);
+=======
+	 * This frees the memory we just read out.
+	 */
+	erxrdpt = erxrdpt_workaround(next_packet, RXSTART_INIT, RXEND_INIT);
+	if (netif_msg_hw(priv))
+		dev_printk(KERN_DEBUG, dev, "%s() ERXRDPT:0x%04x\n",
+			   __func__, erxrdpt);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&priv->lock);
 	nolock_regw_write(priv, ERXRDPTL, erxrdpt);
@@ -997,9 +1417,15 @@ static void enc28j60_hw_rx(struct net_device *ndev)
 		u16 reg;
 		reg = nolock_regw_read(priv, ERXRDPTL);
 		if (reg != erxrdpt)
+<<<<<<< HEAD
 			printk(KERN_DEBUG DRV_NAME ": %s() ERXRDPT verify "
 				"error (0x%04x - 0x%04x)\n", __func__,
 				reg, erxrdpt);
+=======
+			dev_printk(KERN_DEBUG, dev,
+				   "%s() ERXRDPT verify error (0x%04x - 0x%04x)\n",
+				   __func__, reg, erxrdpt);
+>>>>>>> upstream/android-13
 	}
 #endif
 	priv->next_pk_ptr = next_packet;
@@ -1013,6 +1439,10 @@ static void enc28j60_hw_rx(struct net_device *ndev)
  */
 static int enc28j60_get_free_rxfifo(struct enc28j60_net *priv)
 {
+<<<<<<< HEAD
+=======
+	struct net_device *ndev = priv->netdev;
+>>>>>>> upstream/android-13
 	int epkcnt, erxst, erxnd, erxwr, erxrd;
 	int free_space;
 
@@ -1035,8 +1465,13 @@ static int enc28j60_get_free_rxfifo(struct enc28j60_net *priv)
 	}
 	mutex_unlock(&priv->lock);
 	if (netif_msg_rx_status(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": %s() free_space = %d\n",
 			__func__, free_space);
+=======
+		netdev_printk(KERN_DEBUG, ndev, "%s() free_space = %d\n",
+			      __func__, free_space);
+>>>>>>> upstream/android-13
 	return free_space;
 }
 
@@ -1046,24 +1481,42 @@ static int enc28j60_get_free_rxfifo(struct enc28j60_net *priv)
 static void enc28j60_check_link_status(struct net_device *ndev)
 {
 	struct enc28j60_net *priv = netdev_priv(ndev);
+<<<<<<< HEAD
+=======
+	struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 	u16 reg;
 	int duplex;
 
 	reg = enc28j60_phy_read(priv, PHSTAT2);
 	if (netif_msg_hw(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": %s() PHSTAT1: %04x, "
 			"PHSTAT2: %04x\n", __func__,
 			enc28j60_phy_read(priv, PHSTAT1), reg);
+=======
+		dev_printk(KERN_DEBUG, dev,
+			   "%s() PHSTAT1: %04x, PHSTAT2: %04x\n", __func__,
+			   enc28j60_phy_read(priv, PHSTAT1), reg);
+>>>>>>> upstream/android-13
 	duplex = reg & PHSTAT2_DPXSTAT;
 
 	if (reg & PHSTAT2_LSTAT) {
 		netif_carrier_on(ndev);
 		if (netif_msg_ifup(priv))
+<<<<<<< HEAD
 			dev_info(&ndev->dev, "link up - %s\n",
 				duplex ? "Full duplex" : "Half duplex");
 	} else {
 		if (netif_msg_ifdown(priv))
 			dev_info(&ndev->dev, "link down\n");
+=======
+			netdev_info(ndev, "link up - %s\n",
+				    duplex ? "Full duplex" : "Half duplex");
+	} else {
+		if (netif_msg_ifdown(priv))
+			netdev_info(ndev, "link down\n");
+>>>>>>> upstream/android-13
 		netif_carrier_off(ndev);
 	}
 }
@@ -1089,8 +1542,13 @@ static void enc28j60_tx_clear(struct net_device *ndev, bool err)
 
 /*
  * RX handler
+<<<<<<< HEAD
  * ignore PKTIF because is unreliable! (look at the errata datasheet)
  * check EPKTCNT is the suggested workaround.
+=======
+ * Ignore PKTIF because is unreliable! (Look at the errata datasheet)
+ * Check EPKTCNT is the suggested workaround.
+>>>>>>> upstream/android-13
  * We don't need to clear interrupt flag, automatically done when
  * enc28j60_hw_rx() decrements the packet counter.
  * Returns how many packet processed.
@@ -1102,13 +1560,23 @@ static int enc28j60_rx_interrupt(struct net_device *ndev)
 
 	pk_counter = locked_regb_read(priv, EPKTCNT);
 	if (pk_counter && netif_msg_intr(priv))
+<<<<<<< HEAD
 		printk(KERN_DEBUG DRV_NAME ": intRX, pk_cnt: %d\n", pk_counter);
+=======
+		netdev_printk(KERN_DEBUG, ndev, "intRX, pk_cnt: %d\n",
+			      pk_counter);
+>>>>>>> upstream/android-13
 	if (pk_counter > priv->max_pk_counter) {
 		/* update statistics */
 		priv->max_pk_counter = pk_counter;
 		if (netif_msg_rx_status(priv) && priv->max_pk_counter > 1)
+<<<<<<< HEAD
 			printk(KERN_DEBUG DRV_NAME ": RX max_pk_cnt: %d\n",
 				priv->max_pk_counter);
+=======
+			netdev_printk(KERN_DEBUG, ndev, "RX max_pk_cnt: %d\n",
+				      priv->max_pk_counter);
+>>>>>>> upstream/android-13
 	}
 	ret = pk_counter;
 	while (pk_counter-- > 0)
@@ -1124,8 +1592,11 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 	struct net_device *ndev = priv->netdev;
 	int intflags, loop;
 
+<<<<<<< HEAD
 	if (netif_msg_intr(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() enter\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	/* disable further interrupts */
 	locked_reg_bfclr(priv, EIE, EIE_INTIE);
 
@@ -1136,16 +1607,26 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 		if ((intflags & EIR_DMAIF) != 0) {
 			loop++;
 			if (netif_msg_intr(priv))
+<<<<<<< HEAD
 				printk(KERN_DEBUG DRV_NAME
 					": intDMA(%d)\n", loop);
+=======
+				netdev_printk(KERN_DEBUG, ndev, "intDMA(%d)\n",
+					      loop);
+>>>>>>> upstream/android-13
 			locked_reg_bfclr(priv, EIR, EIR_DMAIF);
 		}
 		/* LINK changed handler */
 		if ((intflags & EIR_LINKIF) != 0) {
 			loop++;
 			if (netif_msg_intr(priv))
+<<<<<<< HEAD
 				printk(KERN_DEBUG DRV_NAME
 					": intLINK(%d)\n", loop);
+=======
+				netdev_printk(KERN_DEBUG, ndev, "intLINK(%d)\n",
+					      loop);
+>>>>>>> upstream/android-13
 			enc28j60_check_link_status(ndev);
 			/* read PHIR to clear the flag */
 			enc28j60_phy_read(priv, PHIR);
@@ -1156,6 +1637,7 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 			bool err = false;
 			loop++;
 			if (netif_msg_intr(priv))
+<<<<<<< HEAD
 				printk(KERN_DEBUG DRV_NAME
 					": intTX(%d)\n", loop);
 			priv->tx_retry_count = 0;
@@ -1163,6 +1645,14 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 				if (netif_msg_tx_err(priv))
 					dev_err(&ndev->dev,
 						"Tx Error (aborted)\n");
+=======
+				netdev_printk(KERN_DEBUG, ndev, "intTX(%d)\n",
+					      loop);
+			priv->tx_retry_count = 0;
+			if (locked_regb_read(priv, ESTAT) & ESTAT_TXABRT) {
+				if (netif_msg_tx_err(priv))
+					netdev_err(ndev, "Tx Error (aborted)\n");
+>>>>>>> upstream/android-13
 				err = true;
 			}
 			if (netif_msg_tx_done(priv)) {
@@ -1179,8 +1669,13 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 
 			loop++;
 			if (netif_msg_intr(priv))
+<<<<<<< HEAD
 				printk(KERN_DEBUG DRV_NAME
 					": intTXErr(%d)\n", loop);
+=======
+				netdev_printk(KERN_DEBUG, ndev, "intTXErr(%d)\n",
+					      loop);
+>>>>>>> upstream/android-13
 			locked_reg_bfclr(priv, ECON1, ECON1_TXRTS);
 			enc28j60_read_tsv(priv, tsv);
 			if (netif_msg_tx_err(priv))
@@ -1194,9 +1689,15 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 			/* Transmit Late collision check for retransmit */
 			if (TSV_GETBIT(tsv, TSV_TXLATECOLLISION)) {
 				if (netif_msg_tx_err(priv))
+<<<<<<< HEAD
 					printk(KERN_DEBUG DRV_NAME
 						": LateCollision TXErr (%d)\n",
 						priv->tx_retry_count);
+=======
+					netdev_printk(KERN_DEBUG, ndev,
+						      "LateCollision TXErr (%d)\n",
+						      priv->tx_retry_count);
+>>>>>>> upstream/android-13
 				if (priv->tx_retry_count++ < MAX_TX_RETRYCOUNT)
 					locked_reg_bfset(priv, ECON1,
 							   ECON1_TXRTS);
@@ -1210,6 +1711,7 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 		if ((intflags & EIR_RXERIF) != 0) {
 			loop++;
 			if (netif_msg_intr(priv))
+<<<<<<< HEAD
 				printk(KERN_DEBUG DRV_NAME
 					": intRXErr(%d)\n", loop);
 			/* Check free FIFO space to flag RX overrun */
@@ -1217,6 +1719,14 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 				if (netif_msg_rx_err(priv))
 					printk(KERN_DEBUG DRV_NAME
 						": RX Overrun\n");
+=======
+				netdev_printk(KERN_DEBUG, ndev, "intRXErr(%d)\n",
+					      loop);
+			/* Check free FIFO space to flag RX overrun */
+			if (enc28j60_get_free_rxfifo(priv) <= 0) {
+				if (netif_msg_rx_err(priv))
+					netdev_printk(KERN_DEBUG, ndev, "RX Overrun\n");
+>>>>>>> upstream/android-13
 				ndev->stats.rx_dropped++;
 			}
 			locked_reg_bfclr(priv, EIR, EIR_RXERIF);
@@ -1228,8 +1738,11 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
 
 	/* re-enable interrupts */
 	locked_reg_bfset(priv, EIE, EIE_INTIE);
+<<<<<<< HEAD
 	if (netif_msg_intr(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() exit\n", __func__);
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1239,11 +1752,21 @@ static void enc28j60_irq_work_handler(struct work_struct *work)
  */
 static void enc28j60_hw_tx(struct enc28j60_net *priv)
 {
+<<<<<<< HEAD
 	BUG_ON(!priv->tx_skb);
 
 	if (netif_msg_tx_queued(priv))
 		printk(KERN_DEBUG DRV_NAME
 			": Tx Packet Len:%d\n", priv->tx_skb->len);
+=======
+	struct net_device *ndev = priv->netdev;
+
+	BUG_ON(!priv->tx_skb);
+
+	if (netif_msg_tx_queued(priv))
+		netdev_printk(KERN_DEBUG, ndev, "Tx Packet Len:%d\n",
+			      priv->tx_skb->len);
+>>>>>>> upstream/android-13
 
 	if (netif_msg_pktdata(priv))
 		dump_packet(__func__,
@@ -1253,6 +1776,10 @@ static void enc28j60_hw_tx(struct enc28j60_net *priv)
 #ifdef CONFIG_ENC28J60_WRITEVERIFY
 	/* readback and verify written data */
 	if (netif_msg_drv(priv)) {
+<<<<<<< HEAD
+=======
+		struct device *dev = &priv->spi->dev;
+>>>>>>> upstream/android-13
 		int test_len, k;
 		u8 test_buf[64]; /* limit the test to the first 64 bytes */
 		int okflag;
@@ -1266,16 +1793,26 @@ static void enc28j60_hw_tx(struct enc28j60_net *priv)
 		okflag = 1;
 		for (k = 0; k < test_len; k++) {
 			if (priv->tx_skb->data[k] != test_buf[k]) {
+<<<<<<< HEAD
 				printk(KERN_DEBUG DRV_NAME
 					 ": Error, %d location differ: "
 					 "0x%02x-0x%02x\n", k,
 					 priv->tx_skb->data[k], test_buf[k]);
+=======
+				dev_printk(KERN_DEBUG, dev,
+					   "Error, %d location differ: 0x%02x-0x%02x\n",
+					   k, priv->tx_skb->data[k], test_buf[k]);
+>>>>>>> upstream/android-13
 				okflag = 0;
 			}
 		}
 		if (!okflag)
+<<<<<<< HEAD
 			printk(KERN_DEBUG DRV_NAME ": Tx write buffer, "
 				"verify ERROR!\n");
+=======
+			dev_printk(KERN_DEBUG, dev, "Tx write buffer, verify ERROR!\n");
+>>>>>>> upstream/android-13
 	}
 #endif
 	/* set TX request flag */
@@ -1287,14 +1824,21 @@ static netdev_tx_t enc28j60_send_packet(struct sk_buff *skb,
 {
 	struct enc28j60_net *priv = netdev_priv(dev);
 
+<<<<<<< HEAD
 	if (netif_msg_tx_queued(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() enter\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	/* If some error occurs while trying to transmit this
 	 * packet, you should return '1' from this function.
 	 * In such a case you _may not_ do anything to the
 	 * SKB, it is still owned by the network queueing
+<<<<<<< HEAD
 	 * layer when an error is returned.  This means you
+=======
+	 * layer when an error is returned. This means you
+>>>>>>> upstream/android-13
 	 * may not modify any SKB fields, you may not free
 	 * the SKB, etc.
 	 */
@@ -1332,12 +1876,20 @@ static irqreturn_t enc28j60_irq(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void enc28j60_tx_timeout(struct net_device *ndev)
+=======
+static void enc28j60_tx_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct enc28j60_net *priv = netdev_priv(ndev);
 
 	if (netif_msg_timer(priv))
+<<<<<<< HEAD
 		dev_err(&ndev->dev, DRV_NAME " tx timeout\n");
+=======
+		netdev_err(ndev, "tx timeout\n");
+>>>>>>> upstream/android-13
 
 	ndev->stats.tx_errors++;
 	/* can't restart safely under softirq */
@@ -1356,6 +1908,7 @@ static int enc28j60_net_open(struct net_device *dev)
 {
 	struct enc28j60_net *priv = netdev_priv(dev);
 
+<<<<<<< HEAD
 	if (netif_msg_drv(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() enter\n", __func__);
 
@@ -1363,6 +1916,11 @@ static int enc28j60_net_open(struct net_device *dev)
 		if (netif_msg_ifup(priv))
 			dev_err(&dev->dev, "invalid MAC address %pM\n",
 				dev->dev_addr);
+=======
+	if (!is_valid_ether_addr(dev->dev_addr)) {
+		if (netif_msg_ifup(priv))
+			netdev_err(dev, "invalid MAC address %pM\n", dev->dev_addr);
+>>>>>>> upstream/android-13
 		return -EADDRNOTAVAIL;
 	}
 	/* Reset the hardware here (and take it out of low power mode) */
@@ -1370,7 +1928,11 @@ static int enc28j60_net_open(struct net_device *dev)
 	enc28j60_hw_disable(priv);
 	if (!enc28j60_hw_init(priv)) {
 		if (netif_msg_ifup(priv))
+<<<<<<< HEAD
 			dev_err(&dev->dev, "hw_reset() failed\n");
+=======
+			netdev_err(dev, "hw_reset() failed\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	/* Update the MAC address (in case user has changed it) */
@@ -1392,9 +1954,12 @@ static int enc28j60_net_close(struct net_device *dev)
 {
 	struct enc28j60_net *priv = netdev_priv(dev);
 
+<<<<<<< HEAD
 	if (netif_msg_drv(priv))
 		printk(KERN_DEBUG DRV_NAME ": %s() enter\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	enc28j60_hw_disable(priv);
 	enc28j60_lowpower(priv, true);
 	netif_stop_queue(dev);
@@ -1415,6 +1980,7 @@ static void enc28j60_set_multicast_list(struct net_device *dev)
 
 	if (dev->flags & IFF_PROMISC) {
 		if (netif_msg_link(priv))
+<<<<<<< HEAD
 			dev_info(&dev->dev, "promiscuous mode\n");
 		priv->rxfilter = RXFILTER_PROMISC;
 	} else if ((dev->flags & IFF_ALLMULTI) || !netdev_mc_empty(dev)) {
@@ -1425,6 +1991,18 @@ static void enc28j60_set_multicast_list(struct net_device *dev)
 	} else {
 		if (netif_msg_link(priv))
 			dev_info(&dev->dev, "normal mode\n");
+=======
+			netdev_info(dev, "promiscuous mode\n");
+		priv->rxfilter = RXFILTER_PROMISC;
+	} else if ((dev->flags & IFF_ALLMULTI) || !netdev_mc_empty(dev)) {
+		if (netif_msg_link(priv))
+			netdev_info(dev, "%smulticast mode\n",
+				    (dev->flags & IFF_ALLMULTI) ? "all-" : "");
+		priv->rxfilter = RXFILTER_MULTI;
+	} else {
+		if (netif_msg_link(priv))
+			netdev_info(dev, "normal mode\n");
+>>>>>>> upstream/android-13
 		priv->rxfilter = RXFILTER_NORMAL;
 	}
 
@@ -1436,6 +2014,7 @@ static void enc28j60_setrx_work_handler(struct work_struct *work)
 {
 	struct enc28j60_net *priv =
 		container_of(work, struct enc28j60_net, setrx_work);
+<<<<<<< HEAD
 
 	if (priv->rxfilter == RXFILTER_PROMISC) {
 		if (netif_msg_drv(priv))
@@ -1444,12 +2023,27 @@ static void enc28j60_setrx_work_handler(struct work_struct *work)
 	} else if (priv->rxfilter == RXFILTER_MULTI) {
 		if (netif_msg_drv(priv))
 			printk(KERN_DEBUG DRV_NAME ": multicast mode\n");
+=======
+	struct device *dev = &priv->spi->dev;
+
+	if (priv->rxfilter == RXFILTER_PROMISC) {
+		if (netif_msg_drv(priv))
+			dev_printk(KERN_DEBUG, dev, "promiscuous mode\n");
+		locked_regb_write(priv, ERXFCON, 0x00);
+	} else if (priv->rxfilter == RXFILTER_MULTI) {
+		if (netif_msg_drv(priv))
+			dev_printk(KERN_DEBUG, dev, "multicast mode\n");
+>>>>>>> upstream/android-13
 		locked_regb_write(priv, ERXFCON,
 					ERXFCON_UCEN | ERXFCON_CRCEN |
 					ERXFCON_BCEN | ERXFCON_MCEN);
 	} else {
 		if (netif_msg_drv(priv))
+<<<<<<< HEAD
 			printk(KERN_DEBUG DRV_NAME ": normal mode\n");
+=======
+			dev_printk(KERN_DEBUG, dev, "normal mode\n");
+>>>>>>> upstream/android-13
 		locked_regb_write(priv, ERXFCON,
 					ERXFCON_UCEN | ERXFCON_CRCEN |
 					ERXFCON_BCEN);
@@ -1468,7 +2062,11 @@ static void enc28j60_restart_work_handler(struct work_struct *work)
 		enc28j60_net_close(ndev);
 		ret = enc28j60_net_open(ndev);
 		if (unlikely(ret)) {
+<<<<<<< HEAD
 			dev_info(&ndev->dev, " could not restart %d\n", ret);
+=======
+			netdev_info(ndev, "could not restart %d\n", ret);
+>>>>>>> upstream/android-13
 			dev_close(ndev);
 		}
 	}
@@ -1552,6 +2150,7 @@ static const struct net_device_ops enc28j60_netdev_ops = {
 
 static int enc28j60_probe(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct net_device *dev;
 	struct enc28j60_net *priv;
 	const void *macaddr;
@@ -1560,6 +2159,15 @@ static int enc28j60_probe(struct spi_device *spi)
 	if (netif_msg_drv(&debug))
 		dev_info(&spi->dev, DRV_NAME " Ethernet driver %s loaded\n",
 			DRV_VERSION);
+=======
+	unsigned char macaddr[ETH_ALEN];
+	struct net_device *dev;
+	struct enc28j60_net *priv;
+	int ret = 0;
+
+	if (netif_msg_drv(&debug))
+		dev_info(&spi->dev, "Ethernet driver %s loaded\n", DRV_VERSION);
+>>>>>>> upstream/android-13
 
 	dev = alloc_etherdev(sizeof(struct enc28j60_net));
 	if (!dev) {
@@ -1570,8 +2178,12 @@ static int enc28j60_probe(struct spi_device *spi)
 
 	priv->netdev = dev;	/* priv to netdev reference */
 	priv->spi = spi;	/* priv to spi reference */
+<<<<<<< HEAD
 	priv->msg_enable = netif_msg_init(debug.msg_enable,
 						ENC28J60_MSG_DEFAULT);
+=======
+	priv->msg_enable = netif_msg_init(debug.msg_enable, ENC28J60_MSG_DEFAULT);
+>>>>>>> upstream/android-13
 	mutex_init(&priv->lock);
 	INIT_WORK(&priv->tx_work, enc28j60_tx_work_handler);
 	INIT_WORK(&priv->setrx_work, enc28j60_setrx_work_handler);
@@ -1582,13 +2194,21 @@ static int enc28j60_probe(struct spi_device *spi)
 
 	if (!enc28j60_chipset_init(dev)) {
 		if (netif_msg_probe(priv))
+<<<<<<< HEAD
 			dev_info(&spi->dev, DRV_NAME " chip not found\n");
+=======
+			dev_info(&spi->dev, "chip not found\n");
+>>>>>>> upstream/android-13
 		ret = -EIO;
 		goto error_irq;
 	}
 
+<<<<<<< HEAD
 	macaddr = of_get_mac_address(spi->dev.of_node);
 	if (macaddr)
+=======
+	if (device_get_mac_address(&spi->dev, macaddr, sizeof(macaddr)))
+>>>>>>> upstream/android-13
 		ether_addr_copy(dev->dev_addr, macaddr);
 	else
 		eth_hw_addr_random(dev);
@@ -1600,8 +2220,13 @@ static int enc28j60_probe(struct spi_device *spi)
 	ret = request_irq(spi->irq, enc28j60_irq, 0, DRV_NAME, priv);
 	if (ret < 0) {
 		if (netif_msg_probe(priv))
+<<<<<<< HEAD
 			dev_err(&spi->dev, DRV_NAME ": request irq %d failed "
 				"(ret = %d)\n", spi->irq, ret);
+=======
+			dev_err(&spi->dev, "request irq %d failed (ret = %d)\n",
+				spi->irq, ret);
+>>>>>>> upstream/android-13
 		goto error_irq;
 	}
 
@@ -1616,11 +2241,18 @@ static int enc28j60_probe(struct spi_device *spi)
 	ret = register_netdev(dev);
 	if (ret) {
 		if (netif_msg_probe(priv))
+<<<<<<< HEAD
 			dev_err(&spi->dev, "register netdev " DRV_NAME
 				" failed (ret = %d)\n", ret);
 		goto error_register;
 	}
 	dev_info(&dev->dev, DRV_NAME " driver registered\n");
+=======
+			dev_err(&spi->dev, "register netdev failed (ret = %d)\n",
+				ret);
+		goto error_register;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1636,9 +2268,12 @@ static int enc28j60_remove(struct spi_device *spi)
 {
 	struct enc28j60_net *priv = spi_get_drvdata(spi);
 
+<<<<<<< HEAD
 	if (netif_msg_drv(priv))
 		printk(KERN_DEBUG DRV_NAME ": remove\n");
 
+=======
+>>>>>>> upstream/android-13
 	unregister_netdev(priv->netdev);
 	free_irq(spi->irq, priv);
 	free_netdev(priv->netdev);
@@ -1660,6 +2295,7 @@ static struct spi_driver enc28j60_driver = {
 	.probe = enc28j60_probe,
 	.remove = enc28j60_remove,
 };
+<<<<<<< HEAD
 
 static int __init enc28j60_init(void)
 {
@@ -1676,10 +2312,17 @@ static void __exit enc28j60_exit(void)
 }
 
 module_exit(enc28j60_exit);
+=======
+module_spi_driver(enc28j60_driver);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION(DRV_NAME " ethernet driver");
 MODULE_AUTHOR("Claudio Lanconelli <lanconelli.claudio@eptar.com>");
 MODULE_LICENSE("GPL");
 module_param_named(debug, debug.msg_enable, int, 0);
+<<<<<<< HEAD
 MODULE_PARM_DESC(debug, "Debug verbosity level (0=none, ..., ffff=all)");
+=======
+MODULE_PARM_DESC(debug, "Debug verbosity level in amount of bits set (0=none, ..., 31=all)");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("spi:" DRV_NAME);

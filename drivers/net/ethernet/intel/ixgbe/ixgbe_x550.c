@@ -306,7 +306,11 @@ static s32 ixgbe_identify_phy_x550em(struct ixgbe_hw *hw)
 		hw->phy.phy_semaphore_mask = IXGBE_GSSR_SHARED_I2C_SM;
 		ixgbe_setup_mux_ctl(hw);
 		ixgbe_check_cs4227(hw);
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IXGBE_DEV_ID_X550EM_A_SFP_N:
 		return ixgbe_identify_module_generic(hw);
 	case IXGBE_DEV_ID_X550EM_X_KX4:
@@ -325,7 +329,11 @@ static s32 ixgbe_identify_phy_x550em(struct ixgbe_hw *hw)
 			hw->phy.phy_semaphore_mask = IXGBE_GSSR_PHY1_SM;
 		else
 			hw->phy.phy_semaphore_mask = IXGBE_GSSR_PHY0_SM;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IXGBE_DEV_ID_X550EM_X_10G_T:
 		return ixgbe_identify_phy_generic(hw);
 	case IXGBE_DEV_ID_X550EM_X_1G_T:
@@ -1247,6 +1255,23 @@ static s32 ixgbe_get_bus_info_X550em(struct ixgbe_hw *hw)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * ixgbe_fw_recovery_mode_X550 - Check FW NVM recovery mode
+ * @hw: pointer t hardware structure
+ *
+ * Returns true if in FW NVM recovery mode.
+ */
+static bool ixgbe_fw_recovery_mode_X550(struct ixgbe_hw *hw)
+{
+	u32 fwsm;
+
+	fwsm = IXGBE_READ_REG(hw, IXGBE_FWSM(hw));
+	return !!(fwsm & IXGBE_FWSM_FW_NVM_RECOVERY_MODE);
+}
+
+>>>>>>> upstream/android-13
 /** ixgbe_disable_rx_x550 - Disable RX unit
  *
  *  Enables the Rx DMA unit for x550
@@ -2289,7 +2314,11 @@ static s32 ixgbe_get_link_capabilities_X550em(struct ixgbe_hw *hw,
 					break;
 				}
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			*speed = IXGBE_LINK_SPEED_10GB_FULL |
 				 IXGBE_LINK_SPEED_1GB_FULL;
@@ -2871,7 +2900,11 @@ static s32 ixgbe_setup_fc_x550em(struct ixgbe_hw *hw)
 		 * through to the fc_full statement.  Later, we will
 		 * disable the adapter's ability to send PAUSE frames.
 		 */
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ixgbe_fc_full:
 		pause = true;
 		asm_dir = true;
@@ -3270,7 +3303,11 @@ static enum ixgbe_media_type ixgbe_get_media_type_X550em(struct ixgbe_hw *hw)
 	case IXGBE_DEV_ID_X550EM_A_SGMII:
 	case IXGBE_DEV_ID_X550EM_A_SGMII_L:
 		hw->phy.type = ixgbe_phy_sgmii;
+<<<<<<< HEAD
 		/* Fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IXGBE_DEV_ID_X550EM_X_KR:
 	case IXGBE_DEV_ID_X550EM_X_KX4:
 	case IXGBE_DEV_ID_X550EM_X_XFI:
@@ -3391,6 +3428,12 @@ static s32 ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
 	/* flush pending Tx transactions */
 	ixgbe_clear_tx_pending(hw);
 
+<<<<<<< HEAD
+=======
+	/* set MDIO speed before talking to the PHY in case it's the 1st time */
+	ixgbe_set_mdio_speed(hw);
+
+>>>>>>> upstream/android-13
 	/* PHY ops must be identified and initialized prior to reset */
 	status = hw->phy.ops.init(hw);
 	if (status == IXGBE_ERR_SFP_NOT_SUPPORTED ||
@@ -3818,6 +3861,10 @@ static s32 ixgbe_write_phy_reg_x550a(struct ixgbe_hw *hw, u32 reg_addr,
 	.enable_rx_buff			= &ixgbe_enable_rx_buff_generic, \
 	.get_thermal_sensor_data	= NULL, \
 	.init_thermal_sensor_thresh	= NULL, \
+<<<<<<< HEAD
+=======
+	.fw_recovery_mode		= &ixgbe_fw_recovery_mode_X550, \
+>>>>>>> upstream/android-13
 	.enable_rx			= &ixgbe_enable_rx_generic, \
 	.disable_rx			= &ixgbe_disable_rx_x550, \
 

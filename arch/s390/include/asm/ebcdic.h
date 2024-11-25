@@ -20,7 +20,11 @@ extern __u8 _ebc_tolower[256]; /* EBCDIC -> lowercase */
 extern __u8 _ebc_toupper[256]; /* EBCDIC -> uppercase */
 
 static inline void
+<<<<<<< HEAD
 codepage_convert(const __u8 *codepage, volatile __u8 * addr, unsigned long nr)
+=======
+codepage_convert(const __u8 *codepage, volatile char *addr, unsigned long nr)
+>>>>>>> upstream/android-13
 {
 	if (nr-- <= 0)
 		return;

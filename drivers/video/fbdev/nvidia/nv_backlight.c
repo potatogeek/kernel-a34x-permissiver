@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Backlight code for nVidia based graphic cards
  *
  * Copyright 2004 Antonino Daplas <adaplas@pol.net>
  * Copyright (c) 2006 Michael Hanselmann <linux-kernel@hansmi.ch>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/backlight.h>
@@ -126,8 +133,11 @@ void nvidia_bl_init(struct nvidia_par *par)
 
 	printk("nvidia: Backlight initialized (%s)\n", name);
 
+<<<<<<< HEAD
 	return;
 
+=======
+>>>>>>> upstream/android-13
 error:
 	return;
 }

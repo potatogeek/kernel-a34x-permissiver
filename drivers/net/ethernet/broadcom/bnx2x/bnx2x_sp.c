@@ -37,10 +37,18 @@
 /**
  * bnx2x_exe_queue_init - init the Exe Queue object
  *
+<<<<<<< HEAD
+=======
+ * @bp:		driver handle
+>>>>>>> upstream/android-13
  * @o:		pointer to the object
  * @exe_len:	length
  * @owner:	pointer to the owner
  * @validate:	validate function pointer
+<<<<<<< HEAD
+=======
+ * @remove:	remove function pointer
+>>>>>>> upstream/android-13
  * @optimize:	optimize function pointer
  * @exec:	execute function pointer
  * @get:	get function pointer
@@ -103,7 +111,11 @@ static inline int bnx2x_exe_queue_length(struct bnx2x_exe_queue_obj *o)
  *
  * @bp:		driver handle
  * @o:		queue
+<<<<<<< HEAD
  * @cmd:	new command to add
+=======
+ * @elem:	new command to add
+>>>>>>> upstream/android-13
  * @restore:	true - do not optimize the command
  *
  * If the element is optimized or is illegal, frees it.
@@ -277,7 +289,11 @@ static void bnx2x_raw_set_pending(struct bnx2x_raw_obj *o)
  *
  * @bp:		device handle
  * @state:	state which is to be cleared
+<<<<<<< HEAD
  * @state_p:	state buffer
+=======
+ * @pstate:	state buffer
+>>>>>>> upstream/android-13
  *
  */
 static inline int bnx2x_state_wait(struct bnx2x *bp, int state,
@@ -424,8 +440,13 @@ static bool bnx2x_put_credit_vlan_mac(struct bnx2x_vlan_mac_obj *o)
  * @bp:		device handle
  * @o:		vlan_mac object
  *
+<<<<<<< HEAD
  * @details: Non-blocking implementation; should be called under execution
  *           queue lock.
+=======
+ * Context: Non-blocking implementation; should be called under execution
+ *          queue lock.
+>>>>>>> upstream/android-13
  */
 static int __bnx2x_vlan_mac_h_write_trylock(struct bnx2x *bp,
 					    struct bnx2x_vlan_mac_obj *o)
@@ -445,7 +466,11 @@ static int __bnx2x_vlan_mac_h_write_trylock(struct bnx2x *bp,
  * @bp:		device handle
  * @o:		vlan_mac object
  *
+<<<<<<< HEAD
  * @details Should be called under execution queue lock; notice it might release
+=======
+ * details Should be called under execution queue lock; notice it might release
+>>>>>>> upstream/android-13
  *          and reclaim it during its run.
  */
 static void __bnx2x_vlan_mac_h_exec_pending(struct bnx2x *bp,
@@ -475,7 +500,11 @@ static void __bnx2x_vlan_mac_h_exec_pending(struct bnx2x *bp,
  * @o:			vlan_mac object
  * @ramrod_flags:	ramrod flags of missed execution
  *
+<<<<<<< HEAD
  * @details Should be called under execution queue lock.
+=======
+ * Context: Should be called under execution queue lock.
+>>>>>>> upstream/android-13
  */
 static void __bnx2x_vlan_mac_h_pend(struct bnx2x *bp,
 				    struct bnx2x_vlan_mac_obj *o,
@@ -493,7 +522,11 @@ static void __bnx2x_vlan_mac_h_pend(struct bnx2x *bp,
  * @bp:			device handle
  * @o:			vlan_mac object
  *
+<<<<<<< HEAD
  * @details Should be called under execution queue lock. Notice if a pending
+=======
+ * Context: Should be called under execution queue lock. Notice if a pending
+>>>>>>> upstream/android-13
  *          execution exists, it would perform it - possibly releasing and
  *          reclaiming the execution queue lock.
  */
@@ -516,7 +549,11 @@ static void __bnx2x_vlan_mac_h_write_unlock(struct bnx2x *bp,
  * @bp:			device handle
  * @o:			vlan_mac object
  *
+<<<<<<< HEAD
  * @details Should be called under the execution queue lock. May sleep. May
+=======
+ * Context: Should be called under the execution queue lock. May sleep. May
+>>>>>>> upstream/android-13
  *          release and reclaim execution queue lock during its run.
  */
 static int __bnx2x_vlan_mac_h_read_lock(struct bnx2x *bp,
@@ -536,7 +573,11 @@ static int __bnx2x_vlan_mac_h_read_lock(struct bnx2x *bp,
  * @bp:			device handle
  * @o:			vlan_mac object
  *
+<<<<<<< HEAD
  * @details May sleep. Claims and releases execution queue lock during its run.
+=======
+ * Context: May sleep. Claims and releases execution queue lock during its run.
+>>>>>>> upstream/android-13
  */
 int bnx2x_vlan_mac_h_read_lock(struct bnx2x *bp,
 			       struct bnx2x_vlan_mac_obj *o)
@@ -556,7 +597,11 @@ int bnx2x_vlan_mac_h_read_lock(struct bnx2x *bp,
  * @bp:			device handle
  * @o:			vlan_mac object
  *
+<<<<<<< HEAD
  * @details Should be called under execution queue lock. Notice if a pending
+=======
+ * Context: Should be called under execution queue lock. Notice if a pending
+>>>>>>> upstream/android-13
  *          execution exists, it would be performed if this was the last
  *          reader. possibly releasing and reclaiming the execution queue lock.
  */
@@ -591,7 +636,11 @@ static void __bnx2x_vlan_mac_h_read_unlock(struct bnx2x *bp,
  * @bp:			device handle
  * @o:			vlan_mac object
  *
+<<<<<<< HEAD
  * @details Notice if a pending execution exists, it would be performed if this
+=======
+ * Context: Notice if a pending execution exists, it would be performed if this
+>>>>>>> upstream/android-13
  *          was the last reader. Claims and releases the execution queue lock
  *          during its run.
  */
@@ -968,7 +1017,11 @@ static void bnx2x_set_one_mac_e2(struct bnx2x *bp,
  *
  * @bp:		device handle
  * @o:		queue
+<<<<<<< HEAD
  * @type:
+=======
+ * @type:	the type of echo
+>>>>>>> upstream/android-13
  * @cam_offset:	offset in cam memory
  * @hdr:	pointer to a header to setup
  *
@@ -1608,8 +1661,13 @@ static int __bnx2x_vlan_mac_execute_step(struct bnx2x *bp,
  *
  * @bp:		device handle
  * @o:		bnx2x_vlan_mac_obj
+<<<<<<< HEAD
  * @cqe:
  * @cont:	if true schedule next execution chunk
+=======
+ * @cqe:	completion element
+ * @ramrod_flags: if set schedule next execution chunk
+>>>>>>> upstream/android-13
  *
  */
 static int bnx2x_complete_vlan_mac(struct bnx2x *bp,
@@ -1656,7 +1714,11 @@ static int bnx2x_complete_vlan_mac(struct bnx2x *bp,
  * bnx2x_optimize_vlan_mac - optimize ADD and DEL commands.
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:		bnx2x_qable_obj
+=======
+ * @qo:		bnx2x_qable_obj
+>>>>>>> upstream/android-13
  * @elem:	bnx2x_exeq_elem
  */
 static int bnx2x_optimize_vlan_mac(struct bnx2x *bp,
@@ -1714,10 +1776,17 @@ static int bnx2x_optimize_vlan_mac(struct bnx2x *bp,
  * bnx2x_vlan_mac_get_registry_elem - prepare a registry element
  *
  * @bp:	  device handle
+<<<<<<< HEAD
  * @o:
  * @elem:
  * @restore:
  * @re:
+=======
+ * @o:	vlan object
+ * @elem: element
+ * @restore: to restore or not
+ * @re: registry
+>>>>>>> upstream/android-13
  *
  * prepare a registry element according to the current command request.
  */
@@ -1768,9 +1837,15 @@ static inline int bnx2x_vlan_mac_get_registry_elem(
  * bnx2x_execute_vlan_mac - execute vlan mac command
  *
  * @bp:			device handle
+<<<<<<< HEAD
  * @qo:
  * @exe_chunk:
  * @ramrod_flags:
+=======
+ * @qo:			bnx2x_qable_obj pointer
+ * @exe_chunk:		chunk
+ * @ramrod_flags:	flags
+>>>>>>> upstream/android-13
  *
  * go and send a ramrod!
  */
@@ -2006,8 +2081,13 @@ int bnx2x_config_vlan_mac(struct bnx2x *bp,
  * bnx2x_vlan_mac_del_all - delete elements with given vlan_mac_flags spec
  *
  * @bp:			device handle
+<<<<<<< HEAD
  * @o:
  * @vlan_mac_flags:
+=======
+ * @o:			vlan object info
+ * @vlan_mac_flags:	vlan flags
+>>>>>>> upstream/android-13
  * @ramrod_flags:	execution flags to be used for this deletion
  *
  * if the last operation has completed successfully and there are no
@@ -2767,7 +2847,11 @@ static int bnx2x_mcast_enqueue_cmd(struct bnx2x *bp,
 /**
  * bnx2x_mcast_get_next_bin - get the next set bin (index)
  *
+<<<<<<< HEAD
  * @o:
+=======
+ * @o:		multicast object info
+>>>>>>> upstream/android-13
  * @last:	index to start looking from (including)
  *
  * returns the next found (set) bin or a negative value if none is found.
@@ -2892,7 +2976,11 @@ static void bnx2x_mcast_set_one_rule_e2(struct bnx2x *bp,
  * bnx2x_mcast_handle_restore_cmd_e2 - restore configuration from the registry
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:
+=======
+ * @o:		multicast object info
+>>>>>>> upstream/android-13
  * @start_bin:	index in the registry to start from (including)
  * @rdata_idx:	index in the ramrod data to start from
  *
@@ -2977,8 +3065,13 @@ static inline void bnx2x_mcast_hdl_pending_del_e2(struct bnx2x *bp,
 
 		cmd_pos->data.macs_num--;
 
+<<<<<<< HEAD
 		  DP(BNX2X_MSG_SP, "Deleting MAC. %d left,cnt is %d\n",
 				   cmd_pos->data.macs_num, cnt);
+=======
+		DP(BNX2X_MSG_SP, "Deleting MAC. %d left,cnt is %d\n",
+		   cmd_pos->data.macs_num, cnt);
+>>>>>>> upstream/android-13
 
 		/* Break if we reached the maximum
 		 * number of rules.
@@ -3202,11 +3295,19 @@ static inline void bnx2x_mcast_hdl_del(struct bnx2x *bp,
 }
 
 /**
+<<<<<<< HEAD
  * bnx2x_mcast_handle_current_cmd -
  *
  * @bp:		device handle
  * @p:
  * @cmd:
+=======
+ * bnx2x_mcast_handle_current_cmd - send command if room
+ *
+ * @bp:		device handle
+ * @p:		ramrod mcast info
+ * @cmd:	command
+>>>>>>> upstream/android-13
  * @start_cnt:	first line in the ramrod data that may be used
  *
  * This function is called iff there is enough place for the current command in
@@ -3258,7 +3359,11 @@ static int bnx2x_mcast_validate_e2(struct bnx2x *bp,
 	/* DEL command deletes all currently configured MACs */
 	case BNX2X_MCAST_CMD_DEL:
 		o->set_registry_size(o, 0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/* RESTORE command will restore the entire multicast configuration */
 	case BNX2X_MCAST_CMD_RESTORE:
@@ -3323,7 +3428,11 @@ static void bnx2x_mcast_revert_e2(struct bnx2x *bp,
  * bnx2x_mcast_set_rdata_hdr_e2 - sets a header values
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @p:
+=======
+ * @p:		ramrod parameters
+>>>>>>> upstream/android-13
  * @len:	number of rules to handle
  */
 static inline void bnx2x_mcast_set_rdata_hdr_e2(struct bnx2x *bp,
@@ -3592,13 +3701,22 @@ static int bnx2x_mcast_validate_e1(struct bnx2x *bp,
 	/* DEL command deletes all currently configured MACs */
 	case BNX2X_MCAST_CMD_DEL:
 		o->set_registry_size(o, 0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	/* RESTORE command will restore the entire multicast configuration */
 	case BNX2X_MCAST_CMD_RESTORE:
 		p->mcast_list_len = reg_sz;
+<<<<<<< HEAD
 		  DP(BNX2X_MSG_SP, "Command %d, p->mcast_list_len=%d\n",
 				   cmd, p->mcast_list_len);
+=======
+		DP(BNX2X_MSG_SP, "Command %d, p->mcast_list_len=%d\n",
+		   cmd, p->mcast_list_len);
+>>>>>>> upstream/android-13
 		break;
 
 	case BNX2X_MCAST_CMD_ADD:
@@ -3684,7 +3802,11 @@ static void bnx2x_mcast_set_one_rule_e1(struct bnx2x *bp,
  * bnx2x_mcast_set_rdata_hdr_e1  - set header values in mac_configuration_cmd
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @p:
+=======
+ * @p:		ramrod parameters
+>>>>>>> upstream/android-13
  * @len:	number of rules to handle
  */
 static inline void bnx2x_mcast_set_rdata_hdr_e1(struct bnx2x *bp,
@@ -3711,7 +3833,11 @@ static inline void bnx2x_mcast_set_rdata_hdr_e1(struct bnx2x *bp,
  * bnx2x_mcast_handle_restore_cmd_e1 - restore command for 57710
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:
+=======
+ * @o:		multicast info
+>>>>>>> upstream/android-13
  * @start_idx:	index in the registry to start from
  * @rdata_idx:	index in the ramrod data to start from
  *
@@ -3735,8 +3861,13 @@ static inline int bnx2x_mcast_handle_restore_cmd_e1(
 
 		i++;
 
+<<<<<<< HEAD
 		  DP(BNX2X_MSG_SP, "About to configure %pM mcast MAC\n",
 		     cfg_data.mac);
+=======
+		DP(BNX2X_MSG_SP, "About to configure %pM mcast MAC\n",
+		   cfg_data.mac);
+>>>>>>> upstream/android-13
 	}
 
 	*rdata_idx = i;
@@ -3798,10 +3929,17 @@ static inline int bnx2x_mcast_handle_pending_cmds_e1(
 /**
  * bnx2x_get_fw_mac_addr - revert the bnx2x_set_fw_mac_addr().
  *
+<<<<<<< HEAD
  * @fw_hi:
  * @fw_mid:
  * @fw_lo:
  * @mac:
+=======
+ * @fw_hi: address
+ * @fw_mid: address
+ * @fw_lo: address
+ * @mac: mac address
+>>>>>>> upstream/android-13
  */
 static inline void bnx2x_get_fw_mac_addr(__le16 *fw_hi, __le16 *fw_mid,
 					 __le16 *fw_lo, u8 *mac)
@@ -3818,7 +3956,11 @@ static inline void bnx2x_get_fw_mac_addr(__le16 *fw_hi, __le16 *fw_mid,
  * bnx2x_mcast_refresh_registry_e1 -
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @cnt:
+=======
+ * @o:		multicast info
+>>>>>>> upstream/android-13
  *
  * Check the ramrod data first entry flag to see if it's a DELETE or ADD command
  * and update the registry correspondingly: if ADD - allocate a memory and add
@@ -4150,7 +4292,11 @@ void bnx2x_init_mcast_obj(struct bnx2x *bp,
 /*************************** Credit handling **********************************/
 
 /**
+<<<<<<< HEAD
  * atomic_add_ifless - add if the result is less than a given value.
+=======
+ * __atomic_add_ifless - add if the result is less than a given value.
+>>>>>>> upstream/android-13
  *
  * @v:	pointer of type atomic_t
  * @a:	the amount to add to v...
@@ -4178,7 +4324,11 @@ static inline bool __atomic_add_ifless(atomic_t *v, int a, int u)
 }
 
 /**
+<<<<<<< HEAD
  * atomic_dec_ifmoe - dec if the result is more or equal than a given value.
+=======
+ * __atomic_dec_ifmoe - dec if the result is more or equal than a given value.
+>>>>>>> upstream/android-13
  *
  * @v:	pointer of type atomic_t
  * @a:	the amount to dec from v...
@@ -4311,7 +4461,11 @@ static bool bnx2x_credit_pool_get_entry_always_true(
 /**
  * bnx2x_init_credit_pool - initialize credit pool internals.
  *
+<<<<<<< HEAD
  * @p:
+=======
+ * @p:		credit pool
+>>>>>>> upstream/android-13
  * @base:	Base entry in the CAM to use.
  * @credit:	pool size.
  *
@@ -4725,8 +4879,13 @@ static int bnx2x_queue_wait_comp(struct bnx2x *bp,
  * bnx2x_queue_comp_cmd - complete the state change command.
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:
  * @cmd:
+=======
+ * @o:		queue info
+ * @cmd:	command to exec
+>>>>>>> upstream/android-13
  *
  * Checks that the arrived completion is expected.
  */
@@ -5039,7 +5198,10 @@ static inline int bnx2x_q_init(struct bnx2x *bp,
 	/* As no ramrod is sent, complete the command immediately  */
 	o->complete_cmd(bp, o, BNX2X_Q_CMD_INIT);
 
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	smp_mb();
 
 	return 0;
@@ -5478,8 +5640,13 @@ static int bnx2x_queue_send_cmd_e2(struct bnx2x *bp,
  * bnx2x_queue_chk_transition - check state machine of a regular Queue
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:
  * @params:
+=======
+ * @o:		queue info
+ * @params:	queue state
+>>>>>>> upstream/android-13
  *
  * (not Forwarding)
  * It both checks if the requested command is legal in a current
@@ -5736,8 +5903,13 @@ static int bnx2x_func_wait_comp(struct bnx2x *bp,
  * bnx2x_func_state_change_comp - complete the state machine transition
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:
  * @cmd:
+=======
+ * @o:		function info
+ * @cmd:	more info
+>>>>>>> upstream/android-13
  *
  * Called on state change transition. Completes the state
  * machine transition only - no HW interaction.
@@ -5777,8 +5949,13 @@ static inline int bnx2x_func_state_change_comp(struct bnx2x *bp,
  * bnx2x_func_comp_cmd - complete the state change command
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:
  * @cmd:
+=======
+ * @o:		function info
+ * @cmd:	more info
+>>>>>>> upstream/android-13
  *
  * Checks that the arrived completion is expected.
  */
@@ -5797,8 +5974,13 @@ static int bnx2x_func_comp_cmd(struct bnx2x *bp,
  * bnx2x_func_chk_transition - perform function state machine transition
  *
  * @bp:		device handle
+<<<<<<< HEAD
  * @o:
  * @params:
+=======
+ * @o:		function info
+ * @params:	state parameters
+>>>>>>> upstream/android-13
  *
  * It both checks if the requested command is legal in a current
  * state and, if it's legal, sets a `next_state' in the object

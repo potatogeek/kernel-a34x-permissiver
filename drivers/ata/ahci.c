@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  ahci.c - AHCI SATA support
  *
@@ -7,6 +11,7 @@
  *
  *  Copyright 2004-2005 Red Hat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,13 +28,18 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * libata documentation is available via 'make {ps|pdf}docs',
  * as Documentation/driver-api/libata.rst
  *
  * AHCI hardware documentation:
  * http://www.intel.com/technology/serialata/pdf/rev1_0.pdf
  * http://www.intel.com/technology/serialata/pdf/rev1_1.pdf
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -56,6 +66,10 @@
 enum {
 	AHCI_PCI_BAR_STA2X11	= 0,
 	AHCI_PCI_BAR_CAVIUM	= 0,
+<<<<<<< HEAD
+=======
+	AHCI_PCI_BAR_LOONGSON	= 0,
+>>>>>>> upstream/android-13
 	AHCI_PCI_BAR_ENMOTUS	= 2,
 	AHCI_PCI_BAR_CAVIUM_GEN5	= 4,
 	AHCI_PCI_BAR_STANDARD	= 5,
@@ -72,6 +86,10 @@ enum board_ids {
 	board_ahci_yes_fbs,
 
 	/* board IDs for specific chipsets in alphabetical order */
+<<<<<<< HEAD
+=======
+	board_ahci_al,
+>>>>>>> upstream/android-13
 	board_ahci_avn,
 	board_ahci_mcp65,
 	board_ahci_mcp77,
@@ -184,6 +202,16 @@ static const struct ata_port_info ahci_port_info[] = {
 		.port_ops	= &ahci_ops,
 	},
 	/* by chipsets */
+<<<<<<< HEAD
+=======
+	[board_ahci_al] = {
+		AHCI_HFLAGS	(AHCI_HFLAG_NO_PMP | AHCI_HFLAG_NO_MSI),
+		.flags		= AHCI_FLAG_COMMON,
+		.pio_mask	= ATA_PIO4,
+		.udma_mask	= ATA_UDMA6,
+		.port_ops	= &ahci_ops,
+	},
+>>>>>>> upstream/android-13
 	[board_ahci_avn] = {
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
@@ -253,6 +281,10 @@ static const struct ata_port_info ahci_port_info[] = {
 
 static const struct pci_device_id ahci_pci_tbl[] = {
 	/* Intel */
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(INTEL, 0x06d6), board_ahci }, /* Comet Lake PCH-H RAID */
+>>>>>>> upstream/android-13
 	{ PCI_VDEVICE(INTEL, 0x2652), board_ahci }, /* ICH6 */
 	{ PCI_VDEVICE(INTEL, 0x2653), board_ahci }, /* ICH6M */
 	{ PCI_VDEVICE(INTEL, 0x27c1), board_ahci }, /* ICH7 */
@@ -366,6 +398,13 @@ static const struct pci_device_id ahci_pci_tbl[] = {
 	{ PCI_VDEVICE(INTEL, 0x1f3f), board_ahci_avn }, /* Avoton RAID */
 	{ PCI_VDEVICE(INTEL, 0x2823), board_ahci }, /* Wellsburg RAID */
 	{ PCI_VDEVICE(INTEL, 0x2827), board_ahci }, /* Wellsburg RAID */
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(INTEL, 0x43d4), board_ahci }, /* Rocket Lake PCH-H RAID */
+	{ PCI_VDEVICE(INTEL, 0x43d5), board_ahci }, /* Rocket Lake PCH-H RAID */
+	{ PCI_VDEVICE(INTEL, 0x43d6), board_ahci }, /* Rocket Lake PCH-H RAID */
+	{ PCI_VDEVICE(INTEL, 0x43d7), board_ahci }, /* Rocket Lake PCH-H RAID */
+>>>>>>> upstream/android-13
 	{ PCI_VDEVICE(INTEL, 0x8d02), board_ahci }, /* Wellsburg AHCI */
 	{ PCI_VDEVICE(INTEL, 0x8d04), board_ahci }, /* Wellsburg RAID */
 	{ PCI_VDEVICE(INTEL, 0x8d06), board_ahci }, /* Wellsburg RAID */
@@ -410,11 +449,20 @@ static const struct pci_device_id ahci_pci_tbl[] = {
 	{ PCI_VDEVICE(INTEL, 0xa256), board_ahci }, /* Lewisburg RAID*/
 	{ PCI_VDEVICE(INTEL, 0xa356), board_ahci }, /* Cannon Lake PCH-H RAID */
 	{ PCI_VDEVICE(INTEL, 0x06d7), board_ahci }, /* Comet Lake-H RAID */
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(INTEL, 0xa386), board_ahci }, /* Comet Lake PCH-V RAID */
+>>>>>>> upstream/android-13
 	{ PCI_VDEVICE(INTEL, 0x0f22), board_ahci_mobile }, /* Bay Trail AHCI */
 	{ PCI_VDEVICE(INTEL, 0x0f23), board_ahci_mobile }, /* Bay Trail AHCI */
 	{ PCI_VDEVICE(INTEL, 0x22a3), board_ahci_mobile }, /* Cherry Tr. AHCI */
 	{ PCI_VDEVICE(INTEL, 0x5ae3), board_ahci_mobile }, /* ApolloLake AHCI */
 	{ PCI_VDEVICE(INTEL, 0x34d3), board_ahci_mobile }, /* Ice Lake LP AHCI */
+<<<<<<< HEAD
+=======
+	{ PCI_VDEVICE(INTEL, 0x02d3), board_ahci_mobile }, /* Comet Lake PCH-U AHCI */
+	{ PCI_VDEVICE(INTEL, 0x02d7), board_ahci_mobile }, /* Comet Lake PCH RAID */
+>>>>>>> upstream/android-13
 
 	/* JMicron 360/1/3/5/6, match class to avoid IDE function */
 	{ PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
@@ -433,13 +481,32 @@ static const struct pci_device_id ahci_pci_tbl[] = {
 	{ PCI_VDEVICE(ATI, 0x4394), board_ahci_sb700 }, /* ATI SB700/800 */
 	{ PCI_VDEVICE(ATI, 0x4395), board_ahci_sb700 }, /* ATI SB700/800 */
 
+<<<<<<< HEAD
 	/* AMD */
 	{ PCI_VDEVICE(AMD, 0x7800), board_ahci }, /* AMD Hudson-2 */
 	{ PCI_VDEVICE(AMD, 0x7900), board_ahci }, /* AMD CZ */
+=======
+	/* Amazon's Annapurna Labs support */
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON_ANNAPURNA_LABS, 0x0031),
+		.class = PCI_CLASS_STORAGE_SATA_AHCI,
+		.class_mask = 0xffffff,
+		board_ahci_al },
+	/* AMD */
+	{ PCI_VDEVICE(AMD, 0x7800), board_ahci }, /* AMD Hudson-2 */
+	{ PCI_VDEVICE(AMD, 0x7900), board_ahci }, /* AMD CZ */
+	{ PCI_VDEVICE(AMD, 0x7901), board_ahci_mobile }, /* AMD Green Sardine */
+>>>>>>> upstream/android-13
 	/* AMD is using RAID class only for ahci controllers */
 	{ PCI_VENDOR_ID_AMD, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 	  PCI_CLASS_STORAGE_RAID << 8, 0xffffff, board_ahci },
 
+<<<<<<< HEAD
+=======
+	/* Dell S140/S150 */
+	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_SUBVENDOR_ID_DELL, PCI_ANY_ID,
+	  PCI_CLASS_STORAGE_RAID << 8, 0xffffff, board_ahci },
+
+>>>>>>> upstream/android-13
 	/* VIA */
 	{ PCI_VDEVICE(VIA, 0x3349), board_ahci_vt8251 }, /* VIA VT8251 */
 	{ PCI_VDEVICE(VIA, 0x6287), board_ahci_vt8251 }, /* VIA VT8251 */
@@ -593,6 +660,12 @@ static const struct pci_device_id ahci_pci_tbl[] = {
 	/* Enmotus */
 	{ PCI_DEVICE(0x1c44, 0x8000), board_ahci },
 
+<<<<<<< HEAD
+=======
+	/* Loongson */
+	{ PCI_VDEVICE(LOONGSON, 0x7a08), board_ahci },
+
+>>>>>>> upstream/android-13
 	/* Generic, PCI class code for AHCI */
 	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 	  PCI_CLASS_STORAGE_SATA_AHCI, 0xffffff, board_ahci },
@@ -802,8 +875,12 @@ static int ahci_avn_hardreset(struct ata_link *link, unsigned int *class,
 				(sstatus & 0xf) != 1)
 			break;
 
+<<<<<<< HEAD
 		ata_link_printk(link, KERN_INFO, "avn bounce port%d\n",
 				port);
+=======
+		ata_link_info(link,  "avn bounce port%d\n", port);
+>>>>>>> upstream/android-13
 
 		pci_read_config_word(pdev, 0x92, &val);
 		val &= ~(1 << port);
@@ -908,15 +985,26 @@ static int ahci_pci_device_resume(struct device *dev)
 
 static int ahci_configure_dma_masks(struct pci_dev *pdev, int using_dac)
 {
+<<<<<<< HEAD
+=======
+	const int dma_bits = using_dac ? 64 : 32;
+>>>>>>> upstream/android-13
 	int rc;
 
 	/*
 	 * If the device fixup already set the dma_mask to some non-standard
 	 * value, don't extend it here. This happens on STA2X11, for example.
+<<<<<<< HEAD
+=======
+	 *
+	 * XXX: manipulating the DMA mask from platform code is completely
+	 * bogus, platform code should use dev->bus_dma_limit instead..
+>>>>>>> upstream/android-13
 	 */
 	if (pdev->dma_mask && pdev->dma_mask < DMA_BIT_MASK(32))
 		return 0;
 
+<<<<<<< HEAD
 	if (using_dac &&
 	    !dma_set_mask(&pdev->dev, DMA_BIT_MASK(64))) {
 		rc = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(64));
@@ -942,6 +1030,12 @@ static int ahci_configure_dma_masks(struct pci_dev *pdev, int using_dac)
 		}
 	}
 	return 0;
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(dma_bits));
+	if (rc)
+		dev_err(&pdev->dev, "DMA enable failed\n");
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static void ahci_pci_print_info(struct ata_host *host)
@@ -1509,7 +1603,11 @@ static irqreturn_t ahci_thunderx_irq_handler(int irq, void *dev_instance)
 static void ahci_remap_check(struct pci_dev *pdev, int bar,
 		struct ahci_host_priv *hpriv)
 {
+<<<<<<< HEAD
 	int i, count = 0;
+=======
+	int i;
+>>>>>>> upstream/android-13
 	u32 cap;
 
 	/*
@@ -1530,6 +1628,7 @@ static void ahci_remap_check(struct pci_dev *pdev, int bar,
 			continue;
 
 		/* We've found a remapped device */
+<<<<<<< HEAD
 		count++;
 	}
 
@@ -1537,6 +1636,16 @@ static void ahci_remap_check(struct pci_dev *pdev, int bar,
 		return;
 
 	dev_warn(&pdev->dev, "Found %d remapped NVMe devices.\n", count);
+=======
+		hpriv->remapped_nvme++;
+	}
+
+	if (!hpriv->remapped_nvme)
+		return;
+
+	dev_warn(&pdev->dev, "Found %u remapped NVMe devices.\n",
+		 hpriv->remapped_nvme);
+>>>>>>> upstream/android-13
 	dev_warn(&pdev->dev,
 		 "Switch your BIOS from RAID to AHCI mode to use them.\n");
 
@@ -1656,6 +1765,21 @@ static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hp
 	}
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t remapped_nvme_show(struct device *dev,
+				  struct device_attribute *attr,
+				  char *buf)
+{
+	struct ata_host *host = dev_get_drvdata(dev);
+	struct ahci_host_priv *hpriv = host->private_data;
+
+	return sprintf(buf, "%u\n", hpriv->remapped_nvme);
+}
+
+static DEVICE_ATTR_RO(remapped_nvme);
+
+>>>>>>> upstream/android-13
 static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	unsigned int board_id = ent->driver_data;
@@ -1701,6 +1825,12 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 			ahci_pci_bar = AHCI_PCI_BAR_CAVIUM;
 		if (pdev->device == 0xa084)
 			ahci_pci_bar = AHCI_PCI_BAR_CAVIUM_GEN5;
+<<<<<<< HEAD
+=======
+	} else if (pdev->vendor == PCI_VENDOR_ID_LOONGSON) {
+		if (pdev->device == 0x7a08)
+			ahci_pci_bar = AHCI_PCI_BAR_LOONGSON;
+>>>>>>> upstream/android-13
 	}
 
 	/* acquire resources */
@@ -1756,11 +1886,26 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* detect remapped nvme devices */
 	ahci_remap_check(pdev, ahci_pci_bar, hpriv);
 
+<<<<<<< HEAD
+=======
+	sysfs_add_file_to_group(&pdev->dev.kobj,
+				&dev_attr_remapped_nvme.attr,
+				NULL);
+
+>>>>>>> upstream/android-13
 	/* must set flag prior to save config in order to take effect */
 	if (ahci_broken_devslp(pdev))
 		hpriv->flags |= AHCI_HFLAG_NO_DEVSLP;
 
 #ifdef CONFIG_ARM64
+<<<<<<< HEAD
+=======
+	if (pdev->vendor == PCI_VENDOR_ID_HUAWEI &&
+	    pdev->device == 0xa235 &&
+	    pdev->revision < 0x30)
+		hpriv->flags |= AHCI_HFLAG_NO_SXS;
+
+>>>>>>> upstream/android-13
 	if (pdev->vendor == 0x177d && pdev->device == 0xa01c)
 		hpriv->irq_handler = ahci_thunderx_irq_handler;
 #endif
@@ -1907,6 +2052,12 @@ static void ahci_shutdown_one(struct pci_dev *pdev)
 
 static void ahci_remove_one(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
+=======
+	sysfs_remove_file_from_group(&pdev->dev.kobj,
+				     &dev_attr_remapped_nvme.attr,
+				     NULL);
+>>>>>>> upstream/android-13
 	pm_runtime_get_noresume(&pdev->dev);
 	ata_pci_remove_one(pdev);
 }

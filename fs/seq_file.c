@@ -6,6 +6,11 @@
  * initial implementation -- AV, Oct 2001.
  */
 
+<<<<<<< HEAD
+=======
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/cache.h>
 #include <linux/fs.h>
 #include <linux/export.h>
@@ -16,6 +21,10 @@
 #include <linux/mm.h>
 #include <linux/printk.h>
 #include <linux/string_helpers.h>
+<<<<<<< HEAD
+=======
+#include <linux/uio.h>
+>>>>>>> upstream/android-13
 
 #include <linux/uaccess.h>
 #include <asm/page.h>
@@ -71,6 +80,7 @@ int seq_open(struct file *file, const struct seq_operations *op)
 	p->file = file;
 
 	/*
+<<<<<<< HEAD
 	 * Wrappers around seq_open(e.g. swaps_open) need to be
 	 * aware of this. If they set f_version themselves, they
 	 * should call seq_open first and then set f_version.
@@ -78,6 +88,8 @@ int seq_open(struct file *file, const struct seq_operations *op)
 	file->f_version = 0;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * seq_files support lseek() and pread().  They do not implement
 	 * write() at all, but we clear FMODE_PWRITE here for historical
 	 * reasons.
@@ -97,7 +109,10 @@ static int traverse(struct seq_file *m, loff_t offset)
 	int error = 0;
 	void *p;
 
+<<<<<<< HEAD
 	m->version = 0;
+=======
+>>>>>>> upstream/android-13
 	m->index = 0;
 	m->count = m->from = 0;
 	if (!offset)
@@ -155,12 +170,37 @@ Eoverflow:
  */
 ssize_t seq_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
+<<<<<<< HEAD
 	struct seq_file *m = file->private_data;
+=======
+	struct iovec iov = { .iov_base = buf, .iov_len = size};
+	struct kiocb kiocb;
+	struct iov_iter iter;
+	ssize_t ret;
+
+	init_sync_kiocb(&kiocb, file);
+	iov_iter_init(&iter, READ, &iov, 1, size);
+
+	kiocb.ki_pos = *ppos;
+	ret = seq_read_iter(&kiocb, &iter);
+	*ppos = kiocb.ki_pos;
+	return ret;
+}
+EXPORT_SYMBOL(seq_read);
+
+/*
+ * Ready-made ->f_op->read_iter()
+ */
+ssize_t seq_read_iter(struct kiocb *iocb, struct iov_iter *iter)
+{
+	struct seq_file *m = iocb->ki_filp->private_data;
+>>>>>>> upstream/android-13
 	size_t copied = 0;
 	size_t n;
 	void *p;
 	int err = 0;
 
+<<<<<<< HEAD
 	mutex_lock(&m->lock);
 
 	/*
@@ -175,11 +215,18 @@ ssize_t seq_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 	 * need of passing another argument to all the seq_file methods.
 	 */
 	m->version = file->f_version;
+=======
+	if (!iov_iter_count(iter))
+		return 0;
+
+	mutex_lock(&m->lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * if request is to read from zero offset, reset iterator to first
 	 * record as it might have been already advanced by previous requests
 	 */
+<<<<<<< HEAD
 	if (*ppos == 0) {
 		m->index = 0;
 		m->version = 0;
@@ -189,16 +236,33 @@ ssize_t seq_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 	/* Don't assume *ppos is where we left it */
 	if (unlikely(*ppos != m->read_pos)) {
 		while ((err = traverse(m, *ppos)) == -EAGAIN)
+=======
+	if (iocb->ki_pos == 0) {
+		m->index = 0;
+		m->count = 0;
+	}
+
+	/* Don't assume ki_pos is where we left it */
+	if (unlikely(iocb->ki_pos != m->read_pos)) {
+		while ((err = traverse(m, iocb->ki_pos)) == -EAGAIN)
+>>>>>>> upstream/android-13
 			;
 		if (err) {
 			/* With prejudice... */
 			m->read_pos = 0;
+<<<<<<< HEAD
 			m->version = 0;
+=======
+>>>>>>> upstream/android-13
 			m->index = 0;
 			m->count = 0;
 			goto Done;
 		} else {
+<<<<<<< HEAD
 			m->read_pos = *ppos;
+=======
+			m->read_pos = iocb->ki_pos;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -208,6 +272,7 @@ ssize_t seq_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 		if (!m->buf)
 			goto Enomem;
 	}
+<<<<<<< HEAD
 	/* if not empty - flush it first */
 	if (m->count) {
 		n = min(m->count, size);
@@ -223,10 +288,23 @@ ssize_t seq_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 			goto Done;
 	}
 	/* we need at least one record in buffer */
+=======
+	// something left in the buffer - copy it out first
+	if (m->count) {
+		n = copy_to_iter(m->buf + m->from, m->count, iter);
+		m->count -= n;
+		m->from += n;
+		copied += n;
+		if (m->count)	// hadn't managed to copy everything
+			goto Done;
+	}
+	// get a non-empty record in the buffer
+>>>>>>> upstream/android-13
 	m->from = 0;
 	p = m->op->start(m, &m->index);
 	while (1) {
 		err = PTR_ERR(p);
+<<<<<<< HEAD
 		if (!p || IS_ERR(p))
 			break;
 		err = m->op->show(m, p);
@@ -240,25 +318,54 @@ ssize_t seq_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 		}
 		if (m->count < m->size)
 			goto Fill;
+=======
+		if (!p || IS_ERR(p))	// EOF or an error
+			break;
+		err = m->op->show(m, p);
+		if (err < 0)		// hard error
+			break;
+		if (unlikely(err))	// ->show() says "skip it"
+			m->count = 0;
+		if (unlikely(!m->count)) { // empty record
+			p = m->op->next(m, p, &m->index);
+			continue;
+		}
+		if (!seq_has_overflowed(m)) // got it
+			goto Fill;
+		// need a bigger buffer
+>>>>>>> upstream/android-13
 		m->op->stop(m, p);
 		kvfree(m->buf);
 		m->count = 0;
 		m->buf = seq_buf_alloc(m->size <<= 1);
 		if (!m->buf)
 			goto Enomem;
+<<<<<<< HEAD
 		m->version = 0;
 		p = m->op->start(m, &m->index);
 	}
+=======
+		p = m->op->start(m, &m->index);
+	}
+	// EOF or an error
+>>>>>>> upstream/android-13
 	m->op->stop(m, p);
 	m->count = 0;
 	goto Done;
 Fill:
+<<<<<<< HEAD
 	/* they want more? let's try to get some more */
+=======
+	// one non-empty record is in the buffer; if they want more,
+	// try to fit more in, but in any case we need to advance
+	// the iterator once for every record shown.
+>>>>>>> upstream/android-13
 	while (1) {
 		size_t offs = m->count;
 		loff_t pos = m->index;
 
 		p = m->op->next(m, p, &m->index);
+<<<<<<< HEAD
 		if (pos == m->index)
 			/* Buggy ->next function */
 			m->index++;
@@ -280,10 +387,32 @@ Fill:
 	err = copy_to_user(buf, m->buf, n);
 	if (err)
 		goto Efault;
+=======
+		if (pos == m->index) {
+			pr_info_ratelimited("buggy .next function %ps did not update position index\n",
+					    m->op->next);
+			m->index++;
+		}
+		if (!p || IS_ERR(p))	// no next record for us
+			break;
+		if (m->count >= iov_iter_count(iter))
+			break;
+		err = m->op->show(m, p);
+		if (err > 0) {		// ->show() says "skip it"
+			m->count = offs;
+		} else if (err || seq_has_overflowed(m)) {
+			m->count = offs;
+			break;
+		}
+	}
+	m->op->stop(m, p);
+	n = copy_to_iter(m->buf, m->count, iter);
+>>>>>>> upstream/android-13
 	copied += n;
 	m->count -= n;
 	m->from = n;
 Done:
+<<<<<<< HEAD
 	if (!copied)
 		copied = err;
 	else {
@@ -291,16 +420,29 @@ Done:
 		m->read_pos += copied;
 	}
 	file->f_version = m->version;
+=======
+	if (unlikely(!copied)) {
+		copied = m->count ? -EFAULT : err;
+	} else {
+		iocb->ki_pos += copied;
+		m->read_pos += copied;
+	}
+>>>>>>> upstream/android-13
 	mutex_unlock(&m->lock);
 	return copied;
 Enomem:
 	err = -ENOMEM;
 	goto Done;
+<<<<<<< HEAD
 Efault:
 	err = -EFAULT;
 	goto Done;
 }
 EXPORT_SYMBOL(seq_read);
+=======
+}
+EXPORT_SYMBOL(seq_read_iter);
+>>>>>>> upstream/android-13
 
 /**
  *	seq_lseek -	->llseek() method for sequential files.
@@ -316,10 +458,17 @@ loff_t seq_lseek(struct file *file, loff_t offset, int whence)
 	loff_t retval = -EINVAL;
 
 	mutex_lock(&m->lock);
+<<<<<<< HEAD
 	m->version = file->f_version;
 	switch (whence) {
 	case SEEK_CUR:
 		offset += file->f_pos;
+=======
+	switch (whence) {
+	case SEEK_CUR:
+		offset += file->f_pos;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SEEK_SET:
 		if (offset < 0)
 			break;
@@ -331,7 +480,10 @@ loff_t seq_lseek(struct file *file, loff_t offset, int whence)
 				/* with extreme prejudice... */
 				file->f_pos = 0;
 				m->read_pos = 0;
+<<<<<<< HEAD
 				m->version = 0;
+=======
+>>>>>>> upstream/android-13
 				m->index = 0;
 				m->count = 0;
 			} else {
@@ -342,7 +494,10 @@ loff_t seq_lseek(struct file *file, loff_t offset, int whence)
 			file->f_pos = offset;
 		}
 	}
+<<<<<<< HEAD
 	file->f_version = m->version;
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&m->lock);
 	return retval;
 }
@@ -366,6 +521,34 @@ int seq_release(struct inode *inode, struct file *file)
 EXPORT_SYMBOL(seq_release);
 
 /**
+<<<<<<< HEAD
+=======
+ * seq_escape_mem - print data into buffer, escaping some characters
+ * @m: target buffer
+ * @src: source buffer
+ * @len: size of source buffer
+ * @flags: flags to pass to string_escape_mem()
+ * @esc: set of characters that need escaping
+ *
+ * Puts data into buffer, replacing each occurrence of character from
+ * given class (defined by @flags and @esc) with printable escaped sequence.
+ *
+ * Use seq_has_overflowed() to check for errors.
+ */
+void seq_escape_mem(struct seq_file *m, const char *src, size_t len,
+		    unsigned int flags, const char *esc)
+{
+	char *buf;
+	size_t size = seq_get_buf(m, &buf);
+	int ret;
+
+	ret = string_escape_mem(src, len, buf, size, flags, esc);
+	seq_commit(m, ret < size ? ret : -1);
+}
+EXPORT_SYMBOL(seq_escape_mem);
+
+/**
+>>>>>>> upstream/android-13
  *	seq_escape -	print string into buffer, escaping some characters
  *	@m:	target buffer
  *	@s:	string
@@ -377,12 +560,16 @@ EXPORT_SYMBOL(seq_release);
  */
 void seq_escape(struct seq_file *m, const char *s, const char *esc)
 {
+<<<<<<< HEAD
 	char *buf;
 	size_t size = seq_get_buf(m, &buf);
 	int ret;
 
 	ret = string_escape_str(s, buf, size, ESCAPE_OCTAL, esc);
 	seq_commit(m, ret < size ? ret : -1);
+=======
+	seq_escape_str(m, s, ESCAPE_OCTAL, esc);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(seq_escape);
 
@@ -411,6 +598,27 @@ void seq_printf(struct seq_file *m, const char *f, ...)
 }
 EXPORT_SYMBOL(seq_printf);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BINARY_PRINTF
+void seq_bprintf(struct seq_file *m, const char *f, const u32 *binary)
+{
+	int len;
+
+	if (m->count < m->size) {
+		len = bstr_printf(m->buf + m->count, m->size - m->count, f,
+				  binary);
+		if (m->count + len < m->size) {
+			m->count += len;
+			return;
+		}
+	}
+	seq_set_overflow(m);
+}
+EXPORT_SYMBOL(seq_bprintf);
+#endif /* CONFIG_BINARY_PRINTF */
+
+>>>>>>> upstream/android-13
 /**
  *	mangle_path -	mangle and copy path to buffer beginning
  *	@s: buffer start
@@ -668,7 +876,12 @@ void seq_puts(struct seq_file *m, const char *s)
 EXPORT_SYMBOL(seq_puts);
 
 /**
+<<<<<<< HEAD
  * A helper routine for putting decimal numbers without rich format of printf().
+=======
+ * seq_put_decimal_ull_width - A helper routine for putting decimal numbers
+ * 			       without rich format of printf().
+>>>>>>> upstream/android-13
  * only 'unsigned long long' is supported.
  * @m: seq_file identifying the buffer to which data should be written
  * @delimiter: a string which is printed before the number
@@ -1043,7 +1256,11 @@ struct hlist_node *seq_hlist_next_rcu(void *v,
 EXPORT_SYMBOL(seq_hlist_next_rcu);
 
 /**
+<<<<<<< HEAD
  * seq_hlist_start_precpu - start an iteration of a percpu hlist array
+=======
+ * seq_hlist_start_percpu - start an iteration of a percpu hlist array
+>>>>>>> upstream/android-13
  * @head: pointer to percpu array of struct hlist_heads
  * @cpu:  pointer to cpu "cursor"
  * @pos:  start position of sequence

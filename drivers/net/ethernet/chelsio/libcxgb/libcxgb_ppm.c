@@ -35,7 +35,10 @@
  */
 
 #define DRV_NAME "libcxgb"
+<<<<<<< HEAD
 #define DRV_VERSION "1.0.0-ko"
+=======
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) DRV_NAME ": " fmt
 
 #include <linux/kernel.h>
@@ -123,6 +126,12 @@ static int ppm_get_cpu_entries(struct cxgbi_ppm *ppm, unsigned int count,
 	unsigned int cpu;
 	int i;
 
+<<<<<<< HEAD
+=======
+	if (!ppm->pool)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	cpu = get_cpu();
 	pool = per_cpu_ptr(ppm->pool, cpu);
 	spin_lock_bh(&pool->lock);
@@ -169,7 +178,13 @@ static int ppm_get_entries(struct cxgbi_ppm *ppm, unsigned int count,
 	}
 
 	ppm->next = i + count;
+<<<<<<< HEAD
 	if (ppm->next >= ppm->bmap_index_max)
+=======
+	if (ppm->max_index_in_edram && (ppm->next >= ppm->max_index_in_edram))
+		ppm->next = 0;
+	else if (ppm->next >= ppm->bmap_index_max)
+>>>>>>> upstream/android-13
 		ppm->next = 0;
 
 	spin_unlock_bh(&ppm->map_lock);
@@ -382,6 +397,7 @@ static struct cxgbi_ppm_pool *ppm_alloc_cpu_pool(unsigned int *total,
 
 int cxgbi_ppm_init(void **ppm_pp, struct net_device *ndev,
 		   struct pci_dev *pdev, void *lldev,
+<<<<<<< HEAD
 		   struct cxgbi_tag_format *tformat,
 		   unsigned int ppmax,
 		   unsigned int llimit,
@@ -394,6 +410,38 @@ int cxgbi_ppm_init(void **ppm_pp, struct net_device *ndev,
 	unsigned int pool_index_max = 0;
 	unsigned int alloc_sz;
 	unsigned int ppod_bmap_size;
+=======
+		   struct cxgbi_tag_format *tformat, unsigned int iscsi_size,
+		   unsigned int llimit, unsigned int start,
+		   unsigned int reserve_factor, unsigned int iscsi_edram_start,
+		   unsigned int iscsi_edram_size)
+{
+	struct cxgbi_ppm *ppm = (struct cxgbi_ppm *)(*ppm_pp);
+	struct cxgbi_ppm_pool *pool = NULL;
+	unsigned int pool_index_max = 0;
+	unsigned int ppmax_pool = 0;
+	unsigned int ppod_bmap_size;
+	unsigned int alloc_sz;
+	unsigned int ppmax;
+
+	if (!iscsi_edram_start)
+		iscsi_edram_size = 0;
+
+	if (iscsi_edram_size &&
+	    ((iscsi_edram_start + iscsi_edram_size) != start)) {
+		pr_err("iscsi ppod region not contiguous: EDRAM start 0x%x "
+			"size 0x%x DDR start 0x%x\n",
+			iscsi_edram_start, iscsi_edram_size, start);
+		return -EINVAL;
+	}
+
+	if (iscsi_edram_size) {
+		reserve_factor = 0;
+		start = iscsi_edram_start;
+	}
+
+	ppmax = (iscsi_edram_size + iscsi_size) >> PPOD_SIZE_SHIFT;
+>>>>>>> upstream/android-13
 
 	if (ppm) {
 		pr_info("ippm: %s, ppm 0x%p,0x%p already initialized, %u/%u.\n",
@@ -434,6 +482,17 @@ int cxgbi_ppm_init(void **ppm_pp, struct net_device *ndev,
 			__func__, ppmax, ppmax_pool, ppod_bmap_size, start,
 			end);
 	}
+<<<<<<< HEAD
+=======
+	if (iscsi_edram_size) {
+		unsigned int first_ddr_idx =
+				iscsi_edram_size >> PPOD_SIZE_SHIFT;
+
+		ppm->max_index_in_edram = first_ddr_idx - 1;
+		bitmap_set(ppm->ppod_bmap, first_ddr_idx, 1);
+		pr_debug("reserved %u ppod in bitmap\n", first_ddr_idx);
+	}
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&ppm->map_lock);
 	kref_init(&ppm->refcnt);
@@ -499,5 +558,8 @@ EXPORT_SYMBOL(cxgbi_tagmask_set);
 
 MODULE_AUTHOR("Chelsio Communications");
 MODULE_DESCRIPTION("Chelsio common library");
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VERSION);
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("Dual BSD/GPL");

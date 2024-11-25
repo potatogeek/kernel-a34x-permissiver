@@ -1,14 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * dw-hdmi-i2s-audio.c
  *
  * Copyright (c) 2017 Renesas Solutions Corp.
  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
 #include <drm/bridge/dw_hdmi.h>
+=======
+ */
+
+#include <linux/dma-mapping.h>
+#include <linux/module.h>
+
+#include <drm/bridge/dw_hdmi.h>
+#include <drm/drm_crtc.h>
+>>>>>>> upstream/android-13
 
 #include <sound/hdmi-codec.h>
 
@@ -43,6 +57,7 @@ static int dw_hdmi_i2s_hw_params(struct device *dev, void *data,
 	u8 inputclkfs = 0;
 
 	/* it cares I2S only */
+<<<<<<< HEAD
 	if ((fmt->fmt != HDMI_I2S) ||
 	    (fmt->bit_clk_master | fmt->frame_clk_master)) {
 		dev_err(dev, "unsupported format/settings\n");
@@ -51,6 +66,32 @@ static int dw_hdmi_i2s_hw_params(struct device *dev, void *data,
 
 	inputclkfs	= HDMI_AUD_INPUTCLKFS_64FS;
 	conf0		= HDMI_AUD_CONF0_I2S_ALL_ENABLE;
+=======
+	if (fmt->bit_clk_master | fmt->frame_clk_master) {
+		dev_err(dev, "unsupported clock settings\n");
+		return -EINVAL;
+	}
+
+	/* Reset the FIFOs before applying new params */
+	hdmi_write(audio, HDMI_AUD_CONF0_SW_RESET, HDMI_AUD_CONF0);
+	hdmi_write(audio, (u8)~HDMI_MC_SWRSTZ_I2SSWRST_REQ, HDMI_MC_SWRSTZ);
+
+	inputclkfs	= HDMI_AUD_INPUTCLKFS_64FS;
+	conf0		= (HDMI_AUD_CONF0_I2S_SELECT | HDMI_AUD_CONF0_I2S_EN0);
+
+	/* Enable the required i2s lanes */
+	switch (hparms->channels) {
+	case 7 ... 8:
+		conf0 |= HDMI_AUD_CONF0_I2S_EN3;
+		fallthrough;
+	case 5 ... 6:
+		conf0 |= HDMI_AUD_CONF0_I2S_EN2;
+		fallthrough;
+	case 3 ... 4:
+		conf0 |= HDMI_AUD_CONF0_I2S_EN1;
+		/* Fall-thru */
+	}
+>>>>>>> upstream/android-13
 
 	switch (hparms->sample_width) {
 	case 16:
@@ -62,12 +103,51 @@ static int dw_hdmi_i2s_hw_params(struct device *dev, void *data,
 		break;
 	}
 
+<<<<<<< HEAD
 	dw_hdmi_set_sample_rate(hdmi, hparms->sample_rate);
+=======
+	switch (fmt->fmt) {
+	case HDMI_I2S:
+		conf1 |= HDMI_AUD_CONF1_MODE_I2S;
+		break;
+	case HDMI_RIGHT_J:
+		conf1 |= HDMI_AUD_CONF1_MODE_RIGHT_J;
+		break;
+	case HDMI_LEFT_J:
+		conf1 |= HDMI_AUD_CONF1_MODE_LEFT_J;
+		break;
+	case HDMI_DSP_A:
+		conf1 |= HDMI_AUD_CONF1_MODE_BURST_1;
+		break;
+	case HDMI_DSP_B:
+		conf1 |= HDMI_AUD_CONF1_MODE_BURST_2;
+		break;
+	default:
+		dev_err(dev, "unsupported format\n");
+		return -EINVAL;
+	}
+
+	dw_hdmi_set_sample_rate(hdmi, hparms->sample_rate);
+	dw_hdmi_set_channel_status(hdmi, hparms->iec.status);
+	dw_hdmi_set_channel_count(hdmi, hparms->channels);
+	dw_hdmi_set_channel_allocation(hdmi, hparms->cea.channel_allocation);
+>>>>>>> upstream/android-13
 
 	hdmi_write(audio, inputclkfs, HDMI_AUD_INPUTCLKFS);
 	hdmi_write(audio, conf0, HDMI_AUD_CONF0);
 	hdmi_write(audio, conf1, HDMI_AUD_CONF1);
 
+<<<<<<< HEAD
+=======
+	return 0;
+}
+
+static int dw_hdmi_i2s_audio_startup(struct device *dev, void *data)
+{
+	struct dw_hdmi_i2s_audio_data *audio = data;
+	struct dw_hdmi *hdmi = audio->hdmi;
+
+>>>>>>> upstream/android-13
 	dw_hdmi_audio_enable(hdmi);
 
 	return 0;
@@ -79,8 +159,27 @@ static void dw_hdmi_i2s_audio_shutdown(struct device *dev, void *data)
 	struct dw_hdmi *hdmi = audio->hdmi;
 
 	dw_hdmi_audio_disable(hdmi);
+<<<<<<< HEAD
 
 	hdmi_write(audio, HDMI_AUD_CONF0_SW_RESET, HDMI_AUD_CONF0);
+=======
+}
+
+static int dw_hdmi_i2s_get_eld(struct device *dev, void *data, uint8_t *buf,
+			       size_t len)
+{
+	struct dw_hdmi_i2s_audio_data *audio = data;
+	u8 *eld;
+
+	eld = audio->get_eld(audio->hdmi);
+	if (eld)
+		memcpy(buf, eld, min_t(size_t, MAX_ELD_BYTES, len));
+	else
+		/* Pass en empty ELD if connector not available */
+		memset(buf, 0, len);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int dw_hdmi_i2s_get_dai_id(struct snd_soc_component *component,
@@ -103,10 +202,30 @@ static int dw_hdmi_i2s_get_dai_id(struct snd_soc_component *component,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static struct hdmi_codec_ops dw_hdmi_i2s_ops = {
 	.hw_params	= dw_hdmi_i2s_hw_params,
 	.audio_shutdown	= dw_hdmi_i2s_audio_shutdown,
 	.get_dai_id	= dw_hdmi_i2s_get_dai_id,
+=======
+static int dw_hdmi_i2s_hook_plugged_cb(struct device *dev, void *data,
+				       hdmi_codec_plugged_cb fn,
+				       struct device *codec_dev)
+{
+	struct dw_hdmi_i2s_audio_data *audio = data;
+	struct dw_hdmi *hdmi = audio->hdmi;
+
+	return dw_hdmi_set_plugged_cb(hdmi, fn, codec_dev);
+}
+
+static const struct hdmi_codec_ops dw_hdmi_i2s_ops = {
+	.hw_params	= dw_hdmi_i2s_hw_params,
+	.audio_startup  = dw_hdmi_i2s_audio_startup,
+	.audio_shutdown	= dw_hdmi_i2s_audio_shutdown,
+	.get_eld	= dw_hdmi_i2s_get_eld,
+	.get_dai_id	= dw_hdmi_i2s_get_dai_id,
+	.hook_plugged_cb = dw_hdmi_i2s_hook_plugged_cb,
+>>>>>>> upstream/android-13
 };
 
 static int snd_dw_hdmi_probe(struct platform_device *pdev)
@@ -118,7 +237,11 @@ static int snd_dw_hdmi_probe(struct platform_device *pdev)
 
 	pdata.ops		= &dw_hdmi_i2s_ops;
 	pdata.i2s		= 1;
+<<<<<<< HEAD
 	pdata.max_i2s_channels	= 6;
+=======
+	pdata.max_i2s_channels	= 8;
+>>>>>>> upstream/android-13
 	pdata.data		= audio;
 
 	memset(&pdevinfo, 0, sizeof(pdevinfo));

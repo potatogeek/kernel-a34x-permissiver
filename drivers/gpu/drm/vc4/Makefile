@@ -12,6 +12,10 @@ vc4-y := \
 	vc4_kms.o \
 	vc4_gem.o \
 	vc4_hdmi.o \
+<<<<<<< HEAD
+=======
+	vc4_hdmi_phy.o \
+>>>>>>> upstream/android-13
 	vc4_vec.o \
 	vc4_hvs.o \
 	vc4_irq.o \

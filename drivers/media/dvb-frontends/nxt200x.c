@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Support for NXT2002 and NXT2004 - VSB/QAM
  *
@@ -5,6 +9,7 @@
  *    Copyright (C) 2006-2014 Michael Krufky <mkrufky@linuxtv.org>
  *    based on nxt2002 by Taylor Jacob <rtjacob@earthlink.net>
  *    and nxt2004 by Jean-Francois Thibert <jeanfrancois@sagetv.com>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
 */
 
 /*
@@ -153,7 +160,11 @@ static int nxt200x_writereg_multibyte (struct nxt200x_state* state, u8 reg, u8* 
 	u8 attr, len2, buf;
 	dprintk("%s\n", __func__);
 
+<<<<<<< HEAD
 	/* set mutli register register */
+=======
+	/* set multi register register */
+>>>>>>> upstream/android-13
 	nxt200x_writebytes(state, 0x35, &reg, 1);
 
 	/* send the actual data */
@@ -178,7 +189,10 @@ static int nxt200x_writereg_multibyte (struct nxt200x_state* state, u8 reg, u8* 
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* set multi register length */
@@ -200,7 +214,10 @@ static int nxt200x_writereg_multibyte (struct nxt200x_state* state, u8 reg, u8* 
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	pr_warn("Error writing multireg register 0x%02X\n", reg);
@@ -214,7 +231,11 @@ static int nxt200x_readreg_multibyte (struct nxt200x_state* state, u8 reg, u8* d
 	u8 buf, len2, attr;
 	dprintk("%s\n", __func__);
 
+<<<<<<< HEAD
 	/* set mutli register register */
+=======
+	/* set multi register register */
+>>>>>>> upstream/android-13
 	nxt200x_writebytes(state, 0x35, &reg, 1);
 
 	switch (state->demod_chip) {
@@ -226,7 +247,10 @@ static int nxt200x_readreg_multibyte (struct nxt200x_state* state, u8 reg, u8* d
 			/* read the actual data */
 			nxt200x_readbytes(state, reg, data, len);
 			return 0;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 		case NXT2004:
 			/* probably not right, but gives correct values */
 			attr = 0x02;
@@ -249,10 +273,15 @@ static int nxt200x_readreg_multibyte (struct nxt200x_state* state, u8 reg, u8* d
 				nxt200x_readbytes(state, 0x36 + i, &data[i], 1);
 			}
 			return 0;
+<<<<<<< HEAD
 			break;
 		default:
 			return -EINVAL;
 			break;
+=======
+		default:
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -384,7 +413,10 @@ static int nxt200x_writetuner (struct nxt200x_state* state, u8* data)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -565,7 +597,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (fe->ops.tuner_ops.calc_regs) {
@@ -590,7 +625,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 	nxt200x_writebytes(state, 0x42, buf, 1);
 
@@ -604,7 +642,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 	nxt200x_writebytes(state, 0x57, buf, 1);
 
@@ -620,7 +661,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* write sdmx input */
@@ -636,7 +680,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 				break;
 		default:
 				return -EINVAL;
+<<<<<<< HEAD
 				break;
+=======
+>>>>>>> upstream/android-13
 	}
 	buf[1] = 0x00;
 	switch (state->demod_chip) {
@@ -648,7 +695,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* write adc power lpf fc */
@@ -674,7 +724,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* write kg1 */
@@ -730,7 +783,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 				break;
 		default:
 				return -EINVAL;
+<<<<<<< HEAD
 				break;
+=======
+>>>>>>> upstream/android-13
 	}
 	nxt200x_writebytes(state, 0x30, buf, 1);
 
@@ -752,7 +808,10 @@ static int nxt200x_setup_frontend_parameters(struct dvb_frontend *fe)
 			break;
 		default:
 			return -EINVAL;
+<<<<<<< HEAD
 			break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* write agc control reg */
@@ -1124,7 +1183,10 @@ static int nxt200x_init(struct dvb_frontend* fe)
 				break;
 			default:
 				return -EINVAL;
+<<<<<<< HEAD
 				break;
+=======
+>>>>>>> upstream/android-13
 		}
 		state->initialised = 1;
 	}

@@ -22,6 +22,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <linux/pci.h>
 #include <linux/slab.h>
 #include <linux/dma-mapping.h>
@@ -100,6 +101,27 @@ void drm_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
 EXPORT_SYMBOL(drm_pci_free);
 
 #ifdef CONFIG_PCI
+=======
+#include <linux/dma-mapping.h>
+#include <linux/export.h>
+#include <linux/list.h>
+#include <linux/mutex.h>
+#include <linux/pci.h>
+#include <linux/slab.h>
+
+#include <drm/drm.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_print.h>
+
+#include "drm_internal.h"
+#include "drm_legacy.h"
+
+#ifdef CONFIG_DRM_LEGACY
+/* List of devices hanging off drivers with stealth attach. */
+static LIST_HEAD(legacy_dev_list);
+static DEFINE_MUTEX(legacy_dev_list_lock);
+#endif
+>>>>>>> upstream/android-13
 
 static int drm_get_pci_domain(struct drm_device *dev)
 {
@@ -112,16 +134,30 @@ static int drm_get_pci_domain(struct drm_device *dev)
 		return 0;
 #endif /* __alpha__ */
 
+<<<<<<< HEAD
 	return pci_domain_nr(dev->pdev->bus);
+=======
+	return pci_domain_nr(to_pci_dev(dev->dev)->bus);
+>>>>>>> upstream/android-13
 }
 
 int drm_pci_set_busid(struct drm_device *dev, struct drm_master *master)
 {
+<<<<<<< HEAD
 	master->unique = kasprintf(GFP_KERNEL, "pci:%04x:%02x:%02x.%d",
 					drm_get_pci_domain(dev),
 					dev->pdev->bus->number,
 					PCI_SLOT(dev->pdev->devfn),
 					PCI_FUNC(dev->pdev->devfn));
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+
+	master->unique = kasprintf(GFP_KERNEL, "pci:%04x:%02x:%02x.%d",
+					drm_get_pci_domain(dev),
+					pdev->bus->number,
+					PCI_SLOT(pdev->devfn),
+					PCI_FUNC(pdev->devfn));
+>>>>>>> upstream/android-13
 	if (!master->unique)
 		return -ENOMEM;
 
@@ -129,6 +165,7 @@ int drm_pci_set_busid(struct drm_device *dev, struct drm_master *master)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int drm_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
 {
 	if ((p->busnum >> 8) != drm_get_pci_domain(dev) ||
@@ -137,6 +174,20 @@ static int drm_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
 		return -EINVAL;
 
 	p->irq = dev->pdev->irq;
+=======
+#ifdef CONFIG_DRM_LEGACY
+
+static int drm_legacy_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
+{
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+
+	if ((p->busnum >> 8) != drm_get_pci_domain(dev) ||
+	    (p->busnum & 0xff) != pdev->bus->number ||
+	    p->devnum != PCI_SLOT(pdev->devfn) || p->funcnum != PCI_FUNC(pdev->devfn))
+		return -EINVAL;
+
+	p->irq = pdev->irq;
+>>>>>>> upstream/android-13
 
 	DRM_DEBUG("%d:%d:%d => IRQ %d\n", p->busnum, p->devnum, p->funcnum,
 		  p->irq);
@@ -144,7 +195,11 @@ static int drm_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
 }
 
 /**
+<<<<<<< HEAD
  * drm_irq_by_busid - Get interrupt from bus ID
+=======
+ * drm_legacy_irq_by_busid - Get interrupt from bus ID
+>>>>>>> upstream/android-13
  * @dev: DRM device
  * @data: IOCTL parameter pointing to a drm_irq_busid structure
  * @file_priv: DRM file private.
@@ -155,12 +210,18 @@ static int drm_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
  *
  * Return: 0 on success or a negative error code on failure.
  */
+<<<<<<< HEAD
 int drm_irq_by_busid(struct drm_device *dev, void *data,
 		     struct drm_file *file_priv)
+=======
+int drm_legacy_irq_by_busid(struct drm_device *dev, void *data,
+			    struct drm_file *file_priv)
+>>>>>>> upstream/android-13
 {
 	struct drm_irq_busid *p = data;
 
 	if (!drm_core_check_feature(dev, DRIVER_LEGACY))
+<<<<<<< HEAD
 		return -EINVAL;
 
 	/* UMS was only ever support on PCI devices. */
@@ -188,6 +249,21 @@ static void drm_pci_agp_init(struct drm_device *dev)
 }
 
 void drm_pci_agp_destroy(struct drm_device *dev)
+=======
+		return -EOPNOTSUPP;
+
+	/* UMS was only ever support on PCI devices. */
+	if (WARN_ON(!dev_is_pci(dev->dev)))
+		return -EINVAL;
+
+	if (!drm_core_check_feature(dev, DRIVER_HAVE_IRQ))
+		return -EOPNOTSUPP;
+
+	return drm_legacy_pci_irq_by_busid(dev, p);
+}
+
+void drm_legacy_pci_agp_destroy(struct drm_device *dev)
+>>>>>>> upstream/android-13
 {
 	if (dev->agp) {
 		arch_phys_wc_del(dev->agp->agp_mtrr);
@@ -197,6 +273,7 @@ void drm_pci_agp_destroy(struct drm_device *dev)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * drm_get_pci_dev - Register a PCI device with the DRM subsystem
  * @pdev: PCI device
@@ -214,6 +291,25 @@ void drm_pci_agp_destroy(struct drm_device *dev)
  */
 int drm_get_pci_dev(struct pci_dev *pdev, const struct pci_device_id *ent,
 		    struct drm_driver *driver)
+=======
+static void drm_legacy_pci_agp_init(struct drm_device *dev)
+{
+	if (drm_core_check_feature(dev, DRIVER_USE_AGP)) {
+		if (pci_find_capability(to_pci_dev(dev->dev), PCI_CAP_ID_AGP))
+			dev->agp = drm_legacy_agp_init(dev);
+		if (dev->agp) {
+			dev->agp->agp_mtrr = arch_phys_wc_add(
+				dev->agp->agp_info.aper_base,
+				dev->agp->agp_info.aper_size *
+				1024 * 1024);
+		}
+	}
+}
+
+static int drm_legacy_get_pci_dev(struct pci_dev *pdev,
+				  const struct pci_device_id *ent,
+				  const struct drm_driver *driver)
+>>>>>>> upstream/android-13
 {
 	struct drm_device *dev;
 	int ret;
@@ -228,35 +324,57 @@ int drm_get_pci_dev(struct pci_dev *pdev, const struct pci_device_id *ent,
 	if (ret)
 		goto err_free;
 
+<<<<<<< HEAD
 	dev->pdev = pdev;
+=======
+>>>>>>> upstream/android-13
 #ifdef __alpha__
 	dev->hose = pdev->sysdata;
 #endif
 
+<<<<<<< HEAD
 	if (drm_core_check_feature(dev, DRIVER_MODESET))
 		pci_set_drvdata(pdev, dev);
 
 	drm_pci_agp_init(dev);
+=======
+	drm_legacy_pci_agp_init(dev);
+>>>>>>> upstream/android-13
 
 	ret = drm_dev_register(dev, ent->driver_data);
 	if (ret)
 		goto err_agp;
 
+<<<<<<< HEAD
 	/* No locking needed since shadow-attach is single-threaded since it may
 	 * only be called from the per-driver module init hook. */
 	if (drm_core_check_feature(dev, DRIVER_LEGACY))
 		list_add_tail(&dev->legacy_dev_list, &driver->legacy_dev_list);
+=======
+	if (drm_core_check_feature(dev, DRIVER_LEGACY)) {
+		mutex_lock(&legacy_dev_list_lock);
+		list_add_tail(&dev->legacy_dev_list, &legacy_dev_list);
+		mutex_unlock(&legacy_dev_list_lock);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 
 err_agp:
+<<<<<<< HEAD
 	drm_pci_agp_destroy(dev);
+=======
+	drm_legacy_pci_agp_destroy(dev);
+>>>>>>> upstream/android-13
 	pci_disable_device(pdev);
 err_free:
 	drm_dev_put(dev);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(drm_get_pci_dev);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * drm_legacy_pci_init - shadow-attach a legacy DRM PCI driver
@@ -267,7 +385,12 @@ EXPORT_SYMBOL(drm_get_pci_dev);
  *
  * Return: 0 on success or a negative error code on failure.
  */
+<<<<<<< HEAD
 int drm_legacy_pci_init(struct drm_driver *driver, struct pci_driver *pdriver)
+=======
+int drm_legacy_pci_init(const struct drm_driver *driver,
+			struct pci_driver *pdriver)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev = NULL;
 	const struct pci_device_id *pid;
@@ -279,7 +402,10 @@ int drm_legacy_pci_init(struct drm_driver *driver, struct pci_driver *pdriver)
 		return -EINVAL;
 
 	/* If not using KMS, fall back to stealth mode manual scanning. */
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&driver->legacy_dev_list);
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; pdriver->id_table[i].vendor != 0; i++) {
 		pid = &pdriver->id_table[i];
 
@@ -298,13 +424,18 @@ int drm_legacy_pci_init(struct drm_driver *driver, struct pci_driver *pdriver)
 
 			/* stealth mode requires a manual probe */
 			pci_dev_get(pdev);
+<<<<<<< HEAD
 			drm_get_pci_dev(pdev, pid, driver);
+=======
+			drm_legacy_get_pci_dev(pdev, pid, driver);
+>>>>>>> upstream/android-13
 		}
 	}
 	return 0;
 }
 EXPORT_SYMBOL(drm_legacy_pci_init);
 
+<<<<<<< HEAD
 #else
 
 void drm_pci_agp_destroy(struct drm_device *dev) {}
@@ -316,6 +447,8 @@ int drm_irq_by_busid(struct drm_device *dev, void *data,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * drm_legacy_pci_exit - unregister shadow-attach legacy DRM driver
  * @driver: DRM device driver
@@ -324,20 +457,45 @@ int drm_irq_by_busid(struct drm_device *dev, void *data,
  * Unregister a DRM driver shadow-attached through drm_legacy_pci_init(). This
  * is deprecated and only used by dri1 drivers.
  */
+<<<<<<< HEAD
 void drm_legacy_pci_exit(struct drm_driver *driver, struct pci_driver *pdriver)
 {
 	struct drm_device *dev, *tmp;
+=======
+void drm_legacy_pci_exit(const struct drm_driver *driver,
+			 struct pci_driver *pdriver)
+{
+	struct drm_device *dev, *tmp;
+
+>>>>>>> upstream/android-13
 	DRM_DEBUG("\n");
 
 	if (!(driver->driver_features & DRIVER_LEGACY)) {
 		WARN_ON(1);
 	} else {
+<<<<<<< HEAD
 		list_for_each_entry_safe(dev, tmp, &driver->legacy_dev_list,
 					 legacy_dev_list) {
 			list_del(&dev->legacy_dev_list);
 			drm_put_dev(dev);
 		}
+=======
+		mutex_lock(&legacy_dev_list_lock);
+		list_for_each_entry_safe(dev, tmp, &legacy_dev_list,
+					 legacy_dev_list) {
+			if (dev->driver == driver) {
+				list_del(&dev->legacy_dev_list);
+				drm_put_dev(dev);
+			}
+		}
+		mutex_unlock(&legacy_dev_list_lock);
+>>>>>>> upstream/android-13
 	}
 	DRM_INFO("Module unloaded\n");
 }
 EXPORT_SYMBOL(drm_legacy_pci_exit);
+<<<<<<< HEAD
+=======
+
+#endif
+>>>>>>> upstream/android-13

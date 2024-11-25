@@ -50,11 +50,19 @@ static bool __ptr_invalid(struct cache_set *c, const struct bkey *k)
 
 	for (i = 0; i < KEY_PTRS(k); i++)
 		if (ptr_available(c, k, i)) {
+<<<<<<< HEAD
 			struct cache *ca = PTR_CACHE(c, k, i);
 			size_t bucket = PTR_BUCKET_NR(c, k, i);
 			size_t r = bucket_remainder(c, PTR_OFFSET(k, i));
 
 			if (KEY_SIZE(k) + r > c->sb.bucket_size ||
+=======
+			struct cache *ca = c->cache;
+			size_t bucket = PTR_BUCKET_NR(c, k, i);
+			size_t r = bucket_remainder(c, PTR_OFFSET(k, i));
+
+			if (KEY_SIZE(k) + r > c->cache->sb.bucket_size ||
+>>>>>>> upstream/android-13
 			    bucket <  ca->sb.first_bucket ||
 			    bucket >= ca->sb.nbuckets)
 				return true;
@@ -71,11 +79,19 @@ static const char *bch_ptr_status(struct cache_set *c, const struct bkey *k)
 
 	for (i = 0; i < KEY_PTRS(k); i++)
 		if (ptr_available(c, k, i)) {
+<<<<<<< HEAD
 			struct cache *ca = PTR_CACHE(c, k, i);
 			size_t bucket = PTR_BUCKET_NR(c, k, i);
 			size_t r = bucket_remainder(c, PTR_OFFSET(k, i));
 
 			if (KEY_SIZE(k) + r > c->sb.bucket_size)
+=======
+			struct cache *ca = c->cache;
+			size_t bucket = PTR_BUCKET_NR(c, k, i);
+			size_t r = bucket_remainder(c, PTR_OFFSET(k, i));
+
+			if (KEY_SIZE(k) + r > c->cache->sb.bucket_size)
+>>>>>>> upstream/android-13
 				return "bad, length too big";
 			if (bucket <  ca->sb.first_bucket)
 				return "bad, short offset";
@@ -130,11 +146,16 @@ static void bch_bkey_dump(struct btree_keys *keys, const struct bkey *k)
 	char buf[80];
 
 	bch_extent_to_text(buf, sizeof(buf), k);
+<<<<<<< HEAD
 	pr_err(" %s", buf);
+=======
+	pr_cont(" %s", buf);
+>>>>>>> upstream/android-13
 
 	for (j = 0; j < KEY_PTRS(k); j++) {
 		size_t n = PTR_BUCKET_NR(b->c, k, j);
 
+<<<<<<< HEAD
 		pr_err(" bucket %zu", n);
 		if (n >= b->c->sb.first_bucket && n < b->c->sb.nbuckets)
 			pr_err(" prio %i",
@@ -142,6 +163,15 @@ static void bch_bkey_dump(struct btree_keys *keys, const struct bkey *k)
 	}
 
 	pr_err(" %s\n", bch_ptr_status(b->c, k));
+=======
+		pr_cont(" bucket %zu", n);
+		if (n >= b->c->cache->sb.first_bucket && n < b->c->cache->sb.nbuckets)
+			pr_cont(" prio %i",
+				PTR_BUCKET(b->c, k, j)->prio);
+	}
+
+	pr_cont(" %s\n", bch_ptr_status(b->c, k));
+>>>>>>> upstream/android-13
 }
 
 /* Btree ptrs */
@@ -553,7 +583,11 @@ static bool bch_extent_bad(struct btree_keys *bk, const struct bkey *k)
 
 		if (stale && KEY_DIRTY(k)) {
 			bch_extent_to_text(buf, sizeof(buf), k);
+<<<<<<< HEAD
 			pr_info("stale dirty pointer, stale %u, key: %s",
+=======
+			pr_info("stale dirty pointer, stale %u, key: %s\n",
+>>>>>>> upstream/android-13
 				stale, buf);
 		}
 

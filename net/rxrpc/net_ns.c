@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* rxrpc network namespace handling.
  *
  * Copyright (C) 2017 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/proc_fs.h>
@@ -66,6 +73,7 @@ static __net_init int rxrpc_init_net(struct net *net)
 	timer_setup(&rxnet->service_conn_reap_timer,
 		    rxrpc_service_conn_reap_timeout, 0);
 
+<<<<<<< HEAD
 	rxnet->nr_client_conns = 0;
 	rxnet->nr_active_client_conns = 0;
 	rxnet->kill_all_client_conns = false;
@@ -73,6 +81,12 @@ static __net_init int rxrpc_init_net(struct net *net)
 	spin_lock_init(&rxnet->client_conn_discard_lock);
 	INIT_LIST_HEAD(&rxnet->waiting_client_conns);
 	INIT_LIST_HEAD(&rxnet->active_client_conns);
+=======
+	atomic_set(&rxnet->nr_client_conns, 0);
+	rxnet->kill_all_client_conns = false;
+	spin_lock_init(&rxnet->client_conn_cache_lock);
+	spin_lock_init(&rxnet->client_conn_discard_lock);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&rxnet->idle_client_conns);
 	INIT_WORK(&rxnet->client_conn_reaper,
 		  rxrpc_discard_expired_client_conns);
@@ -102,6 +116,12 @@ static __net_init int rxrpc_init_net(struct net *net)
 	proc_create_net("conns", 0444, rxnet->proc_net,
 			&rxrpc_connection_seq_ops,
 			sizeof(struct seq_net_private));
+<<<<<<< HEAD
+=======
+	proc_create_net("peers", 0444, rxnet->proc_net,
+			&rxrpc_peer_seq_ops,
+			sizeof(struct seq_net_private));
+>>>>>>> upstream/android-13
 	return 0;
 
 err_proc:
@@ -119,6 +139,11 @@ static __net_exit void rxrpc_exit_net(struct net *net)
 	rxnet->live = false;
 	del_timer_sync(&rxnet->peer_keepalive_timer);
 	cancel_work_sync(&rxnet->peer_keepalive_work);
+<<<<<<< HEAD
+=======
+	/* Remove the timer again as the worker may have restarted it. */
+	del_timer_sync(&rxnet->peer_keepalive_timer);
+>>>>>>> upstream/android-13
 	rxrpc_destroy_all_calls(rxnet);
 	rxrpc_destroy_all_connections(rxnet);
 	rxrpc_destroy_all_peers(rxnet);

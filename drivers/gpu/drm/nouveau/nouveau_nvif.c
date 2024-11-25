@@ -52,9 +52,15 @@ nvkm_client_map(void *priv, u64 handle, u32 size)
 }
 
 static int
+<<<<<<< HEAD
 nvkm_client_ioctl(void *priv, bool super, void *data, u32 size, void **hack)
 {
 	return nvkm_ioctl(priv, super, data, size, hack);
+=======
+nvkm_client_ioctl(void *priv, void *data, u32 size, void **hack)
+{
+	return nvkm_ioctl(priv, data, size, hack);
+>>>>>>> upstream/android-13
 }
 
 static int

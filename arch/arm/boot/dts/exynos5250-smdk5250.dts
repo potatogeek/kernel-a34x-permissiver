@@ -1,18 +1,30 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * SAMSUNG SMDK5250 board device tree source
+=======
+ * Samsung SMDK5250 board device tree source
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  */
 
 /dts-v1/;
+<<<<<<< HEAD
+=======
+#include <dt-bindings/clock/maxim,max77686.h>
+>>>>>>> upstream/android-13
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include "exynos5250.dtsi"
 
 / {
+<<<<<<< HEAD
 	model = "SAMSUNG SMDK5250 board based on EXYNOS5250";
+=======
+	model = "Samsung SMDK5250 board based on Exynos5250";
+>>>>>>> upstream/android-13
 	compatible = "samsung,smdk5250", "samsung,exynos5250", "samsung,exynos5";
 
 	aliases {
@@ -24,7 +36,12 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "root=/dev/ram0 rw ramdisk=8192 initrd=0x41000000,8M console=ttySAC2,115200 init=/linuxrc";
+=======
+		bootargs = "root=/dev/ram0 rw ramdisk=8192 initrd=0x41000000,8M init=/linuxrc";
+		stdout-path = "serial2:115200n8";
+>>>>>>> upstream/android-13
 	};
 
 	vdd: fixed-regulator-vdd {
@@ -116,6 +133,12 @@
 	status = "okay";
 	ddc = <&i2c_2>;
 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
+=======
+	vdd-supply = <&ldo8_reg>;
+	vdd_osc-supply = <&ldo10_reg>;
+	vdd_pll-supply = <&ldo8_reg>;
+>>>>>>> upstream/android-13
 };
 
 &i2c_0 {
@@ -128,13 +151,21 @@
 		reg = <0x50>;
 	};
 
+<<<<<<< HEAD
 	max77686@9 {
+=======
+	max77686: pmic@9 {
+>>>>>>> upstream/android-13
 		compatible = "maxim,max77686";
 		reg = <0x09>;
 		interrupt-parent = <&gpx3>;
 		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&max77686_irq>;
+<<<<<<< HEAD
+=======
+		#clock-cells = <1>;
+>>>>>>> upstream/android-13
 		wakeup-source;
 
 		voltage-regulators {
@@ -287,7 +318,11 @@
 		reg = <0x51>;
 	};
 
+<<<<<<< HEAD
 	wm8994: wm8994@1a {
+=======
+	wm8994: audio-codec@1a {
+>>>>>>> upstream/android-13
 		compatible = "wlf,wm8994";
 		reg = <0x1a>;
 
@@ -323,12 +358,15 @@
 	status = "okay";
 	samsung,i2c-sda-delay = <100>;
 	samsung,i2c-max-bus-freq = <40000>;
+<<<<<<< HEAD
 	samsung,i2c-slave-addr = <0x38>;
 
 	sata_phy_i2c: sata-phy@38 {
 		compatible = "samsung,exynos-sataphy-i2c";
 		reg = <0x38>;
 	};
+=======
+>>>>>>> upstream/android-13
 };
 
 &i2s0 {
@@ -367,6 +405,11 @@
 
 &rtc {
 	status = "okay";
+<<<<<<< HEAD
+=======
+	clocks = <&clock CLK_RTC>, <&max77686 MAX77686_CLK_AP>;
+	clock-names = "rtc", "rtc_src";
+>>>>>>> upstream/android-13
 };
 
 &sata {
@@ -378,11 +421,22 @@
 	samsung,exynos-sataphy-i2c-phandle = <&sata_phy_i2c>;
 };
 
+<<<<<<< HEAD
+=======
+&sata_phy_i2c {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &spi_1 {
 	status = "okay";
 	cs-gpios = <&gpa2 5 GPIO_ACTIVE_HIGH>;
 
+<<<<<<< HEAD
 	w25q80bw@0 {
+=======
+	flash@0 {
+>>>>>>> upstream/android-13
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "w25x80";

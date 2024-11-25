@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * NFC Digital Protocol stack
  * Copyright (c) 2013, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * NFC Digital Protocol stack
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "digital: %s: " fmt, __func__
@@ -47,9 +54,12 @@
 
 #define DIGITAL_GB_BIT	0x02
 
+<<<<<<< HEAD
 #define DIGITAL_NFC_DEP_REQ_RES_HEADROOM	2 /* SoD: [SB (NFC-A)] + LEN */
 #define DIGITAL_NFC_DEP_REQ_RES_TAILROOM	2 /* EoD: 2-byte CRC */
 
+=======
+>>>>>>> upstream/android-13
 #define DIGITAL_NFC_DEP_PFB_TYPE(pfb) ((pfb) & 0xE0)
 
 #define DIGITAL_NFC_DEP_PFB_TIMEOUT_BIT 0x10
@@ -80,7 +90,11 @@ struct digital_atr_req {
 	u8 bs;
 	u8 br;
 	u8 pp;
+<<<<<<< HEAD
 	u8 gb[0];
+=======
+	u8 gb[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct digital_atr_res {
@@ -92,7 +106,11 @@ struct digital_atr_res {
 	u8 br;
 	u8 to;
 	u8 pp;
+<<<<<<< HEAD
 	u8 gb[0];
+=======
+	u8 gb[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct digital_psl_req {
@@ -1229,7 +1247,11 @@ static void digital_tg_recv_dep_req(struct nfc_digital_dev *ddev, void *arg,
 
 		/* ACK */
 		if (ddev->atn_count) {
+<<<<<<< HEAD
 			/* The target has previously recevied one or more ATN
+=======
+			/* The target has previously received one or more ATN
+>>>>>>> upstream/android-13
 			 * PDUs.
 			 */
 			ddev->atn_count = 0;

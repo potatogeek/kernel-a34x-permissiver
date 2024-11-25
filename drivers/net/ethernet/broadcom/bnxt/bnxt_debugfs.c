@@ -11,7 +11,11 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 #include "bnxt_hsi.h"
+<<<<<<< HEAD
 #include <linux/net_dim.h>
+=======
+#include <linux/dim.h>
+>>>>>>> upstream/android-13
 #include "bnxt.h"
 #include "bnxt_debugfs.h"
 
@@ -21,7 +25,11 @@ static ssize_t debugfs_dim_read(struct file *filep,
 				char __user *buffer,
 				size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
 	struct net_dim *dim = filep->private_data;
+=======
+	struct dim *dim = filep->private_data;
+>>>>>>> upstream/android-13
 	int len;
 	char *buf;
 
@@ -61,19 +69,29 @@ static const struct file_operations debugfs_dim_fops = {
 	.read = debugfs_dim_read,
 };
 
+<<<<<<< HEAD
 static struct dentry *debugfs_dim_ring_init(struct net_dim *dim, int ring_idx,
 					    struct dentry *dd)
+=======
+static void debugfs_dim_ring_init(struct dim *dim, int ring_idx,
+				  struct dentry *dd)
+>>>>>>> upstream/android-13
 {
 	static char qname[16];
 
 	snprintf(qname, 10, "%d", ring_idx);
+<<<<<<< HEAD
 	return debugfs_create_file(qname, 0600, dd,
 				   dim, &debugfs_dim_fops);
+=======
+	debugfs_create_file(qname, 0600, dd, dim, &debugfs_dim_fops);
+>>>>>>> upstream/android-13
 }
 
 void bnxt_debug_dev_init(struct bnxt *bp)
 {
 	const char *pname = pci_name(bp->pdev);
+<<<<<<< HEAD
 	struct dentry *pdevf;
 	int i;
 
@@ -100,6 +118,20 @@ void bnxt_debug_dev_init(struct bnxt *bp)
 		}
 	} else {
 		pr_err("failed to create debugfs entry %s\n", pname);
+=======
+	struct dentry *dir;
+	int i;
+
+	bp->debugfs_pdev = debugfs_create_dir(pname, bnxt_debug_mnt);
+	dir = debugfs_create_dir("dim", bp->debugfs_pdev);
+
+	/* create files for each rx ring */
+	for (i = 0; i < bp->cp_nr_rings; i++) {
+		struct bnxt_cp_ring_info *cpr = &bp->bnapi[i]->cp_ring;
+
+		if (cpr && bp->bnapi[i]->rx_ring)
+			debugfs_dim_ring_init(&cpr->dim, i, dir);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -114,8 +146,11 @@ void bnxt_debug_dev_exit(struct bnxt *bp)
 void bnxt_debug_init(void)
 {
 	bnxt_debug_mnt = debugfs_create_dir("bnxt_en", NULL);
+<<<<<<< HEAD
 	if (!bnxt_debug_mnt)
 		pr_err("failed to init bnxt_en debugfs\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 void bnxt_debug_exit(void)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Thomas Chou <thomas@wytron.com.tw>
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2009 Thomas Chou <thomas@wytron.com.tw>
+>>>>>>> upstream/android-13
  */
 #include <asm/page.h>
 #include <asm-generic/vmlinux.lds.h>
@@ -62,8 +68,13 @@ SECTIONS
 	__init_end = .;
 
 	_sdata = .;
+<<<<<<< HEAD
 	RO_DATA_SECTION(PAGE_SIZE)
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+=======
+	RO_DATA(PAGE_SIZE)
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+>>>>>>> upstream/android-13
 	_edata = .;
 
 	BSS_SECTION(0, 0, 0)
@@ -71,7 +82,11 @@ SECTIONS
 
 	STABS_DEBUG
 	DWARF_DEBUG
+<<<<<<< HEAD
 	NOTES
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	DISCARDS
 }

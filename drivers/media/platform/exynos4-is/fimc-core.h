@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 - 2012 Samsung Electronics Co., Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2010 - 2012 Samsung Electronics Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef FIMC_CORE_H_
@@ -205,10 +211,17 @@ struct fimc_scaler {
 };
 
 /**
+<<<<<<< HEAD
  * struct fimc_addr - the FIMC physical address set for DMA
  * @y:	 luminance plane physical address
  * @cb:	 Cb plane physical address
  * @cr:	 Cr plane physical address
+=======
+ * struct fimc_addr - the FIMC address set for DMA
+ * @y:	 luminance plane address
+ * @cb:	 Cb plane address
+ * @cr:	 Cr plane address
+>>>>>>> upstream/android-13
  */
 struct fimc_addr {
 	u32	y;
@@ -220,13 +233,21 @@ struct fimc_addr {
  * struct fimc_vid_buffer - the driver's video buffer
  * @vb:    v4l videobuf buffer
  * @list:  linked list structure for buffer queue
+<<<<<<< HEAD
  * @paddr: precalculated physical address set
+=======
+ * @addr: precalculated DMA address set
+>>>>>>> upstream/android-13
  * @index: buffer index for the output DMA engine
  */
 struct fimc_vid_buffer {
 	struct vb2_v4l2_buffer vb;
 	struct list_head	list;
+<<<<<<< HEAD
 	struct fimc_addr	paddr;
+=======
+	struct fimc_addr	addr;
+>>>>>>> upstream/android-13
 	int			index;
 };
 
@@ -242,9 +263,16 @@ struct fimc_vid_buffer {
  * @height:	image pixel weight
  * @payload:	image size in bytes (w x h x bpp)
  * @bytesperline: bytesperline value for each plane
+<<<<<<< HEAD
  * @paddr:	image frame buffer physical addresses
  * @dma_offset:	DMA offset in bytes
  * @fmt:	fimc color format pointer
+=======
+ * @addr:	image frame buffer DMA addresses
+ * @dma_offset:	DMA offset in bytes
+ * @fmt:	fimc color format pointer
+ * @alpha:	alpha value
+>>>>>>> upstream/android-13
  */
 struct fimc_frame {
 	u32	f_width;
@@ -257,7 +285,11 @@ struct fimc_frame {
 	u32	height;
 	unsigned int		payload[VIDEO_MAX_PLANES];
 	unsigned int		bytesperline[VIDEO_MAX_PLANES];
+<<<<<<< HEAD
 	struct fimc_addr	paddr;
+=======
+	struct fimc_addr	addr;
+>>>>>>> upstream/android-13
 	struct fimc_dma_offset	dma_offset;
 	struct fimc_fmt		*fmt;
 	u8			alpha;
@@ -299,11 +331,17 @@ struct fimc_m2m_device {
  * @buf_index: index for managing the output DMA buffers
  * @frame_count: the frame counter for statistics
  * @reqbufs_count: the number of buffers requested in REQBUFS ioctl
+<<<<<<< HEAD
  * @input_index: input (camera sensor) index
  * @input: capture input type, grp_id of the attached subdev
  * @user_subdev_api: true if subdevs are not configured by the host driver
  * @inh_sensor_ctrls: a flag indicating v4l2 controls are inherited from
  *		      an image sensor subdev
+=======
+ * @streaming: is streaming in progress?
+ * @input: capture input type, grp_id of the attached subdev
+ * @user_subdev_api: true if subdevs are not configured by the host driver
+>>>>>>> upstream/android-13
  */
 struct fimc_vid_cap {
 	struct fimc_ctx			*ctx;
@@ -322,10 +360,15 @@ struct fimc_vid_cap {
 	unsigned int			frame_count;
 	unsigned int			reqbufs_count;
 	bool				streaming;
+<<<<<<< HEAD
 	int				input_index;
 	u32				input;
 	bool				user_subdev_api;
 	bool				inh_sensor_ctrls;
+=======
+	u32				input;
+	bool				user_subdev_api;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -408,6 +451,10 @@ struct fimc_ctx;
  * @pdata:	pointer to the device platform data
  * @sysreg:	pointer to the SYSREG regmap
  * @variant:	the IP variant information
+<<<<<<< HEAD
+=======
+ * @drv_data:	driver data
+>>>>>>> upstream/android-13
  * @id:		FIMC device index (0..FIMC_MAX_DEVS)
  * @clock:	clocks required for FIMC operation
  * @regs:	the mapped hardware registers
@@ -416,7 +463,10 @@ struct fimc_ctx;
  * @m2m:	memory-to-memory V4L2 device information
  * @vid_cap:	camera capture device information
  * @state:	flags used to synchronize m2m and capture mode operation
+<<<<<<< HEAD
  * @pipeline:	fimc video capture pipeline data structure
+=======
+>>>>>>> upstream/android-13
  */
 struct fimc_dev {
 	spinlock_t			slock;
@@ -461,12 +511,20 @@ struct fimc_ctrls {
 };
 
 /**
+<<<<<<< HEAD
  * fimc_ctx - the device context data
+=======
+ * struct fimc_ctx - the device context data
+>>>>>>> upstream/android-13
  * @s_frame:		source frame properties
  * @d_frame:		destination frame properties
  * @out_order_1p:	output 1-plane YCBCR order
  * @out_order_2p:	output 2-plane YCBCR order
+<<<<<<< HEAD
  * @in_order_1p		input 1-plane YCBCR order
+=======
+ * @in_order_1p:	input 1-plane YCBCR order
+>>>>>>> upstream/android-13
  * @in_order_2p:	input 2-plane YCBCR order
  * @in_path:		input mode (DMA or camera)
  * @out_path:		output mode (DMA or FIFO)
@@ -596,12 +654,22 @@ static inline struct fimc_frame *ctx_get_frame(struct fimc_ctx *ctx,
 {
 	struct fimc_frame *frame;
 
+<<<<<<< HEAD
 	if (V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE == type) {
+=======
+	if (type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE ||
+	    type == V4L2_BUF_TYPE_VIDEO_OUTPUT) {
+>>>>>>> upstream/android-13
 		if (fimc_ctx_state_is_set(FIMC_CTX_M2M, ctx))
 			frame = &ctx->s_frame;
 		else
 			return ERR_PTR(-EINVAL);
+<<<<<<< HEAD
 	} else if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == type) {
+=======
+	} else if (type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ||
+		   type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+>>>>>>> upstream/android-13
 		frame = &ctx->d_frame;
 	} else {
 		v4l2_err(ctx->fimc_dev->v4l2_dev,
@@ -632,7 +700,11 @@ int fimc_check_scaler_ratio(struct fimc_ctx *ctx, int sw, int sh,
 int fimc_set_scaler_info(struct fimc_ctx *ctx);
 int fimc_prepare_config(struct fimc_ctx *ctx, u32 flags);
 int fimc_prepare_addr(struct fimc_ctx *ctx, struct vb2_buffer *vb,
+<<<<<<< HEAD
 		      struct fimc_frame *frame, struct fimc_addr *paddr);
+=======
+		      struct fimc_frame *frame, struct fimc_addr *addr);
+>>>>>>> upstream/android-13
 void fimc_prepare_dma_offset(struct fimc_ctx *ctx, struct fimc_frame *f);
 void fimc_set_yuv_order(struct fimc_ctx *ctx);
 void fimc_capture_irq_handler(struct fimc_dev *fimc, int deq_buf);
@@ -672,6 +744,10 @@ int fimc_capture_resume(struct fimc_dev *fimc);
 
 /**
  * fimc_active_queue_add - add buffer to the capture active buffers queue
+<<<<<<< HEAD
+=======
+ * @vid_cap:	camera capture device information
+>>>>>>> upstream/android-13
  * @buf: buffer to add to the active buffers list
  */
 static inline void fimc_active_queue_add(struct fimc_vid_cap *vid_cap,
@@ -683,6 +759,10 @@ static inline void fimc_active_queue_add(struct fimc_vid_cap *vid_cap,
 
 /**
  * fimc_active_queue_pop - pop buffer from the capture active buffers queue
+<<<<<<< HEAD
+=======
+ * @vid_cap:	camera capture device information
+>>>>>>> upstream/android-13
  *
  * The caller must assure the active_buf_q list is not empty.
  */
@@ -699,6 +779,10 @@ static inline struct fimc_vid_buffer *fimc_active_queue_pop(
 
 /**
  * fimc_pending_queue_add - add buffer to the capture pending buffers queue
+<<<<<<< HEAD
+=======
+ * @vid_cap:	camera capture device information
+>>>>>>> upstream/android-13
  * @buf: buffer to add to the pending buffers list
  */
 static inline void fimc_pending_queue_add(struct fimc_vid_cap *vid_cap,
@@ -709,6 +793,10 @@ static inline void fimc_pending_queue_add(struct fimc_vid_cap *vid_cap,
 
 /**
  * fimc_pending_queue_pop - pop buffer from the capture pending buffers queue
+<<<<<<< HEAD
+=======
+ * @vid_cap:	camera capture device information
+>>>>>>> upstream/android-13
  *
  * The caller must assure the pending_buf_q list is not empty.
  */

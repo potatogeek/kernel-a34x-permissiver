@@ -17,9 +17,12 @@ enum usb3503_mode {
 struct usb3503_platform_data {
 	enum usb3503_mode	initial_mode;
 	u8	port_off_mask;
+<<<<<<< HEAD
 	int	gpio_intn;
 	int	gpio_connect;
 	int	gpio_reset;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

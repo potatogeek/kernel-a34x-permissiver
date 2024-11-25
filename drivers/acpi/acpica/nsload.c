@@ -3,7 +3,11 @@
  *
  * Module Name: nsload - namespace loading/expanding/contracting procedures
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -24,7 +28,10 @@ acpi_status acpi_ns_unload_namespace(acpi_handle handle);
 static acpi_status acpi_ns_delete_subtree(acpi_handle start_handle);
 #endif
 
+<<<<<<< HEAD
 #ifndef ACPI_NO_METHOD_EXECUTION
+=======
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_ns_load_table
@@ -76,7 +83,11 @@ acpi_ns_load_table(u32 table_index, struct acpi_namespace_node *node)
 		/*
 		 * On error, delete any namespace objects created by this table.
 		 * We cannot initialize these objects, so delete them. There are
+<<<<<<< HEAD
 		 * a couple of expecially bad cases:
+=======
+		 * a couple of especially bad cases:
+>>>>>>> upstream/android-13
 		 * AE_ALREADY_EXISTS - namespace collision.
 		 * AE_NOT_FOUND - the target of a Scope operator does not
 		 * exist. This target of Scope must already exist in the
@@ -110,6 +121,7 @@ unlock:
 	ACPI_DEBUG_PRINT((ACPI_DB_INFO,
 			  "**** Completed Table Object Initialization\n"));
 
+<<<<<<< HEAD
 	/*
 	 * This case handles the legacy option that groups all module-level
 	 * code blocks together and defers execution until all of the tables
@@ -122,6 +134,8 @@ unlock:
 	 * depends upon in-order immediate execution of module-level code.
 	 */
 	acpi_ns_exec_module_code_list();
+=======
+>>>>>>> upstream/android-13
 	return_ACPI_STATUS(status);
 }
 
@@ -297,4 +311,7 @@ acpi_status acpi_ns_unload_namespace(acpi_handle handle)
 	return_ACPI_STATUS(status);
 }
 #endif
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NetLabel Domain Hash Table
  *
@@ -7,11 +11,15 @@
  * as CIPSO and RIPSO.
  *
  * Author: Paul Moore <paul@paul-moore.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Copyright Hewlett-Packard Development Company, L.P., 2006, 2008
+<<<<<<< HEAD
  *
  * This program is free software;  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program;  if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -107,7 +117,11 @@ static void netlbl_domhsh_free_entry(struct rcu_head *entry)
 
 /**
  * netlbl_domhsh_hash - Hashing function for the domain hash table
+<<<<<<< HEAD
  * @domain: the domain name to hash
+=======
+ * @key: the domain name to hash
+>>>>>>> upstream/android-13
  *
  * Description:
  * This is the hashing function for the domain hash table, it returns the
@@ -158,7 +172,12 @@ static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain,
 	if (domain != NULL) {
 		bkt = netlbl_domhsh_hash(domain);
 		bkt_list = &netlbl_domhsh_rcu_deref(netlbl_domhsh)->tbl[bkt];
+<<<<<<< HEAD
 		list_for_each_entry_rcu(iter, bkt_list, list)
+=======
+		list_for_each_entry_rcu(iter, bkt_list, list,
+					lockdep_is_held(&netlbl_domhsh_lock))
+>>>>>>> upstream/android-13
 			if (iter->valid &&
 			    netlbl_family_match(iter->family, family) &&
 			    strcmp(iter->domain, domain) == 0)
@@ -625,9 +644,14 @@ int netlbl_domhsh_remove_entry(struct netlbl_dom_map *entry,
 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
 	if (audit_buf != NULL) {
 		audit_log_format(audit_buf,
+<<<<<<< HEAD
 				 " nlbl_domain=%s res=%u",
 				 entry->domain ? entry->domain : "(default)",
 				 ret_val == 0 ? 1 : 0);
+=======
+				 " nlbl_domain=%s res=1",
+				 entry->domain ? entry->domain : "(default)");
+>>>>>>> upstream/android-13
 		audit_log_end(audit_buf);
 	}
 
@@ -943,7 +967,11 @@ struct netlbl_dommap_def *netlbl_domhsh_getentry_af6(const char *domain,
  * @cb_arg: argument for the callback function
  *
  * Description:
+<<<<<<< HEAD
  * Interate over the domain mapping hash table, skipping the first @skip_bkt
+=======
+ * Iterate over the domain mapping hash table, skipping the first @skip_bkt
+>>>>>>> upstream/android-13
  * buckets and @skip_chain entries.  For each entry in the table call
  * @callback, if @callback returns a negative value stop 'walking' through the
  * table and return.  Updates the values in @skip_bkt and @skip_chain on

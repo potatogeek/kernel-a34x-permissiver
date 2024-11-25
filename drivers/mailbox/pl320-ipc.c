@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Calxeda, Inc.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2012 Calxeda, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/err.h>
@@ -84,7 +90,11 @@ static u32 __ipc_rcv(int mbox, u32 *data)
 	return data[1];
 }
 
+<<<<<<< HEAD
 /* blocking implmentation from the A9 side, not usuable in interrupts! */
+=======
+/* blocking implementation from the A9 side, not usable in interrupts! */
+>>>>>>> upstream/android-13
 int pl320_ipc_transmit(u32 *data)
 {
 	int ret;

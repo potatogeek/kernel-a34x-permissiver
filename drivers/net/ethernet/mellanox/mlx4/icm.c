@@ -57,8 +57,13 @@ static void mlx4_free_icm_pages(struct mlx4_dev *dev, struct mlx4_icm_chunk *chu
 	int i;
 
 	if (chunk->nsg > 0)
+<<<<<<< HEAD
 		pci_unmap_sg(dev->persist->pdev, chunk->sg, chunk->npages,
 			     PCI_DMA_BIDIRECTIONAL);
+=======
+		dma_unmap_sg(&dev->persist->pdev->dev, chunk->sg, chunk->npages,
+			     DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < chunk->npages; ++i)
 		__free_pages(sg_page(&chunk->sg[i]),
@@ -204,9 +209,15 @@ struct mlx4_icm *mlx4_alloc_icm(struct mlx4_dev *dev, int npages,
 		if (coherent)
 			++chunk->nsg;
 		else if (chunk->npages == MLX4_ICM_CHUNK_LEN) {
+<<<<<<< HEAD
 			chunk->nsg = pci_map_sg(dev->persist->pdev, chunk->sg,
 						chunk->npages,
 						PCI_DMA_BIDIRECTIONAL);
+=======
+			chunk->nsg = dma_map_sg(&dev->persist->pdev->dev,
+						chunk->sg, chunk->npages,
+						DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 			if (chunk->nsg <= 0)
 				goto fail;
@@ -219,9 +230,14 @@ struct mlx4_icm *mlx4_alloc_icm(struct mlx4_dev *dev, int npages,
 	}
 
 	if (!coherent && chunk) {
+<<<<<<< HEAD
 		chunk->nsg = pci_map_sg(dev->persist->pdev, chunk->sg,
 					chunk->npages,
 					PCI_DMA_BIDIRECTIONAL);
+=======
+		chunk->nsg = dma_map_sg(&dev->persist->pdev->dev, chunk->sg,
+					chunk->npages, DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 		if (chunk->nsg <= 0)
 			goto fail;
@@ -426,7 +442,11 @@ int mlx4_init_icm_table(struct mlx4_dev *dev, struct mlx4_icm_table *table,
 	obj_per_chunk = MLX4_TABLE_CHUNK_SIZE / obj_size;
 	if (WARN_ON(!obj_per_chunk))
 		return -EINVAL;
+<<<<<<< HEAD
 	num_icm = (nobj + obj_per_chunk - 1) / obj_per_chunk;
+=======
+	num_icm = DIV_ROUND_UP(nobj, obj_per_chunk);
+>>>>>>> upstream/android-13
 
 	table->icm      = kvcalloc(num_icm, sizeof(*table->icm), GFP_KERNEL);
 	if (!table->icm)

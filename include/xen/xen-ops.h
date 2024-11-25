@@ -5,6 +5,10 @@
 #include <linux/percpu.h>
 #include <linux/notifier.h>
 #include <linux/efi.h>
+<<<<<<< HEAD
+=======
+#include <xen/features.h>
+>>>>>>> upstream/android-13
 #include <asm/xen/interface.h>
 #include <xen/interface/vcpu.h>
 
@@ -45,6 +49,7 @@ extern unsigned long *xen_contiguous_bitmap;
 int xen_create_contiguous_region(phys_addr_t pstart, unsigned int order,
 				unsigned int address_bits,
 				dma_addr_t *dma_handle);
+<<<<<<< HEAD
 
 void xen_destroy_contiguous_region(phys_addr_t pstart, unsigned int order);
 #else
@@ -58,10 +63,29 @@ static inline int xen_create_contiguous_region(phys_addr_t pstart,
 
 static inline void xen_destroy_contiguous_region(phys_addr_t pstart,
 						 unsigned int order) { }
+=======
+void xen_destroy_contiguous_region(phys_addr_t pstart, unsigned int order);
+#endif
+
+#if defined(CONFIG_XEN_PV)
+int xen_remap_pfn(struct vm_area_struct *vma, unsigned long addr,
+		  xen_pfn_t *pfn, int nr, int *err_ptr, pgprot_t prot,
+		  unsigned int domid, bool no_translate);
+#else
+static inline int xen_remap_pfn(struct vm_area_struct *vma, unsigned long addr,
+				xen_pfn_t *pfn, int nr, int *err_ptr,
+				pgprot_t prot,  unsigned int domid,
+				bool no_translate)
+{
+	BUG();
+	return 0;
+}
+>>>>>>> upstream/android-13
 #endif
 
 struct vm_area_struct;
 
+<<<<<<< HEAD
 /*
  * xen_remap_domain_gfn_array() - map an array of foreign frames by gfn
  * @vma:     VMA to map the pages into
@@ -128,12 +152,18 @@ int xen_remap_domain_gfn_range(struct vm_area_struct *vma,
 int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
 			       int numpgs, struct page **pages);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_XEN_AUTO_XLATE
 int xen_xlate_remap_gfn_array(struct vm_area_struct *vma,
 			      unsigned long addr,
 			      xen_pfn_t *gfn, int nr,
 			      int *err_ptr, pgprot_t prot,
+<<<<<<< HEAD
 			      unsigned domid,
+=======
+			      unsigned int domid,
+>>>>>>> upstream/android-13
 			      struct page **pages);
 int xen_xlate_unmap_gfn_range(struct vm_area_struct *vma,
 			      int nr, struct page **pages);
@@ -159,11 +189,110 @@ static inline int xen_xlate_unmap_gfn_range(struct vm_area_struct *vma,
 }
 #endif
 
+<<<<<<< HEAD
+=======
+int xen_remap_vma_range(struct vm_area_struct *vma, unsigned long addr,
+			unsigned long len);
+
+/*
+ * xen_remap_domain_gfn_array() - map an array of foreign frames by gfn
+ * @vma:     VMA to map the pages into
+ * @addr:    Address at which to map the pages
+ * @gfn:     Array of GFNs to map
+ * @nr:      Number entries in the GFN array
+ * @err_ptr: Returns per-GFN error status.
+ * @prot:    page protection mask
+ * @domid:   Domain owning the pages
+ * @pages:   Array of pages if this domain has an auto-translated physmap
+ *
+ * @gfn and @err_ptr may point to the same buffer, the GFNs will be
+ * overwritten by the error codes after they are mapped.
+ *
+ * Returns the number of successfully mapped frames, or a -ve error
+ * code.
+ */
+static inline int xen_remap_domain_gfn_array(struct vm_area_struct *vma,
+					     unsigned long addr,
+					     xen_pfn_t *gfn, int nr,
+					     int *err_ptr, pgprot_t prot,
+					     unsigned int domid,
+					     struct page **pages)
+{
+	if (xen_feature(XENFEAT_auto_translated_physmap))
+		return xen_xlate_remap_gfn_array(vma, addr, gfn, nr, err_ptr,
+						 prot, domid, pages);
+
+	/* We BUG_ON because it's a programmer error to pass a NULL err_ptr,
+	 * and the consequences later is quite hard to detect what the actual
+	 * cause of "wrong memory was mapped in".
+	 */
+	BUG_ON(err_ptr == NULL);
+	return xen_remap_pfn(vma, addr, gfn, nr, err_ptr, prot, domid,
+			     false);
+}
+
+/*
+ * xen_remap_domain_mfn_array() - map an array of foreign frames by mfn
+ * @vma:     VMA to map the pages into
+ * @addr:    Address at which to map the pages
+ * @mfn:     Array of MFNs to map
+ * @nr:      Number entries in the MFN array
+ * @err_ptr: Returns per-MFN error status.
+ * @prot:    page protection mask
+ * @domid:   Domain owning the pages
+ *
+ * @mfn and @err_ptr may point to the same buffer, the MFNs will be
+ * overwritten by the error codes after they are mapped.
+ *
+ * Returns the number of successfully mapped frames, or a -ve error
+ * code.
+ */
+static inline int xen_remap_domain_mfn_array(struct vm_area_struct *vma,
+					     unsigned long addr, xen_pfn_t *mfn,
+					     int nr, int *err_ptr,
+					     pgprot_t prot, unsigned int domid)
+{
+	if (xen_feature(XENFEAT_auto_translated_physmap))
+		return -EOPNOTSUPP;
+
+	return xen_remap_pfn(vma, addr, mfn, nr, err_ptr, prot, domid,
+			     true);
+}
+
+/* xen_remap_domain_gfn_range() - map a range of foreign frames
+ * @vma:     VMA to map the pages into
+ * @addr:    Address at which to map the pages
+ * @gfn:     First GFN to map.
+ * @nr:      Number frames to map
+ * @prot:    page protection mask
+ * @domid:   Domain owning the pages
+ * @pages:   Array of pages if this domain has an auto-translated physmap
+ *
+ * Returns the number of successfully mapped frames, or a -ve error
+ * code.
+ */
+static inline int xen_remap_domain_gfn_range(struct vm_area_struct *vma,
+					     unsigned long addr,
+					     xen_pfn_t gfn, int nr,
+					     pgprot_t prot, unsigned int domid,
+					     struct page **pages)
+{
+	if (xen_feature(XENFEAT_auto_translated_physmap))
+		return -EOPNOTSUPP;
+
+	return xen_remap_pfn(vma, addr, &gfn, nr, NULL, prot, domid, false);
+}
+
+int xen_unmap_domain_gfn_range(struct vm_area_struct *vma,
+			       int numpgs, struct page **pages);
+
+>>>>>>> upstream/android-13
 int xen_xlate_map_ballooned_pages(xen_pfn_t **pfns, void **vaddr,
 				  unsigned long nr_grant_frames);
 
 bool xen_running_on_version_or_later(unsigned int major, unsigned int minor);
 
+<<<<<<< HEAD
 efi_status_t xen_efi_get_time(efi_time_t *tm, efi_time_cap_t *tc);
 efi_status_t xen_efi_set_time(efi_time_t *tm);
 efi_status_t xen_efi_get_wakeup_time(efi_bool_t *enabled, efi_bool_t *pending,
@@ -201,6 +330,12 @@ static inline void xen_preemptible_hcall_end(void)
 }
 
 #else
+=======
+void xen_efi_runtime_setup(void);
+
+
+#if defined(CONFIG_XEN_PV) && !defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 
 DECLARE_PER_CPU(bool, xen_in_preemptible_hcall);
 
@@ -214,6 +349,15 @@ static inline void xen_preemptible_hcall_end(void)
 	__this_cpu_write(xen_in_preemptible_hcall, false);
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_PREEMPT */
+=======
+#else
+
+static inline void xen_preemptible_hcall_begin(void) { }
+static inline void xen_preemptible_hcall_end(void) { }
+
+#endif /* CONFIG_XEN_PV && !CONFIG_PREEMPTION */
+>>>>>>> upstream/android-13
 
 #endif /* INCLUDE_XEN_OPS_H */

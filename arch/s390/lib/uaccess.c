@@ -16,6 +16,27 @@
 #include <asm/mmu_context.h>
 #include <asm/facility.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_DEBUG_ENTRY
+void debug_user_asce(int exit)
+{
+	unsigned long cr1, cr7;
+
+	__ctl_store(cr1, 1, 1);
+	__ctl_store(cr7, 7, 7);
+	if (cr1 == S390_lowcore.kernel_asce && cr7 == S390_lowcore.user_asce)
+		return;
+	panic("incorrect ASCE on kernel %s\n"
+	      "cr1:    %016lx cr7:  %016lx\n"
+	      "kernel: %016llx user: %016llx\n",
+	      exit ? "exit" : "entry", cr1, cr7,
+	      S390_lowcore.kernel_asce, S390_lowcore.user_asce);
+
+}
+#endif /*CONFIG_DEBUG_ENTRY */
+
+>>>>>>> upstream/android-13
 #ifndef CONFIG_HAVE_MARCH_Z10_FEATURES
 static DEFINE_STATIC_KEY_FALSE(have_mvcos);
 
@@ -40,6 +61,7 @@ static inline int copy_with_mvcos(void)
 }
 #endif
 
+<<<<<<< HEAD
 void set_fs(mm_segment_t fs)
 {
 	current->thread.mm_segment = fs;
@@ -105,10 +127,19 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
 						 unsigned long size)
 {
 	register unsigned long reg0 asm("0") = 0x01UL;
+=======
+static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr,
+						 unsigned long size)
+{
+>>>>>>> upstream/android-13
 	unsigned long tmp1, tmp2;
 
 	tmp1 = -4096UL;
 	asm volatile(
+<<<<<<< HEAD
+=======
+		"   lghi  0,%[spec]\n"
+>>>>>>> upstream/android-13
 		"0: .insn ss,0xc80000000000,0(%0,%2),0(%1),0\n"
 		"6: jz    4f\n"
 		"1: algr  %0,%3\n"
@@ -127,7 +158,12 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
 		"5:\n"
 		EX_TABLE(0b,2b) EX_TABLE(3b,5b) EX_TABLE(6b,2b) EX_TABLE(7b,5b)
 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+<<<<<<< HEAD
 		: "d" (reg0) : "cc", "memory");
+=======
+		: [spec] "K" (0x81UL)
+		: "cc", "memory", "0");
+>>>>>>> upstream/android-13
 	return size;
 }
 
@@ -135,9 +171,13 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
 						unsigned long size)
 {
 	unsigned long tmp1, tmp2;
+<<<<<<< HEAD
 	mm_segment_t old_fs;
 
 	old_fs = enable_sacf_uaccess();
+=======
+
+>>>>>>> upstream/android-13
 	tmp1 = -256UL;
 	asm volatile(
 		"   sacf  0\n"
@@ -164,7 +204,10 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
 		: : "cc", "memory");
+<<<<<<< HEAD
 	disable_sacf_uaccess(old_fs);
+=======
+>>>>>>> upstream/android-13
 	return size;
 }
 
@@ -179,11 +222,18 @@ EXPORT_SYMBOL(raw_copy_from_user);
 static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
 					       unsigned long size)
 {
+<<<<<<< HEAD
 	register unsigned long reg0 asm("0") = 0x010000UL;
+=======
+>>>>>>> upstream/android-13
 	unsigned long tmp1, tmp2;
 
 	tmp1 = -4096UL;
 	asm volatile(
+<<<<<<< HEAD
+=======
+		"   llilh 0,%[spec]\n"
+>>>>>>> upstream/android-13
 		"0: .insn ss,0xc80000000000,0(%0,%1),0(%2),0\n"
 		"6: jz    4f\n"
 		"1: algr  %0,%3\n"
@@ -202,7 +252,12 @@ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
 		"5:\n"
 		EX_TABLE(0b,2b) EX_TABLE(3b,5b) EX_TABLE(6b,2b) EX_TABLE(7b,5b)
 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+<<<<<<< HEAD
 		: "d" (reg0) : "cc", "memory");
+=======
+		: [spec] "K" (0x81UL)
+		: "cc", "memory", "0");
+>>>>>>> upstream/android-13
 	return size;
 }
 
@@ -210,9 +265,13 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
 					      unsigned long size)
 {
 	unsigned long tmp1, tmp2;
+<<<<<<< HEAD
 	mm_segment_t old_fs;
 
 	old_fs = enable_sacf_uaccess();
+=======
+
+>>>>>>> upstream/android-13
 	tmp1 = -256UL;
 	asm volatile(
 		"   sacf  0\n"
@@ -239,7 +298,10 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
 		: : "cc", "memory");
+<<<<<<< HEAD
 	disable_sacf_uaccess(old_fs);
+=======
+>>>>>>> upstream/android-13
 	return size;
 }
 
@@ -251,6 +313,7 @@ unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long 
 }
 EXPORT_SYMBOL(raw_copy_to_user);
 
+<<<<<<< HEAD
 static inline unsigned long copy_in_user_mvcos(void __user *to, const void __user *from,
 					       unsigned long size)
 {
@@ -319,10 +382,18 @@ EXPORT_SYMBOL(raw_copy_in_user);
 static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
 {
 	register unsigned long reg0 asm("0") = 0x010000UL;
+=======
+static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
+{
+>>>>>>> upstream/android-13
 	unsigned long tmp1, tmp2;
 
 	tmp1 = -4096UL;
 	asm volatile(
+<<<<<<< HEAD
+=======
+		"   llilh 0,%[spec]\n"
+>>>>>>> upstream/android-13
 		"0: .insn ss,0xc80000000000,0(%0,%1),0(%4),0\n"
 		"   jz	  4f\n"
 		"1: algr  %0,%2\n"
@@ -340,16 +411,26 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
 		"5:\n"
 		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
 		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
+<<<<<<< HEAD
 		: "a" (empty_zero_page), "d" (reg0) : "cc", "memory");
+=======
+		: "a" (empty_zero_page), [spec] "K" (0x81UL)
+		: "cc", "memory", "0");
+>>>>>>> upstream/android-13
 	return size;
 }
 
 static inline unsigned long clear_user_xc(void __user *to, unsigned long size)
 {
+<<<<<<< HEAD
 	mm_segment_t old_fs;
 	unsigned long tmp1, tmp2;
 
 	old_fs = enable_sacf_uaccess();
+=======
+	unsigned long tmp1, tmp2;
+
+>>>>>>> upstream/android-13
 	asm volatile(
 		"   sacf  256\n"
 		"   aghi  %0,-1\n"
@@ -378,7 +459,10 @@ static inline unsigned long clear_user_xc(void __user *to, unsigned long size)
 		EX_TABLE(1b,6b) EX_TABLE(2b,0b) EX_TABLE(4b,0b)
 		: "+a" (size), "+a" (to), "=a" (tmp1), "=a" (tmp2)
 		: : "cc", "memory");
+<<<<<<< HEAD
 	disable_sacf_uaccess(old_fs);
+=======
+>>>>>>> upstream/android-13
 	return size;
 }
 
@@ -389,6 +473,7 @@ unsigned long __clear_user(void __user *to, unsigned long size)
 	return clear_user_xc(to, size);
 }
 EXPORT_SYMBOL(__clear_user);
+<<<<<<< HEAD
 
 static inline unsigned long strnlen_user_srst(const char __user *src,
 					      unsigned long size)
@@ -446,3 +531,5 @@ long __strncpy_from_user(char *dst, const char __user *src, long size)
 	return done;
 }
 EXPORT_SYMBOL(__strncpy_from_user);
+=======
+>>>>>>> upstream/android-13

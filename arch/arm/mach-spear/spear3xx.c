@@ -30,6 +30,7 @@ struct pl022_ssp_controller pl022_plat_data = {
 	.dma_filter = pl08x_filter_id,
 	.dma_tx_param = "ssp0_tx",
 	.dma_rx_param = "ssp0_rx",
+<<<<<<< HEAD
 	/*
 	 * This is number of spi devices that can be connected to spi. There are
 	 * two type of chipselects on which slave devices can work. One is chip
@@ -40,6 +41,8 @@ struct pl022_ssp_controller pl022_plat_data = {
 	 * slave on each master requires a separate gpio pin.
 	 */
 	.num_chipselect = 2,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* dmac device registration */

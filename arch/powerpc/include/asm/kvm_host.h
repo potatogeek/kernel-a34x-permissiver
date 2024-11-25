@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2007
  *
@@ -39,13 +44,20 @@
 
 #define KVM_MAX_VCPUS		NR_CPUS
 #define KVM_MAX_VCORES		NR_CPUS
+<<<<<<< HEAD
 #define KVM_USER_MEM_SLOTS	512
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/cputhreads.h>
 
 #ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
 #include <asm/kvm_book3s_asm.h>		/* for MAX_SMT_THREADS */
 #define KVM_MAX_VCPU_ID		(MAX_SMT_THREADS * KVM_MAX_VCORES)
+<<<<<<< HEAD
+=======
+#define KVM_MAX_NESTED_GUESTS	KVMPPC_NR_LPIDS
+>>>>>>> upstream/android-13
 
 #else
 #define KVM_MAX_VCPU_ID		KVM_MAX_VCPUS
@@ -62,11 +74,16 @@
 /* PPC-specific vcpu->requests bit members */
 #define KVM_REQ_WATCHDOG	KVM_ARCH_REQ(0)
 #define KVM_REQ_EPR_EXIT	KVM_ARCH_REQ(1)
+<<<<<<< HEAD
+=======
+#define KVM_REQ_PENDING_TIMER	KVM_ARCH_REQ(2)
+>>>>>>> upstream/android-13
 
 #include <linux/mmu_notifier.h>
 
 #define KVM_ARCH_WANT_MMU_NOTIFIER
 
+<<<<<<< HEAD
 extern int kvm_unmap_hva_range(struct kvm *kvm,
 			       unsigned long start, unsigned long end,
 			       bool blockable);
@@ -74,6 +91,8 @@ extern int kvm_age_hva(struct kvm *kvm, unsigned long start, unsigned long end);
 extern int kvm_test_age_hva(struct kvm *kvm, unsigned long hva);
 extern void kvm_set_spte_hva(struct kvm *kvm, unsigned long hva, pte_t pte);
 
+=======
+>>>>>>> upstream/android-13
 #define HPTEG_CACHE_NUM			(1 << 15)
 #define HPTEG_HASH_BITS_PTE		13
 #define HPTEG_HASH_BITS_PTE_LONG	12
@@ -95,12 +114,25 @@ struct dtl_entry;
 
 struct kvmppc_vcpu_book3s;
 struct kvmppc_book3s_shadow_vcpu;
+<<<<<<< HEAD
 
 struct kvm_vm_stat {
 	ulong remote_tlb_flush;
 };
 
 struct kvm_vcpu_stat {
+=======
+struct kvm_nested_guest;
+
+struct kvm_vm_stat {
+	struct kvm_vm_stat_generic generic;
+	u64 num_2M_pages;
+	u64 num_1G_pages;
+};
+
+struct kvm_vcpu_stat {
+	struct kvm_vcpu_stat_generic generic;
+>>>>>>> upstream/android-13
 	u64 sum_exits;
 	u64 mmio_exits;
 	u64 signal_exits;
@@ -116,6 +148,7 @@ struct kvm_vcpu_stat {
 	u64 emulated_inst_exits;
 	u64 dec_exits;
 	u64 ext_intr_exits;
+<<<<<<< HEAD
 	u64 halt_poll_success_ns;
 	u64 halt_poll_fail_ns;
 	u64 halt_wait_ns;
@@ -124,6 +157,9 @@ struct kvm_vcpu_stat {
 	u64 halt_successful_wait;
 	u64 halt_poll_invalid;
 	u64 halt_wakeup;
+=======
+	u64 halt_successful_wait;
+>>>>>>> upstream/android-13
 	u64 dbell_exits;
 	u64 gdbell_exits;
 	u64 ld;
@@ -198,6 +234,11 @@ struct kvmppc_spapr_tce_iommu_table {
 	struct kref kref;
 };
 
+<<<<<<< HEAD
+=======
+#define TCES_PER_PAGE	(PAGE_SIZE / sizeof(u64))
+
+>>>>>>> upstream/android-13
 struct kvmppc_spapr_tce_table {
 	struct list_head list;
 	struct kvm *kvm;
@@ -207,6 +248,10 @@ struct kvmppc_spapr_tce_table {
 	u64 offset;		/* in pages */
 	u64 size;		/* window size in pages */
 	struct list_head iommu_tables;
+<<<<<<< HEAD
+=======
+	struct mutex alloc_lock;
+>>>>>>> upstream/android-13
 	struct page *pages[0];
 };
 
@@ -219,6 +264,10 @@ extern struct kvm_device_ops kvm_xics_ops;
 struct kvmppc_xive;
 struct kvmppc_xive_vcpu;
 extern struct kvm_device_ops kvm_xive_ops;
+<<<<<<< HEAD
+=======
+extern struct kvm_device_ops kvm_xive_native_ops;
+>>>>>>> upstream/android-13
 
 struct kvmppc_passthru_irqmap;
 
@@ -236,11 +285,33 @@ struct revmap_entry {
 };
 
 /*
+<<<<<<< HEAD
  * We use the top bit of each memslot->arch.rmap entry as a lock bit,
  * and bit 32 as a present flag.  The bottom 32 bits are the
  * index in the guest HPT of a HPTE that points to the page.
  */
 #define KVMPPC_RMAP_LOCK_BIT	63
+=======
+ * The rmap array of size number of guest pages is allocated for each memslot.
+ * This array is used to store usage specific information about the guest page.
+ * Below are the encodings of the various possible usage types.
+ */
+/* Free bits which can be used to define a new usage */
+#define KVMPPC_RMAP_TYPE_MASK	0xff00000000000000
+#define KVMPPC_RMAP_NESTED	0xc000000000000000	/* Nested rmap array */
+#define KVMPPC_RMAP_HPT		0x0100000000000000	/* HPT guest */
+
+/*
+ * rmap usage definition for a hash page table (hpt) guest:
+ * 0x0000080000000000	Lock bit
+ * 0x0000018000000000	RC bits
+ * 0x0000000100000000	Present bit
+ * 0x00000000ffffffff	HPT index bits
+ * The bottom 32 bits are the index in the guest HPT of a HPTE that points to
+ * the page.
+ */
+#define KVMPPC_RMAP_LOCK_BIT	43
+>>>>>>> upstream/android-13
 #define KVMPPC_RMAP_RC_SHIFT	32
 #define KVMPPC_RMAP_REFERENCED	(HPTE_R_R << KVMPPC_RMAP_RC_SHIFT)
 #define KVMPPC_RMAP_PRESENT	0x100000000ul
@@ -265,6 +336,14 @@ struct kvm_hpt_info {
 
 struct kvm_resize_hpt;
 
+<<<<<<< HEAD
+=======
+/* Flag values for kvm_arch.secure_guest */
+#define KVMPPC_SECURE_INIT_START 0x1 /* H_SVM_INIT_START has been called */
+#define KVMPPC_SECURE_INIT_DONE  0x2 /* H_SVM_INIT_DONE completed */
+#define KVMPPC_SECURE_INIT_ABORT 0x4 /* H_SVM_INIT_ABORT issued */
+
+>>>>>>> upstream/android-13
 struct kvm_arch {
 	unsigned int lpid;
 	unsigned int smt_mode;		/* # vcpus per virtual core */
@@ -287,11 +366,21 @@ struct kvm_arch {
 	cpumask_t cpu_in_guest;
 	u8 radix;
 	u8 fwnmi_enabled;
+<<<<<<< HEAD
 	bool threads_indep;
 	pgd_t *pgtable;
 	u64 process_table;
 	struct dentry *debugfs_dir;
 	struct dentry *htab_dentry;
+=======
+	u8 secure_guest;
+	u8 svm_enabled;
+	bool nested_enable;
+	bool dawr1_enabled;
+	pgd_t *pgtable;
+	u64 process_table;
+	struct dentry *debugfs_dir;
+>>>>>>> upstream/android-13
 	struct kvm_resize_hpt *resize_hpt; /* protected by kvm->lock */
 #endif /* CONFIG_KVM_BOOK3S_HV_POSSIBLE */
 #ifdef CONFIG_KVM_BOOK3S_PR_POSSIBLE
@@ -308,11 +397,29 @@ struct kvm_arch {
 #endif
 #ifdef CONFIG_KVM_XICS
 	struct kvmppc_xics *xics;
+<<<<<<< HEAD
 	struct kvmppc_xive *xive;
+=======
+	struct kvmppc_xics *xics_device;
+	struct kvmppc_xive *xive;    /* Current XIVE device in use */
+	struct {
+		struct kvmppc_xive *native;
+		struct kvmppc_xive *xics_on_xive;
+	} xive_devices;
+>>>>>>> upstream/android-13
 	struct kvmppc_passthru_irqmap *pimap;
 #endif
 	struct kvmppc_ops *kvm_ops;
 #ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
+<<<<<<< HEAD
+=======
+	struct mutex uvmem_lock;
+	struct list_head uvmem_pfns;
+	struct mutex mmu_setup_lock;	/* nests inside vcpu mutexes */
+	u64 l1_ptcr;
+	int max_nested_lpid;
+	struct kvm_nested_guest *nested_guests[KVM_MAX_NESTED_GUESTS];
+>>>>>>> upstream/android-13
 	/* This array can grow quite large, keep it at the end */
 	struct kvmppc_vcore *vcores[KVM_MAX_VCORES];
 #endif
@@ -362,7 +469,13 @@ struct kvmppc_pte {
 	bool may_write		: 1;
 	bool may_execute	: 1;
 	unsigned long wimg;
+<<<<<<< HEAD
 	u8 page_size;		/* MMU_PAGE_xxx */
+=======
+	unsigned long rc;
+	u8 page_size;		/* MMU_PAGE_xxx */
+	u8 page_shift;
+>>>>>>> upstream/android-13
 };
 
 struct kvmppc_mmu {
@@ -370,6 +483,10 @@ struct kvmppc_mmu {
 	void (*slbmte)(struct kvm_vcpu *vcpu, u64 rb, u64 rs);
 	u64  (*slbmfee)(struct kvm_vcpu *vcpu, u64 slb_nr);
 	u64  (*slbmfev)(struct kvm_vcpu *vcpu, u64 slb_nr);
+<<<<<<< HEAD
+=======
+	int  (*slbfee)(struct kvm_vcpu *vcpu, gva_t eaddr, ulong *ret_slb);
+>>>>>>> upstream/android-13
 	void (*slbie)(struct kvm_vcpu *vcpu, u64 slb_nr);
 	void (*slbia)(struct kvm_vcpu *vcpu);
 	/* book3s */
@@ -377,7 +494,10 @@ struct kvmppc_mmu {
 	u32  (*mfsrin)(struct kvm_vcpu *vcpu, u32 srnum);
 	int  (*xlate)(struct kvm_vcpu *vcpu, gva_t eaddr,
 		      struct kvmppc_pte *pte, bool data, bool iswrite);
+<<<<<<< HEAD
 	void (*reset_msr)(struct kvm_vcpu *vcpu);
+=======
+>>>>>>> upstream/android-13
 	void (*tlbie)(struct kvm_vcpu *vcpu, ulong addr, bool large);
 	int  (*esid_to_vsid)(struct kvm_vcpu *vcpu, ulong esid, u64 *vsid);
 	u64  (*ea_to_vp)(struct kvm_vcpu *vcpu, gva_t eaddr, bool data);
@@ -439,6 +559,10 @@ struct kvmppc_passthru_irqmap {
 #define KVMPPC_IRQ_DEFAULT	0
 #define KVMPPC_IRQ_MPIC		1
 #define KVMPPC_IRQ_XICS		2 /* Includes a XIVE option */
+<<<<<<< HEAD
+=======
+#define KVMPPC_IRQ_XIVE		3 /* XIVE native exploitation mode */
+>>>>>>> upstream/android-13
 
 #define MMIO_HPTE_CACHE_SIZE	4
 
@@ -552,8 +676,15 @@ struct kvm_vcpu_arch {
 	u32 ctrl;
 	u32 dabrx;
 	ulong dabr;
+<<<<<<< HEAD
 	ulong dawr;
 	ulong dawrx;
+=======
+	ulong dawr0;
+	ulong dawrx0;
+	ulong dawr1;
+	ulong dawrx1;
+>>>>>>> upstream/android-13
 	ulong ciabr;
 	ulong cfar;
 	ulong ppr;
@@ -607,12 +738,22 @@ struct kvm_vcpu_arch {
 	u32 ccr1;
 	u32 dbsr;
 
+<<<<<<< HEAD
 	u64 mmcr[5];
+=======
+	u64 mmcr[4];	/* MMCR0, MMCR1, MMCR2, MMCR3 */
+	u64 mmcra;
+	u64 mmcrs;
+>>>>>>> upstream/android-13
 	u32 pmc[8];
 	u32 spmc[2];
 	u64 siar;
 	u64 sdar;
+<<<<<<< HEAD
 	u64 sier;
+=======
+	u64 sier[3];
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 	u64 tfhar;
 	u64 texasr;
@@ -654,7 +795,16 @@ struct kvm_vcpu_arch {
 	ulong fault_dar;
 	u32 fault_dsisr;
 	unsigned long intr_msr;
+<<<<<<< HEAD
 	ulong fault_gpa;	/* guest real address of page fault (POWER9) */
+=======
+	/*
+	 * POWER9 and later: fault_gpa contains the guest real address of page
+	 * fault for a radix guest, or segment descriptor (equivalent to result
+	 * from slbmfev of SLB entry that translated the EA) for hash guests.
+	 */
+	ulong fault_gpa;
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_BOOKE
@@ -707,6 +857,10 @@ struct kvm_vcpu_arch {
 	u8 hcall_needed;
 	u8 epr_flags; /* KVMPPC_EPR_xxx */
 	u8 epr_needed;
+<<<<<<< HEAD
+=======
+	u8 external_oneshot;	/* clear external irq after delivery */
+>>>>>>> upstream/android-13
 
 	u32 cpr0_cfgaddr; /* holds the last set cpr0_cfgaddr */
 
@@ -720,7 +874,11 @@ struct kvm_vcpu_arch {
 	u8 irq_pending; /* Used by XIVE to signal pending guest irqs */
 	u32 last_inst;
 
+<<<<<<< HEAD
 	struct swait_queue_head *wqp;
+=======
+	struct rcuwait *waitp;
+>>>>>>> upstream/android-13
 	struct kvmppc_vcore *vcore;
 	int ret;
 	int trap;
@@ -764,7 +922,10 @@ struct kvm_vcpu_arch {
 	struct mmio_hpte_cache_entry *pgfault_cache;
 
 	struct task_struct *run_task;
+<<<<<<< HEAD
 	struct kvm_run *kvm_run;
+=======
+>>>>>>> upstream/android-13
 
 	spinlock_t vpa_update_lock;
 	struct kvmppc_vpa vpa;
@@ -781,6 +942,17 @@ struct kvm_vcpu_arch {
 	u32 emul_inst;
 
 	u32 online;
+<<<<<<< HEAD
+=======
+
+	u64 hfscr_permitted;	/* A mask of permitted HFSCR facilities */
+
+	/* For support of nested guests */
+	struct kvm_nested_guest *nested;
+	u64 nested_hfscr;	/* HFSCR that the L1 requested for the nested guest */
+	u32 nested_vcpu_id;
+	gpa_t nested_io_gpr;
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_KVM_BOOK3S_HV_EXIT_TIMING
@@ -793,7 +965,10 @@ struct kvm_vcpu_arch {
 	struct kvmhv_tb_accumulator cede_time;	/* time napping inside guest */
 
 	struct dentry *debugfs_dir;
+<<<<<<< HEAD
 	struct dentry *debugfs_timings;
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_KVM_BOOK3S_HV_EXIT_TIMING */
 };
 
@@ -815,6 +990,11 @@ struct kvm_vcpu_arch {
 #define KVM_MMIO_REG_FQPR	0x00c0
 #define KVM_MMIO_REG_VSX	0x0100
 #define KVM_MMIO_REG_VMX	0x0180
+<<<<<<< HEAD
+=======
+#define KVM_MMIO_REG_NESTED_GPR	0xffc0
+
+>>>>>>> upstream/android-13
 
 #define __KVM_HAVE_ARCH_WQP
 #define __KVM_HAVE_CREATE_DEVICE

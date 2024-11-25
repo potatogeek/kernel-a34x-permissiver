@@ -16,12 +16,19 @@
 #include <linux/kernel_stat.h>
 #include <linux/delay.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ptrace.h>
 #include <linux/atomic.h>
 #include <asm/irq.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/io.h>
 #include <asm/prom.h>

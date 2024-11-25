@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2005 - 2011 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +23,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <ilw@linux.intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -157,7 +164,11 @@ il4965_rs_dbgfs_set_mcs(struct il_lq_sta *lq_sta, u32 * rate_n_flags, int idx)
 }
 #endif
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * The following tables contain the expected throughput metrics for all rates
  *
  *	1, 2, 5.5, 11, 6, 9, 12, 18, 24, 36, 48, 54, 60 MBits
@@ -408,7 +419,11 @@ il4965_get_expected_tpt(struct il_scale_tbl_info *tbl, int rs_idx)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_rs_collect_tx_data - Update the success/failure sliding win
  *
  * We keep a sliding win of the last 62 packets transmitted
@@ -635,7 +650,11 @@ il4965_rs_toggle_antenna(u32 valid_ant, u32 *rate_n_flags,
 	return 1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Green-field mode is valid if the station supports it and
  * there are no non-GF stations present in the BSS.
  */
@@ -646,7 +665,11 @@ il4965_rs_use_green(struct il_priv *il, struct ieee80211_sta *sta)
 	       !il->ht.non_gf_sta_present;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_rs_get_supported_rates - get the available rates
  *
  * if management frame or broadcast frame only return
@@ -1764,7 +1787,11 @@ il4965_rs_rate_scale_perform(struct il_priv *il, struct sk_buff *skb,
 	u8 done_search = 0;
 	u16 high_low;
 	s32 sr;
+<<<<<<< HEAD
 	u8 tid = MAX_TID_COUNT;
+=======
+	u8 tid;
+>>>>>>> upstream/android-13
 	struct il_tid_data *tid_data;
 
 	D_RATE("rate scale calculate new rate for skb\n");
@@ -2129,7 +2156,11 @@ out:
 	lq_sta->last_txrate_idx = i;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il4965_rs_initialize_lq - Initialize a station's hardware rate table
  *
  * The uCode's station table contains a table of fallback rates
@@ -2224,10 +2255,13 @@ il4965_rs_get_rate(void *il_r, struct ieee80211_sta *sta, void *il_sta,
 		il_sta = NULL;
 	}
 
+<<<<<<< HEAD
 	/* Send management frames and NO_ACK data using lowest rate. */
 	if (rate_control_send_low(sta, il_sta, txrc))
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	if (!lq_sta)
 		return;
 
@@ -2493,7 +2527,11 @@ il4965_rs_fill_link_cmd(struct il_priv *il, struct il_lq_sta *lq_sta,
 }
 
 static void *
+<<<<<<< HEAD
 il4965_rs_alloc(struct ieee80211_hw *hw, struct dentry *debugfsdir)
+=======
+il4965_rs_alloc(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	return hw->priv;
 }
@@ -2767,6 +2805,7 @@ static void
 il4965_rs_add_debugfs(void *il, void *il_sta, struct dentry *dir)
 {
 	struct il_lq_sta *lq_sta = il_sta;
+<<<<<<< HEAD
 	lq_sta->rs_sta_dbgfs_scale_table_file =
 	    debugfs_create_file("rate_scale_table", 0600, dir,
 				lq_sta, &rs_sta_dbgfs_scale_table_ops);
@@ -2790,6 +2829,17 @@ il4965_rs_remove_debugfs(void *il, void *il_sta)
 	debugfs_remove(lq_sta->rs_sta_dbgfs_stats_table_file);
 	debugfs_remove(lq_sta->rs_sta_dbgfs_rate_scale_data_file);
 	debugfs_remove(lq_sta->rs_sta_dbgfs_tx_agg_tid_en_file);
+=======
+
+	debugfs_create_file("rate_scale_table", 0600, dir, lq_sta,
+			    &rs_sta_dbgfs_scale_table_ops);
+	debugfs_create_file("rate_stats_table", 0400, dir, lq_sta,
+			    &rs_sta_dbgfs_stats_table_ops);
+	debugfs_create_file("rate_scale_data", 0400, dir, lq_sta,
+			    &rs_sta_dbgfs_rate_scale_data_ops);
+	debugfs_create_u8("tx_agg_tid_enable", 0600, dir,
+			  &lq_sta->tx_agg_tid_en);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -2816,7 +2866,10 @@ static const struct rate_control_ops rs_4965_ops = {
 	.free_sta = il4965_rs_free_sta,
 #ifdef CONFIG_MAC80211_DEBUGFS
 	.add_sta_debugfs = il4965_rs_add_debugfs,
+<<<<<<< HEAD
 	.remove_sta_debugfs = il4965_rs_remove_debugfs,
+=======
+>>>>>>> upstream/android-13
 #endif
 };
 

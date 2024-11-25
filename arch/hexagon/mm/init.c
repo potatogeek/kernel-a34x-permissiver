@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Memory subsystem initialization for Hexagon
  *
  * Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,11 +21,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <asm/atomic.h>
 #include <linux/highmem.h>
 #include <asm/tlb.h>
@@ -67,8 +78,12 @@ unsigned long long kmap_generation;
 void __init mem_init(void)
 {
 	/*  No idea where this is actually declared.  Seems to evade LXR.  */
+<<<<<<< HEAD
 	free_all_bootmem();
 	mem_init_print_info(NULL);
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 	/*
 	 *  To-Do:  someone somewhere should wipe out the bootmem map
@@ -84,6 +99,7 @@ void __init mem_init(void)
 	init_mm.context.ptbase = __pa(init_mm.pgd);
 }
 
+<<<<<<< HEAD
 /*
  * free_initmem - frees memory used by stuff declared with __init
  *
@@ -107,6 +123,8 @@ void free_initrd_mem(unsigned long start, unsigned long end)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 void sync_icache_dcache(pte_t pte)
 {
 	unsigned long addr;
@@ -127,7 +145,11 @@ void sync_icache_dcache(pte_t pte)
  */
 void __init paging_init(void)
 {
+<<<<<<< HEAD
 	unsigned long zones_sizes[MAX_NR_ZONES] = {0, };
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = {0, };
+>>>>>>> upstream/android-13
 
 	/*
 	 *  This is not particularly well documented anywhere, but
@@ -137,9 +159,15 @@ void __init paging_init(void)
 	 *  adjust accordingly.
 	 */
 
+<<<<<<< HEAD
 	zones_sizes[ZONE_NORMAL] = max_low_pfn;
 
 	free_area_init(zones_sizes);  /*  sets up the zonelists and mem_map  */
+=======
+	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
+
+	free_area_init(max_zone_pfn);  /*  sets up the zonelists and mem_map  */
+>>>>>>> upstream/android-13
 
 	/*
 	 * Start of high memory area.  Will probably need something more
@@ -176,7 +204,10 @@ size_t hexagon_coherent_pool_size = (size_t) (DMA_RESERVE << 22);
 
 void __init setup_arch_memory(void)
 {
+<<<<<<< HEAD
 	int bootmap_size;
+=======
+>>>>>>> upstream/android-13
 	/*  XXX Todo: this probably should be cleaned up  */
 	u32 *segtable = (u32 *) &swapper_pg_dir[0];
 	u32 *segtable_end;
@@ -195,10 +226,20 @@ void __init setup_arch_memory(void)
 	bootmem_lastpg = PFN_DOWN((bootmem_lastpg << PAGE_SHIFT) &
 		~((BIG_KERNEL_PAGE_SIZE) - 1));
 
+<<<<<<< HEAD
+=======
+	memblock_add(PHYS_OFFSET,
+		     (bootmem_lastpg - ARCH_PFN_OFFSET) << PAGE_SHIFT);
+
+	/* Reserve kernel text/data/bss */
+	memblock_reserve(PHYS_OFFSET,
+			 (bootmem_startpg - ARCH_PFN_OFFSET) << PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	/*
 	 * Reserve the top DMA_RESERVE bytes of RAM for DMA (uncached)
 	 * memory allocation
 	 */
+<<<<<<< HEAD
 
 	max_low_pfn = bootmem_lastpg - PFN_DOWN(DMA_RESERVED_BYTES);
 	min_low_pfn = ARCH_PFN_OFFSET;
@@ -207,6 +248,14 @@ void __init setup_arch_memory(void)
 	printk(KERN_INFO "bootmem_startpg:  0x%08lx\n", bootmem_startpg);
 	printk(KERN_INFO "bootmem_lastpg:  0x%08lx\n", bootmem_lastpg);
 	printk(KERN_INFO "bootmap_size:  %d\n", bootmap_size);
+=======
+	max_low_pfn = bootmem_lastpg - PFN_DOWN(DMA_RESERVED_BYTES);
+	min_low_pfn = ARCH_PFN_OFFSET;
+	memblock_reserve(PFN_PHYS(max_low_pfn), DMA_RESERVED_BYTES);
+
+	printk(KERN_INFO "bootmem_startpg:  0x%08lx\n", bootmem_startpg);
+	printk(KERN_INFO "bootmem_lastpg:  0x%08lx\n", bootmem_lastpg);
+>>>>>>> upstream/android-13
 	printk(KERN_INFO "min_low_pfn:  0x%08lx\n", min_low_pfn);
 	printk(KERN_INFO "max_low_pfn:  0x%08lx\n", max_low_pfn);
 
@@ -257,6 +306,7 @@ void __init setup_arch_memory(void)
 #endif
 
 	/*
+<<<<<<< HEAD
 	 * Free all the memory that wasn't taken up by the bootmap, the DMA
 	 * reserve, or kernel itself.
 	 */
@@ -265,6 +315,8 @@ void __init setup_arch_memory(void)
 		     DMA_RESERVED_BYTES);
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 *  The bootmem allocator seemingly just lives to feed memory
 	 *  to the paging system
 	 */

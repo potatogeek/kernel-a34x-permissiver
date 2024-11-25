@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Michael Ellerman, IBM Corporation.
  * Copyright 2012 Benjamin Herrenschmidt, IBM Corporation
@@ -5,12 +6,22 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2012 Michael Ellerman, IBM Corporation.
+ * Copyright 2012 Benjamin Herrenschmidt, IBM Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/kvm_host.h>
 #include <linux/err.h>
 #include <linux/kernel_stat.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/kvm_book3s.h>
 #include <asm/kvm_ppc.h>
@@ -18,7 +29,10 @@
 #include <asm/xics.h>
 #include <asm/synch.h>
 #include <asm/cputhreads.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ppc-opcode.h>
 #include <asm/pnv-pci.h>
 #include <asm/opal.h>
@@ -136,7 +150,11 @@ static void icp_rm_set_vcpu_irq(struct kvm_vcpu *vcpu,
 
 	/* Mark the target VCPU as having an interrupt pending */
 	vcpu->stat.queue_intr++;
+<<<<<<< HEAD
 	set_bit(BOOK3S_IRQPRIO_EXTERNAL_LEVEL, &vcpu->arch.pending_exceptions);
+=======
+	set_bit(BOOK3S_IRQPRIO_EXTERNAL, &vcpu->arch.pending_exceptions);
+>>>>>>> upstream/android-13
 
 	/* Kick self ? Just set MER and return */
 	if (vcpu == this_vcpu) {
@@ -170,8 +188,12 @@ static void icp_rm_set_vcpu_irq(struct kvm_vcpu *vcpu,
 static void icp_rm_clr_vcpu_irq(struct kvm_vcpu *vcpu)
 {
 	/* Note: Only called on self ! */
+<<<<<<< HEAD
 	clear_bit(BOOK3S_IRQPRIO_EXTERNAL_LEVEL,
 		  &vcpu->arch.pending_exceptions);
+=======
+	clear_bit(BOOK3S_IRQPRIO_EXTERNAL, &vcpu->arch.pending_exceptions);
+>>>>>>> upstream/android-13
 	mtspr(SPRN_LPCR, mfspr(SPRN_LPCR) & ~LPCR_MER);
 }
 
@@ -710,6 +732,10 @@ static int ics_rm_eoi(struct kvm_vcpu *vcpu, u32 irq)
 		icp->rm_eoied_irq = irq;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Handle passthrough interrupts */
+>>>>>>> upstream/android-13
 	if (state->host_irq) {
 		++vcpu->stat.pthru_all;
 		if (state->intr_cpu != -1) {
@@ -761,14 +787,24 @@ int xics_rm_h_eoi(struct kvm_vcpu *vcpu, unsigned long xirr)
 	return ics_rm_eoi(vcpu, irq);
 }
 
+<<<<<<< HEAD
 unsigned long eoi_rc;
 
 static void icp_eoi(struct irq_chip *c, u32 hwirq, __be32 xirr, bool *again)
+=======
+static unsigned long eoi_rc;
+
+static void icp_eoi(struct irq_data *d, u32 hwirq, __be32 xirr, bool *again)
+>>>>>>> upstream/android-13
 {
 	void __iomem *xics_phys;
 	int64_t rc;
 
+<<<<<<< HEAD
 	rc = pnv_opal_pci_msi_eoi(c, hwirq);
+=======
+	rc = pnv_opal_pci_msi_eoi(d);
+>>>>>>> upstream/android-13
 
 	if (rc)
 		eoi_rc = rc;
@@ -808,7 +844,11 @@ static inline void this_cpu_inc_rm(unsigned int __percpu *addr)
 	raddr = per_cpu_ptr(addr, cpu);
 	l = (unsigned long)raddr;
 
+<<<<<<< HEAD
 	if (REGION_ID(l) == VMALLOC_REGION_ID) {
+=======
+	if (get_region_id(l) == VMALLOC_REGION_ID) {
+>>>>>>> upstream/android-13
 		l = vmalloc_to_phys(raddr);
 		raddr = (unsigned int *)l;
 	}
@@ -876,8 +916,12 @@ long kvmppc_deliver_irq_passthru(struct kvm_vcpu *vcpu,
 		icp_rm_deliver_irq(xics, icp, irq, false);
 
 	/* EOI the interrupt */
+<<<<<<< HEAD
 	icp_eoi(irq_desc_get_chip(irq_map->desc), irq_map->r_hwirq, xirr,
 		again);
+=======
+	icp_eoi(irq_desc_get_irq_data(irq_map->desc), irq_map->r_hwirq, xirr, again);
+>>>>>>> upstream/android-13
 
 	if (check_too_hard(xics, icp) == H_TOO_HARD)
 		return 2;

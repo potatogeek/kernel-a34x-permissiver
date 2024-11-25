@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 1999 Andreas Gal
  *  Copyright (c) 2000-2001 Vojtech Pavlik
  *  Copyright (c) 2006-2007 Jiri Kosina
  */
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  *
  * Should you need to contact me, the author, you can do so either by
  * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
@@ -38,6 +45,10 @@
 #include <linux/mutex.h>
 #include <linux/power_supply.h>
 #include <uapi/linux/hid.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 /*
  * We parse each description item into this structure. Short items data
@@ -114,6 +125,10 @@ struct hid_item {
 #define HID_COLLECTION_PHYSICAL		0
 #define HID_COLLECTION_APPLICATION	1
 #define HID_COLLECTION_LOGICAL		2
+<<<<<<< HEAD
+=======
+#define HID_COLLECTION_NAMED_ARRAY	4
+>>>>>>> upstream/android-13
 
 /*
  * HID report descriptor global item tags
@@ -165,6 +180,10 @@ struct hid_item {
 #define HID_UP_CONSUMER		0x000c0000
 #define HID_UP_DIGITIZER	0x000d0000
 #define HID_UP_PID		0x000f0000
+<<<<<<< HEAD
+=======
+#define HID_UP_BATTERY		0x00850000
+>>>>>>> upstream/android-13
 #define HID_UP_HPVENDOR         0xff7f0000
 #define HID_UP_HPVENDOR2        0xff010000
 #define HID_UP_MSVENDOR		0xff000000
@@ -175,6 +194,10 @@ struct hid_item {
 #define HID_UP_LNVENDOR		0xffa00000
 #define HID_UP_SENSOR		0x00200000
 #define HID_UP_ASUSVENDOR	0xff310000
+<<<<<<< HEAD
+=======
+#define HID_UP_GOOGLEVENDOR	0xffd10000
+>>>>>>> upstream/android-13
 
 #define HID_USAGE		0x0000ffff
 
@@ -219,6 +242,10 @@ struct hid_item {
 #define HID_GD_VBRZ		0x00010045
 #define HID_GD_VNO		0x00010046
 #define HID_GD_FEATURE		0x00010047
+<<<<<<< HEAD
+=======
+#define HID_GD_RESOLUTION_MULTIPLIER	0x00010048
+>>>>>>> upstream/android-13
 #define HID_GD_SYSTEM_CONTROL	0x00010080
 #define HID_GD_UP		0x00010090
 #define HID_GD_DOWN		0x00010091
@@ -232,12 +259,20 @@ struct hid_item {
 #define HID_DC_BATTERYSTRENGTH	0x00060020
 
 #define HID_CP_CONSUMER_CONTROL	0x000c0001
+<<<<<<< HEAD
+=======
+#define HID_CP_AC_PAN		0x000c0238
+>>>>>>> upstream/android-13
 
 #define HID_DG_DIGITIZER	0x000d0001
 #define HID_DG_PEN		0x000d0002
 #define HID_DG_LIGHTPEN		0x000d0003
 #define HID_DG_TOUCHSCREEN	0x000d0004
 #define HID_DG_TOUCHPAD		0x000d0005
+<<<<<<< HEAD
+=======
+#define HID_DG_WHITEBOARD	0x000d0006
+>>>>>>> upstream/android-13
 #define HID_DG_STYLUS		0x000d0020
 #define HID_DG_PUCK		0x000d0021
 #define HID_DG_FINGER		0x000d0022
@@ -307,6 +342,11 @@ struct hid_item {
 #define HID_DG_TOOLSERIALNUMBER	0x000d005b
 #define HID_DG_LATENCYMODE	0x000d0060
 
+<<<<<<< HEAD
+=======
+#define HID_BAT_ABSOLUTESTATEOFCHARGE	0x00850065
+
+>>>>>>> upstream/android-13
 #define HID_VD_ASUS_CUSTOM_MEDIA_KEYS	0xff310076
 /*
  * HID report types --- Ouch! HID spec says 1 2 3!
@@ -353,6 +393,11 @@ struct hid_item {
 /* BIT(9) reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
 #define HID_QUIRK_ALWAYS_POLL			BIT(10)
 #define HID_QUIRK_INPUT_PER_APP			BIT(11)
+<<<<<<< HEAD
+=======
+#define HID_QUIRK_X_INVERT			BIT(12)
+#define HID_QUIRK_Y_INVERT			BIT(13)
+>>>>>>> upstream/android-13
 #define HID_QUIRK_SKIP_OUTPUT_REPORTS		BIT(16)
 #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		BIT(17)
 #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	BIT(18)
@@ -381,6 +426,11 @@ struct hid_item {
 #define HID_GROUP_WACOM				0x0101
 #define HID_GROUP_LOGITECH_DJ_DEVICE		0x0102
 #define HID_GROUP_STEAM				0x0103
+<<<<<<< HEAD
+=======
+#define HID_GROUP_LOGITECH_27MHZ_DEVICE		0x0104
+#define HID_GROUP_VIVALDI			0x0105
+>>>>>>> upstream/android-13
 
 /*
  * HID protocol status
@@ -430,6 +480,10 @@ struct hid_local {
  */
 
 struct hid_collection {
+<<<<<<< HEAD
+=======
+	int parent_idx; /* device->collection */
+>>>>>>> upstream/android-13
 	unsigned type;
 	unsigned usage;
 	unsigned level;
@@ -439,12 +493,23 @@ struct hid_usage {
 	unsigned  hid;			/* hid usage code */
 	unsigned  collection_index;	/* index into collection array */
 	unsigned  usage_index;		/* index into usage array */
+<<<<<<< HEAD
 	/* hidinput data */
+=======
+	__s8	  resolution_multiplier;/* Effective Resolution Multiplier
+					   (HUT v1.12, 4.3.1), default: 1 */
+	/* hidinput data */
+	__s8	  wheel_factor;		/* 120/resolution_multiplier */
+>>>>>>> upstream/android-13
 	__u16     code;			/* input driver code */
 	__u8      type;			/* input driver type */
 	__s8	  hat_min;		/* hat switch fun */
 	__s8	  hat_max;		/* ditto */
 	__s8	  hat_dir;		/* ditto */
+<<<<<<< HEAD
+=======
+	__s16	  wheel_accumulated;	/* hi-res wheel */
+>>>>>>> upstream/android-13
 };
 
 struct hid_input;
@@ -497,7 +562,11 @@ struct hid_report_enum {
 };
 
 #define HID_MIN_BUFFER_SIZE	64		/* make sure there is at least a packet size of space */
+<<<<<<< HEAD
 #define HID_MAX_BUFFER_SIZE	8192		/* 8kb */
+=======
+#define HID_MAX_BUFFER_SIZE	16384		/* 16kb */
+>>>>>>> upstream/android-13
 #define HID_CONTROL_FIFO_SIZE	256		/* to init devices with >100 reports */
 #define HID_OUTPUT_FIFO_SIZE	64
 
@@ -588,6 +657,10 @@ struct hid_device {							/* device report descriptor */
 	__s32 battery_report_id;
 	enum hid_battery_status battery_status;
 	bool battery_avoid_query;
+<<<<<<< HEAD
+=======
+	ktime_t battery_ratelimit_time;
+>>>>>>> upstream/android-13
 #endif
 
 	unsigned long status;						/* see STAT flags above */
@@ -623,6 +696,12 @@ struct hid_device {							/* device report descriptor */
 	struct list_head debug_list;
 	spinlock_t  debug_list_lock;
 	wait_queue_head_t debug_wait;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 #define to_hid_device(pdev) \
@@ -725,8 +804,13 @@ struct hid_usage_id {
  * input will not be passed to raw_event unless hid_device_io_start is
  * called.
  *
+<<<<<<< HEAD
  * raw_event and event should return 0 on no action performed, 1 when no
  * further processing should be done and negative on error
+=======
+ * raw_event and event should return negative on error, any other value will
+ * pass the event on to .event() typically return 0 for success.
+>>>>>>> upstream/android-13
  *
  * input_mapping shall return a negative value to completely ignore this usage
  * (e.g. doubled or invalid usage), zero to continue with parsing of this
@@ -797,6 +881,10 @@ struct hid_driver {
  * @raw_request: send raw report request to device (e.g. feature report)
  * @output_report: send output report to device
  * @idle: send idle request to device
+<<<<<<< HEAD
+=======
+ * @may_wakeup: return if device may act as a wakeup source during system-suspend
+>>>>>>> upstream/android-13
  */
 struct hid_ll_driver {
 	int (*start)(struct hid_device *hdev);
@@ -821,6 +909,10 @@ struct hid_ll_driver {
 	int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len);
 
 	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+<<<<<<< HEAD
+=======
+	bool (*may_wakeup)(struct hid_device *hdev);
+>>>>>>> upstream/android-13
 };
 
 extern struct hid_ll_driver i2c_hid_ll_driver;
@@ -844,7 +936,15 @@ static inline bool hid_is_usb(struct hid_device *hdev)
 
 /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
 /* We ignore a few input applications that are not widely used */
+<<<<<<< HEAD
 #define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
+=======
+#define IS_INPUT_APPLICATION(a) \
+		(((a >= HID_UP_GENDESK) && (a <= HID_GD_MULTIAXIS)) \
+		|| ((a >= HID_DG_PEN) && (a <= HID_DG_WHITEBOARD)) \
+		|| (a == HID_GD_SYSTEM_CONTROL) || (a == HID_CP_CONSUMER_CONTROL) \
+		|| (a == HID_GD_WIRELESS_RADIO_CTLS))
+>>>>>>> upstream/android-13
 
 /* HID core API */
 
@@ -889,7 +989,11 @@ struct hid_field *hidinput_get_led_field(struct hid_device *hid);
 unsigned int hidinput_count_leds(struct hid_device *hid);
 __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
 void hid_output_report(struct hid_report *report, __u8 *data);
+<<<<<<< HEAD
 void __hid_request(struct hid_device *hid, struct hid_report *rep, int reqtype);
+=======
+int __hid_request(struct hid_device *hid, struct hid_report *rep, int reqtype);
+>>>>>>> upstream/android-13
 u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags);
 struct hid_device *hid_allocate_device(void);
 struct hid_report *hid_register_report(struct hid_device *device,
@@ -900,6 +1004,11 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
 				       unsigned int type, unsigned int id,
 				       unsigned int field_index,
 				       unsigned int report_counts);
+<<<<<<< HEAD
+=======
+
+void hid_setup_resolution_multiplier(struct hid_device *hid);
+>>>>>>> upstream/android-13
 int hid_open_report(struct hid_device *device);
 int hid_check_keys_pressed(struct hid_device *hid);
 int hid_connect(struct hid_device *hid, unsigned int connect_mask);
@@ -919,7 +1028,11 @@ __u32 hid_field_extract(const struct hid_device *hid, __u8 *report,
 /**
  * hid_device_io_start - enable HID input during probe, remove
  *
+<<<<<<< HEAD
  * @hid - the device
+=======
+ * @hid: the device
+>>>>>>> upstream/android-13
  *
  * This should only be called during probe or remove and only be
  * called by the thread calling probe or remove. It will allow
@@ -937,7 +1050,11 @@ static inline void hid_device_io_start(struct hid_device *hid) {
 /**
  * hid_device_io_stop - disable HID input during probe, remove
  *
+<<<<<<< HEAD
  * @hid - the device
+=======
+ * @hid: the device
+>>>>>>> upstream/android-13
  *
  * Should only be called after hid_device_io_start. It will prevent
  * incoming packets from going to the driver for the duration of
@@ -997,7 +1114,11 @@ static inline void hid_map_usage(struct hid_input *hidinput,
 
 	if (unlikely(c > limit || !bmap)) {
 		pr_warn_ratelimited("%s: Invalid code %d type %d\n",
+<<<<<<< HEAD
 				input->name, c, type);
+=======
+				    input->name, c, type);
+>>>>>>> upstream/android-13
 		*bit = NULL;
 		return;
 	}
@@ -1011,6 +1132,16 @@ static inline void hid_map_usage(struct hid_input *hidinput,
 /**
  * hid_map_usage_clear - map usage input bits and clear the input bit
  *
+<<<<<<< HEAD
+=======
+ * @hidinput: hidinput which we are interested in
+ * @usage: usage to fill in
+ * @bit: pointer to input->{}bit (out parameter)
+ * @max: maximal valid usage->code to consider later (out parameter)
+ * @type: input event type (EV_KEY, EV_REL, ...)
+ * @c: code which corresponds to this usage and type
+ *
+>>>>>>> upstream/android-13
  * The same as hid_map_usage, except the @c bit is also cleared in supported
  * bits (@bit).
  */
@@ -1085,7 +1216,11 @@ static inline void hid_hw_request(struct hid_device *hdev,
  * @rtype: HID report type
  * @reqtype: HID_REQ_GET_REPORT or HID_REQ_SET_REPORT
  *
+<<<<<<< HEAD
  * @return: count of data transfered, negative if error
+=======
+ * Return: count of data transferred, negative if error
+>>>>>>> upstream/android-13
  *
  * Same behavior as hid_hw_request, but with raw buffers instead.
  */
@@ -1107,7 +1242,11 @@ static inline int hid_hw_raw_request(struct hid_device *hdev,
  * @buf: raw data to transfer
  * @len: length of buf
  *
+<<<<<<< HEAD
  * @return: count of data transfered, negative if error
+=======
+ * Return: count of data transferred, negative if error
+>>>>>>> upstream/android-13
  */
 static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
 					size_t len)
@@ -1139,6 +1278,25 @@ static inline int hid_hw_idle(struct hid_device *hdev, int report, int idle,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * hid_may_wakeup - return if the hid device may act as a wakeup source during system-suspend
+ *
+ * @hdev: hid device
+ */
+static inline bool hid_hw_may_wakeup(struct hid_device *hdev)
+{
+	if (hdev->ll_driver->may_wakeup)
+		return hdev->ll_driver->may_wakeup(hdev);
+
+	if (hdev->dev.parent)
+		return device_may_wakeup(hdev->dev.parent);
+
+	return false;
+}
+
+/**
+>>>>>>> upstream/android-13
  * hid_hw_wait - wait for buffered io to complete
  *
  * @hdev: hid device
@@ -1156,8 +1314,12 @@ static inline void hid_hw_wait(struct hid_device *hdev)
  */
 static inline u32 hid_report_len(struct hid_report *report)
 {
+<<<<<<< HEAD
 	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
 	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
+=======
+	return DIV_ROUND_UP(report->size, 8) + (report->id > 0);
+>>>>>>> upstream/android-13
 }
 
 int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
@@ -1174,6 +1336,7 @@ int hid_pidff_init(struct hid_device *hid);
 #define hid_pidff_init NULL
 #endif
 
+<<<<<<< HEAD
 #define dbg_hid(format, arg...)						\
 do {									\
 	if (hid_debug)							\
@@ -1198,5 +1361,34 @@ do {									\
 	dev_info(&(hid)->dev, fmt, ##arg)
 #define hid_dbg(hid, fmt, arg...)			\
 	dev_dbg(&(hid)->dev, fmt, ##arg)
+=======
+#define dbg_hid(fmt, ...)						\
+do {									\
+	if (hid_debug)							\
+		printk(KERN_DEBUG "%s: " fmt, __FILE__, ##__VA_ARGS__);	\
+} while (0)
+
+#define hid_err(hid, fmt, ...)				\
+	dev_err(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_notice(hid, fmt, ...)			\
+	dev_notice(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_warn(hid, fmt, ...)				\
+	dev_warn(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_info(hid, fmt, ...)				\
+	dev_info(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_dbg(hid, fmt, ...)				\
+	dev_dbg(&(hid)->dev, fmt, ##__VA_ARGS__)
+
+#define hid_err_once(hid, fmt, ...)			\
+	dev_err_once(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_notice_once(hid, fmt, ...)			\
+	dev_notice_once(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_warn_once(hid, fmt, ...)			\
+	dev_warn_once(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_info_once(hid, fmt, ...)			\
+	dev_info_once(&(hid)->dev, fmt, ##__VA_ARGS__)
+#define hid_dbg_once(hid, fmt, ...)			\
+	dev_dbg_once(&(hid)->dev, fmt, ##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 #endif

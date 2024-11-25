@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2007-2012 Solarflare Communications Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/****************************************************************************
+ * Driver for Solarflare network controllers and boards
+ * Copyright 2007-2012 Solarflare Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/rtnetlink.h>
@@ -91,11 +98,19 @@ static int ef4_init_lm87(struct ef4_nic *efx, const struct i2c_board_info *info,
 			 const u8 *reg_values)
 {
 	struct falcon_board *board = falcon_board(efx);
+<<<<<<< HEAD
 	struct i2c_client *client = i2c_new_device(&board->i2c_adap, info);
 	int rc;
 
 	if (!client)
 		return -EIO;
+=======
+	struct i2c_client *client = i2c_new_client_device(&board->i2c_adap, info);
+	int rc;
+
+	if (IS_ERR(client))
+		return PTR_ERR(client);
+>>>>>>> upstream/android-13
 
 	/* Read-to-clear alarm/interrupt status */
 	i2c_smbus_read_byte_data(client, LM87_REG_ALARMS1);
@@ -357,6 +372,7 @@ fail_on:
 	return rc;
 }
 
+<<<<<<< HEAD
 static ssize_t show_phy_flash_cfg(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
@@ -369,6 +385,20 @@ static ssize_t set_phy_flash_cfg(struct device *dev,
 				 const char *buf, size_t count)
 {
 	struct ef4_nic *efx = pci_get_drvdata(to_pci_dev(dev));
+=======
+static ssize_t phy_flash_cfg_show(struct device *dev,
+				  struct device_attribute *attr, char *buf)
+{
+	struct ef4_nic *efx = dev_get_drvdata(dev);
+	return sprintf(buf, "%d\n", !!(efx->phy_mode & PHY_MODE_SPECIAL));
+}
+
+static ssize_t phy_flash_cfg_store(struct device *dev,
+				   struct device_attribute *attr,
+				   const char *buf, size_t count)
+{
+	struct ef4_nic *efx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	enum ef4_phy_mode old_mode, new_mode;
 	int err;
 
@@ -399,7 +429,11 @@ static ssize_t set_phy_flash_cfg(struct device *dev,
 	return err ? err : count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(phy_flash_cfg, 0644, show_phy_flash_cfg, set_phy_flash_cfg);
+=======
+static DEVICE_ATTR_RW(phy_flash_cfg);
+>>>>>>> upstream/android-13
 
 static void sfe4001_fini(struct ef4_nic *efx)
 {
@@ -457,6 +491,7 @@ static int sfe4001_init(struct ef4_nic *efx)
 
 #if IS_ENABLED(CONFIG_SENSORS_LM90)
 	board->hwmon_client =
+<<<<<<< HEAD
 		i2c_new_device(&board->i2c_adap, &sfe4001_hwmon_info);
 #else
 	board->hwmon_client =
@@ -464,6 +499,15 @@ static int sfe4001_init(struct ef4_nic *efx)
 #endif
 	if (!board->hwmon_client)
 		return -EIO;
+=======
+		i2c_new_client_device(&board->i2c_adap, &sfe4001_hwmon_info);
+#else
+	board->hwmon_client =
+		i2c_new_dummy_device(&board->i2c_adap, sfe4001_hwmon_info.addr);
+#endif
+	if (IS_ERR(board->hwmon_client))
+		return PTR_ERR(board->hwmon_client);
+>>>>>>> upstream/android-13
 
 	/* Raise board/PHY high limit from 85 to 90 degrees Celsius */
 	rc = i2c_smbus_write_byte_data(board->hwmon_client,
@@ -471,9 +515,15 @@ static int sfe4001_init(struct ef4_nic *efx)
 	if (rc)
 		goto fail_hwmon;
 
+<<<<<<< HEAD
 	board->ioexp_client = i2c_new_dummy(&board->i2c_adap, PCA9539);
 	if (!board->ioexp_client) {
 		rc = -EIO;
+=======
+	board->ioexp_client = i2c_new_dummy_device(&board->i2c_adap, PCA9539);
+	if (IS_ERR(board->ioexp_client)) {
+		rc = PTR_ERR(board->ioexp_client);
+>>>>>>> upstream/android-13
 		goto fail_hwmon;
 	}
 

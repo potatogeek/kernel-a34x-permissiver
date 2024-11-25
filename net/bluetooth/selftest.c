@@ -205,7 +205,11 @@ static int __init test_ecdh(void)
 
 	calltime = ktime_get();
 
+<<<<<<< HEAD
 	tfm = crypto_alloc_kpp("ecdh", CRYPTO_ALG_INTERNAL, 0);
+=======
+	tfm = crypto_alloc_kpp("ecdh-nist-p256", 0, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tfm)) {
 		BT_ERR("Unable to create ECDH crypto context");
 		err = PTR_ERR(tfm);

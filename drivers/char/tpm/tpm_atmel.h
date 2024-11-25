@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005 IBM Corporation
  *
@@ -9,17 +13,23 @@
  * Device driver for TCG/TCPA TPM (trusted platform module).
  * Specifications at www.trustedcomputinggroup.org
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  * These difference are required on power because the device must be
  * discovered through the device tree and iomap must be used to get
  * around the need for holes in the io_page_mask.  This does not happen
  * automatically because the tpm is not a normal pci device and lives
  * under the root node.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 struct tpm_atmel_priv {

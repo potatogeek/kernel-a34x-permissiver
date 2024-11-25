@@ -1,7 +1,11 @@
 /*
  * SRAM protect-exec region helper functions
  *
+<<<<<<< HEAD
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2017 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *	Dave Gerlach
  *
  * This program is free software; you can redistribute it and/or modify
@@ -85,6 +89,10 @@ void *sram_exec_copy(struct gen_pool *pool, void *dst, void *src,
 	unsigned long base;
 	int pages;
 	void *dst_cpy;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&exec_pool_list_mutex);
 	list_for_each_entry(p, &exec_pool_list, list) {
@@ -96,7 +104,11 @@ void *sram_exec_copy(struct gen_pool *pool, void *dst, void *src,
 	if (!part)
 		return NULL;
 
+<<<<<<< HEAD
 	if (!addr_in_gen_pool(pool, (unsigned long)dst, size))
+=======
+	if (!gen_pool_has_addr(pool, (unsigned long)dst, size))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	base = (unsigned long)part->base;
@@ -104,6 +116,7 @@ void *sram_exec_copy(struct gen_pool *pool, void *dst, void *src,
 
 	mutex_lock(&part->lock);
 
+<<<<<<< HEAD
 	set_memory_nx((unsigned long)base, pages);
 	set_memory_rw((unsigned long)base, pages);
 
@@ -111,9 +124,33 @@ void *sram_exec_copy(struct gen_pool *pool, void *dst, void *src,
 
 	set_memory_ro((unsigned long)base, pages);
 	set_memory_x((unsigned long)base, pages);
+=======
+	ret = set_memory_nx((unsigned long)base, pages);
+	if (ret)
+		goto error_out;
+	ret = set_memory_rw((unsigned long)base, pages);
+	if (ret)
+		goto error_out;
+
+	dst_cpy = fncpy(dst, src, size);
+
+	ret = set_memory_ro((unsigned long)base, pages);
+	if (ret)
+		goto error_out;
+	ret = set_memory_x((unsigned long)base, pages);
+	if (ret)
+		goto error_out;
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&part->lock);
 
 	return dst_cpy;
+<<<<<<< HEAD
+=======
+
+error_out:
+	mutex_unlock(&part->lock);
+	return NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sram_exec_copy);

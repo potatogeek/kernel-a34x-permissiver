@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2011 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -10,17 +14,24 @@
  * This file is based on arch/powerpc/kvm/44x_tlb.h and
  * arch/powerpc/include/asm/kvm_44x.h by Hollis Blanchard <hollisb@us.ibm.com>,
  * Copyright IBM Corp. 2007-2008
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef KVM_E500_H
 #define KVM_E500_H
 
 #include <linux/kvm_host.h>
+<<<<<<< HEAD
 #include <asm/mmu-book3e.h>
+=======
+#include <asm/nohash/mmu-book3e.h>
+>>>>>>> upstream/android-13
 #include <asm/tlb.h>
 #include <asm/cputhreads.h>
 

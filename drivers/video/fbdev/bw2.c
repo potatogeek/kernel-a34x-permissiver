@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* bw2.c: BWTWO frame buffer driver
  *
  * Copyright (C) 2003, 2006 David S. Miller (davem@davemloft.net)
@@ -36,7 +40,11 @@ static int bw2_ioctl(struct fb_info *, unsigned int, unsigned long);
  *  Frame buffer operations
  */
 
+<<<<<<< HEAD
 static struct fb_ops bw2_ops = {
+=======
+static const struct fb_ops bw2_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_blank		= bw2_blank,
 	.fb_fillrect		= cfb_fillrect,
@@ -115,7 +123,11 @@ struct bw2_par {
 
 /**
  *      bw2_blank - Optional function.  Blanks the display.
+<<<<<<< HEAD
  *      @blank_mode: the blank mode we want.
+=======
+ *      @blank: the blank mode we want.
+>>>>>>> upstream/android-13
  *      @info: frame buffer structure that represents a single frame buffer
  */
 static int

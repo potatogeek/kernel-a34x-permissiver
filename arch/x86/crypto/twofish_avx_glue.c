@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for AVX assembler version of Twofish Cipher
  *
@@ -5,6 +9,7 @@
  *     <Johannes.Goetzfried@informatik.stud.uni-erlangen.de>
  *
  * Copyright © 2013 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -30,13 +37,20 @@
 #include <crypto/algapi.h>
 #include <crypto/internal/simd.h>
 #include <crypto/twofish.h>
+<<<<<<< HEAD
 #include <crypto/xts.h>
 #include <asm/crypto/glue_helper.h>
 #include <asm/crypto/twofish.h>
+=======
+
+#include "twofish.h"
+#include "ecb_cbc_helpers.h"
+>>>>>>> upstream/android-13
 
 #define TWOFISH_PARALLEL_BLOCKS 8
 
 /* 8-way parallel cipher functions */
+<<<<<<< HEAD
 asmlinkage void twofish_ecb_enc_8way(struct twofish_ctx *ctx, u8 *dst,
 				     const u8 *src);
 asmlinkage void twofish_ecb_dec_8way(struct twofish_ctx *ctx, u8 *dst,
@@ -51,6 +65,12 @@ asmlinkage void twofish_xts_enc_8way(struct twofish_ctx *ctx, u8 *dst,
 				     const u8 *src, le128 *iv);
 asmlinkage void twofish_xts_dec_8way(struct twofish_ctx *ctx, u8 *dst,
 				     const u8 *src, le128 *iv);
+=======
+asmlinkage void twofish_ecb_enc_8way(const void *ctx, u8 *dst, const u8 *src);
+asmlinkage void twofish_ecb_dec_8way(const void *ctx, u8 *dst, const u8 *src);
+
+asmlinkage void twofish_cbc_dec_8way(const void *ctx, u8 *dst, const u8 *src);
+>>>>>>> upstream/android-13
 
 static int twofish_setkey_skcipher(struct crypto_skcipher *tfm,
 				   const u8 *key, unsigned int keylen)
@@ -58,12 +78,17 @@ static int twofish_setkey_skcipher(struct crypto_skcipher *tfm,
 	return twofish_setkey(&tfm->base, key, keylen);
 }
 
+<<<<<<< HEAD
 static inline void twofish_enc_blk_3way(struct twofish_ctx *ctx, u8 *dst,
 					const u8 *src)
+=======
+static inline void twofish_enc_blk_3way(const void *ctx, u8 *dst, const u8 *src)
+>>>>>>> upstream/android-13
 {
 	__twofish_enc_blk_3way(ctx, dst, src, false);
 }
 
+<<<<<<< HEAD
 static void twofish_xts_enc(void *ctx, u128 *dst, const u128 *src, le128 *iv)
 {
 	glue_xts_crypt_128bit_one(ctx, dst, src, iv,
@@ -195,21 +220,45 @@ static const struct common_glue_ctx twofish_dec_xts = {
 static int ecb_encrypt(struct skcipher_request *req)
 {
 	return glue_ecb_req_128bit(&twofish_enc, req);
+=======
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	ECB_WALK_START(req, TF_BLOCK_SIZE, TWOFISH_PARALLEL_BLOCKS);
+	ECB_BLOCK(TWOFISH_PARALLEL_BLOCKS, twofish_ecb_enc_8way);
+	ECB_BLOCK(3, twofish_enc_blk_3way);
+	ECB_BLOCK(1, twofish_enc_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&twofish_dec, req);
+=======
+	ECB_WALK_START(req, TF_BLOCK_SIZE, TWOFISH_PARALLEL_BLOCKS);
+	ECB_BLOCK(TWOFISH_PARALLEL_BLOCKS, twofish_ecb_dec_8way);
+	ECB_BLOCK(3, twofish_dec_blk_3way);
+	ECB_BLOCK(1, twofish_dec_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_encrypt_req_128bit(GLUE_FUNC_CAST(twofish_enc_blk),
 					   req);
+=======
+	CBC_WALK_START(req, TF_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(twofish_enc_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_decrypt_req_128bit(&twofish_dec_cbc, req);
 }
 
@@ -236,6 +285,13 @@ static int xts_decrypt(struct skcipher_request *req)
 	return glue_xts_req_128bit(&twofish_dec_xts, req,
 				   XTS_TWEAK_CAST(twofish_enc_blk),
 				   &ctx->tweak_ctx, &ctx->crypt_ctx);
+=======
+	CBC_WALK_START(req, TF_BLOCK_SIZE, TWOFISH_PARALLEL_BLOCKS);
+	CBC_DEC_BLOCK(TWOFISH_PARALLEL_BLOCKS, twofish_cbc_dec_8way);
+	CBC_DEC_BLOCK(3, twofish_dec_blk_cbc_3way);
+	CBC_DEC_BLOCK(1, twofish_dec_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct skcipher_alg twofish_algs[] = {
@@ -266,6 +322,7 @@ static struct skcipher_alg twofish_algs[] = {
 		.setkey			= twofish_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "__ctr(twofish)",
 		.base.cra_driver_name	= "__ctr-twofish-avx",
@@ -295,6 +352,8 @@ static struct skcipher_alg twofish_algs[] = {
 		.setkey			= xts_twofish_setkey,
 		.encrypt		= xts_encrypt,
 		.decrypt		= xts_decrypt,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config DRM_VC4
 	tristate "Broadcom VC4 Graphics"
 	depends on ARCH_BCM || ARCH_BCM2835 || COMPILE_TEST
@@ -11,6 +15,10 @@ config DRM_VC4
 	select SND_PCM
 	select SND_PCM_ELD
 	select SND_SOC_GENERIC_DMAENGINE_PCM
+<<<<<<< HEAD
+=======
+	select SND_SOC_HDMI_CODEC
+>>>>>>> upstream/android-13
 	select DRM_MIPI_DSI
 	help
 	  Choose this option if you have a system that has a Broadcom
@@ -21,9 +29,16 @@ config DRM_VC4
 	  our display setup.
 
 config DRM_VC4_HDMI_CEC
+<<<<<<< HEAD
        bool "Broadcom VC4 HDMI CEC Support"
        depends on DRM_VC4
        select CEC_CORE
        help
+=======
+	bool "Broadcom VC4 HDMI CEC Support"
+	depends on DRM_VC4
+	select CEC_CORE
+	help
+>>>>>>> upstream/android-13
 	  Choose this option if you have a Broadcom VC4 GPU
 	  and want to use CEC.

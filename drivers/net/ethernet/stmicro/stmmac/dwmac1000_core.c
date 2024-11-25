@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
   This is the driver for the GMAC on-chip Ethernet controller for ST SoCs.
   DWC Ether MAC 10/100/1000 Universal version 3.41a  has been used for
@@ -7,6 +11,7 @@
 
   Copyright (C) 2007-2009  STMicroelectronics Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -18,6 +23,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -141,7 +148,10 @@ static void dwmac1000_set_mchash(void __iomem *ioaddr, u32 *mcfilterbits,
 		writel(mcfilterbits[0], ioaddr + GMAC_HASH_LOW);
 		writel(mcfilterbits[1], ioaddr + GMAC_HASH_HIGH);
 		return;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case 7:
 		numhashregs = 4;
 		break;
@@ -151,7 +161,10 @@ static void dwmac1000_set_mchash(void __iomem *ioaddr, u32 *mcfilterbits,
 	default:
 		pr_debug("STMMAC: err in setting multicast filter\n");
 		return;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 	for (regs = 0; regs < numhashregs; regs++)
 		writel(mcfilterbits[regs],
@@ -173,7 +186,11 @@ static void dwmac1000_set_filter(struct mac_device_info *hw,
 	memset(mc_filter, 0, sizeof(mc_filter));
 
 	if (dev->flags & IFF_PROMISC) {
+<<<<<<< HEAD
 		value = GMAC_FRAME_FILTER_PR;
+=======
+		value = GMAC_FRAME_FILTER_PR | GMAC_FRAME_FILTER_PCF;
+>>>>>>> upstream/android-13
 	} else if (dev->flags & IFF_ALLMULTI) {
 		value = GMAC_FRAME_FILTER_PM;	/* pass all multi */
 	} else if (!netdev_mc_empty(dev) && (mcbitslog2 == 0)) {
@@ -202,6 +219,10 @@ static void dwmac1000_set_filter(struct mac_device_info *hw,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	value |= GMAC_FRAME_FILTER_HPF;
+>>>>>>> upstream/android-13
 	dwmac1000_set_mchash(ioaddr, mc_filter, mcbitslog2);
 
 	/* Handle multiple unicast addresses (perfect filtering) */
@@ -509,6 +530,21 @@ static void dwmac1000_debug(void __iomem *ioaddr, struct stmmac_extra_stats *x,
 		x->mac_gmii_rx_proto_engine++;
 }
 
+<<<<<<< HEAD
+=======
+static void dwmac1000_set_mac_loopback(void __iomem *ioaddr, bool enable)
+{
+	u32 value = readl(ioaddr + GMAC_CONTROL);
+
+	if (enable)
+		value |= GMAC_CONTROL_LM;
+	else
+		value &= ~GMAC_CONTROL_LM;
+
+	writel(value, ioaddr + GMAC_CONTROL);
+}
+
+>>>>>>> upstream/android-13
 const struct stmmac_ops dwmac1000_ops = {
 	.core_init = dwmac1000_core_init,
 	.set_mac = stmmac_set_mac,
@@ -528,6 +564,10 @@ const struct stmmac_ops dwmac1000_ops = {
 	.pcs_ctrl_ane = dwmac1000_ctrl_ane,
 	.pcs_rane = dwmac1000_rane,
 	.pcs_get_adv_lp = dwmac1000_get_adv_lp,
+<<<<<<< HEAD
+=======
+	.set_mac_loopback = dwmac1000_set_mac_loopback,
+>>>>>>> upstream/android-13
 };
 
 int dwmac1000_setup(struct stmmac_priv *priv)

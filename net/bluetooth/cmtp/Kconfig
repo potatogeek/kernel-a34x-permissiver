@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config BT_CMTP
 	tristate "CMTP protocol support"
 	depends on BT_BREDR && ISDN_CAPI

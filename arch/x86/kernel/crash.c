@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Architecture specific (i386/x86_64) functions for kexec based crash dumps.
  *
@@ -23,6 +27,10 @@
 #include <linux/export.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <asm/processor.h>
 #include <asm/hardirq.h>
@@ -37,6 +45,11 @@
 #include <asm/reboot.h>
 #include <asm/virtext.h>
 #include <asm/intel_pt.h>
+<<<<<<< HEAD
+=======
+#include <asm/crash.h>
+#include <asm/cmdline.h>
+>>>>>>> upstream/android-13
 
 /* Used while preparing memory map entries for second kernel */
 struct crash_memmap_data {
@@ -54,7 +67,10 @@ struct crash_memmap_data {
  */
 crash_vmclear_fn __rcu *crash_vmclear_loaded_vmcss = NULL;
 EXPORT_SYMBOL_GPL(crash_vmclear_loaded_vmcss);
+<<<<<<< HEAD
 unsigned long crash_zero_bytes;
+=======
+>>>>>>> upstream/android-13
 
 static inline void cpu_crash_vmclear_loaded_vmcss(void)
 {
@@ -71,6 +87,7 @@ static inline void cpu_crash_vmclear_loaded_vmcss(void)
 
 static void kdump_nmi_callback(int cpu, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_X86_32
 	struct pt_regs fixed_regs;
 
@@ -79,6 +96,8 @@ static void kdump_nmi_callback(int cpu, struct pt_regs *regs)
 		regs = &fixed_regs;
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 	crash_save_cpu(regs, cpu);
 
 	/*
@@ -179,6 +198,10 @@ void native_machine_crash_shutdown(struct pt_regs *regs)
 }
 
 #ifdef CONFIG_KEXEC_FILE
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static int get_nr_ram_ranges_callback(struct resource *res, void *arg)
 {
 	unsigned int *nr_ranges = arg;
@@ -193,8 +216,12 @@ static struct crash_mem *fill_up_crash_elf_data(void)
 	unsigned int nr_ranges = 0;
 	struct crash_mem *cmem;
 
+<<<<<<< HEAD
 	walk_system_ram_res(0, -1, &nr_ranges,
 				get_nr_ram_ranges_callback);
+=======
+	walk_system_ram_res(0, -1, &nr_ranges, get_nr_ram_ranges_callback);
+>>>>>>> upstream/android-13
 	if (!nr_ranges)
 		return NULL;
 
@@ -203,8 +230,12 @@ static struct crash_mem *fill_up_crash_elf_data(void)
 	 * another range split. So add extra two slots here.
 	 */
 	nr_ranges += 2;
+<<<<<<< HEAD
 	cmem = vzalloc(sizeof(struct crash_mem) +
 			sizeof(struct crash_mem_range) * nr_ranges);
+=======
+	cmem = vzalloc(struct_size(cmem, ranges, nr_ranges));
+>>>>>>> upstream/android-13
 	if (!cmem)
 		return NULL;
 
@@ -222,17 +253,31 @@ static int elf_header_exclude_ranges(struct crash_mem *cmem)
 {
 	int ret = 0;
 
+<<<<<<< HEAD
+=======
+	/* Exclude the low 1M because it is always reserved */
+	ret = crash_exclude_mem_range(cmem, 0, (1<<20)-1);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/* Exclude crashkernel region */
 	ret = crash_exclude_mem_range(cmem, crashk_res.start, crashk_res.end);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (crashk_low_res.end) {
 		ret = crash_exclude_mem_range(cmem, crashk_low_res.start,
 							crashk_low_res.end);
 		if (ret)
 			return ret;
 	}
+=======
+	if (crashk_low_res.end)
+		ret = crash_exclude_mem_range(cmem, crashk_low_res.start,
+					      crashk_low_res.end);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -253,16 +298,24 @@ static int prepare_elf_headers(struct kimage *image, void **addr,
 					unsigned long *sz)
 {
 	struct crash_mem *cmem;
+<<<<<<< HEAD
 	Elf64_Ehdr *ehdr;
 	Elf64_Phdr *phdr;
 	int ret, i;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	cmem = fill_up_crash_elf_data();
 	if (!cmem)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = walk_system_ram_res(0, -1, cmem,
 				prepare_elf64_ram_headers_callback);
+=======
+	ret = walk_system_ram_res(0, -1, cmem, prepare_elf64_ram_headers_callback);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -272,6 +325,7 @@ static int prepare_elf_headers(struct kimage *image, void **addr,
 		goto out;
 
 	/* By default prepare 64bit headers */
+<<<<<<< HEAD
 	ret =  crash_prepare_elf64_headers(cmem,
 				IS_ENABLED(CONFIG_X86_64), addr, sz);
 	if (ret)
@@ -290,6 +344,10 @@ static int prepare_elf_headers(struct kimage *image, void **addr,
 			phdr->p_offset = image->arch.backup_load_addr;
 			break;
 		}
+=======
+	ret =  crash_prepare_elf64_headers(cmem, IS_ENABLED(CONFIG_X86_64), addr, sz);
+
+>>>>>>> upstream/android-13
 out:
 	vfree(cmem);
 	return ret;
@@ -303,8 +361,12 @@ static int add_e820_entry(struct boot_params *params, struct e820_entry *entry)
 	if (nr_e820_entries >= E820_MAX_ENTRIES_ZEROPAGE)
 		return 1;
 
+<<<<<<< HEAD
 	memcpy(&params->e820_table[nr_e820_entries], entry,
 			sizeof(struct e820_entry));
+=======
+	memcpy(&params->e820_table[nr_e820_entries], entry, sizeof(struct e820_entry));
+>>>>>>> upstream/android-13
 	params->e820_entries++;
 	return 0;
 }
@@ -328,12 +390,16 @@ static int memmap_exclude_ranges(struct kimage *image, struct crash_mem *cmem,
 				 unsigned long long mend)
 {
 	unsigned long start, end;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	cmem->ranges[0].start = mstart;
 	cmem->ranges[0].end = mend;
 	cmem->nr_ranges = 1;
 
+<<<<<<< HEAD
 	/* Exclude Backup region */
 	start = image->arch.backup_load_addr;
 	end = start + image->arch.backup_src_sz - 1;
@@ -344,6 +410,11 @@ static int memmap_exclude_ranges(struct kimage *image, struct crash_mem *cmem,
 	/* Exclude elf header region */
 	start = image->arch.elf_load_addr;
 	end = start + image->arch.elf_headers_sz - 1;
+=======
+	/* Exclude elf header region */
+	start = image->elf_load_addr;
+	end = start + image->elf_headers_sz - 1;
+>>>>>>> upstream/android-13
 	return crash_exclude_mem_range(cmem, start, end);
 }
 
@@ -363,34 +434,64 @@ int crash_setup_memmap_entries(struct kimage *image, struct boot_params *params)
 	memset(&cmd, 0, sizeof(struct crash_memmap_data));
 	cmd.params = params;
 
+<<<<<<< HEAD
 	/* Add first 640K segment */
 	ei.addr = image->arch.backup_src_start;
 	ei.size = image->arch.backup_src_sz;
 	ei.type = E820_TYPE_RAM;
 	add_e820_entry(params, &ei);
+=======
+	/* Add the low 1M */
+	cmd.type = E820_TYPE_RAM;
+	flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
+	walk_iomem_res_desc(IORES_DESC_NONE, flags, 0, (1<<20)-1, &cmd,
+			    memmap_entry_callback);
+>>>>>>> upstream/android-13
 
 	/* Add ACPI tables */
 	cmd.type = E820_TYPE_ACPI;
 	flags = IORESOURCE_MEM | IORESOURCE_BUSY;
 	walk_iomem_res_desc(IORES_DESC_ACPI_TABLES, flags, 0, -1, &cmd,
+<<<<<<< HEAD
 		       memmap_entry_callback);
+=======
+			    memmap_entry_callback);
+>>>>>>> upstream/android-13
 
 	/* Add ACPI Non-volatile Storage */
 	cmd.type = E820_TYPE_NVS;
 	walk_iomem_res_desc(IORES_DESC_ACPI_NV_STORAGE, flags, 0, -1, &cmd,
+<<<<<<< HEAD
 			memmap_entry_callback);
+=======
+			    memmap_entry_callback);
+
+	/* Add e820 reserved ranges */
+	cmd.type = E820_TYPE_RESERVED;
+	flags = IORESOURCE_MEM;
+	walk_iomem_res_desc(IORES_DESC_RESERVED, flags, 0, -1, &cmd,
+			    memmap_entry_callback);
+>>>>>>> upstream/android-13
 
 	/* Add crashk_low_res region */
 	if (crashk_low_res.end) {
 		ei.addr = crashk_low_res.start;
+<<<<<<< HEAD
 		ei.size = crashk_low_res.end - crashk_low_res.start + 1;
+=======
+		ei.size = resource_size(&crashk_low_res);
+>>>>>>> upstream/android-13
 		ei.type = E820_TYPE_RAM;
 		add_e820_entry(params, &ei);
 	}
 
 	/* Exclude some ranges from crashk_res and add rest to memmap */
+<<<<<<< HEAD
 	ret = memmap_exclude_ranges(image, cmem, crashk_res.start,
 						crashk_res.end);
+=======
+	ret = memmap_exclude_ranges(image, cmem, crashk_res.start, crashk_res.end);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 
@@ -410,6 +511,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int determine_backup_region(struct resource *res, void *arg)
 {
 	struct kimage *image = arg;
@@ -421,12 +523,15 @@ static int determine_backup_region(struct resource *res, void *arg)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 int crash_load_segments(struct kimage *image)
 {
 	int ret;
 	struct kexec_buf kbuf = { .image = image, .buf_min = 0,
 				  .buf_max = ULONG_MAX, .top_down = false };
 
+<<<<<<< HEAD
 	/*
 	 * Determine and load a segment for backup area. First 640K RAM
 	 * region is backup source
@@ -459,11 +564,14 @@ int crash_load_segments(struct kimage *image)
 			 image->arch.backup_src_start, kbuf.memsz);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Prepare elf headers and add a segment */
 	ret = prepare_elf_headers(image, &kbuf.buffer, &kbuf.bufsz);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	image->arch.elf_headers = kbuf.buffer;
 	image->arch.elf_headers_sz = kbuf.bufsz;
 
@@ -477,6 +585,22 @@ int crash_load_segments(struct kimage *image)
 	image->arch.elf_load_addr = kbuf.mem;
 	pr_debug("Loaded ELF headers at 0x%lx bufsz=0x%lx memsz=0x%lx\n",
 		 image->arch.elf_load_addr, kbuf.bufsz, kbuf.bufsz);
+=======
+	image->elf_headers = kbuf.buffer;
+	image->elf_headers_sz = kbuf.bufsz;
+
+	kbuf.memsz = kbuf.bufsz;
+	kbuf.buf_align = ELF_CORE_HEADER_ALIGN;
+	kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+	ret = kexec_add_buffer(&kbuf);
+	if (ret) {
+		vfree((void *)image->elf_headers);
+		return ret;
+	}
+	image->elf_load_addr = kbuf.mem;
+	pr_debug("Loaded ELF headers at 0x%lx bufsz=0x%lx memsz=0x%lx\n",
+		 image->elf_load_addr, kbuf.bufsz, kbuf.bufsz);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

@@ -6,10 +6,21 @@
 #include <linux/types.h>
 #include <linux/tracepoint.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "i915_drv.h"
 #include "intel_drv.h"
 #include "intel_ringbuffer.h"
+=======
+#include <drm/drm_drv.h>
+
+#include "display/intel_crtc.h"
+#include "display/intel_display_types.h"
+#include "gt/intel_engine.h"
+
+#include "i915_drv.h"
+#include "i915_irq.h"
+>>>>>>> upstream/android-13
 
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM i915
@@ -17,6 +28,86 @@
 
 /* watermark/fifo updates */
 
+<<<<<<< HEAD
+=======
+TRACE_EVENT(intel_pipe_enable,
+	    TP_PROTO(struct intel_crtc *crtc),
+	    TP_ARGS(crtc),
+
+	    TP_STRUCT__entry(
+			     __array(u32, frame, 3)
+			     __array(u32, scanline, 3)
+			     __field(enum pipe, pipe)
+			     ),
+	    TP_fast_assign(
+			   struct drm_i915_private *dev_priv = to_i915(crtc->base.dev);
+			   struct intel_crtc *it__;
+			   for_each_intel_crtc(&dev_priv->drm, it__) {
+				   __entry->frame[it__->pipe] = intel_crtc_get_vblank_counter(it__);
+				   __entry->scanline[it__->pipe] = intel_get_crtc_scanline(it__);
+			   }
+			   __entry->pipe = crtc->pipe;
+			   ),
+
+	    TP_printk("pipe %c enable, pipe A: frame=%u, scanline=%u, pipe B: frame=%u, scanline=%u, pipe C: frame=%u, scanline=%u",
+		      pipe_name(__entry->pipe),
+		      __entry->frame[PIPE_A], __entry->scanline[PIPE_A],
+		      __entry->frame[PIPE_B], __entry->scanline[PIPE_B],
+		      __entry->frame[PIPE_C], __entry->scanline[PIPE_C])
+);
+
+TRACE_EVENT(intel_pipe_disable,
+	    TP_PROTO(struct intel_crtc *crtc),
+	    TP_ARGS(crtc),
+
+	    TP_STRUCT__entry(
+			     __array(u32, frame, 3)
+			     __array(u32, scanline, 3)
+			     __field(enum pipe, pipe)
+			     ),
+
+	    TP_fast_assign(
+			   struct drm_i915_private *dev_priv = to_i915(crtc->base.dev);
+			   struct intel_crtc *it__;
+			   for_each_intel_crtc(&dev_priv->drm, it__) {
+				   __entry->frame[it__->pipe] = intel_crtc_get_vblank_counter(it__);
+				   __entry->scanline[it__->pipe] = intel_get_crtc_scanline(it__);
+			   }
+			   __entry->pipe = crtc->pipe;
+			   ),
+
+	    TP_printk("pipe %c disable, pipe A: frame=%u, scanline=%u, pipe B: frame=%u, scanline=%u, pipe C: frame=%u, scanline=%u",
+		      pipe_name(__entry->pipe),
+		      __entry->frame[PIPE_A], __entry->scanline[PIPE_A],
+		      __entry->frame[PIPE_B], __entry->scanline[PIPE_B],
+		      __entry->frame[PIPE_C], __entry->scanline[PIPE_C])
+);
+
+TRACE_EVENT(intel_pipe_crc,
+	    TP_PROTO(struct intel_crtc *crtc, const u32 *crcs),
+	    TP_ARGS(crtc, crcs),
+
+	    TP_STRUCT__entry(
+			     __field(enum pipe, pipe)
+			     __field(u32, frame)
+			     __field(u32, scanline)
+			     __array(u32, crcs, 5)
+			     ),
+
+	    TP_fast_assign(
+			   __entry->pipe = crtc->pipe;
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+			   __entry->scanline = intel_get_crtc_scanline(crtc);
+			   memcpy(__entry->crcs, crcs, sizeof(__entry->crcs));
+			   ),
+
+	    TP_printk("pipe %c, frame=%u, scanline=%u crc=%08x %08x %08x %08x %08x",
+		      pipe_name(__entry->pipe), __entry->frame, __entry->scanline,
+		      __entry->crcs[0], __entry->crcs[1], __entry->crcs[2],
+		      __entry->crcs[3], __entry->crcs[4])
+);
+
+>>>>>>> upstream/android-13
 TRACE_EVENT(intel_cpu_fifo_underrun,
 	    TP_PROTO(struct drm_i915_private *dev_priv, enum pipe pipe),
 	    TP_ARGS(dev_priv, pipe),
@@ -28,9 +119,16 @@ TRACE_EVENT(intel_cpu_fifo_underrun,
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 			   __entry->pipe = pipe;
 			   __entry->frame = dev_priv->drm.driver->get_vblank_counter(&dev_priv->drm, pipe);
 			   __entry->scanline = intel_get_crtc_scanline(intel_get_crtc_for_pipe(dev_priv, pipe));
+=======
+			    struct intel_crtc *crtc = intel_get_crtc_for_pipe(dev_priv, pipe);
+			   __entry->pipe = pipe;
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+			   __entry->scanline = intel_get_crtc_scanline(crtc);
+>>>>>>> upstream/android-13
 			   ),
 
 	    TP_printk("pipe %c, frame=%u, scanline=%u",
@@ -50,9 +148,16 @@ TRACE_EVENT(intel_pch_fifo_underrun,
 
 	    TP_fast_assign(
 			   enum pipe pipe = pch_transcoder;
+<<<<<<< HEAD
 			   __entry->pipe = pipe;
 			   __entry->frame = dev_priv->drm.driver->get_vblank_counter(&dev_priv->drm, pipe);
 			   __entry->scanline = intel_get_crtc_scanline(intel_get_crtc_for_pipe(dev_priv, pipe));
+=======
+			   struct intel_crtc *crtc = intel_get_crtc_for_pipe(dev_priv, pipe);
+			   __entry->pipe = pipe;
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+			   __entry->scanline = intel_get_crtc_scanline(crtc);
+>>>>>>> upstream/android-13
 			   ),
 
 	    TP_printk("pch transcoder %c, frame=%u, scanline=%u",
@@ -72,12 +177,19 @@ TRACE_EVENT(intel_memory_cxsr,
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 			   enum pipe pipe;
 			   for_each_pipe(dev_priv, pipe) {
 				   __entry->frame[pipe] =
 					   dev_priv->drm.driver->get_vblank_counter(&dev_priv->drm, pipe);
 				   __entry->scanline[pipe] =
 					   intel_get_crtc_scanline(intel_get_crtc_for_pipe(dev_priv, pipe));
+=======
+			   struct intel_crtc *crtc;
+			   for_each_intel_crtc(&dev_priv->drm, crtc) {
+				   __entry->frame[crtc->pipe] = intel_crtc_get_vblank_counter(crtc);
+				   __entry->scanline[crtc->pipe] = intel_get_crtc_scanline(crtc);
+>>>>>>> upstream/android-13
 			   }
 			   __entry->old = old;
 			   __entry->new = new;
@@ -114,8 +226,12 @@ TRACE_EVENT(g4x_wm,
 
 	    TP_fast_assign(
 			   __entry->pipe = crtc->pipe;
+<<<<<<< HEAD
 			   __entry->frame = crtc->base.dev->driver->get_vblank_counter(crtc->base.dev,
 										       crtc->pipe);
+=======
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+>>>>>>> upstream/android-13
 			   __entry->scanline = intel_get_crtc_scanline(crtc);
 			   __entry->primary = wm->pipe[crtc->pipe].plane[PLANE_PRIMARY];
 			   __entry->sprite = wm->pipe[crtc->pipe].plane[PLANE_SPRITE0];
@@ -159,8 +275,12 @@ TRACE_EVENT(vlv_wm,
 
 	    TP_fast_assign(
 			   __entry->pipe = crtc->pipe;
+<<<<<<< HEAD
 			   __entry->frame = crtc->base.dev->driver->get_vblank_counter(crtc->base.dev,
 										       crtc->pipe);
+=======
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+>>>>>>> upstream/android-13
 			   __entry->scanline = intel_get_crtc_scanline(crtc);
 			   __entry->level = wm->level;
 			   __entry->cxsr = wm->cxsr;
@@ -194,8 +314,12 @@ TRACE_EVENT(vlv_fifo_size,
 
 	    TP_fast_assign(
 			   __entry->pipe = crtc->pipe;
+<<<<<<< HEAD
 			   __entry->frame = crtc->base.dev->driver->get_vblank_counter(crtc->base.dev,
 										       crtc->pipe);
+=======
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+>>>>>>> upstream/android-13
 			   __entry->scanline = intel_get_crtc_scanline(crtc);
 			   __entry->sprite0_start = sprite0_start;
 			   __entry->sprite1_start = sprite1_start;
@@ -216,11 +340,15 @@ TRACE_EVENT(intel_update_plane,
 
 	    TP_STRUCT__entry(
 			     __field(enum pipe, pipe)
+<<<<<<< HEAD
 			     __field(const char *, name)
+=======
+>>>>>>> upstream/android-13
 			     __field(u32, frame)
 			     __field(u32, scanline)
 			     __array(int, src, 4)
 			     __array(int, dst, 4)
+<<<<<<< HEAD
 			     ),
 
 	    TP_fast_assign(
@@ -228,13 +356,26 @@ TRACE_EVENT(intel_update_plane,
 			   __entry->name = plane->name;
 			   __entry->frame = crtc->base.dev->driver->get_vblank_counter(crtc->base.dev,
 										       crtc->pipe);
+=======
+			     __string(name, plane->name)
+			     ),
+
+	    TP_fast_assign(
+			   __assign_str(name, plane->name);
+			   __entry->pipe = crtc->pipe;
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+>>>>>>> upstream/android-13
 			   __entry->scanline = intel_get_crtc_scanline(crtc);
 			   memcpy(__entry->src, &plane->state->src, sizeof(__entry->src));
 			   memcpy(__entry->dst, &plane->state->dst, sizeof(__entry->dst));
 			   ),
 
 	    TP_printk("pipe %c, plane %s, frame=%u, scanline=%u, " DRM_RECT_FP_FMT " -> " DRM_RECT_FMT,
+<<<<<<< HEAD
 		      pipe_name(__entry->pipe), __entry->name,
+=======
+		      pipe_name(__entry->pipe), __get_str(name),
+>>>>>>> upstream/android-13
 		      __entry->frame, __entry->scanline,
 		      DRM_RECT_FP_ARG((const struct drm_rect *)__entry->src),
 		      DRM_RECT_ARG((const struct drm_rect *)__entry->dst))
@@ -246,13 +387,42 @@ TRACE_EVENT(intel_disable_plane,
 
 	    TP_STRUCT__entry(
 			     __field(enum pipe, pipe)
+<<<<<<< HEAD
 			     __field(const char *, name)
+=======
+			     __field(u32, frame)
+			     __field(u32, scanline)
+			     __string(name, plane->name)
+			     ),
+
+	    TP_fast_assign(
+			   __assign_str(name, plane->name);
+			   __entry->pipe = crtc->pipe;
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+			   __entry->scanline = intel_get_crtc_scanline(crtc);
+			   ),
+
+	    TP_printk("pipe %c, plane %s, frame=%u, scanline=%u",
+		      pipe_name(__entry->pipe), __get_str(name),
+		      __entry->frame, __entry->scanline)
+);
+
+/* fbc */
+
+TRACE_EVENT(intel_fbc_activate,
+	    TP_PROTO(struct intel_crtc *crtc),
+	    TP_ARGS(crtc),
+
+	    TP_STRUCT__entry(
+			     __field(enum pipe, pipe)
+>>>>>>> upstream/android-13
 			     __field(u32, frame)
 			     __field(u32, scanline)
 			     ),
 
 	    TP_fast_assign(
 			   __entry->pipe = crtc->pipe;
+<<<<<<< HEAD
 			   __entry->name = plane->name;
 			   __entry->frame = crtc->base.dev->driver->get_vblank_counter(crtc->base.dev,
 										       crtc->pipe);
@@ -262,11 +432,63 @@ TRACE_EVENT(intel_disable_plane,
 	    TP_printk("pipe %c, plane %s, frame=%u, scanline=%u",
 		      pipe_name(__entry->pipe), __entry->name,
 		      __entry->frame, __entry->scanline)
+=======
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+			   __entry->scanline = intel_get_crtc_scanline(crtc);
+			   ),
+
+	    TP_printk("pipe %c, frame=%u, scanline=%u",
+		      pipe_name(__entry->pipe), __entry->frame, __entry->scanline)
+);
+
+TRACE_EVENT(intel_fbc_deactivate,
+	    TP_PROTO(struct intel_crtc *crtc),
+	    TP_ARGS(crtc),
+
+	    TP_STRUCT__entry(
+			     __field(enum pipe, pipe)
+			     __field(u32, frame)
+			     __field(u32, scanline)
+			     ),
+
+	    TP_fast_assign(
+			   __entry->pipe = crtc->pipe;
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+			   __entry->scanline = intel_get_crtc_scanline(crtc);
+			   ),
+
+	    TP_printk("pipe %c, frame=%u, scanline=%u",
+		      pipe_name(__entry->pipe), __entry->frame, __entry->scanline)
+);
+
+TRACE_EVENT(intel_fbc_nuke,
+	    TP_PROTO(struct intel_crtc *crtc),
+	    TP_ARGS(crtc),
+
+	    TP_STRUCT__entry(
+			     __field(enum pipe, pipe)
+			     __field(u32, frame)
+			     __field(u32, scanline)
+			     ),
+
+	    TP_fast_assign(
+			   __entry->pipe = crtc->pipe;
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+			   __entry->scanline = intel_get_crtc_scanline(crtc);
+			   ),
+
+	    TP_printk("pipe %c, frame=%u, scanline=%u",
+		      pipe_name(__entry->pipe), __entry->frame, __entry->scanline)
+>>>>>>> upstream/android-13
 );
 
 /* pipe updates */
 
+<<<<<<< HEAD
 TRACE_EVENT(i915_pipe_update_start,
+=======
+TRACE_EVENT(intel_pipe_update_start,
+>>>>>>> upstream/android-13
 	    TP_PROTO(struct intel_crtc *crtc),
 	    TP_ARGS(crtc),
 
@@ -280,8 +502,12 @@ TRACE_EVENT(i915_pipe_update_start,
 
 	    TP_fast_assign(
 			   __entry->pipe = crtc->pipe;
+<<<<<<< HEAD
 			   __entry->frame = crtc->base.dev->driver->get_vblank_counter(crtc->base.dev,
 										       crtc->pipe);
+=======
+			   __entry->frame = intel_crtc_get_vblank_counter(crtc);
+>>>>>>> upstream/android-13
 			   __entry->scanline = intel_get_crtc_scanline(crtc);
 			   __entry->min = crtc->debug.min_vbl;
 			   __entry->max = crtc->debug.max_vbl;
@@ -292,7 +518,11 @@ TRACE_EVENT(i915_pipe_update_start,
 		       __entry->scanline, __entry->min, __entry->max)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(i915_pipe_update_vblank_evaded,
+=======
+TRACE_EVENT(intel_pipe_update_vblank_evaded,
+>>>>>>> upstream/android-13
 	    TP_PROTO(struct intel_crtc *crtc),
 	    TP_ARGS(crtc),
 
@@ -317,7 +547,11 @@ TRACE_EVENT(i915_pipe_update_vblank_evaded,
 		       __entry->scanline, __entry->min, __entry->max)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(i915_pipe_update_end,
+=======
+TRACE_EVENT(intel_pipe_update_end,
+>>>>>>> upstream/android-13
 	    TP_PROTO(struct intel_crtc *crtc, u32 frame, int scanline_end),
 	    TP_ARGS(crtc, frame, scanline_end),
 
@@ -338,6 +572,47 @@ TRACE_EVENT(i915_pipe_update_end,
 		      __entry->scanline)
 );
 
+<<<<<<< HEAD
+=======
+/* frontbuffer tracking */
+
+TRACE_EVENT(intel_frontbuffer_invalidate,
+	    TP_PROTO(unsigned int frontbuffer_bits, unsigned int origin),
+	    TP_ARGS(frontbuffer_bits, origin),
+
+	    TP_STRUCT__entry(
+			     __field(unsigned int, frontbuffer_bits)
+			     __field(unsigned int, origin)
+			     ),
+
+	    TP_fast_assign(
+			   __entry->frontbuffer_bits = frontbuffer_bits;
+			   __entry->origin = origin;
+			   ),
+
+	    TP_printk("frontbuffer_bits=0x%08x, origin=%u",
+		      __entry->frontbuffer_bits, __entry->origin)
+);
+
+TRACE_EVENT(intel_frontbuffer_flush,
+	    TP_PROTO(unsigned int frontbuffer_bits, unsigned int origin),
+	    TP_ARGS(frontbuffer_bits, origin),
+
+	    TP_STRUCT__entry(
+			     __field(unsigned int, frontbuffer_bits)
+			     __field(unsigned int, origin)
+			     ),
+
+	    TP_fast_assign(
+			   __entry->frontbuffer_bits = frontbuffer_bits;
+			   __entry->origin = origin;
+			   ),
+
+	    TP_printk("frontbuffer_bits=0x%08x, origin=%u",
+		      __entry->frontbuffer_bits, __entry->origin)
+);
+
+>>>>>>> upstream/android-13
 /* object tracking */
 
 TRACE_EVENT(i915_gem_object_create,
@@ -585,6 +860,7 @@ TRACE_EVENT(i915_gem_evict_vm,
 	    TP_printk("dev=%d, vm=%p", __entry->dev, __entry->vm)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(i915_gem_ring_sync_to,
 	    TP_PROTO(struct i915_request *to, struct i915_request *from),
 	    TP_ARGS(to, from),
@@ -614,13 +890,18 @@ TRACE_EVENT(i915_gem_ring_sync_to,
 		      __entry->seqno)
 );
 
+=======
+>>>>>>> upstream/android-13
 TRACE_EVENT(i915_request_queue,
 	    TP_PROTO(struct i915_request *rq, u32 flags),
 	    TP_ARGS(rq, flags),
 
 	    TP_STRUCT__entry(
 			     __field(u32, dev)
+<<<<<<< HEAD
 			     __field(u32, hw_id)
+=======
+>>>>>>> upstream/android-13
 			     __field(u64, ctx)
 			     __field(u16, class)
 			     __field(u16, instance)
@@ -629,19 +910,31 @@ TRACE_EVENT(i915_request_queue,
 			     ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 			   __entry->dev = rq->i915->drm.primary->index;
 			   __entry->hw_id = rq->gem_context->hw_id;
 			   __entry->class = rq->engine->uabi_class;
 			   __entry->instance = rq->engine->instance;
+=======
+			   __entry->dev = rq->engine->i915->drm.primary->index;
+			   __entry->class = rq->engine->uabi_class;
+			   __entry->instance = rq->engine->uabi_instance;
+>>>>>>> upstream/android-13
 			   __entry->ctx = rq->fence.context;
 			   __entry->seqno = rq->fence.seqno;
 			   __entry->flags = flags;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("dev=%u, engine=%u:%u, hw_id=%u, ctx=%llu, seqno=%u, flags=0x%x",
 		      __entry->dev, __entry->class, __entry->instance,
 		      __entry->hw_id, __entry->ctx, __entry->seqno,
 		      __entry->flags)
+=======
+	    TP_printk("dev=%u, engine=%u:%u, ctx=%llu, seqno=%u, flags=0x%x",
+		      __entry->dev, __entry->class, __entry->instance,
+		      __entry->ctx, __entry->seqno, __entry->flags)
+>>>>>>> upstream/android-13
 );
 
 DECLARE_EVENT_CLASS(i915_request,
@@ -650,11 +943,15 @@ DECLARE_EVENT_CLASS(i915_request,
 
 	    TP_STRUCT__entry(
 			     __field(u32, dev)
+<<<<<<< HEAD
 			     __field(u32, hw_id)
+=======
+>>>>>>> upstream/android-13
 			     __field(u64, ctx)
 			     __field(u16, class)
 			     __field(u16, instance)
 			     __field(u32, seqno)
+<<<<<<< HEAD
 			     __field(u32, global)
 			     ),
 
@@ -680,6 +977,36 @@ DEFINE_EVENT(i915_request, i915_request_add,
 );
 
 #if defined(CONFIG_DRM_I915_LOW_LEVEL_TRACEPOINTS)
+=======
+			     __field(u32, tail)
+			     ),
+
+	    TP_fast_assign(
+			   __entry->dev = rq->engine->i915->drm.primary->index;
+			   __entry->class = rq->engine->uabi_class;
+			   __entry->instance = rq->engine->uabi_instance;
+			   __entry->ctx = rq->fence.context;
+			   __entry->seqno = rq->fence.seqno;
+			   __entry->tail = rq->tail;
+			   ),
+
+	    TP_printk("dev=%u, engine=%u:%u, ctx=%llu, seqno=%u, tail=%u",
+		      __entry->dev, __entry->class, __entry->instance,
+		      __entry->ctx, __entry->seqno, __entry->tail)
+);
+
+DEFINE_EVENT(i915_request, i915_request_add,
+	     TP_PROTO(struct i915_request *rq),
+	     TP_ARGS(rq)
+);
+
+#if defined(CONFIG_DRM_I915_LOW_LEVEL_TRACEPOINTS)
+DEFINE_EVENT(i915_request, i915_request_guc_submit,
+	     TP_PROTO(struct i915_request *rq),
+	     TP_ARGS(rq)
+);
+
+>>>>>>> upstream/android-13
 DEFINE_EVENT(i915_request, i915_request_submit,
 	     TP_PROTO(struct i915_request *rq),
 	     TP_ARGS(rq)
@@ -696,11 +1023,15 @@ TRACE_EVENT(i915_request_in,
 
 	    TP_STRUCT__entry(
 			     __field(u32, dev)
+<<<<<<< HEAD
 			     __field(u32, hw_id)
+=======
+>>>>>>> upstream/android-13
 			     __field(u64, ctx)
 			     __field(u16, class)
 			     __field(u16, instance)
 			     __field(u32, seqno)
+<<<<<<< HEAD
 			     __field(u32, global_seqno)
 			     __field(u32, port)
 			     __field(u32, prio)
@@ -714,14 +1045,33 @@ TRACE_EVENT(i915_request_in,
 			   __entry->ctx = rq->fence.context;
 			   __entry->seqno = rq->fence.seqno;
 			   __entry->global_seqno = rq->global_seqno;
+=======
+			     __field(u32, port)
+			     __field(s32, prio)
+			    ),
+
+	    TP_fast_assign(
+			   __entry->dev = rq->engine->i915->drm.primary->index;
+			   __entry->class = rq->engine->uabi_class;
+			   __entry->instance = rq->engine->uabi_instance;
+			   __entry->ctx = rq->fence.context;
+			   __entry->seqno = rq->fence.seqno;
+>>>>>>> upstream/android-13
 			   __entry->prio = rq->sched.attr.priority;
 			   __entry->port = port;
 			   ),
 
+<<<<<<< HEAD
 	    TP_printk("dev=%u, engine=%u:%u, hw_id=%u, ctx=%llu, seqno=%u, prio=%u, global=%u, port=%u",
 		      __entry->dev, __entry->class, __entry->instance,
 		      __entry->hw_id, __entry->ctx, __entry->seqno,
 		      __entry->prio, __entry->global_seqno, __entry->port)
+=======
+	    TP_printk("dev=%u, engine=%u:%u, ctx=%llu, seqno=%u, prio=%d, port=%u",
+		      __entry->dev, __entry->class, __entry->instance,
+		      __entry->ctx, __entry->seqno,
+		      __entry->prio, __entry->port)
+>>>>>>> upstream/android-13
 );
 
 TRACE_EVENT(i915_request_out,
@@ -730,16 +1080,23 @@ TRACE_EVENT(i915_request_out,
 
 	    TP_STRUCT__entry(
 			     __field(u32, dev)
+<<<<<<< HEAD
 			     __field(u32, hw_id)
+=======
+>>>>>>> upstream/android-13
 			     __field(u64, ctx)
 			     __field(u16, class)
 			     __field(u16, instance)
 			     __field(u32, seqno)
+<<<<<<< HEAD
 			     __field(u32, global_seqno)
+=======
+>>>>>>> upstream/android-13
 			     __field(u32, completed)
 			    ),
 
 	    TP_fast_assign(
+<<<<<<< HEAD
 			   __entry->dev = rq->i915->drm.primary->index;
 			   __entry->hw_id = rq->gem_context->hw_id;
 			   __entry->class = rq->engine->uabi_class;
@@ -754,11 +1111,135 @@ TRACE_EVENT(i915_request_out,
 			      __entry->dev, __entry->class, __entry->instance,
 			      __entry->hw_id, __entry->ctx, __entry->seqno,
 			      __entry->global_seqno, __entry->completed)
+=======
+			   __entry->dev = rq->engine->i915->drm.primary->index;
+			   __entry->class = rq->engine->uabi_class;
+			   __entry->instance = rq->engine->uabi_instance;
+			   __entry->ctx = rq->fence.context;
+			   __entry->seqno = rq->fence.seqno;
+			   __entry->completed = i915_request_completed(rq);
+			   ),
+
+		    TP_printk("dev=%u, engine=%u:%u, ctx=%llu, seqno=%u, completed?=%u",
+			      __entry->dev, __entry->class, __entry->instance,
+			      __entry->ctx, __entry->seqno, __entry->completed)
+);
+
+DECLARE_EVENT_CLASS(intel_context,
+		    TP_PROTO(struct intel_context *ce),
+		    TP_ARGS(ce),
+
+		    TP_STRUCT__entry(
+			     __field(u32, guc_id)
+			     __field(int, pin_count)
+			     __field(u32, sched_state)
+			     __field(u32, guc_sched_state_no_lock)
+			     __field(u8, guc_prio)
+			     ),
+
+		    TP_fast_assign(
+			   __entry->guc_id = ce->guc_id;
+			   __entry->pin_count = atomic_read(&ce->pin_count);
+			   __entry->sched_state = ce->guc_state.sched_state;
+			   __entry->guc_sched_state_no_lock =
+			   atomic_read(&ce->guc_sched_state_no_lock);
+			   __entry->guc_prio = ce->guc_prio;
+			   ),
+
+		    TP_printk("guc_id=%d, pin_count=%d sched_state=0x%x,0x%x, guc_prio=%u",
+			      __entry->guc_id, __entry->pin_count,
+			      __entry->sched_state,
+			      __entry->guc_sched_state_no_lock,
+			      __entry->guc_prio)
+);
+
+DEFINE_EVENT(intel_context, intel_context_set_prio,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_reset,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_ban,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_register,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_deregister,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_deregister_done,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_sched_enable,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_sched_disable,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_sched_done,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_create,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_fence_release,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_free,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_steal_guc_id,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_do_pin,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+);
+
+DEFINE_EVENT(intel_context, intel_context_do_unpin,
+	     TP_PROTO(struct intel_context *ce),
+	     TP_ARGS(ce)
+>>>>>>> upstream/android-13
 );
 
 #else
 #if !defined(TRACE_HEADER_MULTI_READ)
 static inline void
+<<<<<<< HEAD
+=======
+trace_i915_request_guc_submit(struct i915_request *rq)
+{
+}
+
+static inline void
+>>>>>>> upstream/android-13
 trace_i915_request_submit(struct i915_request *rq)
 {
 }
@@ -777,6 +1258,7 @@ static inline void
 trace_i915_request_out(struct i915_request *rq)
 {
 }
+<<<<<<< HEAD
 #endif
 #endif
 
@@ -805,6 +1287,86 @@ TRACE_EVENT(intel_engine_notify,
 		      __entry->seqno, __entry->waiters)
 );
 
+=======
+
+static inline void
+trace_intel_context_set_prio(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_reset(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_ban(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_register(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_deregister(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_deregister_done(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_sched_enable(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_sched_disable(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_sched_done(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_create(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_fence_release(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_free(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_steal_guc_id(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_do_pin(struct intel_context *ce)
+{
+}
+
+static inline void
+trace_intel_context_do_unpin(struct intel_context *ce)
+{
+}
+#endif
+#endif
+
+>>>>>>> upstream/android-13
 DEFINE_EVENT(i915_request, i915_request_retire,
 	    TP_PROTO(struct i915_request *rq),
 	    TP_ARGS(rq)
@@ -816,12 +1378,18 @@ TRACE_EVENT(i915_request_wait_begin,
 
 	    TP_STRUCT__entry(
 			     __field(u32, dev)
+<<<<<<< HEAD
 			     __field(u32, hw_id)
+=======
+>>>>>>> upstream/android-13
 			     __field(u64, ctx)
 			     __field(u16, class)
 			     __field(u16, instance)
 			     __field(u32, seqno)
+<<<<<<< HEAD
 			     __field(u32, global)
+=======
+>>>>>>> upstream/android-13
 			     __field(unsigned int, flags)
 			     ),
 
@@ -832,6 +1400,7 @@ TRACE_EVENT(i915_request_wait_begin,
 	     * less desirable.
 	     */
 	    TP_fast_assign(
+<<<<<<< HEAD
 			   __entry->dev = rq->i915->drm.primary->index;
 			   __entry->hw_id = rq->gem_context->hw_id;
 			   __entry->class = rq->engine->uabi_class;
@@ -846,6 +1415,19 @@ TRACE_EVENT(i915_request_wait_begin,
 		      __entry->dev, __entry->class, __entry->instance,
 		      __entry->hw_id, __entry->ctx, __entry->seqno,
 		      __entry->global, !!(__entry->flags & I915_WAIT_LOCKED),
+=======
+			   __entry->dev = rq->engine->i915->drm.primary->index;
+			   __entry->class = rq->engine->uabi_class;
+			   __entry->instance = rq->engine->uabi_instance;
+			   __entry->ctx = rq->fence.context;
+			   __entry->seqno = rq->fence.seqno;
+			   __entry->flags = flags;
+			   ),
+
+	    TP_printk("dev=%u, engine=%u:%u, ctx=%llu, seqno=%u, flags=0x%x",
+		      __entry->dev, __entry->class, __entry->instance,
+		      __entry->ctx, __entry->seqno,
+>>>>>>> upstream/android-13
 		      __entry->flags)
 );
 
@@ -948,19 +1530,30 @@ DECLARE_EVENT_CLASS(i915_context,
 	TP_STRUCT__entry(
 			__field(u32, dev)
 			__field(struct i915_gem_context *, ctx)
+<<<<<<< HEAD
 			__field(u32, hw_id)
+=======
+>>>>>>> upstream/android-13
 			__field(struct i915_address_space *, vm)
 	),
 
 	TP_fast_assign(
 			__entry->dev = ctx->i915->drm.primary->index;
 			__entry->ctx = ctx;
+<<<<<<< HEAD
 			__entry->hw_id = ctx->hw_id;
 			__entry->vm = ctx->ppgtt ? &ctx->ppgtt->vm : NULL;
 	),
 
 	TP_printk("dev=%u, ctx=%p, ctx_vm=%p, hw_id=%u",
 		  __entry->dev, __entry->ctx, __entry->vm, __entry->hw_id)
+=======
+			__entry->vm = rcu_access_pointer(ctx->vm);
+	),
+
+	TP_printk("dev=%u, ctx=%p, ctx_vm=%p",
+		  __entry->dev, __entry->ctx, __entry->vm)
+>>>>>>> upstream/android-13
 )
 
 DEFINE_EVENT(i915_context, i915_context_create,

@@ -13,6 +13,7 @@
  */
 
 static struct rc_map_table winfast_usbii_deluxe[] = {
+<<<<<<< HEAD
 	{ 0x62, KEY_0},
 	{ 0x75, KEY_1},
 	{ 0x76, KEY_2},
@@ -23,6 +24,18 @@ static struct rc_map_table winfast_usbii_deluxe[] = {
 	{ 0x7d, KEY_7},
 	{ 0x7e, KEY_8},
 	{ 0x7f, KEY_9},
+=======
+	{ 0x62, KEY_NUMERIC_0},
+	{ 0x75, KEY_NUMERIC_1},
+	{ 0x76, KEY_NUMERIC_2},
+	{ 0x77, KEY_NUMERIC_3},
+	{ 0x79, KEY_NUMERIC_4},
+	{ 0x7a, KEY_NUMERIC_5},
+	{ 0x7b, KEY_NUMERIC_6},
+	{ 0x7d, KEY_NUMERIC_7},
+	{ 0x7e, KEY_NUMERIC_8},
+	{ 0x7f, KEY_NUMERIC_9},
+>>>>>>> upstream/android-13
 
 	{ 0x38, KEY_CAMERA},		/* SNAPSHOT */
 	{ 0x37, KEY_RECORD},		/* RECORD */

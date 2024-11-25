@@ -41,7 +41,11 @@
 ** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************
 ** For history of changes, see Documentation/scsi/ChangeLog.arcmsr
+<<<<<<< HEAD
 **     Firmware Specification, see Documentation/scsi/arcmsr_spec.txt
+=======
+**     Firmware Specification, see Documentation/scsi/arcmsr_spec.rst
+>>>>>>> upstream/android-13
 *******************************************************************************
 */
 #include <linux/module.h>

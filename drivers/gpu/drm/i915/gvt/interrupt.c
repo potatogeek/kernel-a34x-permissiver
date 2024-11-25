@@ -126,7 +126,11 @@ static const char * const irq_name[INTEL_GVT_EVENT_MAX] = {
 	[FDI_RX_INTERRUPTS_TRANSCODER_C] = "FDI RX Interrupts Combined C",
 	[AUDIO_CP_CHANGE_TRANSCODER_C] = "Audio CP Change Transcoder C",
 	[AUDIO_CP_REQUEST_TRANSCODER_C] = "Audio CP Request Transcoder C",
+<<<<<<< HEAD
 	[ERR_AND_DBG] = "South Error and Debug Interupts Combined",
+=======
+	[ERR_AND_DBG] = "South Error and Debug Interrupts Combined",
+>>>>>>> upstream/android-13
 	[GMBUS] = "Gmbus",
 	[SDVO_B_HOTPLUG] = "SDVO B hotplug",
 	[CRT_HOTPLUG] = "CRT Hotplug",
@@ -245,6 +249,10 @@ int intel_vgpu_reg_ier_handler(struct intel_vgpu *vgpu,
 	unsigned int reg, void *p_data, unsigned int bytes)
 {
 	struct intel_gvt *gvt = vgpu->gvt;
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = gvt->gt->i915;
+>>>>>>> upstream/android-13
 	struct intel_gvt_irq_ops *ops = gvt->irq.ops;
 	struct intel_gvt_irq_info *info;
 	u32 ier = *(u32 *)p_data;
@@ -255,7 +263,11 @@ int intel_vgpu_reg_ier_handler(struct intel_vgpu *vgpu,
 	vgpu_vreg(vgpu, reg) = ier;
 
 	info = regbase_to_irq_info(gvt, ier_to_regbase(reg));
+<<<<<<< HEAD
 	if (WARN_ON(!info))
+=======
+	if (drm_WARN_ON(&i915->drm, !info))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (info->has_upstream_irq)
@@ -282,6 +294,10 @@ int intel_vgpu_reg_ier_handler(struct intel_vgpu *vgpu,
 int intel_vgpu_reg_iir_handler(struct intel_vgpu *vgpu, unsigned int reg,
 	void *p_data, unsigned int bytes)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	struct intel_gvt_irq_info *info = regbase_to_irq_info(vgpu->gvt,
 		iir_to_regbase(reg));
 	u32 iir = *(u32 *)p_data;
@@ -289,7 +305,11 @@ int intel_vgpu_reg_iir_handler(struct intel_vgpu *vgpu, unsigned int reg,
 	trace_write_ir(vgpu->id, "IIR", reg, iir, vgpu_vreg(vgpu, reg),
 		       (vgpu_vreg(vgpu, reg) ^ iir));
 
+<<<<<<< HEAD
 	if (WARN_ON(!info))
+=======
+	if (drm_WARN_ON(&i915->drm, !info))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	vgpu_vreg(vgpu, reg) &= ~iir;
@@ -319,6 +339,10 @@ static struct intel_gvt_irq_map gen8_irq_map[] = {
 static void update_upstream_irq(struct intel_vgpu *vgpu,
 		struct intel_gvt_irq_info *info)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	struct intel_gvt_irq *irq = &vgpu->gvt->irq;
 	struct intel_gvt_irq_map *map = irq->irq_map;
 	struct intel_gvt_irq_info *up_irq_info = NULL;
@@ -340,7 +364,12 @@ static void update_upstream_irq(struct intel_vgpu *vgpu,
 		if (!up_irq_info)
 			up_irq_info = irq->info[map->up_irq_group];
 		else
+<<<<<<< HEAD
 			WARN_ON(up_irq_info != irq->info[map->up_irq_group]);
+=======
+			drm_WARN_ON(&i915->drm, up_irq_info !=
+				    irq->info[map->up_irq_group]);
+>>>>>>> upstream/android-13
 
 		bit = map->up_irq_bit;
 
@@ -350,7 +379,11 @@ static void update_upstream_irq(struct intel_vgpu *vgpu,
 			clear_bits |= (1 << bit);
 	}
 
+<<<<<<< HEAD
 	if (WARN_ON(!up_irq_info))
+=======
+	if (drm_WARN_ON(&i915->drm, !up_irq_info))
+>>>>>>> upstream/android-13
 		return;
 
 	if (up_irq_info->group == INTEL_GVT_IRQ_INFO_MASTER) {
@@ -536,7 +569,11 @@ static void gen8_init_irq(
 	SET_BIT_INFO(irq, 4, VCS_MI_FLUSH_DW, INTEL_GVT_IRQ_INFO_GT1);
 	SET_BIT_INFO(irq, 8, VCS_AS_CONTEXT_SWITCH, INTEL_GVT_IRQ_INFO_GT1);
 
+<<<<<<< HEAD
 	if (HAS_BSD2(gvt->dev_priv)) {
+=======
+	if (HAS_ENGINE(gvt->gt, VCS1)) {
+>>>>>>> upstream/android-13
 		SET_BIT_INFO(irq, 16, VCS2_MI_USER_INTERRUPT,
 			INTEL_GVT_IRQ_INFO_GT1);
 		SET_BIT_INFO(irq, 20, VCS2_MI_FLUSH_DW,
@@ -568,7 +605,11 @@ static void gen8_init_irq(
 	SET_BIT_INFO(irq, 22, DP_C_HOTPLUG, INTEL_GVT_IRQ_INFO_PCH);
 	SET_BIT_INFO(irq, 23, DP_D_HOTPLUG, INTEL_GVT_IRQ_INFO_PCH);
 
+<<<<<<< HEAD
 	if (IS_BROADWELL(gvt->dev_priv)) {
+=======
+	if (IS_BROADWELL(gvt->gt->i915)) {
+>>>>>>> upstream/android-13
 		SET_BIT_INFO(irq, 25, AUX_CHANNEL_B, INTEL_GVT_IRQ_INFO_PCH);
 		SET_BIT_INFO(irq, 26, AUX_CHANNEL_C, INTEL_GVT_IRQ_INFO_PCH);
 		SET_BIT_INFO(irq, 27, AUX_CHANNEL_D, INTEL_GVT_IRQ_INFO_PCH);
@@ -581,9 +622,13 @@ static void gen8_init_irq(
 
 		SET_BIT_INFO(irq, 4, PRIMARY_C_FLIP_DONE, INTEL_GVT_IRQ_INFO_DE_PIPE_C);
 		SET_BIT_INFO(irq, 5, SPRITE_C_FLIP_DONE, INTEL_GVT_IRQ_INFO_DE_PIPE_C);
+<<<<<<< HEAD
 	} else if (IS_SKYLAKE(gvt->dev_priv)
 			|| IS_KABYLAKE(gvt->dev_priv)
 			|| IS_BROXTON(gvt->dev_priv)) {
+=======
+	} else if (GRAPHICS_VER(gvt->gt->i915) >= 9) {
+>>>>>>> upstream/android-13
 		SET_BIT_INFO(irq, 25, AUX_CHANNEL_B, INTEL_GVT_IRQ_INFO_DE_PORT);
 		SET_BIT_INFO(irq, 26, AUX_CHANNEL_C, INTEL_GVT_IRQ_INFO_DE_PORT);
 		SET_BIT_INFO(irq, 27, AUX_CHANNEL_D, INTEL_GVT_IRQ_INFO_DE_PORT);
@@ -620,13 +665,21 @@ static struct intel_gvt_irq_ops gen8_irq_ops = {
 void intel_vgpu_trigger_virtual_event(struct intel_vgpu *vgpu,
 	enum intel_gvt_event_type event)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	struct intel_gvt *gvt = vgpu->gvt;
 	struct intel_gvt_irq *irq = &gvt->irq;
 	gvt_event_virt_handler_t handler;
 	struct intel_gvt_irq_ops *ops = gvt->irq.ops;
 
 	handler = get_event_virt_handler(irq, event);
+<<<<<<< HEAD
 	WARN_ON(!handler);
+=======
+	drm_WARN_ON(&i915->drm, !handler);
+>>>>>>> upstream/android-13
 
 	handler(irq, event, vgpu);
 
@@ -644,6 +697,7 @@ static void init_events(
 	}
 }
 
+<<<<<<< HEAD
 static enum hrtimer_restart vblank_timer_fn(struct hrtimer *data)
 {
 	struct intel_gvt_vblank_timer *vblank_timer;
@@ -676,6 +730,8 @@ void intel_gvt_clean_irq(struct intel_gvt *gvt)
 
 #define VBLNAK_TIMER_PERIOD 16000000
 
+=======
+>>>>>>> upstream/android-13
 /**
  * intel_gvt_init_irq - initialize GVT-g IRQ emulation subsystem
  * @gvt: a GVT device
@@ -689,7 +745,10 @@ void intel_gvt_clean_irq(struct intel_gvt *gvt)
 int intel_gvt_init_irq(struct intel_gvt *gvt)
 {
 	struct intel_gvt_irq *irq = &gvt->irq;
+<<<<<<< HEAD
 	struct intel_gvt_vblank_timer *vblank_timer = &irq->vblank_timer;
+=======
+>>>>>>> upstream/android-13
 
 	gvt_dbg_core("init irq framework\n");
 
@@ -704,9 +763,12 @@ int intel_gvt_init_irq(struct intel_gvt *gvt)
 
 	init_irq_map(irq);
 
+<<<<<<< HEAD
 	hrtimer_init(&vblank_timer->timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
 	vblank_timer->timer.function = vblank_timer_fn;
 	vblank_timer->period = VBLNAK_TIMER_PERIOD;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }

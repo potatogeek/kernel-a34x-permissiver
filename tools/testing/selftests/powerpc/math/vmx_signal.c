@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Cyril Bur, IBM Corp.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2015, Cyril Bur, IBM Corp.
+ *
+>>>>>>> upstream/android-13
  * This test attempts to see if the VMX registers are correctly reported in a
  * signal context. Each worker just spins checking its VMX registers, at some
  * point a signal will interrupt it and C code will check the signal context
@@ -100,6 +107,12 @@ int test_signal_vmx(void)
 	void *rc_p;
 	pthread_t *tids;
 
+<<<<<<< HEAD
+=======
+	// vcmpequd used in vmx_asm.S is v2.07
+	SKIP_IF(!have_hwcap2(PPC_FEATURE2_ARCH_2_07));
+
+>>>>>>> upstream/android-13
 	threads = sysconf(_SC_NPROCESSORS_ONLN) * THREAD_FACTOR;
 	tids = malloc(threads * sizeof(pthread_t));
 	FAIL_IF(!tids);

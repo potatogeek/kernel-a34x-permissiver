@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/page-writeback.c
  *
@@ -31,14 +35,20 @@
 #include <linux/sysctl.h>
 #include <linux/cpu.h>
 #include <linux/syscalls.h>
+<<<<<<< HEAD
 #include <linux/buffer_head.h> /* __set_page_dirty_buffers */
+=======
+>>>>>>> upstream/android-13
 #include <linux/pagevec.h>
 #include <linux/timer.h>
 #include <linux/sched/rt.h>
 #include <linux/sched/signal.h>
 #include <linux/mm_inline.h>
 #include <trace/events/writeback.h>
+<<<<<<< HEAD
 #include <mt-plat/mtk_blocktag.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
@@ -71,21 +81,29 @@ static long ratelimit_pages = 32;
 /*
  * Start background writeback (via writeback threads) at this percentage
  */
+<<<<<<< HEAD
 #ifdef CONFIG_LARGE_DIRTY_BUFFER
 int dirty_background_ratio = 5;
 #else
 int dirty_background_ratio;
 #endif
+=======
+int dirty_background_ratio = 10;
+>>>>>>> upstream/android-13
 
 /*
  * dirty_background_bytes starts at 0 (disabled) so that it is a function of
  * dirty_background_ratio * the amount of dirtyable memory
  */
+<<<<<<< HEAD
 #ifdef CONFIG_LARGE_DIRTY_BUFFER
 unsigned long dirty_background_bytes;
 #else
 unsigned long dirty_background_bytes = 25 * 1024 * 1024;
 #endif
+=======
+unsigned long dirty_background_bytes;
+>>>>>>> upstream/android-13
 
 /*
  * free highmem will not be subtracted from the total free memory
@@ -96,21 +114,29 @@ int vm_highmem_is_dirtyable;
 /*
  * The generator of dirty data starts writeback at this percentage
  */
+<<<<<<< HEAD
 #ifdef CONFIG_LARGE_DIRTY_BUFFER
 int vm_dirty_ratio = 20;
 #else
 int vm_dirty_ratio;
 #endif
+=======
+int vm_dirty_ratio = 20;
+>>>>>>> upstream/android-13
 
 /*
  * vm_dirty_bytes starts at 0 (disabled) so that it is a function of
  * vm_dirty_ratio * the amount of dirtyable memory
  */
+<<<<<<< HEAD
 #ifdef CONFIG_LARGE_DIRTY_BUFFER
 unsigned long vm_dirty_bytes;
 #else
 unsigned long vm_dirty_bytes = 50 * 1024 * 1024;
 #endif
+=======
+unsigned long vm_dirty_bytes;
+>>>>>>> upstream/android-13
 
 /*
  * The interval between `kupdate'-style writebacks
@@ -125,11 +151,14 @@ EXPORT_SYMBOL_GPL(dirty_writeback_interval);
 unsigned int dirty_expire_interval = 30 * 100; /* centiseconds */
 
 /*
+<<<<<<< HEAD
  * Flag that makes the machine dump writes/reads and block dirtyings.
  */
 int block_dump;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Flag that puts the machine in "laptop mode". Doubles as a timeout in jiffies:
  * a full sync is triggered after this time elapses without any disk activity.
  */
@@ -205,7 +234,11 @@ static struct fprop_local_percpu *wb_memcg_completions(struct bdi_writeback *wb)
 static void wb_min_max_ratio(struct bdi_writeback *wb,
 			     unsigned long *minp, unsigned long *maxp)
 {
+<<<<<<< HEAD
 	unsigned long this_bw = wb->avg_write_bandwidth;
+=======
+	unsigned long this_bw = READ_ONCE(wb->avg_write_bandwidth);
+>>>>>>> upstream/android-13
 	unsigned long tot_bw = atomic_long_read(&wb->bdi->tot_write_bandwidth);
 	unsigned long long min = wb->bdi->min_ratio;
 	unsigned long long max = wb->bdi->max_ratio;
@@ -273,7 +306,11 @@ static void wb_min_max_ratio(struct bdi_writeback *wb,
  * requiring writeback.
  *
  * This number of dirtyable pages is the base value of which the
+<<<<<<< HEAD
  * user-configurable dirty ratio is the effictive number of pages that
+=======
+ * user-configurable dirty ratio is the effective number of pages that
+>>>>>>> upstream/android-13
  * are allowed to be actually dirtied.  Per individual zone, or
  * globally by using the sum of dirtyable pages over all zones.
  *
@@ -287,7 +324,11 @@ static void wb_min_max_ratio(struct bdi_writeback *wb,
  * node_dirtyable_memory - number of dirtyable pages in a node
  * @pgdat: the node
  *
+<<<<<<< HEAD
  * Returns the node's number of pages potentially available for dirty
+=======
+ * Return: the node's number of pages potentially available for dirty
+>>>>>>> upstream/android-13
  * page cache.  This is the base value for the per-node dirty limits.
  */
 static unsigned long node_dirtyable_memory(struct pglist_data *pgdat)
@@ -372,7 +413,11 @@ static unsigned long highmem_dirtyable_memory(unsigned long total)
 /**
  * global_dirtyable_memory - number of globally dirtyable pages
  *
+<<<<<<< HEAD
  * Returns the global number of pages potentially available for dirty
+=======
+ * Return: the global number of pages potentially available for dirty
+>>>>>>> upstream/android-13
  * page cache.  This is the base value for the global dirty limits.
  */
 static unsigned long global_dirtyable_memory(void)
@@ -403,12 +448,20 @@ static unsigned long global_dirtyable_memory(void)
  * Calculate @dtc->thresh and ->bg_thresh considering
  * vm_dirty_{bytes|ratio} and dirty_background_{bytes|ratio}.  The caller
  * must ensure that @dtc->avail is set before calling this function.  The
+<<<<<<< HEAD
  * dirty limits will be lifted by 1/4 for PF_LESS_THROTTLE (ie. nfsd) and
  * real-time tasks.
  */
 static void domain_dirty_limits(struct dirty_throttle_control *dtc)
 {
 	unsigned long available_memory = dtc->avail;
+=======
+ * dirty limits will be lifted by 1/4 for real-time tasks.
+ */
+static void domain_dirty_limits(struct dirty_throttle_control *dtc)
+{
+	const unsigned long available_memory = dtc->avail;
+>>>>>>> upstream/android-13
 	struct dirty_throttle_control *gdtc = mdtc_gdtc(dtc);
 	unsigned long bytes = vm_dirty_bytes;
 	unsigned long bg_bytes = dirty_background_bytes;
@@ -444,6 +497,7 @@ static void domain_dirty_limits(struct dirty_throttle_control *dtc)
 	else
 		thresh = (ratio * available_memory) / PAGE_SIZE;
 
+<<<<<<< HEAD
 #if defined(CONFIG_MAX_DIRTY_THRESH_PAGES) && (CONFIG_MAX_DIRTY_THRESH_PAGES > 0)
 	if (!bytes && thresh > CONFIG_MAX_DIRTY_THRESH_PAGES) {
 		thresh = CONFIG_MAX_DIRTY_THRESH_PAGES;
@@ -452,6 +506,8 @@ static void domain_dirty_limits(struct dirty_throttle_control *dtc)
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (bg_bytes)
 		bg_thresh = DIV_ROUND_UP(bg_bytes, PAGE_SIZE);
 	else
@@ -460,7 +516,11 @@ static void domain_dirty_limits(struct dirty_throttle_control *dtc)
 	if (bg_thresh >= thresh)
 		bg_thresh = thresh / 2;
 	tsk = current;
+<<<<<<< HEAD
 	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk)) {
+=======
+	if (rt_task(tsk)) {
+>>>>>>> upstream/android-13
 		bg_thresh += bg_thresh / 4 + global_wb_domain.dirty_limit / 32;
 		thresh += thresh / 4 + global_wb_domain.dirty_limit / 32;
 	}
@@ -495,7 +555,11 @@ void global_dirty_limits(unsigned long *pbackground, unsigned long *pdirty)
  * node_dirty_limit - maximum number of dirty pages allowed in a node
  * @pgdat: the node
  *
+<<<<<<< HEAD
  * Returns the maximum number of dirty pages allowed in a node, based
+=======
+ * Return: the maximum number of dirty pages allowed in a node, based
+>>>>>>> upstream/android-13
  * on the node's dirtyable memory.
  */
 static unsigned long node_dirty_limit(struct pglist_data *pgdat)
@@ -510,12 +574,16 @@ static unsigned long node_dirty_limit(struct pglist_data *pgdat)
 	else
 		dirty = vm_dirty_ratio * node_memory / 100;
 
+<<<<<<< HEAD
 #if defined(CONFIG_MAX_DIRTY_THRESH_PAGES) && (CONFIG_MAX_DIRTY_THRESH_PAGES > 0)
 	if (!vm_dirty_bytes && dirty > CONFIG_MAX_DIRTY_THRESH_PAGES)
 		dirty = CONFIG_MAX_DIRTY_THRESH_PAGES;
 #endif
 
 	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk))
+=======
+	if (rt_task(tsk))
+>>>>>>> upstream/android-13
 		dirty += dirty / 4;
 
 	return dirty;
@@ -525,7 +593,11 @@ static unsigned long node_dirty_limit(struct pglist_data *pgdat)
  * node_dirty_ok - tells whether a node is within its dirty limits
  * @pgdat: the node to check
  *
+<<<<<<< HEAD
  * Returns %true when the dirty pages in @pgdat are within the node's
+=======
+ * Return: %true when the dirty pages in @pgdat are within the node's
+>>>>>>> upstream/android-13
  * dirty limit, %false if the limit is exceeded.
  */
 bool node_dirty_ok(struct pglist_data *pgdat)
@@ -534,15 +606,22 @@ bool node_dirty_ok(struct pglist_data *pgdat)
 	unsigned long nr_pages = 0;
 
 	nr_pages += node_page_state(pgdat, NR_FILE_DIRTY);
+<<<<<<< HEAD
 	nr_pages += node_page_state(pgdat, NR_UNSTABLE_NFS);
+=======
+>>>>>>> upstream/android-13
 	nr_pages += node_page_state(pgdat, NR_WRITEBACK);
 
 	return nr_pages <= limit;
 }
 
 int dirty_background_ratio_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 		void __user *buffer, size_t *lenp,
 		loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -553,8 +632,12 @@ int dirty_background_ratio_handler(struct ctl_table *table, int write,
 }
 
 int dirty_background_bytes_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 		void __user *buffer, size_t *lenp,
 		loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -564,9 +647,14 @@ int dirty_background_bytes_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
+<<<<<<< HEAD
 int dirty_ratio_handler(struct ctl_table *table, int write,
 		void __user *buffer, size_t *lenp,
 		loff_t *ppos)
+=======
+int dirty_ratio_handler(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int old_ratio = vm_dirty_ratio;
 	int ret;
@@ -580,8 +668,12 @@ int dirty_ratio_handler(struct ctl_table *table, int write,
 }
 
 int dirty_bytes_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 		void __user *buffer, size_t *lenp,
 		loff_t *ppos)
+=======
+		void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	unsigned long old_bytes = vm_dirty_bytes;
 	int ret;
@@ -773,9 +865,12 @@ static void mdtc_calc_avail(struct dirty_throttle_control *mdtc,
  * __wb_calc_thresh - @wb's share of dirty throttling threshold
  * @dtc: dirty_throttle_context of interest
  *
+<<<<<<< HEAD
  * Returns @wb's dirty limit in pages. The term "dirty" in the context of
  * dirty balancing includes all PG_dirty, PG_writeback and NFS unstable pages.
  *
+=======
+>>>>>>> upstream/android-13
  * Note that balance_dirty_pages() will only seriously take it as a hard limit
  * when sleeping max_pause per page is not enough to keep the dirty pages under
  * control. For example, when the device is completely stalled due to some error
@@ -789,13 +884,23 @@ static void mdtc_calc_avail(struct dirty_throttle_control *mdtc,
  *
  * The wb's share of dirty limit will be adapting to its throughput and
  * bounded by the bdi->min_ratio and/or bdi->max_ratio parameters, if set.
+<<<<<<< HEAD
+=======
+ *
+ * Return: @wb's dirty limit in pages. The term "dirty" in the context of
+ * dirty balancing includes all PG_dirty and PG_writeback pages.
+>>>>>>> upstream/android-13
  */
 static unsigned long __wb_calc_thresh(struct dirty_throttle_control *dtc)
 {
 	struct wb_domain *dom = dtc_dom(dtc);
 	unsigned long thresh = dtc->thresh;
 	u64 wb_thresh;
+<<<<<<< HEAD
 	long numerator, denominator;
+=======
+	unsigned long numerator, denominator;
+>>>>>>> upstream/android-13
 	unsigned long wb_min_ratio, wb_max_ratio;
 
 	/*
@@ -806,7 +911,11 @@ static unsigned long __wb_calc_thresh(struct dirty_throttle_control *dtc)
 
 	wb_thresh = (thresh * (100 - bdi_min_ratio)) / 100;
 	wb_thresh *= numerator;
+<<<<<<< HEAD
 	do_div(wb_thresh, denominator);
+=======
+	wb_thresh = div64_ul(wb_thresh, denominator);
+>>>>>>> upstream/android-13
 
 	wb_min_max_ratio(dtc->wb, &wb_min_ratio, &wb_max_ratio);
 
@@ -880,7 +989,11 @@ static long long pos_ratio_polynom(unsigned long setpoint,
  *     ^ pos_ratio
  *     |
  *     |            |<===== global dirty control scope ======>|
+<<<<<<< HEAD
  * 2.0 .............*
+=======
+ * 2.0  * * * * * * *
+>>>>>>> upstream/android-13
  *     |            .*
  *     |            . *
  *     |            .   *
@@ -933,7 +1046,11 @@ static long long pos_ratio_polynom(unsigned long setpoint,
 static void wb_position_ratio(struct dirty_throttle_control *dtc)
 {
 	struct bdi_writeback *wb = dtc->wb;
+<<<<<<< HEAD
 	unsigned long write_bw = wb->avg_write_bandwidth;
+=======
+	unsigned long write_bw = READ_ONCE(wb->avg_write_bandwidth);
+>>>>>>> upstream/android-13
 	unsigned long freerun = dirty_freerun_ceiling(dtc->thresh, dtc->bg_thresh);
 	unsigned long limit = hard_dirty_limit(dtc_dom(dtc), dtc->thresh);
 	unsigned long wb_thresh = dtc->wb_thresh;
@@ -1131,7 +1248,11 @@ static void wb_update_write_bandwidth(struct bdi_writeback *wb,
 	bw = written - min(written, wb->written_stamp);
 	bw *= HZ;
 	if (unlikely(elapsed > period)) {
+<<<<<<< HEAD
 		do_div(bw, elapsed);
+=======
+		bw = div64_ul(bw, elapsed);
+>>>>>>> upstream/android-13
 		avg = bw;
 		goto out;
 	}
@@ -1156,7 +1277,11 @@ out:
 					&wb->bdi->tot_write_bandwidth) <= 0);
 	}
 	wb->write_bandwidth = bw;
+<<<<<<< HEAD
 	wb->avg_write_bandwidth = avg;
+=======
+	WRITE_ONCE(wb->avg_write_bandwidth, avg);
+>>>>>>> upstream/android-13
 }
 
 static void update_dirty_limit(struct dirty_throttle_control *dtc)
@@ -1188,8 +1313,13 @@ update:
 	dom->dirty_limit = limit;
 }
 
+<<<<<<< HEAD
 static void domain_update_bandwidth(struct dirty_throttle_control *dtc,
 				    unsigned long now)
+=======
+static void domain_update_dirty_limit(struct dirty_throttle_control *dtc,
+				      unsigned long now)
+>>>>>>> upstream/android-13
 {
 	struct wb_domain *dom = dtc_dom(dtc);
 
@@ -1365,7 +1495,11 @@ static void wb_update_dirty_ratelimit(struct dirty_throttle_control *dtc,
 	else
 		dirty_ratelimit -= step;
 
+<<<<<<< HEAD
 	wb->dirty_ratelimit = max(dirty_ratelimit, 1UL);
+=======
+	WRITE_ONCE(wb->dirty_ratelimit, max(dirty_ratelimit, 1UL));
+>>>>>>> upstream/android-13
 	wb->balanced_dirty_ratelimit = balanced_dirty_ratelimit;
 
 	trace_bdi_dirty_ratelimit(wb, dirty_rate, task_ratelimit);
@@ -1373,11 +1507,15 @@ static void wb_update_dirty_ratelimit(struct dirty_throttle_control *dtc,
 
 static void __wb_update_bandwidth(struct dirty_throttle_control *gdtc,
 				  struct dirty_throttle_control *mdtc,
+<<<<<<< HEAD
 				  unsigned long start_time,
+=======
+>>>>>>> upstream/android-13
 				  bool update_ratelimit)
 {
 	struct bdi_writeback *wb = gdtc->wb;
 	unsigned long now = jiffies;
+<<<<<<< HEAD
 	unsigned long elapsed = now - wb->bw_time_stamp;
 	unsigned long dirtied;
 	unsigned long written;
@@ -1402,6 +1540,26 @@ static void __wb_update_bandwidth(struct dirty_throttle_control *gdtc,
 
 	if (update_ratelimit) {
 		domain_update_bandwidth(gdtc, now);
+=======
+	unsigned long elapsed;
+	unsigned long dirtied;
+	unsigned long written;
+
+	spin_lock(&wb->list_lock);
+
+	/*
+	 * Lockless checks for elapsed time are racy and delayed update after
+	 * IO completion doesn't do it at all (to make sure written pages are
+	 * accounted reasonably quickly). Make sure elapsed >= 1 to avoid
+	 * division errors.
+	 */
+	elapsed = max(now - wb->bw_time_stamp, 1UL);
+	dirtied = percpu_counter_read(&wb->stat[WB_DIRTIED]);
+	written = percpu_counter_read(&wb->stat[WB_WRITTEN]);
+
+	if (update_ratelimit) {
+		domain_update_dirty_limit(gdtc, now);
+>>>>>>> upstream/android-13
 		wb_update_dirty_ratelimit(gdtc, dirtied, elapsed);
 
 		/*
@@ -1409,12 +1567,17 @@ static void __wb_update_bandwidth(struct dirty_throttle_control *gdtc,
 		 * compiler has no way to figure that out.  Help it.
 		 */
 		if (IS_ENABLED(CONFIG_CGROUP_WRITEBACK) && mdtc) {
+<<<<<<< HEAD
 			domain_update_bandwidth(mdtc, now);
+=======
+			domain_update_dirty_limit(mdtc, now);
+>>>>>>> upstream/android-13
 			wb_update_dirty_ratelimit(mdtc, dirtied, elapsed);
 		}
 	}
 	wb_update_write_bandwidth(wb, elapsed, written);
 
+<<<<<<< HEAD
 snapshot:
 	wb->dirtied_stamp = dirtied;
 	wb->written_stamp = written;
@@ -1426,6 +1589,37 @@ void wb_update_bandwidth(struct bdi_writeback *wb, unsigned long start_time)
 	struct dirty_throttle_control gdtc = { GDTC_INIT(wb) };
 
 	__wb_update_bandwidth(&gdtc, NULL, start_time, false);
+=======
+	wb->dirtied_stamp = dirtied;
+	wb->written_stamp = written;
+	WRITE_ONCE(wb->bw_time_stamp, now);
+	spin_unlock(&wb->list_lock);
+}
+
+void wb_update_bandwidth(struct bdi_writeback *wb)
+{
+	struct dirty_throttle_control gdtc = { GDTC_INIT(wb) };
+
+	__wb_update_bandwidth(&gdtc, NULL, false);
+}
+
+/* Interval after which we consider wb idle and don't estimate bandwidth */
+#define WB_BANDWIDTH_IDLE_JIF (HZ)
+
+static void wb_bandwidth_estimate_start(struct bdi_writeback *wb)
+{
+	unsigned long now = jiffies;
+	unsigned long elapsed = now - READ_ONCE(wb->bw_time_stamp);
+
+	if (elapsed > WB_BANDWIDTH_IDLE_JIF &&
+	    !atomic_read(&wb->writeback_inodes)) {
+		spin_lock(&wb->list_lock);
+		wb->dirtied_stamp = wb_stat(wb, WB_DIRTIED);
+		wb->written_stamp = wb_stat(wb, WB_WRITTEN);
+		WRITE_ONCE(wb->bw_time_stamp, now);
+		spin_unlock(&wb->list_lock);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1448,7 +1642,11 @@ static unsigned long dirty_poll_interval(unsigned long dirty,
 static unsigned long wb_max_pause(struct bdi_writeback *wb,
 				  unsigned long wb_dirty)
 {
+<<<<<<< HEAD
 	unsigned long bw = wb->avg_write_bandwidth;
+=======
+	unsigned long bw = READ_ONCE(wb->avg_write_bandwidth);
+>>>>>>> upstream/android-13
 	unsigned long t;
 
 	/*
@@ -1470,8 +1668,13 @@ static long wb_min_pause(struct bdi_writeback *wb,
 			 unsigned long dirty_ratelimit,
 			 int *nr_dirtied_pause)
 {
+<<<<<<< HEAD
 	long hi = ilog2(wb->avg_write_bandwidth);
 	long lo = ilog2(wb->dirty_ratelimit);
+=======
+	long hi = ilog2(READ_ONCE(wb->avg_write_bandwidth));
+	long lo = ilog2(READ_ONCE(wb->dirty_ratelimit));
+>>>>>>> upstream/android-13
 	long t;		/* target pause */
 	long pause;	/* estimated next pause */
 	int pages;	/* target nr_dirtied_pause */
@@ -1642,7 +1845,11 @@ static void balance_dirty_pages(struct bdi_writeback *wb,
 	struct dirty_throttle_control * const mdtc = mdtc_valid(&mdtc_stor) ?
 						     &mdtc_stor : NULL;
 	struct dirty_throttle_control *sdtc;
+<<<<<<< HEAD
 	unsigned long nr_reclaimable;	/* = file_dirty + unstable_nfs */
+=======
+	unsigned long nr_reclaimable;	/* = file_dirty */
+>>>>>>> upstream/android-13
 	long period;
 	long pause;
 	long max_pause;
@@ -1663,6 +1870,7 @@ static void balance_dirty_pages(struct bdi_writeback *wb,
 		unsigned long m_thresh = 0;
 		unsigned long m_bg_thresh = 0;
 
+<<<<<<< HEAD
 		/*
 		 * Unstable writes are a feature of certain networked
 		 * filesystems (i.e. NFS) in which data may have been
@@ -1671,6 +1879,9 @@ static void balance_dirty_pages(struct bdi_writeback *wb,
 		 */
 		nr_reclaimable = global_node_page_state(NR_FILE_DIRTY) +
 					global_node_page_state(NR_UNSTABLE_NFS);
+=======
+		nr_reclaimable = global_node_page_state(NR_FILE_DIRTY);
+>>>>>>> upstream/android-13
 		gdtc->avail = global_dirtyable_memory();
 		gdtc->dirty = nr_reclaimable + global_node_page_state(NR_WRITEBACK);
 
@@ -1729,28 +1940,63 @@ static void balance_dirty_pages(struct bdi_writeback *wb,
 		if (dirty <= dirty_freerun_ceiling(thresh, bg_thresh) &&
 		    (!mdtc ||
 		     m_dirty <= dirty_freerun_ceiling(m_thresh, m_bg_thresh))) {
+<<<<<<< HEAD
 			unsigned long intv = dirty_poll_interval(dirty, thresh);
 			unsigned long m_intv = ULONG_MAX;
+=======
+			unsigned long intv;
+			unsigned long m_intv;
+
+free_running:
+			intv = dirty_poll_interval(dirty, thresh);
+			m_intv = ULONG_MAX;
+>>>>>>> upstream/android-13
 
 			current->dirty_paused_when = now;
 			current->nr_dirtied = 0;
 			if (mdtc)
 				m_intv = dirty_poll_interval(m_dirty, m_thresh);
 			current->nr_dirtied_pause = min(intv, m_intv);
+<<<<<<< HEAD
 			bdi_fill_sec_debug_bdp(bdi, start_time, mdtc ? mdtc : gdtc);
+=======
+			bdi_fill_sec_debug_bdp(bdi, start_time, mdtc?mdtc:gdtc);
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		if (unlikely(!writeback_in_progress(wb)))
 			wb_start_background_writeback(wb);
 
+<<<<<<< HEAD
+=======
+		mem_cgroup_flush_foreign(wb);
+
+>>>>>>> upstream/android-13
 		/*
 		 * Calculate global domain's pos_ratio and select the
 		 * global dtc by default.
 		 */
+<<<<<<< HEAD
 		if (!strictlimit)
 			wb_dirty_limits(gdtc);
 
+=======
+		if (!strictlimit) {
+			wb_dirty_limits(gdtc);
+
+			if ((current->flags & PF_LOCAL_THROTTLE) &&
+			    gdtc->wb_dirty <
+			    dirty_freerun_ceiling(gdtc->wb_thresh,
+						  gdtc->wb_bg_thresh))
+				/*
+				 * LOCAL_THROTTLE tasks must not be throttled
+				 * when below the per-wb freerun ceiling.
+				 */
+				goto free_running;
+		}
+
+>>>>>>> upstream/android-13
 		dirty_exceeded = (gdtc->wb_dirty > gdtc->wb_thresh) &&
 			((gdtc->dirty > gdtc->thresh) || strictlimit);
 
@@ -1764,9 +2010,26 @@ static void balance_dirty_pages(struct bdi_writeback *wb,
 			 * both global and memcg domains.  Choose the one
 			 * w/ lower pos_ratio.
 			 */
+<<<<<<< HEAD
 			if (!strictlimit)
 				wb_dirty_limits(mdtc);
 
+=======
+			if (!strictlimit) {
+				wb_dirty_limits(mdtc);
+
+				if ((current->flags & PF_LOCAL_THROTTLE) &&
+				    mdtc->wb_dirty <
+				    dirty_freerun_ceiling(mdtc->wb_thresh,
+							  mdtc->wb_bg_thresh))
+					/*
+					 * LOCAL_THROTTLE tasks must not be
+					 * throttled when below the per-wb
+					 * freerun ceiling.
+					 */
+					goto free_running;
+			}
+>>>>>>> upstream/android-13
 			dirty_exceeded |= (mdtc->wb_dirty > mdtc->wb_thresh) &&
 				((mdtc->dirty > mdtc->thresh) || strictlimit);
 
@@ -1778,6 +2041,7 @@ static void balance_dirty_pages(struct bdi_writeback *wb,
 		if (dirty_exceeded && !wb->dirty_exceeded)
 			wb->dirty_exceeded = 1;
 
+<<<<<<< HEAD
 		if (time_is_before_jiffies(wb->bw_time_stamp +
 					   BANDWIDTH_INTERVAL)) {
 			spin_lock(&wb->list_lock);
@@ -1787,6 +2051,14 @@ static void balance_dirty_pages(struct bdi_writeback *wb,
 
 		/* throttle according to the chosen dtc */
 		dirty_ratelimit = wb->dirty_ratelimit;
+=======
+		if (time_is_before_jiffies(READ_ONCE(wb->bw_time_stamp) +
+					   BANDWIDTH_INTERVAL))
+			__wb_update_bandwidth(gdtc, mdtc, true);
+
+		/* throttle according to the chosen dtc */
+		dirty_ratelimit = READ_ONCE(wb->dirty_ratelimit);
+>>>>>>> upstream/android-13
 		task_ratelimit = ((u64)dirty_ratelimit * sdtc->pos_ratio) >>
 							RATELIMIT_CALC_SHIFT;
 		max_pause = wb_max_pause(wb, sdtc->wb_dirty);
@@ -1854,6 +2126,7 @@ pause:
 					  pause,
 					  start_time);
 
+<<<<<<< HEAD
 		/* IOPP-prevent_infinite_writeback-v1.1.4.4 */
 		/* Do not sleep if the backing device is removed */
 		if (unlikely(!bdi->dev))
@@ -1864,6 +2137,8 @@ pause:
 		bdi->last_nr_dirty = dirty;
 		bdi->paused_total += pause;
 
+=======
+>>>>>>> upstream/android-13
 		if (bdi->capabilities & BDI_CAP_SEC_DEBUG && pause == max_pause) {
 			unsigned long nr_dirty_inodes_in_timelist = 0; /* # of dirty inodes in b_dirty_time list */
 			struct inode *inode;
@@ -1882,7 +2157,11 @@ pause:
 			spin_unlock(&wb->list_lock);
 			printk_ratelimited(KERN_WARNING "dev: %s, paused %lu, g-thresh %lu, g-dirty %lu, bdi-thresh %lu, bdi-dirty %lu,"
 				" bdi-bw %lu, timelist_inodes %lu\n",
+<<<<<<< HEAD
 				bdi->dev ? dev_name(bdi->dev) : "(unknown)",
+=======
+				bdi_dev_name(bdi),
+>>>>>>> upstream/android-13
 				(unsigned long) (jiffies - start_time) * 1000 / HZ,
 				(unsigned long) sdtc->thresh,
 				(unsigned long) sdtc->dirty,
@@ -1891,7 +2170,10 @@ pause:
 				(unsigned long) sdtc->wb->avg_write_bandwidth,
 				(unsigned long) nr_dirty_inodes_in_timelist);
 		}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		__set_current_state(TASK_KILLABLE);
 		wb->dirty_sleep = now;
 		io_schedule_timeout(pause);
@@ -1908,7 +2190,11 @@ pause:
 			break;
 
 		/*
+<<<<<<< HEAD
 		 * In the case of an unresponding NFS server and the NFS dirty
+=======
+		 * In the case of an unresponsive NFS server and the NFS dirty
+>>>>>>> upstream/android-13
 		 * pages exceeds dirty_thresh, give the other good wb's a pipe
 		 * to go through, so that tasks on them still remain responsive.
 		 *
@@ -1971,10 +2257,16 @@ DEFINE_PER_CPU(int, dirty_throttle_leaks) = 0;
  * which was newly dirtied.  The function will periodically check the system's
  * dirty state and will initiate writeback if needed.
  *
+<<<<<<< HEAD
  * On really big machines, get_writeback_state is expensive, so try to avoid
  * calling it too often (ratelimiting).  But once we're over the dirty memory
  * limit we decrease the ratelimiting by a lot, to prevent individual processes
  * from overshooting the limit by (ratelimit_pages) each.
+=======
+ * Once we're over the dirty memory limit we decrease the ratelimiting
+ * by a lot, to prevent individual processes from overshooting the limit
+ * by (ratelimit_pages) each.
+>>>>>>> upstream/android-13
  */
 void balance_dirty_pages_ratelimited(struct address_space *mapping)
 {
@@ -1984,7 +2276,11 @@ void balance_dirty_pages_ratelimited(struct address_space *mapping)
 	int ratelimit;
 	int *p;
 
+<<<<<<< HEAD
 	if (!bdi_cap_account_dirty(bdi))
+=======
+	if (!(bdi->capabilities & BDI_CAP_WRITEBACK))
+>>>>>>> upstream/android-13
 		return;
 
 	if (inode_cgwb_enabled(inode))
@@ -2036,7 +2332,13 @@ EXPORT_SYMBOL(balance_dirty_pages_ratelimited);
  * @wb: bdi_writeback of interest
  *
  * Determines whether background writeback should keep writing @wb or it's
+<<<<<<< HEAD
  * clean enough.  Returns %true if writeback should continue.
+=======
+ * clean enough.
+ *
+ * Return: %true if writeback should continue.
+>>>>>>> upstream/android-13
  */
 bool wb_over_bg_thresh(struct bdi_writeback *wb)
 {
@@ -2045,21 +2347,40 @@ bool wb_over_bg_thresh(struct bdi_writeback *wb)
 	struct dirty_throttle_control * const gdtc = &gdtc_stor;
 	struct dirty_throttle_control * const mdtc = mdtc_valid(&mdtc_stor) ?
 						     &mdtc_stor : NULL;
+<<<<<<< HEAD
+=======
+	unsigned long reclaimable;
+	unsigned long thresh;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Similar to balance_dirty_pages() but ignores pages being written
 	 * as we're trying to decide whether to put more under writeback.
 	 */
 	gdtc->avail = global_dirtyable_memory();
+<<<<<<< HEAD
 	gdtc->dirty = global_node_page_state(NR_FILE_DIRTY) +
 		      global_node_page_state(NR_UNSTABLE_NFS);
+=======
+	gdtc->dirty = global_node_page_state(NR_FILE_DIRTY);
+>>>>>>> upstream/android-13
 	domain_dirty_limits(gdtc);
 
 	if (gdtc->dirty > gdtc->bg_thresh)
 		return true;
 
+<<<<<<< HEAD
 	if (wb_stat(wb, WB_RECLAIMABLE) >
 	    wb_calc_thresh(gdtc->wb, gdtc->bg_thresh))
+=======
+	thresh = wb_calc_thresh(gdtc->wb, gdtc->bg_thresh);
+	if (thresh < 2 * wb_stat_error())
+		reclaimable = wb_stat_sum(wb, WB_RECLAIMABLE);
+	else
+		reclaimable = wb_stat(wb, WB_RECLAIMABLE);
+
+	if (reclaimable > thresh)
+>>>>>>> upstream/android-13
 		return true;
 
 	if (mdtc) {
@@ -2073,8 +2394,18 @@ bool wb_over_bg_thresh(struct bdi_writeback *wb)
 		if (mdtc->dirty > mdtc->bg_thresh)
 			return true;
 
+<<<<<<< HEAD
 		if (wb_stat(wb, WB_RECLAIMABLE) >
 		    wb_calc_thresh(mdtc->wb, mdtc->bg_thresh))
+=======
+		thresh = wb_calc_thresh(mdtc->wb, mdtc->bg_thresh);
+		if (thresh < 2 * wb_stat_error())
+			reclaimable = wb_stat_sum(wb, WB_RECLAIMABLE);
+		else
+			reclaimable = wb_stat(wb, WB_RECLAIMABLE);
+
+		if (reclaimable > thresh)
+>>>>>>> upstream/android-13
 			return true;
 	}
 
@@ -2085,7 +2416,11 @@ bool wb_over_bg_thresh(struct bdi_writeback *wb)
  * sysctl handler for /proc/sys/vm/dirty_writeback_centisecs
  */
 int dirty_writeback_centisecs_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 	void __user *buffer, size_t *length, loff_t *ppos)
+=======
+		void *buffer, size_t *length, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	unsigned int old_interval = dirty_writeback_interval;
 	int ret;
@@ -2106,7 +2441,10 @@ int dirty_writeback_centisecs_handler(struct ctl_table *table, int write,
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
+=======
+>>>>>>> upstream/android-13
 void laptop_mode_timer_fn(struct timer_list *t)
 {
 	struct backing_dev_info *backing_dev_info =
@@ -2141,13 +2479,19 @@ void laptop_sync_completion(void)
 
 	rcu_read_unlock();
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * If ratelimit_pages is too high then we can get into dirty-data overload
  * if a large number of processes all perform writes at the same time.
+<<<<<<< HEAD
  * If it is too low then SMP machines will call the (expensive)
  * get_writeback_state too often.
+=======
+>>>>>>> upstream/android-13
  *
  * Here we set ratelimit_pages to a level which ensures that when all CPUs are
  * dirtying in parallel, we cannot go more than 3% (1/32) over the dirty memory
@@ -2177,6 +2521,7 @@ static int page_writeback_cpu_online(unsigned int cpu)
  * Called early on to tune the page writeback dirty limits.
  *
  * We used to scale dirty pages according to how total memory
+<<<<<<< HEAD
  * related to pages that could be allocated for buffers (by
  * comparing nr_free_buffer_pages() to vm_total_pages.
  *
@@ -2184,6 +2529,13 @@ static int page_writeback_cpu_online(unsigned int cpu)
  * all memory, and we don't do that any more. "dirty_ratio"
  * is now applied to total non-HIGHPAGE memory (by subtracting
  * totalhigh_pages from vm_total_pages), and as such we can't
+=======
+ * related to pages that could be allocated for buffers.
+ *
+ * However, that was when we used "dirty_ratio" to scale with
+ * all memory, and we don't do that any more. "dirty_ratio"
+ * is now applied to total non-HIGHPAGE memory, and as such we can't
+>>>>>>> upstream/android-13
  * get into the old insane situation any more where we had
  * large amounts of dirty pages compared to a small amount of
  * non-HIGHMEM memory.
@@ -2215,6 +2567,7 @@ void __init page_writeback_init(void)
  * dirty pages in the file (thus it is important for this function to be quick
  * so that it can tag pages faster than a dirtying process can create them).
  */
+<<<<<<< HEAD
 /*
  * We tag pages in batches of WRITEBACK_TAG_BATCH to reduce the i_pages lock
  * latency.
@@ -2243,6 +2596,27 @@ void tag_pages_for_writeback(struct address_space *mapping,
 		xa_lock_irq(&mapping->i_pages);
 	}
 	xa_unlock_irq(&mapping->i_pages);
+=======
+void tag_pages_for_writeback(struct address_space *mapping,
+			     pgoff_t start, pgoff_t end)
+{
+	XA_STATE(xas, &mapping->i_pages, start);
+	unsigned int tagged = 0;
+	void *page;
+
+	xas_lock_irq(&xas);
+	xas_for_each_marked(&xas, page, end, PAGECACHE_TAG_DIRTY) {
+		xas_set_mark(&xas, PAGECACHE_TAG_TOWRITE);
+		if (++tagged % XA_CHECK_SCHED)
+			continue;
+
+		xas_pause(&xas);
+		xas_unlock_irq(&xas);
+		cond_resched();
+		xas_lock_irq(&xas);
+	}
+	xas_unlock_irq(&xas);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(tag_pages_for_writeback);
 
@@ -2274,6 +2648,11 @@ EXPORT_SYMBOL(tag_pages_for_writeback);
  * lock/page writeback access order inversion - we should only ever lock
  * multiple pages in ascending page->index order, and looping back to the start
  * of the file violates that rule and causes deadlocks.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success, negative error code otherwise
+>>>>>>> upstream/android-13
  */
 int write_cache_pages(struct address_space *mapping,
 		      struct writeback_control *wbc, writepage_t writepage,
@@ -2284,17 +2663,28 @@ int write_cache_pages(struct address_space *mapping,
 	int error;
 	struct pagevec pvec;
 	int nr_pages;
+<<<<<<< HEAD
 	pgoff_t uninitialized_var(writeback_index);
+=======
+>>>>>>> upstream/android-13
 	pgoff_t index;
 	pgoff_t end;		/* Inclusive */
 	pgoff_t done_index;
 	int range_whole = 0;
+<<<<<<< HEAD
 	int tag;
 
 	pagevec_init(&pvec);
 	if (wbc->range_cyclic) {
 		writeback_index = mapping->writeback_index; /* prev offset */
 		index = writeback_index;
+=======
+	xa_mark_t tag;
+
+	pagevec_init(&pvec);
+	if (wbc->range_cyclic) {
+		index = mapping->writeback_index; /* prev offset */
+>>>>>>> upstream/android-13
 		end = -1;
 	} else {
 		index = wbc->range_start >> PAGE_SHIFT;
@@ -2302,12 +2692,21 @@ int write_cache_pages(struct address_space *mapping,
 		if (wbc->range_start == 0 && wbc->range_end == LLONG_MAX)
 			range_whole = 1;
 	}
+<<<<<<< HEAD
 	if (wbc->sync_mode == WB_SYNC_ALL || wbc->tagged_writepages)
 		tag = PAGECACHE_TAG_TOWRITE;
 	else
 		tag = PAGECACHE_TAG_DIRTY;
 	if (wbc->sync_mode == WB_SYNC_ALL || wbc->tagged_writepages)
 		tag_pages_for_writeback(mapping, index, end);
+=======
+	if (wbc->sync_mode == WB_SYNC_ALL || wbc->tagged_writepages) {
+		tag_pages_for_writeback(mapping, index, end);
+		tag = PAGECACHE_TAG_TOWRITE;
+	} else {
+		tag = PAGECACHE_TAG_DIRTY;
+	}
+>>>>>>> upstream/android-13
 	done_index = index;
 	while (!done && (index <= end)) {
 		int i;
@@ -2328,7 +2727,11 @@ int write_cache_pages(struct address_space *mapping,
 			 * Page truncated or invalidated. We can freely skip it
 			 * then, even for data integrity operations: the page
 			 * has disappeared concurrently, so there could be no
+<<<<<<< HEAD
 			 * real expectation of this data interity operation
+=======
+			 * real expectation of this data integrity operation
+>>>>>>> upstream/android-13
 			 * even if there is now a new, dirty page at the same
 			 * pagecache address.
 			 */
@@ -2432,6 +2835,11 @@ static int __writepage(struct page *page, struct writeback_control *wbc,
  *
  * This is a library function, which implements the writepages()
  * address_space_operation.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success, negative error code otherwise
+>>>>>>> upstream/android-13
  */
 int generic_writepages(struct address_space *mapping,
 		       struct writeback_control *wbc)
@@ -2454,9 +2862,18 @@ EXPORT_SYMBOL(generic_writepages);
 int do_writepages(struct address_space *mapping, struct writeback_control *wbc)
 {
 	int ret;
+<<<<<<< HEAD
 
 	if (wbc->nr_to_write <= 0)
 		return 0;
+=======
+	struct bdi_writeback *wb;
+
+	if (wbc->nr_to_write <= 0)
+		return 0;
+	wb = inode_to_wb_wbc(mapping->host, wbc);
+	wb_bandwidth_estimate_start(wb);
+>>>>>>> upstream/android-13
 	while (1) {
 		if (mapping->a_ops->writepages)
 			ret = mapping->a_ops->writepages(mapping, wbc);
@@ -2467,6 +2884,17 @@ int do_writepages(struct address_space *mapping, struct writeback_control *wbc)
 		cond_resched();
 		congestion_wait(BLK_RW_ASYNC, HZ/50);
 	}
+<<<<<<< HEAD
+=======
+	/*
+	 * Usually few pages are written by now from those we've just submitted
+	 * but if there's constant writeback being submitted, this makes sure
+	 * writeback bandwidth is updated once in a while.
+	 */
+	if (time_is_before_jiffies(READ_ONCE(wb->bw_time_stamp) +
+				   BANDWIDTH_INTERVAL))
+		wb_update_bandwidth(wb);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2478,6 +2906,11 @@ int do_writepages(struct address_space *mapping, struct writeback_control *wbc)
  *
  * Note that the mapping's AS_EIO/AS_ENOSPC flags will be cleared when this
  * function returns.
+<<<<<<< HEAD
+=======
+ *
+ * Return: %0 on success, negative error code otherwise
+>>>>>>> upstream/android-13
  */
 int write_one_page(struct page *page)
 {
@@ -2517,6 +2950,10 @@ int __set_page_dirty_no_writeback(struct page *page)
 		return !TestSetPageDirty(page);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(__set_page_dirty_no_writeback);
+>>>>>>> upstream/android-13
 
 /*
  * Helper function for set_page_dirty family.
@@ -2525,13 +2962,22 @@ int __set_page_dirty_no_writeback(struct page *page)
  *
  * NOTE: This relies on being atomic wrt interrupts.
  */
+<<<<<<< HEAD
 void account_page_dirtied(struct page *page, struct address_space *mapping)
+=======
+static void account_page_dirtied(struct page *page,
+		struct address_space *mapping)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = mapping->host;
 
 	trace_writeback_dirty_page(page, mapping);
 
+<<<<<<< HEAD
 	if (mapping_cap_account_dirty(mapping)) {
+=======
+	if (mapping_can_writeback(mapping)) {
+>>>>>>> upstream/android-13
 		struct bdi_writeback *wb;
 
 		inode_attach_wb(inode, page);
@@ -2544,10 +2990,18 @@ void account_page_dirtied(struct page *page, struct address_space *mapping)
 		inc_wb_stat(wb, WB_DIRTIED);
 		task_io_account_write(PAGE_SIZE);
 		current->nr_dirtied++;
+<<<<<<< HEAD
 		this_cpu_inc(bdp_ratelimits);
 	}
 }
 EXPORT_SYMBOL(account_page_dirtied);
+=======
+		__this_cpu_inc(bdp_ratelimits);
+
+		mem_cgroup_track_foreign_dirty(page, wb);
+	}
+}
+>>>>>>> upstream/android-13
 
 /*
  * Helper function for deaccounting dirty page without writeback.
@@ -2557,7 +3011,11 @@ EXPORT_SYMBOL(account_page_dirtied);
 void account_page_cleaned(struct page *page, struct address_space *mapping,
 			  struct bdi_writeback *wb)
 {
+<<<<<<< HEAD
 	if (mapping_cap_account_dirty(mapping)) {
+=======
+	if (mapping_can_writeback(mapping)) {
+>>>>>>> upstream/android-13
 		dec_lruvec_page_state(page, NR_FILE_DIRTY);
 		dec_zone_page_state(page, NR_ZONE_WRITE_PENDING);
 		dec_wb_stat(wb, WB_RECLAIMABLE);
@@ -2566,8 +3024,37 @@ void account_page_cleaned(struct page *page, struct address_space *mapping,
 }
 
 /*
+<<<<<<< HEAD
  * For address_spaces which do not use buffers.  Just tag the page as dirty in
  * its radix tree.
+=======
+ * Mark the page dirty, and set it dirty in the page cache, and mark the inode
+ * dirty.
+ *
+ * If warn is true, then emit a warning if the page is not uptodate and has
+ * not been truncated.
+ *
+ * The caller must hold lock_page_memcg().
+ */
+void __set_page_dirty(struct page *page, struct address_space *mapping,
+			     int warn)
+{
+	unsigned long flags;
+
+	xa_lock_irqsave(&mapping->i_pages, flags);
+	if (page->mapping) {	/* Race with truncate? */
+		WARN_ON_ONCE(warn && !PageUptodate(page));
+		account_page_dirtied(page, mapping);
+		__xa_set_mark(&mapping->i_pages, page_index(page),
+				PAGECACHE_TAG_DIRTY);
+	}
+	xa_unlock_irqrestore(&mapping->i_pages, flags);
+}
+
+/*
+ * For address_spaces which do not use buffers.  Just tag the page as dirty in
+ * the xarray.
+>>>>>>> upstream/android-13
  *
  * This is also used when a single buffer is being dirtied: we want to set the
  * page dirty in that case, but not all the buffers.  This is a "bottom-up"
@@ -2582,12 +3069,16 @@ int __set_page_dirty_nobuffers(struct page *page)
 	lock_page_memcg(page);
 	if (!TestSetPageDirty(page)) {
 		struct address_space *mapping = page_mapping(page);
+<<<<<<< HEAD
 		unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 		if (!mapping) {
 			unlock_page_memcg(page);
 			return 1;
 		}
+<<<<<<< HEAD
 
 		xa_lock_irqsave(&mapping->i_pages, flags);
 		BUG_ON(page_mapping(page) != mapping);
@@ -2596,6 +3087,9 @@ int __set_page_dirty_nobuffers(struct page *page)
 		radix_tree_tag_set(&mapping->i_pages, page_index(page),
 				   PAGECACHE_TAG_DIRTY);
 		xa_unlock_irqrestore(&mapping->i_pages, flags);
+=======
+		__set_page_dirty(page, mapping, !PagePrivate(page));
+>>>>>>> upstream/android-13
 		unlock_page_memcg(page);
 
 		if (mapping->host) {
@@ -2620,7 +3114,11 @@ void account_page_redirty(struct page *page)
 {
 	struct address_space *mapping = page->mapping;
 
+<<<<<<< HEAD
 	if (mapping && mapping_cap_account_dirty(mapping)) {
+=======
+	if (mapping && mapping_can_writeback(mapping)) {
+>>>>>>> upstream/android-13
 		struct inode *inode = mapping->host;
 		struct bdi_writeback *wb;
 		struct wb_lock_cookie cookie = {};
@@ -2653,6 +3151,7 @@ EXPORT_SYMBOL(redirty_page_for_writepage);
 /*
  * Dirty a page.
  *
+<<<<<<< HEAD
  * For pages with a mapping this should be done under the page lock
  * for the benefit of asynchronous memory errors who prefer a consistent
  * dirty state. This rule can be broken in some special cases,
@@ -2660,6 +3159,11 @@ EXPORT_SYMBOL(redirty_page_for_writepage);
  *
  * If the mapping doesn't provide a set_page_dirty a_op, then
  * just fall through and assume that it wants buffer_heads.
+=======
+ * For pages with a mapping this should be done under the page lock for the
+ * benefit of asynchronous memory errors who prefer a consistent dirty state.
+ * This rule can be broken in some special cases, but should be better not to.
+>>>>>>> upstream/android-13
  */
 int set_page_dirty(struct page *page)
 {
@@ -2667,7 +3171,10 @@ int set_page_dirty(struct page *page)
 
 	page = compound_head(page);
 	if (likely(mapping)) {
+<<<<<<< HEAD
 		int (*spd)(struct page *) = mapping->a_ops->set_page_dirty;
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * readahead/lru_deactivate_page could remain
 		 * PG_readahead/PG_reclaim due to race with end_page_writeback
@@ -2680,11 +3187,15 @@ int set_page_dirty(struct page *page)
 		 */
 		if (PageReclaim(page))
 			ClearPageReclaim(page);
+<<<<<<< HEAD
 #ifdef CONFIG_BLOCK
 		if (!spd)
 			spd = __set_page_dirty_buffers;
 #endif
 		return (*spd)(page);
+=======
+		return mapping->a_ops->set_page_dirty(page);
+>>>>>>> upstream/android-13
 	}
 	if (!PageDirty(page)) {
 		if (!TestSetPageDirty(page))
@@ -2732,7 +3243,11 @@ void __cancel_dirty_page(struct page *page)
 {
 	struct address_space *mapping = page_mapping(page);
 
+<<<<<<< HEAD
 	if (mapping_cap_account_dirty(mapping)) {
+=======
+	if (mapping_can_writeback(mapping)) {
+>>>>>>> upstream/android-13
 		struct inode *inode = mapping->host;
 		struct bdi_writeback *wb;
 		struct wb_lock_cookie cookie = {};
@@ -2756,6 +3271,7 @@ EXPORT_SYMBOL(__cancel_dirty_page);
  * Returns true if the page was previously dirty.
  *
  * This is for preparing to put the page under writeout.  We leave the page
+<<<<<<< HEAD
  * tagged as dirty in the radix tree so that a concurrent write-for-sync
  * can discover it via a PAGECACHE_TAG_DIRTY walk.  The ->writepage
  * implementation will run either set_page_writeback() or set_page_dirty(),
@@ -2763,6 +3279,15 @@ EXPORT_SYMBOL(__cancel_dirty_page);
  * back into sync.
  *
  * This incoherency between the page's dirty flag and radix-tree tag is
+=======
+ * tagged as dirty in the xarray so that a concurrent write-for-sync
+ * can discover it via a PAGECACHE_TAG_DIRTY walk.  The ->writepage
+ * implementation will run either set_page_writeback() or set_page_dirty(),
+ * at which stage we bring the page's dirty flag and xarray dirty tag
+ * back into sync.
+ *
+ * This incoherency between the page's dirty flag and xarray tag is
+>>>>>>> upstream/android-13
  * unfortunate, but it only exists while the page is locked.
  */
 int clear_page_dirty_for_io(struct page *page)
@@ -2770,9 +3295,15 @@ int clear_page_dirty_for_io(struct page *page)
 	struct address_space *mapping = page_mapping(page);
 	int ret = 0;
 
+<<<<<<< HEAD
 	BUG_ON(!PageLocked(page));
 
 	if (mapping && mapping_cap_account_dirty(mapping)) {
+=======
+	VM_BUG_ON_PAGE(!PageLocked(page), page);
+
+	if (mapping && mapping_can_writeback(mapping)) {
+>>>>>>> upstream/android-13
 		struct inode *inode = mapping->host;
 		struct bdi_writeback *wb;
 		struct wb_lock_cookie cookie = {};
@@ -2826,6 +3357,7 @@ int clear_page_dirty_for_io(struct page *page)
 }
 EXPORT_SYMBOL(clear_page_dirty_for_io);
 
+<<<<<<< HEAD
 int test_clear_page_writeback(struct page *page)
 {
 	struct address_space *mapping = page_mapping(page);
@@ -2877,6 +3409,31 @@ int test_clear_page_writeback(struct page *page)
 }
 
 int __test_set_page_writeback(struct page *page, bool keep_write)
+=======
+static void wb_inode_writeback_start(struct bdi_writeback *wb)
+{
+	atomic_inc(&wb->writeback_inodes);
+}
+
+static void wb_inode_writeback_end(struct bdi_writeback *wb)
+{
+	unsigned long flags;
+	atomic_dec(&wb->writeback_inodes);
+	/*
+	 * Make sure estimate of writeback throughput gets updated after
+	 * writeback completed. We delay the update by BANDWIDTH_INTERVAL
+	 * (which is the interval other bandwidth updates use for batching) so
+	 * that if multiple inodes end writeback at a similar time, they get
+	 * batched into one bandwidth update.
+	 */
+	spin_lock_irqsave(&wb->work_lock, flags);
+	if (test_bit(WB_registered, &wb->state))
+		queue_delayed_work(bdi_wq, &wb->bw_dwork, BANDWIDTH_INTERVAL);
+	spin_unlock_irqrestore(&wb->work_lock, flags);
+}
+
+int test_clear_page_writeback(struct page *page)
+>>>>>>> upstream/android-13
 {
 	struct address_space *mapping = page_mapping(page);
 	int ret;
@@ -2888,6 +3445,55 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 		unsigned long flags;
 
 		xa_lock_irqsave(&mapping->i_pages, flags);
+<<<<<<< HEAD
+=======
+		ret = TestClearPageWriteback(page);
+		if (ret) {
+			__xa_clear_mark(&mapping->i_pages, page_index(page),
+						PAGECACHE_TAG_WRITEBACK);
+			if (bdi->capabilities & BDI_CAP_WRITEBACK_ACCT) {
+				struct bdi_writeback *wb = inode_to_wb(inode);
+
+				dec_wb_stat(wb, WB_WRITEBACK);
+				__wb_writeout_inc(wb);
+				if (!mapping_tagged(mapping,
+						    PAGECACHE_TAG_WRITEBACK))
+					wb_inode_writeback_end(wb);
+			}
+		}
+
+		if (mapping->host && !mapping_tagged(mapping,
+						     PAGECACHE_TAG_WRITEBACK))
+			sb_clear_inode_writeback(mapping->host);
+
+		xa_unlock_irqrestore(&mapping->i_pages, flags);
+	} else {
+		ret = TestClearPageWriteback(page);
+	}
+	if (ret) {
+		dec_lruvec_page_state(page, NR_WRITEBACK);
+		dec_zone_page_state(page, NR_ZONE_WRITE_PENDING);
+		inc_node_page_state(page, NR_WRITTEN);
+	}
+	unlock_page_memcg(page);
+	return ret;
+}
+
+int __test_set_page_writeback(struct page *page, bool keep_write)
+{
+	struct address_space *mapping = page_mapping(page);
+	int ret, access_ret;
+
+	lock_page_memcg(page);
+	if (mapping && mapping_use_writeback_tags(mapping)) {
+		XA_STATE(xas, &mapping->i_pages, page_index(page));
+		struct inode *inode = mapping->host;
+		struct backing_dev_info *bdi = inode_to_bdi(inode);
+		unsigned long flags;
+
+		xas_lock_irqsave(&xas, flags);
+		xas_load(&xas);
+>>>>>>> upstream/android-13
 		ret = TestSetPageWriteback(page);
 		if (!ret) {
 			bool on_wblist;
@@ -2895,10 +3501,21 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 			on_wblist = mapping_tagged(mapping,
 						   PAGECACHE_TAG_WRITEBACK);
 
+<<<<<<< HEAD
 			radix_tree_tag_set(&mapping->i_pages, page_index(page),
 						PAGECACHE_TAG_WRITEBACK);
 			if (bdi_cap_account_writeback(bdi))
 				inc_wb_stat(inode_to_wb(inode), WB_WRITEBACK);
+=======
+			xas_set_mark(&xas, PAGECACHE_TAG_WRITEBACK);
+			if (bdi->capabilities & BDI_CAP_WRITEBACK_ACCT) {
+				struct bdi_writeback *wb = inode_to_wb(inode);
+
+				inc_wb_stat(wb, WB_WRITEBACK);
+				if (!on_wblist)
+					wb_inode_writeback_start(wb);
+			}
+>>>>>>> upstream/android-13
 
 			/*
 			 * We can come through here when swapping anonymous
@@ -2909,12 +3526,19 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 				sb_mark_inode_writeback(mapping->host);
 		}
 		if (!PageDirty(page))
+<<<<<<< HEAD
 			radix_tree_tag_clear(&mapping->i_pages, page_index(page),
 						PAGECACHE_TAG_DIRTY);
 		if (!keep_write)
 			radix_tree_tag_clear(&mapping->i_pages, page_index(page),
 						PAGECACHE_TAG_TOWRITE);
 		xa_unlock_irqrestore(&mapping->i_pages, flags);
+=======
+			xas_clear_mark(&xas, PAGECACHE_TAG_DIRTY);
+		if (!keep_write)
+			xas_clear_mark(&xas, PAGECACHE_TAG_TOWRITE);
+		xas_unlock_irqrestore(&xas, flags);
+>>>>>>> upstream/android-13
 	} else {
 		ret = TestSetPageWriteback(page);
 	}
@@ -2923,12 +3547,23 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
 		inc_zone_page_state(page, NR_ZONE_WRITE_PENDING);
 	}
 	unlock_page_memcg(page);
+<<<<<<< HEAD
+=======
+	access_ret = arch_make_page_accessible(page);
+	/*
+	 * If writeback has been triggered on a page that cannot be made
+	 * accessible, it is too late to recover here.
+	 */
+	VM_BUG_ON_PAGE(access_ret != 0, page);
+
+>>>>>>> upstream/android-13
 	return ret;
 
 }
 EXPORT_SYMBOL(__test_set_page_writeback);
 
 /*
+<<<<<<< HEAD
  * Return true if any of the pages in the mapping are marked with the
  * passed tag.
  */
@@ -2937,6 +3572,34 @@ int mapping_tagged(struct address_space *mapping, int tag)
 	return radix_tree_tagged(&mapping->i_pages, tag);
 }
 EXPORT_SYMBOL(mapping_tagged);
+=======
+ * Wait for a page to complete writeback
+ */
+void wait_on_page_writeback(struct page *page)
+{
+	while (PageWriteback(page)) {
+		trace_wait_on_page_writeback(page, page_mapping(page));
+		wait_on_page_bit(page, PG_writeback);
+	}
+}
+EXPORT_SYMBOL_GPL(wait_on_page_writeback);
+
+/*
+ * Wait for a page to complete writeback.  Returns -EINTR if we get a
+ * fatal signal while waiting.
+ */
+int wait_on_page_writeback_killable(struct page *page)
+{
+	while (PageWriteback(page)) {
+		trace_wait_on_page_writeback(page, page_mapping(page));
+		if (wait_on_page_bit_killable(page, PG_writeback))
+			return -EINTR;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(wait_on_page_writeback_killable);
+>>>>>>> upstream/android-13
 
 /**
  * wait_for_stable_page() - wait for writeback to finish, if necessary.
@@ -2948,7 +3611,12 @@ EXPORT_SYMBOL(mapping_tagged);
  */
 void wait_for_stable_page(struct page *page)
 {
+<<<<<<< HEAD
 	if (bdi_cap_stable_pages_required(inode_to_bdi(page->mapping->host)))
+=======
+	page = thp_head(page);
+	if (page->mapping->host->i_sb->s_iflags & SB_I_STABLE_WRITES)
+>>>>>>> upstream/android-13
 		wait_on_page_writeback(page);
 }
 EXPORT_SYMBOL_GPL(wait_for_stable_page);

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IPVS:        Least-Connection Scheduling module
  *
  * Authors:     Wensong Zhang <wensong@linuxvirtualserver.org>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
@@ -12,6 +17,11 @@
  *     Wensong Zhang            :     added the ip_vs_lc_update_svc
  *     Wensong Zhang            :     added any dest with weight=0 is quiesced
  *
+=======
+ * Changes:
+ *     Wensong Zhang            :     added the ip_vs_lc_update_svc
+ *     Wensong Zhang            :     added any dest with weight=0 is quiesced
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"

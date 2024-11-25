@@ -5,6 +5,7 @@
 #include <linux/sys.h>
 #include <linux/cache.h>
 #include <linux/syscalls.h>
+<<<<<<< HEAD
 #include <asm/asm-offsets.h>
 #include <asm/syscall.h>
 
@@ -27,5 +28,16 @@ asmlinkage const sys_call_ptr_t sys_call_table[__NR_syscall_max+1] = {
 	 * when the & below is removed.
 	 */
 	[0 ... __NR_syscall_max] = &__x64_sys_ni_syscall,
+=======
+#include <asm/syscall.h>
+
+#define __SYSCALL(nr, sym) extern long __x64_##sym(const struct pt_regs *);
+#include <asm/syscalls_64.h>
+#undef __SYSCALL
+
+#define __SYSCALL(nr, sym) __x64_##sym,
+
+asmlinkage const sys_call_ptr_t sys_call_table[] = {
+>>>>>>> upstream/android-13
 #include <asm/syscalls_64.h>
 };

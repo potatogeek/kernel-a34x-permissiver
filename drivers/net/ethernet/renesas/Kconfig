@@ -6,7 +6,11 @@
 config NET_VENDOR_RENESAS
 	bool "Renesas devices"
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -23,7 +27,11 @@ config SH_ETH
 	select MII
 	select MDIO_BITBANG
 	select PHYLIB
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Renesas SuperH Ethernet device driver.
 	  This driver supporting CPUs are:
 		- SH7619, SH7710, SH7712, SH7724, SH7734, SH7763, SH7757,
@@ -32,11 +40,18 @@ config SH_ETH
 config RAVB
 	tristate "Renesas Ethernet AVB support"
 	depends on ARCH_RENESAS || COMPILE_TEST
+<<<<<<< HEAD
+=======
+	depends on PTP_1588_CLOCK_OPTIONAL
+>>>>>>> upstream/android-13
 	select CRC32
 	select MII
 	select MDIO_BITBANG
 	select PHYLIB
+<<<<<<< HEAD
 	imply PTP_1588_CLOCK
+=======
+>>>>>>> upstream/android-13
 	help
 	  Renesas Ethernet AVB device driver.
 	  This driver supports the following SoCs:

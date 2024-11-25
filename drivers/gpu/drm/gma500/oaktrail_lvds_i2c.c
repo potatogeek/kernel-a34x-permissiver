@@ -23,10 +23,19 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/delay.h>
+#include <linux/i2c-algo-bit.h>
+#include <linux/i2c.h>
+#include <linux/init.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 #include <linux/init.h>
@@ -34,6 +43,9 @@
 #include <linux/delay.h>
 
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "psb_drv.h"
 #include "psb_intel_reg.h"
 
@@ -67,12 +79,20 @@
 static int get_clock(void *data)
 {
 	struct psb_intel_i2c_chan *chan = data;
+<<<<<<< HEAD
 	u32 val, tmp;
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 
 	val = LPC_READ_REG(chan, RGIO);
 	val |= GPIO_CLOCK;
 	LPC_WRITE_REG(chan, RGIO, val);
+<<<<<<< HEAD
 	tmp = LPC_READ_REG(chan, RGLVL);
+=======
+	LPC_READ_REG(chan, RGLVL);
+>>>>>>> upstream/android-13
 	val = (LPC_READ_REG(chan, RGLVL) & GPIO_CLOCK) ? 1 : 0;
 
 	return val;
@@ -81,12 +101,20 @@ static int get_clock(void *data)
 static int get_data(void *data)
 {
 	struct psb_intel_i2c_chan *chan = data;
+<<<<<<< HEAD
 	u32 val, tmp;
+=======
+	u32 val;
+>>>>>>> upstream/android-13
 
 	val = LPC_READ_REG(chan, RGIO);
 	val |= GPIO_DATA;
 	LPC_WRITE_REG(chan, RGIO, val);
+<<<<<<< HEAD
 	tmp = LPC_READ_REG(chan, RGLVL);
+=======
+	LPC_READ_REG(chan, RGLVL);
+>>>>>>> upstream/android-13
 	val = (LPC_READ_REG(chan, RGLVL) & GPIO_DATA) ? 1 : 0;
 
 	return val;
@@ -146,7 +174,11 @@ void oaktrail_lvds_i2c_init(struct drm_encoder *encoder)
 	strncpy(chan->adapter.name, "gma500 LPC",  I2C_NAME_SIZE - 1);
 	chan->adapter.owner = THIS_MODULE;
 	chan->adapter.algo_data = &chan->algo;
+<<<<<<< HEAD
 	chan->adapter.dev.parent = &dev->pdev->dev;
+=======
+	chan->adapter.dev.parent = dev->dev;
+>>>>>>> upstream/android-13
 	chan->algo.setsda = set_data;
 	chan->algo.setscl = set_clock;
 	chan->algo.getsda = get_data;

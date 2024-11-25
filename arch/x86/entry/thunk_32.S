@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Trampoline to trace irqs off. (otherwise CALLER_ADDR1 might crash)
  * Copyright 2008 by Steven Rostedt, Red Hat, Inc
  *  (inspired by Andi Kleen's thunk_64.S)
+<<<<<<< HEAD
  * Subject to the GNU public license, v.2. No warranty of any kind.
+=======
+>>>>>>> upstream/android-13
  */
 	#include <linux/linkage.h>
 	#include <asm/asm.h>
@@ -10,8 +17,12 @@
 
 	/* put return address in eax (arg1) */
 	.macro THUNK name, func, put_ret_addr_in_eax=0
+<<<<<<< HEAD
 	.globl \name
 \name:
+=======
+SYM_CODE_START_NOALIGN(\name)
+>>>>>>> upstream/android-13
 	pushl %eax
 	pushl %ecx
 	pushl %edx
@@ -25,6 +36,7 @@
 	popl %edx
 	popl %ecx
 	popl %eax
+<<<<<<< HEAD
 	ret
 	_ASM_NOKPROBE(\name)
 	.endm
@@ -39,5 +51,17 @@
 	THUNK ___preempt_schedule_notrace, preempt_schedule_notrace
 	EXPORT_SYMBOL(___preempt_schedule)
 	EXPORT_SYMBOL(___preempt_schedule_notrace)
+=======
+	RET
+	_ASM_NOKPROBE(\name)
+SYM_CODE_END(\name)
+	.endm
+
+#ifdef CONFIG_PREEMPTION
+	THUNK preempt_schedule_thunk, preempt_schedule
+	THUNK preempt_schedule_notrace_thunk, preempt_schedule_notrace
+	EXPORT_SYMBOL(preempt_schedule_thunk)
+	EXPORT_SYMBOL(preempt_schedule_notrace_thunk)
+>>>>>>> upstream/android-13
 #endif
 

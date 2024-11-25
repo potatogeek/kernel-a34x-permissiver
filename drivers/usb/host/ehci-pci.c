@@ -21,6 +21,12 @@ static const char hcd_name[] = "ehci-pci";
 /* defined here to avoid adding to pci_ids.h for single instance use */
 #define PCI_DEVICE_ID_INTEL_CE4100_USB	0x2e70
 
+<<<<<<< HEAD
+=======
+#define PCI_VENDOR_ID_ASPEED		0x1a03
+#define PCI_DEVICE_ID_ASPEED_EHCI	0x2603
+
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 #define PCI_DEVICE_ID_INTEL_QUARK_X1000_SOC		0x0939
 static inline bool is_intel_quark_x1000(struct pci_dev *pdev)
@@ -124,8 +130,12 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
 		case 0x005b:	/* CK804 */
 		case 0x00d8:	/* CK8 */
 		case 0x00e8:	/* CK8S */
+<<<<<<< HEAD
 			if (pci_set_consistent_dma_mask(pdev,
 						DMA_BIT_MASK(31)) < 0)
+=======
+			if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(31)) < 0)
+>>>>>>> upstream/android-13
 				ehci_warn(ehci, "can't enable NVidia "
 					"workaround for >2GB RAM\n");
 			break;
@@ -149,7 +159,11 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
 		break;
 	case PCI_VENDOR_ID_AMD:
 		/* AMD PLL quirk */
+<<<<<<< HEAD
 		if (usb_amd_find_chipset_info())
+=======
+		if (usb_amd_quirk_pll_check())
+>>>>>>> upstream/android-13
 			ehci->amd_pll_fix = 1;
 		/* AMD8111 EHCI doesn't work, according to AMD errata */
 		if (pdev->device == 0x7463) {
@@ -186,7 +200,11 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
 		break;
 	case PCI_VENDOR_ID_ATI:
 		/* AMD PLL quirk */
+<<<<<<< HEAD
 		if (usb_amd_find_chipset_info())
+=======
+		if (usb_amd_quirk_pll_check())
+>>>>>>> upstream/android-13
 			ehci->amd_pll_fix = 1;
 
 		/*
@@ -223,6 +241,15 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
 			ehci->has_synopsys_hc_bug = 1;
 		}
 		break;
+<<<<<<< HEAD
+=======
+	case PCI_VENDOR_ID_ASPEED:
+		if (pdev->device == PCI_DEVICE_ID_ASPEED_EHCI) {
+			ehci_info(ehci, "applying Aspeed HC workaround\n");
+			ehci->is_aspeed = 1;
+		}
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	/* optional debug port, normally in the first BAR */
@@ -298,6 +325,12 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
 	if (pdev->vendor == PCI_VENDOR_ID_STMICRO
 	    && pdev->device == PCI_DEVICE_ID_STMICRO_USB_HOST)
 		;	/* ConneXT has no sbrn register */
+<<<<<<< HEAD
+=======
+	else if (pdev->vendor == PCI_VENDOR_ID_HUAWEI
+			 && pdev->device == 0xa239)
+		;	/* HUAWEI Kunpeng920 USB EHCI has no sbrn register */
+>>>>>>> upstream/android-13
 	else
 		pci_read_config_byte(pdev, 0x60, &ehci->sbrn);
 
@@ -367,23 +400,36 @@ static int ehci_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	if (is_bypassed_id(pdev))
 		return -ENODEV;
+<<<<<<< HEAD
 	return usb_hcd_pci_probe(pdev, id);
+=======
+	return usb_hcd_pci_probe(pdev, id, &ehci_pci_hc_driver);
+>>>>>>> upstream/android-13
 }
 
 static void ehci_pci_remove(struct pci_dev *pdev)
 {
 	pci_clear_mwi(pdev);
+<<<<<<< HEAD
 	usb_hcd_pci_remove(pdev);	
+=======
+	usb_hcd_pci_remove(pdev);
+>>>>>>> upstream/android-13
 }
 
 /* PCI driver selection metadata; PCI hotplugging uses this */
 static const struct pci_device_id pci_ids [] = { {
 	/* handle any USB 2.0 EHCI controller */
 	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_EHCI, ~0),
+<<<<<<< HEAD
 	.driver_data =	(unsigned long) &ehci_pci_hc_driver,
 	}, {
 	PCI_VDEVICE(STMICRO, PCI_DEVICE_ID_STMICRO_USB_HOST),
 	.driver_data = (unsigned long) &ehci_pci_hc_driver,
+=======
+	}, {
+	PCI_VDEVICE(STMICRO, PCI_DEVICE_ID_STMICRO_USB_HOST),
+>>>>>>> upstream/android-13
 	},
 	{ /* end: all zeroes */ }
 };
@@ -391,7 +437,11 @@ MODULE_DEVICE_TABLE(pci, pci_ids);
 
 /* pci driver glue; this is a "new style" PCI driver module */
 static struct pci_driver ehci_pci_driver = {
+<<<<<<< HEAD
 	.name =		(char *) hcd_name,
+=======
+	.name =		hcd_name,
+>>>>>>> upstream/android-13
 	.id_table =	pci_ids,
 
 	.probe =	ehci_pci_probe,

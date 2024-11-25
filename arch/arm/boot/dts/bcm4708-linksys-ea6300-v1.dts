@@ -16,6 +16,7 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
+<<<<<<< HEAD
 	memory {
 		reg = <0x00000000 0x08000000>;
 	};
@@ -24,6 +25,20 @@
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
+=======
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00000000 0x08000000>;
+	};
+
+	nvram@1c080000 {
+		compatible = "brcm,nvram";
+		reg = <0x1c080000 0x180000>;
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+>>>>>>> upstream/android-13
 
 		wps {
 			label = "WPS";

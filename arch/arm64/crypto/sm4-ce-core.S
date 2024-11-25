@@ -15,7 +15,11 @@
 	 * void sm4_ce_do_crypt(const u32 *rk, u32 *out, const u32 *in);
 	 */
 	.text
+<<<<<<< HEAD
 ENTRY(sm4_ce_do_crypt)
+=======
+SYM_FUNC_START(sm4_ce_do_crypt)
+>>>>>>> upstream/android-13
 	ld1		{v8.4s}, [x2]
 	ld1		{v0.4s-v3.4s}, [x0], #64
 CPU_LE(	rev32		v8.16b, v8.16b		)
@@ -33,4 +37,8 @@ CPU_LE(	rev32		v8.16b, v8.16b		)
 CPU_LE(	rev32		v8.16b, v8.16b		)
 	st1		{v8.4s}, [x1]
 	ret
+<<<<<<< HEAD
 ENDPROC(sm4_ce_do_crypt)
+=======
+SYM_FUNC_END(sm4_ce_do_crypt)
+>>>>>>> upstream/android-13

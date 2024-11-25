@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -59,6 +60,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_sta_h__
 #define __iwl_fw_api_sta_h__
 
@@ -126,7 +135,13 @@ enum iwl_sta_flags {
 	STA_FLG_MAX_AGG_SIZE_256K	= (5 << STA_FLG_MAX_AGG_SIZE_SHIFT),
 	STA_FLG_MAX_AGG_SIZE_512K	= (6 << STA_FLG_MAX_AGG_SIZE_SHIFT),
 	STA_FLG_MAX_AGG_SIZE_1024K	= (7 << STA_FLG_MAX_AGG_SIZE_SHIFT),
+<<<<<<< HEAD
 	STA_FLG_MAX_AGG_SIZE_MSK	= (7 << STA_FLG_MAX_AGG_SIZE_SHIFT),
+=======
+	STA_FLG_MAX_AGG_SIZE_2M		= (8 << STA_FLG_MAX_AGG_SIZE_SHIFT),
+	STA_FLG_MAX_AGG_SIZE_4M		= (9 << STA_FLG_MAX_AGG_SIZE_SHIFT),
+	STA_FLG_MAX_AGG_SIZE_MSK	= (0xf << STA_FLG_MAX_AGG_SIZE_SHIFT),
+>>>>>>> upstream/android-13
 
 	STA_FLG_AGG_MPDU_DENS_SHIFT	= 23,
 	STA_FLG_AGG_MPDU_DENS_2US	= (4 << STA_FLG_AGG_MPDU_DENS_SHIFT),
@@ -243,6 +258,7 @@ enum iwl_sta_sleep_flag {
 #define STA_KEY_LEN_WEP40 (5)
 #define STA_KEY_LEN_WEP104 (13)
 
+<<<<<<< HEAD
 /**
  * struct iwl_mvm_keyinfo - key information
  * @key_flags: type &enum iwl_sta_key_flag
@@ -269,6 +285,8 @@ struct iwl_mvm_keyinfo {
 	__le64 hw_tkip_mic_tx_key;
 } __packed;
 
+=======
+>>>>>>> upstream/android-13
 #define IWL_ADD_STA_STATUS_MASK		0xFF
 #define IWL_ADD_STA_BAID_VALID_MASK	0x8000
 #define IWL_ADD_STA_BAID_MASK		0x7F00
@@ -286,8 +304,12 @@ struct iwl_mvm_keyinfo {
  * @addr: station's MAC address
  * @reserved2: reserved
  * @sta_id: index of station in uCode's station table
+<<<<<<< HEAD
  * @modify_mask: STA_MODIFY_*, selects which parameters to modify vs. leave
  *	alone. 1 - modify, 0 - don't change.
+=======
+ * @modify_mask: from &enum iwl_sta_modify_flag, selects what to change
+>>>>>>> upstream/android-13
  * @reserved3: reserved
  * @station_flags: look at &enum iwl_sta_flags
  * @station_flags_msk: what of %station_flags have changed,
@@ -367,8 +389,12 @@ enum iwl_sta_type {
  * @addr: station's MAC address
  * @reserved2: reserved
  * @sta_id: index of station in uCode's station table
+<<<<<<< HEAD
  * @modify_mask: STA_MODIFY_*, selects which parameters to modify vs. leave
  *	alone. 1 - modify, 0 - don't change.
+=======
+ * @modify_mask: from &enum iwl_sta_modify_flag, selects what to change
+>>>>>>> upstream/android-13
  * @reserved3: reserved
  * @station_flags: look at &enum iwl_sta_flags
  * @station_flags_msk: what of %station_flags have changed,
@@ -391,7 +417,11 @@ enum iwl_sta_type {
  * @tfd_queue_msk: tfd queues used by this station.
  *	Obselete for new TX API (9 and above).
  * @rx_ba_window: aggregation window size
+<<<<<<< HEAD
  * @sp_length: the size of the SP as it appears in the WME IE
+=======
+ * @sp_length: the size of the SP in actual number of frames
+>>>>>>> upstream/android-13
  * @uapsd_acs:  4 LS bits are trigger enabled ACs, 4 MS bits are the deliver
  *	enabled ACs.
  *
@@ -406,7 +436,11 @@ struct iwl_mvm_add_sta_cmd {
 	u8 add_modify;
 	u8 awake_acs;
 	__le16 tid_disable_tx;
+<<<<<<< HEAD
 	__le32 mac_id_n_color;
+=======
+	__le32 mac_id_n_color;  /* can be used for lmac id when using cmd v12 */
+>>>>>>> upstream/android-13
 	u8 addr[ETH_ALEN];	/* _STA_ID_MODIFY_INFO_API_S_VER_1 */
 	__le16 reserved2;
 	u8 sta_id;
@@ -465,13 +499,24 @@ struct iwl_mvm_add_sta_key_cmd_v1 {
  * @rx_mic_key: TKIP RX unicast or multicast key
  * @tx_mic_key: TKIP TX key
  * @transmit_seq_cnt: TSC, transmit packet number
+<<<<<<< HEAD
+=======
+ *
+ * Note: This is used for both v2 and v3, the difference being
+ * in the way the common.rx_secur_seq_cnt is used, in v2 that's
+ * the strange hole format, in v3 it's just a u64.
+>>>>>>> upstream/android-13
  */
 struct iwl_mvm_add_sta_key_cmd {
 	struct iwl_mvm_add_sta_key_common common;
 	__le64 rx_mic_key;
 	__le64 tx_mic_key;
 	__le64 transmit_seq_cnt;
+<<<<<<< HEAD
 } __packed; /* ADD_MODIFY_STA_KEY_API_S_VER_2 */
+=======
+} __packed; /* ADD_MODIFY_STA_KEY_API_S_VER_2, ADD_MODIFY_STA_KEY_API_S_VER_3 */
+>>>>>>> upstream/android-13
 
 /**
  * enum iwl_mvm_add_sta_rsp_status - status in the response to ADD_STA command

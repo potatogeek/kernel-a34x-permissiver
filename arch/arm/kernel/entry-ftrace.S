@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 
 #include <asm/assembler.h>
 #include <asm/ftrace.h>
@@ -15,6 +19,7 @@
  * start of every function.  In mcount, apart from the function's address (in
  * lr), we need to get hold of the function's caller's address.
  *
+<<<<<<< HEAD
  * Older GCCs (pre-4.4) inserted a call to a routine called mcount like this:
  *
  *	bl	mcount
@@ -32,6 +37,10 @@
  *
  * Newer GCCs (4.4+) solve this problem by introducing a new version of mcount,
  * with call sites like:
+=======
+ * Newer GCCs (4.4+) solve this problem by using a version of mcount with call
+ * sites like:
+>>>>>>> upstream/android-13
  *
  *	push	{lr}
  *	bl	__gnu_mcount_nc
@@ -41,6 +50,7 @@
  * mcount can be thought of as a function called in the middle of a subroutine
  * call.  As such, it needs to be transparent for both the caller and the
  * callee: the original lr needs to be restored when leaving mcount, and no
+<<<<<<< HEAD
  * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
  * clobber the ip register.  This is OK because the ARM calling convention
  * allows it to be clobbered in subroutines and doesn't use it to hold
@@ -57,6 +67,14 @@
 #endif
 #endif
 
+=======
+ * registers should be clobbered.
+ *
+ * When using dynamic ftrace, we patch out the mcount call by a "pop {lr}"
+ * instead of the __gnu_mcount_nc call (see arch/arm/kernel/ftrace.c).
+ */
+
+>>>>>>> upstream/android-13
 .macro mcount_adjust_addr rd, rn
 	bic	\rd, \rn, #1		@ clear the Thumb bit if present
 	sub	\rd, \rd, #MCOUNT_INSN_SIZE
@@ -96,6 +114,7 @@
 
 .macro __ftrace_regs_caller
 
+<<<<<<< HEAD
 	sub	sp, sp, #8	@ space for PC and CPSR OLD_R0,
 				@ OLD_R0 will overwrite previous LR
 
@@ -116,6 +135,27 @@
 	@ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
 
 	mov r3, sp				@ struct pt_regs*
+=======
+	str	lr, [sp, #-8]!	@ store LR as PC and make space for CPSR/OLD_R0,
+				@ OLD_R0 will overwrite previous LR
+
+	ldr	lr, [sp, #8]    @ get previous LR
+
+	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
+
+	str	lr, [sp, #-4]!	@ store previous LR as LR
+
+	add 	lr, sp, #16	@ move in LR the value of SP as it was
+				@ before the push {lr} of the mcount mechanism
+
+	push	{r0-r11, ip, lr}
+
+	@ stack content at this point:
+	@ 0  4          48   52       56            60   64    68       72
+	@ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
+
+	mov	r3, sp				@ struct pt_regs*
+>>>>>>> upstream/android-13
 
 	ldr r2, =function_trace_op
 	ldr r2, [r2]				@ pointer to the current
@@ -138,11 +178,17 @@ ftrace_graph_regs_call:
 #endif
 
 	@ pop saved regs
+<<<<<<< HEAD
 	ldmia   sp!, {r0-r12}			@ restore r0 through r12
 	ldr	ip, [sp, #8]			@ restore PC
 	ldr	lr, [sp, #4]			@ restore LR
 	ldr	sp, [sp, #0]			@ restore SP
 	mov	pc, ip				@ return
+=======
+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
+	ldr	lr, [sp], #4			@ restore LR
+	ldr	pc, [sp], #12
+>>>>>>> upstream/android-13
 .endm
 
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
@@ -158,11 +204,17 @@ ftrace_graph_regs_call:
 	bl	prepare_ftrace_return
 
 	@ pop registers saved in ftrace_regs_caller
+<<<<<<< HEAD
 	ldmia   sp!, {r0-r12}			@ restore r0 through r12
 	ldr	ip, [sp, #8]			@ restore PC
 	ldr	lr, [sp, #4]			@ restore LR
 	ldr	sp, [sp, #0]			@ restore SP
 	mov	pc, ip				@ return
+=======
+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
+	ldr	lr, [sp], #4			@ restore LR
+	ldr	pc, [sp], #12
+>>>>>>> upstream/android-13
 
 .endm
 #endif
@@ -209,6 +261,7 @@ ftrace_graph_call\suffix:
 	mcount_exit
 .endm
 
+<<<<<<< HEAD
 #ifdef CONFIG_OLD_MCOUNT
 /*
  * mcount
@@ -254,6 +307,8 @@ ENDPROC(ftrace_graph_caller_old)
 .purgem mcount_exit
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * __gnu_mcount_nc
  */
@@ -273,16 +328,28 @@ ENDPROC(ftrace_graph_caller_old)
 .endm
 
 .macro mcount_exit
+<<<<<<< HEAD
 	ldmia	sp!, {r0-r3, ip, lr}
 	ret	ip
+=======
+	ldmia	sp!, {r0-r3}
+	ldr	lr, [sp, #4]
+	ldr	pc, [sp], #8
+>>>>>>> upstream/android-13
 .endm
 
 ENTRY(__gnu_mcount_nc)
 UNWIND(.fnstart)
 #ifdef CONFIG_DYNAMIC_FTRACE
+<<<<<<< HEAD
 	mov	ip, lr
 	ldmia	sp!, {lr}
 	ret	ip
+=======
+	push	{lr}
+	ldr	lr, [sp, #4]
+	ldr	pc, [sp], #8
+>>>>>>> upstream/android-13
 #else
 	__mcount
 #endif

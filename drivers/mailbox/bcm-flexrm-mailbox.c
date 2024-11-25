@@ -296,8 +296,11 @@ struct flexrm_mbox {
 	struct dma_pool *bd_pool;
 	struct dma_pool *cmpl_pool;
 	struct dentry *root;
+<<<<<<< HEAD
 	struct dentry *config;
 	struct dentry *stats;
+=======
+>>>>>>> upstream/android-13
 	struct mbox_controller controller;
 };
 
@@ -375,7 +378,11 @@ static u32 flexrm_estimate_header_desc_count(u32 nhcnt)
 	return hcnt;
 }
 
+<<<<<<< HEAD
 static void flexrm_flip_header_toogle(void *desc_ptr)
+=======
+static void flexrm_flip_header_toggle(void *desc_ptr)
+>>>>>>> upstream/android-13
 {
 	u64 desc = flexrm_read_desc(desc_ptr);
 
@@ -425,7 +432,11 @@ static void flexrm_enqueue_desc(u32 nhpos, u32 nhcnt, u32 reqid,
 	 *
 	 * In general use, number of non-HEADER descriptors can easily go
 	 * beyond 31. To tackle this situation, we have packet (or request)
+<<<<<<< HEAD
 	 * extenstion bits (STARTPKT and ENDPKT) in the HEADER descriptor.
+=======
+	 * extension bits (STARTPKT and ENDPKT) in the HEADER descriptor.
+>>>>>>> upstream/android-13
 	 *
 	 * To use packet extension, the first HEADER descriptor of request
 	 * (or packet) will have STARTPKT=1 and ENDPKT=0. The intermediate
@@ -709,7 +720,11 @@ static void *flexrm_spu_write_descs(struct brcm_message *msg, u32 nhcnt,
 	wmb();
 
 	/* Flip toggle bit in header */
+<<<<<<< HEAD
 	flexrm_flip_header_toogle(orig_desc_ptr);
+=======
+	flexrm_flip_header_toggle(orig_desc_ptr);
+>>>>>>> upstream/android-13
 
 	return desc_ptr;
 }
@@ -838,7 +853,11 @@ static void *flexrm_sba_write_descs(struct brcm_message *msg, u32 nhcnt,
 	wmb();
 
 	/* Flip toggle bit in header */
+<<<<<<< HEAD
 	flexrm_flip_header_toogle(orig_desc_ptr);
+=======
+	flexrm_flip_header_toggle(orig_desc_ptr);
+>>>>>>> upstream/android-13
 
 	return desc_ptr;
 }
@@ -1097,7 +1116,11 @@ static int flexrm_process_completions(struct flexrm_ring *ring)
 	/*
 	 * Get current completion read and write offset
 	 *
+<<<<<<< HEAD
 	 * Note: We should read completion write pointer atleast once
+=======
+	 * Note: We should read completion write pointer at least once
+>>>>>>> upstream/android-13
 	 * after we get a MSI interrupt because HW maintains internal
 	 * MSI status which will allow next MSI interrupt only after
 	 * completion write pointer is read.
@@ -1165,8 +1188,12 @@ static int flexrm_process_completions(struct flexrm_ring *ring)
 
 static int flexrm_debugfs_conf_show(struct seq_file *file, void *offset)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(file->private);
 	struct flexrm_mbox *mbox = platform_get_drvdata(pdev);
+=======
+	struct flexrm_mbox *mbox = dev_get_drvdata(file->private);
+>>>>>>> upstream/android-13
 
 	/* Write config in file */
 	flexrm_write_config_in_seqfile(mbox, file);
@@ -1176,8 +1203,12 @@ static int flexrm_debugfs_conf_show(struct seq_file *file, void *offset)
 
 static int flexrm_debugfs_stats_show(struct seq_file *file, void *offset)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(file->private);
 	struct flexrm_mbox *mbox = platform_get_drvdata(pdev);
+=======
+	struct flexrm_mbox *mbox = dev_get_drvdata(file->private);
+>>>>>>> upstream/android-13
 
 	/* Write stats in file */
 	flexrm_write_stats_in_seqfile(mbox, file);
@@ -1527,7 +1558,10 @@ static int flexrm_mbox_probe(struct platform_device *pdev)
 	mbox->regs = devm_ioremap_resource(&pdev->dev, iomem);
 	if (IS_ERR(mbox->regs)) {
 		ret = PTR_ERR(mbox->regs);
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to remap mailbox regs: %d\n", ret);
+=======
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 	regs_end = mbox->regs + resource_size(iomem);
@@ -1624,6 +1658,7 @@ static int flexrm_mbox_probe(struct platform_device *pdev)
 
 	/* Create debugfs root entry */
 	mbox->root = debugfs_create_dir(dev_name(mbox->dev), NULL);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(mbox->root)) {
 		ret = PTR_ERR_OR_ZERO(mbox->root);
 		goto fail_free_msis;
@@ -1646,6 +1681,17 @@ static int flexrm_mbox_probe(struct platform_device *pdev)
 		ret = PTR_ERR_OR_ZERO(mbox->stats);
 		goto fail_free_debugfs_root;
 	}
+=======
+
+	/* Create debugfs config entry */
+	debugfs_create_devm_seqfile(mbox->dev, "config", mbox->root,
+				    flexrm_debugfs_conf_show);
+
+	/* Create debugfs stats entry */
+	debugfs_create_devm_seqfile(mbox->dev, "stats", mbox->root,
+				    flexrm_debugfs_stats_show);
+
+>>>>>>> upstream/android-13
 skip_debugfs:
 
 	/* Initialize mailbox controller */
@@ -1665,7 +1711,11 @@ skip_debugfs:
 		mbox->controller.chans[index].con_priv = &mbox->rings[index];
 
 	/* Register mailbox controller */
+<<<<<<< HEAD
 	ret = mbox_controller_register(&mbox->controller);
+=======
+	ret = devm_mbox_controller_register(dev, &mbox->controller);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto fail_free_debugfs_root;
 
@@ -1676,7 +1726,10 @@ skip_debugfs:
 
 fail_free_debugfs_root:
 	debugfs_remove_recursive(mbox->root);
+<<<<<<< HEAD
 fail_free_msis:
+=======
+>>>>>>> upstream/android-13
 	platform_msi_domain_free_irqs(dev);
 fail_destroy_cmpl_pool:
 	dma_pool_destroy(mbox->cmpl_pool);
@@ -1691,8 +1744,11 @@ static int flexrm_mbox_remove(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct flexrm_mbox *mbox = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	mbox_controller_unregister(&mbox->controller);
 
+=======
+>>>>>>> upstream/android-13
 	debugfs_remove_recursive(mbox->root);
 
 	platform_msi_domain_free_irqs(dev);

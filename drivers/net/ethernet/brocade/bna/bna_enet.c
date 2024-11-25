@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Linux network driver for QLogic BR-series Converged Network Adapter.
  *
@@ -9,6 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Linux network driver for QLogic BR-series Converged Network Adapter.
+>>>>>>> upstream/android-13
  */
 /*
  * Copyright (c) 2005-2014 Brocade Communications Systems, Inc.
@@ -1092,7 +1098,11 @@ bna_enet_sm_cfg_wait(struct bna_enet *enet,
 
 	case ENET_E_CHLD_STOPPED:
 		bna_enet_rx_start(enet);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ENET_E_FWRESP_PAUSE:
 		if (enet->flags & BNA_ENET_F_PAUSE_CHANGED) {
 			enet->flags &= ~BNA_ENET_F_PAUSE_CHANGED;
@@ -1797,7 +1807,11 @@ bna_ucam_mod_init(struct bna_ucam_mod *ucam_mod, struct bna *bna,
 
 	/* A separate queue to allow synchronous setting of a list of MACs */
 	INIT_LIST_HEAD(&ucam_mod->del_q);
+<<<<<<< HEAD
 	for (i = i; i < (bna->ioceth.attr.num_ucmac * 2); i++)
+=======
+	for (; i < (bna->ioceth.attr.num_ucmac * 2); i++)
+>>>>>>> upstream/android-13
 		list_add_tail(&ucam_mod->ucmac[i].qe, &ucam_mod->del_q);
 
 	ucam_mod->bna = bna;
@@ -1832,7 +1846,11 @@ bna_mcam_mod_init(struct bna_mcam_mod *mcam_mod, struct bna *bna,
 
 	/* A separate queue to allow synchronous setting of a list of MACs */
 	INIT_LIST_HEAD(&mcam_mod->del_q);
+<<<<<<< HEAD
 	for (i = i; i < (bna->ioceth.attr.num_mcmac * 2); i++)
+=======
+	for (; i < (bna->ioceth.attr.num_mcmac * 2); i++)
+>>>>>>> upstream/android-13
 		list_add_tail(&mcam_mod->mcmac[i].qe, &mcam_mod->del_q);
 
 	mcam_mod->bna = bna;

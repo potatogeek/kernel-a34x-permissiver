@@ -2,6 +2,11 @@
 #ifndef _ASM_POWERPC_BOOK3S_64_MMU_H_
 #define _ASM_POWERPC_BOOK3S_64_MMU_H_
 
+<<<<<<< HEAD
+=======
+#include <asm/page.h>
+
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLY__
 /*
  * Page size definition
@@ -17,13 +22,20 @@ struct mmu_psize_def {
 	int		penc[MMU_PAGE_COUNT];	/* HPTE encoding */
 	unsigned int	tlbiel;	/* tlbiel supported for that page size */
 	unsigned long	avpnm;	/* bits to mask out in AVPN in the HPTE */
+<<<<<<< HEAD
+=======
+	unsigned long   h_rpt_pgsize; /* H_RPT_INVALIDATE page size encoding */
+>>>>>>> upstream/android-13
 	union {
 		unsigned long	sllp;	/* SLB L||LP (exact mask to use in slbmte) */
 		unsigned long ap;	/* Ap encoding used by PowerISA 3.0 */
 	};
 };
 extern struct mmu_psize_def mmu_psize_defs[MMU_PAGE_COUNT];
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 /* 64-bit classic hash table MMU */
@@ -66,6 +78,14 @@ extern unsigned int mmu_pid_bits;
 /* Base PID to allocate from */
 extern unsigned int mmu_base_pid;
 
+<<<<<<< HEAD
+=======
+/*
+ * memory block size used with radix translation.
+ */
+extern unsigned long __ro_after_init radix_mem_block_size;
+
+>>>>>>> upstream/android-13
 #define PRTB_SIZE_SHIFT	(mmu_pid_bits + 4)
 #define PRTB_ENTRIES	(1ul << mmu_pid_bits)
 
@@ -80,6 +100,7 @@ struct spinlock;
 /* Maximum possible number of NPUs in a system. */
 #define NV_MAX_NPUS 8
 
+<<<<<<< HEAD
 /*
  * One bit per slice. We have lower slices which cover 256MB segments
  * upto 4G range. That gets us 16 low slices. For the rest we track slices
@@ -90,6 +111,8 @@ struct slice_mask {
 	DECLARE_BITMAP(high_slices, SLICE_NUM_HIGH);
 };
 
+=======
+>>>>>>> upstream/android-13
 typedef struct {
 	union {
 		/*
@@ -103,7 +126,10 @@ typedef struct {
 		mm_context_id_t id;
 		mm_context_id_t extended_id[TASK_SIZE_USER64/TASK_CONTEXT_SIZE];
 	};
+<<<<<<< HEAD
 	u16 user_psize;		/* page size index */
+=======
+>>>>>>> upstream/android-13
 
 	/* Number of bits in the mm_cpumask */
 	atomic_t active_cpus;
@@ -111,6 +137,7 @@ typedef struct {
 	/* Number of users of the external (Nest) MMU */
 	atomic_t copros;
 
+<<<<<<< HEAD
 	/* NPU NMMU context */
 	struct npu_context *npu_context;
 
@@ -134,6 +161,14 @@ typedef struct {
 #ifdef CONFIG_PPC_SUBPAGE_PROT
 	struct subpage_prot_table spt;
 #endif /* CONFIG_PPC_SUBPAGE_PROT */
+=======
+	/* Number of user space windows opened in process mm_context */
+	atomic_t vas_windows;
+
+	struct hash_mm_context *hash_context;
+
+	void __user *vdso;
+>>>>>>> upstream/android-13
 	/*
 	 * pagetable fragment support
 	 */
@@ -154,6 +189,63 @@ typedef struct {
 #endif
 } mm_context_t;
 
+<<<<<<< HEAD
+=======
+static inline u16 mm_ctx_user_psize(mm_context_t *ctx)
+{
+	return ctx->hash_context->user_psize;
+}
+
+static inline void mm_ctx_set_user_psize(mm_context_t *ctx, u16 user_psize)
+{
+	ctx->hash_context->user_psize = user_psize;
+}
+
+static inline unsigned char *mm_ctx_low_slices(mm_context_t *ctx)
+{
+	return ctx->hash_context->low_slices_psize;
+}
+
+static inline unsigned char *mm_ctx_high_slices(mm_context_t *ctx)
+{
+	return ctx->hash_context->high_slices_psize;
+}
+
+static inline unsigned long mm_ctx_slb_addr_limit(mm_context_t *ctx)
+{
+	return ctx->hash_context->slb_addr_limit;
+}
+
+static inline void mm_ctx_set_slb_addr_limit(mm_context_t *ctx, unsigned long limit)
+{
+	ctx->hash_context->slb_addr_limit = limit;
+}
+
+static inline struct slice_mask *slice_mask_for_size(mm_context_t *ctx, int psize)
+{
+#ifdef CONFIG_PPC_64K_PAGES
+	if (psize == MMU_PAGE_64K)
+		return &ctx->hash_context->mask_64k;
+#endif
+#ifdef CONFIG_HUGETLB_PAGE
+	if (psize == MMU_PAGE_16M)
+		return &ctx->hash_context->mask_16m;
+	if (psize == MMU_PAGE_16G)
+		return &ctx->hash_context->mask_16g;
+#endif
+	BUG_ON(psize != MMU_PAGE_4K);
+
+	return &ctx->hash_context->mask_4k;
+}
+
+#ifdef CONFIG_PPC_SUBPAGE_PROT
+static inline struct subpage_prot_table *mm_ctx_subpage_prot(mm_context_t *ctx)
+{
+	return ctx->hash_context->spt;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * The current system page and segment sizes
  */
@@ -167,10 +259,22 @@ extern int mmu_io_psize;
 void mmu_early_init_devtree(void);
 void hash__early_init_devtree(void);
 void radix__early_init_devtree(void);
+<<<<<<< HEAD
 extern void radix_init_native(void);
 extern void hash__early_init_mmu(void);
 extern void radix__early_init_mmu(void);
 static inline void early_init_mmu(void)
+=======
+#ifdef CONFIG_PPC_PKEY
+void pkey_early_init_devtree(void);
+#else
+static inline void pkey_early_init_devtree(void) {}
+#endif
+
+extern void hash__early_init_mmu(void);
+extern void radix__early_init_mmu(void);
+static inline void __init early_init_mmu(void)
+>>>>>>> upstream/android-13
 {
 	if (radix_enabled())
 		return radix__early_init_mmu();
@@ -187,6 +291,7 @@ static inline void early_init_mmu_secondary(void)
 
 extern void hash__setup_initial_memory_limit(phys_addr_t first_memblock_base,
 					 phys_addr_t first_memblock_size);
+<<<<<<< HEAD
 extern void radix__setup_initial_memory_limit(phys_addr_t first_memblock_base,
 					 phys_addr_t first_memblock_size);
 static inline void setup_initial_memory_limit(phys_addr_t first_memblock_base,
@@ -195,10 +300,21 @@ static inline void setup_initial_memory_limit(phys_addr_t first_memblock_base,
 	if (early_radix_enabled())
 		return radix__setup_initial_memory_limit(first_memblock_base,
 						   first_memblock_size);
+=======
+static inline void setup_initial_memory_limit(phys_addr_t first_memblock_base,
+					      phys_addr_t first_memblock_size)
+{
+	/*
+	 * Hash has more strict restrictions. At this point we don't
+	 * know which translations we will pick. Hence go with hash
+	 * restrictions.
+	 */
+>>>>>>> upstream/android-13
 	return hash__setup_initial_memory_limit(first_memblock_base,
 					   first_memblock_size);
 }
 
+<<<<<<< HEAD
 extern int (*register_process_table)(unsigned long base, unsigned long page_size,
 				     unsigned long tbl_size);
 
@@ -209,6 +325,27 @@ static inline void radix_init_pseries(void) { };
 #endif
 
 static inline int get_ea_context(mm_context_t *ctx, unsigned long ea)
+=======
+#ifdef CONFIG_PPC_PSERIES
+extern void radix_init_pseries(void);
+#else
+static inline void radix_init_pseries(void) { }
+#endif
+
+#ifdef CONFIG_HOTPLUG_CPU
+#define arch_clear_mm_cpumask_cpu(cpu, mm)				\
+	do {								\
+		if (cpumask_test_cpu(cpu, mm_cpumask(mm))) {		\
+			atomic_dec(&(mm)->context.active_cpus);		\
+			cpumask_clear_cpu(cpu, mm_cpumask(mm));		\
+		}							\
+	} while (0)
+
+void cleanup_cpu_mmu_context(void);
+#endif
+
+static inline int get_user_context(mm_context_t *ctx, unsigned long ea)
+>>>>>>> upstream/android-13
 {
 	int index = ea >> MAX_EA_BITS_PER_CONTEXT;
 
@@ -223,7 +360,11 @@ static inline int get_ea_context(mm_context_t *ctx, unsigned long ea)
 static inline unsigned long get_user_vsid(mm_context_t *ctx,
 					  unsigned long ea, int ssize)
 {
+<<<<<<< HEAD
 	unsigned long context = get_ea_context(ctx, ea);
+=======
+	unsigned long context = get_user_context(ctx, ea);
+>>>>>>> upstream/android-13
 
 	return get_vsid(context, ea, ssize);
 }

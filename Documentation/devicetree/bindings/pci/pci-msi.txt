@@ -201,7 +201,11 @@ Example (5)
 		#msi-cells = <1>;
 	};
 
+<<<<<<< HEAD
 	pci: pci@c {
+=======
+	pci: pci@f {
+>>>>>>> upstream/android-13
 		reg = <0xf 0x1>;
 		compatible = "vendor,pcie-root-complex";
 		device_type = "pci";

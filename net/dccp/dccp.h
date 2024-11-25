@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _DCCP_H
 #define _DCCP_H
 /*
@@ -6,10 +10,13 @@
  *  An implementation of the DCCP protocol
  *  Copyright (c) 2005 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *  Copyright (c) 2005-6 Ian McDonald <ian.mcdonald@jandi.co.nz>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License version 2 as
  *	published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dccp.h>
@@ -44,14 +51,24 @@ extern bool dccp_debug;
 #define dccp_pr_debug_cat(format, a...)   DCCP_PRINTK(dccp_debug, format, ##a)
 #define dccp_debug(fmt, a...)		  dccp_pr_debug_cat(KERN_DEBUG fmt, ##a)
 #else
+<<<<<<< HEAD
 #define dccp_pr_debug(format, a...)
 #define dccp_pr_debug_cat(format, a...)
 #define dccp_debug(format, a...)
+=======
+#define dccp_pr_debug(format, a...)	  do {} while (0)
+#define dccp_pr_debug_cat(format, a...)	  do {} while (0)
+#define dccp_debug(format, a...)	  do {} while (0)
+>>>>>>> upstream/android-13
 #endif
 
 extern struct inet_hashinfo dccp_hashinfo;
 
+<<<<<<< HEAD
 extern struct percpu_counter dccp_orphan_count;
+=======
+DECLARE_PER_CPU(unsigned int, dccp_orphan_count);
+>>>>>>> upstream/android-13
 
 void dccp_time_wait(struct sock *sk, int state, int timeo);
 
@@ -111,11 +128,14 @@ extern int  sysctl_dccp_sync_ratelimit;
 #define ADD48(a, b)	 (((a) + (b)) & UINT48_MAX)
 #define SUB48(a, b)	 ADD48((a), COMPLEMENT48(b))
 
+<<<<<<< HEAD
 static inline void dccp_set_seqno(u64 *seqno, u64 value)
 {
 	*seqno = value & UINT48_MAX;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void dccp_inc_seqno(u64 *seqno)
 {
 	*seqno = ADD48(*seqno, 1);
@@ -303,6 +323,7 @@ int dccp_disconnect(struct sock *sk, int flags);
 int dccp_getsockopt(struct sock *sk, int level, int optname,
 		    char __user *optval, int __user *optlen);
 int dccp_setsockopt(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 		    char __user *optval, unsigned int optlen);
 #ifdef CONFIG_COMPAT
 int compat_dccp_getsockopt(struct sock *sk, int level, int optname,
@@ -310,6 +331,9 @@ int compat_dccp_getsockopt(struct sock *sk, int level, int optname,
 int compat_dccp_setsockopt(struct sock *sk, int level, int optname,
 			   char __user *optval, unsigned int optlen);
 #endif
+=======
+		    sockptr_t optval, unsigned int optlen);
+>>>>>>> upstream/android-13
 int dccp_ioctl(struct sock *sk, int cmd, unsigned long arg);
 int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t size);
 int dccp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int nonblock,

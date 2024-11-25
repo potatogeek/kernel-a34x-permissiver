@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-footbridge/common.c
  *
  *  Copyright (C) 1998-2000 Russell King, Dave Gilbert.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/types.h>
@@ -17,7 +24,10 @@
 #include <linux/spinlock.h>
 #include <video/vga.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/irq.h>
 #include <asm/mach-types.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * File:         sound/soc/codec/ad73311.h
  * Based on:
@@ -6,11 +10,15 @@
  * Created:      Thur Sep 25, 2008
  * Description:  definitions for AD73311 registers
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Modified:
  *               Copyright 2006 Analog Devices Inc.
  *
  * Bugs:         Enter bugs at http://blackfin.uclinux.org/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +34,8 @@
  * along with this program; if not, see the file COPYING, or write
  * to the Free Software Foundation, Inc.,
  * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AD73311_H__

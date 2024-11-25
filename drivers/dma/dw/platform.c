@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Platform driver for the Synopsys DesignWare DMA Controller
  *
@@ -6,10 +10,13 @@
  * Copyright (C) 2013 Intel Corporation
  *
  * Some parts of this driver are derived from the original dw_dmac.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,14 +27,19 @@
 #include <linux/dmaengine.h>
 #include <linux/dma-mapping.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_dma.h>
 #include <linux/acpi.h>
 #include <linux/acpi_dma.h>
+=======
+#include <linux/acpi.h>
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
 #define DRV_NAME	"dw_dmac"
 
+<<<<<<< HEAD
 static struct dma_chan *dw_dma_of_xlate(struct of_phandle_args *dma_spec,
 					struct of_dma *ofdma)
 {
@@ -193,6 +205,24 @@ static int dw_probe(struct platform_device *pdev)
 	const struct dw_dma_platform_data *pdata;
 	int err;
 
+=======
+static int dw_probe(struct platform_device *pdev)
+{
+	const struct dw_dma_chip_pdata *match;
+	struct dw_dma_chip_pdata *data;
+	struct dw_dma_chip *chip;
+	struct device *dev = &pdev->dev;
+	int err;
+
+	match = device_get_match_data(dev);
+	if (!match)
+		return -ENODEV;
+
+	data = devm_kmemdup(&pdev->dev, match, sizeof(*match), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
@@ -201,8 +231,12 @@ static int dw_probe(struct platform_device *pdev)
 	if (chip->irq < 0)
 		return chip->irq;
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	chip->regs = devm_ioremap_resource(dev, mem);
+=======
+	chip->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(chip->regs))
 		return PTR_ERR(chip->regs);
 
@@ -210,6 +244,7 @@ static int dw_probe(struct platform_device *pdev)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	pdata = dev_get_platdata(dev);
 	if (!pdata)
 		pdata = dw_dma_parse_dt(pdev);
@@ -219,6 +254,20 @@ static int dw_probe(struct platform_device *pdev)
 	chip->pdata = pdata;
 
 	chip->clk = devm_clk_get(chip->dev, "hclk");
+=======
+	if (!data->pdata)
+		data->pdata = dev_get_platdata(dev);
+	if (!data->pdata)
+		data->pdata = dw_dma_parse_dt(pdev);
+
+	chip->dev = dev;
+	chip->id = pdev->id;
+	chip->pdata = data->pdata;
+
+	data->chip = chip;
+
+	chip->clk = devm_clk_get_optional(chip->dev, "hclk");
+>>>>>>> upstream/android-13
 	if (IS_ERR(chip->clk))
 		return PTR_ERR(chip->clk);
 	err = clk_prepare_enable(chip->clk);
@@ -227,6 +276,7 @@ static int dw_probe(struct platform_device *pdev)
 
 	pm_runtime_enable(&pdev->dev);
 
+<<<<<<< HEAD
 	err = dw_dma_probe(chip);
 	if (err)
 		goto err_dw_dma_probe;
@@ -243,6 +293,17 @@ static int dw_probe(struct platform_device *pdev)
 
 	if (ACPI_HANDLE(&pdev->dev))
 		dw_dma_acpi_controller_register(chip->dw);
+=======
+	err = data->probe(chip);
+	if (err)
+		goto err_dw_dma_probe;
+
+	platform_set_drvdata(pdev, data);
+
+	dw_dma_of_controller_register(chip->dw);
+
+	dw_dma_acpi_controller_register(chip->dw);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -254,6 +315,7 @@ err_dw_dma_probe:
 
 static int dw_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct dw_dma_chip *chip = platform_get_drvdata(pdev);
 
 	if (ACPI_HANDLE(&pdev->dev))
@@ -263,6 +325,20 @@ static int dw_remove(struct platform_device *pdev)
 		of_dma_controller_free(pdev->dev.of_node);
 
 	dw_dma_remove(chip);
+=======
+	struct dw_dma_chip_pdata *data = platform_get_drvdata(pdev);
+	struct dw_dma_chip *chip = data->chip;
+	int ret;
+
+	dw_dma_acpi_controller_free(chip->dw);
+
+	dw_dma_of_controller_free(chip->dw);
+
+	ret = data->remove(chip);
+	if (ret)
+		dev_warn(chip->dev, "can't remove device properly: %d\n", ret);
+
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 	clk_disable_unprepare(chip->clk);
 
@@ -271,10 +347,18 @@ static int dw_remove(struct platform_device *pdev)
 
 static void dw_shutdown(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct dw_dma_chip *chip = platform_get_drvdata(pdev);
 
 	/*
 	 * We have to call dw_dma_disable() to stop any ongoing transfer. On
+=======
+	struct dw_dma_chip_pdata *data = platform_get_drvdata(pdev);
+	struct dw_dma_chip *chip = data->chip;
+
+	/*
+	 * We have to call do_dw_dma_disable() to stop any ongoing transfer. On
+>>>>>>> upstream/android-13
 	 * some platforms we can't do that since DMA device is powered off.
 	 * Moreover we have no possibility to check if the platform is affected
 	 * or not. That's why we call pm_runtime_get_sync() / pm_runtime_put()
@@ -283,7 +367,11 @@ static void dw_shutdown(struct platform_device *pdev)
 	 * used by the driver.
 	 */
 	pm_runtime_get_sync(chip->dev);
+<<<<<<< HEAD
 	dw_dma_disable(chip);
+=======
+	do_dw_dma_disable(chip);
+>>>>>>> upstream/android-13
 	pm_runtime_put_sync_suspend(chip->dev);
 
 	clk_disable_unprepare(chip->clk);
@@ -291,7 +379,11 @@ static void dw_shutdown(struct platform_device *pdev)
 
 #ifdef CONFIG_OF
 static const struct of_device_id dw_dma_of_id_table[] = {
+<<<<<<< HEAD
 	{ .compatible = "snps,dma-spear1340" },
+=======
+	{ .compatible = "snps,dma-spear1340", .data = &dw_dma_chip_pdata },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, dw_dma_of_id_table);
@@ -299,7 +391,19 @@ MODULE_DEVICE_TABLE(of, dw_dma_of_id_table);
 
 #ifdef CONFIG_ACPI
 static const struct acpi_device_id dw_dma_acpi_id_table[] = {
+<<<<<<< HEAD
 	{ "INTL9C60", 0 },
+=======
+	{ "INTL9C60", (kernel_ulong_t)&dw_dma_chip_pdata },
+	{ "80862286", (kernel_ulong_t)&dw_dma_chip_pdata },
+	{ "808622C0", (kernel_ulong_t)&dw_dma_chip_pdata },
+
+	/* Elkhart Lake iDMA 32-bit (PSE DMA) */
+	{ "80864BB4", (kernel_ulong_t)&xbar_chip_pdata },
+	{ "80864BB5", (kernel_ulong_t)&xbar_chip_pdata },
+	{ "80864BB6", (kernel_ulong_t)&xbar_chip_pdata },
+
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(acpi, dw_dma_acpi_id_table);
@@ -309,9 +413,16 @@ MODULE_DEVICE_TABLE(acpi, dw_dma_acpi_id_table);
 
 static int dw_suspend_late(struct device *dev)
 {
+<<<<<<< HEAD
 	struct dw_dma_chip *chip = dev_get_drvdata(dev);
 
 	dw_dma_disable(chip);
+=======
+	struct dw_dma_chip_pdata *data = dev_get_drvdata(dev);
+	struct dw_dma_chip *chip = data->chip;
+
+	do_dw_dma_disable(chip);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(chip->clk);
 
 	return 0;
@@ -319,14 +430,23 @@ static int dw_suspend_late(struct device *dev)
 
 static int dw_resume_early(struct device *dev)
 {
+<<<<<<< HEAD
 	struct dw_dma_chip *chip = dev_get_drvdata(dev);
+=======
+	struct dw_dma_chip_pdata *data = dev_get_drvdata(dev);
+	struct dw_dma_chip *chip = data->chip;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = clk_prepare_enable(chip->clk);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	return dw_dma_enable(chip);
+=======
+	return do_dw_dma_enable(chip);
+>>>>>>> upstream/android-13
 }
 
 #endif /* CONFIG_PM_SLEEP */

@@ -21,7 +21,11 @@
 #include <linux/pci.h>
 #include <linux/sched.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ptrace.h>
 #include <asm/mce.h>
@@ -331,7 +335,14 @@ cia_prepare_tbia_workaround(int window)
 	long i;
 
 	/* Use minimal 1K map. */
+<<<<<<< HEAD
 	ppte = __alloc_bootmem(CIA_BROKEN_TBIA_SIZE, 32768, 0);
+=======
+	ppte = memblock_alloc(CIA_BROKEN_TBIA_SIZE, 32768);
+	if (!ppte)
+		panic("%s: Failed to allocate %u bytes align=0x%x\n",
+		      __func__, CIA_BROKEN_TBIA_SIZE, 32768);
+>>>>>>> upstream/android-13
 	pte = (virt_to_phys(ppte) >> (PAGE_SHIFT - 1)) | 1;
 
 	for (i = 0; i < CIA_BROKEN_TBIA_SIZE / sizeof(unsigned long); ++i)

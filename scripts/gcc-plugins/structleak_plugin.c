@@ -11,11 +11,19 @@
  * otherwise leak kernel stack to userland if they aren't properly initialized
  * by later code
  *
+<<<<<<< HEAD
  * Homepage: http://pax.grsecurity.net/
+=======
+ * Homepage: https://pax.grsecurity.net/
+>>>>>>> upstream/android-13
  *
  * Options:
  * -fplugin-arg-structleak_plugin-disable
  * -fplugin-arg-structleak_plugin-verbose
+<<<<<<< HEAD
+=======
+ * -fplugin-arg-structleak_plugin-byref
+>>>>>>> upstream/android-13
  * -fplugin-arg-structleak_plugin-byref-all
  *
  * Usage:
@@ -26,7 +34,10 @@
  * $ gcc -fplugin=./structleak_plugin.so test.c -O2
  *
  * TODO: eliminate redundant initializers
+<<<<<<< HEAD
  *       increase type coverage
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "gcc-common.h"
@@ -37,6 +48,7 @@
 __visible int plugin_is_GPL_compatible;
 
 static struct plugin_info structleak_plugin_info = {
+<<<<<<< HEAD
 	.version	= "201607271510vanilla",
 	.help		= "disable\tdo not activate plugin\n"
 			   "verbose\tprint all initialized variables\n",
@@ -44,6 +56,20 @@ static struct plugin_info structleak_plugin_info = {
 
 static bool verbose;
 static bool byref_all;
+=======
+	.version	= "20190125vanilla",
+	.help		= "disable\tdo not activate plugin\n"
+			  "byref\tinit structs passed by reference\n"
+			  "byref-all\tinit anything passed by reference\n"
+			  "verbose\tprint all initialized variables\n",
+};
+
+#define BYREF_STRUCT	1
+#define BYREF_ALL	2
+
+static bool verbose;
+static int byref;
+>>>>>>> upstream/android-13
 
 static tree handle_user_attribute(tree *node, tree name, tree args, int flags, bool *no_add_attrs)
 {
@@ -63,9 +89,13 @@ static void register_attributes(void *event_data, void *data)
 {
 	user_attr.name			= "user";
 	user_attr.handler		= handle_user_attribute;
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION >= 4007
 	user_attr.affects_type_identity	= true;
 #endif
+=======
+	user_attr.affects_type_identity	= true;
+>>>>>>> upstream/android-13
 
 	register_attribute(&user_attr);
 }
@@ -118,6 +148,10 @@ static void initialize(tree var)
 	gimple_stmt_iterator gsi;
 	tree initializer;
 	gimple init_stmt;
+<<<<<<< HEAD
+=======
+	tree type;
+>>>>>>> upstream/android-13
 
 	/* this is the original entry bb before the forced split */
 	bb = single_succ(ENTRY_BLOCK_PTR_FOR_FN(cfun));
@@ -131,11 +165,17 @@ static void initialize(tree var)
 		if (!gimple_assign_single_p(stmt))
 			continue;
 		rhs1 = gimple_assign_rhs1(stmt);
+<<<<<<< HEAD
 #if BUILDING_GCC_VERSION >= 4007
 		/* ... of a non-clobbering expression... */
 		if (TREE_CLOBBER_P(rhs1))
 			continue;
 #endif
+=======
+		/* ... of a non-clobbering expression... */
+		if (TREE_CLOBBER_P(rhs1))
+			continue;
+>>>>>>> upstream/android-13
 		/* ... to our variable... */
 		if (gimple_get_lhs(stmt) != var)
 			continue;
@@ -148,11 +188,23 @@ static void initialize(tree var)
 	if (verbose)
 		inform(DECL_SOURCE_LOCATION(var),
 			"%s variable will be forcibly initialized",
+<<<<<<< HEAD
 			(byref_all && TREE_ADDRESSABLE(var)) ? "byref"
 							     : "userspace");
 
 	/* build the initializer expression */
 	initializer = build_constructor(TREE_TYPE(var), NULL);
+=======
+			(byref && TREE_ADDRESSABLE(var)) ? "byref"
+							 : "userspace");
+
+	/* build the initializer expression */
+	type = TREE_TYPE(var);
+	if (AGGREGATE_TYPE_P(type))
+		initializer = build_constructor(type, NULL);
+	else
+		initializer = fold_convert(type, integer_zero_node);
+>>>>>>> upstream/android-13
 
 	/* build the initializer stmt */
 	init_stmt = gimple_build_assign(var, initializer);
@@ -164,7 +216,10 @@ static void initialize(tree var)
 static unsigned int structleak_execute(void)
 {
 	basic_block bb;
+<<<<<<< HEAD
 	unsigned int ret = 0;
+=======
+>>>>>>> upstream/android-13
 	tree var;
 	unsigned int i;
 
@@ -184,17 +239,30 @@ static unsigned int structleak_execute(void)
 		if (!auto_var_in_fn_p(var, current_function_decl))
 			continue;
 
+<<<<<<< HEAD
 		/* only care about structure types */
 		if (TREE_CODE(type) != RECORD_TYPE && TREE_CODE(type) != UNION_TYPE)
+=======
+		/* only care about structure types unless byref-all */
+		if (byref != BYREF_ALL && TREE_CODE(type) != RECORD_TYPE && TREE_CODE(type) != UNION_TYPE)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* if the type is of interest, examine the variable */
 		if (TYPE_USERSPACE(type) ||
+<<<<<<< HEAD
 		    (byref_all && TREE_ADDRESSABLE(var)))
 			initialize(var);
 	}
 
 	return ret;
+=======
+		    (byref && TREE_ADDRESSABLE(var)))
+			initialize(var);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #define PASS_NAME structleak
@@ -232,8 +300,17 @@ __visible int plugin_init(struct plugin_name_args *plugin_info, struct plugin_gc
 			verbose = true;
 			continue;
 		}
+<<<<<<< HEAD
 		if (!strcmp(argv[i].key, "byref-all")) {
 			byref_all = true;
+=======
+		if (!strcmp(argv[i].key, "byref")) {
+			byref = BYREF_STRUCT;
+			continue;
+		}
+		if (!strcmp(argv[i].key, "byref-all")) {
+			byref = BYREF_ALL;
+>>>>>>> upstream/android-13
 			continue;
 		}
 		error(G_("unknown option '-fplugin-arg-%s-%s'"), plugin_name, argv[i].key);

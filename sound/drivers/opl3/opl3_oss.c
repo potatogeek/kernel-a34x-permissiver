@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Interface for OSS sequencer emulation
  *
  *  Copyright (C) 2000 Uros Bizjak <uros@kss-loka.si>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -29,7 +36,11 @@ static int snd_opl3_reset_seq_oss(struct snd_seq_oss_arg *arg);
 
 /* operators */
 
+<<<<<<< HEAD
 static struct snd_seq_oss_callback oss_callback = {
+=======
+static const struct snd_seq_oss_callback oss_callback = {
+>>>>>>> upstream/android-13
 	.owner = 	THIS_MODULE,
 	.open =		snd_opl3_open_seq_oss,
 	.close =	snd_opl3_close_seq_oss,
@@ -110,7 +121,11 @@ void snd_opl3_init_seq_oss(struct snd_opl3 *opl3, char *name)
 		return;
 
 	opl3->oss_seq_dev = dev;
+<<<<<<< HEAD
 	strlcpy(dev->name, name, sizeof(dev->name));
+=======
+	strscpy(dev->name, name, sizeof(dev->name));
+>>>>>>> upstream/android-13
 	arg = SNDRV_SEQ_DEVICE_ARGPTR(dev);
 	arg->type = SYNTH_TYPE_FM;
 	if (opl3->hardware < OPL3_HW_OPL3) {
@@ -149,7 +164,12 @@ static int snd_opl3_open_seq_oss(struct snd_seq_oss_arg *arg, void *closure)
 	if (snd_BUG_ON(!arg))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	if ((err = snd_opl3_synth_setup(opl3)) < 0)
+=======
+	err = snd_opl3_synth_setup(opl3);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	/* fill the argument data */
@@ -157,7 +177,12 @@ static int snd_opl3_open_seq_oss(struct snd_seq_oss_arg *arg, void *closure)
 	arg->addr.client = opl3->oss_chset->client;
 	arg->addr.port = opl3->oss_chset->port;
 
+<<<<<<< HEAD
 	if ((err = snd_opl3_synth_use_inc(opl3)) < 0)
+=======
+	err = snd_opl3_synth_use_inc(opl3);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	opl3->synth_mode = SNDRV_OPL3_MODE_SYNTH;

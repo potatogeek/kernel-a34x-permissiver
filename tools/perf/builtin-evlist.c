@@ -5,22 +5,42 @@
  */
 #include "builtin.h"
 
+<<<<<<< HEAD
 #include "util/util.h"
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 
 #include "perf.h"
 #include "util/evlist.h"
 #include "util/evsel.h"
+<<<<<<< HEAD
+=======
+#include "util/evsel_fprintf.h"
+>>>>>>> upstream/android-13
 #include "util/parse-events.h"
 #include <subcmd/parse-options.h>
 #include "util/session.h"
 #include "util/data.h"
 #include "util/debug.h"
+<<<<<<< HEAD
+=======
+#include <linux/err.h>
+#include "util/tool.h"
+
+static int process_header_feature(struct perf_session *session __maybe_unused,
+				  union perf_event *event __maybe_unused)
+{
+	session_done = 1;
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int __cmd_evlist(const char *file_name, struct perf_attr_details *details)
 {
 	struct perf_session *session;
+<<<<<<< HEAD
 	struct perf_evsel *pos;
 	struct perf_data data = {
 		.file      = {
@@ -39,6 +59,32 @@ static int __cmd_evlist(const char *file_name, struct perf_attr_details *details
 		perf_evsel__fprintf(pos, details, stdout);
 
 		if (pos->attr.type == PERF_TYPE_TRACEPOINT)
+=======
+	struct evsel *pos;
+	struct perf_data data = {
+		.path      = file_name,
+		.mode      = PERF_DATA_MODE_READ,
+		.force     = details->force,
+	};
+	struct perf_tool tool = {
+		/* only needed for pipe mode */
+		.attr = perf_event__process_attr,
+		.feature = process_header_feature,
+	};
+	bool has_tracepoint = false;
+
+	session = perf_session__new(&data, &tool);
+	if (IS_ERR(session))
+		return PTR_ERR(session);
+
+	if (data.is_pipe)
+		perf_session__process_events(session);
+
+	evlist__for_each_entry(session->evlist, pos) {
+		evsel__fprintf(pos, details, stdout);
+
+		if (pos->core.attr.type == PERF_TYPE_TRACEPOINT)
+>>>>>>> upstream/android-13
 			has_tracepoint = true;
 	}
 

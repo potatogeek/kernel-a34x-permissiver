@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_fabric_lib.c
  *
@@ -8,6 +12,7 @@
  *
  * Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 /*
@@ -145,10 +152,15 @@ static int iscsi_get_pr_transport_id(
 	unsigned char *buf)
 {
 	u32 off = 4, padding = 0;
+<<<<<<< HEAD
+=======
+	int isid_len;
+>>>>>>> upstream/android-13
 	u16 len = 0;
 
 	spin_lock_irq(&se_nacl->nacl_sess_lock);
 	/*
+<<<<<<< HEAD
 	 * From spc4r17 Section 7.5.4.6: TransportID for initiator
 	 * ports using SCSI over iSCSI.
 	 *
@@ -172,6 +184,24 @@ static int iscsi_get_pr_transport_id(
 	 * does not contain the ASCII encoded iSCSI Initiator iSID value
 	 * provied by the iSCSi Initiator during the iSCSI login process.
 	 */
+=======
+	 * Only null terminate the last field.
+	 *
+	 * From spc4r37 section 7.6.4.6: TransportID for initiator ports using
+	 * SCSI over iSCSI.
+	 *
+	 * Table 507 TPID=0 Initiator device TransportID
+	 *
+	 * The null-terminated, null-padded (see 4.3.2) ISCSI NAME field shall
+	 * contain the iSCSI name of an iSCSI initiator node (see RFC 7143).
+	 * The first ISCSI NAME field byte containing an ASCII null character
+	 * terminates the ISCSI NAME field without regard for the specified
+	 * length of the iSCSI TransportID or the contents of the ADDITIONAL
+	 * LENGTH field.
+	 */
+	len = sprintf(&buf[off], "%s", se_nacl->initiatorname);
+	off += len;
+>>>>>>> upstream/android-13
 	if ((*format_code == 1) && (pr_reg->isid_present_at_reg)) {
 		/*
 		 * Set FORMAT CODE 01b for iSCSI Initiator port TransportID
@@ -179,8 +209,17 @@ static int iscsi_get_pr_transport_id(
 		 */
 		buf[0] |= 0x40;
 		/*
+<<<<<<< HEAD
 		 * From spc4r17 Section 7.5.4.6: TransportID for initiator
 		 * ports using SCSI over iSCSI.  Table 390
+=======
+		 * From spc4r37 Section 7.6.4.6
+		 *
+		 * Table 508 TPID=1 Initiator port TransportID.
+		 *
+		 * The ISCSI NAME field shall not be null-terminated
+		 * (see 4.3.2) and shall not be padded.
+>>>>>>> upstream/android-13
 		 *
 		 * The SEPARATOR field shall contain the five ASCII
 		 * characters ",i,0x".
@@ -190,6 +229,7 @@ static int iscsi_get_pr_transport_id(
 		 * (see RFC 3720) in the form of ASCII characters that are the
 		 * hexadecimal digits converted from the binary iSCSI initiator
 		 * session identifier value. The first ISCSI INITIATOR SESSION
+<<<<<<< HEAD
 		 * ID field byte containing an ASCII null character
 		 */
 		buf[off+len] = 0x2c; off++; /* ASCII Character: "," */
@@ -207,6 +247,26 @@ static int iscsi_get_pr_transport_id(
 		buf[off+len] = '\0'; off++;
 		len += 7;
 	}
+=======
+		 * ID field byte containing an ASCII null character terminates
+		 * the ISCSI INITIATOR SESSION ID field without regard for the
+		 * specified length of the iSCSI TransportID or the contents
+		 * of the ADDITIONAL LENGTH field.
+		 */
+		buf[off++] = 0x2c; /* ASCII Character: "," */
+		buf[off++] = 0x69; /* ASCII Character: "i" */
+		buf[off++] = 0x2c; /* ASCII Character: "," */
+		buf[off++] = 0x30; /* ASCII Character: "0" */
+		buf[off++] = 0x78; /* ASCII Character: "x" */
+		len += 5;
+
+		isid_len = sprintf(buf + off, "%s", pr_reg->pr_reg_isid);
+		off += isid_len;
+		len += isid_len;
+	}
+	buf[off] = '\0';
+	len += 1;
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&se_nacl->nacl_sess_lock);
 	/*
 	 * The ADDITIONAL LENGTH field specifies the number of bytes that follow
@@ -249,7 +309,11 @@ static int iscsi_get_pr_transport_id_len(
 	 */
 	if (pr_reg->isid_present_at_reg) {
 		len += 5; /* For ",i,0x" ASCII separator */
+<<<<<<< HEAD
 		len += 7; /* For iSCSI Initiator Session ID + Null terminator */
+=======
+		len += strlen(pr_reg->pr_reg_isid);
+>>>>>>> upstream/android-13
 		*format_code = 1;
 	} else
 		*format_code = 0;
@@ -278,9 +342,13 @@ static char *iscsi_parse_pr_out_transport_id(
 	char **port_nexus_ptr)
 {
 	char *p;
+<<<<<<< HEAD
 	u32 tid_len, padding;
 	int i;
 	u16 add_len;
+=======
+	int i;
+>>>>>>> upstream/android-13
 	u8 format_code = (buf[0] & 0xc0);
 	/*
 	 * Check for FORMAT CODE 00b or 01b from spc4r17, section 7.5.4.6:
@@ -306,6 +374,7 @@ static char *iscsi_parse_pr_out_transport_id(
 	 */
 	if (out_tid_len) {
 		/* The shift works thanks to integer promotion rules */
+<<<<<<< HEAD
 		add_len = get_unaligned_be16(&buf[2]);
 
 		tid_len = strlen(&buf[4]);
@@ -323,6 +392,13 @@ static char *iscsi_parse_pr_out_transport_id(
 		} else
 			*out_tid_len = (add_len + 4);
 	}
+=======
+		*out_tid_len = get_unaligned_be16(&buf[2]);
+		/* Add four bytes for iSCSI Transport ID header */
+		*out_tid_len += 4;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Check for ',i,0x' separator between iSCSI Name and iSCSI Initiator
 	 * Session ID as defined in Table 390 - iSCSI initiator port TransportID
@@ -347,6 +423,19 @@ static char *iscsi_parse_pr_out_transport_id(
 		 * iscsi_target.c:lio_sess_get_initiator_sid()
 		 */
 		for (i = 0; i < 12; i++) {
+<<<<<<< HEAD
+=======
+			/*
+			 * The first ISCSI INITIATOR SESSION ID field byte
+			 * containing an ASCII null character terminates the
+			 * ISCSI INITIATOR SESSION ID field without regard for
+			 * the specified length of the iSCSI TransportID or the
+			 * contents of the ADDITIONAL LENGTH field.
+			 */
+			if (*p == '\0')
+				break;
+
+>>>>>>> upstream/android-13
 			if (isdigit(*p)) {
 				p++;
 				continue;
@@ -354,7 +443,12 @@ static char *iscsi_parse_pr_out_transport_id(
 			*p = tolower(*p);
 			p++;
 		}
+<<<<<<< HEAD
 	}
+=======
+	} else
+		*port_nexus_ptr = NULL;
+>>>>>>> upstream/android-13
 
 	return &buf[4];
 }

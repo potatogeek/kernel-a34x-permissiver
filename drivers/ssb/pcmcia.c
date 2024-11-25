@@ -338,7 +338,10 @@ static void ssb_pcmcia_write8(struct ssb_device *dev, u16 offset, u8 value)
 	err = select_core_and_segment(dev, &offset);
 	if (likely(!err))
 		writeb(value, bus->mmio + offset);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&bus->bar_lock, flags);
 }
 
@@ -352,7 +355,10 @@ static void ssb_pcmcia_write16(struct ssb_device *dev, u16 offset, u16 value)
 	err = select_core_and_segment(dev, &offset);
 	if (likely(!err))
 		writew(value, bus->mmio + offset);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&bus->bar_lock, flags);
 }
 
@@ -368,7 +374,10 @@ static void ssb_pcmcia_write32(struct ssb_device *dev, u16 offset, u32 value)
 		writew((value & 0x0000FFFF), bus->mmio + offset);
 		writew(((value & 0xFFFF0000) >> 16), bus->mmio + offset + 2);
 	}
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&bus->bar_lock, flags);
 }
 
@@ -424,7 +433,10 @@ static void ssb_pcmcia_block_write(struct ssb_device *dev, const void *buffer,
 		WARN_ON(1);
 	}
 unlock:
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&bus->bar_lock, flags);
 }
 #endif /* CONFIG_SSB_BLOCKIO */
@@ -727,9 +739,15 @@ int ssb_pcmcia_get_invariants(struct ssb_bus *bus,
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static ssize_t ssb_pcmcia_attr_sprom_show(struct device *pcmciadev,
 					  struct device_attribute *attr,
 					  char *buf)
+=======
+static ssize_t ssb_sprom_show(struct device *pcmciadev,
+			      struct device_attribute *attr,
+			      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct pcmcia_device *pdev =
 		container_of(pcmciadev, struct pcmcia_device, dev);
@@ -743,9 +761,15 @@ static ssize_t ssb_pcmcia_attr_sprom_show(struct device *pcmciadev,
 				   ssb_pcmcia_sprom_read_all);
 }
 
+<<<<<<< HEAD
 static ssize_t ssb_pcmcia_attr_sprom_store(struct device *pcmciadev,
 					   struct device_attribute *attr,
 					   const char *buf, size_t count)
+=======
+static ssize_t ssb_sprom_store(struct device *pcmciadev,
+			       struct device_attribute *attr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct pcmcia_device *pdev =
 		container_of(pcmciadev, struct pcmcia_device, dev);
@@ -760,9 +784,13 @@ static ssize_t ssb_pcmcia_attr_sprom_store(struct device *pcmciadev,
 				    ssb_pcmcia_sprom_write_all);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(ssb_sprom, 0600,
 		   ssb_pcmcia_attr_sprom_show,
 		   ssb_pcmcia_attr_sprom_store);
+=======
+static DEVICE_ATTR_ADMIN_RW(ssb_sprom);
+>>>>>>> upstream/android-13
 
 static int ssb_pcmcia_cor_setup(struct ssb_bus *bus, u8 cor)
 {

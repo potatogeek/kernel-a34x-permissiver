@@ -17,6 +17,11 @@
 
 #include <linux/util_macros.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+
+>>>>>>> upstream/android-13
 #define SI1133_REG_PART_ID		0x00
 #define SI1133_REG_REV_ID		0x01
 #define SI1133_REG_MFR_ID		0x02
@@ -104,8 +109,11 @@
 #define SI1133_LUX_BUFFER_SIZE		9
 #define SI1133_MEASURE_BUFFER_SIZE	3
 
+<<<<<<< HEAD
 #define SI1133_SIGN_BIT_INDEX 23
 
+=======
+>>>>>>> upstream/android-13
 static const int si1133_scale_available[] = {
 	1, 2, 4, 8, 16, 32, 64, 128};
 
@@ -352,14 +360,22 @@ static int si1133_parse_response_err(struct device *dev, u32 resp, u8 cmd)
 
 	switch (resp) {
 	case SI1133_ERR_OUTPUT_BUFFER_OVERFLOW:
+<<<<<<< HEAD
 		dev_warn(dev, "Output buffer overflow: %#02hhx\n", cmd);
 		return -EOVERFLOW;
 	case SI1133_ERR_SATURATION_ADC_OR_OVERFLOW_ACCUMULATION:
 		dev_warn(dev, "Saturation of the ADC or overflow of accumulation: %#02hhx\n",
+=======
+		dev_warn(dev, "Output buffer overflow: 0x%02x\n", cmd);
+		return -EOVERFLOW;
+	case SI1133_ERR_SATURATION_ADC_OR_OVERFLOW_ACCUMULATION:
+		dev_warn(dev, "Saturation of the ADC or overflow of accumulation: 0x%02x\n",
+>>>>>>> upstream/android-13
 			 cmd);
 		return -EOVERFLOW;
 	case SI1133_ERR_INVALID_LOCATION_CMD:
 		dev_warn(dev,
+<<<<<<< HEAD
 			 "Parameter access to an invalid location: %#02hhx\n",
 			 cmd);
 		return -EINVAL;
@@ -368,6 +384,16 @@ static int si1133_parse_response_err(struct device *dev, u32 resp, u8 cmd)
 		return -EINVAL;
 	default:
 		dev_warn(dev, "Unknown error %#02hhx\n", cmd);
+=======
+			 "Parameter access to an invalid location: 0x%02x\n",
+			 cmd);
+		return -EINVAL;
+	case SI1133_ERR_INVALID_CMD:
+		dev_warn(dev, "Invalid command 0x%02x\n", cmd);
+		return -EINVAL;
+	default:
+		dev_warn(dev, "Unknown error 0x%02x\n", cmd);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 }
@@ -400,7 +426,11 @@ static int si1133_command(struct si1133_data *data, u8 cmd)
 
 	err = regmap_write(data->regmap, SI1133_REG_COMMAND, cmd);
 	if (err) {
+<<<<<<< HEAD
 		dev_warn(dev, "Failed to write command %#02hhx, ret=%d\n", cmd,
+=======
+		dev_warn(dev, "Failed to write command 0x%02x, ret=%d\n", cmd,
+>>>>>>> upstream/android-13
 			 err);
 		goto out;
 	}
@@ -425,7 +455,11 @@ static int si1133_command(struct si1133_data *data, u8 cmd)
 					       SI1133_CMD_TIMEOUT_MS * 1000);
 		if (err) {
 			dev_warn(dev,
+<<<<<<< HEAD
 				 "Failed to read command %#02hhx, ret=%d\n",
+=======
+				 "Failed to read command 0x%02x, ret=%d\n",
+>>>>>>> upstream/android-13
 				 cmd, err);
 			goto out;
 		}
@@ -633,8 +667,12 @@ static int si1133_measure(struct si1133_data *data,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	*val = sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
 			     SI1133_SIGN_BIT_INDEX);
+=======
+	*val = sign_extend32(get_unaligned_be24(&buffer[0]), 23);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -723,6 +761,7 @@ static int si1133_get_lux(struct si1133_data *data, int *val)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	high_vis =
 		sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
 			      SI1133_SIGN_BIT_INDEX);
@@ -733,6 +772,13 @@ static int si1133_get_lux(struct si1133_data *data, int *val)
 
 	ir = sign_extend32((buffer[6] << 16) | (buffer[7] << 8) | buffer[8],
 			   SI1133_SIGN_BIT_INDEX);
+=======
+	high_vis = sign_extend32(get_unaligned_be24(&buffer[0]), 23);
+
+	low_vis = sign_extend32(get_unaligned_be24(&buffer[3]), 23);
+
+	ir = sign_extend32(get_unaligned_be24(&buffer[6]), 23);
+>>>>>>> upstream/android-13
 
 	if (high_vis > SI1133_ADC_THRESHOLD || ir > SI1133_ADC_THRESHOLD)
 		lux = si1133_calc_polynomial(high_vis, ir,
@@ -984,11 +1030,19 @@ static int si1133_validate_ids(struct iio_dev *iio_dev)
 		return err;
 
 	dev_info(&iio_dev->dev,
+<<<<<<< HEAD
 		 "Device ID part %#02hhx rev %#02hhx mfr %#02hhx\n",
 		 part_id, rev_id, mfr_id);
 	if (part_id != SI1133_PART_ID) {
 		dev_err(&iio_dev->dev,
 			"Part ID mismatch got %#02hhx, expected %#02x\n",
+=======
+		 "Device ID part 0x%02x rev 0x%02x mfr 0x%02x\n",
+		 part_id, rev_id, mfr_id);
+	if (part_id != SI1133_PART_ID) {
+		dev_err(&iio_dev->dev,
+			"Part ID mismatch got 0x%02x, expected 0x%02x\n",
+>>>>>>> upstream/android-13
 			part_id, SI1133_PART_ID);
 		return -ENODEV;
 	}
@@ -1021,7 +1075,10 @@ static int si1133_probe(struct i2c_client *client,
 	i2c_set_clientdata(client, iio_dev);
 	data->client = client;
 
+<<<<<<< HEAD
 	iio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	iio_dev->name = id->name;
 	iio_dev->channels = si1133_channels;
 	iio_dev->num_channels = ARRAY_SIZE(si1133_channels);

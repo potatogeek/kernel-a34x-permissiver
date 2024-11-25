@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* delayacct.h - per-task delay accounting
  *
  * Copyright (C) Shailabh Nagar, IBM Corp. 2006
@@ -12,6 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
  * the GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* delayacct.h - per-task delay accounting
+ *
+ * Copyright (C) Shailabh Nagar, IBM Corp. 2006
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_DELAYACCT_H
@@ -68,16 +75,34 @@ struct task_delay_info {
 
 #include <linux/sched.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 
 #ifdef CONFIG_TASK_DELAY_ACCT
 extern int delayacct_on;	/* Delay accounting turned on/off */
 extern struct kmem_cache *delayacct_cache;
 extern void delayacct_init(void);
+=======
+#include <linux/jump_label.h>
+
+#ifdef CONFIG_TASK_DELAY_ACCT
+DECLARE_STATIC_KEY_FALSE(delayacct_key);
+extern int delayacct_on;	/* Delay accounting turned on/off */
+extern struct kmem_cache *delayacct_cache;
+extern void delayacct_init(void);
+
+extern int sysctl_delayacct(struct ctl_table *table, int write, void *buffer,
+			    size_t *lenp, loff_t *ppos);
+
+>>>>>>> upstream/android-13
 extern void __delayacct_tsk_init(struct task_struct *);
 extern void __delayacct_tsk_exit(struct task_struct *);
 extern void __delayacct_blkio_start(void);
 extern void __delayacct_blkio_end(struct task_struct *);
+<<<<<<< HEAD
 extern int __delayacct_add_tsk(struct taskstats *, struct task_struct *);
+=======
+extern int delayacct_add_tsk(struct taskstats *, struct task_struct *);
+>>>>>>> upstream/android-13
 extern __u64 __delayacct_blkio_ticks(struct task_struct *);
 #ifdef CONFIG_PAGE_BOOST
 extern __u64 __delayacct_blkio_nsecs(struct task_struct *);
@@ -95,6 +120,7 @@ static inline int delayacct_is_task_waiting_on_io(struct task_struct *p)
 		return 0;
 }
 
+<<<<<<< HEAD
 static inline void delayacct_set_flag(int flag)
 {
 	if (current->delays)
@@ -105,6 +131,18 @@ static inline void delayacct_clear_flag(int flag)
 {
 	if (current->delays)
 		current->delays->flags &= ~flag;
+=======
+static inline void delayacct_set_flag(struct task_struct *p, int flag)
+{
+	if (p->delays)
+		p->delays->flags |= flag;
+}
+
+static inline void delayacct_clear_flag(struct task_struct *p, int flag)
+{
+	if (p->delays)
+		p->delays->flags &= ~flag;
+>>>>>>> upstream/android-13
 }
 
 static inline void delayacct_tsk_init(struct task_struct *tsk)
@@ -127,13 +165,21 @@ static inline void delayacct_tsk_free(struct task_struct *tsk)
 
 static inline void delayacct_blkio_start(void)
 {
+<<<<<<< HEAD
 	delayacct_set_flag(DELAYACCT_PF_BLKIO);
+=======
+	if (!static_branch_unlikely(&delayacct_key))
+		return;
+
+	delayacct_set_flag(current, DELAYACCT_PF_BLKIO);
+>>>>>>> upstream/android-13
 	if (current->delays)
 		__delayacct_blkio_start();
 }
 
 static inline void delayacct_blkio_end(struct task_struct *p)
 {
+<<<<<<< HEAD
 	if (p->delays)
 		__delayacct_blkio_end(p);
 	delayacct_clear_flag(DELAYACCT_PF_BLKIO);
@@ -145,6 +191,14 @@ static inline int delayacct_add_tsk(struct taskstats *d,
 	if (!delayacct_on || !tsk->delays)
 		return 0;
 	return __delayacct_add_tsk(d, tsk);
+=======
+	if (!static_branch_unlikely(&delayacct_key))
+		return;
+
+	if (p->delays)
+		__delayacct_blkio_end(p);
+	delayacct_clear_flag(p, DELAYACCT_PF_BLKIO);
+>>>>>>> upstream/android-13
 }
 
 static inline __u64 delayacct_blkio_ticks(struct task_struct *tsk)
@@ -188,9 +242,15 @@ static inline void delayacct_thrashing_end(void)
 }
 
 #else
+<<<<<<< HEAD
 static inline void delayacct_set_flag(int flag)
 {}
 static inline void delayacct_clear_flag(int flag)
+=======
+static inline void delayacct_set_flag(struct task_struct *p, int flag)
+{}
+static inline void delayacct_clear_flag(struct task_struct *p, int flag)
+>>>>>>> upstream/android-13
 {}
 static inline void delayacct_init(void)
 {}

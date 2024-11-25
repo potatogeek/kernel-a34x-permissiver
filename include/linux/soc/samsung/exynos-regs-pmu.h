@@ -3,7 +3,11 @@
  * Copyright (c) 2010-2015 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * EXYNOS - Power management unit definition
+=======
+ * Exynos - Power management unit definition
+>>>>>>> upstream/android-13
  *
  * Notice:
  * This is not a list of all Exynos Power Management Unit SFRs.
@@ -185,7 +189,11 @@
 /* Only for S5Pv210 */
 #define S5PV210_EINT_WAKEUP_MASK	0xC004
 
+<<<<<<< HEAD
 /* Only for EXYNOS4210 */
+=======
+/* Only for Exynos4210 */
+>>>>>>> upstream/android-13
 #define S5P_CMU_CLKSTOP_LCD1_LOWPWR	0x1154
 #define S5P_CMU_RESET_LCD1_LOWPWR	0x1174
 #define S5P_MODIMIF_MEM_LOWPWR		0x11C4
@@ -193,7 +201,11 @@
 #define S5P_SATA_MEM_LOWPWR		0x11E4
 #define S5P_LCD1_LOWPWR			0x1394
 
+<<<<<<< HEAD
 /* Only for EXYNOS4x12 */
+=======
+/* Only for Exynos4x12 */
+>>>>>>> upstream/android-13
 #define S5P_ISP_ARM_LOWPWR			0x1050
 #define S5P_DIS_IRQ_ISP_ARM_LOCAL_LOWPWR	0x1054
 #define S5P_DIS_IRQ_ISP_ARM_CENTRAL_LOWPWR	0x1058
@@ -234,7 +246,11 @@
 #define S5P_SECSS_MEM_OPTION			0x2EC8
 #define S5P_ROTATOR_MEM_OPTION			0x2F48
 
+<<<<<<< HEAD
 /* Only for EXYNOS4412 */
+=======
+/* Only for Exynos4412 */
+>>>>>>> upstream/android-13
 #define S5P_ARM_CORE2_LOWPWR			0x1020
 #define S5P_DIS_IRQ_CORE2			0x1024
 #define S5P_DIS_IRQ_CENTRAL2			0x1028
@@ -242,7 +258,11 @@
 #define S5P_DIS_IRQ_CORE3			0x1034
 #define S5P_DIS_IRQ_CENTRAL3			0x1038
 
+<<<<<<< HEAD
 /* Only for EXYNOS3XXX */
+=======
+/* Only for Exynos3XXX */
+>>>>>>> upstream/android-13
 #define EXYNOS3_ARM_CORE0_SYS_PWR_REG			0x1000
 #define EXYNOS3_DIS_IRQ_ARM_CORE0_LOCAL_SYS_PWR_REG	0x1004
 #define EXYNOS3_DIS_IRQ_ARM_CORE0_CENTRAL_SYS_PWR_REG	0x1008
@@ -347,7 +367,11 @@
 #define EXYNOS3_OPTION_USE_SC_FEEDBACK			(1 << 1)
 #define EXYNOS3_OPTION_SKIP_DEACTIVATE_ACEACP_IN_PWDN	(1 << 7)
 
+<<<<<<< HEAD
 /* For EXYNOS5 */
+=======
+/* For Exynos5 */
+>>>>>>> upstream/android-13
 
 #define EXYNOS5_AUTO_WDTRESET_DISABLE				0x0408
 #define EXYNOS5_MASK_WDTRESET_REQUEST				0x040C
@@ -484,7 +508,11 @@
 
 #define EXYNOS5420_SWRESET_KFC_SEL				0x3
 
+<<<<<<< HEAD
 /* Only for EXYNOS5420 */
+=======
+/* Only for Exynos5420 */
+>>>>>>> upstream/android-13
 #define EXYNOS5420_L2RSTDISABLE_VALUE				BIT(3)
 
 #define EXYNOS5420_LPI_MASK					0x0004
@@ -611,12 +639,15 @@
 #define EXYNOS5420_FSYS2_OPTION					0x4168
 #define EXYNOS5420_PSGEN_OPTION					0x4188
 
+<<<<<<< HEAD
 /* For EXYNOS_CENTRAL_SEQ_OPTION */
 #define EXYNOS5_USE_STANDBYWFI_ARM_CORE0			BIT(16)
 #define EXYNOS5_USE_STANDBYWFI_ARM_CORE1			BUT(17)
 #define EXYNOS5_USE_STANDBYWFE_ARM_CORE0			BIT(24)
 #define EXYNOS5_USE_STANDBYWFE_ARM_CORE1			BIT(25)
 
+=======
+>>>>>>> upstream/android-13
 #define EXYNOS5420_ARM_USE_STANDBY_WFI0				BIT(4)
 #define EXYNOS5420_ARM_USE_STANDBY_WFI1				BIT(5)
 #define EXYNOS5420_ARM_USE_STANDBY_WFI2				BIT(6)
@@ -645,7 +676,11 @@
 					 | EXYNOS5420_KFC_USE_STANDBY_WFI2  \
 					 | EXYNOS5420_KFC_USE_STANDBY_WFI3)
 
+<<<<<<< HEAD
 /* For EXYNOS5433 */
+=======
+/* For Exynos5433 */
+>>>>>>> upstream/android-13
 #define EXYNOS5433_EINT_WAKEUP_MASK				(0x060C)
 #define EXYNOS5433_USBHOST30_PHY_CONTROL			(0x0728)
 #define EXYNOS5433_PAD_RETENTION_AUD_OPTION			(0x3028)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  PowerPC version
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -11,6 +15,7 @@
  *
  *  This file contains low-level support and setup for PowerPC 8xx
  *  embedded processors, including trap and interrupt dispatch.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -20,17 +25,29 @@
  */
 
 #include <linux/init.h>
+=======
+ */
+
+#include <linux/init.h>
+#include <linux/magic.h>
+#include <linux/pgtable.h>
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/page.h>
 #include <asm/mmu.h>
 #include <asm/cache.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/cputable.h>
 #include <asm/thread_info.h>
 #include <asm/ppc_asm.h>
 #include <asm/asm-offsets.h>
 #include <asm/ptrace.h>
 #include <asm/export.h>
+<<<<<<< HEAD
 
 #if CONFIG_TASK_SIZE <= 0x80000000 && CONFIG_PAGE_OFFSET >= 0x80000000
 /* By simply checking Address >= 0x80000000, we know if its a kernel address */
@@ -46,6 +63,10 @@
     defined(CONFIG_DEBUG_PAGEALLOC)
 #define ITLB_MISS_KERNEL	1
 #endif
+=======
+#include <asm/code-patching-asm.h>
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 
 /*
  * Value for the bits that have fixed value in RPN entries.
@@ -53,6 +74,21 @@
  */
 #define RPN_PATTERN	0x00f0
 
+<<<<<<< HEAD
+=======
+#include "head_32.h"
+
+.macro compare_to_kernel_boundary scratch, addr
+#if CONFIG_TASK_SIZE <= 0x80000000 && CONFIG_PAGE_OFFSET >= 0x80000000
+/* By simply checking Address >= 0x80000000, we know if its a kernel address */
+	not.	\scratch, \addr
+#else
+	rlwinm	\scratch, \addr, 16, 0xfff8
+	cmpli	cr0, \scratch, PAGE_OFFSET@h
+#endif
+.endm
+
+>>>>>>> upstream/android-13
 #define PAGE_SHIFT_512K		19
 #define PAGE_SHIFT_8M		23
 
@@ -105,6 +141,7 @@ turn_on_mmu:
 	mtspr	SPRN_SRR0,r0
 	rfi				/* enables MMU */
 
+<<<<<<< HEAD
 /*
  * Exception entry code.  This code runs with address translation
  * turned off, i.e. using physical addresses.
@@ -265,16 +302,86 @@ SystemCall:
 	EXCEPTION(0xd00, SingleStep, single_step_exception, EXC_XFER_STD)
 	EXCEPTION(0xe00, Trap_0e, unknown_exception, EXC_XFER_EE)
 	EXCEPTION(0xf00, Trap_0f, unknown_exception, EXC_XFER_EE)
+=======
+
+#ifdef CONFIG_PERF_EVENTS
+	.align	4
+
+	.globl	itlb_miss_counter
+itlb_miss_counter:
+	.space	4
+
+	.globl	dtlb_miss_counter
+dtlb_miss_counter:
+	.space	4
+
+	.globl	instruction_counter
+instruction_counter:
+	.space	4
+#endif
+
+/* System reset */
+	EXCEPTION(INTERRUPT_SYSTEM_RESET, Reset, system_reset_exception)
+
+/* Machine check */
+	START_EXCEPTION(INTERRUPT_MACHINE_CHECK, MachineCheck)
+	EXCEPTION_PROLOG INTERRUPT_MACHINE_CHECK MachineCheck handle_dar_dsisr=1
+	prepare_transfer_to_handler
+	bl	machine_check_exception
+	b	interrupt_return
+
+/* External interrupt */
+	EXCEPTION(INTERRUPT_EXTERNAL, HardwareInterrupt, do_IRQ)
+
+/* Alignment exception */
+	START_EXCEPTION(INTERRUPT_ALIGNMENT, Alignment)
+	EXCEPTION_PROLOG INTERRUPT_ALIGNMENT Alignment handle_dar_dsisr=1
+	prepare_transfer_to_handler
+	bl	alignment_exception
+	REST_NVGPRS(r1)
+	b	interrupt_return
+
+/* Program check exception */
+	START_EXCEPTION(INTERRUPT_PROGRAM, ProgramCheck)
+	EXCEPTION_PROLOG INTERRUPT_PROGRAM ProgramCheck
+	prepare_transfer_to_handler
+	bl	program_check_exception
+	REST_NVGPRS(r1)
+	b	interrupt_return
+
+/* Decrementer */
+	EXCEPTION(INTERRUPT_DECREMENTER, Decrementer, timer_interrupt)
+
+/* System call */
+	START_EXCEPTION(INTERRUPT_SYSCALL, SystemCall)
+	SYSCALL_ENTRY	INTERRUPT_SYSCALL
+
+/* Single step - not used on 601 */
+	EXCEPTION(INTERRUPT_TRACE, SingleStep, single_step_exception)
+>>>>>>> upstream/android-13
 
 /* On the MPC8xx, this is a software emulation interrupt.  It occurs
  * for all unimplemented and illegal instructions.
  */
+<<<<<<< HEAD
 	EXCEPTION(0x1000, SoftEmu, emulation_assist_interrupt, EXC_XFER_STD)
 
 	. = 0x1100
 /*
  * For the MPC8xx, this is a software tablewalk to load the instruction
  * TLB.  The task switch loads the M_TW register with the pointer to the first
+=======
+	START_EXCEPTION(INTERRUPT_SOFT_EMU_8xx, SoftEmu)
+	EXCEPTION_PROLOG INTERRUPT_SOFT_EMU_8xx SoftEmu
+	prepare_transfer_to_handler
+	bl	emulation_assist_interrupt
+	REST_NVGPRS(r1)
+	b	interrupt_return
+
+/*
+ * For the MPC8xx, this is a software tablewalk to load the instruction
+ * TLB.  The task switch loads the M_TWB register with the pointer to the first
+>>>>>>> upstream/android-13
  * level table.
  * If we discover there is no second level table (value is zero) or if there
  * is an invalid pte, we load that into the TLB, which causes another fault
@@ -284,12 +391,17 @@ SystemCall:
  */
 
 #ifdef CONFIG_8xx_CPU15
+<<<<<<< HEAD
 #define INVALIDATE_ADJACENT_PAGES_CPU15(tmp, addr)	\
+=======
+#define INVALIDATE_ADJACENT_PAGES_CPU15(addr, tmp)	\
+>>>>>>> upstream/android-13
 	addi	tmp, addr, PAGE_SIZE;	\
 	tlbie	tmp;			\
 	addi	tmp, addr, -PAGE_SIZE;	\
 	tlbie	tmp
 #else
+<<<<<<< HEAD
 #define INVALIDATE_ADJACENT_PAGES_CPU15(tmp, addr)
 #endif
 
@@ -299,11 +411,20 @@ InstructionTLBMiss:
 #if defined(ITLB_MISS_KERNEL) || defined(CONFIG_HUGETLB_PAGE)
 	mtspr	SPRN_SPRG_SCRATCH2, r12
 #endif
+=======
+#define INVALIDATE_ADJACENT_PAGES_CPU15(addr, tmp)
+#endif
+
+	START_EXCEPTION(INTERRUPT_INST_TLB_MISS_8xx, InstructionTLBMiss)
+	mtspr	SPRN_SPRG_SCRATCH2, r10
+	mtspr	SPRN_M_TW, r11
+>>>>>>> upstream/android-13
 
 	/* If we are faulting a kernel address, we have to use the
 	 * kernel page tables.
 	 */
 	mfspr	r10, SPRN_SRR0	/* Get effective address of fault */
+<<<<<<< HEAD
 	INVALIDATE_ADJACENT_PAGES_CPU15(r11, r10)
 	/* Only modules will cause ITLB Misses as we always
 	 * pin the first 8MB of kernel memory */
@@ -360,12 +481,36 @@ _ENTRY(ITLBMiss_cmp)
 	and	r11, r11, r10
 	rlwimi	r10, r11, 0, _PAGE_PRESENT
 	li	r11, RPN_PATTERN | 0x200
+=======
+	INVALIDATE_ADJACENT_PAGES_CPU15(r10, r11)
+	mtspr	SPRN_MD_EPN, r10
+#ifdef CONFIG_MODULES
+	mfcr	r11
+	compare_to_kernel_boundary r10, r10
+#endif
+	mfspr	r10, SPRN_M_TWB	/* Get level 1 table */
+#ifdef CONFIG_MODULES
+	blt+	3f
+	rlwinm	r10, r10, 0, 20, 31
+	oris	r10, r10, (swapper_pg_dir - PAGE_OFFSET)@ha
+3:
+	mtcr	r11
+#endif
+	lwz	r11, (swapper_pg_dir-PAGE_OFFSET)@l(r10)	/* Get level 1 entry */
+	mtspr	SPRN_MD_TWC, r11
+	mfspr	r10, SPRN_MD_TWC
+	lwz	r10, 0(r10)	/* Get the pte */
+	rlwimi	r11, r10, 0, _PAGE_GUARDED | _PAGE_ACCESSED
+	rlwimi	r11, r10, 32 - 9, _PMD_PAGE_512K
+	mtspr	SPRN_MI_TWC, r11
+>>>>>>> upstream/android-13
 	/* The Linux PTE won't go exactly into the MMU TLB.
 	 * Software indicator bits 20 and 23 must be clear.
 	 * Software indicator bits 22, 24, 25, 26, and 27 must be
 	 * set.  All other Linux PTE bits control the behavior
 	 * of the MMU.
 	 */
+<<<<<<< HEAD
 	rlwimi	r11, r10, 4, 0x0400	/* Copy _PAGE_EXEC into bit 21 */
 	rlwimi	r10, r11, 0, 0x0ff0	/* Set 22, 24-27, clear 20,23 */
 	mtspr	SPRN_MI_RPN, r10	/* Update TLB entry */
@@ -421,11 +566,39 @@ DataStoreTLBMiss:
 	mtspr	SPRN_SPRG_SCRATCH1, r11
 	mtspr	SPRN_SPRG_SCRATCH2, r12
 	mfcr	r12
+=======
+	rlwinm	r10, r10, 0, ~0x0f00	/* Clear bits 20-23 */
+	rlwimi	r10, r10, 4, 0x0400	/* Copy _PAGE_EXEC into bit 21 */
+	ori	r10, r10, RPN_PATTERN | 0x200 /* Set 22 and 24-27 */
+	mtspr	SPRN_MI_RPN, r10	/* Update TLB entry */
+
+	/* Restore registers */
+0:	mfspr	r10, SPRN_SPRG_SCRATCH2
+	mfspr	r11, SPRN_M_TW
+	rfi
+	patch_site	0b, patch__itlbmiss_exit_1
+
+#ifdef CONFIG_PERF_EVENTS
+	patch_site	0f, patch__itlbmiss_perf
+0:	lwz	r10, (itlb_miss_counter - PAGE_OFFSET)@l(0)
+	addi	r10, r10, 1
+	stw	r10, (itlb_miss_counter - PAGE_OFFSET)@l(0)
+	mfspr	r10, SPRN_SPRG_SCRATCH2
+	mfspr	r11, SPRN_M_TW
+	rfi
+#endif
+
+	START_EXCEPTION(INTERRUPT_DATA_TLB_MISS_8xx, DataStoreTLBMiss)
+	mtspr	SPRN_SPRG_SCRATCH2, r10
+	mtspr	SPRN_M_TW, r11
+	mfcr	r11
+>>>>>>> upstream/android-13
 
 	/* If we are faulting a kernel address, we have to use the
 	 * kernel page tables.
 	 */
 	mfspr	r10, SPRN_MD_EPN
+<<<<<<< HEAD
 	rlwinm	r11, r10, 16, 0xfff8
 	cmpli	cr0, r11, PAGE_OFFSET@h
 	mfspr	r11, SPRN_M_TW	/* Get level 1 table */
@@ -463,11 +636,28 @@ _ENTRY(DTLBMiss_jmp)
 	mtcr	r12
 
 	/* Insert the Guarded flag into the TWC from the Linux PTE.
+=======
+	compare_to_kernel_boundary r10, r10
+	mfspr	r10, SPRN_M_TWB	/* Get level 1 table */
+	blt+	3f
+	rlwinm	r10, r10, 0, 20, 31
+	oris	r10, r10, (swapper_pg_dir - PAGE_OFFSET)@ha
+3:
+	mtcr	r11
+	lwz	r11, (swapper_pg_dir-PAGE_OFFSET)@l(r10)	/* Get level 1 entry */
+
+	mtspr	SPRN_MD_TWC, r11
+	mfspr	r10, SPRN_MD_TWC
+	lwz	r10, 0(r10)	/* Get the pte */
+
+	/* Insert Guarded and Accessed flags into the TWC from the Linux PTE.
+>>>>>>> upstream/android-13
 	 * It is bit 27 of both the Linux PTE and the TWC (at least
 	 * I got that right :-).  It will be better when we can put
 	 * this into the Linux pgd/pmd and load it in the operation
 	 * above.
 	 */
+<<<<<<< HEAD
 	rlwimi	r11, r10, 0, _PAGE_GUARDED
 	mtspr	SPRN_MD_TWC, r11
 
@@ -483,6 +673,12 @@ _ENTRY(DTLBMiss_jmp)
 	rlwinm	r11, r10, 32-7, _PAGE_PRESENT
 	and	r11, r11, r10
 	rlwimi	r10, r11, 0, _PAGE_PRESENT
+=======
+	rlwimi	r11, r10, 0, _PAGE_GUARDED | _PAGE_ACCESSED
+	rlwimi	r11, r10, 32 - 9, _PMD_PAGE_512K
+	mtspr	SPRN_MD_TWC, r11
+
+>>>>>>> upstream/android-13
 	/* The Linux PTE won't go exactly into the MMU TLB.
 	 * Software indicator bits 24, 25, 26, and 27 must be
 	 * set.  All other Linux PTE bits control the behavior
@@ -491,6 +687,7 @@ _ENTRY(DTLBMiss_jmp)
 	li	r11, RPN_PATTERN
 	rlwimi	r10, r11, 0, 24, 27	/* Set 24-27 */
 	mtspr	SPRN_MD_RPN, r10	/* Update TLB entry */
+<<<<<<< HEAD
 
 	/* Restore registers */
 	mtspr	SPRN_DAR, r11	/* Tag DAR */
@@ -532,12 +729,32 @@ _ENTRY(dtlb_miss_perf)
 	rlwimi	r10, r11, 0, 0, 32 + PAGE_SHIFT_512K - (PAGE_SHIFT << 1) - 1
 	lwz	r10, 0(r10)	/* Get the pte */
 	b	4b
+=======
+	mtspr	SPRN_DAR, r11		/* Tag DAR */
+
+	/* Restore registers */
+
+0:	mfspr	r10, SPRN_SPRG_SCRATCH2
+	mfspr	r11, SPRN_M_TW
+	rfi
+	patch_site	0b, patch__dtlbmiss_exit_1
+
+#ifdef CONFIG_PERF_EVENTS
+	patch_site	0f, patch__dtlbmiss_perf
+0:	lwz	r10, (dtlb_miss_counter - PAGE_OFFSET)@l(0)
+	addi	r10, r10, 1
+	stw	r10, (dtlb_miss_counter - PAGE_OFFSET)@l(0)
+	mfspr	r10, SPRN_SPRG_SCRATCH2
+	mfspr	r11, SPRN_M_TW
+	rfi
+>>>>>>> upstream/android-13
 #endif
 
 /* This is an instruction TLB error on the MPC8xx.  This could be due
  * to many reasons, such as executing guarded memory or illegal instruction
  * addresses.  There is nothing to do but handle a big time error fault.
  */
+<<<<<<< HEAD
 	. = 0x1300
 InstructionTLBError:
 	EXCEPTION_PROLOG
@@ -549,11 +766,27 @@ InstructionTLBError:
 itlbie:
 	/* 0x400 is InstructionAccess exception, needed by bad_page_fault() */
 1:	EXC_XFER_LITE(0x400, handle_page_fault)
+=======
+	START_EXCEPTION(INTERRUPT_INST_TLB_ERROR_8xx, InstructionTLBError)
+	/* 0x400 is InstructionAccess exception, needed by bad_page_fault() */
+	EXCEPTION_PROLOG INTERRUPT_INST_STORAGE InstructionTLBError
+	andis.	r5,r9,DSISR_SRR1_MATCH_32S@h /* Filter relevant SRR1 bits */
+	andis.	r10,r9,SRR1_ISI_NOPT@h
+	beq+	.Litlbie
+	tlbie	r12
+.Litlbie:
+	stw	r12, _DAR(r11)
+	stw	r5, _DSISR(r11)
+	prepare_transfer_to_handler
+	bl	do_page_fault
+	b	interrupt_return
+>>>>>>> upstream/android-13
 
 /* This is the data TLB error on the MPC8xx.  This could be due to
  * many reasons, including a dirty update to a pte.  We bail out to
  * a higher level function that can handle it.
  */
+<<<<<<< HEAD
 	. = 0x1400
 DataTLBError:
 	mtspr	SPRN_SPRG_SCRATCH0, r10
@@ -585,11 +818,36 @@ dtlbie:
 	EXCEPTION(0x1900, Trap_19, unknown_exception, EXC_XFER_EE)
 	EXCEPTION(0x1a00, Trap_1a, unknown_exception, EXC_XFER_EE)
 	EXCEPTION(0x1b00, Trap_1b, unknown_exception, EXC_XFER_EE)
+=======
+	START_EXCEPTION(INTERRUPT_DATA_TLB_ERROR_8xx, DataTLBError)
+	EXCEPTION_PROLOG_0 handle_dar_dsisr=1
+	mfspr	r11, SPRN_DAR
+	cmpwi	cr1, r11, RPN_PATTERN
+	beq-	cr1, FixupDAR	/* must be a buggy dcbX, icbi insn. */
+DARFixed:/* Return from dcbx instruction bug workaround */
+	EXCEPTION_PROLOG_1
+	/* 0x300 is DataAccess exception, needed by bad_page_fault() */
+	EXCEPTION_PROLOG_2 INTERRUPT_DATA_STORAGE DataTLBError handle_dar_dsisr=1
+	lwz	r4, _DAR(r11)
+	lwz	r5, _DSISR(r11)
+	andis.	r10,r5,DSISR_NOHPTE@h
+	beq+	.Ldtlbie
+	tlbie	r4
+.Ldtlbie:
+	prepare_transfer_to_handler
+	bl	do_page_fault
+	b	interrupt_return
+
+#ifdef CONFIG_VMAP_STACK
+	vmap_stack_overflow_exception
+#endif
+>>>>>>> upstream/android-13
 
 /* On the MPC8xx, these next four traps are used for development
  * support of breakpoints and such.  Someday I will get around to
  * using them.
  */
+<<<<<<< HEAD
 	. = 0x1c00
 DataBreakpoint:
 	mtspr	SPRN_SPRG_SCRATCH0, r10
@@ -608,11 +866,21 @@ DataBreakpoint:
 	mfspr	r5,SPRN_DSISR
 	EXC_XFER_EE(0x1c00, do_break)
 11:
+=======
+	START_EXCEPTION(INTERRUPT_DATA_BREAKPOINT_8xx, DataBreakpoint)
+	EXCEPTION_PROLOG_0 handle_dar_dsisr=1
+	mfspr	r11, SPRN_SRR0
+	cmplwi	cr1, r11, (.Ldtlbie - PAGE_OFFSET)@l
+	cmplwi	cr7, r11, (.Litlbie - PAGE_OFFSET)@l
+	cror	4*cr1+eq, 4*cr1+eq, 4*cr7+eq
+	bne	cr1, 1f
+>>>>>>> upstream/android-13
 	mtcr	r10
 	mfspr	r10, SPRN_SPRG_SCRATCH0
 	mfspr	r11, SPRN_SPRG_SCRATCH1
 	rfi
 
+<<<<<<< HEAD
 #ifdef CONFIG_PERF_EVENTS
 	. = 0x1d00
 InstructionBreakpoint:
@@ -622,10 +890,28 @@ InstructionBreakpoint:
 	lwz	r11, (instruction_counter - PAGE_OFFSET)@l(r10)
 	addi	r11, r11, -1
 	stw	r11, (instruction_counter - PAGE_OFFSET)@l(r10)
+=======
+1:	EXCEPTION_PROLOG_1
+	EXCEPTION_PROLOG_2 INTERRUPT_DATA_BREAKPOINT_8xx DataBreakpoint handle_dar_dsisr=1
+	mfspr	r4,SPRN_BAR
+	stw	r4,_DAR(r11)
+	prepare_transfer_to_handler
+	bl	do_break
+	REST_NVGPRS(r1)
+	b	interrupt_return
+
+#ifdef CONFIG_PERF_EVENTS
+	START_EXCEPTION(INTERRUPT_INST_BREAKPOINT_8xx, InstructionBreakpoint)
+	mtspr	SPRN_SPRG_SCRATCH0, r10
+	lwz	r10, (instruction_counter - PAGE_OFFSET)@l(0)
+	addi	r10, r10, -1
+	stw	r10, (instruction_counter - PAGE_OFFSET)@l(0)
+>>>>>>> upstream/android-13
 	lis	r10, 0xffff
 	ori	r10, r10, 0x01
 	mtspr	SPRN_COUNTA, r10
 	mfspr	r10, SPRN_SPRG_SCRATCH0
+<<<<<<< HEAD
 	mfspr	r11, SPRN_SPRG_SCRATCH1
 	rfi
 #else
@@ -695,10 +981,23 @@ _ENTRY(itlb_miss_exit_2)
 	rfi
 #endif
 
+=======
+	rfi
+#else
+	EXCEPTION(INTERRUPT_INST_BREAKPOINT_8xx, Trap_1d, unknown_exception)
+#endif
+	EXCEPTION(0x1e00, Trap_1e, unknown_exception)
+	EXCEPTION(0x1f00, Trap_1f, unknown_exception)
+
+	__HEAD
+	. = 0x2000
+
+>>>>>>> upstream/android-13
 /* This is the procedure to calculate the data EA for buggy dcbx,dcbi instructions
  * by decoding the registers used by the dcbx instruction and adding them.
  * DAR is set to the calculated address.
  */
+<<<<<<< HEAD
  /* define if you don't want to use self modifying code */
 #define NO_SELF_MODIFYING_CODE
 FixupDAR:/* Entry point for dcbx workaround. */
@@ -726,6 +1025,30 @@ _ENTRY(FixupDAR_cmp)
 	/* Insert level 2 index */
 	rlwimi	r11, r10, 32 - (PAGE_SHIFT - 2), 32 - PAGE_SHIFT, 29
 	lwz	r11, 0(r11)	/* Get the pte */
+=======
+FixupDAR:/* Entry point for dcbx workaround. */
+	mtspr	SPRN_M_TW, r10
+	/* fetch instruction from memory. */
+	mfspr	r10, SPRN_SRR0
+	mtspr	SPRN_MD_EPN, r10
+	rlwinm	r11, r10, 16, 0xfff8
+	cmpli	cr1, r11, PAGE_OFFSET@h
+	mfspr	r11, SPRN_M_TWB	/* Get level 1 table */
+	blt+	cr1, 3f
+
+	/* create physical page address from effective address */
+	tophys(r11, r10)
+	mfspr	r11, SPRN_M_TWB	/* Get level 1 table */
+	rlwinm	r11, r11, 0, 20, 31
+	oris	r11, r11, (swapper_pg_dir - PAGE_OFFSET)@ha
+3:
+	lwz	r11, (swapper_pg_dir-PAGE_OFFSET)@l(r11)	/* Get the level 1 entry */
+	mtspr	SPRN_MD_TWC, r11
+	mtcrf	0x01, r11
+	mfspr	r11, SPRN_MD_TWC
+	lwz	r11, 0(r11)	/* Get the pte */
+	bt	28,200f		/* bit 28 = Large page (8M) */
+>>>>>>> upstream/android-13
 	/* concat physical page address(r11) and page offset(r10) */
 	rlwimi	r11, r10, 0, 32 - PAGE_SHIFT, 31
 201:	lwz	r11,0(r11)
@@ -734,6 +1057,7 @@ _ENTRY(FixupDAR_cmp)
  * no need to include them here */
 	xoris	r10, r11, 0x7c00	/* check if major OP code is 31 */
 	rlwinm	r10, r10, 0, 21, 5
+<<<<<<< HEAD
 	cmpwi	cr0, r10, 2028	/* Is dcbz? */
 	beq+	142f
 	cmpwi	cr0, r10, 940	/* Is dcbi? */
@@ -756,10 +1080,27 @@ _ENTRY(FixupDAR_cmp)
 	rlwinm	r11, r10, 0, ~HUGEPD_SHIFT_MASK
 #endif
 	lwz	r11, 0(r11)	/* Get the pte */
+=======
+	cmpwi	cr1, r10, 2028	/* Is dcbz? */
+	beq+	cr1, 142f
+	cmpwi	cr1, r10, 940	/* Is dcbi? */
+	beq+	cr1, 142f
+	cmpwi	cr1, r10, 108	/* Is dcbst? */
+	beq+	cr1, 144f		/* Fix up store bit! */
+	cmpwi	cr1, r10, 172	/* Is dcbf? */
+	beq+	cr1, 142f
+	cmpwi	cr1, r10, 1964	/* Is icbi? */
+	beq+	cr1, 142f
+141:	mfspr	r10,SPRN_M_TW
+	b	DARFixed	/* Nope, go back to normal TLB processing */
+
+200:
+>>>>>>> upstream/android-13
 	/* concat physical page address(r11) and page offset(r10) */
 	rlwimi	r11, r10, 0, 32 - PAGE_SHIFT_8M, 31
 	b	201b
 
+<<<<<<< HEAD
 202:
 	rlwinm	r11, r11, 0, 0, 32 + PAGE_SHIFT_512K - (PAGE_SHIFT << 1) - 1
 	rlwimi	r11, r10, 32 - (PAGE_SHIFT_512K - 2), 32 + PAGE_SHIFT_512K - (PAGE_SHIFT << 1), 29
@@ -768,10 +1109,13 @@ _ENTRY(FixupDAR_cmp)
 	rlwimi	r11, r10, 0, 32 - PAGE_SHIFT_512K, 31
 	b	201b
 
+=======
+>>>>>>> upstream/android-13
 144:	mfspr	r10, SPRN_DSISR
 	rlwinm	r10, r10,0,7,5	/* Clear store bit for buggy dcbst insn */
 	mtspr	SPRN_DSISR, r10
 142:	/* continue, it was a dcbx, dcbi instruction. */
+<<<<<<< HEAD
 #ifndef NO_SELF_MODIFYING_CODE
 	andis.	r10,r11,0x1f	/* test if reg RA is r0 */
 	li	r10,modified_instr@l
@@ -793,6 +1137,8 @@ modified_instr:
 	mfspr	r10,SPRN_SPRG_SCRATCH2
 	b	DARFixed	/* Go back to normal TLB handling */
 #else
+=======
+>>>>>>> upstream/android-13
 	mfctr	r10
 	mtdar	r10			/* save ctr reg in DAR */
 	rlwinm	r10, r11, 24, 24, 28	/* offset into jump table for reg RB */
@@ -834,8 +1180,14 @@ modified_instr:
 	add	r10, r10, r30	;b	151f
 	add	r10, r10, r31
 151:
+<<<<<<< HEAD
 	rlwinm. r11,r11,19,24,28	/* offset into jump table for reg RA */
 	beq	152f			/* if reg RA is zero, don't add it */
+=======
+	rlwinm	r11,r11,19,24,28	/* offset into jump table for reg RA */
+	cmpwi	cr1, r11, 0
+	beq	cr1, 152f		/* if reg RA is zero, don't add it */
+>>>>>>> upstream/android-13
 	addi	r11, r11, 150b@l	/* add start of table */
 	mtctr	r11			/* load ctr with jump address */
 	rlwinm	r11,r11,0,16,10		/* make sure we don't execute this more than once */
@@ -843,8 +1195,16 @@ modified_instr:
 152:
 	mfdar	r11
 	mtctr	r11			/* restore ctr reg from DAR */
+<<<<<<< HEAD
 	mtdar	r10			/* save fault EA to DAR */
 	mfspr	r10,SPRN_SPRG_SCRATCH2
+=======
+	mfspr	r11, SPRN_SPRG_THREAD
+	stw	r10, DAR(r11)
+	mfspr	r10, SPRN_DSISR
+	stw	r10, DSISR(r11)
+	mfspr	r10,SPRN_M_TW
+>>>>>>> upstream/android-13
 	b	DARFixed		/* Go back to normal TLB handling */
 
 	/* special handling for r10,r11 since these are modified already */
@@ -856,7 +1216,10 @@ modified_instr:
 	add	r10, r10, r11	/* add it */
 	mfctr	r11		/* restore r11 */
 	b	151b
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * This is where the main kernel code starts.
@@ -874,18 +1237,34 @@ start_here:
 	/* stack */
 	lis	r1,init_thread_union@ha
 	addi	r1,r1,init_thread_union@l
+<<<<<<< HEAD
+=======
+	lis	r0, STACK_END_MAGIC@h
+	ori	r0, r0, STACK_END_MAGIC@l
+	stw	r0, 0(r1)
+>>>>>>> upstream/android-13
 	li	r0,0
 	stwu	r0,THREAD_SIZE-STACK_FRAME_OVERHEAD(r1)
 
 	lis	r6, swapper_pg_dir@ha
 	tophys(r6,r6)
+<<<<<<< HEAD
 	mtspr	SPRN_M_TW, r6
+=======
+	mtspr	SPRN_M_TWB, r6
+>>>>>>> upstream/android-13
 
 	bl	early_init	/* We have to do this with MMU on */
 
 /*
  * Decide what sort of machine this is and initialize the MMU.
  */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KASAN
+	bl	kasan_early_init
+#endif
+>>>>>>> upstream/android-13
 	li	r3,0
 	mr	r4,r31
 	bl	machine_init
@@ -910,6 +1289,30 @@ start_here:
 	rfi
 /* Load up the kernel context */
 2:
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PIN_TLB_IMMR
+	lis	r0, MD_TWAM@h
+	oris	r0, r0, 0x1f00
+	mtspr	SPRN_MD_CTR, r0
+	LOAD_REG_IMMEDIATE(r0, VIRT_IMMR_BASE | MD_EVALID)
+	tlbie	r0
+	mtspr	SPRN_MD_EPN, r0
+	LOAD_REG_IMMEDIATE(r0, MD_SVALID | MD_PS512K | MD_GUARDED)
+	mtspr	SPRN_MD_TWC, r0
+	mfspr   r0, SPRN_IMMR
+	rlwinm	r0, r0, 0, 0xfff80000
+	ori	r0, r0, 0xf0 | _PAGE_DIRTY | _PAGE_SPS | _PAGE_SH | \
+			_PAGE_NO_CACHE | _PAGE_PRESENT
+	mtspr	SPRN_MD_RPN, r0
+	lis	r0, (MD_TWAM | MD_RSV4I)@h
+	mtspr	SPRN_MD_CTR, r0
+#endif
+#if !defined(CONFIG_PIN_TLB_DATA) && !defined(CONFIG_PIN_TLB_IMMR)
+	lis	r0, MD_TWAM@h
+	mtspr	SPRN_MD_CTR, r0
+#endif
+>>>>>>> upstream/android-13
 	tlbia			/* Clear all TLB entries */
 	sync			/* wait for tlbia/tlbie to finish */
 
@@ -942,6 +1345,7 @@ start_here:
 initial_mmu:
 	li	r8, 0
 	mtspr	SPRN_MI_CTR, r8		/* remove PINNED ITLB entries */
+<<<<<<< HEAD
 	lis	r10, MD_RESETVAL@h
 #ifndef CONFIG_8xx_COPYBACK
 	oris	r10, r10, MD_WTDEF@h
@@ -970,6 +1374,12 @@ initial_mmu:
 	mtspr	SPRN_MI_TWC, r8
 	li	r8, MI_BOOTINIT		/* Create RPN for address 0 */
 	mtspr	SPRN_MI_RPN, r8		/* Store TLB entry */
+=======
+	lis	r10, MD_TWAM@h
+	mtspr	SPRN_MD_CTR, r10	/* remove PINNED DTLB entries */
+
+	tlbia			/* Invalidate all TLB entries */
+>>>>>>> upstream/android-13
 
 	lis	r8, MI_APG_INIT@h	/* Set protection modes */
 	ori	r8, r8, MI_APG_INIT@l
@@ -978,6 +1388,7 @@ initial_mmu:
 	ori	r8, r8, MD_APG_INIT@l
 	mtspr	SPRN_MD_AP, r8
 
+<<<<<<< HEAD
 	/* Map a 512k page for the IMMR to get the processor
 	 * internal registers (among other things).
 	 */
@@ -999,6 +1410,34 @@ initial_mmu:
 	ori	r8, r8, MI_BOOTINIT|0x2 /* Inhibit cache -- Cort */
 	mtspr	SPRN_MD_RPN, r8
 #endif
+=======
+	/* Map the lower RAM (up to 32 Mbytes) into the ITLB and DTLB */
+	lis	r8, MI_RSV4I@h
+	ori	r8, r8, 0x1c00
+	oris	r12, r10, MD_RSV4I@h
+	ori	r12, r12, 0x1c00
+	li	r9, 4				/* up to 4 pages of 8M */
+	mtctr	r9
+	lis	r9, KERNELBASE@h		/* Create vaddr for TLB */
+	li	r10, MI_PS8MEG | _PMD_ACCESSED | MI_SVALID
+	li	r11, MI_BOOTINIT		/* Create RPN for address 0 */
+1:
+	mtspr	SPRN_MI_CTR, r8	/* Set instruction MMU control */
+	addi	r8, r8, 0x100
+	ori	r0, r9, MI_EVALID		/* Mark it valid */
+	mtspr	SPRN_MI_EPN, r0
+	mtspr	SPRN_MI_TWC, r10
+	mtspr	SPRN_MI_RPN, r11		/* Store TLB entry */
+	mtspr	SPRN_MD_CTR, r12
+	addi	r12, r12, 0x100
+	mtspr	SPRN_MD_EPN, r0
+	mtspr	SPRN_MD_TWC, r10
+	mtspr	SPRN_MD_RPN, r11
+	addis	r9, r9, 0x80
+	addis	r11, r11, 0x80
+
+	bdnz	1b
+>>>>>>> upstream/android-13
 
 	/* Since the cache is enabled according to the information we
 	 * just loaded into the TLB, invalidate and enable the caches here.
@@ -1009,6 +1448,7 @@ initial_mmu:
 	mtspr	SPRN_DC_CST, r8
 	lis	r8, IDC_ENABLE@h
 	mtspr	SPRN_IC_CST, r8
+<<<<<<< HEAD
 #ifdef CONFIG_8xx_COPYBACK
 	mtspr	SPRN_DC_CST, r8
 #else
@@ -1020,6 +1460,9 @@ initial_mmu:
 	lis	r8, IDC_ENABLE@h
 	mtspr	SPRN_DC_CST, r8
 #endif
+=======
+	mtspr	SPRN_DC_CST, r8
+>>>>>>> upstream/android-13
 	/* Disable debug mode entry on breakpoints */
 	mfspr	r8, SPRN_DER
 #ifdef CONFIG_PERF_EVENTS
@@ -1030,6 +1473,7 @@ initial_mmu:
 	mtspr	SPRN_DER, r8
 	blr
 
+<<<<<<< HEAD
 
 /*
  * We put a few things here that have to be page-aligned.
@@ -1068,3 +1512,105 @@ dtlb_miss_counter:
 instruction_counter:
 	.space	4
 #endif
+=======
+_GLOBAL(mmu_pin_tlb)
+	lis	r9, (1f - PAGE_OFFSET)@h
+	ori	r9, r9, (1f - PAGE_OFFSET)@l
+	mfmsr	r10
+	mflr	r11
+	li	r12, MSR_KERNEL & ~(MSR_IR | MSR_DR | MSR_RI)
+	rlwinm	r0, r10, 0, ~MSR_RI
+	rlwinm	r0, r0, 0, ~MSR_EE
+	mtmsr	r0
+	isync
+	.align	4
+	mtspr	SPRN_SRR0, r9
+	mtspr	SPRN_SRR1, r12
+	rfi
+1:
+	li	r5, 0
+	lis	r6, MD_TWAM@h
+	mtspr	SPRN_MI_CTR, r5
+	mtspr	SPRN_MD_CTR, r6
+	tlbia
+
+	LOAD_REG_IMMEDIATE(r5, 28 << 8)
+	LOAD_REG_IMMEDIATE(r6, PAGE_OFFSET)
+	LOAD_REG_IMMEDIATE(r7, MI_SVALID | MI_PS8MEG | _PMD_ACCESSED)
+	LOAD_REG_IMMEDIATE(r8, 0xf0 | _PAGE_RO | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT)
+	LOAD_REG_ADDR(r9, _sinittext)
+	li	r0, 4
+	mtctr	r0
+
+2:	ori	r0, r6, MI_EVALID
+	mtspr	SPRN_MI_CTR, r5
+	mtspr	SPRN_MI_EPN, r0
+	mtspr	SPRN_MI_TWC, r7
+	mtspr	SPRN_MI_RPN, r8
+	addi	r5, r5, 0x100
+	addis	r6, r6, SZ_8M@h
+	addis	r8, r8, SZ_8M@h
+	cmplw	r6, r9
+	bdnzt	lt, 2b
+	lis	r0, MI_RSV4I@h
+	mtspr	SPRN_MI_CTR, r0
+
+	LOAD_REG_IMMEDIATE(r5, 28 << 8 | MD_TWAM)
+#ifdef CONFIG_PIN_TLB_DATA
+	LOAD_REG_IMMEDIATE(r6, PAGE_OFFSET)
+	LOAD_REG_IMMEDIATE(r7, MI_SVALID | MI_PS8MEG | _PMD_ACCESSED)
+	li	r8, 0
+#ifdef CONFIG_PIN_TLB_IMMR
+	li	r0, 3
+#else
+	li	r0, 4
+#endif
+	mtctr	r0
+	cmpwi	r4, 0
+	beq	4f
+	LOAD_REG_ADDR(r9, _sinittext)
+
+2:	ori	r0, r6, MD_EVALID
+	ori	r12, r8, 0xf0 | _PAGE_RO | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT
+	mtspr	SPRN_MD_CTR, r5
+	mtspr	SPRN_MD_EPN, r0
+	mtspr	SPRN_MD_TWC, r7
+	mtspr	SPRN_MD_RPN, r12
+	addi	r5, r5, 0x100
+	addis	r6, r6, SZ_8M@h
+	addis	r8, r8, SZ_8M@h
+	cmplw	r6, r9
+	bdnzt	lt, 2b
+4:
+2:	ori	r0, r6, MD_EVALID
+	ori	r12, r8, 0xf0 | _PAGE_DIRTY | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT
+	mtspr	SPRN_MD_CTR, r5
+	mtspr	SPRN_MD_EPN, r0
+	mtspr	SPRN_MD_TWC, r7
+	mtspr	SPRN_MD_RPN, r12
+	addi	r5, r5, 0x100
+	addis	r6, r6, SZ_8M@h
+	addis	r8, r8, SZ_8M@h
+	cmplw	r6, r3
+	bdnzt	lt, 2b
+#endif
+#ifdef CONFIG_PIN_TLB_IMMR
+	LOAD_REG_IMMEDIATE(r0, VIRT_IMMR_BASE | MD_EVALID)
+	LOAD_REG_IMMEDIATE(r7, MD_SVALID | MD_PS512K | MD_GUARDED | _PMD_ACCESSED)
+	mfspr   r8, SPRN_IMMR
+	rlwinm	r8, r8, 0, 0xfff80000
+	ori	r8, r8, 0xf0 | _PAGE_DIRTY | _PAGE_SPS | _PAGE_SH | \
+			_PAGE_NO_CACHE | _PAGE_PRESENT
+	mtspr	SPRN_MD_CTR, r5
+	mtspr	SPRN_MD_EPN, r0
+	mtspr	SPRN_MD_TWC, r7
+	mtspr	SPRN_MD_RPN, r8
+#endif
+#if defined(CONFIG_PIN_TLB_IMMR) || defined(CONFIG_PIN_TLB_DATA)
+	lis	r0, (MD_RSV4I | MD_TWAM)@h
+	mtspr	SPRN_MD_CTR, r0
+#endif
+	mtspr	SPRN_SRR1, r10
+	mtspr	SPRN_SRR0, r11
+	rfi
+>>>>>>> upstream/android-13

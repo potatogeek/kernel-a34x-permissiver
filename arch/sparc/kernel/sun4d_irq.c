@@ -335,12 +335,20 @@ static unsigned int sun4d_build_device_irq(struct platform_device *op,
 
 	irq = real_irq;
 	while (bus) {
+<<<<<<< HEAD
 		if (!strcmp(bus->name, "sbi")) {
+=======
+		if (of_node_name_eq(bus, "sbi")) {
+>>>>>>> upstream/android-13
 			bus_connection = "io-unit";
 			break;
 		}
 
+<<<<<<< HEAD
 		if (!strcmp(bus->name, "bootbus")) {
+=======
+		if (of_node_name_eq(bus, "bootbus")) {
+>>>>>>> upstream/android-13
 			bus_connection = "cpu-unit";
 			break;
 		}
@@ -360,16 +368,27 @@ static unsigned int sun4d_build_device_irq(struct platform_device *op,
 	 * If Bus nodes parent is not io-unit/cpu-unit or the io-unit/cpu-unit
 	 * lacks a "board#" property, something is very wrong.
 	 */
+<<<<<<< HEAD
 	if (!bus->parent || strcmp(bus->parent->name, bus_connection)) {
 		printk(KERN_ERR "%s: Error, parent is not %s.\n",
 			bus->full_name, bus_connection);
+=======
+	if (!of_node_name_eq(bus->parent, bus_connection)) {
+		printk(KERN_ERR "%pOF: Error, parent is not %s.\n",
+			bus, bus_connection);
+>>>>>>> upstream/android-13
 		goto err_out;
 	}
 	board_parent = bus->parent;
 	board = of_getintprop_default(board_parent, "board#", -1);
 	if (board == -1) {
+<<<<<<< HEAD
 		printk(KERN_ERR "%s: Error, lacks board# property.\n",
 			board_parent->full_name);
+=======
+		printk(KERN_ERR "%pOF: Error, lacks board# property.\n",
+			board_parent);
+>>>>>>> upstream/android-13
 		goto err_out;
 	}
 

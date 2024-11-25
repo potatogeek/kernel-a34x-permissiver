@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * talitos - Freescale Integrated Security Engine (SEC) device driver
  *
@@ -9,6 +13,7 @@
  * Crypto algorithm registration code copied from hifn driver:
  * 2007+ Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -43,12 +50,22 @@
 
 #include <crypto/algapi.h>
 #include <crypto/aes.h>
+<<<<<<< HEAD
 #include <crypto/des.h>
 #include <crypto/sha.h>
 #include <crypto/md5.h>
 #include <crypto/internal/aead.h>
 #include <crypto/authenc.h>
 #include <crypto/skcipher.h>
+=======
+#include <crypto/internal/des.h>
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+#include <crypto/md5.h>
+#include <crypto/internal/aead.h>
+#include <crypto/authenc.h>
+#include <crypto/internal/skcipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/hash.h>
 #include <crypto/internal/hash.h>
 #include <crypto/scatterwalk.h>
@@ -278,11 +295,19 @@ static int init_device(struct device *dev)
  * callback must check err and feedback in descriptor header
  * for device processing status.
  */
+<<<<<<< HEAD
 int talitos_submit(struct device *dev, int ch, struct talitos_desc *desc,
 		   void (*callback)(struct device *dev,
 				    struct talitos_desc *desc,
 				    void *context, int error),
 		   void *context)
+=======
+static int talitos_submit(struct device *dev, int ch, struct talitos_desc *desc,
+			  void (*callback)(struct device *dev,
+					   struct talitos_desc *desc,
+					   void *context, int error),
+			  void *context)
+>>>>>>> upstream/android-13
 {
 	struct talitos_private *priv = dev_get_drvdata(dev);
 	struct talitos_request *request;
@@ -332,7 +357,10 @@ int talitos_submit(struct device *dev, int ch, struct talitos_desc *desc,
 
 	return -EINPROGRESS;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(talitos_submit);
+=======
+>>>>>>> upstream/android-13
 
 static __be32 get_request_hdr(struct talitos_request *request, bool is_sec1)
 {
@@ -820,10 +848,17 @@ static int talitos_register_rng(struct device *dev)
 	struct talitos_private *priv = dev_get_drvdata(dev);
 	int err;
 
+<<<<<<< HEAD
 	priv->rng.name		= dev_driver_string(dev),
 	priv->rng.init		= talitos_rng_init,
 	priv->rng.data_present	= talitos_rng_data_present,
 	priv->rng.data_read	= talitos_rng_data_read,
+=======
+	priv->rng.name		= dev_driver_string(dev);
+	priv->rng.init		= talitos_rng_init;
+	priv->rng.data_present	= talitos_rng_data_present;
+	priv->rng.data_read	= talitos_rng_data_read;
+>>>>>>> upstream/android-13
 	priv->rng.priv		= (unsigned long)dev;
 
 	err = hwrng_register(&priv->rng);
@@ -853,7 +888,15 @@ static void talitos_unregister_rng(struct device *dev)
  * HMAC_SNOOP_NO_AFEA (HSNA) instead of type IPSEC_ESP
  */
 #define TALITOS_CRA_PRIORITY_AEAD_HSNA	(TALITOS_CRA_PRIORITY - 1)
+<<<<<<< HEAD
 #define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA512_BLOCK_SIZE)
+=======
+#ifdef CONFIG_CRYPTO_DEV_TALITOS2
+#define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA512_BLOCK_SIZE)
+#else
+#define TALITOS_MAX_KEY_SIZE		(AES_MAX_KEY_SIZE + SHA256_BLOCK_SIZE)
+#endif
+>>>>>>> upstream/android-13
 #define TALITOS_MAX_IV_LENGTH		16 /* max of AES_BLOCK_SIZE, DES3_EDE_BLOCK_SIZE */
 
 struct talitos_ctx {
@@ -924,11 +967,54 @@ static int aead_setkey(struct crypto_aead *authenc,
 	return 0;
 
 badkey:
+<<<<<<< HEAD
 	crypto_aead_set_flags(authenc, CRYPTO_TFM_RES_BAD_KEY_LEN);
+=======
+>>>>>>> upstream/android-13
 	memzero_explicit(&keys, sizeof(keys));
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+static int aead_des3_setkey(struct crypto_aead *authenc,
+			    const u8 *key, unsigned int keylen)
+{
+	struct talitos_ctx *ctx = crypto_aead_ctx(authenc);
+	struct device *dev = ctx->dev;
+	struct crypto_authenc_keys keys;
+	int err;
+
+	err = crypto_authenc_extractkeys(&keys, key, keylen);
+	if (unlikely(err))
+		goto out;
+
+	err = -EINVAL;
+	if (keys.authkeylen + keys.enckeylen > TALITOS_MAX_KEY_SIZE)
+		goto out;
+
+	err = verify_aead_des3_key(authenc, keys.enckey, keys.enckeylen);
+	if (err)
+		goto out;
+
+	if (ctx->keylen)
+		dma_unmap_single(dev, ctx->dma_key, ctx->keylen, DMA_TO_DEVICE);
+
+	memcpy(ctx->key, keys.authkey, keys.authkeylen);
+	memcpy(&ctx->key[keys.authkeylen], keys.enckey, keys.enckeylen);
+
+	ctx->keylen = keys.authkeylen + keys.enckeylen;
+	ctx->enckeylen = keys.enckeylen;
+	ctx->authkeylen = keys.authkeylen;
+	ctx->dma_key = dma_map_single(dev, ctx->key, ctx->keylen,
+				      DMA_TO_DEVICE);
+
+out:
+	memzero_explicit(&keys, sizeof(keys));
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static void talitos_sg_unmap(struct device *dev,
 			     struct talitos_edesc *edesc,
 			     struct scatterlist *src,
@@ -1249,9 +1335,12 @@ static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
 				 is_ipsec_esp && !encrypt, 1);
 	tbl_off += ret;
 
+<<<<<<< HEAD
 	/* ICV data */
 	edesc->icv_ool = !encrypt;
 
+=======
+>>>>>>> upstream/android-13
 	if (!encrypt && is_ipsec_esp) {
 		struct talitos_ptr *tbl_ptr = &edesc->link_tbl[tbl_off];
 
@@ -1464,6 +1553,7 @@ static int aead_decrypt(struct aead_request *req)
 	return ipsec_esp(edesc, req, false, ipsec_esp_decrypt_swauth_done);
 }
 
+<<<<<<< HEAD
 static int ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 			     const u8 *key, unsigned int keylen)
 {
@@ -1482,6 +1572,13 @@ static int ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 		crypto_ablkcipher_set_flags(cipher, CRYPTO_TFM_RES_WEAK_KEY);
 		return -EINVAL;
 	}
+=======
+static int skcipher_setkey(struct crypto_skcipher *cipher,
+			     const u8 *key, unsigned int keylen)
+{
+	struct talitos_ctx *ctx = crypto_skcipher_ctx(cipher);
+	struct device *dev = ctx->dev;
+>>>>>>> upstream/android-13
 
 	if (ctx->keylen)
 		dma_unmap_single(dev, ctx->dma_key, ctx->keylen, DMA_TO_DEVICE);
@@ -1494,25 +1591,55 @@ static int ablkcipher_setkey(struct crypto_ablkcipher *cipher,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ablkcipher_aes_setkey(struct crypto_ablkcipher *cipher,
+=======
+static int skcipher_des_setkey(struct crypto_skcipher *cipher,
+				 const u8 *key, unsigned int keylen)
+{
+	return verify_skcipher_des_key(cipher, key) ?:
+	       skcipher_setkey(cipher, key, keylen);
+}
+
+static int skcipher_des3_setkey(struct crypto_skcipher *cipher,
+				  const u8 *key, unsigned int keylen)
+{
+	return verify_skcipher_des3_key(cipher, key) ?:
+	       skcipher_setkey(cipher, key, keylen);
+}
+
+static int skcipher_aes_setkey(struct crypto_skcipher *cipher,
+>>>>>>> upstream/android-13
 				  const u8 *key, unsigned int keylen)
 {
 	if (keylen == AES_KEYSIZE_128 || keylen == AES_KEYSIZE_192 ||
 	    keylen == AES_KEYSIZE_256)
+<<<<<<< HEAD
 		return ablkcipher_setkey(cipher, key, keylen);
 
 	crypto_ablkcipher_set_flags(cipher, CRYPTO_TFM_RES_BAD_KEY_LEN);
+=======
+		return skcipher_setkey(cipher, key, keylen);
+>>>>>>> upstream/android-13
 
 	return -EINVAL;
 }
 
 static void common_nonsnoop_unmap(struct device *dev,
 				  struct talitos_edesc *edesc,
+<<<<<<< HEAD
 				  struct ablkcipher_request *areq)
 {
 	unmap_single_talitos_ptr(dev, &edesc->desc.ptr[5], DMA_FROM_DEVICE);
 
 	talitos_sg_unmap(dev, edesc, areq->src, areq->dst, areq->nbytes, 0);
+=======
+				  struct skcipher_request *areq)
+{
+	unmap_single_talitos_ptr(dev, &edesc->desc.ptr[5], DMA_FROM_DEVICE);
+
+	talitos_sg_unmap(dev, edesc, areq->src, areq->dst, areq->cryptlen, 0);
+>>>>>>> upstream/android-13
 	unmap_single_talitos_ptr(dev, &edesc->desc.ptr[1], DMA_TO_DEVICE);
 
 	if (edesc->dma_len)
@@ -1520,6 +1647,7 @@ static void common_nonsnoop_unmap(struct device *dev,
 				 DMA_BIDIRECTIONAL);
 }
 
+<<<<<<< HEAD
 static void ablkcipher_done(struct device *dev,
 			    struct talitos_desc *desc, void *context,
 			    int err)
@@ -1528,12 +1656,26 @@ static void ablkcipher_done(struct device *dev,
 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
 	struct talitos_ctx *ctx = crypto_ablkcipher_ctx(cipher);
 	unsigned int ivsize = crypto_ablkcipher_ivsize(cipher);
+=======
+static void skcipher_done(struct device *dev,
+			    struct talitos_desc *desc, void *context,
+			    int err)
+{
+	struct skcipher_request *areq = context;
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct talitos_ctx *ctx = crypto_skcipher_ctx(cipher);
+	unsigned int ivsize = crypto_skcipher_ivsize(cipher);
+>>>>>>> upstream/android-13
 	struct talitos_edesc *edesc;
 
 	edesc = container_of(desc, struct talitos_edesc, desc);
 
 	common_nonsnoop_unmap(dev, edesc, areq);
+<<<<<<< HEAD
 	memcpy(areq->info, ctx->iv, ivsize);
+=======
+	memcpy(areq->iv, ctx->iv, ivsize);
+>>>>>>> upstream/android-13
 
 	kfree(edesc);
 
@@ -1541,17 +1683,30 @@ static void ablkcipher_done(struct device *dev,
 }
 
 static int common_nonsnoop(struct talitos_edesc *edesc,
+<<<<<<< HEAD
 			   struct ablkcipher_request *areq,
+=======
+			   struct skcipher_request *areq,
+>>>>>>> upstream/android-13
 			   void (*callback) (struct device *dev,
 					     struct talitos_desc *desc,
 					     void *context, int error))
 {
+<<<<<<< HEAD
 	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
 	struct talitos_ctx *ctx = crypto_ablkcipher_ctx(cipher);
 	struct device *dev = ctx->dev;
 	struct talitos_desc *desc = &edesc->desc;
 	unsigned int cryptlen = areq->nbytes;
 	unsigned int ivsize = crypto_ablkcipher_ivsize(cipher);
+=======
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct talitos_ctx *ctx = crypto_skcipher_ctx(cipher);
+	struct device *dev = ctx->dev;
+	struct talitos_desc *desc = &edesc->desc;
+	unsigned int cryptlen = areq->cryptlen;
+	unsigned int ivsize = crypto_skcipher_ivsize(cipher);
+>>>>>>> upstream/android-13
 	int sg_count, ret;
 	bool sync_needed = false;
 	struct talitos_private *priv = dev_get_drvdata(dev);
@@ -1613,6 +1768,7 @@ static int common_nonsnoop(struct talitos_edesc *edesc,
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct talitos_edesc *ablkcipher_edesc_alloc(struct ablkcipher_request *
 						    areq, bool encrypt)
 {
@@ -1641,12 +1797,43 @@ static int ablkcipher_encrypt(struct ablkcipher_request *areq)
 
 	/* allocate extended descriptor */
 	edesc = ablkcipher_edesc_alloc(areq, true);
+=======
+static struct talitos_edesc *skcipher_edesc_alloc(struct skcipher_request *
+						    areq, bool encrypt)
+{
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct talitos_ctx *ctx = crypto_skcipher_ctx(cipher);
+	unsigned int ivsize = crypto_skcipher_ivsize(cipher);
+
+	return talitos_edesc_alloc(ctx->dev, areq->src, areq->dst,
+				   areq->iv, 0, areq->cryptlen, 0, ivsize, 0,
+				   areq->base.flags, encrypt);
+}
+
+static int skcipher_encrypt(struct skcipher_request *areq)
+{
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct talitos_ctx *ctx = crypto_skcipher_ctx(cipher);
+	struct talitos_edesc *edesc;
+	unsigned int blocksize =
+			crypto_tfm_alg_blocksize(crypto_skcipher_tfm(cipher));
+
+	if (!areq->cryptlen)
+		return 0;
+
+	if (areq->cryptlen % blocksize)
+		return -EINVAL;
+
+	/* allocate extended descriptor */
+	edesc = skcipher_edesc_alloc(areq, true);
+>>>>>>> upstream/android-13
 	if (IS_ERR(edesc))
 		return PTR_ERR(edesc);
 
 	/* set encrypt */
 	edesc->desc.hdr = ctx->desc_hdr_template | DESC_HDR_MODE0_ENCRYPT;
 
+<<<<<<< HEAD
 	return common_nonsnoop(edesc, areq, ablkcipher_done);
 }
 
@@ -1666,12 +1853,37 @@ static int ablkcipher_decrypt(struct ablkcipher_request *areq)
 
 	/* allocate extended descriptor */
 	edesc = ablkcipher_edesc_alloc(areq, false);
+=======
+	return common_nonsnoop(edesc, areq, skcipher_done);
+}
+
+static int skcipher_decrypt(struct skcipher_request *areq)
+{
+	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(areq);
+	struct talitos_ctx *ctx = crypto_skcipher_ctx(cipher);
+	struct talitos_edesc *edesc;
+	unsigned int blocksize =
+			crypto_tfm_alg_blocksize(crypto_skcipher_tfm(cipher));
+
+	if (!areq->cryptlen)
+		return 0;
+
+	if (areq->cryptlen % blocksize)
+		return -EINVAL;
+
+	/* allocate extended descriptor */
+	edesc = skcipher_edesc_alloc(areq, false);
+>>>>>>> upstream/android-13
 	if (IS_ERR(edesc))
 		return PTR_ERR(edesc);
 
 	edesc->desc.hdr = ctx->desc_hdr_template | DESC_HDR_DIR_INBOUND;
 
+<<<<<<< HEAD
 	return common_nonsnoop(edesc, areq, ablkcipher_done);
+=======
+	return common_nonsnoop(edesc, areq, skcipher_done);
+>>>>>>> upstream/android-13
 }
 
 static void common_nonsnoop_hash_unmap(struct device *dev,
@@ -1679,6 +1891,10 @@ static void common_nonsnoop_hash_unmap(struct device *dev,
 				       struct ahash_request *areq)
 {
 	struct talitos_ahash_req_ctx *req_ctx = ahash_request_ctx(areq);
+<<<<<<< HEAD
+=======
+	struct crypto_ahash *tfm = crypto_ahash_reqtfm(areq);
+>>>>>>> upstream/android-13
 	struct talitos_private *priv = dev_get_drvdata(dev);
 	bool is_sec1 = has_ftr_sec1(priv);
 	struct talitos_desc *desc = &edesc->desc;
@@ -1689,6 +1905,12 @@ static void common_nonsnoop_hash_unmap(struct device *dev,
 	if (desc->next_desc &&
 	    desc->ptr[5].ptr != desc2->ptr[5].ptr)
 		unmap_single_talitos_ptr(dev, &desc2->ptr[5], DMA_FROM_DEVICE);
+<<<<<<< HEAD
+=======
+	if (req_ctx->last)
+		memcpy(areq->result, req_ctx->hw_context,
+		       crypto_ahash_digestsize(tfm));
+>>>>>>> upstream/android-13
 
 	if (req_ctx->psrc)
 		talitos_sg_unmap(dev, edesc, req_ctx->psrc, NULL, 0, 0);
@@ -1820,7 +2042,11 @@ static int common_nonsnoop_hash(struct talitos_edesc *edesc,
 	if (req_ctx->last)
 		map_single_talitos_ptr(dev, &desc->ptr[5],
 				       crypto_ahash_digestsize(tfm),
+<<<<<<< HEAD
 				       areq->result, DMA_FROM_DEVICE);
+=======
+				       req_ctx->hw_context, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	else
 		map_single_talitos_ptr_nosync(dev, &desc->ptr[5],
 					      req_ctx->hw_context_size,
@@ -2205,10 +2431,15 @@ static int ahash_setkey(struct crypto_ahash *tfm, const u8 *key,
 		/* Must get the hash of the long key */
 		ret = keyhash(tfm, key, keylen, hash);
 
+<<<<<<< HEAD
 		if (ret) {
 			crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
 			return -EINVAL;
 		}
+=======
+		if (ret)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		keysize = digestsize;
 		memcpy(ctx->key, hash, digestsize);
@@ -2228,7 +2459,11 @@ struct talitos_alg_template {
 	u32 type;
 	u32 priority;
 	union {
+<<<<<<< HEAD
 		struct crypto_alg crypto;
+=======
+		struct skcipher_alg skcipher;
+>>>>>>> upstream/android-13
 		struct ahash_alg hash;
 		struct aead_alg aead;
 	} alg;
@@ -2244,7 +2479,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha1-"
 						   "cbc-aes-talitos",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA1_DIGEST_SIZE,
@@ -2265,7 +2505,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha1-"
 						   "cbc-aes-talitos-hsna",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA1_DIGEST_SIZE,
@@ -2286,10 +2531,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha1-"
 						   "cbc-3des-talitos",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA1_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA1_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_IPSEC_ESP |
 			             DESC_HDR_SEL0_DEU |
@@ -2309,10 +2563,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha1-"
 						   "cbc-3des-talitos-hsna",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA1_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA1_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_HMAC_SNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_DEU |
@@ -2330,7 +2593,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha224-"
 						   "cbc-aes-talitos",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA224_DIGEST_SIZE,
@@ -2351,7 +2619,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha224-"
 						   "cbc-aes-talitos-hsna",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA224_DIGEST_SIZE,
@@ -2372,10 +2645,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha224-"
 						   "cbc-3des-talitos",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA224_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA224_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_IPSEC_ESP |
 			             DESC_HDR_SEL0_DEU |
@@ -2395,10 +2677,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha224-"
 						   "cbc-3des-talitos-hsna",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA224_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA224_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_HMAC_SNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_DEU |
@@ -2416,7 +2707,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha256-"
 						   "cbc-aes-talitos",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA256_DIGEST_SIZE,
@@ -2437,7 +2733,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha256-"
 						   "cbc-aes-talitos-hsna",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA256_DIGEST_SIZE,
@@ -2458,10 +2759,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha256-"
 						   "cbc-3des-talitos",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA256_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA256_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_IPSEC_ESP |
 			             DESC_HDR_SEL0_DEU |
@@ -2481,10 +2791,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha256-"
 						   "cbc-3des-talitos-hsna",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA256_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA256_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_HMAC_SNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_DEU |
@@ -2502,7 +2821,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha384-"
 						   "cbc-aes-talitos",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA384_DIGEST_SIZE,
@@ -2523,10 +2847,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha384-"
 						   "cbc-3des-talitos",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA384_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA384_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_IPSEC_ESP |
 			             DESC_HDR_SEL0_DEU |
@@ -2544,7 +2877,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha512-"
 						   "cbc-aes-talitos",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = SHA512_DIGEST_SIZE,
@@ -2565,10 +2903,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-sha512-"
 						   "cbc-3des-talitos",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = SHA512_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = SHA512_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_IPSEC_ESP |
 			             DESC_HDR_SEL0_DEU |
@@ -2586,7 +2933,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-md5-"
 						   "cbc-aes-talitos",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = MD5_DIGEST_SIZE,
@@ -2607,7 +2959,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-md5-"
 						   "cbc-aes-talitos-hsna",
 				.cra_blocksize = AES_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			},
 			.ivsize = AES_BLOCK_SIZE,
 			.maxauthsize = MD5_DIGEST_SIZE,
@@ -2627,10 +2984,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-md5-"
 						   "cbc-3des-talitos",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = MD5_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = MD5_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_IPSEC_ESP |
 			             DESC_HDR_SEL0_DEU |
@@ -2649,10 +3015,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_driver_name = "authenc-hmac-md5-"
 						   "cbc-3des-talitos-hsna",
 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
 			},
 			.ivsize = DES3_EDE_BLOCK_SIZE,
 			.maxauthsize = MD5_DIGEST_SIZE,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+			},
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.maxauthsize = MD5_DIGEST_SIZE,
+			.setkey = aead_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_HMAC_SNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_DEU |
@@ -2663,6 +3038,7 @@ static struct talitos_alg_template driver_algs[] = {
 				     DESC_HDR_MODE1_MDEU_PAD |
 				     DESC_HDR_MODE1_MDEU_MD5_HMAC,
 	},
+<<<<<<< HEAD
 	/* ABLKCIPHER algorithms. */
 	{	.type = CRYPTO_ALG_TYPE_ABLKCIPHER,
 		.alg.crypto = {
@@ -2675,10 +3051,24 @@ static struct talitos_alg_template driver_algs[] = {
 				.min_keysize = AES_MIN_KEY_SIZE,
 				.max_keysize = AES_MAX_KEY_SIZE,
 			}
+=======
+	/* SKCIPHER algorithms. */
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "ecb(aes)",
+			.base.cra_driver_name = "ecb-aes-talitos",
+			.base.cra_blocksize = AES_BLOCK_SIZE,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = AES_MIN_KEY_SIZE,
+			.max_keysize = AES_MAX_KEY_SIZE,
+			.setkey = skcipher_aes_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_AESU,
 	},
+<<<<<<< HEAD
 	{	.type = CRYPTO_ALG_TYPE_ABLKCIPHER,
 		.alg.crypto = {
 			.cra_name = "cbc(aes)",
@@ -2692,11 +3082,25 @@ static struct talitos_alg_template driver_algs[] = {
 				.ivsize = AES_BLOCK_SIZE,
 				.setkey = ablkcipher_aes_setkey,
 			}
+=======
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "cbc(aes)",
+			.base.cra_driver_name = "cbc-aes-talitos",
+			.base.cra_blocksize = AES_BLOCK_SIZE,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = AES_MIN_KEY_SIZE,
+			.max_keysize = AES_MAX_KEY_SIZE,
+			.ivsize = AES_BLOCK_SIZE,
+			.setkey = skcipher_aes_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_AESU |
 				     DESC_HDR_MODE0_AESU_CBC,
 	},
+<<<<<<< HEAD
 	{	.type = CRYPTO_ALG_TYPE_ABLKCIPHER,
 		.alg.crypto = {
 			.cra_name = "ctr(aes)",
@@ -2710,11 +3114,25 @@ static struct talitos_alg_template driver_algs[] = {
 				.ivsize = AES_BLOCK_SIZE,
 				.setkey = ablkcipher_aes_setkey,
 			}
+=======
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "ctr(aes)",
+			.base.cra_driver_name = "ctr-aes-talitos",
+			.base.cra_blocksize = 1,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = AES_MIN_KEY_SIZE,
+			.max_keysize = AES_MAX_KEY_SIZE,
+			.ivsize = AES_BLOCK_SIZE,
+			.setkey = skcipher_aes_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_AESU_CTR_NONSNOOP |
 				     DESC_HDR_SEL0_AESU |
 				     DESC_HDR_MODE0_AESU_CTR,
 	},
+<<<<<<< HEAD
 	{	.type = CRYPTO_ALG_TYPE_ABLKCIPHER,
 		.alg.crypto = {
 			.cra_name = "ecb(des)",
@@ -2727,10 +3145,39 @@ static struct talitos_alg_template driver_algs[] = {
 				.max_keysize = DES_KEY_SIZE,
 				.ivsize = DES_BLOCK_SIZE,
 			}
+=======
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "ctr(aes)",
+			.base.cra_driver_name = "ctr-aes-talitos",
+			.base.cra_blocksize = 1,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = AES_MIN_KEY_SIZE,
+			.max_keysize = AES_MAX_KEY_SIZE,
+			.ivsize = AES_BLOCK_SIZE,
+			.setkey = skcipher_aes_setkey,
+		},
+		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
+				     DESC_HDR_SEL0_AESU |
+				     DESC_HDR_MODE0_AESU_CTR,
+	},
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "ecb(des)",
+			.base.cra_driver_name = "ecb-des-talitos",
+			.base.cra_blocksize = DES_BLOCK_SIZE,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = DES_KEY_SIZE,
+			.max_keysize = DES_KEY_SIZE,
+			.setkey = skcipher_des_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_DEU,
 	},
+<<<<<<< HEAD
 	{	.type = CRYPTO_ALG_TYPE_ABLKCIPHER,
 		.alg.crypto = {
 			.cra_name = "cbc(des)",
@@ -2743,11 +3190,25 @@ static struct talitos_alg_template driver_algs[] = {
 				.max_keysize = DES_KEY_SIZE,
 				.ivsize = DES_BLOCK_SIZE,
 			}
+=======
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "cbc(des)",
+			.base.cra_driver_name = "cbc-des-talitos",
+			.base.cra_blocksize = DES_BLOCK_SIZE,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = DES_KEY_SIZE,
+			.max_keysize = DES_KEY_SIZE,
+			.ivsize = DES_BLOCK_SIZE,
+			.setkey = skcipher_des_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_DEU |
 				     DESC_HDR_MODE0_DEU_CBC,
 	},
+<<<<<<< HEAD
 	{	.type = CRYPTO_ALG_TYPE_ABLKCIPHER,
 		.alg.crypto = {
 			.cra_name = "ecb(des3_ede)",
@@ -2760,11 +3221,24 @@ static struct talitos_alg_template driver_algs[] = {
 				.max_keysize = DES3_EDE_KEY_SIZE,
 				.ivsize = DES3_EDE_BLOCK_SIZE,
 			}
+=======
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "ecb(des3_ede)",
+			.base.cra_driver_name = "ecb-3des-talitos",
+			.base.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = DES3_EDE_KEY_SIZE,
+			.max_keysize = DES3_EDE_KEY_SIZE,
+			.setkey = skcipher_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
 				     DESC_HDR_SEL0_DEU |
 				     DESC_HDR_MODE0_DEU_3DES,
 	},
+<<<<<<< HEAD
 	{	.type = CRYPTO_ALG_TYPE_ABLKCIPHER,
 		.alg.crypto = {
 			.cra_name = "cbc(des3_ede)",
@@ -2777,6 +3251,19 @@ static struct talitos_alg_template driver_algs[] = {
 				.max_keysize = DES3_EDE_KEY_SIZE,
 				.ivsize = DES3_EDE_BLOCK_SIZE,
 			}
+=======
+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
+		.alg.skcipher = {
+			.base.cra_name = "cbc(des3_ede)",
+			.base.cra_driver_name = "cbc-3des-talitos",
+			.base.cra_blocksize = DES3_EDE_BLOCK_SIZE,
+			.base.cra_flags = CRYPTO_ALG_ASYNC |
+					  CRYPTO_ALG_ALLOCATES_MEMORY,
+			.min_keysize = DES3_EDE_KEY_SIZE,
+			.max_keysize = DES3_EDE_KEY_SIZE,
+			.ivsize = DES3_EDE_BLOCK_SIZE,
+			.setkey = skcipher_des3_setkey,
+>>>>>>> upstream/android-13
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
 			             DESC_HDR_SEL0_DEU |
@@ -2792,7 +3279,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "md5",
 				.cra_driver_name = "md5-talitos",
 				.cra_blocksize = MD5_HMAC_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2807,7 +3299,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "sha1",
 				.cra_driver_name = "sha1-talitos",
 				.cra_blocksize = SHA1_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2822,7 +3319,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "sha224",
 				.cra_driver_name = "sha224-talitos",
 				.cra_blocksize = SHA224_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2837,7 +3339,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "sha256",
 				.cra_driver_name = "sha256-talitos",
 				.cra_blocksize = SHA256_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2852,7 +3359,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "sha384",
 				.cra_driver_name = "sha384-talitos",
 				.cra_blocksize = SHA384_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2867,7 +3379,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "sha512",
 				.cra_driver_name = "sha512-talitos",
 				.cra_blocksize = SHA512_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2882,7 +3399,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "hmac(md5)",
 				.cra_driver_name = "hmac-md5-talitos",
 				.cra_blocksize = MD5_HMAC_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2897,7 +3419,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "hmac(sha1)",
 				.cra_driver_name = "hmac-sha1-talitos",
 				.cra_blocksize = SHA1_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2912,7 +3439,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "hmac(sha224)",
 				.cra_driver_name = "hmac-sha224-talitos",
 				.cra_blocksize = SHA224_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2927,7 +3459,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "hmac(sha256)",
 				.cra_driver_name = "hmac-sha256-talitos",
 				.cra_blocksize = SHA256_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2942,7 +3479,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "hmac(sha384)",
 				.cra_driver_name = "hmac-sha384-talitos",
 				.cra_blocksize = SHA384_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2957,7 +3499,12 @@ static struct talitos_alg_template driver_algs[] = {
 				.cra_name = "hmac(sha512)",
 				.cra_driver_name = "hmac-sha512-talitos",
 				.cra_blocksize = SHA512_BLOCK_SIZE,
+<<<<<<< HEAD
 				.cra_flags = CRYPTO_ALG_ASYNC,
+=======
+				.cra_flags = CRYPTO_ALG_ASYNC |
+					     CRYPTO_ALG_ALLOCATES_MEMORY,
+>>>>>>> upstream/android-13
 			}
 		},
 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
@@ -2994,6 +3541,7 @@ static int talitos_init_common(struct talitos_ctx *ctx,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int talitos_cra_init(struct crypto_tfm *tfm)
 {
 	struct crypto_alg *alg = tfm->__crt_alg;
@@ -3011,6 +3559,8 @@ static int talitos_cra_init(struct crypto_tfm *tfm)
 	return talitos_init_common(ctx, talitos_alg);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int talitos_cra_init_aead(struct crypto_aead *tfm)
 {
 	struct aead_alg *alg = crypto_aead_alg(tfm);
@@ -3023,17 +3573,45 @@ static int talitos_cra_init_aead(struct crypto_aead *tfm)
 	return talitos_init_common(ctx, talitos_alg);
 }
 
+<<<<<<< HEAD
 static int talitos_cra_init_ahash(struct crypto_tfm *tfm)
 {
 	struct talitos_ctx *ctx = crypto_tfm_ctx(tfm);
 
 	talitos_cra_init(tfm);
+=======
+static int talitos_cra_init_skcipher(struct crypto_skcipher *tfm)
+{
+	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
+	struct talitos_crypto_alg *talitos_alg;
+	struct talitos_ctx *ctx = crypto_skcipher_ctx(tfm);
+
+	talitos_alg = container_of(alg, struct talitos_crypto_alg,
+				   algt.alg.skcipher);
+
+	return talitos_init_common(ctx, talitos_alg);
+}
+
+static int talitos_cra_init_ahash(struct crypto_tfm *tfm)
+{
+	struct crypto_alg *alg = tfm->__crt_alg;
+	struct talitos_crypto_alg *talitos_alg;
+	struct talitos_ctx *ctx = crypto_tfm_ctx(tfm);
+
+	talitos_alg = container_of(__crypto_ahash_alg(alg),
+				   struct talitos_crypto_alg,
+				   algt.alg.hash);
+>>>>>>> upstream/android-13
 
 	ctx->keylen = 0;
 	crypto_ahash_set_reqsize(__crypto_ahash_cast(tfm),
 				 sizeof(struct talitos_ahash_req_ctx));
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return talitos_init_common(ctx, talitos_alg);
+>>>>>>> upstream/android-13
 }
 
 static void talitos_cra_exit(struct crypto_tfm *tfm)
@@ -3074,7 +3652,12 @@ static int talitos_remove(struct platform_device *ofdev)
 
 	list_for_each_entry_safe(t_alg, n, &priv->alg_list, entry) {
 		switch (t_alg->algt.type) {
+<<<<<<< HEAD
 		case CRYPTO_ALG_TYPE_ABLKCIPHER:
+=======
+		case CRYPTO_ALG_TYPE_SKCIPHER:
+			crypto_unregister_skcipher(&t_alg->algt.alg.skcipher);
+>>>>>>> upstream/android-13
 			break;
 		case CRYPTO_ALG_TYPE_AEAD:
 			crypto_unregister_aead(&t_alg->algt.alg.aead);
@@ -3118,6 +3701,7 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
 	t_alg->algt = *template;
 
 	switch (t_alg->algt.type) {
+<<<<<<< HEAD
 	case CRYPTO_ALG_TYPE_ABLKCIPHER:
 		alg = &t_alg->algt.alg.crypto;
 		alg->cra_init = talitos_cra_init;
@@ -3127,12 +3711,33 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
 		alg->cra_ablkcipher.encrypt = ablkcipher_encrypt;
 		alg->cra_ablkcipher.decrypt = ablkcipher_decrypt;
 		alg->cra_ablkcipher.geniv = "eseqiv";
+=======
+	case CRYPTO_ALG_TYPE_SKCIPHER:
+		alg = &t_alg->algt.alg.skcipher.base;
+		alg->cra_exit = talitos_cra_exit;
+		t_alg->algt.alg.skcipher.init = talitos_cra_init_skcipher;
+		t_alg->algt.alg.skcipher.setkey =
+			t_alg->algt.alg.skcipher.setkey ?: skcipher_setkey;
+		t_alg->algt.alg.skcipher.encrypt = skcipher_encrypt;
+		t_alg->algt.alg.skcipher.decrypt = skcipher_decrypt;
+		if (!strcmp(alg->cra_name, "ctr(aes)") && !has_ftr_sec1(priv) &&
+		    DESC_TYPE(t_alg->algt.desc_hdr_template) !=
+		    DESC_TYPE(DESC_HDR_TYPE_AESU_CTR_NONSNOOP)) {
+			devm_kfree(dev, t_alg);
+			return ERR_PTR(-ENOTSUPP);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case CRYPTO_ALG_TYPE_AEAD:
 		alg = &t_alg->algt.alg.aead.base;
 		alg->cra_exit = talitos_cra_exit;
 		t_alg->algt.alg.aead.init = talitos_cra_init_aead;
+<<<<<<< HEAD
 		t_alg->algt.alg.aead.setkey = aead_setkey;
+=======
+		t_alg->algt.alg.aead.setkey = t_alg->algt.alg.aead.setkey ?:
+					      aead_setkey;
+>>>>>>> upstream/android-13
 		t_alg->algt.alg.aead.encrypt = aead_encrypt;
 		t_alg->algt.alg.aead.decrypt = aead_decrypt;
 		if (!(priv->features & TALITOS_FTR_SHA224_HWINIT) &&
@@ -3332,7 +3937,11 @@ static int talitos_probe(struct platform_device *ofdev)
 	if (err)
 		goto err_out;
 
+<<<<<<< HEAD
 	if (of_device_is_compatible(np, "fsl,sec1.0")) {
+=======
+	if (has_ftr_sec1(priv)) {
+>>>>>>> upstream/android-13
 		if (priv->num_channels == 1)
 			tasklet_init(&priv->done_task[0], talitos1_done_ch0,
 				     (unsigned long)dev);
@@ -3422,10 +4031,17 @@ static int talitos_probe(struct platform_device *ofdev)
 			}
 
 			switch (t_alg->algt.type) {
+<<<<<<< HEAD
 			case CRYPTO_ALG_TYPE_ABLKCIPHER:
 				err = crypto_register_alg(
 						&t_alg->algt.alg.crypto);
 				alg = &t_alg->algt.alg.crypto;
+=======
+			case CRYPTO_ALG_TYPE_SKCIPHER:
+				err = crypto_register_skcipher(
+						&t_alg->algt.alg.skcipher);
+				alg = &t_alg->algt.alg.skcipher.base;
+>>>>>>> upstream/android-13
 				break;
 
 			case CRYPTO_ALG_TYPE_AEAD:

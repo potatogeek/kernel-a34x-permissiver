@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <errno.h>
 #include <sched.h>
+<<<<<<< HEAD
 #include "util.h"
 #include "../perf.h"
 #include "cloexec.h"
@@ -9,6 +10,17 @@
 #include <unistd.h>
 #include <asm/unistd.h>
 #include <sys/syscall.h>
+=======
+#include "util.h" // for sched_getcpu()
+#include "../perf-sys.h"
+#include "cloexec.h"
+#include "event.h"
+#include "asm/bug.h"
+#include "debug.h"
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <linux/string.h>
+>>>>>>> upstream/android-13
 
 static unsigned long flag = PERF_FLAG_FD_CLOEXEC;
 
@@ -27,7 +39,11 @@ int __weak sched_getcpu(void)
 
 static int perf_flag_probe(void)
 {
+<<<<<<< HEAD
 	/* use 'safest' configuration as used in perf_evsel__fallback() */
+=======
+	/* use 'safest' configuration as used in evsel__fallback() */
+>>>>>>> upstream/android-13
 	struct perf_event_attr attr = {
 		.type = PERF_TYPE_SOFTWARE,
 		.config = PERF_COUNT_SW_CPU_CLOCK,
@@ -64,7 +80,11 @@ static int perf_flag_probe(void)
 		return 1;
 	}
 
+<<<<<<< HEAD
 	WARN_ONCE(err != EINVAL && err != EBUSY,
+=======
+	WARN_ONCE(err != EINVAL && err != EBUSY && err != EACCES,
+>>>>>>> upstream/android-13
 		  "perf_event_open(..., PERF_FLAG_FD_CLOEXEC) failed with unexpected error %d (%s)\n",
 		  err, str_error_r(err, sbuf, sizeof(sbuf)));
 
@@ -82,7 +102,11 @@ static int perf_flag_probe(void)
 	if (fd >= 0)
 		close(fd);
 
+<<<<<<< HEAD
 	if (WARN_ONCE(fd < 0 && err != EBUSY,
+=======
+	if (WARN_ONCE(fd < 0 && err != EBUSY && err != EACCES,
+>>>>>>> upstream/android-13
 		      "perf_event_open(..., 0) failed unexpectedly with error %d (%s)\n",
 		      err, str_error_r(err, sbuf, sizeof(sbuf))))
 		return -1;

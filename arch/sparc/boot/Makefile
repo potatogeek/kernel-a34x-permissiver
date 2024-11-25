@@ -7,7 +7,11 @@
 ROOT_IMG	:= /usr/src/root.img
 ELFTOAOUT	:= elftoaout
 
+<<<<<<< HEAD
 hostprogs-y	:= piggyback
+=======
+hostprogs	:= piggyback
+>>>>>>> upstream/android-13
 targets		:= tftpboot.img image zImage vmlinux.aout
 clean-files	:= System.map
 
@@ -22,7 +26,11 @@ ifeq ($(CONFIG_SPARC64),y)
 
 # Actual linking
 
+<<<<<<< HEAD
 $(obj)/zImage: $(obj)/image
+=======
+$(obj)/zImage: $(obj)/image FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,gzip)
 	@echo '  kernel: $@ is ready'
 
@@ -31,7 +39,11 @@ $(obj)/vmlinux.aout: vmlinux FORCE
 	@echo '  kernel: $@ is ready'
 else
 
+<<<<<<< HEAD
 $(obj)/zImage: $(obj)/image
+=======
+$(obj)/zImage: $(obj)/image FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,strip)
 	@echo '  kernel: $@ is ready'
 
@@ -44,7 +56,11 @@ OBJCOPYFLAGS_image.bin := -S -O binary -R .note -R .comment
 $(obj)/image.bin: $(obj)/image FORCE
 	$(call if_changed,objcopy)
 
+<<<<<<< HEAD
 $(obj)/image.gz: $(obj)/image.bin
+=======
+$(obj)/image.gz: $(obj)/image.bin FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,gzip)
 
 UIMAGE_LOADADDR = $(CONFIG_UBOOT_LOAD_ADDR)
@@ -56,7 +72,11 @@ quiet_cmd_uimage.o = UIMAGE.O $@
                      -r -b binary $@ -o $@.o
 
 targets += uImage
+<<<<<<< HEAD
 $(obj)/uImage: $(obj)/image.gz
+=======
+$(obj)/uImage: $(obj)/image.gz FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,uimage)
 	$(call if_changed,uimage.o)
 	@echo '  Image $@ is ready'
@@ -70,7 +90,10 @@ $(obj)/image: vmlinux FORCE
 $(obj)/tftpboot.img: $(obj)/image $(obj)/piggyback System.map $(ROOT_IMG) FORCE
 	$(call if_changed,elftoaout)
 	$(call if_changed,piggy)
+<<<<<<< HEAD
 
 install:
 	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $(obj)/zImage \
 		System.map "$(INSTALL_PATH)"
+=======
+>>>>>>> upstream/android-13

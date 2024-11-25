@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -77,7 +83,11 @@ static void cleanup_worker_threads(struct cpt_vf *cptvf)
 	for (i = 0; i < cptvf->nr_queues; i++)
 		tasklet_kill(&cwqe_info->vq_wqe[i].twork);
 
+<<<<<<< HEAD
 	kzfree(cwqe_info);
+=======
+	kfree_sensitive(cwqe_info);
+>>>>>>> upstream/android-13
 	cptvf->wqe_info = NULL;
 }
 
@@ -91,7 +101,11 @@ static void free_pending_queues(struct pending_qinfo *pqinfo)
 			continue;
 
 		/* free single queue */
+<<<<<<< HEAD
 		kzfree((queue->head));
+=======
+		kfree_sensitive((queue->head));
+>>>>>>> upstream/android-13
 
 		queue->front = 0;
 		queue->rear = 0;
@@ -192,7 +206,11 @@ static void free_command_queues(struct cpt_vf *cptvf,
 			chunk->head = NULL;
 			chunk->dma_addr = 0;
 			hlist_del(&chunk->nextchunk);
+<<<<<<< HEAD
 			kzfree(chunk);
+=======
+			kfree_sensitive(chunk);
+>>>>>>> upstream/android-13
 		}
 
 		queue->nchunks = 0;
@@ -236,9 +254,16 @@ static int alloc_command_queues(struct cpt_vf *cptvf,
 
 			c_size = (rem_q_size > qcsize_bytes) ? qcsize_bytes :
 					rem_q_size;
+<<<<<<< HEAD
 			curr->head = (u8 *)dma_zalloc_coherent(&pdev->dev,
 					  c_size + CPT_NEXT_CHUNK_PTR_SIZE,
 					  &curr->dma_addr, GFP_KERNEL);
+=======
+			curr->head = dma_alloc_coherent(&pdev->dev,
+							c_size + CPT_NEXT_CHUNK_PTR_SIZE,
+							&curr->dma_addr,
+							GFP_KERNEL);
+>>>>>>> upstream/android-13
 			if (!curr->head) {
 				dev_err(&pdev->dev, "Command Q (%d) chunk (%d) allocation failed\n",
 					i, queue->nchunks);
@@ -640,7 +665,11 @@ static void cptvf_write_vq_saddr(struct cpt_vf *cptvf, u64 val)
 	cpt_write_csr64(cptvf->reg_base, CPTX_VQX_SADDR(0, 0), vqx_saddr.u);
 }
 
+<<<<<<< HEAD
 void cptvf_device_init(struct cpt_vf *cptvf)
+=======
+static void cptvf_device_init(struct cpt_vf *cptvf)
+>>>>>>> upstream/android-13
 {
 	u64 base_addr = 0;
 
@@ -689,6 +718,7 @@ static int cptvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	}
 	/* Mark as VF driver */
 	cptvf->flags |= CPT_FLAG_VF_DRIVER;
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pdev, DMA_BIT_MASK(48));
 	if (err) {
 		dev_err(dev, "Unable to get usable DMA configuration\n");
@@ -698,6 +728,11 @@ static int cptvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(48));
 	if (err) {
 		dev_err(dev, "Unable to get 48-bit DMA for consistent allocations\n");
+=======
+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(48));
+	if (err) {
+		dev_err(dev, "Unable to get usable 48-bit DMA configuration\n");
+>>>>>>> upstream/android-13
 		goto cptvf_err_release_regions;
 	}
 

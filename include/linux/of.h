@@ -50,7 +50,10 @@ struct of_irq_controller;
 
 struct device_node {
 	const char *name;
+<<<<<<< HEAD
 	const char *type;
+=======
+>>>>>>> upstream/android-13
 	phandle phandle;
 	const char *full_name;
 	struct fwnode_handle fwnode;
@@ -66,7 +69,10 @@ struct device_node {
 	unsigned long _flags;
 	void	*data;
 #if defined(CONFIG_SPARC)
+<<<<<<< HEAD
 	const char *path_component_name;
+=======
+>>>>>>> upstream/android-13
 	unsigned int unique_id;
 	struct of_irq_controller *irq_trans;
 #endif
@@ -110,7 +116,11 @@ static inline void of_node_init(struct device_node *node)
 #if defined(CONFIG_OF_KOBJ)
 	kobject_init(&node->kobj, &of_node_ktype);
 #endif
+<<<<<<< HEAD
 	node->fwnode.ops = &of_fwnode_ops;
+=======
+	fwnode_init(&node->fwnode, &of_fwnode_ops);
+>>>>>>> upstream/android-13
 }
 
 #if defined(CONFIG_OF_KOBJ)
@@ -252,12 +262,15 @@ static inline unsigned long of_read_ulong(const __be32 *cell, int size)
 #include <asm/prom.h>
 #endif
 
+<<<<<<< HEAD
 /* Default #address and #size cells.  Allow arch asm/prom.h to override */
 #if !defined(OF_ROOT_NODE_ADDR_CELLS_DEFAULT)
 #define OF_ROOT_NODE_ADDR_CELLS_DEFAULT 1
 #define OF_ROOT_NODE_SIZE_CELLS_DEFAULT 1
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define OF_IS_DYNAMIC(x) test_bit(OF_DYNAMIC, &x->_flags)
 #define OF_MARK_DYNAMIC(x) set_bit(OF_DYNAMIC, &x->_flags)
 
@@ -358,6 +371,13 @@ extern const void *of_get_property(const struct device_node *node,
 				const char *name,
 				int *lenp);
 extern struct device_node *of_get_cpu_node(int cpu, unsigned int *thread);
+<<<<<<< HEAD
+=======
+extern struct device_node *of_get_next_cpu_node(struct device_node *prev);
+extern struct device_node *of_get_cpu_state_node(struct device_node *cpu_node,
+						 int index);
+
+>>>>>>> upstream/android-13
 #define for_each_property_of_node(dn, pp) \
 	for (pp = dn->properties; pp != NULL; pp = pp->next)
 
@@ -397,6 +417,12 @@ extern int of_phandle_iterator_args(struct of_phandle_iterator *it,
 extern void of_alias_scan(void * (*dt_alloc)(u64 size, u64 align));
 extern int of_alias_get_id(struct device_node *np, const char *stem);
 extern int of_alias_get_highest_id(const char *stem);
+<<<<<<< HEAD
+=======
+extern int of_alias_get_alias_list(const struct of_device_id *matches,
+				   const char *stem, unsigned long *bitmap,
+				   unsigned int nbits);
+>>>>>>> upstream/android-13
 
 extern int of_machine_is_compatible(const char *compat);
 
@@ -425,12 +451,23 @@ extern int of_detach_node(struct device_node *);
  * @sz:		number of array elements to read
  *
  * Search for a property in a device node and read 8-bit value(s) from
+<<<<<<< HEAD
  * it. Returns 0 on success, -EINVAL if the property does not exist,
  * -ENODATA if property does not have a value, and -EOVERFLOW if the
  * property data isn't large enough.
  *
  * dts entry of array should be like:
  *	property = /bits/ 8 <0x50 0x60 0x70>;
+=======
+ * it.
+ *
+ * dts entry of array should be like:
+ *  ``property = /bits/ 8 <0x50 0x60 0x70>;``
+ *
+ * Return: 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough.
+>>>>>>> upstream/android-13
  *
  * The out_values is modified only if a valid u8 value can be decoded.
  */
@@ -455,12 +492,23 @@ static inline int of_property_read_u8_array(const struct device_node *np,
  * @sz:		number of array elements to read
  *
  * Search for a property in a device node and read 16-bit value(s) from
+<<<<<<< HEAD
  * it. Returns 0 on success, -EINVAL if the property does not exist,
  * -ENODATA if property does not have a value, and -EOVERFLOW if the
  * property data isn't large enough.
  *
  * dts entry of array should be like:
  *	property = /bits/ 16 <0x5000 0x6000 0x7000>;
+=======
+ * it.
+ *
+ * dts entry of array should be like:
+ *  ``property = /bits/ 16 <0x5000 0x6000 0x7000>;``
+ *
+ * Return: 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough.
+>>>>>>> upstream/android-13
  *
  * The out_values is modified only if a valid u16 value can be decoded.
  */
@@ -486,7 +534,13 @@ static inline int of_property_read_u16_array(const struct device_node *np,
  * @sz:		number of array elements to read
  *
  * Search for a property in a device node and read 32-bit value(s) from
+<<<<<<< HEAD
  * it. Returns 0 on success, -EINVAL if the property does not exist,
+=======
+ * it.
+ *
+ * Return: 0 on success, -EINVAL if the property does not exist,
+>>>>>>> upstream/android-13
  * -ENODATA if property does not have a value, and -EOVERFLOW if the
  * property data isn't large enough.
  *
@@ -514,7 +568,13 @@ static inline int of_property_read_u32_array(const struct device_node *np,
  * @sz:		number of array elements to read
  *
  * Search for a property in a device node and read 64-bit value(s) from
+<<<<<<< HEAD
  * it. Returns 0 on success, -EINVAL if the property does not exist,
+=======
+ * it.
+ *
+ * Return: 0 on success, -EINVAL if the property does not exist,
+>>>>>>> upstream/android-13
  * -ENODATA if property does not have a value, and -EOVERFLOW if the
  * property data isn't large enough.
  *
@@ -555,6 +615,22 @@ bool of_console_check(struct device_node *dn, char *name, int index);
 
 extern int of_cpu_node_to_id(struct device_node *np);
 
+<<<<<<< HEAD
+=======
+int of_map_id(struct device_node *np, u32 id,
+	       const char *map_name, const char *map_mask_name,
+	       struct device_node **target, u32 *id_out);
+
+phys_addr_t of_dma_get_max_cpu_address(struct device_node *np);
+
+struct kimage;
+void *of_kexec_alloc_and_setup_fdt(const struct kimage *image,
+				   unsigned long initrd_load_addr,
+				   unsigned long initrd_len,
+				   const char *cmdline, size_t extra_fdt_size);
+int ima_get_kexec_buffer(void **addr, size_t *size);
+int ima_free_kexec_buffer(void);
+>>>>>>> upstream/android-13
 #else /* CONFIG_OF */
 
 static inline void of_core_init(void)
@@ -627,6 +703,14 @@ static inline struct device_node *of_get_parent(const struct device_node *node)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct device_node *of_get_next_parent(struct device_node *node)
+{
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 static inline struct device_node *of_get_next_child(
 	const struct device_node *node, struct device_node *prev)
 {
@@ -759,6 +843,20 @@ static inline struct device_node *of_get_cpu_node(int cpu,
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static inline struct device_node *of_get_next_cpu_node(struct device_node *prev)
+{
+	return NULL;
+}
+
+static inline struct device_node *of_get_cpu_state_node(struct device_node *cpu_node,
+					int index)
+{
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 static inline int of_n_addr_cells(struct device_node *np)
 {
 	return 0;
@@ -860,7 +958,11 @@ static inline int of_parse_phandle_with_fixed_args(const struct device_node *np,
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
 static inline int of_count_phandle_with_args(struct device_node *np,
+=======
+static inline int of_count_phandle_with_args(const struct device_node *np,
+>>>>>>> upstream/android-13
 					     const char *list_name,
 					     const char *cells_name)
 {
@@ -898,11 +1000,34 @@ static inline int of_alias_get_highest_id(const char *stem)
 	return -ENOSYS;
 }
 
+<<<<<<< HEAD
+=======
+static inline int of_alias_get_alias_list(const struct of_device_id *matches,
+					  const char *stem, unsigned long *bitmap,
+					  unsigned int nbits)
+{
+	return -ENOSYS;
+}
+
+>>>>>>> upstream/android-13
 static inline int of_machine_is_compatible(const char *compat)
 {
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int of_add_property(struct device_node *np, struct property *prop)
+{
+	return 0;
+}
+
+static inline int of_remove_property(struct device_node *np, struct property *prop)
+{
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static inline bool of_console_check(const struct device_node *dn, const char *name, int index)
 {
 	return false;
@@ -957,6 +1082,21 @@ static inline int of_cpu_node_to_id(struct device_node *np)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
+=======
+static inline int of_map_id(struct device_node *np, u32 id,
+			     const char *map_name, const char *map_mask_name,
+			     struct device_node **target, u32 *id_out)
+{
+	return -EINVAL;
+}
+
+static inline phys_addr_t of_dma_get_max_cpu_address(struct device_node *np)
+{
+	return PHYS_ADDR_MAX;
+}
+
+>>>>>>> upstream/android-13
 #define of_match_ptr(_ptr)	NULL
 #define of_match_node(_matches, _node)	NULL
 #endif /* CONFIG_OF */
@@ -1018,7 +1158,13 @@ static inline bool of_node_is_type(const struct device_node *np, const char *typ
  * @propname:	name of the property to be searched.
  *
  * Search for a property in a device node and count the number of u8 elements
+<<<<<<< HEAD
  * in it. Returns number of elements on sucess, -EINVAL if the property does
+=======
+ * in it.
+ *
+ * Return: The number of elements on sucess, -EINVAL if the property does
+>>>>>>> upstream/android-13
  * not exist or its length does not match a multiple of u8 and -ENODATA if the
  * property does not have a value.
  */
@@ -1035,7 +1181,13 @@ static inline int of_property_count_u8_elems(const struct device_node *np,
  * @propname:	name of the property to be searched.
  *
  * Search for a property in a device node and count the number of u16 elements
+<<<<<<< HEAD
  * in it. Returns number of elements on sucess, -EINVAL if the property does
+=======
+ * in it.
+ *
+ * Return: The number of elements on sucess, -EINVAL if the property does
+>>>>>>> upstream/android-13
  * not exist or its length does not match a multiple of u16 and -ENODATA if the
  * property does not have a value.
  */
@@ -1052,7 +1204,13 @@ static inline int of_property_count_u16_elems(const struct device_node *np,
  * @propname:	name of the property to be searched.
  *
  * Search for a property in a device node and count the number of u32 elements
+<<<<<<< HEAD
  * in it. Returns number of elements on sucess, -EINVAL if the property does
+=======
+ * in it.
+ *
+ * Return: The number of elements on sucess, -EINVAL if the property does
+>>>>>>> upstream/android-13
  * not exist or its length does not match a multiple of u32 and -ENODATA if the
  * property does not have a value.
  */
@@ -1069,7 +1227,13 @@ static inline int of_property_count_u32_elems(const struct device_node *np,
  * @propname:	name of the property to be searched.
  *
  * Search for a property in a device node and count the number of u64 elements
+<<<<<<< HEAD
  * in it. Returns number of elements on sucess, -EINVAL if the property does
+=======
+ * in it.
+ *
+ * Return: The number of elements on sucess, -EINVAL if the property does
+>>>>>>> upstream/android-13
  * not exist or its length does not match a multiple of u64 and -ENODATA if the
  * property does not have a value.
  */
@@ -1090,7 +1254,11 @@ static inline int of_property_count_u64_elems(const struct device_node *np,
  * Search for a property in a device tree node and retrieve a list of
  * terminated string values (pointer to data, not a copy) in that property.
  *
+<<<<<<< HEAD
  * If @out_strs is NULL, the number of strings in the property is returned.
+=======
+ * Return: If @out_strs is NULL, the number of strings in the property is returned.
+>>>>>>> upstream/android-13
  */
 static inline int of_property_read_string_array(const struct device_node *np,
 						const char *propname, const char **out_strs,
@@ -1106,10 +1274,18 @@ static inline int of_property_read_string_array(const struct device_node *np,
  * @propname:	name of the property to be searched.
  *
  * Search for a property in a device tree node and retrieve the number of null
+<<<<<<< HEAD
  * terminated string contain in it. Returns the number of strings on
  * success, -EINVAL if the property does not exist, -ENODATA if property
  * does not have a value, and -EILSEQ if the string is not null-terminated
  * within the length of the property data.
+=======
+ * terminated string contain in it.
+ *
+ * Return: The number of strings on success, -EINVAL if the property does not
+ * exist, -ENODATA if property does not have a value, and -EILSEQ if the string
+ * is not null-terminated within the length of the property data.
+>>>>>>> upstream/android-13
  */
 static inline int of_property_count_strings(const struct device_node *np,
 					    const char *propname)
@@ -1123,13 +1299,22 @@ static inline int of_property_count_strings(const struct device_node *np,
  * @np:		device node from which the property value is to be read.
  * @propname:	name of the property to be searched.
  * @index:	index of the string in the list of strings
+<<<<<<< HEAD
  * @out_string:	pointer to null terminated return string, modified only if
+=======
+ * @output:	pointer to null terminated return string, modified only if
+>>>>>>> upstream/android-13
  *		return value is 0.
  *
  * Search for a property in a device tree node and retrieve a null
  * terminated string value (pointer to data, not a copy) in the list of strings
  * contained in that property.
+<<<<<<< HEAD
  * Returns 0 on success, -EINVAL if the property does not exist, -ENODATA if
+=======
+ *
+ * Return: 0 on success, -EINVAL if the property does not exist, -ENODATA if
+>>>>>>> upstream/android-13
  * property does not have a value, and -EILSEQ if the string is not
  * null-terminated within the length of the property data.
  *
@@ -1144,12 +1329,21 @@ static inline int of_property_read_string_index(const struct device_node *np,
 }
 
 /**
+<<<<<<< HEAD
  * of_property_read_bool - Findfrom a property
+=======
+ * of_property_read_bool - Find a property
+>>>>>>> upstream/android-13
  * @np:		device node from which the property value is to be read.
  * @propname:	name of the property to be searched.
  *
  * Search for a property in a device node.
+<<<<<<< HEAD
  * Returns true if the property exists false otherwise.
+=======
+ *
+ * Return: true if the property exists false otherwise.
+>>>>>>> upstream/android-13
  */
 static inline bool of_property_read_bool(const struct device_node *np,
 					 const char *propname)
@@ -1228,6 +1422,13 @@ static inline int of_property_read_s32(const struct device_node *np,
 	for (child = of_get_next_available_child(parent, NULL); child != NULL; \
 	     child = of_get_next_available_child(parent, child))
 
+<<<<<<< HEAD
+=======
+#define for_each_of_cpu_node(cpu) \
+	for (cpu = of_get_next_cpu_node(NULL); cpu != NULL; \
+	     cpu = of_get_next_cpu_node(cpu))
+
+>>>>>>> upstream/android-13
 #define for_each_node_with_property(dn, prop_name) \
 	for (dn = of_find_node_with_property(NULL, prop_name); dn; \
 	     dn = of_find_node_with_property(dn, prop_name))
@@ -1254,19 +1455,36 @@ static inline int of_get_available_child_count(const struct device_node *np)
 	return num;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_OF) && !defined(MODULE)
 #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
 	static const struct of_device_id __of_table_##name		\
 		__used __section(__##table##_of_table)			\
+=======
+#define _OF_DECLARE_STUB(table, name, compat, fn, fn_type)		\
+	static const struct of_device_id __of_table_##name		\
+		__attribute__((unused))					\
+		 = { .compatible = compat,				\
+		     .data = (fn == (fn_type)NULL) ? fn : fn }
+
+#if defined(CONFIG_OF) && !defined(MODULE)
+#define _OF_DECLARE(table, name, compat, fn, fn_type)			\
+	static const struct of_device_id __of_table_##name		\
+		__used __section("__" #table "_of_table")		\
+>>>>>>> upstream/android-13
 		__aligned(__alignof__(struct of_device_id))		\
 		 = { .compatible = compat,				\
 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
 #else
 #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
+<<<<<<< HEAD
 	static const struct of_device_id __of_table_##name		\
 		__attribute__((unused))					\
 		 = { .compatible = compat,				\
 		     .data = (fn == (fn_type)NULL) ? fn : fn }
+=======
+	_OF_DECLARE_STUB(table, name, compat, fn, fn_type)
+>>>>>>> upstream/android-13
 #endif
 
 typedef int (*of_init_fn_2)(struct device_node *, struct device_node *);
@@ -1391,14 +1609,22 @@ static inline int of_reconfig_get_state_change(unsigned long action,
  * of_device_is_system_power_controller - Tells if system-power-controller is found for device_node
  * @np: Pointer to the given device_node
  *
+<<<<<<< HEAD
  * return true if present false otherwise
+=======
+ * Return: true if present false otherwise
+>>>>>>> upstream/android-13
  */
 static inline bool of_device_is_system_power_controller(const struct device_node *np)
 {
 	return of_property_read_bool(np, "system-power-controller");
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Overlay support
  */
 

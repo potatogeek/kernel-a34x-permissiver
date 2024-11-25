@@ -18,7 +18,11 @@
  * Clean patches should be sent to the ARM Linux Patch System.  Please see the
  * following web page for more information:
  *
+<<<<<<< HEAD
  *	http://www.arm.linux.org.uk/developer/patches/info.shtml
+=======
+ *	https://www.arm.linux.org.uk/developer/patches/info.shtml
+>>>>>>> upstream/android-13
  *
  * Thank you.
  *
@@ -173,7 +177,11 @@
 #include <linux/init.h>
 #include <linux/ioport.h>
 #include <linux/cpufreq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
 #include <linux/mutex.h>
@@ -574,7 +582,11 @@ static int sa1100fb_mmap(struct fb_info *info,
 	return vm_iomap_memory(vma, info->fix.mmio_start, info->fix.mmio_len);
 }
 
+<<<<<<< HEAD
 static struct fb_ops sa1100fb_ops = {
+=======
+static const struct fb_ops sa1100fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= sa1100fb_check_var,
 	.fb_set_par	= sa1100fb_set_par,
@@ -799,8 +811,13 @@ static void sa1100fb_enable_controller(struct sa1100fb_info *fbi)
 	writel_relaxed(fbi->dbar2, fbi->base + DBAR2);
 	writel_relaxed(fbi->reg_lccr0 | LCCR0_LEN, fbi->base + LCCR0);
 
+<<<<<<< HEAD
 	if (machine_is_shannon())
 		gpio_set_value(SHANNON_GPIO_DISP_EN, 1);
+=======
+	if (fbi->shannon_lcden)
+		gpiod_set_value(fbi->shannon_lcden, 1);
+>>>>>>> upstream/android-13
 
 	dev_dbg(fbi->dev, "DBAR1: 0x%08x\n", readl_relaxed(fbi->base + DBAR1));
 	dev_dbg(fbi->dev, "DBAR2: 0x%08x\n", readl_relaxed(fbi->base + DBAR2));
@@ -817,8 +834,13 @@ static void sa1100fb_disable_controller(struct sa1100fb_info *fbi)
 
 	dev_dbg(fbi->dev, "Disabling LCD controller\n");
 
+<<<<<<< HEAD
 	if (machine_is_shannon())
 		gpio_set_value(SHANNON_GPIO_DISP_EN, 0);
+=======
+	if (fbi->shannon_lcden)
+		gpiod_set_value(fbi->shannon_lcden, 0);
+>>>>>>> upstream/android-13
 
 	set_current_state(TASK_UNINTERRUPTIBLE);
 	add_wait_queue(&fbi->ctrlr_wait, &wait);
@@ -935,7 +957,11 @@ static void set_ctrlr_state(struct sa1100fb_info *fbi, u_int state)
 		 */
 		if (old_state != C_DISABLE_PM)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case C_ENABLE:
 		/*
@@ -968,6 +994,7 @@ static void sa1100fb_task(struct work_struct *w)
 
 #ifdef CONFIG_CPU_FREQ
 /*
+<<<<<<< HEAD
  * Calculate the minimum DMA period over all displays that we own.
  * This, together with the SDRAM bandwidth defines the slowest CPU
  * frequency that can be selected.
@@ -1006,6 +1033,8 @@ static unsigned int sa1100fb_min_dma_period(struct sa1100fb_info *fbi)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * CPU clock speed change handler.  We need to adjust the LCD timing
  * parameters when the CPU clock is adjusted by the power management
  * subsystem.
@@ -1030,6 +1059,7 @@ sa1100fb_freq_transition(struct notifier_block *nb, unsigned long val,
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 static int
 sa1100fb_freq_policy(struct notifier_block *nb, unsigned long val,
@@ -1055,6 +1085,8 @@ sa1100fb_freq_policy(struct notifier_block *nb, unsigned long val,
 	}
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_PM
@@ -1116,7 +1148,11 @@ static int sa1100fb_map_video_memory(struct sa1100fb_info *fbi)
 }
 
 /* Fake monspecs to fill in fbinfo structure */
+<<<<<<< HEAD
 static struct fb_monspecs monspecs = {
+=======
+static const struct fb_monspecs monspecs = {
+>>>>>>> upstream/android-13
 	.hfmin	= 30000,
 	.hfmax	= 70000,
 	.vfmin	= 50,
@@ -1206,7 +1242,10 @@ static struct sa1100fb_info *sa1100fb_init_fbinfo(struct device *dev)
 static int sa1100fb_probe(struct platform_device *pdev)
 {
 	struct sa1100fb_info *fbi;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret, irq;
 
 	if (!dev_get_platdata(&pdev->dev)) {
@@ -1222,8 +1261,12 @@ static int sa1100fb_probe(struct platform_device *pdev)
 	if (!fbi)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	fbi->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	fbi->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(fbi->base))
 		return PTR_ERR(fbi->base);
 
@@ -1238,12 +1281,19 @@ static int sa1100fb_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (machine_is_shannon()) {
 		ret = devm_gpio_request_one(&pdev->dev, SHANNON_GPIO_DISP_EN,
 			GPIOF_OUT_INIT_LOW, "display enable");
 		if (ret)
 			return ret;
 	}
+=======
+	fbi->shannon_lcden = gpiod_get_optional(&pdev->dev, "shannon-lcden",
+						GPIOD_OUT_LOW);
+	if (IS_ERR(fbi->shannon_lcden))
+		return PTR_ERR(fbi->shannon_lcden);
+>>>>>>> upstream/android-13
 
 	/* Initialize video memory */
 	ret = sa1100fb_map_video_memory(fbi);
@@ -1267,9 +1317,13 @@ static int sa1100fb_probe(struct platform_device *pdev)
 
 #ifdef CONFIG_CPU_FREQ
 	fbi->freq_transition.notifier_call = sa1100fb_freq_transition;
+<<<<<<< HEAD
 	fbi->freq_policy.notifier_call = sa1100fb_freq_policy;
 	cpufreq_register_notifier(&fbi->freq_transition, CPUFREQ_TRANSITION_NOTIFIER);
 	cpufreq_register_notifier(&fbi->freq_policy, CPUFREQ_POLICY_NOTIFIER);
+=======
+	cpufreq_register_notifier(&fbi->freq_transition, CPUFREQ_TRANSITION_NOTIFIER);
+>>>>>>> upstream/android-13
 #endif
 
 	/* This driver cannot be unloaded at the moment */

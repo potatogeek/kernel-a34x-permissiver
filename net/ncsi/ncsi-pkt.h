@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright Gavin Shan, IBM Corporation 2016.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright Gavin Shan, IBM Corporation 2016.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __NCSI_PKT_H__
@@ -151,6 +157,46 @@ struct ncsi_cmd_snfc_pkt {
 	unsigned char           pad[22];
 };
 
+<<<<<<< HEAD
+=======
+/* OEM Request Command as per NCSI Specification */
+struct ncsi_cmd_oem_pkt {
+	struct ncsi_cmd_pkt_hdr cmd;         /* Command header    */
+	__be32                  mfr_id;      /* Manufacture ID    */
+	unsigned char           data[];      /* OEM Payload Data  */
+};
+
+/* OEM Response Packet as per NCSI Specification */
+struct ncsi_rsp_oem_pkt {
+	struct ncsi_rsp_pkt_hdr rsp;         /* Command header    */
+	__be32                  mfr_id;      /* Manufacture ID    */
+	unsigned char           data[];      /* Payload data      */
+};
+
+/* Mellanox Response Data */
+struct ncsi_rsp_oem_mlx_pkt {
+	unsigned char           cmd_rev;     /* Command Revision  */
+	unsigned char           cmd;         /* Command ID        */
+	unsigned char           param;       /* Parameter         */
+	unsigned char           optional;    /* Optional data     */
+	unsigned char           data[];      /* Data              */
+};
+
+/* Broadcom Response Data */
+struct ncsi_rsp_oem_bcm_pkt {
+	unsigned char           ver;         /* Payload Version   */
+	unsigned char           type;        /* OEM Command type  */
+	__be16                  len;         /* Payload Length    */
+	unsigned char           data[];      /* Cmd specific Data */
+};
+
+/* Intel Response Data */
+struct ncsi_rsp_oem_intel_pkt {
+	unsigned char           cmd;         /* OEM Command ID    */
+	unsigned char           data[];      /* Cmd specific Data */
+};
+
+>>>>>>> upstream/android-13
 /* Get Link Status */
 struct ncsi_rsp_gls_pkt {
 	struct ncsi_rsp_pkt_hdr rsp;        /* Response header   */
@@ -360,6 +406,12 @@ struct ncsi_aen_hncdsc_pkt {
 #define NCSI_PKT_CMD_OEM	0x50 /* OEM                              */
 #define NCSI_PKT_CMD_PLDM	0x51 /* PLDM request over NCSI over RBT  */
 #define NCSI_PKT_CMD_GPUUID	0x52 /* Get package UUID                 */
+<<<<<<< HEAD
+=======
+#define NCSI_PKT_CMD_QPNPR	0x56 /* Query Pending NC PLDM request */
+#define NCSI_PKT_CMD_SNPR	0x57 /* Send NC PLDM Reply  */
+
+>>>>>>> upstream/android-13
 
 /* NCSI packet responses */
 #define NCSI_PKT_RSP_CIS	(NCSI_PKT_CMD_CIS    + 0x80)
@@ -392,6 +444,11 @@ struct ncsi_aen_hncdsc_pkt {
 #define NCSI_PKT_RSP_OEM	(NCSI_PKT_CMD_OEM    + 0x80)
 #define NCSI_PKT_RSP_PLDM	(NCSI_PKT_CMD_PLDM   + 0x80)
 #define NCSI_PKT_RSP_GPUUID	(NCSI_PKT_CMD_GPUUID + 0x80)
+<<<<<<< HEAD
+=======
+#define NCSI_PKT_RSP_QPNPR	(NCSI_PKT_CMD_QPNPR   + 0x80)
+#define NCSI_PKT_RSP_SNPR	(NCSI_PKT_CMD_SNPR   + 0x80)
+>>>>>>> upstream/android-13
 
 /* NCSI response code/reason */
 #define NCSI_PKT_RSP_C_COMPLETED	0x0000 /* Command Completed        */

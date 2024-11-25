@@ -27,7 +27,11 @@ not strictly considered I/O devices. They are considered here as well,
 although they are not the focus of this document.
 
 Some additional information can also be found in the kernel source under
+<<<<<<< HEAD
 Documentation/s390/driver-model.txt.
+=======
+Documentation/s390/driver-model.rst.
+>>>>>>> upstream/android-13
 
 The css bus
 ===========
@@ -38,7 +42,11 @@ into several categories:
 * Standard I/O subchannels, for use by the system. They have a child
   device on the ccw bus and are described below.
 * I/O subchannels bound to the vfio-ccw driver. See
+<<<<<<< HEAD
   Documentation/s390/vfio-ccw.txt.
+=======
+  Documentation/s390/vfio-ccw.rst.
+>>>>>>> upstream/android-13
 * Message subchannels. No Linux driver currently exists.
 * CHSC subchannels (at most one). The chsc subchannel driver can be used
   to send asynchronous chsc commands.

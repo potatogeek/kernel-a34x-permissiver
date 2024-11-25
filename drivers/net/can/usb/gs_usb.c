@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* CAN driver for Geschwister Schneider USB/CAN devices
  * and bytewerk.org candleLight USB CAN interfaces.
  *
@@ -6,6 +10,7 @@
  * Copyright (C) 2016 Hubert Denkmair
  *
  * Many thanks to all socketcan devs!
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
@@ -17,6 +22,11 @@
  * General Public License for more details.
  */
 
+=======
+ */
+
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/signal.h>
 #include <linux/module.h>
@@ -198,8 +208,13 @@ struct gs_can {
 struct gs_usb {
 	struct gs_can *canch[GS_MAX_INTF];
 	struct usb_anchor rx_submitted;
+<<<<<<< HEAD
 	atomic_t active_channels;
 	struct usb_device *udev;
+=======
+	struct usb_device *udev;
+	u8 active_channels;
+>>>>>>> upstream/android-13
 };
 
 /* 'allocate' a tx context.
@@ -328,7 +343,11 @@ static void gs_usb_receive_bulk_callback(struct urb *urb)
 
 	/* device reports out of range channel id */
 	if (hf->channel >= GS_MAX_INTF)
+<<<<<<< HEAD
 		goto resubmit_urb;
+=======
+		goto device_detach;
+>>>>>>> upstream/android-13
 
 	dev = usbcan->canch[hf->channel];
 
@@ -345,7 +364,11 @@ static void gs_usb_receive_bulk_callback(struct urb *urb)
 
 		cf->can_id = le32_to_cpu(hf->can_id);
 
+<<<<<<< HEAD
 		cf->can_dlc = get_can_dlc(hf->can_dlc);
+=======
+		can_frame_set_cc_len(cf, hf->can_dlc, dev->can.ctrlmode);
+>>>>>>> upstream/android-13
 		memcpy(cf->data, hf->data, 8);
 
 		/* ERROR frames tell us information about the controller */
@@ -377,7 +400,11 @@ static void gs_usb_receive_bulk_callback(struct urb *urb)
 			goto resubmit_urb;
 		}
 
+<<<<<<< HEAD
 		can_get_echo_skb(netdev, hf->echo_id);
+=======
+		can_get_echo_skb(netdev, hf->echo_id, NULL);
+>>>>>>> upstream/android-13
 
 		gs_free_tx_context(txc);
 
@@ -392,7 +419,11 @@ static void gs_usb_receive_bulk_callback(struct urb *urb)
 			goto resubmit_urb;
 
 		cf->can_id |= CAN_ERR_CRTL;
+<<<<<<< HEAD
 		cf->can_dlc = CAN_ERR_DLC;
+=======
+		cf->len = CAN_ERR_DLC;
+>>>>>>> upstream/android-13
 		cf->data[1] = CAN_ERR_CRTL_RX_OVERFLOW;
 		stats->rx_over_errors++;
 		stats->rx_errors++;
@@ -413,6 +444,10 @@ static void gs_usb_receive_bulk_callback(struct urb *urb)
 
 	/* USB failure take down all interfaces */
 	if (rc == -ENODEV) {
+<<<<<<< HEAD
+=======
+ device_detach:
+>>>>>>> upstream/android-13
 		for (rc = 0; rc < GS_MAX_INTF; rc++) {
 			if (usbcan->canch[rc])
 				netif_device_detach(usbcan->canch[rc]->netdev);
@@ -514,12 +549,23 @@ static netdev_tx_t gs_can_start_xmit(struct sk_buff *skb,
 
 	hf->echo_id = idx;
 	hf->channel = dev->channel;
+<<<<<<< HEAD
+=======
+	hf->flags = 0;
+	hf->reserved = 0;
+>>>>>>> upstream/android-13
 
 	cf = (struct can_frame *)skb->data;
 
 	hf->can_id = cpu_to_le32(cf->can_id);
+<<<<<<< HEAD
 	hf->can_dlc = cf->can_dlc;
 	memcpy(hf->data, cf->data, cf->can_dlc);
+=======
+	hf->can_dlc = can_get_cc_dlc(cf, dev->can.ctrlmode);
+
+	memcpy(hf->data, cf->data, cf->len);
+>>>>>>> upstream/android-13
 
 	usb_fill_bulk_urb(urb, dev->udev,
 			  usb_sndbulkpipe(dev->udev, GSUSB_ENDPOINT_OUT),
@@ -531,7 +577,11 @@ static netdev_tx_t gs_can_start_xmit(struct sk_buff *skb,
 	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 	usb_anchor_urb(urb, &dev->tx_submitted);
 
+<<<<<<< HEAD
 	can_put_echo_skb(skb, netdev, idx);
+=======
+	can_put_echo_skb(skb, netdev, idx, 0);
+>>>>>>> upstream/android-13
 
 	atomic_inc(&dev->active_tx_urbs);
 
@@ -539,7 +589,11 @@ static netdev_tx_t gs_can_start_xmit(struct sk_buff *skb,
 	if (unlikely(rc)) {			/* usb send failed */
 		atomic_dec(&dev->active_tx_urbs);
 
+<<<<<<< HEAD
 		can_free_echo_skb(netdev, idx);
+=======
+		can_free_echo_skb(netdev, idx, NULL);
+>>>>>>> upstream/android-13
 		gs_free_tx_context(txc);
 
 		usb_unanchor_urb(urb);
@@ -593,7 +647,11 @@ static int gs_can_open(struct net_device *netdev)
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	if (atomic_add_return(1, &parent->active_channels) == 1) {
+=======
+	if (!parent->active_channels) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < GS_MAX_RX_URBS; i++) {
 			struct urb *urb;
 			u8 *buf;
@@ -694,6 +752,10 @@ static int gs_can_open(struct net_device *netdev)
 
 	dev->can.state = CAN_STATE_ERROR_ACTIVE;
 
+<<<<<<< HEAD
+=======
+	parent->active_channels++;
+>>>>>>> upstream/android-13
 	if (!(dev->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
 		netif_start_queue(netdev);
 
@@ -709,7 +771,12 @@ static int gs_can_close(struct net_device *netdev)
 	netif_stop_queue(netdev);
 
 	/* Stop polling */
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&parent->active_channels))
+=======
+	parent->active_channels--;
+	if (!parent->active_channels)
+>>>>>>> upstream/android-13
 		usb_kill_anchored_urbs(&parent->rx_submitted);
 
 	/* Stop sending URBs */
@@ -844,7 +911,11 @@ static struct gs_can *gs_make_candev(unsigned int channel,
 
 	netdev->flags |= IFF_ECHO; /* we support full roundtrip echo */
 
+<<<<<<< HEAD
 	/* dev settup */
+=======
+	/* dev setup */
+>>>>>>> upstream/android-13
 	strcpy(dev->bt_const.name, "gs_usb");
 	dev->bt_const.tseg1_min = le32_to_cpu(bt_const->tseg1_min);
 	dev->bt_const.tseg1_max = le32_to_cpu(bt_const->tseg1_max);
@@ -868,13 +939,21 @@ static struct gs_can *gs_make_candev(unsigned int channel,
 		dev->tx_context[rc].echo_id = GS_MAX_TX_URBS;
 	}
 
+<<<<<<< HEAD
 	/* can settup */
+=======
+	/* can setup */
+>>>>>>> upstream/android-13
 	dev->can.state = CAN_STATE_STOPPED;
 	dev->can.clock.freq = le32_to_cpu(bt_const->fclk_can);
 	dev->can.bittiming_const = &dev->bt_const;
 	dev->can.do_set_bittiming = gs_usb_set_bittiming;
 
+<<<<<<< HEAD
 	dev->can.ctrlmode_supported = 0;
+=======
+	dev->can.ctrlmode_supported = CAN_CTRLMODE_CC_LEN8_DLC;
+>>>>>>> upstream/android-13
 
 	feature = le32_to_cpu(bt_const->feature);
 	if (feature & GS_CAN_FEATURE_LISTEN_ONLY)
@@ -988,8 +1067,11 @@ static int gs_usb_probe(struct usb_interface *intf,
 
 	init_usb_anchor(&dev->rx_submitted);
 
+<<<<<<< HEAD
 	atomic_set(&dev->active_channels, 0);
 
+=======
+>>>>>>> upstream/android-13
 	usb_set_intfdata(intf, dev);
 	dev->udev = interface_to_usbdev(intf);
 

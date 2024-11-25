@@ -8,7 +8,11 @@
  *	 Ben Woodard <woodard@redhat.com>
  *	 Mauro Carvalho Chehab
  *
+<<<<<<< HEAD
  * Red Hat Inc. http://www.redhat.com
+=======
+ * Red Hat Inc. https://www.redhat.com
+>>>>>>> upstream/android-13
  *
  * Forked and adapted from the i5000_edac driver which was
  * written by Douglas Thompson Linux Networx <norsk5@xmission.com>
@@ -548,8 +552,13 @@ static void i5400_proccess_non_recoverable_info(struct mem_ctl_info *mci,
 	ras = nrec_ras(info);
 	cas = nrec_cas(info);
 
+<<<<<<< HEAD
 	edac_dbg(0, "\t\tDIMM= %d  Channels= %d,%d  (Branch= %d DRAM Bank= %d Buffer ID = %d rdwr= %s ras= %d cas= %d)\n",
 		 rank, channel, channel + 1, branch >> 1, bank,
+=======
+	edac_dbg(0, "\t\t%s DIMM= %d  Channels= %d,%d  (Branch= %d DRAM Bank= %d Buffer ID = %d rdwr= %s ras= %d cas= %d)\n",
+		 type, rank, channel, channel + 1, branch >> 1, bank,
+>>>>>>> upstream/android-13
 		 buf_id, rdwr_str(rdwr), ras, cas);
 
 	/* Only 1 bit will be on */
@@ -686,7 +695,11 @@ static void i5400_clear_error(struct mem_ctl_info *mci)
 static void i5400_check_error(struct mem_ctl_info *mci)
 {
 	struct i5400_error_info info;
+<<<<<<< HEAD
 	edac_dbg(4, "MC%d\n", mci->mc_idx);
+=======
+
+>>>>>>> upstream/android-13
 	i5400_get_error_info(mci, &info);
 	i5400_process_error_info(mci, &info);
 }
@@ -1054,8 +1067,11 @@ static void i5400_get_mc_regs(struct mem_ctl_info *mci)
 	u32 actual_tolm;
 	u16 limit;
 	int slot_row;
+<<<<<<< HEAD
 	int maxch;
 	int maxdimmperch;
+=======
+>>>>>>> upstream/android-13
 	int way0, way1;
 
 	pvt = mci->pvt_info;
@@ -1065,9 +1081,12 @@ static void i5400_get_mc_regs(struct mem_ctl_info *mci)
 	pci_read_config_dword(pvt->system_address, AMBASE + sizeof(u32),
 			&pvt->u.ambase_top);
 
+<<<<<<< HEAD
 	maxdimmperch = pvt->maxdimmperch;
 	maxch = pvt->maxch;
 
+=======
+>>>>>>> upstream/android-13
 	edac_dbg(2, "AMBASE= 0x%lx  MAXCH= %d  MAX-DIMM-Per-CH= %d\n",
 		 (long unsigned int)pvt->ambase, pvt->maxch, pvt->maxdimmperch);
 
@@ -1170,17 +1189,24 @@ static int i5400_init_dimms(struct mem_ctl_info *mci)
 {
 	struct i5400_pvt *pvt;
 	struct dimm_info *dimm;
+<<<<<<< HEAD
 	int ndimms, channel_count;
 	int max_dimms;
+=======
+	int ndimms;
+>>>>>>> upstream/android-13
 	int mtr;
 	int size_mb;
 	int  channel, slot;
 
 	pvt = mci->pvt_info;
 
+<<<<<<< HEAD
 	channel_count = pvt->maxch;
 	max_dimms = pvt->maxdimmperch;
 
+=======
+>>>>>>> upstream/android-13
 	ndimms = 0;
 
 	/*
@@ -1196,8 +1222,12 @@ static int i5400_init_dimms(struct mem_ctl_info *mci)
 			if (!MTR_DIMMS_PRESENT(mtr))
 				continue;
 
+<<<<<<< HEAD
 			dimm = EDAC_DIMM_PTR(mci->layers, mci->dimms, mci->n_layers,
 				       channel / 2, channel % 2, slot);
+=======
+			dimm = edac_get_dimm(mci, channel / 2, channel % 2, slot);
+>>>>>>> upstream/android-13
 
 			size_mb =  pvt->dimm_info[slot][channel].megabytes;
 
@@ -1470,7 +1500,11 @@ module_exit(i5400_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ben Woodard <woodard@redhat.com>");
 MODULE_AUTHOR("Mauro Carvalho Chehab");
+<<<<<<< HEAD
 MODULE_AUTHOR("Red Hat Inc. (http://www.redhat.com)");
+=======
+MODULE_AUTHOR("Red Hat Inc. (https://www.redhat.com)");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("MC Driver for Intel I5400 memory controllers - "
 		   I5400_REVISION);
 

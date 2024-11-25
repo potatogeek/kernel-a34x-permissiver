@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/pcmcia/pxa2xx_lubbock.c
  *
@@ -5,6 +9,7 @@
  * Created:	Jan 10, 2002
  * Copyright:	MontaVista Software Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -13,6 +18,11 @@
  *
  * Lubbock PCMCIA specific routines.
  *
+=======
+ * Originally based upon linux/drivers/pcmcia/sa1100_neponset.c
+ *
+ * Lubbock PCMCIA specific routines.
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -24,20 +34,46 @@
 #include <mach/hardware.h>
 #include <asm/hardware/sa1111.h>
 #include <asm/mach-types.h>
+<<<<<<< HEAD
 #include <mach/lubbock.h>
 
 #include "sa1111_generic.h"
+=======
+
+#include "sa1111_generic.h"
+#include "max1600.h"
+
+static int lubbock_pcmcia_hw_init(struct soc_pcmcia_socket *skt)
+{
+	struct max1600 *m;
+	int ret;
+
+	ret = max1600_init(skt->socket.dev.parent, &m,
+			   skt->nr ? MAX1600_CHAN_B : MAX1600_CHAN_A,
+			   MAX1600_CODE_HIGH);
+	if (ret == 0)
+		skt->driver_data = m;
+
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 static int
 lubbock_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 				const socket_state_t *state)
 {
+<<<<<<< HEAD
 	struct sa1111_pcmcia_socket *s = to_skt(skt);
 	unsigned int pa_dwr_mask, pa_dwr_set, misc_mask, misc_set;
 	int ret = 0;
 
 	pa_dwr_mask = pa_dwr_set = misc_mask = misc_set = 0;
 
+=======
+	struct max1600 *m = skt->driver_data;
+	int ret = 0;
+
+>>>>>>> upstream/android-13
 	/* Lubbock uses the Maxim MAX1602, with the following connections:
 	 *
 	 * Socket 0 (PCMCIA):
@@ -71,6 +107,7 @@ lubbock_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
  again:
 	switch (skt->nr) {
 	case 0:
+<<<<<<< HEAD
 		pa_dwr_mask = GPIO_A0 | GPIO_A1 | GPIO_A2 | GPIO_A3;
 
 		switch (state->Vcc) {
@@ -139,6 +176,9 @@ lubbock_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 			ret = -1;
 			break;
 		}
+=======
+	case 1:
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -147,11 +187,16 @@ lubbock_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 
 	if (ret == 0)
 		ret = sa1111_pcmcia_configure_socket(skt, state);
+<<<<<<< HEAD
 
 	if (ret == 0) {
 		lubbock_set_misc_wr(misc_mask, misc_set);
 		sa1111_set_io(s->dev, pa_dwr_mask, pa_dwr_set);
 	}
+=======
+	if (ret == 0)
+		ret = max1600_configure(m, state->Vcc, state->Vpp);
+>>>>>>> upstream/android-13
 
 #if 1
 	if (ret == 0 && state->Vcc == 33) {
@@ -175,8 +220,12 @@ lubbock_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 			/*
 			 * Switch to 5V,  Configure socket with 5V voltage
 			 */
+<<<<<<< HEAD
 			lubbock_set_misc_wr(misc_mask, 0);
 			sa1111_set_io(s->dev, pa_dwr_mask, 0);
+=======
+			max1600_configure(m, 0, 0);
+>>>>>>> upstream/android-13
 
 			/*
 			 * It takes about 100ms to turn off Vcc.
@@ -201,6 +250,10 @@ lubbock_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 
 static struct pcmcia_low_level lubbock_pcmcia_ops = {
 	.owner			= THIS_MODULE,
+<<<<<<< HEAD
+=======
+	.hw_init		= lubbock_pcmcia_hw_init,
+>>>>>>> upstream/android-13
 	.configure_socket	= lubbock_pcmcia_configure_socket,
 	.first			= 0,
 	.nr			= 2,
@@ -210,6 +263,7 @@ static struct pcmcia_low_level lubbock_pcmcia_ops = {
 
 int pcmcia_lubbock_init(struct sa1111_dev *sadev)
 {
+<<<<<<< HEAD
 	/*
 	 * Set GPIO_A<3:0> to be outputs for the MAX1600,
 	 * and switch to standby mode.
@@ -221,6 +275,8 @@ int pcmcia_lubbock_init(struct sa1111_dev *sadev)
 	/* Set CF Socket 1 power to standby mode. */
 	lubbock_set_misc_wr((1 << 15) | (1 << 14), 0);
 
+=======
+>>>>>>> upstream/android-13
 	pxa2xx_drv_pcmcia_ops(&lubbock_pcmcia_ops);
 	pxa2xx_configure_sockets(&sadev->dev, &lubbock_pcmcia_ops);
 	return sa1111_pcmcia_add(sadev, &lubbock_pcmcia_ops,

@@ -17,6 +17,11 @@ typedef struct {
 	unsigned long sig[_NSIG_WORDS];
 } sigset_t;
 
+<<<<<<< HEAD
+=======
+#define __ARCH_UAPI_SA_FLAGS	(SA_THIRTYTWO | SA_RESTORER)
+
+>>>>>>> upstream/android-13
 #define __ARCH_HAS_SA_RESTORER
 
 #include <asm/sigcontext.h>

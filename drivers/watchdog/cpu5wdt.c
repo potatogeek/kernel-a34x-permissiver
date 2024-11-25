@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sma cpu5 watchdog driver
  *
  * Copyright (C) 2003 Heiko Ronsdorf <hero@ihg.uni-duisburg.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -140,7 +147,11 @@ static int cpu5wdt_open(struct inode *inode, struct file *file)
 {
 	if (test_and_set_bit(0, &cpu5wdt_device.inuse))
 		return -EBUSY;
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int cpu5wdt_release(struct inode *inode, struct file *file)
@@ -201,6 +212,10 @@ static const struct file_operations cpu5wdt_fops = {
 	.owner		= THIS_MODULE,
 	.llseek		= no_llseek,
 	.unlocked_ioctl	= cpu5wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= cpu5wdt_open,
 	.write		= cpu5wdt_write,
 	.release	= cpu5wdt_release,
@@ -286,7 +301,10 @@ module_exit(cpu5wdt_exit_module);
 
 MODULE_AUTHOR("Heiko Ronsdorf <hero@ihg.uni-duisburg.de>");
 MODULE_DESCRIPTION("sma cpu5 watchdog driver");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 module_param_hw(port, int, ioport, 0);

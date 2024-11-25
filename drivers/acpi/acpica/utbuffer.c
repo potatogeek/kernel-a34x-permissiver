@@ -3,7 +3,11 @@
  *
  * Module Name: utbuffer - Buffer dump routines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -37,7 +41,13 @@ void acpi_ut_dump_buffer(u8 *buffer, u32 count, u32 display, u32 base_offset)
 	u32 j;
 	u32 temp32;
 	u8 buf_char;
+<<<<<<< HEAD
 
+=======
+	u32 display_data_only = display & DB_DISPLAY_DATA_ONLY;
+
+	display &= ~DB_DISPLAY_DATA_ONLY;
+>>>>>>> upstream/android-13
 	if (!buffer) {
 		acpi_os_printf("Null Buffer Pointer in DumpBuffer!\n");
 		return;
@@ -53,7 +63,13 @@ void acpi_ut_dump_buffer(u8 *buffer, u32 count, u32 display, u32 base_offset)
 
 		/* Print current offset */
 
+<<<<<<< HEAD
 		acpi_os_printf("%8.4X: ", (base_offset + i));
+=======
+		if (!display_data_only) {
+			acpi_os_printf("%8.4X: ", (base_offset + i));
+		}
+>>>>>>> upstream/android-13
 
 		/* Print 16 hex chars */
 
@@ -109,6 +125,7 @@ void acpi_ut_dump_buffer(u8 *buffer, u32 count, u32 display, u32 base_offset)
 		 * Print the ASCII equivalent characters but watch out for the bad
 		 * unprintable ones (printable chars are 0x20 through 0x7E)
 		 */
+<<<<<<< HEAD
 		acpi_os_printf(" ");
 		for (j = 0; j < 16; j++) {
 			if (i + j >= count) {
@@ -135,6 +152,36 @@ void acpi_ut_dump_buffer(u8 *buffer, u32 count, u32 display, u32 base_offset)
 		/* Done with that line. */
 
 		acpi_os_printf("\n");
+=======
+		if (!display_data_only) {
+			acpi_os_printf(" ");
+			for (j = 0; j < 16; j++) {
+				if (i + j >= count) {
+					acpi_os_printf("\n");
+					return;
+				}
+
+				/*
+				 * Add comment characters so rest of line is ignored when
+				 * compiled
+				 */
+				if (j == 0) {
+					acpi_os_printf("// ");
+				}
+
+				buf_char = buffer[(acpi_size)i + j];
+				if (isprint(buf_char)) {
+					acpi_os_printf("%c", buf_char);
+				} else {
+					acpi_os_printf(".");
+				}
+			}
+
+			/* Done with that line. */
+
+			acpi_os_printf("\n");
+		}
+>>>>>>> upstream/android-13
 		i += 16;
 	}
 

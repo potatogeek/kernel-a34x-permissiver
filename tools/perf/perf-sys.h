@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+<<<<<<< HEAD
 #include <linux/types.h>
 #include <linux/compiler.h>
 #include <linux/perf_event.h>
@@ -53,12 +54,18 @@
 #ifndef CPUINFO_PROC
 #define CPUINFO_PROC	{ "model name", }
 #endif
+=======
+#include <linux/compiler.h>
+
+struct perf_event_attr;
+>>>>>>> upstream/android-13
 
 static inline int
 sys_perf_event_open(struct perf_event_attr *attr,
 		      pid_t pid, int cpu, int group_fd,
 		      unsigned long flags)
 {
+<<<<<<< HEAD
 	int fd;
 
 	fd = syscall(__NR_perf_event_open, attr, pid, cpu,
@@ -69,6 +76,10 @@ sys_perf_event_open(struct perf_event_attr *attr,
 		test_attr__open(attr, pid, cpu, fd, group_fd, flags);
 #endif
 	return fd;
+=======
+	return syscall(__NR_perf_event_open, attr, pid, cpu,
+		       group_fd, flags);
+>>>>>>> upstream/android-13
 }
 
 #endif /* _PERF_SYS_H */

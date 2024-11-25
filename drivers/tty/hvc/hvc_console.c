@@ -292,7 +292,11 @@ int hvc_instantiate(uint32_t vtermno, int index, const struct hv_ops *ops)
 	if (vtermnos[index] != -1)
 		return -1;
 
+<<<<<<< HEAD
 	/* make sure no no tty has been registered in this index */
+=======
+	/* make sure no tty has been registered in this index */
+>>>>>>> upstream/android-13
 	hp = hvc_get_by_index(index);
 	if (hp) {
 		tty_port_put(&hp->port);
@@ -586,7 +590,11 @@ static void hvc_set_winsz(struct work_struct *work)
  * how much write room the driver can guarantee will be sent OR BUFFERED.  This
  * driver MUST honor the return value.
  */
+<<<<<<< HEAD
 static int hvc_write_room(struct tty_struct *tty)
+=======
+static unsigned int hvc_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct hvc_struct *hp = tty->driver_data;
 
@@ -596,7 +604,11 @@ static int hvc_write_room(struct tty_struct *tty)
 	return hp->outbuf_size - hp->n_outbuf;
 }
 
+<<<<<<< HEAD
 static int hvc_chars_in_buffer(struct tty_struct *tty)
+=======
+static unsigned int hvc_chars_in_buffer(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct hvc_struct *hp = tty->driver_data;
 
@@ -620,7 +632,11 @@ static u32 timeout = MIN_TIMEOUT;
 /*
  * Maximum number of bytes to get from the console driver if hvc_poll is
  * called from driver (and can't sleep). Any more than this and we break
+<<<<<<< HEAD
  * and start polling with khvcd. This value was derived from from an OpenBMC
+=======
+ * and start polling with khvcd. This value was derived from an OpenBMC
+>>>>>>> upstream/android-13
  * console with the OPAL driver that results in about 0.25ms interrupts off
  * latency.
  */
@@ -1021,9 +1037,16 @@ static int hvc_init(void)
 	int err;
 
 	/* We need more than hvc_count adapters due to hotplug additions. */
+<<<<<<< HEAD
 	drv = alloc_tty_driver(HVC_ALLOC_TTY_ADAPTERS);
 	if (!drv) {
 		err = -ENOMEM;
+=======
+	drv = tty_alloc_driver(HVC_ALLOC_TTY_ADAPTERS, TTY_DRIVER_REAL_RAW |
+			TTY_DRIVER_RESET_TERMIOS);
+	if (IS_ERR(drv)) {
+		err = PTR_ERR(drv);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -1033,7 +1056,10 @@ static int hvc_init(void)
 	drv->minor_start = HVC_MINOR;
 	drv->type = TTY_DRIVER_TYPE_SYSTEM;
 	drv->init_termios = tty_std_termios;
+<<<<<<< HEAD
 	drv->flags = TTY_DRIVER_REAL_RAW | TTY_DRIVER_RESET_TERMIOS;
+=======
+>>>>>>> upstream/android-13
 	tty_set_operations(drv, &hvc_ops);
 
 	/* Always start the kthread because there can be hotplug vty adapters
@@ -1063,7 +1089,11 @@ stop_thread:
 	kthread_stop(hvc_task);
 	hvc_task = NULL;
 put_tty:
+<<<<<<< HEAD
 	put_tty_driver(drv);
+=======
+	tty_driver_kref_put(drv);
+>>>>>>> upstream/android-13
 out:
 	return err;
 }

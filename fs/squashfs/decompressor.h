@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef DECOMPRESSOR_H
 #define DECOMPRESSOR_H
 /*
@@ -6,6 +10,7 @@
  * Copyright (c) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
  * Phillip Lougher <phillip@squashfs.org.uk>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2,
@@ -23,13 +28,24 @@
  * decompressor.h
  */
 
+=======
+ * decompressor.h
+ */
+
+#include <linux/bio.h>
+
+>>>>>>> upstream/android-13
 struct squashfs_decompressor {
 	void	*(*init)(struct squashfs_sb_info *, void *);
 	void	*(*comp_opts)(struct squashfs_sb_info *, void *, int);
 	void	(*free)(void *);
 	int	(*decompress)(struct squashfs_sb_info *, void *,
+<<<<<<< HEAD
 		struct buffer_head **, int, int, int,
 		struct squashfs_page_actor *);
+=======
+		struct bio *, int, int, struct squashfs_page_actor *);
+>>>>>>> upstream/android-13
 	int	id;
 	char	*name;
 	int	supported;

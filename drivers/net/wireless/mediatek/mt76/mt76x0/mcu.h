@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
@@ -10,11 +11,18 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014 Felix Fietkau <nbd@openwrt.org>
+ * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MT76X0U_MCU_H
 #define __MT76X0U_MCU_H
 
+<<<<<<< HEAD
 struct mt76x0_dev;
 
 /* Register definitions */
@@ -24,16 +32,25 @@ struct mt76x0_dev;
 #define MT_MCU_COM_REG1			0x0734
 #define MT_MCU_COM_REG2			0x0738
 #define MT_MCU_COM_REG3			0x073C
+=======
+#include "../mt76x02_mcu.h"
+
+struct mt76x02_dev;
+>>>>>>> upstream/android-13
 
 #define MT_MCU_IVB_SIZE			0x40
 #define MT_MCU_DLM_OFFSET		0x80000
 
+<<<<<<< HEAD
 #define MT_MCU_MEMMAP_WLAN		0x00410000
+=======
+>>>>>>> upstream/android-13
 /* We use same space for BBP as for MAC regs
  * #define MT_MCU_MEMMAP_BBP		0x40000000
  */
 #define MT_MCU_MEMMAP_RF		0x80000000
 
+<<<<<<< HEAD
 #define INBAND_PACKET_MAX_LEN		192
 
 enum mcu_cmd {
@@ -74,6 +91,8 @@ enum mcu_power_mode {
 	RADIO_ON_ADVANCE = 0x34,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum mcu_calibrate {
 	MCU_CAL_R = 1,
 	MCU_CAL_RXDCOC,
@@ -86,6 +105,7 @@ enum mcu_calibrate {
 	MCU_CAL_TXDCOC,
 	MCU_CAL_RX_GROUP_DELAY,
 	MCU_CAL_TX_GROUP_DELAY,
+<<<<<<< HEAD
 };
 
 int mt76x0_mcu_init(struct mt76x0_dev *dev);
@@ -97,5 +117,18 @@ mt76x0_mcu_calibrate(struct mt76x0_dev *dev, enum mcu_calibrate cal, u32 val);
 
 int
 mt76x0_mcu_function_select(struct mt76x0_dev *dev, enum mcu_function func, u32 val);
+=======
+	MCU_CAL_VCO,
+	MCU_CAL_NO_SIGNAL = 0xfe,
+	MCU_CAL_FULL = 0xff,
+};
+
+int mt76x0e_mcu_init(struct mt76x02_dev *dev);
+int mt76x0u_mcu_init(struct mt76x02_dev *dev);
+static inline int mt76x0_firmware_running(struct mt76x02_dev *dev)
+{
+	return mt76_rr(dev, MT_MCU_COM_REG0) == 1;
+}
+>>>>>>> upstream/android-13
 
 #endif

@@ -378,7 +378,10 @@ int ibmphp_add_pfmem_from_mem(struct resource_node *);
 struct bus_node *ibmphp_find_res_bus(u8);
 void ibmphp_print_test(void);	/* for debugging purposes */
 
+<<<<<<< HEAD
 void ibmphp_hpc_initvars(void);
+=======
+>>>>>>> upstream/android-13
 int ibmphp_hpc_readslot(struct slot *, u8, u8 *);
 int ibmphp_hpc_writeslot(struct slot *, u8);
 void ibmphp_lock_operations(void);
@@ -698,7 +701,11 @@ struct slot {
 	u8 supported_bus_mode;
 	u8 flag;		/* this is for disable slot and polling */
 	u8 ctlr_index;
+<<<<<<< HEAD
 	struct hotplug_slot *hotplug_slot;
+=======
+	struct hotplug_slot hotplug_slot;
+>>>>>>> upstream/android-13
 	struct controller *ctrl;
 	struct pci_func *func;
 	u8 irq[4];
@@ -740,7 +747,16 @@ int ibmphp_do_disable_slot(struct slot *slot_cur);
 int ibmphp_update_slot_info(struct slot *);	/* This function is called from HPC, so we need it to not be be static */
 int ibmphp_configure_card(struct pci_func *, u8);
 int ibmphp_unconfigure_card(struct slot **, int);
+<<<<<<< HEAD
 extern struct hotplug_slot_ops ibmphp_hotplug_slot_ops;
+=======
+extern const struct hotplug_slot_ops ibmphp_hotplug_slot_ops;
+
+static inline struct slot *to_slot(struct hotplug_slot *hotplug_slot)
+{
+	return container_of(hotplug_slot, struct slot, hotplug_slot);
+}
+>>>>>>> upstream/android-13
 
 #endif				//__IBMPHP_H
 

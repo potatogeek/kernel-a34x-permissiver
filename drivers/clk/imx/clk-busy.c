@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  * Copyright 2012 Linaro Ltd.
@@ -10,6 +11,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2012 Linaro Ltd.
+ */
+
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/io.h>
@@ -78,13 +88,23 @@ static const struct clk_ops clk_busy_divider_ops = {
 	.set_rate = clk_busy_divider_set_rate,
 };
 
+<<<<<<< HEAD
 struct clk *imx_clk_busy_divider(const char *name, const char *parent_name,
+=======
+struct clk_hw *imx_clk_hw_busy_divider(const char *name, const char *parent_name,
+>>>>>>> upstream/android-13
 				 void __iomem *reg, u8 shift, u8 width,
 				 void __iomem *busy_reg, u8 busy_shift)
 {
 	struct clk_busy_divider *busy;
+<<<<<<< HEAD
 	struct clk *clk;
 	struct clk_init_data init = {};
+=======
+	struct clk_hw *hw;
+	struct clk_init_data init;
+	int ret;
+>>>>>>> upstream/android-13
 
 	busy = kzalloc(sizeof(*busy), GFP_KERNEL);
 	if (!busy)
@@ -107,11 +127,23 @@ struct clk *imx_clk_busy_divider(const char *name, const char *parent_name,
 
 	busy->div.hw.init = &init;
 
+<<<<<<< HEAD
 	clk = clk_register(NULL, &busy->div.hw);
 	if (IS_ERR(clk))
 		kfree(busy);
 
 	return clk;
+=======
+	hw = &busy->div.hw;
+
+	ret = clk_hw_register(NULL, hw);
+	if (ret) {
+		kfree(busy);
+		return ERR_PTR(ret);
+	}
+
+	return hw;
+>>>>>>> upstream/android-13
 }
 
 struct clk_busy_mux {
@@ -152,13 +184,23 @@ static const struct clk_ops clk_busy_mux_ops = {
 	.set_parent = clk_busy_mux_set_parent,
 };
 
+<<<<<<< HEAD
 struct clk *imx_clk_busy_mux(const char *name, void __iomem *reg, u8 shift,
+=======
+struct clk_hw *imx_clk_hw_busy_mux(const char *name, void __iomem *reg, u8 shift,
+>>>>>>> upstream/android-13
 			     u8 width, void __iomem *busy_reg, u8 busy_shift,
 			     const char * const *parent_names, int num_parents)
 {
 	struct clk_busy_mux *busy;
+<<<<<<< HEAD
 	struct clk *clk;
 	struct clk_init_data init = {};
+=======
+	struct clk_hw *hw;
+	struct clk_init_data init;
+	int ret;
+>>>>>>> upstream/android-13
 
 	busy = kzalloc(sizeof(*busy), GFP_KERNEL);
 	if (!busy)
@@ -181,9 +223,21 @@ struct clk *imx_clk_busy_mux(const char *name, void __iomem *reg, u8 shift,
 
 	busy->mux.hw.init = &init;
 
+<<<<<<< HEAD
 	clk = clk_register(NULL, &busy->mux.hw);
 	if (IS_ERR(clk))
 		kfree(busy);
 
 	return clk;
+=======
+	hw = &busy->mux.hw;
+
+	ret = clk_hw_register(NULL, hw);
+	if (ret) {
+		kfree(busy);
+		return ERR_PTR(ret);
+	}
+
+	return hw;
+>>>>>>> upstream/android-13
 }

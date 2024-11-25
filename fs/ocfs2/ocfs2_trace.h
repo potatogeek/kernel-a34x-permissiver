@@ -712,6 +712,11 @@ TRACE_EVENT(ocfs2_trim_extent,
 
 DEFINE_OCFS2_ULL_UINT_UINT_UINT_EVENT(ocfs2_trim_group);
 
+<<<<<<< HEAD
+=======
+DEFINE_OCFS2_ULL_ULL_ULL_EVENT(ocfs2_trim_mainbm);
+
+>>>>>>> upstream/android-13
 DEFINE_OCFS2_ULL_ULL_ULL_EVENT(ocfs2_trim_fs);
 
 /* End of trace events for fs/ocfs2/alloc.c. */

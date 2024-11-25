@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  include/linux/irqchip/arm-gic.h
  *
  *  Copyright (C) 2002 ARM Limited, All Rights Reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_IRQCHIP_ARM_GIC_H
 #define __LINUX_IRQCHIP_ARM_GIC_H
@@ -65,11 +72,14 @@
 #define GICD_INT_EN_CLR_X32		0xffffffff
 #define GICD_INT_EN_SET_SGI		0x0000ffff
 #define GICD_INT_EN_CLR_PPI		0xffff0000
+<<<<<<< HEAD
 #define GICD_INT_DEF_PRI		0xa0
 #define GICD_INT_DEF_PRI_X4		((GICD_INT_DEF_PRI << 24) |\
 					(GICD_INT_DEF_PRI << 16) |\
 					(GICD_INT_DEF_PRI << 8) |\
 					GICD_INT_DEF_PRI)
+=======
+>>>>>>> upstream/android-13
 
 #define GICD_IIDR_IMPLEMENTER_SHIFT	0
 #define GICD_IIDR_IMPLEMENTER_MASK	(0xfff << GICD_IIDR_IMPLEMENTER_SHIFT)
@@ -163,16 +173,24 @@ int gic_of_init_child(struct device *dev, struct gic_chip_data **gic, int irq);
  * Legacy platforms not converted to DT yet must use this to init
  * their GIC
  */
+<<<<<<< HEAD
 void gic_init(unsigned int nr, int start,
 	      void __iomem *dist , void __iomem *cpu);
 
 int gicv2m_init(struct fwnode_handle *parent_handle,
 		struct irq_domain *parent);
+=======
+void gic_init(void __iomem *dist , void __iomem *cpu);
+>>>>>>> upstream/android-13
 
 void gic_send_sgi(unsigned int cpu_id, unsigned int irq);
 int gic_get_cpu_id(unsigned int cpu);
 void gic_migrate_target(unsigned int new_cpu_id);
 unsigned long gic_get_sgir_physaddr(void);
+<<<<<<< HEAD
+=======
+void gic_v2_resume(void);
+>>>>>>> upstream/android-13
 
 #endif /* __ASSEMBLY */
 #endif

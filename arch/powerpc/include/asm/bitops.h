@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * PowerPC atomic bit operations.
  *
@@ -26,11 +30,14 @@
  * The main difference is that bit 3-5 (64b) or 3-4 (32b) in the bit
  * number field needs to be reversed compared to the big-endian bit
  * fields. This can be achieved by XOR with 0x38 (64b) or 0x18 (32b).
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_POWERPC_BITOPS_H
@@ -45,7 +52,10 @@
 #include <linux/compiler.h>
 #include <asm/asm-compat.h>
 #include <asm/synch.h>
+<<<<<<< HEAD
 #include <asm/asm-405.h>
+=======
+>>>>>>> upstream/android-13
 
 /* PPC bit number conversion */
 #define PPC_BITLSHIFT(be)	(BITS_PER_LONG - 1 - (be))
@@ -68,16 +78,25 @@
 
 /* Macro for generating the ***_bits() functions */
 #define DEFINE_BITOP(fn, op, prefix)		\
+<<<<<<< HEAD
 static __inline__ void fn(unsigned long mask,	\
+=======
+static inline void fn(unsigned long mask,	\
+>>>>>>> upstream/android-13
 		volatile unsigned long *_p)	\
 {						\
 	unsigned long old;			\
 	unsigned long *p = (unsigned long *)_p;	\
 	__asm__ __volatile__ (			\
 	prefix					\
+<<<<<<< HEAD
 "1:"	PPC_LLARX(%0,0,%3,0) "\n"		\
 	stringify_in_c(op) "%0,%0,%2\n"		\
 	PPC405_ERR77(0,%3)			\
+=======
+"1:"	PPC_LLARX "%0,0,%3,0\n"			\
+	stringify_in_c(op) "%0,%0,%2\n"		\
+>>>>>>> upstream/android-13
 	PPC_STLCX "%0,0,%3\n"			\
 	"bne- 1b\n"				\
 	: "=&r" (old), "+m" (*p)		\
@@ -90,22 +109,38 @@ DEFINE_BITOP(clear_bits, andc, "")
 DEFINE_BITOP(clear_bits_unlock, andc, PPC_RELEASE_BARRIER)
 DEFINE_BITOP(change_bits, xor, "")
 
+<<<<<<< HEAD
 static __inline__ void set_bit(int nr, volatile unsigned long *addr)
+=======
+static inline void arch_set_bit(int nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	set_bits(BIT_MASK(nr), addr + BIT_WORD(nr));
 }
 
+<<<<<<< HEAD
 static __inline__ void clear_bit(int nr, volatile unsigned long *addr)
+=======
+static inline void arch_clear_bit(int nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	clear_bits(BIT_MASK(nr), addr + BIT_WORD(nr));
 }
 
+<<<<<<< HEAD
 static __inline__ void clear_bit_unlock(int nr, volatile unsigned long *addr)
+=======
+static inline void arch_clear_bit_unlock(int nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	clear_bits_unlock(BIT_MASK(nr), addr + BIT_WORD(nr));
 }
 
+<<<<<<< HEAD
 static __inline__ void change_bit(int nr, volatile unsigned long *addr)
+=======
+static inline void arch_change_bit(int nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	change_bits(BIT_MASK(nr), addr + BIT_WORD(nr));
 }
@@ -113,7 +148,11 @@ static __inline__ void change_bit(int nr, volatile unsigned long *addr)
 /* Like DEFINE_BITOP(), with changes to the arguments to 'op' and the output
  * operands. */
 #define DEFINE_TESTOP(fn, op, prefix, postfix, eh)	\
+<<<<<<< HEAD
 static __inline__ unsigned long fn(			\
+=======
+static inline unsigned long fn(			\
+>>>>>>> upstream/android-13
 		unsigned long mask,			\
 		volatile unsigned long *_p)		\
 {							\
@@ -121,14 +160,23 @@ static __inline__ unsigned long fn(			\
 	unsigned long *p = (unsigned long *)_p;		\
 	__asm__ __volatile__ (				\
 	prefix						\
+<<<<<<< HEAD
 "1:"	PPC_LLARX(%0,0,%3,eh) "\n"			\
 	stringify_in_c(op) "%1,%0,%2\n"			\
 	PPC405_ERR77(0,%3)				\
+=======
+"1:"	PPC_LLARX "%0,0,%3,%4\n"			\
+	stringify_in_c(op) "%1,%0,%2\n"			\
+>>>>>>> upstream/android-13
 	PPC_STLCX "%1,0,%3\n"				\
 	"bne- 1b\n"					\
 	postfix						\
 	: "=&r" (old), "=&r" (t)			\
+<<<<<<< HEAD
 	: "r" (mask), "r" (p)				\
+=======
+	: "r" (mask), "r" (p), "i" (IS_ENABLED(CONFIG_PPC64) ? eh : 0)	\
+>>>>>>> upstream/android-13
 	: "cc", "memory");				\
 	return (old & mask);				\
 }
@@ -142,34 +190,59 @@ DEFINE_TESTOP(test_and_clear_bits, andc, PPC_ATOMIC_ENTRY_BARRIER,
 DEFINE_TESTOP(test_and_change_bits, xor, PPC_ATOMIC_ENTRY_BARRIER,
 	      PPC_ATOMIC_EXIT_BARRIER, 0)
 
+<<<<<<< HEAD
 static __inline__ int test_and_set_bit(unsigned long nr,
 				       volatile unsigned long *addr)
+=======
+static inline int arch_test_and_set_bit(unsigned long nr,
+					volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	return test_and_set_bits(BIT_MASK(nr), addr + BIT_WORD(nr)) != 0;
 }
 
+<<<<<<< HEAD
 static __inline__ int test_and_set_bit_lock(unsigned long nr,
 				       volatile unsigned long *addr)
+=======
+static inline int arch_test_and_set_bit_lock(unsigned long nr,
+					     volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	return test_and_set_bits_lock(BIT_MASK(nr),
 				addr + BIT_WORD(nr)) != 0;
 }
 
+<<<<<<< HEAD
 static __inline__ int test_and_clear_bit(unsigned long nr,
 					 volatile unsigned long *addr)
+=======
+static inline int arch_test_and_clear_bit(unsigned long nr,
+					  volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	return test_and_clear_bits(BIT_MASK(nr), addr + BIT_WORD(nr)) != 0;
 }
 
+<<<<<<< HEAD
 static __inline__ int test_and_change_bit(unsigned long nr,
 					  volatile unsigned long *addr)
+=======
+static inline int arch_test_and_change_bit(unsigned long nr,
+					   volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	return test_and_change_bits(BIT_MASK(nr), addr + BIT_WORD(nr)) != 0;
 }
 
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 static __inline__ unsigned long clear_bit_unlock_return_word(int nr,
 						volatile unsigned long *addr)
+=======
+static inline unsigned long
+clear_bit_unlock_return_word(int nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	unsigned long old, t;
 	unsigned long *p = (unsigned long *)addr + BIT_WORD(nr);
@@ -177,9 +250,14 @@ static __inline__ unsigned long clear_bit_unlock_return_word(int nr,
 
 	__asm__ __volatile__ (
 	PPC_RELEASE_BARRIER
+<<<<<<< HEAD
 "1:"	PPC_LLARX(%0,0,%3,0) "\n"
 	"andc %1,%0,%2\n"
 	PPC405_ERR77(0,%3)
+=======
+"1:"	PPC_LLARX "%0,0,%3,0\n"
+	"andc %1,%0,%2\n"
+>>>>>>> upstream/android-13
 	PPC_STLCX "%1,0,%3\n"
 	"bne- 1b\n"
 	: "=&r" (old), "=&r" (t)
@@ -189,15 +267,28 @@ static __inline__ unsigned long clear_bit_unlock_return_word(int nr,
 	return old;
 }
 
+<<<<<<< HEAD
 /* This is a special function for mm/filemap.c */
 #define clear_bit_unlock_is_negative_byte(nr, addr)			\
 	(clear_bit_unlock_return_word(nr, addr) & BIT_MASK(PG_waiters))
+=======
+/*
+ * This is a special function for mm/filemap.c
+ * Bit 7 corresponds to PG_waiters.
+ */
+#define arch_clear_bit_unlock_is_negative_byte(nr, addr)		\
+	(clear_bit_unlock_return_word(nr, addr) & BIT_MASK(7))
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_PPC64 */
 
 #include <asm-generic/bitops/non-atomic.h>
 
+<<<<<<< HEAD
 static __inline__ void __clear_bit_unlock(int nr, volatile unsigned long *addr)
+=======
+static inline void arch___clear_bit_unlock(int nr, volatile unsigned long *addr)
+>>>>>>> upstream/android-13
 {
 	__asm__ __volatile__(PPC_RELEASE_BARRIER "" ::: "memory");
 	__clear_bit(nr, addr);
@@ -219,7 +310,11 @@ static __inline__ void __clear_bit_unlock(int nr, volatile unsigned long *addr)
  * fls: find last (most-significant) bit set.
  * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
  */
+<<<<<<< HEAD
 static __inline__ int fls(unsigned int x)
+=======
+static inline int fls(unsigned int x)
+>>>>>>> upstream/android-13
 {
 	int lz;
 
@@ -237,7 +332,11 @@ static __inline__ int fls(unsigned int x)
  * 32-bit fls calls.
  */
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 static __inline__ int fls64(__u64 x)
+=======
+static inline int fls64(__u64 x)
+>>>>>>> upstream/android-13
 {
 	int lz;
 
@@ -262,6 +361,13 @@ unsigned long __arch_hweight64(__u64 w);
 
 #include <asm-generic/bitops/find.h>
 
+<<<<<<< HEAD
+=======
+/* wrappers that deal with KASAN instrumentation */
+#include <asm-generic/bitops/instrumented-atomic.h>
+#include <asm-generic/bitops/instrumented-lock.h>
+
+>>>>>>> upstream/android-13
 /* Little-endian versions */
 #include <asm-generic/bitops/le.h>
 

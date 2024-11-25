@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Linaro Ltd.
  * Copyright (c) 2013 Hisilicon Limited.
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2013 Linaro Ltd.
+ * Copyright (c) 2013 HiSilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -242,7 +249,11 @@ static void dw_mci_hs_set_timing(struct dw_mci *host, int timing,
 		if (smpl_phase >= USE_DLY_MIN_SMPL &&
 				smpl_phase <= USE_DLY_MAX_SMPL)
 			use_smpl_dly = 1;
+<<<<<<< HEAD
 			/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MMC_TIMING_UHS_SDR50:
 		if (smpl_phase >= ENABLE_SHIFT_MIN_SMPL &&
 				smpl_phase <= ENABLE_SHIFT_MAX_SMPL)
@@ -428,7 +439,11 @@ static int dw_mci_hi3660_switch_voltage(struct mmc_host *mmc,
 
 	if (!IS_ERR(mmc->supply.vqmmc)) {
 		ret = mmc_regulator_set_vqmmc(mmc, ios);
+<<<<<<< HEAD
 		if (ret) {
+=======
+		if (ret < 0) {
+>>>>>>> upstream/android-13
 			dev_err(host->dev, "Regulator set error %d\n", ret);
 			return ret;
 		}
@@ -477,6 +492,10 @@ static struct platform_driver dw_mci_k3_pltfm_driver = {
 	.remove		= dw_mci_pltfm_remove,
 	.driver		= {
 		.name		= "dwmmc_k3",
+<<<<<<< HEAD
+=======
+		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table	= dw_mci_k3_match,
 		.pm		= &dw_mci_k3_dev_pm_ops,
 	},

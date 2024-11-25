@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Samsung EXYNOS FIMC-LITE (camera host interface) driver
 *
  * Copyright (C) 2012 - 2013 Samsung Electronics Co., Ltd.
  * Author: Sylwester Nawrocki <s.nawrocki@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) "%s:%d " fmt, __func__, __LINE__
 
@@ -28,6 +35,10 @@
 #include <media/v4l2-device.h>
 #include <media/v4l2-ioctl.h>
 #include <media/v4l2-mem2mem.h>
+<<<<<<< HEAD
+=======
+#include <media/v4l2-rect.h>
+>>>>>>> upstream/android-13
 #include <media/videobuf2-v4l2.h>
 #include <media/videobuf2-dma-contig.h>
 #include <media/drv-intf/exynos-fimc.h>
@@ -42,7 +53,10 @@ module_param(debug, int, 0644);
 
 static const struct fimc_fmt fimc_lite_formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCbYCr",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YUYV,
 		.colorspace	= V4L2_COLORSPACE_JPEG,
 		.depth		= { 16 },
@@ -51,7 +65,10 @@ static const struct fimc_fmt fimc_lite_formats[] = {
 		.mbus_code	= MEDIA_BUS_FMT_YUYV8_2X8,
 		.flags		= FMT_FLAGS_YUV,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, CbYCrY",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_UYVY,
 		.colorspace	= V4L2_COLORSPACE_JPEG,
 		.depth		= { 16 },
@@ -60,7 +77,10 @@ static const struct fimc_fmt fimc_lite_formats[] = {
 		.mbus_code	= MEDIA_BUS_FMT_UYVY8_2X8,
 		.flags		= FMT_FLAGS_YUV,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, CrYCbY",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_VYUY,
 		.colorspace	= V4L2_COLORSPACE_JPEG,
 		.depth		= { 16 },
@@ -69,7 +89,10 @@ static const struct fimc_fmt fimc_lite_formats[] = {
 		.mbus_code	= MEDIA_BUS_FMT_VYUY8_2X8,
 		.flags		= FMT_FLAGS_YUV,
 	}, {
+<<<<<<< HEAD
 		.name		= "YUV 4:2:2 packed, YCrYCb",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_YVYU,
 		.colorspace	= V4L2_COLORSPACE_JPEG,
 		.depth		= { 16 },
@@ -78,7 +101,10 @@ static const struct fimc_fmt fimc_lite_formats[] = {
 		.mbus_code	= MEDIA_BUS_FMT_YVYU8_2X8,
 		.flags		= FMT_FLAGS_YUV,
 	}, {
+<<<<<<< HEAD
 		.name		= "RAW8 (GRBG)",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_SGRBG8,
 		.colorspace	= V4L2_COLORSPACE_SRGB,
 		.depth		= { 8 },
@@ -87,7 +113,10 @@ static const struct fimc_fmt fimc_lite_formats[] = {
 		.mbus_code	= MEDIA_BUS_FMT_SGRBG8_1X8,
 		.flags		= FMT_FLAGS_RAW_BAYER,
 	}, {
+<<<<<<< HEAD
 		.name		= "RAW10 (GRBG)",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_SGRBG10,
 		.colorspace	= V4L2_COLORSPACE_SRGB,
 		.depth		= { 16 },
@@ -96,7 +125,10 @@ static const struct fimc_fmt fimc_lite_formats[] = {
 		.mbus_code	= MEDIA_BUS_FMT_SGRBG10_1X10,
 		.flags		= FMT_FLAGS_RAW_BAYER,
 	}, {
+<<<<<<< HEAD
 		.name		= "RAW12 (GRBG)",
+=======
+>>>>>>> upstream/android-13
 		.fourcc		= V4L2_PIX_FMT_SGRBG12,
 		.colorspace	= V4L2_COLORSPACE_SRGB,
 		.depth		= { 16 },
@@ -418,7 +450,11 @@ static void buffer_queue(struct vb2_buffer *vb)
 	unsigned long flags;
 
 	spin_lock_irqsave(&fimc->slock, flags);
+<<<<<<< HEAD
 	buf->paddr = vb2_dma_contig_plane_dma_addr(vb, 0);
+=======
+	buf->addr = vb2_dma_contig_plane_dma_addr(vb, 0);
+>>>>>>> upstream/android-13
 
 	buf->index = fimc->buf_index++;
 	if (fimc->buf_index >= fimc->reqbufs_count)
@@ -478,9 +514,15 @@ static int fimc_lite_open(struct file *file)
 	}
 
 	set_bit(ST_FLITE_IN_USE, &fimc->state);
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(&fimc->pdev->dev);
 	if (ret < 0)
 		goto err_pm;
+=======
+	ret = pm_runtime_resume_and_get(&fimc->pdev->dev);
+	if (ret < 0)
+		goto err_in_use;
+>>>>>>> upstream/android-13
 
 	ret = v4l2_fh_open(file);
 	if (ret < 0)
@@ -508,6 +550,10 @@ static int fimc_lite_open(struct file *file)
 	v4l2_fh_release(file);
 err_pm:
 	pm_runtime_put_sync(&fimc->pdev->dev);
+<<<<<<< HEAD
+=======
+err_in_use:
+>>>>>>> upstream/android-13
 	clear_bit(ST_FLITE_IN_USE, &fimc->state);
 unlock:
 	mutex_unlock(&fimc->lock);
@@ -558,7 +604,11 @@ static const struct v4l2_file_operations fimc_lite_fops = {
  */
 
 static const struct fimc_fmt *fimc_lite_subdev_try_fmt(struct fimc_lite *fimc,
+<<<<<<< HEAD
 					struct v4l2_subdev_pad_config *cfg,
+=======
+					struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					struct v4l2_subdev_format *format)
 {
 	struct flite_drvdata *dd = fimc->dd;
@@ -582,14 +632,26 @@ static const struct fimc_fmt *fimc_lite_subdev_try_fmt(struct fimc_lite *fimc,
 		struct v4l2_rect *rect;
 
 		if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 			sink_fmt = v4l2_subdev_get_try_format(&fimc->subdev, cfg,
 						FLITE_SD_PAD_SINK);
+=======
+			sink_fmt = v4l2_subdev_get_try_format(&fimc->subdev,
+							      sd_state,
+							      FLITE_SD_PAD_SINK);
+>>>>>>> upstream/android-13
 
 			mf->code = sink_fmt->code;
 			mf->colorspace = sink_fmt->colorspace;
 
+<<<<<<< HEAD
 			rect = v4l2_subdev_get_try_crop(&fimc->subdev, cfg,
 						FLITE_SD_PAD_SINK);
+=======
+			rect = v4l2_subdev_get_try_crop(&fimc->subdev,
+							sd_state,
+							FLITE_SD_PAD_SINK);
+>>>>>>> upstream/android-13
 		} else {
 			mf->code = sink->fmt->mbus_code;
 			mf->colorspace = sink->fmt->colorspace;
@@ -654,6 +716,7 @@ static int fimc_lite_querycap(struct file *file, void *priv,
 {
 	struct fimc_lite *fimc = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, FIMC_LITE_DRV_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, FIMC_LITE_DRV_NAME, sizeof(cap->card));
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
@@ -666,6 +729,17 @@ static int fimc_lite_querycap(struct file *file, void *priv,
 
 static int fimc_lite_enum_fmt_mplane(struct file *file, void *priv,
 				     struct v4l2_fmtdesc *f)
+=======
+	strscpy(cap->driver, FIMC_LITE_DRV_NAME, sizeof(cap->driver));
+	strscpy(cap->card, FIMC_LITE_DRV_NAME, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
+					dev_name(&fimc->pdev->dev));
+	return 0;
+}
+
+static int fimc_lite_enum_fmt(struct file *file, void *priv,
+			      struct v4l2_fmtdesc *f)
+>>>>>>> upstream/android-13
 {
 	const struct fimc_fmt *fmt;
 
@@ -673,7 +747,10 @@ static int fimc_lite_enum_fmt_mplane(struct file *file, void *priv,
 		return -EINVAL;
 
 	fmt = &fimc_lite_formats[f->index];
+<<<<<<< HEAD
 	strlcpy(f->description, fmt->name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = fmt->fourcc;
 
 	return 0;
@@ -882,6 +959,7 @@ static int fimc_lite_reqbufs(struct file *file, void *priv,
 	return ret;
 }
 
+<<<<<<< HEAD
 /* Return 1 if rectangle a is enclosed in rectangle b, or 0 otherwise. */
 static int enclosed_rectangle(struct v4l2_rect *a, struct v4l2_rect *b)
 {
@@ -895,6 +973,8 @@ static int enclosed_rectangle(struct v4l2_rect *a, struct v4l2_rect *b)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int fimc_lite_g_selection(struct file *file, void *fh,
 				 struct v4l2_selection *sel)
 {
@@ -936,11 +1016,19 @@ static int fimc_lite_s_selection(struct file *file, void *fh,
 	fimc_lite_try_compose(fimc, &rect);
 
 	if ((sel->flags & V4L2_SEL_FLAG_LE) &&
+<<<<<<< HEAD
 	    !enclosed_rectangle(&rect, &sel->r))
 		return -ERANGE;
 
 	if ((sel->flags & V4L2_SEL_FLAG_GE) &&
 	    !enclosed_rectangle(&sel->r, &rect))
+=======
+	    !v4l2_rect_enclosed(&rect, &sel->r))
+		return -ERANGE;
+
+	if ((sel->flags & V4L2_SEL_FLAG_GE) &&
+	    !v4l2_rect_enclosed(&sel->r, &rect))
+>>>>>>> upstream/android-13
 		return -ERANGE;
 
 	sel->r = rect;
@@ -954,7 +1042,11 @@ static int fimc_lite_s_selection(struct file *file, void *fh,
 
 static const struct v4l2_ioctl_ops fimc_lite_ioctl_ops = {
 	.vidioc_querycap		= fimc_lite_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= fimc_lite_enum_fmt_mplane,
+=======
+	.vidioc_enum_fmt_vid_cap	= fimc_lite_enum_fmt,
+>>>>>>> upstream/android-13
 	.vidioc_try_fmt_vid_cap_mplane	= fimc_lite_try_fmt_mplane,
 	.vidioc_s_fmt_vid_cap_mplane	= fimc_lite_s_fmt_mplane,
 	.vidioc_g_fmt_vid_cap_mplane	= fimc_lite_g_fmt_mplane,
@@ -1027,7 +1119,11 @@ static const struct media_entity_operations fimc_lite_subdev_media_ops = {
 };
 
 static int fimc_lite_subdev_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 					   struct v4l2_subdev_pad_config *cfg,
+=======
+					   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					   struct v4l2_subdev_mbus_code_enum *code)
 {
 	const struct fimc_fmt *fmt;
@@ -1041,16 +1137,28 @@ static int fimc_lite_subdev_enum_mbus_code(struct v4l2_subdev *sd,
 
 static struct v4l2_mbus_framefmt *__fimc_lite_subdev_get_try_fmt(
 		struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg, unsigned int pad)
+=======
+		struct v4l2_subdev_state *sd_state, unsigned int pad)
+>>>>>>> upstream/android-13
 {
 	if (pad != FLITE_SD_PAD_SINK)
 		pad = FLITE_SD_PAD_SOURCE_DMA;
 
+<<<<<<< HEAD
 	return v4l2_subdev_get_try_format(sd, cfg, pad);
 }
 
 static int fimc_lite_subdev_get_fmt(struct v4l2_subdev *sd,
 				    struct v4l2_subdev_pad_config *cfg,
+=======
+	return v4l2_subdev_get_try_format(sd, sd_state, pad);
+}
+
+static int fimc_lite_subdev_get_fmt(struct v4l2_subdev *sd,
+				    struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				    struct v4l2_subdev_format *fmt)
 {
 	struct fimc_lite *fimc = v4l2_get_subdevdata(sd);
@@ -1058,7 +1166,11 @@ static int fimc_lite_subdev_get_fmt(struct v4l2_subdev *sd,
 	struct flite_frame *f = &fimc->inp_frame;
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		mf = __fimc_lite_subdev_get_try_fmt(sd, cfg, fmt->pad);
+=======
+		mf = __fimc_lite_subdev_get_try_fmt(sd, sd_state, fmt->pad);
+>>>>>>> upstream/android-13
 		fmt->format = *mf;
 		return 0;
 	}
@@ -1081,7 +1193,11 @@ static int fimc_lite_subdev_get_fmt(struct v4l2_subdev *sd,
 }
 
 static int fimc_lite_subdev_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				    struct v4l2_subdev_pad_config *cfg,
+=======
+				    struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				    struct v4l2_subdev_format *fmt)
 {
 	struct fimc_lite *fimc = v4l2_get_subdevdata(sd);
@@ -1103,17 +1219,30 @@ static int fimc_lite_subdev_set_fmt(struct v4l2_subdev *sd,
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	ffmt = fimc_lite_subdev_try_fmt(fimc, cfg, fmt);
+=======
+	ffmt = fimc_lite_subdev_try_fmt(fimc, sd_state, fmt);
+>>>>>>> upstream/android-13
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
 		struct v4l2_mbus_framefmt *src_fmt;
 
+<<<<<<< HEAD
 		mf = __fimc_lite_subdev_get_try_fmt(sd, cfg, fmt->pad);
+=======
+		mf = __fimc_lite_subdev_get_try_fmt(sd, sd_state, fmt->pad);
+>>>>>>> upstream/android-13
 		*mf = fmt->format;
 
 		if (fmt->pad == FLITE_SD_PAD_SINK) {
 			unsigned int pad = FLITE_SD_PAD_SOURCE_DMA;
+<<<<<<< HEAD
 			src_fmt = __fimc_lite_subdev_get_try_fmt(sd, cfg, pad);
+=======
+			src_fmt = __fimc_lite_subdev_get_try_fmt(sd, sd_state,
+								 pad);
+>>>>>>> upstream/android-13
 			*src_fmt = *mf;
 		}
 
@@ -1141,7 +1270,11 @@ static int fimc_lite_subdev_set_fmt(struct v4l2_subdev *sd,
 }
 
 static int fimc_lite_subdev_get_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 					  struct v4l2_subdev_pad_config *cfg,
+=======
+					  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					  struct v4l2_subdev_selection *sel)
 {
 	struct fimc_lite *fimc = v4l2_get_subdevdata(sd);
@@ -1153,7 +1286,11 @@ static int fimc_lite_subdev_get_selection(struct v4l2_subdev *sd,
 		return -EINVAL;
 
 	if (sel->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		sel->r = *v4l2_subdev_get_try_crop(sd, cfg, sel->pad);
+=======
+		sel->r = *v4l2_subdev_get_try_crop(sd, sd_state, sel->pad);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1176,7 +1313,11 @@ static int fimc_lite_subdev_get_selection(struct v4l2_subdev *sd,
 }
 
 static int fimc_lite_subdev_set_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 					  struct v4l2_subdev_pad_config *cfg,
+=======
+					  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 					  struct v4l2_subdev_selection *sel)
 {
 	struct fimc_lite *fimc = v4l2_get_subdevdata(sd);
@@ -1190,7 +1331,11 @@ static int fimc_lite_subdev_set_selection(struct v4l2_subdev *sd,
 	fimc_lite_try_crop(fimc, &sel->r);
 
 	if (sel->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		*v4l2_subdev_get_try_crop(sd, cfg, sel->pad) = sel->r;
+=======
+		*v4l2_subdev_get_try_crop(sd, sd_state, sel->pad) = sel->r;
+>>>>>>> upstream/android-13
 	} else {
 		unsigned long flags;
 		spin_lock_irqsave(&fimc->slock, flags);
@@ -1282,6 +1427,10 @@ static int fimc_lite_subdev_registered(struct v4l2_subdev *sd)
 	vfd->minor = -1;
 	vfd->release = video_device_release_empty;
 	vfd->queue = q;
+<<<<<<< HEAD
+=======
+	vfd->device_caps = V4L2_CAP_VIDEO_CAPTURE_MPLANE | V4L2_CAP_STREAMING;
+>>>>>>> upstream/android-13
 	fimc->reqbufs_count = 0;
 
 	INIT_LIST_HEAD(&fimc->pending_buf_q);
@@ -1310,7 +1459,11 @@ static int fimc_lite_subdev_registered(struct v4l2_subdev *sd)
 	video_set_drvdata(vfd, fimc);
 	fimc->ve.pipe = v4l2_get_subdev_hostdata(sd);
 
+<<<<<<< HEAD
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		media_entity_cleanup(&vfd->entity);
 		fimc->ve.pipe = NULL;
@@ -1627,6 +1780,12 @@ static int fimc_lite_remove(struct platform_device *pdev)
 	struct fimc_lite *fimc = platform_get_drvdata(pdev);
 	struct device *dev = &pdev->dev;
 
+<<<<<<< HEAD
+=======
+	if (!pm_runtime_enabled(dev))
+		clk_disable_unprepare(fimc->clock);
+
+>>>>>>> upstream/android-13
 	pm_runtime_disable(dev);
 	pm_runtime_set_suspended(dev);
 	fimc_lite_unregister_capture_subdev(fimc);

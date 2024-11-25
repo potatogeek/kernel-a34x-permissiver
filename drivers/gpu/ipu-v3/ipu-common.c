@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Sascha Hauer <s.hauer@pengutronix.de>
  * Copyright (C) 2005-2009 Freescale Semiconductor, Inc.
@@ -11,6 +12,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2010 Sascha Hauer <s.hauer@pengutronix.de>
+ * Copyright (C) 2005-2009 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/export.h>
@@ -122,6 +129,7 @@ enum ipu_color_space ipu_pixelformat_to_colorspace(u32 pixelformat)
 	case V4L2_PIX_FMT_NV16:
 	case V4L2_PIX_FMT_NV61:
 		return IPUV3_COLORSPACE_YUV;
+<<<<<<< HEAD
 	case V4L2_PIX_FMT_XRGB32:
 	case V4L2_PIX_FMT_XBGR32:
 	case V4L2_PIX_FMT_RGB32:
@@ -129,6 +137,21 @@ enum ipu_color_space ipu_pixelformat_to_colorspace(u32 pixelformat)
 	case V4L2_PIX_FMT_RGB24:
 	case V4L2_PIX_FMT_BGR24:
 	case V4L2_PIX_FMT_RGB565:
+=======
+	case V4L2_PIX_FMT_RGB565:
+	case V4L2_PIX_FMT_BGR24:
+	case V4L2_PIX_FMT_RGB24:
+	case V4L2_PIX_FMT_ABGR32:
+	case V4L2_PIX_FMT_XBGR32:
+	case V4L2_PIX_FMT_BGRA32:
+	case V4L2_PIX_FMT_BGRX32:
+	case V4L2_PIX_FMT_RGBA32:
+	case V4L2_PIX_FMT_RGBX32:
+	case V4L2_PIX_FMT_ARGB32:
+	case V4L2_PIX_FMT_XRGB32:
+	case V4L2_PIX_FMT_RGB32:
+	case V4L2_PIX_FMT_BGR32:
+>>>>>>> upstream/android-13
 		return IPUV3_COLORSPACE_RGB;
 	default:
 		return IPUV3_COLORSPACE_UNKNOWN;
@@ -136,6 +159,7 @@ enum ipu_color_space ipu_pixelformat_to_colorspace(u32 pixelformat)
 }
 EXPORT_SYMBOL_GPL(ipu_pixelformat_to_colorspace);
 
+<<<<<<< HEAD
 bool ipu_pixelformat_is_planar(u32 pixelformat)
 {
 	switch (pixelformat) {
@@ -203,6 +227,8 @@ int ipu_stride_to_bytes(u32 pixel_stride, u32 pixelformat)
 }
 EXPORT_SYMBOL_GPL(ipu_stride_to_bytes);
 
+=======
+>>>>>>> upstream/android-13
 int ipu_degrees_to_rot_mode(enum ipu_rotate_mode *mode, int degrees,
 			    bool hflip, bool vflip)
 {
@@ -1073,19 +1099,29 @@ err_cpmem:
 static void ipu_irq_handle(struct ipu_soc *ipu, const int *regs, int num_regs)
 {
 	unsigned long status;
+<<<<<<< HEAD
 	int i, bit, irq;
+=======
+	int i, bit;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < num_regs; i++) {
 
 		status = ipu_cm_read(ipu, IPU_INT_STAT(regs[i]));
 		status &= ipu_cm_read(ipu, IPU_INT_CTRL(regs[i]));
 
+<<<<<<< HEAD
 		for_each_set_bit(bit, &status, 32) {
 			irq = irq_linear_revmap(ipu->domain,
 						regs[i] * 32 + bit);
 			if (irq)
 				generic_handle_irq(irq);
 		}
+=======
+		for_each_set_bit(bit, &status, 32)
+			generic_handle_domain_irq(ipu->domain,
+						  regs[i] * 32 + bit);
+>>>>>>> upstream/android-13
 	}
 }
 

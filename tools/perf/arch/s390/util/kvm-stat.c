@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Arch specific functions for perf kvm stat.
  *
  * Copyright 2014 IBM Corp.
  * Author(s): Alexander Yarygin <yarygin@linux.vnet.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (version 2 only)
@@ -11,6 +16,14 @@
 
 #include <errno.h>
 #include "../../util/kvm-stat.h"
+=======
+ */
+
+#include <errno.h>
+#include <string.h>
+#include "../../util/kvm-stat.h"
+#include "../../util/evsel.h"
+>>>>>>> upstream/android-13
 #include <asm/sie.h>
 
 define_exit_reasons_table(sie_exit_reasons, sie_intercept_code);
@@ -25,17 +38,26 @@ const char *kvm_exit_reason = "icptcode";
 const char *kvm_entry_trace = "kvm:kvm_s390_sie_enter";
 const char *kvm_exit_trace = "kvm:kvm_s390_sie_exit";
 
+<<<<<<< HEAD
 static void event_icpt_insn_get_key(struct perf_evsel *evsel,
+=======
+static void event_icpt_insn_get_key(struct evsel *evsel,
+>>>>>>> upstream/android-13
 				    struct perf_sample *sample,
 				    struct event_key *key)
 {
 	unsigned long insn;
 
+<<<<<<< HEAD
 	insn = perf_evsel__intval(evsel, sample, "instruction");
+=======
+	insn = evsel__intval(evsel, sample, "instruction");
+>>>>>>> upstream/android-13
 	key->key = icpt_insn_decoder(insn);
 	key->exit_reasons = sie_icpt_insn_codes;
 }
 
+<<<<<<< HEAD
 static void event_sigp_get_key(struct perf_evsel *evsel,
 			       struct perf_sample *sample,
 			       struct event_key *key)
@@ -57,6 +79,29 @@ static void event_icpt_prog_get_key(struct perf_evsel *evsel,
 				    struct event_key *key)
 {
 	key->key = perf_evsel__intval(evsel, sample, "code");
+=======
+static void event_sigp_get_key(struct evsel *evsel,
+			       struct perf_sample *sample,
+			       struct event_key *key)
+{
+	key->key = evsel__intval(evsel, sample, "order_code");
+	key->exit_reasons = sie_sigp_order_codes;
+}
+
+static void event_diag_get_key(struct evsel *evsel,
+			       struct perf_sample *sample,
+			       struct event_key *key)
+{
+	key->key = evsel__intval(evsel, sample, "code");
+	key->exit_reasons = sie_diagnose_codes;
+}
+
+static void event_icpt_prog_get_key(struct evsel *evsel,
+				    struct perf_sample *sample,
+				    struct event_key *key)
+{
+	key->key = evsel__intval(evsel, sample, "code");
+>>>>>>> upstream/android-13
 	key->exit_reasons = sie_icpt_prog_codes;
 }
 

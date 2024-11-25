@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Regents of the University of California
  *
@@ -9,6 +10,11 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_PROCESSOR_H
@@ -16,6 +22,11 @@
 
 #include <linux/const.h>
 
+<<<<<<< HEAD
+=======
+#include <vdso/processor.h>
+
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 
 /*
@@ -33,12 +44,15 @@
 struct task_struct;
 struct pt_regs;
 
+<<<<<<< HEAD
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
  */
 #define current_text_addr()	({ __label__ _l; _l: &&_l; })
 
+=======
+>>>>>>> upstream/android-13
 /* CPU-specific state of a task */
 struct thread_struct {
 	/* Callee-saved registers */
@@ -46,8 +60,22 @@ struct thread_struct {
 	unsigned long sp;	/* Kernel mode stack */
 	unsigned long s[12];	/* s[0]: frame pointer */
 	struct __riscv_d_ext_state fstate;
+<<<<<<< HEAD
 };
 
+=======
+	unsigned long bad_cause;
+};
+
+/* Whitelist the fstate from the task_struct for hardened usercopy */
+static inline void arch_thread_struct_whitelist(unsigned long *offset,
+						unsigned long *size)
+{
+	*offset = offsetof(struct thread_struct, fstate);
+	*size = sizeof_field(struct thread_struct, fstate);
+}
+
+>>>>>>> upstream/android-13
 #define INIT_THREAD {					\
 	.sp = sizeof(init_stack) + (long)&init_stack,	\
 }
@@ -56,7 +84,11 @@ struct thread_struct {
 	((struct pt_regs *)(task_stack_page(tsk) + THREAD_SIZE		\
 			    - ALIGN(sizeof(struct pt_regs), STACK_ALIGN)))
 
+<<<<<<< HEAD
 #define KSTK_EIP(tsk)		(task_pt_regs(tsk)->sepc)
+=======
+#define KSTK_EIP(tsk)		(task_pt_regs(tsk)->epc)
+>>>>>>> upstream/android-13
 #define KSTK_ESP(tsk)		(task_pt_regs(tsk)->sp)
 
 
@@ -72,6 +104,7 @@ static inline void release_thread(struct task_struct *dead_task)
 extern unsigned long get_wchan(struct task_struct *p);
 
 
+<<<<<<< HEAD
 static inline void cpu_relax(void)
 {
 #ifdef __riscv_muldiv
@@ -82,15 +115,25 @@ static inline void cpu_relax(void)
 	barrier();
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void wait_for_interrupt(void)
 {
 	__asm__ __volatile__ ("wfi");
 }
 
 struct device_node;
+<<<<<<< HEAD
 extern int riscv_of_processor_hart(struct device_node *node);
 
 extern void riscv_fill_hwcap(void);
+=======
+int riscv_of_processor_hartid(struct device_node *node);
+int riscv_of_parent_hartid(struct device_node *node);
+
+extern void riscv_fill_hwcap(void);
+extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src);
+>>>>>>> upstream/android-13
 
 #endif /* __ASSEMBLY__ */
 

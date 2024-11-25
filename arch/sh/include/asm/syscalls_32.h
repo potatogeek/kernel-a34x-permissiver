@@ -2,8 +2,11 @@
 #ifndef __ASM_SH_SYSCALLS_32_H
 #define __ASM_SH_SYSCALLS_32_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/compiler.h>
 #include <linux/linkage.h>
 #include <linux/types.h>
@@ -26,5 +29,8 @@ asmlinkage void do_syscall_trace_leave(struct pt_regs *regs);
 asmlinkage void do_notify_resume(struct pt_regs *regs, unsigned int save_r0,
 				 unsigned long thread_info_flags);
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_SH_SYSCALLS_32_H */

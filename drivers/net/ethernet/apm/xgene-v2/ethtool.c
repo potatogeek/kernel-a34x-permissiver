@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Applied Micro X-Gene SoC Ethernet v2 Driver
  *
  * Copyright (c) 2017, Applied Micro Circuits Corporation
  * Author(s): Iyappan Subramanian <isubramanian@apm.com>
  *	      Keyur Chudgar <kchudgar@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "main.h"
@@ -101,8 +108,11 @@ static void xge_get_drvinfo(struct net_device *ndev,
 	struct platform_device *pdev = pdata->pdev;
 
 	strcpy(info->driver, "xgene-enet-v2");
+<<<<<<< HEAD
 	strcpy(info->version, XGENE_ENET_V2_VERSION);
 	snprintf(info->fw_version, ETHTOOL_FWVERS_LEN, "N/A");
+=======
+>>>>>>> upstream/android-13
 	sprintf(info->bus_info, "%s", pdev->name);
 }
 

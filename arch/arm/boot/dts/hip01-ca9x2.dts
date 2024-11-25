@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Hisilicon Ltd. HiP01 SoC
  *
@@ -9,6 +10,16 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HiSilicon Ltd. HiP01 SoC
+ *
+ * Copyright (C) 2014 HiSilicon Ltd.
+ * Copyright (C) 2014 Huawei Ltd.
+ *
+ * Author: Wang Long <long.wanglong@huawei.com>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -40,7 +51,11 @@
 		};
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@80000000 {
+>>>>>>> upstream/android-13
 		device_type = "memory";
 		reg = <0x80000000 0x80000000>;
 	};

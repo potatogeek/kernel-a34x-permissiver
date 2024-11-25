@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI Keystone DSP remoteproc driver
  *
  * Copyright (C) 2015-2017 Texas Instruments Incorporated - http://www.ti.com/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -254,7 +261,11 @@ static void keystone_rproc_kick(struct rproc *rproc, int vqid)
  * can be used either by the remoteproc core for loading (when using kernel
  * remoteproc loader), or by any rpmsg bus drivers.
  */
+<<<<<<< HEAD
 static void *keystone_rproc_da_to_va(struct rproc *rproc, u64 da, int len)
+=======
+static void *keystone_rproc_da_to_va(struct rproc *rproc, u64 da, size_t len, bool *is_iomem)
+>>>>>>> upstream/android-13
 {
 	struct keystone_rproc *ksproc = rproc->priv;
 	void __iomem *va = NULL;
@@ -263,7 +274,11 @@ static void *keystone_rproc_da_to_va(struct rproc *rproc, u64 da, int len)
 	size_t size;
 	int i;
 
+<<<<<<< HEAD
 	if (len <= 0)
+=======
+	if (len == 0)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	for (i = 0; i < ksproc->num_mems; i++) {
@@ -432,16 +447,22 @@ static int keystone_rproc_probe(struct platform_device *pdev)
 	ksproc->irq_ring = platform_get_irq_byname(pdev, "vring");
 	if (ksproc->irq_ring < 0) {
 		ret = ksproc->irq_ring;
+<<<<<<< HEAD
 		dev_err(dev, "failed to get vring interrupt, status = %d\n",
 			ret);
+=======
+>>>>>>> upstream/android-13
 		goto disable_clk;
 	}
 
 	ksproc->irq_fault = platform_get_irq_byname(pdev, "exception");
 	if (ksproc->irq_fault < 0) {
 		ret = ksproc->irq_fault;
+<<<<<<< HEAD
 		dev_err(dev, "failed to get exception interrupt, status = %d\n",
 			ret);
+=======
+>>>>>>> upstream/android-13
 		goto disable_clk;
 	}
 

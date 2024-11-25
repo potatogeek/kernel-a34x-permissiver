@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -17,6 +18,16 @@
 
 #include <drm/drm_crtc.h>
 #include <drm/drm_crtc_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "mdp4_kms.h"
 
@@ -36,6 +47,7 @@ static struct mdp4_kms *get_kms(struct drm_encoder *encoder)
 	return to_mdp4_kms(to_mdp_kms(priv->kms));
 }
 
+<<<<<<< HEAD
 #ifdef DOWNSTREAM_CONFIG_MSM_BUS_SCALING
 #include <mach/board.h>
 /* not ironically named at all.. no, really.. */
@@ -84,6 +96,11 @@ static void mdp4_dtv_encoder_destroy(struct drm_encoder *encoder)
 {
 	struct mdp4_dtv_encoder *mdp4_dtv_encoder = to_mdp4_dtv_encoder(encoder);
 	bs_fini(mdp4_dtv_encoder);
+=======
+static void mdp4_dtv_encoder_destroy(struct drm_encoder *encoder)
+{
+	struct mdp4_dtv_encoder *mdp4_dtv_encoder = to_mdp4_dtv_encoder(encoder);
+>>>>>>> upstream/android-13
 	drm_encoder_cleanup(encoder);
 	kfree(mdp4_dtv_encoder);
 }
@@ -104,6 +121,7 @@ static void mdp4_dtv_encoder_mode_set(struct drm_encoder *encoder,
 
 	mode = adjusted_mode;
 
+<<<<<<< HEAD
 	DBG("set mode: %d:\"%s\" %d %d %d %d %d %d %d %d %d %d 0x%x 0x%x",
 			mode->base.id, mode->name,
 			mode->vrefresh, mode->clock,
@@ -112,6 +130,9 @@ static void mdp4_dtv_encoder_mode_set(struct drm_encoder *encoder,
 			mode->vdisplay, mode->vsync_start,
 			mode->vsync_end, mode->vtotal,
 			mode->type, mode->flags);
+=======
+	DBG("set mode: " DRM_MODE_FMT, DRM_MODE_ARG(mode));
+>>>>>>> upstream/android-13
 
 	mdp4_dtv_encoder->pixclock = mode->clock * 1000;
 
@@ -180,8 +201,11 @@ static void mdp4_dtv_encoder_disable(struct drm_encoder *encoder)
 	clk_disable_unprepare(mdp4_dtv_encoder->hdmi_clk);
 	clk_disable_unprepare(mdp4_dtv_encoder->mdp_clk);
 
+<<<<<<< HEAD
 	bs_set(mdp4_dtv_encoder, 0);
 
+=======
+>>>>>>> upstream/android-13
 	mdp4_dtv_encoder->enabled = false;
 }
 
@@ -203,22 +227,37 @@ static void mdp4_dtv_encoder_enable(struct drm_encoder *encoder)
 			MDP4_DMA_CONFIG_PACK(0x21));
 	mdp4_crtc_set_intf(encoder->crtc, INTF_LCDC_DTV, 1);
 
+<<<<<<< HEAD
 	bs_set(mdp4_dtv_encoder, 1);
 
+=======
+>>>>>>> upstream/android-13
 	DBG("setting mdp_clk=%lu", pc);
 
 	ret = clk_set_rate(mdp4_dtv_encoder->mdp_clk, pc);
 	if (ret)
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to set mdp_clk to %lu: %d\n",
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to set mdp_clk to %lu: %d\n",
+>>>>>>> upstream/android-13
 			pc, ret);
 
 	ret = clk_prepare_enable(mdp4_dtv_encoder->mdp_clk);
 	if (ret)
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to enabled mdp_clk: %d\n", ret);
 
 	ret = clk_prepare_enable(mdp4_dtv_encoder->hdmi_clk);
 	if (ret)
 		dev_err(dev->dev, "failed to enable hdmi_clk: %d\n", ret);
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to enabled mdp_clk: %d\n", ret);
+
+	ret = clk_prepare_enable(mdp4_dtv_encoder->hdmi_clk);
+	if (ret)
+		DRM_DEV_ERROR(dev->dev, "failed to enable hdmi_clk: %d\n", ret);
+>>>>>>> upstream/android-13
 
 	mdp4_write(mdp4_kms, REG_MDP4_DTV_ENABLE, 1);
 
@@ -258,20 +297,31 @@ struct drm_encoder *mdp4_dtv_encoder_init(struct drm_device *dev)
 
 	mdp4_dtv_encoder->hdmi_clk = devm_clk_get(dev->dev, "hdmi_clk");
 	if (IS_ERR(mdp4_dtv_encoder->hdmi_clk)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to get hdmi_clk\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to get hdmi_clk\n");
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(mdp4_dtv_encoder->hdmi_clk);
 		goto fail;
 	}
 
 	mdp4_dtv_encoder->mdp_clk = devm_clk_get(dev->dev, "tv_clk");
 	if (IS_ERR(mdp4_dtv_encoder->mdp_clk)) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "failed to get tv_clk\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "failed to get tv_clk\n");
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(mdp4_dtv_encoder->mdp_clk);
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	bs_init(mdp4_dtv_encoder);
 
+=======
+>>>>>>> upstream/android-13
 	return encoder;
 
 fail:

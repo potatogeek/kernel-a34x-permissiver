@@ -6,6 +6,10 @@
  */
 
 #include <linux/memcontrol.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm_inline.h>
+>>>>>>> upstream/android-13
 #include <linux/writeback.h>
 #include <linux/shmem_fs.h>
 #include <linux/pagemap.h>
@@ -156,24 +160,43 @@
  *
  *		Implementation
  *
+<<<<<<< HEAD
  * For each node's file LRU lists, a counter for inactive evictions
  * and activations is maintained (node->inactive_age).
  *
  * On eviction, a snapshot of this counter (along with some bits to
  * identify the node) is stored in the now empty page cache radix tree
+=======
+ * For each node's LRU lists, a counter for inactive evictions and
+ * activations is maintained (node->nonresident_age).
+ *
+ * On eviction, a snapshot of this counter (along with some bits to
+ * identify the node) is stored in the now empty page cache
+>>>>>>> upstream/android-13
  * slot of the evicted page.  This is called a shadow entry.
  *
  * On cache misses for which there are shadow entries, an eligible
  * refault distance will immediately activate the refaulting page.
  */
 
+<<<<<<< HEAD
 #define EVICTION_SHIFT	(RADIX_TREE_EXCEPTIONAL_ENTRY + \
 			 1 + NODES_SHIFT + MEM_CGROUP_ID_SHIFT)
+=======
+#define WORKINGSET_SHIFT 1
+#define EVICTION_SHIFT	((BITS_PER_LONG - BITS_PER_XA_VALUE) +	\
+			 WORKINGSET_SHIFT + NODES_SHIFT + \
+			 MEM_CGROUP_ID_SHIFT)
+>>>>>>> upstream/android-13
 #define EVICTION_MASK	(~0UL >> EVICTION_SHIFT)
 
 /*
  * Eviction timestamps need to be able to cover the full range of
+<<<<<<< HEAD
  * actionable refaults. However, bits are tight in the radix tree
+=======
+ * actionable refaults. However, bits are tight in the xarray
+>>>>>>> upstream/android-13
  * entry, and after storing the identifier for the lruvec there might
  * not be enough left to represent every single actionable refault. In
  * that case, we have to sacrifice granularity for distance, and group
@@ -184,6 +207,7 @@ static unsigned int bucket_order __read_mostly;
 static void *pack_shadow(int memcgid, pg_data_t *pgdat, unsigned long eviction,
 			 bool workingset)
 {
+<<<<<<< HEAD
 	eviction >>= bucket_order;
 	eviction = (eviction << MEM_CGROUP_ID_SHIFT) | memcgid;
 	eviction = (eviction << NODES_SHIFT) | pgdat->node_id;
@@ -191,11 +215,20 @@ static void *pack_shadow(int memcgid, pg_data_t *pgdat, unsigned long eviction,
 	eviction = (eviction << RADIX_TREE_EXCEPTIONAL_SHIFT);
 
 	return (void *)(eviction | RADIX_TREE_EXCEPTIONAL_ENTRY);
+=======
+	eviction &= EVICTION_MASK;
+	eviction = (eviction << MEM_CGROUP_ID_SHIFT) | memcgid;
+	eviction = (eviction << NODES_SHIFT) | pgdat->node_id;
+	eviction = (eviction << WORKINGSET_SHIFT) | workingset;
+
+	return xa_mk_value(eviction);
+>>>>>>> upstream/android-13
 }
 
 static void unpack_shadow(void *shadow, int *memcgidp, pg_data_t **pgdat,
 			  unsigned long *evictionp, bool *workingsetp)
 {
+<<<<<<< HEAD
 	unsigned long entry = (unsigned long)shadow;
 	int memcgid, nid;
 	bool workingset;
@@ -203,6 +236,14 @@ static void unpack_shadow(void *shadow, int *memcgidp, pg_data_t **pgdat,
 	entry >>= RADIX_TREE_EXCEPTIONAL_SHIFT;
 	workingset = entry & 1;
 	entry >>= 1;
+=======
+	unsigned long entry = xa_to_value(shadow);
+	int memcgid, nid;
+	bool workingset;
+
+	workingset = entry & ((1UL << WORKINGSET_SHIFT) - 1);
+	entry >>= WORKINGSET_SHIFT;
+>>>>>>> upstream/android-13
 	nid = entry & ((1UL << NODES_SHIFT) - 1);
 	entry >>= NODES_SHIFT;
 	memcgid = entry & ((1UL << MEM_CGROUP_ID_SHIFT) - 1);
@@ -210,6 +251,7 @@ static void unpack_shadow(void *shadow, int *memcgidp, pg_data_t **pgdat,
 
 	*memcgidp = memcgid;
 	*pgdat = NODE_DATA(nid);
+<<<<<<< HEAD
 	*evictionp = entry << bucket_order;
 	*workingsetp = workingset;
 }
@@ -231,12 +273,180 @@ void *workingset_eviction(struct address_space *mapping, struct page *page)
 	struct lruvec *lruvec;
 
 	/* Page is fully exclusive and pins page->mem_cgroup */
+=======
+	*evictionp = entry;
+	*workingsetp = workingset;
+}
+
+#ifdef CONFIG_LRU_GEN
+
+static int page_lru_refs(struct page *page)
+{
+	unsigned long flags = READ_ONCE(page->flags);
+
+	BUILD_BUG_ON(LRU_GEN_WIDTH + LRU_REFS_WIDTH > BITS_PER_LONG - EVICTION_SHIFT);
+
+	/* see the comment on MAX_NR_TIERS */
+	return flags & BIT(PG_workingset) ? (flags & LRU_REFS_MASK) >> LRU_REFS_PGOFF : 0;
+}
+
+static void *lru_gen_eviction(struct page *page)
+{
+	int hist, tier;
+	unsigned long token;
+	unsigned long min_seq;
+	struct lruvec *lruvec;
+	struct lru_gen_struct *lrugen;
+	int type = page_is_file_lru(page);
+	int refs = page_lru_refs(page);
+	int delta = thp_nr_pages(page);
+	bool workingset = PageWorkingset(page);
+	struct mem_cgroup *memcg = page_memcg(page);
+	struct pglist_data *pgdat = page_pgdat(page);
+
+	lruvec = mem_cgroup_lruvec(memcg, pgdat);
+	lrugen = &lruvec->lrugen;
+	min_seq = READ_ONCE(lrugen->min_seq[type]);
+	token = (min_seq << LRU_REFS_WIDTH) | refs;
+
+	hist = lru_hist_from_seq(min_seq);
+	tier = lru_tier_from_refs(refs + workingset);
+	atomic_long_add(delta, &lrugen->evicted[hist][type][tier]);
+
+	return pack_shadow(mem_cgroup_id(memcg), pgdat, token, workingset);
+}
+
+static void lru_gen_refault(struct page *page, void *shadow)
+{
+	int hist, tier, refs;
+	int memcg_id;
+	bool workingset;
+	unsigned long token;
+	unsigned long min_seq;
+	struct lruvec *lruvec;
+	struct lru_gen_struct *lrugen;
+	struct mem_cgroup *memcg;
+	struct pglist_data *pgdat;
+	int type = page_is_file_lru(page);
+	int delta = thp_nr_pages(page);
+
+	unpack_shadow(shadow, &memcg_id, &pgdat, &token, &workingset);
+
+	refs = token & (BIT(LRU_REFS_WIDTH) - 1);
+	if (refs && !workingset)
+		return;
+
+	if (page_pgdat(page) != pgdat)
+		return;
+
+	rcu_read_lock();
+	memcg = page_memcg_rcu(page);
+	if (mem_cgroup_id(memcg) != memcg_id)
+		goto unlock;
+
+	token >>= LRU_REFS_WIDTH;
+	lruvec = mem_cgroup_lruvec(memcg, pgdat);
+	lrugen = &lruvec->lrugen;
+	min_seq = READ_ONCE(lrugen->min_seq[type]);
+	if (token != (min_seq & (EVICTION_MASK >> LRU_REFS_WIDTH)))
+		goto unlock;
+
+	hist = lru_hist_from_seq(min_seq);
+	tier = lru_tier_from_refs(refs + workingset);
+	atomic_long_add(delta, &lrugen->refaulted[hist][type][tier]);
+	mod_lruvec_state(lruvec, WORKINGSET_REFAULT_BASE + type, delta);
+
+	/*
+	 * Count the following two cases as stalls:
+	 * 1. For pages accessed through page tables, hotter pages pushed out
+	 *    hot pages which refaulted immediately.
+	 * 2. For pages accessed through file descriptors, numbers of accesses
+	 *    might have been beyond the limit.
+	 */
+	if (lru_gen_in_fault() || refs + workingset == BIT(LRU_REFS_WIDTH)) {
+		SetPageWorkingset(page);
+		mod_lruvec_state(lruvec, WORKINGSET_RESTORE_BASE + type, delta);
+	}
+unlock:
+	rcu_read_unlock();
+}
+
+#else
+
+static void *lru_gen_eviction(struct page *page)
+{
+	return NULL;
+}
+
+static void lru_gen_refault(struct page *page, void *shadow)
+{
+}
+
+#endif /* CONFIG_LRU_GEN */
+
+/**
+ * workingset_age_nonresident - age non-resident entries as LRU ages
+ * @lruvec: the lruvec that was aged
+ * @nr_pages: the number of pages to count
+ *
+ * As in-memory pages are aged, non-resident pages need to be aged as
+ * well, in order for the refault distances later on to be comparable
+ * to the in-memory dimensions. This function allows reclaim and LRU
+ * operations to drive the non-resident aging along in parallel.
+ */
+void workingset_age_nonresident(struct lruvec *lruvec, unsigned long nr_pages)
+{
+	/*
+	 * Reclaiming a cgroup means reclaiming all its children in a
+	 * round-robin fashion. That means that each cgroup has an LRU
+	 * order that is composed of the LRU orders of its child
+	 * cgroups; and every page has an LRU position not just in the
+	 * cgroup that owns it, but in all of that group's ancestors.
+	 *
+	 * So when the physical inactive list of a leaf cgroup ages,
+	 * the virtual inactive lists of all its parents, including
+	 * the root cgroup's, age as well.
+	 */
+	do {
+		atomic_long_add(nr_pages, &lruvec->nonresident_age);
+	} while ((lruvec = parent_lruvec(lruvec)));
+}
+
+/**
+ * workingset_eviction - note the eviction of a page from memory
+ * @target_memcg: the cgroup that is causing the reclaim
+ * @page: the page being evicted
+ *
+ * Return: a shadow entry to be stored in @page->mapping->i_pages in place
+ * of the evicted @page so that a later refault can be detected.
+ */
+void *workingset_eviction(struct page *page, struct mem_cgroup *target_memcg)
+{
+	struct pglist_data *pgdat = page_pgdat(page);
+	unsigned long eviction;
+	struct lruvec *lruvec;
+	int memcgid;
+
+	/* Page is fully exclusive and pins page's memory cgroup pointer */
+>>>>>>> upstream/android-13
 	VM_BUG_ON_PAGE(PageLRU(page), page);
 	VM_BUG_ON_PAGE(page_count(page), page);
 	VM_BUG_ON_PAGE(!PageLocked(page), page);
 
+<<<<<<< HEAD
 	lruvec = mem_cgroup_lruvec(pgdat, memcg);
 	eviction = atomic_long_inc_return(&lruvec->inactive_age);
+=======
+	if (lru_gen_enabled())
+		return lru_gen_eviction(page);
+
+	lruvec = mem_cgroup_lruvec(target_memcg, pgdat);
+	/* XXX: target_memcg can be NULL, go through lruvec */
+	memcgid = mem_cgroup_id(lruvec_memcg(lruvec));
+	eviction = atomic_long_read(&lruvec->nonresident_age);
+	eviction >>= bucket_order;
+	workingset_age_nonresident(lruvec, thp_nr_pages(page));
+>>>>>>> upstream/android-13
 	return pack_shadow(memcgid, pgdat, eviction, PageWorkingset(page));
 }
 
@@ -246,6 +456,7 @@ void *workingset_eviction(struct address_space *mapping, struct page *page)
  * @shadow: shadow entry of the evicted page
  *
  * Calculates and evaluates the refault distance of the previously
+<<<<<<< HEAD
  * evicted page in the context of the node it was allocated in.
  */
 void workingset_refault(struct page *page, void *shadow)
@@ -253,6 +464,19 @@ void workingset_refault(struct page *page, void *shadow)
 	unsigned long refault_distance;
 	struct pglist_data *pgdat;
 	unsigned long active_file;
+=======
+ * evicted page in the context of the node and the memcg whose memory
+ * pressure caused the eviction.
+ */
+void workingset_refault(struct page *page, void *shadow)
+{
+	bool file = page_is_file_lru(page);
+	struct mem_cgroup *eviction_memcg;
+	struct lruvec *eviction_lruvec;
+	unsigned long refault_distance;
+	unsigned long workingset_size;
+	struct pglist_data *pgdat;
+>>>>>>> upstream/android-13
 	struct mem_cgroup *memcg;
 	unsigned long eviction;
 	struct lruvec *lruvec;
@@ -260,7 +484,17 @@ void workingset_refault(struct page *page, void *shadow)
 	bool workingset;
 	int memcgid;
 
+<<<<<<< HEAD
 	unpack_shadow(shadow, &memcgid, &pgdat, &eviction, &workingset);
+=======
+	if (lru_gen_enabled()) {
+		lru_gen_refault(page, shadow);
+		return;
+	}
+
+	unpack_shadow(shadow, &memcgid, &pgdat, &eviction, &workingset);
+	eviction <<= bucket_order;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	/*
@@ -279,17 +513,26 @@ void workingset_refault(struct page *page, void *shadow)
 	 * would be better if the root_mem_cgroup existed in all
 	 * configurations instead.
 	 */
+<<<<<<< HEAD
 	memcg = mem_cgroup_from_id(memcgid);
 	if (!mem_cgroup_disabled() && !memcg)
 		goto out;
 	lruvec = mem_cgroup_lruvec(pgdat, memcg);
 	refault = atomic_long_read(&lruvec->inactive_age);
 	active_file = lruvec_lru_size(lruvec, LRU_ACTIVE_FILE, MAX_NR_ZONES);
+=======
+	eviction_memcg = mem_cgroup_from_id(memcgid);
+	if (!mem_cgroup_disabled() && !eviction_memcg)
+		goto out;
+	eviction_lruvec = mem_cgroup_lruvec(eviction_memcg, pgdat);
+	refault = atomic_long_read(&eviction_lruvec->nonresident_age);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Calculate the refault distance
 	 *
 	 * The unsigned subtraction here gives an accurate distance
+<<<<<<< HEAD
 	 * across inactive_age overflows in most cases. There is a
 	 * special case: usually, shadow entries have a short lifetime
 	 * and are either refaulted or reclaimed along with the inode
@@ -298,12 +541,23 @@ void workingset_refault(struct page *page, void *shadow)
 	 * then result in a false small refault distance, leading to a
 	 * false activation should this old entry actually refault
 	 * again.  However, earlier kernels used to deactivate
+=======
+	 * across nonresident_age overflows in most cases. There is a
+	 * special case: usually, shadow entries have a short lifetime
+	 * and are either refaulted or reclaimed along with the inode
+	 * before they get too old.  But it is not impossible for the
+	 * nonresident_age to lap a shadow entry in the field, which
+	 * can then result in a false small refault distance, leading
+	 * to a false activation should this old entry actually
+	 * refault again.  However, earlier kernels used to deactivate
+>>>>>>> upstream/android-13
 	 * unconditionally with *every* reclaim invocation for the
 	 * longest time, so the occasional inappropriate activation
 	 * leading to pressure on the active list is not a problem.
 	 */
 	refault_distance = (refault - eviction) & EVICTION_MASK;
 
+<<<<<<< HEAD
 	inc_lruvec_state(lruvec, WORKINGSET_REFAULT);
 
 	/*
@@ -317,11 +571,59 @@ void workingset_refault(struct page *page, void *shadow)
 	SetPageActive(page);
 	atomic_long_inc(&lruvec->inactive_age);
 	inc_lruvec_state(lruvec, WORKINGSET_ACTIVATE);
+=======
+	/*
+	 * The activation decision for this page is made at the level
+	 * where the eviction occurred, as that is where the LRU order
+	 * during page reclaim is being determined.
+	 *
+	 * However, the cgroup that will own the page is the one that
+	 * is actually experiencing the refault event.
+	 */
+	memcg = page_memcg(page);
+	lruvec = mem_cgroup_lruvec(memcg, pgdat);
+
+	inc_lruvec_state(lruvec, WORKINGSET_REFAULT_BASE + file);
+
+	mem_cgroup_flush_stats_delayed();
+	/*
+	 * Compare the distance to the existing workingset size. We
+	 * don't activate pages that couldn't stay resident even if
+	 * all the memory was available to the workingset. Whether
+	 * workingset competition needs to consider anon or not depends
+	 * on having swap.
+	 */
+	workingset_size = lruvec_page_state(eviction_lruvec, NR_ACTIVE_FILE);
+	if (!file) {
+		workingset_size += lruvec_page_state(eviction_lruvec,
+						     NR_INACTIVE_FILE);
+	}
+	if (mem_cgroup_get_nr_swap_pages(memcg) > 0) {
+		workingset_size += lruvec_page_state(eviction_lruvec,
+						     NR_ACTIVE_ANON);
+		if (file) {
+			workingset_size += lruvec_page_state(eviction_lruvec,
+						     NR_INACTIVE_ANON);
+		}
+	}
+	if (refault_distance > workingset_size)
+		goto out;
+
+	SetPageActive(page);
+	workingset_age_nonresident(lruvec, thp_nr_pages(page));
+	inc_lruvec_state(lruvec, WORKINGSET_ACTIVATE_BASE + file);
+>>>>>>> upstream/android-13
 
 	/* Page was active prior to eviction */
 	if (workingset) {
 		SetPageWorkingset(page);
+<<<<<<< HEAD
 		inc_lruvec_state(lruvec, WORKINGSET_RESTORE);
+=======
+		/* XXX: Move to lru_cache_add() when it supports new vs putback */
+		lru_note_cost_page(page);
+		inc_lruvec_state(lruvec, WORKINGSET_RESTORE_BASE + file);
+>>>>>>> upstream/android-13
 	}
 out:
 	rcu_read_unlock();
@@ -347,8 +649,13 @@ void workingset_activation(struct page *page)
 	memcg = page_memcg_rcu(page);
 	if (!mem_cgroup_disabled() && !memcg)
 		goto out;
+<<<<<<< HEAD
 	lruvec = mem_cgroup_lruvec(page_pgdat(page), memcg);
 	atomic_long_inc(&lruvec->inactive_age);
+=======
+	lruvec = mem_cgroup_page_lruvec(page);
+	workingset_age_nonresident(lruvec, thp_nr_pages(page));
+>>>>>>> upstream/android-13
 out:
 	rcu_read_unlock();
 }
@@ -367,7 +674,11 @@ out:
 
 static struct list_lru shadow_nodes;
 
+<<<<<<< HEAD
 void workingset_update_node(struct radix_tree_node *node)
+=======
+void workingset_update_node(struct xa_node *node)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * Track non-empty nodes that contain only shadow entries;
@@ -377,12 +688,27 @@ void workingset_update_node(struct radix_tree_node *node)
 	 * already where they should be. The list_empty() test is safe
 	 * as node->private_list is protected by the i_pages lock.
 	 */
+<<<<<<< HEAD
 	if (node->count && node->count == node->exceptional) {
 		if (list_empty(&node->private_list))
 			list_lru_add(&shadow_nodes, &node->private_list);
 	} else {
 		if (!list_empty(&node->private_list))
 			list_lru_del(&shadow_nodes, &node->private_list);
+=======
+	VM_WARN_ON_ONCE(!irqs_disabled());  /* For __inc_lruvec_page_state */
+
+	if (node->count && node->count == node->nr_values) {
+		if (list_empty(&node->private_list)) {
+			list_lru_add(&shadow_nodes, &node->private_list);
+			__inc_lruvec_kmem_state(node, WORKINGSET_NODES);
+		}
+	} else {
+		if (!list_empty(&node->private_list)) {
+			list_lru_del(&shadow_nodes, &node->private_list);
+			__dec_lruvec_kmem_state(node, WORKINGSET_NODES);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -391,12 +717,23 @@ static unsigned long count_shadow_nodes(struct shrinker *shrinker,
 {
 	unsigned long max_nodes;
 	unsigned long nodes;
+<<<<<<< HEAD
 	unsigned long cache;
 
 	nodes = list_lru_shrink_count(&shadow_nodes, sc);
 
 	/*
 	 * Approximate a reasonable limit for the radix tree nodes
+=======
+	unsigned long pages;
+
+	nodes = list_lru_shrink_count(&shadow_nodes, sc);
+	if (!nodes)
+		return SHRINK_EMPTY;
+
+	/*
+	 * Approximate a reasonable limit for the nodes
+>>>>>>> upstream/android-13
 	 * containing shadow entries. We don't need to keep more
 	 * shadow entries than possible pages on the active list,
 	 * since refault distances bigger than that are dismissed.
@@ -411,6 +748,7 @@ static unsigned long count_shadow_nodes(struct shrinker *shrinker,
 	 * worst-case density of 1/8th. Below that, not all eligible
 	 * refaults can be detected anymore.
 	 *
+<<<<<<< HEAD
 	 * On 64-bit with 7 radix_tree_nodes per page and 64 slots
 	 * each, this will reclaim shadow entries when they consume
 	 * ~1.8% of available memory:
@@ -428,6 +766,32 @@ static unsigned long count_shadow_nodes(struct shrinker *shrinker,
 
 	if (!nodes)
 		return SHRINK_EMPTY;
+=======
+	 * On 64-bit with 7 xa_nodes per page and 64 slots
+	 * each, this will reclaim shadow entries when they consume
+	 * ~1.8% of available memory:
+	 *
+	 * PAGE_SIZE / xa_nodes / node_entries * 8 / PAGE_SIZE
+	 */
+#ifdef CONFIG_MEMCG
+	if (sc->memcg) {
+		struct lruvec *lruvec;
+		int i;
+
+		lruvec = mem_cgroup_lruvec(sc->memcg, NODE_DATA(sc->nid));
+		for (pages = 0, i = 0; i < NR_LRU_LISTS; i++)
+			pages += lruvec_page_state_local(lruvec,
+							 NR_LRU_BASE + i);
+		pages += lruvec_page_state_local(
+			lruvec, NR_SLAB_RECLAIMABLE_B) >> PAGE_SHIFT;
+		pages += lruvec_page_state_local(
+			lruvec, NR_SLAB_UNRECLAIMABLE_B) >> PAGE_SHIFT;
+	} else
+#endif
+		pages = node_present_pages(sc->nid);
+
+	max_nodes = pages >> (XA_CHUNK_SHIFT - 3);
+>>>>>>> upstream/android-13
 
 	if (nodes <= max_nodes)
 		return 0;
@@ -437,6 +801,7 @@ static unsigned long count_shadow_nodes(struct shrinker *shrinker,
 static enum lru_status shadow_lru_isolate(struct list_head *item,
 					  struct list_lru_one *lru,
 					  spinlock_t *lru_lock,
+<<<<<<< HEAD
 					  void *arg)
 {
 	struct address_space *mapping;
@@ -450,14 +815,32 @@ static enum lru_status shadow_lru_isolate(struct list_head *item,
 	 * lru_lock.  Because the page cache tree is emptied before
 	 * the inode can be destroyed, holding the lru_lock pins any
 	 * address_space that has radix tree nodes on the LRU.
+=======
+					  void *arg) __must_hold(lru_lock)
+{
+	struct xa_node *node = container_of(item, struct xa_node, private_list);
+	struct address_space *mapping;
+	int ret;
+
+	/*
+	 * Page cache insertions and deletions synchronously maintain
+	 * the shadow node LRU under the i_pages lock and the
+	 * lru_lock.  Because the page cache tree is emptied before
+	 * the inode can be destroyed, holding the lru_lock pins any
+	 * address_space that has nodes on the LRU.
+>>>>>>> upstream/android-13
 	 *
 	 * We can then safely transition to the i_pages lock to
 	 * pin only the address_space of the particular node we want
 	 * to reclaim, take the node off-LRU, and drop the lru_lock.
 	 */
 
+<<<<<<< HEAD
 	node = container_of(item, struct radix_tree_node, private_list);
 	mapping = container_of(node->root, struct address_space, i_pages);
+=======
+	mapping = container_of(node->array, struct address_space, i_pages);
+>>>>>>> upstream/android-13
 
 	/* Coming from the list, invert the lock order */
 	if (!xa_trylock(&mapping->i_pages)) {
@@ -467,6 +850,11 @@ static enum lru_status shadow_lru_isolate(struct list_head *item,
 	}
 
 	list_lru_isolate(lru, item);
+<<<<<<< HEAD
+=======
+	__dec_lruvec_kmem_state(node, WORKINGSET_NODES);
+
+>>>>>>> upstream/android-13
 	spin_unlock(lru_lock);
 
 	/*
@@ -474,6 +862,7 @@ static enum lru_status shadow_lru_isolate(struct list_head *item,
 	 * no pages, so we expect to be able to remove them all and
 	 * delete and free the empty node afterwards.
 	 */
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(!node->exceptional))
 		goto out_invalid;
 	if (WARN_ON_ONCE(node->count != node->exceptional))
@@ -497,6 +886,14 @@ static enum lru_status shadow_lru_isolate(struct list_head *item,
 	inc_lruvec_page_state(virt_to_page(node), WORKINGSET_NODERECLAIM);
 	__radix_tree_delete_node(&mapping->i_pages, node,
 				 workingset_lookup_update(mapping));
+=======
+	if (WARN_ON_ONCE(!node->nr_values))
+		goto out_invalid;
+	if (WARN_ON_ONCE(node->count != node->nr_values))
+		goto out_invalid;
+	xa_delete_node(node, workingset_update_node);
+	__inc_lruvec_kmem_state(node, WORKINGSET_NODERECLAIM);
+>>>>>>> upstream/android-13
 
 out_invalid:
 	xa_unlock_irq(&mapping->i_pages);
@@ -543,7 +940,11 @@ static int __init workingset_init(void)
 	 * double the initial memory by using totalram_pages as-is.
 	 */
 	timestamp_bits = BITS_PER_LONG - EVICTION_SHIFT;
+<<<<<<< HEAD
 	max_order = fls_long(totalram_pages - 1);
+=======
+	max_order = fls_long(totalram_pages() - 1);
+>>>>>>> upstream/android-13
 	if (max_order > timestamp_bits)
 		bucket_order = max_order - timestamp_bits;
 	pr_info("workingset: timestamp_bits=%d max_order=%d bucket_order=%u\n",

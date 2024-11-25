@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HD audio interface patch for AD1882, AD1884, AD1981HD, AD1983, AD1984,
  *   AD1986A, AD1988
  *
  * Copyright (c) 2005-2007 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *  This driver is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -24,7 +31,11 @@
 #include <linux/module.h>
 
 #include <sound/core.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 #include "hda_auto_parser.h"
 #include "hda_beep.h"
@@ -41,6 +52,10 @@ struct ad198x_spec {
 	hda_nid_t eapd_nid;
 
 	unsigned int beep_amp;	/* beep amp value, set via set_beep_amp() */
+<<<<<<< HEAD
+=======
+	int num_smux_conns;
+>>>>>>> upstream/android-13
 };
 
 
@@ -84,7 +99,11 @@ static int create_beep_ctls(struct hda_codec *codec)
 #define create_beep_ctls(codec)		0
 #endif
 
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_PM
+>>>>>>> upstream/android-13
 static void ad198x_power_eapd_write(struct hda_codec *codec, hda_nid_t front,
 				hda_nid_t hp)
 {
@@ -124,6 +143,7 @@ static void ad198x_power_eapd(struct hda_codec *codec)
 	}
 }
 
+<<<<<<< HEAD
 static void ad198x_shutup(struct hda_codec *codec)
 {
 	snd_hda_shutup_pins(codec);
@@ -134,6 +154,12 @@ static void ad198x_shutup(struct hda_codec *codec)
 static int ad198x_suspend(struct hda_codec *codec)
 {
 	ad198x_shutup(codec);
+=======
+static int ad198x_suspend(struct hda_codec *codec)
+{
+	snd_hda_shutup_pins(codec);
+	ad198x_power_eapd(codec);
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
@@ -180,7 +206,10 @@ static const struct hda_codec_ops ad198x_auto_patch_ops = {
 	.check_power_status = snd_hda_gen_check_power_status,
 	.suspend = ad198x_suspend,
 #endif
+<<<<<<< HEAD
 	.reboot_notify = ad198x_shutup,
+=======
+>>>>>>> upstream/android-13
 };
 
 
@@ -402,7 +431,11 @@ static int patch_ad1986a(struct hda_codec *codec)
 {
 	int err;
 	struct ad198x_spec *spec;
+<<<<<<< HEAD
 	static hda_nid_t preferred_pairs[] = {
+=======
+	static const hda_nid_t preferred_pairs[] = {
+>>>>>>> upstream/android-13
 		0x1a, 0x03,
 		0x1b, 0x03,
 		0x1c, 0x04,
@@ -466,8 +499,12 @@ static int ad1983_auto_smux_enum_info(struct snd_kcontrol *kcontrol,
 	struct ad198x_spec *spec = codec->spec;
 	static const char * const texts2[] = { "PCM", "ADC" };
 	static const char * const texts3[] = { "PCM", "ADC1", "ADC2" };
+<<<<<<< HEAD
 	hda_nid_t dig_out = spec->gen.multiout.dig_out_nid;
 	int num_conns = snd_hda_get_num_conns(codec, dig_out);
+=======
+	int num_conns = spec->num_smux_conns;
+>>>>>>> upstream/android-13
 
 	if (num_conns == 2)
 		return snd_hda_enum_helper_info(kcontrol, uinfo, 2, texts2);
@@ -494,7 +531,11 @@ static int ad1983_auto_smux_enum_put(struct snd_kcontrol *kcontrol,
 	struct ad198x_spec *spec = codec->spec;
 	unsigned int val = ucontrol->value.enumerated.item[0];
 	hda_nid_t dig_out = spec->gen.multiout.dig_out_nid;
+<<<<<<< HEAD
 	int num_conns = snd_hda_get_num_conns(codec, dig_out);
+=======
+	int num_conns = spec->num_smux_conns;
+>>>>>>> upstream/android-13
 
 	if (val >= num_conns)
 		return -EINVAL;
@@ -525,6 +566,10 @@ static int ad1983_add_spdif_mux_ctl(struct hda_codec *codec)
 	num_conns = snd_hda_get_num_conns(codec, dig_out);
 	if (num_conns != 2 && num_conns != 3)
 		return 0;
+<<<<<<< HEAD
+=======
+	spec->num_smux_conns = num_conns;
+>>>>>>> upstream/android-13
 	if (!snd_hda_gen_add_kctl(&spec->gen, NULL, &ad1983_auto_smux_mixer))
 		return -ENOMEM;
 	return 0;
@@ -532,9 +577,15 @@ static int ad1983_add_spdif_mux_ctl(struct hda_codec *codec)
 
 static int patch_ad1983(struct hda_codec *codec)
 {
+<<<<<<< HEAD
 	struct ad198x_spec *spec;
 	static hda_nid_t conn_0c[] = { 0x08 };
 	static hda_nid_t conn_0d[] = { 0x09 };
+=======
+	static const hda_nid_t conn_0c[] = { 0x08 };
+	static const hda_nid_t conn_0d[] = { 0x09 };
+	struct ad198x_spec *spec;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = alloc_ad_spec(codec);
@@ -743,10 +794,19 @@ static int ad1988_auto_smux_enum_info(struct snd_kcontrol *kcontrol,
 				      struct snd_ctl_elem_info *uinfo)
 {
 	struct hda_codec *codec = snd_kcontrol_chip(kcontrol);
+<<<<<<< HEAD
 	static const char * const texts[] = {
 		"PCM", "ADC1", "ADC2", "ADC3",
 	};
 	int num_conns = snd_hda_get_num_conns(codec, 0x0b) + 1;
+=======
+	struct ad198x_spec *spec = codec->spec;
+	static const char * const texts[] = {
+		"PCM", "ADC1", "ADC2", "ADC3",
+	};
+	int num_conns = spec->num_smux_conns;
+
+>>>>>>> upstream/android-13
 	if (num_conns > 4)
 		num_conns = 4;
 	return snd_hda_enum_helper_info(kcontrol, uinfo, num_conns, texts);
@@ -769,7 +829,11 @@ static int ad1988_auto_smux_enum_put(struct snd_kcontrol *kcontrol,
 	struct ad198x_spec *spec = codec->spec;
 	unsigned int val = ucontrol->value.enumerated.item[0];
 	struct nid_path *path;
+<<<<<<< HEAD
 	int num_conns = snd_hda_get_num_conns(codec, 0x0b) + 1;
+=======
+	int num_conns = spec->num_smux_conns;
+>>>>>>> upstream/android-13
 
 	if (val >= num_conns)
 		return -EINVAL;
@@ -825,7 +889,11 @@ static int ad1988_add_spdif_mux_ctl(struct hda_codec *codec)
 	/* we create four static faked paths, since AD codecs have odd
 	 * widget connections regarding the SPDIF out source
 	 */
+<<<<<<< HEAD
 	static struct nid_path fake_paths[4] = {
+=======
+	static const struct nid_path fake_paths[4] = {
+>>>>>>> upstream/android-13
 		{
 			.depth = 3,
 			.path = { 0x02, 0x1d, 0x1b },
@@ -860,6 +928,10 @@ static int ad1988_add_spdif_mux_ctl(struct hda_codec *codec)
 	num_conns = snd_hda_get_num_conns(codec, 0x0b) + 1;
 	if (num_conns != 3 && num_conns != 4)
 		return 0;
+<<<<<<< HEAD
+=======
+	spec->num_smux_conns = num_conns;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < num_conns; i++) {
 		struct nid_path *path = snd_array_new(&spec->gen.paths);

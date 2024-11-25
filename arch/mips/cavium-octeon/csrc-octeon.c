@@ -7,6 +7,10 @@
  * Copyright (C) 2009, 2012 Cavium, Inc.
  */
 #include <linux/clocksource.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/clock.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/init.h>
 #include <linux/smp.h>

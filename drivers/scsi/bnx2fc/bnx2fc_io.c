@@ -24,7 +24,11 @@ static void bnx2fc_unmap_sg_list(struct bnx2fc_cmd *io_req);
 static void bnx2fc_free_mp_resc(struct bnx2fc_cmd *io_req);
 static void bnx2fc_parse_fcp_rsp(struct bnx2fc_cmd *io_req,
 				 struct fcoe_fcp_rsp_payload *fcp_rsp,
+<<<<<<< HEAD
 				 u8 num_rq);
+=======
+				 u8 num_rq, unsigned char *rq_data);
+>>>>>>> upstream/android-13
 
 void bnx2fc_cmd_timer_set(struct bnx2fc_cmd *io_req,
 			  unsigned int timer_msec)
@@ -70,7 +74,11 @@ static void bnx2fc_cmd_timeout(struct work_struct *work)
 							&io_req->req_flags)) {
 			/* Handle eh_abort timeout */
 			BNX2FC_IO_DBG(io_req, "eh_abort timed out\n");
+<<<<<<< HEAD
 			complete(&io_req->tm_done);
+=======
+			complete(&io_req->abts_done);
+>>>>>>> upstream/android-13
 		} else if (test_bit(BNX2FC_FLAG_ISSUE_ABTS,
 				    &io_req->req_flags)) {
 			/* Handle internally generated ABTS timeout */
@@ -775,24 +783,38 @@ retry_tmf:
 	io_req->on_tmf_queue = 1;
 	list_add_tail(&io_req->link, &tgt->active_tm_queue);
 
+<<<<<<< HEAD
 	init_completion(&io_req->tm_done);
 	io_req->wait_for_comp = 1;
+=======
+	init_completion(&io_req->abts_done);
+	io_req->wait_for_abts_comp = 1;
+>>>>>>> upstream/android-13
 
 	/* Ring doorbell */
 	bnx2fc_ring_doorbell(tgt);
 	spin_unlock_bh(&tgt->tgt_lock);
 
+<<<<<<< HEAD
 	rc = wait_for_completion_timeout(&io_req->tm_done,
 					 interface->tm_timeout * HZ);
 	spin_lock_bh(&tgt->tgt_lock);
 
 	io_req->wait_for_comp = 0;
+=======
+	rc = wait_for_completion_timeout(&io_req->abts_done,
+					 interface->tm_timeout * HZ);
+	spin_lock_bh(&tgt->tgt_lock);
+
+	io_req->wait_for_abts_comp = 0;
+>>>>>>> upstream/android-13
 	if (!(test_bit(BNX2FC_FLAG_TM_COMPL, &io_req->req_flags))) {
 		set_bit(BNX2FC_FLAG_TM_TIMEOUT, &io_req->req_flags);
 		if (io_req->on_tmf_queue) {
 			list_del_init(&io_req->link);
 			io_req->on_tmf_queue = 0;
 		}
+<<<<<<< HEAD
 		io_req->wait_for_comp = 1;
 		bnx2fc_initiate_cleanup(io_req);
 		spin_unlock_bh(&tgt->tgt_lock);
@@ -800,6 +822,16 @@ retry_tmf:
 						 BNX2FC_FW_TIMEOUT);
 		spin_lock_bh(&tgt->tgt_lock);
 		io_req->wait_for_comp = 0;
+=======
+		io_req->wait_for_cleanup_comp = 1;
+		init_completion(&io_req->cleanup_done);
+		bnx2fc_initiate_cleanup(io_req);
+		spin_unlock_bh(&tgt->tgt_lock);
+		rc = wait_for_completion_timeout(&io_req->cleanup_done,
+						 BNX2FC_FW_TIMEOUT);
+		spin_lock_bh(&tgt->tgt_lock);
+		io_req->wait_for_cleanup_comp = 0;
+>>>>>>> upstream/android-13
 		if (!rc)
 			kref_put(&io_req->refcount, bnx2fc_cmd_release);
 	}
@@ -863,7 +895,11 @@ int bnx2fc_initiate_abts(struct bnx2fc_cmd *io_req)
 
 	abts_io_req = bnx2fc_elstm_alloc(tgt, BNX2FC_ABTS);
 	if (!abts_io_req) {
+<<<<<<< HEAD
 		printk(KERN_ERR PFX "abts: couldnt allocate cmd\n");
+=======
+		printk(KERN_ERR PFX "abts: couldn't allocate cmd\n");
+>>>>>>> upstream/android-13
 		rc = FAILED;
 		goto abts_err;
 	}
@@ -929,7 +965,10 @@ abts_err:
 int bnx2fc_initiate_seq_cleanup(struct bnx2fc_cmd *orig_io_req, u32 offset,
 				enum fc_rctl r_ctl)
 {
+<<<<<<< HEAD
 	struct fc_lport *lport;
+=======
+>>>>>>> upstream/android-13
 	struct bnx2fc_rport *tgt = orig_io_req->tgt;
 	struct bnx2fc_interface *interface;
 	struct fcoe_port *port;
@@ -947,7 +986,10 @@ int bnx2fc_initiate_seq_cleanup(struct bnx2fc_cmd *orig_io_req, u32 offset,
 
 	port = orig_io_req->port;
 	interface = port->priv;
+<<<<<<< HEAD
 	lport = port->lport;
+=======
+>>>>>>> upstream/android-13
 
 	cb_arg = kzalloc(sizeof(struct bnx2fc_els_cb_arg), GFP_ATOMIC);
 	if (!cb_arg) {
@@ -958,7 +1000,11 @@ int bnx2fc_initiate_seq_cleanup(struct bnx2fc_cmd *orig_io_req, u32 offset,
 
 	seq_clnp_req = bnx2fc_elstm_alloc(tgt, BNX2FC_SEQ_CLEANUP);
 	if (!seq_clnp_req) {
+<<<<<<< HEAD
 		printk(KERN_ERR PFX "cleanup: couldnt allocate cmd\n");
+=======
+		printk(KERN_ERR PFX "cleanup: couldn't allocate cmd\n");
+>>>>>>> upstream/android-13
 		rc = -ENOMEM;
 		kfree(cb_arg);
 		goto cleanup_err;
@@ -998,7 +1044,10 @@ cleanup_err:
 
 int bnx2fc_initiate_cleanup(struct bnx2fc_cmd *io_req)
 {
+<<<<<<< HEAD
 	struct fc_lport *lport;
+=======
+>>>>>>> upstream/android-13
 	struct bnx2fc_rport *tgt = io_req->tgt;
 	struct bnx2fc_interface *interface;
 	struct fcoe_port *port;
@@ -1014,11 +1063,18 @@ int bnx2fc_initiate_cleanup(struct bnx2fc_cmd *io_req)
 
 	port = io_req->port;
 	interface = port->priv;
+<<<<<<< HEAD
 	lport = port->lport;
 
 	cleanup_io_req = bnx2fc_elstm_alloc(tgt, BNX2FC_CLEANUP);
 	if (!cleanup_io_req) {
 		printk(KERN_ERR PFX "cleanup: couldnt allocate cmd\n");
+=======
+
+	cleanup_io_req = bnx2fc_elstm_alloc(tgt, BNX2FC_CLEANUP);
+	if (!cleanup_io_req) {
+		printk(KERN_ERR PFX "cleanup: couldn't allocate cmd\n");
+>>>>>>> upstream/android-13
 		rc = -1;
 		goto cleanup_err;
 	}
@@ -1047,6 +1103,12 @@ int bnx2fc_initiate_cleanup(struct bnx2fc_cmd *io_req)
 	/* Obtain free SQ entry */
 	bnx2fc_add_2_sq(tgt, xid);
 
+<<<<<<< HEAD
+=======
+	/* Set flag that cleanup request is pending with the firmware */
+	set_bit(BNX2FC_FLAG_ISSUE_CLEANUP_REQ, &io_req->req_flags);
+
+>>>>>>> upstream/android-13
 	/* Ring doorbell */
 	bnx2fc_ring_doorbell(tgt);
 
@@ -1081,12 +1143,22 @@ int bnx2fc_eh_device_reset(struct scsi_cmnd *sc_cmd)
 }
 
 static int bnx2fc_abts_cleanup(struct bnx2fc_cmd *io_req)
+<<<<<<< HEAD
 {
 	struct bnx2fc_rport *tgt = io_req->tgt;
 	int rc = SUCCESS;
 	unsigned int time_left;
 
 	io_req->wait_for_comp = 1;
+=======
+	__must_hold(&tgt->tgt_lock)
+{
+	struct bnx2fc_rport *tgt = io_req->tgt;
+	unsigned int time_left;
+
+	init_completion(&io_req->cleanup_done);
+	io_req->wait_for_cleanup_comp = 1;
+>>>>>>> upstream/android-13
 	bnx2fc_initiate_cleanup(io_req);
 
 	spin_unlock_bh(&tgt->tgt_lock);
@@ -1095,6 +1167,7 @@ static int bnx2fc_abts_cleanup(struct bnx2fc_cmd *io_req)
 	 * Can't wait forever on cleanup response lest we let the SCSI error
 	 * handler wait forever
 	 */
+<<<<<<< HEAD
 	time_left = wait_for_completion_timeout(&io_req->tm_done,
 						BNX2FC_FW_TIMEOUT);
 	io_req->wait_for_comp = 0;
@@ -1111,6 +1184,24 @@ static int bnx2fc_abts_cleanup(struct bnx2fc_cmd *io_req)
 
 	spin_lock_bh(&tgt->tgt_lock);
 	return rc;
+=======
+	time_left = wait_for_completion_timeout(&io_req->cleanup_done,
+						BNX2FC_FW_TIMEOUT);
+	if (!time_left) {
+		BNX2FC_IO_DBG(io_req, "%s(): Wait for cleanup timed out.\n",
+			      __func__);
+
+		/*
+		 * Put the extra reference to the SCSI command since it would
+		 * not have been returned in this case.
+		 */
+		kref_put(&io_req->refcount, bnx2fc_cmd_release);
+	}
+
+	spin_lock_bh(&tgt->tgt_lock);
+	io_req->wait_for_cleanup_comp = 0;
+	return SUCCESS;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1198,7 +1289,12 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
 	/* Move IO req to retire queue */
 	list_add_tail(&io_req->link, &tgt->io_retire_queue);
 
+<<<<<<< HEAD
 	init_completion(&io_req->tm_done);
+=======
+	init_completion(&io_req->abts_done);
+	init_completion(&io_req->cleanup_done);
+>>>>>>> upstream/android-13
 
 	if (test_and_set_bit(BNX2FC_FLAG_ISSUE_ABTS, &io_req->req_flags)) {
 		printk(KERN_ERR PFX "eh_abort: io_req (xid = 0x%x) "
@@ -1211,13 +1307,21 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
 		 * cleanup the command and return that I/O was successfully
 		 * aborted.
 		 */
+<<<<<<< HEAD
 		rc = bnx2fc_abts_cleanup(io_req);
+=======
+		bnx2fc_abts_cleanup(io_req);
+>>>>>>> upstream/android-13
 		/* This only occurs when an task abort was requested while ABTS
 		   is in progress.  Setting the IO_CLEANUP flag will skip the
 		   RRQ process in the case when the fw generated SCSI_CMD cmpl
 		   was a result from the ABTS request rather than the CLEANUP
 		   request */
 		set_bit(BNX2FC_FLAG_IO_CLEANUP,	&io_req->req_flags);
+<<<<<<< HEAD
+=======
+		rc = FAILED;
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -1226,6 +1330,7 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
 		kref_put(&io_req->refcount,
 			 bnx2fc_cmd_release); /* drop timer hold */
 	set_bit(BNX2FC_FLAG_EH_ABORT, &io_req->req_flags);
+<<<<<<< HEAD
 	io_req->wait_for_comp = 1;
 	rc = bnx2fc_initiate_abts(io_req);
 	if (rc == FAILED) {
@@ -1234,11 +1339,23 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
 		wait_for_completion(&io_req->tm_done);
 		spin_lock_bh(&tgt->tgt_lock);
 		io_req->wait_for_comp = 0;
+=======
+	io_req->wait_for_abts_comp = 1;
+	rc = bnx2fc_initiate_abts(io_req);
+	if (rc == FAILED) {
+		io_req->wait_for_cleanup_comp = 1;
+		bnx2fc_initiate_cleanup(io_req);
+		spin_unlock_bh(&tgt->tgt_lock);
+		wait_for_completion(&io_req->cleanup_done);
+		spin_lock_bh(&tgt->tgt_lock);
+		io_req->wait_for_cleanup_comp = 0;
+>>>>>>> upstream/android-13
 		goto done;
 	}
 	spin_unlock_bh(&tgt->tgt_lock);
 
 	/* Wait 2 * RA_TOV + 1 to be sure timeout function hasn't fired */
+<<<<<<< HEAD
 	time_left = wait_for_completion_timeout(&io_req->tm_done,
 	    (2 * rp->r_a_tov + 1) * HZ);
 	if (time_left)
@@ -1246,6 +1363,16 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
 
 	spin_lock_bh(&tgt->tgt_lock);
 	io_req->wait_for_comp = 0;
+=======
+	time_left = wait_for_completion_timeout(&io_req->abts_done,
+					msecs_to_jiffies(2 * rp->r_a_tov + 1));
+	if (time_left)
+		BNX2FC_IO_DBG(io_req,
+			      "Timed out in eh_abort waiting for abts_done");
+
+	spin_lock_bh(&tgt->tgt_lock);
+	io_req->wait_for_abts_comp = 0;
+>>>>>>> upstream/android-13
 	if (test_bit(BNX2FC_FLAG_IO_COMPL, &io_req->req_flags)) {
 		BNX2FC_IO_DBG(io_req, "IO completed in a different context\n");
 		rc = SUCCESS;
@@ -1320,10 +1447,36 @@ void bnx2fc_process_cleanup_compl(struct bnx2fc_cmd *io_req,
 	BNX2FC_IO_DBG(io_req, "Entered process_cleanup_compl "
 			      "refcnt = %d, cmd_type = %d\n",
 		   kref_read(&io_req->refcount), io_req->cmd_type);
+<<<<<<< HEAD
 	bnx2fc_scsi_done(io_req, DID_ERROR);
 	kref_put(&io_req->refcount, bnx2fc_cmd_release);
 	if (io_req->wait_for_comp)
 		complete(&io_req->tm_done);
+=======
+	/*
+	 * Test whether there is a cleanup request pending. If not just
+	 * exit.
+	 */
+	if (!test_and_clear_bit(BNX2FC_FLAG_ISSUE_CLEANUP_REQ,
+				&io_req->req_flags))
+		return;
+	/*
+	 * If we receive a cleanup completion for this request then the
+	 * firmware will not give us an abort completion for this request
+	 * so clear any ABTS pending flags.
+	 */
+	if (test_bit(BNX2FC_FLAG_ISSUE_ABTS, &io_req->req_flags) &&
+	    !test_bit(BNX2FC_FLAG_ABTS_DONE, &io_req->req_flags)) {
+		set_bit(BNX2FC_FLAG_ABTS_DONE, &io_req->req_flags);
+		if (io_req->wait_for_abts_comp)
+			complete(&io_req->abts_done);
+	}
+
+	bnx2fc_scsi_done(io_req, DID_ERROR);
+	kref_put(&io_req->refcount, bnx2fc_cmd_release);
+	if (io_req->wait_for_cleanup_comp)
+		complete(&io_req->cleanup_done);
+>>>>>>> upstream/android-13
 }
 
 void bnx2fc_process_abts_compl(struct bnx2fc_cmd *io_req,
@@ -1347,6 +1500,19 @@ void bnx2fc_process_abts_compl(struct bnx2fc_cmd *io_req,
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If we receive an ABTS completion here then we will not receive
+	 * a cleanup completion so clear any cleanup pending flags.
+	 */
+	if (test_bit(BNX2FC_FLAG_ISSUE_CLEANUP_REQ, &io_req->req_flags)) {
+		clear_bit(BNX2FC_FLAG_ISSUE_CLEANUP_REQ, &io_req->req_flags);
+		if (io_req->wait_for_cleanup_comp)
+			complete(&io_req->cleanup_done);
+	}
+
+>>>>>>> upstream/android-13
 	/* Do not issue RRQ as this IO is already cleanedup */
 	if (test_and_set_bit(BNX2FC_FLAG_IO_CLEANUP,
 				&io_req->req_flags))
@@ -1391,10 +1557,17 @@ void bnx2fc_process_abts_compl(struct bnx2fc_cmd *io_req,
 	bnx2fc_cmd_timer_set(io_req, r_a_tov);
 
 io_compl:
+<<<<<<< HEAD
 	if (io_req->wait_for_comp) {
 		if (test_and_clear_bit(BNX2FC_FLAG_EH_ABORT,
 				       &io_req->req_flags))
 			complete(&io_req->tm_done);
+=======
+	if (io_req->wait_for_abts_comp) {
+		if (test_and_clear_bit(BNX2FC_FLAG_EH_ABORT,
+				       &io_req->req_flags))
+			complete(&io_req->abts_done);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * We end up here when ABTS is issued as
@@ -1486,7 +1659,12 @@ static void bnx2fc_tgt_reset_cmpl(struct bnx2fc_cmd *io_req)
 }
 
 void bnx2fc_process_tm_compl(struct bnx2fc_cmd *io_req,
+<<<<<<< HEAD
 			     struct fcoe_task_ctx_entry *task, u8 num_rq)
+=======
+			     struct fcoe_task_ctx_entry *task, u8 num_rq,
+				  unsigned char *rq_data)
+>>>>>>> upstream/android-13
 {
 	struct bnx2fc_mp_req *tm_req;
 	struct fc_frame_header *fc_hdr;
@@ -1525,7 +1703,11 @@ void bnx2fc_process_tm_compl(struct bnx2fc_cmd *io_req,
 	if (fc_hdr->fh_r_ctl == FC_RCTL_DD_CMD_STATUS) {
 		bnx2fc_parse_fcp_rsp(io_req,
 				     (struct fcoe_fcp_rsp_payload *)
+<<<<<<< HEAD
 				     rsp_buf, num_rq);
+=======
+				     rsp_buf, num_rq, rq_data);
+>>>>>>> upstream/android-13
 		if (io_req->fcp_rsp_code == 0) {
 			/* TM successful */
 			if (tm_req->tm_flags & FCP_TMF_LUN_RESET)
@@ -1578,9 +1760,15 @@ void bnx2fc_process_tm_compl(struct bnx2fc_cmd *io_req,
 	sc_cmd->scsi_done(sc_cmd);
 
 	kref_put(&io_req->refcount, bnx2fc_cmd_release);
+<<<<<<< HEAD
 	if (io_req->wait_for_comp) {
 		BNX2FC_IO_DBG(io_req, "tm_compl - wake up the waiter\n");
 		complete(&io_req->tm_done);
+=======
+	if (io_req->wait_for_abts_comp) {
+		BNX2FC_IO_DBG(io_req, "tm_compl - wake up the waiter\n");
+		complete(&io_req->abts_done);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1624,6 +1812,10 @@ static int bnx2fc_map_sg(struct bnx2fc_cmd *io_req)
 	u64 addr;
 	int i;
 
+<<<<<<< HEAD
+=======
+	WARN_ON(scsi_sg_count(sc) > BNX2FC_MAX_BDS_PER_CMD);
+>>>>>>> upstream/android-13
 	/*
 	 * Use dma_map_sg directly to ensure we're using the correct
 	 * dev struct off of pcidev.
@@ -1671,6 +1863,19 @@ static int bnx2fc_build_bd_list_from_sg(struct bnx2fc_cmd *io_req)
 	}
 	io_req->bd_tbl->bd_valid = bd_count;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Return the command to ML if BD count exceeds the max number
+	 * that can be handled by FW.
+	 */
+	if (bd_count > BNX2FC_FW_MAX_BDS_PER_CMD) {
+		pr_err("bd_count = %d exceeded FW supported max BD(255), task_id = 0x%x\n",
+		       bd_count, io_req->xid);
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1712,6 +1917,7 @@ void bnx2fc_build_fcp_cmnd(struct bnx2fc_cmd *io_req,
 
 static void bnx2fc_parse_fcp_rsp(struct bnx2fc_cmd *io_req,
 				 struct fcoe_fcp_rsp_payload *fcp_rsp,
+<<<<<<< HEAD
 				 u8 num_rq)
 {
 	struct scsi_cmnd *sc_cmd = io_req->sc_cmd;
@@ -1721,6 +1927,13 @@ static void bnx2fc_parse_fcp_rsp(struct bnx2fc_cmd *io_req,
 	int i;
 	unsigned char *rq_data;
 	unsigned char *dummy;
+=======
+				 u8 num_rq, unsigned char *rq_data)
+{
+	struct scsi_cmnd *sc_cmd = io_req->sc_cmd;
+	u8 rsp_flags = fcp_rsp->fcp_flags.flags;
+	u32 rq_buff_len = 0;
+>>>>>>> upstream/android-13
 	int fcp_sns_len = 0;
 	int fcp_rsp_len = 0;
 
@@ -1766,6 +1979,7 @@ static void bnx2fc_parse_fcp_rsp(struct bnx2fc_cmd *io_req,
 			rq_buff_len =  num_rq * BNX2FC_RQ_BUF_SZ;
 		}
 
+<<<<<<< HEAD
 		rq_data = bnx2fc_get_next_rqe(tgt, 1);
 
 		if (num_rq > 1) {
@@ -1774,6 +1988,8 @@ static void bnx2fc_parse_fcp_rsp(struct bnx2fc_cmd *io_req,
 				dummy = bnx2fc_get_next_rqe(tgt, 1);
 		}
 
+=======
+>>>>>>> upstream/android-13
 		/* fetch fcp_rsp_code */
 		if ((fcp_rsp_len == 4) || (fcp_rsp_len == 8)) {
 			/* Only for task management function */
@@ -1794,9 +2010,12 @@ static void bnx2fc_parse_fcp_rsp(struct bnx2fc_cmd *io_req,
 		if (fcp_sns_len)
 			memcpy(sc_cmd->sense_buffer, rq_data, fcp_sns_len);
 
+<<<<<<< HEAD
 		/* return RQ entries */
 		for (i = 0; i < num_rq; i++)
 			bnx2fc_return_rqe(tgt, 1);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1875,13 +2094,21 @@ exit_qcmd:
 
 void bnx2fc_process_scsi_cmd_compl(struct bnx2fc_cmd *io_req,
 				   struct fcoe_task_ctx_entry *task,
+<<<<<<< HEAD
 				   u8 num_rq)
+=======
+				   u8 num_rq, unsigned char *rq_data)
+>>>>>>> upstream/android-13
 {
 	struct fcoe_fcp_rsp_payload *fcp_rsp;
 	struct bnx2fc_rport *tgt = io_req->tgt;
 	struct scsi_cmnd *sc_cmd;
+<<<<<<< HEAD
 	struct Scsi_Host *host;
 
+=======
+	u16 scope = 0, qualifier = 0;
+>>>>>>> upstream/android-13
 
 	/* scsi_cmd_cmpl is called with tgt lock held */
 
@@ -1889,6 +2116,15 @@ void bnx2fc_process_scsi_cmd_compl(struct bnx2fc_cmd *io_req,
 		/* we will not receive ABTS response for this IO */
 		BNX2FC_IO_DBG(io_req, "Timer context finished processing "
 			   "this scsi cmd\n");
+<<<<<<< HEAD
+=======
+		if (test_and_clear_bit(BNX2FC_FLAG_IO_CLEANUP,
+				       &io_req->req_flags)) {
+			BNX2FC_IO_DBG(io_req,
+				      "Actual completion after cleanup request cleaning up\n");
+			bnx2fc_process_cleanup_compl(io_req, task, num_rq);
+		}
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1908,9 +2144,14 @@ void bnx2fc_process_scsi_cmd_compl(struct bnx2fc_cmd *io_req,
 		   &(task->rxwr_only.union_ctx.comp_info.fcp_rsp.payload);
 
 	/* parse fcp_rsp and obtain sense data from RQ if available */
+<<<<<<< HEAD
 	bnx2fc_parse_fcp_rsp(io_req, fcp_rsp, num_rq);
 
 	host = sc_cmd->device->host;
+=======
+	bnx2fc_parse_fcp_rsp(io_req, fcp_rsp, num_rq, rq_data);
+
+>>>>>>> upstream/android-13
 	if (!sc_cmd->SCp.ptr) {
 		printk(KERN_ERR PFX "SCp.ptr is NULL\n");
 		return;
@@ -1927,10 +2168,17 @@ void bnx2fc_process_scsi_cmd_compl(struct bnx2fc_cmd *io_req,
 		 * between command abort and (late) completion.
 		 */
 		BNX2FC_IO_DBG(io_req, "xid not on active_cmd_queue\n");
+<<<<<<< HEAD
 		if (io_req->wait_for_comp)
 			if (test_and_clear_bit(BNX2FC_FLAG_EH_ABORT,
 					       &io_req->req_flags))
 				complete(&io_req->tm_done);
+=======
+		if (io_req->wait_for_abts_comp)
+			if (test_and_clear_bit(BNX2FC_FLAG_EH_ABORT,
+					       &io_req->req_flags))
+				complete(&io_req->abts_done);
+>>>>>>> upstream/android-13
 	}
 
 	bnx2fc_unmap_sg_list(io_req);
@@ -1950,12 +2198,39 @@ void bnx2fc_process_scsi_cmd_compl(struct bnx2fc_cmd *io_req,
 
 			if (io_req->cdb_status == SAM_STAT_TASK_SET_FULL ||
 			    io_req->cdb_status == SAM_STAT_BUSY) {
+<<<<<<< HEAD
 				/* Set the jiffies + retry_delay_timer * 100ms
 				   for the rport/tgt */
 				tgt->retry_delay_timestamp = jiffies +
 					fcp_rsp->retry_delay_timer * HZ / 10;
 			}
 
+=======
+				/* Newer array firmware with BUSY or
+				 * TASK_SET_FULL may return a status that needs
+				 * the scope bits masked.
+				 * Or a huge delay timestamp up to 27 minutes
+				 * can result.
+				 */
+				if (fcp_rsp->retry_delay_timer) {
+					/* Upper 2 bits */
+					scope = fcp_rsp->retry_delay_timer
+						& 0xC000;
+					/* Lower 14 bits */
+					qualifier = fcp_rsp->retry_delay_timer
+						& 0x3FFF;
+				}
+				if (scope > 0 && qualifier > 0 &&
+					qualifier <= 0x3FEF) {
+					/* Set the jiffies +
+					 * retry_delay_timer * 100ms
+					 * for the rport/tgt
+					 */
+					tgt->retry_delay_timestamp = jiffies +
+						(qualifier * HZ / 10);
+				}
+			}
+>>>>>>> upstream/android-13
 		}
 		if (io_req->fcp_resid)
 			scsi_set_resid(sc_cmd, io_req->fcp_resid);

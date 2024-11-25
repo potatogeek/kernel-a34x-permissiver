@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+<<<<<<< HEAD
 #if !defined(_UAPI_XTENSA_UNISTD_H) || defined(__SYSCALL)
 #define _UAPI_XTENSA_UNISTD_H
 
@@ -779,6 +780,14 @@ __SYSCALL(350, sys_pkey_free, 1)
 __SYSCALL(351, sys_statx, 5)
 
 #define __NR_syscall_count			352
+=======
+#ifndef _UAPI_XTENSA_UNISTD_H
+#define _UAPI_XTENSA_UNISTD_H
+
+#include <asm/unistd_32.h>
+
+#define __ARCH_WANT_SYS_OLDUMOUNT
+>>>>>>> upstream/android-13
 
 /*
  * sysxtensa syscall handler
@@ -795,9 +804,14 @@ __SYSCALL(351, sys_statx, 5)
 #define SYS_XTENSA_ATOMIC_EXG_ADD         2     /* exchange memory and add */
 #define SYS_XTENSA_ATOMIC_ADD             3     /* add to memory */
 #define SYS_XTENSA_ATOMIC_CMP_SWP         4     /* compare and swap */
+<<<<<<< HEAD
 
 #define SYS_XTENSA_COUNT                  5     /* count */
 
 #undef __SYSCALL
 
+=======
+#define SYS_XTENSA_COUNT                  5     /* count */
+
+>>>>>>> upstream/android-13
 #endif /* _UAPI_XTENSA_UNISTD_H */

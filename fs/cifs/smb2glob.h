@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/smb2glob.h
+=======
+/* SPDX-License-Identifier: LGPL-2.1 */
+/*
+>>>>>>> upstream/android-13
  *
  *   Definitions for various global variables and structures
  *
@@ -9,6 +14,7 @@
  *              Jeremy Allison (jra@samba.org)
  *              Pavel Shilovsky (pshilovsky@samba.org) 2012
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -19,6 +25,8 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
  *   the GNU Lesser General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _SMB2_GLOB_H
 #define _SMB2_GLOB_H
@@ -33,7 +41,11 @@
 
 /*
  * Identifiers for functions that use the open, operation, close pattern
+<<<<<<< HEAD
  * in smb2inode.c:smb2_open_op_close()
+=======
+ * in smb2inode.c:smb2_compound_op()
+>>>>>>> upstream/android-13
  */
 #define SMB2_OP_SET_DELETE 1
 #define SMB2_OP_SET_INFO 2
@@ -45,6 +57,10 @@
 #define SMB2_OP_HARDLINK 8
 #define SMB2_OP_SET_EOF 9
 #define SMB2_OP_RMDIR 10
+<<<<<<< HEAD
+=======
+#define SMB2_OP_POSIX_QUERY_INFO 11
+>>>>>>> upstream/android-13
 
 /* Used when constructing chained read requests. */
 #define CHAINED_REQUEST 1
@@ -57,6 +73,11 @@
 #define SMB2_HMACSHA256_SIZE (32)
 #define SMB2_CMACAES_SIZE (16)
 #define SMB3_SIGNKEY_SIZE (16)
+<<<<<<< HEAD
+=======
+#define SMB3_GCM128_CRYPTKEY_SIZE (16)
+#define SMB3_GCM256_CRYPTKEY_SIZE (32)
+>>>>>>> upstream/android-13
 
 /* Maximum buffer size value we can send with 1 credit */
 #define SMB2_MAX_BUFFER_SIZE 65536

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Network node table
  *
@@ -11,11 +15,15 @@
  * This code is heavily based on the "netif" concept originally developed by
  * James Morris <jmorris@redhat.com>
  *   (see security/selinux/netif.c for more information)
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Copyright Hewlett-Packard Development Company, L.P., 2007
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
@@ -26,6 +34,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -64,7 +74,10 @@ struct sel_netnode {
  * if this becomes a problem we can always add a hash table for each address
  * family later */
 
+<<<<<<< HEAD
 static LIST_HEAD(sel_netnode_list);
+=======
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(sel_netnode_lock);
 static struct sel_netnode_bkt sel_netnode_hash[SEL_NETNODE_HASH_SIZE];
 
@@ -191,7 +204,11 @@ static void sel_netnode_insert(struct sel_netnode *node)
  * @sid: node SID
  *
  * Description:
+<<<<<<< HEAD
  * This function determines the SID of a network address by quering the
+=======
+ * This function determines the SID of a network address by querying the
+>>>>>>> upstream/android-13
  * security policy.  The result is added to the network address table to
  * speedup future queries.  Returns zero on success, negative values on
  * failure.
@@ -199,9 +216,15 @@ static void sel_netnode_insert(struct sel_netnode *node)
  */
 static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
 {
+<<<<<<< HEAD
 	int ret = -ENOMEM;
 	struct sel_netnode *node;
 	struct sel_netnode *new = NULL;
+=======
+	int ret;
+	struct sel_netnode *node;
+	struct sel_netnode *new;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&sel_netnode_lock);
 	node = sel_netnode_find(addr, family);
@@ -210,24 +233,40 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
 		spin_unlock_bh(&sel_netnode_lock);
 		return 0;
 	}
+<<<<<<< HEAD
 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
 	if (new == NULL)
 		goto out;
+=======
+
+	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	switch (family) {
 	case PF_INET:
 		ret = security_node_sid(&selinux_state, PF_INET,
 					addr, sizeof(struct in_addr), sid);
+<<<<<<< HEAD
 		new->nsec.addr.ipv4 = *(__be32 *)addr;
+=======
+		if (new)
+			new->nsec.addr.ipv4 = *(__be32 *)addr;
+>>>>>>> upstream/android-13
 		break;
 	case PF_INET6:
 		ret = security_node_sid(&selinux_state, PF_INET6,
 					addr, sizeof(struct in6_addr), sid);
+<<<<<<< HEAD
 		new->nsec.addr.ipv6 = *(struct in6_addr *)addr;
+=======
+		if (new)
+			new->nsec.addr.ipv6 = *(struct in6_addr *)addr;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		BUG();
 		ret = -EINVAL;
 	}
+<<<<<<< HEAD
 	if (ret != 0)
 		goto out;
 
@@ -242,6 +281,19 @@ out:
 			__func__);
 		kfree(new);
 	}
+=======
+	if (ret == 0 && new) {
+		new->nsec.family = family;
+		new->nsec.sid = *sid;
+		sel_netnode_insert(new);
+	} else
+		kfree(new);
+
+	spin_unlock_bh(&sel_netnode_lock);
+	if (unlikely(ret))
+		pr_warn("SELinux: failure in %s(), unable to determine network node label\n",
+			__func__);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -302,6 +354,7 @@ void sel_netnode_flush(void)
 static __init int sel_netnode_init(void)
 {
 	int iter;
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
 	selinux_enabled = 1;
@@ -309,6 +362,10 @@ static __init int sel_netnode_init(void)
 // ] SEC_SELINUX_PORTING_COMMON
 
 	if (!selinux_enabled)
+=======
+
+	if (!selinux_enabled_boot)
+>>>>>>> upstream/android-13
 		return 0;
 
 	for (iter = 0; iter < SEL_NETNODE_HASH_SIZE; iter++) {

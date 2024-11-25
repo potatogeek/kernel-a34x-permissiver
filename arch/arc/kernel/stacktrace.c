@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	stacktrace.c : stacktracing APIs needed by rest of kernel
  *			(wrappers over ARC dwarf based unwinder)
  *
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  vineetg: aug 2009
  *  -Implemented CONFIG_STACKTRACE APIs, primarily save_stack_trace_tsk( )
  *   for displaying task's kernel mode call stack in /proc/<pid>/stack
@@ -45,11 +52,31 @@ static int
 seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
 		       struct unwind_frame_info *frame_info)
 {
+<<<<<<< HEAD
 	/*
 	 * synchronous unwinding (e.g. dump_stack)
 	 *  - uses current values of SP and friends
 	 */
 	if (regs == NULL && (tsk == NULL || tsk == current)) {
+=======
+	if (regs) {
+		/*
+		 * Asynchronous unwinding of intr/exception
+		 *  - Just uses the pt_regs passed
+		 */
+		frame_info->task = tsk;
+
+		frame_info->regs.r27 = regs->fp;
+		frame_info->regs.r28 = regs->sp;
+		frame_info->regs.r31 = regs->blink;
+		frame_info->regs.r63 = regs->ret;
+		frame_info->call_frame = 0;
+	} else if (tsk == NULL || tsk == current) {
+		/*
+		 * synchronous unwinding (e.g. dump_stack)
+		 *  - uses current values of SP and friends
+		 */
+>>>>>>> upstream/android-13
 		unsigned long fp, sp, blink, ret;
 		frame_info->task = current;
 
@@ -66,7 +93,11 @@ seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
 		frame_info->regs.r31 = blink;
 		frame_info->regs.r63 = ret;
 		frame_info->call_frame = 0;
+<<<<<<< HEAD
 	} else if (regs == NULL) {
+=======
+	} else {
+>>>>>>> upstream/android-13
 		/*
 		 * Asynchronous unwinding of a likely sleeping task
 		 *  - first ensure it is actually sleeping
@@ -74,7 +105,11 @@ seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
 		 *    is safe-kept and BLINK at a well known location in there
 		 */
 
+<<<<<<< HEAD
 		if (tsk->state == TASK_RUNNING)
+=======
+		if (task_is_running(tsk))
+>>>>>>> upstream/android-13
 			return -1;
 
 		frame_info->task = tsk;
@@ -97,6 +132,7 @@ seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
 		frame_info->regs.r28 += 60;
 		frame_info->call_frame = 0;
 
+<<<<<<< HEAD
 	} else {
 		/*
 		 * Asynchronous unwinding of intr/exception
@@ -111,6 +147,9 @@ seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
 		frame_info->call_frame = 0;
 	}
 
+=======
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -153,7 +192,11 @@ arc_unwind_core(struct task_struct *tsk, struct pt_regs *regs,
 #else
 	/* On ARC, only Dward based unwinder works. fp based backtracing is
 	 * not possible (-fno-omit-frame-pointer) because of the way function
+<<<<<<< HEAD
 	 * prelogue is setup (callee regs saved and then fp set and not other
+=======
+	 * prologue is setup (callee regs saved and then fp set and not other
+>>>>>>> upstream/android-13
 	 * way around
 	 */
 	pr_warn_once("CONFIG_ARC_DW2_UNWIND needs to be enabled\n");
@@ -173,9 +216,17 @@ arc_unwind_core(struct task_struct *tsk, struct pt_regs *regs,
 /* Call-back which plugs into unwinding core to dump the stack in
  * case of panic/OOPs/BUG etc
  */
+<<<<<<< HEAD
 static int __print_sym(unsigned int address, void *unused)
 {
 	printk("  %pS\n", (void *)address);
+=======
+static int __print_sym(unsigned int address, void *arg)
+{
+	const char *loglvl = arg;
+
+	printk("%s  %pS\n", loglvl, (void *)address);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -232,17 +283,31 @@ static int __get_first_nonsched(unsigned int address, void *unused)
  *-------------------------------------------------------------------------
  */
 
+<<<<<<< HEAD
 noinline void show_stacktrace(struct task_struct *tsk, struct pt_regs *regs)
 {
 	pr_info("\nStack Trace:\n");
 	arc_unwind_core(tsk, regs, __print_sym, NULL);
+=======
+noinline void show_stacktrace(struct task_struct *tsk, struct pt_regs *regs,
+			      const char *loglvl)
+{
+	printk("%s\nStack Trace:\n", loglvl);
+	arc_unwind_core(tsk, regs, __print_sym, (void *)loglvl);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(show_stacktrace);
 
 /* Expected by sched Code */
+<<<<<<< HEAD
 void show_stack(struct task_struct *tsk, unsigned long *sp)
 {
 	show_stacktrace(tsk, NULL);
+=======
+void show_stack(struct task_struct *tsk, unsigned long *sp, const char *loglvl)
+{
+	show_stacktrace(tsk, NULL, loglvl);
+>>>>>>> upstream/android-13
 }
 
 /* Another API expected by schedular, shows up in "ps" as Wait Channel

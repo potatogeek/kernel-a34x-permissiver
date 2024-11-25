@@ -3,11 +3,19 @@
 // Copyright (c) 2011-2014 Samsung Electronics Co., Ltd.
 //		http://www.samsung.com/
 //
+<<<<<<< HEAD
 // EXYNOS - CPU PMU(Power Management Unit) support
+=======
+// Exynos - CPU PMU(Power Management Unit) support
+>>>>>>> upstream/android-13
 
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/mfd/core.h>
+>>>>>>> upstream/android-13
 #include <linux/mfd/syscon.h>
 #include <linux/platform_device.h>
 #include <linux/delay.h>
@@ -97,6 +105,13 @@ static const struct of_device_id exynos_pmu_of_device_ids[] = {
 	{ /*sentinel*/ },
 };
 
+<<<<<<< HEAD
+=======
+static const struct mfd_cell exynos_pmu_devs[] = {
+	{ .name = "exynos-clkout", },
+};
+
+>>>>>>> upstream/android-13
 struct regmap *exynos_get_pmu_regmap(void)
 {
 	struct device_node *np = of_find_matching_node(NULL,
@@ -110,10 +125,16 @@ EXPORT_SYMBOL_GPL(exynos_get_pmu_regmap);
 static int exynos_pmu_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pmu_base_addr = devm_ioremap_resource(dev, res);
+=======
+	int ret;
+
+	pmu_base_addr = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pmu_base_addr))
 		return PTR_ERR(pmu_base_addr);
 
@@ -130,6 +151,14 @@ static int exynos_pmu_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, pmu_context);
 
+<<<<<<< HEAD
+=======
+	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE, exynos_pmu_devs,
+				   ARRAY_SIZE(exynos_pmu_devs), NULL, 0, NULL);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	if (devm_of_platform_populate(dev))
 		dev_err(dev, "Error populating children, reboot and poweroff might not work properly\n");
 

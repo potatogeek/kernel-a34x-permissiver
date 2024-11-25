@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 TangoTec Ltd.
  * Author: Baruch Siach <baruch@tkos.co.il>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Driver for the Xtensa LX4 GPIO32 Option
  *
  * Documentation: Xtensa LX4 Microprocessor Data Book, Section 2.22
@@ -30,7 +37,11 @@
 
 #include <linux/err.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/bitops.h>
 #include <linux/platform_device.h>
 
@@ -47,15 +58,24 @@ static inline unsigned long enable_cp(unsigned long *cpenable)
 	unsigned long flags;
 
 	local_irq_save(flags);
+<<<<<<< HEAD
 	RSR_CPENABLE(*cpenable);
 	WSR_CPENABLE(*cpenable | BIT(XCHAL_CP_ID_XTIOP));
 
+=======
+	*cpenable = xtensa_get_sr(cpenable);
+	xtensa_set_sr(*cpenable | BIT(XCHAL_CP_ID_XTIOP), cpenable);
+>>>>>>> upstream/android-13
 	return flags;
 }
 
 static inline void disable_cp(unsigned long flags, unsigned long cpenable)
 {
+<<<<<<< HEAD
 	WSR_CPENABLE(cpenable);
+=======
+	xtensa_set_sr(cpenable, cpenable);
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 }
 
@@ -75,7 +95,11 @@ static inline void disable_cp(unsigned long flags, unsigned long cpenable)
 
 static int xtensa_impwire_get_direction(struct gpio_chip *gc, unsigned offset)
 {
+<<<<<<< HEAD
 	return 1; /* input only */
+=======
+	return GPIO_LINE_DIRECTION_IN; /* input only */
+>>>>>>> upstream/android-13
 }
 
 static int xtensa_impwire_get_value(struct gpio_chip *gc, unsigned offset)
@@ -98,7 +122,11 @@ static void xtensa_impwire_set_value(struct gpio_chip *gc, unsigned offset,
 
 static int xtensa_expstate_get_direction(struct gpio_chip *gc, unsigned offset)
 {
+<<<<<<< HEAD
 	return 0; /* output only */
+=======
+	return GPIO_LINE_DIRECTION_OUT; /* output only */
+>>>>>>> upstream/android-13
 }
 
 static int xtensa_expstate_get_value(struct gpio_chip *gc, unsigned offset)

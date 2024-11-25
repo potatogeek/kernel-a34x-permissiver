@@ -13,6 +13,7 @@
 #include "xfs_mount.h"
 #include "xfs_inode.h"
 #include "xfs_bmap.h"
+<<<<<<< HEAD
 #include "xfs_bmap_util.h"
 #include "xfs_bmap_btree.h"
 #include "xfs_alloc.h"
@@ -24,6 +25,11 @@
 #include "xfs_icache.h"
 #include "xfs_rtalloc.h"
 
+=======
+#include "xfs_trans.h"
+#include "xfs_rtalloc.h"
+#include "xfs_error.h"
+>>>>>>> upstream/android-13
 
 /*
  * Realtime allocator bitmap functions shared with userspace.
@@ -64,9 +70,15 @@ xfs_rtbuf_get(
 	xfs_trans_t	*tp,		/* transaction pointer */
 	xfs_rtblock_t	block,		/* block number in bitmap or summary */
 	int		issum,		/* is summary not bitmap */
+<<<<<<< HEAD
 	xfs_buf_t	**bpp)		/* output: buffer for the block */
 {
 	xfs_buf_t	*bp;		/* block buffer, result */
+=======
+	struct xfs_buf	**bpp)		/* output: buffer for the block */
+{
+	struct xfs_buf	*bp;		/* block buffer, result */
+>>>>>>> upstream/android-13
 	xfs_inode_t	*ip;		/* bitmap or summary inode */
 	xfs_bmbt_irec_t	map;
 	int		nmap = 1;
@@ -74,11 +86,19 @@ xfs_rtbuf_get(
 
 	ip = issum ? mp->m_rsumip : mp->m_rbmip;
 
+<<<<<<< HEAD
 	error = xfs_bmapi_read(ip, block, 1, &map, &nmap, XFS_DATA_FORK);
 	if (error)
 		return error;
 
 	if (nmap == 0 || !xfs_bmap_is_real_extent(&map))
+=======
+	error = xfs_bmapi_read(ip, block, 1, &map, &nmap, 0);
+	if (error)
+		return error;
+
+	if (XFS_IS_CORRUPT(mp, nmap == 0 || !xfs_bmap_is_written_extent(&map)))
+>>>>>>> upstream/android-13
 		return -EFSCORRUPTED;
 
 	ASSERT(map.br_startblock != NULLFSBLOCK);
@@ -109,7 +129,11 @@ xfs_rtfind_back(
 	xfs_rtword_t	*b;		/* current word in buffer */
 	int		bit;		/* bit number in the word */
 	xfs_rtblock_t	block;		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	*bp;		/* buf for the block */
+=======
+	struct xfs_buf	*bp;		/* buf for the block */
+>>>>>>> upstream/android-13
 	xfs_rtword_t	*bufp;		/* starting word in buffer */
 	int		error;		/* error value */
 	xfs_rtblock_t	firstbit;	/* first useful bit in the word */
@@ -284,7 +308,11 @@ xfs_rtfind_forw(
 	xfs_rtword_t	*b;		/* current word in buffer */
 	int		bit;		/* bit number in the word */
 	xfs_rtblock_t	block;		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	*bp;		/* buf for the block */
+=======
+	struct xfs_buf	*bp;		/* buf for the block */
+>>>>>>> upstream/android-13
 	xfs_rtword_t	*bufp;		/* starting word in buffer */
 	int		error;		/* error value */
 	xfs_rtblock_t	i;		/* current bit number rel. to start */
@@ -455,11 +483,19 @@ xfs_rtmodify_summary_int(
 	int		log,		/* log2 of extent size */
 	xfs_rtblock_t	bbno,		/* bitmap block number */
 	int		delta,		/* change to make to summary info */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
 	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
 	xfs_suminfo_t	*sum)		/* out: summary info for this block */
 {
 	xfs_buf_t	*bp;		/* buffer for the summary block */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+	xfs_fsblock_t	*rsb,		/* in/out: summary block number */
+	xfs_suminfo_t	*sum)		/* out: summary info for this block */
+{
+	struct xfs_buf	*bp;		/* buffer for the summary block */
+>>>>>>> upstream/android-13
 	int		error;		/* error value */
 	xfs_fsblock_t	sb;		/* summary fsblock */
 	int		so;		/* index into the summary file */
@@ -505,6 +541,15 @@ xfs_rtmodify_summary_int(
 		uint first = (uint)((char *)sp - (char *)bp->b_addr);
 
 		*sp += delta;
+<<<<<<< HEAD
+=======
+		if (mp->m_rsum_cache) {
+			if (*sp == 0 && log == mp->m_rsum_cache[bbno])
+				mp->m_rsum_cache[bbno]++;
+			if (*sp != 0 && log < mp->m_rsum_cache[bbno])
+				mp->m_rsum_cache[bbno] = log;
+		}
+>>>>>>> upstream/android-13
 		xfs_trans_log_buf(tp, bp, first, first + sizeof(*sp) - 1);
 	}
 	if (sum)
@@ -519,7 +564,11 @@ xfs_rtmodify_summary(
 	int		log,		/* log2 of extent size */
 	xfs_rtblock_t	bbno,		/* bitmap block number */
 	int		delta,		/* change to make to summary info */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb)		/* in/out: summary block number */
 {
 	return xfs_rtmodify_summary_int(mp, tp, log, bbno,
@@ -541,7 +590,11 @@ xfs_rtmodify_range(
 	xfs_rtword_t	*b;		/* current word in buffer */
 	int		bit;		/* bit number in the word */
 	xfs_rtblock_t	block;		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	*bp;		/* buf for the block */
+=======
+	struct xfs_buf	*bp;		/* buf for the block */
+>>>>>>> upstream/android-13
 	xfs_rtword_t	*bufp;		/* starting word in buffer */
 	int		error;		/* error value */
 	xfs_rtword_t	*first;		/* first used word in the buffer */
@@ -692,7 +745,11 @@ xfs_rtfree_range(
 	xfs_trans_t	*tp,		/* transaction pointer */
 	xfs_rtblock_t	start,		/* starting block to free */
 	xfs_extlen_t	len,		/* length to free */
+<<<<<<< HEAD
 	xfs_buf_t	**rbpp,		/* in/out: summary block buffer */
+=======
+	struct xfs_buf	**rbpp,		/* in/out: summary block buffer */
+>>>>>>> upstream/android-13
 	xfs_fsblock_t	*rsb)		/* in/out: summary block number */
 {
 	xfs_rtblock_t	end;		/* end of the freed extent */
@@ -775,7 +832,11 @@ xfs_rtcheck_range(
 	xfs_rtword_t	*b;		/* current word in buffer */
 	int		bit;		/* bit number in the word */
 	xfs_rtblock_t	block;		/* bitmap block number */
+<<<<<<< HEAD
 	xfs_buf_t	*bp;		/* buf for the block */
+=======
+	struct xfs_buf	*bp;		/* buf for the block */
+>>>>>>> upstream/android-13
 	xfs_rtword_t	*bufp;		/* starting word in buffer */
 	int		error;		/* error value */
 	xfs_rtblock_t	i;		/* current bit number rel. to start */
@@ -971,7 +1032,11 @@ xfs_rtfree_extent(
 	int		error;		/* error value */
 	xfs_mount_t	*mp;		/* file system mount structure */
 	xfs_fsblock_t	sb;		/* summary file block number */
+<<<<<<< HEAD
 	xfs_buf_t	*sumbp = NULL;	/* summary file block buffer */
+=======
+	struct xfs_buf	*sumbp = NULL;	/* summary file block buffer */
+>>>>>>> upstream/android-13
 
 	mp = tp->t_mountp;
 
@@ -999,8 +1064,13 @@ xfs_rtfree_extent(
 	 */
 	if (tp->t_frextents_delta + mp->m_sb.sb_frextents ==
 	    mp->m_sb.sb_rextents) {
+<<<<<<< HEAD
 		if (!(mp->m_rbmip->i_d.di_flags & XFS_DIFLAG_NEWRTBM))
 			mp->m_rbmip->i_d.di_flags |= XFS_DIFLAG_NEWRTBM;
+=======
+		if (!(mp->m_rbmip->i_diflags & XFS_DIFLAG_NEWRTBM))
+			mp->m_rbmip->i_diflags |= XFS_DIFLAG_NEWRTBM;
+>>>>>>> upstream/android-13
 		*(uint64_t *)&VFS_I(mp->m_rbmip)->i_atime = 0;
 		xfs_trans_log_inode(tp, mp->m_rbmip, XFS_ILOG_CORE);
 	}
@@ -1011,8 +1081,13 @@ xfs_rtfree_extent(
 int
 xfs_rtalloc_query_range(
 	struct xfs_trans		*tp,
+<<<<<<< HEAD
 	struct xfs_rtalloc_rec		*low_rec,
 	struct xfs_rtalloc_rec		*high_rec,
+=======
+	const struct xfs_rtalloc_rec	*low_rec,
+	const struct xfs_rtalloc_rec	*high_rec,
+>>>>>>> upstream/android-13
 	xfs_rtalloc_query_range_fn	fn,
 	void				*priv)
 {
@@ -1020,6 +1095,10 @@ xfs_rtalloc_query_range(
 	struct xfs_mount		*mp = tp->t_mountp;
 	xfs_rtblock_t			rtstart;
 	xfs_rtblock_t			rtend;
+<<<<<<< HEAD
+=======
+	xfs_rtblock_t			high_key;
+>>>>>>> upstream/android-13
 	int				is_free;
 	int				error = 0;
 
@@ -1028,12 +1107,21 @@ xfs_rtalloc_query_range(
 	if (low_rec->ar_startext >= mp->m_sb.sb_rextents ||
 	    low_rec->ar_startext == high_rec->ar_startext)
 		return 0;
+<<<<<<< HEAD
 	high_rec->ar_startext = min(high_rec->ar_startext,
 			mp->m_sb.sb_rextents - 1);
 
 	/* Iterate the bitmap, looking for discrepancies. */
 	rtstart = low_rec->ar_startext;
 	while (rtstart <= high_rec->ar_startext) {
+=======
+
+	high_key = min(high_rec->ar_startext, mp->m_sb.sb_rextents - 1);
+
+	/* Iterate the bitmap, looking for discrepancies. */
+	rtstart = low_rec->ar_startext;
+	while (rtstart <= high_key) {
+>>>>>>> upstream/android-13
 		/* Is the first block free? */
 		error = xfs_rtcheck_range(mp, tp, rtstart, 1, 1, &rtend,
 				&is_free);
@@ -1041,8 +1129,12 @@ xfs_rtalloc_query_range(
 			break;
 
 		/* How long does the extent go for? */
+<<<<<<< HEAD
 		error = xfs_rtfind_forw(mp, tp, rtstart,
 				high_rec->ar_startext, &rtend);
+=======
+		error = xfs_rtfind_forw(mp, tp, rtstart, high_key, &rtend);
+>>>>>>> upstream/android-13
 		if (error)
 			break;
 

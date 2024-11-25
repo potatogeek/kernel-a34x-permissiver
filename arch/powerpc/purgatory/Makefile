@@ -1,9 +1,20 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 targets += trampoline.o purgatory.ro kexec-purgatory.c
 
 LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined
 
 $(obj)/purgatory.ro: $(obj)/trampoline.o FORCE
+=======
+
+KASAN_SANITIZE := n
+
+targets += trampoline_$(BITS).o purgatory.ro kexec-purgatory.c
+
+LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined
+
+$(obj)/purgatory.ro: $(obj)/trampoline_$(BITS).o FORCE
+>>>>>>> upstream/android-13
 		$(call if_changed,ld)
 
 quiet_cmd_bin2c = BIN2C   $@

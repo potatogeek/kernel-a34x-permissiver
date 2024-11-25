@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * QLogic iSCSI HBA Driver
  * Copyright (c) 2011-2013 QLogic Corporation
  *
  * See LICENSE.qla4xxx for copyright and licensing details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * QLogic iSCSI HBA Driver
+ * Copyright (c) 2011-2013 QLogic Corporation
+>>>>>>> upstream/android-13
  */
 
 #include "ql4_def.h"
@@ -805,7 +812,11 @@ static int qla4xxx_execute_diag_test(struct bsg_job *bsg_job)
 
 /**
  * qla4xxx_process_vendor_specific - handle vendor specific bsg request
+<<<<<<< HEAD
  * @job: iscsi_bsg_job to handle
+=======
+ * @bsg_job: iscsi_bsg_job to handle
+>>>>>>> upstream/android-13
  **/
 int qla4xxx_process_vendor_specific(struct bsg_job *bsg_job)
 {
@@ -852,7 +863,11 @@ int qla4xxx_process_vendor_specific(struct bsg_job *bsg_job)
 
 /**
  * qla4xxx_bsg_request - handle bsg request from ISCSI transport
+<<<<<<< HEAD
  * @job: iscsi_bsg_job to handle
+=======
+ * @bsg_job: iscsi_bsg_job to handle
+>>>>>>> upstream/android-13
  */
 int qla4xxx_bsg_request(struct bsg_job *bsg_job)
 {

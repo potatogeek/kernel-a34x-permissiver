@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OpenRISC entry.S
  *
@@ -9,6 +13,7 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2005 Gyorgy Jeney <nog@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
@@ -17,6 +22,12 @@
  */
 
 #include <linux/linkage.h>
+=======
+ */
+
+#include <linux/linkage.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/processor.h>
 #include <asm/unistd.h>
@@ -25,7 +36,10 @@
 #include <asm/spr_defs.h>
 #include <asm/page.h>
 #include <asm/mmu.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/asm-offsets.h>
 
 #define DISABLE_INTERRUPTS(t1,t2)			\
@@ -330,7 +344,11 @@ EXCEPTION_ENTRY(_data_page_fault_handler)
 1:	l.ori   r6,r0,0x0                  // !write access
 2:
 
+<<<<<<< HEAD
 	/* call fault.c handler in or32/mm/fault.c */
+=======
+	/* call fault.c handler in openrisc/mm/fault.c */
+>>>>>>> upstream/android-13
 	l.jal   do_page_fault
 	 l.nop
 	l.j     _ret_from_exception
@@ -352,7 +370,11 @@ EXCEPTION_ENTRY(_insn_page_fault_handler)
 	/* r4 set be EXCEPTION_HANDLE */   // effective address of fault
 	l.ori	r6,r0,0x0		   // !write access
 
+<<<<<<< HEAD
 	/* call fault.c handler in or32/mm/fault.c */
+=======
+	/* call fault.c handler in openrisc/mm/fault.c */
+>>>>>>> upstream/android-13
 	l.jal   do_page_fault
 	 l.nop
 	l.j     _ret_from_exception
@@ -551,11 +573,19 @@ EXCEPTION_ENTRY(_external_irq_handler)
 	l.bnf	1f			// ext irq enabled, all ok.
 	l.nop
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PRINTK
+>>>>>>> upstream/android-13
 	l.addi  r1,r1,-0x8
 	l.movhi r3,hi(42f)
 	l.ori	r3,r3,lo(42f)
 	l.sw    0x0(r1),r3
+<<<<<<< HEAD
 	l.jal   printk
+=======
+	l.jal   _printk
+>>>>>>> upstream/android-13
 	l.sw    0x4(r1),r4
 	l.addi  r1,r1,0x8
 
@@ -564,6 +594,10 @@ EXCEPTION_ENTRY(_external_irq_handler)
 		.string "\n\rESR interrupt bug: in _external_irq_handler (ESR %x)\n\r"
 		.align 4
 	.previous
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 	l.ori	r4,r4,SPR_SR_IEE	// fix the bug
 //	l.sw	PT_SR(r1),r4
@@ -685,8 +719,13 @@ _syscall_debug:
 	l.sw    -4(r1),r27
 	l.sw    -8(r1),r11
 	l.addi  r1,r1,-8
+<<<<<<< HEAD
 	l.movhi r27,hi(printk)
 	l.ori   r27,r27,lo(printk)
+=======
+	l.movhi r27,hi(_printk)
+	l.ori   r27,r27,lo(_printk)
+>>>>>>> upstream/android-13
 	l.jalr  r27
 	 l.nop
 	l.addi  r1,r1,8
@@ -1172,6 +1211,14 @@ ENTRY(__sys_clone)
 	l.j	_fork_save_extra_regs_and_call
 	 l.nop
 
+<<<<<<< HEAD
+=======
+ENTRY(__sys_clone3)
+	l.movhi	r29,hi(sys_clone3)
+	l.j	_fork_save_extra_regs_and_call
+	 l.ori	r29,r29,lo(sys_clone3)
+
+>>>>>>> upstream/android-13
 ENTRY(__sys_fork)
 	l.movhi	r29,hi(sys_fork)
 	l.ori	r29,r29,lo(sys_fork)

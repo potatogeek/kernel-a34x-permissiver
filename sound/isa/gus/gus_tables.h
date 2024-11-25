@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *
@@ -16,6 +17,11 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #define SNDRV_GF1_SCALE_TABLE_SIZE	128

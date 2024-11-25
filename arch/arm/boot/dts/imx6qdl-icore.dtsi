@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
@@ -38,6 +39,12 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR X11
+/*
+ * Copyright (C) 2016 Amarula Solutions B.V.
+ * Copyright (C) 2016 Engicam S.r.l.
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -46,9 +53,20 @@
 
 / {
 	memory@10000000 {
+<<<<<<< HEAD
 		reg = <0x10000000 0x80000000>;
 	};
 
+=======
+		device_type = "memory";
+		reg = <0x10000000 0x80000000>;
+	};
+
+	chosen {
+		stdout-path = &uart4;
+	};
+
+>>>>>>> upstream/android-13
 	backlight_lvds: backlight-lvds {
 		compatible = "pwm-backlight";
 		pwms = <&pwm3 0 100000>;
@@ -181,10 +199,30 @@
 &fec {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet>;
+<<<<<<< HEAD
 	phy-reset-gpios = <&gpio7 12 GPIO_ACTIVE_LOW>;
 	clocks = <&clks IMX6QDL_CLK_ENET>, <&clks IMX6QDL_CLK_ENET>, <&rmii_clk>;
 	phy-mode = "rmii";
 	status = "okay";
+=======
+	clocks = <&clks IMX6QDL_CLK_ENET>, <&clks IMX6QDL_CLK_ENET>, <&rmii_clk>;
+	phy-mode = "rmii";
+	phy-handle = <&eth_phy>;
+	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		eth_phy: ethernet-phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
+			reset-gpios = <&gpio7 12 GPIO_ACTIVE_LOW>;
+			reset-assert-us = <4000>;
+			reset-deassert-us = <4000>;
+		};
+	};
+>>>>>>> upstream/android-13
 };
 
 &gpmi {
@@ -263,6 +301,10 @@
 };
 
 &pwm3 {
+<<<<<<< HEAD
+=======
+	#pwm-cells = <2>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm3>;
 	status = "okay";
@@ -310,7 +352,11 @@
 };
 
 &iomuxc {
+<<<<<<< HEAD
 	pinctrl_audmux: audmux {
+=======
+	pinctrl_audmux: audmuxgrp {
+>>>>>>> upstream/android-13
 		fsl,pins = <
 			MX6QDL_PAD_DISP0_DAT20__AUD4_TXC  0x130b0
 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD  0x110b0
@@ -349,7 +395,11 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	pinctrl_gpmi_nand: gpmi-nand {
+=======
+	pinctrl_gpmi_nand: gpminandgrp {
+>>>>>>> upstream/android-13
 		fsl,pins = <
 			MX6QDL_PAD_NANDF_CLE__NAND_CLE     0xb0b1
 			MX6QDL_PAD_NANDF_ALE__NAND_ALE     0xb0b1
@@ -415,7 +465,11 @@
 
 	pinctrl_usbotg: usbotggrp {
 		fsl,pins = <
+<<<<<<< HEAD
 			MX6QDL_PAD_GPIO_1__USB_OTG_ID 0x17059
+=======
+			MX6QDL_PAD_ENET_RX_ER__USB_OTG_ID 0x17059
+>>>>>>> upstream/android-13
 		>;
 	};
 
@@ -427,6 +481,10 @@
 			MX6QDL_PAD_SD1_DAT1__SD1_DATA1 0x17070
 			MX6QDL_PAD_SD1_DAT2__SD1_DATA2 0x17070
 			MX6QDL_PAD_SD1_DAT3__SD1_DATA3 0x17070
+<<<<<<< HEAD
+=======
+			MX6QDL_PAD_GPIO_1__GPIO1_IO01  0x1b0b0
+>>>>>>> upstream/android-13
 		>;
 	};
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,17 +13,29 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifdef CONFIG_COMPAT
 #define __ARCH_WANT_COMPAT_STAT64
 #define __ARCH_WANT_SYS_GETHOSTNAME
 #define __ARCH_WANT_SYS_PAUSE
 #define __ARCH_WANT_SYS_GETPGRP
+<<<<<<< HEAD
 #define __ARCH_WANT_SYS_LLSEEK
+=======
+>>>>>>> upstream/android-13
 #define __ARCH_WANT_SYS_NICE
 #define __ARCH_WANT_SYS_SIGPENDING
 #define __ARCH_WANT_SYS_SIGPROCMASK
 #define __ARCH_WANT_COMPAT_SYS_SENDFILE
+<<<<<<< HEAD
+=======
+#define __ARCH_WANT_SYS_UTIME32
+>>>>>>> upstream/android-13
 #define __ARCH_WANT_SYS_FORK
 #define __ARCH_WANT_SYS_VFORK
 
@@ -49,7 +62,11 @@
 #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE + 5)
 #define __ARM_NR_COMPAT_END		(__ARM_NR_COMPAT_BASE + 0x800)
 
+<<<<<<< HEAD
 #define __NR_compat_syscalls		435
+=======
+#define __NR_compat_syscalls		449
+>>>>>>> upstream/android-13
 #endif
 
 #define __ARCH_WANT_SYS_CLONE

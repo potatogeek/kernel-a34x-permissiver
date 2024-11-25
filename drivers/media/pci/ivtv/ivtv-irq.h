@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
     interrupt handling
     Copyright (C) 2003-2004  Kevin Thayer <nufan_wfk at yahoo.com>
     Copyright (C) 2004  Chris Kennedy <c@groovy.org>
     Copyright (C) 2005-2007  Hans Verkuil <hverkuil@xs4all.nl>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -17,11 +22,14 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef IVTV_IRQ_H
 #define IVTV_IRQ_H
 
+<<<<<<< HEAD
 #define IVTV_IRQ_ENC_START_CAP		(0x1 << 31)
 #define IVTV_IRQ_ENC_EOS		(0x1 << 30)
 #define IVTV_IRQ_ENC_VBI_CAP		(0x1 << 29)
@@ -36,6 +44,22 @@
 #define IVTV_IRQ_DMA_WRITE		(0x1 << 17)
 #define IVTV_IRQ_DMA_READ		(0x1 << 16)
 #define IVTV_IRQ_DEC_VSYNC		(0x1 << 10)
+=======
+#define IVTV_IRQ_ENC_START_CAP		BIT(31)
+#define IVTV_IRQ_ENC_EOS		BIT(30)
+#define IVTV_IRQ_ENC_VBI_CAP		BIT(29)
+#define IVTV_IRQ_ENC_VIM_RST		BIT(28)
+#define IVTV_IRQ_ENC_DMA_COMPLETE	BIT(27)
+#define IVTV_IRQ_ENC_PIO_COMPLETE	BIT(25)
+#define IVTV_IRQ_DEC_AUD_MODE_CHG	BIT(24)
+#define IVTV_IRQ_DEC_DATA_REQ		BIT(22)
+#define IVTV_IRQ_DEC_DMA_COMPLETE	BIT(20)
+#define IVTV_IRQ_DEC_VBI_RE_INSERT	BIT(19)
+#define IVTV_IRQ_DMA_ERR		BIT(18)
+#define IVTV_IRQ_DMA_WRITE		BIT(17)
+#define IVTV_IRQ_DMA_READ		BIT(16)
+#define IVTV_IRQ_DEC_VSYNC		BIT(10)
+>>>>>>> upstream/android-13
 
 /* IRQ Masks */
 #define IVTV_IRQ_MASK_INIT (IVTV_IRQ_DMA_ERR|IVTV_IRQ_ENC_DMA_COMPLETE|\

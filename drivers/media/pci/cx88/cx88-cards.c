@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * device driver for Conexant 2388x based TV cards
  * card-specific stuff.
  *
  * (c) 2003 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx88.h"
@@ -1790,6 +1797,44 @@ static const struct cx88_board cx88_boards[] = {
 		},
 		.mpeg           = CX88_MPEG_DVB,
 	},
+<<<<<<< HEAD
+=======
+	[CX88_BOARD_NOTONLYTV_LV3H] = {
+		.name           = "NotOnlyTV LV3H",
+		.tuner_type     = TUNER_XC2028,
+		.radio_type     = UNSET,
+		.tuner_addr     = 0x61,
+		.radio_addr     = ADDR_UNSET,
+		/* if gpio1:bit9 is enabled, DVB-T won't work */
+
+		.input          = { {
+			.type   = CX88_VMUX_TELEVISION,
+			.vmux   = 0,
+			.gpio0  = 0x0000,
+			.gpio1  = 0xa141,
+			.gpio2  = 0x0000,
+		}, {
+			.type   = CX88_VMUX_COMPOSITE1,
+			.vmux   = 1,
+			.gpio0  = 0x0000,
+			.gpio1  = 0xa161,
+			.gpio2  = 0x0000,
+		}, {
+			.type   = CX88_VMUX_SVIDEO,
+			.vmux   = 2,
+			.gpio0  = 0x0000,
+			.gpio1  = 0xa161,
+			.gpio2  = 0x0000,
+		} },
+		.radio = {
+			.type   = CX88_RADIO,
+			.gpio0  = 0x0000,
+			.gpio1  = 0xa141,
+			.gpio2  = 0x0000,
+		},
+		.mpeg           = CX88_MPEG_DVB,
+	},
+>>>>>>> upstream/android-13
 	[CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PRO] = {
 		.name           = "DViCO FusionHDTV DVB-T PRO",
 		.tuner_type     = TUNER_XC2028,
@@ -2663,6 +2708,10 @@ static const struct cx88_subid cx88_subids[] = {
 		.subdevice = 0x6f18,
 		.card      = CX88_BOARD_WINFAST_TV2000_XP_GLOBAL,
 	}, {
+<<<<<<< HEAD
+=======
+		/* Also NotOnlyTV LV3H (version 1.11 is silkscreened on the board) */
+>>>>>>> upstream/android-13
 		.subvendor = 0x14f1,
 		.subdevice = 0x8852,
 		.card      = CX88_BOARD_GENIATECH_X8000_MT,
@@ -3130,6 +3179,10 @@ static int cx88_xc2028_tuner_callback(struct cx88_core *core,
 	case CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PRO:
 	case CX88_BOARD_DVICO_FUSIONHDTV_5_PCI_NANO:
 		return cx88_dvico_xc2028_callback(core, command, arg);
+<<<<<<< HEAD
+=======
+	case CX88_BOARD_NOTONLYTV_LV3H:
+>>>>>>> upstream/android-13
 	case CX88_BOARD_WINFAST_TV2000_XP_GLOBAL:
 	case CX88_BOARD_WINFAST_DTV1800H:
 		return cx88_xc3028_winfast1800h_callback(core, command, arg);
@@ -3178,7 +3231,11 @@ static int cx88_xc4000_tuner_callback(struct cx88_core *core,
 
 /*
  * Tuner callback function. Currently only needed for the Pinnacle
+<<<<<<< HEAD
  * PCTV HD 800i with an xc5000 sillicon tuner. This is used for both
+=======
+ * PCTV HD 800i with an xc5000 silicon tuner. This is used for both
+>>>>>>> upstream/android-13
  * analog tuner attach (tuner-core.c) and dvb tuner attach (cx88-dvb.c)
  */
 static int cx88_xc5000_tuner_callback(struct cx88_core *core,
@@ -3331,6 +3388,10 @@ static void cx88_card_setup_pre_i2c(struct cx88_core *core)
 		udelay(1000);
 		break;
 
+<<<<<<< HEAD
+=======
+	case CX88_BOARD_NOTONLYTV_LV3H:
+>>>>>>> upstream/android-13
 	case CX88_BOARD_WINFAST_TV2000_XP_GLOBAL:
 	case CX88_BOARD_WINFAST_DTV1800H:
 		cx88_xc3028_winfast1800h_callback(core, XC2028_TUNER_RESET, 0);
@@ -3387,6 +3448,14 @@ void cx88_setup_xc3028(struct cx88_core *core, struct xc2028_ctrl *ctl)
 		 */
 		ctl->disable_power_mgmt = 1;
 		break;
+<<<<<<< HEAD
+=======
+	case CX88_BOARD_NOTONLYTV_LV3H:
+		ctl->demod			= XC3028_FE_ZARLINK456;
+		ctl->fname			= XC3028L_DEFAULT_FIRMWARE;
+		ctl->read_not_reliable	= 1;
+		break;
+>>>>>>> upstream/android-13
 	case CX88_BOARD_WINFAST_TV2000_XP_GLOBAL:
 	case CX88_BOARD_PROLINK_PV_GLOBAL_XTREME:
 	case CX88_BOARD_PROLINK_PV_8000GT:
@@ -3465,7 +3534,11 @@ static void cx88_card_setup(struct cx88_core *core)
 		cx_clear(MO_GP0_IO, 0x00000040);
 		msleep(1000);
 		cx_set(MO_GP0_IO, 0x00004040);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CX88_BOARD_DVICO_FUSIONHDTV_DVB_T1:
 	case CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS:
 	case CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_HYBRID:
@@ -3693,7 +3766,11 @@ struct cx88_core *cx88_core_create(struct pci_dev *pci, int nr)
 	core->height  = 240;
 	core->field   = V4L2_FIELD_INTERLACED;
 
+<<<<<<< HEAD
 	strcpy(core->v4l2_dev.name, core->name);
+=======
+	strscpy(core->v4l2_dev.name, core->name, sizeof(core->v4l2_dev.name));
+>>>>>>> upstream/android-13
 	if (v4l2_device_register(NULL, &core->v4l2_dev)) {
 		kfree(core);
 		return NULL;

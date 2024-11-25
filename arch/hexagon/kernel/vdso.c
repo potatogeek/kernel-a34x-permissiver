@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * vDSO implementation for Hexagon
  *
  * Copyright (c) 2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -65,7 +72,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	unsigned long vdso_base;
 	struct mm_struct *mm = current->mm;
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem))
+=======
+	if (mmap_write_lock_killable(mm))
+>>>>>>> upstream/android-13
 		return -EINTR;
 
 	/* Try to get it loaded right near ld.so/glibc. */
@@ -89,7 +100,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	mm->context.vdso = (void *)vdso_base;
 
 up_fail:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

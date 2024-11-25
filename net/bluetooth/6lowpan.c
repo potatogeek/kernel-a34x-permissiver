@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
    Copyright (c) 2013-2014 Intel Corp.
 
@@ -9,6 +10,12 @@
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+   Copyright (c) 2013-2014 Intel Corp.
+
+>>>>>>> upstream/android-13
 */
 
 #include <linux/if_arp.h>
@@ -110,6 +117,7 @@ static inline bool peer_del(struct lowpan_btle_dev *dev,
 	return false;
 }
 
+<<<<<<< HEAD
 static inline struct lowpan_peer *peer_lookup_ba(struct lowpan_btle_dev *dev,
 						 bdaddr_t *ba, __u8 type)
 {
@@ -138,6 +146,8 @@ static inline struct lowpan_peer *peer_lookup_ba(struct lowpan_btle_dev *dev,
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct lowpan_peer *
 __peer_lookup_chan(struct lowpan_btle_dev *dev, struct l2cap_chan *chan)
 {
@@ -168,6 +178,7 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
 						  struct in6_addr *daddr,
 						  struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct lowpan_peer *peer;
 	struct in6_addr *nexthop;
 	struct rt6_info *rt = (struct rt6_info *)skb_dst(skb);
@@ -187,6 +198,16 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
 		return peer;
 	}
 
+=======
+	struct rt6_info *rt = (struct rt6_info *)skb_dst(skb);
+	int count = atomic_read(&dev->peer_count);
+	const struct in6_addr *nexthop;
+	struct lowpan_peer *peer;
+	struct neighbour *neigh;
+
+	BT_DBG("peers %d addr %pI6c rt %p", count, daddr, rt);
+
+>>>>>>> upstream/android-13
 	if (!rt) {
 		if (ipv6_addr_any(&lowpan_cb(skb)->gw)) {
 			/* There is neither route nor gateway,
@@ -213,7 +234,11 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
 	rcu_read_lock();
 
 	list_for_each_entry_rcu(peer, &dev->peers, list) {
+<<<<<<< HEAD
 		BT_DBG("dst addr %pMR dst type %d ip %pI6c",
+=======
+		BT_DBG("dst addr %pMR dst type %u ip %pI6c",
+>>>>>>> upstream/android-13
 		       &peer->chan->dst, peer->chan->dst_type,
 		       &peer->peer_addr);
 
@@ -223,6 +248,22 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	/* use the neighbour cache for matching addresses assigned by SLAAC */
+	neigh = __ipv6_neigh_lookup(dev->netdev, nexthop);
+	if (neigh) {
+		list_for_each_entry_rcu(peer, &dev->peers, list) {
+			if (!memcmp(neigh->ha, peer->lladdr, ETH_ALEN)) {
+				neigh_release(neigh);
+				rcu_read_unlock();
+				return peer;
+			}
+		}
+		neigh_release(neigh);
+	}
+
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	return NULL;
@@ -474,7 +515,11 @@ static int send_pkt(struct l2cap_chan *chan, struct sk_buff *skb,
 	iv.iov_len = skb->len;
 
 	memset(&msg, 0, sizeof(msg));
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, WRITE | ITER_KVEC, &iv, 1, skb->len);
+=======
+	iov_iter_kvec(&msg.msg_iter, WRITE, &iv, 1, skb->len);
+>>>>>>> upstream/android-13
 
 	err = l2cap_chan_send(chan, &msg, skb->len);
 	if (err > 0) {
@@ -511,7 +556,11 @@ static int send_mcast_pkt(struct sk_buff *skb, struct net_device *netdev)
 
 			local_skb = skb_clone(skb, GFP_ATOMIC);
 
+<<<<<<< HEAD
 			BT_DBG("xmit %s to %pMR type %d IP %pI6c chan %p",
+=======
+			BT_DBG("xmit %s to %pMR type %u IP %pI6c chan %p",
+>>>>>>> upstream/android-13
 			       netdev->name,
 			       &pentry->chan->dst, pentry->chan->dst_type,
 			       &pentry->peer_addr, pentry->chan);
@@ -554,7 +603,11 @@ static netdev_tx_t bt_xmit(struct sk_buff *skb, struct net_device *netdev)
 
 	if (err) {
 		if (lowpan_cb(skb)->chan) {
+<<<<<<< HEAD
 			BT_DBG("xmit %s to %pMR type %d IP %pI6c chan %p",
+=======
+			BT_DBG("xmit %s to %pMR type %u IP %pI6c chan %p",
+>>>>>>> upstream/android-13
 			       netdev->name, &addr, addr_type,
 			       &lowpan_cb(skb)->addr, lowpan_cb(skb)->chan);
 			err = send_pkt(lowpan_cb(skb)->chan, skb, netdev);
@@ -588,7 +641,11 @@ static const struct net_device_ops netdev_ops = {
 	.ndo_start_xmit		= bt_xmit,
 };
 
+<<<<<<< HEAD
 static struct header_ops header_ops = {
+=======
+static const struct header_ops header_ops = {
+>>>>>>> upstream/android-13
 	.create	= header_create,
 };
 
@@ -614,7 +671,11 @@ static void ifup(struct net_device *netdev)
 	int err;
 
 	rtnl_lock();
+<<<<<<< HEAD
 	err = dev_open(netdev);
+=======
+	err = dev_open(netdev, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		BT_INFO("iface %s cannot be opened (%d)", netdev->name, err);
 	rtnl_unlock();
@@ -696,7 +757,11 @@ static struct l2cap_chan *add_peer_chan(struct l2cap_chan *chan,
 static int setup_netdev(struct l2cap_chan *chan, struct lowpan_btle_dev **dev)
 {
 	struct net_device *netdev;
+<<<<<<< HEAD
 	int err = 0;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	netdev = alloc_netdev(LOWPAN_PRIV_SIZE(sizeof(struct lowpan_btle_dev)),
 			      IFACE_NAME_TEMPLATE, NET_NAME_UNKNOWN,
@@ -823,7 +888,11 @@ static void chan_close_cb(struct l2cap_chan *chan)
 
 			BT_DBG("dev %p removing %speer %p", dev,
 			       last ? "last " : "1 ", peer);
+<<<<<<< HEAD
 			BT_DBG("chan %p orig refcnt %d", chan,
+=======
+			BT_DBG("chan %p orig refcnt %u", chan,
+>>>>>>> upstream/android-13
 			       kref_read(&chan->kref));
 
 			l2cap_chan_put(chan);
@@ -845,8 +914,11 @@ static void chan_close_cb(struct l2cap_chan *chan)
 	} else {
 		spin_unlock(&devices_lock);
 	}
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void chan_state_change_cb(struct l2cap_chan *chan, int state, int err)
@@ -914,6 +986,7 @@ static const struct l2cap_ops bt_6lowpan_chan_ops = {
 	.set_shutdown		= l2cap_chan_no_set_shutdown,
 };
 
+<<<<<<< HEAD
 static inline __u8 bdaddr_type(__u8 type)
 {
 	if (type == ADDR_LE_DEV_PUBLIC)
@@ -922,6 +995,8 @@ static inline __u8 bdaddr_type(__u8 type)
 		return BDADDR_LE_RANDOM;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int bt_6lowpan_connect(bdaddr_t *addr, u8 dst_type)
 {
 	struct l2cap_chan *chan;
@@ -947,7 +1022,11 @@ static int bt_6lowpan_disconnect(struct l2cap_conn *conn, u8 dst_type)
 {
 	struct lowpan_peer *peer;
 
+<<<<<<< HEAD
 	BT_DBG("conn %p dst type %d", conn, dst_type);
+=======
+	BT_DBG("conn %p dst type %u", conn, dst_type);
+>>>>>>> upstream/android-13
 
 	peer = lookup_peer(conn);
 	if (!peer)
@@ -979,7 +1058,11 @@ static struct l2cap_chan *bt_6lowpan_listen(void)
 
 	atomic_set(&chan->nesting, L2CAP_NESTING_PARENT);
 
+<<<<<<< HEAD
 	BT_DBG("chan %p src type %d", chan, chan->src_type);
+=======
+	BT_DBG("chan %p src type %u", chan, chan->src_type);
+>>>>>>> upstream/android-13
 
 	err = l2cap_add_psm(chan, addr, cpu_to_le16(L2CAP_PSM_IPSP));
 	if (err) {
@@ -1020,7 +1103,11 @@ static int get_l2cap_conn(char *buf, bdaddr_t *addr, u8 *addr_type,
 
 	*conn = (struct l2cap_conn *)hcon->l2cap_data;
 
+<<<<<<< HEAD
 	BT_DBG("conn %p dst %pMR type %d", *conn, &hcon->dst, hcon->dst_type);
+=======
+	BT_DBG("conn %p dst %pMR type %u", *conn, &hcon->dst, hcon->dst_type);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1117,8 +1204,13 @@ static int lowpan_enable_get(void *data, u64 *val)
 	return 0;
 }
 
+<<<<<<< HEAD
 DEFINE_SIMPLE_ATTRIBUTE(lowpan_enable_fops, lowpan_enable_get,
 			lowpan_enable_set, "%llu\n");
+=======
+DEFINE_DEBUGFS_ATTRIBUTE(lowpan_enable_fops, lowpan_enable_get,
+			 lowpan_enable_set, "%llu\n");
+>>>>>>> upstream/android-13
 
 static ssize_t lowpan_control_write(struct file *fp,
 				    const char __user *user_buffer,
@@ -1162,7 +1254,11 @@ static ssize_t lowpan_control_write(struct file *fp,
 				return -EALREADY;
 			}
 
+<<<<<<< HEAD
 			BT_DBG("conn %p dst %pMR type %d user %d", conn,
+=======
+			BT_DBG("conn %p dst %pMR type %d user %u", conn,
+>>>>>>> upstream/android-13
 			       &conn->hcon->dst, conn->hcon->dst_type,
 			       addr_type);
 		}
@@ -1289,9 +1385,16 @@ static struct notifier_block bt_6lowpan_dev_notifier = {
 
 static int __init bt_6lowpan_init(void)
 {
+<<<<<<< HEAD
 	lowpan_enable_debugfs = debugfs_create_file("6lowpan_enable", 0644,
 						    bt_debugfs, NULL,
 						    &lowpan_enable_fops);
+=======
+	lowpan_enable_debugfs = debugfs_create_file_unsafe("6lowpan_enable",
+							   0644, bt_debugfs,
+							   NULL,
+							   &lowpan_enable_fops);
+>>>>>>> upstream/android-13
 	lowpan_control_debugfs = debugfs_create_file("6lowpan_control", 0644,
 						     bt_debugfs, NULL,
 						     &lowpan_control_fops);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * isph3a.c
  *
@@ -9,10 +13,13 @@
  * Contacts: David Cohen <dacohen@gmail.com>
  *	     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  *	     Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -291,9 +298,16 @@ int omap3isp_h3a_aewb_init(struct isp_device *isp)
 {
 	struct ispstat *aewb = &isp->isp_aewb;
 	struct omap3isp_h3a_aewb_config *aewb_cfg;
+<<<<<<< HEAD
 	struct omap3isp_h3a_aewb_config *aewb_recover_cfg;
 
 	aewb_cfg = devm_kzalloc(isp->dev, sizeof(*aewb_cfg), GFP_KERNEL);
+=======
+	struct omap3isp_h3a_aewb_config *aewb_recover_cfg = NULL;
+	int ret;
+
+	aewb_cfg = kzalloc(sizeof(*aewb_cfg), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!aewb_cfg)
 		return -ENOMEM;
 
@@ -303,12 +317,21 @@ int omap3isp_h3a_aewb_init(struct isp_device *isp)
 	aewb->isp = isp;
 
 	/* Set recover state configuration */
+<<<<<<< HEAD
 	aewb_recover_cfg = devm_kzalloc(isp->dev, sizeof(*aewb_recover_cfg),
 					GFP_KERNEL);
 	if (!aewb_recover_cfg) {
 		dev_err(aewb->isp->dev,
 			"AEWB: cannot allocate memory for recover configuration.\n");
 		return -ENOMEM;
+=======
+	aewb_recover_cfg = kzalloc(sizeof(*aewb_recover_cfg), GFP_KERNEL);
+	if (!aewb_recover_cfg) {
+		dev_err(aewb->isp->dev,
+			"AEWB: cannot allocate memory for recover configuration.\n");
+		ret = -ENOMEM;
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	aewb_recover_cfg->saturation_limit = OMAP3ISP_AEWB_MAX_SATURATION_LIM;
@@ -325,13 +348,30 @@ int omap3isp_h3a_aewb_init(struct isp_device *isp)
 	if (h3a_aewb_validate_params(aewb, aewb_recover_cfg)) {
 		dev_err(aewb->isp->dev,
 			"AEWB: recover configuration is invalid.\n");
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto err;
+>>>>>>> upstream/android-13
 	}
 
 	aewb_recover_cfg->buf_size = h3a_aewb_get_buf_size(aewb_recover_cfg);
 	aewb->recover_priv = aewb_recover_cfg;
 
+<<<<<<< HEAD
 	return omap3isp_stat_init(aewb, "AEWB", &h3a_aewb_subdev_ops);
+=======
+	ret = omap3isp_stat_init(aewb, "AEWB", &h3a_aewb_subdev_ops);
+
+err:
+	if (ret) {
+		kfree(aewb_cfg);
+		kfree(aewb_recover_cfg);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*

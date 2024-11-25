@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -22,6 +26,7 @@
 #include <linux/gfp.h>
 #include <net/tcp.h>
 
+<<<<<<< HEAD
 static u32 tcp_retransmit_stamp(const struct sock *sk)
 {
 	u32 start_ts = tcp_sk(sk)->retrans_stamp;
@@ -36,10 +41,13 @@ static u32 tcp_retransmit_stamp(const struct sock *sk)
 	return start_ts;
 }
 
+=======
+>>>>>>> upstream/android-13
 static u32 tcp_clamp_rto_to_user_timeout(const struct sock *sk)
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	u32 elapsed, start_ts;
+<<<<<<< HEAD
 
 	start_ts = tcp_retransmit_stamp(sk);
 	if (!icsk->icsk_user_timeout || !start_ts)
@@ -49,6 +57,37 @@ static u32 tcp_clamp_rto_to_user_timeout(const struct sock *sk)
 		return 1; /* user timeout has passed; fire ASAP */
 	else
 		return min_t(u32, icsk->icsk_rto, msecs_to_jiffies(icsk->icsk_user_timeout - elapsed));
+=======
+	s32 remaining;
+
+	start_ts = tcp_sk(sk)->retrans_stamp;
+	if (!icsk->icsk_user_timeout)
+		return icsk->icsk_rto;
+	elapsed = tcp_time_stamp(tcp_sk(sk)) - start_ts;
+	remaining = icsk->icsk_user_timeout - elapsed;
+	if (remaining <= 0)
+		return 1; /* user timeout has passed; fire ASAP */
+
+	return min_t(u32, icsk->icsk_rto, msecs_to_jiffies(remaining));
+}
+
+u32 tcp_clamp_probe0_to_user_timeout(const struct sock *sk, u32 when)
+{
+	struct inet_connection_sock *icsk = inet_csk(sk);
+	u32 remaining;
+	s32 elapsed;
+
+	if (!icsk->icsk_user_timeout || !icsk->icsk_probes_tstamp)
+		return when;
+
+	elapsed = tcp_jiffies32 - icsk->icsk_probes_tstamp;
+	if (unlikely(elapsed < 0))
+		elapsed = 0;
+	remaining = msecs_to_jiffies(icsk->icsk_user_timeout) - elapsed;
+	remaining = max_t(u32, remaining, TCP_TIMEOUT_MIN);
+
+	return min_t(u32, remaining, when);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -61,7 +100,11 @@ static u32 tcp_clamp_rto_to_user_timeout(const struct sock *sk)
 static void tcp_write_err(struct sock *sk)
 {
 	sk->sk_err = sk->sk_err_soft ? : ETIMEDOUT;
+<<<<<<< HEAD
 	sk->sk_error_report(sk);
+=======
+	sk_error_report(sk);
+>>>>>>> upstream/android-13
 
 	tcp_write_queue_purge(sk);
 	tcp_done(sk);
@@ -165,14 +208,35 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
 	} else {
 		mss = tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_low) >> 1;
 		mss = min(net->ipv4.sysctl_tcp_base_mss, mss);
+<<<<<<< HEAD
 		mss = max(mss, 68 - tcp_sk(sk)->tcp_header_len);
+=======
+		mss = max(mss, net->ipv4.sysctl_tcp_mtu_probe_floor);
+>>>>>>> upstream/android-13
 		mss = max(mss, net->ipv4.sysctl_tcp_min_snd_mss);
 		icsk->icsk_mtup.search_low = tcp_mss_to_mtu(sk, mss);
 	}
 	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
 }
 
+<<<<<<< HEAD
 
+=======
+static unsigned int tcp_model_timeout(struct sock *sk,
+				      unsigned int boundary,
+				      unsigned int rto_base)
+{
+	unsigned int linear_backoff_thresh, timeout;
+
+	linear_backoff_thresh = ilog2(TCP_RTO_MAX / rto_base);
+	if (boundary <= linear_backoff_thresh)
+		timeout = ((2 << boundary) - 1) * rto_base;
+	else
+		timeout = ((2 << linear_backoff_thresh) - 1) * rto_base +
+			(boundary - linear_backoff_thresh) * TCP_RTO_MAX;
+	return jiffies_to_msecs(timeout);
+}
+>>>>>>> upstream/android-13
 /**
  *  retransmits_timed_out() - returns true if this connection has timed out
  *  @sk:       The current socket
@@ -190,12 +254,17 @@ static bool retransmits_timed_out(struct sock *sk,
 				  unsigned int boundary,
 				  unsigned int timeout)
 {
+<<<<<<< HEAD
 	const unsigned int rto_base = TCP_RTO_MIN;
 	unsigned int linear_backoff_thresh, start_ts;
+=======
+	unsigned int start_ts;
+>>>>>>> upstream/android-13
 
 	if (!inet_csk(sk)->icsk_retransmits)
 		return false;
 
+<<<<<<< HEAD
 	start_ts = tcp_retransmit_stamp(sk);
 	if (!start_ts)
 		return false;
@@ -211,6 +280,18 @@ static bool retransmits_timed_out(struct sock *sk,
 		timeout = jiffies_to_msecs(timeout);
 	}
 	return (tcp_time_stamp(tcp_sk(sk)) - start_ts) >= timeout;
+=======
+	start_ts = tcp_sk(sk)->retrans_stamp;
+	if (likely(timeout == 0)) {
+		unsigned int rto_base = TCP_RTO_MIN;
+
+		if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV))
+			rto_base = tcp_timeout_init(sk);
+		timeout = tcp_model_timeout(sk, boundary, rto_base);
+	}
+
+	return (s32)(tcp_time_stamp(tcp_sk(sk)) - start_ts - timeout) >= 0;
+>>>>>>> upstream/android-13
 }
 
 /* A write timeout has occurred. Process the after effects. */
@@ -223,11 +304,16 @@ static int tcp_write_timeout(struct sock *sk)
 	int retry_until;
 
 	if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV)) {
+<<<<<<< HEAD
 		if (icsk->icsk_retransmits) {
 			dst_negative_advice(sk);
 		} else {
 			sk_rethink_txhash(sk);
 		}
+=======
+		if (icsk->icsk_retransmits)
+			__dst_negative_advice(sk);
+>>>>>>> upstream/android-13
 		retry_until = icsk->icsk_syn_retries ? : net->ipv4.sysctl_tcp_syn_retries;
 		expired = icsk->icsk_retransmits >= retry_until;
 	} else {
@@ -235,9 +321,13 @@ static int tcp_write_timeout(struct sock *sk)
 			/* Black hole detection */
 			tcp_mtu_probing(icsk, sk);
 
+<<<<<<< HEAD
 			dst_negative_advice(sk);
 		} else {
 			sk_rethink_txhash(sk);
+=======
+			__dst_negative_advice(sk);
+>>>>>>> upstream/android-13
 		}
 
 		retry_until = net->ipv4.sysctl_tcp_retries2;
@@ -268,6 +358,14 @@ static int tcp_write_timeout(struct sock *sk)
 		return 1;
 	}
 
+<<<<<<< HEAD
+=======
+	if (sk_rethink_txhash(sk)) {
+		tp->timeout_rehash++;
+		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPTIMEOUTREHASH);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -289,14 +387,22 @@ void tcp_delack_timer_handler(struct sock *sk)
 	icsk->icsk_ack.pending &= ~ICSK_ACK_TIMER;
 
 	if (inet_csk_ack_scheduled(sk)) {
+<<<<<<< HEAD
 		if (!icsk->icsk_ack.pingpong) {
+=======
+		if (!inet_csk_in_pingpong_mode(sk)) {
+>>>>>>> upstream/android-13
 			/* Delayed ACK missed: inflate ATO. */
 			icsk->icsk_ack.ato = min(icsk->icsk_ack.ato << 1, icsk->icsk_rto);
 		} else {
 			/* Delayed ACK missed: leave pingpong mode and
 			 * deflate ATO.
 			 */
+<<<<<<< HEAD
 			icsk->icsk_ack.pingpong = 0;
+=======
+			inet_csk_exit_pingpong_mode(sk);
+>>>>>>> upstream/android-13
 			icsk->icsk_ack.ato      = TCP_ATO_MIN;
 		}
 		tcp_mstamp_refresh(tcp_sk(sk));
@@ -312,7 +418,11 @@ out:
 
 /**
  *  tcp_delack_timer() - The TCP delayed ACK timeout handler
+<<<<<<< HEAD
  *  @data:  Pointer to the current socket. (gets casted to struct sock *)
+=======
+ *  @t:  Pointer to the timer. (gets casted to struct sock *)
+>>>>>>> upstream/android-13
  *
  *  This function gets (indirectly) called when the kernel timer for a TCP packet
  *  of this socket expires. Calls tcp_delack_timer_handler() to do the actual work.
@@ -329,7 +439,10 @@ static void tcp_delack_timer(struct timer_list *t)
 	if (!sock_owned_by_user(sk)) {
 		tcp_delack_timer_handler(sk);
 	} else {
+<<<<<<< HEAD
 		icsk->icsk_ack.blocked = 1;
+=======
+>>>>>>> upstream/android-13
 		__NET_INC_STATS(sock_net(sk), LINUX_MIB_DELAYEDACKLOCKED);
 		/* deleguate our work to tcp_release_cb() */
 		if (!test_and_set_bit(TCP_DELACK_TIMER_DEFERRED, &sk->sk_tsq_flags))
@@ -345,10 +458,17 @@ static void tcp_probe_timer(struct sock *sk)
 	struct sk_buff *skb = tcp_send_head(sk);
 	struct tcp_sock *tp = tcp_sk(sk);
 	int max_probes;
+<<<<<<< HEAD
 	u32 start_ts;
 
 	if (tp->packets_out || !skb) {
 		icsk->icsk_probes_out = 0;
+=======
+
+	if (tp->packets_out || !skb) {
+		icsk->icsk_probes_out = 0;
+		icsk->icsk_probes_tstamp = 0;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -360,11 +480,19 @@ static void tcp_probe_timer(struct sock *sk)
 	 * corresponding system limit. We also implement similar policy when
 	 * we use RTO to probe window in tcp_retransmit_timer().
 	 */
+<<<<<<< HEAD
 	start_ts = tcp_skb_timestamp(skb);
 	if (!start_ts)
 		skb->skb_mstamp = tp->tcp_mstamp;
 	else if (icsk->icsk_user_timeout &&
 		 (s32)(tcp_time_stamp(tp) - start_ts) > icsk->icsk_user_timeout)
+=======
+	if (!icsk->icsk_probes_tstamp)
+		icsk->icsk_probes_tstamp = tcp_jiffies32;
+	else if (icsk->icsk_user_timeout &&
+		 (s32)(tcp_jiffies32 - icsk->icsk_probes_tstamp) >=
+		 msecs_to_jiffies(icsk->icsk_user_timeout))
+>>>>>>> upstream/android-13
 		goto abort;
 
 	max_probes = sock_net(sk)->ipv4.sysctl_tcp_retries2;
@@ -390,20 +518,35 @@ abort:		tcp_write_err(sk);
  *	Timer for Fast Open socket to retransmit SYNACK. Note that the
  *	sk here is the child socket, not the parent (listener) socket.
  */
+<<<<<<< HEAD
 static void tcp_fastopen_synack_timer(struct sock *sk)
+=======
+static void tcp_fastopen_synack_timer(struct sock *sk, struct request_sock *req)
+>>>>>>> upstream/android-13
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
 	int max_retries = icsk->icsk_syn_retries ? :
 	    sock_net(sk)->ipv4.sysctl_tcp_synack_retries + 1; /* add one more retry for fastopen */
+<<<<<<< HEAD
 	struct request_sock *req;
 
 	req = tcp_sk(sk)->fastopen_rsk;
+=======
+	struct tcp_sock *tp = tcp_sk(sk);
+
+>>>>>>> upstream/android-13
 	req->rsk_ops->syn_ack_timeout(req);
 
 	if (req->num_timeout >= max_retries) {
 		tcp_write_err(sk);
 		return;
 	}
+<<<<<<< HEAD
+=======
+	/* Lower cwnd after certain SYNACK timeout like tcp_init_transfer() */
+	if (icsk->icsk_retransmits == 1)
+		tcp_enter_loss(sk);
+>>>>>>> upstream/android-13
 	/* XXX (TFO) - Unlike regular SYN-ACK retransmit, we ignore error
 	 * returned from rtx_syn_ack() to make it more persistent like
 	 * regular retransmit because if the child socket has been accepted
@@ -412,6 +555,11 @@ static void tcp_fastopen_synack_timer(struct sock *sk)
 	inet_rtx_syn_ack(sk, req);
 	req->num_timeout++;
 	icsk->icsk_retransmits++;
+<<<<<<< HEAD
+=======
+	if (!tp->retrans_stamp)
+		tp->retrans_stamp = tcp_time_stamp(tp);
+>>>>>>> upstream/android-13
 	inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
 			  TCP_TIMEOUT_INIT << req->num_timeout, TCP_RTO_MAX);
 }
@@ -424,7 +572,11 @@ static void tcp_fastopen_synack_timer(struct sock *sk)
  *  This function gets called when the kernel timer for a TCP packet
  *  of this socket expires.
  *
+<<<<<<< HEAD
  *  It handles retransmission, timer adjustment and other necesarry measures.
+=======
+ *  It handles retransmission, timer adjustment and other necessary measures.
+>>>>>>> upstream/android-13
  *
  *  Returns: Nothing (void)
  */
@@ -433,17 +585,38 @@ void tcp_retransmit_timer(struct sock *sk)
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct net *net = sock_net(sk);
 	struct inet_connection_sock *icsk = inet_csk(sk);
+<<<<<<< HEAD
 
 	if (tp->fastopen_rsk) {
 		WARN_ON_ONCE(sk->sk_state != TCP_SYN_RECV &&
 			     sk->sk_state != TCP_FIN_WAIT1);
 		tcp_fastopen_synack_timer(sk);
+=======
+	struct request_sock *req;
+	struct sk_buff *skb;
+
+	req = rcu_dereference_protected(tp->fastopen_rsk,
+					lockdep_sock_is_held(sk));
+	if (req) {
+		WARN_ON_ONCE(sk->sk_state != TCP_SYN_RECV &&
+			     sk->sk_state != TCP_FIN_WAIT1);
+		tcp_fastopen_synack_timer(sk, req);
+>>>>>>> upstream/android-13
 		/* Before we receive ACK to our SYN-ACK don't retransmit
 		 * anything else (e.g., data or FIN segments).
 		 */
 		return;
 	}
+<<<<<<< HEAD
 	if (!tp->packets_out || WARN_ON_ONCE(tcp_rtx_queue_empty(sk)))
+=======
+
+	if (!tp->packets_out)
+		return;
+
+	skb = tcp_rtx_queue_head(sk);
+	if (WARN_ON_ONCE(!skb))
+>>>>>>> upstream/android-13
 		return;
 
 	tp->tlp_high_seq = 0;
@@ -477,7 +650,11 @@ void tcp_retransmit_timer(struct sock *sk)
 			goto out;
 		}
 		tcp_enter_loss(sk);
+<<<<<<< HEAD
 		tcp_retransmit_skb(sk, tcp_rtx_queue_head(sk), 1);
+=======
+		tcp_retransmit_skb(sk, skb, 1);
+>>>>>>> upstream/android-13
 		__sk_dst_reset(sk);
 		goto out_reset_timer;
 	}
@@ -509,6 +686,7 @@ void tcp_retransmit_timer(struct sock *sk)
 
 	tcp_enter_loss(sk);
 
+<<<<<<< HEAD
 	if (tcp_retransmit_skb(sk, tcp_rtx_queue_head(sk), 1) > 0) {
 		/* Retransmission failed because of local congestion,
 		 * do not backoff.
@@ -517,6 +695,15 @@ void tcp_retransmit_timer(struct sock *sk)
 			icsk->icsk_retransmits = 1;
 		inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
 					  min(icsk->icsk_rto, TCP_RESOURCE_PROBE_INTERVAL),
+=======
+	icsk->icsk_retransmits++;
+	if (tcp_retransmit_skb(sk, tcp_rtx_queue_head(sk), 1) > 0) {
+		/* Retransmission failed because of local congestion,
+		 * Let senders fight for local resources conservatively.
+		 */
+		inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
+					  TCP_RESOURCE_PROBE_INTERVAL,
+>>>>>>> upstream/android-13
 					  TCP_RTO_MAX);
 		goto out;
 	}
@@ -537,7 +724,10 @@ void tcp_retransmit_timer(struct sock *sk)
 	 * the 120 second clamps though!
 	 */
 	icsk->icsk_backoff++;
+<<<<<<< HEAD
 	icsk->icsk_retransmits++;
+=======
+>>>>>>> upstream/android-13
 
 out_reset_timer:
 	/* If stream is thin, use linear timeouts. Since 'icsk_backoff' is
@@ -740,8 +930,19 @@ static enum hrtimer_restart tcp_compressed_ack_kick(struct hrtimer *timer)
 
 	bh_lock_sock(sk);
 	if (!sock_owned_by_user(sk)) {
+<<<<<<< HEAD
 		if (tp->compressed_ack > TCP_FASTRETRANS_THRESH)
 			tcp_send_ack(sk);
+=======
+		if (tp->compressed_ack) {
+			/* Since we have to send one ack finally,
+			 * subtract one from tp->compressed_ack to keep
+			 * LINUX_MIB_TCPACKCOMPRESSED accurate.
+			 */
+			tp->compressed_ack--;
+			tcp_send_ack(sk);
+		}
+>>>>>>> upstream/android-13
 	} else {
 		if (!test_and_set_bit(TCP_DELACK_TIMER_DEFERRED,
 				      &sk->sk_tsq_flags))

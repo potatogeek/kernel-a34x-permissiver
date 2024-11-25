@@ -4,7 +4,11 @@ Clock control registers reside in different Hi6220 system controllers,
 please refer the following document to know more about the binding rules
 for these system controllers:
 
+<<<<<<< HEAD
 Documentation/devicetree/bindings/arm/hisilicon/hisilicon.txt
+=======
+Documentation/devicetree/bindings/arm/hisilicon/hisilicon.yaml
+>>>>>>> upstream/android-13
 
 Required Properties:
 

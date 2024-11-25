@@ -19,13 +19,20 @@
 #include <linux/mm.h>
 #include <linux/nmi.h>
 #include <linux/swap.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 #include <linux/acpi.h>
 #include <linux/efi.h>
 #include <linux/nodemask.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+#include <asm/efi.h>
+>>>>>>> upstream/android-13
 #include <asm/tlb.h>
 #include <asm/meminit.h>
 #include <asm/numa.h>
@@ -181,13 +188,21 @@ static void *per_cpu_node_setup(void *cpu_data, int node)
 void __init setup_per_cpu_areas(void)
 {
 	struct pcpu_alloc_info *ai;
+<<<<<<< HEAD
 	struct pcpu_group_info *uninitialized_var(gi);
+=======
+	struct pcpu_group_info *gi;
+>>>>>>> upstream/android-13
 	unsigned int *cpu_map;
 	void *base;
 	unsigned long base_offset;
 	unsigned int cpu;
 	ssize_t static_size, reserved_size, dyn_size;
+<<<<<<< HEAD
 	int node, prev_node, unit, nr_units, rc;
+=======
+	int node, prev_node, unit, nr_units;
+>>>>>>> upstream/android-13
 
 	ai = pcpu_alloc_alloc_info(MAX_NUMNODES, nr_cpu_ids);
 	if (!ai)
@@ -228,7 +243,11 @@ void __init setup_per_cpu_areas(void)
 	 * CPUs are put into groups according to node.  Walk cpu_map
 	 * and create new groups at node boundaries.
 	 */
+<<<<<<< HEAD
 	prev_node = -1;
+=======
+	prev_node = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 	ai->nr_groups = 0;
 	for (unit = 0; unit < nr_units; unit++) {
 		cpu = cpu_map[unit];
@@ -246,10 +265,14 @@ void __init setup_per_cpu_areas(void)
 		gi->cpu_map		= &cpu_map[unit];
 	}
 
+<<<<<<< HEAD
 	rc = pcpu_setup_first_chunk(ai, base);
 	if (rc)
 		panic("failed to setup percpu area (err=%d)", rc);
 
+=======
+	pcpu_setup_first_chunk(ai, base);
+>>>>>>> upstream/android-13
 	pcpu_free_alloc_info(ai);
 }
 #endif
@@ -397,8 +420,12 @@ static void scatter_node_data(void)
  *
  * Each node's per-node area has a copy of the global pg_data_t list, so
  * we copy that to each node here, as well as setting the per-cpu pointer
+<<<<<<< HEAD
  * to the local node data structure.  The active_cpus field of the per-node
  * structure gets setup by the platform_cpu_init() function later.
+=======
+ * to the local node data structure.
+>>>>>>> upstream/android-13
  */
 static void __init initialize_pernode_data(void)
 {
@@ -436,7 +463,11 @@ static void __init *memory_less_node_alloc(int nid, unsigned long pernodesize)
 {
 	void *ptr = NULL;
 	u8 best = 0xff;
+<<<<<<< HEAD
 	int bestnode = -1, node, anynode = 0;
+=======
+	int bestnode = NUMA_NO_NODE, node, anynode = 0;
+>>>>>>> upstream/android-13
 
 	for_each_online_node(node) {
 		if (node_isset(node, memory_less_mask))
@@ -448,11 +479,25 @@ static void __init *memory_less_node_alloc(int nid, unsigned long pernodesize)
 		anynode = node;
 	}
 
+<<<<<<< HEAD
 	if (bestnode == -1)
 		bestnode = anynode;
 
 	ptr = __alloc_bootmem_node(pgdat_list[bestnode], pernodesize,
 		PERCPU_PAGE_SIZE, __pa(MAX_DMA_ADDRESS));
+=======
+	if (bestnode == NUMA_NO_NODE)
+		bestnode = anynode;
+
+	ptr = memblock_alloc_try_nid(pernodesize, PERCPU_PAGE_SIZE,
+				     __pa(MAX_DMA_ADDRESS),
+				     MEMBLOCK_ALLOC_ACCESSIBLE,
+				     bestnode);
+	if (!ptr)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx nid=%d from=%lx\n",
+		      __func__, pernodesize, PERCPU_PAGE_SIZE, bestnode,
+		      __pa(MAX_DMA_ADDRESS));
+>>>>>>> upstream/android-13
 
 	return ptr;
 }
@@ -593,13 +638,17 @@ void call_pernode_memory(unsigned long start, unsigned long len, void *arg)
 void __init paging_init(void)
 {
 	unsigned long max_dma;
+<<<<<<< HEAD
 	unsigned long pfn_offset = 0;
 	unsigned long max_pfn = 0;
 	int node;
+=======
+>>>>>>> upstream/android-13
 	unsigned long max_zone_pfns[MAX_NR_ZONES];
 
 	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	sparse_memory_present_with_active_regions(MAX_NUMNODES);
 	sparse_init();
 
@@ -627,6 +676,14 @@ void __init paging_init(void)
 #endif
 	max_zone_pfns[ZONE_NORMAL] = max_pfn;
 	free_area_init_nodes(max_zone_pfns);
+=======
+	sparse_init();
+
+	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+	max_zone_pfns[ZONE_DMA32] = max_dma;
+	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+	free_area_init(max_zone_pfns);
+>>>>>>> upstream/android-13
 
 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
 }
@@ -655,7 +712,11 @@ void arch_refresh_nodedata(int update_node, pg_data_t *update_pgdat)
 int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
 		struct vmem_altmap *altmap)
 {
+<<<<<<< HEAD
 	return vmemmap_populate_basepages(start, end, node);
+=======
+	return vmemmap_populate_basepages(start, end, node, NULL);
+>>>>>>> upstream/android-13
 }
 
 void vmemmap_free(unsigned long start, unsigned long end,

@@ -17,10 +17,17 @@
 #include <asm/pdc.h>
 	
 #include <asm/assembly.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 
 #include <linux/linkage.h>
 #include <linux/init.h>
+=======
+
+#include <linux/linkage.h>
+#include <linux/init.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 	.level	PA_ASM_LEVEL
 
@@ -329,6 +336,22 @@ smp_slave_stext:
 	mtsp	   %r0,%sr6
 	mtsp	   %r0,%sr7
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_64BIT
+	/*
+	 *  Enable Wide mode early, in case the task_struct for the idle
+	 *  task in smp_init_current_idle_task was allocated above 4GB.
+	 */
+1:	mfia            %rp             /* clear upper part of pcoq */
+	ldo             2f-1b(%rp),%rp
+	depdi           0,31,32,%rp
+	bv              (%rp)
+	ssm             PSW_SM_W,%r0
+2:
+#endif
+
+>>>>>>> upstream/android-13
 	/*  Initialize the SP - monarch sets up smp_init_current_idle_task */
 	load32		PA(smp_init_current_idle_task),%sp
 	LDREG		0(%sp),%sp	/* load task address */
@@ -363,7 +386,11 @@ smp_slave_stext:
 ENDPROC(parisc_kernel_start)
 
 #ifndef CONFIG_64BIT
+<<<<<<< HEAD
 	.section .data..read_mostly
+=======
+	.section .data..ro_after_init
+>>>>>>> upstream/android-13
 
 	.align	4
 	.export	$global$,data

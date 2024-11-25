@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "MediaTek pinctrl drivers"
 	depends on ARCH_MEDIATEK || COMPILE_TEST
 
@@ -28,8 +32,13 @@ config PINCTRL_MTK_MOORE
 	select GENERIC_PINCTRL_GROUPS
 	select GENERIC_PINMUX_FUNCTIONS
 	select GPIOLIB
+<<<<<<< HEAD
 	select EINT_MTK
 	select OF_GPIO
+=======
+	select OF_GPIO
+	select EINT_MTK
+>>>>>>> upstream/android-13
 	select PINCTRL_MTK_V2
 
 config PINCTRL_MTK_PARIS
@@ -75,6 +84,10 @@ config PINCTRL_MT8127
 	bool "Mediatek MT8127 pin control"
 	depends on MACH_MT8127 || COMPILE_TEST
 	depends on OF
+<<<<<<< HEAD
+=======
+	default MACH_MT8127
+>>>>>>> upstream/android-13
 	select PINCTRL_MTK
 
 # For ARMv8 SoCs
@@ -82,6 +95,7 @@ config PINCTRL_MT2712
 	bool "MediaTek MT2712 pin control"
 	depends on OF
 	depends on ARM64 || COMPILE_TEST
+<<<<<<< HEAD
 	select PINCTRL_MTK
 
 config PINCTRL_MT6739
@@ -134,43 +148,119 @@ config PINCTRL_MT6877
 	bool "Mediatek MT6877 pin control"
 	default n
 	depends on MACH_MT6877
+=======
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK
+
+config PINCTRL_MT6765
+	tristate "Mediatek MT6765 pin control"
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	default ARM64 && ARCH_MEDIATEK
+>>>>>>> upstream/android-13
 	select PINCTRL_MTK_PARIS
 
 config PINCTRL_MT6779
 	tristate "Mediatek MT6779 pin control"
+<<<<<<< HEAD
 	depends on OF || COMPILE_TEST
 	select PINCTRL_MTK_PARIS
+=======
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK_PARIS
+	help
+	  Say yes here to support pin controller and gpio driver
+	  on Mediatek MT6779 SoC.
+	  In MTK platform, we support virtual gpio and use it to
+	  map specific eint which doesn't have real gpio pin.
+>>>>>>> upstream/android-13
 
 config PINCTRL_MT6797
 	bool "Mediatek MT6797 pin control"
 	depends on OF
 	depends on ARM64 || COMPILE_TEST
+<<<<<<< HEAD
 	select PINCTRL_MTK_PARIS
 
 config PINCTRL_MT6885
 	bool "Mediatek MT6885 pin control"
 	default n
 	depends on MACH_MT6885 || MACH_MT6893
+=======
+	default ARM64 && ARCH_MEDIATEK
+>>>>>>> upstream/android-13
 	select PINCTRL_MTK_PARIS
 
 config PINCTRL_MT7622
 	bool "MediaTek MT7622 pin control"
 	depends on OF
 	depends on ARM64 || COMPILE_TEST
+<<<<<<< HEAD
 	select PINCTRL_MTK_MOORE
 
+=======
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK_MOORE
+
+config PINCTRL_MT8167
+	bool "Mediatek MT8167 pin control"
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK
+
+>>>>>>> upstream/android-13
 config PINCTRL_MT8173
 	bool "Mediatek MT8173 pin control"
 	depends on OF
 	depends on ARM64 || COMPILE_TEST
+<<<<<<< HEAD
+=======
+	default ARM64 && ARCH_MEDIATEK
+>>>>>>> upstream/android-13
 	select PINCTRL_MTK
 
 config PINCTRL_MT8183
 	bool "Mediatek MT8183 pin control"
 	depends on OF
 	depends on ARM64 || COMPILE_TEST
+<<<<<<< HEAD
 	select PINCTRL_MTK_PARIS
 
+=======
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT8192
+	bool "Mediatek MT8192 pin control"
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT8195
+	bool "Mediatek MT8195 pin control"
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT8365
+	bool "Mediatek MT8365 pin control"
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK
+
+config PINCTRL_MT8516
+	bool "Mediatek MT8516 pin control"
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK
+
+>>>>>>> upstream/android-13
 # For PMIC
 config PINCTRL_MT6397
 	bool "Mediatek MT6397 pin control"
@@ -179,6 +269,7 @@ config PINCTRL_MT6397
 	default MFD_MT6397
 	select PINCTRL_MTK
 
+<<<<<<< HEAD
 config PINCTRL_MT6768
 	bool "Mediatek MT6768 pin control"
 	default n
@@ -197,4 +288,6 @@ config PINCTRL_MT6785
 	depends on MACH_MT6785
 	select PINCTRL_MTK_PARIS
 
+=======
+>>>>>>> upstream/android-13
 endmenu

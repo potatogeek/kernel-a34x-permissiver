@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Implementation of the kernel access vector cache (AVC).
  *
@@ -8,10 +12,13 @@
  *	Replaced the avc_lock spinlock by RCU.
  *
  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License version 2,
  *	as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/stddef.h>
@@ -33,11 +40,17 @@
 #include "avc.h"
 #include "avc_ss.h"
 #include "classmap.h"
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef SEC_SELINUX_DEBUG
 #include <linux/signal.h>
 #endif
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+
+#define CREATE_TRACE_POINTS
+#include <trace/events/avc.h>
+>>>>>>> upstream/android-13
 
 #define AVC_CACHE_SLOTS			512
 #define AVC_DEF_CACHE_THRESHOLD		512
@@ -49,6 +62,12 @@
 #define avc_cache_stats_incr(field)	do {} while (0)
 #endif
 
+<<<<<<< HEAD
+=======
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/avc.h>
+
+>>>>>>> upstream/android-13
 struct avc_entry {
 	u32			ssid;
 	u32			tsid;
@@ -123,11 +142,19 @@ void avc_set_cache_threshold(struct selinux_avc *avc,
 	avc->avc_cache_threshold = cache_threshold;
 }
 
+<<<<<<< HEAD
 static struct avc_callback_node *avc_callbacks;
 static struct kmem_cache *avc_node_cachep;
 static struct kmem_cache *avc_xperms_data_cachep;
 static struct kmem_cache *avc_xperms_decision_cachep;
 static struct kmem_cache *avc_xperms_cachep;
+=======
+static struct avc_callback_node *avc_callbacks __ro_after_init;
+static struct kmem_cache *avc_node_cachep __ro_after_init;
+static struct kmem_cache *avc_xperms_data_cachep __ro_after_init;
+static struct kmem_cache *avc_xperms_decision_cachep __ro_after_init;
+static struct kmem_cache *avc_xperms_cachep __ro_after_init;
+>>>>>>> upstream/android-13
 
 static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
 {
@@ -135,6 +162,7 @@ static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
 }
 
 /**
+<<<<<<< HEAD
  * avc_dump_av - Display an access vector in human-readable form.
  * @tclass: target security class
  * @av: access vector
@@ -204,6 +232,8 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * avc_init - Initialize the AVC.
  *
  * Initialize the access vector cache.
@@ -371,26 +401,43 @@ static struct avc_xperms_decision_node
 	struct avc_xperms_decision_node *xpd_node;
 	struct extended_perms_decision *xpd;
 
+<<<<<<< HEAD
 	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep, GFP_NOWAIT);
+=======
+	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep,
+				     GFP_NOWAIT | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 	if (!xpd_node)
 		return NULL;
 
 	xpd = &xpd_node->xpd;
 	if (which & XPERMS_ALLOWED) {
 		xpd->allowed = kmem_cache_zalloc(avc_xperms_data_cachep,
+<<<<<<< HEAD
 						GFP_NOWAIT);
+=======
+						GFP_NOWAIT | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 		if (!xpd->allowed)
 			goto error;
 	}
 	if (which & XPERMS_AUDITALLOW) {
 		xpd->auditallow = kmem_cache_zalloc(avc_xperms_data_cachep,
+<<<<<<< HEAD
 						GFP_NOWAIT);
+=======
+						GFP_NOWAIT | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 		if (!xpd->auditallow)
 			goto error;
 	}
 	if (which & XPERMS_DONTAUDIT) {
 		xpd->dontaudit = kmem_cache_zalloc(avc_xperms_data_cachep,
+<<<<<<< HEAD
 						GFP_NOWAIT);
+=======
+						GFP_NOWAIT | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 		if (!xpd->dontaudit)
 			goto error;
 	}
@@ -418,7 +465,11 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
 {
 	struct avc_xperms_node *xp_node;
 
+<<<<<<< HEAD
 	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT);
+=======
+	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 	if (!xp_node)
 		return xp_node;
 	INIT_LIST_HEAD(&xp_node->xpd_head);
@@ -514,6 +565,10 @@ static void avc_node_free(struct rcu_head *rhead)
 
 static void avc_node_delete(struct selinux_avc *avc, struct avc_node *node)
 {
+<<<<<<< HEAD
+=======
+	trace_android_rvh_selinux_avc_node_delete(node);
+>>>>>>> upstream/android-13
 	hlist_del_rcu(&node->list);
 	call_rcu(&node->rhead, avc_node_free);
 	atomic_dec(&avc->avc_cache.active_nodes);
@@ -530,6 +585,10 @@ static void avc_node_kill(struct selinux_avc *avc, struct avc_node *node)
 static void avc_node_replace(struct selinux_avc *avc,
 			     struct avc_node *new, struct avc_node *old)
 {
+<<<<<<< HEAD
+=======
+	trace_android_rvh_selinux_avc_node_replace(old, new);
+>>>>>>> upstream/android-13
 	hlist_replace_rcu(&old->list, &new->list);
 	call_rcu(&old->rhead, avc_node_free);
 	atomic_dec(&avc->avc_cache.active_nodes);
@@ -574,7 +633,11 @@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)
 {
 	struct avc_node *node;
 
+<<<<<<< HEAD
 	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
+=======
+	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 	if (!node)
 		goto out;
 
@@ -638,8 +701,15 @@ static struct avc_node *avc_lookup(struct selinux_avc *avc,
 	avc_cache_stats_incr(lookups);
 	node = avc_search_node(avc, ssid, tsid, tclass);
 
+<<<<<<< HEAD
 	if (node)
 		return node;
+=======
+	if (node) {
+		trace_android_rvh_selinux_avc_lookup(node, ssid, tsid, tclass);
+		return node;
+	}
+>>>>>>> upstream/android-13
 
 	avc_cache_stats_incr(misses);
 	return NULL;
@@ -723,6 +793,10 @@ static struct avc_node *avc_insert(struct selinux_avc *avc,
 		}
 	}
 	hlist_add_head_rcu(&node->list, head);
+<<<<<<< HEAD
+=======
+	trace_android_rvh_selinux_avc_insert(node);
+>>>>>>> upstream/android-13
 found:
 	spin_unlock_irqrestore(lock, flag);
 	return node;
@@ -737,11 +811,44 @@ found:
 static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
 {
 	struct common_audit_data *ad = a;
+<<<<<<< HEAD
 	audit_log_format(ab, "avc:  %s ",
 			 ad->selinux_audit_data->denied ? "denied" : "granted");
 	avc_dump_av(ab, ad->selinux_audit_data->tclass,
 			ad->selinux_audit_data->audited);
 	audit_log_format(ab, " for ");
+=======
+	struct selinux_audit_data *sad = ad->selinux_audit_data;
+	u32 av = sad->audited;
+	const char **perms;
+	int i, perm;
+
+	audit_log_format(ab, "avc:  %s ", sad->denied ? "denied" : "granted");
+
+	if (av == 0) {
+		audit_log_format(ab, " null");
+		return;
+	}
+
+	perms = secclass_map[sad->tclass-1].perms;
+
+	audit_log_format(ab, " {");
+	i = 0;
+	perm = 1;
+	while (i < (sizeof(av) * 8)) {
+		if ((perm & av) && perms[i]) {
+			audit_log_format(ab, " %s", perms[i]);
+			av &= ~perm;
+		}
+		i++;
+		perm <<= 1;
+	}
+
+	if (av)
+		audit_log_format(ab, " 0x%x", av);
+
+	audit_log_format(ab, " } for ");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -753,6 +860,7 @@ static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
 static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 {
 	struct common_audit_data *ad = a;
+<<<<<<< HEAD
 	audit_log_format(ab, " ");
 	avc_dump_query(ab, ad->selinux_audit_data->state,
 		       ad->selinux_audit_data->ssid,
@@ -782,6 +890,67 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 }
 
 /* This is the slow part of avc audit with big stack footprint */
+=======
+	struct selinux_audit_data *sad = ad->selinux_audit_data;
+	char *scontext = NULL;
+	char *tcontext = NULL;
+	const char *tclass = NULL;
+	u32 scontext_len;
+	u32 tcontext_len;
+	int rc;
+
+	rc = security_sid_to_context(sad->state, sad->ssid, &scontext,
+				     &scontext_len);
+	if (rc)
+		audit_log_format(ab, " ssid=%d", sad->ssid);
+	else
+		audit_log_format(ab, " scontext=%s", scontext);
+
+	rc = security_sid_to_context(sad->state, sad->tsid, &tcontext,
+				     &tcontext_len);
+	if (rc)
+		audit_log_format(ab, " tsid=%d", sad->tsid);
+	else
+		audit_log_format(ab, " tcontext=%s", tcontext);
+
+	tclass = secclass_map[sad->tclass-1].name;
+	audit_log_format(ab, " tclass=%s", tclass);
+
+	if (sad->denied)
+		audit_log_format(ab, " permissive=%u", sad->result ? 0 : 1);
+
+	trace_selinux_audited(sad, scontext, tcontext, tclass);
+	kfree(tcontext);
+	kfree(scontext);
+
+	/* in case of invalid context report also the actual context string */
+	rc = security_sid_to_context_inval(sad->state, sad->ssid, &scontext,
+					   &scontext_len);
+	if (!rc && scontext) {
+		if (scontext_len && scontext[scontext_len - 1] == '\0')
+			scontext_len--;
+		audit_log_format(ab, " srawcon=");
+		audit_log_n_untrustedstring(ab, scontext, scontext_len);
+		kfree(scontext);
+	}
+
+	rc = security_sid_to_context_inval(sad->state, sad->tsid, &scontext,
+					   &scontext_len);
+	if (!rc && scontext) {
+		if (scontext_len && scontext[scontext_len - 1] == '\0')
+			scontext_len--;
+		audit_log_format(ab, " trawcon=");
+		audit_log_n_untrustedstring(ab, scontext, scontext_len);
+		kfree(scontext);
+	}
+}
+
+/*
+ * This is the slow part of avc audit with big stack footprint.
+ * Note that it is non-blocking and can be called from under
+ * rcu_read_lock().
+ */
+>>>>>>> upstream/android-13
 noinline int slow_avc_audit(struct selinux_state *state,
 			    u32 ssid, u32 tsid, u16 tclass,
 			    u32 requested, u32 audited, u32 denied, int result,
@@ -790,6 +959,12 @@ noinline int slow_avc_audit(struct selinux_state *state,
 	struct common_audit_data stack_data;
 	struct selinux_audit_data sad;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map)))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (!a) {
 		a = &stack_data;
 		a->type = LSM_AUDIT_DATA_NONE;
@@ -839,13 +1014,21 @@ out:
 }
 
 /**
+<<<<<<< HEAD
  * avc_update_node Update an AVC entry
+=======
+ * avc_update_node - Update an AVC entry
+>>>>>>> upstream/android-13
  * @event : Updating event
  * @perms : Permission mask bits
  * @ssid,@tsid,@tclass : identifier of an AVC entry
  * @seqno : sequence number when decision was made
  * @xpd: extended_perms_decision to be added to the node
+<<<<<<< HEAD
  * @flags: the AVC_* flags, e.g. AVC_NONBLOCKING, AVC_EXTENDED_PERMS, or 0.
+=======
+ * @flags: the AVC_* flags, e.g. AVC_EXTENDED_PERMS, or 0.
+>>>>>>> upstream/android-13
  *
  * if a valid AVC entry doesn't exist,this function returns -ENOENT.
  * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
@@ -864,6 +1047,7 @@ static int avc_update_node(struct selinux_avc *avc,
 	struct hlist_head *head;
 	spinlock_t *lock;
 
+<<<<<<< HEAD
 	/*
 	 * If we are in a non-blocking code path, e.g. VFS RCU walk,
 	 * then we must not add permissions to a cache entry
@@ -879,6 +1063,8 @@ static int avc_update_node(struct selinux_avc *avc,
 	if (flags & AVC_NONBLOCKING)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	node = avc_alloc_node(avc);
 	if (!node) {
 		rc = -ENOMEM;
@@ -1040,6 +1226,7 @@ static noinline int avc_denied(struct selinux_state *state,
 	if (flags & AVC_STRICT)
 		return -EACCES;
 
+<<<<<<< HEAD
 	// [ SEC_SELINUX_PORTING_COMMON
 #ifdef SEC_SELINUX_DEBUG
 	if ((requested & avd->auditallow) && !(avd->flags & AVD_FLAGS_PERMISSIVE)) {
@@ -1083,6 +1270,9 @@ static noinline int avc_denied(struct selinux_state *state,
 // ] SEC_SELINUX_PORTING_COMMON
   // SEC_SELINUX_PORTING_COMMON Change to use RKP
 	if (selinux_enforcing &&
+=======
+	if (enforcing_enabled(state) &&
+>>>>>>> upstream/android-13
 	    !(avd->flags & AVD_FLAGS_PERMISSIVE))
 		return -EACCES;
 
@@ -1115,7 +1305,12 @@ int avc_has_extended_perms(struct selinux_state *state,
 	int rc = 0, rc2;
 
 	xp_node = &local_xp_node;
+<<<<<<< HEAD
 	BUG_ON(!requested);
+=======
+	if (WARN_ON(!requested))
+		return -EACCES;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 
@@ -1180,7 +1375,11 @@ decision:
  * @tsid: target security identifier
  * @tclass: target security class
  * @requested: requested permissions, interpreted based on @tclass
+<<<<<<< HEAD
  * @flags:  AVC_STRICT, AVC_NONBLOCKING, or 0
+=======
+ * @flags:  AVC_STRICT or 0
+>>>>>>> upstream/android-13
  * @avd: access vector decisions
  *
  * Check the AVC to determine whether the @requested permissions are granted
@@ -1205,7 +1404,12 @@ inline int avc_has_perm_noaudit(struct selinux_state *state,
 	int rc = 0;
 	u32 denied;
 
+<<<<<<< HEAD
 	BUG_ON(!requested);
+=======
+	if (WARN_ON(!requested))
+		return -EACCES;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 
@@ -1250,6 +1454,7 @@ int avc_has_perm(struct selinux_state *state, u32 ssid, u32 tsid, u16 tclass,
 				  &avd);
 
 	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
+<<<<<<< HEAD
 			auditdata, 0);
 	if (rc2)
 		return rc2;
@@ -1270,6 +1475,9 @@ int avc_has_perm_flags(struct selinux_state *state,
 
 	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
 			auditdata, flags);
+=======
+			auditdata);
+>>>>>>> upstream/android-13
 	if (rc2)
 		return rc2;
 	return rc;

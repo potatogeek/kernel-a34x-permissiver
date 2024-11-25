@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007-2009 ST-Ericsson AB
  * License terms: GNU General Public License (GPL) version 2
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2007-2009 ST-Ericsson AB
+>>>>>>> upstream/android-13
  *
  * ABX500 core access functions.
  * The abx500 interface is used for the Analog Baseband chips.
@@ -28,6 +34,7 @@ struct abx500_init_settings {
 	u8 setting;
 };
 
+<<<<<<< HEAD
 /* Battery driver related data */
 /*
  * ADC for the battery thermistor.
@@ -304,6 +311,8 @@ int ab8500_bm_of_probe(struct device *dev,
 		       struct device_node *np,
 		       struct abx500_bm_data *bm);
 
+=======
+>>>>>>> upstream/android-13
 int abx500_set_register_interruptible(struct device *dev, u8 bank, u8 reg,
 	u8 value);
 int abx500_get_register_interruptible(struct device *dev, u8 bank, u8 reg,

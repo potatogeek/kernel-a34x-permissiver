@@ -28,6 +28,7 @@ struct ufs_dev_params {
 int ufshcd_get_pwr_dev_param(struct ufs_dev_params *dev_param,
 			     struct ufs_pa_layer_attr *dev_max,
 			     struct ufs_pa_layer_attr *agreed_pwr);
+<<<<<<< HEAD
 int ufshcd_pltfrm_init(struct platform_device *pdev,
 		       const struct ufs_hba_variant_ops *vops);
 void ufshcd_pltfrm_shutdown(struct platform_device *pdev);
@@ -49,5 +50,13 @@ int ufshcd_pltfrm_runtime_idle(struct device *dev);
 #define ufshcd_pltfrm_runtime_idle	NULL
 
 #endif /* CONFIG_PM */
+=======
+void ufshcd_init_pwr_dev_param(struct ufs_dev_params *dev_param);
+int ufshcd_pltfrm_init(struct platform_device *pdev,
+		       const struct ufs_hba_variant_ops *vops);
+void ufshcd_pltfrm_shutdown(struct platform_device *pdev);
+int ufshcd_populate_vreg(struct device *dev, const char *name,
+			 struct ufs_vreg **out_vreg);
+>>>>>>> upstream/android-13
 
 #endif /* UFSHCD_PLTFRM_H_ */

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
  *
  * Released under the GPL v2. (and only v2, not any later version)
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014, Red Hat Inc, Arnaldo Carvalho de Melo <acme@redhat.com>
+>>>>>>> upstream/android-13
  */
 #include "array.h"
 #include <errno.h>
@@ -9,6 +15,10 @@
 #include <poll.h>
 #include <stdlib.h>
 #include <unistd.h>
+<<<<<<< HEAD
+=======
+#include <string.h>
+>>>>>>> upstream/android-13
 
 void fdarray__init(struct fdarray *fda, int nr_autogrow)
 {
@@ -20,7 +30,11 @@ void fdarray__init(struct fdarray *fda, int nr_autogrow)
 
 int fdarray__grow(struct fdarray *fda, int nr)
 {
+<<<<<<< HEAD
 	void *priv;
+=======
+	struct priv *priv;
+>>>>>>> upstream/android-13
 	int nr_alloc = fda->nr_alloc + nr;
 	size_t psize = sizeof(fda->priv[0]) * nr_alloc;
 	size_t size  = sizeof(struct pollfd) * nr_alloc;
@@ -35,6 +49,12 @@ int fdarray__grow(struct fdarray *fda, int nr)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
+=======
+	memset(&entries[fda->nr_alloc], 0, sizeof(struct pollfd) * nr);
+	memset(&priv[fda->nr_alloc], 0, sizeof(fda->priv[0]) * nr);
+
+>>>>>>> upstream/android-13
 	fda->nr_alloc = nr_alloc;
 	fda->entries  = entries;
 	fda->priv     = priv;
@@ -70,7 +90,11 @@ void fdarray__delete(struct fdarray *fda)
 	free(fda);
 }
 
+<<<<<<< HEAD
 int fdarray__add(struct fdarray *fda, int fd, short revents)
+=======
+int fdarray__add(struct fdarray *fda, int fd, short revents, enum fdarray_flags flags)
+>>>>>>> upstream/android-13
 {
 	int pos = fda->nr;
 
@@ -80,6 +104,10 @@ int fdarray__add(struct fdarray *fda, int fd, short revents)
 
 	fda->entries[fda->nr].fd     = fd;
 	fda->entries[fda->nr].events = revents;
+<<<<<<< HEAD
+=======
+	fda->priv[fda->nr].flags = flags;
+>>>>>>> upstream/android-13
 	fda->nr++;
 	return pos;
 }
@@ -94,10 +122,17 @@ int fdarray__filter(struct fdarray *fda, short revents,
 		return 0;
 
 	for (fd = 0; fd < fda->nr; ++fd) {
+<<<<<<< HEAD
+=======
+		if (!fda->entries[fd].events)
+			continue;
+
+>>>>>>> upstream/android-13
 		if (fda->entries[fd].revents & revents) {
 			if (entry_destructor)
 				entry_destructor(fda, fd, arg);
 
+<<<<<<< HEAD
 			continue;
 		}
 
@@ -110,6 +145,17 @@ int fdarray__filter(struct fdarray *fda, short revents,
 	}
 
 	return fda->nr = nr;
+=======
+			fda->entries[fd].revents = fda->entries[fd].events = 0;
+			continue;
+		}
+
+		if (!(fda->priv[fd].flags & fdarray_flag__nonfilterable))
+			++nr;
+	}
+
+	return nr;
+>>>>>>> upstream/android-13
 }
 
 int fdarray__poll(struct fdarray *fda, int timeout)

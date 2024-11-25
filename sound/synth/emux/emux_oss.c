@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Interface for OSS sequencer emulation
  *
  *  Copyright (C) 1999 Takashi Iwai <tiwai@suse.de>
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Changes
  * 19990227   Steve Ratcliffe   Made separate file and merged in latest
  * 				midi emulation.
@@ -47,7 +54,11 @@ static void fake_event(struct snd_emux *emu, struct snd_emux_port *port,
 		       int ch, int param, int val, int atomic, int hop);
 
 /* operators */
+<<<<<<< HEAD
 static struct snd_seq_oss_callback oss_callback = {
+=======
+static const struct snd_seq_oss_callback oss_callback = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.open = snd_emux_open_seq_oss,
 	.close = snd_emux_close_seq_oss,

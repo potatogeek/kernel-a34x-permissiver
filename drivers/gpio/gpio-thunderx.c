@@ -15,6 +15,10 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <asm-generic/msi.h>
+>>>>>>> upstream/android-13
 
 
 #define GPIO_RX_DAT	0x0
@@ -53,7 +57,10 @@ struct thunderx_line {
 struct thunderx_gpio {
 	struct gpio_chip	chip;
 	u8 __iomem		*register_base;
+<<<<<<< HEAD
 	struct irq_domain	*irqd;
+=======
+>>>>>>> upstream/android-13
 	struct msix_entry	*msix_entries;	/* per line MSI-X */
 	struct thunderx_line	*line_entries;	/* per line irq info */
 	raw_spinlock_t		lock;
@@ -170,7 +177,14 @@ static int thunderx_gpio_get_direction(struct gpio_chip *chip, unsigned int line
 
 	bit_cfg = readq(txgpio->register_base + bit_cfg_reg(line));
 
+<<<<<<< HEAD
 	return !(bit_cfg & GPIO_BIT_CFG_TX_OE);
+=======
+	if (bit_cfg & GPIO_BIT_CFG_TX_OE)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int thunderx_gpio_set_config(struct gpio_chip *chip,
@@ -283,6 +297,7 @@ static void thunderx_gpio_set_multiple(struct gpio_chip *chip,
 	}
 }
 
+<<<<<<< HEAD
 static void thunderx_gpio_irq_ack(struct irq_data *data)
 {
 	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
@@ -323,14 +338,69 @@ static int thunderx_gpio_irq_set_type(struct irq_data *data,
 	u64 bit_cfg;
 
 	irqd_set_trigger_type(data, flow_type);
+=======
+static void thunderx_gpio_irq_ack(struct irq_data *d)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+
+	writeq(GPIO_INTR_INTR,
+	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
+}
+
+static void thunderx_gpio_irq_mask(struct irq_data *d)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+
+	writeq(GPIO_INTR_ENA_W1C,
+	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
+}
+
+static void thunderx_gpio_irq_mask_ack(struct irq_data *d)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+
+	writeq(GPIO_INTR_ENA_W1C | GPIO_INTR_INTR,
+	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
+}
+
+static void thunderx_gpio_irq_unmask(struct irq_data *d)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+
+	writeq(GPIO_INTR_ENA_W1S,
+	       txgpio->register_base + intr_reg(irqd_to_hwirq(d)));
+}
+
+static int thunderx_gpio_irq_set_type(struct irq_data *d,
+				      unsigned int flow_type)
+{
+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+	struct thunderx_line *txline =
+		&txgpio->line_entries[irqd_to_hwirq(d)];
+	u64 bit_cfg;
+
+	irqd_set_trigger_type(d, flow_type);
+>>>>>>> upstream/android-13
 
 	bit_cfg = txline->fil_bits | GPIO_BIT_CFG_INT_EN;
 
 	if (flow_type & IRQ_TYPE_EDGE_BOTH) {
+<<<<<<< HEAD
 		irq_set_handler_locked(data, handle_fasteoi_ack_irq);
 		bit_cfg |= GPIO_BIT_CFG_INT_TYPE;
 	} else {
 		irq_set_handler_locked(data, handle_fasteoi_mask_irq);
+=======
+		irq_set_handler_locked(d, handle_fasteoi_ack_irq);
+		bit_cfg |= GPIO_BIT_CFG_INT_TYPE;
+	} else {
+		irq_set_handler_locked(d, handle_fasteoi_mask_irq);
+>>>>>>> upstream/android-13
 	}
 
 	raw_spin_lock(&txgpio->lock);
@@ -359,6 +429,7 @@ static void thunderx_gpio_irq_disable(struct irq_data *data)
 	irq_chip_disable_parent(data);
 }
 
+<<<<<<< HEAD
 static int thunderx_gpio_irq_request_resources(struct irq_data *data)
 {
 	struct thunderx_line *txline = irq_data_get_irq_chip_data(data);
@@ -394,6 +465,8 @@ static void thunderx_gpio_irq_release_resources(struct irq_data *data)
 	gpiochip_unlock_as_irq(&txgpio->chip, txline->line);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Interrupts are chained from underlying MSI-X vectors.  We have
  * these irq_chip functions to be able to handle level triggering
@@ -410,13 +483,17 @@ static struct irq_chip thunderx_gpio_irq_chip = {
 	.irq_unmask		= thunderx_gpio_irq_unmask,
 	.irq_eoi		= irq_chip_eoi_parent,
 	.irq_set_affinity	= irq_chip_set_affinity_parent,
+<<<<<<< HEAD
 	.irq_request_resources	= thunderx_gpio_irq_request_resources,
 	.irq_release_resources	= thunderx_gpio_irq_release_resources,
+=======
+>>>>>>> upstream/android-13
 	.irq_set_type		= thunderx_gpio_irq_set_type,
 
 	.flags			= IRQCHIP_SET_TYPE_MASKED
 };
 
+<<<<<<< HEAD
 static int thunderx_gpio_irq_translate(struct irq_domain *d,
 				       struct irq_fwspec *fwspec,
 				       irq_hw_number_t *hwirq,
@@ -452,6 +529,39 @@ static int thunderx_gpio_to_irq(struct gpio_chip *chip, unsigned int offset)
 	struct thunderx_gpio *txgpio = gpiochip_get_data(chip);
 
 	return irq_find_mapping(txgpio->irqd, offset);
+=======
+static int thunderx_gpio_child_to_parent_hwirq(struct gpio_chip *gc,
+					       unsigned int child,
+					       unsigned int child_type,
+					       unsigned int *parent,
+					       unsigned int *parent_type)
+{
+	struct thunderx_gpio *txgpio = gpiochip_get_data(gc);
+	struct irq_data *irqd;
+	unsigned int irq;
+
+	irq = txgpio->msix_entries[child].vector;
+	irqd = irq_domain_get_irq_data(gc->irq.parent_domain, irq);
+	if (!irqd)
+		return -EINVAL;
+	*parent = irqd_to_hwirq(irqd);
+	*parent_type = IRQ_TYPE_LEVEL_HIGH;
+	return 0;
+}
+
+static void *thunderx_gpio_populate_parent_alloc_info(struct gpio_chip *chip,
+						      unsigned int parent_hwirq,
+						      unsigned int parent_type)
+{
+	msi_alloc_info_t *info;
+
+	info = kmalloc(sizeof(*info), GFP_KERNEL);
+	if (!info)
+		return NULL;
+
+	info->hwirq = parent_hwirq;
+	return info;
+>>>>>>> upstream/android-13
 }
 
 static int thunderx_gpio_probe(struct pci_dev *pdev,
@@ -461,6 +571,10 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
 	struct device *dev = &pdev->dev;
 	struct thunderx_gpio *txgpio;
 	struct gpio_chip *chip;
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	int ngpio, i;
 	int err = 0;
 
@@ -505,8 +619,13 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
 	}
 
 	txgpio->msix_entries = devm_kcalloc(dev,
+<<<<<<< HEAD
 					  ngpio, sizeof(struct msix_entry),
 					  GFP_KERNEL);
+=======
+					    ngpio, sizeof(struct msix_entry),
+					    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!txgpio->msix_entries) {
 		err = -ENOMEM;
 		goto out;
@@ -547,6 +666,7 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
 	if (err < 0)
 		goto out;
 
+<<<<<<< HEAD
 	/*
 	 * Push GPIO specific irqdomain on hierarchy created as a side
 	 * effect of the pci_enable_msix()
@@ -568,6 +688,8 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
 			dev_err(dev, "irq_domain_push_irq: %d\n", err);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	chip->label = KBUILD_MODNAME;
 	chip->parent = dev;
 	chip->owner = THIS_MODULE;
@@ -582,11 +704,42 @@ static int thunderx_gpio_probe(struct pci_dev *pdev,
 	chip->set = thunderx_gpio_set;
 	chip->set_multiple = thunderx_gpio_set_multiple;
 	chip->set_config = thunderx_gpio_set_config;
+<<<<<<< HEAD
 	chip->to_irq = thunderx_gpio_to_irq;
+=======
+	girq = &chip->irq;
+	girq->chip = &thunderx_gpio_irq_chip;
+	girq->fwnode = of_node_to_fwnode(dev->of_node);
+	girq->parent_domain =
+		irq_get_irq_data(txgpio->msix_entries[0].vector)->domain;
+	girq->child_to_parent_hwirq = thunderx_gpio_child_to_parent_hwirq;
+	girq->populate_parent_alloc_arg = thunderx_gpio_populate_parent_alloc_info;
+	girq->handler = handle_bad_irq;
+	girq->default_type = IRQ_TYPE_NONE;
+
+>>>>>>> upstream/android-13
 	err = devm_gpiochip_add_data(dev, chip, txgpio);
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	/* Push on irq_data and the domain for each line. */
+	for (i = 0; i < ngpio; i++) {
+		struct irq_fwspec fwspec;
+
+		fwspec.fwnode = of_node_to_fwnode(dev->of_node);
+		fwspec.param_count = 2;
+		fwspec.param[0] = i;
+		fwspec.param[1] = IRQ_TYPE_NONE;
+		err = irq_domain_push_irq(girq->domain,
+					  txgpio->msix_entries[i].vector,
+					  &fwspec);
+		if (err < 0)
+			dev_err(dev, "irq_domain_push_irq: %d\n", err);
+	}
+
+>>>>>>> upstream/android-13
 	dev_info(dev, "ThunderX GPIO: %d lines with base %d.\n",
 		 ngpio, chip->base);
 	return 0;
@@ -601,10 +754,17 @@ static void thunderx_gpio_remove(struct pci_dev *pdev)
 	struct thunderx_gpio *txgpio = pci_get_drvdata(pdev);
 
 	for (i = 0; i < txgpio->chip.ngpio; i++)
+<<<<<<< HEAD
 		irq_domain_pop_irq(txgpio->irqd,
 				   txgpio->msix_entries[i].vector);
 
 	irq_domain_remove(txgpio->irqd);
+=======
+		irq_domain_pop_irq(txgpio->chip.irq.domain,
+				   txgpio->msix_entries[i].vector);
+
+	irq_domain_remove(txgpio->chip.irq.domain);
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pdev, NULL);
 }

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Apple Onboard Audio driver for tas codec (header)
  *
  * Copyright 2006 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * GPL v2, can be found in COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __SND_AOA_CODECTASH
 #define __SND_AOA_CODECTASH

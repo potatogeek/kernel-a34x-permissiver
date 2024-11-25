@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Paul Mackerras, IBM Corp.
  *
@@ -5,12 +6,21 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2002 Paul Mackerras, IBM Corp.
+>>>>>>> upstream/android-13
  */
 #include <asm/processor.h>
 #include <asm/ppc_asm.h>
 #include <asm/export.h>
 #include <asm/asm-compat.h>
 #include <asm/feature-fixups.h>
+<<<<<<< HEAD
+=======
+#include <asm/kasan.h>
+>>>>>>> upstream/android-13
 
 #ifndef SELFTEST_CASE
 /* For big-endian, 0 == most CPUs, 1 == POWER6, 2 == Cell */
@@ -18,7 +28,11 @@
 #endif
 
 	.align	7
+<<<<<<< HEAD
 _GLOBAL_TOC(memcpy)
+=======
+_GLOBAL_TOC_KASAN(memcpy)
+>>>>>>> upstream/android-13
 BEGIN_FTR_SECTION
 #ifdef __LITTLE_ENDIAN__
 	cmpdi	cr7,r5,0
@@ -230,3 +244,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_UNALIGNED_LD_STD)
 	blr
 #endif
 EXPORT_SYMBOL(memcpy)
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_KASAN(memcpy)
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
@@ -7,6 +8,20 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+ */
+
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+>>>>>>> upstream/android-13
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,11 +45,64 @@ static bool is_dir(const char *path)
 	struct stat st;
 
 	if (stat(path, &st))
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	return S_ISDIR(st.st_mode);
 }
 
+<<<<<<< HEAD
+=======
+/* return true if the given two files are the same, false otherwise */
+static bool is_same(const char *file1, const char *file2)
+{
+	int fd1, fd2;
+	struct stat st1, st2;
+	void *map1, *map2;
+	bool ret = false;
+
+	fd1 = open(file1, O_RDONLY);
+	if (fd1 < 0)
+		return ret;
+
+	fd2 = open(file2, O_RDONLY);
+	if (fd2 < 0)
+		goto close1;
+
+	ret = fstat(fd1, &st1);
+	if (ret)
+		goto close2;
+	ret = fstat(fd2, &st2);
+	if (ret)
+		goto close2;
+
+	if (st1.st_size != st2.st_size)
+		goto close2;
+
+	map1 = mmap(NULL, st1.st_size, PROT_READ, MAP_PRIVATE, fd1, 0);
+	if (map1 == MAP_FAILED)
+		goto close2;
+
+	map2 = mmap(NULL, st2.st_size, PROT_READ, MAP_PRIVATE, fd2, 0);
+	if (map2 == MAP_FAILED)
+		goto close2;
+
+	if (bcmp(map1, map2, st1.st_size))
+		goto close2;
+
+	ret = true;
+close2:
+	close(fd2);
+close1:
+	close(fd1);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Create the parent directory of the given path.
  *
@@ -74,6 +142,45 @@ static int make_parent_dir(const char *path)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static char depfile_path[PATH_MAX];
+static size_t depfile_prefix_len;
+
+/* touch depfile for symbol 'name' */
+static int conf_touch_dep(const char *name)
+{
+	int fd, ret;
+	char *d;
+
+	/* check overflow: prefix + name + '\0' must fit in buffer. */
+	if (depfile_prefix_len + strlen(name) + 1 > sizeof(depfile_path))
+		return -1;
+
+	d = depfile_path + depfile_prefix_len;
+	strcpy(d, name);
+
+	/* Assume directory path already exists. */
+	fd = open(depfile_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1) {
+		if (errno != ENOENT)
+			return -1;
+
+		ret = make_parent_dir(depfile_path);
+		if (ret)
+			return ret;
+
+		/* Try it again. */
+		fd = open(depfile_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (fd == -1)
+			return -1;
+	}
+	close(fd);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 struct conf_printer {
 	void (*print_symbol)(FILE *, struct symbol *, const char *, void *);
 	void (*print_comment)(FILE *, const char *, void *);
@@ -88,8 +195,11 @@ static void conf_message(const char *fmt, ...)
 static const char *conf_filename;
 static int conf_lineno, conf_warnings;
 
+<<<<<<< HEAD
 const char conf_defname[] = "arch/$(ARCH)/defconfig";
 
+=======
+>>>>>>> upstream/android-13
 static void conf_warning(const char *fmt, ...)
 {
 	va_list ap;
@@ -137,13 +247,18 @@ const char *conf_get_configname(void)
 	return name ? name : ".config";
 }
 
+<<<<<<< HEAD
 const char *conf_get_autoconfig_name(void)
+=======
+static const char *conf_get_autoconfig_name(void)
+>>>>>>> upstream/android-13
 {
 	char *name = getenv("KCONFIG_AUTOCONFIG");
 
 	return name ? name : "include/config/auto.conf";
 }
 
+<<<<<<< HEAD
 char *conf_get_default_confname(void)
 {
 	static char fullname[PATH_MAX+1];
@@ -159,6 +274,8 @@ char *conf_get_default_confname(void)
 	return name;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int conf_set_sym_val(struct symbol *sym, int def, int def_flags, char *p)
 {
 	char *p2;
@@ -186,6 +303,7 @@ static int conf_set_sym_val(struct symbol *sym, int def, int def_flags, char *p)
 			conf_warning("symbol value '%s' invalid for %s",
 				     p, sym->name);
 		return 1;
+<<<<<<< HEAD
 	case S_OTHER:
 		if (*p != '"') {
 			for (p2 = p; *p2 && !isspace(*p2); p2++)
@@ -194,6 +312,8 @@ static int conf_set_sym_val(struct symbol *sym, int def, int def_flags, char *p)
 			goto done;
 		}
 		/* fall through */
+=======
+>>>>>>> upstream/android-13
 	case S_STRING:
 		if (*p++ != '"')
 			break;
@@ -212,7 +332,10 @@ static int conf_set_sym_val(struct symbol *sym, int def, int def_flags, char *p)
 		/* fall through */
 	case S_INT:
 	case S_HEX:
+<<<<<<< HEAD
 	done:
+=======
+>>>>>>> upstream/android-13
 		if (sym_string_valid(sym, p)) {
 			sym->def[def].val = xstrdup(p);
 			sym->flags |= def_flags;
@@ -296,12 +419,17 @@ int conf_read_simple(const char *name, int def)
 	if (name) {
 		in = zconf_fopen(name);
 	} else {
+<<<<<<< HEAD
 		struct property *prop;
+=======
+		char *env;
+>>>>>>> upstream/android-13
 
 		name = conf_get_configname();
 		in = zconf_fopen(name);
 		if (in)
 			goto load;
+<<<<<<< HEAD
 		sym_add_change_count(1);
 		if (!sym_defconfig_list)
 			return 1;
@@ -318,6 +446,42 @@ int conf_read_simple(const char *name, int def)
 					 name);
 				goto load;
 			}
+=======
+		conf_set_changed(true);
+
+		env = getenv("KCONFIG_DEFCONFIG_LIST");
+		if (!env)
+			return 1;
+
+		while (1) {
+			bool is_last;
+
+			while (isspace(*env))
+				env++;
+
+			if (!*env)
+				break;
+
+			p = env;
+			while (*p && !isspace(*p))
+				p++;
+
+			is_last = (*p == '\0');
+
+			*p = '\0';
+
+			in = zconf_fopen(env);
+			if (in) {
+				conf_message("using defaults found in %s",
+					     env);
+				goto load;
+			}
+
+			if (is_last)
+				break;
+
+			env = p + 1;
+>>>>>>> upstream/android-13
 		}
 	}
 	if (!in)
@@ -362,8 +526,13 @@ load:
 			if (def == S_DEF_USER) {
 				sym = sym_find(line + 2 + strlen(CONFIG_));
 				if (!sym) {
+<<<<<<< HEAD
 					sym_add_change_count(1);
 					goto setsym;
+=======
+					conf_set_changed(true);
+					continue;
+>>>>>>> upstream/android-13
 				}
 			} else {
 				sym = sym_lookup(line + 2 + strlen(CONFIG_), 0);
@@ -393,6 +562,7 @@ load:
 				if (*p2 == '\r')
 					*p2 = 0;
 			}
+<<<<<<< HEAD
 			if (def == S_DEF_USER) {
 				sym = sym_find(line + strlen(CONFIG_));
 				if (!sym) {
@@ -404,6 +574,24 @@ load:
 				if (sym->type == S_UNKNOWN)
 					sym->type = S_OTHER;
 			}
+=======
+
+			sym = sym_find(line + strlen(CONFIG_));
+			if (!sym) {
+				if (def == S_DEF_AUTO)
+					/*
+					 * Reading from include/config/auto.conf
+					 * If CONFIG_FOO previously existed in
+					 * auto.conf but it is missing now,
+					 * include/config/FOO must be touched.
+					 */
+					conf_touch_dep(line + strlen(CONFIG_));
+				else
+					conf_set_changed(true);
+				continue;
+			}
+
+>>>>>>> upstream/android-13
 			if (sym->flags & def_flags) {
 				conf_warning("override: reassigning to symbol %s", sym->name);
 			}
@@ -416,7 +604,11 @@ load:
 
 			continue;
 		}
+<<<<<<< HEAD
 setsym:
+=======
+
+>>>>>>> upstream/android-13
 		if (sym && sym_is_choice_value(sym)) {
 			struct symbol *cs = prop_get_symbol(sym_get_choice_prop(sym));
 			switch (sym->def[def].tri) {
@@ -448,7 +640,11 @@ int conf_read(const char *name)
 	int conf_unsaved = 0;
 	int i;
 
+<<<<<<< HEAD
 	sym_set_change_count(0);
+=======
+	conf_set_changed(false);
+>>>>>>> upstream/android-13
 
 	if (conf_read_simple(name, S_DEF_USER)) {
 		sym_calc_value(modules_sym);
@@ -466,11 +662,17 @@ int conf_read(const char *name)
 			switch (sym->type) {
 			case S_BOOLEAN:
 			case S_TRISTATE:
+<<<<<<< HEAD
 				if (sym->def[S_DEF_USER].tri != sym_get_tristate_value(sym))
 					break;
 				if (!sym_is_choice(sym))
 					continue;
 				/* fall through */
+=======
+				if (sym->def[S_DEF_USER].tri == sym_get_tristate_value(sym))
+					continue;
+				break;
+>>>>>>> upstream/android-13
 			default:
 				if (!strcmp(sym->curr.val, sym->def[S_DEF_USER].val))
 					continue;
@@ -508,7 +710,12 @@ int conf_read(const char *name)
 		}
 	}
 
+<<<<<<< HEAD
 	sym_add_change_count(conf_warnings || conf_unsaved);
+=======
+	if (conf_warnings || conf_unsaved)
+		conf_set_changed(true);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -644,6 +851,7 @@ static struct conf_printer header_printer_cb =
 	.print_comment = header_print_comment,
 };
 
+<<<<<<< HEAD
 /*
  * Tristate printer
  *
@@ -663,13 +871,18 @@ static struct conf_printer tristate_printer_cb =
 	.print_comment = kconfig_print_comment,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void conf_write_symbol(FILE *fp, struct symbol *sym,
 			      struct conf_printer *printer, void *printer_arg)
 {
 	const char *str;
 
 	switch (sym->type) {
+<<<<<<< HEAD
 	case S_OTHER:
+=======
+>>>>>>> upstream/android-13
 	case S_UNKNOWN:
 		break;
 	case S_STRING:
@@ -729,7 +942,11 @@ int conf_write_defconfig(const char *filename)
 				goto next_menu;
 			sym->flags &= ~SYMBOL_WRITE;
 			/* If we cannot change the symbol - skip */
+<<<<<<< HEAD
 			if (!sym_is_changable(sym))
+=======
+			if (!sym_is_changeable(sym))
+>>>>>>> upstream/android-13
 				goto next_menu;
 			/* If symbol equals to default value - skip */
 			if (strcmp(sym_get_string_value(sym), sym_get_string_default(sym)) == 0)
@@ -780,6 +997,7 @@ int conf_write(const char *name)
 	FILE *out;
 	struct symbol *sym;
 	struct menu *menu;
+<<<<<<< HEAD
 	const char *basename;
 	const char *str;
 	char dirname[PATH_MAX+1], tmpname[PATH_MAX+22], newname[PATH_MAX+8];
@@ -815,6 +1033,38 @@ int conf_write(const char *name)
 	} else {
 		*tmpname = 0;
 		out = fopen(newname, "w");
+=======
+	const char *str;
+	char tmpname[PATH_MAX + 1], oldname[PATH_MAX + 1];
+	char *env;
+	int i;
+	bool need_newline = false;
+
+	if (!name)
+		name = conf_get_configname();
+
+	if (!*name) {
+		fprintf(stderr, "config name is empty\n");
+		return -1;
+	}
+
+	if (is_dir(name)) {
+		fprintf(stderr, "%s: Is a directory\n", name);
+		return -1;
+	}
+
+	if (make_parent_dir(name))
+		return -1;
+
+	env = getenv("KCONFIG_OVERWRITECONFIG");
+	if (env && *env) {
+		*tmpname = 0;
+		out = fopen(name, "w");
+	} else {
+		snprintf(tmpname, sizeof(tmpname), "%s.%d.tmp",
+			 name, (int)getpid());
+		out = fopen(tmpname, "w");
+>>>>>>> upstream/android-13
 	}
 	if (!out)
 		return 1;
@@ -835,13 +1085,25 @@ int conf_write(const char *name)
 				     "#\n"
 				     "# %s\n"
 				     "#\n", str);
+<<<<<<< HEAD
+=======
+			need_newline = false;
+>>>>>>> upstream/android-13
 		} else if (!(sym->flags & SYMBOL_CHOICE) &&
 			   !(sym->flags & SYMBOL_WRITTEN)) {
 			sym_calc_value(sym);
 			if (!(sym->flags & SYMBOL_WRITE))
 				goto next;
+<<<<<<< HEAD
 			sym->flags |= SYMBOL_WRITTEN;
 
+=======
+			if (need_newline) {
+				fprintf(out, "\n");
+				need_newline = false;
+			}
+			sym->flags |= SYMBOL_WRITTEN;
+>>>>>>> upstream/android-13
 			conf_write_symbol(out, sym, &kconfig_printer_cb, NULL);
 		}
 
@@ -853,6 +1115,15 @@ next:
 		if (menu->next)
 			menu = menu->next;
 		else while ((menu = menu->parent)) {
+<<<<<<< HEAD
+=======
+			if (!menu->sym && menu_is_visible(menu) &&
+			    menu != &rootmenu) {
+				str = menu_get_prompt(menu);
+				fprintf(out, "# end of %s\n", str);
+				need_newline = true;
+			}
+>>>>>>> upstream/android-13
 			if (menu->next) {
 				menu = menu->next;
 				break;
@@ -865,6 +1136,7 @@ next:
 		sym->flags &= ~SYMBOL_WRITTEN;
 
 	if (*tmpname) {
+<<<<<<< HEAD
 		strcat(dirname, basename);
 		strcat(dirname, ".old");
 		rename(newname, dirname);
@@ -875,6 +1147,24 @@ next:
 	conf_message("configuration written to %s", newname);
 
 	sym_set_change_count(0);
+=======
+		if (is_same(name, tmpname)) {
+			conf_message("No change to %s", name);
+			unlink(tmpname);
+			conf_set_changed(false);
+			return 0;
+		}
+
+		snprintf(oldname, sizeof(oldname), "%s.old", name);
+		rename(name, oldname);
+		if (rename(tmpname, name))
+			return 1;
+	}
+
+	conf_message("configuration written to %s", name);
+
+	conf_set_changed(false);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -885,8 +1175,11 @@ static int conf_write_dep(const char *name)
 	struct file *file;
 	FILE *out;
 
+<<<<<<< HEAD
 	if (!name)
 		name = ".kconfig.d";
+=======
+>>>>>>> upstream/android-13
 	out = fopen("..config.tmp", "w");
 	if (!out)
 		return 1;
@@ -911,6 +1204,7 @@ static int conf_write_dep(const char *name)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int conf_split_config(void)
 {
 	const char *name;
@@ -929,6 +1223,26 @@ static int conf_split_config(void)
 		return 1;
 
 	res = 0;
+=======
+static int conf_touch_deps(void)
+{
+	const char *name, *tmp;
+	struct symbol *sym;
+	int res, i;
+
+	name = conf_get_autoconfig_name();
+	tmp = strrchr(name, '/');
+	depfile_prefix_len = tmp ? tmp - name + 1 : 0;
+	if (depfile_prefix_len + 1 > sizeof(depfile_path))
+		return -1;
+
+	strncpy(depfile_path, name, depfile_prefix_len);
+	depfile_path[depfile_prefix_len] = 0;
+
+	conf_read_simple(name, S_DEF_AUTO);
+	sym_calc_value(modules_sym);
+
+>>>>>>> upstream/android-13
 	for_all_symbols(i, sym) {
 		sym_calc_value(sym);
 		if ((sym->flags & SYMBOL_NO_WRITE) || !sym->name)
@@ -980,6 +1294,7 @@ static int conf_split_config(void)
 		 *	different from 'no').
 		 */
 
+<<<<<<< HEAD
 		/* Replace all '_' and append ".h" */
 		s = sym->name;
 		d = path;
@@ -1016,6 +1331,14 @@ out:
 		return 1;
 
 	return res;
+=======
+		res = conf_touch_dep(sym->name);
+		if (res)
+			return res;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int conf_write_autoconf(int overwrite)
@@ -1023,7 +1346,11 @@ int conf_write_autoconf(int overwrite)
 	struct symbol *sym;
 	const char *name;
 	const char *autoconf_name = conf_get_autoconfig_name();
+<<<<<<< HEAD
 	FILE *out, *tristate, *out_h;
+=======
+	FILE *out, *out_h;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!overwrite && is_present(autoconf_name))
@@ -1031,13 +1358,18 @@ int conf_write_autoconf(int overwrite)
 
 	conf_write_dep("include/config/auto.conf.cmd");
 
+<<<<<<< HEAD
 	if (conf_split_config())
+=======
+	if (conf_touch_deps())
+>>>>>>> upstream/android-13
 		return 1;
 
 	out = fopen(".tmpconfig", "w");
 	if (!out)
 		return 1;
 
+<<<<<<< HEAD
 	tristate = fopen(".tmpconfig_tristate", "w");
 	if (!tristate) {
 		fclose(out);
@@ -1048,13 +1380,21 @@ int conf_write_autoconf(int overwrite)
 	if (!out_h) {
 		fclose(out);
 		fclose(tristate);
+=======
+	out_h = fopen(".tmpconfig.h", "w");
+	if (!out_h) {
+		fclose(out);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	conf_write_heading(out, &kconfig_printer_cb, NULL);
+<<<<<<< HEAD
 
 	conf_write_heading(tristate, &tristate_printer_cb, NULL);
 
+=======
+>>>>>>> upstream/android-13
 	conf_write_heading(out_h, &header_printer_cb, NULL);
 
 	for_all_symbols(i, sym) {
@@ -1062,6 +1402,7 @@ int conf_write_autoconf(int overwrite)
 		if (!(sym->flags & SYMBOL_WRITE) || !sym->name)
 			continue;
 
+<<<<<<< HEAD
 		/* write symbol to auto.conf, tristate and header files */
 		conf_write_symbol(out, sym, &kconfig_printer_cb, (void *)1);
 
@@ -1071,6 +1412,13 @@ int conf_write_autoconf(int overwrite)
 	}
 	fclose(out);
 	fclose(tristate);
+=======
+		/* write symbols to auto.conf and autoconf.h */
+		conf_write_symbol(out, sym, &kconfig_printer_cb, (void *)1);
+		conf_write_symbol(out_h, sym, &header_printer_cb, NULL);
+	}
+	fclose(out);
+>>>>>>> upstream/android-13
 	fclose(out_h);
 
 	name = getenv("KCONFIG_AUTOHEADER");
@@ -1081,6 +1429,7 @@ int conf_write_autoconf(int overwrite)
 	if (rename(".tmpconfig.h", name))
 		return 1;
 
+<<<<<<< HEAD
 	name = getenv("KCONFIG_TRISTATE");
 	if (!name)
 		name = "include/config/tristate.conf";
@@ -1089,6 +1438,8 @@ int conf_write_autoconf(int overwrite)
 	if (rename(".tmpconfig_tristate", name))
 		return 1;
 
+=======
+>>>>>>> upstream/android-13
 	if (make_parent_dir(autoconf_name))
 		return 1;
 	/*
@@ -1101,6 +1452,7 @@ int conf_write_autoconf(int overwrite)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sym_change_count;
 static void (*conf_changed_callback)(void);
 
@@ -1116,11 +1468,26 @@ void sym_set_change_count(int count)
 void sym_add_change_count(int count)
 {
 	sym_set_change_count(count + sym_change_count);
+=======
+static bool conf_changed;
+static void (*conf_changed_callback)(void);
+
+void conf_set_changed(bool val)
+{
+	if (conf_changed_callback && conf_changed != val)
+		conf_changed_callback();
+
+	conf_changed = val;
+>>>>>>> upstream/android-13
 }
 
 bool conf_get_changed(void)
 {
+<<<<<<< HEAD
 	return sym_change_count;
+=======
+	return conf_changed;
+>>>>>>> upstream/android-13
 }
 
 void conf_set_changed_callback(void (*fn)(void))
@@ -1128,6 +1495,7 @@ void conf_set_changed_callback(void (*fn)(void))
 	conf_changed_callback = fn;
 }
 
+<<<<<<< HEAD
 static bool randomize_choice_values(struct symbol *csym)
 {
 	struct property *prop;
@@ -1176,6 +1544,8 @@ static bool randomize_choice_values(struct symbol *csym)
 	return true;
 }
 
+=======
+>>>>>>> upstream/android-13
 void set_all_choice_values(struct symbol *csym)
 {
 	struct property *prop;
@@ -1195,6 +1565,7 @@ void set_all_choice_values(struct symbol *csym)
 	/* clear VALID to get value calculated */
 	csym->flags &= ~(SYMBOL_VALID | SYMBOL_NEED_SET_CHOICE_VALUES);
 }
+<<<<<<< HEAD
 
 bool conf_set_all_new_symbols(enum conf_def_mode mode)
 {
@@ -1323,3 +1694,5 @@ bool conf_set_all_new_symbols(enum conf_def_mode mode)
 
 	return has_changed;
 }
+=======
+>>>>>>> upstream/android-13

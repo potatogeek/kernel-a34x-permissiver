@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -61,6 +62,12 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2005-2014 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #ifndef __IWL_PHYDB_H__
 #define __IWL_PHYDB_H__
 

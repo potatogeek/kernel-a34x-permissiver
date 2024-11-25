@@ -2,8 +2,11 @@
 #ifndef _PARISC_DMA_MAPPING_H
 #define _PARISC_DMA_MAPPING_H
 
+<<<<<<< HEAD
 #include <asm/cacheflush.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
 ** We need to support 4 different coherent dma models with one binary:
 **
@@ -28,6 +31,7 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
 	return hppa_dma_ops;
 }
 
+<<<<<<< HEAD
 static inline void *
 parisc_walk_tree(struct device *dev)
 {
@@ -72,4 +76,6 @@ struct parisc_device;
 void * sba_get_iommu(struct parisc_device *dev);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif

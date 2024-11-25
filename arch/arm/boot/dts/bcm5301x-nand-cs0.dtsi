@@ -6,12 +6,24 @@
  */
 
 / {
+<<<<<<< HEAD
 	nand@18028000 {
 		nandcs: nandcs@0 {
+=======
+	nand-controller@18028000 {
+		nandcs: nand@0 {
+>>>>>>> upstream/android-13
 			compatible = "brcm,nandcs";
 			reg = <0>;
 			#address-cells = <1>;
 			#size-cells = <1>;
+<<<<<<< HEAD
+=======
+
+			partitions {
+				compatible = "brcm,bcm947xx-cfe-partitions";
+			};
+>>>>>>> upstream/android-13
 		};
 	};
 };

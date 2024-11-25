@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	nv_tco 0.01:	TCO timer driver for NV chipsets
  *
@@ -6,12 +10,16 @@
  *	Based off i8xx_tco.c:
  *	(c) Copyright 2000 kernel concepts <nils@kernelconcepts.de>, All Rights
  *	Reserved.
+<<<<<<< HEAD
  *				http://www.kernelconcepts.de
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+ *				https://www.kernelconcepts.de
+>>>>>>> upstream/android-13
  *
  *	TCO timer driver for NV chipsets
  *	based on softdog.c by Alan Cox <alan@redhat.com>
@@ -161,7 +169,11 @@ static int nv_tco_open(struct inode *inode, struct file *file)
 	/* Reload and activate timer */
 	tco_timer_keepalive();
 	tco_timer_start();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int nv_tco_release(struct inode *inode, struct file *file)
@@ -254,7 +266,11 @@ static long nv_tco_ioctl(struct file *file, unsigned int cmd,
 		if (tco_timer_set_heartbeat(new_heartbeat))
 			return -EINVAL;
 		tco_timer_keepalive();
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WDIOC_GETTIMEOUT:
 		return put_user(heartbeat, p);
 	default:
@@ -271,6 +287,10 @@ static const struct file_operations nv_tco_fops = {
 	.llseek =		no_llseek,
 	.write =		nv_tco_write,
 	.unlocked_ioctl =	nv_tco_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl =		compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open =			nv_tco_open,
 	.release =		nv_tco_release,
 };

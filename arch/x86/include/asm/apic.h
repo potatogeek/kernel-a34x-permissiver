@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 #ifndef _ASM_X86_APIC_H
 #define _ASM_X86_APIC_H
 
@@ -52,7 +56,11 @@ extern int apic_verbosity;
 extern int local_apic_timer_c2_ok;
 
 extern int disable_apic;
+<<<<<<< HEAD
 extern unsigned int lapic_timer_frequency;
+=======
+extern unsigned int lapic_timer_period;
+>>>>>>> upstream/android-13
 
 extern enum apic_intr_mode_id apic_intr_mode;
 enum apic_intr_mode_id {
@@ -135,9 +143,17 @@ extern int lapic_get_maxlvt(void);
 extern void clear_local_APIC(void);
 extern void disconnect_bsp_APIC(int virt_wire_setup);
 extern void disable_local_APIC(void);
+<<<<<<< HEAD
 extern void lapic_shutdown(void);
 extern void sync_Arb_IDs(void);
 extern void init_bsp_APIC(void);
+=======
+extern void apic_soft_disable(void);
+extern void lapic_shutdown(void);
+extern void sync_Arb_IDs(void);
+extern void init_bsp_APIC(void);
+extern void apic_intr_mode_select(void);
+>>>>>>> upstream/android-13
 extern void apic_intr_mode_init(void);
 extern void init_apic_mappings(void);
 void register_lapic_address(unsigned long address);
@@ -154,7 +170,10 @@ static inline int apic_force_enable(unsigned long addr)
 extern int apic_force_enable(unsigned long addr);
 #endif
 
+<<<<<<< HEAD
 extern void apic_bsp_setup(bool upmode);
+=======
+>>>>>>> upstream/android-13
 extern void apic_ap_setup(void);
 
 /*
@@ -172,8 +191,17 @@ static inline int apic_is_clustered_box(void)
 extern int setup_APIC_eilvt(u8 lvt_off, u8 vector, u8 msg_type, u8 mask);
 extern void lapic_assign_system_vectors(void);
 extern void lapic_assign_legacy_vector(unsigned int isairq, bool replace);
+<<<<<<< HEAD
 extern void lapic_online(void);
 extern void lapic_offline(void);
+=======
+extern void lapic_update_legacy_vectors(void);
+extern void lapic_online(void);
+extern void lapic_offline(void);
+extern bool apic_needs_pit(void);
+
+extern void apic_send_IPI_allbutself(unsigned int vector);
+>>>>>>> upstream/android-13
 
 #else /* !CONFIG_X86_LOCAL_APIC */
 static inline void lapic_shutdown(void) { }
@@ -184,9 +212,17 @@ static inline void disable_local_APIC(void) { }
 # define setup_secondary_APIC_clock x86_init_noop
 static inline void lapic_update_tsc_freq(void) { }
 static inline void init_bsp_APIC(void) { }
+<<<<<<< HEAD
 static inline void apic_intr_mode_init(void) { }
 static inline void lapic_assign_system_vectors(void) { }
 static inline void lapic_assign_legacy_vector(unsigned int i, bool r) { }
+=======
+static inline void apic_intr_mode_select(void) { }
+static inline void apic_intr_mode_init(void) { }
+static inline void lapic_assign_system_vectors(void) { }
+static inline void lapic_assign_legacy_vector(unsigned int i, bool r) { }
+static inline bool apic_needs_pit(void) { return true; }
+>>>>>>> upstream/android-13
 #endif /* !CONFIG_X86_LOCAL_APIC */
 
 #ifdef CONFIG_X86_X2APIC
@@ -264,7 +300,10 @@ struct irq_data;
 
 /*
  * Copyright 2004 James Cleverdon, IBM.
+<<<<<<< HEAD
  * Subject to the GNU Public License, v.2
+=======
+>>>>>>> upstream/android-13
  *
  * Generic APIC sub-arch data struct.
  *
@@ -290,11 +329,18 @@ struct apic {
 	void	(*send_IPI_all)(int vector);
 	void	(*send_IPI_self)(int vector);
 
+<<<<<<< HEAD
 	/* dest_logical is used by the IPI functions */
 	u32	dest_logical;
 	u32	disable_esr;
 	u32	irq_delivery_mode;
 	u32	irq_dest_mode;
+=======
+	u32	disable_esr;
+
+	enum apic_delivery_modes delivery_mode;
+	bool	dest_mode_logical;
+>>>>>>> upstream/android-13
 
 	u32	(*calc_dest_apicid)(unsigned int cpu);
 
@@ -359,12 +405,20 @@ extern struct apic *apic;
 #define apic_driver(sym)					\
 	static const struct apic *__apicdrivers_##sym __used		\
 	__aligned(sizeof(struct apic *))			\
+<<<<<<< HEAD
 	__section(.apicdrivers) = { &sym }
+=======
+	__section(".apicdrivers") = { &sym }
+>>>>>>> upstream/android-13
 
 #define apic_drivers(sym1, sym2)					\
 	static struct apic *__apicdrivers_##sym1##sym2[2] __used	\
 	__aligned(sizeof(struct apic *))				\
+<<<<<<< HEAD
 	__section(.apicdrivers) = { &sym1, &sym2 }
+=======
+	__section(".apicdrivers") = { &sym1, &sym2 }
+>>>>>>> upstream/android-13
 
 extern struct apic *__apicdrivers[], *__apicdrivers_end[];
 
@@ -463,12 +517,15 @@ static inline unsigned default_get_apic_id(unsigned long x)
 #define TRAMPOLINE_PHYS_LOW		0x467
 #define TRAMPOLINE_PHYS_HIGH		0x469
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 extern void apic_send_IPI_self(int vector);
 
 DECLARE_PER_CPU(int, x2apic_extra_bits);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 extern void generic_bigsmp_probe(void);
 
 #ifdef CONFIG_X86_LOCAL_APIC
@@ -504,6 +561,7 @@ extern int default_check_phys_apicid_present(int phys_apicid);
 
 #ifdef CONFIG_SMP
 bool apic_id_is_primary_thread(unsigned int id);
+<<<<<<< HEAD
 #else
 static inline bool apic_id_is_primary_thread(unsigned int id) { return false; }
 #endif
@@ -540,6 +598,19 @@ static inline void exiting_ack_irq(void)
 	ack_APIC_irq();
 	irq_exit();
 }
+=======
+void apic_smt_update(void);
+#else
+static inline bool apic_id_is_primary_thread(unsigned int id) { return false; }
+static inline void apic_smt_update(void) { }
+#endif
+
+struct msi_msg;
+struct irq_cfg;
+
+extern void __irq_msi_compose_msg(struct irq_cfg *cfg, struct msi_msg *msg,
+				  bool dmar);
+>>>>>>> upstream/android-13
 
 extern void ioapic_zap_locks(void);
 

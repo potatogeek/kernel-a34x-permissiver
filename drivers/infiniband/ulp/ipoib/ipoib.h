@@ -413,7 +413,10 @@ struct ipoib_dev_priv {
 	u64	hca_caps;
 	struct ipoib_ethtool_st ethtool;
 	unsigned int max_send_sge;
+<<<<<<< HEAD
 	bool sm_fullmember_sendonly_support;
+=======
+>>>>>>> upstream/android-13
 	const struct net_device_ops	*rn_ops;
 };
 
@@ -455,7 +458,11 @@ struct ipoib_neigh {
 	struct list_head    list;
 	struct ipoib_neigh __rcu *hnext;
 	struct rcu_head     rcu;
+<<<<<<< HEAD
 	atomic_t	    refcnt;
+=======
+	refcount_t	    refcnt;
+>>>>>>> upstream/android-13
 	unsigned long       alive;
 };
 
@@ -465,7 +472,11 @@ struct ipoib_neigh {
 void ipoib_neigh_dtor(struct ipoib_neigh *neigh);
 static inline void ipoib_neigh_put(struct ipoib_neigh *neigh)
 {
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&neigh->refcnt))
+=======
+	if (refcount_dec_and_test(&neigh->refcnt))
+>>>>>>> upstream/android-13
 		ipoib_neigh_dtor(neigh);
 }
 struct ipoib_neigh *ipoib_neigh_get(struct net_device *dev, u8 *daddr);
@@ -502,8 +513,15 @@ void ipoib_reap_ah(struct work_struct *work);
 struct ipoib_path *__path_find(struct net_device *dev, void *gid);
 void ipoib_mark_paths_invalid(struct net_device *dev);
 void ipoib_flush_paths(struct net_device *dev);
+<<<<<<< HEAD
 struct ipoib_dev_priv *ipoib_intf_alloc(struct ib_device *hca, u8 port,
 					const char *format);
+=======
+struct net_device *ipoib_intf_alloc(struct ib_device *hca, u32 port,
+				    const char *format);
+int ipoib_intf_init(struct ib_device *hca, u32 port, const char *format,
+		    struct net_device *dev);
+>>>>>>> upstream/android-13
 void ipoib_ib_tx_timer_func(struct timer_list *t);
 void ipoib_ib_dev_flush_light(struct work_struct *work);
 void ipoib_ib_dev_flush_normal(struct work_struct *work);
@@ -525,7 +543,11 @@ void ipoib_mcast_send(struct net_device *dev, u8 *daddr, struct sk_buff *skb);
 
 void ipoib_mcast_restart_task(struct work_struct *work);
 void ipoib_mcast_start_thread(struct net_device *dev);
+<<<<<<< HEAD
 int ipoib_mcast_stop_thread(struct net_device *dev);
+=======
+void ipoib_mcast_stop_thread(struct net_device *dev);
+>>>>>>> upstream/android-13
 
 void ipoib_mcast_dev_down(struct net_device *dev);
 void ipoib_mcast_dev_flush(struct net_device *dev);
@@ -534,6 +556,11 @@ int ipoib_dma_map_tx(struct ib_device *ca, struct ipoib_tx_buf *tx_req);
 void ipoib_dma_unmap_tx(struct ipoib_dev_priv *priv,
 			struct ipoib_tx_buf *tx_req);
 
+<<<<<<< HEAD
+=======
+struct rtnl_link_ops *ipoib_get_link_ops(void);
+
+>>>>>>> upstream/android-13
 static inline void ipoib_build_sge(struct ipoib_dev_priv *priv,
 				   struct ipoib_tx_buf *tx_req)
 {
@@ -674,8 +701,11 @@ void ipoib_cm_handle_rx_wc(struct net_device *dev, struct ib_wc *wc);
 void ipoib_cm_handle_tx_wc(struct net_device *dev, struct ib_wc *wc);
 #else
 
+<<<<<<< HEAD
 struct ipoib_cm_tx;
 
+=======
+>>>>>>> upstream/android-13
 #define ipoib_max_conn_qp 0
 
 static inline int ipoib_cm_admin_enabled(struct net_device *dev)
@@ -780,12 +810,20 @@ static inline void ipoib_cm_handle_tx_wc(struct net_device *dev, struct ib_wc *w
 #ifdef CONFIG_INFINIBAND_IPOIB_DEBUG
 void ipoib_create_debug_files(struct net_device *dev);
 void ipoib_delete_debug_files(struct net_device *dev);
+<<<<<<< HEAD
 int ipoib_register_debugfs(void);
+=======
+void ipoib_register_debugfs(void);
+>>>>>>> upstream/android-13
 void ipoib_unregister_debugfs(void);
 #else
 static inline void ipoib_create_debug_files(struct net_device *dev) { }
 static inline void ipoib_delete_debug_files(struct net_device *dev) { }
+<<<<<<< HEAD
 static inline int ipoib_register_debugfs(void) { return 0; }
+=======
+static inline void ipoib_register_debugfs(void) { }
+>>>>>>> upstream/android-13
 static inline void ipoib_unregister_debugfs(void) { }
 #endif
 
@@ -838,6 +876,9 @@ extern int ipoib_debug_level;
 
 #define IPOIB_QPN(ha) (be32_to_cpup((__be32 *) ha) & 0xffffff)
 
+<<<<<<< HEAD
 extern const char ipoib_driver_version[];
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _IPOIB_H */

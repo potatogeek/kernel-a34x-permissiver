@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/sysdev/qe_lib/ucc.c
  *
@@ -7,11 +11,14 @@
  *
  * Authors: 	Shlomi Gridish <gridish@freescale.com>
  * 		Li Yang <leoli@freescale.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/errno.h>
@@ -19,7 +26,10 @@
 #include <linux/spinlock.h>
 #include <linux/export.h>
 
+<<<<<<< HEAD
 #include <asm/irq.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <soc/fsl/qe/immap_qe.h>
 #include <soc/fsl/qe/qe.h>
@@ -39,8 +49,13 @@ int ucc_set_qe_mux_mii_mng(unsigned int ucc_num)
 		return -EINVAL;
 
 	spin_lock_irqsave(&cmxgcr_lock, flags);
+<<<<<<< HEAD
 	clrsetbits_be32(&qe_immr->qmx.cmxgcr, QE_CMXGCR_MII_ENET_MNG,
 		ucc_num << QE_CMXGCR_MII_ENET_MNG_SHIFT);
+=======
+	qe_clrsetbits_be32(&qe_immr->qmx.cmxgcr, QE_CMXGCR_MII_ENET_MNG,
+			   ucc_num << QE_CMXGCR_MII_ENET_MNG_SHIFT);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&cmxgcr_lock, flags);
 
 	return 0;
@@ -84,8 +99,13 @@ int ucc_set_type(unsigned int ucc_num, enum ucc_speed_type speed)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	clrsetbits_8(guemr, UCC_GUEMR_MODE_MASK,
 		UCC_GUEMR_SET_RESERVED3 | speed);
+=======
+	qe_clrsetbits_8(guemr, UCC_GUEMR_MODE_MASK,
+			UCC_GUEMR_SET_RESERVED3 | speed);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -113,9 +133,15 @@ int ucc_mux_set_grant_tsa_bkpt(unsigned int ucc_num, int set, u32 mask)
 	get_cmxucr_reg(ucc_num, &cmxucr, &reg_num, &shift);
 
 	if (set)
+<<<<<<< HEAD
 		setbits32(cmxucr, mask << shift);
 	else
 		clrbits32(cmxucr, mask << shift);
+=======
+		qe_setbits_be32(cmxucr, mask << shift);
+	else
+		qe_clrbits_be32(cmxucr, mask << shift);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -211,8 +237,13 @@ int ucc_set_qe_mux_rxtx(unsigned int ucc_num, enum qe_clock clock,
 	if (mode == COMM_DIR_RX)
 		shift += 4;
 
+<<<<<<< HEAD
 	clrsetbits_be32(cmxucr, QE_CMXUCR_TX_CLK_SRC_MASK << shift,
 		clock_bits << shift);
+=======
+	qe_clrsetbits_be32(cmxucr, QE_CMXUCR_TX_CLK_SRC_MASK << shift,
+			   clock_bits << shift);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -524,11 +555,19 @@ int ucc_set_tdm_rxtx_clk(u32 tdm_num, enum qe_clock clock,
 	int clock_bits;
 	u32 shift;
 	struct qe_mux __iomem *qe_mux_reg;
+<<<<<<< HEAD
 	 __be32 __iomem *cmxs1cr;
 
 	qe_mux_reg = &qe_immr->qmx;
 
 	if (tdm_num > 7 || tdm_num < 0)
+=======
+	__be32 __iomem *cmxs1cr;
+
+	qe_mux_reg = &qe_immr->qmx;
+
+	if (tdm_num > 7)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* The communications direction must be RX or TX */
@@ -544,8 +583,13 @@ int ucc_set_tdm_rxtx_clk(u32 tdm_num, enum qe_clock clock,
 	cmxs1cr = (tdm_num < 4) ? &qe_mux_reg->cmxsi1cr_l :
 				  &qe_mux_reg->cmxsi1cr_h;
 
+<<<<<<< HEAD
 	qe_clrsetbits32(cmxs1cr, QE_CMXUCR_TX_CLK_SRC_MASK << shift,
 			clock_bits << shift);
+=======
+	qe_clrsetbits_be32(cmxs1cr, QE_CMXUCR_TX_CLK_SRC_MASK << shift,
+			   clock_bits << shift);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -637,7 +681,11 @@ int ucc_set_tdm_rxtx_sync(u32 tdm_num, enum qe_clock clock,
 {
 	int source;
 	u32 shift;
+<<<<<<< HEAD
 	struct qe_mux *qe_mux_reg;
+=======
+	struct qe_mux __iomem *qe_mux_reg;
+>>>>>>> upstream/android-13
 
 	qe_mux_reg = &qe_immr->qmx;
 
@@ -654,9 +702,15 @@ int ucc_set_tdm_rxtx_sync(u32 tdm_num, enum qe_clock clock,
 
 	shift = ucc_get_tdm_sync_shift(mode, tdm_num);
 
+<<<<<<< HEAD
 	qe_clrsetbits32(&qe_mux_reg->cmxsi1syr,
 			QE_CMXUCR_TX_CLK_SRC_MASK << shift,
 			source << shift);
+=======
+	qe_clrsetbits_be32(&qe_mux_reg->cmxsi1syr,
+			   QE_CMXUCR_TX_CLK_SRC_MASK << shift,
+			   source << shift);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

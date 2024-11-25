@@ -49,6 +49,12 @@ SUBSYSTEM
 'sched'::
 	Scheduler and IPC mechanisms.
 
+<<<<<<< HEAD
+=======
+'syscall'::
+	System call performance (throughput).
+
+>>>>>>> upstream/android-13
 'mem'::
 	Memory access performance.
 
@@ -58,6 +64,15 @@ SUBSYSTEM
 'futex'::
 	Futex stressing benchmarks.
 
+<<<<<<< HEAD
+=======
+'epoll'::
+	Eventpoll (epoll) stressing benchmarks.
+
+'internals'::
+	Benchmark internal perf functionality.
+
+>>>>>>> upstream/android-13
 'all'::
 	All benchmark subsystems.
 
@@ -131,6 +146,17 @@ Example of *pipe*
                 59004 ops/sec
 ---------------------
 
+<<<<<<< HEAD
+=======
+SUITES FOR 'syscall'
+~~~~~~~~~~~~~~~~~~
+*basic*::
+Suite for evaluating performance of core system call throughput (both usecs/op and ops/sec metrics).
+This uses a single thread simply doing getppid(2), which is a simple syscall where the result is not
+cached by glibc.
+
+
+>>>>>>> upstream/android-13
 SUITES FOR 'mem'
 ~~~~~~~~~~~~~~~~
 *memcpy*::
@@ -203,6 +229,21 @@ Suite for evaluating requeue calls.
 *lock-pi*::
 Suite for evaluating futex lock_pi calls.
 
+<<<<<<< HEAD
+=======
+SUITES FOR 'epoll'
+~~~~~~~~~~~~~~~~~~
+*wait*::
+Suite for evaluating concurrent epoll_wait calls.
+
+*ctl*::
+Suite for evaluating multiple epoll_ctl calls.
+
+SUITES FOR 'internals'
+~~~~~~~~~~~~~~~~~~~~~~
+*synthesize*::
+Suite for evaluating perf's event synthesis performance.
+>>>>>>> upstream/android-13
 
 SEE ALSO
 --------

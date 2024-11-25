@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * BCH Error Location Module
  *
@@ -13,6 +14,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * BCH Error Location Module
+ *
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ELM_H
@@ -60,6 +68,10 @@ static inline int elm_config(struct device *dev, enum bch_ecc bch_type,
 {
 	return -ENOSYS;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_MTD_NAND_ECC_BCH */
+=======
+#endif /* CONFIG_MTD_NAND_OMAP_BCH */
+>>>>>>> upstream/android-13
 
 #endif /* __ELM_H */

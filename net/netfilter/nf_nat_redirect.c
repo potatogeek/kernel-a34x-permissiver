@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * (C) 1999-2001 Paul `Rusty' Russell
  * (C) 2002-2006 Netfilter Core Team <coreteam@netfilter.org>
  * Copyright (c) 2011 Patrick McHardy <kaber@trash.net>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on Rusty Russell's IPv4 REDIRECT target. Development of IPv6
  * NAT funded by Astaro.
  */
@@ -47,6 +54,7 @@ nf_nat_redirect_ipv4(struct sk_buff *skb,
 	if (hooknum == NF_INET_LOCAL_OUT) {
 		newdst = htonl(0x7F000001);
 	} else {
+<<<<<<< HEAD
 		struct in_device *indev;
 		struct in_ifaddr *ifa;
 
@@ -59,6 +67,20 @@ nf_nat_redirect_ipv4(struct sk_buff *skb,
 			newdst = ifa->ifa_local;
 		}
 		rcu_read_unlock();
+=======
+		const struct in_device *indev;
+
+		newdst = 0;
+
+		indev = __in_dev_get_rcu(skb->dev);
+		if (indev) {
+			const struct in_ifaddr *ifa;
+
+			ifa = rcu_dereference(indev->ifa_list);
+			if (ifa)
+				newdst = ifa->ifa_local;
+		}
+>>>>>>> upstream/android-13
 
 		if (!newdst)
 			return NF_DROP;
@@ -97,7 +119,10 @@ nf_nat_redirect_ipv6(struct sk_buff *skb, const struct nf_nat_range2 *range,
 		struct inet6_ifaddr *ifa;
 		bool addr = false;
 
+<<<<<<< HEAD
 		rcu_read_lock();
+=======
+>>>>>>> upstream/android-13
 		idev = __in6_dev_get(skb->dev);
 		if (idev != NULL) {
 			read_lock_bh(&idev->lock);
@@ -108,7 +133,10 @@ nf_nat_redirect_ipv6(struct sk_buff *skb, const struct nf_nat_range2 *range,
 			}
 			read_unlock_bh(&idev->lock);
 		}
+<<<<<<< HEAD
 		rcu_read_unlock();
+=======
+>>>>>>> upstream/android-13
 
 		if (!addr)
 			return NF_DROP;

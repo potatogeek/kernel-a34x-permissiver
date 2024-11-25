@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /***************************************************************************
  *   Copyright (C) 2010-2012 by Bruno Prémont <bonbons@linux-vserver.org>  *
  *                                                                         *
  *   Based on Logitech G13 driver (v0.4)                                   *
  *     Copyright (C) 2009 by Rick L. Vinyard, Jr. <rvinyard@cs.nmsu.edu>   *
  *                                                                         *
+<<<<<<< HEAD
  *   This program is free software: you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation, version 2 of the License.               *
@@ -15,6 +20,8 @@
  *                                                                         *
  *   You should have received a copy of the GNU General Public License     *
  *   along with this software. If not see <http://www.gnu.org/licenses/>.  *
+=======
+>>>>>>> upstream/android-13
  ***************************************************************************/
 
 #include <linux/hid.h>
@@ -28,6 +35,10 @@
 #include <linux/completion.h>
 #include <linux/uaccess.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/string.h>
+>>>>>>> upstream/android-13
 
 #include "hid-picolcd.h"
 
@@ -275,6 +286,7 @@ static ssize_t picolcd_operation_mode_store(struct device *dev,
 {
 	struct picolcd_data *data = dev_get_drvdata(dev);
 	struct hid_report *report = NULL;
+<<<<<<< HEAD
 	size_t cnt = count;
 	int timeout = data->opmode_delay;
 	unsigned long flags;
@@ -296,6 +308,22 @@ static ssize_t picolcd_operation_mode_store(struct device *dev,
 	while (cnt > 0 && (buf[cnt-1] == '\n' || buf[cnt-1] == '\r'))
 		cnt--;
 	if (cnt != 0)
+=======
+	int timeout = data->opmode_delay;
+	unsigned long flags;
+
+	if (sysfs_streq(buf, "lcd")) {
+		if (data->status & PICOLCD_BOOTLOADER)
+			report = picolcd_out_report(REPORT_EXIT_FLASHER, data->hdev);
+	} else if (sysfs_streq(buf, "bootloader")) {
+		if (!(data->status & PICOLCD_BOOTLOADER))
+			report = picolcd_out_report(REPORT_EXIT_KEYBOARD, data->hdev);
+	} else {
+		return -EINVAL;
+	}
+
+	if (!report || report->maxfield != 1)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	spin_lock_irqsave(&data->lock, flags);
@@ -345,7 +373,10 @@ static int picolcd_raw_event(struct hid_device *hdev,
 {
 	struct picolcd_data *data = hid_get_drvdata(hdev);
 	unsigned long flags;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if (!data)
 		return 1;
@@ -358,9 +389,15 @@ static int picolcd_raw_event(struct hid_device *hdev,
 
 	if (report->id == REPORT_KEY_STATE) {
 		if (data->input_keys)
+<<<<<<< HEAD
 			ret = picolcd_raw_keypad(data, report, raw_data+1, size-1);
 	} else if (report->id == REPORT_IR_DATA) {
 		ret = picolcd_raw_cir(data, report, raw_data+1, size-1);
+=======
+			picolcd_raw_keypad(data, report, raw_data+1, size-1);
+	} else if (report->id == REPORT_IR_DATA) {
+		picolcd_raw_cir(data, report, raw_data+1, size-1);
+>>>>>>> upstream/android-13
 	} else {
 		spin_lock_irqsave(&data->lock, flags);
 		/*
@@ -550,8 +587,12 @@ static int picolcd_probe(struct hid_device *hdev,
 	data = kzalloc(sizeof(struct picolcd_data), GFP_KERNEL);
 	if (data == NULL) {
 		hid_err(hdev, "can't allocate space for Minibox PicoLCD device data\n");
+<<<<<<< HEAD
 		error = -ENOMEM;
 		goto err_no_cleanup;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_init(&data->lock);
@@ -613,9 +654,12 @@ err_cleanup_hid_hw:
 	hid_hw_stop(hdev);
 err_cleanup_data:
 	kfree(data);
+<<<<<<< HEAD
 err_no_cleanup:
 	hid_set_drvdata(hdev, NULL);
 
+=======
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -651,7 +695,10 @@ static void picolcd_remove(struct hid_device *hdev)
 	picolcd_exit_cir(data);
 	picolcd_exit_keys(data);
 
+<<<<<<< HEAD
 	hid_set_drvdata(hdev, NULL);
+=======
+>>>>>>> upstream/android-13
 	mutex_destroy(&data->mutex);
 	/* Finally, clean up the picolcd data itself */
 	kfree(data);

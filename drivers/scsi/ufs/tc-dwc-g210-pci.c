@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Synopsys G210 Test Chip driver
  *
  * Copyright (C) 2015-2016 Synopsys, Inc. (www.synopsys.com)
  *
  * Authors: Joao Pinto <jpinto@synopsys.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ufshcd.h"
@@ -26,6 +33,7 @@ static int tc_type = TC_G210_INV;
 module_param(tc_type, int, 0);
 MODULE_PARM_DESC(tc_type, "Test Chip Type (20 = 20-bit, 40 = 40-bit)");
 
+<<<<<<< HEAD
 static int tc_dwc_g210_pci_suspend(struct device *dev)
 {
 	return ufshcd_system_suspend(dev_get_drvdata(dev));
@@ -51,6 +59,8 @@ static int tc_dwc_g210_pci_runtime_idle(struct device *dev)
 	return ufshcd_runtime_idle(dev_get_drvdata(dev));
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * struct ufs_hba_dwc_vops - UFS DWC specific variant operations
  */
@@ -138,7 +148,10 @@ tc_dwc_g210_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		return err;
 	}
 
+<<<<<<< HEAD
 	pci_set_drvdata(pdev, hba);
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_put_noidle(&pdev->dev);
 	pm_runtime_allow(&pdev->dev);
 
@@ -146,11 +159,18 @@ tc_dwc_g210_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 }
 
 static const struct dev_pm_ops tc_dwc_g210_pci_pm_ops = {
+<<<<<<< HEAD
 	.suspend	= tc_dwc_g210_pci_suspend,
 	.resume		= tc_dwc_g210_pci_resume,
 	.runtime_suspend = tc_dwc_g210_pci_runtime_suspend,
 	.runtime_resume  = tc_dwc_g210_pci_runtime_resume,
 	.runtime_idle    = tc_dwc_g210_pci_runtime_idle,
+=======
+	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_system_suspend, ufshcd_system_resume)
+	SET_RUNTIME_PM_OPS(ufshcd_runtime_suspend, ufshcd_runtime_resume, NULL)
+	.prepare	 = ufshcd_suspend_prepare,
+	.complete	 = ufshcd_resume_complete,
+>>>>>>> upstream/android-13
 };
 
 static const struct pci_device_id tc_dwc_g210_pci_tbl[] = {

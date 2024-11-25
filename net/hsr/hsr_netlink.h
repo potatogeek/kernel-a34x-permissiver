@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright 2011-2014 Autronica Fire and Security AS
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -7,6 +8,15 @@
  *
  * Author(s):
  *	2011-2014 Arvid Brodin, arvid.brodin@alten.se
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright 2011-2014 Autronica Fire and Security AS
+ *
+ * Author(s):
+ *	2011-2014 Arvid Brodin, arvid.brodin@alten.se
+ *
+ * include file for HSR and PRP.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HSR_NETLINK_H

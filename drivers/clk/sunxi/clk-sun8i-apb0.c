@@ -1,21 +1,35 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Chen-Yu Tsai
  * Author: Chen-Yu Tsai <wens@csie.org>
  *
  * Allwinner A23 APB0 clock driver
  *
+<<<<<<< HEAD
  * License Terms: GNU General Public License v2
  *
+=======
+>>>>>>> upstream/android-13
  * Based on clk-sun6i-apb0.c
  * Allwinner A31 APB0 clock driver
  *
  * Copyright (C) 2014 Free Electrons
  * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/platform_device.h>

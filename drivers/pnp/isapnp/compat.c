@@ -21,6 +21,7 @@ static void pnp_convert_id(char *buf, unsigned short vendor,
 		(device >> 12) & 0x0f, (device >> 8) & 0x0f);
 }
 
+<<<<<<< HEAD
 struct pnp_card *pnp_find_card(unsigned short vendor, unsigned short device,
 			       struct pnp_card *from)
 {
@@ -43,6 +44,8 @@ struct pnp_card *pnp_find_card(unsigned short vendor, unsigned short device,
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct pnp_dev *pnp_find_dev(struct pnp_card *card, unsigned short vendor,
 			     unsigned short function, struct pnp_dev *from)
 {
@@ -85,6 +88,9 @@ struct pnp_dev *pnp_find_dev(struct pnp_card *card, unsigned short vendor,
 	}
 	return NULL;
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(pnp_find_card);
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(pnp_find_dev);

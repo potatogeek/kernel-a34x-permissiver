@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2009-2010, Lars-Peter Clausen <lars@metafoo.de>
  *  JZ4740 platform IRQ support
@@ -11,6 +12,12 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2009-2010, Lars-Peter Clausen <lars@metafoo.de>
+ *  Ingenic XBurst platform IRQ support
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -19,7 +26,10 @@
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
 #include <linux/irqchip.h>
+<<<<<<< HEAD
 #include <linux/irqchip/ingenic.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/timex.h>
@@ -27,10 +37,17 @@
 #include <linux/delay.h>
 
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/mach-jz4740/irq.h>
 
 struct ingenic_intc_data {
 	void __iomem *base;
+=======
+
+struct ingenic_intc_data {
+	void __iomem *base;
+	struct irq_domain *domain;
+>>>>>>> upstream/android-13
 	unsigned num_chips;
 };
 
@@ -44,6 +61,7 @@ struct ingenic_intc_data {
 static irqreturn_t intc_cascade(int irq, void *data)
 {
 	struct ingenic_intc_data *intc = irq_get_handler_data(irq);
+<<<<<<< HEAD
 	uint32_t irq_reg;
 	unsigned i;
 
@@ -54,11 +72,32 @@ static irqreturn_t intc_cascade(int irq, void *data)
 			continue;
 
 		generic_handle_irq(__fls(irq_reg) + (i * 32) + JZ4740_IRQ_BASE);
+=======
+	struct irq_domain *domain = intc->domain;
+	struct irq_chip_generic *gc;
+	uint32_t pending;
+	unsigned i;
+
+	for (i = 0; i < intc->num_chips; i++) {
+		gc = irq_get_domain_generic_chip(domain, i * 32);
+
+		pending = irq_reg_readl(gc, JZ_REG_INTC_PENDING);
+		if (!pending)
+			continue;
+
+		while (pending) {
+			int bit = __fls(pending);
+
+			generic_handle_domain_irq(domain, bit + (i * 32));
+			pending &= ~BIT(bit);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void intc_irq_set_mask(struct irq_chip_generic *gc, uint32_t mask)
 {
 	struct irq_chip_regs *regs = &gc->chip_types->regs;
@@ -84,6 +123,8 @@ static struct irqaction intc_cascade_action = {
 	.name = "SoC intc cascade interrupt",
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init ingenic_intc_of_init(struct device_node *node,
 				       unsigned num_chips)
 {
@@ -117,14 +158,20 @@ static int __init ingenic_intc_of_init(struct device_node *node,
 		goto out_unmap_irq;
 	}
 
+<<<<<<< HEAD
 	domain = irq_domain_add_legacy(node, num_chips * 32,
 				       JZ4740_IRQ_BASE, 0,
 				       &irq_domain_simple_ops, NULL);
+=======
+	domain = irq_domain_add_linear(node, num_chips * 32,
+				       &irq_generic_chip_ops, NULL);
+>>>>>>> upstream/android-13
 	if (!domain) {
 		err = -ENOMEM;
 		goto out_unmap_base;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < num_chips; i++) {
 		/* Mask all irqs */
 		writel(0xffffffff, intc->base + (i * CHIP_SIZE) +
@@ -136,6 +183,21 @@ static int __init ingenic_intc_of_init(struct device_node *node,
 					    handle_level_irq);
 
 		gc->wake_enabled = IRQ_MSK(32);
+=======
+	intc->domain = domain;
+
+	err = irq_alloc_domain_generic_chips(domain, 32, 1, "INTC",
+					     handle_level_irq, 0,
+					     IRQ_NOPROBE | IRQ_LEVEL, 0);
+	if (err)
+		goto out_domain_remove;
+
+	for (i = 0; i < num_chips; i++) {
+		gc = irq_get_domain_generic_chip(domain, i * 32);
+
+		gc->wake_enabled = IRQ_MSK(32);
+		gc->reg_base = intc->base + (i * CHIP_SIZE);
+>>>>>>> upstream/android-13
 
 		ct = gc->chip_types;
 		ct->regs.enable = JZ_REG_INTC_CLEAR_MASK;
@@ -144,6 +206,7 @@ static int __init ingenic_intc_of_init(struct device_node *node,
 		ct->chip.irq_mask = irq_gc_mask_disable_reg;
 		ct->chip.irq_mask_ack = irq_gc_mask_disable_reg;
 		ct->chip.irq_set_wake = irq_gc_set_wake;
+<<<<<<< HEAD
 		ct->chip.irq_suspend = ingenic_intc_irq_suspend;
 		ct->chip.irq_resume = ingenic_intc_irq_resume;
 
@@ -154,6 +217,21 @@ static int __init ingenic_intc_of_init(struct device_node *node,
 	setup_irq(parent_irq, &intc_cascade_action);
 	return 0;
 
+=======
+		ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND;
+
+		/* Mask all irqs */
+		irq_reg_writel(gc, IRQ_MSK(32), JZ_REG_INTC_SET_MASK);
+	}
+
+	if (request_irq(parent_irq, intc_cascade, IRQF_NO_SUSPEND,
+			"SoC intc cascade interrupt", NULL))
+		pr_err("Failed to register SoC intc cascade interrupt\n");
+	return 0;
+
+out_domain_remove:
+	irq_domain_remove(domain);
+>>>>>>> upstream/android-13
 out_unmap_base:
 	iounmap(intc->base);
 out_unmap_irq:
@@ -177,6 +255,10 @@ static int __init intc_2chip_of_init(struct device_node *node,
 {
 	return ingenic_intc_of_init(node, 2);
 }
+<<<<<<< HEAD
+=======
+IRQCHIP_DECLARE(jz4760_intc, "ingenic,jz4760-intc", intc_2chip_of_init);
+>>>>>>> upstream/android-13
 IRQCHIP_DECLARE(jz4770_intc, "ingenic,jz4770-intc", intc_2chip_of_init);
 IRQCHIP_DECLARE(jz4775_intc, "ingenic,jz4775-intc", intc_2chip_of_init);
 IRQCHIP_DECLARE(jz4780_intc, "ingenic,jz4780-intc", intc_2chip_of_init);

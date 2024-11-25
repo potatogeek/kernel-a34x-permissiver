@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pinctrl for Cirrus Logic Madera codecs
  *
  * Copyright (C) 2016-2018 Cirrus Logic
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -14,6 +21,10 @@
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/pinctrl/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinctrl.h>
 #include <linux/pinctrl/pinmux.h>
 #include <linux/pinctrl/pinconf.h>
@@ -399,6 +410,19 @@ static const struct {
 		.group_names = madera_pin_single_group_names,
 		.func = 0x157
 	},
+<<<<<<< HEAD
+=======
+	{
+		.name = "aux-pdm-clk",
+		.group_names = madera_pin_single_group_names,
+		.func = 0x280
+	},
+	{
+		.name = "aux-pdm-dat",
+		.group_names = madera_pin_single_group_names,
+		.func = 0x281
+	},
+>>>>>>> upstream/android-13
 };
 
 static u16 madera_pin_make_drv_str(struct madera_pin_private *priv,
@@ -550,10 +574,16 @@ static void __maybe_unused madera_pin_dbg_show(struct pinctrl_dev *pctldev,
 	seq_printf(s, " DRV=%umA", madera_pin_unmake_drv_str(priv, conf[1]));
 
 	if (conf[0] & MADERA_GP1_IP_CFG_MASK)
+<<<<<<< HEAD
 		seq_puts(s, "SCHMITT");
 }
 
 
+=======
+		seq_puts(s, " SCHMITT");
+}
+
+>>>>>>> upstream/android-13
 static const struct pinctrl_ops madera_pin_group_ops = {
 	.get_groups_count = madera_get_groups_count,
 	.get_group_name = madera_get_group_name,
@@ -801,7 +831,11 @@ static int madera_pin_conf_get(struct pinctrl_dev *pctldev, unsigned int pin,
 			result = 1;
 		break;
 	default:
+<<<<<<< HEAD
 		break;
+=======
+		return -ENOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	*config = pinconf_to_config_packed(param, result);
@@ -905,7 +939,11 @@ static int madera_pin_conf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 			conf[1] &= ~MADERA_GP1_DIR;
 			break;
 		default:
+<<<<<<< HEAD
 			break;
+=======
+			return -ENOTSUPP;
+>>>>>>> upstream/android-13
 		}
 
 		++configs;
@@ -971,10 +1009,17 @@ static int madera_pin_conf_group_set(struct pinctrl_dev *pctldev,
 }
 
 static const struct pinconf_ops madera_pin_conf_ops = {
+<<<<<<< HEAD
 	.pin_config_get = madera_pin_conf_get,
 	.pin_config_set = madera_pin_conf_set,
 	.pin_config_group_set = madera_pin_conf_group_set,
 
+=======
+	.is_generic = true,
+	.pin_config_get = madera_pin_conf_get,
+	.pin_config_set = madera_pin_conf_set,
+	.pin_config_group_set = madera_pin_conf_group_set,
+>>>>>>> upstream/android-13
 };
 
 static struct pinctrl_desc madera_pin_desc = {
@@ -989,7 +1034,11 @@ static struct pinctrl_desc madera_pin_desc = {
 static int madera_pin_probe(struct platform_device *pdev)
 {
 	struct madera *madera = dev_get_drvdata(pdev->dev.parent);
+<<<<<<< HEAD
 	const struct madera_pdata *pdata = dev_get_platdata(madera->dev);
+=======
+	const struct madera_pdata *pdata = &madera->pdata;
+>>>>>>> upstream/android-13
 	struct madera_pin_private *priv;
 	int ret;
 
@@ -1007,6 +1056,13 @@ static int madera_pin_probe(struct platform_device *pdev)
 	pdev->dev.of_node = madera->dev->of_node;
 
 	switch (madera->type) {
+<<<<<<< HEAD
+=======
+	case CS47L15:
+		if (IS_ENABLED(CONFIG_PINCTRL_CS47L15))
+			priv->chip = &cs47l15_pin_chip;
+		break;
+>>>>>>> upstream/android-13
 	case CS47L35:
 		if (IS_ENABLED(CONFIG_PINCTRL_CS47L35))
 			priv->chip = &cs47l35_pin_chip;
@@ -1021,6 +1077,15 @@ static int madera_pin_probe(struct platform_device *pdev)
 		if (IS_ENABLED(CONFIG_PINCTRL_CS47L90))
 			priv->chip = &cs47l90_pin_chip;
 		break;
+<<<<<<< HEAD
+=======
+	case CS42L92:
+	case CS47L92:
+	case CS47L93:
+		if (IS_ENABLED(CONFIG_PINCTRL_CS47L92))
+			priv->chip = &cs47l92_pin_chip;
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1040,7 +1105,11 @@ static int madera_pin_probe(struct platform_device *pdev)
 	}
 
 	/* if the configuration is provided through pdata, apply it */
+<<<<<<< HEAD
 	if (pdata && pdata->gpio_configs) {
+=======
+	if (pdata->gpio_configs) {
+>>>>>>> upstream/android-13
 		ret = pinctrl_register_mappings(pdata->gpio_configs,
 						pdata->n_gpio_configs);
 		if (ret) {
@@ -1057,13 +1126,34 @@ static int madera_pin_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	platform_set_drvdata(pdev, priv);
+
+>>>>>>> upstream/android-13
 	dev_dbg(priv->dev, "pinctrl probed ok\n");
+
+	return 0;
+}
+
+<<<<<<< HEAD
+static struct platform_driver madera_pin_driver = {
+	.probe = madera_pin_probe,
+=======
+static int madera_pin_remove(struct platform_device *pdev)
+{
+	struct madera_pin_private *priv = platform_get_drvdata(pdev);
+
+	if (priv->madera->pdata.gpio_configs)
+		pinctrl_unregister_mappings(priv->madera->pdata.gpio_configs);
 
 	return 0;
 }
 
 static struct platform_driver madera_pin_driver = {
 	.probe = madera_pin_probe,
+	.remove = madera_pin_remove,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "madera-pinctrl",
 	},

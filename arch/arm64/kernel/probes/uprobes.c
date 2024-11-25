@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2016 Pratyush Anand <panand@redhat.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014-2016 Pratyush Anand <panand@redhat.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/highmem.h>
 #include <linux/ptrace.h>
@@ -24,7 +30,11 @@ void arch_uprobe_copy_ixol(struct page *page, unsigned long vaddr,
 	memcpy(dst, src, len);
 
 	/* flush caches (dcache/icache) */
+<<<<<<< HEAD
 	sync_icache_aliases(dst, len);
+=======
+	sync_icache_aliases((unsigned long)dst, (unsigned long)dst + len);
+>>>>>>> upstream/android-13
 
 	kunmap_atomic(xol_page_kaddr);
 }
@@ -171,7 +181,11 @@ int arch_uprobe_exception_notify(struct notifier_block *self,
 static int uprobe_breakpoint_handler(struct pt_regs *regs,
 		unsigned int esr)
 {
+<<<<<<< HEAD
 	if (user_mode(regs) && uprobe_pre_sstep_notifier(regs))
+=======
+	if (uprobe_pre_sstep_notifier(regs))
+>>>>>>> upstream/android-13
 		return DBG_HOOK_HANDLED;
 
 	return DBG_HOOK_ERROR;
@@ -182,6 +196,7 @@ static int uprobe_single_step_handler(struct pt_regs *regs,
 {
 	struct uprobe_task *utask = current->utask;
 
+<<<<<<< HEAD
 	if (user_mode(regs)) {
 		WARN_ON(utask &&
 			(instruction_pointer(regs) != utask->xol_vaddr + 4));
@@ -189,14 +204,23 @@ static int uprobe_single_step_handler(struct pt_regs *regs,
 		if (uprobe_post_sstep_notifier(regs))
 			return DBG_HOOK_HANDLED;
 	}
+=======
+	WARN_ON(utask && (instruction_pointer(regs) != utask->xol_vaddr + 4));
+	if (uprobe_post_sstep_notifier(regs))
+		return DBG_HOOK_HANDLED;
+>>>>>>> upstream/android-13
 
 	return DBG_HOOK_ERROR;
 }
 
 /* uprobe breakpoint handler hook */
 static struct break_hook uprobes_break_hook = {
+<<<<<<< HEAD
 	.esr_mask = BRK64_ESR_MASK,
 	.esr_val = BRK64_ESR_UPROBES,
+=======
+	.imm = UPROBES_BRK_IMM,
+>>>>>>> upstream/android-13
 	.fn = uprobe_breakpoint_handler,
 };
 
@@ -207,8 +231,13 @@ static struct step_hook uprobes_step_hook = {
 
 static int __init arch_init_uprobes(void)
 {
+<<<<<<< HEAD
 	register_break_hook(&uprobes_break_hook);
 	register_step_hook(&uprobes_step_hook);
+=======
+	register_user_break_hook(&uprobes_break_hook);
+	register_user_step_hook(&uprobes_step_hook);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

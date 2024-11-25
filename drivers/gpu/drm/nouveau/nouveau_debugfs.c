@@ -47,6 +47,31 @@ nouveau_debugfs_vbios_image(struct seq_file *m, void *data)
 }
 
 static int
+<<<<<<< HEAD
+=======
+nouveau_debugfs_strap_peek(struct seq_file *m, void *data)
+{
+	struct drm_info_node *node = m->private;
+	struct nouveau_drm *drm = nouveau_drm(node->minor->dev);
+	int ret;
+
+	ret = pm_runtime_get_sync(drm->dev->dev);
+	if (ret < 0 && ret != -EACCES) {
+		pm_runtime_put_autosuspend(drm->dev->dev);
+		return ret;
+	}
+
+	seq_printf(m, "0x%08x\n",
+		   nvif_rd32(&drm->client.device.object, 0x101000));
+
+	pm_runtime_mark_last_busy(drm->dev->dev);
+	pm_runtime_put_autosuspend(drm->dev->dev);
+
+	return 0;
+}
+
+static int
+>>>>>>> upstream/android-13
 nouveau_debugfs_pstate_get(struct seq_file *m, void *data)
 {
 	struct drm_device *drm = m->private;
@@ -185,10 +210,19 @@ static const struct file_operations nouveau_pstate_fops = {
 	.open = nouveau_debugfs_pstate_open,
 	.read = seq_read,
 	.write = nouveau_debugfs_pstate_set,
+<<<<<<< HEAD
 };
 
 static struct drm_info_list nouveau_debugfs_list[] = {
 	{ "vbios.rom", nouveau_debugfs_vbios_image, 0, NULL },
+=======
+	.release = single_release,
+};
+
+static struct drm_info_list nouveau_debugfs_list[] = {
+	{ "vbios.rom",  nouveau_debugfs_vbios_image, 0, NULL },
+	{ "strap_peek", nouveau_debugfs_strap_peek, 0, NULL },
+>>>>>>> upstream/android-13
 };
 #define NOUVEAU_DEBUGFS_ENTRIES ARRAY_SIZE(nouveau_debugfs_list)
 
@@ -199,13 +233,21 @@ static const struct nouveau_debugfs_files {
 	{"pstate", &nouveau_pstate_fops},
 };
 
+<<<<<<< HEAD
 int
 nouveau_drm_debugfs_init(struct drm_minor *minor)
 {
+=======
+void
+nouveau_drm_debugfs_init(struct drm_minor *minor)
+{
+	struct nouveau_drm *drm = nouveau_drm(minor->dev);
+>>>>>>> upstream/android-13
 	struct dentry *dentry;
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(nouveau_debugfs_files); i++) {
+<<<<<<< HEAD
 		dentry = debugfs_create_file(nouveau_debugfs_files[i].name,
 					     S_IRUGO | S_IWUSR,
 					     minor->debugfs_root, minor->dev,
@@ -217,6 +259,27 @@ nouveau_drm_debugfs_init(struct drm_minor *minor)
 	return drm_debugfs_create_files(nouveau_debugfs_list,
 					NOUVEAU_DEBUGFS_ENTRIES,
 					minor->debugfs_root, minor);
+=======
+		debugfs_create_file(nouveau_debugfs_files[i].name,
+				    S_IRUGO | S_IWUSR,
+				    minor->debugfs_root, minor->dev,
+				    nouveau_debugfs_files[i].fops);
+	}
+
+	drm_debugfs_create_files(nouveau_debugfs_list,
+				 NOUVEAU_DEBUGFS_ENTRIES,
+				 minor->debugfs_root, minor);
+
+	/* Set the size of the vbios since we know it, and it's confusing to
+	 * userspace if it wants to seek() but the file has a length of 0
+	 */
+	dentry = debugfs_lookup("vbios.rom", minor->debugfs_root);
+	if (!dentry)
+		return;
+
+	d_inode(dentry)->i_size = drm->vbios.length;
+	dput(dentry);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -228,7 +291,11 @@ nouveau_debugfs_init(struct nouveau_drm *drm)
 	if (!drm->debugfs)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = nvif_object_init(&drm->client.device.object, 0,
+=======
+	ret = nvif_object_ctor(&drm->client.device.object, "debugfsCtrl", 0,
+>>>>>>> upstream/android-13
 			       NVIF_CLASS_CONTROL, NULL, 0,
 			       &drm->debugfs->ctrl);
 	if (ret)
@@ -241,7 +308,11 @@ void
 nouveau_debugfs_fini(struct nouveau_drm *drm)
 {
 	if (drm->debugfs && drm->debugfs->ctrl.priv)
+<<<<<<< HEAD
 		nvif_object_fini(&drm->debugfs->ctrl);
+=======
+		nvif_object_dtor(&drm->debugfs->ctrl);
+>>>>>>> upstream/android-13
 
 	kfree(drm->debugfs);
 	drm->debugfs = NULL;

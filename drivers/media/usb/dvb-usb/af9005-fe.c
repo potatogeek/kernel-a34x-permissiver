@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Frontend part of the Linux driver for the Afatech 9005
  * USB1.1 DVB-T receiver.
  *
@@ -5,6 +9,7 @@
  *
  * Thanks to Afatech who kindly provided information.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,9 @@
  * GNU General Public License for more details.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 #include "af9005.h"
 #include "af9005-script.h"

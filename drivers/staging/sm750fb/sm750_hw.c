@@ -32,7 +32,11 @@ int hw_sm750_map(struct sm750_dev *sm750_dev, struct pci_dev *pdev)
 
 	ret = 0;
 
+<<<<<<< HEAD
 	sm750_dev->vidreg_start  = pci_resource_start(pdev, 1);
+=======
+	sm750_dev->vidreg_start = pci_resource_start(pdev, 1);
+>>>>>>> upstream/android-13
 	sm750_dev->vidreg_size = SZ_2M;
 
 	pr_info("mmio phyAddr = %lx\n", sm750_dev->vidreg_start);
@@ -50,8 +54,13 @@ int hw_sm750_map(struct sm750_dev *sm750_dev, struct pci_dev *pdev)
 	}
 
 	/* now map mmio and vidmem */
+<<<<<<< HEAD
 	sm750_dev->pvReg = ioremap_nocache(sm750_dev->vidreg_start,
 					   sm750_dev->vidreg_size);
+=======
+	sm750_dev->pvReg =
+		ioremap(sm750_dev->vidreg_start, sm750_dev->vidreg_size);
+>>>>>>> upstream/android-13
 	if (!sm750_dev->pvReg) {
 		pr_err("mmio failed\n");
 		ret = -EFAULT;
@@ -78,8 +87,13 @@ int hw_sm750_map(struct sm750_dev *sm750_dev, struct pci_dev *pdev)
 		sm750_dev->vidmem_start, sm750_dev->vidmem_size);
 
 	/* reserve the vidmem space of smi adaptor */
+<<<<<<< HEAD
 	sm750_dev->pvMem = ioremap_wc(sm750_dev->vidmem_start,
 				      sm750_dev->vidmem_size);
+=======
+	sm750_dev->pvMem =
+		ioremap_wc(sm750_dev->vidmem_start, sm750_dev->vidmem_size);
+>>>>>>> upstream/android-13
 	if (!sm750_dev->pvMem) {
 		pr_err("Map video memory failed\n");
 		ret = -EFAULT;
@@ -98,8 +112,13 @@ int hw_sm750_inithw(struct sm750_dev *sm750_dev, struct pci_dev *pdev)
 	parm = &sm750_dev->initParm;
 	if (parm->chip_clk == 0)
 		parm->chip_clk = (sm750_get_chip_type() == SM750LE) ?
+<<<<<<< HEAD
 						DEFAULT_SM750LE_CHIP_CLOCK :
 						DEFAULT_SM750_CHIP_CLOCK;
+=======
+					       DEFAULT_SM750LE_CHIP_CLOCK :
+					       DEFAULT_SM750_CHIP_CLOCK;
+>>>>>>> upstream/android-13
 
 	if (parm->mem_clk == 0)
 		parm->mem_clk = parm->chip_clk;
@@ -133,8 +152,13 @@ int hw_sm750_inithw(struct sm750_dev *sm750_dev, struct pci_dev *pdev)
 		}
 
 		val = peek32(PANEL_DISPLAY_CTRL) &
+<<<<<<< HEAD
 			~(PANEL_DISPLAY_CTRL_DUAL_DISPLAY |
 			  PANEL_DISPLAY_CTRL_DOUBLE_PIXEL);
+=======
+		      ~(PANEL_DISPLAY_CTRL_DUAL_DISPLAY |
+			PANEL_DISPLAY_CTRL_DOUBLE_PIXEL);
+>>>>>>> upstream/android-13
 		switch (sm750_dev->pnltype) {
 		case sm750_24TFT:
 			break;
@@ -207,7 +231,11 @@ int hw_sm750_output_setMode(struct lynxfb_output *output,
 			if (output->paths & sm750_crt)
 				disp_set |= do_CRT_SEC;
 		}
+<<<<<<< HEAD
 		ddk750_setLogicalDispOut(disp_set);
+=======
+		ddk750_set_logical_disp_out(disp_set);
+>>>>>>> upstream/android-13
 	} else {
 		/* just open DISPLAY_CONTROL_750LE register bit 3:0 */
 		u32 reg;
@@ -281,12 +309,21 @@ int hw_sm750_crtc_setMode(struct lynxfb_crtc *crtc,
 
 	/* set timing */
 	modparm.pixel_clock = ps_to_hz(var->pixclock);
+<<<<<<< HEAD
 	modparm.vertical_sync_polarity = (var->sync & FB_SYNC_HOR_HIGH_ACT)
 					 ? POS : NEG;
 	modparm.horizontal_sync_polarity = (var->sync & FB_SYNC_VERT_HIGH_ACT)
 					   ? POS : NEG;
 	modparm.clock_phase_polarity = (var->sync & FB_SYNC_COMP_HIGH_ACT)
 				       ? POS : NEG;
+=======
+	modparm.vertical_sync_polarity =
+		(var->sync & FB_SYNC_HOR_HIGH_ACT) ? POS : NEG;
+	modparm.horizontal_sync_polarity =
+		(var->sync & FB_SYNC_VERT_HIGH_ACT) ? POS : NEG;
+	modparm.clock_phase_polarity =
+		(var->sync & FB_SYNC_COMP_HIGH_ACT) ? POS : NEG;
+>>>>>>> upstream/android-13
 	modparm.horizontal_display_end = var->xres;
 	modparm.horizontal_sync_width = var->hsync_len;
 	modparm.horizontal_sync_start = var->xres + var->right_margin;
@@ -314,7 +351,11 @@ int hw_sm750_crtc_setMode(struct lynxfb_crtc *crtc,
 	if (crtc->channel != sm750_secondary) {
 		/* set pitch, offset, width, start address, etc... */
 		poke32(PANEL_FB_ADDRESS,
+<<<<<<< HEAD
 		       crtc->oScreen & PANEL_FB_ADDRESS_ADDRESS_MASK);
+=======
+		       crtc->o_screen & PANEL_FB_ADDRESS_ADDRESS_MASK);
+>>>>>>> upstream/android-13
 
 		reg = var->xres * (var->bits_per_pixel >> 3);
 		/*
@@ -323,17 +364,30 @@ int hw_sm750_crtc_setMode(struct lynxfb_crtc *crtc,
 		 */
 		reg = ALIGN(reg, crtc->line_pad);
 		reg = (reg << PANEL_FB_WIDTH_WIDTH_SHIFT) &
+<<<<<<< HEAD
 		       PANEL_FB_WIDTH_WIDTH_MASK;
+=======
+		      PANEL_FB_WIDTH_WIDTH_MASK;
+>>>>>>> upstream/android-13
 		reg |= (fix->line_length & PANEL_FB_WIDTH_OFFSET_MASK);
 		poke32(PANEL_FB_WIDTH, reg);
 
 		reg = ((var->xres - 1) << PANEL_WINDOW_WIDTH_WIDTH_SHIFT) &
+<<<<<<< HEAD
 		       PANEL_WINDOW_WIDTH_WIDTH_MASK;
 		reg |= (var->xoffset & PANEL_WINDOW_WIDTH_X_MASK);
 		poke32(PANEL_WINDOW_WIDTH, reg);
 
 		reg = (var->yres_virtual - 1) <<
 		      PANEL_WINDOW_HEIGHT_HEIGHT_SHIFT;
+=======
+		      PANEL_WINDOW_WIDTH_WIDTH_MASK;
+		reg |= (var->xoffset & PANEL_WINDOW_WIDTH_X_MASK);
+		poke32(PANEL_WINDOW_WIDTH, reg);
+
+		reg = (var->yres_virtual - 1)
+		      << PANEL_WINDOW_HEIGHT_HEIGHT_SHIFT;
+>>>>>>> upstream/android-13
 		reg &= PANEL_WINDOW_HEIGHT_HEIGHT_MASK;
 		reg |= (var->yoffset & PANEL_WINDOW_HEIGHT_Y_MASK);
 		poke32(PANEL_WINDOW_HEIGHT, reg);
@@ -341,7 +395,11 @@ int hw_sm750_crtc_setMode(struct lynxfb_crtc *crtc,
 		poke32(PANEL_PLANE_TL, 0);
 
 		reg = ((var->yres - 1) << PANEL_PLANE_BR_BOTTOM_SHIFT) &
+<<<<<<< HEAD
 		       PANEL_PLANE_BR_BOTTOM_MASK;
+=======
+		      PANEL_PLANE_BR_BOTTOM_MASK;
+>>>>>>> upstream/android-13
 		reg |= ((var->xres - 1) & PANEL_PLANE_BR_RIGHT_MASK);
 		poke32(PANEL_PLANE_BR, reg);
 
@@ -350,7 +408,11 @@ int hw_sm750_crtc_setMode(struct lynxfb_crtc *crtc,
 		poke32(PANEL_DISPLAY_CTRL, reg | (var->bits_per_pixel >> 4));
 	} else {
 		/* not implemented now */
+<<<<<<< HEAD
 		poke32(CRT_FB_ADDRESS, crtc->oScreen);
+=======
+		poke32(CRT_FB_ADDRESS, crtc->o_screen);
+>>>>>>> upstream/android-13
 		reg = var->xres * (var->bits_per_pixel >> 3);
 		/*
 		 * crtc->channel is not equal to par->index on numeric,
@@ -372,10 +434,17 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 int hw_sm750_setColReg(struct lynxfb_crtc *crtc, ushort index,
 		       ushort red, ushort green, ushort blue)
 {
 	static unsigned int add[] = {PANEL_PALETTE_RAM, CRT_PALETTE_RAM};
+=======
+int hw_sm750_setColReg(struct lynxfb_crtc *crtc, ushort index, ushort red,
+		       ushort green, ushort blue)
+{
+	static unsigned int add[] = { PANEL_PALETTE_RAM, CRT_PALETTE_RAM };
+>>>>>>> upstream/android-13
 
 	poke32(add[crtc->channel] + index * 4,
 	       (red << 16) | (green << 8) | blue);
@@ -510,7 +579,11 @@ int hw_sm750le_deWait(void)
 {
 	int i = 0x10000000;
 	unsigned int mask = DE_STATE2_DE_STATUS_BUSY | DE_STATE2_DE_FIFO_EMPTY |
+<<<<<<< HEAD
 		DE_STATE2_DE_MEM_FIFO_EMPTY;
+=======
+			    DE_STATE2_DE_MEM_FIFO_EMPTY;
+>>>>>>> upstream/android-13
 
 	while (i--) {
 		unsigned int val = peek32(DE_STATE2);
@@ -527,8 +600,13 @@ int hw_sm750_deWait(void)
 {
 	int i = 0x10000000;
 	unsigned int mask = SYSTEM_CTRL_DE_STATUS_BUSY |
+<<<<<<< HEAD
 		SYSTEM_CTRL_DE_FIFO_EMPTY |
 		SYSTEM_CTRL_DE_MEM_FIFO_EMPTY;
+=======
+			    SYSTEM_CTRL_DE_FIFO_EMPTY |
+			    SYSTEM_CTRL_DE_MEM_FIFO_EMPTY;
+>>>>>>> upstream/android-13
 
 	while (i--) {
 		unsigned int val = peek32(SYSTEM_CTRL);
@@ -554,6 +632,7 @@ int hw_sm750_pan_display(struct lynxfb_crtc *crtc,
 
 	total = var->yoffset * info->fix.line_length +
 		((var->xoffset * var->bits_per_pixel) >> 3);
+<<<<<<< HEAD
 	total += crtc->oScreen;
 	if (crtc->channel == sm750_primary) {
 		poke32(PANEL_FB_ADDRESS,
@@ -563,6 +642,17 @@ int hw_sm750_pan_display(struct lynxfb_crtc *crtc,
 		poke32(CRT_FB_ADDRESS,
 		       peek32(CRT_FB_ADDRESS) |
 		       (total & CRT_FB_ADDRESS_ADDRESS_MASK));
+=======
+	total += crtc->o_screen;
+	if (crtc->channel == sm750_primary) {
+		poke32(PANEL_FB_ADDRESS,
+		       peek32(PANEL_FB_ADDRESS) |
+			       (total & PANEL_FB_ADDRESS_ADDRESS_MASK));
+	} else {
+		poke32(CRT_FB_ADDRESS,
+		       peek32(CRT_FB_ADDRESS) |
+			       (total & CRT_FB_ADDRESS_ADDRESS_MASK));
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }

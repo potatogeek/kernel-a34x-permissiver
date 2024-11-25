@@ -28,7 +28,11 @@
 		compatible = "gpio-keys";
 
 		button-setup {
+<<<<<<< HEAD
 			debounce-interval = <50>;
+=======
+			debounce-interval = <100>;
+>>>>>>> upstream/android-13
 			wakeup-source;
 			linux,code = <KEY_SETUP>;
 			label = "factory reset";
@@ -41,14 +45,20 @@
 		compatible = "gpio-leds";
 		led-green-info {
 			label = "sq201:green:info";
+<<<<<<< HEAD
 			/* Conflict with parallel flash */
+=======
+>>>>>>> upstream/android-13
 			gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 			linux,default-trigger = "heartbeat";
 		};
 		led-green-usb {
 			label = "sq201:green:usb";
+<<<<<<< HEAD
 			/* Conflict with parallel and NAND flash */
+=======
+>>>>>>> upstream/android-13
 			gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
 			default-state = "off";
 			linux,default-trigger = "usb-host";
@@ -74,9 +84,15 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		/* Check pin collisions */
+<<<<<<< HEAD
 		gpio-sck = <&gpio1 28 GPIO_ACTIVE_HIGH>;
 		gpio-miso = <&gpio1 30 GPIO_ACTIVE_HIGH>;
 		gpio-mosi = <&gpio1 29 GPIO_ACTIVE_HIGH>;
+=======
+		sck-gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
+		miso-gpios = <&gpio1 30 GPIO_ACTIVE_HIGH>;
+		mosi-gpios = <&gpio1 29 GPIO_ACTIVE_HIGH>;
+>>>>>>> upstream/android-13
 		cs-gpios = <&gpio1 31 GPIO_ACTIVE_HIGH>;
 		num-chipselects = <1>;
 
@@ -126,6 +142,7 @@
 
 	soc {
 		flash@30000000 {
+<<<<<<< HEAD
 			/*
 			 * Flash access can be enabled, with the side effect
 			 * of disabling access to GPIO LED on GPIO0[20] which
@@ -135,6 +152,12 @@
 			 * on the right become numb.
 			 */
 			/* status = "okay"; */
+=======
+			status = "okay";
+			pinctrl-names = "enabled", "disabled";
+			pinctrl-0 = <&pflash_default_pins>;
+			pinctrl-1 = <&pflash_disabled_pins>;
+>>>>>>> upstream/android-13
 			/* 16MB of flash */
 			reg = <0x30000000 0x01000000>;
 
@@ -157,9 +180,13 @@
 					mux {
 						function = "gpio0";
 						groups = "gpio0fgrp",
+<<<<<<< HEAD
 						"gpio0ggrp",
 						"gpio0hgrp",
 						"gpio0kgrp";
+=======
+						"gpio0hgrp";
+>>>>>>> upstream/android-13
 					};
 				};
 				/*
@@ -172,6 +199,21 @@
 						groups = "gpio1dgrp";
 					};
 				};
+<<<<<<< HEAD
+=======
+				/*
+				 * These GPIO groups will be mapped in over some
+				 * of the flash pins when the flash is not in
+				 * active use.
+				 */
+				pflash_disabled_pins: pinctrl-pflash-disabled {
+					mux {
+						function = "gpio0";
+						groups = "gpio0ggrp", "gpio0igrp", "gpio0jgrp",
+							 "gpio0kgrp";
+					};
+				};
+>>>>>>> upstream/android-13
 				pinctrl-gmii {
 					mux {
 						function = "gmii";
@@ -286,7 +328,19 @@
 			};
 		};
 
+<<<<<<< HEAD
 		ata@63000000 {
+=======
+		ide@63000000 {
+			status = "okay";
+		};
+
+		usb@68000000 {
+			status = "okay";
+		};
+
+		usb@69000000 {
+>>>>>>> upstream/android-13
 			status = "okay";
 		};
 	};

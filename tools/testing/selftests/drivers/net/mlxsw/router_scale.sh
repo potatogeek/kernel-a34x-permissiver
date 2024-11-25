@@ -2,16 +2,26 @@
 # SPDX-License-Identifier: GPL-2.0
 
 ROUTER_NUM_NETIFS=4
+<<<<<<< HEAD
+=======
+: ${TIMEOUT:=20000} # ms
+>>>>>>> upstream/android-13
 
 router_h1_create()
 {
 	simple_if_init $h1 192.0.1.1/24
+<<<<<<< HEAD
 	ip route add 193.0.0.0/8 via 192.0.1.2 dev $h1
+=======
+>>>>>>> upstream/android-13
 }
 
 router_h1_destroy()
 {
+<<<<<<< HEAD
 	ip route del 193.0.0.0/8 via 192.0.1.2 dev $h1
+=======
+>>>>>>> upstream/android-13
 	simple_if_fini $h1 192.0.1.1/24
 }
 
@@ -64,6 +74,7 @@ router_setup_prepare()
 	router_create
 }
 
+<<<<<<< HEAD
 router_offload_validate()
 {
 	local route_count=$1
@@ -71,6 +82,17 @@ router_offload_validate()
 
 	offloaded_count=$(ip route | grep -o 'offload' | wc -l)
 	[[ $offloaded_count -ge $route_count ]]
+=======
+wait_for_routes()
+{
+	local t0=$1; shift
+	local route_count=$1; shift
+
+	local t1=$(ip route | grep 'offload' | grep -v 'offload_failed' | wc -l)
+	local delta=$((t1 - t0))
+	echo $delta
+	[[ $delta -ge $route_count ]]
+>>>>>>> upstream/android-13
 }
 
 router_routes_create()
@@ -90,8 +112,13 @@ router_routes_create()
 					break 3
 				fi
 
+<<<<<<< HEAD
 				echo route add 193.${i}.${j}.${k}/32 via \
 				       192.0.2.1 dev $rp2  >> $ROUTE_FILE
+=======
+				echo route add 193.${i}.${j}.${k}/32 dev $rp2 \
+					>> $ROUTE_FILE
+>>>>>>> upstream/android-13
 				((count++))
 			done
 		done
@@ -111,6 +138,7 @@ router_test()
 {
 	local route_count=$1
 	local should_fail=$2
+<<<<<<< HEAD
 	local count=0
 
 	RET=0
@@ -119,10 +147,22 @@ router_test()
 
 	router_offload_validate $route_count
 	check_err_fail $should_fail $? "Offload of $route_count routes"
+=======
+	local delta
+
+	RET=0
+
+	local t0=$(ip route | grep -o 'offload' | wc -l)
+	router_routes_create $route_count
+	delta=$(busywait "$TIMEOUT" wait_for_routes $t0 $route_count)
+
+	check_err_fail $should_fail $? "Offload routes: Expected $route_count, got $delta."
+>>>>>>> upstream/android-13
 	if [[ $RET -ne 0 ]] || [[ $should_fail -eq 1 ]]; then
 		return
 	fi
 
+<<<<<<< HEAD
 	tc filter add dev $h2 ingress protocol ip pref 1 flower \
 		skip_sw dst_ip 193.0.0.0/8 action drop
 
@@ -150,6 +190,8 @@ router_test()
 	tc filter del dev $h2 ingress protocol ip pref 1 flower \
 		skip_sw dst_ip 193.0.0.0/8 action drop
 
+=======
+>>>>>>> upstream/android-13
 	router_routes_destroy
 }
 

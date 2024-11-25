@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MIPS support for CONFIG_OF device tree support
  *
  * Copyright (C) 2010 Cisco Systems Inc. <dediao@cisco.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/export.h>
 #include <linux/errno.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/debugfs.h>
 #include <linux/of.h>
 #include <linux/of_fdt.h>
@@ -39,6 +50,7 @@ char *mips_get_machine_name(void)
 }
 
 #ifdef CONFIG_USE_OF
+<<<<<<< HEAD
 void __init early_init_dt_add_memory_arch(u64 base, u64 size)
 {
 	if (base >= PHYS_ADDR_MAX) {
@@ -62,6 +74,8 @@ int __init early_init_dt_reserve_memory_arch(phys_addr_t base,
 	add_memory_region(base, size, BOOT_MEM_RESERVED);
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 void __init __dt_setup_arch(void *bph)
 {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SCSI low-level driver for the 53c94 SCSI bus adaptor found
  * on Power Macintosh computers, controlling the external SCSI chain.
@@ -19,9 +23,15 @@
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <asm/dbdma.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/dbdma.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/macio.h>
 
@@ -325,7 +335,10 @@ static void mac53c94_interrupt(int irq, void *dev_id)
 		}
 		cmd->SCp.Status = readb(&regs->fifo);
 		cmd->SCp.Message = readb(&regs->fifo);
+<<<<<<< HEAD
 		cmd->result = CMD_ACCEPT_MSG;
+=======
+>>>>>>> upstream/android-13
 		writeb(CMD_ACCEPT_MSG, &regs->command);
 		state->phase = busfreeing;
 		break;
@@ -346,7 +359,11 @@ static void cmd_done(struct fsc_state *state, int result)
 	struct scsi_cmnd *cmd;
 
 	cmd = state->current_req;
+<<<<<<< HEAD
 	if (cmd != 0) {
+=======
+	if (cmd) {
+>>>>>>> upstream/android-13
 		cmd->result = result;
 		(*cmd->scsi_done)(cmd);
 		state->current_req = NULL;
@@ -403,7 +420,11 @@ static struct scsi_host_template mac53c94_template = {
 	.can_queue	= 1,
 	.this_id	= 7,
 	.sg_tablesize	= SG_ALL,
+<<<<<<< HEAD
 	.use_clustering	= DISABLE_CLUSTERING,
+=======
+	.max_segment_size = 65535,
+>>>>>>> upstream/android-13
 };
 
 static int mac53c94_probe(struct macio_dev *mdev, const struct of_device_id *match)
@@ -467,12 +488,22 @@ static int mac53c94_probe(struct macio_dev *mdev, const struct of_device_id *mat
        	dma_cmd_space = kmalloc_array(host->sg_tablesize + 2,
 					     sizeof(struct dbdma_cmd),
 					     GFP_KERNEL);
+<<<<<<< HEAD
        	if (dma_cmd_space == 0) {
        		printk(KERN_ERR "mac53c94: couldn't allocate dma "
        		       "command space for %pOF\n", node);
 		rc = -ENOMEM;
        		goto out_free;
        	}
+=======
+	if (!dma_cmd_space) {
+		printk(KERN_ERR "mac53c94: couldn't allocate dma "
+		       "command space for %pOF\n", node);
+		rc = -ENOMEM;
+		goto out_free;
+	}
+
+>>>>>>> upstream/android-13
 	state->dma_cmds = (struct dbdma_cmd *)DBDMA_ALIGN(dma_cmd_space);
 	memset(state->dma_cmds, 0, (host->sg_tablesize + 1)
 	       * sizeof(struct dbdma_cmd));

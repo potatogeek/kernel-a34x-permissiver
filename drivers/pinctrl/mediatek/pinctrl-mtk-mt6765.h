@@ -462,7 +462,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	MTK_PIN(
 		36, "GPIO36",
 		MTK_EINT_FUNCTION(0, 36),
+<<<<<<< HEAD
 		DRV_GRP4,
+=======
+		DRV_GRP0,
+>>>>>>> upstream/android-13
 		MTK_FUNCTION(0, "GPIO36"),
 		MTK_FUNCTION(1, "MD1_SIM2_SRST"),
 		MTK_FUNCTION(2, "CCU_JTAG_TMS"),
@@ -475,7 +479,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	MTK_PIN(
 		37, "GPIO37",
 		MTK_EINT_FUNCTION(0, 37),
+<<<<<<< HEAD
 		DRV_GRP4,
+=======
+		DRV_GRP0,
+>>>>>>> upstream/android-13
 		MTK_FUNCTION(0, "GPIO37"),
 		MTK_FUNCTION(1, "MD1_SIM2_SCLK"),
 		MTK_FUNCTION(2, "CCU_JTAG_TDI"),
@@ -487,7 +495,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	MTK_PIN(
 		38, "GPIO38",
 		MTK_EINT_FUNCTION(0, 38),
+<<<<<<< HEAD
 		DRV_GRP4,
+=======
+		DRV_GRP0,
+>>>>>>> upstream/android-13
 		MTK_FUNCTION(0, "GPIO38"),
 		MTK_FUNCTION(1, "MD1_SIM1_SCLK"),
 		MTK_FUNCTION(3, "MD1_SIM2_SCLK"),
@@ -496,7 +508,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	MTK_PIN(
 		39, "GPIO39",
 		MTK_EINT_FUNCTION(0, 39),
+<<<<<<< HEAD
 		DRV_GRP4,
+=======
+		DRV_GRP0,
+>>>>>>> upstream/android-13
 		MTK_FUNCTION(0, "GPIO39"),
 		MTK_FUNCTION(1, "MD1_SIM1_SRST"),
 		MTK_FUNCTION(2, "CCU_JTAG_TCK"),
@@ -509,7 +525,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	MTK_PIN(
 		40, "GPIO40",
 		MTK_EINT_FUNCTION(0, 40),
+<<<<<<< HEAD
 		DRV_GRP4,
+=======
+		DRV_GRP0,
+>>>>>>> upstream/android-13
 		MTK_FUNCTION(0, "GPIO40"),
 		MTK_FUNCTION(1, "MD1_SIM1_SIO"),
 		MTK_FUNCTION(2, "CCU_JTAG_TRST"),
@@ -1041,6 +1061,10 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 		MTK_FUNCTION(6, "CONN_UART0_RXD"),
 		MTK_FUNCTION(7, "DBG_MON_B17")
 	),
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	MTK_PIN(
 		100, "GPIO100",
 		MTK_EINT_FUNCTION(0, 100),
@@ -1205,70 +1229,110 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		113, "GPIO113",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO113"),
 		MTK_FUNCTION(1, "CONN_TOP_CLK")
 	),
 	MTK_PIN(
 		114, "GPIO114",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO114"),
 		MTK_FUNCTION(1, "CONN_TOP_DATA")
 	),
 	MTK_PIN(
 		115, "GPIO115",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO115"),
 		MTK_FUNCTION(1, "CONN_BT_CLK")
 	),
 	MTK_PIN(
 		116, "GPIO116",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO116"),
 		MTK_FUNCTION(1, "CONN_BT_DATA")
 	),
 	MTK_PIN(
 		117, "GPIO117",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO117"),
 		MTK_FUNCTION(1, "CONN_WF_CTRL0")
 	),
 	MTK_PIN(
 		118, "GPIO118",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO118"),
 		MTK_FUNCTION(1, "CONN_WF_CTRL1")
 	),
 	MTK_PIN(
 		119, "GPIO119",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO119"),
 		MTK_FUNCTION(1, "CONN_WF_CTRL2")
 	),
 	MTK_PIN(
 		120, "GPIO120",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO120"),
 		MTK_FUNCTION(1, "CONN_WB_PTA")
 	),
 	MTK_PIN(
 		121, "GPIO121",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO121"),
 		MTK_FUNCTION(1, "CONN_HRST_B")
 	),
 	MTK_PIN(
 		122, "GPIO122",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO122"),
 		MTK_FUNCTION(1, "MSDC0_CMD"),
@@ -1276,7 +1340,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		123, "GPIO123",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO123"),
 		MTK_FUNCTION(1, "MSDC0_DAT0"),
@@ -1284,7 +1352,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		124, "GPIO124",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO124"),
 		MTK_FUNCTION(1, "MSDC0_CLK"),
@@ -1292,7 +1364,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		125, "GPIO125",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO125"),
 		MTK_FUNCTION(1, "MSDC0_DAT2"),
@@ -1300,7 +1376,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		126, "GPIO126",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO126"),
 		MTK_FUNCTION(1, "MSDC0_DAT4"),
@@ -1308,7 +1388,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		127, "GPIO127",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO127"),
 		MTK_FUNCTION(1, "MSDC0_DAT6"),
@@ -1316,7 +1400,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		128, "GPIO128",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO128"),
 		MTK_FUNCTION(1, "MSDC0_DAT1"),
@@ -1324,7 +1412,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		129, "GPIO129",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO129"),
 		MTK_FUNCTION(1, "MSDC0_DAT5"),
@@ -1332,7 +1424,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		130, "GPIO130",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO130"),
 		MTK_FUNCTION(1, "MSDC0_DAT7"),
@@ -1340,7 +1436,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		131, "GPIO131",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO131"),
 		MTK_FUNCTION(1, "MSDC0_DSL"),
@@ -1348,7 +1448,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		132, "GPIO132",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO132"),
 		MTK_FUNCTION(1, "MSDC0_DAT3"),
@@ -1356,7 +1460,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		133, "GPIO133",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO133"),
 		MTK_FUNCTION(1, "MSDC0_RSTB"),
@@ -1364,21 +1472,33 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		134, "GPIO134",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO134"),
 		MTK_FUNCTION(1, "RTC32K_CK")
 	),
 	MTK_PIN(
 		135, "GPIO135",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO135"),
 		MTK_FUNCTION(1, "WATCHDOG")
 	),
 	MTK_PIN(
 		136, "GPIO136",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO136"),
 		MTK_FUNCTION(1, "AUD_CLK_MOSI"),
@@ -1387,7 +1507,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		137, "GPIO137",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO137"),
 		MTK_FUNCTION(1, "AUD_SYNC_MOSI"),
@@ -1396,7 +1520,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		138, "GPIO138",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO138"),
 		MTK_FUNCTION(1, "AUD_DAT_MOSI0"),
@@ -1405,7 +1533,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		139, "GPIO139",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO139"),
 		MTK_FUNCTION(1, "AUD_DAT_MOSI1"),
@@ -1414,7 +1546,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		140, "GPIO140",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO140"),
 		MTK_FUNCTION(1, "AUD_CLK_MISO"),
@@ -1423,7 +1559,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		141, "GPIO141",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO141"),
 		MTK_FUNCTION(1, "AUD_SYNC_MISO"),
@@ -1432,7 +1572,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		142, "GPIO142",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO142"),
 		MTK_FUNCTION(1, "AUD_DAT_MISO0"),
@@ -1441,7 +1585,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		143, "GPIO143",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO143"),
 		MTK_FUNCTION(1, "AUD_DAT_MISO1"),
@@ -1450,7 +1598,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		144, "GPIO144",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO144"),
 		MTK_FUNCTION(1, "PWRAP_SPI0_MI"),
@@ -1458,14 +1610,22 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		145, "GPIO145",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO145"),
 		MTK_FUNCTION(1, "PWRAP_SPI0_CSN")
 	),
 	MTK_PIN(
 		146, "GPIO146",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO146"),
 		MTK_FUNCTION(1, "PWRAP_SPI0_MO"),
@@ -1473,28 +1633,44 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		147, "GPIO147",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO147"),
 		MTK_FUNCTION(1, "PWRAP_SPI0_CK")
 	),
 	MTK_PIN(
 		148, "GPIO148",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO148"),
 		MTK_FUNCTION(1, "SRCLKENA0")
 	),
 	MTK_PIN(
 		149, "GPIO149",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO149"),
 		MTK_FUNCTION(1, "SRCLKENA1")
 	),
 	MTK_PIN(
 		150, "GPIO150",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO150"),
 		MTK_FUNCTION(1, "PWM0"),
@@ -1505,7 +1681,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		151, "GPIO151",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO151"),
 		MTK_FUNCTION(1, "PWM1"),
@@ -1516,7 +1696,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		152, "GPIO152",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO152"),
 		MTK_FUNCTION(1, "PWM2"),
@@ -1527,7 +1711,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		153, "GPIO153",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO153"),
 		MTK_FUNCTION(1, "PWM3"),
@@ -1538,7 +1726,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		154, "GPIO154",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO154"),
 		MTK_FUNCTION(1, "PWM5"),
@@ -1549,7 +1741,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		155, "GPIO155",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO155"),
 		MTK_FUNCTION(1, "SPI0_MI"),
@@ -1562,7 +1758,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		156, "GPIO156",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO156"),
 		MTK_FUNCTION(1, "SPI0_CSB"),
@@ -1575,7 +1775,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		157, "GPIO157",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO157"),
 		MTK_FUNCTION(1, "SPI0_MO"),
@@ -1588,7 +1792,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		158, "GPIO158",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO158"),
 		MTK_FUNCTION(1, "SPI0_CLK"),
@@ -1601,7 +1809,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		159, "GPIO159",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO159"),
 		MTK_FUNCTION(1, "PWM4"),
@@ -1612,7 +1824,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		160, "GPIO160",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO160"),
 		MTK_FUNCTION(1, "CLKM0"),
@@ -1624,7 +1840,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		161, "GPIO161",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO161"),
 		MTK_FUNCTION(1, "SCL6"),
@@ -1636,7 +1856,11 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		162, "GPIO162",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO162"),
 		MTK_FUNCTION(1, "SDA6"),
@@ -1648,97 +1872,161 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 	),
 	MTK_PIN(
 		163, "GPIO163",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO163")
 	),
 	MTK_PIN(
 		164, "GPIO164",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO164")
 	),
 	MTK_PIN(
 		165, "GPIO165",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO165")
 	),
 	MTK_PIN(
 		166, "GPIO166",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO166")
 	),
 	MTK_PIN(
 		167, "GPIO167",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO167")
 	),
 	MTK_PIN(
 		168, "GPIO168",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO168")
 	),
 	MTK_PIN(
 		169, "GPIO169",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO169")
 	),
 	MTK_PIN(
 		170, "GPIO170",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO170")
 	),
 	MTK_PIN(
 		171, "GPIO171",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO171")
 	),
 	MTK_PIN(
 		172, "GPIO172",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO172")
 	),
 	MTK_PIN(
 		173, "GPIO173",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO173")
 	),
 	MTK_PIN(
 		174, "GPIO174",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO174")
 	),
 	MTK_PIN(
 		175, "GPIO175",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO175")
 	),
 	MTK_PIN(
 		176, "GPIO176",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO176")
 	),
 	MTK_PIN(
 		177, "GPIO177",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO177")
 	),
 	MTK_PIN(
 		178, "GPIO178",
+<<<<<<< HEAD
 		MTK_EINT_FUNCTION(NO_EINT_SUPPORT, NO_EINT_SUPPORT),
+=======
+		MTK_EINT_FUNCTION(0, NO_EINT_SUPPORT),
+>>>>>>> upstream/android-13
 		DRV_GRP4,
 		MTK_FUNCTION(0, "GPIO178")
 	),
@@ -1746,6 +2034,7 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 		179, "GPIO179",
 		MTK_EINT_FUNCTION(0, 151),
 		DRV_GRP4,
+<<<<<<< HEAD
 		MTK_FUNCTION(0, NULL)
 	),
 	MTK_PIN(
@@ -1769,3 +2058,10 @@ static struct mtk_pin_desc mtk_pins_mt6765[] = {
 };
 
 #endif/* __PINCTRL_MTK_MT6765_H */
+=======
+		MTK_FUNCTION(0, "GPIO179")
+	),
+};
+
+#endif /* __PINCTRL_MTK_MT6765_H */
+>>>>>>> upstream/android-13

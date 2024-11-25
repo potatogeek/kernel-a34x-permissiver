@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Copyright (c) 2016 MediaTek Inc.
 * Author: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
@@ -10,6 +11,12 @@
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+* Copyright (c) 2016 MediaTek Inc.
+* Author: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
+>>>>>>> upstream/android-13
 */
 #include <linux/clk.h>
 #include <linux/debugfs.h>
@@ -27,6 +34,7 @@
 
 #include "mtk_vpu.h"
 
+<<<<<<< HEAD
 /**
  * VPU (video processor unit) is a tiny processor controlling video hardware
  * related to video codec, scaling and color format converting.
@@ -35,6 +43,17 @@
 
 #define INIT_TIMEOUT_MS		2000U
 #define IPI_TIMEOUT_MS		2000U
+=======
+/*
+ * VPU (video processor unit) is a tiny processor controlling video hardware
+ * related to video codec, scaling and color format converting.
+ * VPU interfaces with other blocks by share memory and interrupt.
+ */
+
+#define INIT_TIMEOUT_MS		2000U
+#define IPI_TIMEOUT_MS		2000U
+#define VPU_IDLE_TIMEOUT_MS	1000U
+>>>>>>> upstream/android-13
 #define VPU_FW_VER_LEN		16
 
 /* maximum program/data TCM (Tightly-Coupled Memory) size */
@@ -54,6 +73,11 @@
 /* binary firmware name */
 #define VPU_P_FW		"vpu_p.bin"
 #define VPU_D_FW		"vpu_d.bin"
+<<<<<<< HEAD
+=======
+#define VPU_P_FW_NEW		"mediatek/mt8173/vpu_p.bin"
+#define VPU_D_FW_NEW		"mediatek/mt8173/vpu_d.bin"
+>>>>>>> upstream/android-13
 
 #define VPU_RESET		0x0
 #define VPU_TCM_CFG		0x0008
@@ -63,11 +87,24 @@
 #define VPU_DMEM_EXT0_ADDR	0x0014
 #define VPU_DMEM_EXT1_ADDR	0x0018
 #define HOST_TO_VPU		0x0024
+<<<<<<< HEAD
 #define VPU_PC_REG		0x0060
+=======
+#define VPU_IDLE_REG		0x002C
+#define VPU_INT_STATUS		0x0034
+#define VPU_PC_REG		0x0060
+#define VPU_SP_REG		0x0064
+#define VPU_RA_REG		0x0068
+>>>>>>> upstream/android-13
 #define VPU_WDT_REG		0x0084
 
 /* vpu inter-processor communication interrupt */
 #define VPU_IPC_INT		BIT(8)
+<<<<<<< HEAD
+=======
+/* vpu idle state */
+#define VPU_IDLE_STATE		BIT(23)
+>>>>>>> upstream/android-13
 
 /**
  * enum vpu_fw_type - VPU firmware type
@@ -211,8 +248,13 @@ struct mtk_vpu {
 	struct vpu_run run;
 	struct vpu_wdt wdt;
 	struct vpu_ipi_desc ipi_desc[IPI_MAX];
+<<<<<<< HEAD
 	struct share_obj *recv_buf;
 	struct share_obj *send_buf;
+=======
+	struct share_obj __iomem *recv_buf;
+	struct share_obj __iomem *send_buf;
+>>>>>>> upstream/android-13
 	struct device *dev;
 	struct clk *clk;
 	bool fw_loaded;
@@ -269,6 +311,23 @@ static int vpu_clock_enable(struct mtk_vpu *vpu)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void vpu_dump_status(struct mtk_vpu *vpu)
+{
+	dev_info(vpu->dev,
+		 "vpu: run %x, pc = 0x%x, ra = 0x%x, sp = 0x%x, idle = 0x%x\n"
+		 "vpu: int %x, hv = 0x%x, vh = 0x%x, wdt = 0x%x\n",
+		 vpu_running(vpu), vpu_cfg_readl(vpu, VPU_PC_REG),
+		 vpu_cfg_readl(vpu, VPU_RA_REG), vpu_cfg_readl(vpu, VPU_SP_REG),
+		 vpu_cfg_readl(vpu, VPU_IDLE_REG),
+		 vpu_cfg_readl(vpu, VPU_INT_STATUS),
+		 vpu_cfg_readl(vpu, HOST_TO_VPU),
+		 vpu_cfg_readl(vpu, VPU_TO_HOST),
+		 vpu_cfg_readl(vpu, VPU_WDT_REG));
+}
+
+>>>>>>> upstream/android-13
 int vpu_ipi_register(struct platform_device *pdev,
 		     enum ipi_id id, ipi_handler_t handler,
 		     const char *name, void *priv)
@@ -281,7 +340,11 @@ int vpu_ipi_register(struct platform_device *pdev,
 		return -EPROBE_DEFER;
 	}
 
+<<<<<<< HEAD
 	if (id >= 0 && id < IPI_MAX && handler) {
+=======
+	if (id < IPI_MAX && handler) {
+>>>>>>> upstream/android-13
 		ipi_desc = vpu->ipi_desc;
 		ipi_desc[id].name = name;
 		ipi_desc[id].handler = handler;
@@ -300,7 +363,11 @@ int vpu_ipi_send(struct platform_device *pdev,
 		 unsigned int len)
 {
 	struct mtk_vpu *vpu = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct share_obj *send_obj = vpu->send_buf;
+=======
+	struct share_obj __iomem *send_obj = vpu->send_buf;
+>>>>>>> upstream/android-13
 	unsigned long timeout;
 	int ret = 0;
 
@@ -329,13 +396,23 @@ int vpu_ipi_send(struct platform_device *pdev,
 		if (time_after(jiffies, timeout)) {
 			dev_err(vpu->dev, "vpu_ipi_send: IPI timeout!\n");
 			ret = -EIO;
+<<<<<<< HEAD
+=======
+			vpu_dump_status(vpu);
+>>>>>>> upstream/android-13
 			goto mut_unlock;
 		}
 	} while (vpu_cfg_readl(vpu, HOST_TO_VPU));
 
+<<<<<<< HEAD
 	memcpy((void *)send_obj->share_buf, buf, len);
 	send_obj->len = len;
 	send_obj->id = id;
+=======
+	memcpy_toio(send_obj->share_buf, buf, len);
+	writel(len, &send_obj->len);
+	writel(id, &send_obj->id);
+>>>>>>> upstream/android-13
 
 	vpu->ipi_id_ack[id] = false;
 	/* send the command to VPU */
@@ -348,8 +425,14 @@ int vpu_ipi_send(struct platform_device *pdev,
 	ret = wait_event_timeout(vpu->ack_wq, vpu->ipi_id_ack[id], timeout);
 	vpu->ipi_id_ack[id] = false;
 	if (ret == 0) {
+<<<<<<< HEAD
 		dev_err(vpu->dev, "vpu ipi %d ack time out !", id);
 		ret = -EIO;
+=======
+		dev_err(vpu->dev, "vpu ipi %d ack time out !\n", id);
+		ret = -EIO;
+		vpu_dump_status(vpu);
+>>>>>>> upstream/android-13
 		goto clock_disable;
 	}
 	vpu_clock_disable(vpu);
@@ -406,7 +489,11 @@ int vpu_wdt_reg_handler(struct platform_device *pdev,
 
 	handler = vpu->wdt.handler;
 
+<<<<<<< HEAD
 	if (id >= 0 && id < VPU_RST_MAX && wdt_reset) {
+=======
+	if (id < VPU_RST_MAX && wdt_reset) {
+>>>>>>> upstream/android-13
 		dev_dbg(vpu->dev, "wdt register id %d\n", id);
 		mutex_lock(&vpu->vpu_mutex);
 		handler[id].reset_func = wdt_reset;
@@ -468,9 +555,15 @@ struct platform_device *vpu_get_plat_device(struct platform_device *pdev)
 	}
 
 	vpu_pdev = of_find_device_by_node(vpu_node);
+<<<<<<< HEAD
 	if (WARN_ON(!vpu_pdev)) {
 		dev_err(dev, "vpu pdev failed\n");
 		of_node_put(vpu_node);
+=======
+	of_node_put(vpu_node);
+	if (WARN_ON(!vpu_pdev)) {
+		dev_err(dev, "vpu pdev failed\n");
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -480,21 +573,43 @@ EXPORT_SYMBOL_GPL(vpu_get_plat_device);
 
 /* load vpu program/data memory */
 static int load_requested_vpu(struct mtk_vpu *vpu,
+<<<<<<< HEAD
 			      const struct firmware *vpu_fw,
+=======
+>>>>>>> upstream/android-13
 			      u8 fw_type)
 {
 	size_t tcm_size = fw_type ? VPU_DTCM_SIZE : VPU_PTCM_SIZE;
 	size_t fw_size = fw_type ? VPU_D_FW_SIZE : VPU_P_FW_SIZE;
 	char *fw_name = fw_type ? VPU_D_FW : VPU_P_FW;
+<<<<<<< HEAD
+=======
+	char *fw_new_name = fw_type ? VPU_D_FW_NEW : VPU_P_FW_NEW;
+	const struct firmware *vpu_fw;
+>>>>>>> upstream/android-13
 	size_t dl_size = 0;
 	size_t extra_fw_size = 0;
 	void *dest;
 	int ret;
 
+<<<<<<< HEAD
 	ret = request_firmware(&vpu_fw, fw_name, vpu->dev);
 	if (ret < 0) {
 		dev_err(vpu->dev, "Failed to load %s, %d\n", fw_name, ret);
 		return ret;
+=======
+	ret = request_firmware(&vpu_fw, fw_new_name, vpu->dev);
+	if (ret < 0) {
+		dev_info(vpu->dev, "Failed to load %s, %d, retry\n",
+			 fw_new_name, ret);
+
+		ret = request_firmware(&vpu_fw, fw_name, vpu->dev);
+		if (ret < 0) {
+			dev_err(vpu->dev, "Failed to load %s, %d\n", fw_name,
+				ret);
+			return ret;
+		}
+>>>>>>> upstream/android-13
 	}
 	dl_size = vpu_fw->size;
 	if (dl_size > fw_size) {
@@ -539,7 +654,10 @@ int vpu_load_firmware(struct platform_device *pdev)
 	struct mtk_vpu *vpu;
 	struct device *dev = &pdev->dev;
 	struct vpu_run *run;
+<<<<<<< HEAD
 	const struct firmware *vpu_fw = NULL;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!pdev) {
@@ -568,14 +686,22 @@ int vpu_load_firmware(struct platform_device *pdev)
 	run->signaled = false;
 	dev_dbg(vpu->dev, "firmware request\n");
 	/* Downloading program firmware to device*/
+<<<<<<< HEAD
 	ret = load_requested_vpu(vpu, vpu_fw, P_FW);
+=======
+	ret = load_requested_vpu(vpu, P_FW);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "Failed to request %s, %d\n", VPU_P_FW, ret);
 		goto OUT_LOAD_FW;
 	}
 
 	/* Downloading data firmware to device */
+<<<<<<< HEAD
 	ret = load_requested_vpu(vpu, vpu_fw, D_FW);
+=======
+	ret = load_requested_vpu(vpu, D_FW);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "Failed to request %s, %d\n", VPU_D_FW, ret);
 		goto OUT_LOAD_FW;
@@ -609,6 +735,7 @@ OUT_LOAD_FW:
 }
 EXPORT_SYMBOL_GPL(vpu_load_firmware);
 
+<<<<<<< HEAD
 static void vpu_init_ipi_handler(void *data, unsigned int len, void *priv)
 {
 	struct mtk_vpu *vpu = (struct mtk_vpu *)priv;
@@ -616,6 +743,15 @@ static void vpu_init_ipi_handler(void *data, unsigned int len, void *priv)
 
 	vpu->run.signaled = run->signaled;
 	strncpy(vpu->run.fw_ver, run->fw_ver, VPU_FW_VER_LEN);
+=======
+static void vpu_init_ipi_handler(const void *data, unsigned int len, void *priv)
+{
+	struct mtk_vpu *vpu = priv;
+	const struct vpu_run *run = data;
+
+	vpu->run.signaled = run->signaled;
+	strscpy(vpu->run.fw_ver, run->fw_ver, sizeof(vpu->run.fw_ver));
+>>>>>>> upstream/android-13
 	vpu->run.dec_capability = run->dec_capability;
 	vpu->run.enc_capability = run->enc_capability;
 	wake_up_interruptible(&vpu->run.wq);
@@ -627,7 +763,11 @@ static ssize_t vpu_debug_read(struct file *file, char __user *user_buf,
 {
 	char buf[256];
 	unsigned int len;
+<<<<<<< HEAD
 	unsigned int running, pc, vpu_to_host, host_to_vpu, wdt;
+=======
+	unsigned int running, pc, vpu_to_host, host_to_vpu, wdt, idle, ra, sp;
+>>>>>>> upstream/android-13
 	int ret;
 	struct device *dev = file->private_data;
 	struct mtk_vpu *vpu = dev_get_drvdata(dev);
@@ -644,6 +784,13 @@ static ssize_t vpu_debug_read(struct file *file, char __user *user_buf,
 	wdt = vpu_cfg_readl(vpu, VPU_WDT_REG);
 	host_to_vpu = vpu_cfg_readl(vpu, HOST_TO_VPU);
 	vpu_to_host = vpu_cfg_readl(vpu, VPU_TO_HOST);
+<<<<<<< HEAD
+=======
+	ra = vpu_cfg_readl(vpu, VPU_RA_REG);
+	sp = vpu_cfg_readl(vpu, VPU_SP_REG);
+	idle = vpu_cfg_readl(vpu, VPU_IDLE_REG);
+
+>>>>>>> upstream/android-13
 	vpu_clock_disable(vpu);
 
 	if (running) {
@@ -652,9 +799,18 @@ static ssize_t vpu_debug_read(struct file *file, char __user *user_buf,
 		"PC: 0x%x\n"
 		"WDT: 0x%x\n"
 		"Host to VPU: 0x%x\n"
+<<<<<<< HEAD
 		"VPU to Host: 0x%x\n",
 		vpu->run.fw_ver, pc, wdt,
 		host_to_vpu, vpu_to_host);
+=======
+		"VPU to Host: 0x%x\n"
+		"SP: 0x%x\n"
+		"RA: 0x%x\n"
+		"idle: 0x%x\n",
+		vpu->run.fw_ver, pc, wdt,
+		host_to_vpu, vpu_to_host, sp, ra, idle);
+>>>>>>> upstream/android-13
 	} else {
 		len = snprintf(buf, sizeof(buf), "VPU not running\n");
 	}
@@ -709,6 +865,7 @@ static int vpu_alloc_ext_mem(struct mtk_vpu *vpu, u32 fw_type)
 
 static void vpu_ipi_handler(struct mtk_vpu *vpu)
 {
+<<<<<<< HEAD
 	struct share_obj *rcv_obj = vpu->recv_buf;
 	struct vpu_ipi_desc *ipi_desc = vpu->ipi_desc;
 
@@ -722,6 +879,23 @@ static void vpu_ipi_handler(struct mtk_vpu *vpu)
 		}
 	} else {
 		dev_err(vpu->dev, "No such ipi id = %d\n", rcv_obj->id);
+=======
+	struct share_obj __iomem *rcv_obj = vpu->recv_buf;
+	struct vpu_ipi_desc *ipi_desc = vpu->ipi_desc;
+	unsigned char data[SHARE_BUF_SIZE];
+	s32 id = readl(&rcv_obj->id);
+
+	memcpy_fromio(data, rcv_obj->share_buf, sizeof(data));
+	if (id < IPI_MAX && ipi_desc[id].handler) {
+		ipi_desc[id].handler(data, readl(&rcv_obj->len),
+				     ipi_desc[id].priv);
+		if (id > IPI_VPU_INIT) {
+			vpu->ipi_id_ack[id] = true;
+			wake_up(&vpu->ack_wq);
+		}
+	} else {
+		dev_err(vpu->dev, "No such ipi id = %d\n", id);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -731,11 +905,18 @@ static int vpu_ipi_init(struct mtk_vpu *vpu)
 	vpu_cfg_writel(vpu, 0x0, VPU_TO_HOST);
 
 	/* shared buffer initialization */
+<<<<<<< HEAD
 	vpu->recv_buf = (__force struct share_obj *)(vpu->reg.tcm +
 						     VPU_DTCM_OFFSET);
 	vpu->send_buf = vpu->recv_buf + 1;
 	memset(vpu->recv_buf, 0, sizeof(struct share_obj));
 	memset(vpu->send_buf, 0, sizeof(struct share_obj));
+=======
+	vpu->recv_buf = vpu->reg.tcm + VPU_DTCM_OFFSET;
+	vpu->send_buf = vpu->recv_buf + 1;
+	memset_io(vpu->recv_buf, 0, sizeof(struct share_obj));
+	memset_io(vpu->send_buf, 0, sizeof(struct share_obj));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -789,6 +970,7 @@ static int mtk_vpu_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	vpu->dev = &pdev->dev;
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "tcm");
 	vpu->reg.tcm = devm_ioremap_resource(dev, res);
 	if (IS_ERR((__force void *)vpu->reg.tcm))
@@ -796,6 +978,13 @@ static int mtk_vpu_probe(struct platform_device *pdev)
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "cfg_reg");
 	vpu->reg.cfg = devm_ioremap_resource(dev, res);
+=======
+	vpu->reg.tcm = devm_platform_ioremap_resource_byname(pdev, "tcm");
+	if (IS_ERR((__force void *)vpu->reg.tcm))
+		return PTR_ERR((__force void *)vpu->reg.tcm);
+
+	vpu->reg.cfg = devm_platform_ioremap_resource_byname(pdev, "cfg_reg");
+>>>>>>> upstream/android-13
 	if (IS_ERR((__force void *)vpu->reg.cfg))
 		return PTR_ERR((__force void *)vpu->reg.cfg);
 
@@ -818,7 +1007,12 @@ static int mtk_vpu_probe(struct platform_device *pdev)
 	vpu->wdt.wq = create_singlethread_workqueue("vpu_wdt");
 	if (!vpu->wdt.wq) {
 		dev_err(dev, "initialize wdt workqueue failed\n");
+<<<<<<< HEAD
 		return -ENOMEM;
+=======
+		ret = -ENOMEM;
+		goto clk_unprepare;
+>>>>>>> upstream/android-13
 	}
 	INIT_WORK(&vpu->wdt.ws, vpu_wdt_reset_func);
 	mutex_init(&vpu->vpu_mutex);
@@ -847,16 +1041,23 @@ static int mtk_vpu_probe(struct platform_device *pdev)
 #ifdef CONFIG_DEBUG_FS
 	vpu_debugfs = debugfs_create_file("mtk_vpu", S_IRUGO, NULL, (void *)dev,
 					  &vpu_debug_fops);
+<<<<<<< HEAD
 	if (!vpu_debugfs) {
 		ret = -ENOMEM;
 		goto cleanup_ipi;
 	}
+=======
+>>>>>>> upstream/android-13
 #endif
 
 	/* Set PTCM to 96K and DTCM to 32K */
 	vpu_cfg_writel(vpu, 0x2, VPU_TCM_CFG);
 
+<<<<<<< HEAD
 	vpu->enable_4GB = !!(totalram_pages > (SZ_2G >> PAGE_SHIFT));
+=======
+	vpu->enable_4GB = !!(totalram_pages() > (SZ_2G >> PAGE_SHIFT));
+>>>>>>> upstream/android-13
 	dev_info(dev, "4GB mode %u\n", vpu->enable_4GB);
 
 	if (vpu->enable_4GB) {
@@ -908,7 +1109,10 @@ remove_debugfs:
 	of_reserved_mem_device_release(dev);
 #ifdef CONFIG_DEBUG_FS
 	debugfs_remove(vpu_debugfs);
+<<<<<<< HEAD
 cleanup_ipi:
+=======
+>>>>>>> upstream/android-13
 #endif
 	memset(vpu->ipi_desc, 0, sizeof(struct vpu_ipi_desc) * IPI_MAX);
 vpu_mutex_destroy:
@@ -917,6 +1121,11 @@ disable_vpu_clk:
 	vpu_clock_disable(vpu);
 workqueue_destroy:
 	destroy_workqueue(vpu->wdt.wq);
+<<<<<<< HEAD
+=======
+clk_unprepare:
+	clk_unprepare(vpu->clk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -948,11 +1157,86 @@ static int mtk_vpu_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int mtk_vpu_suspend(struct device *dev)
+{
+	struct mtk_vpu *vpu = dev_get_drvdata(dev);
+	unsigned long timeout;
+	int ret;
+
+	ret = vpu_clock_enable(vpu);
+	if (ret) {
+		dev_err(dev, "failed to enable vpu clock\n");
+		return ret;
+	}
+
+	if (!vpu_running(vpu)) {
+		vpu_clock_disable(vpu);
+		clk_unprepare(vpu->clk);
+		return 0;
+	}
+
+	mutex_lock(&vpu->vpu_mutex);
+	/* disable vpu timer interrupt */
+	vpu_cfg_writel(vpu, vpu_cfg_readl(vpu, VPU_INT_STATUS) | VPU_IDLE_STATE,
+		       VPU_INT_STATUS);
+	/* check if vpu is idle for system suspend */
+	timeout = jiffies + msecs_to_jiffies(VPU_IDLE_TIMEOUT_MS);
+	do {
+		if (time_after(jiffies, timeout)) {
+			dev_err(dev, "vpu idle timeout\n");
+			mutex_unlock(&vpu->vpu_mutex);
+			vpu_clock_disable(vpu);
+			return -EIO;
+		}
+	} while (!vpu_cfg_readl(vpu, VPU_IDLE_REG));
+
+	mutex_unlock(&vpu->vpu_mutex);
+	vpu_clock_disable(vpu);
+	clk_unprepare(vpu->clk);
+
+	return 0;
+}
+
+static int mtk_vpu_resume(struct device *dev)
+{
+	struct mtk_vpu *vpu = dev_get_drvdata(dev);
+	int ret;
+
+	clk_prepare(vpu->clk);
+	ret = vpu_clock_enable(vpu);
+	if (ret) {
+		dev_err(dev, "failed to enable vpu clock\n");
+		return ret;
+	}
+
+	mutex_lock(&vpu->vpu_mutex);
+	/* enable vpu timer interrupt */
+	vpu_cfg_writel(vpu,
+		       vpu_cfg_readl(vpu, VPU_INT_STATUS) & ~(VPU_IDLE_STATE),
+		       VPU_INT_STATUS);
+	mutex_unlock(&vpu->vpu_mutex);
+	vpu_clock_disable(vpu);
+
+	return 0;
+}
+
+static const struct dev_pm_ops mtk_vpu_pm = {
+	.suspend = mtk_vpu_suspend,
+	.resume = mtk_vpu_resume,
+};
+
+>>>>>>> upstream/android-13
 static struct platform_driver mtk_vpu_driver = {
 	.probe	= mtk_vpu_probe,
 	.remove	= mtk_vpu_remove,
 	.driver	= {
 		.name	= "mtk_vpu",
+<<<<<<< HEAD
+=======
+		.pm = &mtk_vpu_pm,
+>>>>>>> upstream/android-13
 		.of_match_table = mtk_vpu_match,
 	},
 };

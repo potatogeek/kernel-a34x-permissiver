@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * bebob_maudio.c - a part of driver for BeBoB based devices
  *
  * Copyright (c) 2013-2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "./bebob.h"
@@ -261,8 +268,14 @@ snd_bebob_maudio_special_discover(struct snd_bebob *bebob, bool is1814)
 	struct special_params *params;
 	int err;
 
+<<<<<<< HEAD
 	params = kzalloc(sizeof(struct special_params), GFP_KERNEL);
 	if (params == NULL)
+=======
+	params = devm_kzalloc(&bebob->card->card_dev,
+			      sizeof(struct special_params), GFP_KERNEL);
+	if (!params)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	mutex_lock(&bebob->mutex);

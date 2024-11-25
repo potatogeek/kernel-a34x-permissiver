@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	X.25 Packet Layer release 002
  *
@@ -7,12 +11,15 @@
  *
  *	This code REQUIRES 2.1.15 or higher
  *
+<<<<<<< HEAD
  *	This module:
  *		This module is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	History
  *	X.25 001	Jonathan Naylor	Started coding.
  *	X.25 002	Jonathan Naylor	New timer architecture.

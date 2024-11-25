@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH RSPI driver
  *
@@ -6,6 +10,7 @@
  *
  * Based on spi-sh.c:
  * Copyright (C) 2011 Renesas Solutions Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -32,6 +39,10 @@
 #include <linux/sh_dma.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/rspi.h>
+<<<<<<< HEAD
+=======
+#include <linux/spinlock.h>
+>>>>>>> upstream/android-13
 
 #define RSPI_SPCR		0x00	/* Control Register */
 #define RSPI_SSLP		0x01	/* Slave Select Polarity Register */
@@ -87,8 +98,12 @@
 #define SPCR_BSWAP		0x01	/* Byte Swap of read-data for DMAC */
 
 /* SSLP - Slave Select Polarity Register */
+<<<<<<< HEAD
 #define SSLP_SSL1P		0x02	/* SSL1 Signal Polarity Setting */
 #define SSLP_SSL0P		0x01	/* SSL0 Signal Polarity Setting */
+=======
+#define SSLP_SSLP(i)		BIT(i)	/* SSLi Signal Polarity Setting */
+>>>>>>> upstream/android-13
 
 /* SPPCR - Pin Control Register */
 #define SPPCR_MOIFE		0x20	/* MOSI Idle Value Fixing Enable */
@@ -167,8 +182,14 @@
 #define SPCMD_SPIMOD_DUAL	SPCMD_SPIMOD0
 #define SPCMD_SPIMOD_QUAD	SPCMD_SPIMOD1
 #define SPCMD_SPRW		0x0010	/* SPI Read/Write Access (Dual/Quad) */
+<<<<<<< HEAD
 #define SPCMD_SSLA_MASK		0x0030	/* SSL Assert Signal Setting (RSPI) */
 #define SPCMD_BRDV_MASK		0x000c	/* Bit Rate Division Setting */
+=======
+#define SPCMD_SSLA(i)		((i) << 4)	/* SSL Assert Signal Setting */
+#define SPCMD_BRDV_MASK		0x000c	/* Bit Rate Division Setting */
+#define SPCMD_BRDV(brdv)	((brdv) << 2)
+>>>>>>> upstream/android-13
 #define SPCMD_CPOL		0x0002	/* Clock Polarity Setting */
 #define SPCMD_CPHA		0x0001	/* Clock Phase Setting */
 
@@ -187,9 +208,17 @@
 
 struct rspi_data {
 	void __iomem *addr;
+<<<<<<< HEAD
 	u32 max_speed_hz;
 	struct spi_master *master;
 	wait_queue_head_t wait;
+=======
+	u32 speed_hz;
+	struct spi_controller *ctlr;
+	struct platform_device *pdev;
+	wait_queue_head_t wait;
+	spinlock_t lock;		/* Protects RMW-access to RSPI_SSLP */
+>>>>>>> upstream/android-13
 	struct clk *clk;
 	u16 spcmd;
 	u8 spsr;
@@ -245,6 +274,7 @@ static u16 rspi_read_data(const struct rspi_data *rspi)
 /* optional functions */
 struct spi_ops {
 	int (*set_config_register)(struct rspi_data *rspi, int access_size);
+<<<<<<< HEAD
 	int (*transfer_one)(struct spi_master *master, struct spi_device *spi,
 			    struct spi_transfer *xfer);
 	u16 mode_bits;
@@ -252,20 +282,56 @@ struct spi_ops {
 	u16 fifo_size;
 };
 
+=======
+	int (*transfer_one)(struct spi_controller *ctlr,
+			    struct spi_device *spi, struct spi_transfer *xfer);
+	u16 extra_mode_bits;
+	u16 min_div;
+	u16 max_div;
+	u16 flags;
+	u16 fifo_size;
+	u8 num_hw_ss;
+};
+
+static void rspi_set_rate(struct rspi_data *rspi)
+{
+	unsigned long clksrc;
+	int brdv = 0, spbr;
+
+	clksrc = clk_get_rate(rspi->clk);
+	spbr = DIV_ROUND_UP(clksrc, 2 * rspi->speed_hz) - 1;
+	while (spbr > 255 && brdv < 3) {
+		brdv++;
+		spbr = DIV_ROUND_UP(spbr + 1, 2) - 1;
+	}
+
+	rspi_write8(rspi, clamp(spbr, 0, 255), RSPI_SPBR);
+	rspi->spcmd |= SPCMD_BRDV(brdv);
+	rspi->speed_hz = DIV_ROUND_UP(clksrc, (2U << brdv) * (spbr + 1));
+}
+
+>>>>>>> upstream/android-13
 /*
  * functions for RSPI on legacy SH
  */
 static int rspi_set_config_register(struct rspi_data *rspi, int access_size)
 {
+<<<<<<< HEAD
 	int spbr;
 
+=======
+>>>>>>> upstream/android-13
 	/* Sets output mode, MOSI signal, and (optionally) loopback */
 	rspi_write8(rspi, rspi->sppcr, RSPI_SPPCR);
 
 	/* Sets transfer bit rate */
+<<<<<<< HEAD
 	spbr = DIV_ROUND_UP(clk_get_rate(rspi->clk),
 			    2 * rspi->max_speed_hz) - 1;
 	rspi_write8(rspi, clamp(spbr, 0, 255), RSPI_SPBR);
+=======
+	rspi_set_rate(rspi);
+>>>>>>> upstream/android-13
 
 	/* Disable dummy transmission, set 16-bit word access, 1 frame */
 	rspi_write8(rspi, 0, RSPI_SPDCR);
@@ -295,6 +361,7 @@ static int rspi_set_config_register(struct rspi_data *rspi, int access_size)
  */
 static int rspi_rz_set_config_register(struct rspi_data *rspi, int access_size)
 {
+<<<<<<< HEAD
 	int spbr;
 	int div = 0;
 	unsigned long clksrc;
@@ -314,6 +381,13 @@ static int rspi_rz_set_config_register(struct rspi_data *rspi, int access_size)
 	spbr = DIV_ROUND_UP(clksrc, 2 * rspi->max_speed_hz) - 1;
 	rspi_write8(rspi, clamp(spbr, 0, 255), RSPI_SPBR);
 	rspi->spcmd |= div << 2;
+=======
+	/* Sets output mode, MOSI signal, and (optionally) loopback */
+	rspi_write8(rspi, rspi->sppcr, RSPI_SPPCR);
+
+	/* Sets transfer bit rate */
+	rspi_set_rate(rspi);
+>>>>>>> upstream/android-13
 
 	/* Disable dummy transmission, set byte access */
 	rspi_write8(rspi, SPDCR_SPLBYTE, RSPI_SPDCR);
@@ -340,14 +414,37 @@ static int rspi_rz_set_config_register(struct rspi_data *rspi, int access_size)
  */
 static int qspi_set_config_register(struct rspi_data *rspi, int access_size)
 {
+<<<<<<< HEAD
 	int spbr;
+=======
+	unsigned long clksrc;
+	int brdv = 0, spbr;
+>>>>>>> upstream/android-13
 
 	/* Sets output mode, MOSI signal, and (optionally) loopback */
 	rspi_write8(rspi, rspi->sppcr, RSPI_SPPCR);
 
 	/* Sets transfer bit rate */
+<<<<<<< HEAD
 	spbr = DIV_ROUND_UP(clk_get_rate(rspi->clk), 2 * rspi->max_speed_hz);
 	rspi_write8(rspi, clamp(spbr, 0, 255), RSPI_SPBR);
+=======
+	clksrc = clk_get_rate(rspi->clk);
+	if (rspi->speed_hz >= clksrc) {
+		spbr = 0;
+		rspi->speed_hz = clksrc;
+	} else {
+		spbr = DIV_ROUND_UP(clksrc, 2 * rspi->speed_hz);
+		while (spbr > 255 && brdv < 3) {
+			brdv++;
+			spbr = DIV_ROUND_UP(spbr, 2);
+		}
+		spbr = clamp(spbr, 0, 255);
+		rspi->speed_hz = DIV_ROUND_UP(clksrc, (2U << brdv) * spbr);
+	}
+	rspi_write8(rspi, spbr, RSPI_SPBR);
+	rspi->spcmd |= SPCMD_BRDV(brdv);
+>>>>>>> upstream/android-13
 
 	/* Disable dummy transmission, set byte access */
 	rspi_write8(rspi, 0, RSPI_SPDCR);
@@ -434,8 +531,11 @@ static int qspi_set_receive_trigger(struct rspi_data *rspi, unsigned int len)
 	return n;
 }
 
+<<<<<<< HEAD
 #define set_config_register(spi, n) spi->ops->set_config_register(spi, n)
 
+=======
+>>>>>>> upstream/android-13
 static void rspi_enable_irq(const struct rspi_data *rspi, u8 enable)
 {
 	rspi_write8(rspi, rspi_read8(rspi, RSPI_SPCR) | enable, RSPI_SPCR);
@@ -477,7 +577,11 @@ static int rspi_data_out(struct rspi_data *rspi, u8 data)
 {
 	int error = rspi_wait_for_tx_empty(rspi);
 	if (error < 0) {
+<<<<<<< HEAD
 		dev_err(&rspi->master->dev, "transmit timeout\n");
+=======
+		dev_err(&rspi->ctlr->dev, "transmit timeout\n");
+>>>>>>> upstream/android-13
 		return error;
 	}
 	rspi_write_data(rspi, data);
@@ -491,7 +595,11 @@ static int rspi_data_in(struct rspi_data *rspi)
 
 	error = rspi_wait_for_rx_full(rspi);
 	if (error < 0) {
+<<<<<<< HEAD
 		dev_err(&rspi->master->dev, "receive timeout\n");
+=======
+		dev_err(&rspi->ctlr->dev, "receive timeout\n");
+>>>>>>> upstream/android-13
 		return error;
 	}
 	data = rspi_read_data(rspi);
@@ -537,8 +645,13 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
 
 	/* First prepare and submit the DMA request(s), as this may fail */
 	if (rx) {
+<<<<<<< HEAD
 		desc_rx = dmaengine_prep_slave_sg(rspi->master->dma_rx,
 					rx->sgl, rx->nents, DMA_DEV_TO_MEM,
+=======
+		desc_rx = dmaengine_prep_slave_sg(rspi->ctlr->dma_rx, rx->sgl,
+					rx->nents, DMA_DEV_TO_MEM,
+>>>>>>> upstream/android-13
 					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 		if (!desc_rx) {
 			ret = -EAGAIN;
@@ -557,8 +670,13 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
 	}
 
 	if (tx) {
+<<<<<<< HEAD
 		desc_tx = dmaengine_prep_slave_sg(rspi->master->dma_tx,
 					tx->sgl, tx->nents, DMA_MEM_TO_DEV,
+=======
+		desc_tx = dmaengine_prep_slave_sg(rspi->ctlr->dma_tx, tx->sgl,
+					tx->nents, DMA_MEM_TO_DEV,
+>>>>>>> upstream/android-13
 					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 		if (!desc_tx) {
 			ret = -EAGAIN;
@@ -595,9 +713,15 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
 
 	/* Now start DMA */
 	if (rx)
+<<<<<<< HEAD
 		dma_async_issue_pending(rspi->master->dma_rx);
 	if (tx)
 		dma_async_issue_pending(rspi->master->dma_tx);
+=======
+		dma_async_issue_pending(rspi->ctlr->dma_rx);
+	if (tx)
+		dma_async_issue_pending(rspi->ctlr->dma_tx);
+>>>>>>> upstream/android-13
 
 	ret = wait_event_interruptible_timeout(rspi->wait,
 					       rspi->dma_callbacked, HZ);
@@ -605,6 +729,7 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
 		ret = 0;
 	} else {
 		if (!ret) {
+<<<<<<< HEAD
 			dev_err(&rspi->master->dev, "DMA timeout\n");
 			ret = -ETIMEDOUT;
 		}
@@ -612,6 +737,15 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
 			dmaengine_terminate_all(rspi->master->dma_tx);
 		if (rx)
 			dmaengine_terminate_all(rspi->master->dma_rx);
+=======
+			dev_err(&rspi->ctlr->dev, "DMA timeout\n");
+			ret = -ETIMEDOUT;
+		}
+		if (tx)
+			dmaengine_terminate_sync(rspi->ctlr->dma_tx);
+		if (rx)
+			dmaengine_terminate_sync(rspi->ctlr->dma_rx);
+>>>>>>> upstream/android-13
 	}
 
 	rspi_disable_irq(rspi, irq_mask);
@@ -625,12 +759,20 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
 
 no_dma_tx:
 	if (rx)
+<<<<<<< HEAD
 		dmaengine_terminate_all(rspi->master->dma_rx);
 no_dma_rx:
 	if (ret == -EAGAIN) {
 		pr_warn_once("%s %s: DMA not available, falling back to PIO\n",
 			     dev_driver_string(&rspi->master->dev),
 			     dev_name(&rspi->master->dev));
+=======
+		dmaengine_terminate_sync(rspi->ctlr->dma_rx);
+no_dma_rx:
+	if (ret == -EAGAIN) {
+		dev_warn_once(&rspi->ctlr->dev,
+			      "DMA not available, falling back to PIO\n");
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -671,10 +813,17 @@ static bool __rspi_can_dma(const struct rspi_data *rspi,
 	return xfer->len > rspi->ops->fifo_size;
 }
 
+<<<<<<< HEAD
 static bool rspi_can_dma(struct spi_master *master, struct spi_device *spi,
 			 struct spi_transfer *xfer)
 {
 	struct rspi_data *rspi = spi_master_get_devdata(master);
+=======
+static bool rspi_can_dma(struct spi_controller *ctlr, struct spi_device *spi,
+			 struct spi_transfer *xfer)
+{
+	struct rspi_data *rspi = spi_controller_get_devdata(ctlr);
+>>>>>>> upstream/android-13
 
 	return __rspi_can_dma(rspi, xfer);
 }
@@ -682,7 +831,11 @@ static bool rspi_can_dma(struct spi_master *master, struct spi_device *spi,
 static int rspi_dma_check_then_transfer(struct rspi_data *rspi,
 					 struct spi_transfer *xfer)
 {
+<<<<<<< HEAD
 	if (!rspi->master->can_dma || !__rspi_can_dma(rspi, xfer))
+=======
+	if (!rspi->ctlr->can_dma || !__rspi_can_dma(rspi, xfer))
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 
 	/* rx_buf can be NULL on RSPI on SH in TX-only Mode */
@@ -695,6 +848,11 @@ static int rspi_common_transfer(struct rspi_data *rspi,
 {
 	int ret;
 
+<<<<<<< HEAD
+=======
+	xfer->effective_speed_hz = rspi->speed_hz;
+
+>>>>>>> upstream/android-13
 	ret = rspi_dma_check_then_transfer(rspi, xfer);
 	if (ret != -EAGAIN)
 		return ret;
@@ -709,10 +867,17 @@ static int rspi_common_transfer(struct rspi_data *rspi,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rspi_transfer_one(struct spi_master *master, struct spi_device *spi,
 			     struct spi_transfer *xfer)
 {
 	struct rspi_data *rspi = spi_master_get_devdata(master);
+=======
+static int rspi_transfer_one(struct spi_controller *ctlr,
+			     struct spi_device *spi, struct spi_transfer *xfer)
+{
+	struct rspi_data *rspi = spi_controller_get_devdata(ctlr);
+>>>>>>> upstream/android-13
 	u8 spcr;
 
 	spcr = rspi_read8(rspi, RSPI_SPCR);
@@ -727,11 +892,19 @@ static int rspi_transfer_one(struct spi_master *master, struct spi_device *spi,
 	return rspi_common_transfer(rspi, xfer);
 }
 
+<<<<<<< HEAD
 static int rspi_rz_transfer_one(struct spi_master *master,
 				struct spi_device *spi,
 				struct spi_transfer *xfer)
 {
 	struct rspi_data *rspi = spi_master_get_devdata(master);
+=======
+static int rspi_rz_transfer_one(struct spi_controller *ctlr,
+				struct spi_device *spi,
+				struct spi_transfer *xfer)
+{
+	struct rspi_data *rspi = spi_controller_get_devdata(ctlr);
+>>>>>>> upstream/android-13
 
 	rspi_rz_receive_init(rspi);
 
@@ -747,6 +920,7 @@ static int qspi_trigger_transfer_out_in(struct rspi_data *rspi, const u8 *tx,
 	while (len > 0) {
 		n = qspi_set_send_trigger(rspi, len);
 		qspi_set_receive_trigger(rspi, len);
+<<<<<<< HEAD
 		if (n == QSPI_BUFFER_SIZE) {
 			ret = rspi_wait_for_tx_empty(rspi);
 			if (ret < 0) {
@@ -768,6 +942,24 @@ static int qspi_trigger_transfer_out_in(struct rspi_data *rspi, const u8 *tx,
 			if (ret < 0)
 				return ret;
 		}
+=======
+		ret = rspi_wait_for_tx_empty(rspi);
+		if (ret < 0) {
+			dev_err(&rspi->ctlr->dev, "transmit timeout\n");
+			return ret;
+		}
+		for (i = 0; i < n; i++)
+			rspi_write_data(rspi, *tx++);
+
+		ret = rspi_wait_for_rx_full(rspi);
+		if (ret < 0) {
+			dev_err(&rspi->ctlr->dev, "receive timeout\n");
+			return ret;
+		}
+		for (i = 0; i < n; i++)
+			*rx++ = rspi_read_data(rspi);
+
+>>>>>>> upstream/android-13
 		len -= n;
 	}
 
@@ -796,7 +988,11 @@ static int qspi_transfer_out(struct rspi_data *rspi, struct spi_transfer *xfer)
 	unsigned int i, len;
 	int ret;
 
+<<<<<<< HEAD
 	if (rspi->master->can_dma && __rspi_can_dma(rspi, xfer)) {
+=======
+	if (rspi->ctlr->can_dma && __rspi_can_dma(rspi, xfer)) {
+>>>>>>> upstream/android-13
 		ret = rspi_dma_transfer(rspi, &xfer->tx_sg, NULL);
 		if (ret != -EAGAIN)
 			return ret;
@@ -804,6 +1000,7 @@ static int qspi_transfer_out(struct rspi_data *rspi, struct spi_transfer *xfer)
 
 	while (n > 0) {
 		len = qspi_set_send_trigger(rspi, n);
+<<<<<<< HEAD
 		if (len == QSPI_BUFFER_SIZE) {
 			ret = rspi_wait_for_tx_empty(rspi);
 			if (ret < 0) {
@@ -817,6 +1014,16 @@ static int qspi_transfer_out(struct rspi_data *rspi, struct spi_transfer *xfer)
 			if (ret < 0)
 				return ret;
 		}
+=======
+		ret = rspi_wait_for_tx_empty(rspi);
+		if (ret < 0) {
+			dev_err(&rspi->ctlr->dev, "transmit timeout\n");
+			return ret;
+		}
+		for (i = 0; i < len; i++)
+			rspi_write_data(rspi, *tx++);
+
+>>>>>>> upstream/android-13
 		n -= len;
 	}
 
@@ -833,7 +1040,11 @@ static int qspi_transfer_in(struct rspi_data *rspi, struct spi_transfer *xfer)
 	unsigned int i, len;
 	int ret;
 
+<<<<<<< HEAD
 	if (rspi->master->can_dma && __rspi_can_dma(rspi, xfer)) {
+=======
+	if (rspi->ctlr->can_dma && __rspi_can_dma(rspi, xfer)) {
+>>>>>>> upstream/android-13
 		int ret = rspi_dma_transfer(rspi, NULL, &xfer->rx_sg);
 		if (ret != -EAGAIN)
 			return ret;
@@ -841,6 +1052,7 @@ static int qspi_transfer_in(struct rspi_data *rspi, struct spi_transfer *xfer)
 
 	while (n > 0) {
 		len = qspi_set_receive_trigger(rspi, n);
+<<<<<<< HEAD
 		if (len == QSPI_BUFFER_SIZE) {
 			ret = rspi_wait_for_rx_full(rspi);
 			if (ret < 0) {
@@ -854,17 +1066,36 @@ static int qspi_transfer_in(struct rspi_data *rspi, struct spi_transfer *xfer)
 			if (ret < 0)
 				return ret;
 		}
+=======
+		ret = rspi_wait_for_rx_full(rspi);
+		if (ret < 0) {
+			dev_err(&rspi->ctlr->dev, "receive timeout\n");
+			return ret;
+		}
+		for (i = 0; i < len; i++)
+			*rx++ = rspi_read_data(rspi);
+
+>>>>>>> upstream/android-13
 		n -= len;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int qspi_transfer_one(struct spi_master *master, struct spi_device *spi,
 			     struct spi_transfer *xfer)
 {
 	struct rspi_data *rspi = spi_master_get_devdata(master);
 
+=======
+static int qspi_transfer_one(struct spi_controller *ctlr,
+			     struct spi_device *spi, struct spi_transfer *xfer)
+{
+	struct rspi_data *rspi = spi_controller_get_devdata(ctlr);
+
+	xfer->effective_speed_hz = rspi->speed_hz;
+>>>>>>> upstream/android-13
 	if (spi->mode & SPI_LOOP) {
 		return qspi_transfer_out_in(rspi, xfer);
 	} else if (xfer->tx_nbits > SPI_NBITS_SINGLE) {
@@ -879,6 +1110,7 @@ static int qspi_transfer_one(struct spi_master *master, struct spi_device *spi,
 	}
 }
 
+<<<<<<< HEAD
 static int rspi_setup(struct spi_device *spi)
 {
 	struct rspi_data *rspi = spi_master_get_devdata(spi->master);
@@ -901,6 +1133,8 @@ static int rspi_setup(struct spi_device *spi)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static u16 qspi_transfer_mode(const struct spi_transfer *xfer)
 {
 	if (xfer->tx_buf)
@@ -966,12 +1200,81 @@ static int qspi_setup_sequencer(struct rspi_data *rspi,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rspi_prepare_message(struct spi_master *master,
 				struct spi_message *msg)
 {
 	struct rspi_data *rspi = spi_master_get_devdata(master);
 	int ret;
 
+=======
+static int rspi_setup(struct spi_device *spi)
+{
+	struct rspi_data *rspi = spi_controller_get_devdata(spi->controller);
+	u8 sslp;
+
+	if (spi->cs_gpiod)
+		return 0;
+
+	pm_runtime_get_sync(&rspi->pdev->dev);
+	spin_lock_irq(&rspi->lock);
+
+	sslp = rspi_read8(rspi, RSPI_SSLP);
+	if (spi->mode & SPI_CS_HIGH)
+		sslp |= SSLP_SSLP(spi->chip_select);
+	else
+		sslp &= ~SSLP_SSLP(spi->chip_select);
+	rspi_write8(rspi, sslp, RSPI_SSLP);
+
+	spin_unlock_irq(&rspi->lock);
+	pm_runtime_put(&rspi->pdev->dev);
+	return 0;
+}
+
+static int rspi_prepare_message(struct spi_controller *ctlr,
+				struct spi_message *msg)
+{
+	struct rspi_data *rspi = spi_controller_get_devdata(ctlr);
+	struct spi_device *spi = msg->spi;
+	const struct spi_transfer *xfer;
+	int ret;
+
+	/*
+	 * As the Bit Rate Register must not be changed while the device is
+	 * active, all transfers in a message must use the same bit rate.
+	 * In theory, the sequencer could be enabled, and each Command Register
+	 * could divide the base bit rate by a different value.
+	 * However, most RSPI variants do not have Transfer Data Length
+	 * Multiplier Setting Registers, so each sequence step would be limited
+	 * to a single word, making this feature unsuitable for large
+	 * transfers, which would gain most from it.
+	 */
+	rspi->speed_hz = spi->max_speed_hz;
+	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+		if (xfer->speed_hz < rspi->speed_hz)
+			rspi->speed_hz = xfer->speed_hz;
+	}
+
+	rspi->spcmd = SPCMD_SSLKP;
+	if (spi->mode & SPI_CPOL)
+		rspi->spcmd |= SPCMD_CPOL;
+	if (spi->mode & SPI_CPHA)
+		rspi->spcmd |= SPCMD_CPHA;
+	if (spi->mode & SPI_LSB_FIRST)
+		rspi->spcmd |= SPCMD_LSBF;
+
+	/* Configure slave signal to assert */
+	rspi->spcmd |= SPCMD_SSLA(spi->cs_gpiod ? rspi->ctlr->unused_native_cs
+						: spi->chip_select);
+
+	/* CMOS output mode and MOSI signal from previous transfer */
+	rspi->sppcr = 0;
+	if (spi->mode & SPI_LOOP)
+		rspi->sppcr |= SPPCR_SPLP;
+
+	rspi->ops->set_config_register(rspi, 8);
+
+>>>>>>> upstream/android-13
 	if (msg->spi->mode &
 	    (SPI_TX_DUAL | SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD)) {
 		/* Setup sequencer for messages with multiple transfer modes */
@@ -985,10 +1288,17 @@ static int rspi_prepare_message(struct spi_master *master,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rspi_unprepare_message(struct spi_master *master,
 				  struct spi_message *msg)
 {
 	struct rspi_data *rspi = spi_master_get_devdata(master);
+=======
+static int rspi_unprepare_message(struct spi_controller *ctlr,
+				  struct spi_message *msg)
+{
+	struct rspi_data *rspi = spi_controller_get_devdata(ctlr);
+>>>>>>> upstream/android-13
 
 	/* Disable SPI function */
 	rspi_write8(rspi, rspi_read8(rspi, RSPI_SPCR) & ~SPCR_SPE, RSPI_SPCR);
@@ -1092,7 +1402,11 @@ static struct dma_chan *rspi_request_dma_chan(struct device *dev,
 	return chan;
 }
 
+<<<<<<< HEAD
 static int rspi_request_dma(struct device *dev, struct spi_master *master,
+=======
+static int rspi_request_dma(struct device *dev, struct spi_controller *ctlr,
+>>>>>>> upstream/android-13
 			    const struct resource *res)
 {
 	const struct rspi_plat_data *rspi_pd = dev_get_platdata(dev);
@@ -1110,6 +1424,7 @@ static int rspi_request_dma(struct device *dev, struct spi_master *master,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	master->dma_tx = rspi_request_dma_chan(dev, DMA_MEM_TO_DEV, dma_tx_id,
 					       res->start + RSPI_SPDR);
 	if (!master->dma_tx)
@@ -1124,23 +1439,52 @@ static int rspi_request_dma(struct device *dev, struct spi_master *master,
 	}
 
 	master->can_dma = rspi_can_dma;
+=======
+	ctlr->dma_tx = rspi_request_dma_chan(dev, DMA_MEM_TO_DEV, dma_tx_id,
+					     res->start + RSPI_SPDR);
+	if (!ctlr->dma_tx)
+		return -ENODEV;
+
+	ctlr->dma_rx = rspi_request_dma_chan(dev, DMA_DEV_TO_MEM, dma_rx_id,
+					     res->start + RSPI_SPDR);
+	if (!ctlr->dma_rx) {
+		dma_release_channel(ctlr->dma_tx);
+		ctlr->dma_tx = NULL;
+		return -ENODEV;
+	}
+
+	ctlr->can_dma = rspi_can_dma;
+>>>>>>> upstream/android-13
 	dev_info(dev, "DMA available");
 	return 0;
 }
 
+<<<<<<< HEAD
 static void rspi_release_dma(struct spi_master *master)
 {
 	if (master->dma_tx)
 		dma_release_channel(master->dma_tx);
 	if (master->dma_rx)
 		dma_release_channel(master->dma_rx);
+=======
+static void rspi_release_dma(struct spi_controller *ctlr)
+{
+	if (ctlr->dma_tx)
+		dma_release_channel(ctlr->dma_tx);
+	if (ctlr->dma_rx)
+		dma_release_channel(ctlr->dma_rx);
+>>>>>>> upstream/android-13
 }
 
 static int rspi_remove(struct platform_device *pdev)
 {
 	struct rspi_data *rspi = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	rspi_release_dma(rspi->master);
+=======
+	rspi_release_dma(rspi->ctlr);
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 
 	return 0;
@@ -1149,27 +1493,53 @@ static int rspi_remove(struct platform_device *pdev)
 static const struct spi_ops rspi_ops = {
 	.set_config_register =	rspi_set_config_register,
 	.transfer_one =		rspi_transfer_one,
+<<<<<<< HEAD
 	.mode_bits =		SPI_CPHA | SPI_CPOL | SPI_LOOP,
 	.flags =		SPI_MASTER_MUST_TX,
 	.fifo_size =		8,
+=======
+	.min_div =		2,
+	.max_div =		4096,
+	.flags =		SPI_CONTROLLER_MUST_TX,
+	.fifo_size =		8,
+	.num_hw_ss =		2,
+>>>>>>> upstream/android-13
 };
 
 static const struct spi_ops rspi_rz_ops = {
 	.set_config_register =	rspi_rz_set_config_register,
 	.transfer_one =		rspi_rz_transfer_one,
+<<<<<<< HEAD
 	.mode_bits =		SPI_CPHA | SPI_CPOL | SPI_LOOP,
 	.flags =		SPI_MASTER_MUST_RX | SPI_MASTER_MUST_TX,
 	.fifo_size =		8,	/* 8 for TX, 32 for RX */
+=======
+	.min_div =		2,
+	.max_div =		4096,
+	.flags =		SPI_CONTROLLER_MUST_RX | SPI_CONTROLLER_MUST_TX,
+	.fifo_size =		8,	/* 8 for TX, 32 for RX */
+	.num_hw_ss =		1,
+>>>>>>> upstream/android-13
 };
 
 static const struct spi_ops qspi_ops = {
 	.set_config_register =	qspi_set_config_register,
 	.transfer_one =		qspi_transfer_one,
+<<<<<<< HEAD
 	.mode_bits =		SPI_CPHA | SPI_CPOL | SPI_LOOP |
 				SPI_TX_DUAL | SPI_TX_QUAD |
 				SPI_RX_DUAL | SPI_RX_QUAD,
 	.flags =		SPI_MASTER_MUST_RX | SPI_MASTER_MUST_TX,
 	.fifo_size =		32,
+=======
+	.extra_mode_bits =	SPI_TX_DUAL | SPI_TX_QUAD |
+				SPI_RX_DUAL | SPI_RX_QUAD,
+	.min_div =		1,
+	.max_div =		4080,
+	.flags =		SPI_CONTROLLER_MUST_RX | SPI_CONTROLLER_MUST_TX,
+	.fifo_size =		32,
+	.num_hw_ss =		1,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_OF
@@ -1185,7 +1555,11 @@ static const struct of_device_id rspi_of_match[] = {
 
 MODULE_DEVICE_TABLE(of, rspi_of_match);
 
+<<<<<<< HEAD
 static int rspi_parse_dt(struct device *dev, struct spi_master *master)
+=======
+static int rspi_parse_dt(struct device *dev, struct spi_controller *ctlr)
+>>>>>>> upstream/android-13
 {
 	u32 num_cs;
 	int error;
@@ -1197,12 +1571,20 @@ static int rspi_parse_dt(struct device *dev, struct spi_master *master)
 		return error;
 	}
 
+<<<<<<< HEAD
 	master->num_chipselect = num_cs;
+=======
+	ctlr->num_chipselect = num_cs;
+>>>>>>> upstream/android-13
 	return 0;
 }
 #else
 #define rspi_of_match	NULL
+<<<<<<< HEAD
 static inline int rspi_parse_dt(struct device *dev, struct spi_master *master)
+=======
+static inline int rspi_parse_dt(struct device *dev, struct spi_controller *ctlr)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
@@ -1223,25 +1605,41 @@ static int rspi_request_irq(struct device *dev, unsigned int irq,
 static int rspi_probe(struct platform_device *pdev)
 {
 	struct resource *res;
+<<<<<<< HEAD
 	struct spi_master *master;
+=======
+	struct spi_controller *ctlr;
+>>>>>>> upstream/android-13
 	struct rspi_data *rspi;
 	int ret;
 	const struct rspi_plat_data *rspi_pd;
 	const struct spi_ops *ops;
+<<<<<<< HEAD
 
 	master = spi_alloc_master(&pdev->dev, sizeof(struct rspi_data));
 	if (master == NULL)
+=======
+	unsigned long clksrc;
+
+	ctlr = spi_alloc_master(&pdev->dev, sizeof(struct rspi_data));
+	if (ctlr == NULL)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	ops = of_device_get_match_data(&pdev->dev);
 	if (ops) {
+<<<<<<< HEAD
 		ret = rspi_parse_dt(&pdev->dev, master);
+=======
+		ret = rspi_parse_dt(&pdev->dev, ctlr);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto error1;
 	} else {
 		ops = (struct spi_ops *)pdev->id_entry->driver_data;
 		rspi_pd = dev_get_platdata(&pdev->dev);
 		if (rspi_pd && rspi_pd->num_chipselect)
+<<<<<<< HEAD
 			master->num_chipselect = rspi_pd->num_chipselect;
 		else
 			master->num_chipselect = 2; /* default */
@@ -1258,6 +1656,17 @@ static int rspi_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, rspi);
 	rspi->ops = ops;
 	rspi->master = master;
+=======
+			ctlr->num_chipselect = rspi_pd->num_chipselect;
+		else
+			ctlr->num_chipselect = 2; /* default */
+	}
+
+	rspi = spi_controller_get_devdata(ctlr);
+	platform_set_drvdata(pdev, rspi);
+	rspi->ops = ops;
+	rspi->ctlr = ctlr;
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rspi->addr = devm_ioremap_resource(&pdev->dev, res);
@@ -1273,6 +1682,7 @@ static int rspi_probe(struct platform_device *pdev)
 		goto error1;
 	}
 
+<<<<<<< HEAD
 	pm_runtime_enable(&pdev->dev);
 
 	init_waitqueue_head(&rspi->wait);
@@ -1290,6 +1700,33 @@ static int rspi_probe(struct platform_device *pdev)
 	ret = platform_get_irq_byname(pdev, "rx");
 	if (ret < 0) {
 		ret = platform_get_irq_byname(pdev, "mux");
+=======
+	rspi->pdev = pdev;
+	pm_runtime_enable(&pdev->dev);
+
+	init_waitqueue_head(&rspi->wait);
+	spin_lock_init(&rspi->lock);
+
+	ctlr->bus_num = pdev->id;
+	ctlr->setup = rspi_setup;
+	ctlr->auto_runtime_pm = true;
+	ctlr->transfer_one = ops->transfer_one;
+	ctlr->prepare_message = rspi_prepare_message;
+	ctlr->unprepare_message = rspi_unprepare_message;
+	ctlr->mode_bits = SPI_CPHA | SPI_CPOL | SPI_CS_HIGH | SPI_LSB_FIRST |
+			  SPI_LOOP | ops->extra_mode_bits;
+	clksrc = clk_get_rate(rspi->clk);
+	ctlr->min_speed_hz = DIV_ROUND_UP(clksrc, ops->max_div);
+	ctlr->max_speed_hz = DIV_ROUND_UP(clksrc, ops->min_div);
+	ctlr->flags = ops->flags;
+	ctlr->dev.of_node = pdev->dev.of_node;
+	ctlr->use_gpio_descriptors = true;
+	ctlr->max_native_cs = rspi->ops->num_hw_ss;
+
+	ret = platform_get_irq_byname_optional(pdev, "rx");
+	if (ret < 0) {
+		ret = platform_get_irq_byname_optional(pdev, "mux");
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			ret = platform_get_irq(pdev, 0);
 		if (ret >= 0)
@@ -1300,10 +1737,13 @@ static int rspi_probe(struct platform_device *pdev)
 		if (ret >= 0)
 			rspi->tx_irq = ret;
 	}
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&pdev->dev, "platform_get_irq error\n");
 		goto error2;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (rspi->rx_irq == rspi->tx_irq) {
 		/* Single multiplexed interrupt */
@@ -1322,6 +1762,7 @@ static int rspi_probe(struct platform_device *pdev)
 		goto error2;
 	}
 
+<<<<<<< HEAD
 	ret = rspi_request_dma(&pdev->dev, master, res);
 	if (ret < 0)
 		dev_warn(&pdev->dev, "DMA not available, using PIO\n");
@@ -1329,6 +1770,15 @@ static int rspi_probe(struct platform_device *pdev)
 	ret = devm_spi_register_master(&pdev->dev, master);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "spi_register_master error.\n");
+=======
+	ret = rspi_request_dma(&pdev->dev, ctlr, res);
+	if (ret < 0)
+		dev_warn(&pdev->dev, "DMA not available, using PIO\n");
+
+	ret = devm_spi_register_controller(&pdev->dev, ctlr);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "devm_spi_register_controller error.\n");
+>>>>>>> upstream/android-13
 		goto error3;
 	}
 
@@ -1337,19 +1787,30 @@ static int rspi_probe(struct platform_device *pdev)
 	return 0;
 
 error3:
+<<<<<<< HEAD
 	rspi_release_dma(master);
 error2:
 	pm_runtime_disable(&pdev->dev);
 error1:
 	spi_master_put(master);
+=======
+	rspi_release_dma(ctlr);
+error2:
+	pm_runtime_disable(&pdev->dev);
+error1:
+	spi_controller_put(ctlr);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static const struct platform_device_id spi_driver_ids[] = {
 	{ "rspi",	(kernel_ulong_t)&rspi_ops },
+<<<<<<< HEAD
 	{ "rspi-rz",	(kernel_ulong_t)&rspi_rz_ops },
 	{ "qspi",	(kernel_ulong_t)&qspi_ops },
+=======
+>>>>>>> upstream/android-13
 	{},
 };
 
@@ -1358,18 +1819,30 @@ MODULE_DEVICE_TABLE(platform, spi_driver_ids);
 #ifdef CONFIG_PM_SLEEP
 static int rspi_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct rspi_data *rspi = platform_get_drvdata(pdev);
 
 	return spi_master_suspend(rspi->master);
+=======
+	struct rspi_data *rspi = dev_get_drvdata(dev);
+
+	return spi_controller_suspend(rspi->ctlr);
+>>>>>>> upstream/android-13
 }
 
 static int rspi_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct rspi_data *rspi = platform_get_drvdata(pdev);
 
 	return spi_master_resume(rspi->master);
+=======
+	struct rspi_data *rspi = dev_get_drvdata(dev);
+
+	return spi_controller_resume(rspi->ctlr);
+>>>>>>> upstream/android-13
 }
 
 static SIMPLE_DEV_PM_OPS(rspi_pm_ops, rspi_suspend, rspi_resume);

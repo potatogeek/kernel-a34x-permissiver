@@ -8,7 +8,10 @@ which can create the interprocessor communication (IPC) between the CPU
 and BPMP.
 
 Required properties:
+<<<<<<< HEAD
 - name : Should be bpmp
+=======
+>>>>>>> upstream/android-13
 - compatible
     Array of strings
     One of:
@@ -33,7 +36,11 @@ implemented by this node:
 
 - .../clock/clock-bindings.txt
 - <dt-bindings/clock/tegra186-clock.h>
+<<<<<<< HEAD
 - ../power/power_domain.txt
+=======
+- ../power/power-domain.yaml
+>>>>>>> upstream/android-13
 - <dt-bindings/power/tegra186-powergate.h>
 - .../reset/reset.txt
 - <dt-bindings/reset/tegra186-reset.h>

@@ -54,4 +54,9 @@ void sa11x0_register_pcmcia(int socket, struct gpiod_lookup_table *);
 struct fixed_voltage_config;
 struct regulator_consumer_supply;
 int sa11x0_register_fixed_regulator(int n, struct fixed_voltage_config *cfg,
+<<<<<<< HEAD
 	struct regulator_consumer_supply *supplies, unsigned num_supplies);
+=======
+	struct regulator_consumer_supply *supplies, unsigned num_supplies,
+	bool uses_gpio);
+>>>>>>> upstream/android-13

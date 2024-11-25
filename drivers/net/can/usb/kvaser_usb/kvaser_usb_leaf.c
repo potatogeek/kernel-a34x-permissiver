@@ -28,10 +28,13 @@
 
 #include "kvaser_usb.h"
 
+<<<<<<< HEAD
 /* Forward declaration */
 static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg;
 
 #define CAN_USB_CLOCK			8000000
+=======
+>>>>>>> upstream/android-13
 #define MAX_USBCAN_NET_DEVICES		2
 
 /* Command header size */
@@ -80,6 +83,15 @@ static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg;
 
 #define CMD_LEAF_LOG_MESSAGE		106
 
+<<<<<<< HEAD
+=======
+/* Leaf frequency options */
+#define KVASER_USB_LEAF_SWOPTION_FREQ_MASK 0x60
+#define KVASER_USB_LEAF_SWOPTION_FREQ_16_MHZ_CLK 0
+#define KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK BIT(5)
+#define KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK BIT(6)
+
+>>>>>>> upstream/android-13
 /* error factors */
 #define M16C_EF_ACKE			BIT(0)
 #define M16C_EF_CRCE			BIT(1)
@@ -340,6 +352,53 @@ struct kvaser_usb_err_summary {
 	};
 };
 
+<<<<<<< HEAD
+=======
+static const struct can_bittiming_const kvaser_usb_leaf_bittiming_const = {
+	.name = "kvaser_usb",
+	.tseg1_min = KVASER_USB_TSEG1_MIN,
+	.tseg1_max = KVASER_USB_TSEG1_MAX,
+	.tseg2_min = KVASER_USB_TSEG2_MIN,
+	.tseg2_max = KVASER_USB_TSEG2_MAX,
+	.sjw_max = KVASER_USB_SJW_MAX,
+	.brp_min = KVASER_USB_BRP_MIN,
+	.brp_max = KVASER_USB_BRP_MAX,
+	.brp_inc = KVASER_USB_BRP_INC,
+};
+
+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_8mhz = {
+	.clock = {
+		.freq = 8000000,
+	},
+	.timestamp_freq = 1,
+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
+};
+
+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_16mhz = {
+	.clock = {
+		.freq = 16000000,
+	},
+	.timestamp_freq = 1,
+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
+};
+
+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_24mhz = {
+	.clock = {
+		.freq = 24000000,
+	},
+	.timestamp_freq = 1,
+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
+};
+
+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_32mhz = {
+	.clock = {
+		.freq = 32000000,
+	},
+	.timestamp_freq = 1,
+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
+};
+
+>>>>>>> upstream/android-13
 static void *
 kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
 			     const struct sk_buff *skb, int *frame_len,
@@ -350,7 +409,11 @@ kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
 	u8 *cmd_tx_can_flags = NULL;		/* GCC */
 	struct can_frame *cf = (struct can_frame *)skb->data;
 
+<<<<<<< HEAD
 	*frame_len = cf->can_dlc;
+=======
+	*frame_len = cf->len;
+>>>>>>> upstream/android-13
 
 	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
 	if (cmd) {
@@ -383,8 +446,13 @@ kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
 			cmd->u.tx_can.data[1] = cf->can_id & 0x3f;
 		}
 
+<<<<<<< HEAD
 		cmd->u.tx_can.data[5] = cf->can_dlc;
 		memcpy(&cmd->u.tx_can.data[6], cf->data, cf->can_dlc);
+=======
+		cmd->u.tx_can.data[5] = cf->len;
+		memcpy(&cmd->u.tx_can.data[6], cf->data, cf->len);
+>>>>>>> upstream/android-13
 
 		if (cf->can_id & CAN_RTR_FLAG)
 			*cmd_tx_can_flags |= MSG_FLAG_REMOTE_FRAME;
@@ -471,6 +539,30 @@ static int kvaser_usb_leaf_send_simple_cmd(const struct kvaser_usb *dev,
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+static void kvaser_usb_leaf_get_software_info_leaf(struct kvaser_usb *dev,
+						   const struct leaf_cmd_softinfo *softinfo)
+{
+	u32 sw_options = le32_to_cpu(softinfo->sw_options);
+
+	dev->fw_version = le32_to_cpu(softinfo->fw_version);
+	dev->max_tx_urbs = le16_to_cpu(softinfo->max_outstanding_tx);
+
+	switch (sw_options & KVASER_USB_LEAF_SWOPTION_FREQ_MASK) {
+	case KVASER_USB_LEAF_SWOPTION_FREQ_16_MHZ_CLK:
+		dev->cfg = &kvaser_usb_leaf_dev_cfg_16mhz;
+		break;
+	case KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK:
+		dev->cfg = &kvaser_usb_leaf_dev_cfg_24mhz;
+		break;
+	case KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK:
+		dev->cfg = &kvaser_usb_leaf_dev_cfg_32mhz;
+		break;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int kvaser_usb_leaf_get_software_info_inner(struct kvaser_usb *dev)
 {
 	struct kvaser_cmd cmd;
@@ -486,14 +578,22 @@ static int kvaser_usb_leaf_get_software_info_inner(struct kvaser_usb *dev)
 
 	switch (dev->card_data.leaf.family) {
 	case KVASER_LEAF:
+<<<<<<< HEAD
 		dev->fw_version = le32_to_cpu(cmd.u.leaf.softinfo.fw_version);
 		dev->max_tx_urbs =
 			le16_to_cpu(cmd.u.leaf.softinfo.max_outstanding_tx);
+=======
+		kvaser_usb_leaf_get_software_info_leaf(dev, &cmd.u.leaf.softinfo);
+>>>>>>> upstream/android-13
 		break;
 	case KVASER_USBCAN:
 		dev->fw_version = le32_to_cpu(cmd.u.usbcan.softinfo.fw_version);
 		dev->max_tx_urbs =
 			le16_to_cpu(cmd.u.usbcan.softinfo.max_outstanding_tx);
+<<<<<<< HEAD
+=======
+		dev->cfg = &kvaser_usb_leaf_dev_cfg_8mhz;
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -576,7 +676,11 @@ static void kvaser_usb_leaf_tx_acknowledge(const struct kvaser_usb *dev,
 			cf->can_id |= CAN_ERR_RESTARTED;
 
 			stats->rx_packets++;
+<<<<<<< HEAD
 			stats->rx_bytes += cf->can_dlc;
+=======
+			stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 			netif_rx(skb);
 		} else {
 			netdev_err(priv->netdev,
@@ -594,7 +698,11 @@ static void kvaser_usb_leaf_tx_acknowledge(const struct kvaser_usb *dev,
 
 	spin_lock_irqsave(&priv->tx_contexts_lock, flags);
 
+<<<<<<< HEAD
 	can_get_echo_skb(priv->netdev, context->echo_index);
+=======
+	can_get_echo_skb(priv->netdev, context->echo_index, NULL);
+>>>>>>> upstream/android-13
 	context->echo_index = dev->max_tx_urbs;
 	--priv->active_tx_contexts;
 	netif_wake_queue(priv->netdev);
@@ -694,7 +802,11 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
 {
 	struct can_frame *cf;
 	struct can_frame tmp_cf = { .can_id = CAN_ERR_FLAG,
+<<<<<<< HEAD
 				    .can_dlc = CAN_ERR_DLC };
+=======
+				    .len = CAN_ERR_DLC };
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 	struct net_device_stats *stats;
 	struct kvaser_usb_net_priv *priv;
@@ -778,7 +890,11 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
 	cf->data[7] = es->rxerr;
 
 	stats->rx_packets++;
+<<<<<<< HEAD
 	stats->rx_bytes += cf->can_dlc;
+=======
+	stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 	netif_rx(skb);
 }
 
@@ -978,13 +1094,21 @@ static void kvaser_usb_leaf_rx_can_msg(const struct kvaser_usb *dev,
 		else
 			cf->can_id &= CAN_SFF_MASK;
 
+<<<<<<< HEAD
 		cf->can_dlc = get_can_dlc(cmd->u.leaf.log_message.dlc);
+=======
+		cf->len = can_cc_dlc2len(cmd->u.leaf.log_message.dlc);
+>>>>>>> upstream/android-13
 
 		if (cmd->u.leaf.log_message.flags & MSG_FLAG_REMOTE_FRAME)
 			cf->can_id |= CAN_RTR_FLAG;
 		else
 			memcpy(cf->data, &cmd->u.leaf.log_message.data,
+<<<<<<< HEAD
 			       cf->can_dlc);
+=======
+			       cf->len);
+>>>>>>> upstream/android-13
 	} else {
 		cf->can_id = ((rx_data[0] & 0x1f) << 6) | (rx_data[1] & 0x3f);
 
@@ -996,16 +1120,28 @@ static void kvaser_usb_leaf_rx_can_msg(const struct kvaser_usb *dev,
 			cf->can_id |= CAN_EFF_FLAG;
 		}
 
+<<<<<<< HEAD
 		cf->can_dlc = get_can_dlc(rx_data[5]);
+=======
+		cf->len = can_cc_dlc2len(rx_data[5]);
+>>>>>>> upstream/android-13
 
 		if (cmd->u.rx_can_header.flag & MSG_FLAG_REMOTE_FRAME)
 			cf->can_id |= CAN_RTR_FLAG;
 		else
+<<<<<<< HEAD
 			memcpy(cf->data, &rx_data[6], cf->can_dlc);
 	}
 
 	stats->rx_packets++;
 	stats->rx_bytes += cf->can_dlc;
+=======
+			memcpy(cf->data, &rx_data[6], cf->len);
+	}
+
+	stats->rx_packets++;
+	stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 	netif_rx(skb);
 }
 
@@ -1225,12 +1361,16 @@ static int kvaser_usb_leaf_init_card(struct kvaser_usb *dev)
 {
 	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
 
+<<<<<<< HEAD
 	dev->cfg = &kvaser_usb_leaf_dev_cfg;
+=======
+>>>>>>> upstream/android-13
 	card_data->ctrlmode_supported |= CAN_CTRLMODE_3_SAMPLES;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct can_bittiming_const kvaser_usb_leaf_bittiming_const = {
 	.name = "kvaser_usb",
 	.tseg1_min = KVASER_USB_TSEG1_MIN,
@@ -1243,6 +1383,8 @@ static const struct can_bittiming_const kvaser_usb_leaf_bittiming_const = {
 	.brp_inc = KVASER_USB_BRP_INC,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int kvaser_usb_leaf_set_bittiming(struct net_device *netdev)
 {
 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
@@ -1348,6 +1490,7 @@ const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops = {
 	.dev_read_bulk_callback = kvaser_usb_leaf_read_bulk_callback,
 	.dev_frame_to_cmd = kvaser_usb_leaf_frame_to_cmd,
 };
+<<<<<<< HEAD
 
 static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg = {
 	.clock = {
@@ -1356,3 +1499,5 @@ static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg = {
 	.timestamp_freq = 1,
 	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
 };
+=======
+>>>>>>> upstream/android-13

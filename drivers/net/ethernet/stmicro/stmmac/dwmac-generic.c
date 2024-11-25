@@ -27,7 +27,11 @@ static int dwmac_generic_probe(struct platform_device *pdev)
 		return ret;
 
 	if (pdev->dev.of_node) {
+<<<<<<< HEAD
 		plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
+=======
+		plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
+>>>>>>> upstream/android-13
 		if (IS_ERR(plat_dat)) {
 			dev_err(&pdev->dev, "dt configuration failed\n");
 			return PTR_ERR(plat_dat);
@@ -71,6 +75,10 @@ err_remove_config_dt:
 
 static const struct of_device_id dwmac_generic_match[] = {
 	{ .compatible = "st,spear600-gmac"},
+<<<<<<< HEAD
+=======
+	{ .compatible = "snps,dwmac-3.40a"},
+>>>>>>> upstream/android-13
 	{ .compatible = "snps,dwmac-3.50a"},
 	{ .compatible = "snps,dwmac-3.610"},
 	{ .compatible = "snps,dwmac-3.70a"},

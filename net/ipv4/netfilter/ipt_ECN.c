@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* iptables module for the IPv4 and TCP ECN bits, Version 1.5
  *
  * (C) 2002 by Harald Welte <laforge@netfilter.org>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* iptables module for the IPv4 and TCP ECN bits, Version 1.5
+ *
+ * (C) 2002 by Harald Welte <laforge@netfilter.org>
+>>>>>>> upstream/android-13
 */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/in.h>
@@ -32,7 +39,11 @@ set_ect_ip(struct sk_buff *skb, const struct ipt_ECN_info *einfo)
 
 	if ((iph->tos & IPT_ECN_IP_MASK) != (einfo->ip_ect & IPT_ECN_IP_MASK)) {
 		__u8 oldtos;
+<<<<<<< HEAD
 		if (!skb_make_writable(skb, sizeof(struct iphdr)))
+=======
+		if (skb_ensure_writable(skb, sizeof(struct iphdr)))
+>>>>>>> upstream/android-13
 			return false;
 		iph = ip_hdr(skb);
 		oldtos = iph->tos;
@@ -61,7 +72,11 @@ set_ect_tcp(struct sk_buff *skb, const struct ipt_ECN_info *einfo)
 	     tcph->cwr == einfo->proto.tcp.cwr))
 		return true;
 
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, ip_hdrlen(skb) + sizeof(*tcph)))
+=======
+	if (skb_ensure_writable(skb, ip_hdrlen(skb) + sizeof(*tcph)))
+>>>>>>> upstream/android-13
 		return false;
 	tcph = (void *)ip_hdr(skb) + ip_hdrlen(skb);
 

@@ -8,11 +8,19 @@
 #define __CMD_OSDEP_H_
 
 
+<<<<<<< HEAD
 extern sint _rtw_init_cmd_priv (struct	cmd_priv *pcmdpriv);
 extern sint _rtw_init_evt_priv(struct evt_priv *pevtpriv);
 extern void _rtw_free_evt_priv (struct	evt_priv *pevtpriv);
 extern void _rtw_free_cmd_priv (struct	cmd_priv *pcmdpriv);
 extern sint _rtw_enqueue_cmd(struct __queue *queue, struct cmd_obj *obj);
+=======
+int rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv);
+int rtw_init_evt_priv(struct evt_priv *pevtpriv);
+extern void _rtw_free_evt_priv(struct	evt_priv *pevtpriv);
+extern void _rtw_free_cmd_priv(struct	cmd_priv *pcmdpriv);
+int _rtw_enqueue_cmd(struct __queue *queue, struct cmd_obj *obj);
+>>>>>>> upstream/android-13
 extern struct	cmd_obj	*_rtw_dequeue_cmd(struct __queue *queue);
 
 #endif

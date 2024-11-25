@@ -36,6 +36,7 @@ struct usb_cytherm {
 };
 
 
+<<<<<<< HEAD
 /* local function prototypes */
 static int cytherm_probe(struct usb_interface *interface, 
 			 const struct usb_device_id *id);
@@ -50,6 +51,8 @@ static struct usb_driver cytherm_driver = {
 	.id_table =	id_table,
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Vendor requests */
 /* They all operate on one byte at a time */
 #define PING       0x00
@@ -304,6 +307,18 @@ static ssize_t port1_store(struct device *dev, struct device_attribute *attr, co
 }
 static DEVICE_ATTR_RW(port1);
 
+<<<<<<< HEAD
+=======
+static struct attribute *cytherm_attrs[] = {
+	&dev_attr_brightness.attr,
+	&dev_attr_temp.attr,
+	&dev_attr_button.attr,
+	&dev_attr_port0.attr,
+	&dev_attr_port1.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(cytherm);
+>>>>>>> upstream/android-13
 
 static int cytherm_probe(struct usb_interface *interface, 
 			 const struct usb_device_id *id)
@@ -322,6 +337,7 @@ static int cytherm_probe(struct usb_interface *interface,
 
 	dev->brightness = 0xFF;
 
+<<<<<<< HEAD
 	retval = device_create_file(&interface->dev, &dev_attr_brightness);
 	if (retval)
 		goto error;
@@ -350,6 +366,12 @@ error:
 	usb_set_intfdata (interface, NULL);
 	usb_put_dev(dev->udev);
 	kfree(dev);
+=======
+	dev_info (&interface->dev,
+		  "Cypress thermometer device now attached\n");
+	return 0;
+
+>>>>>>> upstream/android-13
 error_mem:
 	return retval;
 }
@@ -360,12 +382,15 @@ static void cytherm_disconnect(struct usb_interface *interface)
 
 	dev = usb_get_intfdata (interface);
 
+<<<<<<< HEAD
 	device_remove_file(&interface->dev, &dev_attr_brightness);
 	device_remove_file(&interface->dev, &dev_attr_temp);
 	device_remove_file(&interface->dev, &dev_attr_button);
 	device_remove_file(&interface->dev, &dev_attr_port0);
 	device_remove_file(&interface->dev, &dev_attr_port1);
 
+=======
+>>>>>>> upstream/android-13
 	/* first remove the files, then NULL the pointer */
 	usb_set_intfdata (interface, NULL);
 
@@ -376,6 +401,18 @@ static void cytherm_disconnect(struct usb_interface *interface)
 	dev_info(&interface->dev, "Cypress thermometer now disconnected\n");
 }
 
+<<<<<<< HEAD
+=======
+/* usb specific object needed to register this driver with the usb subsystem */
+static struct usb_driver cytherm_driver = {
+	.name =		"cytherm",
+	.probe =	cytherm_probe,
+	.disconnect =	cytherm_disconnect,
+	.id_table =	id_table,
+	.dev_groups =	cytherm_groups,
+};
+
+>>>>>>> upstream/android-13
 module_usb_driver(cytherm_driver);
 
 MODULE_AUTHOR(DRIVER_AUTHOR);

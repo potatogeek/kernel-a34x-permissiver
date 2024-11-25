@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  ebtable_filter
  *
@@ -58,6 +62,7 @@ static const struct ebt_table frame_filter = {
 };
 
 static unsigned int
+<<<<<<< HEAD
 ebt_in_hook(void *priv, struct sk_buff *skb,
 	    const struct nf_hook_state *state)
 {
@@ -69,53 +74,110 @@ ebt_out_hook(void *priv, struct sk_buff *skb,
 	     const struct nf_hook_state *state)
 {
 	return ebt_do_table(skb, state, state->net->xt.frame_filter);
+=======
+ebt_filter_hook(void *priv, struct sk_buff *skb,
+		const struct nf_hook_state *state)
+{
+	return ebt_do_table(skb, state, priv);
+>>>>>>> upstream/android-13
 }
 
 static const struct nf_hook_ops ebt_ops_filter[] = {
 	{
+<<<<<<< HEAD
 		.hook		= ebt_in_hook,
+=======
+		.hook		= ebt_filter_hook,
+>>>>>>> upstream/android-13
 		.pf		= NFPROTO_BRIDGE,
 		.hooknum	= NF_BR_LOCAL_IN,
 		.priority	= NF_BR_PRI_FILTER_BRIDGED,
 	},
 	{
+<<<<<<< HEAD
 		.hook		= ebt_in_hook,
+=======
+		.hook		= ebt_filter_hook,
+>>>>>>> upstream/android-13
 		.pf		= NFPROTO_BRIDGE,
 		.hooknum	= NF_BR_FORWARD,
 		.priority	= NF_BR_PRI_FILTER_BRIDGED,
 	},
 	{
+<<<<<<< HEAD
 		.hook		= ebt_out_hook,
+=======
+		.hook		= ebt_filter_hook,
+>>>>>>> upstream/android-13
 		.pf		= NFPROTO_BRIDGE,
 		.hooknum	= NF_BR_LOCAL_OUT,
 		.priority	= NF_BR_PRI_FILTER_OTHER,
 	},
 };
 
+<<<<<<< HEAD
 static int __net_init frame_filter_net_init(struct net *net)
 {
 	return ebt_register_table(net, &frame_filter, ebt_ops_filter,
 				  &net->xt.frame_filter);
+=======
+static int frame_filter_table_init(struct net *net)
+{
+	return ebt_register_table(net, &frame_filter, ebt_ops_filter);
+}
+
+static void __net_exit frame_filter_net_pre_exit(struct net *net)
+{
+	ebt_unregister_table_pre_exit(net, "filter");
+>>>>>>> upstream/android-13
 }
 
 static void __net_exit frame_filter_net_exit(struct net *net)
 {
+<<<<<<< HEAD
 	ebt_unregister_table(net, net->xt.frame_filter, ebt_ops_filter);
 }
 
 static struct pernet_operations frame_filter_net_ops = {
 	.init = frame_filter_net_init,
 	.exit = frame_filter_net_exit,
+=======
+	ebt_unregister_table(net, "filter");
+}
+
+static struct pernet_operations frame_filter_net_ops = {
+	.exit = frame_filter_net_exit,
+	.pre_exit = frame_filter_net_pre_exit,
+>>>>>>> upstream/android-13
 };
 
 static int __init ebtable_filter_init(void)
 {
+<<<<<<< HEAD
 	return register_pernet_subsys(&frame_filter_net_ops);
+=======
+	int ret = ebt_register_template(&frame_filter, frame_filter_table_init);
+
+	if (ret)
+		return ret;
+
+	ret = register_pernet_subsys(&frame_filter_net_ops);
+	if (ret) {
+		ebt_unregister_template(&frame_filter);
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void __exit ebtable_filter_fini(void)
 {
 	unregister_pernet_subsys(&frame_filter_net_ops);
+<<<<<<< HEAD
+=======
+	ebt_unregister_template(&frame_filter);
+>>>>>>> upstream/android-13
 }
 
 module_init(ebtable_filter_init);

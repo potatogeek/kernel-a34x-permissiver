@@ -63,12 +63,20 @@
 	leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		tx {
+=======
+		led-0 {
+>>>>>>> upstream/android-13
 			label = "pcduino:green:tx";
 			gpios = <&pio 7 15 GPIO_ACTIVE_LOW>;
 		};
 
+<<<<<<< HEAD
 		rx {
+=======
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "pcduino:green:rx";
 			gpios = <&pio 7 16 GPIO_ACTIVE_LOW>;
 		};
@@ -110,7 +118,11 @@
 };
 
 &emac {
+<<<<<<< HEAD
 	phy = <&phy1>;
+=======
+	phy-handle = <&phy1>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -154,6 +166,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	usb0_id_detect_pin: usb0-id-detect-pin {
 		pins = "PH4";
@@ -162,6 +175,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 #include "axp209.dtsi"
 
 &reg_dcdc2 {
@@ -201,9 +216,13 @@
 };
 
 &usbphy {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_id_detect_pin>;
 	usb0_id_det-gpio = <&pio 7 4 GPIO_ACTIVE_HIGH>; /* PH4 */
+=======
+	usb0_id_det-gpios = <&pio 7 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PH4 */
+>>>>>>> upstream/android-13
 	usb1_vbus-supply = <&reg_vcc5v0>; /* USB1 VBUS is always on */
 	usb2_vbus-supply = <&reg_vcc5v0>; /* USB2 VBUS is always on */
 	status = "okay";

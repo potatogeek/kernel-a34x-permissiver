@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
    Copyright (C) 2002 Richard Henderson
    Copyright (C) 2001 Rusty Russell, 2002, 2010 Rusty Russell IBM.
@@ -22,10 +23,32 @@
 #include <linux/trace_events.h>
 #include <linux/init.h>
 #include <linux/kallsyms.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2002 Richard Henderson
+ * Copyright (C) 2001 Rusty Russell, 2002, 2010 Rusty Russell IBM.
+ */
+
+#define INCLUDE_VERMAGIC
+
+#include <linux/export.h>
+#include <linux/extable.h>
+#include <linux/moduleloader.h>
+#include <linux/module_signature.h>
+#include <linux/trace_events.h>
+#include <linux/init.h>
+#include <linux/kallsyms.h>
+#include <linux/buildid.h>
+>>>>>>> upstream/android-13
 #include <linux/file.h>
 #include <linux/fs.h>
 #include <linux/sysfs.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/kernel_read_file.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/elf.h>
@@ -67,6 +90,7 @@
 #include <uapi/linux/module.h>
 #include "module-internal.h"
 
+<<<<<<< HEAD
 #ifdef CONFIG_RKP
 #include <linux/rkp.h>
 #endif
@@ -74,15 +98,35 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/module.h>
 
+=======
+#define CREATE_TRACE_POINTS
+#include <trace/events/module.h>
+
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/module.h>
+#include <trace/hooks/memory.h>
+
+>>>>>>> upstream/android-13
 #ifndef ARCH_SHF_SMALL
 #define ARCH_SHF_SMALL 0
 #endif
 
 /*
  * Modules' sections will be aligned on page boundaries
+<<<<<<< HEAD
  * to ensure complete separation of code and data
  */
 # define debug_align(X) ALIGN(X, PAGE_SIZE)
+=======
+ * to ensure complete separation of code and data, but
+ * only when CONFIG_ARCH_HAS_STRICT_MODULE_RWX=y
+ */
+#ifdef CONFIG_ARCH_HAS_STRICT_MODULE_RWX
+# define debug_align(X) ALIGN(X, PAGE_SIZE)
+#else
+# define debug_align(X) (X)
+#endif
+>>>>>>> upstream/android-13
 
 /* If this is set, the section belongs in the init part of the module */
 #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
@@ -92,11 +136,24 @@
  * 1) List of modules (also safely readable with preempt_disable),
  * 2) module_use links,
  * 3) module_addr_min/module_addr_max.
+<<<<<<< HEAD
  * (delete and add uses RCU list operations). */
 DEFINE_MUTEX(module_mutex);
 EXPORT_SYMBOL_GPL(module_mutex);
 static LIST_HEAD(modules);
 
+=======
+ * (delete and add uses RCU list operations).
+ */
+static DEFINE_MUTEX(module_mutex);
+static LIST_HEAD(modules);
+
+/* Work queue for freeing init sections in success case */
+static void do_free_init(struct work_struct *w);
+static DECLARE_WORK(init_free_wq, do_free_init);
+static LLIST_HEAD(init_free_list);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MODULES_TREE_LOOKUP
 
 /*
@@ -220,7 +277,12 @@ static struct module *mod_find(unsigned long addr)
 {
 	struct module *mod;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(mod, &modules, list) {
+=======
+	list_for_each_entry_rcu(mod, &modules, list,
+				lockdep_is_held(&module_mutex)) {
+>>>>>>> upstream/android-13
 		if (within_module(addr, mod))
 			return mod;
 	}
@@ -256,11 +318,14 @@ static void mod_update_bounds(struct module *mod)
 struct list_head *kdb_modules = &modules; /* kdb needs the list of modules */
 #endif /* CONFIG_KGDB_KDB */
 
+<<<<<<< HEAD
 static void module_assert_mutex(void)
 {
 	lockdep_assert_held(&module_mutex);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void module_assert_mutex_or_preempt(void)
 {
 #ifdef CONFIG_LOCKDEP
@@ -272,9 +337,24 @@ static void module_assert_mutex_or_preempt(void)
 #endif
 }
 
+<<<<<<< HEAD
 static bool sig_enforce = IS_ENABLED(CONFIG_MODULE_SIG_FORCE);
 module_param(sig_enforce, bool_enable_only, 0644);
 
+=======
+#if defined(CONFIG_MODULE_SIG) && !defined(CONFIG_MODULE_SIG_PROTECT)
+static bool sig_enforce = IS_ENABLED(CONFIG_MODULE_SIG_FORCE);
+module_param(sig_enforce, bool_enable_only, 0644);
+
+void set_module_sig_enforced(void)
+{
+	sig_enforce = true;
+}
+#else
+#define sig_enforce false
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Export sig_enforce kernel cmdline parameter to allow other subsystems rely
  * on that instead of directly to CONFIG_MODULE_SIG_FORCE config.
@@ -375,11 +455,44 @@ static void *section_objs(const struct load_info *info,
 	return (void *)info->sechdrs[sec].sh_addr;
 }
 
+<<<<<<< HEAD
+=======
+/* Find a module section: 0 means not found. Ignores SHF_ALLOC flag. */
+static unsigned int find_any_sec(const struct load_info *info, const char *name)
+{
+	unsigned int i;
+
+	for (i = 1; i < info->hdr->e_shnum; i++) {
+		Elf_Shdr *shdr = &info->sechdrs[i];
+		if (strcmp(info->secstrings + shdr->sh_name, name) == 0)
+			return i;
+	}
+	return 0;
+}
+
+/*
+ * Find a module section, or NULL. Fill in number of "objects" in section.
+ * Ignores SHF_ALLOC flag.
+ */
+static __maybe_unused void *any_section_objs(const struct load_info *info,
+					     const char *name,
+					     size_t object_size,
+					     unsigned int *num)
+{
+	unsigned int sec = find_any_sec(info, name);
+
+	/* Section 0 has sh_addr 0 and sh_size 0. */
+	*num = info->sechdrs[sec].sh_size / object_size;
+	return (void *)info->sechdrs[sec].sh_addr;
+}
+
+>>>>>>> upstream/android-13
 /* Provided by the linker */
 extern const struct kernel_symbol __start___ksymtab[];
 extern const struct kernel_symbol __stop___ksymtab[];
 extern const struct kernel_symbol __start___ksymtab_gpl[];
 extern const struct kernel_symbol __stop___ksymtab_gpl[];
+<<<<<<< HEAD
 extern const struct kernel_symbol __start___ksymtab_gpl_future[];
 extern const struct kernel_symbol __stop___ksymtab_gpl_future[];
 extern const s32 __start___kcrctab[];
@@ -393,6 +506,10 @@ extern const struct kernel_symbol __stop___ksymtab_unused_gpl[];
 extern const s32 __start___kcrctab_unused[];
 extern const s32 __start___kcrctab_unused_gpl[];
 #endif
+=======
+extern const s32 __start___kcrctab[];
+extern const s32 __start___kcrctab_gpl[];
+>>>>>>> upstream/android-13
 
 #ifndef CONFIG_MODVERSIONS
 #define symversion(base, idx) NULL
@@ -400,6 +517,7 @@ extern const s32 __start___kcrctab_unused_gpl[];
 #define symversion(base, idx) ((base != NULL) ? ((base) + (idx)) : NULL)
 #endif
 
+<<<<<<< HEAD
 static bool each_symbol_in_section(const struct symsearch *arr,
 				   unsigned int arrsize,
 				   struct module *owner,
@@ -480,6 +598,16 @@ static bool each_symbol_section(bool (*fn)(const struct symsearch *arr,
 	}
 	return false;
 }
+=======
+struct symsearch {
+	const struct kernel_symbol *start, *stop;
+	const s32 *crcs;
+	enum mod_license {
+		NOT_GPL_ONLY,
+		GPL_ONLY,
+	} license;
+};
+>>>>>>> upstream/android-13
 
 struct find_symbol_arg {
 	/* Input */
@@ -494,6 +622,7 @@ struct find_symbol_arg {
 	enum mod_license license;
 };
 
+<<<<<<< HEAD
 static bool check_symbol(const struct symsearch *syms,
 				 struct module *owner,
 				 unsigned int symnum, void *data)
@@ -522,6 +651,16 @@ static bool check_symbol(const struct symsearch *syms,
 	}
 #endif
 
+=======
+static bool check_exported_symbol(const struct symsearch *syms,
+				  struct module *owner,
+				  unsigned int symnum, void *data)
+{
+	struct find_symbol_arg *fsa = data;
+
+	if (!fsa->gplok && syms->license == GPL_ONLY)
+		return false;
+>>>>>>> upstream/android-13
 	fsa->owner = owner;
 	fsa->crc = symversion(syms->crcs, symnum);
 	fsa->sym = &syms->start[symnum];
@@ -547,6 +686,7 @@ static const char *kernel_symbol_name(const struct kernel_symbol *sym)
 #endif
 }
 
+<<<<<<< HEAD
 static int cmp_name(const void *va, const void *vb)
 {
 	const char *a;
@@ -558,6 +698,27 @@ static int cmp_name(const void *va, const void *vb)
 static bool find_symbol_in_section(const struct symsearch *syms,
 				   struct module *owner,
 				   void *data)
+=======
+static const char *kernel_symbol_namespace(const struct kernel_symbol *sym)
+{
+#ifdef CONFIG_HAVE_ARCH_PREL32_RELOCATIONS
+	if (!sym->namespace_offset)
+		return NULL;
+	return offset_to_ptr(&sym->namespace_offset);
+#else
+	return sym->namespace;
+#endif
+}
+
+static int cmp_name(const void *name, const void *sym)
+{
+	return strcmp(name, kernel_symbol_name(sym));
+}
+
+static bool find_exported_symbol_in_section(const struct symsearch *syms,
+					    struct module *owner,
+					    void *data)
+>>>>>>> upstream/android-13
 {
 	struct find_symbol_arg *fsa = data;
 	struct kernel_symbol *sym;
@@ -565,12 +726,18 @@ static bool find_symbol_in_section(const struct symsearch *syms,
 	sym = bsearch(fsa->name, syms->start, syms->stop - syms->start,
 			sizeof(struct kernel_symbol), cmp_name);
 
+<<<<<<< HEAD
 	if (sym != NULL && check_symbol(syms, owner, sym - syms->start, data))
+=======
+	if (sym != NULL && check_exported_symbol(syms, owner,
+						 sym - syms->start, data))
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;
 }
 
+<<<<<<< HEAD
 /* Find a symbol and return it, along with, (optional) crc and
  * (optional) module which owns it.  Needs preempt disabled or module_mutex. */
 static const struct kernel_symbol *find_symbol(const char *name,
@@ -598,6 +765,50 @@ static const struct kernel_symbol *find_symbol(const char *name,
 
 	pr_debug("Failed to find symbol %s\n", name);
 	return NULL;
+=======
+/*
+ * Find an exported symbol and return it, along with, (optional) crc and
+ * (optional) module which owns it.  Needs preempt disabled or module_mutex.
+ */
+static bool find_symbol(struct find_symbol_arg *fsa)
+{
+	static const struct symsearch arr[] = {
+		{ __start___ksymtab, __stop___ksymtab, __start___kcrctab,
+		  NOT_GPL_ONLY },
+		{ __start___ksymtab_gpl, __stop___ksymtab_gpl,
+		  __start___kcrctab_gpl,
+		  GPL_ONLY },
+	};
+	struct module *mod;
+	unsigned int i;
+
+	module_assert_mutex_or_preempt();
+
+	for (i = 0; i < ARRAY_SIZE(arr); i++)
+		if (find_exported_symbol_in_section(&arr[i], NULL, fsa))
+			return true;
+
+	list_for_each_entry_rcu(mod, &modules, list,
+				lockdep_is_held(&module_mutex)) {
+		struct symsearch arr[] = {
+			{ mod->syms, mod->syms + mod->num_syms, mod->crcs,
+			  NOT_GPL_ONLY },
+			{ mod->gpl_syms, mod->gpl_syms + mod->num_gpl_syms,
+			  mod->gpl_crcs,
+			  GPL_ONLY },
+		};
+
+		if (mod->state == MODULE_STATE_UNFORMED)
+			continue;
+
+		for (i = 0; i < ARRAY_SIZE(arr); i++)
+			if (find_exported_symbol_in_section(&arr[i], mod, fsa))
+				return true;
+	}
+
+	pr_debug("Failed to find symbol %s\n", fsa->name);
+	return false;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -611,7 +822,12 @@ static struct module *find_module_all(const char *name, size_t len,
 
 	module_assert_mutex_or_preempt();
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(mod, &modules, list) {
+=======
+	list_for_each_entry_rcu(mod, &modules, list,
+				lockdep_is_held(&module_mutex)) {
+>>>>>>> upstream/android-13
 		if (!even_unformed && mod->state == MODULE_STATE_UNFORMED)
 			continue;
 		if (strlen(mod->name) == len && !memcmp(mod->name, name, len))
@@ -622,10 +838,15 @@ static struct module *find_module_all(const char *name, size_t len,
 
 struct module *find_module(const char *name)
 {
+<<<<<<< HEAD
 	module_assert_mutex();
 	return find_module_all(name, strlen(name), false);
 }
 EXPORT_SYMBOL_GPL(find_module);
+=======
+	return find_module_all(name, strlen(name), false);
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 
@@ -711,13 +932,21 @@ bool __is_module_percpu_address(unsigned long addr, unsigned long *can_addr)
 }
 
 /**
+<<<<<<< HEAD
  * is_module_percpu_address - test whether address is from module static percpu
+=======
+ * is_module_percpu_address() - test whether address is from module static percpu
+>>>>>>> upstream/android-13
  * @addr: address to test
  *
  * Test whether @addr belongs to module static percpu area.
  *
+<<<<<<< HEAD
  * RETURNS:
  * %true if @addr is from module static percpu area
+=======
+ * Return: %true if @addr is from module static percpu area
+>>>>>>> upstream/android-13
  */
 bool is_module_percpu_address(unsigned long addr)
 {
@@ -791,6 +1020,10 @@ static struct module_attribute modinfo_##field = {                    \
 
 MODINFO_ATTR(version);
 MODINFO_ATTR(srcversion);
+<<<<<<< HEAD
+=======
+MODINFO_ATTR(scmversion);
+>>>>>>> upstream/android-13
 
 static char last_unloaded_module[MODULE_NAME_LEN+1];
 
@@ -941,11 +1174,18 @@ static int try_stop_module(struct module *mod, int flags, int *forced)
 }
 
 /**
+<<<<<<< HEAD
  * module_refcount - return the refcount or -1 if unloading
  *
  * @mod:	the module we're checking
  *
  * Returns:
+=======
+ * module_refcount() - return the refcount or -1 if unloading
+ * @mod:	the module we're checking
+ *
+ * Return:
+>>>>>>> upstream/android-13
  *	-1 if the module is in the process of unloading
  *	otherwise the number of references in the kernel to the module
  */
@@ -1062,12 +1302,23 @@ static inline void print_unload_info(struct seq_file *m, struct module *mod)
 
 void __symbol_put(const char *symbol)
 {
+<<<<<<< HEAD
 	struct module *owner;
 
 	preempt_disable();
 	if (!find_symbol(symbol, &owner, NULL, NULL, true, false))
 		BUG();
 	module_put(owner);
+=======
+	struct find_symbol_arg fsa = {
+		.name	= symbol,
+		.gplok	= true,
+	};
+
+	preempt_disable();
+	BUG_ON(!find_symbol(&fsa));
+	module_put(fsa.owner);
+>>>>>>> upstream/android-13
 	preempt_enable();
 }
 EXPORT_SYMBOL(__symbol_put);
@@ -1249,14 +1500,34 @@ static ssize_t show_taint(struct module_attribute *mattr,
 static struct module_attribute modinfo_taint =
 	__ATTR(taint, 0444, show_taint, NULL);
 
+<<<<<<< HEAD
+=======
+static ssize_t show_reboot_multicmd(struct module_attribute *mattr,
+				struct module_kobject *mk, char *buffer)
+{
+	return sprintf(buffer, "%u\n", 1);
+}
+
+static struct module_attribute modinfo_reboot_multicmd =
+	__ATTR(reboot_multicmd, 0400, show_reboot_multicmd, NULL);
+
+>>>>>>> upstream/android-13
 static struct module_attribute *modinfo_attrs[] = {
 	&module_uevent,
 	&modinfo_version,
 	&modinfo_srcversion,
+<<<<<<< HEAD
+=======
+	&modinfo_scmversion,
+>>>>>>> upstream/android-13
 	&modinfo_initstate,
 	&modinfo_coresize,
 	&modinfo_initsize,
 	&modinfo_taint,
+<<<<<<< HEAD
+=======
+	&modinfo_reboot_multicmd,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MODULE_UNLOAD
 	&modinfo_refcnt,
 #endif
@@ -1336,19 +1607,34 @@ bad_version:
 static inline int check_modstruct_version(const struct load_info *info,
 					  struct module *mod)
 {
+<<<<<<< HEAD
 	const s32 *crc;
+=======
+	struct find_symbol_arg fsa = {
+		.name	= "module_layout",
+		.gplok	= true,
+	};
+>>>>>>> upstream/android-13
 
 	/*
 	 * Since this should be found in kernel (which can't be removed), no
 	 * locking is necessary -- use preempt_disable() to placate lockdep.
 	 */
 	preempt_disable();
+<<<<<<< HEAD
 	if (!find_symbol("module_layout", NULL, &crc, NULL, true, false)) {
+=======
+	if (!find_symbol(&fsa)) {
+>>>>>>> upstream/android-13
 		preempt_enable();
 		BUG();
 	}
 	preempt_enable();
+<<<<<<< HEAD
 	return check_version(info, "module_layout", mod, crc);
+=======
+	return check_version(info, "module_layout", mod, fsa.crc);
+>>>>>>> upstream/android-13
 }
 
 /* First part is kernel version, which we ignore if module has crcs. */
@@ -1383,20 +1669,68 @@ static inline int same_magic(const char *amagic, const char *bmagic,
 }
 #endif /* CONFIG_MODVERSIONS */
 
+<<<<<<< HEAD
 static bool inherit_taint(struct module *mod, struct module *owner)
+=======
+static char *get_modinfo(const struct load_info *info, const char *tag);
+static char *get_next_modinfo(const struct load_info *info, const char *tag,
+			      char *prev);
+
+static int verify_namespace_is_imported(const struct load_info *info,
+					const struct kernel_symbol *sym,
+					struct module *mod)
+{
+	const char *namespace;
+	char *imported_namespace;
+
+	namespace = kernel_symbol_namespace(sym);
+	if (namespace && namespace[0]) {
+		imported_namespace = get_modinfo(info, "import_ns");
+		while (imported_namespace) {
+			if (strcmp(namespace, imported_namespace) == 0)
+				return 0;
+			imported_namespace = get_next_modinfo(
+				info, "import_ns", imported_namespace);
+		}
+#ifdef CONFIG_MODULE_ALLOW_MISSING_NAMESPACE_IMPORTS
+		pr_warn(
+#else
+		pr_err(
+#endif
+			"%s: module uses symbol (%s) from namespace %s, but does not import it.\n",
+			mod->name, kernel_symbol_name(sym), namespace);
+#ifndef CONFIG_MODULE_ALLOW_MISSING_NAMESPACE_IMPORTS
+		return -EINVAL;
+#endif
+	}
+	return 0;
+}
+
+static bool inherit_taint(struct module *mod, struct module *owner, const char *name)
+>>>>>>> upstream/android-13
 {
 	if (!owner || !test_bit(TAINT_PROPRIETARY_MODULE, &owner->taints))
 		return true;
 
 	if (mod->using_gplonly_symbols) {
+<<<<<<< HEAD
 		pr_err("%s: module using GPL-only symbols uses symbols from proprietary module %s.\n",
 			mod->name, owner->name);
+=======
+		pr_err("%s: module using GPL-only symbols uses symbols %s from proprietary module %s.\n",
+			mod->name, name, owner->name);
+>>>>>>> upstream/android-13
 		return false;
 	}
 
 	if (!test_bit(TAINT_PROPRIETARY_MODULE, &mod->taints)) {
+<<<<<<< HEAD
 		pr_warn("%s: module uses symbols from proprietary module %s, inheriting taint.\n",
 			mod->name, owner->name);
+=======
+		pr_warn("%s: module uses symbols %s from proprietary module %s, inheriting taint.\n",
+			mod->name, name, owner->name);
+>>>>>>> upstream/android-13
 		set_bit(TAINT_PROPRIETARY_MODULE, &mod->taints);
 	}
 	return true;
@@ -1408,10 +1742,18 @@ static const struct kernel_symbol *resolve_symbol(struct module *mod,
 						  const char *name,
 						  char ownername[])
 {
+<<<<<<< HEAD
 	struct module *owner;
 	const struct kernel_symbol *sym;
 	const s32 *crc;
 	enum mod_license license;
+=======
+	struct find_symbol_arg fsa = {
+		.name	= name,
+		.gplok	= !(mod->taints & (1 << TAINT_PROPRIETARY_MODULE)),
+		.warn	= true,
+	};
+>>>>>>> upstream/android-13
 	int err;
 
 	/*
@@ -1421,6 +1763,7 @@ static const struct kernel_symbol *resolve_symbol(struct module *mod,
 	 */
 	sched_annotate_sleep();
 	mutex_lock(&module_mutex);
+<<<<<<< HEAD
 	sym = find_symbol(name, &owner, &crc, &license,
 			  !(mod->taints & (1 << TAINT_PROPRIETARY_MODULE)), true);
 	if (!sym)
@@ -1442,15 +1785,49 @@ static const struct kernel_symbol *resolve_symbol(struct module *mod,
 	err = ref_module(mod, owner);
 	if (err) {
 		sym = ERR_PTR(err);
+=======
+	if (!find_symbol(&fsa))
+		goto unlock;
+
+	if (fsa.license == GPL_ONLY)
+		mod->using_gplonly_symbols = true;
+
+	if (!inherit_taint(mod, fsa.owner, name)) {
+		fsa.sym = NULL;
+		goto getname;
+	}
+
+	if (!check_version(info, name, mod, fsa.crc)) {
+		fsa.sym = ERR_PTR(-EINVAL);
+		goto getname;
+	}
+
+	err = verify_namespace_is_imported(info, fsa.sym, mod);
+	if (err) {
+		fsa.sym = ERR_PTR(err);
+		goto getname;
+	}
+
+	err = ref_module(mod, fsa.owner);
+	if (err) {
+		fsa.sym = ERR_PTR(err);
+>>>>>>> upstream/android-13
 		goto getname;
 	}
 
 getname:
 	/* We must make copy under the lock if we failed to get ref. */
+<<<<<<< HEAD
 	strncpy(ownername, module_name(owner), MODULE_NAME_LEN);
 unlock:
 	mutex_unlock(&module_mutex);
 	return sym;
+=======
+	strncpy(ownername, module_name(fsa.owner), MODULE_NAME_LEN);
+unlock:
+	mutex_unlock(&module_mutex);
+	return fsa.sym;
+>>>>>>> upstream/android-13
 }
 
 static const struct kernel_symbol *
@@ -1471,6 +1848,16 @@ resolve_symbol_wait(struct module *mod,
 	return ksym;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KALLSYMS
+static inline bool sect_empty(const Elf_Shdr *sect)
+{
+	return !(sect->sh_flags & SHF_ALLOC) || sect->sh_size == 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * /sys/module/foo/sections stuff
  * J. Corbet <corbet@lwn.net>
@@ -1478,11 +1865,14 @@ resolve_symbol_wait(struct module *mod,
 #ifdef CONFIG_SYSFS
 
 #ifdef CONFIG_KALLSYMS
+<<<<<<< HEAD
 static inline bool sect_empty(const Elf_Shdr *sect)
 {
 	return !(sect->sh_flags & SHF_ALLOC) || sect->sh_size == 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct module_sect_attr {
 	struct bin_attribute battr;
 	unsigned long address;
@@ -1491,7 +1881,11 @@ struct module_sect_attr {
 struct module_sect_attrs {
 	struct attribute_group grp;
 	unsigned int nsections;
+<<<<<<< HEAD
 	struct module_sect_attr attrs[0];
+=======
+	struct module_sect_attr attrs[];
+>>>>>>> upstream/android-13
 };
 
 #define MODULE_SECT_READ_SIZE (3 /* "0x", "\n" */ + (BITS_PER_LONG / 4))
@@ -1590,8 +1984,15 @@ static void remove_sect_attrs(struct module *mod)
 	if (mod->sect_attrs) {
 		sysfs_remove_group(&mod->mkobj.kobj,
 				   &mod->sect_attrs->grp);
+<<<<<<< HEAD
 		/* We are positive that no one is using any sect attrs
 		 * at this point.  Deallocate immediately. */
+=======
+		/*
+		 * We are positive that no one is using any sect attrs
+		 * at this point.  Deallocate immediately.
+		 */
+>>>>>>> upstream/android-13
 		free_sect_attrs(mod->sect_attrs);
 		mod->sect_attrs = NULL;
 	}
@@ -1604,7 +2005,11 @@ static void remove_sect_attrs(struct module *mod)
 struct module_notes_attrs {
 	struct kobject *dir;
 	unsigned int notes;
+<<<<<<< HEAD
 	struct bin_attribute attrs[0];
+=======
+	struct bin_attribute attrs[];
+>>>>>>> upstream/android-13
 };
 
 static ssize_t module_notes_read(struct file *filp, struct kobject *kobj,
@@ -1937,7 +2342,10 @@ static void mod_sysfs_teardown(struct module *mod)
 	mod_sysfs_fini(mod);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_HAS_STRICT_MODULE_RWX
+=======
+>>>>>>> upstream/android-13
 /*
  * LKM RO/NX protection: protect module's text/ro-data
  * from modification and any data from execution.
@@ -1951,6 +2359,17 @@ static void mod_sysfs_teardown(struct module *mod)
  *
  * These values are always page-aligned (as is base)
  */
+<<<<<<< HEAD
+=======
+
+/*
+ * Since some arches are moving towards PAGE_KERNEL module allocations instead
+ * of PAGE_KERNEL_EXEC, keep frob_text() and module_enable_x() outside of the
+ * CONFIG_STRICT_MODULE_RWX block below because they are needed regardless of
+ * whether we are strict.
+ */
+#ifdef CONFIG_ARCH_HAS_STRICT_MODULE_RWX
+>>>>>>> upstream/android-13
 static void frob_text(const struct module_layout *layout,
 		      int (*set_memory)(unsigned long start, int num_pages))
 {
@@ -1960,6 +2379,18 @@ static void frob_text(const struct module_layout *layout,
 		   layout->text_size >> PAGE_SHIFT);
 }
 
+<<<<<<< HEAD
+=======
+static void module_enable_x(const struct module *mod)
+{
+	frob_text(&mod->core_layout, set_memory_x);
+	frob_text(&mod->init_layout, set_memory_x);
+}
+#else /* !CONFIG_ARCH_HAS_STRICT_MODULE_RWX */
+static void module_enable_x(const struct module *mod) { }
+#endif /* CONFIG_ARCH_HAS_STRICT_MODULE_RWX */
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_STRICT_MODULE_RWX
 static void frob_rodata(const struct module_layout *layout,
 			int (*set_memory)(unsigned long start, int num_pages))
@@ -1991,6 +2422,7 @@ static void frob_writable_data(const struct module_layout *layout,
 		   (layout->size - layout->ro_after_init_size) >> PAGE_SHIFT);
 }
 
+<<<<<<< HEAD
 /* livepatching wants to disable read-only so it can frob module. */
 void module_disable_ro(const struct module *mod)
 {
@@ -2005,10 +2437,18 @@ void module_disable_ro(const struct module *mod)
 }
 
 void module_enable_ro(const struct module *mod, bool after_init)
+=======
+static void module_enable_ro(const struct module *mod, bool after_init)
+>>>>>>> upstream/android-13
 {
 	if (!rodata_enabled)
 		return;
 
+<<<<<<< HEAD
+=======
+	set_vm_flush_reset_perms(mod->core_layout.base);
+	set_vm_flush_reset_perms(mod->init_layout.base);
+>>>>>>> upstream/android-13
 	frob_text(&mod->core_layout, set_memory_ro);
 
 	frob_rodata(&mod->core_layout, set_memory_ro);
@@ -2028,6 +2468,7 @@ static void module_enable_nx(const struct module *mod)
 	frob_writable_data(&mod->init_layout, set_memory_nx);
 }
 
+<<<<<<< HEAD
 static void module_disable_nx(const struct module *mod)
 {
 	frob_rodata(&mod->core_layout, set_memory_x);
@@ -2110,6 +2551,34 @@ static void module_enable_nx(const struct module *mod) { }
 static void module_disable_nx(const struct module *mod) { }
 static void module_enable_x(const struct module *mod) { }
 #endif /* CONFIG_ARCH_HAS_STRICT_MODULE_RWX */
+=======
+static int module_enforce_rwx_sections(Elf_Ehdr *hdr, Elf_Shdr *sechdrs,
+				       char *secstrings, struct module *mod)
+{
+	const unsigned long shf_wx = SHF_WRITE|SHF_EXECINSTR;
+	int i;
+
+	for (i = 0; i < hdr->e_shnum; i++) {
+		if ((sechdrs[i].sh_flags & shf_wx) == shf_wx) {
+			pr_err("%s: section %s (index %d) has invalid WRITE|EXEC flags\n",
+				mod->name, secstrings + sechdrs[i].sh_name, i);
+			return -ENOEXEC;
+		}
+	}
+
+	return 0;
+}
+
+#else /* !CONFIG_STRICT_MODULE_RWX */
+static void module_enable_nx(const struct module *mod) { }
+static void module_enable_ro(const struct module *mod, bool after_init) {}
+static int module_enforce_rwx_sections(Elf_Ehdr *hdr, Elf_Shdr *sechdrs,
+				       char *secstrings, struct module *mod)
+{
+	return 0;
+}
+#endif /*  CONFIG_STRICT_MODULE_RWX */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_LIVEPATCH
 /*
@@ -2188,6 +2657,14 @@ static void free_module_elf(struct module *mod)
 
 void __weak module_memfree(void *module_region)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * This memory may be RO, and freeing RO memory in an interrupt is not
+	 * supported by vmalloc.
+	 */
+	WARN_ON(in_interrupt());
+>>>>>>> upstream/android-13
 	vfree(module_region);
 }
 
@@ -2204,6 +2681,7 @@ static void cfi_cleanup(struct module *mod);
 /* Free a module, remove from lists, etc. */
 static void free_module(struct module *mod)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_RKP
 	struct module_info rkp_mod_info;
 	rkp_mod_info.base_va = 0;
@@ -2215,12 +2693,21 @@ static void free_module(struct module *mod)
 	rkp_mod_info.init_text_size = (u64)mod->init_layout.text_size;
 	uh_call(UH_APP_RKP, RKP_MODULE_LOAD, RKP_MODULE_PXN_SET, (u64)&rkp_mod_info, 1, 0);
 #endif
+=======
+>>>>>>> upstream/android-13
 	trace_module_free(mod);
 
 	mod_sysfs_teardown(mod);
 
+<<<<<<< HEAD
 	/* We leave it in list to prevent duplicate loads, but make sure
 	 * that noone uses it while it's being deconstructed. */
+=======
+	/*
+	 * We leave it in list to prevent duplicate loads, but make sure
+	 * that noone uses it while it's being deconstructed.
+	 */
+>>>>>>> upstream/android-13
 	mutex_lock(&module_mutex);
 	mod->state = MODULE_STATE_UNFORMED;
 	mutex_unlock(&module_mutex);
@@ -2248,6 +2735,7 @@ static void free_module(struct module *mod)
 	/* Remove this module from bug list, this uses list_del_rcu */
 	module_bug_cleanup(mod);
 	/* Wait for RCU-sched synchronizing before releasing mod->list and buglist. */
+<<<<<<< HEAD
 	synchronize_sched();
 	mutex_unlock(&module_mutex);
 
@@ -2258,6 +2746,20 @@ static void free_module(struct module *mod)
 	cfi_cleanup(mod);
 
 	module_arch_freeing_init(mod);
+=======
+	synchronize_rcu();
+	mutex_unlock(&module_mutex);
+
+	/* Clean up CFI for the module. */
+	cfi_cleanup(mod);
+
+	/* This may be empty, but that's OK */
+	module_arch_freeing_init(mod);
+	trace_android_vh_set_memory_rw((unsigned long)mod->init_layout.base,
+		(mod->init_layout.size)>>PAGE_SHIFT);
+	trace_android_vh_set_memory_nx((unsigned long)mod->init_layout.base,
+		(mod->init_layout.size)>>PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	module_memfree(mod->init_layout.base);
 	kfree(mod->args);
 	percpu_modfree(mod);
@@ -2266,12 +2768,20 @@ static void free_module(struct module *mod)
 	lockdep_free_key_range(mod->core_layout.base, mod->core_layout.size);
 
 	/* Finally, free the core (containing the module structure) */
+<<<<<<< HEAD
 	disable_ro_nx(&mod->core_layout);
+=======
+	trace_android_vh_set_memory_rw((unsigned long)mod->core_layout.base,
+		(mod->core_layout.size)>>PAGE_SHIFT);
+	trace_android_vh_set_memory_nx((unsigned long)mod->core_layout.base,
+		(mod->core_layout.size)>>PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	module_memfree(mod->core_layout.base);
 }
 
 void *__symbol_get(const char *symbol)
 {
+<<<<<<< HEAD
 	struct module *owner;
 	const struct kernel_symbol *sym;
 
@@ -2282,6 +2792,21 @@ void *__symbol_get(const char *symbol)
 	preempt_enable();
 
 	return sym ? (void *)kernel_symbol_value(sym) : NULL;
+=======
+	struct find_symbol_arg fsa = {
+		.name	= symbol,
+		.gplok	= true,
+		.warn	= true,
+	};
+
+	preempt_disable();
+	if (!find_symbol(&fsa) || strong_try_module_get(fsa.owner)) {
+		preempt_enable();
+		return NULL;
+	}
+	preempt_enable();
+	return (void *)kernel_symbol_value(fsa.sym);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__symbol_get);
 
@@ -2291,10 +2816,16 @@ EXPORT_SYMBOL_GPL(__symbol_get);
  *
  * You must hold the module_mutex.
  */
+<<<<<<< HEAD
 static int verify_export_symbols(struct module *mod)
 {
 	unsigned int i;
 	struct module *owner;
+=======
+static int verify_exported_symbols(struct module *mod)
+{
+	unsigned int i;
+>>>>>>> upstream/android-13
 	const struct kernel_symbol *s;
 	struct {
 		const struct kernel_symbol *sym;
@@ -2302,21 +2833,44 @@ static int verify_export_symbols(struct module *mod)
 	} arr[] = {
 		{ mod->syms, mod->num_syms },
 		{ mod->gpl_syms, mod->num_gpl_syms },
+<<<<<<< HEAD
 		{ mod->gpl_future_syms, mod->num_gpl_future_syms },
 #ifdef CONFIG_UNUSED_SYMBOLS
 		{ mod->unused_syms, mod->num_unused_syms },
 		{ mod->unused_gpl_syms, mod->num_unused_gpl_syms },
 #endif
+=======
+>>>>>>> upstream/android-13
 	};
 
 	for (i = 0; i < ARRAY_SIZE(arr); i++) {
 		for (s = arr[i].sym; s < arr[i].sym + arr[i].num; s++) {
+<<<<<<< HEAD
 			if (find_symbol(kernel_symbol_name(s), &owner, NULL,
 					NULL, true, false)) {
 				pr_err("%s: exports duplicate symbol %s"
 				       " (owned by %s)\n",
 				       mod->name, kernel_symbol_name(s),
 				       module_name(owner));
+=======
+			struct find_symbol_arg fsa = {
+				.name	= kernel_symbol_name(s),
+				.gplok	= true,
+			};
+
+			if (!mod->sig_ok && gki_is_module_exported_symbol(
+						    kernel_symbol_name(s))) {
+				pr_err("%s: exporting protected symbol(%s)\n",
+				       mod->name, kernel_symbol_name(s));
+				return -EACCES;
+			}
+
+			if (find_symbol(&fsa)) {
+				pr_err("%s: exports duplicate symbol %s"
+				       " (owned by %s)\n",
+				       mod->name, kernel_symbol_name(s),
+				       module_name(fsa.owner));
+>>>>>>> upstream/android-13
 				return -ENOEXEC;
 			}
 		}
@@ -2358,8 +2912,15 @@ static int simplify_symbols(struct module *mod, const struct load_info *info)
 			if (!strncmp(name, "__gnu_lto", 9))
 				break;
 
+<<<<<<< HEAD
 			/* We compiled with -fno-common.  These are not
 			   supposed to happen.  */
+=======
+			/*
+			 * We compiled with -fno-common.  These are not
+			 * supposed to happen.
+			 */
+>>>>>>> upstream/android-13
 			pr_debug("Common symbol: %s\n", name);
 			pr_warn("%s: please compile with -fno-common\n",
 			       mod->name);
@@ -2377,6 +2938,16 @@ static int simplify_symbols(struct module *mod, const struct load_info *info)
 			break;
 
 		case SHN_UNDEF:
+<<<<<<< HEAD
+=======
+			if (!mod->sig_ok &&
+			    gki_is_module_protected_symbol(name)) {
+				pr_err("%s: is not an Android GKI signed module. It can not access protected symbol: %s\n",
+				       mod->name, name);
+				return -EACCES;
+			}
+
+>>>>>>> upstream/android-13
 			ksym = resolve_symbol_wait(mod, info, name);
 			/* Ok if resolved.  */
 			if (ksym && !IS_ERR(ksym)) {
@@ -2426,11 +2997,21 @@ static int apply_relocations(struct module *mod, const struct load_info *info)
 		if (!(info->sechdrs[infosec].sh_flags & SHF_ALLOC))
 			continue;
 
+<<<<<<< HEAD
 		/* Livepatch relocation sections are applied by livepatch */
 		if (info->sechdrs[i].sh_flags & SHF_RELA_LIVEPATCH)
 			continue;
 
 		if (info->sechdrs[i].sh_type == SHT_REL)
+=======
+		if (info->sechdrs[i].sh_flags & SHF_RELA_LIVEPATCH)
+			err = klp_apply_section_relocs(mod, info->sechdrs,
+						       info->secstrings,
+						       info->strtab,
+						       info->index.sym, i,
+						       NULL);
+		else if (info->sechdrs[i].sh_type == SHT_REL)
+>>>>>>> upstream/android-13
 			err = apply_relocate(info->sechdrs, info->strtab,
 					     info->index.sym, i, mod);
 		else if (info->sechdrs[i].sh_type == SHT_RELA)
@@ -2462,6 +3043,7 @@ static long get_offset(struct module *mod, unsigned int *size,
 	return ret;
 }
 
+<<<<<<< HEAD
 /* Lay out the SHF_ALLOC sections in a way not dissimilar to how ld
    might -- code, read-only data, read-write data, small data.  Tally
    sizes, and place the offsets into sh_entsize fields: high bit means it
@@ -2472,6 +3054,31 @@ static void layout_sections(struct module *mod, struct load_info *info)
 		/* NOTE: all executable code must be the first section
 		 * in this array; otherwise modify the text_size
 		 * finder in the two loops below */
+=======
+static bool module_init_layout_section(const char *sname)
+{
+#ifndef CONFIG_MODULE_UNLOAD
+	if (module_exit_section(sname))
+		return true;
+#endif
+	return module_init_section(sname);
+}
+
+/*
+ * Lay out the SHF_ALLOC sections in a way not dissimilar to how ld
+ * might -- code, read-only data, read-write data, small data.  Tally
+ * sizes, and place the offsets into sh_entsize fields: high bit means it
+ * belongs in init.
+ */
+static void layout_sections(struct module *mod, struct load_info *info)
+{
+	static unsigned long const masks[][2] = {
+		/*
+		 * NOTE: all executable code must be the first section
+		 * in this array; otherwise modify the text_size
+		 * finder in the two loops below
+		 */
+>>>>>>> upstream/android-13
 		{ SHF_EXECINSTR | SHF_ALLOC, ARCH_SHF_SMALL },
 		{ SHF_ALLOC, SHF_WRITE | ARCH_SHF_SMALL },
 		{ SHF_RO_AFTER_INIT | SHF_ALLOC, ARCH_SHF_SMALL },
@@ -2492,7 +3099,11 @@ static void layout_sections(struct module *mod, struct load_info *info)
 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
 			    || (s->sh_flags & masks[m][1])
 			    || s->sh_entsize != ~0UL
+<<<<<<< HEAD
 			    || strstarts(sname, ".init"))
+=======
+			    || module_init_layout_section(sname))
+>>>>>>> upstream/android-13
 				continue;
 			s->sh_entsize = get_offset(mod, &mod->core_layout.size, s, i);
 			pr_debug("\t%s\n", sname);
@@ -2525,7 +3136,11 @@ static void layout_sections(struct module *mod, struct load_info *info)
 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
 			    || (s->sh_flags & masks[m][1])
 			    || s->sh_entsize != ~0UL
+<<<<<<< HEAD
 			    || !strstarts(sname, ".init"))
+=======
+			    || !module_init_layout_section(sname))
+>>>>>>> upstream/android-13
 				continue;
 			s->sh_entsize = (get_offset(mod, &mod->init_layout.size, s, i)
 					 | INIT_OFFSET_MASK);
@@ -2587,7 +3202,12 @@ static char *next_string(char *string, unsigned long *secsize)
 	return string;
 }
 
+<<<<<<< HEAD
 static char *get_modinfo(struct load_info *info, const char *tag)
+=======
+static char *get_next_modinfo(const struct load_info *info, const char *tag,
+			      char *prev)
+>>>>>>> upstream/android-13
 {
 	char *p;
 	unsigned int taglen = strlen(tag);
@@ -2598,13 +3218,32 @@ static char *get_modinfo(struct load_info *info, const char *tag)
 	 * get_modinfo() calls made before rewrite_section_headers()
 	 * must use sh_offset, as sh_addr isn't set!
 	 */
+<<<<<<< HEAD
 	for (p = (char *)info->hdr + infosec->sh_offset; p; p = next_string(p, &size)) {
+=======
+	char *modinfo = (char *)info->hdr + infosec->sh_offset;
+
+	if (prev) {
+		size -= prev - modinfo;
+		modinfo = next_string(prev, &size);
+	}
+
+	for (p = modinfo; p; p = next_string(p, &size)) {
+>>>>>>> upstream/android-13
 		if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=')
 			return p + taglen + 1;
 	}
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static char *get_modinfo(const struct load_info *info, const char *tag)
+{
+	return get_next_modinfo(info, tag, NULL);
+}
+
+>>>>>>> upstream/android-13
 static void setup_modinfo(struct module *mod, struct load_info *info)
 {
 	struct module_attribute *attr;
@@ -2629,10 +3268,17 @@ static void free_modinfo(struct module *mod)
 
 #ifdef CONFIG_KALLSYMS
 
+<<<<<<< HEAD
 /* lookup symbol in given range of kernel_symbols */
 static const struct kernel_symbol *lookup_symbol(const char *name,
 	const struct kernel_symbol *start,
 	const struct kernel_symbol *stop)
+=======
+/* Lookup exported symbol in given range of kernel_symbols */
+static const struct kernel_symbol *lookup_exported_symbol(const char *name,
+							  const struct kernel_symbol *start,
+							  const struct kernel_symbol *stop)
+>>>>>>> upstream/android-13
 {
 	return bsearch(name, start, stop - start,
 			sizeof(struct kernel_symbol), cmp_name);
@@ -2643,9 +3289,16 @@ static int is_exported(const char *name, unsigned long value,
 {
 	const struct kernel_symbol *ks;
 	if (!mod)
+<<<<<<< HEAD
 		ks = lookup_symbol(name, __start___ksymtab, __stop___ksymtab);
 	else
 		ks = lookup_symbol(name, mod->syms, mod->syms + mod->num_syms);
+=======
+		ks = lookup_exported_symbol(name, __start___ksymtab, __stop___ksymtab);
+	else
+		ks = lookup_exported_symbol(name, mod->syms, mod->syms + mod->num_syms);
+
+>>>>>>> upstream/android-13
 	return ks != NULL && kernel_symbol_value(ks) == value;
 }
 
@@ -2753,6 +3406,11 @@ static void layout_symtab(struct module *mod, struct load_info *info)
 	info->symoffs = ALIGN(mod->core_layout.size, symsect->sh_addralign ?: 1);
 	info->stroffs = mod->core_layout.size = info->symoffs + ndst * sizeof(Elf_Sym);
 	mod->core_layout.size += strtab_size;
+<<<<<<< HEAD
+=======
+	info->core_typeoffs = mod->core_layout.size;
+	mod->core_layout.size += ndst * sizeof(char);
+>>>>>>> upstream/android-13
 	mod->core_layout.size = debug_align(mod->core_layout.size);
 
 	/* Put string table section at end of init part of module. */
@@ -2766,6 +3424,11 @@ static void layout_symtab(struct module *mod, struct load_info *info)
 				      __alignof__(struct mod_kallsyms));
 	info->mod_kallsyms_init_off = mod->init_layout.size;
 	mod->init_layout.size += sizeof(struct mod_kallsyms);
+<<<<<<< HEAD
+=======
+	info->init_typeoffs = mod->init_layout.size;
+	mod->init_layout.size += nsrc * sizeof(char);
+>>>>>>> upstream/android-13
 	mod->init_layout.size = debug_align(mod->init_layout.size);
 }
 
@@ -2789,6 +3452,7 @@ static void add_kallsyms(struct module *mod, const struct load_info *info)
 	mod->kallsyms->num_symtab = symsec->sh_size / sizeof(Elf_Sym);
 	/* Make sure we get permanent strtab: don't use info->strtab. */
 	mod->kallsyms->strtab = (void *)info->sechdrs[info->index.str].sh_addr;
+<<<<<<< HEAD
 
 	/* Set types up while we still have access to sections. */
 	for (i = 0; i < mod->kallsyms->num_symtab; i++)
@@ -2803,6 +3467,25 @@ static void add_kallsyms(struct module *mod, const struct load_info *info)
 		if (i == 0 || is_livepatch_module(mod) ||
 		    is_core_symbol(src+i, info->sechdrs, info->hdr->e_shnum,
 				   info->index.pcpu)) {
+=======
+	mod->kallsyms->typetab = mod->init_layout.base + info->init_typeoffs;
+
+	/*
+	 * Now populate the cut down core kallsyms for after init
+	 * and set types up while we still have access to sections.
+	 */
+	mod->core_kallsyms.symtab = dst = mod->core_layout.base + info->symoffs;
+	mod->core_kallsyms.strtab = s = mod->core_layout.base + info->stroffs;
+	mod->core_kallsyms.typetab = mod->core_layout.base + info->core_typeoffs;
+	src = mod->kallsyms->symtab;
+	for (ndst = i = 0; i < mod->kallsyms->num_symtab; i++) {
+		mod->kallsyms->typetab[i] = elf_type(src + i, info);
+		if (i == 0 || is_livepatch_module(mod) ||
+		    is_core_symbol(src+i, info->sechdrs, info->hdr->e_shnum,
+				   info->index.pcpu)) {
+			mod->core_kallsyms.typetab[ndst] =
+			    mod->kallsyms->typetab[i];
+>>>>>>> upstream/android-13
 			dst[ndst] = src[i];
 			dst[ndst++].st_name = s - mod->core_kallsyms.strtab;
 			s += strlcpy(s, &mod->kallsyms->strtab[src[i].st_name],
@@ -2821,15 +3504,42 @@ static void add_kallsyms(struct module *mod, const struct load_info *info)
 }
 #endif /* CONFIG_KALLSYMS */
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_KALLSYMS) && IS_ENABLED(CONFIG_STACKTRACE_BUILD_ID)
+static void init_build_id(struct module *mod, const struct load_info *info)
+{
+	const Elf_Shdr *sechdr;
+	unsigned int i;
+
+	for (i = 0; i < info->hdr->e_shnum; i++) {
+		sechdr = &info->sechdrs[i];
+		if (!sect_empty(sechdr) && sechdr->sh_type == SHT_NOTE &&
+		    !build_id_parse_buf((void *)sechdr->sh_addr, mod->build_id,
+					sechdr->sh_size))
+			break;
+	}
+}
+#else
+static void init_build_id(struct module *mod, const struct load_info *info)
+{
+}
+#endif
+
+>>>>>>> upstream/android-13
 static void dynamic_debug_setup(struct module *mod, struct _ddebug *debug, unsigned int num)
 {
 	if (!debug)
 		return;
+<<<<<<< HEAD
 #ifdef CONFIG_DYNAMIC_DEBUG
 	if (ddebug_add_module(debug, num, mod->name))
 		pr_err("dynamic debug error adding module: %s\n",
 			debug->modname);
 #endif
+=======
+	ddebug_add_module(debug, num, mod->name);
+>>>>>>> upstream/android-13
 }
 
 static void dynamic_debug_remove(struct module *mod, struct _ddebug *debug)
@@ -2840,7 +3550,23 @@ static void dynamic_debug_remove(struct module *mod, struct _ddebug *debug)
 
 void * __weak module_alloc(unsigned long size)
 {
+<<<<<<< HEAD
 	return vmalloc_exec(size);
+=======
+	return __vmalloc_node_range(size, 1, VMALLOC_START, VMALLOC_END,
+			GFP_KERNEL, PAGE_KERNEL_EXEC, VM_FLUSH_RESET_PERMS,
+			NUMA_NO_NODE, __builtin_return_address(0));
+}
+
+bool __weak module_init_section(const char *name)
+{
+	return strstarts(name, ".init");
+}
+
+bool __weak module_exit_section(const char *name)
+{
+	return strstarts(name, ".exit");
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_DEBUG_KMEMLEAK
@@ -2873,8 +3599,14 @@ static inline void kmemleak_load_module(const struct module *mod,
 #ifdef CONFIG_MODULE_SIG
 static int module_sig_check(struct load_info *info, int flags)
 {
+<<<<<<< HEAD
 	int err = -ENOKEY;
 	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
+=======
+	int err = -ENODATA;
+	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
+	const char *reason;
+>>>>>>> upstream/android-13
 	const void *mod = info->hdr;
 
 	/*
@@ -2887,6 +3619,7 @@ static int module_sig_check(struct load_info *info, int flags)
 		/* We truncate the module to discard the signature */
 		info->len -= markerlen;
 		err = mod_verify_sig(mod, info);
+<<<<<<< HEAD
 	}
 
 	if (!err) {
@@ -2899,6 +3632,53 @@ static int module_sig_check(struct load_info *info, int flags)
 		err = 0;
 
 	return err;
+=======
+		if (!err) {
+			info->sig_ok = true;
+			return 0;
+		}
+	}
+
+	/*
+	 * We don't permit modules to be loaded into the trusted kernels
+	 * without a valid signature on them, but if we're not enforcing,
+	 * certain errors are non-fatal.
+	 */
+	switch (err) {
+	case -ENODATA:
+		reason = "unsigned module";
+		break;
+	case -ENOPKG:
+		reason = "module with unsupported crypto";
+		break;
+	case -ENOKEY:
+		reason = "module with unavailable key";
+		break;
+
+	default:
+		/*
+		 * All other errors are fatal, including lack of memory,
+		 * unparseable signatures, and signature check failures --
+		 * even if signatures aren't required.
+		 */
+		return err;
+	}
+
+	if (is_module_sig_enforced()) {
+		pr_notice("Loading of %s is rejected\n", reason);
+		return -EKEYREJECTED;
+	}
+
+/*
+ * ANDROID: GKI: Do not prevent loading of unsigned modules;
+ * as all modules except GKI modules are not signed.
+ */
+#ifndef CONFIG_MODULE_SIG_PROTECT
+	return security_locked_down(LOCKDOWN_MODULE_SIGNATURE);
+#else
+	return 0;
+#endif
+>>>>>>> upstream/android-13
 }
 #else /* !CONFIG_MODULE_SIG */
 static int module_sig_check(struct load_info *info, int flags)
@@ -2907,9 +3687,39 @@ static int module_sig_check(struct load_info *info, int flags)
 }
 #endif /* !CONFIG_MODULE_SIG */
 
+<<<<<<< HEAD
 /* Sanity checks against invalid binaries, wrong arch, weird elf version. */
 static int elf_header_check(struct load_info *info)
 {
+=======
+static int validate_section_offset(struct load_info *info, Elf_Shdr *shdr)
+{
+	unsigned long secend;
+
+	/*
+	 * Check for both overflow and offset/size being
+	 * too large.
+	 */
+	secend = shdr->sh_offset + shdr->sh_size;
+	if (secend < shdr->sh_offset || secend > info->len)
+		return -ENOEXEC;
+
+	return 0;
+}
+
+/*
+ * Sanity checks against invalid binaries, wrong arch, weird elf version.
+ *
+ * Also do basic validity checks against section offsets and sizes, the
+ * section name string table, and the indices used for it (sh_name).
+ */
+static int elf_validity_check(struct load_info *info)
+{
+	unsigned int i;
+	Elf_Shdr *shdr, *strhdr;
+	int err;
+
+>>>>>>> upstream/android-13
 	if (info->len < sizeof(*(info->hdr)))
 		return -ENOEXEC;
 
@@ -2919,11 +3729,84 @@ static int elf_header_check(struct load_info *info)
 	    || info->hdr->e_shentsize != sizeof(Elf_Shdr))
 		return -ENOEXEC;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * e_shnum is 16 bits, and sizeof(Elf_Shdr) is
+	 * known and small. So e_shnum * sizeof(Elf_Shdr)
+	 * will not overflow unsigned long on any platform.
+	 */
+>>>>>>> upstream/android-13
 	if (info->hdr->e_shoff >= info->len
 	    || (info->hdr->e_shnum * sizeof(Elf_Shdr) >
 		info->len - info->hdr->e_shoff))
 		return -ENOEXEC;
 
+<<<<<<< HEAD
+=======
+	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
+
+	/*
+	 * Verify if the section name table index is valid.
+	 */
+	if (info->hdr->e_shstrndx == SHN_UNDEF
+	    || info->hdr->e_shstrndx >= info->hdr->e_shnum)
+		return -ENOEXEC;
+
+	strhdr = &info->sechdrs[info->hdr->e_shstrndx];
+	err = validate_section_offset(info, strhdr);
+	if (err < 0)
+		return err;
+
+	/*
+	 * The section name table must be NUL-terminated, as required
+	 * by the spec. This makes strcmp and pr_* calls that access
+	 * strings in the section safe.
+	 */
+	info->secstrings = (void *)info->hdr + strhdr->sh_offset;
+	if (info->secstrings[strhdr->sh_size - 1] != '\0')
+		return -ENOEXEC;
+
+	/*
+	 * The code assumes that section 0 has a length of zero and
+	 * an addr of zero, so check for it.
+	 */
+	if (info->sechdrs[0].sh_type != SHT_NULL
+	    || info->sechdrs[0].sh_size != 0
+	    || info->sechdrs[0].sh_addr != 0)
+		return -ENOEXEC;
+
+	for (i = 1; i < info->hdr->e_shnum; i++) {
+		shdr = &info->sechdrs[i];
+		switch (shdr->sh_type) {
+		case SHT_NULL:
+		case SHT_NOBITS:
+			continue;
+		case SHT_SYMTAB:
+			if (shdr->sh_link == SHN_UNDEF
+			    || shdr->sh_link >= info->hdr->e_shnum)
+				return -ENOEXEC;
+			fallthrough;
+		default:
+			err = validate_section_offset(info, shdr);
+			if (err < 0) {
+				pr_err("Invalid ELF section in module (section %u type %u)\n",
+					i, shdr->sh_type);
+				return err;
+			}
+
+			if (shdr->sh_flags & SHF_ALLOC) {
+				if (shdr->sh_name >= strhdr->sh_size) {
+					pr_err("Invalid ELF section name in module (section %u type %u)\n",
+					       i, shdr->sh_type);
+					return -ENOEXEC;
+				}
+			}
+			break;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2988,22 +3871,44 @@ static int copy_module_from_user(const void __user *umod, unsigned long len,
 	if (info->len < sizeof(*(info->hdr)))
 		return -ENOEXEC;
 
+<<<<<<< HEAD
 	err = security_kernel_load_data(LOADING_MODULE);
+=======
+	err = security_kernel_load_data(LOADING_MODULE, true);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	/* Suck in entire file: we'll want most of it. */
+<<<<<<< HEAD
 	info->hdr = __vmalloc(info->len,
 			GFP_KERNEL | __GFP_NOWARN, PAGE_KERNEL);
+=======
+	info->hdr = __vmalloc(info->len, GFP_KERNEL | __GFP_NOWARN);
+>>>>>>> upstream/android-13
 	if (!info->hdr)
 		return -ENOMEM;
 
 	if (copy_chunked_from_user(info->hdr, umod, info->len) != 0) {
+<<<<<<< HEAD
 		vfree(info->hdr);
 		return -EFAULT;
 	}
 
 	return 0;
+=======
+		err = -EFAULT;
+		goto out;
+	}
+
+	err = security_kernel_post_load_data((char *)info->hdr, info->len,
+					     LOADING_MODULE, "init_module");
+out:
+	if (err)
+		vfree(info->hdr);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void free_copy(struct load_info *info)
@@ -3020,6 +3925,7 @@ static int rewrite_section_headers(struct load_info *info, int flags)
 
 	for (i = 1; i < info->hdr->e_shnum; i++) {
 		Elf_Shdr *shdr = &info->sechdrs[i];
+<<<<<<< HEAD
 		if (shdr->sh_type != SHT_NOBITS
 		    && info->len < shdr->sh_offset + shdr->sh_size) {
 			pr_err("Module len %lu truncated\n", info->len);
@@ -3035,6 +3941,15 @@ static int rewrite_section_headers(struct load_info *info, int flags)
 		if (strstarts(info->secstrings+shdr->sh_name, ".exit"))
 			shdr->sh_flags &= ~(unsigned long)SHF_ALLOC;
 #endif
+=======
+
+		/*
+		 * Mark all sections sh_addr with their address in the
+		 * temporary image.
+		 */
+		shdr->sh_addr = (size_t)info->hdr + shdr->sh_offset;
+
+>>>>>>> upstream/android-13
 	}
 
 	/* Track but don't keep modinfo and version sections. */
@@ -3056,11 +3971,14 @@ static int setup_load_info(struct load_info *info, int flags)
 {
 	unsigned int i;
 
+<<<<<<< HEAD
 	/* Set up the convenience variables */
 	info->sechdrs = (void *)info->hdr + info->hdr->e_shoff;
 	info->secstrings = (void *)info->hdr
 		+ info->sechdrs[info->hdr->e_shstrndx].sh_offset;
 
+=======
+>>>>>>> upstream/android-13
 	/* Try to find a name early so we can log errors with a module name */
 	info->index.info = find_sec(info, ".modinfo");
 	if (info->index.info)
@@ -3164,6 +4082,7 @@ static int find_module_sections(struct module *mod, struct load_info *info)
 				     sizeof(*mod->gpl_syms),
 				     &mod->num_gpl_syms);
 	mod->gpl_crcs = section_addr(info, "__kcrctab_gpl");
+<<<<<<< HEAD
 	mod->gpl_future_syms = section_objs(info,
 					    "__ksymtab_gpl_future",
 					    sizeof(*mod->gpl_future_syms),
@@ -3180,6 +4099,9 @@ static int find_module_sections(struct module *mod, struct load_info *info)
 					    &mod->num_unused_gpl_syms);
 	mod->unused_gpl_crcs = section_addr(info, "__kcrctab_unused_gpl");
 #endif
+=======
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_CONSTRUCTORS
 	mod->ctors = section_objs(info, ".ctors",
 				  sizeof(*mod->ctors), &mod->num_ctors);
@@ -3197,11 +4119,33 @@ static int find_module_sections(struct module *mod, struct load_info *info)
 	}
 #endif
 
+<<<<<<< HEAD
+=======
+	mod->noinstr_text_start = section_objs(info, ".noinstr.text", 1,
+						&mod->noinstr_text_size);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_TRACEPOINTS
 	mod->tracepoints_ptrs = section_objs(info, "__tracepoints_ptrs",
 					     sizeof(*mod->tracepoints_ptrs),
 					     &mod->num_tracepoints);
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TREE_SRCU
+	mod->srcu_struct_ptrs = section_objs(info, "___srcu_struct_ptrs",
+					     sizeof(*mod->srcu_struct_ptrs),
+					     &mod->num_srcu_structs);
+#endif
+#ifdef CONFIG_BPF_EVENTS
+	mod->bpf_raw_events = section_objs(info, "__bpf_raw_tp_map",
+					   sizeof(*mod->bpf_raw_events),
+					   &mod->num_bpf_raw_events);
+#endif
+#ifdef CONFIG_DEBUG_INFO_BTF_MODULES
+	mod->btf_data = any_section_objs(info, ".BTF", 1, &mod->btf_data_size);
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_JUMP_LABEL
 	mod->jump_entries = section_objs(info, "__jump_table",
 					sizeof(*mod->jump_entries),
@@ -3222,7 +4166,11 @@ static int find_module_sections(struct module *mod, struct load_info *info)
 #endif
 #ifdef CONFIG_FTRACE_MCOUNT_RECORD
 	/* sechdrs[0].sh_size is always zero */
+<<<<<<< HEAD
 	mod->ftrace_callsites = section_objs(info, "__mcount_loc",
+=======
+	mod->ftrace_callsites = section_objs(info, FTRACE_CALLSITE_SECTION,
+>>>>>>> upstream/android-13
 					     sizeof(*mod->ftrace_callsites),
 					     &mod->num_ftrace_callsites);
 #endif
@@ -3231,13 +4179,37 @@ static int find_module_sections(struct module *mod, struct load_info *info)
 					    sizeof(*mod->ei_funcs),
 					    &mod->num_ei_funcs);
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KPROBES
+	mod->kprobes_text_start = section_objs(info, ".kprobes.text", 1,
+						&mod->kprobes_text_size);
+	mod->kprobe_blacklist = section_objs(info, "_kprobe_blacklist",
+						sizeof(unsigned long),
+						&mod->num_kprobe_blacklist);
+#endif
+#ifdef CONFIG_PRINTK_INDEX
+	mod->printk_index_start = section_objs(info, ".printk_index",
+					       sizeof(*mod->printk_index_start),
+					       &mod->printk_index_size);
+#endif
+#ifdef CONFIG_HAVE_STATIC_CALL_INLINE
+	mod->static_call_sites = section_objs(info, ".static_call_sites",
+					      sizeof(*mod->static_call_sites),
+					      &mod->num_static_call_sites);
+#endif
+>>>>>>> upstream/android-13
 	mod->extable = section_objs(info, "__ex_table",
 				    sizeof(*mod->extable), &mod->num_exentries);
 
 	if (section_addr(info, "__obsparm"))
 		pr_warn("%s: Ignoring obsolete parameters\n", mod->name);
 
+<<<<<<< HEAD
 	info->debug = section_objs(info, "__verbose",
+=======
+	info->debug = section_objs(info, "__dyndbg",
+>>>>>>> upstream/android-13
 				   sizeof(*info->debug), &info->num_debug);
 
 	return 0;
@@ -3332,6 +4304,7 @@ static int check_module_license_and_versions(struct module *mod)
 		pr_warn("%s: module license taints kernel.\n", mod->name);
 
 #ifdef CONFIG_MODVERSIONS
+<<<<<<< HEAD
 	if ((mod->num_syms && !mod->crcs)
 	    || (mod->num_gpl_syms && !mod->gpl_crcs)
 	    || (mod->num_gpl_future_syms && !mod->gpl_future_crcs)
@@ -3340,6 +4313,10 @@ static int check_module_license_and_versions(struct module *mod)
 	    || (mod->num_unused_gpl_syms && !mod->unused_gpl_crcs)
 #endif
 		) {
+=======
+	if ((mod->num_syms && !mod->crcs) ||
+	    (mod->num_gpl_syms && !mod->gpl_crcs)) {
+>>>>>>> upstream/android-13
 		return try_to_force_load(mod,
 					 "no versions for exported symbols");
 	}
@@ -3349,12 +4326,15 @@ static int check_module_license_and_versions(struct module *mod)
 
 static void flush_module_icache(const struct module *mod)
 {
+<<<<<<< HEAD
 	mm_segment_t old_fs;
 
 	/* flush the icache in correct context */
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Flush the instruction cache, since we've played with text.
 	 * Do it before processing of module parameters, so the module
@@ -3366,8 +4346,11 @@ static void flush_module_icache(const struct module *mod)
 				   + mod->init_layout.size);
 	flush_icache_range((unsigned long)mod->core_layout.base,
 			   (unsigned long)mod->core_layout.base + mod->core_layout.size);
+<<<<<<< HEAD
 
 	set_fs(old_fs);
+=======
+>>>>>>> upstream/android-13
 }
 
 int __weak module_frob_arch_sections(Elf_Ehdr *hdr,
@@ -3415,6 +4398,14 @@ static struct module *layout_and_allocate(struct load_info *info, int flags)
 	if (err < 0)
 		return ERR_PTR(err);
 
+<<<<<<< HEAD
+=======
+	err = module_enforce_rwx_sections(info->hdr, info->sechdrs,
+					  info->secstrings, info->mod);
+	if (err < 0)
+		return ERR_PTR(err);
+
+>>>>>>> upstream/android-13
 	/* We will do a special allocation for per-cpu sections later. */
 	info->sechdrs[info->index.pcpu].sh_flags &= ~(unsigned long)SHF_ALLOC;
 
@@ -3426,10 +4417,28 @@ static struct module *layout_and_allocate(struct load_info *info, int flags)
 	ndx = find_sec(info, ".data..ro_after_init");
 	if (ndx)
 		info->sechdrs[ndx].sh_flags |= SHF_RO_AFTER_INIT;
+<<<<<<< HEAD
 
 	/* Determine total sizes, and put offsets in sh_entsize.  For now
 	   this is done generically; there doesn't appear to be any
 	   special cases for the architectures. */
+=======
+	/*
+	 * Mark the __jump_table section as ro_after_init as well: these data
+	 * structures are never modified, with the exception of entries that
+	 * refer to code in the __init section, which are annotated as such
+	 * at module load time.
+	 */
+	ndx = find_sec(info, "__jump_table");
+	if (ndx)
+		info->sechdrs[ndx].sh_flags |= SHF_RO_AFTER_INIT;
+
+	/*
+	 * Determine total sizes, and put offsets in sh_entsize.  For now
+	 * this is done generically; there doesn't appear to be any
+	 * special cases for the architectures.
+	 */
+>>>>>>> upstream/android-13
 	layout_sections(info->mod, info);
 	layout_symtab(info->mod, info);
 
@@ -3449,7 +4458,19 @@ static void module_deallocate(struct module *mod, struct load_info *info)
 {
 	percpu_modfree(mod);
 	module_arch_freeing_init(mod);
+<<<<<<< HEAD
 	module_memfree(mod->init_layout.base);
+=======
+	trace_android_vh_set_memory_rw((unsigned long)mod->init_layout.base,
+		(mod->init_layout.size)>>PAGE_SHIFT);
+	trace_android_vh_set_memory_nx((unsigned long)mod->init_layout.base,
+		(mod->init_layout.size)>>PAGE_SHIFT);
+	module_memfree(mod->init_layout.base);
+	trace_android_vh_set_memory_rw((unsigned long)mod->core_layout.base,
+		(mod->core_layout.size)>>PAGE_SHIFT);
+	trace_android_vh_set_memory_nx((unsigned long)mod->core_layout.base,
+		(mod->core_layout.size)>>PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	module_memfree(mod->core_layout.base);
 }
 
@@ -3460,8 +4481,11 @@ int __weak module_finalize(const Elf_Ehdr *hdr,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cfi_init(struct module *mod);
 
+=======
+>>>>>>> upstream/android-13
 static int post_relocation(struct module *mod, const struct load_info *info)
 {
 	/* Sort exception table now relocations are done. */
@@ -3474,9 +4498,12 @@ static int post_relocation(struct module *mod, const struct load_info *info)
 	/* Setup kallsyms-specific fields. */
 	add_kallsyms(mod, info);
 
+<<<<<<< HEAD
 	/* Setup CFI for the module. */
 	cfi_init(mod);
 
+=======
+>>>>>>> upstream/android-13
 	/* Arch-specific module finalizing. */
 	return module_finalize(info->hdr, info->sechdrs, mod);
 }
@@ -3514,6 +4541,7 @@ static void do_mod_ctors(struct module *mod)
 
 /* For freeing module_init on success, in case kallsyms traversing */
 struct mod_initfree {
+<<<<<<< HEAD
 	struct rcu_head rcu;
 	void *module_init;
 };
@@ -3523,6 +4551,26 @@ static void do_free_init(struct rcu_head *head)
 	struct mod_initfree *m = container_of(head, struct mod_initfree, rcu);
 	module_memfree(m->module_init);
 	kfree(m);
+=======
+	struct llist_node node;
+	void *module_init;
+};
+
+static void do_free_init(struct work_struct *w)
+{
+	struct llist_node *pos, *n, *list;
+	struct mod_initfree *initfree;
+
+	list = llist_del_all(&init_free_list);
+
+	synchronize_rcu();
+
+	llist_for_each_safe(pos, n, list) {
+		initfree = container_of(pos, struct mod_initfree, node);
+		module_memfree(initfree->module_init);
+		kfree(initfree);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3535,9 +4583,12 @@ static noinline int do_init_module(struct module *mod)
 {
 	int ret = 0;
 	struct mod_initfree *freeinit;
+<<<<<<< HEAD
 #ifdef CONFIG_RKP
 	struct module_info rkp_mod_info;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	freeinit = kmalloc(sizeof(*freeinit), GFP_KERNEL);
 	if (!freeinit) {
@@ -3546,12 +4597,15 @@ static noinline int do_init_module(struct module *mod)
 	}
 	freeinit->module_init = mod->init_layout.base;
 
+<<<<<<< HEAD
 	/*
 	 * We want to find out whether @mod uses async during init.  Clear
 	 * PF_USED_ASYNC.  async_schedule*() will set it.
 	 */
 	current->flags &= ~PF_USED_ASYNC;
 
+=======
+>>>>>>> upstream/android-13
 	do_mod_ctors(mod);
 	/* Start the module */
 	if (mod->init != NULL)
@@ -3577,6 +4631,7 @@ static noinline int do_init_module(struct module *mod)
 
 	/*
 	 * We need to finish all async code before the module init sequence
+<<<<<<< HEAD
 	 * is done.  This has potential to deadlock.  For example, a newly
 	 * detected block device can trigger request_module() of the
 	 * default iosched from async probing task.  Once userland helper
@@ -3593,6 +4648,15 @@ static noinline int do_init_module(struct module *mod)
 	 * http://thread.gmane.org/gmane.linux.kernel/1420814
 	 */
 	if (!mod->async_probe_requested && (current->flags & PF_USED_ASYNC))
+=======
+	 * is done. This has potential to deadlock if synchronous module
+	 * loading is requested from async (which is not allowed!).
+	 *
+	 * See commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
+	 * request_module() from async workers") for more details.
+	 */
+	if (!mod->async_probe_requested)
+>>>>>>> upstream/android-13
 		async_synchronize_full();
 
 	ftrace_free_mem(mod, mod->init_layout.base, mod->init_layout.base +
@@ -3606,6 +4670,7 @@ static noinline int do_init_module(struct module *mod)
 	rcu_assign_pointer(mod->kallsyms, &mod->core_kallsyms);
 #endif
 	module_enable_ro(mod, true);
+<<<<<<< HEAD
 	mod_tree_remove_init(mod);
 	disable_ro_nx(&mod->init_layout);
 	mod->init_layout_backup = mod->init_layout;
@@ -3620,23 +4685,54 @@ static noinline int do_init_module(struct module *mod)
 	rkp_mod_info.init_text_size = (u64)mod->init_layout.text_size;
 	uh_call(UH_APP_RKP, RKP_MODULE_LOAD, RKP_MODULE_PXN_SET, (u64)&rkp_mod_info, 0, 0);
 #endif
+=======
+	trace_android_vh_set_module_permit_after_init(mod);
+	mod_tree_remove_init(mod);
+	module_arch_freeing_init(mod);
+	trace_android_vh_set_memory_rw((unsigned long)mod->init_layout.base,
+		(mod->init_layout.size)>>PAGE_SHIFT);
+	trace_android_vh_set_memory_nx((unsigned long)mod->init_layout.base,
+		(mod->init_layout.size)>>PAGE_SHIFT);
+>>>>>>> upstream/android-13
 	mod->init_layout.base = NULL;
 	mod->init_layout.size = 0;
 	mod->init_layout.ro_size = 0;
 	mod->init_layout.ro_after_init_size = 0;
 	mod->init_layout.text_size = 0;
+<<<<<<< HEAD
 	/*
 	 * We want to free module_init, but be aware that kallsyms may be
 	 * walking this with preempt disabled.  In all the failure paths, we
 	 * call synchronize_sched(), but we don't want to slow down the success
 	 * path, so use actual RCU here.
+=======
+#ifdef CONFIG_DEBUG_INFO_BTF_MODULES
+	/* .BTF is not SHF_ALLOC and will get removed, so sanitize pointer */
+	mod->btf_data = NULL;
+#endif
+	/*
+	 * We want to free module_init, but be aware that kallsyms may be
+	 * walking this with preempt disabled.  In all the failure paths, we
+	 * call synchronize_rcu(), but we don't want to slow down the success
+	 * path. module_memfree() cannot be called in an interrupt, so do the
+	 * work and call synchronize_rcu() in a work queue.
+	 *
+>>>>>>> upstream/android-13
 	 * Note that module_alloc() on most architectures creates W+X page
 	 * mappings which won't be cleaned up until do_free_init() runs.  Any
 	 * code such as mark_rodata_ro() which depends on those mappings to
 	 * be cleaned up needs to sync with the queued work - ie
+<<<<<<< HEAD
 	 * rcu_barrier_sched()
 	 */
 	call_rcu_sched(&freeinit->rcu, do_free_init);
+=======
+	 * rcu_barrier()
+	 */
+	if (llist_add(&freeinit->node, &init_free_list))
+		schedule_work(&init_free_wq);
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&module_mutex);
 	wake_up_all(&module_wq);
 
@@ -3647,7 +4743,11 @@ fail_free_freeinit:
 fail:
 	/* Try to protect us from buggy refcounters. */
 	mod->state = MODULE_STATE_GOING;
+<<<<<<< HEAD
 	synchronize_sched();
+=======
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 	module_put(mod);
 	blocking_notifier_call_chain(&module_notify_list,
 				     MODULE_STATE_GOING, mod);
@@ -3708,14 +4808,21 @@ out_unlocked:
 static int complete_formation(struct module *mod, struct load_info *info)
 {
 	int err;
+<<<<<<< HEAD
 #ifdef CONFIG_RKP
 	struct module_info rkp_mod_info;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&module_mutex);
 
 	/* Find duplicate symbols (must be called under lock). */
+<<<<<<< HEAD
 	err = verify_export_symbols(mod);
+=======
+	err = verify_exported_symbols(mod);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto out;
 
@@ -3725,6 +4832,7 @@ static int complete_formation(struct module *mod, struct load_info *info)
 	module_enable_ro(mod, false);
 	module_enable_nx(mod);
 	module_enable_x(mod);
+<<<<<<< HEAD
 
 	/* Mark state as coming so strong_try_module_get() ignores us,
 	 * but kallsyms etc. can see us. */
@@ -3739,6 +4847,15 @@ static int complete_formation(struct module *mod, struct load_info *info)
 	rkp_mod_info.init_text_size = (u64)mod->init_layout.text_size;
 	uh_call(UH_APP_RKP, RKP_MODULE_LOAD, RKP_MODULE_PXN_CLEAR, (u64)&rkp_mod_info, 0, 0);
 #endif
+=======
+	trace_android_vh_set_module_permit_before_init(mod);
+
+	/*
+	 * Mark state as coming so strong_try_module_get() ignores us,
+	 * but kallsyms etc. can see us.
+	 */
+	mod->state = MODULE_STATE_COMING;
+>>>>>>> upstream/android-13
 	mutex_unlock(&module_mutex);
 
 	return 0;
@@ -3757,9 +4874,19 @@ static int prepare_coming_module(struct module *mod)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	blocking_notifier_call_chain(&module_notify_list,
 				     MODULE_STATE_COMING, mod);
 	return 0;
+=======
+	err = blocking_notifier_call_chain_robust(&module_notify_list,
+			MODULE_STATE_COMING, MODULE_STATE_GOING, mod);
+	err = notifier_to_errno(err);
+	if (err)
+		klp_module_going(mod);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int unknown_module_param_cb(char *param, char *val, const char *modname,
@@ -3780,8 +4907,17 @@ static int unknown_module_param_cb(char *param, char *val, const char *modname,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Allocate and load the module: note that size of section 0 is always
    zero, and we rely on this for optional sections. */
+=======
+static void cfi_init(struct module *mod);
+
+/*
+ * Allocate and load the module: note that size of section 0 is always
+ * zero, and we rely on this for optional sections.
+ */
+>>>>>>> upstream/android-13
 static int load_module(struct load_info *info, const char __user *uargs,
 		       int flags)
 {
@@ -3789,14 +4925,48 @@ static int load_module(struct load_info *info, const char __user *uargs,
 	long err = 0;
 	char *after_dashes;
 
+<<<<<<< HEAD
 	err = elf_header_check(info);
 	if (err)
 		goto free_copy;
 
+=======
+	/*
+	 * Do the signature check (if any) first. All that
+	 * the signature check needs is info->len, it does
+	 * not need any of the section info. That can be
+	 * set up later. This will minimize the chances
+	 * of a corrupt module causing problems before
+	 * we even get to the signature check.
+	 *
+	 * The check will also adjust info->len by stripping
+	 * off the sig length at the end of the module, making
+	 * checks against info->len more correct.
+	 */
+	err = module_sig_check(info, flags);
+	if (err)
+		goto free_copy;
+
+	/*
+	 * Do basic sanity checks against the ELF header and
+	 * sections.
+	 */
+	err = elf_validity_check(info);
+	if (err) {
+		pr_err("Module has invalid ELF structures\n");
+		goto free_copy;
+	}
+
+	/*
+	 * Everything checks out, so set up the section info
+	 * in the info structure.
+	 */
+>>>>>>> upstream/android-13
 	err = setup_load_info(info, flags);
 	if (err)
 		goto free_copy;
 
+<<<<<<< HEAD
 	if (blacklisted(info->name)) {
 		err = -EPERM;
 		goto free_copy;
@@ -3806,6 +4976,18 @@ static int load_module(struct load_info *info, const char __user *uargs,
 	if (err)
 		goto free_copy;
 
+=======
+	/*
+	 * Now that we know we have the correct module name, check
+	 * if it's blacklisted.
+	 */
+	if (blacklisted(info->name)) {
+		err = -EPERM;
+		pr_err("Module %s is blacklisted\n", info->name);
+		goto free_copy;
+	}
+
+>>>>>>> upstream/android-13
 	err = rewrite_section_headers(info, flags);
 	if (err)
 		goto free_copy;
@@ -3838,6 +5020,11 @@ static int load_module(struct load_info *info, const char __user *uargs,
 			       "kernel\n", mod->name);
 		add_taint_module(mod, TAINT_UNSIGNED_MODULE, LOCKDEP_STILL_OK);
 	}
+<<<<<<< HEAD
+=======
+#else
+	mod->sig_ok = 0;
+>>>>>>> upstream/android-13
 #endif
 
 	/* To avoid stressing percpu allocator, do this once we're unique. */
@@ -3852,8 +5039,15 @@ static int load_module(struct load_info *info, const char __user *uargs,
 
 	init_param_lock(mod);
 
+<<<<<<< HEAD
 	/* Now we've got everything in the final locations, we can
 	 * find optional sections. */
+=======
+	/*
+	 * Now we've got everything in the final locations, we can
+	 * find optional sections.
+	 */
+>>>>>>> upstream/android-13
 	err = find_module_sections(mod, info);
 	if (err)
 		goto free_unload;
@@ -3880,6 +5074,12 @@ static int load_module(struct load_info *info, const char __user *uargs,
 
 	flush_module_icache(mod);
 
+<<<<<<< HEAD
+=======
+	/* Setup CFI for the module. */
+	cfi_init(mod);
+
+>>>>>>> upstream/android-13
 	/* Now copy in args */
 	mod->args = strndup_user(uargs, ~0UL >> 1);
 	if (IS_ERR(mod->args)) {
@@ -3887,6 +5087,10 @@ static int load_module(struct load_info *info, const char __user *uargs,
 		goto free_arch_cleanup;
 	}
 
+<<<<<<< HEAD
+=======
+	init_build_id(mod, info);
+>>>>>>> upstream/android-13
 	dynamic_debug_setup(mod, info->debug, info->num_debug);
 
 	/* Ftrace init must be called in the MODULE_STATE_UNFORMED state */
@@ -3947,6 +5151,7 @@ static int load_module(struct load_info *info, const char __user *uargs,
 	module_bug_cleanup(mod);
 	mutex_unlock(&module_mutex);
 
+<<<<<<< HEAD
 	/* we can't deallocate the module until we clear memory protection */
 	module_disable_ro(mod);
 	module_disable_nx(mod);
@@ -3957,6 +5162,15 @@ static int load_module(struct load_info *info, const char __user *uargs,
 	synchronize_sched();
 	kfree(mod->args);
  free_arch_cleanup:
+=======
+ ddebug_cleanup:
+	ftrace_release_mod(mod);
+	dynamic_debug_remove(mod, info->debug);
+	synchronize_rcu();
+	kfree(mod->args);
+ free_arch_cleanup:
+	cfi_cleanup(mod);
+>>>>>>> upstream/android-13
 	module_arch_cleanup(mod);
  free_modinfo:
 	free_modinfo(mod);
@@ -3969,7 +5183,11 @@ static int load_module(struct load_info *info, const char __user *uargs,
 	mod_tree_remove(mod);
 	wake_up_all(&module_wq);
 	/* Wait for RCU-sched synchronizing before releasing mod->list. */
+<<<<<<< HEAD
 	synchronize_sched();
+=======
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 	mutex_unlock(&module_mutex);
  free_module:
 	/* Free lock-classes; relies on the preceding sync_rcu() */
@@ -4004,8 +5222,12 @@ SYSCALL_DEFINE3(init_module, void __user *, umod,
 SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
 {
 	struct load_info info = { };
+<<<<<<< HEAD
 	loff_t size;
 	void *hdr;
+=======
+	void *hdr = NULL;
+>>>>>>> upstream/android-13
 	int err;
 
 	err = may_init_module();
@@ -4018,12 +5240,21 @@ SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
 		      |MODULE_INIT_IGNORE_VERMAGIC))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = kernel_read_file_from_fd(fd, &hdr, &size, INT_MAX,
 				       READING_MODULE);
 	if (err)
 		return err;
 	info.hdr = hdr;
 	info.len = size;
+=======
+	err = kernel_read_file_from_fd(fd, 0, &hdr, INT_MAX, NULL,
+				       READING_MODULE);
+	if (err < 0)
+		return err;
+	info.hdr = hdr;
+	info.len = err;
+>>>>>>> upstream/android-13
 
 	return load_module(&info, uargs, flags);
 }
@@ -4046,11 +5277,16 @@ static inline int is_arm_mapping_symbol(const char *str)
 	       && (str[2] == '\0' || str[2] == '.');
 }
 
+<<<<<<< HEAD
 static const char *symname(struct mod_kallsyms *kallsyms, unsigned int symnum)
+=======
+static const char *kallsyms_symbol_name(struct mod_kallsyms *kallsyms, unsigned int symnum)
+>>>>>>> upstream/android-13
 {
 	return kallsyms->strtab + kallsyms->symtab[symnum].st_name;
 }
 
+<<<<<<< HEAD
 static const char *get_ksymbol(struct module *mod,
 			       unsigned long addr,
 			       unsigned long *size,
@@ -4058,6 +5294,19 @@ static const char *get_ksymbol(struct module *mod,
 {
 	unsigned int i, best = 0;
 	unsigned long nextval;
+=======
+/*
+ * Given a module and address, find the corresponding symbol and return its name
+ * while providing its size and offset if needed.
+ */
+static const char *find_kallsyms_symbol(struct module *mod,
+					unsigned long addr,
+					unsigned long *size,
+					unsigned long *offset)
+{
+	unsigned int i, best = 0;
+	unsigned long nextval, bestval;
+>>>>>>> upstream/android-13
 	struct mod_kallsyms *kallsyms = rcu_dereference_sched(mod->kallsyms);
 
 	/* At worse, next value is at end of module */
@@ -4066,6 +5315,7 @@ static const char *get_ksymbol(struct module *mod,
 	else
 		nextval = (unsigned long)mod->core_layout.base+mod->core_layout.text_size;
 
+<<<<<<< HEAD
 	/* Scan for closest preceding symbol, and next symbol. (ELF
 	   starts real symbols at 1). */
 	for (i = 1; i < kallsyms->num_symtab; i++) {
@@ -4084,16 +5334,53 @@ static const char *get_ksymbol(struct module *mod,
 		if (kallsyms->symtab[i].st_value > addr
 		    && kallsyms->symtab[i].st_value < nextval)
 			nextval = kallsyms->symtab[i].st_value;
+=======
+	bestval = kallsyms_symbol_value(&kallsyms->symtab[best]);
+
+	/*
+	 * Scan for closest preceding symbol, and next symbol. (ELF
+	 * starts real symbols at 1).
+	 */
+	for (i = 1; i < kallsyms->num_symtab; i++) {
+		const Elf_Sym *sym = &kallsyms->symtab[i];
+		unsigned long thisval = kallsyms_symbol_value(sym);
+
+		if (sym->st_shndx == SHN_UNDEF)
+			continue;
+
+		/*
+		 * We ignore unnamed symbols: they're uninformative
+		 * and inserted at a whim.
+		 */
+		if (*kallsyms_symbol_name(kallsyms, i) == '\0'
+		    || is_arm_mapping_symbol(kallsyms_symbol_name(kallsyms, i)))
+			continue;
+
+		if (thisval <= addr && thisval > bestval) {
+			best = i;
+			bestval = thisval;
+		}
+		if (thisval > addr && thisval < nextval)
+			nextval = thisval;
+>>>>>>> upstream/android-13
 	}
 
 	if (!best)
 		return NULL;
 
 	if (size)
+<<<<<<< HEAD
 		*size = nextval - kallsyms->symtab[best].st_value;
 	if (offset)
 		*offset = addr - kallsyms->symtab[best].st_value;
 	return symname(kallsyms, best);
+=======
+		*size = nextval - bestval;
+	if (offset)
+		*offset = addr - bestval;
+
+	return kallsyms_symbol_name(kallsyms, best);
+>>>>>>> upstream/android-13
 }
 
 void * __weak dereference_module_function_descriptor(struct module *mod,
@@ -4102,12 +5389,23 @@ void * __weak dereference_module_function_descriptor(struct module *mod,
 	return ptr;
 }
 
+<<<<<<< HEAD
 /* For kallsyms to ask for address resolution.  NULL means not found.  Careful
  * not to lock to avoid deadlock on oopses, simply disable preemption. */
+=======
+/*
+ * For kallsyms to ask for address resolution.  NULL means not found.  Careful
+ * not to lock to avoid deadlock on oopses, simply disable preemption.
+ */
+>>>>>>> upstream/android-13
 const char *module_address_lookup(unsigned long addr,
 			    unsigned long *size,
 			    unsigned long *offset,
 			    char **modname,
+<<<<<<< HEAD
+=======
+			    const unsigned char **modbuildid,
+>>>>>>> upstream/android-13
 			    char *namebuf)
 {
 	const char *ret = NULL;
@@ -4118,7 +5416,19 @@ const char *module_address_lookup(unsigned long addr,
 	if (mod) {
 		if (modname)
 			*modname = mod->name;
+<<<<<<< HEAD
 		ret = get_ksymbol(mod, addr, size, offset);
+=======
+		if (modbuildid) {
+#if IS_ENABLED(CONFIG_STACKTRACE_BUILD_ID)
+			*modbuildid = mod->build_id;
+#else
+			*modbuildid = NULL;
+#endif
+		}
+
+		ret = find_kallsyms_symbol(mod, addr, size, offset);
+>>>>>>> upstream/android-13
 	}
 	/* Make a copy in here where it's safe */
 	if (ret) {
@@ -4141,9 +5451,16 @@ int lookup_module_symbol_name(unsigned long addr, char *symname)
 		if (within_module(addr, mod)) {
 			const char *sym;
 
+<<<<<<< HEAD
 			sym = get_ksymbol(mod, addr, NULL, NULL);
 			if (!sym)
 				goto out;
+=======
+			sym = find_kallsyms_symbol(mod, addr, NULL, NULL);
+			if (!sym)
+				goto out;
+
+>>>>>>> upstream/android-13
 			strlcpy(symname, sym, KSYM_NAME_LEN);
 			preempt_enable();
 			return 0;
@@ -4166,7 +5483,11 @@ int lookup_module_symbol_attrs(unsigned long addr, unsigned long *size,
 		if (within_module(addr, mod)) {
 			const char *sym;
 
+<<<<<<< HEAD
 			sym = get_ksymbol(mod, addr, size, offset);
+=======
+			sym = find_kallsyms_symbol(mod, addr, size, offset);
+>>>>>>> upstream/android-13
 			if (!sym)
 				goto out;
 			if (modname)
@@ -4195,9 +5516,17 @@ int module_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
 			continue;
 		kallsyms = rcu_dereference_sched(mod->kallsyms);
 		if (symnum < kallsyms->num_symtab) {
+<<<<<<< HEAD
 			*value = kallsyms->symtab[symnum].st_value;
 			*type = kallsyms->symtab[symnum].st_info;
 			strlcpy(name, symname(kallsyms, symnum), KSYM_NAME_LEN);
+=======
+			const Elf_Sym *sym = &kallsyms->symtab[symnum];
+
+			*value = kallsyms_symbol_value(sym);
+			*type = kallsyms->typetab[symnum];
+			strlcpy(name, kallsyms_symbol_name(kallsyms, symnum), KSYM_NAME_LEN);
+>>>>>>> upstream/android-13
 			strlcpy(module_name, mod->name, MODULE_NAME_LEN);
 			*exported = is_exported(name, *value, mod);
 			preempt_enable();
@@ -4209,15 +5538,30 @@ int module_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
 	return -ERANGE;
 }
 
+<<<<<<< HEAD
 static unsigned long mod_find_symname(struct module *mod, const char *name)
+=======
+/* Given a module and name of symbol, find and return the symbol's value */
+static unsigned long find_kallsyms_symbol_value(struct module *mod, const char *name)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 	struct mod_kallsyms *kallsyms = rcu_dereference_sched(mod->kallsyms);
 
+<<<<<<< HEAD
 	for (i = 0; i < kallsyms->num_symtab; i++)
 		if (strcmp(name, symname(kallsyms, i)) == 0 &&
 		    kallsyms->symtab[i].st_shndx != SHN_UNDEF)
 			return kallsyms->symtab[i].st_value;
+=======
+	for (i = 0; i < kallsyms->num_symtab; i++) {
+		const Elf_Sym *sym = &kallsyms->symtab[i];
+
+		if (strcmp(name, kallsyms_symbol_name(kallsyms, i)) == 0 &&
+		    sym->st_shndx != SHN_UNDEF)
+			return kallsyms_symbol_value(sym);
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4232,12 +5576,20 @@ unsigned long module_kallsyms_lookup_name(const char *name)
 	preempt_disable();
 	if ((colon = strnchr(name, MODULE_NAME_LEN, ':')) != NULL) {
 		if ((mod = find_module_all(name, colon - name, false)) != NULL)
+<<<<<<< HEAD
 			ret = mod_find_symname(mod, colon+1);
+=======
+			ret = find_kallsyms_symbol_value(mod, colon+1);
+>>>>>>> upstream/android-13
 	} else {
 		list_for_each_entry_rcu(mod, &modules, list) {
 			if (mod->state == MODULE_STATE_UNFORMED)
 				continue;
+<<<<<<< HEAD
 			if ((ret = mod_find_symname(mod, name)) != 0)
+=======
+			if ((ret = find_kallsyms_symbol_value(mod, name)) != 0)
+>>>>>>> upstream/android-13
 				break;
 		}
 	}
@@ -4245,16 +5597,26 @@ unsigned long module_kallsyms_lookup_name(const char *name)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_LIVEPATCH
+>>>>>>> upstream/android-13
 int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
 					     struct module *, unsigned long),
 				   void *data)
 {
 	struct module *mod;
 	unsigned int i;
+<<<<<<< HEAD
 	int ret;
 
 	module_assert_mutex();
 
+=======
+	int ret = 0;
+
+	mutex_lock(&module_mutex);
+>>>>>>> upstream/android-13
 	list_for_each_entry(mod, &modules, list) {
 		/* We hold module_mutex: no need for rcu_dereference_sched */
 		struct mod_kallsyms *kallsyms = mod->kallsyms;
@@ -4262,6 +5624,7 @@ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
 		if (mod->state == MODULE_STATE_UNFORMED)
 			continue;
 		for (i = 0; i < kallsyms->num_symtab; i++) {
+<<<<<<< HEAD
 
 			if (kallsyms->symtab[i].st_shndx == SHN_UNDEF)
 				continue;
@@ -4274,23 +5637,69 @@ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
 	}
 	return 0;
 }
+=======
+			const Elf_Sym *sym = &kallsyms->symtab[i];
+
+			if (sym->st_shndx == SHN_UNDEF)
+				continue;
+
+			ret = fn(data, kallsyms_symbol_name(kallsyms, i),
+				 mod, kallsyms_symbol_value(sym));
+			if (ret != 0)
+				goto out;
+		}
+	}
+out:
+	mutex_unlock(&module_mutex);
+	return ret;
+}
+#endif /* CONFIG_LIVEPATCH */
+>>>>>>> upstream/android-13
 #endif /* CONFIG_KALLSYMS */
 
 static void cfi_init(struct module *mod)
 {
 #ifdef CONFIG_CFI_CLANG
+<<<<<<< HEAD
 	preempt_disable();
 	mod->cfi_check =
 		(cfi_check_fn)mod_find_symname(mod, CFI_CHECK_FN_NAME);
 	preempt_enable();
 	cfi_module_add(mod, module_addr_min, module_addr_max);
+=======
+	initcall_t *init;
+	exitcall_t *exit;
+
+	rcu_read_lock_sched();
+	mod->cfi_check = (cfi_check_fn)
+		find_kallsyms_symbol_value(mod, "__cfi_check");
+	init = (initcall_t *)
+		find_kallsyms_symbol_value(mod, "__cfi_jt_init_module");
+	exit = (exitcall_t *)
+		find_kallsyms_symbol_value(mod, "__cfi_jt_cleanup_module");
+	rcu_read_unlock_sched();
+
+	/* Fix init/exit functions to point to the CFI jump table */
+	if (init)
+		mod->init = *init;
+#ifdef CONFIG_MODULE_UNLOAD
+	if (exit)
+		mod->exit = *exit;
+#endif
+
+	cfi_module_add(mod, module_addr_min);
+>>>>>>> upstream/android-13
 #endif
 }
 
 static void cfi_cleanup(struct module *mod)
 {
 #ifdef CONFIG_CFI_CLANG
+<<<<<<< HEAD
 	cfi_module_remove(mod, module_addr_min, module_addr_max);
+=======
+	cfi_module_remove(mod, module_addr_min);
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -4370,11 +5779,20 @@ static int m_show(struct seq_file *m, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Format: modulename size refcount deps address
 
    Where refcount is a number or -, and deps is a comma-separated list
    of depends or -.
 */
+=======
+/*
+ * Format: modulename size refcount deps address
+ *
+ * Where refcount is a number or -, and deps is a comma-separated list
+ * of depends or -.
+ */
+>>>>>>> upstream/android-13
 static const struct seq_operations modules_op = {
 	.start	= m_start,
 	.next	= m_next,
@@ -4401,16 +5819,29 @@ static int modules_open(struct inode *inode, struct file *file)
 	return err;
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_modules_operations = {
 	.open		= modules_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= seq_release,
+=======
+static const struct proc_ops modules_proc_ops = {
+	.proc_flags	= PROC_ENTRY_PERMANENT,
+	.proc_open	= modules_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= seq_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init proc_modules_init(void)
 {
+<<<<<<< HEAD
 	proc_create("modules", 0, NULL, &proc_modules_operations);
+=======
+	proc_create("modules", 0, NULL, &modules_proc_ops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 module_init(proc_modules_init);
@@ -4443,8 +5874,13 @@ out:
 	return e;
 }
 
+<<<<<<< HEAD
 /*
  * is_module_address - is this address inside a module?
+=======
+/**
+ * is_module_address() - is this address inside a module?
+>>>>>>> upstream/android-13
  * @addr: the address to check.
  *
  * See is_module_text_address() if you simply want to see if the address
@@ -4461,8 +5897,13 @@ bool is_module_address(unsigned long addr)
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * __module_address - get the module which contains an address.
+=======
+/**
+ * __module_address() - get the module which contains an address.
+>>>>>>> upstream/android-13
  * @addr: the address.
  *
  * Must be called with preempt disabled or module mutex held so that
@@ -4486,8 +5927,13 @@ struct module *__module_address(unsigned long addr)
 	return mod;
 }
 
+<<<<<<< HEAD
 /*
  * is_module_text_address - is this address inside module code?
+=======
+/**
+ * is_module_text_address() - is this address inside module code?
+>>>>>>> upstream/android-13
  * @addr: the address to check.
  *
  * See is_module_address() if you simply want to see if the address is
@@ -4505,8 +5951,13 @@ bool is_module_text_address(unsigned long addr)
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * __module_text_address - get the module whose code contains an address.
+=======
+/**
+ * __module_text_address() - get the module whose code contains an address.
+>>>>>>> upstream/android-13
  * @addr: the address.
  *
  * Must be called with preempt disabled or module mutex held so that
@@ -4536,6 +5987,7 @@ void print_modules(void)
 	list_for_each_entry_rcu(mod, &modules, list) {
 		if (mod->state == MODULE_STATE_UNFORMED)
 			continue;
+<<<<<<< HEAD
 		pr_cont(" %s %lx %lx %d %d %s",
 			mod->name,
 			(unsigned long)mod->core_layout.base,
@@ -4543,6 +5995,9 @@ void print_modules(void)
 			mod->core_layout.size,
 			mod->init_layout_backup.size,
 			module_flags(mod, buf));
+=======
+		pr_cont(" %s%s", mod->name, module_flags(mod, buf));
+>>>>>>> upstream/android-13
 	}
 	preempt_enable();
 	if (last_unloaded_module[0])
@@ -4550,6 +6005,7 @@ void print_modules(void)
 	pr_cont("\n");
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_AEE_FEATURE
 /* MUST ensure called when preempt disabled already */
 int save_modules(char *mbuf, int mbufsize)
@@ -4617,6 +6073,29 @@ EXPORT_SYMBOL(save_modules);
 #ifdef CONFIG_MODVERSIONS
 /* Generate the signature for all relevant module structures here.
  * If these change, we don't want to try to parse the module. */
+=======
+#ifdef CONFIG_ANDROID_DEBUG_SYMBOLS
+void android_debug_for_each_module(int (*fn)(const char *mod_name, void *mod_addr, void *data),
+	void *data)
+{
+	struct module *module;
+	preempt_disable();
+	list_for_each_entry_rcu(module, &modules, list) {
+		if (fn(module->name, module->core_layout.base, data))
+			goto out;
+	}
+out:
+	preempt_enable();
+}
+EXPORT_SYMBOL_NS_GPL(android_debug_for_each_module, MINIDUMP);
+#endif
+
+#ifdef CONFIG_MODVERSIONS
+/*
+ * Generate the signature for all relevant module structures here.
+ * If these change, we don't want to try to parse the module.
+ */
+>>>>>>> upstream/android-13
 void module_layout(struct module *mod,
 		   struct modversion_info *ver,
 		   struct kernel_param *kp,

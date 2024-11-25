@@ -1495,14 +1495,23 @@ DEFINE_SHOW_ATTRIBUTE(sl811h_debug);
 /* expect just one sl811 per system */
 static void create_debug_file(struct sl811 *sl811)
 {
+<<<<<<< HEAD
 	sl811->debug_file = debugfs_create_file("sl811h", S_IRUGO,
 						usb_debug_root, sl811,
 						&sl811h_debug_fops);
+=======
+	debugfs_create_file("sl811h", S_IRUGO, usb_debug_root, sl811,
+			    &sl811h_debug_fops);
+>>>>>>> upstream/android-13
 }
 
 static void remove_debug_file(struct sl811 *sl811)
 {
+<<<<<<< HEAD
 	debugfs_remove(sl811->debug_file);
+=======
+	debugfs_remove(debugfs_lookup("sl811h", usb_debug_root));
+>>>>>>> upstream/android-13
 }
 
 /*-------------------------------------------------------------------------*/
@@ -1613,12 +1622,25 @@ sl811h_probe(struct platform_device *dev)
 	void __iomem		*addr_reg;
 	void __iomem		*data_reg;
 	int			retval;
+<<<<<<< HEAD
 	u8			tmp, ioaddr = 0;
+=======
+	u8			tmp, ioaddr;
+>>>>>>> upstream/android-13
 	unsigned long		irqflags;
 
 	if (usb_disabled())
 		return -ENODEV;
 
+<<<<<<< HEAD
+=======
+	/* the chip may be wired for either kind of addressing */
+	addr = platform_get_mem_or_io(dev, 0);
+	data = platform_get_mem_or_io(dev, 1);
+	if (!addr || !data || resource_type(addr) != resource_type(data))
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	/* basic sanity checks first.  board-specific init logic should
 	 * have initialized these three resources and probably board
 	 * specific platform_data.  we don't probe for IRQs, and do only
@@ -1631,6 +1653,7 @@ sl811h_probe(struct platform_device *dev)
 	irq = ires->start;
 	irqflags = ires->flags & IRQF_TRIGGER_MASK;
 
+<<<<<<< HEAD
 	/* refuse to confuse usbcore */
 	if (dev->dev.dma_mask) {
 		dev_dbg(&dev->dev, "no we won't dma\n");
@@ -1647,6 +1670,10 @@ sl811h_probe(struct platform_device *dev)
 		if (!addr || !data)
 			return -ENODEV;
 		ioaddr = 1;
+=======
+	ioaddr = resource_type(addr) == IORESOURCE_IO;
+	if (ioaddr) {
+>>>>>>> upstream/android-13
 		/*
 		 * NOTE: 64-bit resource->start is getting truncated
 		 * to avoid compiler warning, assuming that ->start
@@ -1797,7 +1824,11 @@ struct platform_driver sl811h_driver = {
 	.suspend =	sl811h_suspend,
 	.resume =	sl811h_resume,
 	.driver = {
+<<<<<<< HEAD
 		.name =	(char *) hcd_name,
+=======
+		.name =	hcd_name,
+>>>>>>> upstream/android-13
 	},
 };
 EXPORT_SYMBOL(sl811h_driver);

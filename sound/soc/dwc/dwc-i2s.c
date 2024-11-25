@@ -390,10 +390,13 @@ static const struct snd_soc_dai_ops dw_i2s_dai_ops = {
 	.set_fmt	= dw_i2s_set_fmt,
 };
 
+<<<<<<< HEAD
 static const struct snd_soc_component_driver dw_i2s_component = {
 	.name		= "dw-i2s",
 };
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int dw_i2s_runtime_suspend(struct device *dev)
 {
@@ -407,6 +410,7 @@ static int dw_i2s_runtime_suspend(struct device *dev)
 static int dw_i2s_runtime_resume(struct device *dev)
 {
 	struct dw_i2s_dev *dw_dev = dev_get_drvdata(dev);
+<<<<<<< HEAD
 
 	if (dw_dev->capability & DW_I2S_MASTER)
 		clk_enable(dw_dev->clk);
@@ -416,12 +420,28 @@ static int dw_i2s_runtime_resume(struct device *dev)
 static int dw_i2s_suspend(struct snd_soc_dai *dai)
 {
 	struct dw_i2s_dev *dev = snd_soc_dai_get_drvdata(dai);
+=======
+	int ret;
+
+	if (dw_dev->capability & DW_I2S_MASTER) {
+		ret = clk_enable(dw_dev->clk);
+		if (ret)
+			return ret;
+	}
+	return 0;
+}
+
+static int dw_i2s_suspend(struct snd_soc_component *component)
+{
+	struct dw_i2s_dev *dev = snd_soc_component_get_drvdata(component);
+>>>>>>> upstream/android-13
 
 	if (dev->capability & DW_I2S_MASTER)
 		clk_disable(dev->clk);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dw_i2s_resume(struct snd_soc_dai *dai)
 {
 	struct dw_i2s_dev *dev = snd_soc_dai_get_drvdata(dai);
@@ -433,6 +453,26 @@ static int dw_i2s_resume(struct snd_soc_dai *dai)
 		dw_i2s_config(dev, SNDRV_PCM_STREAM_PLAYBACK);
 	if (dai->capture_active)
 		dw_i2s_config(dev, SNDRV_PCM_STREAM_CAPTURE);
+=======
+static int dw_i2s_resume(struct snd_soc_component *component)
+{
+	struct dw_i2s_dev *dev = snd_soc_component_get_drvdata(component);
+	struct snd_soc_dai *dai;
+	int stream, ret;
+
+	if (dev->capability & DW_I2S_MASTER) {
+		ret = clk_enable(dev->clk);
+		if (ret)
+			return ret;
+	}
+
+	for_each_component_dais(component, dai) {
+		for_each_pcm_streams(stream)
+			if (snd_soc_dai_stream_active(dai, stream))
+				dw_i2s_config(dev, stream);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -441,6 +481,15 @@ static int dw_i2s_resume(struct snd_soc_dai *dai)
 #define dw_i2s_resume	NULL
 #endif
 
+<<<<<<< HEAD
+=======
+static const struct snd_soc_component_driver dw_i2s_component = {
+	.name		= "dw-i2s",
+	.suspend	= dw_i2s_suspend,
+	.resume		= dw_i2s_resume,
+};
+
+>>>>>>> upstream/android-13
 /*
  * The following tables allow a direct lookup of various parameters
  * defined in the I2S block's configuration in terms of sound system
@@ -629,17 +678,26 @@ static int dw_i2s_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	dw_i2s_dai->ops = &dw_i2s_dai_ops;
+<<<<<<< HEAD
 	dw_i2s_dai->suspend = dw_i2s_suspend;
 	dw_i2s_dai->resume = dw_i2s_resume;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	dev->i2s_base = devm_ioremap_resource(&pdev->dev, res);
+=======
+
+	dev->i2s_base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dev->i2s_base))
 		return PTR_ERR(dev->i2s_base);
 
 	dev->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	irq = platform_get_irq(pdev, 0);
+=======
+	irq = platform_get_irq_optional(pdev, 0);
+>>>>>>> upstream/android-13
 	if (irq >= 0) {
 		ret = devm_request_irq(&pdev->dev, irq, i2s_irq_handler, 0,
 				pdev->name, dev);

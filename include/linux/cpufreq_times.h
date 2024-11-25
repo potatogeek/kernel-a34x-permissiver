@@ -29,8 +29,11 @@ void cpufreq_acct_update_power(struct task_struct *p, u64 cputime);
 void cpufreq_times_create_policy(struct cpufreq_policy *policy);
 void cpufreq_times_record_transition(struct cpufreq_policy *policy,
                                      unsigned int new_freq);
+<<<<<<< HEAD
 void cpufreq_task_times_remove_uids(uid_t uid_start, uid_t uid_end);
 int single_uid_time_in_state_open(struct inode *inode, struct file *file);
+=======
+>>>>>>> upstream/android-13
 #else
 static inline void cpufreq_task_times_init(struct task_struct *p) {}
 static inline void cpufreq_task_times_alloc(struct task_struct *p) {}
@@ -40,7 +43,10 @@ static inline void cpufreq_acct_update_power(struct task_struct *p,
 static inline void cpufreq_times_create_policy(struct cpufreq_policy *policy) {}
 static inline void cpufreq_times_record_transition(
 	struct cpufreq_policy *policy, unsigned int new_freq) {}
+<<<<<<< HEAD
 static inline void cpufreq_task_times_remove_uids(uid_t uid_start,
 						  uid_t uid_end) {}
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_CPU_FREQ_TIMES */
 #endif /* _LINUX_CPUFREQ_TIMES_H */

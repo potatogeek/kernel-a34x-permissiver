@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  cx18 driver initialization and card probing
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2007  Hans Verkuil <hverkuil@xs4all.nl>
  *  Copyright (C) 2008  Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx18-driver.h"
@@ -241,7 +248,10 @@ MODULE_PARM_DESC(cx18_first_minor,
 
 MODULE_AUTHOR("Hans Verkuil");
 MODULE_DESCRIPTION("CX23418 driver");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("CX23418 MPEG2 encoder");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 MODULE_VERSION(CX18_VERSION);
@@ -328,7 +338,11 @@ void cx18_read_eeprom(struct cx18 *cx, struct tveeprom *tv)
 	if (!c)
 		return;
 
+<<<<<<< HEAD
 	strlcpy(c->name, "cx18 tveeprom tmp", sizeof(c->name));
+=======
+	strscpy(c->name, "cx18 tveeprom tmp", sizeof(c->name));
+>>>>>>> upstream/android-13
 	c->adapter = &cx->i2c_adap[0];
 	c->addr = 0xa0 >> 1;
 
@@ -685,7 +699,11 @@ done:
 			 cx->pci_dev->subsystem_device);
 		CX18_ERR("Defaulting to %s card\n", cx->card->name);
 		CX18_ERR("Please mail the vendor/device and subsystem vendor/device IDs and what kind of\n");
+<<<<<<< HEAD
 		CX18_ERR("card you have to the ivtv-devel mailinglist (www.ivtvdriver.org)\n");
+=======
+		CX18_ERR("card you have to the linux-media mailinglist (www.linuxtv.org)\n");
+>>>>>>> upstream/android-13
 		CX18_ERR("Prefix your subject line with [UNKNOWN CX18 CARD].\n");
 	}
 	cx->v4l2_cap = cx->card->v4l2_capabilities;
@@ -947,7 +965,11 @@ static int cx18_probe(struct pci_dev *pci_dev,
 	/* map io memory */
 	CX18_DEBUG_INFO("attempting ioremap at 0x%llx len 0x%08x\n",
 		   (u64)cx->base_addr + CX18_MEM_OFFSET, CX18_MEM_SIZE);
+<<<<<<< HEAD
 	cx->enc_mem = ioremap_nocache(cx->base_addr + CX18_MEM_OFFSET,
+=======
+	cx->enc_mem = ioremap(cx->base_addr + CX18_MEM_OFFSET,
+>>>>>>> upstream/android-13
 				       CX18_MEM_SIZE);
 	if (!cx->enc_mem) {
 		CX18_ERR("ioremap failed. Can't get a window into CX23418 memory and register space\n");

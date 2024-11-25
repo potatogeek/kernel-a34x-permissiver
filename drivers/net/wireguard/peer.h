@@ -36,16 +36,27 @@ struct endpoint {
 
 struct wg_peer {
 	struct wg_device *device;
+<<<<<<< HEAD
 	struct crypt_queue tx_queue, rx_queue;
 	struct sk_buff_head staged_packet_queue;
 	int serial_work_cpu;
+=======
+	struct prev_queue tx_queue, rx_queue;
+	struct sk_buff_head staged_packet_queue;
+	int serial_work_cpu;
+	bool is_dead;
+>>>>>>> upstream/android-13
 	struct noise_keypairs keypairs;
 	struct endpoint endpoint;
 	struct dst_cache endpoint_cache;
 	rwlock_t endpoint_lock;
 	struct noise_handshake handshake;
 	atomic64_t last_sent_handshake;
+<<<<<<< HEAD
 	struct work_struct transmit_handshake_work, clear_peer_work;
+=======
+	struct work_struct transmit_handshake_work, clear_peer_work, transmit_packet_work;
+>>>>>>> upstream/android-13
 	struct cookie latest_cookie;
 	struct hlist_node pubkey_hash;
 	u64 rx_bytes, tx_bytes;
@@ -61,9 +72,14 @@ struct wg_peer {
 	struct rcu_head rcu;
 	struct list_head peer_list;
 	struct list_head allowedips_list;
+<<<<<<< HEAD
 	u64 internal_id;
 	struct napi_struct napi;
 	bool is_dead;
+=======
+	struct napi_struct napi;
+	u64 internal_id;
+>>>>>>> upstream/android-13
 };
 
 struct wg_peer *wg_peer_create(struct wg_device *wg,
@@ -80,4 +96,10 @@ void wg_peer_put(struct wg_peer *peer);
 void wg_peer_remove(struct wg_peer *peer);
 void wg_peer_remove_all(struct wg_device *wg);
 
+<<<<<<< HEAD
+=======
+int wg_peer_init(void);
+void wg_peer_uninit(void);
+
+>>>>>>> upstream/android-13
 #endif /* _WG_PEER_H */

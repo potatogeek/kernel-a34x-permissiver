@@ -171,6 +171,7 @@ err:
 }
 
 /**
+<<<<<<< HEAD
  * qib_ruc_loopback - handle UC and RC lookback requests
  * @sqp: the sending QP
  *
@@ -477,6 +478,8 @@ done:
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * qib_make_grh - construct a GRH header
  * @ibp: a pointer to the IB port
  * @hdr: a pointer to the GRH header being constructed
@@ -578,7 +581,11 @@ void qib_do_send(struct rvt_qp *qp)
 	     qp->ibqp.qp_type == IB_QPT_UC) &&
 	    (rdma_ah_get_dlid(&qp->remote_ah_attr) &
 	     ~((1 << ppd->lmc) - 1)) == ppd->lid) {
+<<<<<<< HEAD
 		qib_ruc_loopback(qp);
+=======
+		rvt_ruc_loopback(qp);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -618,6 +625,7 @@ void qib_do_send(struct rvt_qp *qp)
 
 	spin_unlock_irqrestore(&qp->s_lock, flags);
 }
+<<<<<<< HEAD
 
 /*
  * This should be called with s_lock held.
@@ -657,3 +665,5 @@ void qib_send_complete(struct rvt_qp *qp, struct rvt_swqe *wqe,
 	if (qp->state == IB_QPS_SQD && last == qp->s_cur)
 		qp->s_draining = 0;
 }
+=======
+>>>>>>> upstream/android-13

@@ -8,11 +8,14 @@
 struct device;
 struct mmc_host;
 
+<<<<<<< HEAD
 #define MMC_SPI_USE_CD_GPIO			(1 << 0)
 #define MMC_SPI_USE_RO_GPIO			(1 << 1)
 #define MMC_SPI_CD_GPIO_ACTIVE_LOW		(1 << 2)
 #define MMC_SPI_RO_GPIO_ACTIVE_LOW		(1 << 3)
 
+=======
+>>>>>>> upstream/android-13
 /* Put this in platform_data of a device being used to manage an MMC/SD
  * card slot.  (Modeled after PXA mmc glue; see that for usage examples.)
  *
@@ -27,6 +30,7 @@ struct mmc_spi_platform_data {
 		void *);
 	void (*exit)(struct device *, void *);
 
+<<<<<<< HEAD
 	/*
 	 * Card Detect and Read Only GPIOs. To enable debouncing on the card
 	 * detect GPIO, set the cd_debounce to the debounce time in
@@ -37,6 +41,8 @@ struct mmc_spi_platform_data {
 	unsigned int cd_debounce;
 	unsigned int ro_gpio;
 
+=======
+>>>>>>> upstream/android-13
 	/* Capabilities to pass into mmc core (e.g. MMC_CAP_NEEDS_POLL). */
 	unsigned long caps;
 	unsigned long caps2;
@@ -50,6 +56,7 @@ struct mmc_spi_platform_data {
 	void (*setpower)(struct device *, unsigned int maskval);
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 extern struct mmc_spi_platform_data *mmc_spi_get_pdata(struct spi_device *spi);
 extern void mmc_spi_put_pdata(struct spi_device *spi);
@@ -61,5 +68,9 @@ mmc_spi_get_pdata(struct spi_device *spi)
 }
 static inline void mmc_spi_put_pdata(struct spi_device *spi) {}
 #endif /* CONFIG_OF */
+=======
+extern struct mmc_spi_platform_data *mmc_spi_get_pdata(struct spi_device *spi);
+extern void mmc_spi_put_pdata(struct spi_device *spi);
+>>>>>>> upstream/android-13
 
 #endif /* __LINUX_SPI_MMC_SPI_H */

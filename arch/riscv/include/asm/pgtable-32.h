@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Regents of the University of California
  *
@@ -9,6 +10,11 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_PGTABLE_32_H
@@ -22,4 +28,9 @@
 #define PGDIR_SIZE      (_AC(1, UL) << PGDIR_SHIFT)
 #define PGDIR_MASK      (~(PGDIR_SIZE - 1))
 
+<<<<<<< HEAD
+=======
+#define MAX_POSSIBLE_PHYSMEM_BITS 34
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_RISCV_PGTABLE_32_H */

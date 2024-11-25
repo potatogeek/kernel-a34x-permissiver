@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DMA driver for Altera mSGDMA IP core
  *
@@ -5,11 +9,14 @@
  *
  * Based on drivers/dma/xilinx/zynqmp_dma.c, which is:
  * Copyright (C) 2016 Xilinx, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -23,6 +30,10 @@
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_dma.h>
+>>>>>>> upstream/android-13
 
 #include "dmaengine.h"
 
@@ -157,7 +168,12 @@ struct msgdma_extended_desc {
  * struct msgdma_sw_desc - implements a sw descriptor
  * @async_tx: support for the async_tx api
  * @hw_desc: assosiated HW descriptor
+<<<<<<< HEAD
  * @free_list: node of the free SW descriprots list
+=======
+ * @node: node to move from the free list to the tx list
+ * @tx_list: transmit list node
+>>>>>>> upstream/android-13
  */
 struct msgdma_sw_desc {
 	struct dma_async_tx_descriptor async_tx;
@@ -166,7 +182,11 @@ struct msgdma_sw_desc {
 	struct list_head tx_list;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct msgdma_device - DMA device structure
  */
 struct msgdma_device {
@@ -262,6 +282,10 @@ static void msgdma_free_desc_list(struct msgdma_device *mdev,
  * @dst: Destination buffer address
  * @src: Source buffer address
  * @len: Transfer length
+<<<<<<< HEAD
+=======
+ * @stride: Read/write stride value to set
+>>>>>>> upstream/android-13
  */
 static void msgdma_desc_config(struct msgdma_extended_desc *desc,
 			       dma_addr_t dst, dma_addr_t src, size_t len,
@@ -680,11 +704,19 @@ static int msgdma_alloc_chan_resources(struct dma_chan *dchan)
 
 /**
  * msgdma_tasklet - Schedule completion tasklet
+<<<<<<< HEAD
  * @data: Pointer to the Altera sSGDMA channel structure
  */
 static void msgdma_tasklet(unsigned long data)
 {
 	struct msgdma_device *mdev = (struct msgdma_device *)data;
+=======
+ * @t: Pointer to the Altera sSGDMA channel structure
+ */
+static void msgdma_tasklet(struct tasklet_struct *t)
+{
+	struct msgdma_device *mdev = from_tasklet(mdev, t, irq_tasklet);
+>>>>>>> upstream/android-13
 	u32 count;
 	u32 __maybe_unused size;
 	u32 __maybe_unused status;
@@ -692,10 +724,21 @@ static void msgdma_tasklet(unsigned long data)
 
 	spin_lock_irqsave(&mdev->lock, flags);
 
+<<<<<<< HEAD
 	/* Read number of responses that are available */
 	count = ioread32(mdev->csr + MSGDMA_CSR_RESP_FILL_LEVEL);
 	dev_dbg(mdev->dev, "%s (%d): response count=%d\n",
 		__func__, __LINE__, count);
+=======
+	if (mdev->resp) {
+		/* Read number of responses that are available */
+		count = ioread32(mdev->csr + MSGDMA_CSR_RESP_FILL_LEVEL);
+		dev_dbg(mdev->dev, "%s (%d): response count=%d\n",
+			__func__, __LINE__, count);
+	} else {
+		count = 1;
+	}
+>>>>>>> upstream/android-13
 
 	while (count--) {
 		/*
@@ -704,8 +747,17 @@ static void msgdma_tasklet(unsigned long data)
 		 * have any real values, like transferred bytes or error
 		 * bits. So we need to just drop these values.
 		 */
+<<<<<<< HEAD
 		size = ioread32(mdev->resp + MSGDMA_RESP_BYTES_TRANSFERRED);
 		status = ioread32(mdev->resp + MSGDMA_RESP_STATUS);
+=======
+		if (mdev->resp) {
+			size = ioread32(mdev->resp +
+					MSGDMA_RESP_BYTES_TRANSFERRED);
+			status = ioread32(mdev->resp +
+					MSGDMA_RESP_STATUS);
+		}
+>>>>>>> upstream/android-13
 
 		msgdma_complete_descriptor(mdev);
 		msgdma_chan_desc_cleanup(mdev);
@@ -758,14 +810,29 @@ static void msgdma_dev_remove(struct msgdma_device *mdev)
 }
 
 static int request_and_map(struct platform_device *pdev, const char *name,
+<<<<<<< HEAD
 			   struct resource **res, void __iomem **ptr)
+=======
+			   struct resource **res, void __iomem **ptr,
+			   bool optional)
+>>>>>>> upstream/android-13
 {
 	struct resource *region;
 	struct device *device = &pdev->dev;
 
 	*res = platform_get_resource_byname(pdev, IORESOURCE_MEM, name);
 	if (*res == NULL) {
+<<<<<<< HEAD
 		dev_err(device, "resource %s not defined\n", name);
+=======
+		if (optional) {
+			*ptr = NULL;
+			dev_info(device, "optional resource %s not defined\n",
+				 name);
+			return 0;
+		}
+		dev_err(device, "mandatory resource %s not defined\n", name);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -776,10 +843,17 @@ static int request_and_map(struct platform_device *pdev, const char *name,
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	*ptr = devm_ioremap_nocache(device, region->start,
 				    resource_size(region));
 	if (*ptr == NULL) {
 		dev_err(device, "ioremap_nocache of %s failed!", name);
+=======
+	*ptr = devm_ioremap(device, region->start,
+				    resource_size(region));
+	if (*ptr == NULL) {
+		dev_err(device, "ioremap of %s failed!", name);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -806,17 +880,29 @@ static int msgdma_probe(struct platform_device *pdev)
 	mdev->dev = &pdev->dev;
 
 	/* Map CSR space */
+<<<<<<< HEAD
 	ret = request_and_map(pdev, "csr", &dma_res, &mdev->csr);
+=======
+	ret = request_and_map(pdev, "csr", &dma_res, &mdev->csr, false);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* Map (extended) descriptor space */
+<<<<<<< HEAD
 	ret = request_and_map(pdev, "desc", &dma_res, &mdev->desc);
+=======
+	ret = request_and_map(pdev, "desc", &dma_res, &mdev->desc, false);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* Map response space */
+<<<<<<< HEAD
 	ret = request_and_map(pdev, "resp", &dma_res, &mdev->resp);
+=======
+	ret = request_and_map(pdev, "resp", &dma_res, &mdev->resp, true);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -832,7 +918,11 @@ static int msgdma_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	tasklet_init(&mdev->irq_tasklet, msgdma_tasklet, (unsigned long)mdev);
+=======
+	tasklet_setup(&mdev->irq_tasklet, msgdma_tasklet);
+>>>>>>> upstream/android-13
 
 	dma_cookie_init(&mdev->dmachan);
 
@@ -890,6 +980,16 @@ static int msgdma_probe(struct platform_device *pdev)
 	if (ret)
 		goto fail;
 
+<<<<<<< HEAD
+=======
+	ret = of_dma_controller_register(pdev->dev.of_node,
+					 of_dma_xlate_by_chan_id, dma_dev);
+	if (ret == -EINVAL)
+		dev_warn(&pdev->dev, "device was not probed from DT");
+	else if (ret && ret != -ENODEV)
+		goto fail;
+
+>>>>>>> upstream/android-13
 	dev_notice(&pdev->dev, "Altera mSGDMA driver probe success\n");
 
 	return 0;
@@ -910,6 +1010,11 @@ static int msgdma_remove(struct platform_device *pdev)
 {
 	struct msgdma_device *mdev = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
+=======
+	if (pdev->dev.of_node)
+		of_dma_controller_free(pdev->dev.of_node);
+>>>>>>> upstream/android-13
 	dma_async_device_unregister(&mdev->dmadev);
 	msgdma_dev_remove(mdev);
 
@@ -918,9 +1023,25 @@ static int msgdma_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct platform_driver msgdma_driver = {
 	.driver = {
 		.name = "altera-msgdma",
+=======
+#ifdef CONFIG_OF
+static const struct of_device_id msgdma_match[] = {
+	{ .compatible = "altr,socfpga-msgdma", },
+	{ }
+};
+
+MODULE_DEVICE_TABLE(of, msgdma_match);
+#endif
+
+static struct platform_driver msgdma_driver = {
+	.driver = {
+		.name = "altera-msgdma",
+		.of_match_table = of_match_ptr(msgdma_match),
+>>>>>>> upstream/android-13
 	},
 	.probe = msgdma_probe,
 	.remove = msgdma_remove,

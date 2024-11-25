@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
@@ -11,6 +12,12 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+>>>>>>> upstream/android-13
  */
 #ifndef __PVRUSB2_CONTEXT_H
 #define __PVRUSB2_CONTEXT_H

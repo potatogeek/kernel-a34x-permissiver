@@ -3,9 +3,17 @@
 #include "config.h"
 #include <poll.h>
 #include <stdio.h>
+<<<<<<< HEAD
 #include <subcmd/help.h>
 #include "../builtin.h"
 #include "levenshtein.h"
+=======
+#include <stdlib.h>
+#include <subcmd/help.h>
+#include "../builtin.h"
+#include "levenshtein.h"
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 static int autocorrect;
 

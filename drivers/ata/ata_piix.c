@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    ata_piix.c - Intel PATA/SATA controllers
  *
@@ -5,17 +9,24 @@
  *    		    Please ALWAYS copy linux-ide@vger.kernel.org
  *		    on emails.
  *
+<<<<<<< HEAD
  *
  *	Copyright 2003-2005 Red Hat Inc
  *	Copyright 2003-2005 Jeff Garzik
  *
  *
+=======
+ *	Copyright 2003-2005 Red Hat Inc
+ *	Copyright 2003-2005 Jeff Garzik
+ *
+>>>>>>> upstream/android-13
  *	Copyright header from piix.c:
  *
  *  Copyright (C) 1998-1999 Andrzej Krzysztofowicz, Author and Maintainer
  *  Copyright (C) 1998-2000 Andre Hedrick <andre@linux-ide.org>
  *  Copyright (C) 2003 Red Hat Inc
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,6 +43,8 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
@@ -858,6 +871,15 @@ static int piix_broken_suspend(void)
 			},
 		},
 		{
+<<<<<<< HEAD
+=======
+			.ident = "TECRA M3",
+			.matches = {
+				DMI_MATCH(DMI_OEM_STRING, "Tecra M3,"),
+			},
+		},
+		{
+>>>>>>> upstream/android-13
 			.ident = "TECRA M4",
 			.matches = {
 				DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
@@ -972,18 +994,24 @@ static int piix_broken_suspend(void)
 
 		{ }	/* terminate list */
 	};
+<<<<<<< HEAD
 	static const char *oemstrs[] = {
 		"Tecra M3,",
 	};
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	if (dmi_check_system(sysids))
 		return 1;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(oemstrs); i++)
 		if (dmi_find_device(DMI_DEV_TYPE_OEM_STRING, oemstrs[i], NULL))
 			return 1;
 
+=======
+>>>>>>> upstream/android-13
 	/* TECRA M4 sometimes forgets its identify and reports bogus
 	 * DMI information.  As the bogus information is a bit
 	 * generic, match as many entries as possible.  This manual

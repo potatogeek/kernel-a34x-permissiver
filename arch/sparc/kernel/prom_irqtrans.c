@@ -193,7 +193,11 @@ static int sabre_device_needs_wsync(struct device_node *dp)
 	 *    the DMA synchronization handling
 	 */
 	while (parent) {
+<<<<<<< HEAD
 		if (!strcmp(parent->type, "pci"))
+=======
+		if (of_node_is_type(parent, "pci"))
+>>>>>>> upstream/android-13
 			break;
 		parent = parent->parent;
 	}
@@ -725,11 +729,19 @@ static unsigned int central_build_irq(struct device_node *dp,
 	unsigned long imap, iclr;
 	u32 tmp;
 
+<<<<<<< HEAD
 	if (!strcmp(dp->name, "eeprom")) {
 		res = &central_op->resource[5];
 	} else if (!strcmp(dp->name, "zs")) {
 		res = &central_op->resource[4];
 	} else if (!strcmp(dp->name, "clock-board")) {
+=======
+	if (of_node_name_eq(dp, "eeprom")) {
+		res = &central_op->resource[5];
+	} else if (of_node_name_eq(dp, "zs")) {
+		res = &central_op->resource[4];
+	} else if (of_node_name_eq(dp, "clock-board")) {
+>>>>>>> upstream/android-13
 		res = &central_op->resource[3];
 	} else {
 		return ino;
@@ -824,12 +836,18 @@ void __init irq_trans_init(struct device_node *dp)
 	}
 #endif
 #ifdef CONFIG_SBUS
+<<<<<<< HEAD
 	if (!strcmp(dp->name, "sbus") ||
 	    !strcmp(dp->name, "sbi")) {
+=======
+	if (of_node_name_eq(dp, "sbus") ||
+	    of_node_name_eq(dp, "sbi")) {
+>>>>>>> upstream/android-13
 		sbus_irq_trans_init(dp);
 		return;
 	}
 #endif
+<<<<<<< HEAD
 	if (!strcmp(dp->name, "fhc") &&
 	    !strcmp(dp->parent->name, "central")) {
 		central_irq_trans_init(dp);
@@ -837,6 +855,15 @@ void __init irq_trans_init(struct device_node *dp)
 	}
 	if (!strcmp(dp->name, "virtual-devices") ||
 	    !strcmp(dp->name, "niu")) {
+=======
+	if (of_node_name_eq(dp, "fhc") &&
+	    of_node_name_eq(dp->parent, "central")) {
+		central_irq_trans_init(dp);
+		return;
+	}
+	if (of_node_name_eq(dp, "virtual-devices") ||
+	    of_node_name_eq(dp, "niu")) {
+>>>>>>> upstream/android-13
 		sun4v_vdev_irq_trans_init(dp);
 		return;
 	}

@@ -45,7 +45,11 @@
 		};
 
 		serial@12000 {
+<<<<<<< HEAD
 			status = "ok";
+=======
+			status = "okay";
+>>>>>>> upstream/android-13
 		};
 
 		sata@80000 {

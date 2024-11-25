@@ -23,9 +23,16 @@
 /dts-v1/;
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/gpio/gpio.h>
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
 / {
+=======
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "ARM RealView PB11MPcore";
 	compatible = "arm,realview-pb11mp";
 
@@ -39,6 +46,10 @@
 	};
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		/*
 		 * The PB11MPCore has 512 MiB memory @ 0x70000000
 		 * and the first 256 are also remapped @ 0x00000000
@@ -90,7 +101,11 @@
 		      <0x1f000100 0x100>;
 	};
 
+<<<<<<< HEAD
 	L2: l2-cache {
+=======
+	L2: cache-controller {
+>>>>>>> upstream/android-13
 		compatible = "arm,l220-cache";
 		reg = <0x1f002000 0x1000>;
 		interrupt-parent = <&intc_tc11mp>;
@@ -233,6 +248,12 @@
 		compatible = "arm,versatile-flash", "cfi-flash";
 		reg = <0x40000000 0x04000000>;
 		bank-width = <4>;
+<<<<<<< HEAD
+=======
+		partitions {
+			compatible = "arm,arm-firmware-suite";
+		};
+>>>>>>> upstream/android-13
 	};
 
 	flash1@44000000 {
@@ -240,6 +261,12 @@
 		compatible = "arm,versatile-flash", "cfi-flash";
 		reg = <0x44000000 0x04000000>;
 		bank-width = <4>;
+<<<<<<< HEAD
+=======
+		partitions {
+			compatible = "arm,arm-firmware-suite";
+		};
+>>>>>>> upstream/android-13
 	};
 
 	bridge {
@@ -538,7 +565,11 @@
 			interrupt-parent = <&intc_pb11mp>;
 			interrupts = <0 0 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&wdogclk>, <&pclk>;
+<<<<<<< HEAD
 			clock-names = "wdogclk", "apb_pclk";
+=======
+			clock-names = "wdog_clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -548,7 +579,11 @@
 			interrupt-parent = <&intc_pb11mp>;
 			interrupts = <0 0 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&wdogclk>, <&pclk>;
+<<<<<<< HEAD
 			clock-names = "wdogclk", "apb_pclk";
+=======
+			clock-names = "wdog_clk", "apb_pclk";
+>>>>>>> upstream/android-13
 		};
 
 		timer01: timer@10011000 {
@@ -560,8 +595,13 @@
 			clocks = <&sp810_syscon 0>,
 			         <&sp810_syscon 1>,
 				 <&pclk>;
+<<<<<<< HEAD
 			clock-names = "timerclk0",
 				    "timerclk1",
+=======
+			clock-names = "timer0clk",
+				    "timer1clk",
+>>>>>>> upstream/android-13
 				    "apb_pclk";
 		};
 
@@ -574,8 +614,13 @@
 			clocks = <&sp810_syscon 2>,
 			         <&sp810_syscon 3>,
 				 <&pclk>;
+<<<<<<< HEAD
 			clock-names = "timerclk2",
 				    "timerclk3",
+=======
+			clock-names = "timer0clk",
+				    "timer1clk",
+>>>>>>> upstream/android-13
 				    "apb_pclk";
 		};
 
@@ -637,16 +682,26 @@
 		timer45: timer@10018000 {
 			compatible = "arm,sp804", "arm,primecell";
 			reg = <0x10018000 0x1000>;
+<<<<<<< HEAD
 			clocks = <&timclk>, <&pclk>;
 			clock-names = "timer", "apb_pclk";
+=======
+			clocks = <&timclk>, <&timclk>, <&pclk>;
+			clock-names = "timer0clk", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
 		timer67: timer@10019000 {
 			compatible = "arm,sp804", "arm,primecell";
 			reg = <0x10019000 0x1000>;
+<<<<<<< HEAD
 			clocks = <&timclk>, <&pclk>;
 			clock-names = "timer", "apb_pclk";
+=======
+			clocks = <&timclk>, <&timclk>, <&pclk>;
+			clock-names = "timer0clk", "timer1clk", "apb_pclk";
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -704,7 +759,11 @@
 			reg = <0x4f000000 0x20000>;
 			interrupt-parent = <&intc_tc11mp>;
 			interrupts = <0 3 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 			port1-otg;
+=======
+			dr_mode = "peripheral";
+>>>>>>> upstream/android-13
 		};
 	};
 };

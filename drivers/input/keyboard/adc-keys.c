@@ -1,18 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Input driver for resistor ladder connected on ADC
  *
  * Copyright (c) 2016 Alexandre Belloni
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
 #include <linux/iio/consumer.h>
 #include <linux/iio/types.h>
 #include <linux/input.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of.h>
@@ -33,9 +43,15 @@ struct adc_keys_state {
 	const struct adc_keys_button *map;
 };
 
+<<<<<<< HEAD
 static void adc_keys_poll(struct input_polled_dev *dev)
 {
 	struct adc_keys_state *st = dev->private;
+=======
+static void adc_keys_poll(struct input_dev *input)
+{
+	struct adc_keys_state *st = input_get_drvdata(input);
+>>>>>>> upstream/android-13
 	int i, value, ret;
 	u32 diff, closest = 0xffffffff;
 	int keycode = 0;
@@ -58,12 +74,21 @@ static void adc_keys_poll(struct input_polled_dev *dev)
 		keycode = 0;
 
 	if (st->last_key && st->last_key != keycode)
+<<<<<<< HEAD
 		input_report_key(dev->input, st->last_key, 0);
 
 	if (keycode)
 		input_report_key(dev->input, keycode, 1);
 
 	input_sync(dev->input);
+=======
+		input_report_key(input, st->last_key, 0);
+
+	if (keycode)
+		input_report_key(input, keycode, 1);
+
+	input_sync(input);
+>>>>>>> upstream/android-13
 	st->last_key = keycode;
 }
 
@@ -111,7 +136,10 @@ static int adc_keys_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct adc_keys_state *st;
+<<<<<<< HEAD
 	struct input_polled_dev *poll_dev;
+=======
+>>>>>>> upstream/android-13
 	struct input_dev *input;
 	enum iio_chan_type type;
 	int i, value;
@@ -148,12 +176,18 @@ static int adc_keys_probe(struct platform_device *pdev)
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	poll_dev = devm_input_allocate_polled_device(dev);
 	if (!poll_dev) {
+=======
+	input = devm_input_allocate_device(dev);
+	if (!input) {
+>>>>>>> upstream/android-13
 		dev_err(dev, "failed to allocate input device\n");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	if (!device_property_read_u32(dev, "poll-interval", &value))
 		poll_dev->poll_interval = value;
 
@@ -161,6 +195,9 @@ static int adc_keys_probe(struct platform_device *pdev)
 	poll_dev->private = st;
 
 	input = poll_dev->input;
+=======
+	input_set_drvdata(input, st);
+>>>>>>> upstream/android-13
 
 	input->name = pdev->name;
 	input->phys = "adc-keys/input0";
@@ -177,7 +214,21 @@ static int adc_keys_probe(struct platform_device *pdev)
 	if (device_property_read_bool(dev, "autorepeat"))
 		__set_bit(EV_REP, input->evbit);
 
+<<<<<<< HEAD
 	error = input_register_polled_device(poll_dev);
+=======
+
+	error = input_setup_polling(input, adc_keys_poll);
+	if (error) {
+		dev_err(dev, "Unable to set up polling: %d\n", error);
+		return error;
+	}
+
+	if (!device_property_read_u32(dev, "poll-interval", &value))
+		input_set_poll_interval(input, value);
+
+	error = input_register_device(input);
+>>>>>>> upstream/android-13
 	if (error) {
 		dev_err(dev, "Unable to register input device: %d\n", error);
 		return error;
@@ -194,7 +245,11 @@ static const struct of_device_id adc_keys_of_match[] = {
 MODULE_DEVICE_TABLE(of, adc_keys_of_match);
 #endif
 
+<<<<<<< HEAD
 static struct platform_driver __refdata adc_keys_driver = {
+=======
+static struct platform_driver adc_keys_driver = {
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "adc_keys",
 		.of_match_table = of_match_ptr(adc_keys_of_match),

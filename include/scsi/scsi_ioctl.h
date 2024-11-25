@@ -18,7 +18,13 @@
 
 #ifdef __KERNEL__
 
+<<<<<<< HEAD
 struct scsi_device;
+=======
+struct gendisk;
+struct scsi_device;
+struct sg_io_hdr;
+>>>>>>> upstream/android-13
 
 /*
  * Structures used for scsi_ioctl et al.
@@ -27,7 +33,11 @@ struct scsi_device;
 typedef struct scsi_ioctl_command {
 	unsigned int inlen;
 	unsigned int outlen;
+<<<<<<< HEAD
 	unsigned char data[0];
+=======
+	unsigned char data[];
+>>>>>>> upstream/android-13
 } Scsi_Ioctl_Command;
 
 typedef struct scsi_idlun {
@@ -43,7 +53,15 @@ typedef struct scsi_fctargaddress {
 
 int scsi_ioctl_block_when_processing_errors(struct scsi_device *sdev,
 		int cmd, bool ndelay);
+<<<<<<< HEAD
 extern int scsi_ioctl(struct scsi_device *, int, void __user *);
+=======
+int scsi_ioctl(struct scsi_device *sdev, struct gendisk *disk, fmode_t mode,
+		int cmd, void __user *arg);
+int get_sg_io_hdr(struct sg_io_hdr *hdr, const void __user *argp);
+int put_sg_io_hdr(const struct sg_io_hdr *hdr, void __user *argp);
+bool scsi_cmd_allowed(unsigned char *cmd, fmode_t mode);
+>>>>>>> upstream/android-13
 
 #endif /* __KERNEL__ */
 #endif /* _SCSI_IOCTL_H */

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: ISC
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2016 Qualcomm Atheros, Inc.
  * Copyright (c) 2018, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +19,8 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "core.h"
@@ -61,6 +68,10 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
 	struct ath10k_skb_cb *skb_cb;
 	struct ath10k_txq *artxq;
 	struct sk_buff *msdu;
+<<<<<<< HEAD
+=======
+	u8 flags;
+>>>>>>> upstream/android-13
 
 	ath10k_dbg(ar, ATH10K_DBG_HTT,
 		   "htt tx completion msdu_id %u status %d\n",
@@ -89,6 +100,7 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
 		artxq->num_fw_queued--;
 	}
 
+<<<<<<< HEAD
 	ath10k_htt_tx_free_msdu_id(htt, tx_done->msdu_id);
 	ath10k_htt_tx_dec_pending(htt);
 	if (htt->num_pending_tx == 0)
@@ -96,6 +108,21 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
 	spin_unlock_bh(&htt->tx_lock);
 
 	dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
+=======
+	flags = skb_cb->flags;
+	ath10k_htt_tx_free_msdu_id(htt, tx_done->msdu_id);
+	ath10k_htt_tx_dec_pending(htt);
+	spin_unlock_bh(&htt->tx_lock);
+
+	rcu_read_lock();
+	if (txq && txq->sta && skb_cb->airtime_est)
+		ieee80211_sta_register_airtime(txq->sta, txq->tid,
+					       skb_cb->airtime_est, 0);
+	rcu_read_unlock();
+
+	if (ar->bus_param.dev_type != ATH10K_DEV_TYPE_HL)
+		dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	ath10k_report_offchan_tx(htt->ar, msdu);
 
@@ -105,18 +132,33 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
 
 	trace_ath10k_txrx_tx_unref(ar, tx_done->msdu_id);
 
+<<<<<<< HEAD
 	if (!(info->flags & IEEE80211_TX_CTL_NO_ACK))
+=======
+	if (!(info->flags & IEEE80211_TX_CTL_NO_ACK) &&
+	    !(flags & ATH10K_SKB_F_NOACK_TID))
+>>>>>>> upstream/android-13
 		info->flags |= IEEE80211_TX_STAT_ACK;
 
 	if (tx_done->status == HTT_TX_COMPL_STATE_NOACK)
 		info->flags &= ~IEEE80211_TX_STAT_ACK;
 
 	if ((tx_done->status == HTT_TX_COMPL_STATE_ACK) &&
+<<<<<<< HEAD
 	    (info->flags & IEEE80211_TX_CTL_NO_ACK))
 		info->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
 
 	if (tx_done->status == HTT_TX_COMPL_STATE_DISCARD) {
 		if (info->flags & IEEE80211_TX_CTL_NO_ACK)
+=======
+	    ((info->flags & IEEE80211_TX_CTL_NO_ACK) ||
+	    (flags & ATH10K_SKB_F_NOACK_TID)))
+		info->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
+
+	if (tx_done->status == HTT_TX_COMPL_STATE_DISCARD) {
+		if ((info->flags & IEEE80211_TX_CTL_NO_ACK) ||
+		    (flags & ATH10K_SKB_F_NOACK_TID))
+>>>>>>> upstream/android-13
 			info->flags &= ~IEEE80211_TX_STAT_NOACK_TRANSMITTED;
 		else
 			info->flags &= ~IEEE80211_TX_STAT_ACK;
@@ -210,7 +252,11 @@ void ath10k_peer_map_event(struct ath10k_htt *htt,
 
 	if (ev->peer_id >= ATH10K_MAX_NUM_PEER_IDS) {
 		ath10k_warn(ar,
+<<<<<<< HEAD
 			    "received htt peer map event with idx out of bounds: %hu\n",
+=======
+			    "received htt peer map event with idx out of bounds: %u\n",
+>>>>>>> upstream/android-13
 			    ev->peer_id);
 		return;
 	}
@@ -246,7 +292,11 @@ void ath10k_peer_unmap_event(struct ath10k_htt *htt,
 
 	if (ev->peer_id >= ATH10K_MAX_NUM_PEER_IDS) {
 		ath10k_warn(ar,
+<<<<<<< HEAD
 			    "received htt peer unmap event with idx out of bounds: %hu\n",
+=======
+			    "received htt peer unmap event with idx out of bounds: %u\n",
+>>>>>>> upstream/android-13
 			    ev->peer_id);
 		return;
 	}

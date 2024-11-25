@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *		Sunplus spca504(abc) spca533 spca536 library
  *		Copyright (C) 2005 Michel Xhaard mxhaard@magic.fr
  *
  * V4L2 by Jean-Francois Moine <http://moinejf.free.fr>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -251,6 +258,13 @@ static void reg_r(struct gspca_dev *gspca_dev,
 		gspca_err(gspca_dev, "reg_r: buffer overflow\n");
 		return;
 	}
+<<<<<<< HEAD
+=======
+	if (len == 0) {
+		gspca_err(gspca_dev, "reg_r: zero-length read\n");
+		return;
+	}
+>>>>>>> upstream/android-13
 	if (gspca_dev->usb_err < 0)
 		return;
 	ret = usb_control_msg(gspca_dev->dev,
@@ -259,7 +273,11 @@ static void reg_r(struct gspca_dev *gspca_dev,
 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 			0,		/* value */
 			index,
+<<<<<<< HEAD
 			len ? gspca_dev->usb_buf : NULL, len,
+=======
+			gspca_dev->usb_buf, len,
+>>>>>>> upstream/android-13
 			500);
 	if (ret < 0) {
 		pr_err("reg_r err %d\n", ret);
@@ -560,7 +578,11 @@ static void init_ctl_reg(struct gspca_dev *gspca_dev)
 	case BRIDGE_SPCA504:
 	case BRIDGE_SPCA504C:
 		pollreg = 0;
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 /*	case BRIDGE_SPCA533: */
 /*	case BRIDGE_SPCA504B: */
@@ -643,7 +665,11 @@ static int sd_init(struct gspca_dev *gspca_dev)
 		reg_w_riv(gspca_dev, 0x00, 0x2000, 0x00);
 		reg_w_riv(gspca_dev, 0x00, 0x2301, 0x13);
 		reg_w_riv(gspca_dev, 0x00, 0x2306, 0x00);
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case BRIDGE_SPCA533:
 		spca504B_PollingDataReady(gspca_dev);
 		spca50x_GetFirmware(gspca_dev);
@@ -736,7 +762,11 @@ static int sd_start(struct gspca_dev *gspca_dev)
 		case MegaImageVI:
 			reg_w_riv(gspca_dev, 0xf0, 0, 0);
 			spca504B_WaitCmdStatus(gspca_dev);
+<<<<<<< HEAD
 			reg_r(gspca_dev, 0xf0, 4, 0);
+=======
+			reg_w_riv(gspca_dev, 0xf0, 4, 0);
+>>>>>>> upstream/android-13
 			spca504B_WaitCmdStatus(gspca_dev);
 			break;
 		default:

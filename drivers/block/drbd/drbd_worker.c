@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    drbd_worker.c
 
@@ -7,6 +11,7 @@
    Copyright (C) 1999-2008, Philipp Reisner <philipp.reisner@linbit.com>.
    Copyright (C) 2002-2008, Lars Ellenberg <lars.ellenberg@linbit.com>.
 
+<<<<<<< HEAD
    drbd is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -20,6 +25,8 @@
    You should have received a copy of the GNU General Public License
    along with drbd; see the file COPYING.  If not, write to
    the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -34,6 +41,10 @@
 #include <linux/random.h>
 #include <linux/string.h>
 #include <linux/scatterlist.h>
+<<<<<<< HEAD
+=======
+#include <linux/part_stat.h>
+>>>>>>> upstream/android-13
 
 #include "drbd_int.h"
 #include "drbd_protocol.h"
@@ -152,8 +163,13 @@ void drbd_endio_write_sec_final(struct drbd_peer_request *peer_req) __releases(l
 
 	do_wake = list_empty(block_id == ID_SYNCER ? &device->sync_ee : &device->active_ee);
 
+<<<<<<< HEAD
 	/* FIXME do we want to detach for failed REQ_DISCARD?
 	 * ((peer_req->flags & (EE_WAS_ERROR|EE_IS_TRIM)) == EE_WAS_ERROR) */
+=======
+	/* FIXME do we want to detach for failed REQ_OP_DISCARD?
+	 * ((peer_req->flags & (EE_WAS_ERROR|EE_TRIM)) == EE_WAS_ERROR) */
+>>>>>>> upstream/android-13
 	if (peer_req->flags & EE_WAS_ERROR)
 		__drbd_chk_io_error(device, DRBD_WRITE_ERROR);
 
@@ -295,6 +311,7 @@ void drbd_request_endio(struct bio *bio)
 		complete_master_bio(device, &m);
 }
 
+<<<<<<< HEAD
 void drbd_csum_ee(struct crypto_ahash *tfm, struct drbd_peer_request *peer_req, void *digest)
 {
 	AHASH_REQUEST_ON_STACK(req, tfm);
@@ -341,14 +358,67 @@ void drbd_csum_bio(struct crypto_ahash *tfm, struct bio *bio, void *digest)
 		sg_set_page(&sg, bvec.bv_page, bvec.bv_len, bvec.bv_offset);
 		ahash_request_set_crypt(req, &sg, NULL, sg.length);
 		crypto_ahash_update(req);
+=======
+void drbd_csum_ee(struct crypto_shash *tfm, struct drbd_peer_request *peer_req, void *digest)
+{
+	SHASH_DESC_ON_STACK(desc, tfm);
+	struct page *page = peer_req->pages;
+	struct page *tmp;
+	unsigned len;
+	void *src;
+
+	desc->tfm = tfm;
+
+	crypto_shash_init(desc);
+
+	src = kmap_atomic(page);
+	while ((tmp = page_chain_next(page))) {
+		/* all but the last page will be fully used */
+		crypto_shash_update(desc, src, PAGE_SIZE);
+		kunmap_atomic(src);
+		page = tmp;
+		src = kmap_atomic(page);
+	}
+	/* and now the last, possibly only partially used page */
+	len = peer_req->i.size & (PAGE_SIZE - 1);
+	crypto_shash_update(desc, src, len ?: PAGE_SIZE);
+	kunmap_atomic(src);
+
+	crypto_shash_final(desc, digest);
+	shash_desc_zero(desc);
+}
+
+void drbd_csum_bio(struct crypto_shash *tfm, struct bio *bio, void *digest)
+{
+	SHASH_DESC_ON_STACK(desc, tfm);
+	struct bio_vec bvec;
+	struct bvec_iter iter;
+
+	desc->tfm = tfm;
+
+	crypto_shash_init(desc);
+
+	bio_for_each_segment(bvec, bio, iter) {
+		u8 *src;
+
+		src = kmap_atomic(bvec.bv_page);
+		crypto_shash_update(desc, src + bvec.bv_offset, bvec.bv_len);
+		kunmap_atomic(src);
+
+>>>>>>> upstream/android-13
 		/* REQ_OP_WRITE_SAME has only one segment,
 		 * checksum the payload only once. */
 		if (bio_op(bio) == REQ_OP_WRITE_SAME)
 			break;
 	}
+<<<<<<< HEAD
 	ahash_request_set_crypt(req, NULL, digest, 0);
 	crypto_ahash_final(req);
 	ahash_request_zero(req);
+=======
+	crypto_shash_final(desc, digest);
+	shash_desc_zero(desc);
+>>>>>>> upstream/android-13
 }
 
 /* MAYBE merge common code with w_e_end_ov_req */
@@ -367,7 +437,11 @@ static int w_e_send_csum(struct drbd_work *w, int cancel)
 	if (unlikely((peer_req->flags & EE_WAS_ERROR) != 0))
 		goto out;
 
+<<<<<<< HEAD
 	digest_size = crypto_ahash_digestsize(peer_device->connection->csums_tfm);
+=======
+	digest_size = crypto_shash_digestsize(peer_device->connection->csums_tfm);
+>>>>>>> upstream/android-13
 	digest = kmalloc(digest_size, GFP_NOIO);
 	if (digest) {
 		sector_t sector = peer_req->i.sector;
@@ -495,11 +569,19 @@ static void fifo_add_val(struct fifo_buffer *fb, int value)
 		fb->values[i] += value;
 }
 
+<<<<<<< HEAD
 struct fifo_buffer *fifo_alloc(int fifo_size)
 {
 	struct fifo_buffer *fb;
 
 	fb = kzalloc(sizeof(struct fifo_buffer) + sizeof(int) * fifo_size, GFP_NOIO);
+=======
+struct fifo_buffer *fifo_alloc(unsigned int fifo_size)
+{
+	struct fifo_buffer *fb;
+
+	fb = kzalloc(struct_size(fb, values, fifo_size), GFP_NOIO);
+>>>>>>> upstream/android-13
 	if (!fb)
 		return NULL;
 
@@ -603,7 +685,11 @@ static int make_resync_request(struct drbd_device *const device, int cancel)
 	struct drbd_connection *const connection = peer_device ? peer_device->connection : NULL;
 	unsigned long bit;
 	sector_t sector;
+<<<<<<< HEAD
 	const sector_t capacity = drbd_get_capacity(device->this_bdev);
+=======
+	const sector_t capacity = get_capacity(device->vdisk);
+>>>>>>> upstream/android-13
 	int max_bio_size;
 	int number, rollback_i, size;
 	int align, requeue = 0;
@@ -781,7 +867,11 @@ static int make_ov_request(struct drbd_device *device, int cancel)
 {
 	int number, i, size;
 	sector_t sector;
+<<<<<<< HEAD
 	const sector_t capacity = drbd_get_capacity(device->this_bdev);
+=======
+	const sector_t capacity = get_capacity(device->vdisk);
+>>>>>>> upstream/android-13
 	bool stop_sector_reached = false;
 
 	if (unlikely(cancel))
@@ -1205,7 +1295,11 @@ int w_e_end_csum_rs_req(struct drbd_work *w, int cancel)
 		 * a real fix would be much more involved,
 		 * introducing more locking mechanisms */
 		if (peer_device->connection->csums_tfm) {
+<<<<<<< HEAD
 			digest_size = crypto_ahash_digestsize(peer_device->connection->csums_tfm);
+=======
+			digest_size = crypto_shash_digestsize(peer_device->connection->csums_tfm);
+>>>>>>> upstream/android-13
 			D_ASSERT(device, digest_size == di->digest_size);
 			digest = kmalloc(digest_size, GFP_NOIO);
 		}
@@ -1255,7 +1349,11 @@ int w_e_end_ov_req(struct drbd_work *w, int cancel)
 	if (unlikely(cancel))
 		goto out;
 
+<<<<<<< HEAD
 	digest_size = crypto_ahash_digestsize(peer_device->connection->verify_tfm);
+=======
+	digest_size = crypto_shash_digestsize(peer_device->connection->verify_tfm);
+>>>>>>> upstream/android-13
 	digest = kmalloc(digest_size, GFP_NOIO);
 	if (!digest) {
 		err = 1;	/* terminate the connection in case the allocation failed */
@@ -1327,7 +1425,11 @@ int w_e_end_ov_reply(struct drbd_work *w, int cancel)
 	di = peer_req->digest;
 
 	if (likely((peer_req->flags & EE_WAS_ERROR) == 0)) {
+<<<<<<< HEAD
 		digest_size = crypto_ahash_digestsize(peer_device->connection->verify_tfm);
+=======
+		digest_size = crypto_shash_digestsize(peer_device->connection->verify_tfm);
+>>>>>>> upstream/android-13
 		digest = kmalloc(digest_size, GFP_NOIO);
 		if (digest) {
 			drbd_csum_ee(peer_device->connection->verify_tfm, peer_req, digest);
@@ -1535,9 +1637,18 @@ int w_restart_disk_io(struct drbd_work *w, int cancel)
 	if (bio_data_dir(req->master_bio) == WRITE && req->rq_state & RQ_IN_ACT_LOG)
 		drbd_al_begin_io(device, &req->i);
 
+<<<<<<< HEAD
 	drbd_req_make_private_bio(req, req->master_bio);
 	bio_set_dev(req->private_bio, device->ldev->backing_bdev);
 	generic_make_request(req->private_bio);
+=======
+	req->private_bio = bio_clone_fast(req->master_bio, GFP_NOIO,
+					  &drbd_io_bio_set);
+	bio_set_dev(req->private_bio, device->ldev->backing_bdev);
+	req->private_bio->bi_private = req;
+	req->private_bio->bi_end_io = drbd_request_endio;
+	submit_bio_noacct(req->private_bio);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1684,13 +1795,22 @@ void drbd_resync_after_changed(struct drbd_device *device)
 
 void drbd_rs_controller_reset(struct drbd_device *device)
 {
+<<<<<<< HEAD
 	struct gendisk *disk = device->ldev->backing_bdev->bd_contains->bd_disk;
+=======
+	struct gendisk *disk = device->ldev->backing_bdev->bd_disk;
+>>>>>>> upstream/android-13
 	struct fifo_buffer *plan;
 
 	atomic_set(&device->rs_sect_in, 0);
 	atomic_set(&device->rs_sect_ev, 0);
 	device->rs_in_flight = 0;
+<<<<<<< HEAD
 	device->rs_last_events = (int)part_stat_read_accum(&disk->part0, sectors);
+=======
+	device->rs_last_events =
+		(int)part_stat_read_accum(disk->part0, sectors);
+>>>>>>> upstream/android-13
 
 	/* Updating the RCU protected object in place is necessary since
 	   this function gets called from atomic context.
@@ -2110,7 +2230,11 @@ static void wait_for_work(struct drbd_connection *connection, struct list_head *
 	if (uncork) {
 		mutex_lock(&connection->data.mutex);
 		if (connection->data.socket)
+<<<<<<< HEAD
 			drbd_tcp_uncork(connection->data.socket);
+=======
+			tcp_sock_set_cork(connection->data.socket->sk, false);
+>>>>>>> upstream/android-13
 		mutex_unlock(&connection->data.mutex);
 	}
 
@@ -2165,9 +2289,15 @@ static void wait_for_work(struct drbd_connection *connection, struct list_head *
 	mutex_lock(&connection->data.mutex);
 	if (connection->data.socket) {
 		if (cork)
+<<<<<<< HEAD
 			drbd_tcp_cork(connection->data.socket);
 		else if (!uncork)
 			drbd_tcp_uncork(connection->data.socket);
+=======
+			tcp_sock_set_cork(connection->data.socket->sk, true);
+		else if (!uncork)
+			tcp_sock_set_cork(connection->data.socket->sk, false);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&connection->data.mutex);
 }

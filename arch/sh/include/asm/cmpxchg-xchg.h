@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 #ifndef __ASM_SH_CMPXCHG_XCHG_H
 #define __ASM_SH_CMPXCHG_XCHG_H
 
 /*
  * Copyright (C) 2016 Red Hat, Inc.
  * Author: Michael S. Tsirkin <mst@redhat.com>
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2.  See the
  * file "COPYING" in the main directory of this archive for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/bits.h>
 #include <linux/compiler.h>

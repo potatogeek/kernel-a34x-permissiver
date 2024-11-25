@@ -3,6 +3,7 @@
 # Makefile for the drm device driver.  This driver provides support for the
 # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
 
+<<<<<<< HEAD
 ccflags-y := -Idrivers/gpu/drm/amd/include
 
 hostprogs-y := mkregtable
@@ -39,6 +40,15 @@ $(obj)/evergreen_reg_safe.h: $(src)/reg_srcs/evergreen $(obj)/mkregtable
 	$(call if_changed,mkregtable)
 
 $(obj)/cayman_reg_safe.h: $(src)/reg_srcs/cayman $(obj)/mkregtable
+=======
+hostprogs := mkregtable
+targets := rn50_reg_safe.h r100_reg_safe.h r200_reg_safe.h rv515_reg_safe.h r300_reg_safe.h r420_reg_safe.h rs600_reg_safe.h r600_reg_safe.h evergreen_reg_safe.h cayman_reg_safe.h
+
+quiet_cmd_mkregtable = MKREG   $@
+      cmd_mkregtable = $(obj)/mkregtable $< > $@
+
+$(obj)/%_reg_safe.h: $(src)/reg_srcs/% $(obj)/mkregtable FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,mkregtable)
 
 $(obj)/r100.o: $(obj)/r100_reg_safe.h $(obj)/rn50_reg_safe.h

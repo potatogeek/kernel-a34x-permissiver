@@ -8,7 +8,11 @@
  * unsigned int __sw_hweight32(unsigned int w)
  * %rdi: w
  */
+<<<<<<< HEAD
 ENTRY(__sw_hweight32)
+=======
+SYM_FUNC_START(__sw_hweight32)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_64
 	movl %edi, %eax				# w
@@ -32,11 +36,19 @@ ENTRY(__sw_hweight32)
 	imull $0x01010101, %eax, %eax		# w_tmp *= 0x01010101
 	shrl $24, %eax				# w = w_tmp >> 24
 	__ASM_SIZE(pop,) %__ASM_REG(dx)
+<<<<<<< HEAD
 	ret
 ENDPROC(__sw_hweight32)
 EXPORT_SYMBOL(__sw_hweight32)
 
 ENTRY(__sw_hweight64)
+=======
+	RET
+SYM_FUNC_END(__sw_hweight32)
+EXPORT_SYMBOL(__sw_hweight32)
+
+SYM_FUNC_START(__sw_hweight64)
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_64
 	pushq   %rdi
 	pushq   %rdx
@@ -65,7 +77,11 @@ ENTRY(__sw_hweight64)
 
 	popq    %rdx
 	popq    %rdi
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 #else /* CONFIG_X86_32 */
 	/* We're getting an u64 arg in (%eax,%edx): unsigned long hweight64(__u64 w) */
 	pushl   %ecx
@@ -77,7 +93,13 @@ ENTRY(__sw_hweight64)
 	addl    %ecx, %eax                      # result
 
 	popl    %ecx
+<<<<<<< HEAD
 	ret
 #endif
 ENDPROC(__sw_hweight64)
+=======
+	RET
+#endif
+SYM_FUNC_END(__sw_hweight64)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(__sw_hweight64)

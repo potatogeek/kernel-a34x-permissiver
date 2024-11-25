@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2010
  *
  * - Kurt Van Dijck, EIA Electronics
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -95,7 +102,11 @@ static netdev_tx_t softing_netdev_start_xmit(struct sk_buff *skb,
 	if (priv->index)
 		*ptr |= CMD_BUS2;
 	++ptr;
+<<<<<<< HEAD
 	*ptr++ = cf->can_dlc;
+=======
+	*ptr++ = cf->len;
+>>>>>>> upstream/android-13
 	*ptr++ = (cf->can_id >> 0);
 	*ptr++ = (cf->can_id >> 8);
 	if (cf->can_id & CAN_EFF_FLAG) {
@@ -106,7 +117,11 @@ static netdev_tx_t softing_netdev_start_xmit(struct sk_buff *skb,
 		ptr += 1;
 	}
 	if (!(cf->can_id & CAN_RTR_FLAG))
+<<<<<<< HEAD
 		memcpy(ptr, &cf->data[0], cf->can_dlc);
+=======
+		memcpy(ptr, &cf->data[0], cf->len);
+>>>>>>> upstream/android-13
 	memcpy_toio(&card->dpram[DPRAM_TX + DPRAM_TX_SIZE * fifo_wr],
 			buf, DPRAM_TX_SIZE);
 	if (++fifo_wr >= DPRAM_TX_CNT)
@@ -115,7 +130,11 @@ static netdev_tx_t softing_netdev_start_xmit(struct sk_buff *skb,
 	card->tx.last_bus = priv->index;
 	++card->tx.pending;
 	++priv->tx.pending;
+<<<<<<< HEAD
 	can_put_echo_skb(skb, dev, priv->tx.echo_put);
+=======
+	can_put_echo_skb(skb, dev, priv->tx.echo_put, 0);
+>>>>>>> upstream/android-13
 	++priv->tx.echo_put;
 	if (priv->tx.echo_put >= TX_ECHO_SKB_MAX)
 		priv->tx.echo_put = 0;
@@ -178,11 +197,19 @@ static int softing_handle_1(struct softing *card)
 		iowrite8(0, &card->dpram[DPRAM_RX_LOST]);
 		/* prepare msg */
 		msg.can_id = CAN_ERR_FLAG | CAN_ERR_CRTL;
+<<<<<<< HEAD
 		msg.can_dlc = CAN_ERR_DLC;
 		msg.data[1] = CAN_ERR_CRTL_RX_OVERFLOW;
 		/*
 		 * service to all busses, we don't know which it was applicable
 		 * but only service busses that are online
+=======
+		msg.len = CAN_ERR_DLC;
+		msg.data[1] = CAN_ERR_CRTL_RX_OVERFLOW;
+		/*
+		 * service to all buses, we don't know which it was applicable
+		 * but only service buses that are online
+>>>>>>> upstream/android-13
 		 */
 		for (j = 0; j < ARRAY_SIZE(card->net); ++j) {
 			netdev = card->net[j];
@@ -229,7 +256,11 @@ static int softing_handle_1(struct softing *card)
 		state = *ptr++;
 
 		msg.can_id = CAN_ERR_FLAG;
+<<<<<<< HEAD
 		msg.can_dlc = CAN_ERR_DLC;
+=======
+		msg.len = CAN_ERR_DLC;
+>>>>>>> upstream/android-13
 
 		if (state & SF_MASK_BUSOFF) {
 			can_state = CAN_STATE_BUS_OFF;
@@ -250,7 +281,10 @@ static int softing_handle_1(struct softing *card)
 				DPRAM_INFO_BUSSTATE2 : DPRAM_INFO_BUSSTATE]);
 		/* timestamp */
 		tmp_u32 = le32_to_cpup((void *)ptr);
+<<<<<<< HEAD
 		ptr += 4;
+=======
+>>>>>>> upstream/android-13
 		ktime = softing_raw2ktime(card, tmp_u32);
 
 		++netdev->stats.rx_errors;
@@ -272,7 +306,11 @@ static int softing_handle_1(struct softing *card)
 	} else {
 		if (cmd & CMD_RTR)
 			msg.can_id |= CAN_RTR_FLAG;
+<<<<<<< HEAD
 		msg.can_dlc = get_can_dlc(*ptr++);
+=======
+		msg.len = can_cc_dlc2len(*ptr++);
+>>>>>>> upstream/android-13
 		if (cmd & CMD_XTD) {
 			msg.can_id |= CAN_EFF_FLAG;
 			msg.can_id |= le32_to_cpup((void *)ptr);
@@ -287,7 +325,10 @@ static int softing_handle_1(struct softing *card)
 		ktime = softing_raw2ktime(card, tmp_u32);
 		if (!(msg.can_id & CAN_RTR_FLAG))
 			memcpy(&msg.data[0], ptr, 8);
+<<<<<<< HEAD
 		ptr += 8;
+=======
+>>>>>>> upstream/android-13
 		/* update socket */
 		if (cmd & CMD_ACK) {
 			/* acknowledge, was tx msg */
@@ -295,7 +336,11 @@ static int softing_handle_1(struct softing *card)
 			skb = priv->can.echo_skb[priv->tx.echo_get];
 			if (skb)
 				skb->tstamp = ktime;
+<<<<<<< HEAD
 			can_get_echo_skb(netdev, priv->tx.echo_get);
+=======
+			can_get_echo_skb(netdev, priv->tx.echo_get, NULL);
+>>>>>>> upstream/android-13
 			++priv->tx.echo_get;
 			if (priv->tx.echo_get >= TX_ECHO_SKB_MAX)
 				priv->tx.echo_get = 0;
@@ -305,7 +350,11 @@ static int softing_handle_1(struct softing *card)
 				--card->tx.pending;
 			++netdev->stats.tx_packets;
 			if (!(msg.can_id & CAN_RTR_FLAG))
+<<<<<<< HEAD
 				netdev->stats.tx_bytes += msg.can_dlc;
+=======
+				netdev->stats.tx_bytes += msg.len;
+>>>>>>> upstream/android-13
 		} else {
 			int ret;
 
@@ -313,7 +362,11 @@ static int softing_handle_1(struct softing *card)
 			if (ret == NET_RX_SUCCESS) {
 				++netdev->stats.rx_packets;
 				if (!(msg.can_id & CAN_RTR_FLAG))
+<<<<<<< HEAD
 					netdev->stats.rx_bytes += msg.can_dlc;
+=======
+					netdev->stats.rx_bytes += msg.len;
+>>>>>>> upstream/android-13
 			} else {
 				++netdev->stats.rx_dropped;
 			}
@@ -350,7 +403,11 @@ static irqreturn_t softing_irq_thread(int irq, void *dev_id)
 			continue;
 		priv = netdev_priv(netdev);
 		if (!canif_is_active(netdev))
+<<<<<<< HEAD
 			/* it makes no sense to wake dead busses */
+=======
+			/* it makes no sense to wake dead buses */
+>>>>>>> upstream/android-13
 			continue;
 		if (priv->tx.pending >= TX_ECHO_SKB_MAX)
 			continue;
@@ -385,7 +442,11 @@ static irqreturn_t softing_irq_v1(int irq, void *dev_id)
 }
 
 /*
+<<<<<<< HEAD
  * netdev/candev inter-operability
+=======
+ * netdev/candev interoperability
+>>>>>>> upstream/android-13
  */
 static int softing_netdev_open(struct net_device *ndev)
 {
@@ -463,8 +524,14 @@ static void softing_card_shutdown(struct softing *card)
 {
 	int fw_up = 0;
 
+<<<<<<< HEAD
 	if (mutex_lock_interruptible(&card->fw.lock))
 		/* return -ERESTARTSYS */;
+=======
+	if (mutex_lock_interruptible(&card->fw.lock)) {
+		/* return -ERESTARTSYS */;
+	}
+>>>>>>> upstream/android-13
 	fw_up = card->fw.up;
 	card->fw.up = 0;
 
@@ -699,7 +766,11 @@ static void softing_netdev_cleanup(struct net_device *netdev)
 static ssize_t show_##name(struct device *dev, \
 		struct device_attribute *attr, char *buf) \
 { \
+<<<<<<< HEAD
 	struct softing *card = platform_get_drvdata(to_platform_device(dev)); \
+=======
+	struct softing *card = dev_get_drvdata(dev); \
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%u\n", card->member); \
 } \
 static DEVICE_ATTR(name, 0444, show_##name, NULL)
@@ -708,7 +779,11 @@ static DEVICE_ATTR(name, 0444, show_##name, NULL)
 static ssize_t show_##name(struct device *dev, \
 		struct device_attribute *attr, char *buf) \
 { \
+<<<<<<< HEAD
 	struct softing *card = platform_get_drvdata(to_platform_device(dev)); \
+=======
+	struct softing *card = dev_get_drvdata(dev); \
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%s\n", card->member); \
 } \
 static DEVICE_ATTR(name, 0444, show_##name, NULL)
@@ -793,7 +868,11 @@ static int softing_pdev_probe(struct platform_device *pdev)
 		goto platform_resource_failed;
 	card->dpram_phys = pres->start;
 	card->dpram_size = resource_size(pres);
+<<<<<<< HEAD
 	card->dpram = ioremap_nocache(card->dpram_phys, card->dpram_size);
+=======
+	card->dpram = ioremap(card->dpram_phys, card->dpram_size);
+>>>>>>> upstream/android-13
 	if (!card->dpram) {
 		dev_alert(&card->pdev->dev, "dpram ioremap failed\n");
 		goto ioremap_failed;

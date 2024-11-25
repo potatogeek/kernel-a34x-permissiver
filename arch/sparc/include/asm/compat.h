@@ -6,6 +6,7 @@
  */
 #include <linux/types.h>
 
+<<<<<<< HEAD
 #define COMPAT_USER_HZ		100
 #define COMPAT_UTS_MACHINE	"sparc\0\0"
 
@@ -37,6 +38,22 @@ typedef u32		compat_uint_t;
 typedef u32		compat_ulong_t;
 typedef u64		compat_u64;
 typedef u32		compat_uptr_t;
+=======
+#define compat_mode_t	compat_mode_t
+typedef u16		compat_mode_t;
+
+#include <asm-generic/compat.h>
+
+#define COMPAT_USER_HZ		100
+#define COMPAT_UTS_MACHINE	"sparc\0\0"
+
+typedef u16		__compat_uid_t;
+typedef u16		__compat_gid_t;
+typedef u16		compat_dev_t;
+typedef s16		compat_nlink_t;
+typedef u16		compat_ipc_pid_t;
+typedef __kernel_fsid_t	compat_fsid_t;
+>>>>>>> upstream/android-13
 
 struct compat_stat {
 	compat_dev_t	st_dev;
@@ -47,11 +64,19 @@ struct compat_stat {
 	__compat_gid_t	st_gid;
 	compat_dev_t	st_rdev;
 	compat_off_t	st_size;
+<<<<<<< HEAD
 	compat_time_t	st_atime;
 	compat_ulong_t	st_atime_nsec;
 	compat_time_t	st_mtime;
 	compat_ulong_t	st_mtime_nsec;
 	compat_time_t	st_ctime;
+=======
+	old_time32_t	st_atime;
+	compat_ulong_t	st_atime_nsec;
+	old_time32_t	st_mtime;
+	compat_ulong_t	st_mtime_nsec;
+	old_time32_t	st_ctime;
+>>>>>>> upstream/android-13
 	compat_ulong_t	st_ctime_nsec;
 	compat_off_t	st_blksize;
 	compat_off_t	st_blocks;
@@ -131,6 +156,7 @@ struct compat_statfs {
 
 #define COMPAT_RLIM_INFINITY 0x7fffffff
 
+<<<<<<< HEAD
 typedef u32		compat_old_sigset_t;
 
 #define _COMPAT_NSIG		64
@@ -176,6 +202,10 @@ static inline void __user *arch_compat_alloc_user_space(long len)
 }
 #endif
 
+=======
+#define COMPAT_OFF_T_MAX	0x7fffffff
+
+>>>>>>> upstream/android-13
 struct compat_ipc64_perm {
 	compat_key_t key;
 	__compat_uid32_t uid;

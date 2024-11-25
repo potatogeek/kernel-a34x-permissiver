@@ -16,6 +16,10 @@
 #include <linux/uaccess.h>
 #include <linux/smp.h>
 #include <linux/perf_event.h>
+<<<<<<< HEAD
+=======
+#include <linux/extable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/setup.h>
 
@@ -213,10 +217,17 @@ static inline int ok_for_kernel(unsigned int insn)
 
 static void kernel_mna_trap_fault(struct pt_regs *regs, unsigned int insn)
 {
+<<<<<<< HEAD
 	unsigned long g2 = regs->u_regs [UREG_G2];
 	unsigned long fixup = search_extables_range(regs->pc, &g2);
 
 	if (!fixup) {
+=======
+	const struct exception_table_entry *entry;
+
+	entry = search_exception_tables(regs->pc);
+	if (!entry) {
+>>>>>>> upstream/android-13
 		unsigned long address = compute_effective_address(regs, insn);
         	if(address < PAGE_SIZE) {
                 	printk(KERN_ALERT "Unable to handle kernel NULL pointer dereference in mna handler");
@@ -232,9 +243,14 @@ static void kernel_mna_trap_fault(struct pt_regs *regs, unsigned int insn)
 	        die_if_kernel("Oops", regs);
 		/* Not reached */
 	}
+<<<<<<< HEAD
 	regs->pc = fixup;
 	regs->npc = regs->pc + 4;
 	regs->u_regs [UREG_G2] = g2;
+=======
+	regs->pc = entry->fixup;
+	regs->npc = regs->pc + 4;
+>>>>>>> upstream/android-13
 }
 
 asmlinkage void kernel_unaligned_trap(struct pt_regs *regs, unsigned int insn)
@@ -274,6 +290,7 @@ asmlinkage void kernel_unaligned_trap(struct pt_regs *regs, unsigned int insn)
 	}
 }
 
+<<<<<<< HEAD
 static inline int ok_for_user(struct pt_regs *regs, unsigned int insn,
 			      enum direction dir)
 {
@@ -374,4 +391,11 @@ kill_user:
 	user_mna_trap_fault(regs, insn);
 out:
 	;
+=======
+asmlinkage void user_unaligned_trap(struct pt_regs *regs, unsigned int insn)
+{
+	send_sig_fault(SIGBUS, BUS_ADRALN,
+		       (void __user *)safe_compute_effective_address(regs, insn),
+		       current);
+>>>>>>> upstream/android-13
 }

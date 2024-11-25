@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AMD Cryptographic Coprocessor (CCP) crypto API support
  *
  * Copyright (C) 2013,2017 Advanced Micro Devices, Inc.
  *
  * Author: Tom Lendacky <thomas.lendacky@amd.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -44,7 +51,11 @@ MODULE_PARM_DESC(rsa_disable, "Disable use of RSA - any non-zero value");
 
 /* List heads for the supported algorithms */
 static LIST_HEAD(hash_algs);
+<<<<<<< HEAD
 static LIST_HEAD(cipher_algs);
+=======
+static LIST_HEAD(skcipher_algs);
+>>>>>>> upstream/android-13
 static LIST_HEAD(aead_algs);
 static LIST_HEAD(akcipher_algs);
 
@@ -62,7 +73,11 @@ struct ccp_crypto_queue {
 #define CCP_CRYPTO_MAX_QLEN	100
 
 static struct ccp_crypto_queue req_queue;
+<<<<<<< HEAD
 static spinlock_t req_queue_lock;
+=======
+static DEFINE_SPINLOCK(req_queue_lock);
+>>>>>>> upstream/android-13
 
 struct ccp_crypto_cmd {
 	struct list_head entry;
@@ -333,7 +348,11 @@ static int ccp_register_algs(void)
 	int ret;
 
 	if (!aes_disable) {
+<<<<<<< HEAD
 		ret = ccp_register_aes_algs(&cipher_algs);
+=======
+		ret = ccp_register_aes_algs(&skcipher_algs);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -341,7 +360,11 @@ static int ccp_register_algs(void)
 		if (ret)
 			return ret;
 
+<<<<<<< HEAD
 		ret = ccp_register_aes_xts_algs(&cipher_algs);
+=======
+		ret = ccp_register_aes_xts_algs(&skcipher_algs);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -351,7 +374,11 @@ static int ccp_register_algs(void)
 	}
 
 	if (!des3_disable) {
+<<<<<<< HEAD
 		ret = ccp_register_des3_algs(&cipher_algs);
+=======
+		ret = ccp_register_des3_algs(&skcipher_algs);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -374,7 +401,11 @@ static int ccp_register_algs(void)
 static void ccp_unregister_algs(void)
 {
 	struct ccp_crypto_ahash_alg *ahash_alg, *ahash_tmp;
+<<<<<<< HEAD
 	struct ccp_crypto_ablkcipher_alg *ablk_alg, *ablk_tmp;
+=======
+	struct ccp_crypto_skcipher_alg *ablk_alg, *ablk_tmp;
+>>>>>>> upstream/android-13
 	struct ccp_crypto_aead *aead_alg, *aead_tmp;
 	struct ccp_crypto_akcipher_alg *akc_alg, *akc_tmp;
 
@@ -384,8 +415,13 @@ static void ccp_unregister_algs(void)
 		kfree(ahash_alg);
 	}
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(ablk_alg, ablk_tmp, &cipher_algs, entry) {
 		crypto_unregister_alg(&ablk_alg->alg);
+=======
+	list_for_each_entry_safe(ablk_alg, ablk_tmp, &skcipher_algs, entry) {
+		crypto_unregister_skcipher(&ablk_alg->alg);
+>>>>>>> upstream/android-13
 		list_del(&ablk_alg->entry);
 		kfree(ablk_alg);
 	}
@@ -408,10 +444,18 @@ static int ccp_crypto_init(void)
 	int ret;
 
 	ret = ccp_present();
+<<<<<<< HEAD
 	if (ret)
 		return ret;
 
 	spin_lock_init(&req_queue_lock);
+=======
+	if (ret) {
+		pr_err("Cannot load: there are no available CCPs\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&req_queue.cmds);
 	req_queue.backlog = &req_queue.cmds;
 	req_queue.cmd_count = 0;

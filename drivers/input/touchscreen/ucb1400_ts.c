@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Philips UCB1400 touchscreen driver
  *
@@ -9,10 +13,13 @@
  * If something doesn't work and it worked before spliting, e-mail me,
  * dont bother Nicolas please ;-)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This code is heavily based on ucb1x00-*.c copyrighted by Russell King
  * covering the UCB1100, UCB1200 and UCB1300..  Support for the UCB1400 has
  * been made separate from ucb1x00-core/ucb1x00-ts on Russell's request.
@@ -413,7 +420,11 @@ static int __maybe_unused ucb1400_ts_suspend(struct device *dev)
 
 	mutex_lock(&idev->mutex);
 
+<<<<<<< HEAD
 	if (idev->users)
+=======
+	if (input_device_enabled(idev))
+>>>>>>> upstream/android-13
 		ucb1400_ts_stop(ucb);
 
 	mutex_unlock(&idev->mutex);
@@ -427,7 +438,11 @@ static int __maybe_unused ucb1400_ts_resume(struct device *dev)
 
 	mutex_lock(&idev->mutex);
 
+<<<<<<< HEAD
 	if (idev->users)
+=======
+	if (input_device_enabled(idev))
+>>>>>>> upstream/android-13
 		ucb1400_ts_start(ucb);
 
 	mutex_unlock(&idev->mutex);

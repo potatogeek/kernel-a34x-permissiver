@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * atmel-pcm.c  --  ALSA PCM interface for the Atmel atmel SoC.
  *
@@ -15,6 +19,7 @@
  * Author:	Nicolas Pitre
  * Created:	Nov 30, 2004
  * Copyright:	(C) 2004 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -47,6 +54,7 @@
 #include "atmel-pcm.h"
 
 
+<<<<<<< HEAD
 static int atmel_pcm_preallocate_dma_buffer(struct snd_pcm *pcm,
 	int stream)
 {
@@ -81,12 +89,19 @@ static int atmel_pcm_new(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_card *card = rtd->card->snd_card;
 	struct snd_pcm *pcm = rtd->pcm;
+=======
+static int atmel_pcm_new(struct snd_soc_component *component,
+			 struct snd_soc_pcm_runtime *rtd)
+{
+	struct snd_card *card = rtd->card->snd_card;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = dma_coerce_mask_and_coherent(card->dev, DMA_BIT_MASK(32));
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream) {
 		pr_debug("atmel-pcm: allocating PCM playback DMA buffer\n");
 		ret = atmel_pcm_preallocate_dma_buffer(pcm,
@@ -124,6 +139,13 @@ static void atmel_pcm_free(struct snd_pcm *pcm)
 				  buf->area, buf->addr);
 		buf->area = NULL;
 	}
+=======
+	snd_pcm_set_managed_buffer_all(rtd->pcm, SNDRV_DMA_TYPE_DEV,
+				       card->dev, ATMEL_SSC_DMABUF_SIZE,
+				       ATMEL_SSC_DMABUF_SIZE);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*--------------------------------------------------------------------------*\
@@ -209,20 +231,34 @@ static void atmel_pcm_dma_irq(u32 ssc_sr,
 /*--------------------------------------------------------------------------*\
  * PCM operations
 \*--------------------------------------------------------------------------*/
+<<<<<<< HEAD
 static int atmel_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct atmel_runtime_data *prtd = runtime->private_data;
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+static int atmel_pcm_hw_params(struct snd_soc_component *component,
+			       struct snd_pcm_substream *substream,
+			       struct snd_pcm_hw_params *params)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct atmel_runtime_data *prtd = runtime->private_data;
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 
 	/* this may get called several times by oss emulation
 	 * with different params */
 
+<<<<<<< HEAD
 	snd_pcm_set_runtime_buffer(substream, &substream->dma_buffer);
 	runtime->dma_bytes = params_buffer_bytes(params);
 
 	prtd->params = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+=======
+	prtd->params = snd_soc_dai_get_dma_data(asoc_rtd_to_cpu(rtd, 0), substream);
+>>>>>>> upstream/android-13
 	prtd->params->dma_intr_handler = atmel_pcm_dma_irq;
 
 	prtd->dma_buffer = runtime->dma_addr;
@@ -238,7 +274,12 @@ static int atmel_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_pcm_hw_free(struct snd_pcm_substream *substream)
+=======
+static int atmel_pcm_hw_free(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct atmel_runtime_data *prtd = substream->runtime->private_data;
 	struct atmel_pcm_dma_params *params = prtd->params;
@@ -252,7 +293,12 @@ static int atmel_pcm_hw_free(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_pcm_prepare(struct snd_pcm_substream *substream)
+=======
+static int atmel_pcm_prepare(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct atmel_runtime_data *prtd = substream->runtime->private_data;
 	struct atmel_pcm_dma_params *params = prtd->params;
@@ -264,8 +310,13 @@ static int atmel_pcm_prepare(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int atmel_pcm_trigger(struct snd_pcm_substream *substream,
 	int cmd)
+=======
+static int atmel_pcm_trigger(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *rtd = substream->runtime;
 	struct atmel_runtime_data *prtd = rtd->private_data;
@@ -330,8 +381,13 @@ static int atmel_pcm_trigger(struct snd_pcm_substream *substream,
 	return ret;
 }
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t atmel_pcm_pointer(
 	struct snd_pcm_substream *substream)
+=======
+static snd_pcm_uframes_t atmel_pcm_pointer(struct snd_soc_component *component,
+					   struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct atmel_runtime_data *prtd = runtime->private_data;
@@ -348,7 +404,12 @@ static snd_pcm_uframes_t atmel_pcm_pointer(
 	return x;
 }
 
+<<<<<<< HEAD
 static int atmel_pcm_open(struct snd_pcm_substream *substream)
+=======
+static int atmel_pcm_open(struct snd_soc_component *component,
+			  struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct atmel_runtime_data *prtd;
@@ -373,7 +434,12 @@ static int atmel_pcm_open(struct snd_pcm_substream *substream)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int atmel_pcm_close(struct snd_pcm_substream *substream)
+=======
+static int atmel_pcm_close(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct atmel_runtime_data *prtd = substream->runtime->private_data;
 
@@ -381,15 +447,22 @@ static int atmel_pcm_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_pcm_ops atmel_pcm_ops = {
 	.open		= atmel_pcm_open,
 	.close		= atmel_pcm_close,
 	.ioctl		= snd_pcm_lib_ioctl,
+=======
+static const struct snd_soc_component_driver atmel_soc_platform = {
+	.open		= atmel_pcm_open,
+	.close		= atmel_pcm_close,
+>>>>>>> upstream/android-13
 	.hw_params	= atmel_pcm_hw_params,
 	.hw_free	= atmel_pcm_hw_free,
 	.prepare	= atmel_pcm_prepare,
 	.trigger	= atmel_pcm_trigger,
 	.pointer	= atmel_pcm_pointer,
+<<<<<<< HEAD
 	.mmap		= atmel_pcm_mmap,
 };
 
@@ -397,6 +470,9 @@ static struct snd_soc_component_driver atmel_soc_platform = {
 	.ops		= &atmel_pcm_ops,
 	.pcm_new	= atmel_pcm_new,
 	.pcm_free	= atmel_pcm_free,
+=======
+	.pcm_construct	= atmel_pcm_new,
+>>>>>>> upstream/android-13
 };
 
 int atmel_pcm_pdc_platform_register(struct device *dev)
@@ -406,11 +482,14 @@ int atmel_pcm_pdc_platform_register(struct device *dev)
 }
 EXPORT_SYMBOL(atmel_pcm_pdc_platform_register);
 
+<<<<<<< HEAD
 void atmel_pcm_pdc_platform_unregister(struct device *dev)
 {
 }
 EXPORT_SYMBOL(atmel_pcm_pdc_platform_unregister);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Sedji Gaouaou <sedji.gaouaou@atmel.com>");
 MODULE_DESCRIPTION("Atmel PCM module");
 MODULE_LICENSE("GPL");

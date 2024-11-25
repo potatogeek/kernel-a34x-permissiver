@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 1999,2000 Arm Limited
  *  Copyright (C) 2000 Deep Blue Solutions Ltd
  *  Copyright (C) 2002 Shane Nay (shane@minirl.com)
  *  Copyright 2005-2007 Freescale Semiconductor, Inc. All Rights Reserved.
  *    - add MX31 specific definitions
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,24 +19,36 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>
 #include <linux/init.h>
 #include <linux/err.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/pinctrl/machine.h>
 
 #include <asm/pgtable.h>
+=======
+#include <linux/of_address.h>
+#include <linux/pinctrl/machine.h>
+
+>>>>>>> upstream/android-13
 #include <asm/system_misc.h>
 #include <asm/hardware/cache-l2x0.h>
 #include <asm/mach/map.h>
 
 #include "common.h"
 #include "crmregs-imx3.h"
+<<<<<<< HEAD
 #include "devices/devices-common.h"
 #include "hardware.h"
 #include "iomux-v3.h"
+=======
+#include "hardware.h"
+>>>>>>> upstream/android-13
 
 void __iomem *mx3_ccm_base;
 
@@ -81,6 +98,7 @@ static void __iomem *imx3_ioremap_caller(phys_addr_t phys_addr, size_t size,
 	return __arm_ioremap_caller(phys_addr, size, mtype, caller);
 }
 
+<<<<<<< HEAD
 static void __init imx3_init_l2x0(void)
 {
 #ifdef CONFIG_CACHE_L2X0
@@ -115,6 +133,8 @@ static void __init imx3_init_l2x0(void)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SOC_IMX31
 static struct map_desc mx31_io_desc[] __initdata = {
 	imx_map_entry(MX31, X_MEMC, MT_DEVICE),
@@ -145,6 +165,7 @@ static void imx31_idle(void)
 
 void __init imx31_init_early(void)
 {
+<<<<<<< HEAD
 	mxc_set_cpu_type(MXC_CPU_MX31);
 	arch_ioremap_caller = imx3_ioremap_caller;
 	arm_pm_idle = imx31_idle;
@@ -209,6 +230,16 @@ void __init imx31_soc_init(void)
 					ARRAY_SIZE(imx31_audmux_res));
 	platform_device_register_simple("mxc_rnga", -1, imx31_rnga_res,
 					ARRAY_SIZE(imx31_rnga_res));
+=======
+	struct device_node *np;
+
+	mxc_set_cpu_type(MXC_CPU_MX31);
+	arch_ioremap_caller = imx3_ioremap_caller;
+	arm_pm_idle = imx31_idle;
+	np = of_find_compatible_node(NULL, NULL, "fsl,imx31-ccm");
+	mx3_ccm_base = of_iomap(np, 0);
+	BUG_ON(!mx3_ccm_base);
+>>>>>>> upstream/android-13
 }
 #endif /* ifdef CONFIG_SOC_IMX31 */
 
@@ -238,6 +269,7 @@ static void imx35_idle(void)
 
 void __init imx35_init_early(void)
 {
+<<<<<<< HEAD
 	mxc_set_cpu_type(MXC_CPU_MX35);
 	mxc_iomux_v3_init(MX35_IO_ADDRESS(MX35_IOMUXC_BASE_ADDR));
 	arm_pm_idle = imx35_idle;
@@ -318,5 +350,15 @@ void __init imx35_soc_init(void)
 	/* i.mx35 has the i.mx31 type audmux */
 	platform_device_register_simple("imx31-audmux", 0, imx35_audmux_res,
 					ARRAY_SIZE(imx35_audmux_res));
+=======
+	struct device_node *np;
+
+	mxc_set_cpu_type(MXC_CPU_MX35);
+	arm_pm_idle = imx35_idle;
+	arch_ioremap_caller = imx3_ioremap_caller;
+	np = of_find_compatible_node(NULL, NULL, "fsl,imx35-ccm");
+	mx3_ccm_base = of_iomap(np, 0);
+	BUG_ON(!mx3_ccm_base);
+>>>>>>> upstream/android-13
 }
 #endif /* ifdef CONFIG_SOC_IMX35 */

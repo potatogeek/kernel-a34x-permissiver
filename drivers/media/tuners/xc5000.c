@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for Xceive XC5000 "QAM/8VSB single chip tuner"
  *
  *  Copyright (c) 2007 Xceive Corporation
  *  Copyright (c) 2007 Steven Toth <stoth@linuxtv.org>
  *  Copyright (c) 2009 Devin Heitmueller <dheitmueller@kernellabs.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -766,7 +773,11 @@ static int xc5000_set_digital_params(struct dvb_frontend *fe)
 		if (!bw)
 			bw = 6000000;
 		/* fall to OFDM handling */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SYS_DMBTH:
 	case SYS_DVBT:
 	case SYS_DVBT2:

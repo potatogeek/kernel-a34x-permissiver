@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_HW_INTERRUPTS_H
@@ -20,6 +25,7 @@
 #include "dpu_hw_util.h"
 #include "dpu_hw_mdss.h"
 
+<<<<<<< HEAD
 #define IRQ_SOURCE_MDP		BIT(0)
 #define IRQ_SOURCE_DSI0		BIT(4)
 #define IRQ_SOURCE_DSI1		BIT(5)
@@ -89,12 +95,35 @@ enum dpu_intr_type {
 	DPU_IRQ_TYPE_RESERVED,
 };
 
+=======
+/* When making changes be sure to sync with dpu_intr_set */
+enum dpu_hw_intr_reg {
+	MDP_SSPP_TOP0_INTR,
+	MDP_SSPP_TOP0_INTR2,
+	MDP_SSPP_TOP0_HIST_INTR,
+	MDP_INTF0_INTR,
+	MDP_INTF1_INTR,
+	MDP_INTF2_INTR,
+	MDP_INTF3_INTR,
+	MDP_INTF4_INTR,
+	MDP_AD4_0_INTR,
+	MDP_AD4_1_INTR,
+	MDP_INTF0_7xxx_INTR,
+	MDP_INTF1_7xxx_INTR,
+	MDP_INTF5_7xxx_INTR,
+	MDP_INTR_MAX,
+};
+
+#define DPU_IRQ_IDX(reg_idx, offset)	(reg_idx * 32 + offset)
+
+>>>>>>> upstream/android-13
 struct dpu_hw_intr;
 
 /**
  * Interrupt operations.
  */
 struct dpu_hw_intr_ops {
+<<<<<<< HEAD
 	/**
 	 * set_mask - Programs the given interrupt register with the
 	 *            given interrupt mask. Register value will get overwritten.
@@ -117,6 +146,8 @@ struct dpu_hw_intr_ops {
 	int (*irq_idx_lookup)(
 			enum dpu_intr_type intr_type,
 			u32 instance_idx);
+=======
+>>>>>>> upstream/android-13
 
 	/**
 	 * enable_irq - Enable IRQ based on lookup IRQ index
@@ -124,7 +155,11 @@ struct dpu_hw_intr_ops {
 	 * @irq_idx:	Lookup irq index return from irq_idx_lookup
 	 * @return:	0 for success, otherwise failure
 	 */
+<<<<<<< HEAD
 	int (*enable_irq)(
+=======
+	int (*enable_irq_locked)(
+>>>>>>> upstream/android-13
 			struct dpu_hw_intr *intr,
 			int irq_idx);
 
@@ -134,7 +169,11 @@ struct dpu_hw_intr_ops {
 	 * @irq_idx:	Lookup irq index return from irq_idx_lookup
 	 * @return:	0 for success, otherwise failure
 	 */
+<<<<<<< HEAD
 	int (*disable_irq)(
+=======
+	int (*disable_irq_locked)(
+>>>>>>> upstream/android-13
 			struct dpu_hw_intr *intr,
 			int irq_idx);
 
@@ -169,6 +208,7 @@ struct dpu_hw_intr_ops {
 			void *arg);
 
 	/**
+<<<<<<< HEAD
 	 * get_interrupt_statuses - Gets and store value from all interrupt
 	 *                          status registers that are currently fired.
 	 * @intr:	HW interrupt handle
@@ -196,6 +236,8 @@ struct dpu_hw_intr_ops {
 			int irq_idx);
 
 	/**
+=======
+>>>>>>> upstream/android-13
 	 * get_interrupt_status - Gets HW interrupt status, and clear if set,
 	 *                        based on given lookup IRQ index.
 	 * @intr:	HW interrupt handle
@@ -208,6 +250,7 @@ struct dpu_hw_intr_ops {
 			bool clear);
 
 	/**
+<<<<<<< HEAD
 	 * get_valid_interrupts - Gets a mask of all valid interrupt sources
 	 *                        within DPU. These are actually status bits
 	 *                        within interrupt registers that specify the
@@ -221,6 +264,22 @@ struct dpu_hw_intr_ops {
 	int (*get_valid_interrupts)(
 			struct dpu_hw_intr *intr,
 			uint32_t *mask);
+=======
+	 * lock - take the IRQ lock
+	 * @intr:	HW interrupt handle
+	 * @return:	irq_flags for the taken spinlock
+	 */
+	unsigned long (*lock)(
+			struct dpu_hw_intr *intr);
+
+	/**
+	 * unlock - take the IRQ lock
+	 * @intr:	HW interrupt handle
+	 * @irq_flags:  the irq_flags returned from lock
+	 */
+	void (*unlock)(
+			struct dpu_hw_intr *intr, unsigned long irq_flags);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -229,7 +288,11 @@ struct dpu_hw_intr_ops {
  * @ops:              function pointer mapping for IRQ handling
  * @cache_irq_mask:   array of IRQ enable masks reg storage created during init
  * @save_irq_status:  array of IRQ status reg storage created during init
+<<<<<<< HEAD
  * @irq_idx_tbl_size: total number of irq_idx mapped in the hw_interrupts
+=======
+ * @total_irqs: total number of irq_idx mapped in the hw_interrupts
+>>>>>>> upstream/android-13
  * @irq_lock:         spinlock for accessing IRQ resources
  */
 struct dpu_hw_intr {
@@ -237,8 +300,14 @@ struct dpu_hw_intr {
 	struct dpu_hw_intr_ops ops;
 	u32 *cache_irq_mask;
 	u32 *save_irq_status;
+<<<<<<< HEAD
 	u32 irq_idx_tbl_size;
 	spinlock_t irq_lock;
+=======
+	u32 total_irqs;
+	spinlock_t irq_lock;
+	unsigned long irq_mask;
+>>>>>>> upstream/android-13
 };
 
 /**

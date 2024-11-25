@@ -141,6 +141,12 @@ static FORCE_INLINE int LZ4_decompress_generic(
 		 * space in the output for those 18 bytes earlier, upon
 		 * entering the shortcut (in other words, there is a
 		 * combined check for both stages).
+<<<<<<< HEAD
+=======
+		 *
+		 * The & in the likely() below is intentionally not && so that
+		 * some compilers can produce better parallelized runtime code
+>>>>>>> upstream/android-13
 		 */
 		if ((endOnInput ? length != RUN_MASK : length <= 8)
 		   /*
@@ -150,7 +156,11 @@ static FORCE_INLINE int LZ4_decompress_generic(
 		   && likely((endOnInput ? ip < shortiend : 1) &
 			     (op <= shortoend))) {
 			/* Copy the literals */
+<<<<<<< HEAD
 			memcpy(op, ip, endOnInput ? 16 : 8);
+=======
+			LZ4_memcpy(op, ip, endOnInput ? 16 : 8);
+>>>>>>> upstream/android-13
 			op += length; ip += length;
 
 			/*
@@ -169,9 +179,15 @@ static FORCE_INLINE int LZ4_decompress_generic(
 			    (offset >= 8) &&
 			    (dict == withPrefix64k || match >= lowPrefix)) {
 				/* Copy the match. */
+<<<<<<< HEAD
 				memcpy(op + 0, match + 0, 8);
 				memcpy(op + 8, match + 8, 8);
 				memcpy(op + 16, match + 16, 2);
+=======
+				LZ4_memcpy(op + 0, match + 0, 8);
+				LZ4_memcpy(op + 8, match + 8, 8);
+				LZ4_memcpy(op + 16, match + 16, 2);
+>>>>>>> upstream/android-13
 				op += length + MINMATCH;
 				/* Both stages worked, load the next token. */
 				continue;
@@ -260,12 +276,29 @@ static FORCE_INLINE int LZ4_decompress_generic(
 				}
 			}
 
+<<<<<<< HEAD
 			memcpy(op, ip, length);
 			ip += length;
 			op += length;
 
 			/* Necessarily EOF, due to parsing restrictions */
 			if (!partialDecoding || (cpy == oend))
+=======
+			/*
+			 * supports overlapping memory regions; only matters
+			 * for in-place decompression scenarios
+			 */
+			LZ4_memmove(op, ip, length);
+			ip += length;
+			op += length;
+
+			/* Necessarily EOF when !partialDecoding.
+			 * When partialDecoding, it is EOF if we've either
+			 * filled the output buffer or
+			 * can't proceed with reading an offset for following match.
+			 */
+			if (!partialDecoding || (cpy == oend) || (ip >= (iend - 2)))
+>>>>>>> upstream/android-13
 				break;
 		} else {
 			/* may overwrite up to WILDCOPYLENGTH beyond cpy */
@@ -347,7 +380,11 @@ _copy_match:
 				size_t const copySize = (size_t)(lowPrefix - match);
 				size_t const restSize = length - copySize;
 
+<<<<<<< HEAD
 				memcpy(op, dictEnd - copySize, copySize);
+=======
+				LZ4_memcpy(op, dictEnd - copySize, copySize);
+>>>>>>> upstream/android-13
 				op += copySize;
 				if (restSize > (size_t)(op - lowPrefix)) {
 					/* overlap copy */
@@ -357,7 +394,11 @@ _copy_match:
 					while (op < endOfMatch)
 						*op++ = *copyFrom++;
 				} else {
+<<<<<<< HEAD
 					memcpy(op, lowPrefix, restSize);
+=======
+					LZ4_memcpy(op, lowPrefix, restSize);
+>>>>>>> upstream/android-13
 					op += restSize;
 				}
 			}
@@ -383,7 +424,11 @@ _copy_match:
 				while (op < copyEnd)
 					*op++ = *match++;
 			} else {
+<<<<<<< HEAD
 				memcpy(op, match, mlen);
+=======
+				LZ4_memcpy(op, match, mlen);
+>>>>>>> upstream/android-13
 			}
 			op = copyEnd;
 			if (op == oend)
@@ -397,7 +442,11 @@ _copy_match:
 			op[2] = match[2];
 			op[3] = match[3];
 			match += inc32table[offset];
+<<<<<<< HEAD
 			memcpy(op + 4, match, 4);
+=======
+			LZ4_memcpy(op + 4, match, 4);
+>>>>>>> upstream/android-13
 			match -= dec64table[offset];
 		} else {
 			LZ4_copy8(op, match);
@@ -474,7 +523,11 @@ int LZ4_decompress_fast(const char *source, char *dest, int originalSize)
 
 /* ===== Instantiate a few more decoding cases, used more than once. ===== */
 
+<<<<<<< HEAD
 int LZ4_decompress_safe_withPrefix64k(const char *source, char *dest,
+=======
+static int LZ4_decompress_safe_withPrefix64k(const char *source, char *dest,
+>>>>>>> upstream/android-13
 				      int compressedSize, int maxOutputSize)
 {
 	return LZ4_decompress_generic(source, dest,

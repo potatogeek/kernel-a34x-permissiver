@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "block-range.h"
 #include "annotate.h"
+<<<<<<< HEAD
+=======
+#include <assert.h>
+#include <stdlib.h>
+>>>>>>> upstream/android-13
 
 struct {
 	struct rb_root root;

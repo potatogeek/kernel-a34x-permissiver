@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Low-level exception handling code
  *
  * Copyright (C) 2012 ARM Ltd.
  * Authors:	Catalin Marinas <catalin.marinas@arm.com>
  *		Will Deacon <will.deacon@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/arm-smccc.h>
@@ -25,6 +32,11 @@
 #include <asm/alternative.h>
 #include <asm/assembler.h>
 #include <asm/asm-offsets.h>
+<<<<<<< HEAD
+=======
+#include <asm/asm_pointer_auth.h>
+#include <asm/bug.h>
+>>>>>>> upstream/android-13
 #include <asm/cpufeature.h>
 #include <asm/errno.h>
 #include <asm/esr.h>
@@ -33,10 +45,15 @@
 #include <asm/mmu.h>
 #include <asm/processor.h>
 #include <asm/ptrace.h>
+<<<<<<< HEAD
+=======
+#include <asm/scs.h>
+>>>>>>> upstream/android-13
 #include <asm/thread_info.h>
 #include <asm/asm-uaccess.h>
 #include <asm/unistd.h>
 
+<<<<<<< HEAD
 /*
  * Context tracking subsystem.  Used to instrument transitions
  * between user and kernel mode.
@@ -53,12 +70,15 @@
 #endif
 	.endm
 
+=======
+>>>>>>> upstream/android-13
 	.macro	clear_gp_regs
 	.irp	n,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
 	mov	x\n, xzr
 	.endr
 	.endm
 
+<<<<<<< HEAD
 /*
  * Bad Abort numbers
  *-----------------
@@ -69,6 +89,13 @@
 #define BAD_ERROR	3
 
 	.macro kernel_ventry, el, label, regsize = 64
+=======
+#ifdef CONFIG_SEC_DEBUG_EXCEPTION_STACK
+#define PRESERVE_STACK_SIZE	256
+#endif
+
+	.macro kernel_ventry, el:req, ht:req, regsize:req, label:req
+>>>>>>> upstream/android-13
 	.align 7
 .Lventry_start\@:
 	.if	\el == 0
@@ -86,18 +113,39 @@
 .Lskip_tramp_vectors_cleanup\@:
 	.endif
 
+<<<<<<< HEAD
 	sub	sp, sp, #S_FRAME_SIZE
 #ifdef CONFIG_VMAP_STACK
 	/*
 	 * Test whether the SP has overflowed, without corrupting a GPR.
 	 * Task and IRQ stacks are aligned to (1 << THREAD_SHIFT).
+=======
+#ifdef CONFIG_SEC_DEBUG_EXCEPTION_STACK
+	.if	\el == 0
+	sub	sp, sp, #PT_REGS_SIZE
+	.else
+	sub	sp, sp, #(PT_REGS_SIZE+PRESERVE_STACK_SIZE)
+	.endif /* \el == 0 */
+#else
+	sub	sp, sp, #PT_REGS_SIZE
+#endif
+#ifdef CONFIG_VMAP_STACK
+	/*
+	 * Test whether the SP has overflowed, without corrupting a GPR.
+	 * Task and IRQ stacks are aligned so that SP & (1 << THREAD_SHIFT)
+	 * should always be zero.
+>>>>>>> upstream/android-13
 	 */
 	add	sp, sp, x0			// sp' = sp + x0
 	sub	x0, sp, x0			// x0' = sp' - x0 = (sp + x0) - x0 = sp
 	tbnz	x0, #THREAD_SHIFT, 0f
 	sub	x0, sp, x0			// x0'' = sp' - x0' = (sp + x0) - sp = x0
 	sub	sp, sp, x0			// sp'' = sp' - x0 = (sp + x0) - x0 = sp
+<<<<<<< HEAD
 	b	el\()\el\()_\label
+=======
+	b	el\el\ht\()_\regsize\()_\label
+>>>>>>> upstream/android-13
 
 0:
 	/*
@@ -106,7 +154,11 @@
 	 * userspace, and can clobber EL0 registers to free up GPRs.
 	 */
 
+<<<<<<< HEAD
 	/* Stash the original SP (minus S_FRAME_SIZE) in tpidr_el0. */
+=======
+	/* Stash the original SP (minus PT_REGS_SIZE) in tpidr_el0. */
+>>>>>>> upstream/android-13
 	msr	tpidr_el0, x0
 
 	/* Recover the original x0 value and stash it in tpidrro_el0 */
@@ -129,7 +181,11 @@
 	sub	sp, sp, x0
 	mrs	x0, tpidrro_el0
 #endif
+<<<<<<< HEAD
 	b	el\()\el\()_\label
+=======
+	b	el\el\ht\()_\regsize\()_\label
+>>>>>>> upstream/android-13
 .org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
 	.endm
 
@@ -141,12 +197,22 @@
 	sub	\dst, \dst, \tmp
 	.endm
 
+<<<<<<< HEAD
 	// This macro corrupts x0-x3. It is the caller's duty
 	// to save/restore them if required.
 	.macro	apply_ssbd, state, tmp1, tmp2
 #ifdef CONFIG_ARM64_SSBD
 alternative_cb	arm64_enable_wa2_handling
 	b	.L__asm_ssbd_skip\@
+=======
+	/*
+	 * This macro corrupts x0-x3. It is the caller's duty  to save/restore
+	 * them if required.
+	 */
+	.macro	apply_ssbd, state, tmp1, tmp2
+alternative_cb	spectre_v4_patch_fw_mitigation_enable
+	b	.L__asm_ssbd_skip\@		// Patched to NOP
+>>>>>>> upstream/android-13
 alternative_cb_end
 	ldr_this_cpu	\tmp2, arm64_ssbd_callback_required, \tmp1
 	cbz	\tmp2,	.L__asm_ssbd_skip\@
@@ -154,10 +220,83 @@ alternative_cb_end
 	tbnz	\tmp2, #TIF_SSBD, .L__asm_ssbd_skip\@
 	mov	w0, #ARM_SMCCC_ARCH_WORKAROUND_2
 	mov	w1, #\state
+<<<<<<< HEAD
 alternative_cb	arm64_update_smccc_conduit
 	nop					// Patched to SMC/HVC #0
 alternative_cb_end
 .L__asm_ssbd_skip\@:
+=======
+alternative_cb	smccc_patch_fw_mitigation_conduit
+	nop					// Patched to SMC/HVC #0
+alternative_cb_end
+.L__asm_ssbd_skip\@:
+	.endm
+
+	/* Check for MTE asynchronous tag check faults */
+	.macro check_mte_async_tcf, tmp, ti_flags, thread_sctlr
+#ifdef CONFIG_ARM64_MTE
+	.arch_extension lse
+alternative_if_not ARM64_MTE
+	b	1f
+alternative_else_nop_endif
+	/*
+	 * Asynchronous tag check faults are only possible in ASYNC (2) or
+	 * ASYM (3) modes. In each of these modes bit 1 of SCTLR_EL1.TCF0 is
+	 * set, so skip the check if it is unset.
+	 */
+	tbz	\thread_sctlr, #(SCTLR_EL1_TCF0_SHIFT + 1), 1f
+	mrs_s	\tmp, SYS_TFSRE0_EL1
+	tbz	\tmp, #SYS_TFSR_EL1_TF0_SHIFT, 1f
+	/* Asynchronous TCF occurred for TTBR0 access, set the TI flag */
+	mov	\tmp, #_TIF_MTE_ASYNC_FAULT
+	add	\ti_flags, tsk, #TSK_TI_FLAGS
+	stset	\tmp, [\ti_flags]
+1:
+#endif
+	.endm
+
+	/* Clear the MTE asynchronous tag check faults */
+	.macro clear_mte_async_tcf thread_sctlr
+#ifdef CONFIG_ARM64_MTE
+alternative_if ARM64_MTE
+	/* See comment in check_mte_async_tcf above. */
+	tbz	\thread_sctlr, #(SCTLR_EL1_TCF0_SHIFT + 1), 1f
+	dsb	ish
+	msr_s	SYS_TFSRE0_EL1, xzr
+1:
+alternative_else_nop_endif
+#endif
+	.endm
+
+	.macro mte_set_gcr, mte_ctrl, tmp
+#ifdef CONFIG_ARM64_MTE
+	ubfx	\tmp, \mte_ctrl, #MTE_CTRL_GCR_USER_EXCL_SHIFT, #16
+	orr	\tmp, \tmp, #SYS_GCR_EL1_RRND
+	msr_s	SYS_GCR_EL1, \tmp
+#endif
+	.endm
+
+	.macro mte_set_kernel_gcr, tmp, tmp2
+#ifdef CONFIG_KASAN_HW_TAGS
+alternative_cb	kasan_hw_tags_enable
+	b	1f
+alternative_cb_end
+	mov	\tmp, KERNEL_GCR_EL1
+	msr_s	SYS_GCR_EL1, \tmp
+1:
+#endif
+	.endm
+
+	.macro mte_set_user_gcr, tsk, tmp, tmp2
+#ifdef CONFIG_KASAN_HW_TAGS
+alternative_cb	kasan_hw_tags_enable
+	b	1f
+alternative_cb_end
+	ldr	\tmp, [\tsk, #THREAD_MTE_CTRL]
+
+	mte_set_gcr \tmp, \tmp2
+1:
+>>>>>>> upstream/android-13
 #endif
 	.endm
 
@@ -184,6 +323,7 @@ alternative_cb_end
 	.if	\el == 0
 	clear_gp_regs
 	mrs	x21, sp_el0
+<<<<<<< HEAD
 	ldr_this_cpu	tsk, __entry_task, x20	// Ensure MDSCR_EL1.SS is clear,
 	ldr	x19, [tsk, #TSK_TI_FLAGS]	// since we can unmask debug
 	disable_step_tsk x19, x20		// exceptions when scheduling.
@@ -203,15 +343,84 @@ alternative_cb_end
 	mov	x20, #USER_DS
 	str	x20, [tsk, #TSK_TI_ADDR_LIMIT]
 	/* No need to reset PSTATE.UAO, hardware's already set it to 0 for us */
+=======
+	ldr_this_cpu	tsk, __entry_task, x20
+	msr	sp_el0, tsk
+
+	/*
+	 * Ensure MDSCR_EL1.SS is clear, since we can unmask debug exceptions
+	 * when scheduling.
+	 */
+	ldr	x19, [tsk, #TSK_TI_FLAGS]
+	disable_step_tsk x19, x20
+
+	/* Check for asynchronous tag check faults in user space */
+	ldr	x0, [tsk, THREAD_SCTLR_USER]
+	check_mte_async_tcf x22, x23, x0
+
+#ifdef CONFIG_ARM64_PTR_AUTH
+alternative_if ARM64_HAS_ADDRESS_AUTH
+	/*
+	 * Enable IA for in-kernel PAC if the task had it disabled. Although
+	 * this could be implemented with an unconditional MRS which would avoid
+	 * a load, this was measured to be slower on Cortex-A75 and Cortex-A76.
+	 *
+	 * Install the kernel IA key only if IA was enabled in the task. If IA
+	 * was disabled on kernel exit then we would have left the kernel IA
+	 * installed so there is no need to install it again.
+	 */
+	tbz	x0, SCTLR_ELx_ENIA_SHIFT, 1f
+	__ptrauth_keys_install_kernel_nosync tsk, x20, x22, x23
+	b	2f
+1:
+	mrs	x0, sctlr_el1
+	orr	x0, x0, SCTLR_ELx_ENIA
+	msr	sctlr_el1, x0
+2:
+alternative_else_nop_endif
+#endif
+
+	apply_ssbd 1, x22, x23
+
+	mte_set_kernel_gcr x22, x23
+
+	/*
+	 * Any non-self-synchronizing system register updates required for
+	 * kernel entry should be placed before this point.
+	 */
+alternative_if ARM64_MTE
+	isb
+	b	1f
+alternative_else_nop_endif
+alternative_if ARM64_HAS_ADDRESS_AUTH
+	isb
+alternative_else_nop_endif
+1:
+
+	scs_load tsk
+	.else
+#ifdef CONFIG_SEC_DEBUG_EXCEPTION_STACK
+	add	x21, sp, #(PT_REGS_SIZE+PRESERVE_STACK_SIZE)
+#else
+	add	x21, sp, #PT_REGS_SIZE
+#endif
+	get_current_task tsk
+>>>>>>> upstream/android-13
 	.endif /* \el == 0 */
 	mrs	x22, elr_el1
 	mrs	x23, spsr_el1
 	stp	lr, x21, [sp, #S_LR]
 
 	/*
+<<<<<<< HEAD
 	 * In order to be able to dump the contents of struct pt_regs at the
 	 * time the exception was taken (in case we attempt to walk the call
 	 * stack later), chain it together with the stack frames.
+=======
+	 * For exceptions from EL0, create a final frame record.
+	 * For exceptions from EL1, create a synthetic frame record so the
+	 * interrupted code shows up in the backtrace.
+>>>>>>> upstream/android-13
 	 */
 	.if \el == 0
 	stp	xzr, xzr, [sp, #S_STACKFRAME]
@@ -221,6 +430,7 @@ alternative_cb_end
 	add	x29, sp, #S_STACKFRAME
 
 #ifdef CONFIG_ARM64_SW_TTBR0_PAN
+<<<<<<< HEAD
 	/*
 	 * Set the TTBR0 PAN bit in SPSR. When the exception is taken from
 	 * EL0, there is no need to check the state of TTBR0_EL1 since
@@ -243,6 +453,11 @@ alternative_else_nop_endif
 
 	__uaccess_ttbr0_disable x21
 1:
+=======
+alternative_if_not ARM64_HAS_PAN
+	bl	__swpan_entry_el\el
+alternative_else_nop_endif
+>>>>>>> upstream/android-13
 #endif
 
 	stp	x22, x23, [sp, #S_PC]
@@ -253,16 +468,37 @@ alternative_else_nop_endif
 	str	w21, [sp, #S_SYSCALLNO]
 	.endif
 
+<<<<<<< HEAD
 	/*
 	 * Set sp_el0 to current thread_info.
 	 */
 	.if	\el == 0
 	msr	sp_el0, tsk
 	.endif
+=======
+	/* Save pmr */
+alternative_if ARM64_HAS_IRQ_PRIO_MASKING
+	mrs_s	x20, SYS_ICC_PMR_EL1
+	str	x20, [sp, #S_PMR_SAVE]
+	mov	x20, #GIC_PRIO_IRQON | GIC_PRIO_PSR_I_SET
+	msr_s	SYS_ICC_PMR_EL1, x20
+alternative_else_nop_endif
+
+	/* Re-enable tag checking (TCO set on exception entry) */
+#ifdef CONFIG_ARM64_MTE
+alternative_if ARM64_MTE
+	SET_PSTATE_TCO(0)
+alternative_else_nop_endif
+#endif
+>>>>>>> upstream/android-13
 
 	/*
 	 * Registers that may be useful after this macro is invoked:
 	 *
+<<<<<<< HEAD
+=======
+	 * x20 - ICC_PMR_EL1
+>>>>>>> upstream/android-13
 	 * x21 - aborted SP
 	 * x22 - aborted PC
 	 * x23 - aborted PSTATE
@@ -272,6 +508,7 @@ alternative_else_nop_endif
 	.macro	kernel_exit, el
 	.if	\el != 0
 	disable_daif
+<<<<<<< HEAD
 
 	/* Restore the task's original addr_limit. */
 	ldr	x20, [sp, #S_ORIG_ADDR_LIMIT]
@@ -320,6 +557,26 @@ alternative_else_nop_endif
 	and	x22, x22, #~PSR_PAN_BIT		// ARMv8.0 CPUs do not understand this bit
 	.endif
 2:
+=======
+	.endif
+
+	/* Restore pmr */
+alternative_if ARM64_HAS_IRQ_PRIO_MASKING
+	ldr	x20, [sp, #S_PMR_SAVE]
+	msr_s	SYS_ICC_PMR_EL1, x20
+	mrs_s	x21, SYS_ICC_CTLR_EL1
+	tbz	x21, #6, .L__skip_pmr_sync\@	// Check for ICC_CTLR_EL1.PMHE
+	dsb	sy				// Ensure priority change is seen by redistributor
+.L__skip_pmr_sync\@:
+alternative_else_nop_endif
+
+	ldp	x21, x22, [sp, #S_PC]		// load ELR, SPSR
+
+#ifdef CONFIG_ARM64_SW_TTBR0_PAN
+alternative_if_not ARM64_HAS_PAN
+	bl	__swpan_exit_el\el
+alternative_else_nop_endif
+>>>>>>> upstream/android-13
 #endif
 
 	.if	\el == 0
@@ -339,6 +596,37 @@ alternative_if ARM64_WORKAROUND_845719
 alternative_else_nop_endif
 #endif
 3:
+<<<<<<< HEAD
+=======
+	scs_save tsk
+
+	/* Ignore asynchronous tag check faults in the uaccess routines */
+	ldr	x0, [tsk, THREAD_SCTLR_USER]
+	clear_mte_async_tcf x0
+
+#ifdef CONFIG_ARM64_PTR_AUTH
+alternative_if ARM64_HAS_ADDRESS_AUTH
+	/*
+	 * IA was enabled for in-kernel PAC. Disable it now if needed, or
+	 * alternatively install the user's IA. All other per-task keys and
+	 * SCTLR bits were updated on task switch.
+	 *
+	 * No kernel C function calls after this.
+	 */
+	tbz	x0, SCTLR_ELx_ENIA_SHIFT, 1f
+	__ptrauth_keys_install_user tsk, x0, x1, x2
+	b	2f
+1:
+	mrs	x0, sctlr_el1
+	bic	x0, x0, SCTLR_ELx_ENIA
+	msr	sctlr_el1, x0
+2:
+alternative_else_nop_endif
+#endif
+
+	mte_set_user_gcr tsk, x0, x1
+
+>>>>>>> upstream/android-13
 	apply_ssbd 0, x0, x1
 	.endif
 
@@ -359,15 +647,22 @@ alternative_else_nop_endif
 	ldp	x24, x25, [sp, #16 * 12]
 	ldp	x26, x27, [sp, #16 * 13]
 	ldp	x28, x29, [sp, #16 * 14]
+<<<<<<< HEAD
 	/*
 	 * ARCH_HAS_MEMBARRIER_SYNC_CORE rely on eret context synchronization
 	 * when returning from IPI handler, and when returning to user-space.
 	 */
+=======
+>>>>>>> upstream/android-13
 
 	.if	\el == 0
 alternative_if_not ARM64_UNMAP_KERNEL_AT_EL0
 	ldr	lr, [sp, #S_LR]
+<<<<<<< HEAD
 	add	sp, sp, #S_FRAME_SIZE		// restore sp
+=======
+	add	sp, sp, #PT_REGS_SIZE		// restore sp
+>>>>>>> upstream/android-13
 	eret
 alternative_else_nop_endif
 #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
@@ -381,6 +676,7 @@ alternative_else_nop_endif
 #endif
 	.else
 	ldr	lr, [sp, #S_LR]
+<<<<<<< HEAD
 	add	sp, sp, #S_FRAME_SIZE		// restore sp
 	eret
 	.endif
@@ -452,6 +748,68 @@ tsk	.req	x28		// current thread_info
 	irq_stack_exit
 	.endm
 
+=======
+#ifdef CONFIG_SEC_DEBUG_EXCEPTION_STACK
+	add	sp, sp, #(PT_REGS_SIZE+PRESERVE_STACK_SIZE)
+#else
+	add	sp, sp, #PT_REGS_SIZE		// restore sp
+#endif
+
+	/* Ensure any device/NC reads complete */
+	alternative_insn nop, "dmb sy", ARM64_WORKAROUND_1508412
+
+	eret
+	.endif
+	sb
+	.endm
+
+#ifdef CONFIG_ARM64_SW_TTBR0_PAN
+	/*
+	 * Set the TTBR0 PAN bit in SPSR. When the exception is taken from
+	 * EL0, there is no need to check the state of TTBR0_EL1 since
+	 * accesses are always enabled.
+	 * Note that the meaning of this bit differs from the ARMv8.1 PAN
+	 * feature as all TTBR0_EL1 accesses are disabled, not just those to
+	 * user mappings.
+	 */
+SYM_CODE_START_LOCAL(__swpan_entry_el1)
+	mrs	x21, ttbr0_el1
+	tst	x21, #TTBR_ASID_MASK		// Check for the reserved ASID
+	orr	x23, x23, #PSR_PAN_BIT		// Set the emulated PAN in the saved SPSR
+	b.eq	1f				// TTBR0 access already disabled
+	and	x23, x23, #~PSR_PAN_BIT		// Clear the emulated PAN in the saved SPSR
+SYM_INNER_LABEL(__swpan_entry_el0, SYM_L_LOCAL)
+	__uaccess_ttbr0_disable x21
+1:	ret
+SYM_CODE_END(__swpan_entry_el1)
+
+	/*
+	 * Restore access to TTBR0_EL1. If returning to EL0, no need for SPSR
+	 * PAN bit checking.
+	 */
+SYM_CODE_START_LOCAL(__swpan_exit_el1)
+	tbnz	x22, #22, 1f			// Skip re-enabling TTBR0 access if the PSR_PAN_BIT is set
+	__uaccess_ttbr0_enable x0, x1
+1:	and	x22, x22, #~PSR_PAN_BIT		// ARMv8.0 CPUs do not understand this bit
+	ret
+SYM_CODE_END(__swpan_exit_el1)
+
+SYM_CODE_START_LOCAL(__swpan_exit_el0)
+	__uaccess_ttbr0_enable x0, x1
+	/*
+	 * Enable errata workarounds only if returning to user. The only
+	 * workaround currently required for TTBR0_EL1 changes are for the
+	 * Cavium erratum 27456 (broadcast TLBI instructions may cause I-cache
+	 * corruption).
+	 */
+	b	post_ttbr_update_workaround
+SYM_CODE_END(__swpan_exit_el0)
+#endif
+
+/* GPRs used by entry code */
+tsk	.req	x28		// current thread_info
+
+>>>>>>> upstream/android-13
 	.text
 
 /*
@@ -460,6 +818,7 @@ tsk	.req	x28		// current thread_info
 	.pushsection ".entry.text", "ax"
 
 	.align	11
+<<<<<<< HEAD
 ENTRY(vectors)
 	kernel_ventry	1, sync_invalid			// Synchronous EL1t
 	kernel_ventry	1, irq_invalid			// IRQ EL1t
@@ -490,23 +849,66 @@ ENTRY(vectors)
 END(vectors)
 
 #ifdef CONFIG_VMAP_STACK
+=======
+SYM_CODE_START(vectors)
+	kernel_ventry	1, t, 64, sync		// Synchronous EL1t
+	kernel_ventry	1, t, 64, irq		// IRQ EL1t
+	kernel_ventry	1, t, 64, fiq		// FIQ EL1h
+	kernel_ventry	1, t, 64, error		// Error EL1t
+
+	kernel_ventry	1, h, 64, sync		// Synchronous EL1h
+	kernel_ventry	1, h, 64, irq		// IRQ EL1h
+	kernel_ventry	1, h, 64, fiq		// FIQ EL1h
+	kernel_ventry	1, h, 64, error		// Error EL1h
+
+	kernel_ventry	0, t, 64, sync		// Synchronous 64-bit EL0
+	kernel_ventry	0, t, 64, irq		// IRQ 64-bit EL0
+	kernel_ventry	0, t, 64, fiq		// FIQ 64-bit EL0
+	kernel_ventry	0, t, 64, error		// Error 64-bit EL0
+
+	kernel_ventry	0, t, 32, sync		// Synchronous 32-bit EL0
+	kernel_ventry	0, t, 32, irq		// IRQ 32-bit EL0
+	kernel_ventry	0, t, 32, fiq		// FIQ 32-bit EL0
+	kernel_ventry	0, t, 32, error		// Error 32-bit EL0
+SYM_CODE_END(vectors)
+
+#ifdef CONFIG_VMAP_STACK
+SYM_CODE_START_LOCAL(__bad_stack)
+>>>>>>> upstream/android-13
 	/*
 	 * We detected an overflow in kernel_ventry, which switched to the
 	 * overflow stack. Stash the exception regs, and head to our overflow
 	 * handler.
 	 */
+<<<<<<< HEAD
 __bad_stack:
+=======
+
+>>>>>>> upstream/android-13
 	/* Restore the original x0 value */
 	mrs	x0, tpidrro_el0
 
 	/*
 	 * Store the original GPRs to the new stack. The orginal SP (minus
+<<<<<<< HEAD
 	 * S_FRAME_SIZE) was stashed in tpidr_el0 by kernel_ventry.
 	 */
 	sub	sp, sp, #S_FRAME_SIZE
 	kernel_entry 1
 	mrs	x0, tpidr_el0
 	add	x0, x0, #S_FRAME_SIZE
+=======
+	 * PT_REGS_SIZE) was stashed in tpidr_el0 by kernel_ventry.
+	 */
+	sub	sp, sp, #PT_REGS_SIZE
+	kernel_entry 1
+	mrs	x0, tpidr_el0
+#ifdef CONFIG_SEC_DEBUG_EXCEPTION_STACK
+	add	x0, x0, #(PT_REGS_SIZE+PRESERVE_STACK_SIZE)
+#else
+	add	x0, x0, #PT_REGS_SIZE
+#endif
+>>>>>>> upstream/android-13
 	str	x0, [sp, #S_SP]
 
 	/* Stash the regs for handle_bad_stack */
@@ -515,6 +917,7 @@ __bad_stack:
 	/* Time to die */
 	bl	handle_bad_stack
 	ASM_BUG()
+<<<<<<< HEAD
 #endif /* CONFIG_VMAP_STACK */
 
 /*
@@ -935,10 +1338,60 @@ ret_to_user:
 	cbnz	x2, work_pending
 finish_ret_to_user:
 	enable_step_tsk x1, x2
+=======
+SYM_CODE_END(__bad_stack)
+#endif /* CONFIG_VMAP_STACK */
+
+
+	.macro entry_handler el:req, ht:req, regsize:req, label:req
+SYM_CODE_START_LOCAL(el\el\ht\()_\regsize\()_\label)
+	kernel_entry \el, \regsize
+	mov	x0, sp
+	bl	el\el\ht\()_\regsize\()_\label\()_handler
+	.if \el == 0
+	b	ret_to_user
+	.else
+	b	ret_to_kernel
+	.endif
+SYM_CODE_END(el\el\ht\()_\regsize\()_\label)
+	.endm
+
+/*
+ * Early exception handlers
+ */
+	entry_handler	1, t, 64, sync
+	entry_handler	1, t, 64, irq
+	entry_handler	1, t, 64, fiq
+	entry_handler	1, t, 64, error
+
+	entry_handler	1, h, 64, sync
+	entry_handler	1, h, 64, irq
+	entry_handler	1, h, 64, fiq
+	entry_handler	1, h, 64, error
+
+	entry_handler	0, t, 64, sync
+	entry_handler	0, t, 64, irq
+	entry_handler	0, t, 64, fiq
+	entry_handler	0, t, 64, error
+
+	entry_handler	0, t, 32, sync
+	entry_handler	0, t, 32, irq
+	entry_handler	0, t, 32, fiq
+	entry_handler	0, t, 32, error
+
+SYM_CODE_START_LOCAL(ret_to_kernel)
+	kernel_exit 1
+SYM_CODE_END(ret_to_kernel)
+
+SYM_CODE_START_LOCAL(ret_to_user)
+	ldr	x19, [tsk, #TSK_TI_FLAGS]	// re-check for single-step
+	enable_step_tsk x19, x2
+>>>>>>> upstream/android-13
 #ifdef CONFIG_GCC_PLUGIN_STACKLEAK
 	bl	stackleak_erase
 #endif
 	kernel_exit 0
+<<<<<<< HEAD
 ENDPROC(ret_to_user)
 
 /*
@@ -950,13 +1403,20 @@ el0_svc:
 	bl	el0_svc_handler
 	b	ret_to_user
 ENDPROC(el0_svc)
+=======
+SYM_CODE_END(ret_to_user)
+>>>>>>> upstream/android-13
 
 	.popsection				// .entry.text
 
 	// Move from tramp_pg_dir to swapper_pg_dir
 	.macro tramp_map_kernel, tmp
 	mrs	\tmp, ttbr1_el1
+<<<<<<< HEAD
 	add	\tmp, \tmp, #(PAGE_SIZE + RESERVED_TTBR0_SIZE)
+=======
+	add	\tmp, \tmp, #TRAMP_SWAPPER_OFFSET
+>>>>>>> upstream/android-13
 	bic	\tmp, \tmp, #USER_ASID_FLAG
 	msr	ttbr1_el1, \tmp
 #ifdef CONFIG_QCOM_FALKOR_ERRATUM_1003
@@ -973,9 +1433,16 @@ alternative_else_nop_endif
 #endif /* CONFIG_QCOM_FALKOR_ERRATUM_1003 */
 	.endm
 
+<<<<<<< HEAD
 	.macro tramp_unmap_kernel, tmp
 	mrs	\tmp, ttbr1_el1
 	sub	\tmp, \tmp, #(PAGE_SIZE + RESERVED_TTBR0_SIZE)
+=======
+	// Move from swapper_pg_dir to tramp_pg_dir
+	.macro tramp_unmap_kernel, tmp
+	mrs	\tmp, ttbr1_el1
+	sub	\tmp, \tmp, #TRAMP_SWAPPER_OFFSET
+>>>>>>> upstream/android-13
 	orr	\tmp, \tmp, #USER_ASID_FLAG
 	msr	ttbr1_el1, \tmp
 	/*
@@ -1037,7 +1504,14 @@ alternative_else_nop_endif
 	tramp_map_kernel	x30
 alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
 	tramp_data_read_var	x30, vectors
+<<<<<<< HEAD
 	prfm	plil1strm, [x30, #(1b - \vector_start)]
+=======
+alternative_if_not ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM
+	prfm	plil1strm, [x30, #(1b - \vector_start)]
+alternative_else_nop_endif
+
+>>>>>>> upstream/android-13
 	msr	vbar_el1, x30
 	isb
 	.else
@@ -1060,11 +1534,15 @@ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
 
 	.macro tramp_exit, regsize = 64
 	tramp_data_read_var	x30, this_cpu_vector
+<<<<<<< HEAD
 alternative_if_not ARM64_HAS_VIRT_HOST_EXTN
 	mrs	x29, tpidr_el1
 alternative_else
 	mrs	x29, tpidr_el2
 alternative_endif
+=======
+	get_this_cpu_offset x29
+>>>>>>> upstream/android-13
 	ldr	x30, [x30, x29]
 
 	msr	vbar_el1, x30
@@ -1073,8 +1551,14 @@ alternative_endif
 	.if	\regsize == 64
 	mrs	x29, far_el1
 	.endif
+<<<<<<< HEAD
 	add	sp, sp, #S_FRAME_SIZE		// restore sp
 	eret
+=======
+	add	sp, sp, #PT_REGS_SIZE		// restore sp
+	eret
+	sb
+>>>>>>> upstream/android-13
 	.endm
 
 	.macro	generate_tramp_vector,	kpti, bhb
@@ -1097,13 +1581,18 @@ alternative_endif
  */
 	.pushsection ".entry.tramp.text", "ax"
 	.align	11
+<<<<<<< HEAD
 ENTRY(tramp_vectors)
+=======
+SYM_CODE_START_NOALIGN(tramp_vectors)
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_LOOP
 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_FW
 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_INSN
 #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
 	generate_tramp_vector	kpti=1, bhb=BHB_MITIGATION_NONE
+<<<<<<< HEAD
 END(tramp_vectors)
 
 ENTRY(tramp_exit_native)
@@ -1113,14 +1602,29 @@ END(tramp_exit_native)
 ENTRY(tramp_exit_compat)
 	tramp_exit	32
 END(tramp_exit_compat)
+=======
+SYM_CODE_END(tramp_vectors)
+
+SYM_CODE_START(tramp_exit_native)
+	tramp_exit
+SYM_CODE_END(tramp_exit_native)
+
+SYM_CODE_START(tramp_exit_compat)
+	tramp_exit	32
+SYM_CODE_END(tramp_exit_compat)
+>>>>>>> upstream/android-13
 
 	.ltorg
 	.popsection				// .entry.tramp.text
 #ifdef CONFIG_RANDOMIZE_BASE
 	.pushsection ".rodata", "a"
 	.align PAGE_SHIFT
+<<<<<<< HEAD
 	.globl	__entry_tramp_data_start
 __entry_tramp_data_start:
+=======
+SYM_DATA_START(__entry_tramp_data_start)
+>>>>>>> upstream/android-13
 __entry_tramp_data_vectors:
 	.quad	vectors
 #ifdef CONFIG_ARM_SDE_INTERFACE
@@ -1129,6 +1633,10 @@ __entry_tramp_data___sdei_asm_handler:
 #endif /* CONFIG_ARM_SDE_INTERFACE */
 __entry_tramp_data_this_cpu_vector:
 	.quad	this_cpu_vector
+<<<<<<< HEAD
+=======
+SYM_DATA_END(__entry_tramp_data_start)
+>>>>>>> upstream/android-13
 	.popsection				// .rodata
 #endif /* CONFIG_RANDOMIZE_BASE */
 #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
@@ -1139,6 +1647,7 @@ __entry_tramp_data_this_cpu_vector:
  */
 	.macro generate_el1_vector, bhb
 .Lvector_start\@:
+<<<<<<< HEAD
 	kernel_ventry	1, sync_invalid			// Synchronous EL1t
 	kernel_ventry	1, irq_invalid			// IRQ EL1t
 	kernel_ventry	1, fiq_invalid			// FIQ EL1t
@@ -1148,6 +1657,17 @@ __entry_tramp_data_this_cpu_vector:
 	kernel_ventry	1, irq				// IRQ EL1h
 	kernel_ventry	1, fiq_invalid			// FIQ EL1h
 	kernel_ventry	1, error			// Error EL1h
+=======
+	kernel_ventry	1, t, 64, sync		// Synchronous EL1t
+	kernel_ventry	1, t, 64, irq		// IRQ EL1t
+	kernel_ventry	1, t, 64, fiq		// FIQ EL1h
+	kernel_ventry	1, t, 64, error		// Error EL1t
+
+	kernel_ventry	1, h, 64, sync		// Synchronous EL1h
+	kernel_ventry	1, h, 64, irq		// IRQ EL1h
+	kernel_ventry	1, h, 64, fiq		// FIQ EL1h
+	kernel_ventry	1, h, 64, error		// Error EL1h
+>>>>>>> upstream/android-13
 
 	.rept	4
 	tramp_ventry	.Lvector_start\@, 64, 0, \bhb
@@ -1160,13 +1680,21 @@ __entry_tramp_data_this_cpu_vector:
 /* The order must match tramp_vecs and the arm64_bp_harden_el1_vectors enum. */
 	.pushsection ".entry.text", "ax"
 	.align	11
+<<<<<<< HEAD
 ENTRY(__bp_harden_el1_vectors)
+=======
+SYM_CODE_START(__bp_harden_el1_vectors)
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
 	generate_el1_vector	bhb=BHB_MITIGATION_LOOP
 	generate_el1_vector	bhb=BHB_MITIGATION_FW
 	generate_el1_vector	bhb=BHB_MITIGATION_INSN
 #endif /* CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY */
+<<<<<<< HEAD
 END(__bp_harden_el1_vectors)
+=======
+SYM_CODE_END(__bp_harden_el1_vectors)
+>>>>>>> upstream/android-13
 	.popsection
 
 
@@ -1178,7 +1706,11 @@ END(__bp_harden_el1_vectors)
  * Previous and next are guaranteed not to be the same.
  *
  */
+<<<<<<< HEAD
 ENTRY(cpu_switch_to)
+=======
+SYM_FUNC_START(cpu_switch_to)
+>>>>>>> upstream/android-13
 	mov	x10, #THREAD_CPU_CONTEXT
 	add	x8, x0, x10
 	mov	x9, sp
@@ -1199,6 +1731,7 @@ ENTRY(cpu_switch_to)
 	ldr	lr, [x8]
 	mov	sp, x9
 	msr	sp_el0, x1
+<<<<<<< HEAD
 #ifdef CONFIG_SHADOW_CALL_STACK
 	str	x18, [x0, #TSK_TI_SCS]
 	ldr	x18, [x1, #TSK_TI_SCS]
@@ -1206,21 +1739,78 @@ ENTRY(cpu_switch_to)
 #endif
 	ret
 ENDPROC(cpu_switch_to)
+=======
+	ptrauth_keys_install_kernel x1, x8, x9, x10
+	scs_save x0
+	scs_load x1
+	ret
+SYM_FUNC_END(cpu_switch_to)
+>>>>>>> upstream/android-13
 NOKPROBE(cpu_switch_to)
 
 /*
  * This is how we return from a fork.
  */
+<<<<<<< HEAD
 ENTRY(ret_from_fork)
+=======
+SYM_CODE_START(ret_from_fork)
+>>>>>>> upstream/android-13
 	bl	schedule_tail
 	cbz	x19, 1f				// not a kernel thread
 	mov	x0, x20
 	blr	x19
+<<<<<<< HEAD
 1:	get_thread_info tsk
 	b	ret_to_user
 ENDPROC(ret_from_fork)
 NOKPROBE(ret_from_fork)
 
+=======
+1:	get_current_task tsk
+	mov	x0, sp
+	bl	asm_exit_to_user_mode
+	b	ret_to_user
+SYM_CODE_END(ret_from_fork)
+NOKPROBE(ret_from_fork)
+
+/*
+ * void call_on_irq_stack(struct pt_regs *regs,
+ * 		          void (*func)(struct pt_regs *));
+ *
+ * Calls func(regs) using this CPU's irq stack and shadow irq stack.
+ */
+SYM_FUNC_START(call_on_irq_stack)
+#ifdef CONFIG_SHADOW_CALL_STACK
+	stp	scs_sp, xzr, [sp, #-16]!
+	ldr_this_cpu scs_sp, irq_shadow_call_stack_ptr, x17
+#endif
+	/* Create a frame record to save our LR and SP (implicit in FP) */
+	stp	x29, x30, [sp, #-16]!
+	mov	x29, sp
+
+	ldr_this_cpu x16, irq_stack_ptr, x17
+	mov	x15, #IRQ_STACK_SIZE
+	add	x16, x16, x15
+
+	/* Move to the new stack and call the function there */
+	mov	sp, x16
+	blr	x1
+
+	/*
+	 * Restore the SP from the FP, and restore the FP and LR from the frame
+	 * record.
+	 */
+	mov	sp, x29
+	ldp	x29, x30, [sp], #16
+#ifdef CONFIG_SHADOW_CALL_STACK
+	ldp	scs_sp, xzr, [sp], #16
+#endif
+	ret
+SYM_FUNC_END(call_on_irq_stack)
+NOKPROBE(call_on_irq_stack)
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARM_SDE_INTERFACE
 
 #include <asm/sdei.h>
@@ -1247,7 +1837,11 @@ NOKPROBE(ret_from_fork)
  */
 .ltorg
 .pushsection ".entry.tramp.text", "ax"
+<<<<<<< HEAD
 ENTRY(__sdei_asm_entry_trampoline)
+=======
+SYM_CODE_START(__sdei_asm_entry_trampoline)
+>>>>>>> upstream/android-13
 	mrs	x4, ttbr1_el1
 	tbz	x4, #USER_ASID_BIT, 1f
 
@@ -1256,6 +1850,7 @@ ENTRY(__sdei_asm_entry_trampoline)
 	mov	x4, xzr
 
 	/*
+<<<<<<< HEAD
 	 * Use reg->interrupted_regs.addr_limit to remember whether to unmap
 	 * the kernel on exit.
 	 */
@@ -1264,6 +1859,14 @@ ENTRY(__sdei_asm_entry_trampoline)
 	tramp_data_read_var     x4, __sdei_asm_handler
 	br	x4
 ENDPROC(__sdei_asm_entry_trampoline)
+=======
+	 * Remember whether to unmap the kernel on exit.
+	 */
+1:	str	x4, [x1, #(SDEI_EVENT_INTREGS + S_SDEI_TTBR1)]
+	tramp_data_read_var     x4, __sdei_asm_handler
+	br	x4
+SYM_CODE_END(__sdei_asm_entry_trampoline)
+>>>>>>> upstream/android-13
 NOKPROBE(__sdei_asm_entry_trampoline)
 
 /*
@@ -1273,14 +1876,23 @@ NOKPROBE(__sdei_asm_entry_trampoline)
  * x2: exit_mode
  * x4: struct sdei_registered_event argument from registration time.
  */
+<<<<<<< HEAD
 ENTRY(__sdei_asm_exit_trampoline)
 	ldr	x4, [x4, #(SDEI_EVENT_INTREGS + S_ORIG_ADDR_LIMIT)]
+=======
+SYM_CODE_START(__sdei_asm_exit_trampoline)
+	ldr	x4, [x4, #(SDEI_EVENT_INTREGS + S_SDEI_TTBR1)]
+>>>>>>> upstream/android-13
 	cbnz	x4, 1f
 
 	tramp_unmap_kernel	tmp=x4
 
 1:	sdei_handler_exit exit_mode=x2
+<<<<<<< HEAD
 ENDPROC(__sdei_asm_exit_trampoline)
+=======
+SYM_CODE_END(__sdei_asm_exit_trampoline)
+>>>>>>> upstream/android-13
 NOKPROBE(__sdei_asm_exit_trampoline)
 	.ltorg
 .popsection		// .entry.tramp.text
@@ -1299,7 +1911,11 @@ NOKPROBE(__sdei_asm_exit_trampoline)
  * follow SMC-CC. We save (or retrieve) all the registers as the handler may
  * want them.
  */
+<<<<<<< HEAD
 ENTRY(__sdei_asm_handler)
+=======
+SYM_CODE_START(__sdei_asm_handler)
+>>>>>>> upstream/android-13
 	stp     x2, x3, [x1, #SDEI_EVENT_INTREGS + S_PC]
 	stp     x4, x5, [x1, #SDEI_EVENT_INTREGS + 16 * 2]
 	stp     x6, x7, [x1, #SDEI_EVENT_INTREGS + 16 * 3]
@@ -1319,13 +1935,23 @@ ENTRY(__sdei_asm_handler)
 
 	mov	x19, x1
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_VMAP_STACK) || defined(CONFIG_SHADOW_CALL_STACK)
+	ldrb	w4, [x19, #SDEI_EVENT_PRIORITY]
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VMAP_STACK
 	/*
 	 * entry.S may have been using sp as a scratch register, find whether
 	 * this is a normal or critical event and switch to the appropriate
 	 * stack for this CPU.
 	 */
+<<<<<<< HEAD
 	ldrb	w4, [x19, #SDEI_EVENT_PRIORITY]
+=======
+>>>>>>> upstream/android-13
 	cbnz	w4, 1f
 	ldr_this_cpu dst=x5, sym=sdei_stack_normal_ptr, tmp=x6
 	b	2f
@@ -1335,6 +1961,18 @@ ENTRY(__sdei_asm_handler)
 	mov	sp, x5
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SHADOW_CALL_STACK
+	/* Use a separate shadow call stack for normal and critical events */
+	cbnz	w4, 3f
+	ldr_this_cpu dst=scs_sp, sym=sdei_shadow_call_stack_normal_ptr, tmp=x6
+	b	4f
+3:	ldr_this_cpu dst=scs_sp, sym=sdei_shadow_call_stack_critical_ptr, tmp=x6
+4:
+#endif
+
+>>>>>>> upstream/android-13
 	/*
 	 * We may have interrupted userspace, or a guest, or exit-from or
 	 * return-to either of these. We can't trust sp_el0, restore it.
@@ -1382,6 +2020,10 @@ alternative_else_nop_endif
 	tramp_alias	dst=x5, sym=__sdei_asm_exit_trampoline, tmp=x3
 	br	x5
 #endif
+<<<<<<< HEAD
 ENDPROC(__sdei_asm_handler)
+=======
+SYM_CODE_END(__sdei_asm_handler)
+>>>>>>> upstream/android-13
 NOKPROBE(__sdei_asm_handler)
 #endif /* CONFIG_ARM_SDE_INTERFACE */

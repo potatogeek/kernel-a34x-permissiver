@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * SAMSUNG SMDK5420 board device tree source
+=======
+ * Samsung SMDK5420 board device tree source
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
@@ -9,10 +13,18 @@
 /dts-v1/;
 #include "exynos5420.dtsi"
 #include "exynos5420-cpus.dtsi"
+<<<<<<< HEAD
 #include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "Samsung SMDK5420 board based on EXYNOS5420";
+=======
+#include <dt-bindings/clock/samsung,s2mps11.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Samsung SMDK5420 board based on Exynos5420";
+>>>>>>> upstream/android-13
 	compatible = "samsung,smdk5420", "samsung,exynos5420", "samsung,exynos5";
 
 	memory@20000000 {
@@ -21,7 +33,12 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "console=ttySAC2,115200 init=/linuxrc";
+=======
+		bootargs = "init=/linuxrc";
+		stdout-path = "serial2:115200n8";
+>>>>>>> upstream/android-13
 	};
 
 	fixed-rate-clocks {
@@ -31,6 +48,7 @@
 		};
 	};
 
+<<<<<<< HEAD
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -65,6 +83,33 @@
 	};
 
 	usb300_vbus_reg: regulator-usb300 {
+=======
+	vdd: regulator-0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd-supply";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+
+	dbvdd: regulator-1 {
+		compatible = "regulator-fixed";
+		regulator-name = "dbvdd-supply";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	spkvdd: regulator-2 {
+		compatible = "regulator-fixed";
+		regulator-name = "spkvdd-supply";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
+	};
+
+	usb300_vbus_reg: regulator-3 {
+>>>>>>> upstream/android-13
 		compatible = "regulator-fixed";
 		regulator-name = "VBUS0";
 		regulator-min-microvolt = <5000000>;
@@ -75,7 +120,11 @@
 		enable-active-high;
 	};
 
+<<<<<<< HEAD
 	usb301_vbus_reg: regulator-usb301 {
+=======
+	usb301_vbus_reg: regulator-4 {
+>>>>>>> upstream/android-13
 		compatible = "regulator-fixed";
 		regulator-name = "VBUS1";
 		regulator-min-microvolt = <5000000>;
@@ -131,16 +180,32 @@
 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&hdmi_hpd_irq>;
+<<<<<<< HEAD
+=======
+	vdd-supply = <&ldo6_reg>;
+	vdd_osc-supply = <&ldo7_reg>;
+	vdd_pll-supply = <&ldo6_reg>;
+>>>>>>> upstream/android-13
 };
 
 &hsi2c_4 {
 	status = "okay";
 
+<<<<<<< HEAD
 	s2mps11_pmic@66 {
 		compatible = "samsung,s2mps11-pmic";
 		reg = <0x66>;
 
 		s2mps11_osc: clocks {
+=======
+	pmic@66 {
+		compatible = "samsung,s2mps11-pmic";
+		reg = <0x66>;
+		wakeup-source;
+
+		s2mps11_osc: clocks {
+			compatible = "samsung,s2mps11-clk";
+>>>>>>> upstream/android-13
 			#clock-cells = <1>;
 			clock-output-names = "s2mps11_ap",
 					"s2mps11_cp", "s2mps11_bt";
@@ -408,6 +473,11 @@
 
 &rtc {
 	status = "okay";
+<<<<<<< HEAD
+=======
+	clocks = <&clock CLK_RTC>, <&s2mps11_osc S2MPS11_CLK_AP>;
+	clock-names = "rtc", "rtc_src";
+>>>>>>> upstream/android-13
 };
 
 &usbdrd_phy0 {

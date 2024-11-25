@@ -6,7 +6,13 @@
 #include <linux/blkdev.h>
 #include <linux/ratelimit.h>
 #include <linux/sched/mm.h>
+<<<<<<< HEAD
 #include "ctree.h"
+=======
+#include <crypto/hash.h>
+#include "ctree.h"
+#include "discard.h"
+>>>>>>> upstream/android-13
 #include "volumes.h"
 #include "disk-io.h"
 #include "ordered-data.h"
@@ -17,6 +23,11 @@
 #include "check-integrity.h"
 #include "rcu-string.h"
 #include "raid56.h"
+<<<<<<< HEAD
+=======
+#include "block-group.h"
+#include "zoned.h"
+>>>>>>> upstream/android-13
 
 /*
  * This is only the first step towards a full-features scrub. It reads all
@@ -68,11 +79,17 @@ struct scrub_page {
 	u64			physical;
 	u64			physical_for_dev_replace;
 	atomic_t		refs;
+<<<<<<< HEAD
 	struct {
 		unsigned int	mirror_num:8;
 		unsigned int	have_csum:1;
 		unsigned int	io_error:1;
 	};
+=======
+	u8			mirror_num;
+	unsigned int		have_csum:1;
+	unsigned int		io_error:1;
+>>>>>>> upstream/android-13
 	u8			csum[BTRFS_CSUM_SIZE];
 
 	struct scrub_recover	*recover;
@@ -128,7 +145,11 @@ struct scrub_parity {
 
 	int			nsectors;
 
+<<<<<<< HEAD
 	u64			stripe_len;
+=======
+	u32			stripe_len;
+>>>>>>> upstream/android-13
 
 	refcount_t		refs;
 
@@ -146,7 +167,11 @@ struct scrub_parity {
 	 */
 	unsigned long		*ebitmap;
 
+<<<<<<< HEAD
 	unsigned long		bitmap[0];
+=======
+	unsigned long		bitmap[];
+>>>>>>> upstream/android-13
 };
 
 struct scrub_ctx {
@@ -158,13 +183,25 @@ struct scrub_ctx {
 	atomic_t		workers_pending;
 	spinlock_t		list_lock;
 	wait_queue_head_t	list_wait;
+<<<<<<< HEAD
 	u16			csum_size;
+=======
+>>>>>>> upstream/android-13
 	struct list_head	csum_list;
 	atomic_t		cancel_req;
 	int			readonly;
 	int			pages_per_rd_bio;
 
+<<<<<<< HEAD
 	int			is_dev_replace;
+=======
+	/* State of IO submission throttling affecting the associated device */
+	ktime_t			throttle_deadline;
+	u64			throttle_sent;
+
+	int			is_dev_replace;
+	u64			write_pointer;
+>>>>>>> upstream/android-13
 
 	struct scrub_bio        *wr_curr_bio;
 	struct mutex            wr_lock;
@@ -204,9 +241,12 @@ struct full_stripe_lock {
 	struct mutex mutex;
 };
 
+<<<<<<< HEAD
 static void scrub_pending_bio_inc(struct scrub_ctx *sctx);
 static void scrub_pending_bio_dec(struct scrub_ctx *sctx);
 static int scrub_handle_errored_block(struct scrub_block *sblock_to_check);
+=======
+>>>>>>> upstream/android-13
 static int scrub_setup_recheck_block(struct scrub_block *original_sblock,
 				     struct scrub_block *sblocks_for_recheck);
 static void scrub_recheck_block(struct btrfs_fs_info *fs_info,
@@ -224,23 +264,36 @@ static int scrub_write_page_to_dev_replace(struct scrub_block *sblock,
 static int scrub_checksum_data(struct scrub_block *sblock);
 static int scrub_checksum_tree_block(struct scrub_block *sblock);
 static int scrub_checksum_super(struct scrub_block *sblock);
+<<<<<<< HEAD
 static void scrub_block_get(struct scrub_block *sblock);
+=======
+>>>>>>> upstream/android-13
 static void scrub_block_put(struct scrub_block *sblock);
 static void scrub_page_get(struct scrub_page *spage);
 static void scrub_page_put(struct scrub_page *spage);
 static void scrub_parity_get(struct scrub_parity *sparity);
 static void scrub_parity_put(struct scrub_parity *sparity);
+<<<<<<< HEAD
 static int scrub_add_page_to_rd_bio(struct scrub_ctx *sctx,
 				    struct scrub_page *spage);
 static int scrub_pages(struct scrub_ctx *sctx, u64 logical, u64 len,
 		       u64 physical, struct btrfs_device *dev, u64 flags,
 		       u64 gen, int mirror_num, u8 *csum, int force,
+=======
+static int scrub_pages(struct scrub_ctx *sctx, u64 logical, u32 len,
+		       u64 physical, struct btrfs_device *dev, u64 flags,
+		       u64 gen, int mirror_num, u8 *csum,
+>>>>>>> upstream/android-13
 		       u64 physical_for_dev_replace);
 static void scrub_bio_end_io(struct bio *bio);
 static void scrub_bio_end_io_worker(struct btrfs_work *work);
 static void scrub_block_complete(struct scrub_block *sblock);
 static void scrub_remap_extent(struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			       u64 extent_logical, u64 extent_len,
+=======
+			       u64 extent_logical, u32 extent_len,
+>>>>>>> upstream/android-13
 			       u64 *extent_physical,
 			       struct btrfs_device **extent_dev,
 			       int *extent_mirror_num);
@@ -249,6 +302,7 @@ static int scrub_add_page_to_wr_bio(struct scrub_ctx *sctx,
 static void scrub_wr_submit(struct scrub_ctx *sctx);
 static void scrub_wr_bio_end_io(struct bio *bio);
 static void scrub_wr_bio_end_io_worker(struct btrfs_work *work);
+<<<<<<< HEAD
 static void __scrub_blocked_if_needed(struct btrfs_fs_info *fs_info);
 static void scrub_blocked_if_needed(struct btrfs_fs_info *fs_info);
 static void scrub_put_ctx(struct scrub_ctx *sctx);
@@ -257,6 +311,14 @@ static inline int scrub_is_page_on_raid56(struct scrub_page *page)
 {
 	return page->recover &&
 	       (page->recover->bbio->map_type & BTRFS_BLOCK_GROUP_RAID56_MASK);
+=======
+static void scrub_put_ctx(struct scrub_ctx *sctx);
+
+static inline int scrub_is_page_on_raid56(struct scrub_page *spage)
+{
+	return spage->recover &&
+	       (spage->recover->bbio->map_type & BTRFS_BLOCK_GROUP_RAID56_MASK);
+>>>>>>> upstream/android-13
 }
 
 static void scrub_pending_bio_inc(struct scrub_ctx *sctx)
@@ -322,7 +384,10 @@ static struct full_stripe_lock *insert_full_stripe_lock(
 	struct rb_node *parent = NULL;
 	struct full_stripe_lock *entry;
 	struct full_stripe_lock *ret;
+<<<<<<< HEAD
 	unsigned int nofs_flag;
+=======
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&locks_root->lock);
 
@@ -342,6 +407,7 @@ static struct full_stripe_lock *insert_full_stripe_lock(
 
 	/*
 	 * Insert new lock.
+<<<<<<< HEAD
 	 *
 	 * We must use GFP_NOFS because the scrub task might be waiting for a
 	 * worker task executing this function and in turn a transaction commit
@@ -351,6 +417,10 @@ static struct full_stripe_lock *insert_full_stripe_lock(
 	nofs_flag = memalloc_nofs_save();
 	ret = kmalloc(sizeof(*ret), GFP_KERNEL);
 	memalloc_nofs_restore(nofs_flag);
+=======
+	 */
+	ret = kmalloc(sizeof(*ret), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ret)
 		return ERR_PTR(-ENOMEM);
 	ret->logical = fstripe_logical;
@@ -395,8 +465,12 @@ static struct full_stripe_lock *search_full_stripe_lock(
  *
  * Caller must ensure @cache is a RAID56 block group.
  */
+<<<<<<< HEAD
 static u64 get_full_stripe_logical(struct btrfs_block_group_cache *cache,
 				   u64 bytenr)
+=======
+static u64 get_full_stripe_logical(struct btrfs_block_group *cache, u64 bytenr)
+>>>>>>> upstream/android-13
 {
 	u64 ret;
 
@@ -410,8 +484,13 @@ static u64 get_full_stripe_logical(struct btrfs_block_group_cache *cache,
 	 * round_down() can only handle power of 2, while RAID56 full
 	 * stripe length can be 64KiB * n, so we need to manually round down.
 	 */
+<<<<<<< HEAD
 	ret = div64_u64(bytenr - cache->key.objectid, cache->full_stripe_len) *
 		cache->full_stripe_len + cache->key.objectid;
+=======
+	ret = div64_u64(bytenr - cache->start, cache->full_stripe_len) *
+			cache->full_stripe_len + cache->start;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -429,7 +508,11 @@ static u64 get_full_stripe_logical(struct btrfs_block_group_cache *cache,
 static int lock_full_stripe(struct btrfs_fs_info *fs_info, u64 bytenr,
 			    bool *locked_ret)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *bg_cache;
+=======
+	struct btrfs_block_group *bg_cache;
+>>>>>>> upstream/android-13
 	struct btrfs_full_stripe_locks_tree *locks_root;
 	struct full_stripe_lock *existing;
 	u64 fstripe_start;
@@ -476,7 +559,11 @@ out:
 static int unlock_full_stripe(struct btrfs_fs_info *fs_info, u64 bytenr,
 			      bool locked)
 {
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *bg_cache;
+=======
+	struct btrfs_block_group *bg_cache;
+>>>>>>> upstream/android-13
 	struct btrfs_full_stripe_locks_tree *locks_root;
 	struct full_stripe_lock *fstripe_lock;
 	u64 fstripe_start;
@@ -604,8 +691,13 @@ static noinline_for_stack struct scrub_ctx *scrub_setup_ctx(
 		sbio->index = i;
 		sbio->sctx = sctx;
 		sbio->page_count = 0;
+<<<<<<< HEAD
 		btrfs_init_work(&sbio->work, btrfs_scrub_helper,
 				scrub_bio_end_io_worker, NULL, NULL);
+=======
+		btrfs_init_work(&sbio->work, scrub_bio_end_io_worker, NULL,
+				NULL);
+>>>>>>> upstream/android-13
 
 		if (i != SCRUB_BIOS_PER_SCTX - 1)
 			sctx->bios[i]->next_free = i + 1;
@@ -616,11 +708,18 @@ static noinline_for_stack struct scrub_ctx *scrub_setup_ctx(
 	atomic_set(&sctx->bios_in_flight, 0);
 	atomic_set(&sctx->workers_pending, 0);
 	atomic_set(&sctx->cancel_req, 0);
+<<<<<<< HEAD
 	sctx->csum_size = btrfs_super_csum_size(fs_info->super_copy);
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&sctx->list_lock);
 	spin_lock_init(&sctx->stat_lock);
 	init_waitqueue_head(&sctx->list_wait);
+<<<<<<< HEAD
+=======
+	sctx->throttle_deadline = 0;
+>>>>>>> upstream/android-13
 
 	WARN_ON(sctx->wr_curr_bio != NULL);
 	mutex_init(&sctx->wr_lock);
@@ -642,7 +741,10 @@ nomem:
 static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 				     void *warn_ctx)
 {
+<<<<<<< HEAD
 	u64 isize;
+=======
+>>>>>>> upstream/android-13
 	u32 nlink;
 	int ret;
 	int i;
@@ -653,6 +755,7 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 	struct btrfs_fs_info *fs_info = swarn->dev->fs_info;
 	struct inode_fs_paths *ipath = NULL;
 	struct btrfs_root *local_root;
+<<<<<<< HEAD
 	struct btrfs_key root_key;
 	struct btrfs_key key;
 
@@ -660,6 +763,11 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 	root_key.type = BTRFS_ROOT_ITEM_KEY;
 	root_key.offset = (u64)-1;
 	local_root = btrfs_read_fs_root_no_name(fs_info, &root_key);
+=======
+	struct btrfs_key key;
+
+	local_root = btrfs_get_fs_root(fs_info, root, true);
+>>>>>>> upstream/android-13
 	if (IS_ERR(local_root)) {
 		ret = PTR_ERR(local_root);
 		goto err;
@@ -674,6 +782,10 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 
 	ret = btrfs_search_slot(NULL, local_root, &key, swarn->path, 0, 0);
 	if (ret) {
+<<<<<<< HEAD
+=======
+		btrfs_put_root(local_root);
+>>>>>>> upstream/android-13
 		btrfs_release_path(swarn->path);
 		goto err;
 	}
@@ -681,7 +793,10 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 	eb = swarn->path->nodes[0];
 	inode_item = btrfs_item_ptr(eb, swarn->path->slots[0],
 					struct btrfs_inode_item);
+<<<<<<< HEAD
 	isize = btrfs_inode_size(eb, inode_item);
+=======
+>>>>>>> upstream/android-13
 	nlink = btrfs_inode_nlink(eb, inode_item);
 	btrfs_release_path(swarn->path);
 
@@ -694,6 +809,10 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 	ipath = init_ipath(4096, local_root, swarn->path);
 	memalloc_nofs_restore(nofs_flag);
 	if (IS_ERR(ipath)) {
+<<<<<<< HEAD
+=======
+		btrfs_put_root(local_root);
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(ipath);
 		ipath = NULL;
 		goto err;
@@ -709,14 +828,25 @@ static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
 	 */
 	for (i = 0; i < ipath->fspath->elem_cnt; ++i)
 		btrfs_warn_in_rcu(fs_info,
+<<<<<<< HEAD
 "%s at logical %llu on dev %s, physical %llu, root %llu, inode %llu, offset %llu, length %llu, links %u (path: %s)",
+=======
+"%s at logical %llu on dev %s, physical %llu, root %llu, inode %llu, offset %llu, length %u, links %u (path: %s)",
+>>>>>>> upstream/android-13
 				  swarn->errstr, swarn->logical,
 				  rcu_str_deref(swarn->dev->name),
 				  swarn->physical,
 				  root, inum, offset,
+<<<<<<< HEAD
 				  min(isize - offset, (u64)PAGE_SIZE), nlink,
 				  (char *)(unsigned long)ipath->fspath->val[i]);
 
+=======
+				  fs_info->sectorsize, nlink,
+				  (char *)(unsigned long)ipath->fspath->val[i]);
+
+	btrfs_put_root(local_root);
+>>>>>>> upstream/android-13
 	free_ipath(ipath);
 	return 0;
 
@@ -841,7 +971,12 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 	int page_num;
 	int success;
 	bool full_stripe_locked;
+<<<<<<< HEAD
 	static DEFINE_RATELIMIT_STATE(_rs, DEFAULT_RATELIMIT_INTERVAL,
+=======
+	unsigned int nofs_flag;
+	static DEFINE_RATELIMIT_STATE(rs, DEFAULT_RATELIMIT_INTERVAL,
+>>>>>>> upstream/android-13
 				      DEFAULT_RATELIMIT_BURST);
 
 	BUG_ON(sblock_to_check->page_count < 1);
@@ -865,6 +1000,22 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 	have_csum = sblock_to_check->pagev[0]->have_csum;
 	dev = sblock_to_check->pagev[0]->dev;
 
+<<<<<<< HEAD
+=======
+	if (btrfs_is_zoned(fs_info) && !sctx->is_dev_replace)
+		return btrfs_repair_one_zone(fs_info, logical);
+
+	/*
+	 * We must use GFP_NOFS because the scrub task might be waiting for a
+	 * worker task executing this function and in turn a transaction commit
+	 * might be waiting the scrub task to pause (which needs to wait for all
+	 * the worker tasks to complete before pausing).
+	 * We do allocations in the workers through insert_full_stripe_lock()
+	 * and scrub_add_page_to_wr_bio(), which happens down the call chain of
+	 * this function.
+	 */
+	nofs_flag = memalloc_nofs_save();
+>>>>>>> upstream/android-13
 	/*
 	 * For RAID5/6, race can happen for a different device scrub thread.
 	 * For data corruption, Parity and Data threads will both try
@@ -874,6 +1025,10 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 	 */
 	ret = lock_full_stripe(fs_info, logical, &full_stripe_locked);
 	if (ret < 0) {
+<<<<<<< HEAD
+=======
+		memalloc_nofs_restore(nofs_flag);
+>>>>>>> upstream/android-13
 		spin_lock(&sctx->stat_lock);
 		if (ret == -ENOMEM)
 			sctx->stat.malloc_errors++;
@@ -887,11 +1042,16 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 	 * read all mirrors one after the other. This includes to
 	 * re-read the extent or metadata block that failed (that was
 	 * the cause that this fixup code is called) another time,
+<<<<<<< HEAD
 	 * page by page this time in order to know which pages
+=======
+	 * sector by sector this time in order to know which sectors
+>>>>>>> upstream/android-13
 	 * caused I/O errors and which ones are good (for all mirrors).
 	 * It is the goal to handle the situation when more than one
 	 * mirror contains I/O errors, but the errors do not
 	 * overlap, i.e. the data can be repaired by selecting the
+<<<<<<< HEAD
 	 * pages from those mirrors without I/O error on the
 	 * particular pages. One example (with blocks >= 2 * PAGE_SIZE)
 	 * would be that mirror #1 has an I/O error on the first page,
@@ -906,6 +1066,22 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 	 * the best data for repairing, the first attempt is to find
 	 * a mirror without I/O errors and with a validated checksum.
 	 * Only if this is not possible, the pages are picked from
+=======
+	 * sectors from those mirrors without I/O error on the
+	 * particular sectors. One example (with blocks >= 2 * sectorsize)
+	 * would be that mirror #1 has an I/O error on the first sector,
+	 * the second sector is good, and mirror #2 has an I/O error on
+	 * the second sector, but the first sector is good.
+	 * Then the first sector of the first mirror can be repaired by
+	 * taking the first sector of the second mirror, and the
+	 * second sector of the second mirror can be repaired by
+	 * copying the contents of the 2nd sector of the 1st mirror.
+	 * One more note: if the sectors of one mirror contain I/O
+	 * errors, the checksum cannot be verified. In order to get
+	 * the best data for repairing, the first attempt is to find
+	 * a mirror without I/O errors and with a validated checksum.
+	 * Only if this is not possible, the sectors are picked from
+>>>>>>> upstream/android-13
 	 * mirrors with I/O errors without considering the checksum.
 	 * If the latter is the case, at the end, the checksum of the
 	 * repaired area is verified in order to correctly maintain
@@ -913,7 +1089,11 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 	 */
 
 	sblocks_for_recheck = kcalloc(BTRFS_MAX_MIRRORS,
+<<<<<<< HEAD
 				      sizeof(*sblocks_for_recheck), GFP_NOFS);
+=======
+				      sizeof(*sblocks_for_recheck), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sblocks_for_recheck) {
 		spin_lock(&sctx->stat_lock);
 		sctx->stat.malloc_errors++;
@@ -964,14 +1144,22 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 		spin_lock(&sctx->stat_lock);
 		sctx->stat.read_errors++;
 		spin_unlock(&sctx->stat_lock);
+<<<<<<< HEAD
 		if (__ratelimit(&_rs))
+=======
+		if (__ratelimit(&rs))
+>>>>>>> upstream/android-13
 			scrub_print_warning("i/o error", sblock_to_check);
 		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_READ_ERRS);
 	} else if (sblock_bad->checksum_error) {
 		spin_lock(&sctx->stat_lock);
 		sctx->stat.csum_errors++;
 		spin_unlock(&sctx->stat_lock);
+<<<<<<< HEAD
 		if (__ratelimit(&_rs))
+=======
+		if (__ratelimit(&rs))
+>>>>>>> upstream/android-13
 			scrub_print_warning("checksum error", sblock_to_check);
 		btrfs_dev_stat_inc_and_print(dev,
 					     BTRFS_DEV_STAT_CORRUPTION_ERRS);
@@ -979,7 +1167,11 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 		spin_lock(&sctx->stat_lock);
 		sctx->stat.verify_errors++;
 		spin_unlock(&sctx->stat_lock);
+<<<<<<< HEAD
 		if (__ratelimit(&_rs))
+=======
+		if (__ratelimit(&rs))
+>>>>>>> upstream/android-13
 			scrub_print_warning("checksum/header error",
 					    sblock_to_check);
 		if (sblock_bad->generation_error)
@@ -1062,36 +1254,63 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 
 	/*
 	 * In case of I/O errors in the area that is supposed to be
+<<<<<<< HEAD
 	 * repaired, continue by picking good copies of those pages.
 	 * Select the good pages from mirrors to rewrite bad pages from
+=======
+	 * repaired, continue by picking good copies of those sectors.
+	 * Select the good sectors from mirrors to rewrite bad sectors from
+>>>>>>> upstream/android-13
 	 * the area to fix. Afterwards verify the checksum of the block
 	 * that is supposed to be repaired. This verification step is
 	 * only done for the purpose of statistic counting and for the
 	 * final scrub report, whether errors remain.
 	 * A perfect algorithm could make use of the checksum and try
+<<<<<<< HEAD
 	 * all possible combinations of pages from the different mirrors
 	 * until the checksum verification succeeds. For example, when
 	 * the 2nd page of mirror #1 faces I/O errors, and the 2nd page
 	 * of mirror #2 is readable but the final checksum test fails,
 	 * then the 2nd page of mirror #3 could be tried, whether now
+=======
+	 * all possible combinations of sectors from the different mirrors
+	 * until the checksum verification succeeds. For example, when
+	 * the 2nd sector of mirror #1 faces I/O errors, and the 2nd sector
+	 * of mirror #2 is readable but the final checksum test fails,
+	 * then the 2nd sector of mirror #3 could be tried, whether now
+>>>>>>> upstream/android-13
 	 * the final checksum succeeds. But this would be a rare
 	 * exception and is therefore not implemented. At least it is
 	 * avoided that the good copy is overwritten.
 	 * A more useful improvement would be to pick the sectors
 	 * without I/O error based on sector sizes (512 bytes on legacy
+<<<<<<< HEAD
 	 * disks) instead of on PAGE_SIZE. Then maybe 512 byte of one
 	 * mirror could be repaired by taking 512 byte of a different
 	 * mirror, even if other 512 byte sectors in the same PAGE_SIZE
+=======
+	 * disks) instead of on sectorsize. Then maybe 512 byte of one
+	 * mirror could be repaired by taking 512 byte of a different
+	 * mirror, even if other 512 byte sectors in the same sectorsize
+>>>>>>> upstream/android-13
 	 * area are unreadable.
 	 */
 	success = 1;
 	for (page_num = 0; page_num < sblock_bad->page_count;
 	     page_num++) {
+<<<<<<< HEAD
 		struct scrub_page *page_bad = sblock_bad->pagev[page_num];
 		struct scrub_block *sblock_other = NULL;
 
 		/* skip no-io-error page in scrub */
 		if (!page_bad->io_error && !sctx->is_dev_replace)
+=======
+		struct scrub_page *spage_bad = sblock_bad->pagev[page_num];
+		struct scrub_block *sblock_other = NULL;
+
+		/* skip no-io-error page in scrub */
+		if (!spage_bad->io_error && !sctx->is_dev_replace)
+>>>>>>> upstream/android-13
 			continue;
 
 		if (scrub_is_page_on_raid56(sblock_bad->pagev[0])) {
@@ -1103,7 +1322,11 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 			 * sblock_for_recheck array to target device.
 			 */
 			sblock_other = NULL;
+<<<<<<< HEAD
 		} else if (page_bad->io_error) {
+=======
+		} else if (spage_bad->io_error) {
+>>>>>>> upstream/android-13
 			/* try to find no-io-error page in mirrors */
 			for (mirror_index = 0;
 			     mirror_index < BTRFS_MAX_MIRRORS &&
@@ -1133,7 +1356,11 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 
 			if (scrub_write_page_to_dev_replace(sblock_other,
 							    page_num) != 0) {
+<<<<<<< HEAD
 				btrfs_dev_replace_stats_inc(
+=======
+				atomic64_inc(
+>>>>>>> upstream/android-13
 					&fs_info->dev_replace.num_write_errors);
 				success = 0;
 			}
@@ -1142,7 +1369,11 @@ static int scrub_handle_errored_block(struct scrub_block *sblock_to_check)
 							       sblock_other,
 							       page_num, 0);
 			if (0 == ret)
+<<<<<<< HEAD
 				page_bad->io_error = 0;
+=======
+				spage_bad->io_error = 0;
+>>>>>>> upstream/android-13
 			else
 				success = 0;
 		}
@@ -1211,6 +1442,10 @@ out:
 	}
 
 	ret = unlock_full_stripe(fs_info, logical, full_stripe_locked);
+<<<<<<< HEAD
+=======
+	memalloc_nofs_restore(nofs_flag);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 	return 0;
@@ -1261,7 +1496,11 @@ static int scrub_setup_recheck_block(struct scrub_block *original_sblock,
 {
 	struct scrub_ctx *sctx = original_sblock->sctx;
 	struct btrfs_fs_info *fs_info = sctx->fs_info;
+<<<<<<< HEAD
 	u64 length = original_sblock->page_count * PAGE_SIZE;
+=======
+	u64 length = original_sblock->page_count * fs_info->sectorsize;
+>>>>>>> upstream/android-13
 	u64 logical = original_sblock->pagev[0]->logical;
 	u64 generation = original_sblock->pagev[0]->generation;
 	u64 flags = original_sblock->pagev[0]->flags;
@@ -1284,13 +1523,22 @@ static int scrub_setup_recheck_block(struct scrub_block *original_sblock,
 	 */
 
 	while (length > 0) {
+<<<<<<< HEAD
 		sublen = min_t(u64, length, PAGE_SIZE);
+=======
+		sublen = min_t(u64, length, fs_info->sectorsize);
+>>>>>>> upstream/android-13
 		mapped_length = sublen;
 		bbio = NULL;
 
 		/*
+<<<<<<< HEAD
 		 * with a length of PAGE_SIZE, each returned stripe
 		 * represents one mirror
+=======
+		 * With a length of sectorsize, each returned stripe represents
+		 * one mirror
+>>>>>>> upstream/android-13
 		 */
 		btrfs_bio_counter_inc_blocked(fs_info);
 		ret = btrfs_map_sblock(fs_info, BTRFS_MAP_GET_READ_MIRRORS,
@@ -1319,13 +1567,22 @@ static int scrub_setup_recheck_block(struct scrub_block *original_sblock,
 		for (mirror_index = 0; mirror_index < nmirrors;
 		     mirror_index++) {
 			struct scrub_block *sblock;
+<<<<<<< HEAD
 			struct scrub_page *page;
+=======
+			struct scrub_page *spage;
+>>>>>>> upstream/android-13
 
 			sblock = sblocks_for_recheck + mirror_index;
 			sblock->sctx = sctx;
 
+<<<<<<< HEAD
 			page = kzalloc(sizeof(*page), GFP_NOFS);
 			if (!page) {
+=======
+			spage = kzalloc(sizeof(*spage), GFP_NOFS);
+			if (!spage) {
+>>>>>>> upstream/android-13
 leave_nomem:
 				spin_lock(&sctx->stat_lock);
 				sctx->stat.malloc_errors++;
@@ -1333,6 +1590,7 @@ leave_nomem:
 				scrub_put_recover(fs_info, recover);
 				return -ENOMEM;
 			}
+<<<<<<< HEAD
 			scrub_page_get(page);
 			sblock->pagev[page_index] = page;
 			page->sblock = sblock;
@@ -1344,6 +1602,19 @@ leave_nomem:
 				memcpy(page->csum,
 				       original_sblock->pagev[0]->csum,
 				       sctx->csum_size);
+=======
+			scrub_page_get(spage);
+			sblock->pagev[page_index] = spage;
+			spage->sblock = sblock;
+			spage->flags = flags;
+			spage->generation = generation;
+			spage->logical = logical;
+			spage->have_csum = have_csum;
+			if (have_csum)
+				memcpy(spage->csum,
+				       original_sblock->pagev[0]->csum,
+				       sctx->fs_info->csum_size);
+>>>>>>> upstream/android-13
 
 			scrub_stripe_index_and_offset(logical,
 						      bbio->map_type,
@@ -1354,6 +1625,7 @@ leave_nomem:
 						      mirror_index,
 						      &stripe_index,
 						      &stripe_offset);
+<<<<<<< HEAD
 			page->physical = bbio->stripes[stripe_index].physical +
 					 stripe_offset;
 			page->dev = bbio->stripes[stripe_index].dev;
@@ -1371,6 +1643,25 @@ leave_nomem:
 
 			scrub_get_recover(recover);
 			page->recover = recover;
+=======
+			spage->physical = bbio->stripes[stripe_index].physical +
+					 stripe_offset;
+			spage->dev = bbio->stripes[stripe_index].dev;
+
+			BUG_ON(page_index >= original_sblock->page_count);
+			spage->physical_for_dev_replace =
+				original_sblock->pagev[page_index]->
+				physical_for_dev_replace;
+			/* for missing devices, dev->bdev is NULL */
+			spage->mirror_num = mirror_index + 1;
+			sblock->page_count++;
+			spage->page = alloc_page(GFP_NOFS);
+			if (!spage->page)
+				goto leave_nomem;
+
+			scrub_get_recover(recover);
+			spage->recover = recover;
+>>>>>>> upstream/android-13
 		}
 		scrub_put_recover(fs_info, recover);
 		length -= sublen;
@@ -1388,12 +1679,17 @@ static void scrub_bio_wait_endio(struct bio *bio)
 
 static int scrub_submit_raid56_bio_wait(struct btrfs_fs_info *fs_info,
 					struct bio *bio,
+<<<<<<< HEAD
 					struct scrub_page *page)
+=======
+					struct scrub_page *spage)
+>>>>>>> upstream/android-13
 {
 	DECLARE_COMPLETION_ONSTACK(done);
 	int ret;
 	int mirror_num;
 
+<<<<<<< HEAD
 	bio->bi_iter.bi_sector = page->logical >> 9;
 	bio->bi_private = &done;
 	bio->bi_end_io = scrub_bio_wait_endio;
@@ -1401,6 +1697,15 @@ static int scrub_submit_raid56_bio_wait(struct btrfs_fs_info *fs_info,
 	mirror_num = page->sblock->pagev[0]->mirror_num;
 	ret = raid56_parity_recover(fs_info, bio, page->recover->bbio,
 				    page->recover->map_length,
+=======
+	bio->bi_iter.bi_sector = spage->logical >> 9;
+	bio->bi_private = &done;
+	bio->bi_end_io = scrub_bio_wait_endio;
+
+	mirror_num = spage->sblock->pagev[0]->mirror_num;
+	ret = raid56_parity_recover(fs_info, bio, spage->recover->bbio,
+				    spage->recover->map_length,
+>>>>>>> upstream/android-13
 				    mirror_num, 0);
 	if (ret)
 		return ret;
@@ -1421,6 +1726,7 @@ static void scrub_recheck_block_on_raid56(struct btrfs_fs_info *fs_info,
 	if (!first_page->dev->bdev)
 		goto out;
 
+<<<<<<< HEAD
 	bio = btrfs_io_bio_alloc(BIO_MAX_PAGES);
 	bio_set_dev(bio, first_page->dev->bdev);
 
@@ -1429,6 +1735,16 @@ static void scrub_recheck_block_on_raid56(struct btrfs_fs_info *fs_info,
 
 		WARN_ON(!page->page);
 		bio_add_page(bio, page->page, PAGE_SIZE, 0);
+=======
+	bio = btrfs_io_bio_alloc(BIO_MAX_VECS);
+	bio_set_dev(bio, first_page->dev->bdev);
+
+	for (page_num = 0; page_num < sblock->page_count; page_num++) {
+		struct scrub_page *spage = sblock->pagev[page_num];
+
+		WARN_ON(!spage->page);
+		bio_add_page(bio, spage->page, PAGE_SIZE, 0);
+>>>>>>> upstream/android-13
 	}
 
 	if (scrub_submit_raid56_bio_wait(fs_info, bio, first_page)) {
@@ -1469,14 +1785,22 @@ static void scrub_recheck_block(struct btrfs_fs_info *fs_info,
 
 	for (page_num = 0; page_num < sblock->page_count; page_num++) {
 		struct bio *bio;
+<<<<<<< HEAD
 		struct scrub_page *page = sblock->pagev[page_num];
 
 		if (page->dev->bdev == NULL) {
 			page->io_error = 1;
+=======
+		struct scrub_page *spage = sblock->pagev[page_num];
+
+		if (spage->dev->bdev == NULL) {
+			spage->io_error = 1;
+>>>>>>> upstream/android-13
 			sblock->no_io_error_seen = 0;
 			continue;
 		}
 
+<<<<<<< HEAD
 		WARN_ON(!page->page);
 		bio = btrfs_io_bio_alloc(1);
 		bio_set_dev(bio, page->dev->bdev);
@@ -1487,6 +1811,18 @@ static void scrub_recheck_block(struct btrfs_fs_info *fs_info,
 
 		if (btrfsic_submit_bio_wait(bio)) {
 			page->io_error = 1;
+=======
+		WARN_ON(!spage->page);
+		bio = btrfs_io_bio_alloc(1);
+		bio_set_dev(bio, spage->dev->bdev);
+
+		bio_add_page(bio, spage->page, fs_info->sectorsize, 0);
+		bio->bi_iter.bi_sector = spage->physical >> 9;
+		bio->bi_opf = REQ_OP_READ;
+
+		if (btrfsic_submit_bio_wait(bio)) {
+			spage->io_error = 1;
+>>>>>>> upstream/android-13
 			sblock->no_io_error_seen = 0;
 		}
 
@@ -1542,6 +1878,7 @@ static int scrub_repair_page_from_good_copy(struct scrub_block *sblock_bad,
 					    struct scrub_block *sblock_good,
 					    int page_num, int force_write)
 {
+<<<<<<< HEAD
 	struct scrub_page *page_bad = sblock_bad->pagev[page_num];
 	struct scrub_page *page_good = sblock_good->pagev[page_num];
 	struct btrfs_fs_info *fs_info = sblock_bad->sctx->fs_info;
@@ -1554,27 +1891,57 @@ static int scrub_repair_page_from_good_copy(struct scrub_block *sblock_bad,
 		int ret;
 
 		if (!page_bad->dev->bdev) {
+=======
+	struct scrub_page *spage_bad = sblock_bad->pagev[page_num];
+	struct scrub_page *spage_good = sblock_good->pagev[page_num];
+	struct btrfs_fs_info *fs_info = sblock_bad->sctx->fs_info;
+	const u32 sectorsize = fs_info->sectorsize;
+
+	BUG_ON(spage_bad->page == NULL);
+	BUG_ON(spage_good->page == NULL);
+	if (force_write || sblock_bad->header_error ||
+	    sblock_bad->checksum_error || spage_bad->io_error) {
+		struct bio *bio;
+		int ret;
+
+		if (!spage_bad->dev->bdev) {
+>>>>>>> upstream/android-13
 			btrfs_warn_rl(fs_info,
 				"scrub_repair_page_from_good_copy(bdev == NULL) is unexpected");
 			return -EIO;
 		}
 
 		bio = btrfs_io_bio_alloc(1);
+<<<<<<< HEAD
 		bio_set_dev(bio, page_bad->dev->bdev);
 		bio->bi_iter.bi_sector = page_bad->physical >> 9;
 		bio->bi_opf = REQ_OP_WRITE;
 
 		ret = bio_add_page(bio, page_good->page, PAGE_SIZE, 0);
 		if (PAGE_SIZE != ret) {
+=======
+		bio_set_dev(bio, spage_bad->dev->bdev);
+		bio->bi_iter.bi_sector = spage_bad->physical >> 9;
+		bio->bi_opf = REQ_OP_WRITE;
+
+		ret = bio_add_page(bio, spage_good->page, sectorsize, 0);
+		if (ret != sectorsize) {
+>>>>>>> upstream/android-13
 			bio_put(bio);
 			return -EIO;
 		}
 
 		if (btrfsic_submit_bio_wait(bio)) {
+<<<<<<< HEAD
 			btrfs_dev_stat_inc_and_print(page_bad->dev,
 				BTRFS_DEV_STAT_WRITE_ERRS);
 			btrfs_dev_replace_stats_inc(
 				&fs_info->dev_replace.num_write_errors);
+=======
+			btrfs_dev_stat_inc_and_print(spage_bad->dev,
+				BTRFS_DEV_STAT_WRITE_ERRS);
+			atomic64_inc(&fs_info->dev_replace.num_write_errors);
+>>>>>>> upstream/android-13
 			bio_put(bio);
 			return -EIO;
 		}
@@ -1601,8 +1968,12 @@ static void scrub_write_block_to_dev_replace(struct scrub_block *sblock)
 
 		ret = scrub_write_page_to_dev_replace(sblock, page_num);
 		if (ret)
+<<<<<<< HEAD
 			btrfs_dev_replace_stats_inc(
 				&fs_info->dev_replace.num_write_errors);
+=======
+			atomic64_inc(&fs_info->dev_replace.num_write_errors);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1612,6 +1983,7 @@ static int scrub_write_page_to_dev_replace(struct scrub_block *sblock,
 	struct scrub_page *spage = sblock->pagev[page_num];
 
 	BUG_ON(spage->page == NULL);
+<<<<<<< HEAD
 	if (spage->io_error) {
 		void *mapped_buffer = kmap_atomic(spage->page);
 
@@ -1622,15 +1994,50 @@ static int scrub_write_page_to_dev_replace(struct scrub_block *sblock,
 	return scrub_add_page_to_wr_bio(sblock->sctx, spage);
 }
 
+=======
+	if (spage->io_error)
+		clear_page(page_address(spage->page));
+
+	return scrub_add_page_to_wr_bio(sblock->sctx, spage);
+}
+
+static int fill_writer_pointer_gap(struct scrub_ctx *sctx, u64 physical)
+{
+	int ret = 0;
+	u64 length;
+
+	if (!btrfs_is_zoned(sctx->fs_info))
+		return 0;
+
+	if (!btrfs_dev_is_sequential(sctx->wr_tgtdev, physical))
+		return 0;
+
+	if (sctx->write_pointer < physical) {
+		length = physical - sctx->write_pointer;
+
+		ret = btrfs_zoned_issue_zeroout(sctx->wr_tgtdev,
+						sctx->write_pointer, length);
+		if (!ret)
+			sctx->write_pointer = physical;
+	}
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int scrub_add_page_to_wr_bio(struct scrub_ctx *sctx,
 				    struct scrub_page *spage)
 {
 	struct scrub_bio *sbio;
 	int ret;
+<<<<<<< HEAD
+=======
+	const u32 sectorsize = sctx->fs_info->sectorsize;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&sctx->wr_lock);
 again:
 	if (!sctx->wr_curr_bio) {
+<<<<<<< HEAD
 		unsigned int nofs_flag;
 
 		/*
@@ -1644,6 +2051,10 @@ again:
 		sctx->wr_curr_bio = kzalloc(sizeof(*sctx->wr_curr_bio),
 					      GFP_KERNEL);
 		memalloc_nofs_restore(nofs_flag);
+=======
+		sctx->wr_curr_bio = kzalloc(sizeof(*sctx->wr_curr_bio),
+					      GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!sctx->wr_curr_bio) {
 			mutex_unlock(&sctx->wr_lock);
 			return -ENOMEM;
@@ -1655,6 +2066,16 @@ again:
 	if (sbio->page_count == 0) {
 		struct bio *bio;
 
+<<<<<<< HEAD
+=======
+		ret = fill_writer_pointer_gap(sctx,
+					      spage->physical_for_dev_replace);
+		if (ret) {
+			mutex_unlock(&sctx->wr_lock);
+			return ret;
+		}
+
+>>>>>>> upstream/android-13
 		sbio->physical = spage->physical_for_dev_replace;
 		sbio->logical = spage->logical;
 		sbio->dev = sctx->wr_tgtdev;
@@ -1670,16 +2091,27 @@ again:
 		bio->bi_iter.bi_sector = sbio->physical >> 9;
 		bio->bi_opf = REQ_OP_WRITE;
 		sbio->status = 0;
+<<<<<<< HEAD
 	} else if (sbio->physical + sbio->page_count * PAGE_SIZE !=
 		   spage->physical_for_dev_replace ||
 		   sbio->logical + sbio->page_count * PAGE_SIZE !=
+=======
+	} else if (sbio->physical + sbio->page_count * sectorsize !=
+		   spage->physical_for_dev_replace ||
+		   sbio->logical + sbio->page_count * sectorsize !=
+>>>>>>> upstream/android-13
 		   spage->logical) {
 		scrub_wr_submit(sctx);
 		goto again;
 	}
 
+<<<<<<< HEAD
 	ret = bio_add_page(sbio->bio, spage->page, PAGE_SIZE, 0);
 	if (ret != PAGE_SIZE) {
+=======
+	ret = bio_add_page(sbio->bio, spage->page, sectorsize, 0);
+	if (ret != sectorsize) {
+>>>>>>> upstream/android-13
 		if (sbio->page_count < 1) {
 			bio_put(sbio->bio);
 			sbio->bio = NULL;
@@ -1709,13 +2141,24 @@ static void scrub_wr_submit(struct scrub_ctx *sctx)
 
 	sbio = sctx->wr_curr_bio;
 	sctx->wr_curr_bio = NULL;
+<<<<<<< HEAD
 	WARN_ON(!sbio->bio->bi_disk);
+=======
+	WARN_ON(!sbio->bio->bi_bdev);
+>>>>>>> upstream/android-13
 	scrub_pending_bio_inc(sctx);
 	/* process all writes in a single worker thread. Then the block layer
 	 * orders the requests before sending them to the driver which
 	 * doubled the write performance on spinning disks when measured
 	 * with Linux 3.5 */
 	btrfsic_submit_bio(sbio->bio);
+<<<<<<< HEAD
+=======
+
+	if (btrfs_is_zoned(sctx->fs_info))
+		sctx->write_pointer = sbio->physical + sbio->page_count *
+			sctx->fs_info->sectorsize;
+>>>>>>> upstream/android-13
 }
 
 static void scrub_wr_bio_end_io(struct bio *bio)
@@ -1726,8 +2169,12 @@ static void scrub_wr_bio_end_io(struct bio *bio)
 	sbio->status = bio->bi_status;
 	sbio->bio = bio;
 
+<<<<<<< HEAD
 	btrfs_init_work(&sbio->work, btrfs_scrubwrc_helper,
 			 scrub_wr_bio_end_io_worker, NULL, NULL);
+=======
+	btrfs_init_work(&sbio->work, scrub_wr_bio_end_io_worker, NULL, NULL);
+>>>>>>> upstream/android-13
 	btrfs_queue_work(fs_info->scrub_wr_completion_workers, &sbio->work);
 }
 
@@ -1746,8 +2193,12 @@ static void scrub_wr_bio_end_io_worker(struct btrfs_work *work)
 			struct scrub_page *spage = sbio->pagev[i];
 
 			spage->io_error = 1;
+<<<<<<< HEAD
 			btrfs_dev_replace_stats_inc(&dev_replace->
 						    num_write_errors);
+=======
+			atomic64_inc(&dev_replace->num_write_errors);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1796,6 +2247,7 @@ static int scrub_checksum(struct scrub_block *sblock)
 static int scrub_checksum_data(struct scrub_block *sblock)
 {
 	struct scrub_ctx *sctx = sblock->sctx;
+<<<<<<< HEAD
 	u8 csum[BTRFS_CSUM_SIZE];
 	u8 *on_disk_csum;
 	struct page *page;
@@ -1833,6 +2285,32 @@ static int scrub_checksum_data(struct scrub_block *sblock)
 	if (memcmp(csum, on_disk_csum, sctx->csum_size))
 		sblock->checksum_error = 1;
 
+=======
+	struct btrfs_fs_info *fs_info = sctx->fs_info;
+	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+	u8 csum[BTRFS_CSUM_SIZE];
+	struct scrub_page *spage;
+	char *kaddr;
+
+	BUG_ON(sblock->page_count < 1);
+	spage = sblock->pagev[0];
+	if (!spage->have_csum)
+		return 0;
+
+	kaddr = page_address(spage->page);
+
+	shash->tfm = fs_info->csum_shash;
+	crypto_shash_init(shash);
+
+	/*
+	 * In scrub_pages() and scrub_pages_for_parity() we ensure each spage
+	 * only contains one sector of data.
+	 */
+	crypto_shash_digest(shash, kaddr, fs_info->sectorsize, csum);
+
+	if (memcmp(csum, spage->csum, fs_info->csum_size))
+		sblock->checksum_error = 1;
+>>>>>>> upstream/android-13
 	return sblock->checksum_error;
 }
 
@@ -1841,6 +2319,7 @@ static int scrub_checksum_tree_block(struct scrub_block *sblock)
 	struct scrub_ctx *sctx = sblock->sctx;
 	struct btrfs_header *h;
 	struct btrfs_fs_info *fs_info = sctx->fs_info;
+<<<<<<< HEAD
 	u8 calculated_csum[BTRFS_CSUM_SIZE];
 	u8 on_disk_csum[BTRFS_CSUM_SIZE];
 	struct page *page;
@@ -1856,27 +2335,64 @@ static int scrub_checksum_tree_block(struct scrub_block *sblock)
 	mapped_buffer = kmap_atomic(page);
 	h = (struct btrfs_header *)mapped_buffer;
 	memcpy(on_disk_csum, h->csum, sctx->csum_size);
+=======
+	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+	u8 calculated_csum[BTRFS_CSUM_SIZE];
+	u8 on_disk_csum[BTRFS_CSUM_SIZE];
+	/*
+	 * This is done in sectorsize steps even for metadata as there's a
+	 * constraint for nodesize to be aligned to sectorsize. This will need
+	 * to change so we don't misuse data and metadata units like that.
+	 */
+	const u32 sectorsize = sctx->fs_info->sectorsize;
+	const int num_sectors = fs_info->nodesize >> fs_info->sectorsize_bits;
+	int i;
+	struct scrub_page *spage;
+	char *kaddr;
+
+	BUG_ON(sblock->page_count < 1);
+
+	/* Each member in pagev is just one block, not a full page */
+	ASSERT(sblock->page_count == num_sectors);
+
+	spage = sblock->pagev[0];
+	kaddr = page_address(spage->page);
+	h = (struct btrfs_header *)kaddr;
+	memcpy(on_disk_csum, h->csum, sctx->fs_info->csum_size);
+>>>>>>> upstream/android-13
 
 	/*
 	 * we don't use the getter functions here, as we
 	 * a) don't have an extent buffer and
 	 * b) the page is already kmapped
 	 */
+<<<<<<< HEAD
 	if (sblock->pagev[0]->logical != btrfs_stack_header_bytenr(h))
 		sblock->header_error = 1;
 
 	if (sblock->pagev[0]->generation != btrfs_stack_header_generation(h)) {
+=======
+	if (spage->logical != btrfs_stack_header_bytenr(h))
+		sblock->header_error = 1;
+
+	if (spage->generation != btrfs_stack_header_generation(h)) {
+>>>>>>> upstream/android-13
 		sblock->header_error = 1;
 		sblock->generation_error = 1;
 	}
 
+<<<<<<< HEAD
 	if (!scrub_check_fsid(h->fsid, sblock->pagev[0]))
+=======
+	if (!scrub_check_fsid(h->fsid, spage))
+>>>>>>> upstream/android-13
 		sblock->header_error = 1;
 
 	if (memcmp(h->chunk_tree_uuid, fs_info->chunk_tree_uuid,
 		   BTRFS_UUID_SIZE))
 		sblock->header_error = 1;
 
+<<<<<<< HEAD
 	len = sctx->fs_info->nodesize - BTRFS_CSUM_SIZE;
 	mapped_size = PAGE_SIZE - BTRFS_CSUM_SIZE;
 	p = ((u8 *)mapped_buffer) + BTRFS_CSUM_SIZE;
@@ -1900,6 +2416,20 @@ static int scrub_checksum_tree_block(struct scrub_block *sblock)
 
 	btrfs_csum_final(crc, calculated_csum);
 	if (memcmp(calculated_csum, on_disk_csum, sctx->csum_size))
+=======
+	shash->tfm = fs_info->csum_shash;
+	crypto_shash_init(shash);
+	crypto_shash_update(shash, kaddr + BTRFS_CSUM_SIZE,
+			    sectorsize - BTRFS_CSUM_SIZE);
+
+	for (i = 1; i < num_sectors; i++) {
+		kaddr = page_address(sblock->pagev[i]->page);
+		crypto_shash_update(shash, kaddr, sectorsize);
+	}
+
+	crypto_shash_final(shash, calculated_csum);
+	if (memcmp(calculated_csum, on_disk_csum, sctx->fs_info->csum_size))
+>>>>>>> upstream/android-13
 		sblock->checksum_error = 1;
 
 	return sblock->header_error || sblock->checksum_error;
@@ -1909,6 +2439,7 @@ static int scrub_checksum_super(struct scrub_block *sblock)
 {
 	struct btrfs_super_block *s;
 	struct scrub_ctx *sctx = sblock->sctx;
+<<<<<<< HEAD
 	u8 calculated_csum[BTRFS_CSUM_SIZE];
 	u8 on_disk_csum[BTRFS_CSUM_SIZE];
 	struct page *page;
@@ -1959,6 +2490,36 @@ static int scrub_checksum_super(struct scrub_block *sblock)
 
 	btrfs_csum_final(crc, calculated_csum);
 	if (memcmp(calculated_csum, on_disk_csum, sctx->csum_size))
+=======
+	struct btrfs_fs_info *fs_info = sctx->fs_info;
+	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+	u8 calculated_csum[BTRFS_CSUM_SIZE];
+	struct scrub_page *spage;
+	char *kaddr;
+	int fail_gen = 0;
+	int fail_cor = 0;
+
+	BUG_ON(sblock->page_count < 1);
+	spage = sblock->pagev[0];
+	kaddr = page_address(spage->page);
+	s = (struct btrfs_super_block *)kaddr;
+
+	if (spage->logical != btrfs_super_bytenr(s))
+		++fail_cor;
+
+	if (spage->generation != btrfs_super_generation(s))
+		++fail_gen;
+
+	if (!scrub_check_fsid(s->fsid, spage))
+		++fail_cor;
+
+	shash->tfm = fs_info->csum_shash;
+	crypto_shash_init(shash);
+	crypto_shash_digest(shash, kaddr + BTRFS_CSUM_SIZE,
+			BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE, calculated_csum);
+
+	if (memcmp(calculated_csum, s->csum, sctx->fs_info->csum_size))
+>>>>>>> upstream/android-13
 		++fail_cor;
 
 	if (fail_cor + fail_gen) {
@@ -1971,10 +2532,17 @@ static int scrub_checksum_super(struct scrub_block *sblock)
 		++sctx->stat.super_errors;
 		spin_unlock(&sctx->stat_lock);
 		if (fail_cor)
+<<<<<<< HEAD
 			btrfs_dev_stat_inc_and_print(sblock->pagev[0]->dev,
 				BTRFS_DEV_STAT_CORRUPTION_ERRS);
 		else
 			btrfs_dev_stat_inc_and_print(sblock->pagev[0]->dev,
+=======
+			btrfs_dev_stat_inc_and_print(spage->dev,
+				BTRFS_DEV_STAT_CORRUPTION_ERRS);
+		else
+			btrfs_dev_stat_inc_and_print(spage->dev,
+>>>>>>> upstream/android-13
 				BTRFS_DEV_STAT_GENERATION_ERRS);
 	}
 
@@ -2014,6 +2582,68 @@ static void scrub_page_put(struct scrub_page *spage)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Throttling of IO submission, bandwidth-limit based, the timeslice is 1
+ * second.  Limit can be set via /sys/fs/UUID/devinfo/devid/scrub_speed_max.
+ */
+static void scrub_throttle(struct scrub_ctx *sctx)
+{
+	const int time_slice = 1000;
+	struct scrub_bio *sbio;
+	struct btrfs_device *device;
+	s64 delta;
+	ktime_t now;
+	u32 div;
+	u64 bwlimit;
+
+	sbio = sctx->bios[sctx->curr];
+	device = sbio->dev;
+	bwlimit = READ_ONCE(device->scrub_speed_max);
+	if (bwlimit == 0)
+		return;
+
+	/*
+	 * Slice is divided into intervals when the IO is submitted, adjust by
+	 * bwlimit and maximum of 64 intervals.
+	 */
+	div = max_t(u32, 1, (u32)(bwlimit / (16 * 1024 * 1024)));
+	div = min_t(u32, 64, div);
+
+	/* Start new epoch, set deadline */
+	now = ktime_get();
+	if (sctx->throttle_deadline == 0) {
+		sctx->throttle_deadline = ktime_add_ms(now, time_slice / div);
+		sctx->throttle_sent = 0;
+	}
+
+	/* Still in the time to send? */
+	if (ktime_before(now, sctx->throttle_deadline)) {
+		/* If current bio is within the limit, send it */
+		sctx->throttle_sent += sbio->bio->bi_iter.bi_size;
+		if (sctx->throttle_sent <= div_u64(bwlimit, div))
+			return;
+
+		/* We're over the limit, sleep until the rest of the slice */
+		delta = ktime_ms_delta(sctx->throttle_deadline, now);
+	} else {
+		/* New request after deadline, start new epoch */
+		delta = 0;
+	}
+
+	if (delta) {
+		long timeout;
+
+		timeout = div_u64(delta * HZ, 1000);
+		schedule_timeout_interruptible(timeout);
+	}
+
+	/* Next call will start the deadline period */
+	sctx->throttle_deadline = 0;
+}
+
+>>>>>>> upstream/android-13
 static void scrub_submit(struct scrub_ctx *sctx)
 {
 	struct scrub_bio *sbio;
@@ -2021,6 +2651,11 @@ static void scrub_submit(struct scrub_ctx *sctx)
 	if (sctx->curr == -1)
 		return;
 
+<<<<<<< HEAD
+=======
+	scrub_throttle(sctx);
+
+>>>>>>> upstream/android-13
 	sbio = sctx->bios[sctx->curr];
 	sctx->curr = -1;
 	scrub_pending_bio_inc(sctx);
@@ -2032,6 +2667,10 @@ static int scrub_add_page_to_rd_bio(struct scrub_ctx *sctx,
 {
 	struct scrub_block *sblock = spage->sblock;
 	struct scrub_bio *sbio;
+<<<<<<< HEAD
+=======
+	const u32 sectorsize = sctx->fs_info->sectorsize;
+>>>>>>> upstream/android-13
 	int ret;
 
 again:
@@ -2070,9 +2709,15 @@ again:
 		bio->bi_iter.bi_sector = sbio->physical >> 9;
 		bio->bi_opf = REQ_OP_READ;
 		sbio->status = 0;
+<<<<<<< HEAD
 	} else if (sbio->physical + sbio->page_count * PAGE_SIZE !=
 		   spage->physical ||
 		   sbio->logical + sbio->page_count * PAGE_SIZE !=
+=======
+	} else if (sbio->physical + sbio->page_count * sectorsize !=
+		   spage->physical ||
+		   sbio->logical + sbio->page_count * sectorsize !=
+>>>>>>> upstream/android-13
 		   spage->logical ||
 		   sbio->dev != spage->dev) {
 		scrub_submit(sctx);
@@ -2080,8 +2725,13 @@ again:
 	}
 
 	sbio->pagev[sbio->page_count] = spage;
+<<<<<<< HEAD
 	ret = bio_add_page(sbio->bio, spage->page, PAGE_SIZE, 0);
 	if (ret != PAGE_SIZE) {
+=======
+	ret = bio_add_page(sbio->bio, spage->page, sectorsize, 0);
+	if (ret != sectorsize) {
+>>>>>>> upstream/android-13
 		if (sbio->page_count < 1) {
 			bio_put(sbio->bio);
 			sbio->bio = NULL;
@@ -2199,8 +2849,12 @@ static void scrub_missing_raid56_pages(struct scrub_block *sblock)
 		raid56_add_scrub_pages(rbio, spage->page, spage->logical);
 	}
 
+<<<<<<< HEAD
 	btrfs_init_work(&sblock->work, btrfs_scrub_helper,
 			scrub_missing_raid56_worker, NULL, NULL);
+=======
+	btrfs_init_work(&sblock->work, scrub_missing_raid56_worker, NULL, NULL);
+>>>>>>> upstream/android-13
 	scrub_block_get(sblock);
 	scrub_pending_bio_inc(sctx);
 	raid56_submit_missing_rbio(rbio);
@@ -2216,12 +2870,22 @@ bbio_out:
 	spin_unlock(&sctx->stat_lock);
 }
 
+<<<<<<< HEAD
 static int scrub_pages(struct scrub_ctx *sctx, u64 logical, u64 len,
 		       u64 physical, struct btrfs_device *dev, u64 flags,
 		       u64 gen, int mirror_num, u8 *csum, int force,
 		       u64 physical_for_dev_replace)
 {
 	struct scrub_block *sblock;
+=======
+static int scrub_pages(struct scrub_ctx *sctx, u64 logical, u32 len,
+		       u64 physical, struct btrfs_device *dev, u64 flags,
+		       u64 gen, int mirror_num, u8 *csum,
+		       u64 physical_for_dev_replace)
+{
+	struct scrub_block *sblock;
+	const u32 sectorsize = sctx->fs_info->sectorsize;
+>>>>>>> upstream/android-13
 	int index;
 
 	sblock = kzalloc(sizeof(*sblock), GFP_KERNEL);
@@ -2240,7 +2904,16 @@ static int scrub_pages(struct scrub_ctx *sctx, u64 logical, u64 len,
 
 	for (index = 0; len > 0; index++) {
 		struct scrub_page *spage;
+<<<<<<< HEAD
 		u64 l = min_t(u64, len, PAGE_SIZE);
+=======
+		/*
+		 * Here we will allocate one page for one sector to scrub.
+		 * This is fine if PAGE_SIZE == sectorsize, but will cost
+		 * more memory for PAGE_SIZE > sectorsize case.
+		 */
+		u32 l = min(sectorsize, len);
+>>>>>>> upstream/android-13
 
 		spage = kzalloc(sizeof(*spage), GFP_KERNEL);
 		if (!spage) {
@@ -2264,7 +2937,11 @@ leave_nomem:
 		spage->mirror_num = mirror_num;
 		if (csum) {
 			spage->have_csum = 1;
+<<<<<<< HEAD
 			memcpy(spage->csum, csum, sctx->csum_size);
+=======
+			memcpy(spage->csum, csum, sctx->fs_info->csum_size);
+>>>>>>> upstream/android-13
 		} else {
 			spage->have_csum = 0;
 		}
@@ -2297,7 +2974,11 @@ leave_nomem:
 			}
 		}
 
+<<<<<<< HEAD
 		if (force)
+=======
+		if (flags & BTRFS_EXTENT_FLAG_SUPER)
+>>>>>>> upstream/android-13
 			scrub_submit(sctx);
 	}
 
@@ -2361,12 +3042,20 @@ static void scrub_bio_end_io_worker(struct btrfs_work *work)
 
 static inline void __scrub_mark_bitmap(struct scrub_parity *sparity,
 				       unsigned long *bitmap,
+<<<<<<< HEAD
 				       u64 start, u64 len)
 {
 	u64 offset;
 	u64 nsectors64;
 	u32 nsectors;
 	int sectorsize = sparity->sctx->fs_info->sectorsize;
+=======
+				       u64 start, u32 len)
+{
+	u64 offset;
+	u32 nsectors;
+	u32 sectorsize_bits = sparity->sctx->fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 
 	if (len >= sparity->stripe_len) {
 		bitmap_set(bitmap, 0, sparity->nsectors);
@@ -2375,11 +3064,16 @@ static inline void __scrub_mark_bitmap(struct scrub_parity *sparity,
 
 	start -= sparity->logic_start;
 	start = div64_u64_rem(start, sparity->stripe_len, &offset);
+<<<<<<< HEAD
 	offset = div_u64(offset, sectorsize);
 	nsectors64 = div_u64(len, sectorsize);
 
 	ASSERT(nsectors64 < UINT_MAX);
 	nsectors = (u32)nsectors64;
+=======
+	offset = offset >> sectorsize_bits;
+	nsectors = len >> sectorsize_bits;
+>>>>>>> upstream/android-13
 
 	if (offset + nsectors <= sparity->nsectors) {
 		bitmap_set(bitmap, offset, nsectors);
@@ -2391,13 +3085,21 @@ static inline void __scrub_mark_bitmap(struct scrub_parity *sparity,
 }
 
 static inline void scrub_parity_mark_sectors_error(struct scrub_parity *sparity,
+<<<<<<< HEAD
 						   u64 start, u64 len)
+=======
+						   u64 start, u32 len)
+>>>>>>> upstream/android-13
 {
 	__scrub_mark_bitmap(sparity, sparity->ebitmap, start, len);
 }
 
 static inline void scrub_parity_mark_sectors_data(struct scrub_parity *sparity,
+<<<<<<< HEAD
 						  u64 start, u64 len)
+=======
+						  u64 start, u32 len)
+>>>>>>> upstream/android-13
 {
 	__scrub_mark_bitmap(sparity, sparity->dbitmap, start, len);
 }
@@ -2423,13 +3125,20 @@ static void scrub_block_complete(struct scrub_block *sblock)
 	if (sblock->sparity && corrupted && !sblock->data_corrected) {
 		u64 start = sblock->pagev[0]->logical;
 		u64 end = sblock->pagev[sblock->page_count - 1]->logical +
+<<<<<<< HEAD
 			  PAGE_SIZE;
 
+=======
+			  sblock->sctx->fs_info->sectorsize;
+
+		ASSERT(end - start <= U32_MAX);
+>>>>>>> upstream/android-13
 		scrub_parity_mark_sectors_error(sblock->sparity,
 						start, end - start);
 	}
 }
 
+<<<<<<< HEAD
 static int scrub_find_csum(struct scrub_ctx *sctx, u64 logical, u8 *csum)
 {
 	struct btrfs_ordered_sum *sum = NULL;
@@ -2461,12 +3170,77 @@ static int scrub_find_csum(struct scrub_ctx *sctx, u64 logical, u8 *csum)
 		list_del(&sum->list);
 		kfree(sum);
 	}
+=======
+static void drop_csum_range(struct scrub_ctx *sctx, struct btrfs_ordered_sum *sum)
+{
+	sctx->stat.csum_discards += sum->len >> sctx->fs_info->sectorsize_bits;
+	list_del(&sum->list);
+	kfree(sum);
+}
+
+/*
+ * Find the desired csum for range [logical, logical + sectorsize), and store
+ * the csum into @csum.
+ *
+ * The search source is sctx->csum_list, which is a pre-populated list
+ * storing bytenr ordered csum ranges.  We're responsible to cleanup any range
+ * that is before @logical.
+ *
+ * Return 0 if there is no csum for the range.
+ * Return 1 if there is csum for the range and copied to @csum.
+ */
+static int scrub_find_csum(struct scrub_ctx *sctx, u64 logical, u8 *csum)
+{
+	bool found = false;
+
+	while (!list_empty(&sctx->csum_list)) {
+		struct btrfs_ordered_sum *sum = NULL;
+		unsigned long index;
+		unsigned long num_sectors;
+
+		sum = list_first_entry(&sctx->csum_list,
+				       struct btrfs_ordered_sum, list);
+		/* The current csum range is beyond our range, no csum found */
+		if (sum->bytenr > logical)
+			break;
+
+		/*
+		 * The current sum is before our bytenr, since scrub is always
+		 * done in bytenr order, the csum will never be used anymore,
+		 * clean it up so that later calls won't bother with the range,
+		 * and continue search the next range.
+		 */
+		if (sum->bytenr + sum->len <= logical) {
+			drop_csum_range(sctx, sum);
+			continue;
+		}
+
+		/* Now the csum range covers our bytenr, copy the csum */
+		found = true;
+		index = (logical - sum->bytenr) >> sctx->fs_info->sectorsize_bits;
+		num_sectors = sum->len >> sctx->fs_info->sectorsize_bits;
+
+		memcpy(csum, sum->sums + index * sctx->fs_info->csum_size,
+		       sctx->fs_info->csum_size);
+
+		/* Cleanup the range if we're at the end of the csum range */
+		if (index == num_sectors - 1)
+			drop_csum_range(sctx, sum);
+		break;
+	}
+	if (!found)
+		return 0;
+>>>>>>> upstream/android-13
 	return 1;
 }
 
 /* scrub extent tries to collect up to 64 kB for each bio */
 static int scrub_extent(struct scrub_ctx *sctx, struct map_lookup *map,
+<<<<<<< HEAD
 			u64 logical, u64 len,
+=======
+			u64 logical, u32 len,
+>>>>>>> upstream/android-13
 			u64 physical, struct btrfs_device *dev, u64 flags,
 			u64 gen, int mirror_num, u64 physical_for_dev_replace)
 {
@@ -2498,7 +3272,11 @@ static int scrub_extent(struct scrub_ctx *sctx, struct map_lookup *map,
 	}
 
 	while (len) {
+<<<<<<< HEAD
 		u64 l = min_t(u64, len, blocksize);
+=======
+		u32 l = min(len, blocksize);
+>>>>>>> upstream/android-13
 		int have_csum = 0;
 
 		if (flags & BTRFS_EXTENT_FLAG_DATA) {
@@ -2508,7 +3286,11 @@ static int scrub_extent(struct scrub_ctx *sctx, struct map_lookup *map,
 				++sctx->stat.no_csum;
 		}
 		ret = scrub_pages(sctx, logical, l, physical, dev, flags, gen,
+<<<<<<< HEAD
 				  mirror_num, have_csum ? csum : NULL, 0,
+=======
+				  mirror_num, have_csum ? csum : NULL,
+>>>>>>> upstream/android-13
 				  physical_for_dev_replace);
 		if (ret)
 			return ret;
@@ -2521,14 +3303,26 @@ static int scrub_extent(struct scrub_ctx *sctx, struct map_lookup *map,
 }
 
 static int scrub_pages_for_parity(struct scrub_parity *sparity,
+<<<<<<< HEAD
 				  u64 logical, u64 len,
+=======
+				  u64 logical, u32 len,
+>>>>>>> upstream/android-13
 				  u64 physical, struct btrfs_device *dev,
 				  u64 flags, u64 gen, int mirror_num, u8 *csum)
 {
 	struct scrub_ctx *sctx = sparity->sctx;
 	struct scrub_block *sblock;
+<<<<<<< HEAD
 	int index;
 
+=======
+	const u32 sectorsize = sctx->fs_info->sectorsize;
+	int index;
+
+	ASSERT(IS_ALIGNED(len, sectorsize));
+
+>>>>>>> upstream/android-13
 	sblock = kzalloc(sizeof(*sblock), GFP_KERNEL);
 	if (!sblock) {
 		spin_lock(&sctx->stat_lock);
@@ -2547,7 +3341,10 @@ static int scrub_pages_for_parity(struct scrub_parity *sparity,
 
 	for (index = 0; len > 0; index++) {
 		struct scrub_page *spage;
+<<<<<<< HEAD
 		u64 l = min_t(u64, len, PAGE_SIZE);
+=======
+>>>>>>> upstream/android-13
 
 		spage = kzalloc(sizeof(*spage), GFP_KERNEL);
 		if (!spage) {
@@ -2574,7 +3371,11 @@ leave_nomem:
 		spage->mirror_num = mirror_num;
 		if (csum) {
 			spage->have_csum = 1;
+<<<<<<< HEAD
 			memcpy(spage->csum, csum, sctx->csum_size);
+=======
+			memcpy(spage->csum, csum, sctx->fs_info->csum_size);
+>>>>>>> upstream/android-13
 		} else {
 			spage->have_csum = 0;
 		}
@@ -2582,9 +3383,18 @@ leave_nomem:
 		spage->page = alloc_page(GFP_KERNEL);
 		if (!spage->page)
 			goto leave_nomem;
+<<<<<<< HEAD
 		len -= l;
 		logical += l;
 		physical += l;
+=======
+
+
+		/* Iterate over the stripe range in sectorsize steps */
+		len -= sectorsize;
+		logical += sectorsize;
+		physical += sectorsize;
+>>>>>>> upstream/android-13
 	}
 
 	WARN_ON(sblock->page_count == 0);
@@ -2605,7 +3415,11 @@ leave_nomem:
 }
 
 static int scrub_extent_for_parity(struct scrub_parity *sparity,
+<<<<<<< HEAD
 				   u64 logical, u64 len,
+=======
+				   u64 logical, u32 len,
+>>>>>>> upstream/android-13
 				   u64 physical, struct btrfs_device *dev,
 				   u64 flags, u64 gen, int mirror_num)
 {
@@ -2629,7 +3443,11 @@ static int scrub_extent_for_parity(struct scrub_parity *sparity,
 	}
 
 	while (len) {
+<<<<<<< HEAD
 		u64 l = min_t(u64, len, blocksize);
+=======
+		u32 l = min(len, blocksize);
+>>>>>>> upstream/android-13
 		int have_csum = 0;
 
 		if (flags & BTRFS_EXTENT_FLAG_DATA) {
@@ -2668,18 +3486,32 @@ static int get_raid56_logic_offset(u64 physical, int num,
 	u64 last_offset;
 	u32 stripe_index;
 	u32 rot;
+<<<<<<< HEAD
 
 	last_offset = (physical - map->stripes[num].physical) *
 		      nr_data_stripes(map);
+=======
+	const int data_stripes = nr_data_stripes(map);
+
+	last_offset = (physical - map->stripes[num].physical) * data_stripes;
+>>>>>>> upstream/android-13
 	if (stripe_start)
 		*stripe_start = last_offset;
 
 	*offset = last_offset;
+<<<<<<< HEAD
 	for (i = 0; i < nr_data_stripes(map); i++) {
 		*offset = last_offset + i * map->stripe_len;
 
 		stripe_nr = div64_u64(*offset, map->stripe_len);
 		stripe_nr = div_u64(stripe_nr, nr_data_stripes(map));
+=======
+	for (i = 0; i < data_stripes; i++) {
+		*offset = last_offset + i * map->stripe_len;
+
+		stripe_nr = div64_u64(*offset, map->stripe_len);
+		stripe_nr = div_u64(stripe_nr, data_stripes);
+>>>>>>> upstream/android-13
 
 		/* Work out the disk rotation on this stripe-set */
 		stripe_nr = div_u64_rem(stripe_nr, map->num_stripes, &rot);
@@ -2738,8 +3570,13 @@ static void scrub_parity_bio_endio(struct bio *bio)
 
 	bio_put(bio);
 
+<<<<<<< HEAD
 	btrfs_init_work(&sparity->work, btrfs_scrubparity_helper,
 			scrub_parity_bio_endio_worker, NULL, NULL);
+=======
+	btrfs_init_work(&sparity->work, scrub_parity_bio_endio_worker, NULL,
+			NULL);
+>>>>>>> upstream/android-13
 	btrfs_queue_work(fs_info->scrub_parity_workers, &sparity->work);
 }
 
@@ -2833,7 +3670,12 @@ static noinline_for_stack int scrub_raid56_parity(struct scrub_ctx *sctx,
 	u64 generation;
 	u64 extent_logical;
 	u64 extent_physical;
+<<<<<<< HEAD
 	u64 extent_len;
+=======
+	/* Check the comment in scrub_stripe() for why u32 is enough here */
+	u32 extent_len;
+>>>>>>> upstream/android-13
 	u64 mapped_length;
 	struct btrfs_device *extent_dev;
 	struct scrub_parity *sparity;
@@ -2842,7 +3684,12 @@ static noinline_for_stack int scrub_raid56_parity(struct scrub_ctx *sctx,
 	int extent_mirror_num;
 	int stop_loop = 0;
 
+<<<<<<< HEAD
 	nsectors = div_u64(map->stripe_len, fs_info->sectorsize);
+=======
+	ASSERT(map->stripe_len <= U32_MAX);
+	nsectors = map->stripe_len >> fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 	bitmap_len = scrub_calc_parity_bitmap_len(nsectors);
 	sparity = kzalloc(sizeof(struct scrub_parity) + 2 * bitmap_len,
 			  GFP_NOFS);
@@ -2853,6 +3700,10 @@ static noinline_for_stack int scrub_raid56_parity(struct scrub_ctx *sctx,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
+=======
+	ASSERT(map->stripe_len <= U32_MAX);
+>>>>>>> upstream/android-13
 	sparity->stripe_len = map->stripe_len;
 	sparity->nsectors = nsectors;
 	sparity->sctx = sctx;
@@ -2947,6 +3798,10 @@ static noinline_for_stack int scrub_raid56_parity(struct scrub_ctx *sctx,
 			}
 again:
 			extent_logical = key.objectid;
+<<<<<<< HEAD
+=======
+			ASSERT(bytes <= U32_MAX);
+>>>>>>> upstream/android-13
 			extent_len = bytes;
 
 			if (extent_logical < logic_start) {
@@ -3025,9 +3880,17 @@ next:
 		logic_start += map->stripe_len;
 	}
 out:
+<<<<<<< HEAD
 	if (ret < 0)
 		scrub_parity_mark_sectors_error(sparity, logic_start,
 						logic_end - logic_start);
+=======
+	if (ret < 0) {
+		ASSERT(logic_end - logic_start <= U32_MAX);
+		scrub_parity_mark_sectors_error(sparity, logic_start,
+						logic_end - logic_start);
+	}
+>>>>>>> upstream/android-13
 	scrub_parity_put(sparity);
 	scrub_submit(sctx);
 	mutex_lock(&sctx->wr_lock);
@@ -3038,10 +3901,58 @@ out:
 	return ret < 0 ? ret : 0;
 }
 
+<<<<<<< HEAD
 static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 					   struct map_lookup *map,
 					   struct btrfs_device *scrub_dev,
 					   int num, u64 base, u64 length)
+=======
+static void sync_replace_for_zoned(struct scrub_ctx *sctx)
+{
+	if (!btrfs_is_zoned(sctx->fs_info))
+		return;
+
+	sctx->flush_all_writes = true;
+	scrub_submit(sctx);
+	mutex_lock(&sctx->wr_lock);
+	scrub_wr_submit(sctx);
+	mutex_unlock(&sctx->wr_lock);
+
+	wait_event(sctx->list_wait, atomic_read(&sctx->bios_in_flight) == 0);
+}
+
+static int sync_write_pointer_for_zoned(struct scrub_ctx *sctx, u64 logical,
+					u64 physical, u64 physical_end)
+{
+	struct btrfs_fs_info *fs_info = sctx->fs_info;
+	int ret = 0;
+
+	if (!btrfs_is_zoned(fs_info))
+		return 0;
+
+	wait_event(sctx->list_wait, atomic_read(&sctx->bios_in_flight) == 0);
+
+	mutex_lock(&sctx->wr_lock);
+	if (sctx->write_pointer < physical_end) {
+		ret = btrfs_sync_zone_write_pointer(sctx->wr_tgtdev, logical,
+						    physical,
+						    sctx->write_pointer);
+		if (ret)
+			btrfs_err(fs_info,
+				  "zoned: failed to recover write pointer");
+	}
+	mutex_unlock(&sctx->wr_lock);
+	btrfs_dev_clear_zone_empty(sctx->wr_tgtdev, physical);
+
+	return ret;
+}
+
+static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
+					   struct map_lookup *map,
+					   struct btrfs_device *scrub_dev,
+					   int num, u64 base, u64 length,
+					   struct btrfs_block_group *cache)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_path *path, *ppath;
 	struct btrfs_fs_info *fs_info = sctx->fs_info;
@@ -3068,7 +3979,15 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 	u64 offset;
 	u64 extent_logical;
 	u64 extent_physical;
+<<<<<<< HEAD
 	u64 extent_len;
+=======
+	/*
+	 * Unlike chunk length, extent length should never go beyond
+	 * BTRFS_MAX_EXTENT_SIZE, thus u32 is enough here.
+	 */
+	u32 extent_len;
+>>>>>>> upstream/android-13
 	u64 stripe_logical;
 	u64 stripe_end;
 	struct btrfs_device *extent_dev;
@@ -3078,28 +3997,45 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 	physical = map->stripes[num].physical;
 	offset = 0;
 	nstripes = div64_u64(length, map->stripe_len);
+<<<<<<< HEAD
 	if (map->type & BTRFS_BLOCK_GROUP_RAID0) {
 		offset = map->stripe_len * num;
 		increment = map->stripe_len * map->num_stripes;
 		mirror_num = 1;
+=======
+	mirror_num = 1;
+	increment = map->stripe_len;
+	if (map->type & BTRFS_BLOCK_GROUP_RAID0) {
+		offset = map->stripe_len * num;
+		increment = map->stripe_len * map->num_stripes;
+>>>>>>> upstream/android-13
 	} else if (map->type & BTRFS_BLOCK_GROUP_RAID10) {
 		int factor = map->num_stripes / map->sub_stripes;
 		offset = map->stripe_len * (num / map->sub_stripes);
 		increment = map->stripe_len * factor;
 		mirror_num = num % map->sub_stripes + 1;
+<<<<<<< HEAD
 	} else if (map->type & BTRFS_BLOCK_GROUP_RAID1) {
 		increment = map->stripe_len;
 		mirror_num = num % map->num_stripes + 1;
 	} else if (map->type & BTRFS_BLOCK_GROUP_DUP) {
 		increment = map->stripe_len;
+=======
+	} else if (map->type & BTRFS_BLOCK_GROUP_RAID1_MASK) {
+		mirror_num = num % map->num_stripes + 1;
+	} else if (map->type & BTRFS_BLOCK_GROUP_DUP) {
+>>>>>>> upstream/android-13
 		mirror_num = num % map->num_stripes + 1;
 	} else if (map->type & BTRFS_BLOCK_GROUP_RAID56_MASK) {
 		get_raid56_logic_offset(physical, num, map, &offset, NULL);
 		increment = map->stripe_len * nr_data_stripes(map);
+<<<<<<< HEAD
 		mirror_num = 1;
 	} else {
 		increment = map->stripe_len;
 		mirror_num = 1;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	path = btrfs_alloc_path();
@@ -3149,6 +4085,7 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 	key_end.offset = (u64)-1;
 	reada1 = btrfs_reada_add(root, &key, &key_end);
 
+<<<<<<< HEAD
 	key.objectid = BTRFS_EXTENT_CSUM_OBJECTID;
 	key.type = BTRFS_EXTENT_CSUM_KEY;
 	key.offset = logical;
@@ -3160,6 +4097,23 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 	if (!IS_ERR(reada1))
 		btrfs_reada_wait(reada1);
 	if (!IS_ERR(reada2))
+=======
+	if (cache->flags & BTRFS_BLOCK_GROUP_DATA) {
+		key.objectid = BTRFS_EXTENT_CSUM_OBJECTID;
+		key.type = BTRFS_EXTENT_CSUM_KEY;
+		key.offset = logical;
+		key_end.objectid = BTRFS_EXTENT_CSUM_OBJECTID;
+		key_end.type = BTRFS_EXTENT_CSUM_KEY;
+		key_end.offset = logic_end;
+		reada2 = btrfs_reada_add(csum_root, &key, &key_end);
+	} else {
+		reada2 = NULL;
+	}
+
+	if (!IS_ERR(reada1))
+		btrfs_reada_wait(reada1);
+	if (!IS_ERR_OR_NULL(reada2))
+>>>>>>> upstream/android-13
 		btrfs_reada_wait(reada2);
 
 
@@ -3169,6 +4123,17 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 	 */
 	blk_start_plug(&plug);
 
+<<<<<<< HEAD
+=======
+	if (sctx->is_dev_replace &&
+	    btrfs_dev_is_sequential(sctx->wr_tgtdev, physical)) {
+		mutex_lock(&sctx->wr_lock);
+		sctx->write_pointer = physical;
+		mutex_unlock(&sctx->wr_lock);
+		sctx->flush_all_writes = true;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * now find all extents for each stripe and scrub them
 	 */
@@ -3279,6 +4244,23 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 				break;
 			}
 
+<<<<<<< HEAD
+=======
+			/*
+			 * If our block group was removed in the meanwhile, just
+			 * stop scrubbing since there is no point in continuing.
+			 * Continuing would prevent reusing its device extents
+			 * for new block groups for a long time.
+			 */
+			spin_lock(&cache->lock);
+			if (cache->removed) {
+				spin_unlock(&cache->lock);
+				ret = 0;
+				goto out;
+			}
+			spin_unlock(&cache->lock);
+
+>>>>>>> upstream/android-13
 			extent = btrfs_item_ptr(l, slot,
 						struct btrfs_extent_item);
 			flags = btrfs_extent_flags(l, extent);
@@ -3299,6 +4281,10 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
 
 again:
 			extent_logical = key.objectid;
+<<<<<<< HEAD
+=======
+			ASSERT(bytes <= U32_MAX);
+>>>>>>> upstream/android-13
 			extent_len = bytes;
 
 			/*
@@ -3323,6 +4309,7 @@ again:
 						   &extent_dev,
 						   &extent_mirror_num);
 
+<<<<<<< HEAD
 			ret = btrfs_lookup_csums_range(csum_root,
 						       extent_logical,
 						       extent_logical +
@@ -3330,6 +4317,16 @@ again:
 						       &sctx->csum_list, 1);
 			if (ret)
 				goto out;
+=======
+			if (flags & BTRFS_EXTENT_FLAG_DATA) {
+				ret = btrfs_lookup_csums_range(csum_root,
+						extent_logical,
+						extent_logical + extent_len - 1,
+						&sctx->csum_list, 1);
+				if (ret)
+					goto out;
+			}
+>>>>>>> upstream/android-13
 
 			ret = scrub_extent(sctx, map, extent_logical, extent_len,
 					   extent_physical, extent_dev, flags,
@@ -3341,6 +4338,12 @@ again:
 			if (ret)
 				goto out;
 
+<<<<<<< HEAD
+=======
+			if (sctx->is_dev_replace)
+				sync_replace_for_zoned(sctx);
+
+>>>>>>> upstream/android-13
 			if (extent_logical + extent_len <
 			    key.objectid + bytes) {
 				if (map->type & BTRFS_BLOCK_GROUP_RAID56_MASK) {
@@ -3408,6 +4411,20 @@ out:
 	blk_finish_plug(&plug);
 	btrfs_free_path(path);
 	btrfs_free_path(ppath);
+<<<<<<< HEAD
+=======
+
+	if (sctx->is_dev_replace && ret >= 0) {
+		int ret2;
+
+		ret2 = sync_write_pointer_for_zoned(sctx, base + offset,
+						    map->stripes[num].physical,
+						    physical_end);
+		if (ret2)
+			ret = ret2;
+	}
+
+>>>>>>> upstream/android-13
 	return ret < 0 ? ret : 0;
 }
 
@@ -3415,18 +4432,31 @@ static noinline_for_stack int scrub_chunk(struct scrub_ctx *sctx,
 					  struct btrfs_device *scrub_dev,
 					  u64 chunk_offset, u64 length,
 					  u64 dev_offset,
+<<<<<<< HEAD
 					  struct btrfs_block_group_cache *cache)
 {
 	struct btrfs_fs_info *fs_info = sctx->fs_info;
 	struct btrfs_mapping_tree *map_tree = &fs_info->mapping_tree;
+=======
+					  struct btrfs_block_group *cache)
+{
+	struct btrfs_fs_info *fs_info = sctx->fs_info;
+	struct extent_map_tree *map_tree = &fs_info->mapping_tree;
+>>>>>>> upstream/android-13
 	struct map_lookup *map;
 	struct extent_map *em;
 	int i;
 	int ret = 0;
 
+<<<<<<< HEAD
 	read_lock(&map_tree->map_tree.lock);
 	em = lookup_extent_mapping(&map_tree->map_tree, chunk_offset, 1);
 	read_unlock(&map_tree->map_tree.lock);
+=======
+	read_lock(&map_tree->lock);
+	em = lookup_extent_mapping(map_tree, chunk_offset, 1);
+	read_unlock(&map_tree->lock);
+>>>>>>> upstream/android-13
 
 	if (!em) {
 		/*
@@ -3452,7 +4482,11 @@ static noinline_for_stack int scrub_chunk(struct scrub_ctx *sctx,
 		if (map->stripes[i].dev->bdev == scrub_dev->bdev &&
 		    map->stripes[i].physical == dev_offset) {
 			ret = scrub_stripe(sctx, map, scrub_dev, i,
+<<<<<<< HEAD
 					   chunk_offset, length);
+=======
+					   chunk_offset, length, cache);
+>>>>>>> upstream/android-13
 			if (ret)
 				goto out;
 		}
@@ -3463,6 +4497,28 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int finish_extent_writes_for_zoned(struct btrfs_root *root,
+					  struct btrfs_block_group *cache)
+{
+	struct btrfs_fs_info *fs_info = cache->fs_info;
+	struct btrfs_trans_handle *trans;
+
+	if (!btrfs_is_zoned(fs_info))
+		return 0;
+
+	btrfs_wait_block_group_reservations(cache);
+	btrfs_wait_nocow_writers(cache);
+	btrfs_wait_ordered_roots(fs_info, U64_MAX, cache->start, cache->length);
+
+	trans = btrfs_join_transaction(root);
+	if (IS_ERR(trans))
+		return PTR_ERR(trans);
+	return btrfs_commit_transaction(trans);
+}
+
+>>>>>>> upstream/android-13
 static noinline_for_stack
 int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 			   struct btrfs_device *scrub_dev, u64 start, u64 end)
@@ -3479,7 +4535,11 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 	struct extent_buffer *l;
 	struct btrfs_key key;
 	struct btrfs_key found_key;
+<<<<<<< HEAD
 	struct btrfs_block_group_cache *cache;
+=======
+	struct btrfs_block_group *cache;
+>>>>>>> upstream/android-13
 	struct btrfs_dev_replace *dev_replace = &fs_info->dev_replace;
 
 	path = btrfs_alloc_path();
@@ -3549,6 +4609,36 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 		if (!cache)
 			goto skip;
 
+<<<<<<< HEAD
+=======
+		if (sctx->is_dev_replace && btrfs_is_zoned(fs_info)) {
+			spin_lock(&cache->lock);
+			if (!cache->to_copy) {
+				spin_unlock(&cache->lock);
+				btrfs_put_block_group(cache);
+				goto skip;
+			}
+			spin_unlock(&cache->lock);
+		}
+
+		/*
+		 * Make sure that while we are scrubbing the corresponding block
+		 * group doesn't get its logical address and its device extents
+		 * reused for another block group, which can possibly be of a
+		 * different type and different profile. We do this to prevent
+		 * false error detections and crashes due to bogus attempts to
+		 * repair extents.
+		 */
+		spin_lock(&cache->lock);
+		if (cache->removed) {
+			spin_unlock(&cache->lock);
+			btrfs_put_block_group(cache);
+			goto skip;
+		}
+		btrfs_freeze_block_group(cache);
+		spin_unlock(&cache->lock);
+
+>>>>>>> upstream/android-13
 		/*
 		 * we need call btrfs_inc_block_group_ro() with scrubs_paused,
 		 * to avoid deadlock caused by:
@@ -3558,6 +4648,7 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 		 * -> btrfs_scrub_pause()
 		 */
 		scrub_pause_on(fs_info);
+<<<<<<< HEAD
 		ret = btrfs_inc_block_group_ro(cache);
 		if (!ret && sctx->is_dev_replace) {
 			/*
@@ -3607,10 +4698,62 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 			 * btrfs_inc_block_group_ro return -ENOSPC when it
 			 * failed in creating new chunk for metadata.
 			 * It is not a problem for scrub/replace, because
+=======
+
+		/*
+		 * Don't do chunk preallocation for scrub.
+		 *
+		 * This is especially important for SYSTEM bgs, or we can hit
+		 * -EFBIG from btrfs_finish_chunk_alloc() like:
+		 * 1. The only SYSTEM bg is marked RO.
+		 *    Since SYSTEM bg is small, that's pretty common.
+		 * 2. New SYSTEM bg will be allocated
+		 *    Due to regular version will allocate new chunk.
+		 * 3. New SYSTEM bg is empty and will get cleaned up
+		 *    Before cleanup really happens, it's marked RO again.
+		 * 4. Empty SYSTEM bg get scrubbed
+		 *    We go back to 2.
+		 *
+		 * This can easily boost the amount of SYSTEM chunks if cleaner
+		 * thread can't be triggered fast enough, and use up all space
+		 * of btrfs_super_block::sys_chunk_array
+		 *
+		 * While for dev replace, we need to try our best to mark block
+		 * group RO, to prevent race between:
+		 * - Write duplication
+		 *   Contains latest data
+		 * - Scrub copy
+		 *   Contains data from commit tree
+		 *
+		 * If target block group is not marked RO, nocow writes can
+		 * be overwritten by scrub copy, causing data corruption.
+		 * So for dev-replace, it's not allowed to continue if a block
+		 * group is not RO.
+		 */
+		ret = btrfs_inc_block_group_ro(cache, sctx->is_dev_replace);
+		if (!ret && sctx->is_dev_replace) {
+			ret = finish_extent_writes_for_zoned(root, cache);
+			if (ret) {
+				btrfs_dec_block_group_ro(cache);
+				scrub_pause_off(fs_info);
+				btrfs_put_block_group(cache);
+				break;
+			}
+		}
+
+		if (ret == 0) {
+			ro_set = 1;
+		} else if (ret == -ENOSPC && !sctx->is_dev_replace) {
+			/*
+			 * btrfs_inc_block_group_ro return -ENOSPC when it
+			 * failed in creating new chunk for metadata.
+			 * It is not a problem for scrub, because
+>>>>>>> upstream/android-13
 			 * metadata are always cowed, and our scrub paused
 			 * commit_transactions.
 			 */
 			ro_set = 0;
+<<<<<<< HEAD
 		} else {
 			btrfs_warn(fs_info,
 				   "failed setting block group ro: %d", ret);
@@ -3623,6 +4766,42 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 		dev_replace->cursor_left = found_key.offset;
 		dev_replace->item_needs_writeback = 1;
 		btrfs_dev_replace_write_unlock(&fs_info->dev_replace);
+=======
+		} else if (ret == -ETXTBSY) {
+			btrfs_warn(fs_info,
+		   "skipping scrub of block group %llu due to active swapfile",
+				   cache->start);
+			scrub_pause_off(fs_info);
+			ret = 0;
+			goto skip_unfreeze;
+		} else {
+			btrfs_warn(fs_info,
+				   "failed setting block group ro: %d", ret);
+			btrfs_unfreeze_block_group(cache);
+			btrfs_put_block_group(cache);
+			scrub_pause_off(fs_info);
+			break;
+		}
+
+		/*
+		 * Now the target block is marked RO, wait for nocow writes to
+		 * finish before dev-replace.
+		 * COW is fine, as COW never overwrites extents in commit tree.
+		 */
+		if (sctx->is_dev_replace) {
+			btrfs_wait_nocow_writers(cache);
+			btrfs_wait_ordered_roots(fs_info, U64_MAX, cache->start,
+					cache->length);
+		}
+
+		scrub_pause_off(fs_info);
+		down_write(&dev_replace->rwsem);
+		dev_replace->cursor_right = found_key.offset + length;
+		dev_replace->cursor_left = found_key.offset;
+		dev_replace->item_needs_writeback = 1;
+		up_write(&dev_replace->rwsem);
+
+>>>>>>> upstream/android-13
 		ret = scrub_chunk(sctx, scrub_dev, chunk_offset, length,
 				  found_key.offset, cache);
 
@@ -3658,10 +4837,22 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 
 		scrub_pause_off(fs_info);
 
+<<<<<<< HEAD
 		btrfs_dev_replace_write_lock(&fs_info->dev_replace);
 		dev_replace->cursor_left = dev_replace->cursor_right;
 		dev_replace->item_needs_writeback = 1;
 		btrfs_dev_replace_write_unlock(&fs_info->dev_replace);
+=======
+		if (sctx->is_dev_replace &&
+		    !btrfs_finish_block_group_to_copy(dev_replace->srcdev,
+						      cache, found_key.offset))
+			ro_set = 0;
+
+		down_write(&dev_replace->rwsem);
+		dev_replace->cursor_left = dev_replace->cursor_right;
+		dev_replace->item_needs_writeback = 1;
+		up_write(&dev_replace->rwsem);
+>>>>>>> upstream/android-13
 
 		if (ro_set)
 			btrfs_dec_block_group_ro(cache);
@@ -3675,6 +4866,7 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 		 */
 		spin_lock(&cache->lock);
 		if (!cache->removed && !cache->ro && cache->reserved == 0 &&
+<<<<<<< HEAD
 		    btrfs_block_group_used(&cache->item) == 0) {
 			spin_unlock(&cache->lock);
 			btrfs_mark_bg_unused(cache);
@@ -3682,6 +4874,20 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
 			spin_unlock(&cache->lock);
 		}
 
+=======
+		    cache->used == 0) {
+			spin_unlock(&cache->lock);
+			if (btrfs_test_opt(fs_info, DISCARD_ASYNC))
+				btrfs_discard_queue_work(&fs_info->discard_ctl,
+							 cache);
+			else
+				btrfs_mark_bg_unused(cache);
+		} else {
+			spin_unlock(&cache->lock);
+		}
+skip_unfreeze:
+		btrfs_unfreeze_block_group(cache);
+>>>>>>> upstream/android-13
 		btrfs_put_block_group(cache);
 		if (ret)
 			break;
@@ -3714,7 +4920,11 @@ static noinline_for_stack int scrub_supers(struct scrub_ctx *sctx,
 	struct btrfs_fs_info *fs_info = sctx->fs_info;
 
 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
+<<<<<<< HEAD
 		return -EIO;
+=======
+		return -EROFS;
+>>>>>>> upstream/android-13
 
 	/* Seed devices of a new filesystem has their own generation. */
 	if (scrub_dev->fs_devices != fs_info->fs_devices)
@@ -3727,10 +4937,19 @@ static noinline_for_stack int scrub_supers(struct scrub_ctx *sctx,
 		if (bytenr + BTRFS_SUPER_INFO_SIZE >
 		    scrub_dev->commit_total_bytes)
 			break;
+<<<<<<< HEAD
 
 		ret = scrub_pages(sctx, bytenr, BTRFS_SUPER_INFO_SIZE, bytenr,
 				  scrub_dev, BTRFS_EXTENT_FLAG_SUPER, gen, i,
 				  NULL, 1, bytenr);
+=======
+		if (!btrfs_check_super_location(scrub_dev, bytenr))
+			continue;
+
+		ret = scrub_pages(sctx, bytenr, BTRFS_SUPER_INFO_SIZE, bytenr,
+				  scrub_dev, BTRFS_EXTENT_FLAG_SUPER, gen, i,
+				  NULL, bytenr);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -3739,12 +4958,39 @@ static noinline_for_stack int scrub_supers(struct scrub_ctx *sctx,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void scrub_workers_put(struct btrfs_fs_info *fs_info)
+{
+	if (refcount_dec_and_mutex_lock(&fs_info->scrub_workers_refcnt,
+					&fs_info->scrub_lock)) {
+		struct btrfs_workqueue *scrub_workers = NULL;
+		struct btrfs_workqueue *scrub_wr_comp = NULL;
+		struct btrfs_workqueue *scrub_parity = NULL;
+
+		scrub_workers = fs_info->scrub_workers;
+		scrub_wr_comp = fs_info->scrub_wr_completion_workers;
+		scrub_parity = fs_info->scrub_parity_workers;
+
+		fs_info->scrub_workers = NULL;
+		fs_info->scrub_wr_completion_workers = NULL;
+		fs_info->scrub_parity_workers = NULL;
+		mutex_unlock(&fs_info->scrub_lock);
+
+		btrfs_destroy_workqueue(scrub_workers);
+		btrfs_destroy_workqueue(scrub_wr_comp);
+		btrfs_destroy_workqueue(scrub_parity);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * get a reference count on fs_info->scrub_workers. start worker if necessary
  */
 static noinline_for_stack int scrub_workers_get(struct btrfs_fs_info *fs_info,
 						int is_dev_replace)
 {
+<<<<<<< HEAD
 	unsigned int flags = WQ_FREEZABLE | WQ_UNBOUND;
 	int max_active = fs_info->thread_pool_size;
 
@@ -3775,6 +5021,57 @@ fail_scrub_wr_completion_workers:
 	btrfs_destroy_workqueue(fs_info->scrub_workers);
 fail_scrub_workers:
 	return -ENOMEM;
+=======
+	struct btrfs_workqueue *scrub_workers = NULL;
+	struct btrfs_workqueue *scrub_wr_comp = NULL;
+	struct btrfs_workqueue *scrub_parity = NULL;
+	unsigned int flags = WQ_FREEZABLE | WQ_UNBOUND;
+	int max_active = fs_info->thread_pool_size;
+	int ret = -ENOMEM;
+
+	if (refcount_inc_not_zero(&fs_info->scrub_workers_refcnt))
+		return 0;
+
+	scrub_workers = btrfs_alloc_workqueue(fs_info, "scrub", flags,
+					      is_dev_replace ? 1 : max_active, 4);
+	if (!scrub_workers)
+		goto fail_scrub_workers;
+
+	scrub_wr_comp = btrfs_alloc_workqueue(fs_info, "scrubwrc", flags,
+					      max_active, 2);
+	if (!scrub_wr_comp)
+		goto fail_scrub_wr_completion_workers;
+
+	scrub_parity = btrfs_alloc_workqueue(fs_info, "scrubparity", flags,
+					     max_active, 2);
+	if (!scrub_parity)
+		goto fail_scrub_parity_workers;
+
+	mutex_lock(&fs_info->scrub_lock);
+	if (refcount_read(&fs_info->scrub_workers_refcnt) == 0) {
+		ASSERT(fs_info->scrub_workers == NULL &&
+		       fs_info->scrub_wr_completion_workers == NULL &&
+		       fs_info->scrub_parity_workers == NULL);
+		fs_info->scrub_workers = scrub_workers;
+		fs_info->scrub_wr_completion_workers = scrub_wr_comp;
+		fs_info->scrub_parity_workers = scrub_parity;
+		refcount_set(&fs_info->scrub_workers_refcnt, 1);
+		mutex_unlock(&fs_info->scrub_lock);
+		return 0;
+	}
+	/* Other thread raced in and created the workers for us */
+	refcount_inc(&fs_info->scrub_workers_refcnt);
+	mutex_unlock(&fs_info->scrub_lock);
+
+	ret = 0;
+	btrfs_destroy_workqueue(scrub_parity);
+fail_scrub_parity_workers:
+	btrfs_destroy_workqueue(scrub_wr_comp);
+fail_scrub_wr_completion_workers:
+	btrfs_destroy_workqueue(scrub_workers);
+fail_scrub_workers:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
@@ -3785,12 +5082,18 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 	int ret;
 	struct btrfs_device *dev;
 	unsigned int nofs_flag;
+<<<<<<< HEAD
 	struct btrfs_workqueue *scrub_workers = NULL;
 	struct btrfs_workqueue *scrub_wr_comp = NULL;
 	struct btrfs_workqueue *scrub_parity = NULL;
 
 	if (btrfs_fs_closing(fs_info))
 		return -EINVAL;
+=======
+
+	if (btrfs_fs_closing(fs_info))
+		return -EAGAIN;
+>>>>>>> upstream/android-13
 
 	if (fs_info->nodesize > BTRFS_STRIPE_LEN) {
 		/*
@@ -3805,6 +5108,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (fs_info->sectorsize != PAGE_SIZE) {
 		/* not supported for data w/o checksums */
 		btrfs_err_rl(fs_info,
@@ -3813,6 +5117,8 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (fs_info->nodesize >
 	    PAGE_SIZE * SCRUB_MAX_PAGES_PER_BLOCK ||
 	    fs_info->sectorsize > PAGE_SIZE * SCRUB_MAX_PAGES_PER_BLOCK) {
@@ -3834,22 +5140,43 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 	if (IS_ERR(sctx))
 		return PTR_ERR(sctx);
 
+<<<<<<< HEAD
 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
 	dev = btrfs_find_device(fs_info->fs_devices, devid, NULL, NULL, true);
+=======
+	ret = scrub_workers_get(fs_info, is_dev_replace);
+	if (ret)
+		goto out_free_ctx;
+
+	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+	dev = btrfs_find_device(fs_info->fs_devices, devid, NULL, NULL);
+>>>>>>> upstream/android-13
 	if (!dev || (test_bit(BTRFS_DEV_STATE_MISSING, &dev->dev_state) &&
 		     !is_dev_replace)) {
 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
 		ret = -ENODEV;
+<<<<<<< HEAD
 		goto out_free_ctx;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (!is_dev_replace && !readonly &&
 	    !test_bit(BTRFS_DEV_STATE_WRITEABLE, &dev->dev_state)) {
 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+<<<<<<< HEAD
 		btrfs_err_in_rcu(fs_info, "scrub: device %s is not writable",
 				rcu_str_deref(dev->name));
 		ret = -EROFS;
 		goto out_free_ctx;
+=======
+		btrfs_err_in_rcu(fs_info,
+			"scrub on devid %llu: filesystem on %s is not writable",
+				 devid, rcu_str_deref(dev->name));
+		ret = -EROFS;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	mutex_lock(&fs_info->scrub_lock);
@@ -3858,6 +5185,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 		mutex_unlock(&fs_info->scrub_lock);
 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
 		ret = -EIO;
+<<<<<<< HEAD
 		goto out_free_ctx;
 	}
 
@@ -3879,6 +5207,22 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
 		goto out_free_ctx;
 	}
+=======
+		goto out;
+	}
+
+	down_read(&fs_info->dev_replace.rwsem);
+	if (dev->scrub_ctx ||
+	    (!is_dev_replace &&
+	     btrfs_dev_replace_is_ongoing(&fs_info->dev_replace))) {
+		up_read(&fs_info->dev_replace.rwsem);
+		mutex_unlock(&fs_info->scrub_lock);
+		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+		ret = -EINPROGRESS;
+		goto out;
+	}
+	up_read(&fs_info->dev_replace.rwsem);
+>>>>>>> upstream/android-13
 
 	sctx->readonly = readonly;
 	dev->scrub_ctx = sctx;
@@ -3903,6 +5247,10 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 	 */
 	nofs_flag = memalloc_nofs_save();
 	if (!is_dev_replace) {
+<<<<<<< HEAD
+=======
+		btrfs_info(fs_info, "scrub: started on devid %llu", devid);
+>>>>>>> upstream/android-13
 		/*
 		 * by holding device list mutex, we can
 		 * kick off writing super in log tree sync.
@@ -3925,6 +5273,7 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 	if (progress)
 		memcpy(progress, &sctx->stat, sizeof(*progress));
 
+<<<<<<< HEAD
 	mutex_lock(&fs_info->scrub_lock);
 	dev->scrub_ctx = NULL;
 	if (--fs_info->scrub_workers_refcnt == 0) {
@@ -3941,6 +5290,22 @@ int btrfs_scrub_dev(struct btrfs_fs_info *fs_info, u64 devid, u64 start,
 
 	return ret;
 
+=======
+	if (!is_dev_replace)
+		btrfs_info(fs_info, "scrub: %s on devid %llu with status: %d",
+			ret ? "not finished" : "finished", devid, ret);
+
+	mutex_lock(&fs_info->scrub_lock);
+	dev->scrub_ctx = NULL;
+	mutex_unlock(&fs_info->scrub_lock);
+
+	scrub_workers_put(fs_info);
+	scrub_put_ctx(sctx);
+
+	return ret;
+out:
+	scrub_workers_put(fs_info);
+>>>>>>> upstream/android-13
 out_free_ctx:
 	scrub_free_ctx(sctx);
 
@@ -3989,9 +5354,15 @@ int btrfs_scrub_cancel(struct btrfs_fs_info *fs_info)
 	return 0;
 }
 
+<<<<<<< HEAD
 int btrfs_scrub_cancel_dev(struct btrfs_fs_info *fs_info,
 			   struct btrfs_device *dev)
 {
+=======
+int btrfs_scrub_cancel_dev(struct btrfs_device *dev)
+{
+	struct btrfs_fs_info *fs_info = dev->fs_info;
+>>>>>>> upstream/android-13
 	struct scrub_ctx *sctx;
 
 	mutex_lock(&fs_info->scrub_lock);
@@ -4019,7 +5390,11 @@ int btrfs_scrub_progress(struct btrfs_fs_info *fs_info, u64 devid,
 	struct scrub_ctx *sctx = NULL;
 
 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+<<<<<<< HEAD
 	dev = btrfs_find_device(fs_info->fs_devices, devid, NULL, NULL, true);
+=======
+	dev = btrfs_find_device(fs_info->fs_devices, devid, NULL, NULL);
+>>>>>>> upstream/android-13
 	if (dev)
 		sctx = dev->scrub_ctx;
 	if (sctx)
@@ -4030,7 +5405,11 @@ int btrfs_scrub_progress(struct btrfs_fs_info *fs_info, u64 devid,
 }
 
 static void scrub_remap_extent(struct btrfs_fs_info *fs_info,
+<<<<<<< HEAD
 			       u64 extent_logical, u64 extent_len,
+=======
+			       u64 extent_logical, u32 extent_len,
+>>>>>>> upstream/android-13
 			       u64 *extent_physical,
 			       struct btrfs_device **extent_dev,
 			       int *extent_mirror_num)

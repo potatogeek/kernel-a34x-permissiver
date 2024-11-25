@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Sensirion SHT21 humidity and temperature sensor driver
  *
  * Copyright (C) 2010 Urs Fleisch <urs.fleisch@sensirion.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,9 @@
  * Foundation, Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Data sheet available at http://www.sensirion.com/file/datasheet_sht21
+=======
+ * Data sheet available at https://www.sensirion.com/file/datasheet_sht21
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -135,9 +143,15 @@ out:
  * Will be called on read access to temp1_input sysfs attribute.
  * Returns number of bytes written into buffer, negative errno on error.
  */
+<<<<<<< HEAD
 static ssize_t sht21_show_temperature(struct device *dev,
 	struct device_attribute *attr,
 	char *buf)
+=======
+static ssize_t sht21_temperature_show(struct device *dev,
+				      struct device_attribute *attr,
+				      char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sht21 *sht21 = dev_get_drvdata(dev);
 	int ret;
@@ -157,9 +171,14 @@ static ssize_t sht21_show_temperature(struct device *dev,
  * Will be called on read access to humidity1_input sysfs attribute.
  * Returns number of bytes written into buffer, negative errno on error.
  */
+<<<<<<< HEAD
 static ssize_t sht21_show_humidity(struct device *dev,
 	struct device_attribute *attr,
 	char *buf)
+=======
+static ssize_t sht21_humidity_show(struct device *dev,
+				   struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sht21 *sht21 = dev_get_drvdata(dev);
 	int ret;
@@ -251,10 +270,15 @@ static ssize_t eic_show(struct device *dev,
 }
 
 /* sysfs attributes */
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, sht21_show_temperature,
 	NULL, 0);
 static SENSOR_DEVICE_ATTR(humidity1_input, S_IRUGO, sht21_show_humidity,
 	NULL, 0);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, sht21_temperature, 0);
+static SENSOR_DEVICE_ATTR_RO(humidity1_input, sht21_humidity, 0);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR_RO(eic);
 
 static struct attribute *sht21_attrs[] = {
@@ -266,8 +290,12 @@ static struct attribute *sht21_attrs[] = {
 
 ATTRIBUTE_GROUPS(sht21);
 
+<<<<<<< HEAD
 static int sht21_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)
+=======
+static int sht21_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -302,7 +330,11 @@ MODULE_DEVICE_TABLE(i2c, sht21_id);
 
 static struct i2c_driver sht21_driver = {
 	.driver.name = "sht21",
+<<<<<<< HEAD
 	.probe       = sht21_probe,
+=======
+	.probe_new   = sht21_probe,
+>>>>>>> upstream/android-13
 	.id_table    = sht21_id,
 };
 

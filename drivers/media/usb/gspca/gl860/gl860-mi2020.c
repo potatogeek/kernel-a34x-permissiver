@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Subdriver for the GL860 chip with the MI2020 sensor
  * Author Olivier LORIN, from logs by Iceman/Soro2005 + Fret_saw/Hulkie/Tricid
  * with the help of Kytrix/BUGabundo/Blazercist.
  * Driver achieved thanks to a webcam gift by Kytrix.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Sensor : MI2020 */

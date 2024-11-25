@@ -68,7 +68,11 @@ struct drm_exynos_gem_info {
 /**
  * A structure for user connection request of virtual display.
  *
+<<<<<<< HEAD
  * @connection: indicate whether doing connetion or not by user.
+=======
+ * @connection: indicate whether doing connection or not by user.
+>>>>>>> upstream/android-13
  * @extensions: if this value is 1 then the vidi driver would need additional
  *	128bytes edid data.
  * @edid: the edid data pointer from user side.
@@ -394,7 +398,11 @@ struct drm_exynos_ioctl_ipp_commit {
 #define DRM_IOCTL_EXYNOS_IPP_COMMIT		DRM_IOWR(DRM_COMMAND_BASE + \
 		DRM_EXYNOS_IPP_COMMIT, struct drm_exynos_ioctl_ipp_commit)
 
+<<<<<<< HEAD
 /* EXYNOS specific events */
+=======
+/* Exynos specific events */
+>>>>>>> upstream/android-13
 #define DRM_EXYNOS_G2D_EVENT		0x80000000
 #define DRM_EXYNOS_IPP_EVENT		0x80000002
 

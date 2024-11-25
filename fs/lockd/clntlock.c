@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/lockd/clntlock.c
  *
@@ -56,14 +60,22 @@ struct nlm_host *nlmclnt_init(const struct nlmclnt_initdata *nlm_init)
 	u32 nlm_version = (nlm_init->nfs_version == 2) ? 1 : 4;
 	int status;
 
+<<<<<<< HEAD
 	status = lockd_up(nlm_init->net);
+=======
+	status = lockd_up(nlm_init->net, nlm_init->cred);
+>>>>>>> upstream/android-13
 	if (status < 0)
 		return ERR_PTR(status);
 
 	host = nlmclnt_lookup_host(nlm_init->address, nlm_init->addrlen,
 				   nlm_init->protocol, nlm_version,
 				   nlm_init->hostname, nlm_init->noresvport,
+<<<<<<< HEAD
 				   nlm_init->net);
+=======
+				   nlm_init->net, nlm_init->cred);
+>>>>>>> upstream/android-13
 	if (host == NULL)
 		goto out_nohost;
 	if (host->h_rpcclnt == NULL && nlm_bind_host(host) == NULL)
@@ -241,7 +253,11 @@ reclaimer(void *ptr)
 	allow_signal(SIGKILL);
 
 	down_write(&host->h_rwsem);
+<<<<<<< HEAD
 	lockd_up(net);	/* note: this cannot fail as lockd is already running */
+=======
+	lockd_up(net, NULL);	/* note: this cannot fail as lockd is already running */
+>>>>>>> upstream/android-13
 
 	dprintk("lockd: reclaiming locks for host %s\n", host->h_name);
 

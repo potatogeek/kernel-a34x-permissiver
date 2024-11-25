@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * POWERNV cpufreq driver for the IBM POWER processors
  *
  * (C) Copyright IBM 2014
  *
  * Author: Vaidyanathan Srinivasan <svaidy at linux.vnet.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"powernv-cpufreq: " fmt
@@ -46,6 +53,10 @@
 #define MAX_PSTATE_SHIFT	32
 #define LPSTATE_SHIFT		48
 #define GPSTATE_SHIFT		56
+<<<<<<< HEAD
+=======
+#define MAX_NR_CHIPS		32
+>>>>>>> upstream/android-13
 
 #define MAX_RAMP_DOWN_TIME				5120
 /*
@@ -74,13 +85,22 @@
  *				highest_lpstate_idx
  * @last_sampled_time:		Time from boot in ms when global pstates were
  *				last set
+<<<<<<< HEAD
  * @last_lpstate_idx,		Last set value of local pstate and global
  * last_gpstate_idx		pstate in terms of cpufreq table index
+=======
+ * @last_lpstate_idx:		Last set value of local pstate and global
+ * @last_gpstate_idx:		pstate in terms of cpufreq table index
+>>>>>>> upstream/android-13
  * @timer:			Is used for ramping down if cpu goes idle for
  *				a long time with global pstate held high
  * @gpstate_lock:		A spinlock to maintain synchronization between
  *				routines called by the timer handler and
  *				governer's target_index calls
+<<<<<<< HEAD
+=======
+ * @policy:			Associated CPUFreq policy
+>>>>>>> upstream/android-13
  */
 struct global_pstate_info {
 	int highest_lpstate_idx;
@@ -95,7 +115,11 @@ struct global_pstate_info {
 
 static struct cpufreq_frequency_table powernv_freqs[POWERNV_MAX_PSTATES+1];
 
+<<<<<<< HEAD
 DEFINE_HASHTABLE(pstate_revmap, POWERNV_MAX_PSTATES_ORDER);
+=======
+static DEFINE_HASHTABLE(pstate_revmap, POWERNV_MAX_PSTATES_ORDER);
+>>>>>>> upstream/android-13
 /**
  * struct pstate_idx_revmap_data: Entry in the hashmap pstate_revmap
  *				  indexed by a function of pstate id.
@@ -180,7 +204,11 @@ static inline u8 extract_pstate(u64 pmsr_val, unsigned int shift)
 
 /* Use following functions for conversions between pstate_id and index */
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * idx_to_pstate : Returns the pstate id corresponding to the
  *		   frequency in the cpufreq frequency table
  *		   powernv_freqs indexed by @i.
@@ -198,7 +226,11 @@ static inline u8 idx_to_pstate(unsigned int i)
 	return powernv_freqs[i].driver_data;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * pstate_to_idx : Returns the index in the cpufreq frequencytable
  *		   powernv_freqs for the frequency whose corresponding
  *		   pstate id is @pstate.
@@ -244,6 +276,10 @@ static int init_powernv_pstates(void)
 	u32 len_ids, len_freqs;
 	u32 pstate_min, pstate_max, pstate_nominal;
 	u32 pstate_turbo, pstate_ultra_turbo;
+<<<<<<< HEAD
+=======
+	int rc = -ENODEV;
+>>>>>>> upstream/android-13
 
 	power_mgt = of_find_node_by_path("/ibm,opal/power-mgt");
 	if (!power_mgt) {
@@ -253,18 +289,30 @@ static int init_powernv_pstates(void)
 
 	if (of_property_read_u32(power_mgt, "ibm,pstate-min", &pstate_min)) {
 		pr_warn("ibm,pstate-min node not found\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (of_property_read_u32(power_mgt, "ibm,pstate-max", &pstate_max)) {
 		pr_warn("ibm,pstate-max node not found\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (of_property_read_u32(power_mgt, "ibm,pstate-nominal",
 				 &pstate_nominal)) {
 		pr_warn("ibm,pstate-nominal not found\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (of_property_read_u32(power_mgt, "ibm,pstate-ultra-turbo",
@@ -293,14 +341,22 @@ next:
 	pstate_ids = of_get_property(power_mgt, "ibm,pstate-ids", &len_ids);
 	if (!pstate_ids) {
 		pr_warn("ibm,pstate-ids not found\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	pstate_freqs = of_get_property(power_mgt, "ibm,pstate-frequencies-mhz",
 				      &len_freqs);
 	if (!pstate_freqs) {
 		pr_warn("ibm,pstate-frequencies-mhz not found\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (len_ids != len_freqs) {
@@ -311,7 +367,11 @@ next:
 	nr_pstates = min(len_ids, len_freqs) / sizeof(u32);
 	if (!nr_pstates) {
 		pr_warn("No PStates found\n");
+<<<<<<< HEAD
 		return -ENODEV;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	powernv_pstate_info.nr_pstates = nr_pstates;
@@ -327,8 +387,16 @@ next:
 		powernv_freqs[i].frequency = freq * 1000; /* kHz */
 		powernv_freqs[i].driver_data = id & 0xFF;
 
+<<<<<<< HEAD
 		revmap_data = (struct pstate_idx_revmap_data *)
 			      kmalloc(sizeof(*revmap_data), GFP_KERNEL);
+=======
+		revmap_data = kmalloc(sizeof(*revmap_data), GFP_KERNEL);
+		if (!revmap_data) {
+			rc = -ENOMEM;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 
 		revmap_data->pstate_id = id & 0xFF;
 		revmap_data->cpufreq_table_idx = i;
@@ -352,7 +420,16 @@ next:
 
 	/* End of list marker entry */
 	powernv_freqs[i].frequency = CPUFREQ_TABLE_END;
+<<<<<<< HEAD
 	return 0;
+=======
+
+	of_node_put(power_mgt);
+	return 0;
+out:
+	of_node_put(power_mgt);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 /* Returns the CPU frequency corresponding to the pstate_id. */
@@ -381,7 +458,11 @@ static ssize_t cpuinfo_nominal_freq_show(struct cpufreq_policy *policy,
 		powernv_freqs[powernv_pstate_info.nominal].frequency);
 }
 
+<<<<<<< HEAD
 struct freq_attr cpufreq_freq_attr_cpuinfo_nominal_freq =
+=======
+static struct freq_attr cpufreq_freq_attr_cpuinfo_nominal_freq =
+>>>>>>> upstream/android-13
 	__ATTR_RO(cpuinfo_nominal_freq);
 
 #define SCALING_BOOST_FREQS_ATTR_INDEX		2
@@ -661,13 +742,21 @@ static inline void  queue_gpstate_timer(struct global_pstate_info *gpstates)
 /**
  * gpstate_timer_handler
  *
+<<<<<<< HEAD
  * @data: pointer to cpufreq_policy on which timer was queued
+=======
+ * @t: Timer context used to fetch global pstate info struct
+>>>>>>> upstream/android-13
  *
  * This handler brings down the global pstate closer to the local pstate
  * according quadratic equation. Queues a new timer if it is still not equal
  * to local pstate
  */
+<<<<<<< HEAD
 void gpstate_timer_handler(struct timer_list *t)
+=======
+static void gpstate_timer_handler(struct timer_list *t)
+>>>>>>> upstream/android-13
 {
 	struct global_pstate_info *gpstates = from_timer(gpstates, t, timer);
 	struct cpufreq_policy *policy = gpstates->policy;
@@ -875,7 +964,19 @@ static int powernv_cpufreq_cpu_init(struct cpufreq_policy *policy)
 
 static int powernv_cpufreq_cpu_exit(struct cpufreq_policy *policy)
 {
+<<<<<<< HEAD
 	/* timer is deleted in cpufreq_cpu_stop() */
+=======
+	struct powernv_smp_call_data freq_data;
+	struct global_pstate_info *gpstates = policy->driver_data;
+
+	freq_data.pstate_id = idx_to_pstate(powernv_pstate_info.min);
+	freq_data.gpstate_id = idx_to_pstate(powernv_pstate_info.min);
+	smp_call_function_single(policy->cpu, set_pstate, &freq_data, 1);
+	if (gpstates)
+		del_timer_sync(&gpstates->timer);
+
+>>>>>>> upstream/android-13
 	kfree(policy->driver_data);
 
 	return 0;
@@ -903,14 +1004,22 @@ static struct notifier_block powernv_cpufreq_reboot_nb = {
 	.notifier_call = powernv_cpufreq_reboot_notifier,
 };
 
+<<<<<<< HEAD
 void powernv_cpufreq_work_fn(struct work_struct *work)
+=======
+static void powernv_cpufreq_work_fn(struct work_struct *work)
+>>>>>>> upstream/android-13
 {
 	struct chip *chip = container_of(work, struct chip, throttle);
 	struct cpufreq_policy *policy;
 	unsigned int cpu;
 	cpumask_t mask;
 
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	cpumask_and(&mask, &chip->mask, cpu_online_mask);
 	smp_call_function_any(&mask,
 			      powernv_cpufreq_throttle_check, NULL, 0);
@@ -931,7 +1040,11 @@ void powernv_cpufreq_work_fn(struct work_struct *work)
 		cpufreq_cpu_put(policy);
 	}
 out:
+<<<<<<< HEAD
 	put_online_cpus();
+=======
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 static int powernv_cpufreq_occ_msg(struct notifier_block *nb,
@@ -1007,6 +1120,7 @@ static struct notifier_block powernv_cpufreq_opal_nb = {
 	.priority	= 0,
 };
 
+<<<<<<< HEAD
 static void powernv_cpufreq_stop_cpu(struct cpufreq_policy *policy)
 {
 	struct powernv_smp_call_data freq_data;
@@ -1019,6 +1133,8 @@ static void powernv_cpufreq_stop_cpu(struct cpufreq_policy *policy)
 		del_timer_sync(&gpstates->timer);
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned int powernv_fast_switch(struct cpufreq_policy *policy,
 					unsigned int target_freq)
 {
@@ -1042,7 +1158,10 @@ static struct cpufreq_driver powernv_cpufreq_driver = {
 	.target_index	= powernv_cpufreq_target_index,
 	.fast_switch	= powernv_fast_switch,
 	.get		= powernv_cpufreq_get,
+<<<<<<< HEAD
 	.stop_cpu	= powernv_cpufreq_stop_cpu,
+=======
+>>>>>>> upstream/android-13
 	.attr		= powernv_cpu_freq_attr,
 };
 
@@ -1051,12 +1170,26 @@ static int init_chip_info(void)
 	unsigned int *chip;
 	unsigned int cpu, i;
 	unsigned int prev_chip_id = UINT_MAX;
+<<<<<<< HEAD
+=======
+	cpumask_t *chip_cpu_mask;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	/* Allocate a chip cpu mask large enough to fit mask for all chips */
+	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
+	if (!chip_cpu_mask) {
+		ret = -ENOMEM;
+		goto free_and_return;
+	}
+
+>>>>>>> upstream/android-13
 	for_each_possible_cpu(cpu) {
 		unsigned int id = cpu_to_chip_id(cpu);
 
@@ -1064,22 +1197,39 @@ static int init_chip_info(void)
 			prev_chip_id = id;
 			chip[nr_chips++] = id;
 		}
+<<<<<<< HEAD
+=======
+		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
+>>>>>>> upstream/android-13
 	}
 
 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
 	if (!chips) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto free_and_return;
+=======
+		goto out_free_chip_cpu_mask;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < nr_chips; i++) {
 		chips[i].id = chip[i];
+<<<<<<< HEAD
 		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
+=======
+		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
+>>>>>>> upstream/android-13
 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
 		for_each_cpu(cpu, &chips[i].mask)
 			per_cpu(chip_info, cpu) =  &chips[i];
 	}
 
+<<<<<<< HEAD
+=======
+out_free_chip_cpu_mask:
+	kfree(chip_cpu_mask);
+>>>>>>> upstream/android-13
 free_and_return:
 	kfree(chip);
 	return ret;
@@ -1121,9 +1271,12 @@ static int __init powernv_cpufreq_init(void)
 	if (rc)
 		goto out;
 
+<<<<<<< HEAD
 	register_reboot_notifier(&powernv_cpufreq_reboot_nb);
 	opal_message_notifier_register(OPAL_MSG_OCC, &powernv_cpufreq_opal_nb);
 
+=======
+>>>>>>> upstream/android-13
 	if (powernv_pstate_info.wof_enabled)
 		powernv_cpufreq_driver.boost_enabled = true;
 	else
@@ -1132,15 +1285,27 @@ static int __init powernv_cpufreq_init(void)
 	rc = cpufreq_register_driver(&powernv_cpufreq_driver);
 	if (rc) {
 		pr_info("Failed to register the cpufreq driver (%d)\n", rc);
+<<<<<<< HEAD
 		goto cleanup_notifiers;
+=======
+		goto cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	if (powernv_pstate_info.wof_enabled)
 		cpufreq_enable_boost_support();
 
+<<<<<<< HEAD
 	return 0;
 cleanup_notifiers:
 	unregister_all_notifiers();
+=======
+	register_reboot_notifier(&powernv_cpufreq_reboot_nb);
+	opal_message_notifier_register(OPAL_MSG_OCC, &powernv_cpufreq_opal_nb);
+
+	return 0;
+cleanup:
+>>>>>>> upstream/android-13
 	clean_chip_info();
 out:
 	pr_info("Platform driver disabled. System does not support PState control\n");

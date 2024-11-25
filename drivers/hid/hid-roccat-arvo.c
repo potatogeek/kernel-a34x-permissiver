@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Roccat Arvo driver for Linux
  *
@@ -5,10 +9,13 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -45,7 +52,11 @@ static ssize_t arvo_sysfs_show_mode_key(struct device *dev,
 	if (retval)
 		return retval;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.state);
+=======
+	return sysfs_emit(buf, "%d\n", temp_buf.state);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t arvo_sysfs_set_mode_key(struct device *dev,
@@ -95,7 +106,11 @@ static ssize_t arvo_sysfs_show_key_mask(struct device *dev,
 	if (retval)
 		return retval;
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.key_mask);
+=======
+	return sysfs_emit(buf, "%d\n", temp_buf.key_mask);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t arvo_sysfs_set_key_mask(struct device *dev,
@@ -149,7 +164,11 @@ static ssize_t arvo_sysfs_show_actual_profile(struct device *dev,
 	struct arvo_device *arvo =
 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
 
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%d\n", arvo->actual_profile);
+=======
+	return sysfs_emit(buf, "%d\n", arvo->actual_profile);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t arvo_sysfs_set_actual_profile(struct device *dev,

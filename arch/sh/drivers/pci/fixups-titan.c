@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/drivers/pci/ops-titan.c
  *
@@ -6,9 +10,12 @@
  * Modified from ops-snapgear.c written by  David McCullough
  * Highly leveraged from pci-bigsur.c, written by Dustin McIntire.
  *
+<<<<<<< HEAD
  * May be copied or modified under the terms of the GNU General Public
  * License.  See linux/COPYING for more information.
  *
+=======
+>>>>>>> upstream/android-13
  * PCI initialization for the Titan boards
  */
 #include <linux/kernel.h>

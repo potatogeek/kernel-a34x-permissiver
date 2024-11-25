@@ -1289,7 +1289,11 @@ static int jffs2_do_read_inode_internal(struct jffs2_sb_info *c,
 			dbg_readinode("symlink's target '%s' cached\n", f->target);
 		}
 
+<<<<<<< HEAD
 		/* fall through... */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case S_IFBLK:
 	case S_IFCHR:

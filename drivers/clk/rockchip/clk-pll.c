@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
  *
  * Copyright (c) 2015 Rockchip Electronics Co. Ltd.
  * Author: Xing Zheng <zhengxing@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/div64.h>
@@ -21,6 +28,10 @@
 #include <linux/io.h>
 #include <linux/delay.h>
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/clk.h>
 #include "clk.h"
@@ -95,6 +106,7 @@ static int rockchip_pll_wait_lock(struct rockchip_clk_pll *pll)
 {
 	struct regmap *grf = pll->ctx->grf;
 	unsigned int val;
+<<<<<<< HEAD
 	int delay = 24000000, ret;
 
 	while (delay > 0) {
@@ -115,6 +127,19 @@ static int rockchip_pll_wait_lock(struct rockchip_clk_pll *pll)
 }
 
 /**
+=======
+	int ret;
+
+	ret = regmap_read_poll_timeout(grf, pll->lock_offset, val,
+				       val & BIT(pll->lock_shift), 0, 1000);
+	if (ret)
+		pr_err("%s: timeout waiting for pll to lock\n", __func__);
+
+	return ret;
+}
+
+/*
+>>>>>>> upstream/android-13
  * PLL used in RK3036
  */
 
@@ -127,12 +152,40 @@ static int rockchip_pll_wait_lock(struct rockchip_clk_pll *pll)
 #define RK3036_PLLCON1_REFDIV_SHIFT		0
 #define RK3036_PLLCON1_POSTDIV2_MASK		0x7
 #define RK3036_PLLCON1_POSTDIV2_SHIFT		6
+<<<<<<< HEAD
 #define RK3036_PLLCON1_DSMPD_MASK		0x1
 #define RK3036_PLLCON1_DSMPD_SHIFT		12
 #define RK3036_PLLCON2_FRAC_MASK		0xffffff
 #define RK3036_PLLCON2_FRAC_SHIFT		0
 
 #define RK3036_PLLCON1_PWRDOWN			(1 << 13)
+=======
+#define RK3036_PLLCON1_LOCK_STATUS		BIT(10)
+#define RK3036_PLLCON1_DSMPD_MASK		0x1
+#define RK3036_PLLCON1_DSMPD_SHIFT		12
+#define RK3036_PLLCON1_PWRDOWN			BIT(13)
+#define RK3036_PLLCON2_FRAC_MASK		0xffffff
+#define RK3036_PLLCON2_FRAC_SHIFT		0
+
+static int rockchip_rk3036_pll_wait_lock(struct rockchip_clk_pll *pll)
+{
+	u32 pllcon;
+	int ret;
+
+	/*
+	 * Lock time typical 250, max 500 input clock cycles @24MHz
+	 * So define a very safe maximum of 1000us, meaning 24000 cycles.
+	 */
+	ret = readl_relaxed_poll_timeout(pll->reg_base + RK3036_PLLCON(1),
+					 pllcon,
+					 pllcon & RK3036_PLLCON1_LOCK_STATUS,
+					 0, 1000);
+	if (ret)
+		pr_err("%s: timeout waiting for pll to lock\n", __func__);
+
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 static void rockchip_rk3036_pll_get_params(struct rockchip_clk_pll *pll,
 					struct rockchip_pll_rate_table *rate)
@@ -230,7 +283,11 @@ static int rockchip_rk3036_pll_set_params(struct rockchip_clk_pll *pll,
 	writel_relaxed(pllcon, pll->reg_base + RK3036_PLLCON(2));
 
 	/* wait for the pll to lock */
+<<<<<<< HEAD
 	ret = rockchip_pll_wait_lock(pll);
+=======
+	ret = rockchip_rk3036_pll_wait_lock(pll);
+>>>>>>> upstream/android-13
 	if (ret) {
 		pr_warn("%s: pll update unsuccessful, trying to restore old params\n",
 			__func__);
@@ -269,7 +326,11 @@ static int rockchip_rk3036_pll_enable(struct clk_hw *hw)
 
 	writel(HIWORD_UPDATE(0, RK3036_PLLCON1_PWRDOWN, 0),
 	       pll->reg_base + RK3036_PLLCON(1));
+<<<<<<< HEAD
 	rockchip_pll_wait_lock(pll);
+=======
+	rockchip_rk3036_pll_wait_lock(pll);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -291,7 +352,11 @@ static int rockchip_rk3036_pll_is_enabled(struct clk_hw *hw)
 	return !(pllcon & RK3036_PLLCON1_PWRDOWN);
 }
 
+<<<<<<< HEAD
 static void rockchip_rk3036_pll_init(struct clk_hw *hw)
+=======
+static int rockchip_rk3036_pll_init(struct clk_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_clk_pll *pll = to_rockchip_clk_pll(hw);
 	const struct rockchip_pll_rate_table *rate;
@@ -299,14 +364,22 @@ static void rockchip_rk3036_pll_init(struct clk_hw *hw)
 	unsigned long drate;
 
 	if (!(pll->flags & ROCKCHIP_PLL_SYNC_RATE))
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	drate = clk_hw_get_rate(hw);
 	rate = rockchip_get_pll_settings(pll, drate);
 
 	/* when no rate setting for the current rate, rely on clk_set_rate */
 	if (!rate)
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	rockchip_rk3036_pll_get_params(pll, &cur);
 
@@ -328,13 +401,22 @@ static void rockchip_rk3036_pll_init(struct clk_hw *hw)
 		if (!parent) {
 			pr_warn("%s: parent of %s not available\n",
 				__func__, __clk_get_name(hw->clk));
+<<<<<<< HEAD
 			return;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 		}
 
 		pr_debug("%s: pll %s: rate params do not match rate table, adjusting\n",
 			 __func__, __clk_get_name(hw->clk));
 		rockchip_rk3036_pll_set_params(pll, rate);
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct clk_ops rockchip_rk3036_pll_clk_norate_ops = {
@@ -354,7 +436,11 @@ static const struct clk_ops rockchip_rk3036_pll_clk_ops = {
 	.init = rockchip_rk3036_pll_init,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * PLL used in RK3066, RK3188 and RK3288
  */
 
@@ -524,7 +610,11 @@ static int rockchip_rk3066_pll_is_enabled(struct clk_hw *hw)
 	return !(pllcon & RK3066_PLLCON3_PWRDOWN);
 }
 
+<<<<<<< HEAD
 static void rockchip_rk3066_pll_init(struct clk_hw *hw)
+=======
+static int rockchip_rk3066_pll_init(struct clk_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_clk_pll *pll = to_rockchip_clk_pll(hw);
 	const struct rockchip_pll_rate_table *rate;
@@ -532,14 +622,22 @@ static void rockchip_rk3066_pll_init(struct clk_hw *hw)
 	unsigned long drate;
 
 	if (!(pll->flags & ROCKCHIP_PLL_SYNC_RATE))
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	drate = clk_hw_get_rate(hw);
 	rate = rockchip_get_pll_settings(pll, drate);
 
 	/* when no rate setting for the current rate, rely on clk_set_rate */
 	if (!rate)
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	rockchip_rk3066_pll_get_params(pll, &cur);
 
@@ -552,6 +650,11 @@ static void rockchip_rk3066_pll_init(struct clk_hw *hw)
 			 __func__, clk_hw_get_name(hw));
 		rockchip_rk3066_pll_set_params(pll, rate);
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct clk_ops rockchip_rk3066_pll_clk_norate_ops = {
@@ -571,7 +674,11 @@ static const struct clk_ops rockchip_rk3066_pll_clk_ops = {
 	.init = rockchip_rk3066_pll_init,
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * PLL used in RK3399
  */
 
@@ -594,6 +701,7 @@ static const struct clk_ops rockchip_rk3066_pll_clk_ops = {
 static int rockchip_rk3399_pll_wait_lock(struct rockchip_clk_pll *pll)
 {
 	u32 pllcon;
+<<<<<<< HEAD
 	int delay = 24000000;
 
 	/* poll check the lock status in rk3399 xPLLCON2 */
@@ -607,6 +715,22 @@ static int rockchip_rk3399_pll_wait_lock(struct rockchip_clk_pll *pll)
 
 	pr_err("%s: timeout waiting for pll to lock\n", __func__);
 	return -ETIMEDOUT;
+=======
+	int ret;
+
+	/*
+	 * Lock time typical 250, max 500 input clock cycles @24MHz
+	 * So define a very safe maximum of 1000us, meaning 24000 cycles.
+	 */
+	ret = readl_relaxed_poll_timeout(pll->reg_base + RK3399_PLLCON(2),
+					 pllcon,
+					 pllcon & RK3399_PLLCON2_LOCK_STATUS,
+					 0, 1000);
+	if (ret)
+		pr_err("%s: timeout waiting for pll to lock\n", __func__);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void rockchip_rk3399_pll_get_params(struct rockchip_clk_pll *pll,
@@ -770,7 +894,11 @@ static int rockchip_rk3399_pll_is_enabled(struct clk_hw *hw)
 	return !(pllcon & RK3399_PLLCON3_PWRDOWN);
 }
 
+<<<<<<< HEAD
 static void rockchip_rk3399_pll_init(struct clk_hw *hw)
+=======
+static int rockchip_rk3399_pll_init(struct clk_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct rockchip_clk_pll *pll = to_rockchip_clk_pll(hw);
 	const struct rockchip_pll_rate_table *rate;
@@ -778,14 +906,22 @@ static void rockchip_rk3399_pll_init(struct clk_hw *hw)
 	unsigned long drate;
 
 	if (!(pll->flags & ROCKCHIP_PLL_SYNC_RATE))
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	drate = clk_hw_get_rate(hw);
 	rate = rockchip_get_pll_settings(pll, drate);
 
 	/* when no rate setting for the current rate, rely on clk_set_rate */
 	if (!rate)
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	rockchip_rk3399_pll_get_params(pll, &cur);
 
@@ -807,13 +943,22 @@ static void rockchip_rk3399_pll_init(struct clk_hw *hw)
 		if (!parent) {
 			pr_warn("%s: parent of %s not available\n",
 				__func__, __clk_get_name(hw->clk));
+<<<<<<< HEAD
 			return;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 		}
 
 		pr_debug("%s: pll %s: rate params do not match rate table, adjusting\n",
 			 __func__, __clk_get_name(hw->clk));
 		rockchip_rk3399_pll_set_params(pll, rate);
 	}
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct clk_ops rockchip_rk3399_pll_clk_norate_ops = {
@@ -846,7 +991,11 @@ struct clk *rockchip_clk_register_pll(struct rockchip_clk_provider *ctx,
 		unsigned long flags, u8 clk_pll_flags)
 {
 	const char *pll_parents[3];
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct rockchip_clk_pll *pll;
 	struct clk_mux *pll_mux;
 	struct clk *pll_clk, *mux_clk;
@@ -931,7 +1080,11 @@ struct clk *rockchip_clk_register_pll(struct rockchip_clk_provider *ctx,
 	switch (pll_type) {
 	case pll_rk3036:
 	case pll_rk3328:
+<<<<<<< HEAD
 		if (!pll->rate_table || IS_ERR(ctx->grf))
+=======
+		if (!pll->rate_table)
+>>>>>>> upstream/android-13
 			init.ops = &rockchip_rk3036_pll_clk_norate_ops;
 		else
 			init.ops = &rockchip_rk3036_pll_clk_ops;

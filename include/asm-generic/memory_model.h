@@ -6,12 +6,19 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
+=======
+/*
+ * supports 3 memory models.
+ */
+>>>>>>> upstream/android-13
 #if defined(CONFIG_FLATMEM)
 
 #ifndef ARCH_PFN_OFFSET
 #define ARCH_PFN_OFFSET		(0UL)
 #endif
 
+<<<<<<< HEAD
 #elif defined(CONFIG_DISCONTIGMEM)
 
 #ifndef arch_pfn_to_nid
@@ -47,6 +54,11 @@
 	(unsigned long)(__pg - __pgdat->node_mem_map) +			\
 	 __pgdat->node_start_pfn;					\
 })
+=======
+#define __pfn_to_page(pfn)	(mem_map + ((pfn) - ARCH_PFN_OFFSET))
+#define __page_to_pfn(page)	((unsigned long)((page) - mem_map) + \
+				 ARCH_PFN_OFFSET)
+>>>>>>> upstream/android-13
 
 #elif defined(CONFIG_SPARSEMEM_VMEMMAP)
 
@@ -70,7 +82,11 @@
 	struct mem_section *__sec = __pfn_to_section(__pfn);	\
 	__section_mem_map_addr(__sec) + __pfn;		\
 })
+<<<<<<< HEAD
 #endif /* CONFIG_FLATMEM/DISCONTIGMEM/SPARSEMEM */
+=======
+#endif /* CONFIG_FLATMEM/SPARSEMEM */
+>>>>>>> upstream/android-13
 
 /*
  * Convert a physical address to a Page Frame Number and back

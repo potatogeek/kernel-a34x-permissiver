@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arch/mach-ixp4xx/gateway7001-pci.c
  *
@@ -10,11 +14,14 @@
  *	Copyright (C) 2003 MontaVista Softwrae, Inc.
  *
  * Maintainer: Imre Kaloz <kaloz@openwrt.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,6 +34,11 @@
 
 #include <asm/mach/pci.h>
 
+<<<<<<< HEAD
+=======
+#include "irqs.h"
+
+>>>>>>> upstream/android-13
 void __init gateway7001_pci_preinit(void)
 {
 	irq_set_irq_type(IRQ_IXP4XX_GPIO10, IRQ_TYPE_LEVEL_LOW);

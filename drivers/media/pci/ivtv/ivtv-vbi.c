@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     Vertical Blank Interval support functions
     Copyright (C) 2004-2007  Hans Verkuil <hverkuil@xs4all.nl>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ivtv-driver.h"
@@ -337,7 +344,11 @@ static u32 compress_raw_buf(struct ivtv *itv, u8 *buf, u32 size)
 static u32 compress_sliced_buf(struct ivtv *itv, u32 line, u8 *buf, u32 size, u8 sav)
 {
 	u32 line_size = itv->vbi.sliced_decoder_line_size;
+<<<<<<< HEAD
 	struct v4l2_decode_vbi_line vbi;
+=======
+	struct v4l2_decode_vbi_line vbi = {};
+>>>>>>> upstream/android-13
 	int i;
 	unsigned lines = 0;
 

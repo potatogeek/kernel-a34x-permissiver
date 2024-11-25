@@ -101,6 +101,7 @@ changes occur:
 	translations for software managed TLB configurations.
 	The sparc64 port currently does this.
 
+<<<<<<< HEAD
 6) ``void tlb_migrate_finish(struct mm_struct *mm)``
 
 	This interface is called at the end of an explicit
@@ -111,6 +112,8 @@ changes occur:
 	The ia64 sn2 platform is one example of a platform
 	that uses this interface.
 
+=======
+>>>>>>> upstream/android-13
 Next, we have the cache flushing interfaces.  In general, when Linux
 is changing an existing virtual-->physical mapping to a new value,
 the sequence will be in one of the following forms::
@@ -223,9 +226,15 @@ Here are the routines, one by one:
 	there will be no entries in the cache for the kernel address
 	space for virtual addresses in the range 'start' to 'end-1'.
 
+<<<<<<< HEAD
 	The first of these two routines is invoked after map_vm_area()
 	has installed the page table entries.  The second is invoked
 	before unmap_kernel_range() deletes the page table entries.
+=======
+	The first of these two routines is invoked after vmap_range()
+	has installed the page table entries.  The second is invoked
+	before vunmap_range() deletes the page table entries.
+>>>>>>> upstream/android-13
 
 There exists another whole class of cpu cache issues which currently
 require a whole different set of interfaces to handle properly.
@@ -281,10 +290,22 @@ maps this page at its virtual address.
 
   ``void flush_dcache_page(struct page *page)``
 
+<<<<<<< HEAD
 	Any time the kernel writes to a page cache page, _OR_
 	the kernel is about to read from a page cache page and
 	user space shared/writable mappings of this page potentially
 	exist, this routine is called.
+=======
+        This routines must be called when:
+
+	  a) the kernel did write to a page that is in the page cache page
+	     and / or in high memory
+	  b) the kernel is about to read from a page cache page and user space
+	     shared/writable mappings of this page potentially exist.  Note
+	     that {get,pin}_user_pages{_fast} already call flush_dcache_page
+	     on any page found in the user address space and thus driver
+	     code rarely needs to take this into account.
+>>>>>>> upstream/android-13
 
 	.. note::
 
@@ -294,6 +315,7 @@ maps this page at its virtual address.
 	      handling vfs symlinks in the page cache need not call
 	      this interface at all.
 
+<<<<<<< HEAD
 	The phrase "kernel writes to a page cache page" means,
 	specifically, that the kernel executes store instructions
 	that dirty data in that page at the page->virtual mapping
@@ -326,6 +348,36 @@ maps this page at its virtual address.
 	private page flag bit.  Later, in update_mmu_cache(), a check is
 	made of this flag bit, and if set the flush is done and the flag
 	bit is cleared.
+=======
+	The phrase "kernel writes to a page cache page" means, specifically,
+	that the kernel executes store instructions that dirty data in that
+	page at the page->virtual mapping of that page.  It is important to
+	flush here to handle D-cache aliasing, to make sure these kernel stores
+	are visible to user space mappings of that page.
+
+	The corollary case is just as important, if there are users which have
+	shared+writable mappings of this file, we must make sure that kernel
+	reads of these pages will see the most recent stores done by the user.
+
+	If D-cache aliasing is not an issue, this routine may simply be defined
+	as a nop on that architecture.
+
+        There is a bit set aside in page->flags (PG_arch_1) as "architecture
+	private".  The kernel guarantees that, for pagecache pages, it will
+	clear this bit when such a page first enters the pagecache.
+
+	This allows these interfaces to be implemented much more efficiently.
+	It allows one to "defer" (perhaps indefinitely) the actual flush if
+	there are currently no user processes mapping this page.  See sparc64's
+	flush_dcache_page and update_mmu_cache implementations for an example
+	of how to go about doing this.
+
+	The idea is, first at flush_dcache_page() time, if page_file_mapping()
+	returns a mapping, and mapping_mapped on that mapping returns %false,
+	just mark the architecture private page flag bit.  Later, in
+	update_mmu_cache(), a check is made of this flag bit, and if set the
+	flush is done and the flag bit is cleared.
+>>>>>>> upstream/android-13
 
 	.. important::
 
@@ -361,6 +413,7 @@ maps this page at its virtual address.
 	architectures).  For incoherent architectures, it should flush
 	the cache of the page at vmaddr.
 
+<<<<<<< HEAD
   ``void flush_kernel_dcache_page(struct page *page)``
 
 	When the kernel needs to modify a user page is has obtained
@@ -374,6 +427,8 @@ maps this page at its virtual address.
 	the kernel cache for page (using page_address(page)).
 
 
+=======
+>>>>>>> upstream/android-13
   ``void flush_icache_range(unsigned long start, unsigned long end)``
 
   	When the kernel stores into addresses that it will execute

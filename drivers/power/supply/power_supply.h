@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  Functions private to power supply class
  *
@@ -6,8 +10,11 @@
  *  Copyright © 2003  Ian Molton <spyro@f2s.com>
  *
  *  Modified: 2004, Oct     Szabolcs Gyurko
+<<<<<<< HEAD
  *
  *  You may use this code as per GPL version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 struct device;

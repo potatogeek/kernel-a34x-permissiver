@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Bluetooth Software UART Qualcomm protocol
  *
@@ -12,6 +16,7 @@
  *  Written by Ohad Ben-Cohen <ohad@bencohen.org>
  *  which was in turn based on hci_h4.c, which was written
  *  by Maxim Krasnyansky and Marcel Holtmann.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -26,20 +31,38 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/debugfs.h>
 #include <linux/delay.h>
+=======
+#include <linux/completion.h>
+#include <linux/debugfs.h>
+#include <linux/delay.h>
+#include <linux/devcoredump.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/gpio/consumer.h>
 #include <linux/mod_devicetable.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
 #include <linux/serdev.h>
+=======
+#include <linux/acpi.h>
+#include <linux/platform_device.h>
+#include <linux/regulator/consumer.h>
+#include <linux/serdev.h>
+#include <linux/mutex.h>
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 #include <net/bluetooth/bluetooth.h>
 #include <net/bluetooth/hci_core.h>
@@ -53,16 +76,59 @@
 #define HCI_IBS_WAKE_ACK	0xFC
 #define HCI_MAX_IBS_SIZE	10
 
+<<<<<<< HEAD
 /* Controller states */
 #define STATE_IN_BAND_SLEEP_ENABLED	1
 
 #define IBS_WAKE_RETRANS_TIMEOUT_MS	100
 #define IBS_TX_IDLE_TIMEOUT_MS		2000
 #define BAUDRATE_SETTLE_TIMEOUT_MS	300
+=======
+#define IBS_WAKE_RETRANS_TIMEOUT_MS	100
+#define IBS_BTSOC_TX_IDLE_TIMEOUT_MS	200
+#define IBS_HOST_TX_IDLE_TIMEOUT_MS	2000
+#define CMD_TRANS_TIMEOUT_MS		100
+#define MEMDUMP_TIMEOUT_MS		8000
+#define IBS_DISABLE_SSR_TIMEOUT_MS \
+	(MEMDUMP_TIMEOUT_MS + FW_DOWNLOAD_TIMEOUT_MS)
+#define FW_DOWNLOAD_TIMEOUT_MS		3000
+>>>>>>> upstream/android-13
 
 /* susclk rate */
 #define SUSCLK_RATE_32KHZ	32768
 
+<<<<<<< HEAD
+=======
+/* Controller debug log header */
+#define QCA_DEBUG_HANDLE	0x2EDC
+
+/* max retry count when init fails */
+#define MAX_INIT_RETRIES 3
+
+/* Controller dump header */
+#define QCA_SSR_DUMP_HANDLE		0x0108
+#define QCA_DUMP_PACKET_SIZE		255
+#define QCA_LAST_SEQUENCE_NUM		0xFFFF
+#define QCA_CRASHBYTE_PACKET_LEN	1096
+#define QCA_MEMDUMP_BYTE		0xFB
+
+enum qca_flags {
+	QCA_IBS_DISABLED,
+	QCA_DROP_VENDOR_EVENT,
+	QCA_SUSPENDING,
+	QCA_MEMDUMP_COLLECTION,
+	QCA_HW_ERROR_EVENT,
+	QCA_SSR_TRIGGERED,
+	QCA_BT_OFF,
+	QCA_ROM_FW
+};
+
+enum qca_capabilities {
+	QCA_CAP_WIDEBAND_SPEECH = BIT(0),
+	QCA_CAP_VALID_LE_STATES = BIT(1),
+};
+
+>>>>>>> upstream/android-13
 /* HCI_IBS transmit side sleep protocol states */
 enum tx_ibs_states {
 	HCI_IBS_TX_ASLEEP,
@@ -85,11 +151,47 @@ enum hci_ibs_clock_state_vote {
 	HCI_IBS_RX_VOTE_CLOCK_OFF,
 };
 
+<<<<<<< HEAD
+=======
+/* Controller memory dump states */
+enum qca_memdump_states {
+	QCA_MEMDUMP_IDLE,
+	QCA_MEMDUMP_COLLECTING,
+	QCA_MEMDUMP_COLLECTED,
+	QCA_MEMDUMP_TIMEOUT,
+};
+
+struct qca_memdump_data {
+	char *memdump_buf_head;
+	char *memdump_buf_tail;
+	u32 current_seq_no;
+	u32 received_dump;
+	u32 ram_dump_size;
+};
+
+struct qca_memdump_event_hdr {
+	__u8    evt;
+	__u8    plen;
+	__u16   opcode;
+	__u16   seq_no;
+	__u8    reserved;
+} __packed;
+
+
+struct qca_dump_size {
+	u32 dump_size;
+} __packed;
+
+>>>>>>> upstream/android-13
 struct qca_data {
 	struct hci_uart *hu;
 	struct sk_buff *rx_skb;
 	struct sk_buff_head txq;
 	struct sk_buff_head tx_wait_q;	/* HCI_IBS wait queue	*/
+<<<<<<< HEAD
+=======
+	struct sk_buff_head rx_memdump_q;	/* Memdump wait queue	*/
+>>>>>>> upstream/android-13
 	spinlock_t hci_ibs_lock;	/* HCI_IBS state lock	*/
 	u8 tx_ibs_state;	/* HCI_IBS transmit side power state*/
 	u8 rx_ibs_state;	/* HCI_IBS receive side power state */
@@ -104,7 +206,18 @@ struct qca_data {
 	struct work_struct ws_awake_device;
 	struct work_struct ws_rx_vote_off;
 	struct work_struct ws_tx_vote_off;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+	struct work_struct ctrl_memdump_evt;
+	struct delayed_work ctrl_memdump_timeout;
+	struct qca_memdump_data *qca_memdump;
+	unsigned long flags;
+	struct completion drop_ev_comp;
+	wait_queue_head_t suspend_wait_q;
+	enum qca_memdump_states memdump_state;
+	struct mutex hci_memdump_lock;
+>>>>>>> upstream/android-13
 
 	/* For debugging purpose */
 	u64 ibs_sent_wacks;
@@ -135,6 +248,7 @@ enum qca_speed_type {
  */
 struct qca_vreg {
 	const char *name;
+<<<<<<< HEAD
 	unsigned int min_uV;
 	unsigned int max_uV;
 	unsigned int load_uA;
@@ -144,6 +258,16 @@ struct qca_vreg_data {
 	enum qca_btsoc_type soc_type;
 	struct qca_vreg *vregs;
 	size_t num_vregs;
+=======
+	unsigned int load_uA;
+};
+
+struct qca_device_data {
+	enum qca_btsoc_type soc_type;
+	struct qca_vreg *vregs;
+	size_t num_vregs;
+	uint32_t capabilities;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -151,23 +275,69 @@ struct qca_vreg_data {
  */
 struct qca_power {
 	struct device *dev;
+<<<<<<< HEAD
 	const struct qca_vreg_data *vreg_data;
 	struct regulator_bulk_data *vreg_bulk;
+=======
+	struct regulator_bulk_data *vreg_bulk;
+	int num_vregs;
+>>>>>>> upstream/android-13
 	bool vregs_on;
 };
 
 struct qca_serdev {
 	struct hci_uart	 serdev_hu;
 	struct gpio_desc *bt_en;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *sw_ctrl;
+>>>>>>> upstream/android-13
 	struct clk	 *susclk;
 	enum qca_btsoc_type btsoc_type;
 	struct qca_power *bt_power;
 	u32 init_speed;
 	u32 oper_speed;
+<<<<<<< HEAD
 };
 
 static int qca_power_setup(struct hci_uart *hu, bool on);
 static void qca_power_shutdown(struct hci_uart *hu);
+=======
+	const char *firmware_name;
+};
+
+static int qca_regulator_enable(struct qca_serdev *qcadev);
+static void qca_regulator_disable(struct qca_serdev *qcadev);
+static void qca_power_shutdown(struct hci_uart *hu);
+static int qca_power_off(struct hci_dev *hdev);
+static void qca_controller_memdump(struct work_struct *work);
+
+static enum qca_btsoc_type qca_soc_type(struct hci_uart *hu)
+{
+	enum qca_btsoc_type soc_type;
+
+	if (hu->serdev) {
+		struct qca_serdev *qsd = serdev_device_get_drvdata(hu->serdev);
+
+		soc_type = qsd->btsoc_type;
+	} else {
+		soc_type = QCA_ROME;
+	}
+
+	return soc_type;
+}
+
+static const char *qca_get_firmware_name(struct hci_uart *hu)
+{
+	if (hu->serdev) {
+		struct qca_serdev *qsd = serdev_device_get_drvdata(hu->serdev);
+
+		return qsd->firmware_name;
+	} else {
+		return NULL;
+	}
+}
+>>>>>>> upstream/android-13
 
 static void __serial_clock_on(struct tty_struct *tty)
 {
@@ -207,25 +377,37 @@ static void serial_clock_vote(unsigned long vote, struct hci_uart *hu)
 	case HCI_IBS_TX_VOTE_CLOCK_ON:
 		qca->tx_vote = true;
 		qca->tx_votes_on++;
+<<<<<<< HEAD
 		new_vote = true;
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case HCI_IBS_RX_VOTE_CLOCK_ON:
 		qca->rx_vote = true;
 		qca->rx_votes_on++;
+<<<<<<< HEAD
 		new_vote = true;
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case HCI_IBS_TX_VOTE_CLOCK_OFF:
 		qca->tx_vote = false;
 		qca->tx_votes_off++;
+<<<<<<< HEAD
 		new_vote = qca->rx_vote | qca->tx_vote;
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case HCI_IBS_RX_VOTE_CLOCK_OFF:
 		qca->rx_vote = false;
 		qca->rx_votes_off++;
+<<<<<<< HEAD
 		new_vote = qca->rx_vote | qca->tx_vote;
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -233,6 +415,11 @@ static void serial_clock_vote(unsigned long vote, struct hci_uart *hu)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	new_vote = qca->rx_vote | qca->tx_vote;
+
+>>>>>>> upstream/android-13
 	if (new_vote != old_vote) {
 		if (new_vote)
 			__serial_clock_on(hu->tty);
@@ -286,13 +473,21 @@ static void qca_wq_awake_device(struct work_struct *work)
 					    ws_awake_device);
 	struct hci_uart *hu = qca->hu;
 	unsigned long retrans_delay;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	BT_DBG("hu %p wq awake device", hu);
 
 	/* Vote for serial clock */
 	serial_clock_vote(HCI_IBS_TX_VOTE_CLOCK_ON, hu);
 
+<<<<<<< HEAD
 	spin_lock(&qca->hci_ibs_lock);
+=======
+	spin_lock_irqsave(&qca->hci_ibs_lock, flags);
+>>>>>>> upstream/android-13
 
 	/* Send wake indication to device */
 	if (send_hci_ibs_cmd(HCI_IBS_WAKE_IND, hu) < 0)
@@ -304,7 +499,11 @@ static void qca_wq_awake_device(struct work_struct *work)
 	retrans_delay = msecs_to_jiffies(qca->wake_retrans);
 	mod_timer(&qca->wake_retrans_timer, jiffies + retrans_delay);
 
+<<<<<<< HEAD
 	spin_unlock(&qca->hci_ibs_lock);
+=======
+	spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+>>>>>>> upstream/android-13
 
 	/* Actually send the packets */
 	hci_uart_tx_wakeup(hu);
@@ -315,12 +514,20 @@ static void qca_wq_awake_rx(struct work_struct *work)
 	struct qca_data *qca = container_of(work, struct qca_data,
 					    ws_awake_rx);
 	struct hci_uart *hu = qca->hu;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	BT_DBG("hu %p wq awake rx", hu);
 
 	serial_clock_vote(HCI_IBS_RX_VOTE_CLOCK_ON, hu);
 
+<<<<<<< HEAD
 	spin_lock(&qca->hci_ibs_lock);
+=======
+	spin_lock_irqsave(&qca->hci_ibs_lock, flags);
+>>>>>>> upstream/android-13
 	qca->rx_ibs_state = HCI_IBS_RX_AWAKE;
 
 	/* Always acknowledge device wake up,
@@ -331,7 +538,11 @@ static void qca_wq_awake_rx(struct work_struct *work)
 
 	qca->ibs_sent_wacks++;
 
+<<<<<<< HEAD
 	spin_unlock(&qca->hci_ibs_lock);
+=======
+	spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+>>>>>>> upstream/android-13
 
 	/* Actually send the packets */
 	hci_uart_tx_wakeup(hu);
@@ -390,8 +601,11 @@ static void hci_ibs_tx_idle_timeout(struct timer_list *t)
 
 	case HCI_IBS_TX_ASLEEP:
 	case HCI_IBS_TX_WAKING:
+<<<<<<< HEAD
 		/* Fall through */
 
+=======
+>>>>>>> upstream/android-13
 	default:
 		BT_ERR("Spurious timeout tx state %d", qca->tx_ibs_state);
 		break;
@@ -413,6 +627,15 @@ static void hci_ibs_wake_retrans_timeout(struct timer_list *t)
 	spin_lock_irqsave_nested(&qca->hci_ibs_lock,
 				 flags, SINGLE_DEPTH_NESTING);
 
+<<<<<<< HEAD
+=======
+	/* Don't retransmit the HCI_IBS_WAKE_IND when suspending. */
+	if (test_bit(QCA_SUSPENDING, &qca->flags)) {
+		spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	switch (qca->tx_ibs_state) {
 	case HCI_IBS_TX_WAKING:
 		/* No WAKE_ACK, retransmit WAKE */
@@ -428,8 +651,11 @@ static void hci_ibs_wake_retrans_timeout(struct timer_list *t)
 
 	case HCI_IBS_TX_ASLEEP:
 	case HCI_IBS_TX_AWAKE:
+<<<<<<< HEAD
 		/* Fall through */
 
+=======
+>>>>>>> upstream/android-13
 	default:
 		BT_ERR("Spurious timeout tx state %d", qca->tx_ibs_state);
 		break;
@@ -441,12 +667,40 @@ static void hci_ibs_wake_retrans_timeout(struct timer_list *t)
 		hci_uart_tx_wakeup(hu);
 }
 
+<<<<<<< HEAD
+=======
+
+static void qca_controller_memdump_timeout(struct work_struct *work)
+{
+	struct qca_data *qca = container_of(work, struct qca_data,
+					ctrl_memdump_timeout.work);
+	struct hci_uart *hu = qca->hu;
+
+	mutex_lock(&qca->hci_memdump_lock);
+	if (test_bit(QCA_MEMDUMP_COLLECTION, &qca->flags)) {
+		qca->memdump_state = QCA_MEMDUMP_TIMEOUT;
+		if (!test_bit(QCA_HW_ERROR_EVENT, &qca->flags)) {
+			/* Inject hw error event to reset the device
+			 * and driver.
+			 */
+			hci_reset_dev(hu->hdev);
+		}
+	}
+
+	mutex_unlock(&qca->hci_memdump_lock);
+}
+
+
+>>>>>>> upstream/android-13
 /* Initialize protocol */
 static int qca_open(struct hci_uart *hu)
 {
 	struct qca_serdev *qcadev;
 	struct qca_data *qca;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	BT_DBG("hu %p qca_open", hu);
 
@@ -459,7 +713,13 @@ static int qca_open(struct hci_uart *hu)
 
 	skb_queue_head_init(&qca->txq);
 	skb_queue_head_init(&qca->tx_wait_q);
+<<<<<<< HEAD
 	spin_lock_init(&qca->hci_ibs_lock);
+=======
+	skb_queue_head_init(&qca->rx_memdump_q);
+	spin_lock_init(&qca->hci_ibs_lock);
+	mutex_init(&qca->hci_memdump_lock);
+>>>>>>> upstream/android-13
 	qca->workqueue = alloc_ordered_workqueue("qca_wq", 0);
 	if (!qca->workqueue) {
 		BT_ERR("QCA Workqueue not initialized properly");
@@ -471,13 +731,24 @@ static int qca_open(struct hci_uart *hu)
 	INIT_WORK(&qca->ws_awake_device, qca_wq_awake_device);
 	INIT_WORK(&qca->ws_rx_vote_off, qca_wq_serial_rx_clock_vote_off);
 	INIT_WORK(&qca->ws_tx_vote_off, qca_wq_serial_tx_clock_vote_off);
+<<<<<<< HEAD
 
 	qca->hu = hu;
+=======
+	INIT_WORK(&qca->ctrl_memdump_evt, qca_controller_memdump);
+	INIT_DELAYED_WORK(&qca->ctrl_memdump_timeout,
+			  qca_controller_memdump_timeout);
+	init_waitqueue_head(&qca->suspend_wait_q);
+
+	qca->hu = hu;
+	init_completion(&qca->drop_ev_comp);
+>>>>>>> upstream/android-13
 
 	/* Assume we start with both sides asleep -- extra wakes OK */
 	qca->tx_ibs_state = HCI_IBS_TX_ASLEEP;
 	qca->rx_ibs_state = HCI_IBS_RX_ASLEEP;
 
+<<<<<<< HEAD
 	/* clocks actually on, but we start votes off */
 	qca->tx_vote = false;
 	qca->rx_vote = false;
@@ -498,10 +769,14 @@ static int qca_open(struct hci_uart *hu)
 	qca->tx_votes_off = 0;
 	qca->rx_votes_on = 0;
 	qca->rx_votes_off = 0;
+=======
+	qca->vote_last_jif = jiffies;
+>>>>>>> upstream/android-13
 
 	hu->priv = qca;
 
 	if (hu->serdev) {
+<<<<<<< HEAD
 		serdev_device_open(hu->serdev);
 
 		qcadev = serdev_device_get_drvdata(hu->serdev);
@@ -521,13 +796,27 @@ static int qca_open(struct hci_uart *hu)
 				return ret;
 			}
 		}
+=======
+		qcadev = serdev_device_get_drvdata(hu->serdev);
+
+		if (qca_is_wcn399x(qcadev->btsoc_type) ||
+		    qca_is_wcn6750(qcadev->btsoc_type))
+			hu->init_speed = qcadev->init_speed;
+
+		if (qcadev->oper_speed)
+			hu->oper_speed = qcadev->oper_speed;
+>>>>>>> upstream/android-13
 	}
 
 	timer_setup(&qca->wake_retrans_timer, hci_ibs_wake_retrans_timeout, 0);
 	qca->wake_retrans = IBS_WAKE_RETRANS_TIMEOUT_MS;
 
 	timer_setup(&qca->tx_idle_timer, hci_ibs_tx_idle_timeout, 0);
+<<<<<<< HEAD
 	qca->tx_idle_delay = IBS_TX_IDLE_TIMEOUT_MS;
+=======
+	qca->tx_idle_delay = IBS_HOST_TX_IDLE_TIMEOUT_MS;
+>>>>>>> upstream/android-13
 
 	BT_DBG("HCI_UART_QCA open, tx_idle_delay=%u, wake_retrans=%u",
 	       qca->tx_idle_delay, qca->wake_retrans);
@@ -548,7 +837,11 @@ static void qca_debugfs_init(struct hci_dev *hdev)
 	ibs_dir = debugfs_create_dir("ibs", hdev->debugfs);
 
 	/* read only */
+<<<<<<< HEAD
 	mode = S_IRUGO;
+=======
+	mode = 0444;
+>>>>>>> upstream/android-13
 	debugfs_create_u8("tx_ibs_state", mode, ibs_dir, &qca->tx_ibs_state);
 	debugfs_create_u8("rx_ibs_state", mode, ibs_dir, &qca->rx_ibs_state);
 	debugfs_create_u64("ibs_sent_sleeps", mode, ibs_dir,
@@ -575,7 +868,11 @@ static void qca_debugfs_init(struct hci_dev *hdev)
 	debugfs_create_u32("vote_off_ms", mode, ibs_dir, &qca->vote_off_ms);
 
 	/* read/write */
+<<<<<<< HEAD
 	mode = S_IRUGO | S_IWUSR;
+=======
+	mode = 0644;
+>>>>>>> upstream/android-13
 	debugfs_create_u32("wake_retrans", mode, ibs_dir, &qca->wake_retrans);
 	debugfs_create_u32("tx_idle_delay", mode, ibs_dir,
 			   &qca->tx_idle_delay);
@@ -597,7 +894,10 @@ static int qca_flush(struct hci_uart *hu)
 /* Close protocol */
 static int qca_close(struct hci_uart *hu)
 {
+<<<<<<< HEAD
 	struct qca_serdev *qcadev;
+=======
+>>>>>>> upstream/android-13
 	struct qca_data *qca = hu->priv;
 
 	BT_DBG("hu %p qca close", hu);
@@ -606,11 +906,16 @@ static int qca_close(struct hci_uart *hu)
 
 	skb_queue_purge(&qca->tx_wait_q);
 	skb_queue_purge(&qca->txq);
+<<<<<<< HEAD
+=======
+	skb_queue_purge(&qca->rx_memdump_q);
+>>>>>>> upstream/android-13
 	del_timer(&qca->tx_idle_timer);
 	del_timer(&qca->wake_retrans_timer);
 	destroy_workqueue(qca->workqueue);
 	qca->hu = NULL;
 
+<<<<<<< HEAD
 	if (hu->serdev) {
 		qcadev = serdev_device_get_drvdata(hu->serdev);
 		if (qcadev->btsoc_type == QCA_WCN3990)
@@ -621,6 +926,8 @@ static int qca_close(struct hci_uart *hu)
 		serdev_device_close(hu->serdev);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	kfree_skb(qca->rx_skb);
 
 	hu->priv = NULL;
@@ -643,6 +950,15 @@ static void device_want_to_wakeup(struct hci_uart *hu)
 
 	qca->ibs_recv_wakes++;
 
+<<<<<<< HEAD
+=======
+	/* Don't wake the rx up when suspending. */
+	if (test_bit(QCA_SUSPENDING, &qca->flags)) {
+		spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	switch (qca->rx_ibs_state) {
 	case HCI_IBS_RX_ASLEEP:
 		/* Make sure clock is on - we may have turned clock off since
@@ -683,7 +999,11 @@ static void device_want_to_sleep(struct hci_uart *hu)
 	unsigned long flags;
 	struct qca_data *qca = hu->priv;
 
+<<<<<<< HEAD
 	BT_DBG("hu %p want to sleep", hu);
+=======
+	BT_DBG("hu %p want to sleep in %d state", hu, qca->rx_ibs_state);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&qca->hci_ibs_lock, flags);
 
@@ -698,7 +1018,11 @@ static void device_want_to_sleep(struct hci_uart *hu)
 		break;
 
 	case HCI_IBS_RX_ASLEEP:
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		break;
+>>>>>>> upstream/android-13
 
 	default:
 		/* Any other state is illegal */
@@ -707,6 +1031,11 @@ static void device_want_to_sleep(struct hci_uart *hu)
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	wake_up_interruptible(&qca->suspend_wait_q);
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
 }
 
@@ -724,6 +1053,15 @@ static void device_woke_up(struct hci_uart *hu)
 
 	qca->ibs_recv_wacks++;
 
+<<<<<<< HEAD
+=======
+	/* Don't react to the wake-up-acknowledgment when suspending. */
+	if (test_bit(QCA_SUSPENDING, &qca->flags)) {
+		spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	switch (qca->tx_ibs_state) {
 	case HCI_IBS_TX_AWAKE:
 		/* Expect one if we send 2 WAKEs */
@@ -744,8 +1082,11 @@ static void device_woke_up(struct hci_uart *hu)
 		break;
 
 	case HCI_IBS_TX_ASLEEP:
+<<<<<<< HEAD
 		/* Fall through */
 
+=======
+>>>>>>> upstream/android-13
 	default:
 		BT_ERR("Received HCI_IBS_WAKE_ACK in tx state %d",
 		       qca->tx_ibs_state);
@@ -769,6 +1110,7 @@ static int qca_enqueue(struct hci_uart *hu, struct sk_buff *skb)
 	BT_DBG("hu %p qca enq skb %p tx_ibs_state %d", hu, skb,
 	       qca->tx_ibs_state);
 
+<<<<<<< HEAD
 	/* Prepend skb with frame type */
 	memcpy(skb_push(skb, 1), &hci_skb_pkt_type(skb), 1);
 
@@ -782,6 +1124,31 @@ static int qca_enqueue(struct hci_uart *hu, struct sk_buff *skb)
 
 	spin_lock_irqsave(&qca->hci_ibs_lock, flags);
 
+=======
+	if (test_bit(QCA_SSR_TRIGGERED, &qca->flags)) {
+		/* As SSR is in progress, ignore the packets */
+		bt_dev_dbg(hu->hdev, "SSR is in progress");
+		kfree_skb(skb);
+		return 0;
+	}
+
+	/* Prepend skb with frame type */
+	memcpy(skb_push(skb, 1), &hci_skb_pkt_type(skb), 1);
+
+	spin_lock_irqsave(&qca->hci_ibs_lock, flags);
+
+	/* Don't go to sleep in middle of patch download or
+	 * Out-Of-Band(GPIOs control) sleep is selected.
+	 * Don't wake the device up when suspending.
+	 */
+	if (test_bit(QCA_IBS_DISABLED, &qca->flags) ||
+	    test_bit(QCA_SUSPENDING, &qca->flags)) {
+		skb_queue_tail(&qca->txq, skb);
+		spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	/* Act according to current state */
 	switch (qca->tx_ibs_state) {
 	case HCI_IBS_TX_AWAKE:
@@ -855,6 +1222,235 @@ static int qca_ibs_wake_ack(struct hci_dev *hdev, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int qca_recv_acl_data(struct hci_dev *hdev, struct sk_buff *skb)
+{
+	/* We receive debug logs from chip as an ACL packets.
+	 * Instead of sending the data to ACL to decode the
+	 * received data, we are pushing them to the above layers
+	 * as a diagnostic packet.
+	 */
+	if (get_unaligned_le16(skb->data) == QCA_DEBUG_HANDLE)
+		return hci_recv_diag(hdev, skb);
+
+	return hci_recv_frame(hdev, skb);
+}
+
+static void qca_controller_memdump(struct work_struct *work)
+{
+	struct qca_data *qca = container_of(work, struct qca_data,
+					    ctrl_memdump_evt);
+	struct hci_uart *hu = qca->hu;
+	struct sk_buff *skb;
+	struct qca_memdump_event_hdr *cmd_hdr;
+	struct qca_memdump_data *qca_memdump = qca->qca_memdump;
+	struct qca_dump_size *dump;
+	char *memdump_buf;
+	char nullBuff[QCA_DUMP_PACKET_SIZE] = { 0 };
+	u16 seq_no;
+	u32 dump_size;
+	u32 rx_size;
+	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+
+	while ((skb = skb_dequeue(&qca->rx_memdump_q))) {
+
+		mutex_lock(&qca->hci_memdump_lock);
+		/* Skip processing the received packets if timeout detected
+		 * or memdump collection completed.
+		 */
+		if (qca->memdump_state == QCA_MEMDUMP_TIMEOUT ||
+		    qca->memdump_state == QCA_MEMDUMP_COLLECTED) {
+			mutex_unlock(&qca->hci_memdump_lock);
+			return;
+		}
+
+		if (!qca_memdump) {
+			qca_memdump = kzalloc(sizeof(struct qca_memdump_data),
+					      GFP_ATOMIC);
+			if (!qca_memdump) {
+				mutex_unlock(&qca->hci_memdump_lock);
+				return;
+			}
+
+			qca->qca_memdump = qca_memdump;
+		}
+
+		qca->memdump_state = QCA_MEMDUMP_COLLECTING;
+		cmd_hdr = (void *) skb->data;
+		seq_no = __le16_to_cpu(cmd_hdr->seq_no);
+		skb_pull(skb, sizeof(struct qca_memdump_event_hdr));
+
+		if (!seq_no) {
+
+			/* This is the first frame of memdump packet from
+			 * the controller, Disable IBS to recevie dump
+			 * with out any interruption, ideally time required for
+			 * the controller to send the dump is 8 seconds. let us
+			 * start timer to handle this asynchronous activity.
+			 */
+			set_bit(QCA_IBS_DISABLED, &qca->flags);
+			set_bit(QCA_MEMDUMP_COLLECTION, &qca->flags);
+			dump = (void *) skb->data;
+			dump_size = __le32_to_cpu(dump->dump_size);
+			if (!(dump_size)) {
+				bt_dev_err(hu->hdev, "Rx invalid memdump size");
+				kfree(qca_memdump);
+				kfree_skb(skb);
+				qca->qca_memdump = NULL;
+				mutex_unlock(&qca->hci_memdump_lock);
+				return;
+			}
+
+			bt_dev_info(hu->hdev, "QCA collecting dump of size:%u",
+				    dump_size);
+			queue_delayed_work(qca->workqueue,
+					   &qca->ctrl_memdump_timeout,
+					   msecs_to_jiffies(MEMDUMP_TIMEOUT_MS)
+					  );
+
+			skb_pull(skb, sizeof(dump_size));
+			memdump_buf = vmalloc(dump_size);
+			qca_memdump->ram_dump_size = dump_size;
+			qca_memdump->memdump_buf_head = memdump_buf;
+			qca_memdump->memdump_buf_tail = memdump_buf;
+		}
+
+		memdump_buf = qca_memdump->memdump_buf_tail;
+
+		/* If sequence no 0 is missed then there is no point in
+		 * accepting the other sequences.
+		 */
+		if (!memdump_buf) {
+			bt_dev_err(hu->hdev, "QCA: Discarding other packets");
+			kfree(qca_memdump);
+			kfree_skb(skb);
+			qca->qca_memdump = NULL;
+			mutex_unlock(&qca->hci_memdump_lock);
+			return;
+		}
+
+		/* There could be chance of missing some packets from
+		 * the controller. In such cases let us store the dummy
+		 * packets in the buffer.
+		 */
+		/* For QCA6390, controller does not lost packets but
+		 * sequence number field of packet sometimes has error
+		 * bits, so skip this checking for missing packet.
+		 */
+		while ((seq_no > qca_memdump->current_seq_no + 1) &&
+		       (soc_type != QCA_QCA6390) &&
+		       seq_no != QCA_LAST_SEQUENCE_NUM) {
+			bt_dev_err(hu->hdev, "QCA controller missed packet:%d",
+				   qca_memdump->current_seq_no);
+			rx_size = qca_memdump->received_dump;
+			rx_size += QCA_DUMP_PACKET_SIZE;
+			if (rx_size > qca_memdump->ram_dump_size) {
+				bt_dev_err(hu->hdev,
+					   "QCA memdump received %d, no space for missed packet",
+					   qca_memdump->received_dump);
+				break;
+			}
+			memcpy(memdump_buf, nullBuff, QCA_DUMP_PACKET_SIZE);
+			memdump_buf = memdump_buf + QCA_DUMP_PACKET_SIZE;
+			qca_memdump->received_dump += QCA_DUMP_PACKET_SIZE;
+			qca_memdump->current_seq_no++;
+		}
+
+		rx_size = qca_memdump->received_dump + skb->len;
+		if (rx_size <= qca_memdump->ram_dump_size) {
+			if ((seq_no != QCA_LAST_SEQUENCE_NUM) &&
+			    (seq_no != qca_memdump->current_seq_no))
+				bt_dev_err(hu->hdev,
+					   "QCA memdump unexpected packet %d",
+					   seq_no);
+			bt_dev_dbg(hu->hdev,
+				   "QCA memdump packet %d with length %d",
+				   seq_no, skb->len);
+			memcpy(memdump_buf, (unsigned char *)skb->data,
+			       skb->len);
+			memdump_buf = memdump_buf + skb->len;
+			qca_memdump->memdump_buf_tail = memdump_buf;
+			qca_memdump->current_seq_no = seq_no + 1;
+			qca_memdump->received_dump += skb->len;
+		} else {
+			bt_dev_err(hu->hdev,
+				   "QCA memdump received %d, no space for packet %d",
+				   qca_memdump->received_dump, seq_no);
+		}
+		qca->qca_memdump = qca_memdump;
+		kfree_skb(skb);
+		if (seq_no == QCA_LAST_SEQUENCE_NUM) {
+			bt_dev_info(hu->hdev,
+				    "QCA memdump Done, received %d, total %d",
+				    qca_memdump->received_dump,
+				    qca_memdump->ram_dump_size);
+			memdump_buf = qca_memdump->memdump_buf_head;
+			dev_coredumpv(&hu->serdev->dev, memdump_buf,
+				      qca_memdump->received_dump, GFP_KERNEL);
+			cancel_delayed_work(&qca->ctrl_memdump_timeout);
+			kfree(qca->qca_memdump);
+			qca->qca_memdump = NULL;
+			qca->memdump_state = QCA_MEMDUMP_COLLECTED;
+			clear_bit(QCA_MEMDUMP_COLLECTION, &qca->flags);
+		}
+
+		mutex_unlock(&qca->hci_memdump_lock);
+	}
+
+}
+
+static int qca_controller_memdump_event(struct hci_dev *hdev,
+					struct sk_buff *skb)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	struct qca_data *qca = hu->priv;
+
+	set_bit(QCA_SSR_TRIGGERED, &qca->flags);
+	skb_queue_tail(&qca->rx_memdump_q, skb);
+	queue_work(qca->workqueue, &qca->ctrl_memdump_evt);
+
+	return 0;
+}
+
+static int qca_recv_event(struct hci_dev *hdev, struct sk_buff *skb)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	struct qca_data *qca = hu->priv;
+
+	if (test_bit(QCA_DROP_VENDOR_EVENT, &qca->flags)) {
+		struct hci_event_hdr *hdr = (void *)skb->data;
+
+		/* For the WCN3990 the vendor command for a baudrate change
+		 * isn't sent as synchronous HCI command, because the
+		 * controller sends the corresponding vendor event with the
+		 * new baudrate. The event is received and properly decoded
+		 * after changing the baudrate of the host port. It needs to
+		 * be dropped, otherwise it can be misinterpreted as
+		 * response to a later firmware download command (also a
+		 * vendor command).
+		 */
+
+		if (hdr->evt == HCI_EV_VENDOR)
+			complete(&qca->drop_ev_comp);
+
+		kfree_skb(skb);
+
+		return 0;
+	}
+	/* We receive chip memory dump as an event packet, With a dedicated
+	 * handler followed by a hardware error event. When this event is
+	 * received we store dump into a file before closing hci. This
+	 * dump will help in triaging the issues.
+	 */
+	if ((skb->data[0] == HCI_VENDOR_PKT) &&
+	    (get_unaligned_be16(skb->data + 2) == QCA_SSR_DUMP_HANDLE))
+		return qca_controller_memdump_event(hdev, skb);
+
+	return hci_recv_frame(hdev, skb);
+}
+
+>>>>>>> upstream/android-13
 #define QCA_IBS_SLEEP_IND_EVENT \
 	.type = HCI_IBS_SLEEP_IND, \
 	.hlen = 0, \
@@ -877,9 +1473,15 @@ static int qca_ibs_wake_ack(struct hci_dev *hdev, struct sk_buff *skb)
 	.maxlen = HCI_MAX_IBS_SIZE
 
 static const struct h4_recv_pkt qca_recv_pkts[] = {
+<<<<<<< HEAD
 	{ H4_RECV_ACL,             .recv = hci_recv_frame    },
 	{ H4_RECV_SCO,             .recv = hci_recv_frame    },
 	{ H4_RECV_EVENT,           .recv = hci_recv_frame    },
+=======
+	{ H4_RECV_ACL,             .recv = qca_recv_acl_data },
+	{ H4_RECV_SCO,             .recv = hci_recv_frame    },
+	{ H4_RECV_EVENT,           .recv = qca_recv_event    },
+>>>>>>> upstream/android-13
 	{ QCA_IBS_WAKE_IND_EVENT,  .recv = qca_ibs_wake_ind  },
 	{ QCA_IBS_WAKE_ACK_EVENT,  .recv = qca_ibs_wake_ack  },
 	{ QCA_IBS_SLEEP_IND_EVENT, .recv = qca_ibs_sleep_ind },
@@ -952,7 +1554,10 @@ static int qca_set_baudrate(struct hci_dev *hdev, uint8_t baudrate)
 	struct hci_uart *hu = hci_get_drvdata(hdev);
 	struct qca_data *qca = hu->priv;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	struct qca_serdev *qcadev;
+=======
+>>>>>>> upstream/android-13
 	u8 cmd[] = { 0x01, 0x48, 0xFC, 0x01, 0x00 };
 
 	if (baudrate > QCA_BAUDRATE_3200000)
@@ -966,6 +1571,7 @@ static int qca_set_baudrate(struct hci_dev *hdev, uint8_t baudrate)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	/* Disabling hardware flow control is mandatory while
 	 * sending change baudrate request to wcn3990 SoC.
 	 */
@@ -973,6 +1579,8 @@ static int qca_set_baudrate(struct hci_dev *hdev, uint8_t baudrate)
 	if (qcadev->btsoc_type == QCA_WCN3990)
 		hci_uart_set_flow_control(hu, true);
 
+=======
+>>>>>>> upstream/android-13
 	/* Assign commands to change baudrate and packet type. */
 	skb_put_data(skb, cmd, sizeof(cmd));
 	hci_skb_pkt_type(skb) = HCI_COMMAND_PKT;
@@ -980,6 +1588,7 @@ static int qca_set_baudrate(struct hci_dev *hdev, uint8_t baudrate)
 	skb_queue_tail(&qca->txq, skb);
 	hci_uart_tx_wakeup(hu);
 
+<<<<<<< HEAD
 	/* wait 300ms to change new baudrate on controller side
 	 * controller will come back after they receive this HCI command
 	 * then host can communicate with new baudrate to controller
@@ -990,6 +1599,23 @@ static int qca_set_baudrate(struct hci_dev *hdev, uint8_t baudrate)
 
 	if (qcadev->btsoc_type == QCA_WCN3990)
 		hci_uart_set_flow_control(hu, false);
+=======
+	/* Wait for the baudrate change request to be sent */
+
+	while (!skb_queue_empty(&qca->txq))
+		usleep_range(100, 200);
+
+	if (hu->serdev)
+		serdev_device_wait_until_sent(hu->serdev,
+		      msecs_to_jiffies(CMD_TRANS_TIMEOUT_MS));
+
+	/* Give the controller time to process the request */
+	if (qca_is_wcn399x(qca_soc_type(hu)) ||
+	    qca_is_wcn6750(qca_soc_type(hu)))
+		usleep_range(1000, 10000);
+	else
+		msleep(300);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1002,11 +1628,19 @@ static inline void host_set_baudrate(struct hci_uart *hu, unsigned int speed)
 		hci_uart_set_baudrate(hu, speed);
 }
 
+<<<<<<< HEAD
 static int qca_send_power_pulse(struct hci_dev *hdev, u8 cmd)
 {
 	struct hci_uart *hu = hci_get_drvdata(hdev);
 	struct qca_data *qca = hu->priv;
 	struct sk_buff *skb;
+=======
+static int qca_send_power_pulse(struct hci_uart *hu, bool on)
+{
+	int ret;
+	int timeout = msecs_to_jiffies(CMD_TRANS_TIMEOUT_MS);
+	u8 cmd = on ? QCA_WCN3990_POWERON_PULSE : QCA_WCN3990_POWEROFF_PULSE;
+>>>>>>> upstream/android-13
 
 	/* These power pulses are single byte command which are sent
 	 * at required baudrate to wcn3990. On wcn3990, we have an external
@@ -1018,6 +1652,7 @@ static int qca_send_power_pulse(struct hci_dev *hdev, u8 cmd)
 	 * save power. Disabling hardware flow control is mandatory while
 	 * sending power pulses to SoC.
 	 */
+<<<<<<< HEAD
 	bt_dev_dbg(hdev, "sending power pulse %02x to SoC", cmd);
 
 	skb = bt_skb_alloc(sizeof(cmd), GFP_KERNEL);
@@ -1036,6 +1671,27 @@ static int qca_send_power_pulse(struct hci_dev *hdev, u8 cmd)
 	usleep_range(100, 200);
 	hci_uart_set_flow_control(hu, false);
 
+=======
+	bt_dev_dbg(hu->hdev, "sending power pulse %02x to controller", cmd);
+
+	serdev_device_write_flush(hu->serdev);
+	hci_uart_set_flow_control(hu, true);
+	ret = serdev_device_write_buf(hu->serdev, &cmd, sizeof(cmd));
+	if (ret < 0) {
+		bt_dev_err(hu->hdev, "failed to send power pulse %02x", cmd);
+		return ret;
+	}
+
+	serdev_device_wait_until_sent(hu->serdev, timeout);
+	hci_uart_set_flow_control(hu, false);
+
+	/* Give to controller time to boot/shutdown */
+	if (on)
+		msleep(100);
+	else
+		usleep_range(1000, 10000);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1061,10 +1717,15 @@ static unsigned int qca_get_speed(struct hci_uart *hu,
 
 static int qca_check_speeds(struct hci_uart *hu)
 {
+<<<<<<< HEAD
 	struct qca_serdev *qcadev;
 
 	qcadev = serdev_device_get_drvdata(hu->serdev);
 	if (qcadev->btsoc_type == QCA_WCN3990) {
+=======
+	if (qca_is_wcn399x(qca_soc_type(hu)) ||
+	    qca_is_wcn6750(qca_soc_type(hu))) {
+>>>>>>> upstream/android-13
 		if (!qca_get_speed(hu, QCA_INIT_SPEED) &&
 		    !qca_get_speed(hu, QCA_OPER_SPEED))
 			return -EINVAL;
@@ -1080,21 +1741,47 @@ static int qca_check_speeds(struct hci_uart *hu)
 static int qca_set_speed(struct hci_uart *hu, enum qca_speed_type speed_type)
 {
 	unsigned int speed, qca_baudrate;
+<<<<<<< HEAD
 	int ret;
+=======
+	struct qca_data *qca = hu->priv;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (speed_type == QCA_INIT_SPEED) {
 		speed = qca_get_speed(hu, QCA_INIT_SPEED);
 		if (speed)
 			host_set_baudrate(hu, speed);
 	} else {
+<<<<<<< HEAD
+=======
+		enum qca_btsoc_type soc_type = qca_soc_type(hu);
+
+>>>>>>> upstream/android-13
 		speed = qca_get_speed(hu, QCA_OPER_SPEED);
 		if (!speed)
 			return 0;
 
+<<<<<<< HEAD
+=======
+		/* Disable flow control for wcn3990 to deassert RTS while
+		 * changing the baudrate of chip and host.
+		 */
+		if (qca_is_wcn399x(soc_type) ||
+		    qca_is_wcn6750(soc_type))
+			hci_uart_set_flow_control(hu, true);
+
+		if (soc_type == QCA_WCN3990) {
+			reinit_completion(&qca->drop_ev_comp);
+			set_bit(QCA_DROP_VENDOR_EVENT, &qca->flags);
+		}
+
+>>>>>>> upstream/android-13
 		qca_baudrate = qca_get_baudrate_value(speed);
 		bt_dev_dbg(hu->hdev, "Set UART speed to %d", speed);
 		ret = qca_set_baudrate(hu->hdev, qca_baudrate);
 		if (ret)
+<<<<<<< HEAD
 			return ret;
 
 		host_set_baudrate(hu, speed);
@@ -1121,6 +1808,216 @@ static int qca_wcn3990_init(struct hci_uart *hu)
 
 	/* Wait for 100 ms for SoC to boot */
 	msleep(100);
+=======
+			goto error;
+
+		host_set_baudrate(hu, speed);
+
+error:
+		if (qca_is_wcn399x(soc_type) ||
+		    qca_is_wcn6750(soc_type))
+			hci_uart_set_flow_control(hu, false);
+
+		if (soc_type == QCA_WCN3990) {
+			/* Wait for the controller to send the vendor event
+			 * for the baudrate change command.
+			 */
+			if (!wait_for_completion_timeout(&qca->drop_ev_comp,
+						 msecs_to_jiffies(100))) {
+				bt_dev_err(hu->hdev,
+					   "Failed to change controller baudrate\n");
+				ret = -ETIMEDOUT;
+			}
+
+			clear_bit(QCA_DROP_VENDOR_EVENT, &qca->flags);
+		}
+	}
+
+	return ret;
+}
+
+static int qca_send_crashbuffer(struct hci_uart *hu)
+{
+	struct qca_data *qca = hu->priv;
+	struct sk_buff *skb;
+
+	skb = bt_skb_alloc(QCA_CRASHBYTE_PACKET_LEN, GFP_KERNEL);
+	if (!skb) {
+		bt_dev_err(hu->hdev, "Failed to allocate memory for skb packet");
+		return -ENOMEM;
+	}
+
+	/* We forcefully crash the controller, by sending 0xfb byte for
+	 * 1024 times. We also might have chance of losing data, To be
+	 * on safer side we send 1096 bytes to the SoC.
+	 */
+	memset(skb_put(skb, QCA_CRASHBYTE_PACKET_LEN), QCA_MEMDUMP_BYTE,
+	       QCA_CRASHBYTE_PACKET_LEN);
+	hci_skb_pkt_type(skb) = HCI_COMMAND_PKT;
+	bt_dev_info(hu->hdev, "crash the soc to collect controller dump");
+	skb_queue_tail(&qca->txq, skb);
+	hci_uart_tx_wakeup(hu);
+
+	return 0;
+}
+
+static void qca_wait_for_dump_collection(struct hci_dev *hdev)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	struct qca_data *qca = hu->priv;
+
+	wait_on_bit_timeout(&qca->flags, QCA_MEMDUMP_COLLECTION,
+			    TASK_UNINTERRUPTIBLE, MEMDUMP_TIMEOUT_MS);
+
+	clear_bit(QCA_MEMDUMP_COLLECTION, &qca->flags);
+}
+
+static void qca_hw_error(struct hci_dev *hdev, u8 code)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	struct qca_data *qca = hu->priv;
+
+	set_bit(QCA_SSR_TRIGGERED, &qca->flags);
+	set_bit(QCA_HW_ERROR_EVENT, &qca->flags);
+	bt_dev_info(hdev, "mem_dump_status: %d", qca->memdump_state);
+
+	if (qca->memdump_state == QCA_MEMDUMP_IDLE) {
+		/* If hardware error event received for other than QCA
+		 * soc memory dump event, then we need to crash the SOC
+		 * and wait here for 8 seconds to get the dump packets.
+		 * This will block main thread to be on hold until we
+		 * collect dump.
+		 */
+		set_bit(QCA_MEMDUMP_COLLECTION, &qca->flags);
+		qca_send_crashbuffer(hu);
+		qca_wait_for_dump_collection(hdev);
+	} else if (qca->memdump_state == QCA_MEMDUMP_COLLECTING) {
+		/* Let us wait here until memory dump collected or
+		 * memory dump timer expired.
+		 */
+		bt_dev_info(hdev, "waiting for dump to complete");
+		qca_wait_for_dump_collection(hdev);
+	}
+
+	mutex_lock(&qca->hci_memdump_lock);
+	if (qca->memdump_state != QCA_MEMDUMP_COLLECTED) {
+		bt_dev_err(hu->hdev, "clearing allocated memory due to memdump timeout");
+		if (qca->qca_memdump) {
+			vfree(qca->qca_memdump->memdump_buf_head);
+			kfree(qca->qca_memdump);
+			qca->qca_memdump = NULL;
+		}
+		qca->memdump_state = QCA_MEMDUMP_TIMEOUT;
+		cancel_delayed_work(&qca->ctrl_memdump_timeout);
+	}
+	mutex_unlock(&qca->hci_memdump_lock);
+
+	if (qca->memdump_state == QCA_MEMDUMP_TIMEOUT ||
+	    qca->memdump_state == QCA_MEMDUMP_COLLECTED) {
+		cancel_work_sync(&qca->ctrl_memdump_evt);
+		skb_queue_purge(&qca->rx_memdump_q);
+	}
+
+	clear_bit(QCA_HW_ERROR_EVENT, &qca->flags);
+}
+
+static void qca_cmd_timeout(struct hci_dev *hdev)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	struct qca_data *qca = hu->priv;
+
+	set_bit(QCA_SSR_TRIGGERED, &qca->flags);
+	if (qca->memdump_state == QCA_MEMDUMP_IDLE) {
+		set_bit(QCA_MEMDUMP_COLLECTION, &qca->flags);
+		qca_send_crashbuffer(hu);
+		qca_wait_for_dump_collection(hdev);
+	} else if (qca->memdump_state == QCA_MEMDUMP_COLLECTING) {
+		/* Let us wait here until memory dump collected or
+		 * memory dump timer expired.
+		 */
+		bt_dev_info(hdev, "waiting for dump to complete");
+		qca_wait_for_dump_collection(hdev);
+	}
+
+	mutex_lock(&qca->hci_memdump_lock);
+	if (qca->memdump_state != QCA_MEMDUMP_COLLECTED) {
+		qca->memdump_state = QCA_MEMDUMP_TIMEOUT;
+		if (!test_bit(QCA_HW_ERROR_EVENT, &qca->flags)) {
+			/* Inject hw error event to reset the device
+			 * and driver.
+			 */
+			hci_reset_dev(hu->hdev);
+		}
+	}
+	mutex_unlock(&qca->hci_memdump_lock);
+}
+
+static bool qca_prevent_wake(struct hci_dev *hdev)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	bool wakeup;
+
+	/* UART driver handles the interrupt from BT SoC.So we need to use
+	 * device handle of UART driver to get the status of device may wakeup.
+	 */
+	wakeup = device_may_wakeup(hu->serdev->ctrl->dev.parent);
+	bt_dev_dbg(hu->hdev, "wakeup status : %d", wakeup);
+
+	return !wakeup;
+}
+
+static int qca_regulator_init(struct hci_uart *hu)
+{
+	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+	struct qca_serdev *qcadev;
+	int ret;
+	bool sw_ctrl_state;
+
+	/* Check for vregs status, may be hci down has turned
+	 * off the voltage regulator.
+	 */
+	qcadev = serdev_device_get_drvdata(hu->serdev);
+	if (!qcadev->bt_power->vregs_on) {
+		serdev_device_close(hu->serdev);
+		ret = qca_regulator_enable(qcadev);
+		if (ret)
+			return ret;
+
+		ret = serdev_device_open(hu->serdev);
+		if (ret) {
+			bt_dev_err(hu->hdev, "failed to open port");
+			return ret;
+		}
+	}
+
+	if (qca_is_wcn399x(soc_type)) {
+		/* Forcefully enable wcn399x to enter in to boot mode. */
+		host_set_baudrate(hu, 2400);
+		ret = qca_send_power_pulse(hu, false);
+		if (ret)
+			return ret;
+	}
+
+	/* For wcn6750 need to enable gpio bt_en */
+	if (qcadev->bt_en) {
+		gpiod_set_value_cansleep(qcadev->bt_en, 0);
+		msleep(50);
+		gpiod_set_value_cansleep(qcadev->bt_en, 1);
+		msleep(50);
+		if (qcadev->sw_ctrl) {
+			sw_ctrl_state = gpiod_get_value_cansleep(qcadev->sw_ctrl);
+			bt_dev_dbg(hu->hdev, "SW_CTRL is %d", sw_ctrl_state);
+		}
+	}
+
+	qca_set_speed(hu, QCA_INIT_SPEED);
+
+	if (qca_is_wcn399x(soc_type)) {
+		ret = qca_send_power_pulse(hu, true);
+		if (ret)
+			return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/* Now the device is in ready state to communicate with host.
 	 * To sync host with device we need to reopen port.
@@ -1139,21 +2036,63 @@ static int qca_wcn3990_init(struct hci_uart *hu)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int qca_power_on(struct hci_dev *hdev)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+	struct qca_serdev *qcadev;
+	struct qca_data *qca = hu->priv;
+	int ret = 0;
+
+	/* Non-serdev device usually is powered by external power
+	 * and don't need additional action in driver for power on
+	 */
+	if (!hu->serdev)
+		return 0;
+
+	if (qca_is_wcn399x(soc_type) ||
+	    qca_is_wcn6750(soc_type)) {
+		ret = qca_regulator_init(hu);
+	} else {
+		qcadev = serdev_device_get_drvdata(hu->serdev);
+		if (qcadev->bt_en) {
+			gpiod_set_value_cansleep(qcadev->bt_en, 1);
+			/* Controller needs time to bootup. */
+			msleep(150);
+		}
+	}
+
+	clear_bit(QCA_BT_OFF, &qca->flags);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int qca_setup(struct hci_uart *hu)
 {
 	struct hci_dev *hdev = hu->hdev;
 	struct qca_data *qca = hu->priv;
 	unsigned int speed, qca_baudrate = QCA_BAUDRATE_115200;
+<<<<<<< HEAD
 	struct qca_serdev *qcadev;
 	int ret;
 	int soc_ver = 0;
 
 	qcadev = serdev_device_get_drvdata(hu->serdev);
+=======
+	unsigned int retries = 0;
+	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+	const char *firmware_name = qca_get_firmware_name(hu);
+	int ret;
+	struct qca_btsoc_version ver;
+>>>>>>> upstream/android-13
 
 	ret = qca_check_speeds(hu);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	/* Patch downloading has to be done without IBS mode */
 	clear_bit(STATE_IN_BAND_SLEEP_ENABLED, &qca->flags);
 
@@ -1168,6 +2107,38 @@ static int qca_setup(struct hci_uart *hu)
 			return ret;
 	} else {
 		bt_dev_info(hdev, "ROME setup");
+=======
+	clear_bit(QCA_ROM_FW, &qca->flags);
+	/* Patch downloading has to be done without IBS mode */
+	set_bit(QCA_IBS_DISABLED, &qca->flags);
+
+	/* Enable controller to do both LE scan and BR/EDR inquiry
+	 * simultaneously.
+	 */
+	set_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &hdev->quirks);
+
+	bt_dev_info(hdev, "setting up %s",
+		qca_is_wcn399x(soc_type) ? "wcn399x" :
+		(soc_type == QCA_WCN6750) ? "wcn6750" : "ROME/QCA6390");
+
+	qca->memdump_state = QCA_MEMDUMP_IDLE;
+
+retry:
+	ret = qca_power_on(hdev);
+	if (ret)
+		goto out;
+
+	clear_bit(QCA_SSR_TRIGGERED, &qca->flags);
+
+	if (qca_is_wcn399x(soc_type) ||
+	    qca_is_wcn6750(soc_type)) {
+		set_bit(HCI_QUIRK_USE_BDADDR_PROPERTY, &hdev->quirks);
+
+		ret = qca_read_soc_version(hdev, &ver, soc_type);
+		if (ret)
+			goto out;
+	} else {
+>>>>>>> upstream/android-13
 		qca_set_speed(hu, QCA_INIT_SPEED);
 	}
 
@@ -1176,11 +2147,16 @@ static int qca_setup(struct hci_uart *hu)
 	if (speed) {
 		ret = qca_set_speed(hu, QCA_OPER_SPEED);
 		if (ret)
+<<<<<<< HEAD
 			return ret;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 
 		qca_baudrate = qca_get_baudrate_value(speed);
 	}
 
+<<<<<<< HEAD
 	if (qcadev->btsoc_type != QCA_WCN3990) {
 		/* Get QCA version information */
 		ret = qca_read_soc_version(hdev, &soc_ver);
@@ -1196,22 +2172,76 @@ static int qca_setup(struct hci_uart *hu)
 		qca_debugfs_init(hdev);
 	} else if (ret == -ENOENT) {
 		/* No patch/nvm-config found, run with original fw/config */
+=======
+	if (!(qca_is_wcn399x(soc_type) ||
+	     qca_is_wcn6750(soc_type))) {
+		/* Get QCA version information */
+		ret = qca_read_soc_version(hdev, &ver, soc_type);
+		if (ret)
+			goto out;
+	}
+
+	/* Setup patch / NVM configurations */
+	ret = qca_uart_setup(hdev, qca_baudrate, soc_type, ver,
+			firmware_name);
+	if (!ret) {
+		clear_bit(QCA_IBS_DISABLED, &qca->flags);
+		qca_debugfs_init(hdev);
+		hu->hdev->hw_error = qca_hw_error;
+		hu->hdev->cmd_timeout = qca_cmd_timeout;
+		hu->hdev->prevent_wake = qca_prevent_wake;
+	} else if (ret == -ENOENT) {
+		/* No patch/nvm-config found, run with original fw/config */
+		set_bit(QCA_ROM_FW, &qca->flags);
+>>>>>>> upstream/android-13
 		ret = 0;
 	} else if (ret == -EAGAIN) {
 		/*
 		 * Userspace firmware loader will return -EAGAIN in case no
 		 * patch/nvm-config is found, so run with original fw/config.
 		 */
+<<<<<<< HEAD
 		ret = 0;
 	}
 
 	/* Setup bdaddr */
 	hu->hdev->set_bdaddr = qca_set_bdaddr_rome;
+=======
+		set_bit(QCA_ROM_FW, &qca->flags);
+		ret = 0;
+	}
+
+out:
+	if (ret && retries < MAX_INIT_RETRIES) {
+		bt_dev_warn(hdev, "Retry BT power ON:%d", retries);
+		qca_power_shutdown(hu);
+		if (hu->serdev) {
+			serdev_device_close(hu->serdev);
+			ret = serdev_device_open(hu->serdev);
+			if (ret) {
+				bt_dev_err(hdev, "failed to open port");
+				return ret;
+			}
+		}
+		retries++;
+		goto retry;
+	}
+
+	/* Setup bdaddr */
+	if (soc_type == QCA_ROME)
+		hu->hdev->set_bdaddr = qca_set_bdaddr_rome;
+	else
+		hu->hdev->set_bdaddr = qca_set_bdaddr;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct hci_uart_proto qca_proto = {
+=======
+static const struct hci_uart_proto qca_proto = {
+>>>>>>> upstream/android-13
 	.id		= HCI_UART_QCA,
 	.name		= "QCA",
 	.manufacturer	= 29,
@@ -1226,6 +2256,7 @@ static struct hci_uart_proto qca_proto = {
 	.dequeue	= qca_dequeue,
 };
 
+<<<<<<< HEAD
 static const struct qca_vreg_data qca_soc_data = {
 	.soc_type = QCA_WCN3990,
 	.vregs = (struct qca_vreg []) {
@@ -1233,10 +2264,20 @@ static const struct qca_vreg_data qca_soc_data = {
 		{ "vddxo",   1800000, 1900000,  80000  },
 		{ "vddrf",   1300000, 1350000,  300000 },
 		{ "vddch0",  3300000, 3400000,  450000 },
+=======
+static const struct qca_device_data qca_soc_data_wcn3990 = {
+	.soc_type = QCA_WCN3990,
+	.vregs = (struct qca_vreg []) {
+		{ "vddio", 15000  },
+		{ "vddxo", 80000  },
+		{ "vddrf", 300000 },
+		{ "vddch0", 450000 },
+>>>>>>> upstream/android-13
 	},
 	.num_vregs = 4,
 };
 
+<<<<<<< HEAD
 static void qca_power_shutdown(struct hci_uart *hu)
 {
 	struct serdev_device *serdev = hu->serdev;
@@ -1340,23 +2381,231 @@ static int qca_init_regulators(struct qca_power *qca,
 		qca->vreg_bulk[i].supply = vregs[i].name;
 
 	return devm_regulator_bulk_get(qca->dev, num_vregs, qca->vreg_bulk);
+=======
+static const struct qca_device_data qca_soc_data_wcn3991 = {
+	.soc_type = QCA_WCN3991,
+	.vregs = (struct qca_vreg []) {
+		{ "vddio", 15000  },
+		{ "vddxo", 80000  },
+		{ "vddrf", 300000 },
+		{ "vddch0", 450000 },
+	},
+	.num_vregs = 4,
+	.capabilities = QCA_CAP_WIDEBAND_SPEECH | QCA_CAP_VALID_LE_STATES,
+};
+
+static const struct qca_device_data qca_soc_data_wcn3998 = {
+	.soc_type = QCA_WCN3998,
+	.vregs = (struct qca_vreg []) {
+		{ "vddio", 10000  },
+		{ "vddxo", 80000  },
+		{ "vddrf", 300000 },
+		{ "vddch0", 450000 },
+	},
+	.num_vregs = 4,
+};
+
+static const struct qca_device_data qca_soc_data_qca6390 = {
+	.soc_type = QCA_QCA6390,
+	.num_vregs = 0,
+};
+
+static const struct qca_device_data qca_soc_data_wcn6750 = {
+	.soc_type = QCA_WCN6750,
+	.vregs = (struct qca_vreg []) {
+		{ "vddio", 5000 },
+		{ "vddaon", 26000 },
+		{ "vddbtcxmx", 126000 },
+		{ "vddrfacmn", 12500 },
+		{ "vddrfa0p8", 102000 },
+		{ "vddrfa1p7", 302000 },
+		{ "vddrfa1p2", 257000 },
+		{ "vddrfa2p2", 1700000 },
+		{ "vddasd", 200 },
+	},
+	.num_vregs = 9,
+	.capabilities = QCA_CAP_WIDEBAND_SPEECH | QCA_CAP_VALID_LE_STATES,
+};
+
+static void qca_power_shutdown(struct hci_uart *hu)
+{
+	struct qca_serdev *qcadev;
+	struct qca_data *qca = hu->priv;
+	unsigned long flags;
+	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+	bool sw_ctrl_state;
+
+	/* From this point we go into power off state. But serial port is
+	 * still open, stop queueing the IBS data and flush all the buffered
+	 * data in skb's.
+	 */
+	spin_lock_irqsave(&qca->hci_ibs_lock, flags);
+	set_bit(QCA_IBS_DISABLED, &qca->flags);
+	qca_flush(hu);
+	spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+
+	/* Non-serdev device usually is powered by external power
+	 * and don't need additional action in driver for power down
+	 */
+	if (!hu->serdev)
+		return;
+
+	qcadev = serdev_device_get_drvdata(hu->serdev);
+
+	if (qca_is_wcn399x(soc_type)) {
+		host_set_baudrate(hu, 2400);
+		qca_send_power_pulse(hu, false);
+		qca_regulator_disable(qcadev);
+	} else if (soc_type == QCA_WCN6750) {
+		gpiod_set_value_cansleep(qcadev->bt_en, 0);
+		msleep(100);
+		qca_regulator_disable(qcadev);
+		if (qcadev->sw_ctrl) {
+			sw_ctrl_state = gpiod_get_value_cansleep(qcadev->sw_ctrl);
+			bt_dev_dbg(hu->hdev, "SW_CTRL is %d", sw_ctrl_state);
+		}
+	} else if (qcadev->bt_en) {
+		gpiod_set_value_cansleep(qcadev->bt_en, 0);
+	}
+
+	set_bit(QCA_BT_OFF, &qca->flags);
+}
+
+static int qca_power_off(struct hci_dev *hdev)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	struct qca_data *qca = hu->priv;
+	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+
+	hu->hdev->hw_error = NULL;
+	hu->hdev->cmd_timeout = NULL;
+
+	del_timer_sync(&qca->wake_retrans_timer);
+	del_timer_sync(&qca->tx_idle_timer);
+
+	/* Stop sending shutdown command if soc crashes. */
+	if (soc_type != QCA_ROME
+		&& qca->memdump_state == QCA_MEMDUMP_IDLE) {
+		qca_send_pre_shutdown_cmd(hdev);
+		usleep_range(8000, 10000);
+	}
+
+	qca_power_shutdown(hu);
+	return 0;
+}
+
+static int qca_regulator_enable(struct qca_serdev *qcadev)
+{
+	struct qca_power *power = qcadev->bt_power;
+	int ret;
+
+	/* Already enabled */
+	if (power->vregs_on)
+		return 0;
+
+	BT_DBG("enabling %d regulators)", power->num_vregs);
+
+	ret = regulator_bulk_enable(power->num_vregs, power->vreg_bulk);
+	if (ret)
+		return ret;
+
+	power->vregs_on = true;
+
+	ret = clk_prepare_enable(qcadev->susclk);
+	if (ret)
+		qca_regulator_disable(qcadev);
+
+	return ret;
+}
+
+static void qca_regulator_disable(struct qca_serdev *qcadev)
+{
+	struct qca_power *power;
+
+	if (!qcadev)
+		return;
+
+	power = qcadev->bt_power;
+
+	/* Already disabled? */
+	if (!power->vregs_on)
+		return;
+
+	regulator_bulk_disable(power->num_vregs, power->vreg_bulk);
+	power->vregs_on = false;
+
+	clk_disable_unprepare(qcadev->susclk);
+}
+
+static int qca_init_regulators(struct qca_power *qca,
+				const struct qca_vreg *vregs, size_t num_vregs)
+{
+	struct regulator_bulk_data *bulk;
+	int ret;
+	int i;
+
+	bulk = devm_kcalloc(qca->dev, num_vregs, sizeof(*bulk), GFP_KERNEL);
+	if (!bulk)
+		return -ENOMEM;
+
+	for (i = 0; i < num_vregs; i++)
+		bulk[i].supply = vregs[i].name;
+
+	ret = devm_regulator_bulk_get(qca->dev, num_vregs, bulk);
+	if (ret < 0)
+		return ret;
+
+	for (i = 0; i < num_vregs; i++) {
+		ret = regulator_set_load(bulk[i].consumer, vregs[i].load_uA);
+		if (ret)
+			return ret;
+	}
+
+	qca->vreg_bulk = bulk;
+	qca->num_vregs = num_vregs;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int qca_serdev_probe(struct serdev_device *serdev)
 {
 	struct qca_serdev *qcadev;
+<<<<<<< HEAD
 	const struct qca_vreg_data *data;
 	int err;
+=======
+	struct hci_dev *hdev;
+	const struct qca_device_data *data;
+	int err;
+	bool power_ctrl_enabled = true;
+>>>>>>> upstream/android-13
 
 	qcadev = devm_kzalloc(&serdev->dev, sizeof(*qcadev), GFP_KERNEL);
 	if (!qcadev)
 		return -ENOMEM;
 
 	qcadev->serdev_hu.serdev = serdev;
+<<<<<<< HEAD
 	data = of_device_get_match_data(&serdev->dev);
 	serdev_device_set_drvdata(serdev, qcadev);
 	if (data && data->soc_type == QCA_WCN3990) {
 		qcadev->btsoc_type = QCA_WCN3990;
+=======
+	data = device_get_match_data(&serdev->dev);
+	serdev_device_set_drvdata(serdev, qcadev);
+	device_property_read_string(&serdev->dev, "firmware-name",
+					 &qcadev->firmware_name);
+	device_property_read_u32(&serdev->dev, "max-speed",
+				 &qcadev->oper_speed);
+	if (!qcadev->oper_speed)
+		BT_DBG("UART will pick default operating speed");
+
+	if (data &&
+	    (qca_is_wcn399x(data->soc_type) ||
+	    qca_is_wcn6750(data->soc_type))) {
+		qcadev->btsoc_type = data->soc_type;
+>>>>>>> upstream/android-13
 		qcadev->bt_power = devm_kzalloc(&serdev->dev,
 						sizeof(struct qca_power),
 						GFP_KERNEL);
@@ -1364,16 +2613,24 @@ static int qca_serdev_probe(struct serdev_device *serdev)
 			return -ENOMEM;
 
 		qcadev->bt_power->dev = &serdev->dev;
+<<<<<<< HEAD
 		qcadev->bt_power->vreg_data = data;
+=======
+>>>>>>> upstream/android-13
 		err = qca_init_regulators(qcadev->bt_power, data->vregs,
 					  data->num_vregs);
 		if (err) {
 			BT_ERR("Failed to init regulators:%d", err);
+<<<<<<< HEAD
 			goto out;
+=======
+			return err;
+>>>>>>> upstream/android-13
 		}
 
 		qcadev->bt_power->vregs_on = false;
 
+<<<<<<< HEAD
 		device_property_read_u32(&serdev->dev, "max-speed",
 					 &qcadev->oper_speed);
 		if (!qcadev->oper_speed)
@@ -1394,11 +2651,52 @@ static int qca_serdev_probe(struct serdev_device *serdev)
 		}
 
 		qcadev->susclk = devm_clk_get(&serdev->dev, NULL);
+=======
+		qcadev->bt_en = devm_gpiod_get_optional(&serdev->dev, "enable",
+					       GPIOD_OUT_LOW);
+		if (IS_ERR_OR_NULL(qcadev->bt_en) && data->soc_type == QCA_WCN6750) {
+			dev_err(&serdev->dev, "failed to acquire BT_EN gpio\n");
+			power_ctrl_enabled = false;
+		}
+
+		qcadev->sw_ctrl = devm_gpiod_get_optional(&serdev->dev, "swctrl",
+					       GPIOD_IN);
+		if (IS_ERR_OR_NULL(qcadev->sw_ctrl) && data->soc_type == QCA_WCN6750)
+			dev_warn(&serdev->dev, "failed to acquire SW_CTRL gpio\n");
+
+		qcadev->susclk = devm_clk_get_optional(&serdev->dev, NULL);
+>>>>>>> upstream/android-13
 		if (IS_ERR(qcadev->susclk)) {
 			dev_err(&serdev->dev, "failed to acquire clk\n");
 			return PTR_ERR(qcadev->susclk);
 		}
 
+<<<<<<< HEAD
+=======
+		err = hci_uart_register_device(&qcadev->serdev_hu, &qca_proto);
+		if (err) {
+			BT_ERR("wcn3990 serdev registration failed");
+			return err;
+		}
+	} else {
+		if (data)
+			qcadev->btsoc_type = data->soc_type;
+		else
+			qcadev->btsoc_type = QCA_ROME;
+
+		qcadev->bt_en = devm_gpiod_get_optional(&serdev->dev, "enable",
+					       GPIOD_OUT_LOW);
+		if (IS_ERR_OR_NULL(qcadev->bt_en)) {
+			dev_warn(&serdev->dev, "failed to acquire enable gpio\n");
+			power_ctrl_enabled = false;
+		}
+
+		qcadev->susclk = devm_clk_get_optional(&serdev->dev, NULL);
+		if (IS_ERR(qcadev->susclk)) {
+			dev_warn(&serdev->dev, "failed to acquire clk\n");
+			return PTR_ERR(qcadev->susclk);
+		}
+>>>>>>> upstream/android-13
 		err = clk_set_rate(qcadev->susclk, SUSCLK_RATE_32KHZ);
 		if (err)
 			return err;
@@ -1408,39 +2706,274 @@ static int qca_serdev_probe(struct serdev_device *serdev)
 			return err;
 
 		err = hci_uart_register_device(&qcadev->serdev_hu, &qca_proto);
+<<<<<<< HEAD
 		if (err)
 			clk_disable_unprepare(qcadev->susclk);
 	}
 
 out:	return err;
 
+=======
+		if (err) {
+			BT_ERR("Rome serdev registration failed");
+			clk_disable_unprepare(qcadev->susclk);
+			return err;
+		}
+	}
+
+	hdev = qcadev->serdev_hu.hdev;
+
+	if (power_ctrl_enabled) {
+		set_bit(HCI_QUIRK_NON_PERSISTENT_SETUP, &hdev->quirks);
+		hdev->shutdown = qca_power_off;
+	}
+
+	if (data) {
+		/* Wideband speech support must be set per driver since it can't
+		 * be queried via hci. Same with the valid le states quirk.
+		 */
+		if (data->capabilities & QCA_CAP_WIDEBAND_SPEECH)
+			set_bit(HCI_QUIRK_WIDEBAND_SPEECH_SUPPORTED,
+				&hdev->quirks);
+
+		if (data->capabilities & QCA_CAP_VALID_LE_STATES)
+			set_bit(HCI_QUIRK_VALID_LE_STATES, &hdev->quirks);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void qca_serdev_remove(struct serdev_device *serdev)
 {
 	struct qca_serdev *qcadev = serdev_device_get_drvdata(serdev);
+<<<<<<< HEAD
 
 	if (qcadev->btsoc_type == QCA_WCN3990)
 		qca_power_shutdown(&qcadev->serdev_hu);
 	else
+=======
+	struct qca_power *power = qcadev->bt_power;
+
+	if ((qca_is_wcn399x(qcadev->btsoc_type) ||
+	     qca_is_wcn6750(qcadev->btsoc_type)) &&
+	     power->vregs_on)
+		qca_power_shutdown(&qcadev->serdev_hu);
+	else if (qcadev->susclk)
+>>>>>>> upstream/android-13
 		clk_disable_unprepare(qcadev->susclk);
 
 	hci_uart_unregister_device(&qcadev->serdev_hu);
 }
 
+<<<<<<< HEAD
 static const struct of_device_id qca_bluetooth_of_match[] = {
 	{ .compatible = "qcom,qca6174-bt" },
 	{ .compatible = "qcom,wcn3990-bt", .data = &qca_soc_data},
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, qca_bluetooth_of_match);
+=======
+static void qca_serdev_shutdown(struct device *dev)
+{
+	int ret;
+	int timeout = msecs_to_jiffies(CMD_TRANS_TIMEOUT_MS);
+	struct serdev_device *serdev = to_serdev_device(dev);
+	struct qca_serdev *qcadev = serdev_device_get_drvdata(serdev);
+	const u8 ibs_wake_cmd[] = { 0xFD };
+	const u8 edl_reset_soc_cmd[] = { 0x01, 0x00, 0xFC, 0x01, 0x05 };
+
+	if (qcadev->btsoc_type == QCA_QCA6390) {
+		serdev_device_write_flush(serdev);
+		ret = serdev_device_write_buf(serdev, ibs_wake_cmd,
+					      sizeof(ibs_wake_cmd));
+		if (ret < 0) {
+			BT_ERR("QCA send IBS_WAKE_IND error: %d", ret);
+			return;
+		}
+		serdev_device_wait_until_sent(serdev, timeout);
+		usleep_range(8000, 10000);
+
+		serdev_device_write_flush(serdev);
+		ret = serdev_device_write_buf(serdev, edl_reset_soc_cmd,
+					      sizeof(edl_reset_soc_cmd));
+		if (ret < 0) {
+			BT_ERR("QCA send EDL_RESET_REQ error: %d", ret);
+			return;
+		}
+		serdev_device_wait_until_sent(serdev, timeout);
+		usleep_range(8000, 10000);
+	}
+}
+
+static int __maybe_unused qca_suspend(struct device *dev)
+{
+	struct serdev_device *serdev = to_serdev_device(dev);
+	struct qca_serdev *qcadev = serdev_device_get_drvdata(serdev);
+	struct hci_uart *hu = &qcadev->serdev_hu;
+	struct qca_data *qca = hu->priv;
+	unsigned long flags;
+	bool tx_pending = false;
+	int ret = 0;
+	u8 cmd;
+	u32 wait_timeout = 0;
+
+	set_bit(QCA_SUSPENDING, &qca->flags);
+
+	/* if BT SoC is running with default firmware then it does not
+	 * support in-band sleep
+	 */
+	if (test_bit(QCA_ROM_FW, &qca->flags))
+		return 0;
+
+	/* During SSR after memory dump collection, controller will be
+	 * powered off and then powered on.If controller is powered off
+	 * during SSR then we should wait until SSR is completed.
+	 */
+	if (test_bit(QCA_BT_OFF, &qca->flags) &&
+	    !test_bit(QCA_SSR_TRIGGERED, &qca->flags))
+		return 0;
+
+	if (test_bit(QCA_IBS_DISABLED, &qca->flags) ||
+	    test_bit(QCA_SSR_TRIGGERED, &qca->flags)) {
+		wait_timeout = test_bit(QCA_SSR_TRIGGERED, &qca->flags) ?
+					IBS_DISABLE_SSR_TIMEOUT_MS :
+					FW_DOWNLOAD_TIMEOUT_MS;
+
+		/* QCA_IBS_DISABLED flag is set to true, During FW download
+		 * and during memory dump collection. It is reset to false,
+		 * After FW download complete.
+		 */
+		wait_on_bit_timeout(&qca->flags, QCA_IBS_DISABLED,
+			    TASK_UNINTERRUPTIBLE, msecs_to_jiffies(wait_timeout));
+
+		if (test_bit(QCA_IBS_DISABLED, &qca->flags)) {
+			bt_dev_err(hu->hdev, "SSR or FW download time out");
+			ret = -ETIMEDOUT;
+			goto error;
+		}
+	}
+
+	cancel_work_sync(&qca->ws_awake_device);
+	cancel_work_sync(&qca->ws_awake_rx);
+
+	spin_lock_irqsave_nested(&qca->hci_ibs_lock,
+				 flags, SINGLE_DEPTH_NESTING);
+
+	switch (qca->tx_ibs_state) {
+	case HCI_IBS_TX_WAKING:
+		del_timer(&qca->wake_retrans_timer);
+		fallthrough;
+	case HCI_IBS_TX_AWAKE:
+		del_timer(&qca->tx_idle_timer);
+
+		serdev_device_write_flush(hu->serdev);
+		cmd = HCI_IBS_SLEEP_IND;
+		ret = serdev_device_write_buf(hu->serdev, &cmd, sizeof(cmd));
+
+		if (ret < 0) {
+			BT_ERR("Failed to send SLEEP to device");
+			break;
+		}
+
+		qca->tx_ibs_state = HCI_IBS_TX_ASLEEP;
+		qca->ibs_sent_slps++;
+		tx_pending = true;
+		break;
+
+	case HCI_IBS_TX_ASLEEP:
+		break;
+
+	default:
+		BT_ERR("Spurious tx state %d", qca->tx_ibs_state);
+		ret = -EINVAL;
+		break;
+	}
+
+	spin_unlock_irqrestore(&qca->hci_ibs_lock, flags);
+
+	if (ret < 0)
+		goto error;
+
+	if (tx_pending) {
+		serdev_device_wait_until_sent(hu->serdev,
+					      msecs_to_jiffies(CMD_TRANS_TIMEOUT_MS));
+		serial_clock_vote(HCI_IBS_TX_VOTE_CLOCK_OFF, hu);
+	}
+
+	/* Wait for HCI_IBS_SLEEP_IND sent by device to indicate its Tx is going
+	 * to sleep, so that the packet does not wake the system later.
+	 */
+	ret = wait_event_interruptible_timeout(qca->suspend_wait_q,
+			qca->rx_ibs_state == HCI_IBS_RX_ASLEEP,
+			msecs_to_jiffies(IBS_BTSOC_TX_IDLE_TIMEOUT_MS));
+	if (ret == 0) {
+		ret = -ETIMEDOUT;
+		goto error;
+	}
+
+	return 0;
+
+error:
+	clear_bit(QCA_SUSPENDING, &qca->flags);
+
+	return ret;
+}
+
+static int __maybe_unused qca_resume(struct device *dev)
+{
+	struct serdev_device *serdev = to_serdev_device(dev);
+	struct qca_serdev *qcadev = serdev_device_get_drvdata(serdev);
+	struct hci_uart *hu = &qcadev->serdev_hu;
+	struct qca_data *qca = hu->priv;
+
+	clear_bit(QCA_SUSPENDING, &qca->flags);
+
+	return 0;
+}
+
+static SIMPLE_DEV_PM_OPS(qca_pm_ops, qca_suspend, qca_resume);
+
+#ifdef CONFIG_OF
+static const struct of_device_id qca_bluetooth_of_match[] = {
+	{ .compatible = "qcom,qca6174-bt" },
+	{ .compatible = "qcom,qca6390-bt", .data = &qca_soc_data_qca6390},
+	{ .compatible = "qcom,qca9377-bt" },
+	{ .compatible = "qcom,wcn3990-bt", .data = &qca_soc_data_wcn3990},
+	{ .compatible = "qcom,wcn3991-bt", .data = &qca_soc_data_wcn3991},
+	{ .compatible = "qcom,wcn3998-bt", .data = &qca_soc_data_wcn3998},
+	{ .compatible = "qcom,wcn6750-bt", .data = &qca_soc_data_wcn6750},
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, qca_bluetooth_of_match);
+#endif
+
+#ifdef CONFIG_ACPI
+static const struct acpi_device_id qca_bluetooth_acpi_match[] = {
+	{ "QCOM6390", (kernel_ulong_t)&qca_soc_data_qca6390 },
+	{ "DLA16390", (kernel_ulong_t)&qca_soc_data_qca6390 },
+	{ "DLB16390", (kernel_ulong_t)&qca_soc_data_qca6390 },
+	{ "DLB26390", (kernel_ulong_t)&qca_soc_data_qca6390 },
+	{ },
+};
+MODULE_DEVICE_TABLE(acpi, qca_bluetooth_acpi_match);
+#endif
+
+>>>>>>> upstream/android-13
 
 static struct serdev_device_driver qca_serdev_driver = {
 	.probe = qca_serdev_probe,
 	.remove = qca_serdev_remove,
 	.driver = {
 		.name = "hci_uart_qca",
+<<<<<<< HEAD
 		.of_match_table = qca_bluetooth_of_match,
+=======
+		.of_match_table = of_match_ptr(qca_bluetooth_of_match),
+		.acpi_match_table = ACPI_PTR(qca_bluetooth_acpi_match),
+		.shutdown = qca_serdev_shutdown,
+		.pm = &qca_pm_ops,
+>>>>>>> upstream/android-13
 	},
 };
 

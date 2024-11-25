@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
 
   Copyright(c) 2003 - 2006 Intel Corporation. All rights reserved.
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
   published by the Free Software Foundation.
@@ -17,6 +22,8 @@
 
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
+=======
+>>>>>>> upstream/android-13
 
   Contact Information:
   Intel Linux Wireless <ilw@linux.intel.com>
@@ -215,8 +222,12 @@ static u32 ipw2100_debug_level = IPW_DL_NONE;
 #define IPW_DEBUG(level, message...) \
 do { \
 	if (ipw2100_debug_level & (level)) { \
+<<<<<<< HEAD
 		printk(KERN_DEBUG "ipw2100: %c %s ", \
                        in_interrupt() ? 'I' : 'U',  __func__); \
+=======
+		printk(KERN_DEBUG "ipw2100: %s ", __func__); \
+>>>>>>> upstream/android-13
 		printk(message); \
 	} \
 } while (0)
@@ -643,6 +654,7 @@ static char *snprint_line(char *buf, size_t count,
 	int out, i, j, l;
 	char c;
 
+<<<<<<< HEAD
 	out = snprintf(buf, count, "%08X", ofs);
 
 	for (l = 0, i = 0; i < 2; i++) {
@@ -657,16 +669,40 @@ static char *snprint_line(char *buf, size_t count,
 	out += snprintf(buf + out, count - out, " ");
 	for (l = 0, i = 0; i < 2; i++) {
 		out += snprintf(buf + out, count - out, " ");
+=======
+	out = scnprintf(buf, count, "%08X", ofs);
+
+	for (l = 0, i = 0; i < 2; i++) {
+		out += scnprintf(buf + out, count - out, " ");
+		for (j = 0; j < 8 && l < len; j++, l++)
+			out += scnprintf(buf + out, count - out, "%02X ",
+					data[(i * 8 + j)]);
+		for (; j < 8; j++)
+			out += scnprintf(buf + out, count - out, "   ");
+	}
+
+	out += scnprintf(buf + out, count - out, " ");
+	for (l = 0, i = 0; i < 2; i++) {
+		out += scnprintf(buf + out, count - out, " ");
+>>>>>>> upstream/android-13
 		for (j = 0; j < 8 && l < len; j++, l++) {
 			c = data[(i * 8 + j)];
 			if (!isascii(c) || !isprint(c))
 				c = '.';
 
+<<<<<<< HEAD
 			out += snprintf(buf + out, count - out, "%c", c);
 		}
 
 		for (; j < 8; j++)
 			out += snprintf(buf + out, count - out, " ");
+=======
+			out += scnprintf(buf + out, count - out, "%c", c);
+		}
+
+		for (; j < 8; j++)
+			out += scnprintf(buf + out, count - out, " ");
+>>>>>>> upstream/android-13
 	}
 
 	return buf;
@@ -1744,7 +1780,11 @@ static int ipw2100_up(struct ipw2100_priv *priv, int deferred)
 	/* the ipw2100 hardware really doesn't want power management delays
 	 * longer than 175usec
 	 */
+<<<<<<< HEAD
 	pm_qos_update_request(&ipw2100_pm_qos_req, 175);
+=======
+	cpu_latency_qos_update_request(&ipw2100_pm_qos_req, 175);
+>>>>>>> upstream/android-13
 
 	/* If the interrupt is enabled, turn it off... */
 	spin_lock_irqsave(&priv->low_lock, flags);
@@ -1889,7 +1929,12 @@ static void ipw2100_down(struct ipw2100_priv *priv)
 	ipw2100_disable_interrupts(priv);
 	spin_unlock_irqrestore(&priv->low_lock, flags);
 
+<<<<<<< HEAD
 	pm_qos_update_request(&ipw2100_pm_qos_req, PM_QOS_DEFAULT_VALUE);
+=======
+	cpu_latency_qos_update_request(&ipw2100_pm_qos_req,
+				       PM_QOS_DEFAULT_VALUE);
+>>>>>>> upstream/android-13
 
 	/* We have to signal any supplicant if we are disassociating */
 	if (associated)
@@ -2308,10 +2353,18 @@ static int ipw2100_alloc_skb(struct ipw2100_priv *priv,
 		return -ENOMEM;
 
 	packet->rxp = (struct ipw2100_rx *)packet->skb->data;
+<<<<<<< HEAD
 	packet->dma_addr = pci_map_single(priv->pci_dev, packet->skb->data,
 					  sizeof(struct ipw2100_rx),
 					  PCI_DMA_FROMDEVICE);
 	if (pci_dma_mapping_error(priv->pci_dev, packet->dma_addr)) {
+=======
+	packet->dma_addr = dma_map_single(&priv->pci_dev->dev,
+					  packet->skb->data,
+					  sizeof(struct ipw2100_rx),
+					  DMA_FROM_DEVICE);
+	if (dma_mapping_error(&priv->pci_dev->dev, packet->dma_addr)) {
+>>>>>>> upstream/android-13
 		dev_kfree_skb(packet->skb);
 		return -ENOMEM;
 	}
@@ -2492,9 +2545,14 @@ static void isr_rx(struct ipw2100_priv *priv, int i,
 		return;
 	}
 
+<<<<<<< HEAD
 	pci_unmap_single(priv->pci_dev,
 			 packet->dma_addr,
 			 sizeof(struct ipw2100_rx), PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&priv->pci_dev->dev, packet->dma_addr,
+			 sizeof(struct ipw2100_rx), DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	skb_put(packet->skb, status->frame_size);
 
@@ -2576,8 +2634,13 @@ static void isr_rx_monitor(struct ipw2100_priv *priv, int i,
 		return;
 	}
 
+<<<<<<< HEAD
 	pci_unmap_single(priv->pci_dev, packet->dma_addr,
 			 sizeof(struct ipw2100_rx), PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&priv->pci_dev->dev, packet->dma_addr,
+			 sizeof(struct ipw2100_rx), DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	memmove(packet->skb->data + sizeof(struct ipw_rt_hdr),
 		packet->skb->data, status->frame_size);
 
@@ -2702,9 +2765,15 @@ static void __ipw2100_rx_process(struct ipw2100_priv *priv)
 
 		/* Sync the DMA for the RX buffer so CPU is sure to get
 		 * the correct values */
+<<<<<<< HEAD
 		pci_dma_sync_single_for_cpu(priv->pci_dev, packet->dma_addr,
 					    sizeof(struct ipw2100_rx),
 					    PCI_DMA_FROMDEVICE);
+=======
+		dma_sync_single_for_cpu(&priv->pci_dev->dev, packet->dma_addr,
+					sizeof(struct ipw2100_rx),
+					DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		if (unlikely(ipw2100_corruption_check(priv, i))) {
 			ipw2100_corruption_detected(priv, i);
@@ -2936,9 +3005,14 @@ static int __ipw2100_tx_process(struct ipw2100_priv *priv)
 				     (packet->index + 1 + i) % txq->entries,
 				     tbd->host_addr, tbd->buf_length);
 
+<<<<<<< HEAD
 			pci_unmap_single(priv->pci_dev,
 					 tbd->host_addr,
 					 tbd->buf_length, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&priv->pci_dev->dev, tbd->host_addr,
+					 tbd->buf_length, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		}
 
 		libipw_txb_free(packet->info.d_struct.txb);
@@ -3178,6 +3252,7 @@ static void ipw2100_tx_send_data(struct ipw2100_priv *priv)
 			tbd->buf_length = packet->info.d_struct.txb->
 			    fragments[i]->len - LIBIPW_3ADDR_LEN;
 
+<<<<<<< HEAD
 			tbd->host_addr = pci_map_single(priv->pci_dev,
 							packet->info.d_struct.
 							txb->fragments[i]->
@@ -3187,6 +3262,15 @@ static void ipw2100_tx_send_data(struct ipw2100_priv *priv)
 							PCI_DMA_TODEVICE);
 			if (pci_dma_mapping_error(priv->pci_dev,
 						  tbd->host_addr)) {
+=======
+			tbd->host_addr = dma_map_single(&priv->pci_dev->dev,
+							packet->info.d_struct.
+							txb->fragments[i]->data +
+							LIBIPW_3ADDR_LEN,
+							tbd->buf_length,
+							DMA_TO_DEVICE);
+			if (dma_mapping_error(&priv->pci_dev->dev, tbd->host_addr)) {
+>>>>>>> upstream/android-13
 				IPW_DEBUG_TX("dma mapping error\n");
 				break;
 			}
@@ -3195,10 +3279,17 @@ static void ipw2100_tx_send_data(struct ipw2100_priv *priv)
 				     txq->next, tbd->host_addr,
 				     tbd->buf_length);
 
+<<<<<<< HEAD
 			pci_dma_sync_single_for_device(priv->pci_dev,
 						       tbd->host_addr,
 						       tbd->buf_length,
 						       PCI_DMA_TODEVICE);
+=======
+			dma_sync_single_for_device(&priv->pci_dev->dev,
+						   tbd->host_addr,
+						   tbd->buf_length,
+						   DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 			txq->next++;
 			txq->next %= txq->entries;
@@ -3220,9 +3311,15 @@ static void ipw2100_tx_send_data(struct ipw2100_priv *priv)
 	}
 }
 
+<<<<<<< HEAD
 static void ipw2100_irq_tasklet(unsigned long data)
 {
 	struct ipw2100_priv *priv = (struct ipw2100_priv *)data;
+=======
+static void ipw2100_irq_tasklet(struct tasklet_struct *t)
+{
+	struct ipw2100_priv *priv = from_tasklet(priv, t, irq_tasklet);
+>>>>>>> upstream/android-13
 	struct net_device *dev = priv->net_dev;
 	unsigned long flags;
 	u32 inta, tmp;
@@ -3453,9 +3550,15 @@ static int ipw2100_msg_allocate(struct ipw2100_priv *priv)
 		return -ENOMEM;
 
 	for (i = 0; i < IPW_COMMAND_POOL_SIZE; i++) {
+<<<<<<< HEAD
 		v = pci_zalloc_consistent(priv->pci_dev,
 					  sizeof(struct ipw2100_cmd_header),
 					  &p);
+=======
+		v = dma_alloc_coherent(&priv->pci_dev->dev,
+				       sizeof(struct ipw2100_cmd_header), &p,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!v) {
 			printk(KERN_ERR DRV_NAME ": "
 			       "%s: PCI alloc failed for msg "
@@ -3474,11 +3577,18 @@ static int ipw2100_msg_allocate(struct ipw2100_priv *priv)
 		return 0;
 
 	for (j = 0; j < i; j++) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pci_dev,
 				    sizeof(struct ipw2100_cmd_header),
 				    priv->msg_buffers[j].info.c_struct.cmd,
 				    priv->msg_buffers[j].info.c_struct.
 				    cmd_phys);
+=======
+		dma_free_coherent(&priv->pci_dev->dev,
+				  sizeof(struct ipw2100_cmd_header),
+				  priv->msg_buffers[j].info.c_struct.cmd,
+				  priv->msg_buffers[j].info.c_struct.cmd_phys);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(priv->msg_buffers);
@@ -3509,11 +3619,18 @@ static void ipw2100_msg_free(struct ipw2100_priv *priv)
 		return;
 
 	for (i = 0; i < IPW_COMMAND_POOL_SIZE; i++) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pci_dev,
 				    sizeof(struct ipw2100_cmd_header),
 				    priv->msg_buffers[i].info.c_struct.cmd,
 				    priv->msg_buffers[i].info.c_struct.
 				    cmd_phys);
+=======
+		dma_free_coherent(&priv->pci_dev->dev,
+				  sizeof(struct ipw2100_cmd_header),
+				  priv->msg_buffers[i].info.c_struct.cmd,
+				  priv->msg_buffers[i].info.c_struct.cmd_phys);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(priv->msg_buffers);
@@ -4336,7 +4453,12 @@ static int status_queue_allocate(struct ipw2100_priv *priv, int entries)
 	IPW_DEBUG_INFO("enter\n");
 
 	q->size = entries * sizeof(struct ipw2100_status);
+<<<<<<< HEAD
 	q->drv = pci_zalloc_consistent(priv->pci_dev, q->size, &q->nic);
+=======
+	q->drv = dma_alloc_coherent(&priv->pci_dev->dev, q->size, &q->nic,
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!q->drv) {
 		IPW_DEBUG_WARNING("Can not allocate status queue.\n");
 		return -ENOMEM;
@@ -4352,9 +4474,16 @@ static void status_queue_free(struct ipw2100_priv *priv)
 	IPW_DEBUG_INFO("enter\n");
 
 	if (priv->status_queue.drv) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pci_dev, priv->status_queue.size,
 				    priv->status_queue.drv,
 				    priv->status_queue.nic);
+=======
+		dma_free_coherent(&priv->pci_dev->dev,
+				  priv->status_queue.size,
+				  priv->status_queue.drv,
+				  priv->status_queue.nic);
+>>>>>>> upstream/android-13
 		priv->status_queue.drv = NULL;
 	}
 
@@ -4370,7 +4499,12 @@ static int bd_queue_allocate(struct ipw2100_priv *priv,
 
 	q->entries = entries;
 	q->size = entries * sizeof(struct ipw2100_bd);
+<<<<<<< HEAD
 	q->drv = pci_zalloc_consistent(priv->pci_dev, q->size, &q->nic);
+=======
+	q->drv = dma_alloc_coherent(&priv->pci_dev->dev, q->size, &q->nic,
+				    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!q->drv) {
 		IPW_DEBUG_INFO
 		    ("can't allocate shared memory for buffer descriptors\n");
@@ -4390,7 +4524,12 @@ static void bd_queue_free(struct ipw2100_priv *priv, struct ipw2100_bd_queue *q)
 		return;
 
 	if (q->drv) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pci_dev, q->size, q->drv, q->nic);
+=======
+		dma_free_coherent(&priv->pci_dev->dev, q->size, q->drv,
+				  q->nic);
+>>>>>>> upstream/android-13
 		q->drv = NULL;
 	}
 
@@ -4428,7 +4567,11 @@ static void ipw2100_kill_works(struct ipw2100_priv *priv)
 
 static int ipw2100_tx_allocate(struct ipw2100_priv *priv)
 {
+<<<<<<< HEAD
 	int i, j, err = -EINVAL;
+=======
+	int i, j, err;
+>>>>>>> upstream/android-13
 	void *v;
 	dma_addr_t p;
 
@@ -4443,16 +4586,26 @@ static int ipw2100_tx_allocate(struct ipw2100_priv *priv)
 
 	priv->tx_buffers = kmalloc_array(TX_PENDED_QUEUE_LENGTH,
 					 sizeof(struct ipw2100_tx_packet),
+<<<<<<< HEAD
 					 GFP_ATOMIC);
+=======
+					 GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!priv->tx_buffers) {
 		bd_queue_free(priv, &priv->tx_queue);
 		return -ENOMEM;
 	}
 
 	for (i = 0; i < TX_PENDED_QUEUE_LENGTH; i++) {
+<<<<<<< HEAD
 		v = pci_alloc_consistent(priv->pci_dev,
 					 sizeof(struct ipw2100_data_header),
 					 &p);
+=======
+		v = dma_alloc_coherent(&priv->pci_dev->dev,
+				       sizeof(struct ipw2100_data_header), &p,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!v) {
 			printk(KERN_ERR DRV_NAME
 			       ": %s: PCI alloc failed for tx " "buffers.\n",
@@ -4472,11 +4625,18 @@ static int ipw2100_tx_allocate(struct ipw2100_priv *priv)
 		return 0;
 
 	for (j = 0; j < i; j++) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pci_dev,
 				    sizeof(struct ipw2100_data_header),
 				    priv->tx_buffers[j].info.d_struct.data,
 				    priv->tx_buffers[j].info.d_struct.
 				    data_phys);
+=======
+		dma_free_coherent(&priv->pci_dev->dev,
+				  sizeof(struct ipw2100_data_header),
+				  priv->tx_buffers[j].info.d_struct.data,
+				  priv->tx_buffers[j].info.d_struct.data_phys);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(priv->tx_buffers);
@@ -4553,12 +4713,19 @@ static void ipw2100_tx_free(struct ipw2100_priv *priv)
 			priv->tx_buffers[i].info.d_struct.txb = NULL;
 		}
 		if (priv->tx_buffers[i].info.d_struct.data)
+<<<<<<< HEAD
 			pci_free_consistent(priv->pci_dev,
 					    sizeof(struct ipw2100_data_header),
 					    priv->tx_buffers[i].info.d_struct.
 					    data,
 					    priv->tx_buffers[i].info.d_struct.
 					    data_phys);
+=======
+			dma_free_coherent(&priv->pci_dev->dev,
+					  sizeof(struct ipw2100_data_header),
+					  priv->tx_buffers[i].info.d_struct.data,
+					  priv->tx_buffers[i].info.d_struct.data_phys);
+>>>>>>> upstream/android-13
 	}
 
 	kfree(priv->tx_buffers);
@@ -4621,9 +4788,16 @@ static int ipw2100_rx_allocate(struct ipw2100_priv *priv)
 		return 0;
 
 	for (j = 0; j < i; j++) {
+<<<<<<< HEAD
 		pci_unmap_single(priv->pci_dev, priv->rx_buffers[j].dma_addr,
 				 sizeof(struct ipw2100_rx_packet),
 				 PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&priv->pci_dev->dev,
+				 priv->rx_buffers[j].dma_addr,
+				 sizeof(struct ipw2100_rx_packet),
+				 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		dev_kfree_skb(priv->rx_buffers[j].skb);
 	}
 
@@ -4675,10 +4849,17 @@ static void ipw2100_rx_free(struct ipw2100_priv *priv)
 
 	for (i = 0; i < RX_QUEUE_LENGTH; i++) {
 		if (priv->rx_buffers[i].rxp) {
+<<<<<<< HEAD
 			pci_unmap_single(priv->pci_dev,
 					 priv->rx_buffers[i].dma_addr,
 					 sizeof(struct ipw2100_rx),
 					 PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&priv->pci_dev->dev,
+					 priv->rx_buffers[i].dma_addr,
+					 sizeof(struct ipw2100_rx),
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(priv->rx_buffers[i].skb);
 		}
 	}
@@ -5373,7 +5554,11 @@ struct ipw2100_wep_key {
 #define WEP_STR_128(x) x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10]
 
 /**
+<<<<<<< HEAD
  * Set a the wep key
+=======
+ * ipw2100_set_key() - Set a the wep key
+>>>>>>> upstream/android-13
  *
  * @priv: struct to work on
  * @idx: index of the key we want to set
@@ -5580,7 +5765,11 @@ static void shim__set_security(struct net_device *dev,
 			       struct libipw_security *sec)
 {
 	struct ipw2100_priv *priv = libipw_priv(dev);
+<<<<<<< HEAD
 	int i, force_update = 0;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&priv->action_mutex);
 	if (!(priv->status & STATUS_INITIALIZED))
@@ -5604,12 +5793,17 @@ static void shim__set_security(struct net_device *dev,
 
 	if ((sec->flags & SEC_ACTIVE_KEY) &&
 	    priv->ieee->sec.active_key != sec->active_key) {
+<<<<<<< HEAD
 		if (sec->active_key <= 3) {
 			priv->ieee->sec.active_key = sec->active_key;
 			priv->ieee->sec.flags |= SEC_ACTIVE_KEY;
 		} else
 			priv->ieee->sec.flags &= ~SEC_ACTIVE_KEY;
 
+=======
+		priv->ieee->sec.active_key = sec->active_key;
+		priv->ieee->sec.flags |= SEC_ACTIVE_KEY;
+>>>>>>> upstream/android-13
 		priv->status |= STATUS_SECURITY_UPDATED;
 	}
 
@@ -5624,7 +5818,10 @@ static void shim__set_security(struct net_device *dev,
 		priv->ieee->sec.flags |= SEC_ENABLED;
 		priv->ieee->sec.enabled = sec->enabled;
 		priv->status |= STATUS_SECURITY_UPDATED;
+<<<<<<< HEAD
 		force_update = 1;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (sec->flags & SEC_ENCRYPT)
@@ -5853,7 +6050,11 @@ static int ipw2100_close(struct net_device *dev)
 /*
  * TODO:  Fix this function... its just wrong
  */
+<<<<<<< HEAD
 static void ipw2100_tx_timeout(struct net_device *dev)
+=======
+static void ipw2100_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct ipw2100_priv *priv = libipw_priv(dev);
 
@@ -6026,7 +6227,11 @@ static void ipw2100_rf_kill(struct work_struct *work)
 	spin_unlock_irqrestore(&priv->low_lock, flags);
 }
 
+<<<<<<< HEAD
 static void ipw2100_irq_tasklet(unsigned long data);
+=======
+static void ipw2100_irq_tasklet(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 
 static const struct net_device_ops ipw2100_netdev_ops = {
 	.ndo_open		= ipw2100_open,
@@ -6156,8 +6361,12 @@ static struct net_device *ipw2100_alloc_device(struct pci_dev *pci_dev,
 	INIT_DELAYED_WORK(&priv->rf_kill, ipw2100_rf_kill);
 	INIT_DELAYED_WORK(&priv->scan_event, ipw2100_scan_event);
 
+<<<<<<< HEAD
 	tasklet_init(&priv->irq_tasklet,
 		     ipw2100_irq_tasklet, (unsigned long)priv);
+=======
+	tasklet_setup(&priv->irq_tasklet, ipw2100_irq_tasklet);
+>>>>>>> upstream/android-13
 
 	/* NOTE:  We do not start the deferred work for status checks yet */
 	priv->stop_rf_kill = 1;
@@ -6187,7 +6396,11 @@ static int ipw2100_pci_init_one(struct pci_dev *pci_dev,
 	ioaddr = pci_iomap(pci_dev, 0, 0);
 	if (!ioaddr) {
 		printk(KERN_WARNING DRV_NAME
+<<<<<<< HEAD
 		       "Error calling ioremap_nocache.\n");
+=======
+		       "Error calling ioremap.\n");
+>>>>>>> upstream/android-13
 		err = -EIO;
 		goto fail;
 	}
@@ -6214,7 +6427,11 @@ static int ipw2100_pci_init_one(struct pci_dev *pci_dev,
 	pci_set_master(pci_dev);
 	pci_set_drvdata(pci_dev, priv);
 
+<<<<<<< HEAD
 	err = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32));
+=======
+	err = dma_set_mask(&pci_dev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (err) {
 		printk(KERN_WARNING DRV_NAME
 		       "Error calling pci_set_dma_mask.\n");
@@ -6415,10 +6632,16 @@ static void ipw2100_pci_remove_one(struct pci_dev *pci_dev)
 	IPW_DEBUG_INFO("exit\n");
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int ipw2100_suspend(struct pci_dev *pci_dev, pm_message_t state)
 {
 	struct ipw2100_priv *priv = pci_get_drvdata(pci_dev);
+=======
+static int __maybe_unused ipw2100_suspend(struct device *dev_d)
+{
+	struct ipw2100_priv *priv = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct net_device *dev = priv->net_dev;
 
 	IPW_DEBUG_INFO("%s: Going into suspend...\n", dev->name);
@@ -6432,10 +6655,13 @@ static int ipw2100_suspend(struct pci_dev *pci_dev, pm_message_t state)
 	/* Remove the PRESENT state of the device */
 	netif_device_detach(dev);
 
+<<<<<<< HEAD
 	pci_save_state(pci_dev);
 	pci_disable_device(pci_dev);
 	pci_set_power_state(pci_dev, PCI_D3hot);
 
+=======
+>>>>>>> upstream/android-13
 	priv->suspend_at = ktime_get_boottime_seconds();
 
 	mutex_unlock(&priv->action_mutex);
@@ -6443,11 +6669,19 @@ static int ipw2100_suspend(struct pci_dev *pci_dev, pm_message_t state)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ipw2100_resume(struct pci_dev *pci_dev)
 {
 	struct ipw2100_priv *priv = pci_get_drvdata(pci_dev);
 	struct net_device *dev = priv->net_dev;
 	int err;
+=======
+static int __maybe_unused ipw2100_resume(struct device *dev_d)
+{
+	struct pci_dev *pci_dev = to_pci_dev(dev_d);
+	struct ipw2100_priv *priv = pci_get_drvdata(pci_dev);
+	struct net_device *dev = priv->net_dev;
+>>>>>>> upstream/android-13
 	u32 val;
 
 	if (IPW2100_PM_DISABLED)
@@ -6457,6 +6691,7 @@ static int ipw2100_resume(struct pci_dev *pci_dev)
 
 	IPW_DEBUG_INFO("%s: Coming out of suspend...\n", dev->name);
 
+<<<<<<< HEAD
 	pci_set_power_state(pci_dev, PCI_D0);
 	err = pci_enable_device(pci_dev);
 	if (err) {
@@ -6467,6 +6702,8 @@ static int ipw2100_resume(struct pci_dev *pci_dev)
 	}
 	pci_restore_state(pci_dev);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Suspend/Resume resets the PCI configuration space, so we have to
 	 * re-disable the RETRY_TIMEOUT register (0x41) to keep PCI Tx retries
@@ -6491,7 +6728,10 @@ static int ipw2100_resume(struct pci_dev *pci_dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static void ipw2100_shutdown(struct pci_dev *pci_dev)
 {
@@ -6557,15 +6797,24 @@ static const struct pci_device_id ipw2100_pci_id_table[] = {
 
 MODULE_DEVICE_TABLE(pci, ipw2100_pci_id_table);
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(ipw2100_pm_ops, ipw2100_suspend, ipw2100_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver ipw2100_pci_driver = {
 	.name = DRV_NAME,
 	.id_table = ipw2100_pci_id_table,
 	.probe = ipw2100_pci_init_one,
 	.remove = ipw2100_pci_remove_one,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = ipw2100_suspend,
 	.resume = ipw2100_resume,
 #endif
+=======
+	.driver.pm = &ipw2100_pm_ops,
+>>>>>>> upstream/android-13
 	.shutdown = ipw2100_shutdown,
 };
 
@@ -6585,8 +6834,12 @@ static int __init ipw2100_init(void)
 	printk(KERN_INFO DRV_NAME ": %s, %s\n", DRV_DESCRIPTION, DRV_VERSION);
 	printk(KERN_INFO DRV_NAME ": %s\n", DRV_COPYRIGHT);
 
+<<<<<<< HEAD
 	pm_qos_add_request(&ipw2100_pm_qos_req, PM_QOS_CPU_DMA_LATENCY,
 			   PM_QOS_DEFAULT_VALUE);
+=======
+	cpu_latency_qos_add_request(&ipw2100_pm_qos_req, PM_QOS_DEFAULT_VALUE);
+>>>>>>> upstream/android-13
 
 	ret = pci_register_driver(&ipw2100_pci_driver);
 	if (ret)
@@ -6613,7 +6866,11 @@ static void __exit ipw2100_exit(void)
 			   &driver_attr_debug_level);
 #endif
 	pci_unregister_driver(&ipw2100_pci_driver);
+<<<<<<< HEAD
 	pm_qos_remove_request(&ipw2100_pm_qos_req);
+=======
+	cpu_latency_qos_remove_request(&ipw2100_pm_qos_req);
+>>>>>>> upstream/android-13
 }
 
 module_init(ipw2100_init);
@@ -8371,7 +8628,11 @@ static int ipw2100_mod_firmware_load(struct ipw2100_fw *fw)
 	if (IPW2100_FW_MAJOR(h->version) != IPW2100_FW_MAJOR_VERSION) {
 		printk(KERN_WARNING DRV_NAME ": Firmware image not compatible "
 		       "(detected version id of %u). "
+<<<<<<< HEAD
 		       "See Documentation/networking/README.ipw2100\n",
+=======
+		       "See Documentation/networking/device_drivers/wifi/intel/ipw2100.rst\n",
+>>>>>>> upstream/android-13
 		       h->version);
 		return 1;
 	}

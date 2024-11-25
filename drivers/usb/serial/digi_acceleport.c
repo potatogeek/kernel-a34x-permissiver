@@ -197,6 +197,10 @@ struct digi_port {
 	int dp_throttle_restart;
 	wait_queue_head_t dp_flush_wait;
 	wait_queue_head_t dp_close_wait;	/* wait queue for close */
+<<<<<<< HEAD
+=======
+	wait_queue_head_t write_wait;
+>>>>>>> upstream/android-13
 	struct usb_serial_port *dp_port;
 };
 
@@ -222,8 +226,13 @@ static int digi_tiocmset(struct tty_struct *tty, unsigned int set,
 static int digi_write(struct tty_struct *tty, struct usb_serial_port *port,
 		const unsigned char *buf, int count);
 static void digi_write_bulk_callback(struct urb *urb);
+<<<<<<< HEAD
 static int digi_write_room(struct tty_struct *tty);
 static int digi_chars_in_buffer(struct tty_struct *tty);
+=======
+static unsigned int digi_write_room(struct tty_struct *tty);
+static unsigned int digi_chars_in_buffer(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 static int digi_open(struct tty_struct *tty, struct usb_serial_port *port);
 static void digi_close(struct usb_serial_port *port);
 static void digi_dtr_rts(struct usb_serial_port *port, int on);
@@ -232,7 +241,11 @@ static int digi_startup(struct usb_serial *serial);
 static void digi_disconnect(struct usb_serial *serial);
 static void digi_release(struct usb_serial *serial);
 static int digi_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int digi_port_remove(struct usb_serial_port *port);
+=======
+static void digi_port_remove(struct usb_serial_port *port);
+>>>>>>> upstream/android-13
 static void digi_read_bulk_callback(struct urb *urb);
 static int digi_read_inb_callback(struct urb *urb);
 static int digi_read_oob_callback(struct urb *urb);
@@ -371,7 +384,11 @@ static int digi_write_oob_command(struct usb_serial_port *port,
 	int len;
 	struct usb_serial_port *oob_port = (struct usb_serial_port *)((struct digi_serial *)(usb_get_serial_data(port->serial)))->ds_oob_port;
 	struct digi_port *oob_priv = usb_get_serial_port_data(oob_port);
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	dev_dbg(&port->dev,
 		"digi_write_oob_command: TOP: port=%d, count=%d\n",
@@ -381,7 +398,11 @@ static int digi_write_oob_command(struct usb_serial_port *port,
 	while (count > 0) {
 		while (oob_priv->dp_write_urb_in_use) {
 			cond_wait_interruptible_timeout_irqrestore(
+<<<<<<< HEAD
 				&oob_port->write_wait, DIGI_RETRY_TIMEOUT,
+=======
+				&oob_priv->write_wait, DIGI_RETRY_TIMEOUT,
+>>>>>>> upstream/android-13
 				&oob_priv->dp_port_lock, flags);
 			if (interruptible && signal_pending(current))
 				return -EINTR;
@@ -429,7 +450,11 @@ static int digi_write_inb_command(struct usb_serial_port *port,
 	int len;
 	struct digi_port *priv = usb_get_serial_port_data(port);
 	unsigned char *data = port->write_urb->transfer_buffer;
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	dev_dbg(&port->dev, "digi_write_inb_command: TOP: port=%d, count=%d\n",
 		priv->dp_port_num, count);
@@ -444,7 +469,11 @@ static int digi_write_inb_command(struct usb_serial_port *port,
 		while (priv->dp_write_urb_in_use &&
 		       time_before(jiffies, timeout)) {
 			cond_wait_interruptible_timeout_irqrestore(
+<<<<<<< HEAD
 				&port->write_wait, DIGI_RETRY_TIMEOUT,
+=======
+				&priv->write_wait, DIGI_RETRY_TIMEOUT,
+>>>>>>> upstream/android-13
 				&priv->dp_port_lock, flags);
 			if (signal_pending(current))
 				return -EINTR;
@@ -510,8 +539,12 @@ static int digi_set_modem_signals(struct usb_serial_port *port,
 	struct usb_serial_port *oob_port = (struct usb_serial_port *) ((struct digi_serial *)(usb_get_serial_data(port->serial)))->ds_oob_port;
 	struct digi_port *oob_priv = usb_get_serial_port_data(oob_port);
 	unsigned char *data = oob_port->write_urb->transfer_buffer;
+<<<<<<< HEAD
 	unsigned long flags = 0;
 
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	dev_dbg(&port->dev,
 		"digi_set_modem_signals: TOP: port=%d, modem_signals=0x%x\n",
@@ -523,7 +556,11 @@ static int digi_set_modem_signals(struct usb_serial_port *port,
 	while (oob_priv->dp_write_urb_in_use) {
 		spin_unlock(&port_priv->dp_port_lock);
 		cond_wait_interruptible_timeout_irqrestore(
+<<<<<<< HEAD
 			&oob_port->write_wait, DIGI_RETRY_TIMEOUT,
+=======
+			&oob_priv->write_wait, DIGI_RETRY_TIMEOUT,
+>>>>>>> upstream/android-13
 			&oob_priv->dp_port_lock, flags);
 		if (interruptible && signal_pending(current))
 			return -EINTR;
@@ -546,9 +583,15 @@ static int digi_set_modem_signals(struct usb_serial_port *port,
 	ret = usb_submit_urb(oob_port->write_urb, GFP_ATOMIC);
 	if (ret == 0) {
 		oob_priv->dp_write_urb_in_use = 1;
+<<<<<<< HEAD
 		port_priv->dp_modem_signals =
 			(port_priv->dp_modem_signals&~(TIOCM_DTR|TIOCM_RTS))
 			| (modem_signals&(TIOCM_DTR|TIOCM_RTS));
+=======
+		port_priv->dp_modem_signals &= ~(TIOCM_DTR | TIOCM_RTS);
+		port_priv->dp_modem_signals |=
+				modem_signals & (TIOCM_DTR | TIOCM_RTS);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&port_priv->dp_port_lock);
 	spin_unlock_irqrestore(&oob_priv->dp_port_lock, flags);
@@ -576,7 +619,11 @@ static int digi_transmit_idle(struct usb_serial_port *port,
 	int ret;
 	unsigned char buf[2];
 	struct digi_port *priv = usb_get_serial_port_data(port);
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&priv->dp_port_lock, flags);
 	priv->dp_transmit_idle = 0;
@@ -717,9 +764,15 @@ static void digi_set_termios(struct tty_struct *tty,
 	/* set parity */
 	tty->termios.c_cflag &= ~CMSPAR;
 
+<<<<<<< HEAD
 	if ((cflag&(PARENB|PARODD)) != (old_cflag&(PARENB|PARODD))) {
 		if (cflag&PARENB) {
 			if (cflag&PARODD)
+=======
+	if ((cflag & (PARENB | PARODD)) != (old_cflag & (PARENB | PARODD))) {
+		if (cflag & PARENB) {
+			if (cflag & PARODD)
+>>>>>>> upstream/android-13
 				arg = DIGI_PARITY_ODD;
 			else
 				arg = DIGI_PARITY_EVEN;
@@ -732,9 +785,15 @@ static void digi_set_termios(struct tty_struct *tty,
 		buf[i++] = 0;
 	}
 	/* set word size */
+<<<<<<< HEAD
 	if ((cflag&CSIZE) != (old_cflag&CSIZE)) {
 		arg = -1;
 		switch (cflag&CSIZE) {
+=======
+	if ((cflag & CSIZE) != (old_cflag & CSIZE)) {
+		arg = -1;
+		switch (cflag & CSIZE) {
+>>>>>>> upstream/android-13
 		case CS5: arg = DIGI_WORD_SIZE_5; break;
 		case CS6: arg = DIGI_WORD_SIZE_6; break;
 		case CS7: arg = DIGI_WORD_SIZE_7; break;
@@ -742,7 +801,11 @@ static void digi_set_termios(struct tty_struct *tty,
 		default:
 			dev_dbg(dev,
 				"digi_set_termios: can't handle word size %d\n",
+<<<<<<< HEAD
 				(cflag&CSIZE));
+=======
+				cflag & CSIZE);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -756,9 +819,15 @@ static void digi_set_termios(struct tty_struct *tty,
 	}
 
 	/* set stop bits */
+<<<<<<< HEAD
 	if ((cflag&CSTOPB) != (old_cflag&CSTOPB)) {
 
 		if ((cflag&CSTOPB))
+=======
+	if ((cflag & CSTOPB) != (old_cflag & CSTOPB)) {
+
+		if ((cflag & CSTOPB))
+>>>>>>> upstream/android-13
 			arg = DIGI_STOP_BITS_2;
 		else
 			arg = DIGI_STOP_BITS_1;
@@ -771,15 +840,26 @@ static void digi_set_termios(struct tty_struct *tty,
 	}
 
 	/* set input flow control */
+<<<<<<< HEAD
 	if ((iflag&IXOFF) != (old_iflag&IXOFF)
 	    || (cflag&CRTSCTS) != (old_cflag&CRTSCTS)) {
 		arg = 0;
 		if (iflag&IXOFF)
+=======
+	if ((iflag & IXOFF) != (old_iflag & IXOFF) ||
+			(cflag & CRTSCTS) != (old_cflag & CRTSCTS)) {
+		arg = 0;
+		if (iflag & IXOFF)
+>>>>>>> upstream/android-13
 			arg |= DIGI_INPUT_FLOW_CONTROL_XON_XOFF;
 		else
 			arg &= ~DIGI_INPUT_FLOW_CONTROL_XON_XOFF;
 
+<<<<<<< HEAD
 		if (cflag&CRTSCTS) {
+=======
+		if (cflag & CRTSCTS) {
+>>>>>>> upstream/android-13
 			arg |= DIGI_INPUT_FLOW_CONTROL_RTS;
 
 			/* On USB-4 it is necessary to assert RTS prior */
@@ -799,19 +879,31 @@ static void digi_set_termios(struct tty_struct *tty,
 	}
 
 	/* set output flow control */
+<<<<<<< HEAD
 	if ((iflag & IXON) != (old_iflag & IXON)
 	    || (cflag & CRTSCTS) != (old_cflag & CRTSCTS)) {
+=======
+	if ((iflag & IXON) != (old_iflag & IXON) ||
+			(cflag & CRTSCTS) != (old_cflag & CRTSCTS)) {
+>>>>>>> upstream/android-13
 		arg = 0;
 		if (iflag & IXON)
 			arg |= DIGI_OUTPUT_FLOW_CONTROL_XON_XOFF;
 		else
 			arg &= ~DIGI_OUTPUT_FLOW_CONTROL_XON_XOFF;
 
+<<<<<<< HEAD
 		if (cflag & CRTSCTS) {
 			arg |= DIGI_OUTPUT_FLOW_CONTROL_CTS;
 		} else {
 			arg &= ~DIGI_OUTPUT_FLOW_CONTROL_CTS;
 		}
+=======
+		if (cflag & CRTSCTS)
+			arg |= DIGI_OUTPUT_FLOW_CONTROL_CTS;
+		else
+			arg &= ~DIGI_OUTPUT_FLOW_CONTROL_CTS;
+>>>>>>> upstream/android-13
 
 		buf[i++] = DIGI_CMD_SET_OUTPUT_FLOW_CONTROL;
 		buf[i++] = priv->dp_port_num;
@@ -887,11 +979,18 @@ static int digi_write(struct tty_struct *tty, struct usb_serial_port *port,
 	int ret, data_len, new_len;
 	struct digi_port *priv = usb_get_serial_port_data(port);
 	unsigned char *data = port->write_urb->transfer_buffer;
+<<<<<<< HEAD
 	unsigned long flags = 0;
 
 	dev_dbg(&port->dev,
 		"digi_write: TOP: port=%d, count=%d, in_interrupt=%ld\n",
 		priv->dp_port_num, count, in_interrupt());
+=======
+	unsigned long flags;
+
+	dev_dbg(&port->dev, "digi_write: TOP: port=%d, count=%d\n",
+		priv->dp_port_num, count);
+>>>>>>> upstream/android-13
 
 	/* copy user data (which can sleep) before getting spin lock */
 	count = min(count, port->bulk_out_size-2);
@@ -985,7 +1084,11 @@ static void digi_write_bulk_callback(struct urb *urb)
 		dev_dbg(&port->dev, "digi_write_bulk_callback: oob callback\n");
 		spin_lock_irqsave(&priv->dp_port_lock, flags);
 		priv->dp_write_urb_in_use = 0;
+<<<<<<< HEAD
 		wake_up_interruptible(&port->write_wait);
+=======
+		wake_up_interruptible(&priv->write_wait);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&priv->dp_port_lock, flags);
 		return;
 	}
@@ -1021,12 +1124,21 @@ static void digi_write_bulk_callback(struct urb *urb)
 		tty_port_tty_wakeup(&port->port);
 }
 
+<<<<<<< HEAD
 static int digi_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct digi_port *priv = usb_get_serial_port_data(port);
 	int room;
 	unsigned long flags = 0;
+=======
+static unsigned int digi_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct digi_port *priv = usb_get_serial_port_data(port);
+	unsigned long flags;
+	unsigned int room;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&priv->dp_port_lock, flags);
 
@@ -1036,11 +1148,16 @@ static int digi_write_room(struct tty_struct *tty)
 		room = port->bulk_out_size - 2 - priv->dp_out_buf_len;
 
 	spin_unlock_irqrestore(&priv->dp_port_lock, flags);
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "digi_write_room: port=%d, room=%d\n", priv->dp_port_num, room);
+=======
+	dev_dbg(&port->dev, "digi_write_room: port=%d, room=%u\n", priv->dp_port_num, room);
+>>>>>>> upstream/android-13
 	return room;
 
 }
 
+<<<<<<< HEAD
 static int digi_chars_in_buffer(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
@@ -1057,12 +1174,35 @@ static int digi_chars_in_buffer(struct tty_struct *tty)
 		return priv->dp_out_buf_len;
 	}
 
+=======
+static unsigned int digi_chars_in_buffer(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct digi_port *priv = usb_get_serial_port_data(port);
+	unsigned long flags;
+	unsigned int chars;
+
+	spin_lock_irqsave(&priv->dp_port_lock, flags);
+	if (priv->dp_write_urb_in_use)
+		chars = port->bulk_out_size - 2;
+	else
+		chars = priv->dp_out_buf_len;
+	spin_unlock_irqrestore(&priv->dp_port_lock, flags);
+
+	dev_dbg(&port->dev, "%s: port=%d, chars=%d\n", __func__,
+			priv->dp_port_num, chars);
+	return chars;
+>>>>>>> upstream/android-13
 }
 
 static void digi_dtr_rts(struct usb_serial_port *port, int on)
 {
 	/* Adjust DTR and RTS */
+<<<<<<< HEAD
 	digi_set_modem_signals(port, on * (TIOCM_DTR|TIOCM_RTS), 1);
+=======
+	digi_set_modem_signals(port, on * (TIOCM_DTR | TIOCM_RTS), 1);
+>>>>>>> upstream/android-13
 }
 
 static int digi_open(struct tty_struct *tty, struct usb_serial_port *port)
@@ -1218,10 +1358,16 @@ static int digi_port_init(struct usb_serial_port *port, unsigned port_num)
 	init_waitqueue_head(&priv->dp_transmit_idle_wait);
 	init_waitqueue_head(&priv->dp_flush_wait);
 	init_waitqueue_head(&priv->dp_close_wait);
+<<<<<<< HEAD
 	priv->dp_port = port;
 
 	init_waitqueue_head(&port->write_wait);
 
+=======
+	init_waitqueue_head(&priv->write_wait);
+	priv->dp_port = port;
+
+>>>>>>> upstream/android-13
 	usb_set_serial_port_data(port, priv);
 
 	return 0;
@@ -1283,14 +1429,21 @@ static int digi_port_probe(struct usb_serial_port *port)
 	return digi_port_init(port, port->port_number);
 }
 
+<<<<<<< HEAD
 static int digi_port_remove(struct usb_serial_port *port)
+=======
+static void digi_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct digi_port *priv;
 
 	priv = usb_get_serial_port_data(port);
 	kfree(priv);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void digi_read_bulk_callback(struct urb *urb)
@@ -1450,7 +1603,11 @@ static int digi_read_oob_callback(struct urb *urb)
 	struct usb_serial_port *port = urb->context;
 	struct usb_serial *serial = port->serial;
 	struct tty_struct *tty;
+<<<<<<< HEAD
 	struct digi_port *priv = usb_get_serial_port_data(port);
+=======
+	struct digi_port *priv;
+>>>>>>> upstream/android-13
 	unsigned char *buf = urb->transfer_buffer;
 	int opcode, line, status, val;
 	unsigned long flags;

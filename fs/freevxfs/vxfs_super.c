@@ -52,6 +52,10 @@
 MODULE_AUTHOR("Christoph Hellwig, Krzysztof Blaszkowski");
 MODULE_DESCRIPTION("Veritas Filesystem (VxFS) driver");
 MODULE_LICENSE("Dual BSD/GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 static struct kmem_cache *vxfs_inode_cachep;
 
@@ -131,6 +135,7 @@ static struct inode *vxfs_alloc_inode(struct super_block *sb)
 	return &vi->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void vxfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -146,6 +151,16 @@ static void vxfs_destroy_inode(struct inode *inode)
 static const struct super_operations vxfs_super_ops = {
 	.alloc_inode		= vxfs_alloc_inode,
 	.destroy_inode		= vxfs_destroy_inode,
+=======
+static void vxfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(vxfs_inode_cachep, VXFS_INO(inode));
+}
+
+static const struct super_operations vxfs_super_ops = {
+	.alloc_inode		= vxfs_alloc_inode,
+	.free_inode		= vxfs_free_inode,
+>>>>>>> upstream/android-13
 	.evict_inode		= vxfs_evict_inode,
 	.put_super		= vxfs_put_super,
 	.statfs			= vxfs_statfs,
@@ -236,6 +251,11 @@ static int vxfs_fill_super(struct super_block *sbp, void *dp, int silent)
 
 	sbp->s_op = &vxfs_super_ops;
 	sbp->s_fs_info = infp;
+<<<<<<< HEAD
+=======
+	sbp->s_time_min = 0;
+	sbp->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 
 	if (!vxfs_try_sb_magic(sbp, silent, 1,
 			(__force __fs32)cpu_to_le32(VXFS_SUPER_MAGIC))) {

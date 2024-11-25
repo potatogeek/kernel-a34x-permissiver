@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,21 +9,32 @@
  *
  * Copyright (C) 2002-2008 Novell/SUSE
  * Copyright 2009-2010 Canonical Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
 #include <linux/fdtable.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs.h>
+>>>>>>> upstream/android-13
 #include <linux/file.h>
 #include <linux/mount.h>
 #include <linux/syscalls.h>
 #include <linux/tracehook.h>
 #include <linux/personality.h>
 #include <linux/xattr.h>
+<<<<<<< HEAD
+=======
+#include <linux/user_namespace.h>
+>>>>>>> upstream/android-13
 
 #include "include/audit.h"
 #include "include/apparmorfs.h"
@@ -44,8 +59,13 @@ void aa_free_domain_entries(struct aa_domain *domain)
 			return;
 
 		for (i = 0; i < domain->size; i++)
+<<<<<<< HEAD
 			kzfree(domain->table[i]);
 		kzfree(domain->table);
+=======
+			kfree_sensitive(domain->table[i]);
+		kfree_sensitive(domain->table);
+>>>>>>> upstream/android-13
 		domain->table = NULL;
 	}
 }
@@ -324,6 +344,7 @@ static int aa_xattrs_match(const struct linux_binprm *bprm,
 	might_sleep();
 
 	/* transition from exec match to xattr set */
+<<<<<<< HEAD
 	state = aa_dfa_null_transition(profile->xmatch, state);
 
 	d = bprm->file->f_path.dentry;
@@ -335,6 +356,24 @@ static int aa_xattrs_match(const struct linux_binprm *bprm,
 			u32 perm;
 
 			/* Check the xattr value, not just presence */
+=======
+	state = aa_dfa_outofband_transition(profile->xmatch, state);
+	d = bprm->file->f_path.dentry;
+
+	for (i = 0; i < profile->xattr_count; i++) {
+		size = vfs_getxattr_alloc(&init_user_ns, d, profile->xattrs[i],
+					  &value, value_size, GFP_KERNEL);
+		if (size >= 0) {
+			u32 perm;
+
+			/*
+			 * Check the xattr presence before value. This ensure
+			 * that not present xattr can be distinguished from a 0
+			 * length value or rule that matches any value
+			 */
+			state = aa_dfa_null_transition(profile->xmatch, state);
+			/* Check xattr value */
+>>>>>>> upstream/android-13
 			state = aa_dfa_match_len(profile->xmatch, state, value,
 						 size);
 			perm = dfa_user_allow(profile->xmatch, state);
@@ -344,7 +383,11 @@ static int aa_xattrs_match(const struct linux_binprm *bprm,
 			}
 		}
 		/* transition to next element */
+<<<<<<< HEAD
 		state = aa_dfa_null_transition(profile->xmatch, state);
+=======
+		state = aa_dfa_outofband_transition(profile->xmatch, state);
+>>>>>>> upstream/android-13
 		if (size < 0) {
 			/*
 			 * No xattr match, so verify if transition to
@@ -528,7 +571,11 @@ struct aa_label *x_table_lookup(struct aa_profile *profile, u32 xindex,
 				label = &new_profile->label;
 			continue;
 		}
+<<<<<<< HEAD
 		label = aa_label_parse(&profile->label, *name, GFP_ATOMIC,
+=======
+		label = aa_label_parse(&profile->label, *name, GFP_KERNEL,
+>>>>>>> upstream/android-13
 				       true, false);
 		if (IS_ERR(label))
 			label = NULL;
@@ -576,7 +623,11 @@ static struct aa_label *x_to_label(struct aa_profile *profile,
 			stack = NULL;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through to X_NAME */
+=======
+		fallthrough;	/* to X_NAME */
+>>>>>>> upstream/android-13
 	case AA_X_NAME:
 		if (xindex & AA_X_CHILD)
 			/* released by caller */
@@ -608,7 +659,11 @@ static struct aa_label *x_to_label(struct aa_profile *profile,
 		/* base the stack on post domain transition */
 		struct aa_label *base = new;
 
+<<<<<<< HEAD
 		new = aa_label_parse(base, stack, GFP_ATOMIC, true, false);
+=======
+		new = aa_label_parse(base, stack, GFP_KERNEL, true, false);
+>>>>>>> upstream/android-13
 		if (IS_ERR(new))
 			new = NULL;
 		aa_put_label(base);
@@ -624,8 +679,11 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 					   bool *secure_exec)
 {
 	struct aa_label *new = NULL;
+<<<<<<< HEAD
 	struct aa_profile *component;
 	struct label_it i;
+=======
+>>>>>>> upstream/android-13
 	const char *info = NULL, *name = NULL, *target = NULL;
 	unsigned int state = profile->file.start;
 	struct aa_perms perms = {};
@@ -674,6 +732,7 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 			info = "profile transition not found";
 			/* remove MAY_EXEC to audit as failure */
 			perms.allow &= ~MAY_EXEC;
+<<<<<<< HEAD
 		} else {
 			/* verify that each component's xattr requirements are
 			 * met, and fail execution otherwise
@@ -689,10 +748,13 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 					goto audit;
 				}
 			}
+=======
+>>>>>>> upstream/android-13
 		}
 	} else if (COMPLAIN_MODE(profile)) {
 		/* no exec permission - learning mode */
 		struct aa_profile *new_profile = NULL;
+<<<<<<< HEAD
 		char *n = kstrdup(name, GFP_ATOMIC);
 
 		if (n) {
@@ -707,6 +769,11 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 			strcpy((char *)name, n);
 			kfree(n);
 		}
+=======
+
+		new_profile = aa_new_null_profile(profile, false, name,
+						  GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!new_profile) {
 			error = -ENOMEM;
 			info = "could not create null profile";
@@ -727,7 +794,11 @@ static struct aa_label *profile_transition(struct aa_profile *profile,
 		if (DEBUG_ON) {
 			dbg_printk("apparmor: scrubbing environment variables"
 				   " for %s profile=", name);
+<<<<<<< HEAD
 			aa_label_printk(new, GFP_ATOMIC);
+=======
+			aa_label_printk(new, GFP_KERNEL);
+>>>>>>> upstream/android-13
 			dbg_printk("\n");
 		}
 		*secure_exec = true;
@@ -803,7 +874,11 @@ static int profile_onexec(struct aa_profile *profile, struct aa_label *onexec,
 		if (DEBUG_ON) {
 			dbg_printk("apparmor: scrubbing environment "
 				   "variables for %s label=", xname);
+<<<<<<< HEAD
 			aa_label_printk(onexec, GFP_ATOMIC);
+=======
+			aa_label_printk(onexec, GFP_KERNEL);
+>>>>>>> upstream/android-13
 			dbg_printk("\n");
 		}
 		*secure_exec = true;
@@ -837,7 +912,11 @@ static struct aa_label *handle_onexec(struct aa_label *label,
 					       bprm, buffer, cond, unsafe));
 		if (error)
 			return ERR_PTR(error);
+<<<<<<< HEAD
 		new = fn_label_build_in_ns(label, profile, GFP_ATOMIC,
+=======
+		new = fn_label_build_in_ns(label, profile, GFP_KERNEL,
+>>>>>>> upstream/android-13
 				aa_get_newest_label(onexec),
 				profile_transition(profile, bprm, buffer,
 						   cond, unsafe));
@@ -849,9 +928,15 @@ static struct aa_label *handle_onexec(struct aa_label *label,
 					       buffer, cond, unsafe));
 		if (error)
 			return ERR_PTR(error);
+<<<<<<< HEAD
 		new = fn_label_build_in_ns(label, profile, GFP_ATOMIC,
 				aa_label_merge(&profile->label, onexec,
 					       GFP_ATOMIC),
+=======
+		new = fn_label_build_in_ns(label, profile, GFP_KERNEL,
+				aa_label_merge(&profile->label, onexec,
+					       GFP_KERNEL),
+>>>>>>> upstream/android-13
 				profile_transition(profile, bprm, buffer,
 						   cond, unsafe));
 	}
@@ -869,14 +954,22 @@ static struct aa_label *handle_onexec(struct aa_label *label,
 }
 
 /**
+<<<<<<< HEAD
  * apparmor_bprm_set_creds - set the new creds on the bprm struct
+=======
+ * apparmor_bprm_creds_for_exec - Update the new creds on the bprm struct
+>>>>>>> upstream/android-13
  * @bprm: binprm for the exec  (NOT NULL)
  *
  * Returns: %0 or error on failure
  *
  * TODO: once the other paths are done see if we can't refactor into a fn
  */
+<<<<<<< HEAD
 int apparmor_bprm_set_creds(struct linux_binprm *bprm)
+=======
+int apparmor_bprm_creds_for_exec(struct linux_binprm *bprm)
+>>>>>>> upstream/android-13
 {
 	struct aa_task_ctx *ctx;
 	struct aa_label *label, *new = NULL;
@@ -885,6 +978,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	const char *info = NULL;
 	int error = 0;
 	bool unsafe = false;
+<<<<<<< HEAD
 	struct path_cond cond = {
 		file_inode(bprm->file)->i_uid,
 		file_inode(bprm->file)->i_mode
@@ -893,6 +987,15 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 	if (bprm->called_set_creds)
 		return 0;
 
+=======
+	kuid_t i_uid = i_uid_into_mnt(file_mnt_user_ns(bprm->file),
+				      file_inode(bprm->file));
+	struct path_cond cond = {
+		i_uid,
+		file_inode(bprm->file)->i_mode
+	};
+
+>>>>>>> upstream/android-13
 	ctx = task_ctx(current);
 	AA_BUG(!cred_label(bprm->cred));
 	AA_BUG(!ctx);
@@ -911,13 +1014,26 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		ctx->nnp = aa_get_label(label);
 
 	/* buffer freed below, name is pointer into buffer */
+<<<<<<< HEAD
 	get_buffers(buffer);
+=======
+	buffer = aa_get_buffer(false);
+	if (!buffer) {
+		error = -ENOMEM;
+		goto done;
+	}
+
+>>>>>>> upstream/android-13
 	/* Test for onexec first as onexec override other x transitions. */
 	if (ctx->onexec)
 		new = handle_onexec(label, ctx->onexec, ctx->token,
 				    bprm, buffer, &cond, &unsafe);
 	else
+<<<<<<< HEAD
 		new = fn_label_build(label, profile, GFP_ATOMIC,
+=======
+		new = fn_label_build(label, profile, GFP_KERNEL,
+>>>>>>> upstream/android-13
 				profile_transition(profile, bprm, buffer,
 						   &cond, &unsafe));
 
@@ -962,7 +1078,11 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		if (DEBUG_ON) {
 			dbg_printk("scrubbing environment variables for %s "
 				   "label=", bprm->filename);
+<<<<<<< HEAD
 			aa_label_printk(new, GFP_ATOMIC);
+=======
+			aa_label_printk(new, GFP_KERNEL);
+>>>>>>> upstream/android-13
 			dbg_printk("\n");
 		}
 		bprm->secureexec = 1;
@@ -973,18 +1093,30 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
 		if (DEBUG_ON) {
 			dbg_printk("apparmor: clearing unsafe personality "
 				   "bits. %s label=", bprm->filename);
+<<<<<<< HEAD
 			aa_label_printk(new, GFP_ATOMIC);
+=======
+			aa_label_printk(new, GFP_KERNEL);
+>>>>>>> upstream/android-13
 			dbg_printk("\n");
 		}
 		bprm->per_clear |= PER_CLEAR_ON_SETID;
 	}
 	aa_put_label(cred_label(bprm->cred));
 	/* transfer reference, released when cred is freed */
+<<<<<<< HEAD
 	cred_label(bprm->cred) = new;
 
 done:
 	aa_put_label(label);
 	put_buffers(buffer);
+=======
+	set_cred_label(bprm->cred, new);
+
+done:
+	aa_put_label(label);
+	aa_put_buffer(buffer);
+>>>>>>> upstream/android-13
 
 	return error;
 
@@ -992,8 +1124,12 @@ audit:
 	error = fn_for_each(label, profile,
 			aa_audit_file(profile, &nullperms, OP_EXEC, MAY_EXEC,
 				      bprm->filename, NULL, new,
+<<<<<<< HEAD
 				      file_inode(bprm->file)->i_uid, info,
 				      error));
+=======
+				      i_uid, info, error));
+>>>>>>> upstream/android-13
 	aa_put_label(new);
 	goto done;
 }

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Mapping of DWARF debug register numbers into register names.
  *
  * Copyright (C) 2010 Will Deacon, ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <errno.h>
@@ -14,7 +21,10 @@
 #include <dwarf-regs.h>
 #include <linux/ptrace.h> /* for struct user_pt_regs */
 #include <linux/stringify.h>
+<<<<<<< HEAD
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 
 struct pt_regs_dwarfnum {
 	const char *name;

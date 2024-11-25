@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Red Hat
  *
@@ -9,6 +10,25 @@
 #include <linux/module.h>
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Red Hat
+ */
+
+#include <linux/module.h>
+
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_file.h>
+#include <drm/drm_gem_shmem_helper.h>
+#include <drm/drm_managed.h>
+#include <drm/drm_ioctl.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_print.h>
+
+>>>>>>> upstream/android-13
 #include "udl_drv.h"
 
 static int udl_usb_suspend(struct usb_interface *interface,
@@ -16,14 +36,19 @@ static int udl_usb_suspend(struct usb_interface *interface,
 {
 	struct drm_device *dev = usb_get_intfdata(interface);
 
+<<<<<<< HEAD
 	drm_kms_helper_poll_disable(dev);
 	return 0;
+=======
+	return drm_mode_config_helper_suspend(dev);
+>>>>>>> upstream/android-13
 }
 
 static int udl_usb_resume(struct usb_interface *interface)
 {
 	struct drm_device *dev = usb_get_intfdata(interface);
 
+<<<<<<< HEAD
 	drm_kms_helper_poll_enable(dev);
 	udl_modeset_restore(dev);
 	return 0;
@@ -71,6 +96,36 @@ static struct drm_driver driver = {
 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
 	.gem_prime_export = udl_gem_prime_export,
 	.gem_prime_import = udl_gem_prime_import,
+=======
+	return drm_mode_config_helper_resume(dev);
+}
+
+/*
+ * FIXME: Dma-buf sharing requires DMA support by the importing device.
+ *        This function is a workaround to make USB devices work as well.
+ *        See todo.rst for how to fix the issue in the dma-buf framework.
+ */
+static struct drm_gem_object *udl_driver_gem_prime_import(struct drm_device *dev,
+							  struct dma_buf *dma_buf)
+{
+	struct udl_device *udl = to_udl(dev);
+
+	if (!udl->dmadev)
+		return ERR_PTR(-ENODEV);
+
+	return drm_gem_prime_import_dev(dev, dma_buf, udl->dmadev);
+}
+
+DEFINE_DRM_GEM_FOPS(udl_driver_fops);
+
+static const struct drm_driver driver = {
+	.driver_features = DRIVER_ATOMIC | DRIVER_GEM | DRIVER_MODESET,
+
+	/* GEM hooks */
+	.fops = &udl_driver_fops,
+	DRM_GEM_SHMEM_DRIVER_OPS,
+	.gem_prime_import = udl_driver_gem_prime_import,
+>>>>>>> upstream/android-13
 
 	.name = DRIVER_NAME,
 	.desc = DRIVER_DESC,
@@ -82,6 +137,7 @@ static struct drm_driver driver = {
 
 static struct udl_device *udl_driver_create(struct usb_interface *interface)
 {
+<<<<<<< HEAD
 	struct usb_device *udev = interface_to_usbdev(interface);
 	struct udl_device *udl;
 	int r;
@@ -107,6 +163,22 @@ static struct udl_device *udl_driver_create(struct usb_interface *interface)
 	}
 
 	usb_set_intfdata(interface, udl);
+=======
+	struct udl_device *udl;
+	int r;
+
+	udl = devm_drm_dev_alloc(&interface->dev, &driver,
+				 struct udl_device, drm);
+	if (IS_ERR(udl))
+		return udl;
+
+	r = udl_init(udl);
+	if (r)
+		return ERR_PTR(r);
+
+	usb_set_intfdata(interface, udl);
+
+>>>>>>> upstream/android-13
 	return udl;
 }
 
@@ -122,6 +194,7 @@ static int udl_usb_probe(struct usb_interface *interface,
 
 	r = drm_dev_register(&udl->drm, 0);
 	if (r)
+<<<<<<< HEAD
 		goto err_free;
 
 	DRM_INFO("Initialized udl on minor %d\n", udl->drm.primary->index);
@@ -131,14 +204,27 @@ static int udl_usb_probe(struct usb_interface *interface,
 err_free:
 	drm_dev_put(&udl->drm);
 	return r;
+=======
+		return r;
+
+	DRM_INFO("Initialized udl on minor %d\n", udl->drm.primary->index);
+
+	drm_fbdev_generic_setup(&udl->drm, 0);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void udl_usb_disconnect(struct usb_interface *interface)
 {
 	struct drm_device *dev = usb_get_intfdata(interface);
 
+<<<<<<< HEAD
 	drm_kms_helper_poll_disable(dev);
 	udl_fbdev_unplug(dev);
+=======
+	drm_kms_helper_poll_fini(dev);
+>>>>>>> upstream/android-13
 	udl_drop_usb(dev);
 	drm_dev_unplug(dev);
 }

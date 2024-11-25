@@ -1,9 +1,15 @@
 #!/bin/sh
 # description: Snapshot and tracing setting
+<<<<<<< HEAD
 # flags: instance
 
 [ ! -f snapshot ] && exit_unsupported
 
+=======
+# requires: snapshot
+# flags: instance
+
+>>>>>>> upstream/android-13
 echo "Set tracing off"
 echo 0 > tracing_on
 

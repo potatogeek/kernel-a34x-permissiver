@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018 ARM Limited or its affiliates. */
+=======
+/* Copyright (C) 2012-2019 ARM Limited (or its affiliates). */
+>>>>>>> upstream/android-13
 
 #ifndef __CC_SRAM_MGR_H__
 #define __CC_SRAM_MGR_H__
@@ -10,6 +14,7 @@
 
 struct cc_drvdata;
 
+<<<<<<< HEAD
 /**
  * Address (offset) within CC internal SRAM
  */
@@ -46,6 +51,32 @@ void cc_sram_mgr_fini(struct cc_drvdata *drvdata);
  * \param size The requested bytes to allocate
  */
 cc_sram_addr_t cc_sram_alloc(struct cc_drvdata *drvdata, u32 size);
+=======
+#define NULL_SRAM_ADDR ((u32)-1)
+
+/**
+ * cc_sram_mgr_init() - Initializes SRAM pool.
+ * The first X bytes of SRAM are reserved for ROM usage, hence, pool
+ * starts right after X bytes.
+ *
+ * @drvdata: Associated device driver context
+ *
+ * Return:
+ * Zero for success, negative value otherwise.
+ */
+int cc_sram_mgr_init(struct cc_drvdata *drvdata);
+
+/**
+ * cc_sram_alloc() - Allocate buffer from SRAM pool.
+ *
+ * @drvdata: Associated device driver context
+ * @size: The requested bytes to allocate
+ *
+ * Return:
+ * Address offset in SRAM or NULL_SRAM_ADDR for failure.
+ */
+u32 cc_sram_alloc(struct cc_drvdata *drvdata, u32 size);
+>>>>>>> upstream/android-13
 
 /**
  * cc_set_sram_desc() - Create const descriptors sequence to
@@ -54,6 +85,7 @@ cc_sram_addr_t cc_sram_alloc(struct cc_drvdata *drvdata, u32 size);
  *
  * @src:	  A pointer to array of words to set as consts.
  * @dst:	  The target SRAM buffer to set into
+<<<<<<< HEAD
  * @nelements:	  The number of words in "src" array
  * @seq:	  A pointer to the given IN/OUT descriptor sequence
  * @seq_len:	  A pointer to the given IN/OUT sequence length
@@ -61,5 +93,13 @@ cc_sram_addr_t cc_sram_alloc(struct cc_drvdata *drvdata, u32 size);
 void cc_set_sram_desc(const u32 *src, cc_sram_addr_t dst,
 		      unsigned int nelement, struct cc_hw_desc *seq,
 		      unsigned int *seq_len);
+=======
+ * @nelement:	  The number of words in "src" array
+ * @seq:	  A pointer to the given IN/OUT descriptor sequence
+ * @seq_len:	  A pointer to the given IN/OUT sequence length
+ */
+void cc_set_sram_desc(const u32 *src, u32 dst, unsigned int nelement,
+		      struct cc_hw_desc *seq, unsigned int *seq_len);
+>>>>>>> upstream/android-13
 
 #endif /*__CC_SRAM_MGR_H__*/

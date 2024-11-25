@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2014, Samsung Electronics Co. Ltd. All Rights Reserved.
  *
@@ -11,6 +12,11 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2014, Samsung Electronics Co. Ltd. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/iio/iio.h>
@@ -19,7 +25,10 @@
 #include <linux/mfd/core.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of_platform.h>
 #include "ssp.h"
 
@@ -71,9 +80,15 @@ static const struct mfd_cell sensorhub_sensor_devs[] = {
 
 static void ssp_toggle_mcu_reset_gpio(struct ssp_data *data)
 {
+<<<<<<< HEAD
 	gpio_set_value(data->mcu_reset_gpio, 0);
 	usleep_range(1000, 1200);
 	gpio_set_value(data->mcu_reset_gpio, 1);
+=======
+	gpiod_set_value(data->mcu_reset_gpiod, 0);
+	usleep_range(1000, 1200);
+	gpiod_set_value(data->mcu_reset_gpiod, 1);
+>>>>>>> upstream/android-13
 	msleep(50);
 }
 
@@ -451,7 +466,10 @@ MODULE_DEVICE_TABLE(of, ssp_of_match);
 
 static struct ssp_data *ssp_parse_dt(struct device *dev)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	struct ssp_data *data;
 	struct device_node *node = dev->of_node;
 	const struct of_device_id *match;
@@ -460,6 +478,7 @@ static struct ssp_data *ssp_parse_dt(struct device *dev)
 	if (!data)
 		return NULL;
 
+<<<<<<< HEAD
 	data->mcu_ap_gpio = of_get_named_gpio(node, "mcu-ap-gpios", 0);
 	if (data->mcu_ap_gpio < 0)
 		goto err_free_pd;
@@ -485,12 +504,31 @@ static struct ssp_data *ssp_parse_dt(struct device *dev)
 	match = of_match_node(ssp_of_match, node);
 	if (!match)
 		goto err_mcu_reset_gpio;
+=======
+	data->mcu_ap_gpiod = devm_gpiod_get(dev, "mcu-ap", GPIOD_IN);
+	if (IS_ERR(data->mcu_ap_gpiod))
+		return NULL;
+
+	data->ap_mcu_gpiod = devm_gpiod_get(dev, "ap-mcu", GPIOD_OUT_HIGH);
+	if (IS_ERR(data->ap_mcu_gpiod))
+		return NULL;
+
+	data->mcu_reset_gpiod = devm_gpiod_get(dev, "mcu-reset",
+					       GPIOD_OUT_HIGH);
+	if (IS_ERR(data->mcu_reset_gpiod))
+		return NULL;
+
+	match = of_match_node(ssp_of_match, node);
+	if (!match)
+		return NULL;
+>>>>>>> upstream/android-13
 
 	data->sensorhub_info = match->data;
 
 	dev_set_drvdata(dev, data);
 
 	return data;
+<<<<<<< HEAD
 
 err_mcu_reset_gpio:
 	devm_gpio_free(dev, data->mcu_reset_gpio);
@@ -499,6 +537,8 @@ err_ap_mcu:
 err_free_pd:
 	devm_kfree(dev, data);
 	return NULL;
+=======
+>>>>>>> upstream/android-13
 }
 #else
 static struct ssp_data *ssp_parse_dt(struct device *pdev)
@@ -532,7 +572,12 @@ static int ssp_probe(struct spi_device *spi)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	ret = mfd_add_devices(&spi->dev, -1, sensorhub_sensor_devs,
+=======
+	ret = mfd_add_devices(&spi->dev, PLATFORM_DEVID_NONE,
+			      sensorhub_sensor_devs,
+>>>>>>> upstream/android-13
 			      ARRAY_SIZE(sensorhub_sensor_devs), NULL, 0, NULL);
 	if (ret < 0) {
 		dev_err(&spi->dev, "mfd add devices fail\n");

@@ -3,7 +3,11 @@
  *
  * Platform data for uio_pruss driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2010-11 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2010-11 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

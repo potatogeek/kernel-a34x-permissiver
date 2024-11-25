@@ -1,11 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * drivers/base/power/generic_ops.c - Generic PM callbacks for subsystems
  *
  * Copyright (c) 2010 Rafael J. Wysocki <rjw@sisk.pl>, Novell Inc.
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
  */
 
+=======
+ */
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <linux/export.h>

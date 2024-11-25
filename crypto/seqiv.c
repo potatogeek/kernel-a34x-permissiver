@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * seqiv: Sequence Number IV Generator
  *
@@ -5,12 +9,15 @@
  * with a salt.  This algorithm is mainly useful for CTR and similar modes.
  *
  * Copyright (c) 2007 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/geniv.h>
@@ -23,8 +30,11 @@
 #include <linux/slab.h>
 #include <linux/string.h>
 
+<<<<<<< HEAD
 static void seqiv_free(struct crypto_instance *inst);
 
+=======
+>>>>>>> upstream/android-13
 static void seqiv_aead_encrypt_complete2(struct aead_request *req, int err)
 {
 	struct aead_request *subreq = aead_request_ctx(req);
@@ -40,7 +50,11 @@ static void seqiv_aead_encrypt_complete2(struct aead_request *req, int err)
 	memcpy(req->iv, subreq->iv, crypto_aead_ivsize(geniv));
 
 out:
+<<<<<<< HEAD
 	kzfree(subreq->iv);
+=======
+	kfree_sensitive(subreq->iv);
+>>>>>>> upstream/android-13
 }
 
 static void seqiv_aead_encrypt_complete(struct crypto_async_request *base,
@@ -73,9 +87,15 @@ static int seqiv_aead_encrypt(struct aead_request *req)
 	info = req->iv;
 
 	if (req->src != req->dst) {
+<<<<<<< HEAD
 		SKCIPHER_REQUEST_ON_STACK(nreq, ctx->sknull);
 
 		skcipher_request_set_tfm(nreq, ctx->sknull);
+=======
+		SYNC_SKCIPHER_REQUEST_ON_STACK(nreq, ctx->sknull);
+
+		skcipher_request_set_sync_tfm(nreq, ctx->sknull);
+>>>>>>> upstream/android-13
 		skcipher_request_set_callback(nreq, req->base.flags,
 					      NULL, NULL);
 		skcipher_request_set_crypt(nreq, req->src, req->dst,
@@ -89,6 +109,7 @@ static int seqiv_aead_encrypt(struct aead_request *req)
 
 	if (unlikely(!IS_ALIGNED((unsigned long)info,
 				 crypto_aead_alignmask(geniv) + 1))) {
+<<<<<<< HEAD
 		info = kmalloc(ivsize, req->base.flags &
 				       CRYPTO_TFM_REQ_MAY_SLEEP ? GFP_KERNEL:
 								  GFP_ATOMIC);
@@ -96,6 +117,14 @@ static int seqiv_aead_encrypt(struct aead_request *req)
 			return -ENOMEM;
 
 		memcpy(info, req->iv, ivsize);
+=======
+		info = kmemdup(req->iv, ivsize, req->base.flags &
+			       CRYPTO_TFM_REQ_MAY_SLEEP ? GFP_KERNEL :
+			       GFP_ATOMIC);
+		if (!info)
+			return -ENOMEM;
+
+>>>>>>> upstream/android-13
 		compl = seqiv_aead_encrypt_complete;
 		data = req;
 	}
@@ -146,7 +175,11 @@ static int seqiv_aead_create(struct crypto_template *tmpl, struct rtattr **tb)
 	struct aead_instance *inst;
 	int err;
 
+<<<<<<< HEAD
 	inst = aead_geniv_alloc(tmpl, tb, 0, 0);
+=======
+	inst = aead_geniv_alloc(tmpl, tb);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(inst))
 		return PTR_ERR(inst);
@@ -165,6 +198,7 @@ static int seqiv_aead_create(struct crypto_template *tmpl, struct rtattr **tb)
 	inst->alg.base.cra_ctxsize += inst->alg.ivsize;
 
 	err = aead_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto free_inst;
 
@@ -193,12 +227,23 @@ static int seqiv_create(struct crypto_template *tmpl, struct rtattr **tb)
 static void seqiv_free(struct crypto_instance *inst)
 {
 	aead_geniv_free(aead_instance(inst));
+=======
+	if (err) {
+free_inst:
+		inst->free(inst);
+	}
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template seqiv_tmpl = {
 	.name = "seqiv",
+<<<<<<< HEAD
 	.create = seqiv_create,
 	.free = seqiv_free,
+=======
+	.create = seqiv_aead_create,
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 };
 
@@ -212,7 +257,11 @@ static void __exit seqiv_module_exit(void)
 	crypto_unregister_template(&seqiv_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(seqiv_module_init);
+=======
+subsys_initcall(seqiv_module_init);
+>>>>>>> upstream/android-13
 module_exit(seqiv_module_exit);
 
 MODULE_LICENSE("GPL");

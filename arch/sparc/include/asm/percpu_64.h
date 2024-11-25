@@ -4,7 +4,13 @@
 
 #include <linux/compiler.h>
 
+<<<<<<< HEAD
 register unsigned long __local_per_cpu_offset asm("g5");
+=======
+#ifndef BUILD_VDSO
+register unsigned long __local_per_cpu_offset asm("g5");
+#endif
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 

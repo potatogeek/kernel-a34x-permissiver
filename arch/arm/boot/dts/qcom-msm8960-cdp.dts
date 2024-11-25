@@ -17,10 +17,17 @@
 
 	soc {
 		gsbi@16400000 {
+<<<<<<< HEAD
 			status = "ok";
 			qcom,mode = <GSBI_PROT_I2C_UART>;
 			serial@16440000 {
 				status = "ok";
+=======
+			status = "okay";
+			qcom,mode = <GSBI_PROT_I2C_UART>;
+			serial@16440000 {
+				status = "okay";
+>>>>>>> upstream/android-13
 			};
 		};
 
@@ -273,12 +280,20 @@
 		};
 
 		gsbi@16000000 {
+<<<<<<< HEAD
 			status = "ok";
+=======
+			status = "okay";
+>>>>>>> upstream/android-13
 			qcom,mode = <GSBI_PROT_SPI>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&spi1_default>;
 			spi@16080000 {
+<<<<<<< HEAD
 				status = "ok";
+=======
+				status = "okay";
+>>>>>>> upstream/android-13
 				eth@0 {
 					compatible = "micrel,ks8851";
 					reg = <0>;

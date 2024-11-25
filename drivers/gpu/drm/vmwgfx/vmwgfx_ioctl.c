@@ -26,6 +26,7 @@
  **************************************************************************/
 
 #include "vmwgfx_drv.h"
+<<<<<<< HEAD
 #include <drm/vmwgfx_drm.h>
 #include "vmwgfx_kms.h"
 #include "device_include/svga3d_caps.h"
@@ -34,6 +35,11 @@ struct svga_3d_compat_cap {
 	SVGA3dCapsRecordHeader header;
 	SVGA3dCapPair pairs[SVGA3D_DEVCAP_MAX];
 };
+=======
+#include "vmwgfx_devcaps.h"
+#include <drm/vmwgfx_drm.h>
+#include "vmwgfx_kms.h"
+>>>>>>> upstream/android-13
 
 int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 		       struct drm_file *file_priv)
@@ -51,7 +57,11 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 		param->value = vmw_overlay_num_free_overlays(dev_priv);
 		break;
 	case DRM_VMW_PARAM_3D:
+<<<<<<< HEAD
 		param->value = vmw_fifo_have_3d(dev_priv) ? 1 : 0;
+=======
+		param->value = vmw_supports_3d(dev_priv) ? 1 : 0;
+>>>>>>> upstream/android-13
 		break;
 	case DRM_VMW_PARAM_HW_CAPS:
 		param->value = dev_priv->capabilities;
@@ -60,6 +70,7 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 		param->value = dev_priv->capabilities2;
 		break;
 	case DRM_VMW_PARAM_FIFO_CAPS:
+<<<<<<< HEAD
 		param->value = dev_priv->fifo.capabilities;
 		break;
 	case DRM_VMW_PARAM_MAX_FB_SIZE:
@@ -70,17 +81,34 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 		u32 *fifo_mem = dev_priv->mmio_virt;
 		const struct vmw_fifo_state *fifo = &dev_priv->fifo;
 
+=======
+		param->value = vmw_fifo_caps(dev_priv);
+		break;
+	case DRM_VMW_PARAM_MAX_FB_SIZE:
+		param->value = dev_priv->max_primary_mem;
+		break;
+	case DRM_VMW_PARAM_FIFO_HW_VERSION:
+	{
+>>>>>>> upstream/android-13
 		if ((dev_priv->capabilities & SVGA_CAP_GBOBJECTS)) {
 			param->value = SVGA3D_HWVERSION_WS8_B1;
 			break;
 		}
 
 		param->value =
+<<<<<<< HEAD
 			vmw_mmio_read(fifo_mem +
 				      ((fifo->capabilities &
 					SVGA_FIFO_CAP_3D_HWVERSION_REVISED) ?
 				       SVGA_FIFO_3D_HWVERSION_REVISED :
 				       SVGA_FIFO_3D_HWVERSION));
+=======
+			vmw_fifo_mem_read(dev_priv,
+					  ((vmw_fifo_caps(dev_priv) &
+					    SVGA_FIFO_CAP_3D_HWVERSION_REVISED) ?
+						   SVGA_FIFO_3D_HWVERSION_REVISED :
+						   SVGA_FIFO_3D_HWVERSION));
+>>>>>>> upstream/android-13
 		break;
 	}
 	case DRM_VMW_PARAM_MAX_SURF_MEMORY:
@@ -91,6 +119,7 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 			param->value = dev_priv->memory_size;
 		break;
 	case DRM_VMW_PARAM_3D_CAPS_SIZE:
+<<<<<<< HEAD
 		if ((dev_priv->capabilities & SVGA_CAP_GBOBJECTS) &&
 		    vmw_fp->gb_aware)
 			param->value = SVGA3D_DEVCAP_MAX * sizeof(uint32_t);
@@ -101,6 +130,9 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 			param->value = (SVGA_FIFO_3D_CAPS_LAST -
 					SVGA_FIFO_3D_CAPS + 1) *
 				sizeof(uint32_t);
+=======
+		param->value = vmw_devcaps_size(dev_priv, vmw_fp->gb_aware);
+>>>>>>> upstream/android-13
 		break;
 	case DRM_VMW_PARAM_MAX_MOB_MEMORY:
 		vmw_fp->gb_aware = true;
@@ -114,10 +146,20 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 			(dev_priv->active_display_unit == vmw_du_screen_target);
 		break;
 	case DRM_VMW_PARAM_DX:
+<<<<<<< HEAD
 		param->value = dev_priv->has_dx;
 		break;
 	case DRM_VMW_PARAM_SM4_1:
 		param->value = dev_priv->has_sm4_1;
+=======
+		param->value = has_sm4_context(dev_priv);
+		break;
+	case DRM_VMW_PARAM_SM4_1:
+		param->value = has_sm4_1_context(dev_priv);
+		break;
+	case DRM_VMW_PARAM_SM5:
+		param->value = has_sm5_context(dev_priv);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -126,6 +168,7 @@ int vmw_getparam_ioctl(struct drm_device *dev, void *data,
 	return 0;
 }
 
+<<<<<<< HEAD
 static u32 vmw_mask_multisample(unsigned int cap, u32 fmt_value)
 {
 	/*
@@ -172,6 +215,8 @@ static int vmw_fill_compat_cap(struct vmw_private *dev_priv, void *bounce,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 
 int vmw_get_cap_3d_ioctl(struct drm_device *dev, void *data,
 			 struct drm_file *file_priv)
@@ -180,6 +225,7 @@ int vmw_get_cap_3d_ioctl(struct drm_device *dev, void *data,
 		(struct drm_vmw_get_3d_cap_arg *) data;
 	struct vmw_private *dev_priv = vmw_priv(dev);
 	uint32_t size;
+<<<<<<< HEAD
 	u32 *fifo_mem;
 	void __user *buffer = (void __user *)((unsigned long)(arg->buffer));
 	void *bounce;
@@ -199,6 +245,23 @@ int vmw_get_cap_3d_ioctl(struct drm_device *dev, void *data,
 	else
 		size = (SVGA_FIFO_3D_CAPS_LAST - SVGA_FIFO_3D_CAPS + 1) *
 			sizeof(uint32_t);
+=======
+	void __user *buffer = (void __user *)((unsigned long)(arg->buffer));
+	void *bounce = NULL;
+	int ret;
+	struct vmw_fpriv *vmw_fp = vmw_fpriv(file_priv);
+
+	if (unlikely(arg->pad64 != 0 || arg->max_size == 0)) {
+		VMW_DEBUG_USER("Illegal GET_3D_CAP argument.\n");
+		return -EINVAL;
+	}
+
+	size = vmw_devcaps_size(dev_priv, vmw_fp->gb_aware);
+	if (unlikely(size == 0)) {
+		DRM_ERROR("Failed to figure out the devcaps size (no 3D).\n");
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 
 	if (arg->max_size < size)
 		size = arg->max_size;
@@ -209,6 +272,7 @@ int vmw_get_cap_3d_ioctl(struct drm_device *dev, void *data,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	if (gb_objects && vmw_fp->gb_aware) {
 		int i, num;
 		uint32_t *bounce32 = (uint32_t *) bounce;
@@ -232,6 +296,11 @@ int vmw_get_cap_3d_ioctl(struct drm_device *dev, void *data,
 		fifo_mem = dev_priv->mmio_virt;
 		memcpy(bounce, &fifo_mem[SVGA_FIFO_3D_CAPS], size);
 	}
+=======
+	ret = vmw_devcaps_copy(dev_priv, vmw_fp->gb_aware, bounce, size);
+	if (unlikely (ret != 0))
+		goto out_err;
+>>>>>>> upstream/android-13
 
 	ret = copy_to_user(buffer, bounce, size);
 	if (ret)
@@ -268,7 +337,11 @@ int vmw_present_ioctl(struct drm_device *dev, void *data,
 		return 0;
 
 	if (clips_ptr == NULL) {
+<<<<<<< HEAD
 		DRM_ERROR("Variable clips_ptr must be specified.\n");
+=======
+		VMW_DEBUG_USER("Variable clips_ptr must be specified.\n");
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out_clips;
 	}
@@ -291,16 +364,23 @@ int vmw_present_ioctl(struct drm_device *dev, void *data,
 
 	fb = drm_framebuffer_lookup(dev, file_priv, arg->fb_id);
 	if (!fb) {
+<<<<<<< HEAD
 		DRM_ERROR("Invalid framebuffer id.\n");
+=======
+		VMW_DEBUG_USER("Invalid framebuffer id.\n");
+>>>>>>> upstream/android-13
 		ret = -ENOENT;
 		goto out_no_fb;
 	}
 	vfb = vmw_framebuffer_to_vfb(fb);
 
+<<<<<<< HEAD
 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
 	if (unlikely(ret != 0))
 		goto out_no_ttm_lock;
 
+=======
+>>>>>>> upstream/android-13
 	ret = vmw_user_resource_lookup_handle(dev_priv, tfile, arg->sid,
 					      user_surface_converter,
 					      &res);
@@ -317,8 +397,11 @@ int vmw_present_ioctl(struct drm_device *dev, void *data,
 	vmw_surface_unreference(&surface);
 
 out_no_surface:
+<<<<<<< HEAD
 	ttm_read_unlock(&dev_priv->reservation_sem);
 out_no_ttm_lock:
+=======
+>>>>>>> upstream/android-13
 	drm_framebuffer_put(fb);
 out_no_fb:
 	drm_modeset_unlock_all(dev);
@@ -351,7 +434,11 @@ int vmw_present_readback_ioctl(struct drm_device *dev, void *data,
 		return 0;
 
 	if (clips_ptr == NULL) {
+<<<<<<< HEAD
 		DRM_ERROR("Argument clips_ptr must be specified.\n");
+=======
+		VMW_DEBUG_USER("Argument clips_ptr must be specified.\n");
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out_clips;
 	}
@@ -374,27 +461,41 @@ int vmw_present_readback_ioctl(struct drm_device *dev, void *data,
 
 	fb = drm_framebuffer_lookup(dev, file_priv, arg->fb_id);
 	if (!fb) {
+<<<<<<< HEAD
 		DRM_ERROR("Invalid framebuffer id.\n");
+=======
+		VMW_DEBUG_USER("Invalid framebuffer id.\n");
+>>>>>>> upstream/android-13
 		ret = -ENOENT;
 		goto out_no_fb;
 	}
 
 	vfb = vmw_framebuffer_to_vfb(fb);
 	if (!vfb->bo) {
+<<<<<<< HEAD
 		DRM_ERROR("Framebuffer not buffer backed.\n");
+=======
+		VMW_DEBUG_USER("Framebuffer not buffer backed.\n");
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out_no_ttm_lock;
 	}
 
+<<<<<<< HEAD
 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
 	if (unlikely(ret != 0))
 		goto out_no_ttm_lock;
 
+=======
+>>>>>>> upstream/android-13
 	ret = vmw_kms_readback(dev_priv, file_priv,
 			       vfb, user_fence_rep,
 			       clips, num_clips);
 
+<<<<<<< HEAD
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 out_no_ttm_lock:
 	drm_framebuffer_put(fb);
 out_no_fb:
@@ -404,6 +505,7 @@ out_no_copy:
 out_clips:
 	return ret;
 }
+<<<<<<< HEAD
 
 
 /**
@@ -447,3 +549,5 @@ ssize_t vmw_fops_read(struct file *filp, char __user *buffer,
 	vmw_fifo_ping_host(dev_priv, SVGA_SYNC_GENERIC);
 	return drm_read(filp, buffer, count, offset);
 }
+=======
+>>>>>>> upstream/android-13

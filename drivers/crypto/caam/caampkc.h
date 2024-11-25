@@ -12,6 +12,10 @@
 #define _PKC_DESC_H_
 #include "compat.h"
 #include "pdb.h"
+<<<<<<< HEAD
+=======
+#include <crypto/engine.h>
+>>>>>>> upstream/android-13
 
 /**
  * caam_priv_key_form - CAAM RSA private key representation
@@ -87,27 +91,66 @@ struct caam_rsa_key {
 
 /**
  * caam_rsa_ctx - per session context.
+<<<<<<< HEAD
  * @key         : RSA key in DMA zone
  * @dev         : device structure
  */
 struct caam_rsa_ctx {
 	struct caam_rsa_key key;
 	struct device *dev;
+=======
+ * @enginectx   : crypto engine context
+ * @key         : RSA key in DMA zone
+ * @dev         : device structure
+ * @padding_dma : dma address of padding, for adding it to the input
+ */
+struct caam_rsa_ctx {
+	struct crypto_engine_ctx enginectx;
+	struct caam_rsa_key key;
+	struct device *dev;
+	dma_addr_t padding_dma;
+
+>>>>>>> upstream/android-13
 };
 
 /**
  * caam_rsa_req_ctx - per request context.
+<<<<<<< HEAD
  * @src: input scatterlist (stripped of leading zeros)
  */
 struct caam_rsa_req_ctx {
 	struct scatterlist src[2];
+=======
+ * @src           : input scatterlist (stripped of leading zeros)
+ * @fixup_src     : input scatterlist (that might be stripped of leading zeros)
+ * @fixup_src_len : length of the fixup_src input scatterlist
+ * @edesc         : s/w-extended rsa descriptor
+ * @akcipher_op_done : callback used when operation is done
+ */
+struct caam_rsa_req_ctx {
+	struct scatterlist src[2];
+	struct scatterlist *fixup_src;
+	unsigned int fixup_src_len;
+	struct rsa_edesc *edesc;
+	void (*akcipher_op_done)(struct device *jrdev, u32 *desc, u32 err,
+				 void *context);
+>>>>>>> upstream/android-13
 };
 
 /**
  * rsa_edesc - s/w-extended rsa descriptor
+<<<<<<< HEAD
  * @src_nents     : number of segments in input scatterlist
  * @dst_nents     : number of segments in output scatterlist
  * @sec4_sg_bytes : length of h/w link table
+=======
+ * @src_nents     : number of segments in input s/w scatterlist
+ * @dst_nents     : number of segments in output s/w scatterlist
+ * @mapped_src_nents: number of segments in input h/w link table
+ * @mapped_dst_nents: number of segments in output h/w link table
+ * @sec4_sg_bytes : length of h/w link table
+ * @bklog         : stored to determine if the request needs backlog
+>>>>>>> upstream/android-13
  * @sec4_sg_dma   : dma address of h/w link table
  * @sec4_sg       : pointer to h/w link table
  * @pdb           : specific RSA Protocol Data Block (PDB)
@@ -116,7 +159,14 @@ struct caam_rsa_req_ctx {
 struct rsa_edesc {
 	int src_nents;
 	int dst_nents;
+<<<<<<< HEAD
 	int sec4_sg_bytes;
+=======
+	int mapped_src_nents;
+	int mapped_dst_nents;
+	int sec4_sg_bytes;
+	bool bklog;
+>>>>>>> upstream/android-13
 	dma_addr_t sec4_sg_dma;
 	struct sec4_sg_entry *sec4_sg;
 	union {

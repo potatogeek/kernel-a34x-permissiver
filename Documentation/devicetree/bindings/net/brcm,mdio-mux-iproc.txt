@@ -17,7 +17,11 @@ Optional properties:
 - clocks: phandle of the core clock which drives the mdio block.
 
 Additional information regarding generic multiplexer properties can be found
+<<<<<<< HEAD
 at- Documentation/devicetree/bindings/net/mdio-mux.txt
+=======
+at- Documentation/devicetree/bindings/net/mdio-mux.yaml
+>>>>>>> upstream/android-13
 
 
 for example:

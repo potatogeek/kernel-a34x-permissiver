@@ -28,6 +28,7 @@
  * be very slow.
  */
 
+<<<<<<< HEAD
 #include "via_3d_reg.h"
 #include <drm/drmP.h>
 #include <drm/via_drm.h>
@@ -35,6 +36,15 @@
 #include "via_verifier.h"
 #include "via_drv.h"
 #include <linux/kernel.h>
+=======
+#include <drm/drm_device.h>
+#include <drm/drm_legacy.h>
+#include <drm/via_drm.h>
+
+#include "via_3d_reg.h"
+#include "via_drv.h"
+#include "via_verifier.h"
+>>>>>>> upstream/android-13
 
 typedef enum {
 	state_command,
@@ -725,14 +735,22 @@ via_parse_header2(drm_via_private_t *dev_priv, uint32_t const **buffer,
 	next_fire = dev_priv->fire_offsets[*fire_count];
 	buf++;
 	cmd = (*buf & 0xFFFF0000) >> 16;
+<<<<<<< HEAD
 	VIA_WRITE(HC_REG_TRANS_SET + HC_REG_BASE, *buf++);
+=======
+	via_write(dev_priv, HC_REG_TRANS_SET + HC_REG_BASE, *buf++);
+>>>>>>> upstream/android-13
 	switch (cmd) {
 	case HC_ParaType_CmdVdata:
 		while ((buf < buf_end) &&
 		       (*fire_count < dev_priv->num_fire_offsets) &&
 		       (*buf & HC_ACMD_MASK) == HC_ACMD_HCmdB) {
 			while (buf <= next_fire) {
+<<<<<<< HEAD
 				VIA_WRITE(HC_REG_TRANS_SPACE + HC_REG_BASE +
+=======
+				via_write(dev_priv, HC_REG_TRANS_SPACE + HC_REG_BASE +
+>>>>>>> upstream/android-13
 					  (burst & 63), *buf++);
 				burst += 4;
 			}
@@ -753,7 +771,11 @@ via_parse_header2(drm_via_private_t *dev_priv, uint32_t const **buffer,
 			    (*buf & VIA_VIDEOMASK) == VIA_VIDEO_HEADER6)
 				break;
 
+<<<<<<< HEAD
 			VIA_WRITE(HC_REG_TRANS_SPACE + HC_REG_BASE +
+=======
+			via_write(dev_priv, HC_REG_TRANS_SPACE + HC_REG_BASE +
+>>>>>>> upstream/android-13
 				  (burst & 63), *buf++);
 			burst += 4;
 		}
@@ -843,7 +865,11 @@ via_parse_header1(drm_via_private_t *dev_priv, uint32_t const **buffer,
 		cmd = *buf;
 		if ((cmd & HALCYON_HEADER1MASK) != HALCYON_HEADER1)
 			break;
+<<<<<<< HEAD
 		VIA_WRITE((cmd & ~HALCYON_HEADER1MASK) << 2, *++buf);
+=======
+		via_write(dev_priv, (cmd & ~HALCYON_HEADER1MASK) << 2, *++buf);
+>>>>>>> upstream/android-13
 		buf++;
 	}
 	*buffer = buf;
@@ -894,7 +920,11 @@ via_parse_vheader5(drm_via_private_t *dev_priv, uint32_t const **buffer,
 	i = count = *buf;
 	buf += 3;
 	while (i--)
+<<<<<<< HEAD
 		VIA_WRITE(addr, *buf++);
+=======
+		via_write(dev_priv, addr, *buf++);
+>>>>>>> upstream/android-13
 	if (count & 3)
 		buf += 4 - (count & 3);
 	*buffer = buf;
@@ -950,7 +980,11 @@ via_parse_vheader6(drm_via_private_t *dev_priv, uint32_t const **buffer,
 	buf += 3;
 	while (i--) {
 		addr = *buf++;
+<<<<<<< HEAD
 		VIA_WRITE(addr, *buf++);
+=======
+		via_write(dev_priv, addr, *buf++);
+>>>>>>> upstream/android-13
 	}
 	count <<= 1;
 	if (count & 3)
@@ -1001,8 +1035,13 @@ via_verify_command_stream(const uint32_t * buf, unsigned int size,
 			state = via_check_vheader6(&buf, buf_end);
 			break;
 		case state_command:
+<<<<<<< HEAD
 			if ((HALCYON_HEADER2 == (cmd = *buf)) &&
 			    supported_3d)
+=======
+			cmd = *buf;
+			if ((cmd == HALCYON_HEADER2) && supported_3d)
+>>>>>>> upstream/android-13
 				state = state_header2;
 			else if ((cmd & HALCYON_HEADER1MASK) == HALCYON_HEADER1)
 				state = state_header1;
@@ -1064,7 +1103,12 @@ via_parse_command_stream(struct drm_device *dev, const uint32_t *buf,
 			state = via_parse_vheader6(dev_priv, &buf, buf_end);
 			break;
 		case state_command:
+<<<<<<< HEAD
 			if (HALCYON_HEADER2 == (cmd = *buf))
+=======
+			cmd = *buf;
+			if (cmd == HALCYON_HEADER2)
+>>>>>>> upstream/android-13
 				state = state_header2;
 			else if ((cmd & HALCYON_HEADER1MASK) == HALCYON_HEADER1)
 				state = state_header1;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Virtual Raw MIDI client on Sequencer
  *
  *  Copyright (c) 2000 by Takashi Iwai <tiwai@suse.de>,
  *                        Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -150,9 +157,13 @@ static void snd_vmidi_output_work(struct work_struct *work)
 	/* discard the outputs in dispatch mode unless subscribed */
 	if (vmidi->seq_mode == SNDRV_VIRMIDI_SEQ_DISPATCH &&
 	    !(vmidi->rdev->flags & SNDRV_VIRMIDI_SUBSCRIBE)) {
+<<<<<<< HEAD
 		char buf[32];
 		while (snd_rawmidi_transmit(substream, buf, sizeof(buf)) > 0)
 			; /* ignored */
+=======
+		snd_rawmidi_proceed(substream);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -498,10 +509,18 @@ int snd_virmidi_new(struct snd_card *card, int device, struct snd_rawmidi **rrmi
 	int err;
 	
 	*rrmidi = NULL;
+<<<<<<< HEAD
 	if ((err = snd_rawmidi_new(card, "VirMidi", device,
 				   16,	/* may be configurable */
 				   16,	/* may be configurable */
 				   &rmidi)) < 0)
+=======
+	err = snd_rawmidi_new(card, "VirMidi", device,
+			      16,	/* may be configurable */
+			      16,	/* may be configurable */
+			      &rmidi);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	strcpy(rmidi->name, rmidi->id);
 	rdev = kzalloc(sizeof(*rdev), GFP_KERNEL);

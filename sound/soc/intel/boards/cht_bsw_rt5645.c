@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  cht-bsw-rt5645.c - ASoc Machine driver for Intel Cherryview-based platforms
  *                     Cherrytrail and Braswell, with RT5645 codec.
@@ -8,6 +12,7 @@
  *  This file is modified from cht_bsw_rt5672.c
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -17,6 +22,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -26,8 +33,11 @@
 #include <linux/clk.h>
 #include <linux/dmi.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <asm/cpu_device_id.h>
 #include <asm/platform_sst_audio.h>
+=======
+>>>>>>> upstream/android-13
 #include <sound/pcm.h>
 #include <sound/pcm_params.h>
 #include <sound/soc.h>
@@ -35,6 +45,10 @@
 #include <sound/soc-acpi.h>
 #include "../../codecs/rt5645.h"
 #include "../atom/sst-atom-controls.h"
+<<<<<<< HEAD
+=======
+#include "../common/soc-intel-quirks.h"
+>>>>>>> upstream/android-13
 
 #define CHT_PLAT_CLK_3_HZ	19200000
 #define CHT_CODEC_DAI1	"rt5645-aif1"
@@ -57,6 +71,10 @@ struct cht_mc_private {
 #define CHT_RT5645_SSP2_AIF2     BIT(16) /* default is using AIF1  */
 #define CHT_RT5645_SSP0_AIF1     BIT(17)
 #define CHT_RT5645_SSP0_AIF2     BIT(18)
+<<<<<<< HEAD
+=======
+#define CHT_RT5645_PMC_PLT_CLK_0 BIT(19)
+>>>>>>> upstream/android-13
 
 static unsigned long cht_rt5645_quirk = 0;
 
@@ -68,6 +86,11 @@ static void log_quirks(struct device *dev)
 		dev_info(dev, "quirk SSP0_AIF1 enabled");
 	if (cht_rt5645_quirk & CHT_RT5645_SSP0_AIF2)
 		dev_info(dev, "quirk SSP0_AIF2 enabled");
+<<<<<<< HEAD
+=======
+	if (cht_rt5645_quirk & CHT_RT5645_PMC_PLT_CLK_0)
+		dev_info(dev, "quirk PMC_PLT_CLK_0 enabled");
+>>>>>>> upstream/android-13
 }
 
 static int platform_clock_control(struct snd_soc_dapm_widget *w,
@@ -213,8 +236,13 @@ static struct snd_soc_jack_pin cht_bsw_jack_pins[] = {
 static int cht_aif1_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* set codec PLL source to the 19.2MHz platform clock (MCLK) */
@@ -235,16 +263,33 @@ static int cht_aif1_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* uncomment when we have a real quirk
+=======
+>>>>>>> upstream/android-13
 static int cht_rt5645_quirk_cb(const struct dmi_system_id *id)
 {
 	cht_rt5645_quirk = (unsigned long)id->driver_data;
 	return 1;
 }
+<<<<<<< HEAD
 */
 
 static const struct dmi_system_id cht_rt5645_quirk_table[] = {
 	{
+=======
+
+static const struct dmi_system_id cht_rt5645_quirk_table[] = {
+	{
+		/* Strago family Chromebooks */
+		.callback = cht_rt5645_quirk_cb,
+		.matches = {
+			DMI_MATCH(DMI_PRODUCT_FAMILY, "Intel_Strago"),
+		},
+		.driver_data = (void *)CHT_RT5645_PMC_PLT_CLK_0,
+	},
+	{
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -252,7 +297,11 @@ static int cht_codec_init(struct snd_soc_pcm_runtime *runtime)
 {
 	struct snd_soc_card *card = runtime->card;
 	struct cht_mc_private *ctx = snd_soc_card_get_drvdata(runtime->card);
+<<<<<<< HEAD
 	struct snd_soc_component *component = runtime->codec_dai->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(runtime, 0)->component;
+>>>>>>> upstream/android-13
 	int jack_type;
 	int ret;
 
@@ -359,7 +408,11 @@ static int cht_codec_fixup(struct snd_soc_pcm_runtime *rtd,
 		 * with explicit setting to I2S 2ch 16-bit. The word length is set with
 		 * dai_set_tdm_slot() since there is no other API exposed
 		 */
+<<<<<<< HEAD
 		ret = snd_soc_dai_set_fmt(rtd->cpu_dai,
+=======
+		ret = snd_soc_dai_set_fmt(asoc_rtd_to_cpu(rtd, 0),
+>>>>>>> upstream/android-13
 					SND_SOC_DAIFMT_I2S     |
 					SND_SOC_DAIFMT_NB_NF   |
 					SND_SOC_DAIFMT_CBS_CFS
@@ -369,7 +422,11 @@ static int cht_codec_fixup(struct snd_soc_pcm_runtime *rtd,
 			return ret;
 		}
 
+<<<<<<< HEAD
 		ret = snd_soc_dai_set_fmt(rtd->codec_dai,
+=======
+		ret = snd_soc_dai_set_fmt(asoc_rtd_to_codec(rtd, 0),
+>>>>>>> upstream/android-13
 					SND_SOC_DAIFMT_I2S     |
 					SND_SOC_DAIFMT_NB_NF   |
 					SND_SOC_DAIFMT_CBS_CFS
@@ -379,7 +436,11 @@ static int cht_codec_fixup(struct snd_soc_pcm_runtime *rtd,
 			return ret;
 		}
 
+<<<<<<< HEAD
 		ret = snd_soc_dai_set_tdm_slot(rtd->cpu_dai, 0x3, 0x3, 2, 16);
+=======
+		ret = snd_soc_dai_set_tdm_slot(asoc_rtd_to_cpu(rtd, 0), 0x3, 0x3, 2, 16);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			dev_err(rtd->dev, "can't set I2S config, err %d\n", ret);
 			return ret;
@@ -393,7 +454,11 @@ static int cht_codec_fixup(struct snd_soc_pcm_runtime *rtd,
 		/*
 		 * Default mode for SSP configuration is TDM 4 slot
 		 */
+<<<<<<< HEAD
 		ret = snd_soc_dai_set_fmt(rtd->codec_dai,
+=======
+		ret = snd_soc_dai_set_fmt(asoc_rtd_to_codec(rtd, 0),
+>>>>>>> upstream/android-13
 					SND_SOC_DAIFMT_DSP_B |
 					SND_SOC_DAIFMT_IB_NF |
 					SND_SOC_DAIFMT_CBS_CFS);
@@ -403,7 +468,11 @@ static int cht_codec_fixup(struct snd_soc_pcm_runtime *rtd,
 		}
 
 		/* TDM 4 slots 24 bit, set Rx & Tx bitmask to 4 active slots */
+<<<<<<< HEAD
 		ret = snd_soc_dai_set_tdm_slot(rtd->codec_dai, 0xF, 0xF, 4, 24);
+=======
+		ret = snd_soc_dai_set_tdm_slot(asoc_rtd_to_codec(rtd, 0), 0xF, 0xF, 4, 24);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			dev_err(rtd->dev, "can't set codec TDM slot %d\n", ret);
 			return ret;
@@ -426,37 +495,72 @@ static const struct snd_soc_ops cht_be_ssp2_ops = {
 	.hw_params = cht_aif1_hw_params,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEF(dummy,
+	DAILINK_COMP_ARRAY(COMP_DUMMY()));
+
+SND_SOC_DAILINK_DEF(media,
+	DAILINK_COMP_ARRAY(COMP_CPU("media-cpu-dai")));
+
+SND_SOC_DAILINK_DEF(deepbuffer,
+	DAILINK_COMP_ARRAY(COMP_CPU("deepbuffer-cpu-dai")));
+
+SND_SOC_DAILINK_DEF(ssp2_port,
+	DAILINK_COMP_ARRAY(COMP_CPU("ssp2-port")));
+SND_SOC_DAILINK_DEF(ssp2_codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("i2c-10EC5645:00", "rt5645-aif1")));
+
+SND_SOC_DAILINK_DEF(platform,
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("sst-mfld-platform")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link cht_dailink[] = {
 	[MERR_DPCM_AUDIO] = {
 		.name = "Audio Port",
 		.stream_name = "Audio",
+<<<<<<< HEAD
 		.cpu_dai_name = "media-cpu-dai",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
 		.platform_name = "sst-mfld-platform",
+=======
+>>>>>>> upstream/android-13
 		.nonatomic = true,
 		.dynamic = 1,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
 		.ops = &cht_aif1_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(media, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	[MERR_DPCM_DEEP_BUFFER] = {
 		.name = "Deep-Buffer Audio Port",
 		.stream_name = "Deep-Buffer Audio",
+<<<<<<< HEAD
 		.cpu_dai_name = "deepbuffer-cpu-dai",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
 		.platform_name = "sst-mfld-platform",
+=======
+>>>>>>> upstream/android-13
 		.nonatomic = true,
 		.dynamic = 1,
 		.dpcm_playback = 1,
 		.ops = &cht_aif1_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(deepbuffer, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	/* CODEC<->CODEC link */
 	/* back ends */
 	{
 		.name = "SSP2-Codec",
 		.id = 0,
+<<<<<<< HEAD
 		.cpu_dai_name = "ssp2-port",
 		.platform_name = "sst-mfld-platform",
 		.no_pcm = 1,
@@ -474,6 +578,29 @@ static struct snd_soc_dai_link cht_dailink[] = {
 /* SoC card */
 static struct snd_soc_card snd_soc_card_chtrt5645 = {
 	.name = "chtrt5645",
+=======
+		.no_pcm = 1,
+		.init = cht_codec_init,
+		.be_hw_params_fixup = cht_codec_fixup,
+		.dpcm_playback = 1,
+		.dpcm_capture = 1,
+		.ops = &cht_be_ssp2_ops,
+		SND_SOC_DAILINK_REG(ssp2_port, ssp2_codec, platform),
+	},
+};
+
+/* use space before codec name to simplify card ID, and simplify driver name */
+#define SOF_CARD_RT5645_NAME "bytcht rt5645" /* card name 'sof-bytcht rt5645' */
+#define SOF_CARD_RT5650_NAME "bytcht rt5650" /* card name 'sof-bytcht rt5650' */
+#define SOF_DRIVER_NAME "SOF"
+
+#define CARD_RT5645_NAME "chtrt5645"
+#define CARD_RT5650_NAME "chtrt5650"
+#define DRIVER_NAME NULL /* card name will be used for driver name */
+
+/* SoC card */
+static struct snd_soc_card snd_soc_card_chtrt5645 = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.dai_link = cht_dailink,
 	.num_links = ARRAY_SIZE(cht_dailink),
@@ -486,7 +613,10 @@ static struct snd_soc_card snd_soc_card_chtrt5645 = {
 };
 
 static struct snd_soc_card snd_soc_card_chtrt5650 = {
+<<<<<<< HEAD
 	.name = "chtrt5650",
+=======
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.dai_link = cht_dailink,
 	.num_links = ARRAY_SIZE(cht_dailink),
@@ -507,6 +637,7 @@ static struct cht_acpi_card snd_soc_cards[] = {
 };
 
 static char cht_rt5645_codec_name[SND_ACPI_I2C_ID_LEN];
+<<<<<<< HEAD
 static char cht_rt5645_codec_aif_name[12]; /*  = "rt5645-aif[1|2]" */
 static char cht_rt5645_cpu_dai_name[10]; /*  = "ssp[0|2]-port" */
 
@@ -521,6 +652,8 @@ static bool is_valleyview(void)
 		return false;
 	return true;
 }
+=======
+>>>>>>> upstream/android-13
 
 struct acpi_chan_package {   /* ACPICA seems to require 64 bit integers */
 	u64 aif_value;       /* 1: AIF1, 2: AIF2 */
@@ -531,19 +664,34 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
 {
 	struct snd_soc_card *card = snd_soc_cards[0].soc_card;
 	struct snd_soc_acpi_mach *mach;
+<<<<<<< HEAD
 	struct cht_mc_private *drv;
 	const char *i2c_name = NULL;
+=======
+	const char *platform_name;
+	struct cht_mc_private *drv;
+	struct acpi_device *adev;
+	bool sof_parent;
+>>>>>>> upstream/android-13
 	bool found = false;
 	bool is_bytcr = false;
 	int dai_index = 0;
 	int ret_val = 0;
 	int i;
+<<<<<<< HEAD
+=======
+	const char *mclk_name;
+>>>>>>> upstream/android-13
 
 	drv = devm_kzalloc(&pdev->dev, sizeof(*drv), GFP_KERNEL);
 	if (!drv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mach = (&pdev->dev)->platform_data;
+=======
+	mach = pdev->dev.platform_data;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(snd_soc_cards); i++) {
 		if (acpi_dev_found(snd_soc_cards[i].codec_id) &&
@@ -567,28 +715,48 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
 
 	/* set correct codec name */
 	for (i = 0; i < ARRAY_SIZE(cht_dailink); i++)
+<<<<<<< HEAD
 		if (!strcmp(card->dai_link[i].codec_name, "i2c-10EC5645:00")) {
 			card->dai_link[i].codec_name = drv->codec_name;
+=======
+		if (!strcmp(card->dai_link[i].codecs->name,
+			    "i2c-10EC5645:00")) {
+			card->dai_link[i].codecs->name = drv->codec_name;
+>>>>>>> upstream/android-13
 			dai_index = i;
 		}
 
 	/* fixup codec name based on HID */
+<<<<<<< HEAD
 	i2c_name = acpi_dev_get_first_match_name(mach->id, NULL, -1);
 	if (i2c_name) {
 		snprintf(cht_rt5645_codec_name, sizeof(cht_rt5645_codec_name),
 			"%s%s", "i2c-", i2c_name);
 		cht_dailink[dai_index].codec_name = cht_rt5645_codec_name;
+=======
+	adev = acpi_dev_get_first_match_dev(mach->id, NULL, -1);
+	if (adev) {
+		snprintf(cht_rt5645_codec_name, sizeof(cht_rt5645_codec_name),
+			 "i2c-%s", acpi_dev_name(adev));
+		put_device(&adev->dev);
+		cht_dailink[dai_index].codecs->name = cht_rt5645_codec_name;
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * swap SSP0 if bytcr is detected
 	 * (will be overridden if DMI quirk is detected)
 	 */
+<<<<<<< HEAD
 	if (is_valleyview()) {
 		struct sst_platform_info *p_info = mach->pdata;
 		const struct sst_res_info *res_info = p_info->res_info;
 
 		if (res_info->acpi_ipc_irq_index == 0)
+=======
+	if (soc_intel_is_byt()) {
+		if (mach->mach_params.acpi_ipc_irq_index == 0)
+>>>>>>> upstream/android-13
 			is_bytcr = true;
 	}
 
@@ -644,6 +812,7 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
 	log_quirks(&pdev->dev);
 
 	if ((cht_rt5645_quirk & CHT_RT5645_SSP2_AIF2) ||
+<<<<<<< HEAD
 		(cht_rt5645_quirk & CHT_RT5645_SSP0_AIF2)) {
 
 		/* fixup codec aif name */
@@ -672,10 +841,59 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev,
 			"Failed to get MCLK from pmc_plt_clk_3: %ld\n",
 			PTR_ERR(drv->mclk));
+=======
+	    (cht_rt5645_quirk & CHT_RT5645_SSP0_AIF2))
+		cht_dailink[dai_index].codecs->dai_name = "rt5645-aif2";
+
+	if ((cht_rt5645_quirk & CHT_RT5645_SSP0_AIF1) ||
+	    (cht_rt5645_quirk & CHT_RT5645_SSP0_AIF2))
+		cht_dailink[dai_index].cpus->dai_name = "ssp0-port";
+
+	/* override plaform name, if required */
+	platform_name = mach->mach_params.platform;
+
+	ret_val = snd_soc_fixup_dai_links_platform_name(card,
+							platform_name);
+	if (ret_val)
+		return ret_val;
+
+	if (cht_rt5645_quirk & CHT_RT5645_PMC_PLT_CLK_0)
+		mclk_name = "pmc_plt_clk_0";
+	else
+		mclk_name = "pmc_plt_clk_3";
+
+	drv->mclk = devm_clk_get(&pdev->dev, mclk_name);
+	if (IS_ERR(drv->mclk)) {
+		dev_err(&pdev->dev, "Failed to get MCLK from %s: %ld\n",
+			mclk_name, PTR_ERR(drv->mclk));
+>>>>>>> upstream/android-13
 		return PTR_ERR(drv->mclk);
 	}
 
 	snd_soc_card_set_drvdata(card, drv);
+<<<<<<< HEAD
+=======
+
+	sof_parent = snd_soc_acpi_sof_parent(&pdev->dev);
+
+	/* set card and driver name */
+	if (sof_parent) {
+		snd_soc_card_chtrt5645.name = SOF_CARD_RT5645_NAME;
+		snd_soc_card_chtrt5645.driver_name = SOF_DRIVER_NAME;
+		snd_soc_card_chtrt5650.name = SOF_CARD_RT5650_NAME;
+		snd_soc_card_chtrt5650.driver_name = SOF_DRIVER_NAME;
+	} else {
+		snd_soc_card_chtrt5645.name = CARD_RT5645_NAME;
+		snd_soc_card_chtrt5645.driver_name = DRIVER_NAME;
+		snd_soc_card_chtrt5650.name = CARD_RT5650_NAME;
+		snd_soc_card_chtrt5650.driver_name = DRIVER_NAME;
+	}
+
+	/* set pm ops */
+	if (sof_parent)
+		pdev->dev.driver->pm = &snd_soc_pm_ops;
+
+>>>>>>> upstream/android-13
 	ret_val = devm_snd_soc_register_card(&pdev->dev, card);
 	if (ret_val) {
 		dev_err(&pdev->dev,

@@ -22,7 +22,10 @@
  * Authors: Alex Deucher
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "r600d.h"

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /**
  * dwmac-rk.c - Rockchip RK3288 DWMAC specific glue layer
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/**
+ * DOC: dwmac-rk.c - Rockchip RK3288 DWMAC specific glue layer
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2014 Chen-Zhi (Roger Chen)
  *
  * Chen-Zhi (Roger Chen)  <roger.chen@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +21,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stmmac.h>
@@ -42,11 +51,21 @@ struct rk_gmac_ops {
 	void (*set_rgmii_speed)(struct rk_priv_data *bsp_priv, int speed);
 	void (*set_rmii_speed)(struct rk_priv_data *bsp_priv, int speed);
 	void (*integrated_phy_powerup)(struct rk_priv_data *bsp_priv);
+<<<<<<< HEAD
+=======
+	bool regs_valid;
+	u32 regs[];
+>>>>>>> upstream/android-13
 };
 
 struct rk_priv_data {
 	struct platform_device *pdev;
+<<<<<<< HEAD
 	int phy_iface;
+=======
+	phy_interface_t phy_iface;
+	int id;
+>>>>>>> upstream/android-13
 	struct regulator *regulator;
 	bool suspended;
 	const struct rk_gmac_ops *ops;
@@ -491,6 +510,57 @@ static const struct rk_gmac_ops rk3288_ops = {
 	.set_rmii_speed = rk3288_set_rmii_speed,
 };
 
+<<<<<<< HEAD
+=======
+#define RK3308_GRF_MAC_CON0		0x04a0
+
+/* RK3308_GRF_MAC_CON0 */
+#define RK3308_GMAC_PHY_INTF_SEL_RMII	(GRF_CLR_BIT(2) | GRF_CLR_BIT(3) | \
+					GRF_BIT(4))
+#define RK3308_GMAC_FLOW_CTRL		GRF_BIT(3)
+#define RK3308_GMAC_FLOW_CTRL_CLR	GRF_CLR_BIT(3)
+#define RK3308_GMAC_SPEED_10M		GRF_CLR_BIT(0)
+#define RK3308_GMAC_SPEED_100M		GRF_BIT(0)
+
+static void rk3308_set_to_rmii(struct rk_priv_data *bsp_priv)
+{
+	struct device *dev = &bsp_priv->pdev->dev;
+
+	if (IS_ERR(bsp_priv->grf)) {
+		dev_err(dev, "Missing rockchip,grf property\n");
+		return;
+	}
+
+	regmap_write(bsp_priv->grf, RK3308_GRF_MAC_CON0,
+		     RK3308_GMAC_PHY_INTF_SEL_RMII);
+}
+
+static void rk3308_set_rmii_speed(struct rk_priv_data *bsp_priv, int speed)
+{
+	struct device *dev = &bsp_priv->pdev->dev;
+
+	if (IS_ERR(bsp_priv->grf)) {
+		dev_err(dev, "Missing rockchip,grf property\n");
+		return;
+	}
+
+	if (speed == 10) {
+		regmap_write(bsp_priv->grf, RK3308_GRF_MAC_CON0,
+			     RK3308_GMAC_SPEED_10M);
+	} else if (speed == 100) {
+		regmap_write(bsp_priv->grf, RK3308_GRF_MAC_CON0,
+			     RK3308_GMAC_SPEED_100M);
+	} else {
+		dev_err(dev, "unknown speed value for RMII! speed=%d", speed);
+	}
+}
+
+static const struct rk_gmac_ops rk3308_ops = {
+	.set_to_rmii = rk3308_set_to_rmii,
+	.set_rmii_speed = rk3308_set_rmii_speed,
+};
+
+>>>>>>> upstream/android-13
 #define RK3328_GRF_MAC_CON0	0x0900
 #define RK3328_GRF_MAC_CON1	0x0904
 #define RK3328_GRF_MAC_CON2	0x0908
@@ -957,6 +1027,111 @@ static const struct rk_gmac_ops rk3399_ops = {
 	.set_rmii_speed = rk3399_set_rmii_speed,
 };
 
+<<<<<<< HEAD
+=======
+#define RK3568_GRF_GMAC0_CON0		0x0380
+#define RK3568_GRF_GMAC0_CON1		0x0384
+#define RK3568_GRF_GMAC1_CON0		0x0388
+#define RK3568_GRF_GMAC1_CON1		0x038c
+
+/* RK3568_GRF_GMAC0_CON1 && RK3568_GRF_GMAC1_CON1 */
+#define RK3568_GMAC_PHY_INTF_SEL_RGMII	\
+		(GRF_BIT(4) | GRF_CLR_BIT(5) | GRF_CLR_BIT(6))
+#define RK3568_GMAC_PHY_INTF_SEL_RMII	\
+		(GRF_CLR_BIT(4) | GRF_CLR_BIT(5) | GRF_BIT(6))
+#define RK3568_GMAC_FLOW_CTRL			GRF_BIT(3)
+#define RK3568_GMAC_FLOW_CTRL_CLR		GRF_CLR_BIT(3)
+#define RK3568_GMAC_RXCLK_DLY_ENABLE		GRF_BIT(1)
+#define RK3568_GMAC_RXCLK_DLY_DISABLE		GRF_CLR_BIT(1)
+#define RK3568_GMAC_TXCLK_DLY_ENABLE		GRF_BIT(0)
+#define RK3568_GMAC_TXCLK_DLY_DISABLE		GRF_CLR_BIT(0)
+
+/* RK3568_GRF_GMAC0_CON0 && RK3568_GRF_GMAC1_CON0 */
+#define RK3568_GMAC_CLK_RX_DL_CFG(val)	HIWORD_UPDATE(val, 0x7F, 8)
+#define RK3568_GMAC_CLK_TX_DL_CFG(val)	HIWORD_UPDATE(val, 0x7F, 0)
+
+static void rk3568_set_to_rgmii(struct rk_priv_data *bsp_priv,
+				int tx_delay, int rx_delay)
+{
+	struct device *dev = &bsp_priv->pdev->dev;
+	u32 con0, con1;
+
+	if (IS_ERR(bsp_priv->grf)) {
+		dev_err(dev, "Missing rockchip,grf property\n");
+		return;
+	}
+
+	con0 = (bsp_priv->id == 1) ? RK3568_GRF_GMAC1_CON0 :
+				     RK3568_GRF_GMAC0_CON0;
+	con1 = (bsp_priv->id == 1) ? RK3568_GRF_GMAC1_CON1 :
+				     RK3568_GRF_GMAC0_CON1;
+
+	regmap_write(bsp_priv->grf, con0,
+		     RK3568_GMAC_CLK_RX_DL_CFG(rx_delay) |
+		     RK3568_GMAC_CLK_TX_DL_CFG(tx_delay));
+
+	regmap_write(bsp_priv->grf, con1,
+		     RK3568_GMAC_PHY_INTF_SEL_RGMII |
+		     RK3568_GMAC_RXCLK_DLY_ENABLE |
+		     RK3568_GMAC_TXCLK_DLY_ENABLE);
+}
+
+static void rk3568_set_to_rmii(struct rk_priv_data *bsp_priv)
+{
+	struct device *dev = &bsp_priv->pdev->dev;
+	u32 con1;
+
+	if (IS_ERR(bsp_priv->grf)) {
+		dev_err(dev, "%s: Missing rockchip,grf property\n", __func__);
+		return;
+	}
+
+	con1 = (bsp_priv->id == 1) ? RK3568_GRF_GMAC1_CON1 :
+				     RK3568_GRF_GMAC0_CON1;
+	regmap_write(bsp_priv->grf, con1, RK3568_GMAC_PHY_INTF_SEL_RMII);
+}
+
+static void rk3568_set_gmac_speed(struct rk_priv_data *bsp_priv, int speed)
+{
+	struct device *dev = &bsp_priv->pdev->dev;
+	unsigned long rate;
+	int ret;
+
+	switch (speed) {
+	case 10:
+		rate = 2500000;
+		break;
+	case 100:
+		rate = 25000000;
+		break;
+	case 1000:
+		rate = 125000000;
+		break;
+	default:
+		dev_err(dev, "unknown speed value for GMAC speed=%d", speed);
+		return;
+	}
+
+	ret = clk_set_rate(bsp_priv->clk_mac_speed, rate);
+	if (ret)
+		dev_err(dev, "%s: set clk_mac_speed rate %ld failed %d\n",
+			__func__, rate, ret);
+}
+
+static const struct rk_gmac_ops rk3568_ops = {
+	.set_to_rgmii = rk3568_set_to_rgmii,
+	.set_to_rmii = rk3568_set_to_rmii,
+	.set_rgmii_speed = rk3568_set_gmac_speed,
+	.set_rmii_speed = rk3568_set_gmac_speed,
+	.regs_valid = true,
+	.regs = {
+		0xfe2a0000, /* gmac0 */
+		0xfe010000, /* gmac1 */
+		0x0, /* sentinel */
+	},
+};
+
+>>>>>>> upstream/android-13
 #define RV1108_GRF_GMAC_CON0		0X0900
 
 /* RV1108_GRF_GMAC_CON0 */
@@ -1225,6 +1400,10 @@ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
 {
 	struct rk_priv_data *bsp_priv;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
+=======
+	struct resource *res;
+>>>>>>> upstream/android-13
 	int ret;
 	const char *strings = NULL;
 	int value;
@@ -1233,9 +1412,31 @@ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
 	if (!bsp_priv)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	bsp_priv->phy_iface = of_get_phy_mode(dev->of_node);
 	bsp_priv->ops = ops;
 
+=======
+	of_get_phy_mode(dev->of_node, &bsp_priv->phy_iface);
+	bsp_priv->ops = ops;
+
+	/* Some SoCs have multiple MAC controllers, which need
+	 * to be distinguished.
+	 */
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (res && ops->regs_valid) {
+		int i = 0;
+
+		while (ops->regs[i]) {
+			if (ops->regs[i] == res->start) {
+				bsp_priv->id = i;
+				break;
+			}
+			i++;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	bsp_priv->regulator = devm_regulator_get_optional(dev, "phy");
 	if (IS_ERR(bsp_priv->regulator)) {
 		if (PTR_ERR(bsp_priv->regulator) == -EPROBE_DEFER) {
@@ -1303,11 +1504,42 @@ static struct rk_priv_data *rk_gmac_setup(struct platform_device *pdev,
 	return bsp_priv;
 }
 
+<<<<<<< HEAD
+=======
+static int rk_gmac_check_ops(struct rk_priv_data *bsp_priv)
+{
+	switch (bsp_priv->phy_iface) {
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		if (!bsp_priv->ops->set_to_rgmii)
+			return -EINVAL;
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		if (!bsp_priv->ops->set_to_rmii)
+			return -EINVAL;
+		break;
+	default:
+		dev_err(&bsp_priv->pdev->dev,
+			"unsupported interface %d", bsp_priv->phy_iface);
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
 {
 	int ret;
 	struct device *dev = &bsp_priv->pdev->dev;
 
+<<<<<<< HEAD
+=======
+	ret = rk_gmac_check_ops(bsp_priv);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	ret = gmac_clk_enable(bsp_priv, true);
 	if (ret)
 		return ret;
@@ -1340,10 +1572,18 @@ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
 	}
 
 	ret = phy_power_on(bsp_priv, true);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
 
 	pm_runtime_enable(dev);
+=======
+	if (ret) {
+		gmac_clk_enable(bsp_priv, false);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	pm_runtime_get_sync(dev);
 
 	if (bsp_priv->integrated_phy)
@@ -1354,6 +1594,7 @@ static int rk_gmac_powerup(struct rk_priv_data *bsp_priv)
 
 static void rk_gmac_powerdown(struct rk_priv_data *gmac)
 {
+<<<<<<< HEAD
 	struct device *dev = &gmac->pdev->dev;
 
 	if (gmac->integrated_phy)
@@ -1361,6 +1602,12 @@ static void rk_gmac_powerdown(struct rk_priv_data *gmac)
 
 	pm_runtime_put_sync(dev);
 	pm_runtime_disable(dev);
+=======
+	if (gmac->integrated_phy)
+		rk_gmac_integrated_phy_powerdown(gmac);
+
+	pm_runtime_put_sync(&gmac->pdev->dev);
+>>>>>>> upstream/android-13
 
 	phy_power_on(gmac, false);
 	gmac_clk_enable(gmac, false);
@@ -1376,10 +1623,19 @@ static void rk_fix_speed(void *priv, unsigned int speed)
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII_TXID:
+<<<<<<< HEAD
 		bsp_priv->ops->set_rgmii_speed(bsp_priv, speed);
 		break;
 	case PHY_INTERFACE_MODE_RMII:
 		bsp_priv->ops->set_rmii_speed(bsp_priv, speed);
+=======
+		if (bsp_priv->ops->set_rgmii_speed)
+			bsp_priv->ops->set_rgmii_speed(bsp_priv, speed);
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		if (bsp_priv->ops->set_rmii_speed)
+			bsp_priv->ops->set_rmii_speed(bsp_priv, speed);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_err(dev, "unsupported interface %d", bsp_priv->phy_iface);
@@ -1403,11 +1659,23 @@ static int rk_gmac_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
 	if (IS_ERR(plat_dat))
 		return PTR_ERR(plat_dat);
 
 	plat_dat->has_gmac = true;
+=======
+	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
+	if (IS_ERR(plat_dat))
+		return PTR_ERR(plat_dat);
+
+	/* If the stmmac is not already selected as gmac4,
+	 * then make sure we fallback to gmac.
+	 */
+	if (!plat_dat->has_gmac4)
+		plat_dat->has_gmac = true;
+>>>>>>> upstream/android-13
 	plat_dat->fix_mac_speed = rk_fix_speed;
 
 	plat_dat->bsp_priv = rk_gmac_setup(pdev, plat_dat, data);
@@ -1484,10 +1752,18 @@ static const struct of_device_id rk_gmac_dwmac_match[] = {
 	{ .compatible = "rockchip,rk3128-gmac", .data = &rk3128_ops },
 	{ .compatible = "rockchip,rk3228-gmac", .data = &rk3228_ops },
 	{ .compatible = "rockchip,rk3288-gmac", .data = &rk3288_ops },
+<<<<<<< HEAD
+=======
+	{ .compatible = "rockchip,rk3308-gmac", .data = &rk3308_ops },
+>>>>>>> upstream/android-13
 	{ .compatible = "rockchip,rk3328-gmac", .data = &rk3328_ops },
 	{ .compatible = "rockchip,rk3366-gmac", .data = &rk3366_ops },
 	{ .compatible = "rockchip,rk3368-gmac", .data = &rk3368_ops },
 	{ .compatible = "rockchip,rk3399-gmac", .data = &rk3399_ops },
+<<<<<<< HEAD
+=======
+	{ .compatible = "rockchip,rk3568-gmac", .data = &rk3568_ops },
+>>>>>>> upstream/android-13
 	{ .compatible = "rockchip,rv1108-gmac", .data = &rv1108_ops },
 	{ }
 };

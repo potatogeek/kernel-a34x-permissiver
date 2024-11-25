@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * RFC 3720 (iSCSI) protocol data types
  *
  * Copyright (C) 2005 Dmitry Yusupov
  * Copyright (C) 2005 Alex Aizman
  * maintained by open-iscsi@googlegroups.com
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
@@ -16,6 +21,8 @@
  * General Public License for more details.
  *
  * See the file COPYING included with this distribution for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ISCSI_PROTO_H
@@ -63,7 +70,11 @@ static inline int iscsi_sna_gte(u32 n1, u32 n2)
 }
 
 /*
+<<<<<<< HEAD
  * useful common(control and data pathes) macro
+=======
+ * useful common(control and data paths) macro
+>>>>>>> upstream/android-13
  */
 #define ntoh24(p) (((p)[0] << 16) | ((p)[1] << 8) | ((p)[2]))
 #define hton24(p, v) { \

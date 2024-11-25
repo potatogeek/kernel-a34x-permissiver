@@ -45,7 +45,10 @@
 #define cpu_has_ic_fills_f_dc	0
 #define cpu_has_64bits		1
 #define cpu_has_octeon_cache	1
+<<<<<<< HEAD
 #define cpu_has_saa		octeon_has_saa()
+=======
+>>>>>>> upstream/android-13
 #define cpu_has_mips32r1	1
 #define cpu_has_mips32r2	1
 #define cpu_has_mips64r1	1
@@ -60,7 +63,10 @@
 
 #define cpu_has_rixi		(cpu_data[0].cputype != CPU_CAVIUM_OCTEON)
 
+<<<<<<< HEAD
 #define ARCH_HAS_IRQ_PER_CPU	1
+=======
+>>>>>>> upstream/android-13
 #define ARCH_HAS_SPINLOCK_PREFETCH 1
 #define spin_lock_prefetch(x) prefetch(x)
 #define PREFETCH_STRIDE 128
@@ -73,6 +79,7 @@
 #define ARCH_HAS_USABLE_BUILTIN_POPCOUNT 1
 #endif
 
+<<<<<<< HEAD
 static inline int octeon_has_saa(void)
 {
 	int id;
@@ -80,6 +87,8 @@ static inline int octeon_has_saa(void)
 	return id >= 0x000d0300;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The last 256MB are reserved for device to device mappings and the
  * BAR1 hole.

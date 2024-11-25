@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_DEVICE_H__
 #define __NVKM_DEVICE_H__
 #include <core/oclass.h>
 #include <core/event.h>
+<<<<<<< HEAD
 
 enum nvkm_devidx {
 	NVKM_SUBDEV_PCI,
@@ -71,6 +76,9 @@ enum nvkm_devidx {
 
 	NVKM_SUBDEV_NR
 };
+=======
+enum nvkm_subdev_type;
+>>>>>>> upstream/android-13
 
 enum nvkm_device_type {
 	NVKM_DEVICE_PCI,
@@ -97,7 +105,10 @@ struct nvkm_device {
 
 	struct nvkm_event event;
 
+<<<<<<< HEAD
 	u64 disable_mask;
+=======
+>>>>>>> upstream/android-13
 	u32 debug;
 
 	const struct nvkm_device_chip *chip;
@@ -114,6 +125,11 @@ struct nvkm_device {
 		GM100    = 0x110,
 		GP100    = 0x130,
 		GV100    = 0x140,
+<<<<<<< HEAD
+=======
+		TU100    = 0x160,
+		GA100    = 0x170,
+>>>>>>> upstream/android-13
 	} card_type;
 	u32 chipset;
 	u8  chiprev;
@@ -123,6 +139,7 @@ struct nvkm_device {
 		struct notifier_block nb;
 	} acpi;
 
+<<<<<<< HEAD
 	struct nvkm_bar *bar;
 	struct nvkm_bios *bios;
 	struct nvkm_bus *bus;
@@ -174,6 +191,18 @@ struct nvkm_device {
 
 struct nvkm_subdev *nvkm_device_subdev(struct nvkm_device *, int index);
 struct nvkm_engine *nvkm_device_engine(struct nvkm_device *, int index);
+=======
+#define NVKM_LAYOUT_ONCE(type,data,ptr) data *ptr;
+#define NVKM_LAYOUT_INST(type,data,ptr,cnt) data *ptr[cnt];
+#include <core/layout.h>
+#undef NVKM_LAYOUT_INST
+#undef NVKM_LAYOUT_ONCE
+	struct list_head subdev;
+};
+
+struct nvkm_subdev *nvkm_device_subdev(struct nvkm_device *, int type, int inst);
+struct nvkm_engine *nvkm_device_engine(struct nvkm_device *, int type, int inst);
+>>>>>>> upstream/android-13
 
 struct nvkm_device_func {
 	struct nvkm_device_pci *(*pci)(struct nvkm_device *);
@@ -194,6 +223,7 @@ struct nvkm_device_quirk {
 
 struct nvkm_device_chip {
 	const char *name;
+<<<<<<< HEAD
 
 	int (*bar     )(struct nvkm_device *, int idx, struct nvkm_bar **);
 	int (*bios    )(struct nvkm_device *, int idx, struct nvkm_bios **);
@@ -242,6 +272,17 @@ struct nvkm_device_chip {
 	int (*sw      )(struct nvkm_device *, int idx, struct nvkm_sw **);
 	int (*vic     )(struct nvkm_device *, int idx, struct nvkm_engine **);
 	int (*vp      )(struct nvkm_device *, int idx, struct nvkm_engine **);
+=======
+#define NVKM_LAYOUT_ONCE(type,data,ptr,...)                                                  \
+	struct {                                                                             \
+		u32 inst;                                                                    \
+		int (*ctor)(struct nvkm_device *, enum nvkm_subdev_type, int inst, data **); \
+	} ptr;
+#define NVKM_LAYOUT_INST(A...) NVKM_LAYOUT_ONCE(A)
+#include <core/layout.h>
+#undef NVKM_LAYOUT_INST
+#undef NVKM_LAYOUT_ONCE
+>>>>>>> upstream/android-13
 };
 
 struct nvkm_device *nvkm_device_find(u64 name);

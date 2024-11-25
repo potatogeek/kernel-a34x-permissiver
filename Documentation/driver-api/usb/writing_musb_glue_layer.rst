@@ -707,12 +707,21 @@ cheerful guidance and support.
 Resources
 =========
 
+<<<<<<< HEAD
 USB Home Page: http://www.usb.org
 
 linux-usb Mailing List Archives: http://marc.info/?l=linux-usb
 
 USB On-the-Go Basics:
 http://www.maximintegrated.com/app-notes/index.mvp/id/1822
+=======
+USB Home Page: https://www.usb.org
+
+linux-usb Mailing List Archives: https://marc.info/?l=linux-usb
+
+USB On-the-Go Basics:
+https://www.maximintegrated.com/app-notes/index.mvp/id/1822
+>>>>>>> upstream/android-13
 
 :ref:`Writing USB Device Drivers <writing-usb-driver>`
 

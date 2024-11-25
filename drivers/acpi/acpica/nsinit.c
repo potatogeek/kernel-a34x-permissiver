@@ -3,7 +3,11 @@
  *
  * Module Name: nsinit - namespace initialization
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -55,14 +59,28 @@ acpi_status acpi_ns_initialize_objects(void)
 	ACPI_DEBUG_PRINT((ACPI_DB_DISPATCH,
 			  "**** Starting initialization of namespace objects ****\n"));
 	ACPI_DEBUG_PRINT_RAW((ACPI_DB_INIT,
+<<<<<<< HEAD
 			      "Completing Region/Field/Buffer/Package initialization:\n"));
 
 	/* Set all init info to zero */
+=======
+			      "Final data object initialization: "));
+
+	/* Clear the info block */
+>>>>>>> upstream/android-13
 
 	memset(&info, 0, sizeof(struct acpi_init_walk_info));
 
 	/* Walk entire namespace from the supplied root */
 
+<<<<<<< HEAD
+=======
+	/*
+	 * TBD: will become ACPI_TYPE_PACKAGE as this type object
+	 * is now the only one that supports deferred initialization
+	 * (forward references).
+	 */
+>>>>>>> upstream/android-13
 	status = acpi_walk_namespace(ACPI_TYPE_ANY, ACPI_ROOT_OBJECT,
 				     ACPI_UINT32_MAX, acpi_ns_init_one_object,
 				     NULL, &info, NULL);
@@ -71,6 +89,7 @@ acpi_status acpi_ns_initialize_objects(void)
 	}
 
 	ACPI_DEBUG_PRINT_RAW((ACPI_DB_INIT,
+<<<<<<< HEAD
 			      "    Initialized %u/%u Regions %u/%u Fields %u/%u "
 			      "Buffers %u/%u Packages (%u nodes)\n",
 			      info.op_region_init, info.op_region_count,
@@ -78,6 +97,10 @@ acpi_status acpi_ns_initialize_objects(void)
 			      info.buffer_init, info.buffer_count,
 			      info.package_init, info.package_count,
 			      info.object_count));
+=======
+			      "Namespace contains %u (0x%X) objects\n",
+			      info.object_count, info.object_count));
+>>>>>>> upstream/android-13
 
 	ACPI_DEBUG_PRINT((ACPI_DB_DISPATCH,
 			  "%u Control Methods found\n%u Op Regions found\n",
@@ -382,6 +405,7 @@ acpi_ns_init_one_object(acpi_handle obj_handle,
 	acpi_ex_enter_interpreter();
 
 	/*
+<<<<<<< HEAD
 	 * Each of these types can contain executable AML code within the
 	 * declaration.
 	 */
@@ -400,16 +424,29 @@ acpi_ns_init_one_object(acpi_handle obj_handle,
 
 	case ACPI_TYPE_LOCAL_BANK_FIELD:
 
+=======
+	 * Only initialization of Package objects can be deferred, in order
+	 * to support forward references.
+	 */
+	switch (type) {
+	case ACPI_TYPE_LOCAL_BANK_FIELD:
+
+		/* TBD: bank_fields do not require deferred init, remove this code */
+
+>>>>>>> upstream/android-13
 		info->field_init++;
 		status = acpi_ds_get_bank_field_arguments(obj_desc);
 		break;
 
+<<<<<<< HEAD
 	case ACPI_TYPE_BUFFER:
 
 		info->buffer_init++;
 		status = acpi_ds_get_buffer_arguments(obj_desc);
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case ACPI_TYPE_PACKAGE:
 
 		/* Complete the initialization/resolution of the package object */
@@ -421,8 +458,18 @@ acpi_ns_init_one_object(acpi_handle obj_handle,
 
 	default:
 
+<<<<<<< HEAD
 		/* No other types can get here */
 
+=======
+		/* No other types should get here */
+
+		status = AE_TYPE;
+		ACPI_EXCEPTION((AE_INFO, status,
+				"Opcode is not deferred [%4.4s] (%s)",
+				acpi_ut_get_node_name(node),
+				acpi_ut_get_type_name(type)));
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -478,7 +525,11 @@ acpi_ns_find_ini_methods(acpi_handle obj_handle,
 
 	/* We are only looking for methods named _INI */
 
+<<<<<<< HEAD
 	if (!ACPI_COMPARE_NAME(node->name.ascii, METHOD_NAME__INI)) {
+=======
+	if (!ACPI_COMPARE_NAMESEG(node->name.ascii, METHOD_NAME__INI)) {
+>>>>>>> upstream/android-13
 		return (AE_OK);
 	}
 
@@ -641,7 +692,11 @@ acpi_ns_init_one_device(acpi_handle obj_handle,
 	 * Note: We know there is an _INI within this subtree, but it may not be
 	 * under this particular device, it may be lower in the branch.
 	 */
+<<<<<<< HEAD
 	if (!ACPI_COMPARE_NAME(device_node->name.ascii, "_SB_") ||
+=======
+	if (!ACPI_COMPARE_NAMESEG(device_node->name.ascii, "_SB_") ||
+>>>>>>> upstream/android-13
 	    device_node->parent != acpi_gbl_root_node) {
 		ACPI_DEBUG_EXEC(acpi_ut_display_init_pathname
 				(ACPI_TYPE_METHOD, device_node,

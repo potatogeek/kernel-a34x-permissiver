@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_stat.c
  *
@@ -8,6 +12,7 @@
  *
  * Nicholas A. Bellinger <nab@linux-iscsi.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/kernel.h>
@@ -44,9 +51,12 @@
 #define INITIAL_JIFFIES ((unsigned long)(unsigned int) (-300*HZ))
 #endif
 
+<<<<<<< HEAD
 #define NONE		"None"
 #define ISPRINT(a)   ((a >= ' ') && (a <= '~'))
 
+=======
+>>>>>>> upstream/android-13
 #define SCSI_LU_INDEX			1
 #define LU_COUNT			1
 
@@ -246,6 +256,7 @@ static ssize_t target_stat_lu_lu_name_show(struct config_item *item, char *page)
 static ssize_t target_stat_lu_vend_show(struct config_item *item, char *page)
 {
 	struct se_device *dev = to_stat_lu_dev(item);
+<<<<<<< HEAD
 	int i;
 	char str[sizeof(dev->t10_wwn.vendor)+1];
 
@@ -255,11 +266,17 @@ static ssize_t target_stat_lu_vend_show(struct config_item *item, char *page)
 			dev->t10_wwn.vendor[i] : ' ';
 	str[i] = '\0';
 	return snprintf(page, PAGE_SIZE, "%s\n", str);
+=======
+
+	return snprintf(page, PAGE_SIZE, "%-" __stringify(INQUIRY_VENDOR_LEN)
+			"s\n", dev->t10_wwn.vendor);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t target_stat_lu_prod_show(struct config_item *item, char *page)
 {
 	struct se_device *dev = to_stat_lu_dev(item);
+<<<<<<< HEAD
 	int i;
 	char str[sizeof(dev->t10_wwn.model)+1];
 
@@ -269,11 +286,17 @@ static ssize_t target_stat_lu_prod_show(struct config_item *item, char *page)
 			dev->t10_wwn.model[i] : ' ';
 	str[i] = '\0';
 	return snprintf(page, PAGE_SIZE, "%s\n", str);
+=======
+
+	return snprintf(page, PAGE_SIZE, "%-" __stringify(INQUIRY_MODEL_LEN)
+			"s\n", dev->t10_wwn.model);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t target_stat_lu_rev_show(struct config_item *item, char *page)
 {
 	struct se_device *dev = to_stat_lu_dev(item);
+<<<<<<< HEAD
 	int i;
 	char str[sizeof(dev->t10_wwn.revision)+1];
 
@@ -283,6 +306,11 @@ static ssize_t target_stat_lu_rev_show(struct config_item *item, char *page)
 			dev->t10_wwn.revision[i] : ' ';
 	str[i] = '\0';
 	return snprintf(page, PAGE_SIZE, "%s\n", str);
+=======
+
+	return snprintf(page, PAGE_SIZE, "%-" __stringify(INQUIRY_REVISION_LEN)
+			"s\n", dev->t10_wwn.revision);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t target_stat_lu_dev_type_show(struct config_item *item, char *page)
@@ -612,7 +640,11 @@ static ssize_t target_stat_tgt_port_name_show(struct config_item *item,
 	dev = rcu_dereference(lun->lun_se_dev);
 	if (dev)
 		ret = snprintf(page, PAGE_SIZE, "%sPort#%u\n",
+<<<<<<< HEAD
 			tpg->se_tpg_tfo->get_fabric_name(),
+=======
+			tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 			lun->lun_rtpi);
 	rcu_read_unlock();
 	return ret;
@@ -767,7 +799,11 @@ static ssize_t target_stat_transport_device_show(struct config_item *item,
 	if (dev) {
 		/* scsiTransportType */
 		ret = snprintf(page, PAGE_SIZE, "scsiTransport%s\n",
+<<<<<<< HEAD
 			       tpg->se_tpg_tfo->get_fabric_name());
+=======
+			       tpg->se_tpg_tfo->fabric_name);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock();
 	return ret;

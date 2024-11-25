@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics gyroscopes driver
  *
@@ -5,7 +9,10 @@
  *
  * Denis Ciocca <denis.ciocca@st.com>
  * v. 1.0.0
+<<<<<<< HEAD
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef ST_GYRO_H
@@ -24,6 +31,7 @@
 #define LSM330_GYRO_DEV_NAME		"lsm330_gyro"
 #define LSM9DS0_GYRO_DEV_NAME		"lsm9ds0_gyro"
 
+<<<<<<< HEAD
 /**
  * struct st_sensors_platform_data - gyro platform data
  * @drdy_int_pin: DRDY on gyros is available only on INT2 pin.
@@ -38,6 +46,10 @@ void st_gyro_common_remove(struct iio_dev *indio_dev);
 #ifdef CONFIG_IIO_BUFFER
 int st_gyro_allocate_ring(struct iio_dev *indio_dev);
 void st_gyro_deallocate_ring(struct iio_dev *indio_dev);
+=======
+#ifdef CONFIG_IIO_BUFFER
+int st_gyro_allocate_ring(struct iio_dev *indio_dev);
+>>>>>>> upstream/android-13
 int st_gyro_trig_set_state(struct iio_trigger *trig, bool state);
 #define ST_GYRO_TRIGGER_SET_STATE (&st_gyro_trig_set_state)
 #else /* CONFIG_IIO_BUFFER */
@@ -45,9 +57,12 @@ static inline int st_gyro_allocate_ring(struct iio_dev *indio_dev)
 {
 	return 0;
 }
+<<<<<<< HEAD
 static inline void st_gyro_deallocate_ring(struct iio_dev *indio_dev)
 {
 }
+=======
+>>>>>>> upstream/android-13
 #define ST_GYRO_TRIGGER_SET_STATE NULL
 #endif /* CONFIG_IIO_BUFFER */
 

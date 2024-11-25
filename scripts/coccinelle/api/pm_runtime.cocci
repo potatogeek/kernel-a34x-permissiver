@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Make sure pm_runtime_* calls does not use unnecessary IS_ERR_VALUE
 ///
 // Keywords: pm_runtime
 // Confidence: Medium
+<<<<<<< HEAD
 // Copyright (C) 2013 Texas Instruments Incorporated - GPLv2.
+=======
+// Copyright (C) 2013 Texas Instruments Incorporated -
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Options: --include-headers
 

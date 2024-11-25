@@ -4,6 +4,7 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define  _RTW_SECURITY_C_
 
 #include <linux/crc32poly.h>
@@ -11,6 +12,14 @@
 #include <rtw_debug.h>
 
 static const char *_security_type_str[] = {
+=======
+#include <linux/crc32.h>
+#include <drv_types.h>
+#include <rtw_debug.h>
+#include <crypto/aes.h>
+
+static const char * const _security_type_str[] = {
+>>>>>>> upstream/android-13
 	"N/A",
 	"WEP40",
 	"TKIP",
@@ -29,6 +38,7 @@ const char *security_type_str(u8 value)
 	return NULL;
 }
 
+<<<<<<< HEAD
 #ifdef DBG_SW_SEC_CNT
 #define WEP_SW_ENC_CNT_INC(sec, ra) \
 	if (is_broadcast_mac_addr(ra)) \
@@ -207,24 +217,45 @@ static __le32 getcrc32(u8 *buf, sint len)
 }
 
 
+=======
+/* WEP related ===== */
+
+>>>>>>> upstream/android-13
 /*
 	Need to consider the fragment  situation
 */
 void rtw_wep_encrypt(struct adapter *padapter, u8 *pxmitframe)
 {																	/*  exclude ICV */
+<<<<<<< HEAD
 
 	unsigned char crc[4];
 	struct arc4context	 mycontext;
 
 	sint	curfragnum, length;
+=======
+	union {
+		__le32 f0;
+		unsigned char f1[4];
+	} crc;
+
+	signed int	curfragnum, length;
+>>>>>>> upstream/android-13
 	u32 keylength;
 
 	u8 *pframe, *payload, *iv;    /* wepkey */
 	u8 wepkey[16];
+<<<<<<< HEAD
 	u8   hw_hdr_offset = 0;
 	struct	pkt_attrib	 *pattrib = &((struct xmit_frame *)pxmitframe)->attrib;
 	struct	security_priv *psecuritypriv = &padapter->securitypriv;
 	struct	xmit_priv 	*pxmitpriv = &padapter->xmitpriv;
+=======
+	u8 hw_hdr_offset = 0;
+	struct pkt_attrib *pattrib = &((struct xmit_frame *)pxmitframe)->attrib;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+	struct arc4_ctx *ctx = &psecuritypriv->xmit_arc4_ctx;
+>>>>>>> upstream/android-13
 
 	if (((struct xmit_frame *)pxmitframe)->buf_addr == NULL)
 		return;
@@ -246,6 +277,7 @@ void rtw_wep_encrypt(struct adapter *padapter, u8 *pxmitframe)
 
 				length = pattrib->last_txcmdsz-pattrib->hdrlen-pattrib->iv_len-pattrib->icv_len;
 
+<<<<<<< HEAD
 				*((__le32 *)crc) = getcrc32(payload, length);
 
 				arcfour_init(&mycontext, wepkey, 3+keylength);
@@ -265,6 +297,25 @@ void rtw_wep_encrypt(struct adapter *padapter, u8 *pxmitframe)
 		}
 
 		WEP_SW_ENC_CNT_INC(psecuritypriv, pattrib->ra);
+=======
+				crc.f0 = cpu_to_le32(~crc32_le(~0, payload, length));
+
+				arc4_setkey(ctx, wepkey, 3 + keylength);
+				arc4_crypt(ctx, payload, payload, length);
+				arc4_crypt(ctx, payload + length, crc.f1, 4);
+
+			} else {
+				length = pxmitpriv->frag_len-pattrib->hdrlen-pattrib->iv_len-pattrib->icv_len;
+				crc.f0 = cpu_to_le32(~crc32_le(~0, payload, length));
+				arc4_setkey(ctx, wepkey, 3 + keylength);
+				arc4_crypt(ctx, payload, payload, length);
+				arc4_crypt(ctx, payload + length, crc.f1, 4);
+
+				pframe += pxmitpriv->frag_len;
+				pframe = (u8 *)round_up((SIZE_PTR)(pframe), 4);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -272,13 +323,21 @@ void rtw_wep_decrypt(struct adapter  *padapter, u8 *precvframe)
 {
 	/*  exclude ICV */
 	u8 crc[4];
+<<<<<<< HEAD
 	struct arc4context	 mycontext;
 	sint	length;
+=======
+	signed int	length;
+>>>>>>> upstream/android-13
 	u32 keylength;
 	u8 *pframe, *payload, *iv, wepkey[16];
 	u8  keyindex;
 	struct	rx_pkt_attrib	 *prxattrib = &(((union recv_frame *)precvframe)->u.hdr.attrib);
 	struct	security_priv *psecuritypriv = &padapter->securitypriv;
+<<<<<<< HEAD
+=======
+	struct arc4_ctx *ctx = &psecuritypriv->recv_arc4_ctx;
+>>>>>>> upstream/android-13
 
 	pframe = (unsigned char *)((union recv_frame *)precvframe)->u.hdr.rx_data;
 
@@ -296,6 +355,7 @@ void rtw_wep_decrypt(struct adapter  *padapter, u8 *precvframe)
 		payload = pframe+prxattrib->iv_len+prxattrib->hdrlen;
 
 		/* decrypt payload include icv */
+<<<<<<< HEAD
 		arcfour_init(&mycontext, wepkey, 3+keylength);
 		arcfour_encrypt(&mycontext, payload, payload,  length);
 
@@ -310,6 +370,15 @@ void rtw_wep_decrypt(struct adapter  *padapter, u8 *precvframe)
 		WEP_SW_DEC_CNT_INC(psecuritypriv, prxattrib->ra);
 	}
 	return;
+=======
+		arc4_setkey(ctx, wepkey, 3 + keylength);
+		arc4_crypt(ctx, payload, payload,  length);
+
+		/* calculate icv and compare the icv */
+		*((u32 *)crc) = ~crc32_le(~0, payload, length - 4);
+
+	}
+>>>>>>> upstream/android-13
 }
 
 /* 3		=====TKIP related ===== */
@@ -320,9 +389,14 @@ static u32 secmicgetuint32(u8 *p)
 	s32 i;
 	u32 res = 0;
 
+<<<<<<< HEAD
 	for (i = 0; i < 4; i++) {
 		res |= ((u32)(*p++)) << (8*i);
 	}
+=======
+	for (i = 0; i < 4; i++)
+		res |= ((u32)(*p++)) << (8 * i);
+>>>>>>> upstream/android-13
 
 	return res;
 }
@@ -396,12 +470,20 @@ void rtw_secgetmic(struct mic_data *pmicdata, u8 *dst)
 	rtw_secmicappendbyte(pmicdata, 0);
 	rtw_secmicappendbyte(pmicdata, 0);
 	/*  and then zeroes until the length is a multiple of 4 */
+<<<<<<< HEAD
 	while (pmicdata->nBytesInM != 0) {
 		rtw_secmicappendbyte(pmicdata, 0);
 	}
 	/*  The appendByte function has already computed the result. */
 	secmicputuint32(dst, pmicdata->L);
 	secmicputuint32(dst+4, pmicdata->R);
+=======
+	while (pmicdata->nBytesInM != 0)
+		rtw_secmicappendbyte(pmicdata, 0);
+	/*  The appendByte function has already computed the result. */
+	secmicputuint32(dst, pmicdata->L);
+	secmicputuint32(dst + 4, pmicdata->R);
+>>>>>>> upstream/android-13
 	/*  Reset to the empty message. */
 	secmicclear(pmicdata);
 }
@@ -417,19 +499,32 @@ void rtw_seccalctkipmic(u8 *key, u8 *header, u8 *data, u32 data_len, u8 *mic_cod
 	priority[0] = pri;
 
 	/* Michael MIC pseudo header: DA, SA, 3 x 0, Priority */
+<<<<<<< HEAD
 	if (header[1]&1) {   /* ToDS == 1 */
 		rtw_secmicappend(&micdata, &header[16], 6);  /* DA */
 		if (header[1]&2)  /* From Ds == 1 */
+=======
+	if (header[1] & 1) {   /* ToDS == 1 */
+		rtw_secmicappend(&micdata, &header[16], 6);  /* DA */
+		if (header[1] & 2)  /* From Ds == 1 */
+>>>>>>> upstream/android-13
 			rtw_secmicappend(&micdata, &header[24], 6);
 		else
 			rtw_secmicappend(&micdata, &header[10], 6);
 	} else {	/* ToDS == 0 */
 		rtw_secmicappend(&micdata, &header[4], 6);   /* DA */
+<<<<<<< HEAD
 		if (header[1]&2)  /* From Ds == 1 */
 			rtw_secmicappend(&micdata, &header[16], 6);
 		else
 			rtw_secmicappend(&micdata, &header[10], 6);
 
+=======
+		if (header[1] & 2)  /* From Ds == 1 */
+			rtw_secmicappend(&micdata, &header[16], 6);
+		else
+			rtw_secmicappend(&micdata, &header[10], 6);
+>>>>>>> upstream/android-13
 	}
 	rtw_secmicappend(&micdata, &priority[0], 4);
 
@@ -455,11 +550,14 @@ void rtw_seccalctkipmic(u8 *key, u8 *header, u8 *data, u32 data_len, u8 *mic_cod
 
 /* fixed algorithm "parameters" */
 #define PHASE1_LOOP_CNT   8    /* this needs to be "big enough"     */
+<<<<<<< HEAD
 #define TA_SIZE           6    /*  48-bit transmitter address       */
 #define TK_SIZE          16    /* 128-bit temporal key              */
 #define P1K_SIZE         10    /*  80-bit Phase1 key                */
 #define RC4_KEY_SIZE     16    /* 128-bit RC4KEY (104 bits unknown) */
 
+=======
+>>>>>>> upstream/android-13
 
 /* 2-unsigned char by 2-unsigned char subset of the full AES S-box table */
 static const unsigned short Sbox1[2][256] = {      /* Sbox for hash (can be in ROM)     */
@@ -554,7 +652,11 @@ static const unsigned short Sbox1[2][256] = {      /* Sbox for hash (can be in R
 */
 static void phase1(u16 *p1k, const u8 *tk, const u8 *ta, u32 iv32)
 {
+<<<<<<< HEAD
 	sint  i;
+=======
+	signed int  i;
+>>>>>>> upstream/android-13
 
 	/* Initialize the 80 bits of P1K[] from IV32 and TA[0..5]     */
 	p1k[0]      = Lo16(iv32);
@@ -602,7 +704,11 @@ static void phase1(u16 *p1k, const u8 *tk, const u8 *ta, u32 iv32)
 */
 static void phase2(u8 *rc4key, const u8 *tk, const u16 *p1k, u16 iv16)
 {
+<<<<<<< HEAD
 	sint  i;
+=======
+	signed int  i;
+>>>>>>> upstream/android-13
 	u16 PPK[6];                          /* temporary key for mixing    */
 
 	/* Note: all adds in the PPK[] equations below are mod 2**16         */
@@ -653,6 +759,7 @@ u32 rtw_tkip_encrypt(struct adapter *padapter, u8 *pxmitframe)
 	u32 pnh;
 	u8 rc4key[16];
 	u8   ttkey[16];
+<<<<<<< HEAD
 	u8 crc[4];
 	u8   hw_hdr_offset = 0;
 	struct arc4context mycontext;
@@ -665,6 +772,21 @@ u32 rtw_tkip_encrypt(struct adapter *padapter, u8 *pxmitframe)
 	struct	pkt_attrib	 *pattrib = &((struct xmit_frame *)pxmitframe)->attrib;
 	struct	security_priv *psecuritypriv = &padapter->securitypriv;
 	struct	xmit_priv 	*pxmitpriv = &padapter->xmitpriv;
+=======
+	union {
+		__le32 f0;
+		u8 f1[4];
+	} crc;
+	u8   hw_hdr_offset = 0;
+	signed int			curfragnum, length;
+
+	u8 *pframe, *payload, *iv, *prwskey;
+	union pn48 dot11txpn;
+	struct pkt_attrib *pattrib = &((struct xmit_frame *)pxmitframe)->attrib;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+	struct arc4_ctx *ctx = &psecuritypriv->xmit_arc4_ctx;
+>>>>>>> upstream/android-13
 	u32 res = _SUCCESS;
 
 	if (((struct xmit_frame *)pxmitframe)->buf_addr == NULL)
@@ -676,6 +798,7 @@ u32 rtw_tkip_encrypt(struct adapter *padapter, u8 *pxmitframe)
 	/* 4 start to encrypt each fragment */
 	if (pattrib->encrypt == _TKIP_) {
 
+<<<<<<< HEAD
 /*
 		if (pattrib->psta)
 		{
@@ -706,6 +829,14 @@ u32 rtw_tkip_encrypt(struct adapter *padapter, u8 *pxmitframe)
 
 			prwskeylen = 16;
 
+=======
+		{
+			if (IS_MCAST(pattrib->ra))
+				prwskey = psecuritypriv->dot118021XGrpKey[psecuritypriv->dot118021XGrpKeyid].skey;
+			else
+				prwskey = pattrib->dot118021x_UncstKey.skey;
+
+>>>>>>> upstream/android-13
 			for (curfragnum = 0; curfragnum < pattrib->nr_frags; curfragnum++) {
 				iv = pframe+pattrib->hdrlen;
 				payload = pframe+pattrib->iv_len+pattrib->hdrlen;
@@ -721,6 +852,7 @@ u32 rtw_tkip_encrypt(struct adapter *padapter, u8 *pxmitframe)
 
 				if ((curfragnum+1) == pattrib->nr_frags) {	/* 4 the last fragment */
 					length = pattrib->last_txcmdsz-pattrib->hdrlen-pattrib->iv_len-pattrib->icv_len;
+<<<<<<< HEAD
 					RT_TRACE(_module_rtl871x_security_c_, _drv_info_, ("pattrib->iv_len =%x, pattrib->icv_len =%x\n", pattrib->iv_len, pattrib->icv_len));
 					*((__le32 *)crc) = getcrc32(payload, length);/* modified by Amy*/
 
@@ -750,6 +882,27 @@ u32 rtw_tkip_encrypt(struct adapter *padapter, u8 *pxmitframe)
 		}
 */
 
+=======
+					crc.f0 = cpu_to_le32(~crc32_le(~0, payload, length));
+
+					arc4_setkey(ctx, rc4key, 16);
+					arc4_crypt(ctx, payload, payload, length);
+					arc4_crypt(ctx, payload + length, crc.f1, 4);
+
+				} else {
+					length = pxmitpriv->frag_len-pattrib->hdrlen-pattrib->iv_len-pattrib->icv_len;
+					crc.f0 = cpu_to_le32(~crc32_le(~0, payload, length));
+
+					arc4_setkey(ctx, rc4key, 16);
+					arc4_crypt(ctx, payload, payload, length);
+					arc4_crypt(ctx, payload + length, crc.f1, 4);
+
+					pframe += pxmitpriv->frag_len;
+					pframe = (u8 *)round_up((SIZE_PTR)(pframe), 4);
+				}
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 	return res;
 }
@@ -763,6 +916,7 @@ u32 rtw_tkip_decrypt(struct adapter *padapter, u8 *precvframe)
 	u8   rc4key[16];
 	u8   ttkey[16];
 	u8 crc[4];
+<<<<<<< HEAD
 	struct arc4context mycontext;
 	sint			length;
 	u32 prwskeylen;
@@ -774,19 +928,38 @@ u32 rtw_tkip_decrypt(struct adapter *padapter, u8 *precvframe)
 	struct	security_priv *psecuritypriv = &padapter->securitypriv;
 /* 	struct	recv_priv 	*precvpriv =&padapter->recvpriv; */
 	u32 	res = _SUCCESS;
+=======
+	signed int			length;
+
+	u8 *pframe, *payload, *iv, *prwskey;
+	union pn48 dot11txpn;
+	struct sta_info *stainfo;
+	struct rx_pkt_attrib *prxattrib = &((union recv_frame *)precvframe)->u.hdr.attrib;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	struct arc4_ctx *ctx = &psecuritypriv->recv_arc4_ctx;
+	u32 res = _SUCCESS;
+>>>>>>> upstream/android-13
 
 	pframe = (unsigned char *)((union recv_frame *)precvframe)->u.hdr.rx_data;
 
 	/* 4 start to decrypt recvframe */
 	if (prxattrib->encrypt == _TKIP_) {
 		stainfo = rtw_get_stainfo(&padapter->stapriv, &prxattrib->ta[0]);
+<<<<<<< HEAD
 		if (stainfo != NULL) {
+=======
+		if (stainfo) {
+>>>>>>> upstream/android-13
 			if (IS_MCAST(prxattrib->ra)) {
 				static unsigned long start;
 				static u32 no_gkey_bc_cnt;
 				static u32 no_gkey_mc_cnt;
 
+<<<<<<< HEAD
 				if (psecuritypriv->binstallGrpkey == false) {
+=======
+				if (!psecuritypriv->binstallGrpkey) {
+>>>>>>> upstream/android-13
 					res = _FAIL;
 
 					if (start == 0)
@@ -799,8 +972,16 @@ u32 rtw_tkip_decrypt(struct adapter *padapter, u8 *precvframe)
 
 					if (jiffies_to_msecs(jiffies - start) > 1000) {
 						if (no_gkey_bc_cnt || no_gkey_mc_cnt) {
+<<<<<<< HEAD
 							DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
 								FUNC_ADPT_ARG(padapter), no_gkey_bc_cnt, no_gkey_mc_cnt);
+=======
+							netdev_dbg(padapter->pnetdev,
+								   FUNC_ADPT_FMT " no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
+								   FUNC_ADPT_ARG(padapter),
+								   no_gkey_bc_cnt,
+								   no_gkey_mc_cnt);
+>>>>>>> upstream/android-13
 						}
 						start = jiffies;
 						no_gkey_bc_cnt = 0;
@@ -810,13 +991,22 @@ u32 rtw_tkip_decrypt(struct adapter *padapter, u8 *precvframe)
 				}
 
 				if (no_gkey_bc_cnt || no_gkey_mc_cnt) {
+<<<<<<< HEAD
 					DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" gkey installed. no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
 						FUNC_ADPT_ARG(padapter), no_gkey_bc_cnt, no_gkey_mc_cnt);
+=======
+					netdev_dbg(padapter->pnetdev,
+						   FUNC_ADPT_FMT " gkey installed. no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
+						   FUNC_ADPT_ARG(padapter),
+						   no_gkey_bc_cnt,
+						   no_gkey_mc_cnt);
+>>>>>>> upstream/android-13
 				}
 				start = 0;
 				no_gkey_bc_cnt = 0;
 				no_gkey_mc_cnt = 0;
 
+<<<<<<< HEAD
 				/* DBG_871X("rx bc/mc packets, to perform sw rtw_tkip_decrypt\n"); */
 				/* prwskey = psecuritypriv->dot118021XGrpKey[psecuritypriv->dot118021XGrpKeyid].skey; */
 				prwskey = psecuritypriv->dot118021XGrpKey[prxattrib->key_index].skey;
@@ -824,6 +1014,11 @@ u32 rtw_tkip_decrypt(struct adapter *padapter, u8 *precvframe)
 			} else{
 				prwskey = &stainfo->dot118021x_UncstKey.skey[0];
 				prwskeylen = 16;
+=======
+				prwskey = psecuritypriv->dot118021XGrpKey[prxattrib->key_index].skey;
+			} else {
+				prwskey = &stainfo->dot118021x_UncstKey.skey[0];
+>>>>>>> upstream/android-13
 			}
 
 			iv = pframe+prxattrib->hdrlen;
@@ -840,6 +1035,7 @@ u32 rtw_tkip_decrypt(struct adapter *padapter, u8 *precvframe)
 
 			/* 4 decrypt payload include icv */
 
+<<<<<<< HEAD
 			arcfour_init(&mycontext, rc4key, 16);
 			arcfour_encrypt(&mycontext, payload, payload, length);
 
@@ -862,6 +1058,22 @@ u32 rtw_tkip_decrypt(struct adapter *padapter, u8 *precvframe)
 exit:
 	return res;
 
+=======
+			arc4_setkey(ctx, rc4key, 16);
+			arc4_crypt(ctx, payload, payload, length);
+
+			*((u32 *)crc) = ~crc32_le(~0, payload, length - 4);
+
+			if (crc[3] != payload[length - 1] || crc[2] != payload[length - 2] ||
+			    crc[1] != payload[length - 3] || crc[0] != payload[length - 4])
+				res = _FAIL;
+		} else {
+			res = _FAIL;
+		}
+	}
+exit:
+	return res;
+>>>>>>> upstream/android-13
 }
 
 
@@ -870,6 +1082,7 @@ exit:
 
 
 #define MAX_MSG_SIZE	2048
+<<<<<<< HEAD
 /*****************************/
 /******** SBOX Table *********/
 /*****************************/
@@ -908,12 +1121,15 @@ exit:
 			0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68,
 			0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
 		};
+=======
+>>>>>>> upstream/android-13
 
 /*****************************/
 /**** Function Prototypes ****/
 /*****************************/
 
 static void bitwise_xor(u8 *ina, u8 *inb, u8 *out);
+<<<<<<< HEAD
 static void construct_mic_iv(
 	u8 *mic_header1,
 	sint qc_exists,
@@ -951,6 +1167,31 @@ static void next_key(u8 *key, sint round);
 static void byte_sub(u8 *in, u8 *out);
 static void shift_row(u8 *in, u8 *out);
 static void mix_column(u8 *in, u8 *out);
+=======
+static void construct_mic_iv(u8 *mic_header1,
+			     signed int qc_exists,
+			     signed int a4_exists,
+			     u8 *mpdu,
+			     uint payload_length,
+			     u8 *pn_vector,
+			     uint frtype); /*  add for CONFIG_IEEE80211W, none 11w also can use */
+static void construct_mic_header1(u8 *mic_header1,
+				  signed int header_length,
+				  u8 *mpdu,
+				  uint frtype); /* for CONFIG_IEEE80211W, none 11w also can use */
+static void construct_mic_header2(u8 *mic_header2,
+				  u8 *mpdu,
+				  signed int a4_exists,
+				  signed int qc_exists);
+static void construct_ctr_preload(u8 *ctr_preload,
+				  signed int a4_exists,
+				  signed int qc_exists,
+				  u8 *mpdu,
+				  u8 *pn_vector,
+				  signed int c,
+				  uint frtype); /* for CONFIG_IEEE80211W, none 11w also can use */
+
+>>>>>>> upstream/android-13
 static void aes128k128d(u8 *key, u8 *data, u8 *ciphertext);
 
 
@@ -959,6 +1200,7 @@ static void aes128k128d(u8 *key, u8 *data, u8 *ciphertext);
 /* Performs a 128 bit AES encrypt with  */
 /* 128 bit data.                        */
 /****************************************/
+<<<<<<< HEAD
 static void xor_128(u8 *a, u8 *b, u8 *out)
 {
 		sint i;
@@ -1131,12 +1373,24 @@ static void aes128k128d(u8 *key, u8 *data, u8 *ciphertext)
 }
 
 
+=======
+static void aes128k128d(u8 *key, u8 *data, u8 *ciphertext)
+{
+	struct crypto_aes_ctx ctx;
+
+	aes_expandkey(&ctx, key, 16);
+	aes_encrypt(&ctx, ciphertext, data);
+	memzero_explicit(&ctx, sizeof(ctx));
+}
+
+>>>>>>> upstream/android-13
 /************************************************/
 /* construct_mic_iv()                           */
 /* Builds the MIC IV from header fields and PN  */
 /* Baron think the function is construct CCM    */
 /* nonce                                        */
 /************************************************/
+<<<<<<< HEAD
 static void construct_mic_iv(
 	u8 *mic_iv,
 	sint qc_exists,
@@ -1148,6 +1402,17 @@ static void construct_mic_iv(
 )
 {
 		sint i;
+=======
+static void construct_mic_iv(u8 *mic_iv,
+			     signed int qc_exists,
+			     signed int a4_exists,
+			     u8 *mpdu,
+			     uint payload_length,
+			     u8 *pn_vector,
+			     uint frtype) /* add for CONFIG_IEEE80211W, none 11w also can use */
+{
+		signed int i;
+>>>>>>> upstream/android-13
 
 		mic_iv[0] = 0x59;
 
@@ -1177,19 +1442,29 @@ static void construct_mic_iv(
 		mic_iv[15] = (unsigned char) (payload_length % 256);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /************************************************/
 /* construct_mic_header1()                      */
 /* Builds the first MIC header block from       */
 /* header fields.                               */
 /* Build AAD SC, A1, A2                           */
 /************************************************/
+<<<<<<< HEAD
 static void construct_mic_header1(
 	u8 *mic_header1,
 	sint header_length,
 	u8 *mpdu,
 	uint frtype/*  add for CONFIG_IEEE80211W, none 11w also can use */
 )
+=======
+static void construct_mic_header1(u8 *mic_header1,
+				  signed int header_length,
+				  u8 *mpdu,
+				  uint frtype) /* for CONFIG_IEEE80211W, none 11w also can use */
+>>>>>>> upstream/android-13
 {
 		mic_header1[0] = (u8)((header_length - 2) / 256);
 		mic_header1[1] = (u8)((header_length - 2) % 256);
@@ -1215,12 +1490,16 @@ static void construct_mic_header1(
 		mic_header1[15] = mpdu[15];
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /************************************************/
 /* construct_mic_header2()                      */
 /* Builds the last MIC header block from        */
 /* header fields.                               */
 /************************************************/
+<<<<<<< HEAD
 static void construct_mic_header2(
 	u8 *mic_header2,
 	u8 *mpdu,
@@ -1229,6 +1508,14 @@ static void construct_mic_header2(
 )
 {
 		sint i;
+=======
+static void construct_mic_header2(u8 *mic_header2,
+				  u8 *mpdu,
+				  signed int a4_exists,
+				  signed int qc_exists)
+{
+		signed int i;
+>>>>>>> upstream/android-13
 
 		for (i = 0; i < 16; i++)
 			mic_header2[i] = 0x00;
@@ -1243,11 +1530,17 @@ static void construct_mic_header2(
 		mic_header2[6] = 0x00;
 		mic_header2[7] = 0x00; /* mpdu[23]; */
 
+<<<<<<< HEAD
 
 		if (!qc_exists && a4_exists) {
 			for (i = 0; i < 6; i++)
 				mic_header2[8+i] = mpdu[24+i];   /* A4 */
 
+=======
+		if (!qc_exists && a4_exists) {
+			for (i = 0; i < 6; i++)
+				mic_header2[8+i] = mpdu[24+i];   /* A4 */
+>>>>>>> upstream/android-13
 		}
 
 		if (qc_exists && !a4_exists) {
@@ -1262,7 +1555,10 @@ static void construct_mic_header2(
 			mic_header2[14] = mpdu[30] & 0x0f;
 			mic_header2[15] = mpdu[31] & 0x00;
 		}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 /************************************************/
@@ -1272,6 +1568,7 @@ static void construct_mic_header2(
 /* Baron think the function is construct CCM    */
 /* nonce                                        */
 /************************************************/
+<<<<<<< HEAD
 static void construct_ctr_preload(
 	u8 *ctr_preload,
 	sint a4_exists,
@@ -1283,6 +1580,17 @@ static void construct_ctr_preload(
 )
 {
 	sint i = 0;
+=======
+static void construct_ctr_preload(u8 *ctr_preload,
+				  signed int a4_exists,
+				  signed int qc_exists,
+				  u8 *mpdu,
+				  u8 *pn_vector,
+				  signed int c,
+				  uint frtype) /* for CONFIG_IEEE80211W, none 11w also can use */
+{
+	signed int i = 0;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < 16; i++)
 		ctr_preload[i] = 0x00;
@@ -1311,13 +1619,17 @@ static void construct_ctr_preload(
 	ctr_preload[15] =  (unsigned char) (c % 256);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /************************************/
 /* bitwise_xor()                    */
 /* A 128 bit, bitwise exclusive or  */
 /************************************/
 static void bitwise_xor(u8 *ina, u8 *inb, u8 *out)
 {
+<<<<<<< HEAD
 		sint i;
 
 		for (i = 0; i < 16; i++) {
@@ -1327,6 +1639,15 @@ static void bitwise_xor(u8 *ina, u8 *inb, u8 *out)
 
 
 static sint aes_cipher(u8 *key, uint	hdrlen,
+=======
+		signed int i;
+
+		for (i = 0; i < 16; i++)
+			out[i] = ina[i] ^ inb[i];
+}
+
+static signed int aes_cipher(u8 *key, uint	hdrlen,
+>>>>>>> upstream/android-13
 			u8 *pframe, uint plen)
 {
 	uint	qc_exists, a4_exists, i, j, payload_remainder,
@@ -1348,7 +1669,10 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 
 	frsubtype = frsubtype>>4;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	memset((void *)mic_iv, 0, 16);
 	memset((void *)mic_header1, 0, 16);
 	memset((void *)mic_header2, 0, 16);
@@ -1378,8 +1702,14 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 			hdrlen += 2;
 
 		qc_exists = 1;
+<<<<<<< HEAD
 	} else
 		qc_exists = 0;
+=======
+	} else {
+		qc_exists = 0;
+	}
+>>>>>>> upstream/android-13
 
 	pn_vector[0] = pframe[hdrlen];
 	pn_vector[1] = pframe[hdrlen+1];
@@ -1388,6 +1718,7 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 	pn_vector[4] = pframe[hdrlen+6];
 	pn_vector[5] = pframe[hdrlen+7];
 
+<<<<<<< HEAD
 	construct_mic_iv(
 			mic_iv,
 			qc_exists,
@@ -1411,6 +1742,25 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 		qc_exists
 	);
 
+=======
+	construct_mic_iv(mic_iv,
+			 qc_exists,
+			 a4_exists,
+			 pframe,	 /* message, */
+			 plen,
+			 pn_vector,
+			 frtype); /*  add for CONFIG_IEEE80211W, none 11w also can use */
+
+	construct_mic_header1(mic_header1,
+			      hdrlen,
+			      pframe,	/* message */
+			      frtype); /*  add for CONFIG_IEEE80211W, none 11w also can use */
+
+	construct_mic_header2(mic_header2,
+			      pframe,	/* message, */
+			      a4_exists,
+			      qc_exists);
+>>>>>>> upstream/android-13
 
 	payload_remainder = plen % 16;
 	num_blocks = plen / 16;
@@ -1426,7 +1776,11 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 	aes128k128d(key, chain_buffer, aes_out);
 
 	for (i = 0; i < num_blocks; i++) {
+<<<<<<< HEAD
 		bitwise_xor(aes_out, &pframe[payload_index], chain_buffer);/* bitwise_xor(aes_out, &message[payload_index], chain_buffer); */
+=======
+		bitwise_xor(aes_out, &pframe[payload_index], chain_buffer);
+>>>>>>> upstream/android-13
 
 		payload_index += 16;
 		aes128k128d(key, chain_buffer, aes_out);
@@ -1436,12 +1790,20 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 	if (payload_remainder > 0) {
 		for (j = 0; j < 16; j++)
 			padded_buffer[j] = 0x00;
+<<<<<<< HEAD
 		for (j = 0; j < payload_remainder; j++) {
 			padded_buffer[j] = pframe[payload_index++];/* padded_buffer[j] = message[payload_index++]; */
 		}
 		bitwise_xor(aes_out, padded_buffer, chain_buffer);
 		aes128k128d(key, chain_buffer, aes_out);
 
+=======
+		for (j = 0; j < payload_remainder; j++)
+			padded_buffer[j] = pframe[payload_index++];
+
+		bitwise_xor(aes_out, padded_buffer, chain_buffer);
+		aes128k128d(key, chain_buffer, aes_out);
+>>>>>>> upstream/android-13
 	}
 
 	for (j = 0 ; j < 8; j++)
@@ -1449,6 +1811,7 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 
 	/* Insert MIC into payload */
 	for (j = 0; j < 8; j++)
+<<<<<<< HEAD
 		pframe[payload_index+j] = mic[j];	/* message[payload_index+j] = mic[j]; */
 
 	payload_index = hdrlen + 8;
@@ -1466,11 +1829,25 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 		bitwise_xor(aes_out, &pframe[payload_index], chain_buffer);/* bitwise_xor(aes_out, &message[payload_index], chain_buffer); */
 		for (j = 0; j < 16; j++)
 			pframe[payload_index++] = chain_buffer[j];/* for (j = 0; j<16;j++) message[payload_index++] = chain_buffer[j]; */
+=======
+		pframe[payload_index+j] = mic[j];
+
+	payload_index = hdrlen + 8;
+	for (i = 0; i < num_blocks; i++) {
+		construct_ctr_preload(ctr_preload, a4_exists, qc_exists, pframe, /* message, */
+				      pn_vector, i+1, frtype);
+		/*  add for CONFIG_IEEE80211W, none 11w also can use */
+		aes128k128d(key, ctr_preload, aes_out);
+		bitwise_xor(aes_out, &pframe[payload_index], chain_buffer);
+		for (j = 0; j < 16; j++)
+			pframe[payload_index++] = chain_buffer[j];
+>>>>>>> upstream/android-13
 	}
 
 	if (payload_remainder > 0) {
 		/* If there is a short final block, then pad it,*/
 		/* encrypt it and copy the unpadded part back   */
+<<<<<<< HEAD
 		construct_ctr_preload(
 			ctr_preload,
 			a4_exists,
@@ -1480,15 +1857,25 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 			num_blocks+1,
 			frtype
 		); /*  add for CONFIG_IEEE80211W, none 11w also can use */
+=======
+		construct_ctr_preload(ctr_preload, a4_exists, qc_exists, pframe, /* message, */
+				      pn_vector, num_blocks+1, frtype);
+		/*  add for CONFIG_IEEE80211W, none 11w also can use */
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < 16; j++)
 			padded_buffer[j] = 0x00;
 		for (j = 0; j < payload_remainder; j++)
+<<<<<<< HEAD
 			padded_buffer[j] = pframe[payload_index+j];/* padded_buffer[j] = message[payload_index+j]; */
+=======
+			padded_buffer[j] = pframe[payload_index+j];
+>>>>>>> upstream/android-13
 
 		aes128k128d(key, ctr_preload, aes_out);
 		bitwise_xor(aes_out, padded_buffer, chain_buffer);
 		for (j = 0; j < payload_remainder; j++)
+<<<<<<< HEAD
 			pframe[payload_index++] = chain_buffer[j];/* for (j = 0; j<payload_remainder;j++) message[payload_index++] = chain_buffer[j]; */
 	}
 
@@ -1502,16 +1889,33 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 		0,
 		frtype
 	); /*  add for CONFIG_IEEE80211W, none 11w also can use */
+=======
+			pframe[payload_index++] = chain_buffer[j];
+	}
+
+	/* Encrypt the MIC */
+	construct_ctr_preload(ctr_preload, a4_exists, qc_exists, pframe, /* message, */
+			      pn_vector, 0, frtype);
+	/*  add for CONFIG_IEEE80211W, none 11w also can use */
+>>>>>>> upstream/android-13
 
 	for (j = 0; j < 16; j++)
 		padded_buffer[j] = 0x00;
 	for (j = 0; j < 8; j++)
+<<<<<<< HEAD
 		padded_buffer[j] = pframe[j+hdrlen+8+plen];/* padded_buffer[j] = message[j+hdrlen+8+plen]; */
+=======
+		padded_buffer[j] = pframe[j+hdrlen+8+plen];
+>>>>>>> upstream/android-13
 
 	aes128k128d(key, ctr_preload, aes_out);
 	bitwise_xor(aes_out, padded_buffer, chain_buffer);
 	for (j = 0; j < 8; j++)
+<<<<<<< HEAD
 		 pframe[payload_index++] = chain_buffer[j];/* for (j = 0; j<8;j++) message[payload_index++] = chain_buffer[j]; */
+=======
+		pframe[payload_index++] = chain_buffer[j];
+>>>>>>> upstream/android-13
 
 	return _SUCCESS;
 }
@@ -1519,6 +1923,7 @@ static sint aes_cipher(u8 *key, uint	hdrlen,
 u32 rtw_aes_encrypt(struct adapter *padapter, u8 *pxmitframe)
 {	/*  exclude ICV */
 
+<<<<<<< HEAD
 
 	/*static*/
 /* 	unsigned char message[MAX_MSG_SIZE]; */
@@ -1534,6 +1939,19 @@ u32 rtw_aes_encrypt(struct adapter *padapter, u8 *pxmitframe)
 	struct	xmit_priv 	*pxmitpriv = &padapter->xmitpriv;
 
 /* 	uint	offset = 0; */
+=======
+	/*static*/
+	/* unsigned char message[MAX_MSG_SIZE]; */
+
+	/* Intermediate Buffers */
+	signed int curfragnum, length;
+	u8 *pframe, *prwskey;	/*  *payload,*iv */
+	u8 hw_hdr_offset = 0;
+	struct pkt_attrib *pattrib = &((struct xmit_frame *)pxmitframe)->attrib;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
+
+>>>>>>> upstream/android-13
 	u32 res = _SUCCESS;
 
 	if (((struct xmit_frame *)pxmitframe)->buf_addr == NULL)
@@ -1543,6 +1961,7 @@ u32 rtw_aes_encrypt(struct adapter *padapter, u8 *pxmitframe)
 	pframe = ((struct xmit_frame *)pxmitframe)->buf_addr + hw_hdr_offset;
 
 	/* 4 start to encrypt each fragment */
+<<<<<<< HEAD
 	if ((pattrib->encrypt == _AES_)) {
 		RT_TRACE(_module_rtl871x_security_c_, _drv_err_, ("rtw_aes_encrypt: stainfo!= NULL!!!\n"));
 
@@ -1554,6 +1973,14 @@ u32 rtw_aes_encrypt(struct adapter *padapter, u8 *pxmitframe)
 
 		prwskeylen = 16;
 
+=======
+	if (pattrib->encrypt == _AES_) {
+		if (IS_MCAST(pattrib->ra))
+			prwskey = psecuritypriv->dot118021XGrpKey[psecuritypriv->dot118021XGrpKeyid].skey;
+		else
+			prwskey = pattrib->dot118021x_UncstKey.skey;
+
+>>>>>>> upstream/android-13
 		for (curfragnum = 0; curfragnum < pattrib->nr_frags; curfragnum++) {
 			if ((curfragnum+1) == pattrib->nr_frags) {	/* 4 the last fragment */
 				length = pattrib->last_txcmdsz-pattrib->hdrlen-pattrib->iv_len-pattrib->icv_len;
@@ -1564,15 +1991,22 @@ u32 rtw_aes_encrypt(struct adapter *padapter, u8 *pxmitframe)
 
 				aes_cipher(prwskey, pattrib->hdrlen, pframe, length);
 				pframe += pxmitpriv->frag_len;
+<<<<<<< HEAD
 				pframe = (u8 *)RND4((SIZE_PTR)(pframe));
 			}
 		}
 
 		AES_SW_ENC_CNT_INC(psecuritypriv, pattrib->ra);
+=======
+				pframe = (u8 *)round_up((SIZE_PTR)(pframe), 4);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 	return res;
 }
 
+<<<<<<< HEAD
 static sint aes_decipher(u8 *key, uint	hdrlen,
 			u8 *pframe, uint plen)
 {
@@ -1580,6 +2014,15 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	uint	qc_exists, a4_exists, i, j, payload_remainder,
 			num_blocks, payload_index;
 	sint res = _SUCCESS;
+=======
+static signed int aes_decipher(u8 *key, uint	hdrlen,
+			 u8 *pframe, uint plen)
+{
+	static u8 message[MAX_MSG_SIZE];
+	uint qc_exists, a4_exists, i, j, payload_remainder,
+			num_blocks, payload_index;
+	signed int res = _SUCCESS;
+>>>>>>> upstream/android-13
 	u8 pn_vector[6];
 	u8 mic_iv[16];
 	u8 mic_header1[16];
@@ -1592,6 +2035,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	u8 padded_buffer[16];
 	u8 mic[8];
 
+<<<<<<< HEAD
 
 /* 	uint	offset = 0; */
 	uint	frtype  = GetFrameType(pframe);
@@ -1600,6 +2044,13 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	frsubtype = frsubtype>>4;
 
 
+=======
+	uint frtype  = GetFrameType(pframe);
+	uint frsubtype  = GetFrameSubType(pframe);
+
+	frsubtype = frsubtype>>4;
+
+>>>>>>> upstream/android-13
 	memset((void *)mic_iv, 0, 16);
 	memset((void *)mic_header1, 0, 16);
 	memset((void *)mic_header2, 0, 16);
@@ -1615,11 +2066,19 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	payload_remainder = (plen-8) % 16;
 
 	pn_vector[0]  = pframe[hdrlen];
+<<<<<<< HEAD
 	pn_vector[1]  = pframe[hdrlen+1];
 	pn_vector[2]  = pframe[hdrlen+4];
 	pn_vector[3]  = pframe[hdrlen+5];
 	pn_vector[4]  = pframe[hdrlen+6];
 	pn_vector[5]  = pframe[hdrlen+7];
+=======
+	pn_vector[1]  = pframe[hdrlen + 1];
+	pn_vector[2]  = pframe[hdrlen + 4];
+	pn_vector[3]  = pframe[hdrlen + 5];
+	pn_vector[4]  = pframe[hdrlen + 6];
+	pn_vector[5]  = pframe[hdrlen + 7];
+>>>>>>> upstream/android-13
 
 	if ((hdrlen == WLAN_HDR_A3_LEN) || (hdrlen ==  WLAN_HDR_A3_QOS_LEN))
 		a4_exists = 0;
@@ -1630,14 +2089,21 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	    ((frtype|frsubtype) == WIFI_DATA_CFPOLL) ||
 	    ((frtype|frsubtype) == WIFI_DATA_CFACKPOLL)) {
 		qc_exists = 1;
+<<<<<<< HEAD
 		if (hdrlen !=  WLAN_HDR_A3_QOS_LEN) {
 			hdrlen += 2;
 		}
+=======
+		if (hdrlen !=  WLAN_HDR_A3_QOS_LEN)
+			hdrlen += 2;
+
+>>>>>>> upstream/android-13
 	} else if ((frtype == WIFI_DATA) && /* only for data packet . add for CONFIG_IEEE80211W, none 11w also can use */
 		   ((frsubtype == 0x08) ||
 		   (frsubtype == 0x09) ||
 		   (frsubtype == 0x0a) ||
 		   (frsubtype == 0x0b))) {
+<<<<<<< HEAD
 		if (hdrlen !=  WLAN_HDR_A3_QOS_LEN) {
 			hdrlen += 2;
 		}
@@ -1645,12 +2111,22 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	} else
 		qc_exists = 0;
 
+=======
+		if (hdrlen !=  WLAN_HDR_A3_QOS_LEN)
+			hdrlen += 2;
+
+		qc_exists = 1;
+	} else {
+		qc_exists = 0;
+	}
+>>>>>>> upstream/android-13
 
 	/*  now, decrypt pframe with hdrlen offset and plen long */
 
 	payload_index = hdrlen + 8; /*  8 is for extiv */
 
 	for (i = 0; i < num_blocks; i++) {
+<<<<<<< HEAD
 			construct_ctr_preload(
 				ctr_preload,
 				a4_exists,
@@ -1667,10 +2143,24 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 			for (j = 0; j < 16; j++)
 				pframe[payload_index++] = chain_buffer[j];
 		}
+=======
+		construct_ctr_preload(ctr_preload, a4_exists,
+				      qc_exists, pframe,
+				      pn_vector, i + 1,
+				      frtype); /*  add for CONFIG_IEEE80211W, none 11w also can use */
+
+		aes128k128d(key, ctr_preload, aes_out);
+		bitwise_xor(aes_out, &pframe[payload_index], chain_buffer);
+
+		for (j = 0; j < 16; j++)
+			pframe[payload_index++] = chain_buffer[j];
+	}
+>>>>>>> upstream/android-13
 
 	if (payload_remainder > 0) {
 		/* If there is a short final block, then pad it,*/
 		/* encrypt it and copy the unpadded part back   */
+<<<<<<< HEAD
 		construct_ctr_preload(
 			ctr_preload,
 			a4_exists,
@@ -1686,6 +2176,17 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 		for (j = 0; j < payload_remainder; j++) {
 			padded_buffer[j] = pframe[payload_index+j];
 		}
+=======
+		construct_ctr_preload(ctr_preload, a4_exists, qc_exists, pframe, pn_vector,
+				      num_blocks+1, frtype);
+		/*  add for CONFIG_IEEE80211W, none 11w also can use */
+
+		for (j = 0; j < 16; j++)
+			padded_buffer[j] = 0x00;
+		for (j = 0; j < payload_remainder; j++)
+			padded_buffer[j] = pframe[payload_index+j];
+
+>>>>>>> upstream/android-13
 		aes128k128d(key, ctr_preload, aes_out);
 		bitwise_xor(aes_out, padded_buffer, chain_buffer);
 		for (j = 0; j < payload_remainder; j++)
@@ -1696,7 +2197,10 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	if ((hdrlen + plen+8) <= MAX_MSG_SIZE)
 		memcpy((void *)message, pframe, (hdrlen + plen+8)); /* 8 is for ext iv len */
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	pn_vector[0] = pframe[hdrlen];
 	pn_vector[1] = pframe[hdrlen+1];
 	pn_vector[2] = pframe[hdrlen+4];
@@ -1704,6 +2208,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	pn_vector[4] = pframe[hdrlen+6];
 	pn_vector[5] = pframe[hdrlen+7];
 
+<<<<<<< HEAD
 
 
 	construct_mic_iv(
@@ -1729,6 +2234,14 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 		qc_exists
 	);
 
+=======
+	construct_mic_iv(mic_iv, qc_exists, a4_exists, message, plen-8, pn_vector, frtype);
+	/*  add for CONFIG_IEEE80211W, none 11w also can use */
+
+	construct_mic_header1(mic_header1, hdrlen, message, frtype);
+	/*  add for CONFIG_IEEE80211W, none 11w also can use */
+	construct_mic_header2(mic_header2, message, a4_exists, qc_exists);
+>>>>>>> upstream/android-13
 
 	payload_remainder = (plen-8) % 16;
 	num_blocks = (plen-8) / 16;
@@ -1754,12 +2267,20 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	if (payload_remainder > 0) {
 		for (j = 0; j < 16; j++)
 			padded_buffer[j] = 0x00;
+<<<<<<< HEAD
 		for (j = 0; j < payload_remainder; j++) {
 			padded_buffer[j] = message[payload_index++];
 		}
 		bitwise_xor(aes_out, padded_buffer, chain_buffer);
 		aes128k128d(key, chain_buffer, aes_out);
 
+=======
+		for (j = 0; j < payload_remainder; j++)
+			padded_buffer[j] = message[payload_index++];
+
+		bitwise_xor(aes_out, padded_buffer, chain_buffer);
+		aes128k128d(key, chain_buffer, aes_out);
+>>>>>>> upstream/android-13
 	}
 
 	for (j = 0; j < 8; j++)
@@ -1771,6 +2292,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 
 	payload_index = hdrlen + 8;
 	for (i = 0; i < num_blocks; i++) {
+<<<<<<< HEAD
 		construct_ctr_preload(
 			ctr_preload,
 			a4_exists,
@@ -1780,6 +2302,11 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 			i+1,
 			frtype
 		); /*  add for CONFIG_IEEE80211W, none 11w also can use */
+=======
+		construct_ctr_preload(ctr_preload, a4_exists, qc_exists, message, pn_vector, i+1,
+				      frtype);
+		/*  add for CONFIG_IEEE80211W, none 11w also can use */
+>>>>>>> upstream/android-13
 		aes128k128d(key, ctr_preload, aes_out);
 		bitwise_xor(aes_out, &message[payload_index], chain_buffer);
 		for (j = 0; j < 16; j++)
@@ -1789,6 +2316,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	if (payload_remainder > 0) {
 		/* If there is a short final block, then pad it,*/
 		/* encrypt it and copy the unpadded part back   */
+<<<<<<< HEAD
 		construct_ctr_preload(
 			ctr_preload,
 			a4_exists,
@@ -1804,6 +2332,17 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 		for (j = 0; j < payload_remainder; j++) {
 			padded_buffer[j] = message[payload_index+j];
 		}
+=======
+		construct_ctr_preload(ctr_preload, a4_exists, qc_exists, message, pn_vector,
+				      num_blocks+1, frtype);
+		/*  add for CONFIG_IEEE80211W, none 11w also can use */
+
+		for (j = 0; j < 16; j++)
+			padded_buffer[j] = 0x00;
+		for (j = 0; j < payload_remainder; j++)
+			padded_buffer[j] = message[payload_index+j];
+
+>>>>>>> upstream/android-13
 		aes128k128d(key, ctr_preload, aes_out);
 		bitwise_xor(aes_out, padded_buffer, chain_buffer);
 		for (j = 0; j < payload_remainder; j++)
@@ -1811,6 +2350,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	}
 
 	/* Encrypt the MIC */
+<<<<<<< HEAD
 	construct_ctr_preload(
 		ctr_preload,
 		a4_exists,
@@ -1826,6 +2366,15 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 	for (j = 0; j < 8; j++) {
 		padded_buffer[j] = message[j+hdrlen+8+plen-8];
 	}
+=======
+	construct_ctr_preload(ctr_preload, a4_exists, qc_exists, message, pn_vector, 0, frtype);
+	/*  add for CONFIG_IEEE80211W, none 11w also can use */
+
+	for (j = 0; j < 16; j++)
+		padded_buffer[j] = 0x00;
+	for (j = 0; j < 8; j++)
+		padded_buffer[j] = message[j+hdrlen+8+plen-8];
+>>>>>>> upstream/android-13
 
 	aes128k128d(key, ctr_preload, aes_out);
 	bitwise_xor(aes_out, padded_buffer, chain_buffer);
@@ -1834,6 +2383,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 
 	/* compare the mic */
 	for (i = 0; i < 8; i++) {
+<<<<<<< HEAD
 		if (pframe[hdrlen+8+plen-8+i] != message[hdrlen+8+plen-8+i]) {
 			RT_TRACE(_module_rtl871x_security_c_, _drv_err_, ("aes_decipher:mic check error mic[%d]: pframe(%x) != message(%x)\n",
 					i, pframe[hdrlen+8+plen-8+i], message[hdrlen+8+plen-8+i]));
@@ -1841,6 +2391,10 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 					i, pframe[hdrlen+8+plen-8+i], message[hdrlen+8+plen-8+i]);
 			res = _FAIL;
 		}
+=======
+		if (pframe[hdrlen + 8 + plen - 8 + i] != message[hdrlen + 8 + plen - 8 + i])
+			res = _FAIL;
+>>>>>>> upstream/android-13
 	}
 	return res;
 }
@@ -1848,6 +2402,7 @@ static sint aes_decipher(u8 *key, uint	hdrlen,
 u32 rtw_aes_decrypt(struct adapter *padapter, u8 *precvframe)
 {	/*  exclude ICV */
 
+<<<<<<< HEAD
 
 	/*static*/
 /* 	unsigned char message[MAX_MSG_SIZE]; */
@@ -1862,24 +2417,46 @@ u32 rtw_aes_decrypt(struct adapter *padapter, u8 *precvframe)
 	struct	rx_pkt_attrib	 *prxattrib = &((union recv_frame *)precvframe)->u.hdr.attrib;
 	struct	security_priv *psecuritypriv = &padapter->securitypriv;
 /* 	struct	recv_priv 	*precvpriv =&padapter->recvpriv; */
+=======
+	/*static*/
+	/* unsigned char message[MAX_MSG_SIZE]; */
+
+	/* Intermediate Buffers */
+
+	signed int length;
+	u8 *pframe, *prwskey;	/*  *payload,*iv */
+	struct sta_info *stainfo;
+	struct rx_pkt_attrib *prxattrib = &((union recv_frame *)precvframe)->u.hdr.attrib;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+>>>>>>> upstream/android-13
 	u32 res = _SUCCESS;
 
 	pframe = (unsigned char *)((union recv_frame *)precvframe)->u.hdr.rx_data;
 	/* 4 start to encrypt each fragment */
+<<<<<<< HEAD
 	if ((prxattrib->encrypt == _AES_)) {
 
 		stainfo = rtw_get_stainfo(&padapter->stapriv, &prxattrib->ta[0]);
 		if (stainfo != NULL) {
 			RT_TRACE(_module_rtl871x_security_c_, _drv_err_, ("rtw_aes_decrypt: stainfo!= NULL!!!\n"));
 
+=======
+	if (prxattrib->encrypt == _AES_) {
+		stainfo = rtw_get_stainfo(&padapter->stapriv, &prxattrib->ta[0]);
+		if (stainfo) {
+>>>>>>> upstream/android-13
 			if (IS_MCAST(prxattrib->ra)) {
 				static unsigned long start;
 				static u32 no_gkey_bc_cnt;
 				static u32 no_gkey_mc_cnt;
 
+<<<<<<< HEAD
 				/* DBG_871X("rx bc/mc packets, to perform sw rtw_aes_decrypt\n"); */
 				/* prwskey = psecuritypriv->dot118021XGrpKey[psecuritypriv->dot118021XGrpKeyid].skey; */
 				if (psecuritypriv->binstallGrpkey == false) {
+=======
+				if (!psecuritypriv->binstallGrpkey) {
+>>>>>>> upstream/android-13
 					res = _FAIL;
 
 					if (start == 0)
@@ -1892,8 +2469,16 @@ u32 rtw_aes_decrypt(struct adapter *padapter, u8 *precvframe)
 
 					if (jiffies_to_msecs(jiffies - start) > 1000) {
 						if (no_gkey_bc_cnt || no_gkey_mc_cnt) {
+<<<<<<< HEAD
 							DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
 								FUNC_ADPT_ARG(padapter), no_gkey_bc_cnt, no_gkey_mc_cnt);
+=======
+							netdev_dbg(padapter->pnetdev,
+								   FUNC_ADPT_FMT " no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
+								   FUNC_ADPT_ARG(padapter),
+								   no_gkey_bc_cnt,
+								   no_gkey_mc_cnt);
+>>>>>>> upstream/android-13
 						}
 						start = jiffies;
 						no_gkey_bc_cnt = 0;
@@ -1904,8 +2489,16 @@ u32 rtw_aes_decrypt(struct adapter *padapter, u8 *precvframe)
 				}
 
 				if (no_gkey_bc_cnt || no_gkey_mc_cnt) {
+<<<<<<< HEAD
 					DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT" gkey installed. no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
 						FUNC_ADPT_ARG(padapter), no_gkey_bc_cnt, no_gkey_mc_cnt);
+=======
+					netdev_dbg(padapter->pnetdev,
+						   FUNC_ADPT_FMT " gkey installed. no_gkey_bc_cnt:%u, no_gkey_mc_cnt:%u\n",
+						   FUNC_ADPT_ARG(padapter),
+						   no_gkey_bc_cnt,
+						   no_gkey_mc_cnt);
+>>>>>>> upstream/android-13
 				}
 				start = 0;
 				no_gkey_bc_cnt = 0;
@@ -1913,6 +2506,7 @@ u32 rtw_aes_decrypt(struct adapter *padapter, u8 *precvframe)
 
 				prwskey = psecuritypriv->dot118021XGrpKey[prxattrib->key_index].skey;
 				if (psecuritypriv->dot118021XGrpKeyid != prxattrib->key_index) {
+<<<<<<< HEAD
 					DBG_871X("not match packet_index =%d, install_index =%d\n"
 					, prxattrib->key_index, psecuritypriv->dot118021XGrpKeyid);
 					res = _FAIL;
@@ -1921,14 +2515,26 @@ u32 rtw_aes_decrypt(struct adapter *padapter, u8 *precvframe)
 			} else
 				prwskey = &stainfo->dot118021x_UncstKey.skey[0];
 
+=======
+					res = _FAIL;
+					goto exit;
+				}
+			} else {
+				prwskey = &stainfo->dot118021x_UncstKey.skey[0];
+			}
+>>>>>>> upstream/android-13
 
 			length = ((union recv_frame *)precvframe)->u.hdr.len-prxattrib->hdrlen-prxattrib->iv_len;
 
 			res = aes_decipher(prwskey, prxattrib->hdrlen, pframe, length);
 
+<<<<<<< HEAD
 			AES_SW_DEC_CNT_INC(psecuritypriv, prxattrib->ra);
 		} else {
 			RT_TRACE(_module_rtl871x_security_c_, _drv_err_, ("rtw_aes_decrypt: stainfo == NULL!!!\n"));
+=======
+		} else {
+>>>>>>> upstream/android-13
 			res = _FAIL;
 		}
 	}
@@ -1952,10 +2558,16 @@ u32 rtw_BIP_verify(struct adapter *padapter, u8 *precvframe)
 	ori_len = pattrib->pkt_len-WLAN_HDR_A3_LEN+BIP_AAD_SIZE;
 	BIP_AAD = rtw_zmalloc(ori_len);
 
+<<<<<<< HEAD
 	if (BIP_AAD == NULL) {
 		DBG_871X("BIP AAD allocate fail\n");
 		return _FAIL;
 	}
+=======
+	if (!BIP_AAD)
+		return _FAIL;
+
+>>>>>>> upstream/android-13
 	/* PKT start */
 	pframe = (unsigned char *)((union recv_frame *)precvframe)->u.hdr.rx_data;
 	/* mapping to wlan header */
@@ -1963,7 +2575,11 @@ u32 rtw_BIP_verify(struct adapter *padapter, u8 *precvframe)
 	/* save the frame body + MME */
 	memcpy(BIP_AAD+BIP_AAD_SIZE, pframe+WLAN_HDR_A3_LEN, pattrib->pkt_len-WLAN_HDR_A3_LEN);
 	/* find MME IE pointer */
+<<<<<<< HEAD
 	p = rtw_get_ie(BIP_AAD+BIP_AAD_SIZE, _MME_IE_, &len, pattrib->pkt_len-WLAN_HDR_A3_LEN);
+=======
+	p = rtw_get_ie(BIP_AAD+BIP_AAD_SIZE, WLAN_EID_MMIE, &len, pattrib->pkt_len-WLAN_HDR_A3_LEN);
+>>>>>>> upstream/android-13
 	/* Baron */
 	if (p) {
 		u16 keyid = 0;
@@ -1972,6 +2588,7 @@ u32 rtw_BIP_verify(struct adapter *padapter, u8 *precvframe)
 		memcpy(&le_tmp64, p+4, 6);
 		temp_ipn = le64_to_cpu(le_tmp64);
 		/* BIP packet number should bigger than previous BIP packet */
+<<<<<<< HEAD
 		if (temp_ipn <= pmlmeext->mgnt_80211w_IPN_rx) {
 			DBG_871X("replay BIP packet\n");
 			goto BIP_exit;
@@ -1983,6 +2600,17 @@ u32 rtw_BIP_verify(struct adapter *padapter, u8 *precvframe)
 			DBG_871X("BIP key index error!\n");
 			goto BIP_exit;
 		}
+=======
+		if (temp_ipn <= pmlmeext->mgnt_80211w_IPN_rx)
+			goto BIP_exit;
+
+		/* copy key index */
+		memcpy(&le_tmp, p+2, 2);
+		keyid = le16_to_cpu(le_tmp);
+		if (keyid != padapter->securitypriv.dot11wBIPKeyid)
+			goto BIP_exit;
+
+>>>>>>> upstream/android-13
 		/* clear the MIC field of MME to zero */
 		memset(p+2+len-8, 0, 8);
 
@@ -2002,17 +2630,27 @@ u32 rtw_BIP_verify(struct adapter *padapter, u8 *precvframe)
 		if (!memcmp(mic, pframe+pattrib->pkt_len-8, 8)) {
 			pmlmeext->mgnt_80211w_IPN_rx = temp_ipn;
 			res = _SUCCESS;
+<<<<<<< HEAD
 		} else
 			DBG_871X("BIP MIC error!\n");
 
 	} else
 		res = RTW_RX_HANDLED;
+=======
+		} else {
+		}
+
+	} else {
+		res = RTW_RX_HANDLED;
+	}
+>>>>>>> upstream/android-13
 BIP_exit:
 
 	kfree(BIP_AAD);
 	return res;
 }
 
+<<<<<<< HEAD
 /* AES tables*/
 const u32 Te0[256] = {
 	0xc66363a5U, 0xf87c7c84U, 0xee777799U, 0xf67b7b8dU,
@@ -2276,6 +2914,8 @@ static void aes_128_encrypt(void *ctx, u8 *plain, u8 *crypt)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static void gf_mulx(u8 *pad)
 {
 	int i, carry;
@@ -2289,6 +2929,7 @@ static void gf_mulx(u8 *pad)
 		pad[AES_BLOCK_SIZE - 1] ^= 0x87;
 }
 
+<<<<<<< HEAD
 static void aes_encrypt_deinit(void *ctx)
 {
 	memset(ctx, 0, AES_PRIV_SIZE);
@@ -2296,6 +2937,8 @@ static void aes_encrypt_deinit(void *ctx)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /**
  * omac1_aes_128_vector - One-Key CBC MAC (OMAC1) hash with AES-128
  * @key: 128-bit key for the hash operation
@@ -2310,6 +2953,7 @@ static void aes_encrypt_deinit(void *ctx)
  * (SP) 800-38B.
  */
 static int omac1_aes_128_vector(u8 *key, size_t num_elem,
+<<<<<<< HEAD
 							 u8 *addr[], size_t *len, u8 *mac)
 {
 	void *ctx;
@@ -2319,6 +2963,18 @@ static int omac1_aes_128_vector(u8 *key, size_t num_elem,
 
 	ctx = aes_encrypt_init(key, 16);
 	if (ctx == NULL)
+=======
+				u8 *addr[], size_t *len, u8 *mac)
+{
+	struct crypto_aes_ctx ctx;
+	u8 cbc[AES_BLOCK_SIZE], pad[AES_BLOCK_SIZE];
+	u8 *pos, *end;
+	size_t i, e, left, total_len;
+	int ret;
+
+	ret = aes_expandkey(&ctx, key, 16);
+	if (ret)
+>>>>>>> upstream/android-13
 		return -1;
 	memset(cbc, 0, AES_BLOCK_SIZE);
 
@@ -2341,12 +2997,20 @@ static int omac1_aes_128_vector(u8 *key, size_t num_elem,
 			}
 		}
 		if (left > AES_BLOCK_SIZE)
+<<<<<<< HEAD
 			aes_128_encrypt(ctx, cbc, cbc);
+=======
+			aes_encrypt(&ctx, cbc, cbc);
+>>>>>>> upstream/android-13
 		left -= AES_BLOCK_SIZE;
 	}
 
 	memset(pad, 0, AES_BLOCK_SIZE);
+<<<<<<< HEAD
 	aes_128_encrypt(ctx, pad, pad);
+=======
+	aes_encrypt(&ctx, pad, pad);
+>>>>>>> upstream/android-13
 	gf_mulx(pad);
 
 	if (left || total_len == 0) {
@@ -2364,12 +3028,20 @@ static int omac1_aes_128_vector(u8 *key, size_t num_elem,
 
 	for (i = 0; i < AES_BLOCK_SIZE; i++)
 		pad[i] ^= cbc[i];
+<<<<<<< HEAD
 	aes_128_encrypt(ctx, pad, mac);
 	aes_encrypt_deinit(ctx);
 	return 0;
 }
 
 
+=======
+	aes_encrypt(&ctx, pad, mac);
+	memzero_explicit(&ctx, sizeof(ctx));
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * omac1_aes_128 - One-Key CBC MAC (OMAC1) hash with AES-128 (aka AES-CMAC)
  * @key: 128-bit key for the hash operation
@@ -2391,7 +3063,11 @@ int omac1_aes_128(u8 *key, u8 *data, size_t data_len, u8 *mac)
 void rtw_sec_restore_wep_key(struct adapter *adapter)
 {
 	struct security_priv *securitypriv = &(adapter->securitypriv);
+<<<<<<< HEAD
 	sint keyid;
+=======
+	signed int keyid;
+>>>>>>> upstream/android-13
 
 	if ((_WEP40_ == securitypriv->dot11PrivacyAlgrthm) || (_WEP104_ == securitypriv->dot11PrivacyAlgrthm)) {
 		for (keyid = 0; keyid < 4; keyid++) {
@@ -2410,6 +3086,7 @@ u8 rtw_handle_tkip_countermeasure(struct adapter *adapter, const char *caller)
 	struct security_priv *securitypriv = &(adapter->securitypriv);
 	u8 status = _SUCCESS;
 
+<<<<<<< HEAD
 	if (securitypriv->btkip_countermeasure == true) {
 		unsigned long passing_ms = jiffies_to_msecs(jiffies - securitypriv->btkip_countermeasure_time);
 		if (passing_ms > 60*1000) {
@@ -2420,6 +3097,23 @@ u8 rtw_handle_tkip_countermeasure(struct adapter *adapter, const char *caller)
 		} else {
 			DBG_871X_LEVEL(_drv_always_, "%s("ADPT_FMT") countermeasure time:%lus < 60s\n",
 				caller, ADPT_ARG(adapter), passing_ms/1000);
+=======
+	if (securitypriv->btkip_countermeasure) {
+		unsigned long passing_ms = jiffies_to_msecs(jiffies - securitypriv->btkip_countermeasure_time);
+
+		if (passing_ms > 60*1000) {
+			netdev_dbg(adapter->pnetdev,
+				   "%s(%s) countermeasure time:%lus > 60s\n",
+				   caller, ADPT_ARG(adapter),
+				   passing_ms / 1000);
+			securitypriv->btkip_countermeasure = false;
+			securitypriv->btkip_countermeasure_time = 0;
+		} else {
+			netdev_dbg(adapter->pnetdev,
+				   "%s(%s) countermeasure time:%lus < 60s\n",
+				   caller, ADPT_ARG(adapter),
+				   passing_ms / 1000);
+>>>>>>> upstream/android-13
 			status = _FAIL;
 		}
 	}

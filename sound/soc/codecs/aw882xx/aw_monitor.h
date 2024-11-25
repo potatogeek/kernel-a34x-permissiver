@@ -11,7 +11,11 @@ struct aw_table;
 #define IPEAK_NONE	(0xFF)
 #define GAIN_NONE	(0xFF)
 #define VMAX_NONE	(0xFFFFFFFF)
+<<<<<<< HEAD
 
+=======
+#define AW_MONITOR_ABOX_DEFAULT_TIME_MS		(1000)
+>>>>>>> upstream/android-13
 
 #define AW_GET_32_DATA(w, x, y, z) \
 		((uint32_t)((((uint8_t)w) << 24) | (((uint8_t)x) << 16) | (((uint8_t)y) << 8) | ((uint8_t)z)))

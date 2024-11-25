@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Procedures for creating, accessing and interpreting the device tree.
  *
@@ -6,16 +10,22 @@
  * 
  *  Adapted for 64bit PowerPC by Dave Engebretsen and Peter Bergner.
  *    {engebret|bergner}@us.ibm.com 
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/init.h>
@@ -34,6 +44,10 @@
 #include <linux/of_fdt.h>
 #include <linux/libfdt.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/prom.h>
 #include <asm/rtas.h>
@@ -45,7 +59,10 @@
 #include <asm/smp.h>
 #include <asm/mmu.h>
 #include <asm/paca.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/powernv.h>
 #include <asm/iommu.h>
 #include <asm/btext.h>
@@ -59,6 +76,10 @@
 #include <asm/firmware.h>
 #include <asm/dt_cpu_ftrs.h>
 #include <asm/drmem.h>
+<<<<<<< HEAD
+=======
+#include <asm/ultravisor.h>
+>>>>>>> upstream/android-13
 
 #include <mm/mmu_decl.h>
 
@@ -68,6 +89,11 @@
 #define DBG(fmt...)
 #endif
 
+<<<<<<< HEAD
+=======
+int *chip_id_lookup_table;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC64
 int __initdata iommu_is_off;
 int __initdata iommu_force_on;
@@ -99,8 +125,13 @@ static inline int overlaps_initrd(unsigned long start, unsigned long size)
 	if (!initrd_start)
 		return 0;
 
+<<<<<<< HEAD
 	return	(start + size) > _ALIGN_DOWN(initrd_start, PAGE_SIZE) &&
 			start <= _ALIGN_UP(initrd_end, PAGE_SIZE);
+=======
+	return	(start + size) > ALIGN_DOWN(initrd_start, PAGE_SIZE) &&
+			start <= ALIGN(initrd_end, PAGE_SIZE);
+>>>>>>> upstream/android-13
 #else
 	return 0;
 #endif
@@ -124,9 +155,18 @@ static void __init move_device_tree(void)
 	size = fdt_totalsize(initial_boot_params);
 
 	if ((memory_limit && (start + size) > PHYSICAL_START + memory_limit) ||
+<<<<<<< HEAD
 			overlaps_crashkernel(start, size) ||
 			overlaps_initrd(start, size)) {
 		p = __va(memblock_alloc(size, PAGE_SIZE));
+=======
+	    !memblock_is_memory(start + size - 1) ||
+	    overlaps_crashkernel(start, size) || overlaps_initrd(start, size)) {
+		p = memblock_alloc_raw(size, PAGE_SIZE);
+		if (!p)
+			panic("Failed to allocate %lu bytes to move device tree\n",
+			      size);
+>>>>>>> upstream/android-13
 		memcpy(p, initial_boot_params, size);
 		initial_boot_params = p;
 		DBG("Moved device tree to 0x%px\n", p);
@@ -163,9 +203,14 @@ static struct ibm_pa_feature {
 	{ .pabyte = 0,  .pabit = 6, .cpu_features  = CPU_FTR_NOEXECUTE },
 	{ .pabyte = 1,  .pabit = 2, .mmu_features  = MMU_FTR_CI_LARGE_PAGE },
 #ifdef CONFIG_PPC_RADIX_MMU
+<<<<<<< HEAD
 	{ .pabyte = 40, .pabit = 0, .mmu_features  = MMU_FTR_TYPE_RADIX },
 #endif
 	{ .pabyte = 1,  .pabit = 1, .invert = 1, .cpu_features = CPU_FTR_NODSISRALIGN },
+=======
+	{ .pabyte = 40, .pabit = 0, .mmu_features  = MMU_FTR_TYPE_RADIX | MMU_FTR_GTSE },
+#endif
+>>>>>>> upstream/android-13
 	{ .pabyte = 5,  .pabit = 0, .cpu_features  = CPU_FTR_REAL_LE,
 				    .cpu_user_ftrs = PPC_FEATURE_TRUE_LE },
 	/*
@@ -175,6 +220,11 @@ static struct ibm_pa_feature {
 	 */
 	{ .pabyte = 22, .pabit = 0, .cpu_features = CPU_FTR_TM_COMP,
 	  .cpu_user_ftrs2 = PPC_FEATURE2_HTM_COMP | PPC_FEATURE2_HTM_NOSC_COMP },
+<<<<<<< HEAD
+=======
+
+	{ .pabyte = 64, .pabit = 0, .cpu_features = CPU_FTR_DAWR1 },
+>>>>>>> upstream/android-13
 };
 
 static void __init scan_features(unsigned long node, const unsigned char *ftrs,
@@ -468,8 +518,14 @@ static bool validate_mem_limit(u64 base, u64 *size)
  * This contains a list of memory blocks along with NUMA affinity
  * information.
  */
+<<<<<<< HEAD
 static void __init early_init_drmem_lmb(struct drmem_lmb *lmb,
 					const __be32 **usm)
+=======
+static int  __init early_init_drmem_lmb(struct drmem_lmb *lmb,
+					const __be32 **usm,
+					void *data)
+>>>>>>> upstream/android-13
 {
 	u64 base, size;
 	int is_kexec_kdump = 0, rngs;
@@ -484,7 +540,11 @@ static void __init early_init_drmem_lmb(struct drmem_lmb *lmb,
 	 */
 	if ((lmb->flags & DRCONF_MEM_RESERVED) ||
 	    !(lmb->flags & DRCONF_MEM_ASSIGNED))
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (*usm)
 		is_kexec_kdump = 1;
@@ -499,7 +559,11 @@ static void __init early_init_drmem_lmb(struct drmem_lmb *lmb,
 		 */
 		rngs = dt_mem_next_cell(dt_root_size_cells, usm);
 		if (!rngs) /* there are no (base, size) duple */
+<<<<<<< HEAD
 			return;
+=======
+			return 0;
+>>>>>>> upstream/android-13
 	}
 
 	do {
@@ -515,10 +579,24 @@ static void __init early_init_drmem_lmb(struct drmem_lmb *lmb,
 				size = 0x80000000ul - base;
 		}
 
+<<<<<<< HEAD
 		DBG("Adding: %llx -> %llx\n", base, size);
 		if (validate_mem_limit(base, &size))
 			memblock_add(base, size);
 	} while (--rngs);
+=======
+		if (!validate_mem_limit(base, &size))
+			continue;
+
+		DBG("Adding: %llx -> %llx\n", base, size);
+		memblock_add(base, size);
+
+		if (lmb->flags & DRCONF_MEM_HOTREMOVABLE)
+			memblock_mark_hotplug(base, size);
+	} while (--rngs);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_PPC_PSERIES */
 
@@ -529,7 +607,11 @@ static int __init early_init_dt_scan_memory_ppc(unsigned long node,
 #ifdef CONFIG_PPC_PSERIES
 	if (depth == 1 &&
 	    strcmp(uname, "ibm,dynamic-reconfiguration-memory") == 0) {
+<<<<<<< HEAD
 		walk_drmem_lmbs_early(node, early_init_drmem_lmb);
+=======
+		walk_drmem_lmbs_early(node, NULL, early_init_drmem_lmb);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 #endif
@@ -623,6 +705,7 @@ static void __init early_reserve_mem(void)
 #ifdef CONFIG_BLK_DEV_INITRD
 	/* Then reserve the initrd, if any */
 	if (initrd_start && (initrd_end > initrd_start)) {
+<<<<<<< HEAD
 		memblock_reserve(_ALIGN_DOWN(__pa(initrd_start), PAGE_SIZE),
 			_ALIGN_UP(initrd_end, PAGE_SIZE) -
 			_ALIGN_DOWN(initrd_start, PAGE_SIZE));
@@ -630,6 +713,17 @@ static void __init early_reserve_mem(void)
 #endif /* CONFIG_BLK_DEV_INITRD */
 
 #ifdef CONFIG_PPC32
+=======
+		memblock_reserve(ALIGN_DOWN(__pa(initrd_start), PAGE_SIZE),
+			ALIGN(initrd_end, PAGE_SIZE) -
+			ALIGN_DOWN(initrd_start, PAGE_SIZE));
+	}
+#endif /* CONFIG_BLK_DEV_INITRD */
+
+	if (!IS_ENABLED(CONFIG_PPC32))
+		return;
+
+>>>>>>> upstream/android-13
 	/* 
 	 * Handle the case where we might be booting from an old kexec
 	 * image that setup the mem_rsvmap as pairs of 32-bit values
@@ -650,7 +744,10 @@ static void __init early_reserve_mem(void)
 		}
 		return;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
@@ -698,7 +795,11 @@ static void __init save_fscr_to_task(void)
 		init_task.thread.fscr = mfspr(SPRN_FSCR);
 }
 #else
+<<<<<<< HEAD
 static inline void save_fscr_to_task(void) {};
+=======
+static inline void save_fscr_to_task(void) {}
+>>>>>>> upstream/android-13
 #endif
 
 
@@ -720,9 +821,18 @@ void __init early_init_devtree(void *params)
 #ifdef CONFIG_PPC_POWERNV
 	/* Some machines might need OPAL info for debugging, grab it now. */
 	of_scan_flat_dt(early_init_dt_scan_opal, NULL);
+<<<<<<< HEAD
 #endif
 
 #ifdef CONFIG_FA_DUMP
+=======
+
+	/* Scan tree for ultravisor feature */
+	of_scan_flat_dt(early_init_dt_scan_ultravisor, NULL);
+#endif
+
+#if defined(CONFIG_FA_DUMP) || defined(CONFIG_PRESERVE_FA_DUMP)
+>>>>>>> upstream/android-13
 	/* scan tree to see if dump is active during last boot */
 	of_scan_flat_dt(early_init_dt_scan_fw_dump, NULL);
 #endif
@@ -744,12 +854,20 @@ void __init early_init_devtree(void *params)
 		first_memblock_size = min_t(u64, first_memblock_size, memory_limit);
 	setup_initial_memory_limit(memstart_addr, first_memblock_size);
 	/* Reserve MEMBLOCK regions used by kernel, initrd, dt, etc... */
+<<<<<<< HEAD
 	memblock_reserve(PHYSICAL_START, __pa(klimit) - PHYSICAL_START);
+=======
+	memblock_reserve(PHYSICAL_START, __pa(_end) - PHYSICAL_START);
+>>>>>>> upstream/android-13
 	/* If relocatable, reserve first 32k for interrupt vectors etc. */
 	if (PHYSICAL_START > MEMORY_START)
 		memblock_reserve(MEMORY_START, 0x8000);
 	reserve_kdump_trampoline();
+<<<<<<< HEAD
 #ifdef CONFIG_FA_DUMP
+=======
+#if defined(CONFIG_FA_DUMP) || defined(CONFIG_PRESERVE_FA_DUMP)
+>>>>>>> upstream/android-13
 	/*
 	 * If we fail to reserve memory for firmware-assisted dump then
 	 * fallback to kexec based kdump.
@@ -763,6 +881,14 @@ void __init early_init_devtree(void *params)
 	limit = ALIGN(memory_limit ?: memblock_phys_mem_size(), PAGE_SIZE);
 	memblock_enforce_memory_limit(limit);
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_PPC_BOOK3S_64) && defined(CONFIG_PPC_4K_PAGES)
+	if (!early_radix_enabled())
+		memblock_cap_memory_range(0, 1UL << (H_MAX_PHYSMEM_BITS));
+#endif
+
+>>>>>>> upstream/android-13
 	memblock_allow_resize();
 	memblock_dump_all();
 
@@ -807,6 +933,14 @@ void __init early_init_devtree(void *params)
 	/* Now try to figure out if we are running on LPAR and so on */
 	pseries_probe_fw_features();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Initialize pkey features and default AMR/IAMR values
+	 */
+	pkey_early_init_devtree();
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_PS3
 	/* Identify PS3 firmware */
 	if (of_flat_dt_is_compatible(of_get_flat_dt_root(), "sony,ps3"))
@@ -892,6 +1026,7 @@ EXPORT_SYMBOL(of_get_ibm_chip_id);
 int cpu_to_chip_id(int cpu)
 {
 	struct device_node *np;
+<<<<<<< HEAD
 
 	np = of_get_cpu_node(cpu, NULL);
 	if (!np)
@@ -899,6 +1034,24 @@ int cpu_to_chip_id(int cpu)
 
 	of_node_put(np);
 	return of_get_ibm_chip_id(np);
+=======
+	int ret = -1, idx;
+
+	idx = cpu / threads_per_core;
+	if (chip_id_lookup_table && chip_id_lookup_table[idx] != -1)
+		return chip_id_lookup_table[idx];
+
+	np = of_get_cpu_node(cpu, NULL);
+	if (np) {
+		ret = of_get_ibm_chip_id(np);
+		of_node_put(np);
+
+		if (chip_id_lookup_table)
+			chip_id_lookup_table[idx] = ret;
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(cpu_to_chip_id);
 

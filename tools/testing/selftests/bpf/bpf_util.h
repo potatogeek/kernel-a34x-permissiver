@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+<<<<<<< HEAD
 
 static inline unsigned int bpf_num_possible_cpus(void)
 {
@@ -44,6 +45,19 @@ static inline unsigned int bpf_num_possible_cpus(void)
 
 	fclose(fp);
 
+=======
+#include <bpf/libbpf.h> /* libbpf_num_possible_cpus */
+
+static inline unsigned int bpf_num_possible_cpus(void)
+{
+	int possible_cpus = libbpf_num_possible_cpus();
+
+	if (possible_cpus < 0) {
+		printf("Failed to get # of possible cpus: '%s'!\n",
+		       strerror(-possible_cpus));
+		exit(1);
+	}
+>>>>>>> upstream/android-13
 	return possible_cpus;
 }
 
@@ -58,4 +72,16 @@ static inline unsigned int bpf_num_possible_cpus(void)
 # define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
+<<<<<<< HEAD
+=======
+#ifndef sizeof_field
+#define sizeof_field(TYPE, MEMBER) sizeof((((TYPE *)0)->MEMBER))
+#endif
+
+#ifndef offsetofend
+#define offsetofend(TYPE, MEMBER) \
+	(offsetof(TYPE, MEMBER)	+ sizeof_field(TYPE, MEMBER))
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __BPF_UTIL__ */

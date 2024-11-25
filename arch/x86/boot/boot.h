@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- ------------------------------------------------------- *
  *
  *   Copyright (C) 1991, 1992 Linus Torvalds
  *   Copyright 2007 rPath, Inc. - All Rights Reserved
  *   Copyright 2009 Intel Corporation; author H. Peter Anvin
  *
+<<<<<<< HEAD
  *   This file is part of the Linux kernel, and is made available under
  *   the terms of the GNU General Public License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * ----------------------------------------------------------------------- */
 
 /*
@@ -20,7 +27,11 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/edd.h>
 #include <asm/setup.h>
@@ -30,8 +41,11 @@
 #include "cpuflags.h"
 
 /* Useful macros */
+<<<<<<< HEAD
 #define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
 
+=======
+>>>>>>> upstream/android-13
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
 extern struct setup_header hdr;
@@ -309,7 +323,11 @@ void query_edd(void);
 void __attribute__((noreturn)) die(void);
 
 /* memory.c */
+<<<<<<< HEAD
 int detect_memory(void);
+=======
+void detect_memory(void);
+>>>>>>> upstream/android-13
 
 /* pm.c */
 void __attribute__((noreturn)) go_to_protected_mode(void);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*******************************************************************************
  * Filename:  target_core_pr.c
  *
@@ -8,6 +12,7 @@
  *
  * Nicholas A. Bellinger <nab@kernel.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  ******************************************************************************/
 
 #include <linux/slab.h>
@@ -111,10 +118,17 @@ target_scsi2_reservation_check(struct se_cmd *cmd)
 		break;
 	}
 
+<<<<<<< HEAD
 	if (!dev->dev_reserved_node_acl || !sess)
 		return 0;
 
 	if (dev->dev_reserved_node_acl != sess->se_node_acl)
+=======
+	if (!dev->reservation_holder || !sess)
+		return 0;
+
+	if (dev->reservation_holder->se_node_acl != sess->se_node_acl)
+>>>>>>> upstream/android-13
 		return TCM_RESERVATION_CONFLICT;
 
 	if (dev->dev_reservation_flags & DRF_SPC2_RESERVATIONS_WITH_ISID) {
@@ -200,6 +214,19 @@ static int target_check_scsi2_reservation_conflict(struct se_cmd *cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+void target_release_reservation(struct se_device *dev)
+{
+	dev->reservation_holder = NULL;
+	dev->dev_reservation_flags &= ~DRF_SPC2_RESERVATIONS;
+	if (dev->dev_reservation_flags & DRF_SPC2_RESERVATIONS_WITH_ISID) {
+		dev->dev_res_bin_isid = 0;
+		dev->dev_reservation_flags &= ~DRF_SPC2_RESERVATIONS_WITH_ISID;
+	}
+}
+
+>>>>>>> upstream/android-13
 sense_reason_t
 target_scsi2_reservation_release(struct se_cmd *cmd)
 {
@@ -217,15 +244,23 @@ target_scsi2_reservation_release(struct se_cmd *cmd)
 		return TCM_RESERVATION_CONFLICT;
 
 	spin_lock(&dev->dev_reservation_lock);
+<<<<<<< HEAD
 	if (!dev->dev_reserved_node_acl || !sess)
 		goto out_unlock;
 
 	if (dev->dev_reserved_node_acl != sess->se_node_acl)
+=======
+	if (!dev->reservation_holder || !sess)
+		goto out_unlock;
+
+	if (dev->reservation_holder->se_node_acl != sess->se_node_acl)
+>>>>>>> upstream/android-13
 		goto out_unlock;
 
 	if (dev->dev_res_bin_isid != sess->sess_bin_isid)
 		goto out_unlock;
 
+<<<<<<< HEAD
 	dev->dev_reserved_node_acl = NULL;
 	dev->dev_reservation_flags &= ~DRF_SPC2_RESERVATIONS;
 	if (dev->dev_reservation_flags & DRF_SPC2_RESERVATIONS_WITH_ISID) {
@@ -236,13 +271,24 @@ target_scsi2_reservation_release(struct se_cmd *cmd)
 	pr_debug("SCSI-2 Released reservation for %s LUN: %llu ->"
 		" MAPPED LUN: %llu for %s\n",
 		tpg->se_tpg_tfo->get_fabric_name(),
+=======
+	target_release_reservation(dev);
+	tpg = sess->se_tpg;
+	pr_debug("SCSI-2 Released reservation for %s LUN: %llu ->"
+		" MAPPED LUN: %llu for %s\n",
+		tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 		cmd->se_lun->unpacked_lun, cmd->orig_fe_lun,
 		sess->se_node_acl->initiatorname);
 
 out_unlock:
 	spin_unlock(&dev->dev_reservation_lock);
 out:
+<<<<<<< HEAD
 	target_complete_cmd(cmd, GOOD);
+=======
+	target_complete_cmd(cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -275,6 +321,7 @@ target_scsi2_reservation_reserve(struct se_cmd *cmd)
 
 	tpg = sess->se_tpg;
 	spin_lock(&dev->dev_reservation_lock);
+<<<<<<< HEAD
 	if (dev->dev_reserved_node_acl &&
 	   (dev->dev_reserved_node_acl != sess->se_node_acl)) {
 		pr_err("SCSI-2 RESERVATION CONFLIFT for %s fabric\n",
@@ -282,6 +329,15 @@ target_scsi2_reservation_reserve(struct se_cmd *cmd)
 		pr_err("Original reserver LUN: %llu %s\n",
 			cmd->se_lun->unpacked_lun,
 			dev->dev_reserved_node_acl->initiatorname);
+=======
+	if (dev->reservation_holder &&
+	    dev->reservation_holder->se_node_acl != sess->se_node_acl) {
+		pr_err("SCSI-2 RESERVATION CONFLICT for %s fabric\n",
+			tpg->se_tpg_tfo->fabric_name);
+		pr_err("Original reserver LUN: %llu %s\n",
+			cmd->se_lun->unpacked_lun,
+			dev->reservation_holder->se_node_acl->initiatorname);
+>>>>>>> upstream/android-13
 		pr_err("Current attempt - LUN: %llu -> MAPPED LUN: %llu"
 			" from %s \n", cmd->se_lun->unpacked_lun,
 			cmd->orig_fe_lun,
@@ -290,14 +346,22 @@ target_scsi2_reservation_reserve(struct se_cmd *cmd)
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	dev->dev_reserved_node_acl = sess->se_node_acl;
+=======
+	dev->reservation_holder = sess;
+>>>>>>> upstream/android-13
 	dev->dev_reservation_flags |= DRF_SPC2_RESERVATIONS;
 	if (sess->sess_bin_isid != 0) {
 		dev->dev_res_bin_isid = sess->sess_bin_isid;
 		dev->dev_reservation_flags |= DRF_SPC2_RESERVATIONS_WITH_ISID;
 	}
 	pr_debug("SCSI-2 Reserved %s LUN: %llu -> MAPPED LUN: %llu"
+<<<<<<< HEAD
 		" for %s\n", tpg->se_tpg_tfo->get_fabric_name(),
+=======
+		" for %s\n", tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 		cmd->se_lun->unpacked_lun, cmd->orig_fe_lun,
 		sess->se_node_acl->initiatorname);
 
@@ -305,7 +369,11 @@ out_unlock:
 	spin_unlock(&dev->dev_reservation_lock);
 out:
 	if (!ret)
+<<<<<<< HEAD
 		target_complete_cmd(cmd, GOOD);
+=======
+		target_complete_cmd(cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -345,6 +413,10 @@ static int core_scsi3_pr_seq_non_holder(struct se_cmd *cmd, u32 pr_reg_type,
 	switch (pr_reg_type) {
 	case PR_TYPE_WRITE_EXCLUSIVE:
 		we = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PR_TYPE_EXCLUSIVE_ACCESS:
 		/*
 		 * Some commands are only allowed for the persistent reservation
@@ -353,7 +425,11 @@ static int core_scsi3_pr_seq_non_holder(struct se_cmd *cmd, u32 pr_reg_type,
 		break;
 	case PR_TYPE_WRITE_EXCLUSIVE_REGONLY:
 		we = 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PR_TYPE_EXCLUSIVE_ACCESS_REGONLY:
 		/*
 		 * Some commands are only allowed for registered I_T Nexuses.
@@ -362,7 +438,11 @@ static int core_scsi3_pr_seq_non_holder(struct se_cmd *cmd, u32 pr_reg_type,
 		break;
 	case PR_TYPE_WRITE_EXCLUSIVE_ALLREG:
 		we = 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PR_TYPE_EXCLUSIVE_ACCESS_ALLREG:
 		/*
 		 * Each registered I_T Nexus is a reservation holder.
@@ -903,9 +983,14 @@ static void core_scsi3_aptpl_reserve(
 	struct se_node_acl *node_acl,
 	struct t10_pr_registration *pr_reg)
 {
+<<<<<<< HEAD
 	char i_buf[PR_REG_ISID_ID_LEN];
 
 	memset(i_buf, 0, PR_REG_ISID_ID_LEN);
+=======
+	char i_buf[PR_REG_ISID_ID_LEN] = { };
+
+>>>>>>> upstream/android-13
 	core_pr_dump_initiator_port(pr_reg, i_buf, PR_REG_ISID_ID_LEN);
 
 	spin_lock(&dev->dev_reservation_lock);
@@ -914,11 +999,19 @@ static void core_scsi3_aptpl_reserve(
 
 	pr_debug("SPC-3 PR [%s] Service Action: APTPL RESERVE created"
 		" new reservation holder TYPE: %s ALL_TG_PT: %d\n",
+<<<<<<< HEAD
 		tpg->se_tpg_tfo->get_fabric_name(),
 		core_scsi3_pr_dump_type(pr_reg->pr_res_type),
 		(pr_reg->pr_reg_all_tg_pt) ? 1 : 0);
 	pr_debug("SPC-3 PR [%s] RESERVE Node: %s%s\n",
 		tpg->se_tpg_tfo->get_fabric_name(), node_acl->initiatorname,
+=======
+		tpg->se_tpg_tfo->fabric_name,
+		core_scsi3_pr_dump_type(pr_reg->pr_res_type),
+		(pr_reg->pr_reg_all_tg_pt) ? 1 : 0);
+	pr_debug("SPC-3 PR [%s] RESERVE Node: %s%s\n",
+		tpg->se_tpg_tfo->fabric_name, node_acl->initiatorname,
+>>>>>>> upstream/android-13
 		i_buf);
 }
 
@@ -935,12 +1028,19 @@ static int __core_scsi3_check_aptpl_registration(
 {
 	struct t10_pr_registration *pr_reg, *pr_reg_tmp;
 	struct t10_reservation *pr_tmpl = &dev->t10_pr;
+<<<<<<< HEAD
 	unsigned char i_port[PR_APTPL_MAX_IPORT_LEN];
 	unsigned char t_port[PR_APTPL_MAX_TPORT_LEN];
 	u16 tpgt;
 
 	memset(i_port, 0, PR_APTPL_MAX_IPORT_LEN);
 	memset(t_port, 0, PR_APTPL_MAX_TPORT_LEN);
+=======
+	unsigned char i_port[PR_APTPL_MAX_IPORT_LEN] = { };
+	unsigned char t_port[PR_APTPL_MAX_TPORT_LEN] = { };
+	u16 tpgt;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Copy Initiator Port information from struct se_node_acl
 	 */
@@ -1030,6 +1130,7 @@ static void __core_scsi3_dump_registration(
 	enum register_type register_type)
 {
 	struct se_portal_group *se_tpg = nacl->se_tpg;
+<<<<<<< HEAD
 	char i_buf[PR_REG_ISID_ID_LEN];
 
 	memset(&i_buf[0], 0, PR_REG_ISID_ID_LEN);
@@ -1037,10 +1138,19 @@ static void __core_scsi3_dump_registration(
 
 	pr_debug("SPC-3 PR [%s] Service Action: REGISTER%s Initiator"
 		" Node: %s%s\n", tfo->get_fabric_name(), (register_type == REGISTER_AND_MOVE) ?
+=======
+	char i_buf[PR_REG_ISID_ID_LEN] = { };
+
+	core_pr_dump_initiator_port(pr_reg, i_buf, PR_REG_ISID_ID_LEN);
+
+	pr_debug("SPC-3 PR [%s] Service Action: REGISTER%s Initiator"
+		" Node: %s%s\n", tfo->fabric_name, (register_type == REGISTER_AND_MOVE) ?
+>>>>>>> upstream/android-13
 		"_AND_MOVE" : (register_type == REGISTER_AND_IGNORE_EXISTING_KEY) ?
 		"_AND_IGNORE_EXISTING_KEY" : "", nacl->initiatorname,
 		i_buf);
 	pr_debug("SPC-3 PR [%s] registration on Target Port: %s,0x%04x\n",
+<<<<<<< HEAD
 		 tfo->get_fabric_name(), tfo->tpg_get_wwn(se_tpg),
 		tfo->tpg_get_tag(se_tpg));
 	pr_debug("SPC-3 PR [%s] for %s TCM Subsystem %s Object Target"
@@ -1049,6 +1159,16 @@ static void __core_scsi3_dump_registration(
 		dev->transport->name);
 	pr_debug("SPC-3 PR [%s] SA Res Key: 0x%016Lx PRgeneration:"
 		" 0x%08x  APTPL: %d\n", tfo->get_fabric_name(),
+=======
+		 tfo->fabric_name, tfo->tpg_get_wwn(se_tpg),
+		tfo->tpg_get_tag(se_tpg));
+	pr_debug("SPC-3 PR [%s] for %s TCM Subsystem %s Object Target"
+		" Port(s)\n",  tfo->fabric_name,
+		(pr_reg->pr_reg_all_tg_pt) ? "ALL" : "SINGLE",
+		dev->transport->name);
+	pr_debug("SPC-3 PR [%s] SA Res Key: 0x%016Lx PRgeneration:"
+		" 0x%08x  APTPL: %d\n", tfo->fabric_name,
+>>>>>>> upstream/android-13
 		pr_reg->pr_res_key, pr_reg->pr_res_generation,
 		pr_reg->pr_reg_aptpl);
 }
@@ -1167,7 +1287,10 @@ static struct t10_pr_registration *__core_scsi3_locate_pr_reg(
 {
 	struct t10_reservation *pr_tmpl = &dev->t10_pr;
 	struct t10_pr_registration *pr_reg, *pr_reg_tmp;
+<<<<<<< HEAD
 	struct se_portal_group *tpg;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&pr_tmpl->registration_lock);
 	list_for_each_entry_safe(pr_reg, pr_reg_tmp,
@@ -1178,12 +1301,16 @@ static struct t10_pr_registration *__core_scsi3_locate_pr_reg(
 		if (pr_reg->pr_reg_nacl != nacl)
 			continue;
 
+<<<<<<< HEAD
 		tpg = pr_reg->pr_reg_nacl->se_tpg;
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * If this registration does NOT contain a fabric provided
 		 * ISID, then we have found a match.
 		 */
 		if (!pr_reg->isid_present_at_reg) {
+<<<<<<< HEAD
 			/*
 			 * Determine if this SCSI device server requires that
 			 * SCSI Intiatior TransportID w/ ISIDs is enforced
@@ -1193,6 +1320,8 @@ static struct t10_pr_registration *__core_scsi3_locate_pr_reg(
 				if (dev->dev_attrib.enforce_pr_isids)
 					continue;
 			}
+=======
+>>>>>>> upstream/android-13
 			atomic_inc_mb(&pr_reg->pr_res_holders);
 			spin_unlock(&pr_tmpl->registration_lock);
 			return pr_reg;
@@ -1222,10 +1351,17 @@ static struct t10_pr_registration *core_scsi3_locate_pr_reg(
 	struct se_session *sess)
 {
 	struct se_portal_group *tpg = nacl->se_tpg;
+<<<<<<< HEAD
 	unsigned char buf[PR_REG_ISID_LEN], *isid_ptr = NULL;
 
 	if (tpg->se_tpg_tfo->sess_get_initiator_sid != NULL) {
 		memset(&buf[0], 0, PR_REG_ISID_LEN);
+=======
+	unsigned char buf[PR_REG_ISID_LEN] = { };
+	unsigned char *isid_ptr = NULL;
+
+	if (tpg->se_tpg_tfo->sess_get_initiator_sid != NULL) {
+>>>>>>> upstream/android-13
 		tpg->se_tpg_tfo->sess_get_initiator_sid(sess, &buf[0],
 					PR_REG_ISID_LEN);
 		isid_ptr = &buf[0];
@@ -1290,9 +1426,12 @@ static int core_scsi3_check_implicit_release(
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Called with struct t10_reservation->registration_lock held.
  */
+=======
+>>>>>>> upstream/android-13
 static void __core_scsi3_free_registration(
 	struct se_device *dev,
 	struct t10_pr_registration *pr_reg,
@@ -1306,9 +1445,16 @@ static void __core_scsi3_free_registration(
 	struct t10_reservation *pr_tmpl = &dev->t10_pr;
 	struct se_node_acl *nacl = pr_reg->pr_reg_nacl;
 	struct se_dev_entry *deve;
+<<<<<<< HEAD
 	char i_buf[PR_REG_ISID_ID_LEN];
 
 	memset(i_buf, 0, PR_REG_ISID_ID_LEN);
+=======
+	char i_buf[PR_REG_ISID_ID_LEN] = { };
+
+	lockdep_assert_held(&pr_tmpl->registration_lock);
+
+>>>>>>> upstream/android-13
 	core_pr_dump_initiator_port(pr_reg, i_buf, PR_REG_ISID_ID_LEN);
 
 	if (!list_empty(&pr_reg->pr_reg_list))
@@ -1329,7 +1475,11 @@ static void __core_scsi3_free_registration(
 	 */
 	while (atomic_read(&pr_reg->pr_res_holders) != 0) {
 		pr_debug("SPC-3 PR [%s] waiting for pr_res_holders\n",
+<<<<<<< HEAD
 				tfo->get_fabric_name());
+=======
+				tfo->fabric_name);
+>>>>>>> upstream/android-13
 		cpu_relax();
 	}
 
@@ -1341,6 +1491,7 @@ static void __core_scsi3_free_registration(
 
 	spin_lock(&pr_tmpl->registration_lock);
 	pr_debug("SPC-3 PR [%s] Service Action: UNREGISTER Initiator"
+<<<<<<< HEAD
 		" Node: %s%s\n", tfo->get_fabric_name(),
 		pr_reg->pr_reg_nacl->initiatorname,
 		i_buf);
@@ -1350,6 +1501,17 @@ static void __core_scsi3_free_registration(
 		dev->transport->name);
 	pr_debug("SPC-3 PR [%s] SA Res Key: 0x%016Lx PRgeneration:"
 		" 0x%08x\n", tfo->get_fabric_name(), pr_reg->pr_res_key,
+=======
+		" Node: %s%s\n", tfo->fabric_name,
+		pr_reg->pr_reg_nacl->initiatorname,
+		i_buf);
+	pr_debug("SPC-3 PR [%s] for %s TCM Subsystem %s Object Target"
+		" Port(s)\n", tfo->fabric_name,
+		(pr_reg->pr_reg_all_tg_pt) ? "ALL" : "SINGLE",
+		dev->transport->name);
+	pr_debug("SPC-3 PR [%s] SA Res Key: 0x%016Lx PRgeneration:"
+		" 0x%08x\n", tfo->fabric_name, pr_reg->pr_res_key,
+>>>>>>> upstream/android-13
 		pr_reg->pr_res_generation);
 
 	if (!preempt_and_abort_list) {
@@ -1539,6 +1701,7 @@ core_scsi3_decode_spec_i_port(
 		kfree(tidh_new);
 		return TCM_INSUFFICIENT_REGISTRATION_RESOURCES;
 	}
+<<<<<<< HEAD
 	tidh_new->dest_pr_reg = local_pr_reg;
 	/*
 	 * The local I_T nexus does not hold any configfs dependances,
@@ -1546,6 +1709,18 @@ core_scsi3_decode_spec_i_port(
 	 * configfs_undepend_item() calls in the tid_dest_list loops below.
 	 */
 	tidh_new->dest_se_deve = NULL;
+=======
+
+	if (core_scsi3_lunacl_depend_item(local_pr_reg->pr_reg_deve)) {
+		kfree(tidh_new);
+		kref_put(&local_pr_reg->pr_reg_deve->pr_kref,
+			 target_pr_kref_release);
+		kmem_cache_free(t10_pr_reg_cache, local_pr_reg);
+		return TCM_INSUFFICIENT_REGISTRATION_RESOURCES;
+	}
+
+	tidh_new->dest_pr_reg = local_pr_reg;
+>>>>>>> upstream/android-13
 	list_add_tail(&tidh_new->dest_list, &tid_dest_list);
 
 	if (cmd->data_length < 28) {
@@ -1600,10 +1775,31 @@ core_scsi3_decode_spec_i_port(
 				continue;
 			dest_rtpi = tmp_lun->lun_rtpi;
 
+<<<<<<< HEAD
+=======
+			iport_ptr = NULL;
+>>>>>>> upstream/android-13
 			i_str = target_parse_pr_out_transport_id(tmp_tpg,
 					ptr, &tid_len, &iport_ptr);
 			if (!i_str)
 				continue;
+<<<<<<< HEAD
+=======
+			/*
+			 * Determine if this SCSI device server requires that
+			 * SCSI Intiatior TransportID w/ ISIDs is enforced
+			 * for fabric modules (iSCSI) requiring them.
+			 */
+			if (tpg->se_tpg_tfo->sess_get_initiator_sid &&
+			    dev->dev_attrib.enforce_pr_isids &&
+			    !iport_ptr) {
+				pr_warn("SPC-PR: enforce_pr_isids is set but a isid has not been sent in the SPEC_I_PT data for %s.",
+					i_str);
+				ret = TCM_INVALID_PARAMETER_LIST;
+				spin_unlock(&dev->se_port_lock);
+				goto out_unmap;
+			}
+>>>>>>> upstream/android-13
 
 			atomic_inc_mb(&tmp_tpg->tpg_pr_ref_count);
 			spin_unlock(&dev->se_port_lock);
@@ -1643,9 +1839,14 @@ core_scsi3_decode_spec_i_port(
 			}
 
 			dest_tpg = tmp_tpg;
+<<<<<<< HEAD
 			pr_debug("SPC-3 PR SPEC_I_PT: Located %s Node:"
 				" %s Port RTPI: %hu\n",
 				dest_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+			pr_debug("SPC-3 PR SPEC_I_PT: Located %s Node: %s Port RTPI: %u\n",
+				dest_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				dest_node_acl->initiatorname, dest_rtpi);
 
 			spin_lock(&dev->se_port_lock);
@@ -1662,7 +1863,11 @@ core_scsi3_decode_spec_i_port(
 
 		pr_debug("SPC-3 PR SPEC_I_PT: Got %s data_length: %u tpdl: %u"
 			" tid_len: %d for %s + %s\n",
+<<<<<<< HEAD
 			dest_tpg->se_tpg_tfo->get_fabric_name(), cmd->data_length,
+=======
+			dest_tpg->se_tpg_tfo->fabric_name, cmd->data_length,
+>>>>>>> upstream/android-13
 			tpdl, tid_len, i_str, iport_ptr);
 
 		if (tid_len > tpdl) {
@@ -1681,9 +1886,14 @@ core_scsi3_decode_spec_i_port(
 		dest_se_deve = core_get_se_deve_from_rtpi(dest_node_acl,
 					dest_rtpi);
 		if (!dest_se_deve) {
+<<<<<<< HEAD
 			pr_err("Unable to locate %s dest_se_deve"
 				" from destination RTPI: %hu\n",
 				dest_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+			pr_err("Unable to locate %s dest_se_deve from destination RTPI: %u\n",
+				dest_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				dest_rtpi);
 
 			core_scsi3_nodeacl_undepend_item(dest_node_acl);
@@ -1704,7 +1914,11 @@ core_scsi3_decode_spec_i_port(
 
 		pr_debug("SPC-3 PR SPEC_I_PT: Located %s Node: %s"
 			" dest_se_deve mapped_lun: %llu\n",
+<<<<<<< HEAD
 			dest_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+			dest_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 			dest_node_acl->initiatorname, dest_se_deve->mapped_lun);
 
 		/*
@@ -1815,6 +2029,7 @@ core_scsi3_decode_spec_i_port(
 
 		pr_debug("SPC-3 PR [%s] SPEC_I_PT: Successfully"
 			" registered Transport ID for Node: %s%s Mapped LUN:"
+<<<<<<< HEAD
 			" %llu\n", dest_tpg->se_tpg_tfo->get_fabric_name(),
 			dest_node_acl->initiatorname, i_buf, (dest_se_deve) ?
 			dest_se_deve->mapped_lun : 0);
@@ -1825,6 +2040,15 @@ core_scsi3_decode_spec_i_port(
 			continue;
 		}
 		core_scsi3_lunacl_undepend_item(dest_se_deve);
+=======
+			" %llu\n", dest_tpg->se_tpg_tfo->fabric_name,
+			dest_node_acl->initiatorname, i_buf, (dest_se_deve) ?
+			dest_se_deve->mapped_lun : 0);
+
+		if (dest_pr_reg == local_pr_reg)
+			continue;
+
+>>>>>>> upstream/android-13
 		core_scsi3_nodeacl_undepend_item(dest_node_acl);
 		core_scsi3_tpg_undepend_item(dest_tpg);
 	}
@@ -1838,11 +2062,22 @@ out:
 	 * including *dest_pr_reg and the configfs dependances..
 	 */
 	list_for_each_entry_safe(tidh, tidh_tmp, &tid_dest_list, dest_list) {
+<<<<<<< HEAD
+=======
+		bool is_local = false;
+
+>>>>>>> upstream/android-13
 		dest_tpg = tidh->dest_tpg;
 		dest_node_acl = tidh->dest_node_acl;
 		dest_se_deve = tidh->dest_se_deve;
 		dest_pr_reg = tidh->dest_pr_reg;
 
+<<<<<<< HEAD
+=======
+		if (dest_pr_reg == local_pr_reg)
+			is_local = true;
+
+>>>>>>> upstream/android-13
 		list_del(&tidh->dest_list);
 		kfree(tidh);
 		/*
@@ -1858,6 +2093,7 @@ out:
 		}
 
 		kmem_cache_free(t10_pr_reg_cache, dest_pr_reg);
+<<<<<<< HEAD
 
 		if (!dest_se_deve) {
 			kref_put(&local_pr_reg->pr_reg_deve->pr_kref,
@@ -1865,6 +2101,13 @@ out:
 			continue;
 		}
 		core_scsi3_lunacl_undepend_item(dest_se_deve);
+=======
+		core_scsi3_lunacl_undepend_item(dest_se_deve);
+
+		if (is_local)
+			continue;
+
+>>>>>>> upstream/android-13
 		core_scsi3_nodeacl_undepend_item(dest_node_acl);
 		core_scsi3_tpg_undepend_item(dest_tpg);
 	}
@@ -1913,7 +2156,11 @@ static int core_scsi3_update_aptpl_buf(
 				"res_holder=1\nres_type=%02x\n"
 				"res_scope=%02x\nres_all_tg_pt=%d\n"
 				"mapped_lun=%llu\n", reg_count,
+<<<<<<< HEAD
 				tpg->se_tpg_tfo->get_fabric_name(),
+=======
+				tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				pr_reg->pr_reg_nacl->initiatorname, isid_buf,
 				pr_reg->pr_res_key, pr_reg->pr_res_type,
 				pr_reg->pr_res_scope, pr_reg->pr_reg_all_tg_pt,
@@ -1923,7 +2170,11 @@ static int core_scsi3_update_aptpl_buf(
 				"initiator_fabric=%s\ninitiator_node=%s\n%s"
 				"sa_res_key=%llu\nres_holder=0\n"
 				"res_all_tg_pt=%d\nmapped_lun=%llu\n",
+<<<<<<< HEAD
 				reg_count, tpg->se_tpg_tfo->get_fabric_name(),
+=======
+				reg_count, tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				pr_reg->pr_reg_nacl->initiatorname, isid_buf,
 				pr_reg->pr_res_key, pr_reg->pr_reg_all_tg_pt,
 				pr_reg->pr_res_mapped_lun);
@@ -1942,7 +2193,11 @@ static int core_scsi3_update_aptpl_buf(
 		 */
 		snprintf(tmp, 512, "target_fabric=%s\ntarget_node=%s\n"
 			"tpgt=%hu\nport_rtpi=%hu\ntarget_lun=%llu\nPR_REG_END:"
+<<<<<<< HEAD
 			" %d\n", tpg->se_tpg_tfo->get_fabric_name(),
+=======
+			" %d\n", tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 			tpg->se_tpg_tfo->tpg_get_wwn(tpg),
 			tpg->se_tpg_tfo->tpg_get_tag(tpg),
 			pr_reg->tg_pt_sep_rtpi, pr_reg->pr_aptpl_target_lun,
@@ -2060,7 +2315,12 @@ core_scsi3_emulate_pro_register(struct se_cmd *cmd, u64 res_key, u64 sa_res_key,
 	struct se_portal_group *se_tpg;
 	struct t10_pr_registration *pr_reg, *pr_reg_p, *pr_reg_tmp;
 	struct t10_reservation *pr_tmpl = &dev->t10_pr;
+<<<<<<< HEAD
 	unsigned char isid_buf[PR_REG_ISID_LEN], *isid_ptr = NULL;
+=======
+	unsigned char isid_buf[PR_REG_ISID_LEN] = { };
+	unsigned char *isid_ptr = NULL;
+>>>>>>> upstream/android-13
 	sense_reason_t ret = TCM_NO_SENSE;
 	int pr_holder = 0, type;
 
@@ -2071,7 +2331,10 @@ core_scsi3_emulate_pro_register(struct se_cmd *cmd, u64 res_key, u64 sa_res_key,
 	se_tpg = se_sess->se_tpg;
 
 	if (se_tpg->se_tpg_tfo->sess_get_initiator_sid) {
+<<<<<<< HEAD
 		memset(&isid_buf[0], 0, PR_REG_ISID_LEN);
+=======
+>>>>>>> upstream/android-13
 		se_tpg->se_tpg_tfo->sess_get_initiator_sid(se_sess, &isid_buf[0],
 				PR_REG_ISID_LEN);
 		isid_ptr = &isid_buf[0];
@@ -2168,7 +2431,11 @@ core_scsi3_emulate_pro_register(struct se_cmd *cmd, u64 res_key, u64 sa_res_key,
 		pr_reg->pr_res_key = sa_res_key;
 		pr_debug("SPC-3 PR [%s] REGISTER%s: Changed Reservation"
 			 " Key for %s to: 0x%016Lx PRgeneration:"
+<<<<<<< HEAD
 			 " 0x%08x\n", cmd->se_tfo->get_fabric_name(),
+=======
+			 " 0x%08x\n", cmd->se_tfo->fabric_name,
+>>>>>>> upstream/android-13
 			 (register_type == REGISTER_AND_IGNORE_EXISTING_KEY) ? "_AND_IGNORE_EXISTING_KEY" : "",
 			 pr_reg->pr_reg_nacl->initiatorname,
 			 pr_reg->pr_res_key, pr_reg->pr_res_generation);
@@ -2283,11 +2550,17 @@ core_scsi3_pro_reserve(struct se_cmd *cmd, int type, int scope, u64 res_key)
 	struct se_lun *se_lun = cmd->se_lun;
 	struct t10_pr_registration *pr_reg, *pr_res_holder;
 	struct t10_reservation *pr_tmpl = &dev->t10_pr;
+<<<<<<< HEAD
 	char i_buf[PR_REG_ISID_ID_LEN];
 	sense_reason_t ret;
 
 	memset(i_buf, 0, PR_REG_ISID_ID_LEN);
 
+=======
+	char i_buf[PR_REG_ISID_ID_LEN] = { };
+	sense_reason_t ret;
+
+>>>>>>> upstream/android-13
 	if (!se_sess || !se_lun) {
 		pr_err("SPC-3 PR: se_sess || struct se_lun is NULL!\n");
 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
@@ -2356,9 +2629,15 @@ core_scsi3_pro_reserve(struct se_cmd *cmd, int type, int scope, u64 res_key)
 			pr_err("SPC-3 PR: Attempted RESERVE from"
 				" [%s]: %s while reservation already held by"
 				" [%s]: %s, returning RESERVATION_CONFLICT\n",
+<<<<<<< HEAD
 				cmd->se_tfo->get_fabric_name(),
 				se_sess->se_node_acl->initiatorname,
 				pr_res_nacl->se_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+				cmd->se_tfo->fabric_name,
+				se_sess->se_node_acl->initiatorname,
+				pr_res_nacl->se_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				pr_res_holder->pr_reg_nacl->initiatorname);
 
 			spin_unlock(&dev->dev_reservation_lock);
@@ -2379,9 +2658,15 @@ core_scsi3_pro_reserve(struct se_cmd *cmd, int type, int scope, u64 res_key)
 				" [%s]: %s trying to change TYPE and/or SCOPE,"
 				" while reservation already held by [%s]: %s,"
 				" returning RESERVATION_CONFLICT\n",
+<<<<<<< HEAD
 				cmd->se_tfo->get_fabric_name(),
 				se_sess->se_node_acl->initiatorname,
 				pr_res_nacl->se_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+				cmd->se_tfo->fabric_name,
+				se_sess->se_node_acl->initiatorname,
+				pr_res_nacl->se_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 				pr_res_holder->pr_reg_nacl->initiatorname);
 
 			spin_unlock(&dev->dev_reservation_lock);
@@ -2414,10 +2699,17 @@ core_scsi3_pro_reserve(struct se_cmd *cmd, int type, int scope, u64 res_key)
 
 	pr_debug("SPC-3 PR [%s] Service Action: RESERVE created new"
 		" reservation holder TYPE: %s ALL_TG_PT: %d\n",
+<<<<<<< HEAD
 		cmd->se_tfo->get_fabric_name(), core_scsi3_pr_dump_type(type),
 		(pr_reg->pr_reg_all_tg_pt) ? 1 : 0);
 	pr_debug("SPC-3 PR [%s] RESERVE Node: %s%s\n",
 			cmd->se_tfo->get_fabric_name(),
+=======
+		cmd->se_tfo->fabric_name, core_scsi3_pr_dump_type(type),
+		(pr_reg->pr_reg_all_tg_pt) ? 1 : 0);
+	pr_debug("SPC-3 PR [%s] RESERVE Node: %s%s\n",
+			cmd->se_tfo->fabric_name,
+>>>>>>> upstream/android-13
 			se_sess->se_node_acl->initiatorname,
 			i_buf);
 	spin_unlock(&dev->dev_reservation_lock);
@@ -2450,9 +2742,12 @@ core_scsi3_emulate_pro_reserve(struct se_cmd *cmd, int type, int scope,
 	}
 }
 
+<<<<<<< HEAD
 /*
  * Called with struct se_device->dev_reservation_lock held.
  */
+=======
+>>>>>>> upstream/android-13
 static void __core_scsi3_complete_pro_release(
 	struct se_device *dev,
 	struct se_node_acl *se_nacl,
@@ -2461,10 +2756,18 @@ static void __core_scsi3_complete_pro_release(
 	int unreg)
 {
 	const struct target_core_fabric_ops *tfo = se_nacl->se_tpg->se_tpg_tfo;
+<<<<<<< HEAD
 	char i_buf[PR_REG_ISID_ID_LEN];
 	int pr_res_type = 0, pr_res_scope = 0;
 
 	memset(i_buf, 0, PR_REG_ISID_ID_LEN);
+=======
+	char i_buf[PR_REG_ISID_ID_LEN] = { };
+	int pr_res_type = 0, pr_res_scope = 0;
+
+	lockdep_assert_held(&dev->dev_reservation_lock);
+
+>>>>>>> upstream/android-13
 	core_pr_dump_initiator_port(pr_reg, i_buf, PR_REG_ISID_ID_LEN);
 	/*
 	 * Go ahead and release the current PR reservation holder.
@@ -2506,12 +2809,20 @@ out:
 	if (!dev->dev_pr_res_holder) {
 		pr_debug("SPC-3 PR [%s] Service Action: %s RELEASE cleared"
 			" reservation holder TYPE: %s ALL_TG_PT: %d\n",
+<<<<<<< HEAD
 			tfo->get_fabric_name(), (explicit) ? "explicit" :
+=======
+			tfo->fabric_name, (explicit) ? "explicit" :
+>>>>>>> upstream/android-13
 			"implicit", core_scsi3_pr_dump_type(pr_res_type),
 			(pr_reg->pr_reg_all_tg_pt) ? 1 : 0);
 	}
 	pr_debug("SPC-3 PR [%s] RELEASE Node: %s%s\n",
+<<<<<<< HEAD
 		tfo->get_fabric_name(), se_nacl->initiatorname,
+=======
+		tfo->fabric_name, se_nacl->initiatorname,
+>>>>>>> upstream/android-13
 		i_buf);
 	/*
 	 * Clear TYPE and SCOPE for the next PROUT Service Action: RESERVE
@@ -2609,9 +2920,15 @@ core_scsi3_emulate_pro_release(struct se_cmd *cmd, int type, int scope,
 			" reservation from [%s]: %s with different TYPE "
 			"and/or SCOPE  while reservation already held by"
 			" [%s]: %s, returning RESERVATION_CONFLICT\n",
+<<<<<<< HEAD
 			cmd->se_tfo->get_fabric_name(),
 			se_sess->se_node_acl->initiatorname,
 			pr_res_nacl->se_tpg->se_tpg_tfo->get_fabric_name(),
+=======
+			cmd->se_tfo->fabric_name,
+			se_sess->se_node_acl->initiatorname,
+			pr_res_nacl->se_tpg->se_tpg_tfo->fabric_name,
+>>>>>>> upstream/android-13
 			pr_res_holder->pr_reg_nacl->initiatorname);
 
 		spin_unlock(&dev->dev_reservation_lock);
@@ -2752,7 +3069,11 @@ core_scsi3_emulate_pro_clear(struct se_cmd *cmd, u64 res_key)
 	spin_unlock(&pr_tmpl->registration_lock);
 
 	pr_debug("SPC-3 PR [%s] Service Action: CLEAR complete\n",
+<<<<<<< HEAD
 		cmd->se_tfo->get_fabric_name());
+=======
+		cmd->se_tfo->fabric_name);
+>>>>>>> upstream/android-13
 
 	core_scsi3_update_and_write_aptpl(cmd->se_dev, false);
 
@@ -2760,9 +3081,12 @@ core_scsi3_emulate_pro_clear(struct se_cmd *cmd, u64 res_key)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * Called with struct se_device->dev_reservation_lock held.
  */
+=======
+>>>>>>> upstream/android-13
 static void __core_scsi3_complete_pro_preempt(
 	struct se_device *dev,
 	struct t10_pr_registration *pr_reg,
@@ -2773,9 +3097,16 @@ static void __core_scsi3_complete_pro_preempt(
 {
 	struct se_node_acl *nacl = pr_reg->pr_reg_nacl;
 	const struct target_core_fabric_ops *tfo = nacl->se_tpg->se_tpg_tfo;
+<<<<<<< HEAD
 	char i_buf[PR_REG_ISID_ID_LEN];
 
 	memset(i_buf, 0, PR_REG_ISID_ID_LEN);
+=======
+	char i_buf[PR_REG_ISID_ID_LEN] = { };
+
+	lockdep_assert_held(&dev->dev_reservation_lock);
+
+>>>>>>> upstream/android-13
 	core_pr_dump_initiator_port(pr_reg, i_buf, PR_REG_ISID_ID_LEN);
 	/*
 	 * Do an implicit RELEASE of the existing reservation.
@@ -2791,11 +3122,19 @@ static void __core_scsi3_complete_pro_preempt(
 
 	pr_debug("SPC-3 PR [%s] Service Action: PREEMPT%s created new"
 		" reservation holder TYPE: %s ALL_TG_PT: %d\n",
+<<<<<<< HEAD
 		tfo->get_fabric_name(), (preempt_type == PREEMPT_AND_ABORT) ? "_AND_ABORT" : "",
 		core_scsi3_pr_dump_type(type),
 		(pr_reg->pr_reg_all_tg_pt) ? 1 : 0);
 	pr_debug("SPC-3 PR [%s] PREEMPT%s from Node: %s%s\n",
 		tfo->get_fabric_name(), (preempt_type == PREEMPT_AND_ABORT) ? "_AND_ABORT" : "",
+=======
+		tfo->fabric_name, (preempt_type == PREEMPT_AND_ABORT) ? "_AND_ABORT" : "",
+		core_scsi3_pr_dump_type(type),
+		(pr_reg->pr_reg_all_tg_pt) ? 1 : 0);
+	pr_debug("SPC-3 PR [%s] PREEMPT%s from Node: %s%s\n",
+		tfo->fabric_name, (preempt_type == PREEMPT_AND_ABORT) ? "_AND_ABORT" : "",
+>>>>>>> upstream/android-13
 		nacl->initiatorname, i_buf);
 	/*
 	 * For PREEMPT_AND_ABORT, add the preempting reservation's
@@ -3161,7 +3500,11 @@ core_scsi3_emulate_pro_register_and_move(struct se_cmd *cmd, u64 res_key,
 	struct t10_reservation *pr_tmpl = &dev->t10_pr;
 	unsigned char *buf;
 	const unsigned char *initiator_str;
+<<<<<<< HEAD
 	char *iport_ptr = NULL, i_buf[PR_REG_ISID_ID_LEN];
+=======
+	char *iport_ptr = NULL, i_buf[PR_REG_ISID_ID_LEN] = { };
+>>>>>>> upstream/android-13
 	u32 tid_len, tmp_tid_len;
 	int new_reg = 0, type, scope, matching_iname;
 	sense_reason_t ret;
@@ -3173,7 +3516,10 @@ core_scsi3_emulate_pro_register_and_move(struct se_cmd *cmd, u64 res_key,
 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
 	}
 
+<<<<<<< HEAD
 	memset(i_buf, 0, PR_REG_ISID_ID_LEN);
+=======
+>>>>>>> upstream/android-13
 	se_tpg = se_sess->se_tpg;
 	tf_ops = se_tpg->se_tpg_tfo;
 	/*
@@ -3282,7 +3628,11 @@ core_scsi3_emulate_pro_register_and_move(struct se_cmd *cmd, u64 res_key,
 			" proto_ident: 0x%02x does not match ident: 0x%02x"
 			" from fabric: %s\n", proto_ident,
 			dest_se_tpg->proto_id,
+<<<<<<< HEAD
 			dest_tf_ops->get_fabric_name());
+=======
+			dest_tf_ops->fabric_name);
+>>>>>>> upstream/android-13
 		ret = TCM_INVALID_PARAMETER_LIST;
 		goto out;
 	}
@@ -3299,7 +3649,11 @@ core_scsi3_emulate_pro_register_and_move(struct se_cmd *cmd, u64 res_key,
 	buf = NULL;
 
 	pr_debug("SPC-3 PR [%s] Extracted initiator %s identifier: %s"
+<<<<<<< HEAD
 		" %s\n", dest_tf_ops->get_fabric_name(), (iport_ptr != NULL) ?
+=======
+		" %s\n", dest_tf_ops->fabric_name, (iport_ptr != NULL) ?
+>>>>>>> upstream/android-13
 		"port" : "device", initiator_str, (iport_ptr != NULL) ?
 		iport_ptr : "");
 	/*
@@ -3344,7 +3698,11 @@ after_iport_check:
 
 	if (!dest_node_acl) {
 		pr_err("Unable to locate %s dest_node_acl for"
+<<<<<<< HEAD
 			" TransportID%s\n", dest_tf_ops->get_fabric_name(),
+=======
+			" TransportID%s\n", dest_tf_ops->fabric_name,
+>>>>>>> upstream/android-13
 			initiator_str);
 		ret = TCM_INVALID_PARAMETER_LIST;
 		goto out;
@@ -3360,7 +3718,11 @@ after_iport_check:
 	}
 
 	pr_debug("SPC-3 PR REGISTER_AND_MOVE: Found %s dest_node_acl:"
+<<<<<<< HEAD
 		" %s from TransportID\n", dest_tf_ops->get_fabric_name(),
+=======
+		" %s from TransportID\n", dest_tf_ops->fabric_name,
+>>>>>>> upstream/android-13
 		dest_node_acl->initiatorname);
 
 	/*
@@ -3370,7 +3732,11 @@ after_iport_check:
 	dest_se_deve = core_get_se_deve_from_rtpi(dest_node_acl, rtpi);
 	if (!dest_se_deve) {
 		pr_err("Unable to locate %s dest_se_deve from RTPI:"
+<<<<<<< HEAD
 			" %hu\n",  dest_tf_ops->get_fabric_name(), rtpi);
+=======
+			" %hu\n",  dest_tf_ops->fabric_name, rtpi);
+>>>>>>> upstream/android-13
 		ret = TCM_INVALID_PARAMETER_LIST;
 		goto out;
 	}
@@ -3385,7 +3751,11 @@ after_iport_check:
 
 	pr_debug("SPC-3 PR REGISTER_AND_MOVE: Located %s node %s LUN"
 		" ACL for dest_se_deve->mapped_lun: %llu\n",
+<<<<<<< HEAD
 		dest_tf_ops->get_fabric_name(), dest_node_acl->initiatorname,
+=======
+		dest_tf_ops->fabric_name, dest_node_acl->initiatorname,
+>>>>>>> upstream/android-13
 		dest_se_deve->mapped_lun);
 
 	/*
@@ -3501,13 +3871,22 @@ after_iport_check:
 
 	pr_debug("SPC-3 PR [%s] Service Action: REGISTER_AND_MOVE"
 		" created new reservation holder TYPE: %s on object RTPI:"
+<<<<<<< HEAD
 		" %hu  PRGeneration: 0x%08x\n", dest_tf_ops->get_fabric_name(),
+=======
+		" %hu  PRGeneration: 0x%08x\n", dest_tf_ops->fabric_name,
+>>>>>>> upstream/android-13
 		core_scsi3_pr_dump_type(type), rtpi,
 		dest_pr_reg->pr_res_generation);
 	pr_debug("SPC-3 PR Successfully moved reservation from"
 		" %s Fabric Node: %s%s -> %s Fabric Node: %s %s\n",
+<<<<<<< HEAD
 		tf_ops->get_fabric_name(), pr_reg_nacl->initiatorname,
 		i_buf, dest_tf_ops->get_fabric_name(),
+=======
+		tf_ops->fabric_name, pr_reg_nacl->initiatorname,
+		i_buf, dest_tf_ops->fabric_name,
+>>>>>>> upstream/android-13
 		dest_node_acl->initiatorname, (iport_ptr != NULL) ?
 		iport_ptr : "");
 	/*
@@ -3691,7 +4070,11 @@ target_scsi3_emulate_pr_out(struct se_cmd *cmd)
 	}
 
 	if (!ret)
+<<<<<<< HEAD
 		target_complete_cmd(cmd, GOOD);
+=======
+		target_complete_cmd(cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -4088,7 +4471,11 @@ target_scsi3_emulate_pr_in(struct se_cmd *cmd)
 	}
 
 	if (!ret)
+<<<<<<< HEAD
 		target_complete_cmd(cmd, GOOD);
+=======
+		target_complete_cmd(cmd, SAM_STAT_GOOD);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -4102,7 +4489,13 @@ target_check_reservation(struct se_cmd *cmd)
 		return 0;
 	if (dev->se_hba->hba_flags & HBA_FLAGS_INTERNAL_USE)
 		return 0;
+<<<<<<< HEAD
 	if (dev->transport->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_PGR)
+=======
+	if (!dev->dev_attrib.emulate_pr)
+		return 0;
+	if (dev->transport_flags & TRANSPORT_FLAG_PASSTHROUGH_PGR)
+>>>>>>> upstream/android-13
 		return 0;
 
 	spin_lock(&dev->dev_reservation_lock);

@@ -9,12 +9,21 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/irq.h>
 #include <linux/irqdomain.h>
 #include <linux/mutex.h>
 
 #include "greybus.h"
+=======
+#include <linux/irq.h>
+#include <linux/irqdomain.h>
+#include <linux/gpio/driver.h>
+#include <linux/mutex.h>
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "gbphy.h"
 
 struct gb_gpio_line {
@@ -39,11 +48,14 @@ struct gb_gpio_controller {
 
 	struct gpio_chip	chip;
 	struct irq_chip		irqc;
+<<<<<<< HEAD
 	struct irq_chip		*irqchip;
 	struct irq_domain	*irqdomain;
 	unsigned int		irq_base;
 	irq_flow_handler_t	irq_handler;
 	unsigned int		irq_default_type;
+=======
+>>>>>>> upstream/android-13
 	struct mutex		irq_lock;
 };
 #define gpio_chip_to_gb_gpio_controller(chip) \
@@ -74,7 +86,11 @@ static int gb_gpio_activate_operation(struct gb_gpio_controller *ggc, u8 which)
 
 	request.which = which;
 	ret = gb_operation_sync(ggc->connection, GB_GPIO_TYPE_ACTIVATE,
+<<<<<<< HEAD
 				 &request, sizeof(request), NULL, 0);
+=======
+				&request, sizeof(request), NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		gbphy_runtime_put_autosuspend(gbphy_dev);
 		return ret;
@@ -86,7 +102,11 @@ static int gb_gpio_activate_operation(struct gb_gpio_controller *ggc, u8 which)
 }
 
 static void gb_gpio_deactivate_operation(struct gb_gpio_controller *ggc,
+<<<<<<< HEAD
 					u8 which)
+=======
+					 u8 which)
+>>>>>>> upstream/android-13
 {
 	struct gbphy_device *gbphy_dev = ggc->gbphy_dev;
 	struct device *dev = &gbphy_dev->dev;
@@ -95,7 +115,11 @@ static void gb_gpio_deactivate_operation(struct gb_gpio_controller *ggc,
 
 	request.which = which;
 	ret = gb_operation_sync(ggc->connection, GB_GPIO_TYPE_DEACTIVATE,
+<<<<<<< HEAD
 				 &request, sizeof(request), NULL, 0);
+=======
+				&request, sizeof(request), NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "failed to deactivate gpio %u\n", which);
 		goto out_pm_put;
@@ -108,7 +132,11 @@ out_pm_put:
 }
 
 static int gb_gpio_get_direction_operation(struct gb_gpio_controller *ggc,
+<<<<<<< HEAD
 					u8 which)
+=======
+					   u8 which)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &ggc->gbphy_dev->dev;
 	struct gb_gpio_get_direction_request request;
@@ -133,7 +161,11 @@ static int gb_gpio_get_direction_operation(struct gb_gpio_controller *ggc,
 }
 
 static int gb_gpio_direction_in_operation(struct gb_gpio_controller *ggc,
+<<<<<<< HEAD
 					u8 which)
+=======
+					  u8 which)
+>>>>>>> upstream/android-13
 {
 	struct gb_gpio_direction_in_request request;
 	int ret;
@@ -147,7 +179,11 @@ static int gb_gpio_direction_in_operation(struct gb_gpio_controller *ggc,
 }
 
 static int gb_gpio_direction_out_operation(struct gb_gpio_controller *ggc,
+<<<<<<< HEAD
 					u8 which, bool value_high)
+=======
+					   u8 which, bool value_high)
+>>>>>>> upstream/android-13
 {
 	struct gb_gpio_direction_out_request request;
 	int ret;
@@ -162,7 +198,11 @@ static int gb_gpio_direction_out_operation(struct gb_gpio_controller *ggc,
 }
 
 static int gb_gpio_get_value_operation(struct gb_gpio_controller *ggc,
+<<<<<<< HEAD
 					u8 which)
+=======
+				       u8 which)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &ggc->gbphy_dev->dev;
 	struct gb_gpio_get_value_request request;
@@ -214,7 +254,11 @@ static void gb_gpio_set_value_operation(struct gb_gpio_controller *ggc,
 }
 
 static int gb_gpio_set_debounce_operation(struct gb_gpio_controller *ggc,
+<<<<<<< HEAD
 					u8 which, u16 debounce_usec)
+=======
+					  u8 which, u16 debounce_usec)
+>>>>>>> upstream/android-13
 {
 	struct gb_gpio_set_debounce_request request;
 	int ret;
@@ -257,7 +301,11 @@ static void _gb_gpio_irq_unmask(struct gb_gpio_controller *ggc, u8 hwirq)
 }
 
 static void _gb_gpio_irq_set_type(struct gb_gpio_controller *ggc,
+<<<<<<< HEAD
 					u8 hwirq, u8 type)
+=======
+				  u8 hwirq, u8 type)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &ggc->gbphy_dev->dev;
 	struct gb_gpio_irq_type_request request;
@@ -369,8 +417,12 @@ static int gb_gpio_request_handler(struct gb_operation *op)
 	struct gb_message *request;
 	struct gb_gpio_irq_event_request *event;
 	u8 type = op->type;
+<<<<<<< HEAD
 	int irq;
 	struct irq_desc *desc;
+=======
+	int irq, ret;
+>>>>>>> upstream/android-13
 
 	if (type != GB_GPIO_TYPE_IRQ_EVENT) {
 		dev_err(dev, "unsupported unsolicited request: %u\n", type);
@@ -391,11 +443,16 @@ static int gb_gpio_request_handler(struct gb_operation *op)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	irq = irq_find_mapping(ggc->irqdomain, event->which);
+=======
+	irq = irq_find_mapping(ggc->chip.irq.domain, event->which);
+>>>>>>> upstream/android-13
 	if (!irq) {
 		dev_err(dev, "failed to find IRQ\n");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	desc = irq_to_desc(irq);
 	if (!desc) {
 		dev_err(dev, "failed to look up irq\n");
@@ -407,6 +464,17 @@ static int gb_gpio_request_handler(struct gb_operation *op)
 	local_irq_enable();
 
 	return 0;
+=======
+
+	local_irq_disable();
+	ret = generic_handle_irq(irq);
+	local_irq_enable();
+
+	if (ret)
+		dev_err(dev, "failed to invoke irq handler\n");
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int gb_gpio_request(struct gpio_chip *chip, unsigned int offset)
@@ -506,6 +574,7 @@ static int gb_gpio_controller_setup(struct gb_gpio_controller *ggc)
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
  * gb_gpio_irq_map() - maps an IRQ into a GB gpio irqchip
  * @d: the irqdomain used by this irqchip
@@ -635,12 +704,18 @@ static int gb_gpio_to_irq(struct gpio_chip *chip, unsigned int offset)
 	return irq_find_mapping(ggc->irqdomain, offset);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int gb_gpio_probe(struct gbphy_device *gbphy_dev,
 			 const struct gbphy_device_id *id)
 {
 	struct gb_connection *connection;
 	struct gb_gpio_controller *ggc;
 	struct gpio_chip *gpio;
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 	struct irq_chip *irqc;
 	int ret;
 
@@ -648,9 +723,16 @@ static int gb_gpio_probe(struct gbphy_device *gbphy_dev,
 	if (!ggc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	connection = gb_connection_create(gbphy_dev->bundle,
 					  le16_to_cpu(gbphy_dev->cport_desc->id),
 					  gb_gpio_request_handler);
+=======
+	connection =
+		gb_connection_create(gbphy_dev->bundle,
+				     le16_to_cpu(gbphy_dev->cport_desc->id),
+				     gb_gpio_request_handler);
+>>>>>>> upstream/android-13
 	if (IS_ERR(connection)) {
 		ret = PTR_ERR(connection);
 		goto exit_ggc_free;
@@ -693,15 +775,31 @@ static int gb_gpio_probe(struct gbphy_device *gbphy_dev,
 	gpio->get = gb_gpio_get;
 	gpio->set = gb_gpio_set;
 	gpio->set_config = gb_gpio_set_config;
+<<<<<<< HEAD
 	gpio->to_irq = gb_gpio_to_irq;
+=======
+>>>>>>> upstream/android-13
 	gpio->base = -1;		/* Allocate base dynamically */
 	gpio->ngpio = ggc->line_max + 1;
 	gpio->can_sleep = true;
 
+<<<<<<< HEAD
+=======
+	girq = &gpio->irq;
+	girq->chip = irqc;
+	/* The event comes from the outside so no parent handler */
+	girq->parent_handler = NULL;
+	girq->num_parents = 0;
+	girq->parents = NULL;
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_level_irq;
+
+>>>>>>> upstream/android-13
 	ret = gb_connection_enable(connection);
 	if (ret)
 		goto exit_line_free;
 
+<<<<<<< HEAD
 	ret = gb_gpio_irqchip_add(gpio, irqc, 0,
 				   handle_level_irq, IRQ_TYPE_NONE);
 	if (ret) {
@@ -713,13 +811,22 @@ static int gb_gpio_probe(struct gbphy_device *gbphy_dev,
 	if (ret) {
 		dev_err(&gbphy_dev->dev, "failed to add gpio chip: %d\n", ret);
 		goto exit_gpio_irqchip_remove;
+=======
+	ret = gpiochip_add(gpio);
+	if (ret) {
+		dev_err(&gbphy_dev->dev, "failed to add gpio chip: %d\n", ret);
+		goto exit_line_free;
+>>>>>>> upstream/android-13
 	}
 
 	gbphy_runtime_put_autosuspend(gbphy_dev);
 	return 0;
 
+<<<<<<< HEAD
 exit_gpio_irqchip_remove:
 	gb_gpio_irqchip_remove(ggc);
+=======
+>>>>>>> upstream/android-13
 exit_line_free:
 	kfree(ggc->lines);
 exit_connection_disable:
@@ -743,7 +850,10 @@ static void gb_gpio_remove(struct gbphy_device *gbphy_dev)
 
 	gb_connection_disable_rx(connection);
 	gpiochip_remove(&ggc->chip);
+<<<<<<< HEAD
 	gb_gpio_irqchip_remove(ggc);
+=======
+>>>>>>> upstream/android-13
 	gb_connection_disable(connection);
 	gb_connection_destroy(connection);
 	kfree(ggc->lines);

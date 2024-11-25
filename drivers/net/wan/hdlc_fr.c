@@ -1,24 +1,41 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic HDLC support routines for Linux
  * Frame Relay support
  *
  * Copyright (C) 1999 - 2006 Krzysztof Halasa <khc@pm.waw.pl>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  *
 
             Theory of PVC state
+=======
+
+	Theory of PVC state
+>>>>>>> upstream/android-13
 
  DCE mode:
 
  (exist,new) -> 0,0 when "PVC create" or if "link unreliable"
+<<<<<<< HEAD
          0,x -> 1,1 if "link reliable" when sending FULL STATUS
          1,1 -> 1,0 if received FULL STATUS ACK
 
  (active)    -> 0 when "ifconfig PVC down" or "link unreliable" or "PVC create"
              -> 1 when "PVC up" and (exist,new) = 1,0
+=======
+	 0,x -> 1,1 if "link reliable" when sending FULL STATUS
+	 1,1 -> 1,0 if received FULL STATUS ACK
+
+ (active)    -> 0 when "ifconfig PVC down" or "link unreliable" or "PVC create"
+	     -> 1 when "PVC up" and (exist,new) = 1,0
+>>>>>>> upstream/android-13
 
  DTE mode:
  (exist,new,active) = FULL STATUS if "link reliable"
@@ -63,7 +80,10 @@
 #define NLPID_CCITT_ANSI_LMI	0x08
 #define NLPID_CISCO_LMI		0x09
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #define LMI_CCITT_ANSI_DLCI	   0 /* LMI DLCI */
 #define LMI_CISCO_DLCI		1023
 
@@ -89,7 +109,10 @@
 #define LMI_CCITT_CISCO_LENGTH	  13 /* LMI frame lengths */
 #define LMI_ANSI_LENGTH		  14
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct fr_hdr {
 #if defined(__LITTLE_ENDIAN_BITFIELD)
 	unsigned ea1:	1;
@@ -114,7 +137,10 @@ struct fr_hdr {
 #endif
 } __packed;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct pvc_device {
 	struct net_device *frad;
 	struct net_device *main;
@@ -131,7 +157,11 @@ struct pvc_device {
 		unsigned int fecn: 1;
 		unsigned int becn: 1;
 		unsigned int bandwidth;	/* Cisco LMI reporting only */
+<<<<<<< HEAD
 	}state;
+=======
+	} state;
+>>>>>>> upstream/android-13
 };
 
 struct frad_state {
@@ -152,22 +182,30 @@ struct frad_state {
 	u8 rxseq; /* RX sequence number */
 };
 
+<<<<<<< HEAD
 
 static int fr_ioctl(struct net_device *dev, struct ifreq *ifr);
 
+=======
+static int fr_ioctl(struct net_device *dev, struct if_settings *ifs);
+>>>>>>> upstream/android-13
 
 static inline u16 q922_to_dlci(u8 *hdr)
 {
 	return ((hdr[0] & 0xFC) << 2) | ((hdr[1] & 0xF0) >> 4);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline void dlci_to_q922(u8 *hdr, u16 dlci)
 {
 	hdr[0] = (dlci >> 2) & 0xFC;
 	hdr[1] = ((dlci << 4) & 0xF0) | 0x01;
 }
 
+<<<<<<< HEAD
 
 static inline struct frad_state* state(hdlc_device *hdlc)
 {
@@ -175,6 +213,13 @@ static inline struct frad_state* state(hdlc_device *hdlc)
 }
 
 
+=======
+static inline struct frad_state *state(hdlc_device *hdlc)
+{
+	return (struct frad_state *)(hdlc->state);
+}
+
+>>>>>>> upstream/android-13
 static inline struct pvc_device *find_pvc(hdlc_device *hdlc, u16 dlci)
 {
 	struct pvc_device *pvc = state(hdlc)->first_pvc;
@@ -190,7 +235,10 @@ static inline struct pvc_device *find_pvc(hdlc_device *hdlc, u16 dlci)
 	return NULL;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct pvc_device *add_pvc(struct net_device *dev, u16 dlci)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
@@ -218,13 +266,19 @@ static struct pvc_device *add_pvc(struct net_device *dev, u16 dlci)
 	return pvc;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline int pvc_is_used(struct pvc_device *pvc)
 {
 	return pvc->main || pvc->ether;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline void pvc_carrier(int on, struct pvc_device *pvc)
 {
 	if (on) {
@@ -244,7 +298,10 @@ static inline void pvc_carrier(int on, struct pvc_device *pvc)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline void delete_unused_pvcs(hdlc_device *hdlc)
 {
 	struct pvc_device **pvc_p = &state(hdlc)->first_pvc;
@@ -263,7 +320,10 @@ static inline void delete_unused_pvcs(hdlc_device *hdlc)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline struct net_device **get_dev_p(struct pvc_device *pvc,
 					    int type)
 {
@@ -273,11 +333,16 @@ static inline struct net_device **get_dev_p(struct pvc_device *pvc,
 		return &pvc->main;
 }
 
+<<<<<<< HEAD
 
 static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
 {
 	struct sk_buff *skb = *skb_p;
 
+=======
+static int fr_hard_header(struct sk_buff *skb, u16 dlci)
+{
+>>>>>>> upstream/android-13
 	if (!skb->dev) { /* Control packets */
 		switch (dlci) {
 		case LMI_CCITT_ANSI_DLCI:
@@ -319,6 +384,7 @@ static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
 		}
 
 	} else if (skb->dev->type == ARPHRD_ETHER) {
+<<<<<<< HEAD
 		if (skb_headroom(skb) < 10) {
 			struct sk_buff *skb2 = skb_realloc_headroom(skb, 10);
 			if (!skb2)
@@ -326,6 +392,8 @@ static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
 			dev_kfree_skb(skb);
 			skb = *skb_p = skb2;
 		}
+=======
+>>>>>>> upstream/android-13
 		skb_push(skb, 10);
 		skb->data[3] = FR_PAD;
 		skb->data[4] = NLPID_SNAP;
@@ -346,8 +414,11 @@ static int fr_hard_header(struct sk_buff **skb_p, u16 dlci)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int pvc_open(struct net_device *dev)
 {
 	struct pvc_device *pvc = dev->ml_priv;
@@ -357,6 +428,10 @@ static int pvc_open(struct net_device *dev)
 
 	if (pvc->open_count++ == 0) {
 		hdlc_device *hdlc = dev_to_hdlc(pvc->frad);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (state(hdlc)->settings.lmi == LMI_NONE)
 			pvc->state.active = netif_carrier_ok(pvc->frad);
 
@@ -366,14 +441,21 @@ static int pvc_open(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int pvc_close(struct net_device *dev)
 {
 	struct pvc_device *pvc = dev->ml_priv;
 
 	if (--pvc->open_count == 0) {
 		hdlc_device *hdlc = dev_to_hdlc(pvc->frad);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (state(hdlc)->settings.lmi == LMI_NONE)
 			pvc->state.active = 0;
 
@@ -385,13 +467,18 @@ static int pvc_close(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
 static int pvc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int pvc_ioctl(struct net_device *dev, struct if_settings *ifs)
+>>>>>>> upstream/android-13
 {
 	struct pvc_device *pvc = dev->ml_priv;
 	fr_proto_pvc_info info;
 
+<<<<<<< HEAD
 	if (ifr->ifr_settings.type == IF_GET_PROTO) {
 		if (dev->type == ARPHRD_ETHER)
 			ifr->ifr_settings.type = IF_PROTO_FR_ETH_PVC;
@@ -401,12 +488,27 @@ static int pvc_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		if (ifr->ifr_settings.size < sizeof(info)) {
 			/* data size wanted */
 			ifr->ifr_settings.size = sizeof(info);
+=======
+	if (ifs->type == IF_GET_PROTO) {
+		if (dev->type == ARPHRD_ETHER)
+			ifs->type = IF_PROTO_FR_ETH_PVC;
+		else
+			ifs->type = IF_PROTO_FR_PVC;
+
+		if (ifs->size < sizeof(info)) {
+			/* data size wanted */
+			ifs->size = sizeof(info);
+>>>>>>> upstream/android-13
 			return -ENOBUFS;
 		}
 
 		info.dlci = pvc->dlci;
 		memcpy(info.master, pvc->frad->name, IFNAMSIZ);
+<<<<<<< HEAD
 		if (copy_to_user(ifr->ifr_settings.ifs_ifsu.fr_pvc_info,
+=======
+		if (copy_to_user(ifs->ifs_ifsu.fr_pvc_info,
+>>>>>>> upstream/android-13
 				 &info, sizeof(info)))
 			return -EFAULT;
 		return 0;
@@ -419,6 +521,7 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct pvc_device *pvc = dev->ml_priv;
 
+<<<<<<< HEAD
 	if (pvc->state.active) {
 		if (dev->type == ARPHRD_ETHER) {
 			int pad = ETH_ZLEN - skb->len;
@@ -451,6 +554,51 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	dev->stats.tx_dropped++;
 	dev_kfree_skb(skb);
+=======
+	if (!pvc->state.active)
+		goto drop;
+
+	if (dev->type == ARPHRD_ETHER) {
+		int pad = ETH_ZLEN - skb->len;
+
+		if (pad > 0) { /* Pad the frame with zeros */
+			if (__skb_pad(skb, pad, false))
+				goto drop;
+			skb_put(skb, pad);
+		}
+	}
+
+	/* We already requested the header space with dev->needed_headroom.
+	 * So this is just a protection in case the upper layer didn't take
+	 * dev->needed_headroom into consideration.
+	 */
+	if (skb_headroom(skb) < 10) {
+		struct sk_buff *skb2 = skb_realloc_headroom(skb, 10);
+
+		if (!skb2)
+			goto drop;
+		dev_kfree_skb(skb);
+		skb = skb2;
+	}
+
+	skb->dev = dev;
+	if (fr_hard_header(skb, pvc->dlci))
+		goto drop;
+
+	dev->stats.tx_bytes += skb->len;
+	dev->stats.tx_packets++;
+	if (pvc->state.fecn) /* TX Congestion counter */
+		dev->stats.tx_compressed++;
+	skb->dev = pvc->frad;
+	skb->protocol = htons(ETH_P_HDLC);
+	skb_reset_network_header(skb);
+	dev_queue_xmit(skb);
+	return NETDEV_TX_OK;
+
+drop:
+	dev->stats.tx_dropped++;
+	kfree_skb(skb);
+>>>>>>> upstream/android-13
 	return NETDEV_TX_OK;
 }
 
@@ -466,15 +614,21 @@ static inline void fr_log_dlci_active(struct pvc_device *pvc)
 		    pvc->state.active ? "active" : "inactive");
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static inline u8 fr_lmi_nextseq(u8 x)
 {
 	x++;
 	return x ? x : 1;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void fr_lmi_send(struct net_device *dev, int fullrep)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
@@ -496,6 +650,7 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
 	}
 
 	skb = dev_alloc_skb(len);
+<<<<<<< HEAD
 	if (!skb) {
 		netdev_warn(dev, "Memory squeeze on fr_lmi_send()\n");
 		return;
@@ -507,6 +662,18 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
 	} else {
 		fr_hard_header(&skb, LMI_CCITT_ANSI_DLCI);
 	}
+=======
+	if (!skb)
+		return;
+
+	memset(skb->data, 0, len);
+	skb_reserve(skb, 4);
+	if (lmi == LMI_CISCO)
+		fr_hard_header(skb, LMI_CISCO_DLCI);
+	else
+		fr_hard_header(skb, LMI_CCITT_ANSI_DLCI);
+
+>>>>>>> upstream/android-13
 	data = skb_tail_pointer(skb);
 	data[i++] = LMI_CALLREF;
 	data[i++] = dce ? LMI_STATUS : LMI_STATUS_ENQUIRY;
@@ -570,8 +737,11 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
 	dev_queue_xmit(skb);
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static void fr_set_link_state(int reliable, struct net_device *dev)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
@@ -604,7 +774,10 @@ static void fr_set_link_state(int reliable, struct net_device *dev)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void fr_timer(struct timer_list *t)
 {
 	struct frad_state *st = from_timer(st, t, timer);
@@ -638,10 +811,17 @@ static void fr_timer(struct timer_list *t)
 		fr_set_link_state(reliable, dev);
 	}
 
+<<<<<<< HEAD
 	if (state(hdlc)->settings.dce)
 		state(hdlc)->timer.expires = jiffies +
 			state(hdlc)->settings.t392 * HZ;
 	else {
+=======
+	if (state(hdlc)->settings.dce) {
+		state(hdlc)->timer.expires = jiffies +
+			state(hdlc)->settings.t392 * HZ;
+	} else {
+>>>>>>> upstream/android-13
 		if (state(hdlc)->n391cnt)
 			state(hdlc)->n391cnt--;
 
@@ -656,7 +836,10 @@ static void fr_timer(struct timer_list *t)
 	add_timer(&state(hdlc)->timer);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int fr_lmi_recv(struct net_device *dev, struct sk_buff *skb)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
@@ -697,8 +880,14 @@ static int fr_lmi_recv(struct net_device *dev, struct sk_buff *skb)
 			return 1;
 		}
 		i = 7;
+<<<<<<< HEAD
 	} else
 		i = 6;
+=======
+	} else {
+		i = 6;
+	}
+>>>>>>> upstream/android-13
 
 	if (skb->data[i] != (lmi == LMI_CCITT ? LMI_CCITT_REPTYPE :
 			     LMI_ANSI_CISCO_REPTYPE)) {
@@ -815,8 +1004,13 @@ static int fr_lmi_recv(struct net_device *dev, struct sk_buff *skb)
 		}
 		i++;
 
+<<<<<<< HEAD
 		new = !! (skb->data[i + 2] & 0x08);
 		active = !! (skb->data[i + 2] & 0x02);
+=======
+		new = !!(skb->data[i + 2] & 0x08);
+		active = !!(skb->data[i + 2] & 0x02);
+>>>>>>> upstream/android-13
 		if (lmi == LMI_CISCO) {
 			dlci = (skb->data[i] << 8) | skb->data[i + 1];
 			bw = (skb->data[i + 3] << 16) |
@@ -872,6 +1066,48 @@ static int fr_lmi_recv(struct net_device *dev, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int fr_snap_parse(struct sk_buff *skb, struct pvc_device *pvc)
+{
+	/* OUI 00-00-00 indicates an Ethertype follows */
+	if (skb->data[0] == 0x00 &&
+	    skb->data[1] == 0x00 &&
+	    skb->data[2] == 0x00) {
+		if (!pvc->main)
+			return -1;
+		skb->dev = pvc->main;
+		skb->protocol = *(__be16 *)(skb->data + 3); /* Ethertype */
+		skb_pull(skb, 5);
+		skb_reset_mac_header(skb);
+		return 0;
+
+	/* OUI 00-80-C2 stands for the 802.1 organization */
+	} else if (skb->data[0] == 0x00 &&
+		   skb->data[1] == 0x80 &&
+		   skb->data[2] == 0xC2) {
+		/* PID 00-07 stands for Ethernet frames without FCS */
+		if (skb->data[3] == 0x00 &&
+		    skb->data[4] == 0x07) {
+			if (!pvc->ether)
+				return -1;
+			skb_pull(skb, 5);
+			if (skb->len < ETH_HLEN)
+				return -1;
+			skb->protocol = eth_type_trans(skb, pvc->ether);
+			return 0;
+
+		/* PID unsupported */
+		} else {
+			return -1;
+		}
+
+	/* OUI unsupported */
+	} else {
+		return -1;
+	}
+}
+>>>>>>> upstream/android-13
 
 static int fr_rx(struct sk_buff *skb)
 {
@@ -881,9 +1117,15 @@ static int fr_rx(struct sk_buff *skb)
 	u8 *data = skb->data;
 	u16 dlci;
 	struct pvc_device *pvc;
+<<<<<<< HEAD
 	struct net_device *dev = NULL;
 
 	if (skb->len <= 4 || fh->ea1 || data[2] != FR_UI)
+=======
+	struct net_device *dev;
+
+	if (skb->len < 4 || fh->ea1 || !fh->ea2 || data[2] != FR_UI)
+>>>>>>> upstream/android-13
 		goto rx_error;
 
 	dlci = q922_to_dlci(skb->data);
@@ -905,8 +1147,12 @@ static int fr_rx(struct sk_buff *skb)
 		netdev_info(frad, "No PVC for received frame's DLCI %d\n",
 			    dlci);
 #endif
+<<<<<<< HEAD
 		dev_kfree_skb_any(skb);
 		return NET_RX_DROP;
+=======
+		goto rx_drop;
+>>>>>>> upstream/android-13
 	}
 
 	if (pvc->state.fecn != fh->fecn) {
@@ -925,13 +1171,19 @@ static int fr_rx(struct sk_buff *skb)
 		pvc->state.becn ^= 1;
 	}
 
+<<<<<<< HEAD
 
 	if ((skb = skb_share_check(skb, GFP_ATOMIC)) == NULL) {
+=======
+	skb = skb_share_check(skb, GFP_ATOMIC);
+	if (!skb) {
+>>>>>>> upstream/android-13
 		frad->stats.rx_dropped++;
 		return NET_RX_DROP;
 	}
 
 	if (data[3] == NLPID_IP) {
+<<<<<<< HEAD
 		skb_pull(skb, 4); /* Remove 4-byte header (hdr, UI, NLPID) */
 		dev = pvc->main;
 		skb->protocol = htons(ETH_P_IP);
@@ -989,12 +1241,62 @@ static int fr_rx(struct sk_buff *skb)
 
  rx_error:
 	frad->stats.rx_errors++; /* Mark error */
+=======
+		if (!pvc->main)
+			goto rx_drop;
+		skb_pull(skb, 4); /* Remove 4-byte header (hdr, UI, NLPID) */
+		skb->dev = pvc->main;
+		skb->protocol = htons(ETH_P_IP);
+		skb_reset_mac_header(skb);
+
+	} else if (data[3] == NLPID_IPV6) {
+		if (!pvc->main)
+			goto rx_drop;
+		skb_pull(skb, 4); /* Remove 4-byte header (hdr, UI, NLPID) */
+		skb->dev = pvc->main;
+		skb->protocol = htons(ETH_P_IPV6);
+		skb_reset_mac_header(skb);
+
+	} else if (data[3] == FR_PAD) {
+		if (skb->len < 5)
+			goto rx_error;
+		if (data[4] == NLPID_SNAP) { /* A SNAP header follows */
+			skb_pull(skb, 5);
+			if (skb->len < 5) /* Incomplete SNAP header */
+				goto rx_error;
+			if (fr_snap_parse(skb, pvc))
+				goto rx_drop;
+		} else {
+			goto rx_drop;
+		}
+
+	} else {
+		netdev_info(frad, "Unsupported protocol, NLPID=%x length=%i\n",
+			    data[3], skb->len);
+		goto rx_drop;
+	}
+
+	dev = skb->dev;
+	dev->stats.rx_packets++; /* PVC traffic */
+	dev->stats.rx_bytes += skb->len;
+	if (pvc->state.becn)
+		dev->stats.rx_compressed++;
+	netif_rx(skb);
+	return NET_RX_SUCCESS;
+
+rx_error:
+	frad->stats.rx_errors++; /* Mark error */
+rx_drop:
+>>>>>>> upstream/android-13
 	dev_kfree_skb_any(skb);
 	return NET_RX_DROP;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static void fr_start(struct net_device *dev)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
@@ -1015,11 +1317,19 @@ static void fr_start(struct net_device *dev)
 		/* First poll after 1 s */
 		state(hdlc)->timer.expires = jiffies + HZ;
 		add_timer(&state(hdlc)->timer);
+<<<<<<< HEAD
 	} else
 		fr_set_link_state(1, dev);
 }
 
 
+=======
+	} else {
+		fr_set_link_state(1, dev);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void fr_stop(struct net_device *dev)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
@@ -1031,7 +1341,10 @@ static void fr_stop(struct net_device *dev)
 	fr_set_link_state(0, dev);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void fr_close(struct net_device *dev)
 {
 	hdlc_device *hdlc = dev_to_hdlc(dev);
@@ -1046,7 +1359,10 @@ static void fr_close(struct net_device *dev)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void pvc_setup(struct net_device *dev)
 {
 	dev->type = ARPHRD_DLCI;
@@ -1060,7 +1376,11 @@ static const struct net_device_ops pvc_ops = {
 	.ndo_open       = pvc_open,
 	.ndo_stop       = pvc_close,
 	.ndo_start_xmit = pvc_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = pvc_ioctl,
+=======
+	.ndo_siocwandev = pvc_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static int fr_add_pvc(struct net_device *frad, unsigned int dlci, int type)
@@ -1070,7 +1390,12 @@ static int fr_add_pvc(struct net_device *frad, unsigned int dlci, int type)
 	struct net_device *dev;
 	int used;
 
+<<<<<<< HEAD
 	if ((pvc = add_pvc(frad, dlci)) == NULL) {
+=======
+	pvc = add_pvc(frad, dlci);
+	if (!pvc) {
+>>>>>>> upstream/android-13
 		netdev_warn(frad, "Memory squeeze on fr_add_pvc()\n");
 		return -ENOBUFS;
 	}
@@ -1096,7 +1421,11 @@ static int fr_add_pvc(struct net_device *frad, unsigned int dlci, int type)
 		dev->priv_flags &= ~IFF_TX_SKB_SHARING;
 		eth_hw_addr_random(dev);
 	} else {
+<<<<<<< HEAD
 		*(__be16*)dev->dev_addr = htons(dlci);
+=======
+		*(__be16 *)dev->dev_addr = htons(dlci);
+>>>>>>> upstream/android-13
 		dlci_to_q922(dev->broadcast, dlci);
 	}
 	dev->netdev_ops = &pvc_ops;
@@ -1122,17 +1451,29 @@ static int fr_add_pvc(struct net_device *frad, unsigned int dlci, int type)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int fr_del_pvc(hdlc_device *hdlc, unsigned int dlci, int type)
 {
 	struct pvc_device *pvc;
 	struct net_device *dev;
 
+<<<<<<< HEAD
 	if ((pvc = find_pvc(hdlc, dlci)) == NULL)
 		return -ENOENT;
 
 	if ((dev = *get_dev_p(pvc, type)) == NULL)
+=======
+	pvc = find_pvc(hdlc, dlci);
+	if (!pvc)
+		return -ENOENT;
+
+	dev = *get_dev_p(pvc, type);
+	if (!dev)
+>>>>>>> upstream/android-13
 		return -ENOENT;
 
 	if (dev->flags & IFF_UP)
@@ -1149,12 +1490,19 @@ static int fr_del_pvc(hdlc_device *hdlc, unsigned int dlci, int type)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static void fr_destroy(struct net_device *frad)
 {
 	hdlc_device *hdlc = dev_to_hdlc(frad);
 	struct pvc_device *pvc = state(hdlc)->first_pvc;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	state(hdlc)->first_pvc = NULL; /* All PVCs destroyed */
 	state(hdlc)->dce_pvc_count = 0;
 	state(hdlc)->dce_changed = 1;
@@ -1173,7 +1521,10 @@ static void fr_destroy(struct net_device *frad)
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct hdlc_proto proto = {
 	.close		= fr_close,
 	.start		= fr_start,
@@ -1184,16 +1535,23 @@ static struct hdlc_proto proto = {
 	.module		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
 
 static int fr_ioctl(struct net_device *dev, struct ifreq *ifr)
 {
 	fr_proto __user *fr_s = ifr->ifr_settings.ifs_ifsu.fr;
+=======
+static int fr_ioctl(struct net_device *dev, struct if_settings *ifs)
+{
+	fr_proto __user *fr_s = ifs->ifs_ifsu.fr;
+>>>>>>> upstream/android-13
 	const size_t size = sizeof(fr_proto);
 	fr_proto new_settings;
 	hdlc_device *hdlc = dev_to_hdlc(dev);
 	fr_proto_pvc pvc;
 	int result;
 
+<<<<<<< HEAD
 	switch (ifr->ifr_settings.type) {
 	case IF_GET_PROTO:
 		if (dev_to_hdlc(dev)->proto != &proto) /* Different proto */
@@ -1201,6 +1559,15 @@ static int fr_ioctl(struct net_device *dev, struct ifreq *ifr)
 		ifr->ifr_settings.type = IF_PROTO_FR;
 		if (ifr->ifr_settings.size < size) {
 			ifr->ifr_settings.size = size; /* data size wanted */
+=======
+	switch (ifs->type) {
+	case IF_GET_PROTO:
+		if (dev_to_hdlc(dev)->proto != &proto) /* Different proto */
+			return -EINVAL;
+		ifs->type = IF_PROTO_FR;
+		if (ifs->size < size) {
+			ifs->size = size; /* data size wanted */
+>>>>>>> upstream/android-13
 			return -ENOBUFS;
 		}
 		if (copy_to_user(fr_s, &state(hdlc)->settings, size))
@@ -1234,7 +1601,12 @@ static int fr_ioctl(struct net_device *dev, struct ifreq *ifr)
 		     new_settings.dce != 1))
 			return -EINVAL;
 
+<<<<<<< HEAD
 		result=hdlc->attach(dev, ENCODING_NRZ,PARITY_CRC16_PR1_CCITT);
+=======
+		result = hdlc->attach(dev, ENCODING_NRZ,
+				      PARITY_CRC16_PR1_CCITT);
+>>>>>>> upstream/android-13
 		if (result)
 			return result;
 
@@ -1261,21 +1633,35 @@ static int fr_ioctl(struct net_device *dev, struct ifreq *ifr)
 		if (!capable(CAP_NET_ADMIN))
 			return -EPERM;
 
+<<<<<<< HEAD
 		if (copy_from_user(&pvc, ifr->ifr_settings.ifs_ifsu.fr_pvc,
+=======
+		if (copy_from_user(&pvc, ifs->ifs_ifsu.fr_pvc,
+>>>>>>> upstream/android-13
 				   sizeof(fr_proto_pvc)))
 			return -EFAULT;
 
 		if (pvc.dlci <= 0 || pvc.dlci >= 1024)
 			return -EINVAL;	/* Only 10 bits, DLCI 0 reserved */
 
+<<<<<<< HEAD
 		if (ifr->ifr_settings.type == IF_PROTO_FR_ADD_ETH_PVC ||
 		    ifr->ifr_settings.type == IF_PROTO_FR_DEL_ETH_PVC)
+=======
+		if (ifs->type == IF_PROTO_FR_ADD_ETH_PVC ||
+		    ifs->type == IF_PROTO_FR_DEL_ETH_PVC)
+>>>>>>> upstream/android-13
 			result = ARPHRD_ETHER; /* bridged Ethernet device */
 		else
 			result = ARPHRD_DLCI;
 
+<<<<<<< HEAD
 		if (ifr->ifr_settings.type == IF_PROTO_FR_ADD_PVC ||
 		    ifr->ifr_settings.type == IF_PROTO_FR_ADD_ETH_PVC)
+=======
+		if (ifs->type == IF_PROTO_FR_ADD_PVC ||
+		    ifs->type == IF_PROTO_FR_ADD_ETH_PVC)
+>>>>>>> upstream/android-13
 			return fr_add_pvc(dev, pvc.dlci, result);
 		else
 			return fr_del_pvc(hdlc, pvc.dlci, result);
@@ -1284,22 +1670,35 @@ static int fr_ioctl(struct net_device *dev, struct ifreq *ifr)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 
 static int __init mod_init(void)
+=======
+static int __init hdlc_fr_init(void)
+>>>>>>> upstream/android-13
 {
 	register_hdlc_protocol(&proto);
 	return 0;
 }
 
+<<<<<<< HEAD
 
 static void __exit mod_exit(void)
+=======
+static void __exit hdlc_fr_exit(void)
+>>>>>>> upstream/android-13
 {
 	unregister_hdlc_protocol(&proto);
 }
 
+<<<<<<< HEAD
 
 module_init(mod_init);
 module_exit(mod_exit);
+=======
+module_init(hdlc_fr_init);
+module_exit(hdlc_fr_exit);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Krzysztof Halasa <khc@pm.waw.pl>");
 MODULE_DESCRIPTION("Frame-Relay protocol support for generic HDLC");

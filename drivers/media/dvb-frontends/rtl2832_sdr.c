@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Realtek RTL2832U SDR driver
  *
  * Copyright (C) 2013 Antti Palosaari <crope@iki.fi>
  *
+<<<<<<< HEAD
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,10 @@
  * GNU Radio plugin "gr-kernel" for device usage will be on:
  * http://git.linuxtv.org/anttip/gr-kernel.git
  *
+=======
+ * GNU Radio plugin "gr-kernel" for device usage will be on:
+ * https://git.linuxtv.org/anttip/gr-kernel.git
+>>>>>>> upstream/android-13
  */
 
 #include "rtl2832_sdr.h"
@@ -95,11 +104,17 @@ struct rtl2832_sdr_format {
 
 static struct rtl2832_sdr_format formats[] = {
 	{
+<<<<<<< HEAD
 		.name		= "Complex U8",
 		.pixelformat	= V4L2_SDR_FMT_CU8,
 		.buffersize	= BULK_BUFFER_SIZE,
 	}, {
 		.name		= "Complex U16LE (emulated)",
+=======
+		.pixelformat	= V4L2_SDR_FMT_CU8,
+		.buffersize	= BULK_BUFFER_SIZE,
+	}, {
+>>>>>>> upstream/android-13
 		.pixelformat	= V4L2_SDR_FMT_CU16LE,
 		.buffersize	= BULK_BUFFER_SIZE * 2,
 	},
@@ -439,12 +454,18 @@ static int rtl2832_sdr_querycap(struct file *file, void *fh,
 
 	dev_dbg(&pdev->dev, "\n");
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
 	strlcpy(cap->card, dev->vdev.name, sizeof(cap->card));
 	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
 	cap->device_caps = V4L2_CAP_SDR_CAPTURE | V4L2_CAP_STREAMING |
 			V4L2_CAP_READWRITE | V4L2_CAP_TUNER;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
+	strscpy(cap->card, dev->vdev.name, sizeof(cap->card));
+	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -471,7 +492,11 @@ static int rtl2832_sdr_buf_prepare(struct vb2_buffer *vb)
 {
 	struct rtl2832_sdr_dev *dev = vb2_get_drv_priv(vb->vb2_queue);
 
+<<<<<<< HEAD
 	/* Don't allow queing new buffers after device disconnection */
+=======
+	/* Don't allow queueing new buffers after device disconnection */
+>>>>>>> upstream/android-13
 	if (!dev->udev)
 		return -ENODEV;
 
@@ -976,7 +1001,11 @@ static int rtl2832_sdr_g_tuner(struct file *file, void *priv,
 	dev_dbg(&pdev->dev, "index=%d type=%d\n", v->index, v->type);
 
 	if (v->index == 0) {
+<<<<<<< HEAD
 		strlcpy(v->name, "ADC: Realtek RTL2832", sizeof(v->name));
+=======
+		strscpy(v->name, "ADC: Realtek RTL2832", sizeof(v->name));
+>>>>>>> upstream/android-13
 		v->type = V4L2_TUNER_ADC;
 		v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		v->rangelow =   300000;
@@ -986,7 +1015,11 @@ static int rtl2832_sdr_g_tuner(struct file *file, void *priv,
 		   V4L2_SUBDEV_HAS_OP(dev->v4l2_subdev, tuner, g_tuner)) {
 		ret = v4l2_subdev_call(dev->v4l2_subdev, tuner, g_tuner, v);
 	} else if (v->index == 1) {
+<<<<<<< HEAD
 		strlcpy(v->name, "RF: <unknown>", sizeof(v->name));
+=======
+		strscpy(v->name, "RF: <unknown>", sizeof(v->name));
+>>>>>>> upstream/android-13
 		v->type = V4L2_TUNER_RF;
 		v->capability = V4L2_TUNER_CAP_1HZ | V4L2_TUNER_CAP_FREQ_BANDS;
 		v->rangelow =    50000000;
@@ -1133,7 +1166,10 @@ static int rtl2832_sdr_enum_fmt_sdr_cap(struct file *file, void *priv,
 	if (f->index >= dev->num_formats)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, formats[f->index].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = formats[f->index].pixelformat;
 
 	return 0;
@@ -1150,8 +1186,11 @@ static int rtl2832_sdr_g_fmt_sdr_cap(struct file *file, void *priv,
 	f->fmt.sdr.pixelformat = dev->pixelformat;
 	f->fmt.sdr.buffersize = dev->buffersize;
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1169,7 +1208,10 @@ static int rtl2832_sdr_s_fmt_sdr_cap(struct file *file, void *priv,
 	if (vb2_is_busy(q))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < dev->num_formats; i++) {
 		if (formats[i].pixelformat == f->fmt.sdr.pixelformat) {
 			dev->pixelformat = formats[i].pixelformat;
@@ -1197,7 +1239,10 @@ static int rtl2832_sdr_try_fmt_sdr_cap(struct file *file, void *priv,
 	dev_dbg(&pdev->dev, "pixelformat fourcc %4.4s\n",
 		(char *)&f->fmt.sdr.pixelformat);
 
+<<<<<<< HEAD
 	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < dev->num_formats; i++) {
 		if (formats[i].pixelformat == f->fmt.sdr.pixelformat) {
 			f->fmt.sdr.buffersize = formats[i].buffersize;
@@ -1256,6 +1301,11 @@ static struct video_device rtl2832_sdr_template = {
 	.release                  = video_device_release_empty,
 	.fops                     = &rtl2832_sdr_fops,
 	.ioctl_ops                = &rtl2832_sdr_ioctl_ops,
+<<<<<<< HEAD
+=======
+	.device_caps		  = V4L2_CAP_SDR_CAPTURE | V4L2_CAP_STREAMING |
+				    V4L2_CAP_READWRITE | V4L2_CAP_TUNER,
+>>>>>>> upstream/android-13
 };
 
 static int rtl2832_sdr_s_ctrl(struct v4l2_ctrl *ctrl)
@@ -1429,6 +1479,10 @@ static int rtl2832_sdr_probe(struct platform_device *pdev)
 	default:
 		v4l2_ctrl_handler_init(&dev->hdl, 0);
 		dev_err(&pdev->dev, "Unsupported tuner\n");
+<<<<<<< HEAD
+=======
+		ret = -ENODEV;
+>>>>>>> upstream/android-13
 		goto err_v4l2_ctrl_handler_free;
 	}
 	if (dev->hdl.error) {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  FUJITSU Extended Socket Network Device driver
  *  Copyright (c) 2015 FUJITSU LIMITED
@@ -17,6 +18,12 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  FUJITSU Extended Socket Network Device driver
+ *  Copyright (c) 2015 FUJITSU LIMITED
+>>>>>>> upstream/android-13
  */
 
 #include "fjes_hw.h"
@@ -55,7 +62,11 @@ static u8 *fjes_hw_iomap(struct fjes_hw *hw)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	base = (u8 *)ioremap_nocache(hw->hw_res.start, hw->hw_res.size);
+=======
+	base = (u8 *)ioremap(hw->hw_res.start, hw->hw_res.size);
+>>>>>>> upstream/android-13
 
 	return base;
 }

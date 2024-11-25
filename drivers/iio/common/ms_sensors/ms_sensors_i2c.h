@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Measurements Specialties common sensor driver
  *
  * Copyright (c) 2015 Measurement-Specialties
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MS_SENSORS_I2C_H
@@ -14,7 +21,11 @@
 #include <linux/i2c.h>
 #include <linux/mutex.h>
 
+<<<<<<< HEAD
 #define MS_SENSORS_TP_PROM_WORDS_NB		7
+=======
+#define MS_SENSORS_TP_PROM_WORDS_NB		8
+>>>>>>> upstream/android-13
 
 /**
  * struct ms_ht_dev - Humidity/Temperature sensor device structure
@@ -29,6 +40,19 @@ struct ms_ht_dev {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * struct ms_hw_data - Temperature/Pressure sensor hardware data
+ * @prom_len:		number of words in the PROM
+ * @max_res_index:	maximum sensor resolution index
+ */
+struct ms_tp_hw_data {
+	u8 prom_len;
+	u8 max_res_index;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct ms_tp_dev - Temperature/Pressure sensor device structure
  * @client:	i2c client
  * @lock:	lock protecting the i2c conversion
@@ -39,7 +63,12 @@ struct ms_ht_dev {
 struct ms_tp_dev {
 	struct i2c_client *client;
 	struct mutex lock;
+<<<<<<< HEAD
 	u16 prom[MS_SENSORS_TP_PROM_WORDS_NB + 1];
+=======
+	const struct ms_tp_hw_data *hw;
+	u16 prom[MS_SENSORS_TP_PROM_WORDS_NB];
+>>>>>>> upstream/android-13
 	u8 res_index;
 };
 

@@ -17,6 +17,10 @@
 #include "tzdev_internal.h"
 #include "core/iwsock.h"
 #include "core/ree_time.h"
+<<<<<<< HEAD
+=======
+#include "core/sysdep.h"
+>>>>>>> upstream/android-13
 #include "core/subsystem.h"
 
 MODULE_AUTHOR("Konstantin Karasev");
@@ -36,7 +40,10 @@ static int tz_ree_time_kthread(void *data)
 	ssize_t len;
 	int req;
 	int ret;
+<<<<<<< HEAD
 	struct timespec ts;
+=======
+>>>>>>> upstream/android-13
 	struct tz_ree_time ree_time;
 
 	(void)data;
@@ -66,10 +73,15 @@ static int tz_ree_time_kthread(void *data)
 				ERR("failed to fetch request, err = %zd\n", len);
 				break;
 			}
+<<<<<<< HEAD
 
 			getnstimeofday(&ts);
 			ree_time.sec = ts.tv_sec;
 			ree_time.nsec = ts.tv_nsec;
+=======
+			sysdep_get_ts(&ree_time);
+
+>>>>>>> upstream/android-13
 			if ((len = tz_iwsock_write(ree_time_conn, &ree_time,
 							sizeof(ree_time), 0))
 					!= sizeof(ree_time)) {

@@ -34,6 +34,28 @@ struct bcm7038_watchdog {
 
 static bool nowayout = WATCHDOG_NOWAYOUT;
 
+<<<<<<< HEAD
+=======
+static inline void bcm7038_wdt_write(u32 value, void __iomem *addr)
+{
+	/* MIPS chips strapped for BE will automagically configure the
+	 * peripheral registers for CPU-native byte order.
+	 */
+	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
+		__raw_writel(value, addr);
+	else
+		writel_relaxed(value, addr);
+}
+
+static inline u32 bcm7038_wdt_read(void __iomem *addr)
+{
+	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
+		return __raw_readl(addr);
+	else
+		return readl_relaxed(addr);
+}
+
+>>>>>>> upstream/android-13
 static void bcm7038_wdt_set_timeout_reg(struct watchdog_device *wdog)
 {
 	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
@@ -41,15 +63,24 @@ static void bcm7038_wdt_set_timeout_reg(struct watchdog_device *wdog)
 
 	timeout = wdt->rate * wdog->timeout;
 
+<<<<<<< HEAD
 	writel(timeout, wdt->base + WDT_TIMEOUT_REG);
+=======
+	bcm7038_wdt_write(timeout, wdt->base + WDT_TIMEOUT_REG);
+>>>>>>> upstream/android-13
 }
 
 static int bcm7038_wdt_ping(struct watchdog_device *wdog)
 {
 	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
 
+<<<<<<< HEAD
 	writel(WDT_START_1, wdt->base + WDT_CMD_REG);
 	writel(WDT_START_2, wdt->base + WDT_CMD_REG);
+=======
+	bcm7038_wdt_write(WDT_START_1, wdt->base + WDT_CMD_REG);
+	bcm7038_wdt_write(WDT_START_2, wdt->base + WDT_CMD_REG);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -66,8 +97,13 @@ static int bcm7038_wdt_stop(struct watchdog_device *wdog)
 {
 	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
 
+<<<<<<< HEAD
 	writel(WDT_STOP_1, wdt->base + WDT_CMD_REG);
 	writel(WDT_STOP_2, wdt->base + WDT_CMD_REG);
+=======
+	bcm7038_wdt_write(WDT_STOP_1, wdt->base + WDT_CMD_REG);
+	bcm7038_wdt_write(WDT_STOP_2, wdt->base + WDT_CMD_REG);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -88,7 +124,11 @@ static unsigned int bcm7038_wdt_get_timeleft(struct watchdog_device *wdog)
 	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
 	u32 time_left;
 
+<<<<<<< HEAD
 	time_left = readl(wdt->base + WDT_CMD_REG);
+=======
+	time_left = bcm7038_wdt_read(wdt->base + WDT_CMD_REG);
+>>>>>>> upstream/android-13
 
 	return time_left / wdt->rate;
 }
@@ -107,11 +147,22 @@ static const struct watchdog_ops bcm7038_wdt_ops = {
 	.get_timeleft	= bcm7038_wdt_get_timeleft,
 };
 
+<<<<<<< HEAD
+=======
+static void bcm7038_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+>>>>>>> upstream/android-13
 static int bcm7038_wdt_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct bcm7038_watchdog *wdt;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
@@ -120,8 +171,12 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, wdt);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	wdt->base = devm_ioremap_resource(dev, res);
+=======
+	wdt->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(wdt->base))
 		return PTR_ERR(wdt->base);
 
@@ -131,6 +186,14 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
 		err = clk_prepare_enable(wdt->clk);
 		if (err)
 			return err;
+<<<<<<< HEAD
+=======
+		err = devm_add_action_or_reset(dev,
+					       bcm7038_clk_disable_unprepare,
+					       wdt->clk);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 		wdt->rate = clk_get_rate(wdt->clk);
 		/* Prevent divide-by-zero exception */
 		if (!wdt->rate)
@@ -148,18 +211,27 @@ static int bcm7038_wdt_probe(struct platform_device *pdev)
 	wdt->wdd.parent		= dev;
 	watchdog_set_drvdata(&wdt->wdd, wdt);
 
+<<<<<<< HEAD
 	err = watchdog_register_device(&wdt->wdd);
 	if (err) {
 		dev_err(dev, "Failed to register watchdog device\n");
 		clk_disable_unprepare(wdt->clk);
 		return err;
 	}
+=======
+	watchdog_stop_on_reboot(&wdt->wdd);
+	watchdog_stop_on_unregister(&wdt->wdd);
+	err = devm_watchdog_register_device(dev, &wdt->wdd);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "Registered BCM7038 Watchdog\n");
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bcm7038_wdt_remove(struct platform_device *pdev)
 {
 	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
@@ -173,6 +245,8 @@ static int bcm7038_wdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int bcm7038_wdt_suspend(struct device *dev)
 {
@@ -198,6 +272,7 @@ static int bcm7038_wdt_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(bcm7038_wdt_pm_ops, bcm7038_wdt_suspend,
 			 bcm7038_wdt_resume);
 
+<<<<<<< HEAD
 static void bcm7038_wdt_shutdown(struct platform_device *pdev)
 {
 	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
@@ -206,6 +281,8 @@ static void bcm7038_wdt_shutdown(struct platform_device *pdev)
 		bcm7038_wdt_stop(&wdt->wdd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id bcm7038_wdt_match[] = {
 	{ .compatible = "brcm,bcm7038-wdt" },
 	{},
@@ -214,8 +291,11 @@ MODULE_DEVICE_TABLE(of, bcm7038_wdt_match);
 
 static struct platform_driver bcm7038_wdt_driver = {
 	.probe		= bcm7038_wdt_probe,
+<<<<<<< HEAD
 	.remove		= bcm7038_wdt_remove,
 	.shutdown	= bcm7038_wdt_shutdown,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name		= "bcm7038-wdt",
 		.of_match_table	= bcm7038_wdt_match,

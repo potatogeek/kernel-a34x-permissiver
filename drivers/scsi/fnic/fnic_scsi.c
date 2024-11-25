@@ -23,6 +23,10 @@
 #include <linux/scatterlist.h>
 #include <linux/skbuff.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/etherdevice.h>
+>>>>>>> upstream/android-13
 #include <linux/if_ether.h>
 #include <linux/if_vlan.h>
 #include <linux/delay.h>
@@ -101,12 +105,20 @@ static const char *fnic_fcpio_status_to_str(unsigned int status)
 	return fcpio_status_str[status];
 }
 
+<<<<<<< HEAD
 static void fnic_cleanup_io(struct fnic *fnic, int exclude_id);
+=======
+static void fnic_cleanup_io(struct fnic *fnic);
+>>>>>>> upstream/android-13
 
 static inline spinlock_t *fnic_io_lock_hash(struct fnic *fnic,
 					    struct scsi_cmnd *sc)
 {
+<<<<<<< HEAD
 	u32 hash = sc->request->tag & (FNIC_IO_LOCKS - 1);
+=======
+	u32 hash = scsi_cmd_to_rq(sc)->tag & (FNIC_IO_LOCKS - 1);
+>>>>>>> upstream/android-13
 
 	return &fnic->io_req_lock[hash];
 }
@@ -126,17 +138,28 @@ static void fnic_release_ioreq_buf(struct fnic *fnic,
 				   struct scsi_cmnd *sc)
 {
 	if (io_req->sgl_list_pa)
+<<<<<<< HEAD
 		pci_unmap_single(fnic->pdev, io_req->sgl_list_pa,
 				 sizeof(io_req->sgl_list[0]) * io_req->sgl_cnt,
 				 PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&fnic->pdev->dev, io_req->sgl_list_pa,
+				 sizeof(io_req->sgl_list[0]) * io_req->sgl_cnt,
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	scsi_dma_unmap(sc);
 
 	if (io_req->sgl_cnt)
 		mempool_free(io_req->sgl_list_alloc,
 			     fnic->io_sgl_pool[io_req->sgl_type]);
 	if (io_req->sense_buf_pa)
+<<<<<<< HEAD
 		pci_unmap_single(fnic->pdev, io_req->sense_buf_pa,
 				 SCSI_SENSE_BUFFERSIZE, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&fnic->pdev->dev, io_req->sense_buf_pa,
+				 SCSI_SENSE_BUFFERSIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 /* Free up Copy Wq descriptors. Called with copy_wq lock held */
@@ -172,7 +195,11 @@ static int free_wq_copy_descs(struct fnic *fnic, struct vnic_wq_copy *wq)
 }
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __fnic_set_state_flags
  * Sets/Clears bits in fnic's state_flags
  **/
@@ -180,20 +207,33 @@ void
 __fnic_set_state_flags(struct fnic *fnic, unsigned long st_flags,
 			unsigned long clearbits)
 {
+<<<<<<< HEAD
 	struct Scsi_Host *host = fnic->lport->host;
 	int sh_locked = spin_is_locked(host->host_lock);
 	unsigned long flags = 0;
 
 	if (!sh_locked)
 		spin_lock_irqsave(host->host_lock, flags);
+=======
+	unsigned long flags = 0;
+	unsigned long host_lock_flags = 0;
+
+	spin_lock_irqsave(&fnic->fnic_lock, flags);
+	spin_lock_irqsave(fnic->lport->host->host_lock, host_lock_flags);
+>>>>>>> upstream/android-13
 
 	if (clearbits)
 		fnic->state_flags &= ~st_flags;
 	else
 		fnic->state_flags |= st_flags;
 
+<<<<<<< HEAD
 	if (!sh_locked)
 		spin_unlock_irqrestore(host->host_lock, flags);
+=======
+	spin_unlock_irqrestore(fnic->lport->host->host_lock, host_lock_flags);
+	spin_unlock_irqrestore(&fnic->fnic_lock, flags);
+>>>>>>> upstream/android-13
 
 	return;
 }
@@ -276,7 +316,11 @@ int fnic_flogi_reg_handler(struct fnic *fnic, u32 fc_id)
 	}
 
 	if (fnic->ctlr.map_dest) {
+<<<<<<< HEAD
 		memset(gw_mac, 0xff, ETH_ALEN);
+=======
+		eth_broadcast_addr(gw_mac);
+>>>>>>> upstream/android-13
 		format = FCPIO_FLOGI_REG_DEF_DEST;
 	} else {
 		memcpy(gw_mac, fnic->ctlr.dest_addr, ETH_ALEN);
@@ -330,7 +374,10 @@ static inline int fnic_queue_wq_copy_desc(struct fnic *fnic,
 	int flags;
 	u8 exch_flags;
 	struct scsi_lun fc_lun;
+<<<<<<< HEAD
 	int r;
+=======
+>>>>>>> upstream/android-13
 
 	if (sg_count) {
 		/* For each SGE, create a device desc entry */
@@ -342,6 +389,7 @@ static inline int fnic_queue_wq_copy_desc(struct fnic *fnic,
 			desc++;
 		}
 
+<<<<<<< HEAD
 		io_req->sgl_list_pa = pci_map_single
 			(fnic->pdev,
 			 io_req->sgl_list,
@@ -351,10 +399,19 @@ static inline int fnic_queue_wq_copy_desc(struct fnic *fnic,
 		r = pci_dma_mapping_error(fnic->pdev, io_req->sgl_list_pa);
 		if (r) {
 			printk(KERN_ERR "PCI mapping failed with error %d\n", r);
+=======
+		io_req->sgl_list_pa = dma_map_single(&fnic->pdev->dev,
+				io_req->sgl_list,
+				sizeof(io_req->sgl_list[0]) * sg_count,
+				DMA_TO_DEVICE);
+		if (dma_mapping_error(&fnic->pdev->dev, io_req->sgl_list_pa)) {
+			printk(KERN_ERR "DMA mapping failed\n");
+>>>>>>> upstream/android-13
 			return SCSI_MLQUEUE_HOST_BUSY;
 		}
 	}
 
+<<<<<<< HEAD
 	io_req->sense_buf_pa = pci_map_single(fnic->pdev,
 					      sc->sense_buffer,
 					      SCSI_SENSE_BUFFERSIZE,
@@ -366,6 +423,17 @@ static inline int fnic_queue_wq_copy_desc(struct fnic *fnic,
 				sizeof(io_req->sgl_list[0]) * sg_count,
 				PCI_DMA_TODEVICE);
 		printk(KERN_ERR "PCI mapping failed with error %d\n", r);
+=======
+	io_req->sense_buf_pa = dma_map_single(&fnic->pdev->dev,
+					      sc->sense_buffer,
+					      SCSI_SENSE_BUFFERSIZE,
+					      DMA_FROM_DEVICE);
+	if (dma_mapping_error(&fnic->pdev->dev, io_req->sense_buf_pa)) {
+		dma_unmap_single(&fnic->pdev->dev, io_req->sgl_list_pa,
+				sizeof(io_req->sgl_list[0]) * sg_count,
+				DMA_TO_DEVICE);
+		printk(KERN_ERR "DMA mapping failed\n");
+>>>>>>> upstream/android-13
 		return SCSI_MLQUEUE_HOST_BUSY;
 	}
 
@@ -396,7 +464,11 @@ static inline int fnic_queue_wq_copy_desc(struct fnic *fnic,
 	    (rp->flags & FC_RP_FLAGS_RETRY))
 		exch_flags |= FCPIO_ICMND_SRFLAG_RETRY;
 
+<<<<<<< HEAD
 	fnic_queue_wq_copy_desc_icmnd_16(wq, sc->request->tag,
+=======
+	fnic_queue_wq_copy_desc_icmnd_16(wq, scsi_cmd_to_rq(sc)->tag,
+>>>>>>> upstream/android-13
 					 0, exch_flags, io_req->sgl_cnt,
 					 SCSI_SENSE_BUFFERSIZE,
 					 io_req->sgl_list_pa,
@@ -428,6 +500,10 @@ static inline int fnic_queue_wq_copy_desc(struct fnic *fnic,
  */
 static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_cmnd *))
 {
+<<<<<<< HEAD
+=======
+	const int tag = scsi_cmd_to_rq(sc)->tag;
+>>>>>>> upstream/android-13
 	struct fc_lport *lp = shost_priv(sc->device->host);
 	struct fc_rport *rport;
 	struct fnic_io_req *io_req = NULL;
@@ -517,8 +593,12 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_
 	sg_count = scsi_dma_map(sc);
 	if (sg_count < 0) {
 		FNIC_TRACE(fnic_queuecommand, sc->device->host->host_no,
+<<<<<<< HEAD
 			  sc->request->tag, sc, 0, sc->cmnd[0],
 			  sg_count, CMD_STATE(sc));
+=======
+			  tag, sc, 0, sc->cmnd[0], sg_count, CMD_STATE(sc));
+>>>>>>> upstream/android-13
 		mempool_free(io_req, fnic->io_req_pool);
 		goto out;
 	}
@@ -577,7 +657,11 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_
 		 * refetch the pointer under the lock.
 		 */
 		FNIC_TRACE(fnic_queuecommand, sc->device->host->host_no,
+<<<<<<< HEAD
 			  sc->request->tag, sc, 0, 0, 0,
+=======
+			  tag, sc, 0, 0, 0,
+>>>>>>> upstream/android-13
 			  (((u64)CMD_FLAGS(sc) << 32) | CMD_STATE(sc)));
 		io_req = (struct fnic_io_req *)CMD_SP(sc);
 		CMD_SP(sc) = NULL;
@@ -609,9 +693,14 @@ out:
 			sc->cmnd[5]);
 
 	FNIC_TRACE(fnic_queuecommand, sc->device->host->host_no,
+<<<<<<< HEAD
 		  sc->request->tag, sc, io_req,
 		  sg_count, cmd_trace,
 		  (((u64)CMD_FLAGS(sc) >> 32) | CMD_STATE(sc)));
+=======
+		  tag, sc, io_req, sg_count, cmd_trace,
+		  (((u64)CMD_FLAGS(sc) << 32) | CMD_STATE(sc)));
+>>>>>>> upstream/android-13
 
 	/* if only we issued IO, will we have the io lock */
 	if (io_lock_acquired)
@@ -644,7 +733,11 @@ static int fnic_fcpio_fw_reset_cmpl_handler(struct fnic *fnic,
 	atomic64_inc(&reset_stats->fw_reset_completions);
 
 	/* Clean up all outstanding io requests */
+<<<<<<< HEAD
 	fnic_cleanup_io(fnic, SCSI_NO_TAG);
+=======
+	fnic_cleanup_io(fnic);
+>>>>>>> upstream/android-13
 
 	atomic64_set(&fnic->fnic_stats.fw_stats.active_fw_reqs, 0);
 	atomic64_set(&fnic->fnic_stats.io_stats.active_ios, 0);
@@ -927,10 +1020,18 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
 	case FCPIO_SUCCESS:
 		sc->result = (DID_OK << 16) | icmnd_cmpl->scsi_status;
 		xfer_len = scsi_bufflen(sc);
+<<<<<<< HEAD
 		scsi_set_resid(sc, icmnd_cmpl->residual);
 
 		if (icmnd_cmpl->flags & FCPIO_ICMND_CMPL_RESID_UNDER)
 			xfer_len -= icmnd_cmpl->residual;
+=======
+
+		if (icmnd_cmpl->flags & FCPIO_ICMND_CMPL_RESID_UNDER) {
+			xfer_len -= icmnd_cmpl->residual;
+			scsi_set_resid(sc, icmnd_cmpl->residual);
+		}
+>>>>>>> upstream/android-13
 
 		if (icmnd_cmpl->scsi_status == SAM_STAT_CHECK_CONDITION)
 			atomic64_inc(&fnic_stats->misc_stats.check_condition);
@@ -1336,6 +1437,7 @@ int fnic_wq_copy_cmpl_handler(struct fnic *fnic, int copy_work_to_do)
 	unsigned int wq_work_done = 0;
 	unsigned int i, cq_index;
 	unsigned int cur_work_done;
+<<<<<<< HEAD
 
 	for (i = 0; i < fnic->wq_copy_count; i++) {
 		cq_index = i + fnic->raw_wq_count + fnic->rq_count;
@@ -1343,20 +1445,59 @@ int fnic_wq_copy_cmpl_handler(struct fnic *fnic, int copy_work_to_do)
 						     fnic_fcpio_cmpl_handler,
 						     copy_work_to_do);
 		wq_work_done += cur_work_done;
+=======
+	struct misc_stats *misc_stats = &fnic->fnic_stats.misc_stats;
+	u64 start_jiffies = 0;
+	u64 end_jiffies = 0;
+	u64 delta_jiffies = 0;
+	u64 delta_ms = 0;
+
+	for (i = 0; i < fnic->wq_copy_count; i++) {
+		cq_index = i + fnic->raw_wq_count + fnic->rq_count;
+
+		start_jiffies = jiffies;
+		cur_work_done = vnic_cq_copy_service(&fnic->cq[cq_index],
+						     fnic_fcpio_cmpl_handler,
+						     copy_work_to_do);
+		end_jiffies = jiffies;
+
+		wq_work_done += cur_work_done;
+		delta_jiffies = end_jiffies - start_jiffies;
+		if (delta_jiffies >
+			(u64) atomic64_read(&misc_stats->max_isr_jiffies)) {
+			atomic64_set(&misc_stats->max_isr_jiffies,
+					delta_jiffies);
+			delta_ms = jiffies_to_msecs(delta_jiffies);
+			atomic64_set(&misc_stats->max_isr_time_ms, delta_ms);
+			atomic64_set(&misc_stats->corr_work_done,
+					cur_work_done);
+		}
+>>>>>>> upstream/android-13
 	}
 	return wq_work_done;
 }
 
+<<<<<<< HEAD
 static void fnic_cleanup_io(struct fnic *fnic, int exclude_id)
 {
 	int i;
 	struct fnic_io_req *io_req;
 	unsigned long flags = 0;
 	struct scsi_cmnd *sc;
+=======
+static bool fnic_cleanup_io_iter(struct scsi_cmnd *sc, void *data,
+				 bool reserved)
+{
+	const int tag = scsi_cmd_to_rq(sc)->tag;
+	struct fnic *fnic = data;
+	struct fnic_io_req *io_req;
+	unsigned long flags = 0;
+>>>>>>> upstream/android-13
 	spinlock_t *io_lock;
 	unsigned long start_time = 0;
 	struct fnic_stats *fnic_stats = &fnic->fnic_stats;
 
+<<<<<<< HEAD
 	for (i = 0; i < fnic->fnic_max_tag_id; i++) {
 		if (i == exclude_id)
 			continue;
@@ -1429,6 +1570,82 @@ cleanup_scsi_cmd:
 			sc->scsi_done(sc);
 		}
 	}
+=======
+	io_lock = fnic_io_lock_tag(fnic, tag);
+	spin_lock_irqsave(io_lock, flags);
+
+	io_req = (struct fnic_io_req *)CMD_SP(sc);
+	if ((CMD_FLAGS(sc) & FNIC_DEVICE_RESET) &&
+	    !(CMD_FLAGS(sc) & FNIC_DEV_RST_DONE)) {
+		/*
+		 * We will be here only when FW completes reset
+		 * without sending completions for outstanding ios.
+		 */
+		CMD_FLAGS(sc) |= FNIC_DEV_RST_DONE;
+		if (io_req && io_req->dr_done)
+			complete(io_req->dr_done);
+		else if (io_req && io_req->abts_done)
+			complete(io_req->abts_done);
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	} else if (CMD_FLAGS(sc) & FNIC_DEVICE_RESET) {
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+	if (!io_req) {
+		spin_unlock_irqrestore(io_lock, flags);
+		goto cleanup_scsi_cmd;
+	}
+
+	CMD_SP(sc) = NULL;
+
+	spin_unlock_irqrestore(io_lock, flags);
+
+	/*
+	 * If there is a scsi_cmnd associated with this io_req, then
+	 * free the corresponding state
+	 */
+	start_time = io_req->start_time;
+	fnic_release_ioreq_buf(fnic, io_req, sc);
+	mempool_free(io_req, fnic->io_req_pool);
+
+cleanup_scsi_cmd:
+	sc->result = DID_TRANSPORT_DISRUPTED << 16;
+	FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
+		      "fnic_cleanup_io: tag:0x%x : sc:0x%p duration = %lu DID_TRANSPORT_DISRUPTED\n",
+		      tag, sc, jiffies - start_time);
+
+	if (atomic64_read(&fnic->io_cmpl_skip))
+		atomic64_dec(&fnic->io_cmpl_skip);
+	else
+		atomic64_inc(&fnic_stats->io_stats.io_completions);
+
+	/* Complete the command to SCSI */
+	if (sc->scsi_done) {
+		if (!(CMD_FLAGS(sc) & FNIC_IO_ISSUED))
+			shost_printk(KERN_ERR, fnic->lport->host,
+				     "Calling done for IO not issued to fw: tag:0x%x sc:0x%p\n",
+				     tag, sc);
+
+		FNIC_TRACE(fnic_cleanup_io,
+			   sc->device->host->host_no, tag, sc,
+			   jiffies_to_msecs(jiffies - start_time),
+			   0, ((u64)sc->cmnd[0] << 32 |
+			       (u64)sc->cmnd[2] << 24 |
+			       (u64)sc->cmnd[3] << 16 |
+			       (u64)sc->cmnd[4] << 8 | sc->cmnd[5]),
+			   (((u64)CMD_FLAGS(sc) << 32) | CMD_STATE(sc)));
+
+		sc->scsi_done(sc);
+	}
+	return true;
+}
+
+static void fnic_cleanup_io(struct fnic *fnic)
+{
+	scsi_host_busy_iter(fnic->lport->host,
+			    fnic_cleanup_io_iter, fnic);
+>>>>>>> upstream/android-13
 }
 
 void fnic_wq_copy_cleanup_handler(struct vnic_wq_copy *wq,
@@ -1539,6 +1756,7 @@ static inline int fnic_queue_abort_io_req(struct fnic *fnic, int tag,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void fnic_rport_exch_reset(struct fnic *fnic, u32 port_id)
 {
 	int tag;
@@ -1548,11 +1766,126 @@ static void fnic_rport_exch_reset(struct fnic *fnic, u32 port_id)
 	spinlock_t *io_lock;
 	unsigned long flags;
 	struct scsi_cmnd *sc;
+=======
+struct fnic_rport_abort_io_iter_data {
+	struct fnic *fnic;
+	u32 port_id;
+	int term_cnt;
+};
+
+static bool fnic_rport_abort_io_iter(struct scsi_cmnd *sc, void *data,
+				     bool reserved)
+{
+	struct fnic_rport_abort_io_iter_data *iter_data = data;
+	struct fnic *fnic = iter_data->fnic;
+	int abt_tag = scsi_cmd_to_rq(sc)->tag;
+	struct fnic_io_req *io_req;
+	spinlock_t *io_lock;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	struct reset_stats *reset_stats = &fnic->fnic_stats.reset_stats;
 	struct terminate_stats *term_stats = &fnic->fnic_stats.term_stats;
 	struct scsi_lun fc_lun;
 	enum fnic_ioreq_state old_ioreq_state;
 
+<<<<<<< HEAD
+=======
+	io_lock = fnic_io_lock_tag(fnic, abt_tag);
+	spin_lock_irqsave(io_lock, flags);
+
+	io_req = (struct fnic_io_req *)CMD_SP(sc);
+
+	if (!io_req || io_req->port_id != iter_data->port_id) {
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+
+	if ((CMD_FLAGS(sc) & FNIC_DEVICE_RESET) &&
+	    (!(CMD_FLAGS(sc) & FNIC_DEV_RST_ISSUED))) {
+		FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
+			"fnic_rport_exch_reset dev rst not pending sc 0x%p\n",
+			sc);
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+
+	/*
+	 * Found IO that is still pending with firmware and
+	 * belongs to rport that went away
+	 */
+	if (CMD_STATE(sc) == FNIC_IOREQ_ABTS_PENDING) {
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+	if (io_req->abts_done) {
+		shost_printk(KERN_ERR, fnic->lport->host,
+			"fnic_rport_exch_reset: io_req->abts_done is set "
+			"state is %s\n",
+			fnic_ioreq_state_to_str(CMD_STATE(sc)));
+	}
+
+	if (!(CMD_FLAGS(sc) & FNIC_IO_ISSUED)) {
+		shost_printk(KERN_ERR, fnic->lport->host,
+			     "rport_exch_reset "
+			     "IO not yet issued %p tag 0x%x flags "
+			     "%x state %d\n",
+			     sc, abt_tag, CMD_FLAGS(sc), CMD_STATE(sc));
+	}
+	old_ioreq_state = CMD_STATE(sc);
+	CMD_STATE(sc) = FNIC_IOREQ_ABTS_PENDING;
+	CMD_ABTS_STATUS(sc) = FCPIO_INVALID_CODE;
+	if (CMD_FLAGS(sc) & FNIC_DEVICE_RESET) {
+		atomic64_inc(&reset_stats->device_reset_terminates);
+		abt_tag |= FNIC_TAG_DEV_RST;
+	}
+	FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
+		      "fnic_rport_exch_reset dev rst sc 0x%p\n", sc);
+	BUG_ON(io_req->abts_done);
+
+	FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
+		      "fnic_rport_reset_exch: Issuing abts\n");
+
+	spin_unlock_irqrestore(io_lock, flags);
+
+	/* Now queue the abort command to firmware */
+	int_to_scsilun(sc->device->lun, &fc_lun);
+
+	if (fnic_queue_abort_io_req(fnic, abt_tag,
+				    FCPIO_ITMF_ABT_TASK_TERM,
+				    fc_lun.scsi_lun, io_req)) {
+		/*
+		 * Revert the cmd state back to old state, if
+		 * it hasn't changed in between. This cmd will get
+		 * aborted later by scsi_eh, or cleaned up during
+		 * lun reset
+		 */
+		spin_lock_irqsave(io_lock, flags);
+		if (CMD_STATE(sc) == FNIC_IOREQ_ABTS_PENDING)
+			CMD_STATE(sc) = old_ioreq_state;
+		spin_unlock_irqrestore(io_lock, flags);
+	} else {
+		spin_lock_irqsave(io_lock, flags);
+		if (CMD_FLAGS(sc) & FNIC_DEVICE_RESET)
+			CMD_FLAGS(sc) |= FNIC_DEV_RST_TERM_ISSUED;
+		else
+			CMD_FLAGS(sc) |= FNIC_IO_INTERNAL_TERM_ISSUED;
+		spin_unlock_irqrestore(io_lock, flags);
+		atomic64_inc(&term_stats->terminates);
+		iter_data->term_cnt++;
+	}
+	return true;
+}
+
+static void fnic_rport_exch_reset(struct fnic *fnic, u32 port_id)
+{
+	struct terminate_stats *term_stats = &fnic->fnic_stats.term_stats;
+	struct fnic_rport_abort_io_iter_data iter_data = {
+		.fnic = fnic,
+		.port_id = port_id,
+		.term_cnt = 0,
+	};
+
+>>>>>>> upstream/android-13
 	FNIC_SCSI_DBG(KERN_DEBUG,
 		      fnic->lport->host,
 		      "fnic_rport_exch_reset called portid 0x%06x\n",
@@ -1561,6 +1894,7 @@ static void fnic_rport_exch_reset(struct fnic *fnic, u32 port_id)
 	if (fnic->in_remove)
 		return;
 
+<<<<<<< HEAD
 	for (tag = 0; tag < fnic->fnic_max_tag_id; tag++) {
 		abt_tag = tag;
 		io_lock = fnic_io_lock_tag(fnic, tag);
@@ -1656,11 +1990,18 @@ static void fnic_rport_exch_reset(struct fnic *fnic, u32 port_id)
 	}
 	if (term_cnt > atomic64_read(&term_stats->max_terminates))
 		atomic64_set(&term_stats->max_terminates, term_cnt);
+=======
+	scsi_host_busy_iter(fnic->lport->host, fnic_rport_abort_io_iter,
+			    &iter_data);
+	if (iter_data.term_cnt > atomic64_read(&term_stats->max_terminates))
+		atomic64_set(&term_stats->max_terminates, iter_data.term_cnt);
+>>>>>>> upstream/android-13
 
 }
 
 void fnic_terminate_rport_io(struct fc_rport *rport)
 {
+<<<<<<< HEAD
 	int tag;
 	int abt_tag;
 	int term_cnt = 0;
@@ -1676,6 +2017,11 @@ void fnic_terminate_rport_io(struct fc_rport *rport)
 	struct reset_stats *reset_stats;
 	struct terminate_stats *term_stats;
 	enum fnic_ioreq_state old_ioreq_state;
+=======
+	struct fc_rport_libfc_priv *rdata;
+	struct fc_lport *lport;
+	struct fnic *fnic;
+>>>>>>> upstream/android-13
 
 	if (!rport) {
 		printk(KERN_ERR "fnic_terminate_rport_io: rport is NULL\n");
@@ -1703,6 +2049,7 @@ void fnic_terminate_rport_io(struct fc_rport *rport)
 	if (fnic->in_remove)
 		return;
 
+<<<<<<< HEAD
 	reset_stats = &fnic->fnic_stats.reset_stats;
 	term_stats = &fnic->fnic_stats.term_stats;
 
@@ -1806,6 +2153,9 @@ void fnic_terminate_rport_io(struct fc_rport *rport)
 	if (term_cnt > atomic64_read(&term_stats->max_terminates))
 		atomic64_set(&term_stats->max_terminates, term_cnt);
 
+=======
+	fnic_rport_exch_reset(fnic, rport->port_id);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1815,6 +2165,10 @@ void fnic_terminate_rport_io(struct fc_rport *rport)
  */
 int fnic_abort_cmd(struct scsi_cmnd *sc)
 {
+<<<<<<< HEAD
+=======
+	struct request *const rq = scsi_cmd_to_rq(sc);
+>>>>>>> upstream/android-13
 	struct fc_lport *lp;
 	struct fnic *fnic;
 	struct fnic_io_req *io_req = NULL;
@@ -1829,7 +2183,11 @@ int fnic_abort_cmd(struct scsi_cmnd *sc)
 	struct abort_stats *abts_stats;
 	struct terminate_stats *term_stats;
 	enum fnic_ioreq_state old_ioreq_state;
+<<<<<<< HEAD
 	int tag;
+=======
+	const int tag = rq->tag;
+>>>>>>> upstream/android-13
 	unsigned long abt_issued_time;
 	DECLARE_COMPLETION_ONSTACK(tm_done);
 
@@ -1845,7 +2203,10 @@ int fnic_abort_cmd(struct scsi_cmnd *sc)
 	term_stats = &fnic->fnic_stats.term_stats;
 
 	rport = starget_to_rport(scsi_target(sc->device));
+<<<<<<< HEAD
 	tag = sc->request->tag;
+=======
+>>>>>>> upstream/android-13
 	FNIC_SCSI_DBG(KERN_DEBUG,
 		fnic->lport->host,
 		"Abort Cmd called FCID 0x%x, LUN 0x%llx TAG %x flags %x\n",
@@ -1930,8 +2291,13 @@ int fnic_abort_cmd(struct scsi_cmnd *sc)
 	/* Now queue the abort command to firmware */
 	int_to_scsilun(sc->device->lun, &fc_lun);
 
+<<<<<<< HEAD
 	if (fnic_queue_abort_io_req(fnic, sc->request->tag, task_req,
 				    fc_lun.scsi_lun, io_req)) {
+=======
+	if (fnic_queue_abort_io_req(fnic, tag, task_req, fc_lun.scsi_lun,
+				    io_req)) {
+>>>>>>> upstream/android-13
 		spin_lock_irqsave(io_lock, flags);
 		if (CMD_STATE(sc) == FNIC_IOREQ_ABTS_PENDING)
 			CMD_STATE(sc) = old_ioreq_state;
@@ -2031,8 +2397,12 @@ int fnic_abort_cmd(struct scsi_cmnd *sc)
 	}
 
 fnic_abort_cmd_end:
+<<<<<<< HEAD
 	FNIC_TRACE(fnic_abort_cmd, sc->device->host->host_no,
 		  sc->request->tag, sc,
+=======
+	FNIC_TRACE(fnic_abort_cmd, sc->device->host->host_no, tag, sc,
+>>>>>>> upstream/android-13
 		  jiffies_to_msecs(jiffies - start_time),
 		  0, ((u64)sc->cmnd[0] << 32 |
 		  (u64)sc->cmnd[2] << 24 | (u64)sc->cmnd[3] << 16 |
@@ -2082,7 +2452,11 @@ static inline int fnic_queue_dr_io_req(struct fnic *fnic,
 	/* fill in the lun info */
 	int_to_scsilun(sc->device->lun, &fc_lun);
 
+<<<<<<< HEAD
 	fnic_queue_wq_copy_desc_itmf(wq, sc->request->tag | FNIC_TAG_DEV_RST,
+=======
+	fnic_queue_wq_copy_desc_itmf(wq, scsi_cmd_to_rq(sc)->tag | FNIC_TAG_DEV_RST,
+>>>>>>> upstream/android-13
 				     0, FCPIO_ITMF_LUN_RESET, SCSI_NO_TAG,
 				     fc_lun.scsi_lun, io_req->port_id,
 				     fnic->config.ra_tov, fnic->config.ed_tov);
@@ -2100,6 +2474,159 @@ lr_io_req_end:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+struct fnic_pending_aborts_iter_data {
+	struct fnic *fnic;
+	struct scsi_cmnd *lr_sc;
+	struct scsi_device *lun_dev;
+	int ret;
+};
+
+static bool fnic_pending_aborts_iter(struct scsi_cmnd *sc,
+				     void *data, bool reserved)
+{
+	struct fnic_pending_aborts_iter_data *iter_data = data;
+	struct fnic *fnic = iter_data->fnic;
+	struct scsi_device *lun_dev = iter_data->lun_dev;
+	int abt_tag = scsi_cmd_to_rq(sc)->tag;
+	struct fnic_io_req *io_req;
+	spinlock_t *io_lock;
+	unsigned long flags;
+	struct scsi_lun fc_lun;
+	DECLARE_COMPLETION_ONSTACK(tm_done);
+	enum fnic_ioreq_state old_ioreq_state;
+
+	if (sc == iter_data->lr_sc || sc->device != lun_dev)
+		return true;
+	if (reserved)
+		return true;
+
+	io_lock = fnic_io_lock_tag(fnic, abt_tag);
+	spin_lock_irqsave(io_lock, flags);
+	io_req = (struct fnic_io_req *)CMD_SP(sc);
+	if (!io_req) {
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+
+	/*
+	 * Found IO that is still pending with firmware and
+	 * belongs to the LUN that we are resetting
+	 */
+	FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
+		      "Found IO in %s on lun\n",
+		      fnic_ioreq_state_to_str(CMD_STATE(sc)));
+
+	if (CMD_STATE(sc) == FNIC_IOREQ_ABTS_PENDING) {
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+	if ((CMD_FLAGS(sc) & FNIC_DEVICE_RESET) &&
+	    (!(CMD_FLAGS(sc) & FNIC_DEV_RST_ISSUED))) {
+		FNIC_SCSI_DBG(KERN_INFO, fnic->lport->host,
+			      "%s dev rst not pending sc 0x%p\n", __func__,
+			      sc);
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+
+	if (io_req->abts_done)
+		shost_printk(KERN_ERR, fnic->lport->host,
+			     "%s: io_req->abts_done is set state is %s\n",
+			     __func__, fnic_ioreq_state_to_str(CMD_STATE(sc)));
+	old_ioreq_state = CMD_STATE(sc);
+	/*
+	 * Any pending IO issued prior to reset is expected to be
+	 * in abts pending state, if not we need to set
+	 * FNIC_IOREQ_ABTS_PENDING to indicate the IO is abort pending.
+	 * When IO is completed, the IO will be handed over and
+	 * handled in this function.
+	 */
+	CMD_STATE(sc) = FNIC_IOREQ_ABTS_PENDING;
+
+	BUG_ON(io_req->abts_done);
+
+	if (CMD_FLAGS(sc) & FNIC_DEVICE_RESET) {
+		abt_tag |= FNIC_TAG_DEV_RST;
+		FNIC_SCSI_DBG(KERN_INFO, fnic->lport->host,
+			      "%s: dev rst sc 0x%p\n", __func__, sc);
+	}
+
+	CMD_ABTS_STATUS(sc) = FCPIO_INVALID_CODE;
+	io_req->abts_done = &tm_done;
+	spin_unlock_irqrestore(io_lock, flags);
+
+	/* Now queue the abort command to firmware */
+	int_to_scsilun(sc->device->lun, &fc_lun);
+
+	if (fnic_queue_abort_io_req(fnic, abt_tag,
+				    FCPIO_ITMF_ABT_TASK_TERM,
+				    fc_lun.scsi_lun, io_req)) {
+		spin_lock_irqsave(io_lock, flags);
+		io_req = (struct fnic_io_req *)CMD_SP(sc);
+		if (io_req)
+			io_req->abts_done = NULL;
+		if (CMD_STATE(sc) == FNIC_IOREQ_ABTS_PENDING)
+			CMD_STATE(sc) = old_ioreq_state;
+		spin_unlock_irqrestore(io_lock, flags);
+		iter_data->ret = FAILED;
+		return false;
+	} else {
+		spin_lock_irqsave(io_lock, flags);
+		if (CMD_FLAGS(sc) & FNIC_DEVICE_RESET)
+			CMD_FLAGS(sc) |= FNIC_DEV_RST_TERM_ISSUED;
+		spin_unlock_irqrestore(io_lock, flags);
+	}
+	CMD_FLAGS(sc) |= FNIC_IO_INTERNAL_TERM_ISSUED;
+
+	wait_for_completion_timeout(&tm_done, msecs_to_jiffies
+				    (fnic->config.ed_tov));
+
+	/* Recheck cmd state to check if it is now aborted */
+	spin_lock_irqsave(io_lock, flags);
+	io_req = (struct fnic_io_req *)CMD_SP(sc);
+	if (!io_req) {
+		spin_unlock_irqrestore(io_lock, flags);
+		CMD_FLAGS(sc) |= FNIC_IO_ABT_TERM_REQ_NULL;
+		return true;
+	}
+
+	io_req->abts_done = NULL;
+
+	/* if abort is still pending with fw, fail */
+	if (CMD_ABTS_STATUS(sc) == FCPIO_INVALID_CODE) {
+		spin_unlock_irqrestore(io_lock, flags);
+		CMD_FLAGS(sc) |= FNIC_IO_ABT_TERM_DONE;
+		iter_data->ret = FAILED;
+		return false;
+	}
+	CMD_STATE(sc) = FNIC_IOREQ_ABTS_COMPLETE;
+
+	/* original sc used for lr is handled by dev reset code */
+	if (sc != iter_data->lr_sc)
+		CMD_SP(sc) = NULL;
+	spin_unlock_irqrestore(io_lock, flags);
+
+	/* original sc used for lr is handled by dev reset code */
+	if (sc != iter_data->lr_sc) {
+		fnic_release_ioreq_buf(fnic, io_req, sc);
+		mempool_free(io_req, fnic->io_req_pool);
+	}
+
+	/*
+	 * Any IO is returned during reset, it needs to call scsi_done
+	 * to return the scsi_cmnd to upper layer.
+	 */
+	if (sc->scsi_done) {
+		/* Set result to let upper SCSI layer retry */
+		sc->result = DID_RESET << 16;
+		sc->scsi_done(sc);
+	}
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Clean up any pending aborts on the lun
  * For each outstanding IO on this lun, whose abort is not completed by fw,
@@ -2108,6 +2635,7 @@ lr_io_req_end:
  */
 static int fnic_clean_pending_aborts(struct fnic *fnic,
 				     struct scsi_cmnd *lr_sc,
+<<<<<<< HEAD
 					 bool new_sc)
 
 {
@@ -2259,6 +2787,27 @@ static int fnic_clean_pending_aborts(struct fnic *fnic,
 		}
 	}
 
+=======
+				     bool new_sc)
+
+{
+	int ret = SUCCESS;
+	struct fnic_pending_aborts_iter_data iter_data = {
+		.fnic = fnic,
+		.lun_dev = lr_sc->device,
+		.ret = SUCCESS,
+	};
+
+	if (new_sc)
+		iter_data.lr_sc = lr_sc;
+
+	scsi_host_busy_iter(fnic->lport->host,
+			    fnic_pending_aborts_iter, &iter_data);
+	if (iter_data.ret == FAILED) {
+		ret = iter_data.ret;
+		goto clean_pending_aborts_end;
+	}
+>>>>>>> upstream/android-13
 	schedule_timeout(msecs_to_jiffies(2 * fnic->config.ed_tov));
 
 	/* walk again to check, if IOs are still pending in fw */
@@ -2269,13 +2818,18 @@ clean_pending_aborts_end:
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fnic_scsi_host_start_tag
  * Allocates tagid from host's tag list
  **/
 static inline int
 fnic_scsi_host_start_tag(struct fnic *fnic, struct scsi_cmnd *sc)
 {
+<<<<<<< HEAD
 	struct blk_queue_tag *bqt = fnic->lport->host->bqt;
 	int tag, ret = SCSI_NO_TAG;
 
@@ -2306,12 +2860,30 @@ end:
 }
 
 /**
+=======
+	struct request *rq = scsi_cmd_to_rq(sc);
+	struct request_queue *q = rq->q;
+	struct request *dummy;
+
+	dummy = blk_mq_alloc_request(q, REQ_OP_WRITE, BLK_MQ_REQ_NOWAIT);
+	if (IS_ERR(dummy))
+		return SCSI_NO_TAG;
+
+	rq->tag = dummy->tag;
+	sc->host_scribble = (unsigned char *)dummy;
+
+	return dummy->tag;
+}
+
+/*
+>>>>>>> upstream/android-13
  * fnic_scsi_host_end_tag
  * frees tag allocated by fnic_scsi_host_start_tag.
  **/
 static inline void
 fnic_scsi_host_end_tag(struct fnic *fnic, struct scsi_cmnd *sc)
 {
+<<<<<<< HEAD
 	struct blk_queue_tag *bqt = fnic->lport->host->bqt;
 	int tag = sc->request->tag;
 
@@ -2326,6 +2898,11 @@ fnic_scsi_host_end_tag(struct fnic *fnic, struct scsi_cmnd *sc)
 	clear_bit(tag, bqt->tag_map);
 
 	return;
+=======
+	struct request *dummy = (struct request *)sc->host_scribble;
+
+	blk_mq_free_request(dummy);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2335,6 +2912,10 @@ fnic_scsi_host_end_tag(struct fnic *fnic, struct scsi_cmnd *sc)
  */
 int fnic_device_reset(struct scsi_cmnd *sc)
 {
+<<<<<<< HEAD
+=======
+	struct request *rq = scsi_cmd_to_rq(sc);
+>>>>>>> upstream/android-13
 	struct fc_lport *lp;
 	struct fnic *fnic;
 	struct fnic_io_req *io_req = NULL;
@@ -2347,7 +2928,11 @@ int fnic_device_reset(struct scsi_cmnd *sc)
 	struct scsi_lun fc_lun;
 	struct fnic_stats *fnic_stats;
 	struct reset_stats *reset_stats;
+<<<<<<< HEAD
 	int tag = 0;
+=======
+	int tag = rq->tag;
+>>>>>>> upstream/android-13
 	DECLARE_COMPLETION_ONSTACK(tm_done);
 	int tag_gen_flag = 0;   /*to track tags allocated by fnic driver*/
 	bool new_sc = 0;
@@ -2381,6 +2966,7 @@ int fnic_device_reset(struct scsi_cmnd *sc)
 	CMD_FLAGS(sc) = FNIC_DEVICE_RESET;
 	/* Allocate tag if not present */
 
+<<<<<<< HEAD
 	tag = sc->request->tag;
 	if (unlikely(tag < 0)) {
 		/*
@@ -2397,6 +2983,13 @@ int fnic_device_reset(struct scsi_cmnd *sc)
 		 * that happens we fail these explicit requests here.
 		 */
 
+=======
+	if (unlikely(tag < 0)) {
+		/*
+		 * Really should fix the midlayer to pass in a proper
+		 * request for ioctls...
+		 */
+>>>>>>> upstream/android-13
 		tag = fnic_scsi_host_start_tag(fnic, sc);
 		if (unlikely(tag == SCSI_NO_TAG))
 			goto fnic_device_reset_end;
@@ -2565,8 +3158,12 @@ fnic_device_reset_clean:
 	}
 
 fnic_device_reset_end:
+<<<<<<< HEAD
 	FNIC_TRACE(fnic_device_reset, sc->device->host->host_no,
 		  sc->request->tag, sc,
+=======
+	FNIC_TRACE(fnic_device_reset, sc->device->host->host_no, rq->tag, sc,
+>>>>>>> upstream/android-13
 		  jiffies_to_msecs(jiffies - start_time),
 		  0, ((u64)sc->cmnd[0] << 32 |
 		  (u64)sc->cmnd[2] << 24 | (u64)sc->cmnd[3] << 16 |
@@ -2643,8 +3240,13 @@ int fnic_host_reset(struct scsi_cmnd *sc)
 	unsigned long flags;
 
 	spin_lock_irqsave(&fnic->fnic_lock, flags);
+<<<<<<< HEAD
 	if (fnic->internal_reset_inprogress == 0) {
 		fnic->internal_reset_inprogress = 1;
+=======
+	if (!fnic->internal_reset_inprogress) {
+		fnic->internal_reset_inprogress = true;
+>>>>>>> upstream/android-13
 	} else {
 		spin_unlock_irqrestore(&fnic->fnic_lock, flags);
 		FNIC_SCSI_DBG(KERN_DEBUG, fnic->lport->host,
@@ -2673,7 +3275,11 @@ int fnic_host_reset(struct scsi_cmnd *sc)
 	}
 
 	spin_lock_irqsave(&fnic->fnic_lock, flags);
+<<<<<<< HEAD
 	fnic->internal_reset_inprogress = 0;
+=======
+	fnic->internal_reset_inprogress = false;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&fnic->fnic_lock, flags);
 	return ret;
 }
@@ -2692,7 +3298,12 @@ void fnic_scsi_abort_io(struct fc_lport *lp)
 	/* Issue firmware reset for fnic, wait for reset to complete */
 retry_fw_reset:
 	spin_lock_irqsave(&fnic->fnic_lock, flags);
+<<<<<<< HEAD
 	if (unlikely(fnic->state == FNIC_IN_FC_TRANS_ETH_MODE)) {
+=======
+	if (unlikely(fnic->state == FNIC_IN_FC_TRANS_ETH_MODE) &&
+		     fnic->link_events) {
+>>>>>>> upstream/android-13
 		/* fw reset is in progress, poll for its completion */
 		spin_unlock_irqrestore(&fnic->fnic_lock, flags);
 		schedule_timeout(msecs_to_jiffies(100));
@@ -2793,6 +3404,52 @@ call_fc_exch_mgr_reset:
 
 }
 
+<<<<<<< HEAD
+=======
+static bool fnic_abts_pending_iter(struct scsi_cmnd *sc, void *data,
+				   bool reserved)
+{
+	struct fnic_pending_aborts_iter_data *iter_data = data;
+	struct fnic *fnic = iter_data->fnic;
+	int cmd_state;
+	struct fnic_io_req *io_req;
+	spinlock_t *io_lock;
+	unsigned long flags;
+
+	/*
+	 * ignore this lun reset cmd or cmds that do not belong to
+	 * this lun
+	 */
+	if (iter_data->lr_sc && sc == iter_data->lr_sc)
+		return true;
+	if (iter_data->lun_dev && sc->device != iter_data->lun_dev)
+		return true;
+
+	io_lock = fnic_io_lock_hash(fnic, sc);
+	spin_lock_irqsave(io_lock, flags);
+
+	io_req = (struct fnic_io_req *)CMD_SP(sc);
+	if (!io_req) {
+		spin_unlock_irqrestore(io_lock, flags);
+		return true;
+	}
+
+	/*
+	 * Found IO that is still pending with firmware and
+	 * belongs to the LUN that we are resetting
+	 */
+	FNIC_SCSI_DBG(KERN_INFO, fnic->lport->host,
+		      "Found IO in %s on lun\n",
+		      fnic_ioreq_state_to_str(CMD_STATE(sc)));
+	cmd_state = CMD_STATE(sc);
+	spin_unlock_irqrestore(io_lock, flags);
+	if (cmd_state == FNIC_IOREQ_ABTS_PENDING)
+		iter_data->ret = 1;
+
+	return iter_data->ret ? false : true;
+}
+
+>>>>>>> upstream/android-13
 /*
  * fnic_is_abts_pending() is a helper function that
  * walks through tag map to check if there is any IOs pending,if there is one,
@@ -2802,6 +3459,7 @@ call_fc_exch_mgr_reset:
  */
 int fnic_is_abts_pending(struct fnic *fnic, struct scsi_cmnd *lr_sc)
 {
+<<<<<<< HEAD
 	int tag;
 	struct fnic_io_req *io_req;
 	spinlock_t *io_lock;
@@ -2847,4 +3505,22 @@ int fnic_is_abts_pending(struct fnic *fnic, struct scsi_cmnd *lr_sc)
 	}
 
 	return ret;
+=======
+	struct fnic_pending_aborts_iter_data iter_data = {
+		.fnic = fnic,
+		.lun_dev = NULL,
+		.ret = 0,
+	};
+
+	if (lr_sc) {
+		iter_data.lun_dev = lr_sc->device;
+		iter_data.lr_sc = lr_sc;
+	}
+
+	/* walk again to check, if IOs are still pending in fw */
+	scsi_host_busy_iter(fnic->lport->host,
+			    fnic_abts_pending_iter, &iter_data);
+
+	return iter_data.ret;
+>>>>>>> upstream/android-13
 }

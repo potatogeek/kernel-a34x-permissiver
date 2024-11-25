@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    raid0.c : Multiple Devices driver for Linux
 	     Copyright (C) 1994-96 Marc ZYNGIER
@@ -7,6 +11,7 @@
 
    RAID-0 management functions.
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -15,6 +20,8 @@
    You should have received a copy of the GNU General Public License
    (for example /usr/src/linux/COPYING); if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/blkdev.h>
@@ -36,6 +43,7 @@ module_param(default_layout, int, 0644);
 	 (1L << MD_HAS_PPL) |		\
 	 (1L << MD_HAS_MULTIPLE_PPLS))
 
+<<<<<<< HEAD
 static int raid0_congested(struct mddev *mddev, int bits)
 {
 	struct r0conf *conf = mddev->private;
@@ -51,6 +59,8 @@ static int raid0_congested(struct mddev *mddev, int bits)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * inform the user of the raid configuration
 */
@@ -378,7 +388,25 @@ static sector_t raid0_size(struct mddev *mddev, sector_t sectors, int raid_disks
 	return array_sectors;
 }
 
+<<<<<<< HEAD
 static void raid0_free(struct mddev *mddev, void *priv);
+=======
+static void free_conf(struct mddev *mddev, struct r0conf *conf)
+{
+	kfree(conf->strip_zone);
+	kfree(conf->devlist);
+	kfree(conf);
+	mddev->private = NULL;
+}
+
+static void raid0_free(struct mddev *mddev, void *priv)
+{
+	struct r0conf *conf = priv;
+
+	free_conf(mddev, conf);
+	acct_bioset_exit(mddev);
+}
+>>>>>>> upstream/android-13
 
 static int raid0_run(struct mddev *mddev)
 {
@@ -392,11 +420,23 @@ static int raid0_run(struct mddev *mddev)
 	if (md_check_no_bitmap(mddev))
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (acct_bioset_init(mddev)) {
+		pr_err("md/raid0:%s: alloc acct bioset failed.\n", mdname(mddev));
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	/* if private is not null, we are here after takeover */
 	if (mddev->private == NULL) {
 		ret = create_strip_zones(mddev, &conf);
 		if (ret < 0)
+<<<<<<< HEAD
 			return ret;
+=======
+			goto exit_acct_set;
+>>>>>>> upstream/android-13
 		mddev->private = conf;
 	}
 	conf = mddev->private;
@@ -432,6 +472,7 @@ static int raid0_run(struct mddev *mddev)
 		 mdname(mddev),
 		 (unsigned long long)mddev->array_sectors);
 
+<<<<<<< HEAD
 	if (mddev->queue) {
 		/* calculate the max read-ahead size.
 		 * For read-ahead of large files to be effective, we need to
@@ -479,6 +520,21 @@ static inline int is_io_in_chunk_boundary(struct mddev *mddev,
 		return chunk_sects >= (sector_div(sector, chunk_sects)
 						+ bio_sectors(bio));
 	}
+=======
+	dump_zones(mddev);
+
+	ret = md_integrity_register(mddev);
+	if (ret)
+		goto free;
+
+	return ret;
+
+free:
+	free_conf(mddev, conf);
+exit_acct_set:
+	acct_bioset_exit(mddev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
@@ -502,7 +558,11 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
 			zone->zone_end - bio->bi_iter.bi_sector, GFP_NOIO,
 			&mddev->bio_set);
 		bio_chain(split, bio);
+<<<<<<< HEAD
 		generic_make_request(bio);
+=======
+		submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		bio = split;
 		end = zone->zone_end;
 	} else
@@ -532,7 +592,10 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
 
 	for (disk = 0; disk < zone->nb_dev; disk++) {
 		sector_t dev_start, dev_end;
+<<<<<<< HEAD
 		struct bio *discard_bio = NULL;
+=======
+>>>>>>> upstream/android-13
 		struct md_rdev *rdev;
 
 		if (disk < start_disk_index)
@@ -555,6 +618,7 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
 
 		rdev = conf->devlist[(zone - conf->strip_zone) *
 			conf->strip_zone[0].nb_dev + disk];
+<<<<<<< HEAD
 		if (__blkdev_issue_discard(rdev->bdev,
 			dev_start + zone->dev_start + rdev->data_offset,
 			dev_end - dev_start, GFP_NOIO, 0, &discard_bio) ||
@@ -568,6 +632,11 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
 				bio->bi_iter.bi_sector);
 		bio_clear_flag(bio, BIO_QUEUE_ENTERED);
 		generic_make_request(discard_bio);
+=======
+		md_submit_discard_bio(mddev, rdev, bio,
+			dev_start + zone->dev_start + rdev->data_offset,
+			dev_end - dev_start);
+>>>>>>> upstream/android-13
 	}
 	bio_endio(bio);
 }
@@ -608,10 +677,20 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
 		struct bio *split = bio_split(bio, sectors, GFP_NOIO,
 					      &mddev->bio_set);
 		bio_chain(split, bio);
+<<<<<<< HEAD
 		generic_make_request(bio);
 		bio = split;
 	}
 
+=======
+		submit_bio_noacct(bio);
+		bio = split;
+	}
+
+	if (bio->bi_pool != &mddev->bio_set)
+		md_account_bio(mddev, &bio);
+
+>>>>>>> upstream/android-13
 	orig_sector = sector;
 	zone = find_zone(mddev->private, &sector);
 	switch (conf->layout) {
@@ -627,17 +706,33 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
 		return true;
 	}
 
+<<<<<<< HEAD
+=======
+	if (unlikely(is_mddev_broken(tmp_dev, "raid0"))) {
+		bio_io_error(bio);
+		return true;
+	}
+
+>>>>>>> upstream/android-13
 	bio_set_dev(bio, tmp_dev->bdev);
 	bio->bi_iter.bi_sector = sector + zone->dev_start +
 		tmp_dev->data_offset;
 
 	if (mddev->gendisk)
+<<<<<<< HEAD
 		trace_block_bio_remap(bio->bi_disk->queue, bio,
 				disk_devt(mddev->gendisk), bio_sector);
 	mddev_check_writesame(mddev, bio);
 	mddev_check_write_zeroes(mddev, bio);
 	bio_clear_flag(bio, BIO_QUEUE_ENTERED);
 	generic_make_request(bio);
+=======
+		trace_block_bio_remap(bio, disk_devt(mddev->gendisk),
+				      bio_sector);
+	mddev_check_writesame(mddev, bio);
+	mddev_check_write_zeroes(mddev, bio);
+	submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -822,7 +917,10 @@ static struct md_personality raid0_personality=
 	.size		= raid0_size,
 	.takeover	= raid0_takeover,
 	.quiesce	= raid0_quiesce,
+<<<<<<< HEAD
 	.congested	= raid0_congested,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init raid0_init (void)

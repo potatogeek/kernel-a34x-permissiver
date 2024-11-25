@@ -1,4 +1,24 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
+=======
+
+# LEX
+# ---------------------------------------------------------------------------
+quiet_cmd_flex = LEX     $@
+      cmd_flex = $(LEX) -o$@ -L $<
+
+$(obj)/%.lex.c: $(src)/%.l FORCE
+	$(call if_changed,flex)
+
+# YACC
+# ---------------------------------------------------------------------------
+quiet_cmd_bison = YACC    $(basename $@).[ch]
+      cmd_bison = $(YACC) -o $(basename $@).c --defines=$(basename $@).h -t -l $<
+
+$(obj)/%.tab.c $(obj)/%.tab.h: $(src)/%.y FORCE
+	$(call if_changed,bison)
+
+>>>>>>> upstream/android-13
 # ==========================================================================
 # Building binaries on the host system
 # Binaries are used during the compilation of the kernel, for example
@@ -6,21 +26,34 @@
 #
 # Both C and C++ are supported, but preferred language is C for such utilities.
 #
+<<<<<<< HEAD
 # Sample syntax (see Documentation/kbuild/makefiles.txt for reference)
 # hostprogs-y := bin2hex
 # Will compile bin2hex.c and create an executable named bin2hex
 #
 # hostprogs-y    := lxdialog
+=======
+# Sample syntax (see Documentation/kbuild/makefiles.rst for reference)
+# hostprogs := bin2hex
+# Will compile bin2hex.c and create an executable named bin2hex
+#
+# hostprogs     := lxdialog
+>>>>>>> upstream/android-13
 # lxdialog-objs := checklist.o lxdialog.o
 # Will compile lxdialog.c and checklist.c, and then link the executable
 # lxdialog, based on checklist.o and lxdialog.o
 #
+<<<<<<< HEAD
 # hostprogs-y      := qconf
+=======
+# hostprogs       := qconf
+>>>>>>> upstream/android-13
 # qconf-cxxobjs   := qconf.o
 # qconf-objs      := menu.o
 # Will compile qconf as a C++ program, and menu as a C program.
 # They are linked as C++ code to the executable qconf
 
+<<<<<<< HEAD
 __hostprogs := $(sort $(hostprogs-y) $(hostprogs-m))
 host-cshlib := $(sort $(hostlibs-y) $(hostlibs-m))
 host-cxxshlib := $(sort $(hostcxxlibs-y) $(hostcxxlibs-m))
@@ -36,33 +69,57 @@ host-cmulti	:= $(foreach m,$(__hostprogs),\
 
 # Object (.o) files compiled from .c files
 host-cobjs	:= $(sort $(foreach m,$(__hostprogs),$($(m)-objs)))
+=======
+# C code
+# Executables compiled from a single .c file
+host-csingle	:= $(foreach m,$(hostprogs), \
+			$(if $($(m)-objs)$($(m)-cxxobjs),,$(m)))
+
+# C executables linked based on several .o files
+host-cmulti	:= $(foreach m,$(hostprogs),\
+		   $(if $($(m)-cxxobjs),,$(if $($(m)-objs),$(m))))
+
+# Object (.o) files compiled from .c files
+host-cobjs	:= $(sort $(foreach m,$(hostprogs),$($(m)-objs)))
+>>>>>>> upstream/android-13
 
 # C++ code
 # C++ executables compiled from at least one .cc file
 # and zero or more .c files
+<<<<<<< HEAD
 host-cxxmulti	:= $(foreach m,$(__hostprogs),$(if $($(m)-cxxobjs),$(m)))
+=======
+host-cxxmulti	:= $(foreach m,$(hostprogs),$(if $($(m)-cxxobjs),$(m)))
+>>>>>>> upstream/android-13
 
 # C++ Object (.o) files compiled from .cc files
 host-cxxobjs	:= $(sort $(foreach m,$(host-cxxmulti),$($(m)-cxxobjs)))
 
+<<<<<<< HEAD
 # Object (.o) files used by the shared libaries
 host-cshobjs	:= $(sort $(foreach m,$(host-cshlib),$($(m:.so=-objs))))
 host-cxxshobjs	:= $(sort $(foreach m,$(host-cxxshlib),$($(m:.so=-objs))))
 
+=======
+>>>>>>> upstream/android-13
 host-csingle	:= $(addprefix $(obj)/,$(host-csingle))
 host-cmulti	:= $(addprefix $(obj)/,$(host-cmulti))
 host-cobjs	:= $(addprefix $(obj)/,$(host-cobjs))
 host-cxxmulti	:= $(addprefix $(obj)/,$(host-cxxmulti))
 host-cxxobjs	:= $(addprefix $(obj)/,$(host-cxxobjs))
+<<<<<<< HEAD
 host-cshlib	:= $(addprefix $(obj)/,$(host-cshlib))
 host-cxxshlib	:= $(addprefix $(obj)/,$(host-cxxshlib))
 host-cshobjs	:= $(addprefix $(obj)/,$(host-cshobjs))
 host-cxxshobjs	:= $(addprefix $(obj)/,$(host-cxxshobjs))
+=======
+>>>>>>> upstream/android-13
 
 #####
 # Handle options to gcc. Support building with separate output directory
 
 _hostc_flags   = $(KBUILD_HOSTCFLAGS)   $(HOST_EXTRACFLAGS)   \
+<<<<<<< HEAD
                  $(HOSTCFLAGS_$(basetarget).o)
 _hostcxx_flags = $(KBUILD_HOSTCXXFLAGS) $(HOST_EXTRACXXFLAGS) \
                  $(HOSTCXXFLAGS_$(basetarget).o)
@@ -77,6 +134,22 @@ endif
 
 hostc_flags    = -Wp,-MD,$(depfile) $(__hostc_flags)
 hostcxx_flags  = -Wp,-MD,$(depfile) $(__hostcxx_flags)
+=======
+                 $(HOSTCFLAGS_$(target-stem).o)
+_hostcxx_flags = $(KBUILD_HOSTCXXFLAGS) $(HOST_EXTRACXXFLAGS) \
+                 $(HOSTCXXFLAGS_$(target-stem).o)
+
+# $(objtree)/$(obj) for including generated headers from checkin source files
+ifeq ($(KBUILD_EXTMOD),)
+ifdef building_out_of_srctree
+_hostc_flags   += -I $(objtree)/$(obj)
+_hostcxx_flags += -I $(objtree)/$(obj)
+endif
+endif
+
+hostc_flags    = -Wp,-MMD,$(depfile) $(_hostc_flags)
+hostcxx_flags  = -Wp,-MMD,$(depfile) $(_hostcxx_flags)
+>>>>>>> upstream/android-13
 
 #####
 # Compile programs on the host
@@ -85,7 +158,11 @@ hostcxx_flags  = -Wp,-MD,$(depfile) $(__hostcxx_flags)
 # host-csingle -> Executable
 quiet_cmd_host-csingle 	= HOSTCC  $@
       cmd_host-csingle	= $(HOSTCC) $(hostc_flags) $(KBUILD_HOSTLDFLAGS) -o $@ $< \
+<<<<<<< HEAD
 		$(KBUILD_HOSTLDLIBS) $(HOSTLDLIBS_$(@F))
+=======
+		$(KBUILD_HOSTLDLIBS) $(HOSTLDLIBS_$(target-stem))
+>>>>>>> upstream/android-13
 $(host-csingle): $(obj)/%: $(src)/%.c FORCE
 	$(call if_changed_dep,host-csingle)
 
@@ -93,8 +170,13 @@ $(host-csingle): $(obj)/%: $(src)/%.c FORCE
 # host-cmulti -> executable
 quiet_cmd_host-cmulti	= HOSTLD  $@
       cmd_host-cmulti	= $(HOSTCC) $(KBUILD_HOSTLDFLAGS) -o $@ \
+<<<<<<< HEAD
 			  $(addprefix $(obj)/,$($(@F)-objs)) \
 			  $(KBUILD_HOSTLDLIBS) $(HOSTLDLIBS_$(@F))
+=======
+			  $(addprefix $(obj)/, $($(target-stem)-objs)) \
+			  $(KBUILD_HOSTLDLIBS) $(HOSTLDLIBS_$(target-stem))
+>>>>>>> upstream/android-13
 $(host-cmulti): FORCE
 	$(call if_changed,host-cmulti)
 $(call multi_depend, $(host-cmulti), , -objs)
@@ -111,8 +193,13 @@ $(host-cobjs): $(obj)/%.o: $(src)/%.c FORCE
 quiet_cmd_host-cxxmulti	= HOSTLD  $@
       cmd_host-cxxmulti	= $(HOSTCXX) $(KBUILD_HOSTLDFLAGS) -o $@ \
 			  $(foreach o,objs cxxobjs,\
+<<<<<<< HEAD
 			  $(addprefix $(obj)/,$($(@F)-$(o)))) \
 			  $(KBUILD_HOSTLDLIBS) $(HOSTLDLIBS_$(@F))
+=======
+			  $(addprefix $(obj)/, $($(target-stem)-$(o)))) \
+			  $(KBUILD_HOSTLDLIBS) $(HOSTLDLIBS_$(target-stem))
+>>>>>>> upstream/android-13
 $(host-cxxmulti): FORCE
 	$(call if_changed,host-cxxmulti)
 $(call multi_depend, $(host-cxxmulti), , -objs -cxxobjs)
@@ -123,6 +210,7 @@ quiet_cmd_host-cxxobjs	= HOSTCXX $@
 $(host-cxxobjs): $(obj)/%.o: $(src)/%.cc FORCE
 	$(call if_changed_dep,host-cxxobjs)
 
+<<<<<<< HEAD
 # Compile .c file, create position independent .o file
 # host-cshobjs -> .o
 quiet_cmd_host-cshobjs	= HOSTCC  -fPIC $@
@@ -162,3 +250,7 @@ $(call multi_depend, $(host-cxxshlib), .so, -objs)
 
 targets += $(host-csingle)  $(host-cmulti) $(host-cobjs)\
 	   $(host-cxxmulti) $(host-cxxobjs) $(host-cshlib) $(host-cshobjs) $(host-cxxshlib) $(host-cxxshobjs)
+=======
+targets += $(host-csingle) $(host-cmulti) $(host-cobjs) \
+	   $(host-cxxmulti) $(host-cxxobjs)
+>>>>>>> upstream/android-13

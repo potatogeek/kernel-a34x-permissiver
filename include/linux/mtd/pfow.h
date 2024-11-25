@@ -19,7 +19,11 @@
 /* Identification info for LPDDR chip */
 #define PFOW_MANUFACTURER_ID			0x0020
 #define PFOW_DEVICE_ID				0x0022
+<<<<<<< HEAD
 /* Address in PFOW where prog buffer can can be found */
+=======
+/* Address in PFOW where prog buffer can be found */
+>>>>>>> upstream/android-13
 #define PFOW_PROGRAM_BUFFER_OFFSET		0x0040
 /* Size of program buffer in words */
 #define PFOW_PROGRAM_BUFFER_SIZE		0x0042
@@ -121,6 +125,7 @@ static inline void send_pfow_command(struct map_info *map,
 	map_write(map, CMD(LPDDR_START_EXECUTION),
 			map->pfow_base + PFOW_COMMAND_EXECUTE);
 }
+<<<<<<< HEAD
 
 static inline void print_drs_error(unsigned dsr)
 {
@@ -154,4 +159,6 @@ static inline void print_drs_error(unsigned dsr)
 		printk(KERN_NOTICE"DSR.1: (1) Aborted Erase/Program attempt "
 					"on locked block\n");
 }
+=======
+>>>>>>> upstream/android-13
 #endif /* __LINUX_MTD_PFOW_H */

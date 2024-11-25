@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2006-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -873,6 +880,7 @@ static u16 ef4_farch_handle_rx_not_ok(struct ef4_rx_queue *rx_queue,
 {
 	struct ef4_channel *channel = ef4_rx_queue_channel(rx_queue);
 	struct ef4_nic *efx = rx_queue->efx;
+<<<<<<< HEAD
 	bool rx_ev_buf_owner_id_err, rx_ev_ip_hdr_chksum_err;
 	bool rx_ev_tcp_udp_chksum_err, rx_ev_eth_crc_err;
 	bool rx_ev_frm_trunc, rx_ev_drib_nib, rx_ev_tobe_disc;
@@ -884,6 +892,14 @@ static u16 ef4_farch_handle_rx_not_ok(struct ef4_rx_queue *rx_queue,
 	rx_ev_mcast_pkt = EF4_QWORD_FIELD(*event, FSF_AZ_RX_EV_MCAST_PKT);
 	rx_ev_tobe_disc = EF4_QWORD_FIELD(*event, FSF_AZ_RX_EV_TOBE_DISC);
 	rx_ev_pkt_type = EF4_QWORD_FIELD(*event, FSF_AZ_RX_EV_PKT_TYPE);
+=======
+	bool __maybe_unused rx_ev_buf_owner_id_err, rx_ev_ip_hdr_chksum_err;
+	bool rx_ev_tcp_udp_chksum_err, rx_ev_eth_crc_err;
+	bool rx_ev_frm_trunc, rx_ev_drib_nib, rx_ev_tobe_disc;
+	bool rx_ev_pause_frm;
+
+	rx_ev_tobe_disc = EF4_QWORD_FIELD(*event, FSF_AZ_RX_EV_TOBE_DISC);
+>>>>>>> upstream/android-13
 	rx_ev_buf_owner_id_err = EF4_QWORD_FIELD(*event,
 						 FSF_AZ_RX_EV_BUF_OWNER_ID_ERR);
 	rx_ev_ip_hdr_chksum_err = EF4_QWORD_FIELD(*event,
@@ -896,10 +912,13 @@ static u16 ef4_farch_handle_rx_not_ok(struct ef4_rx_queue *rx_queue,
 			  0 : EF4_QWORD_FIELD(*event, FSF_AA_RX_EV_DRIB_NIB));
 	rx_ev_pause_frm = EF4_QWORD_FIELD(*event, FSF_AZ_RX_EV_PAUSE_FRM_ERR);
 
+<<<<<<< HEAD
 	/* Every error apart from tobe_disc and pause_frm */
 	rx_ev_other_err = (rx_ev_drib_nib | rx_ev_tcp_udp_chksum_err |
 			   rx_ev_buf_owner_id_err | rx_ev_eth_crc_err |
 			   rx_ev_frm_trunc | rx_ev_ip_hdr_chksum_err);
+=======
+>>>>>>> upstream/android-13
 
 	/* Count errors that are not in MAC stats.  Ignore expected
 	 * checksum errors during self-test. */
@@ -919,6 +938,16 @@ static u16 ef4_farch_handle_rx_not_ok(struct ef4_rx_queue *rx_queue,
 	 * to a FIFO overflow.
 	 */
 #ifdef DEBUG
+<<<<<<< HEAD
+=======
+	{
+	/* Every error apart from tobe_disc and pause_frm */
+
+	bool rx_ev_other_err = (rx_ev_drib_nib | rx_ev_tcp_udp_chksum_err |
+				rx_ev_buf_owner_id_err | rx_ev_eth_crc_err |
+				rx_ev_frm_trunc | rx_ev_ip_hdr_chksum_err);
+
+>>>>>>> upstream/android-13
 	if (rx_ev_other_err && net_ratelimit()) {
 		netif_dbg(efx, rx_err, efx->net_dev,
 			  " RX queue %d unexpected RX event "
@@ -935,6 +964,10 @@ static u16 ef4_farch_handle_rx_not_ok(struct ef4_rx_queue *rx_queue,
 			  rx_ev_tobe_disc ? " [TOBE_DISC]" : "",
 			  rx_ev_pause_frm ? " [PAUSE]" : "");
 	}
+<<<<<<< HEAD
+=======
+	}
+>>>>>>> upstream/android-13
 #endif
 
 	/* The frame must be discarded if any of these are true. */
@@ -1052,10 +1085,17 @@ ef4_farch_handle_rx_event(struct ef4_channel *channel, const ef4_qword_t *event)
 		switch (rx_ev_hdr_type) {
 		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_TCP:
 			flags |= EF4_RX_PKT_TCP;
+<<<<<<< HEAD
 			/* fall through */
 		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_UDP:
 			flags |= EF4_RX_PKT_CSUMMED;
 			/* fall through */
+=======
+			fallthrough;
+		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_UDP:
+			flags |= EF4_RX_PKT_CSUMMED;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case FSE_CZ_RX_EV_HDR_TYPE_IPV4V6_OTHER:
 		case FSE_AZ_RX_EV_HDR_TYPE_OTHER:
 			break;
@@ -1313,7 +1353,11 @@ int ef4_farch_ev_process(struct ef4_channel *channel, int budget)
 			if (efx->type->handle_global_event &&
 			    efx->type->handle_global_event(channel, &event))
 				break;
+<<<<<<< HEAD
 			/* else fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			netif_err(channel->efx, hw, channel->efx->net_dev,
 				  "channel %d unknown event type %d (data "
@@ -1646,15 +1690,22 @@ void ef4_farch_rx_push_indir_table(struct ef4_nic *efx)
  */
 void ef4_farch_dimension_resources(struct ef4_nic *efx, unsigned sram_lim_qw)
 {
+<<<<<<< HEAD
 	unsigned vi_count, buftbl_min;
+=======
+	unsigned vi_count;
+>>>>>>> upstream/android-13
 
 	/* Account for the buffer table entries backing the datapath channels
 	 * and the descriptor caches for those channels.
 	 */
+<<<<<<< HEAD
 	buftbl_min = ((efx->n_rx_channels * EF4_MAX_DMAQ_SIZE +
 		       efx->n_tx_channels * EF4_TXQ_TYPES * EF4_MAX_DMAQ_SIZE +
 		       efx->n_channels * EF4_MAX_EVQ_SIZE)
 		      * sizeof(ef4_qword_t) / EF4_BUF_SIZE);
+=======
+>>>>>>> upstream/android-13
 	vi_count = max(efx->n_channels, efx->n_tx_channels * EF4_TXQ_TYPES);
 
 	efx->tx_dc_base = sram_lim_qw - vi_count * TX_DC_ENTRIES;
@@ -1986,7 +2037,11 @@ ef4_farch_filter_from_gen_spec(struct ef4_farch_filter_spec *spec,
 	      EF4_FILTER_MATCH_LOC_HOST | EF4_FILTER_MATCH_LOC_PORT |
 	      EF4_FILTER_MATCH_REM_HOST | EF4_FILTER_MATCH_REM_PORT):
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case (EF4_FILTER_MATCH_ETHER_TYPE | EF4_FILTER_MATCH_IP_PROTO |
 	      EF4_FILTER_MATCH_LOC_HOST | EF4_FILTER_MATCH_LOC_PORT): {
 		__be32 rhost, host1, host2;
@@ -2037,7 +2092,11 @@ ef4_farch_filter_from_gen_spec(struct ef4_farch_filter_spec *spec,
 
 	case EF4_FILTER_MATCH_LOC_MAC | EF4_FILTER_MATCH_OUTER_VID:
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EF4_FILTER_MATCH_LOC_MAC:
 		spec->type = (is_full ? EF4_FARCH_FILTER_MAC_FULL :
 			      EF4_FARCH_FILTER_MAC_WILD);
@@ -2084,7 +2143,11 @@ ef4_farch_filter_to_gen_spec(struct ef4_filter_spec *gen_spec,
 	case EF4_FARCH_FILTER_TCP_FULL:
 	case EF4_FARCH_FILTER_UDP_FULL:
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EF4_FARCH_FILTER_TCP_WILD:
 	case EF4_FARCH_FILTER_UDP_WILD: {
 		__be32 host1, host2;
@@ -2128,7 +2191,11 @@ ef4_farch_filter_to_gen_spec(struct ef4_filter_spec *gen_spec,
 
 	case EF4_FARCH_FILTER_MAC_FULL:
 		is_full = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case EF4_FARCH_FILTER_MAC_WILD:
 		gen_spec->match_flags = EF4_FILTER_MATCH_LOC_MAC;
 		if (is_full)
@@ -2535,7 +2602,10 @@ int ef4_farch_filter_remove_safe(struct ef4_nic *efx,
 	enum ef4_farch_filter_table_id table_id;
 	struct ef4_farch_filter_table *table;
 	unsigned int filter_idx;
+<<<<<<< HEAD
 	struct ef4_farch_filter_spec *spec;
+=======
+>>>>>>> upstream/android-13
 	int rc;
 
 	table_id = ef4_farch_filter_id_table_id(filter_id);
@@ -2546,7 +2616,10 @@ int ef4_farch_filter_remove_safe(struct ef4_nic *efx,
 	filter_idx = ef4_farch_filter_id_index(filter_id);
 	if (filter_idx >= table->size)
 		return -ENOENT;
+<<<<<<< HEAD
 	spec = &table->spec[filter_idx];
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&efx->filter_lock);
 	rc = ef4_farch_filter_remove(efx, table, filter_idx, priority);

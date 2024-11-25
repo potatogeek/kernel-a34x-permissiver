@@ -21,7 +21,11 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 #include <linux/hdmi.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_asic.h"
 #include "radeon_audio.h"

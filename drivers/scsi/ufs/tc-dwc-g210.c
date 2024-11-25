@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Synopsys G210 Test Chip driver
  *
  * Copyright (C) 2015-2016 Synopsys, Inc. (www.synopsys.com)
  *
  * Authors: Joao Pinto <jpinto@synopsys.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ufshcd.h"

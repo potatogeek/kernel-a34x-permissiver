@@ -34,7 +34,10 @@
 #include <linux/timer.h>
 
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/pci-bridge.h>
 #include <asm/dma.h>
@@ -280,20 +283,28 @@ static __init void chrp_init(void)
 	node = of_find_node_by_path(property);
 	if (!node)
 		return;
+<<<<<<< HEAD
 	property = of_get_property(node, "device_type", NULL);
 	if (!property)
 		goto out_put;
 	if (strcmp(property, "serial"))
+=======
+	if (!of_node_is_type(node, "serial"))
+>>>>>>> upstream/android-13
 		goto out_put;
 	/*
 	 * The 9pin connector is either /failsafe
 	 * or /pci@80000000/isa@C/serial@i2F8
 	 * The optional graphics card has also type 'serial' in VGA mode.
 	 */
+<<<<<<< HEAD
 	property = of_get_property(node, "name", NULL);
 	if (!property)
 		goto out_put;
 	if (!strcmp(property, "failsafe") || !strcmp(property, "serial"))
+=======
+	if (of_node_name_eq(node, "failsafe") || of_node_name_eq(node, "serial"))
+>>>>>>> upstream/android-13
 		add_preferred_console("ttyS", 0, NULL);
 out_put:
 	of_node_put(node);
@@ -341,6 +352,7 @@ static void __init chrp_setup_arch(void)
 	/* On pegasos, enable the L2 cache if not already done by OF */
 	pegasos_set_l2cr();
 
+<<<<<<< HEAD
 	/* Lookup PCI host bridges */
 	chrp_find_bridges();
 
@@ -350,13 +362,18 @@ static void __init chrp_setup_arch(void)
 	 */
 	hydra_init();		/* Mac I/O */
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 *  Fix the Super I/O configuration
 	 */
 	sio_init();
 
+<<<<<<< HEAD
 	pci_create_OF_bus_map();
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Print the banner, then scroll down so boot progress
 	 * can be printed.  -- Cort
@@ -457,6 +474,7 @@ static void __init chrp_find_openpic(void)
 	of_node_put(np);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_VT) && defined(CONFIG_INPUT_ADBHID) && defined(CONFIG_XMON)
 static struct irqaction xmon_irqaction = {
 	.handler = xmon_irq,
@@ -464,6 +482,8 @@ static struct irqaction xmon_irqaction = {
 };
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void __init chrp_find_8259(void)
 {
 	struct device_node *np, *pic = NULL;
@@ -544,19 +564,34 @@ static void __init chrp_init_IRQ(void)
 	/* see if there is a keyboard in the device tree
 	   with a parent of type "adb" */
 	for_each_node_by_name(kbd, "keyboard")
+<<<<<<< HEAD
 		if (kbd->parent && kbd->parent->type
 		    && strcmp(kbd->parent->type, "adb") == 0)
 			break;
 	of_node_put(kbd);
 	if (kbd)
 		setup_irq(HYDRA_INT_ADB_NMI, &xmon_irqaction);
+=======
+		if (of_node_is_type(kbd->parent, "adb"))
+			break;
+	of_node_put(kbd);
+	if (kbd) {
+		if (request_irq(HYDRA_INT_ADB_NMI, xmon_irq, 0, "XMON break",
+				NULL))
+			pr_err("Failed to register XMON break interrupt\n");
+	}
+>>>>>>> upstream/android-13
 #endif
 }
 
 static void __init
 chrp_init2(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NVRAM
+=======
+#if IS_ENABLED(CONFIG_NVRAM)
+>>>>>>> upstream/android-13
 	chrp_nvram_init();
 #endif
 
@@ -580,7 +615,10 @@ static int __init chrp_probe(void)
  	if (strcmp(dtype, "chrp"))
 		return 0;
 
+<<<<<<< HEAD
 	ISA_DMA_THRESHOLD = ~0L;
+=======
+>>>>>>> upstream/android-13
 	DMA_MODE_READ = 0x44;
 	DMA_MODE_WRITE = 0x48;
 
@@ -595,6 +633,10 @@ define_machine(chrp) {
 	.name			= "CHRP",
 	.probe			= chrp_probe,
 	.setup_arch		= chrp_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs		= chrp_find_bridges,
+>>>>>>> upstream/android-13
 	.init			= chrp_init2,
 	.show_cpuinfo		= chrp_show_cpuinfo,
 	.init_IRQ		= chrp_init_IRQ,

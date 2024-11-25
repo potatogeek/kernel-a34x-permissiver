@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl12xx
  *
  * Copyright (C) 2009 Nokia Corporation
  * Copyright (C) 2011-2012 Texas Instruments
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "../wlcore/debugfs.h"
@@ -125,6 +132,7 @@ WL12XX_DEBUGFS_FWSTATS_FILE(rxpipe, tx_xfr_host_int_trig_rx_data, "%u");
 int wl12xx_debugfs_add_files(struct wl1271 *wl,
 			     struct dentry *rootdir)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	struct dentry *entry, *stats, *moddir;
 
@@ -139,6 +147,12 @@ int wl12xx_debugfs_add_files(struct wl1271 *wl,
 		entry = stats;
 		goto err;
 	}
+=======
+	struct dentry *stats, *moddir;
+
+	moddir = debugfs_create_dir(KBUILD_MODNAME, rootdir);
+	stats = debugfs_create_dir("fw_stats", moddir);
+>>>>>>> upstream/android-13
 
 	DEBUGFS_FWSTATS_ADD(tx, internal_desc_overflow);
 
@@ -232,6 +246,7 @@ int wl12xx_debugfs_add_files(struct wl1271 *wl,
 	DEBUGFS_FWSTATS_ADD(rxpipe, tx_xfr_host_int_trig_rx_data);
 
 	return 0;
+<<<<<<< HEAD
 
 err:
 	if (IS_ERR(entry))
@@ -240,4 +255,6 @@ err:
 		ret = -ENOMEM;
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }

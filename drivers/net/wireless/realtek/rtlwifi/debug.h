@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -21,6 +22,10 @@
  *
  * Larry Finger <Larry.Finger@lwfinger.net>
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL_DEBUG_H__
 #define __RTL_DEBUG_H__
@@ -157,7 +162,11 @@ enum dbgp_flag_e {
 	FEEPROM = 11,
 	FPWR = 12,
 	FDM = 13,
+<<<<<<< HEAD
 	FDBGCtrl = 14,
+=======
+	FDBGCTRL = 14,
+>>>>>>> upstream/android-13
 	FC2H = 15,
 	FBT = 16,
 	FINIT = 17,
@@ -170,10 +179,13 @@ enum dbgp_flag_e {
 struct rtl_priv;
 
 __printf(4, 5)
+<<<<<<< HEAD
 void _rtl_dbg_trace(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *fmt, ...);
 
 __printf(4, 5)
+=======
+>>>>>>> upstream/android-13
 void _rtl_dbg_print(struct rtl_priv *rtlpriv, u64 comp, int level,
 		    const char *fmt, ...);
 
@@ -181,8 +193,13 @@ void _rtl_dbg_print_data(struct rtl_priv *rtlpriv, u64 comp, int level,
 			 const char *titlestring,
 			 const void *hexdata, int hexdatalen);
 
+<<<<<<< HEAD
 #define RT_TRACE(rtlpriv, comp, level, fmt, ...)			\
 	_rtl_dbg_trace(rtlpriv, comp, level,				\
+=======
+#define rtl_dbg(rtlpriv, comp, level, fmt, ...)				\
+	_rtl_dbg_print(rtlpriv, comp, level,				\
+>>>>>>> upstream/android-13
 		       fmt, ##__VA_ARGS__)
 
 #define RTPRINT(rtlpriv, dbgtype, dbgflag, fmt, ...)			\
@@ -198,9 +215,15 @@ void _rtl_dbg_print_data(struct rtl_priv *rtlpriv, u64 comp, int level,
 struct rtl_priv;
 
 __printf(4, 5)
+<<<<<<< HEAD
 static inline void RT_TRACE(struct rtl_priv *rtlpriv,
 			    u64 comp, int level,
 			    const char *fmt, ...)
+=======
+static inline void rtl_dbg(struct rtl_priv *rtlpriv,
+			   u64 comp, int level,
+			   const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 }
 

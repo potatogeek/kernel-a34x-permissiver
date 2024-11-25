@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2010
  *
  * - Kurt Van Dijck, EIA Electronics
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/firmware.h>
@@ -284,7 +291,11 @@ int softing_load_app_fw(const char *file, struct softing *card)
 			goto failed;
 		}
 
+<<<<<<< HEAD
 		/* regualar data */
+=======
+		/* regular data */
+>>>>>>> upstream/android-13
 		for (sum = 0, j = 0; j < len; ++j)
 			sum += dat[j];
 		/* work in 16bit (target) */
@@ -485,14 +496,22 @@ int softing_startstop(struct net_device *dev, int up)
 	if (ret)
 		goto failed;
 	if (!bus_bitmask_start)
+<<<<<<< HEAD
 		/* no busses to be brought up */
+=======
+		/* no buses to be brought up */
+>>>>>>> upstream/android-13
 		goto card_done;
 
 	if ((bus_bitmask_start & 1) && (bus_bitmask_start & 2)
 			&& (softing_error_reporting(card->net[0])
 				!= softing_error_reporting(card->net[1]))) {
 		dev_alert(&card->pdev->dev,
+<<<<<<< HEAD
 				"err_reporting flag differs for busses\n");
+=======
+				"err_reporting flag differs for buses\n");
+>>>>>>> upstream/android-13
 		goto invalid;
 	}
 	error_reporting = 0;
@@ -576,6 +595,7 @@ int softing_startstop(struct net_device *dev, int up)
 		if (ret < 0)
 			goto failed;
 	}
+<<<<<<< HEAD
 	/* enable_error_frame */
 	/*
 	 * Error reporting is switched off at the moment since
@@ -583,11 +603,25 @@ int softing_startstop(struct net_device *dev, int up)
 	 * This should be enabled sooner or later
 	 *
 	if (error_reporting) {
+=======
+
+	/* enable_error_frame
+	 *
+	 * Error reporting is switched off at the moment since
+	 * the receiving of them is not yet 100% verified
+	 * This should be enabled sooner or later
+	 */
+	if (0 && error_reporting) {
+>>>>>>> upstream/android-13
 		ret = softing_fct_cmd(card, 51, "enable_error_frame");
 		if (ret < 0)
 			goto failed;
 	}
+<<<<<<< HEAD
 	*/
+=======
+
+>>>>>>> upstream/android-13
 	/* initialize interface */
 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 2]);
 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 4]);
@@ -635,7 +669,11 @@ int softing_startstop(struct net_device *dev, int up)
 	 */
 	memset(&msg, 0, sizeof(msg));
 	msg.can_id = CAN_ERR_FLAG | CAN_ERR_RESTARTED;
+<<<<<<< HEAD
 	msg.can_dlc = CAN_ERR_DLC;
+=======
+	msg.len = CAN_ERR_DLC;
+>>>>>>> upstream/android-13
 	for (j = 0; j < ARRAY_SIZE(card->net); ++j) {
 		if (!(bus_bitmask_start & (1 << j)))
 			continue;
@@ -646,7 +684,11 @@ int softing_startstop(struct net_device *dev, int up)
 		priv->can.state = CAN_STATE_ERROR_ACTIVE;
 		open_candev(netdev);
 		if (dev != netdev) {
+<<<<<<< HEAD
 			/* notify other busses on the restart */
+=======
+			/* notify other buses on the restart */
+>>>>>>> upstream/android-13
 			softing_netdev_rx(netdev, &msg, 0);
 			++priv->can.can_stats.restarts;
 		}

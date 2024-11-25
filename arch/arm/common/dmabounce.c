@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/common/dmabounce.c
  *
@@ -16,10 +20,13 @@
  *
  *  Copyright (C) 2002 Hewlett Packard Company.
  *  Copyright (C) 2004 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -27,7 +34,12 @@
 #include <linux/slab.h>
 #include <linux/page-flags.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
+=======
+#include <linux/dma-direct.h>
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/dmapool.h>
 #include <linux/list.h>
 #include <linux/scatterlist.h>
@@ -257,7 +269,11 @@ static inline dma_addr_t map_single(struct device *dev, void *ptr, size_t size,
 	if (buf == NULL) {
 		dev_err(dev, "%s: unable to map unsafe buffer %p!\n",
 		       __func__, ptr);
+<<<<<<< HEAD
 		return ARM_MAPPING_ERROR;
+=======
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(dev, "%s: unsafe buffer %p (dma=%#x) mapped to %p (dma=%#x)\n",
@@ -327,7 +343,11 @@ static dma_addr_t dmabounce_map_page(struct device *dev, struct page *page,
 
 	ret = needs_bounce(dev, dma_addr, size);
 	if (ret < 0)
+<<<<<<< HEAD
 		return ARM_MAPPING_ERROR;
+=======
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 
 	if (ret == 0) {
 		arm_dma_ops.sync_single_for_device(dev, dma_addr, size, dir);
@@ -336,7 +356,11 @@ static dma_addr_t dmabounce_map_page(struct device *dev, struct page *page,
 
 	if (PageHighMem(page)) {
 		dev_err(dev, "DMA buffer bouncing of HIGHMEM pages is not supported\n");
+<<<<<<< HEAD
 		return ARM_MAPPING_ERROR;
+=======
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	}
 
 	return map_single(dev, page_address(page) + offset, size, dir, attrs);
@@ -453,11 +477,14 @@ static int dmabounce_dma_supported(struct device *dev, u64 dma_mask)
 	return arm_dma_ops.dma_supported(dev, dma_mask);
 }
 
+<<<<<<< HEAD
 static int dmabounce_mapping_error(struct device *dev, dma_addr_t dma_addr)
 {
 	return arm_dma_ops.mapping_error(dev, dma_addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct dma_map_ops dmabounce_ops = {
 	.alloc			= arm_dma_alloc,
 	.free			= arm_dma_free,
@@ -472,7 +499,10 @@ static const struct dma_map_ops dmabounce_ops = {
 	.sync_sg_for_cpu	= arm_dma_sync_sg_for_cpu,
 	.sync_sg_for_device	= arm_dma_sync_sg_for_device,
 	.dma_supported		= dmabounce_dma_supported,
+<<<<<<< HEAD
 	.mapping_error		= dmabounce_mapping_error,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int dmabounce_init_pool(struct dmabounce_pool *pool, struct device *dev,

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Marvell NFC driver: major functions
  *
  * Copyright (C) 2014-2015 Marvell International Ltd.
+<<<<<<< HEAD
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
@@ -14,6 +19,8 @@
  * IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE
  * ARE EXPRESSLY DISCLAIMED.  The License provides additional details about
  * this warranty disclaimer.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -92,7 +99,11 @@ static int nfcmrvl_nci_fw_download(struct nci_dev *ndev,
 	return nfcmrvl_fw_dnld_start(ndev, firmware_name);
 }
 
+<<<<<<< HEAD
 static struct nci_ops nfcmrvl_nci_ops = {
+=======
+static const struct nci_ops nfcmrvl_nci_ops = {
+>>>>>>> upstream/android-13
 	.open = nfcmrvl_nci_open,
 	.close = nfcmrvl_nci_close,
 	.send = nfcmrvl_nci_send,
@@ -102,9 +113,15 @@ static struct nci_ops nfcmrvl_nci_ops = {
 
 struct nfcmrvl_private *nfcmrvl_nci_register_dev(enum nfcmrvl_phy phy,
 				void *drv_data,
+<<<<<<< HEAD
 				struct nfcmrvl_if_ops *ops,
 				struct device *dev,
 				struct nfcmrvl_platform_data *pdata)
+=======
+				const struct nfcmrvl_if_ops *ops,
+				struct device *dev,
+				const struct nfcmrvl_platform_data *pdata)
+>>>>>>> upstream/android-13
 {
 	struct nfcmrvl_private *priv;
 	int rc;
@@ -194,6 +211,10 @@ void nfcmrvl_nci_unregister_dev(struct nfcmrvl_private *priv)
 {
 	struct nci_dev *ndev = priv->ndev;
 
+<<<<<<< HEAD
+=======
+	nci_unregister_device(ndev);
+>>>>>>> upstream/android-13
 	if (priv->ndev->nfc_dev->fw_download_in_progress)
 		nfcmrvl_fw_dnld_abort(priv);
 
@@ -202,7 +223,10 @@ void nfcmrvl_nci_unregister_dev(struct nfcmrvl_private *priv)
 	if (gpio_is_valid(priv->config.reset_n_io))
 		gpio_free(priv->config.reset_n_io);
 
+<<<<<<< HEAD
 	nci_unregister_device(ndev);
+=======
+>>>>>>> upstream/android-13
 	nci_free_device(ndev);
 	kfree(priv);
 }

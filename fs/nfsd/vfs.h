@@ -34,14 +34,22 @@
 #define NFSD_MAY_CREATE		(NFSD_MAY_EXEC|NFSD_MAY_WRITE)
 #define NFSD_MAY_REMOVE		(NFSD_MAY_EXEC|NFSD_MAY_WRITE|NFSD_MAY_TRUNC)
 
+<<<<<<< HEAD
+=======
+struct nfsd_file;
+
+>>>>>>> upstream/android-13
 /*
  * Callback function for readdir
  */
 typedef int (*nfsd_filldir_t)(void *, const char *, int, loff_t, u64, unsigned);
 
 /* nfsd/vfs.c */
+<<<<<<< HEAD
 int		nfsd_racache_init(int);
 void		nfsd_racache_shutdown(void);
+=======
+>>>>>>> upstream/android-13
 int		nfsd_cross_mnt(struct svc_rqst *rqstp, struct dentry **dpp,
 		                struct svc_export **expp);
 __be32		nfsd_lookup(struct svc_rqst *, struct svc_fh *,
@@ -50,15 +58,25 @@ __be32		 nfsd_lookup_dentry(struct svc_rqst *, struct svc_fh *,
 				const char *, unsigned int,
 				struct svc_export **, struct dentry **);
 __be32		nfsd_setattr(struct svc_rqst *, struct svc_fh *,
+<<<<<<< HEAD
 				struct iattr *, int, time_t);
+=======
+				struct iattr *, int, time64_t);
+>>>>>>> upstream/android-13
 int nfsd_mountpoint(struct dentry *, struct svc_export *);
 #ifdef CONFIG_NFSD_V4
 __be32          nfsd4_set_nfs4_label(struct svc_rqst *, struct svc_fh *,
 		    struct xdr_netobj *);
 __be32		nfsd4_vfs_fallocate(struct svc_rqst *, struct svc_fh *,
 				    struct file *, loff_t, loff_t, int);
+<<<<<<< HEAD
 __be32		nfsd4_clone_file_range(struct file *, u64, struct file *,
 			u64, u64);
+=======
+__be32		nfsd4_clone_file_range(struct nfsd_file *nf_src, u64 src_pos,
+				       struct nfsd_file *nf_dst, u64 dst_pos,
+				       u64 count, bool sync);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_NFSD_V4 */
 __be32		nfsd_create_locked(struct svc_rqst *, struct svc_fh *,
 				char *name, int len, struct iattr *attrs,
@@ -73,6 +91,7 @@ __be32		do_nfsd_create(struct svc_rqst *, struct svc_fh *,
 				struct svc_fh *res, int createmode,
 				u32 *verifier, bool *truncp, bool *created);
 __be32		nfsd_commit(struct svc_rqst *, struct svc_fh *,
+<<<<<<< HEAD
 				loff_t, unsigned long);
 #endif /* CONFIG_NFSD_V3 */
 __be32		nfsd_open(struct svc_rqst *, struct svc_fh *, umode_t,
@@ -93,6 +112,44 @@ __be32		nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp,
 				struct file *file, loff_t offset,
 				struct kvec *vec, int vlen, unsigned long *cnt,
 				int stable);
+=======
+				loff_t, unsigned long, __be32 *verf);
+#endif /* CONFIG_NFSD_V3 */
+#ifdef CONFIG_NFSD_V4
+__be32		nfsd_getxattr(struct svc_rqst *rqstp, struct svc_fh *fhp,
+			    char *name, void **bufp, int *lenp);
+__be32		nfsd_listxattr(struct svc_rqst *rqstp, struct svc_fh *fhp,
+			    char **bufp, int *lenp);
+__be32		nfsd_removexattr(struct svc_rqst *rqstp, struct svc_fh *fhp,
+			    char *name);
+__be32		nfsd_setxattr(struct svc_rqst *rqstp, struct svc_fh *fhp,
+			    char *name, void *buf, u32 len, u32 flags);
+#endif
+int 		nfsd_open_break_lease(struct inode *, int);
+__be32		nfsd_open(struct svc_rqst *, struct svc_fh *, umode_t,
+				int, struct file **);
+__be32		nfsd_open_verified(struct svc_rqst *, struct svc_fh *, umode_t,
+				int, struct file **);
+__be32		nfsd_splice_read(struct svc_rqst *rqstp, struct svc_fh *fhp,
+				struct file *file, loff_t offset,
+				unsigned long *count,
+				u32 *eof);
+__be32		nfsd_readv(struct svc_rqst *rqstp, struct svc_fh *fhp,
+				struct file *file, loff_t offset,
+				struct kvec *vec, int vlen,
+				unsigned long *count,
+				u32 *eof);
+__be32 		nfsd_read(struct svc_rqst *, struct svc_fh *,
+				loff_t, struct kvec *, int, unsigned long *,
+				u32 *eof);
+__be32 		nfsd_write(struct svc_rqst *, struct svc_fh *, loff_t,
+				struct kvec *, int, unsigned long *,
+				int stable, __be32 *verf);
+__be32		nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp,
+				struct nfsd_file *nf, loff_t offset,
+				struct kvec *vec, int vlen, unsigned long *cnt,
+				int stable, __be32 *verf);
+>>>>>>> upstream/android-13
 __be32		nfsd_readlink(struct svc_rqst *, struct svc_fh *,
 				char *, int *);
 __be32		nfsd_symlink(struct svc_rqst *, struct svc_fh *,
@@ -115,9 +172,12 @@ __be32		nfsd_statfs(struct svc_rqst *, struct svc_fh *,
 __be32		nfsd_permission(struct svc_rqst *, struct svc_export *,
 				struct dentry *, int);
 
+<<<<<<< HEAD
 struct raparms *nfsd_init_raparms(struct file *file);
 void		nfsd_put_raparams(struct file *file, struct raparms *ra);
 
+=======
+>>>>>>> upstream/android-13
 static inline int fh_want_write(struct svc_fh *fh)
 {
 	int ret;
@@ -138,7 +198,11 @@ static inline void fh_drop_write(struct svc_fh *fh)
 	}
 }
 
+<<<<<<< HEAD
 static inline __be32 fh_getattr(struct svc_fh *fh, struct kstat *stat)
+=======
+static inline __be32 fh_getattr(const struct svc_fh *fh, struct kstat *stat)
+>>>>>>> upstream/android-13
 {
 	struct path p = {.mnt = fh->fh_export->ex_path.mnt,
 			 .dentry = fh->fh_dentry};
@@ -152,6 +216,7 @@ static inline int nfsd_create_is_exclusive(int createmode)
 	       || createmode == NFS4_CREATE_EXCLUSIVE4_1;
 }
 
+<<<<<<< HEAD
 static inline bool nfsd_eof_on_read(long requested, long read,
 				loff_t offset, loff_t size)
 {
@@ -171,4 +236,6 @@ static inline bool nfsd_eof_on_read(long requested, long read,
 	return (offset + read >= size);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* LINUX_NFSD_VFS_H */

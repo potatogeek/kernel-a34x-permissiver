@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 *  sym53c500_cs.c	Bob Tracy (rct@frus.com)
 *
@@ -25,6 +29,7 @@
 *	Original by Tom Corner (tcorner@via.at) was adapted from a
 *	driver for the Qlogic SCSI card written by
 *	David Hinds (dhinds@allegro.stanford.edu).
+<<<<<<< HEAD
 * 
 *  This program is free software; you can redistribute it and/or modify it
 *  under the terms of the GNU General Public License as published by the
@@ -35,6 +40,8 @@
 *  WITHOUT ANY WARRANTY; without even the implied warranty of
 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 *  General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 #define SYM53C500_DEBUG 0
@@ -680,7 +687,10 @@ static struct scsi_host_template sym53c500_driver_template = {
      .can_queue			= 1,
      .this_id			= 7,
      .sg_tablesize		= 32,
+<<<<<<< HEAD
      .use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
      .shost_attrs		= SYM53C500_shost_attrs
 };
 
@@ -880,6 +890,7 @@ static struct pcmcia_driver sym53c500_cs_driver = {
 	.id_table       = sym53c500_ids,
 	.resume		= sym53c500_resume,
 };
+<<<<<<< HEAD
 
 static int __init
 init_sym53c500_cs(void)
@@ -895,3 +906,6 @@ exit_sym53c500_cs(void)
 
 module_init(init_sym53c500_cs);
 module_exit(exit_sym53c500_cs);
+=======
+module_pcmcia_driver(sym53c500_cs_driver);
+>>>>>>> upstream/android-13

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010-2013 Bluecherry, LLC <http://www.bluecherrydvr.com>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2010-2013 Bluecherry, LLC <https://www.bluecherrydvr.com>
+>>>>>>> upstream/android-13
  *
  * Original author:
  * Ben Collins <bcollins@ubuntu.com>
  *
  * Additional work by:
  * John Brooks <john.brooks@bluecherry.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -106,6 +115,7 @@ void solo_g723_isr(struct solo_dev *solo_dev)
 	}
 }
 
+<<<<<<< HEAD
 static int snd_solo_hw_params(struct snd_pcm_substream *ss,
 			      struct snd_pcm_hw_params *hw_params)
 {
@@ -117,6 +127,8 @@ static int snd_solo_hw_free(struct snd_pcm_substream *ss)
 	return snd_pcm_lib_free_pages(ss);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct snd_pcm_hardware snd_solo_pcm_hw = {
 	.info			= (SNDRV_PCM_INFO_MMAP |
 				   SNDRV_PCM_INFO_INTERLEAVED |
@@ -144,9 +156,16 @@ static int snd_solo_pcm_open(struct snd_pcm_substream *ss)
 	if (solo_pcm == NULL)
 		goto oom;
 
+<<<<<<< HEAD
 	solo_pcm->g723_buf = pci_alloc_consistent(solo_dev->pdev,
 						  G723_PERIOD_BYTES,
 						  &solo_pcm->g723_dma);
+=======
+	solo_pcm->g723_buf = dma_alloc_coherent(&solo_dev->pdev->dev,
+						G723_PERIOD_BYTES,
+						&solo_pcm->g723_dma,
+						GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (solo_pcm->g723_buf == NULL)
 		goto oom;
 
@@ -168,8 +187,13 @@ static int snd_solo_pcm_close(struct snd_pcm_substream *ss)
 	struct solo_snd_pcm *solo_pcm = snd_pcm_substream_chip(ss);
 
 	snd_pcm_substream_chip(ss) = solo_pcm->solo_dev;
+<<<<<<< HEAD
 	pci_free_consistent(solo_pcm->solo_dev->pdev, G723_PERIOD_BYTES,
 			    solo_pcm->g723_buf, solo_pcm->g723_dma);
+=======
+	dma_free_coherent(&solo_pcm->solo_dev->pdev->dev, G723_PERIOD_BYTES,
+			  solo_pcm->g723_buf, solo_pcm->g723_dma);
+>>>>>>> upstream/android-13
 	kfree(solo_pcm);
 
 	return 0;
@@ -279,9 +303,12 @@ static int snd_solo_pcm_copy_kernel(struct snd_pcm_substream *ss, int channel,
 static const struct snd_pcm_ops snd_solo_pcm_ops = {
 	.open = snd_solo_pcm_open,
 	.close = snd_solo_pcm_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = snd_solo_hw_params,
 	.hw_free = snd_solo_hw_free,
+=======
+>>>>>>> upstream/android-13
 	.prepare = snd_solo_pcm_prepare,
 	.trigger = snd_solo_pcm_trigger,
 	.pointer = snd_solo_pcm_pointer,
@@ -354,12 +381,17 @@ static int solo_snd_pcm_init(struct solo_dev *solo_dev)
 
 	snd_pcm_chip(pcm) = solo_dev;
 	pcm->info_flags = 0;
+<<<<<<< HEAD
 	strcpy(pcm->name, card->shortname);
+=======
+	strscpy(pcm->name, card->shortname, sizeof(pcm->name));
+>>>>>>> upstream/android-13
 
 	for (i = 0, ss = pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream;
 	     ss; ss = ss->next, i++)
 		sprintf(ss->name, "Camera #%d Audio", i);
 
+<<<<<<< HEAD
 	ret = snd_pcm_lib_preallocate_pages_for_all(pcm,
 					SNDRV_DMA_TYPE_CONTINUOUS,
 					snd_dma_continuous_data(GFP_KERNEL),
@@ -367,6 +399,13 @@ static int solo_snd_pcm_init(struct solo_dev *solo_dev)
 					G723_PERIOD_BYTES * PERIODS);
 	if (ret < 0)
 		return ret;
+=======
+	snd_pcm_set_managed_buffer_all(pcm,
+				       SNDRV_DMA_TYPE_CONTINUOUS,
+				       NULL,
+				       G723_PERIOD_BYTES * PERIODS,
+				       G723_PERIOD_BYTES * PERIODS);
+>>>>>>> upstream/android-13
 
 	solo_dev->snd_pcm = pcm;
 
@@ -394,8 +433,13 @@ int solo_g723_init(struct solo_dev *solo_dev)
 
 	card = solo_dev->snd_card;
 
+<<<<<<< HEAD
 	strcpy(card->driver, SOLO6X10_NAME);
 	strcpy(card->shortname, "SOLO-6x10 Audio");
+=======
+	strscpy(card->driver, SOLO6X10_NAME, sizeof(card->driver));
+	strscpy(card->shortname, "SOLO-6x10 Audio", sizeof(card->shortname));
+>>>>>>> upstream/android-13
 	sprintf(card->longname, "%s on %s IRQ %d", card->shortname,
 		pci_name(solo_dev->pdev), solo_dev->pdev->irq);
 
@@ -404,7 +448,11 @@ int solo_g723_init(struct solo_dev *solo_dev)
 		goto snd_error;
 
 	/* Mixer controls */
+<<<<<<< HEAD
 	strcpy(card->mixername, "SOLO-6x10");
+=======
+	strscpy(card->mixername, "SOLO-6x10", sizeof(card->mixername));
+>>>>>>> upstream/android-13
 	kctl = snd_solo_capture_volume;
 	kctl.count = solo_dev->nr_chans;
 

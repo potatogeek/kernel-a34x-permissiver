@@ -4,6 +4,7 @@
 #include "trace.h"
 #include "ocxl_internal.h"
 
+<<<<<<< HEAD
 struct ocxl_context *ocxl_context_alloc(void)
 {
 	return kzalloc(sizeof(struct ocxl_context), GFP_KERNEL);
@@ -13,6 +14,17 @@ int ocxl_context_init(struct ocxl_context *ctx, struct ocxl_afu *afu,
 		struct address_space *mapping)
 {
 	int pasid;
+=======
+int ocxl_context_alloc(struct ocxl_context **context, struct ocxl_afu *afu,
+		struct address_space *mapping)
+{
+	int pasid;
+	struct ocxl_context *ctx;
+
+	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+	if (!ctx)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	ctx->afu = afu;
 	mutex_lock(&afu->contexts_lock);
@@ -20,6 +32,10 @@ int ocxl_context_init(struct ocxl_context *ctx, struct ocxl_afu *afu,
 			afu->pasid_base + afu->pasid_max, GFP_KERNEL);
 	if (pasid < 0) {
 		mutex_unlock(&afu->contexts_lock);
+<<<<<<< HEAD
+=======
+		kfree(ctx);
+>>>>>>> upstream/android-13
 		return pasid;
 	}
 	afu->pasid_count++;
@@ -41,8 +57,15 @@ int ocxl_context_init(struct ocxl_context *ctx, struct ocxl_afu *afu,
 	 * duration of the life of the context
 	 */
 	ocxl_afu_get(afu);
+<<<<<<< HEAD
 	return 0;
 }
+=======
+	*context = ctx;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(ocxl_context_alloc);
+>>>>>>> upstream/android-13
 
 /*
  * Callback for when a translation fault triggers an error
@@ -63,9 +86,17 @@ static void xsl_fault_error(void *data, u64 addr, u64 dsisr)
 	wake_up_all(&ctx->events_wq);
 }
 
+<<<<<<< HEAD
 int ocxl_context_attach(struct ocxl_context *ctx, u64 amr)
 {
 	int rc;
+=======
+int ocxl_context_attach(struct ocxl_context *ctx, u64 amr, struct mm_struct *mm)
+{
+	int rc;
+	unsigned long pidr = 0;
+	struct pci_dev *dev;
+>>>>>>> upstream/android-13
 
 	// Locks both status & tidr
 	mutex_lock(&ctx->status_mutex);
@@ -74,9 +105,18 @@ int ocxl_context_attach(struct ocxl_context *ctx, u64 amr)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	rc = ocxl_link_add_pe(ctx->afu->fn->link, ctx->pasid,
 			current->mm->context.id, ctx->tidr, amr, current->mm,
 			xsl_fault_error, ctx);
+=======
+	if (mm)
+		pidr = mm->context.id;
+
+	dev = to_pci_dev(ctx->afu->fn->dev.parent);
+	rc = ocxl_link_add_pe(ctx->afu->fn->link, ctx->pasid, pidr, ctx->tidr,
+			      amr, pci_dev_id(dev), mm, xsl_fault_error, ctx);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto out;
 
@@ -85,13 +125,23 @@ out:
 	mutex_unlock(&ctx->status_mutex);
 	return rc;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ocxl_context_attach);
+>>>>>>> upstream/android-13
 
 static vm_fault_t map_afu_irq(struct vm_area_struct *vma, unsigned long address,
 		u64 offset, struct ocxl_context *ctx)
 {
 	u64 trigger_addr;
+<<<<<<< HEAD
 
 	trigger_addr = ocxl_afu_irq_get_addr(ctx, offset);
+=======
+	int irq_id = ocxl_irq_offset_to_id(ctx, offset);
+
+	trigger_addr = ocxl_afu_irq_get_addr(ctx, irq_id);
+>>>>>>> upstream/android-13
 	if (!trigger_addr)
 		return VM_FAULT_SIGBUS;
 
@@ -151,12 +201,21 @@ static const struct vm_operations_struct ocxl_vmops = {
 static int check_mmap_afu_irq(struct ocxl_context *ctx,
 			struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
+=======
+	int irq_id = ocxl_irq_offset_to_id(ctx, vma->vm_pgoff << PAGE_SHIFT);
+
+>>>>>>> upstream/android-13
 	/* only one page */
 	if (vma_pages(vma) != 1)
 		return -EINVAL;
 
 	/* check offset validty */
+<<<<<<< HEAD
 	if (!ocxl_afu_irq_get_addr(ctx, vma->vm_pgoff << PAGE_SHIFT))
+=======
+	if (!ocxl_afu_irq_get_addr(ctx, irq_id))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -238,11 +297,19 @@ int ocxl_context_detach(struct ocxl_context *ctx)
 	}
 	rc = ocxl_link_remove_pe(ctx->afu->fn->link, ctx->pasid);
 	if (rc) {
+<<<<<<< HEAD
 		dev_warn(&ctx->afu->dev,
+=======
+		dev_warn(&dev->dev,
+>>>>>>> upstream/android-13
 			"Couldn't remove PE entry cleanly: %d\n", rc);
 	}
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(ocxl_context_detach);
+>>>>>>> upstream/android-13
 
 void ocxl_context_detach_all(struct ocxl_afu *afu)
 {
@@ -276,7 +343,15 @@ void ocxl_context_free(struct ocxl_context *ctx)
 
 	ocxl_afu_irq_free_all(ctx);
 	idr_destroy(&ctx->irq_idr);
+<<<<<<< HEAD
 	/* reference to the AFU taken in ocxl_context_init */
 	ocxl_afu_put(ctx->afu);
 	kfree(ctx);
 }
+=======
+	/* reference to the AFU taken in ocxl_context_alloc() */
+	ocxl_afu_put(ctx->afu);
+	kfree(ctx);
+}
+EXPORT_SYMBOL_GPL(ocxl_context_free);
+>>>>>>> upstream/android-13

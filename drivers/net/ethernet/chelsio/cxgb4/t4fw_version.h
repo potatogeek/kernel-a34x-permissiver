@@ -36,8 +36,13 @@
 #define __T4FW_VERSION_H__
 
 #define T4FW_VERSION_MAJOR 0x01
+<<<<<<< HEAD
 #define T4FW_VERSION_MINOR 0x14
 #define T4FW_VERSION_MICRO 0x08
+=======
+#define T4FW_VERSION_MINOR 0x17
+#define T4FW_VERSION_MICRO 0x03
+>>>>>>> upstream/android-13
 #define T4FW_VERSION_BUILD 0x00
 
 #define T4FW_MIN_VERSION_MAJOR 0x01
@@ -45,8 +50,13 @@
 #define T4FW_MIN_VERSION_MICRO 0x00
 
 #define T5FW_VERSION_MAJOR 0x01
+<<<<<<< HEAD
 #define T5FW_VERSION_MINOR 0x14
 #define T5FW_VERSION_MICRO 0x08
+=======
+#define T5FW_VERSION_MINOR 0x17
+#define T5FW_VERSION_MICRO 0x03
+>>>>>>> upstream/android-13
 #define T5FW_VERSION_BUILD 0x00
 
 #define T5FW_MIN_VERSION_MAJOR 0x00
@@ -54,8 +64,13 @@
 #define T5FW_MIN_VERSION_MICRO 0x00
 
 #define T6FW_VERSION_MAJOR 0x01
+<<<<<<< HEAD
 #define T6FW_VERSION_MINOR 0x14
 #define T6FW_VERSION_MICRO 0x08
+=======
+#define T6FW_VERSION_MINOR 0x17
+#define T6FW_VERSION_MICRO 0x03
+>>>>>>> upstream/android-13
 #define T6FW_VERSION_BUILD 0x00
 
 #define T6FW_MIN_VERSION_MAJOR 0x00

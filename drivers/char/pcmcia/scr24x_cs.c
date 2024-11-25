@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SCR24x PCMCIA Smart Card Reader Driver
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2016 Lubomir Rintel
  *
  * Derived from "scr24x_v4.2.6_Release.tar.gz" driver by TL Sudheendran.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; see the file COPYING.  If not, write to
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -92,7 +99,11 @@ static int scr24x_open(struct inode *inode, struct file *filp)
 	kref_get(&dev->refcnt);
 	filp->private_data = dev;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, filp);
+=======
+	return stream_open(inode, filp);
+>>>>>>> upstream/android-13
 }
 
 static int scr24x_release(struct inode *inode, struct file *filp)
@@ -278,7 +289,10 @@ static int scr24x_probe(struct pcmcia_device *link)
 
 	cdev_init(&dev->c_dev, &scr24x_fops);
 	dev->c_dev.owner = THIS_MODULE;
+<<<<<<< HEAD
 	dev->c_dev.ops = &scr24x_fops;
+=======
+>>>>>>> upstream/android-13
 	ret = cdev_add(&dev->c_dev, MKDEV(MAJOR(scr24x_devt), dev->devno), 1);
 	if (ret < 0)
 		goto err;

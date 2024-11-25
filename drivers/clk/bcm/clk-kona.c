@@ -15,8 +15,14 @@
 #include "clk-kona.h"
 
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/clk.h>
+=======
+#include <linux/io.h>
+#include <linux/kernel.h>
+#include <linux/clk-provider.h>
+>>>>>>> upstream/android-13
 
 /*
  * "Policies" affect the frequencies of bus clocks provided by a

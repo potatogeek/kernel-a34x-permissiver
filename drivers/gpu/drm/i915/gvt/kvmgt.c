@@ -31,7 +31,11 @@
 #include <linux/init.h>
 #include <linux/device.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/mmu_context.h>
+=======
+#include <linux/kthread.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/mm.h>
 #include <linux/types.h>
 #include <linux/list.h>
@@ -57,6 +61,11 @@ static const struct intel_gvt_ops *intel_gvt_ops;
 #define VFIO_PCI_INDEX_TO_OFFSET(index) ((u64)(index) << VFIO_PCI_OFFSET_SHIFT)
 #define VFIO_PCI_OFFSET_MASK    (((u64)(1) << VFIO_PCI_OFFSET_SHIFT) - 1)
 
+<<<<<<< HEAD
+=======
+#define EDID_BLOB_OFFSET (PAGE_SIZE/2)
+
+>>>>>>> upstream/android-13
 #define OPREGION_SIGNATURE "IntelGraphicsMem"
 
 struct vfio_region;
@@ -76,11 +85,23 @@ struct vfio_region {
 	void				*data;
 };
 
+<<<<<<< HEAD
+=======
+struct vfio_edid_region {
+	struct vfio_region_gfx_edid vfio_edid_regs;
+	void *edid_blob;
+};
+
+>>>>>>> upstream/android-13
 struct kvmgt_pgfn {
 	gfn_t gfn;
 	struct hlist_node hnode;
 };
 
+<<<<<<< HEAD
+=======
+#define KVMGT_DEBUGFS_FILENAME "kvmgt_nr_cache_entries"
+>>>>>>> upstream/android-13
 struct kvmgt_guest_info {
 	struct kvm *kvm;
 	struct intel_vgpu *vgpu;
@@ -88,7 +109,10 @@ struct kvmgt_guest_info {
 #define NR_BKT (1 << 18)
 	struct hlist_head ptable[NR_BKT];
 #undef NR_BKT
+<<<<<<< HEAD
 	struct dentry *debugfs_cache_entries;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct gvt_dma {
@@ -101,11 +125,146 @@ struct gvt_dma {
 	struct kref ref;
 };
 
+<<<<<<< HEAD
+=======
+struct kvmgt_vdev {
+	struct intel_vgpu *vgpu;
+	struct mdev_device *mdev;
+	struct vfio_region *region;
+	int num_regions;
+	struct eventfd_ctx *intx_trigger;
+	struct eventfd_ctx *msi_trigger;
+
+	/*
+	 * Two caches are used to avoid mapping duplicated pages (eg.
+	 * scratch pages). This help to reduce dma setup overhead.
+	 */
+	struct rb_root gfn_cache;
+	struct rb_root dma_addr_cache;
+	unsigned long nr_cache_entries;
+	struct mutex cache_lock;
+
+	struct notifier_block iommu_notifier;
+	struct notifier_block group_notifier;
+	struct kvm *kvm;
+	struct work_struct release_work;
+	atomic_t released;
+	struct vfio_device *vfio_device;
+	struct vfio_group *vfio_group;
+};
+
+static inline struct kvmgt_vdev *kvmgt_vdev(struct intel_vgpu *vgpu)
+{
+	return intel_vgpu_vdev(vgpu);
+}
+
+>>>>>>> upstream/android-13
 static inline bool handle_valid(unsigned long handle)
 {
 	return !!(handle & ~0xff);
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t available_instances_show(struct mdev_type *mtype,
+					struct mdev_type_attribute *attr,
+					char *buf)
+{
+	struct intel_vgpu_type *type;
+	unsigned int num = 0;
+	struct intel_gvt *gvt = kdev_to_i915(mtype_get_parent_dev(mtype))->gvt;
+
+	type = &gvt->types[mtype_get_type_group_id(mtype)];
+	if (!type)
+		num = 0;
+	else
+		num = type->avail_instance;
+
+	return sprintf(buf, "%u\n", num);
+}
+
+static ssize_t device_api_show(struct mdev_type *mtype,
+			       struct mdev_type_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
+}
+
+static ssize_t description_show(struct mdev_type *mtype,
+				struct mdev_type_attribute *attr, char *buf)
+{
+	struct intel_vgpu_type *type;
+	struct intel_gvt *gvt = kdev_to_i915(mtype_get_parent_dev(mtype))->gvt;
+
+	type = &gvt->types[mtype_get_type_group_id(mtype)];
+	if (!type)
+		return 0;
+
+	return sprintf(buf, "low_gm_size: %dMB\nhigh_gm_size: %dMB\n"
+		       "fence: %d\nresolution: %s\n"
+		       "weight: %d\n",
+		       BYTES_TO_MB(type->low_gm_size),
+		       BYTES_TO_MB(type->high_gm_size),
+		       type->fence, vgpu_edid_str(type->resolution),
+		       type->weight);
+}
+
+static MDEV_TYPE_ATTR_RO(available_instances);
+static MDEV_TYPE_ATTR_RO(device_api);
+static MDEV_TYPE_ATTR_RO(description);
+
+static struct attribute *gvt_type_attrs[] = {
+	&mdev_type_attr_available_instances.attr,
+	&mdev_type_attr_device_api.attr,
+	&mdev_type_attr_description.attr,
+	NULL,
+};
+
+static struct attribute_group *gvt_vgpu_type_groups[] = {
+	[0 ... NR_MAX_INTEL_VGPU_TYPES - 1] = NULL,
+};
+
+static int intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
+{
+	int i, j;
+	struct intel_vgpu_type *type;
+	struct attribute_group *group;
+
+	for (i = 0; i < gvt->num_types; i++) {
+		type = &gvt->types[i];
+
+		group = kzalloc(sizeof(struct attribute_group), GFP_KERNEL);
+		if (!group)
+			goto unwind;
+
+		group->name = type->name;
+		group->attrs = gvt_type_attrs;
+		gvt_vgpu_type_groups[i] = group;
+	}
+
+	return 0;
+
+unwind:
+	for (j = 0; j < i; j++) {
+		group = gvt_vgpu_type_groups[j];
+		kfree(group);
+	}
+
+	return -ENOMEM;
+}
+
+static void intel_gvt_cleanup_vgpu_type_groups(struct intel_gvt *gvt)
+{
+	int i;
+	struct attribute_group *group;
+
+	for (i = 0; i < gvt->num_types; i++) {
+		group = gvt_vgpu_type_groups[i];
+		gvt_vgpu_type_groups[i] = NULL;
+		kfree(group);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int kvmgt_guest_init(struct mdev_device *mdev);
 static void intel_vgpu_release_work(struct work_struct *work);
 static bool kvmgt_guest_exit(struct kvmgt_guest_info *info);
@@ -113,6 +272,11 @@ static bool kvmgt_guest_exit(struct kvmgt_guest_info *info);
 static void gvt_unpin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
 		unsigned long size)
 {
+<<<<<<< HEAD
+=======
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+>>>>>>> upstream/android-13
 	int total_pages;
 	int npage;
 	int ret;
@@ -122,8 +286,13 @@ static void gvt_unpin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
 	for (npage = 0; npage < total_pages; npage++) {
 		unsigned long cur_gfn = gfn + npage;
 
+<<<<<<< HEAD
 		ret = vfio_unpin_pages(mdev_dev(vgpu->vdev.mdev), &cur_gfn, 1);
 		WARN_ON(ret != 1);
+=======
+		ret = vfio_group_unpin_pages(vdev->vfio_group, &cur_gfn, 1);
+		drm_WARN_ON(&i915->drm, ret != 1);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -131,6 +300,10 @@ static void gvt_unpin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
 static int gvt_pin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
 		unsigned long size, struct page **page)
 {
+<<<<<<< HEAD
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+>>>>>>> upstream/android-13
 	unsigned long base_pfn = 0;
 	int total_pages;
 	int npage;
@@ -145,8 +318,13 @@ static int gvt_pin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
 		unsigned long cur_gfn = gfn + npage;
 		unsigned long pfn;
 
+<<<<<<< HEAD
 		ret = vfio_pin_pages(mdev_dev(vgpu->vdev.mdev), &cur_gfn, 1,
 				     IOMMU_READ | IOMMU_WRITE, &pfn);
+=======
+		ret = vfio_group_pin_pages(vdev->vfio_group, &cur_gfn, 1,
+					   IOMMU_READ | IOMMU_WRITE, &pfn);
+>>>>>>> upstream/android-13
 		if (ret != 1) {
 			gvt_vgpu_err("vfio_pin_pages failed for gfn 0x%lx, ret %d\n",
 				     cur_gfn, ret);
@@ -180,7 +358,11 @@ err:
 static int gvt_dma_map_page(struct intel_vgpu *vgpu, unsigned long gfn,
 		dma_addr_t *dma_addr, unsigned long size)
 {
+<<<<<<< HEAD
 	struct device *dev = &vgpu->gvt->dev_priv->drm.pdev->dev;
+=======
+	struct device *dev = vgpu->gvt->gt->i915->drm.dev;
+>>>>>>> upstream/android-13
 	struct page *page = NULL;
 	int ret;
 
@@ -203,7 +385,11 @@ static int gvt_dma_map_page(struct intel_vgpu *vgpu, unsigned long gfn,
 static void gvt_dma_unmap_page(struct intel_vgpu *vgpu, unsigned long gfn,
 		dma_addr_t dma_addr, unsigned long size)
 {
+<<<<<<< HEAD
 	struct device *dev = &vgpu->gvt->dev_priv->drm.pdev->dev;
+=======
+	struct device *dev = vgpu->gvt->gt->i915->drm.dev;
+>>>>>>> upstream/android-13
 
 	dma_unmap_page(dev, dma_addr, size, PCI_DMA_BIDIRECTIONAL);
 	gvt_unpin_guest_page(vgpu, gfn, size);
@@ -212,7 +398,11 @@ static void gvt_dma_unmap_page(struct intel_vgpu *vgpu, unsigned long gfn,
 static struct gvt_dma *__gvt_cache_find_dma_addr(struct intel_vgpu *vgpu,
 		dma_addr_t dma_addr)
 {
+<<<<<<< HEAD
 	struct rb_node *node = vgpu->vdev.dma_addr_cache.rb_node;
+=======
+	struct rb_node *node = kvmgt_vdev(vgpu)->dma_addr_cache.rb_node;
+>>>>>>> upstream/android-13
 	struct gvt_dma *itr;
 
 	while (node) {
@@ -230,7 +420,11 @@ static struct gvt_dma *__gvt_cache_find_dma_addr(struct intel_vgpu *vgpu,
 
 static struct gvt_dma *__gvt_cache_find_gfn(struct intel_vgpu *vgpu, gfn_t gfn)
 {
+<<<<<<< HEAD
 	struct rb_node *node = vgpu->vdev.gfn_cache.rb_node;
+=======
+	struct rb_node *node = kvmgt_vdev(vgpu)->gfn_cache.rb_node;
+>>>>>>> upstream/android-13
 	struct gvt_dma *itr;
 
 	while (node) {
@@ -251,6 +445,10 @@ static int __gvt_cache_add(struct intel_vgpu *vgpu, gfn_t gfn,
 {
 	struct gvt_dma *new, *itr;
 	struct rb_node **link, *parent = NULL;
+<<<<<<< HEAD
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+>>>>>>> upstream/android-13
 
 	new = kzalloc(sizeof(struct gvt_dma), GFP_KERNEL);
 	if (!new)
@@ -263,7 +461,11 @@ static int __gvt_cache_add(struct intel_vgpu *vgpu, gfn_t gfn,
 	kref_init(&new->ref);
 
 	/* gfn_cache maps gfn to struct gvt_dma. */
+<<<<<<< HEAD
 	link = &vgpu->vdev.gfn_cache.rb_node;
+=======
+	link = &vdev->gfn_cache.rb_node;
+>>>>>>> upstream/android-13
 	while (*link) {
 		parent = *link;
 		itr = rb_entry(parent, struct gvt_dma, gfn_node);
@@ -274,11 +476,19 @@ static int __gvt_cache_add(struct intel_vgpu *vgpu, gfn_t gfn,
 			link = &parent->rb_right;
 	}
 	rb_link_node(&new->gfn_node, parent, link);
+<<<<<<< HEAD
 	rb_insert_color(&new->gfn_node, &vgpu->vdev.gfn_cache);
 
 	/* dma_addr_cache maps dma addr to struct gvt_dma. */
 	parent = NULL;
 	link = &vgpu->vdev.dma_addr_cache.rb_node;
+=======
+	rb_insert_color(&new->gfn_node, &vdev->gfn_cache);
+
+	/* dma_addr_cache maps dma addr to struct gvt_dma. */
+	parent = NULL;
+	link = &vdev->dma_addr_cache.rb_node;
+>>>>>>> upstream/android-13
 	while (*link) {
 		parent = *link;
 		itr = rb_entry(parent, struct gvt_dma, dma_addr_node);
@@ -289,46 +499,84 @@ static int __gvt_cache_add(struct intel_vgpu *vgpu, gfn_t gfn,
 			link = &parent->rb_right;
 	}
 	rb_link_node(&new->dma_addr_node, parent, link);
+<<<<<<< HEAD
 	rb_insert_color(&new->dma_addr_node, &vgpu->vdev.dma_addr_cache);
 
 	vgpu->vdev.nr_cache_entries++;
+=======
+	rb_insert_color(&new->dma_addr_node, &vdev->dma_addr_cache);
+
+	vdev->nr_cache_entries++;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void __gvt_cache_remove_entry(struct intel_vgpu *vgpu,
 				struct gvt_dma *entry)
 {
+<<<<<<< HEAD
 	rb_erase(&entry->gfn_node, &vgpu->vdev.gfn_cache);
 	rb_erase(&entry->dma_addr_node, &vgpu->vdev.dma_addr_cache);
 	kfree(entry);
 	vgpu->vdev.nr_cache_entries--;
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+
+	rb_erase(&entry->gfn_node, &vdev->gfn_cache);
+	rb_erase(&entry->dma_addr_node, &vdev->dma_addr_cache);
+	kfree(entry);
+	vdev->nr_cache_entries--;
+>>>>>>> upstream/android-13
 }
 
 static void gvt_cache_destroy(struct intel_vgpu *vgpu)
 {
 	struct gvt_dma *dma;
 	struct rb_node *node = NULL;
+<<<<<<< HEAD
 
 	for (;;) {
 		mutex_lock(&vgpu->vdev.cache_lock);
 		node = rb_first(&vgpu->vdev.gfn_cache);
 		if (!node) {
 			mutex_unlock(&vgpu->vdev.cache_lock);
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+
+	for (;;) {
+		mutex_lock(&vdev->cache_lock);
+		node = rb_first(&vdev->gfn_cache);
+		if (!node) {
+			mutex_unlock(&vdev->cache_lock);
+>>>>>>> upstream/android-13
 			break;
 		}
 		dma = rb_entry(node, struct gvt_dma, gfn_node);
 		gvt_dma_unmap_page(vgpu, dma->gfn, dma->dma_addr, dma->size);
 		__gvt_cache_remove_entry(vgpu, dma);
+<<<<<<< HEAD
 		mutex_unlock(&vgpu->vdev.cache_lock);
+=======
+		mutex_unlock(&vdev->cache_lock);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void gvt_cache_init(struct intel_vgpu *vgpu)
 {
+<<<<<<< HEAD
 	vgpu->vdev.gfn_cache = RB_ROOT;
 	vgpu->vdev.dma_addr_cache = RB_ROOT;
 	vgpu->vdev.nr_cache_entries = 0;
 	mutex_init(&vgpu->vdev.cache_lock);
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+
+	vdev->gfn_cache = RB_ROOT;
+	vdev->dma_addr_cache = RB_ROOT;
+	vdev->nr_cache_entries = 0;
+	mutex_init(&vdev->cache_lock);
+>>>>>>> upstream/android-13
 }
 
 static void kvmgt_protect_table_init(struct kvmgt_guest_info *info)
@@ -402,6 +650,7 @@ static void kvmgt_protect_table_del(struct kvmgt_guest_info *info,
 static size_t intel_vgpu_reg_rw_opregion(struct intel_vgpu *vgpu, char *buf,
 		size_t count, loff_t *ppos, bool iswrite)
 {
+<<<<<<< HEAD
 	unsigned int i = VFIO_PCI_OFFSET_TO_INDEX(*ppos) -
 			VFIO_PCI_NUM_REGIONS;
 	void *base = vgpu->vdev.region[i].data;
@@ -412,6 +661,20 @@ static size_t intel_vgpu_reg_rw_opregion(struct intel_vgpu *vgpu, char *buf,
 		return -EINVAL;
 	}
 	count = min(count, (size_t)(vgpu->vdev.region[i].size - pos));
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+	unsigned int i = VFIO_PCI_OFFSET_TO_INDEX(*ppos) -
+			VFIO_PCI_NUM_REGIONS;
+	void *base = vdev->region[i].data;
+	loff_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
+
+
+	if (pos >= vdev->region[i].size || iswrite) {
+		gvt_vgpu_err("invalid op or offset for Intel vgpu OpRegion\n");
+		return -EINVAL;
+	}
+	count = min(count, (size_t)(vdev->region[i].size - pos));
+>>>>>>> upstream/android-13
 	memcpy(buf, base + pos, count);
 
 	return count;
@@ -427,19 +690,136 @@ static const struct intel_vgpu_regops intel_vgpu_regops_opregion = {
 	.release = intel_vgpu_reg_release_opregion,
 };
 
+<<<<<<< HEAD
+=======
+static int handle_edid_regs(struct intel_vgpu *vgpu,
+			struct vfio_edid_region *region, char *buf,
+			size_t count, u16 offset, bool is_write)
+{
+	struct vfio_region_gfx_edid *regs = &region->vfio_edid_regs;
+	unsigned int data;
+
+	if (offset + count > sizeof(*regs))
+		return -EINVAL;
+
+	if (count != 4)
+		return -EINVAL;
+
+	if (is_write) {
+		data = *((unsigned int *)buf);
+		switch (offset) {
+		case offsetof(struct vfio_region_gfx_edid, link_state):
+			if (data == VFIO_DEVICE_GFX_LINK_STATE_UP) {
+				if (!drm_edid_block_valid(
+					(u8 *)region->edid_blob,
+					0,
+					true,
+					NULL)) {
+					gvt_vgpu_err("invalid EDID blob\n");
+					return -EINVAL;
+				}
+				intel_gvt_ops->emulate_hotplug(vgpu, true);
+			} else if (data == VFIO_DEVICE_GFX_LINK_STATE_DOWN)
+				intel_gvt_ops->emulate_hotplug(vgpu, false);
+			else {
+				gvt_vgpu_err("invalid EDID link state %d\n",
+					regs->link_state);
+				return -EINVAL;
+			}
+			regs->link_state = data;
+			break;
+		case offsetof(struct vfio_region_gfx_edid, edid_size):
+			if (data > regs->edid_max_size) {
+				gvt_vgpu_err("EDID size is bigger than %d!\n",
+					regs->edid_max_size);
+				return -EINVAL;
+			}
+			regs->edid_size = data;
+			break;
+		default:
+			/* read-only regs */
+			gvt_vgpu_err("write read-only EDID region at offset %d\n",
+				offset);
+			return -EPERM;
+		}
+	} else {
+		memcpy(buf, (char *)regs + offset, count);
+	}
+
+	return count;
+}
+
+static int handle_edid_blob(struct vfio_edid_region *region, char *buf,
+			size_t count, u16 offset, bool is_write)
+{
+	if (offset + count > region->vfio_edid_regs.edid_size)
+		return -EINVAL;
+
+	if (is_write)
+		memcpy(region->edid_blob + offset, buf, count);
+	else
+		memcpy(buf, region->edid_blob + offset, count);
+
+	return count;
+}
+
+static size_t intel_vgpu_reg_rw_edid(struct intel_vgpu *vgpu, char *buf,
+		size_t count, loff_t *ppos, bool iswrite)
+{
+	int ret;
+	unsigned int i = VFIO_PCI_OFFSET_TO_INDEX(*ppos) -
+			VFIO_PCI_NUM_REGIONS;
+	struct vfio_edid_region *region =
+		(struct vfio_edid_region *)kvmgt_vdev(vgpu)->region[i].data;
+	loff_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
+
+	if (pos < region->vfio_edid_regs.edid_offset) {
+		ret = handle_edid_regs(vgpu, region, buf, count, pos, iswrite);
+	} else {
+		pos -= EDID_BLOB_OFFSET;
+		ret = handle_edid_blob(region, buf, count, pos, iswrite);
+	}
+
+	if (ret < 0)
+		gvt_vgpu_err("failed to access EDID region\n");
+
+	return ret;
+}
+
+static void intel_vgpu_reg_release_edid(struct intel_vgpu *vgpu,
+					struct vfio_region *region)
+{
+	kfree(region->data);
+}
+
+static const struct intel_vgpu_regops intel_vgpu_regops_edid = {
+	.rw = intel_vgpu_reg_rw_edid,
+	.release = intel_vgpu_reg_release_edid,
+};
+
+>>>>>>> upstream/android-13
 static int intel_vgpu_register_reg(struct intel_vgpu *vgpu,
 		unsigned int type, unsigned int subtype,
 		const struct intel_vgpu_regops *ops,
 		size_t size, u32 flags, void *data)
 {
+<<<<<<< HEAD
 	struct vfio_region *region;
 
 	region = krealloc(vgpu->vdev.region,
 			(vgpu->vdev.num_regions + 1) * sizeof(*region),
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+	struct vfio_region *region;
+
+	region = krealloc(vdev->region,
+			(vdev->num_regions + 1) * sizeof(*region),
+>>>>>>> upstream/android-13
 			GFP_KERNEL);
 	if (!region)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	vgpu->vdev.region = region;
 	vgpu->vdev.region[vgpu->vdev.num_regions].type = type;
 	vgpu->vdev.region[vgpu->vdev.num_regions].subtype = subtype;
@@ -448,16 +828,34 @@ static int intel_vgpu_register_reg(struct intel_vgpu *vgpu,
 	vgpu->vdev.region[vgpu->vdev.num_regions].flags = flags;
 	vgpu->vdev.region[vgpu->vdev.num_regions].data = data;
 	vgpu->vdev.num_regions++;
+=======
+	vdev->region = region;
+	vdev->region[vdev->num_regions].type = type;
+	vdev->region[vdev->num_regions].subtype = subtype;
+	vdev->region[vdev->num_regions].ops = ops;
+	vdev->region[vdev->num_regions].size = size;
+	vdev->region[vdev->num_regions].flags = flags;
+	vdev->region[vdev->num_regions].data = data;
+	vdev->num_regions++;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int kvmgt_get_vfio_device(void *p_vgpu)
 {
 	struct intel_vgpu *vgpu = (struct intel_vgpu *)p_vgpu;
+<<<<<<< HEAD
 
 	vgpu->vdev.vfio_device = vfio_device_get_from_dev(
 		mdev_dev(vgpu->vdev.mdev));
 	if (!vgpu->vdev.vfio_device) {
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+
+	vdev->vfio_device = vfio_device_get_from_dev(
+		mdev_dev(vdev->mdev));
+	if (!vdev->vfio_device) {
+>>>>>>> upstream/android-13
 		gvt_vgpu_err("failed to get vfio device\n");
 		return -ENODEV;
 	}
@@ -493,6 +891,7 @@ static int kvmgt_set_opregion(void *p_vgpu)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void kvmgt_put_vfio_device(void *vgpu)
 {
 	if (WARN_ON(!((struct intel_vgpu *)vgpu)->vdev.vfio_device))
@@ -502,20 +901,72 @@ static void kvmgt_put_vfio_device(void *vgpu)
 }
 
 static int intel_vgpu_create(struct kobject *kobj, struct mdev_device *mdev)
+=======
+static int kvmgt_set_edid(void *p_vgpu, int port_num)
+{
+	struct intel_vgpu *vgpu = (struct intel_vgpu *)p_vgpu;
+	struct intel_vgpu_port *port = intel_vgpu_port(vgpu, port_num);
+	struct vfio_edid_region *base;
+	int ret;
+
+	base = kzalloc(sizeof(*base), GFP_KERNEL);
+	if (!base)
+		return -ENOMEM;
+
+	/* TODO: Add multi-port and EDID extension block support */
+	base->vfio_edid_regs.edid_offset = EDID_BLOB_OFFSET;
+	base->vfio_edid_regs.edid_max_size = EDID_SIZE;
+	base->vfio_edid_regs.edid_size = EDID_SIZE;
+	base->vfio_edid_regs.max_xres = vgpu_edid_xres(port->id);
+	base->vfio_edid_regs.max_yres = vgpu_edid_yres(port->id);
+	base->edid_blob = port->edid->edid_block;
+
+	ret = intel_vgpu_register_reg(vgpu,
+			VFIO_REGION_TYPE_GFX,
+			VFIO_REGION_SUBTYPE_GFX_EDID,
+			&intel_vgpu_regops_edid, EDID_SIZE,
+			VFIO_REGION_INFO_FLAG_READ |
+			VFIO_REGION_INFO_FLAG_WRITE |
+			VFIO_REGION_INFO_FLAG_CAPS, base);
+
+	return ret;
+}
+
+static void kvmgt_put_vfio_device(void *vgpu)
+{
+	struct kvmgt_vdev *vdev = kvmgt_vdev((struct intel_vgpu *)vgpu);
+
+	if (WARN_ON(!vdev->vfio_device))
+		return;
+
+	vfio_device_put(vdev->vfio_device);
+}
+
+static int intel_vgpu_create(struct mdev_device *mdev)
+>>>>>>> upstream/android-13
 {
 	struct intel_vgpu *vgpu = NULL;
 	struct intel_vgpu_type *type;
 	struct device *pdev;
+<<<<<<< HEAD
 	void *gvt;
+=======
+	struct intel_gvt *gvt;
+>>>>>>> upstream/android-13
 	int ret;
 
 	pdev = mdev_parent_dev(mdev);
 	gvt = kdev_to_i915(pdev)->gvt;
 
+<<<<<<< HEAD
 	type = intel_gvt_ops->gvt_find_vgpu_type(gvt, kobject_name(kobj));
 	if (!type) {
 		gvt_vgpu_err("failed to find type %s to create\n",
 						kobject_name(kobj));
+=======
+	type = &gvt->types[mdev_get_type_group_id(mdev)];
+	if (!type) {
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out;
 	}
@@ -527,9 +978,15 @@ static int intel_vgpu_create(struct kobject *kobj, struct mdev_device *mdev)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	INIT_WORK(&vgpu->vdev.release_work, intel_vgpu_release_work);
 
 	vgpu->vdev.mdev = mdev;
+=======
+	INIT_WORK(&kvmgt_vdev(vgpu)->release_work, intel_vgpu_release_work);
+
+	kvmgt_vdev(vgpu)->mdev = mdev;
+>>>>>>> upstream/android-13
 	mdev_set_drvdata(mdev, vgpu);
 
 	gvt_dbg_core("intel_vgpu_create succeeded for mdev: %s\n",
@@ -554,9 +1011,16 @@ static int intel_vgpu_remove(struct mdev_device *mdev)
 static int intel_vgpu_iommu_notifier(struct notifier_block *nb,
 				     unsigned long action, void *data)
 {
+<<<<<<< HEAD
 	struct intel_vgpu *vgpu = container_of(nb,
 					struct intel_vgpu,
 					vdev.iommu_notifier);
+=======
+	struct kvmgt_vdev *vdev = container_of(nb,
+					       struct kvmgt_vdev,
+					       iommu_notifier);
+	struct intel_vgpu *vgpu = vdev->vgpu;
+>>>>>>> upstream/android-13
 
 	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
 		struct vfio_iommu_type1_dma_unmap *unmap = data;
@@ -566,7 +1030,11 @@ static int intel_vgpu_iommu_notifier(struct notifier_block *nb,
 		iov_pfn = unmap->iova >> PAGE_SHIFT;
 		end_iov_pfn = iov_pfn + unmap->size / PAGE_SIZE;
 
+<<<<<<< HEAD
 		mutex_lock(&vgpu->vdev.cache_lock);
+=======
+		mutex_lock(&vdev->cache_lock);
+>>>>>>> upstream/android-13
 		for (; iov_pfn < end_iov_pfn; iov_pfn++) {
 			entry = __gvt_cache_find_gfn(vgpu, iov_pfn);
 			if (!entry)
@@ -576,7 +1044,11 @@ static int intel_vgpu_iommu_notifier(struct notifier_block *nb,
 					   entry->size);
 			__gvt_cache_remove_entry(vgpu, entry);
 		}
+<<<<<<< HEAD
 		mutex_unlock(&vgpu->vdev.cache_lock);
+=======
+		mutex_unlock(&vdev->cache_lock);
+>>>>>>> upstream/android-13
 	}
 
 	return NOTIFY_OK;
@@ -585,6 +1057,7 @@ static int intel_vgpu_iommu_notifier(struct notifier_block *nb,
 static int intel_vgpu_group_notifier(struct notifier_block *nb,
 				     unsigned long action, void *data)
 {
+<<<<<<< HEAD
 	struct intel_vgpu *vgpu = container_of(nb,
 					struct intel_vgpu,
 					vdev.group_notifier);
@@ -595,11 +1068,24 @@ static int intel_vgpu_group_notifier(struct notifier_block *nb,
 
 		if (!data)
 			schedule_work(&vgpu->vdev.release_work);
+=======
+	struct kvmgt_vdev *vdev = container_of(nb,
+					       struct kvmgt_vdev,
+					       group_notifier);
+
+	/* the only action we care about */
+	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
+		vdev->kvm = data;
+
+		if (!data)
+			schedule_work(&vdev->release_work);
+>>>>>>> upstream/android-13
 	}
 
 	return NOTIFY_OK;
 }
 
+<<<<<<< HEAD
 static int intel_vgpu_open(struct mdev_device *mdev)
 {
 	struct intel_vgpu *vgpu = mdev_get_drvdata(mdev);
@@ -612,6 +1098,22 @@ static int intel_vgpu_open(struct mdev_device *mdev)
 	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
 	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY, &events,
 				&vgpu->vdev.iommu_notifier);
+=======
+static int intel_vgpu_open_device(struct mdev_device *mdev)
+{
+	struct intel_vgpu *vgpu = mdev_get_drvdata(mdev);
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+	unsigned long events;
+	int ret;
+	struct vfio_group *vfio_group;
+
+	vdev->iommu_notifier.notifier_call = intel_vgpu_iommu_notifier;
+	vdev->group_notifier.notifier_call = intel_vgpu_group_notifier;
+
+	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY, &events,
+				&vdev->iommu_notifier);
+>>>>>>> upstream/android-13
 	if (ret != 0) {
 		gvt_vgpu_err("vfio_register_notifier for iommu failed: %d\n",
 			ret);
@@ -620,19 +1122,43 @@ static int intel_vgpu_open(struct mdev_device *mdev)
 
 	events = VFIO_GROUP_NOTIFY_SET_KVM;
 	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY, &events,
+<<<<<<< HEAD
 				&vgpu->vdev.group_notifier);
+=======
+				&vdev->group_notifier);
+>>>>>>> upstream/android-13
 	if (ret != 0) {
 		gvt_vgpu_err("vfio_register_notifier for group failed: %d\n",
 			ret);
 		goto undo_iommu;
 	}
 
+<<<<<<< HEAD
+=======
+	vfio_group = vfio_group_get_external_user_from_dev(mdev_dev(mdev));
+	if (IS_ERR_OR_NULL(vfio_group)) {
+		ret = !vfio_group ? -EFAULT : PTR_ERR(vfio_group);
+		gvt_vgpu_err("vfio_group_get_external_user_from_dev failed\n");
+		goto undo_register;
+	}
+	vdev->vfio_group = vfio_group;
+
+	/* Take a module reference as mdev core doesn't take
+	 * a reference for vendor driver.
+	 */
+	if (!try_module_get(THIS_MODULE)) {
+		ret = -ENODEV;
+		goto undo_group;
+	}
+
+>>>>>>> upstream/android-13
 	ret = kvmgt_guest_init(mdev);
 	if (ret)
 		goto undo_group;
 
 	intel_gvt_ops->vgpu_activate(vgpu);
 
+<<<<<<< HEAD
 	atomic_set(&vgpu->vdev.released, 0);
 	return ret;
 
@@ -643,34 +1169,70 @@ undo_group:
 undo_iommu:
 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
 					&vgpu->vdev.iommu_notifier);
+=======
+	atomic_set(&vdev->released, 0);
+	return ret;
+
+undo_group:
+	vfio_group_put_external_user(vdev->vfio_group);
+	vdev->vfio_group = NULL;
+
+undo_register:
+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+					&vdev->group_notifier);
+
+undo_iommu:
+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+					&vdev->iommu_notifier);
+>>>>>>> upstream/android-13
 out:
 	return ret;
 }
 
 static void intel_vgpu_release_msi_eventfd_ctx(struct intel_vgpu *vgpu)
 {
+<<<<<<< HEAD
 	struct eventfd_ctx *trigger;
 
 	trigger = vgpu->vdev.msi_trigger;
 	if (trigger) {
 		eventfd_ctx_put(trigger);
 		vgpu->vdev.msi_trigger = NULL;
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+	struct eventfd_ctx *trigger;
+
+	trigger = vdev->msi_trigger;
+	if (trigger) {
+		eventfd_ctx_put(trigger);
+		vdev->msi_trigger = NULL;
+>>>>>>> upstream/android-13
 	}
 }
 
 static void __intel_vgpu_release(struct intel_vgpu *vgpu)
 {
+<<<<<<< HEAD
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+	struct drm_i915_private *i915 = vgpu->gvt->gt->i915;
+>>>>>>> upstream/android-13
 	struct kvmgt_guest_info *info;
 	int ret;
 
 	if (!handle_valid(vgpu->handle))
 		return;
 
+<<<<<<< HEAD
 	if (atomic_cmpxchg(&vgpu->vdev.released, 0, 1))
+=======
+	if (atomic_cmpxchg(&vdev->released, 0, 1))
+>>>>>>> upstream/android-13
 		return;
 
 	intel_gvt_ops->vgpu_release(vgpu);
 
+<<<<<<< HEAD
 	ret = vfio_unregister_notifier(mdev_dev(vgpu->vdev.mdev), VFIO_IOMMU_NOTIFY,
 					&vgpu->vdev.iommu_notifier);
 	WARN(ret, "vfio_unregister_notifier for iommu failed: %d\n", ret);
@@ -678,17 +1240,41 @@ static void __intel_vgpu_release(struct intel_vgpu *vgpu)
 	ret = vfio_unregister_notifier(mdev_dev(vgpu->vdev.mdev), VFIO_GROUP_NOTIFY,
 					&vgpu->vdev.group_notifier);
 	WARN(ret, "vfio_unregister_notifier for group failed: %d\n", ret);
+=======
+	ret = vfio_unregister_notifier(mdev_dev(vdev->mdev), VFIO_IOMMU_NOTIFY,
+					&vdev->iommu_notifier);
+	drm_WARN(&i915->drm, ret,
+		 "vfio_unregister_notifier for iommu failed: %d\n", ret);
+
+	ret = vfio_unregister_notifier(mdev_dev(vdev->mdev), VFIO_GROUP_NOTIFY,
+					&vdev->group_notifier);
+	drm_WARN(&i915->drm, ret,
+		 "vfio_unregister_notifier for group failed: %d\n", ret);
+
+	/* dereference module reference taken at open */
+	module_put(THIS_MODULE);
+>>>>>>> upstream/android-13
 
 	info = (struct kvmgt_guest_info *)vgpu->handle;
 	kvmgt_guest_exit(info);
 
 	intel_vgpu_release_msi_eventfd_ctx(vgpu);
+<<<<<<< HEAD
 
 	vgpu->vdev.kvm = NULL;
 	vgpu->handle = 0;
 }
 
 static void intel_vgpu_release(struct mdev_device *mdev)
+=======
+	vfio_group_put_external_user(vdev->vfio_group);
+
+	vdev->kvm = NULL;
+	vgpu->handle = 0;
+}
+
+static void intel_vgpu_close_device(struct mdev_device *mdev)
+>>>>>>> upstream/android-13
 {
 	struct intel_vgpu *vgpu = mdev_get_drvdata(mdev);
 
@@ -697,6 +1283,7 @@ static void intel_vgpu_release(struct mdev_device *mdev)
 
 static void intel_vgpu_release_work(struct work_struct *work)
 {
+<<<<<<< HEAD
 	struct intel_vgpu *vgpu = container_of(work, struct intel_vgpu,
 					vdev.release_work);
 
@@ -704,6 +1291,15 @@ static void intel_vgpu_release_work(struct work_struct *work)
 }
 
 static uint64_t intel_vgpu_get_bar_addr(struct intel_vgpu *vgpu, int bar)
+=======
+	struct kvmgt_vdev *vdev = container_of(work, struct kvmgt_vdev,
+					       release_work);
+
+	__intel_vgpu_release(vdev->vgpu);
+}
+
+static u64 intel_vgpu_get_bar_addr(struct intel_vgpu *vgpu, int bar)
+>>>>>>> upstream/android-13
 {
 	u32 start_lo, start_hi;
 	u32 mem_type;
@@ -730,10 +1326,17 @@ static uint64_t intel_vgpu_get_bar_addr(struct intel_vgpu *vgpu, int bar)
 	return ((u64)start_hi << 32) | start_lo;
 }
 
+<<<<<<< HEAD
 static int intel_vgpu_bar_rw(struct intel_vgpu *vgpu, int bar, uint64_t off,
 			     void *buf, unsigned int count, bool is_write)
 {
 	uint64_t bar_start = intel_vgpu_get_bar_addr(vgpu, bar);
+=======
+static int intel_vgpu_bar_rw(struct intel_vgpu *vgpu, int bar, u64 off,
+			     void *buf, unsigned int count, bool is_write)
+{
+	u64 bar_start = intel_vgpu_get_bar_addr(vgpu, bar);
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (is_write)
@@ -745,16 +1348,27 @@ static int intel_vgpu_bar_rw(struct intel_vgpu *vgpu, int bar, uint64_t off,
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline bool intel_vgpu_in_aperture(struct intel_vgpu *vgpu, uint64_t off)
+=======
+static inline bool intel_vgpu_in_aperture(struct intel_vgpu *vgpu, u64 off)
+>>>>>>> upstream/android-13
 {
 	return off >= vgpu_aperture_offset(vgpu) &&
 	       off < vgpu_aperture_offset(vgpu) + vgpu_aperture_sz(vgpu);
 }
 
+<<<<<<< HEAD
 static int intel_vgpu_aperture_rw(struct intel_vgpu *vgpu, uint64_t off,
 		void *buf, unsigned long count, bool is_write)
 {
 	void *aperture_va;
+=======
+static int intel_vgpu_aperture_rw(struct intel_vgpu *vgpu, u64 off,
+		void *buf, unsigned long count, bool is_write)
+{
+	void __iomem *aperture_va;
+>>>>>>> upstream/android-13
 
 	if (!intel_vgpu_in_aperture(vgpu, off) ||
 	    !intel_vgpu_in_aperture(vgpu, off + count)) {
@@ -762,16 +1376,26 @@ static int intel_vgpu_aperture_rw(struct intel_vgpu *vgpu, uint64_t off,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	aperture_va = io_mapping_map_wc(&vgpu->gvt->dev_priv->ggtt.iomap,
+=======
+	aperture_va = io_mapping_map_wc(&vgpu->gvt->gt->ggtt->iomap,
+>>>>>>> upstream/android-13
 					ALIGN_DOWN(off, PAGE_SIZE),
 					count + offset_in_page(off));
 	if (!aperture_va)
 		return -EIO;
 
 	if (is_write)
+<<<<<<< HEAD
 		memcpy(aperture_va + offset_in_page(off), buf, count);
 	else
 		memcpy(buf, aperture_va + offset_in_page(off), count);
+=======
+		memcpy_toio(aperture_va + offset_in_page(off), buf, count);
+	else
+		memcpy_fromio(buf, aperture_va + offset_in_page(off), count);
+>>>>>>> upstream/android-13
 
 	io_mapping_unmap(aperture_va);
 
@@ -782,12 +1406,22 @@ static ssize_t intel_vgpu_rw(struct mdev_device *mdev, char *buf,
 			size_t count, loff_t *ppos, bool is_write)
 {
 	struct intel_vgpu *vgpu = mdev_get_drvdata(mdev);
+<<<<<<< HEAD
 	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
 	uint64_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
 	int ret = -EINVAL;
 
 
 	if (index >= VFIO_PCI_NUM_REGIONS + vgpu->vdev.num_regions) {
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
+	u64 pos = *ppos & VFIO_PCI_OFFSET_MASK;
+	int ret = -EINVAL;
+
+
+	if (index >= VFIO_PCI_NUM_REGIONS + vdev->num_regions) {
+>>>>>>> upstream/android-13
 		gvt_vgpu_err("invalid index: %u\n", index);
 		return -EINVAL;
 	}
@@ -816,11 +1450,19 @@ static ssize_t intel_vgpu_rw(struct mdev_device *mdev, char *buf,
 	case VFIO_PCI_ROM_REGION_INDEX:
 		break;
 	default:
+<<<<<<< HEAD
 		if (index >= VFIO_PCI_NUM_REGIONS + vgpu->vdev.num_regions)
 			return -EINVAL;
 
 		index -= VFIO_PCI_NUM_REGIONS;
 		return vgpu->vdev.region[index].ops->rw(vgpu, buf, count,
+=======
+		if (index >= VFIO_PCI_NUM_REGIONS + vdev->num_regions)
+			return -EINVAL;
+
+		index -= VFIO_PCI_NUM_REGIONS;
+		return vdev->region[index].ops->rw(vgpu, buf, count,
+>>>>>>> upstream/android-13
 				ppos, is_write);
 	}
 
@@ -1039,7 +1681,11 @@ static int intel_vgpu_get_irq_count(struct intel_vgpu *vgpu, int type)
 
 static int intel_vgpu_set_intx_mask(struct intel_vgpu *vgpu,
 			unsigned int index, unsigned int start,
+<<<<<<< HEAD
 			unsigned int count, uint32_t flags,
+=======
+			unsigned int count, u32 flags,
+>>>>>>> upstream/android-13
 			void *data)
 {
 	return 0;
@@ -1047,21 +1693,33 @@ static int intel_vgpu_set_intx_mask(struct intel_vgpu *vgpu,
 
 static int intel_vgpu_set_intx_unmask(struct intel_vgpu *vgpu,
 			unsigned int index, unsigned int start,
+<<<<<<< HEAD
 			unsigned int count, uint32_t flags, void *data)
+=======
+			unsigned int count, u32 flags, void *data)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
 static int intel_vgpu_set_intx_trigger(struct intel_vgpu *vgpu,
 		unsigned int index, unsigned int start, unsigned int count,
+<<<<<<< HEAD
 		uint32_t flags, void *data)
+=======
+		u32 flags, void *data)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
 static int intel_vgpu_set_msi_trigger(struct intel_vgpu *vgpu,
 		unsigned int index, unsigned int start, unsigned int count,
+<<<<<<< HEAD
 		uint32_t flags, void *data)
+=======
+		u32 flags, void *data)
+>>>>>>> upstream/android-13
 {
 	struct eventfd_ctx *trigger;
 
@@ -1073,19 +1731,31 @@ static int intel_vgpu_set_msi_trigger(struct intel_vgpu *vgpu,
 			gvt_vgpu_err("eventfd_ctx_fdget failed\n");
 			return PTR_ERR(trigger);
 		}
+<<<<<<< HEAD
 		vgpu->vdev.msi_trigger = trigger;
+=======
+		kvmgt_vdev(vgpu)->msi_trigger = trigger;
+>>>>>>> upstream/android-13
 	} else if ((flags & VFIO_IRQ_SET_DATA_NONE) && !count)
 		intel_vgpu_release_msi_eventfd_ctx(vgpu);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int intel_vgpu_set_irqs(struct intel_vgpu *vgpu, uint32_t flags,
+=======
+static int intel_vgpu_set_irqs(struct intel_vgpu *vgpu, u32 flags,
+>>>>>>> upstream/android-13
 		unsigned int index, unsigned int start, unsigned int count,
 		void *data)
 {
 	int (*func)(struct intel_vgpu *vgpu, unsigned int index,
+<<<<<<< HEAD
 			unsigned int start, unsigned int count, uint32_t flags,
+=======
+			unsigned int start, unsigned int count, u32 flags,
+>>>>>>> upstream/android-13
 			void *data) = NULL;
 
 	switch (index) {
@@ -1125,6 +1795,10 @@ static long intel_vgpu_ioctl(struct mdev_device *mdev, unsigned int cmd,
 			     unsigned long arg)
 {
 	struct intel_vgpu *vgpu = mdev_get_drvdata(mdev);
+<<<<<<< HEAD
+=======
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+>>>>>>> upstream/android-13
 	unsigned long minsz;
 
 	gvt_dbg_core("vgpu%d ioctl, cmd: %d\n", vgpu->id, cmd);
@@ -1143,7 +1817,11 @@ static long intel_vgpu_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		info.flags = VFIO_DEVICE_FLAGS_PCI;
 		info.flags |= VFIO_DEVICE_FLAGS_RESET;
 		info.num_regions = VFIO_PCI_NUM_REGIONS +
+<<<<<<< HEAD
 				vgpu->vdev.num_regions;
+=======
+				vdev->num_regions;
+>>>>>>> upstream/android-13
 		info.num_irqs = VFIO_PCI_NUM_IRQS;
 
 		return copy_to_user((void __user *)arg, &info, minsz) ?
@@ -1155,7 +1833,10 @@ static long intel_vgpu_ioctl(struct mdev_device *mdev, unsigned int cmd,
 		unsigned int i;
 		int ret;
 		struct vfio_region_info_cap_sparse_mmap *sparse = NULL;
+<<<<<<< HEAD
 		size_t size;
+=======
+>>>>>>> upstream/android-13
 		int nr_areas = 1;
 		int cap_type_id;
 
@@ -1198,9 +1879,14 @@ static long intel_vgpu_ioctl(struct mdev_device *mdev, unsigned int cmd,
 					VFIO_REGION_INFO_FLAG_WRITE;
 			info.size = gvt_aperture_sz(vgpu->gvt);
 
+<<<<<<< HEAD
 			size = sizeof(*sparse) +
 					(nr_areas * sizeof(*sparse->areas));
 			sparse = kzalloc(size, GFP_KERNEL);
+=======
+			sparse = kzalloc(struct_size(sparse, areas, nr_areas),
+					 GFP_KERNEL);
+>>>>>>> upstream/android-13
 			if (!sparse)
 				return -ENOMEM;
 
@@ -1236,22 +1922,38 @@ static long intel_vgpu_ioctl(struct mdev_device *mdev, unsigned int cmd,
 					.header.version = 1 };
 
 				if (info.index >= VFIO_PCI_NUM_REGIONS +
+<<<<<<< HEAD
 						vgpu->vdev.num_regions)
+=======
+						vdev->num_regions)
+>>>>>>> upstream/android-13
 					return -EINVAL;
 				info.index =
 					array_index_nospec(info.index,
 							VFIO_PCI_NUM_REGIONS +
+<<<<<<< HEAD
 							vgpu->vdev.num_regions);
+=======
+							vdev->num_regions);
+>>>>>>> upstream/android-13
 
 				i = info.index - VFIO_PCI_NUM_REGIONS;
 
 				info.offset =
 					VFIO_PCI_INDEX_TO_OFFSET(info.index);
+<<<<<<< HEAD
 				info.size = vgpu->vdev.region[i].size;
 				info.flags = vgpu->vdev.region[i].flags;
 
 				cap_type.type = vgpu->vdev.region[i].type;
 				cap_type.subtype = vgpu->vdev.region[i].subtype;
+=======
+				info.size = vdev->region[i].size;
+				info.flags = vdev->region[i].flags;
+
+				cap_type.type = vdev->region[i].type;
+				cap_type.subtype = vdev->region[i].subtype;
+>>>>>>> upstream/android-13
 
 				ret = vfio_info_add_capability(&caps,
 							&cap_type.header,
@@ -1265,9 +1967,15 @@ static long intel_vgpu_ioctl(struct mdev_device *mdev, unsigned int cmd,
 			switch (cap_type_id) {
 			case VFIO_REGION_INFO_CAP_SPARSE_MMAP:
 				ret = vfio_info_add_capability(&caps,
+<<<<<<< HEAD
 					&sparse->header, sizeof(*sparse) +
 					(sparse->nr_areas *
 						sizeof(*sparse->areas)));
+=======
+					&sparse->header,
+					struct_size(sparse, areas,
+						    sparse->nr_areas));
+>>>>>>> upstream/android-13
 				if (ret) {
 					kfree(sparse);
 					return ret;
@@ -1415,6 +2123,7 @@ vgpu_id_show(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "\n");
 }
 
+<<<<<<< HEAD
 static ssize_t
 hw_id_show(struct device *dev, struct device_attribute *attr,
 	   char *buf)
@@ -1436,6 +2145,12 @@ static DEVICE_ATTR_RO(hw_id);
 static struct attribute *intel_vgpu_attrs[] = {
 	&dev_attr_vgpu_id.attr,
 	&dev_attr_hw_id.attr,
+=======
+static DEVICE_ATTR_RO(vgpu_id);
+
+static struct attribute *intel_vgpu_attrs[] = {
+	&dev_attr_vgpu_id.attr,
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -1454,8 +2169,13 @@ static struct mdev_parent_ops intel_vgpu_ops = {
 	.create			= intel_vgpu_create,
 	.remove			= intel_vgpu_remove,
 
+<<<<<<< HEAD
 	.open			= intel_vgpu_open,
 	.release		= intel_vgpu_release,
+=======
+	.open_device		= intel_vgpu_open_device,
+	.close_device		= intel_vgpu_close_device,
+>>>>>>> upstream/android-13
 
 	.read			= intel_vgpu_read,
 	.write			= intel_vgpu_write,
@@ -1465,6 +2185,7 @@ static struct mdev_parent_ops intel_vgpu_ops = {
 
 static int kvmgt_host_init(struct device *dev, void *gvt, const void *ops)
 {
+<<<<<<< HEAD
 	struct attribute **kvm_type_attrs;
 	struct attribute_group **kvm_vgpu_type_groups;
 
@@ -1475,11 +2196,31 @@ static int kvmgt_host_init(struct device *dev, void *gvt, const void *ops)
 	intel_vgpu_ops.supported_type_groups = kvm_vgpu_type_groups;
 
 	return mdev_register_device(dev, &intel_vgpu_ops);
+=======
+	int ret;
+
+	ret = intel_gvt_init_vgpu_type_groups((struct intel_gvt *)gvt);
+	if (ret)
+		return ret;
+
+	intel_gvt_ops = ops;
+	intel_vgpu_ops.supported_type_groups = gvt_vgpu_type_groups;
+
+	ret = mdev_register_device(dev, &intel_vgpu_ops);
+	if (ret)
+		intel_gvt_cleanup_vgpu_type_groups((struct intel_gvt *)gvt);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void kvmgt_host_exit(struct device *dev, void *gvt)
 {
 	mdev_unregister_device(dev);
+<<<<<<< HEAD
+=======
+	intel_gvt_cleanup_vgpu_type_groups((struct intel_gvt *)gvt);
+>>>>>>> upstream/android-13
 }
 
 static int kvmgt_page_track_add(unsigned long handle, u64 gfn)
@@ -1502,7 +2243,11 @@ static int kvmgt_page_track_add(unsigned long handle, u64 gfn)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	spin_lock(&kvm->mmu_lock);
+=======
+	write_lock(&kvm->mmu_lock);
+>>>>>>> upstream/android-13
 
 	if (kvmgt_gfn_is_write_protected(info, gfn))
 		goto out;
@@ -1511,7 +2256,11 @@ static int kvmgt_page_track_add(unsigned long handle, u64 gfn)
 	kvmgt_protect_table_add(info, gfn);
 
 out:
+<<<<<<< HEAD
 	spin_unlock(&kvm->mmu_lock);
+=======
+	write_unlock(&kvm->mmu_lock);
+>>>>>>> upstream/android-13
 	srcu_read_unlock(&kvm->srcu, idx);
 	return 0;
 }
@@ -1536,7 +2285,11 @@ static int kvmgt_page_track_remove(unsigned long handle, u64 gfn)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	spin_lock(&kvm->mmu_lock);
+=======
+	write_lock(&kvm->mmu_lock);
+>>>>>>> upstream/android-13
 
 	if (!kvmgt_gfn_is_write_protected(info, gfn))
 		goto out;
@@ -1545,7 +2298,11 @@ static int kvmgt_page_track_remove(unsigned long handle, u64 gfn)
 	kvmgt_protect_table_del(info, gfn);
 
 out:
+<<<<<<< HEAD
 	spin_unlock(&kvm->mmu_lock);
+=======
+	write_unlock(&kvm->mmu_lock);
+>>>>>>> upstream/android-13
 	srcu_read_unlock(&kvm->srcu, idx);
 	return 0;
 }
@@ -1571,7 +2328,11 @@ static void kvmgt_page_track_flush_slot(struct kvm *kvm,
 	struct kvmgt_guest_info *info = container_of(node,
 					struct kvmgt_guest_info, track_node);
 
+<<<<<<< HEAD
 	spin_lock(&kvm->mmu_lock);
+=======
+	write_lock(&kvm->mmu_lock);
+>>>>>>> upstream/android-13
 	for (i = 0; i < slot->npages; i++) {
 		gfn = slot->base_gfn + i;
 		if (kvmgt_gfn_is_write_protected(info, gfn)) {
@@ -1580,7 +2341,11 @@ static void kvmgt_page_track_flush_slot(struct kvm *kvm,
 			kvmgt_protect_table_del(info, gfn);
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock(&kvm->mmu_lock);
+=======
+	write_unlock(&kvm->mmu_lock);
+>>>>>>> upstream/android-13
 }
 
 static bool __kvmgt_vgpu_exist(struct intel_vgpu *vgpu, struct kvm *kvm)
@@ -1610,13 +2375,22 @@ static int kvmgt_guest_init(struct mdev_device *mdev)
 {
 	struct kvmgt_guest_info *info;
 	struct intel_vgpu *vgpu;
+<<<<<<< HEAD
+=======
+	struct kvmgt_vdev *vdev;
+>>>>>>> upstream/android-13
 	struct kvm *kvm;
 
 	vgpu = mdev_get_drvdata(mdev);
 	if (handle_valid(vgpu->handle))
 		return -EEXIST;
 
+<<<<<<< HEAD
 	kvm = vgpu->vdev.kvm;
+=======
+	vdev = kvmgt_vdev(vgpu);
+	kvm = vdev->kvm;
+>>>>>>> upstream/android-13
 	if (!kvm || kvm->mm != current->mm) {
 		gvt_vgpu_err("KVM is required to use Intel vGPU\n");
 		return -ESRCH;
@@ -1637,12 +2411,16 @@ static int kvmgt_guest_init(struct mdev_device *mdev)
 	kvmgt_protect_table_init(info);
 	gvt_cache_init(vgpu);
 
+<<<<<<< HEAD
 	init_completion(&vgpu->vblank_done);
 
+=======
+>>>>>>> upstream/android-13
 	info->track_node.track_write = kvmgt_page_track_write;
 	info->track_node.track_flush_slot = kvmgt_page_track_flush_slot;
 	kvm_page_track_register_notifier(kvm, &info->track_node);
 
+<<<<<<< HEAD
 	info->debugfs_cache_entries = debugfs_create_ulong(
 						"kvmgt_nr_cache_entries",
 						0444, vgpu->debugfs,
@@ -1650,12 +2428,21 @@ static int kvmgt_guest_init(struct mdev_device *mdev)
 	if (!info->debugfs_cache_entries)
 		gvt_vgpu_err("Cannot create kvmgt debugfs entry\n");
 
+=======
+	debugfs_create_ulong(KVMGT_DEBUGFS_FILENAME, 0444, vgpu->debugfs,
+			     &vdev->nr_cache_entries);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static bool kvmgt_guest_exit(struct kvmgt_guest_info *info)
 {
+<<<<<<< HEAD
 	debugfs_remove(info->debugfs_cache_entries);
+=======
+	debugfs_remove(debugfs_lookup(KVMGT_DEBUGFS_FILENAME,
+				      info->vgpu->debugfs));
+>>>>>>> upstream/android-13
 
 	kvm_page_track_unregister_notifier(info->kvm, &info->track_node);
 	kvm_put_kvm(info->kvm);
@@ -1666,6 +2453,7 @@ static bool kvmgt_guest_exit(struct kvmgt_guest_info *info)
 	return true;
 }
 
+<<<<<<< HEAD
 static int kvmgt_attach_vgpu(void *vgpu, unsigned long *handle)
 {
 	/* nothing to do here */
@@ -1675,18 +2463,60 @@ static int kvmgt_attach_vgpu(void *vgpu, unsigned long *handle)
 static void kvmgt_detach_vgpu(unsigned long handle)
 {
 	/* nothing to do here */
+=======
+static int kvmgt_attach_vgpu(void *p_vgpu, unsigned long *handle)
+{
+	struct intel_vgpu *vgpu = (struct intel_vgpu *)p_vgpu;
+
+	vgpu->vdev = kzalloc(sizeof(struct kvmgt_vdev), GFP_KERNEL);
+
+	if (!vgpu->vdev)
+		return -ENOMEM;
+
+	kvmgt_vdev(vgpu)->vgpu = vgpu;
+
+	return 0;
+}
+
+static void kvmgt_detach_vgpu(void *p_vgpu)
+{
+	int i;
+	struct intel_vgpu *vgpu = (struct intel_vgpu *)p_vgpu;
+	struct kvmgt_vdev *vdev = kvmgt_vdev(vgpu);
+
+	if (!vdev->region)
+		return;
+
+	for (i = 0; i < vdev->num_regions; i++)
+		if (vdev->region[i].ops->release)
+			vdev->region[i].ops->release(vgpu,
+					&vdev->region[i]);
+	vdev->num_regions = 0;
+	kfree(vdev->region);
+	vdev->region = NULL;
+
+	kfree(vdev);
+>>>>>>> upstream/android-13
 }
 
 static int kvmgt_inject_msi(unsigned long handle, u32 addr, u16 data)
 {
 	struct kvmgt_guest_info *info;
 	struct intel_vgpu *vgpu;
+<<<<<<< HEAD
+=======
+	struct kvmgt_vdev *vdev;
+>>>>>>> upstream/android-13
 
 	if (!handle_valid(handle))
 		return -ESRCH;
 
 	info = (struct kvmgt_guest_info *)handle;
 	vgpu = info->vgpu;
+<<<<<<< HEAD
+=======
+	vdev = kvmgt_vdev(vgpu);
+>>>>>>> upstream/android-13
 
 	/*
 	 * When guest is poweroff, msi_trigger is set to NULL, but vgpu's
@@ -1697,10 +2527,17 @@ static int kvmgt_inject_msi(unsigned long handle, u32 addr, u16 data)
 	 * enabled by guest. so if msi_trigger is null, success is still
 	 * returned and don't inject interrupt into guest.
 	 */
+<<<<<<< HEAD
 	if (vgpu->vdev.msi_trigger == NULL)
 		return 0;
 
 	if (eventfd_signal(vgpu->vdev.msi_trigger, 1) == 1)
+=======
+	if (vdev->msi_trigger == NULL)
+		return 0;
+
+	if (eventfd_signal(vdev->msi_trigger, 1) == 1)
+>>>>>>> upstream/android-13
 		return 0;
 
 	return -EFAULT;
@@ -1723,29 +2560,50 @@ static unsigned long kvmgt_gfn_to_pfn(unsigned long handle, unsigned long gfn)
 	return pfn;
 }
 
+<<<<<<< HEAD
 int kvmgt_dma_map_guest_page(unsigned long handle, unsigned long gfn,
 		unsigned long size, dma_addr_t *dma_addr)
 {
 	struct kvmgt_guest_info *info;
 	struct intel_vgpu *vgpu;
+=======
+static int kvmgt_dma_map_guest_page(unsigned long handle, unsigned long gfn,
+		unsigned long size, dma_addr_t *dma_addr)
+{
+	struct intel_vgpu *vgpu;
+	struct kvmgt_vdev *vdev;
+>>>>>>> upstream/android-13
 	struct gvt_dma *entry;
 	int ret;
 
 	if (!handle_valid(handle))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	info = (struct kvmgt_guest_info *)handle;
 	vgpu = info->vgpu;
 
 	mutex_lock(&info->vgpu->vdev.cache_lock);
 
 	entry = __gvt_cache_find_gfn(info->vgpu, gfn);
+=======
+	vgpu = ((struct kvmgt_guest_info *)handle)->vgpu;
+	vdev = kvmgt_vdev(vgpu);
+
+	mutex_lock(&vdev->cache_lock);
+
+	entry = __gvt_cache_find_gfn(vgpu, gfn);
+>>>>>>> upstream/android-13
 	if (!entry) {
 		ret = gvt_dma_map_page(vgpu, gfn, dma_addr, size);
 		if (ret)
 			goto err_unlock;
 
+<<<<<<< HEAD
 		ret = __gvt_cache_add(info->vgpu, gfn, *dma_addr, size);
+=======
+		ret = __gvt_cache_add(vgpu, gfn, *dma_addr, size);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err_unmap;
 	} else if (entry->size != size) {
@@ -1757,7 +2615,11 @@ int kvmgt_dma_map_guest_page(unsigned long handle, unsigned long gfn,
 		if (ret)
 			goto err_unlock;
 
+<<<<<<< HEAD
 		ret = __gvt_cache_add(info->vgpu, gfn, *dma_addr, size);
+=======
+		ret = __gvt_cache_add(vgpu, gfn, *dma_addr, size);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err_unmap;
 	} else {
@@ -1765,13 +2627,45 @@ int kvmgt_dma_map_guest_page(unsigned long handle, unsigned long gfn,
 		*dma_addr = entry->dma_addr;
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&info->vgpu->vdev.cache_lock);
+=======
+	mutex_unlock(&vdev->cache_lock);
+>>>>>>> upstream/android-13
 	return 0;
 
 err_unmap:
 	gvt_dma_unmap_page(vgpu, gfn, *dma_addr, size);
 err_unlock:
+<<<<<<< HEAD
 	mutex_unlock(&info->vgpu->vdev.cache_lock);
+=======
+	mutex_unlock(&vdev->cache_lock);
+	return ret;
+}
+
+static int kvmgt_dma_pin_guest_page(unsigned long handle, dma_addr_t dma_addr)
+{
+	struct kvmgt_guest_info *info;
+	struct kvmgt_vdev *vdev;
+	struct gvt_dma *entry;
+	int ret = 0;
+
+	if (!handle_valid(handle))
+		return -ENODEV;
+
+	info = (struct kvmgt_guest_info *)handle;
+	vdev = kvmgt_vdev(info->vgpu);
+
+	mutex_lock(&vdev->cache_lock);
+	entry = __gvt_cache_find_dma_addr(info->vgpu, dma_addr);
+	if (entry)
+		kref_get(&entry->ref);
+	else
+		ret = -ENOMEM;
+	mutex_unlock(&vdev->cache_lock);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1784,14 +2678,22 @@ static void __gvt_dma_release(struct kref *ref)
 	__gvt_cache_remove_entry(entry->vgpu, entry);
 }
 
+<<<<<<< HEAD
 void kvmgt_dma_unmap_guest_page(unsigned long handle, dma_addr_t dma_addr)
 {
 	struct kvmgt_guest_info *info;
+=======
+static void kvmgt_dma_unmap_guest_page(unsigned long handle, dma_addr_t dma_addr)
+{
+	struct intel_vgpu *vgpu;
+	struct kvmgt_vdev *vdev;
+>>>>>>> upstream/android-13
 	struct gvt_dma *entry;
 
 	if (!handle_valid(handle))
 		return;
 
+<<<<<<< HEAD
 	info = (struct kvmgt_guest_info *)handle;
 
 	mutex_lock(&info->vgpu->vdev.cache_lock);
@@ -1799,20 +2701,34 @@ void kvmgt_dma_unmap_guest_page(unsigned long handle, dma_addr_t dma_addr)
 	if (entry)
 		kref_put(&entry->ref, __gvt_dma_release);
 	mutex_unlock(&info->vgpu->vdev.cache_lock);
+=======
+	vgpu = ((struct kvmgt_guest_info *)handle)->vgpu;
+	vdev = kvmgt_vdev(vgpu);
+
+	mutex_lock(&vdev->cache_lock);
+	entry = __gvt_cache_find_dma_addr(vgpu, dma_addr);
+	if (entry)
+		kref_put(&entry->ref, __gvt_dma_release);
+	mutex_unlock(&vdev->cache_lock);
+>>>>>>> upstream/android-13
 }
 
 static int kvmgt_rw_gpa(unsigned long handle, unsigned long gpa,
 			void *buf, unsigned long len, bool write)
 {
 	struct kvmgt_guest_info *info;
+<<<<<<< HEAD
 	struct kvm *kvm;
 	int idx, ret;
 	bool kthread = current->mm == NULL;
+=======
+>>>>>>> upstream/android-13
 
 	if (!handle_valid(handle))
 		return -ESRCH;
 
 	info = (struct kvmgt_guest_info *)handle;
+<<<<<<< HEAD
 	kvm = info->kvm;
 
 	if (kthread) {
@@ -1832,6 +2748,11 @@ static int kvmgt_rw_gpa(unsigned long handle, unsigned long gpa,
 	}
 
 	return ret;
+=======
+
+	return vfio_dma_rw(kvmgt_vdev(info->vgpu)->vfio_group,
+			   gpa, buf, len, write);
+>>>>>>> upstream/android-13
 }
 
 static int kvmgt_read_gpa(unsigned long handle, unsigned long gpa,
@@ -1871,7 +2792,12 @@ static bool kvmgt_is_valid_gfn(unsigned long handle, unsigned long gfn)
 	return ret;
 }
 
+<<<<<<< HEAD
 struct intel_gvt_mpt kvmgt_mpt = {
+=======
+static const struct intel_gvt_mpt kvmgt_mpt = {
+	.type = INTEL_GVT_HYPERVISOR_KVM,
+>>>>>>> upstream/android-13
 	.host_init = kvmgt_host_init,
 	.host_exit = kvmgt_host_exit,
 	.attach_vgpu = kvmgt_attach_vgpu,
@@ -1885,20 +2811,38 @@ struct intel_gvt_mpt kvmgt_mpt = {
 	.gfn_to_mfn = kvmgt_gfn_to_pfn,
 	.dma_map_guest_page = kvmgt_dma_map_guest_page,
 	.dma_unmap_guest_page = kvmgt_dma_unmap_guest_page,
+<<<<<<< HEAD
 	.set_opregion = kvmgt_set_opregion,
+=======
+	.dma_pin_guest_page = kvmgt_dma_pin_guest_page,
+	.set_opregion = kvmgt_set_opregion,
+	.set_edid = kvmgt_set_edid,
+>>>>>>> upstream/android-13
 	.get_vfio_device = kvmgt_get_vfio_device,
 	.put_vfio_device = kvmgt_put_vfio_device,
 	.is_valid_gfn = kvmgt_is_valid_gfn,
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(kvmgt_mpt);
 
 static int __init kvmgt_init(void)
 {
+=======
+
+static int __init kvmgt_init(void)
+{
+	if (intel_gvt_register_hypervisor(&kvmgt_mpt) < 0)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void __exit kvmgt_exit(void)
 {
+<<<<<<< HEAD
+=======
+	intel_gvt_unregister_hypervisor();
+>>>>>>> upstream/android-13
 }
 
 module_init(kvmgt_init);

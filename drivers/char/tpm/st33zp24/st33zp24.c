@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * STMicroelectronics TPM Linux driver for TPM ST33ZP24
  * Copyright (C) 2009 - 2016 STMicroelectronics
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * STMicroelectronics TPM Linux driver for TPM ST33ZP24
+ * Copyright (C) 2009 - 2016 STMicroelectronics
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -514,7 +521,11 @@ static const struct tpm_class_ops st33zp24_tpm = {
 
 /*
  * st33zp24_probe initialize the TPM device
+<<<<<<< HEAD
  * @param: client, the i2c_client drescription (TPM I2C description).
+=======
+ * @param: client, the i2c_client description (TPM I2C description).
+>>>>>>> upstream/android-13
  * @param: id, the i2c_device_id struct.
  * @return: 0 in case of success.
  *	 -1 in other case.
@@ -649,7 +660,11 @@ int st33zp24_pm_resume(struct device *dev)
 	} else {
 		ret = tpm_pm_resume(dev);
 		if (!ret)
+<<<<<<< HEAD
 			tpm_do_selftest(chip);
+=======
+			tpm1_do_selftest(chip);
+>>>>>>> upstream/android-13
 	}
 	return ret;
 } /* st33zp24_pm_resume() */

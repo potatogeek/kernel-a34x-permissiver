@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*  Kernel module help for PPC64.
     Copyright (C) 2001, 2003 Rusty Russell IBM Corporation.
 
@@ -14,6 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*  Kernel module help for PPC64.
+    Copyright (C) 2001, 2003 Rusty Russell IBM Corporation.
+
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -32,6 +39,10 @@
 #include <linux/sort.h>
 #include <asm/setup.h>
 #include <asm/sections.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 /* FIXME: We don't do .init separately.  To do this, we'd need to have
    a separate r2 value in the init and core section, and stub between
@@ -134,6 +145,7 @@ struct ppc64_stub_entry
  * end of the stub code, and patch the stub address (32-bits relative
  * to the TOC ptr, r2) into the stub.
  */
+<<<<<<< HEAD
 
 static u32 ppc64_stub_insns[] = {
 	0x3d620000,			/* addis   r11,r2, <high> */
@@ -185,6 +197,22 @@ int module_trampoline_target(struct module *mod, unsigned long addr,
 }
 #endif
 
+=======
+static u32 ppc64_stub_insns[] = {
+	PPC_RAW_ADDIS(_R11, _R2, 0),
+	PPC_RAW_ADDI(_R11, _R11, 0),
+	/* Save current r2 value in magic place on the stack. */
+	PPC_RAW_STD(_R2, _R1, R2_STACK_OFFSET),
+	PPC_RAW_LD(_R12, _R11, 32),
+#ifdef PPC64_ELF_ABI_v1
+	/* Set up new r2 from function descriptor */
+	PPC_RAW_LD(_R2, _R11, 40),
+#endif
+	PPC_RAW_MTCTR(_R12),
+	PPC_RAW_BCTR(),
+};
+
+>>>>>>> upstream/android-13
 /* Count how many different 24-bit relocations (different symbol,
    different addend) */
 static unsigned int count_relocs(const Elf64_Rela *rela, unsigned int num)
@@ -231,6 +259,7 @@ static int relacmp(const void *_x, const void *_y)
 		return 0;
 }
 
+<<<<<<< HEAD
 static void relaswap(void *_x, void *_y, int size)
 {
 	uint64_t *x, *y, tmp;
@@ -246,6 +275,8 @@ static void relaswap(void *_x, void *_y, int size)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Get size of potential trampolines required. */
 static unsigned long get_stubs_size(const Elf64_Ehdr *hdr,
 				    const Elf64_Shdr *sechdrs)
@@ -269,7 +300,11 @@ static unsigned long get_stubs_size(const Elf64_Ehdr *hdr,
 			 */
 			sort((void *)sechdrs[i].sh_addr,
 			     sechdrs[i].sh_size / sizeof(Elf64_Rela),
+<<<<<<< HEAD
 			     sizeof(Elf64_Rela), relacmp, relaswap);
+=======
+			     sizeof(Elf64_Rela), relacmp, NULL);
+>>>>>>> upstream/android-13
 
 			relocs += count_relocs((void *)sechdrs[i].sh_addr,
 					       sechdrs[i].sh_size
@@ -389,6 +424,86 @@ int module_frob_arch_sections(Elf64_Ehdr *hdr,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MPROFILE_KERNEL
+
+static u32 stub_insns[] = {
+	PPC_RAW_LD(_R12, _R13, offsetof(struct paca_struct, kernel_toc)),
+	PPC_RAW_ADDIS(_R12, _R12, 0),
+	PPC_RAW_ADDI(_R12, _R12, 0),
+	PPC_RAW_MTCTR(_R12),
+	PPC_RAW_BCTR(),
+};
+
+/*
+ * For mprofile-kernel we use a special stub for ftrace_caller() because we
+ * can't rely on r2 containing this module's TOC when we enter the stub.
+ *
+ * That can happen if the function calling us didn't need to use the toc. In
+ * that case it won't have setup r2, and the r2 value will be either the
+ * kernel's toc, or possibly another modules toc.
+ *
+ * To deal with that this stub uses the kernel toc, which is always accessible
+ * via the paca (in r13). The target (ftrace_caller()) is responsible for
+ * saving and restoring the toc before returning.
+ */
+static inline int create_ftrace_stub(struct ppc64_stub_entry *entry,
+					unsigned long addr,
+					struct module *me)
+{
+	long reladdr;
+
+	memcpy(entry->jump, stub_insns, sizeof(stub_insns));
+
+	/* Stub uses address relative to kernel toc (from the paca) */
+	reladdr = addr - kernel_toc_addr();
+	if (reladdr > 0x7FFFFFFF || reladdr < -(0x80000000L)) {
+		pr_err("%s: Address of %ps out of range of kernel_toc.\n",
+							me->name, (void *)addr);
+		return 0;
+	}
+
+	entry->jump[1] |= PPC_HA(reladdr);
+	entry->jump[2] |= PPC_LO(reladdr);
+
+	/* Eventhough we don't use funcdata in the stub, it's needed elsewhere. */
+	entry->funcdata = func_desc(addr);
+	entry->magic = STUB_MAGIC;
+
+	return 1;
+}
+
+static bool is_mprofile_ftrace_call(const char *name)
+{
+	if (!strcmp("_mcount", name))
+		return true;
+#ifdef CONFIG_DYNAMIC_FTRACE
+	if (!strcmp("ftrace_caller", name))
+		return true;
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+	if (!strcmp("ftrace_regs_caller", name))
+		return true;
+#endif
+#endif
+
+	return false;
+}
+#else
+static inline int create_ftrace_stub(struct ppc64_stub_entry *entry,
+					unsigned long addr,
+					struct module *me)
+{
+	return 0;
+}
+
+static bool is_mprofile_ftrace_call(const char *name)
+{
+	return false;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * r2 is the TOC pointer: it actually points 0x8000 into the TOC (this gives the
  * value maximum span in an instruction which uses a signed offset). Round down
@@ -400,6 +515,7 @@ static inline unsigned long my_r2(const Elf64_Shdr *sechdrs, struct module *me)
 	return (sechdrs[me->arch.toc_section].sh_addr & ~0xfful) + 0x8000;
 }
 
+<<<<<<< HEAD
 /* Both low and high 16 bits are added as SIGNED additions, so if low
    16 bits has high bit set, high 16 bits must be adjusted.  These
    macros do that (stolen from binutils). */
@@ -407,15 +523,35 @@ static inline unsigned long my_r2(const Elf64_Shdr *sechdrs, struct module *me)
 #define PPC_HI(v) (((v) >> 16) & 0xffff)
 #define PPC_HA(v) PPC_HI ((v) + 0x8000)
 
+=======
+>>>>>>> upstream/android-13
 /* Patch stub to reference function and correct r2 value. */
 static inline int create_stub(const Elf64_Shdr *sechdrs,
 			      struct ppc64_stub_entry *entry,
 			      unsigned long addr,
+<<<<<<< HEAD
 			      struct module *me)
 {
 	long reladdr;
 
 	memcpy(entry->jump, ppc64_stub_insns, sizeof(ppc64_stub_insns));
+=======
+			      struct module *me,
+			      const char *name)
+{
+	long reladdr;
+	func_desc_t desc;
+	int i;
+
+	if (is_mprofile_ftrace_call(name))
+		return create_ftrace_stub(entry, addr, me);
+
+	for (i = 0; i < sizeof(ppc64_stub_insns) / sizeof(u32); i++) {
+		if (patch_instruction(&entry->jump[i],
+				      ppc_inst(ppc64_stub_insns[i])))
+			return 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* Stub uses address relative to r2. */
 	reladdr = (unsigned long)entry - my_r2(sechdrs, me);
@@ -426,10 +562,31 @@ static inline int create_stub(const Elf64_Shdr *sechdrs,
 	}
 	pr_debug("Stub %p get data from reladdr %li\n", entry, reladdr);
 
+<<<<<<< HEAD
 	entry->jump[0] |= PPC_HA(reladdr);
 	entry->jump[1] |= PPC_LO(reladdr);
 	entry->funcdata = func_desc(addr);
 	entry->magic = STUB_MAGIC;
+=======
+	if (patch_instruction(&entry->jump[0],
+			      ppc_inst(entry->jump[0] | PPC_HA(reladdr))))
+		return 0;
+
+	if (patch_instruction(&entry->jump[1],
+			  ppc_inst(entry->jump[1] | PPC_LO(reladdr))))
+		return 0;
+
+	// func_desc_t is 8 bytes if ABIv2, else 16 bytes
+	desc = func_desc(addr);
+	for (i = 0; i < sizeof(func_desc_t) / sizeof(u32); i++) {
+		if (patch_instruction(((u32 *)&entry->funcdata) + i,
+				      ppc_inst(((u32 *)(&desc))[i])))
+			return 0;
+	}
+
+	if (patch_instruction(&entry->magic, ppc_inst(STUB_MAGIC)))
+		return 0;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -438,7 +595,12 @@ static inline int create_stub(const Elf64_Shdr *sechdrs,
    stub to set up the TOC ptr (r2) for the function. */
 static unsigned long stub_for_addr(const Elf64_Shdr *sechdrs,
 				   unsigned long addr,
+<<<<<<< HEAD
 				   struct module *me)
+=======
+				   struct module *me,
+				   const char *name)
+>>>>>>> upstream/android-13
 {
 	struct ppc64_stub_entry *stubs;
 	unsigned int i, num_stubs;
@@ -455,12 +617,17 @@ static unsigned long stub_for_addr(const Elf64_Shdr *sechdrs,
 			return (unsigned long)&stubs[i];
 	}
 
+<<<<<<< HEAD
 	if (!create_stub(sechdrs, &stubs[i], addr, me))
+=======
+	if (!create_stub(sechdrs, &stubs[i], addr, me, name))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return (unsigned long)&stubs[i];
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MPROFILE_KERNEL
 static bool is_mprofile_mcount_callsite(const char *name, u32 *instruction)
 {
@@ -504,13 +671,19 @@ static bool is_mprofile_mcount_callsite(const char *name, u32 *instruction)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* We expect a noop next: if it is, replace it with instruction to
    restore r2. */
 static int restore_r2(const char *name, u32 *instruction, struct module *me)
 {
 	u32 *prev_insn = instruction - 1;
 
+<<<<<<< HEAD
 	if (is_mprofile_mcount_callsite(name, prev_insn))
+=======
+	if (is_mprofile_ftrace_call(name))
+>>>>>>> upstream/android-13
 		return 1;
 
 	/*
@@ -518,16 +691,31 @@ static int restore_r2(const char *name, u32 *instruction, struct module *me)
 	 * "link" branches and they don't return, so they don't need the r2
 	 * restore afterwards.
 	 */
+<<<<<<< HEAD
 	if (!instr_is_relative_link_branch(*prev_insn))
 		return 1;
 
 	if (*instruction != PPC_INST_NOP) {
+=======
+	if (!instr_is_relative_link_branch(ppc_inst(*prev_insn)))
+		return 1;
+
+	if (*instruction != PPC_RAW_NOP()) {
+>>>>>>> upstream/android-13
 		pr_err("%s: Expected nop after call, got %08x at %pS\n",
 			me->name, *instruction, instruction);
 		return 0;
 	}
+<<<<<<< HEAD
 	/* ld r2,R2_STACK_OFFSET(r1) */
 	*instruction = PPC_INST_LD_TOC;
+=======
+
+	/* ld r2,R2_STACK_OFFSET(r1) */
+	if (patch_instruction(instruction, ppc_inst(PPC_INST_LD_TOC)))
+		return 0;
+
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -648,14 +836,22 @@ int apply_relocate_add(Elf64_Shdr *sechdrs,
 			if (sym->st_shndx == SHN_UNDEF ||
 			    sym->st_shndx == SHN_LIVEPATCH) {
 				/* External: go via stub */
+<<<<<<< HEAD
 				value = stub_for_addr(sechdrs, value, me);
+=======
+				value = stub_for_addr(sechdrs, value, me,
+						strtab + sym->st_name);
+>>>>>>> upstream/android-13
 				if (!value)
 					return -ENOENT;
 				if (!restore_r2(strtab + sym->st_name,
 							(u32 *)location + 1, me))
 					return -ENOEXEC;
+<<<<<<< HEAD
 
 				squash_toc_save_inst(strtab + sym->st_name, value);
+=======
+>>>>>>> upstream/android-13
 			} else
 				value += local_entry_offset(sym);
 
@@ -668,9 +864,18 @@ int apply_relocate_add(Elf64_Shdr *sechdrs,
 			}
 
 			/* Only replace bits 2 through 26 */
+<<<<<<< HEAD
 			*(uint32_t *)location
 				= (*(uint32_t *)location & ~0x03fffffc)
 				| (value & 0x03fffffc);
+=======
+			value = (*(uint32_t *)location & ~0x03fffffc)
+				| (value & 0x03fffffc);
+
+			if (patch_instruction((u32 *)location, ppc_inst(value)))
+				return -EFAULT;
+
+>>>>>>> upstream/android-13
 			break;
 
 		case R_PPC64_REL64:
@@ -711,18 +916,31 @@ int apply_relocate_add(Elf64_Shdr *sechdrs,
 		         *	ld r2, ...(r12)
 			 *	add r2, r2, r12
 			 */
+<<<<<<< HEAD
 			if ((((uint32_t *)location)[0] & ~0xfffc)
 			    != 0xe84c0000)
 				break;
 			if (((uint32_t *)location)[1] != 0x7c426214)
+=======
+			if ((((uint32_t *)location)[0] & ~0xfffc) != PPC_RAW_LD(_R2, _R12, 0))
+				break;
+			if (((uint32_t *)location)[1] != PPC_RAW_ADD(_R2, _R2, _R12))
+>>>>>>> upstream/android-13
 				break;
 			/*
 			 * If found, replace it with:
 			 *	addis r2, r12, (.TOC.-func)@ha
+<<<<<<< HEAD
 			 *	addi r2, r12, (.TOC.-func)@l
 			 */
 			((uint32_t *)location)[0] = 0x3c4c0000 + PPC_HA(value);
 			((uint32_t *)location)[1] = 0x38420000 + PPC_LO(value);
+=======
+			 *	addi  r2,  r2, (.TOC.-func)@l
+			 */
+			((uint32_t *)location)[0] = PPC_RAW_ADDIS(_R2, _R12, PPC_HA(value));
+			((uint32_t *)location)[1] = PPC_RAW_ADDI(_R2, _R2, PPC_LO(value));
+>>>>>>> upstream/android-13
 			break;
 
 		case R_PPC64_REL16_HA:
@@ -754,6 +972,7 @@ int apply_relocate_add(Elf64_Shdr *sechdrs,
 }
 
 #ifdef CONFIG_DYNAMIC_FTRACE
+<<<<<<< HEAD
 
 #ifdef CONFIG_MPROFILE_KERNEL
 
@@ -830,6 +1049,55 @@ int module_finalize_ftrace(struct module *mod, const Elf_Shdr *sechdrs)
 #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
 	mod->arch.tramp_regs = create_ftrace_stub(sechdrs, mod,
 					(unsigned long)ftrace_regs_caller);
+=======
+int module_trampoline_target(struct module *mod, unsigned long addr,
+			     unsigned long *target)
+{
+	struct ppc64_stub_entry *stub;
+	func_desc_t funcdata;
+	u32 magic;
+
+	if (!within_module_core(addr, mod)) {
+		pr_err("%s: stub %lx not in module %s\n", __func__, addr, mod->name);
+		return -EFAULT;
+	}
+
+	stub = (struct ppc64_stub_entry *)addr;
+
+	if (copy_from_kernel_nofault(&magic, &stub->magic,
+			sizeof(magic))) {
+		pr_err("%s: fault reading magic for stub %lx for %s\n", __func__, addr, mod->name);
+		return -EFAULT;
+	}
+
+	if (magic != STUB_MAGIC) {
+		pr_err("%s: bad magic for stub %lx for %s\n", __func__, addr, mod->name);
+		return -EFAULT;
+	}
+
+	if (copy_from_kernel_nofault(&funcdata, &stub->funcdata,
+			sizeof(funcdata))) {
+		pr_err("%s: fault reading funcdata for stub %lx for %s\n", __func__, addr, mod->name);
+                return -EFAULT;
+	}
+
+	*target = stub_func_addr(funcdata);
+
+	return 0;
+}
+
+int module_finalize_ftrace(struct module *mod, const Elf_Shdr *sechdrs)
+{
+	mod->arch.tramp = stub_for_addr(sechdrs,
+					(unsigned long)ftrace_caller,
+					mod,
+					"ftrace_caller");
+#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+	mod->arch.tramp_regs = stub_for_addr(sechdrs,
+					(unsigned long)ftrace_regs_caller,
+					mod,
+					"ftrace_regs_caller");
+>>>>>>> upstream/android-13
 	if (!mod->arch.tramp_regs)
 		return -ENOENT;
 #endif

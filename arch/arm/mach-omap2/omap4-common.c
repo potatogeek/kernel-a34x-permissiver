@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP4 specific common source file.
  *
  * Copyright (C) 2010 Texas Instruments, Inc.
  * Author:
  *	Santosh Shilimkar <santosh.shilimkar@ti.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software,you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -318,10 +325,18 @@ void __init omap_gic_of_init(void)
 
 	np = of_find_compatible_node(NULL, NULL, "arm,cortex-a9-gic");
 	gic_dist_base_addr = of_iomap(np, 0);
+<<<<<<< HEAD
+=======
+	of_node_put(np);
+>>>>>>> upstream/android-13
 	WARN_ON(!gic_dist_base_addr);
 
 	np = of_find_compatible_node(NULL, NULL, "arm,cortex-a9-twd-timer");
 	twd_base = of_iomap(np, 0);
+<<<<<<< HEAD
+=======
+	of_node_put(np);
+>>>>>>> upstream/android-13
 	WARN_ON(!twd_base);
 
 skip_errata_init:

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * max98925.c -- ALSA SoC Stereo MAX98925 driver
  * Copyright 2013-15 Maxim Integrated Products
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * max98925.c -- ALSA SoC Stereo MAX98925 driver
+ * Copyright 2013-15 Maxim Integrated Products
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/i2c.h>
@@ -629,17 +636,28 @@ static const struct i2c_device_id max98925_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, max98925_i2c_id);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id max98925_of_match[] = {
 	{ .compatible = "maxim,max98925", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, max98925_of_match);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 static struct i2c_driver max98925_i2c_driver = {
 	.driver = {
 		.name = "max98925",
 		.of_match_table = of_match_ptr(max98925_of_match),
+<<<<<<< HEAD
 		.pm = NULL,
+=======
+>>>>>>> upstream/android-13
 	},
 	.probe  = max98925_i2c_probe,
 	.id_table = max98925_i2c_id,

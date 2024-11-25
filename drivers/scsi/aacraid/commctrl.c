@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Adaptec AAC series RAID controller driver
  *	(c) Copyright 2001 Red Hat Inc.
@@ -9,6 +13,7 @@
  *               2010-2015 PMC-Sierra, Inc. (aacraid@pmc-sierra.com)
  *		 2016-2017 Microsemi Corp. (aacraid@microsemi.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -23,11 +28,16 @@
  * along with this program; see the file COPYING.  If not, write to
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Module Name:
  *  commctrl.c
  *
  * Abstract: Contains all routines for control of the AFA comm layer
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -39,14 +49,25 @@
 #include <linux/completion.h>
 #include <linux/dma-mapping.h>
 #include <linux/blkdev.h>
+<<<<<<< HEAD
 #include <linux/delay.h> /* ssleep prototype */
 #include <linux/kthread.h>
 #include <linux/semaphore.h>
+=======
+#include <linux/compat.h>
+#include <linux/delay.h> /* ssleep prototype */
+#include <linux/kthread.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <scsi/scsi_host.h>
 
 #include "aacraid.h"
 
+<<<<<<< HEAD
+=======
+# define AAC_DEBUG_PREAMBLE	KERN_INFO
+# define AAC_DEBUG_POSTAMBLE
+>>>>>>> upstream/android-13
 /**
  *	ioctl_send_fib	-	send a FIB from userspace
  *	@dev:	adapter is being processed
@@ -55,9 +76,12 @@
  *	This routine sends a fib to the adapter on behalf of a user level
  *	program.
  */
+<<<<<<< HEAD
 # define AAC_DEBUG_PREAMBLE	KERN_INFO
 # define AAC_DEBUG_POSTAMBLE
 
+=======
+>>>>>>> upstream/android-13
 static int ioctl_send_fib(struct aac_dev * dev, void __user *arg)
 {
 	struct hw_fib * kfib;
@@ -173,11 +197,19 @@ cleanup:
 
 /**
  *	open_getadapter_fib	-	Get the next fib
+<<<<<<< HEAD
+=======
+ *	@dev:	adapter is being processed
+ *	@arg:	arguments to the open call
+>>>>>>> upstream/android-13
  *
  *	This routine will get the next Fib, if available, from the AdapterFibContext
  *	passed in from the user.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int open_getadapter_fib(struct aac_dev * dev, void __user *arg)
 {
 	struct aac_fib_context * fibctx;
@@ -203,7 +235,11 @@ static int open_getadapter_fib(struct aac_dev * dev, void __user *arg)
 		/*
 		 *	Initialize the mutex used to wait for the next AIF.
 		 */
+<<<<<<< HEAD
 		sema_init(&fibctx->wait_sem, 0);
+=======
+		init_completion(&fibctx->completion);
+>>>>>>> upstream/android-13
 		fibctx->wait = 0;
 		/*
 		 *	Initialize the fibs and set the count of fibs on
@@ -241,6 +277,15 @@ static int open_getadapter_fib(struct aac_dev * dev, void __user *arg)
 	return status;
 }
 
+<<<<<<< HEAD
+=======
+struct compat_fib_ioctl {
+	u32	fibctx;
+	s32	wait;
+	compat_uptr_t fib;
+};
+
+>>>>>>> upstream/android-13
 /**
  *	next_getadapter_fib	-	get the next fib
  *	@dev: adapter to use
@@ -249,7 +294,10 @@ static int open_getadapter_fib(struct aac_dev * dev, void __user *arg)
  *	This routine will get the next Fib, if available, from the AdapterFibContext
  *	passed in from the user.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int next_getadapter_fib(struct aac_dev * dev, void __user *arg)
 {
 	struct fib_ioctl f;
@@ -259,8 +307,24 @@ static int next_getadapter_fib(struct aac_dev * dev, void __user *arg)
 	struct list_head * entry;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if(copy_from_user((void *)&f, arg, sizeof(struct fib_ioctl)))
 		return -EFAULT;
+=======
+	if (in_compat_syscall()) {
+		struct compat_fib_ioctl cf;
+
+		if (copy_from_user(&cf, arg, sizeof(struct compat_fib_ioctl)))
+			return -EFAULT;
+
+		f.fibctx = cf.fibctx;
+		f.wait = cf.wait;
+		f.fib = compat_ptr(cf.fib);
+	} else {
+		if (copy_from_user(&f, arg, sizeof(struct fib_ioctl)))
+			return -EFAULT;
+	}
+>>>>>>> upstream/android-13
 	/*
 	 *	Verify that the HANDLE passed in was a valid AdapterFibContext
 	 *
@@ -335,7 +399,11 @@ return_fib:
 			ssleep(1);
 		}
 		if (f.wait) {
+<<<<<<< HEAD
 			if(down_interruptible(&fibctx->wait_sem) < 0) {
+=======
+			if (wait_for_completion_interruptible(&fibctx->completion) < 0) {
+>>>>>>> upstream/android-13
 				status = -ERESTARTSYS;
 			} else {
 				/* Lock again and retry */
@@ -470,11 +538,18 @@ static int check_revision(struct aac_dev *dev, void __user *arg)
 
 
 /**
+<<<<<<< HEAD
  *
  * aac_send_raw_scb
  *
  */
 
+=======
+ * aac_send_raw_srb()
+ *	@dev:	adapter is being processed
+ *	@arg:	arguments to the send call
+ */
+>>>>>>> upstream/android-13
 static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 {
 	struct fib* srbfib;
@@ -528,6 +603,7 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 		goto cleanup;
 	}
 
+<<<<<<< HEAD
 	user_srbcmd = kmalloc(fibsize, GFP_KERNEL);
 	if (!user_srbcmd) {
 		dprintk((KERN_DEBUG"aacraid: Could not make a copy of the srb\n"));
@@ -537,6 +613,12 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 	if(copy_from_user(user_srbcmd, user_srb,fibsize)){
 		dprintk((KERN_DEBUG"aacraid: Could not copy srb from user\n"));
 		rcode = -EFAULT;
+=======
+	user_srbcmd = memdup_user(user_srb, fibsize);
+	if (IS_ERR(user_srbcmd)) {
+		rcode = PTR_ERR(user_srbcmd);
+		user_srbcmd = NULL;
+>>>>>>> upstream/android-13
 		goto cleanup;
 	}
 
@@ -692,8 +774,13 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 					goto cleanup;
 				}
 			}
+<<<<<<< HEAD
 			addr = pci_map_single(dev->pdev, p, sg_count[i],
 						data_dir);
+=======
+			addr = dma_map_single(&dev->pdev->dev, p, sg_count[i],
+					      data_dir);
+>>>>>>> upstream/android-13
 			hbacmd->sge[i].addr_hi = cpu_to_le32((u32)(addr>>32));
 			hbacmd->sge[i].addr_lo = cpu_to_le32(
 						(u32)(addr & 0xffffffff));
@@ -754,8 +841,13 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 						goto cleanup;
 					}
 				}
+<<<<<<< HEAD
 				addr = pci_map_single(dev->pdev, p,
 							sg_count[i], data_dir);
+=======
+				addr = dma_map_single(&dev->pdev->dev, p,
+						      sg_count[i], data_dir);
+>>>>>>> upstream/android-13
 
 				psg->sg[i].addr[0] = cpu_to_le32(addr & 0xffffffff);
 				psg->sg[i].addr[1] = cpu_to_le32(addr>>32);
@@ -810,8 +902,13 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 						goto cleanup;
 					}
 				}
+<<<<<<< HEAD
 				addr = pci_map_single(dev->pdev, p,
 							sg_count[i], data_dir);
+=======
+				addr = dma_map_single(&dev->pdev->dev, p,
+						      sg_count[i], data_dir);
+>>>>>>> upstream/android-13
 
 				psg->sg[i].addr[0] = cpu_to_le32(addr & 0xffffffff);
 				psg->sg[i].addr[1] = cpu_to_le32(addr>>32);
@@ -866,7 +963,13 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 						goto cleanup;
 					}
 				}
+<<<<<<< HEAD
 				addr = pci_map_single(dev->pdev, p, usg->sg[i].count, data_dir);
+=======
+				addr = dma_map_single(&dev->pdev->dev, p,
+						      usg->sg[i].count,
+						      data_dir);
+>>>>>>> upstream/android-13
 
 				psg->sg[i].addr = cpu_to_le32(addr & 0xffffffff);
 				byte_count += usg->sg[i].count;
@@ -905,8 +1008,13 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
 						goto cleanup;
 					}
 				}
+<<<<<<< HEAD
 				addr = pci_map_single(dev->pdev, p,
 					sg_count[i], data_dir);
+=======
+				addr = dma_map_single(&dev->pdev->dev, p,
+						      sg_count[i], data_dir);
+>>>>>>> upstream/android-13
 
 				psg->sg[i].addr = cpu_to_le32(addr);
 				byte_count += sg_count[i];
@@ -1061,7 +1169,11 @@ static int aac_send_reset_adapter(struct aac_dev *dev, void __user *arg)
 	return retval;
 }
 
+<<<<<<< HEAD
 int aac_do_ioctl(struct aac_dev * dev, int cmd, void __user *arg)
+=======
+int aac_do_ioctl(struct aac_dev *dev, unsigned int cmd, void __user *arg)
+>>>>>>> upstream/android-13
 {
 	int status;
 

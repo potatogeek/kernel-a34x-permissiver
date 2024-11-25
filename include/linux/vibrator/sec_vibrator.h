@@ -9,7 +9,10 @@
 #include <linux/kdev_t.h>
 #include <linux/device.h>
 
+<<<<<<< HEAD
 #define MAX_DUTY		100
+=======
+>>>>>>> upstream/android-13
 #define MAX_INTENSITY		10000
 #define MAX_TIMEOUT		10000
 #define PACKET_MAX_SIZE		1000
@@ -26,7 +29,10 @@ struct vib_packet {
 	int intensity;
 	int freq;
 	int overdrive;
+<<<<<<< HEAD
 	int fifo_flag;
+=======
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -62,6 +68,7 @@ enum EVENT_CMD {
 #define MAX_STR_LEN_VIB_TYPE 32
 #define MAX_STR_LEN_EVENT_CMD 32
 
+<<<<<<< HEAD
 #define SEC_VIBRATOR_DEFAULT_HIGH_TEMP_REF INT_MAX
 #define SEC_VIBRATOR_DEFAULT_HIGH_TEMP_RATIO 100
 
@@ -75,6 +82,11 @@ struct sec_vibrator_ops {
 	int (*get_fold_close_duty)(struct device *dev, char *buf);
 	int (*set_intensity)(struct device *dev, int intensity);
 	int (*set_fifo_intensity)(struct device *dev, int intensity);
+=======
+struct sec_vibrator_ops {
+	int (*enable)(struct device *dev, bool en);
+	int (*set_intensity)(struct device *dev, int intensity);
+>>>>>>> upstream/android-13
 	int (*set_frequency)(struct device *dev, int frequency);
 	int (*set_overdrive)(struct device *dev, bool en);
 	int (*get_motor_type)(struct device *dev, char *buf);
@@ -99,6 +111,7 @@ struct sec_vibrator_ops {
 	ssize_t (*get_pwle)(struct device *dev, char *buf);
 	ssize_t (*get_virtual_composite_indexes)(struct device *dev, char *buf);
 	ssize_t (*get_virtual_pwle_indexes)(struct device *dev, char *buf);
+<<<<<<< HEAD
 	int (*get_fifo_filepath)(struct device *dev, char *buf);
 	int (*enable_fifo)(struct device *dev, int file_num);
 	int (*update_packet_params)(struct device *dev);
@@ -109,6 +122,8 @@ struct sec_vibrator_pdata  {
 	int normal_ratio;
 	int high_temp_ratio;
 	int high_temp_ref;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct sec_vibrator_drvdata {
@@ -128,17 +143,23 @@ struct sec_vibrator_drvdata {
 	int packet_cnt;
 	unsigned int index;
 
+<<<<<<< HEAD
 	int temperature;
+=======
+>>>>>>> upstream/android-13
 	int force_touch_intensity;
 	int intensity;
 	int frequency;
 	bool overdrive;
 
 	int timeout;
+<<<<<<< HEAD
 	int time_compensation;
 	int max_delay_ms;
 
 	struct sec_vibrator_pdata *pdata;
+=======
+>>>>>>> upstream/android-13
 
 	char event_cmd[MAX_STR_LEN_EVENT_CMD];
 
@@ -147,5 +168,8 @@ struct sec_vibrator_drvdata {
 
 extern int sec_vibrator_register(struct sec_vibrator_drvdata *ddata);
 extern int sec_vibrator_unregister(struct sec_vibrator_drvdata *ddata);
+<<<<<<< HEAD
 extern int sec_vibrator_recheck_ratio(struct sec_vibrator_drvdata *ddata);
+=======
+>>>>>>> upstream/android-13
 #endif /* SEC_VIBRATOR_H */

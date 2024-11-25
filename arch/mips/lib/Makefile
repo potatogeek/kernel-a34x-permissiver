@@ -7,7 +7,11 @@ lib-y	+= bitops.o csum_partial.o delay.o memcpy.o memset.o \
 	   mips-atomic.o strncpy_user.o \
 	   strnlen_user.o uncached.o
 
+<<<<<<< HEAD
 obj-y			+= iomap.o iomap_copy.o
+=======
+obj-y			+= iomap_copy.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_PCI)	+= iomap-pci.o
 lib-$(CONFIG_GENERIC_CSUM)	:= $(filter-out csum_partial.o, $(lib-y))
 

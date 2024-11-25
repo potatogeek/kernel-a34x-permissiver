@@ -53,6 +53,10 @@ MODULE_AUTHOR("NTT Corp.");
 MODULE_DESCRIPTION("A New Implementation of the Log-structured Filesystem "
 		   "(NILFS)");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 static struct kmem_cache *nilfs_inode_cachep;
 struct kmem_cache *nilfs_transaction_cachep;
@@ -62,6 +66,7 @@ struct kmem_cache *nilfs_btree_path_cache;
 static int nilfs_setup_super(struct super_block *sb, int is_mount);
 static int nilfs_remount(struct super_block *sb, int *flags, char *data);
 
+<<<<<<< HEAD
 void __nilfs_msg(struct super_block *sb, const char *level, const char *fmt,
 		 ...)
 {
@@ -75,6 +80,27 @@ void __nilfs_msg(struct super_block *sb, const char *level, const char *fmt,
 		printk("%sNILFS (%s): %pV\n", level, sb->s_id, &vaf);
 	else
 		printk("%sNILFS: %pV\n", level, &vaf);
+=======
+void __nilfs_msg(struct super_block *sb, const char *fmt, ...)
+{
+	struct va_format vaf;
+	va_list args;
+	int level;
+
+	va_start(args, fmt);
+
+	level = printk_get_level(fmt);
+	vaf.fmt = printk_skip_level(fmt);
+	vaf.va = &args;
+
+	if (sb)
+		printk("%c%cNILFS (%s): %pV\n",
+		       KERN_SOH_ASCII, level, sb->s_id, &vaf);
+	else
+		printk("%c%cNILFS: %pV\n",
+		       KERN_SOH_ASCII, level, &vaf);
+
+>>>>>>> upstream/android-13
 	va_end(args);
 }
 
@@ -106,7 +132,11 @@ static void nilfs_set_error(struct super_block *sb)
  *
  * This implements the body of nilfs_error() macro.  Normally,
  * nilfs_error() should be used.  As for sustainable errors such as a
+<<<<<<< HEAD
  * single-shot I/O error, nilfs_msg() should be used instead.
+=======
+ * single-shot I/O error, nilfs_err() should be used instead.
+>>>>>>> upstream/android-13
  *
  * Callers should not add a trailing newline since this will do it.
  */
@@ -155,21 +185,29 @@ struct inode *nilfs_alloc_inode(struct super_block *sb)
 	return &ii->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void nilfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
 
+=======
+static void nilfs_free_inode(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	if (nilfs_is_metadata_file_inode(inode))
 		nilfs_mdt_destroy(inode);
 
 	kmem_cache_free(nilfs_inode_cachep, NILFS_I(inode));
 }
 
+<<<<<<< HEAD
 void nilfs_destroy_inode(struct inode *inode)
 {
 	call_rcu(&inode->i_rcu, nilfs_i_callback);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int nilfs_sync_super(struct super_block *sb, int flag)
 {
 	struct the_nilfs *nilfs = sb->s_fs_info;
@@ -185,8 +223,12 @@ static int nilfs_sync_super(struct super_block *sb, int flag)
 	}
 
 	if (unlikely(err)) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_ERR, "unable to write superblock: err=%d",
 			  err);
+=======
+		nilfs_err(sb, "unable to write superblock: err=%d", err);
+>>>>>>> upstream/android-13
 		if (err == -EIO && nilfs->ns_sbh[1]) {
 			/*
 			 * sbp[0] points to newer log than sbp[1],
@@ -256,7 +298,11 @@ struct nilfs_super_block **nilfs_prepare_super(struct super_block *sb,
 		    sbp[1]->s_magic == cpu_to_le16(NILFS_SUPER_MAGIC)) {
 			memcpy(sbp[0], sbp[1], nilfs->ns_sbsize);
 		} else {
+<<<<<<< HEAD
 			nilfs_msg(sb, KERN_CRIT, "superblock broke");
+=======
+			nilfs_crit(sb, "superblock broke");
+>>>>>>> upstream/android-13
 			return NULL;
 		}
 	} else if (sbp[1] &&
@@ -366,9 +412,15 @@ static int nilfs_move_2nd_super(struct super_block *sb, loff_t sb2off)
 	offset = sb2off & (nilfs->ns_blocksize - 1);
 	nsbh = sb_getblk(sb, newblocknr);
 	if (!nsbh) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_WARNING,
 			  "unable to move secondary superblock to block %llu",
 			  (unsigned long long)newblocknr);
+=======
+		nilfs_warn(sb,
+			   "unable to move secondary superblock to block %llu",
+			   (unsigned long long)newblocknr);
+>>>>>>> upstream/android-13
 		ret = -EIO;
 		goto out;
 	}
@@ -531,7 +583,11 @@ int nilfs_attach_checkpoint(struct super_block *sb, __u64 cno, int curr_mnt,
 	up_read(&nilfs->ns_segctor_sem);
 	if (unlikely(err)) {
 		if (err == -ENOENT || err == -EINVAL) {
+<<<<<<< HEAD
 			nilfs_msg(sb, KERN_ERR,
+=======
+			nilfs_err(sb,
+>>>>>>> upstream/android-13
 				  "Invalid checkpoint (checkpoint number=%llu)",
 				  (unsigned long long)cno);
 			err = -EINVAL;
@@ -629,8 +685,12 @@ static int nilfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	err = nilfs_ifile_count_free_inodes(root->ifile,
 					    &nmaxinodes, &nfreeinodes);
 	if (unlikely(err)) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_WARNING,
 			  "failed to count free inodes: err=%d", err);
+=======
+		nilfs_warn(sb, "failed to count free inodes: err=%d", err);
+>>>>>>> upstream/android-13
 		if (err == -ERANGE) {
 			/*
 			 * If nilfs_palloc_count_max_entries() returns
@@ -654,8 +714,12 @@ static int nilfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_files = nmaxinodes;
 	buf->f_ffree = nfreeinodes;
 	buf->f_namelen = NILFS_NAME_LEN;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -686,7 +750,11 @@ static int nilfs_show_options(struct seq_file *seq, struct dentry *dentry)
 
 static const struct super_operations nilfs_sops = {
 	.alloc_inode    = nilfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode  = nilfs_destroy_inode,
+=======
+	.free_inode     = nilfs_free_inode,
+>>>>>>> upstream/android-13
 	.dirty_inode    = nilfs_dirty_inode,
 	.evict_inode    = nilfs_evict_inode,
 	.put_super      = nilfs_put_super,
@@ -762,7 +830,11 @@ static int parse_options(char *options, struct super_block *sb, int is_remount)
 			break;
 		case Opt_snapshot:
 			if (is_remount) {
+<<<<<<< HEAD
 				nilfs_msg(sb, KERN_ERR,
+=======
+				nilfs_err(sb,
+>>>>>>> upstream/android-13
 					  "\"%s\" option is invalid for remount",
 					  p);
 				return 0;
@@ -778,8 +850,12 @@ static int parse_options(char *options, struct super_block *sb, int is_remount)
 			nilfs_clear_opt(nilfs, DISCARD);
 			break;
 		default:
+<<<<<<< HEAD
 			nilfs_msg(sb, KERN_ERR,
 				  "unrecognized mount option \"%s\"", p);
+=======
+			nilfs_err(sb, "unrecognized mount option \"%s\"", p);
+>>>>>>> upstream/android-13
 			return 0;
 		}
 	}
@@ -815,10 +891,17 @@ static int nilfs_setup_super(struct super_block *sb, int is_mount)
 	mnt_count = le16_to_cpu(sbp[0]->s_mnt_count);
 
 	if (nilfs->ns_mount_state & NILFS_ERROR_FS) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_WARNING, "mounting fs with errors");
 #if 0
 	} else if (max_mnt_count >= 0 && mnt_count >= max_mnt_count) {
 		nilfs_msg(sb, KERN_WARNING, "maximal mount count reached");
+=======
+		nilfs_warn(sb, "mounting fs with errors");
+#if 0
+	} else if (max_mnt_count >= 0 && mnt_count >= max_mnt_count) {
+		nilfs_warn(sb, "maximal mount count reached");
+>>>>>>> upstream/android-13
 #endif
 	}
 	if (!max_mnt_count)
@@ -881,7 +964,11 @@ int nilfs_check_feature_compatibility(struct super_block *sb,
 	features = le64_to_cpu(sbp->s_feature_incompat) &
 		~NILFS_FEATURE_INCOMPAT_SUPP;
 	if (features) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_ERR,
+=======
+		nilfs_err(sb,
+>>>>>>> upstream/android-13
 			  "couldn't mount because of unsupported optional features (%llx)",
 			  (unsigned long long)features);
 		return -EINVAL;
@@ -889,7 +976,11 @@ int nilfs_check_feature_compatibility(struct super_block *sb,
 	features = le64_to_cpu(sbp->s_feature_compat_ro) &
 		~NILFS_FEATURE_COMPAT_RO_SUPP;
 	if (!sb_rdonly(sb) && features) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_ERR,
+=======
+		nilfs_err(sb,
+>>>>>>> upstream/android-13
 			  "couldn't mount RDWR because of unsupported optional features (%llx)",
 			  (unsigned long long)features);
 		return -EINVAL;
@@ -908,12 +999,20 @@ static int nilfs_get_root_dentry(struct super_block *sb,
 	inode = nilfs_iget(sb, root, NILFS_ROOT_INO);
 	if (IS_ERR(inode)) {
 		ret = PTR_ERR(inode);
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_ERR, "error %d getting root inode", ret);
+=======
+		nilfs_err(sb, "error %d getting root inode", ret);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	if (!S_ISDIR(inode->i_mode) || !inode->i_blocks || !inode->i_size) {
 		iput(inode);
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_ERR, "corrupt root inode");
+=======
+		nilfs_err(sb, "corrupt root inode");
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out;
 	}
@@ -941,7 +1040,11 @@ static int nilfs_get_root_dentry(struct super_block *sb,
 	return ret;
 
  failed_dentry:
+<<<<<<< HEAD
 	nilfs_msg(sb, KERN_ERR, "error %d getting root dentry", ret);
+=======
+	nilfs_err(sb, "error %d getting root dentry", ret);
+>>>>>>> upstream/android-13
 	goto out;
 }
 
@@ -961,7 +1064,11 @@ static int nilfs_attach_snapshot(struct super_block *s, __u64 cno,
 		ret = (ret == -ENOENT) ? -EINVAL : ret;
 		goto out;
 	} else if (!ret) {
+<<<<<<< HEAD
 		nilfs_msg(s, KERN_ERR,
+=======
+		nilfs_err(s,
+>>>>>>> upstream/android-13
 			  "The specified checkpoint is not a snapshot (checkpoint number=%llu)",
 			  (unsigned long long)cno);
 		ret = -EINVAL;
@@ -970,7 +1077,11 @@ static int nilfs_attach_snapshot(struct super_block *s, __u64 cno,
 
 	ret = nilfs_attach_checkpoint(s, cno, false, &root);
 	if (ret) {
+<<<<<<< HEAD
 		nilfs_msg(s, KERN_ERR,
+=======
+		nilfs_err(s,
+>>>>>>> upstream/android-13
 			  "error %d while loading snapshot (checkpoint number=%llu)",
 			  ret, (unsigned long long)cno);
 		goto out;
@@ -1058,7 +1169,11 @@ nilfs_fill_super(struct super_block *sb, void *data, int silent)
 	sb->s_time_gran = 1;
 	sb->s_max_links = NILFS_LINK_MAX;
 
+<<<<<<< HEAD
 	sb->s_bdi = bdi_get(sb->s_bdev->bd_bdi);
+=======
+	sb->s_bdi = bdi_get(sb->s_bdev->bd_disk->bdi);
+>>>>>>> upstream/android-13
 
 	err = load_nilfs(nilfs, sb);
 	if (err)
@@ -1067,7 +1182,11 @@ nilfs_fill_super(struct super_block *sb, void *data, int silent)
 	cno = nilfs_last_cno(nilfs);
 	err = nilfs_attach_checkpoint(sb, cno, true, &fsroot);
 	if (err) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_ERR,
+=======
+		nilfs_err(sb,
+>>>>>>> upstream/android-13
 			  "error %d while loading last checkpoint (checkpoint number=%llu)",
 			  err, (unsigned long long)cno);
 		goto failed_unload;
@@ -1129,8 +1248,13 @@ static int nilfs_remount(struct super_block *sb, int *flags, char *data)
 	err = -EINVAL;
 
 	if (!nilfs_valid_fs(nilfs)) {
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_WARNING,
 			  "couldn't remount because the filesystem is in an incomplete recovery state");
+=======
+		nilfs_warn(sb,
+			   "couldn't remount because the filesystem is in an incomplete recovery state");
+>>>>>>> upstream/android-13
 		goto restore_opts;
 	}
 
@@ -1162,9 +1286,15 @@ static int nilfs_remount(struct super_block *sb, int *flags, char *data)
 			~NILFS_FEATURE_COMPAT_RO_SUPP;
 		up_read(&nilfs->ns_sem);
 		if (features) {
+<<<<<<< HEAD
 			nilfs_msg(sb, KERN_WARNING,
 				  "couldn't remount RDWR because of unsupported optional features (%llx)",
 				  (unsigned long long)features);
+=======
+			nilfs_warn(sb,
+				   "couldn't remount RDWR because of unsupported optional features (%llx)",
+				   (unsigned long long)features);
+>>>>>>> upstream/android-13
 			err = -EROFS;
 			goto restore_opts;
 		}
@@ -1223,7 +1353,11 @@ static int nilfs_parse_snapshot_option(const char *option,
 	return 0;
 
 parse_error:
+<<<<<<< HEAD
 	nilfs_msg(NULL, KERN_ERR, "invalid option \"%s\": %s", option, msg);
+=======
+	nilfs_err(NULL, "invalid option \"%s\": %s", option, msg);
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -1326,7 +1460,11 @@ nilfs_mount(struct file_system_type *fs_type, int flags,
 	} else if (!sd.cno) {
 		if (nilfs_tree_is_busy(s->s_root)) {
 			if ((flags ^ s->s_flags) & SB_RDONLY) {
+<<<<<<< HEAD
 				nilfs_msg(s, KERN_ERR,
+=======
+				nilfs_err(s,
+>>>>>>> upstream/android-13
 					  "the device already has a %s mount.",
 					  sb_rdonly(s) ? "read-only" : "read/write");
 				err = -EBUSY;

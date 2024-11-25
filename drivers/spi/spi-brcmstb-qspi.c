@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016 Broadcom
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2016 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>

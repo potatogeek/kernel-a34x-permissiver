@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Serial Attached SCSI (SAS) Port class
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -20,13 +25,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "sas_internal.h"
 
 #include <scsi/scsi_transport.h>
 #include <scsi/scsi_transport_sas.h>
+<<<<<<< HEAD
 #include "../scsi_sas_internal.h"
+=======
+#include "scsi_sas_internal.h"
+>>>>>>> upstream/android-13
 
 static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy *phy)
 {
@@ -41,7 +52,11 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
 
 static void sas_resume_port(struct asd_sas_phy *phy)
 {
+<<<<<<< HEAD
 	struct domain_device *dev;
+=======
+	struct domain_device *dev, *n;
+>>>>>>> upstream/android-13
 	struct asd_sas_port *port = phy->port;
 	struct sas_ha_struct *sas_ha = phy->ha;
 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
@@ -60,7 +75,11 @@ static void sas_resume_port(struct asd_sas_phy *phy)
 	 * 1/ presume every device came back
 	 * 2/ force the next revalidation to check all expander phys
 	 */
+<<<<<<< HEAD
 	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
+=======
+	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
+>>>>>>> upstream/android-13
 		int i, rc;
 
 		rc = sas_notify_lldd_dev_found(dev);
@@ -70,7 +89,11 @@ static void sas_resume_port(struct asd_sas_phy *phy)
 			continue;
 		}
 
+<<<<<<< HEAD
 		if (dev->dev_type == SAS_EDGE_EXPANDER_DEVICE || dev->dev_type == SAS_FANOUT_EXPANDER_DEVICE) {
+=======
+		if (dev_is_expander(dev->dev_type)) {
+>>>>>>> upstream/android-13
 			dev->ex_dev.ex_change_count = -1;
 			for (i = 0; i < dev->ex_dev.num_phys; i++) {
 				struct ex_phy *phy = &dev->ex_dev.ex_phy[i];
@@ -95,6 +118,10 @@ static void sas_form_port(struct asd_sas_phy *phy)
 	int i;
 	struct sas_ha_struct *sas_ha = phy->ha;
 	struct asd_sas_port *port = phy->port;
+<<<<<<< HEAD
+=======
+	struct domain_device *port_dev;
+>>>>>>> upstream/android-13
 	struct sas_internal *si =
 		to_sas_internal(sas_ha->core.shost->transportt);
 	unsigned long flags;
@@ -110,9 +137,15 @@ static void sas_form_port(struct asd_sas_phy *phy)
 			wake_up(&sas_ha->eh_wait_q);
 			return;
 		} else {
+<<<<<<< HEAD
 			SAS_DPRINTK("%s: phy%d belongs to port%d already(%d)!\n",
 				    __func__, phy->id, phy->port->id,
 				    phy->port->num_phys);
+=======
+			pr_info("%s: phy%d belongs to port%d already(%d)!\n",
+				__func__, phy->id, phy->port->id,
+				phy->port->num_phys);
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
@@ -125,8 +158,13 @@ static void sas_form_port(struct asd_sas_phy *phy)
 		if (*(u64 *) port->sas_addr &&
 		    phy_is_wideport_member(port, phy) && port->num_phys > 0) {
 			/* wide port */
+<<<<<<< HEAD
 			SAS_DPRINTK("phy%d matched wide port%d\n", phy->id,
 				    port->id);
+=======
+			pr_debug("phy%d matched wide port%d\n", phy->id,
+				 port->id);
+>>>>>>> upstream/android-13
 			break;
 		}
 		spin_unlock(&port->phy_list_lock);
@@ -147,15 +185,25 @@ static void sas_form_port(struct asd_sas_phy *phy)
 	}
 
 	if (i >= sas_ha->num_phys) {
+<<<<<<< HEAD
 		printk(KERN_NOTICE "%s: couldn't find a free port, bug?\n",
 		       __func__);
+=======
+		pr_err("%s: couldn't find a free port, bug?\n", __func__);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&sas_ha->phy_port_lock, flags);
 		return;
 	}
 
 	/* add the phy to the port */
+<<<<<<< HEAD
 	list_add_tail(&phy->port_phy_el, &port->phy_list);
 	sas_phy_set_target(phy, port->port_dev);
+=======
+	port_dev = port->port_dev;
+	list_add_tail(&phy->port_phy_el, &port->phy_list);
+	sas_phy_set_target(phy, port_dev);
+>>>>>>> upstream/android-13
 	phy->port = port;
 	port->num_phys++;
 	port->phy_mask |= (1U << phy->id);
@@ -180,6 +228,7 @@ static void sas_form_port(struct asd_sas_phy *phy)
 	}
 	sas_port_add_phy(port->port, phy->phy);
 
+<<<<<<< HEAD
 	SAS_DPRINTK("%s added to %s, phy_mask:0x%x (%16llx)\n",
 		    dev_name(&phy->phy->dev), dev_name(&port->port->dev),
 		    port->phy_mask,
@@ -187,12 +236,31 @@ static void sas_form_port(struct asd_sas_phy *phy)
 
 	if (port->port_dev)
 		port->port_dev->pathways = port->num_phys;
+=======
+	pr_debug("%s added to %s, phy_mask:0x%x (%016llx)\n",
+		 dev_name(&phy->phy->dev), dev_name(&port->port->dev),
+		 port->phy_mask,
+		 SAS_ADDR(port->attached_sas_addr));
+
+	if (port_dev)
+		port_dev->pathways = port->num_phys;
+>>>>>>> upstream/android-13
 
 	/* Tell the LLDD about this port formation. */
 	if (si->dft->lldd_port_formed)
 		si->dft->lldd_port_formed(phy);
 
 	sas_discover_event(phy->port, DISCE_DISCOVER_DOMAIN);
+<<<<<<< HEAD
+=======
+	/* Only insert a revalidate event after initial discovery */
+	if (port_dev && dev_is_expander(port_dev->dev_type)) {
+		struct expander_device *ex_dev = &port_dev->ex_dev;
+
+		ex_dev->ex_change_count = -1;
+		sas_discover_event(port, DISCE_REVALIDATE_DOMAIN);
+	}
+>>>>>>> upstream/android-13
 	flush_workqueue(sas_ha->disco_q);
 }
 
@@ -255,6 +323,18 @@ void sas_deform_port(struct asd_sas_phy *phy, int gone)
 	spin_unlock(&port->phy_list_lock);
 	spin_unlock_irqrestore(&sas_ha->phy_port_lock, flags);
 
+<<<<<<< HEAD
+=======
+	/* Only insert revalidate event if the port still has members */
+	if (port->port && dev && dev_is_expander(dev->dev_type)) {
+		struct expander_device *ex_dev = &dev->ex_dev;
+
+		ex_dev->ex_change_count = -1;
+		sas_discover_event(port, DISCE_REVALIDATE_DOMAIN);
+	}
+	flush_workqueue(sas_ha->disco_q);
+
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -279,7 +359,11 @@ void sas_porte_broadcast_rcvd(struct work_struct *work)
 	prim = phy->sas_prim;
 	spin_unlock_irqrestore(&phy->sas_prim_lock, flags);
 
+<<<<<<< HEAD
 	SAS_DPRINTK("broadcast received: %d\n", prim);
+=======
+	pr_debug("broadcast received: %d\n", prim);
+>>>>>>> upstream/android-13
 	sas_discover_event(phy->port, DISCE_REVALIDATE_DOMAIN);
 
 	if (phy->port)

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale Vybrid vf610 DAC driver
  *
  * Copyright 2016 Toradex AG
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -45,6 +52,10 @@ struct vf610_dac {
 	struct device *dev;
 	enum vf610_conversion_mode_sel conv_mode;
 	void __iomem *regs;
+<<<<<<< HEAD
+=======
+	struct mutex lock;
+>>>>>>> upstream/android-13
 };
 
 static void vf610_dac_init(struct vf610_dac *info)
@@ -73,7 +84,11 @@ static int vf610_set_conversion_mode(struct iio_dev *indio_dev,
 	struct vf610_dac *info = iio_priv(indio_dev);
 	int val;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&info->lock);
+>>>>>>> upstream/android-13
 	info->conv_mode = mode;
 	val = readl(info->regs + VF610_DACx_STATCTRL);
 	if (mode)
@@ -81,7 +96,11 @@ static int vf610_set_conversion_mode(struct iio_dev *indio_dev,
 	else
 		val &= ~VF610_DAC_LPEN;
 	writel(val, info->regs + VF610_DACx_STATCTRL);
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&info->lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -156,9 +175,15 @@ static int vf610_write_raw(struct iio_dev *indio_dev,
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
+<<<<<<< HEAD
 		mutex_lock(&indio_dev->mlock);
 		writel(VF610_DAC_DAT0(val), info->regs);
 		mutex_unlock(&indio_dev->mlock);
+=======
+		mutex_lock(&info->lock);
+		writel(VF610_DAC_DAT0(val), info->regs);
+		mutex_unlock(&info->lock);
+>>>>>>> upstream/android-13
 		return 0;
 
 	default:
@@ -181,7 +206,10 @@ static int vf610_dac_probe(struct platform_device *pdev)
 {
 	struct iio_dev *indio_dev;
 	struct vf610_dac *info;
+<<<<<<< HEAD
 	struct resource *mem;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	indio_dev = devm_iio_device_alloc(&pdev->dev,
@@ -194,8 +222,12 @@ static int vf610_dac_probe(struct platform_device *pdev)
 	info = iio_priv(indio_dev);
 	info->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	info->regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	info->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(info->regs))
 		return PTR_ERR(info->regs);
 
@@ -209,13 +241,21 @@ static int vf610_dac_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, indio_dev);
 
 	indio_dev->name = dev_name(&pdev->dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
 	indio_dev->dev.of_node = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &vf610_dac_iio_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = vf610_dac_iio_channels;
 	indio_dev->num_channels = ARRAY_SIZE(vf610_dac_iio_channels);
 
+<<<<<<< HEAD
+=======
+	mutex_init(&info->lock);
+
+>>>>>>> upstream/android-13
 	ret = clk_prepare_enable(info->clk);
 	if (ret) {
 		dev_err(&pdev->dev,

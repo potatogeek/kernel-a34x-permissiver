@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*  KVM paravirtual clock driver. A clocksource implementation
     Copyright (C) 2008 Glauber de Oliveira Costa, Red Hat Inc.
 
@@ -14,6 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*  KVM paravirtual clock driver. A clocksource implementation
+    Copyright (C) 2008 Glauber de Oliveira Costa, Red Hat Inc.
+>>>>>>> upstream/android-13
 */
 
 #include <linux/clocksource.h>
@@ -33,7 +39,10 @@
 #include <asm/hypervisor.h>
 #include <asm/mem_encrypt.h>
 #include <asm/x86_init.h>
+<<<<<<< HEAD
 #include <asm/reboot.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/kvmclock.h>
 
 static int kvmclock __initdata = 1;
@@ -57,13 +66,17 @@ static int __init parse_no_kvmclock_vsyscall(char *arg)
 early_param("no-kvmclock-vsyscall", parse_no_kvmclock_vsyscall);
 
 /* Aligned to page sizes to match whats mapped via vsyscalls to userspace */
+<<<<<<< HEAD
 #define HV_CLOCK_SIZE	(sizeof(struct pvclock_vsyscall_time_info) * NR_CPUS)
+=======
+>>>>>>> upstream/android-13
 #define HVC_BOOT_ARRAY_SIZE \
 	(PAGE_SIZE / sizeof(struct pvclock_vsyscall_time_info))
 
 static struct pvclock_vsyscall_time_info
 			hv_clock_boot[HVC_BOOT_ARRAY_SIZE] __bss_decrypted __aligned(PAGE_SIZE);
 static struct pvclock_wall_clock wall_clock __bss_decrypted;
+<<<<<<< HEAD
 static DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
 static struct pvclock_vsyscall_time_info *hvclock_mem;
 
@@ -76,6 +89,11 @@ static inline struct pvclock_vsyscall_time_info *this_cpu_hvclock(void)
 {
 	return this_cpu_read(hv_clock_per_cpu);
 }
+=======
+static struct pvclock_vsyscall_time_info *hvclock_mem;
+DEFINE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
+EXPORT_PER_CPU_SYMBOL_GPL(hv_clock_per_cpu);
+>>>>>>> upstream/android-13
 
 /*
  * The wallclock is the time of day when we booted. Since then, some time may
@@ -120,7 +138,11 @@ static inline void kvm_sched_clock_init(bool stable)
 	if (!stable)
 		clear_sched_clock_stable();
 	kvm_sched_clock_offset = kvm_clock_read();
+<<<<<<< HEAD
 	pv_time_ops.sched_clock = kvm_sched_clock_read;
+=======
+	paravirt_set_sched_clock(kvm_sched_clock_read);
+>>>>>>> upstream/android-13
 
 	pr_info("kvm-clock: using sched offset of %llu cycles",
 		kvm_sched_clock_offset);
@@ -172,12 +194,25 @@ bool kvm_check_and_clear_guest_paused(void)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int kvm_cs_enable(struct clocksource *cs)
+{
+	vclocks_set_used(VDSO_CLOCKMODE_PVCLOCK);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 struct clocksource kvm_clock = {
 	.name	= "kvm-clock",
 	.read	= kvm_clock_get_cycles,
 	.rating	= 400,
 	.mask	= CLOCKSOURCE_MASK(64),
 	.flags	= CLOCK_SOURCE_IS_CONTINUOUS,
+<<<<<<< HEAD
+=======
+	.enable	= kvm_cs_enable,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(kvm_clock);
 
@@ -210,6 +245,7 @@ static void kvm_setup_secondary_clock(void)
 }
 #endif
 
+<<<<<<< HEAD
 /*
  * After the clock is registered, the host will keep writing to the
  * registered memory location. If the guest happens to shutdown, this memory
@@ -232,6 +268,11 @@ static void kvm_shutdown(void)
 	native_write_msr(msr_kvm_system_time, 0, 0);
 	kvm_disable_steal_time();
 	native_machine_shutdown();
+=======
+void kvmclock_disable(void)
+{
+	native_write_msr(msr_kvm_system_time, 0, 0);
+>>>>>>> upstream/android-13
 }
 
 static void __init kvmclock_init_mem(void)
@@ -275,6 +316,7 @@ static void __init kvmclock_init_mem(void)
 
 static int __init kvm_setup_vsyscall_timeinfo(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 	u8 flags;
 
@@ -290,6 +332,22 @@ static int __init kvm_setup_vsyscall_timeinfo(void)
 
 	kvmclock_init_mem();
 
+=======
+	kvmclock_init_mem();
+
+#ifdef CONFIG_X86_64
+	if (per_cpu(hv_clock_per_cpu, 0) && kvmclock_vsyscall) {
+		u8 flags;
+
+		flags = pvclock_read_flags(&hv_clock_boot[0].pvti);
+		if (!(flags & PVCLOCK_TSC_STABLE_BIT))
+			return 0;
+
+		kvm_clock.vdso_clock_mode = VDSO_CLOCKMODE_PVCLOCK;
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 early_initcall(kvm_setup_vsyscall_timeinfo);
@@ -359,11 +417,29 @@ void __init kvmclock_init(void)
 #endif
 	x86_platform.save_sched_clock_state = kvm_save_sched_clock_state;
 	x86_platform.restore_sched_clock_state = kvm_restore_sched_clock_state;
+<<<<<<< HEAD
 	machine_ops.shutdown  = kvm_shutdown;
 #ifdef CONFIG_KEXEC_CORE
 	machine_ops.crash_shutdown  = kvm_crash_shutdown;
 #endif
 	kvm_get_preset_lpj();
+=======
+	kvm_get_preset_lpj();
+
+	/*
+	 * X86_FEATURE_NONSTOP_TSC is TSC runs at constant rate
+	 * with P/T states and does not stop in deep C-states.
+	 *
+	 * Invariant TSC exposed by host means kvmclock is not necessary:
+	 * can use TSC as clocksource.
+	 *
+	 */
+	if (boot_cpu_has(X86_FEATURE_CONSTANT_TSC) &&
+	    boot_cpu_has(X86_FEATURE_NONSTOP_TSC) &&
+	    !check_tsc_unstable())
+		kvm_clock.rating = 299;
+
+>>>>>>> upstream/android-13
 	clocksource_register_hz(&kvm_clock, NSEC_PER_SEC);
 	pv_info.name = "KVM";
 }

@@ -16,7 +16,11 @@
  *   LVS	Lawrence V. Stefani <lstefani@yahoo.com>
  *
  * Maintainers:
+<<<<<<< HEAD
  *   macro	Maciej W. Rozycki <macro@linux-mips.org>
+=======
+ *   macro	Maciej W. Rozycki <macro@orcam.me.uk>
+>>>>>>> upstream/android-13
  *
  * Modification History:
  *		Date		Name	Description
@@ -27,6 +31,10 @@
  *		04 Aug 2003	macro		Converted to the DMA API.
  *		23 Oct 2006	macro		Big-endian host support.
  *		14 Dec 2006	macro		TURBOchannel support.
+<<<<<<< HEAD
+=======
+ *		10 Mar 2021	macro		Dynamic MMIO vs port I/O.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DEFXX_H_
@@ -1776,6 +1784,11 @@ typedef struct DFX_board_tag
 		int port;
 	} base;										/* base address */
 	struct device			*bus_dev;
+<<<<<<< HEAD
+=======
+	/* Whether to use MMIO or port I/O.  */
+	bool				mmio;
+>>>>>>> upstream/android-13
 	u32				full_duplex_enb;				/* FDDI Full Duplex enable (1 == on, 2 == off) */
 	u32				req_ttrt;					/* requested TTRT value (in 80ns units) */
 	u32				burst_size;					/* adapter burst size (enumerated) */

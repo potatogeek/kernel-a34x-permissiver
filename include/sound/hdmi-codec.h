@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * hdmi-codec.h - HDMI Codec driver API
  *
@@ -13,6 +14,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * hdmi-codec.h - HDMI Codec driver API
+ *
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com
+ *
+ * Author: Jyri Sarha <jsarha@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HDMI_CODEC_H__
@@ -42,6 +52,14 @@ struct hdmi_codec_daifmt {
 	unsigned int frame_clk_inv:1;
 	unsigned int bit_clk_master:1;
 	unsigned int frame_clk_master:1;
+<<<<<<< HEAD
+=======
+	/* bit_fmt could be standard PCM format or
+	 * IEC958 encoded format. ALSA IEC958 plugin will pass
+	 * IEC958_SUBFRAME format to the underneath driver.
+	 */
+	snd_pcm_format_t bit_fmt;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -55,6 +73,12 @@ struct hdmi_codec_params {
 	int channels;
 };
 
+<<<<<<< HEAD
+=======
+typedef void (*hdmi_codec_plugged_cb)(struct device *dev,
+				      bool plugged);
+
+>>>>>>> upstream/android-13
 struct hdmi_codec_pdata;
 struct hdmi_codec_ops {
 	/*
@@ -65,13 +89,30 @@ struct hdmi_codec_ops {
 
 	/*
 	 * Configures HDMI-encoder for audio stream.
+<<<<<<< HEAD
 	 * Mandatory
+=======
+	 * Having either prepare or hw_params is mandatory.
+>>>>>>> upstream/android-13
 	 */
 	int (*hw_params)(struct device *dev, void *data,
 			 struct hdmi_codec_daifmt *fmt,
 			 struct hdmi_codec_params *hparms);
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Configures HDMI-encoder for audio stream. Can be called
+	 * multiple times for each setup.
+	 *
+	 * Having either prepare or hw_params is mandatory.
+	 */
+	int (*prepare)(struct device *dev, void *data,
+		       struct hdmi_codec_daifmt *fmt,
+		       struct hdmi_codec_params *hparms);
+
+	/*
+>>>>>>> upstream/android-13
 	 * Shuts down the audio stream.
 	 * Mandatory
 	 */
@@ -81,7 +122,12 @@ struct hdmi_codec_ops {
 	 * Mute/unmute HDMI audio stream.
 	 * Optional
 	 */
+<<<<<<< HEAD
 	int (*digital_mute)(struct device *dev, void *data, bool enable);
+=======
+	int (*mute_stream)(struct device *dev, void *data,
+			   bool enable, int direction);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Provides EDID-Like-Data from connected HDMI device.
@@ -96,6 +142,20 @@ struct hdmi_codec_ops {
 	 */
 	int (*get_dai_id)(struct snd_soc_component *comment,
 			  struct device_node *endpoint);
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Hook callback function to handle connector plug event.
+	 * Optional
+	 */
+	int (*hook_plugged_cb)(struct device *dev, void *data,
+			       hdmi_codec_plugged_cb fn,
+			       struct device *codec_dev);
+
+	/* bit field */
+	unsigned int no_capture_mute:1;
+>>>>>>> upstream/android-13
 };
 
 /* HDMI codec initalization data */
@@ -107,6 +167,12 @@ struct hdmi_codec_pdata {
 	void *data;
 };
 
+<<<<<<< HEAD
+=======
+struct snd_soc_component;
+struct snd_soc_jack;
+
+>>>>>>> upstream/android-13
 #define HDMI_CODEC_DRV_NAME "hdmi-audio-codec"
 
 #endif /* __HDMI_CODEC_H__ */

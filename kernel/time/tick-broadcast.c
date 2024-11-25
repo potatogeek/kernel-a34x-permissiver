@@ -1,15 +1,23 @@
+<<<<<<< HEAD
 /*
  * linux/kernel/time/tick-broadcast.c
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+>>>>>>> upstream/android-13
  * This file contains functions which emulate a local clock-event
  * device via a broadcast event source.
  *
  * Copyright(C) 2005-2006, Thomas Gleixner <tglx@linutronix.de>
  * Copyright(C) 2005-2007, Red Hat, Inc., Ingo Molnar
  * Copyright(C) 2006-2007, Timesys Corp., Thomas Gleixner
+<<<<<<< HEAD
  *
  * This code is licenced under the GPL version 2. For details see
  * kernel-base/COPYING.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/cpu.h>
 #include <linux/err.h>
@@ -23,6 +31,7 @@
 
 #include "tick-internal.h"
 
+<<<<<<< HEAD
 #define CONFIG_MTK_TICK_BROADCAST_AEE_DUMP
 
 #ifdef CONFIG_MTK_AEE_IPANIC
@@ -35,6 +44,8 @@
 #endif
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Broadcast support for broken x86 hardware, where the local apic
  * timer stops in C3 state.
@@ -49,13 +60,30 @@ static int tick_broadcast_forced;
 static __cacheline_aligned_in_smp DEFINE_RAW_SPINLOCK(tick_broadcast_lock);
 
 #ifdef CONFIG_TICK_ONESHOT
+<<<<<<< HEAD
 static void tick_broadcast_setup_oneshot(struct clock_event_device *bc);
 static void tick_broadcast_clear_oneshot(int cpu);
 static void tick_resume_broadcast_oneshot(struct clock_event_device *bc);
+=======
+static DEFINE_PER_CPU(struct clock_event_device *, tick_oneshot_wakeup_device);
+
+static void tick_broadcast_setup_oneshot(struct clock_event_device *bc);
+static void tick_broadcast_clear_oneshot(int cpu);
+static void tick_resume_broadcast_oneshot(struct clock_event_device *bc);
+# ifdef CONFIG_HOTPLUG_CPU
+static void tick_broadcast_oneshot_offline(unsigned int cpu);
+# endif
+>>>>>>> upstream/android-13
 #else
 static inline void tick_broadcast_setup_oneshot(struct clock_event_device *bc) { BUG(); }
 static inline void tick_broadcast_clear_oneshot(int cpu) { }
 static inline void tick_resume_broadcast_oneshot(struct clock_event_device *bc) { }
+<<<<<<< HEAD
+=======
+# ifdef CONFIG_HOTPLUG_CPU
+static inline void tick_broadcast_oneshot_offline(unsigned int cpu) { }
+# endif
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -71,6 +99,16 @@ struct cpumask *tick_get_broadcast_mask(void)
 	return tick_broadcast_mask;
 }
 
+<<<<<<< HEAD
+=======
+static struct clock_event_device *tick_get_oneshot_wakeup_device(int cpu);
+
+const struct clock_event_device *tick_get_wakeup_device(int cpu)
+{
+	return tick_get_oneshot_wakeup_device(cpu);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Start the device in periodic mode
  */
@@ -98,6 +136,7 @@ static bool tick_check_broadcast_device(struct clock_event_device *curdev,
 	return !curdev || newdev->rating > curdev->rating;
 }
 
+<<<<<<< HEAD
 /*
  * Conditionally install/replace broadcast device
  */
@@ -105,6 +144,77 @@ void tick_install_broadcast_device(struct clock_event_device *dev)
 {
 	struct clock_event_device *cur = tick_broadcast_device.evtdev;
 
+=======
+#ifdef CONFIG_TICK_ONESHOT
+static struct clock_event_device *tick_get_oneshot_wakeup_device(int cpu)
+{
+	return per_cpu(tick_oneshot_wakeup_device, cpu);
+}
+
+static void tick_oneshot_wakeup_handler(struct clock_event_device *wd)
+{
+	/*
+	 * If we woke up early and the tick was reprogrammed in the
+	 * meantime then this may be spurious but harmless.
+	 */
+	tick_receive_broadcast();
+}
+
+static bool tick_set_oneshot_wakeup_device(struct clock_event_device *newdev,
+					   int cpu)
+{
+	struct clock_event_device *curdev = tick_get_oneshot_wakeup_device(cpu);
+
+	if (!newdev)
+		goto set_device;
+
+	if ((newdev->features & CLOCK_EVT_FEAT_DUMMY) ||
+	    (newdev->features & CLOCK_EVT_FEAT_C3STOP))
+		 return false;
+
+	if (!(newdev->features & CLOCK_EVT_FEAT_PERCPU) ||
+	    !(newdev->features & CLOCK_EVT_FEAT_ONESHOT))
+		return false;
+
+	if (!cpumask_equal(newdev->cpumask, cpumask_of(cpu)))
+		return false;
+
+	if (curdev && newdev->rating <= curdev->rating)
+		return false;
+
+	if (!try_module_get(newdev->owner))
+		return false;
+
+	newdev->event_handler = tick_oneshot_wakeup_handler;
+set_device:
+	clockevents_exchange_device(curdev, newdev);
+	per_cpu(tick_oneshot_wakeup_device, cpu) = newdev;
+	return true;
+}
+#else
+static struct clock_event_device *tick_get_oneshot_wakeup_device(int cpu)
+{
+	return NULL;
+}
+
+static bool tick_set_oneshot_wakeup_device(struct clock_event_device *newdev,
+					   int cpu)
+{
+	return false;
+}
+#endif
+
+/*
+ * Conditionally install/replace broadcast device
+ */
+void tick_install_broadcast_device(struct clock_event_device *dev, int cpu)
+{
+	struct clock_event_device *cur = tick_broadcast_device.evtdev;
+
+	if (tick_set_oneshot_wakeup_device(dev, cpu))
+		return;
+
+>>>>>>> upstream/android-13
 	if (!tick_check_broadcast_device(cur, dev))
 		return;
 
@@ -117,6 +227,22 @@ void tick_install_broadcast_device(struct clock_event_device *dev)
 	tick_broadcast_device.evtdev = dev;
 	if (!cpumask_empty(tick_broadcast_mask))
 		tick_broadcast_start_periodic(dev);
+<<<<<<< HEAD
+=======
+
+	if (!(dev->features & CLOCK_EVT_FEAT_ONESHOT))
+		return;
+
+	/*
+	 * If the system already runs in oneshot mode, switch the newly
+	 * registered broadcast device to oneshot mode explicitly.
+	 */
+	if (tick_broadcast_oneshot_active()) {
+		tick_broadcast_switch_to_oneshot();
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Inform all cpus about this. We might be in a situation
 	 * where we did not switch to oneshot mode because the per cpu
@@ -125,8 +251,12 @@ void tick_install_broadcast_device(struct clock_event_device *dev)
 	 * notification the systems stays stuck in periodic mode
 	 * forever.
 	 */
+<<<<<<< HEAD
 	if (dev->features & CLOCK_EVT_FEAT_ONESHOT)
 		tick_clock_notify();
+=======
+	tick_clock_notify();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -167,7 +297,11 @@ static void tick_device_setup_broadcast_func(struct clock_event_device *dev)
 }
 
 /*
+<<<<<<< HEAD
  * Check, if the device is disfunctional and a place holder, which
+=======
+ * Check, if the device is dysfunctional and a placeholder, which
+>>>>>>> upstream/android-13
  * needs to be handled by the broadcast device.
  */
 int tick_device_uses_broadcast(struct clock_event_device *dev, int cpu)
@@ -251,7 +385,10 @@ int tick_device_uses_broadcast(struct clock_event_device *dev, int cpu)
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
+=======
+>>>>>>> upstream/android-13
 int tick_receive_broadcast(void)
 {
 	struct tick_device *td = this_cpu_ptr(&tick_cpu_device);
@@ -266,7 +403,10 @@ int tick_receive_broadcast(void)
 	evt->event_handler(evt);
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Broadcast the event to the cpus, which are set in the mask (mangled).
@@ -341,7 +481,11 @@ static void tick_handle_periodic_broadcast(struct clock_event_device *dev)
 	bc_local = tick_do_periodic_broadcast();
 
 	if (clockevent_state_oneshot(dev)) {
+<<<<<<< HEAD
 		ktime_t next = ktime_add(dev->next_event, tick_period);
+=======
+		ktime_t next = ktime_add_ns(dev->next_event, TICK_NSEC);
+>>>>>>> upstream/android-13
 
 		clockevents_program_event(dev, next, true);
 	}
@@ -391,6 +535,10 @@ void tick_broadcast_control(enum tick_broadcast_mode mode)
 	switch (mode) {
 	case TICK_BROADCAST_FORCE:
 		tick_broadcast_forced = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case TICK_BROADCAST_ON:
 		cpumask_set_cpu(cpu, tick_broadcast_on);
 		if (!cpumask_test_and_set_cpu(cpu, tick_broadcast_mask)) {
@@ -400,7 +548,11 @@ void tick_broadcast_control(enum tick_broadcast_mode mode)
 			 * - the broadcast device exists
 			 * - the broadcast device is not a hrtimer based one
 			 * - the broadcast device is in periodic mode to
+<<<<<<< HEAD
 			 *   avoid a hickup during switch to oneshot mode
+=======
+			 *   avoid a hiccup during switch to oneshot mode
+>>>>>>> upstream/android-13
 			 */
 			if (bc && !(bc->features & CLOCK_EVT_FEAT_HRTIMER) &&
 			    tick_broadcast_device.mode == TICKDEV_MODE_PERIODIC)
@@ -412,8 +564,11 @@ void tick_broadcast_control(enum tick_broadcast_mode mode)
 		if (tick_broadcast_forced)
 			break;
 		cpumask_clear_cpu(cpu, tick_broadcast_on);
+<<<<<<< HEAD
 		if (!tick_device_is_functional(dev))
 			break;
+=======
+>>>>>>> upstream/android-13
 		if (cpumask_test_and_clear_cpu(cpu, tick_broadcast_mask)) {
 			if (tick_broadcast_device.mode ==
 			    TICKDEV_MODE_PERIODIC)
@@ -450,6 +605,7 @@ void tick_set_periodic_handler(struct clock_event_device *dev, int broadcast)
 }
 
 #ifdef CONFIG_HOTPLUG_CPU
+<<<<<<< HEAD
 /*
  * Remove a CPU from broadcasting
  */
@@ -463,14 +619,37 @@ void tick_shutdown_broadcast(unsigned int cpu)
 	bc = tick_broadcast_device.evtdev;
 	cpumask_clear_cpu(cpu, tick_broadcast_mask);
 	cpumask_clear_cpu(cpu, tick_broadcast_on);
+=======
+static void tick_shutdown_broadcast(void)
+{
+	struct clock_event_device *bc = tick_broadcast_device.evtdev;
+>>>>>>> upstream/android-13
 
 	if (tick_broadcast_device.mode == TICKDEV_MODE_PERIODIC) {
 		if (bc && cpumask_empty(tick_broadcast_mask))
 			clockevents_shutdown(bc);
 	}
+<<<<<<< HEAD
 
 	raw_spin_unlock_irqrestore(&tick_broadcast_lock, flags);
 }
+=======
+}
+
+/*
+ * Remove a CPU from broadcasting
+ */
+void tick_broadcast_offline(unsigned int cpu)
+{
+	raw_spin_lock(&tick_broadcast_lock);
+	cpumask_clear_cpu(cpu, tick_broadcast_mask);
+	cpumask_clear_cpu(cpu, tick_broadcast_on);
+	tick_broadcast_oneshot_offline(cpu);
+	tick_shutdown_broadcast();
+	raw_spin_unlock(&tick_broadcast_lock);
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 void tick_suspend_broadcast(void)
@@ -535,6 +714,7 @@ static cpumask_var_t tick_broadcast_oneshot_mask __cpumask_var_read_mostly;
 static cpumask_var_t tick_broadcast_pending_mask __cpumask_var_read_mostly;
 static cpumask_var_t tick_broadcast_force_mask __cpumask_var_read_mostly;
 
+<<<<<<< HEAD
 #ifdef _MTK_TICK_BROADCAST_AEE_DUMP
 
 struct tick_broadcast_history_struct {
@@ -630,6 +810,8 @@ void tick_broadcast_mtk_aee_dump(void)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Exposed for debugging: see timer_list.c
  */
@@ -664,11 +846,14 @@ static void tick_broadcast_set_affinity(struct clock_event_device *bc,
 
 	bc->cpumask = cpumask;
 	irq_set_affinity(bc->irq, bc->cpumask);
+<<<<<<< HEAD
 
 #ifdef _MTK_TICK_BROADCAST_AEE_DUMP
 	/* MTK PATCH: record new target cpu for dynamic irq affinity */
 	bc_irq_affinity_on = cpumask_first(cpumask);
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 static void tick_broadcast_set_event(struct clock_event_device *bc, int cpu,
@@ -718,9 +903,12 @@ static void tick_handle_oneshot_broadcast(struct clock_event_device *dev)
 	bool bc_local;
 
 	raw_spin_lock(&tick_broadcast_lock);
+<<<<<<< HEAD
 #ifdef _MTK_TICK_BROADCAST_AEE_DUMP
 	tick_broadcast_interrupt_count[smp_processor_id()]++;
 #endif
+=======
+>>>>>>> upstream/android-13
 	dev->next_event = KTIME_MAX;
 	next_event = KTIME_MAX;
 	cpumask_clear(tmpmask);
@@ -819,6 +1007,7 @@ static void broadcast_shutdown_local(struct clock_event_device *bc,
 	clockevents_switch_state(dev, CLOCK_EVT_STATE_SHUTDOWN);
 }
 
+<<<<<<< HEAD
 int __tick_broadcast_oneshot_control(enum tick_broadcast_state state)
 {
 	struct clock_event_device *bc, *dev;
@@ -842,6 +1031,18 @@ int __tick_broadcast_oneshot_control(enum tick_broadcast_state state)
 	raw_spin_lock(&tick_broadcast_lock);
 	bc = tick_broadcast_device.evtdev;
 	cpu = smp_processor_id();
+=======
+static int ___tick_broadcast_oneshot_control(enum tick_broadcast_state state,
+					     struct tick_device *td,
+					     int cpu)
+{
+	struct clock_event_device *bc, *dev = td->evtdev;
+	int ret = 0;
+	ktime_t now;
+
+	raw_spin_lock(&tick_broadcast_lock);
+	bc = tick_broadcast_device.evtdev;
+>>>>>>> upstream/android-13
 
 	if (state == TICK_BROADCAST_ENTER) {
 		/*
@@ -885,9 +1086,12 @@ int __tick_broadcast_oneshot_control(enum tick_broadcast_state state)
 			if (cpumask_test_cpu(cpu, tick_broadcast_force_mask)) {
 				ret = -EBUSY;
 			} else if (dev->next_event < bc->next_event) {
+<<<<<<< HEAD
 #ifdef _MTK_TICK_BROADCAST_AEE_DUMP
 				set_event = true;
 #endif
+=======
+>>>>>>> upstream/android-13
 				tick_broadcast_set_event(bc, cpu, dev->next_event);
 				/*
 				 * In case of hrtimer broadcasts the
@@ -929,13 +1133,21 @@ int __tick_broadcast_oneshot_control(enum tick_broadcast_state state)
 			 * either the CPU handling the broadcast
 			 * interrupt or we got woken by something else.
 			 *
+<<<<<<< HEAD
 			 * We are not longer in the broadcast mask, so
+=======
+			 * We are no longer in the broadcast mask, so
+>>>>>>> upstream/android-13
 			 * if the cpu local expiry time is already
 			 * reached, we would reprogram the cpu local
 			 * timer with an already expired event.
 			 *
 			 * This can lead to a ping-pong when we return
+<<<<<<< HEAD
 			 * to idle and therefor rearm the broadcast
+=======
+			 * to idle and therefore rearm the broadcast
+>>>>>>> upstream/android-13
 			 * timer before the cpu local timer was able
 			 * to fire. This happens because the forced
 			 * reprogramming makes sure that the event
@@ -969,6 +1181,7 @@ int __tick_broadcast_oneshot_control(enum tick_broadcast_state state)
 		}
 	}
 out:
+<<<<<<< HEAD
 #ifdef _MTK_TICK_BROADCAST_AEE_DUMP
 	if (state == TICK_BROADCAST_ENTER) {
 		tick_broadcast_history[cpu].time_enter = now_sched_clock;
@@ -1018,10 +1231,62 @@ out:
 		}
 	}
 #endif
+=======
+>>>>>>> upstream/android-13
 	raw_spin_unlock(&tick_broadcast_lock);
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int tick_oneshot_wakeup_control(enum tick_broadcast_state state,
+				       struct tick_device *td,
+				       int cpu)
+{
+	struct clock_event_device *dev, *wd;
+
+	dev = td->evtdev;
+	if (td->mode != TICKDEV_MODE_ONESHOT)
+		return -EINVAL;
+
+	wd = tick_get_oneshot_wakeup_device(cpu);
+	if (!wd)
+		return -ENODEV;
+
+	switch (state) {
+	case TICK_BROADCAST_ENTER:
+		clockevents_switch_state(dev, CLOCK_EVT_STATE_ONESHOT_STOPPED);
+		clockevents_switch_state(wd, CLOCK_EVT_STATE_ONESHOT);
+		clockevents_program_event(wd, dev->next_event, 1);
+		break;
+	case TICK_BROADCAST_EXIT:
+		/* We may have transitioned to oneshot mode while idle */
+		if (clockevent_get_state(wd) != CLOCK_EVT_STATE_ONESHOT)
+			return -ENODEV;
+	}
+
+	return 0;
+}
+
+int __tick_broadcast_oneshot_control(enum tick_broadcast_state state)
+{
+	struct tick_device *td = this_cpu_ptr(&tick_cpu_device);
+	int cpu = smp_processor_id();
+
+	if (!tick_oneshot_wakeup_control(state, td, cpu))
+		return 0;
+
+	if (tick_broadcast_device.evtdev)
+		return ___tick_broadcast_oneshot_control(state, td, cpu);
+
+	/*
+	 * If there is no broadcast or wakeup device, tell the caller not
+	 * to go into deep idle.
+	 */
+	return -EBUSY;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Reset the one shot broadcast for a cpu
  *
@@ -1046,6 +1311,25 @@ static void tick_broadcast_init_next_event(struct cpumask *mask,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static inline ktime_t tick_get_next_period(void)
+{
+	ktime_t next;
+
+	/*
+	 * Protect against concurrent updates (store /load tearing on
+	 * 32bit). It does not matter if the time is already in the
+	 * past. The broadcast device which is about to be programmed will
+	 * fire in any case.
+	 */
+	raw_spin_lock(&jiffies_lock);
+	next = tick_next_period;
+	raw_spin_unlock(&jiffies_lock);
+	return next;
+}
+
+>>>>>>> upstream/android-13
 /**
  * tick_broadcast_setup_oneshot - setup the broadcast device
  */
@@ -1074,10 +1358,18 @@ static void tick_broadcast_setup_oneshot(struct clock_event_device *bc)
 			   tick_broadcast_oneshot_mask, tmpmask);
 
 		if (was_periodic && !cpumask_empty(tmpmask)) {
+<<<<<<< HEAD
 			clockevents_switch_state(bc, CLOCK_EVT_STATE_ONESHOT);
 			tick_broadcast_init_next_event(tmpmask,
 						       tick_next_period);
 			tick_broadcast_set_event(bc, cpu, tick_next_period);
+=======
+			ktime_t nextevt = tick_get_next_period();
+
+			clockevents_switch_state(bc, CLOCK_EVT_STATE_ONESHOT);
+			tick_broadcast_init_next_event(tmpmask, nextevt);
+			tick_broadcast_set_event(bc, cpu, nextevt);
+>>>>>>> upstream/android-13
 		} else
 			bc->next_event = KTIME_MAX;
 	} else {
@@ -1127,6 +1419,7 @@ void hotplug_cpu__broadcast_tick_pull(int deadcpu)
 }
 
 /*
+<<<<<<< HEAD
  * Remove a dead CPU from broadcasting
  */
 void tick_shutdown_broadcast_oneshot(unsigned int cpu)
@@ -1134,6 +1427,14 @@ void tick_shutdown_broadcast_oneshot(unsigned int cpu)
 	unsigned long flags;
 
 	raw_spin_lock_irqsave(&tick_broadcast_lock, flags);
+=======
+ * Remove a dying CPU from broadcasting
+ */
+static void tick_broadcast_oneshot_offline(unsigned int cpu)
+{
+	if (tick_get_oneshot_wakeup_device(cpu))
+		tick_set_oneshot_wakeup_device(NULL, cpu);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Clear the broadcast masks for the dead cpu, but do not stop
@@ -1142,8 +1443,11 @@ void tick_shutdown_broadcast_oneshot(unsigned int cpu)
 	cpumask_clear_cpu(cpu, tick_broadcast_oneshot_mask);
 	cpumask_clear_cpu(cpu, tick_broadcast_pending_mask);
 	cpumask_clear_cpu(cpu, tick_broadcast_force_mask);
+<<<<<<< HEAD
 
 	raw_spin_unlock_irqrestore(&tick_broadcast_lock, flags);
+=======
+>>>>>>> upstream/android-13
 }
 #endif
 

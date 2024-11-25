@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register cache access API - LZO caching support
  *
@@ -9,6 +10,15 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register cache access API - LZO caching support
+//
+// Copyright 2011 Wolfson Microelectronics plc
+//
+// Author: Dimitris Papastamos <dp@opensource.wolfsonmicro.com>
+>>>>>>> upstream/android-13
 
 #include <linux/device.h>
 #include <linux/lzo.h>
@@ -152,20 +162,31 @@ static int regcache_lzo_init(struct regmap *map)
 	 * that register.
 	 */
 	bmp_size = map->num_reg_defaults_raw;
+<<<<<<< HEAD
 	sync_bmp = kmalloc_array(BITS_TO_LONGS(bmp_size), sizeof(long),
 				 GFP_KERNEL);
+=======
+	sync_bmp = bitmap_zalloc(bmp_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sync_bmp) {
 		ret = -ENOMEM;
 		goto err;
 	}
+<<<<<<< HEAD
 	bitmap_zero(sync_bmp, bmp_size);
+=======
+>>>>>>> upstream/android-13
 
 	/* allocate the lzo blocks and initialize them */
 	for (i = 0; i < blkcount; i++) {
 		lzo_blocks[i] = kzalloc(sizeof **lzo_blocks,
 					GFP_KERNEL);
 		if (!lzo_blocks[i]) {
+<<<<<<< HEAD
 			kfree(sync_bmp);
+=======
+			bitmap_free(sync_bmp);
+>>>>>>> upstream/android-13
 			ret = -ENOMEM;
 			goto err;
 		}
@@ -217,7 +238,11 @@ static int regcache_lzo_exit(struct regmap *map)
 	 * only once.
 	 */
 	if (lzo_blocks[0])
+<<<<<<< HEAD
 		kfree(lzo_blocks[0]->sync_bmp);
+=======
+		bitmap_free(lzo_blocks[0]->sync_bmp);
+>>>>>>> upstream/android-13
 	for (i = 0; i < blkcount; i++) {
 		if (lzo_blocks[i]) {
 			kfree(lzo_blocks[i]->wmem);

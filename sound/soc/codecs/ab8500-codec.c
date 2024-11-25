@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2012
  *
@@ -13,10 +17,13 @@
  *         for ST-Ericsson.
  *
  * License terms:
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -116,6 +123,7 @@ enum amic_idx {
 	AMIC_IDX_2
 };
 
+<<<<<<< HEAD
 struct ab8500_codec_drvdata_dbg {
 	struct regulator *vaud;
 	struct regulator *vamic1;
@@ -123,6 +131,8 @@ struct ab8500_codec_drvdata_dbg {
 	struct regulator *vdmic;
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Private data for AB8500 device-driver */
 struct ab8500_codec_drvdata {
 	struct regmap *regmap;
@@ -1062,10 +1072,17 @@ static void anc_iir(struct snd_soc_component *component, unsigned int bnk,
 			snd_soc_component_update_bits(component, AB8500_ANCCONF1,
 					BIT(AB8500_ANCCONF1_ANCIIRINIT),
 					BIT(AB8500_ANCCONF1_ANCIIRINIT));
+<<<<<<< HEAD
 			usleep_range(AB8500_ANC_SM_DELAY, AB8500_ANC_SM_DELAY);
 			snd_soc_component_update_bits(component, AB8500_ANCCONF1,
 					BIT(AB8500_ANCCONF1_ANCIIRINIT), 0);
 			usleep_range(AB8500_ANC_SM_DELAY, AB8500_ANC_SM_DELAY);
+=======
+			usleep_range(AB8500_ANC_SM_DELAY, AB8500_ANC_SM_DELAY*2);
+			snd_soc_component_update_bits(component, AB8500_ANCCONF1,
+					BIT(AB8500_ANCCONF1_ANCIIRINIT), 0);
+			usleep_range(AB8500_ANC_SM_DELAY, AB8500_ANC_SM_DELAY*2);
+>>>>>>> upstream/android-13
 		} else {
 			snd_soc_component_update_bits(component, AB8500_ANCCONF1,
 					BIT(AB8500_ANCCONF1_ANCIIRUPDATE),
@@ -1103,7 +1120,11 @@ static void anc_configure(struct snd_soc_component *component,
 	if (apply_fir)
 		for (bnk = 0; bnk < AB8500_NR_OF_ANC_COEFF_BANKS; bnk++)
 			for (par = 0; par < AB8500_ANC_FIR_COEFFS; par++) {
+<<<<<<< HEAD
 				val = snd_soc_component_read32(component,
+=======
+				val = snd_soc_component_read(component,
+>>>>>>> upstream/android-13
 						drvdata->anc_fir_values[par]);
 				anc_fir(component, bnk, par, val);
 			}
@@ -1111,7 +1132,11 @@ static void anc_configure(struct snd_soc_component *component,
 	if (apply_iir)
 		for (bnk = 0; bnk < AB8500_NR_OF_ANC_COEFF_BANKS; bnk++)
 			for (par = 0; par < AB8500_ANC_IIR_COEFFS; par++) {
+<<<<<<< HEAD
 				val = snd_soc_component_read32(component,
+=======
+				val = snd_soc_component_read(component,
+>>>>>>> upstream/android-13
 						drvdata->anc_iir_values[par]);
 				anc_iir(component, bnk, par, val);
 			}
@@ -1156,7 +1181,11 @@ static int sid_status_control_put(struct snd_kcontrol *kcontrol,
 
 	mutex_lock(&drvdata->ctrl_lock);
 
+<<<<<<< HEAD
 	sidconf = snd_soc_component_read32(component, AB8500_SIDFIRCONF);
+=======
+	sidconf = snd_soc_component_read(component, AB8500_SIDFIRCONF);
+>>>>>>> upstream/android-13
 	if (((sidconf & BIT(AB8500_SIDFIRCONF_FIRSIDBUSY)) != 0)) {
 		if ((sidconf & BIT(AB8500_SIDFIRCONF_ENFIRSIDS)) == 0) {
 			dev_err(component->dev, "%s: Sidetone busy while off!\n",
@@ -1171,7 +1200,11 @@ static int sid_status_control_put(struct snd_kcontrol *kcontrol,
 	snd_soc_component_write(component, AB8500_SIDFIRADR, 0);
 
 	for (param = 0; param < AB8500_SID_FIR_COEFFS; param++) {
+<<<<<<< HEAD
 		val = snd_soc_component_read32(component, drvdata->sid_fir_values[param]);
+=======
+		val = snd_soc_component_read(component, drvdata->sid_fir_values[param]);
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, AB8500_SIDFIRCOEF1, val >> 8 & 0xff);
 		snd_soc_component_write(component, AB8500_SIDFIRCOEF2, val & 0xff);
 	}
@@ -2129,6 +2162,10 @@ static int ab8500_codec_set_dai_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 		dev_err(dai->component->dev,
 			"%s: ERROR: The device is either a master or a slave.\n",
 			__func__);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(dai->component->dev,
 			"%s: ERROR: Unsupporter master mask 0x%x\n",
@@ -2386,7 +2423,11 @@ static struct snd_soc_dai_driver ab8500_codec_dai[] = {
 			.formats = AB8500_SUPPORTED_FMT,
 		},
 		.ops = &ab8500_codec_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1
+=======
+		.symmetric_rate = 1
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "ab8500-codec-dai.1",
@@ -2399,7 +2440,11 @@ static struct snd_soc_dai_driver ab8500_codec_dai[] = {
 			.formats = AB8500_SUPPORTED_FMT,
 		},
 		.ops = &ab8500_codec_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1
+=======
+		.symmetric_rate = 1
+>>>>>>> upstream/android-13
 	}
 };
 

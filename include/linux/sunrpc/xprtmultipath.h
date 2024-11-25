@@ -10,17 +10,33 @@
 #define _NET_SUNRPC_XPRTMULTIPATH_H
 
 struct rpc_xprt_iter_ops;
+<<<<<<< HEAD
+=======
+struct rpc_sysfs_xprt_switch;
+>>>>>>> upstream/android-13
 struct rpc_xprt_switch {
 	spinlock_t		xps_lock;
 	struct kref		xps_kref;
 
+<<<<<<< HEAD
 	unsigned int		xps_nxprts;
+=======
+	unsigned int		xps_id;
+	unsigned int		xps_nxprts;
+	unsigned int		xps_nactive;
+	unsigned int		xps_nunique_destaddr_xprts;
+	atomic_long_t		xps_queuelen;
+>>>>>>> upstream/android-13
 	struct list_head	xps_xprt_list;
 
 	struct net *		xps_net;
 
 	const struct rpc_xprt_iter_ops *xps_iter_ops;
 
+<<<<<<< HEAD
+=======
+	struct rpc_sysfs_xprt_switch *xps_sysfs;
+>>>>>>> upstream/android-13
 	struct rcu_head		xps_rcu;
 };
 
@@ -69,4 +85,10 @@ extern struct rpc_xprt *xprt_iter_get_next(struct rpc_xprt_iter *xpi);
 
 extern bool rpc_xprt_switch_has_addr(struct rpc_xprt_switch *xps,
 		const struct sockaddr *sap);
+<<<<<<< HEAD
+=======
+
+extern void xprt_multipath_cleanup_ids(void);
+
+>>>>>>> upstream/android-13
 #endif

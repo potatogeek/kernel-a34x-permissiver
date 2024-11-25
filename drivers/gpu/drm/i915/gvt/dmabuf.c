@@ -29,7 +29,10 @@
  */
 
 #include <linux/dma-buf.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/vfio.h>
 
 #include "i915_drv.h"
@@ -37,10 +40,32 @@
 
 #define GEN8_DECODE_PTE(pte) (pte & GENMASK_ULL(63, 12))
 
+<<<<<<< HEAD
+=======
+static int vgpu_pin_dma_address(struct intel_vgpu *vgpu,
+				unsigned long size,
+				dma_addr_t dma_addr)
+{
+	int ret = 0;
+
+	if (intel_gvt_hypervisor_dma_pin_guest_page(vgpu, dma_addr))
+		ret = -EINVAL;
+
+	return ret;
+}
+
+static void vgpu_unpin_dma_address(struct intel_vgpu *vgpu,
+				   dma_addr_t dma_addr)
+{
+	intel_gvt_hypervisor_dma_unmap_guest_page(vgpu, dma_addr);
+}
+
+>>>>>>> upstream/android-13
 static int vgpu_gem_get_pages(
 		struct drm_i915_gem_object *obj)
 {
 	struct drm_i915_private *dev_priv = to_i915(obj->base.dev);
+<<<<<<< HEAD
 	struct sg_table *st;
 	struct scatterlist *sg;
 	int i, ret;
@@ -49,19 +74,41 @@ static int vgpu_gem_get_pages(
 
 	fb_info = (struct intel_vgpu_fb_info *)obj->gvt_info;
 	if (WARN_ON(!fb_info))
+=======
+	struct intel_vgpu *vgpu;
+	struct sg_table *st;
+	struct scatterlist *sg;
+	int i, j, ret;
+	gen8_pte_t __iomem *gtt_entries;
+	struct intel_vgpu_fb_info *fb_info;
+	u32 page_num;
+
+	fb_info = (struct intel_vgpu_fb_info *)obj->gvt_info;
+	if (drm_WARN_ON(&dev_priv->drm, !fb_info))
+		return -ENODEV;
+
+	vgpu = fb_info->obj->vgpu;
+	if (drm_WARN_ON(&dev_priv->drm, !vgpu))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	st = kmalloc(sizeof(*st), GFP_KERNEL);
 	if (unlikely(!st))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = sg_alloc_table(st, fb_info->size, GFP_KERNEL);
+=======
+	page_num = obj->base.size >> PAGE_SHIFT;
+	ret = sg_alloc_table(st, page_num, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ret) {
 		kfree(st);
 		return ret;
 	}
 	gtt_entries = (gen8_pte_t __iomem *)dev_priv->ggtt.gsm +
 		(fb_info->start >> PAGE_SHIFT);
+<<<<<<< HEAD
 	for_each_sg(st->sgl, sg, fb_info->size, i) {
 		sg->offset = 0;
 		sg->length = PAGE_SIZE;
@@ -73,11 +120,59 @@ static int vgpu_gem_get_pages(
 	__i915_gem_object_set_pages(obj, st, PAGE_SIZE);
 
 	return 0;
+=======
+	for_each_sg(st->sgl, sg, page_num, i) {
+		dma_addr_t dma_addr =
+			GEN8_DECODE_PTE(readq(&gtt_entries[i]));
+		if (vgpu_pin_dma_address(vgpu, PAGE_SIZE, dma_addr)) {
+			ret = -EINVAL;
+			goto out;
+		}
+
+		sg->offset = 0;
+		sg->length = PAGE_SIZE;
+		sg_dma_len(sg) = PAGE_SIZE;
+		sg_dma_address(sg) = dma_addr;
+	}
+
+	__i915_gem_object_set_pages(obj, st, PAGE_SIZE);
+out:
+	if (ret) {
+		dma_addr_t dma_addr;
+
+		for_each_sg(st->sgl, sg, i, j) {
+			dma_addr = sg_dma_address(sg);
+			if (dma_addr)
+				vgpu_unpin_dma_address(vgpu, dma_addr);
+		}
+		sg_free_table(st);
+		kfree(st);
+	}
+
+	return ret;
+
+>>>>>>> upstream/android-13
 }
 
 static void vgpu_gem_put_pages(struct drm_i915_gem_object *obj,
 		struct sg_table *pages)
 {
+<<<<<<< HEAD
+=======
+	struct scatterlist *sg;
+
+	if (obj->base.dma_buf) {
+		struct intel_vgpu_fb_info *fb_info = obj->gvt_info;
+		struct intel_vgpu_dmabuf_obj *obj = fb_info->obj;
+		struct intel_vgpu *vgpu = obj->vgpu;
+		int i;
+
+		for_each_sg(pages->sgl, sg, fb_info->size, i)
+			vgpu_unpin_dma_address(vgpu,
+					       sg_dma_address(sg));
+	}
+
+>>>>>>> upstream/android-13
 	sg_free_table(pages);
 	kfree(pages);
 }
@@ -142,6 +237,10 @@ static void vgpu_gem_release(struct drm_i915_gem_object *gem_obj)
 }
 
 static const struct drm_i915_gem_object_ops intel_vgpu_gem_ops = {
+<<<<<<< HEAD
+=======
+	.name = "i915_gem_object_vgpu",
+>>>>>>> upstream/android-13
 	.flags = I915_GEM_OBJECT_IS_PROXY,
 	.get_pages = vgpu_gem_get_pages,
 	.put_pages = vgpu_gem_put_pages,
@@ -151,14 +250,23 @@ static const struct drm_i915_gem_object_ops intel_vgpu_gem_ops = {
 static struct drm_i915_gem_object *vgpu_create_gem(struct drm_device *dev,
 		struct intel_vgpu_fb_info *info)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = to_i915(dev);
 	struct drm_i915_gem_object *obj;
 
 	obj = i915_gem_object_alloc(dev_priv);
+=======
+	static struct lock_class_key lock_class;
+	struct drm_i915_private *dev_priv = to_i915(dev);
+	struct drm_i915_gem_object *obj;
+
+	obj = i915_gem_object_alloc();
+>>>>>>> upstream/android-13
 	if (obj == NULL)
 		return NULL;
 
 	drm_gem_private_object_init(dev, &obj->base,
+<<<<<<< HEAD
 		info->size << PAGE_SHIFT);
 	i915_gem_object_init(obj, &intel_vgpu_gem_ops);
 
@@ -167,6 +275,15 @@ static struct drm_i915_gem_object *vgpu_create_gem(struct drm_device *dev,
 	if (IS_SKYLAKE(dev_priv)
 		|| IS_KABYLAKE(dev_priv)
 		|| IS_BROXTON(dev_priv)) {
+=======
+		roundup(info->size, PAGE_SIZE));
+	i915_gem_object_init(obj, &intel_vgpu_gem_ops, &lock_class, 0);
+	i915_gem_object_set_readonly(obj);
+
+	obj->read_domains = I915_GEM_DOMAIN_GTT;
+	obj->write_domain = 0;
+	if (GRAPHICS_VER(dev_priv) >= 9) {
+>>>>>>> upstream/android-13
 		unsigned int tiling_mode = 0;
 		unsigned int stride = 0;
 
@@ -209,10 +326,18 @@ static int vgpu_get_plane_info(struct drm_device *dev,
 		struct intel_vgpu_fb_info *info,
 		int plane_id)
 {
+<<<<<<< HEAD
 	struct drm_i915_private *dev_priv = to_i915(dev);
 	struct intel_vgpu_primary_plane_format p;
 	struct intel_vgpu_cursor_plane_format c;
 	int ret;
+=======
+	struct intel_vgpu_primary_plane_format p;
+	struct intel_vgpu_cursor_plane_format c;
+	int ret, tile_height = 1;
+
+	memset(info, 0, sizeof(*info));
+>>>>>>> upstream/android-13
 
 	if (plane_id == DRM_PLANE_TYPE_PRIMARY) {
 		ret = intel_vgpu_decode_primary_plane(vgpu, &p);
@@ -231,19 +356,34 @@ static int vgpu_get_plane_info(struct drm_device *dev,
 			break;
 		case PLANE_CTL_TILED_X:
 			info->drm_format_mod = I915_FORMAT_MOD_X_TILED;
+<<<<<<< HEAD
 			break;
 		case PLANE_CTL_TILED_Y:
 			info->drm_format_mod = I915_FORMAT_MOD_Y_TILED;
 			break;
 		case PLANE_CTL_TILED_YF:
 			info->drm_format_mod = I915_FORMAT_MOD_Yf_TILED;
+=======
+			tile_height = 8;
+			break;
+		case PLANE_CTL_TILED_Y:
+			info->drm_format_mod = I915_FORMAT_MOD_Y_TILED;
+			tile_height = 32;
+			break;
+		case PLANE_CTL_TILED_YF:
+			info->drm_format_mod = I915_FORMAT_MOD_Yf_TILED;
+			tile_height = 32;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			gvt_vgpu_err("invalid tiling mode: %x\n", p.tiled);
 		}
+<<<<<<< HEAD
 
 		info->size = (((p.stride * p.height * p.bpp) / 8) +
 			      (PAGE_SIZE - 1)) >> PAGE_SHIFT;
+=======
+>>>>>>> upstream/android-13
 	} else if (plane_id == DRM_PLANE_TYPE_CURSOR) {
 		ret = intel_vgpu_decode_cursor_plane(vgpu, &c);
 		if (ret)
@@ -265,14 +405,21 @@ static int vgpu_get_plane_info(struct drm_device *dev,
 			info->x_hot = UINT_MAX;
 			info->y_hot = UINT_MAX;
 		}
+<<<<<<< HEAD
 
 		info->size = (((info->stride * c.height * c.bpp) / 8)
 				+ (PAGE_SIZE - 1)) >> PAGE_SHIFT;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		gvt_vgpu_err("invalid plane id:%d\n", plane_id);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	info->size = info->stride * roundup(info->height, tile_height);
+>>>>>>> upstream/android-13
 	if (info->size == 0) {
 		gvt_vgpu_err("fb size is zero\n");
 		return -EINVAL;
@@ -282,11 +429,14 @@ static int vgpu_get_plane_info(struct drm_device *dev,
 		gvt_vgpu_err("Not aligned fb address:0x%llx\n", info->start);
 		return -EFAULT;
 	}
+<<<<<<< HEAD
 	if (((info->start >> PAGE_SHIFT) + info->size) >
 		ggtt_total_entries(&dev_priv->ggtt)) {
 		gvt_vgpu_err("Invalid GTT offset or size\n");
 		return -EFAULT;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (!intel_gvt_ggtt_validate_range(vgpu, info->start, info->size)) {
 		gvt_vgpu_err("invalid gma addr\n");
@@ -367,7 +517,11 @@ static void update_fb_info(struct vfio_device_gfx_plane_info *gvt_dmabuf,
 
 int intel_vgpu_query_plane(struct intel_vgpu *vgpu, void *args)
 {
+<<<<<<< HEAD
 	struct drm_device *dev = &vgpu->gvt->dev_priv->drm;
+=======
+	struct drm_device *dev = &vgpu->gvt->gt->i915->drm;
+>>>>>>> upstream/android-13
 	struct vfio_device_gfx_plane_info *gfx_plane_info = args;
 	struct intel_vgpu_dmabuf_obj *dmabuf_obj;
 	struct intel_vgpu_fb_info fb_info;
@@ -473,7 +627,11 @@ out:
 /* To associate an exposed dmabuf with the dmabuf_obj */
 int intel_vgpu_get_dmabuf(struct intel_vgpu *vgpu, unsigned int dmabuf_id)
 {
+<<<<<<< HEAD
 	struct drm_device *dev = &vgpu->gvt->dev_priv->drm;
+=======
+	struct drm_device *dev = &vgpu->gvt->gt->i915->drm;
+>>>>>>> upstream/android-13
 	struct intel_vgpu_dmabuf_obj *dmabuf_obj;
 	struct drm_i915_gem_object *obj;
 	struct dma_buf *dmabuf;
@@ -498,15 +656,22 @@ int intel_vgpu_get_dmabuf(struct intel_vgpu *vgpu, unsigned int dmabuf_id)
 
 	obj->gvt_info = dmabuf_obj->info;
 
+<<<<<<< HEAD
 	dmabuf = i915_gem_prime_export(dev, &obj->base, DRM_CLOEXEC | DRM_RDWR);
+=======
+	dmabuf = i915_gem_prime_export(&obj->base, DRM_CLOEXEC | DRM_RDWR);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dmabuf)) {
 		gvt_vgpu_err("export dma-buf failed\n");
 		ret = PTR_ERR(dmabuf);
 		goto out_free_gem;
 	}
 
+<<<<<<< HEAD
 	i915_gem_object_put(obj);
 
+=======
+>>>>>>> upstream/android-13
 	ret = dma_buf_fd(dmabuf, DRM_CLOEXEC | DRM_RDWR);
 	if (ret < 0) {
 		gvt_vgpu_err("create dma-buf fd failed ret:%d\n", ret);
@@ -531,6 +696,11 @@ int intel_vgpu_get_dmabuf(struct intel_vgpu *vgpu, unsigned int dmabuf_id)
 		    file_count(dmabuf->file),
 		    kref_read(&obj->base.refcount));
 
+<<<<<<< HEAD
+=======
+	i915_gem_object_put(obj);
+
+>>>>>>> upstream/android-13
 	return dmabuf_fd;
 
 out_free_dmabuf:

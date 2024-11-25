@@ -9,6 +9,7 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_btree.h"
 #include "xfs_bit.h"
@@ -17,6 +18,10 @@
 #include "xfs_sb.h"
 #include "xfs_inode.h"
 #include "xfs_alloc.h"
+=======
+#include "xfs_inode.h"
+#include "xfs_btree.h"
+>>>>>>> upstream/android-13
 #include "scrub/scrub.h"
 #include "scrub/common.h"
 #include "scrub/btree.h"
@@ -50,7 +55,11 @@ __xchk_btree_process_error(
 		/* Note the badness but don't abort. */
 		sc->sm->sm_flags |= errflag;
 		*error = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		if (cur->bc_flags & XFS_BTREE_ROOT_IN_INODE)
 			trace_xchk_ifork_btree_op_error(sc, cur, level,
@@ -380,10 +389,17 @@ xchk_btree_check_block_owner(
 
 	init_sa = bs->cur->bc_flags & XFS_BTREE_LONG_PTRS;
 	if (init_sa) {
+<<<<<<< HEAD
 		error = xchk_ag_init(bs->sc, agno, &bs->sc->sa);
 		if (!xchk_btree_xref_process_error(bs->sc, bs->cur,
 				level, &error))
 			return error;
+=======
+		error = xchk_ag_init_existing(bs->sc, agno, &bs->sc->sa);
+		if (!xchk_btree_xref_process_error(bs->sc, bs->cur,
+				level, &error))
+			goto out_free;
+>>>>>>> upstream/android-13
 	}
 
 	xchk_xref_is_used_space(bs->sc, agbno, 1);
@@ -399,6 +415,10 @@ xchk_btree_check_block_owner(
 	if (!bs->sc->sa.rmap_cur && btnum == XFS_BTNUM_RMAP)
 		bs->cur = NULL;
 
+<<<<<<< HEAD
+=======
+out_free:
+>>>>>>> upstream/android-13
 	if (init_sa)
 		xchk_ag_free(bs->sc, &bs->sc->sa);
 
@@ -415,8 +435,22 @@ xchk_btree_check_owner(
 	struct xfs_btree_cur	*cur = bs->cur;
 	struct check_owner	*co;
 
+<<<<<<< HEAD
 	if ((cur->bc_flags & XFS_BTREE_ROOT_IN_INODE) && bp == NULL)
 		return 0;
+=======
+	/*
+	 * In theory, xfs_btree_get_block should only give us a null buffer
+	 * pointer for the root of a root-in-inode btree type, but we need
+	 * to check defensively here in case the cursor state is also screwed
+	 * up.
+	 */
+	if (bp == NULL) {
+		if (!(cur->bc_flags & XFS_BTREE_ROOT_IN_INODE))
+			xchk_btree_set_corrupt(bs->sc, bs->cur, level);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * We want to cross-reference each btree block with the bnobt
@@ -432,12 +466,44 @@ xchk_btree_check_owner(
 		if (!co)
 			return -ENOMEM;
 		co->level = level;
+<<<<<<< HEAD
 		co->daddr = XFS_BUF_ADDR(bp);
+=======
+		co->daddr = xfs_buf_daddr(bp);
+>>>>>>> upstream/android-13
 		list_add_tail(&co->list, &bs->to_check);
 		return 0;
 	}
 
+<<<<<<< HEAD
 	return xchk_btree_check_block_owner(bs, level, XFS_BUF_ADDR(bp));
+=======
+	return xchk_btree_check_block_owner(bs, level, xfs_buf_daddr(bp));
+}
+
+/* Decide if we want to check minrecs of a btree block in the inode root. */
+static inline bool
+xchk_btree_check_iroot_minrecs(
+	struct xchk_btree	*bs)
+{
+	/*
+	 * xfs_bmap_add_attrfork_btree had an implementation bug wherein it
+	 * would miscalculate the space required for the data fork bmbt root
+	 * when adding an attr fork, and promote the iroot contents to an
+	 * external block unnecessarily.  This went unnoticed for many years
+	 * until scrub found filesystems in this state.  Inode rooted btrees are
+	 * not supposed to have immediate child blocks that are small enough
+	 * that the contents could fit in the inode root, but we can't fail
+	 * existing filesystems, so instead we disable the check for data fork
+	 * bmap btrees when there's an attr fork.
+	 */
+	if (bs->cur->bc_btnum == XFS_BTNUM_BMAP &&
+	    bs->cur->bc_ino.whichfork == XFS_DATA_FORK &&
+	    XFS_IFORK_Q(bs->sc->ip))
+		return false;
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -473,8 +539,14 @@ xchk_btree_check_minrecs(
 
 		root_block = xfs_btree_get_block(cur, root_level, &root_bp);
 		root_maxrecs = cur->bc_ops->get_dmaxrecs(cur, root_level);
+<<<<<<< HEAD
 		if (be16_to_cpu(root_block->bb_numrecs) != 1 ||
 		    numrecs <= root_maxrecs)
+=======
+		if (xchk_btree_check_iroot_minrecs(bs) &&
+		    (be16_to_cpu(root_block->bb_numrecs) != 1 ||
+		     numrecs <= root_maxrecs))
+>>>>>>> upstream/android-13
 			xchk_btree_set_corrupt(bs->sc, cur, level);
 		return;
 	}
@@ -592,6 +664,7 @@ xchk_btree_block_keys(
  */
 int
 xchk_btree(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_btree_cur	*cur,
 	xchk_btree_rec_fn	scrub_fn,
@@ -617,6 +690,34 @@ xchk_btree(
 	bs.firstrec = true;
 	bs.private = private;
 	bs.sc = sc;
+=======
+	struct xfs_scrub		*sc,
+	struct xfs_btree_cur		*cur,
+	xchk_btree_rec_fn		scrub_fn,
+	const struct xfs_owner_info	*oinfo,
+	void				*private)
+{
+	struct xchk_btree		bs = {
+		.cur			= cur,
+		.scrub_rec		= scrub_fn,
+		.oinfo			= oinfo,
+		.firstrec		= true,
+		.private		= private,
+		.sc			= sc,
+	};
+	union xfs_btree_ptr		ptr;
+	union xfs_btree_ptr		*pp;
+	union xfs_btree_rec		*recp;
+	struct xfs_btree_block		*block;
+	int				level;
+	struct xfs_buf			*bp;
+	struct check_owner		*co;
+	struct check_owner		*n;
+	int				i;
+	int				error = 0;
+
+	/* Initialize scrub state */
+>>>>>>> upstream/android-13
 	for (i = 0; i < XFS_BTREE_MAXLEVELS; i++)
 		bs.firstkey[i] = true;
 	INIT_LIST_HEAD(&bs.to_check);

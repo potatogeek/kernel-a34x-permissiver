@@ -19,6 +19,7 @@
 #define TWD_TIMER_CONTROL_PERIODIC	(1 << 1)
 #define TWD_TIMER_CONTROL_IT_ENABLE	(1 << 2)
 
+<<<<<<< HEAD
 #include <linux/ioport.h>
 
 struct twd_local_timer {
@@ -35,4 +36,6 @@ struct twd_local_timer name __initdata = {	\
 
 int twd_local_timer_register(struct twd_local_timer *);
 
+=======
+>>>>>>> upstream/android-13
 #endif

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Mediatek Hardware Random Number Generator
  *
  * Copyright (C) 2017 Sean Wang <sean.wang@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #define MTK_RNG_DEV KBUILD_MODNAME
 
@@ -114,6 +121,7 @@ static int mtk_rng_read(struct hwrng *rng, void *buf, size_t max, bool wait)
 
 static int mtk_rng_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	int ret;
 	struct mtk_rng *priv;
@@ -124,6 +132,11 @@ static int mtk_rng_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
+=======
+	int ret;
+	struct mtk_rng *priv;
+
+>>>>>>> upstream/android-13
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
@@ -144,7 +157,11 @@ static int mtk_rng_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
@@ -182,8 +199,18 @@ static int mtk_rng_runtime_resume(struct device *dev)
 	return mtk_rng_init(&priv->rng);
 }
 
+<<<<<<< HEAD
 static UNIVERSAL_DEV_PM_OPS(mtk_rng_pm_ops, mtk_rng_runtime_suspend,
 			    mtk_rng_runtime_resume, NULL);
+=======
+static const struct dev_pm_ops mtk_rng_pm_ops = {
+	SET_RUNTIME_PM_OPS(mtk_rng_runtime_suspend,
+			   mtk_rng_runtime_resume, NULL)
+	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+				pm_runtime_force_resume)
+};
+
+>>>>>>> upstream/android-13
 #define MTK_RNG_PM_OPS (&mtk_rng_pm_ops)
 #else	/* CONFIG_PM */
 #define MTK_RNG_PM_OPS NULL

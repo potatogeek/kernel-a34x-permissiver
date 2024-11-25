@@ -25,14 +25,24 @@
 #include <subdev/mmu.h>
 #include <engine/fifo.h>
 
+<<<<<<< HEAD
+=======
+#include <nvif/class.h>
+
+>>>>>>> upstream/android-13
 static void
 gv100_fault_buffer_process(struct nvkm_fault_buffer *buffer)
 {
 	struct nvkm_device *device = buffer->fault->subdev.device;
 	struct nvkm_memory *mem = buffer->mem;
+<<<<<<< HEAD
 	const u32 foff = buffer->id * 0x14;
 	u32 get = nvkm_rd32(device, 0x100e2c + foff);
 	u32 put = nvkm_rd32(device, 0x100e30 + foff);
+=======
+	u32 get = nvkm_rd32(device, buffer->get);
+	u32 put = nvkm_rd32(device, buffer->put);
+>>>>>>> upstream/android-13
 	if (put == get)
 		return;
 
@@ -51,7 +61,11 @@ gv100_fault_buffer_process(struct nvkm_fault_buffer *buffer)
 
 		if (++get == buffer->entries)
 			get = 0;
+<<<<<<< HEAD
 		nvkm_wr32(device, 0x100e2c + foff, get);
+=======
+		nvkm_wr32(device, buffer->get, get);
+>>>>>>> upstream/android-13
 
 		info.addr   = ((u64)addrhi << 32) | addrlo;
 		info.inst   = ((u64)insthi << 32) | instlo;
@@ -70,6 +84,7 @@ gv100_fault_buffer_process(struct nvkm_fault_buffer *buffer)
 }
 
 static void
+<<<<<<< HEAD
 gv100_fault_buffer_fini(struct nvkm_fault_buffer *buffer)
 {
 	struct nvkm_device *device = buffer->fault->subdev.device;
@@ -77,6 +92,23 @@ gv100_fault_buffer_fini(struct nvkm_fault_buffer *buffer)
 	const u32 foff = buffer->id * 0x14;
 
 	nvkm_mask(device, 0x100a34, intr, intr);
+=======
+gv100_fault_buffer_intr(struct nvkm_fault_buffer *buffer, bool enable)
+{
+	struct nvkm_device *device = buffer->fault->subdev.device;
+	const u32 intr = buffer->id ? 0x08000000 : 0x20000000;
+	if (enable)
+		nvkm_mask(device, 0x100a2c, intr, intr);
+	else
+		nvkm_mask(device, 0x100a34, intr, intr);
+}
+
+static void
+gv100_fault_buffer_fini(struct nvkm_fault_buffer *buffer)
+{
+	struct nvkm_device *device = buffer->fault->subdev.device;
+	const u32 foff = buffer->id * 0x14;
+>>>>>>> upstream/android-13
 	nvkm_mask(device, 0x100e34 + foff, 0x80000000, 0x00000000);
 }
 
@@ -84,6 +116,7 @@ static void
 gv100_fault_buffer_init(struct nvkm_fault_buffer *buffer)
 {
 	struct nvkm_device *device = buffer->fault->subdev.device;
+<<<<<<< HEAD
 	const u32 intr = buffer->id ? 0x08000000 : 0x20000000;
 	const u32 foff = buffer->id * 0x14;
 
@@ -101,6 +134,27 @@ gv100_fault_buffer_entries(struct nvkm_fault_buffer *buffer)
 	const u32 foff = buffer->id * 0x14;
 	nvkm_mask(device, 0x100e34 + foff, 0x40000000, 0x40000000);
 	return nvkm_rd32(device, 0x100e34 + foff) & 0x000fffff;
+=======
+	const u32 foff = buffer->id * 0x14;
+
+	nvkm_mask(device, 0x100e34 + foff, 0xc0000000, 0x40000000);
+	nvkm_wr32(device, 0x100e28 + foff, upper_32_bits(buffer->addr));
+	nvkm_wr32(device, 0x100e24 + foff, lower_32_bits(buffer->addr));
+	nvkm_mask(device, 0x100e34 + foff, 0x80000000, 0x80000000);
+}
+
+static void
+gv100_fault_buffer_info(struct nvkm_fault_buffer *buffer)
+{
+	struct nvkm_device *device = buffer->fault->subdev.device;
+	const u32 foff = buffer->id * 0x14;
+
+	nvkm_mask(device, 0x100e34 + foff, 0x40000000, 0x40000000);
+
+	buffer->entries = nvkm_rd32(device, 0x100e34 + foff) & 0x000fffff;
+	buffer->get = 0x100e2c + foff;
+	buffer->put = 0x100e30 + foff;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -157,6 +211,16 @@ gv100_fault_intr(struct nvkm_fault *fault)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (stat & 0x08000000) {
+		if (fault->buffer[1]) {
+			nvkm_event_send(&fault->event, 1, 1, NULL, 0);
+			stat &= ~0x08000000;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (stat) {
 		nvkm_debug(subdev, "intr %08x\n", stat);
 	}
@@ -166,6 +230,11 @@ static void
 gv100_fault_fini(struct nvkm_fault *fault)
 {
 	nvkm_notify_put(&fault->nrpfb);
+<<<<<<< HEAD
+=======
+	if (fault->buffer[0])
+		fault->func->buffer.fini(fault->buffer[0]);
+>>>>>>> upstream/android-13
 	nvkm_mask(fault->subdev.device, 0x100a34, 0x80000000, 0x80000000);
 }
 
@@ -173,6 +242,7 @@ static void
 gv100_fault_init(struct nvkm_fault *fault)
 {
 	nvkm_mask(fault->subdev.device, 0x100a2c, 0x80000000, 0x80000000);
+<<<<<<< HEAD
 	nvkm_notify_get(&fault->nrpfb);
 }
 
@@ -181,6 +251,17 @@ gv100_fault_oneinit(struct nvkm_fault *fault)
 {
 	return nvkm_notify_init(&fault->buffer[0]->object, &fault->event,
 				gv100_fault_ntfy_nrpfb, false, NULL, 0, 0,
+=======
+	fault->func->buffer.init(fault->buffer[0]);
+	nvkm_notify_get(&fault->nrpfb);
+}
+
+int
+gv100_fault_oneinit(struct nvkm_fault *fault)
+{
+	return nvkm_notify_init(&fault->buffer[0]->object, &fault->event,
+				gv100_fault_ntfy_nrpfb, true, NULL, 0, 0,
+>>>>>>> upstream/android-13
 				&fault->nrpfb);
 }
 
@@ -192,6 +273,7 @@ gv100_fault = {
 	.intr = gv100_fault_intr,
 	.buffer.nr = 2,
 	.buffer.entry_size = 32,
+<<<<<<< HEAD
 	.buffer.entries = gv100_fault_buffer_entries,
 	.buffer.init = gv100_fault_buffer_init,
 	.buffer.fini = gv100_fault_buffer_fini,
@@ -202,4 +284,25 @@ gv100_fault_new(struct nvkm_device *device, int index,
 		struct nvkm_fault **pfault)
 {
 	return nvkm_fault_new_(&gv100_fault, device, index, pfault);
+=======
+	.buffer.info = gv100_fault_buffer_info,
+	.buffer.pin = gp100_fault_buffer_pin,
+	.buffer.init = gv100_fault_buffer_init,
+	.buffer.fini = gv100_fault_buffer_fini,
+	.buffer.intr = gv100_fault_buffer_intr,
+	/*TODO: Figure out how to expose non-replayable fault buffer, which,
+	 *      for some reason, is where recoverable CE faults appear...
+	 *
+	 * 	It's a bit tricky, as both NVKM and SVM will need access to
+	 * 	the non-replayable fault buffer.
+	 */
+	.user = { { 0, 0, VOLTA_FAULT_BUFFER_A }, 1 },
+};
+
+int
+gv100_fault_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+		struct nvkm_fault **pfault)
+{
+	return nvkm_fault_new_(&gv100_fault, device, type, inst, pfault);
+>>>>>>> upstream/android-13
 }

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Routines common to most mpc86xx-based boards.
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Routines common to most mpc86xx-based boards.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_platform.h>

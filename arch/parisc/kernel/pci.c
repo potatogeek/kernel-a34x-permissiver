@@ -34,6 +34,7 @@
 #define DBG_RES(x...)
 #endif
 
+<<<<<<< HEAD
 /* To be used as: mdelay(pci_post_reset_delay);
  *
  * post_reset is the time the kernel should stall to prevent anyone from
@@ -53,6 +54,16 @@ static int pci_hba_count __read_mostly;
 /* parisc_pci_hba used by pci_port->in/out() ops to lookup bus data.  */
 #define PCI_HBA_MAX 32
 static struct pci_hba_data *parisc_pci_hba[PCI_HBA_MAX] __read_mostly;
+=======
+struct pci_port_ops *pci_port __ro_after_init;
+struct pci_bios_ops *pci_bios __ro_after_init;
+
+static int pci_hba_count __ro_after_init;
+
+/* parisc_pci_hba used by pci_port->in/out() ops to lookup bus data.  */
+#define PCI_HBA_MAX 32
+static struct pci_hba_data *parisc_pci_hba[PCI_HBA_MAX] __ro_after_init;
+>>>>>>> upstream/android-13
 
 
 /********************************************************************

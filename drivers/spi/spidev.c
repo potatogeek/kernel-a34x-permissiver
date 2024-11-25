@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Simple synchronous userspace interface to SPI devices
  *
  * Copyright (C) 2006 SWAPP
  *	Andrea Paterniani <a.paterniani@swapp-eng.it>
  * Copyright (C) 2007 David Brownell (simplification, cleanup)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -68,10 +75,18 @@ static DECLARE_BITMAP(minors, N_SPI_MINORS);
  *
  * REVISIT should changing those flags be privileged?
  */
+<<<<<<< HEAD
 #define SPI_MODE_MASK		(SPI_CPHA | SPI_CPOL | SPI_CS_HIGH \
 				| SPI_LSB_FIRST | SPI_3WIRE | SPI_LOOP \
 				| SPI_NO_CS | SPI_READY | SPI_TX_DUAL \
 				| SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD)
+=======
+#define SPI_MODE_MASK		(SPI_MODE_X_MASK | SPI_CS_HIGH \
+				| SPI_LSB_FIRST | SPI_3WIRE | SPI_LOOP \
+				| SPI_NO_CS | SPI_READY | SPI_TX_DUAL \
+				| SPI_TX_QUAD | SPI_TX_OCTAL | SPI_RX_DUAL \
+				| SPI_RX_QUAD | SPI_RX_OCTAL)
+>>>>>>> upstream/android-13
 
 struct spidev_data {
 	dev_t			devt;
@@ -154,7 +169,11 @@ static ssize_t
 spidev_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
 	struct spidev_data	*spidev;
+<<<<<<< HEAD
 	ssize_t			status = 0;
+=======
+	ssize_t			status;
+>>>>>>> upstream/android-13
 
 	/* chipselect only toggles at start or end of operation */
 	if (count > bufsiz)
@@ -184,7 +203,11 @@ spidev_write(struct file *filp, const char __user *buf,
 		size_t count, loff_t *f_pos)
 {
 	struct spidev_data	*spidev;
+<<<<<<< HEAD
 	ssize_t			status = 0;
+=======
+	ssize_t			status;
+>>>>>>> upstream/android-13
 	unsigned long		missing;
 
 	/* chipselect only toggles at start or end of operation */
@@ -279,12 +302,21 @@ static int spidev_message(struct spidev_data *spidev,
 		k_tmp->tx_nbits = u_tmp->tx_nbits;
 		k_tmp->rx_nbits = u_tmp->rx_nbits;
 		k_tmp->bits_per_word = u_tmp->bits_per_word;
+<<<<<<< HEAD
 		k_tmp->delay_usecs = u_tmp->delay_usecs;
 		k_tmp->speed_hz = u_tmp->speed_hz;
+=======
+		k_tmp->delay.value = u_tmp->delay_usecs;
+		k_tmp->delay.unit = SPI_DELAY_UNIT_USECS;
+		k_tmp->speed_hz = u_tmp->speed_hz;
+		k_tmp->word_delay.value = u_tmp->word_delay_usecs;
+		k_tmp->word_delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 		if (!k_tmp->speed_hz)
 			k_tmp->speed_hz = spidev->speed_hz;
 #ifdef VERBOSE
 		dev_dbg(&spidev->spi->dev,
+<<<<<<< HEAD
 			"  xfer len %u %s%s%s%dbits %u usec %uHz\n",
 			u_tmp->len,
 			u_tmp->rx_buf ? "rx " : "",
@@ -293,6 +325,17 @@ static int spidev_message(struct spidev_data *spidev,
 			u_tmp->bits_per_word ? : spidev->spi->bits_per_word,
 			u_tmp->delay_usecs,
 			u_tmp->speed_hz ? : spidev->spi->max_speed_hz);
+=======
+			"  xfer len %u %s%s%s%dbits %u usec %u usec %uHz\n",
+			k_tmp->len,
+			k_tmp->rx_buf ? "rx " : "",
+			k_tmp->tx_buf ? "tx " : "",
+			k_tmp->cs_change ? "cs " : "",
+			k_tmp->bits_per_word ? : spidev->spi->bits_per_word,
+			k_tmp->delay.value,
+			k_tmp->word_delay.value,
+			k_tmp->speed_hz ? : spidev->spi->max_speed_hz);
+>>>>>>> upstream/android-13
 #endif
 		spi_message_add_tail(k_tmp, &msg);
 	}
@@ -406,6 +449,10 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		else
 			retval = get_user(tmp, (u32 __user *)arg);
 		if (retval == 0) {
+<<<<<<< HEAD
+=======
+			struct spi_controller *ctlr = spi->controller;
+>>>>>>> upstream/android-13
 			u32	save = spi->mode;
 
 			if (tmp & ~SPI_MODE_MASK) {
@@ -413,6 +460,13 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 				break;
 			}
 
+<<<<<<< HEAD
+=======
+			if (ctlr->use_gpio_descriptors && ctlr->cs_gpiods &&
+			    ctlr->cs_gpiods[spi->chip_select])
+				tmp |= SPI_CS_HIGH;
+
+>>>>>>> upstream/android-13
 			tmp |= spi->mode & ~SPI_MODE_MASK;
 			spi->mode = (u16)tmp;
 			retval = spi_setup(spi);
@@ -459,10 +513,18 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 			spi->max_speed_hz = tmp;
 			retval = spi_setup(spi);
+<<<<<<< HEAD
 			if (retval >= 0)
 				spidev->speed_hz = tmp;
 			else
 				dev_dbg(&spi->dev, "%d Hz (max)\n", tmp);
+=======
+			if (retval == 0) {
+				spidev->speed_hz = tmp;
+				dev_dbg(&spi->dev, "%d Hz (max)\n",
+					spidev->speed_hz);
+			}
+>>>>>>> upstream/android-13
 			spi->max_speed_hz = save;
 		}
 		break;
@@ -596,7 +658,11 @@ static int spidev_open(struct inode *inode, struct file *filp)
 
 	spidev->users++;
 	filp->private_data = spidev;
+<<<<<<< HEAD
 	nonseekable_open(inode, filp);
+=======
+	stream_open(inode, filp);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&device_list_lock);
 	return 0;
@@ -671,12 +737,37 @@ static const struct file_operations spidev_fops = {
 
 static struct class *spidev_class;
 
+<<<<<<< HEAD
+=======
+static const struct spi_device_id spidev_spi_ids[] = {
+	{ .name = "dh2228fv" },
+	{ .name = "ltc2488" },
+	{ .name = "sx1301" },
+	{ .name = "bk4" },
+	{ .name = "dhcom-board" },
+	{ .name = "m53cpld" },
+	{ .name = "spi-petra" },
+	{ .name = "spi-authenta" },
+	{},
+};
+MODULE_DEVICE_TABLE(spi, spidev_spi_ids);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_OF
 static const struct of_device_id spidev_dt_ids[] = {
 	{ .compatible = "rohm,dh2228fv" },
 	{ .compatible = "lineartechnology,ltc2488" },
+<<<<<<< HEAD
 	{ .compatible = "ge,achc" },
 	{ .compatible = "semtech,sx1301" },
+=======
+	{ .compatible = "semtech,sx1301" },
+	{ .compatible = "lwn,bk4" },
+	{ .compatible = "dh,dhcom-board" },
+	{ .compatible = "menlo,m53cpld" },
+	{ .compatible = "cisco,spi-petra" },
+	{ .compatible = "micron,spi-authenta" },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, spidev_dt_ids);
@@ -812,6 +903,10 @@ static struct spi_driver spidev_spi_driver = {
 	},
 	.probe =	spidev_probe,
 	.remove =	spidev_remove,
+<<<<<<< HEAD
+=======
+	.id_table =	spidev_spi_ids,
+>>>>>>> upstream/android-13
 
 	/* NOTE:  suspend/resume methods are not necessary here.
 	 * We don't do anything except pass the requests to/from

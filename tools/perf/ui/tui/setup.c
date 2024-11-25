@@ -1,15 +1,28 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 #include <errno.h>
 #include <signal.h>
 #include <stdbool.h>
+=======
+#include <errno.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <unistd.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #ifdef HAVE_BACKTRACE_SUPPORT
 #include <execinfo.h>
 #endif
 
+<<<<<<< HEAD
 #include "../../util/cache.h"
 #include "../../util/debug.h"
 #include "../../util/util.h"
+=======
+#include "../../util/debug.h"
+#include "../../perf.h"
+>>>>>>> upstream/android-13
 #include "../browser.h"
 #include "../helpline.h"
 #include "../ui.h"

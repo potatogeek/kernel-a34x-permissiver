@@ -24,6 +24,7 @@ config PROCA_S_OS
 	help
 	   Build S OS compatible version of PROCA
 
+<<<<<<< HEAD
 choice
 	prompt "Choose PROCA certificate storage type"
 	default PROCA_CERTIFICATES_XATTR
@@ -66,6 +67,8 @@ config PROCA_CERT_DEVICE
 	   Enable the certificate device /dev/proca_cert for reading and
 	   updating test database in /data/proca.db
 
+=======
+>>>>>>> upstream/android-13
 config PROCA_DEBUG
 	bool "PROCA Debug mode"
 	depends on PROCA && !SAMSUNG_PRODUCT_SHIP

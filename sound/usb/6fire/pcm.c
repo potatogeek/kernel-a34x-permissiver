@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver for TerraTec DMX 6Fire USB
  *
@@ -6,11 +10,14 @@
  * Author:	Torsten Schenk <torsten.schenk@zoho.com>
  * Created:	Jan 01, 2011
  * Copyright:	(C) Torsten Schenk
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "pcm.h"
@@ -450,6 +457,7 @@ static int usb6fire_pcm_close(struct snd_pcm_substream *alsa_sub)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int usb6fire_pcm_hw_params(struct snd_pcm_substream *alsa_sub,
 		struct snd_pcm_hw_params *hw_params)
 {
@@ -462,6 +470,8 @@ static int usb6fire_pcm_hw_free(struct snd_pcm_substream *alsa_sub)
 	return snd_pcm_lib_free_vmalloc_buffer(alsa_sub);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int usb6fire_pcm_prepare(struct snd_pcm_substream *alsa_sub)
 {
 	struct pcm_runtime *rt = snd_pcm_substream_chip(alsa_sub);
@@ -558,6 +568,7 @@ static snd_pcm_uframes_t usb6fire_pcm_pointer(
 static const struct snd_pcm_ops pcm_ops = {
 	.open = usb6fire_pcm_open,
 	.close = usb6fire_pcm_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
 	.hw_params = usb6fire_pcm_hw_params,
 	.hw_free = usb6fire_pcm_hw_free,
@@ -565,6 +576,11 @@ static const struct snd_pcm_ops pcm_ops = {
 	.trigger = usb6fire_pcm_trigger,
 	.pointer = usb6fire_pcm_pointer,
 	.page = snd_pcm_lib_get_vmalloc_page,
+=======
+	.prepare = usb6fire_pcm_prepare,
+	.trigger = usb6fire_pcm_trigger,
+	.pointer = usb6fire_pcm_pointer,
+>>>>>>> upstream/android-13
 };
 
 static void usb6fire_pcm_init_urb(struct pcm_urb *urb,
@@ -663,6 +679,7 @@ int usb6fire_pcm_init(struct sfire_chip *chip)
 	strcpy(pcm->name, "DMX 6Fire USB");
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &pcm_ops);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &pcm_ops);
+<<<<<<< HEAD
 
 	if (ret) {
 		usb6fire_pcm_buffers_destroy(rt);
@@ -671,6 +688,10 @@ int usb6fire_pcm_init(struct sfire_chip *chip)
 			"error preallocating pcm buffers.\n");
 		return ret;
 	}
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+
+>>>>>>> upstream/android-13
 	rt->instance = pcm;
 
 	chip->pcm = rt;

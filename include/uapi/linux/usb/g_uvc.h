@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0+ */
+=======
+/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /*
  * g_uvc.h  --  USB Video Class Gadget driver API
  *

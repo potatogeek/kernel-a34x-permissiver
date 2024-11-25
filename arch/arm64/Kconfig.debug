@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 config ARM64_PTDUMP_CORE
 	def_bool n
@@ -15,6 +16,9 @@ config ARM64_PTDUMP_DEBUGFS
 	  kernel.
 
 	  If in doubt, say N.
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 config PID_IN_CONTEXTIDR
 	bool "Write the current PID to the CONTEXTIDR register"
@@ -24,6 +28,7 @@ config PID_IN_CONTEXTIDR
 	  instructions during context switch. Say Y here only if you are
 	  planning to use hardware trace tools with this kernel.
 
+<<<<<<< HEAD
 config ARM64_RANDOMIZE_TEXT_OFFSET
 	bool "Randomize TEXT_OFFSET at build time"
 	help
@@ -81,6 +86,8 @@ config DEBUG_ALIGN_RODATA
 
 	  If in doubt, say N.
 
+=======
+>>>>>>> upstream/android-13
 config DEBUG_EFI
 	depends on EFI && DEBUG_INFO
 	bool "UEFI debugging"

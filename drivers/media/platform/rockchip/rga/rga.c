@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author: Jacob Chen <jacob-chen@iotwrt.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
+ * Author: Jacob Chen <jacob-chen@iotwrt.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -97,7 +104,11 @@ static irqreturn_t rga_isr(int irq, void *prv)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct v4l2_m2m_ops rga_m2m_ops = {
+=======
+static const struct v4l2_m2m_ops rga_m2m_ops = {
+>>>>>>> upstream/android-13
 	.device_run = device_run,
 };
 
@@ -447,9 +458,15 @@ static const struct v4l2_file_operations rga_fops = {
 static int
 vidioc_querycap(struct file *file, void *priv, struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	strlcpy(cap->driver, RGA_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, "rockchip-rga", sizeof(cap->card));
 	strlcpy(cap->bus_info, "platform:rga", sizeof(cap->bus_info));
+=======
+	strscpy(cap->driver, RGA_NAME, sizeof(cap->driver));
+	strscpy(cap->card, "rockchip-rga", sizeof(cap->card));
+	strscpy(cap->bus_info, "platform:rga", sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -700,7 +717,11 @@ static const struct v4l2_ioctl_ops rga_ioctl_ops = {
 	.vidioc_s_selection = vidioc_s_selection,
 };
 
+<<<<<<< HEAD
 static struct video_device rga_videodev = {
+=======
+static const struct video_device rga_videodev = {
+>>>>>>> upstream/android-13
 	.name = "rockchip-rga",
 	.fops = &rga_fops,
 	.ioctl_ops = &rga_ioctl_ops,
@@ -839,7 +860,10 @@ static int rga_probe(struct platform_device *pdev)
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		dev_err(rga->dev, "failed to get irq\n");
+=======
+>>>>>>> upstream/android-13
 		ret = irq;
 		goto err_put_clk;
 	}
@@ -872,10 +896,19 @@ static int rga_probe(struct platform_device *pdev)
 	if (IS_ERR(rga->m2m_dev)) {
 		v4l2_err(&rga->v4l2_dev, "Failed to init mem2mem device\n");
 		ret = PTR_ERR(rga->m2m_dev);
+<<<<<<< HEAD
 		goto unreg_video_dev;
 	}
 
 	pm_runtime_get_sync(rga->dev);
+=======
+		goto rel_vdev;
+	}
+
+	ret = pm_runtime_resume_and_get(rga->dev);
+	if (ret < 0)
+		goto rel_vdev;
+>>>>>>> upstream/android-13
 
 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
@@ -889,19 +922,46 @@ static int rga_probe(struct platform_device *pdev)
 	rga->cmdbuf_virt = dma_alloc_attrs(rga->dev, RGA_CMDBUF_SIZE,
 					   &rga->cmdbuf_phy, GFP_KERNEL,
 					   DMA_ATTR_WRITE_COMBINE);
+<<<<<<< HEAD
 
 	rga->src_mmu_pages =
 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
 	rga->dst_mmu_pages =
 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
+=======
+	if (!rga->cmdbuf_virt) {
+		ret = -ENOMEM;
+		goto rel_vdev;
+	}
+
+	rga->src_mmu_pages =
+		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
+	if (!rga->src_mmu_pages) {
+		ret = -ENOMEM;
+		goto free_dma;
+	}
+	rga->dst_mmu_pages =
+		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
+	if (!rga->dst_mmu_pages) {
+		ret = -ENOMEM;
+		goto free_src_pages;
+	}
+>>>>>>> upstream/android-13
 
 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
 	def_frame.size = def_frame.stride * def_frame.height;
 
+<<<<<<< HEAD
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER, -1);
 	if (ret) {
 		v4l2_err(&rga->v4l2_dev, "Failed to register video device\n");
 		goto rel_vdev;
+=======
+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
+	if (ret) {
+		v4l2_err(&rga->v4l2_dev, "Failed to register video device\n");
+		goto free_dst_pages;
+>>>>>>> upstream/android-13
 	}
 
 	v4l2_info(&rga->v4l2_dev, "Registered %s as /dev/%s\n",
@@ -909,10 +969,22 @@ static int rga_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
 rel_vdev:
 	video_device_release(vfd);
 unreg_video_dev:
 	video_unregister_device(rga->vfd);
+=======
+free_dst_pages:
+	free_pages((unsigned long)rga->dst_mmu_pages, 3);
+free_src_pages:
+	free_pages((unsigned long)rga->src_mmu_pages, 3);
+free_dma:
+	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
+		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
+rel_vdev:
+	video_device_release(vfd);
+>>>>>>> upstream/android-13
 unreg_v4l2_dev:
 	v4l2_device_unregister(&rga->v4l2_dev);
 err_put_clk:

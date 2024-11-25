@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 // Copyright(c) 2017-18 Intel Corporation.
 
 /*
@@ -19,7 +23,10 @@
 #include <sound/soc.h>
 #include "../../codecs/da7219.h"
 #include "../../codecs/hdac_hdmi.h"
+<<<<<<< HEAD
 #include "../skylake/skl.h"
+=======
+>>>>>>> upstream/android-13
 #include "../../codecs/da7219-aad.h"
 
 #define KBL_DIALOG_CODEC_DAI "da7219-hifi"
@@ -45,6 +52,10 @@ struct kbl_codec_private {
 enum {
 	KBL_DPCM_AUDIO_PB = 0,
 	KBL_DPCM_AUDIO_CP,
+<<<<<<< HEAD
+=======
+	KBL_DPCM_AUDIO_REF_CP,
+>>>>>>> upstream/android-13
 	KBL_DPCM_AUDIO_DMIC_CP,
 	KBL_DPCM_AUDIO_HDMI1_PB,
 	KBL_DPCM_AUDIO_HDMI2_PB,
@@ -91,8 +102,14 @@ static const struct snd_soc_dapm_widget kabylake_widgets[] = {
 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
 	SND_SOC_DAPM_SPK("Spk", NULL),
 	SND_SOC_DAPM_MIC("SoC DMIC", NULL),
+<<<<<<< HEAD
 	SND_SOC_DAPM_SPK("DP", NULL),
 	SND_SOC_DAPM_SPK("HDMI", NULL),
+=======
+	SND_SOC_DAPM_SPK("HDMI1", NULL),
+	SND_SOC_DAPM_SPK("HDMI2", NULL),
+	SND_SOC_DAPM_SPK("HDMI3", NULL),
+>>>>>>> upstream/android-13
 	SND_SOC_DAPM_SUPPLY("Platform Clock", SND_SOC_NOPM, 0, 0,
 			platform_clock_control, SND_SOC_DAPM_PRE_PMU |
 			SND_SOC_DAPM_POST_PMD),
@@ -109,8 +126,14 @@ static const struct snd_soc_dapm_route kabylake_map[] = {
 	{ "MIC", NULL, "Headset Mic" },
 	{ "DMic", NULL, "SoC DMIC" },
 
+<<<<<<< HEAD
 	{ "HDMI", NULL, "hif5 Output" },
 	{ "DP", NULL, "hif6 Output" },
+=======
+	{"HDMI1", NULL, "hif5-0 Output"},
+	{"HDMI2", NULL, "hif6-0 Output"},
+	{"HDMI3", NULL, "hif7-0 Output"},
+>>>>>>> upstream/android-13
 
 	/* CODEC BE connections */
 	{ "HiFi Playback", NULL, "ssp0 Tx" },
@@ -142,13 +165,21 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
 {
 	struct snd_interval *rate = hw_param_interval(params,
 			SNDRV_PCM_HW_PARAM_RATE);
+<<<<<<< HEAD
 	struct snd_interval *channels = hw_param_interval(params,
+=======
+	struct snd_interval *chan = hw_param_interval(params,
+>>>>>>> upstream/android-13
 			SNDRV_PCM_HW_PARAM_CHANNELS);
 	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
 
 	/* The ADSP will convert the FE rate to 48k, stereo */
 	rate->min = rate->max = 48000;
+<<<<<<< HEAD
 	channels->min = channels->max = DUAL_CHANNEL;
+=======
+	chan->min = chan->max = DUAL_CHANNEL;
+>>>>>>> upstream/android-13
 
 	/* set SSP to 24 bit */
 	snd_mask_none(fmt);
@@ -160,8 +191,13 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
 static int kabylake_da7219_codec_init(struct snd_soc_pcm_runtime *rtd)
 {
 	struct kbl_codec_private *ctx = snd_soc_card_get_drvdata(rtd->card);
+<<<<<<< HEAD
 	struct snd_soc_component *component = rtd->codec_dai->component;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(rtd, 0)->component;
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	struct snd_soc_jack *jack;
 	int ret;
 
@@ -204,7 +240,11 @@ static int kabylake_da7219_codec_init(struct snd_soc_pcm_runtime *rtd)
 static int kabylake_hdmi_init(struct snd_soc_pcm_runtime *rtd, int device)
 {
 	struct kbl_codec_private *ctx = snd_soc_card_get_drvdata(rtd->card);
+<<<<<<< HEAD
 	struct snd_soc_dai *dai = rtd->codec_dai;
+=======
+	struct snd_soc_dai *dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	struct kbl_hdmi_pcm *pcm;
 
 	pcm = devm_kzalloc(rtd->card->dev, sizeof(*pcm), GFP_KERNEL);
@@ -237,7 +277,11 @@ static int kabylake_hdmi3_init(struct snd_soc_pcm_runtime *rtd)
 static int kabylake_da7219_fe_init(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_soc_dapm_context *dapm;
+<<<<<<< HEAD
 	struct snd_soc_component *component = rtd->cpu_dai->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_cpu(rtd, 0)->component;
+>>>>>>> upstream/android-13
 
 	dapm = snd_soc_component_get_dapm(component);
 	snd_soc_dapm_ignore_suspend(dapm, "Reference Capture");
@@ -306,7 +350,11 @@ static const struct snd_soc_ops kabylake_da7219_fe_ops = {
 static int kabylake_dmic_fixup(struct snd_soc_pcm_runtime *rtd,
 		struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_interval *channels = hw_param_interval(params,
+=======
+	struct snd_interval *chan = hw_param_interval(params,
+>>>>>>> upstream/android-13
 				SNDRV_PCM_HW_PARAM_CHANNELS);
 
 	/*
@@ -314,9 +362,15 @@ static int kabylake_dmic_fixup(struct snd_soc_pcm_runtime *rtd,
 	 */
 
 	if (params_channels(params) == 2)
+<<<<<<< HEAD
 		channels->min = channels->max = 2;
 	else
 		channels->min = channels->max = 4;
+=======
+		chan->min = chan->max = 2;
+	else
+		chan->min = chan->max = 4;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -337,6 +391,7 @@ static struct snd_soc_ops kabylake_dmic_ops = {
 	.startup = kabylake_dmic_startup,
 };
 
+<<<<<<< HEAD
 static const unsigned int rates_16000[] = {
 	16000,
 };
@@ -344,98 +399,242 @@ static const unsigned int rates_16000[] = {
 static const struct snd_pcm_hw_constraint_list constraints_16000 = {
 	.count = ARRAY_SIZE(rates_16000),
 	.list  = rates_16000,
+=======
+static unsigned int rates_16000[] = {
+        16000,
+};
+
+static const struct snd_pcm_hw_constraint_list constraints_16000 = {
+        .count = ARRAY_SIZE(rates_16000),
+        .list  = rates_16000,
+>>>>>>> upstream/android-13
 };
 
 static const unsigned int ch_mono[] = {
 	1,
 };
 
+<<<<<<< HEAD
+=======
+static const struct snd_pcm_hw_constraint_list constraints_refcap = {
+	.count = ARRAY_SIZE(ch_mono),
+	.list  = ch_mono,
+};
+
+static int kabylake_refcap_startup(struct snd_pcm_substream *substream)
+{
+	substream->runtime->hw.channels_max = 1;
+	snd_pcm_hw_constraint_list(substream->runtime, 0,
+					SNDRV_PCM_HW_PARAM_CHANNELS,
+					&constraints_refcap);
+
+	return snd_pcm_hw_constraint_list(substream->runtime, 0,
+					SNDRV_PCM_HW_PARAM_RATE,
+					&constraints_16000);
+}
+
+static struct snd_soc_ops skylake_refcap_ops = {
+	.startup = kabylake_refcap_startup,
+};
+
+SND_SOC_DAILINK_DEF(dummy,
+	DAILINK_COMP_ARRAY(COMP_DUMMY()));
+
+SND_SOC_DAILINK_DEF(system,
+	DAILINK_COMP_ARRAY(COMP_CPU("System Pin")));
+
+SND_SOC_DAILINK_DEF(reference,
+	DAILINK_COMP_ARRAY(COMP_CPU("Reference Pin")));
+
+SND_SOC_DAILINK_DEF(dmic,
+	DAILINK_COMP_ARRAY(COMP_CPU("DMIC Pin")));
+
+SND_SOC_DAILINK_DEF(hdmi1,
+	DAILINK_COMP_ARRAY(COMP_CPU("HDMI1 Pin")));
+
+SND_SOC_DAILINK_DEF(hdmi2,
+	DAILINK_COMP_ARRAY(COMP_CPU("HDMI2 Pin")));
+
+SND_SOC_DAILINK_DEF(hdmi3,
+	DAILINK_COMP_ARRAY(COMP_CPU("HDMI3 Pin")));
+
+SND_SOC_DAILINK_DEF(ssp0_pin,
+	DAILINK_COMP_ARRAY(COMP_CPU("SSP0 Pin")));
+SND_SOC_DAILINK_DEF(ssp0_codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC(MAXIM_DEV0_NAME,
+				      KBL_MAXIM_CODEC_DAI)));
+
+SND_SOC_DAILINK_DEF(ssp1_pin,
+	DAILINK_COMP_ARRAY(COMP_CPU("SSP1 Pin")));
+SND_SOC_DAILINK_DEF(ssp1_codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("i2c-DLGS7219:00",
+				      KBL_DIALOG_CODEC_DAI)));
+
+SND_SOC_DAILINK_DEF(dmic_pin,
+	DAILINK_COMP_ARRAY(COMP_CPU("DMIC01 Pin")));
+SND_SOC_DAILINK_DEF(dmic_codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("dmic-codec", "dmic-hifi")));
+
+SND_SOC_DAILINK_DEF(idisp1_pin,
+	DAILINK_COMP_ARRAY(COMP_CPU("iDisp1 Pin")));
+SND_SOC_DAILINK_DEF(idisp1_codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("ehdaudio0D2",
+				      "intel-hdmi-hifi1")));
+
+SND_SOC_DAILINK_DEF(idisp2_pin,
+	DAILINK_COMP_ARRAY(COMP_CPU("iDisp2 Pin")));
+SND_SOC_DAILINK_DEF(idisp2_codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("ehdaudio0D2", "intel-hdmi-hifi2")));
+
+SND_SOC_DAILINK_DEF(idisp3_pin,
+	DAILINK_COMP_ARRAY(COMP_CPU("iDisp3 Pin")));
+SND_SOC_DAILINK_DEF(idisp3_codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("ehdaudio0D2", "intel-hdmi-hifi3")));
+
+SND_SOC_DAILINK_DEF(platform,
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("0000:00:1f.3")));
+
+>>>>>>> upstream/android-13
 /* kabylake digital audio interface glue - connects codec <--> CPU */
 static struct snd_soc_dai_link kabylake_dais[] = {
 	/* Front End DAI links */
 	[KBL_DPCM_AUDIO_PB] = {
 		.name = "Kbl Audio Port",
 		.stream_name = "Audio",
+<<<<<<< HEAD
 		.cpu_dai_name = "System Pin",
 		.platform_name = "0000:00:1f.3",
 		.dynamic = 1,
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
+=======
+		.dynamic = 1,
+>>>>>>> upstream/android-13
 		.nonatomic = 1,
 		.init = kabylake_da7219_fe_init,
 		.trigger = {
 			SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dpcm_playback = 1,
 		.ops = &kabylake_da7219_fe_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(system, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	[KBL_DPCM_AUDIO_CP] = {
 		.name = "Kbl Audio Capture Port",
 		.stream_name = "Audio Record",
+<<<<<<< HEAD
 		.cpu_dai_name = "System Pin",
 		.platform_name = "0000:00:1f.3",
 		.dynamic = 1,
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
+=======
+		.dynamic = 1,
+>>>>>>> upstream/android-13
 		.nonatomic = 1,
 		.trigger = {
 			SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dpcm_capture = 1,
 		.ops = &kabylake_da7219_fe_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(system, dummy, platform),
+	},
+	[KBL_DPCM_AUDIO_REF_CP] = {
+		.name = "Kbl Audio Reference cap",
+		.stream_name = "Wake on Voice",
+		.init = NULL,
+		.dpcm_capture = 1,
+		.nonatomic = 1,
+		.dynamic = 1,
+		.ops = &skylake_refcap_ops,
+		SND_SOC_DAILINK_REG(reference, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	[KBL_DPCM_AUDIO_DMIC_CP] = {
 		.name = "Kbl Audio DMIC cap",
 		.stream_name = "dmiccap",
+<<<<<<< HEAD
 		.cpu_dai_name = "DMIC Pin",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.platform_name = "0000:00:1f.3",
+=======
+>>>>>>> upstream/android-13
 		.init = NULL,
 		.dpcm_capture = 1,
 		.nonatomic = 1,
 		.dynamic = 1,
 		.ops = &kabylake_dmic_ops,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(dmic, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	[KBL_DPCM_AUDIO_HDMI1_PB] = {
 		.name = "Kbl HDMI Port1",
 		.stream_name = "Hdmi1",
+<<<<<<< HEAD
 		.cpu_dai_name = "HDMI1 Pin",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.platform_name = "0000:00:1f.3",
+=======
+>>>>>>> upstream/android-13
 		.dpcm_playback = 1,
 		.init = NULL,
 		.trigger = {
 			SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.nonatomic = 1,
 		.dynamic = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(hdmi1, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	[KBL_DPCM_AUDIO_HDMI2_PB] = {
 		.name = "Kbl HDMI Port2",
 		.stream_name = "Hdmi2",
+<<<<<<< HEAD
 		.cpu_dai_name = "HDMI2 Pin",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.platform_name = "0000:00:1f.3",
+=======
+>>>>>>> upstream/android-13
 		.dpcm_playback = 1,
 		.init = NULL,
 		.trigger = {
 			SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.nonatomic = 1,
 		.dynamic = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(hdmi2, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	[KBL_DPCM_AUDIO_HDMI3_PB] = {
 		.name = "Kbl HDMI Port3",
 		.stream_name = "Hdmi3",
+<<<<<<< HEAD
 		.cpu_dai_name = "HDMI3 Pin",
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.platform_name = "0000:00:1f.3",
+=======
+>>>>>>> upstream/android-13
 		.trigger = {
 			SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dpcm_playback = 1,
 		.init = NULL,
 		.nonatomic = 1,
 		.dynamic = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(hdmi3, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 
 	/* Back End DAI links */
@@ -443,27 +642,39 @@ static struct snd_soc_dai_link kabylake_dais[] = {
 		/* SSP0 - Codec */
 		.name = "SSP0-Codec",
 		.id = 0,
+<<<<<<< HEAD
 		.cpu_dai_name = "SSP0 Pin",
 		.platform_name = "0000:00:1f.3",
 		.no_pcm = 1,
 		.codec_name = MAXIM_DEV0_NAME,
 		.codec_dai_name = KBL_MAXIM_CODEC_DAI,
+=======
+		.no_pcm = 1,
+>>>>>>> upstream/android-13
 		.dai_fmt = SND_SOC_DAIFMT_I2S |
 			SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
 		.ignore_pmdown_time = 1,
 		.be_hw_params_fixup = kabylake_ssp_fixup,
 		.dpcm_playback = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(ssp0_pin, ssp0_codec, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		/* SSP1 - Codec */
 		.name = "SSP1-Codec",
 		.id = 1,
+<<<<<<< HEAD
 		.cpu_dai_name = "SSP1 Pin",
 		.platform_name = "0000:00:1f.3",
 		.no_pcm = 1,
 		.codec_name = "i2c-DLGS7219:00",
 		.codec_dai_name = KBL_DIALOG_CODEC_DAI,
+=======
+		.no_pcm = 1,
+>>>>>>> upstream/android-13
 		.init = kabylake_da7219_codec_init,
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
@@ -471,22 +682,34 @@ static struct snd_soc_dai_link kabylake_dais[] = {
 		.be_hw_params_fixup = kabylake_ssp_fixup,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(ssp1_pin, ssp1_codec, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "dmic01",
 		.id = 2,
+<<<<<<< HEAD
 		.cpu_dai_name = "DMIC01 Pin",
 		.codec_name = "dmic-codec",
 		.codec_dai_name = "dmic-hifi",
 		.platform_name = "0000:00:1f.3",
+=======
+>>>>>>> upstream/android-13
 		.be_hw_params_fixup = kabylake_dmic_fixup,
 		.ignore_suspend = 1,
 		.dpcm_capture = 1,
 		.no_pcm = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(dmic_pin, dmic_codec, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "iDisp1",
 		.id = 3,
+<<<<<<< HEAD
 		.cpu_dai_name = "iDisp1 Pin",
 		.codec_name = "ehdaudio0D2",
 		.codec_dai_name = "intel-hdmi-hifi1",
@@ -494,10 +717,17 @@ static struct snd_soc_dai_link kabylake_dais[] = {
 		.dpcm_playback = 1,
 		.init = kabylake_hdmi1_init,
 		.no_pcm = 1,
+=======
+		.dpcm_playback = 1,
+		.init = kabylake_hdmi1_init,
+		.no_pcm = 1,
+		SND_SOC_DAILINK_REG(idisp1_pin, idisp1_codec, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "iDisp2",
 		.id = 4,
+<<<<<<< HEAD
 		.cpu_dai_name = "iDisp2 Pin",
 		.codec_name = "ehdaudio0D2",
 		.codec_dai_name = "intel-hdmi-hifi2",
@@ -505,10 +735,17 @@ static struct snd_soc_dai_link kabylake_dais[] = {
 		.init = kabylake_hdmi2_init,
 		.dpcm_playback = 1,
 		.no_pcm = 1,
+=======
+		.init = kabylake_hdmi2_init,
+		.dpcm_playback = 1,
+		.no_pcm = 1,
+		SND_SOC_DAILINK_REG(idisp2_pin, idisp2_codec, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "iDisp3",
 		.id = 5,
+<<<<<<< HEAD
 		.cpu_dai_name = "iDisp3 Pin",
 		.codec_name = "ehdaudio0D2",
 		.codec_dai_name = "intel-hdmi-hifi3",
@@ -516,6 +753,12 @@ static struct snd_soc_dai_link kabylake_dais[] = {
 		.init = kabylake_hdmi3_init,
 		.dpcm_playback = 1,
 		.no_pcm = 1,
+=======
+		.init = kabylake_hdmi3_init,
+		.dpcm_playback = 1,
+		.no_pcm = 1,
+		SND_SOC_DAILINK_REG(idisp3_pin, idisp3_codec, platform),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -590,12 +833,20 @@ static int kabylake_audio_probe(struct platform_device *pdev)
 
 static const struct platform_device_id kbl_board_ids[] = {
 	{
+<<<<<<< HEAD
 		.name = "kbl_da7219_max98357a",
+=======
+		.name = "kbl_da7219_mx98357a",
+>>>>>>> upstream/android-13
 		.driver_data =
 			(kernel_ulong_t)&kabylake_audio_card_da7219_m98357a,
 	},
 	{ }
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(platform, kbl_board_ids);
+>>>>>>> upstream/android-13
 
 static struct platform_driver kabylake_audio = {
 	.probe = kabylake_audio_probe,
@@ -612,4 +863,7 @@ module_platform_driver(kabylake_audio)
 MODULE_DESCRIPTION("Audio Machine driver-DA7219 & MAX98357A in I2S mode");
 MODULE_AUTHOR("Naveen Manohar <naveen.m@intel.com>");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_ALIAS("platform:kbl_da7219_max98357a");
+=======
+>>>>>>> upstream/android-13

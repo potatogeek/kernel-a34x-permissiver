@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * include/net/l3mdev.h - L3 master device API
  * Copyright (c) 2015 Cumulus Networks
  * Copyright (c) 2015 David Ahern <dsa@cumulusnetworks.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _NET_L3MDEV_H_
 #define _NET_L3MDEV_H_
@@ -14,6 +21,19 @@
 #include <net/dst.h>
 #include <net/fib_rules.h>
 
+<<<<<<< HEAD
+=======
+enum l3mdev_type {
+	L3MDEV_TYPE_UNSPEC,
+	L3MDEV_TYPE_VRF,
+	__L3MDEV_TYPE_MAX
+};
+
+#define L3MDEV_TYPE_MAX (__L3MDEV_TYPE_MAX - 1)
+
+typedef int (*lookup_by_table_id_t)(struct net *net, u32 table_d);
+
+>>>>>>> upstream/android-13
 /**
  * struct l3mdev_ops - l3mdev operations
  *
@@ -41,6 +61,18 @@ struct l3mdev_ops {
 
 #ifdef CONFIG_NET_L3_MASTER_DEV
 
+<<<<<<< HEAD
+=======
+int l3mdev_table_lookup_register(enum l3mdev_type l3type,
+				 lookup_by_table_id_t fn);
+
+void l3mdev_table_lookup_unregister(enum l3mdev_type l3type,
+				    lookup_by_table_id_t fn);
+
+int l3mdev_ifindex_lookup_by_table_id(enum l3mdev_type l3type, struct net *net,
+				      u32 table_id);
+
+>>>>>>> upstream/android-13
 int l3mdev_fib_rule_match(struct net *net, struct flowi *fl,
 			  struct fib_lookup_arg *arg);
 
@@ -101,6 +133,20 @@ struct net_device *l3mdev_master_dev_rcu(const struct net_device *_dev)
 	return master;
 }
 
+<<<<<<< HEAD
+=======
+int l3mdev_master_upper_ifindex_by_index_rcu(struct net *net, int ifindex);
+static inline
+int l3mdev_master_upper_ifindex_by_index(struct net *net, int ifindex)
+{
+	rcu_read_lock();
+	ifindex = l3mdev_master_upper_ifindex_by_index_rcu(net, ifindex);
+	rcu_read_unlock();
+
+	return ifindex;
+}
+
+>>>>>>> upstream/android-13
 u32 l3mdev_fib_table_rcu(const struct net_device *dev);
 u32 l3mdev_fib_table_by_index(struct net *net, int ifindex);
 static inline u32 l3mdev_fib_table(const struct net_device *dev)
@@ -209,6 +255,20 @@ static inline int l3mdev_master_ifindex_by_index(struct net *net, int ifindex)
 }
 
 static inline
+<<<<<<< HEAD
+=======
+int l3mdev_master_upper_ifindex_by_index_rcu(struct net *net, int ifindex)
+{
+	return 0;
+}
+static inline
+int l3mdev_master_upper_ifindex_by_index(struct net *net, int ifindex)
+{
+	return 0;
+}
+
+static inline
+>>>>>>> upstream/android-13
 struct net_device *l3mdev_master_dev_rcu(const struct net_device *dev)
 {
 	return NULL;
@@ -263,6 +323,29 @@ struct sk_buff *l3mdev_ip6_out(struct sock *sk, struct sk_buff *skb)
 }
 
 static inline
+<<<<<<< HEAD
+=======
+int l3mdev_table_lookup_register(enum l3mdev_type l3type,
+				 lookup_by_table_id_t fn)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline
+void l3mdev_table_lookup_unregister(enum l3mdev_type l3type,
+				    lookup_by_table_id_t fn)
+{
+}
+
+static inline
+int l3mdev_ifindex_lookup_by_table_id(enum l3mdev_type l3type, struct net *net,
+				      u32 table_id)
+{
+	return -ENODEV;
+}
+
+static inline
+>>>>>>> upstream/android-13
 int l3mdev_fib_rule_match(struct net *net, struct flowi *fl,
 			  struct fib_lookup_arg *arg)
 {

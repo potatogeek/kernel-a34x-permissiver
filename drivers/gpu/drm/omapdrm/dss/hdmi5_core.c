@@ -1,12 +1,21 @@
+<<<<<<< HEAD
 /*
  * OMAP5 HDMI CORE IP driver library
  *
  * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * OMAP5 HDMI CORE IP driver library
+ *
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  * Authors:
  *	Yong Zhi
  *	Mythri pk
  *	Archit Taneja <archit@ti.com>
  *	Tomi Valkeinen <tomi.valkeinen@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -19,6 +28,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -34,6 +45,7 @@
 
 #include "hdmi5_core.h"
 
+<<<<<<< HEAD
 /* only 24 bit color depth used for now */
 static const struct csc_table csc_table_deepcolor[] = {
 	/* HDMI_DEEP_COLOR_24BIT */
@@ -52,6 +64,14 @@ static void hdmi_core_ddc_init(struct hdmi_core_data *core)
 	const unsigned long long iclk = 266000000;	/* DSS L3 ICLK */
 	const unsigned int ss_scl_high = 4600;		/* ns */
 	const unsigned int ss_scl_low = 5400;		/* ns */
+=======
+void hdmi5_core_ddc_init(struct hdmi_core_data *core)
+{
+	void __iomem *base = core->base;
+	const unsigned long long iclk = 266000000;	/* DSS L3 ICLK */
+	const unsigned int ss_scl_high = 4700;		/* ns */
+	const unsigned int ss_scl_low = 5500;		/* ns */
+>>>>>>> upstream/android-13
 	const unsigned int fs_scl_high = 600;		/* ns */
 	const unsigned int fs_scl_low = 1300;		/* ns */
 	const unsigned int sda_hold = 1000;		/* ns */
@@ -125,7 +145,11 @@ static void hdmi_core_ddc_init(struct hdmi_core_data *core)
 	REG_FLD_MOD(base, HDMI_CORE_I2CM_INT, 0x0, 2, 2);
 }
 
+<<<<<<< HEAD
 static void hdmi_core_ddc_uninit(struct hdmi_core_data *core)
+=======
+void hdmi5_core_ddc_uninit(struct hdmi_core_data *core)
+>>>>>>> upstream/android-13
 {
 	void __iomem *base = core->base;
 
@@ -135,6 +159,7 @@ static void hdmi_core_ddc_uninit(struct hdmi_core_data *core)
 	REG_FLD_MOD(base, HDMI_CORE_I2CM_INT, 0x1, 2, 2);
 }
 
+<<<<<<< HEAD
 static int hdmi_core_ddc_edid(struct hdmi_core_data *core, u8 *pedid, u8 ext)
 {
 	void __iomem *base = core->base;
@@ -143,6 +168,16 @@ static int hdmi_core_ddc_edid(struct hdmi_core_data *core, u8 *pedid, u8 ext)
 	const int retries = 1000;
 	u8 seg_ptr = ext / 2;
 	u8 edidbase = ((ext % 2) * 0x80);
+=======
+int hdmi5_core_ddc_read(void *data, u8 *buf, unsigned int block, size_t len)
+{
+	struct hdmi_core_data *core = data;
+	void __iomem *base = core->base;
+	u8 cur_addr;
+	const int retries = 1000;
+	u8 seg_ptr = block / 2;
+	u8 edidbase = ((block % 2) * EDID_LENGTH);
+>>>>>>> upstream/android-13
 
 	REG_FLD_MOD(base, HDMI_CORE_I2CM_SEGPTR, seg_ptr, 7, 0);
 
@@ -150,7 +185,11 @@ static int hdmi_core_ddc_edid(struct hdmi_core_data *core, u8 *pedid, u8 ext)
 	 * TODO: We use polling here, although we probably should use proper
 	 * interrupts.
 	 */
+<<<<<<< HEAD
 	for (cur_addr = 0; cur_addr < 128; ++cur_addr) {
+=======
+	for (cur_addr = 0; cur_addr < len; ++cur_addr) {
+>>>>>>> upstream/android-13
 		int i;
 
 		/* clear ERROR and DONE */
@@ -187,14 +226,19 @@ static int hdmi_core_ddc_edid(struct hdmi_core_data *core, u8 *pedid, u8 ext)
 			return -EIO;
 		}
 
+<<<<<<< HEAD
 		pedid[cur_addr] = REG_GET(base, HDMI_CORE_I2CM_DATAI, 7, 0);
 		checksum += pedid[cur_addr];
+=======
+		buf[cur_addr] = REG_GET(base, HDMI_CORE_I2CM_DATAI, 7, 0);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
 }
 
+<<<<<<< HEAD
 int hdmi5_read_edid(struct hdmi_core_data *core, u8 *edid, int len)
 {
 	int r, n, i;
@@ -226,6 +270,8 @@ out:
 	return r ? r : len;
 }
 
+=======
+>>>>>>> upstream/android-13
 void hdmi5_core_dump(struct hdmi_core_data *core, struct seq_file *s)
 {
 
@@ -287,7 +333,11 @@ void hdmi5_core_dump(struct hdmi_core_data *core, struct seq_file *s)
 }
 
 static void hdmi_core_init(struct hdmi_core_vid_config *video_cfg,
+<<<<<<< HEAD
 			struct hdmi_config *cfg)
+=======
+			   const struct hdmi_config *cfg)
+>>>>>>> upstream/android-13
 {
 	DSSDBG("hdmi_core_init\n");
 
@@ -325,10 +375,17 @@ static void hdmi_core_init(struct hdmi_core_vid_config *video_cfg,
 
 /* DSS_HDMI_CORE_VIDEO_CONFIG */
 static void hdmi_core_video_config(struct hdmi_core_data *core,
+<<<<<<< HEAD
 			struct hdmi_core_vid_config *cfg)
 {
 	void __iomem *base = core->base;
 	struct videomode *vm = &cfg->v_fc_config.vm;
+=======
+			const struct hdmi_core_vid_config *cfg)
+{
+	void __iomem *base = core->base;
+	const struct videomode *vm = &cfg->v_fc_config.vm;
+>>>>>>> upstream/android-13
 	unsigned char r = 0;
 	bool vsync_pol, hsync_pol;
 
@@ -408,6 +465,7 @@ static void hdmi_core_config_video_packetizer(struct hdmi_core_data *core)
 	REG_FLD_MOD(base, HDMI_CORE_VP_CONF, clr_depth ? 0 : 2, 1, 0);
 }
 
+<<<<<<< HEAD
 static void hdmi_core_config_csc(struct hdmi_core_data *core)
 {
 	int clr_depth = 0;	/* 24 bit color depth */
@@ -416,6 +474,8 @@ static void hdmi_core_config_csc(struct hdmi_core_data *core)
 	REG_FLD_MOD(core->base, HDMI_CORE_CSC_SCALE, clr_depth, 7, 4);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void hdmi_core_config_video_sampler(struct hdmi_core_data *core)
 {
 	int video_mapping = 1;	/* for 24 bit color depth */
@@ -480,6 +540,7 @@ static void hdmi_core_write_avi_infoframe(struct hdmi_core_data *core,
 	REG_FLD_MOD(base, HDMI_CORE_FC_PRCONF, pr, 3, 0);
 }
 
+<<<<<<< HEAD
 static void hdmi_core_csc_config(struct hdmi_core_data *core,
 		struct csc_table csc_coeff)
 {
@@ -521,6 +582,69 @@ static void hdmi_core_configure_range(struct hdmi_core_data *core)
 	csc_coeff = csc_table_deepcolor[0];
 
 	hdmi_core_csc_config(core, csc_coeff);
+=======
+static void hdmi_core_write_csc(struct hdmi_core_data *core,
+		const struct csc_table *csc_coeff)
+{
+	void __iomem *base = core->base;
+
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A1_MSB, csc_coeff->a1 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A1_LSB, csc_coeff->a1, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A2_MSB, csc_coeff->a2 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A2_LSB, csc_coeff->a2, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A3_MSB, csc_coeff->a3 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A3_LSB, csc_coeff->a3, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A4_MSB, csc_coeff->a4 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_A4_LSB, csc_coeff->a4, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B1_MSB, csc_coeff->b1 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B1_LSB, csc_coeff->b1, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B2_MSB, csc_coeff->b2 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B2_LSB, csc_coeff->b2, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B3_MSB, csc_coeff->b3 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B3_LSB, csc_coeff->b3, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B4_MSB, csc_coeff->b4 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_B4_LSB, csc_coeff->b4, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C1_MSB, csc_coeff->c1 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C1_LSB, csc_coeff->c1, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C2_MSB, csc_coeff->c2 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C2_LSB, csc_coeff->c2, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C3_MSB, csc_coeff->c3 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C3_LSB, csc_coeff->c3, 7, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C4_MSB, csc_coeff->c4 >> 8, 6, 0);
+	REG_FLD_MOD(base, HDMI_CORE_CSC_COEF_C4_LSB, csc_coeff->c4, 7, 0);
+
+	/* enable CSC */
+	REG_FLD_MOD(base, HDMI_CORE_MC_FLOWCTRL, 0x1, 0, 0);
+}
+
+static void hdmi_core_configure_range(struct hdmi_core_data *core,
+				      enum hdmi_quantization_range range)
+{
+	static const struct csc_table csc_limited_range = {
+		7036, 0, 0, 32, 0, 7036, 0, 32, 0, 0, 7036, 32
+	};
+	static const struct csc_table csc_full_range = {
+		8192, 0, 0, 0, 0, 8192, 0, 0, 0, 0, 8192, 0
+	};
+	const struct csc_table *csc_coeff;
+
+	/* CSC_COLORDEPTH  = 24 bits*/
+	REG_FLD_MOD(core->base, HDMI_CORE_CSC_SCALE, 0, 7, 4);
+
+	switch (range) {
+	case HDMI_QUANTIZATION_RANGE_FULL:
+		csc_coeff = &csc_full_range;
+		break;
+
+	case HDMI_QUANTIZATION_RANGE_DEFAULT:
+	case HDMI_QUANTIZATION_RANGE_LIMITED:
+	default:
+		csc_coeff = &csc_limited_range;
+		break;
+	}
+
+	hdmi_core_write_csc(core, csc_coeff);
+>>>>>>> upstream/android-13
 }
 
 static void hdmi_core_enable_video_path(struct hdmi_core_data *core)
@@ -611,9 +735,26 @@ void hdmi5_configure(struct hdmi_core_data *core, struct hdmi_wp_data *wp,
 	struct videomode vm;
 	struct hdmi_video_format video_format;
 	struct hdmi_core_vid_config v_core_cfg;
+<<<<<<< HEAD
 
 	hdmi_core_mask_interrupts(core);
 
+=======
+	enum hdmi_quantization_range range;
+
+	hdmi_core_mask_interrupts(core);
+
+	if (cfg->hdmi_dvi_mode == HDMI_HDMI) {
+		char vic = cfg->infoframe.video_code;
+
+		/* All CEA modes other than VIC 1 use limited quantization range. */
+		range = vic > 1 ? HDMI_QUANTIZATION_RANGE_LIMITED :
+			HDMI_QUANTIZATION_RANGE_FULL;
+	} else {
+		range = HDMI_QUANTIZATION_RANGE_FULL;
+	}
+
+>>>>>>> upstream/android-13
 	hdmi_core_init(&v_core_cfg, cfg);
 
 	hdmi_wp_init_vid_fmt_timings(&video_format, &vm, cfg);
@@ -627,9 +768,14 @@ void hdmi5_configure(struct hdmi_core_data *core, struct hdmi_wp_data *wp,
 
 	hdmi_wp_video_config_interface(wp, &vm);
 
+<<<<<<< HEAD
 	/* support limited range with 24 bit color depth for now */
 	hdmi_core_configure_range(core);
 	cfg->infoframe.quantization_range = HDMI_QUANTIZATION_RANGE_LIMITED;
+=======
+	hdmi_core_configure_range(core, range);
+	cfg->infoframe.quantization_range = range;
+>>>>>>> upstream/android-13
 
 	/*
 	 * configure core video part, set software reset in the core
@@ -639,7 +785,10 @@ void hdmi5_configure(struct hdmi_core_data *core, struct hdmi_wp_data *wp,
 	hdmi_core_video_config(core, &v_core_cfg);
 
 	hdmi_core_config_video_packetizer(core);
+<<<<<<< HEAD
 	hdmi_core_config_csc(core);
+=======
+>>>>>>> upstream/android-13
 	hdmi_core_config_video_sampler(core);
 
 	if (cfg->hdmi_dvi_mode == HDMI_HDMI)
@@ -809,7 +958,11 @@ int hdmi5_audio_config(struct hdmi_core_data *core, struct hdmi_wp_data *wp,
 	struct hdmi_audio_format audio_format;
 	struct hdmi_audio_dma audio_dma;
 	struct hdmi_core_audio_config core_cfg;
+<<<<<<< HEAD
 	int err, n, cts, channel_count;
+=======
+	int n, cts, channel_count;
+>>>>>>> upstream/android-13
 	unsigned int fs_nr;
 	bool word_length_16b = false;
 
@@ -852,7 +1005,11 @@ int hdmi5_audio_config(struct hdmi_core_data *core, struct hdmi_wp_data *wp,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	err = hdmi_compute_acr(pclk, fs_nr, &n, &cts);
+=======
+	hdmi_compute_acr(pclk, fs_nr, &n, &cts);
+>>>>>>> upstream/android-13
 	core_cfg.n = n;
 	core_cfg.cts = cts;
 

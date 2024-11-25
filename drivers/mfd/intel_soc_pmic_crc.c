@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_soc_pmic_crc.c - Device access for Crystal Cove PMIC
  *
@@ -12,14 +13,30 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device access for Crystal Cove PMIC
+ *
+ * Copyright (C) 2013, 2014 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author: Yang, Bin <bin.yang@intel.com>
  * Author: Zhu, Lejun <lejun.zhu@linux.intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/mfd/core.h>
 #include <linux/interrupt.h>
 #include <linux/regmap.h>
 #include <linux/mfd/intel_soc_pmic.h>
+=======
+#include <linux/interrupt.h>
+#include <linux/regmap.h>
+#include <linux/mfd/core.h>
+#include <linux/mfd/intel_soc_pmic.h>
+
+>>>>>>> upstream/android-13
 #include "intel_soc_pmic_core.h"
 
 #define CRYSTAL_COVE_MAX_REGISTER	0xC6
@@ -35,6 +52,7 @@
 #define CRYSTAL_COVE_IRQ_GPIO		5
 #define CRYSTAL_COVE_IRQ_VHDMIOCP	6
 
+<<<<<<< HEAD
 static struct resource gpio_resources[] = {
 	{
 		.name	= "GPIO",
@@ -78,6 +96,26 @@ static struct resource bcu_resources[] = {
 		.end   = CRYSTAL_COVE_IRQ_BCU,
 		.flags = IORESOURCE_IRQ,
 	},
+=======
+static const struct resource gpio_resources[] = {
+	DEFINE_RES_IRQ_NAMED(CRYSTAL_COVE_IRQ_GPIO, "GPIO"),
+};
+
+static const struct resource pwrsrc_resources[] = {
+	DEFINE_RES_IRQ_NAMED(CRYSTAL_COVE_IRQ_PWRSRC, "PWRSRC"),
+};
+
+static const struct resource adc_resources[] = {
+	DEFINE_RES_IRQ_NAMED(CRYSTAL_COVE_IRQ_ADC, "ADC"),
+};
+
+static const struct resource thermal_resources[] = {
+	DEFINE_RES_IRQ_NAMED(CRYSTAL_COVE_IRQ_THRM, "THERMAL"),
+};
+
+static const struct resource bcu_resources[] = {
+	DEFINE_RES_IRQ_NAMED(CRYSTAL_COVE_IRQ_BCU, "BCU"),
+>>>>>>> upstream/android-13
 };
 
 static struct mfd_cell crystal_cove_byt_dev[] = {
@@ -107,7 +145,11 @@ static struct mfd_cell crystal_cove_byt_dev[] = {
 		.resources = gpio_resources,
 	},
 	{
+<<<<<<< HEAD
 		.name = "crystal_cove_pmic",
+=======
+		.name = "byt_crystal_cove_pmic",
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "crystal_cove_pwm",
@@ -121,6 +163,12 @@ static struct mfd_cell crystal_cove_cht_dev[] = {
 		.resources = gpio_resources,
 	},
 	{
+<<<<<<< HEAD
+=======
+		.name = "cht_crystal_cove_pmic",
+	},
+	{
+>>>>>>> upstream/android-13
 		.name = "crystal_cove_pwm",
 	},
 };
@@ -134,6 +182,7 @@ static const struct regmap_config crystal_cove_regmap_config = {
 };
 
 static const struct regmap_irq crystal_cove_irqs[] = {
+<<<<<<< HEAD
 	[CRYSTAL_COVE_IRQ_PWRSRC] = {
 		.mask = BIT(CRYSTAL_COVE_IRQ_PWRSRC),
 	},
@@ -155,6 +204,15 @@ static const struct regmap_irq crystal_cove_irqs[] = {
 	[CRYSTAL_COVE_IRQ_VHDMIOCP] = {
 		.mask = BIT(CRYSTAL_COVE_IRQ_VHDMIOCP),
 	},
+=======
+	REGMAP_IRQ_REG(CRYSTAL_COVE_IRQ_PWRSRC, 0, BIT(CRYSTAL_COVE_IRQ_PWRSRC)),
+	REGMAP_IRQ_REG(CRYSTAL_COVE_IRQ_THRM, 0, BIT(CRYSTAL_COVE_IRQ_THRM)),
+	REGMAP_IRQ_REG(CRYSTAL_COVE_IRQ_BCU, 0, BIT(CRYSTAL_COVE_IRQ_BCU)),
+	REGMAP_IRQ_REG(CRYSTAL_COVE_IRQ_ADC, 0, BIT(CRYSTAL_COVE_IRQ_ADC)),
+	REGMAP_IRQ_REG(CRYSTAL_COVE_IRQ_CHGR, 0, BIT(CRYSTAL_COVE_IRQ_CHGR)),
+	REGMAP_IRQ_REG(CRYSTAL_COVE_IRQ_GPIO, 0, BIT(CRYSTAL_COVE_IRQ_GPIO)),
+	REGMAP_IRQ_REG(CRYSTAL_COVE_IRQ_VHDMIOCP, 0, BIT(CRYSTAL_COVE_IRQ_VHDMIOCP)),
+>>>>>>> upstream/android-13
 };
 
 static const struct regmap_irq_chip crystal_cove_irq_chip = {

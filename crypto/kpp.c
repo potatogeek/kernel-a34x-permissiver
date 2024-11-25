@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Key-agreement Protocol Primitives (KPP)
  *
  * Copyright (c) 2016, Intel Corporation
  * Authors: Salvatore Benedetto <salvatore.benedetto@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/errno.h>
 #include <linux/kernel.h>
@@ -30,6 +37,7 @@ static int crypto_kpp_report(struct sk_buff *skb, struct crypto_alg *alg)
 {
 	struct crypto_report_kpp rkpp;
 
+<<<<<<< HEAD
 	strncpy(rkpp.type, "kpp", sizeof(rkpp.type));
 
 	if (nla_put(skb, CRYPTOCFGA_REPORT_KPP,
@@ -39,6 +47,13 @@ static int crypto_kpp_report(struct sk_buff *skb, struct crypto_alg *alg)
 
 nla_put_failure:
 	return -EMSGSIZE;
+=======
+	memset(&rkpp, 0, sizeof(rkpp));
+
+	strscpy(rkpp.type, "kpp", sizeof(rkpp.type));
+
+	return nla_put(skb, CRYPTOCFGA_REPORT_KPP, sizeof(rkpp), &rkpp);
+>>>>>>> upstream/android-13
 }
 #else
 static int crypto_kpp_report(struct sk_buff *skb, struct crypto_alg *alg)

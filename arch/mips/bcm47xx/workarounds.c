@@ -24,6 +24,10 @@ void __init bcm47xx_workarounds(void)
 	case BCM47XX_BOARD_NETGEAR_WNR3500L:
 		bcm47xx_workarounds_enable_usb_power(12);
 		break;
+<<<<<<< HEAD
+=======
+	case BCM47XX_BOARD_NETGEAR_WNDR3400V2:
+>>>>>>> upstream/android-13
 	case BCM47XX_BOARD_NETGEAR_WNDR3400_V3:
 		bcm47xx_workarounds_enable_usb_power(21);
 		break;

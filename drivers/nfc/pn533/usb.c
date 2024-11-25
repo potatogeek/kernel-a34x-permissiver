@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for NXP PN533 NFC Chip - USB transport layer
  *
  * Copyright (C) 2011 Instituto Nokia de Tecnologia
  * Copyright (C) 2012-2013 Tieto Poland
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -222,7 +229,11 @@ static void pn533_usb_abort_cmd(struct pn533 *dev, gfp_t flags)
 	usb_kill_urb(phy->in_urb);
 }
 
+<<<<<<< HEAD
 /* ACR122 specific structs and fucntions */
+=======
+/* ACR122 specific structs and functions */
+>>>>>>> upstream/android-13
 
 /* ACS ACR122 pn533 frame definitions */
 #define PN533_ACR122_TX_FRAME_HEADER_LEN (sizeof(struct pn533_acr122_tx_frame) \
@@ -366,8 +377,11 @@ static void pn533_acr122_poweron_rdr_resp(struct urb *urb)
 {
 	struct pn533_acr122_poweron_rdr_arg *arg = urb->context;
 
+<<<<<<< HEAD
 	dev_dbg(&urb->dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	print_hex_dump_debug("ACR122 RX: ", DUMP_PREFIX_NONE, 16, 1,
 		       urb->transfer_buffer, urb->transfer_buffer_length,
 		       false);
@@ -387,8 +401,11 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
 	void *cntx;
 	struct pn533_acr122_poweron_rdr_arg arg;
 
+<<<<<<< HEAD
 	dev_dbg(&phy->udev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	buffer = kmemdup(cmd, sizeof(cmd), GFP_KERNEL);
 	if (!buffer)
 		return -ENOMEM;
@@ -529,7 +546,11 @@ static int pn533_usb_probe(struct usb_interface *interface,
 	case PN533_DEVICE_ACR122U:
 		protocols = PN533_NO_TYPE_B_PROTOCOLS;
 		fops = &pn533_acr122_frame_ops;
+<<<<<<< HEAD
 		protocol_type = PN533_PROTO_REQ_RESP,
+=======
+		protocol_type = PN533_PROTO_REQ_RESP;
+>>>>>>> upstream/android-13
 
 		rc = pn533_acr122_poweron_rdr(phy);
 		if (rc < 0) {
@@ -546,9 +567,15 @@ static int pn533_usb_probe(struct usb_interface *interface,
 		goto error;
 	}
 
+<<<<<<< HEAD
 	priv = pn533_register_device(id->driver_info, protocols, protocol_type,
 					phy, &usb_phy_ops, fops,
 					&phy->udev->dev, &interface->dev);
+=======
+	priv = pn53x_common_init(id->driver_info, protocol_type,
+					phy, &usb_phy_ops, fops,
+					&phy->udev->dev);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(priv)) {
 		rc = PTR_ERR(priv);
@@ -559,6 +586,7 @@ static int pn533_usb_probe(struct usb_interface *interface,
 
 	rc = pn533_finalize_setup(priv);
 	if (rc)
+<<<<<<< HEAD
 		goto err_deregister;
 
 	usb_set_intfdata(interface, phy);
@@ -567,6 +595,19 @@ static int pn533_usb_probe(struct usb_interface *interface,
 
 err_deregister:
 	pn533_unregister_device(phy->priv);
+=======
+		goto err_clean;
+
+	usb_set_intfdata(interface, phy);
+	rc = pn53x_register_nfc(priv, protocols, &interface->dev);
+	if (rc)
+		goto err_clean;
+
+	return 0;
+
+err_clean:
+	pn53x_common_clean(priv);
+>>>>>>> upstream/android-13
 error:
 	usb_kill_urb(phy->in_urb);
 	usb_kill_urb(phy->out_urb);
@@ -589,7 +630,12 @@ static void pn533_usb_disconnect(struct usb_interface *interface)
 	if (!phy)
 		return;
 
+<<<<<<< HEAD
 	pn533_unregister_device(phy->priv);
+=======
+	pn53x_unregister_nfc(phy->priv);
+	pn53x_common_clean(phy->priv);
+>>>>>>> upstream/android-13
 
 	usb_set_intfdata(interface, NULL);
 

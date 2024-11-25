@@ -64,6 +64,7 @@ static int mlxsw_sp_port_ets_validate(struct mlxsw_sp_port *mlxsw_sp_port,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mlxsw_sp_port_pg_prio_map(struct mlxsw_sp_port *mlxsw_sp_port,
 				     u8 *prio_tc)
 {
@@ -124,11 +125,30 @@ static int mlxsw_sp_port_headroom_set(struct mlxsw_sp_port *mlxsw_sp_port,
 	err = __mlxsw_sp_port_headroom_set(mlxsw_sp_port, dev->mtu,
 					   ets->prio_tc, pause_en,
 					   mlxsw_sp_port->dcb.pfc);
+=======
+static int mlxsw_sp_port_headroom_ets_set(struct mlxsw_sp_port *mlxsw_sp_port,
+					  struct ieee_ets *ets)
+{
+	struct net_device *dev = mlxsw_sp_port->dev;
+	struct mlxsw_sp_hdroom hdroom;
+	int prio;
+	int err;
+
+	hdroom = *mlxsw_sp_port->hdroom;
+	for (prio = 0; prio < IEEE_8021QAZ_MAX_TCS; prio++)
+		hdroom.prios.prio[prio].ets_buf_idx = ets->prio_tc[prio];
+	mlxsw_sp_hdroom_prios_reset_buf_idx(&hdroom);
+	mlxsw_sp_hdroom_bufs_reset_lossiness(&hdroom);
+	mlxsw_sp_hdroom_bufs_reset_sizes(mlxsw_sp_port, &hdroom);
+
+	err = mlxsw_sp_hdroom_configure(mlxsw_sp_port, &hdroom);
+>>>>>>> upstream/android-13
 	if (err) {
 		netdev_err(dev, "Failed to configure port's headroom\n");
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = mlxsw_sp_port_pg_prio_map(mlxsw_sp_port, ets->prio_tc);
 	if (err) {
 		netdev_err(dev, "Failed to set PG-priority mapping\n");
@@ -145,6 +165,9 @@ static int mlxsw_sp_port_headroom_set(struct mlxsw_sp_port *mlxsw_sp_port,
 err_port_prio_pg_map:
 	mlxsw_sp_port_pg_destroy(mlxsw_sp_port, ets->prio_tc, my_ets->prio_tc);
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __mlxsw_sp_dcbnl_ieee_setets(struct mlxsw_sp_port *mlxsw_sp_port,
@@ -160,7 +183,11 @@ static int __mlxsw_sp_dcbnl_ieee_setets(struct mlxsw_sp_port *mlxsw_sp_port,
 		u8 weight = ets->tc_tx_bw[i];
 
 		err = mlxsw_sp_port_ets_set(mlxsw_sp_port,
+<<<<<<< HEAD
 					    MLXSW_REG_QEEC_HIERARCY_SUBGROUP, i,
+=======
+					    MLXSW_REG_QEEC_HR_SUBGROUP, i,
+>>>>>>> upstream/android-13
 					    0, dwrr, weight);
 		if (err) {
 			netdev_err(dev, "Failed to link subgroup ETS element %d to group\n",
@@ -180,7 +207,11 @@ static int __mlxsw_sp_dcbnl_ieee_setets(struct mlxsw_sp_port *mlxsw_sp_port,
 	}
 
 	/* Ingress configuration. */
+<<<<<<< HEAD
 	err = mlxsw_sp_port_headroom_set(mlxsw_sp_port, ets);
+=======
+	err = mlxsw_sp_port_headroom_ets_set(mlxsw_sp_port, ets);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_port_headroom_set;
 
@@ -198,7 +229,11 @@ err_port_ets_set:
 		u8 weight = my_ets->tc_tx_bw[i];
 
 		err = mlxsw_sp_port_ets_set(mlxsw_sp_port,
+<<<<<<< HEAD
 					    MLXSW_REG_QEEC_HIERARCY_SUBGROUP, i,
+=======
+					    MLXSW_REG_QEEC_HR_SUBGROUP, i,
+>>>>>>> upstream/android-13
 					    0, dwrr, weight);
 	}
 	return err;
@@ -369,6 +404,20 @@ err_update_qrwe:
 }
 
 static int
+<<<<<<< HEAD
+=======
+mlxsw_sp_port_dcb_app_update_qpdp(struct mlxsw_sp_port *mlxsw_sp_port,
+				  u8 default_prio)
+{
+	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
+	char qpdp_pl[MLXSW_REG_QPDP_LEN];
+
+	mlxsw_reg_qpdp_pack(qpdp_pl, mlxsw_sp_port->local_port, default_prio);
+	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(qpdp), qpdp_pl);
+}
+
+static int
+>>>>>>> upstream/android-13
 mlxsw_sp_port_dcb_app_update_qpdpm(struct mlxsw_sp_port *mlxsw_sp_port,
 				   struct dcb_ieee_app_dscp_map *map)
 {
@@ -405,6 +454,15 @@ static int mlxsw_sp_port_dcb_app_update(struct mlxsw_sp_port *mlxsw_sp_port)
 	int err;
 
 	default_prio = mlxsw_sp_port_dcb_app_default_prio(mlxsw_sp_port);
+<<<<<<< HEAD
+=======
+	err = mlxsw_sp_port_dcb_app_update_qpdp(mlxsw_sp_port, default_prio);
+	if (err) {
+		netdev_err(mlxsw_sp_port->dev, "Couldn't configure port default priority\n");
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	have_dscp = mlxsw_sp_port_dcb_app_prio_dscp_map(mlxsw_sp_port,
 							&prio_map);
 
@@ -507,9 +565,15 @@ static int mlxsw_sp_dcbnl_ieee_setmaxrate(struct net_device *dev,
 
 	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
 		err = mlxsw_sp_port_ets_maxrate_set(mlxsw_sp_port,
+<<<<<<< HEAD
 						    MLXSW_REG_QEEC_HIERARCY_SUBGROUP,
 						    i, 0,
 						    maxrate->tc_maxrate[i]);
+=======
+						    MLXSW_REG_QEEC_HR_SUBGROUP,
+						    i, 0,
+						    maxrate->tc_maxrate[i], 0);
+>>>>>>> upstream/android-13
 		if (err) {
 			netdev_err(dev, "Failed to set maxrate for TC %d\n", i);
 			goto err_port_ets_maxrate_set;
@@ -523,8 +587,14 @@ static int mlxsw_sp_dcbnl_ieee_setmaxrate(struct net_device *dev,
 err_port_ets_maxrate_set:
 	for (i--; i >= 0; i--)
 		mlxsw_sp_port_ets_maxrate_set(mlxsw_sp_port,
+<<<<<<< HEAD
 					      MLXSW_REG_QEEC_HIERARCY_SUBGROUP,
 					      i, 0, my_maxrate->tc_maxrate[i]);
+=======
+					      MLXSW_REG_QEEC_HR_SUBGROUP,
+					      i, 0,
+					      my_maxrate->tc_maxrate[i], 0);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -587,6 +657,12 @@ static int mlxsw_sp_dcbnl_ieee_setpfc(struct net_device *dev,
 {
 	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
 	bool pause_en = mlxsw_sp_port_is_pause_en(mlxsw_sp_port);
+<<<<<<< HEAD
+=======
+	struct mlxsw_sp_hdroom orig_hdroom;
+	struct mlxsw_sp_hdroom hdroom;
+	int prio;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (pause_en && pfc->pfc_en) {
@@ -594,9 +670,27 @@ static int mlxsw_sp_dcbnl_ieee_setpfc(struct net_device *dev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	err = __mlxsw_sp_port_headroom_set(mlxsw_sp_port, dev->mtu,
 					   mlxsw_sp_port->dcb.ets->prio_tc,
 					   pause_en, pfc);
+=======
+	orig_hdroom = *mlxsw_sp_port->hdroom;
+
+	hdroom = orig_hdroom;
+	if (pfc->pfc_en)
+		hdroom.delay_bytes = DIV_ROUND_UP(pfc->delay, BITS_PER_BYTE);
+	else
+		hdroom.delay_bytes = 0;
+
+	for (prio = 0; prio < IEEE_8021QAZ_MAX_TCS; prio++)
+		hdroom.prios.prio[prio].lossy = !(pfc->pfc_en & BIT(prio));
+
+	mlxsw_sp_hdroom_bufs_reset_lossiness(&hdroom);
+	mlxsw_sp_hdroom_bufs_reset_sizes(mlxsw_sp_port, &hdroom);
+
+	err = mlxsw_sp_hdroom_configure(mlxsw_sp_port, &hdroom);
+>>>>>>> upstream/android-13
 	if (err) {
 		netdev_err(dev, "Failed to configure port's headroom for PFC\n");
 		return err;
@@ -614,12 +708,75 @@ static int mlxsw_sp_dcbnl_ieee_setpfc(struct net_device *dev,
 	return 0;
 
 err_port_pfc_set:
+<<<<<<< HEAD
 	__mlxsw_sp_port_headroom_set(mlxsw_sp_port, dev->mtu,
 				     mlxsw_sp_port->dcb.ets->prio_tc, pause_en,
 				     mlxsw_sp_port->dcb.pfc);
 	return err;
 }
 
+=======
+	mlxsw_sp_hdroom_configure(mlxsw_sp_port, &orig_hdroom);
+	return err;
+}
+
+static int mlxsw_sp_dcbnl_getbuffer(struct net_device *dev, struct dcbnl_buffer *buf)
+{
+	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
+	struct mlxsw_sp_hdroom *hdroom = mlxsw_sp_port->hdroom;
+	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
+	int prio;
+	int i;
+
+	buf->total_size = 0;
+
+	BUILD_BUG_ON(DCBX_MAX_BUFFERS > MLXSW_SP_PB_COUNT);
+	for (i = 0; i < MLXSW_SP_PB_COUNT; i++) {
+		u32 bytes = mlxsw_sp_cells_bytes(mlxsw_sp, hdroom->bufs.buf[i].size_cells);
+
+		if (i < DCBX_MAX_BUFFERS)
+			buf->buffer_size[i] = bytes;
+		buf->total_size += bytes;
+	}
+
+	buf->total_size += mlxsw_sp_cells_bytes(mlxsw_sp, hdroom->int_buf.size_cells);
+
+	for (prio = 0; prio < IEEE_8021Q_MAX_PRIORITIES; prio++)
+		buf->prio2buffer[prio] = hdroom->prios.prio[prio].buf_idx;
+
+	return 0;
+}
+
+static int mlxsw_sp_dcbnl_setbuffer(struct net_device *dev, struct dcbnl_buffer *buf)
+{
+	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
+	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
+	struct mlxsw_sp_hdroom hdroom;
+	int prio;
+	int i;
+
+	hdroom = *mlxsw_sp_port->hdroom;
+
+	if (hdroom.mode != MLXSW_SP_HDROOM_MODE_TC) {
+		netdev_err(dev, "The use of dcbnl_setbuffer is only allowed if egress is configured using TC\n");
+		return -EINVAL;
+	}
+
+	for (prio = 0; prio < IEEE_8021Q_MAX_PRIORITIES; prio++)
+		hdroom.prios.prio[prio].set_buf_idx = buf->prio2buffer[prio];
+
+	BUILD_BUG_ON(DCBX_MAX_BUFFERS > MLXSW_SP_PB_COUNT);
+	for (i = 0; i < DCBX_MAX_BUFFERS; i++)
+		hdroom.bufs.buf[i].set_size_cells = mlxsw_sp_bytes_cells(mlxsw_sp,
+									 buf->buffer_size[i]);
+
+	mlxsw_sp_hdroom_prios_reset_buf_idx(&hdroom);
+	mlxsw_sp_hdroom_bufs_reset_lossiness(&hdroom);
+	mlxsw_sp_hdroom_bufs_reset_sizes(mlxsw_sp_port, &hdroom);
+	return mlxsw_sp_hdroom_configure(mlxsw_sp_port, &hdroom);
+}
+
+>>>>>>> upstream/android-13
 static const struct dcbnl_rtnl_ops mlxsw_sp_dcbnl_ops = {
 	.ieee_getets		= mlxsw_sp_dcbnl_ieee_getets,
 	.ieee_setets		= mlxsw_sp_dcbnl_ieee_setets,
@@ -632,6 +789,12 @@ static const struct dcbnl_rtnl_ops mlxsw_sp_dcbnl_ops = {
 
 	.getdcbx		= mlxsw_sp_dcbnl_getdcbx,
 	.setdcbx		= mlxsw_sp_dcbnl_setdcbx,
+<<<<<<< HEAD
+=======
+
+	.dcbnl_getbuffer	= mlxsw_sp_dcbnl_getbuffer,
+	.dcbnl_setbuffer	= mlxsw_sp_dcbnl_setbuffer,
+>>>>>>> upstream/android-13
 };
 
 static int mlxsw_sp_port_ets_init(struct mlxsw_sp_port *mlxsw_sp_port)

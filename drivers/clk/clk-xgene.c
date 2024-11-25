@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * clk-xgene.c - AppliedMicro X-Gene Clock Interface
  *
  * Copyright (c) 2013, Applied Micro Circuits Corporation
  * Author: Loc Ho <lho@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +24,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/spinlock.h>
@@ -142,7 +149,11 @@ static struct clk *xgene_register_clk_pll(struct device *dev,
 {
 	struct xgene_clk_pll *apmclk;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	/* allocate the APM clock structure */
 	apmclk = kzalloc(sizeof(*apmclk), GFP_KERNEL);
@@ -221,17 +232,27 @@ static void xgene_pcppllclk_init(struct device_node *np)
  * @hw:		handle between common and hardware-specific interfaces
  * @reg:	register containing the fractional scale multiplier (scaler)
  * @shift:	shift to the unit bit field
+<<<<<<< HEAD
  * @denom:	1/denominator unit
  * @lock:	register lock
  * Flags:
  * XGENE_CLK_PMD_SCALE_INVERTED - By default the scaler is the value read
+=======
+ * @mask:	mask to the unit bit field
+ * @denom:	1/denominator unit
+ * @lock:	register lock
+ * @flags: XGENE_CLK_PMD_SCALE_INVERTED - By default the scaler is the value read
+>>>>>>> upstream/android-13
  *	from the register plus one. For example,
  *		0 for (0 + 1) / denom,
  *		1 for (1 + 1) / denom and etc.
  *	If this flag is set, it is
  *		0 for (denom - 0) / denom,
  *		1 for (denom - 1) / denom and etc.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 struct xgene_clk_pmd {
 	struct clk_hw	hw;
@@ -262,7 +283,11 @@ static unsigned long xgene_clk_pmd_recalc_rate(struct clk_hw *hw,
 	else
 		__acquire(fd->lock);
 
+<<<<<<< HEAD
 	val = clk_readl(fd->reg);
+=======
+	val = readl(fd->reg);
+>>>>>>> upstream/android-13
 
 	if (fd->lock)
 		spin_unlock_irqrestore(fd->lock, flags);
@@ -333,10 +358,17 @@ static int xgene_clk_pmd_set_rate(struct clk_hw *hw, unsigned long rate,
 	else
 		__acquire(fd->lock);
 
+<<<<<<< HEAD
 	val = clk_readl(fd->reg);
 	val &= ~fd->mask;
 	val |= (scale << fd->shift);
 	clk_writel(val, fd->reg);
+=======
+	val = readl(fd->reg);
+	val &= ~fd->mask;
+	val |= (scale << fd->shift);
+	writel(val, fd->reg);
+>>>>>>> upstream/android-13
 
 	if (fd->lock)
 		spin_unlock_irqrestore(fd->lock, flags);
@@ -359,7 +391,11 @@ xgene_register_clk_pmd(struct device *dev,
 		       u8 width, u64 denom, u32 clk_flags, spinlock_t *lock)
 {
 	struct xgene_clk_pmd *fd;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk *clk;
 
 	fd = kzalloc(sizeof(*fd), GFP_KERNEL);
@@ -643,7 +679,11 @@ static struct clk *xgene_register_clk(struct device *dev,
 {
 	struct xgene_clk *apmclk;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int rc;
 
 	/* allocate the APM clock structure */

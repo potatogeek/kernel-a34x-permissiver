@@ -70,7 +70,11 @@ npcm7xx_clk_register_pll(void __iomem *pllcon, const char *name,
 			 const char *parent_name, unsigned long flags)
 {
 	struct npcm7xx_clk_pll *pll;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct clk_hw *hw;
 	int ret;
 
@@ -361,6 +365,7 @@ static const struct npcm7xx_clk_mux_data npcm7xx_muxes[] __initconst = {
 	dvcssel_mux_parents, ARRAY_SIZE(dvcssel_mux_parents), 0, -1},
 };
 
+<<<<<<< HEAD
 /* fixed ratio dividers (no register): */
 static const struct npcm7xx_clk_div_fixed_data npcm7xx_divs_fx[] __initconst = {
 	{ 1, 2, NPCM7XX_CLK_S_MC, NPCM7XX_CLK_S_MC_MUX, 0, NPCM7XX_CLK_MC},
@@ -368,6 +373,8 @@ static const struct npcm7xx_clk_div_fixed_data npcm7xx_divs_fx[] __initconst = {
 	{ 1, 2, NPCM7XX_CLK_S_PLL2_DIV2, NPCM7XX_CLK_S_PLL2, 0, -1},
 };
 
+=======
+>>>>>>> upstream/android-13
 /* configurable dividers: */
 static const struct npcm7xx_clk_div_data npcm7xx_divs[] __initconst = {
 	{NPCM7XX_CLKDIV1, 28, 3, NPCM7XX_CLK_S_ADC,
@@ -435,6 +442,7 @@ static const struct npcm7xx_clk_div_data npcm7xx_divs[] __initconst = {
 
 };
 
+<<<<<<< HEAD
 static const struct npcm7xx_clk_gate_data npcm7xx_gates[] __initconst = {
 	{NPCM7XX_CLKEN1, 31, "smb1-gate", NPCM7XX_CLK_S_APB2, 0},
 	{NPCM7XX_CLKEN1, 30, "smb0-gate", NPCM7XX_CLK_S_APB2, 0},
@@ -536,6 +544,8 @@ static const struct npcm7xx_clk_gate_data npcm7xx_gates[] __initconst = {
 	{NPCM7XX_CLKEN3, 0, "pwmm1-gate", NPCM7XX_CLK_S_APB3, 0},
 };
 
+=======
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(npcm7xx_clk_lock);
 
 static void __init npcm7xx_clk_init(struct device_node *clk_np)
@@ -549,7 +559,11 @@ static void __init npcm7xx_clk_init(struct device_node *clk_np)
 
 	ret = of_address_to_resource(clk_np, 0, &res);
 	if (ret) {
+<<<<<<< HEAD
 		pr_err("%s: failed to get resource, ret %d\n", clk_np->name,
+=======
+		pr_err("%pOFn: failed to get resource, ret %d\n", clk_np,
+>>>>>>> upstream/android-13
 			ret);
 		return;
 	}

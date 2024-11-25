@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support for CompuLab SBC-AM57x single board computer
  *
  * Copyright (C) 2015 CompuLab Ltd. - http://www.compulab.co.il/
  * Author: Dmitry Lifshitz <lifshitz@compulab.co.il>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "am57xx-cl-som-am57x.dts"
@@ -123,7 +130,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	vdda_video-supply = <&ldoln_reg>;
 
@@ -151,7 +162,11 @@
 };
 
 &hdmi {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdda-supply = <&ldo4_reg>;
 
 	pinctrl-names = "default";

@@ -9,6 +9,10 @@ Required Properties:
 - compatible: Should be:
 	- "mediatek,mt2701-hifsys", "syscon"
 	- "mediatek,mt7622-hifsys", "syscon"
+<<<<<<< HEAD
+=======
+	- "mediatek,mt7623-hifsys", "mediatek,mt2701-hifsys", "syscon"
+>>>>>>> upstream/android-13
 - #clock-cells: Must be 1
 
 The hifsys controller uses the common clk binding from

@@ -4,6 +4,11 @@
 
 #include <linux/netdevice.h>
 
+<<<<<<< HEAD
+=======
+#include "unimac.h"
+
+>>>>>>> upstream/android-13
 #define BGMAC_DEV_CTL				0x000
 #define  BGMAC_DC_TSM				0x00000002
 #define  BGMAC_DC_CFCO				0x00000004
@@ -169,6 +174,7 @@
 #define BGMAC_RX_NONPAUSE_PKTS			0x420
 #define BGMAC_RX_SACHANGES			0x424
 #define BGMAC_RX_UNI_PKTS			0x428
+<<<<<<< HEAD
 #define BGMAC_UNIMAC_VERSION			0x800
 #define BGMAC_HDBKP_CTL				0x804
 #define BGMAC_CMDCFG				0x808		/* Configuration */
@@ -210,6 +216,9 @@
 #define BGMAC_TX_FLUSH				0xb34
 #define BGMAC_RX_STATUS				0xb38
 #define BGMAC_TX_STATUS				0xb3c
+=======
+#define BGMAC_UNIMAC				0x800
+>>>>>>> upstream/android-13
 
 /* BCMA GMAC core specific IO Control (BCMA_IOCTL) flags */
 #define BGMAC_BCMA_IOCTL_SW_CLKEN		0x00000004	/* PHY Clock Enable */
@@ -351,7 +360,11 @@
 #define BGMAC_DESC_CTL0_IOC			0x20000000	/* IRQ on complete */
 #define BGMAC_DESC_CTL0_EOF			0x40000000	/* End of frame */
 #define BGMAC_DESC_CTL0_SOF			0x80000000	/* Start of frame */
+<<<<<<< HEAD
 #define BGMAC_DESC_CTL1_LEN			0x00001FFF
+=======
+#define BGMAC_DESC_CTL1_LEN			0x00003FFF
+>>>>>>> upstream/android-13
 
 #define BGMAC_PHY_NOREGS			BRCM_PSEUDO_PHY_ADDR
 #define BGMAC_PHY_MASK				0x1F
@@ -366,7 +379,12 @@
 #define BGMAC_RX_FRAME_OFFSET			30		/* There are 2 unused bytes between header and real data */
 #define BGMAC_RX_BUF_OFFSET			(NET_SKB_PAD + NET_IP_ALIGN - \
 						 BGMAC_RX_FRAME_OFFSET)
+<<<<<<< HEAD
 #define BGMAC_RX_MAX_FRAME_SIZE			1536		/* Copied from b44/tg3 */
+=======
+/* Jumbo frame size with FCS */
+#define BGMAC_RX_MAX_FRAME_SIZE			9724
+>>>>>>> upstream/android-13
 #define BGMAC_RX_BUF_SIZE			(BGMAC_RX_FRAME_OFFSET + BGMAC_RX_MAX_FRAME_SIZE)
 #define BGMAC_RX_ALLOC_SIZE			(SKB_DATA_ALIGN(BGMAC_RX_BUF_SIZE + BGMAC_RX_BUF_OFFSET) + \
 						 SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
@@ -555,6 +573,19 @@ static inline void bgmac_write(struct bgmac *bgmac, u16 offset, u32 value)
 	bgmac->write(bgmac, offset, value);
 }
 
+<<<<<<< HEAD
+=======
+static inline u32 bgmac_umac_read(struct bgmac *bgmac, u16 offset)
+{
+	return bgmac_read(bgmac, BGMAC_UNIMAC + offset);
+}
+
+static inline void bgmac_umac_write(struct bgmac *bgmac, u16 offset, u32 value)
+{
+	bgmac_write(bgmac, BGMAC_UNIMAC + offset, value);
+}
+
+>>>>>>> upstream/android-13
 static inline u32 bgmac_idm_read(struct bgmac *bgmac, u16 offset)
 {
 	return bgmac->idm_read(bgmac, offset);
@@ -608,6 +639,14 @@ static inline void bgmac_set(struct bgmac *bgmac, u16 offset, u32 set)
 	bgmac_maskset(bgmac, offset, ~0, set);
 }
 
+<<<<<<< HEAD
+=======
+static inline void bgmac_umac_maskset(struct bgmac *bgmac, u16 offset, u32 mask, u32 set)
+{
+	bgmac_maskset(bgmac, BGMAC_UNIMAC + offset, mask, set);
+}
+
+>>>>>>> upstream/android-13
 static inline int bgmac_phy_connect(struct bgmac *bgmac)
 {
 	return bgmac->phy_connect(bgmac);

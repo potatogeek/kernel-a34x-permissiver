@@ -6,6 +6,11 @@
 #ifndef	__XFS_LOG_H__
 #define __XFS_LOG_H__
 
+<<<<<<< HEAD
+=======
+struct xfs_cil_ctx;
+
+>>>>>>> upstream/android-13
 struct xfs_log_vec {
 	struct xfs_log_vec	*lv_next;	/* next lv in build list */
 	int			lv_niovecs;	/* number of iovecs in lv */
@@ -72,6 +77,7 @@ xlog_copy_iovec(struct xfs_log_vec *lv, struct xfs_log_iovec **vecp,
 }
 
 /*
+<<<<<<< HEAD
  * Structure used to pass callback function and the function's argument
  * to the log manager.
  */
@@ -82,6 +88,8 @@ typedef struct xfs_log_callback {
 } xfs_log_callback_t;
 
 /*
+=======
+>>>>>>> upstream/android-13
  * By comparing each component, we don't have to worry about extra
  * endian issues in treating two 32 bit numbers as one 64 bit number
  */
@@ -112,6 +120,7 @@ struct xlog_ticket;
 struct xfs_log_item;
 struct xfs_item_ops;
 struct xfs_trans;
+<<<<<<< HEAD
 
 xfs_lsn_t xfs_log_done(struct xfs_mount *mp,
 		       struct xlog_ticket *ticket,
@@ -119,12 +128,19 @@ xfs_lsn_t xfs_log_done(struct xfs_mount *mp,
 		       bool regrant);
 int	  xfs_log_force(struct xfs_mount *mp, uint flags);
 int	  xfs_log_force_lsn(struct xfs_mount *mp, xfs_lsn_t lsn, uint flags,
+=======
+struct xlog;
+
+int	  xfs_log_force(struct xfs_mount *mp, uint flags);
+int	  xfs_log_force_seq(struct xfs_mount *mp, xfs_csn_t seq, uint flags,
+>>>>>>> upstream/android-13
 		int *log_forced);
 int	  xfs_log_mount(struct xfs_mount	*mp,
 			struct xfs_buftarg	*log_target,
 			xfs_daddr_t		start_block,
 			int		 	num_bblocks);
 int	  xfs_log_mount_finish(struct xfs_mount *mp);
+<<<<<<< HEAD
 int	xfs_log_mount_cancel(struct xfs_mount *);
 xfs_lsn_t xlog_assign_tail_lsn(struct xfs_mount *mp);
 xfs_lsn_t xlog_assign_tail_lsn_locked(struct xfs_mount *mp);
@@ -133,6 +149,12 @@ int	  xfs_log_notify(struct xlog_in_core	*iclog,
 			 struct xfs_log_callback *callback_entry);
 int	  xfs_log_release_iclog(struct xfs_mount *mp,
 			 struct xlog_in_core	 *iclog);
+=======
+void	xfs_log_mount_cancel(struct xfs_mount *);
+xfs_lsn_t xlog_assign_tail_lsn(struct xfs_mount *mp);
+xfs_lsn_t xlog_assign_tail_lsn_locked(struct xfs_mount *mp);
+void	  xfs_log_space_wake(struct xfs_mount *mp);
+>>>>>>> upstream/android-13
 int	  xfs_log_reserve(struct xfs_mount *mp,
 			  int		   length,
 			  int		   count,
@@ -141,11 +163,16 @@ int	  xfs_log_reserve(struct xfs_mount *mp,
 			  bool		   permanent);
 int	  xfs_log_regrant(struct xfs_mount *mp, struct xlog_ticket *tic);
 void      xfs_log_unmount(struct xfs_mount *mp);
+<<<<<<< HEAD
 int	  xfs_log_force_umount(struct xfs_mount *mp, int logerror);
+=======
+bool	xfs_log_writable(struct xfs_mount *mp);
+>>>>>>> upstream/android-13
 
 struct xlog_ticket *xfs_log_ticket_get(struct xlog_ticket *ticket);
 void	  xfs_log_ticket_put(struct xlog_ticket *ticket);
 
+<<<<<<< HEAD
 void	xfs_log_commit_cil(struct xfs_mount *mp, struct xfs_trans *tp,
 				xfs_lsn_t *commit_lsn, bool regrant);
 bool	xfs_log_item_in_current_chkpt(struct xfs_log_item *lip);
@@ -154,5 +181,20 @@ void	xfs_log_work_queue(struct xfs_mount *mp);
 void	xfs_log_quiesce(struct xfs_mount *mp);
 bool	xfs_log_check_lsn(struct xfs_mount *, xfs_lsn_t);
 bool	xfs_log_in_recovery(struct xfs_mount *);
+=======
+void	xlog_cil_process_committed(struct list_head *list);
+bool	xfs_log_item_in_current_chkpt(struct xfs_log_item *lip);
+
+void	xfs_log_work_queue(struct xfs_mount *mp);
+int	xfs_log_quiesce(struct xfs_mount *mp);
+void	xfs_log_clean(struct xfs_mount *mp);
+bool	xfs_log_check_lsn(struct xfs_mount *, xfs_lsn_t);
+
+xfs_lsn_t xlog_grant_push_threshold(struct xlog *log, int need_bytes);
+bool	  xlog_force_shutdown(struct xlog *log, int shutdown_flags);
+
+void xlog_use_incompat_feat(struct xlog *log);
+void xlog_drop_incompat_feat(struct xlog *log);
+>>>>>>> upstream/android-13
 
 #endif	/* __XFS_LOG_H__ */

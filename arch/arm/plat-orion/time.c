@@ -177,12 +177,15 @@ static irqreturn_t orion_timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction orion_timer_irq = {
 	.name		= "orion_tick",
 	.flags		= IRQF_TIMER,
 	.handler	= orion_timer_interrupt
 };
 
+=======
+>>>>>>> upstream/android-13
 void __init
 orion_time_set_base(void __iomem *_timer_base)
 {
@@ -236,7 +239,13 @@ orion_time_init(void __iomem *_bridge_base, u32 _bridge_timer1_clr_mask,
 	/*
 	 * Setup clockevent timer (interrupt-driven).
 	 */
+<<<<<<< HEAD
 	setup_irq(irq, &orion_timer_irq);
+=======
+	if (request_irq(irq, orion_timer_interrupt, IRQF_TIMER, "orion_tick",
+			NULL))
+		pr_err("Failed to request irq %u (orion_tick)\n", irq);
+>>>>>>> upstream/android-13
 	orion_clkevt.cpumask = cpumask_of(0);
 	clockevents_config_and_register(&orion_clkevt, tclk, 1, 0xfffffffe);
 }

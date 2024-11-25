@@ -41,7 +41,11 @@ MODULE_VERSION(DRIVER_VERSION);
 #define IBM_HARDWARE_ID1 "IBM37D0"
 #define IBM_HARDWARE_ID2 "IBM37D4"
 
+<<<<<<< HEAD
 #define hpslot_to_sun(A) (((struct slot *)((A)->private))->sun)
+=======
+#define hpslot_to_sun(A) (to_slot(A)->sun)
+>>>>>>> upstream/android-13
 
 /* union apci_descriptor - allows access to the
  * various device descriptors that are embedded in the

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This header provides constants for I2C bindings
  *
@@ -5,8 +9,11 @@
  * Copyright (C) 2015 by Renesas Electronics Corporation
  *
  * Wolfram Sang <wsa@sang-engineering.com>
+<<<<<<< HEAD
  *
  * GPLv2 only
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_I2C_I2C_H

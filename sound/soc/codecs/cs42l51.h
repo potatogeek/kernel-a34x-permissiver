@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * cs42l51.h
  *
  * ASoC Driver for Cirrus Logic CS42L51 codecs
  *
  * Copyright (c) 2010 Arnaud Patard <apatard@mandriva.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CS42L51_H
 #define _CS42L51_H
@@ -22,6 +29,12 @@ struct device;
 
 extern const struct regmap_config cs42l51_regmap;
 int cs42l51_probe(struct device *dev, struct regmap *regmap);
+<<<<<<< HEAD
+=======
+int cs42l51_remove(struct device *dev);
+int __maybe_unused cs42l51_suspend(struct device *dev);
+int __maybe_unused cs42l51_resume(struct device *dev);
+>>>>>>> upstream/android-13
 extern const struct of_device_id cs42l51_of_match[];
 
 #define CS42L51_CHIP_ID			0x1B

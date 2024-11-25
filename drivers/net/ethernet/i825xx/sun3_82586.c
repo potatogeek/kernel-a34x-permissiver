@@ -29,6 +29,10 @@ static int rfdadd = 0; /* rfdadd=1 may be better for 8K MEM cards */
 static int fifo=0x8;	/* don't change */
 
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/errno.h>
 #include <linux/ioport.h>
@@ -125,7 +129,11 @@ static netdev_tx_t     sun3_82586_send_packet(struct sk_buff *,
 					      struct net_device *);
 static struct  net_device_stats *sun3_82586_get_stats(struct net_device *dev);
 static void    set_multicast_list(struct net_device *dev);
+<<<<<<< HEAD
 static void    sun3_82586_timeout(struct net_device *dev);
+=======
+static void    sun3_82586_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 #if 0
 static void    sun3_82586_dump(struct net_device *,void *);
 #endif
@@ -276,7 +284,11 @@ static void alloc586(struct net_device *dev)
 	memset((char *)p->scb,0,sizeof(struct scb_struct));
 }
 
+<<<<<<< HEAD
 struct net_device * __init sun3_82586_probe(int unit)
+=======
+static int __init sun3_82586_probe(void)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev;
 	unsigned long ioaddr;
@@ -291,6 +303,7 @@ struct net_device * __init sun3_82586_probe(int unit)
 		break;
 
 	default:
+<<<<<<< HEAD
 		return ERR_PTR(-ENODEV);
 	}
 
@@ -300,16 +313,30 @@ struct net_device * __init sun3_82586_probe(int unit)
 	ioaddr = (unsigned long)ioremap(IE_OBIO, SUN3_82586_TOTAL_SIZE);
 	if (!ioaddr)
 		return ERR_PTR(-ENOMEM);
+=======
+		return -ENODEV;
+	}
+
+	if (found)
+		return -ENODEV;
+
+	ioaddr = (unsigned long)ioremap(IE_OBIO, SUN3_82586_TOTAL_SIZE);
+	if (!ioaddr)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	found = 1;
 
 	dev = alloc_etherdev(sizeof(struct priv));
 	if (!dev)
 		goto out;
+<<<<<<< HEAD
 	if (unit >= 0) {
 		sprintf(dev->name, "eth%d", unit);
 		netdev_boot_setup_check(dev);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	dev->irq = IE_IRQ;
 	dev->base_addr = ioaddr;
 	err = sun3_82586_probe1(dev, ioaddr);
@@ -318,7 +345,11 @@ struct net_device * __init sun3_82586_probe(int unit)
 	err = register_netdev(dev);
 	if (err)
 		goto out2;
+<<<<<<< HEAD
 	return dev;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 
 out2:
 	release_region(ioaddr, SUN3_82586_TOTAL_SIZE);
@@ -326,8 +357,14 @@ out1:
 	free_netdev(dev);
 out:
 	iounmap((void __iomem *)ioaddr);
+<<<<<<< HEAD
 	return ERR_PTR(err);
 }
+=======
+	return err;
+}
+module_init(sun3_82586_probe);
+>>>>>>> upstream/android-13
 
 static const struct net_device_ops sun3_82586_netdev_ops = {
 	.ndo_open		= sun3_82586_open,
@@ -965,7 +1002,11 @@ static void startrecv586(struct net_device *dev)
 	WAIT_4_SCB_CMD_RUC();	/* wait for accept cmd. (no timeout!!) */
 }
 
+<<<<<<< HEAD
 static void sun3_82586_timeout(struct net_device *dev)
+=======
+static void sun3_82586_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct priv *p = netdev_priv(dev);
 #ifndef NO_NOPCOMMANDS

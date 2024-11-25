@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Framework for buffer objects that can be shared across devices/subsystems.
  *
@@ -8,6 +12,7 @@
  * Arnd Bergmann <arnd@arndb.de>, Rob Clark <rob@ti.com> and
  * Daniel Vetter <daniel@ffwll.ch> for their support in creation and
  * refining of this idea.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -20,6 +25,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -32,16 +39,30 @@
 #include <linux/module.h>
 #include <linux/seq_file.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
 #include <linux/reservation.h>
 #include <linux/mm.h>
 #include <linux/sched/signal.h>
 #include <linux/fdtable.h>
 #include <linux/list_sort.h>
 #include <linux/mount.h>
+=======
+#include <linux/dma-resv.h>
+#include <linux/mm.h>
+#include <linux/mount.h>
+#include <linux/pseudo_fs.h>
+>>>>>>> upstream/android-13
 
 #include <uapi/linux/dma-buf.h>
 #include <uapi/linux/magic.h>
 
+<<<<<<< HEAD
+=======
+#include <trace/hooks/dmabuf.h>
+
+#include "dma-buf-sysfs-stats.h"
+
+>>>>>>> upstream/android-13
 struct dma_buf_list {
 	struct list_head head;
 	struct mutex lock;
@@ -49,6 +70,33 @@ struct dma_buf_list {
 
 static struct dma_buf_list db_list;
 
+<<<<<<< HEAD
+=======
+/*
+ * This function helps in traversing the db_list and calls the
+ * callback function which can extract required info out of each
+ * dmabuf.
+ */
+int get_each_dmabuf(int (*callback)(const struct dma_buf *dmabuf,
+		    void *private), void *private)
+{
+	struct dma_buf *buf;
+	int ret = mutex_lock_interruptible(&db_list.lock);
+
+	if (ret)
+		return ret;
+
+	list_for_each_entry(buf, &db_list.head, list_node) {
+		ret = callback(buf, private);
+		if (ret)
+			break;
+	}
+	mutex_unlock(&db_list.lock);
+	return ret;
+}
+EXPORT_SYMBOL_NS_GPL(get_each_dmabuf, MINIDUMP);
+
+>>>>>>> upstream/android-13
 static char *dmabuffs_dname(struct dentry *dentry, char *buffer, int buflen)
 {
 	struct dma_buf *dmabuf;
@@ -68,9 +116,16 @@ static char *dmabuffs_dname(struct dentry *dentry, char *buffer, int buflen)
 static void dma_buf_release(struct dentry *dentry)
 {
 	struct dma_buf *dmabuf;
+<<<<<<< HEAD
 	int dtor_ret = 0;
 
 	dmabuf = dentry->d_fsdata;
+=======
+
+	dmabuf = dentry->d_fsdata;
+	if (unlikely(!dmabuf))
+		return;
+>>>>>>> upstream/android-13
 
 	BUG_ON(dmabuf->vmapping_counter);
 
@@ -82,6 +137,7 @@ static void dma_buf_release(struct dentry *dentry)
 	 * If you hit this BUG() it means someone dropped their ref to the
 	 * dma-buf while still having pending operation to the buffer.
 	 */
+<<<<<<< HEAD
 	BUG_ON(dmabuf->cb_shared.active || dmabuf->cb_excl.active);
 
 	if (dmabuf->dtor)
@@ -92,17 +148,46 @@ static void dma_buf_release(struct dentry *dentry)
 	else
 		pr_warn_ratelimited("Leaking dmabuf %s because destructor failed error:%d\n",
 					dmabuf->name, dtor_ret);
+=======
+	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
+
+	dma_buf_stats_teardown(dmabuf);
+	dmabuf->ops->release(dmabuf);
+
+	trace_android_vh_dma_buf_release(dmabuf);
+	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
+		dma_resv_fini(dmabuf->resv);
+
+	WARN_ON(!list_empty(&dmabuf->attachments));
+	module_put(dmabuf->owner);
+	kfree(dmabuf->name);
+	kfree(dmabuf);
+}
+
+static int dma_buf_file_release(struct inode *inode, struct file *file)
+{
+	struct dma_buf *dmabuf;
+
+	if (!is_dma_buf_file(file))
+		return -EINVAL;
+
+	dmabuf = file->private_data;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&db_list.lock);
 	list_del(&dmabuf->list_node);
 	mutex_unlock(&db_list.lock);
 
+<<<<<<< HEAD
 	if (dmabuf->resv == (struct reservation_object *)&dmabuf[1])
 		reservation_object_fini(dmabuf->resv);
 
 	module_put(dmabuf->owner);
 	kfree(dmabuf->name);
 	kfree(dmabuf);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct dentry_operations dma_buf_dentry_ops = {
@@ -112,16 +197,32 @@ static const struct dentry_operations dma_buf_dentry_ops = {
 
 static struct vfsmount *dma_buf_mnt;
 
+<<<<<<< HEAD
 static struct dentry *dma_buf_fs_mount(struct file_system_type *fs_type,
 		int flags, const char *name, void *data)
 {
 	return mount_pseudo(fs_type, "dmabuf:", NULL, &dma_buf_dentry_ops,
 			DMA_BUF_MAGIC);
+=======
+static int dma_buf_fs_init_context(struct fs_context *fc)
+{
+	struct pseudo_fs_context *ctx;
+
+	ctx = init_pseudo(fc, DMA_BUF_MAGIC);
+	if (!ctx)
+		return -ENOMEM;
+	ctx->dops = &dma_buf_dentry_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type dma_buf_fs_type = {
 	.name = "dmabuf",
+<<<<<<< HEAD
 	.mount = dma_buf_fs_mount,
+=======
+	.init_fs_context = dma_buf_fs_init_context,
+>>>>>>> upstream/android-13
 	.kill_sb = kill_anon_super,
 };
 
@@ -134,6 +235,13 @@ static int dma_buf_mmap_internal(struct file *file, struct vm_area_struct *vma)
 
 	dmabuf = file->private_data;
 
+<<<<<<< HEAD
+=======
+	/* check if buffer supports mmap */
+	if (!dmabuf->ops->mmap)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* check for overflowing the buffer's size */
 	if (vma->vm_pgoff + vma_pages(vma) >
 	    dmabuf->size >> PAGE_SHIFT)
@@ -169,12 +277,21 @@ static loff_t dma_buf_llseek(struct file *file, loff_t offset, int whence)
 }
 
 /**
+<<<<<<< HEAD
  * DOC: fence polling
  *
  * To support cross-device and cross-driver synchronization of buffer access
  * implicit fences (represented internally in the kernel with &struct fence) can
  * be attached to a &dma_buf. The glue for that and a few related things are
  * provided in the &reservation_object structure.
+=======
+ * DOC: implicit fence polling
+ *
+ * To support cross-device and cross-driver synchronization of buffer access
+ * implicit fences (represented internally in the kernel with &struct dma_fence)
+ * can be attached to a &dma_buf. The glue for that and a few related things are
+ * provided in the &dma_resv structure.
+>>>>>>> upstream/android-13
  *
  * Userspace can query the state of these implicitly tracked fences using poll()
  * and related system calls:
@@ -199,16 +316,66 @@ static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
 	wake_up_locked_poll(dcb->poll, dcb->active);
 	dcb->active = 0;
 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
+<<<<<<< HEAD
+=======
+	dma_fence_put(fence);
+}
+
+static bool dma_buf_poll_shared(struct dma_resv *resv,
+				struct dma_buf_poll_cb_t *dcb)
+{
+	struct dma_resv_list *fobj = dma_resv_shared_list(resv);
+	struct dma_fence *fence;
+	int i, r;
+
+	if (!fobj)
+		return false;
+
+	for (i = 0; i < fobj->shared_count; ++i) {
+		fence = rcu_dereference_protected(fobj->shared[i],
+						  dma_resv_held(resv));
+		dma_fence_get(fence);
+		r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
+		if (!r)
+			return true;
+		dma_fence_put(fence);
+	}
+
+	return false;
+}
+
+static bool dma_buf_poll_excl(struct dma_resv *resv,
+			      struct dma_buf_poll_cb_t *dcb)
+{
+	struct dma_fence *fence = dma_resv_excl_fence(resv);
+	int r;
+
+	if (!fence)
+		return false;
+
+	dma_fence_get(fence);
+	r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
+	if (!r)
+		return true;
+	dma_fence_put(fence);
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
 {
 	struct dma_buf *dmabuf;
+<<<<<<< HEAD
 	struct reservation_object *resv;
 	struct reservation_object_list *fobj;
 	struct dma_fence *fence_excl;
 	__poll_t events;
 	unsigned shared_count, seq;
+=======
+	struct dma_resv *resv;
+	__poll_t events;
+>>>>>>> upstream/android-13
 
 	dmabuf = file->private_data;
 	if (!dmabuf || !dmabuf->resv)
@@ -222,6 +389,7 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
 	if (!events)
 		return 0;
 
+<<<<<<< HEAD
 retry:
 	seq = read_seqcount_begin(&resv->seq);
 	rcu_read_lock();
@@ -277,6 +445,14 @@ retry:
 		int i;
 
 		/* Only queue a new callback if no event has fired yet */
+=======
+	dma_resv_lock(resv, NULL);
+
+	if (events & EPOLLOUT) {
+		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_out;
+
+		/* Check that callback isn't busy */
+>>>>>>> upstream/android-13
 		spin_lock_irq(&dmabuf->poll.lock);
 		if (dcb->active)
 			events &= ~EPOLLOUT;
@@ -284,6 +460,7 @@ retry:
 			dcb->active = EPOLLOUT;
 		spin_unlock_irq(&dmabuf->poll.lock);
 
+<<<<<<< HEAD
 		if (!(events & EPOLLOUT))
 			goto out;
 
@@ -330,12 +507,86 @@ out:
  * @dmabuf [in]     dmabuf buffer that will be renamed.
  * @buf:   [in]     A piece of userspace memory that contains the name of
  *                  the dma-buf.
+=======
+		if (events & EPOLLOUT) {
+			if (!dma_buf_poll_shared(resv, dcb) &&
+			    !dma_buf_poll_excl(resv, dcb))
+				/* No callback queued, wake up any other waiters */
+				dma_buf_poll_cb(NULL, &dcb->cb);
+			else
+				events &= ~EPOLLOUT;
+		}
+	}
+
+	if (events & EPOLLIN) {
+		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_in;
+
+		/* Check that callback isn't busy */
+		spin_lock_irq(&dmabuf->poll.lock);
+		if (dcb->active)
+			events &= ~EPOLLIN;
+		else
+			dcb->active = EPOLLIN;
+		spin_unlock_irq(&dmabuf->poll.lock);
+
+		if (events & EPOLLIN) {
+			if (!dma_buf_poll_excl(resv, dcb))
+				/* No callback queued, wake up any other waiters */
+				dma_buf_poll_cb(NULL, &dcb->cb);
+			else
+				events &= ~EPOLLIN;
+		}
+	}
+
+	dma_resv_unlock(resv);
+	return events;
+}
+
+static long _dma_buf_set_name(struct dma_buf *dmabuf, const char *name)
+{
+	spin_lock(&dmabuf->name_lock);
+	kfree(dmabuf->name);
+	dmabuf->name = name;
+	spin_unlock(&dmabuf->name_lock);
+
+	return 0;
+}
+
+/**
+ * dma_buf_set_name - Set a name to a specific dma_buf to track the usage.
+ * It could support changing the name of the dma-buf if the same piece of
+ * memory is used for multiple purpose between different devices.
+ *
+ * @dmabuf: [in]     dmabuf buffer that will be renamed.
+ * @buf:    [in]     A piece of userspace memory that contains the name of
+ *                   the dma-buf.
+>>>>>>> upstream/android-13
  *
  * Returns 0 on success. If the dma-buf buffer is already attached to
  * devices, return -EBUSY.
  *
  */
+<<<<<<< HEAD
 static long dma_buf_set_name(struct dma_buf *dmabuf, const char __user *buf)
+=======
+long dma_buf_set_name(struct dma_buf *dmabuf, const char *name)
+{
+	long ret = 0;
+	char *buf = kstrndup(name, DMA_BUF_NAME_LEN, GFP_KERNEL);
+
+	if (!buf)
+		return -ENOMEM;
+
+	ret = _dma_buf_set_name(dmabuf, buf);
+	if (ret)
+		kfree(buf);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(dma_buf_set_name);
+
+static long dma_buf_set_name_user(struct dma_buf *dmabuf, const char __user *buf)
+>>>>>>> upstream/android-13
 {
 	char *name = strndup_user(buf, DMA_BUF_NAME_LEN);
 	long ret = 0;
@@ -343,6 +594,7 @@ static long dma_buf_set_name(struct dma_buf *dmabuf, const char __user *buf)
 	if (IS_ERR(name))
 		return PTR_ERR(name);
 
+<<<<<<< HEAD
 	mutex_lock(&dmabuf->lock);
 	spin_lock(&dmabuf->name_lock);
 	if (!list_empty(&dmabuf->attachments)) {
@@ -366,12 +618,25 @@ static int dma_buf_begin_cpu_access_umapped(struct dma_buf *dmabuf,
 static int dma_buf_end_cpu_access_umapped(struct dma_buf *dmabuf,
 					  enum dma_data_direction direction);
 
+=======
+	ret = _dma_buf_set_name(dmabuf, name);
+	if (ret)
+		kfree(name);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static long dma_buf_ioctl(struct file *file,
 			  unsigned int cmd, unsigned long arg)
 {
 	struct dma_buf *dmabuf;
 	struct dma_buf_sync sync;
+<<<<<<< HEAD
 	enum dma_data_direction dir;
+=======
+	enum dma_data_direction direction;
+>>>>>>> upstream/android-13
 	int ret;
 
 	dmabuf = file->private_data;
@@ -386,6 +651,7 @@ static long dma_buf_ioctl(struct file *file,
 
 		switch (sync.flags & DMA_BUF_SYNC_RW) {
 		case DMA_BUF_SYNC_READ:
+<<<<<<< HEAD
 			dir = DMA_FROM_DEVICE;
 			break;
 		case DMA_BUF_SYNC_WRITE:
@@ -393,12 +659,22 @@ static long dma_buf_ioctl(struct file *file,
 			break;
 		case DMA_BUF_SYNC_RW:
 			dir = DMA_BIDIRECTIONAL;
+=======
+			direction = DMA_FROM_DEVICE;
+			break;
+		case DMA_BUF_SYNC_WRITE:
+			direction = DMA_TO_DEVICE;
+			break;
+		case DMA_BUF_SYNC_RW:
+			direction = DMA_BIDIRECTIONAL;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			return -EINVAL;
 		}
 
 		if (sync.flags & DMA_BUF_SYNC_END)
+<<<<<<< HEAD
 			if (sync.flags & DMA_BUF_SYNC_USER_MAPPED)
 				ret = dma_buf_end_cpu_access_umapped(dmabuf,
 								     dir);
@@ -410,12 +686,21 @@ static long dma_buf_ioctl(struct file *file,
 								       dir);
 			else
 				ret = dma_buf_begin_cpu_access(dmabuf, dir);
+=======
+			ret = dma_buf_end_cpu_access(dmabuf, direction);
+		else
+			ret = dma_buf_begin_cpu_access(dmabuf, direction);
+>>>>>>> upstream/android-13
 
 		return ret;
 
 	case DMA_BUF_SET_NAME_A:
 	case DMA_BUF_SET_NAME_B:
+<<<<<<< HEAD
 		return dma_buf_set_name(dmabuf, (const char __user *)arg);
+=======
+		return dma_buf_set_name_user(dmabuf, (const char __user *)arg);
+>>>>>>> upstream/android-13
 
 	default:
 		return -ENOTTY;
@@ -437,13 +722,21 @@ static void dma_buf_show_fdinfo(struct seq_file *m, struct file *file)
 }
 
 static const struct file_operations dma_buf_fops = {
+<<<<<<< HEAD
+=======
+	.release	= dma_buf_file_release,
+>>>>>>> upstream/android-13
 	.mmap		= dma_buf_mmap_internal,
 	.llseek		= dma_buf_llseek,
 	.poll		= dma_buf_poll,
 	.unlocked_ioctl	= dma_buf_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= dma_buf_ioctl,
 #endif
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.show_fdinfo	= dma_buf_show_fdinfo,
 };
 
@@ -454,7 +747,11 @@ int is_dma_buf_file(struct file *file)
 {
 	return file->f_op == &dma_buf_fops;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(is_dma_buf_file);
+=======
+EXPORT_SYMBOL_NS_GPL(is_dma_buf_file, MINIDUMP);
+>>>>>>> upstream/android-13
 
 static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
 {
@@ -507,7 +804,11 @@ err_alloc_file:
  *
  * 4. Once a driver is done with a shared buffer it needs to call
  *    dma_buf_detach() (after cleaning up any mappings) and then release the
+<<<<<<< HEAD
  *    reference acquired with dma_buf_get by calling dma_buf_put().
+=======
+ *    reference acquired with dma_buf_get() by calling dma_buf_put().
+>>>>>>> upstream/android-13
  *
  * For the detailed semantics exporters are expected to implement see
  * &dma_buf_ops.
@@ -523,9 +824,16 @@ err_alloc_file:
  *			by the exporter. see &struct dma_buf_export_info
  *			for further details.
  *
+<<<<<<< HEAD
  * Returns, on success, a newly created dma_buf object, which wraps the
  * supplied private data and operations for dma_buf_ops. On either missing
  * ops, or error in allocating struct dma_buf, will return negative error.
+=======
+ * Returns, on success, a newly created struct dma_buf object, which wraps the
+ * supplied private data and operations for struct dma_buf_ops. On either
+ * missing ops, or error in allocating struct dma_buf, will return negative
+ * error.
+>>>>>>> upstream/android-13
  *
  * For most cases the easiest way to create @exp_info is through the
  * %DEFINE_DMA_BUF_EXPORT_INFO macro.
@@ -533,13 +841,21 @@ err_alloc_file:
 struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 {
 	struct dma_buf *dmabuf;
+<<<<<<< HEAD
 	struct reservation_object *resv = exp_info->resv;
+=======
+	struct dma_resv *resv = exp_info->resv;
+>>>>>>> upstream/android-13
 	struct file *file;
 	size_t alloc_size = sizeof(struct dma_buf);
 	int ret;
 
 	if (!exp_info->resv)
+<<<<<<< HEAD
 		alloc_size += sizeof(struct reservation_object);
+=======
+		alloc_size += sizeof(struct dma_resv);
+>>>>>>> upstream/android-13
 	else
 		/* prevent &dma_buf[1] == dma_buf->resv */
 		alloc_size += 1;
@@ -548,12 +864,26 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 			  || !exp_info->ops
 			  || !exp_info->ops->map_dma_buf
 			  || !exp_info->ops->unmap_dma_buf
+<<<<<<< HEAD
 			  || !exp_info->ops->release
 			  || !exp_info->ops->map
 			  || !exp_info->ops->mmap)) {
 		return ERR_PTR(-EINVAL);
 	}
 
+=======
+			  || !exp_info->ops->release)) {
+		return ERR_PTR(-EINVAL);
+	}
+
+	if (WARN_ON(exp_info->ops->cache_sgt_mapping &&
+		    (exp_info->ops->pin || exp_info->ops->unpin)))
+		return ERR_PTR(-EINVAL);
+
+	if (WARN_ON(!exp_info->ops->pin != !exp_info->ops->unpin))
+		return ERR_PTR(-EINVAL);
+
+>>>>>>> upstream/android-13
 	if (!try_module_get(exp_info->owner))
 		return ERR_PTR(-ENOENT);
 
@@ -563,12 +893,16 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 		goto err_module;
 	}
 
+<<<<<<< HEAD
 	atomic_set(&dmabuf->ref_dbg, 0);
+=======
+>>>>>>> upstream/android-13
 	dmabuf->priv = exp_info->priv;
 	dmabuf->ops = exp_info->ops;
 	dmabuf->size = exp_info->size;
 	dmabuf->exp_name = exp_info->exp_name;
 	dmabuf->owner = exp_info->owner;
+<<<<<<< HEAD
 	init_waitqueue_head(&dmabuf->poll);
 	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
 	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
@@ -576,6 +910,16 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 	if (!resv) {
 		resv = (struct reservation_object *)&dmabuf[1];
 		reservation_object_init(resv);
+=======
+	spin_lock_init(&dmabuf->name_lock);
+	init_waitqueue_head(&dmabuf->poll);
+	dmabuf->cb_in.poll = dmabuf->cb_out.poll = &dmabuf->poll;
+	dmabuf->cb_in.active = dmabuf->cb_out.active = 0;
+
+	if (!resv) {
+		resv = (struct dma_resv *)&dmabuf[1];
+		dma_resv_init(resv);
+>>>>>>> upstream/android-13
 	}
 	dmabuf->resv = resv;
 
@@ -589,15 +933,35 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 	dmabuf->file = file;
 
 	mutex_init(&dmabuf->lock);
+<<<<<<< HEAD
 	spin_lock_init(&dmabuf->name_lock);
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&dmabuf->attachments);
 
 	mutex_lock(&db_list.lock);
 	list_add(&dmabuf->list_node, &db_list.head);
 	mutex_unlock(&db_list.lock);
 
+<<<<<<< HEAD
 	return dmabuf;
 
+=======
+	ret = dma_buf_stats_setup(dmabuf);
+	if (ret)
+		goto err_sysfs;
+
+	return dmabuf;
+
+err_sysfs:
+	/*
+	 * Set file->f_path.dentry->d_fsdata to NULL so that when
+	 * dma_buf_release() gets invoked by dentry_ops, it exits
+	 * early before calling the release() dma_buf op.
+	 */
+	file->f_path.dentry->d_fsdata = NULL;
+	fput(file);
+>>>>>>> upstream/android-13
 err_dmabuf:
 	kfree(dmabuf);
 err_module:
@@ -607,7 +971,11 @@ err_module:
 EXPORT_SYMBOL_GPL(dma_buf_export);
 
 /**
+<<<<<<< HEAD
  * dma_buf_fd - returns a file descriptor for the given dma_buf
+=======
+ * dma_buf_fd - returns a file descriptor for the given struct dma_buf
+>>>>>>> upstream/android-13
  * @dmabuf:	[in]	pointer to dma_buf for which fd is required.
  * @flags:      [in]    flags to give to fd
  *
@@ -631,17 +999,27 @@ int dma_buf_fd(struct dma_buf *dmabuf, int flags)
 EXPORT_SYMBOL_GPL(dma_buf_fd);
 
 /**
+<<<<<<< HEAD
  * dma_buf_get - returns the dma_buf structure related to an fd
  * @fd:	[in]	fd associated with the dma_buf to be returned
  *
  * On success, returns the dma_buf structure associated with an fd; uses
+=======
+ * dma_buf_get - returns the struct dma_buf related to an fd
+ * @fd:	[in]	fd associated with the struct dma_buf to be returned
+ *
+ * On success, returns the struct dma_buf associated with an fd; uses
+>>>>>>> upstream/android-13
  * file's refcounting done by fget to increase refcount. returns ERR_PTR
  * otherwise.
  */
 struct dma_buf *dma_buf_get(int fd)
 {
 	struct file *file;
+<<<<<<< HEAD
 	struct dma_buf *dmabuf;
+=======
+>>>>>>> upstream/android-13
 
 	file = fget(fd);
 
@@ -653,10 +1031,14 @@ struct dma_buf *dma_buf_get(int fd)
 		return ERR_PTR(-EINVAL);
 	}
 
+<<<<<<< HEAD
 	dmabuf = file->private_data;
 	atomic_inc(&dmabuf->ref_dbg);
 
 	return dmabuf;
+=======
+	return file->private_data;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dma_buf_get);
 
@@ -675,23 +1057,69 @@ void dma_buf_put(struct dma_buf *dmabuf)
 	if (WARN_ON(!dmabuf || !dmabuf->file))
 		return;
 
+<<<<<<< HEAD
 	if (atomic_dec_return(&dmabuf->ref_dbg) < 0) {
 		pr_info("[Warn] %s, ref underflow!\n", __func__);
 		atomic_set(&dmabuf->ref_dbg, 0);
 	}
+=======
+>>>>>>> upstream/android-13
 	fput(dmabuf->file);
 }
 EXPORT_SYMBOL_GPL(dma_buf_put);
 
+<<<<<<< HEAD
 /**
  * dma_buf_attach - Add the device to dma_buf's attachments list; optionally,
  * calls attach() of dma_buf_ops to allow device-specific attach functionality
  * @dmabuf:	[in]	buffer to attach device to.
  * @dev:	[in]	device to be attached.
+=======
+static void mangle_sg_table(struct sg_table *sg_table)
+{
+#ifdef CONFIG_DMABUF_DEBUG
+	int i;
+	struct scatterlist *sg;
+
+	/* To catch abuse of the underlying struct page by importers mix
+	 * up the bits, but take care to preserve the low SG_ bits to
+	 * not corrupt the sgt. The mixing is undone in __unmap_dma_buf
+	 * before passing the sgt back to the exporter. */
+	for_each_sgtable_sg(sg_table, sg, i)
+		sg->page_link ^= ~0xffUL;
+#endif
+
+}
+static struct sg_table * __map_dma_buf(struct dma_buf_attachment *attach,
+				       enum dma_data_direction direction)
+{
+	struct sg_table *sg_table;
+
+	sg_table = attach->dmabuf->ops->map_dma_buf(attach, direction);
+
+	if (!IS_ERR_OR_NULL(sg_table))
+		mangle_sg_table(sg_table);
+
+	return sg_table;
+}
+
+/**
+ * dma_buf_dynamic_attach - Add the device to dma_buf's attachments list
+ * @dmabuf:		[in]	buffer to attach device to.
+ * @dev:		[in]	device to be attached.
+ * @importer_ops:	[in]	importer operations for the attachment
+ * @importer_priv:	[in]	importer private pointer for the attachment
+>>>>>>> upstream/android-13
  *
  * Returns struct dma_buf_attachment pointer for this attachment. Attachments
  * must be cleaned up by calling dma_buf_detach().
  *
+<<<<<<< HEAD
+=======
+ * Optionally this calls &dma_buf_ops.attach to allow device-specific attach
+ * functionality.
+ *
+>>>>>>> upstream/android-13
  * Returns:
  *
  * A pointer to newly created &dma_buf_attachment on success, or a negative
@@ -701,8 +1129,15 @@ EXPORT_SYMBOL_GPL(dma_buf_put);
  * accessible to @dev, and cannot be moved to a more suitable place. This is
  * indicated with the error code -EBUSY.
  */
+<<<<<<< HEAD
 struct dma_buf_attachment *dma_buf_attach(struct dma_buf *dmabuf,
 					  struct device *dev)
+=======
+struct dma_buf_attachment *
+dma_buf_dynamic_attach(struct dma_buf *dmabuf, struct device *dev,
+		       const struct dma_buf_attach_ops *importer_ops,
+		       void *importer_priv)
+>>>>>>> upstream/android-13
 {
 	struct dma_buf_attachment *attach;
 	int ret;
@@ -710,27 +1145,76 @@ struct dma_buf_attachment *dma_buf_attach(struct dma_buf *dmabuf,
 	if (WARN_ON(!dmabuf || !dev))
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(importer_ops && !importer_ops->move_notify))
+		return ERR_PTR(-EINVAL);
+
+>>>>>>> upstream/android-13
 	attach = kzalloc(sizeof(*attach), GFP_KERNEL);
 	if (!attach)
 		return ERR_PTR(-ENOMEM);
 
 	attach->dev = dev;
 	attach->dmabuf = dmabuf;
+<<<<<<< HEAD
 
 	mutex_lock(&dmabuf->lock);
+=======
+	if (importer_ops)
+		attach->peer2peer = importer_ops->allow_peer2peer;
+	attach->importer_ops = importer_ops;
+	attach->importer_priv = importer_priv;
+>>>>>>> upstream/android-13
 
 	if (dmabuf->ops->attach) {
 		ret = dmabuf->ops->attach(dmabuf, attach);
 		if (ret)
 			goto err_attach;
 	}
+<<<<<<< HEAD
 	list_add(&attach->node, &dmabuf->attachments);
 
 	mutex_unlock(&dmabuf->lock);
+=======
+	dma_resv_lock(dmabuf->resv, NULL);
+	list_add(&attach->node, &dmabuf->attachments);
+	dma_resv_unlock(dmabuf->resv);
+
+	/* When either the importer or the exporter can't handle dynamic
+	 * mappings we cache the mapping here to avoid issues with the
+	 * reservation object lock.
+	 */
+	if (dma_buf_attachment_is_dynamic(attach) !=
+	    dma_buf_is_dynamic(dmabuf)) {
+		struct sg_table *sgt;
+
+		if (dma_buf_is_dynamic(attach->dmabuf)) {
+			dma_resv_lock(attach->dmabuf->resv, NULL);
+			ret = dmabuf->ops->pin(attach);
+			if (ret)
+				goto err_unlock;
+		}
+
+		sgt = __map_dma_buf(attach, DMA_BIDIRECTIONAL);
+		if (!sgt)
+			sgt = ERR_PTR(-ENOMEM);
+		if (IS_ERR(sgt)) {
+			ret = PTR_ERR(sgt);
+			goto err_unpin;
+		}
+		if (dma_buf_is_dynamic(attach->dmabuf))
+			dma_resv_unlock(attach->dmabuf->resv);
+		attach->sgt = sgt;
+		attach->dir = DMA_BIDIRECTIONAL;
+	}
+
+>>>>>>> upstream/android-13
 	return attach;
 
 err_attach:
 	kfree(attach);
+<<<<<<< HEAD
 	mutex_unlock(&dmabuf->lock);
 	return ERR_PTR(ret);
 }
@@ -739,27 +1223,151 @@ EXPORT_SYMBOL_GPL(dma_buf_attach);
 /**
  * dma_buf_detach - Remove the given attachment from dmabuf's attachments list;
  * optionally calls detach() of dma_buf_ops for device-specific detach
+=======
+	return ERR_PTR(ret);
+
+err_unpin:
+	if (dma_buf_is_dynamic(attach->dmabuf))
+		dmabuf->ops->unpin(attach);
+
+err_unlock:
+	if (dma_buf_is_dynamic(attach->dmabuf))
+		dma_resv_unlock(attach->dmabuf->resv);
+
+	dma_buf_detach(dmabuf, attach);
+	return ERR_PTR(ret);
+}
+EXPORT_SYMBOL_GPL(dma_buf_dynamic_attach);
+
+/**
+ * dma_buf_attach - Wrapper for dma_buf_dynamic_attach
+ * @dmabuf:	[in]	buffer to attach device to.
+ * @dev:	[in]	device to be attached.
+ *
+ * Wrapper to call dma_buf_dynamic_attach() for drivers which still use a static
+ * mapping.
+ */
+struct dma_buf_attachment *dma_buf_attach(struct dma_buf *dmabuf,
+					  struct device *dev)
+{
+	return dma_buf_dynamic_attach(dmabuf, dev, NULL, NULL);
+}
+EXPORT_SYMBOL_GPL(dma_buf_attach);
+
+static void __unmap_dma_buf(struct dma_buf_attachment *attach,
+			    struct sg_table *sg_table,
+			    enum dma_data_direction direction)
+{
+	/* uses XOR, hence this unmangles */
+	mangle_sg_table(sg_table);
+
+	attach->dmabuf->ops->unmap_dma_buf(attach, sg_table, direction);
+}
+
+/**
+ * dma_buf_detach - Remove the given attachment from dmabuf's attachments list
+>>>>>>> upstream/android-13
  * @dmabuf:	[in]	buffer to detach from.
  * @attach:	[in]	attachment to be detached; is free'd after this call.
  *
  * Clean up a device attachment obtained by calling dma_buf_attach().
+<<<<<<< HEAD
+=======
+ *
+ * Optionally this calls &dma_buf_ops.detach for device-specific detach.
+>>>>>>> upstream/android-13
  */
 void dma_buf_detach(struct dma_buf *dmabuf, struct dma_buf_attachment *attach)
 {
 	if (WARN_ON(!dmabuf || !attach))
 		return;
 
+<<<<<<< HEAD
 	mutex_lock(&dmabuf->lock);
 	list_del(&attach->node);
 	if (dmabuf->ops->detach)
 		dmabuf->ops->detach(dmabuf, attach);
 
 	mutex_unlock(&dmabuf->lock);
+=======
+	if (attach->sgt) {
+		if (dma_buf_is_dynamic(attach->dmabuf))
+			dma_resv_lock(attach->dmabuf->resv, NULL);
+
+		__unmap_dma_buf(attach, attach->sgt, attach->dir);
+
+		if (dma_buf_is_dynamic(attach->dmabuf)) {
+			dmabuf->ops->unpin(attach);
+			dma_resv_unlock(attach->dmabuf->resv);
+		}
+	}
+
+	dma_resv_lock(dmabuf->resv, NULL);
+	list_del(&attach->node);
+	dma_resv_unlock(dmabuf->resv);
+	if (dmabuf->ops->detach)
+		dmabuf->ops->detach(dmabuf, attach);
+
+>>>>>>> upstream/android-13
 	kfree(attach);
 }
 EXPORT_SYMBOL_GPL(dma_buf_detach);
 
 /**
+<<<<<<< HEAD
+=======
+ * dma_buf_pin - Lock down the DMA-buf
+ * @attach:	[in]	attachment which should be pinned
+ *
+ * Only dynamic importers (who set up @attach with dma_buf_dynamic_attach()) may
+ * call this, and only for limited use cases like scanout and not for temporary
+ * pin operations. It is not permitted to allow userspace to pin arbitrary
+ * amounts of buffers through this interface.
+ *
+ * Buffers must be unpinned by calling dma_buf_unpin().
+ *
+ * Returns:
+ * 0 on success, negative error code on failure.
+ */
+int dma_buf_pin(struct dma_buf_attachment *attach)
+{
+	struct dma_buf *dmabuf = attach->dmabuf;
+	int ret = 0;
+
+	WARN_ON(!dma_buf_attachment_is_dynamic(attach));
+
+	dma_resv_assert_held(dmabuf->resv);
+
+	if (dmabuf->ops->pin)
+		ret = dmabuf->ops->pin(attach);
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(dma_buf_pin);
+
+/**
+ * dma_buf_unpin - Unpin a DMA-buf
+ * @attach:	[in]	attachment which should be unpinned
+ *
+ * This unpins a buffer pinned by dma_buf_pin() and allows the exporter to move
+ * any mapping of @attach again and inform the importer through
+ * &dma_buf_attach_ops.move_notify.
+ */
+void dma_buf_unpin(struct dma_buf_attachment *attach)
+{
+	struct dma_buf *dmabuf = attach->dmabuf;
+
+	WARN_ON(!dma_buf_attachment_is_dynamic(attach));
+
+	dma_resv_assert_held(dmabuf->resv);
+
+	if (dmabuf->ops->unpin)
+		dmabuf->ops->unpin(attach);
+}
+EXPORT_SYMBOL_GPL(dma_buf_unpin);
+
+/**
+>>>>>>> upstream/android-13
  * dma_buf_map_attachment - Returns the scatterlist table of the attachment;
  * mapped into _device_ address space. Is a wrapper for map_dma_buf() of the
  * dma_buf_ops.
@@ -769,25 +1377,98 @@ EXPORT_SYMBOL_GPL(dma_buf_detach);
  * Returns sg_table containing the scatterlist to be returned; returns ERR_PTR
  * on error. May return -EINTR if it is interrupted by a signal.
  *
+<<<<<<< HEAD
+=======
+ * On success, the DMA addresses and lengths in the returned scatterlist are
+ * PAGE_SIZE aligned.
+ *
+>>>>>>> upstream/android-13
  * A mapping must be unmapped by using dma_buf_unmap_attachment(). Note that
  * the underlying backing storage is pinned for as long as a mapping exists,
  * therefore users/importers should not hold onto a mapping for undue amounts of
  * time.
+<<<<<<< HEAD
+=======
+ *
+ * Important: Dynamic importers must wait for the exclusive fence of the struct
+ * dma_resv attached to the DMA-BUF first.
+>>>>>>> upstream/android-13
  */
 struct sg_table *dma_buf_map_attachment(struct dma_buf_attachment *attach,
 					enum dma_data_direction direction)
 {
 	struct sg_table *sg_table;
+<<<<<<< HEAD
+=======
+	int r;
+>>>>>>> upstream/android-13
 
 	might_sleep();
 
 	if (WARN_ON(!attach || !attach->dmabuf))
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	sg_table = attach->dmabuf->ops->map_dma_buf(attach, direction);
 	if (!sg_table)
 		sg_table = ERR_PTR(-ENOMEM);
 
+=======
+	if (dma_buf_attachment_is_dynamic(attach))
+		dma_resv_assert_held(attach->dmabuf->resv);
+
+	if (attach->sgt) {
+		/*
+		 * Two mappings with different directions for the same
+		 * attachment are not allowed.
+		 */
+		if (attach->dir != direction &&
+		    attach->dir != DMA_BIDIRECTIONAL)
+			return ERR_PTR(-EBUSY);
+
+		return attach->sgt;
+	}
+
+	if (dma_buf_is_dynamic(attach->dmabuf)) {
+		dma_resv_assert_held(attach->dmabuf->resv);
+		if (!IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY)) {
+			r = attach->dmabuf->ops->pin(attach);
+			if (r)
+				return ERR_PTR(r);
+		}
+	}
+
+	sg_table = __map_dma_buf(attach, direction);
+	if (!sg_table)
+		sg_table = ERR_PTR(-ENOMEM);
+
+	if (IS_ERR(sg_table) && dma_buf_is_dynamic(attach->dmabuf) &&
+	     !IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY))
+		attach->dmabuf->ops->unpin(attach);
+
+	if (!IS_ERR(sg_table) && attach->dmabuf->ops->cache_sgt_mapping) {
+		attach->sgt = sg_table;
+		attach->dir = direction;
+	}
+
+#ifdef CONFIG_DMA_API_DEBUG
+	if (!IS_ERR(sg_table)) {
+		struct scatterlist *sg;
+		u64 addr;
+		int len;
+		int i;
+
+		for_each_sgtable_dma_sg(sg_table, sg, i) {
+			addr = sg_dma_address(sg);
+			len = sg_dma_len(sg);
+			if (!PAGE_ALIGNED(addr) || !PAGE_ALIGNED(len)) {
+				pr_debug("%s: addr %llx or len %x is not page aligned!\n",
+					 __func__, addr, len);
+			}
+		}
+	}
+#endif /* CONFIG_DMA_API_DEBUG */
+>>>>>>> upstream/android-13
 	return sg_table;
 }
 EXPORT_SYMBOL_GPL(dma_buf_map_attachment);
@@ -811,12 +1492,52 @@ void dma_buf_unmap_attachment(struct dma_buf_attachment *attach,
 	if (WARN_ON(!attach || !attach->dmabuf || !sg_table))
 		return;
 
+<<<<<<< HEAD
 	attach->dmabuf->ops->unmap_dma_buf(attach, sg_table,
 						direction);
+=======
+	if (dma_buf_attachment_is_dynamic(attach))
+		dma_resv_assert_held(attach->dmabuf->resv);
+
+	if (attach->sgt == sg_table)
+		return;
+
+	if (dma_buf_is_dynamic(attach->dmabuf))
+		dma_resv_assert_held(attach->dmabuf->resv);
+
+	__unmap_dma_buf(attach, sg_table, direction);
+
+	if (dma_buf_is_dynamic(attach->dmabuf) &&
+	    !IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY))
+		dma_buf_unpin(attach);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dma_buf_unmap_attachment);
 
 /**
+<<<<<<< HEAD
+=======
+ * dma_buf_move_notify - notify attachments that DMA-buf is moving
+ *
+ * @dmabuf:	[in]	buffer which is moving
+ *
+ * Informs all attachmenst that they need to destroy and recreated all their
+ * mappings.
+ */
+void dma_buf_move_notify(struct dma_buf *dmabuf)
+{
+	struct dma_buf_attachment *attach;
+
+	dma_resv_assert_held(dmabuf->resv);
+
+	list_for_each_entry(attach, &dmabuf->attachments, node)
+		if (attach->importer_ops)
+			attach->importer_ops->move_notify(attach);
+}
+EXPORT_SYMBOL_GPL(dma_buf_move_notify);
+
+/**
+>>>>>>> upstream/android-13
  * DOC: cpu access
  *
  * There are mutliple reasons for supporting CPU access to a dma buffer object:
@@ -827,6 +1548,7 @@ EXPORT_SYMBOL_GPL(dma_buf_unmap_attachment);
  *   with calls to dma_buf_begin_cpu_access() and dma_buf_end_cpu_access()
  *   access.
  *
+<<<<<<< HEAD
  *   To support dma_buf objects residing in highmem cpu access is page-based
  *   using an api similar to kmap. Accessing a dma_buf is done in aligned chunks
  *   of PAGE_SIZE size. Before accessing a chunk it needs to be mapped, which
@@ -852,15 +1574,30 @@ EXPORT_SYMBOL_GPL(dma_buf_unmap_attachment);
  *   space is a limited resources on many architectures.
  *
  *   Interfaces::
+=======
+ *   Since for most kernel internal dma-buf accesses need the entire buffer, a
+ *   vmap interface is introduced. Note that on very old 32-bit architectures
+ *   vmalloc space might be limited and result in vmap calls failing.
+ *
+ *   Interfaces::
+ *
+>>>>>>> upstream/android-13
  *      void \*dma_buf_vmap(struct dma_buf \*dmabuf)
  *      void dma_buf_vunmap(struct dma_buf \*dmabuf, void \*vaddr)
  *
  *   The vmap call can fail if there is no vmap support in the exporter, or if
+<<<<<<< HEAD
  *   it runs out of vmalloc space. Fallback to kmap should be implemented. Note
  *   that the dma-buf layer keeps a reference count for all vmap access and
  *   calls down into the exporter's vmap function only when no vmapping exists,
  *   and only unmaps it once. Protection against concurrent vmap/vunmap calls is
  *   provided by taking the dma_buf->lock mutex.
+=======
+ *   it runs out of vmalloc space. Note that the dma-buf layer keeps a reference
+ *   count for all vmap access and calls down into the exporter's vmap function
+ *   only when no vmapping exists, and only unmaps it once. Protection against
+ *   concurrent vmap/vunmap calls is provided by taking the &dma_buf.lock mutex.
+>>>>>>> upstream/android-13
  *
  * - For full compatibility on the importer side with existing userspace
  *   interfaces, which might already support mmap'ing buffers. This is needed in
@@ -886,8 +1623,12 @@ EXPORT_SYMBOL_GPL(dma_buf_unmap_attachment);
  *     - for each drawing/upload cycle in CPU 1. SYNC_START ioctl, 2. read/write
  *       to mmap area 3. SYNC_END ioctl. This can be repeated as often as you
  *       want (with the new data being consumed by say the GPU or the scanout
+<<<<<<< HEAD
  *       device). Optionally SYNC_USER_MAPPED can be set to restrict cache
  *       maintenance to only the parts of the buffer which are mmap(ed).
+=======
+ *       device)
+>>>>>>> upstream/android-13
  *     - munmap once you don't need the buffer any more
  *
  *    For correctness and optimal performance, it is always required to use
@@ -913,11 +1654,19 @@ EXPORT_SYMBOL_GPL(dma_buf_unmap_attachment);
  *   shootdowns would increase the complexity quite a bit.
  *
  *   Interface::
+<<<<<<< HEAD
+=======
+ *
+>>>>>>> upstream/android-13
  *      int dma_buf_mmap(struct dma_buf \*, struct vm_area_struct \*,
  *		       unsigned long);
  *
  *   If the importing subsystem simply provides a special-purpose mmap call to
+<<<<<<< HEAD
  *   set up a mapping in userspace, calling do_mmap with dma_buf->file will
+=======
+ *   set up a mapping in userspace, calling do_mmap with &dma_buf.file will
+>>>>>>> upstream/android-13
  *   equally achieve that for a dma-buf object.
  */
 
@@ -926,12 +1675,20 @@ static int __dma_buf_begin_cpu_access(struct dma_buf *dmabuf,
 {
 	bool write = (direction == DMA_BIDIRECTIONAL ||
 		      direction == DMA_TO_DEVICE);
+<<<<<<< HEAD
 	struct reservation_object *resv = dmabuf->resv;
 	long ret;
 
 	/* Wait on any implicit rendering fences */
 	ret = reservation_object_wait_timeout_rcu(resv, write, true,
 						  MAX_SCHEDULE_TIMEOUT);
+=======
+	struct dma_resv *resv = dmabuf->resv;
+	long ret;
+
+	/* Wait on any implicit rendering fences */
+	ret = dma_resv_wait_timeout(resv, write, true, MAX_SCHEDULE_TIMEOUT);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -950,6 +1707,14 @@ static int __dma_buf_begin_cpu_access(struct dma_buf *dmabuf,
  * dma_buf_end_cpu_access(). Only when cpu access is braketed by both calls is
  * it guaranteed to be coherent with other DMA access.
  *
+<<<<<<< HEAD
+=======
+ * This function will also wait for any DMA transactions tracked through
+ * implicit synchronization in &dma_buf.resv. For DMA transactions with explicit
+ * synchronization this function will only ensure cache coherency, callers must
+ * ensure synchronization with such DMA transactions on their own.
+ *
+>>>>>>> upstream/android-13
  * Can return negative error values, returns 0 on success.
  */
 int dma_buf_begin_cpu_access(struct dma_buf *dmabuf,
@@ -960,6 +1725,11 @@ int dma_buf_begin_cpu_access(struct dma_buf *dmabuf,
 	if (WARN_ON(!dmabuf))
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	might_lock(&dmabuf->resv->lock.base);
+
+>>>>>>> upstream/android-13
 	if (dmabuf->ops->begin_cpu_access)
 		ret = dmabuf->ops->begin_cpu_access(dmabuf, direction);
 
@@ -974,6 +1744,7 @@ int dma_buf_begin_cpu_access(struct dma_buf *dmabuf,
 }
 EXPORT_SYMBOL_GPL(dma_buf_begin_cpu_access);
 
+<<<<<<< HEAD
 static int dma_buf_begin_cpu_access_umapped(struct dma_buf *dmabuf,
 			     enum dma_data_direction direction)
 {
@@ -995,6 +1766,8 @@ static int dma_buf_begin_cpu_access_umapped(struct dma_buf *dmabuf,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 int dma_buf_begin_cpu_access_partial(struct dma_buf *dmabuf,
 				     enum dma_data_direction direction,
 				     unsigned int offset, unsigned int len)
@@ -1038,6 +1811,11 @@ int dma_buf_end_cpu_access(struct dma_buf *dmabuf,
 
 	WARN_ON(!dmabuf);
 
+<<<<<<< HEAD
+=======
+	might_lock(&dmabuf->resv->lock.base);
+
+>>>>>>> upstream/android-13
 	if (dmabuf->ops->end_cpu_access)
 		ret = dmabuf->ops->end_cpu_access(dmabuf, direction);
 
@@ -1045,6 +1823,7 @@ int dma_buf_end_cpu_access(struct dma_buf *dmabuf,
 }
 EXPORT_SYMBOL_GPL(dma_buf_end_cpu_access);
 
+<<<<<<< HEAD
 static int dma_buf_end_cpu_access_umapped(struct dma_buf *dmabuf,
 			   enum dma_data_direction direction)
 {
@@ -1058,6 +1837,8 @@ static int dma_buf_end_cpu_access_umapped(struct dma_buf *dmabuf,
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 int dma_buf_end_cpu_access_partial(struct dma_buf *dmabuf,
 				   enum dma_data_direction direction,
 				   unsigned int offset, unsigned int len)
@@ -1075,6 +1856,7 @@ int dma_buf_end_cpu_access_partial(struct dma_buf *dmabuf,
 EXPORT_SYMBOL_GPL(dma_buf_end_cpu_access_partial);
 
 /**
+<<<<<<< HEAD
  * dma_buf_kmap - Map a page of the buffer object into kernel address space. The
  * same restrictions as for kmap and friends apply.
  * @dmabuf:	[in]	buffer to map page from.
@@ -1113,6 +1895,8 @@ EXPORT_SYMBOL_GPL(dma_buf_kunmap);
 
 
 /**
+=======
+>>>>>>> upstream/android-13
  * dma_buf_mmap - Setup up a userspace mmap with the given vma
  * @dmabuf:	[in]	buffer that should back the vma
  * @vma:	[in]	vma for the mmap
@@ -1129,12 +1913,22 @@ EXPORT_SYMBOL_GPL(dma_buf_kunmap);
 int dma_buf_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma,
 		 unsigned long pgoff)
 {
+<<<<<<< HEAD
 	struct file *oldfile;
 	int ret;
 
 	if (WARN_ON(!dmabuf || !vma))
 		return -EINVAL;
 
+=======
+	if (WARN_ON(!dmabuf || !vma))
+		return -EINVAL;
+
+	/* check if buffer supports mmap */
+	if (!dmabuf->ops->mmap)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* check for offset overflow */
 	if (pgoff + vma_pages(vma) < pgoff)
 		return -EOVERFLOW;
@@ -1145,6 +1939,7 @@ int dma_buf_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma,
 		return -EINVAL;
 
 	/* readjust the vma */
+<<<<<<< HEAD
 	get_file(dmabuf->file);
 	oldfile = vma->vm_file;
 	vma->vm_file = dmabuf->file;
@@ -1161,6 +1956,12 @@ int dma_buf_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma,
 	}
 	return ret;
 
+=======
+	vma_set_file(vma, dmabuf->file);
+	vma->vm_pgoff = pgoff;
+
+	return dmabuf->ops->mmap(dmabuf, vma);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dma_buf_mmap);
 
@@ -1168,10 +1969,15 @@ EXPORT_SYMBOL_GPL(dma_buf_mmap);
  * dma_buf_vmap - Create virtual mapping for the buffer object into kernel
  * address space. Same restrictions as for vmap and friends apply.
  * @dmabuf:	[in]	buffer to vmap
+<<<<<<< HEAD
+=======
+ * @map:	[out]	returns the vmap pointer
+>>>>>>> upstream/android-13
  *
  * This call may fail due to lack of virtual mapping address space.
  * These calls are optional in drivers. The intended use for them
  * is for mapping objects linear in kernel space for high use objects.
+<<<<<<< HEAD
  * Please attempt to use kmap/kunmap before thinking about these interfaces.
  *
  * Returns NULL on error.
@@ -1185,10 +1991,32 @@ void *dma_buf_vmap(struct dma_buf *dmabuf)
 
 	if (!dmabuf->ops->vmap)
 		return NULL;
+=======
+ *
+ * To ensure coherency users must call dma_buf_begin_cpu_access() and
+ * dma_buf_end_cpu_access() around any cpu access performed through this
+ * mapping.
+ *
+ * Returns 0 on success, or a negative errno code otherwise.
+ */
+int dma_buf_vmap(struct dma_buf *dmabuf, struct dma_buf_map *map)
+{
+	struct dma_buf_map ptr;
+	int ret = 0;
+
+	dma_buf_map_clear(map);
+
+	if (WARN_ON(!dmabuf))
+		return -EINVAL;
+
+	if (!dmabuf->ops->vmap)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dmabuf->lock);
 	if (dmabuf->vmapping_counter) {
 		dmabuf->vmapping_counter++;
+<<<<<<< HEAD
 		BUG_ON(!dmabuf->vmap_ptr);
 		ptr = dmabuf->vmap_ptr;
 		goto out_unlock;
@@ -1200,36 +2028,72 @@ void *dma_buf_vmap(struct dma_buf *dmabuf)
 	if (WARN_ON_ONCE(IS_ERR(ptr)))
 		ptr = NULL;
 	if (!ptr)
+=======
+		BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
+		*map = dmabuf->vmap_ptr;
+		goto out_unlock;
+	}
+
+	BUG_ON(dma_buf_map_is_set(&dmabuf->vmap_ptr));
+
+	ret = dmabuf->ops->vmap(dmabuf, &ptr);
+	if (WARN_ON_ONCE(ret))
+>>>>>>> upstream/android-13
 		goto out_unlock;
 
 	dmabuf->vmap_ptr = ptr;
 	dmabuf->vmapping_counter = 1;
 
+<<<<<<< HEAD
 out_unlock:
 	mutex_unlock(&dmabuf->lock);
 	return ptr;
+=======
+	*map = dmabuf->vmap_ptr;
+
+out_unlock:
+	mutex_unlock(&dmabuf->lock);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(dma_buf_vmap);
 
 /**
  * dma_buf_vunmap - Unmap a vmap obtained by dma_buf_vmap.
  * @dmabuf:	[in]	buffer to vunmap
+<<<<<<< HEAD
  * @vaddr:	[in]	vmap to vunmap
  */
 void dma_buf_vunmap(struct dma_buf *dmabuf, void *vaddr)
+=======
+ * @map:	[in]	vmap pointer to vunmap
+ */
+void dma_buf_vunmap(struct dma_buf *dmabuf, struct dma_buf_map *map)
+>>>>>>> upstream/android-13
 {
 	if (WARN_ON(!dmabuf))
 		return;
 
+<<<<<<< HEAD
 	BUG_ON(!dmabuf->vmap_ptr);
 	BUG_ON(dmabuf->vmapping_counter == 0);
 	BUG_ON(dmabuf->vmap_ptr != vaddr);
+=======
+	BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
+	BUG_ON(dmabuf->vmapping_counter == 0);
+	BUG_ON(!dma_buf_map_is_equal(&dmabuf->vmap_ptr, map));
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dmabuf->lock);
 	if (--dmabuf->vmapping_counter == 0) {
 		if (dmabuf->ops->vunmap)
+<<<<<<< HEAD
 			dmabuf->ops->vunmap(dmabuf, vaddr);
 		dmabuf->vmap_ptr = NULL;
+=======
+			dmabuf->ops->vunmap(dmabuf, map);
+		dma_buf_map_clear(&dmabuf->vmap_ptr);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&dmabuf->lock);
 }
@@ -1249,6 +2113,7 @@ int dma_buf_get_flags(struct dma_buf *dmabuf, unsigned long *flags)
 }
 EXPORT_SYMBOL_GPL(dma_buf_get_flags);
 
+<<<<<<< HEAD
 int dma_buf_get_uuid(struct dma_buf *dmabuf, uuid_t *uuid)
 {
 	if (WARN_ON(!dmabuf) || !uuid)
@@ -1273,6 +2138,19 @@ static int dma_buf_debug_show(struct seq_file *s, void *unused)
 	unsigned seq;
 	int count = 0, attach_count, shared_count, i;
 	size_t size = 0;
+=======
+#ifdef CONFIG_DEBUG_FS
+static int dma_buf_debug_show(struct seq_file *s, void *unused)
+{
+	struct dma_buf *buf_obj;
+	struct dma_buf_attachment *attach_obj;
+	struct dma_resv *robj;
+	struct dma_resv_list *fobj;
+	struct dma_fence *fence;
+	int count = 0, attach_count, shared_count, i;
+	size_t size = 0;
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = mutex_lock_interruptible(&db_list.lock);
 
@@ -1280,6 +2158,7 @@ static int dma_buf_debug_show(struct seq_file *s, void *unused)
 		return ret;
 
 	seq_puts(s, "\nDma-buf Objects:\n");
+<<<<<<< HEAD
 	seq_printf(s, "%-18s\t%-8s\t%-8s\t%-8s\t%-8s\texp_name\t%-8s\n",
 		   "priv", "size", "flags", "mode", "count", "ino");
 
@@ -1318,22 +2197,59 @@ static int dma_buf_debug_show(struct seq_file *s, void *unused)
 			rcu_read_unlock();
 		}
 
+=======
+	seq_printf(s, "%-8s\t%-8s\t%-8s\t%-8s\texp_name\t%-8s\n",
+		   "size", "flags", "mode", "count", "ino");
+
+	list_for_each_entry(buf_obj, &db_list.head, list_node) {
+
+		ret = dma_resv_lock_interruptible(buf_obj->resv, NULL);
+		if (ret)
+			goto error_unlock;
+
+		spin_lock(&buf_obj->name_lock);
+		seq_printf(s, "%08zu\t%08x\t%08x\t%08ld\t%s\t%08lu\t%s\n",
+				buf_obj->size,
+				buf_obj->file->f_flags, buf_obj->file->f_mode,
+				file_count(buf_obj->file),
+				buf_obj->exp_name,
+				file_inode(buf_obj->file)->i_ino,
+				buf_obj->name ?: "");
+		spin_unlock(&buf_obj->name_lock);
+
+		robj = buf_obj->resv;
+		fence = dma_resv_excl_fence(robj);
+>>>>>>> upstream/android-13
 		if (fence)
 			seq_printf(s, "\tExclusive fence: %s %s %ssignalled\n",
 				   fence->ops->get_driver_name(fence),
 				   fence->ops->get_timeline_name(fence),
 				   dma_fence_is_signaled(fence) ? "" : "un");
+<<<<<<< HEAD
 		for (i = 0; i < shared_count; i++) {
 			fence = rcu_dereference(fobj->shared[i]);
 			if (!dma_fence_get_rcu(fence))
 				continue;
+=======
+
+		fobj = rcu_dereference_protected(robj->fence,
+						 dma_resv_held(robj));
+		shared_count = fobj ? fobj->shared_count : 0;
+		for (i = 0; i < shared_count; i++) {
+			fence = rcu_dereference_protected(fobj->shared[i],
+							  dma_resv_held(robj));
+>>>>>>> upstream/android-13
 			seq_printf(s, "\tShared fence: %s %s %ssignalled\n",
 				   fence->ops->get_driver_name(fence),
 				   fence->ops->get_timeline_name(fence),
 				   dma_fence_is_signaled(fence) ? "" : "un");
+<<<<<<< HEAD
 			dma_fence_put(fence);
 		}
 		rcu_read_unlock();
+=======
+		}
+>>>>>>> upstream/android-13
 
 		seq_puts(s, "\tAttached Devices:\n");
 		attach_count = 0;
@@ -1342,19 +2258,27 @@ static int dma_buf_debug_show(struct seq_file *s, void *unused)
 			seq_printf(s, "\t%s\n", dev_name(attach_obj->dev));
 			attach_count++;
 		}
+<<<<<<< HEAD
+=======
+		dma_resv_unlock(buf_obj->resv);
+>>>>>>> upstream/android-13
 
 		seq_printf(s, "Total %d devices attached\n\n",
 				attach_count);
 
 		count++;
 		size += buf_obj->size;
+<<<<<<< HEAD
 		mutex_unlock(&buf_obj->lock);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	seq_printf(s, "\nTotal %d objects, %zu bytes\n", count, size);
 
 	mutex_unlock(&db_list.lock);
 	return 0;
+<<<<<<< HEAD
 }
 
 static int dma_buf_debug_open(struct inode *inode, struct file *file)
@@ -1368,6 +2292,15 @@ static const struct file_operations dma_buf_debug_fops = {
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+=======
+
+error_unlock:
+	mutex_unlock(&db_list.lock);
+	return ret;
+}
+
+DEFINE_SHOW_ATTRIBUTE(dma_buf_debug);
+>>>>>>> upstream/android-13
 
 static struct dentry *dma_buf_debugfs_dir;
 
@@ -1410,6 +2343,15 @@ static inline void dma_buf_uninit_debugfs(void)
 
 static int __init dma_buf_init(void)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = dma_buf_init_sysfs_statistics();
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	dma_buf_mnt = kern_mount(&dma_buf_fs_type);
 	if (IS_ERR(dma_buf_mnt))
 		return PTR_ERR(dma_buf_mnt);
@@ -1425,5 +2367,9 @@ static void __exit dma_buf_deinit(void)
 {
 	dma_buf_uninit_debugfs();
 	kern_unmount(dma_buf_mnt);
+<<<<<<< HEAD
+=======
+	dma_buf_uninit_sysfs_statistics();
+>>>>>>> upstream/android-13
 }
 __exitcall(dma_buf_deinit);

@@ -17,7 +17,11 @@
 	};
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "ignore_loglevel rw root=/dev/nfs ip=dhcp";
+=======
+		bootargs = "ignore_loglevel rw root=/dev/nfs ip=on";
+>>>>>>> upstream/android-13
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -61,7 +65,11 @@
 };
 
 &ether {
+<<<<<<< HEAD
 	pinctrl-0 = <&ether_pins &phy1_pins>;
+=======
+	pinctrl-0 = <&ether_pins>, <&phy1_pins>;
+>>>>>>> upstream/android-13
 	pinctrl-names = "default";
 
 	phy-handle = <&phy1>;

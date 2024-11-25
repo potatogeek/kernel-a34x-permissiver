@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IBM ASM Service Processor Device Driver
  *
@@ -19,6 +20,15 @@
  *
  * Author: Max Asböck <amax@us.ibm.com>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * IBM ASM Service Processor Device Driver
+ *
+ * Copyright (C) IBM Corporation, 2004
+ *
+ * Author: Max Asböck <amax@us.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DOT_COMMAND_H__

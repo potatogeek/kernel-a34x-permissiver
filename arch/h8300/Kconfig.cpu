@@ -44,7 +44,10 @@ config H8300_H8MAX
 	bool "H8MAX"
 	select H83069
 	select RAMKERNEL
+<<<<<<< HEAD
 	select HAVE_IDE
+=======
+>>>>>>> upstream/android-13
 	help
 	  H8MAX Evaluation Board Support
 	  More Information. (Japanese Only)

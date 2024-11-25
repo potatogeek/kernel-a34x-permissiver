@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * VME Bridge Framework
  *
@@ -6,11 +10,14 @@
  *
  * Based on work by Tom Armistead and Ajit Prem
  * Copyright 2004 Motorola Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -56,6 +63,7 @@ static struct vme_bridge *find_bridge(struct vme_resource *resource)
 	case VME_MASTER:
 		return list_entry(resource->entry, struct vme_master_resource,
 			list)->parent;
+<<<<<<< HEAD
 		break;
 	case VME_SLAVE:
 		return list_entry(resource->entry, struct vme_slave_resource,
@@ -73,11 +81,29 @@ static struct vme_bridge *find_bridge(struct vme_resource *resource)
 		printk(KERN_ERR "Unknown resource type\n");
 		return NULL;
 		break;
+=======
+	case VME_SLAVE:
+		return list_entry(resource->entry, struct vme_slave_resource,
+			list)->parent;
+	case VME_DMA:
+		return list_entry(resource->entry, struct vme_dma_resource,
+			list)->parent;
+	case VME_LM:
+		return list_entry(resource->entry, struct vme_lm_resource,
+			list)->parent;
+	default:
+		printk(KERN_ERR "Unknown resource type\n");
+		return NULL;
+>>>>>>> upstream/android-13
 	}
 }
 
 /**
+<<<<<<< HEAD
  * vme_free_consistent - Allocate contiguous memory.
+=======
+ * vme_alloc_consistent - Allocate contiguous memory.
+>>>>>>> upstream/android-13
  * @resource: Pointer to VME resource.
  * @size: Size of allocation required.
  * @dma: Pointer to variable to store physical address of allocation.
@@ -183,7 +209,10 @@ size_t vme_get_size(struct vme_resource *resource)
 			return 0;
 
 		return size;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case VME_SLAVE:
 		retval = vme_slave_get(resource, &enabled, &base, &size,
 			&buf_base, &aspace, &cycle);
@@ -191,6 +220,7 @@ size_t vme_get_size(struct vme_resource *resource)
 			return 0;
 
 		return size;
+<<<<<<< HEAD
 		break;
 	case VME_DMA:
 		return 0;
@@ -199,6 +229,13 @@ size_t vme_get_size(struct vme_resource *resource)
 		printk(KERN_ERR "Unknown resource type\n");
 		return 0;
 		break;
+=======
+	case VME_DMA:
+		return 0;
+	default:
+		printk(KERN_ERR "Unknown resource type\n");
+		return 0;
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL(vme_get_size);
@@ -651,7 +688,11 @@ int vme_master_get(struct vme_resource *resource, int *enabled,
 EXPORT_SYMBOL(vme_master_get);
 
 /**
+<<<<<<< HEAD
  * vme_master_write - Read data from VME space into a buffer.
+=======
+ * vme_master_read - Read data from VME space into a buffer.
+>>>>>>> upstream/android-13
  * @resource: Pointer to VME master resource.
  * @buf: Pointer to buffer where data should be transferred.
  * @count: Number of bytes to transfer.
@@ -1890,7 +1931,10 @@ static int __vme_register_driver_bus(struct vme_driver *drv,
 
 err_reg:
 	put_device(&vdev->dev);
+<<<<<<< HEAD
 	kfree(vdev);
+=======
+>>>>>>> upstream/android-13
 err_devalloc:
 	list_for_each_entry_safe(vdev, tmp, &drv->devices, drv_list) {
 		list_del(&vdev->drv_list);
@@ -2004,16 +2048,24 @@ static int vme_bus_probe(struct device *dev)
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static int vme_bus_remove(struct device *dev)
+=======
+static void vme_bus_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct vme_driver *driver;
 	struct vme_dev *vdev = dev_to_vme_dev(dev);
 
 	driver = dev->platform_data;
 	if (driver->remove)
+<<<<<<< HEAD
 		return driver->remove(vdev);
 
 	return -ENODEV;
+=======
+		driver->remove(vdev);
+>>>>>>> upstream/android-13
 }
 
 struct bus_type vme_bus_type = {

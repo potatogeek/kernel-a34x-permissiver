@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # drivers/samsung/Kconfig
 #
 # Copyright (c) 2010-2019 Samsung Electronics Co., Ltd.
@@ -5,10 +6,21 @@
 #
 # Licensed under GPLv2
 
+=======
+# drivers/samsung/debug/Kconfig
+#
+# Copyright (c) 2010-2020 Samsung Electronics Co., Ltd.
+#               http://www.samsung.com/
+#
+# Licensed under GPLv2
+
+menu "Samsung TN Extension Feature"
+>>>>>>> upstream/android-13
 config SEC_EXT
 	bool "Samsung TN extension Feature"
 	default y
 
+<<<<<<< HEAD
 config SEC_REBOOT
 	bool "Enable TN reboot features"
 	depends on SEC_EXT
@@ -58,32 +70,105 @@ config SEC_KEY_NOTIFIER
 	default y
 	help
 	  Samsung Key input event notifier	  
+=======
+menuconfig SEC_DEBUG
+	tristate "Enable Samsung Debugging features"
+	default n
+
+config SEC_REBOOT
+	tristate "Enable TN reboot features"
+	default n
+	help
+	  Samsung TN reboot extension Feature. Do additional work when reboot.
+
+config SEC_PMIC_PWRKEY
+	bool "Enable PMIC power key for key crash"
+	help
+	  SEC key crash for PMIC power key.
+
+config SEC_PMIC_PWRKEY_DTNAME
+	string "PMIC power key dt node name"
+	depends on SEC_PMIC_PWRKEY
+	default ""
+	help
+	  Select PMIC power key dt node with key code.
+
+config SEC_KEY_NOTIFIER
+	tristate "Enable Samsung key event notifier"
+	default n
+	help
+	  Samsung Key input event notifier
+
+config SEC_BOOTSTAT
+	tristate "Enable TN Bootstat logging"
+	depends on SEC_EXT
+	default n
+	help
+	  This adds support for Samsung boot-stat
+	  To compile this driver as a module, choose M here.
+
+config DRV_SAMSUNG
+	tristate "Samsung sec class/sysfs Feature"
+	depends on SEC_EXT
+	default n
+	help
+	  Samsung sysfs name 'sec' directory create.
+>>>>>>> upstream/android-13
 
 comment "Samsung TN Build Options"
 config SEC_FACTORY
 	bool "SAMSUNG Factory build option"
+<<<<<<< HEAD
 	depends on SEC_EXT && SEC_DEBUG
 	default n
 	select SEC_PANIC_PCIE_ERR
+=======
+	depends on SEC_EXT
+	default n
+>>>>>>> upstream/android-13
 	help
 	  Include some codes for Factory binary.
 	  This option is enabled by Factory build option.
 	  In samsung build script, '-F' enables this option.
 
+<<<<<<< HEAD
 comment "Samsung TN BSP Options"
+=======
+>>>>>>> upstream/android-13
 config SAMSUNG_PRODUCT_SHIP
 	bool "set up for product shipping"
 	depends on SEC_EXT
 	default n
+<<<<<<< HEAD
 
 config ARGOS
 	bool "Throughput monitoring Feature"
+=======
+	help
+	  This option is enabled by SHIP build option.
+	  In samsung build script, '-s' enables this option.
+
+config SEC_RELOC_GPIO
+	tristate "Samsung Legacy-Style Relocated GPIO Interface for Factory Mode"
+	default m
+	depends on SEC_FACTORY
+	help
+	  TODO: help is not ready.	  
+
+endmenu
+source "drivers/samsung/pm/Kconfig"
+
+
+config ARGOS
+	tristate "Throughput monitoring Feature"
+>>>>>>> upstream/android-13
 	default n
 	help
 	  This option enables monitoring the data throughput and doing several actions for
 	  enhancing the performance such as adjusting the CPU freqency, allocating the tasks
 	  to the appropriate CPU and so on
 
+<<<<<<< HEAD
 config SEC_DUMP_SINK
 	bool "Enable to dump_sink"
 	default n
@@ -92,3 +177,13 @@ config SEC_DUMP_SINK
 
 source "drivers/samsung/debug/Kconfig"
 source "drivers/samsung/misc/Kconfig"
+=======
+config ARGOS_THROUGHPUT
+	default y if ARGOS=m
+	default n if ARGOS=y
+	bool "argos Throughput device"
+	help
+	  This option make /dev/network_throughput in sec_argos module
+	  for substitiution of pm qos /dev/network_throughput
+	  which is deprecated in kernel 5.4.
+>>>>>>> upstream/android-13

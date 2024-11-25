@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * oxfw.h - a part of driver for OXFW970/971 based devices
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -32,6 +39,31 @@
 #include "../amdtp-am824.h"
 #include "../cmp.h"
 
+<<<<<<< HEAD
+=======
+enum snd_oxfw_quirk {
+	// Postpone transferring packets during handling asynchronous transaction. As a result,
+	// next isochronous packet includes more events than one packet can include.
+	SND_OXFW_QUIRK_JUMBO_PAYLOAD = 0x01,
+	// The dbs field of CIP header in tx packet is wrong.
+	SND_OXFW_QUIRK_WRONG_DBS = 0x02,
+	// Blocking transmission mode is used.
+	SND_OXFW_QUIRK_BLOCKING_TRANSMISSION = 0x04,
+	// Stanton SCS1.d and SCS1.m support unique transaction.
+	SND_OXFW_QUIRK_SCS_TRANSACTION = 0x08,
+	// Apogee Duet FireWire ignores data blocks in packet with NO_INFO for audio data
+	// processing, while output level meter moves. Any value in syt field of packet takes
+	// the device to process audio data even if the value is invalid in a point of
+	// IEC 61883-1/6.
+	SND_OXFW_QUIRK_IGNORE_NO_INFO_PACKET = 0x10,
+	// Loud Technologies Mackie Onyx 1640i seems to configure OXFW971 ASIC so that it decides
+	// event frequency according to events in received isochronous packets. The device looks to
+	// performs media clock recovery voluntarily. In the recovery, the packets with NO_INFO
+	// are ignored, thus driver should transfer packets with timestamp.
+	SND_OXFW_QUIRK_VOLUNTARY_RECOVERY = 0x20,
+};
+
+>>>>>>> upstream/android-13
 /* This is an arbitrary number for convinience. */
 #define	SND_OXFW_STREAM_FORMAT_ENTRIES	10
 struct snd_oxfw {
@@ -40,11 +72,18 @@ struct snd_oxfw {
 	struct mutex mutex;
 	spinlock_t lock;
 
+<<<<<<< HEAD
 	bool registered;
 	struct delayed_work dwork;
 
 	bool wrong_dbs;
 	bool has_output;
+=======
+	// The combination of snd_oxfw_quirk enumeration-constants.
+	unsigned int quirks;
+	bool has_output;
+	bool has_input;
+>>>>>>> upstream/android-13
 	u8 *tx_stream_formats[SND_OXFW_STREAM_FORMAT_ENTRIES];
 	u8 *rx_stream_formats[SND_OXFW_STREAM_FORMAT_ENTRIES];
 	bool assumed;
@@ -52,8 +91,12 @@ struct snd_oxfw {
 	struct cmp_connection in_conn;
 	struct amdtp_stream tx_stream;
 	struct amdtp_stream rx_stream;
+<<<<<<< HEAD
 	unsigned int capture_substreams;
 	unsigned int playback_substreams;
+=======
+	unsigned int substreams_count;
+>>>>>>> upstream/android-13
 
 	unsigned int midi_input_ports;
 	unsigned int midi_output_ports;
@@ -62,8 +105,14 @@ struct snd_oxfw {
 	bool dev_lock_changed;
 	wait_queue_head_t hwdep_wait;
 
+<<<<<<< HEAD
 	const struct ieee1394_device_id *entry;
 	void *spec;
+=======
+	void *spec;
+
+	struct amdtp_domain domain;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -99,6 +148,7 @@ int avc_general_inquiry_sig_fmt(struct fw_unit *unit, unsigned int rate,
 				enum avc_general_plug_dir dir,
 				unsigned short pid);
 
+<<<<<<< HEAD
 int snd_oxfw_stream_init_simplex(struct snd_oxfw *oxfw,
 				 struct amdtp_stream *stream);
 int snd_oxfw_stream_start_simplex(struct snd_oxfw *oxfw,
@@ -110,6 +160,18 @@ void snd_oxfw_stream_destroy_simplex(struct snd_oxfw *oxfw,
 				     struct amdtp_stream *stream);
 void snd_oxfw_stream_update_simplex(struct snd_oxfw *oxfw,
 				    struct amdtp_stream *stream);
+=======
+int snd_oxfw_stream_init_duplex(struct snd_oxfw *oxfw);
+int snd_oxfw_stream_reserve_duplex(struct snd_oxfw *oxfw,
+				   struct amdtp_stream *stream,
+				   unsigned int rate, unsigned int pcm_channels,
+				   unsigned int frames_per_period,
+				   unsigned int frames_per_buffer);
+int snd_oxfw_stream_start_duplex(struct snd_oxfw *oxfw);
+void snd_oxfw_stream_stop_duplex(struct snd_oxfw *oxfw);
+void snd_oxfw_stream_destroy_duplex(struct snd_oxfw *oxfw);
+void snd_oxfw_stream_update_duplex(struct snd_oxfw *oxfw);
+>>>>>>> upstream/android-13
 
 struct snd_oxfw_stream_formation {
 	unsigned int rate;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_HW_MDSS_H
@@ -100,10 +105,18 @@ enum dpu_hw_blk_type {
 	DPU_HW_BLK_SSPP,
 	DPU_HW_BLK_LM,
 	DPU_HW_BLK_CTL,
+<<<<<<< HEAD
 	DPU_HW_BLK_CDM,
 	DPU_HW_BLK_PINGPONG,
 	DPU_HW_BLK_INTF,
 	DPU_HW_BLK_WB,
+=======
+	DPU_HW_BLK_PINGPONG,
+	DPU_HW_BLK_INTF,
+	DPU_HW_BLK_WB,
+	DPU_HW_BLK_DSPP,
+	DPU_HW_BLK_MERGE_3D,
+>>>>>>> upstream/android-13
 	DPU_HW_BLK_MAX,
 };
 
@@ -173,6 +186,7 @@ enum dpu_dspp {
 	DSPP_MAX
 };
 
+<<<<<<< HEAD
 enum dpu_ds {
 	DS_TOP,
 	DS_0,
@@ -180,12 +194,15 @@ enum dpu_ds {
 	DS_MAX
 };
 
+=======
+>>>>>>> upstream/android-13
 enum dpu_ctl {
 	CTL_0 = 1,
 	CTL_1,
 	CTL_2,
 	CTL_3,
 	CTL_4,
+<<<<<<< HEAD
 	CTL_MAX
 };
 
@@ -195,16 +212,36 @@ enum dpu_cdm {
 	CDM_MAX
 };
 
+=======
+	CTL_5,
+	CTL_MAX
+};
+
+>>>>>>> upstream/android-13
 enum dpu_pingpong {
 	PINGPONG_0 = 1,
 	PINGPONG_1,
 	PINGPONG_2,
 	PINGPONG_3,
 	PINGPONG_4,
+<<<<<<< HEAD
+=======
+	PINGPONG_5,
+>>>>>>> upstream/android-13
 	PINGPONG_S0,
 	PINGPONG_MAX
 };
 
+<<<<<<< HEAD
+=======
+enum dpu_merge_3d {
+	MERGE_3D_0 = 1,
+	MERGE_3D_1,
+	MERGE_3D_2,
+	MERGE_3D_MAX
+};
+
+>>>>>>> upstream/android-13
 enum dpu_intf {
 	INTF_0 = 1,
 	INTF_1,
@@ -246,12 +283,15 @@ enum dpu_wb {
 	WB_MAX
 };
 
+<<<<<<< HEAD
 enum dpu_ad {
 	AD_0 = 0x1,
 	AD_1,
 	AD_MAX
 };
 
+=======
+>>>>>>> upstream/android-13
 enum dpu_cwb {
 	CWB_0 = 0x1,
 	CWB_1,
@@ -278,12 +318,15 @@ enum dpu_vbif {
 	VBIF_NRT = VBIF_1
 };
 
+<<<<<<< HEAD
 enum dpu_iommu_domain {
 	DPU_IOMMU_DOMAIN_UNSECURE,
 	DPU_IOMMU_DOMAIN_SECURE,
 	DPU_IOMMU_DOMAIN_MAX
 };
 
+=======
+>>>>>>> upstream/android-13
 /**
  * DPU HW,Component order color map
  */
@@ -366,7 +409,11 @@ enum dpu_3d_blend_mode {
 
 /** struct dpu_format - defines the format configuration which
  * allows DPU HW to correctly fetch and decode the format
+<<<<<<< HEAD
  * @base: base msm_format struture containing fourcc code
+=======
+ * @base: base msm_format structure containing fourcc code
+>>>>>>> upstream/android-13
  * @fetch_planes: how the color components are packed in pixel format
  * @element: element color ordering
  * @bits: element bit widths
@@ -378,7 +425,10 @@ enum dpu_3d_blend_mode {
  * @alpha_enable: whether the format has an alpha channel
  * @num_planes: number of planes (including meta data planes)
  * @fetch_mode: linear, tiled, or ubwc hw fetch behavior
+<<<<<<< HEAD
  * @is_yuv: is format a yuv variant
+=======
+>>>>>>> upstream/android-13
  * @flag: usage bit flags
  * @tile_width: format tile width
  * @tile_height: format tile height
@@ -451,6 +501,7 @@ struct dpu_mdss_color {
  * Define bit masks for h/w logging.
  */
 #define DPU_DBG_MASK_NONE     (1 << 0)
+<<<<<<< HEAD
 #define DPU_DBG_MASK_CDM      (1 << 1)
 #define DPU_DBG_MASK_INTF     (1 << 2)
 #define DPU_DBG_MASK_LM       (1 << 3)
@@ -461,5 +512,17 @@ struct dpu_mdss_color {
 #define DPU_DBG_MASK_TOP      (1 << 8)
 #define DPU_DBG_MASK_VBIF     (1 << 9)
 #define DPU_DBG_MASK_ROT      (1 << 10)
+=======
+#define DPU_DBG_MASK_INTF     (1 << 1)
+#define DPU_DBG_MASK_LM       (1 << 2)
+#define DPU_DBG_MASK_CTL      (1 << 3)
+#define DPU_DBG_MASK_PINGPONG (1 << 4)
+#define DPU_DBG_MASK_SSPP     (1 << 5)
+#define DPU_DBG_MASK_WB       (1 << 6)
+#define DPU_DBG_MASK_TOP      (1 << 7)
+#define DPU_DBG_MASK_VBIF     (1 << 8)
+#define DPU_DBG_MASK_ROT      (1 << 9)
+#define DPU_DBG_MASK_DSPP     (1 << 10)
+>>>>>>> upstream/android-13
 
 #endif  /* _DPU_HW_MDSS_H */

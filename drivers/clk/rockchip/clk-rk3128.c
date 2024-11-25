@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 Rockchip Electronics Co. Ltd.
  * Author: Elaine <zhangqing@rock-chips.com>
@@ -14,6 +15,16 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2017 Rockchip Electronics Co. Ltd.
+ * Author: Elaine <zhangqing@rock-chips.com>
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/syscore_ops.h>
@@ -125,9 +136,16 @@ static struct rockchip_cpuclk_rate_table rk3128_cpuclk_rates[] __initdata = {
 };
 
 static const struct rockchip_cpuclk_reg_data rk3128_cpuclk_data = {
+<<<<<<< HEAD
 	.core_reg = RK2928_CLKSEL_CON(0),
 	.div_core_shift = 0,
 	.div_core_mask = 0x1f,
+=======
+	.core_reg[0] = RK2928_CLKSEL_CON(0),
+	.div_core_shift[0] = 0,
+	.div_core_mask[0] = 0x1f,
+	.num_cores = 1,
+>>>>>>> upstream/android-13
 	.mux_core_alt = 1,
 	.mux_core_main = 0,
 	.mux_core_shift = 7,

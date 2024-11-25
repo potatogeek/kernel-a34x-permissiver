@@ -19,13 +19,22 @@ obj-$(CONFIG_BT_INTEL)		+= btintel.o
 obj-$(CONFIG_BT_ATH3K)		+= ath3k.o
 obj-$(CONFIG_BT_MRVL)		+= btmrvl.o
 obj-$(CONFIG_BT_MRVL_SDIO)	+= btmrvl_sdio.o
+<<<<<<< HEAD
 obj-$(CONFIG_BT_WILINK)		+= btwilink.o
+=======
+obj-$(CONFIG_BT_MTKSDIO)	+= btmtksdio.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_BT_MTKUART)	+= btmtkuart.o
 obj-$(CONFIG_BT_QCOMSMD)	+= btqcomsmd.o
 obj-$(CONFIG_BT_BCM)		+= btbcm.o
 obj-$(CONFIG_BT_RTL)		+= btrtl.o
 obj-$(CONFIG_BT_QCA)		+= btqca.o
 
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_BT_VIRTIO)		+= virtio_bt.o
+
+>>>>>>> upstream/android-13
 obj-$(CONFIG_BT_HCIUART_NOKIA)	+= hci_nokia.o
 
 obj-$(CONFIG_BT_HCIRSI)		+= btrsi.o

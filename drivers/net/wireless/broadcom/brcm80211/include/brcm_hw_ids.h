@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef	_BRCM_HW_IDS_H_
@@ -55,11 +61,23 @@
 #define BRCM_CC_4358_CHIP_ID		0x4358
 #define BRCM_CC_4359_CHIP_ID		0x4359
 #define BRCM_CC_43602_CHIP_ID		43602
+<<<<<<< HEAD
 #define BRCM_CC_4365_CHIP_ID		0x4365
 #define BRCM_CC_4366_CHIP_ID		0x4366
 #define BRCM_CC_43664_CHIP_ID		43664
 #define BRCM_CC_4371_CHIP_ID		0x4371
 #define CY_CC_4373_CHIP_ID		0x4373
+=======
+#define BRCM_CC_4364_CHIP_ID		0x4364
+#define BRCM_CC_4365_CHIP_ID		0x4365
+#define BRCM_CC_4366_CHIP_ID		0x4366
+#define BRCM_CC_43664_CHIP_ID		43664
+#define BRCM_CC_43666_CHIP_ID		43666
+#define BRCM_CC_4371_CHIP_ID		0x4371
+#define CY_CC_4373_CHIP_ID		0x4373
+#define CY_CC_43012_CHIP_ID		43012
+#define CY_CC_43752_CHIP_ID		43752
+>>>>>>> upstream/android-13
 
 /* USB Device IDs */
 #define BRCM_USB_43143_DEVICE_ID	0xbd1e
@@ -74,6 +92,10 @@
 /* PCIE Device IDs */
 #define BRCM_PCIE_4350_DEVICE_ID	0x43a3
 #define BRCM_PCIE_4354_DEVICE_ID	0x43df
+<<<<<<< HEAD
+=======
+#define BRCM_PCIE_4354_RAW_DEVICE_ID	0x4354
+>>>>>>> upstream/android-13
 #define BRCM_PCIE_4356_DEVICE_ID	0x43ec
 #define BRCM_PCIE_43567_DEVICE_ID	0x43d3
 #define BRCM_PCIE_43570_DEVICE_ID	0x43d9
@@ -83,6 +105,10 @@
 #define BRCM_PCIE_43602_2G_DEVICE_ID	0x43bb
 #define BRCM_PCIE_43602_5G_DEVICE_ID	0x43bc
 #define BRCM_PCIE_43602_RAW_DEVICE_ID	43602
+<<<<<<< HEAD
+=======
+#define BRCM_PCIE_4364_DEVICE_ID	0x4464
+>>>>>>> upstream/android-13
 #define BRCM_PCIE_4365_DEVICE_ID	0x43ca
 #define BRCM_PCIE_4365_2G_DEVICE_ID	0x43cb
 #define BRCM_PCIE_4365_5G_DEVICE_ID	0x43cc

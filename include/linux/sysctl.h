@@ -37,6 +37,7 @@ struct ctl_table_root;
 struct ctl_table_header;
 struct ctl_dir;
 
+<<<<<<< HEAD
 typedef int proc_handler (struct ctl_table *ctl, int write,
 			  void __user *buffer, size_t *lenp, loff_t *ppos);
 
@@ -63,6 +64,39 @@ extern int proc_doulongvec_ms_jiffies_minmax(struct ctl_table *table, int,
 				      void __user *, size_t *, loff_t *);
 extern int proc_do_large_bitmap(struct ctl_table *, int,
 				void __user *, size_t *, loff_t *);
+=======
+/* Keep the same order as in fs/proc/proc_sysctl.c */
+#define SYSCTL_ZERO	((void *)&sysctl_vals[0])
+#define SYSCTL_ONE	((void *)&sysctl_vals[1])
+#define SYSCTL_INT_MAX	((void *)&sysctl_vals[2])
+
+extern const int sysctl_vals[];
+
+typedef int proc_handler(struct ctl_table *ctl, int write, void *buffer,
+		size_t *lenp, loff_t *ppos);
+
+int proc_dostring(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_dobool(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos);
+int proc_dointvec(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_douintvec(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_dointvec_minmax(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_douintvec_minmax(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos);
+int proc_dou8vec_minmax(struct ctl_table *table, int write, void *buffer,
+			size_t *lenp, loff_t *ppos);
+int proc_dointvec_jiffies(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_dointvec_userhz_jiffies(struct ctl_table *, int, void *, size_t *,
+		loff_t *);
+int proc_dointvec_ms_jiffies(struct ctl_table *, int, void *, size_t *,
+		loff_t *);
+int proc_doulongvec_minmax(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_doulongvec_ms_jiffies_minmax(struct ctl_table *table, int, void *,
+		size_t *, loff_t *);
+int proc_do_large_bitmap(struct ctl_table *, int, void *, size_t *, loff_t *);
+int proc_do_static_key(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos);
+>>>>>>> upstream/android-13
 
 /*
  * Register a set of sysctl names by calling register_sysctl_table
@@ -73,15 +107,23 @@ extern int proc_do_large_bitmap(struct ctl_table *, int,
  * sysctl names can be mirrored automatically under /proc/sys.  The
  * procname supplied controls /proc naming.
  *
+<<<<<<< HEAD
  * The table's mode will be honoured both for sys_sysctl(2) and
  * proc-fs access.
+=======
+ * The table's mode will be honoured for proc-fs access.
+>>>>>>> upstream/android-13
  *
  * Leaf nodes in the sysctl tree will be represented by a single file
  * under /proc; non-leaf nodes will be represented by directories.  A
  * null procname disables /proc mirroring at this node.
  *
+<<<<<<< HEAD
  * sysctl(2) can automatically manage read and write requests through
  * the sysctl table.  The data and maxlen fields of the ctl_table
+=======
+ * The data and maxlen fields of the ctl_table
+>>>>>>> upstream/android-13
  * struct enable minimal validation of the values being written to be
  * performed, and the mode field allows minimal authentication.
  * 
@@ -110,8 +152,12 @@ static inline void *proc_sys_poll_event(struct ctl_table_poll *poll)
 	struct ctl_table_poll name = __CTL_TABLE_POLL_INITIALIZER(name)
 
 /* A sysctl table is an array of struct ctl_table: */
+<<<<<<< HEAD
 struct ctl_table 
 {
+=======
+struct ctl_table {
+>>>>>>> upstream/android-13
 	const char *procname;		/* Text ID for /proc/sys, or zero */
 	void *data;
 	int maxlen;
@@ -130,8 +176,12 @@ struct ctl_node {
 
 /* struct ctl_table_header is used to maintain dynamic lists of
    struct ctl_table trees. */
+<<<<<<< HEAD
 struct ctl_table_header
 {
+=======
+struct ctl_table_header {
+>>>>>>> upstream/android-13
 	union {
 		struct {
 			struct ctl_table *ctl_table;
@@ -198,8 +248,22 @@ struct ctl_table_header *register_sysctl_paths(const struct ctl_path *path,
 void unregister_sysctl_table(struct ctl_table_header * table);
 
 extern int sysctl_init(void);
+<<<<<<< HEAD
 
 extern struct ctl_table sysctl_mount_point[];
+=======
+void do_sysctl_args(void);
+
+extern int pwrsw_enabled;
+extern int unaligned_enabled;
+extern int unaligned_dump_stack;
+extern int no_unaligned_warning;
+
+extern struct ctl_table sysctl_mount_point[];
+extern struct ctl_table random_table[];
+extern struct ctl_table firmware_config_table[];
+extern struct ctl_table epoll_table[];
+>>>>>>> upstream/android-13
 
 #else /* CONFIG_SYSCTL */
 static inline struct ctl_table_header *register_sysctl_table(struct ctl_table * table)
@@ -228,9 +292,19 @@ static inline void setup_sysctl_set(struct ctl_table_set *p,
 {
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_SYSCTL */
 
 int sysctl_max_threads(struct ctl_table *table, int write,
 		       void __user *buffer, size_t *lenp, loff_t *ppos);
+=======
+static inline void do_sysctl_args(void)
+{
+}
+#endif /* CONFIG_SYSCTL */
+
+int sysctl_max_threads(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos);
+>>>>>>> upstream/android-13
 
 #endif /* _LINUX_SYSCTL_H */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define PRISM2_PLX
 
 /* Host AP driver's support for PC Cards on PCI adapters using PLX9052 is
@@ -29,7 +33,10 @@ static char *dev_info = "hostap_plx";
 MODULE_AUTHOR("Jouni Malinen");
 MODULE_DESCRIPTION("Support for Intersil Prism2-based 802.11 wireless LAN "
 		   "cards (PLX).");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Intersil Prism2-based WLAN cards (PLX)");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 
@@ -351,8 +358,12 @@ static int prism2_plx_check_cis(void __iomem *attr_mem, int attr_len,
 	/* read CIS; it is in even offsets in the beginning of attr_mem */
 	for (i = 0; i < CIS_MAX_LEN; i++)
 		cis[i] = readb(attr_mem + 2 * i);
+<<<<<<< HEAD
 	printk(KERN_DEBUG "%s: CIS: %02x %02x %02x %02x %02x %02x ...\n",
 	       dev_info, cis[0], cis[1], cis[2], cis[3], cis[4], cis[5]);
+=======
+	printk(KERN_DEBUG "%s: CIS: %6ph ...\n", dev_info, cis);
+>>>>>>> upstream/android-13
 
 	/* set reasonable defaults for Prism2 cards just in case CIS parsing
 	 * fails */

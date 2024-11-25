@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # MMC subsystem configuration
 #
@@ -11,6 +15,7 @@ menuconfig MMC
 
 	  If you want MMC/SD/SDIO support, you should say Y here and
 	  also to your specific host controller driver.
+<<<<<<< HEAD
 	  
 config MMC_TEST_MODE
 	bool "Samsung MMC TEST feature"
@@ -18,6 +23,13 @@ config MMC_TEST_MODE
 	help
 	  This selects support for test mode for debugging.
 	  Select this option if this feature is needed on working
+=======
+
+config MMC_SUPPORT_STLOG
+	bool "Enable storage log"
+	depends on MMC && PROC_STLOG
+	default y
+>>>>>>> upstream/android-13
 
 if MMC
 

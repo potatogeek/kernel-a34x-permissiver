@@ -108,7 +108,11 @@ struct snd_us16x08_meter_store {
 };
 
 struct snd_us16x08_control_params {
+<<<<<<< HEAD
 	struct snd_kcontrol_new *kcontrol_new;
+=======
+	const struct snd_kcontrol_new *kcontrol_new;
+>>>>>>> upstream/android-13
 	int control_id;
 	int type;
 	int num_channels;

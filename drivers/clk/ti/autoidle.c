@@ -35,7 +35,48 @@ struct clk_ti_autoidle {
 #define AUTOIDLE_LOW		0x1
 
 static LIST_HEAD(autoidle_clks);
+<<<<<<< HEAD
 static LIST_HEAD(clk_hw_omap_clocks);
+=======
+
+/*
+ * we have some non-atomic read/write
+ * operations behind it, so lets
+ * take one lock for handling autoidle
+ * of all clocks
+ */
+static DEFINE_SPINLOCK(autoidle_spinlock);
+
+static int _omap2_clk_deny_idle(struct clk_hw_omap *clk)
+{
+	if (clk->ops && clk->ops->deny_idle) {
+		unsigned long irqflags;
+
+		spin_lock_irqsave(&autoidle_spinlock, irqflags);
+		clk->autoidle_count++;
+		if (clk->autoidle_count == 1)
+			clk->ops->deny_idle(clk);
+
+		spin_unlock_irqrestore(&autoidle_spinlock, irqflags);
+	}
+	return 0;
+}
+
+static int _omap2_clk_allow_idle(struct clk_hw_omap *clk)
+{
+	if (clk->ops && clk->ops->allow_idle) {
+		unsigned long irqflags;
+
+		spin_lock_irqsave(&autoidle_spinlock, irqflags);
+		clk->autoidle_count--;
+		if (clk->autoidle_count == 0)
+			clk->ops->allow_idle(clk);
+
+		spin_unlock_irqrestore(&autoidle_spinlock, irqflags);
+	}
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 /**
  * omap2_clk_deny_idle - disable autoidle on an OMAP clock
@@ -45,12 +86,29 @@ static LIST_HEAD(clk_hw_omap_clocks);
  */
 int omap2_clk_deny_idle(struct clk *clk)
 {
+<<<<<<< HEAD
 	struct clk_hw_omap *c;
 
 	c = to_clk_hw_omap(__clk_get_hw(clk));
 	if (c->ops && c->ops->deny_idle)
 		c->ops->deny_idle(c);
 	return 0;
+=======
+	struct clk_hw *hw;
+
+	if (!clk)
+		return -EINVAL;
+
+	hw = __clk_get_hw(clk);
+
+	if (omap2_clk_is_hw_omap(hw)) {
+		struct clk_hw_omap *c = to_clk_hw_omap(hw);
+
+		return _omap2_clk_deny_idle(c);
+	}
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -61,12 +119,29 @@ int omap2_clk_deny_idle(struct clk *clk)
  */
 int omap2_clk_allow_idle(struct clk *clk)
 {
+<<<<<<< HEAD
 	struct clk_hw_omap *c;
 
 	c = to_clk_hw_omap(__clk_get_hw(clk));
 	if (c->ops && c->ops->allow_idle)
 		c->ops->allow_idle(c);
 	return 0;
+=======
+	struct clk_hw *hw;
+
+	if (!clk)
+		return -EINVAL;
+
+	hw = __clk_get_hw(clk);
+
+	if (omap2_clk_is_hw_omap(hw)) {
+		struct clk_hw_omap *c = to_clk_hw_omap(hw);
+
+		return _omap2_clk_allow_idle(c);
+	}
+
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 static void _allow_autoidle(struct clk_ti_autoidle *clk)
@@ -168,6 +243,7 @@ int __init of_ti_clk_autoidle_setup(struct device_node *node)
 }
 
 /**
+<<<<<<< HEAD
  * omap2_init_clk_hw_omap_clocks - initialize an OMAP clock
  * @hw: struct clk_hw * to initialize
  *
@@ -188,6 +264,8 @@ void omap2_init_clk_hw_omap_clocks(struct clk_hw *hw)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * omap2_clk_enable_autoidle_all - enable autoidle on all OMAP clocks that
  * support it
  *
@@ -198,11 +276,19 @@ void omap2_init_clk_hw_omap_clocks(struct clk_hw *hw)
  */
 int omap2_clk_enable_autoidle_all(void)
 {
+<<<<<<< HEAD
 	struct clk_hw_omap *c;
 
 	list_for_each_entry(c, &clk_hw_omap_clocks, node)
 		if (c->ops && c->ops->allow_idle)
 			c->ops->allow_idle(c);
+=======
+	int ret;
+
+	ret = omap2_clk_for_each(_omap2_clk_allow_idle);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	_clk_generic_allow_autoidle_all();
 
@@ -220,11 +306,19 @@ int omap2_clk_enable_autoidle_all(void)
  */
 int omap2_clk_disable_autoidle_all(void)
 {
+<<<<<<< HEAD
 	struct clk_hw_omap *c;
 
 	list_for_each_entry(c, &clk_hw_omap_clocks, node)
 		if (c->ops && c->ops->deny_idle)
 			c->ops->deny_idle(c);
+=======
+	int ret;
+
+	ret = omap2_clk_for_each(_omap2_clk_deny_idle);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	_clk_generic_deny_autoidle_all();
 

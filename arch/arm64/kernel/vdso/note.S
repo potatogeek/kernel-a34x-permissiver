@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Limited
  *
@@ -13,6 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Limited
+ *
+>>>>>>> upstream/android-13
  * Author: Will Deacon <will.deacon@arm.com>
  *
  * This supplies .note.* sections to go into the PT_NOTE inside the vDSO text.
@@ -23,9 +30,18 @@
 #include <linux/version.h>
 #include <linux/elfnote.h>
 #include <linux/build-salt.h>
+<<<<<<< HEAD
+=======
+#include <asm/assembler.h>
+>>>>>>> upstream/android-13
 
 ELFNOTE_START(Linux, 0, "a")
 	.long LINUX_VERSION_CODE
 ELFNOTE_END
 
 BUILD_SALT
+<<<<<<< HEAD
+=======
+
+emit_aarch64_feature_1_and
+>>>>>>> upstream/android-13

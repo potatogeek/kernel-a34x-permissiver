@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPv6 input
  *	Linux INET6 implementation
@@ -7,11 +11,14 @@
  *	Ian P. Morris		<I.P.Morris@soton.ac.uk>
  *
  *	Based in linux/net/ipv4/ip_input.c
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 /* Changes
  *
@@ -29,12 +36,20 @@
 #include <linux/icmpv6.h>
 #include <linux/mroute6.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv6.h>
 
 #include <net/sock.h>
 #include <net/snmp.h>
+<<<<<<< HEAD
+=======
+#include <net/udp.h>
+>>>>>>> upstream/android-13
 
 #include <net/ipv6.h>
 #include <net/protocol.h>
@@ -47,6 +62,10 @@
 #include <net/inet_ecn.h>
 #include <net/dst_metadata.h>
 
+<<<<<<< HEAD
+=======
+INDIRECT_CALLABLE_DECLARE(void tcp_v6_early_demux(struct sk_buff *));
+>>>>>>> upstream/android-13
 static void ip6_rcv_finish_core(struct net *net, struct sock *sk,
 				struct sk_buff *skb)
 {
@@ -57,7 +76,12 @@ static void ip6_rcv_finish_core(struct net *net, struct sock *sk,
 
 		ipprot = rcu_dereference(inet6_protos[ipv6_hdr(skb)->nexthdr]);
 		if (ipprot && (edemux = READ_ONCE(ipprot->early_demux)))
+<<<<<<< HEAD
 			edemux(skb);
+=======
+			INDIRECT_CALL_2(edemux, tcp_v6_early_demux,
+					udp_v6_early_demux, skb);
+>>>>>>> upstream/android-13
 	}
 	if (!skb_valid_dst(skb))
 		ip6_route_input(skb);
@@ -86,11 +110,35 @@ static void ip6_sublist_rcv_finish(struct list_head *head)
 	}
 }
 
+<<<<<<< HEAD
 static void ip6_list_rcv_finish(struct net *net, struct sock *sk,
 				struct list_head *head)
 {
 	struct dst_entry *curr_dst = NULL;
 	struct sk_buff *skb, *next;
+=======
+static bool ip6_can_use_hint(const struct sk_buff *skb,
+			     const struct sk_buff *hint)
+{
+	return hint && !skb_dst(skb) &&
+	       ipv6_addr_equal(&ipv6_hdr(hint)->daddr, &ipv6_hdr(skb)->daddr);
+}
+
+static struct sk_buff *ip6_extract_route_hint(const struct net *net,
+					      struct sk_buff *skb)
+{
+	if (fib6_routes_require_src(net) || fib6_has_custom_rules(net))
+		return NULL;
+
+	return skb;
+}
+
+static void ip6_list_rcv_finish(struct net *net, struct sock *sk,
+				struct list_head *head)
+{
+	struct sk_buff *skb, *next, *hint = NULL;
+	struct dst_entry *curr_dst = NULL;
+>>>>>>> upstream/android-13
 	struct list_head sublist;
 
 	INIT_LIST_HEAD(&sublist);
@@ -104,9 +152,21 @@ static void ip6_list_rcv_finish(struct net *net, struct sock *sk,
 		skb = l3mdev_ip6_rcv(skb);
 		if (!skb)
 			continue;
+<<<<<<< HEAD
 		ip6_rcv_finish_core(net, sk, skb);
 		dst = skb_dst(skb);
 		if (curr_dst != dst) {
+=======
+
+		if (ip6_can_use_hint(skb, hint))
+			skb_dst_copy(skb, hint);
+		else
+			ip6_rcv_finish_core(net, sk, skb);
+		dst = skb_dst(skb);
+		if (curr_dst != dst) {
+			hint = ip6_extract_route_hint(net, skb);
+
+>>>>>>> upstream/android-13
 			/* dispatch old sublist */
 			if (!list_empty(&sublist))
 				ip6_sublist_rcv_finish(&sublist);
@@ -180,7 +240,12 @@ static struct sk_buff *ip6_rcv_core(struct sk_buff *skb, struct net_device *dev,
 	 */
 	if ((ipv6_addr_loopback(&hdr->saddr) ||
 	     ipv6_addr_loopback(&hdr->daddr)) &&
+<<<<<<< HEAD
 	     !(dev->flags & IFF_LOOPBACK))
+=======
+	    !(dev->flags & IFF_LOOPBACK) &&
+	    !netif_is_l3_master(dev))
+>>>>>>> upstream/android-13
 		goto err;
 
 	/* RFC4291 Errata ID: 3480
@@ -252,7 +317,12 @@ static struct sk_buff *ip6_rcv_core(struct sk_buff *skb, struct net_device *dev,
 	rcu_read_unlock();
 
 	/* Must drop socket now because of tproxy. */
+<<<<<<< HEAD
 	skb_orphan(skb);
+=======
+	if (!skb_sk_is_prefetched(skb))
+		skb_orphan(skb);
+>>>>>>> upstream/android-13
 
 	return skb;
 err:
@@ -314,9 +384,18 @@ void ipv6_list_rcv(struct list_head *head, struct packet_type *pt,
 		list_add_tail(&skb->list, &sublist);
 	}
 	/* dispatch final sublist */
+<<<<<<< HEAD
 	ip6_sublist_rcv(&sublist, curr_dev, curr_net);
 }
 
+=======
+	if (!list_empty(&sublist))
+		ip6_sublist_rcv(&sublist, curr_dev, curr_net);
+}
+
+INDIRECT_CALLABLE_DECLARE(int tcp_v6_rcv(struct sk_buff *));
+
+>>>>>>> upstream/android-13
 /*
  *	Deliver the packet to the host
  */
@@ -358,6 +437,11 @@ resubmit_final:
 			}
 		} else if (ipprot->flags & INET6_PROTO_FINAL) {
 			const struct ipv6hdr *hdr;
+<<<<<<< HEAD
+=======
+			int sdif = inet6_sdif(skb);
+			struct net_device *dev;
+>>>>>>> upstream/android-13
 
 			/* Only do this once for first final protocol */
 			have_final = true;
@@ -365,14 +449,34 @@ resubmit_final:
 			/* Free reference early: we don't need it any more,
 			   and it may hold ip_conntrack module loaded
 			   indefinitely. */
+<<<<<<< HEAD
 			nf_reset(skb);
+=======
+			nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 			skb_postpull_rcsum(skb, skb_network_header(skb),
 					   skb_network_header_len(skb));
 			hdr = ipv6_hdr(skb);
+<<<<<<< HEAD
 			if (ipv6_addr_is_multicast(&hdr->daddr) &&
 			    !ipv6_chk_mcast_addr(skb->dev, &hdr->daddr,
 			    &hdr->saddr) &&
+=======
+
+			/* skb->dev passed may be master dev for vrfs. */
+			if (sdif) {
+				dev = dev_get_by_index_rcu(net, sdif);
+				if (!dev)
+					goto discard;
+			} else {
+				dev = skb->dev;
+			}
+
+			if (ipv6_addr_is_multicast(&hdr->daddr) &&
+			    !ipv6_chk_mcast_addr(dev, &hdr->daddr,
+						 &hdr->saddr) &&
+>>>>>>> upstream/android-13
 			    !ipv6_is_mld(skb, nexthdr, skb_network_header_len(skb)))
 				goto discard;
 		}
@@ -380,7 +484,12 @@ resubmit_final:
 		    !xfrm6_policy_check(NULL, XFRM_POLICY_IN, skb))
 			goto discard;
 
+<<<<<<< HEAD
 		ret = ipprot->handler(skb);
+=======
+		ret = INDIRECT_CALL_2(ipprot->handler, tcp_v6_rcv, udpv6_rcv,
+				      skb);
+>>>>>>> upstream/android-13
 		if (ret > 0) {
 			if (ipprot->flags & INET6_PROTO_FINAL) {
 				/* Not an extension header, most likely UDP
@@ -437,21 +546,51 @@ EXPORT_SYMBOL_GPL(ip6_input);
 
 int ip6_mc_input(struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	const struct ipv6hdr *hdr;
+=======
+	int sdif = inet6_sdif(skb);
+	const struct ipv6hdr *hdr;
+	struct net_device *dev;
+>>>>>>> upstream/android-13
 	bool deliver;
 
 	__IP6_UPD_PO_STATS(dev_net(skb_dst(skb)->dev),
 			 __in6_dev_get_safely(skb->dev), IPSTATS_MIB_INMCAST,
 			 skb->len);
 
+<<<<<<< HEAD
 	hdr = ipv6_hdr(skb);
 	deliver = ipv6_chk_mcast_addr(skb->dev, &hdr->daddr, NULL);
+=======
+	/* skb->dev passed may be master dev for vrfs. */
+	if (sdif) {
+		rcu_read_lock();
+		dev = dev_get_by_index_rcu(dev_net(skb->dev), sdif);
+		if (!dev) {
+			rcu_read_unlock();
+			kfree_skb(skb);
+			return -ENODEV;
+		}
+	} else {
+		dev = skb->dev;
+	}
+
+	hdr = ipv6_hdr(skb);
+	deliver = ipv6_chk_mcast_addr(dev, &hdr->daddr, NULL);
+	if (sdif)
+		rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_IPV6_MROUTE
 	/*
 	 *      IPv6 multicast router mode is now supported ;)
 	 */
+<<<<<<< HEAD
 	if (dev_net(skb->dev)->ipv6.devconf_all->mc_forwarding &&
+=======
+	if (atomic_read(&dev_net(skb->dev)->ipv6.devconf_all->mc_forwarding) &&
+>>>>>>> upstream/android-13
 	    !(ipv6_addr_type(&hdr->daddr) &
 	      (IPV6_ADDR_LOOPBACK|IPV6_ADDR_LINKLOCAL)) &&
 	    likely(!(IP6CB(skb)->flags & IP6SKB_FORWARDED))) {

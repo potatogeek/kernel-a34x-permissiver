@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /**************************************************************************
  * Copyright (c) 2007-2011, Intel Corporation.
  * All Rights Reserved.
  * Copyright (c) 2008, Tungsten Graphics Inc.  Cedar Park, TX., USA.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  **************************************************************************/
 
 #ifndef _GMA_DRM_H_

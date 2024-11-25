@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* imm.c   --  low level driver for the IOMEGA MatchMaker
  * parallel port SCSI host adapter.
  * 
@@ -686,7 +690,11 @@ static int imm_completion(struct scsi_cmnd *cmd)
 		if (cmd->SCp.buffer && !cmd->SCp.this_residual) {
 			/* if scatter/gather, advance to the next segment */
 			if (cmd->SCp.buffers_residual--) {
+<<<<<<< HEAD
 				cmd->SCp.buffer++;
+=======
+				cmd->SCp.buffer = sg_next(cmd->SCp.buffer);
+>>>>>>> upstream/android-13
 				cmd->SCp.this_residual =
 				    cmd->SCp.buffer->length;
 				cmd->SCp.ptr = sg_virt(cmd->SCp.buffer);
@@ -796,6 +804,7 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 			return 0;
 		}
 		return 1;	/* wait until imm_wakeup claims parport */
+<<<<<<< HEAD
 		/* Phase 1 - Connected */
 	case 1:
 		imm_connect(dev, CONNECT_EPP_MAYBE);
@@ -803,14 +812,29 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 
 		/* Phase 2 - We are now talking to the scsi bus */
 	case 2:
+=======
+
+	case 1:		/* Phase 1 - Connected */
+		imm_connect(dev, CONNECT_EPP_MAYBE);
+		cmd->SCp.phase++;
+		fallthrough;
+
+	case 2:		/* Phase 2 - We are now talking to the scsi bus */
+>>>>>>> upstream/android-13
 		if (!imm_select(dev, scmd_id(cmd))) {
 			imm_fail(dev, DID_NO_CONNECT);
 			return 0;
 		}
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 
 		/* Phase 3 - Ready to accept a command */
 	case 3:
+=======
+		fallthrough;
+
+	case 3:		/* Phase 3 - Ready to accept a command */
+>>>>>>> upstream/android-13
 		w_ctr(ppb, 0x0c);
 		if (!(r_str(ppb) & 0x80))
 			return 1;
@@ -818,9 +842,15 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 		if (!imm_send_command(cmd))
 			return 0;
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 
 		/* Phase 4 - Setup scatter/gather buffers */
 	case 4:
+=======
+		fallthrough;
+
+	case 4:		/* Phase 4 - Setup scatter/gather buffers */
+>>>>>>> upstream/android-13
 		if (scsi_bufflen(cmd)) {
 			cmd->SCp.buffer = scsi_sglist(cmd);
 			cmd->SCp.this_residual = cmd->SCp.buffer->length;
@@ -834,8 +864,14 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 		cmd->SCp.phase++;
 		if (cmd->SCp.this_residual & 0x01)
 			cmd->SCp.this_residual++;
+<<<<<<< HEAD
 		/* Phase 5 - Pre-Data transfer stage */
 	case 5:
+=======
+		fallthrough;
+
+	case 5:		/* Phase 5 - Pre-Data transfer stage */
+>>>>>>> upstream/android-13
 		/* Spin lock for BUSY */
 		w_ctr(ppb, 0x0c);
 		if (!(r_str(ppb) & 0x80))
@@ -850,9 +886,15 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 			if (imm_negotiate(dev))
 				return 0;
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 
 		/* Phase 6 - Data transfer stage */
 	case 6:
+=======
+		fallthrough;
+
+	case 6:		/* Phase 6 - Data transfer stage */
+>>>>>>> upstream/android-13
 		/* Spin lock for BUSY */
 		w_ctr(ppb, 0x0c);
 		if (!(r_str(ppb) & 0x80))
@@ -866,9 +908,15 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 				return 1;
 		}
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 
 		/* Phase 7 - Post data transfer stage */
 	case 7:
+=======
+		fallthrough;
+
+	case 7:		/* Phase 7 - Post data transfer stage */
+>>>>>>> upstream/android-13
 		if ((dev->dp) && (dev->rd)) {
 			if ((dev->mode == IMM_NIBBLE) || (dev->mode == IMM_PS2)) {
 				w_ctr(ppb, 0x4);
@@ -878,9 +926,15 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 			}
 		}
 		cmd->SCp.phase++;
+<<<<<<< HEAD
 
 		/* Phase 8 - Read status/message */
 	case 8:
+=======
+		fallthrough;
+
+	case 8:		/* Phase 8 - Read status/message */
+>>>>>>> upstream/android-13
 		/* Check for data overrun */
 		if (imm_wait(dev) != (unsigned char) 0xb8) {
 			imm_fail(dev, DID_ERROR);
@@ -901,7 +955,10 @@ static int imm_engine(imm_struct *dev, struct scsi_cmnd *cmd)
 			w_ctr(ppb, 0x4);
 		}
 		return 0;	/* Finished */
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 
 	default:
 		printk("imm: Invalid scsi phase\n");
@@ -967,10 +1024,15 @@ static int imm_abort(struct scsi_cmnd *cmd)
 	case 1:		/* Have not connected to interface */
 		dev->cur_cmd = NULL;	/* Forget the problem */
 		return SUCCESS;
+<<<<<<< HEAD
 		break;
 	default:		/* SCSI command sent, can not abort */
 		return FAILED;
 		break;
+=======
+	default:		/* SCSI command sent, can not abort */
+		return FAILED;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1110,7 +1172,10 @@ static struct scsi_host_template imm_template = {
 	.bios_param		= imm_biosparam,
 	.this_id		= 7,
 	.sg_tablesize		= SG_ALL,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.can_queue		= 1,
 	.slave_alloc		= imm_adjust_queue,
 };
@@ -1285,6 +1350,7 @@ static struct parport_driver imm_driver = {
 	.detach		= imm_detach,
 	.devmodel	= true,
 };
+<<<<<<< HEAD
 
 static int __init imm_driver_init(void)
 {
@@ -1299,5 +1365,8 @@ static void __exit imm_driver_exit(void)
 
 module_init(imm_driver_init);
 module_exit(imm_driver_exit);
+=======
+module_parport_driver(imm_driver);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");

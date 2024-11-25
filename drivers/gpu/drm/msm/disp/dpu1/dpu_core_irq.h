@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DPU_CORE_IRQ_H__
@@ -24,6 +29,7 @@
 void dpu_core_irq_preinstall(struct dpu_kms *dpu_kms);
 
 /**
+<<<<<<< HEAD
  * dpu_core_irq_postinstall - perform post-installation of core IRQ handler
  * @dpu_kms:		DPU handle
  * @return:		0 if success; error code otherwise
@@ -31,6 +37,8 @@ void dpu_core_irq_preinstall(struct dpu_kms *dpu_kms);
 int dpu_core_irq_postinstall(struct dpu_kms *dpu_kms);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * dpu_core_irq_uninstall - uninstall core IRQ handler
  * @dpu_kms:		DPU handle
  * @return:		none
@@ -45,6 +53,7 @@ void dpu_core_irq_uninstall(struct dpu_kms *dpu_kms);
 irqreturn_t dpu_core_irq(struct dpu_kms *dpu_kms);
 
 /**
+<<<<<<< HEAD
  * dpu_core_irq_idx_lookup - IRQ helper function for lookup irq_idx from HW
  *                      interrupt mapping table.
  * @dpu_kms:		DPU handle
@@ -88,6 +97,8 @@ int dpu_core_irq_disable(
 		uint32_t irq_count);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * dpu_core_irq_read - IRQ helper function for reading IRQ status
  * @dpu_kms:		DPU handle
  * @irq_idx:		irq index
@@ -139,6 +150,7 @@ int dpu_core_irq_unregister_callback(
  * dpu_debugfs_core_irq_init - register core irq debugfs
  * @dpu_kms: pointer to kms
  * @parent: debugfs directory root
+<<<<<<< HEAD
  * @Return: 0 on success
  */
 int dpu_debugfs_core_irq_init(struct dpu_kms *dpu_kms,
@@ -150,4 +162,10 @@ int dpu_debugfs_core_irq_init(struct dpu_kms *dpu_kms,
  */
 void dpu_debugfs_core_irq_destroy(struct dpu_kms *dpu_kms);
 
+=======
+ */
+void dpu_debugfs_core_irq_init(struct dpu_kms *dpu_kms,
+		struct dentry *parent);
+
+>>>>>>> upstream/android-13
 #endif /* __DPU_CORE_IRQ_H__ */

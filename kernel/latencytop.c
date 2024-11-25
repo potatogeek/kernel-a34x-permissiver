@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * latencytop.c: Latency display infrastructure
  *
  * (C) Copyright 2008 Intel Corporation
  * Author: Arjan van de Ven <arjan@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2
  * of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -67,6 +74,7 @@ static struct latency_record latency_record[MAXLR];
 
 int latencytop_enabled;
 
+<<<<<<< HEAD
 void clear_all_latency_tracing(struct task_struct *p)
 {
 	unsigned long flags;
@@ -74,6 +82,12 @@ void clear_all_latency_tracing(struct task_struct *p)
 	if (!latencytop_enabled)
 		return;
 
+=======
+void clear_tsk_latency_tracing(struct task_struct *p)
+{
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	raw_spin_lock_irqsave(&latency_lock, flags);
 	memset(&p->latency_record, 0, sizeof(p->latency_record));
 	p->latency_record_count = 0;
@@ -96,9 +110,12 @@ account_global_scheduler_latency(struct task_struct *tsk,
 	int firstnonnull = MAXLR + 1;
 	int i;
 
+<<<<<<< HEAD
 	if (!latencytop_enabled)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	/* skip kernel threads for now */
 	if (!tsk->mm)
 		return;
@@ -120,8 +137,13 @@ account_global_scheduler_latency(struct task_struct *tsk,
 				break;
 			}
 
+<<<<<<< HEAD
 			/* 0 and ULONG_MAX entries mean end of backtrace: */
 			if (record == 0 || record == ULONG_MAX)
+=======
+			/* 0 entry marks end of backtrace: */
+			if (!record)
+>>>>>>> upstream/android-13
 				break;
 		}
 		if (same) {
@@ -141,6 +163,7 @@ account_global_scheduler_latency(struct task_struct *tsk,
 	memcpy(&latency_record[i], lat, sizeof(struct latency_record));
 }
 
+<<<<<<< HEAD
 /*
  * Iterator to store a backtrace into a latency record entry
  */
@@ -155,6 +178,8 @@ static inline void store_stacktrace(struct task_struct *tsk,
 	save_stack_trace_tsk(tsk, &trace);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * __account_scheduler_latency - record an occurred latency
  * @tsk - the task struct of the task hitting the latency
@@ -191,7 +216,12 @@ __account_scheduler_latency(struct task_struct *tsk, int usecs, int inter)
 	lat.count = 1;
 	lat.time = usecs;
 	lat.max = usecs;
+<<<<<<< HEAD
 	store_stacktrace(tsk, &lat);
+=======
+
+	stack_trace_save_tsk(tsk, lat.backtrace, LT_BACKTRACEDEPTH, 0);
+>>>>>>> upstream/android-13
 
 	raw_spin_lock_irqsave(&latency_lock, flags);
 
@@ -210,8 +240,13 @@ __account_scheduler_latency(struct task_struct *tsk, int usecs, int inter)
 				break;
 			}
 
+<<<<<<< HEAD
 			/* 0 and ULONG_MAX entries mean end of backtrace: */
 			if (record == 0 || record == ULONG_MAX)
+=======
+			/* 0 entry is end of backtrace */
+			if (!record)
+>>>>>>> upstream/android-13
 				break;
 		}
 		if (same) {
@@ -252,10 +287,17 @@ static int lstats_show(struct seq_file *m, void *v)
 				   lr->count, lr->time, lr->max);
 			for (q = 0; q < LT_BACKTRACEDEPTH; q++) {
 				unsigned long bt = lr->backtrace[q];
+<<<<<<< HEAD
 				if (!bt)
 					break;
 				if (bt == ULONG_MAX)
 					break;
+=======
+
+				if (!bt)
+					break;
+
+>>>>>>> upstream/android-13
 				seq_printf(m, " %ps", (void *)bt);
 			}
 			seq_puts(m, "\n");
@@ -278,22 +320,40 @@ static int lstats_open(struct inode *inode, struct file *filp)
 	return single_open(filp, lstats_show, NULL);
 }
 
+<<<<<<< HEAD
 static const struct file_operations lstats_fops = {
 	.open		= lstats_open,
 	.read		= seq_read,
 	.write		= lstats_write,
 	.llseek		= seq_lseek,
 	.release	= single_release,
+=======
+static const struct proc_ops lstats_proc_ops = {
+	.proc_open	= lstats_open,
+	.proc_read	= seq_read,
+	.proc_write	= lstats_write,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init init_lstats_procfs(void)
 {
+<<<<<<< HEAD
 	proc_create("latency_stats", 0644, NULL, &lstats_fops);
 	return 0;
 }
 
 int sysctl_latencytop(struct ctl_table *table, int write,
 			void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+	proc_create("latency_stats", 0644, NULL, &lstats_proc_ops);
+	return 0;
+}
+
+int sysctl_latencytop(struct ctl_table *table, int write, void *buffer,
+		size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int err;
 

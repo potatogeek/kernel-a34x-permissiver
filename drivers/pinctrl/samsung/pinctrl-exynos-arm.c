@@ -14,6 +14,10 @@
 // external gpio and wakeup interrupt support.
 
 #include <linux/device.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/slab.h>
 #include <linux/err.h>
@@ -891,3 +895,7 @@ const struct samsung_pinctrl_of_match_data exynos5420_of_data __initconst = {
 	.ctrl		= exynos5420_pin_ctrl,
 	.num_ctrl	= ARRAY_SIZE(exynos5420_pin_ctrl),
 };
+<<<<<<< HEAD
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

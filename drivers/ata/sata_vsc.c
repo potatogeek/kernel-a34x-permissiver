@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_vsc.c - Vitesse VSC7174 4 port DPA SATA
  *
@@ -9,6 +13,7 @@
  *
  *  Bits from Jeff Garzik, Copyright RedHat, Inc.
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,13 +30,18 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
  *  Vitesse hardware documentation presumably available under NDA.
  *  Intel 31244 (same hardware interface) documentation presumably
  *  available from http://developer.intel.com/
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -387,10 +397,14 @@ static int vsc_sata_init_one(struct pci_dev *pdev,
 	/*
 	 * Use 32 bit DMA mask, because 64 bit address support is poor.
 	 */
+<<<<<<< HEAD
 	rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
 	if (rc)
 		return rc;
 	rc = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 

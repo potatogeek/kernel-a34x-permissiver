@@ -7,10 +7,15 @@
 
 #include <asm/unistd.h>
 
+<<<<<<< HEAD
+=======
+#define __SYSCALL(nr, entry) .quad entry
+>>>>>>> upstream/android-13
 	.data
 	.align 3
 	.globl sys_call_table
 sys_call_table:
+<<<<<<< HEAD
 	.quad alpha_ni_syscall			/* 0 */
 	.quad sys_exit
 	.quad alpha_fork
@@ -550,3 +555,6 @@ sys_call_table:
 .ifne (. - sys_call_table) - (NR_SYSCALLS * 8)
 .err
 .endif
+=======
+#include <asm/syscall_table.h>
+>>>>>>> upstream/android-13

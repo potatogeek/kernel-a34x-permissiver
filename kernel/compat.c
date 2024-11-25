@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/kernel/compat.c
  *
@@ -5,10 +9,13 @@
  *  on 64 bit kernels.
  *
  *  Copyright (C) 2002-2003 Stephen Rothwell, IBM Corporation
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -20,7 +27,10 @@
 #include <linux/syscalls.h>
 #include <linux/unistd.h>
 #include <linux/security.h>
+<<<<<<< HEAD
 #include <linux/timex.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/migrate.h>
 #include <linux/posix-timers.h>
@@ -30,6 +40,7 @@
 
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 int compat_get_timex(struct timex *txc, const struct compat_timex __user *utp)
 {
 	struct compat_timex tx32;
@@ -181,6 +192,8 @@ int put_compat_itimerval(struct compat_itimerval __user *o, const struct itimerv
 	return copy_to_user(o, &v32, sizeof(struct compat_itimerval)) ? -EFAULT : 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef __ARCH_WANT_SYS_SIGPROCMASK
 
 /*
@@ -335,7 +348,11 @@ int get_compat_sigevent(struct sigevent *event,
 		const struct compat_sigevent __user *u_event)
 {
 	memset(event, 0, sizeof(*event));
+<<<<<<< HEAD
 	return (!access_ok(VERIFY_READ, u_event, sizeof(*u_event)) ||
+=======
+	return (!access_ok(u_event, sizeof(*u_event)) ||
+>>>>>>> upstream/android-13
 		__get_user(event->sigev_value.sival_int,
 			&u_event->sigev_value.sival_int) ||
 		__get_user(event->sigev_signo, &u_event->sigev_signo) ||
@@ -354,7 +371,11 @@ long compat_get_bitmap(unsigned long *mask, const compat_ulong_t __user *umask,
 	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
 	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
 
+<<<<<<< HEAD
 	if (!user_access_begin(VERIFY_READ, umask, bitmap_size / 8))
+=======
+	if (!user_read_access_begin(umask, bitmap_size / 8))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	while (nr_compat_longs > 1) {
@@ -366,11 +387,19 @@ long compat_get_bitmap(unsigned long *mask, const compat_ulong_t __user *umask,
 	}
 	if (nr_compat_longs)
 		unsafe_get_user(*mask, umask++, Efault);
+<<<<<<< HEAD
 	user_access_end();
 	return 0;
 
 Efault:
 	user_access_end();
+=======
+	user_read_access_end();
+	return 0;
+
+Efault:
+	user_read_access_end();
+>>>>>>> upstream/android-13
 	return -EFAULT;
 }
 
@@ -383,7 +412,11 @@ long compat_put_bitmap(compat_ulong_t __user *umask, unsigned long *mask,
 	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
 	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
 
+<<<<<<< HEAD
 	if (!user_access_begin(VERIFY_WRITE, umask, bitmap_size / 8))
+=======
+	if (!user_write_access_begin(umask, bitmap_size / 8))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	while (nr_compat_longs > 1) {
@@ -394,10 +427,17 @@ long compat_put_bitmap(compat_ulong_t __user *umask, unsigned long *mask,
 	}
 	if (nr_compat_longs)
 		unsafe_put_user((compat_ulong_t)*mask, umask++, Efault);
+<<<<<<< HEAD
 	user_access_end();
 	return 0;
 Efault:
 	user_access_end();
+=======
+	user_write_access_end();
+	return 0;
+Efault:
+	user_write_access_end();
+>>>>>>> upstream/android-13
 	return -EFAULT;
 }
 
@@ -410,8 +450,16 @@ get_compat_sigset(sigset_t *set, const compat_sigset_t __user *compat)
 		return -EFAULT;
 	switch (_NSIG_WORDS) {
 	case 4: set->sig[3] = v.sig[6] | (((long)v.sig[7]) << 32 );
+<<<<<<< HEAD
 	case 3: set->sig[2] = v.sig[4] | (((long)v.sig[5]) << 32 );
 	case 2: set->sig[1] = v.sig[2] | (((long)v.sig[3]) << 32 );
+=======
+		fallthrough;
+	case 3: set->sig[2] = v.sig[4] | (((long)v.sig[5]) << 32 );
+		fallthrough;
+	case 2: set->sig[1] = v.sig[2] | (((long)v.sig[3]) << 32 );
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1: set->sig[0] = v.sig[0] | (((long)v.sig[1]) << 32 );
 	}
 #else
@@ -421,6 +469,7 @@ get_compat_sigset(sigset_t *set, const compat_sigset_t __user *compat)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(get_compat_sigset);
+<<<<<<< HEAD
 
 /*
  * Allocate user-space memory for the duration of a single system call,
@@ -442,3 +491,5 @@ void __user *compat_alloc_user_space(unsigned long len)
 	return ptr;
 }
 EXPORT_SYMBOL_GPL(compat_alloc_user_space);
+=======
+>>>>>>> upstream/android-13

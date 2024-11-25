@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/char/ppdev.c
  *
@@ -6,11 +10,14 @@
  *
  * Copyright (C) 1998-2000, 2002 Tim Waugh <tim@cyberelk.net>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * A /dev/parportx device node represents an arbitrary device
  * on port 'x'.  The following operations are possible:
  *
@@ -359,14 +366,28 @@ static int pp_do_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	struct pp_struct *pp = file->private_data;
 	struct parport *port;
 	void __user *argp = (void __user *)arg;
+<<<<<<< HEAD
+=======
+	struct ieee1284_info *info;
+	unsigned char reg;
+	unsigned char mask;
+	int mode;
+	s32 time32[2];
+	s64 time64[2];
+	struct timespec64 ts;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* First handle the cases that don't take arguments. */
 	switch (cmd) {
 	case PPCLAIM:
 	    {
+<<<<<<< HEAD
 		struct ieee1284_info *info;
 		int ret;
 
+=======
+>>>>>>> upstream/android-13
 		if (pp->flags & PP_CLAIMED) {
 			dev_dbg(&pp->pdev->dev, "you've already got it!\n");
 			return -EINVAL;
@@ -517,6 +538,7 @@ static int pp_do_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 	port = pp->pdev->port;
 	switch (cmd) {
+<<<<<<< HEAD
 		struct ieee1284_info *info;
 		unsigned char reg;
 		unsigned char mask;
@@ -526,6 +548,8 @@ static int pp_do_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		struct timespec64 ts;
 		int ret;
 
+=======
+>>>>>>> upstream/android-13
 	case PPRSTATUS:
 		reg = parport_read_status(port);
 		if (copy_to_user(argp, &reg, sizeof(reg)))
@@ -682,6 +706,7 @@ static long pp_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long pp_compat_ioctl(struct file *file, unsigned int cmd,
 			    unsigned long arg)
@@ -690,6 +715,8 @@ static long pp_compat_ioctl(struct file *file, unsigned int cmd,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int pp_open(struct inode *inode, struct file *file)
 {
 	unsigned int minor = iminor(inode);
@@ -749,7 +776,11 @@ static int pp_release(struct inode *inode, struct file *file)
 			"negotiated back to compatibility mode because user-space forgot\n");
 	}
 
+<<<<<<< HEAD
 	if (pp->flags & PP_CLAIMED) {
+=======
+	if ((pp->flags & PP_CLAIMED) && pp->pdev) {
+>>>>>>> upstream/android-13
 		struct ieee1284_info *info;
 
 		info = &pp->pdev->port->ieee1284;
@@ -798,9 +829,13 @@ static const struct file_operations pp_fops = {
 	.write		= pp_write,
 	.poll		= pp_poll,
 	.unlocked_ioctl	= pp_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl   = pp_compat_ioctl,
 #endif
+=======
+	.compat_ioctl   = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= pp_open,
 	.release	= pp_release,
 };

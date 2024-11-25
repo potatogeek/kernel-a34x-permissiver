@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-omap1/board-h3-mmc.c
  *
@@ -6,10 +10,13 @@
  *
  * This code is based on linux/arch/arm/mach-omap2/board-n800-mmc.c, which is:
  * Copyright (C) 2006 Nokia Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/gpio.h>
 #include <linux/platform_device.h>

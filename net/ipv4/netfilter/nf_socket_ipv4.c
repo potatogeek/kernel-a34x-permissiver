@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007-2008 BalaBit IT Ltd.
  * Author: Krisztian Kovacs
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2007-2008 BalaBit IT Ltd.
+ * Author: Krisztian Kovacs
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
@@ -35,6 +42,7 @@ extract_icmp4_fields(const struct sk_buff *skb, u8 *protocol,
 	if (icmph == NULL)
 		return 1;
 
+<<<<<<< HEAD
 	switch (icmph->type) {
 	case ICMP_DEST_UNREACH:
 	case ICMP_SOURCE_QUENCH:
@@ -45,6 +53,10 @@ extract_icmp4_fields(const struct sk_buff *skb, u8 *protocol,
 	default:
 		return 1;
 	}
+=======
+	if (!icmp_is_err(icmph->type))
+		return 1;
+>>>>>>> upstream/android-13
 
 	inside_iph = skb_header_pointer(skb, outside_hdrlen +
 					sizeof(struct icmphdr),
@@ -96,11 +108,19 @@ nf_socket_get_sock_v4(struct net *net, struct sk_buff *skb, const int doff,
 struct sock *nf_sk_lookup_slow_v4(struct net *net, const struct sk_buff *skb,
 				  const struct net_device *indev)
 {
+<<<<<<< HEAD
 	__be32 uninitialized_var(daddr), uninitialized_var(saddr);
 	__be16 uninitialized_var(dport), uninitialized_var(sport);
 	const struct iphdr *iph = ip_hdr(skb);
 	struct sk_buff *data_skb = NULL;
 	u8 uninitialized_var(protocol);
+=======
+	__be32 daddr, saddr;
+	__be16 dport, sport;
+	const struct iphdr *iph = ip_hdr(skb);
+	struct sk_buff *data_skb = NULL;
+	u8 protocol;
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_NF_CONNTRACK)
 	enum ip_conntrack_info ctinfo;
 	struct nf_conn const *ct;

@@ -175,8 +175,13 @@ static int udf_bitmap_prealloc_blocks(struct super_block *sb,
 {
 	struct udf_sb_info *sbi = UDF_SB(sb);
 	int alloc_count = 0;
+<<<<<<< HEAD
 	int bit, block, block_group, group_start;
 	int nr_groups, bitmap_nr;
+=======
+	int bit, block, block_group;
+	int bitmap_nr;
+>>>>>>> upstream/android-13
 	struct buffer_head *bh;
 	__u32 part_len;
 
@@ -189,10 +194,15 @@ static int udf_bitmap_prealloc_blocks(struct super_block *sb,
 		block_count = part_len - first_block;
 
 	do {
+<<<<<<< HEAD
 		nr_groups = udf_compute_nr_groups(sb, partition);
 		block = first_block + (sizeof(struct spaceBitmapDesc) << 3);
 		block_group = block >> (sb->s_blocksize_bits + 3);
 		group_start = block_group ? 0 : sizeof(struct spaceBitmapDesc);
+=======
+		block = first_block + (sizeof(struct spaceBitmapDesc) << 3);
+		block_group = block >> (sb->s_blocksize_bits + 3);
+>>>>>>> upstream/android-13
 
 		bitmap_nr = load_block_bitmap(sb, bitmap, block_group);
 		if (bitmap_nr < 0)
@@ -327,6 +337,20 @@ got_block:
 	newblock = bit + (block_group << (sb->s_blocksize_bits + 3)) -
 		(sizeof(struct spaceBitmapDesc) << 3);
 
+<<<<<<< HEAD
+=======
+	if (newblock >= sbi->s_partmaps[partition].s_partition_len) {
+		/*
+		 * Ran off the end of the bitmap, and bits following are
+		 * non-compliant (not all zero)
+		 */
+		udf_err(sb, "bitmap for partition %d corrupted (block %u marked"
+			" as free, partition length is %u)\n", partition,
+			newblock, sbi->s_partmaps[partition].s_partition_len);
+		goto error_return;
+	}
+
+>>>>>>> upstream/android-13
 	if (!udf_clear_bit(bit, bh->b_data)) {
 		udf_debug("bit already cleared for block %d\n", bit);
 		goto repeat;
@@ -555,7 +579,11 @@ static udf_pblk_t udf_table_new_block(struct super_block *sb,
 	udf_pblk_t newblock = 0;
 	uint32_t adsize;
 	uint32_t elen, goal_elen = 0;
+<<<<<<< HEAD
 	struct kernel_lb_addr eloc, uninitialized_var(goal_eloc);
+=======
+	struct kernel_lb_addr eloc, goal_eloc;
+>>>>>>> upstream/android-13
 	struct extent_position epos, goal_epos;
 	int8_t etype;
 	struct udf_inode_info *iinfo = UDF_I(table);
@@ -652,12 +680,15 @@ void udf_free_blocks(struct super_block *sb, struct inode *inode,
 	} else if (map->s_partition_flags & UDF_PART_FLAG_UNALLOC_TABLE) {
 		udf_table_free_blocks(sb, map->s_uspace.s_table,
 				      bloc, offset, count);
+<<<<<<< HEAD
 	} else if (map->s_partition_flags & UDF_PART_FLAG_FREED_BITMAP) {
 		udf_bitmap_free_blocks(sb, map->s_fspace.s_bitmap,
 				       bloc, offset, count);
 	} else if (map->s_partition_flags & UDF_PART_FLAG_FREED_TABLE) {
 		udf_table_free_blocks(sb, map->s_fspace.s_table,
 				      bloc, offset, count);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (inode) {
@@ -684,6 +715,7 @@ inline int udf_prealloc_blocks(struct super_block *sb,
 						      map->s_uspace.s_table,
 						      partition, first_block,
 						      block_count);
+<<<<<<< HEAD
 	else if (map->s_partition_flags & UDF_PART_FLAG_FREED_BITMAP)
 		allocated = udf_bitmap_prealloc_blocks(sb,
 						       map->s_fspace.s_bitmap,
@@ -694,6 +726,8 @@ inline int udf_prealloc_blocks(struct super_block *sb,
 						      map->s_fspace.s_table,
 						      partition, first_block,
 						      block_count);
+=======
+>>>>>>> upstream/android-13
 	else
 		return 0;
 
@@ -717,6 +751,7 @@ inline udf_pblk_t udf_new_block(struct super_block *sb,
 		block = udf_table_new_block(sb,
 					    map->s_uspace.s_table,
 					    partition, goal, err);
+<<<<<<< HEAD
 	else if (map->s_partition_flags & UDF_PART_FLAG_FREED_BITMAP)
 		block = udf_bitmap_new_block(sb,
 					     map->s_fspace.s_bitmap,
@@ -725,6 +760,8 @@ inline udf_pblk_t udf_new_block(struct super_block *sb,
 		block = udf_table_new_block(sb,
 					    map->s_fspace.s_table,
 					    partition, goal, err);
+=======
+>>>>>>> upstream/android-13
 	else {
 		*err = -EIO;
 		return 0;

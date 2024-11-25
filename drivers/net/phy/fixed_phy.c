@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Fixed MDIO bus (MDIO bus emulation with fixed PHYs)
  *
@@ -5,11 +9,14 @@
  *         Anton Vorontsov <avorontsov@ru.mvista.com>
  *
  * Copyright (c) 2006-2007 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -22,9 +29,16 @@
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/seqlock.h>
 #include <linux/idr.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/idr.h>
+#include <linux/netdevice.h>
+#include <linux/linkmode.h>
+>>>>>>> upstream/android-13
 
 #include "swphy.h"
 
@@ -36,11 +50,19 @@ struct fixed_mdio_bus {
 struct fixed_phy {
 	int addr;
 	struct phy_device *phydev;
+<<<<<<< HEAD
 	seqcount_t seqcount;
 	struct fixed_phy_status status;
 	int (*link_update)(struct net_device *, struct fixed_phy_status *);
 	struct list_head node;
 	int link_gpio;
+=======
+	struct fixed_phy_status status;
+	bool no_carrier;
+	int (*link_update)(struct net_device *, struct fixed_phy_status *);
+	struct list_head node;
+	struct gpio_desc *link_gpiod;
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device *pdev;
@@ -48,10 +70,36 @@ static struct fixed_mdio_bus platform_fmb = {
 	.phys = LIST_HEAD_INIT(platform_fmb.phys),
 };
 
+<<<<<<< HEAD
 static void fixed_phy_update(struct fixed_phy *fp)
 {
 	if (gpio_is_valid(fp->link_gpio))
 		fp->status.link = !!gpio_get_value_cansleep(fp->link_gpio);
+=======
+int fixed_phy_change_carrier(struct net_device *dev, bool new_carrier)
+{
+	struct fixed_mdio_bus *fmb = &platform_fmb;
+	struct phy_device *phydev = dev->phydev;
+	struct fixed_phy *fp;
+
+	if (!phydev || !phydev->mdio.bus)
+		return -EINVAL;
+
+	list_for_each_entry(fp, &fmb->phys, node) {
+		if (fp->addr == phydev->mdio.addr) {
+			fp->no_carrier = !new_carrier;
+			return 0;
+		}
+	}
+	return -EINVAL;
+}
+EXPORT_SYMBOL_GPL(fixed_phy_change_carrier);
+
+static void fixed_phy_update(struct fixed_phy *fp)
+{
+	if (!fp->no_carrier && fp->link_gpiod)
+		fp->status.link = !!gpiod_get_value_cansleep(fp->link_gpiod);
+>>>>>>> upstream/android-13
 }
 
 static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
@@ -62,6 +110,7 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
 	list_for_each_entry(fp, &fmb->phys, node) {
 		if (fp->addr == phy_addr) {
 			struct fixed_phy_status state;
+<<<<<<< HEAD
 			int s;
 
 			do {
@@ -74,6 +123,19 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
 				fixed_phy_update(fp);
 				state = fp->status;
 			} while (read_seqcount_retry(&fp->seqcount, s));
+=======
+
+			fp->status.link = !fp->no_carrier;
+
+			/* Issue callback if user registered it. */
+			if (fp->link_update)
+				fp->link_update(fp->phydev->attached_dev,
+						&fp->status);
+
+			/* Check the GPIO for change in status */
+			fixed_phy_update(fp);
+			state = fp->status;
+>>>>>>> upstream/android-13
 
 			return swphy_read_reg(reg_num, &state);
 		}
@@ -115,9 +177,15 @@ int fixed_phy_set_link_update(struct phy_device *phydev,
 }
 EXPORT_SYMBOL_GPL(fixed_phy_set_link_update);
 
+<<<<<<< HEAD
 int fixed_phy_add(unsigned int irq, int phy_addr,
 		  struct fixed_phy_status *status,
 		  int link_gpio)
+=======
+static int fixed_phy_add_gpiod(unsigned int irq, int phy_addr,
+			       struct fixed_phy_status *status,
+			       struct gpio_desc *gpiod)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct fixed_mdio_bus *fmb = &platform_fmb;
@@ -131,13 +199,17 @@ int fixed_phy_add(unsigned int irq, int phy_addr,
 	if (!fp)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	seqcount_init(&fp->seqcount);
 
+=======
+>>>>>>> upstream/android-13
 	if (irq != PHY_POLL)
 		fmb->mii_bus->irq[phy_addr] = irq;
 
 	fp->addr = phy_addr;
 	fp->status = *status;
+<<<<<<< HEAD
 	fp->link_gpio = link_gpio;
 
 	if (gpio_is_valid(fp->link_gpio)) {
@@ -146,16 +218,28 @@ int fixed_phy_add(unsigned int irq, int phy_addr,
 		if (ret)
 			goto err_regs;
 	}
+=======
+	fp->link_gpiod = gpiod;
+>>>>>>> upstream/android-13
 
 	fixed_phy_update(fp);
 
 	list_add_tail(&fp->node, &fmb->phys);
 
 	return 0;
+<<<<<<< HEAD
 
 err_regs:
 	kfree(fp);
 	return ret;
+=======
+}
+
+int fixed_phy_add(unsigned int irq, int phy_addr,
+		  struct fixed_phy_status *status)
+{
+	return fixed_phy_add_gpiod(irq, phy_addr, status, NULL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(fixed_phy_add);
 
@@ -169,8 +253,13 @@ static void fixed_phy_del(int phy_addr)
 	list_for_each_entry_safe(fp, tmp, &fmb->phys, node) {
 		if (fp->addr == phy_addr) {
 			list_del(&fp->node);
+<<<<<<< HEAD
 			if (gpio_is_valid(fp->link_gpio))
 				gpio_free(fp->link_gpio);
+=======
+			if (fp->link_gpiod)
+				gpiod_put(fp->link_gpiod);
+>>>>>>> upstream/android-13
 			kfree(fp);
 			ida_simple_remove(&phy_fixed_ida, phy_addr);
 			return;
@@ -178,10 +267,54 @@ static void fixed_phy_del(int phy_addr)
 	}
 }
 
+<<<<<<< HEAD
 struct phy_device *fixed_phy_register(unsigned int irq,
 				      struct fixed_phy_status *status,
 				      int link_gpio,
 				      struct device_node *np)
+=======
+#ifdef CONFIG_OF_GPIO
+static struct gpio_desc *fixed_phy_get_gpiod(struct device_node *np)
+{
+	struct device_node *fixed_link_node;
+	struct gpio_desc *gpiod;
+
+	if (!np)
+		return NULL;
+
+	fixed_link_node = of_get_child_by_name(np, "fixed-link");
+	if (!fixed_link_node)
+		return NULL;
+
+	/*
+	 * As the fixed link is just a device tree node without any
+	 * Linux device associated with it, we simply have obtain
+	 * the GPIO descriptor from the device tree like this.
+	 */
+	gpiod = fwnode_gpiod_get_index(of_fwnode_handle(fixed_link_node),
+				       "link", 0, GPIOD_IN, "mdio");
+	if (IS_ERR(gpiod) && PTR_ERR(gpiod) != -EPROBE_DEFER) {
+		if (PTR_ERR(gpiod) != -ENOENT)
+			pr_err("error getting GPIO for fixed link %pOF, proceed without\n",
+			       fixed_link_node);
+		gpiod = NULL;
+	}
+	of_node_put(fixed_link_node);
+
+	return gpiod;
+}
+#else
+static struct gpio_desc *fixed_phy_get_gpiod(struct device_node *np)
+{
+	return NULL;
+}
+#endif
+
+static struct phy_device *__fixed_phy_register(unsigned int irq,
+					       struct fixed_phy_status *status,
+					       struct device_node *np,
+					       struct gpio_desc *gpiod)
+>>>>>>> upstream/android-13
 {
 	struct fixed_mdio_bus *fmb = &platform_fmb;
 	struct phy_device *phy;
@@ -191,12 +324,26 @@ struct phy_device *fixed_phy_register(unsigned int irq,
 	if (!fmb->mii_bus || fmb->mii_bus->state != MDIOBUS_REGISTERED)
 		return ERR_PTR(-EPROBE_DEFER);
 
+<<<<<<< HEAD
+=======
+	/* Check if we have a GPIO associated with this fixed phy */
+	if (!gpiod) {
+		gpiod = fixed_phy_get_gpiod(np);
+		if (IS_ERR(gpiod))
+			return ERR_CAST(gpiod);
+	}
+
+>>>>>>> upstream/android-13
 	/* Get the next available PHY address, up to PHY_MAX_ADDR */
 	phy_addr = ida_simple_get(&phy_fixed_ida, 0, PHY_MAX_ADDR, GFP_KERNEL);
 	if (phy_addr < 0)
 		return ERR_PTR(phy_addr);
 
+<<<<<<< HEAD
 	ret = fixed_phy_add(irq, phy_addr, status, link_gpio);
+=======
+	ret = fixed_phy_add_gpiod(irq, phy_addr, status, gpiod);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		ida_simple_remove(&phy_fixed_ida, phy_addr);
 		return ERR_PTR(ret);
@@ -223,6 +370,7 @@ struct phy_device *fixed_phy_register(unsigned int irq,
 
 	switch (status->speed) {
 	case SPEED_1000:
+<<<<<<< HEAD
 		phy->supported = PHY_1000BT_FEATURES;
 		break;
 	case SPEED_100:
@@ -233,6 +381,29 @@ struct phy_device *fixed_phy_register(unsigned int irq,
 		phy->supported = PHY_10BT_FEATURES;
 	}
 
+=======
+		linkmode_set_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT,
+				 phy->supported);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
+				 phy->supported);
+		fallthrough;
+	case SPEED_100:
+		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Half_BIT,
+				 phy->supported);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT,
+				 phy->supported);
+		fallthrough;
+	case SPEED_10:
+	default:
+		linkmode_set_bit(ETHTOOL_LINK_MODE_10baseT_Half_BIT,
+				 phy->supported);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_10baseT_Full_BIT,
+				 phy->supported);
+	}
+
+	phy_advertise_supported(phy);
+
+>>>>>>> upstream/android-13
 	ret = phy_device_register(phy);
 	if (ret) {
 		phy_device_free(phy);
@@ -243,8 +414,29 @@ struct phy_device *fixed_phy_register(unsigned int irq,
 
 	return phy;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(fixed_phy_register);
 
+=======
+
+struct phy_device *fixed_phy_register(unsigned int irq,
+				      struct fixed_phy_status *status,
+				      struct device_node *np)
+{
+	return __fixed_phy_register(irq, status, np, NULL);
+}
+EXPORT_SYMBOL_GPL(fixed_phy_register);
+
+struct phy_device *
+fixed_phy_register_with_gpiod(unsigned int irq,
+			      struct fixed_phy_status *status,
+			      struct gpio_desc *gpiod)
+{
+	return __fixed_phy_register(irq, status, NULL, gpiod);
+}
+EXPORT_SYMBOL_GPL(fixed_phy_register_with_gpiod);
+
+>>>>>>> upstream/android-13
 void fixed_phy_unregister(struct phy_device *phy)
 {
 	phy_device_remove(phy);

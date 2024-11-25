@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
 *******************************************************************************
 **
 **  Copyright (C) 2005-2010 Red Hat, Inc.  All rights reserved.
 **
+<<<<<<< HEAD
 **  This copyrighted material is made available to anyone wishing to use,
 **  modify, copy, or redistribute it subject to the terms and conditions
 **  of the GNU General Public License v.2.
+=======
+>>>>>>> upstream/android-13
 **
 *******************************************************************************
 ******************************************************************************/
@@ -61,7 +68,11 @@
 #include "dlm_internal.h"
 #include <linux/dlm_device.h>
 #include "memory.h"
+<<<<<<< HEAD
 #include "lowcomms.h"
+=======
+#include "midcomms.h"
+>>>>>>> upstream/android-13
 #include "requestqueue.h"
 #include "util.h"
 #include "dir.h"
@@ -3536,6 +3547,7 @@ static int _create_message(struct dlm_ls *ls, int mb_len,
 	char *mb;
 
 	/* get_buffer gives us a message handle (mh) that we need to
+<<<<<<< HEAD
 	   pass into lowcomms_commit and a message buffer (mb) that we
 	   write our data into */
 
@@ -3549,6 +3561,19 @@ static int _create_message(struct dlm_ls *ls, int mb_len,
 
 	ms->m_header.h_version = (DLM_HEADER_MAJOR | DLM_HEADER_MINOR);
 	ms->m_header.h_lockspace = ls->ls_global_id;
+=======
+	   pass into midcomms_commit and a message buffer (mb) that we
+	   write our data into */
+
+	mh = dlm_midcomms_get_mhandle(to_nodeid, mb_len, GFP_NOFS, &mb);
+	if (!mh)
+		return -ENOBUFS;
+
+	ms = (struct dlm_message *) mb;
+
+	ms->m_header.h_version = (DLM_HEADER_MAJOR | DLM_HEADER_MINOR);
+	ms->m_header.u.h_lockspace = ls->ls_global_id;
+>>>>>>> upstream/android-13
 	ms->m_header.h_nodeid = dlm_our_nodeid();
 	ms->m_header.h_length = mb_len;
 	ms->m_header.h_cmd = DLM_MSG;
@@ -3593,7 +3618,11 @@ static int create_message(struct dlm_rsb *r, struct dlm_lkb *lkb,
 static int send_message(struct dlm_mhandle *mh, struct dlm_message *ms)
 {
 	dlm_message_out(ms);
+<<<<<<< HEAD
 	dlm_lowcomms_commit_buffer(mh);
+=======
+	dlm_midcomms_commit_mhandle(mh);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3977,6 +4006,17 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
 	int from = ms->m_header.h_nodeid;
 	int error = 0;
 
+<<<<<<< HEAD
+=======
+	/* currently mixing of user/kernel locks are not supported */
+	if (ms->m_flags & DLM_IFL_USER && ~lkb->lkb_flags & DLM_IFL_USER) {
+		log_error(lkb->lkb_resource->res_ls,
+			  "got user dlm message for a kernel lock");
+		error = -EINVAL;
+		goto out;
+	}
+
+>>>>>>> upstream/android-13
 	switch (ms->m_type) {
 	case DLM_MSG_CONVERT:
 	case DLM_MSG_UNLOCK:
@@ -4005,6 +4045,10 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
 		error = -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	if (error)
 		log_error(lkb->lkb_resource->res_ls,
 			  "ignore invalid message %d from %d %x %x %x %d",
@@ -5042,16 +5086,28 @@ void dlm_receive_buffer(union dlm_packet *p, int nodeid)
 
 	if (hd->h_nodeid != nodeid) {
 		log_print("invalid h_nodeid %d from %d lockspace %x",
+<<<<<<< HEAD
 			  hd->h_nodeid, nodeid, hd->h_lockspace);
 		return;
 	}
 
 	ls = dlm_find_lockspace_global(hd->h_lockspace);
+=======
+			  hd->h_nodeid, nodeid, hd->u.h_lockspace);
+		return;
+	}
+
+	ls = dlm_find_lockspace_global(hd->u.h_lockspace);
+>>>>>>> upstream/android-13
 	if (!ls) {
 		if (dlm_config.ci_log_debug) {
 			printk_ratelimited(KERN_DEBUG "dlm: invalid lockspace "
 				"%u from %d cmd %d type %d\n",
+<<<<<<< HEAD
 				hd->h_lockspace, nodeid, hd->h_cmd, type);
+=======
+				hd->u.h_lockspace, nodeid, hd->h_cmd, type);
+>>>>>>> upstream/android-13
 		}
 
 		if (hd->h_cmd == DLM_RCOM && type == DLM_RCOM_STATUS)
@@ -5819,7 +5875,11 @@ int dlm_user_request(struct dlm_ls *ls, struct dlm_user_args *ua,
 		break;
 	case -EAGAIN:
 		error = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		__put_lkb(ls, lkb);
 		goto out;

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Cogent Embedded Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2017 Cogent Embedded Inc.
+>>>>>>> upstream/android-13
  */
 #ifndef __DT_BINDINGS_POWER_R8A77970_SYSC_H__
 #define __DT_BINDINGS_POWER_R8A77970_SYSC_H__
@@ -16,7 +22,10 @@
 
 #define R8A77970_PD_CA53_CPU0		 5
 #define R8A77970_PD_CA53_CPU1		 6
+<<<<<<< HEAD
 #define R8A77970_PD_CR7			13
+=======
+>>>>>>> upstream/android-13
 #define R8A77970_PD_CA53_SCU		21
 #define R8A77970_PD_A2IR0		23
 #define R8A77970_PD_A3IR		24

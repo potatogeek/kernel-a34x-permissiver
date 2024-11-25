@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for audio on multifunction CS5535/6 companion device
  * Copyright (C) Jaya Kumar
  *
  * Based on Jaroslav Kysela and Takashi Iwai's examples.
  * This work was sponsored by CIS(M) Sdn Bhd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -152,12 +159,21 @@ static int snd_cs5535audio_mixer(struct cs5535audio *cs5535au)
 	struct snd_ac97_bus *pbus;
 	struct snd_ac97_template ac97;
 	int err;
+<<<<<<< HEAD
 	static struct snd_ac97_bus_ops ops = {
+=======
+	static const struct snd_ac97_bus_ops ops = {
+>>>>>>> upstream/android-13
 		.write = snd_cs5535audio_ac97_codec_write,
 		.read = snd_cs5535audio_ac97_codec_read,
 	};
 
+<<<<<<< HEAD
 	if ((err = snd_ac97_bus(card, 0, &ops, NULL, &pbus)) < 0)
+=======
+	err = snd_ac97_bus(card, 0, &ops, NULL, &pbus);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	memset(&ac97, 0, sizeof(ac97));
@@ -169,7 +185,12 @@ static int snd_cs5535audio_mixer(struct cs5535audio *cs5535au)
 	/* set any OLPC-specific scaps */
 	olpc_prequirks(card, &ac97);
 
+<<<<<<< HEAD
 	if ((err = snd_ac97_mixer(pbus, &ac97, &cs5535au->ac97)) < 0) {
+=======
+	err = snd_ac97_mixer(pbus, &ac97, &cs5535au->ac97);
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		dev_err(card->dev, "mixer failed\n");
 		return err;
 	}
@@ -249,6 +270,7 @@ static irqreturn_t snd_cs5535audio_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int snd_cs5535audio_free(struct cs5535audio *cs5535au)
 {
 	synchronize_irq(cs5535au->irq);
@@ -295,6 +317,26 @@ static int snd_cs5535audio_create(struct snd_card *card,
 	if (cs5535au == NULL) {
 		err = -ENOMEM;
 		goto pcifail;
+=======
+static void snd_cs5535audio_free(struct snd_card *card)
+{
+	olpc_quirks_cleanup();
+}
+
+static int snd_cs5535audio_create(struct snd_card *card,
+				  struct pci_dev *pci)
+{
+	struct cs5535audio *cs5535au = card->private_data;
+	int err;
+
+	err = pcim_enable_device(pci);
+	if (err < 0)
+		return err;
+
+	if (dma_set_mask_and_coherent(&pci->dev, DMA_BIT_MASK(32))) {
+		dev_warn(card->dev, "unable to get 32bit dma\n");
+		return -ENXIO;
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_init(&cs5535au->reg_lock);
@@ -302,6 +344,7 @@ static int snd_cs5535audio_create(struct snd_card *card,
 	cs5535au->pci = pci;
 	cs5535au->irq = -1;
 
+<<<<<<< HEAD
 	if ((err = pci_request_regions(pci, "CS5535 Audio")) < 0) {
 		kfree(cs5535au);
 		goto pcifail;
@@ -337,6 +380,29 @@ pcifail:
 
 static int snd_cs5535audio_probe(struct pci_dev *pci,
 				 const struct pci_device_id *pci_id)
+=======
+	err = pci_request_regions(pci, "CS5535 Audio");
+	if (err < 0)
+		return err;
+
+	cs5535au->port = pci_resource_start(pci, 0);
+
+	if (devm_request_irq(&pci->dev, pci->irq, snd_cs5535audio_interrupt,
+			     IRQF_SHARED, KBUILD_MODNAME, cs5535au)) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return -EBUSY;
+	}
+
+	cs5535au->irq = pci->irq;
+	card->sync_irq = cs5535au->irq;
+	pci_set_master(pci);
+
+	return 0;
+}
+
+static int __snd_cs5535audio_probe(struct pci_dev *pci,
+				   const struct pci_device_id *pci_id)
+>>>>>>> upstream/android-13
 {
 	static int dev;
 	struct snd_card *card;
@@ -350,6 +416,7 @@ static int snd_cs5535audio_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -365,6 +432,26 @@ static int snd_cs5535audio_probe(struct pci_dev *pci,
 
 	if ((err = snd_cs5535audio_pcm(cs5535au)) < 0)
 		goto probefail_out;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*cs5535au), &card);
+	if (err < 0)
+		return err;
+	cs5535au = card->private_data;
+	card->private_free = snd_cs5535audio_free;
+
+	err = snd_cs5535audio_create(card, pci);
+	if (err < 0)
+		return err;
+
+	err = snd_cs5535audio_mixer(cs5535au);
+	if (err < 0)
+		return err;
+
+	err = snd_cs5535audio_pcm(cs5535au);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	strcpy(card->driver, DRIVER_NAME);
 
@@ -373,12 +460,19 @@ static int snd_cs5535audio_probe(struct pci_dev *pci,
 		card->shortname, card->driver,
 		cs5535au->port, cs5535au->irq);
 
+<<<<<<< HEAD
 	if ((err = snd_card_register(card)) < 0)
 		goto probefail_out;
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
+<<<<<<< HEAD
 
 probefail_out:
 	snd_card_free(card);
@@ -389,13 +483,24 @@ static void snd_cs5535audio_remove(struct pci_dev *pci)
 {
 	olpc_quirks_cleanup();
 	snd_card_free(pci_get_drvdata(pci));
+=======
+}
+
+static int snd_cs5535audio_probe(struct pci_dev *pci,
+				 const struct pci_device_id *pci_id)
+{
+	return snd_card_free_on_error(&pci->dev, __snd_cs5535audio_probe(pci, pci_id));
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver cs5535audio_driver = {
 	.name = KBUILD_MODNAME,
 	.id_table = snd_cs5535audio_ids,
 	.probe = snd_cs5535audio_probe,
+<<<<<<< HEAD
 	.remove = snd_cs5535audio_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 	.driver = {
 		.pm = &snd_cs5535audio_pm,
@@ -408,4 +513,7 @@ module_pci_driver(cs5535audio_driver);
 MODULE_AUTHOR("Jaya Kumar");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("CS5535 Audio");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("CS5535 Audio");
+=======
+>>>>>>> upstream/android-13

@@ -1,17 +1,27 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <fcntl.h>
 #include <stdio.h>
+<<<<<<< HEAD
+=======
+#include <string.h>
+>>>>>>> upstream/android-13
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <zlib.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
 #include <unistd.h>
 
 #include "util/compress.h"
 #include "util/util.h"
 #include "util/debug.h"
 
+=======
+#include <internal/lib.h>
+
+#include "util/compress.h"
+>>>>>>> upstream/android-13
 
 #define CHUNK_SIZE  16384
 

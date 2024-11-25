@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Marvell 88SE64xx/88SE94xx main function head file
  *
  * Copyright 2007 Red Hat, Inc.
  * Copyright 2008 Marvell. <kewei@marvell.com>
  * Copyright 2009-2011 Marvell. <yuxiangl@marvell.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef _MV_SAS_H_
@@ -56,7 +63,11 @@
 #define mv_dprintk(format, arg...)	\
 	printk(KERN_DEBUG"%s %d:" format, __FILE__, __LINE__, ## arg)
 #else
+<<<<<<< HEAD
 #define mv_dprintk(format, arg...)
+=======
+#define mv_dprintk(format, arg...) no_printk(format, ## arg)
+>>>>>>> upstream/android-13
 #endif
 #define MV_MAX_U32			0xffffffff
 
@@ -66,9 +77,12 @@ extern struct mvs_info *tgt_mvi;
 extern const struct mvs_dispatch mvs_64xx_dispatch;
 extern const struct mvs_dispatch mvs_94xx_dispatch;
 
+<<<<<<< HEAD
 #define DEV_IS_EXPANDER(type)	\
 	((type == SAS_EDGE_EXPANDER_DEVICE) || (type == SAS_FANOUT_EXPANDER_DEVICE))
 
+=======
+>>>>>>> upstream/android-13
 #define bit(n) ((u64)1 << n)
 
 #define for_each_phy(__lseq_mask, __mc, __lseq)			\
@@ -413,7 +427,11 @@ struct mvs_info {
 	dma_addr_t bulk_buffer_dma1;
 #define TRASH_BUCKET_SIZE    	0x20000
 	void *dma_pool;
+<<<<<<< HEAD
 	struct mvs_slot_info slot_info[0];
+=======
+	struct mvs_slot_info slot_info[];
+>>>>>>> upstream/android-13
 };
 
 struct mvs_prv_info{

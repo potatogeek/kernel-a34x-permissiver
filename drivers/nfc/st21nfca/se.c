@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014  STMicroelectronics SAS. All rights reserved.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014  STMicroelectronics SAS. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <net/nfc/hci.h>
@@ -326,12 +332,24 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
 		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
 			return -EPROTO;
 
+<<<<<<< HEAD
 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
 						   skb->len - 2, GFP_KERNEL);
+=======
+		transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!transaction)
 			return -ENOMEM;
 
 		transaction->aid_len = skb->data[1];
+<<<<<<< HEAD
+=======
+
+		/* Checking if the length of the AID is valid */
+		if (transaction->aid_len > sizeof(transaction->aid))
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		memcpy(transaction->aid, &skb->data[2],
 		       transaction->aid_len);
 
@@ -341,6 +359,14 @@ int st21nfca_connectivity_event_received(struct nfc_hci_dev *hdev, u8 host,
 			return -EPROTO;
 
 		transaction->params_len = skb->data[transaction->aid_len + 3];
+<<<<<<< HEAD
+=======
+
+		/* Total size is allocated (skb->len - 2) minus fixed array members */
+		if (transaction->params_len > ((skb->len - 2) - sizeof(struct nfc_evt_transaction)))
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		memcpy(transaction->params, skb->data +
 		       transaction->aid_len + 4, transaction->params_len);
 

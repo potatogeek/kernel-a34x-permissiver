@@ -68,7 +68,11 @@ struct mthca_icm_table {
 	int               lowmem;
 	int               coherent;
 	struct mutex      mutex;
+<<<<<<< HEAD
 	struct mthca_icm *icm[0];
+=======
+	struct mthca_icm *icm[];
+>>>>>>> upstream/android-13
 };
 
 struct mthca_icm_iter {

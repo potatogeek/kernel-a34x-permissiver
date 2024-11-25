@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: ISC */
+>>>>>>> upstream/android-13
 #if !defined(_ATH6KL_TRACE_H) || defined(TRACE_HEADER_MULTI_READ)
 
 #include <net/cfg80211.h>

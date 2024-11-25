@@ -5,8 +5,13 @@
  * Copyright (C) 1997, 2000, 2008 David S. Miller (davem@davemloft.net)
  */
 
+<<<<<<< HEAD
 #include <asm/asi.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/asi.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/spitfire.h>
 #include <asm/mmu_context.h>

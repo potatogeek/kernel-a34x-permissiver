@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * POWER Data Stream Control Register (DSCR) default test
  *
@@ -7,10 +11,13 @@
  *
  * Copyright 2012, Anton Blanchard, IBM Corporation.
  * Copyright 2015, Anshuman Khandual, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include "dscr.h"
 
@@ -66,6 +73,11 @@ int dscr_default(void)
 	unsigned long i, *status[THREADS];
 	unsigned long orig_dscr_default;
 
+<<<<<<< HEAD
+=======
+	SKIP_IF(!have_hwcap2(PPC_FEATURE2_DSCR));
+
+>>>>>>> upstream/android-13
 	orig_dscr_default = get_default_dscr();
 
 	/* Initial DSCR default */

@@ -1,4 +1,5 @@
 #!/bin/bash
+<<<<<<< HEAD
 # perf-with-kcore: use perf with a copy of kcore
 # Copyright (c) 2014, Intel Corporation.
 #
@@ -10,6 +11,12 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 # more details.
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+# perf-with-kcore: use perf with a copy of kcore
+# Copyright (c) 2014, Intel Corporation.
+#
+>>>>>>> upstream/android-13
 
 set -e
 
@@ -111,11 +118,14 @@ fix_buildid_cache_permissions()
 
 	USER_HOME=$(bash <<< "echo ~$SUDO_USER")
 
+<<<<<<< HEAD
 	if [ "$HOME" != "$USER_HOME" ] ; then
 		echo "Fix unnecessary because root has a home: $HOME" >&2
 		exit 1
 	fi
 
+=======
+>>>>>>> upstream/android-13
 	echo "Fixing buildid cache permissions"
 
 	find "$USER_HOME/.debug" -xdev -type d          ! -user "$SUDO_USER" -ls -exec chown    "$SUDO_USER" \{\} \;

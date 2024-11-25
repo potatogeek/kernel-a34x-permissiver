@@ -15,6 +15,10 @@
 #include <linux/irq.h>
 #include <linux/irqdomain.h>
 #include <linux/irqchip/chained_irq.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/syscore_ops.h>
@@ -23,6 +27,7 @@
 #include <linux/of_device.h>
 #include <linux/bug.h>
 
+<<<<<<< HEAD
 enum mxc_gpio_hwtype {
 	IMX1_GPIO,	/* runs on i.mx1 */
 	IMX21_GPIO,	/* runs on i.mx21 and i.mx27 */
@@ -30,6 +35,8 @@ enum mxc_gpio_hwtype {
 	IMX35_GPIO,	/* runs on all other i.mx */
 };
 
+=======
+>>>>>>> upstream/android-13
 /* device type dependent stuff */
 struct mxc_gpio_hwdata {
 	unsigned dr_reg;
@@ -67,6 +74,10 @@ struct mxc_gpio_port {
 	u32 both_edges;
 	struct mxc_gpio_reg_saved gpio_saved_reg;
 	bool power_off;
+<<<<<<< HEAD
+=======
+	const struct mxc_gpio_hwdata *hwdata;
+>>>>>>> upstream/android-13
 };
 
 static struct mxc_gpio_hwdata imx1_imx21_gpio_hwdata = {
@@ -114,6 +125,7 @@ static struct mxc_gpio_hwdata imx35_gpio_hwdata = {
 	.fall_edge	= 0x03,
 };
 
+<<<<<<< HEAD
 static enum mxc_gpio_hwtype mxc_gpio_hwtype;
 static struct mxc_gpio_hwdata *mxc_gpio_hwdata;
 
@@ -158,6 +170,32 @@ static const struct of_device_id mxc_gpio_dt_ids[] = {
 	{ .compatible = "fsl,imx7d-gpio", .data = &mxc_gpio_devtype[IMX35_GPIO], },
 	{ /* sentinel */ }
 };
+=======
+#define GPIO_DR			(port->hwdata->dr_reg)
+#define GPIO_GDIR		(port->hwdata->gdir_reg)
+#define GPIO_PSR		(port->hwdata->psr_reg)
+#define GPIO_ICR1		(port->hwdata->icr1_reg)
+#define GPIO_ICR2		(port->hwdata->icr2_reg)
+#define GPIO_IMR		(port->hwdata->imr_reg)
+#define GPIO_ISR		(port->hwdata->isr_reg)
+#define GPIO_EDGE_SEL		(port->hwdata->edge_sel_reg)
+
+#define GPIO_INT_LOW_LEV	(port->hwdata->low_level)
+#define GPIO_INT_HIGH_LEV	(port->hwdata->high_level)
+#define GPIO_INT_RISE_EDGE	(port->hwdata->rise_edge)
+#define GPIO_INT_FALL_EDGE	(port->hwdata->fall_edge)
+#define GPIO_INT_BOTH_EDGES	0x4
+
+static const struct of_device_id mxc_gpio_dt_ids[] = {
+	{ .compatible = "fsl,imx1-gpio", .data =  &imx1_imx21_gpio_hwdata },
+	{ .compatible = "fsl,imx21-gpio", .data = &imx1_imx21_gpio_hwdata },
+	{ .compatible = "fsl,imx31-gpio", .data = &imx31_gpio_hwdata },
+	{ .compatible = "fsl,imx35-gpio", .data = &imx35_gpio_hwdata },
+	{ .compatible = "fsl,imx7d-gpio", .data = &imx35_gpio_hwdata },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, mxc_gpio_dt_ids);
+>>>>>>> upstream/android-13
 
 /*
  * MX2 has one interrupt *for all* gpio ports. The list is used
@@ -266,7 +304,11 @@ static void mxc_gpio_irq_handler(struct mxc_gpio_port *port, u32 irq_stat)
 		if (port->both_edges & (1 << irqoffset))
 			mxc_flip_edge(port, irqoffset);
 
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(port->domain, irqoffset));
+=======
+		generic_handle_domain_irq(port->domain, irqoffset);
+>>>>>>> upstream/android-13
 
 		irq_stat &= ~(1 << irqoffset);
 	}
@@ -359,7 +401,11 @@ static int mxc_gpio_init_gc(struct mxc_gpio_port *port, int irq_base)
 	ct->chip.irq_unmask = irq_gc_mask_set_bit;
 	ct->chip.irq_set_type = gpio_set_irq_type;
 	ct->chip.irq_set_wake = gpio_set_wake_irq;
+<<<<<<< HEAD
 	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND;
+=======
+	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND | IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND;
+>>>>>>> upstream/android-13
 	ct->regs.ack = GPIO_ISR;
 	ct->regs.mask = GPIO_IMR;
 
@@ -370,6 +416,7 @@ static int mxc_gpio_init_gc(struct mxc_gpio_port *port, int irq_base)
 	return rv;
 }
 
+<<<<<<< HEAD
 static void mxc_gpio_get_hw(struct platform_device *pdev)
 {
 	const struct of_device_id *of_id =
@@ -400,6 +447,8 @@ static void mxc_gpio_get_hw(struct platform_device *pdev)
 	mxc_gpio_hwtype = hwtype;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mxc_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
 {
 	struct mxc_gpio_port *port = gpiochip_get_data(gc);
@@ -411,18 +460,26 @@ static int mxc_gpio_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct mxc_gpio_port *port;
+<<<<<<< HEAD
 	struct resource *iores;
 	int irq_base;
 	int err;
 
 	mxc_gpio_get_hw(pdev);
 
+=======
+	int irq_count;
+	int irq_base;
+	int err;
+
+>>>>>>> upstream/android-13
 	port = devm_kzalloc(&pdev->dev, sizeof(*port), GFP_KERNEL);
 	if (!port)
 		return -ENOMEM;
 
 	port->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	port->base = devm_ioremap_resource(&pdev->dev, iores);
 	if (IS_ERR(port->base))
@@ -431,18 +488,41 @@ static int mxc_gpio_probe(struct platform_device *pdev)
 	port->irq_high = platform_get_irq(pdev, 1);
 	if (port->irq_high < 0)
 		port->irq_high = 0;
+=======
+	port->hwdata = device_get_match_data(&pdev->dev);
+
+	port->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(port->base))
+		return PTR_ERR(port->base);
+
+	irq_count = platform_irq_count(pdev);
+	if (irq_count < 0)
+		return irq_count;
+
+	if (irq_count > 1) {
+		port->irq_high = platform_get_irq(pdev, 1);
+		if (port->irq_high < 0)
+			port->irq_high = 0;
+	}
+>>>>>>> upstream/android-13
 
 	port->irq = platform_get_irq(pdev, 0);
 	if (port->irq < 0)
 		return port->irq;
 
 	/* the controller clock is optional */
+<<<<<<< HEAD
 	port->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(port->clk)) {
 		if (PTR_ERR(port->clk) == -EPROBE_DEFER)
 			return -EPROBE_DEFER;
 		port->clk = NULL;
 	}
+=======
+	port->clk = devm_clk_get_optional(&pdev->dev, NULL);
+	if (IS_ERR(port->clk))
+		return PTR_ERR(port->clk);
+>>>>>>> upstream/android-13
 
 	err = clk_prepare_enable(port->clk);
 	if (err) {
@@ -457,7 +537,11 @@ static int mxc_gpio_probe(struct platform_device *pdev)
 	writel(0, port->base + GPIO_IMR);
 	writel(~0, port->base + GPIO_ISR);
 
+<<<<<<< HEAD
 	if (mxc_gpio_hwtype == IMX21_GPIO) {
+=======
+	if (of_device_is_compatible(np, "fsl,imx21-gpio")) {
+>>>>>>> upstream/android-13
 		/*
 		 * Setup one handler for all GPIO interrupts. Actually setting
 		 * the handler is needed only once, but doing it for every port
@@ -483,11 +567,16 @@ static int mxc_gpio_probe(struct platform_device *pdev)
 	if (err)
 		goto out_bgio;
 
+<<<<<<< HEAD
 	if (of_property_read_bool(np, "gpio-ranges")) {
 		port->gc.request = gpiochip_generic_request;
 		port->gc.free = gpiochip_generic_free;
 	}
 
+=======
+	port->gc.request = gpiochip_generic_request;
+	port->gc.free = gpiochip_generic_free;
+>>>>>>> upstream/android-13
 	port->gc.to_irq = mxc_gpio_to_irq;
 	port->gc.base = (pdev->id < 0) ? of_alias_get_id(np, "gpio") * 32 :
 					     pdev->id * 32;
@@ -595,7 +684,10 @@ static struct platform_driver mxc_gpio_driver = {
 		.suppress_bind_attrs = true,
 	},
 	.probe		= mxc_gpio_probe,
+<<<<<<< HEAD
 	.id_table	= mxc_gpio_devtype,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init gpio_mxc_init(void)
@@ -605,3 +697,10 @@ static int __init gpio_mxc_init(void)
 	return platform_driver_register(&mxc_gpio_driver);
 }
 subsys_initcall(gpio_mxc_init);
+<<<<<<< HEAD
+=======
+
+MODULE_AUTHOR("Shawn Guo <shawn.guo@linaro.org>");
+MODULE_DESCRIPTION("i.MX GPIO Driver");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

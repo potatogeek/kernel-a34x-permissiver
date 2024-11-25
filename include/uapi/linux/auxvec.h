@@ -33,5 +33,11 @@
 
 #define AT_EXECFN  31	/* filename of program */
 
+<<<<<<< HEAD
+=======
+#ifndef AT_MINSIGSTKSZ
+#define AT_MINSIGSTKSZ	51	/* minimal stack size for signal delivery */
+#endif
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_LINUX_AUXVEC_H */

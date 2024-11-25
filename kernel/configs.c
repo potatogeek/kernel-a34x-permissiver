@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * kernel/configs.c
  * Echo the kernel .config file used to build the kernel
@@ -6,6 +10,7 @@
  * Copyright (C) 2002 Randy Dunlap <rdunlap@xenotime.net>
  * Copyright (C) 2002 Al Stone <ahs3@fc.hp.com>
  * Copyright (C) 2002 Hewlett-Packard Company
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -30,6 +37,7 @@
 #include <linux/init.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 /**************************************************/
 /* the actual current config file                 */
 
@@ -54,11 +62,35 @@
 
 #ifdef CONFIG_IKCONFIG_PROC
 
+=======
+/*
+ * "IKCFG_ST" and "IKCFG_ED" are used to extract the config data from
+ * a binary kernel image or a module. See scripts/extract-ikconfig.
+ */
+asm (
+"	.pushsection .rodata, \"a\"		\n"
+"	.ascii \"IKCFG_ST\"			\n"
+"	.global kernel_config_data		\n"
+"kernel_config_data:				\n"
+"	.incbin \"kernel/config_data.gz\"	\n"
+"	.global kernel_config_data_end		\n"
+"kernel_config_data_end:			\n"
+"	.ascii \"IKCFG_ED\"			\n"
+"	.popsection				\n"
+);
+
+#ifdef CONFIG_IKCONFIG_PROC
+
+extern char kernel_config_data;
+extern char kernel_config_data_end;
+
+>>>>>>> upstream/android-13
 static ssize_t
 ikconfig_read_current(struct file *file, char __user *buf,
 		      size_t len, loff_t * offset)
 {
 	return simple_read_from_buffer(buf, len, offset,
+<<<<<<< HEAD
 				       kernel_config_data + MAGIC_SIZE,
 				       kernel_config_data_size);
 }
@@ -67,6 +99,16 @@ static const struct file_operations ikconfig_file_ops = {
 	.owner = THIS_MODULE,
 	.read = ikconfig_read_current,
 	.llseek = default_llseek,
+=======
+				       &kernel_config_data,
+				       &kernel_config_data_end -
+				       &kernel_config_data);
+}
+
+static const struct proc_ops config_gz_proc_ops = {
+	.proc_read	= ikconfig_read_current,
+	.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 };
 
 static int __init ikconfig_init(void)
@@ -75,11 +117,19 @@ static int __init ikconfig_init(void)
 
 	/* create the current config file */
 	entry = proc_create("config.gz", S_IFREG | S_IRUGO, NULL,
+<<<<<<< HEAD
 			    &ikconfig_file_ops);
 	if (!entry)
 		return -ENOMEM;
 
 	proc_set_size(entry, kernel_config_data_size);
+=======
+			    &config_gz_proc_ops);
+	if (!entry)
+		return -ENOMEM;
+
+	proc_set_size(entry, &kernel_config_data_end - &kernel_config_data);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

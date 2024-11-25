@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
   /*
      Driver for Philips tda8262/tda8263 DVBS Silicon tuners
 
      (c) 2006 Andrew de Quincey
 
+<<<<<<< HEAD
      This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU General Public License as published by
      the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
      You should have received a copy of the GNU General Public License
      along with this program; if not, write to the Free Software
      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
   */
 
@@ -27,7 +34,11 @@
 #include <media/dvb_frontend.h>
 
 /**
+<<<<<<< HEAD
  * Attach a tda826x tuner to the supplied frontend structure.
+=======
+ * tda826x_attach - Attach a tda826x tuner to the supplied frontend structure.
+>>>>>>> upstream/android-13
  *
  * @fe: Frontend to attach to.
  * @addr: i2c address of the tuner.

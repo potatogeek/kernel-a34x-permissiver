@@ -5,8 +5,13 @@
  *
  * Copyright (C) 2008 by Ralf Baechle (ralf@linux-mips.org)
  */
+<<<<<<< HEAD
 #ifndef __ASM_R4K_TYPES_H
 #define __ASM_R4K_TYPES_H
+=======
+#ifndef __ASM_R4K_TIMER_H
+#define __ASM_R4K_TIMER_H
+>>>>>>> upstream/android-13
 
 #include <linux/compiler.h>
 
@@ -27,4 +32,8 @@ static inline void synchronise_count_slave(int cpu)
 
 #endif
 
+<<<<<<< HEAD
 #endif /* __ASM_R4K_TYPES_H */
+=======
+#endif /* __ASM_R4K_TIMER_H */
+>>>>>>> upstream/android-13

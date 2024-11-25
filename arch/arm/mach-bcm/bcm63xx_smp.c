@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM63138 DSL SoCs SMP support code
  *
  * Copyright (C) 2015, Broadcom Corporation
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -142,6 +149,10 @@ static int bcm63138_smp_boot_secondary(unsigned int cpu,
 	 * return
 	 */
 	ret = bcm63xx_pmb_power_on_cpu(dn);
+<<<<<<< HEAD
+=======
+	of_node_put(dn);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out;
 out:

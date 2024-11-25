@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HID Sensor Time Driver
  * Copyright (c) 2012, Alexander Holler.
@@ -15,6 +16,12 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * HID Sensor Time Driver
+ * Copyright (c) 2012, Alexander Holler.
+>>>>>>> upstream/android-13
  */
 #include <linux/device.h>
 #include <linux/platform_device.h>
@@ -205,8 +212,12 @@ static int hid_time_parse_report(struct platform_device *pdev,
 static int hid_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 	struct hid_time_state *time_state =
 		platform_get_drvdata(to_platform_device(dev));
+=======
+	struct hid_time_state *time_state = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	int ret;
 
 	reinit_completion(&time_state->comp_last_time);
@@ -252,7 +263,13 @@ static int hid_time_probe(struct platform_device *pdev)
 
 	ret = hid_sensor_parse_common_attributes(hsdev,
 				HID_USAGE_SENSOR_TIME,
+<<<<<<< HEAD
 				&time_state->common_attributes);
+=======
+				&time_state->common_attributes,
+				NULL,
+				0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev, "failed to setup common attributes!\n");
 		return ret;
@@ -340,3 +357,7 @@ module_platform_driver(hid_time_platform_driver);
 MODULE_DESCRIPTION("HID Sensor Time");
 MODULE_AUTHOR("Alexander Holler <holler@ahsoftware.de>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(IIO_HID);
+>>>>>>> upstream/android-13

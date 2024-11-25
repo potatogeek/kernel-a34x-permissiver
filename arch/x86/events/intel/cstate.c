@@ -40,16 +40,25 @@
  * Model specific counters:
  *	MSR_CORE_C1_RES: CORE C1 Residency Counter
  *			 perf code: 0x00
+<<<<<<< HEAD
  *			 Available model: SLM,AMT,GLM,CNL
+=======
+ *			 Available model: SLM,AMT,GLM,CNL,ICX,TNT,ADL
+>>>>>>> upstream/android-13
  *			 Scope: Core (each processor core has a MSR)
  *	MSR_CORE_C3_RESIDENCY: CORE C3 Residency Counter
  *			       perf code: 0x01
  *			       Available model: NHM,WSM,SNB,IVB,HSW,BDW,SKL,GLM,
+<<<<<<< HEAD
 						CNL
+=======
+ *						CNL,KBL,CML,TNT
+>>>>>>> upstream/android-13
  *			       Scope: Core
  *	MSR_CORE_C6_RESIDENCY: CORE C6 Residency Counter
  *			       perf code: 0x02
  *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW,
+<<<<<<< HEAD
  *						SKL,KNL,GLM,CNL
  *			       Scope: Core
  *	MSR_CORE_C7_RESIDENCY: CORE C7 Residency Counter
@@ -59,10 +68,25 @@
  *	MSR_PKG_C2_RESIDENCY:  Package C2 Residency Counter.
  *			       perf code: 0x00
  *			       Available model: SNB,IVB,HSW,BDW,SKL,KNL,GLM,CNL
+=======
+ *						SKL,KNL,GLM,CNL,KBL,CML,ICL,ICX,
+ *						TGL,TNT,RKL,ADL
+ *			       Scope: Core
+ *	MSR_CORE_C7_RESIDENCY: CORE C7 Residency Counter
+ *			       perf code: 0x03
+ *			       Available model: SNB,IVB,HSW,BDW,SKL,CNL,KBL,CML,
+ *						ICL,TGL,RKL,ADL
+ *			       Scope: Core
+ *	MSR_PKG_C2_RESIDENCY:  Package C2 Residency Counter.
+ *			       perf code: 0x00
+ *			       Available model: SNB,IVB,HSW,BDW,SKL,KNL,GLM,CNL,
+ *						KBL,CML,ICL,ICX,TGL,TNT,RKL,ADL
+>>>>>>> upstream/android-13
  *			       Scope: Package (physical package)
  *	MSR_PKG_C3_RESIDENCY:  Package C3 Residency Counter.
  *			       perf code: 0x01
  *			       Available model: NHM,WSM,SNB,IVB,HSW,BDW,SKL,KNL,
+<<<<<<< HEAD
  *						GLM,CNL
  *			       Scope: Package (physical package)
  *	MSR_PKG_C6_RESIDENCY:  Package C6 Residency Counter.
@@ -85,6 +109,36 @@
  *	MSR_PKG_C10_RESIDENCY: Package C10 Residency Counter.
  *			       perf code: 0x06
  *			       Available model: HSW ULT,KBL,GLM,CNL
+=======
+ *						GLM,CNL,KBL,CML,ICL,TGL,TNT,RKL,
+ *						ADL
+ *			       Scope: Package (physical package)
+ *	MSR_PKG_C6_RESIDENCY:  Package C6 Residency Counter.
+ *			       perf code: 0x02
+ *			       Available model: SLM,AMT,NHM,WSM,SNB,IVB,HSW,BDW,
+ *						SKL,KNL,GLM,CNL,KBL,CML,ICL,ICX,
+ *						TGL,TNT,RKL,ADL
+ *			       Scope: Package (physical package)
+ *	MSR_PKG_C7_RESIDENCY:  Package C7 Residency Counter.
+ *			       perf code: 0x03
+ *			       Available model: NHM,WSM,SNB,IVB,HSW,BDW,SKL,CNL,
+ *						KBL,CML,ICL,TGL,RKL,ADL
+ *			       Scope: Package (physical package)
+ *	MSR_PKG_C8_RESIDENCY:  Package C8 Residency Counter.
+ *			       perf code: 0x04
+ *			       Available model: HSW ULT,KBL,CNL,CML,ICL,TGL,RKL,
+ *						ADL
+ *			       Scope: Package (physical package)
+ *	MSR_PKG_C9_RESIDENCY:  Package C9 Residency Counter.
+ *			       perf code: 0x05
+ *			       Available model: HSW ULT,KBL,CNL,CML,ICL,TGL,RKL,
+ *						ADL
+ *			       Scope: Package (physical package)
+ *	MSR_PKG_C10_RESIDENCY: Package C10 Residency Counter.
+ *			       perf code: 0x06
+ *			       Available model: HSW ULT,KBL,GLM,CNL,CML,ICL,TGL,
+ *						TNT,RKL,ADL
+>>>>>>> upstream/android-13
  *			       Scope: Package (physical package)
  *
  */
@@ -96,6 +150,10 @@
 #include <asm/cpu_device_id.h>
 #include <asm/intel-family.h>
 #include "../perf_event.h"
+<<<<<<< HEAD
+=======
+#include "../probe.h"
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 
@@ -144,6 +202,7 @@ enum perf_cstate_core_events {
 	PERF_CSTATE_CORE_EVENT_MAX,
 };
 
+<<<<<<< HEAD
 PMU_EVENT_ATTR_STRING(c1-residency, evattr_cstate_core_c1, "event=0x00");
 PMU_EVENT_ATTR_STRING(c3-residency, evattr_cstate_core_c3, "event=0x01");
 PMU_EVENT_ATTR_STRING(c6-residency, evattr_cstate_core_c6, "event=0x02");
@@ -163,6 +222,44 @@ static struct attribute *core_events_attrs[PERF_CSTATE_CORE_EVENT_MAX + 1] = {
 static struct attribute_group core_events_attr_group = {
 	.name = "events",
 	.attrs = core_events_attrs,
+=======
+PMU_EVENT_ATTR_STRING(c1-residency, attr_cstate_core_c1, "event=0x00");
+PMU_EVENT_ATTR_STRING(c3-residency, attr_cstate_core_c3, "event=0x01");
+PMU_EVENT_ATTR_STRING(c6-residency, attr_cstate_core_c6, "event=0x02");
+PMU_EVENT_ATTR_STRING(c7-residency, attr_cstate_core_c7, "event=0x03");
+
+static unsigned long core_msr_mask;
+
+PMU_EVENT_GROUP(events, cstate_core_c1);
+PMU_EVENT_GROUP(events, cstate_core_c3);
+PMU_EVENT_GROUP(events, cstate_core_c6);
+PMU_EVENT_GROUP(events, cstate_core_c7);
+
+static bool test_msr(int idx, void *data)
+{
+	return test_bit(idx, (unsigned long *) data);
+}
+
+static struct perf_msr core_msr[] = {
+	[PERF_CSTATE_CORE_C1_RES] = { MSR_CORE_C1_RES,		&group_cstate_core_c1,	test_msr },
+	[PERF_CSTATE_CORE_C3_RES] = { MSR_CORE_C3_RESIDENCY,	&group_cstate_core_c3,	test_msr },
+	[PERF_CSTATE_CORE_C6_RES] = { MSR_CORE_C6_RESIDENCY,	&group_cstate_core_c6,	test_msr },
+	[PERF_CSTATE_CORE_C7_RES] = { MSR_CORE_C7_RESIDENCY,	&group_cstate_core_c7,	test_msr },
+};
+
+static struct attribute *attrs_empty[] = {
+	NULL,
+};
+
+/*
+ * There are no default events, but we need to create
+ * "events" group (with empty attrs) before updating
+ * it with detected events.
+ */
+static struct attribute_group core_events_attr_group = {
+	.name = "events",
+	.attrs = attrs_empty,
+>>>>>>> upstream/android-13
 };
 
 DEFINE_CSTATE_FORMAT_ATTR(core_event, event, "config:0-63");
@@ -211,6 +308,7 @@ enum perf_cstate_pkg_events {
 	PERF_CSTATE_PKG_EVENT_MAX,
 };
 
+<<<<<<< HEAD
 PMU_EVENT_ATTR_STRING(c2-residency, evattr_cstate_pkg_c2, "event=0x00");
 PMU_EVENT_ATTR_STRING(c3-residency, evattr_cstate_pkg_c3, "event=0x01");
 PMU_EVENT_ATTR_STRING(c6-residency, evattr_cstate_pkg_c6, "event=0x02");
@@ -231,11 +329,43 @@ static struct perf_cstate_msr pkg_msr[] = {
 
 static struct attribute *pkg_events_attrs[PERF_CSTATE_PKG_EVENT_MAX + 1] = {
 	NULL,
+=======
+PMU_EVENT_ATTR_STRING(c2-residency,  attr_cstate_pkg_c2,  "event=0x00");
+PMU_EVENT_ATTR_STRING(c3-residency,  attr_cstate_pkg_c3,  "event=0x01");
+PMU_EVENT_ATTR_STRING(c6-residency,  attr_cstate_pkg_c6,  "event=0x02");
+PMU_EVENT_ATTR_STRING(c7-residency,  attr_cstate_pkg_c7,  "event=0x03");
+PMU_EVENT_ATTR_STRING(c8-residency,  attr_cstate_pkg_c8,  "event=0x04");
+PMU_EVENT_ATTR_STRING(c9-residency,  attr_cstate_pkg_c9,  "event=0x05");
+PMU_EVENT_ATTR_STRING(c10-residency, attr_cstate_pkg_c10, "event=0x06");
+
+static unsigned long pkg_msr_mask;
+
+PMU_EVENT_GROUP(events, cstate_pkg_c2);
+PMU_EVENT_GROUP(events, cstate_pkg_c3);
+PMU_EVENT_GROUP(events, cstate_pkg_c6);
+PMU_EVENT_GROUP(events, cstate_pkg_c7);
+PMU_EVENT_GROUP(events, cstate_pkg_c8);
+PMU_EVENT_GROUP(events, cstate_pkg_c9);
+PMU_EVENT_GROUP(events, cstate_pkg_c10);
+
+static struct perf_msr pkg_msr[] = {
+	[PERF_CSTATE_PKG_C2_RES]  = { MSR_PKG_C2_RESIDENCY,	&group_cstate_pkg_c2,	test_msr },
+	[PERF_CSTATE_PKG_C3_RES]  = { MSR_PKG_C3_RESIDENCY,	&group_cstate_pkg_c3,	test_msr },
+	[PERF_CSTATE_PKG_C6_RES]  = { MSR_PKG_C6_RESIDENCY,	&group_cstate_pkg_c6,	test_msr },
+	[PERF_CSTATE_PKG_C7_RES]  = { MSR_PKG_C7_RESIDENCY,	&group_cstate_pkg_c7,	test_msr },
+	[PERF_CSTATE_PKG_C8_RES]  = { MSR_PKG_C8_RESIDENCY,	&group_cstate_pkg_c8,	test_msr },
+	[PERF_CSTATE_PKG_C9_RES]  = { MSR_PKG_C9_RESIDENCY,	&group_cstate_pkg_c9,	test_msr },
+	[PERF_CSTATE_PKG_C10_RES] = { MSR_PKG_C10_RESIDENCY,	&group_cstate_pkg_c10,	test_msr },
+>>>>>>> upstream/android-13
 };
 
 static struct attribute_group pkg_events_attr_group = {
 	.name = "events",
+<<<<<<< HEAD
 	.attrs = pkg_events_attrs,
+=======
+	.attrs = attrs_empty,
+>>>>>>> upstream/android-13
 };
 
 DEFINE_CSTATE_FORMAT_ATTR(pkg_event, event, "config:0-63");
@@ -280,6 +410,7 @@ static int cstate_pmu_event_init(struct perf_event *event)
 		return -ENOENT;
 
 	/* unsupported modes and filters */
+<<<<<<< HEAD
 	if (event->attr.exclude_user   ||
 	    event->attr.exclude_kernel ||
 	    event->attr.exclude_hv     ||
@@ -287,6 +418,9 @@ static int cstate_pmu_event_init(struct perf_event *event)
 	    event->attr.exclude_host   ||
 	    event->attr.exclude_guest  ||
 	    event->attr.sample_period) /* no sampling */
+=======
+	if (event->attr.sample_period) /* no sampling */
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (event->cpu < 0)
@@ -295,7 +429,12 @@ static int cstate_pmu_event_init(struct perf_event *event)
 	if (event->pmu == &cstate_core_pmu) {
 		if (cfg >= PERF_CSTATE_CORE_EVENT_MAX)
 			return -EINVAL;
+<<<<<<< HEAD
 		if (!core_msr[cfg].attr)
+=======
+		cfg = array_index_nospec((unsigned long)cfg, PERF_CSTATE_CORE_EVENT_MAX);
+		if (!(core_msr_mask & (1 << cfg)))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		event->hw.event_base = core_msr[cfg].msr;
 		cpu = cpumask_any_and(&cstate_core_cpu_mask,
@@ -304,11 +443,19 @@ static int cstate_pmu_event_init(struct perf_event *event)
 		if (cfg >= PERF_CSTATE_PKG_EVENT_MAX)
 			return -EINVAL;
 		cfg = array_index_nospec((unsigned long)cfg, PERF_CSTATE_PKG_EVENT_MAX);
+<<<<<<< HEAD
 		if (!pkg_msr[cfg].attr)
 			return -EINVAL;
 		event->hw.event_base = pkg_msr[cfg].msr;
 		cpu = cpumask_any_and(&cstate_pkg_cpu_mask,
 				      topology_core_cpumask(event->cpu));
+=======
+		if (!(pkg_msr_mask & (1 << cfg)))
+			return -EINVAL;
+		event->hw.event_base = pkg_msr[cfg].msr;
+		cpu = cpumask_any_and(&cstate_pkg_cpu_mask,
+				      topology_die_cpumask(event->cpu));
+>>>>>>> upstream/android-13
 	} else {
 		return -ENOENT;
 	}
@@ -391,7 +538,11 @@ static int cstate_cpu_exit(unsigned int cpu)
 	if (has_cstate_pkg &&
 	    cpumask_test_and_clear_cpu(cpu, &cstate_pkg_cpu_mask)) {
 
+<<<<<<< HEAD
 		target = cpumask_any_but(topology_core_cpumask(cpu), cpu);
+=======
+		target = cpumask_any_but(topology_die_cpumask(cpu), cpu);
+>>>>>>> upstream/android-13
 		/* Migrate events if there is a valid target */
 		if (target < nr_cpu_ids) {
 			cpumask_set_cpu(target, &cstate_pkg_cpu_mask);
@@ -420,15 +571,44 @@ static int cstate_cpu_init(unsigned int cpu)
 	 * in the package cpu mask as the designated reader.
 	 */
 	target = cpumask_any_and(&cstate_pkg_cpu_mask,
+<<<<<<< HEAD
 				 topology_core_cpumask(cpu));
+=======
+				 topology_die_cpumask(cpu));
+>>>>>>> upstream/android-13
 	if (has_cstate_pkg && target >= nr_cpu_ids)
 		cpumask_set_cpu(cpu, &cstate_pkg_cpu_mask);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct pmu cstate_core_pmu = {
 	.attr_groups	= core_attr_groups,
+=======
+static const struct attribute_group *core_attr_update[] = {
+	&group_cstate_core_c1,
+	&group_cstate_core_c3,
+	&group_cstate_core_c6,
+	&group_cstate_core_c7,
+	NULL,
+};
+
+static const struct attribute_group *pkg_attr_update[] = {
+	&group_cstate_pkg_c2,
+	&group_cstate_pkg_c3,
+	&group_cstate_pkg_c6,
+	&group_cstate_pkg_c7,
+	&group_cstate_pkg_c8,
+	&group_cstate_pkg_c9,
+	&group_cstate_pkg_c10,
+	NULL,
+};
+
+static struct pmu cstate_core_pmu = {
+	.attr_groups	= core_attr_groups,
+	.attr_update	= core_attr_update,
+>>>>>>> upstream/android-13
 	.name		= "cstate_core",
 	.task_ctx_nr	= perf_invalid_context,
 	.event_init	= cstate_pmu_event_init,
@@ -437,12 +617,20 @@ static struct pmu cstate_core_pmu = {
 	.start		= cstate_pmu_event_start,
 	.stop		= cstate_pmu_event_stop,
 	.read		= cstate_pmu_event_update,
+<<<<<<< HEAD
 	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+=======
+	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT | PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	.module		= THIS_MODULE,
 };
 
 static struct pmu cstate_pkg_pmu = {
 	.attr_groups	= pkg_attr_groups,
+<<<<<<< HEAD
+=======
+	.attr_update	= pkg_attr_update,
+>>>>>>> upstream/android-13
 	.name		= "cstate_pkg",
 	.task_ctx_nr	= perf_invalid_context,
 	.event_init	= cstate_pmu_event_init,
@@ -451,7 +639,11 @@ static struct pmu cstate_pkg_pmu = {
 	.start		= cstate_pmu_event_start,
 	.stop		= cstate_pmu_event_stop,
 	.read		= cstate_pmu_event_update,
+<<<<<<< HEAD
 	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+=======
+	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT | PERF_PMU_CAP_NO_EXCLUDE,
+>>>>>>> upstream/android-13
 	.module		= THIS_MODULE,
 };
 
@@ -504,6 +696,44 @@ static const struct cstate_model cnl_cstates __initconst = {
 				  BIT(PERF_CSTATE_PKG_C10_RES),
 };
 
+<<<<<<< HEAD
+=======
+static const struct cstate_model icl_cstates __initconst = {
+	.core_events		= BIT(PERF_CSTATE_CORE_C6_RES) |
+				  BIT(PERF_CSTATE_CORE_C7_RES),
+
+	.pkg_events		= BIT(PERF_CSTATE_PKG_C2_RES) |
+				  BIT(PERF_CSTATE_PKG_C3_RES) |
+				  BIT(PERF_CSTATE_PKG_C6_RES) |
+				  BIT(PERF_CSTATE_PKG_C7_RES) |
+				  BIT(PERF_CSTATE_PKG_C8_RES) |
+				  BIT(PERF_CSTATE_PKG_C9_RES) |
+				  BIT(PERF_CSTATE_PKG_C10_RES),
+};
+
+static const struct cstate_model icx_cstates __initconst = {
+	.core_events		= BIT(PERF_CSTATE_CORE_C1_RES) |
+				  BIT(PERF_CSTATE_CORE_C6_RES),
+
+	.pkg_events		= BIT(PERF_CSTATE_PKG_C2_RES) |
+				  BIT(PERF_CSTATE_PKG_C6_RES),
+};
+
+static const struct cstate_model adl_cstates __initconst = {
+	.core_events		= BIT(PERF_CSTATE_CORE_C1_RES) |
+				  BIT(PERF_CSTATE_CORE_C6_RES) |
+				  BIT(PERF_CSTATE_CORE_C7_RES),
+
+	.pkg_events		= BIT(PERF_CSTATE_PKG_C2_RES) |
+				  BIT(PERF_CSTATE_PKG_C3_RES) |
+				  BIT(PERF_CSTATE_PKG_C6_RES) |
+				  BIT(PERF_CSTATE_PKG_C7_RES) |
+				  BIT(PERF_CSTATE_PKG_C8_RES) |
+				  BIT(PERF_CSTATE_PKG_C9_RES) |
+				  BIT(PERF_CSTATE_PKG_C10_RES),
+};
+
+>>>>>>> upstream/android-13
 static const struct cstate_model slm_cstates __initconst = {
 	.core_events		= BIT(PERF_CSTATE_CORE_C1_RES) |
 				  BIT(PERF_CSTATE_CORE_C6_RES),
@@ -535,6 +765,7 @@ static const struct cstate_model glm_cstates __initconst = {
 };
 
 
+<<<<<<< HEAD
 #define X86_CSTATES_MODEL(model, states)				\
 	{ X86_VENDOR_INTEL, 6, model, X86_FEATURE_ANY, (unsigned long) &(states) }
 
@@ -586,10 +817,74 @@ static const struct x86_cpu_id intel_cstates_match[] __initconst = {
 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT_PLUS, glm_cstates),
 
 	X86_CSTATES_MODEL(INTEL_FAM6_ICELAKE_MOBILE, snb_cstates),
+=======
+static const struct x86_cpu_id intel_cstates_match[] __initconst = {
+	X86_MATCH_INTEL_FAM6_MODEL(NEHALEM,		&nhm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(NEHALEM_EP,		&nhm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(NEHALEM_EX,		&nhm_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(WESTMERE,		&nhm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(WESTMERE_EP,		&nhm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(WESTMERE_EX,		&nhm_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(SANDYBRIDGE,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(SANDYBRIDGE_X,	&snb_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(IVYBRIDGE,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(IVYBRIDGE_X,		&snb_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(HASWELL,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(HASWELL_X,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(HASWELL_G,		&snb_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(HASWELL_L,		&hswult_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT,	&slm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT_D,	&slm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,	&slm_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL_D,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL_G,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL_X,		&snb_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(SKYLAKE_L,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(SKYLAKE,		&snb_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(SKYLAKE_X,		&snb_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(KABYLAKE_L,		&hswult_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(KABYLAKE,		&hswult_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(COMETLAKE_L,		&hswult_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(COMETLAKE,		&hswult_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(CANNONLAKE_L,	&cnl_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(XEON_PHI_KNL,	&knl_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(XEON_PHI_KNM,	&knl_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_GOLDMONT,	&glm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_GOLDMONT_D,	&glm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_GOLDMONT_PLUS,	&glm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_D,	&glm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT,	&glm_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_L,	&glm_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(ICELAKE_L,		&icl_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ICELAKE,		&icl_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ICELAKE_X,		&icx_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ICELAKE_D,		&icx_cstates),
+
+	X86_MATCH_INTEL_FAM6_MODEL(TIGERLAKE_L,		&icl_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(TIGERLAKE,		&icl_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ROCKETLAKE,		&icl_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&adl_cstates),
+	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&adl_cstates),
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(x86cpu, intel_cstates_match);
 
+<<<<<<< HEAD
 /*
  * Probe the cstate events and insert the available one into sysfs attrs
  * Return false if there are no available events.
@@ -615,6 +910,8 @@ static bool __init cstate_probe_msr(const unsigned long evmsk, int max,
 	return found;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __init cstate_probe(const struct cstate_model *cm)
 {
 	/* SLM has different MSR for PKG C6 */
@@ -626,6 +923,7 @@ static int __init cstate_probe(const struct cstate_model *cm)
 		pkg_msr[PERF_CSTATE_CORE_C6_RES].msr = MSR_KNL_CORE_C6_RESIDENCY;
 
 
+<<<<<<< HEAD
 	has_cstate_core = cstate_probe_msr(cm->core_events,
 					   PERF_CSTATE_CORE_EVENT_MAX,
 					   core_msr, core_events_attrs);
@@ -633,6 +931,16 @@ static int __init cstate_probe(const struct cstate_model *cm)
 	has_cstate_pkg = cstate_probe_msr(cm->pkg_events,
 					  PERF_CSTATE_PKG_EVENT_MAX,
 					  pkg_msr, pkg_events_attrs);
+=======
+	core_msr_mask = perf_msr_probe(core_msr, PERF_CSTATE_CORE_EVENT_MAX,
+				       true, (void *) &cm->core_events);
+
+	pkg_msr_mask = perf_msr_probe(pkg_msr, PERF_CSTATE_PKG_EVENT_MAX,
+				      true, (void *) &cm->pkg_events);
+
+	has_cstate_core = !!core_msr_mask;
+	has_cstate_pkg  = !!pkg_msr_mask;
+>>>>>>> upstream/android-13
 
 	return (has_cstate_core || has_cstate_pkg) ? 0 : -ENODEV;
 }
@@ -669,7 +977,17 @@ static int __init cstate_init(void)
 	}
 
 	if (has_cstate_pkg) {
+<<<<<<< HEAD
 		err = perf_pmu_register(&cstate_pkg_pmu, cstate_pkg_pmu.name, -1);
+=======
+		if (topology_max_die_per_package() > 1) {
+			err = perf_pmu_register(&cstate_pkg_pmu,
+						"cstate_die", -1);
+		} else {
+			err = perf_pmu_register(&cstate_pkg_pmu,
+						cstate_pkg_pmu.name, -1);
+		}
+>>>>>>> upstream/android-13
 		if (err) {
 			has_cstate_pkg = false;
 			pr_info("Failed to register cstate pkg pmu\n");

@@ -3,6 +3,7 @@
 # Makefile for Kernel-based Virtual Machine module, HYP part
 #
 
+<<<<<<< HEAD
 ccflags-y += -fno-stack-protector -DDISABLE_BRANCH_PROFILING \
 		$(DISABLE_STACKLEAK_PLUGIN) \
 		$(DISABLE_CFI)
@@ -37,3 +38,13 @@ KCOV_INSTRUMENT	:= n
 
 # remove the SCS flags from all objects in this directory
 KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
+=======
+incdir := $(srctree)/$(src)/include
+subdir-asflags-y := -I$(incdir)
+subdir-ccflags-y := -I$(incdir)				\
+		    -fno-stack-protector		\
+		    -DDISABLE_BRANCH_PROFILING		\
+		    $(DISABLE_STACKLEAK_PLUGIN)
+
+obj-$(CONFIG_KVM) += vhe/ nvhe/ pgtable.o
+>>>>>>> upstream/android-13

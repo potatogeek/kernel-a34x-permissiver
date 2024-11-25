@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -27,6 +34,7 @@
 #define _WIFI_H_
 
 #include <linux/compiler.h>
+<<<<<<< HEAD
 
 #define WLAN_IEEE_OUI_LEN	3
 #define WLAN_CRC_LEN		4
@@ -168,6 +176,35 @@ enum WIFI_REG_DOMAIN {
 
 #define ClearFrDs(pbuf)	({ \
 	*(__le16 *)(pbuf) &= (~cpu_to_le16(_FROM_DS_)); \
+=======
+#include <linux/ieee80211.h>
+
+#define WLAN_HDR_A3_LEN		24
+#define WLAN_HDR_A3_QOS_LEN	26
+
+enum WIFI_FRAME_TYPE {
+	WIFI_QOS_DATA_TYPE	= (BIT(7) | BIT(3)),	/*!< QoS Data */
+};
+
+#define SetToDs(pbuf) ({ \
+	*(__le16 *)(pbuf) |= cpu_to_le16(IEEE80211_FCTL_TODS); \
+})
+
+#define GetToDs(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(IEEE80211_FCTL_TODS)) != 0)
+
+#define ClearToDs(pbuf)	({ \
+	*(__le16 *)(pbuf) &= (~cpu_to_le16(IEEE80211_FCTL_TODS)); \
+})
+
+#define SetFrDs(pbuf) ({ \
+	*(__le16 *)(pbuf) |= cpu_to_le16(IEEE80211_FCTL_FROMDS); \
+})
+
+#define GetFrDs(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(IEEE80211_FCTL_FROMDS)) != 0)
+
+#define ClearFrDs(pbuf)	({ \
+	*(__le16 *)(pbuf) &= (~cpu_to_le16(IEEE80211_FCTL_FROMDS)); \
+>>>>>>> upstream/android-13
 })
 
 static inline unsigned char get_tofr_ds(unsigned char *pframe)
@@ -176,6 +213,7 @@ static inline unsigned char get_tofr_ds(unsigned char *pframe)
 }
 
 #define SetMFrag(pbuf) ({ \
+<<<<<<< HEAD
 	*(__le16 *)(pbuf) |= cpu_to_le16(_MORE_FRAG_); \
 })
 
@@ -226,6 +264,58 @@ static inline unsigned char get_tofr_ds(unsigned char *pframe)
 
 #define GetOrder(pbuf)	(((*(__le16 *)(pbuf)) & \
 			cpu_to_le16(_ORDER_)) != 0)
+=======
+	*(__le16 *)(pbuf) |= cpu_to_le16(IEEE80211_FCTL_MOREFRAGS); \
+})
+
+#define GetMFrag(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(IEEE80211_FCTL_MOREFRAGS)) != 0)
+
+#define ClearMFrag(pbuf) ({ \
+	*(__le16 *)(pbuf) &= (~cpu_to_le16(IEEE80211_FCTL_MOREFRAGS)); \
+})
+
+#define SetRetry(pbuf) ({ \
+	*(__le16 *)(pbuf) |= cpu_to_le16(IEEE80211_FCTL_RETRY); \
+})
+
+#define GetRetry(pbuf)	(((*(__le16 *)(pbuf)) & cpu_to_le16(IEEE80211_FCTL_RETRY)) != 0)
+
+#define ClearRetry(pbuf) ({ \
+	*(__le16 *)(pbuf) &= (~cpu_to_le16(IEEE80211_FCTL_RETRY)); \
+})
+
+#define SetPwrMgt(pbuf) ({ \
+	*(__le16 *)(pbuf) |= cpu_to_le16(IEEE80211_FCTL_PM); \
+})
+
+#define GetPwrMgt(pbuf)	(((*(__le16 *)(pbuf)) & \
+			cpu_to_le16(IEEE80211_FCTL_PM)) != 0)
+
+#define ClearPwrMgt(pbuf) ({ \
+	*(__le16 *)(pbuf) &= (~cpu_to_le16(IEEE80211_FCTL_PM)); \
+})
+
+#define SetMData(pbuf) ({ \
+	*(__le16 *)(pbuf) |= cpu_to_le16(IEEE80211_FCTL_MOREDATA); \
+})
+
+#define GetMData(pbuf)	(((*(__le16 *)(pbuf)) & \
+			cpu_to_le16(IEEE80211_FCTL_MOREDATA)) != 0)
+
+#define ClearMData(pbuf) ({ \
+	*(__le16 *)(pbuf) &= (~cpu_to_le16(IEEE80211_FCTL_MOREDATA)); \
+})
+
+#define SetPrivacy(pbuf) ({ \
+	*(__le16 *)(pbuf) |= cpu_to_le16(IEEE80211_FCTL_PROTECTED); \
+})
+
+#define GetPrivacy(pbuf)	(((*(__le16 *)(pbuf)) & \
+				cpu_to_le16(IEEE80211_FCTL_PROTECTED)) != 0)
+
+#define GetOrder(pbuf)	(((*(__le16 *)(pbuf)) & \
+			cpu_to_le16(IEEE80211_FCTL_ORDER)) != 0)
+>>>>>>> upstream/android-13
 
 #define GetFrameType(pbuf)	(le16_to_cpu(*(__le16 *)(pbuf)) & \
 				(BIT(3) | BIT(2)))
@@ -260,11 +350,14 @@ static inline unsigned char get_tofr_ds(unsigned char *pframe)
 	0x000f) | (0xfff0 & (num << 4))); \
 })
 
+<<<<<<< HEAD
 #define SetDuration(pbuf, dur) ({ \
 	*(__le16 *)((addr_t)(pbuf) + 2) |= \
 	cpu_to_le16(0xffff & (dur)); \
 })
 
+=======
+>>>>>>> upstream/android-13
 #define SetPriority(pbuf, tid) ({ \
 	*(__le16 *)(pbuf) |= cpu_to_le16(tid & 0xf); \
 })
@@ -279,9 +372,12 @@ static inline unsigned char get_tofr_ds(unsigned char *pframe)
 
 #define GetAMsdu(pbuf) (((le16_to_cpu(*(__le16 *)pbuf)) >> 7) & 0x1)
 
+<<<<<<< HEAD
 #define GetAid(pbuf)	(cpu_to_le16(*(__le16 *)((addr_t)(pbuf) + 2)) \
 			& 0x3fff)
 
+=======
+>>>>>>> upstream/android-13
 #define GetAddr1Ptr(pbuf)	((unsigned char *)((addr_t)(pbuf) + 4))
 
 #define GetAddr2Ptr(pbuf)	((unsigned char *)((addr_t)(pbuf) + 10))
@@ -290,6 +386,7 @@ static inline unsigned char get_tofr_ds(unsigned char *pframe)
 
 #define GetAddr4Ptr(pbuf)	((unsigned char *)((addr_t)(pbuf) + 24))
 
+<<<<<<< HEAD
 
 
 static inline int IS_MCAST(unsigned char *da)
@@ -347,6 +444,8 @@ static inline unsigned char *get_sa(unsigned char *pframe)
 	return sa;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline unsigned char *get_hdr_bssid(unsigned char *pframe)
 {
 	unsigned char	*sa;
@@ -369,6 +468,7 @@ static inline unsigned char *get_hdr_bssid(unsigned char *pframe)
 	return sa;
 }
 
+<<<<<<< HEAD
 
 
 /*-----------------------------------------------------------------------------
@@ -416,10 +516,13 @@ static inline unsigned char *get_hdr_bssid(unsigned char *pframe)
 #define	_RESERVED47_		47
 
 
+=======
+>>>>>>> upstream/android-13
 /* ---------------------------------------------------------------------------
  *			Below is the fixed elements...
  * ---------------------------------------------------------------------------
  */
+<<<<<<< HEAD
 #define _AUTH_ALGM_NUM_			2
 #define _AUTH_SEQ_NUM_			2
 #define _BEACON_ITERVAL_		2
@@ -451,12 +554,19 @@ static inline unsigned char *get_hdr_bssid(unsigned char *pframe)
  */
 #define _IEEE8021X_MGT_			1	/*WPA */
 #define _IEEE8021X_PSK_			2	/* WPA with pre-shared key */
+=======
+#define _BEACON_ITERVAL_		2
+#define _CAPABILITY_			2
+#define _TIMESTAMP_				8
+
+>>>>>>> upstream/android-13
 
 /*-----------------------------------------------------------------------------
  *			Below is the definition for WMM
  *------------------------------------------------------------------------------
  */
 #define _WMM_IE_Length_				7  /* for WMM STA */
+<<<<<<< HEAD
 #define _WMM_Para_Element_Length_		24
 
 
@@ -574,6 +684,8 @@ struct ieee80211_ht_addt_info {
 #define WLAN_HT_CAP_SM_PS_DYNAMIC	1
 #define WLAN_HT_CAP_SM_PS_INVALID	2
 #define WLAN_HT_CAP_SM_PS_DISABLED	3
+=======
+>>>>>>> upstream/android-13
 
 #endif /* _WIFI_H_ */
 

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/ptrace.h
  *
  *  Copyright (C) 1996-2003 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_ARM_PTRACE_H
 #define __ASM_ARM_PTRACE_H
@@ -22,7 +29,10 @@ struct pt_regs {
 struct svc_pt_regs {
 	struct pt_regs regs;
 	u32 dacr;
+<<<<<<< HEAD
 	u32 addr_limit;
+=======
+>>>>>>> upstream/android-13
 };
 
 #define to_svc_pt_regs(r) container_of(r, struct svc_pt_regs, regs)

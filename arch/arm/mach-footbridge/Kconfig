@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 if ARCH_FOOTBRIDGE
 
 menu "Footbridge Implementations"
@@ -9,12 +13,17 @@ config ARCH_CATS
 	select FOOTBRIDGE_HOST
 	select ISA
 	select ISA_DMA
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you intend to run this kernel on the CATS.
 
 	  Saying N will reduce the size of the Footbridge kernel.
 
+<<<<<<< HEAD
 config ARCH_PERSONAL_SERVER
 	bool "Compaq Personal Server"
 	select FOOTBRIDGE_HOST
@@ -36,6 +45,8 @@ config ARCH_PERSONAL_SERVER
 	  If you have any questions or comments about the  Compaq Personal
 	  Server, send e-mail to <skiff@crl.dec.com>.
 
+=======
+>>>>>>> upstream/android-13
 config ARCH_EBSA285_ADDIN
 	bool "EBSA285 (addin mode)"
 	select ARCH_EBSA285
@@ -53,7 +64,11 @@ config ARCH_EBSA285_HOST
 	select ISA
 	select ISA_DMA
 	select ARCH_MAY_HAVE_PC_FDC
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you intend to run this kernel on the EBSA285 card
 	  in host ("central function") mode.
@@ -67,7 +82,11 @@ config ARCH_NETWINDER
 	select FOOTBRIDGE_HOST
 	select ISA
 	select ISA_DMA
+<<<<<<< HEAD
 	select PCI
+=======
+	select FORCE_PCI
+>>>>>>> upstream/android-13
 	help
 	  Say Y here if you intend to run this kernel on the Rebel.COM
 	  NetWinder.  Information about this machine can be found at:

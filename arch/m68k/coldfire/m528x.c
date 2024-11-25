@@ -13,6 +13,10 @@
 
 /***************************************************************************/
 
+<<<<<<< HEAD
+=======
+#include <linux/clkdev.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/param.h>
 #include <linux/init.h>
@@ -28,6 +32,7 @@
 
 DEFINE_CLK(pll, "pll.0", MCF_CLK);
 DEFINE_CLK(sys, "sys.0", MCF_BUSCLK);
+<<<<<<< HEAD
 DEFINE_CLK(mcfpit0, "mcfpit.0", MCF_CLK);
 DEFINE_CLK(mcfpit1, "mcfpit.1", MCF_CLK);
 DEFINE_CLK(mcfpit2, "mcfpit.2", MCF_CLK);
@@ -53,6 +58,22 @@ struct clk *mcf_clks[] = {
 	&clk_fec0,
 	&clk_mcfi2c0,
 	NULL
+=======
+
+static struct clk_lookup m528x_clk_lookup[] = {
+	CLKDEV_INIT(NULL, "pll.0", &clk_pll),
+	CLKDEV_INIT(NULL, "sys.0", &clk_sys),
+	CLKDEV_INIT("mcfpit.0", NULL, &clk_pll),
+	CLKDEV_INIT("mcfpit.1", NULL, &clk_pll),
+	CLKDEV_INIT("mcfpit.2", NULL, &clk_pll),
+	CLKDEV_INIT("mcfpit.3", NULL, &clk_pll),
+	CLKDEV_INIT("mcfuart.0", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.1", NULL, &clk_sys),
+	CLKDEV_INIT("mcfuart.2", NULL, &clk_sys),
+	CLKDEV_INIT("mcfqspi.0", NULL, &clk_sys),
+	CLKDEV_INIT("fec.0", NULL, &clk_sys),
+	CLKDEV_INIT("imx1-i2c.0", NULL, &clk_sys),
+>>>>>>> upstream/android-13
 };
 
 /***************************************************************************/
@@ -146,6 +167,11 @@ void __init config_BSP(char *commandp, int size)
 	m528x_fec_init();
 	m528x_qspi_init();
 	m528x_i2c_init();
+<<<<<<< HEAD
+=======
+
+	clkdev_add_table(m528x_clk_lookup, ARRAY_SIZE(m528x_clk_lookup));
+>>>>>>> upstream/android-13
 }
 
 /***************************************************************************/

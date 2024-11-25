@@ -133,7 +133,11 @@ static int vr_nor_init_maps(struct vr_nor_mtd *p)
 	if (win_len < (CS0_START + CS0_SIZE))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	p->csr_base = ioremap_nocache(csr_phys, csr_len);
+=======
+	p->csr_base = ioremap(csr_phys, csr_len);
+>>>>>>> upstream/android-13
 	if (!p->csr_base)
 		return -ENOMEM;
 
@@ -152,7 +156,11 @@ static int vr_nor_init_maps(struct vr_nor_mtd *p)
 	p->map.bankwidth = (exp_timing_cs0 & TIMING_BYTE_EN) ? 1 : 2;
 	p->map.phys = win_phys + CS0_START;
 	p->map.size = CS0_SIZE;
+<<<<<<< HEAD
 	p->map.virt = ioremap_nocache(p->map.phys, p->map.size);
+=======
+	p->map.virt = ioremap(p->map.phys, p->map.size);
+>>>>>>> upstream/android-13
 	if (!p->map.virt) {
 		err = -ENOMEM;
 		goto release;

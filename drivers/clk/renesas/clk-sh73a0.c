@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * sh73a0 Core CPG Clocks
  *
  * Copyright (C) 2014  Ulrich Hecht
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
 #include <linux/clk/renesas.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
@@ -123,7 +134,11 @@ sh73a0_cpg_register_clock(struct device_node *np, struct sh73a0_cpg *cpg,
 			(phy_no ? CPG_DSI1PHYCR : CPG_DSI0PHYCR);
 
 		parent_name = phy_no ? "dsi1pck" : "dsi0pck";
+<<<<<<< HEAD
 		mult = __raw_readl(dsi_reg);
+=======
+		mult = readl(dsi_reg);
+>>>>>>> upstream/android-13
 		if (!(mult & 0x8000))
 			mult = 1;
 		else
@@ -206,8 +221,13 @@ static void __init sh73a0_cpg_clocks_init(struct device_node *np)
 
 		clk = sh73a0_cpg_register_clock(np, cpg, name);
 		if (IS_ERR(clk))
+<<<<<<< HEAD
 			pr_err("%s: failed to register %s %s clock (%ld)\n",
 			       __func__, np->name, name, PTR_ERR(clk));
+=======
+			pr_err("%s: failed to register %pOFn %s clock (%ld)\n",
+			       __func__, np, name, PTR_ERR(clk));
+>>>>>>> upstream/android-13
 		else
 			cpg->data.clks[i] = clk;
 	}

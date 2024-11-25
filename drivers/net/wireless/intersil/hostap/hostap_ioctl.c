@@ -44,6 +44,7 @@ static struct iw_statistics *hostap_get_wireless_stats(struct net_device *dev)
 
 	if (local->iw_mode != IW_MODE_MASTER &&
 	    local->iw_mode != IW_MODE_REPEAT) {
+<<<<<<< HEAD
 		int update = 1;
 #ifdef in_atomic
 		/* RID reading might sleep and it must not be called in
@@ -57,6 +58,10 @@ static struct iw_statistics *hostap_get_wireless_stats(struct net_device *dev)
 #endif /* in_atomic */
 
 		if (update && prism2_update_comms_qual(dev) == 0)
+=======
+
+		if (prism2_update_comms_qual(dev) == 0)
+>>>>>>> upstream/android-13
 			wstats->qual.updated = IW_QUAL_ALL_UPDATED |
 				IW_QUAL_DBM;
 
@@ -1955,7 +1960,11 @@ static inline int prism2_translate_scan(local_info_t *local,
 					char *buffer, int buflen)
 {
 	struct hfa384x_hostscan_result *scan;
+<<<<<<< HEAD
 	int entry, hostscan;
+=======
+	int entry;
+>>>>>>> upstream/android-13
 	char *current_ev = buffer;
 	char *end_buf = buffer + buflen;
 	struct list_head *ptr;
@@ -1968,7 +1977,10 @@ static inline int prism2_translate_scan(local_info_t *local,
 		bss->included = 0;
 	}
 
+<<<<<<< HEAD
 	hostscan = local->last_scan_type == PRISM2_HOSTSCAN;
+=======
+>>>>>>> upstream/android-13
 	for (entry = 0; entry < local->last_scan_results_count; entry++) {
 		int found = 0;
 		scan = &local->last_scan_results[entry];
@@ -3953,7 +3965,12 @@ const struct iw_handler_def hostap_iw_handler_def =
 	.get_wireless_stats = hostap_get_wireless_stats,
 };
 
+<<<<<<< HEAD
 
+=======
+/* Private ioctls (iwpriv) that have not yet been converted
+ * into new wireless extensions API */
+>>>>>>> upstream/android-13
 int hostap_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	struct iwreq *wrq = (struct iwreq *) ifr;
@@ -3965,9 +3982,12 @@ int hostap_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	local = iface->local;
 
 	switch (cmd) {
+<<<<<<< HEAD
 		/* Private ioctls (iwpriv) that have not yet been converted
 		 * into new wireless extensions API */
 
+=======
+>>>>>>> upstream/android-13
 	case PRISM2_IOCTL_INQUIRE:
 		if (!capable(CAP_NET_ADMIN)) ret = -EPERM;
 		else ret = prism2_ioctl_priv_inquire(dev, (int *) wrq->u.name);
@@ -4021,11 +4041,39 @@ int hostap_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 					       wrq->u.ap_addr.sa_data);
 		break;
 #endif /* PRISM2_NO_KERNEL_IEEE80211_MGMT */
+<<<<<<< HEAD
 
 
 		/* Private ioctls that are not used with iwpriv;
 		 * in SIOCDEVPRIVATE range */
 
+=======
+	default:
+		ret = -EOPNOTSUPP;
+		break;
+	}
+
+	return ret;
+}
+
+/* Private ioctls that are not used with iwpriv;
+ * in SIOCDEVPRIVATE range */
+int hostap_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			  void __user *data, int cmd)
+{
+	struct iwreq *wrq = (struct iwreq *)ifr;
+	struct hostap_interface *iface;
+	local_info_t *local;
+	int ret = 0;
+
+	iface = netdev_priv(dev);
+	local = iface->local;
+
+	if (in_compat_syscall()) /* not implemented yet */
+		return -EOPNOTSUPP;
+
+	switch (cmd) {
+>>>>>>> upstream/android-13
 #ifdef PRISM2_DOWNLOAD_SUPPORT
 	case PRISM2_IOCTL_DOWNLOAD:
 		if (!capable(CAP_NET_ADMIN)) ret = -EPERM;

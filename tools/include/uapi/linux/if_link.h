@@ -161,11 +161,21 @@ enum {
 	IFLA_EVENT,
 	IFLA_NEW_NETNSID,
 	IFLA_IF_NETNSID,
+<<<<<<< HEAD
+=======
+	IFLA_TARGET_NETNSID = IFLA_IF_NETNSID, /* new alias */
+>>>>>>> upstream/android-13
 	IFLA_CARRIER_UP_COUNT,
 	IFLA_CARRIER_DOWN_COUNT,
 	IFLA_NEW_IFINDEX,
 	IFLA_MIN_MTU,
 	IFLA_MAX_MTU,
+<<<<<<< HEAD
+=======
+	IFLA_PROP_LIST,
+	IFLA_ALT_IFNAME, /* Alternative ifname */
+	IFLA_PERM_ADDRESS,
+>>>>>>> upstream/android-13
 	__IFLA_MAX
 };
 
@@ -226,6 +236,10 @@ enum {
 	IFLA_INET6_ICMP6STATS,	/* statistics (icmpv6)		*/
 	IFLA_INET6_TOKEN,	/* device token			*/
 	IFLA_INET6_ADDR_GEN_MODE, /* implicit address generator mode */
+<<<<<<< HEAD
+=======
+	IFLA_INET6_RA_MTU,	/* mtu carried in the RA message */
+>>>>>>> upstream/android-13
 	__IFLA_INET6_MAX
 };
 
@@ -286,6 +300,11 @@ enum {
 	IFLA_BR_MCAST_STATS_ENABLED,
 	IFLA_BR_MCAST_IGMP_VERSION,
 	IFLA_BR_MCAST_MLD_VERSION,
+<<<<<<< HEAD
+=======
+	IFLA_BR_VLAN_STATS_PER_PORT,
+	IFLA_BR_MULTI_BOOLOPT,
+>>>>>>> upstream/android-13
 	__IFLA_BR_MAX,
 };
 
@@ -337,6 +356,11 @@ enum {
 	IFLA_BRPORT_NEIGH_SUPPRESS,
 	IFLA_BRPORT_ISOLATED,
 	IFLA_BRPORT_BACKUP_PORT,
+<<<<<<< HEAD
+=======
+	IFLA_BRPORT_MRP_RING_OPEN,
+	IFLA_BRPORT_MRP_IN_OPEN,
+>>>>>>> upstream/android-13
 	__IFLA_BRPORT_MAX
 };
 #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
@@ -401,6 +425,11 @@ enum {
 	IFLA_MACVLAN_MACADDR,
 	IFLA_MACVLAN_MACADDR_DATA,
 	IFLA_MACVLAN_MACADDR_COUNT,
+<<<<<<< HEAD
+=======
+	IFLA_MACVLAN_BC_QUEUE_LEN,
+	IFLA_MACVLAN_BC_QUEUE_LEN_USED,
+>>>>>>> upstream/android-13
 	__IFLA_MACVLAN_MAX,
 };
 
@@ -457,6 +486,10 @@ enum {
 	IFLA_MACSEC_REPLAY_PROTECT,
 	IFLA_MACSEC_VALIDATION,
 	IFLA_MACSEC_PAD,
+<<<<<<< HEAD
+=======
+	IFLA_MACSEC_OFFLOAD,
+>>>>>>> upstream/android-13
 	__IFLA_MACSEC_MAX,
 };
 
@@ -480,6 +513,17 @@ enum macsec_validation_type {
 	MACSEC_VALIDATE_MAX = __MACSEC_VALIDATE_END - 1,
 };
 
+<<<<<<< HEAD
+=======
+enum macsec_offload {
+	MACSEC_OFFLOAD_OFF = 0,
+	MACSEC_OFFLOAD_PHY = 1,
+	MACSEC_OFFLOAD_MAC = 2,
+	__MACSEC_OFFLOAD_END,
+	MACSEC_OFFLOAD_MAX = __MACSEC_OFFLOAD_END - 1,
+};
+
+>>>>>>> upstream/android-13
 /* IPVLAN section */
 enum {
 	IFLA_IPVLAN_UNSPEC,
@@ -531,6 +575,10 @@ enum {
 	IFLA_VXLAN_LABEL,
 	IFLA_VXLAN_GPE,
 	IFLA_VXLAN_TTL_INHERIT,
+<<<<<<< HEAD
+=======
+	IFLA_VXLAN_DF,
+>>>>>>> upstream/android-13
 	__IFLA_VXLAN_MAX
 };
 #define IFLA_VXLAN_MAX	(__IFLA_VXLAN_MAX - 1)
@@ -540,6 +588,17 @@ struct ifla_vxlan_port_range {
 	__be16	high;
 };
 
+<<<<<<< HEAD
+=======
+enum ifla_vxlan_df {
+	VXLAN_DF_UNSET = 0,
+	VXLAN_DF_SET,
+	VXLAN_DF_INHERIT,
+	__VXLAN_DF_END,
+	VXLAN_DF_MAX = __VXLAN_DF_END - 1,
+};
+
+>>>>>>> upstream/android-13
 /* GENEVE section */
 enum {
 	IFLA_GENEVE_UNSPEC,
@@ -554,10 +613,26 @@ enum {
 	IFLA_GENEVE_UDP_ZERO_CSUM6_TX,
 	IFLA_GENEVE_UDP_ZERO_CSUM6_RX,
 	IFLA_GENEVE_LABEL,
+<<<<<<< HEAD
+=======
+	IFLA_GENEVE_TTL_INHERIT,
+	IFLA_GENEVE_DF,
+>>>>>>> upstream/android-13
 	__IFLA_GENEVE_MAX
 };
 #define IFLA_GENEVE_MAX	(__IFLA_GENEVE_MAX - 1)
 
+<<<<<<< HEAD
+=======
+enum ifla_geneve_df {
+	GENEVE_DF_UNSET = 0,
+	GENEVE_DF_SET,
+	GENEVE_DF_INHERIT,
+	__GENEVE_DF_END,
+	GENEVE_DF_MAX = __GENEVE_DF_END - 1,
+};
+
+>>>>>>> upstream/android-13
 /* PPP section */
 enum {
 	IFLA_PPP_UNSPEC,
@@ -614,6 +689,11 @@ enum {
 	IFLA_BOND_AD_USER_PORT_KEY,
 	IFLA_BOND_AD_ACTOR_SYSTEM,
 	IFLA_BOND_TLB_DYNAMIC_LB,
+<<<<<<< HEAD
+=======
+	IFLA_BOND_PEER_NOTIF_DELAY,
+	IFLA_BOND_AD_LACP_ACTIVE,
+>>>>>>> upstream/android-13
 	__IFLA_BOND_MAX,
 };
 
@@ -672,6 +752,10 @@ enum {
 	IFLA_VF_IB_NODE_GUID,	/* VF Infiniband node GUID */
 	IFLA_VF_IB_PORT_GUID,	/* VF Infiniband port GUID */
 	IFLA_VF_VLAN_LIST,	/* nested list of vlans, option for QinQ */
+<<<<<<< HEAD
+=======
+	IFLA_VF_BROADCAST,	/* VF broadcast */
+>>>>>>> upstream/android-13
 	__IFLA_VF_MAX,
 };
 
@@ -682,6 +766,13 @@ struct ifla_vf_mac {
 	__u8 mac[32]; /* MAX_ADDR_LEN */
 };
 
+<<<<<<< HEAD
+=======
+struct ifla_vf_broadcast {
+	__u8 broadcast[32];
+};
+
+>>>>>>> upstream/android-13
 struct ifla_vf_vlan {
 	__u32 vf;
 	__u32 vlan; /* 0 - 4095, 0 disables VLAN filter */
@@ -903,6 +994,10 @@ enum {
 enum {
 	LINK_XSTATS_TYPE_UNSPEC,
 	LINK_XSTATS_TYPE_BRIDGE,
+<<<<<<< HEAD
+=======
+	LINK_XSTATS_TYPE_BOND,
+>>>>>>> upstream/android-13
 	__LINK_XSTATS_TYPE_MAX
 };
 #define LINK_XSTATS_TYPE_MAX (__LINK_XSTATS_TYPE_MAX - 1)
@@ -921,11 +1016,19 @@ enum {
 #define XDP_FLAGS_SKB_MODE		(1U << 1)
 #define XDP_FLAGS_DRV_MODE		(1U << 2)
 #define XDP_FLAGS_HW_MODE		(1U << 3)
+<<<<<<< HEAD
+=======
+#define XDP_FLAGS_REPLACE		(1U << 4)
+>>>>>>> upstream/android-13
 #define XDP_FLAGS_MODES			(XDP_FLAGS_SKB_MODE | \
 					 XDP_FLAGS_DRV_MODE | \
 					 XDP_FLAGS_HW_MODE)
 #define XDP_FLAGS_MASK			(XDP_FLAGS_UPDATE_IF_NOEXIST | \
+<<<<<<< HEAD
 					 XDP_FLAGS_MODES)
+=======
+					 XDP_FLAGS_MODES | XDP_FLAGS_REPLACE)
+>>>>>>> upstream/android-13
 
 /* These are stored into IFLA_XDP_ATTACHED on dump. */
 enum {
@@ -945,6 +1048,10 @@ enum {
 	IFLA_XDP_DRV_PROG_ID,
 	IFLA_XDP_SKB_PROG_ID,
 	IFLA_XDP_HW_PROG_ID,
+<<<<<<< HEAD
+=======
+	IFLA_XDP_EXPECTED_FD,
+>>>>>>> upstream/android-13
 	__IFLA_XDP_MAX,
 };
 

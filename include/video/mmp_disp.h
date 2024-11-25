@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * linux/include/video/mmp_disp.h
  * Header file for Marvell MMP Display Controller
  *
  * Copyright (C) 2012 Marvell Technology Group Ltd.
  * Authors: Zhou Zhu <zzhu3@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MMP_DISP_H_
@@ -244,7 +251,11 @@ struct mmp_path {
 
 	/* layers */
 	int overlay_num;
+<<<<<<< HEAD
 	struct mmp_overlay overlays[0];
+=======
+	struct mmp_overlay overlays[];
+>>>>>>> upstream/android-13
 };
 
 extern struct mmp_path *mmp_get_path(const char *name);

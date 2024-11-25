@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 obj-y 	:= access.o chip.o core.o handle.o irqdomain.o virq.o
 
 obj-$(CONFIG_INTC_BALANCING)		+= balancing.o

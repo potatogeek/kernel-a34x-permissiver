@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2014, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -16,6 +21,12 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+=======
+ */
+
+#include <drm/drm_fourcc.h>
+#include <drm/drm_util.h>
+>>>>>>> upstream/android-13
 
 #include "mdp5_kms.h"
 #include "mdp5_smp.h"
@@ -88,7 +99,11 @@ static int smp_request_block(struct mdp5_smp *smp,
 
 	avail = cnt - bitmap_weight(state->state, cnt);
 	if (nblks > avail) {
+<<<<<<< HEAD
 		dev_err(smp->dev->dev, "out of blks (req=%d > avail=%d)\n",
+=======
+		DRM_DEV_ERROR(smp->dev->dev, "out of blks (req=%d > avail=%d)\n",
+>>>>>>> upstream/android-13
 				nblks, avail);
 		return -ENOSPC;
 	}
@@ -126,6 +141,7 @@ uint32_t mdp5_smp_calculate(struct mdp5_smp *smp,
 		const struct mdp_format *format,
 		u32 width, bool hdecim)
 {
+<<<<<<< HEAD
 	struct mdp5_kms *mdp5_kms = get_kms(smp);
 	int rev = mdp5_cfg_get_hw_rev(mdp5_kms->cfg);
 	int i, hsub, nplanes, nlines;
@@ -134,6 +150,16 @@ uint32_t mdp5_smp_calculate(struct mdp5_smp *smp,
 
 	nplanes = drm_format_num_planes(fmt);
 	hsub = drm_format_horz_chroma_subsampling(fmt);
+=======
+	const struct drm_format_info *info = drm_format_info(format->base.pixel_format);
+	struct mdp5_kms *mdp5_kms = get_kms(smp);
+	int rev = mdp5_cfg_get_hw_rev(mdp5_kms->cfg);
+	int i, hsub, nplanes, nlines;
+	uint32_t blkcfg = 0;
+
+	nplanes = info->num_planes;
+	hsub = info->hsub;
+>>>>>>> upstream/android-13
 
 	/* different if BWC (compressed framebuffer?) enabled: */
 	nlines = 2;
@@ -143,7 +169,10 @@ uint32_t mdp5_smp_calculate(struct mdp5_smp *smp,
 	 * them together, writes to SMP using a single client.
 	 */
 	if ((rev > 0) && (format->chroma_sample > CHROMA_FULL)) {
+<<<<<<< HEAD
 		fmt = DRM_FORMAT_NV24;
+=======
+>>>>>>> upstream/android-13
 		nplanes = 2;
 
 		/* if decimation is enabled, HW decimates less on the
@@ -156,7 +185,11 @@ uint32_t mdp5_smp_calculate(struct mdp5_smp *smp,
 	for (i = 0; i < nplanes; i++) {
 		int n, fetch_stride, cpp;
 
+<<<<<<< HEAD
 		cpp = drm_format_plane_cpp(fmt, i);
+=======
+		cpp = info->cpp[i];
+>>>>>>> upstream/android-13
 		fetch_stride = width * cpp / (i ? hsub : 1);
 
 		n = DIV_ROUND_UP(fetch_stride * nlines, smp->blk_size);
@@ -188,7 +221,11 @@ int mdp5_smp_assign(struct mdp5_smp *smp, struct mdp5_smp_state *state,
 		DBG("%s[%d]: request %d SMP blocks", pipe2name(pipe), i, n);
 		ret = smp_request_block(smp, state, cid, n);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(dev->dev, "Cannot allocate %d SMP blocks: %d\n",
+=======
+			DRM_DEV_ERROR(dev->dev, "Cannot allocate %d SMP blocks: %d\n",
+>>>>>>> upstream/android-13
 					n, ret);
 			return ret;
 		}

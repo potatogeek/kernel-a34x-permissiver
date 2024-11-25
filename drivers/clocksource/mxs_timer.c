@@ -117,6 +117,7 @@ static irqreturn_t mxs_timer_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction mxs_timer_irq = {
 	.name		= "MXS Timer Tick",
 	.dev_id		= &mxs_clockevent_device,
@@ -124,6 +125,8 @@ static struct irqaction mxs_timer_irq = {
 	.handler	= mxs_timer_interrupt,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void mxs_irq_clear(char *state)
 {
 	/* Disable interrupt in timer module */
@@ -274,6 +277,11 @@ static int __init mxs_timer_init(struct device_node *np)
 	if (irq <= 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return setup_irq(irq, &mxs_timer_irq);
+=======
+	return request_irq(irq, mxs_timer_interrupt, IRQF_TIMER | IRQF_IRQPOLL,
+			   "MXS Timer Tick", &mxs_clockevent_device);
+>>>>>>> upstream/android-13
 }
 TIMER_OF_DECLARE(mxs, "fsl,timrot", mxs_timer_init);

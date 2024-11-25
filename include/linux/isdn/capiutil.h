@@ -57,6 +57,7 @@ static inline void capimsg_setu32(void *m, int off, __u32 val)
 #define	CAPIMSG_SETCONTROL(m, contr)	capimsg_setu32(m, 8, contr)
 #define	CAPIMSG_SETDATALEN(m, len)	capimsg_setu16(m, 16, len)
 
+<<<<<<< HEAD
 /*----- basic-type definitions -----*/
 
 typedef __u8 *_cstruct;
@@ -513,4 +514,6 @@ static inline void capi_fill_RESET_B3_RESP(_cmsg * cmsg, __u16 ApplId, __u16 Mes
 	capi_cmsg_header(cmsg, ApplId, 0x87, 0x83, Messagenumber, adr);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif				/* __CAPIUTIL_H__ */

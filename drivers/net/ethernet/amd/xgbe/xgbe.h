@@ -135,7 +135,10 @@
 #include <linux/list.h>
 
 #define XGBE_DRV_NAME		"amd-xgbe"
+<<<<<<< HEAD
 #define XGBE_DRV_VERSION	"1.0.3"
+=======
+>>>>>>> upstream/android-13
 #define XGBE_DRV_DESC		"AMD 10 Gigabit Ethernet Driver"
 
 /* Descriptor related defines */
@@ -1015,12 +1018,15 @@ struct xgbe_version_data {
 	unsigned int an_cdr_workaround;
 };
 
+<<<<<<< HEAD
 struct xgbe_vxlan_data {
 	struct list_head list;
 	sa_family_t sa_family;
 	__be16 port;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct xgbe_prv_data {
 	struct net_device *netdev;
 	struct pci_dev *pcidev;
@@ -1173,6 +1179,7 @@ struct xgbe_prv_data {
 	u32 rss_options;
 
 	/* VXLAN settings */
+<<<<<<< HEAD
 	unsigned int vxlan_port_set;
 	unsigned int vxlan_offloads_set;
 	unsigned int vxlan_force_disable;
@@ -1180,6 +1187,9 @@ struct xgbe_prv_data {
 	struct list_head vxlan_ports;
 	u16 vxlan_port;
 	netdev_features_t vxlan_features;
+=======
+	u16 vxlan_port;
+>>>>>>> upstream/android-13
 
 	/* Netdev related settings */
 	unsigned char mac_addr[ETH_ALEN];
@@ -1322,6 +1332,10 @@ void xgbe_init_function_ptrs_desc(struct xgbe_desc_if *);
 void xgbe_init_function_ptrs_i2c(struct xgbe_i2c_if *);
 const struct net_device_ops *xgbe_get_netdev_ops(void);
 const struct ethtool_ops *xgbe_get_ethtool_ops(void);
+<<<<<<< HEAD
+=======
+const struct udp_tunnel_nic_info *xgbe_get_udp_tunnel_info(void);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_AMD_XGBE_DCB
 const struct dcbnl_rtnl_ops *xgbe_get_dcbnl_ops(void);

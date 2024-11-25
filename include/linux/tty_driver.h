@@ -89,7 +89,11 @@
  *
  *	Note: Do not call this function directly, call tty_driver_flush_chars
  * 
+<<<<<<< HEAD
  * int  (*write_room)(struct tty_struct *tty);
+=======
+ * unsigned int  (*write_room)(struct tty_struct *tty);
+>>>>>>> upstream/android-13
  *
  * 	This routine returns the numbers of characters the tty driver
  * 	will accept for queuing to be written.  This number is subject
@@ -136,7 +140,11 @@
  * 	the line discipline are close to full, and it should somehow
  * 	signal that no more characters should be sent to the tty.
  *
+<<<<<<< HEAD
  *	Optional: Always invoke via tty_throttle(), called under the
+=======
+ *	Optional: Always invoke via tty_throttle_safe(), called under the
+>>>>>>> upstream/android-13
  *	termios lock.
  * 
  * void (*unthrottle)(struct tty_struct * tty);
@@ -153,7 +161,11 @@
  * 	This routine notifies the tty driver that it should stop
  * 	outputting characters to the tty device.  
  *
+<<<<<<< HEAD
  *	Called with ->flow_lock held. Serialized with start() method.
+=======
+ *	Called with ->flow.lock held. Serialized with start() method.
+>>>>>>> upstream/android-13
  *
  *	Optional:
  *
@@ -164,7 +176,11 @@
  * 	This routine notifies the tty driver that it resume sending
  *	characters to the tty device.
  *
+<<<<<<< HEAD
  *	Called with ->flow_lock held. Serialized with stop() method.
+=======
+ *	Called with ->flow.lock held. Serialized with stop() method.
+>>>>>>> upstream/android-13
  *
  *	Optional:
  *
@@ -224,6 +240,7 @@
  *	line). See tty_do_resize() if you need to wrap the standard method
  *	in your own logic - the usual case.
  *
+<<<<<<< HEAD
  * void (*set_termiox)(struct tty_struct *tty, struct termiox *new);
  *
  *	Called when the device receives a termiox based ioctl. Passes down
@@ -232,6 +249,8 @@
  *
  *	Optional: Called under the termios lock
  *
+=======
+>>>>>>> upstream/android-13
  * int (*get_icount)(struct tty_struct *tty, struct serial_icounter *icount);
  *
  *	Called when the device receives a TIOCGICOUNT ioctl. Passed a kernel
@@ -241,14 +260,26 @@
 
 #include <linux/export.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/kref.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/cdev.h>
 #include <linux/termios.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct tty_struct;
 struct tty_driver;
 struct serial_icounter_struct;
+<<<<<<< HEAD
+=======
+struct serial_struct;
+>>>>>>> upstream/android-13
 
 struct tty_operations {
 	struct tty_struct * (*lookup)(struct tty_driver *driver,
@@ -263,8 +294,13 @@ struct tty_operations {
 		      const unsigned char *buf, int count);
 	int  (*put_char)(struct tty_struct *tty, unsigned char ch);
 	void (*flush_chars)(struct tty_struct *tty);
+<<<<<<< HEAD
 	int  (*write_room)(struct tty_struct *tty);
 	int  (*chars_in_buffer)(struct tty_struct *tty);
+=======
+	unsigned int (*write_room)(struct tty_struct *tty);
+	unsigned int (*chars_in_buffer)(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 	int  (*ioctl)(struct tty_struct *tty,
 		    unsigned int cmd, unsigned long arg);
 	long (*compat_ioctl)(struct tty_struct *tty,
@@ -284,9 +320,16 @@ struct tty_operations {
 	int (*tiocmset)(struct tty_struct *tty,
 			unsigned int set, unsigned int clear);
 	int (*resize)(struct tty_struct *tty, struct winsize *ws);
+<<<<<<< HEAD
 	int (*set_termiox)(struct tty_struct *tty, struct termiox *tnew);
 	int (*get_icount)(struct tty_struct *tty,
 				struct serial_icounter_struct *icount);
+=======
+	int (*get_icount)(struct tty_struct *tty,
+				struct serial_icounter_struct *icount);
+	int  (*get_serial)(struct tty_struct *tty, struct serial_struct *p);
+	int  (*set_serial)(struct tty_struct *tty, struct serial_struct *p);
+>>>>>>> upstream/android-13
 	void (*show_fdinfo)(struct tty_struct *tty, struct seq_file *m);
 #ifdef CONFIG_CONSOLE_POLL
 	int (*poll_init)(struct tty_driver *driver, int line, char *options);
@@ -294,6 +337,12 @@ struct tty_operations {
 	void (*poll_put_char)(struct tty_driver *driver, int line, char ch);
 #endif
 	int (*proc_show)(struct seq_file *, void *);
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 } __randomize_layout;
 
 struct tty_driver {
@@ -328,15 +377,24 @@ struct tty_driver {
 
 	const struct tty_operations *ops;
 	struct list_head tty_drivers;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 } __randomize_layout;
 
 extern struct list_head tty_drivers;
 
 extern struct tty_driver *__tty_alloc_driver(unsigned int lines,
 		struct module *owner, unsigned long flags);
+<<<<<<< HEAD
 extern void put_tty_driver(struct tty_driver *driver);
 extern void tty_set_operations(struct tty_driver *driver,
 			const struct tty_operations *op);
+=======
+>>>>>>> upstream/android-13
 extern struct tty_driver *tty_find_polling_driver(char *name, int *line);
 
 extern void tty_driver_kref_put(struct tty_driver *driver);
@@ -345,6 +403,7 @@ extern void tty_driver_kref_put(struct tty_driver *driver);
 #define tty_alloc_driver(lines, flags) \
 		__tty_alloc_driver(lines, THIS_MODULE, flags)
 
+<<<<<<< HEAD
 /*
  * DEPRECATED Do not use this in new code, use tty_alloc_driver instead.
  * (And change the return value checks.)
@@ -357,12 +416,23 @@ static inline struct tty_driver *alloc_tty_driver(unsigned int lines)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct tty_driver *tty_driver_kref_get(struct tty_driver *d)
 {
 	kref_get(&d->kref);
 	return d;
 }
 
+<<<<<<< HEAD
+=======
+static inline void tty_set_operations(struct tty_driver *driver,
+		const struct tty_operations *op)
+{
+	driver->ops = op;
+}
+
+>>>>>>> upstream/android-13
 /* tty driver magic number */
 #define TTY_DRIVER_MAGIC		0x5402
 
@@ -440,4 +510,24 @@ static inline struct tty_driver *tty_driver_kref_get(struct tty_driver *d)
 /* serial subtype definitions */
 #define SERIAL_TYPE_NORMAL	1
 
+<<<<<<< HEAD
+=======
+int tty_register_driver(struct tty_driver *driver);
+void tty_unregister_driver(struct tty_driver *driver);
+struct device *tty_register_device(struct tty_driver *driver, unsigned index,
+		struct device *dev);
+struct device *tty_register_device_attr(struct tty_driver *driver,
+		unsigned index, struct device *device, void *drvdata,
+		const struct attribute_group **attr_grp);
+void tty_unregister_device(struct tty_driver *driver, unsigned index);
+
+#ifdef CONFIG_PROC_FS
+void proc_tty_register_driver(struct tty_driver *);
+void proc_tty_unregister_driver(struct tty_driver *);
+#else
+static inline void proc_tty_register_driver(struct tty_driver *d) {}
+static inline void proc_tty_unregister_driver(struct tty_driver *d) {}
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* #ifdef _LINUX_TTY_DRIVER_H */

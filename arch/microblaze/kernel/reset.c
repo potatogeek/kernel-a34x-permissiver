@@ -8,6 +8,7 @@
  */
 
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/of_platform.h>
 
 /* Trigger specific functions */
@@ -85,6 +86,11 @@ void machine_restart(char *cmd)
 	while (1)
 		;
 }
+=======
+#include <linux/delay.h>
+#include <linux/of_platform.h>
+#include <linux/reboot.h>
+>>>>>>> upstream/android-13
 
 void machine_shutdown(void)
 {
@@ -106,3 +112,15 @@ void machine_power_off(void)
 	while (1)
 		;
 }
+<<<<<<< HEAD
+=======
+
+void machine_restart(char *cmd)
+{
+	do_kernel_restart(cmd);
+	/* Give the restart hook 1 s to take us down */
+	mdelay(1000);
+	pr_emerg("Reboot failed -- System halted\n");
+	while (1);
+}
+>>>>>>> upstream/android-13

@@ -40,6 +40,17 @@ MSM8998 platform.
 	Definition: must be 2. Specifying the pin number and flags, as defined
 		    in <dt-bindings/gpio/gpio.h>
 
+<<<<<<< HEAD
+=======
+- gpio-ranges:
+	Usage: required
+	Definition:  see ../gpio/gpio.txt
+
+- gpio-reserved-ranges:
+	Usage: optional
+	Definition: see ../gpio/gpio.txt
+
+>>>>>>> upstream/android-13
 Please refer to ../gpio/gpio.txt and ../interrupt-controller/interrupts.txt for
 a general description of GPIO and interrupt bindings.
 
@@ -124,9 +135,14 @@ to specify in a pin configuration subnode:
 		    qlink_request, qua_mi2s, sd_card, sd_write, sdc40, sdc41,
 		    sdc42, sdc43, sdc4_clk, sdc4_cmd, sec_mi2s, sp_cmu,
 		    spkr_i2s, ssbi1, ssc_irq, ter_mi2s, tgu_ch0, tgu_ch1,
+<<<<<<< HEAD
 		    tsense_pwm1, tsense_pwm2, tsif1_clk, tsif1_data, tsif1_en,
 		    tsif1_error, tsif1_sync, tsif2_clk, tsif2_data, tsif2_en,
 		    tsif2_error, tsif2_sync, uim1_clk, uim1_data, uim1_present,
+=======
+		    tsense_pwm1, tsense_pwm2, tsif0, tsif1,
+		    uim1_clk, uim1_data, uim1_present,
+>>>>>>> upstream/android-13
 		    uim1_reset, uim2_clk, uim2_data, uim2_present, uim2_reset,
 		    uim_batt, usb_phy, vfr_1, vsense_clkout, vsense_data0,
 		    vsense_data1, vsense_mode, wlan1_adc0, wlan1_adc1,
@@ -135,17 +151,29 @@ to specify in a pin configuration subnode:
 - bias-disable:
 	Usage: optional
 	Value type: <none>
+<<<<<<< HEAD
 	Definition: The specified pins should be configued as no pull.
+=======
+	Definition: The specified pins should be configured as no pull.
+>>>>>>> upstream/android-13
 
 - bias-pull-down:
 	Usage: optional
 	Value type: <none>
+<<<<<<< HEAD
 	Definition: The specified pins should be configued as pull down.
+=======
+	Definition: The specified pins should be configured as pull down.
+>>>>>>> upstream/android-13
 
 - bias-pull-up:
 	Usage: optional
 	Value type: <none>
+<<<<<<< HEAD
 	Definition: The specified pins should be configued as pull up.
+=======
+	Definition: The specified pins should be configured as pull up.
+>>>>>>> upstream/android-13
 
 - output-high:
 	Usage: optional
@@ -175,6 +203,11 @@ Example:
 		interrupts = <0 208 0>;
 		gpio-controller;
 		#gpio-cells = <2>;
+<<<<<<< HEAD
+=======
+		gpio-ranges = <&tlmm 0 0 175>;
+		gpio-reserved-ranges = <0 4>, <81 4>;
+>>>>>>> upstream/android-13
 		interrupt-controller;
 		#interrupt-cells = <2>;
 

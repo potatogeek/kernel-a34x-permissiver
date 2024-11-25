@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IIO DAC driver for NXP LPC18xx DAC
  *
  * Copyright (C) 2016 Joachim Eastwood <manabian@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * UNSUPPORTED hardware features:
  *  - Interrupts
  *  - DMA
@@ -109,7 +116,10 @@ static int lpc18xx_dac_probe(struct platform_device *pdev)
 {
 	struct iio_dev *indio_dev;
 	struct lpc18xx_dac *dac;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*dac));
@@ -120,8 +130,12 @@ static int lpc18xx_dac_probe(struct platform_device *pdev)
 	dac = iio_priv(indio_dev);
 	mutex_init(&dac->lock);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	dac->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	dac->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dac->base))
 		return PTR_ERR(dac->base);
 
@@ -138,7 +152,10 @@ static int lpc18xx_dac_probe(struct platform_device *pdev)
 	}
 
 	indio_dev->name = dev_name(&pdev->dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &lpc18xx_dac_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = lpc18xx_dac_iio_channels;

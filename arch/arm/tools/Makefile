@@ -8,16 +8,26 @@
 gen := arch/$(ARCH)/include/generated
 kapi := $(gen)/asm
 uapi := $(gen)/uapi/asm
+<<<<<<< HEAD
 syshdr := $(srctree)/$(src)/syscallhdr.sh
 sysnr := $(srctree)/$(src)/syscallnr.sh
 systbl := $(srctree)/$(src)/syscalltbl.sh
 syscall := $(srctree)/$(src)/syscall.tbl
+=======
+syshdr := $(srctree)/scripts/syscallhdr.sh
+sysnr := $(srctree)/$(src)/syscallnr.sh
+systbl := $(srctree)/scripts/syscalltbl.sh
+syscall := $(src)/syscall.tbl
+>>>>>>> upstream/android-13
 
 gen-y := $(gen)/calls-oabi.S
 gen-y += $(gen)/calls-eabi.S
 kapi-hdrs-y := $(kapi)/unistd-nr.h
 kapi-hdrs-y += $(kapi)/mach-types.h
+<<<<<<< HEAD
 uapi-hdrs-y := $(uapi)/unistd-common.h
+=======
+>>>>>>> upstream/android-13
 uapi-hdrs-y += $(uapi)/unistd-oabi.h
 uapi-hdrs-y += $(uapi)/unistd-eabi.h
 
@@ -34,14 +44,19 @@ _dummy := $(shell [ -d '$(kapi)' ] || mkdir -p '$(kapi)') \
           $(shell [ -d '$(uapi)' ] || mkdir -p '$(uapi)')
 
 quiet_cmd_gen_mach = GEN     $@
+<<<<<<< HEAD
       cmd_gen_mach = mkdir -p $(dir $@) && \
 		     $(AWK) -f $(filter-out $(PHONY),$^) > $@ || \
 		     { rm -f $@; /bin/false; }
+=======
+      cmd_gen_mach = $(AWK) -f $(real-prereqs) > $@
+>>>>>>> upstream/android-13
 
 $(kapi)/mach-types.h: $(src)/gen-mach-types $(src)/mach-types FORCE
 	$(call if_changed,gen_mach)
 
 quiet_cmd_syshdr = SYSHDR  $@
+<<<<<<< HEAD
       cmd_syshdr = $(CONFIG_SHELL) '$(syshdr)' '$<' '$@' \
 		   '$(syshdr_abi_$(basetarget))' \
 		   '$(syshdr_pfx_$(basetarget))' \
@@ -77,4 +92,22 @@ $(gen)/calls-oabi.S: $(syscall) $(systbl) FORCE
 
 systbl_abi_calls-eabi := common,eabi
 $(gen)/calls-eabi.S: $(syscall) $(systbl) FORCE
+=======
+      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --abis common,$* \
+		   --offset __NR_SYSCALL_BASE $< $@
+
+quiet_cmd_systbl = SYSTBL  $@
+      cmd_systbl = $(CONFIG_SHELL) $(systbl) --abis common,$* $< $@
+
+quiet_cmd_sysnr  = SYSNR   $@
+      cmd_sysnr  = $(CONFIG_SHELL) $(sysnr) $< $@
+
+$(uapi)/unistd-%.h: $(syscall) $(syshdr) FORCE
+	$(call if_changed,syshdr)
+
+$(kapi)/unistd-nr.h: $(syscall) $(sysnr) FORCE
+	$(call if_changed,sysnr)
+
+$(gen)/calls-%.S: $(syscall) $(systbl) FORCE
+>>>>>>> upstream/android-13
 	$(call if_changed,systbl)

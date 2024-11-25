@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2006 ARM Ltd.
  * Copyright (c) 2010 ST-Ericsson SA
@@ -6,6 +10,7 @@
  * Author: Peter Pearse <peter.pearse@arm.com>
  * Author: Linus Walleij <linus.walleij@linaro.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
@@ -19,6 +24,8 @@
  * The full GNU General Public License is in this distribution in the file
  * called COPYING.
  *
+=======
+>>>>>>> upstream/android-13
  * Documentation: ARM DDI 0196G == PL080
  * Documentation: ARM DDI 0218E == PL081
  * Documentation: S3C6410 User's Manual == PL080S
@@ -254,6 +261,10 @@ enum pl08x_dma_chan_state {
  * @slave: whether this channel is a device (slave) or for memcpy
  * @signal: the physical DMA request signal which this channel is using
  * @mux_use: count of descriptors using this DMA request signal setting
+<<<<<<< HEAD
+=======
+ * @waiting_at: time in jiffies when this channel moved to waiting state
+>>>>>>> upstream/android-13
  */
 struct pl08x_dma_chan {
 	struct virt_dma_chan vc;
@@ -267,6 +278,10 @@ struct pl08x_dma_chan {
 	bool slave;
 	int signal;
 	unsigned mux_use;
+<<<<<<< HEAD
+=======
+	unsigned long waiting_at;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -875,6 +890,10 @@ static void pl08x_phy_alloc_and_start(struct pl08x_dma_chan *plchan)
 	if (!ch) {
 		dev_dbg(&pl08x->adev->dev, "no physical channel available for xfer on %s\n", plchan->name);
 		plchan->state = PL08X_CHAN_WAITING;
+<<<<<<< HEAD
+=======
+		plchan->waiting_at = jiffies;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -913,6 +932,7 @@ static void pl08x_phy_free(struct pl08x_dma_chan *plchan)
 {
 	struct pl08x_driver_data *pl08x = plchan->host;
 	struct pl08x_dma_chan *p, *next;
+<<<<<<< HEAD
 
  retry:
 	next = NULL;
@@ -922,13 +942,37 @@ static void pl08x_phy_free(struct pl08x_dma_chan *plchan)
 		if (p->state == PL08X_CHAN_WAITING) {
 			next = p;
 			break;
+=======
+	unsigned long waiting_at;
+ retry:
+	next = NULL;
+	waiting_at = jiffies;
+
+	/*
+	 * Find a waiting virtual channel for the next transfer.
+	 * To be fair, time when each channel reached waiting state is compared
+	 * to select channel that is waiting for the longest time.
+	 */
+	list_for_each_entry(p, &pl08x->memcpy.channels, vc.chan.device_node)
+		if (p->state == PL08X_CHAN_WAITING &&
+		    p->waiting_at <= waiting_at) {
+			next = p;
+			waiting_at = p->waiting_at;
+>>>>>>> upstream/android-13
 		}
 
 	if (!next && pl08x->has_slave) {
 		list_for_each_entry(p, &pl08x->slave.channels, vc.chan.device_node)
+<<<<<<< HEAD
 			if (p->state == PL08X_CHAN_WAITING) {
 				next = p;
 				break;
+=======
+			if (p->state == PL08X_CHAN_WAITING &&
+			    p->waiting_at <= waiting_at) {
+				next = p;
+				waiting_at = p->waiting_at;
+>>>>>>> upstream/android-13
 			}
 	}
 
@@ -1769,7 +1813,11 @@ static u32 pl08x_memcpy_cctl(struct pl08x_driver_data *pl08x)
 	default:
 		dev_err(&pl08x->adev->dev,
 			"illegal burst size for memcpy, set to 1\n");
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PL08X_BURST_SZ_1:
 		cctl |= PL080_BSIZE_1 << PL080_CONTROL_SB_SIZE_SHIFT |
 			PL080_BSIZE_1 << PL080_CONTROL_DB_SIZE_SHIFT;
@@ -1808,7 +1856,11 @@ static u32 pl08x_memcpy_cctl(struct pl08x_driver_data *pl08x)
 	default:
 		dev_err(&pl08x->adev->dev,
 			"illegal bus width for memcpy, set to 8 bits\n");
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PL08X_BUS_WIDTH_8_BITS:
 		cctl |= PL080_WIDTH_8BIT << PL080_CONTROL_SWIDTH_SHIFT |
 			PL080_WIDTH_8BIT << PL080_CONTROL_DWIDTH_SHIFT;
@@ -1852,7 +1904,11 @@ static u32 pl08x_ftdmac020_memcpy_cctl(struct pl08x_driver_data *pl08x)
 	default:
 		dev_err(&pl08x->adev->dev,
 			"illegal bus width for memcpy, set to 8 bits\n");
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PL08X_BUS_WIDTH_8_BITS:
 		cctl |= PL080_WIDTH_8BIT << FTDMAC020_LLI_SRC_WIDTH_SHIFT |
 			PL080_WIDTH_8BIT << FTDMAC020_LLI_DST_WIDTH_SHIFT;
@@ -2505,6 +2561,7 @@ static int pl08x_debugfs_show(struct seq_file *s, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pl08x_debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, pl08x_debugfs_show, inode->i_private);
@@ -2516,13 +2573,21 @@ static const struct file_operations pl08x_debugfs_operations = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(pl08x_debugfs);
+>>>>>>> upstream/android-13
 
 static void init_pl08x_debugfs(struct pl08x_driver_data *pl08x)
 {
 	/* Expose a simple debugfs interface to view all clocks */
+<<<<<<< HEAD
 	(void) debugfs_create_file(dev_name(&pl08x->adev->dev),
 			S_IFREG | S_IRUGO, NULL, pl08x,
 			&pl08x_debugfs_operations);
+=======
+	debugfs_create_file(dev_name(&pl08x->adev->dev), S_IFREG | S_IRUGO,
+			    NULL, pl08x, &pl08x_debugfs_fops);
+>>>>>>> upstream/android-13
 }
 
 #else
@@ -2625,7 +2690,11 @@ static int pl08x_of_probe(struct amba_device *adev,
 	switch (val) {
 	default:
 		dev_err(&adev->dev, "illegal burst size for memcpy, set to 1\n");
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		pd->memcpy_burst_size = PL08X_BURST_SZ_1;
 		break;
@@ -2660,7 +2729,11 @@ static int pl08x_of_probe(struct amba_device *adev,
 	switch (val) {
 	default:
 		dev_err(&adev->dev, "illegal bus width for memcpy, set to 8 bits\n");
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 8:
 		pd->memcpy_bus_width = PL08X_BUS_WIDTH_8_BITS;
 		break;

@@ -1,15 +1,26 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_PCI_BRIDGE_H
 #define _ASM_POWERPC_PCI_BRIDGE_H
 #ifdef __KERNEL__
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/pci.h>
 #include <linux/list.h>
 #include <linux/ioport.h>
+<<<<<<< HEAD
+=======
+#include <linux/numa.h>
+>>>>>>> upstream/android-13
 
 struct device_node;
 
@@ -19,6 +30,11 @@ struct device_node;
 struct pci_controller_ops {
 	void		(*dma_dev_setup)(struct pci_dev *pdev);
 	void		(*dma_bus_setup)(struct pci_bus *bus);
+<<<<<<< HEAD
+=======
+	bool		(*iommu_bypass_supported)(struct pci_dev *pdev,
+				u64 mask);
+>>>>>>> upstream/android-13
 
 	int		(*probe_mode)(struct pci_bus *bus);
 
@@ -43,9 +59,12 @@ struct pci_controller_ops {
 	void		(*teardown_msi_irqs)(struct pci_dev *pdev);
 #endif
 
+<<<<<<< HEAD
 	int             (*dma_set_mask)(struct pci_dev *pdev, u64 dma_mask);
 	u64		(*dma_get_required_mask)(struct pci_dev *pdev);
 
+=======
+>>>>>>> upstream/android-13
 	void		(*shutdown)(struct pci_controller *hose);
 };
 
@@ -69,7 +88,11 @@ struct pci_controller {
 
 	void __iomem *io_base_virt;
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 	void *io_base_alloc;
+=======
+	void __iomem *io_base_alloc;
+>>>>>>> upstream/android-13
 #endif
 	resource_size_t io_base_phys;
 	resource_size_t pci_io_size;
@@ -129,6 +152,14 @@ struct pci_controller {
 #endif	/* CONFIG_PPC64 */
 
 	void *private_data;
+<<<<<<< HEAD
+=======
+
+	/* IRQ domain hierarchy */
+	struct irq_domain	*dev_domain;
+	struct irq_domain	*msi_domain;
+	struct fwnode_handle	*fwnode;
+>>>>>>> upstream/android-13
 };
 
 /* These are used for config access before all the PCI probing
@@ -185,6 +216,10 @@ struct iommu_table;
 struct pci_dn {
 	int     flags;
 #define PCI_DN_FLAG_IOV_VF	0x01
+<<<<<<< HEAD
+=======
+#define PCI_DN_FLAG_DEAD	0x02    /* Device has been hot-removed */
+>>>>>>> upstream/android-13
 
 	int	busno;			/* pci bus number */
 	int	devfn;			/* pci device and function number */
@@ -203,7 +238,10 @@ struct pci_dn {
 #define IODA_INVALID_PE		0xFFFFFFFF
 	unsigned int pe_number;
 #ifdef CONFIG_PCI_IOV
+<<<<<<< HEAD
 	int     vf_index;		/* VF index in the PF */
+=======
+>>>>>>> upstream/android-13
 	u16     vfs_expanded;		/* number of VFs IOV BAR expanded */
 	u16     num_vfs;		/* number of VFs enabled*/
 	unsigned int *pe_num_map;	/* PE# for the first VF PE or array */
@@ -224,12 +262,23 @@ struct pci_dn {
 extern struct pci_dn *pci_get_pdn_by_devfn(struct pci_bus *bus,
 					   int devfn);
 extern struct pci_dn *pci_get_pdn(struct pci_dev *pdev);
+<<<<<<< HEAD
 extern struct pci_dn *add_dev_pci_data(struct pci_dev *pdev);
 extern void remove_dev_pci_data(struct pci_dev *pdev);
+=======
+>>>>>>> upstream/android-13
 extern struct pci_dn *pci_add_device_node_info(struct pci_controller *hose,
 					       struct device_node *dn);
 extern void pci_remove_device_node_info(struct device_node *dn);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCI_IOV
+struct pci_dn *add_sriov_vf_pdns(struct pci_dev *pdev);
+void remove_sriov_vf_pdns(struct pci_dev *pdev);
+#endif
+
+>>>>>>> upstream/android-13
 static inline int pci_device_from_OF_node(struct device_node *np,
 					  u8 *bus, u8 *devfn)
 {
@@ -264,7 +313,11 @@ extern int pcibios_map_io_space(struct pci_bus *bus);
 #ifdef CONFIG_NUMA
 #define PHB_SET_NODE(PHB, NODE)		((PHB)->node = (NODE))
 #else
+<<<<<<< HEAD
 #define PHB_SET_NODE(PHB, NODE)		((PHB)->node = -1)
+=======
+#define PHB_SET_NODE(PHB, NODE)		((PHB)->node = NUMA_NO_NODE)
+>>>>>>> upstream/android-13
 #endif
 
 #endif	/* CONFIG_PPC64 */
@@ -273,6 +326,11 @@ extern int pcibios_map_io_space(struct pci_bus *bus);
 extern struct pci_controller *pci_find_hose_for_OF_device(
 			struct device_node* node);
 
+<<<<<<< HEAD
+=======
+extern struct pci_controller *pci_find_controller_for_domain(int domain_nr);
+
+>>>>>>> upstream/android-13
 /* Fill up host controller resources from the OF node */
 extern void pci_process_bridge_OF_ranges(struct pci_controller *hose,
 			struct device_node *dev, int primary);

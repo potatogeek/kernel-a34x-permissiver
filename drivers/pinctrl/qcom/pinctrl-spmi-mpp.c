@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
  *
@@ -12,6 +13,14 @@
  */
 
 #include <linux/gpio.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
+ */
+
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_irq.h>
@@ -920,11 +929,23 @@ static int pmic_mpp_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id pmic_mpp_of_match[] = {
+<<<<<<< HEAD
 	{ .compatible = "qcom,pm8841-mpp" },	/* 4 MPP's */
 	{ .compatible = "qcom,pm8916-mpp" },	/* 4 MPP's */
 	{ .compatible = "qcom,pm8941-mpp" },	/* 8 MPP's */
 	{ .compatible = "qcom,pm8994-mpp" },	/* 8 MPP's */
 	{ .compatible = "qcom,pma8084-mpp" },	/* 8 MPP's */
+=======
+	{ .compatible = "qcom,pm8019-mpp" },	/* 6 MPP's */
+	{ .compatible = "qcom,pm8841-mpp" },	/* 4 MPP's */
+	{ .compatible = "qcom,pm8916-mpp" },	/* 4 MPP's */
+	{ .compatible = "qcom,pm8941-mpp" },	/* 8 MPP's */
+	{ .compatible = "qcom,pm8950-mpp" },	/* 4 MPP's */
+	{ .compatible = "qcom,pmi8950-mpp" },	/* 4 MPP's */
+	{ .compatible = "qcom,pm8994-mpp" },	/* 8 MPP's */
+	{ .compatible = "qcom,pma8084-mpp" },	/* 8 MPP's */
+	{ .compatible = "qcom,pmi8994-mpp" },	/* 4 MPP's */
+>>>>>>> upstream/android-13
 	{ .compatible = "qcom,spmi-mpp" },	/* Generic */
 	{ },
 };

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 ifndef CROSS_COMPILE
 hostprogs-$(CONFIG_SAMPLE_SECCOMP) := bpf-fancy dropper bpf-direct
 
@@ -36,3 +37,10 @@ HOSTLDLIBS_dropper += $(MFLAG)
 endif
 always := $(hostprogs-m)
 endif
+=======
+userprogs-always-y += bpf-fancy dropper bpf-direct user-trap
+
+bpf-fancy-objs := bpf-fancy.o bpf-helper.o
+
+userccflags += -I usr/include
+>>>>>>> upstream/android-13

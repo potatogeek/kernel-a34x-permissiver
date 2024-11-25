@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 /*
  * ad525x_dpot: Driver for the Analog Devices digital potentiometers
  * Copyright (c) 2009-2010 Analog Devices, Inc.
  * Author: Michael Hennerich <hennerich@blackfin.uclinux.org>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * ad525x_dpot: Driver for the Analog Devices digital potentiometers
+ * Copyright (c) 2009-2010 Analog Devices, Inc.
+ * Author: Michael Hennerich <michael.hennerich@analog.com>
+>>>>>>> upstream/android-13
  *
  * DEVID		#Wipers		#Positions	Resistor Options (kOhm)
  * AD5258		1		64		1, 10, 50, 100
@@ -57,16 +65,24 @@
  * AD5272		1		1024		20, 50, 100 (50-TP)
  * AD5274		1		256		20, 50, 100 (50-TP)
  *
+<<<<<<< HEAD
  * See Documentation/misc-devices/ad525x_dpot.txt for more info.
+=======
+ * See Documentation/misc-devices/ad525x_dpot.rst for more info.
+>>>>>>> upstream/android-13
  *
  * derived from ad5258.c
  * Copyright (c) 2009 Cyber Switching, Inc.
  * Author: Chris Verges <chrisv@cyberswitching.com>
  *
  * derived from ad5252.c
+<<<<<<< HEAD
  * Copyright (c) 2006-2011 Michael Hennerich <hennerich@blackfin.uclinux.org>
  *
  * Licensed under the GPL-2 or later.
+=======
+ * Copyright (c) 2006-2011 Michael Hennerich <michael.hennerich@analog.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -140,6 +156,12 @@ static s32 dpot_read_spi(struct dpot_data *dpot, u8 reg)
 			value = dpot_read_r8d8(dpot,
 				DPOT_AD5291_READ_RDAC << 2);
 
+<<<<<<< HEAD
+=======
+			if (value < 0)
+				return value;
+
+>>>>>>> upstream/android-13
 			if (dpot->uid == DPOT_UID(AD5291_ID))
 				value = value >> 2;
 
@@ -202,6 +224,7 @@ static s32 dpot_read_i2c(struct dpot_data *dpot, u8 reg)
 		return dpot_read_r8d8(dpot, ctrl);
 	case DPOT_UID(AD5272_ID):
 	case DPOT_UID(AD5274_ID):
+<<<<<<< HEAD
 			dpot_write_r8d8(dpot,
 				(DPOT_AD5270_1_2_4_READ_RDAC << 2), 0);
 
@@ -218,6 +241,22 @@ static s32 dpot_read_i2c(struct dpot_data *dpot, u8 reg)
 
 			if (dpot->uid == DPOT_UID(AD5274_ID))
 				value = value >> 2;
+=======
+		dpot_write_r8d8(dpot,
+				(DPOT_AD5270_1_2_4_READ_RDAC << 2), 0);
+
+		value = dpot_read_r8d16(dpot, DPOT_AD5270_1_2_4_RDAC << 2);
+		if (value < 0)
+			return value;
+		/*
+		 * AD5272/AD5274 returns high byte first, however
+		 * underling smbus expects low byte first.
+		 */
+		value = swab16(value);
+
+		if (dpot->uid == DPOT_UID(AD5274_ID))
+			value = value >> 2;
+>>>>>>> upstream/android-13
 		return value;
 	default:
 		if ((reg & DPOT_REG_TOL) || (dpot->max_pos > 256))
@@ -760,6 +799,10 @@ EXPORT_SYMBOL(ad_dpot_remove);
 
 
 MODULE_AUTHOR("Chris Verges <chrisv@cyberswitching.com>, "
+<<<<<<< HEAD
 	      "Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+	      "Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Digital potentiometer driver");
 MODULE_LICENSE("GPL");

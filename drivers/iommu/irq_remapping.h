@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Advanced Micro Devices, Inc.
  * Author: Joerg Roedel <jroedel@suse.de>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * This header file contains stuff that is shared between different interrupt
  * remapping drivers but with no need to be visible outside of the IOMMU layer.
  */
@@ -54,16 +61,23 @@ struct irq_remap_ops {
 
 	/* Enable fault handling */
 	int  (*enable_faulting)(void);
+<<<<<<< HEAD
 
 	/* Get the irqdomain associated the IOMMU device */
 	struct irq_domain *(*get_ir_irq_domain)(struct irq_alloc_info *);
 
 	/* Get the MSI irqdomain associated with the IOMMU device */
 	struct irq_domain *(*get_irq_domain)(struct irq_alloc_info *);
+=======
+>>>>>>> upstream/android-13
 };
 
 extern struct irq_remap_ops intel_irq_remap_ops;
 extern struct irq_remap_ops amd_iommu_irq_ops;
+<<<<<<< HEAD
+=======
+extern struct irq_remap_ops hyperv_irq_remap_ops;
+>>>>>>> upstream/android-13
 
 #else  /* CONFIG_IRQ_REMAP */
 

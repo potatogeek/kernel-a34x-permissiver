@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008-2009 Patrick McHardy <kaber@trash.net>
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2008-2009 Patrick McHardy <kaber@trash.net>
+ *
+>>>>>>> upstream/android-13
  * Development of this code funded by Astaro AG (http://www.astaro.com/)
  */
 
@@ -16,10 +23,18 @@
 #include <linux/netfilter/nf_tables.h>
 #include <net/netfilter/nf_tables_core.h>
 #include <net/netfilter/nf_tables.h>
+<<<<<<< HEAD
 
 static void nft_immediate_eval(const struct nft_expr *expr,
 			       struct nft_regs *regs,
 			       const struct nft_pktinfo *pkt)
+=======
+#include <net/netfilter/nf_tables_offload.h>
+
+void nft_immediate_eval(const struct nft_expr *expr,
+			struct nft_regs *regs,
+			const struct nft_pktinfo *pkt)
+>>>>>>> upstream/android-13
 {
 	const struct nft_immediate_expr *priv = nft_expr_priv(expr);
 
@@ -50,12 +65,38 @@ static int nft_immediate_init(const struct nft_ctx *ctx,
 
 	priv->dlen = desc.len;
 
+<<<<<<< HEAD
 	priv->dreg = nft_parse_register(tb[NFTA_IMMEDIATE_DREG]);
 	err = nft_validate_register_store(ctx, priv->dreg, &priv->data,
 					  desc.type, desc.len);
 	if (err < 0)
 		goto err1;
 
+=======
+	err = nft_parse_register_store(ctx, tb[NFTA_IMMEDIATE_DREG],
+				       &priv->dreg, &priv->data, desc.type,
+				       desc.len);
+	if (err < 0)
+		goto err1;
+
+	if (priv->dreg == NFT_REG_VERDICT) {
+		struct nft_chain *chain = priv->data.verdict.chain;
+
+		switch (priv->data.verdict.code) {
+		case NFT_JUMP:
+		case NFT_GOTO:
+			if (nft_chain_is_bound(chain)) {
+				err = -EBUSY;
+				goto err1;
+			}
+			chain->bound = true;
+			break;
+		default:
+			break;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err1:
@@ -83,6 +124,42 @@ static void nft_immediate_deactivate(const struct nft_ctx *ctx,
 	return nft_data_release(&priv->data, nft_dreg_to_type(priv->dreg));
 }
 
+<<<<<<< HEAD
+=======
+static void nft_immediate_destroy(const struct nft_ctx *ctx,
+				  const struct nft_expr *expr)
+{
+	const struct nft_immediate_expr *priv = nft_expr_priv(expr);
+	const struct nft_data *data = &priv->data;
+	struct nft_rule *rule, *n;
+	struct nft_ctx chain_ctx;
+	struct nft_chain *chain;
+
+	if (priv->dreg != NFT_REG_VERDICT)
+		return;
+
+	switch (data->verdict.code) {
+	case NFT_JUMP:
+	case NFT_GOTO:
+		chain = data->verdict.chain;
+
+		if (!nft_chain_is_bound(chain))
+			break;
+
+		chain_ctx = *ctx;
+		chain_ctx.chain = chain;
+
+		list_for_each_entry_safe(rule, n, &chain->rules, list)
+			nf_tables_rule_release(&chain_ctx, rule);
+
+		nf_tables_chain_destroy(&chain_ctx);
+		break;
+	default:
+		break;
+	}
+}
+
+>>>>>>> upstream/android-13
 static int nft_immediate_dump(struct sk_buff *skb, const struct nft_expr *expr)
 {
 	const struct nft_immediate_expr *priv = nft_expr_priv(expr);
@@ -127,6 +204,57 @@ static int nft_immediate_validate(const struct nft_ctx *ctx,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int nft_immediate_offload_verdict(struct nft_offload_ctx *ctx,
+					 struct nft_flow_rule *flow,
+					 const struct nft_immediate_expr *priv)
+{
+	struct flow_action_entry *entry;
+	const struct nft_data *data;
+
+	entry = &flow->rule->action.entries[ctx->num_actions++];
+
+	data = &priv->data;
+	switch (data->verdict.code) {
+	case NF_ACCEPT:
+		entry->id = FLOW_ACTION_ACCEPT;
+		break;
+	case NF_DROP:
+		entry->id = FLOW_ACTION_DROP;
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+
+	return 0;
+}
+
+static int nft_immediate_offload(struct nft_offload_ctx *ctx,
+				 struct nft_flow_rule *flow,
+				 const struct nft_expr *expr)
+{
+	const struct nft_immediate_expr *priv = nft_expr_priv(expr);
+
+	if (priv->dreg == NFT_REG_VERDICT)
+		return nft_immediate_offload_verdict(ctx, flow, priv);
+
+	memcpy(&ctx->regs[priv->dreg].data, &priv->data, sizeof(priv->data));
+
+	return 0;
+}
+
+static bool nft_immediate_offload_action(const struct nft_expr *expr)
+{
+	const struct nft_immediate_expr *priv = nft_expr_priv(expr);
+
+	if (priv->dreg == NFT_REG_VERDICT)
+		return true;
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static const struct nft_expr_ops nft_imm_ops = {
 	.type		= &nft_imm_type,
 	.size		= NFT_EXPR_SIZE(sizeof(struct nft_immediate_expr)),
@@ -134,8 +262,16 @@ static const struct nft_expr_ops nft_imm_ops = {
 	.init		= nft_immediate_init,
 	.activate	= nft_immediate_activate,
 	.deactivate	= nft_immediate_deactivate,
+<<<<<<< HEAD
 	.dump		= nft_immediate_dump,
 	.validate	= nft_immediate_validate,
+=======
+	.destroy	= nft_immediate_destroy,
+	.dump		= nft_immediate_dump,
+	.validate	= nft_immediate_validate,
+	.offload	= nft_immediate_offload,
+	.offload_action	= nft_immediate_offload_action,
+>>>>>>> upstream/android-13
 };
 
 struct nft_expr_type nft_imm_type __read_mostly = {

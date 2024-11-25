@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * CAAM/SEC 4.x transport/backend driver
  * JobR backend functionality
  *
  * Copyright 2008-2012 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
+=======
+ * Copyright 2019 NXP
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of_irq.h>
@@ -22,6 +30,55 @@ struct jr_driver_data {
 } ____cacheline_aligned;
 
 static struct jr_driver_data driver_data;
+<<<<<<< HEAD
+=======
+static DEFINE_MUTEX(algs_lock);
+static unsigned int active_devs;
+
+static void register_algs(struct caam_drv_private_jr *jrpriv,
+			  struct device *dev)
+{
+	mutex_lock(&algs_lock);
+
+	if (++active_devs != 1)
+		goto algs_unlock;
+
+	caam_algapi_init(dev);
+	caam_algapi_hash_init(dev);
+	caam_pkc_init(dev);
+	jrpriv->hwrng = !caam_rng_init(dev);
+	caam_qi_algapi_init(dev);
+
+algs_unlock:
+	mutex_unlock(&algs_lock);
+}
+
+static void unregister_algs(void)
+{
+	mutex_lock(&algs_lock);
+
+	if (--active_devs != 0)
+		goto algs_unlock;
+
+	caam_qi_algapi_exit();
+
+	caam_pkc_exit();
+	caam_algapi_hash_exit();
+	caam_algapi_exit();
+
+algs_unlock:
+	mutex_unlock(&algs_lock);
+}
+
+static void caam_jr_crypto_engine_exit(void *data)
+{
+	struct device *jrdev = data;
+	struct caam_drv_private_jr *jrpriv = dev_get_drvdata(jrdev);
+
+	/* Free the resources of crypto-engine */
+	crypto_engine_exit(jrpriv->engine);
+}
+>>>>>>> upstream/android-13
 
 static int caam_reset_hw_jr(struct device *dev)
 {
@@ -69,13 +126,17 @@ static int caam_reset_hw_jr(struct device *dev)
 static int caam_jr_shutdown(struct device *dev)
 {
 	struct caam_drv_private_jr *jrp = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	dma_addr_t inpbusaddr, outbusaddr;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = caam_reset_hw_jr(dev);
 
 	tasklet_kill(&jrp->irqtask);
 
+<<<<<<< HEAD
 	/* Release interrupt */
 	free_irq(jrp->irq, dev);
 
@@ -88,6 +149,8 @@ static int caam_jr_shutdown(struct device *dev)
 			  jrp->outring, outbusaddr);
 	kfree(jrp->entinfo);
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -100,6 +163,12 @@ static int caam_jr_remove(struct platform_device *pdev)
 	jrdev = &pdev->dev;
 	jrpriv = dev_get_drvdata(jrdev);
 
+<<<<<<< HEAD
+=======
+	if (jrpriv->hwrng)
+		caam_rng_exit(jrdev->parent);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Return EBUSY if job ring already allocated.
 	 */
@@ -108,6 +177,12 @@ static int caam_jr_remove(struct platform_device *pdev)
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Unregister JR-based RNG & crypto algorithms */
+	unregister_algs();
+
+>>>>>>> upstream/android-13
 	/* Remove the node from Physical JobR list maintained by driver */
 	spin_lock(&driver_data.jr_alloc_lock);
 	list_del(&jrpriv->list_node);
@@ -117,7 +192,10 @@ static int caam_jr_remove(struct platform_device *pdev)
 	ret = caam_jr_shutdown(jrdev);
 	if (ret)
 		dev_err(jrdev, "Failed to shut down job ring\n");
+<<<<<<< HEAD
 	irq_dispose_mapping(jrpriv->irq);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -169,6 +247,7 @@ static void caam_jr_dequeue(unsigned long devarg)
 	void (*usercall)(struct device *dev, u32 *desc, u32 status, void *arg);
 	u32 *userdesc, userstatus;
 	void *userarg;
+<<<<<<< HEAD
 
 	while (rd_reg32(&jrp->rregs->outring_used)) {
 
@@ -176,13 +255,26 @@ static void caam_jr_dequeue(unsigned long devarg)
 
 		spin_lock(&jrp->outlock);
 
+=======
+	u32 outring_used = 0;
+
+	while (outring_used ||
+	       (outring_used = rd_reg32(&jrp->rregs->outring_used))) {
+
+		head = READ_ONCE(jrp->head);
+
+>>>>>>> upstream/android-13
 		sw_idx = tail = jrp->tail;
 		hw_idx = jrp->out_ring_read_index;
 
 		for (i = 0; CIRC_CNT(head, tail + i, JOBR_DEPTH) >= 1; i++) {
 			sw_idx = (tail + i) & (JOBR_DEPTH - 1);
 
+<<<<<<< HEAD
 			if (jrp->outring[hw_idx].desc ==
+=======
+			if (jr_outentry_desc(jrp->outring, hw_idx) ==
+>>>>>>> upstream/android-13
 			    caam_dma_to_cpu(jrp->entinfo[sw_idx].desc_addr_dma))
 				break; /* found */
 		}
@@ -191,18 +283,32 @@ static void caam_jr_dequeue(unsigned long devarg)
 
 		/* Unmap just-run descriptor so we can post-process */
 		dma_unmap_single(dev,
+<<<<<<< HEAD
 				 caam_dma_to_cpu(jrp->outring[hw_idx].desc),
+=======
+				 caam_dma_to_cpu(jr_outentry_desc(jrp->outring,
+								  hw_idx)),
+>>>>>>> upstream/android-13
 				 jrp->entinfo[sw_idx].desc_size,
 				 DMA_TO_DEVICE);
 
 		/* mark completed, avoid matching on a recycled desc addr */
 		jrp->entinfo[sw_idx].desc_addr_dma = 0;
 
+<<<<<<< HEAD
 		/* Stash callback params for use outside of lock */
 		usercall = jrp->entinfo[sw_idx].callbk;
 		userarg = jrp->entinfo[sw_idx].cbkarg;
 		userdesc = jrp->entinfo[sw_idx].desc_addr_virt;
 		userstatus = caam32_to_cpu(jrp->outring[hw_idx].jrstatus);
+=======
+		/* Stash callback params */
+		usercall = jrp->entinfo[sw_idx].callbk;
+		userarg = jrp->entinfo[sw_idx].cbkarg;
+		userdesc = jrp->entinfo[sw_idx].desc_addr_virt;
+		userstatus = caam32_to_cpu(jr_outentry_jrstatus(jrp->outring,
+								hw_idx));
+>>>>>>> upstream/android-13
 
 		/*
 		 * Make sure all information from the job has been obtained
@@ -231,10 +337,16 @@ static void caam_jr_dequeue(unsigned long devarg)
 			jrp->tail = tail;
 		}
 
+<<<<<<< HEAD
 		spin_unlock(&jrp->outlock);
 
 		/* Finally, execute user's callback */
 		usercall(dev, userdesc, userstatus, userarg);
+=======
+		/* Finally, execute user's callback */
+		usercall(dev, userdesc, userstatus, userarg);
+		outring_used--;
+>>>>>>> upstream/android-13
 	}
 
 	/* reenable / unmask IRQs */
@@ -283,7 +395,11 @@ EXPORT_SYMBOL(caam_jr_alloc);
 
 /**
  * caam_jr_free() - Free the Job Ring
+<<<<<<< HEAD
  * @rdev     - points to the dev that identifies the Job ring to
+=======
+ * @rdev:      points to the dev that identifies the Job ring to
+>>>>>>> upstream/android-13
  *             be released.
  **/
 void caam_jr_free(struct device *rdev)
@@ -295,11 +411,18 @@ void caam_jr_free(struct device *rdev)
 EXPORT_SYMBOL(caam_jr_free);
 
 /**
+<<<<<<< HEAD
  * caam_jr_enqueue() - Enqueue a job descriptor head. Returns 0 if OK,
  * -EBUSY if the queue is full, -EIO if it cannot map the caller's
  * descriptor.
  * @dev:  device of the job ring to be used. This device should have
  *        been assigned prior by caam_jr_register().
+=======
+ * caam_jr_enqueue() - Enqueue a job descriptor head. Returns -EINPROGRESS
+ * if OK, -ENOSPC if the queue is full, -EIO if it cannot map the caller's
+ * descriptor.
+ * @dev:  struct device of the job ring to be used
+>>>>>>> upstream/android-13
  * @desc: points to a job descriptor that execute our request. All
  *        descriptors (and all referenced data) must be in a DMAable
  *        region, and all data references must be physical addresses
@@ -309,6 +432,7 @@ EXPORT_SYMBOL(caam_jr_free);
  *        of this request. This has the form:
  *        callback(struct device *dev, u32 *desc, u32 stat, void *arg)
  *        where:
+<<<<<<< HEAD
  *        @dev:    contains the job ring device that processed this
  *                 response.
  *        @desc:   descriptor that initiated the request, same as
@@ -318,6 +442,17 @@ EXPORT_SYMBOL(caam_jr_free);
  *                 error meaning, or see the JRSTA definitions in the
  *                 register header file
  *        @areq:   optional pointer to an argument passed with the
+=======
+ *        dev:     contains the job ring device that processed this
+ *                 response.
+ *        desc:    descriptor that initiated the request, same as
+ *                 "desc" being argued to caam_jr_enqueue().
+ *        status:  untranslated status received from CAAM. See the
+ *                 reference manual for a detailed description of
+ *                 error meaning, or see the JRSTA definitions in the
+ *                 register header file
+ *        areq:    optional pointer to an argument passed with the
+>>>>>>> upstream/android-13
  *                 original request
  * @areq: optional pointer to a user argument for use at callback
  *        time.
@@ -344,11 +479,19 @@ int caam_jr_enqueue(struct device *dev, u32 *desc,
 	head = jrp->head;
 	tail = READ_ONCE(jrp->tail);
 
+<<<<<<< HEAD
 	if (!rd_reg32(&jrp->rregs->inpring_avail) ||
 	    CIRC_SPACE(head, tail, JOBR_DEPTH) <= 0) {
 		spin_unlock_bh(&jrp->inplock);
 		dma_unmap_single(dev, desc_dma, desc_size, DMA_TO_DEVICE);
 		return -EBUSY;
+=======
+	if (!jrp->inpring_avail ||
+	    CIRC_SPACE(head, tail, JOBR_DEPTH) <= 0) {
+		spin_unlock_bh(&jrp->inplock);
+		dma_unmap_single(dev, desc_dma, desc_size, DMA_TO_DEVICE);
+		return -ENOSPC;
+>>>>>>> upstream/android-13
 	}
 
 	head_entry = &jrp->entinfo[head];
@@ -358,7 +501,11 @@ int caam_jr_enqueue(struct device *dev, u32 *desc,
 	head_entry->cbkarg = areq;
 	head_entry->desc_addr_dma = desc_dma;
 
+<<<<<<< HEAD
 	jrp->inpring[jrp->inp_ring_write_index] = cpu_to_caam_dma(desc_dma);
+=======
+	jr_inpentry_set(jrp->inpring, head, cpu_to_caam_dma(desc_dma));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Guarantee that the descriptor's DMA address has been written to
@@ -367,12 +514,16 @@ int caam_jr_enqueue(struct device *dev, u32 *desc,
 	 */
 	smp_wmb();
 
+<<<<<<< HEAD
 	jrp->inp_ring_write_index = (jrp->inp_ring_write_index + 1) &
 				    (JOBR_DEPTH - 1);
+=======
+>>>>>>> upstream/android-13
 	jrp->head = (head + 1) & (JOBR_DEPTH - 1);
 
 	/*
 	 * Ensure that all job information has been written before
+<<<<<<< HEAD
 	 * notifying CAAM that a new job was added to the input ring.
 	 */
 	wmb();
@@ -382,6 +533,23 @@ int caam_jr_enqueue(struct device *dev, u32 *desc,
 	spin_unlock_bh(&jrp->inplock);
 
 	return 0;
+=======
+	 * notifying CAAM that a new job was added to the input ring
+	 * using a memory barrier. The wr_reg32() uses api iowrite32()
+	 * to do the register write. iowrite32() issues a memory barrier
+	 * before the write operation.
+	 */
+
+	wr_reg32(&jrp->rregs->inpring_jobadd, 1);
+
+	jrp->inpring_avail--;
+	if (!jrp->inpring_avail)
+		jrp->inpring_avail = rd_reg32(&jrp->rregs->inpring_avail);
+
+	spin_unlock_bh(&jrp->inplock);
+
+	return -EINPROGRESS;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(caam_jr_enqueue);
 
@@ -396,6 +564,7 @@ static int caam_jr_init(struct device *dev)
 
 	jrp = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	tasklet_init(&jrp->irqtask, caam_jr_dequeue, (unsigned long)dev);
 
 	/* Connect job ring interrupt handler. */
@@ -425,12 +594,37 @@ static int caam_jr_init(struct device *dev)
 	jrp->entinfo = kcalloc(JOBR_DEPTH, sizeof(*jrp->entinfo), GFP_KERNEL);
 	if (!jrp->entinfo)
 		goto out_free_outring;
+=======
+	error = caam_reset_hw_jr(dev);
+	if (error)
+		return error;
+
+	jrp->inpring = dmam_alloc_coherent(dev, SIZEOF_JR_INPENTRY *
+					   JOBR_DEPTH, &inpbusaddr,
+					   GFP_KERNEL);
+	if (!jrp->inpring)
+		return -ENOMEM;
+
+	jrp->outring = dmam_alloc_coherent(dev, SIZEOF_JR_OUTENTRY *
+					   JOBR_DEPTH, &outbusaddr,
+					   GFP_KERNEL);
+	if (!jrp->outring)
+		return -ENOMEM;
+
+	jrp->entinfo = devm_kcalloc(dev, JOBR_DEPTH, sizeof(*jrp->entinfo),
+				    GFP_KERNEL);
+	if (!jrp->entinfo)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < JOBR_DEPTH; i++)
 		jrp->entinfo[i].desc_addr_dma = !0;
 
 	/* Setup rings */
+<<<<<<< HEAD
 	jrp->inp_ring_write_index = 0;
+=======
+>>>>>>> upstream/android-13
 	jrp->out_ring_read_index = 0;
 	jrp->head = 0;
 	jrp->tail = 0;
@@ -440,16 +634,23 @@ static int caam_jr_init(struct device *dev)
 	wr_reg32(&jrp->rregs->inpring_size, JOBR_DEPTH);
 	wr_reg32(&jrp->rregs->outring_size, JOBR_DEPTH);
 
+<<<<<<< HEAD
 	jrp->ringsize = JOBR_DEPTH;
 
 	spin_lock_init(&jrp->inplock);
 	spin_lock_init(&jrp->outlock);
+=======
+	jrp->inpring_avail = JOBR_DEPTH;
+
+	spin_lock_init(&jrp->inplock);
+>>>>>>> upstream/android-13
 
 	/* Select interrupt coalescing parameters */
 	clrsetbits_32(&jrp->rregs->rconfig_lo, 0, JOBR_INTC |
 		      (JOBR_INTC_COUNT_THLD << JRCFG_ICDCT_SHIFT) |
 		      (JOBR_INTC_TIME_THLD << JRCFG_ICTT_SHIFT));
 
+<<<<<<< HEAD
 	return 0;
 
 out_free_outring:
@@ -466,6 +667,26 @@ out_kill_deq:
 	return error;
 }
 
+=======
+	tasklet_init(&jrp->irqtask, caam_jr_dequeue, (unsigned long)dev);
+
+	/* Connect job ring interrupt handler. */
+	error = devm_request_irq(dev, jrp->irq, caam_jr_interrupt, IRQF_SHARED,
+				 dev_name(dev), dev);
+	if (error) {
+		dev_err(dev, "can't connect JobR %d interrupt (%d)\n",
+			jrp->ridx, jrp->irq);
+		tasklet_kill(&jrp->irqtask);
+	}
+
+	return error;
+}
+
+static void caam_jr_irq_dispose_mapping(void *data)
+{
+	irq_dispose_mapping((unsigned long)data);
+}
+>>>>>>> upstream/android-13
 
 /*
  * Probe routine for each detected JobR subsystem.
@@ -477,10 +698,18 @@ static int caam_jr_probe(struct platform_device *pdev)
 	struct caam_job_ring __iomem *ctrl;
 	struct caam_drv_private_jr *jrpriv;
 	static int total_jobrs;
+<<<<<<< HEAD
 	int error;
 
 	jrdev = &pdev->dev;
 	jrpriv = devm_kmalloc(jrdev, sizeof(*jrpriv), GFP_KERNEL);
+=======
+	struct resource *r;
+	int error;
+
+	jrdev = &pdev->dev;
+	jrpriv = devm_kzalloc(jrdev, sizeof(*jrpriv), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!jrpriv)
 		return -ENOMEM;
 
@@ -492,14 +721,27 @@ static int caam_jr_probe(struct platform_device *pdev)
 	nprop = pdev->dev.of_node;
 	/* Get configuration properties from device tree */
 	/* First, get register page */
+<<<<<<< HEAD
 	ctrl = of_iomap(nprop, 0);
 	if (!ctrl) {
 		dev_err(jrdev, "of_iomap() failed\n");
+=======
+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!r) {
+		dev_err(jrdev, "platform_get_resource() failed\n");
+		return -ENOMEM;
+	}
+
+	ctrl = devm_ioremap(jrdev, r->start, resource_size(r));
+	if (!ctrl) {
+		dev_err(jrdev, "devm_ioremap() failed\n");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	jrpriv->rregs = (struct caam_job_ring __iomem __force *)ctrl;
 
+<<<<<<< HEAD
 	if (sizeof(dma_addr_t) == sizeof(u64)) {
 		if (caam_dpaa2)
 			error = dma_set_mask_and_coherent(jrdev,
@@ -518,11 +760,39 @@ static int caam_jr_probe(struct platform_device *pdev)
 		dev_err(jrdev, "dma_set_mask_and_coherent failed (%d)\n",
 			error);
 		iounmap(ctrl);
+=======
+	error = dma_set_mask_and_coherent(jrdev, caam_get_dma_mask(jrdev));
+	if (error) {
+		dev_err(jrdev, "dma_set_mask_and_coherent failed (%d)\n",
+			error);
+		return error;
+	}
+
+	/* Initialize crypto engine */
+	jrpriv->engine = crypto_engine_alloc_init_and_set(jrdev, true, NULL,
+							  false,
+							  CRYPTO_ENGINE_MAX_QLEN);
+	if (!jrpriv->engine) {
+		dev_err(jrdev, "Could not init crypto-engine\n");
+		return -ENOMEM;
+	}
+
+	error = devm_add_action_or_reset(jrdev, caam_jr_crypto_engine_exit,
+					 jrdev);
+	if (error)
+		return error;
+
+	/* Start crypto engine */
+	error = crypto_engine_start(jrpriv->engine);
+	if (error) {
+		dev_err(jrdev, "Could not start crypto-engine\n");
+>>>>>>> upstream/android-13
 		return error;
 	}
 
 	/* Identify the interrupt */
 	jrpriv->irq = irq_of_parse_and_map(nprop, 0);
+<<<<<<< HEAD
 
 	/* Now do the platform independent part */
 	error = caam_jr_init(jrdev); /* now turn on hardware */
@@ -531,6 +801,22 @@ static int caam_jr_probe(struct platform_device *pdev)
 		iounmap(ctrl);
 		return error;
 	}
+=======
+	if (!jrpriv->irq) {
+		dev_err(jrdev, "irq_of_parse_and_map failed\n");
+		return -EINVAL;
+	}
+
+	error = devm_add_action_or_reset(jrdev, caam_jr_irq_dispose_mapping,
+					 (void *)(unsigned long)jrpriv->irq);
+	if (error)
+		return error;
+
+	/* Now do the platform independent part */
+	error = caam_jr_init(jrdev); /* now turn on hardware */
+	if (error)
+		return error;
+>>>>>>> upstream/android-13
 
 	jrpriv->dev = jrdev;
 	spin_lock(&driver_data.jr_alloc_lock);
@@ -539,6 +825,11 @@ static int caam_jr_probe(struct platform_device *pdev)
 
 	atomic_set(&jrpriv->tfm_count, 0);
 
+<<<<<<< HEAD
+=======
+	register_algs(jrpriv, jrdev->parent);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

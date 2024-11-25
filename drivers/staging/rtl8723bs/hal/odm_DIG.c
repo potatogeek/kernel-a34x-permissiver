@@ -7,11 +7,17 @@
 
 #include "odm_precomp.h"
 
+<<<<<<< HEAD
 #define ADAPTIVITY_VERSION "5.0"
 
 void odm_NHMCounterStatisticsInit(void *pDM_VOID)
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+void odm_NHMCounterStatisticsInit(void *pDM_VOID)
+{
+	struct dm_odm_t	*pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 
 	/* PHY parameters initialize for n series */
 	rtw_write16(pDM_Odm->Adapter, ODM_REG_NHM_TIMER_11N+2, 0x2710);	/* 0x894[31:16]= 0x2710	Time duration for NHM unit: 4us, 0x2710 =40ms */
@@ -27,7 +33,11 @@ void odm_NHMCounterStatisticsInit(void *pDM_VOID)
 
 void odm_NHMCounterStatistics(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 
 	/*  Get NHM report */
 	odm_GetNHMCounterStatistics(pDM_Odm);
@@ -38,7 +48,11 @@ void odm_NHMCounterStatistics(void *pDM_VOID)
 
 void odm_GetNHMCounterStatistics(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 	u32 value32 = 0;
 
 	value32 = PHY_QueryBBReg(pDM_Odm->Adapter, ODM_REG_NHM_CNT_11N, bMaskDWord);
@@ -48,7 +62,11 @@ void odm_GetNHMCounterStatistics(void *pDM_VOID)
 
 void odm_NHMCounterStatisticsReset(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 
 	PHY_SetBBReg(pDM_Odm->Adapter, ODM_REG_NHM_TH9_TH10_11N, BIT1, 0);
 	PHY_SetBBReg(pDM_Odm->Adapter, ODM_REG_NHM_TH9_TH10_11N, BIT1, 1);
@@ -56,7 +74,11 @@ void odm_NHMCounterStatisticsReset(void *pDM_VOID)
 
 void odm_NHMBBInit(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 
 	pDM_Odm->adaptivity_flag = 0;
 	pDM_Odm->tolerance_cnt = 3;
@@ -69,9 +91,15 @@ void odm_NHMBBInit(void *pDM_VOID)
 /*  */
 void odm_NHMBB(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	/* u8 test_status; */
 	/* Pfalse_ALARM_STATISTICS pFalseAlmCnt = &(pDM_Odm->FalseAlmCnt); */
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	/* u8 test_status; */
+	/* struct false_ALARM_STATISTICS *pFalseAlmCnt = &pDM_Odm->FalseAlmCnt; */
+>>>>>>> upstream/android-13
 
 	pDM_Odm->NHMCurTxOkcnt =
 		*(pDM_Odm->pNumTxBytesUnicast)-pDM_Odm->NHMLastTxOkcnt;
@@ -81,6 +109,7 @@ void odm_NHMBB(void *pDM_VOID)
 		*(pDM_Odm->pNumTxBytesUnicast);
 	pDM_Odm->NHMLastRxOkcnt =
 		*(pDM_Odm->pNumRxBytesUnicast);
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_DIG,
@@ -92,6 +121,8 @@ void odm_NHMBB(void *pDM_VOID)
 			pDM_Odm->NHMCurRxOkcnt
 		)
 	);
+=======
+>>>>>>> upstream/android-13
 
 
 	if ((pDM_Odm->NHMCurTxOkcnt) + 1 > (u64)(pDM_Odm->NHMCurRxOkcnt<<2) + 1) { /* Tx > 4*Rx possible for adaptivity test */
@@ -127,13 +158,20 @@ void odm_NHMBB(void *pDM_VOID)
 			}
 		}
 	}
+<<<<<<< HEAD
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("adaptivity_flag = %d\n ", pDM_Odm->adaptivity_flag));
+=======
+>>>>>>> upstream/android-13
 }
 
 void odm_SearchPwdBLowerBound(void *pDM_VOID, u8 IGI_target)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 	u32 value32 = 0;
 	u8 cnt, IGI;
 	bool bAdjust = true;
@@ -165,7 +203,10 @@ void odm_SearchPwdBLowerBound(void *pDM_VOID, u8 IGI_target)
 			else
 				pDM_Odm->txEdcca0 = pDM_Odm->txEdcca0 + 1;
 		}
+<<<<<<< HEAD
 		/* DbgPrint("txEdcca1 = %d, txEdcca0 = %d\n", pDM_Odm->txEdcca1, pDM_Odm->txEdcca0); */
+=======
+>>>>>>> upstream/android-13
 
 		if (pDM_Odm->txEdcca1 > 5) {
 			IGI = IGI-1;
@@ -199,13 +240,20 @@ void odm_SearchPwdBLowerBound(void *pDM_VOID, u8 IGI_target)
 			pDM_Odm->Adaptivity_IGI_upper = IGI;
 		}
 	}
+<<<<<<< HEAD
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("IGI = 0x%x, H2L_lb = 0x%x, L2H_lb = 0x%x\n", IGI, pDM_Odm->H2L_lb, pDM_Odm->L2H_lb));
+=======
+>>>>>>> upstream/android-13
 }
 
 void odm_AdaptivityInit(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 
 	if (pDM_Odm->Carrier_Sense_enable == false)
 		pDM_Odm->TH_L2H_ini = 0xf7; /*  -7 */
@@ -233,25 +281,37 @@ void odm_AdaptivityInit(void *pDM_VOID)
 
 void odm_Adaptivity(void *pDM_VOID, u8 IGI)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 	s8 TH_L2H_dmc, TH_H2L_dmc;
 	s8 Diff, IGI_target;
 	bool EDCCA_State = false;
 
 	if (!(pDM_Odm->SupportAbility & ODM_BB_ADAPTIVITY)) {
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("Go to odm_DynamicEDCCA()\n"));
 		return;
 	}
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_Adaptivity() =====>\n"));
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("ForceEDCCA =%d, IGI_Base = 0x%x, TH_L2H_ini = %d, TH_EDCCA_HL_diff = %d, AdapEn_RSSI = %d\n",
 		pDM_Odm->ForceEDCCA, pDM_Odm->IGI_Base, pDM_Odm->TH_L2H_ini, pDM_Odm->TH_EDCCA_HL_diff, pDM_Odm->AdapEn_RSSI));
+=======
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	if (*pDM_Odm->pBandWidth == ODM_BW20M) /* CHANNEL_WIDTH_20 */
 		IGI_target = pDM_Odm->IGI_Base;
 	else if (*pDM_Odm->pBandWidth == ODM_BW40M)
 		IGI_target = pDM_Odm->IGI_Base + 2;
+<<<<<<< HEAD
 	else if (*pDM_Odm->pBandWidth == ODM_BW80M)
 		IGI_target = pDM_Odm->IGI_Base + 2;
+=======
+>>>>>>> upstream/android-13
 	else
 		IGI_target = pDM_Odm->IGI_Base;
 	pDM_Odm->IGI_target = (u8) IGI_target;
@@ -284,6 +344,7 @@ void odm_Adaptivity(void *pDM_VOID, u8 IGI)
 	)
 		odm_NHMBB(pDM_Odm);
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_DIG,
@@ -297,6 +358,8 @@ void odm_Adaptivity(void *pDM_VOID, u8 IGI)
 		)
 	);
 
+=======
+>>>>>>> upstream/android-13
 	if (EDCCA_State) {
 		Diff = IGI_target-(s8)IGI;
 		TH_L2H_dmc = pDM_Odm->TH_L2H_ini + Diff;
@@ -314,14 +377,18 @@ void odm_Adaptivity(void *pDM_VOID, u8 IGI)
 		TH_L2H_dmc = 0x7f;
 		TH_H2L_dmc = 0x7f;
 	}
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("IGI = 0x%x, TH_L2H_dmc = %d, TH_H2L_dmc = %d\n",
 		IGI, TH_L2H_dmc, TH_H2L_dmc));
+=======
+>>>>>>> upstream/android-13
 	PHY_SetBBReg(pDM_Odm->Adapter, rOFDM0_ECCAThreshold, bMaskByte0, (u8)TH_L2H_dmc);
 	PHY_SetBBReg(pDM_Odm->Adapter, rOFDM0_ECCAThreshold, bMaskByte2, (u8)TH_H2L_dmc);
 }
 
 void ODM_Write_DIG(void *pDM_VOID, u8 CurrentIGI)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
 
@@ -333,11 +400,23 @@ void ODM_Write_DIG(void *pDM_VOID, u8 CurrentIGI)
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_TRACE, ("ODM_REG(IGI_A, pDM_Odm) = 0x%x, ODM_BIT(IGI, pDM_Odm) = 0x%x\n",
 		ODM_REG(IGI_A, pDM_Odm), ODM_BIT(IGI, pDM_Odm)));
 
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct dig_t *pDM_DigTable = &pDM_Odm->DM_DigTable;
+
+	if (pDM_DigTable->bStopDIG) {
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (pDM_DigTable->CurIGValue != CurrentIGI) {
 		/* 1 Check initial gain by upper bound */
 		if (!pDM_DigTable->bPSDInProgress) {
 			if (CurrentIGI > pDM_DigTable->rx_gain_range_max) {
+<<<<<<< HEAD
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_TRACE, ("CurrentIGI(0x%02x) is larger than upper bound !!\n", pDM_DigTable->rx_gain_range_max));
+=======
+>>>>>>> upstream/android-13
 				CurrentIGI = pDM_DigTable->rx_gain_range_max;
 			}
 
@@ -346,18 +425,26 @@ void ODM_Write_DIG(void *pDM_VOID, u8 CurrentIGI)
 		/* 1 Set IGI value */
 		PHY_SetBBReg(pDM_Odm->Adapter, ODM_REG(IGI_A, pDM_Odm), ODM_BIT(IGI, pDM_Odm), CurrentIGI);
 
+<<<<<<< HEAD
 		if (pDM_Odm->RFType > ODM_1T1R)
 			PHY_SetBBReg(pDM_Odm->Adapter, ODM_REG(IGI_B, pDM_Odm), ODM_BIT(IGI, pDM_Odm), CurrentIGI);
+=======
+		PHY_SetBBReg(pDM_Odm->Adapter, ODM_REG(IGI_B, pDM_Odm), ODM_BIT(IGI, pDM_Odm), CurrentIGI);
+>>>>>>> upstream/android-13
 
 		pDM_DigTable->CurIGValue = CurrentIGI;
 	}
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_TRACE, ("CurrentIGI(0x%02x).\n", CurrentIGI));
 
+=======
+>>>>>>> upstream/android-13
 }
 
 void odm_PauseDIG(
 	void *pDM_VOID,
+<<<<<<< HEAD
 	ODM_Pause_DIG_TYPE PauseType,
 	u8 IGIValue
 )
@@ -368,16 +455,29 @@ void odm_PauseDIG(
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG() =========>\n"));
 
+=======
+	enum ODM_Pause_DIG_TYPE PauseType,
+	u8 IGIValue
+)
+{
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct dig_t *pDM_DigTable = &pDM_Odm->DM_DigTable;
+	static bool bPaused;
+
+>>>>>>> upstream/android-13
 	if (
 		(pDM_Odm->SupportAbility & ODM_BB_ADAPTIVITY) &&
 		pDM_Odm->TxHangFlg == true
 	) {
+<<<<<<< HEAD
 		ODM_RT_TRACE(
 			pDM_Odm,
 			ODM_COMP_DIG,
 			ODM_DBG_LOUD,
 			("odm_PauseDIG(): Dynamic adjust threshold in progress !!\n")
 		);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -385,12 +485,15 @@ void odm_PauseDIG(
 		!bPaused && (!(pDM_Odm->SupportAbility & ODM_BB_DIG) ||
 		!(pDM_Odm->SupportAbility & ODM_BB_FA_CNT))
 	){
+<<<<<<< HEAD
 		ODM_RT_TRACE(
 			pDM_Odm,
 			ODM_COMP_DIG,
 			ODM_DBG_LOUD,
 			("odm_PauseDIG(): Return: SupportAbility ODM_BB_DIG or ODM_BB_FA_CNT is disabled\n")
 		);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -399,18 +502,27 @@ void odm_PauseDIG(
 	case ODM_PAUSE_DIG:
 		/* 2 Disable DIG */
 		ODM_CmnInfoUpdate(pDM_Odm, ODM_CMNINFO_ABILITY, pDM_Odm->SupportAbility & (~ODM_BB_DIG));
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Pause DIG !!\n"));
+=======
+>>>>>>> upstream/android-13
 
 		/* 2 Backup IGI value */
 		if (!bPaused) {
 			pDM_DigTable->IGIBackup = pDM_DigTable->CurIGValue;
 			bPaused = true;
 		}
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Backup IGI  = 0x%x\n", pDM_DigTable->IGIBackup));
 
 		/* 2 Write new IGI value */
 		ODM_Write_DIG(pDM_Odm, IGIValue);
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Write new IGI = 0x%x\n", IGIValue));
+=======
+
+		/* 2 Write new IGI value */
+		ODM_Write_DIG(pDM_Odm, IGIValue);
+>>>>>>> upstream/android-13
 		break;
 
 	/* 1 Resume DIG */
@@ -419,45 +531,70 @@ void odm_PauseDIG(
 			/* 2 Write backup IGI value */
 			ODM_Write_DIG(pDM_Odm, pDM_DigTable->IGIBackup);
 			bPaused = false;
+<<<<<<< HEAD
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Write original IGI = 0x%x\n", pDM_DigTable->IGIBackup));
 
 			/* 2 Enable DIG */
 			ODM_CmnInfoUpdate(pDM_Odm, ODM_CMNINFO_ABILITY, pDM_Odm->SupportAbility | ODM_BB_DIG);
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Resume DIG !!\n"));
+=======
+
+			/* 2 Enable DIG */
+			ODM_CmnInfoUpdate(pDM_Odm, ODM_CMNINFO_ABILITY, pDM_Odm->SupportAbility | ODM_BB_DIG);
+>>>>>>> upstream/android-13
 		}
 		break;
 
 	default:
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_PauseDIG(): Wrong  type !!\n"));
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 }
 
 bool odm_DigAbort(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
 	/* SupportAbility */
 	if (!(pDM_Odm->SupportAbility & ODM_BB_FA_CNT)) {
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: SupportAbility ODM_BB_FA_CNT is disabled\n"));
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+
+	/* SupportAbility */
+	if (!(pDM_Odm->SupportAbility & ODM_BB_FA_CNT)) {
+>>>>>>> upstream/android-13
 		return	true;
 	}
 
 	/* SupportAbility */
 	if (!(pDM_Odm->SupportAbility & ODM_BB_DIG)) {
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: SupportAbility ODM_BB_DIG is disabled\n"));
+=======
+>>>>>>> upstream/android-13
 		return	true;
 	}
 
 	/* ScanInProcess */
 	if (*(pDM_Odm->pbScanInProcess)) {
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: In Scan Progress\n"));
+=======
+>>>>>>> upstream/android-13
 		return	true;
 	}
 
 	/* add by Neil Chen to avoid PSD is processing */
 	if (pDM_Odm->bDMInitialGainEnable == false) {
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Return: PSD is Processing\n"));
+=======
+>>>>>>> upstream/android-13
 		return	true;
 	}
 
@@ -466,8 +603,13 @@ bool odm_DigAbort(void *pDM_VOID)
 
 void odm_DIGInit(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct dig_t *pDM_DigTable = &pDM_Odm->DM_DigTable;
+>>>>>>> upstream/android-13
 
 	pDM_DigTable->bStopDIG = false;
 	pDM_DigTable->bPSDInProgress = false;
@@ -496,6 +638,7 @@ void odm_DIGInit(void *pDM_VOID)
 	/* To Initi BT30 IGI */
 	pDM_DigTable->BT30_CurIGI = 0x32;
 
+<<<<<<< HEAD
 	if (pDM_Odm->BoardType & (ODM_BOARD_EXT_PA|ODM_BOARD_EXT_LNA)) {
 		pDM_DigTable->rx_gain_range_max = DM_DIG_MAX_NIC;
 		pDM_DigTable->rx_gain_range_min = DM_DIG_MIN_NIC;
@@ -503,17 +646,29 @@ void odm_DIGInit(void *pDM_VOID)
 		pDM_DigTable->rx_gain_range_max = DM_DIG_MAX_NIC;
 		pDM_DigTable->rx_gain_range_min = DM_DIG_MIN_NIC;
 	}
+=======
+	pDM_DigTable->rx_gain_range_max = DM_DIG_MAX_NIC;
+	pDM_DigTable->rx_gain_range_min = DM_DIG_MIN_NIC;
+>>>>>>> upstream/android-13
 
 }
 
 
 void odm_DIG(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
 	/*  Common parameters */
 	pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
 	Pfalse_ALARM_STATISTICS pFalseAlmCnt = &pDM_Odm->FalseAlmCnt;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+
+	/*  Common parameters */
+	struct dig_t *pDM_DigTable = &pDM_Odm->DM_DigTable;
+	struct false_ALARM_STATISTICS *pFalseAlmCnt = &pDM_Odm->FalseAlmCnt;
+>>>>>>> upstream/android-13
 	bool FirstConnect, FirstDisConnect;
 	u8 DIG_MaxOfMin, DIG_Dynamic_MIN;
 	u8 dm_dig_max, dm_dig_min;
@@ -525,11 +680,17 @@ void odm_DIG(void *pDM_VOID)
 	bool bDFSBand = false;
 	bool bPerformance = true, bFirstTpTarget = false, bFirstCoverage = false;
 
+<<<<<<< HEAD
 	if (odm_DigAbort(pDM_Odm) == true)
 		return;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG() ===========================>\n\n"));
 
+=======
+	if (odm_DigAbort(pDM_Odm))
+		return;
+
+>>>>>>> upstream/android-13
 	if (pDM_Odm->adaptivity_flag == true)
 		Adap_IGI_Upper = pDM_Odm->Adaptivity_IGI_upper;
 
@@ -545,15 +706,21 @@ void odm_DIG(void *pDM_VOID)
 	dm_dig_min = DM_DIG_MIN_NIC;
 	DIG_MaxOfMin = DM_DIG_MAX_AP;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Absolutely upper bound = 0x%x, lower bound = 0x%x\n", dm_dig_max, dm_dig_min));
 
+=======
+>>>>>>> upstream/android-13
 	/* 1 Adjust boundary by RSSI */
 	if (pDM_Odm->bLinked && bPerformance) {
 		/* 2 Modify DIG upper bound */
 		/* 4 Modify DIG upper bound for 92E, 8723A\B, 8821 & 8812 BT */
 		if (pDM_Odm->bBtLimitedDig == 1) {
 			offset = 10;
+<<<<<<< HEAD
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Coex. case: Force upper bound to RSSI + %d !!!!!!\n", offset));
+=======
+>>>>>>> upstream/android-13
 		} else
 			offset = 15;
 
@@ -591,6 +758,7 @@ void odm_DIG(void *pDM_VOID)
 					DIG_Dynamic_MIN = DIG_MaxOfMin;
 				else
 					DIG_Dynamic_MIN = (u8) pDM_DigTable->AntDiv_RSSI_max;
+<<<<<<< HEAD
 				ODM_RT_TRACE(
 					pDM_Odm,
 					ODM_COMP_ANT_DIV,
@@ -634,6 +802,11 @@ void odm_DIG(void *pDM_VOID)
 			FirstDisConnect
 		)
 	);
+=======
+			}
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* 1 Modify DIG lower bound, deal with abnormal case */
 	/* 2 Abnormal false alarm case */
@@ -650,6 +823,7 @@ void odm_DIG(void *pDM_VOID)
 			pDM_Odm->bsta_state
 		) {
 			pDM_DigTable->rx_gain_range_min = dm_dig_min;
+<<<<<<< HEAD
 			ODM_RT_TRACE(
 				pDM_Odm,
 				ODM_COMP_DIG,
@@ -660,12 +834,15 @@ void odm_DIG(void *pDM_VOID)
 					pDM_DigTable->rx_gain_range_min
 				)
 			);
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
 	/* 2 Abnormal lower bound case */
 	if (pDM_DigTable->rx_gain_range_min > pDM_DigTable->rx_gain_range_max) {
 		pDM_DigTable->rx_gain_range_min = pDM_DigTable->rx_gain_range_max;
+<<<<<<< HEAD
 		ODM_RT_TRACE(
 			pDM_Odm,
 			ODM_COMP_DIG,
@@ -675,11 +852,14 @@ void odm_DIG(void *pDM_VOID)
 				pDM_DigTable->rx_gain_range_min
 			)
 		);
+=======
+>>>>>>> upstream/android-13
 	}
 
 
 	/* 1 False alarm threshold decision */
 	odm_FAThresholdCheck(pDM_Odm, bDFSBand, bPerformance, RxTp, TxTp, dm_FA_thres);
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): False alarm threshold = %d, %d, %d\n\n", dm_FA_thres[0], dm_FA_thres[1], dm_FA_thres[2]));
 
 	/* 1 Adjust initial gain by false alarm */
@@ -691,6 +871,11 @@ void odm_DIG(void *pDM_VOID)
 			ODM_DBG_LOUD,
 			("odm_DIG(): Adjust IGI after link\n")
 		);
+=======
+
+	/* 1 Adjust initial gain by false alarm */
+	if (pDM_Odm->bLinked && bPerformance) {
+>>>>>>> upstream/android-13
 
 		if (bFirstTpTarget || (FirstConnect && bPerformance)) {
 			pDM_DigTable->LargeFAHit = 0;
@@ -703,6 +888,7 @@ void odm_DIG(void *pDM_VOID)
 					CurrentIGI = DIG_MaxOfMin;
 			}
 
+<<<<<<< HEAD
 			ODM_RT_TRACE(
 				pDM_Odm,
 				ODM_COMP_DIG,
@@ -713,6 +899,8 @@ void odm_DIG(void *pDM_VOID)
 				)
 			);
 
+=======
+>>>>>>> upstream/android-13
 		} else {
 			if (pFalseAlmCnt->Cnt_all > dm_FA_thres[2])
 				CurrentIGI = CurrentIGI + 4;
@@ -727,6 +915,7 @@ void odm_DIG(void *pDM_VOID)
 				(pDM_Odm->bsta_state)
 			) {
 				CurrentIGI = pDM_DigTable->rx_gain_range_min;
+<<<<<<< HEAD
 				ODM_RT_TRACE(
 					pDM_Odm,
 					ODM_COMP_DIG,
@@ -756,6 +945,14 @@ void odm_DIG(void *pDM_VOID)
 				ODM_DBG_LOUD,
 				("odm_DIG(): First disconnect case: IGI does on-shot to lower bound\n")
 			);
+=======
+			}
+		}
+	} else {
+
+		if (FirstDisConnect || bFirstCoverage) {
+			CurrentIGI = dm_dig_min;
+>>>>>>> upstream/android-13
 		} else {
 			if (pFalseAlmCnt->Cnt_all > dm_FA_thres[2])
 				CurrentIGI = CurrentIGI + 4;
@@ -773,6 +970,7 @@ void odm_DIG(void *pDM_VOID)
 	if (CurrentIGI > pDM_DigTable->rx_gain_range_max)
 		CurrentIGI = pDM_DigTable->rx_gain_range_max;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_DIG,
@@ -784,6 +982,8 @@ void odm_DIG(void *pDM_VOID)
 		)
 	);
 
+=======
+>>>>>>> upstream/android-13
 	/* 1 Force upper bound and lower bound for adaptivity */
 	if (
 		pDM_Odm->SupportAbility & ODM_BB_ADAPTIVITY &&
@@ -796,8 +996,11 @@ void odm_DIG(void *pDM_VOID)
 			if (CurrentIGI < pDM_Odm->IGI_LowerBound)
 				CurrentIGI = pDM_Odm->IGI_LowerBound;
 		}
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Adaptivity case: Force upper bound to 0x%x !!!!!!\n", Adap_IGI_Upper));
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Adaptivity case: Force lower bound to 0x%x !!!!!!\n\n", pDM_Odm->IGI_LowerBound));
+=======
+>>>>>>> upstream/android-13
 	}
 
 
@@ -828,14 +1031,20 @@ void odm_DIG(void *pDM_VOID)
 
 void odm_DIGbyRSSI_LPS(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	Pfalse_ALARM_STATISTICS pFalseAlmCnt = &pDM_Odm->FalseAlmCnt;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct false_ALARM_STATISTICS *pFalseAlmCnt = &pDM_Odm->FalseAlmCnt;
+>>>>>>> upstream/android-13
 
 	u8 RSSI_Lower = DM_DIG_MIN_NIC;   /* 0x1E or 0x1C */
 	u8 CurrentIGI = pDM_Odm->RSSI_Min;
 
 	CurrentIGI = CurrentIGI+RSSI_OFFSET_DIG;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_DIG,
@@ -843,6 +1052,8 @@ void odm_DIGbyRSSI_LPS(void *pDM_VOID)
 		("odm_DIGbyRSSI_LPS() ==>\n")
 	);
 
+=======
+>>>>>>> upstream/android-13
 	/*  Using FW PS mode to make IGI */
 	/* Adjust by  FA in LPS MODE */
 	if (pFalseAlmCnt->Cnt_all > DM_DIG_FA_TH2_LPS)
@@ -867,6 +1078,7 @@ void odm_DIGbyRSSI_LPS(void *pDM_VOID)
 	else if (CurrentIGI < RSSI_Lower)
 		CurrentIGI = RSSI_Lower;
 
+<<<<<<< HEAD
 
 	ODM_RT_TRACE(
 		pDM_Odm,
@@ -887,6 +1099,8 @@ void odm_DIGbyRSSI_LPS(void *pDM_VOID)
 		("odm_DIGbyRSSI_LPS(): CurrentIGI = 0x%x\n", CurrentIGI)
 	);
 
+=======
+>>>>>>> upstream/android-13
 	ODM_Write_DIG(pDM_Odm, CurrentIGI);
 	/* ODM_Write_DIG(pDM_Odm, pDM_DigTable->CurIGValue); */
 }
@@ -897,8 +1111,13 @@ void odm_DIGbyRSSI_LPS(void *pDM_VOID)
 
 void odm_FalseAlarmCounterStatistics(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	Pfalse_ALARM_STATISTICS FalseAlmCnt = &(pDM_Odm->FalseAlmCnt);
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct false_ALARM_STATISTICS *FalseAlmCnt = &pDM_Odm->FalseAlmCnt;
+>>>>>>> upstream/android-13
 	u32 ret_value;
 
 	if (!(pDM_Odm->SupportAbility & ODM_BB_FA_CNT))
@@ -975,6 +1194,7 @@ void odm_FalseAlarmCounterStatistics(void *pDM_VOID)
 
 	FalseAlmCnt->Cnt_CCA_all =
 		FalseAlmCnt->Cnt_OFDM_CCA + FalseAlmCnt->Cnt_CCK_CCA;
+<<<<<<< HEAD
 
 	ODM_RT_TRACE(
 		pDM_Odm,
@@ -1055,6 +1275,8 @@ void odm_FalseAlarmCounterStatistics(void *pDM_VOID)
 		ODM_DBG_LOUD,
 		("Total False Alarm =%d\n",	FalseAlmCnt->Cnt_all)
 	);
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -1067,7 +1289,11 @@ void odm_FAThresholdCheck(
 	u32 *dm_FA_thres
 )
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+>>>>>>> upstream/android-13
 
 	if (pDM_Odm->bLinked && (bPerformance || bDFSBand)) {
 		/*  For NIC */
@@ -1079,11 +1305,15 @@ void odm_FAThresholdCheck(
 		dm_FA_thres[1] = 4000;
 		dm_FA_thres[2] = 5000;
 	}
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 u8 odm_ForbiddenIGICheck(void *pDM_VOID, u8 DIG_Dynamic_MIN, u8 CurrentIGI)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
 	Pfalse_ALARM_STATISTICS pFalseAlmCnt = &(pDM_Odm->FalseAlmCnt);
@@ -1092,6 +1322,14 @@ u8 odm_ForbiddenIGICheck(void *pDM_VOID, u8 DIG_Dynamic_MIN, u8 CurrentIGI)
 	if (pFalseAlmCnt->Cnt_all > 10000) {
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Abnormally false alarm case.\n"));
 
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct dig_t *pDM_DigTable = &pDM_Odm->DM_DigTable;
+	struct false_ALARM_STATISTICS *pFalseAlmCnt = &pDM_Odm->FalseAlmCnt;
+	u8 rx_gain_range_min = pDM_DigTable->rx_gain_range_min;
+
+	if (pFalseAlmCnt->Cnt_all > 10000) {
+>>>>>>> upstream/android-13
 		if (pDM_DigTable->LargeFAHit != 3)
 			pDM_DigTable->LargeFAHit++;
 
@@ -1108,22 +1346,34 @@ u8 odm_ForbiddenIGICheck(void *pDM_VOID, u8 DIG_Dynamic_MIN, u8 CurrentIGI)
 			else
 				rx_gain_range_min = (pDM_DigTable->ForbiddenIGI + 2);
 			pDM_DigTable->Recover_cnt = 1800;
+<<<<<<< HEAD
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Abnormally false alarm case: Recover_cnt = %d\n", pDM_DigTable->Recover_cnt));
+=======
+>>>>>>> upstream/android-13
 		}
 	} else {
 		if (pDM_DigTable->Recover_cnt != 0) {
 			pDM_DigTable->Recover_cnt--;
+<<<<<<< HEAD
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Normal Case: Recover_cnt = %d\n", pDM_DigTable->Recover_cnt));
+=======
+>>>>>>> upstream/android-13
 		} else {
 			if (pDM_DigTable->LargeFAHit < 3) {
 				if ((pDM_DigTable->ForbiddenIGI - 2) < DIG_Dynamic_MIN) { /* DM_DIG_MIN) */
 					pDM_DigTable->ForbiddenIGI = DIG_Dynamic_MIN; /* DM_DIG_MIN; */
 					rx_gain_range_min = DIG_Dynamic_MIN; /* DM_DIG_MIN; */
+<<<<<<< HEAD
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Normal Case: At Lower Bound\n"));
 				} else {
 					pDM_DigTable->ForbiddenIGI -= 2;
 					rx_gain_range_min = (pDM_DigTable->ForbiddenIGI + 2);
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_DIG, ODM_DBG_LOUD, ("odm_DIG(): Normal Case: Approach Lower Bound\n"));
+=======
+				} else {
+					pDM_DigTable->ForbiddenIGI -= 2;
+					rx_gain_range_min = (pDM_DigTable->ForbiddenIGI + 2);
+>>>>>>> upstream/android-13
 				}
 			} else
 				pDM_DigTable->LargeFAHit = 0;
@@ -1140,8 +1390,13 @@ u8 odm_ForbiddenIGICheck(void *pDM_VOID, u8 DIG_Dynamic_MIN, u8 CurrentIGI)
 
 void odm_CCKPacketDetectionThresh(void *pDM_VOID)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	Pfalse_ALARM_STATISTICS FalseAlmCnt = &(pDM_Odm->FalseAlmCnt);
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct false_ALARM_STATISTICS *FalseAlmCnt = &pDM_Odm->FalseAlmCnt;
+>>>>>>> upstream/android-13
 	u8 CurCCK_CCAThres;
 
 
@@ -1149,18 +1404,22 @@ void odm_CCKPacketDetectionThresh(void *pDM_VOID)
 		!(pDM_Odm->SupportAbility & ODM_BB_CCK_PD) ||
 		!(pDM_Odm->SupportAbility & ODM_BB_FA_CNT)
 	) {
+<<<<<<< HEAD
 		ODM_RT_TRACE(
 			pDM_Odm,
 			ODM_COMP_CCK_PD,
 			ODM_DBG_LOUD,
 			("odm_CCKPacketDetectionThresh()  return ==========\n")
 		);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (pDM_Odm->ExtLNA)
 		return;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_CCK_PD,
@@ -1168,6 +1427,8 @@ void odm_CCKPacketDetectionThresh(void *pDM_VOID)
 		("odm_CCKPacketDetectionThresh()  ==========>\n")
 	);
 
+=======
+>>>>>>> upstream/android-13
 	if (pDM_Odm->bLinked) {
 		if (pDM_Odm->RSSI_Min > 25)
 			CurCCK_CCAThres = 0xcd;
@@ -1187,6 +1448,7 @@ void odm_CCKPacketDetectionThresh(void *pDM_VOID)
 	}
 
 	ODM_Write_CCK_CCA_Thres(pDM_Odm, CurCCK_CCAThres);
+<<<<<<< HEAD
 
 	ODM_RT_TRACE(
 		pDM_Odm,
@@ -1197,12 +1459,19 @@ void odm_CCKPacketDetectionThresh(void *pDM_VOID)
 			CurCCK_CCAThres
 		)
 	);
+=======
+>>>>>>> upstream/android-13
 }
 
 void ODM_Write_CCK_CCA_Thres(void *pDM_VOID, u8 CurCCK_CCAThres)
 {
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
+=======
+	struct dm_odm_t *pDM_Odm = (struct dm_odm_t *)pDM_VOID;
+	struct dig_t *pDM_DigTable = &pDM_Odm->DM_DigTable;
+>>>>>>> upstream/android-13
 
 	/* modify by Guo.Mingzhi 2012-01-03 */
 	if (pDM_DigTable->CurCCK_CCAThres != CurCCK_CCAThres)

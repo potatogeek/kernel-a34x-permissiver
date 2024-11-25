@@ -103,13 +103,32 @@
 };
 
 &cpu0 {
+<<<<<<< HEAD
 	cpu0-supply = <&vdd_cpu>;
+=======
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu1 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu2 {
+	cpu-supply = <&vdd_cpu>;
+};
+
+&cpu3 {
+	cpu-supply = <&vdd_cpu>;
+>>>>>>> upstream/android-13
 };
 
 &emmc {
 	bus-width = <8>;
 	cap-mmc-highspeed;
+<<<<<<< HEAD
 	disable-wp;
+=======
+>>>>>>> upstream/android-13
 	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
 	non-removable;
@@ -150,7 +169,11 @@
 	pinctrl-0 = <&rgmii_pins>;
 	tx_delay = <0x30>;
 	rx_delay = <0x10>;
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &hdmi {

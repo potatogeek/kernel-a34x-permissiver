@@ -2,6 +2,12 @@
 #define _NF_CONNTRACK_COUNT_H
 
 #include <linux/list.h>
+<<<<<<< HEAD
+=======
+#include <linux/spinlock.h>
+#include <net/netfilter/nf_conntrack_tuple.h>
+#include <net/netfilter/nf_conntrack_zones.h>
+>>>>>>> upstream/android-13
 
 struct nf_conncount_data;
 

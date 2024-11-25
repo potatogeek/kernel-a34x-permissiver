@@ -26,7 +26,11 @@ struct igb_stats {
 
 #define IGB_STAT(_name, _stat) { \
 	.stat_string = _name, \
+<<<<<<< HEAD
 	.sizeof_stat = FIELD_SIZEOF(struct igb_adapter, _stat), \
+=======
+	.sizeof_stat = sizeof_field(struct igb_adapter, _stat), \
+>>>>>>> upstream/android-13
 	.stat_offset = offsetof(struct igb_adapter, _stat) \
 }
 static const struct igb_stats igb_gstrings_stats[] = {
@@ -76,7 +80,11 @@ static const struct igb_stats igb_gstrings_stats[] = {
 
 #define IGB_NETDEV_STAT(_net_stat) { \
 	.stat_string = __stringify(_net_stat), \
+<<<<<<< HEAD
 	.sizeof_stat = FIELD_SIZEOF(struct rtnl_link_stats64, _net_stat), \
+=======
+	.sizeof_stat = sizeof_field(struct rtnl_link_stats64, _net_stat), \
+>>>>>>> upstream/android-13
 	.stat_offset = offsetof(struct rtnl_link_stats64, _net_stat) \
 }
 static const struct igb_stats igb_gstrings_net_stats[] = {
@@ -397,6 +405,10 @@ static int igb_set_pauseparam(struct net_device *netdev,
 	struct igb_adapter *adapter = netdev_priv(netdev);
 	struct e1000_hw *hw = &adapter->hw;
 	int retval = 0;
+<<<<<<< HEAD
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	/* 100basefx does not support setting link flow control */
 	if (hw->dev_spec._82575.eth_flags.e100_base_fx)
@@ -429,6 +441,16 @@ static int igb_set_pauseparam(struct net_device *netdev,
 
 		retval = ((hw->phy.media_type == e1000_media_type_copper) ?
 			  igb_force_mac_fc(hw) : igb_setup_link(hw));
+<<<<<<< HEAD
+=======
+
+		/* Make sure SRRCTL considers new fc settings for each ring */
+		for (i = 0; i < adapter->num_rx_queues; i++) {
+			struct igb_ring *ring = adapter->rx_ring[i];
+
+			igb_setup_srrctl(adapter, ring);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	clear_bit(__IGB_RESETTING, &adapter->state);
@@ -449,7 +471,11 @@ static void igb_set_msglevel(struct net_device *netdev, u32 data)
 
 static int igb_get_regs_len(struct net_device *netdev)
 {
+<<<<<<< HEAD
 #define IGB_REGS_LEN 739
+=======
+#define IGB_REGS_LEN 740
+>>>>>>> upstream/android-13
 	return IGB_REGS_LEN * sizeof(u32);
 }
 
@@ -676,6 +702,7 @@ static void igb_get_regs(struct net_device *netdev,
 		regs_buff[554] = adapter->stats.b2ogprc;
 	}
 
+<<<<<<< HEAD
 	if (hw->mac.type != e1000_82576)
 		return;
 	for (i = 0; i < 12; i++)
@@ -711,6 +738,46 @@ static void igb_get_regs(struct net_device *netdev,
 		regs_buff[715 + i] = rd32(E1000_TDWBAL(i + 4));
 	for (i = 0; i < 12; i++)
 		regs_buff[727 + i] = rd32(E1000_TDWBAH(i + 4));
+=======
+	if (hw->mac.type == e1000_82576) {
+		for (i = 0; i < 12; i++)
+			regs_buff[555 + i] = rd32(E1000_SRRCTL(i + 4));
+		for (i = 0; i < 4; i++)
+			regs_buff[567 + i] = rd32(E1000_PSRTYPE(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[571 + i] = rd32(E1000_RDBAL(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[583 + i] = rd32(E1000_RDBAH(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[595 + i] = rd32(E1000_RDLEN(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[607 + i] = rd32(E1000_RDH(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[619 + i] = rd32(E1000_RDT(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[631 + i] = rd32(E1000_RXDCTL(i + 4));
+
+		for (i = 0; i < 12; i++)
+			regs_buff[643 + i] = rd32(E1000_TDBAL(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[655 + i] = rd32(E1000_TDBAH(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[667 + i] = rd32(E1000_TDLEN(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[679 + i] = rd32(E1000_TDH(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[691 + i] = rd32(E1000_TDT(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[703 + i] = rd32(E1000_TXDCTL(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[715 + i] = rd32(E1000_TDWBAL(i + 4));
+		for (i = 0; i < 12; i++)
+			regs_buff[727 + i] = rd32(E1000_TDWBAH(i + 4));
+	}
+
+	if (hw->mac.type == e1000_i210 || hw->mac.type == e1000_i211)
+		regs_buff[739] = rd32(E1000_I210_RR2DCDELAY);
+>>>>>>> upstream/android-13
 }
 
 static int igb_get_eeprom_len(struct net_device *netdev)
@@ -820,7 +887,11 @@ static int igb_set_eeprom(struct net_device *netdev,
 	memcpy(ptr, bytes, eeprom->len);
 
 	for (i = 0; i < last_word - first_word + 1; i++)
+<<<<<<< HEAD
 		eeprom_buff[i] = cpu_to_le16(eeprom_buff[i]);
+=======
+		cpu_to_le16s(&eeprom_buff[i]);
+>>>>>>> upstream/android-13
 
 	ret_val = hw->nvm.ops.write(hw, first_word,
 				    last_word - first_word + 1, eeprom_buff);
@@ -840,7 +911,10 @@ static void igb_get_drvinfo(struct net_device *netdev,
 	struct igb_adapter *adapter = netdev_priv(netdev);
 
 	strlcpy(drvinfo->driver,  igb_driver_name, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, igb_driver_version, sizeof(drvinfo->version));
+=======
+>>>>>>> upstream/android-13
 
 	/* EEPROM image version # is reported as firmware version # for
 	 * 82575 controllers
@@ -1772,8 +1846,13 @@ static void igb_create_lbtest_frame(struct sk_buff *skb,
 	memset(skb->data, 0xFF, frame_size);
 	frame_size /= 2;
 	memset(&skb->data[frame_size], 0xAA, frame_size - 1);
+<<<<<<< HEAD
 	memset(&skb->data[frame_size + 10], 0xBE, 1);
 	memset(&skb->data[frame_size + 12], 0xAF, 1);
+=======
+	skb->data[frame_size + 10] = 0xBE;
+	skb->data[frame_size + 12] = 0xAF;
+>>>>>>> upstream/android-13
 }
 
 static int igb_check_lbtest_frame(struct igb_rx_buffer *rx_buffer,
@@ -2114,7 +2193,11 @@ static int igb_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 {
 	struct igb_adapter *adapter = netdev_priv(netdev);
 
+<<<<<<< HEAD
 	if (wol->wolopts & (WAKE_ARP | WAKE_MAGICSECURE))
+=======
+	if (wol->wolopts & (WAKE_ARP | WAKE_MAGICSECURE | WAKE_FILTER))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	if (!(adapter->flags & IGB_FLAG_WOL_SUPPORTED))
@@ -2168,11 +2251,18 @@ static int igb_set_phys_id(struct net_device *netdev,
 }
 
 static int igb_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			    struct ethtool_coalesce *ec)
+=======
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct igb_adapter *adapter = netdev_priv(netdev);
 	int i;
 
+<<<<<<< HEAD
 	if (ec->rx_max_coalesced_frames ||
 	    ec->rx_coalesce_usecs_irq ||
 	    ec->rx_max_coalesced_frames_irq ||
@@ -2194,6 +2284,8 @@ static int igb_set_coalesce(struct net_device *netdev,
 	    ec->rate_sample_interval)
 		return -ENOTSUPP;
 
+=======
+>>>>>>> upstream/android-13
 	if ((ec->rx_coalesce_usecs > IGB_MAX_ITR_USECS) ||
 	    ((ec->rx_coalesce_usecs > 3) &&
 	     (ec->rx_coalesce_usecs < IGB_MIN_ITR_USECS)) ||
@@ -2245,7 +2337,13 @@ static int igb_set_coalesce(struct net_device *netdev,
 }
 
 static int igb_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			    struct ethtool_coalesce *ec)
+=======
+			    struct ethtool_coalesce *ec,
+			    struct kernel_ethtool_coalesce *kernel_coal,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct igb_adapter *adapter = netdev_priv(netdev);
 
@@ -2350,6 +2448,7 @@ static void igb_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
 
 	switch (stringset) {
 	case ETH_SS_TEST:
+<<<<<<< HEAD
 		memcpy(data, *igb_gstrings_test,
 			IGB_TEST_LEN*ETH_GSTRING_LEN);
 		break;
@@ -2383,6 +2482,28 @@ static void igb_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
 			p += ETH_GSTRING_LEN;
 			sprintf(p, "rx_queue_%u_alloc_failed", i);
 			p += ETH_GSTRING_LEN;
+=======
+		memcpy(data, igb_gstrings_test, sizeof(igb_gstrings_test));
+		break;
+	case ETH_SS_STATS:
+		for (i = 0; i < IGB_GLOBAL_STATS_LEN; i++)
+			ethtool_sprintf(&p,
+					igb_gstrings_stats[i].stat_string);
+		for (i = 0; i < IGB_NETDEV_STATS_LEN; i++)
+			ethtool_sprintf(&p,
+					igb_gstrings_net_stats[i].stat_string);
+		for (i = 0; i < adapter->num_tx_queues; i++) {
+			ethtool_sprintf(&p, "tx_queue_%u_packets", i);
+			ethtool_sprintf(&p, "tx_queue_%u_bytes", i);
+			ethtool_sprintf(&p, "tx_queue_%u_restart", i);
+		}
+		for (i = 0; i < adapter->num_rx_queues; i++) {
+			ethtool_sprintf(&p, "rx_queue_%u_packets", i);
+			ethtool_sprintf(&p, "rx_queue_%u_bytes", i);
+			ethtool_sprintf(&p, "rx_queue_%u_drops", i);
+			ethtool_sprintf(&p, "rx_queue_%u_csum_err", i);
+			ethtool_sprintf(&p, "rx_queue_%u_alloc_failed", i);
+>>>>>>> upstream/android-13
 		}
 		/* BUG_ON(p - data != IGB_STATS_LEN * ETH_GSTRING_LEN); */
 		break;
@@ -2528,11 +2649,19 @@ static int igb_get_rss_hash_opts(struct igb_adapter *adapter,
 	switch (cmd->flow_type) {
 	case TCP_V4_FLOW:
 		cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+<<<<<<< HEAD
 		/* Fall through */
 	case UDP_V4_FLOW:
 		if (adapter->flags & IGB_FLAG_RSS_FIELD_IPV4_UDP)
 			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
 		/* Fall through */
+=======
+		fallthrough;
+	case UDP_V4_FLOW:
+		if (adapter->flags & IGB_FLAG_RSS_FIELD_IPV4_UDP)
+			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SCTP_V4_FLOW:
 	case AH_ESP_V4_FLOW:
 	case AH_V4_FLOW:
@@ -2542,11 +2671,19 @@ static int igb_get_rss_hash_opts(struct igb_adapter *adapter,
 		break;
 	case TCP_V6_FLOW:
 		cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+<<<<<<< HEAD
 		/* Fall through */
 	case UDP_V6_FLOW:
 		if (adapter->flags & IGB_FLAG_RSS_FIELD_IPV6_UDP)
 			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
 		/* Fall through */
+=======
+		fallthrough;
+	case UDP_V6_FLOW:
+		if (adapter->flags & IGB_FLAG_RSS_FIELD_IPV6_UDP)
+			cmd->data |= RXH_L4_B_0_1 | RXH_L4_B_2_3;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SCTP_V6_FLOW:
 	case AH_ESP_V6_FLOW:
 	case AH_V6_FLOW:
@@ -3029,6 +3166,10 @@ static int igb_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd)
 		break;
 	case ETHTOOL_SRXCLSRLDEL:
 		ret = igb_del_ethtool_nfc_entry(adapter, cmd);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -3159,8 +3300,13 @@ static int igb_set_eee(struct net_device *netdev,
 	} else if (!edata->eee_enabled) {
 		dev_err(&adapter->pdev->dev,
 			"Setting EEE options are not supported with EEE disabled\n");
+<<<<<<< HEAD
 			return -EINVAL;
 		}
+=======
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	adapter->eee_advert = ethtool_adv_to_mmd_eee_adv_t(edata->advertised);
 	if (hw->dev_spec._82575.eee_disable != !edata->eee_enabled) {
@@ -3467,6 +3613,10 @@ static int igb_set_priv_flags(struct net_device *netdev, u32 priv_flags)
 }
 
 static const struct ethtool_ops igb_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS,
+>>>>>>> upstream/android-13
 	.get_drvinfo		= igb_get_drvinfo,
 	.get_regs_len		= igb_get_regs_len,
 	.get_regs		= igb_get_regs,

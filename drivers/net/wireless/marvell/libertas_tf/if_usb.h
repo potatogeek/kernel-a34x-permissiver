@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2008, cozybit Inc.
  *  Copyright (C) 2003-2006, Marvell International Ltd.
@@ -6,6 +7,12 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or (at
  *  your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Copyright (C) 2008, cozybit Inc.
+ *  Copyright (C) 2003-2006, Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 #include <linux/wait.h>
 #include <linux/timer.h>
@@ -85,7 +92,11 @@ struct fwheader {
 struct fwdata {
 	struct fwheader hdr;
 	__le32 seqnum;
+<<<<<<< HEAD
 	uint8_t data[0];
+=======
+	uint8_t data[];
+>>>>>>> upstream/android-13
 };
 
 /** fwsyncheader */

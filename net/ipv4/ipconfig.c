@@ -61,7 +61,10 @@
 #include <linux/export.h>
 #include <net/net_namespace.h>
 #include <net/arp.h>
+<<<<<<< HEAD
 #include <net/dsa.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/ip.h>
 #include <net/ipconfig.h>
 #include <net/route.h>
@@ -85,7 +88,10 @@
 
 /* Define the friendly delay before and after opening net devices */
 #define CONF_POST_OPEN		10	/* After opening: 10 msecs */
+<<<<<<< HEAD
 #define CONF_CARRIER_TIMEOUT	120000	/* Wait for carrier timeout */
+=======
+>>>>>>> upstream/android-13
 
 /* Define the timeout for waiting for a DHCP/BOOTP/RARP reply */
 #define CONF_OPEN_RETRIES 	2	/* (Re)open devices twice */
@@ -101,6 +107,12 @@
 #define NONE cpu_to_be32(INADDR_NONE)
 #define ANY cpu_to_be32(INADDR_ANY)
 
+<<<<<<< HEAD
+=======
+/* Wait for carrier timeout default in seconds */
+static unsigned int carrier_timeout = 120;
+
+>>>>>>> upstream/android-13
 /*
  * Public IP configuration
  */
@@ -216,11 +228,19 @@ static int __init ic_open_devs(void)
 	last = &ic_first_dev;
 	rtnl_lock();
 
+<<<<<<< HEAD
 	/* bring loopback and DSA master network devices up first */
 	for_each_netdev(&init_net, dev) {
 		if (!(dev->flags & IFF_LOOPBACK) && !netdev_uses_dsa(dev))
 			continue;
 		if (dev_change_flags(dev, dev->flags | IFF_UP) < 0)
+=======
+	/* bring loopback device up first */
+	for_each_netdev(&init_net, dev) {
+		if (!(dev->flags & IFF_LOOPBACK))
+			continue;
+		if (dev_change_flags(dev, dev->flags | IFF_UP, NULL) < 0)
+>>>>>>> upstream/android-13
 			pr_err("IP-Config: Failed to open %s\n", dev->name);
 	}
 
@@ -238,7 +258,11 @@ static int __init ic_open_devs(void)
 			if (ic_proto_enabled && !able)
 				continue;
 			oflags = dev->flags;
+<<<<<<< HEAD
 			if (dev_change_flags(dev, oflags | IFF_UP) < 0) {
+=======
+			if (dev_change_flags(dev, oflags | IFF_UP, NULL) < 0) {
+>>>>>>> upstream/android-13
 				pr_err("IP-Config: Failed to open %s\n",
 				       dev->name);
 				continue;
@@ -268,9 +292,15 @@ static int __init ic_open_devs(void)
 
 	/* wait for a carrier on at least one device */
 	start = jiffies;
+<<<<<<< HEAD
 	next_msg = start + msecs_to_jiffies(CONF_CARRIER_TIMEOUT/12);
 	while (time_before(jiffies, start +
 			   msecs_to_jiffies(CONF_CARRIER_TIMEOUT))) {
+=======
+	next_msg = start + msecs_to_jiffies(20000);
+	while (time_before(jiffies, start +
+			   msecs_to_jiffies(carrier_timeout * 1000))) {
+>>>>>>> upstream/android-13
 		int wait, elapsed;
 
 		for_each_netdev(&init_net, dev)
@@ -283,9 +313,15 @@ static int __init ic_open_devs(void)
 			continue;
 
 		elapsed = jiffies_to_msecs(jiffies - start);
+<<<<<<< HEAD
 		wait = (CONF_CARRIER_TIMEOUT - elapsed + 500)/1000;
 		pr_info("Waiting up to %d more seconds for network.\n", wait);
 		next_msg = jiffies + msecs_to_jiffies(CONF_CARRIER_TIMEOUT/12);
+=======
+		wait = (carrier_timeout * 1000 - elapsed + 500) / 1000;
+		pr_info("Waiting up to %d more seconds for network.\n", wait);
+		next_msg = jiffies + msecs_to_jiffies(20000);
+>>>>>>> upstream/android-13
 	}
 have_carrier:
 	rtnl_unlock();
@@ -303,19 +339,49 @@ have_carrier:
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __init ic_close_devs(void)
 {
+=======
+/* Close all network interfaces except the one we've autoconfigured, and its
+ * lowers, in case it's a stacked virtual interface.
+ */
+static void __init ic_close_devs(void)
+{
+	struct net_device *selected_dev = ic_dev ? ic_dev->dev : NULL;
+>>>>>>> upstream/android-13
 	struct ic_device *d, *next;
 	struct net_device *dev;
 
 	rtnl_lock();
 	next = ic_first_dev;
 	while ((d = next)) {
+<<<<<<< HEAD
 		next = d->next;
 		dev = d->dev;
 		if (d != ic_dev && !netdev_uses_dsa(dev)) {
 			pr_debug("IP-Config: Downing %s\n", dev->name);
 			dev_change_flags(dev, d->flags);
+=======
+		bool bring_down = (d != ic_dev);
+		struct net_device *lower;
+		struct list_head *iter;
+
+		next = d->next;
+		dev = d->dev;
+
+		if (selected_dev) {
+			netdev_for_each_lower_dev(selected_dev, lower, iter) {
+				if (dev == lower) {
+					bring_down = false;
+					break;
+				}
+			}
+		}
+		if (bring_down) {
+			pr_debug("IP-Config: Downing %s\n", dev->name);
+			dev_change_flags(dev, d->flags, NULL);
+>>>>>>> upstream/android-13
 		}
 		kfree(d);
 	}
@@ -429,6 +495,11 @@ static int __init ic_defaults(void)
 			ic_netmask = htonl(IN_CLASSB_NET);
 		else if (IN_CLASSC(ntohl(ic_myaddr)))
 			ic_netmask = htonl(IN_CLASSC_NET);
+<<<<<<< HEAD
+=======
+		else if (IN_CLASSE(ntohl(ic_myaddr)))
+			ic_netmask = htonl(IN_CLASSE_NET);
+>>>>>>> upstream/android-13
 		else {
 			pr_err("IP-Config: Unable to guess netmask for address %pI4\n",
 			       &ic_myaddr);
@@ -866,7 +937,11 @@ static void __init ic_bootp_send_if(struct ic_device *d, unsigned long jiffies_d
 
 
 /*
+<<<<<<< HEAD
  *  Copy BOOTP-supplied string if not already set.
+=======
+ *  Copy BOOTP-supplied string
+>>>>>>> upstream/android-13
  */
 static int __init ic_bootp_string(char *dest, char *src, int len, int max)
 {
@@ -915,12 +990,24 @@ static void __init ic_do_bootp_ext(u8 *ext)
 		}
 		break;
 	case 12:	/* Host name */
+<<<<<<< HEAD
 		ic_bootp_string(utsname()->nodename, ext+1, *ext,
 				__NEW_UTS_LEN);
 		ic_host_name_set = 1;
 		break;
 	case 15:	/* Domain name (DNS) */
 		ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
+=======
+		if (!ic_host_name_set) {
+			ic_bootp_string(utsname()->nodename, ext+1, *ext,
+					__NEW_UTS_LEN);
+			ic_host_name_set = 1;
+		}
+		break;
+	case 15:	/* Domain name (DNS) */
+		if (!ic_domain[0])
+			ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
+>>>>>>> upstream/android-13
 		break;
 	case 17:	/* Root path */
 		if (!root_server_path[0])
@@ -1330,7 +1417,11 @@ static int __init ipconfig_proc_net_init(void)
 
 /* Create a new file under /proc/net/ipconfig */
 static int ipconfig_proc_net_create(const char *name,
+<<<<<<< HEAD
 				    const struct file_operations *fops)
+=======
+				    const struct proc_ops *proc_ops)
+>>>>>>> upstream/android-13
 {
 	char *pname;
 	struct proc_dir_entry *p;
@@ -1342,7 +1433,11 @@ static int ipconfig_proc_net_create(const char *name,
 	if (!pname)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	p = proc_create(pname, 0444, init_net.proc_net, fops);
+=======
+	p = proc_create(pname, 0444, init_net.proc_net, proc_ops);
+>>>>>>> upstream/android-13
 	kfree(pname);
 	if (!p)
 		return -ENOMEM;
@@ -1351,7 +1446,11 @@ static int ipconfig_proc_net_create(const char *name,
 }
 
 /* Write NTP server IP addresses to /proc/net/ipconfig/ntp_servers */
+<<<<<<< HEAD
 static int ntp_servers_seq_show(struct seq_file *seq, void *v)
+=======
+static int ntp_servers_show(struct seq_file *seq, void *v)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -1361,6 +1460,7 @@ static int ntp_servers_seq_show(struct seq_file *seq, void *v)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 static int ntp_servers_seq_open(struct inode *inode, struct file *file)
 {
@@ -1373,6 +1473,9 @@ static const struct file_operations ntp_servers_seq_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 };
+=======
+DEFINE_PROC_SHOW_ATTRIBUTE(ntp_servers);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PROC_FS */
 
 /*
@@ -1419,6 +1522,12 @@ static int __init wait_for_devices(void)
 		struct net_device *dev;
 		int found = 0;
 
+<<<<<<< HEAD
+=======
+		/* make sure deferred device probes are finished */
+		wait_for_device_probe();
+
+>>>>>>> upstream/android-13
 		rtnl_lock();
 		for_each_netdev(&init_net, dev) {
 			if (ic_is_init_dev(dev)) {
@@ -1445,7 +1554,11 @@ static int __init ip_auto_config(void)
 	int retries = CONF_OPEN_RETRIES;
 #endif
 	int err;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+	unsigned int i, count;
+>>>>>>> upstream/android-13
 
 	/* Initialise all name servers and NTP servers to NONE (but only if the
 	 * "ip=" or "nfsaddrs=" kernel command line parameters weren't decoded,
@@ -1460,7 +1573,11 @@ static int __init ip_auto_config(void)
 	proc_create_single("pnp", 0444, init_net.proc_net, pnp_seq_show);
 
 	if (ipconfig_proc_net_init() == 0)
+<<<<<<< HEAD
 		ipconfig_proc_net_create("ntp_servers", &ntp_servers_seq_fops);
+=======
+		ipconfig_proc_net_create("ntp_servers", &ntp_servers_proc_ops);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PROC_FS */
 
 	if (!ic_enable)
@@ -1490,10 +1607,17 @@ static int __init ip_auto_config(void)
 	 * missing values.
 	 */
 	if (ic_myaddr == NONE ||
+<<<<<<< HEAD
 #ifdef CONFIG_ROOT_NFS
 	    (root_server_addr == NONE &&
 	     ic_servaddr == NONE &&
 	     ROOT_DEV == Root_NFS) ||
+=======
+#if defined(CONFIG_ROOT_NFS) || defined(CONFIG_CIFS_ROOT)
+	    (root_server_addr == NONE &&
+	     ic_servaddr == NONE &&
+	     (ROOT_DEV == Root_NFS || ROOT_DEV == Root_CIFS)) ||
+>>>>>>> upstream/android-13
 #endif
 	    ic_first_dev->next) {
 #ifdef IPCONFIG_DYNAMIC
@@ -1520,6 +1644,15 @@ static int __init ip_auto_config(void)
 				goto try_try_again;
 			}
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CIFS_ROOT
+			if (ROOT_DEV == Root_CIFS) {
+				pr_err("IP-Config: Retrying forever (CIFS root)...\n");
+				goto try_try_again;
+			}
+#endif
+>>>>>>> upstream/android-13
 
 			if (--retries) {
 				pr_err("IP-Config: Reopening network devices...\n");
@@ -1573,7 +1706,11 @@ static int __init ip_auto_config(void)
 	if (ic_dev_mtu)
 		pr_cont(", mtu=%d", ic_dev_mtu);
 	/* Name servers (if any): */
+<<<<<<< HEAD
 	for (i = 0; i < CONF_NAMESERVERS_MAX; i++) {
+=======
+	for (i = 0, count = 0; i < CONF_NAMESERVERS_MAX; i++) {
+>>>>>>> upstream/android-13
 		if (ic_nameservers[i] != NONE) {
 			if (i == 0)
 				pr_info("     nameserver%u=%pI4",
@@ -1581,12 +1718,23 @@ static int __init ip_auto_config(void)
 			else
 				pr_cont(", nameserver%u=%pI4",
 					i, &ic_nameservers[i]);
+<<<<<<< HEAD
 		}
 		if (i + 1 == CONF_NAMESERVERS_MAX)
 			pr_cont("\n");
 	}
 	/* NTP servers (if any): */
 	for (i = 0; i < CONF_NTP_SERVERS_MAX; i++) {
+=======
+
+			count++;
+		}
+		if ((i + 1 == CONF_NAMESERVERS_MAX) && count > 0)
+			pr_cont("\n");
+	}
+	/* NTP servers (if any): */
+	for (i = 0, count = 0; i < CONF_NTP_SERVERS_MAX; i++) {
+>>>>>>> upstream/android-13
 		if (ic_ntp_servers[i] != NONE) {
 			if (i == 0)
 				pr_info("     ntpserver%u=%pI4",
@@ -1594,8 +1742,15 @@ static int __init ip_auto_config(void)
 			else
 				pr_cont(", ntpserver%u=%pI4",
 					i, &ic_ntp_servers[i]);
+<<<<<<< HEAD
 		}
 		if (i + 1 == CONF_NTP_SERVERS_MAX)
+=======
+
+			count++;
+		}
+		if ((i + 1 == CONF_NTP_SERVERS_MAX) && count > 0)
+>>>>>>> upstream/android-13
 			pr_cont("\n");
 	}
 #endif /* !SILENT */
@@ -1619,7 +1774,11 @@ late_initcall(ip_auto_config);
 
 /*
  *  Decode any IP configuration options in the "ip=" or "nfsaddrs=" kernel
+<<<<<<< HEAD
  *  command line parameter.  See Documentation/filesystems/nfs/nfsroot.txt.
+=======
+ *  command line parameter.  See Documentation/admin-guide/nfs/nfsroot.rst.
+>>>>>>> upstream/android-13
  */
 static int __init ic_proto_name(char *name)
 {
@@ -1789,3 +1948,21 @@ static int __init vendor_class_identifier_setup(char *addrs)
 	return 1;
 }
 __setup("dhcpclass=", vendor_class_identifier_setup);
+<<<<<<< HEAD
+=======
+
+static int __init set_carrier_timeout(char *str)
+{
+	ssize_t ret;
+
+	if (!str)
+		return 0;
+
+	ret = kstrtouint(str, 0, &carrier_timeout);
+	if (ret)
+		return 0;
+
+	return 1;
+}
+__setup("carrier_timeout=", set_carrier_timeout);
+>>>>>>> upstream/android-13

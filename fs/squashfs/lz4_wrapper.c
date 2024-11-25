@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013, 2014
  * Phillip Lougher <phillip@squashfs.org.uk>
@@ -7,6 +8,15 @@
  */
 
 #include <linux/buffer_head.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013, 2014
+ * Phillip Lougher <phillip@squashfs.org.uk>
+ */
+
+#include <linux/bio.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
@@ -91,6 +101,7 @@ static void lz4_free(void *strm)
 
 
 static int lz4_uncompress(struct squashfs_sb_info *msblk, void *strm,
+<<<<<<< HEAD
 	struct buffer_head **bh, int b, int offset, int length,
 	struct squashfs_page_actor *output)
 {
@@ -105,6 +116,25 @@ static int lz4_uncompress(struct squashfs_sb_info *msblk, void *strm,
 		bytes -= avail;
 		offset = 0;
 		put_bh(bh[i]);
+=======
+	struct bio *bio, int offset, int length,
+	struct squashfs_page_actor *output)
+{
+	struct bvec_iter_all iter_all = {};
+	struct bio_vec *bvec = bvec_init_iter_all(&iter_all);
+	struct squashfs_lz4 *stream = strm;
+	void *buff = stream->input, *data;
+	int bytes = length, res;
+
+	while (bio_next_segment(bio, &iter_all)) {
+		int avail = min(bytes, ((int)bvec->bv_len) - offset);
+
+		data = bvec_virt(bvec);
+		memcpy(buff, data + offset, avail);
+		buff += avail;
+		bytes -= avail;
+		offset = 0;
+>>>>>>> upstream/android-13
 	}
 
 	res = LZ4_decompress_safe(stream->input, stream->output,

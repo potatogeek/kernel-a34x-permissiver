@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010, Intel Corporation.
  *
@@ -13,6 +14,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010, Intel Corporation.
+ *
+>>>>>>> upstream/android-13
  * Author: John Fastabend <john.r.fastabend@intel.com>
  */
 

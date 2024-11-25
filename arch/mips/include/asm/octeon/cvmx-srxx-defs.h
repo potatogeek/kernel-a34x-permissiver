@@ -52,10 +52,13 @@ union cvmx_srxx_com_ctl {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_srxx_com_ctl_s cn38xx;
 	struct cvmx_srxx_com_ctl_s cn38xxp2;
 	struct cvmx_srxx_com_ctl_s cn58xx;
 	struct cvmx_srxx_com_ctl_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_srxx_ign_rx_full {
@@ -69,10 +72,13 @@ union cvmx_srxx_ign_rx_full {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_srxx_ign_rx_full_s cn38xx;
 	struct cvmx_srxx_ign_rx_full_s cn38xxp2;
 	struct cvmx_srxx_ign_rx_full_s cn58xx;
 	struct cvmx_srxx_ign_rx_full_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_srxx_spi4_calx {
@@ -94,10 +100,13 @@ union cvmx_srxx_spi4_calx {
 		uint64_t reserved_17_63:47;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_srxx_spi4_calx_s cn38xx;
 	struct cvmx_srxx_spi4_calx_s cn38xxp2;
 	struct cvmx_srxx_spi4_calx_s cn58xx;
 	struct cvmx_srxx_spi4_calx_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_srxx_spi4_stat {
@@ -115,10 +124,13 @@ union cvmx_srxx_spi4_stat {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_srxx_spi4_stat_s cn38xx;
 	struct cvmx_srxx_spi4_stat_s cn38xxp2;
 	struct cvmx_srxx_spi4_stat_s cn58xx;
 	struct cvmx_srxx_spi4_stat_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_srxx_sw_tick_ctl {
@@ -140,9 +152,12 @@ union cvmx_srxx_sw_tick_ctl {
 		uint64_t reserved_14_63:50;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_srxx_sw_tick_ctl_s cn38xx;
 	struct cvmx_srxx_sw_tick_ctl_s cn58xx;
 	struct cvmx_srxx_sw_tick_ctl_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_srxx_sw_tick_dat {
@@ -154,9 +169,12 @@ union cvmx_srxx_sw_tick_dat {
 		uint64_t dat:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_srxx_sw_tick_dat_s cn38xx;
 	struct cvmx_srxx_sw_tick_dat_s cn58xx;
 	struct cvmx_srxx_sw_tick_dat_s cn58xxp1;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

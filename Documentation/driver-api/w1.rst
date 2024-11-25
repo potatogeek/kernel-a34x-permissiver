@@ -7,9 +7,12 @@ W1: Dallas' 1-wire bus
 W1 API internal to the kernel
 =============================
 
+<<<<<<< HEAD
 W1 API internal to the kernel
 -----------------------------
 
+=======
+>>>>>>> upstream/android-13
 include/linux/w1.h
 ~~~~~~~~~~~~~~~~~~
 

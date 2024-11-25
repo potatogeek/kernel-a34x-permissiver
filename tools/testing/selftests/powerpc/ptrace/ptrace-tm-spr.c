@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Ptrace test TM SPR registers
  *
  * Copyright (C) 2015 Anshuman Khandual, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include "ptrace.h"
 #include "tm.h"
@@ -118,6 +125,10 @@ int ptrace_tm_spr(void)
 	int ret, status;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 	shm_id = shmget(IPC_PRIVATE, sizeof(struct shared), 0777|IPC_CREAT);
 	shm_id1 = shmget(IPC_PRIVATE, sizeof(int), 0777|IPC_CREAT);
 	pid = fork();

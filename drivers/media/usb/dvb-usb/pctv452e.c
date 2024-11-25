@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PCTV 452e DVB driver
  *
@@ -5,11 +9,14 @@
  *
  * TT connect S2-3650-CI Common Interface support, MAC readout
  * Copyright (C) 2008 Michael H. Schimek <mschimek@gmx.at>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* dvb usb framework */
@@ -24,6 +31,10 @@
 #include "stb6100.h"
 #include "stb6100_cfg.h"
 /* FE Power */
+<<<<<<< HEAD
+=======
+#include "isl6423.h"
+>>>>>>> upstream/android-13
 #include "lnbp22.h"
 
 #include <media/dvb_ca_en50221.h>
@@ -87,6 +98,16 @@ static struct stb0899_postproc pctv45e_postproc[] = {
 	{ 0, 0 }
 };
 
+<<<<<<< HEAD
+=======
+static struct isl6423_config pctv452e_isl6423_config = {
+	.current_max		= SEC_CURRENT_515m,
+	.curlim			= SEC_CURRENT_LIM_ON,
+	.mod_extern		= 1,
+	.addr			= 0x08,
+};
+
+>>>>>>> upstream/android-13
 /*
  * stores all private variables for communication with the PCTV452e DVB-S2
  */
@@ -528,13 +549,21 @@ static int pctv452e_power_ctrl(struct dvb_usb_device *d, int i)
 
 	rx = b0 + 5;
 
+<<<<<<< HEAD
 	/* hmm where shoud this should go? */
+=======
+	/* hmm where should this should go? */
+>>>>>>> upstream/android-13
 	ret = usb_set_interface(d->udev, 0, ISOC_INTERFACE_ALTERNATIVE);
 	if (ret != 0)
 		info("%s: Warning set interface returned: %d\n",
 			__func__, ret);
 
+<<<<<<< HEAD
 	/* this is a one-time initialization, dont know where to put */
+=======
+	/* this is a one-time initialization, don't know where to put */
+>>>>>>> upstream/android-13
 	b0[0] = 0xaa;
 	b0[1] = state->c++;
 	b0[2] = PCTV_CMD_RESET;
@@ -913,6 +942,7 @@ static int pctv452e_frontend_attach(struct dvb_usb_adapter *a)
 						&a->dev->i2c_adap);
 	if (!a->fe_adap[0].fe)
 		return -ENODEV;
+<<<<<<< HEAD
 	if ((dvb_attach(lnbp22_attach, a->fe_adap[0].fe,
 					&a->dev->i2c_adap)) == NULL)
 		err("Cannot attach lnbp22\n");
@@ -922,6 +952,25 @@ static int pctv452e_frontend_attach(struct dvb_usb_adapter *a)
 	    && USB_PID_TECHNOTREND_CONNECT_S2_3650_CI == id->idProduct)
 		/* Error ignored. */
 		tt3650_ci_init(a);
+=======
+
+	id = a->dev->desc->warm_ids[0];
+	if (id->idVendor == USB_VID_TECHNOTREND &&
+	    id->idProduct == USB_PID_TECHNOTREND_CONNECT_S2_3650_CI) {
+		if (dvb_attach(lnbp22_attach,
+			       a->fe_adap[0].fe,
+			       &a->dev->i2c_adap) == NULL) {
+			err("Cannot attach lnbp22\n");
+		}
+		/* Error ignored. */
+		tt3650_ci_init(a);
+	} else if (dvb_attach(isl6423_attach,
+			      a->fe_adap[0].fe,
+			      &a->dev->i2c_adap,
+			      &pctv452e_isl6423_config) == NULL) {
+		err("Cannot attach isl6423\n");
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }

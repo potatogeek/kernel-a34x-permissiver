@@ -116,7 +116,11 @@ core, providing operations structures to the core. A notifier interface
 allows error conditions to be reported to the core.
 
 Registration should be triggered by explicit setup done by the platform,
+<<<<<<< HEAD
 supplying a struct :c:type:`regulator_init_data` for the regulator
+=======
+supplying a struct regulator_init_data for the regulator
+>>>>>>> upstream/android-13
 containing constraint and supply information.
 
 Machine interface
@@ -144,7 +148,11 @@ a given system, for example supporting higher supply voltages than the
 consumers are rated for.
 
 This is done at driver registration time` by providing a
+<<<<<<< HEAD
 struct :c:type:`regulation_constraints`.
+=======
+struct regulation_constraints.
+>>>>>>> upstream/android-13
 
 The constraints may also specify an initial configuration for the
 regulator in the constraints, which is particularly useful for use with

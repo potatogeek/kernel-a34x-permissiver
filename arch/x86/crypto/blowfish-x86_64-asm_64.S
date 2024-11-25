@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Blowfish Cipher Algorithm (x86_64)
  *
  * Copyright (C) 2011 Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -118,7 +125,11 @@
 	bswapq 			RX0; \
 	xorq RX0, 		(RIO);
 
+<<<<<<< HEAD
 ENTRY(__blowfish_enc_blk)
+=======
+SYM_FUNC_START(__blowfish_enc_blk)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -150,6 +161,7 @@ ENTRY(__blowfish_enc_blk)
 	jnz .L__enc_xor;
 
 	write_block();
+<<<<<<< HEAD
 	ret;
 .L__enc_xor:
 	xor_block();
@@ -157,6 +169,15 @@ ENTRY(__blowfish_enc_blk)
 ENDPROC(__blowfish_enc_blk)
 
 ENTRY(blowfish_dec_blk)
+=======
+	RET;
+.L__enc_xor:
+	xor_block();
+	RET;
+SYM_FUNC_END(__blowfish_enc_blk)
+
+SYM_FUNC_START(blowfish_dec_blk)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -185,8 +206,13 @@ ENTRY(blowfish_dec_blk)
 
 	movq %r11, %r12;
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(blowfish_dec_blk)
+=======
+	RET;
+SYM_FUNC_END(blowfish_dec_blk)
+>>>>>>> upstream/android-13
 
 /**********************************************************************
   4-way blowfish, four blocks parallel
@@ -298,7 +324,11 @@ ENDPROC(blowfish_dec_blk)
 	bswapq 			RX3; \
 	xorq RX3,		24(RIO);
 
+<<<<<<< HEAD
 ENTRY(__blowfish_enc_blk_4way)
+=======
+SYM_FUNC_START(__blowfish_enc_blk_4way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -337,17 +367,28 @@ ENTRY(__blowfish_enc_blk_4way)
 
 	popq %rbx;
 	popq %r12;
+<<<<<<< HEAD
 	ret;
+=======
+	RET;
+>>>>>>> upstream/android-13
 
 .L__enc_xor4:
 	xor_block4();
 
 	popq %rbx;
 	popq %r12;
+<<<<<<< HEAD
 	ret;
 ENDPROC(__blowfish_enc_blk_4way)
 
 ENTRY(blowfish_dec_blk_4way)
+=======
+	RET;
+SYM_FUNC_END(__blowfish_enc_blk_4way)
+
+SYM_FUNC_START(blowfish_dec_blk_4way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx
 	 *	%rsi: dst
@@ -379,5 +420,10 @@ ENTRY(blowfish_dec_blk_4way)
 	popq %rbx;
 	popq %r12;
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(blowfish_dec_blk_4way)
+=======
+	RET;
+SYM_FUNC_END(blowfish_dec_blk_4way)
+>>>>>>> upstream/android-13

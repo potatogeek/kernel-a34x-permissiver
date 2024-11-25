@@ -37,7 +37,10 @@
 #include <linux/slab.h>
 #include <linux/rcupdate.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <asm/io.h>
 #include <asm/processor.h>
@@ -52,8 +55,11 @@
 extern void ret_from_fork(void);
 extern void ret_from_kernel_thread(void);
 
+<<<<<<< HEAD
 struct task_struct *current_set[NR_CPUS] = {&init_task, };
 
+=======
+>>>>>>> upstream/android-13
 void (*pm_power_off)(void) = NULL;
 EXPORT_SYMBOL(pm_power_off);
 
@@ -87,7 +93,12 @@ void coprocessor_release_all(struct thread_info *ti)
 	}
 
 	ti->cpenable = cpenable;
+<<<<<<< HEAD
 	coprocessor_clear_cpenable();
+=======
+	if (ti == current_thread_info())
+		xtensa_set_sr(0, cpenable);
+>>>>>>> upstream/android-13
 
 	preempt_enable();
 }
@@ -99,16 +110,26 @@ void coprocessor_flush_all(struct thread_info *ti)
 
 	preempt_disable();
 
+<<<<<<< HEAD
 	RSR_CPENABLE(old_cpenable);
 	cpenable = ti->cpenable;
 	WSR_CPENABLE(cpenable);
+=======
+	old_cpenable = xtensa_get_sr(cpenable);
+	cpenable = ti->cpenable;
+	xtensa_set_sr(cpenable, cpenable);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < XCHAL_CP_MAX; i++) {
 		if ((cpenable & 1) != 0 && coprocessor_owner[i] == ti)
 			coprocessor_flush(ti, i);
 		cpenable >>= 1;
 	}
+<<<<<<< HEAD
 	WSR_CPENABLE(old_cpenable);
+=======
+	xtensa_set_sr(old_cpenable, cpenable);
+>>>>>>> upstream/android-13
 
 	preempt_enable();
 }
@@ -204,7 +225,12 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
  */
 
 int copy_thread(unsigned long clone_flags, unsigned long usp_thread_fn,
+<<<<<<< HEAD
 		unsigned long thread_fn_arg, struct task_struct *p)
+=======
+		unsigned long thread_fn_arg, struct task_struct *p,
+		unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *childregs = task_pt_regs(p);
 
@@ -218,7 +244,11 @@ int copy_thread(unsigned long clone_flags, unsigned long usp_thread_fn,
 
 	p->thread.sp = (unsigned long)childregs;
 
+<<<<<<< HEAD
 	if (!(p->flags & PF_KTHREAD)) {
+=======
+	if (!(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		struct pt_regs *regs = current_pt_regs();
 		unsigned long usp = usp_thread_fn ?
 			usp_thread_fn : regs->areg[1];
@@ -265,9 +295,16 @@ int copy_thread(unsigned long clone_flags, unsigned long usp_thread_fn,
 			       &regs->areg[XCHAL_NUM_AREGS - len/4], len);
 		}
 
+<<<<<<< HEAD
 		/* The thread pointer is passed in the '4th argument' (= a5) */
 		if (clone_flags & CLONE_SETTLS)
 			childregs->threadptr = childregs->areg[5];
+=======
+		childregs->syscall = regs->syscall;
+
+		if (clone_flags & CLONE_SETTLS)
+			childregs->threadptr = tls;
+>>>>>>> upstream/android-13
 	} else {
 		p->thread.ra = MAKE_RA_FOR_CALL(
 				(unsigned long)ret_from_kernel_thread, 1);
@@ -304,7 +341,11 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long stack_page = (unsigned long) task_stack_page(p);
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	sp = p->thread.sp;
@@ -325,6 +366,7 @@ unsigned long get_wchan(struct task_struct *p)
 	} while (count++ < 16);
 	return 0;
 }
+<<<<<<< HEAD
 
 /*
  * xtensa_gregset_t and 'struct pt_regs' are vastly different formats
@@ -371,3 +413,5 @@ int dump_fpu(void)
 {
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

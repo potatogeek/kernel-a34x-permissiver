@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MPL-1.1) */
+<<<<<<< HEAD
 /* This file is GENERATED AUTOMATICALLY.  DO NOT EDIT OR MODIFY.
  * --------------------------------------------------------------------
+=======
+/* --------------------------------------------------------------------
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 1999 AbsoluteValue Systems, Inc.  All Rights Reserved.
  * --------------------------------------------------------------------

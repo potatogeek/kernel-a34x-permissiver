@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -100,7 +106,11 @@ static int port_accept(struct port_list *port)
 		  .port 	= port });
 
 	if (um_request_irq(TELNETD_IRQ, socket[0], IRQ_READ, pipe_interrupt,
+<<<<<<< HEAD
 			  IRQF_SHARED, "telnetd", conn)) {
+=======
+			  IRQF_SHARED, "telnetd", conn) < 0) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "port_accept : failed to get IRQ for "
 		       "telnetd\n");
 		goto out_free;
@@ -137,7 +147,10 @@ static void port_work_proc(struct work_struct *unused)
 		if (!port->has_connection)
 			continue;
 
+<<<<<<< HEAD
 		reactivate_fd(port->fd, ACCEPT_IRQ);
+=======
+>>>>>>> upstream/android-13
 		while (port_accept(port))
 			;
 		port->has_connection = 0;
@@ -183,7 +196,11 @@ void *port_data(int port_num)
 	}
 
 	if (um_request_irq(ACCEPT_IRQ, fd, IRQ_READ, port_interrupt,
+<<<<<<< HEAD
 			  IRQF_SHARED, "port", port)) {
+=======
+			  IRQF_SHARED, "port", port) < 0) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "Failed to get IRQ for port %d\n", port_num);
 		goto out_close;
 	}

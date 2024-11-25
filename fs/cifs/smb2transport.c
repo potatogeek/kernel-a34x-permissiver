@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/smb2transport.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (C) International Business Machines  Corp., 2002, 2011
  *                 Etersoft, 2012
@@ -7,6 +12,7 @@
  *              Jeremy Allison (jra@samba.org) 2006
  *              Pavel Shilovsky (pshilovsky@samba.org) 2012
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,6 +26,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -41,6 +49,7 @@
 #include "smb2glob.h"
 
 static int
+<<<<<<< HEAD
 smb2_crypto_shash_allocate(struct TCP_Server_Info *server)
 {
 	return cifs_alloc_hash("hmac(sha256)",
@@ -49,6 +58,8 @@ smb2_crypto_shash_allocate(struct TCP_Server_Info *server)
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 smb3_crypto_shash_allocate(struct TCP_Server_Info *server)
 {
 	struct cifs_secmech *p = &server->secmech;
@@ -98,6 +109,65 @@ err:
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+
+static
+int smb2_get_sign_key(__u64 ses_id, struct TCP_Server_Info *server, u8 *key)
+{
+	struct cifs_chan *chan;
+	struct cifs_ses *ses = NULL;
+	struct TCP_Server_Info *it = NULL;
+	int i;
+	int rc = 0;
+
+	spin_lock(&cifs_tcp_ses_lock);
+
+	list_for_each_entry(it, &cifs_tcp_ses_list, tcp_ses_list) {
+		list_for_each_entry(ses, &it->smb_ses_list, smb_ses_list) {
+			if (ses->Suid == ses_id)
+				goto found;
+		}
+	}
+	cifs_server_dbg(VFS, "%s: Could not find session 0x%llx\n",
+			__func__, ses_id);
+	rc = -ENOENT;
+	goto out;
+
+found:
+	if (ses->binding) {
+		/*
+		 * If we are in the process of binding a new channel
+		 * to an existing session, use the master connection
+		 * session key
+		 */
+		memcpy(key, ses->smb3signingkey, SMB3_SIGN_KEY_SIZE);
+		goto out;
+	}
+
+	/*
+	 * Otherwise, use the channel key.
+	 */
+
+	for (i = 0; i < ses->chan_count; i++) {
+		chan = ses->chans + i;
+		if (chan->server == server) {
+			memcpy(key, chan->signkey, SMB3_SIGN_KEY_SIZE);
+			goto out;
+		}
+	}
+
+	cifs_dbg(VFS,
+		 "%s: Could not find channel signing key for session 0x%llx\n",
+		 __func__, ses_id);
+	rc = -ENOENT;
+
+out:
+	spin_unlock(&cifs_tcp_ses_lock);
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static struct cifs_ses *
 smb2_find_smb_ses_unlocked(struct TCP_Server_Info *server, __u64 ses_id)
 {
@@ -106,6 +176,10 @@ smb2_find_smb_ses_unlocked(struct TCP_Server_Info *server, __u64 ses_id)
 	list_for_each_entry(ses, &server->smb_ses_list, smb_ses_list) {
 		if (ses->Suid != ses_id)
 			continue;
+<<<<<<< HEAD
+=======
+		++ses->ses_count;
+>>>>>>> upstream/android-13
 		return ses;
 	}
 
@@ -157,13 +231,29 @@ smb2_find_smb_tcon(struct TCP_Server_Info *server, __u64 ses_id, __u32  tid)
 		return NULL;
 	}
 	tcon = smb2_find_smb_sess_tcon_unlocked(ses, tid);
+<<<<<<< HEAD
 	spin_unlock(&cifs_tcp_ses_lock);
+=======
+	if (!tcon) {
+		cifs_put_smb_ses(ses);
+		spin_unlock(&cifs_tcp_ses_lock);
+		return NULL;
+	}
+	spin_unlock(&cifs_tcp_ses_lock);
+	/* tcon already has a ref to ses, so we don't need ses anymore */
+	cifs_put_smb_ses(ses);
+>>>>>>> upstream/android-13
 
 	return tcon;
 }
 
 int
+<<<<<<< HEAD
 smb2_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
+=======
+smb2_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server,
+			bool allocate_crypto)
+>>>>>>> upstream/android-13
 {
 	int rc;
 	unsigned char smb2_signature[SMB2_HMACSHA256_SIZE];
@@ -172,17 +262,27 @@ smb2_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	struct smb2_sync_hdr *shdr = (struct smb2_sync_hdr *)iov[0].iov_base;
 	struct cifs_ses *ses;
 	struct shash_desc *shash;
+<<<<<<< HEAD
+=======
+	struct crypto_shash *hash;
+	struct sdesc *sdesc = NULL;
+>>>>>>> upstream/android-13
 	struct smb_rqst drqst;
 
 	ses = smb2_find_smb_ses(server, shdr->SessionId);
 	if (!ses) {
+<<<<<<< HEAD
 		cifs_dbg(VFS, "%s: Could not find session\n", __func__);
+=======
+		cifs_server_dbg(VFS, "%s: Could not find session\n", __func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	memset(smb2_signature, 0x0, SMB2_HMACSHA256_SIZE);
 	memset(shdr->Signature, 0x0, SMB2_SIGNATURE_SIZE);
 
+<<<<<<< HEAD
 	rc = smb2_crypto_shash_allocate(server);
 	if (rc) {
 		cifs_dbg(VFS, "%s: sha256 alloc failed\n", __func__);
@@ -201,6 +301,34 @@ smb2_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	if (rc) {
 		cifs_dbg(VFS, "%s: Could not init sha256", __func__);
 		return rc;
+=======
+	if (allocate_crypto) {
+		rc = cifs_alloc_hash("hmac(sha256)", &hash, &sdesc);
+		if (rc) {
+			cifs_server_dbg(VFS,
+					"%s: sha256 alloc failed\n", __func__);
+			goto out;
+		}
+		shash = &sdesc->shash;
+	} else {
+		hash = server->secmech.hmacsha256;
+		shash = &server->secmech.sdeschmacsha256->shash;
+	}
+
+	rc = crypto_shash_setkey(hash, ses->auth_key.response,
+			SMB2_NTLMV2_SESSKEY_SIZE);
+	if (rc) {
+		cifs_server_dbg(VFS,
+				"%s: Could not update with response\n",
+				__func__);
+		goto out;
+	}
+
+	rc = crypto_shash_init(shash);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not init sha256", __func__);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -215,9 +343,16 @@ smb2_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 		rc = crypto_shash_update(shash, iov[0].iov_base,
 					 iov[0].iov_len);
 		if (rc) {
+<<<<<<< HEAD
 			cifs_dbg(VFS, "%s: Could not update with payload\n",
 				 __func__);
 			return rc;
+=======
+			cifs_server_dbg(VFS,
+					"%s: Could not update with payload\n",
+					__func__);
+			goto out;
+>>>>>>> upstream/android-13
 		}
 		drqst.rq_iov++;
 		drqst.rq_nvec--;
@@ -227,6 +362,14 @@ smb2_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	if (!rc)
 		memcpy(shdr->Signature, sigptr, SMB2_SIGNATURE_SIZE);
 
+<<<<<<< HEAD
+=======
+out:
+	if (allocate_crypto)
+		cifs_free_hash(&hash, &sdesc);
+	if (ses)
+		cifs_put_smb_ses(ses);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -235,14 +378,24 @@ static int generate_key(struct cifs_ses *ses, struct kvec label,
 {
 	unsigned char zero = 0x0;
 	__u8 i[4] = {0, 0, 0, 1};
+<<<<<<< HEAD
 	__u8 L[4] = {0, 0, 0, 128};
 	int rc = 0;
 	unsigned char prfhash[SMB2_HMACSHA256_SIZE];
 	unsigned char *hashptr = prfhash;
+=======
+	__u8 L128[4] = {0, 0, 0, 128};
+	__u8 L256[4] = {0, 0, 1, 0};
+	int rc = 0;
+	unsigned char prfhash[SMB2_HMACSHA256_SIZE];
+	unsigned char *hashptr = prfhash;
+	struct TCP_Server_Info *server = ses->server;
+>>>>>>> upstream/android-13
 
 	memset(prfhash, 0x0, SMB2_HMACSHA256_SIZE);
 	memset(key, 0x0, key_size);
 
+<<<<<<< HEAD
 	rc = smb3_crypto_shash_allocate(ses->server);
 	if (rc) {
 		cifs_dbg(VFS, "%s: crypto alloc failed\n", __func__);
@@ -301,6 +454,72 @@ static int generate_key(struct cifs_ses *ses, struct kvec label,
 				hashptr);
 	if (rc) {
 		cifs_dbg(VFS, "%s: Could not generate sha256 hash\n", __func__);
+=======
+	rc = smb3_crypto_shash_allocate(server);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: crypto alloc failed\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	rc = crypto_shash_setkey(server->secmech.hmacsha256,
+		ses->auth_key.response, SMB2_NTLMV2_SESSKEY_SIZE);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not set with session key\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	rc = crypto_shash_init(&server->secmech.sdeschmacsha256->shash);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not init sign hmac\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
+				i, 4);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not update with n\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
+				label.iov_base, label.iov_len);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not update with label\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
+				&zero, 1);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not update with zero\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
+				context.iov_base, context.iov_len);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not update with context\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
+		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)) {
+		rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
+				L256, 4);
+	} else {
+		rc = crypto_shash_update(&server->secmech.sdeschmacsha256->shash,
+				L128, 4);
+	}
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not update with L\n", __func__);
+		goto smb3signkey_ret;
+	}
+
+	rc = crypto_shash_final(&server->secmech.sdeschmacsha256->shash,
+				hashptr);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not generate sha256 hash\n", __func__);
+>>>>>>> upstream/android-13
 		goto smb3signkey_ret;
 	}
 
@@ -326,6 +545,7 @@ generate_smb3signingkey(struct cifs_ses *ses,
 			const struct derivation_triplet *ptriplet)
 {
 	int rc;
+<<<<<<< HEAD
 
 	rc = generate_key(ses, ptriplet->signing.label,
 			  ptriplet->signing.context, ses->smb3signingkey,
@@ -342,6 +562,51 @@ generate_smb3signingkey(struct cifs_ses *ses,
 	rc = generate_key(ses, ptriplet->decryption.label,
 			  ptriplet->decryption.context,
 			  ses->smb3decryptionkey, SMB3_SIGN_KEY_SIZE);
+=======
+#ifdef CONFIG_CIFS_DEBUG_DUMP_KEYS
+	struct TCP_Server_Info *server = ses->server;
+#endif
+
+	/*
+	 * All channels use the same encryption/decryption keys but
+	 * they have their own signing key.
+	 *
+	 * When we generate the keys, check if it is for a new channel
+	 * (binding) in which case we only need to generate a signing
+	 * key and store it in the channel as to not overwrite the
+	 * master connection signing key stored in the session
+	 */
+
+	if (ses->binding) {
+		rc = generate_key(ses, ptriplet->signing.label,
+				  ptriplet->signing.context,
+				  cifs_ses_binding_channel(ses)->signkey,
+				  SMB3_SIGN_KEY_SIZE);
+		if (rc)
+			return rc;
+	} else {
+		rc = generate_key(ses, ptriplet->signing.label,
+				  ptriplet->signing.context,
+				  ses->smb3signingkey,
+				  SMB3_SIGN_KEY_SIZE);
+		if (rc)
+			return rc;
+
+		memcpy(ses->chans[0].signkey, ses->smb3signingkey,
+		       SMB3_SIGN_KEY_SIZE);
+
+		rc = generate_key(ses, ptriplet->encryption.label,
+				  ptriplet->encryption.context,
+				  ses->smb3encryptionkey,
+				  SMB3_ENC_DEC_KEY_SIZE);
+		rc = generate_key(ses, ptriplet->decryption.label,
+				  ptriplet->decryption.context,
+				  ses->smb3decryptionkey,
+				  SMB3_ENC_DEC_KEY_SIZE);
+		if (rc)
+			return rc;
+	}
+>>>>>>> upstream/android-13
 
 	if (rc)
 		return rc;
@@ -354,14 +619,33 @@ generate_smb3signingkey(struct cifs_ses *ses,
 	 */
 	cifs_dbg(VFS, "Session Id    %*ph\n", (int)sizeof(ses->Suid),
 			&ses->Suid);
+<<<<<<< HEAD
+=======
+	cifs_dbg(VFS, "Cipher type   %d\n", server->cipher_type);
+>>>>>>> upstream/android-13
 	cifs_dbg(VFS, "Session Key   %*ph\n",
 		 SMB2_NTLMV2_SESSKEY_SIZE, ses->auth_key.response);
 	cifs_dbg(VFS, "Signing Key   %*ph\n",
 		 SMB3_SIGN_KEY_SIZE, ses->smb3signingkey);
+<<<<<<< HEAD
 	cifs_dbg(VFS, "ServerIn Key  %*ph\n",
 		 SMB3_SIGN_KEY_SIZE, ses->smb3encryptionkey);
 	cifs_dbg(VFS, "ServerOut Key %*ph\n",
 		 SMB3_SIGN_KEY_SIZE, ses->smb3decryptionkey);
+=======
+	if ((server->cipher_type == SMB2_ENCRYPTION_AES256_CCM) ||
+		(server->cipher_type == SMB2_ENCRYPTION_AES256_GCM)) {
+		cifs_dbg(VFS, "ServerIn Key  %*ph\n",
+				SMB3_GCM256_CRYPTKEY_SIZE, ses->smb3encryptionkey);
+		cifs_dbg(VFS, "ServerOut Key %*ph\n",
+				SMB3_GCM256_CRYPTKEY_SIZE, ses->smb3decryptionkey);
+	} else {
+		cifs_dbg(VFS, "ServerIn Key  %*ph\n",
+				SMB3_GCM128_CRYPTKEY_SIZE, ses->smb3encryptionkey);
+		cifs_dbg(VFS, "ServerOut Key %*ph\n",
+				SMB3_GCM128_CRYPTKEY_SIZE, ses->smb3decryptionkey);
+	}
+>>>>>>> upstream/android-13
 #endif
 	return rc;
 }
@@ -423,13 +707,19 @@ generate_smb311signingkey(struct cifs_ses *ses)
 }
 
 int
+<<<<<<< HEAD
 smb3_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
+=======
+smb3_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server,
+			bool allocate_crypto)
+>>>>>>> upstream/android-13
 {
 	int rc;
 	unsigned char smb3_signature[SMB2_CMACAES_SIZE];
 	unsigned char *sigptr = smb3_signature;
 	struct kvec *iov = rqst->rq_iov;
 	struct smb2_sync_hdr *shdr = (struct smb2_sync_hdr *)iov[0].iov_base;
+<<<<<<< HEAD
 	struct cifs_ses *ses;
 	struct shash_desc *shash = &server->secmech.sdesccmacaes->shash;
 	struct smb_rqst drqst;
@@ -438,16 +728,44 @@ smb3_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	if (!ses) {
 		cifs_dbg(VFS, "%s: Could not find session\n", __func__);
 		return 0;
+=======
+	struct shash_desc *shash;
+	struct crypto_shash *hash;
+	struct sdesc *sdesc = NULL;
+	struct smb_rqst drqst;
+	u8 key[SMB3_SIGN_KEY_SIZE];
+
+	rc = smb2_get_sign_key(shdr->SessionId, server, key);
+	if (rc)
+		return 0;
+
+	if (allocate_crypto) {
+		rc = cifs_alloc_hash("cmac(aes)", &hash, &sdesc);
+		if (rc)
+			return rc;
+
+		shash = &sdesc->shash;
+	} else {
+		hash = server->secmech.cmacaes;
+		shash = &server->secmech.sdesccmacaes->shash;
+>>>>>>> upstream/android-13
 	}
 
 	memset(smb3_signature, 0x0, SMB2_CMACAES_SIZE);
 	memset(shdr->Signature, 0x0, SMB2_SIGNATURE_SIZE);
 
+<<<<<<< HEAD
 	rc = crypto_shash_setkey(server->secmech.cmacaes,
 				 ses->smb3signingkey, SMB2_CMACAES_SIZE);
 	if (rc) {
 		cifs_dbg(VFS, "%s: Could not set key for cmac aes\n", __func__);
 		return rc;
+=======
+	rc = crypto_shash_setkey(hash, key, SMB2_CMACAES_SIZE);
+	if (rc) {
+		cifs_server_dbg(VFS, "%s: Could not set key for cmac aes\n", __func__);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -457,8 +775,13 @@ smb3_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	 */
 	rc = crypto_shash_init(shash);
 	if (rc) {
+<<<<<<< HEAD
 		cifs_dbg(VFS, "%s: Could not init cmac aes\n", __func__);
 		return rc;
+=======
+		cifs_server_dbg(VFS, "%s: Could not init cmac aes\n", __func__);
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -473,9 +796,15 @@ smb3_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 		rc = crypto_shash_update(shash, iov[0].iov_base,
 					 iov[0].iov_len);
 		if (rc) {
+<<<<<<< HEAD
 			cifs_dbg(VFS, "%s: Could not update with payload\n",
 				 __func__);
 			return rc;
+=======
+			cifs_server_dbg(VFS, "%s: Could not update with payload\n",
+				 __func__);
+			goto out;
+>>>>>>> upstream/android-13
 		}
 		drqst.rq_iov++;
 		drqst.rq_nvec--;
@@ -485,6 +814,12 @@ smb3_calc_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	if (!rc)
 		memcpy(shdr->Signature, sigptr, SMB2_SIGNATURE_SIZE);
 
+<<<<<<< HEAD
+=======
+out:
+	if (allocate_crypto)
+		cifs_free_hash(&hash, &sdesc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -493,6 +828,7 @@ static int
 smb2_sign_rqst(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 {
 	int rc = 0;
+<<<<<<< HEAD
 	struct smb2_sync_hdr *shdr =
 			(struct smb2_sync_hdr *)rqst->rq_iov[0].iov_base;
 
@@ -506,6 +842,30 @@ smb2_sign_rqst(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 	}
 
 	rc = server->ops->calc_signature(rqst, server);
+=======
+	struct smb2_sync_hdr *shdr;
+	struct smb2_sess_setup_req *ssr;
+	bool is_binding;
+	bool is_signed;
+
+	shdr = (struct smb2_sync_hdr *)rqst->rq_iov[0].iov_base;
+	ssr = (struct smb2_sess_setup_req *)shdr;
+
+	is_binding = shdr->Command == SMB2_SESSION_SETUP &&
+		(ssr->Flags & SMB2_SESSION_REQ_FLAG_BINDING);
+	is_signed = shdr->Flags & SMB2_FLAGS_SIGNED;
+
+	if (!is_signed)
+		return 0;
+	if (server->tcpStatus == CifsNeedNegotiate)
+		return 0;
+	if (!is_binding && !server->session_estab) {
+		strncpy(shdr->Signature, "BSRSPYL", 8);
+		return 0;
+	}
+
+	rc = server->ops->calc_signature(rqst, server, false);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -514,13 +874,21 @@ int
 smb2_verify_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 {
 	unsigned int rc;
+<<<<<<< HEAD
 	char server_response_sig[16];
+=======
+	char server_response_sig[SMB2_SIGNATURE_SIZE];
+>>>>>>> upstream/android-13
 	struct smb2_sync_hdr *shdr =
 			(struct smb2_sync_hdr *)rqst->rq_iov[0].iov_base;
 
 	if ((shdr->Command == SMB2_NEGOTIATE) ||
 	    (shdr->Command == SMB2_SESSION_SETUP) ||
 	    (shdr->Command == SMB2_OPLOCK_BREAK) ||
+<<<<<<< HEAD
+=======
+	    server->ignore_signature ||
+>>>>>>> upstream/android-13
 	    (!server->session_estab))
 		return 0;
 
@@ -542,16 +910,28 @@ smb2_verify_signature(struct smb_rqst *rqst, struct TCP_Server_Info *server)
 
 	memset(shdr->Signature, 0, SMB2_SIGNATURE_SIZE);
 
+<<<<<<< HEAD
 	mutex_lock(&server->srv_mutex);
 	rc = server->ops->calc_signature(rqst, server);
 	mutex_unlock(&server->srv_mutex);
+=======
+	rc = server->ops->calc_signature(rqst, server, true);
+>>>>>>> upstream/android-13
 
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	if (memcmp(server_response_sig, shdr->Signature, SMB2_SIGNATURE_SIZE))
 		return -EACCES;
 	else
+=======
+	if (memcmp(server_response_sig, shdr->Signature, SMB2_SIGNATURE_SIZE)) {
+		cifs_dbg(VFS, "sign fail cmd 0x%x message id 0x%llx\n",
+			shdr->Command, shdr->MessageId);
+		return -EACCES;
+	} else
+>>>>>>> upstream/android-13
 		return 0;
 }
 
@@ -597,15 +977,26 @@ smb2_mid_entry_alloc(const struct smb2_sync_hdr *shdr,
 	 * The default is for the mid to be synchronous, so the
 	 * default callback just wakes up the current task.
 	 */
+<<<<<<< HEAD
+=======
+	get_task_struct(current);
+	temp->creator = current;
+>>>>>>> upstream/android-13
 	temp->callback = cifs_wake_up_task;
 	temp->callback_data = current;
 
 	atomic_inc(&midCount);
 	temp->mid_state = MID_REQUEST_ALLOCATED;
+<<<<<<< HEAD
+=======
+	trace_smb3_cmd_enter(shdr->TreeId, shdr->SessionId,
+		le16_to_cpu(shdr->Command), temp->mid);
+>>>>>>> upstream/android-13
 	return temp;
 }
 
 static int
+<<<<<<< HEAD
 smb2_get_mid_entry(struct cifs_ses *ses, struct smb2_sync_hdr *shdr,
 		   struct mid_q_entry **mid)
 {
@@ -613,10 +1004,26 @@ smb2_get_mid_entry(struct cifs_ses *ses, struct smb2_sync_hdr *shdr,
 		return -ENOENT;
 
 	if (ses->server->tcpStatus == CifsNeedReconnect) {
+=======
+smb2_get_mid_entry(struct cifs_ses *ses, struct TCP_Server_Info *server,
+		   struct smb2_sync_hdr *shdr, struct mid_q_entry **mid)
+{
+	if (server->tcpStatus == CifsExiting)
+		return -ENOENT;
+
+	if (server->tcpStatus == CifsNeedReconnect) {
+>>>>>>> upstream/android-13
 		cifs_dbg(FYI, "tcp session dead - return to caller to retry\n");
 		return -EAGAIN;
 	}
 
+<<<<<<< HEAD
+=======
+	if (server->tcpStatus == CifsNeedNegotiate &&
+	   shdr->Command != SMB2_NEGOTIATE)
+		return -EAGAIN;
+
+>>>>>>> upstream/android-13
 	if (ses->status == CifsNew) {
 		if ((shdr->Command != SMB2_SESSION_SETUP) &&
 		    (shdr->Command != SMB2_NEGOTIATE))
@@ -630,12 +1037,22 @@ smb2_get_mid_entry(struct cifs_ses *ses, struct smb2_sync_hdr *shdr,
 		/* else ok - we are shutting down the session */
 	}
 
+<<<<<<< HEAD
 	*mid = smb2_mid_entry_alloc(shdr, ses->server);
 	if (*mid == NULL)
 		return -ENOMEM;
 	spin_lock(&GlobalMid_Lock);
 	list_add_tail(&(*mid)->qhead, &ses->server->pending_mid_q);
 	spin_unlock(&GlobalMid_Lock);
+=======
+	*mid = smb2_mid_entry_alloc(shdr, server);
+	if (*mid == NULL)
+		return -ENOMEM;
+	spin_lock(&GlobalMid_Lock);
+	list_add_tail(&(*mid)->qhead, &server->pending_mid_q);
+	spin_unlock(&GlobalMid_Lock);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -658,7 +1075,11 @@ smb2_check_receive(struct mid_q_entry *mid, struct TCP_Server_Info *server,
 
 		rc = smb2_verify_signature(&rqst, server);
 		if (rc)
+<<<<<<< HEAD
 			cifs_dbg(VFS, "SMB signature verification returned error = %d\n",
+=======
+			cifs_server_dbg(VFS, "SMB signature verification returned error = %d\n",
+>>>>>>> upstream/android-13
 				 rc);
 	}
 
@@ -666,13 +1087,19 @@ smb2_check_receive(struct mid_q_entry *mid, struct TCP_Server_Info *server,
 }
 
 struct mid_q_entry *
+<<<<<<< HEAD
 smb2_setup_request(struct cifs_ses *ses, struct smb_rqst *rqst)
+=======
+smb2_setup_request(struct cifs_ses *ses, struct TCP_Server_Info *server,
+		   struct smb_rqst *rqst)
+>>>>>>> upstream/android-13
 {
 	int rc;
 	struct smb2_sync_hdr *shdr =
 			(struct smb2_sync_hdr *)rqst->rq_iov[0].iov_base;
 	struct mid_q_entry *mid;
 
+<<<<<<< HEAD
 	smb2_seq_num_into_buf(ses->server, shdr);
 
 	rc = smb2_get_mid_entry(ses, shdr, &mid);
@@ -684,6 +1111,19 @@ smb2_setup_request(struct cifs_ses *ses, struct smb_rqst *rqst)
 	rc = smb2_sign_rqst(rqst, ses->server);
 	if (rc) {
 		revert_current_mid_from_hdr(ses->server, shdr);
+=======
+	smb2_seq_num_into_buf(server, shdr);
+
+	rc = smb2_get_mid_entry(ses, server, shdr, &mid);
+	if (rc) {
+		revert_current_mid_from_hdr(server, shdr);
+		return ERR_PTR(rc);
+	}
+
+	rc = smb2_sign_rqst(rqst, server);
+	if (rc) {
+		revert_current_mid_from_hdr(server, shdr);
+>>>>>>> upstream/android-13
 		cifs_delete_mid(mid);
 		return ERR_PTR(rc);
 	}
@@ -699,6 +1139,13 @@ smb2_setup_async_request(struct TCP_Server_Info *server, struct smb_rqst *rqst)
 			(struct smb2_sync_hdr *)rqst->rq_iov[0].iov_base;
 	struct mid_q_entry *mid;
 
+<<<<<<< HEAD
+=======
+	if (server->tcpStatus == CifsNeedNegotiate &&
+	   shdr->Command != SMB2_NEGOTIATE)
+		return ERR_PTR(-EAGAIN);
+
+>>>>>>> upstream/android-13
 	smb2_seq_num_into_buf(server, shdr);
 
 	mid = smb2_mid_entry_alloc(shdr, server);
@@ -723,9 +1170,19 @@ smb3_crypto_aead_allocate(struct TCP_Server_Info *server)
 	struct crypto_aead *tfm;
 
 	if (!server->secmech.ccmaesencrypt) {
+<<<<<<< HEAD
 		tfm = crypto_alloc_aead("ccm(aes)", 0, 0);
 		if (IS_ERR(tfm)) {
 			cifs_dbg(VFS, "%s: Failed to alloc encrypt aead\n",
+=======
+		if ((server->cipher_type == SMB2_ENCRYPTION_AES128_GCM) ||
+		    (server->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
+			tfm = crypto_alloc_aead("gcm(aes)", 0, 0);
+		else
+			tfm = crypto_alloc_aead("ccm(aes)", 0, 0);
+		if (IS_ERR(tfm)) {
+			cifs_server_dbg(VFS, "%s: Failed alloc encrypt aead\n",
+>>>>>>> upstream/android-13
 				 __func__);
 			return PTR_ERR(tfm);
 		}
@@ -733,11 +1190,23 @@ smb3_crypto_aead_allocate(struct TCP_Server_Info *server)
 	}
 
 	if (!server->secmech.ccmaesdecrypt) {
+<<<<<<< HEAD
 		tfm = crypto_alloc_aead("ccm(aes)", 0, 0);
 		if (IS_ERR(tfm)) {
 			crypto_free_aead(server->secmech.ccmaesencrypt);
 			server->secmech.ccmaesencrypt = NULL;
 			cifs_dbg(VFS, "%s: Failed to alloc decrypt aead\n",
+=======
+		if ((server->cipher_type == SMB2_ENCRYPTION_AES128_GCM) ||
+		    (server->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
+			tfm = crypto_alloc_aead("gcm(aes)", 0, 0);
+		else
+			tfm = crypto_alloc_aead("ccm(aes)", 0, 0);
+		if (IS_ERR(tfm)) {
+			crypto_free_aead(server->secmech.ccmaesencrypt);
+			server->secmech.ccmaesencrypt = NULL;
+			cifs_server_dbg(VFS, "%s: Failed to alloc decrypt aead\n",
+>>>>>>> upstream/android-13
 				 __func__);
 			return PTR_ERR(tfm);
 		}

@@ -105,8 +105,11 @@ static const struct iio_chan_spec bme680_channels[] = {
 	},
 };
 
+<<<<<<< HEAD
 static const int bme680_oversampling_avail[] = { 1, 2, 4, 8, 16 };
 
+=======
+>>>>>>> upstream/android-13
 static int bme680_read_calib(struct bme680_data *data,
 			     struct bme680_calib *calib)
 {
@@ -117,7 +120,11 @@ static int bme680_read_calib(struct bme680_data *data,
 
 	/* Temperature related coefficients */
 	ret = regmap_bulk_read(data->regmap, BME680_T1_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_T1_LSB_REG\n");
 		return ret;
@@ -125,7 +132,11 @@ static int bme680_read_calib(struct bme680_data *data,
 	calib->par_t1 = le16_to_cpu(buf);
 
 	ret = regmap_bulk_read(data->regmap, BME680_T2_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_T2_LSB_REG\n");
 		return ret;
@@ -141,7 +152,11 @@ static int bme680_read_calib(struct bme680_data *data,
 
 	/* Pressure related coefficients */
 	ret = regmap_bulk_read(data->regmap, BME680_P1_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_P1_LSB_REG\n");
 		return ret;
@@ -149,7 +164,11 @@ static int bme680_read_calib(struct bme680_data *data,
 	calib->par_p1 = le16_to_cpu(buf);
 
 	ret = regmap_bulk_read(data->regmap, BME680_P2_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_P2_LSB_REG\n");
 		return ret;
@@ -164,7 +183,11 @@ static int bme680_read_calib(struct bme680_data *data,
 	calib->par_p3 = tmp;
 
 	ret = regmap_bulk_read(data->regmap, BME680_P4_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_P4_LSB_REG\n");
 		return ret;
@@ -172,7 +195,11 @@ static int bme680_read_calib(struct bme680_data *data,
 	calib->par_p4 = le16_to_cpu(buf);
 
 	ret = regmap_bulk_read(data->regmap, BME680_P5_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_P5_LSB_REG\n");
 		return ret;
@@ -194,7 +221,11 @@ static int bme680_read_calib(struct bme680_data *data,
 	calib->par_p7 = tmp;
 
 	ret = regmap_bulk_read(data->regmap, BME680_P8_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_P8_LSB_REG\n");
 		return ret;
@@ -202,7 +233,11 @@ static int bme680_read_calib(struct bme680_data *data,
 	calib->par_p8 = le16_to_cpu(buf);
 
 	ret = regmap_bulk_read(data->regmap, BME680_P9_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_P9_LSB_REG\n");
 		return ret;
@@ -222,30 +257,46 @@ static int bme680_read_calib(struct bme680_data *data,
 		dev_err(dev, "failed to read BME680_H1_MSB_REG\n");
 		return ret;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	ret = regmap_read(data->regmap, BME680_H1_LSB_REG, &tmp_lsb);
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_H1_LSB_REG\n");
 		return ret;
 	}
+<<<<<<< HEAD
 
 	calib->par_h1 = (tmp_msb << BME680_HUM_REG_SHIFT_VAL) |
 				(tmp_lsb & BME680_BIT_H1_DATA_MSK);
+=======
+	calib->par_h1 = (tmp_msb << BME680_HUM_REG_SHIFT_VAL) |
+			(tmp_lsb & BME680_BIT_H1_DATA_MASK);
+>>>>>>> upstream/android-13
 
 	ret = regmap_read(data->regmap, BME680_H2_MSB_REG, &tmp_msb);
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_H2_MSB_REG\n");
 		return ret;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	ret = regmap_read(data->regmap, BME680_H2_LSB_REG, &tmp_lsb);
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_H2_LSB_REG\n");
 		return ret;
 	}
+<<<<<<< HEAD
 
 	calib->par_h2 = (tmp_msb << BME680_HUM_REG_SHIFT_VAL) |
 				(tmp_lsb >> BME680_HUM_REG_SHIFT_VAL);
+=======
+	calib->par_h2 = (tmp_msb << BME680_HUM_REG_SHIFT_VAL) |
+			(tmp_lsb >> BME680_HUM_REG_SHIFT_VAL);
+>>>>>>> upstream/android-13
 
 	ret = regmap_read(data->regmap, BME680_H3_REG, &tmp);
 	if (ret < 0) {
@@ -291,7 +342,11 @@ static int bme680_read_calib(struct bme680_data *data,
 	calib->par_gh1 = tmp;
 
 	ret = regmap_bulk_read(data->regmap, BME680_GH2_LSB_REG,
+<<<<<<< HEAD
 			       (u8 *) &buf, 2);
+=======
+			       &buf, sizeof(buf));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read BME680_GH2_LSB_REG\n");
 		return ret;
@@ -311,7 +366,11 @@ static int bme680_read_calib(struct bme680_data *data,
 		dev_err(dev, "failed to read resistance heat range\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	calib->res_heat_range = (tmp & BME680_RHRANGE_MSK) / 16;
+=======
+	calib->res_heat_range = FIELD_GET(BME680_RHRANGE_MASK, tmp);
+>>>>>>> upstream/android-13
 
 	ret = regmap_read(data->regmap, BME680_REG_RES_HEAT_VAL, &tmp);
 	if (ret < 0) {
@@ -325,7 +384,11 @@ static int bme680_read_calib(struct bme680_data *data,
 		dev_err(dev, "failed to read range software error\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	calib->range_sw_err = (tmp & BME680_RSERROR_MSK) / 16;
+=======
+	calib->range_sw_err = FIELD_GET(BME680_RSERROR_MASK, tmp);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -426,10 +489,14 @@ static u32 bme680_compensate_humid(struct bme680_data *data,
 	var6 = (var4 * var5) >> 1;
 	calc_hum = (((var3 + var6) >> 10) * 1000) >> 12;
 
+<<<<<<< HEAD
 	if (calc_hum > 100000) /* Cap at 100%rH */
 		calc_hum = 100000;
 	else if (calc_hum < 0)
 		calc_hum = 0;
+=======
+	calc_hum = clamp(calc_hum, 0, 100000); /* clamp between 0-100 %rH */
+>>>>>>> upstream/android-13
 
 	return calc_hum;
 }
@@ -488,7 +555,11 @@ static u8 bme680_calc_heater_res(struct bme680_data *data, u16 temp)
 	var4 = (var3 / (calib->res_heat_range + 4));
 	var5 = 131 * calib->res_heat_val + 65536;
 	heatr_res_x100 = ((var4 / var5) - 250) * 34;
+<<<<<<< HEAD
 	heatr_res = (heatr_res_x100 + 50) / 100;
+=======
+	heatr_res = DIV_ROUND_CLOSEST(heatr_res_x100, 100);
+>>>>>>> upstream/android-13
 
 	return heatr_res;
 }
@@ -536,12 +607,28 @@ static int bme680_set_mode(struct bme680_data *data, bool mode)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static u8 bme680_oversampling_to_reg(u8 val)
+{
+	return ilog2(val) + 1;
+}
+
+>>>>>>> upstream/android-13
 static int bme680_chip_config(struct bme680_data *data)
 {
 	struct device *dev = regmap_get_device(data->regmap);
 	int ret;
+<<<<<<< HEAD
 	u8 osrs = FIELD_PREP(BME680_OSRS_HUMIDITY_MASK,
 			     data->oversampling_humid + 1);
+=======
+	u8 osrs;
+
+	osrs = FIELD_PREP(
+		BME680_OSRS_HUMIDITY_MASK,
+		bme680_oversampling_to_reg(data->oversampling_humid));
+>>>>>>> upstream/android-13
 	/*
 	 * Highly recommended to set oversampling of humidity before
 	 * temperature/pressure oversampling.
@@ -562,12 +649,21 @@ static int bme680_chip_config(struct bme680_data *data)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	osrs = FIELD_PREP(BME680_OSRS_TEMP_MASK, data->oversampling_temp + 1) |
 	       FIELD_PREP(BME680_OSRS_PRESS_MASK, data->oversampling_press + 1);
 
 	ret = regmap_write_bits(data->regmap, BME680_REG_CTRL_MEAS,
 				BME680_OSRS_TEMP_MASK |
 				BME680_OSRS_PRESS_MASK,
+=======
+	osrs = FIELD_PREP(BME680_OSRS_TEMP_MASK,
+			  bme680_oversampling_to_reg(data->oversampling_temp)) |
+	       FIELD_PREP(BME680_OSRS_PRESS_MASK,
+			  bme680_oversampling_to_reg(data->oversampling_press));
+	ret = regmap_write_bits(data->regmap, BME680_REG_CTRL_MEAS,
+				BME680_OSRS_TEMP_MASK | BME680_OSRS_PRESS_MASK,
+>>>>>>> upstream/android-13
 				osrs);
 	if (ret < 0)
 		dev_err(dev, "failed to write ctrl_meas register\n");
@@ -595,6 +691,7 @@ static int bme680_gas_config(struct bme680_data *data)
 	/* set target heating duration */
 	ret = regmap_write(data->regmap, BME680_REG_GAS_WAIT_0, heatr_dur);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "failted to write gas_wait_0 register\n");
 		return ret;
 	}
@@ -603,6 +700,17 @@ static int bme680_gas_config(struct bme680_data *data)
 	ret = regmap_update_bits(data->regmap, BME680_REG_CTRL_GAS_1,
 				 BME680_RUN_GAS_MASK | BME680_NB_CONV_MASK,
 				 BME680_RUN_GAS_EN_BIT | BME680_NB_CONV_0_VAL);
+=======
+		dev_err(dev, "failed to write gas_wait_0 register\n");
+		return ret;
+	}
+
+	/* Enable the gas sensor and select heater profile set-point 0 */
+	ret = regmap_update_bits(data->regmap, BME680_REG_CTRL_GAS_1,
+				 BME680_RUN_GAS_MASK | BME680_NB_CONV_MASK,
+				 FIELD_PREP(BME680_RUN_GAS_MASK, 1) |
+				 FIELD_PREP(BME680_NB_CONV_MASK, 0));
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(dev, "failed to write ctrl_gas_1 register\n");
 
@@ -623,7 +731,11 @@ static int bme680_read_temp(struct bme680_data *data, int *val)
 		return ret;
 
 	ret = regmap_bulk_read(data->regmap, BME680_REG_TEMP_MSB,
+<<<<<<< HEAD
 			       (u8 *) &tmp, 3);
+=======
+			       &tmp, 3);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read temperature\n");
 		return ret;
@@ -664,7 +776,11 @@ static int bme680_read_press(struct bme680_data *data,
 		return ret;
 
 	ret = regmap_bulk_read(data->regmap, BME680_REG_PRESS_MSB,
+<<<<<<< HEAD
 			       (u8 *) &tmp, 3);
+=======
+			       &tmp, 3);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read pressure\n");
 		return ret;
@@ -697,7 +813,11 @@ static int bme680_read_humid(struct bme680_data *data,
 		return ret;
 
 	ret = regmap_bulk_read(data->regmap, BM6880_REG_HUMIDITY_MSB,
+<<<<<<< HEAD
 			       (u8 *) &tmp, 2);
+=======
+			       &tmp, sizeof(tmp));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read humidity\n");
 		return ret;
@@ -762,7 +882,11 @@ static int bme680_read_gas(struct bme680_data *data,
 	}
 
 	ret = regmap_bulk_read(data->regmap, BME680_REG_GAS_MSB,
+<<<<<<< HEAD
 			       (u8 *) &tmp, 2);
+=======
+			       &tmp, sizeof(tmp));
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read gas resistance\n");
 		return ret;
@@ -798,6 +922,7 @@ static int bme680_read_raw(struct iio_dev *indio_dev,
 	case IIO_CHAN_INFO_OVERSAMPLING_RATIO:
 		switch (chan->type) {
 		case IIO_TEMP:
+<<<<<<< HEAD
 			*val = 1 << data->oversampling_temp;
 			return IIO_VAL_INT;
 		case IIO_PRESSURE:
@@ -805,6 +930,15 @@ static int bme680_read_raw(struct iio_dev *indio_dev,
 			return IIO_VAL_INT;
 		case IIO_HUMIDITYRELATIVE:
 			*val = 1 << data->oversampling_humid;
+=======
+			*val = data->oversampling_temp;
+			return IIO_VAL_INT;
+		case IIO_PRESSURE:
+			*val = data->oversampling_press;
+			return IIO_VAL_INT;
+		case IIO_HUMIDITYRELATIVE:
+			*val = data->oversampling_humid;
+>>>>>>> upstream/android-13
 			return IIO_VAL_INT;
 		default:
 			return -EINVAL;
@@ -814,6 +948,7 @@ static int bme680_read_raw(struct iio_dev *indio_dev,
 	}
 }
 
+<<<<<<< HEAD
 static int bme680_write_oversampling_ratio_temp(struct bme680_data *data,
 						int val)
 {
@@ -860,6 +995,11 @@ static int bme680_write_oversampling_ratio_humid(struct bme680_data *data,
 	}
 
 	return -EINVAL;
+=======
+static bool bme680_is_valid_oversampling(int rate)
+{
+	return (rate > 0 && rate <= 16 && is_power_of_2(rate));
+>>>>>>> upstream/android-13
 }
 
 static int bme680_write_raw(struct iio_dev *indio_dev,
@@ -868,6 +1008,7 @@ static int bme680_write_raw(struct iio_dev *indio_dev,
 {
 	struct bme680_data *data = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	switch (mask) {
 	case IIO_CHAN_INFO_OVERSAMPLING_RATIO:
 		switch (chan->type) {
@@ -880,6 +1021,33 @@ static int bme680_write_raw(struct iio_dev *indio_dev,
 		default:
 			return -EINVAL;
 		}
+=======
+	if (val2 != 0)
+		return -EINVAL;
+
+	switch (mask) {
+	case IIO_CHAN_INFO_OVERSAMPLING_RATIO:
+	{
+		if (!bme680_is_valid_oversampling(val))
+			return -EINVAL;
+
+		switch (chan->type) {
+		case IIO_TEMP:
+			data->oversampling_temp = val;
+			break;
+		case IIO_PRESSURE:
+			data->oversampling_press = val;
+			break;
+		case IIO_HUMIDITYRELATIVE:
+			data->oversampling_humid = val;
+			break;
+		default:
+			return -EINVAL;
+		}
+
+		return bme680_chip_config(data);
+	}
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -953,7 +1121,10 @@ int bme680_core_probe(struct device *dev, struct regmap *regmap,
 	data = iio_priv(indio_dev);
 	dev_set_drvdata(dev, indio_dev);
 	data->regmap = regmap;
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = name;
 	indio_dev->channels = bme680_channels;
 	indio_dev->num_channels = ARRAY_SIZE(bme680_channels);
@@ -961,9 +1132,15 @@ int bme680_core_probe(struct device *dev, struct regmap *regmap,
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
 	/* default values for the sensor */
+<<<<<<< HEAD
 	data->oversampling_humid = ilog2(2); /* 2X oversampling rate */
 	data->oversampling_press = ilog2(4); /* 4X oversampling rate */
 	data->oversampling_temp = ilog2(8);  /* 8X oversampling rate */
+=======
+	data->oversampling_humid = 2; /* 2X oversampling rate */
+	data->oversampling_press = 4; /* 4X oversampling rate */
+	data->oversampling_temp = 8;  /* 8X oversampling rate */
+>>>>>>> upstream/android-13
 	data->heater_temp = 320; /* degree Celsius */
 	data->heater_dur = 150;  /* milliseconds */
 

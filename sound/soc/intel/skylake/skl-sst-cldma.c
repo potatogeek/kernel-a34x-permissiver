@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * skl-sst-cldma.c - Code Loader DMA handler
  *
  * Copyright (C) 2015, Intel Corporation.
  * Author: Subhransu S. Prusty <subhransu.s.prusty@intel.com>
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as version 2, as
@@ -16,6 +21,12 @@
  */
 
 #include <linux/device.h>
+=======
+ */
+
+#include <linux/device.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/delay.h>
 #include "../common/sst-dsp.h"
@@ -252,7 +263,11 @@ static int
 skl_cldma_copy_to_buf(struct sst_dsp *ctx, const void *bin,
 			u32 total_size, bool wait)
 {
+<<<<<<< HEAD
 	int ret = 0;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	bool start = true;
 	unsigned int excess_bytes;
 	u32 size;

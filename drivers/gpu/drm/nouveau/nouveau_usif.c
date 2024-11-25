@@ -32,6 +32,12 @@
 #include <nvif/event.h>
 #include <nvif/ioctl.h>
 
+<<<<<<< HEAD
+=======
+#include <nvif/class.h>
+#include <nvif/cl0080.h>
+
+>>>>>>> upstream/android-13
 struct usif_notify_p {
 	struct drm_pending_event base;
 	struct {
@@ -261,7 +267,11 @@ usif_object_dtor(struct usif_object *object)
 }
 
 static int
+<<<<<<< HEAD
 usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc)
+=======
+usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc, bool parent_abi16)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_cli *cli = nouveau_cli(f);
 	struct nvif_client *client = &cli->base;
@@ -271,10 +281,39 @@ usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc)
 	struct usif_object *object;
 	int ret = -ENOSYS;
 
+<<<<<<< HEAD
+=======
+	if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true)))
+		return ret;
+
+	switch (args->v0.oclass) {
+	case NV_DMA_FROM_MEMORY:
+	case NV_DMA_TO_MEMORY:
+	case NV_DMA_IN_MEMORY:
+		return -EINVAL;
+	case NV_DEVICE: {
+		union {
+			struct nv_device_v0 v0;
+		} *args = data;
+
+		if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, false)))
+			return ret;
+
+		args->v0.priv = false;
+		break;
+	}
+	default:
+		if (!parent_abi16)
+			return -EINVAL;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if (!(object = kmalloc(sizeof(*object), GFP_KERNEL)))
 		return -ENOMEM;
 	list_add(&object->head, &cli->objects);
 
+<<<<<<< HEAD
 	if (!(ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true))) {
 		object->route = args->v0.route;
 		object->token = args->v0.token;
@@ -288,6 +327,21 @@ usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc)
 	if (ret)
 		usif_object_dtor(object);
 	return ret;
+=======
+	object->route = args->v0.route;
+	object->token = args->v0.token;
+	args->v0.route = NVDRM_OBJECT_USIF;
+	args->v0.token = (unsigned long)(void *)object;
+	ret = nvif_client_ioctl(client, argv, argc);
+	if (ret) {
+		usif_object_dtor(object);
+		return ret;
+	}
+
+	args->v0.token = object->token;
+	args->v0.route = object->route;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int
@@ -301,6 +355,10 @@ usif_ioctl(struct drm_file *filp, void __user *user, u32 argc)
 		struct nvif_ioctl_v0 v0;
 	} *argv = data;
 	struct usif_object *object;
+<<<<<<< HEAD
+=======
+	bool abi16 = false;
+>>>>>>> upstream/android-13
 	u8 owner;
 	int ret;
 
@@ -331,11 +389,20 @@ usif_ioctl(struct drm_file *filp, void __user *user, u32 argc)
 			mutex_unlock(&cli->mutex);
 			goto done;
 		}
+<<<<<<< HEAD
+=======
+
+		abi16 = true;
+>>>>>>> upstream/android-13
 	}
 
 	switch (argv->v0.type) {
 	case NVIF_IOCTL_V0_NEW:
+<<<<<<< HEAD
 		ret = usif_object_new(filp, data, size, argv, argc);
+=======
+		ret = usif_object_new(filp, data, size, argv, argc, abi16);
+>>>>>>> upstream/android-13
 		break;
 	case NVIF_IOCTL_V0_NTFY_NEW:
 		ret = usif_notify_new(filp, data, size, argv, argc);

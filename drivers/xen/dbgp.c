@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/usb.h>
 #include <linux/usb/ehci_def.h>

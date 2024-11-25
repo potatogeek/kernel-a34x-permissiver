@@ -11,11 +11,20 @@
  *
  * which is what it's designed for.
  */
+<<<<<<< HEAD
 #include "cache.h"
 #include "path.h"
 #include <linux/kernel.h>
 #include <limits.h>
 #include <stdio.h>
+=======
+#include "path.h"
+#include "cache.h"
+#include <linux/kernel.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>

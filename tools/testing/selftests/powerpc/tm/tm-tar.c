@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Michael Neuling, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015, Michael Neuling, IBM Corp.
+>>>>>>> upstream/android-13
  * Original: Michael Neuling 19/7/2013
  * Edited: Rashmica Gupta 01/12/2015
  *
@@ -26,6 +32,10 @@ int test_tar(void)
 	int i;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 	SKIP_IF(!is_ppc64le());
 
 	for (i = 0; i < num_loops; i++)

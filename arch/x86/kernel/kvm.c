@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * KVM paravirt_ops implementation
  *
@@ -15,13 +16,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * KVM paravirt_ops implementation
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) 2007, Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
  * Copyright IBM Corporation, 2007
  *   Authors: Anthony Liguori <aliguori@us.ibm.com>
  */
 
+<<<<<<< HEAD
 #include <linux/context_tracking.h>
 #include <linux/init.h>
+=======
+#define pr_fmt(fmt) "kvm-guest: " fmt
+
+#include <linux/context_tracking.h>
+#include <linux/init.h>
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/kvm_para.h>
 #include <linux/cpu.h>
@@ -34,9 +49,15 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/kprobes.h>
+<<<<<<< HEAD
 #include <linux/debugfs.h>
 #include <linux/nmi.h>
 #include <linux/swait.h>
+=======
+#include <linux/nmi.h>
+#include <linux/swait.h>
+#include <linux/syscore_ops.h>
+>>>>>>> upstream/android-13
 #include <asm/timer.h>
 #include <asm/cpu.h>
 #include <asm/traps.h>
@@ -46,6 +67,15 @@
 #include <asm/apicdef.h>
 #include <asm/hypervisor.h>
 #include <asm/tlb.h>
+<<<<<<< HEAD
+=======
+#include <asm/cpuidle_haltpoll.h>
+#include <asm/ptrace.h>
+#include <asm/reboot.h>
+#include <asm/svm.h>
+
+DEFINE_STATIC_KEY_FALSE(kvm_async_pf_enabled);
+>>>>>>> upstream/android-13
 
 static int kvmapf = 1;
 
@@ -67,9 +97,16 @@ static int __init parse_no_stealacc(char *arg)
 early_param("no-steal-acc", parse_no_stealacc);
 
 static DEFINE_PER_CPU_DECRYPTED(struct kvm_vcpu_pv_apf_data, apf_reason) __aligned(64);
+<<<<<<< HEAD
 static DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64);
 static int has_steal_clock = 0;
 
+=======
+DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64) __visible;
+static int has_steal_clock = 0;
+
+static int has_guest_poll = 0;
+>>>>>>> upstream/android-13
 /*
  * No need for any "IO delay" on KVM
  */
@@ -85,7 +122,10 @@ struct kvm_task_sleep_node {
 	struct swait_queue_head wq;
 	u32 token;
 	int cpu;
+<<<<<<< HEAD
 	bool halted;
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct kvm_task_sleep_head {
@@ -108,6 +148,7 @@ static struct kvm_task_sleep_node *_find_apf_task(struct kvm_task_sleep_head *b,
 	return NULL;
 }
 
+<<<<<<< HEAD
 /*
  * @interrupt_kernel: Is this called from a routine which interrupts the kernel
  * 		      (other than user space)?
@@ -120,12 +161,20 @@ void kvm_async_pf_task_wait(u32 token, int interrupt_kernel)
 	DECLARE_SWAITQUEUE(wait);
 
 	rcu_irq_enter();
+=======
+static bool kvm_async_pf_queue_task(u32 token, struct kvm_task_sleep_node *n)
+{
+	u32 key = hash_32(token, KVM_TASK_SLEEP_HASHBITS);
+	struct kvm_task_sleep_head *b = &async_pf_sleepers[key];
+	struct kvm_task_sleep_node *e;
+>>>>>>> upstream/android-13
 
 	raw_spin_lock(&b->lock);
 	e = _find_apf_task(b, token);
 	if (e) {
 		/* dummy entry exist -> wake up was delivered ahead of PF */
 		hlist_del(&e->link);
+<<<<<<< HEAD
 		kfree(e);
 		raw_spin_unlock(&b->lock);
 
@@ -172,13 +221,61 @@ void kvm_async_pf_task_wait(u32 token, int interrupt_kernel)
 	return;
 }
 EXPORT_SYMBOL_GPL(kvm_async_pf_task_wait);
+=======
+		raw_spin_unlock(&b->lock);
+		kfree(e);
+		return false;
+	}
+
+	n->token = token;
+	n->cpu = smp_processor_id();
+	init_swait_queue_head(&n->wq);
+	hlist_add_head(&n->link, &b->list);
+	raw_spin_unlock(&b->lock);
+	return true;
+}
+
+/*
+ * kvm_async_pf_task_wait_schedule - Wait for pagefault to be handled
+ * @token:	Token to identify the sleep node entry
+ *
+ * Invoked from the async pagefault handling code or from the VM exit page
+ * fault handler. In both cases RCU is watching.
+ */
+void kvm_async_pf_task_wait_schedule(u32 token)
+{
+	struct kvm_task_sleep_node n;
+	DECLARE_SWAITQUEUE(wait);
+
+	lockdep_assert_irqs_disabled();
+
+	if (!kvm_async_pf_queue_task(token, &n))
+		return;
+
+	for (;;) {
+		prepare_to_swait_exclusive(&n.wq, &wait, TASK_UNINTERRUPTIBLE);
+		if (hlist_unhashed(&n.link))
+			break;
+
+		local_irq_enable();
+		schedule();
+		local_irq_disable();
+	}
+	finish_swait(&n.wq, &wait);
+}
+EXPORT_SYMBOL_GPL(kvm_async_pf_task_wait_schedule);
+>>>>>>> upstream/android-13
 
 static void apf_task_wake_one(struct kvm_task_sleep_node *n)
 {
 	hlist_del_init(&n->link);
+<<<<<<< HEAD
 	if (n->halted)
 		smp_send_reschedule(n->cpu);
 	else if (swq_has_sleeper(&n->wq))
+=======
+	if (swq_has_sleeper(&n->wq))
+>>>>>>> upstream/android-13
 		swake_up_one(&n->wq);
 }
 
@@ -187,12 +284,22 @@ static void apf_task_wake_all(void)
 	int i;
 
 	for (i = 0; i < KVM_TASK_SLEEP_HASHSIZE; i++) {
+<<<<<<< HEAD
 		struct hlist_node *p, *next;
 		struct kvm_task_sleep_head *b = &async_pf_sleepers[i];
 		raw_spin_lock(&b->lock);
 		hlist_for_each_safe(p, next, &b->list) {
 			struct kvm_task_sleep_node *n =
 				hlist_entry(p, typeof(*n), link);
+=======
+		struct kvm_task_sleep_head *b = &async_pf_sleepers[i];
+		struct kvm_task_sleep_node *n;
+		struct hlist_node *p, *next;
+
+		raw_spin_lock(&b->lock);
+		hlist_for_each_safe(p, next, &b->list) {
+			n = hlist_entry(p, typeof(*n), link);
+>>>>>>> upstream/android-13
 			if (n->cpu == smp_processor_id())
 				apf_task_wake_one(n);
 		}
@@ -233,13 +340,20 @@ again:
 		n->cpu = smp_processor_id();
 		init_swait_queue_head(&n->wq);
 		hlist_add_head(&n->link, &b->list);
+<<<<<<< HEAD
 	} else
 		apf_task_wake_one(n);
+=======
+	} else {
+		apf_task_wake_one(n);
+	}
+>>>>>>> upstream/android-13
 	raw_spin_unlock(&b->lock);
 	return;
 }
 EXPORT_SYMBOL_GPL(kvm_async_pf_task_wake);
 
+<<<<<<< HEAD
 u32 kvm_read_and_reset_pf_reason(void)
 {
 	u32 reason = 0;
@@ -277,13 +391,83 @@ do_async_page_fault(struct pt_regs *regs, unsigned long error_code)
 	}
 }
 NOKPROBE_SYMBOL(do_async_page_fault);
+=======
+noinstr u32 kvm_read_and_reset_apf_flags(void)
+{
+	u32 flags = 0;
+
+	if (__this_cpu_read(apf_reason.enabled)) {
+		flags = __this_cpu_read(apf_reason.flags);
+		__this_cpu_write(apf_reason.flags, 0);
+	}
+
+	return flags;
+}
+EXPORT_SYMBOL_GPL(kvm_read_and_reset_apf_flags);
+
+noinstr bool __kvm_handle_async_pf(struct pt_regs *regs, u32 token)
+{
+	u32 flags = kvm_read_and_reset_apf_flags();
+	irqentry_state_t state;
+
+	if (!flags)
+		return false;
+
+	state = irqentry_enter(regs);
+	instrumentation_begin();
+
+	/*
+	 * If the host managed to inject an async #PF into an interrupt
+	 * disabled region, then die hard as this is not going to end well
+	 * and the host side is seriously broken.
+	 */
+	if (unlikely(!(regs->flags & X86_EFLAGS_IF)))
+		panic("Host injected async #PF in interrupt disabled region\n");
+
+	if (flags & KVM_PV_REASON_PAGE_NOT_PRESENT) {
+		if (unlikely(!(user_mode(regs))))
+			panic("Host injected async #PF in kernel mode\n");
+		/* Page is swapped out by the host. */
+		kvm_async_pf_task_wait_schedule(token);
+	} else {
+		WARN_ONCE(1, "Unexpected async PF flags: %x\n", flags);
+	}
+
+	instrumentation_end();
+	irqentry_exit(regs, state);
+	return true;
+}
+
+DEFINE_IDTENTRY_SYSVEC(sysvec_kvm_asyncpf_interrupt)
+{
+	struct pt_regs *old_regs = set_irq_regs(regs);
+	u32 token;
+
+	ack_APIC_irq();
+
+	inc_irq_stat(irq_hv_callback_count);
+
+	if (__this_cpu_read(apf_reason.enabled)) {
+		token = __this_cpu_read(apf_reason.token);
+		kvm_async_pf_task_wake(token);
+		__this_cpu_write(apf_reason.token, 0);
+		wrmsrl(MSR_KVM_ASYNC_PF_ACK, 1);
+	}
+
+	set_irq_regs(old_regs);
+}
+>>>>>>> upstream/android-13
 
 static void __init paravirt_ops_setup(void)
 {
 	pv_info.name = "KVM";
 
 	if (kvm_para_has_feature(KVM_FEATURE_NOP_IO_DELAY))
+<<<<<<< HEAD
 		pv_cpu_ops.io_delay = kvm_io_delay;
+=======
+		pv_ops.cpu.io_delay = kvm_io_delay;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_X86_IO_APIC
 	no_timer_check = 1;
@@ -299,8 +483,13 @@ static void kvm_register_steal_time(void)
 		return;
 
 	wrmsrl(MSR_KVM_STEAL_TIME, (slow_virt_to_phys(st) | KVM_MSR_ENABLED));
+<<<<<<< HEAD
 	pr_info("kvm-stealtime: cpu %d, msr %llx\n",
 		cpu, (unsigned long long) slow_virt_to_phys(st));
+=======
+	pr_info("stealtime: cpu %d, msr %llx\n", cpu,
+		(unsigned long long) slow_virt_to_phys(st));
+>>>>>>> upstream/android-13
 }
 
 static DEFINE_PER_CPU_DECRYPTED(unsigned long, kvm_apic_eoi) = KVM_PV_EOI_DISABLED;
@@ -321,6 +510,7 @@ static notrace void kvm_guest_apic_eoi_write(u32 reg, u32 val)
 
 static void kvm_guest_cpu_init(void)
 {
+<<<<<<< HEAD
 	if (!kvm_para_available())
 		return;
 
@@ -331,18 +521,39 @@ static void kvm_guest_cpu_init(void)
 		pa |= KVM_ASYNC_PF_SEND_ALWAYS;
 #endif
 		pa |= KVM_ASYNC_PF_ENABLED;
+=======
+	if (kvm_para_has_feature(KVM_FEATURE_ASYNC_PF_INT) && kvmapf) {
+		u64 pa = slow_virt_to_phys(this_cpu_ptr(&apf_reason));
+
+		WARN_ON_ONCE(!static_branch_likely(&kvm_async_pf_enabled));
+
+		pa = slow_virt_to_phys(this_cpu_ptr(&apf_reason));
+		pa |= KVM_ASYNC_PF_ENABLED | KVM_ASYNC_PF_DELIVERY_AS_INT;
+>>>>>>> upstream/android-13
 
 		if (kvm_para_has_feature(KVM_FEATURE_ASYNC_PF_VMEXIT))
 			pa |= KVM_ASYNC_PF_DELIVERY_AS_PF_VMEXIT;
 
+<<<<<<< HEAD
 		wrmsrl(MSR_KVM_ASYNC_PF_EN, pa);
 		__this_cpu_write(apf_reason.enabled, 1);
 		printk(KERN_INFO"KVM setup async PF for cpu %d\n",
 		       smp_processor_id());
+=======
+		wrmsrl(MSR_KVM_ASYNC_PF_INT, HYPERVISOR_CALLBACK_VECTOR);
+
+		wrmsrl(MSR_KVM_ASYNC_PF_EN, pa);
+		__this_cpu_write(apf_reason.enabled, 1);
+		pr_info("setup async PF for cpu %d\n", smp_processor_id());
+>>>>>>> upstream/android-13
 	}
 
 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI)) {
 		unsigned long pa;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		/* Size alignment is implied but just to make it explicit. */
 		BUILD_BUG_ON(__alignof__(kvm_apic_eoi) < 4);
 		__this_cpu_write(kvm_apic_eoi, 0);
@@ -363,6 +574,7 @@ static void kvm_pv_disable_apf(void)
 	wrmsrl(MSR_KVM_ASYNC_PF_EN, 0);
 	__this_cpu_write(apf_reason.enabled, 0);
 
+<<<<<<< HEAD
 	printk(KERN_INFO"Unregister pv shared memory for cpu %d\n",
 	       smp_processor_id());
 }
@@ -392,6 +604,19 @@ static struct notifier_block kvm_pv_reboot_nb = {
 	.notifier_call = kvm_pv_reboot_notify,
 };
 
+=======
+	pr_info("disable async PF for cpu %d\n", smp_processor_id());
+}
+
+static void kvm_disable_steal_time(void)
+{
+	if (!has_steal_clock)
+		return;
+
+	wrmsr(MSR_KVM_STEAL_TIME, 0, 0);
+}
+
+>>>>>>> upstream/android-13
 static u64 kvm_steal_clock(int cpu)
 {
 	u64 steal;
@@ -409,6 +634,7 @@ static u64 kvm_steal_clock(int cpu)
 	return steal;
 }
 
+<<<<<<< HEAD
 void kvm_disable_steal_time(void)
 {
 	if (!has_steal_clock)
@@ -417,6 +643,8 @@ void kvm_disable_steal_time(void)
 	wrmsr(MSR_KVM_STEAL_TIME, 0, 0);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void __set_percpu_decrypted(void *ptr, unsigned long size)
 {
 	early_set_memory_decrypted((unsigned long) ptr, size);
@@ -444,7 +672,57 @@ static void __init sev_map_percpu_data(void)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
+=======
+static void kvm_guest_cpu_offline(bool shutdown)
+{
+	kvm_disable_steal_time();
+	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+	kvm_pv_disable_apf();
+	if (!shutdown)
+		apf_task_wake_all();
+	kvmclock_disable();
+}
+
+static int kvm_cpu_online(unsigned int cpu)
+{
+	unsigned long flags;
+
+	local_irq_save(flags);
+	kvm_guest_cpu_init();
+	local_irq_restore(flags);
+	return 0;
+}
+
+#ifdef CONFIG_SMP
+
+static DEFINE_PER_CPU(cpumask_var_t, __pv_cpu_mask);
+
+static bool pv_tlb_flush_supported(void)
+{
+	return (kvm_para_has_feature(KVM_FEATURE_PV_TLB_FLUSH) &&
+		!kvm_para_has_hint(KVM_HINTS_REALTIME) &&
+		kvm_para_has_feature(KVM_FEATURE_STEAL_TIME) &&
+		(num_possible_cpus() != 1));
+}
+
+static bool pv_ipi_supported(void)
+{
+	return (kvm_para_has_feature(KVM_FEATURE_PV_SEND_IPI) &&
+	       (num_possible_cpus() != 1));
+}
+
+static bool pv_sched_yield_supported(void)
+{
+	return (kvm_para_has_feature(KVM_FEATURE_PV_SCHED_YIELD) &&
+		!kvm_para_has_hint(KVM_HINTS_REALTIME) &&
+	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME) &&
+	    (num_possible_cpus() != 1));
+}
+
+>>>>>>> upstream/android-13
 #define KVM_IPI_CLUSTER_SIZE	(2 * BITS_PER_LONG)
 
 static void __send_ipi_mask(const struct cpumask *mask, int vector)
@@ -480,12 +758,21 @@ static void __send_ipi_mask(const struct cpumask *mask, int vector)
 		} else if (apic_id < min && max - apic_id < KVM_IPI_CLUSTER_SIZE) {
 			ipi_bitmap <<= min - apic_id;
 			min = apic_id;
+<<<<<<< HEAD
 		} else if (apic_id < min + KVM_IPI_CLUSTER_SIZE) {
+=======
+		} else if (apic_id > min && apic_id < min + KVM_IPI_CLUSTER_SIZE) {
+>>>>>>> upstream/android-13
 			max = apic_id < max ? max : apic_id;
 		} else {
 			ret = kvm_hypercall4(KVM_HC_SEND_IPI, (unsigned long)ipi_bitmap,
 				(unsigned long)(ipi_bitmap >> BITS_PER_LONG), min, icr);
+<<<<<<< HEAD
 			WARN_ONCE(ret < 0, "KVM: failed to send PV IPI: %ld", ret);
+=======
+			WARN_ONCE(ret < 0, "kvm-guest: failed to send PV IPI: %ld",
+				  ret);
+>>>>>>> upstream/android-13
 			min = max = apic_id;
 			ipi_bitmap = 0;
 		}
@@ -495,7 +782,12 @@ static void __send_ipi_mask(const struct cpumask *mask, int vector)
 	if (ipi_bitmap) {
 		ret = kvm_hypercall4(KVM_HC_SEND_IPI, (unsigned long)ipi_bitmap,
 			(unsigned long)(ipi_bitmap >> BITS_PER_LONG), min, icr);
+<<<<<<< HEAD
 		WARN_ONCE(ret < 0, "KVM: failed to send PV IPI: %ld", ret);
+=======
+		WARN_ONCE(ret < 0, "kvm-guest: failed to send PV IPI: %ld",
+			  ret);
+>>>>>>> upstream/android-13
 	}
 
 	local_irq_restore(flags);
@@ -509,6 +801,7 @@ static void kvm_send_ipi_mask(const struct cpumask *mask, int vector)
 static void kvm_send_ipi_mask_allbutself(const struct cpumask *mask, int vector)
 {
 	unsigned int this_cpu = smp_processor_id();
+<<<<<<< HEAD
 	struct cpumask new_mask;
 	const struct cpumask *local_mask;
 
@@ -528,6 +821,17 @@ static void kvm_send_ipi_all(int vector)
 	__send_ipi_mask(cpu_online_mask, vector);
 }
 
+=======
+	struct cpumask *new_mask = this_cpu_cpumask_var_ptr(__pv_cpu_mask);
+	const struct cpumask *local_mask;
+
+	cpumask_copy(new_mask, mask);
+	cpumask_clear_cpu(this_cpu, new_mask);
+	local_mask = new_mask;
+	__send_ipi_mask(local_mask, vector);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Set the IPI entry points
  */
@@ -535,6 +839,7 @@ static void kvm_setup_pv_ipi(void)
 {
 	apic->send_IPI_mask = kvm_send_ipi_mask;
 	apic->send_IPI_mask_allbutself = kvm_send_ipi_mask_allbutself;
+<<<<<<< HEAD
 	apic->send_IPI_allbutself = kvm_send_ipi_allbutself;
 	apic->send_IPI_all = kvm_send_ipi_all;
 	pr_info("KVM setup pv IPIs\n");
@@ -547,6 +852,74 @@ static void __init kvm_smp_prepare_cpus(unsigned int max_cpus)
 		static_branch_disable(&virt_spin_lock_key);
 }
 
+=======
+	pr_info("setup PV IPIs\n");
+}
+
+static void kvm_smp_send_call_func_ipi(const struct cpumask *mask)
+{
+	int cpu;
+
+	native_send_call_func_ipi(mask);
+
+	/* Make sure other vCPUs get a chance to run if they need to. */
+	for_each_cpu(cpu, mask) {
+		if (vcpu_is_preempted(cpu)) {
+			kvm_hypercall1(KVM_HC_SCHED_YIELD, per_cpu(x86_cpu_to_apicid, cpu));
+			break;
+		}
+	}
+}
+
+static void kvm_flush_tlb_multi(const struct cpumask *cpumask,
+			const struct flush_tlb_info *info)
+{
+	u8 state;
+	int cpu;
+	struct kvm_steal_time *src;
+	struct cpumask *flushmask = this_cpu_cpumask_var_ptr(__pv_cpu_mask);
+
+	cpumask_copy(flushmask, cpumask);
+	/*
+	 * We have to call flush only on online vCPUs. And
+	 * queue flush_on_enter for pre-empted vCPUs
+	 */
+	for_each_cpu(cpu, flushmask) {
+		/*
+		 * The local vCPU is never preempted, so we do not explicitly
+		 * skip check for local vCPU - it will never be cleared from
+		 * flushmask.
+		 */
+		src = &per_cpu(steal_time, cpu);
+		state = READ_ONCE(src->preempted);
+		if ((state & KVM_VCPU_PREEMPTED)) {
+			if (try_cmpxchg(&src->preempted, &state,
+					state | KVM_VCPU_FLUSH_TLB))
+				__cpumask_clear_cpu(cpu, flushmask);
+		}
+	}
+
+	native_flush_tlb_multi(flushmask, info);
+}
+
+static __init int kvm_alloc_cpumask(void)
+{
+	int cpu;
+
+	if (!kvm_para_available() || nopv)
+		return 0;
+
+	if (pv_tlb_flush_supported() || pv_ipi_supported())
+		for_each_possible_cpu(cpu) {
+			zalloc_cpumask_var_node(per_cpu_ptr(&__pv_cpu_mask, cpu),
+				GFP_KERNEL, cpu_to_node(cpu));
+		}
+
+	return 0;
+}
+arch_initcall(kvm_alloc_cpumask);
+
+>>>>>>> upstream/android-13
 static void __init kvm_smp_prepare_boot_cpu(void)
 {
 	/*
@@ -560,6 +933,7 @@ static void __init kvm_smp_prepare_boot_cpu(void)
 	kvm_spinlock_init();
 }
 
+<<<<<<< HEAD
 static void kvm_guest_cpu_offline(void)
 {
 	kvm_disable_steal_time();
@@ -619,17 +993,95 @@ static void kvm_flush_tlb_others(const struct cpumask *cpumask,
 	native_flush_tlb_others(flushmask, info);
 }
 
+=======
+static int kvm_cpu_down_prepare(unsigned int cpu)
+{
+	unsigned long flags;
+
+	local_irq_save(flags);
+	kvm_guest_cpu_offline(false);
+	local_irq_restore(flags);
+	return 0;
+}
+
+#endif
+
+static int kvm_suspend(void)
+{
+	u64 val = 0;
+
+	kvm_guest_cpu_offline(false);
+
+#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
+	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL))
+		rdmsrl(MSR_KVM_POLL_CONTROL, val);
+	has_guest_poll = !(val & 1);
+#endif
+	return 0;
+}
+
+static void kvm_resume(void)
+{
+	kvm_cpu_online(raw_smp_processor_id());
+
+#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
+	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL) && has_guest_poll)
+		wrmsrl(MSR_KVM_POLL_CONTROL, 0);
+#endif
+}
+
+static struct syscore_ops kvm_syscore_ops = {
+	.suspend	= kvm_suspend,
+	.resume		= kvm_resume,
+};
+
+static void kvm_pv_guest_cpu_reboot(void *unused)
+{
+	kvm_guest_cpu_offline(true);
+}
+
+static int kvm_pv_reboot_notify(struct notifier_block *nb,
+				unsigned long code, void *unused)
+{
+	if (code == SYS_RESTART)
+		on_each_cpu(kvm_pv_guest_cpu_reboot, NULL, 1);
+	return NOTIFY_DONE;
+}
+
+static struct notifier_block kvm_pv_reboot_nb = {
+	.notifier_call = kvm_pv_reboot_notify,
+};
+
+/*
+ * After a PV feature is registered, the host will keep writing to the
+ * registered memory location. If the guest happens to shutdown, this memory
+ * won't be valid. In cases like kexec, in which you install a new kernel, this
+ * means a random memory location will be kept being written.
+ */
+#ifdef CONFIG_KEXEC_CORE
+static void kvm_crash_shutdown(struct pt_regs *regs)
+{
+	kvm_guest_cpu_offline(true);
+	native_machine_crash_shutdown(regs);
+}
+#endif
+
+>>>>>>> upstream/android-13
 static void __init kvm_guest_init(void)
 {
 	int i;
 
+<<<<<<< HEAD
 	if (!kvm_para_available())
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	paravirt_ops_setup();
 	register_reboot_notifier(&kvm_pv_reboot_nb);
 	for (i = 0; i < KVM_TASK_SLEEP_HASHSIZE; i++)
 		raw_spin_lock_init(&async_pf_sleepers[i].lock);
+<<<<<<< HEAD
 	if (kvm_para_has_feature(KVM_FEATURE_ASYNC_PF))
 		x86_init.irqs.trap_init = kvm_apf_trap_init;
 
@@ -643,22 +1095,60 @@ static void __init kvm_guest_init(void)
 	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
 		pv_mmu_ops.flush_tlb_others = kvm_flush_tlb_others;
 		pv_mmu_ops.tlb_remove_table = tlb_remove_table;
+=======
+
+	if (kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
+		has_steal_clock = 1;
+		static_call_update(pv_steal_clock, kvm_steal_clock);
+>>>>>>> upstream/android-13
 	}
 
 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
 		apic_set_eoi_write(kvm_guest_apic_eoi_write);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 	smp_ops.smp_prepare_cpus = kvm_smp_prepare_cpus;
 	smp_ops.smp_prepare_boot_cpu = kvm_smp_prepare_boot_cpu;
 	if (cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN, "x86/kvm:online",
 				      kvm_cpu_online, kvm_cpu_down_prepare) < 0)
 		pr_err("kvm_guest: Failed to install cpu hotplug callbacks\n");
+=======
+	if (kvm_para_has_feature(KVM_FEATURE_ASYNC_PF_INT) && kvmapf) {
+		static_branch_enable(&kvm_async_pf_enabled);
+		alloc_intr_gate(HYPERVISOR_CALLBACK_VECTOR, asm_sysvec_kvm_asyncpf_interrupt);
+	}
+
+#ifdef CONFIG_SMP
+	if (pv_tlb_flush_supported()) {
+		pv_ops.mmu.flush_tlb_multi = kvm_flush_tlb_multi;
+		pv_ops.mmu.tlb_remove_table = tlb_remove_table;
+		pr_info("KVM setup pv remote TLB flush\n");
+	}
+
+	smp_ops.smp_prepare_boot_cpu = kvm_smp_prepare_boot_cpu;
+	if (pv_sched_yield_supported()) {
+		smp_ops.send_call_func_ipi = kvm_smp_send_call_func_ipi;
+		pr_info("setup PV sched yield\n");
+	}
+	if (cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN, "x86/kvm:online",
+				      kvm_cpu_online, kvm_cpu_down_prepare) < 0)
+		pr_err("failed to install cpu hotplug callbacks\n");
+>>>>>>> upstream/android-13
 #else
 	sev_map_percpu_data();
 	kvm_guest_cpu_init();
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEXEC_CORE
+	machine_ops.crash_shutdown = kvm_crash_shutdown;
+#endif
+
+	register_syscore_ops(&kvm_syscore_ops);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Hard lockup detection is enabled by default. Disable it, as guests
 	 * can get false positives too easily, for example if the host is
@@ -703,6 +1193,10 @@ unsigned int kvm_arch_para_hints(void)
 {
 	return cpuid_edx(kvm_cpuid_base() | KVM_CPUID_FEATURES);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(kvm_arch_para_hints);
+>>>>>>> upstream/android-13
 
 static uint32_t __init kvm_detect(void)
 {
@@ -711,18 +1205,32 @@ static uint32_t __init kvm_detect(void)
 
 static void __init kvm_apic_init(void)
 {
+<<<<<<< HEAD
 #if defined(CONFIG_SMP)
 	if (kvm_para_has_feature(KVM_FEATURE_PV_SEND_IPI))
+=======
+#ifdef CONFIG_SMP
+	if (pv_ipi_supported())
+>>>>>>> upstream/android-13
 		kvm_setup_pv_ipi();
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static bool __init kvm_msi_ext_dest_id(void)
+{
+	return kvm_para_has_feature(KVM_FEATURE_MSI_EXT_DEST_ID);
+}
+
+>>>>>>> upstream/android-13
 static void __init kvm_init_platform(void)
 {
 	kvmclock_init();
 	x86_platform.apic_post_init = kvm_apic_init;
 }
 
+<<<<<<< HEAD
 const __initconst struct hypervisor_x86 x86_hyper_kvm = {
 	.name			= "KVM",
 	.detect			= kvm_detect,
@@ -730,6 +1238,37 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
 	.init.guest_late_init	= kvm_guest_init,
 	.init.x2apic_available	= kvm_para_available,
 	.init.init_platform	= kvm_init_platform,
+=======
+#if defined(CONFIG_AMD_MEM_ENCRYPT)
+static void kvm_sev_es_hcall_prepare(struct ghcb *ghcb, struct pt_regs *regs)
+{
+	/* RAX and CPL are already in the GHCB */
+	ghcb_set_rbx(ghcb, regs->bx);
+	ghcb_set_rcx(ghcb, regs->cx);
+	ghcb_set_rdx(ghcb, regs->dx);
+	ghcb_set_rsi(ghcb, regs->si);
+}
+
+static bool kvm_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
+{
+	/* No checking of the return state needed */
+	return true;
+}
+#endif
+
+const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+	.name				= "KVM",
+	.detect				= kvm_detect,
+	.type				= X86_HYPER_KVM,
+	.init.guest_late_init		= kvm_guest_init,
+	.init.x2apic_available		= kvm_para_available,
+	.init.msi_ext_dest_id		= kvm_msi_ext_dest_id,
+	.init.init_platform		= kvm_init_platform,
+#if defined(CONFIG_AMD_MEM_ENCRYPT)
+	.runtime.sev_es_hcall_prepare	= kvm_sev_es_hcall_prepare,
+	.runtime.sev_es_hcall_finish	= kvm_sev_es_hcall_finish,
+#endif
+>>>>>>> upstream/android-13
 };
 
 static __init int activate_jump_labels(void)
@@ -744,6 +1283,7 @@ static __init int activate_jump_labels(void)
 }
 arch_initcall(activate_jump_labels);
 
+<<<<<<< HEAD
 static __init int kvm_setup_pv_tlb_flush(void)
 {
 	int cpu;
@@ -762,6 +1302,8 @@ static __init int kvm_setup_pv_tlb_flush(void)
 }
 arch_initcall(kvm_setup_pv_tlb_flush);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PARAVIRT_SPINLOCKS
 
 /* Kick a cpu by its apicid. Used to wake up a halted vcpu */
@@ -778,6 +1320,7 @@ static void kvm_kick_cpu(int cpu)
 
 static void kvm_wait(u8 *ptr, u8 val)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 
 	if (in_nmi())
@@ -788,11 +1331,17 @@ static void kvm_wait(u8 *ptr, u8 val)
 	if (READ_ONCE(*ptr) != val)
 		goto out;
 
+=======
+	if (in_nmi())
+		return;
+
+>>>>>>> upstream/android-13
 	/*
 	 * halt until it's our turn and kicked. Note that we do safe halt
 	 * for irq enabled case to avoid hang when lock info is overwritten
 	 * in irq spinlock slowpath and no spurious interrupt occur to save us.
 	 */
+<<<<<<< HEAD
 	if (arch_irqs_disabled_flags(flags))
 		halt();
 	else
@@ -800,6 +1349,20 @@ static void kvm_wait(u8 *ptr, u8 val)
 
 out:
 	local_irq_restore(flags);
+=======
+	if (irqs_disabled()) {
+		if (READ_ONCE(*ptr) == val)
+			halt();
+	} else {
+		local_irq_disable();
+
+		/* safe_halt() will enable IRQ */
+		if (READ_ONCE(*ptr) == val)
+			safe_halt();
+		else
+			local_irq_enable();
+	}
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_X86_32
@@ -840,6 +1403,7 @@ asm(
  */
 void __init kvm_spinlock_init(void)
 {
+<<<<<<< HEAD
 	if (!kvm_para_available())
 		return;
 	/* Does host kernel support KVM_FEATURE_PV_UNHALT? */
@@ -866,3 +1430,93 @@ void __init kvm_spinlock_init(void)
 }
 
 #endif	/* CONFIG_PARAVIRT_SPINLOCKS */
+=======
+	/*
+	 * In case host doesn't support KVM_FEATURE_PV_UNHALT there is still an
+	 * advantage of keeping virt_spin_lock_key enabled: virt_spin_lock() is
+	 * preferred over native qspinlock when vCPU is preempted.
+	 */
+	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT)) {
+		pr_info("PV spinlocks disabled, no host support\n");
+		return;
+	}
+
+	/*
+	 * Disable PV spinlocks and use native qspinlock when dedicated pCPUs
+	 * are available.
+	 */
+	if (kvm_para_has_hint(KVM_HINTS_REALTIME)) {
+		pr_info("PV spinlocks disabled with KVM_HINTS_REALTIME hints\n");
+		goto out;
+	}
+
+	if (num_possible_cpus() == 1) {
+		pr_info("PV spinlocks disabled, single CPU\n");
+		goto out;
+	}
+
+	if (nopvspin) {
+		pr_info("PV spinlocks disabled, forced by \"nopvspin\" parameter\n");
+		goto out;
+	}
+
+	pr_info("PV spinlocks enabled\n");
+
+	__pv_init_lock_hash();
+	pv_ops.lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
+	pv_ops.lock.queued_spin_unlock =
+		PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+	pv_ops.lock.wait = kvm_wait;
+	pv_ops.lock.kick = kvm_kick_cpu;
+
+	if (kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
+		pv_ops.lock.vcpu_is_preempted =
+			PV_CALLEE_SAVE(__kvm_vcpu_is_preempted);
+	}
+	/*
+	 * When PV spinlock is enabled which is preferred over
+	 * virt_spin_lock(), virt_spin_lock_key's value is meaningless.
+	 * Just disable it anyway.
+	 */
+out:
+	static_branch_disable(&virt_spin_lock_key);
+}
+
+#endif	/* CONFIG_PARAVIRT_SPINLOCKS */
+
+#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
+
+static void kvm_disable_host_haltpoll(void *i)
+{
+	wrmsrl(MSR_KVM_POLL_CONTROL, 0);
+}
+
+static void kvm_enable_host_haltpoll(void *i)
+{
+	wrmsrl(MSR_KVM_POLL_CONTROL, 1);
+}
+
+void arch_haltpoll_enable(unsigned int cpu)
+{
+	if (!kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL)) {
+		pr_err_once("host does not support poll control\n");
+		pr_err_once("host upgrade recommended\n");
+		return;
+	}
+
+	/* Enable guest halt poll disables host halt poll */
+	smp_call_function_single(cpu, kvm_disable_host_haltpoll, NULL, 1);
+}
+EXPORT_SYMBOL_GPL(arch_haltpoll_enable);
+
+void arch_haltpoll_disable(unsigned int cpu)
+{
+	if (!kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL))
+		return;
+
+	/* Disable guest halt poll enables host halt poll */
+	smp_call_function_single(cpu, kvm_enable_host_haltpoll, NULL, 1);
+}
+EXPORT_SYMBOL_GPL(arch_haltpoll_disable);
+#endif
+>>>>>>> upstream/android-13

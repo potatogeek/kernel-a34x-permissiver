@@ -7,7 +7,11 @@
  */
 
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 #include <asm/bootinfo.h>
 #include <asm/bmips.h>
@@ -94,7 +98,10 @@ void __init prom_init(void)
 		 */
 	}
 }
+<<<<<<< HEAD
 
 void __init prom_free_prom_memory(void)
 {
 }
+=======
+>>>>>>> upstream/android-13

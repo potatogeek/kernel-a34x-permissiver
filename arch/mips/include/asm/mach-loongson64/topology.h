@@ -5,7 +5,13 @@
 #ifdef CONFIG_NUMA
 
 #define cpu_to_node(cpu)	(cpu_logical_map(cpu) >> 2)
+<<<<<<< HEAD
 #define cpumask_of_node(node)	(&__node_data[(node)]->cpumask)
+=======
+
+extern cpumask_t __node_cpumask[];
+#define cpumask_of_node(node)	(&__node_cpumask[node])
+>>>>>>> upstream/android-13
 
 struct pci_bus;
 extern int pcibus_to_node(struct pci_bus *);

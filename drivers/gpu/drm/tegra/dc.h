@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Avionic Design GmbH
  * Copyright (C) 2012 NVIDIA CORPORATION.  All rights reserved.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Avionic Design GmbH
+ * Copyright (C) 2012 NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef TEGRA_DC_H
@@ -18,6 +25,11 @@
 
 struct tegra_output;
 
+<<<<<<< HEAD
+=======
+#define TEGRA_DC_LEGACY_PLANES_NUM	7
+
+>>>>>>> upstream/android-13
 struct tegra_dc_state {
 	struct drm_crtc_state base;
 
@@ -41,6 +53,14 @@ struct tegra_dc_stats {
 	unsigned long vblank;
 	unsigned long underflow;
 	unsigned long overflow;
+<<<<<<< HEAD
+=======
+
+	unsigned long frames_total;
+	unsigned long vblank_total;
+	unsigned long underflow_total;
+	unsigned long overflow_total;
+>>>>>>> upstream/android-13
 };
 
 struct tegra_windowgroup_soc {
@@ -55,6 +75,10 @@ struct tegra_dc_soc_info {
 	bool supports_interlacing;
 	bool supports_cursor;
 	bool supports_block_linear;
+<<<<<<< HEAD
+=======
+	bool supports_sector_layout;
+>>>>>>> upstream/android-13
 	bool has_legacy_blending;
 	unsigned int pitch_align;
 	bool has_powergate;
@@ -68,7 +92,13 @@ struct tegra_dc_soc_info {
 	unsigned int num_overlay_formats;
 	const u64 *modifiers;
 	bool has_win_a_without_filters;
+<<<<<<< HEAD
 	bool has_win_c_without_vert_filter;
+=======
+	bool has_win_b_vfilter_mem_client;
+	bool has_win_c_without_vert_filter;
+	bool plane_tiled_memory_bandwidth_x2;
+>>>>>>> upstream/android-13
 };
 
 struct tegra_dc {
@@ -93,8 +123,11 @@ struct tegra_dc {
 	struct drm_info_list *debugfs_files;
 
 	const struct tegra_dc_soc_info *soc;
+<<<<<<< HEAD
 
 	struct iommu_group *group;
+=======
+>>>>>>> upstream/android-13
 };
 
 static inline struct tegra_dc *
@@ -141,7 +174,12 @@ struct tegra_dc_window {
 	unsigned int stride[2];
 	unsigned long base[3];
 	unsigned int zpos;
+<<<<<<< HEAD
 	bool bottom_up;
+=======
+	bool reflect_x;
+	bool reflect_y;
+>>>>>>> upstream/android-13
 
 	struct tegra_bo_tiling tiling;
 	u32 format;
@@ -155,6 +193,11 @@ int tegra_dc_state_setup_clock(struct tegra_dc *dc,
 			       struct drm_crtc_state *crtc_state,
 			       struct clk *clk, unsigned long pclk,
 			       unsigned int div);
+<<<<<<< HEAD
+=======
+void tegra_crtc_atomic_post_commit(struct drm_crtc *crtc,
+				   struct drm_atomic_state *state);
+>>>>>>> upstream/android-13
 
 /* from rgb.c */
 int tegra_dc_rgb_probe(struct tegra_dc *dc);
@@ -300,7 +343,11 @@ int tegra_dc_rgb_exit(struct tegra_dc *dc);
 #define SOR1_TIMING_CYA	(1 << 27)
 #define CURSOR_ENABLE	(1 << 16)
 
+<<<<<<< HEAD
 #define SOR_ENABLE(x)	(1 << (25 + (x)))
+=======
+#define SOR_ENABLE(x)	(1 << (25 + (((x) > 1) ? ((x) + 1) : (x))))
+>>>>>>> upstream/android-13
 
 #define DC_DISP_DISP_MEM_HIGH_PRIORITY		0x403
 #define CURSOR_THRESHOLD(x)   (((x) & 0x03) << 24)
@@ -515,6 +562,11 @@ int tegra_dc_rgb_exit(struct tegra_dc *dc);
 
 #define DC_DISP_CURSOR_START_ADDR_HI		0x4ec
 #define DC_DISP_BLEND_CURSOR_CONTROL		0x4f1
+<<<<<<< HEAD
+=======
+#define CURSOR_COMPOSITION_MODE_BLEND		(0 << 25)
+#define CURSOR_COMPOSITION_MODE_XOR		(1 << 25)
+>>>>>>> upstream/android-13
 #define CURSOR_MODE_LEGACY			(0 << 24)
 #define CURSOR_MODE_NORMAL			(1 << 24)
 #define CURSOR_DST_BLEND_ZERO			(0 << 16)
@@ -697,6 +749,12 @@ int tegra_dc_rgb_exit(struct tegra_dc *dc);
 
 #define DC_WINBUF_START_ADDR_HI			0x80d
 
+<<<<<<< HEAD
+=======
+#define DC_WINBUF_START_ADDR_HI_U		0x80f
+#define DC_WINBUF_START_ADDR_HI_V		0x811
+
+>>>>>>> upstream/android-13
 #define DC_WINBUF_CDE_CONTROL			0x82f
 #define  ENABLE_SURFACE (1 << 0)
 
@@ -709,15 +767,46 @@ int tegra_dc_rgb_exit(struct tegra_dc *dc);
 #define PROTOCOL_MASK (0xf << 8)
 #define PROTOCOL_SINGLE_TMDS_A (0x1 << 8)
 
+<<<<<<< HEAD
+=======
+#define DC_DISP_PCALC_HEAD_SET_CROPPED_POINT_IN_CURSOR	0x442
+#define DC_DISP_PCALC_HEAD_SET_CROPPED_SIZE_IN_CURSOR	0x446
+
+#define DC_WINC_PRECOMP_WGRP_PIPE_CAPA 0x500
+#define DC_WINC_PRECOMP_WGRP_PIPE_CAPB 0x501
+#define DC_WINC_PRECOMP_WGRP_PIPE_CAPC 0x502
+#define  MAX_PIXELS_5TAP444(x) ((x) & 0xffff)
+#define DC_WINC_PRECOMP_WGRP_PIPE_CAPD 0x503
+#define DC_WINC_PRECOMP_WGRP_PIPE_CAPE 0x504
+#define  MAX_PIXELS_2TAP444(x) ((x) & 0xffff)
+#define DC_WINC_PRECOMP_WGRP_PIPE_CAPF 0x505
+
+>>>>>>> upstream/android-13
 #define DC_WIN_CORE_WINDOWGROUP_SET_CONTROL	0x702
 #define OWNER_MASK (0xf << 0)
 #define OWNER(x) (((x) & 0xf) << 0)
 
 #define DC_WIN_CROPPED_SIZE			0x706
 
+<<<<<<< HEAD
 #define DC_WIN_PLANAR_STORAGE			0x709
 #define PITCH(x) (((x) >> 6) & 0x1fff)
 
+=======
+#define DC_WIN_SET_INPUT_SCALER_H_START_PHASE	0x707
+#define DC_WIN_SET_INPUT_SCALER_V_START_PHASE	0x708
+
+#define DC_WIN_PLANAR_STORAGE			0x709
+#define PITCH(x) (((x) >> 6) & 0x1fff)
+
+#define DC_WIN_PLANAR_STORAGE_UV		0x70a
+#define  PITCH_U(x) ((((x) >> 6) & 0x1fff) <<  0)
+#define  PITCH_V(x) ((((x) >> 6) & 0x1fff) << 16)
+
+#define DC_WIN_SET_INPUT_SCALER_HPHASE_INCR	0x70b
+#define DC_WIN_SET_INPUT_SCALER_VPHASE_INCR	0x70c
+
+>>>>>>> upstream/android-13
 #define DC_WIN_SET_PARAMS			0x70d
 #define  CLAMP_BEFORE_BLEND (1 << 15)
 #define  DEGAMMA_NONE (0 << 13)
@@ -738,6 +827,13 @@ int tegra_dc_rgb_exit(struct tegra_dc *dc);
 #define  VERTICAL_TAPS_2 (1 << 0)
 #define  VERTICAL_TAPS_5 (4 << 0)
 
+<<<<<<< HEAD
+=======
+#define DC_WIN_WINDOWGROUP_SET_INPUT_SCALER_COEFF 0x70f
+#define  COEFF_INDEX(x) (((x) & 0xff) << 15)
+#define  COEFF_DATA(x) (((x) & 0x3ff) << 0)
+
+>>>>>>> upstream/android-13
 #define DC_WIN_WINDOWGROUP_SET_INPUT_SCALER_USAGE	0x711
 #define  INPUT_SCALER_USE422  (1 << 2)
 #define  INPUT_SCALER_VBYPASS (1 << 1)

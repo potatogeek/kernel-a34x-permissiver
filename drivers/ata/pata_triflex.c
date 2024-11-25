@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * pata_triflex.c 	- Compaq PATA for new ATA layer
  *			  (C) 2005 Red Hat Inc
@@ -14,6 +18,7 @@
  * Copyright (C) 2002 Hewlett-Packard Development Group, L.P.
  * Author: Torben Mathiasen <torben.mathiasen@hp.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -27,6 +32,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  * Loosely based on the piix & svwks drivers.
  *
  * Documentation:
@@ -141,7 +148,11 @@ static void triflex_set_piomode(struct ata_port *ap, struct ata_device *adev)
 }
 
 /**
+<<<<<<< HEAD
  *	triflex_dma_start	-	DMA start callback
+=======
+ *	triflex_bmdma_start	-	DMA start callback
+>>>>>>> upstream/android-13
  *	@qc: Command in progress
  *
  *	Usually drivers set the DMA timing at the point the set_dmamode call
@@ -158,9 +169,14 @@ static void triflex_bmdma_start(struct ata_queued_cmd *qc)
 }
 
 /**
+<<<<<<< HEAD
  *	triflex_dma_stop	-	DMA stop callback
  *	@ap: ATA interface
  *	@adev: ATA device
+=======
+ *	triflex_bmdma_stop	-	DMA stop callback
+ *	@qc: ATA command
+>>>>>>> upstream/android-13
  *
  *	We loaded new timings in dma_start, as a result we need to restore
  *	the PIO timings in dma_stop so that the next command issue gets the

@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /* audit -- definition of audit_context structure and supporting types 
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* audit -- definition of audit_context structure and supporting types
+>>>>>>> upstream/android-13
  *
  * Copyright 2003-2004 Red Hat, Inc.
  * Copyright 2005 Hewlett-Packard Development Company, L.P.
  * Copyright 2005 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +25,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+=======
+ */
+
+#ifndef _KERNEL_AUDIT_H_
+#define _KERNEL_AUDIT_H_
+
+>>>>>>> upstream/android-13
 #include <linux/fs.h>
 #include <linux/audit.h>
 #include <linux/skbuff.h>
@@ -34,16 +47,27 @@
    a per-task filter.  At syscall entry, the audit_state is augmented by
    the syscall filter. */
 enum audit_state {
+<<<<<<< HEAD
 	AUDIT_DISABLED,		/* Do not create per-task audit_context.
 				 * No syscall-specific audit records can
 				 * be generated. */
 	AUDIT_BUILD_CONTEXT,	/* Create the per-task audit_context,
+=======
+	AUDIT_STATE_DISABLED,	/* Do not create per-task audit_context.
+				 * No syscall-specific audit records can
+				 * be generated. */
+	AUDIT_STATE_BUILD,	/* Create the per-task audit_context,
+>>>>>>> upstream/android-13
 				 * and fill it in at syscall
 				 * entry time.  This makes a full
 				 * syscall record available if some
 				 * other part of the kernel decides it
 				 * should be recorded. */
+<<<<<<< HEAD
 	AUDIT_RECORD_CONTEXT	/* Create the per-task audit_context,
+=======
+	AUDIT_STATE_RECORD	/* Create the per-task audit_context,
+>>>>>>> upstream/android-13
 				 * always fill it in at syscall entry
 				 * time, and always write out the audit
 				 * record at syscall exit time.  */
@@ -69,6 +93,10 @@ struct audit_cap_data {
 		kernel_cap_t	effective;	/* effective set of process */
 	};
 	kernel_cap_t		ambient;
+<<<<<<< HEAD
+=======
+	kuid_t			rootid;
+>>>>>>> upstream/android-13
 };
 
 /* When fs/namei.c:getname() is called, we store the pointer in name and bump
@@ -203,6 +231,13 @@ struct audit_context {
 		struct {
 			char			*name;
 		} module;
+<<<<<<< HEAD
+=======
+		struct {
+			struct audit_ntp_data	ntp_data;
+			struct timespec64	tk_injoffset;
+		} time;
+>>>>>>> upstream/android-13
 	};
 	int fds[2];
 	struct audit_proctitle proctitle;
@@ -210,6 +245,7 @@ struct audit_context {
 
 extern bool audit_ever_enabled;
 
+<<<<<<< HEAD
 extern void audit_copy_inode(struct audit_names *name,
 			     const struct dentry *dentry,
 			     struct inode *inode);
@@ -218,6 +254,9 @@ extern void audit_log_cap(struct audit_buffer *ab, char *prefix,
 extern void audit_log_name(struct audit_context *context,
 			   struct audit_names *n, const struct path *path,
 			   int record_num, int *call_panic);
+=======
+extern void audit_log_session_info(struct audit_buffer *ab);
+>>>>>>> upstream/android-13
 
 extern int auditd_test_task(struct task_struct *task);
 
@@ -237,7 +276,11 @@ extern int audit_comparator(const u32 left, const u32 op, const u32 right);
 extern int audit_uid_comparator(kuid_t left, u32 op, kuid_t right);
 extern int audit_gid_comparator(kgid_t left, u32 op, kgid_t right);
 extern int parent_len(const char *path);
+<<<<<<< HEAD
 extern int audit_compare_dname_path(const char *dname, const char *path, int plen);
+=======
+extern int audit_compare_dname_path(const struct qstr *dname, const char *path, int plen);
+>>>>>>> upstream/android-13
 extern struct sk_buff *audit_make_reply(int seq, int type, int done, int multi,
 					const void *payload, int size);
 extern void		    audit_panic(const char *message);
@@ -262,6 +305,7 @@ extern struct audit_entry *audit_dupe_rule(struct audit_krule *old);
 extern void audit_log_d_path_exe(struct audit_buffer *ab,
 				 struct mm_struct *mm);
 
+<<<<<<< HEAD
 extern struct tty_struct *audit_get_tty(struct task_struct *tsk);
 extern void audit_put_tty(struct tty_struct *tty);
 
@@ -286,6 +330,59 @@ extern int audit_exe_compare(struct task_struct *tsk, struct audit_fsnotify_mark
 #else
 #define audit_put_watch(w) {}
 #define audit_get_watch(w) {}
+=======
+extern struct tty_struct *audit_get_tty(void);
+extern void audit_put_tty(struct tty_struct *tty);
+
+/* audit watch/mark/tree functions */
+#ifdef CONFIG_AUDITSYSCALL
+extern unsigned int audit_serial(void);
+extern int auditsc_get_stamp(struct audit_context *ctx,
+			      struct timespec64 *t, unsigned int *serial);
+
+extern void audit_put_watch(struct audit_watch *watch);
+extern void audit_get_watch(struct audit_watch *watch);
+extern int audit_to_watch(struct audit_krule *krule, char *path, int len,
+			  u32 op);
+extern int audit_add_watch(struct audit_krule *krule, struct list_head **list);
+extern void audit_remove_watch_rule(struct audit_krule *krule);
+extern char *audit_watch_path(struct audit_watch *watch);
+extern int audit_watch_compare(struct audit_watch *watch, unsigned long ino,
+			       dev_t dev);
+
+extern struct audit_fsnotify_mark *audit_alloc_mark(struct audit_krule *krule,
+						    char *pathname, int len);
+extern char *audit_mark_path(struct audit_fsnotify_mark *mark);
+extern void audit_remove_mark(struct audit_fsnotify_mark *audit_mark);
+extern void audit_remove_mark_rule(struct audit_krule *krule);
+extern int audit_mark_compare(struct audit_fsnotify_mark *mark,
+			      unsigned long ino, dev_t dev);
+extern int audit_dupe_exe(struct audit_krule *new, struct audit_krule *old);
+extern int audit_exe_compare(struct task_struct *tsk,
+			     struct audit_fsnotify_mark *mark);
+
+extern struct audit_chunk *audit_tree_lookup(const struct inode *inode);
+extern void audit_put_chunk(struct audit_chunk *chunk);
+extern bool audit_tree_match(struct audit_chunk *chunk,
+			     struct audit_tree *tree);
+extern int audit_make_tree(struct audit_krule *rule, char *pathname, u32 op);
+extern int audit_add_tree_rule(struct audit_krule *rule);
+extern int audit_remove_tree_rule(struct audit_krule *rule);
+extern void audit_trim_trees(void);
+extern int audit_tag_tree(char *old, char *new);
+extern const char *audit_tree_path(struct audit_tree *tree);
+extern void audit_put_tree(struct audit_tree *tree);
+extern void audit_kill_trees(struct audit_context *context);
+
+extern int audit_signal_info_syscall(struct task_struct *t);
+extern void audit_filter_inodes(struct task_struct *tsk,
+				struct audit_context *ctx);
+extern struct list_head *audit_killed_trees(void);
+#else /* CONFIG_AUDITSYSCALL */
+#define auditsc_get_stamp(c, t, s) 0
+#define audit_put_watch(w) do { } while (0)
+#define audit_get_watch(w) do { } while (0)
+>>>>>>> upstream/android-13
 #define audit_to_watch(k, p, l, o) (-EINVAL)
 #define audit_add_watch(k, l) (-EINVAL)
 #define audit_remove_watch_rule(k) BUG()
@@ -294,6 +391,7 @@ extern int audit_exe_compare(struct task_struct *tsk, struct audit_fsnotify_mark
 
 #define audit_alloc_mark(k, p, l) (ERR_PTR(-EINVAL))
 #define audit_mark_path(m) ""
+<<<<<<< HEAD
 #define audit_remove_mark(m)
 #define audit_remove_mark_rule(k)
 #define audit_mark_compare(m, i, d) 0
@@ -343,3 +441,36 @@ extern struct list_head *audit_killed_trees(void);
 
 extern void audit_ctl_lock(void);
 extern void audit_ctl_unlock(void);
+=======
+#define audit_remove_mark(m) do { } while (0)
+#define audit_remove_mark_rule(k) do { } while (0)
+#define audit_mark_compare(m, i, d) 0
+#define audit_exe_compare(t, m) (-EINVAL)
+#define audit_dupe_exe(n, o) (-EINVAL)
+
+#define audit_remove_tree_rule(rule) BUG()
+#define audit_add_tree_rule(rule) -EINVAL
+#define audit_make_tree(rule, str, op) -EINVAL
+#define audit_trim_trees() do { } while (0)
+#define audit_put_tree(tree) do { } while (0)
+#define audit_tag_tree(old, new) -EINVAL
+#define audit_tree_path(rule) ""	/* never called */
+#define audit_kill_trees(context) BUG()
+
+static inline int audit_signal_info_syscall(struct task_struct *t)
+{
+	return 0;
+}
+
+#define audit_filter_inodes(t, c) AUDIT_STATE_DISABLED
+#endif /* CONFIG_AUDITSYSCALL */
+
+extern char *audit_unpack_string(void **bufp, size_t *remain, size_t len);
+
+extern int audit_filter(int msgtype, unsigned int listtype);
+
+extern void audit_ctl_lock(void);
+extern void audit_ctl_unlock(void);
+
+#endif
+>>>>>>> upstream/android-13

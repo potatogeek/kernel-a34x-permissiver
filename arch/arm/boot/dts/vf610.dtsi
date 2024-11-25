@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
@@ -38,6 +39,12 @@
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+//
+// Copyright 2013 Freescale Semiconductor, Inc.
+
+>>>>>>> upstream/android-13
 
 #include "vf500.dtsi"
 
@@ -46,7 +53,11 @@
 };
 
 &aips0 {
+<<<<<<< HEAD
 	L2: l2-cache@40006000 {
+=======
+	L2: cache-controller@40006000 {
+>>>>>>> upstream/android-13
 		compatible = "arm,pl310-cache";
 		reg = <0x40006000 0x1000>;
 		cache-unified;

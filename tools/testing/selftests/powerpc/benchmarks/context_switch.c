@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Context switch microbenchmark.
  *
  * Copyright (C) 2015 Anton Blanchard <anton@au.ibm.com>, IBM
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define _GNU_SOURCE
@@ -485,6 +492,15 @@ int main(int argc, char *argv[])
 	else
 		printf("futex");
 
+<<<<<<< HEAD
+=======
+	if (!have_hwcap(PPC_FEATURE_HAS_ALTIVEC))
+		touch_altivec = 0;
+
+	if (!have_hwcap(PPC_FEATURE_HAS_VSX))
+		touch_vector = 0;
+
+>>>>>>> upstream/android-13
 	printf(" on cpus %d/%d touching FP:%s altivec:%s vector:%s vdso:%s\n",
 	       cpu1, cpu2, touch_fp ?  "yes" : "no", touch_altivec ? "yes" : "no",
 	       touch_vector ? "yes" : "no", touch_vdso ? "yes" : "no");

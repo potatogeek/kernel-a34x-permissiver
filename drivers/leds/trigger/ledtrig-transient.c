@@ -3,7 +3,11 @@
 // LED Kernel Transient Trigger
 //
 // Transient trigger allows one shot timer activation. Please refer to
+<<<<<<< HEAD
 // Documentation/leds/ledtrig-transient.txt for details
+=======
+// Documentation/leds/ledtrig-transient.rst for details
+>>>>>>> upstream/android-13
 // Copyright (C) 2012 Shuah Khan <shuahkhan@gmail.com>
 //
 // Based on Richard Purdie's ledtrig-timer.c and Atsushi Nemoto's

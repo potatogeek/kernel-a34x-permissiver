@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014 Broadcom Corporation
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -11,6 +12,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2014 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -190,6 +196,7 @@ again:
 
 int brcmf_commonring_write_complete(struct brcmf_commonring *commonring)
 {
+<<<<<<< HEAD
 	void *address;
 
 	address = commonring->buf_addr;
@@ -198,6 +205,10 @@ int brcmf_commonring_write_complete(struct brcmf_commonring *commonring)
 		address = commonring->buf_addr;
 		commonring->f_ptr = 0;
 	}
+=======
+	if (commonring->f_ptr > commonring->w_ptr)
+		commonring->f_ptr = 0;
+>>>>>>> upstream/android-13
 
 	commonring->f_ptr = commonring->w_ptr;
 

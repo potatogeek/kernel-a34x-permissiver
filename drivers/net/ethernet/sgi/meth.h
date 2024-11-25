@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 /*
  * snull.h -- definitions for the network module
@@ -14,6 +15,8 @@
  * we cannot take responsibility for errors or fitness for use.
  */
 
+=======
+>>>>>>> upstream/android-13
 /* version dependencies have been confined to a separate file */
 
 /* Tunable parameters */

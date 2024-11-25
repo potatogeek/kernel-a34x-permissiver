@@ -13,10 +13,19 @@ extern void set_vsyscall_pgtable_user_bits(pgd_t *root);
  * Called on instruction fetch fault in vsyscall page.
  * Returns true if handled.
  */
+<<<<<<< HEAD
 extern bool emulate_vsyscall(struct pt_regs *regs, unsigned long address);
 #else
 static inline void map_vsyscall(void) {}
 static inline bool emulate_vsyscall(struct pt_regs *regs, unsigned long address)
+=======
+extern bool emulate_vsyscall(unsigned long error_code,
+			     struct pt_regs *regs, unsigned long address);
+#else
+static inline void map_vsyscall(void) {}
+static inline bool emulate_vsyscall(unsigned long error_code,
+				    struct pt_regs *regs, unsigned long address)
+>>>>>>> upstream/android-13
 {
 	return false;
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Rockchip Electronics Co. Ltd.
  * Author: Xing Zheng <zhengxing@rock-chips.com>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2015 Rockchip Electronics Co. Ltd.
+ * Author: Xing Zheng <zhengxing@rock-chips.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3036_H
@@ -90,6 +97,10 @@
 #define HCLK_OTG0		449
 #define HCLK_OTG1		450
 #define HCLK_NANDC		453
+<<<<<<< HEAD
+=======
+#define HCLK_SFC		454
+>>>>>>> upstream/android-13
 #define HCLK_SDMMC		456
 #define HCLK_SDIO		457
 #define HCLK_EMMC		459

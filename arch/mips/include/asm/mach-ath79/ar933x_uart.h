@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  Atheros AR933X UART defines
  *
  *  Copyright (C) 2011 Gabor Juhos <juhosg@openwrt.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License version 2 as published
  *  by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AR933X_UART_H

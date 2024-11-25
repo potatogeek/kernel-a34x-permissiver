@@ -3,6 +3,10 @@
 #include <linux/types.h>
 #include <linux/audit.h>
 #include <asm/unistd.h>
+<<<<<<< HEAD
+=======
+#include <asm/audit.h>
+>>>>>>> upstream/android-13
 
 static unsigned dir_class[] = {
 #include <asm-generic/audit_dir_write.h>
@@ -41,7 +45,10 @@ int audit_classify_arch(int arch)
 int audit_classify_syscall(int abi, unsigned syscall)
 {
 #ifdef CONFIG_IA32_EMULATION
+<<<<<<< HEAD
 	extern int ia32_classify_syscall(unsigned);
+=======
+>>>>>>> upstream/android-13
 	if (abi == AUDIT_ARCH_I386)
 		return ia32_classify_syscall(syscall);
 #endif

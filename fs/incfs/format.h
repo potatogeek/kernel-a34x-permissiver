@@ -339,7 +339,11 @@ struct metadata_handler {
 					struct metadata_handler *handler);
 };
 #define INCFS_MAX_METADATA_RECORD_SIZE \
+<<<<<<< HEAD
 	FIELD_SIZEOF(struct metadata_handler, md_buffer)
+=======
+	sizeof_field(struct metadata_handler, md_buffer)
+>>>>>>> upstream/android-13
 
 /* Backing file context management */
 struct mount_info;

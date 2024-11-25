@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2010 Daniel Vetter
  * Copyright © 2011-2014 Intel Corporation
@@ -21,6 +22,12 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  *
+=======
+// SPDX-License-Identifier: MIT
+/*
+ * Copyright © 2010 Daniel Vetter
+ * Copyright © 2020 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h> /* fault-inject.h is not standalone! */
@@ -32,6 +39,7 @@
 #include <linux/stop_machine.h>
 
 #include <asm/set_memory.h>
+<<<<<<< HEAD
 
 #include <drm/drmP.h>
 #include <drm/i915_drm.h>
@@ -2443,11 +2451,24 @@ void i915_gem_suspend_gtt_mappings(struct drm_i915_private *dev_priv)
 
 	i915_ggtt_invalidate(dev_priv);
 }
+=======
+#include <asm/smp.h>
+
+#include "display/intel_frontbuffer.h"
+#include "gt/intel_gt.h"
+#include "gt/intel_gt_requests.h"
+
+#include "i915_drv.h"
+#include "i915_scatterlist.h"
+#include "i915_trace.h"
+#include "i915_vgpu.h"
+>>>>>>> upstream/android-13
 
 int i915_gem_gtt_prepare_pages(struct drm_i915_gem_object *obj,
 			       struct sg_table *pages)
 {
 	do {
+<<<<<<< HEAD
 		if (dma_map_sg_attrs(&obj->base.dev->pdev->dev,
 				     pages->sgl, pages->nents,
 				     PCI_DMA_BIDIRECTIONAL,
@@ -2455,21 +2476,41 @@ int i915_gem_gtt_prepare_pages(struct drm_i915_gem_object *obj,
 			return 0;
 
 		/* If the DMA remap fails, one cause can be that we have
+=======
+		if (dma_map_sg_attrs(obj->base.dev->dev,
+				     pages->sgl, pages->nents,
+				     PCI_DMA_BIDIRECTIONAL,
+				     DMA_ATTR_SKIP_CPU_SYNC |
+				     DMA_ATTR_NO_KERNEL_MAPPING |
+				     DMA_ATTR_NO_WARN))
+			return 0;
+
+		/*
+		 * If the DMA remap fails, one cause can be that we have
+>>>>>>> upstream/android-13
 		 * too many objects pinned in a small remapping table,
 		 * such as swiotlb. Incrementally purge all other objects and
 		 * try again - if there are no more pages to remove from
 		 * the DMA remapper, i915_gem_shrink will return 0.
 		 */
 		GEM_BUG_ON(obj->mm.pages == pages);
+<<<<<<< HEAD
 	} while (i915_gem_shrink(to_i915(obj->base.dev),
 				 obj->base.size >> PAGE_SHIFT, NULL,
 				 I915_SHRINK_BOUND |
 				 I915_SHRINK_UNBOUND |
 				 I915_SHRINK_ACTIVE));
+=======
+	} while (i915_gem_shrink(NULL, to_i915(obj->base.dev),
+				 obj->base.size >> PAGE_SHIFT, NULL,
+				 I915_SHRINK_BOUND |
+				 I915_SHRINK_UNBOUND));
+>>>>>>> upstream/android-13
 
 	return -ENOSPC;
 }
 
+<<<<<<< HEAD
 static void gen8_set_pte(void __iomem *addr, gen8_pte_t pte)
 {
 	writeq(pte, addr);
@@ -3899,6 +3940,21 @@ i915_get_ggtt_vma_pages(struct i915_vma *vma)
 			  vma->ggtt_view.type, ret);
 	}
 	return ret;
+=======
+void i915_gem_gtt_finish_pages(struct drm_i915_gem_object *obj,
+			       struct sg_table *pages)
+{
+	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+	struct i915_ggtt *ggtt = &i915->ggtt;
+
+	/* XXX This does not prevent more requests being submitted! */
+	if (unlikely(ggtt->do_idle_maps))
+		/* Wait a bit, in the hope it avoids the hang */
+		usleep_range(100, 250);
+
+	dma_unmap_sg(i915->drm.dev, pages->sgl, pages->nents,
+		     PCI_DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3937,7 +3993,11 @@ int i915_gem_gtt_reserve(struct i915_address_space *vm,
 	GEM_BUG_ON(!IS_ALIGNED(size, I915_GTT_PAGE_SIZE));
 	GEM_BUG_ON(!IS_ALIGNED(offset, I915_GTT_MIN_ALIGNMENT));
 	GEM_BUG_ON(range_overflows(offset, size, vm->total));
+<<<<<<< HEAD
 	GEM_BUG_ON(vm == &vm->i915->mm.aliasing_ppgtt->vm);
+=======
+	GEM_BUG_ON(vm == &vm->i915->ggtt.alias->vm);
+>>>>>>> upstream/android-13
 	GEM_BUG_ON(drm_mm_node_allocated(node));
 
 	node->size = size;
@@ -4026,7 +4086,12 @@ int i915_gem_gtt_insert(struct i915_address_space *vm,
 	u64 offset;
 	int err;
 
+<<<<<<< HEAD
 	lockdep_assert_held(&vm->i915->drm.struct_mutex);
+=======
+	lockdep_assert_held(&vm->mutex);
+
+>>>>>>> upstream/android-13
 	GEM_BUG_ON(!size);
 	GEM_BUG_ON(!IS_ALIGNED(size, I915_GTT_PAGE_SIZE));
 	GEM_BUG_ON(alignment && !is_power_of_2(alignment));
@@ -4034,7 +4099,11 @@ int i915_gem_gtt_insert(struct i915_address_space *vm,
 	GEM_BUG_ON(start >= end);
 	GEM_BUG_ON(start > 0  && !IS_ALIGNED(start, I915_GTT_PAGE_SIZE));
 	GEM_BUG_ON(end < U64_MAX && !IS_ALIGNED(end, I915_GTT_PAGE_SIZE));
+<<<<<<< HEAD
 	GEM_BUG_ON(vm == &vm->i915->mm.aliasing_ppgtt->vm);
+=======
+	GEM_BUG_ON(vm == &vm->i915->ggtt.alias->vm);
+>>>>>>> upstream/android-13
 	GEM_BUG_ON(drm_mm_node_allocated(node));
 
 	if (unlikely(range_overflows(start, size, end)))
@@ -4077,7 +4146,12 @@ int i915_gem_gtt_insert(struct i915_address_space *vm,
 	if (flags & PIN_NOEVICT)
 		return -ENOSPC;
 
+<<<<<<< HEAD
 	/* No free space, pick a slot at random.
+=======
+	/*
+	 * No free space, pick a slot at random.
+>>>>>>> upstream/android-13
 	 *
 	 * There is a pathological case here using a GTT shared between
 	 * mmap and GPU (i.e. ggtt/aliasing_ppgtt but not full-ppgtt):
@@ -4105,6 +4179,12 @@ int i915_gem_gtt_insert(struct i915_address_space *vm,
 	if (err != -ENOSPC)
 		return err;
 
+<<<<<<< HEAD
+=======
+	if (flags & PIN_NOSEARCH)
+		return -ENOSPC;
+
+>>>>>>> upstream/android-13
 	/* Randomly selected placement is pinned, do a search */
 	err = i915_gem_evict_something(vm, size, alignment, color,
 				       start, end, flags);
@@ -4117,6 +4197,9 @@ int i915_gem_gtt_insert(struct i915_address_space *vm,
 }
 
 #if IS_ENABLED(CONFIG_DRM_I915_SELFTEST)
+<<<<<<< HEAD
 #include "selftests/mock_gtt.c"
+=======
+>>>>>>> upstream/android-13
 #include "selftests/i915_gem_gtt.c"
 #endif

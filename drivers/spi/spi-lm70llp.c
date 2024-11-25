@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for LM70EVAL-LLP board for the LM70 sensor
  *
  * Copyright (C) 2006 Kaiwan N Billimoria <kaiwan@designergraphix.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -43,7 +50,11 @@
  * available (on page 4) here:
  *  http://www.national.com/appinfo/tempsensors/files/LM70LLPEVALmanual.pdf
  *
+<<<<<<< HEAD
  * Also see Documentation/spi/spi-lm70llp.  The SPI<->parport code here is
+=======
+ * Also see Documentation/spi/spi-lm70llp.rst.  The SPI<->parport code here is
+>>>>>>> upstream/android-13
  * (heavily) based on spi-butterfly by David Brownell.
  *
  * The LM70 LLP connects to the PC parallel port in the following manner:
@@ -211,7 +222,11 @@ static void spi_lm70llp_attach(struct parport *p)
 	 * the lm70 driver could verify it, reading the manf ID.
 	 */
 
+<<<<<<< HEAD
 	master = spi_alloc_master(p->physport->dev, sizeof *pp);
+=======
+	master = spi_alloc_master(p->physport->dev, sizeof(*pp));
+>>>>>>> upstream/android-13
 	if (!master) {
 		status = -ENOMEM;
 		goto out_fail;
@@ -329,6 +344,7 @@ static struct parport_driver spi_lm70llp_drv = {
 	.detach =	spi_lm70llp_detach,
 	.devmodel =	true,
 };
+<<<<<<< HEAD
 
 static int __init init_spi_lm70llp(void)
 {
@@ -341,6 +357,9 @@ static void __exit cleanup_spi_lm70llp(void)
 	parport_unregister_driver(&spi_lm70llp_drv);
 }
 module_exit(cleanup_spi_lm70llp);
+=======
+module_parport_driver(spi_lm70llp_drv);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Kaiwan N Billimoria <kaiwan@designergraphix.com>");
 MODULE_DESCRIPTION(

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * AD9832 SPI DDS driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
  */
@@ -22,6 +27,29 @@
 
 #include "ad9832.h"
 
+=======
+ */
+
+#include <asm/div64.h>
+
+#include <linux/clk.h>
+#include <linux/device.h>
+#include <linux/err.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/regulator/consumer.h>
+#include <linux/slab.h>
+#include <linux/spi/spi.h>
+#include <linux/sysfs.h>
+
+#include <linux/iio/iio.h>
+#include <linux/iio/sysfs.h>
+
+#include "ad9832.h"
+
+#include "dds.h"
+
+>>>>>>> upstream/android-13
 /* Registers */
 
 #define AD9832_FREQ0LL		0x0
@@ -84,7 +112,11 @@
  * @freq_msg:		tuning word spi message
  * @phase_xfer:		tuning word spi transfer
  * @phase_msg:		tuning word spi message
+<<<<<<< HEAD
  * @lock		protect sensor state
+=======
+ * @lock:		protect sensor state
+>>>>>>> upstream/android-13
  * @data:		spi transmit buffer
  * @phase_data:		tuning word spi transmit buffer
  * @freq_data:		tuning word spi transmit buffer
@@ -94,7 +126,11 @@ struct ad9832_state {
 	struct spi_device		*spi;
 	struct regulator		*avdd;
 	struct regulator		*dvdd;
+<<<<<<< HEAD
 	unsigned long			mclk;
+=======
+	struct clk			*mclk;
+>>>>>>> upstream/android-13
 	unsigned short			ctrl_fp;
 	unsigned short			ctrl_ss;
 	unsigned short			ctrl_src;
@@ -129,10 +165,17 @@ static int ad9832_write_frequency(struct ad9832_state *st,
 {
 	unsigned long regval;
 
+<<<<<<< HEAD
 	if (fout > (st->mclk / 2))
 		return -EINVAL;
 
 	regval = ad9832_calc_freqreg(st->mclk, fout);
+=======
+	if (fout > (clk_get_rate(st->mclk) / 2))
+		return -EINVAL;
+
+	regval = ad9832_calc_freqreg(clk_get_rate(st->mclk), fout);
+>>>>>>> upstream/android-13
 
 	st->freq_data[0] = cpu_to_be16((AD9832_CMD_FRE8BITSW << CMD_SHIFT) |
 					(addr << ADD_SHIFT) |
@@ -246,7 +289,11 @@ error_ret:
 	return ret ? ret : len;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * see dds.h for further information
  */
 
@@ -333,11 +380,27 @@ static int ad9832_probe(struct spi_device *spi)
 		goto error_disable_avdd;
 	}
 
+<<<<<<< HEAD
 	st->mclk = pdata->mclk;
 	st->spi = spi;
 	mutex_init(&st->lock);
 
 	indio_dev->dev.parent = &spi->dev;
+=======
+	st->mclk = devm_clk_get(&spi->dev, "mclk");
+	if (IS_ERR(st->mclk)) {
+		ret = PTR_ERR(st->mclk);
+		goto error_disable_dvdd;
+	}
+
+	ret = clk_prepare_enable(st->mclk);
+	if (ret < 0)
+		goto error_disable_dvdd;
+
+	st->spi = spi;
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->info = &ad9832_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -384,11 +447,16 @@ static int ad9832_probe(struct spi_device *spi)
 	ret = spi_sync(st->spi, &st->msg);
 	if (ret) {
 		dev_err(&spi->dev, "device init failed\n");
+<<<<<<< HEAD
 		goto error_disable_dvdd;
+=======
+		goto error_unprepare_mclk;
+>>>>>>> upstream/android-13
 	}
 
 	ret = ad9832_write_frequency(st, AD9832_FREQ0HM, pdata->freq0);
 	if (ret)
+<<<<<<< HEAD
 		goto error_disable_dvdd;
 
 	ret = ad9832_write_frequency(st, AD9832_FREQ1HM, pdata->freq1);
@@ -417,6 +485,38 @@ static int ad9832_probe(struct spi_device *spi)
 
 	return 0;
 
+=======
+		goto error_unprepare_mclk;
+
+	ret = ad9832_write_frequency(st, AD9832_FREQ1HM, pdata->freq1);
+	if (ret)
+		goto error_unprepare_mclk;
+
+	ret = ad9832_write_phase(st, AD9832_PHASE0H, pdata->phase0);
+	if (ret)
+		goto error_unprepare_mclk;
+
+	ret = ad9832_write_phase(st, AD9832_PHASE1H, pdata->phase1);
+	if (ret)
+		goto error_unprepare_mclk;
+
+	ret = ad9832_write_phase(st, AD9832_PHASE2H, pdata->phase2);
+	if (ret)
+		goto error_unprepare_mclk;
+
+	ret = ad9832_write_phase(st, AD9832_PHASE3H, pdata->phase3);
+	if (ret)
+		goto error_unprepare_mclk;
+
+	ret = iio_device_register(indio_dev);
+	if (ret)
+		goto error_unprepare_mclk;
+
+	return 0;
+
+error_unprepare_mclk:
+	clk_disable_unprepare(st->mclk);
+>>>>>>> upstream/android-13
 error_disable_dvdd:
 	regulator_disable(st->dvdd);
 error_disable_avdd:
@@ -431,6 +531,10 @@ static int ad9832_remove(struct spi_device *spi)
 	struct ad9832_state *st = iio_priv(indio_dev);
 
 	iio_device_unregister(indio_dev);
+<<<<<<< HEAD
+=======
+	clk_disable_unprepare(st->mclk);
+>>>>>>> upstream/android-13
 	regulator_disable(st->dvdd);
 	regulator_disable(st->avdd);
 
@@ -454,6 +558,10 @@ static struct spi_driver ad9832_driver = {
 };
 module_spi_driver(ad9832_driver);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Analog Devices AD9832/AD9835 DDS");
 MODULE_LICENSE("GPL v2");

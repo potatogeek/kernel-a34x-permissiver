@@ -36,6 +36,10 @@
 
 #include "mlx5_core.h"
 #include "lib/mlx5.h"
+<<<<<<< HEAD
+=======
+#include "lib/eq.h"
+>>>>>>> upstream/android-13
 #include "fpga/core.h"
 #include "fpga/conn.h"
 
@@ -80,6 +84,7 @@ static const char *mlx5_fpga_image_name(enum mlx5_fpga_image image)
 	}
 }
 
+<<<<<<< HEAD
 static const char *mlx5_fpga_device_name(u32 device)
 {
 	switch (device) {
@@ -93,6 +98,30 @@ static const char *mlx5_fpga_device_name(u32 device)
 	default:
 		return "unknown";
 	}
+=======
+static const char *mlx5_fpga_name(u32 fpga_id)
+{
+	static char ret[32];
+
+	switch (fpga_id) {
+	case MLX5_FPGA_NEWTON:
+		return "Newton";
+	case MLX5_FPGA_EDISON:
+		return "Edison";
+	case MLX5_FPGA_MORSE:
+		return "Morse";
+	case MLX5_FPGA_MORSEQ:
+		return "MorseQ";
+	}
+
+	snprintf(ret, sizeof(ret), "Unknown %d", fpga_id);
+	return ret;
+}
+
+static int mlx5_is_fpga_lookaside(u32 fpga_id)
+{
+	return fpga_id != MLX5_FPGA_NEWTON && fpga_id != MLX5_FPGA_EDISON;
+>>>>>>> upstream/android-13
 }
 
 static int mlx5_fpga_device_load_check(struct mlx5_fpga_device *fdev)
@@ -109,8 +138,17 @@ static int mlx5_fpga_device_load_check(struct mlx5_fpga_device *fdev)
 	fdev->last_admin_image = query.admin_image;
 	fdev->last_oper_image = query.oper_image;
 
+<<<<<<< HEAD
 	mlx5_fpga_dbg(fdev, "Status %u; Admin image %u; Oper image %u\n",
 		      query.status, query.admin_image, query.oper_image);
+=======
+	mlx5_fpga_info(fdev, "Status %u; Admin image %u; Oper image %u\n",
+		       query.status, query.admin_image, query.oper_image);
+
+	/* for FPGA lookaside projects FPGA load status is not important */
+	if (mlx5_is_fpga_lookaside(MLX5_CAP_FPGA(fdev->mdev, fpga_id)))
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (query.status != MLX5_FPGA_STATUS_SUCCESS) {
 		mlx5_fpga_err(fdev, "%s image failed to load; status %u\n",
@@ -145,30 +183,73 @@ static int mlx5_fpga_device_brb(struct mlx5_fpga_device *fdev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int mlx5_fpga_event(struct mlx5_fpga_device *, unsigned long, void *);
+
+static int fpga_err_event(struct notifier_block *nb, unsigned long event, void *eqe)
+{
+	struct mlx5_fpga_device *fdev = mlx5_nb_cof(nb, struct mlx5_fpga_device, fpga_err_nb);
+
+	return mlx5_fpga_event(fdev, event, eqe);
+}
+
+static int fpga_qp_err_event(struct notifier_block *nb, unsigned long event, void *eqe)
+{
+	struct mlx5_fpga_device *fdev = mlx5_nb_cof(nb, struct mlx5_fpga_device, fpga_qp_err_nb);
+
+	return mlx5_fpga_event(fdev, event, eqe);
+}
+
+>>>>>>> upstream/android-13
 int mlx5_fpga_device_start(struct mlx5_core_dev *mdev)
 {
 	struct mlx5_fpga_device *fdev = mdev->fpga;
 	unsigned int max_num_qps;
 	unsigned long flags;
+<<<<<<< HEAD
 	u32 fpga_device_id;
+=======
+	u32 fpga_id;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!fdev)
 		return 0;
 
+<<<<<<< HEAD
 	err = mlx5_fpga_device_load_check(fdev);
 	if (err)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	err = mlx5_fpga_caps(fdev->mdev);
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
 	fpga_device_id = MLX5_CAP_FPGA(fdev->mdev, fpga_device);
 	mlx5_fpga_info(fdev, "%s:%u; %s image, version %u; SBU %06x:%04x version %d\n",
 		       mlx5_fpga_device_name(fpga_device_id),
 		       fpga_device_id,
 		       mlx5_fpga_image_name(fdev->last_oper_image),
+=======
+	err = mlx5_fpga_device_load_check(fdev);
+	if (err)
+		goto out;
+
+	fpga_id = MLX5_CAP_FPGA(fdev->mdev, fpga_id);
+	mlx5_fpga_info(fdev, "FPGA card %s:%u\n", mlx5_fpga_name(fpga_id), fpga_id);
+
+	/* No QPs if FPGA does not participate in net processing */
+	if (mlx5_is_fpga_lookaside(fpga_id))
+		goto out;
+
+	mlx5_fpga_info(fdev, "%s(%d): image, version %u; SBU %06x:%04x version %d\n",
+		       mlx5_fpga_image_name(fdev->last_oper_image),
+		       fdev->last_oper_image,
+>>>>>>> upstream/android-13
 		       MLX5_CAP_FPGA(fdev->mdev, image_version),
 		       MLX5_CAP_FPGA(fdev->mdev, ieee_vendor_id),
 		       MLX5_CAP_FPGA(fdev->mdev, sandbox_product_id),
@@ -185,6 +266,14 @@ int mlx5_fpga_device_start(struct mlx5_core_dev *mdev)
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	MLX5_NB_INIT(&fdev->fpga_err_nb, fpga_err_event, FPGA_ERROR);
+	MLX5_NB_INIT(&fdev->fpga_qp_err_nb, fpga_qp_err_event, FPGA_QP_ERROR);
+	mlx5_eq_notifier_register(fdev->mdev, &fdev->fpga_err_nb);
+	mlx5_eq_notifier_register(fdev->mdev, &fdev->fpga_qp_err_nb);
+
+>>>>>>> upstream/android-13
 	err = mlx5_fpga_conn_device_init(fdev);
 	if (err)
 		goto err_rsvd_gid;
@@ -201,6 +290,11 @@ err_conn_init:
 	mlx5_fpga_conn_device_cleanup(fdev);
 
 err_rsvd_gid:
+<<<<<<< HEAD
+=======
+	mlx5_eq_notifier_unregister(fdev->mdev, &fdev->fpga_err_nb);
+	mlx5_eq_notifier_unregister(fdev->mdev, &fdev->fpga_qp_err_nb);
+>>>>>>> upstream/android-13
 	mlx5_core_unreserve_gids(mdev, max_num_qps);
 out:
 	spin_lock_irqsave(&fdev->state_lock, flags);
@@ -240,6 +334,12 @@ void mlx5_fpga_device_stop(struct mlx5_core_dev *mdev)
 	if (!fdev)
 		return;
 
+<<<<<<< HEAD
+=======
+	if (mlx5_is_fpga_lookaside(MLX5_CAP_FPGA(fdev->mdev, fpga_id)))
+		return;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&fdev->state_lock, flags);
 	if (fdev->state != MLX5_FPGA_STATUS_SUCCESS) {
 		spin_unlock_irqrestore(&fdev->state_lock, flags);
@@ -256,6 +356,12 @@ void mlx5_fpga_device_stop(struct mlx5_core_dev *mdev)
 	}
 
 	mlx5_fpga_conn_device_cleanup(fdev);
+<<<<<<< HEAD
+=======
+	mlx5_eq_notifier_unregister(fdev->mdev, &fdev->fpga_err_nb);
+	mlx5_eq_notifier_unregister(fdev->mdev, &fdev->fpga_qp_err_nb);
+
+>>>>>>> upstream/android-13
 	max_num_qps = MLX5_CAP_FPGA(mdev, shell_caps.max_num_qps);
 	mlx5_core_unreserve_gids(mdev, max_num_qps);
 }
@@ -283,9 +389,16 @@ static const char *mlx5_fpga_qp_syndrome_to_string(u8 syndrome)
 	return "Unknown";
 }
 
+<<<<<<< HEAD
 void mlx5_fpga_event(struct mlx5_core_dev *mdev, u8 event, void *data)
 {
 	struct mlx5_fpga_device *fdev = mdev->fpga;
+=======
+static int mlx5_fpga_event(struct mlx5_fpga_device *fdev,
+			   unsigned long event, void *eqe)
+{
+	void *data = ((struct mlx5_eqe *)eqe)->data.raw;
+>>>>>>> upstream/android-13
 	const char *event_name;
 	bool teardown = false;
 	unsigned long flags;
@@ -301,9 +414,13 @@ void mlx5_fpga_event(struct mlx5_core_dev *mdev, u8 event, void *data)
 		event_name = mlx5_fpga_qp_syndrome_to_string(syndrome);
 		break;
 	default:
+<<<<<<< HEAD
 		mlx5_fpga_warn_ratelimited(fdev, "Unexpected event %u\n",
 					   event);
 		return;
+=======
+		return NOTIFY_DONE;
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_irqsave(&fdev->state_lock, flags);
@@ -324,4 +441,9 @@ void mlx5_fpga_event(struct mlx5_core_dev *mdev, u8 event, void *data)
 	 */
 	if (teardown)
 		mlx5_trigger_health_work(fdev->mdev);
+<<<<<<< HEAD
+=======
+
+	return NOTIFY_OK;
+>>>>>>> upstream/android-13
 }

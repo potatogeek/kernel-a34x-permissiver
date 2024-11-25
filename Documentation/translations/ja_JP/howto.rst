@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+.. raw:: latex
+
+	\kerneldocCJKoff
+
+>>>>>>> upstream/android-13
 NOTE:
 This is a version of Documentation/process/howto.rst translated into Japanese.
 This document is maintained by Tsugikazu Shibata <tshibata@ab.jp.nec.com>
@@ -11,6 +18,13 @@ try to update the original English file first.
 
 ----------------------------------
 
+<<<<<<< HEAD
+=======
+.. raw:: latex
+
+	\kerneldocCJKon
+
+>>>>>>> upstream/android-13
 この文書は、
 Documentation/process/howto.rst
 の和訳です。
@@ -139,7 +153,11 @@ linux-api@vger.kernel.org に送ることを勧めます。
        "The Perfect Patch"
 		http://www.ozlabs.org/~akpm/stuff/tpp.txt
        "Linux kernel patch submission format"
+<<<<<<< HEAD
 		http://linux.yyz.us/patch-format.html
+=======
+		https://web.archive.org/web/20180829112450/http://linux.yyz.us/patch-format.html
+>>>>>>> upstream/android-13
 
   :ref:`Documentation/process/stable-api-nonsense.rst <stable_api_nonsense>`
     このファイルはカーネルの中に不変の API を持たないことにした意識的
@@ -245,7 +263,11 @@ Linux カーネルソースツリーの中に含まれる、きれいにし、�
 できます。この最新の素晴しいカーネルコードのリポジトリは以下で見つかり
 ます -
 
+<<<<<<< HEAD
 	http://lxr.free-electrons.com/
+=======
+	https://elixir.bootlin.com/
+>>>>>>> upstream/android-13
 
 開発プロセス
 ------------
@@ -256,7 +278,10 @@ Linux カーネルの開発プロセスは現在幾つかの異なるメイン�
 
   - メインの 4.x カーネルツリー
   - 4.x.y -stable カーネルツリー
+<<<<<<< HEAD
   - 4.x -git カーネルパッチ
+=======
+>>>>>>> upstream/android-13
   - サブシステム毎のカーネルツリーとパッチ
   - 統合テストのための 4.x -next カーネルツリー
 
@@ -319,6 +344,7 @@ Documentation/process/stable-kernel-rules.rst ファイルにはどのような�
 類の変更が -stable ツリーに受け入れ可能か、またリリースプロセスがどう
 動くかが記述されています。
 
+<<<<<<< HEAD
 4.x -git パッチ
 ~~~~~~~~~~~~~~~
 
@@ -328,6 +354,8 @@ git リポジトリで管理されているLinus のカーネルツリーの毎�
 れは -rc カーネルと比べて、パッチが大丈夫かどうかも確認しないで自動的
 に生成されるので、より実験的です。
 
+=======
+>>>>>>> upstream/android-13
 サブシステム毎のカーネルツリーとパッチ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

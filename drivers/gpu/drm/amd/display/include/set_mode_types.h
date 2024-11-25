@@ -84,12 +84,20 @@ union hdmi_info_packet {
 		uint16_t bar_left;
 		uint16_t bar_right;
 
+<<<<<<< HEAD
 		uint8_t reserved[14];
+=======
+		uint8_t F140_F143:4;
+		uint8_t ACE0_ACE3:4;
+
+		uint8_t reserved[13];
+>>>>>>> upstream/android-13
 	} bits;
 
 	struct info_packet_raw_data packet_raw_data;
 };
 
+<<<<<<< HEAD
 struct info_packet {
 	enum info_frame_flag flags;
 	union hdmi_info_packet info_packet_hdmi;
@@ -102,6 +110,8 @@ struct info_frame {
 	struct info_packet spd_info_packet;
 };
 
+=======
+>>>>>>> upstream/android-13
 #pragma pack(pop)
 
 #endif /* __DAL_SET_MODE_TYPES_H__ */

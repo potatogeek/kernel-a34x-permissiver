@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 /*
  * poweroff.c - sysrq handler to gracefully power down machine.
  *
  * This file is released under the GPL v2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * poweroff.c - sysrq handler to gracefully power down machine.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -30,7 +36,11 @@ static void handle_poweroff(int key)
 	schedule_work_on(cpumask_first(cpu_online_mask), &poweroff_work);
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op	sysrq_poweroff_op = {
+=======
+static const struct sysrq_key_op	sysrq_poweroff_op = {
+>>>>>>> upstream/android-13
 	.handler        = handle_poweroff,
 	.help_msg       = "poweroff(o)",
 	.action_msg     = "Power Off",

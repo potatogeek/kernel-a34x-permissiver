@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_JACK_H
 #define __SOUND_JACK_H
 
@@ -5,6 +9,7 @@
  *  Jack abstraction layer
  *
  *  Copyright 2008 Wolfson Microelectronics plc
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -24,6 +29,12 @@
  */
 
 #include <sound/core.h>
+=======
+ */
+
+#include <sound/core.h>
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct input_dev;
 
@@ -58,6 +69,7 @@ enum snd_jack_types {
 	SND_JACK_VIDEOOUT	= 0x0010,
 	SND_JACK_AVOUT		= SND_JACK_LINEOUT | SND_JACK_VIDEOOUT,
 	SND_JACK_LINEIN		= 0x0020,
+<<<<<<< HEAD
 	SND_JACK_OC_HPHL        = 0x0040,
 	SND_JACK_OC_HPHR        = 0x0080,
 	SND_JACK_UNSUPPORTED    = 0x0100,
@@ -74,6 +86,21 @@ enum snd_jack_types {
 	SND_JACK_BTN_5		= 0x0400,
 };
 
+=======
+
+	/* Kept separate from switches to facilitate implementation */
+	SND_JACK_BTN_0		= 0x4000,
+	SND_JACK_BTN_1		= 0x2000,
+	SND_JACK_BTN_2		= 0x1000,
+	SND_JACK_BTN_3		= 0x0800,
+	SND_JACK_BTN_4		= 0x0400,
+	SND_JACK_BTN_5		= 0x0200,
+};
+
+/* Keep in sync with definitions above */
+#define SND_JACK_SWITCH_TYPES 6
+
+>>>>>>> upstream/android-13
 struct snd_jack {
 	struct list_head kctl_list;
 	struct snd_card *card;
@@ -85,8 +112,16 @@ struct snd_jack {
 	char name[100];
 	unsigned int key[6];   /* Keep in sync with definitions above */
 #endif /* CONFIG_SND_JACK_INPUT_DEV */
+<<<<<<< HEAD
 	void *private_data;
 	void (*private_free)(struct snd_jack *);
+=======
+	int hw_status_cache;
+	void *private_data;
+	void (*private_free)(struct snd_jack *);
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_SND_JACK

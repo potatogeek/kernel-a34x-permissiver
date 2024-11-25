@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 /* ****************** SDIO CARD Interface Functions **************************/
 
@@ -54,6 +60,12 @@
 
 #define SDIO_FUNC1_BLOCKSIZE		64
 #define SDIO_FUNC2_BLOCKSIZE		512
+<<<<<<< HEAD
+=======
+#define SDIO_4373_FUNC2_BLOCKSIZE	256
+#define SDIO_435X_FUNC2_BLOCKSIZE	256
+#define SDIO_4329_FUNC2_BLOCKSIZE	128
+>>>>>>> upstream/android-13
 /* Maximum milliseconds to wait for F2 to come up */
 #define SDIO_WAIT_F2RDY	3000
 
@@ -82,7 +94,11 @@ static irqreturn_t brcmf_sdiod_oob_irqhandler(int irq, void *dev_id)
 		sdiodev->irq_en = false;
 	}
 
+<<<<<<< HEAD
 	brcmf_sdio_isr(sdiodev->bus);
+=======
+	brcmf_sdio_isr(sdiodev->bus, true);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -94,7 +110,11 @@ static void brcmf_sdiod_ib_irqhandler(struct sdio_func *func)
 
 	brcmf_dbg(INTR, "IB intr triggered\n");
 
+<<<<<<< HEAD
 	brcmf_sdio_isr(sdiodev->bus);
+=======
+	brcmf_sdio_isr(sdiodev->bus, false);
+>>>>>>> upstream/android-13
 }
 
 /* dummy handler for SDIO function 2 interrupt */
@@ -130,13 +150,22 @@ int brcmf_sdiod_intr_register(struct brcmf_sdio_dev *sdiodev)
 			brcmf_err("enable_irq_wake failed %d\n", ret);
 			return ret;
 		}
+<<<<<<< HEAD
 		sdiodev->irq_wake = true;
+=======
+		disable_irq_wake(pdata->oob_irq_nr);
+>>>>>>> upstream/android-13
 
 		sdio_claim_host(sdiodev->func1);
 
 		if (sdiodev->bus_if->chip == BRCM_CC_43362_CHIP_ID) {
 			/* assign GPIO to SDIO core */
+<<<<<<< HEAD
 			addr = CORE_CC_REG(SI_ENUM_BASE, gpiocontrol);
+=======
+			addr = brcmf_chip_enum_base(sdiodev->func1->device);
+			addr = CORE_CC_REG(addr, gpiocontrol);
+>>>>>>> upstream/android-13
 			gpiocontrol = brcmf_sdiod_readl(sdiodev, addr, &ret);
 			gpiocontrol |= 0x2;
 			brcmf_sdiod_writel(sdiodev, addr, gpiocontrol, &ret);
@@ -189,10 +218,13 @@ void brcmf_sdiod_intr_unregister(struct brcmf_sdio_dev *sdiodev)
 		sdio_release_host(sdiodev->func1);
 
 		sdiodev->oob_irq_requested = false;
+<<<<<<< HEAD
 		if (sdiodev->irq_wake) {
 			disable_irq_wake(pdata->oob_irq_nr);
 			sdiodev->irq_wake = false;
 		}
+=======
+>>>>>>> upstream/android-13
 		free_irq(pdata->oob_irq_nr, &sdiodev->func1->dev);
 		sdiodev->irq_en = false;
 		sdiodev->oob_irq_requested = false;
@@ -315,7 +347,11 @@ static int brcmf_sdiod_skbuff_read(struct brcmf_sdio_dev *sdiodev,
 		/* bail out as things are really fishy here */
 		WARN(1, "invalid sdio function number: %d\n", func->num);
 		err = -ENOMEDIUM;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	if (err == -ENOMEDIUM)
 		brcmf_sdiod_change_state(sdiodev, BRCMF_SDIOD_NOMEDIUM);
@@ -342,13 +378,51 @@ static int brcmf_sdiod_skbuff_write(struct brcmf_sdio_dev *sdiodev,
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int mmc_submit_one(struct mmc_data *md, struct mmc_request *mr,
+			  struct mmc_command *mc, int sg_cnt, int req_sz,
+			  int func_blk_sz, u32 *addr,
+			  struct brcmf_sdio_dev *sdiodev,
+			  struct sdio_func *func, int write)
+{
+	int ret;
+
+	md->sg_len = sg_cnt;
+	md->blocks = req_sz / func_blk_sz;
+	mc->arg |= (*addr & 0x1FFFF) << 9;	/* address */
+	mc->arg |= md->blocks & 0x1FF;	/* block count */
+	/* incrementing addr for function 1 */
+	if (func->num == 1)
+		*addr += req_sz;
+
+	mmc_set_data_timeout(md, func->card);
+	mmc_wait_for_req(func->card->host, mr);
+
+	ret = mc->error ? mc->error : md->error;
+	if (ret == -ENOMEDIUM) {
+		brcmf_sdiod_change_state(sdiodev, BRCMF_SDIOD_NOMEDIUM);
+	} else if (ret != 0) {
+		brcmf_err("CMD53 sg block %s failed %d\n",
+			  write ? "write" : "read", ret);
+		ret = -EIO;
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /**
  * brcmf_sdiod_sglist_rw - SDIO interface function for block data access
  * @sdiodev: brcmfmac sdio device
  * @func: SDIO function
  * @write: direction flag
  * @addr: dongle memory address as source/destination
+<<<<<<< HEAD
  * @pkt: skb pointer
+=======
+ * @pktlist: skb buffer head pointer
+>>>>>>> upstream/android-13
  *
  * This function takes the respbonsibility as the interface function to MMC
  * stack for block data access. It assumes that the skb passed down by the
@@ -360,11 +434,19 @@ static int brcmf_sdiod_sglist_rw(struct brcmf_sdio_dev *sdiodev,
 				 struct sk_buff_head *pktlist)
 {
 	unsigned int req_sz, func_blk_sz, sg_cnt, sg_data_sz, pkt_offset;
+<<<<<<< HEAD
 	unsigned int max_req_sz, orig_offset, dst_offset;
 	unsigned short max_seg_cnt, seg_sz;
 	unsigned char *pkt_data, *orig_data, *dst_data;
 	struct sk_buff *pkt_next = NULL, *local_pkt_next;
 	struct sk_buff_head local_list, *target_list;
+=======
+	unsigned int max_req_sz, src_offset, dst_offset;
+	unsigned char *pkt_data, *orig_data, *dst_data;
+	struct sk_buff_head local_list, *target_list;
+	struct sk_buff *pkt_next = NULL, *src;
+	unsigned short max_seg_cnt;
+>>>>>>> upstream/android-13
 	struct mmc_request mmc_req;
 	struct mmc_command mmc_cmd;
 	struct mmc_data mmc_dat;
@@ -404,9 +486,12 @@ static int brcmf_sdiod_sglist_rw(struct brcmf_sdio_dev *sdiodev,
 	max_req_sz = sdiodev->max_request_size;
 	max_seg_cnt = min_t(unsigned short, sdiodev->max_segment_count,
 			    target_list->qlen);
+<<<<<<< HEAD
 	seg_sz = target_list->qlen;
 	pkt_offset = 0;
 	pkt_next = target_list->next;
+=======
+>>>>>>> upstream/android-13
 
 	memset(&mmc_req, 0, sizeof(struct mmc_request));
 	memset(&mmc_cmd, 0, sizeof(struct mmc_command));
@@ -425,12 +510,21 @@ static int brcmf_sdiod_sglist_rw(struct brcmf_sdio_dev *sdiodev,
 	mmc_req.cmd = &mmc_cmd;
 	mmc_req.data = &mmc_dat;
 
+<<<<<<< HEAD
 	while (seg_sz) {
 		req_sz = 0;
 		sg_cnt = 0;
 		sgl = sdiodev->sgtable.sgl;
 		/* prep sg table */
 		while (pkt_next != (struct sk_buff *)target_list) {
+=======
+	req_sz = 0;
+	sg_cnt = 0;
+	sgl = sdiodev->sgtable.sgl;
+	skb_queue_walk(target_list, pkt_next) {
+		pkt_offset = 0;
+		while (pkt_offset < pkt_next->len) {
+>>>>>>> upstream/android-13
 			pkt_data = pkt_next->data + pkt_offset;
 			sg_data_sz = pkt_next->len - pkt_offset;
 			if (sg_data_sz > sdiodev->max_segment_size)
@@ -439,6 +533,7 @@ static int brcmf_sdiod_sglist_rw(struct brcmf_sdio_dev *sdiodev,
 				sg_data_sz = max_req_sz - req_sz;
 
 			sg_set_buf(sgl, pkt_data, sg_data_sz);
+<<<<<<< HEAD
 
 			sg_cnt++;
 			sgl = sg_next(sgl);
@@ -505,6 +600,57 @@ static int brcmf_sdiod_sglist_rw(struct brcmf_sdio_dev *sdiodev,
 				if (dst_offset == pkt_next->len)
 					break;
 			} while (!skb_queue_empty(&local_list));
+=======
+			sg_cnt++;
+
+			sgl = sg_next(sgl);
+			req_sz += sg_data_sz;
+			pkt_offset += sg_data_sz;
+			if (req_sz >= max_req_sz || sg_cnt >= max_seg_cnt) {
+				ret = mmc_submit_one(&mmc_dat, &mmc_req, &mmc_cmd,
+						     sg_cnt, req_sz, func_blk_sz,
+						     &addr, sdiodev, func, write);
+				if (ret)
+					goto exit_queue_walk;
+				req_sz = 0;
+				sg_cnt = 0;
+				sgl = sdiodev->sgtable.sgl;
+			}
+		}
+	}
+	if (sg_cnt)
+		ret = mmc_submit_one(&mmc_dat, &mmc_req, &mmc_cmd,
+				     sg_cnt, req_sz, func_blk_sz,
+				     &addr, sdiodev, func, write);
+exit_queue_walk:
+	if (!write && sdiodev->settings->bus.sdio.broken_sg_support) {
+		src = __skb_peek(&local_list);
+		src_offset = 0;
+		skb_queue_walk(pktlist, pkt_next) {
+			dst_offset = 0;
+
+			/* This is safe because we must have enough SKB data
+			 * in the local list to cover everything in pktlist.
+			 */
+			while (1) {
+				req_sz = pkt_next->len - dst_offset;
+				if (req_sz > src->len - src_offset)
+					req_sz = src->len - src_offset;
+
+				orig_data = src->data + src_offset;
+				dst_data = pkt_next->data + dst_offset;
+				memcpy(dst_data, orig_data, req_sz);
+
+				src_offset += req_sz;
+				if (src_offset == src->len) {
+					src_offset = 0;
+					src = skb_peek_next(src, &local_list);
+				}
+				dst_offset += req_sz;
+				if (dst_offset == pkt_next->len)
+					break;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -576,7 +722,11 @@ int brcmf_sdiod_recv_chain(struct brcmf_sdio_dev *sdiodev,
 
 	if (pktq->qlen == 1)
 		err = brcmf_sdiod_skbuff_read(sdiodev, sdiodev->func2, addr,
+<<<<<<< HEAD
 					      pktq->next);
+=======
+					      __skb_peek(pktq));
+>>>>>>> upstream/android-13
 	else if (!sdiodev->sg_support) {
 		glom_skb = brcmu_pkt_buf_get_skb(totlen);
 		if (!glom_skb)
@@ -865,7 +1015,11 @@ static void brcmf_sdiod_freezer_detach(struct brcmf_sdio_dev *sdiodev)
 }
 #endif /* CONFIG_PM_SLEEP */
 
+<<<<<<< HEAD
 static int brcmf_sdiod_remove(struct brcmf_sdio_dev *sdiodev)
+=======
+int brcmf_sdiod_remove(struct brcmf_sdio_dev *sdiodev)
+>>>>>>> upstream/android-13
 {
 	sdiodev->state = BRCMF_SDIOD_DOWN;
 	if (sdiodev->bus) {
@@ -900,9 +1054,16 @@ static void brcmf_sdiod_host_fixup(struct mmc_host *host)
 	host->caps |= MMC_CAP_NONREMOVABLE;
 }
 
+<<<<<<< HEAD
 static int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
 {
 	int ret = 0;
+=======
+int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
+{
+	int ret = 0;
+	unsigned int f2_blksz = SDIO_FUNC2_BLOCKSIZE;
+>>>>>>> upstream/android-13
 
 	sdio_claim_host(sdiodev->func1);
 
@@ -912,11 +1073,36 @@ static int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
 		sdio_release_host(sdiodev->func1);
 		goto out;
 	}
+<<<<<<< HEAD
 	ret = sdio_set_block_size(sdiodev->func2, SDIO_FUNC2_BLOCKSIZE);
+=======
+	switch (sdiodev->func2->device) {
+	case SDIO_DEVICE_ID_BROADCOM_CYPRESS_4373:
+		f2_blksz = SDIO_4373_FUNC2_BLOCKSIZE;
+		break;
+	case SDIO_DEVICE_ID_BROADCOM_4359:
+	case SDIO_DEVICE_ID_BROADCOM_4354:
+	case SDIO_DEVICE_ID_BROADCOM_4356:
+		f2_blksz = SDIO_435X_FUNC2_BLOCKSIZE;
+		break;
+	case SDIO_DEVICE_ID_BROADCOM_4329:
+		f2_blksz = SDIO_4329_FUNC2_BLOCKSIZE;
+		break;
+	default:
+		break;
+	}
+
+	ret = sdio_set_block_size(sdiodev->func2, f2_blksz);
+>>>>>>> upstream/android-13
 	if (ret) {
 		brcmf_err("Failed to set F2 blocksize\n");
 		sdio_release_host(sdiodev->func1);
 		goto out;
+<<<<<<< HEAD
+=======
+	} else {
+		brcmf_dbg(SDIO, "set F2 blocksize to %d\n", f2_blksz);
+>>>>>>> upstream/android-13
 	}
 
 	/* increase F2 timeout */
@@ -961,7 +1147,11 @@ static const struct sdio_device_id brcmf_sdmmc_ids[] = {
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_43340),
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_43341),
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_43362),
+<<<<<<< HEAD
  	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_43364),
+=======
+	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_43364),
+>>>>>>> upstream/android-13
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_4335_4339),
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_4339),
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_43430),
@@ -969,7 +1159,15 @@ static const struct sdio_device_id brcmf_sdmmc_ids[] = {
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_43455),
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_4354),
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_4356),
+<<<<<<< HEAD
 	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_CYPRESS_4373),
+=======
+	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_4359),
+	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_CYPRESS_4373),
+	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_CYPRESS_43012),
+	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_CYPRESS_43752),
+	BRCMF_SDIO_DEVICE(SDIO_DEVICE_ID_BROADCOM_CYPRESS_89359),
+>>>>>>> upstream/android-13
 	{ /* end: all zeroes */ }
 };
 MODULE_DEVICE_TABLE(sdio, brcmf_sdmmc_ids);
@@ -1107,7 +1305,12 @@ static int brcmf_ops_sdio_suspend(struct device *dev)
 	struct sdio_func *func;
 	struct brcmf_bus *bus_if;
 	struct brcmf_sdio_dev *sdiodev;
+<<<<<<< HEAD
 	mmc_pm_flag_t sdio_flags;
+=======
+	mmc_pm_flag_t pm_caps, sdio_flags;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	func = container_of(dev, struct sdio_func, dev);
 	brcmf_dbg(SDIO, "Enter: F%d\n", func->num);
@@ -1118,6 +1321,7 @@ static int brcmf_ops_sdio_suspend(struct device *dev)
 	bus_if = dev_get_drvdata(dev);
 	sdiodev = bus_if->bus_priv.sdio;
 
+<<<<<<< HEAD
 	brcmf_sdiod_freezer_on(sdiodev);
 	brcmf_sdio_wd_timer(sdiodev->bus, 0);
 
@@ -1131,6 +1335,35 @@ static int brcmf_ops_sdio_suspend(struct device *dev)
 	if (sdio_set_host_pm_flags(sdiodev->func1, sdio_flags))
 		brcmf_err("Failed to set pm_flags %x\n", sdio_flags);
 	return 0;
+=======
+	pm_caps = sdio_get_host_pm_caps(func);
+
+	if (pm_caps & MMC_PM_KEEP_POWER) {
+		/* preserve card power during suspend */
+		brcmf_sdiod_freezer_on(sdiodev);
+		brcmf_sdio_wd_timer(sdiodev->bus, 0);
+
+		sdio_flags = MMC_PM_KEEP_POWER;
+		if (sdiodev->wowl_enabled) {
+			if (sdiodev->settings->bus.sdio.oob_irq_supported)
+				enable_irq_wake(sdiodev->settings->bus.sdio.oob_irq_nr);
+			else
+				sdio_flags |= MMC_PM_WAKE_SDIO_IRQ;
+		}
+
+		if (sdio_set_host_pm_flags(sdiodev->func1, sdio_flags))
+			brcmf_err("Failed to set pm_flags %x\n", sdio_flags);
+
+	} else {
+		/* power will be cut so remove device, probe again in resume */
+		brcmf_sdiod_intr_unregister(sdiodev);
+		ret = brcmf_sdiod_remove(sdiodev);
+		if (ret)
+			brcmf_err("Failed to remove device on suspend\n");
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int brcmf_ops_sdio_resume(struct device *dev)
@@ -1138,13 +1371,35 @@ static int brcmf_ops_sdio_resume(struct device *dev)
 	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
 	struct brcmf_sdio_dev *sdiodev = bus_if->bus_priv.sdio;
 	struct sdio_func *func = container_of(dev, struct sdio_func, dev);
+<<<<<<< HEAD
+=======
+	mmc_pm_flag_t pm_caps = sdio_get_host_pm_caps(func);
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	brcmf_dbg(SDIO, "Enter: F%d\n", func->num);
 	if (func->num != 2)
 		return 0;
 
+<<<<<<< HEAD
 	brcmf_sdiod_freezer_off(sdiodev);
 	return 0;
+=======
+	if (!(pm_caps & MMC_PM_KEEP_POWER)) {
+		/* bus was powered off and device removed, probe again */
+		ret = brcmf_sdiod_probe(sdiodev);
+		if (ret)
+			brcmf_err("Failed to probe device on resume\n");
+	} else {
+		if (sdiodev->wowl_enabled &&
+		    sdiodev->settings->bus.sdio.oob_irq_supported)
+			disable_irq_wake(sdiodev->settings->bus.sdio.oob_irq_nr);
+
+		brcmf_sdiod_freezer_off(sdiodev);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static const struct dev_pm_ops brcmf_sdio_pm_ops = {
@@ -1167,6 +1422,7 @@ static struct sdio_driver brcmf_sdmmc_driver = {
 	},
 };
 
+<<<<<<< HEAD
 void brcmf_sdio_register(void)
 {
 	int ret;
@@ -1174,6 +1430,11 @@ void brcmf_sdio_register(void)
 	ret = sdio_register_driver(&brcmf_sdmmc_driver);
 	if (ret)
 		brcmf_err("sdio_register_driver failed: %d\n", ret);
+=======
+int brcmf_sdio_register(void)
+{
+	return sdio_register_driver(&brcmf_sdmmc_driver);
+>>>>>>> upstream/android-13
 }
 
 void brcmf_sdio_exit(void)

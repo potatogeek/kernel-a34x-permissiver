@@ -21,6 +21,7 @@
 #endif
 #endif
 
+<<<<<<< HEAD
 #define __NR_restart_syscall      0 /* Linux Specific				   */
 #define __NR_exit                 1 /* Common                                      */
 #define __NR_fork                 2 /* Common                                      */
@@ -430,10 +431,18 @@
 #define __NR_io_pgetevents	361
 
 #define NR_syscalls		362
+=======
+#ifdef __arch64__
+#include <asm/unistd_64.h>
+#else
+#include <asm/unistd_32.h>
+#endif
+>>>>>>> upstream/android-13
 
 /* Bitmask values returned from kern_features system call.  */
 #define KERN_FEATURE_MIXED_MODE_STACK	0x00000001
 
+<<<<<<< HEAD
 #ifdef __32bit_syscall_numbers__
 /* Sparc 32-bit only has the "setresuid32", "getresuid32" variants,
  * it never had the plain ones and there is no value to adding those
@@ -450,4 +459,6 @@
 #define __IGNORE_pkey_alloc
 #define __IGNORE_pkey_free
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _UAPI_SPARC_UNISTD_H */

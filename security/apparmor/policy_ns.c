@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -6,11 +10,14 @@
  * Copyright (C) 1998-2008 Novell/SUSE
  * Copyright 2009-2017 Canonical Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  * AppArmor policy namespaces, allow for different sets of policies
  * to be loaded for tasks within the namespace.
  */
@@ -125,9 +132,15 @@ static struct aa_ns *alloc_ns(const char *prefix, const char *name)
 	return ns;
 
 fail_unconfined:
+<<<<<<< HEAD
 	kzfree(ns->base.hname);
 fail_ns:
 	kzfree(ns);
+=======
+	kfree_sensitive(ns->base.hname);
+fail_ns:
+	kfree_sensitive(ns);
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -149,7 +162,11 @@ void aa_free_ns(struct aa_ns *ns)
 
 	ns->unconfined->ns = NULL;
 	aa_free_profile(ns->unconfined);
+<<<<<<< HEAD
 	kzfree(ns);
+=======
+	kfree_sensitive(ns);
+>>>>>>> upstream/android-13
 }
 
 /**

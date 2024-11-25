@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 	Driver for M88RS2000 demodulator
 
@@ -14,6 +15,12 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+	Driver for M88RS2000 demodulator
+
+>>>>>>> upstream/android-13
 
 */
 

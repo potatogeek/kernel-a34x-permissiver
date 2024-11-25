@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 The following properties are common to the Ethernet controllers:
 
 NOTE: All 'phy*' properties documented below are Ethernet specific. For the
@@ -64,3 +65,6 @@ Child nodes of the Ethernet controller are typically the individual PHY devices
 connected via the MDIO bus (sometimes the MDIO bus controller is separate).
 They are described in the phy.txt file in this same directory.
 For non-MDIO PHY management see fixed-link.txt.
+=======
+This file has moved to ethernet-controller.yaml.
+>>>>>>> upstream/android-13

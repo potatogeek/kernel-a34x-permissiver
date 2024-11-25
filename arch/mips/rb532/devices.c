@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  RouterBoard 500 Platform devices
  *
  *  Copyright (C) 2006 Felix Fietkau <nbd@openwrt.org>
  *  Copyright (C) 2007 Florian Fainelli <florian@openwrt.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/export.h>
@@ -20,10 +27,17 @@
 #include <linux/ctype.h>
 #include <linux/string.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <linux/gpio.h>
+=======
+#include <linux/mtd/platnand.h>
+#include <linux/mtd/mtd.h>
+#include <linux/gpio.h>
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio_keys.h>
 #include <linux/input.h>
 #include <linux/serial_8250.h>
@@ -67,21 +81,34 @@ EXPORT_SYMBOL(get_latch_u5);
 
 static struct resource korina_dev0_res[] = {
 	{
+<<<<<<< HEAD
 		.name = "korina_regs",
+=======
+		.name = "emac",
+>>>>>>> upstream/android-13
 		.start = ETH0_BASE_ADDR,
 		.end = ETH0_BASE_ADDR + sizeof(struct eth_regs),
 		.flags = IORESOURCE_MEM,
 	 }, {
+<<<<<<< HEAD
 		.name = "korina_rx",
+=======
+		.name = "rx",
+>>>>>>> upstream/android-13
 		.start = ETH0_DMA_RX_IRQ,
 		.end = ETH0_DMA_RX_IRQ,
 		.flags = IORESOURCE_IRQ
 	}, {
+<<<<<<< HEAD
 		.name = "korina_tx",
+=======
+		.name = "tx",
+>>>>>>> upstream/android-13
 		.start = ETH0_DMA_TX_IRQ,
 		.end = ETH0_DMA_TX_IRQ,
 		.flags = IORESOURCE_IRQ
 	}, {
+<<<<<<< HEAD
 		.name = "korina_ovr",
 		.start = ETH0_RX_OVR_IRQ,
 		.end = ETH0_RX_OVR_IRQ,
@@ -93,11 +120,18 @@ static struct resource korina_dev0_res[] = {
 		.flags = IORESOURCE_IRQ
 	}, {
 		.name = "korina_dma_rx",
+=======
+		.name = "dma_rx",
+>>>>>>> upstream/android-13
 		.start = ETH0_RX_DMA_ADDR,
 		.end = ETH0_RX_DMA_ADDR + DMA_CHAN_OFFSET - 1,
 		.flags = IORESOURCE_MEM,
 	 }, {
+<<<<<<< HEAD
 		.name = "korina_dma_tx",
+=======
+		.name = "dma_tx",
+>>>>>>> upstream/android-13
 		.start = ETH0_TX_DMA_ADDR,
 		.end = ETH0_TX_DMA_ADDR + DMA_CHAN_OFFSET - 1,
 		.flags = IORESOURCE_MEM,
@@ -114,6 +148,12 @@ static struct platform_device korina_dev0 = {
 	.name = "korina",
 	.resource = korina_dev0_res,
 	.num_resources = ARRAY_SIZE(korina_dev0_res),
+<<<<<<< HEAD
+=======
+	.dev = {
+		.platform_data = &korina_dev0_data.mac,
+	}
+>>>>>>> upstream/android-13
 };
 
 static struct resource cf_slot0_res[] = {
@@ -128,27 +168,49 @@ static struct resource cf_slot0_res[] = {
 	}
 };
 
+<<<<<<< HEAD
 static struct cf_device cf_slot0_data = {
 	.gpio_pin = CF_GPIO_NUM
+=======
+static struct gpiod_lookup_table cf_slot0_gpio_table = {
+	.dev_id = "pata-rb532-cf",
+	.table = {
+		GPIO_LOOKUP("gpio0", CF_GPIO_NUM,
+			    NULL, GPIO_ACTIVE_HIGH),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device cf_slot0 = {
 	.id = -1,
 	.name = "pata-rb532-cf",
+<<<<<<< HEAD
 	.dev.platform_data = &cf_slot0_data,
+=======
+>>>>>>> upstream/android-13
 	.resource = cf_slot0_res,
 	.num_resources = ARRAY_SIZE(cf_slot0_res),
 };
 
 /* Resources and device for NAND */
+<<<<<<< HEAD
 static int rb532_dev_ready(struct mtd_info *mtd)
+=======
+static int rb532_dev_ready(struct nand_chip *chip)
+>>>>>>> upstream/android-13
 {
 	return gpio_get_value(GPIO_RDY);
 }
 
+<<<<<<< HEAD
 static void rb532_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void rb532_cmd_ctrl(struct nand_chip *chip, int cmd, unsigned int ctrl)
+{
+>>>>>>> upstream/android-13
 	unsigned char orbits, nandbits;
 
 	if (ctrl & NAND_CTRL_CHANGE) {
@@ -161,7 +223,11 @@ static void rb532_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 		set_latch_u5(orbits, nandbits);
 	}
 	if (cmd != NAND_CMD_NONE)
+<<<<<<< HEAD
 		writeb(cmd, chip->IO_ADDR_W);
+=======
+		writeb(cmd, chip->legacy.IO_ADDR_W);
+>>>>>>> upstream/android-13
 }
 
 static struct resource nand_slot0_res[] = {
@@ -292,7 +358,11 @@ static int __init plat_setup_devices(void)
 	nand_slot0_res[0].end = nand_slot0_res[0].start + 0x1000;
 
 	/* Read and map device controller 3 */
+<<<<<<< HEAD
 	dev3.base = ioremap_nocache(readl(IDT434_REG_BASE + DEV3BASE), 1);
+=======
+	dev3.base = ioremap(readl(IDT434_REG_BASE + DEV3BASE), 1);
+>>>>>>> upstream/android-13
 
 	if (!dev3.base) {
 		printk(KERN_ERR "rb532: cannot remap device controller 3\n");
@@ -305,8 +375,12 @@ static int __init plat_setup_devices(void)
 	/* set the uart clock to the current cpu frequency */
 	rb532_uart_res[0].uartclk = idt_cpu_freq;
 
+<<<<<<< HEAD
 	dev_set_drvdata(&korina_dev0.dev, &korina_dev0_data);
 
+=======
+	gpiod_add_lookup_table(&cf_slot0_gpio_table);
+>>>>>>> upstream/android-13
 	return platform_add_devices(rb532_devs, ARRAY_SIZE(rb532_devs));
 }
 
@@ -315,11 +389,17 @@ static int __init plat_setup_devices(void)
 static int __init setup_kmac(char *s)
 {
 	printk(KERN_INFO "korina mac = %s\n", s);
+<<<<<<< HEAD
 	if (!mac_pton(s, korina_dev0_data.mac)) {
 		printk(KERN_ERR "Invalid mac\n");
 		return -EINVAL;
 	}
 	return 0;
+=======
+	if (!mac_pton(s, korina_dev0_data.mac))
+		printk(KERN_ERR "Invalid mac\n");
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 __setup("kmac=", setup_kmac);

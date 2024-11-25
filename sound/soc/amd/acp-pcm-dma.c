@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AMD ALSA SoC PCM Driver for ACP 2.x
  *
  * Copyright 2014-2015 Advanced Micro Devices, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -164,7 +171,11 @@ static void config_acp_dma_channel(void __iomem *acp_mmio, u8 ch_num,
 	acp_reg_write(priority_level, acp_mmio, mmACP_DMA_PRIO_0 + ch_num);
 }
 
+<<<<<<< HEAD
 /* Initialize a dma descriptor in SRAM based on descritor information passed */
+=======
+/* Initialize a dma descriptor in SRAM based on descriptor information passed */
+>>>>>>> upstream/android-13
 static void config_dma_descriptor_in_sram(void __iomem *acp_mmio,
 					  u16 descr_idx,
 					  acp_dma_dscr_transfer_t *descr_info)
@@ -296,18 +307,29 @@ static void set_acp_to_i2s_dma_descriptors(void __iomem *acp_mmio, u32 size,
 					      &dmadscr[i]);
 	}
 	pre_config_reset(acp_mmio, ch);
+<<<<<<< HEAD
 	/* Configure the DMA channel with the above descriptore */
+=======
+	/* Configure the DMA channel with the above descriptor */
+>>>>>>> upstream/android-13
 	config_acp_dma_channel(acp_mmio, ch, dma_dscr_idx - 1,
 			       NUM_DSCRS_PER_CHANNEL,
 			       ACP_DMA_PRIORITY_LEVEL_NORMAL);
 }
 
 /* Create page table entries in ACP SRAM for the allocated memory */
+<<<<<<< HEAD
 static void acp_pte_config(void __iomem *acp_mmio, struct page *pg,
 			   u16 num_of_pages, u32 pte_offset)
 {
 	u16 page_idx;
 	u64 addr;
+=======
+static void acp_pte_config(void __iomem *acp_mmio, dma_addr_t addr,
+			   u16 num_of_pages, u32 pte_offset)
+{
+	u16 page_idx;
+>>>>>>> upstream/android-13
 	u32 low;
 	u32 high;
 	u32 offset;
@@ -317,7 +339,10 @@ static void acp_pte_config(void __iomem *acp_mmio, struct page *pg,
 		/* Load the low address of page int ACP SRAM through SRBM */
 		acp_reg_write((offset + (page_idx * 8)),
 			      acp_mmio, mmACP_SRBM_Targ_Idx_Addr);
+<<<<<<< HEAD
 		addr = page_to_phys(pg);
+=======
+>>>>>>> upstream/android-13
 
 		low = lower_32_bits(addr);
 		high = upper_32_bits(addr);
@@ -332,8 +357,13 @@ static void acp_pte_config(void __iomem *acp_mmio, struct page *pg,
 		high |= BIT(31);
 		acp_reg_write(high, acp_mmio, mmACP_SRBM_Targ_Idx_Data);
 
+<<<<<<< HEAD
 		/* Move to next physically contiguos page */
 		pg++;
+=======
+		/* Move to next physically contiguous page */
+		addr += PAGE_SIZE;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -343,7 +373,11 @@ static void config_acp_dma(void __iomem *acp_mmio,
 {
 	u16 ch_acp_sysmem, ch_acp_i2s;
 
+<<<<<<< HEAD
 	acp_pte_config(acp_mmio, rtd->pg, rtd->num_of_pages,
+=======
+	acp_pte_config(acp_mmio, rtd->dma_addr, rtd->num_of_pages,
+>>>>>>> upstream/android-13
 		       rtd->pte_offset);
 
 	if (rtd->direction == SNDRV_PCM_STREAM_PLAYBACK) {
@@ -612,11 +646,19 @@ static int acp_init(void __iomem *acp_mmio, u32 asic_type)
 		acp_reg_write(val, acp_mmio, mmACP_BT_UART_PAD_SEL);
 	}
 
+<<<<<<< HEAD
 	/* initiailize Onion control DAGB register */
 	acp_reg_write(ACP_ONION_CNTL_DEFAULT, acp_mmio,
 		      mmACP_AXI2DAGB_ONION_CNTL);
 
 	/* initiailize Garlic control DAGB registers */
+=======
+	/* initialize Onion control DAGB register */
+	acp_reg_write(ACP_ONION_CNTL_DEFAULT, acp_mmio,
+		      mmACP_AXI2DAGB_ONION_CNTL);
+
+	/* initialize Garlic control DAGB registers */
+>>>>>>> upstream/android-13
 	acp_reg_write(ACP_GARLIC_CNTL_DEFAULT, acp_mmio,
 		      mmACP_AXI2DAGB_GARLIC_CNTL);
 
@@ -631,7 +673,11 @@ static int acp_init(void __iomem *acp_mmio, u32 asic_type)
 	acp_reg_write(ACP_SRAM_BASE_ADDRESS, acp_mmio,
 		      mmACP_DMA_DESC_BASE_ADDR);
 
+<<<<<<< HEAD
 	/* Num of descriptiors in SRAM 0x4, means 256 descriptors;(64 * 4) */
+=======
+	/* Num of descriptors in SRAM 0x4, means 256 descriptors;(64 * 4) */
+>>>>>>> upstream/android-13
 	acp_reg_write(0x4, acp_mmio, mmACP_DMA_DESC_MAX_NUM_DSCR);
 	acp_reg_write(ACP_EXTERNAL_INTR_CNTL__DMAIOCMask_MASK,
 		      acp_mmio, mmACP_EXTERNAL_INTR_CNTL);
@@ -769,14 +815,22 @@ static irqreturn_t dma_irq_handler(int irq, void *arg)
 		return IRQ_NONE;
 }
 
+<<<<<<< HEAD
 static int acp_dma_open(struct snd_pcm_substream *substream)
+=======
+static int acp_dma_open(struct snd_soc_component *component,
+			struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	u16 bank;
 	int ret = 0;
 	struct snd_pcm_runtime *runtime = substream->runtime;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *prtd = substream->private_data;
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(prtd,
 								    DRV_NAME);
+=======
+>>>>>>> upstream/android-13
 	struct audio_drv_data *intr_data = dev_get_drvdata(component->dev);
 	struct audio_substream_data *adata =
 		kzalloc(sizeof(struct audio_substream_data), GFP_KERNEL);
@@ -844,6 +898,7 @@ static int acp_dma_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int acp_dma_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
@@ -856,6 +911,17 @@ static int acp_dma_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *prtd = substream->private_data;
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(prtd,
 								    DRV_NAME);
+=======
+static int acp_dma_hw_params(struct snd_soc_component *component,
+			     struct snd_pcm_substream *substream,
+			     struct snd_pcm_hw_params *params)
+{
+	uint64_t size;
+	u32 val = 0;
+	struct snd_pcm_runtime *runtime;
+	struct audio_substream_data *rtd;
+	struct snd_soc_pcm_runtime *prtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	struct audio_drv_data *adata = dev_get_drvdata(component->dev);
 	struct snd_soc_card *card = prtd->card;
 	struct acp_platform_info *pinfo = snd_soc_card_get_drvdata(card);
@@ -867,8 +933,17 @@ static int acp_dma_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 
 	if (pinfo) {
+<<<<<<< HEAD
 		rtd->i2s_instance = pinfo->i2s_instance;
 		rtd->capture_channel = pinfo->capture_channel;
+=======
+		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+			rtd->i2s_instance = pinfo->play_i2s_instance;
+		} else {
+			rtd->i2s_instance = pinfo->cap_i2s_instance;
+			rtd->capture_channel = pinfo->capture_channel;
+		}
+>>>>>>> upstream/android-13
 	}
 	if (adata->asic_type == CHIP_STONEY) {
 		val = acp_reg_read(adata->acp_mmio,
@@ -977,6 +1052,7 @@ static int acp_dma_hw_params(struct snd_pcm_substream *substream,
 	}
 
 	size = params_buffer_bytes(params);
+<<<<<<< HEAD
 	status = snd_pcm_lib_malloc_pages(substream, size);
 	if (status < 0)
 		return status;
@@ -1007,6 +1083,21 @@ static int acp_dma_hw_params(struct snd_pcm_substream *substream,
 static int acp_dma_hw_free(struct snd_pcm_substream *substream)
 {
 	return snd_pcm_lib_free_pages(substream);
+=======
+
+	acp_set_sram_bank_state(rtd->acp_mmio, 0, true);
+	/* Save for runtime private data */
+	rtd->dma_addr = runtime->dma_addr;
+	rtd->order = get_order(size);
+
+	/* Fill the page table entries in ACP SRAM */
+	rtd->size = size;
+	rtd->num_of_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
+	rtd->direction = substream->stream;
+
+	config_acp_dma(rtd->acp_mmio, rtd, adata->asic_type);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static u64 acp_get_byte_count(struct audio_substream_data *rtd)
@@ -1020,7 +1111,12 @@ static u64 acp_get_byte_count(struct audio_substream_data *rtd)
 	return byte_count.bytescount;
 }
 
+<<<<<<< HEAD
 static snd_pcm_uframes_t acp_dma_pointer(struct snd_pcm_substream *substream)
+=======
+static snd_pcm_uframes_t acp_dma_pointer(struct snd_soc_component *component,
+					 struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	u32 buffersize;
 	u32 pos = 0;
@@ -1062,6 +1158,7 @@ static snd_pcm_uframes_t acp_dma_pointer(struct snd_pcm_substream *substream)
 	return bytes_to_frames(runtime, pos);
 }
 
+<<<<<<< HEAD
 static int acp_dma_mmap(struct snd_pcm_substream *substream,
 			struct vm_area_struct *vma)
 {
@@ -1069,6 +1166,10 @@ static int acp_dma_mmap(struct snd_pcm_substream *substream,
 }
 
 static int acp_dma_prepare(struct snd_pcm_substream *substream)
+=======
+static int acp_dma_prepare(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct audio_substream_data *rtd = runtime->private_data;
@@ -1095,7 +1196,12 @@ static int acp_dma_prepare(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int acp_dma_trigger(struct snd_pcm_substream *substream, int cmd)
+=======
+static int acp_dma_trigger(struct snd_soc_component *component,
+			   struct snd_pcm_substream *substream, int cmd)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -1141,16 +1247,23 @@ static int acp_dma_trigger(struct snd_pcm_substream *substream, int cmd)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int acp_dma_new(struct snd_soc_pcm_runtime *rtd)
 {
 	int ret;
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd,
 								    DRV_NAME);
+=======
+static int acp_dma_new(struct snd_soc_component *component,
+		       struct snd_soc_pcm_runtime *rtd)
+{
+>>>>>>> upstream/android-13
 	struct audio_drv_data *adata = dev_get_drvdata(component->dev);
 	struct device *parent = component->dev->parent;
 
 	switch (adata->asic_type) {
 	case CHIP_STONEY:
+<<<<<<< HEAD
 		ret = snd_pcm_lib_preallocate_pages_for_all(rtd->pcm,
 							    SNDRV_DMA_TYPE_DEV,
 							    parent,
@@ -1172,13 +1285,37 @@ static int acp_dma_new(struct snd_soc_pcm_runtime *rtd)
 }
 
 static int acp_dma_close(struct snd_pcm_substream *substream)
+=======
+		snd_pcm_set_managed_buffer_all(rtd->pcm,
+					       SNDRV_DMA_TYPE_DEV,
+					       parent,
+					       ST_MIN_BUFFER,
+					       ST_MAX_BUFFER);
+		break;
+	default:
+		snd_pcm_set_managed_buffer_all(rtd->pcm,
+					       SNDRV_DMA_TYPE_DEV,
+					       parent,
+					       MIN_BUFFER,
+					       MAX_BUFFER);
+		break;
+	}
+	return 0;
+}
+
+static int acp_dma_close(struct snd_soc_component *component,
+			 struct snd_pcm_substream *substream)
+>>>>>>> upstream/android-13
 {
 	u16 bank;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct audio_substream_data *rtd = runtime->private_data;
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *prtd = substream->private_data;
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(prtd,
 								    DRV_NAME);
+=======
+>>>>>>> upstream/android-13
 	struct audio_drv_data *adata = dev_get_drvdata(component->dev);
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
@@ -1229,6 +1366,7 @@ static int acp_dma_close(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_pcm_ops acp_dma_ops = {
 	.open = acp_dma_open,
 	.close = acp_dma_close,
@@ -1245,6 +1383,17 @@ static const struct snd_soc_component_driver acp_asoc_platform = {
 	.name = DRV_NAME,
 	.ops = &acp_dma_ops,
 	.pcm_new = acp_dma_new,
+=======
+static const struct snd_soc_component_driver acp_asoc_platform = {
+	.name		= DRV_NAME,
+	.open		= acp_dma_open,
+	.close		= acp_dma_close,
+	.hw_params	= acp_dma_hw_params,
+	.trigger	= acp_dma_trigger,
+	.pointer	= acp_dma_pointer,
+	.prepare	= acp_dma_prepare,
+	.pcm_construct	= acp_dma_new,
+>>>>>>> upstream/android-13
 };
 
 static int acp_audio_probe(struct platform_device *pdev)
@@ -1264,8 +1413,12 @@ static int acp_audio_probe(struct platform_device *pdev)
 	if (!audio_drv_data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	audio_drv_data->acp_mmio = devm_ioremap_resource(&pdev->dev, res);
+=======
+	audio_drv_data->acp_mmio = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(audio_drv_data->acp_mmio))
 		return PTR_ERR(audio_drv_data->acp_mmio);
 

@@ -10,6 +10,7 @@
 
 	.balign PAGE_SIZE
 
+<<<<<<< HEAD
 GLOBAL(real_mode_blob)
 	.incbin	"arch/x86/realmode/rm/realmode.bin"
 END(real_mode_blob)
@@ -19,3 +20,12 @@ GLOBAL(real_mode_blob_end);
 GLOBAL(real_mode_relocs)
 	.incbin	"arch/x86/realmode/rm/realmode.relocs"
 END(real_mode_relocs)
+=======
+SYM_DATA_START(real_mode_blob)
+	.incbin	"arch/x86/realmode/rm/realmode.bin"
+SYM_DATA_END_LABEL(real_mode_blob, SYM_L_GLOBAL, real_mode_blob_end)
+
+SYM_DATA_START(real_mode_relocs)
+	.incbin	"arch/x86/realmode/rm/realmode.relocs"
+SYM_DATA_END(real_mode_relocs)
+>>>>>>> upstream/android-13

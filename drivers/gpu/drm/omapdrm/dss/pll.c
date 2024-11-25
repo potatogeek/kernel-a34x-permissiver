@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "PLL"
@@ -233,6 +239,12 @@ bool dss_pll_calc_a(const struct dss_pll *pll, unsigned long clkin,
 	n_stop = min((unsigned)(clkin / fint_hw_min), hw->n_max);
 	n_inc = 1;
 
+<<<<<<< HEAD
+=======
+	if (n_start > n_stop)
+		return false;
+
+>>>>>>> upstream/android-13
 	if (hw->errata_i886) {
 		swap(n_start, n_stop);
 		n_inc = -1;
@@ -250,6 +262,12 @@ bool dss_pll_calc_a(const struct dss_pll *pll, unsigned long clkin,
 				hw->m_max);
 		m_inc = 1;
 
+<<<<<<< HEAD
+=======
+		if (m_start > m_stop)
+			continue;
+
+>>>>>>> upstream/android-13
 		if (hw->errata_i886) {
 			swap(m_start, m_stop);
 			m_inc = -1;

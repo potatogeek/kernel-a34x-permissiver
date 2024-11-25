@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008 IBM Corporation
  * Author: Mimi Zohar <zohar@us.ibm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
@@ -12,6 +17,15 @@
  */
 #include <linux/module.h>
 #include <linux/list.h>
+=======
+ * ima_policy.c
+ *	- initialize default measure policy rules
+ */
+
+#include <linux/init.h>
+#include <linux/list.h>
+#include <linux/kernel_read_file.h>
+>>>>>>> upstream/android-13
 #include <linux/fs.h>
 #include <linux/security.h>
 #include <linux/magic.h>
@@ -20,6 +34,10 @@
 #include <linux/rculist.h>
 #include <linux/genhd.h>
 #include <linux/seq_file.h>
+<<<<<<< HEAD
+=======
+#include <linux/ima.h>
+>>>>>>> upstream/android-13
 
 #include "ima.h"
 
@@ -34,6 +52,12 @@
 #define IMA_EUID	0x0080
 #define IMA_PCR		0x0100
 #define IMA_FSNAME	0x0200
+<<<<<<< HEAD
+=======
+#define IMA_KEYRINGS	0x0400
+#define IMA_LABEL	0x0800
+#define IMA_VALIDATE_ALGOS	0x1000
+>>>>>>> upstream/android-13
 
 #define UNKNOWN		0
 #define MEASURE		0x0001	/* same as IMA_MEASURE */
@@ -45,12 +69,21 @@
 #define DONT_HASH	0x0200
 
 #define INVALID_PCR(a) (((a) < 0) || \
+<<<<<<< HEAD
 	(a) >= (FIELD_SIZEOF(struct integrity_iint_cache, measured_pcrs) * 8))
+=======
+	(a) >= (sizeof_field(struct integrity_iint_cache, measured_pcrs) * 8))
+>>>>>>> upstream/android-13
 
 int ima_policy_flag;
 static int temp_ima_appraise;
 static int build_ima_appraise __ro_after_init;
 
+<<<<<<< HEAD
+=======
+atomic_t ima_setxattr_allowed_hash_algorithms;
+
+>>>>>>> upstream/android-13
 #define MAX_LSM_RULES 6
 enum lsm_rule_types { LSM_OBJ_USER, LSM_OBJ_ROLE, LSM_OBJ_TYPE,
 	LSM_SUBJ_USER, LSM_SUBJ_ROLE, LSM_SUBJ_TYPE
@@ -58,6 +91,16 @@ enum lsm_rule_types { LSM_OBJ_USER, LSM_OBJ_ROLE, LSM_OBJ_TYPE,
 
 enum policy_types { ORIGINAL_TCB = 1, DEFAULT_TCB };
 
+<<<<<<< HEAD
+=======
+enum policy_rule_list { IMA_DEFAULT_POLICY = 1, IMA_CUSTOM_POLICY };
+
+struct ima_rule_opt_list {
+	size_t count;
+	char *items[];
+};
+
+>>>>>>> upstream/android-13
 struct ima_rule_entry {
 	struct list_head list;
 	int action;
@@ -71,6 +114,7 @@ struct ima_rule_entry {
 	bool (*uid_op)(kuid_t, kuid_t);    /* Handlers for operators       */
 	bool (*fowner_op)(kuid_t, kuid_t); /* uid_eq(), uid_gt(), uid_lt() */
 	int pcr;
+<<<<<<< HEAD
 	struct {
 		void *rule;	/* LSM file metadata specific */
 		void *args_p;	/* audit value */
@@ -80,6 +124,29 @@ struct ima_rule_entry {
 };
 
 /*
+=======
+	unsigned int allowed_algos; /* bitfield of allowed hash algorithms */
+	struct {
+		void *rule;	/* LSM file metadata specific */
+		char *args_p;	/* audit value */
+		int type;	/* audit type */
+	} lsm[MAX_LSM_RULES];
+	char *fsname;
+	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
+	struct ima_rule_opt_list *label; /* Measure data grouped under this label */
+	struct ima_template_desc *template;
+};
+
+/*
+ * sanity check in case the kernels gains more hash algorithms that can
+ * fit in an unsigned int
+ */
+static_assert(
+	8 * sizeof(unsigned int) >= HASH_ALGO__LAST,
+	"The bitfield allowed_algos in ima_rule_entry is too small to contain all the supported hash algorithms, consider using a bigger type");
+
+/*
+>>>>>>> upstream/android-13
  * Without LSM specific knowledge, the default policy can only be
  * written in terms of .action, .func, .mask, .fsmagic, .uid, and .fowner
  */
@@ -104,7 +171,12 @@ static struct ima_rule_entry dont_measure_rules[] __ro_after_init = {
 	 .flags = IMA_FSMAGIC},
 	{.action = DONT_MEASURE, .fsmagic = CGROUP2_SUPER_MAGIC,
 	 .flags = IMA_FSMAGIC},
+<<<<<<< HEAD
 	{.action = DONT_MEASURE, .fsmagic = NSFS_MAGIC, .flags = IMA_FSMAGIC}
+=======
+	{.action = DONT_MEASURE, .fsmagic = NSFS_MAGIC, .flags = IMA_FSMAGIC},
+	{.action = DONT_MEASURE, .fsmagic = EFIVARFS_MAGIC, .flags = IMA_FSMAGIC}
+>>>>>>> upstream/android-13
 };
 
 static struct ima_rule_entry original_measurement_rules[] __ro_after_init = {
@@ -147,6 +219,10 @@ static struct ima_rule_entry default_appraise_rules[] __ro_after_init = {
 	{.action = DONT_APPRAISE, .fsmagic = SELINUX_MAGIC, .flags = IMA_FSMAGIC},
 	{.action = DONT_APPRAISE, .fsmagic = SMACK_MAGIC, .flags = IMA_FSMAGIC},
 	{.action = DONT_APPRAISE, .fsmagic = NSFS_MAGIC, .flags = IMA_FSMAGIC},
+<<<<<<< HEAD
+=======
+	{.action = DONT_APPRAISE, .fsmagic = EFIVARFS_MAGIC, .flags = IMA_FSMAGIC},
+>>>>>>> upstream/android-13
 	{.action = DONT_APPRAISE, .fsmagic = CGROUP_SUPER_MAGIC, .flags = IMA_FSMAGIC},
 	{.action = DONT_APPRAISE, .fsmagic = CGROUP2_SUPER_MAGIC, .flags = IMA_FSMAGIC},
 #ifdef CONFIG_IMA_WRITE_POLICY
@@ -193,10 +269,24 @@ static struct ima_rule_entry secure_boot_rules[] __ro_after_init = {
 	 .flags = IMA_FUNC | IMA_DIGSIG_REQUIRED},
 };
 
+<<<<<<< HEAD
 static LIST_HEAD(ima_default_rules);
 static LIST_HEAD(ima_policy_rules);
 static LIST_HEAD(ima_temp_rules);
 static struct list_head *ima_rules = &ima_default_rules;
+=======
+static struct ima_rule_entry critical_data_rules[] __ro_after_init = {
+	{.action = MEASURE, .func = CRITICAL_DATA, .flags = IMA_FUNC},
+};
+
+/* An array of architecture specific rules */
+static struct ima_rule_entry *arch_policy_entry __ro_after_init;
+
+static LIST_HEAD(ima_default_rules);
+static LIST_HEAD(ima_policy_rules);
+static LIST_HEAD(ima_temp_rules);
+static struct list_head __rcu *ima_rules = (struct list_head __rcu *)(&ima_default_rules);
+>>>>>>> upstream/android-13
 
 static int ima_policy __initdata;
 
@@ -212,6 +302,10 @@ __setup("ima_tcb", default_measure_policy_setup);
 
 static bool ima_use_appraise_tcb __initdata;
 static bool ima_use_secure_boot __initdata;
+<<<<<<< HEAD
+=======
+static bool ima_use_critical_data __initdata;
+>>>>>>> upstream/android-13
 static bool ima_fail_unverifiable_sigs __ro_after_init;
 static int __init policy_setup(char *str)
 {
@@ -226,8 +320,17 @@ static int __init policy_setup(char *str)
 			ima_use_appraise_tcb = true;
 		else if (strcmp(p, "secure_boot") == 0)
 			ima_use_secure_boot = true;
+<<<<<<< HEAD
 		else if (strcmp(p, "fail_securely") == 0)
 			ima_fail_unverifiable_sigs = true;
+=======
+		else if (strcmp(p, "critical_data") == 0)
+			ima_use_critical_data = true;
+		else if (strcmp(p, "fail_securely") == 0)
+			ima_fail_unverifiable_sigs = true;
+		else
+			pr_err("policy \"%s\" not found", p);
+>>>>>>> upstream/android-13
 	}
 
 	return 1;
@@ -241,6 +344,7 @@ static int __init default_appraise_policy_setup(char *str)
 }
 __setup("ima_appraise_tcb", default_appraise_policy_setup);
 
+<<<<<<< HEAD
 /*
  * The LSM policy can be reloaded, leaving the IMA LSM based rules referring
  * to the old, stale LSM policy.  Update the IMA LSM based rules to reflect
@@ -262,30 +366,304 @@ static void ima_lsm_update_rules(void)
 							   entry->lsm[i].args_p,
 							   &entry->lsm[i].rule);
 			BUG_ON(!entry->lsm[i].rule);
+=======
+static struct ima_rule_opt_list *ima_alloc_rule_opt_list(const substring_t *src)
+{
+	struct ima_rule_opt_list *opt_list;
+	size_t count = 0;
+	char *src_copy;
+	char *cur, *next;
+	size_t i;
+
+	src_copy = match_strdup(src);
+	if (!src_copy)
+		return ERR_PTR(-ENOMEM);
+
+	next = src_copy;
+	while ((cur = strsep(&next, "|"))) {
+		/* Don't accept an empty list item */
+		if (!(*cur)) {
+			kfree(src_copy);
+			return ERR_PTR(-EINVAL);
+		}
+		count++;
+	}
+
+	/* Don't accept an empty list */
+	if (!count) {
+		kfree(src_copy);
+		return ERR_PTR(-EINVAL);
+	}
+
+	opt_list = kzalloc(struct_size(opt_list, items, count), GFP_KERNEL);
+	if (!opt_list) {
+		kfree(src_copy);
+		return ERR_PTR(-ENOMEM);
+	}
+
+	/*
+	 * strsep() has already replaced all instances of '|' with '\0',
+	 * leaving a byte sequence of NUL-terminated strings. Reference each
+	 * string with the array of items.
+	 *
+	 * IMPORTANT: Ownership of the allocated buffer is transferred from
+	 * src_copy to the first element in the items array. To free the
+	 * buffer, kfree() must only be called on the first element of the
+	 * array.
+	 */
+	for (i = 0, cur = src_copy; i < count; i++) {
+		opt_list->items[i] = cur;
+		cur = strchr(cur, '\0') + 1;
+	}
+	opt_list->count = count;
+
+	return opt_list;
+}
+
+static void ima_free_rule_opt_list(struct ima_rule_opt_list *opt_list)
+{
+	if (!opt_list)
+		return;
+
+	if (opt_list->count) {
+		kfree(opt_list->items[0]);
+		opt_list->count = 0;
+	}
+
+	kfree(opt_list);
+}
+
+static void ima_lsm_free_rule(struct ima_rule_entry *entry)
+{
+	int i;
+
+	for (i = 0; i < MAX_LSM_RULES; i++) {
+		ima_filter_rule_free(entry->lsm[i].rule);
+		kfree(entry->lsm[i].args_p);
+	}
+}
+
+static void ima_free_rule(struct ima_rule_entry *entry)
+{
+	if (!entry)
+		return;
+
+	/*
+	 * entry->template->fields may be allocated in ima_parse_rule() but that
+	 * reference is owned by the corresponding ima_template_desc element in
+	 * the defined_templates list and cannot be freed here
+	 */
+	kfree(entry->fsname);
+	ima_free_rule_opt_list(entry->keyrings);
+	ima_lsm_free_rule(entry);
+	kfree(entry);
+}
+
+static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
+{
+	struct ima_rule_entry *nentry;
+	int i;
+
+	/*
+	 * Immutable elements are copied over as pointers and data; only
+	 * lsm rules can change
+	 */
+	nentry = kmemdup(entry, sizeof(*nentry), GFP_KERNEL);
+	if (!nentry)
+		return NULL;
+
+	memset(nentry->lsm, 0, sizeof_field(struct ima_rule_entry, lsm));
+
+	for (i = 0; i < MAX_LSM_RULES; i++) {
+		if (!entry->lsm[i].args_p)
+			continue;
+
+		nentry->lsm[i].type = entry->lsm[i].type;
+		nentry->lsm[i].args_p = entry->lsm[i].args_p;
+		/*
+		 * Remove the reference from entry so that the associated
+		 * memory will not be freed during a later call to
+		 * ima_lsm_free_rule(entry).
+		 */
+		entry->lsm[i].args_p = NULL;
+
+		ima_filter_rule_init(nentry->lsm[i].type, Audit_equal,
+				     nentry->lsm[i].args_p,
+				     &nentry->lsm[i].rule);
+		if (!nentry->lsm[i].rule)
+			pr_warn("rule for LSM \'%s\' is undefined\n",
+				nentry->lsm[i].args_p);
+	}
+	return nentry;
+}
+
+static int ima_lsm_update_rule(struct ima_rule_entry *entry)
+{
+	struct ima_rule_entry *nentry;
+
+	nentry = ima_lsm_copy_rule(entry);
+	if (!nentry)
+		return -ENOMEM;
+
+	list_replace_rcu(&entry->list, &nentry->list);
+	synchronize_rcu();
+	/*
+	 * ima_lsm_copy_rule() shallow copied all references, except for the
+	 * LSM references, from entry to nentry so we only want to free the LSM
+	 * references and the entry itself. All other memory refrences will now
+	 * be owned by nentry.
+	 */
+	ima_lsm_free_rule(entry);
+	kfree(entry);
+
+	return 0;
+}
+
+static bool ima_rule_contains_lsm_cond(struct ima_rule_entry *entry)
+{
+	int i;
+
+	for (i = 0; i < MAX_LSM_RULES; i++)
+		if (entry->lsm[i].args_p)
+			return true;
+
+	return false;
+}
+
+/*
+ * The LSM policy can be reloaded, leaving the IMA LSM based rules referring
+ * to the old, stale LSM policy.  Update the IMA LSM based rules to reflect
+ * the reloaded LSM policy.
+ */
+static void ima_lsm_update_rules(void)
+{
+	struct ima_rule_entry *entry, *e;
+	int result;
+
+	list_for_each_entry_safe(entry, e, &ima_policy_rules, list) {
+		if (!ima_rule_contains_lsm_cond(entry))
+			continue;
+
+		result = ima_lsm_update_rule(entry);
+		if (result) {
+			pr_err("lsm rule update error %d\n", result);
+			return;
+>>>>>>> upstream/android-13
 		}
 	}
 }
 
+<<<<<<< HEAD
 /**
  * ima_match_rules - determine whether an inode matches the measure rule.
  * @rule: a pointer to a rule
+=======
+int ima_lsm_policy_change(struct notifier_block *nb, unsigned long event,
+			  void *lsm_data)
+{
+	if (event != LSM_POLICY_CHANGE)
+		return NOTIFY_DONE;
+
+	ima_lsm_update_rules();
+	return NOTIFY_OK;
+}
+
+/**
+ * ima_match_rule_data - determine whether func_data matches the policy rule
+ * @rule: a pointer to a rule
+ * @func_data: data to match against the measure rule data
+ * @cred: a pointer to a credentials structure for user validation
+ *
+ * Returns true if func_data matches one in the rule, false otherwise.
+ */
+static bool ima_match_rule_data(struct ima_rule_entry *rule,
+				const char *func_data,
+				const struct cred *cred)
+{
+	const struct ima_rule_opt_list *opt_list = NULL;
+	bool matched = false;
+	size_t i;
+
+	if ((rule->flags & IMA_UID) && !rule->uid_op(cred->uid, rule->uid))
+		return false;
+
+	switch (rule->func) {
+	case KEY_CHECK:
+		if (!rule->keyrings)
+			return true;
+
+		opt_list = rule->keyrings;
+		break;
+	case CRITICAL_DATA:
+		if (!rule->label)
+			return true;
+
+		opt_list = rule->label;
+		break;
+	default:
+		return false;
+	}
+
+	if (!func_data)
+		return false;
+
+	for (i = 0; i < opt_list->count; i++) {
+		if (!strcmp(opt_list->items[i], func_data)) {
+			matched = true;
+			break;
+		}
+	}
+
+	return matched;
+}
+
+/**
+ * ima_match_rules - determine whether an inode matches the policy rule.
+ * @rule: a pointer to a rule
+ * @mnt_userns:	user namespace of the mount the inode was found from
+>>>>>>> upstream/android-13
  * @inode: a pointer to an inode
  * @cred: a pointer to a credentials structure for user validation
  * @secid: the secid of the task to be validated
  * @func: LIM hook identifier
  * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_EXEC)
+<<<<<<< HEAD
  *
  * Returns true on rule match, false on failure.
  */
 static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
 			    const struct cred *cred, u32 secid,
 			    enum ima_hooks func, int mask)
+=======
+ * @func_data: func specific data, may be NULL
+ *
+ * Returns true on rule match, false on failure.
+ */
+static bool ima_match_rules(struct ima_rule_entry *rule,
+			    struct user_namespace *mnt_userns,
+			    struct inode *inode, const struct cred *cred,
+			    u32 secid, enum ima_hooks func, int mask,
+			    const char *func_data)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	if ((rule->flags & IMA_FUNC) &&
 	    (rule->func != func && func != POST_SETATTR))
 		return false;
+<<<<<<< HEAD
+=======
+
+	switch (func) {
+	case KEY_CHECK:
+	case CRITICAL_DATA:
+		return ((rule->func == func) &&
+			ima_match_rule_data(rule, func_data, cred));
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if ((rule->flags & IMA_MASK) &&
 	    (rule->mask != mask && func != POST_SETATTR))
 		return false;
@@ -314,30 +692,51 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
 	}
 
 	if ((rule->flags & IMA_FOWNER) &&
+<<<<<<< HEAD
 	    !rule->fowner_op(inode->i_uid, rule->fowner))
+=======
+	    !rule->fowner_op(i_uid_into_mnt(mnt_userns, inode), rule->fowner))
+>>>>>>> upstream/android-13
 		return false;
 	for (i = 0; i < MAX_LSM_RULES; i++) {
 		int rc = 0;
 		u32 osid;
+<<<<<<< HEAD
 		int retried = 0;
 
 		if (!rule->lsm[i].rule)
 			continue;
 retry:
+=======
+
+		if (!rule->lsm[i].rule) {
+			if (!rule->lsm[i].args_p)
+				continue;
+			else
+				return false;
+		}
+>>>>>>> upstream/android-13
 		switch (i) {
 		case LSM_OBJ_USER:
 		case LSM_OBJ_ROLE:
 		case LSM_OBJ_TYPE:
 			security_inode_getsecid(inode, &osid);
+<<<<<<< HEAD
 			rc = security_filter_rule_match(osid,
 							rule->lsm[i].type,
 							Audit_equal,
 							rule->lsm[i].rule,
 							NULL);
+=======
+			rc = ima_filter_rule_match(osid, rule->lsm[i].type,
+						   Audit_equal,
+						   rule->lsm[i].rule);
+>>>>>>> upstream/android-13
 			break;
 		case LSM_SUBJ_USER:
 		case LSM_SUBJ_ROLE:
 		case LSM_SUBJ_TYPE:
+<<<<<<< HEAD
 			rc = security_filter_rule_match(secid,
 							rule->lsm[i].type,
 							Audit_equal,
@@ -351,6 +750,15 @@ retry:
 			ima_lsm_update_rules();
 			goto retry;
 		}
+=======
+			rc = ima_filter_rule_match(secid, rule->lsm[i].type,
+						   Audit_equal,
+						   rule->lsm[i].rule);
+			break;
+		default:
+			break;
+		}
+>>>>>>> upstream/android-13
 		if (!rc)
 			return false;
 	}
@@ -384,6 +792,10 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
 
 /**
  * ima_match_policy - decision based on LSM and other conditions
+<<<<<<< HEAD
+=======
+ * @mnt_userns:	user namespace of the mount the inode was found from
+>>>>>>> upstream/android-13
  * @inode: pointer to an inode for which the policy decision is being made
  * @cred: pointer to a credentials structure for which the policy decision is
  *        being made
@@ -391,6 +803,12 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
  * @func: IMA hook identifier
  * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_EXEC)
  * @pcr: set the pcr to extend
+<<<<<<< HEAD
+=======
+ * @template_desc: the template that should be used for this rule
+ * @func_data: func specific data, may be NULL
+ * @allowed_algos: allowlist of hash algorithms for the IMA xattr
+>>>>>>> upstream/android-13
  *
  * Measure decision based on func/mask/fsmagic and LSM(subj/obj/type)
  * conditions.
@@ -399,6 +817,7 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
  * list when walking it.  Reads are many orders of magnitude more numerous
  * than writes so ima_match_policy() is classical RCU candidate.
  */
+<<<<<<< HEAD
 int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
 		     enum ima_hooks func, int mask, int flags, int *pcr)
 {
@@ -407,11 +826,34 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
 
 	rcu_read_lock();
 	list_for_each_entry_rcu(entry, ima_rules, list) {
+=======
+int ima_match_policy(struct user_namespace *mnt_userns, struct inode *inode,
+		     const struct cred *cred, u32 secid, enum ima_hooks func,
+		     int mask, int flags, int *pcr,
+		     struct ima_template_desc **template_desc,
+		     const char *func_data, unsigned int *allowed_algos)
+{
+	struct ima_rule_entry *entry;
+	int action = 0, actmask = flags | (flags << 1);
+	struct list_head *ima_rules_tmp;
+
+	if (template_desc && !*template_desc)
+		*template_desc = ima_template_desc_current();
+
+	rcu_read_lock();
+	ima_rules_tmp = rcu_dereference(ima_rules);
+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
+>>>>>>> upstream/android-13
 
 		if (!(entry->action & actmask))
 			continue;
 
+<<<<<<< HEAD
 		if (!ima_match_rules(entry, inode, cred, secid, func, mask))
+=======
+		if (!ima_match_rules(entry, mnt_userns, inode, cred, secid,
+				     func, mask, func_data))
+>>>>>>> upstream/android-13
 			continue;
 
 		action |= entry->flags & IMA_ACTION_FLAGS;
@@ -422,6 +864,13 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
 			action &= ~IMA_HASH;
 			if (ima_fail_unverifiable_sigs)
 				action |= IMA_FAIL_UNVERIFIABLE_SIGS;
+<<<<<<< HEAD
+=======
+
+			if (allowed_algos &&
+			    entry->flags & IMA_VALIDATE_ALGOS)
+				*allowed_algos = entry->allowed_algos;
+>>>>>>> upstream/android-13
 		}
 
 		if (entry->action & IMA_DO_MASK)
@@ -432,6 +881,12 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
 		if ((pcr) && (entry->flags & IMA_PCR))
 			*pcr = entry->pcr;
 
+<<<<<<< HEAD
+=======
+		if (template_desc && entry->template)
+			*template_desc = entry->template;
+
+>>>>>>> upstream/android-13
 		if (!actmask)
 			break;
 	}
@@ -440,6 +895,7 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
 	return action;
 }
 
+<<<<<<< HEAD
 /*
  * Initialize the ima_policy_flag variable based on the currently
  * loaded policy.  Based on this flag, the decision to short circuit
@@ -458,6 +914,61 @@ void ima_update_policy_flag(void)
 	ima_appraise |= (build_ima_appraise | temp_ima_appraise);
 	if (!ima_appraise)
 		ima_policy_flag &= ~IMA_APPRAISE;
+=======
+/**
+ * ima_update_policy_flags() - Update global IMA variables
+ *
+ * Update ima_policy_flag and ima_setxattr_allowed_hash_algorithms
+ * based on the currently loaded policy.
+ *
+ * With ima_policy_flag, the decision to short circuit out of a function
+ * or not call the function in the first place can be made earlier.
+ *
+ * With ima_setxattr_allowed_hash_algorithms, the policy can restrict the
+ * set of hash algorithms accepted when updating the security.ima xattr of
+ * a file.
+ *
+ * Context: called after a policy update and at system initialization.
+ */
+void ima_update_policy_flags(void)
+{
+	struct ima_rule_entry *entry;
+	int new_policy_flag = 0;
+	struct list_head *ima_rules_tmp;
+
+	rcu_read_lock();
+	ima_rules_tmp = rcu_dereference(ima_rules);
+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
+		/*
+		 * SETXATTR_CHECK rules do not implement a full policy check
+		 * because rule checking would probably have an important
+		 * performance impact on setxattr(). As a consequence, only one
+		 * SETXATTR_CHECK can be active at a given time.
+		 * Because we want to preserve that property, we set out to use
+		 * atomic_cmpxchg. Either:
+		 * - the atomic was non-zero: a setxattr hash policy is
+		 *   already enforced, we do nothing
+		 * - the atomic was zero: no setxattr policy was set, enable
+		 *   the setxattr hash policy
+		 */
+		if (entry->func == SETXATTR_CHECK) {
+			atomic_cmpxchg(&ima_setxattr_allowed_hash_algorithms,
+				       0, entry->allowed_algos);
+			/* SETXATTR_CHECK doesn't impact ima_policy_flag */
+			continue;
+		}
+
+		if (entry->action & IMA_DO_MASK)
+			new_policy_flag |= entry->action;
+	}
+	rcu_read_unlock();
+
+	ima_appraise |= (build_ima_appraise | temp_ima_appraise);
+	if (!ima_appraise)
+		new_policy_flag &= ~IMA_APPRAISE;
+
+	ima_policy_flag = new_policy_flag;
+>>>>>>> upstream/android-13
 }
 
 static int ima_appraise_flag(enum ima_hooks func)
@@ -473,6 +984,82 @@ static int ima_appraise_flag(enum ima_hooks func)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void add_rules(struct ima_rule_entry *entries, int count,
+		      enum policy_rule_list policy_rule)
+{
+	int i = 0;
+
+	for (i = 0; i < count; i++) {
+		struct ima_rule_entry *entry;
+
+		if (policy_rule & IMA_DEFAULT_POLICY)
+			list_add_tail(&entries[i].list, &ima_default_rules);
+
+		if (policy_rule & IMA_CUSTOM_POLICY) {
+			entry = kmemdup(&entries[i], sizeof(*entry),
+					GFP_KERNEL);
+			if (!entry)
+				continue;
+
+			list_add_tail(&entry->list, &ima_policy_rules);
+		}
+		if (entries[i].action == APPRAISE) {
+			if (entries != build_appraise_rules)
+				temp_ima_appraise |=
+					ima_appraise_flag(entries[i].func);
+			else
+				build_ima_appraise |=
+					ima_appraise_flag(entries[i].func);
+		}
+	}
+}
+
+static int ima_parse_rule(char *rule, struct ima_rule_entry *entry);
+
+static int __init ima_init_arch_policy(void)
+{
+	const char * const *arch_rules;
+	const char * const *rules;
+	int arch_entries = 0;
+	int i = 0;
+
+	arch_rules = arch_get_ima_policy();
+	if (!arch_rules)
+		return arch_entries;
+
+	/* Get number of rules */
+	for (rules = arch_rules; *rules != NULL; rules++)
+		arch_entries++;
+
+	arch_policy_entry = kcalloc(arch_entries + 1,
+				    sizeof(*arch_policy_entry), GFP_KERNEL);
+	if (!arch_policy_entry)
+		return 0;
+
+	/* Convert each policy string rules to struct ima_rule_entry format */
+	for (rules = arch_rules, i = 0; *rules != NULL; rules++) {
+		char rule[255];
+		int result;
+
+		result = strlcpy(rule, *rules, sizeof(rule));
+
+		INIT_LIST_HEAD(&arch_policy_entry[i].list);
+		result = ima_parse_rule(rule, &arch_policy_entry[i]);
+		if (result) {
+			pr_warn("Skipping unknown architecture policy rule: %s\n",
+				rule);
+			memset(&arch_policy_entry[i], 0,
+			       sizeof(*arch_policy_entry));
+			continue;
+		}
+		i++;
+	}
+	return i;
+}
+
+>>>>>>> upstream/android-13
 /**
  * ima_init_policy - initialize the default measure rules.
  *
@@ -481,6 +1068,7 @@ static int ima_appraise_flag(enum ima_hooks func)
  */
 void __init ima_init_policy(void)
 {
+<<<<<<< HEAD
 	int i, measure_entries, appraise_entries, secure_boot_entries;
 
 	/* if !ima_policy set entries = 0 so we load NO default rules */
@@ -503,11 +1091,32 @@ void __init ima_init_policy(void)
 		for (i = 0; i < ARRAY_SIZE(default_measurement_rules); i++)
 			list_add_tail(&default_measurement_rules[i].list,
 				      &ima_default_rules);
+=======
+	int build_appraise_entries, arch_entries;
+
+	/* if !ima_policy, we load NO default rules */
+	if (ima_policy)
+		add_rules(dont_measure_rules, ARRAY_SIZE(dont_measure_rules),
+			  IMA_DEFAULT_POLICY);
+
+	switch (ima_policy) {
+	case ORIGINAL_TCB:
+		add_rules(original_measurement_rules,
+			  ARRAY_SIZE(original_measurement_rules),
+			  IMA_DEFAULT_POLICY);
+		break;
+	case DEFAULT_TCB:
+		add_rules(default_measurement_rules,
+			  ARRAY_SIZE(default_measurement_rules),
+			  IMA_DEFAULT_POLICY);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Insert the builtin "secure_boot" policy rules requiring file
 	 * signatures, prior to any other appraise rules.
 	 */
@@ -516,10 +1125,32 @@ void __init ima_init_policy(void)
 		temp_ima_appraise |=
 		    ima_appraise_flag(secure_boot_rules[i].func);
 	}
+=======
+	 * Based on runtime secure boot flags, insert arch specific measurement
+	 * and appraise rules requiring file signatures for both the initial
+	 * and custom policies, prior to other appraise rules.
+	 * (Highest priority)
+	 */
+	arch_entries = ima_init_arch_policy();
+	if (!arch_entries)
+		pr_info("No architecture policies found\n");
+	else
+		add_rules(arch_policy_entry, arch_entries,
+			  IMA_DEFAULT_POLICY | IMA_CUSTOM_POLICY);
+
+	/*
+	 * Insert the builtin "secure_boot" policy rules requiring file
+	 * signatures, prior to other appraise rules.
+	 */
+	if (ima_use_secure_boot)
+		add_rules(secure_boot_rules, ARRAY_SIZE(secure_boot_rules),
+			  IMA_DEFAULT_POLICY);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Insert the build time appraise rules requiring file signatures
 	 * for both the initial and custom policies, prior to other appraise
+<<<<<<< HEAD
 	 * rules.
 	 */
 	for (i = 0; i < ARRAY_SIZE(build_appraise_rules); i++) {
@@ -545,6 +1176,34 @@ void __init ima_init_policy(void)
 	}
 
 	ima_update_policy_flag();
+=======
+	 * rules. As the secure boot rules includes all of the build time
+	 * rules, include either one or the other set of rules, but not both.
+	 */
+	build_appraise_entries = ARRAY_SIZE(build_appraise_rules);
+	if (build_appraise_entries) {
+		if (ima_use_secure_boot)
+			add_rules(build_appraise_rules, build_appraise_entries,
+				  IMA_CUSTOM_POLICY);
+		else
+			add_rules(build_appraise_rules, build_appraise_entries,
+				  IMA_DEFAULT_POLICY | IMA_CUSTOM_POLICY);
+	}
+
+	if (ima_use_appraise_tcb)
+		add_rules(default_appraise_rules,
+			  ARRAY_SIZE(default_appraise_rules),
+			  IMA_DEFAULT_POLICY);
+
+	if (ima_use_critical_data)
+		add_rules(critical_data_rules,
+			  ARRAY_SIZE(critical_data_rules),
+			  IMA_DEFAULT_POLICY);
+
+	atomic_set(&ima_setxattr_allowed_hash_algorithms, 0);
+
+	ima_update_policy_flags();
+>>>>>>> upstream/android-13
 }
 
 /* Make sure we have a valid policy, at least containing some rules. */
@@ -572,6 +1231,7 @@ void ima_update_policy(void)
 
 	list_splice_tail_init_rcu(&ima_temp_rules, policy, synchronize_rcu);
 
+<<<<<<< HEAD
 	if (ima_rules != policy) {
 		ima_policy_flag = 0;
 		ima_rules = policy;
@@ -582,6 +1242,29 @@ void ima_update_policy(void)
 enum {
 	Opt_err = -1,
 	Opt_measure = 1, Opt_dont_measure,
+=======
+	if (ima_rules != (struct list_head __rcu *)policy) {
+		ima_policy_flag = 0;
+
+		rcu_assign_pointer(ima_rules, policy);
+		/*
+		 * IMA architecture specific policy rules are specified
+		 * as strings and converted to an array of ima_entry_rules
+		 * on boot.  After loading a custom policy, free the
+		 * architecture specific rules stored as an array.
+		 */
+		kfree(arch_policy_entry);
+	}
+	ima_update_policy_flags();
+
+	/* Custom IMA policy has been loaded */
+	ima_process_queued_keys();
+}
+
+/* Keep the enumeration in sync with the policy_tokens! */
+enum {
+	Opt_measure, Opt_dont_measure,
+>>>>>>> upstream/android-13
 	Opt_appraise, Opt_dont_appraise,
 	Opt_audit, Opt_hash, Opt_dont_hash,
 	Opt_obj_user, Opt_obj_role, Opt_obj_type,
@@ -590,11 +1273,20 @@ enum {
 	Opt_fsuuid, Opt_uid_eq, Opt_euid_eq, Opt_fowner_eq,
 	Opt_uid_gt, Opt_euid_gt, Opt_fowner_gt,
 	Opt_uid_lt, Opt_euid_lt, Opt_fowner_lt,
+<<<<<<< HEAD
 	Opt_appraise_type, Opt_permit_directio,
 	Opt_pcr
 };
 
 static match_table_t policy_tokens = {
+=======
+	Opt_appraise_type, Opt_appraise_flag, Opt_appraise_algos,
+	Opt_permit_directio, Opt_pcr, Opt_template, Opt_keyrings,
+	Opt_label, Opt_err
+};
+
+static const match_table_t policy_tokens = {
+>>>>>>> upstream/android-13
 	{Opt_measure, "measure"},
 	{Opt_dont_measure, "dont_measure"},
 	{Opt_appraise, "appraise"},
@@ -623,8 +1315,18 @@ static match_table_t policy_tokens = {
 	{Opt_euid_lt, "euid<%s"},
 	{Opt_fowner_lt, "fowner<%s"},
 	{Opt_appraise_type, "appraise_type=%s"},
+<<<<<<< HEAD
 	{Opt_permit_directio, "permit_directio"},
 	{Opt_pcr, "pcr=%s"},
+=======
+	{Opt_appraise_flag, "appraise_flag=%s"},
+	{Opt_appraise_algos, "appraise_algos=%s"},
+	{Opt_permit_directio, "permit_directio"},
+	{Opt_pcr, "pcr=%s"},
+	{Opt_template, "template=%s"},
+	{Opt_keyrings, "keyrings=%s"},
+	{Opt_label, "label=%s"},
+>>>>>>> upstream/android-13
 	{Opt_err, NULL}
 };
 
@@ -641,6 +1343,7 @@ static int ima_lsm_rule_init(struct ima_rule_entry *entry,
 		return -ENOMEM;
 
 	entry->lsm[lsm_rule].type = audit_type;
+<<<<<<< HEAD
 	result = security_filter_rule_init(entry->lsm[lsm_rule].type,
 					   Audit_equal,
 					   entry->lsm[lsm_rule].args_p,
@@ -648,6 +1351,21 @@ static int ima_lsm_rule_init(struct ima_rule_entry *entry,
 	if (!entry->lsm[lsm_rule].rule) {
 		kfree(entry->lsm[lsm_rule].args_p);
 		return -EINVAL;
+=======
+	result = ima_filter_rule_init(entry->lsm[lsm_rule].type, Audit_equal,
+				      entry->lsm[lsm_rule].args_p,
+				      &entry->lsm[lsm_rule].rule);
+	if (!entry->lsm[lsm_rule].rule) {
+		pr_warn("rule for LSM \'%s\' is undefined\n",
+			entry->lsm[lsm_rule].args_p);
+
+		if (ima_rules == (struct list_head __rcu *)(&ima_default_rules)) {
+			kfree(entry->lsm[lsm_rule].args_p);
+			entry->lsm[lsm_rule].args_p = NULL;
+			result = -EINVAL;
+		} else
+			result = 0;
+>>>>>>> upstream/android-13
 	}
 
 	return result;
@@ -672,12 +1390,199 @@ static void ima_log_string(struct audit_buffer *ab, char *key, char *value)
 	ima_log_string_op(ab, key, value, NULL);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Validating the appended signature included in the measurement list requires
+ * the file hash calculated without the appended signature (i.e., the 'd-modsig'
+ * field). Therefore, notify the user if they have the 'modsig' field but not
+ * the 'd-modsig' field in the template.
+ */
+static void check_template_modsig(const struct ima_template_desc *template)
+{
+#define MSG "template with 'modsig' field also needs 'd-modsig' field\n"
+	bool has_modsig, has_dmodsig;
+	static bool checked;
+	int i;
+
+	/* We only need to notify the user once. */
+	if (checked)
+		return;
+
+	has_modsig = has_dmodsig = false;
+	for (i = 0; i < template->num_fields; i++) {
+		if (!strcmp(template->fields[i]->field_id, "modsig"))
+			has_modsig = true;
+		else if (!strcmp(template->fields[i]->field_id, "d-modsig"))
+			has_dmodsig = true;
+	}
+
+	if (has_modsig && !has_dmodsig)
+		pr_notice(MSG);
+
+	checked = true;
+#undef MSG
+}
+
+static bool ima_validate_rule(struct ima_rule_entry *entry)
+{
+	/* Ensure that the action is set and is compatible with the flags */
+	if (entry->action == UNKNOWN)
+		return false;
+
+	if (entry->action != MEASURE && entry->flags & IMA_PCR)
+		return false;
+
+	if (entry->action != APPRAISE &&
+	    entry->flags & (IMA_DIGSIG_REQUIRED | IMA_MODSIG_ALLOWED |
+			    IMA_CHECK_BLACKLIST | IMA_VALIDATE_ALGOS))
+		return false;
+
+	/*
+	 * The IMA_FUNC bit must be set if and only if there's a valid hook
+	 * function specified, and vice versa. Enforcing this property allows
+	 * for the NONE case below to validate a rule without an explicit hook
+	 * function.
+	 */
+	if (((entry->flags & IMA_FUNC) && entry->func == NONE) ||
+	    (!(entry->flags & IMA_FUNC) && entry->func != NONE))
+		return false;
+
+	/*
+	 * Ensure that the hook function is compatible with the other
+	 * components of the rule
+	 */
+	switch (entry->func) {
+	case NONE:
+	case FILE_CHECK:
+	case MMAP_CHECK:
+	case BPRM_CHECK:
+	case CREDS_CHECK:
+	case POST_SETATTR:
+	case FIRMWARE_CHECK:
+	case POLICY_CHECK:
+		if (entry->flags & ~(IMA_FUNC | IMA_MASK | IMA_FSMAGIC |
+				     IMA_UID | IMA_FOWNER | IMA_FSUUID |
+				     IMA_INMASK | IMA_EUID | IMA_PCR |
+				     IMA_FSNAME | IMA_DIGSIG_REQUIRED |
+				     IMA_PERMIT_DIRECTIO | IMA_VALIDATE_ALGOS))
+			return false;
+
+		break;
+	case MODULE_CHECK:
+	case KEXEC_KERNEL_CHECK:
+	case KEXEC_INITRAMFS_CHECK:
+		if (entry->flags & ~(IMA_FUNC | IMA_MASK | IMA_FSMAGIC |
+				     IMA_UID | IMA_FOWNER | IMA_FSUUID |
+				     IMA_INMASK | IMA_EUID | IMA_PCR |
+				     IMA_FSNAME | IMA_DIGSIG_REQUIRED |
+				     IMA_PERMIT_DIRECTIO | IMA_MODSIG_ALLOWED |
+				     IMA_CHECK_BLACKLIST | IMA_VALIDATE_ALGOS))
+			return false;
+
+		break;
+	case KEXEC_CMDLINE:
+		if (entry->action & ~(MEASURE | DONT_MEASURE))
+			return false;
+
+		if (entry->flags & ~(IMA_FUNC | IMA_FSMAGIC | IMA_UID |
+				     IMA_FOWNER | IMA_FSUUID | IMA_EUID |
+				     IMA_PCR | IMA_FSNAME))
+			return false;
+
+		break;
+	case KEY_CHECK:
+		if (entry->action & ~(MEASURE | DONT_MEASURE))
+			return false;
+
+		if (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
+				     IMA_KEYRINGS))
+			return false;
+
+		if (ima_rule_contains_lsm_cond(entry))
+			return false;
+
+		break;
+	case CRITICAL_DATA:
+		if (entry->action & ~(MEASURE | DONT_MEASURE))
+			return false;
+
+		if (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
+				     IMA_LABEL))
+			return false;
+
+		if (ima_rule_contains_lsm_cond(entry))
+			return false;
+
+		break;
+	case SETXATTR_CHECK:
+		/* any action other than APPRAISE is unsupported */
+		if (entry->action != APPRAISE)
+			return false;
+
+		/* SETXATTR_CHECK requires an appraise_algos parameter */
+		if (!(entry->flags & IMA_VALIDATE_ALGOS))
+			return false;
+
+		/*
+		 * full policies are not supported, they would have too
+		 * much of a performance impact
+		 */
+		if (entry->flags & ~(IMA_FUNC | IMA_VALIDATE_ALGOS))
+			return false;
+
+		break;
+	default:
+		return false;
+	}
+
+	/* Ensure that combinations of flags are compatible with each other */
+	if (entry->flags & IMA_CHECK_BLACKLIST &&
+	    !(entry->flags & IMA_MODSIG_ALLOWED))
+		return false;
+
+	return true;
+}
+
+static unsigned int ima_parse_appraise_algos(char *arg)
+{
+	unsigned int res = 0;
+	int idx;
+	char *token;
+
+	while ((token = strsep(&arg, ",")) != NULL) {
+		idx = match_string(hash_algo_name, HASH_ALGO__LAST, token);
+
+		if (idx < 0) {
+			pr_err("unknown hash algorithm \"%s\"",
+			       token);
+			return 0;
+		}
+
+		if (!crypto_has_alg(hash_algo_name[idx], 0, 0)) {
+			pr_err("unavailable hash algorithm \"%s\", check your kernel configuration",
+			       token);
+			return 0;
+		}
+
+		/* Add the hash algorithm to the 'allowed' bitfield */
+		res |= (1U << idx);
+	}
+
+	return res;
+}
+
+>>>>>>> upstream/android-13
 static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
 {
 	struct audit_buffer *ab;
 	char *from;
 	char *p;
 	bool uid_token;
+<<<<<<< HEAD
+=======
+	struct ima_template_desc *template_desc;
+>>>>>>> upstream/android-13
 	int result = 0;
 
 	ab = integrity_audit_log_start(audit_context(), GFP_KERNEL,
@@ -785,6 +1690,18 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
 				entry->func = KEXEC_INITRAMFS_CHECK;
 			else if (strcmp(args[0].from, "POLICY_CHECK") == 0)
 				entry->func = POLICY_CHECK;
+<<<<<<< HEAD
+=======
+			else if (strcmp(args[0].from, "KEXEC_CMDLINE") == 0)
+				entry->func = KEXEC_CMDLINE;
+			else if (IS_ENABLED(CONFIG_IMA_MEASURE_ASYMMETRIC_KEYS) &&
+				 strcmp(args[0].from, "KEY_CHECK") == 0)
+				entry->func = KEY_CHECK;
+			else if (strcmp(args[0].from, "CRITICAL_DATA") == 0)
+				entry->func = CRITICAL_DATA;
+			else if (strcmp(args[0].from, "SETXATTR_CHECK") == 0)
+				entry->func = SETXATTR_CHECK;
+>>>>>>> upstream/android-13
 			else
 				result = -EINVAL;
 			if (!result)
@@ -837,6 +1754,44 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
 			result = 0;
 			entry->flags |= IMA_FSNAME;
 			break;
+<<<<<<< HEAD
+=======
+		case Opt_keyrings:
+			ima_log_string(ab, "keyrings", args[0].from);
+
+			if (!IS_ENABLED(CONFIG_IMA_MEASURE_ASYMMETRIC_KEYS) ||
+			    entry->keyrings) {
+				result = -EINVAL;
+				break;
+			}
+
+			entry->keyrings = ima_alloc_rule_opt_list(args);
+			if (IS_ERR(entry->keyrings)) {
+				result = PTR_ERR(entry->keyrings);
+				entry->keyrings = NULL;
+				break;
+			}
+
+			entry->flags |= IMA_KEYRINGS;
+			break;
+		case Opt_label:
+			ima_log_string(ab, "label", args[0].from);
+
+			if (entry->label) {
+				result = -EINVAL;
+				break;
+			}
+
+			entry->label = ima_alloc_rule_opt_list(args);
+			if (IS_ERR(entry->label)) {
+				result = PTR_ERR(entry->label);
+				entry->label = NULL;
+				break;
+			}
+
+			entry->flags |= IMA_LABEL;
+			break;
+>>>>>>> upstream/android-13
 		case Opt_fsuuid:
 			ima_log_string(ab, "fsuuid", args[0].from);
 
@@ -852,10 +1807,18 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
 		case Opt_uid_gt:
 		case Opt_euid_gt:
 			entry->uid_op = &uid_gt;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Opt_uid_lt:
 		case Opt_euid_lt:
 			if ((token == Opt_uid_lt) || (token == Opt_euid_lt))
 				entry->uid_op = &uid_lt;
+<<<<<<< HEAD
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Opt_uid_eq:
 		case Opt_euid_eq:
 			uid_token = (token == Opt_uid_eq) ||
@@ -884,9 +1847,17 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
 			break;
 		case Opt_fowner_gt:
 			entry->fowner_op = &uid_gt;
+<<<<<<< HEAD
 		case Opt_fowner_lt:
 			if (token == Opt_fowner_lt)
 				entry->fowner_op = &uid_lt;
+=======
+			fallthrough;
+		case Opt_fowner_lt:
+			if (token == Opt_fowner_lt)
+				entry->fowner_op = &uid_lt;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case Opt_fowner_eq:
 			ima_log_string_op(ab, "fowner", args[0].from,
 					  entry->fowner_op);
@@ -942,25 +1913,66 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
 						   AUDIT_SUBJ_TYPE);
 			break;
 		case Opt_appraise_type:
+<<<<<<< HEAD
 			if (entry->action != APPRAISE) {
+=======
+			ima_log_string(ab, "appraise_type", args[0].from);
+			if ((strcmp(args[0].from, "imasig")) == 0)
+				entry->flags |= IMA_DIGSIG_REQUIRED;
+			else if (IS_ENABLED(CONFIG_IMA_APPRAISE_MODSIG) &&
+				 strcmp(args[0].from, "imasig|modsig") == 0)
+				entry->flags |= IMA_DIGSIG_REQUIRED |
+						IMA_MODSIG_ALLOWED;
+			else
+				result = -EINVAL;
+			break;
+		case Opt_appraise_flag:
+			ima_log_string(ab, "appraise_flag", args[0].from);
+			if (IS_ENABLED(CONFIG_IMA_APPRAISE_MODSIG) &&
+			    strstr(args[0].from, "blacklist"))
+				entry->flags |= IMA_CHECK_BLACKLIST;
+			else
+				result = -EINVAL;
+			break;
+		case Opt_appraise_algos:
+			ima_log_string(ab, "appraise_algos", args[0].from);
+
+			if (entry->allowed_algos) {
+>>>>>>> upstream/android-13
 				result = -EINVAL;
 				break;
 			}
 
+<<<<<<< HEAD
 			ima_log_string(ab, "appraise_type", args[0].from);
 			if ((strcmp(args[0].from, "imasig")) == 0)
 				entry->flags |= IMA_DIGSIG_REQUIRED;
 			else
 				result = -EINVAL;
+=======
+			entry->allowed_algos =
+				ima_parse_appraise_algos(args[0].from);
+			/* invalid or empty list of algorithms */
+			if (!entry->allowed_algos) {
+				result = -EINVAL;
+				break;
+			}
+
+			entry->flags |= IMA_VALIDATE_ALGOS;
+
+>>>>>>> upstream/android-13
 			break;
 		case Opt_permit_directio:
 			entry->flags |= IMA_PERMIT_DIRECTIO;
 			break;
 		case Opt_pcr:
+<<<<<<< HEAD
 			if (entry->action != MEASURE) {
 				result = -EINVAL;
 				break;
 			}
+=======
+>>>>>>> upstream/android-13
 			ima_log_string(ab, "pcr", args[0].from);
 
 			result = kstrtoint(args[0].from, 10, &entry->pcr);
@@ -970,17 +1982,55 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
 				entry->flags |= IMA_PCR;
 
 			break;
+<<<<<<< HEAD
+=======
+		case Opt_template:
+			ima_log_string(ab, "template", args[0].from);
+			if (entry->action != MEASURE) {
+				result = -EINVAL;
+				break;
+			}
+			template_desc = lookup_template_desc(args[0].from);
+			if (!template_desc || entry->template) {
+				result = -EINVAL;
+				break;
+			}
+
+			/*
+			 * template_desc_init_fields() does nothing if
+			 * the template is already initialised, so
+			 * it's safe to do this unconditionally
+			 */
+			template_desc_init_fields(template_desc->fmt,
+						 &(template_desc->fields),
+						 &(template_desc->num_fields));
+			entry->template = template_desc;
+			break;
+>>>>>>> upstream/android-13
 		case Opt_err:
 			ima_log_string(ab, "UNKNOWN", p);
 			result = -EINVAL;
 			break;
 		}
 	}
+<<<<<<< HEAD
 	if (!result && (entry->action == UNKNOWN))
+=======
+	if (!result && !ima_validate_rule(entry))
+>>>>>>> upstream/android-13
 		result = -EINVAL;
 	else if (entry->action == APPRAISE)
 		temp_ima_appraise |= ima_appraise_flag(entry->func);
 
+<<<<<<< HEAD
+=======
+	if (!result && entry->flags & IMA_MODSIG_ALLOWED) {
+		template_desc = entry->template ? entry->template :
+						  ima_template_desc_current();
+		check_template_modsig(template_desc);
+	}
+
+>>>>>>> upstream/android-13
 	audit_log_format(ab, "res=%d", !result);
 	audit_log_end(ab);
 	return result;
@@ -1019,7 +2069,11 @@ ssize_t ima_parse_add_rule(char *rule)
 
 	result = ima_parse_rule(p, entry);
 	if (result) {
+<<<<<<< HEAD
 		kfree(entry);
+=======
+		ima_free_rule(entry);
+>>>>>>> upstream/android-13
 		integrity_audit_msg(AUDIT_INTEGRITY_STATUS, NULL,
 				    NULL, op, "invalid-policy", result,
 				    audit_info);
@@ -1040,6 +2094,7 @@ ssize_t ima_parse_add_rule(char *rule)
 void ima_delete_rules(void)
 {
 	struct ima_rule_entry *entry, *tmp;
+<<<<<<< HEAD
 	int i;
 
 	temp_ima_appraise = 0;
@@ -1052,6 +2107,22 @@ void ima_delete_rules(void)
 	}
 }
 
+=======
+
+	temp_ima_appraise = 0;
+	list_for_each_entry_safe(entry, tmp, &ima_temp_rules, list) {
+		list_del(&entry->list);
+		ima_free_rule(entry);
+	}
+}
+
+#define __ima_hook_stringify(func, str)	(#func),
+
+const char *const func_tokens[] = {
+	__ima_hooks(__ima_hook_stringify)
+};
+
+>>>>>>> upstream/android-13
 #ifdef	CONFIG_IMA_READ_POLICY
 enum {
 	mask_exec = 0, mask_write, mask_read, mask_append
@@ -1064,19 +2135,30 @@ static const char *const mask_tokens[] = {
 	"^MAY_APPEND"
 };
 
+<<<<<<< HEAD
 #define __ima_hook_stringify(str)	(#str),
 
 static const char *const func_tokens[] = {
 	__ima_hooks(__ima_hook_stringify)
 };
 
+=======
+>>>>>>> upstream/android-13
 void *ima_policy_start(struct seq_file *m, loff_t *pos)
 {
 	loff_t l = *pos;
 	struct ima_rule_entry *entry;
+<<<<<<< HEAD
 
 	rcu_read_lock();
 	list_for_each_entry_rcu(entry, ima_rules, list) {
+=======
+	struct list_head *ima_rules_tmp;
+
+	rcu_read_lock();
+	ima_rules_tmp = rcu_dereference(ima_rules);
+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
+>>>>>>> upstream/android-13
 		if (!l--) {
 			rcu_read_unlock();
 			return entry;
@@ -1095,14 +2177,23 @@ void *ima_policy_next(struct seq_file *m, void *v, loff_t *pos)
 	rcu_read_unlock();
 	(*pos)++;
 
+<<<<<<< HEAD
 	return (&entry->list == ima_rules) ? NULL : entry;
+=======
+	return (&entry->list == &ima_default_rules ||
+		&entry->list == &ima_policy_rules) ? NULL : entry;
+>>>>>>> upstream/android-13
 }
 
 void ima_policy_stop(struct seq_file *m, void *v)
 {
 }
 
+<<<<<<< HEAD
 #define pt(token)	policy_tokens[token + Opt_err].pattern
+=======
+#define pt(token)	policy_tokens[token].pattern
+>>>>>>> upstream/android-13
 #define mt(token)	mask_tokens[token]
 
 /*
@@ -1116,6 +2207,35 @@ static void policy_func_show(struct seq_file *m, enum ima_hooks func)
 		seq_printf(m, "func=%d ", func);
 }
 
+<<<<<<< HEAD
+=======
+static void ima_show_rule_opt_list(struct seq_file *m,
+				   const struct ima_rule_opt_list *opt_list)
+{
+	size_t i;
+
+	for (i = 0; i < opt_list->count; i++)
+		seq_printf(m, "%s%s", i ? "|" : "", opt_list->items[i]);
+}
+
+static void ima_policy_show_appraise_algos(struct seq_file *m,
+					   unsigned int allowed_hashes)
+{
+	int idx, list_size = 0;
+
+	for (idx = 0; idx < HASH_ALGO__LAST; idx++) {
+		if (!(allowed_hashes & (1U << idx)))
+			continue;
+
+		/* only add commas if the list contains multiple entries */
+		if (list_size++)
+			seq_puts(m, ",");
+
+		seq_puts(m, hash_algo_name[idx]);
+	}
+}
+
+>>>>>>> upstream/android-13
 int ima_policy_show(struct seq_file *m, void *v)
 {
 	struct ima_rule_entry *entry = v;
@@ -1125,6 +2245,17 @@ int ima_policy_show(struct seq_file *m, void *v)
 
 	rcu_read_lock();
 
+<<<<<<< HEAD
+=======
+	/* Do not print rules with inactive LSM labels */
+	for (i = 0; i < MAX_LSM_RULES; i++) {
+		if (entry->lsm[i].args_p && !entry->lsm[i].rule) {
+			rcu_read_unlock();
+			return 0;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (entry->action & MEASURE)
 		seq_puts(m, pt(Opt_measure));
 	if (entry->action & DONT_MEASURE)
@@ -1171,6 +2302,21 @@ int ima_policy_show(struct seq_file *m, void *v)
 		seq_puts(m, " ");
 	}
 
+<<<<<<< HEAD
+=======
+	if (entry->flags & IMA_KEYRINGS) {
+		seq_puts(m, "keyrings=");
+		ima_show_rule_opt_list(m, entry->keyrings);
+		seq_puts(m, " ");
+	}
+
+	if (entry->flags & IMA_LABEL) {
+		seq_puts(m, "label=");
+		ima_show_rule_opt_list(m, entry->label);
+		seq_puts(m, " ");
+	}
+
+>>>>>>> upstream/android-13
 	if (entry->flags & IMA_PCR) {
 		snprintf(tbuf, sizeof(tbuf), "%d", entry->pcr);
 		seq_printf(m, pt(Opt_pcr), tbuf);
@@ -1215,11 +2361,21 @@ int ima_policy_show(struct seq_file *m, void *v)
 		seq_puts(m, " ");
 	}
 
+<<<<<<< HEAD
+=======
+	if (entry->flags & IMA_VALIDATE_ALGOS) {
+		seq_puts(m, "appraise_algos=");
+		ima_policy_show_appraise_algos(m, entry->allowed_algos);
+		seq_puts(m, " ");
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < MAX_LSM_RULES; i++) {
 		if (entry->lsm[i].rule) {
 			switch (i) {
 			case LSM_OBJ_USER:
 				seq_printf(m, pt(Opt_obj_user),
+<<<<<<< HEAD
 					   (char *)entry->lsm[i].args_p);
 				break;
 			case LSM_OBJ_ROLE:
@@ -1247,6 +2403,44 @@ int ima_policy_show(struct seq_file *m, void *v)
 	}
 	if (entry->flags & IMA_DIGSIG_REQUIRED)
 		seq_puts(m, "appraise_type=imasig ");
+=======
+					   entry->lsm[i].args_p);
+				break;
+			case LSM_OBJ_ROLE:
+				seq_printf(m, pt(Opt_obj_role),
+					   entry->lsm[i].args_p);
+				break;
+			case LSM_OBJ_TYPE:
+				seq_printf(m, pt(Opt_obj_type),
+					   entry->lsm[i].args_p);
+				break;
+			case LSM_SUBJ_USER:
+				seq_printf(m, pt(Opt_subj_user),
+					   entry->lsm[i].args_p);
+				break;
+			case LSM_SUBJ_ROLE:
+				seq_printf(m, pt(Opt_subj_role),
+					   entry->lsm[i].args_p);
+				break;
+			case LSM_SUBJ_TYPE:
+				seq_printf(m, pt(Opt_subj_type),
+					   entry->lsm[i].args_p);
+				break;
+			}
+			seq_puts(m, " ");
+		}
+	}
+	if (entry->template)
+		seq_printf(m, "template=%s ", entry->template->name);
+	if (entry->flags & IMA_DIGSIG_REQUIRED) {
+		if (entry->flags & IMA_MODSIG_ALLOWED)
+			seq_puts(m, "appraise_type=imasig|modsig ");
+		else
+			seq_puts(m, "appraise_type=imasig ");
+	}
+	if (entry->flags & IMA_CHECK_BLACKLIST)
+		seq_puts(m, "appraise_flag=check_blacklist ");
+>>>>>>> upstream/android-13
 	if (entry->flags & IMA_PERMIT_DIRECTIO)
 		seq_puts(m, "permit_directio ");
 	rcu_read_unlock();
@@ -1254,3 +2448,58 @@ int ima_policy_show(struct seq_file *m, void *v)
 	return 0;
 }
 #endif	/* CONFIG_IMA_READ_POLICY */
+<<<<<<< HEAD
+=======
+
+#if defined(CONFIG_IMA_APPRAISE) && defined(CONFIG_INTEGRITY_TRUSTED_KEYRING)
+/*
+ * ima_appraise_signature: whether IMA will appraise a given function using
+ * an IMA digital signature. This is restricted to cases where the kernel
+ * has a set of built-in trusted keys in order to avoid an attacker simply
+ * loading additional keys.
+ */
+bool ima_appraise_signature(enum kernel_read_file_id id)
+{
+	struct ima_rule_entry *entry;
+	bool found = false;
+	enum ima_hooks func;
+	struct list_head *ima_rules_tmp;
+
+	if (id >= READING_MAX_ID)
+		return false;
+
+	func = read_idmap[id] ?: FILE_CHECK;
+
+	rcu_read_lock();
+	ima_rules_tmp = rcu_dereference(ima_rules);
+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
+		if (entry->action != APPRAISE)
+			continue;
+
+		/*
+		 * A generic entry will match, but otherwise require that it
+		 * match the func we're looking for
+		 */
+		if (entry->func && entry->func != func)
+			continue;
+
+		/*
+		 * We require this to be a digital signature, not a raw IMA
+		 * hash.
+		 */
+		if (entry->flags & IMA_DIGSIG_REQUIRED)
+			found = true;
+
+		/*
+		 * We've found a rule that matches, so break now even if it
+		 * didn't require a digital signature - a later rule that does
+		 * won't override it, so would be a false positive.
+		 */
+		break;
+	}
+
+	rcu_read_unlock();
+	return found;
+}
+#endif /* CONFIG_IMA_APPRAISE && CONFIG_INTEGRITY_TRUSTED_KEYRING */
+>>>>>>> upstream/android-13

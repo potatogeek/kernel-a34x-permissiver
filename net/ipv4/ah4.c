@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) "IPsec: " fmt
 
 #include <crypto/algapi.h>
@@ -106,7 +110,11 @@ static int ip_clear_mutable_options(const struct iphdr *iph, __be32 *daddr)
 			if (optlen < 6)
 				return -EINVAL;
 			memcpy(daddr, optptr+optlen-4, 4);
+<<<<<<< HEAD
 			/* Fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			memset(optptr, 0, optlen);
 		}
@@ -449,6 +457,10 @@ static int ah4_err(struct sk_buff *skb, u32 info)
 	case ICMP_DEST_UNREACH:
 		if (icmp_hdr(skb)->code != ICMP_FRAG_NEEDED)
 			return 0;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case ICMP_REDIRECT:
 		break;
 	default:
@@ -461,9 +473,15 @@ static int ah4_err(struct sk_buff *skb, u32 info)
 		return 0;
 
 	if (icmp_hdr(skb)->type == ICMP_DEST_UNREACH)
+<<<<<<< HEAD
 		ipv4_update_pmtu(skb, net, info, 0, 0, IPPROTO_AH, 0);
 	else
 		ipv4_redirect(skb, net, 0, 0, IPPROTO_AH, 0);
+=======
+		ipv4_update_pmtu(skb, net, info, 0, IPPROTO_AH);
+	else
+		ipv4_redirect(skb, net, 0, IPPROTO_AH);
+>>>>>>> upstream/android-13
 	xfrm_state_put(x);
 
 	return 0;
@@ -553,7 +571,10 @@ static int ah4_rcv_cb(struct sk_buff *skb, int err)
 
 static const struct xfrm_type ah_type =
 {
+<<<<<<< HEAD
 	.description	= "AH4",
+=======
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.proto	     	= IPPROTO_AH,
 	.flags		= XFRM_TYPE_REPLAY_PROT,
@@ -589,8 +610,12 @@ static void __exit ah4_fini(void)
 {
 	if (xfrm4_protocol_deregister(&ah4_protocol, IPPROTO_AH) < 0)
 		pr_info("%s: can't remove protocol\n", __func__);
+<<<<<<< HEAD
 	if (xfrm_unregister_type(&ah_type, AF_INET) < 0)
 		pr_info("%s: can't remove xfrm type\n", __func__);
+=======
+	xfrm_unregister_type(&ah_type, AF_INET);
+>>>>>>> upstream/android-13
 }
 
 module_init(ah4_init);

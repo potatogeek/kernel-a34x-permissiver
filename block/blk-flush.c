@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Functions to sequence PREFLUSH and FUA writes.
  *
  * Copyright (C) 2011		Max Planck Institute for Gravitational Physics
  * Copyright (C) 2011		Tejun Heo <tj@kernel.org>
  *
+<<<<<<< HEAD
  * This file is released under the GPLv2.
  *
+=======
+>>>>>>> upstream/android-13
  * REQ_{PREFLUSH|FUA} requests are decomposed to sequences consisted of three
  * optional steps - PREFLUSH, DATA and POSTFLUSH - according to the request
  * properties and hardware capability.
@@ -93,7 +100,11 @@ enum {
 	FLUSH_PENDING_TIMEOUT	= 5 * HZ,
 };
 
+<<<<<<< HEAD
 static bool blk_kick_flush(struct request_queue *q,
+=======
+static void blk_kick_flush(struct request_queue *q,
+>>>>>>> upstream/android-13
 			   struct blk_flush_queue *fq, unsigned int flags);
 
 static unsigned int blk_flush_policy(unsigned long fflags, struct request *rq)
@@ -132,6 +143,7 @@ static void blk_flush_restore_request(struct request *rq)
 	rq->end_io = rq->flush.saved_end_io;
 }
 
+<<<<<<< HEAD
 static bool blk_flush_queue_rq(struct request *rq, bool add_front)
 {
 	if (rq->q->mq_ops) {
@@ -144,6 +156,22 @@ static bool blk_flush_queue_rq(struct request *rq, bool add_front)
 			list_add_tail(&rq->queuelist, &rq->q->queue_head);
 		return true;
 	}
+=======
+static void blk_flush_queue_rq(struct request *rq, bool add_front)
+{
+	blk_mq_add_to_requeue_list(rq, add_front, true);
+}
+
+static void blk_account_io_flush(struct request *rq)
+{
+	struct block_device *part = rq->rq_disk->part0;
+
+	part_stat_lock();
+	part_stat_inc(part, ios[STAT_FLUSH]);
+	part_stat_add(part, nsecs[STAT_FLUSH],
+		      ktime_get_ns() - rq->start_time_ns);
+	part_stat_unlock();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -157,18 +185,27 @@ static bool blk_flush_queue_rq(struct request *rq, bool add_front)
  * completion and trigger the next step.
  *
  * CONTEXT:
+<<<<<<< HEAD
  * spin_lock_irq(q->queue_lock or fq->mq_flush_lock)
  *
  * RETURNS:
  * %true if requests were added to the dispatch queue, %false otherwise.
  */
 static bool blk_flush_complete_seq(struct request *rq,
+=======
+ * spin_lock_irq(fq->mq_flush_lock)
+ */
+static void blk_flush_complete_seq(struct request *rq,
+>>>>>>> upstream/android-13
 				   struct blk_flush_queue *fq,
 				   unsigned int seq, blk_status_t error)
 {
 	struct request_queue *q = rq->q;
 	struct list_head *pending = &fq->flush_queue[fq->flush_pending_idx];
+<<<<<<< HEAD
 	bool queued = false, kicked;
+=======
+>>>>>>> upstream/android-13
 	unsigned int cmd_flags;
 
 	BUG_ON(rq->flush.seq & seq);
@@ -191,12 +228,20 @@ static bool blk_flush_complete_seq(struct request *rq,
 
 	case REQ_FSEQ_DATA:
 		list_move_tail(&rq->flush.list, &fq->flush_data_in_flight);
+<<<<<<< HEAD
 		queued = blk_flush_queue_rq(rq, true);
+=======
+		blk_flush_queue_rq(rq, true);
+>>>>>>> upstream/android-13
 		break;
 
 	case REQ_FSEQ_DONE:
 		/*
+<<<<<<< HEAD
 		 * @rq was previously adjusted by blk_flush_issue() for
+=======
+		 * @rq was previously adjusted by blk_insert_flush() for
+>>>>>>> upstream/android-13
 		 * flush sequencing and may already have gone through the
 		 * flush data request completion path.  Restore @rq for
 		 * normal completion and end it.
@@ -204,29 +249,41 @@ static bool blk_flush_complete_seq(struct request *rq,
 		BUG_ON(!list_empty(&rq->queuelist));
 		list_del_init(&rq->flush.list);
 		blk_flush_restore_request(rq);
+<<<<<<< HEAD
 		if (q->mq_ops)
 			blk_mq_end_request(rq, error);
 		else
 			__blk_end_request_all(rq, error);
+=======
+		blk_mq_end_request(rq, error);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
 		BUG();
 	}
 
+<<<<<<< HEAD
 	kicked = blk_kick_flush(q, fq, cmd_flags);
 	return kicked | queued;
+=======
+	blk_kick_flush(q, fq, cmd_flags);
+>>>>>>> upstream/android-13
 }
 
 static void flush_end_io(struct request *flush_rq, blk_status_t error)
 {
 	struct request_queue *q = flush_rq->q;
 	struct list_head *running;
+<<<<<<< HEAD
 	bool queued = false;
+=======
+>>>>>>> upstream/android-13
 	struct request *rq, *n;
 	unsigned long flags = 0;
 	struct blk_flush_queue *fq = blk_get_flush_queue(q, flush_rq->mq_ctx);
 
+<<<<<<< HEAD
 	if (q->mq_ops) {
 		struct blk_mq_hw_ctx *hctx;
 
@@ -250,6 +307,34 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
 			blk_mq_put_driver_tag_hctx(hctx, flush_rq);
 			flush_rq->internal_tag = -1;
 		}
+=======
+	/* release the tag's ownership to the req cloned from */
+	spin_lock_irqsave(&fq->mq_flush_lock, flags);
+
+	if (!refcount_dec_and_test(&flush_rq->ref)) {
+		fq->rq_status = error;
+		spin_unlock_irqrestore(&fq->mq_flush_lock, flags);
+		return;
+	}
+
+	blk_account_io_flush(flush_rq);
+	/*
+	 * Flush request has to be marked as IDLE when it is really ended
+	 * because its .end_io() is called from timeout code path too for
+	 * avoiding use-after-free.
+	 */
+	WRITE_ONCE(flush_rq->state, MQ_RQ_IDLE);
+	if (fq->rq_status != BLK_STS_OK) {
+		error = fq->rq_status;
+		fq->rq_status = BLK_STS_OK;
+	}
+
+	if (!q->elevator) {
+		flush_rq->tag = BLK_MQ_NO_TAG;
+	} else {
+		blk_mq_put_driver_tag(flush_rq);
+		flush_rq->internal_tag = BLK_MQ_NO_TAG;
+>>>>>>> upstream/android-13
 	}
 
 	running = &fq->flush_queue[fq->flush_running_idx];
@@ -258,14 +343,18 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
 	/* account completion of the flush request */
 	fq->flush_running_idx ^= 1;
 
+<<<<<<< HEAD
 	if (!q->mq_ops)
 		elv_completed_request(q, flush_rq);
 
+=======
+>>>>>>> upstream/android-13
 	/* and push the waiting requests to the next stage */
 	list_for_each_entry_safe(rq, n, running, flush.list) {
 		unsigned int seq = blk_flush_cur_seq(rq);
 
 		BUG_ON(seq != REQ_FSEQ_PREFLUSH && seq != REQ_FSEQ_POSTFLUSH);
+<<<<<<< HEAD
 		queued |= blk_flush_complete_seq(rq, fq, seq, error);
 	}
 
@@ -287,6 +376,17 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
 	fq->flush_queue_delayed = 0;
 	if (q->mq_ops)
 		spin_unlock_irqrestore(&fq->mq_flush_lock, flags);
+=======
+		blk_flush_complete_seq(rq, fq, seq, error);
+	}
+
+	spin_unlock_irqrestore(&fq->mq_flush_lock, flags);
+}
+
+bool is_flush_rq(struct request *rq)
+{
+	return rq->end_io == flush_end_io;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -299,12 +399,19 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
  * Please read the comment at the top of this file for more info.
  *
  * CONTEXT:
+<<<<<<< HEAD
  * spin_lock_irq(q->queue_lock or fq->mq_flush_lock)
  *
  * RETURNS:
  * %true if flush was issued, %false otherwise.
  */
 static bool blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
+=======
+ * spin_lock_irq(fq->mq_flush_lock)
+ *
+ */
+static void blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
+>>>>>>> upstream/android-13
 			   unsigned int flags)
 {
 	struct list_head *pending = &fq->flush_queue[fq->flush_pending_idx];
@@ -314,6 +421,7 @@ static bool blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
 
 	/* C1 described at the top of this file */
 	if (fq->flush_pending_idx != fq->flush_running_idx || list_empty(pending))
+<<<<<<< HEAD
 		return false;
 
 	/* C2 and C3
@@ -327,6 +435,15 @@ static bool blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
 	    time_before(jiffies,
 			fq->flush_pending_since + FLUSH_PENDING_TIMEOUT))
 		return false;
+=======
+		return;
+
+	/* C2 and C3 */
+	if (!list_empty(&fq->flush_data_in_flight) &&
+	    time_before(jiffies,
+			fq->flush_pending_since + FLUSH_PENDING_TIMEOUT))
+		return;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Issue flush and toggle pending_idx.  This makes pending_idx
@@ -344,6 +461,7 @@ static bool blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
 	 * In case of IO scheduler, flush rq need to borrow scheduler tag
 	 * just for cheating put/get driver tag.
 	 */
+<<<<<<< HEAD
 	if (q->mq_ops) {
 		struct blk_mq_hw_ctx *hctx;
 
@@ -358,12 +476,29 @@ static bool blk_kick_flush(struct request_queue *q, struct blk_flush_queue *fq,
 			flush_rq->internal_tag = first_rq->internal_tag;
 		}
 	}
+=======
+	flush_rq->mq_ctx = first_rq->mq_ctx;
+	flush_rq->mq_hctx = first_rq->mq_hctx;
+
+	if (!q->elevator) {
+		flush_rq->tag = first_rq->tag;
+
+		/*
+		 * We borrow data request's driver tag, so have to mark
+		 * this flush request as INFLIGHT for avoiding double
+		 * account of this driver tag
+		 */
+		flush_rq->rq_flags |= RQF_MQ_INFLIGHT;
+	} else
+		flush_rq->internal_tag = first_rq->internal_tag;
+>>>>>>> upstream/android-13
 
 	flush_rq->cmd_flags = REQ_OP_FLUSH | REQ_PREFLUSH;
 	flush_rq->cmd_flags |= (flags & REQ_DRV) | (flags & REQ_FAILFAST_MASK);
 	flush_rq->rq_flags |= RQF_FLUSH_SEQ;
 	flush_rq->rq_disk = first_rq->rq_disk;
 	flush_rq->end_io = flush_end_io;
+<<<<<<< HEAD
 
 	return blk_flush_queue_rq(flush_rq, false);
 }
@@ -409,21 +544,43 @@ static void flush_data_end_io(struct request *rq, blk_status_t error)
 	 */
 	if (blk_flush_complete_seq(rq, fq, REQ_FSEQ_DATA, error))
 		blk_run_queue_async(q);
+=======
+	/*
+	 * Order WRITE ->end_io and WRITE rq->ref, and its pair is the one
+	 * implied in refcount_inc_not_zero() called from
+	 * blk_mq_find_and_get_req(), which orders WRITE/READ flush_rq->ref
+	 * and READ flush_rq->end_io
+	 */
+	smp_wmb();
+	refcount_set(&flush_rq->ref, 1);
+
+	blk_flush_queue_rq(flush_rq, false);
+>>>>>>> upstream/android-13
 }
 
 static void mq_flush_data_end_io(struct request *rq, blk_status_t error)
 {
 	struct request_queue *q = rq->q;
+<<<<<<< HEAD
 	struct blk_mq_hw_ctx *hctx;
+=======
+	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
+>>>>>>> upstream/android-13
 	struct blk_mq_ctx *ctx = rq->mq_ctx;
 	unsigned long flags;
 	struct blk_flush_queue *fq = blk_get_flush_queue(q, ctx);
 
+<<<<<<< HEAD
 	hctx = blk_mq_map_queue(q, ctx->cpu);
 
 	if (q->elevator) {
 		WARN_ON(rq->tag < 0);
 		blk_mq_put_driver_tag_hctx(hctx, rq);
+=======
+	if (q->elevator) {
+		WARN_ON(rq->tag < 0);
+		blk_mq_put_driver_tag(rq);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -453,9 +610,12 @@ void blk_insert_flush(struct request *rq)
 	unsigned int policy = blk_flush_policy(fflags, rq);
 	struct blk_flush_queue *fq = blk_get_flush_queue(q, rq->mq_ctx);
 
+<<<<<<< HEAD
 	if (!q->mq_ops)
 		lockdep_assert_held(q->queue_lock);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * @policy now records what operations need to be done.  Adjust
 	 * REQ_PREFLUSH and FUA for the driver.
@@ -478,10 +638,14 @@ void blk_insert_flush(struct request *rq)
 	 * complete the request.
 	 */
 	if (!policy) {
+<<<<<<< HEAD
 		if (q->mq_ops)
 			blk_mq_end_request(rq, 0);
 		else
 			__blk_end_request(rq, 0, 0);
+=======
+		blk_mq_end_request(rq, 0);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -494,10 +658,14 @@ void blk_insert_flush(struct request *rq)
 	 */
 	if ((policy & REQ_FSEQ_DATA) &&
 	    !(policy & (REQ_FSEQ_PREFLUSH | REQ_FSEQ_POSTFLUSH))) {
+<<<<<<< HEAD
 		if (q->mq_ops)
 			blk_mq_request_bypass_insert(rq, false);
 		else
 			list_add_tail(&rq->queuelist, &q->queue_head);
+=======
+		blk_mq_request_bypass_insert(rq, false, false);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -509,6 +677,7 @@ void blk_insert_flush(struct request *rq)
 	INIT_LIST_HEAD(&rq->flush.list);
 	rq->rq_flags |= RQF_FLUSH_SEQ;
 	rq->flush.saved_end_io = rq->end_io; /* Usually NULL */
+<<<<<<< HEAD
 	if (q->mq_ops) {
 		rq->end_io = mq_flush_data_end_io;
 
@@ -520,11 +689,20 @@ void blk_insert_flush(struct request *rq)
 	rq->end_io = flush_data_end_io;
 
 	blk_flush_complete_seq(rq, fq, REQ_FSEQ_ACTIONS & ~policy, 0);
+=======
+
+	rq->end_io = mq_flush_data_end_io;
+
+	spin_lock_irq(&fq->mq_flush_lock);
+	blk_flush_complete_seq(rq, fq, REQ_FSEQ_ACTIONS & ~policy, 0);
+	spin_unlock_irq(&fq->mq_flush_lock);
+>>>>>>> upstream/android-13
 }
 
 /**
  * blkdev_issue_flush - queue a flush
  * @bdev:	blockdev to issue flush for
+<<<<<<< HEAD
  * @gfp_mask:	memory allocation flags (for bio_alloc)
  * @error_sector:	error sector
  *
@@ -577,6 +755,25 @@ EXPORT_SYMBOL(blkdev_issue_flush);
 
 struct blk_flush_queue *blk_alloc_flush_queue(struct request_queue *q,
 		int node, int cmd_size, gfp_t flags)
+=======
+ *
+ * Description:
+ *    Issue a flush for the block device in question.
+ */
+int blkdev_issue_flush(struct block_device *bdev)
+{
+	struct bio bio;
+
+	bio_init(&bio, NULL, 0);
+	bio_set_dev(&bio, bdev);
+	bio.bi_opf = REQ_OP_WRITE | REQ_PREFLUSH;
+	return submit_bio_wait(&bio);
+}
+EXPORT_SYMBOL(blkdev_issue_flush);
+
+struct blk_flush_queue *blk_alloc_flush_queue(int node, int cmd_size,
+					      gfp_t flags)
+>>>>>>> upstream/android-13
 {
 	struct blk_flush_queue *fq;
 	int rq_sz = sizeof(struct request);
@@ -585,8 +782,12 @@ struct blk_flush_queue *blk_alloc_flush_queue(struct request_queue *q,
 	if (!fq)
 		goto fail;
 
+<<<<<<< HEAD
 	if (q->mq_ops)
 		spin_lock_init(&fq->mq_flush_lock);
+=======
+	spin_lock_init(&fq->mq_flush_lock);
+>>>>>>> upstream/android-13
 
 	rq_sz = round_up(rq_sz + cmd_size, cache_line_size());
 	fq->flush_rq = kzalloc_node(rq_sz, flags, node);
@@ -614,3 +815,31 @@ void blk_free_flush_queue(struct blk_flush_queue *fq)
 	kfree(fq->flush_rq);
 	kfree(fq);
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Allow driver to set its own lock class to fq->mq_flush_lock for
+ * avoiding lockdep complaint.
+ *
+ * flush_end_io() may be called recursively from some driver, such as
+ * nvme-loop, so lockdep may complain 'possible recursive locking' because
+ * all 'struct blk_flush_queue' instance share same mq_flush_lock lock class
+ * key. We need to assign different lock class for these driver's
+ * fq->mq_flush_lock for avoiding the lockdep warning.
+ *
+ * Use dynamically allocated lock class key for each 'blk_flush_queue'
+ * instance is over-kill, and more worse it introduces horrible boot delay
+ * issue because synchronize_rcu() is implied in lockdep_unregister_key which
+ * is called for each hctx release. SCSI probing may synchronously create and
+ * destroy lots of MQ request_queues for non-existent devices, and some robot
+ * test kernel always enable lockdep option. It is observed that more than half
+ * an hour is taken during SCSI MQ probe with per-fq lock class.
+ */
+void blk_mq_hctx_set_fq_lock_class(struct blk_mq_hw_ctx *hctx,
+		struct lock_class_key *key)
+{
+	lockdep_set_class(&hctx->fq->mq_flush_lock, key);
+}
+EXPORT_SYMBOL_GPL(blk_mq_hctx_set_fq_lock_class);
+>>>>>>> upstream/android-13

@@ -8,6 +8,7 @@
 #ifndef _ASM_THREAD_INFO_H
 #define _ASM_THREAD_INFO_H
 
+<<<<<<< HEAD
 #include <linux/const.h>
 
 /*
@@ -18,11 +19,31 @@
 
 #define THREAD_SIZE (PAGE_SIZE << THREAD_SIZE_ORDER)
 #define ASYNC_SIZE  (PAGE_SIZE << ASYNC_ORDER)
+=======
+#include <linux/bits.h>
+
+/*
+ * General size of kernel stacks
+ */
+#ifdef CONFIG_KASAN
+#define THREAD_SIZE_ORDER 4
+#else
+#define THREAD_SIZE_ORDER 2
+#endif
+#define BOOT_STACK_SIZE (PAGE_SIZE << 2)
+#define THREAD_SIZE (PAGE_SIZE << THREAD_SIZE_ORDER)
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 #include <asm/lowcore.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/processor.h>
+=======
+
+#define STACK_INIT_OFFSET \
+	(THREAD_SIZE - STACK_FRAME_OVERHEAD - sizeof(struct pt_regs))
+>>>>>>> upstream/android-13
 
 /*
  * low level task data that entry.S needs immediate access to
@@ -32,6 +53,10 @@
  */
 struct thread_info {
 	unsigned long		flags;		/* low level flags */
+<<<<<<< HEAD
+=======
+	unsigned long		syscall_work;	/* SYSCALL_WORK_ flags */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -42,6 +67,11 @@ struct thread_info {
 	.flags		= 0,			\
 }
 
+<<<<<<< HEAD
+=======
+struct task_struct;
+
+>>>>>>> upstream/android-13
 void arch_release_task_struct(struct task_struct *tsk);
 int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src);
 
@@ -61,8 +91,15 @@ void arch_setup_new_exec(void);
 #define TIF_GUARDED_STORAGE	4	/* load guarded storage control block */
 #define TIF_PATCH_PENDING	5	/* pending live patching update */
 #define TIF_PGSTE		6	/* New mm's will use 4K page tables */
+<<<<<<< HEAD
 #define TIF_ISOLATE_BP		8	/* Run process with isolated BP */
 #define TIF_ISOLATE_BP_GUEST	9	/* Run KVM guests with isolated BP */
+=======
+#define TIF_NOTIFY_SIGNAL	7	/* signal notifications exist */
+#define TIF_ISOLATE_BP		8	/* Run process with isolated BP */
+#define TIF_ISOLATE_BP_GUEST	9	/* Run KVM guests with isolated BP */
+#define TIF_PER_TRAP		10	/* Need to handle PER trap on exit to usermode */
+>>>>>>> upstream/android-13
 
 #define TIF_31BIT		16	/* 32bit process */
 #define TIF_MEMDIE		17	/* is terminating due to OOM killer */
@@ -77,6 +114,7 @@ void arch_setup_new_exec(void);
 #define TIF_SECCOMP		26	/* secure computing */
 #define TIF_SYSCALL_TRACEPOINT	27	/* syscall tracepoint instrumentation */
 
+<<<<<<< HEAD
 #define _TIF_NOTIFY_RESUME	_BITUL(TIF_NOTIFY_RESUME)
 #define _TIF_SIGPENDING		_BITUL(TIF_SIGPENDING)
 #define _TIF_NEED_RESCHED	_BITUL(TIF_NEED_RESCHED)
@@ -93,5 +131,25 @@ void arch_setup_new_exec(void);
 #define _TIF_SYSCALL_AUDIT	_BITUL(TIF_SYSCALL_AUDIT)
 #define _TIF_SECCOMP		_BITUL(TIF_SECCOMP)
 #define _TIF_SYSCALL_TRACEPOINT	_BITUL(TIF_SYSCALL_TRACEPOINT)
+=======
+#define _TIF_NOTIFY_RESUME	BIT(TIF_NOTIFY_RESUME)
+#define _TIF_NOTIFY_SIGNAL	BIT(TIF_NOTIFY_SIGNAL)
+#define _TIF_SIGPENDING		BIT(TIF_SIGPENDING)
+#define _TIF_NEED_RESCHED	BIT(TIF_NEED_RESCHED)
+#define _TIF_UPROBE		BIT(TIF_UPROBE)
+#define _TIF_GUARDED_STORAGE	BIT(TIF_GUARDED_STORAGE)
+#define _TIF_PATCH_PENDING	BIT(TIF_PATCH_PENDING)
+#define _TIF_ISOLATE_BP		BIT(TIF_ISOLATE_BP)
+#define _TIF_ISOLATE_BP_GUEST	BIT(TIF_ISOLATE_BP_GUEST)
+#define _TIF_PER_TRAP		BIT(TIF_PER_TRAP)
+
+#define _TIF_31BIT		BIT(TIF_31BIT)
+#define _TIF_SINGLE_STEP	BIT(TIF_SINGLE_STEP)
+
+#define _TIF_SYSCALL_TRACE	BIT(TIF_SYSCALL_TRACE)
+#define _TIF_SYSCALL_AUDIT	BIT(TIF_SYSCALL_AUDIT)
+#define _TIF_SECCOMP		BIT(TIF_SECCOMP)
+#define _TIF_SYSCALL_TRACEPOINT	BIT(TIF_SYSCALL_TRACEPOINT)
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_THREAD_INFO_H */

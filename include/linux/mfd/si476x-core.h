@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/media/si476x-core.h -- Common definitions for si476x core
  * device
@@ -6,6 +10,7 @@
  * Copyright (C) 2013 Andrey Smirnov
  *
  * Author: Andrey Smirnov <andrew.smirnov@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef SI476X_CORE_H
@@ -66,7 +73,11 @@ enum si476x_mfd_cells {
  * @SI476X_POWER_DOWN: In this state all regulators are turned off
  * and the reset line is pulled low. The device is completely
  * inactive.
+<<<<<<< HEAD
  * @SI476X_POWER_UP_FULL: In this state all the power regualtors are
+=======
+ * @SI476X_POWER_UP_FULL: In this state all the power regulators are
+>>>>>>> upstream/android-13
  * turned on, reset line pulled high, IRQ line is enabled(polling is
  * active for polling use scenario) and device is turned on with
  * POWER_UP command. The device is ready to be used.

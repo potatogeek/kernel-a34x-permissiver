@@ -34,6 +34,7 @@ static inline void crst_table_init(unsigned long *crst, unsigned long entry)
 	memset64((u64 *)crst, entry, _CRST_ENTRIES);
 }
 
+<<<<<<< HEAD
 static inline unsigned long pgd_entry_type(struct mm_struct *mm)
 {
 	if (mm_pmd_folded(mm))
@@ -47,6 +48,23 @@ static inline unsigned long pgd_entry_type(struct mm_struct *mm)
 
 int crst_table_upgrade(struct mm_struct *mm, unsigned long limit);
 void crst_table_downgrade(struct mm_struct *);
+=======
+int crst_table_upgrade(struct mm_struct *mm, unsigned long limit);
+
+static inline unsigned long check_asce_limit(struct mm_struct *mm, unsigned long addr,
+					     unsigned long len)
+{
+	int rc;
+
+	if (addr + len > mm->context.asce_limit &&
+	    addr + len <= TASK_SIZE) {
+		rc = crst_table_upgrade(mm, addr + len);
+		if (rc)
+			return (unsigned long) rc;
+	}
+	return addr;
+}
+>>>>>>> upstream/android-13
 
 static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long address)
 {
@@ -116,6 +134,7 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
 
 static inline pgd_t *pgd_alloc(struct mm_struct *mm)
 {
+<<<<<<< HEAD
 	unsigned long *table = crst_table_alloc(mm);
 
 	if (!table)
@@ -128,12 +147,18 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
 		}
 	}
 	return (pgd_t *) table;
+=======
+	return (pgd_t *) crst_table_alloc(mm);
+>>>>>>> upstream/android-13
 }
 
 static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 {
+<<<<<<< HEAD
 	if (mm->context.asce_limit == _REGION3_SIZE)
 		pgtable_pmd_page_dtor(virt_to_page(pgd));
+=======
+>>>>>>> upstream/android-13
 	crst_table_free(mm, (unsigned long *) pgd);
 }
 
@@ -145,6 +170,7 @@ static inline void pmd_populate(struct mm_struct *mm,
 
 #define pmd_populate_kernel(mm, pmd, pte) pmd_populate(mm, pmd, pte)
 
+<<<<<<< HEAD
 #define pmd_pgtable(pmd) \
 	(pgtable_t)(pmd_val(pmd) & -sizeof(pte_t)*PTRS_PER_PTE)
 
@@ -153,12 +179,22 @@ static inline void pmd_populate(struct mm_struct *mm,
  */
 #define pte_alloc_one_kernel(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
 #define pte_alloc_one(mm, vmaddr) ((pte_t *) page_table_alloc(mm))
+=======
+/*
+ * page table entry allocation/free routines.
+ */
+#define pte_alloc_one_kernel(mm) ((pte_t *)page_table_alloc(mm))
+#define pte_alloc_one(mm) ((pte_t *)page_table_alloc(mm))
+>>>>>>> upstream/android-13
 
 #define pte_free_kernel(mm, pte) page_table_free(mm, (unsigned long *) pte)
 #define pte_free(mm, pte) page_table_free(mm, (unsigned long *) pte)
 
+<<<<<<< HEAD
 extern void rcu_table_freelist_finish(void);
 
+=======
+>>>>>>> upstream/android-13
 void vmem_map_init(void);
 void *vmem_crst_alloc(unsigned long val);
 pte_t *vmem_pte_alloc(void);

@@ -297,7 +297,16 @@ static void ath9k_htc_tx_data(struct ath9k_htc_priv *priv,
 		tx_hdr.data_type = ATH9K_HTC_NORMAL;
 	}
 
+<<<<<<< HEAD
 	if (ieee80211_is_data_qos(hdr->frame_control)) {
+=======
+	/* Transmit all frames that should not be reordered relative
+	 * to each other using the same priority. For other QoS data
+	 * frames extract the priority from the header.
+	 */
+	if (!(tx_info->control.flags & IEEE80211_TX_CTRL_DONT_REORDER) &&
+	    ieee80211_is_data_qos(hdr->frame_control)) {
+>>>>>>> upstream/android-13
 		qc = ieee80211_get_qos_ctl(hdr);
 		tx_hdr.tidno = qc[0] & IEEE80211_QOS_CTL_TID_MASK;
 	}
@@ -570,6 +579,7 @@ void ath9k_htc_tx_drain(struct ath9k_htc_priv *priv)
 	spin_unlock_bh(&priv->tx.tx_lock);
 }
 
+<<<<<<< HEAD
 void ath9k_tx_failed_tasklet(unsigned long data)
 {
 	struct ath9k_htc_priv *priv = (struct ath9k_htc_priv *)data;
@@ -580,6 +590,18 @@ void ath9k_tx_failed_tasklet(unsigned long data)
 		return;
 	}
 	spin_unlock_bh(&priv->tx.tx_lock);
+=======
+void ath9k_tx_failed_tasklet(struct tasklet_struct *t)
+{
+	struct ath9k_htc_priv *priv = from_tasklet(priv, t, tx_failed_tasklet);
+
+	spin_lock(&priv->tx.tx_lock);
+	if (priv->tx.flags & ATH9K_HTC_OP_TX_DRAIN) {
+		spin_unlock(&priv->tx.tx_lock);
+		return;
+	}
+	spin_unlock(&priv->tx.tx_lock);
+>>>>>>> upstream/android-13
 
 	ath9k_htc_tx_drainq(priv, &priv->tx.tx_failed);
 }
@@ -808,6 +830,14 @@ int ath9k_tx_init(struct ath9k_htc_priv *priv)
 	skb_queue_head_init(&priv->tx.data_vi_queue);
 	skb_queue_head_init(&priv->tx.data_vo_queue);
 	skb_queue_head_init(&priv->tx.tx_failed);
+<<<<<<< HEAD
+=======
+
+	/* Allow ath9k_wmi_event_tasklet(WMI_TXSTATUS_EVENTID) to operate. */
+	smp_wmb();
+	priv->tx.initialized = true;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -893,7 +923,12 @@ u32 ath9k_htc_calcrxfilter(struct ath9k_htc_priv *priv)
 	if (priv->rxfilter & FIF_PSPOLL)
 		rfilt |= ATH9K_RX_FILTER_PSPOLL;
 
+<<<<<<< HEAD
 	if (priv->nvifs > 1 || priv->rxfilter & FIF_OTHER_BSS)
+=======
+	if (priv->nvifs > 1 ||
+	    priv->rxfilter & (FIF_OTHER_BSS | FIF_MCAST_ACTION))
+>>>>>>> upstream/android-13
 		rfilt |= ATH9K_RX_FILTER_MCAST_BCAST_ALL;
 
 	return rfilt;
@@ -1061,9 +1096,15 @@ rx_next:
 /*
  * FIXME: Handle FLUSH later on.
  */
+<<<<<<< HEAD
 void ath9k_rx_tasklet(unsigned long data)
 {
 	struct ath9k_htc_priv *priv = (struct ath9k_htc_priv *)data;
+=======
+void ath9k_rx_tasklet(struct tasklet_struct *t)
+{
+	struct ath9k_htc_priv *priv = from_tasklet(priv, t, rx_tasklet);
+>>>>>>> upstream/android-13
 	struct ath9k_htc_rxbuf *rxbuf = NULL, *tmp_buf = NULL;
 	struct ieee80211_rx_status rx_status;
 	struct sk_buff *skb;
@@ -1124,6 +1165,13 @@ void ath9k_htc_rxep(void *drv_priv, struct sk_buff *skb,
 	struct ath9k_htc_rxbuf *rxbuf = NULL, *tmp_buf = NULL;
 	unsigned long flags;
 
+<<<<<<< HEAD
+=======
+	/* Check if ath9k_rx_init() completed. */
+	if (!data_race(priv->rx.initialized))
+		goto err;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&priv->rx.rxbuflock, flags);
 	list_for_each_entry(tmp_buf, &priv->rx.rxbuf, list) {
 		if (!tmp_buf->in_process) {
@@ -1179,6 +1227,13 @@ int ath9k_rx_init(struct ath9k_htc_priv *priv)
 		list_add_tail(&rxbuf->list, &priv->rx.rxbuf);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Allow ath9k_htc_rxep() to operate. */
+	smp_wmb();
+	priv->rx.initialized = true;
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err:

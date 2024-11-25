@@ -35,9 +35,14 @@ void flush_icache_page(struct vm_area_struct *vma, struct page *page)
 	kunmap_atomic((void *)kaddr);
 	local_irq_restore(flags);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(flush_icache_page);
 
 void flush_icache_user_range(struct vm_area_struct *vma, struct page *page,
+=======
+
+void flush_icache_user_page(struct vm_area_struct *vma, struct page *page,
+>>>>>>> upstream/android-13
 	                     unsigned long addr, int len)
 {
 	unsigned long kaddr;
@@ -319,6 +324,7 @@ void flush_anon_page(struct vm_area_struct *vma,
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 void flush_kernel_dcache_page(struct page *page)
 {
 	unsigned long flags;
@@ -328,6 +334,8 @@ void flush_kernel_dcache_page(struct page *page)
 }
 EXPORT_SYMBOL(flush_kernel_dcache_page);
 
+=======
+>>>>>>> upstream/android-13
 void flush_kernel_vmap_range(void *addr, int size)
 {
 	unsigned long flags;

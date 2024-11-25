@@ -71,7 +71,11 @@ int fill_result_buf(int start_idx, int end_idx)
 	int pathsize;
 	int result_buf_used;
 	int prev_offset = -1;
+<<<<<<< HEAD
 	long max_size = 0;
+=======
+	int max_size = 0;
+>>>>>>> upstream/android-13
 	void *buf_start;
 	struct file *file;
 

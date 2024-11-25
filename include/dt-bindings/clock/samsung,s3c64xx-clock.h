@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Tomasz Figa <tomasz.figa at gmail.com>
  *
@@ -7,6 +8,14 @@
  *
  * Device Tree binding constants for Samsung S3C64xx clock controller.
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (c) 2013 Tomasz Figa <tomasz.figa at gmail.com>
+ *
+ * Device Tree binding constants for Samsung S3C64xx clock controller.
+ */
+>>>>>>> upstream/android-13
 
 #ifndef _DT_BINDINGS_CLOCK_SAMSUNG_S3C64XX_CLOCK_H
 #define _DT_BINDINGS_CLOCK_SAMSUNG_S3C64XX_CLOCK_H

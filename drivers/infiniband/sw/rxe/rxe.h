@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef RXE_H
@@ -41,7 +48,10 @@
 
 #include <linux/module.h>
 #include <linux/skbuff.h>
+<<<<<<< HEAD
 #include <linux/crc32.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <rdma/ib_verbs.h>
 #include <rdma/ib_user_verbs.h>
@@ -65,6 +75,7 @@
  */
 #define RXE_UVERBS_ABI_VERSION		2
 
+<<<<<<< HEAD
 #define IB_PHYS_STATE_LINK_UP		(5)
 #define IB_PHYS_STATE_LINK_DOWN		(3)
 
@@ -109,5 +120,31 @@ struct rxe_dev *get_rxe_by_name(const char *name);
 
 void rxe_port_up(struct rxe_dev *rxe);
 void rxe_port_down(struct rxe_dev *rxe);
+=======
+#define RXE_ROCE_V2_SPORT		(0xc000)
+
+extern bool rxe_initialized;
+
+void rxe_set_mtu(struct rxe_dev *rxe, unsigned int dev_mtu);
+
+int rxe_add(struct rxe_dev *rxe, unsigned int mtu, const char *ibdev_name);
+
+void rxe_rcv(struct sk_buff *skb);
+
+/* The caller must do a matching ib_device_put(&dev->ib_dev) */
+static inline struct rxe_dev *rxe_get_dev_from_net(struct net_device *ndev)
+{
+	struct ib_device *ibdev =
+		ib_device_get_by_netdev(ndev, RDMA_DRIVER_RXE);
+
+	if (!ibdev)
+		return NULL;
+	return container_of(ibdev, struct rxe_dev, ib_dev);
+}
+
+void rxe_port_up(struct rxe_dev *rxe);
+void rxe_port_down(struct rxe_dev *rxe);
+void rxe_set_port_state(struct rxe_dev *rxe);
+>>>>>>> upstream/android-13
 
 #endif /* RXE_H */

@@ -75,6 +75,7 @@ The PM QoS events are used for QoS add/update/remove request and for
 target/flags update.
 ::
 
+<<<<<<< HEAD
   pm_qos_add_request                 "pm_qos_class=%s value=%d"
   pm_qos_update_request              "pm_qos_class=%s value=%d"
   pm_qos_remove_request              "pm_qos_class=%s value=%d"
@@ -85,6 +86,8 @@ The second parameter is value to be added/updated/removed.
 The third parameter is timeout value in usec.
 ::
 
+=======
+>>>>>>> upstream/android-13
   pm_qos_update_target               "action=%s prev_value=%d curr_value=%d"
   pm_qos_update_flags                "action=%s prev_value=0x%x curr_value=0x%x"
 
@@ -92,7 +95,11 @@ The first parameter gives the QoS action name (e.g. "ADD_REQ").
 The second parameter is the previous QoS value.
 The third parameter is the current QoS value to update.
 
+<<<<<<< HEAD
 And, there are also events used for device PM QoS add/update/remove request.
+=======
+There are also events used for device PM QoS add/update/remove request.
+>>>>>>> upstream/android-13
 ::
 
   dev_pm_qos_add_request             "device=%s type=%s new_value=%d"
@@ -103,3 +110,15 @@ The first parameter gives the device name which tries to add/update/remove
 QoS requests.
 The second parameter gives the request type (e.g. "DEV_PM_QOS_RESUME_LATENCY").
 The third parameter is value to be added/updated/removed.
+<<<<<<< HEAD
+=======
+
+And, there are events used for CPU latency QoS add/update/remove request.
+::
+
+  pm_qos_add_request        "value=%d"
+  pm_qos_update_request     "value=%d"
+  pm_qos_remove_request     "value=%d"
+
+The parameter is the value to be added/updated/removed.
+>>>>>>> upstream/android-13

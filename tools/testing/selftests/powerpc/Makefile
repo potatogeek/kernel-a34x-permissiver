@@ -19,6 +19,10 @@ SUB_DIRS = alignment		\
 	   copyloops		\
 	   dscr			\
 	   mm			\
+<<<<<<< HEAD
+=======
+	   nx-gzip		\
+>>>>>>> upstream/android-13
 	   pmu			\
 	   signal		\
 	   primitives		\
@@ -26,9 +30,17 @@ SUB_DIRS = alignment		\
 	   switch_endian	\
 	   syscalls		\
 	   tm			\
+<<<<<<< HEAD
 	   vphn         \
 	   math		\
 	   ptrace
+=======
+	   eeh			\
+	   vphn         \
+	   math		\
+	   ptrace	\
+	   security
+>>>>>>> upstream/android-13
 
 endif
 

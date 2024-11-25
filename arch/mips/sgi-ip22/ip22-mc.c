@@ -11,6 +11,10 @@
 #include <linux/init.h>
 #include <linux/export.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 
 #include <asm/io.h>
@@ -40,6 +44,7 @@ static inline unsigned int get_bank_config(int bank)
 	return bank % 2 ? res & 0xffff : res >> 16;
 }
 
+<<<<<<< HEAD
 struct mem {
 	unsigned long addr;
 	unsigned long size;
@@ -56,10 +61,29 @@ static void __init probe_memory(void)
 
 	printk(KERN_INFO "MC: Probing memory configuration:\n");
 	for (i = 0; i < ARRAY_SIZE(bank); i++) {
+=======
+#if defined(CONFIG_SGI_IP28) || defined(CONFIG_32BIT)
+static void __init probe_memory(void)
+{
+	/* prom detects all usable memory */
+}
+#else
+/*
+ * Detect installed memory, which PROM misses
+ */
+static void __init probe_memory(void)
+{
+	unsigned long addr, size;
+	int i;
+
+	printk(KERN_INFO "MC: Probing memory configuration:\n");
+	for (i = 0; i < 4; i++) {
+>>>>>>> upstream/android-13
 		unsigned int tmp = get_bank_config(i);
 		if (!(tmp & SGIMC_MCONFIG_BVALID))
 			continue;
 
+<<<<<<< HEAD
 		bank[cnt].size = get_bank_size(tmp);
 		bank[cnt].addr = get_bank_addr(tmp);
 		printk(KERN_INFO " bank%d: %3ldM @ %08lx\n",
@@ -104,6 +128,18 @@ static void __init probe_memory(void)
 			add_memory_region(space[i].addr, space[i].size,
 					  BOOT_MEM_RAM);
 }
+=======
+		size = get_bank_size(tmp);
+		addr = get_bank_addr(tmp);
+		printk(KERN_INFO " bank%d: %3ldM @ %08lx\n",
+			i, size / 1024 / 1024, addr);
+
+		if (addr >= SGIMC_SEG1_BADDR)
+			memblock_add(addr, size);
+	}
+}
+#endif
+>>>>>>> upstream/android-13
 
 void __init sgimc_init(void)
 {
@@ -205,10 +241,16 @@ void __init sgimc_init(void)
 	probe_memory();
 }
 
+<<<<<<< HEAD
 void __init prom_meminit(void) {}
 void __init prom_free_prom_memory(void)
 {
 #ifdef CONFIG_SGI_IP28
+=======
+#ifdef CONFIG_SGI_IP28
+void __init prom_cleanup(void)
+{
+>>>>>>> upstream/android-13
 	u32 mconfig1;
 	unsigned long flags;
 	spinlock_t lock;
@@ -233,5 +275,10 @@ void __init prom_free_prom_memory(void)
 	sgimc->mconfig1 = mconfig1;
 	iob();
 	spin_unlock_irqrestore(&lock, flags);
+<<<<<<< HEAD
 #endif
 }
+=======
+}
+#endif
+>>>>>>> upstream/android-13

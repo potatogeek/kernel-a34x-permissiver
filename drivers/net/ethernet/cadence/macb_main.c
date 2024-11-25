@@ -1,15 +1,26 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Cadence MACB/GEM Ethernet Controller driver
  *
  * Copyright (C) 2004-2006 Atmel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/clk.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk-provider.h>
+>>>>>>> upstream/android-13
 #include <linux/crc32.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -25,9 +36,14 @@
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
 #include <linux/platform_data/macb.h>
 #include <linux/platform_device.h>
 #include <linux/phy.h>
+=======
+#include <linux/platform_device.h>
+#include <linux/phylink.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
@@ -36,8 +52,22 @@
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <linux/tcp.h>
+<<<<<<< HEAD
 #include "macb.h"
 
+=======
+#include <linux/iopoll.h>
+#include <linux/pm_runtime.h>
+#include "macb.h"
+
+/* This structure is only used for MACB on SiFive FU540 devices */
+struct sifive_fu540_macb_mgmt {
+	void __iomem *reg;
+	unsigned long rate;
+	struct clk_hw hw;
+};
+
+>>>>>>> upstream/android-13
 #define MACB_RX_BUFFER_SIZE	128
 #define RX_BUFFER_MULTIPLE	64  /* bytes */
 
@@ -78,11 +108,24 @@
 #define MACB_WOL_HAS_MAGIC_PACKET	(0x1 << 0)
 #define MACB_WOL_ENABLED		(0x1 << 1)
 
+<<<<<<< HEAD
+=======
+#define HS_SPEED_10000M			4
+#define MACB_SERDES_RATE_10G		1
+
+>>>>>>> upstream/android-13
 /* Graceful stop timeouts in us. We should allow up to
  * 1 frame time (10 Mbits/s, full-duplex, ignoring collisions)
  */
 #define MACB_HALT_TIMEOUT	1230
 
+<<<<<<< HEAD
+=======
+#define MACB_PM_TIMEOUT  100 /* ms */
+
+#define MACB_MDIO_TIMEOUT	1000000 /* in usecs */
+
+>>>>>>> upstream/android-13
 /* DMA buffer descriptor might be different size
  * depends on hardware configuration:
  *
@@ -158,9 +201,14 @@ static unsigned int macb_adj_dma_desc_idx(struct macb *bp, unsigned int desc_idx
 #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
 static struct macb_dma_desc_64 *macb_64b_desc(struct macb *bp, struct macb_dma_desc *desc)
 {
+<<<<<<< HEAD
 	if (bp->hw_dma_cap & HW_DMA_CAP_64B)
 		return (struct macb_dma_desc_64 *)((void *)desc + sizeof(struct macb_dma_desc));
 	return NULL;
+=======
+	return (struct macb_dma_desc_64 *)((void *)desc
+		+ sizeof(struct macb_dma_desc));
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -283,19 +331,26 @@ static void macb_set_hwaddr(struct macb *bp)
 
 static void macb_get_hwaddr(struct macb *bp)
 {
+<<<<<<< HEAD
 	struct macb_platform_data *pdata;
+=======
+>>>>>>> upstream/android-13
 	u32 bottom;
 	u16 top;
 	u8 addr[6];
 	int i;
 
+<<<<<<< HEAD
 	pdata = dev_get_platdata(&bp->pdev->dev);
 
+=======
+>>>>>>> upstream/android-13
 	/* Check all 4 address register for valid address */
 	for (i = 0; i < 4; i++) {
 		bottom = macb_or_gem_readl(bp, SA1B + i * 8);
 		top = macb_or_gem_readl(bp, SA1T + i * 8);
 
+<<<<<<< HEAD
 		if (pdata && pdata->rev_eth_addr) {
 			addr[5] = bottom & 0xff;
 			addr[4] = (bottom >> 8) & 0xff;
@@ -311,6 +366,14 @@ static void macb_get_hwaddr(struct macb *bp)
 			addr[4] = top & 0xff;
 			addr[5] = (top >> 8) & 0xff;
 		}
+=======
+		addr[0] = bottom & 0xff;
+		addr[1] = (bottom >> 8) & 0xff;
+		addr[2] = (bottom >> 16) & 0xff;
+		addr[3] = (bottom >> 24) & 0xff;
+		addr[4] = top & 0xff;
+		addr[5] = (top >> 8) & 0xff;
+>>>>>>> upstream/android-13
 
 		if (is_valid_ether_addr(addr)) {
 			memcpy(bp->dev->dev_addr, addr, sizeof(addr));
@@ -322,6 +385,7 @@ static void macb_get_hwaddr(struct macb *bp)
 	eth_hw_addr_random(bp->dev);
 }
 
+<<<<<<< HEAD
 static int macb_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
 {
 	struct macb *bp = bus->priv;
@@ -340,12 +404,74 @@ static int macb_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
 	value = MACB_BFEXT(DATA, macb_readl(bp, MAN));
 
 	return value;
+=======
+static int macb_mdio_wait_for_idle(struct macb *bp)
+{
+	u32 val;
+
+	return readx_poll_timeout(MACB_READ_NSR, bp, val, val & MACB_BIT(IDLE),
+				  1, MACB_MDIO_TIMEOUT);
+}
+
+static int macb_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
+{
+	struct macb *bp = bus->priv;
+	int status;
+
+	status = pm_runtime_get_sync(&bp->pdev->dev);
+	if (status < 0) {
+		pm_runtime_put_noidle(&bp->pdev->dev);
+		goto mdio_pm_exit;
+	}
+
+	status = macb_mdio_wait_for_idle(bp);
+	if (status < 0)
+		goto mdio_read_exit;
+
+	if (regnum & MII_ADDR_C45) {
+		macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_C45_SOF)
+			    | MACB_BF(RW, MACB_MAN_C45_ADDR)
+			    | MACB_BF(PHYA, mii_id)
+			    | MACB_BF(REGA, (regnum >> 16) & 0x1F)
+			    | MACB_BF(DATA, regnum & 0xFFFF)
+			    | MACB_BF(CODE, MACB_MAN_C45_CODE)));
+
+		status = macb_mdio_wait_for_idle(bp);
+		if (status < 0)
+			goto mdio_read_exit;
+
+		macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_C45_SOF)
+			    | MACB_BF(RW, MACB_MAN_C45_READ)
+			    | MACB_BF(PHYA, mii_id)
+			    | MACB_BF(REGA, (regnum >> 16) & 0x1F)
+			    | MACB_BF(CODE, MACB_MAN_C45_CODE)));
+	} else {
+		macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_C22_SOF)
+				| MACB_BF(RW, MACB_MAN_C22_READ)
+				| MACB_BF(PHYA, mii_id)
+				| MACB_BF(REGA, regnum)
+				| MACB_BF(CODE, MACB_MAN_C22_CODE)));
+	}
+
+	status = macb_mdio_wait_for_idle(bp);
+	if (status < 0)
+		goto mdio_read_exit;
+
+	status = MACB_BFEXT(DATA, macb_readl(bp, MAN));
+
+mdio_read_exit:
+	pm_runtime_mark_last_busy(&bp->pdev->dev);
+	pm_runtime_put_autosuspend(&bp->pdev->dev);
+mdio_pm_exit:
+	return status;
+>>>>>>> upstream/android-13
 }
 
 static int macb_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
 			   u16 value)
 {
 	struct macb *bp = bus->priv;
+<<<<<<< HEAD
 
 	macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_SOF)
 			      | MACB_BF(RW, MACB_MAN_WRITE)
@@ -359,10 +485,82 @@ static int macb_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
 		cpu_relax();
 
 	return 0;
+=======
+	int status;
+
+	status = pm_runtime_get_sync(&bp->pdev->dev);
+	if (status < 0) {
+		pm_runtime_put_noidle(&bp->pdev->dev);
+		goto mdio_pm_exit;
+	}
+
+	status = macb_mdio_wait_for_idle(bp);
+	if (status < 0)
+		goto mdio_write_exit;
+
+	if (regnum & MII_ADDR_C45) {
+		macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_C45_SOF)
+			    | MACB_BF(RW, MACB_MAN_C45_ADDR)
+			    | MACB_BF(PHYA, mii_id)
+			    | MACB_BF(REGA, (regnum >> 16) & 0x1F)
+			    | MACB_BF(DATA, regnum & 0xFFFF)
+			    | MACB_BF(CODE, MACB_MAN_C45_CODE)));
+
+		status = macb_mdio_wait_for_idle(bp);
+		if (status < 0)
+			goto mdio_write_exit;
+
+		macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_C45_SOF)
+			    | MACB_BF(RW, MACB_MAN_C45_WRITE)
+			    | MACB_BF(PHYA, mii_id)
+			    | MACB_BF(REGA, (regnum >> 16) & 0x1F)
+			    | MACB_BF(CODE, MACB_MAN_C45_CODE)
+			    | MACB_BF(DATA, value)));
+	} else {
+		macb_writel(bp, MAN, (MACB_BF(SOF, MACB_MAN_C22_SOF)
+				| MACB_BF(RW, MACB_MAN_C22_WRITE)
+				| MACB_BF(PHYA, mii_id)
+				| MACB_BF(REGA, regnum)
+				| MACB_BF(CODE, MACB_MAN_C22_CODE)
+				| MACB_BF(DATA, value)));
+	}
+
+	status = macb_mdio_wait_for_idle(bp);
+	if (status < 0)
+		goto mdio_write_exit;
+
+mdio_write_exit:
+	pm_runtime_mark_last_busy(&bp->pdev->dev);
+	pm_runtime_put_autosuspend(&bp->pdev->dev);
+mdio_pm_exit:
+	return status;
+}
+
+static void macb_init_buffers(struct macb *bp)
+{
+	struct macb_queue *queue;
+	unsigned int q;
+
+	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue) {
+		queue_writel(queue, RBQP, lower_32_bits(queue->rx_ring_dma));
+#ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
+		if (bp->hw_dma_cap & HW_DMA_CAP_64B)
+			queue_writel(queue, RBQPH,
+				     upper_32_bits(queue->rx_ring_dma));
+#endif
+		queue_writel(queue, TBQP, lower_32_bits(queue->tx_ring_dma));
+#ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
+		if (bp->hw_dma_cap & HW_DMA_CAP_64B)
+			queue_writel(queue, TBQPH,
+				     upper_32_bits(queue->tx_ring_dma));
+#endif
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
  * macb_set_tx_clk() - Set a clock to a new frequency
+<<<<<<< HEAD
  * @clk		Pointer to the clock to change
  * @rate	New frequency in Hz
  * @dev		Pointer to the struct net_device
@@ -372,6 +570,20 @@ static void macb_set_tx_clk(struct clk *clk, int speed, struct net_device *dev)
 	long ferr, rate, rate_rounded;
 
 	if (!clk)
+=======
+ * @bp:		pointer to struct macb
+ * @speed:	New frequency in Hz
+ */
+static void macb_set_tx_clk(struct macb *bp, int speed)
+{
+	long ferr, rate, rate_rounded;
+
+	if (!bp->tx_clk || (bp->caps & MACB_CAPS_CLK_HW_CHG))
+		return;
+
+	/* In case of MII the PHY is the clock master */
+	if (bp->phy_interface == PHY_INTERFACE_MODE_MII)
+>>>>>>> upstream/android-13
 		return;
 
 	switch (speed) {
@@ -388,7 +600,11 @@ static void macb_set_tx_clk(struct clk *clk, int speed, struct net_device *dev)
 		return;
 	}
 
+<<<<<<< HEAD
 	rate_rounded = clk_round_rate(clk, rate);
+=======
+	rate_rounded = clk_round_rate(bp->tx_clk, rate);
+>>>>>>> upstream/android-13
 	if (rate_rounded < 0)
 		return;
 
@@ -398,6 +614,7 @@ static void macb_set_tx_clk(struct clk *clk, int speed, struct net_device *dev)
 	ferr = abs(rate_rounded - rate);
 	ferr = DIV_ROUND_UP(ferr, rate / 100000);
 	if (ferr > 5)
+<<<<<<< HEAD
 		netdev_warn(dev, "unable to generate target frequency: %ld Hz\n",
 			    rate);
 
@@ -518,12 +735,360 @@ static int macb_mii_probe(struct net_device *dev)
 		if (!phydev)
 			return -ENODEV;
 	} else {
+=======
+		netdev_warn(bp->dev,
+			    "unable to generate target frequency: %ld Hz\n",
+			    rate);
+
+	if (clk_set_rate(bp->tx_clk, rate_rounded))
+		netdev_err(bp->dev, "adjusting tx_clk failed.\n");
+}
+
+static void macb_validate(struct phylink_config *config,
+			  unsigned long *supported,
+			  struct phylink_link_state *state)
+{
+	struct net_device *ndev = to_net_dev(config->dev);
+	__ETHTOOL_DECLARE_LINK_MODE_MASK(mask) = { 0, };
+	struct macb *bp = netdev_priv(ndev);
+
+	/* We only support MII, RMII, GMII, RGMII & SGMII. */
+	if (state->interface != PHY_INTERFACE_MODE_NA &&
+	    state->interface != PHY_INTERFACE_MODE_MII &&
+	    state->interface != PHY_INTERFACE_MODE_RMII &&
+	    state->interface != PHY_INTERFACE_MODE_GMII &&
+	    state->interface != PHY_INTERFACE_MODE_SGMII &&
+	    state->interface != PHY_INTERFACE_MODE_10GBASER &&
+	    !phy_interface_mode_is_rgmii(state->interface)) {
+		bitmap_zero(supported, __ETHTOOL_LINK_MODE_MASK_NBITS);
+		return;
+	}
+
+	if (!macb_is_gem(bp) &&
+	    (state->interface == PHY_INTERFACE_MODE_GMII ||
+	     phy_interface_mode_is_rgmii(state->interface))) {
+		bitmap_zero(supported, __ETHTOOL_LINK_MODE_MASK_NBITS);
+		return;
+	}
+
+	if (state->interface == PHY_INTERFACE_MODE_10GBASER &&
+	    !(bp->caps & MACB_CAPS_HIGH_SPEED &&
+	      bp->caps & MACB_CAPS_PCS)) {
+		bitmap_zero(supported, __ETHTOOL_LINK_MODE_MASK_NBITS);
+		return;
+	}
+
+	phylink_set_port_modes(mask);
+	phylink_set(mask, Autoneg);
+	phylink_set(mask, Asym_Pause);
+
+	if (bp->caps & MACB_CAPS_GIGABIT_MODE_AVAILABLE &&
+	    (state->interface == PHY_INTERFACE_MODE_NA ||
+	     state->interface == PHY_INTERFACE_MODE_10GBASER)) {
+		phylink_set(mask, 10000baseCR_Full);
+		phylink_set(mask, 10000baseER_Full);
+		phylink_set(mask, 10000baseKR_Full);
+		phylink_set(mask, 10000baseLR_Full);
+		phylink_set(mask, 10000baseLRM_Full);
+		phylink_set(mask, 10000baseSR_Full);
+		phylink_set(mask, 10000baseT_Full);
+		if (state->interface != PHY_INTERFACE_MODE_NA)
+			goto out;
+	}
+
+	phylink_set(mask, 10baseT_Half);
+	phylink_set(mask, 10baseT_Full);
+	phylink_set(mask, 100baseT_Half);
+	phylink_set(mask, 100baseT_Full);
+
+	if (bp->caps & MACB_CAPS_GIGABIT_MODE_AVAILABLE &&
+	    (state->interface == PHY_INTERFACE_MODE_NA ||
+	     state->interface == PHY_INTERFACE_MODE_GMII ||
+	     state->interface == PHY_INTERFACE_MODE_SGMII ||
+	     phy_interface_mode_is_rgmii(state->interface))) {
+		phylink_set(mask, 1000baseT_Full);
+		phylink_set(mask, 1000baseX_Full);
+
+		if (!(bp->caps & MACB_CAPS_NO_GIGABIT_HALF))
+			phylink_set(mask, 1000baseT_Half);
+	}
+out:
+	bitmap_and(supported, supported, mask, __ETHTOOL_LINK_MODE_MASK_NBITS);
+	bitmap_and(state->advertising, state->advertising, mask,
+		   __ETHTOOL_LINK_MODE_MASK_NBITS);
+}
+
+static void macb_usx_pcs_link_up(struct phylink_pcs *pcs, unsigned int mode,
+				 phy_interface_t interface, int speed,
+				 int duplex)
+{
+	struct macb *bp = container_of(pcs, struct macb, phylink_pcs);
+	u32 config;
+
+	config = gem_readl(bp, USX_CONTROL);
+	config = GEM_BFINS(SERDES_RATE, MACB_SERDES_RATE_10G, config);
+	config = GEM_BFINS(USX_CTRL_SPEED, HS_SPEED_10000M, config);
+	config &= ~(GEM_BIT(TX_SCR_BYPASS) | GEM_BIT(RX_SCR_BYPASS));
+	config |= GEM_BIT(TX_EN);
+	gem_writel(bp, USX_CONTROL, config);
+}
+
+static void macb_usx_pcs_get_state(struct phylink_pcs *pcs,
+				   struct phylink_link_state *state)
+{
+	struct macb *bp = container_of(pcs, struct macb, phylink_pcs);
+	u32 val;
+
+	state->speed = SPEED_10000;
+	state->duplex = 1;
+	state->an_complete = 1;
+
+	val = gem_readl(bp, USX_STATUS);
+	state->link = !!(val & GEM_BIT(USX_BLOCK_LOCK));
+	val = gem_readl(bp, NCFGR);
+	if (val & GEM_BIT(PAE))
+		state->pause = MLO_PAUSE_RX;
+}
+
+static int macb_usx_pcs_config(struct phylink_pcs *pcs,
+			       unsigned int mode,
+			       phy_interface_t interface,
+			       const unsigned long *advertising,
+			       bool permit_pause_to_mac)
+{
+	struct macb *bp = container_of(pcs, struct macb, phylink_pcs);
+
+	gem_writel(bp, USX_CONTROL, gem_readl(bp, USX_CONTROL) |
+		   GEM_BIT(SIGNAL_OK));
+
+	return 0;
+}
+
+static void macb_pcs_get_state(struct phylink_pcs *pcs,
+			       struct phylink_link_state *state)
+{
+	state->link = 0;
+}
+
+static void macb_pcs_an_restart(struct phylink_pcs *pcs)
+{
+	/* Not supported */
+}
+
+static int macb_pcs_config(struct phylink_pcs *pcs,
+			   unsigned int mode,
+			   phy_interface_t interface,
+			   const unsigned long *advertising,
+			   bool permit_pause_to_mac)
+{
+	return 0;
+}
+
+static const struct phylink_pcs_ops macb_phylink_usx_pcs_ops = {
+	.pcs_get_state = macb_usx_pcs_get_state,
+	.pcs_config = macb_usx_pcs_config,
+	.pcs_link_up = macb_usx_pcs_link_up,
+};
+
+static const struct phylink_pcs_ops macb_phylink_pcs_ops = {
+	.pcs_get_state = macb_pcs_get_state,
+	.pcs_an_restart = macb_pcs_an_restart,
+	.pcs_config = macb_pcs_config,
+};
+
+static void macb_mac_config(struct phylink_config *config, unsigned int mode,
+			    const struct phylink_link_state *state)
+{
+	struct net_device *ndev = to_net_dev(config->dev);
+	struct macb *bp = netdev_priv(ndev);
+	unsigned long flags;
+	u32 old_ctrl, ctrl;
+	u32 old_ncr, ncr;
+
+	spin_lock_irqsave(&bp->lock, flags);
+
+	old_ctrl = ctrl = macb_or_gem_readl(bp, NCFGR);
+	old_ncr = ncr = macb_or_gem_readl(bp, NCR);
+
+	if (bp->caps & MACB_CAPS_MACB_IS_EMAC) {
+		if (state->interface == PHY_INTERFACE_MODE_RMII)
+			ctrl |= MACB_BIT(RM9200_RMII);
+	} else if (macb_is_gem(bp)) {
+		ctrl &= ~(GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL));
+		ncr &= ~GEM_BIT(ENABLE_HS_MAC);
+
+		if (state->interface == PHY_INTERFACE_MODE_SGMII) {
+			ctrl |= GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL);
+		} else if (state->interface == PHY_INTERFACE_MODE_10GBASER) {
+			ctrl |= GEM_BIT(PCSSEL);
+			ncr |= GEM_BIT(ENABLE_HS_MAC);
+		}
+	}
+
+	/* Apply the new configuration, if any */
+	if (old_ctrl ^ ctrl)
+		macb_or_gem_writel(bp, NCFGR, ctrl);
+
+	if (old_ncr ^ ncr)
+		macb_or_gem_writel(bp, NCR, ncr);
+
+	/* Disable AN for SGMII fixed link configuration, enable otherwise.
+	 * Must be written after PCSSEL is set in NCFGR,
+	 * otherwise writes will not take effect.
+	 */
+	if (macb_is_gem(bp) && state->interface == PHY_INTERFACE_MODE_SGMII) {
+		u32 pcsctrl, old_pcsctrl;
+
+		old_pcsctrl = gem_readl(bp, PCSCNTRL);
+		if (mode == MLO_AN_FIXED)
+			pcsctrl = old_pcsctrl & ~GEM_BIT(PCSAUTONEG);
+		else
+			pcsctrl = old_pcsctrl | GEM_BIT(PCSAUTONEG);
+		if (old_pcsctrl != pcsctrl)
+			gem_writel(bp, PCSCNTRL, pcsctrl);
+	}
+
+	spin_unlock_irqrestore(&bp->lock, flags);
+}
+
+static void macb_mac_link_down(struct phylink_config *config, unsigned int mode,
+			       phy_interface_t interface)
+{
+	struct net_device *ndev = to_net_dev(config->dev);
+	struct macb *bp = netdev_priv(ndev);
+	struct macb_queue *queue;
+	unsigned int q;
+	u32 ctrl;
+
+	if (!(bp->caps & MACB_CAPS_MACB_IS_EMAC))
+		for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
+			queue_writel(queue, IDR,
+				     bp->rx_intr_mask | MACB_TX_INT_FLAGS | MACB_BIT(HRESP));
+
+	/* Disable Rx and Tx */
+	ctrl = macb_readl(bp, NCR) & ~(MACB_BIT(RE) | MACB_BIT(TE));
+	macb_writel(bp, NCR, ctrl);
+
+	netif_tx_stop_all_queues(ndev);
+}
+
+static void macb_mac_link_up(struct phylink_config *config,
+			     struct phy_device *phy,
+			     unsigned int mode, phy_interface_t interface,
+			     int speed, int duplex,
+			     bool tx_pause, bool rx_pause)
+{
+	struct net_device *ndev = to_net_dev(config->dev);
+	struct macb *bp = netdev_priv(ndev);
+	struct macb_queue *queue;
+	unsigned long flags;
+	unsigned int q;
+	u32 ctrl;
+
+	spin_lock_irqsave(&bp->lock, flags);
+
+	ctrl = macb_or_gem_readl(bp, NCFGR);
+
+	ctrl &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
+
+	if (speed == SPEED_100)
+		ctrl |= MACB_BIT(SPD);
+
+	if (duplex)
+		ctrl |= MACB_BIT(FD);
+
+	if (!(bp->caps & MACB_CAPS_MACB_IS_EMAC)) {
+		ctrl &= ~MACB_BIT(PAE);
+		if (macb_is_gem(bp)) {
+			ctrl &= ~GEM_BIT(GBE);
+
+			if (speed == SPEED_1000)
+				ctrl |= GEM_BIT(GBE);
+		}
+
+		if (rx_pause)
+			ctrl |= MACB_BIT(PAE);
+
+		macb_set_tx_clk(bp, speed);
+
+		/* Initialize rings & buffers as clearing MACB_BIT(TE) in link down
+		 * cleared the pipeline and control registers.
+		 */
+		bp->macbgem_ops.mog_init_rings(bp);
+		macb_init_buffers(bp);
+
+		for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
+			queue_writel(queue, IER,
+				     bp->rx_intr_mask | MACB_TX_INT_FLAGS | MACB_BIT(HRESP));
+	}
+
+	macb_or_gem_writel(bp, NCFGR, ctrl);
+
+	if (bp->phy_interface == PHY_INTERFACE_MODE_10GBASER)
+		gem_writel(bp, HS_MAC_CONFIG, GEM_BFINS(HS_MAC_SPEED, HS_SPEED_10000M,
+							gem_readl(bp, HS_MAC_CONFIG)));
+
+	spin_unlock_irqrestore(&bp->lock, flags);
+
+	/* Enable Rx and Tx */
+	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(RE) | MACB_BIT(TE));
+
+	netif_tx_wake_all_queues(ndev);
+}
+
+static int macb_mac_prepare(struct phylink_config *config, unsigned int mode,
+			    phy_interface_t interface)
+{
+	struct net_device *ndev = to_net_dev(config->dev);
+	struct macb *bp = netdev_priv(ndev);
+
+	if (interface == PHY_INTERFACE_MODE_10GBASER)
+		bp->phylink_pcs.ops = &macb_phylink_usx_pcs_ops;
+	else if (interface == PHY_INTERFACE_MODE_SGMII)
+		bp->phylink_pcs.ops = &macb_phylink_pcs_ops;
+	else
+		bp->phylink_pcs.ops = NULL;
+
+	if (bp->phylink_pcs.ops)
+		phylink_set_pcs(bp->phylink, &bp->phylink_pcs);
+
+	return 0;
+}
+
+static const struct phylink_mac_ops macb_phylink_ops = {
+	.validate = macb_validate,
+	.mac_prepare = macb_mac_prepare,
+	.mac_config = macb_mac_config,
+	.mac_link_down = macb_mac_link_down,
+	.mac_link_up = macb_mac_link_up,
+};
+
+static bool macb_phy_handle_exists(struct device_node *dn)
+{
+	dn = of_parse_phandle(dn, "phy-handle", 0);
+	of_node_put(dn);
+	return dn != NULL;
+}
+
+static int macb_phylink_connect(struct macb *bp)
+{
+	struct device_node *dn = bp->pdev->dev.of_node;
+	struct net_device *dev = bp->dev;
+	struct phy_device *phydev;
+	int ret;
+
+	if (dn)
+		ret = phylink_of_phy_connect(bp->phylink, dn, 0);
+
+	if (!dn || (ret && !macb_phy_handle_exists(dn))) {
+>>>>>>> upstream/android-13
 		phydev = phy_find_first(bp->mii_bus);
 		if (!phydev) {
 			netdev_err(dev, "no PHY found\n");
 			return -ENXIO;
 		}
 
+<<<<<<< HEAD
 		if (pdata) {
 			if (gpio_is_valid(pdata->phy_irq_pin)) {
 				ret = devm_gpio_request(&bp->pdev->dev,
@@ -560,14 +1125,89 @@ static int macb_mii_probe(struct net_device *dev)
 	bp->link = 0;
 	bp->speed = 0;
 	bp->duplex = -1;
+=======
+		/* attach the mac to the phy */
+		ret = phylink_connect_phy(bp->phylink, phydev);
+	}
+
+	if (ret) {
+		netdev_err(dev, "Could not attach PHY (%d)\n", ret);
+		return ret;
+	}
+
+	phylink_start(bp->phylink);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int macb_mii_init(struct macb *bp)
 {
 	struct macb_platform_data *pdata;
 	struct device_node *np;
+=======
+static void macb_get_pcs_fixed_state(struct phylink_config *config,
+				     struct phylink_link_state *state)
+{
+	struct net_device *ndev = to_net_dev(config->dev);
+	struct macb *bp = netdev_priv(ndev);
+
+	state->link = (macb_readl(bp, NSR) & MACB_BIT(NSR_LINK)) != 0;
+}
+
+/* based on au1000_eth. c*/
+static int macb_mii_probe(struct net_device *dev)
+{
+	struct macb *bp = netdev_priv(dev);
+
+	bp->phylink_config.dev = &dev->dev;
+	bp->phylink_config.type = PHYLINK_NETDEV;
+
+	if (bp->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+		bp->phylink_config.poll_fixed_state = true;
+		bp->phylink_config.get_fixed_state = macb_get_pcs_fixed_state;
+	}
+
+	bp->phylink = phylink_create(&bp->phylink_config, bp->pdev->dev.fwnode,
+				     bp->phy_interface, &macb_phylink_ops);
+	if (IS_ERR(bp->phylink)) {
+		netdev_err(dev, "Could not create a phylink instance (%ld)\n",
+			   PTR_ERR(bp->phylink));
+		return PTR_ERR(bp->phylink);
+	}
+
+	return 0;
+}
+
+static int macb_mdiobus_register(struct macb *bp)
+{
+	struct device_node *child, *np = bp->pdev->dev.of_node;
+
+	if (of_phy_is_fixed_link(np))
+		return mdiobus_register(bp->mii_bus);
+
+	/* Only create the PHY from the device tree if at least one PHY is
+	 * described. Otherwise scan the entire MDIO bus. We do this to support
+	 * old device tree that did not follow the best practices and did not
+	 * describe their network PHYs.
+	 */
+	for_each_available_child_of_node(np, child)
+		if (of_mdiobus_child_is_phy(child)) {
+			/* The loop increments the child refcount,
+			 * decrement it before returning.
+			 */
+			of_node_put(child);
+
+			return of_mdiobus_register(bp->mii_bus, np);
+		}
+
+	return mdiobus_register(bp->mii_bus);
+}
+
+static int macb_mii_init(struct macb *bp)
+{
+>>>>>>> upstream/android-13
 	int err = -ENXIO;
 
 	/* Enable management port */
@@ -586,6 +1226,7 @@ static int macb_mii_init(struct macb *bp)
 		 bp->pdev->name, bp->pdev->id);
 	bp->mii_bus->priv = bp;
 	bp->mii_bus->parent = &bp->pdev->dev;
+<<<<<<< HEAD
 	pdata = dev_get_platdata(&bp->pdev->dev);
 
 	dev_set_drvdata(&bp->dev->dev, bp->mii_bus);
@@ -608,6 +1249,14 @@ static int macb_mii_init(struct macb *bp)
 
 	if (err)
 		goto err_out_free_fixed_link;
+=======
+
+	dev_set_drvdata(&bp->dev->dev, bp->mii_bus);
+
+	err = macb_mdiobus_register(bp);
+	if (err)
+		goto err_out_free_mdiobus;
+>>>>>>> upstream/android-13
 
 	err = macb_mii_probe(bp->dev);
 	if (err)
@@ -617,11 +1266,15 @@ static int macb_mii_init(struct macb *bp)
 
 err_out_unregister_bus:
 	mdiobus_unregister(bp->mii_bus);
+<<<<<<< HEAD
 err_out_free_fixed_link:
 	if (np && of_phy_is_fixed_link(np))
 		of_phy_deregister_fixed_link(np);
 err_out_free_mdiobus:
 	of_node_put(bp->phy_node);
+=======
+err_out_free_mdiobus:
+>>>>>>> upstream/android-13
 	mdiobus_free(bp->mii_bus);
 err_out:
 	return err;
@@ -984,7 +1637,12 @@ static void discard_partial_frame(struct macb_queue *queue, unsigned int begin,
 	 */
 }
 
+<<<<<<< HEAD
 static int gem_rx(struct macb_queue *queue, int budget)
+=======
+static int gem_rx(struct macb_queue *queue, struct napi_struct *napi,
+		  int budget)
+>>>>>>> upstream/android-13
 {
 	struct macb *bp = queue->bp;
 	unsigned int		len;
@@ -1066,7 +1724,11 @@ static int gem_rx(struct macb_queue *queue, int budget)
 			       skb->data, 32, true);
 #endif
 
+<<<<<<< HEAD
 		netif_receive_skb(skb);
+=======
+		napi_gro_receive(napi, skb);
+>>>>>>> upstream/android-13
 	}
 
 	gem_rx_refill(queue);
@@ -1074,8 +1736,13 @@ static int gem_rx(struct macb_queue *queue, int budget)
 	return count;
 }
 
+<<<<<<< HEAD
 static int macb_rx_frame(struct macb_queue *queue, unsigned int first_frag,
 			 unsigned int last_frag)
+=======
+static int macb_rx_frame(struct macb_queue *queue, struct napi_struct *napi,
+			 unsigned int first_frag, unsigned int last_frag)
+>>>>>>> upstream/android-13
 {
 	unsigned int len;
 	unsigned int frag;
@@ -1151,7 +1818,11 @@ static int macb_rx_frame(struct macb_queue *queue, unsigned int first_frag,
 	bp->dev->stats.rx_bytes += skb->len;
 	netdev_vdbg(bp->dev, "received skb of length %u, csum: %08x\n",
 		    skb->len, skb->csum);
+<<<<<<< HEAD
 	netif_receive_skb(skb);
+=======
+	napi_gro_receive(napi, skb);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1174,7 +1845,12 @@ static inline void macb_init_rx_ring(struct macb_queue *queue)
 	queue->rx_tail = 0;
 }
 
+<<<<<<< HEAD
 static int macb_rx(struct macb_queue *queue, int budget)
+=======
+static int macb_rx(struct macb_queue *queue, struct napi_struct *napi,
+		   int budget)
+>>>>>>> upstream/android-13
 {
 	struct macb *bp = queue->bp;
 	bool reset_rx_queue = false;
@@ -1211,7 +1887,11 @@ static int macb_rx(struct macb_queue *queue, int budget)
 				continue;
 			}
 
+<<<<<<< HEAD
 			dropped = macb_rx_frame(queue, first_frag, tail);
+=======
+			dropped = macb_rx_frame(queue, napi, first_frag, tail);
+>>>>>>> upstream/android-13
 			first_frag = -1;
 			if (unlikely(dropped < 0)) {
 				reset_rx_queue = true;
@@ -1265,11 +1945,26 @@ static int macb_poll(struct napi_struct *napi, int budget)
 	netdev_vdbg(bp->dev, "poll: status = %08lx, budget = %d\n",
 		    (unsigned long)status, budget);
 
+<<<<<<< HEAD
 	work_done = bp->macbgem_ops.mog_rx(queue, budget);
 	if (work_done < budget) {
 		napi_complete_done(napi, work_done);
 
 		/* Packets received while interrupts were disabled */
+=======
+	work_done = bp->macbgem_ops.mog_rx(queue, napi, budget);
+	if (work_done < budget) {
+		napi_complete_done(napi, work_done);
+
+		/* RSR bits only seem to propagate to raise interrupts when
+		 * interrupts are enabled at the time, so if bits are already
+		 * set due to packets received while interrupts were disabled,
+		 * they will not cause another interrupt to be generated when
+		 * interrupts are re-enabled.
+		 * Check for this case here. This has been seen to happen
+		 * around 30% of the time under heavy network load.
+		 */
+>>>>>>> upstream/android-13
 		status = macb_readl(bp, RSR);
 		if (status) {
 			if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
@@ -1277,6 +1972,25 @@ static int macb_poll(struct napi_struct *napi, int budget)
 			napi_reschedule(napi);
 		} else {
 			queue_writel(queue, IER, bp->rx_intr_mask);
+<<<<<<< HEAD
+=======
+
+			/* In rare cases, packets could have been received in
+			 * the window between the check above and re-enabling
+			 * interrupts. Therefore, a double-check is required
+			 * to avoid losing a wakeup. This can potentially race
+			 * with the interrupt handler doing the same actions
+			 * if an interrupt is raised just after enabling them,
+			 * but this should be harmless.
+			 */
+			status = macb_readl(bp, RSR);
+			if (unlikely(status)) {
+				queue_writel(queue, IDR, bp->rx_intr_mask);
+				if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
+					queue_writel(queue, ISR, MACB_BIT(RCOMP));
+				napi_schedule(napi);
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1285,11 +1999,19 @@ static int macb_poll(struct napi_struct *napi, int budget)
 	return work_done;
 }
 
+<<<<<<< HEAD
 static void macb_hresp_error_task(unsigned long data)
 {
 	struct macb *bp = (struct macb *)data;
 	struct net_device *dev = bp->dev;
 	struct macb_queue *queue = bp->queues;
+=======
+static void macb_hresp_error_task(struct tasklet_struct *t)
+{
+	struct macb *bp = from_tasklet(bp, t, hresp_err_tasklet);
+	struct net_device *dev = bp->dev;
+	struct macb_queue *queue;
+>>>>>>> upstream/android-13
 	unsigned int q;
 	u32 ctrl;
 
@@ -1308,6 +2030,7 @@ static void macb_hresp_error_task(unsigned long data)
 	bp->macbgem_ops.mog_init_rings(bp);
 
 	/* Initialize TX and RX buffers */
+<<<<<<< HEAD
 	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue) {
 		queue_writel(queue, RBQP, lower_32_bits(queue->rx_ring_dma));
 #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
@@ -1323,11 +2046,20 @@ static void macb_hresp_error_task(unsigned long data)
 #endif
 
 		/* Enable interrupts */
+=======
+	macb_init_buffers(bp);
+
+	/* Enable interrupts */
+	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
+>>>>>>> upstream/android-13
 		queue_writel(queue, IER,
 			     bp->rx_intr_mask |
 			     MACB_TX_INT_FLAGS |
 			     MACB_BIT(HRESP));
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 
 	ctrl |= MACB_BIT(RE) | MACB_BIT(TE);
 	macb_writel(bp, NCR, ctrl);
@@ -1341,6 +2073,10 @@ static void macb_tx_restart(struct macb_queue *queue)
 	unsigned int head = queue->tx_head;
 	unsigned int tail = queue->tx_tail;
 	struct macb *bp = queue->bp;
+<<<<<<< HEAD
+=======
+	unsigned int head_idx, tbqp;
+>>>>>>> upstream/android-13
 
 	if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
 		queue_writel(queue, ISR, MACB_BIT(TXUBR));
@@ -1348,9 +2084,80 @@ static void macb_tx_restart(struct macb_queue *queue)
 	if (head == tail)
 		return;
 
+<<<<<<< HEAD
 	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(TSTART));
 }
 
+=======
+	tbqp = queue_readl(queue, TBQP) / macb_dma_desc_get_size(bp);
+	tbqp = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, tbqp));
+	head_idx = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, head));
+
+	if (tbqp == head_idx)
+		return;
+
+	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(TSTART));
+}
+
+static irqreturn_t macb_wol_interrupt(int irq, void *dev_id)
+{
+	struct macb_queue *queue = dev_id;
+	struct macb *bp = queue->bp;
+	u32 status;
+
+	status = queue_readl(queue, ISR);
+
+	if (unlikely(!status))
+		return IRQ_NONE;
+
+	spin_lock(&bp->lock);
+
+	if (status & MACB_BIT(WOL)) {
+		queue_writel(queue, IDR, MACB_BIT(WOL));
+		macb_writel(bp, WOL, 0);
+		netdev_vdbg(bp->dev, "MACB WoL: queue = %u, isr = 0x%08lx\n",
+			    (unsigned int)(queue - bp->queues),
+			    (unsigned long)status);
+		if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
+			queue_writel(queue, ISR, MACB_BIT(WOL));
+		pm_wakeup_event(&bp->pdev->dev, 0);
+	}
+
+	spin_unlock(&bp->lock);
+
+	return IRQ_HANDLED;
+}
+
+static irqreturn_t gem_wol_interrupt(int irq, void *dev_id)
+{
+	struct macb_queue *queue = dev_id;
+	struct macb *bp = queue->bp;
+	u32 status;
+
+	status = queue_readl(queue, ISR);
+
+	if (unlikely(!status))
+		return IRQ_NONE;
+
+	spin_lock(&bp->lock);
+
+	if (status & GEM_BIT(WOL)) {
+		queue_writel(queue, IDR, GEM_BIT(WOL));
+		gem_writel(bp, WOL, 0);
+		netdev_vdbg(bp->dev, "GEM WoL: queue = %u, isr = 0x%08lx\n",
+			    (unsigned int)(queue - bp->queues),
+			    (unsigned long)status);
+		if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
+			queue_writel(queue, ISR, GEM_BIT(WOL));
+		pm_wakeup_event(&bp->pdev->dev, 0);
+	}
+
+	spin_unlock(&bp->lock);
+
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t macb_interrupt(int irq, void *dev_id)
 {
 	struct macb_queue *queue = dev_id;
@@ -1740,6 +2547,7 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
 		if (!nskb)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		dev_kfree_skb_any(*skb);
 		*skb = nskb;
 	}
@@ -1750,6 +2558,14 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
 		else
 			skb_trim(*skb, ETH_FCS_LEN - padlen);
 	}
+=======
+		dev_consume_skb_any(*skb);
+		*skb = nskb;
+	}
+
+	if (padlen > ETH_FCS_LEN)
+		skb_put_zero(*skb, padlen - ETH_FCS_LEN);
+>>>>>>> upstream/android-13
 
 add_fcs:
 	/* set FCS to packet */
@@ -1772,7 +2588,11 @@ static netdev_tx_t macb_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	unsigned long flags;
 	unsigned int desc_cnt, nr_frags, frag_size, f;
 	unsigned int hdrlen;
+<<<<<<< HEAD
 	bool is_lso, is_udp = 0;
+=======
+	bool is_lso;
+>>>>>>> upstream/android-13
 	netdev_tx_t ret = NETDEV_TX_OK;
 
 	if (macb_clear_csum(skb)) {
@@ -1788,10 +2608,15 @@ static netdev_tx_t macb_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	is_lso = (skb_shinfo(skb)->gso_size != 0);
 
 	if (is_lso) {
+<<<<<<< HEAD
 		is_udp = !!(ip_hdr(skb)->protocol == IPPROTO_UDP);
 
 		/* length of headers */
 		if (is_udp)
+=======
+		/* length of headers */
+		if (ip_hdr(skb)->protocol == IPPROTO_UDP)
+>>>>>>> upstream/android-13
 			/* only queue eth + ip headers separately for UDP */
 			hdrlen = skb_transport_offset(skb);
 		else
@@ -2218,19 +3043,26 @@ static void macb_configure_dma(struct macb *bp)
 
 static void macb_init_hw(struct macb *bp)
 {
+<<<<<<< HEAD
 	struct macb_queue *queue;
 	unsigned int q;
 
+=======
+>>>>>>> upstream/android-13
 	u32 config;
 
 	macb_reset_hw(bp);
 	macb_set_hwaddr(bp);
 
 	config = macb_mdc_clk_div(bp);
+<<<<<<< HEAD
 	if (bp->phy_interface == PHY_INTERFACE_MODE_SGMII)
 		config |= GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL);
 	config |= MACB_BF(RBOF, NET_IP_ALIGN);	/* Make eth data aligned */
 	config |= MACB_BIT(PAE);		/* PAuse Enable */
+=======
+	config |= MACB_BF(RBOF, NET_IP_ALIGN);	/* Make eth data aligned */
+>>>>>>> upstream/android-13
 	config |= MACB_BIT(DRFCS);		/* Discard Rx FCS */
 	if (bp->caps & MACB_CAPS_JUMBO)
 		config |= MACB_BIT(JFRAME);	/* Enable jumbo frames */
@@ -2246,13 +3078,17 @@ static void macb_init_hw(struct macb *bp)
 	macb_writel(bp, NCFGR, config);
 	if ((bp->caps & MACB_CAPS_JUMBO) && bp->jumbo_max_len)
 		gem_writel(bp, JML, bp->jumbo_max_len);
+<<<<<<< HEAD
 	bp->speed = SPEED_10;
 	bp->duplex = DUPLEX_HALF;
+=======
+>>>>>>> upstream/android-13
 	bp->rx_frm_len_mask = MACB_RX_FRMLEN_MASK;
 	if (bp->caps & MACB_CAPS_JUMBO)
 		bp->rx_frm_len_mask = MACB_RX_JFRMLEN_MASK;
 
 	macb_configure_dma(bp);
+<<<<<<< HEAD
 
 	/* Initialize TX and RX buffers */
 	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue) {
@@ -2276,6 +3112,8 @@ static void macb_init_hw(struct macb *bp)
 
 	/* Enable TX and RX */
 	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(RE) | MACB_BIT(TE));
+=======
+>>>>>>> upstream/android-13
 }
 
 /* The hash address register is 64 bits long and takes up two
@@ -2399,20 +3237,31 @@ static void macb_set_rx_mode(struct net_device *dev)
 
 static int macb_open(struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct macb *bp = netdev_priv(dev);
 	size_t bufsz = dev->mtu + ETH_HLEN + ETH_FCS_LEN + NET_IP_ALIGN;
+=======
+	size_t bufsz = dev->mtu + ETH_HLEN + ETH_FCS_LEN + NET_IP_ALIGN;
+	struct macb *bp = netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct macb_queue *queue;
 	unsigned int q;
 	int err;
 
 	netdev_dbg(bp->dev, "open\n");
 
+<<<<<<< HEAD
 	/* carrier starts down */
 	netif_carrier_off(dev);
 
 	/* if the phy is not yet register, retry later*/
 	if (!dev->phydev)
 		return -EAGAIN;
+=======
+	err = pm_runtime_get_sync(&bp->pdev->dev);
+	if (err < 0)
+		goto pm_exit;
+>>>>>>> upstream/android-13
 
 	/* RX buffers initialization */
 	macb_init_rx_buffer_size(bp, bufsz);
@@ -2421,17 +3270,29 @@ static int macb_open(struct net_device *dev)
 	if (err) {
 		netdev_err(dev, "Unable to allocate DMA memory (error %d)\n",
 			   err);
+<<<<<<< HEAD
 		return err;
+=======
+		goto pm_exit;
+>>>>>>> upstream/android-13
 	}
 
 	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
 		napi_enable(&queue->napi);
 
+<<<<<<< HEAD
 	bp->macbgem_ops.mog_init_rings(bp);
 	macb_init_hw(bp);
 
 	/* schedule a link state check */
 	phy_start(dev->phydev);
+=======
+	macb_init_hw(bp);
+
+	err = macb_phylink_connect(bp);
+	if (err)
+		goto reset_hw;
+>>>>>>> upstream/android-13
 
 	netif_tx_start_all_queues(dev);
 
@@ -2439,6 +3300,18 @@ static int macb_open(struct net_device *dev)
 		bp->ptp_info->ptp_init(dev);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+reset_hw:
+	macb_reset_hw(bp);
+	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
+		napi_disable(&queue->napi);
+	macb_free_consistent(bp);
+pm_exit:
+	pm_runtime_put_sync(&bp->pdev->dev);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int macb_close(struct net_device *dev)
@@ -2453,8 +3326,13 @@ static int macb_close(struct net_device *dev)
 	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
 		napi_disable(&queue->napi);
 
+<<<<<<< HEAD
 	if (dev->phydev)
 		phy_stop(dev->phydev);
+=======
+	phylink_stop(bp->phylink);
+	phylink_disconnect_phy(bp->phylink);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&bp->lock, flags);
 	macb_reset_hw(bp);
@@ -2466,6 +3344,11 @@ static int macb_close(struct net_device *dev)
 	if (bp->ptp_info)
 		bp->ptp_info->ptp_remove(dev);
 
+<<<<<<< HEAD
+=======
+	pm_runtime_put(&bp->pdev->dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2513,6 +3396,12 @@ static struct net_device_stats *gem_get_stats(struct macb *bp)
 	struct gem_stats *hwstat = &bp->hw_stats.gem;
 	struct net_device_stats *nstat = &bp->dev->stats;
 
+<<<<<<< HEAD
+=======
+	if (!netif_running(bp->dev))
+		return nstat;
+
+>>>>>>> upstream/android-13
 	gem_update_stats(bp);
 
 	nstat->rx_errors = (hwstat->rx_frame_check_sequence_errors +
@@ -2683,11 +3572,17 @@ static void macb_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 {
 	struct macb *bp = netdev_priv(netdev);
 
+<<<<<<< HEAD
 	wol->supported = 0;
 	wol->wolopts = 0;
 
 	if (bp->wol & MACB_WOL_HAS_MAGIC_PACKET) {
 		wol->supported = WAKE_MAGIC;
+=======
+	if (bp->wol & MACB_WOL_HAS_MAGIC_PACKET) {
+		phylink_ethtool_get_wol(bp->phylink, wol);
+		wol->supported |= WAKE_MAGIC;
+>>>>>>> upstream/android-13
 
 		if (bp->wol & MACB_WOL_ENABLED)
 			wol->wolopts |= WAKE_MAGIC;
@@ -2697,6 +3592,18 @@ static void macb_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 static int macb_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 {
 	struct macb *bp = netdev_priv(netdev);
+<<<<<<< HEAD
+=======
+	int ret;
+
+	/* Pass the order to phylink layer */
+	ret = phylink_ethtool_set_wol(bp->phylink, wol);
+	/* Don't manage WoL on MAC if handled by the PHY
+	 * or if there's a failure in talking to the PHY
+	 */
+	if (!ret || ret != -EOPNOTSUPP)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (!(bp->wol & MACB_WOL_HAS_MAGIC_PACKET) ||
 	    (wol->wolopts & ~WAKE_MAGIC))
@@ -2712,6 +3619,25 @@ static int macb_set_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int macb_get_link_ksettings(struct net_device *netdev,
+				   struct ethtool_link_ksettings *kset)
+{
+	struct macb *bp = netdev_priv(netdev);
+
+	return phylink_ethtool_ksettings_get(bp->phylink, kset);
+}
+
+static int macb_set_link_ksettings(struct net_device *netdev,
+				   const struct ethtool_link_ksettings *kset)
+{
+	struct macb *bp = netdev_priv(netdev);
+
+	return phylink_ethtool_ksettings_set(bp->phylink, kset);
+}
+
+>>>>>>> upstream/android-13
 static void macb_get_ringparam(struct net_device *netdev,
 			       struct ethtool_ringparam *ring)
 {
@@ -2839,10 +3765,20 @@ static int macb_get_ts_info(struct net_device *netdev,
 
 static void gem_enable_flow_filters(struct macb *bp, bool enable)
 {
+<<<<<<< HEAD
+=======
+	struct net_device *netdev = bp->dev;
+>>>>>>> upstream/android-13
 	struct ethtool_rx_fs_item *item;
 	u32 t2_scr;
 	int num_t2_scr;
 
+<<<<<<< HEAD
+=======
+	if (!(netdev->features & NETIF_F_NTUPLE))
+		return;
+
+>>>>>>> upstream/android-13
 	num_t2_scr = GEM_BFEXT(T2SCR, gem_readl(bp, DCFG8));
 
 	list_for_each_entry(item, &bp->rx_fs_list.list, list) {
@@ -2888,6 +3824,12 @@ static void gem_prog_cmp_regs(struct macb *bp, struct ethtool_rx_flow_spec *fs)
 	bool cmp_b = false;
 	bool cmp_c = false;
 
+<<<<<<< HEAD
+=======
+	if (!macb_is_gem(bp))
+		return;
+
+>>>>>>> upstream/android-13
 	tp4sp_v = &(fs->h_u.tcp_ip4_spec);
 	tp4sp_m = &(fs->m_u.tcp_ip4_spec);
 
@@ -3002,8 +3944,12 @@ static int gem_add_flow_filter(struct net_device *netdev,
 	gem_prog_cmp_regs(bp, fs);
 	bp->rx_fs_list.count++;
 	/* enable filtering if NTUPLE on */
+<<<<<<< HEAD
 	if (netdev->features & NETIF_F_NTUPLE)
 		gem_enable_flow_filters(bp, 1);
+=======
+	gem_enable_flow_filters(bp, 1);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&bp->rx_fs_lock, flags);
 	return 0;
@@ -3145,8 +4091,13 @@ static const struct ethtool_ops macb_ethtool_ops = {
 	.get_ts_info		= ethtool_op_get_ts_info,
 	.get_wol		= macb_get_wol,
 	.set_wol		= macb_set_wol,
+<<<<<<< HEAD
 	.get_link_ksettings     = phy_ethtool_get_link_ksettings,
 	.set_link_ksettings     = phy_ethtool_set_link_ksettings,
+=======
+	.get_link_ksettings     = macb_get_link_ksettings,
+	.set_link_ksettings     = macb_set_link_ksettings,
+>>>>>>> upstream/android-13
 	.get_ringparam		= macb_get_ringparam,
 	.set_ringparam		= macb_set_ringparam,
 };
@@ -3154,13 +4105,23 @@ static const struct ethtool_ops macb_ethtool_ops = {
 static const struct ethtool_ops gem_ethtool_ops = {
 	.get_regs_len		= macb_get_regs_len,
 	.get_regs		= macb_get_regs,
+<<<<<<< HEAD
+=======
+	.get_wol		= macb_get_wol,
+	.set_wol		= macb_set_wol,
+>>>>>>> upstream/android-13
 	.get_link		= ethtool_op_get_link,
 	.get_ts_info		= macb_get_ts_info,
 	.get_ethtool_stats	= gem_get_ethtool_stats,
 	.get_strings		= gem_get_ethtool_strings,
 	.get_sset_count		= gem_get_sset_count,
+<<<<<<< HEAD
 	.get_link_ksettings     = phy_ethtool_get_link_ksettings,
 	.set_link_ksettings     = phy_ethtool_set_link_ksettings,
+=======
+	.get_link_ksettings     = macb_get_link_ksettings,
+	.set_link_ksettings     = macb_set_link_ksettings,
+>>>>>>> upstream/android-13
 	.get_ringparam		= macb_get_ringparam,
 	.set_ringparam		= macb_set_ringparam,
 	.get_rxnfc			= gem_get_rxnfc,
@@ -3169,12 +4130,16 @@ static const struct ethtool_ops gem_ethtool_ops = {
 
 static int macb_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
+<<<<<<< HEAD
 	struct phy_device *phydev = dev->phydev;
+=======
+>>>>>>> upstream/android-13
 	struct macb *bp = netdev_priv(dev);
 
 	if (!netif_running(dev))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!phydev)
 		return -ENODEV;
 
@@ -3189,6 +4154,62 @@ static int macb_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	default:
 		return phy_mii_ioctl(phydev, rq, cmd);
 	}
+=======
+	if (bp->ptp_info) {
+		switch (cmd) {
+		case SIOCSHWTSTAMP:
+			return bp->ptp_info->set_hwtst(dev, rq, cmd);
+		case SIOCGHWTSTAMP:
+			return bp->ptp_info->get_hwtst(dev, rq);
+		}
+	}
+
+	return phylink_mii_ioctl(bp->phylink, rq, cmd);
+}
+
+static inline void macb_set_txcsum_feature(struct macb *bp,
+					   netdev_features_t features)
+{
+	u32 val;
+
+	if (!macb_is_gem(bp))
+		return;
+
+	val = gem_readl(bp, DMACFG);
+	if (features & NETIF_F_HW_CSUM)
+		val |= GEM_BIT(TXCOEN);
+	else
+		val &= ~GEM_BIT(TXCOEN);
+
+	gem_writel(bp, DMACFG, val);
+}
+
+static inline void macb_set_rxcsum_feature(struct macb *bp,
+					   netdev_features_t features)
+{
+	struct net_device *netdev = bp->dev;
+	u32 val;
+
+	if (!macb_is_gem(bp))
+		return;
+
+	val = gem_readl(bp, NCFGR);
+	if ((features & NETIF_F_RXCSUM) && !(netdev->flags & IFF_PROMISC))
+		val |= GEM_BIT(RXCOEN);
+	else
+		val &= ~GEM_BIT(RXCOEN);
+
+	gem_writel(bp, NCFGR, val);
+}
+
+static inline void macb_set_rxflow_feature(struct macb *bp,
+					   netdev_features_t features)
+{
+	if (!macb_is_gem(bp))
+		return;
+
+	gem_enable_flow_filters(bp, !!(features & NETIF_F_NTUPLE));
+>>>>>>> upstream/android-13
 }
 
 static int macb_set_features(struct net_device *netdev,
@@ -3198,6 +4219,7 @@ static int macb_set_features(struct net_device *netdev,
 	netdev_features_t changed = features ^ netdev->features;
 
 	/* TX checksum offload */
+<<<<<<< HEAD
 	if ((changed & NETIF_F_HW_CSUM) && macb_is_gem(bp)) {
 		u32 dmacfg;
 
@@ -3231,13 +4253,52 @@ static int macb_set_features(struct net_device *netdev,
 	return 0;
 }
 
+=======
+	if (changed & NETIF_F_HW_CSUM)
+		macb_set_txcsum_feature(bp, features);
+
+	/* RX checksum offload */
+	if (changed & NETIF_F_RXCSUM)
+		macb_set_rxcsum_feature(bp, features);
+
+	/* RX Flow Filters */
+	if (changed & NETIF_F_NTUPLE)
+		macb_set_rxflow_feature(bp, features);
+
+	return 0;
+}
+
+static void macb_restore_features(struct macb *bp)
+{
+	struct net_device *netdev = bp->dev;
+	netdev_features_t features = netdev->features;
+	struct ethtool_rx_fs_item *item;
+
+	/* TX checksum offload */
+	macb_set_txcsum_feature(bp, features);
+
+	/* RX checksum offload */
+	macb_set_rxcsum_feature(bp, features);
+
+	/* RX Flow Filters */
+	list_for_each_entry(item, &bp->rx_fs_list.list, list)
+		gem_prog_cmp_regs(bp, &item->fs);
+
+	macb_set_rxflow_feature(bp, features);
+}
+
+>>>>>>> upstream/android-13
 static const struct net_device_ops macb_netdev_ops = {
 	.ndo_open		= macb_open,
 	.ndo_stop		= macb_close,
 	.ndo_start_xmit		= macb_start_xmit,
 	.ndo_set_rx_mode	= macb_set_rx_mode,
 	.ndo_get_stats		= macb_get_stats,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= macb_ioctl,
+=======
+	.ndo_eth_ioctl		= macb_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_change_mtu		= macb_change_mtu,
 	.ndo_set_mac_address	= eth_mac_addr,
@@ -3265,13 +4326,26 @@ static void macb_configure_caps(struct macb *bp,
 		dcfg = gem_readl(bp, DCFG1);
 		if (GEM_BFEXT(IRQCOR, dcfg) == 0)
 			bp->caps |= MACB_CAPS_ISR_CLEAR_ON_WRITE;
+<<<<<<< HEAD
+=======
+		if (GEM_BFEXT(NO_PCS, dcfg) == 0)
+			bp->caps |= MACB_CAPS_PCS;
+		dcfg = gem_readl(bp, DCFG12);
+		if (GEM_BFEXT(HIGH_SPEED, dcfg) == 1)
+			bp->caps |= MACB_CAPS_HIGH_SPEED;
+>>>>>>> upstream/android-13
 		dcfg = gem_readl(bp, DCFG2);
 		if ((dcfg & (GEM_BIT(RX_PKT_BUFF) | GEM_BIT(TX_PKT_BUFF))) == 0)
 			bp->caps |= MACB_CAPS_FIFO_MODE;
 #ifdef CONFIG_MACB_USE_HWSTAMP
 		if (gem_has_ptp(bp)) {
 			if (!GEM_BFEXT(TSU, gem_readl(bp, DCFG5)))
+<<<<<<< HEAD
 				pr_err("GEM doesn't support hardware ptp.\n");
+=======
+				dev_err(&bp->pdev->dev,
+					"GEM doesn't support hardware ptp.\n");
+>>>>>>> upstream/android-13
 			else {
 				bp->hw_dma_cap |= HW_DMA_CAP_PTP;
 				bp->ptp_info = &gem_ptp_info;
@@ -3288,8 +4362,11 @@ static void macb_probe_queues(void __iomem *mem,
 			      unsigned int *queue_mask,
 			      unsigned int *num_queues)
 {
+<<<<<<< HEAD
 	unsigned int hw_q;
 
+=======
+>>>>>>> upstream/android-13
 	*queue_mask = 0x1;
 	*num_queues = 1;
 
@@ -3303,6 +4380,7 @@ static void macb_probe_queues(void __iomem *mem,
 		return;
 
 	/* bit 0 is never set but queue 0 always exists */
+<<<<<<< HEAD
 	*queue_mask = readl_relaxed(mem + GEM_DCFG6) & 0xff;
 
 	*queue_mask |= 0x1;
@@ -3310,11 +4388,33 @@ static void macb_probe_queues(void __iomem *mem,
 	for (hw_q = 1; hw_q < MACB_MAX_QUEUES; ++hw_q)
 		if (*queue_mask & (1 << hw_q))
 			(*num_queues)++;
+=======
+	*queue_mask |= readl_relaxed(mem + GEM_DCFG6) & 0xff;
+	*num_queues = hweight32(*queue_mask);
+}
+
+static void macb_clks_disable(struct clk *pclk, struct clk *hclk, struct clk *tx_clk,
+			      struct clk *rx_clk, struct clk *tsu_clk)
+{
+	struct clk_bulk_data clks[] = {
+		{ .clk = tsu_clk, },
+		{ .clk = rx_clk, },
+		{ .clk = pclk, },
+		{ .clk = hclk, },
+		{ .clk = tx_clk },
+	};
+
+	clk_bulk_disable_unprepare(ARRAY_SIZE(clks), clks);
+>>>>>>> upstream/android-13
 }
 
 static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
 			 struct clk **hclk, struct clk **tx_clk,
+<<<<<<< HEAD
 			 struct clk **rx_clk)
+=======
+			 struct clk **rx_clk, struct clk **tsu_clk)
+>>>>>>> upstream/android-13
 {
 	struct macb_platform_data *pdata;
 	int err;
@@ -3328,6 +4428,7 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
 		*hclk = devm_clk_get(&pdev->dev, "hclk");
 	}
 
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(*pclk)) {
 		err = PTR_ERR(*pclk);
 		if (!err)
@@ -3353,6 +4454,29 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
 	*rx_clk = devm_clk_get(&pdev->dev, "rx_clk");
 	if (IS_ERR(*rx_clk))
 		*rx_clk = NULL;
+=======
+	if (IS_ERR_OR_NULL(*pclk))
+		return dev_err_probe(&pdev->dev,
+				     IS_ERR(*pclk) ? PTR_ERR(*pclk) : -ENODEV,
+				     "failed to get pclk\n");
+
+	if (IS_ERR_OR_NULL(*hclk))
+		return dev_err_probe(&pdev->dev,
+				     IS_ERR(*hclk) ? PTR_ERR(*hclk) : -ENODEV,
+				     "failed to get hclk\n");
+
+	*tx_clk = devm_clk_get_optional(&pdev->dev, "tx_clk");
+	if (IS_ERR(*tx_clk))
+		return PTR_ERR(*tx_clk);
+
+	*rx_clk = devm_clk_get_optional(&pdev->dev, "rx_clk");
+	if (IS_ERR(*rx_clk))
+		return PTR_ERR(*rx_clk);
+
+	*tsu_clk = devm_clk_get_optional(&pdev->dev, "tsu_clk");
+	if (IS_ERR(*tsu_clk))
+		return PTR_ERR(*tsu_clk);
+>>>>>>> upstream/android-13
 
 	err = clk_prepare_enable(*pclk);
 	if (err) {
@@ -3378,8 +4502,22 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
 		goto err_disable_txclk;
 	}
 
+<<<<<<< HEAD
 	return 0;
 
+=======
+	err = clk_prepare_enable(*tsu_clk);
+	if (err) {
+		dev_err(&pdev->dev, "failed to enable tsu_clk (%d)\n", err);
+		goto err_disable_rxclk;
+	}
+
+	return 0;
+
+err_disable_rxclk:
+	clk_disable_unprepare(*rx_clk);
+
+>>>>>>> upstream/android-13
 err_disable_txclk:
 	clk_disable_unprepare(*tx_clk);
 
@@ -3414,7 +4552,11 @@ static int macb_init(struct platform_device *pdev)
 
 		queue = &bp->queues[q];
 		queue->bp = bp;
+<<<<<<< HEAD
 		netif_napi_add(dev, &queue->napi, macb_poll, 64);
+=======
+		netif_napi_add(dev, &queue->napi, macb_poll, NAPI_POLL_WEIGHT);
+>>>>>>> upstream/android-13
 		if (hw_q) {
 			queue->ISR  = GEM_ISR(hw_q - 1);
 			queue->IER  = GEM_IER(hw_q - 1);
@@ -3504,6 +4646,10 @@ static int macb_init(struct platform_device *pdev)
 	reg = gem_readl(bp, DCFG8);
 	bp->max_tuples = min((GEM_BFEXT(SCR2CMP, reg) / 3),
 			GEM_BFEXT(T2SCR, reg));
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&bp->rx_fs_list.list);
+>>>>>>> upstream/android-13
 	if (bp->max_tuples > 0) {
 		/* also needs one ethtype match to check IPv4 */
 		if (GEM_BFEXT(SCR2ETH, reg) > 0) {
@@ -3514,7 +4660,10 @@ static int macb_init(struct platform_device *pdev)
 			/* Filtering is supported in hw but don't enable it in kernel now */
 			dev->hw_features |= NETIF_F_NTUPLE;
 			/* init Rx flow definitions */
+<<<<<<< HEAD
 			INIT_LIST_HEAD(&bp->rx_fs_list.list);
+=======
+>>>>>>> upstream/android-13
 			bp->rx_fs_list.count = 0;
 			spin_lock_init(&bp->rx_fs_lock);
 		} else
@@ -3523,6 +4672,7 @@ static int macb_init(struct platform_device *pdev)
 
 	if (!(bp->caps & MACB_CAPS_USRIO_DISABLED)) {
 		val = 0;
+<<<<<<< HEAD
 		if (bp->phy_interface == PHY_INTERFACE_MODE_RGMII)
 			val = GEM_BIT(RGMII);
 		else if (bp->phy_interface == PHY_INTERFACE_MODE_RMII &&
@@ -3533,6 +4683,18 @@ static int macb_init(struct platform_device *pdev)
 
 		if (bp->caps & MACB_CAPS_USRIO_HAS_CLKEN)
 			val |= MACB_BIT(CLKEN);
+=======
+		if (phy_interface_mode_is_rgmii(bp->phy_interface))
+			val = bp->usrio->rgmii;
+		else if (bp->phy_interface == PHY_INTERFACE_MODE_RMII &&
+			 (bp->caps & MACB_CAPS_USRIO_DEFAULT_IS_MII_GMII))
+			val = bp->usrio->rmii;
+		else if (!(bp->caps & MACB_CAPS_USRIO_DEFAULT_IS_MII_GMII))
+			val = bp->usrio->mii;
+
+		if (bp->caps & MACB_CAPS_USRIO_HAS_CLKEN)
+			val |= bp->usrio->refclk;
+>>>>>>> upstream/android-13
 
 		macb_or_gem_writel(bp, USRIO, val);
 	}
@@ -3547,12 +4709,23 @@ static int macb_init(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct macb_usrio_config macb_default_usrio = {
+	.mii = MACB_BIT(MII),
+	.rmii = MACB_BIT(RMII),
+	.rgmii = GEM_BIT(RGMII),
+	.refclk = MACB_BIT(CLKEN),
+};
+
+>>>>>>> upstream/android-13
 #if defined(CONFIG_OF)
 /* 1518 rounded up */
 #define AT91ETHER_MAX_RBUFF_SZ	0x600
 /* max number of receive buffers */
 #define AT91ETHER_MAX_RX_DESCR	9
 
+<<<<<<< HEAD
 /* Initialize and start the Receiver and Transmit subsystems */
 static int at91ether_start(struct net_device *dev)
 {
@@ -3562,6 +4735,13 @@ static int at91ether_start(struct net_device *dev)
 	dma_addr_t addr;
 	u32 ctl;
 	int i;
+=======
+static struct sifive_fu540_macb_mgmt *mgmt;
+
+static int at91ether_alloc_coherent(struct macb *lp)
+{
+	struct macb_queue *q = &lp->queues[0];
+>>>>>>> upstream/android-13
 
 	q->rx_ring = dma_alloc_coherent(&lp->pdev->dev,
 					 (AT91ETHER_MAX_RX_DESCR *
@@ -3583,6 +4763,46 @@ static int at91ether_start(struct net_device *dev)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
+=======
+	return 0;
+}
+
+static void at91ether_free_coherent(struct macb *lp)
+{
+	struct macb_queue *q = &lp->queues[0];
+
+	if (q->rx_ring) {
+		dma_free_coherent(&lp->pdev->dev,
+				  AT91ETHER_MAX_RX_DESCR *
+				  macb_dma_desc_get_size(lp),
+				  q->rx_ring, q->rx_ring_dma);
+		q->rx_ring = NULL;
+	}
+
+	if (q->rx_buffers) {
+		dma_free_coherent(&lp->pdev->dev,
+				  AT91ETHER_MAX_RX_DESCR *
+				  AT91ETHER_MAX_RBUFF_SZ,
+				  q->rx_buffers, q->rx_buffers_dma);
+		q->rx_buffers = NULL;
+	}
+}
+
+/* Initialize and start the Receiver and Transmit subsystems */
+static int at91ether_start(struct macb *lp)
+{
+	struct macb_queue *q = &lp->queues[0];
+	struct macb_dma_desc *desc;
+	dma_addr_t addr;
+	u32 ctl;
+	int i, ret;
+
+	ret = at91ether_alloc_coherent(lp);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	addr = q->rx_buffers_dma;
 	for (i = 0; i < AT91ETHER_MAX_RX_DESCR; i++) {
 		desc = macb_rx_desc(q, i);
@@ -3604,6 +4824,7 @@ static int at91ether_start(struct net_device *dev)
 	ctl = macb_readl(lp, NCR);
 	macb_writel(lp, NCR, ctl | MACB_BIT(RE) | MACB_BIT(TE));
 
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -3624,6 +4845,8 @@ static int at91ether_open(struct net_device *dev)
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	/* Enable MAC interrupts */
 	macb_writel(lp, IER, MACB_BIT(RCOMP)	|
 			     MACB_BIT(RXUBR)	|
@@ -3633,6 +4856,7 @@ static int at91ether_open(struct net_device *dev)
 			     MACB_BIT(ISR_ROVR)	|
 			     MACB_BIT(HRESP));
 
+<<<<<<< HEAD
 	/* schedule a link state check */
 	phy_start(dev->phydev);
 
@@ -3652,6 +4876,15 @@ static int at91ether_close(struct net_device *dev)
 	ctl = macb_readl(lp, NCR);
 	macb_writel(lp, NCR, ctl & ~(MACB_BIT(TE) | MACB_BIT(RE)));
 
+=======
+	return 0;
+}
+
+static void at91ether_stop(struct macb *lp)
+{
+	u32 ctl;
+
+>>>>>>> upstream/android-13
 	/* Disable MAC interrupts */
 	macb_writel(lp, IDR, MACB_BIT(RCOMP)	|
 			     MACB_BIT(RXUBR)	|
@@ -3661,6 +4894,7 @@ static int at91ether_close(struct net_device *dev)
 			     MACB_BIT(ISR_ROVR) |
 			     MACB_BIT(HRESP));
 
+<<<<<<< HEAD
 	netif_stop_queue(dev);
 
 	dma_free_coherent(&lp->pdev->dev,
@@ -3675,6 +4909,67 @@ static int at91ether_close(struct net_device *dev)
 	q->rx_buffers = NULL;
 
 	return 0;
+=======
+	/* Disable Receiver and Transmitter */
+	ctl = macb_readl(lp, NCR);
+	macb_writel(lp, NCR, ctl & ~(MACB_BIT(TE) | MACB_BIT(RE)));
+
+	/* Free resources. */
+	at91ether_free_coherent(lp);
+}
+
+/* Open the ethernet interface */
+static int at91ether_open(struct net_device *dev)
+{
+	struct macb *lp = netdev_priv(dev);
+	u32 ctl;
+	int ret;
+
+	ret = pm_runtime_get_sync(&lp->pdev->dev);
+	if (ret < 0) {
+		pm_runtime_put_noidle(&lp->pdev->dev);
+		return ret;
+	}
+
+	/* Clear internal statistics */
+	ctl = macb_readl(lp, NCR);
+	macb_writel(lp, NCR, ctl | MACB_BIT(CLRSTAT));
+
+	macb_set_hwaddr(lp);
+
+	ret = at91ether_start(lp);
+	if (ret)
+		goto pm_exit;
+
+	ret = macb_phylink_connect(lp);
+	if (ret)
+		goto stop;
+
+	netif_start_queue(dev);
+
+	return 0;
+
+stop:
+	at91ether_stop(lp);
+pm_exit:
+	pm_runtime_put_sync(&lp->pdev->dev);
+	return ret;
+}
+
+/* Close the interface */
+static int at91ether_close(struct net_device *dev)
+{
+	struct macb *lp = netdev_priv(dev);
+
+	netif_stop_queue(dev);
+
+	phylink_stop(lp->phylink);
+	phylink_disconnect_phy(lp->phylink);
+
+	at91ether_stop(lp);
+
+	return pm_runtime_put(&lp->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 /* Transmit packet */
@@ -3684,6 +4979,7 @@ static netdev_tx_t at91ether_start_xmit(struct sk_buff *skb,
 	struct macb *lp = netdev_priv(dev);
 
 	if (macb_readl(lp, TSR) & MACB_BIT(RM9200_BNQ)) {
+<<<<<<< HEAD
 		netif_stop_queue(dev);
 
 		/* Store packet information (to free when Tx completed) */
@@ -3692,6 +4988,18 @@ static netdev_tx_t at91ether_start_xmit(struct sk_buff *skb,
 		lp->skb_physaddr = dma_map_single(NULL, skb->data, skb->len,
 							DMA_TO_DEVICE);
 		if (dma_mapping_error(NULL, lp->skb_physaddr)) {
+=======
+		int desc = 0;
+
+		netif_stop_queue(dev);
+
+		/* Store packet information (to free when Tx completed) */
+		lp->rm9200_txq[desc].skb = skb;
+		lp->rm9200_txq[desc].size = skb->len;
+		lp->rm9200_txq[desc].mapping = dma_map_single(&lp->pdev->dev, skb->data,
+							      skb->len, DMA_TO_DEVICE);
+		if (dma_mapping_error(&lp->pdev->dev, lp->rm9200_txq[desc].mapping)) {
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(skb);
 			dev->stats.tx_dropped++;
 			netdev_err(dev, "%s: DMA mapping error\n", __func__);
@@ -3699,7 +5007,11 @@ static netdev_tx_t at91ether_start_xmit(struct sk_buff *skb,
 		}
 
 		/* Set address of the data in the Transmit Address register */
+<<<<<<< HEAD
 		macb_writel(lp, TAR, lp->skb_physaddr);
+=======
+		macb_writel(lp, TAR, lp->rm9200_txq[desc].mapping);
+>>>>>>> upstream/android-13
 		/* Set length of the packet in the Transmit Control register */
 		macb_writel(lp, TCR, skb->len);
 
@@ -3762,6 +5074,10 @@ static irqreturn_t at91ether_interrupt(int irq, void *dev_id)
 	struct net_device *dev = dev_id;
 	struct macb *lp = netdev_priv(dev);
 	u32 intstatus, ctl;
+<<<<<<< HEAD
+=======
+	unsigned int desc;
+>>>>>>> upstream/android-13
 
 	/* MAC Interrupt Status register indicates what interrupts are pending.
 	 * It is automatically cleared once read.
@@ -3778,6 +5094,7 @@ static irqreturn_t at91ether_interrupt(int irq, void *dev_id)
 		if (intstatus & (MACB_BIT(ISR_TUND) | MACB_BIT(ISR_RLE)))
 			dev->stats.tx_errors++;
 
+<<<<<<< HEAD
 		if (lp->skb) {
 			dev_kfree_skb_irq(lp->skb);
 			lp->skb = NULL;
@@ -3785,6 +5102,16 @@ static irqreturn_t at91ether_interrupt(int irq, void *dev_id)
 					 lp->skb_length, DMA_TO_DEVICE);
 			dev->stats.tx_packets++;
 			dev->stats.tx_bytes += lp->skb_length;
+=======
+		desc = 0;
+		if (lp->rm9200_txq[desc].skb) {
+			dev_consume_skb_irq(lp->rm9200_txq[desc].skb);
+			lp->rm9200_txq[desc].skb = NULL;
+			dma_unmap_single(&lp->pdev->dev, lp->rm9200_txq[desc].mapping,
+					 lp->rm9200_txq[desc].size, DMA_TO_DEVICE);
+			dev->stats.tx_packets++;
+			dev->stats.tx_bytes += lp->rm9200_txq[desc].size;
+>>>>>>> upstream/android-13
 		}
 		netif_wake_queue(dev);
 	}
@@ -3821,7 +5148,11 @@ static const struct net_device_ops at91ether_netdev_ops = {
 	.ndo_get_stats		= macb_get_stats,
 	.ndo_set_rx_mode	= macb_set_rx_mode,
 	.ndo_set_mac_address	= eth_mac_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= macb_ioctl,
+=======
+	.ndo_eth_ioctl		= macb_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller	= at91ether_poll_controller,
@@ -3830,13 +5161,21 @@ static const struct net_device_ops at91ether_netdev_ops = {
 
 static int at91ether_clk_init(struct platform_device *pdev, struct clk **pclk,
 			      struct clk **hclk, struct clk **tx_clk,
+<<<<<<< HEAD
 			      struct clk **rx_clk)
+=======
+			      struct clk **rx_clk, struct clk **tsu_clk)
+>>>>>>> upstream/android-13
 {
 	int err;
 
 	*hclk = NULL;
 	*tx_clk = NULL;
 	*rx_clk = NULL;
+<<<<<<< HEAD
+=======
+	*tsu_clk = NULL;
+>>>>>>> upstream/android-13
 
 	*pclk = devm_clk_get(&pdev->dev, "ether_clk");
 	if (IS_ERR(*pclk))
@@ -3856,7 +5195,10 @@ static int at91ether_init(struct platform_device *pdev)
 	struct net_device *dev = platform_get_drvdata(pdev);
 	struct macb *bp = netdev_priv(dev);
 	int err;
+<<<<<<< HEAD
 	u32 reg;
+=======
+>>>>>>> upstream/android-13
 
 	bp->queues[0].bp = bp;
 
@@ -3870,19 +5212,155 @@ static int at91ether_init(struct platform_device *pdev)
 
 	macb_writel(bp, NCR, 0);
 
+<<<<<<< HEAD
 	reg = MACB_BF(CLK, MACB_CLK_DIV32) | MACB_BIT(BIG);
 	if (bp->phy_interface == PHY_INTERFACE_MODE_RMII)
 		reg |= MACB_BIT(RM9200_RMII);
 
 	macb_writel(bp, NCFGR, reg);
+=======
+	macb_writel(bp, NCFGR, MACB_BF(CLK, MACB_CLK_DIV32) | MACB_BIT(BIG));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static unsigned long fu540_macb_tx_recalc_rate(struct clk_hw *hw,
+					       unsigned long parent_rate)
+{
+	return mgmt->rate;
+}
+
+static long fu540_macb_tx_round_rate(struct clk_hw *hw, unsigned long rate,
+				     unsigned long *parent_rate)
+{
+	if (WARN_ON(rate < 2500000))
+		return 2500000;
+	else if (rate == 2500000)
+		return 2500000;
+	else if (WARN_ON(rate < 13750000))
+		return 2500000;
+	else if (WARN_ON(rate < 25000000))
+		return 25000000;
+	else if (rate == 25000000)
+		return 25000000;
+	else if (WARN_ON(rate < 75000000))
+		return 25000000;
+	else if (WARN_ON(rate < 125000000))
+		return 125000000;
+	else if (rate == 125000000)
+		return 125000000;
+
+	WARN_ON(rate > 125000000);
+
+	return 125000000;
+}
+
+static int fu540_macb_tx_set_rate(struct clk_hw *hw, unsigned long rate,
+				  unsigned long parent_rate)
+{
+	rate = fu540_macb_tx_round_rate(hw, rate, &parent_rate);
+	if (rate != 125000000)
+		iowrite32(1, mgmt->reg);
+	else
+		iowrite32(0, mgmt->reg);
+	mgmt->rate = rate;
+
+	return 0;
+}
+
+static const struct clk_ops fu540_c000_ops = {
+	.recalc_rate = fu540_macb_tx_recalc_rate,
+	.round_rate = fu540_macb_tx_round_rate,
+	.set_rate = fu540_macb_tx_set_rate,
+};
+
+static int fu540_c000_clk_init(struct platform_device *pdev, struct clk **pclk,
+			       struct clk **hclk, struct clk **tx_clk,
+			       struct clk **rx_clk, struct clk **tsu_clk)
+{
+	struct clk_init_data init;
+	int err = 0;
+
+	err = macb_clk_init(pdev, pclk, hclk, tx_clk, rx_clk, tsu_clk);
+	if (err)
+		return err;
+
+	mgmt = devm_kzalloc(&pdev->dev, sizeof(*mgmt), GFP_KERNEL);
+	if (!mgmt) {
+		err = -ENOMEM;
+		goto err_disable_clks;
+	}
+
+	init.name = "sifive-gemgxl-mgmt";
+	init.ops = &fu540_c000_ops;
+	init.flags = 0;
+	init.num_parents = 0;
+
+	mgmt->rate = 0;
+	mgmt->hw.init = &init;
+
+	*tx_clk = devm_clk_register(&pdev->dev, &mgmt->hw);
+	if (IS_ERR(*tx_clk)) {
+		err = PTR_ERR(*tx_clk);
+		goto err_disable_clks;
+	}
+
+	err = clk_prepare_enable(*tx_clk);
+	if (err) {
+		dev_err(&pdev->dev, "failed to enable tx_clk (%u)\n", err);
+		*tx_clk = NULL;
+		goto err_disable_clks;
+	} else {
+		dev_info(&pdev->dev, "Registered clk switch '%s'\n", init.name);
+	}
+
+	return 0;
+
+err_disable_clks:
+	macb_clks_disable(*pclk, *hclk, *tx_clk, *rx_clk, *tsu_clk);
+
+	return err;
+}
+
+static int fu540_c000_init(struct platform_device *pdev)
+{
+	mgmt->reg = devm_platform_ioremap_resource(pdev, 1);
+	if (IS_ERR(mgmt->reg))
+		return PTR_ERR(mgmt->reg);
+
+	return macb_init(pdev);
+}
+
+static const struct macb_usrio_config sama7g5_usrio = {
+	.mii = 0,
+	.rmii = 1,
+	.rgmii = 2,
+	.refclk = BIT(2),
+	.hdfctlen = BIT(6),
+};
+
+static const struct macb_config fu540_c000_config = {
+	.caps = MACB_CAPS_GIGABIT_MODE_AVAILABLE | MACB_CAPS_JUMBO |
+		MACB_CAPS_GEM_HAS_PTP,
+	.dma_burst_length = 16,
+	.clk_init = fu540_c000_clk_init,
+	.init = fu540_c000_init,
+	.jumbo_max_len = 10240,
+	.usrio = &macb_default_usrio,
+};
+
+>>>>>>> upstream/android-13
 static const struct macb_config at91sam9260_config = {
 	.caps = MACB_CAPS_USRIO_HAS_CLKEN | MACB_CAPS_USRIO_DEFAULT_IS_MII_GMII,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config sama5d3macb_config = {
@@ -3890,6 +5368,10 @@ static const struct macb_config sama5d3macb_config = {
 	      | MACB_CAPS_USRIO_HAS_CLKEN | MACB_CAPS_USRIO_DEFAULT_IS_MII_GMII,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config pc302gem_config = {
@@ -3897,6 +5379,10 @@ static const struct macb_config pc302gem_config = {
 	.dma_burst_length = 16,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config sama5d2_config = {
@@ -3904,6 +5390,18 @@ static const struct macb_config sama5d2_config = {
 	.dma_burst_length = 16,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+};
+
+static const struct macb_config sama5d29_config = {
+	.caps = MACB_CAPS_USRIO_DEFAULT_IS_MII_GMII | MACB_CAPS_GEM_HAS_PTP,
+	.dma_burst_length = 16,
+	.clk_init = macb_clk_init,
+	.init = macb_init,
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config sama5d3_config = {
@@ -3913,6 +5411,10 @@ static const struct macb_config sama5d3_config = {
 	.clk_init = macb_clk_init,
 	.init = macb_init,
 	.jumbo_max_len = 10240,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config sama5d4_config = {
@@ -3920,18 +5422,33 @@ static const struct macb_config sama5d4_config = {
 	.dma_burst_length = 4,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
 };
 
 static const struct macb_config emac_config = {
 	.caps = MACB_CAPS_NEEDS_RSTONUBR,
 	.clk_init = at91ether_clk_init,
 	.init = at91ether_init,
+=======
+	.usrio = &macb_default_usrio,
+};
+
+static const struct macb_config emac_config = {
+	.caps = MACB_CAPS_NEEDS_RSTONUBR | MACB_CAPS_MACB_IS_EMAC,
+	.clk_init = at91ether_clk_init,
+	.init = at91ether_init,
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config np4_config = {
 	.caps = MACB_CAPS_USRIO_DISABLED,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config zynqmp_config = {
@@ -3942,6 +5459,10 @@ static const struct macb_config zynqmp_config = {
 	.clk_init = macb_clk_init,
 	.init = macb_init,
 	.jumbo_max_len = 10240,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct macb_config zynq_config = {
@@ -3950,6 +5471,26 @@ static const struct macb_config zynq_config = {
 	.dma_burst_length = 16,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+};
+
+static const struct macb_config sama7g5_gem_config = {
+	.caps = MACB_CAPS_GIGABIT_MODE_AVAILABLE | MACB_CAPS_CLK_HW_CHG,
+	.dma_burst_length = 16,
+	.clk_init = macb_clk_init,
+	.init = macb_init,
+	.usrio = &sama7g5_usrio,
+};
+
+static const struct macb_config sama7g5_emac_config = {
+	.caps = MACB_CAPS_USRIO_DEFAULT_IS_MII_GMII | MACB_CAPS_USRIO_HAS_CLKEN,
+	.dma_burst_length = 16,
+	.clk_init = macb_clk_init,
+	.init = macb_init,
+	.usrio = &sama7g5_usrio,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id macb_dt_ids[] = {
@@ -3959,7 +5500,13 @@ static const struct of_device_id macb_dt_ids[] = {
 	{ .compatible = "cdns,np4-macb", .data = &np4_config },
 	{ .compatible = "cdns,pc302-gem", .data = &pc302gem_config },
 	{ .compatible = "cdns,gem", .data = &pc302gem_config },
+<<<<<<< HEAD
 	{ .compatible = "atmel,sama5d2-gem", .data = &sama5d2_config },
+=======
+	{ .compatible = "cdns,sam9x60-macb", .data = &at91sam9260_config },
+	{ .compatible = "atmel,sama5d2-gem", .data = &sama5d2_config },
+	{ .compatible = "atmel,sama5d29-gem", .data = &sama5d29_config },
+>>>>>>> upstream/android-13
 	{ .compatible = "atmel,sama5d3-gem", .data = &sama5d3_config },
 	{ .compatible = "atmel,sama5d3-macb", .data = &sama5d3macb_config },
 	{ .compatible = "atmel,sama5d4-gem", .data = &sama5d4_config },
@@ -3967,6 +5514,12 @@ static const struct of_device_id macb_dt_ids[] = {
 	{ .compatible = "cdns,emac", .data = &emac_config },
 	{ .compatible = "cdns,zynqmp-gem", .data = &zynqmp_config},
 	{ .compatible = "cdns,zynq-gem", .data = &zynq_config },
+<<<<<<< HEAD
+=======
+	{ .compatible = "sifive,fu540-c000-gem", .data = &fu540_c000_config },
+	{ .compatible = "microchip,sama7g5-gem", .data = &sama7g5_gem_config },
+	{ .compatible = "microchip,sama7g5-emac", .data = &sama7g5_emac_config },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, macb_dt_ids);
@@ -3979,6 +5532,10 @@ static const struct macb_config default_gem_config = {
 	.dma_burst_length = 16,
 	.clk_init = macb_clk_init,
 	.init = macb_init,
+<<<<<<< HEAD
+=======
+	.usrio = &macb_default_usrio,
+>>>>>>> upstream/android-13
 	.jumbo_max_len = 10240,
 };
 
@@ -3986,6 +5543,7 @@ static int macb_probe(struct platform_device *pdev)
 {
 	const struct macb_config *macb_config = &default_gem_config;
 	int (*clk_init)(struct platform_device *, struct clk **,
+<<<<<<< HEAD
 			struct clk **, struct clk **,  struct clk **)
 					      = macb_config->clk_init;
 	int (*init)(struct platform_device *) = macb_config->init;
@@ -4004,6 +5562,24 @@ static int macb_probe(struct platform_device *pdev)
 
 	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mem = devm_ioremap_resource(&pdev->dev, regs);
+=======
+			struct clk **, struct clk **,  struct clk **,
+			struct clk **) = macb_config->clk_init;
+	int (*init)(struct platform_device *) = macb_config->init;
+	struct device_node *np = pdev->dev.of_node;
+	struct clk *pclk, *hclk = NULL, *tx_clk = NULL, *rx_clk = NULL;
+	struct clk *tsu_clk = NULL;
+	unsigned int queue_mask, num_queues;
+	bool native_io;
+	phy_interface_t interface;
+	struct net_device *dev;
+	struct resource *regs;
+	void __iomem *mem;
+	struct macb *bp;
+	int err, val;
+
+	mem = devm_platform_get_and_ioremap_resource(pdev, 0, &regs);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mem))
 		return PTR_ERR(mem);
 
@@ -4018,10 +5594,22 @@ static int macb_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	err = clk_init(pdev, &pclk, &hclk, &tx_clk, &rx_clk);
 	if (err)
 		return err;
 
+=======
+	err = clk_init(pdev, &pclk, &hclk, &tx_clk, &rx_clk, &tsu_clk);
+	if (err)
+		return err;
+
+	pm_runtime_set_autosuspend_delay(&pdev->dev, MACB_PM_TIMEOUT);
+	pm_runtime_use_autosuspend(&pdev->dev);
+	pm_runtime_get_noresume(&pdev->dev);
+	pm_runtime_set_active(&pdev->dev);
+	pm_runtime_enable(&pdev->dev);
+>>>>>>> upstream/android-13
 	native_io = hw_is_native_io(mem);
 
 	macb_probe_queues(mem, native_io, &queue_mask, &num_queues);
@@ -4055,6 +5643,10 @@ static int macb_probe(struct platform_device *pdev)
 	bp->hclk = hclk;
 	bp->tx_clk = tx_clk;
 	bp->rx_clk = rx_clk;
+<<<<<<< HEAD
+=======
+	bp->tsu_clk = tsu_clk;
+>>>>>>> upstream/android-13
 	if (macb_config)
 		bp->jumbo_max_len = macb_config->jumbo_max_len;
 
@@ -4063,6 +5655,11 @@ static int macb_probe(struct platform_device *pdev)
 		bp->wol |= MACB_WOL_HAS_MAGIC_PACKET;
 	device_set_wakeup_capable(&pdev->dev, bp->wol & MACB_WOL_HAS_MAGIC_PACKET);
 
+<<<<<<< HEAD
+=======
+	bp->usrio = macb_config->usrio;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&bp->lock);
 
 	/* setup capabilities */
@@ -4070,7 +5667,11 @@ static int macb_probe(struct platform_device *pdev)
 
 #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
 	if (GEM_BFEXT(DAW64, gem_readl(bp, DCFG6))) {
+<<<<<<< HEAD
 		dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
+=======
+		dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(44));
+>>>>>>> upstream/android-13
 		bp->hw_dma_cap |= HW_DMA_CAP_64B;
 	}
 #endif
@@ -4105,6 +5706,7 @@ static int macb_probe(struct platform_device *pdev)
 	if (bp->caps & MACB_CAPS_NEEDS_RSTONUBR)
 		bp->rx_intr_mask |= MACB_BIT(RXUBR);
 
+<<<<<<< HEAD
 	mac = of_get_mac_address(np);
 	if (mac) {
 		ether_addr_copy(bp->dev->dev_addr, mac);
@@ -4127,6 +5729,20 @@ static int macb_probe(struct platform_device *pdev)
 	} else {
 		bp->phy_interface = err;
 	}
+=======
+	err = of_get_mac_address(np, bp->dev->dev_addr);
+	if (err == -EPROBE_DEFER)
+		goto err_out_free_netdev;
+	else if (err)
+		macb_get_hwaddr(bp);
+
+	err = of_get_phy_mode(np, &interface);
+	if (err)
+		/* not found in DT, MII by default */
+		bp->phy_interface = PHY_INTERFACE_MODE_MII;
+	else
+		bp->phy_interface = interface;
+>>>>>>> upstream/android-13
 
 	/* IP specific init */
 	err = init(pdev);
@@ -4137,8 +5753,11 @@ static int macb_probe(struct platform_device *pdev)
 	if (err)
 		goto err_out_free_netdev;
 
+<<<<<<< HEAD
 	phydev = dev->phydev;
 
+=======
+>>>>>>> upstream/android-13
 	netif_carrier_off(dev);
 
 	err = register_netdev(dev);
@@ -4147,15 +5766,20 @@ static int macb_probe(struct platform_device *pdev)
 		goto err_out_unregister_mdio;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&bp->hresp_err_tasklet, macb_hresp_error_task,
 		     (unsigned long)bp);
 
 	phy_attached_info(phydev);
+=======
+	tasklet_setup(&bp->hresp_err_tasklet, macb_hresp_error_task);
+>>>>>>> upstream/android-13
 
 	netdev_info(dev, "Cadence %s rev 0x%08x at 0x%08lx irq %d (%pM)\n",
 		    macb_is_gem(bp) ? "GEM" : "MACB", macb_readl(bp, MID),
 		    dev->base_addr, dev->irq, dev->dev_addr);
 
+<<<<<<< HEAD
 	return 0;
 
 err_out_unregister_mdio:
@@ -4164,16 +5788,32 @@ err_out_unregister_mdio:
 	of_node_put(bp->phy_node);
 	if (np && of_phy_is_fixed_link(np))
 		of_phy_deregister_fixed_link(np);
+=======
+	pm_runtime_mark_last_busy(&bp->pdev->dev);
+	pm_runtime_put_autosuspend(&bp->pdev->dev);
+
+	return 0;
+
+err_out_unregister_mdio:
+	mdiobus_unregister(bp->mii_bus);
+>>>>>>> upstream/android-13
 	mdiobus_free(bp->mii_bus);
 
 err_out_free_netdev:
 	free_netdev(dev);
 
 err_disable_clocks:
+<<<<<<< HEAD
 	clk_disable_unprepare(tx_clk);
 	clk_disable_unprepare(hclk);
 	clk_disable_unprepare(pclk);
 	clk_disable_unprepare(rx_clk);
+=======
+	macb_clks_disable(pclk, hclk, tx_clk, rx_clk, tsu_clk);
+	pm_runtime_disable(&pdev->dev);
+	pm_runtime_set_suspended(&pdev->dev);
+	pm_runtime_dont_use_autosuspend(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -4182,27 +5822,45 @@ static int macb_remove(struct platform_device *pdev)
 {
 	struct net_device *dev;
 	struct macb *bp;
+<<<<<<< HEAD
 	struct device_node *np = pdev->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 
 	dev = platform_get_drvdata(pdev);
 
 	if (dev) {
 		bp = netdev_priv(dev);
+<<<<<<< HEAD
 		if (dev->phydev)
 			phy_disconnect(dev->phydev);
 		mdiobus_unregister(bp->mii_bus);
 		if (np && of_phy_is_fixed_link(np))
 			of_phy_deregister_fixed_link(np);
 		dev->phydev = NULL;
+=======
+		mdiobus_unregister(bp->mii_bus);
+>>>>>>> upstream/android-13
 		mdiobus_free(bp->mii_bus);
 
 		unregister_netdev(dev);
 		tasklet_kill(&bp->hresp_err_tasklet);
+<<<<<<< HEAD
 		clk_disable_unprepare(bp->tx_clk);
 		clk_disable_unprepare(bp->hclk);
 		clk_disable_unprepare(bp->pclk);
 		clk_disable_unprepare(bp->rx_clk);
 		of_node_put(bp->phy_node);
+=======
+		pm_runtime_disable(&pdev->dev);
+		pm_runtime_dont_use_autosuspend(&pdev->dev);
+		if (!pm_runtime_suspended(&pdev->dev)) {
+			macb_clks_disable(bp->pclk, bp->hclk, bp->tx_clk,
+					  bp->rx_clk, bp->tsu_clk);
+			pm_runtime_set_suspended(&pdev->dev);
+		}
+		phylink_destroy(bp->phylink);
+>>>>>>> upstream/android-13
 		free_netdev(dev);
 	}
 
@@ -4211,6 +5869,7 @@ static int macb_remove(struct platform_device *pdev)
 
 static int __maybe_unused macb_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct net_device *netdev = platform_get_drvdata(pdev);
 	struct macb *bp = netdev_priv(netdev);
@@ -4229,11 +5888,96 @@ static int __maybe_unused macb_suspend(struct device *dev)
 		clk_disable_unprepare(bp->rx_clk);
 	}
 
+=======
+	struct net_device *netdev = dev_get_drvdata(dev);
+	struct macb *bp = netdev_priv(netdev);
+	struct macb_queue *queue;
+	unsigned long flags;
+	unsigned int q;
+	int err;
+
+	if (!netif_running(netdev))
+		return 0;
+
+	if (bp->wol & MACB_WOL_ENABLED) {
+		spin_lock_irqsave(&bp->lock, flags);
+		/* Flush all status bits */
+		macb_writel(bp, TSR, -1);
+		macb_writel(bp, RSR, -1);
+		for (q = 0, queue = bp->queues; q < bp->num_queues;
+		     ++q, ++queue) {
+			/* Disable all interrupts */
+			queue_writel(queue, IDR, -1);
+			queue_readl(queue, ISR);
+			if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
+				queue_writel(queue, ISR, -1);
+		}
+		/* Change interrupt handler and
+		 * Enable WoL IRQ on queue 0
+		 */
+		devm_free_irq(dev, bp->queues[0].irq, bp->queues);
+		if (macb_is_gem(bp)) {
+			err = devm_request_irq(dev, bp->queues[0].irq, gem_wol_interrupt,
+					       IRQF_SHARED, netdev->name, bp->queues);
+			if (err) {
+				dev_err(dev,
+					"Unable to request IRQ %d (error %d)\n",
+					bp->queues[0].irq, err);
+				spin_unlock_irqrestore(&bp->lock, flags);
+				return err;
+			}
+			queue_writel(bp->queues, IER, GEM_BIT(WOL));
+			gem_writel(bp, WOL, MACB_BIT(MAG));
+		} else {
+			err = devm_request_irq(dev, bp->queues[0].irq, macb_wol_interrupt,
+					       IRQF_SHARED, netdev->name, bp->queues);
+			if (err) {
+				dev_err(dev,
+					"Unable to request IRQ %d (error %d)\n",
+					bp->queues[0].irq, err);
+				spin_unlock_irqrestore(&bp->lock, flags);
+				return err;
+			}
+			queue_writel(bp->queues, IER, MACB_BIT(WOL));
+			macb_writel(bp, WOL, MACB_BIT(MAG));
+		}
+		spin_unlock_irqrestore(&bp->lock, flags);
+
+		enable_irq_wake(bp->queues[0].irq);
+	}
+
+	netif_device_detach(netdev);
+	for (q = 0, queue = bp->queues; q < bp->num_queues;
+	     ++q, ++queue)
+		napi_disable(&queue->napi);
+
+	if (!(bp->wol & MACB_WOL_ENABLED)) {
+		rtnl_lock();
+		phylink_stop(bp->phylink);
+		rtnl_unlock();
+		spin_lock_irqsave(&bp->lock, flags);
+		macb_reset_hw(bp);
+		spin_unlock_irqrestore(&bp->lock, flags);
+	}
+
+	if (!(bp->caps & MACB_CAPS_USRIO_DISABLED))
+		bp->pm_data.usrio = macb_or_gem_readl(bp, USRIO);
+
+	if (netdev->hw_features & NETIF_F_NTUPLE)
+		bp->pm_data.scrt2 = gem_readl_n(bp, ETHT, SCRT2_ETHT);
+
+	if (bp->ptp_info)
+		bp->ptp_info->ptp_remove(netdev);
+	if (!device_may_wakeup(dev))
+		pm_runtime_force_suspend(dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int __maybe_unused macb_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct net_device *netdev = platform_get_drvdata(pdev);
 	struct macb *bp = netdev_priv(netdev);
@@ -4243,18 +5987,125 @@ static int __maybe_unused macb_resume(struct device *dev)
 		macb_writel(bp, WOL, 0);
 		disable_irq_wake(bp->queues[0].irq);
 	} else {
+=======
+	struct net_device *netdev = dev_get_drvdata(dev);
+	struct macb *bp = netdev_priv(netdev);
+	struct macb_queue *queue;
+	unsigned long flags;
+	unsigned int q;
+	int err;
+
+	if (!netif_running(netdev))
+		return 0;
+
+	if (!device_may_wakeup(dev))
+		pm_runtime_force_resume(dev);
+
+	if (bp->wol & MACB_WOL_ENABLED) {
+		spin_lock_irqsave(&bp->lock, flags);
+		/* Disable WoL */
+		if (macb_is_gem(bp)) {
+			queue_writel(bp->queues, IDR, GEM_BIT(WOL));
+			gem_writel(bp, WOL, 0);
+		} else {
+			queue_writel(bp->queues, IDR, MACB_BIT(WOL));
+			macb_writel(bp, WOL, 0);
+		}
+		/* Clear ISR on queue 0 */
+		queue_readl(bp->queues, ISR);
+		if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
+			queue_writel(bp->queues, ISR, -1);
+		/* Replace interrupt handler on queue 0 */
+		devm_free_irq(dev, bp->queues[0].irq, bp->queues);
+		err = devm_request_irq(dev, bp->queues[0].irq, macb_interrupt,
+				       IRQF_SHARED, netdev->name, bp->queues);
+		if (err) {
+			dev_err(dev,
+				"Unable to request IRQ %d (error %d)\n",
+				bp->queues[0].irq, err);
+			spin_unlock_irqrestore(&bp->lock, flags);
+			return err;
+		}
+		spin_unlock_irqrestore(&bp->lock, flags);
+
+		disable_irq_wake(bp->queues[0].irq);
+
+		/* Now make sure we disable phy before moving
+		 * to common restore path
+		 */
+		rtnl_lock();
+		phylink_stop(bp->phylink);
+		rtnl_unlock();
+	}
+
+	for (q = 0, queue = bp->queues; q < bp->num_queues;
+	     ++q, ++queue)
+		napi_enable(&queue->napi);
+
+	if (netdev->hw_features & NETIF_F_NTUPLE)
+		gem_writel_n(bp, ETHT, SCRT2_ETHT, bp->pm_data.scrt2);
+
+	if (!(bp->caps & MACB_CAPS_USRIO_DISABLED))
+		macb_or_gem_writel(bp, USRIO, bp->pm_data.usrio);
+
+	macb_writel(bp, NCR, MACB_BIT(MPE));
+	macb_init_hw(bp);
+	macb_set_rx_mode(netdev);
+	macb_restore_features(bp);
+	rtnl_lock();
+	phylink_start(bp->phylink);
+	rtnl_unlock();
+
+	netif_device_attach(netdev);
+	if (bp->ptp_info)
+		bp->ptp_info->ptp_init(netdev);
+
+	return 0;
+}
+
+static int __maybe_unused macb_runtime_suspend(struct device *dev)
+{
+	struct net_device *netdev = dev_get_drvdata(dev);
+	struct macb *bp = netdev_priv(netdev);
+
+	if (!(device_may_wakeup(dev)))
+		macb_clks_disable(bp->pclk, bp->hclk, bp->tx_clk, bp->rx_clk, bp->tsu_clk);
+	else
+		macb_clks_disable(NULL, NULL, NULL, NULL, bp->tsu_clk);
+
+	return 0;
+}
+
+static int __maybe_unused macb_runtime_resume(struct device *dev)
+{
+	struct net_device *netdev = dev_get_drvdata(dev);
+	struct macb *bp = netdev_priv(netdev);
+
+	if (!(device_may_wakeup(dev))) {
+>>>>>>> upstream/android-13
 		clk_prepare_enable(bp->pclk);
 		clk_prepare_enable(bp->hclk);
 		clk_prepare_enable(bp->tx_clk);
 		clk_prepare_enable(bp->rx_clk);
 	}
+<<<<<<< HEAD
 
 	netif_device_attach(netdev);
+=======
+	clk_prepare_enable(bp->tsu_clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static SIMPLE_DEV_PM_OPS(macb_pm_ops, macb_suspend, macb_resume);
+=======
+static const struct dev_pm_ops macb_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(macb_suspend, macb_resume)
+	SET_RUNTIME_PM_OPS(macb_runtime_suspend, macb_runtime_resume, NULL)
+};
+>>>>>>> upstream/android-13
 
 static struct platform_driver macb_driver = {
 	.probe		= macb_probe,

@@ -20,6 +20,7 @@
 unsigned long shm_align_mask = PAGE_SIZE - 1;	/* Sane caches */
 EXPORT_SYMBOL(shm_align_mask);
 
+<<<<<<< HEAD
 /* gap between mmap and stack */
 #define MIN_GAP		(128*1024*1024UL)
 #define MAX_GAP		((TASK_SIZE)/6*5)
@@ -57,6 +58,8 @@ static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
 	return PAGE_ALIGN(TASK_SIZE - gap - rnd);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define COLOUR_ALIGN(addr, pgoff)				\
 	((((addr) + shm_align_mask) & ~shm_align_mask) +	\
 	 (((pgoff) << PAGE_SHIFT) & shm_align_mask))
@@ -154,6 +157,7 @@ unsigned long arch_get_unmapped_area_topdown(struct file *filp,
 			addr0, len, pgoff, flags, DOWN);
 }
 
+<<<<<<< HEAD
 unsigned long arch_mmap_rnd(void)
 {
 	unsigned long rnd;
@@ -212,11 +216,18 @@ unsigned long arch_randomize_brk(struct mm_struct *mm)
 }
 
 int __virt_addr_valid(const volatile void *kaddr)
+=======
+bool __virt_addr_valid(const volatile void *kaddr)
+>>>>>>> upstream/android-13
 {
 	unsigned long vaddr = (unsigned long)kaddr;
 
 	if ((vaddr < PAGE_OFFSET) || (vaddr >= MAP_BASE))
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	return pfn_valid(PFN_DOWN(virt_to_phys(kaddr)));
 }

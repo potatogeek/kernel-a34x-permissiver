@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble VT17xx
  *
  *   Lowlevel functions for WM8766 codec
  *
  *	Copyright (c) 2012 Ondrej Zary <linux@rainbow-software.org>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -40,7 +47,11 @@ static void snd_wm8766_write(struct snd_wm8766 *wm, u16 addr, u16 data)
 
 static const DECLARE_TLV_DB_SCALE(wm8766_tlv, -12750, 50, 1);
 
+<<<<<<< HEAD
 static struct snd_wm8766_ctl snd_wm8766_default_ctl[WM8766_CTL_COUNT] = {
+=======
+static const struct snd_wm8766_ctl snd_wm8766_default_ctl[WM8766_CTL_COUNT] = {
+>>>>>>> upstream/android-13
 	[WM8766_CTL_CH1_VOL] = {
 		.name = "Channel 1 Playback Volume",
 		.type = SNDRV_CTL_ELEM_TYPE_INTEGER,

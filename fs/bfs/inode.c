@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	fs/bfs/inode.c
  *	BFS superblock and inode operations.
@@ -5,6 +6,15 @@
  *	From fs/minix, Copyright (C) 1991, 1992 Linus Torvalds.
  *
  *      Made endianness-clean by Andrew Stribblehill <ads@wompom.org>, 2005.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *	fs/bfs/inode.c
+ *	BFS superblock and inode operations.
+ *	Copyright (C) 1999-2018 Tigran Aivazian <aivazian.tigran@gmail.com>
+ *	From fs/minix, Copyright (C) 1991, 1992 Linus Torvalds.
+ *	Made endianness-clean by Andrew Stribblehill <ads@wompom.org>, 2005.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -22,6 +32,10 @@
 MODULE_AUTHOR("Tigran Aivazian <aivazian.tigran@gmail.com>");
 MODULE_DESCRIPTION("SCO UnixWare BFS filesystem for Linux");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 #undef DEBUG
 
@@ -118,12 +132,20 @@ static int bfs_write_inode(struct inode *inode, struct writeback_control *wbc)
 {
 	struct bfs_sb_info *info = BFS_SB(inode->i_sb);
 	unsigned int ino = (u16)inode->i_ino;
+<<<<<<< HEAD
         unsigned long i_sblock;
+=======
+	unsigned long i_sblock;
+>>>>>>> upstream/android-13
 	struct bfs_inode *di;
 	struct buffer_head *bh;
 	int err = 0;
 
+<<<<<<< HEAD
         dprintf("ino=%08x\n", ino);
+=======
+	dprintf("ino=%08x\n", ino);
+>>>>>>> upstream/android-13
 
 	di = find_inode(inode->i_sb, ino, &bh);
 	if (IS_ERR(di))
@@ -144,7 +166,11 @@ static int bfs_write_inode(struct inode *inode, struct writeback_control *wbc)
 	di->i_atime = cpu_to_le32(inode->i_atime.tv_sec);
 	di->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
 	di->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
+<<<<<<< HEAD
         i_sblock = BFS_I(inode)->i_sblock;
+=======
+	i_sblock = BFS_I(inode)->i_sblock;
+>>>>>>> upstream/android-13
 	di->i_sblock = cpu_to_le32(i_sblock);
 	di->i_eblock = cpu_to_le32(BFS_I(inode)->i_eblock);
 	di->i_eoffset = cpu_to_le32(i_sblock * BFS_BSIZE + inode->i_size - 1);
@@ -188,13 +214,22 @@ static void bfs_evict_inode(struct inode *inode)
 	mark_buffer_dirty(bh);
 	brelse(bh);
 
+<<<<<<< HEAD
         if (bi->i_dsk_ino) {
+=======
+	if (bi->i_dsk_ino) {
+>>>>>>> upstream/android-13
 		if (bi->i_sblock)
 			info->si_freeb += bi->i_eblock + 1 - bi->i_sblock;
 		info->si_freei++;
 		clear_bit(ino, info->si_imap);
+<<<<<<< HEAD
 		bfs_dump_imap("delete_inode", s);
         }
+=======
+		bfs_dump_imap("evict_inode", s);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * If this was the last file, make the previous block
@@ -214,7 +249,10 @@ static void bfs_put_super(struct super_block *s)
 		return;
 
 	mutex_destroy(&info->bfs_lock);
+<<<<<<< HEAD
 	kfree(info->si_imap);
+=======
+>>>>>>> upstream/android-13
 	kfree(info);
 	s->s_fs_info = NULL;
 }
@@ -230,8 +268,12 @@ static int bfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_bfree = buf->f_bavail = info->si_freeb;
 	buf->f_files = info->si_lasti + 1 - BFS_ROOT_INO;
 	buf->f_ffree = info->si_freei;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 	buf->f_namelen = BFS_NAMELEN;
 	return 0;
 }
@@ -247,6 +289,7 @@ static struct inode *bfs_alloc_inode(struct super_block *sb)
 	return &bi->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void bfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -258,6 +301,13 @@ static void bfs_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, bfs_i_callback);
 }
 
+=======
+static void bfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(bfs_inode_cachep, BFS_I(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct bfs_inode_info *bi = foo;
@@ -289,7 +339,11 @@ static void destroy_inodecache(void)
 
 static const struct super_operations bfs_sops = {
 	.alloc_inode	= bfs_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= bfs_destroy_inode,
+=======
+	.free_inode	= bfs_free_inode,
+>>>>>>> upstream/android-13
 	.write_inode	= bfs_write_inode,
 	.evict_inode	= bfs_evict_inode,
 	.put_super	= bfs_put_super,
@@ -311,8 +365,12 @@ void bfs_dump_imap(const char *prefix, struct super_block *s)
 		else
 			strcat(tmpbuf, "0");
 	}
+<<<<<<< HEAD
 	printf("BFS-fs: %s: lasti=%08lx <%s>\n",
 				prefix, BFS_SB(s)->si_lasti, tmpbuf);
+=======
+	printf("%s: lasti=%08lx <%s>\n", prefix, BFS_SB(s)->si_lasti, tmpbuf);
+>>>>>>> upstream/android-13
 	free_page((unsigned long)tmpbuf);
 #endif
 }
@@ -322,7 +380,11 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 	struct buffer_head *bh, *sbh;
 	struct bfs_super_block *bfs_sb;
 	struct inode *inode;
+<<<<<<< HEAD
 	unsigned i, imap_len;
+=======
+	unsigned i;
+>>>>>>> upstream/android-13
 	struct bfs_sb_info *info;
 	int ret = -EINVAL;
 	unsigned long i_sblock, i_eblock, i_eoff, s_size;
@@ -332,6 +394,11 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 		return -ENOMEM;
 	mutex_init(&info->bfs_lock);
 	s->s_fs_info = info;
+<<<<<<< HEAD
+=======
+	s->s_time_min = 0;
+	s->s_time_max = U32_MAX;
+>>>>>>> upstream/android-13
 
 	sb_set_blocksize(s, BFS_BSIZE);
 
@@ -341,8 +408,12 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 	bfs_sb = (struct bfs_super_block *)sbh->b_data;
 	if (le32_to_cpu(bfs_sb->s_magic) != BFS_MAGIC) {
 		if (!silent)
+<<<<<<< HEAD
 			printf("No BFS filesystem on %s (magic=%08x)\n", 
 				s->s_id,  le32_to_cpu(bfs_sb->s_magic));
+=======
+			printf("No BFS filesystem on %s (magic=%08x)\n", s->s_id,  le32_to_cpu(bfs_sb->s_magic));
+>>>>>>> upstream/android-13
 		goto out1;
 	}
 	if (BFS_UNCLEAN(bfs_sb, s) && !silent)
@@ -351,6 +422,7 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 	s->s_magic = BFS_MAGIC;
 
 	if (le32_to_cpu(bfs_sb->s_start) > le32_to_cpu(bfs_sb->s_end) ||
+<<<<<<< HEAD
 	    le32_to_cpu(bfs_sb->s_start) < BFS_BSIZE) {
 		printf("Superblock is corrupted\n");
 		goto out1;
@@ -363,6 +435,18 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 	info->si_imap = kzalloc(imap_len, GFP_KERNEL | __GFP_NOWARN);
 	if (!info->si_imap) {
 		printf("Cannot allocate %u bytes\n", imap_len);
+=======
+	    le32_to_cpu(bfs_sb->s_start) < sizeof(struct bfs_super_block) + sizeof(struct bfs_dirent)) {
+		printf("Superblock is corrupted on %s\n", s->s_id);
+		goto out1;
+	}
+
+	info->si_lasti = (le32_to_cpu(bfs_sb->s_start) - BFS_BSIZE) / sizeof(struct bfs_inode) + BFS_ROOT_INO - 1;
+	if (info->si_lasti == BFS_MAX_LASTI)
+		printf("NOTE: filesystem %s was created with 512 inodes, the real maximum is 511, mounting anyway\n", s->s_id);
+	else if (info->si_lasti > BFS_MAX_LASTI) {
+		printf("Impossible last inode number %lu > %d on %s\n", info->si_lasti, BFS_MAX_LASTI, s->s_id);
+>>>>>>> upstream/android-13
 		goto out1;
 	}
 	for (i = 0; i < BFS_ROOT_INO; i++)
@@ -372,26 +456,44 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 	inode = bfs_iget(s, BFS_ROOT_INO);
 	if (IS_ERR(inode)) {
 		ret = PTR_ERR(inode);
+<<<<<<< HEAD
 		goto out2;
+=======
+		goto out1;
+>>>>>>> upstream/android-13
 	}
 	s->s_root = d_make_root(inode);
 	if (!s->s_root) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto out2;
 	}
 
 	info->si_blocks = (le32_to_cpu(bfs_sb->s_end) + 1) >> BFS_BSIZE_BITS;
 	info->si_freeb = (le32_to_cpu(bfs_sb->s_end) + 1
 			- le32_to_cpu(bfs_sb->s_start)) >> BFS_BSIZE_BITS;
+=======
+		goto out1;
+	}
+
+	info->si_blocks = (le32_to_cpu(bfs_sb->s_end) + 1) >> BFS_BSIZE_BITS;
+	info->si_freeb = (le32_to_cpu(bfs_sb->s_end) + 1 - le32_to_cpu(bfs_sb->s_start)) >> BFS_BSIZE_BITS;
+>>>>>>> upstream/android-13
 	info->si_freei = 0;
 	info->si_lf_eblk = 0;
 
 	/* can we read the last block? */
 	bh = sb_bread(s, info->si_blocks - 1);
 	if (!bh) {
+<<<<<<< HEAD
 		printf("Last block not available: %lu\n", info->si_blocks - 1);
 		ret = -EIO;
 		goto out3;
+=======
+		printf("Last block not available on %s: %lu\n", s->s_id, info->si_blocks - 1);
+		ret = -EIO;
+		goto out2;
+>>>>>>> upstream/android-13
 	}
 	brelse(bh);
 
@@ -425,11 +527,19 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 			(i_eoff != le32_to_cpu(-1) && i_eoff > s_size) ||
 			i_sblock * BFS_BSIZE > i_eoff) {
 
+<<<<<<< HEAD
 			printf("Inode 0x%08x corrupted\n", i);
 
 			brelse(bh);
 			ret = -EIO;
 			goto out3;
+=======
+			printf("Inode 0x%08x corrupted on %s\n", i, s->s_id);
+
+			brelse(bh);
+			ret = -EIO;
+			goto out2;
+>>>>>>> upstream/android-13
 		}
 
 		if (!di->i_ino) {
@@ -445,6 +555,7 @@ static int bfs_fill_super(struct super_block *s, void *data, int silent)
 	}
 	brelse(bh);
 	brelse(sbh);
+<<<<<<< HEAD
 	bfs_dump_imap("read_super", s);
 	return 0;
 
@@ -453,6 +564,14 @@ out3:
 	s->s_root = NULL;
 out2:
 	kfree(info->si_imap);
+=======
+	bfs_dump_imap("fill_super", s);
+	return 0;
+
+out2:
+	dput(s->s_root);
+	s->s_root = NULL;
+>>>>>>> upstream/android-13
 out1:
 	brelse(sbh);
 out:
@@ -482,7 +601,11 @@ static int __init init_bfs_fs(void)
 	int err = init_inodecache();
 	if (err)
 		goto out1;
+<<<<<<< HEAD
         err = register_filesystem(&bfs_fs_type);
+=======
+	err = register_filesystem(&bfs_fs_type);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 	return 0;

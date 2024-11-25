@@ -1,17 +1,28 @@
+<<<<<<< HEAD
 /*
  * Software PHY emulation
  *
  * Code taken from fixed_phy.c by Russell King <rmk+kernel@arm.linux.org.uk>
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Software PHY emulation
+ *
+ * Code taken from fixed_phy.c by Russell King.
+>>>>>>> upstream/android-13
  *
  * Author: Vitaly Bordug <vbordug@ru.mvista.com>
  *         Anton Vorontsov <avorontsov@ru.mvista.com>
  *
  * Copyright (c) 2006-2007 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <linux/mii.h>
@@ -23,10 +34,17 @@
 #define MII_REGS_NUM 29
 
 struct swmii_regs {
+<<<<<<< HEAD
 	u16 bmcr;
 	u16 bmsr;
 	u16 lpa;
 	u16 lpagb;
+=======
+	u16 bmsr;
+	u16 lpa;
+	u16 lpagb;
+	u16 estat;
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -44,23 +62,36 @@ enum {
  */
 static const struct swmii_regs speed[] = {
 	[SWMII_SPEED_10] = {
+<<<<<<< HEAD
 		.bmcr  = BMCR_FULLDPLX,
 		.lpa   = LPA_10FULL | LPA_10HALF,
 	},
 	[SWMII_SPEED_100] = {
 		.bmcr  = BMCR_FULLDPLX | BMCR_SPEED100,
+=======
+		.lpa   = LPA_10FULL | LPA_10HALF,
+	},
+	[SWMII_SPEED_100] = {
+>>>>>>> upstream/android-13
 		.bmsr  = BMSR_100FULL | BMSR_100HALF,
 		.lpa   = LPA_100FULL | LPA_100HALF,
 	},
 	[SWMII_SPEED_1000] = {
+<<<<<<< HEAD
 		.bmcr  = BMCR_FULLDPLX | BMCR_SPEED1000,
 		.bmsr  = BMSR_ESTATEN,
 		.lpagb = LPA_1000FULL | LPA_1000HALF,
+=======
+		.bmsr  = BMSR_ESTATEN,
+		.lpagb = LPA_1000FULL | LPA_1000HALF,
+		.estat = ESTATUS_1000_TFULL | ESTATUS_1000_THALF,
+>>>>>>> upstream/android-13
 	},
 };
 
 static const struct swmii_regs duplex[] = {
 	[SWMII_DUPLEX_HALF] = {
+<<<<<<< HEAD
 		.bmcr  = ~BMCR_FULLDPLX,
 		.bmsr  = BMSR_ESTATEN | BMSR_100HALF,
 		.lpa   = LPA_10HALF | LPA_100HALF,
@@ -71,6 +102,18 @@ static const struct swmii_regs duplex[] = {
 		.bmsr  = BMSR_ESTATEN | BMSR_100FULL,
 		.lpa   = LPA_10FULL | LPA_100FULL,
 		.lpagb = LPA_1000FULL,
+=======
+		.bmsr  = BMSR_ESTATEN | BMSR_100HALF,
+		.lpa   = LPA_10HALF | LPA_100HALF,
+		.lpagb = LPA_1000HALF,
+		.estat = ESTATUS_1000_THALF,
+	},
+	[SWMII_DUPLEX_FULL] = {
+		.bmsr  = BMSR_ESTATEN | BMSR_100FULL,
+		.lpa   = LPA_10FULL | LPA_100FULL,
+		.lpagb = LPA_1000FULL,
+		.estat = ESTATUS_1000_TFULL,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -122,7 +165,11 @@ int swphy_read_reg(int reg, const struct fixed_phy_status *state)
 {
 	int speed_index, duplex_index;
 	u16 bmsr = BMSR_ANEGCAPABLE;
+<<<<<<< HEAD
 	u16 bmcr = 0;
+=======
+	u16 estat = 0;
+>>>>>>> upstream/android-13
 	u16 lpagb = 0;
 	u16 lpa = 0;
 
@@ -136,11 +183,18 @@ int swphy_read_reg(int reg, const struct fixed_phy_status *state)
 	duplex_index = state->duplex ? SWMII_DUPLEX_FULL : SWMII_DUPLEX_HALF;
 
 	bmsr |= speed[speed_index].bmsr & duplex[duplex_index].bmsr;
+<<<<<<< HEAD
+=======
+	estat |= speed[speed_index].estat & duplex[duplex_index].estat;
+>>>>>>> upstream/android-13
 
 	if (state->link) {
 		bmsr |= BMSR_LSTATUS | BMSR_ANEGCOMPLETE;
 
+<<<<<<< HEAD
 		bmcr  |= speed[speed_index].bmcr  & duplex[duplex_index].bmcr;
+=======
+>>>>>>> upstream/android-13
 		lpa   |= speed[speed_index].lpa   & duplex[duplex_index].lpa;
 		lpagb |= speed[speed_index].lpagb & duplex[duplex_index].lpagb;
 
@@ -153,7 +207,11 @@ int swphy_read_reg(int reg, const struct fixed_phy_status *state)
 
 	switch (reg) {
 	case MII_BMCR:
+<<<<<<< HEAD
 		return bmcr;
+=======
+		return BMCR_ANENABLE;
+>>>>>>> upstream/android-13
 	case MII_BMSR:
 		return bmsr;
 	case MII_PHYSID1:
@@ -163,6 +221,11 @@ int swphy_read_reg(int reg, const struct fixed_phy_status *state)
 		return lpa;
 	case MII_STAT1000:
 		return lpagb;
+<<<<<<< HEAD
+=======
+	case MII_ESTATUS:
+		return estat;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We do not support emulating Clause 45 over Clause 22 register

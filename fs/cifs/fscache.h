@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/fscache.h - CIFS filesystem cache interface definitions
+=======
+/* SPDX-License-Identifier: LGPL-2.1 */
+/*
+ *   CIFS filesystem cache interface definitions
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) 2010 Novell, Inc.
  *   Authors(s): Suresh Jayaraman (sjayaraman@suse.de>
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -17,6 +24,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CIFS_FSCACHE_H
 #define _CIFS_FSCACHE_H
@@ -28,6 +37,18 @@
 #ifdef CONFIG_CIFS_FSCACHE
 
 /*
+<<<<<<< HEAD
+=======
+ * Auxiliary data attached to CIFS superblock within the cache
+ */
+struct cifs_fscache_super_auxdata {
+	u64	resource_id;		/* unique server resource id */
+	__le64	vol_create_time;
+	u32	vol_serial_number;
+} __packed;
+
+/*
+>>>>>>> upstream/android-13
  * Auxiliary data attached to CIFS inode within the cache
  */
 struct cifs_fscache_inode_auxdata {
@@ -48,7 +69,10 @@ extern const struct fscache_cookie_def cifs_fscache_inode_object_def;
 
 extern int cifs_fscache_register(void);
 extern void cifs_fscache_unregister(void);
+<<<<<<< HEAD
 extern char *extract_sharename(const char *);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * fscache.c
@@ -59,10 +83,19 @@ extern void cifs_fscache_get_super_cookie(struct cifs_tcon *);
 extern void cifs_fscache_release_super_cookie(struct cifs_tcon *);
 
 extern void cifs_fscache_release_inode_cookie(struct inode *);
+<<<<<<< HEAD
+=======
+extern void cifs_fscache_update_inode_cookie(struct inode *inode);
+>>>>>>> upstream/android-13
 extern void cifs_fscache_set_inode_cookie(struct inode *, struct file *);
 extern void cifs_fscache_reset_inode_cookie(struct inode *);
 
 extern void __cifs_fscache_invalidate_page(struct page *, struct inode *);
+<<<<<<< HEAD
+=======
+extern void __cifs_fscache_wait_on_page_write(struct inode *inode, struct page *page);
+extern void __cifs_fscache_uncache_page(struct inode *inode, struct page *page);
+>>>>>>> upstream/android-13
 extern int cifs_fscache_release_page(struct page *page, gfp_t gfp);
 extern int __cifs_readpage_from_fscache(struct inode *, struct page *);
 extern int __cifs_readpages_from_fscache(struct inode *,
@@ -80,6 +113,23 @@ static inline void cifs_fscache_invalidate_page(struct page *page,
 		__cifs_fscache_invalidate_page(page, inode);
 }
 
+<<<<<<< HEAD
+=======
+static inline void cifs_fscache_wait_on_page_write(struct inode *inode,
+						   struct page *page)
+{
+	if (PageFsCache(page))
+		__cifs_fscache_wait_on_page_write(inode, page);
+}
+
+static inline void cifs_fscache_uncache_page(struct inode *inode,
+						   struct page *page)
+{
+	if (PageFsCache(page))
+		__cifs_fscache_uncache_page(inode, page);
+}
+
+>>>>>>> upstream/android-13
 static inline int cifs_readpage_from_fscache(struct inode *inode,
 					     struct page *page)
 {
@@ -127,6 +177,10 @@ static inline void
 cifs_fscache_release_super_cookie(struct cifs_tcon *tcon) {}
 
 static inline void cifs_fscache_release_inode_cookie(struct inode *inode) {}
+<<<<<<< HEAD
+=======
+static inline void cifs_fscache_update_inode_cookie(struct inode *inode) {}
+>>>>>>> upstream/android-13
 static inline void cifs_fscache_set_inode_cookie(struct inode *inode,
 						 struct file *filp) {}
 static inline void cifs_fscache_reset_inode_cookie(struct inode *inode) {}
@@ -137,6 +191,14 @@ static inline int cifs_fscache_release_page(struct page *page, gfp_t gfp)
 
 static inline void cifs_fscache_invalidate_page(struct page *page,
 			struct inode *inode) {}
+<<<<<<< HEAD
+=======
+static inline void cifs_fscache_wait_on_page_write(struct inode *inode,
+						   struct page *page) {}
+static inline void cifs_fscache_uncache_page(struct inode *inode,
+						   struct page *page) {}
+
+>>>>>>> upstream/android-13
 static inline int
 cifs_readpage_from_fscache(struct inode *inode, struct page *page)
 {

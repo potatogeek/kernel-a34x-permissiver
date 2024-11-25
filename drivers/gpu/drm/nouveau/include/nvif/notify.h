@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVIF_NOTIFY_H__
 #define __NVIF_NOTIFY_H__
 
 struct nvif_notify {
 	struct nvif_object *object;
+<<<<<<< HEAD
+=======
+	const char *name;
+>>>>>>> upstream/android-13
 	int index;
 
 #define NVIF_NOTIFY_USER 0
@@ -24,10 +32,17 @@ struct nvif_notify {
 	struct work_struct work;
 };
 
+<<<<<<< HEAD
 int  nvif_notify_init(struct nvif_object *, int (*func)(struct nvif_notify *),
 		      bool work, u8 type, void *data, u32 size, u32 reply,
 		      struct nvif_notify *);
 int  nvif_notify_fini(struct nvif_notify *);
+=======
+int  nvif_notify_ctor(struct nvif_object *, const char *name,
+		      int (*func)(struct nvif_notify *), bool work, u8 type,
+		      void *data, u32 size, u32 reply, struct nvif_notify *);
+int  nvif_notify_dtor(struct nvif_notify *);
+>>>>>>> upstream/android-13
 int  nvif_notify_get(struct nvif_notify *);
 int  nvif_notify_put(struct nvif_notify *);
 int  nvif_notify(const void *, u32, const void *, u32);

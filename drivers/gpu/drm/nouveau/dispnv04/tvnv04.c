@@ -24,7 +24,10 @@
  *
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include "nouveau_drv.h"
 #include "nouveau_reg.h"
 #include "nouveau_encoder.h"
@@ -173,7 +176,11 @@ static void nv04_tv_commit(struct drm_encoder *encoder)
 	helper->dpms(encoder, DRM_MODE_DPMS_ON);
 
 	NV_DEBUG(drm, "Output %s is running on CRTC %d using output %c\n",
+<<<<<<< HEAD
 		 nouveau_encoder_connector_get(nv_encoder)->base.name,
+=======
+		 nv04_encoder_get_connector(nv_encoder)->base.name,
+>>>>>>> upstream/android-13
 		 nv_crtc->index, '@' + ffs(nv_encoder->dcb->or));
 }
 

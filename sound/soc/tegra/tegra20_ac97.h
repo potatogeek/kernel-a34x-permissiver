@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * tegra20_ac97.h - Definitions for the Tegra20 AC97 controller driver
  *
@@ -6,6 +10,7 @@
  * Partly based on code copyright/by:
  *
  * Copyright (c) 2011,2012 Toradex Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TEGRA20_AC97_H__
@@ -87,6 +94,10 @@ struct tegra20_ac97 {
 	struct clk *clk_ac97;
 	struct snd_dmaengine_dai_dma_data capture_dma_data;
 	struct snd_dmaengine_dai_dma_data playback_dma_data;
+<<<<<<< HEAD
+=======
+	struct reset_control *reset;
+>>>>>>> upstream/android-13
 	struct regmap *regmap;
 	int reset_gpio;
 	int sync_gpio;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Joshua Henderson, joshua.henderson@microchip.com
  * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
@@ -10,6 +11,12 @@
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  *  for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Joshua Henderson, joshua.henderson@microchip.com
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -29,6 +36,7 @@ const char *get_system_type(void)
 	return "PIC32MZDA";
 }
 
+<<<<<<< HEAD
 static ulong get_fdtaddr(void)
 {
 	ulong ftaddr = 0;
@@ -42,11 +50,17 @@ static ulong get_fdtaddr(void)
 	return ftaddr;
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init plat_mem_setup(void)
 {
 	void *dtb;
 
+<<<<<<< HEAD
 	dtb = (void *)get_fdtaddr();
+=======
+	dtb = get_fdt();
+>>>>>>> upstream/android-13
 	if (!dtb) {
 		pr_err("pic32: no DTB found.\n");
 		return;
@@ -99,10 +113,13 @@ void __init prom_init(void)
 	pic32_init_cmdline((int)fw_arg0, (char **)fw_arg1);
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init device_tree_init(void)
 {
 	if (!initial_boot_params)

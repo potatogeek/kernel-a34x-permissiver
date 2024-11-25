@@ -13,6 +13,7 @@
 #include <generated/utsrelease.h>
 #include <net/dst.h>
 
+<<<<<<< HEAD
 #include <asm/octeon/octeon.h>
 
 #include "ethernet-defines.h"
@@ -29,6 +30,19 @@ static void cvm_oct_get_drvinfo(struct net_device *dev,
 	strlcpy(info->driver, KBUILD_MODNAME, sizeof(info->driver));
 	strlcpy(info->version, UTS_RELEASE, sizeof(info->version));
 	strlcpy(info->bus_info, "Builtin", sizeof(info->bus_info));
+=======
+#include "octeon-ethernet.h"
+#include "ethernet-defines.h"
+#include "ethernet-mdio.h"
+#include "ethernet-util.h"
+
+static void cvm_oct_get_drvinfo(struct net_device *dev,
+				struct ethtool_drvinfo *info)
+{
+	strscpy(info->driver, KBUILD_MODNAME, sizeof(info->driver));
+	strscpy(info->version, UTS_RELEASE, sizeof(info->version));
+	strscpy(info->bus_info, "Builtin", sizeof(info->bus_info));
+>>>>>>> upstream/android-13
 }
 
 static int cvm_oct_nway_reset(struct net_device *dev)
@@ -70,7 +84,11 @@ int cvm_oct_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 }
 
 void cvm_oct_note_carrier(struct octeon_ethernet *priv,
+<<<<<<< HEAD
 			  cvmx_helper_link_info_t li)
+=======
+			  union cvmx_helper_link_info li)
+>>>>>>> upstream/android-13
 {
 	if (li.s.link_up) {
 		pr_notice_ratelimited("%s: %u Mbps %s duplex, port %d, queue %d\n",
@@ -86,7 +104,11 @@ void cvm_oct_note_carrier(struct octeon_ethernet *priv,
 void cvm_oct_adjust_link(struct net_device *dev)
 {
 	struct octeon_ethernet *priv = netdev_priv(dev);
+<<<<<<< HEAD
 	cvmx_helper_link_info_t link_info;
+=======
+	union cvmx_helper_link_info link_info;
+>>>>>>> upstream/android-13
 
 	link_info.u64		= 0;
 	link_info.s.link_up	= dev->phydev->link ? 1 : 0;
@@ -111,7 +133,11 @@ int cvm_oct_common_stop(struct net_device *dev)
 {
 	struct octeon_ethernet *priv = netdev_priv(dev);
 	int interface = INTERFACE(priv->port);
+<<<<<<< HEAD
 	cvmx_helper_link_info_t link_info;
+=======
+	union cvmx_helper_link_info link_info;
+>>>>>>> upstream/android-13
 	union cvmx_gmxx_prtx_cfg gmx_cfg;
 	int index = INDEX(priv->port);
 
@@ -151,13 +177,19 @@ int cvm_oct_phy_setup_device(struct net_device *dev)
 		goto no_phy;
 
 	phy_node = of_parse_phandle(priv->of_node, "phy-handle", 0);
+<<<<<<< HEAD
 	if (!phy_node && of_phy_is_fixed_link(priv->of_node)) {
 		phy_node = of_node_get(priv->of_node);
 	}
+=======
+	if (!phy_node && of_phy_is_fixed_link(priv->of_node))
+		phy_node = of_node_get(priv->of_node);
+>>>>>>> upstream/android-13
 	if (!phy_node)
 		goto no_phy;
 
 	phydev = of_phy_connect(dev, phy_node, cvm_oct_adjust_link, 0,
+<<<<<<< HEAD
 				PHY_INTERFACE_MODE_GMII);
 	of_node_put(phy_node);
 
@@ -166,6 +198,16 @@ int cvm_oct_phy_setup_device(struct net_device *dev)
 
 	priv->last_link = 0;
 	phy_start_aneg(phydev);
+=======
+				priv->phy_mode);
+	of_node_put(phy_node);
+
+	if (!phydev)
+		return -EPROBE_DEFER;
+
+	priv->last_link = 0;
+	phy_start(phydev);
+>>>>>>> upstream/android-13
 
 	return 0;
 no_phy:

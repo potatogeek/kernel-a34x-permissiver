@@ -11,6 +11,10 @@
 #include <linux/export.h>
 #include <linux/irq.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
+=======
+#include <linux/numa.h>
+>>>>>>> upstream/android-13
 
 #include <asm/prom.h>
 #include <asm/irq.h>
@@ -416,7 +420,11 @@ static int pci_fire_pbm_init(struct pci_pbm_info *pbm,
 	struct device_node *dp = op->dev.of_node;
 	int err;
 
+<<<<<<< HEAD
 	pbm->numa_node = -1;
+=======
+	pbm->numa_node = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 
 	pbm->pci_ops = &sun4u_pci_ops;
 	pbm->config_space_reg_bits = 12;

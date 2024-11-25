@@ -7,7 +7,11 @@
 # Based on coffboot by Paul Mackerras
 # Simplified for ppc64 by Todd Inglett
 #
+<<<<<<< HEAD
 # NOTE:	this code is built for 32 bit in ELF32 format even though
+=======
+# NOTE:	this code may be built for 32 bit in ELF32 format even though
+>>>>>>> upstream/android-13
 #	it packages a 64 bit kernel.  We do this to simplify the
 #	bootloader and increase compatibility with OpenFirmware.
 #
@@ -20,11 +24,20 @@
 
 all: $(obj)/zImage
 
+<<<<<<< HEAD
 compress-$(CONFIG_KERNEL_GZIP) := CONFIG_KERNEL_GZIP
 compress-$(CONFIG_KERNEL_XZ)   := CONFIG_KERNEL_XZ
 
 ifdef CROSS32_COMPILE
     BOOTCC := $(CROSS32_COMPILE)gcc
+=======
+ifdef CROSS32_COMPILE
+ifdef CONFIG_CC_IS_CLANG
+    BOOTCC := $(CROSS32_COMPILE)clang
+else
+    BOOTCC := $(CROSS32_COMPILE)gcc
+endif
+>>>>>>> upstream/android-13
     BOOTAR := $(CROSS32_COMPILE)ar
 else
     BOOTCC := $(CC)
@@ -32,9 +45,15 @@ else
 endif
 
 BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+<<<<<<< HEAD
 		 -fno-strict-aliasing -Os -msoft-float -mno-altivec -mno-vsx \
 		 -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc \
 		 -D$(compress-y)
+=======
+		 -fno-strict-aliasing -O2 -msoft-float -mno-altivec -mno-vsx \
+		 -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc \
+		 $(LINUXINCLUDE)
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_PPC64_BOOT_WRAPPER
 BOOTCFLAGS	+= -m64
@@ -51,9 +70,15 @@ BOOTCFLAGS	+= -mlittle-endian
 BOOTCFLAGS	+= $(call cc-option,-mabi=elfv2)
 endif
 
+<<<<<<< HEAD
 BOOTAFLAGS	:= -D__ASSEMBLY__ $(BOOTCFLAGS) -traditional -nostdinc
 
 BOOTARFLAGS	:= -cr$(KBUILD_ARFLAGS)
+=======
+BOOTAFLAGS	:= -D__ASSEMBLY__ $(BOOTCFLAGS) -nostdinc
+
+BOOTARFLAGS	:= -crD
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_CC_IS_CLANG
 BOOTCFLAGS += $(CLANG_FLAGS)
@@ -68,11 +93,16 @@ ifeq ($(call cc-option-yn, -fstack-protector),y)
 BOOTCFLAGS	+= -fno-stack-protector
 endif
 
+<<<<<<< HEAD
+=======
+BOOTCFLAGS	+= -include $(srctree)/include/linux/compiler_attributes.h
+>>>>>>> upstream/android-13
 BOOTCFLAGS	+= -I$(objtree)/$(obj) -I$(srctree)/$(obj)
 
 DTC_FLAGS	?= -p 1024
 
 $(obj)/4xx.o: BOOTCFLAGS += -mcpu=405
+<<<<<<< HEAD
 $(obj)/ebony.o: BOOTCFLAGS += -mcpu=405
 $(obj)/cuboot-hotfoot.o: BOOTCFLAGS += -mcpu=405
 $(obj)/cuboot-taishan.o: BOOTCFLAGS += -mcpu=405
@@ -83,6 +113,16 @@ $(obj)/treeboot-iss4xx.o: BOOTCFLAGS += -mcpu=405
 $(obj)/treeboot-currituck.o: BOOTCFLAGS += -mcpu=405
 $(obj)/treeboot-akebono.o: BOOTCFLAGS += -mcpu=405
 $(obj)/virtex405-head.o: BOOTAFLAGS += -mcpu=405
+=======
+$(obj)/ebony.o: BOOTCFLAGS += -mcpu=440
+$(obj)/cuboot-hotfoot.o: BOOTCFLAGS += -mcpu=405
+$(obj)/cuboot-taishan.o: BOOTCFLAGS += -mcpu=440
+$(obj)/cuboot-katmai.o: BOOTCFLAGS += -mcpu=440
+$(obj)/cuboot-acadia.o: BOOTCFLAGS += -mcpu=405
+$(obj)/treeboot-iss4xx.o: BOOTCFLAGS += -mcpu=405
+$(obj)/treeboot-currituck.o: BOOTCFLAGS += -mcpu=405
+$(obj)/treeboot-akebono.o: BOOTCFLAGS += -mcpu=405
+>>>>>>> upstream/android-13
 
 # The pre-boot decompressors pull in a lot of kernel headers and other source
 # files. This creates a bit of a dependency headache since we need to copy
@@ -132,6 +172,7 @@ src-wlib-$(CONFIG_44x) += 4xx.c ebony.c bamboo.c
 src-wlib-$(CONFIG_PPC_8xx) += mpc8xx.c planetcore.c fsl-soc.c
 src-wlib-$(CONFIG_PPC_82xx) += pq2.c fsl-soc.c planetcore.c
 src-wlib-$(CONFIG_EMBEDDED6xx) += ugecon.c fsl-soc.c
+<<<<<<< HEAD
 src-wlib-$(CONFIG_XILINX_VIRTEX) += uartlite.c
 src-wlib-$(CONFIG_CPM) += cpm-serial.c
 
@@ -140,6 +181,14 @@ src-plat-$(CONFIG_40x) += fixed-head.S ep405.c cuboot-hotfoot.c \
 				treeboot-walnut.c cuboot-acadia.c \
 				cuboot-kilauea.c simpleboot.c \
 				virtex405-head.S virtex.c
+=======
+src-wlib-$(CONFIG_CPM) += cpm-serial.c
+
+src-plat-y := of.c epapr.c
+src-plat-$(CONFIG_40x) += fixed-head.S cuboot-hotfoot.c \
+				cuboot-acadia.c \
+				cuboot-kilauea.c simpleboot.c
+>>>>>>> upstream/android-13
 src-plat-$(CONFIG_44x) += treeboot-ebony.c cuboot-ebony.c treeboot-bamboo.c \
 				cuboot-bamboo.c cuboot-sam440ep.c \
 				cuboot-sequoia.c cuboot-rainier.c \
@@ -147,7 +196,11 @@ src-plat-$(CONFIG_44x) += treeboot-ebony.c cuboot-ebony.c treeboot-bamboo.c \
 				cuboot-warp.c cuboot-yosemite.c \
 				treeboot-iss4xx.c treeboot-currituck.c \
 				treeboot-akebono.c \
+<<<<<<< HEAD
 				simpleboot.c fixed-head.S virtex.c
+=======
+				simpleboot.c fixed-head.S
+>>>>>>> upstream/android-13
 src-plat-$(CONFIG_PPC_8xx) += cuboot-8xx.c fixed-head.S ep88xc.c redboot-8xx.c
 src-plat-$(CONFIG_PPC_MPC52xx) += cuboot-52xx.c
 src-plat-$(CONFIG_PPC_82xx) += cuboot-pq2.c fixed-head.S ep8248e.c cuboot-824x.c
@@ -165,6 +218,11 @@ src-plat-$(CONFIG_PPC_POWERNV) += pseries-head.S
 src-plat-$(CONFIG_PPC_IBM_CELL_BLADE) += pseries-head.S
 src-plat-$(CONFIG_MVME7100) += motload-head.S mvme7100.c
 
+<<<<<<< HEAD
+=======
+src-plat-$(CONFIG_PPC_MICROWATT) += fixed-head.S microwatt.c
+
+>>>>>>> upstream/android-13
 src-wlib := $(sort $(src-wlib-y))
 src-plat := $(sort $(src-plat-y))
 src-boot := $(src-wlib) $(src-plat) empty.c
@@ -213,7 +271,11 @@ quiet_cmd_bootas = BOOTAS  $@
       cmd_bootas = $(BOOTCC) -Wp,-MD,$(depfile) $(BOOTAFLAGS) -c -o $@ $<
 
 quiet_cmd_bootar = BOOTAR  $@
+<<<<<<< HEAD
       cmd_bootar = $(BOOTAR) $(BOOTARFLAGS) $@.$$$$ $(filter-out FORCE,$^); mv $@.$$$$ $@
+=======
+      cmd_bootar = $(BOOTAR) $(BOOTARFLAGS) $@.$$$$ $(real-prereqs); mv $@.$$$$ $@
+>>>>>>> upstream/android-13
 
 $(obj-libfdt): $(obj)/%.o: $(srctree)/scripts/dtc/libfdt/%.c FORCE
 	$(call if_changed_dep,bootcc)
@@ -227,9 +289,15 @@ $(patsubst %.S,%.o, $(filter %.S, $(src-boot))): %.o: %.S FORCE
 $(obj)/wrapper.a: $(obj-wlib) FORCE
 	$(call if_changed,bootar)
 
+<<<<<<< HEAD
 hostprogs-y	:= addnote hack-coff mktree
 
 targets		+= $(patsubst $(obj)/%,%,$(obj-boot) wrapper.a)
+=======
+hostprogs	:= addnote hack-coff mktree
+
+targets		+= $(patsubst $(obj)/%,%,$(obj-boot) wrapper.a) zImage.lds
+>>>>>>> upstream/android-13
 extra-y		:= $(obj)/wrapper.a $(obj-plat) $(obj)/empty.o \
 		   $(obj)/zImage.lds $(obj)/zImage.coff.lds $(obj)/zImage.ps3.lds
 
@@ -252,6 +320,11 @@ endif
 
 compressor-$(CONFIG_KERNEL_GZIP) := gz
 compressor-$(CONFIG_KERNEL_XZ)   := xz
+<<<<<<< HEAD
+=======
+compressor-$(CONFIG_KERNEL_LZMA)   := lzma
+compressor-$(CONFIG_KERNEL_LZO) := lzo
+>>>>>>> upstream/android-13
 
 # args (to if_changed): 1 = (this rule), 2 = platform, 3 = dts 4=dtb 5=initrd
 quiet_cmd_wrap	= WRAP    $@
@@ -280,9 +353,13 @@ image-$(CONFIG_EPAPR_BOOT)		+= zImage.epapr
 #
 
 # Board ports in arch/powerpc/platform/40x/Kconfig
+<<<<<<< HEAD
 image-$(CONFIG_EP405)			+= dtbImage.ep405
 image-$(CONFIG_HOTFOOT)			+= cuImage.hotfoot
 image-$(CONFIG_WALNUT)			+= treeImage.walnut
+=======
+image-$(CONFIG_HOTFOOT)			+= cuImage.hotfoot
+>>>>>>> upstream/android-13
 image-$(CONFIG_ACADIA)			+= cuImage.acadia
 image-$(CONFIG_OBS600)			+= uImage.obs600
 
@@ -309,9 +386,15 @@ image-$(CONFIG_PPC_ADDER875)		+= cuImage.adder875-uboot \
 					   dtbImage.adder875-redboot
 
 # Board ports in arch/powerpc/platform/52xx/Kconfig
+<<<<<<< HEAD
 image-$(CONFIG_PPC_LITE5200)		+= cuImage.lite5200 lite5200.dtb
 image-$(CONFIG_PPC_LITE5200)		+= cuImage.lite5200b lite5200b.dtb
 image-$(CONFIG_PPC_MEDIA5200)		+= cuImage.media5200 media5200.dtb
+=======
+image-$(CONFIG_PPC_LITE5200)		+= cuImage.lite5200
+image-$(CONFIG_PPC_LITE5200)		+= cuImage.lite5200b
+image-$(CONFIG_PPC_MEDIA5200)		+= cuImage.media5200
+>>>>>>> upstream/android-13
 
 # Board ports in arch/powerpc/platform/82xx/Kconfig
 image-$(CONFIG_MPC8272_ADS)		+= cuImage.mpc8272ads
@@ -341,7 +424,10 @@ image-$(CONFIG_TQM8541)			+= cuImage.tqm8541
 image-$(CONFIG_TQM8548)			+= cuImage.tqm8548
 image-$(CONFIG_TQM8555)			+= cuImage.tqm8555
 image-$(CONFIG_TQM8560)			+= cuImage.tqm8560
+<<<<<<< HEAD
 image-$(CONFIG_SBC8548)			+= cuImage.sbc8548
+=======
+>>>>>>> upstream/android-13
 image-$(CONFIG_KSI8560)			+= cuImage.ksi8560
 
 # Board ports in arch/powerpc/platform/86xx/Kconfig
@@ -357,6 +443,11 @@ image-$(CONFIG_MVME5100)		+= dtbImage.mvme5100
 # Board port in arch/powerpc/platform/amigaone/Kconfig
 image-$(CONFIG_AMIGAONE)		+= cuImage.amigaone
 
+<<<<<<< HEAD
+=======
+image-$(CONFIG_PPC_MICROWATT)		+= dtbImage.microwatt
+
+>>>>>>> upstream/android-13
 # For 32-bit powermacs, build the COFF and miboot images
 # as well as the ELF images.
 ifdef CONFIG_PPC32
@@ -373,6 +464,13 @@ initrd-y := $(patsubst zImage%, zImage.initrd%, \
 		$(patsubst treeImage%, treeImage.initrd%, $(image-y)))))
 initrd-y := $(filter-out $(image-y), $(initrd-y))
 targets	+= $(image-y) $(initrd-y)
+<<<<<<< HEAD
+=======
+targets += $(foreach x, dtbImage uImage cuImage simpleImage treeImage, \
+		$(patsubst $(x).%, dts/%.dtb, $(filter $(x).%, $(image-y))))
+targets += $(foreach x, dtbImage uImage cuImage simpleImage treeImage, \
+		$(patsubst $(x).%, dts/fsl/%.dtb, $(filter $(x).%, $(image-y))))
+>>>>>>> upstream/android-13
 
 $(addprefix $(obj)/, $(initrd-y)): $(obj)/ramdisk.image.gz
 
@@ -386,11 +484,19 @@ $(addprefix $(obj)/, $(sort $(filter zImage.%, $(image-y)))): vmlinux $(wrapperb
 	$(call if_changed,wrap,$(subst $(obj)/zImage.,,$@))
 
 # dtbImage% - a dtbImage is a zImage with an embedded device tree blob
+<<<<<<< HEAD
 $(obj)/dtbImage.initrd.%: vmlinux $(wrapperbits) $(obj)/%.dtb FORCE
 	$(call if_changed,wrap,$*,,$(obj)/$*.dtb,$(obj)/ramdisk.image.gz)
 
 $(obj)/dtbImage.%: vmlinux $(wrapperbits) $(obj)/%.dtb FORCE
 	$(call if_changed,wrap,$*,,$(obj)/$*.dtb)
+=======
+$(obj)/dtbImage.initrd.%: vmlinux $(wrapperbits) $(obj)/dts/%.dtb FORCE
+	$(call if_changed,wrap,$*,,$(obj)/dts/$*.dtb,$(obj)/ramdisk.image.gz)
+
+$(obj)/dtbImage.%: vmlinux $(wrapperbits) $(obj)/dts/%.dtb FORCE
+	$(call if_changed,wrap,$*,,$(obj)/dts/$*.dtb)
+>>>>>>> upstream/android-13
 
 # This cannot be in the root of $(src) as the zImage rule always adds a $(obj)
 # prefix
@@ -400,6 +506,7 @@ $(obj)/vmlinux.strip: vmlinux
 $(obj)/uImage: vmlinux $(wrapperbits) FORCE
 	$(call if_changed,wrap,uboot)
 
+<<<<<<< HEAD
 $(obj)/uImage.initrd.%: vmlinux $(obj)/%.dtb $(wrapperbits) FORCE
 	$(call if_changed,wrap,uboot-$*,,$(obj)/$*.dtb,$(obj)/ramdisk.image.gz)
 
@@ -430,6 +537,35 @@ $(obj)/%.dtb: $(src)/dts/%.dts FORCE
 
 $(obj)/%.dtb: $(src)/dts/fsl/%.dts FORCE
 	$(call if_changed_dep,dtc)
+=======
+$(obj)/uImage.initrd.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,uboot-$*,,$(obj)/dts/$*.dtb,$(obj)/ramdisk.image.gz)
+
+$(obj)/uImage.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,uboot-$*,,$(obj)/dts/$*.dtb)
+
+$(obj)/cuImage.initrd.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,cuboot-$*,,$(obj)/dts/$*.dtb,$(obj)/ramdisk.image.gz)
+
+$(obj)/cuImage.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,cuboot-$*,,$(obj)/dts/$*.dtb)
+
+$(obj)/simpleImage.initrd.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,simpleboot-$*,,$(obj)/dts/$*.dtb,$(obj)/ramdisk.image.gz)
+
+$(obj)/simpleImage.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,simpleboot-$*,,$(obj)/dts/$*.dtb)
+
+$(obj)/treeImage.initrd.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,treeboot-$*,,$(obj)/dts/$*.dtb,$(obj)/ramdisk.image.gz)
+
+$(obj)/treeImage.%: vmlinux $(obj)/dts/%.dtb $(wrapperbits) FORCE
+	$(call if_changed,wrap,treeboot-$*,,$(obj)/dts/$*.dtb)
+
+# Needed for the above targets to work with dts/fsl/ files
+$(obj)/dts/%.dtb: $(obj)/dts/fsl/%.dtb
+	@cp $< $@
+>>>>>>> upstream/android-13
 
 # If there isn't a platform selected then just strip the vmlinux.
 ifeq (,$(image-y))
@@ -441,6 +577,7 @@ $(obj)/zImage:		$(addprefix $(obj)/, $(image-y))
 $(obj)/zImage.initrd:	$(addprefix $(obj)/, $(initrd-y))
 	$(Q)rm -f $@; ln $< $@
 
+<<<<<<< HEAD
 # Only install the vmlinux
 install: $(CONFIGURE) $(addprefix $(obj)/, $(image-y))
 	sh -x $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" vmlinux System.map "$(INSTALL_PATH)"
@@ -449,6 +586,8 @@ install: $(CONFIGURE) $(addprefix $(obj)/, $(image-y))
 zInstall: $(CONFIGURE) $(addprefix $(obj)/, $(image-y))
 	sh -x $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" vmlinux System.map "$(INSTALL_PATH)" $^
 
+=======
+>>>>>>> upstream/android-13
 # anything not in $(targets)
 clean-files += $(image-) $(initrd-) cuImage.* dtbImage.* treeImage.* \
 	zImage zImage.initrd zImage.chrp zImage.coff zImage.holly \
@@ -468,7 +607,11 @@ WRAPPER_BINDIR := /usr/sbin
 INSTALL := install
 
 extra-installed		:= $(patsubst $(obj)/%, $(DESTDIR)$(WRAPPER_OBJDIR)/%, $(extra-y))
+<<<<<<< HEAD
 hostprogs-installed	:= $(patsubst %, $(DESTDIR)$(WRAPPER_BINDIR)/%, $(hostprogs-y))
+=======
+hostprogs-installed	:= $(patsubst %, $(DESTDIR)$(WRAPPER_BINDIR)/%, $(hostprogs))
+>>>>>>> upstream/android-13
 wrapper-installed	:= $(DESTDIR)$(WRAPPER_BINDIR)/wrapper
 dts-installed		:= $(patsubst $(dtstree)/%, $(DESTDIR)$(WRAPPER_DTSDIR)/%, $(wildcard $(dtstree)/*.dts))
 

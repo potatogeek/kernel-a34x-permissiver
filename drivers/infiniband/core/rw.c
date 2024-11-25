@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 HGST, a Western Digital Company.
  *
@@ -12,6 +13,15 @@
  */
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 HGST, a Western Digital Company.
+ */
+#include <linux/moduleparam.h>
+#include <linux/slab.h>
+#include <linux/pci-p2pdma.h>
+>>>>>>> upstream/android-13
 #include <rdma/mr_pool.h>
 #include <rdma/rw.h>
 
@@ -27,6 +37,7 @@ module_param_named(force_mr, rdma_rw_force_mr, bool, 0);
 MODULE_PARM_DESC(force_mr, "Force usage of MRs for RDMA READ/WRITE operations");
 
 /*
+<<<<<<< HEAD
  * Check if the device might use memory registration.  This is currently only
  * true for iWarp devices. In the future we can hopefully fine tune this based
  * on HCA driver input.
@@ -35,6 +46,19 @@ static inline bool rdma_rw_can_use_mr(struct ib_device *dev, u8 port_num)
 {
 	if (rdma_protocol_iwarp(dev, port_num))
 		return true;
+=======
+ * Report whether memory registration should be used. Memory registration must
+ * be used for iWarp devices because of iWARP-specific limitations. Memory
+ * registration is also enabled if registering memory might yield better
+ * performance than using multiple SGE entries, see rdma_rw_io_needs_mr()
+ */
+static inline bool rdma_rw_can_use_mr(struct ib_device *dev, u32 port_num)
+{
+	if (rdma_protocol_iwarp(dev, port_num))
+		return true;
+	if (dev->attrs.max_sgl_rd)
+		return true;
+>>>>>>> upstream/android-13
 	if (unlikely(rdma_rw_force_mr))
 		return true;
 	return false;
@@ -42,6 +66,7 @@ static inline bool rdma_rw_can_use_mr(struct ib_device *dev, u8 port_num)
 
 /*
  * Check if the device will use memory registration for this RW operation.
+<<<<<<< HEAD
  * We currently always use memory registrations for iWarp RDMA READs, and
  * have a debug option to force usage of MRs.
  *
@@ -53,11 +78,27 @@ static inline bool rdma_rw_io_needs_mr(struct ib_device *dev, u8 port_num,
 {
 	if (rdma_protocol_iwarp(dev, port_num) && dir == DMA_FROM_DEVICE)
 		return true;
+=======
+ * For RDMA READs we must use MRs on iWarp and can optionally use them as an
+ * optimization otherwise.  Additionally we have a debug option to force usage
+ * of MRs to help testing this code path.
+ */
+static inline bool rdma_rw_io_needs_mr(struct ib_device *dev, u32 port_num,
+		enum dma_data_direction dir, int dma_nents)
+{
+	if (dir == DMA_FROM_DEVICE) {
+		if (rdma_protocol_iwarp(dev, port_num))
+			return true;
+		if (dev->attrs.max_sgl_rd && dma_nents > dev->attrs.max_sgl_rd)
+			return true;
+	}
+>>>>>>> upstream/android-13
 	if (unlikely(rdma_rw_force_mr))
 		return true;
 	return false;
 }
 
+<<<<<<< HEAD
 static inline u32 rdma_rw_fr_page_list_len(struct ib_device *dev)
 {
 	/* arbitrary limit to avoid allocating gigantic resources */
@@ -76,6 +117,25 @@ static int rdma_rw_init_one_mr(struct ib_qp *qp, u8 port_num,
 	reg->mr = ib_mr_pool_get(qp, &qp->rdma_mrs);
 	if (!reg->mr)
 		return -EAGAIN;
+=======
+static inline u32 rdma_rw_fr_page_list_len(struct ib_device *dev,
+					   bool pi_support)
+{
+	u32 max_pages;
+
+	if (pi_support)
+		max_pages = dev->attrs.max_pi_fast_reg_page_list_len;
+	else
+		max_pages = dev->attrs.max_fast_reg_page_list_len;
+
+	/* arbitrary limit to avoid allocating gigantic resources */
+	return min_t(u32, max_pages, 256);
+}
+
+static inline int rdma_rw_inv_key(struct rdma_rw_reg_ctx *reg)
+{
+	int count = 0;
+>>>>>>> upstream/android-13
 
 	if (reg->mr->need_inval) {
 		reg->inv_wr.opcode = IB_WR_LOCAL_INV;
@@ -86,6 +146,28 @@ static int rdma_rw_init_one_mr(struct ib_qp *qp, u8 port_num,
 		reg->inv_wr.next = NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	return count;
+}
+
+/* Caller must have zero-initialized *reg. */
+static int rdma_rw_init_one_mr(struct ib_qp *qp, u32 port_num,
+		struct rdma_rw_reg_ctx *reg, struct scatterlist *sg,
+		u32 sg_cnt, u32 offset)
+{
+	u32 pages_per_mr = rdma_rw_fr_page_list_len(qp->pd->device,
+						    qp->integrity_en);
+	u32 nents = min(sg_cnt, pages_per_mr);
+	int count = 0, ret;
+
+	reg->mr = ib_mr_pool_get(qp, &qp->rdma_mrs);
+	if (!reg->mr)
+		return -EAGAIN;
+
+	count += rdma_rw_inv_key(reg);
+
+>>>>>>> upstream/android-13
 	ret = ib_map_mr_sg(reg->mr, sg, nents, &offset, PAGE_SIZE);
 	if (ret < 0 || ret < nents) {
 		ib_mr_pool_put(qp, &qp->rdma_mrs, reg->mr);
@@ -105,6 +187,7 @@ static int rdma_rw_init_one_mr(struct ib_qp *qp, u8 port_num,
 }
 
 static int rdma_rw_init_mr_wrs(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
+<<<<<<< HEAD
 		u8 port_num, struct scatterlist *sg, u32 sg_cnt, u32 offset,
 		u64 remote_addr, u32 rkey, enum dma_data_direction dir)
 {
@@ -113,6 +196,17 @@ static int rdma_rw_init_mr_wrs(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 	int i, j, ret = 0, count = 0;
 
 	ctx->nr_ops = (sg_cnt + pages_per_mr - 1) / pages_per_mr;
+=======
+		u32 port_num, struct scatterlist *sg, u32 sg_cnt, u32 offset,
+		u64 remote_addr, u32 rkey, enum dma_data_direction dir)
+{
+	struct rdma_rw_reg_ctx *prev = NULL;
+	u32 pages_per_mr = rdma_rw_fr_page_list_len(qp->pd->device,
+						    qp->integrity_en);
+	int i, j, ret = 0, count = 0;
+
+	ctx->nr_ops = DIV_ROUND_UP(sg_cnt, pages_per_mr);
+>>>>>>> upstream/android-13
 	ctx->reg = kcalloc(ctx->nr_ops, sizeof(*ctx->reg), GFP_KERNEL);
 	if (!ctx->reg) {
 		ret = -ENOMEM;
@@ -178,7 +272,10 @@ static int rdma_rw_init_map_wrs(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 		struct scatterlist *sg, u32 sg_cnt, u32 offset,
 		u64 remote_addr, u32 rkey, enum dma_data_direction dir)
 {
+<<<<<<< HEAD
 	struct ib_device *dev = qp->pd->device;
+=======
+>>>>>>> upstream/android-13
 	u32 max_sge = dir == DMA_TO_DEVICE ? qp->max_write_sge :
 		      qp->max_read_sge;
 	struct ib_sge *sge;
@@ -208,8 +305,13 @@ static int rdma_rw_init_map_wrs(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 		rdma_wr->wr.sg_list = sge;
 
 		for (j = 0; j < nr_sge; j++, sg = sg_next(sg)) {
+<<<<<<< HEAD
 			sge->addr = ib_sg_dma_address(dev, sg) + offset;
 			sge->length = ib_sg_dma_len(dev, sg) - offset;
+=======
+			sge->addr = sg_dma_address(sg) + offset;
+			sge->length = sg_dma_len(sg) - offset;
+>>>>>>> upstream/android-13
 			sge->lkey = qp->pd->local_dma_lkey;
 
 			total_len += sge->length;
@@ -235,14 +337,22 @@ static int rdma_rw_init_single_wr(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 		struct scatterlist *sg, u32 offset, u64 remote_addr, u32 rkey,
 		enum dma_data_direction dir)
 {
+<<<<<<< HEAD
 	struct ib_device *dev = qp->pd->device;
+=======
+>>>>>>> upstream/android-13
 	struct ib_rdma_wr *rdma_wr = &ctx->single.wr;
 
 	ctx->nr_ops = 1;
 
 	ctx->single.sge.lkey = qp->pd->local_dma_lkey;
+<<<<<<< HEAD
 	ctx->single.sge.addr = ib_sg_dma_address(dev, sg) + offset;
 	ctx->single.sge.length = ib_sg_dma_len(dev, sg) - offset;
+=======
+	ctx->single.sge.addr = sg_dma_address(sg) + offset;
+	ctx->single.sge.length = sg_dma_len(sg) - offset;
+>>>>>>> upstream/android-13
 
 	memset(rdma_wr, 0, sizeof(*rdma_wr));
 	if (dir == DMA_TO_DEVICE)
@@ -258,6 +368,29 @@ static int rdma_rw_init_single_wr(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static void rdma_rw_unmap_sg(struct ib_device *dev, struct scatterlist *sg,
+			     u32 sg_cnt, enum dma_data_direction dir)
+{
+	if (is_pci_p2pdma_page(sg_page(sg)))
+		pci_p2pdma_unmap_sg(dev->dma_device, sg, sg_cnt, dir);
+	else
+		ib_dma_unmap_sg(dev, sg, sg_cnt, dir);
+}
+
+static int rdma_rw_map_sg(struct ib_device *dev, struct scatterlist *sg,
+			  u32 sg_cnt, enum dma_data_direction dir)
+{
+	if (is_pci_p2pdma_page(sg_page(sg))) {
+		if (WARN_ON_ONCE(ib_uses_virt_dma(dev)))
+			return 0;
+		return pci_p2pdma_map_sg(dev->dma_device, sg, sg_cnt, dir);
+	}
+	return ib_dma_map_sg(dev, sg, sg_cnt, dir);
+}
+
+>>>>>>> upstream/android-13
 /**
  * rdma_rw_ctx_init - initialize a RDMA READ/WRITE context
  * @ctx:	context to initialize
@@ -273,14 +406,22 @@ static int rdma_rw_init_single_wr(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
  * Returns the number of WQEs that will be needed on the workqueue if
  * successful, or a negative error code.
  */
+<<<<<<< HEAD
 int rdma_rw_ctx_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u8 port_num,
+=======
+int rdma_rw_ctx_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u32 port_num,
+>>>>>>> upstream/android-13
 		struct scatterlist *sg, u32 sg_cnt, u32 sg_offset,
 		u64 remote_addr, u32 rkey, enum dma_data_direction dir)
 {
 	struct ib_device *dev = qp->pd->device;
 	int ret;
 
+<<<<<<< HEAD
 	ret = ib_dma_map_sg(dev, sg, sg_cnt, dir);
+=======
+	ret = rdma_rw_map_sg(dev, sg, sg_cnt, dir);
+>>>>>>> upstream/android-13
 	if (!ret)
 		return -ENOMEM;
 	sg_cnt = ret;
@@ -289,7 +430,11 @@ int rdma_rw_ctx_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u8 port_num,
 	 * Skip to the S/G entry that sg_offset falls into:
 	 */
 	for (;;) {
+<<<<<<< HEAD
 		u32 len = ib_sg_dma_len(dev, sg);
+=======
+		u32 len = sg_dma_len(sg);
+>>>>>>> upstream/android-13
 
 		if (sg_offset < len)
 			break;
@@ -319,7 +464,11 @@ int rdma_rw_ctx_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u8 port_num,
 	return ret;
 
 out_unmap_sg:
+<<<<<<< HEAD
 	ib_dma_unmap_sg(dev, sg, sg_cnt, dir);
+=======
+	rdma_rw_unmap_sg(dev, sg, sg_cnt, dir);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(rdma_rw_ctx_init);
@@ -342,12 +491,17 @@ EXPORT_SYMBOL(rdma_rw_ctx_init);
  * successful, or a negative error code.
  */
 int rdma_rw_ctx_signature_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
+<<<<<<< HEAD
 		u8 port_num, struct scatterlist *sg, u32 sg_cnt,
+=======
+		u32 port_num, struct scatterlist *sg, u32 sg_cnt,
+>>>>>>> upstream/android-13
 		struct scatterlist *prot_sg, u32 prot_sg_cnt,
 		struct ib_sig_attrs *sig_attrs,
 		u64 remote_addr, u32 rkey, enum dma_data_direction dir)
 {
 	struct ib_device *dev = qp->pd->device;
+<<<<<<< HEAD
 	u32 pages_per_mr = rdma_rw_fr_page_list_len(qp->pd->device);
 	struct ib_rdma_wr *rdma_wr;
 	struct ib_send_wr *prev_wr = NULL;
@@ -359,10 +513,25 @@ int rdma_rw_ctx_signature_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 	}
 
 	ret = ib_dma_map_sg(dev, sg, sg_cnt, dir);
+=======
+	u32 pages_per_mr = rdma_rw_fr_page_list_len(qp->pd->device,
+						    qp->integrity_en);
+	struct ib_rdma_wr *rdma_wr;
+	int count = 0, ret;
+
+	if (sg_cnt > pages_per_mr || prot_sg_cnt > pages_per_mr) {
+		pr_err("SG count too large: sg_cnt=%u, prot_sg_cnt=%u, pages_per_mr=%u\n",
+		       sg_cnt, prot_sg_cnt, pages_per_mr);
+		return -EINVAL;
+	}
+
+	ret = rdma_rw_map_sg(dev, sg, sg_cnt, dir);
+>>>>>>> upstream/android-13
 	if (!ret)
 		return -ENOMEM;
 	sg_cnt = ret;
 
+<<<<<<< HEAD
 	ret = ib_dma_map_sg(dev, prot_sg, prot_sg_cnt, dir);
 	if (!ret) {
 		ret = -ENOMEM;
@@ -374,10 +543,26 @@ int rdma_rw_ctx_signature_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 	ctx->nr_ops = 1;
 	ctx->sig = kcalloc(1, sizeof(*ctx->sig), GFP_KERNEL);
 	if (!ctx->sig) {
+=======
+	if (prot_sg_cnt) {
+		ret = rdma_rw_map_sg(dev, prot_sg, prot_sg_cnt, dir);
+		if (!ret) {
+			ret = -ENOMEM;
+			goto out_unmap_sg;
+		}
+		prot_sg_cnt = ret;
+	}
+
+	ctx->type = RDMA_RW_SIG_MR;
+	ctx->nr_ops = 1;
+	ctx->reg = kzalloc(sizeof(*ctx->reg), GFP_KERNEL);
+	if (!ctx->reg) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_unmap_prot_sg;
 	}
 
+<<<<<<< HEAD
 	ret = rdma_rw_init_one_mr(qp, port_num, &ctx->sig->data, sg, sg_cnt, 0);
 	if (ret < 0)
 		goto out_free_ctx;
@@ -432,6 +617,43 @@ int rdma_rw_ctx_signature_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 
 	rdma_wr = &ctx->sig->data.wr;
 	rdma_wr->wr.sg_list = &ctx->sig->sig_sge;
+=======
+	ctx->reg->mr = ib_mr_pool_get(qp, &qp->sig_mrs);
+	if (!ctx->reg->mr) {
+		ret = -EAGAIN;
+		goto out_free_ctx;
+	}
+
+	count += rdma_rw_inv_key(ctx->reg);
+
+	memcpy(ctx->reg->mr->sig_attrs, sig_attrs, sizeof(struct ib_sig_attrs));
+
+	ret = ib_map_mr_sg_pi(ctx->reg->mr, sg, sg_cnt, NULL, prot_sg,
+			      prot_sg_cnt, NULL, SZ_4K);
+	if (unlikely(ret)) {
+		pr_err("failed to map PI sg (%u)\n", sg_cnt + prot_sg_cnt);
+		goto out_destroy_sig_mr;
+	}
+
+	ctx->reg->reg_wr.wr.opcode = IB_WR_REG_MR_INTEGRITY;
+	ctx->reg->reg_wr.wr.wr_cqe = NULL;
+	ctx->reg->reg_wr.wr.num_sge = 0;
+	ctx->reg->reg_wr.wr.send_flags = 0;
+	ctx->reg->reg_wr.access = IB_ACCESS_LOCAL_WRITE;
+	if (rdma_protocol_iwarp(qp->device, port_num))
+		ctx->reg->reg_wr.access |= IB_ACCESS_REMOTE_WRITE;
+	ctx->reg->reg_wr.mr = ctx->reg->mr;
+	ctx->reg->reg_wr.key = ctx->reg->mr->lkey;
+	count++;
+
+	ctx->reg->sge.addr = ctx->reg->mr->iova;
+	ctx->reg->sge.length = ctx->reg->mr->length;
+	if (sig_attrs->wire.sig_type == IB_SIG_TYPE_NONE)
+		ctx->reg->sge.length -= ctx->reg->mr->sig_attrs->meta_length;
+
+	rdma_wr = &ctx->reg->wr;
+	rdma_wr->wr.sg_list = &ctx->reg->sge;
+>>>>>>> upstream/android-13
 	rdma_wr->wr.num_sge = 1;
 	rdma_wr->remote_addr = remote_addr;
 	rdma_wr->rkey = rkey;
@@ -439,12 +661,17 @@ int rdma_rw_ctx_signature_init(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 		rdma_wr->wr.opcode = IB_WR_RDMA_WRITE;
 	else
 		rdma_wr->wr.opcode = IB_WR_RDMA_READ;
+<<<<<<< HEAD
 	prev_wr->next = &rdma_wr->wr;
 	prev_wr = &rdma_wr->wr;
+=======
+	ctx->reg->reg_wr.wr.next = &rdma_wr->wr;
+>>>>>>> upstream/android-13
 	count++;
 
 	return count;
 
+<<<<<<< HEAD
 out_destroy_prot_mr:
 	if (prot_sg_cnt)
 		ib_mr_pool_put(qp, &qp->rdma_mrs, ctx->sig->prot.mr);
@@ -456,6 +683,17 @@ out_unmap_prot_sg:
 	ib_dma_unmap_sg(dev, prot_sg, prot_sg_cnt, dir);
 out_unmap_sg:
 	ib_dma_unmap_sg(dev, sg, sg_cnt, dir);
+=======
+out_destroy_sig_mr:
+	ib_mr_pool_put(qp, &qp->sig_mrs, ctx->reg->mr);
+out_free_ctx:
+	kfree(ctx->reg);
+out_unmap_prot_sg:
+	if (prot_sg_cnt)
+		rdma_rw_unmap_sg(dev, prot_sg, prot_sg_cnt, dir);
+out_unmap_sg:
+	rdma_rw_unmap_sg(dev, sg, sg_cnt, dir);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(rdma_rw_ctx_signature_init);
@@ -489,13 +727,18 @@ static void rdma_rw_update_lkey(struct rdma_rw_reg_ctx *reg, bool need_inval)
  * completion notification.
  */
 struct ib_send_wr *rdma_rw_ctx_wrs(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
+<<<<<<< HEAD
 		u8 port_num, struct ib_cqe *cqe, struct ib_send_wr *chain_wr)
+=======
+		u32 port_num, struct ib_cqe *cqe, struct ib_send_wr *chain_wr)
+>>>>>>> upstream/android-13
 {
 	struct ib_send_wr *first_wr, *last_wr;
 	int i;
 
 	switch (ctx->type) {
 	case RDMA_RW_SIG_MR:
+<<<<<<< HEAD
 		rdma_rw_update_lkey(&ctx->sig->data, true);
 		if (ctx->sig->prot.mr)
 			rdma_rw_update_lkey(&ctx->sig->prot, true);
@@ -511,6 +754,8 @@ struct ib_send_wr *rdma_rw_ctx_wrs(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 			first_wr = &ctx->sig->data.reg_wr.wr;
 		last_wr = &ctx->sig->data.wr.wr;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case RDMA_RW_MR:
 		for (i = 0; i < ctx->nr_ops; i++) {
 			rdma_rw_update_lkey(&ctx->reg[i],
@@ -561,7 +806,11 @@ EXPORT_SYMBOL(rdma_rw_ctx_wrs);
  * is not set @cqe must be set so that the caller gets a completion
  * notification.
  */
+<<<<<<< HEAD
 int rdma_rw_ctx_post(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u8 port_num,
+=======
+int rdma_rw_ctx_post(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u32 port_num,
+>>>>>>> upstream/android-13
 		struct ib_cqe *cqe, struct ib_send_wr *chain_wr)
 {
 	struct ib_send_wr *first_wr;
@@ -580,8 +829,14 @@ EXPORT_SYMBOL(rdma_rw_ctx_post);
  * @sg_cnt:	number of entries in @sg
  * @dir:	%DMA_TO_DEVICE for RDMA WRITE, %DMA_FROM_DEVICE for RDMA READ
  */
+<<<<<<< HEAD
 void rdma_rw_ctx_destroy(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u8 port_num,
 		struct scatterlist *sg, u32 sg_cnt, enum dma_data_direction dir)
+=======
+void rdma_rw_ctx_destroy(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
+			 u32 port_num, struct scatterlist *sg, u32 sg_cnt,
+			 enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -602,13 +857,21 @@ void rdma_rw_ctx_destroy(struct rdma_rw_ctx *ctx, struct ib_qp *qp, u8 port_num,
 		break;
 	}
 
+<<<<<<< HEAD
 	ib_dma_unmap_sg(qp->pd->device, sg, sg_cnt, dir);
+=======
+	rdma_rw_unmap_sg(qp->pd->device, sg, sg_cnt, dir);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(rdma_rw_ctx_destroy);
 
 /**
  * rdma_rw_ctx_destroy_signature - release all resources allocated by
+<<<<<<< HEAD
  *	rdma_rw_ctx_init_signature
+=======
+ *	rdma_rw_ctx_signature_init
+>>>>>>> upstream/android-13
  * @ctx:	context to release
  * @qp:		queue pair to operate on
  * @port_num:	port num to which the connection is bound
@@ -619,13 +882,18 @@ EXPORT_SYMBOL(rdma_rw_ctx_destroy);
  * @dir:	%DMA_TO_DEVICE for RDMA WRITE, %DMA_FROM_DEVICE for RDMA READ
  */
 void rdma_rw_ctx_destroy_signature(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
+<<<<<<< HEAD
 		u8 port_num, struct scatterlist *sg, u32 sg_cnt,
+=======
+		u32 port_num, struct scatterlist *sg, u32 sg_cnt,
+>>>>>>> upstream/android-13
 		struct scatterlist *prot_sg, u32 prot_sg_cnt,
 		enum dma_data_direction dir)
 {
 	if (WARN_ON_ONCE(ctx->type != RDMA_RW_SIG_MR))
 		return;
 
+<<<<<<< HEAD
 	ib_mr_pool_put(qp, &qp->rdma_mrs, ctx->sig->data.mr);
 	ib_dma_unmap_sg(qp->pd->device, sg, sg_cnt, dir);
 
@@ -636,6 +904,14 @@ void rdma_rw_ctx_destroy_signature(struct rdma_rw_ctx *ctx, struct ib_qp *qp,
 
 	ib_mr_pool_put(qp, &qp->sig_mrs, ctx->sig->sig_mr);
 	kfree(ctx->sig);
+=======
+	ib_mr_pool_put(qp, &qp->sig_mrs, ctx->reg->mr);
+	kfree(ctx->reg);
+
+	if (prot_sg_cnt)
+		rdma_rw_unmap_sg(qp->pd->device, prot_sg, prot_sg_cnt, dir);
+	rdma_rw_unmap_sg(qp->pd->device, sg, sg_cnt, dir);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(rdma_rw_ctx_destroy_signature);
 
@@ -650,13 +926,21 @@ EXPORT_SYMBOL(rdma_rw_ctx_destroy_signature);
  * compute max_rdma_ctxts and the size of the transport's Send and
  * Send Completion Queues.
  */
+<<<<<<< HEAD
 unsigned int rdma_rw_mr_factor(struct ib_device *device, u8 port_num,
+=======
+unsigned int rdma_rw_mr_factor(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			       unsigned int maxpages)
 {
 	unsigned int mr_pages;
 
 	if (rdma_rw_can_use_mr(device, port_num))
+<<<<<<< HEAD
 		mr_pages = rdma_rw_fr_page_list_len(device);
+=======
+		mr_pages = rdma_rw_fr_page_list_len(device, false);
+>>>>>>> upstream/android-13
 	else
 		mr_pages = device->attrs.max_sge_rd;
 	return DIV_ROUND_UP(maxpages, mr_pages);
@@ -682,9 +966,14 @@ void rdma_rw_init_qp(struct ib_device *dev, struct ib_qp_init_attr *attr)
 	 * we'll need two additional MRs for the registrations and the
 	 * invalidation.
 	 */
+<<<<<<< HEAD
 	if (attr->create_flags & IB_QP_CREATE_SIGNATURE_EN)
 		factor += 6;	/* (inv + reg) * (data + prot + sig) */
 	else if (rdma_rw_can_use_mr(dev, attr->port_num))
+=======
+	if (attr->create_flags & IB_QP_CREATE_INTEGRITY_EN ||
+	    rdma_rw_can_use_mr(dev, attr->port_num))
+>>>>>>> upstream/android-13
 		factor += 2;	/* inv + reg */
 
 	attr->cap.max_send_wr += factor * attr->cap.max_rdma_ctxs;
@@ -700,6 +989,7 @@ void rdma_rw_init_qp(struct ib_device *dev, struct ib_qp_init_attr *attr)
 int rdma_rw_init_mrs(struct ib_qp *qp, struct ib_qp_init_attr *attr)
 {
 	struct ib_device *dev = qp->pd->device;
+<<<<<<< HEAD
 	u32 nr_mrs = 0, nr_sig_mrs = 0;
 	int ret = 0;
 
@@ -708,14 +998,32 @@ int rdma_rw_init_mrs(struct ib_qp *qp, struct ib_qp_init_attr *attr)
 		nr_mrs = attr->cap.max_rdma_ctxs * 2;
 	} else if (rdma_rw_can_use_mr(dev, attr->port_num)) {
 		nr_mrs = attr->cap.max_rdma_ctxs;
+=======
+	u32 nr_mrs = 0, nr_sig_mrs = 0, max_num_sg = 0;
+	int ret = 0;
+
+	if (attr->create_flags & IB_QP_CREATE_INTEGRITY_EN) {
+		nr_sig_mrs = attr->cap.max_rdma_ctxs;
+		nr_mrs = attr->cap.max_rdma_ctxs;
+		max_num_sg = rdma_rw_fr_page_list_len(dev, true);
+	} else if (rdma_rw_can_use_mr(dev, attr->port_num)) {
+		nr_mrs = attr->cap.max_rdma_ctxs;
+		max_num_sg = rdma_rw_fr_page_list_len(dev, false);
+>>>>>>> upstream/android-13
 	}
 
 	if (nr_mrs) {
 		ret = ib_mr_pool_init(qp, &qp->rdma_mrs, nr_mrs,
 				IB_MR_TYPE_MEM_REG,
+<<<<<<< HEAD
 				rdma_rw_fr_page_list_len(dev));
 		if (ret) {
 			pr_err("%s: failed to allocated %d MRs\n",
+=======
+				max_num_sg, 0);
+		if (ret) {
+			pr_err("%s: failed to allocated %u MRs\n",
+>>>>>>> upstream/android-13
 				__func__, nr_mrs);
 			return ret;
 		}
@@ -723,10 +1031,17 @@ int rdma_rw_init_mrs(struct ib_qp *qp, struct ib_qp_init_attr *attr)
 
 	if (nr_sig_mrs) {
 		ret = ib_mr_pool_init(qp, &qp->sig_mrs, nr_sig_mrs,
+<<<<<<< HEAD
 				IB_MR_TYPE_SIGNATURE, 2);
 		if (ret) {
 			pr_err("%s: failed to allocated %d SIG MRs\n",
 				__func__, nr_mrs);
+=======
+				IB_MR_TYPE_INTEGRITY, max_num_sg, max_num_sg);
+		if (ret) {
+			pr_err("%s: failed to allocated %u SIG MRs\n",
+				__func__, nr_sig_mrs);
+>>>>>>> upstream/android-13
 			goto out_free_rdma_mrs;
 		}
 	}

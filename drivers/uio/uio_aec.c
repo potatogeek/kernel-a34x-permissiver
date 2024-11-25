@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * uio_aec.c -- simple driver for Adrienne Electronics Corp time code PCI device
  *
  * Copyright (C) 2008 Brandon Philips <brandon@ifup.org>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify it
  *   under the terms of the GNU General Public License version 2 as published
@@ -15,6 +20,8 @@
  *   You should have received a copy of the GNU General Public License along
  *   with this program; if not, write to the Free Software Foundation, Inc., 59
  *   Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -83,12 +90,20 @@ static int probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct uio_info *info;
 	int ret;
 
+<<<<<<< HEAD
 	info = kzalloc(sizeof(struct uio_info), GFP_KERNEL);
+=======
+	info = devm_kzalloc(&pdev->dev, sizeof(struct uio_info), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!info)
 		return -ENOMEM;
 
 	if (pci_enable_device(pdev))
+<<<<<<< HEAD
 		goto out_free;
+=======
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	if (pci_request_regions(pdev, "aectc"))
 		goto out_disable;
@@ -129,8 +144,11 @@ out_release:
 	pci_release_regions(pdev);
 out_disable:
 	pci_disable_device(pdev);
+<<<<<<< HEAD
 out_free:
 	kfree(info);
+=======
+>>>>>>> upstream/android-13
 	return -ENODEV;
 }
 
@@ -147,9 +165,13 @@ static void remove(struct pci_dev *pdev)
 	uio_unregister_device(info);
 	pci_release_regions(pdev);
 	pci_disable_device(pdev);
+<<<<<<< HEAD
 	iounmap(info->priv);
 
 	kfree(info);
+=======
+	pci_iounmap(pdev, info->priv);
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver pci_driver = {

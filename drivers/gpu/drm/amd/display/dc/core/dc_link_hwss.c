@@ -12,6 +12,7 @@
 #include "dc_link_ddc.h"
 #include "dm_helpers.h"
 #include "dpcd_defs.h"
+<<<<<<< HEAD
 
 enum dc_status core_link_read_dpcd(
 	struct dc_link *link,
@@ -39,6 +40,42 @@ enum dc_status core_link_write_dpcd(
 				return DC_ERROR_UNEXPECTED;
 
 	return DC_OK;
+=======
+#include "dsc.h"
+#include "resource.h"
+#include "link_enc_cfg.h"
+#include "clk_mgr.h"
+#include "inc/link_dpcd.h"
+
+static uint8_t convert_to_count(uint8_t lttpr_repeater_count)
+{
+	switch (lttpr_repeater_count) {
+	case 0x80: // 1 lttpr repeater
+		return 1;
+	case 0x40: // 2 lttpr repeaters
+		return 2;
+	case 0x20: // 3 lttpr repeaters
+		return 3;
+	case 0x10: // 4 lttpr repeaters
+		return 4;
+	case 0x08: // 5 lttpr repeaters
+		return 5;
+	case 0x04: // 6 lttpr repeaters
+		return 6;
+	case 0x02: // 7 lttpr repeaters
+		return 7;
+	case 0x01: // 8 lttpr repeaters
+		return 8;
+	default:
+		break;
+	}
+	return 0; // invalid value
+}
+
+static inline bool is_immediate_downstream(struct dc_link *link, uint32_t offset)
+{
+	return (convert_to_count(link->dpcd_caps.lttpr_caps.phy_repeater_cnt) == offset);
+>>>>>>> upstream/android-13
 }
 
 void dp_receiver_power_ctrl(struct dc_link *link, bool on)
@@ -47,6 +84,12 @@ void dp_receiver_power_ctrl(struct dc_link *link, bool on)
 
 	state = on ? DP_POWER_STATE_D0 : DP_POWER_STATE_D3;
 
+<<<<<<< HEAD
+=======
+	if (link->sync_lt_in_progress)
+		return;
+
+>>>>>>> upstream/android-13
 	core_link_write_dpcd(link, DP_SET_POWER, &state,
 			sizeof(state));
 }
@@ -57,19 +100,42 @@ void dp_enable_link_phy(
 	enum clock_source_id clock_source,
 	const struct dc_link_settings *link_settings)
 {
+<<<<<<< HEAD
 	struct link_encoder *link_enc = link->link_enc;
+=======
+	struct link_encoder *link_enc;
+	struct dc  *dc = link->ctx->dc;
+	struct dmcu *dmcu = dc->res_pool->dmcu;
+>>>>>>> upstream/android-13
 
 	struct pipe_ctx *pipes =
 			link->dc->current_state->res_ctx.pipe_ctx;
 	struct clock_source *dp_cs =
 			link->dc->res_pool->dp_clock_source;
 	unsigned int i;
+<<<<<<< HEAD
+=======
+
+	/* Link should always be assigned encoder when en-/disabling. */
+	if (link->is_dig_mapping_flexible && dc->res_pool->funcs->link_encs_assign)
+		link_enc = link_enc_cfg_get_link_enc_used_by_link(link->dc->current_state, link);
+	else
+		link_enc = link->link_enc;
+	ASSERT(link_enc);
+
+	if (link->connector_signal == SIGNAL_TYPE_EDP) {
+		link->dc->hwss.edp_power_control(link, true);
+		link->dc->hwss.edp_wait_for_hpd_ready(link, true);
+	}
+
+>>>>>>> upstream/android-13
 	/* If the current pixel clock source is not DTO(happens after
 	 * switching from HDMI passive dongle to DP on the same connector),
 	 * switch the pixel clock source to DTO.
 	 */
 	for (i = 0; i < MAX_PIPES; i++) {
 		if (pipes[i].stream != NULL &&
+<<<<<<< HEAD
 			pipes[i].stream->sink != NULL &&
 			pipes[i].stream->sink->link == link) {
 			if (pipes[i].clock_source != NULL &&
@@ -77,6 +143,14 @@ void dp_enable_link_phy(
 				pipes[i].clock_source = dp_cs;
 				pipes[i].stream_res.pix_clk_params.requested_pix_clk =
 						pipes[i].stream->timing.pix_clk_khz;
+=======
+			pipes[i].stream->link == link) {
+			if (pipes[i].clock_source != NULL &&
+					pipes[i].clock_source->id != CLOCK_SOURCE_ID_DP_DTO) {
+				pipes[i].clock_source = dp_cs;
+				pipes[i].stream_res.pix_clk_params.requested_pix_clk_100hz =
+						pipes[i].stream->timing.pix_clk_100hz;
+>>>>>>> upstream/android-13
 				pipes[i].clock_source->funcs->program_pix_clk(
 							pipes[i].clock_source,
 							&pipes[i].stream_res.pix_clk_params,
@@ -85,6 +159,17 @@ void dp_enable_link_phy(
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	link->cur_link_settings = *link_settings;
+
+	if (dc->clk_mgr->funcs->notify_link_rate_change)
+		dc->clk_mgr->funcs->notify_link_rate_change(dc->clk_mgr, link);
+
+	if (dmcu != NULL && dmcu->funcs->lock_phy)
+		dmcu->funcs->lock_phy(dmcu);
+
+>>>>>>> upstream/android-13
 	if (dc_is_dp_sst_signal(signal)) {
 		link_enc->funcs->enable_dp_output(
 						link_enc,
@@ -97,14 +182,31 @@ void dp_enable_link_phy(
 						clock_source);
 	}
 
+<<<<<<< HEAD
 	dp_receiver_power_ctrl(link, true);
 }
 
+=======
+	if (dmcu != NULL && dmcu->funcs->unlock_phy)
+		dmcu->funcs->unlock_phy(dmcu);
+
+	dp_receiver_power_ctrl(link, true);
+}
+
+void edp_add_delay_for_T9(struct dc_link *link)
+{
+	if (link->local_sink &&
+			link->local_sink->edid_caps.panel_patch.extra_delay_backlight_off > 0)
+		udelay(link->local_sink->edid_caps.panel_patch.extra_delay_backlight_off * 1000);
+}
+
+>>>>>>> upstream/android-13
 bool edp_receiver_ready_T9(struct dc_link *link)
 {
 	unsigned int tries = 0;
 	unsigned char sinkstatus = 0;
 	unsigned char edpRev = 0;
+<<<<<<< HEAD
 	enum dc_status result = DC_OK;
 	result = core_link_read_dpcd(link, DP_EDP_DPCD_REV, &edpRev, sizeof(edpRev));
 	if (edpRev < DP_EDP_12)
@@ -119,10 +221,30 @@ bool edp_receiver_ready_T9(struct dc_link *link)
 			break;
 		udelay(100); //MAx T9
 	} while (++tries < 50);
+=======
+	enum dc_status result;
+
+	result = core_link_read_dpcd(link, DP_EDP_DPCD_REV, &edpRev, sizeof(edpRev));
+
+    /* start from eDP version 1.2, SINK_STAUS indicate the sink is ready.*/
+	if (result == DC_OK && edpRev >= DP_EDP_12) {
+		do {
+			sinkstatus = 1;
+			result = core_link_read_dpcd(link, DP_SINK_STATUS, &sinkstatus, sizeof(sinkstatus));
+			if (sinkstatus == 0)
+				break;
+			if (result != DC_OK)
+				break;
+			udelay(100); //MAx T9
+		} while (++tries < 50);
+	}
+
+>>>>>>> upstream/android-13
 	return result;
 }
 bool edp_receiver_ready_T7(struct dc_link *link)
 {
+<<<<<<< HEAD
 	unsigned int tries = 0;
 	unsigned char sinkstatus = 0;
 	unsigned char edpRev = 0;
@@ -141,23 +263,92 @@ bool edp_receiver_ready_T7(struct dc_link *link)
 			break;
 		udelay(25); //MAx T7 is 50ms
 	} while (++tries < 300);
+=======
+	unsigned char sinkstatus = 0;
+	unsigned char edpRev = 0;
+	enum dc_status result;
+
+	/* use absolute time stamp to constrain max T7*/
+	unsigned long long enter_timestamp = 0;
+	unsigned long long finish_timestamp = 0;
+	unsigned long long time_taken_in_ns = 0;
+
+	result = core_link_read_dpcd(link, DP_EDP_DPCD_REV, &edpRev, sizeof(edpRev));
+
+	if (result == DC_OK && edpRev >= DP_EDP_12) {
+		/* start from eDP version 1.2, SINK_STAUS indicate the sink is ready.*/
+		enter_timestamp = dm_get_timestamp(link->ctx);
+		do {
+			sinkstatus = 0;
+			result = core_link_read_dpcd(link, DP_SINK_STATUS, &sinkstatus, sizeof(sinkstatus));
+			if (sinkstatus == 1)
+				break;
+			if (result != DC_OK)
+				break;
+			udelay(25);
+			finish_timestamp = dm_get_timestamp(link->ctx);
+			time_taken_in_ns = dm_get_elapse_time_in_ns(link->ctx, finish_timestamp, enter_timestamp);
+		} while (time_taken_in_ns < 50 * 1000000); //MAx T7 is 50ms
+	}
+
+	if (link->local_sink &&
+			link->local_sink->edid_caps.panel_patch.extra_t7_ms > 0)
+		udelay(link->local_sink->edid_caps.panel_patch.extra_t7_ms * 1000);
+
+>>>>>>> upstream/android-13
 	return result;
 }
 
 void dp_disable_link_phy(struct dc_link *link, enum signal_type signal)
 {
+<<<<<<< HEAD
+=======
+	struct dc  *dc = link->ctx->dc;
+	struct dmcu *dmcu = dc->res_pool->dmcu;
+	struct link_encoder *link_enc;
+
+	/* Link should always be assigned encoder when en-/disabling. */
+	if (link->is_dig_mapping_flexible && dc->res_pool->funcs->link_encs_assign)
+		link_enc = link_enc_cfg_get_link_enc_used_by_link(link->dc->current_state, link);
+	else
+		link_enc = link->link_enc;
+	ASSERT(link_enc);
+
+>>>>>>> upstream/android-13
 	if (!link->wa_flags.dp_keep_receiver_powered)
 		dp_receiver_power_ctrl(link, false);
 
 	if (signal == SIGNAL_TYPE_EDP) {
+<<<<<<< HEAD
 		link->link_enc->funcs->disable_output(link->link_enc, signal);
 		link->dc->hwss.edp_power_control(link, false);
 	} else
 		link->link_enc->funcs->disable_output(link->link_enc, signal);
+=======
+		if (link->dc->hwss.edp_backlight_control)
+			link->dc->hwss.edp_backlight_control(link, false);
+		link_enc->funcs->disable_output(link_enc, signal);
+		link->dc->hwss.edp_power_control(link, false);
+	} else {
+		if (dmcu != NULL && dmcu->funcs->lock_phy)
+			dmcu->funcs->lock_phy(dmcu);
+
+		link_enc->funcs->disable_output(link_enc, signal);
+
+		if (dmcu != NULL && dmcu->funcs->unlock_phy)
+			dmcu->funcs->unlock_phy(dmcu);
+	}
+>>>>>>> upstream/android-13
 
 	/* Clear current link setting.*/
 	memset(&link->cur_link_settings, 0,
 			sizeof(link->cur_link_settings));
+<<<<<<< HEAD
+=======
+
+	if (dc->clk_mgr->funcs->notify_link_rate_change)
+		dc->clk_mgr->funcs->notify_link_rate_change(dc->clk_mgr, link);
+>>>>>>> upstream/android-13
 }
 
 void dp_disable_link_phy_mst(struct dc_link *link, enum signal_type signal)
@@ -174,11 +365,17 @@ void dp_disable_link_phy_mst(struct dc_link *link, enum signal_type signal)
 
 bool dp_set_hw_training_pattern(
 	struct dc_link *link,
+<<<<<<< HEAD
 	enum hw_dp_training_pattern pattern)
+=======
+	enum dc_dp_training_pattern pattern,
+	uint32_t offset)
+>>>>>>> upstream/android-13
 {
 	enum dp_test_pattern test_pattern = DP_TEST_PATTERN_UNSUPPORTED;
 
 	switch (pattern) {
+<<<<<<< HEAD
 	case HW_DP_TRAINING_PATTERN_1:
 		test_pattern = DP_TEST_PATTERN_TRAINING_PATTERN1;
 		break;
@@ -189,6 +386,18 @@ bool dp_set_hw_training_pattern(
 		test_pattern = DP_TEST_PATTERN_TRAINING_PATTERN3;
 		break;
 	case HW_DP_TRAINING_PATTERN_4:
+=======
+	case DP_TRAINING_PATTERN_SEQUENCE_1:
+		test_pattern = DP_TEST_PATTERN_TRAINING_PATTERN1;
+		break;
+	case DP_TRAINING_PATTERN_SEQUENCE_2:
+		test_pattern = DP_TEST_PATTERN_TRAINING_PATTERN2;
+		break;
+	case DP_TRAINING_PATTERN_SEQUENCE_3:
+		test_pattern = DP_TEST_PATTERN_TRAINING_PATTERN3;
+		break;
+	case DP_TRAINING_PATTERN_SEQUENCE_4:
+>>>>>>> upstream/android-13
 		test_pattern = DP_TEST_PATTERN_TRAINING_PATTERN4;
 		break;
 	default:
@@ -202,14 +411,26 @@ bool dp_set_hw_training_pattern(
 
 void dp_set_hw_lane_settings(
 	struct dc_link *link,
+<<<<<<< HEAD
 	const struct link_training_settings *link_settings)
 {
 	struct link_encoder *encoder = link->link_enc;
 
+=======
+	const struct link_training_settings *link_settings,
+	uint32_t offset)
+{
+	struct link_encoder *encoder = link->link_enc;
+
+	if ((link->lttpr_mode == LTTPR_MODE_NON_TRANSPARENT) && !is_immediate_downstream(link, offset))
+		return;
+
+>>>>>>> upstream/android-13
 	/* call Encoder to set lane settings */
 	encoder->funcs->dp_set_lane_settings(encoder, link_settings);
 }
 
+<<<<<<< HEAD
 enum dp_panel_mode dp_get_panel_mode(struct dc_link *link)
 {
 	/* We need to explicitly check that connector
@@ -250,6 +471,8 @@ enum dp_panel_mode dp_get_panel_mode(struct dc_link *link)
 	return DP_PANEL_MODE_DEFAULT;
 }
 
+=======
+>>>>>>> upstream/android-13
 void dp_set_hw_test_pattern(
 	struct dc_link *link,
 	enum dp_test_pattern test_pattern,
@@ -257,7 +480,20 @@ void dp_set_hw_test_pattern(
 	uint32_t custom_pattern_size)
 {
 	struct encoder_set_dp_phy_pattern_param pattern_param = {0};
+<<<<<<< HEAD
 	struct link_encoder *encoder = link->link_enc;
+=======
+	struct link_encoder *encoder;
+
+	/* Access link encoder based on whether it is statically
+	 * or dynamically assigned to a link.
+	 */
+	if (link->is_dig_mapping_flexible &&
+			link->dc->res_pool->funcs->link_encs_assign)
+		encoder = link_enc_cfg_get_link_enc_used_by_link(link->dc->current_state, link);
+	else
+		encoder = link->link_enc;
+>>>>>>> upstream/android-13
 
 	pattern_param.dp_phy_pattern = test_pattern;
 	pattern_param.custom_pattern = custom_pattern;
@@ -277,11 +513,18 @@ void dp_retrain_link_dp_test(struct dc_link *link,
 
 	for (i = 0; i < MAX_PIPES; i++) {
 		if (pipes[i].stream != NULL &&
+<<<<<<< HEAD
 			!pipes[i].top_pipe &&
 			pipes[i].stream->sink != NULL &&
 			pipes[i].stream->sink->link != NULL &&
 			pipes[i].stream_res.stream_enc != NULL &&
 			pipes[i].stream->sink->link == link) {
+=======
+			!pipes[i].top_pipe && !pipes[i].prev_odm_pipe &&
+			pipes[i].stream->link != NULL &&
+			pipes[i].stream_res.stream_enc != NULL &&
+			pipes[i].stream->link == link) {
+>>>>>>> upstream/android-13
 			udelay(100);
 
 			pipes[i].stream_res.stream_enc->funcs->dp_blank(
@@ -293,7 +536,13 @@ void dp_retrain_link_dp_test(struct dc_link *link,
 
 			dp_receiver_power_ctrl(link, false);
 
+<<<<<<< HEAD
 			link->dc->hwss.disable_stream(&pipes[i], KEEP_ACQUIRED_RESOURCE);
+=======
+			link->dc->hwss.disable_stream(&pipes[i]);
+			if ((&pipes[i])->stream_res.audio && !link->dc->debug.az_endpoint_mute_only)
+				(&pipes[i])->stream_res.audio->funcs->az_disable((&pipes[i])->stream_res.audio);
+>>>>>>> upstream/android-13
 
 			link->link_enc->funcs->disable_output(
 					link->link_enc,
@@ -303,6 +552,7 @@ void dp_retrain_link_dp_test(struct dc_link *link,
 			memset(&link->cur_link_settings, 0,
 				sizeof(link->cur_link_settings));
 
+<<<<<<< HEAD
 			link->link_enc->funcs->enable_dp_output(
 						link->link_enc,
 						link_setting,
@@ -317,6 +567,15 @@ void dp_retrain_link_dp_test(struct dc_link *link,
 					LINK_TRAINING_ATTEMPTS);
 
 			link->cur_link_settings = *link_setting;
+=======
+			perform_link_training_with_retries(
+					link_setting,
+					skip_video_pattern,
+					LINK_TRAINING_ATTEMPTS,
+					&pipes[i],
+					SIGNAL_TYPE_DISPLAY_PORT,
+					false);
+>>>>>>> upstream/android-13
 
 			link->dc->hwss.enable_stream(&pipes[i]);
 
@@ -339,3 +598,211 @@ void dp_retrain_link_dp_test(struct dc_link *link,
 		}
 	}
 }
+<<<<<<< HEAD
+=======
+
+#define DC_LOGGER \
+	dsc->ctx->logger
+static void dsc_optc_config_log(struct display_stream_compressor *dsc,
+		struct dsc_optc_config *config)
+{
+	uint32_t precision = 1 << 28;
+	uint32_t bytes_per_pixel_int = config->bytes_per_pixel / precision;
+	uint32_t bytes_per_pixel_mod = config->bytes_per_pixel % precision;
+	uint64_t ll_bytes_per_pix_fraq = bytes_per_pixel_mod;
+
+	/* 7 fractional digits decimal precision for bytes per pixel is enough because DSC
+	 * bits per pixel precision is 1/16th of a pixel, which means bytes per pixel precision is
+	 * 1/16/8 = 1/128 of a byte, or 0.0078125 decimal
+	 */
+	ll_bytes_per_pix_fraq *= 10000000;
+	ll_bytes_per_pix_fraq /= precision;
+
+	DC_LOG_DSC("\tbytes_per_pixel 0x%08x (%d.%07d)",
+			config->bytes_per_pixel, bytes_per_pixel_int, (uint32_t)ll_bytes_per_pix_fraq);
+	DC_LOG_DSC("\tis_pixel_format_444 %d", config->is_pixel_format_444);
+	DC_LOG_DSC("\tslice_width %d", config->slice_width);
+}
+
+bool dp_set_dsc_on_rx(struct pipe_ctx *pipe_ctx, bool enable)
+{
+	struct dc *dc = pipe_ctx->stream->ctx->dc;
+	struct dc_stream_state *stream = pipe_ctx->stream;
+	bool result = false;
+
+	if (dc_is_virtual_signal(stream->signal) || IS_FPGA_MAXIMUS_DC(dc->ctx->dce_environment))
+		result = true;
+	else
+		result = dm_helpers_dp_write_dsc_enable(dc->ctx, stream, enable);
+	return result;
+}
+
+/* The stream with these settings can be sent (unblanked) only after DSC was enabled on RX first,
+ * i.e. after dp_enable_dsc_on_rx() had been called
+ */
+void dp_set_dsc_on_stream(struct pipe_ctx *pipe_ctx, bool enable)
+{
+	struct display_stream_compressor *dsc = pipe_ctx->stream_res.dsc;
+	struct dc *dc = pipe_ctx->stream->ctx->dc;
+	struct dc_stream_state *stream = pipe_ctx->stream;
+	struct pipe_ctx *odm_pipe;
+	int opp_cnt = 1;
+
+	for (odm_pipe = pipe_ctx->next_odm_pipe; odm_pipe; odm_pipe = odm_pipe->next_odm_pipe)
+		opp_cnt++;
+
+	if (enable) {
+		struct dsc_config dsc_cfg;
+		struct dsc_optc_config dsc_optc_cfg;
+		enum optc_dsc_mode optc_dsc_mode;
+
+		/* Enable DSC hw block */
+		dsc_cfg.pic_width = (stream->timing.h_addressable + stream->timing.h_border_left + stream->timing.h_border_right) / opp_cnt;
+		dsc_cfg.pic_height = stream->timing.v_addressable + stream->timing.v_border_top + stream->timing.v_border_bottom;
+		dsc_cfg.pixel_encoding = stream->timing.pixel_encoding;
+		dsc_cfg.color_depth = stream->timing.display_color_depth;
+		dsc_cfg.is_odm = pipe_ctx->next_odm_pipe ? true : false;
+		dsc_cfg.dc_dsc_cfg = stream->timing.dsc_cfg;
+		ASSERT(dsc_cfg.dc_dsc_cfg.num_slices_h % opp_cnt == 0);
+		dsc_cfg.dc_dsc_cfg.num_slices_h /= opp_cnt;
+
+		dsc->funcs->dsc_set_config(dsc, &dsc_cfg, &dsc_optc_cfg);
+		dsc->funcs->dsc_enable(dsc, pipe_ctx->stream_res.opp->inst);
+		for (odm_pipe = pipe_ctx->next_odm_pipe; odm_pipe; odm_pipe = odm_pipe->next_odm_pipe) {
+			struct display_stream_compressor *odm_dsc = odm_pipe->stream_res.dsc;
+
+			odm_dsc->funcs->dsc_set_config(odm_dsc, &dsc_cfg, &dsc_optc_cfg);
+			odm_dsc->funcs->dsc_enable(odm_dsc, odm_pipe->stream_res.opp->inst);
+		}
+		dsc_cfg.dc_dsc_cfg.num_slices_h *= opp_cnt;
+		dsc_cfg.pic_width *= opp_cnt;
+
+		optc_dsc_mode = dsc_optc_cfg.is_pixel_format_444 ? OPTC_DSC_ENABLED_444 : OPTC_DSC_ENABLED_NATIVE_SUBSAMPLED;
+
+		/* Enable DSC in encoder */
+		if (dc_is_dp_signal(stream->signal) && !IS_FPGA_MAXIMUS_DC(dc->ctx->dce_environment)) {
+			DC_LOG_DSC("Setting stream encoder DSC config for engine %d:", (int)pipe_ctx->stream_res.stream_enc->id);
+			dsc_optc_config_log(dsc, &dsc_optc_cfg);
+			pipe_ctx->stream_res.stream_enc->funcs->dp_set_dsc_config(pipe_ctx->stream_res.stream_enc,
+									optc_dsc_mode,
+									dsc_optc_cfg.bytes_per_pixel,
+									dsc_optc_cfg.slice_width);
+
+			/* PPS SDP is set elsewhere because it has to be done after DIG FE is connected to DIG BE */
+		}
+
+		/* Enable DSC in OPTC */
+		DC_LOG_DSC("Setting optc DSC config for tg instance %d:", pipe_ctx->stream_res.tg->inst);
+		dsc_optc_config_log(dsc, &dsc_optc_cfg);
+		pipe_ctx->stream_res.tg->funcs->set_dsc_config(pipe_ctx->stream_res.tg,
+							optc_dsc_mode,
+							dsc_optc_cfg.bytes_per_pixel,
+							dsc_optc_cfg.slice_width);
+	} else {
+		/* disable DSC in OPTC */
+		pipe_ctx->stream_res.tg->funcs->set_dsc_config(
+				pipe_ctx->stream_res.tg,
+				OPTC_DSC_DISABLED, 0, 0);
+
+		/* disable DSC in stream encoder */
+		if (dc_is_dp_signal(stream->signal)) {
+
+			if (!IS_FPGA_MAXIMUS_DC(dc->ctx->dce_environment)) {
+				pipe_ctx->stream_res.stream_enc->funcs->dp_set_dsc_config(
+						pipe_ctx->stream_res.stream_enc,
+						OPTC_DSC_DISABLED, 0, 0);
+				pipe_ctx->stream_res.stream_enc->funcs->dp_set_dsc_pps_info_packet(
+							pipe_ctx->stream_res.stream_enc, false, NULL);
+			}
+		}
+
+		/* disable DSC block */
+		pipe_ctx->stream_res.dsc->funcs->dsc_disable(pipe_ctx->stream_res.dsc);
+		for (odm_pipe = pipe_ctx->next_odm_pipe; odm_pipe; odm_pipe = odm_pipe->next_odm_pipe)
+			odm_pipe->stream_res.dsc->funcs->dsc_disable(odm_pipe->stream_res.dsc);
+	}
+}
+
+bool dp_set_dsc_enable(struct pipe_ctx *pipe_ctx, bool enable)
+{
+	struct display_stream_compressor *dsc = pipe_ctx->stream_res.dsc;
+	bool result = false;
+
+	if (!pipe_ctx->stream->timing.flags.DSC)
+		goto out;
+	if (!dsc)
+		goto out;
+
+	if (enable) {
+		{
+			dp_set_dsc_on_stream(pipe_ctx, true);
+			result = true;
+		}
+	} else {
+		dp_set_dsc_on_rx(pipe_ctx, false);
+		dp_set_dsc_on_stream(pipe_ctx, false);
+		result = true;
+	}
+out:
+	return result;
+}
+
+bool dp_set_dsc_pps_sdp(struct pipe_ctx *pipe_ctx, bool enable)
+{
+	struct display_stream_compressor *dsc = pipe_ctx->stream_res.dsc;
+	struct dc_stream_state *stream = pipe_ctx->stream;
+
+	if (!pipe_ctx->stream->timing.flags.DSC || !dsc)
+		return false;
+
+	if (enable) {
+		struct dsc_config dsc_cfg;
+		uint8_t dsc_packed_pps[128];
+
+		memset(&dsc_cfg, 0, sizeof(dsc_cfg));
+		memset(dsc_packed_pps, 0, 128);
+
+		/* Enable DSC hw block */
+		dsc_cfg.pic_width = stream->timing.h_addressable + stream->timing.h_border_left + stream->timing.h_border_right;
+		dsc_cfg.pic_height = stream->timing.v_addressable + stream->timing.v_border_top + stream->timing.v_border_bottom;
+		dsc_cfg.pixel_encoding = stream->timing.pixel_encoding;
+		dsc_cfg.color_depth = stream->timing.display_color_depth;
+		dsc_cfg.is_odm = pipe_ctx->next_odm_pipe ? true : false;
+		dsc_cfg.dc_dsc_cfg = stream->timing.dsc_cfg;
+
+		DC_LOG_DSC(" ");
+		dsc->funcs->dsc_get_packed_pps(dsc, &dsc_cfg, &dsc_packed_pps[0]);
+		if (dc_is_dp_signal(stream->signal)) {
+			DC_LOG_DSC("Setting stream encoder DSC PPS SDP for engine %d\n", (int)pipe_ctx->stream_res.stream_enc->id);
+			pipe_ctx->stream_res.stream_enc->funcs->dp_set_dsc_pps_info_packet(
+									pipe_ctx->stream_res.stream_enc,
+									true,
+									&dsc_packed_pps[0]);
+		}
+	} else {
+		/* disable DSC PPS in stream encoder */
+		if (dc_is_dp_signal(stream->signal)) {
+			pipe_ctx->stream_res.stream_enc->funcs->dp_set_dsc_pps_info_packet(
+						pipe_ctx->stream_res.stream_enc, false, NULL);
+		}
+	}
+
+	return true;
+}
+
+
+bool dp_update_dsc_config(struct pipe_ctx *pipe_ctx)
+{
+	struct display_stream_compressor *dsc = pipe_ctx->stream_res.dsc;
+
+	if (!pipe_ctx->stream->timing.flags.DSC)
+		return false;
+	if (!dsc)
+		return false;
+
+	dp_set_dsc_on_stream(pipe_ctx, true);
+	dp_set_dsc_pps_sdp(pipe_ctx, true);
+	return true;
+}
+
+>>>>>>> upstream/android-13

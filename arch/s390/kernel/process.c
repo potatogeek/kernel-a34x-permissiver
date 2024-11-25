@@ -29,6 +29,10 @@
 #include <linux/random.h>
 #include <linux/export.h>
 #include <linux/init_task.h>
+<<<<<<< HEAD
+=======
+#include <linux/entry-common.h>
+>>>>>>> upstream/android-13
 #include <asm/cpu_mf.h>
 #include <asm/io.h>
 #include <asm/processor.h>
@@ -37,6 +41,7 @@
 #include <asm/irq.h>
 #include <asm/nmi.h>
 #include <asm/smp.h>
+<<<<<<< HEAD
 #include <asm/switch_to.h>
 #include <asm/runtime_instr.h>
 #include "entry.h"
@@ -44,6 +49,30 @@
 asmlinkage void ret_from_fork(void) asm ("ret_from_fork");
 
 extern void kernel_thread_starter(void);
+=======
+#include <asm/stacktrace.h>
+#include <asm/switch_to.h>
+#include <asm/runtime_instr.h>
+#include <asm/unwind.h>
+#include "entry.h"
+
+void ret_from_fork(void) asm("ret_from_fork");
+
+void __ret_from_fork(struct task_struct *prev, struct pt_regs *regs)
+{
+	void (*func)(void *arg);
+
+	schedule_tail(prev);
+
+	if (!user_mode(regs)) {
+		/* Kernel thread */
+		func = (void *)regs->gprs[9];
+		func((void *)regs->gprs[10]);
+	}
+	clear_pt_regs_flag(regs, PIF_SYSCALL);
+	syscall_exit_to_user_mode(regs);
+}
+>>>>>>> upstream/android-13
 
 void flush_thread(void)
 {
@@ -78,8 +107,13 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
 	return 0;
 }
 
+<<<<<<< HEAD
 int copy_thread_tls(unsigned long clone_flags, unsigned long new_stackp,
 		    unsigned long arg, struct task_struct *p, unsigned long tls)
+=======
+int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
+		unsigned long arg, struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct fake_frame
 	{
@@ -92,7 +126,10 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long new_stackp,
 	/* Save access registers to new thread structure. */
 	save_access_regs(&p->thread.acrs[0]);
 	/* start new process with ar4 pointing to the correct address space */
+<<<<<<< HEAD
 	p->thread.mm_segment = get_fs();
+=======
+>>>>>>> upstream/android-13
 	/* Don't copy debug registers */
 	memset(&p->thread.per_user, 0, sizeof(p->thread.per_user));
 	memset(&p->thread.per_event, 0, sizeof(p->thread.per_event));
@@ -104,6 +141,7 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long new_stackp,
 	p->thread.system_timer = 0;
 	p->thread.hardirq_timer = 0;
 	p->thread.softirq_timer = 0;
+<<<<<<< HEAD
 
 	frame->sf.back_chain = 0;
 	/* new return point is ret_from_fork */
@@ -113,15 +151,36 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long new_stackp,
 
 	/* Store access registers to kernel stack of new process. */
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	p->thread.last_break = 1;
+
+	frame->sf.back_chain = 0;
+	frame->sf.gprs[5] = (unsigned long)frame + sizeof(struct stack_frame);
+	frame->sf.gprs[6] = (unsigned long)p;
+	/* new return point is ret_from_fork */
+	frame->sf.gprs[8] = (unsigned long)ret_from_fork;
+	/* fake return stack for resume(), don't go back to schedule */
+	frame->sf.gprs[9] = (unsigned long)frame;
+
+	/* Store access registers to kernel stack of new process. */
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		/* kernel thread */
 		memset(&frame->childregs, 0, sizeof(struct pt_regs));
 		frame->childregs.psw.mask = PSW_KERNEL_BITS | PSW_MASK_DAT |
 				PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK;
 		frame->childregs.psw.addr =
+<<<<<<< HEAD
 				(unsigned long) kernel_thread_starter;
 		frame->childregs.gprs[9] = new_stackp; /* function */
 		frame->childregs.gprs[10] = arg;
 		frame->childregs.gprs[11] = (unsigned long) do_exit;
+=======
+				(unsigned long)__ret_from_fork;
+		frame->childregs.gprs[9] = new_stackp; /* function */
+		frame->childregs.gprs[10] = arg;
+		frame->childregs.gprs[11] = (unsigned long)do_exit;
+>>>>>>> upstream/android-13
 		frame->childregs.orig_gpr2 = -1;
 
 		return 0;
@@ -148,15 +207,29 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long new_stackp,
 			p->thread.acrs[1] = (unsigned int)tls;
 		}
 	}
+<<<<<<< HEAD
 	return 0;
 }
 
 asmlinkage void execve_tail(void)
+=======
+	/*
+	 * s390 stores the svc return address in arch_data when calling
+	 * sigreturn()/restart_syscall() via vdso. 1 means no valid address
+	 * stored.
+	 */
+	p->restart_block.arch_data = 1;
+	return 0;
+}
+
+void execve_tail(void)
+>>>>>>> upstream/android-13
 {
 	current->thread.fpu.fpc = 0;
 	asm volatile("sfpc %0" : : "d" (0));
 }
 
+<<<<<<< HEAD
 /*
  * fill in the FPU structure for a core dump.
  */
@@ -182,11 +255,20 @@ unsigned long get_wchan(struct task_struct *p)
 	int count;
 
 	if (!p || p == current || p->state == TASK_RUNNING || !task_stack_page(p))
+=======
+unsigned long get_wchan(struct task_struct *p)
+{
+	struct unwind_state state;
+	unsigned long ip = 0;
+
+	if (!p || p == current || task_is_running(p) || !task_stack_page(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (!try_get_task_stack(p))
 		return 0;
 
+<<<<<<< HEAD
 	low = task_stack_page(p);
 	high = (struct stack_frame *) task_pt_regs(p);
 	sf = (struct stack_frame *) p->thread.ksp;
@@ -207,6 +289,24 @@ unsigned long get_wchan(struct task_struct *p)
 out:
 	put_task_stack(p);
 	return return_address;
+=======
+	unwind_for_each_frame(&state, p, NULL, 0) {
+		if (state.stack_info.type != STACK_TYPE_TASK) {
+			ip = 0;
+			break;
+		}
+
+		ip = unwind_get_return_address(&state);
+		if (!ip)
+			break;
+
+		if (!in_sched_functions(ip))
+			break;
+	}
+
+	put_task_stack(p);
+	return ip;
+>>>>>>> upstream/android-13
 }
 
 unsigned long arch_align_stack(unsigned long sp)
@@ -228,6 +328,7 @@ unsigned long arch_randomize_brk(struct mm_struct *mm)
 	ret = PAGE_ALIGN(mm->brk + brk_rnd());
 	return (ret > mm->brk) ? ret : mm->brk;
 }
+<<<<<<< HEAD
 
 void set_fs_fixup(void)
 {
@@ -241,3 +342,5 @@ void set_fs_fixup(void)
 	show_registers(regs);
 	warned = true;
 }
+=======
+>>>>>>> upstream/android-13

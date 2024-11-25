@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Marvell MVEBU CPU clock handling.
  *
@@ -5,9 +9,12 @@
  *
  * Gregory CLEMENT <gregory.clement@free-electrons.com>
  *
+<<<<<<< HEAD
  * This file is licensed under the terms of the GNU General Public
  * License version 2.  This program is licensed "as is" without any
  * warranty of any kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -183,7 +190,11 @@ static void __init of_cpu_clk_setup(struct device_node *node)
 		pr_warn("%s: pmu-dfs base register not set, dynamic frequency scaling not available\n",
 			__func__);
 
+<<<<<<< HEAD
 	for_each_node_by_type(dn, "cpu")
+=======
+	for_each_of_cpu_node(dn)
+>>>>>>> upstream/android-13
 		ncpus++;
 
 	cpuclk = kcalloc(ncpus, sizeof(*cpuclk), GFP_KERNEL);
@@ -194,8 +205,13 @@ static void __init of_cpu_clk_setup(struct device_node *node)
 	if (WARN_ON(!clks))
 		goto clks_out;
 
+<<<<<<< HEAD
 	for_each_node_by_type(dn, "cpu") {
 		struct clk_init_data init = {};
+=======
+	for_each_of_cpu_node(dn) {
+		struct clk_init_data init;
+>>>>>>> upstream/android-13
 		struct clk *clk;
 		char *clk_name = kzalloc(5, GFP_KERNEL);
 		int cpu, err;

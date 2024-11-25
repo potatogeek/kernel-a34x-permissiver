@@ -12,34 +12,54 @@
 #include <linux/sched.h>
 #include <linux/bug.h>
 #include <asm/page.h>
+<<<<<<< HEAD
+=======
+#include <trace/hooks/cgroup.h>
+>>>>>>> upstream/android-13
 
 static void propagate_protected_usage(struct page_counter *c,
 				      unsigned long usage)
 {
 	unsigned long protected, old_protected;
+<<<<<<< HEAD
+=======
+	unsigned long low, min;
+>>>>>>> upstream/android-13
 	long delta;
 
 	if (!c->parent)
 		return;
 
+<<<<<<< HEAD
 	if (c->min || atomic_long_read(&c->min_usage)) {
 		if (usage <= c->min)
 			protected = usage;
 		else
 			protected = 0;
 
+=======
+	min = READ_ONCE(c->min);
+	if (min || atomic_long_read(&c->min_usage)) {
+		protected = min(usage, min);
+>>>>>>> upstream/android-13
 		old_protected = atomic_long_xchg(&c->min_usage, protected);
 		delta = protected - old_protected;
 		if (delta)
 			atomic_long_add(delta, &c->parent->children_min_usage);
 	}
 
+<<<<<<< HEAD
 	if (c->low || atomic_long_read(&c->low_usage)) {
 		if (usage <= c->low)
 			protected = usage;
 		else
 			protected = 0;
 
+=======
+	low = READ_ONCE(c->low);
+	if (low || atomic_long_read(&c->low_usage)) {
+		protected = min(usage, low);
+>>>>>>> upstream/android-13
 		old_protected = atomic_long_xchg(&c->low_usage, protected);
 		delta = protected - old_protected;
 		if (delta)
@@ -57,9 +77,19 @@ void page_counter_cancel(struct page_counter *counter, unsigned long nr_pages)
 	long new;
 
 	new = atomic_long_sub_return(nr_pages, &counter->usage);
+<<<<<<< HEAD
 	propagate_protected_usage(counter, new);
 	/* More uncharges than charges? */
 	WARN_ON_ONCE(new < 0);
+=======
+	/* More uncharges than charges? */
+	if (WARN_ONCE(new < 0, "page_counter underflow: %ld nr_pages=%lu\n",
+		      new, nr_pages)) {
+		new = 0;
+		atomic_long_set(&counter->usage, new);
+	}
+	propagate_protected_usage(counter, new);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -82,8 +112,14 @@ void page_counter_charge(struct page_counter *counter, unsigned long nr_pages)
 		 * This is indeed racy, but we can live with some
 		 * inaccuracy in the watermark.
 		 */
+<<<<<<< HEAD
 		if (new > c->watermark)
 			c->watermark = new;
+=======
+		if (new > READ_ONCE(c->watermark))
+			WRITE_ONCE(c->watermark, new);
+		trace_android_rvh_update_watermark(new, c);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -114,7 +150,11 @@ bool page_counter_try_charge(struct page_counter *counter,
 		 *
 		 * The atomic_long_add_return() implies a full memory
 		 * barrier between incrementing the count and reading
+<<<<<<< HEAD
 		 * the limit.  When racing with page_counter_limit(),
+=======
+		 * the limit.  When racing with page_counter_set_max(),
+>>>>>>> upstream/android-13
 		 * we either see the new limit or the setter sees the
 		 * counter has changed and retries.
 		 */
@@ -124,9 +164,16 @@ bool page_counter_try_charge(struct page_counter *counter,
 			propagate_protected_usage(c, new);
 			/*
 			 * This is racy, but we can live with some
+<<<<<<< HEAD
 			 * inaccuracy in the failcnt.
 			 */
 			c->failcnt++;
+=======
+			 * inaccuracy in the failcnt which is only used
+			 * to report stats.
+			 */
+			data_race(c->failcnt++);
+>>>>>>> upstream/android-13
 			*fail = c;
 			goto failed;
 		}
@@ -135,8 +182,14 @@ bool page_counter_try_charge(struct page_counter *counter,
 		 * Just like with failcnt, we can live with some
 		 * inaccuracy in the watermark.
 		 */
+<<<<<<< HEAD
 		if (new > c->watermark)
 			c->watermark = new;
+=======
+		if (new > READ_ONCE(c->watermark))
+			WRITE_ONCE(c->watermark, new);
+		trace_android_rvh_update_watermark(new, c);
+>>>>>>> upstream/android-13
 	}
 	return true;
 
@@ -187,14 +240,22 @@ int page_counter_set_max(struct page_counter *counter, unsigned long nr_pages)
 		 * the limit, so if it sees the old limit, we see the
 		 * modified counter and retry.
 		 */
+<<<<<<< HEAD
 		usage = atomic_long_read(&counter->usage);
+=======
+		usage = page_counter_read(counter);
+>>>>>>> upstream/android-13
 
 		if (usage > nr_pages)
 			return -EBUSY;
 
 		old = xchg(&counter->max, nr_pages);
 
+<<<<<<< HEAD
 		if (atomic_long_read(&counter->usage) <= usage)
+=======
+		if (page_counter_read(counter) <= usage)
+>>>>>>> upstream/android-13
 			return 0;
 
 		counter->max = old;
@@ -213,7 +274,11 @@ void page_counter_set_min(struct page_counter *counter, unsigned long nr_pages)
 {
 	struct page_counter *c;
 
+<<<<<<< HEAD
 	counter->min = nr_pages;
+=======
+	WRITE_ONCE(counter->min, nr_pages);
+>>>>>>> upstream/android-13
 
 	for (c = counter; c; c = c->parent)
 		propagate_protected_usage(c, atomic_long_read(&c->usage));
@@ -230,7 +295,11 @@ void page_counter_set_low(struct page_counter *counter, unsigned long nr_pages)
 {
 	struct page_counter *c;
 
+<<<<<<< HEAD
 	counter->low = nr_pages;
+=======
+	WRITE_ONCE(counter->low, nr_pages);
+>>>>>>> upstream/android-13
 
 	for (c = counter; c; c = c->parent)
 		propagate_protected_usage(c, atomic_long_read(&c->usage));

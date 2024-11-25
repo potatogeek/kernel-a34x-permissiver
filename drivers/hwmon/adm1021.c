@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * adm1021.c - Part of lm_sensors, Linux kernel modules for hardware
  *	       monitoring
  * Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl> and
  *			     Philip Edelbrock <phil@netroedge.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -156,8 +163,13 @@ static struct adm1021_data *adm1021_update_device(struct device *dev)
 	return data;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev,
 			 struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct adm1021_data *data = adm1021_update_device(dev);
@@ -165,7 +177,11 @@ static ssize_t show_temp(struct device *dev,
 	return sprintf(buf, "%d\n", data->temp[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev,
+=======
+static ssize_t temp_max_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *devattr, char *buf)
 {
 	int index = to_sensor_dev_attr(devattr)->index;
@@ -174,7 +190,11 @@ static ssize_t show_temp_max(struct device *dev,
 	return sprintf(buf, "%d\n", data->temp_max[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_min(struct device *dev,
+=======
+static ssize_t temp_min_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *devattr, char *buf)
 {
 	int index = to_sensor_dev_attr(devattr)->index;
@@ -183,7 +203,11 @@ static ssize_t show_temp_min(struct device *dev,
 	return sprintf(buf, "%d\n", data->temp_min[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t alarm_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  char *buf)
 {
 	int index = to_sensor_dev_attr(attr)->index;
@@ -199,9 +223,15 @@ static ssize_t alarms_show(struct device *dev,
 	return sprintf(buf, "%u\n", data->alarms);
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_max(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf, size_t count)
+=======
+static ssize_t temp_max_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct adm1021_data *data = dev_get_drvdata(dev);
@@ -225,9 +255,15 @@ static ssize_t set_temp_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_min(struct device *dev,
 			    struct device_attribute *devattr,
 			    const char *buf, size_t count)
+=======
+static ssize_t temp_min_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct adm1021_data *data = dev_get_drvdata(dev);
@@ -287,6 +323,7 @@ static ssize_t low_power_store(struct device *dev,
 }
 
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp_max,
 			  set_temp_max, 0);
@@ -302,6 +339,19 @@ static SENSOR_DEVICE_ATTR(temp1_min_alarm, S_IRUGO, show_alarm, NULL, 5);
 static SENSOR_DEVICE_ATTR(temp2_max_alarm, S_IRUGO, show_alarm, NULL, 4);
 static SENSOR_DEVICE_ATTR(temp2_min_alarm, S_IRUGO, show_alarm, NULL, 3);
 static SENSOR_DEVICE_ATTR(temp2_fault, S_IRUGO, show_alarm, NULL, 2);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp_max, 0);
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp_min, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp_max, 1);
+static SENSOR_DEVICE_ATTR_RW(temp2_min, temp_min, 1);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_alarm, alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(temp2_max_alarm, alarm, 4);
+static SENSOR_DEVICE_ATTR_RO(temp2_min_alarm, alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(temp2_fault, alarm, 2);
+>>>>>>> upstream/android-13
 
 static DEVICE_ATTR_RO(alarms);
 static DEVICE_ATTR_RW(low_power);
@@ -442,8 +492,14 @@ static void adm1021_init_client(struct i2c_client *client)
 	i2c_smbus_write_byte_data(client, ADM1021_REG_CONV_RATE_W, 0x04);
 }
 
+<<<<<<< HEAD
 static int adm1021_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id adm1021_id[];
+
+static int adm1021_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct adm1021_data *data;
@@ -454,7 +510,11 @@ static int adm1021_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	data->client = client;
+<<<<<<< HEAD
 	data->type = id->driver_data;
+=======
+	data->type = i2c_match_id(adm1021_id, client)->driver_data;
+>>>>>>> upstream/android-13
 	mutex_init(&data->update_lock);
 
 	/* Initialize the ADM1021 chip */
@@ -489,7 +549,11 @@ static struct i2c_driver adm1021_driver = {
 	.driver = {
 		.name	= "adm1021",
 	},
+<<<<<<< HEAD
 	.probe		= adm1021_probe,
+=======
+	.probe_new	= adm1021_probe,
+>>>>>>> upstream/android-13
 	.id_table	= adm1021_id,
 	.detect		= adm1021_detect,
 	.address_list	= normal_i2c,

@@ -58,6 +58,11 @@ struct kernel_info {
 	__u32 mod_core_layout_offset;
 	__u32 mod_init_layout_offset;
 	__u32 mod_kallsyms_offset;
+<<<<<<< HEAD
+=======
+	__u64 module_start_va;
+	__u64 module_end_va;
+>>>>>>> upstream/android-13
 } __packed;
 
 struct kernel_all_info {

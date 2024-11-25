@@ -12,6 +12,7 @@
 #ifndef _XTENSA_HIGHMEM_H
 #define _XTENSA_HIGHMEM_H
 
+<<<<<<< HEAD
 #include <linux/wait.h>
 #include <asm/cacheflush.h>
 #include <asm/fixmap.h>
@@ -19,6 +20,15 @@
 #include <asm/pgtable.h>
 
 #define PKMAP_BASE		((FIXADDR_START - \
+=======
+#ifdef CONFIG_HIGHMEM
+#include <linux/wait.h>
+#include <linux/pgtable.h>
+#include <asm/cacheflush.h>
+#include <asm/fixmap.h>
+
+#define PKMAP_BASE		((FIXADDR_START -			\
+>>>>>>> upstream/android-13
 				  (LAST_PKMAP + 1) * PAGE_SIZE) & PMD_MASK)
 #define LAST_PKMAP		(PTRS_PER_PTE * DCACHE_N_COLORS)
 #define LAST_PKMAP_MASK		(LAST_PKMAP - 1)
@@ -59,10 +69,21 @@ static inline wait_queue_head_t *get_pkmap_wait_queue_head(unsigned int color)
 {
 	return pkmap_map_wait_arr + color;
 }
+<<<<<<< HEAD
+=======
+
+enum fixed_addresses kmap_local_map_idx(int type, unsigned long pfn);
+#define arch_kmap_local_map_idx		kmap_local_map_idx
+
+enum fixed_addresses kmap_local_unmap_idx(int type, unsigned long addr);
+#define arch_kmap_local_unmap_idx	kmap_local_unmap_idx
+
+>>>>>>> upstream/android-13
 #endif
 
 extern pte_t *pkmap_page_table;
 
+<<<<<<< HEAD
 void *kmap_high(struct page *page);
 void kunmap_high(struct page *page);
 
@@ -87,14 +108,25 @@ static inline void kunmap(struct page *page)
 	kunmap_high(page);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void flush_cache_kmaps(void)
 {
 	flush_cache_all();
 }
 
+<<<<<<< HEAD
 void *kmap_atomic(struct page *page);
 void __kunmap_atomic(void *kvaddr);
 
 void kmap_init(void);
 
+=======
+#define arch_kmap_local_post_unmap(vaddr)	\
+	local_flush_tlb_kernel_range(vaddr, vaddr + PAGE_SIZE)
+
+void kmap_init(void);
+
+#endif /* CONFIG_HIGHMEM */
+>>>>>>> upstream/android-13
 #endif

@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) STMicroelectronics SA 2015
  * Authors: Arnaud Pouliquen <arnaud.pouliquen@st.com>
  *          for STMicroelectronics.
+<<<<<<< HEAD
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/soc.h>
@@ -65,7 +72,11 @@ static irqreturn_t uni_reader_irq_handler(int irq, void *dev_id)
 	if (unlikely(status & UNIPERIF_ITS_FIFO_ERROR_MASK(reader))) {
 		dev_err(reader->dev, "FIFO error detected\n");
 
+<<<<<<< HEAD
 		snd_pcm_stop_xrun(reader->substream);
+=======
+		snd_pcm_stop(reader->substream, SNDRV_PCM_STATE_XRUN);
+>>>>>>> upstream/android-13
 
 		ret = IRQ_HANDLED;
 	}

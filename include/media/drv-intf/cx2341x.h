@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
     cx23415/6/8 header containing common defines.
 
@@ -14,6 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+    cx23415/6/8 header containing common defines.
+
+>>>>>>> upstream/android-13
  */
 
 #ifndef CX2341X_H

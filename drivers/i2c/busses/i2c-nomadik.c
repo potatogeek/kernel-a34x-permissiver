@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2009 ST-Ericsson SA
  * Copyright (C) 2009 STMicroelectronics
@@ -7,10 +11,13 @@
  *
  * Author: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
  * Author: Sachin Verma <sachin.verma@st.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -162,7 +169,11 @@ struct i2c_nmk_client {
  * @clk_freq: clock frequency for the operation mode
  * @tft: Tx FIFO Threshold in bytes
  * @rft: Rx FIFO Threshold in bytes
+<<<<<<< HEAD
  * @timeout Slave response timeout (ms)
+=======
+ * @timeout: Slave response timeout (ms)
+>>>>>>> upstream/android-13
  * @sm: speed mode
  * @stop: stop condition.
  * @xfer_complete: acknowledge completion for a I2C message.
@@ -280,7 +291,11 @@ static int init_hw(struct nmk_i2c_dev *dev)
 		goto exit;
 
 	/* disable the controller */
+<<<<<<< HEAD
 	i2c_clr_bit(dev->virtbase + I2C_CR , I2C_CR_PE);
+=======
+	i2c_clr_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
+>>>>>>> upstream/android-13
 
 	disable_all_interrupts(dev);
 
@@ -399,7 +414,11 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
 	 * 2 whereas it is 3 for fast and fastplus mode of
 	 * operation. TODO - high speed support.
 	 */
+<<<<<<< HEAD
 	div = (dev->clk_freq > 100000) ? 3 : 2;
+=======
+	div = (dev->clk_freq > I2C_MAX_STANDARD_MODE_FREQ) ? 3 : 2;
+>>>>>>> upstream/android-13
 
 	/*
 	 * generate the mask for baud rate counters. The controller
@@ -423,7 +442,11 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
 	if (dev->sm > I2C_FREQ_MODE_FAST) {
 		dev_err(&dev->adev->dev,
 			"do not support this mode defaulting to std. mode\n");
+<<<<<<< HEAD
 		brcr2 = i2c_clk/(100000 * 2) & 0xffff;
+=======
+		brcr2 = i2c_clk / (I2C_MAX_STANDARD_MODE_FREQ * 2) & 0xffff;
+>>>>>>> upstream/android-13
 		writel((brcr1 | brcr2), dev->virtbase + I2C_BRCR);
 		writel(I2C_FREQ_MODE_STANDARD << 4,
 				dev->virtbase + I2C_CR);
@@ -528,7 +551,11 @@ static int write_i2c(struct nmk_i2c_dev *dev, u16 flags)
 			dev->virtbase + I2C_CR);
 
 	/* enable the controller */
+<<<<<<< HEAD
 	i2c_set_bit(dev->virtbase + I2C_CR , I2C_CR_PE);
+=======
+	i2c_set_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
+>>>>>>> upstream/android-13
 
 	init_completion(&dev->xfer_complete);
 
@@ -952,10 +979,17 @@ static void nmk_i2c_of_probe(struct device_node *np,
 {
 	/* Default to 100 kHz if no frequency is given in the node */
 	if (of_property_read_u32(np, "clock-frequency", &nmk->clk_freq))
+<<<<<<< HEAD
 		nmk->clk_freq = 100000;
 
 	/* This driver only supports 'standard' and 'fast' modes of operation. */
 	if (nmk->clk_freq <= 100000)
+=======
+		nmk->clk_freq = I2C_MAX_STANDARD_MODE_FREQ;
+
+	/* This driver only supports 'standard' and 'fast' modes of operation. */
+	if (nmk->clk_freq <= I2C_MAX_STANDARD_MODE_FREQ)
+>>>>>>> upstream/android-13
 		nmk->sm = I2C_FREQ_MODE_STANDARD;
 	else
 		nmk->sm = I2C_FREQ_MODE_FAST;
@@ -1058,7 +1092,11 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int nmk_i2c_remove(struct amba_device *adev)
+=======
+static void nmk_i2c_remove(struct amba_device *adev)
+>>>>>>> upstream/android-13
 {
 	struct resource *res = &adev->res;
 	struct nmk_i2c_dev *dev = amba_get_drvdata(adev);
@@ -1070,10 +1108,14 @@ static int nmk_i2c_remove(struct amba_device *adev)
 	/* disable the controller */
 	i2c_clr_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
 	clk_disable_unprepare(dev->clk);
+<<<<<<< HEAD
 	if (res)
 		release_mem_region(res->start, resource_size(res));
 
 	return 0;
+=======
+	release_mem_region(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 }
 
 static struct i2c_vendor_data vendor_stn8815 = {
@@ -1126,6 +1168,11 @@ static void __exit nmk_i2c_exit(void)
 subsys_initcall(nmk_i2c_init);
 module_exit(nmk_i2c_exit);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Sachin Verma, Srinidhi KASAGAR");
+=======
+MODULE_AUTHOR("Sachin Verma");
+MODULE_AUTHOR("Srinidhi KASAGAR");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Nomadik/Ux500 I2C driver");
 MODULE_LICENSE("GPL");

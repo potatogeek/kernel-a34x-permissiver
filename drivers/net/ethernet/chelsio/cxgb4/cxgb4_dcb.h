@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  Copyright (C) 2013-2014 Chelsio Communications.  All rights reserved.
  *
  *  Written by Anish Bhatt (anish@chelsio.com)
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *  The full GNU General Public License is included in this distribution in
  *  the file called "COPYING".
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CXGB4_DCB_H
@@ -148,6 +155,12 @@ static inline __u8 bitswap_1(unsigned char val)
 	       ((val & 0x02) << 5) |
 	       ((val & 0x01) << 7);
 }
+<<<<<<< HEAD
+=======
+
+extern const char * const dcb_ver_array[];
+
+>>>>>>> upstream/android-13
 #define CXGB4_DCB_ENABLED true
 
 #else /* !CONFIG_CHELSIO_T4_DCB */

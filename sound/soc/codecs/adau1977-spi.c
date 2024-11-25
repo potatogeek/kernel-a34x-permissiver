@@ -1,15 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADAU1977/ADAU1978/ADAU1979 driver
  *
  * Copyright 2014 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mod_devicetable.h>
 #include <linux/module.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include <sound/soc.h>
 
@@ -54,9 +66,24 @@ static const struct spi_device_id adau1977_spi_ids[] = {
 };
 MODULE_DEVICE_TABLE(spi, adau1977_spi_ids);
 
+<<<<<<< HEAD
 static struct spi_driver adau1977_spi_driver = {
 	.driver = {
 		.name = "adau1977",
+=======
+static const struct of_device_id adau1977_spi_of_match[] = {
+        { .compatible = "adi,adau1977" },
+        { .compatible = "adi,adau1978" },
+        { .compatible = "adi,adau1979" },
+        { },
+};
+MODULE_DEVICE_TABLE(of, adau1977_spi_of_match);
+
+static struct spi_driver adau1977_spi_driver = {
+	.driver = {
+		.name = "adau1977",
+		.of_match_table = of_match_ptr(adau1977_spi_of_match),
+>>>>>>> upstream/android-13
 	},
 	.probe = adau1977_spi_probe,
 	.id_table = adau1977_spi_ids,

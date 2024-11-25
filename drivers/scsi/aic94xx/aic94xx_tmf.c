@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Aic94xx Task Management Functions
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -22,6 +27,8 @@
  * along with the aic94xx driver; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -508,7 +515,11 @@ int asd_abort_task(struct sas_task *task)
 		switch (tcs.dl_opcode) {
 		default:
 			res = asd_clear_nexus(task);
+<<<<<<< HEAD
 			/* fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_NO_ERROR:
 			break;
 			/* The task hasn't been sent to the device xor
@@ -691,7 +702,11 @@ int asd_lu_reset(struct domain_device *dev, u8 *lun)
 
 /**
  * asd_query_task -- send a QUERY TASK TMF to an I_T_L_Q nexus
+<<<<<<< HEAD
  * task: pointer to sas_task struct of interest
+=======
+ * @task: pointer to sas_task struct of interest
+>>>>>>> upstream/android-13
  *
  * Returns: TMF_RESP_FUNC_COMPLETE if the task is not in the task set,
  * or TMF_RESP_FUNC_SUCC if the task is in the task set.

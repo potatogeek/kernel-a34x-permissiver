@@ -14,7 +14,12 @@
 /*
  * void *memmove(void *dest, const void *src, size_t n)
  */
+<<<<<<< HEAD
 ENTRY(memmove)
+=======
+WEAK(memmove)
+ENTRY(__memmove)
+>>>>>>> upstream/android-13
 	ltgr	%r4,%r4
 	lgr	%r1,%r2
 	jz	.Lmemmove_exit
@@ -47,6 +52,10 @@ ENTRY(memmove)
 	BR_EX	%r14
 .Lmemmove_mvc:
 	mvc	0(1,%r1),0(%r3)
+<<<<<<< HEAD
+=======
+ENDPROC(__memmove)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(memmove)
 
 /*
@@ -64,7 +73,12 @@ EXPORT_SYMBOL(memmove)
  *	return __builtin_memset(s, c, n);
  * }
  */
+<<<<<<< HEAD
 ENTRY(memset)
+=======
+WEAK(memset)
+ENTRY(__memset)
+>>>>>>> upstream/android-13
 	ltgr	%r4,%r4
 	jz	.Lmemset_exit
 	ltgr	%r3,%r3
@@ -108,6 +122,10 @@ ENTRY(memset)
 	xc	0(1,%r1),0(%r1)
 .Lmemset_mvc:
 	mvc	1(1,%r1),0(%r1)
+<<<<<<< HEAD
+=======
+ENDPROC(__memset)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(memset)
 
 /*
@@ -115,7 +133,12 @@ EXPORT_SYMBOL(memset)
  *
  * void *memcpy(void *dest, const void *src, size_t n)
  */
+<<<<<<< HEAD
 ENTRY(memcpy)
+=======
+WEAK(memcpy)
+ENTRY(__memcpy)
+>>>>>>> upstream/android-13
 	ltgr	%r4,%r4
 	jz	.Lmemcpy_exit
 	aghi	%r4,-1
@@ -136,6 +159,10 @@ ENTRY(memcpy)
 	j	.Lmemcpy_remainder
 .Lmemcpy_mvc:
 	mvc	0(1,%r1),0(%r3)
+<<<<<<< HEAD
+=======
+ENDPROC(__memcpy)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(memcpy)
 
 /*
@@ -172,6 +199,10 @@ ENTRY(__memset\bits)
 	BR_EX	%r14
 .L__memset_mvc\bits:
 	mvc	\bytes(1,%r1),0(%r1)
+<<<<<<< HEAD
+=======
+ENDPROC(__memset\bits)
+>>>>>>> upstream/android-13
 .endm
 
 __MEMSET 16,2,sth

@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * journal.c
  *
  * Defines functions of journalling api
  *
  * Copyright (C) 2003, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -105,7 +113,11 @@ enum ocfs2_replay_state {
 struct ocfs2_replay_map {
 	unsigned int rm_slots;
 	enum ocfs2_replay_state rm_state;
+<<<<<<< HEAD
 	unsigned char rm_replay_slots[0];
+=======
+	unsigned char rm_replay_slots[];
+>>>>>>> upstream/android-13
 };
 
 static void ocfs2_replay_map_set_state(struct ocfs2_super *osb, int state)
@@ -324,7 +336,11 @@ static int ocfs2_commit_cache(struct ocfs2_super *osb)
 	}
 
 	jbd2_journal_lock_updates(journal->j_journal);
+<<<<<<< HEAD
 	status = jbd2_journal_flush(journal->j_journal);
+=======
+	status = jbd2_journal_flush(journal->j_journal, 0);
+>>>>>>> upstream/android-13
 	jbd2_journal_unlock_updates(journal->j_journal);
 	if (status < 0) {
 		up_write(&journal->j_trans_barrier);
@@ -434,14 +450,22 @@ int ocfs2_extend_trans(handle_t *handle, int nblocks)
 	if (!nblocks)
 		return 0;
 
+<<<<<<< HEAD
 	old_nblocks = handle->h_buffer_credits;
+=======
+	old_nblocks = jbd2_handle_buffer_credits(handle);
+>>>>>>> upstream/android-13
 
 	trace_ocfs2_extend_trans(old_nblocks, nblocks);
 
 #ifdef CONFIG_OCFS2_DEBUG_FS
 	status = 1;
 #else
+<<<<<<< HEAD
 	status = jbd2_journal_extend(handle, nblocks);
+=======
+	status = jbd2_journal_extend(handle, nblocks, 0);
+>>>>>>> upstream/android-13
 	if (status < 0) {
 		mlog_errno(status);
 		goto bail;
@@ -475,13 +499,21 @@ int ocfs2_allocate_extend_trans(handle_t *handle, int thresh)
 
 	BUG_ON(!handle);
 
+<<<<<<< HEAD
 	old_nblks = handle->h_buffer_credits;
+=======
+	old_nblks = jbd2_handle_buffer_credits(handle);
+>>>>>>> upstream/android-13
 	trace_ocfs2_allocate_extend_trans(old_nblks, thresh);
 
 	if (old_nblks < thresh)
 		return 0;
 
+<<<<<<< HEAD
 	status = jbd2_journal_extend(handle, OCFS2_MAX_TRANS_DATA);
+=======
+	status = jbd2_journal_extend(handle, OCFS2_MAX_TRANS_DATA, 0);
+>>>>>>> upstream/android-13
 	if (status < 0) {
 		mlog_errno(status);
 		goto bail;
@@ -891,12 +923,23 @@ int ocfs2_journal_init(struct ocfs2_journal *journal, int *dirty)
 		goto done;
 	}
 
+<<<<<<< HEAD
 	trace_ocfs2_journal_init_maxlen(j_journal->j_maxlen);
+=======
+	trace_ocfs2_journal_init_maxlen(j_journal->j_total_len);
+>>>>>>> upstream/android-13
 
 	*dirty = (le32_to_cpu(di->id1.journal1.ij_flags) &
 		  OCFS2_JOURNAL_DIRTY_FL);
 
 	journal->j_journal = j_journal;
+<<<<<<< HEAD
+=======
+	journal->j_journal->j_submit_inode_data_buffers =
+		jbd2_journal_submit_inode_data_buffers;
+	journal->j_journal->j_finish_inode_data_buffers =
+		jbd2_journal_finish_inode_data_buffers;
+>>>>>>> upstream/android-13
 	journal->j_inode = inode;
 	journal->j_bh = bh;
 
@@ -1012,7 +1055,11 @@ void ocfs2_journal_shutdown(struct ocfs2_super *osb)
 
 	if (ocfs2_mount_local(osb)) {
 		jbd2_journal_lock_updates(journal->j_journal);
+<<<<<<< HEAD
 		status = jbd2_journal_flush(journal->j_journal);
+=======
+		status = jbd2_journal_flush(journal->j_journal, 0);
+>>>>>>> upstream/android-13
 		jbd2_journal_unlock_updates(journal->j_journal);
 		if (status < 0)
 			mlog_errno(status);
@@ -1082,7 +1129,11 @@ int ocfs2_journal_load(struct ocfs2_journal *journal, int local, int replayed)
 
 	if (replayed) {
 		jbd2_journal_lock_updates(journal->j_journal);
+<<<<<<< HEAD
 		status = jbd2_journal_flush(journal->j_journal);
+=======
+		status = jbd2_journal_flush(journal->j_journal, 0);
+>>>>>>> upstream/android-13
 		jbd2_journal_unlock_updates(journal->j_journal);
 		if (status < 0)
 			mlog_errno(status);
@@ -1678,7 +1729,11 @@ static int ocfs2_replay_journal(struct ocfs2_super *osb,
 
 	/* wipe the journal */
 	jbd2_journal_lock_updates(journal);
+<<<<<<< HEAD
 	status = jbd2_journal_flush(journal);
+=======
+	status = jbd2_journal_flush(journal, 0);
+>>>>>>> upstream/android-13
 	jbd2_journal_unlock_updates(journal);
 	if (status < 0)
 		mlog_errno(status);

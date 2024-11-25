@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* net/sched/sch_dsmark.c - Differentiated Services field marker */
 
 /* Written 1998-2000 by Werner Almesberger, EPFL ICA */
@@ -132,7 +136,12 @@ static int dsmark_change(struct Qdisc *sch, u32 classid, u32 parent,
 	if (!opt)
 		goto errout;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_DSMARK_MAX, opt, dsmark_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_DSMARK_MAX, opt,
+					  dsmark_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto errout;
 
@@ -148,7 +157,12 @@ errout:
 	return err;
 }
 
+<<<<<<< HEAD
 static int dsmark_delete(struct Qdisc *sch, unsigned long arg)
+=======
+static int dsmark_delete(struct Qdisc *sch, unsigned long arg,
+			 struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct dsmark_qdisc_data *p = qdisc_priv(sch);
 
@@ -199,6 +213,10 @@ static struct tcf_block *dsmark_tcf_block(struct Qdisc *sch, unsigned long cl,
 static int dsmark_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 			  struct sk_buff **to_free)
 {
+<<<<<<< HEAD
+=======
+	unsigned int len = qdisc_pkt_len(skb);
+>>>>>>> upstream/android-13
 	struct dsmark_qdisc_data *p = qdisc_priv(sch);
 	int err;
 
@@ -238,7 +256,11 @@ static int dsmark_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 	else {
 		struct tcf_result res;
 		struct tcf_proto *fl = rcu_dereference_bh(p->filter_list);
+<<<<<<< HEAD
 		int result = tcf_classify(skb, fl, &res, false);
+=======
+		int result = tcf_classify(skb, NULL, fl, &res, false);
+>>>>>>> upstream/android-13
 
 		pr_debug("result %d class 0x%04x\n", result, res.classid);
 
@@ -271,7 +293,11 @@ static int dsmark_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 		return err;
 	}
 
+<<<<<<< HEAD
 	qdisc_qstats_backlog_inc(sch, skb);
+=======
+	sch->qstats.backlog += len;
+>>>>>>> upstream/android-13
 	sch->q.qlen++;
 
 	return NET_XMIT_SUCCESS;
@@ -352,7 +378,12 @@ static int dsmark_init(struct Qdisc *sch, struct nlattr *opt,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_DSMARK_MAX, opt, dsmark_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_DSMARK_MAX, opt,
+					  dsmark_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto errout;
 
@@ -402,7 +433,12 @@ static void dsmark_reset(struct Qdisc *sch)
 	struct dsmark_qdisc_data *p = qdisc_priv(sch);
 
 	pr_debug("%s(sch %p,[qdisc %p])\n", __func__, sch, p);
+<<<<<<< HEAD
 	qdisc_reset(p->q);
+=======
+	if (p->q)
+		qdisc_reset(p->q);
+>>>>>>> upstream/android-13
 	sch->qstats.backlog = 0;
 	sch->q.qlen = 0;
 }
@@ -414,7 +450,11 @@ static void dsmark_destroy(struct Qdisc *sch)
 	pr_debug("%s(sch %p,[qdisc %p])\n", __func__, sch, p);
 
 	tcf_block_put(p->block);
+<<<<<<< HEAD
 	qdisc_destroy(p->q);
+=======
+	qdisc_put(p->q);
+>>>>>>> upstream/android-13
 	if (p->mv != p->embedded)
 		kfree(p->mv);
 }
@@ -433,7 +473,11 @@ static int dsmark_dump_class(struct Qdisc *sch, unsigned long cl,
 	tcm->tcm_handle = TC_H_MAKE(TC_H_MAJ(sch->handle), cl - 1);
 	tcm->tcm_info = p->q->handle;
 
+<<<<<<< HEAD
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (opts == NULL)
 		goto nla_put_failure;
 	if (nla_put_u8(skb, TCA_DSMARK_MASK, p->mv[cl - 1].mask) ||
@@ -452,7 +496,11 @@ static int dsmark_dump(struct Qdisc *sch, struct sk_buff *skb)
 	struct dsmark_qdisc_data *p = qdisc_priv(sch);
 	struct nlattr *opts = NULL;
 
+<<<<<<< HEAD
 	opts = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	opts = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (opts == NULL)
 		goto nla_put_failure;
 	if (nla_put_u16(skb, TCA_DSMARK_INDICES, p->indices))

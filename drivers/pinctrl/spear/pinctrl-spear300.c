@@ -654,8 +654,11 @@ static const struct of_device_id spear300_pinctrl_of_match[] = {
 
 static int spear300_pinctrl_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	int ret;
 
+=======
+>>>>>>> upstream/android-13
 	spear3xx_machdata.groups = spear300_pingroups;
 	spear3xx_machdata.ngroups = ARRAY_SIZE(spear300_pingroups);
 	spear3xx_machdata.functions = spear300_functions;
@@ -669,11 +672,15 @@ static int spear300_pinctrl_probe(struct platform_device *pdev)
 
 	pmx_init_addr(&spear3xx_machdata, PMX_CONFIG_REG);
 
+<<<<<<< HEAD
 	ret = spear_pinctrl_probe(pdev, &spear3xx_machdata);
 	if (ret)
 		return ret;
 
 	return 0;
+=======
+	return spear_pinctrl_probe(pdev, &spear3xx_machdata);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver spear300_pinctrl_driver = {

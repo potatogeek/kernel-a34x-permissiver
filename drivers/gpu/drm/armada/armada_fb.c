@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Russell King
  *
@@ -8,6 +9,18 @@
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Russell King
+ */
+
+#include <drm/drm_modeset_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+
+>>>>>>> upstream/android-13
 #include "armada_drm.h"
 #include "armada_fb.h"
 #include "armada_gem.h"
@@ -87,6 +100,10 @@ struct armada_framebuffer *armada_framebuffer_create(struct drm_device *dev,
 struct drm_framebuffer *armada_fb_create(struct drm_device *dev,
 	struct drm_file *dfile, const struct drm_mode_fb_cmd2 *mode)
 {
+<<<<<<< HEAD
+=======
+	const struct drm_format_info *info = drm_get_format_info(dev, mode);
+>>>>>>> upstream/android-13
 	struct armada_gem_object *obj;
 	struct armada_framebuffer *dfb;
 	int ret;
@@ -97,7 +114,11 @@ struct drm_framebuffer *armada_fb_create(struct drm_device *dev,
 		mode->pitches[2]);
 
 	/* We can only handle a single plane at the moment */
+<<<<<<< HEAD
 	if (drm_format_num_planes(mode->pixel_format) > 1 &&
+=======
+	if (info->num_planes > 1 &&
+>>>>>>> upstream/android-13
 	    (mode->handles[0] != mode->handles[1] ||
 	     mode->handles[0] != mode->handles[2])) {
 		ret = -EINVAL;
@@ -128,12 +149,20 @@ struct drm_framebuffer *armada_fb_create(struct drm_device *dev,
 		goto err;
 	}
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&obj->obj);
+=======
+	drm_gem_object_put(&obj->obj);
+>>>>>>> upstream/android-13
 
 	return &dfb->fb;
 
  err_unref:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&obj->obj);
+=======
+	drm_gem_object_put(&obj->obj);
+>>>>>>> upstream/android-13
  err:
 	DRM_ERROR("failed to initialize framebuffer: %d\n", ret);
 	return ERR_PTR(ret);

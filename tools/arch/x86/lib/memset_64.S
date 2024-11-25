@@ -3,9 +3,14 @@
 
 #include <linux/linkage.h>
 #include <asm/cpufeatures.h>
+<<<<<<< HEAD
 #include <asm/alternative-asm.h>
 
 .weak memset
+=======
+#include <asm/alternative.h>
+#include <asm/export.h>
+>>>>>>> upstream/android-13
 
 /*
  * ISO C memset - set a memory block to a byte value. This function uses fast
@@ -18,8 +23,13 @@
  *
  * rax   original destination
  */
+<<<<<<< HEAD
 ENTRY(memset)
 ENTRY(__memset)
+=======
+SYM_FUNC_START_WEAK(memset)
+SYM_FUNC_START(__memset)
+>>>>>>> upstream/android-13
 	/*
 	 * Some CPUs support enhanced REP MOVSB/STOSB feature. It is recommended
 	 * to use it when possible. If not available, use fast string instructions.
@@ -41,9 +51,17 @@ ENTRY(__memset)
 	movl %edx,%ecx
 	rep stosb
 	movq %r9,%rax
+<<<<<<< HEAD
 	ret
 ENDPROC(memset)
 ENDPROC(__memset)
+=======
+	RET
+SYM_FUNC_END(__memset)
+SYM_FUNC_END_ALIAS(memset)
+EXPORT_SYMBOL(memset)
+EXPORT_SYMBOL(__memset)
+>>>>>>> upstream/android-13
 
 /*
  * ISO C memset - set a memory block to a byte value. This function uses
@@ -56,16 +74,27 @@ ENDPROC(__memset)
  *
  * rax   original destination
  */
+<<<<<<< HEAD
 ENTRY(memset_erms)
+=======
+SYM_FUNC_START_LOCAL(memset_erms)
+>>>>>>> upstream/android-13
 	movq %rdi,%r9
 	movb %sil,%al
 	movq %rdx,%rcx
 	rep stosb
 	movq %r9,%rax
+<<<<<<< HEAD
 	ret
 ENDPROC(memset_erms)
 
 ENTRY(memset_orig)
+=======
+	RET
+SYM_FUNC_END(memset_erms)
+
+SYM_FUNC_START_LOCAL(memset_orig)
+>>>>>>> upstream/android-13
 	movq %rdi,%r10
 
 	/* expand byte value  */
@@ -124,7 +153,11 @@ ENTRY(memset_orig)
 
 .Lende:
 	movq	%r10,%rax
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lbad_alignment:
 	cmpq $7,%rdx
@@ -136,4 +169,8 @@ ENTRY(memset_orig)
 	subq %r8,%rdx
 	jmp .Lafter_bad_alignment
 .Lfinal:
+<<<<<<< HEAD
 ENDPROC(memset_orig)
+=======
+SYM_FUNC_END(memset_orig)
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * saa717x - Philips SAA717xHL video decoder driver
  *
@@ -14,6 +18,7 @@
  * Note: this is a reversed engineered driver based on captures from
  * the I2C bus under Windows. This chip is very similar to the saa7134,
  * though. Unfortunately, this driver is currently only working for NTSC.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -844,7 +851,11 @@ static void set_h_prescale(struct v4l2_subdev *sd,
 	if (i == count)
 		return;
 
+<<<<<<< HEAD
 	/* horizonal prescaling */
+=======
+	/* horizontal prescaling */
+>>>>>>> upstream/android-13
 	saa717x_write(sd, 0x60 + task_shift, vals[i].xpsc);
 	/* accumulation length */
 	saa717x_write(sd, 0x61 + task_shift, vals[i].xacl);
@@ -989,7 +1000,11 @@ static int saa717x_s_register(struct v4l2_subdev *sd, const struct v4l2_dbg_regi
 #endif
 
 static int saa717x_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct v4l2_mbus_framefmt *fmt = &format->format;

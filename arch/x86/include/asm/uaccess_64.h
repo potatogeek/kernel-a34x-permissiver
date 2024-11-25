@@ -47,6 +47,7 @@ copy_user_generic(void *to, const void *from, unsigned len)
 }
 
 static __always_inline __must_check unsigned long
+<<<<<<< HEAD
 copy_to_user_mcsafe(void *to, const void *from, unsigned len)
 {
 	unsigned long ret;
@@ -117,11 +118,17 @@ raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
 	default:
 		return copy_user_generic(dst, (__force void *)src, size);
 	}
+=======
+raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
+{
+	return copy_user_generic(dst, (__force void *)src, size);
+>>>>>>> upstream/android-13
 }
 
 static __always_inline __must_check unsigned long
 raw_copy_to_user(void __user *dst, const void *src, unsigned long size)
 {
+<<<<<<< HEAD
 	int ret = 0;
 
 	if (!__builtin_constant_p(size))
@@ -183,6 +190,9 @@ unsigned long raw_copy_in_user(void __user *dst, const void __user *src, unsigne
 {
 	return copy_user_generic((__force void *)dst,
 				 (__force void *)src, size);
+=======
+	return copy_user_generic((__force void *)dst, src, size);
+>>>>>>> upstream/android-13
 }
 
 extern long __copy_user_nocache(void *dst, const void __user *src,
@@ -206,6 +216,7 @@ __copy_from_user_flushcache(void *dst, const void __user *src, unsigned size)
 	kasan_check_write(dst, size);
 	return __copy_user_flushcache(dst, src, size);
 }
+<<<<<<< HEAD
 
 unsigned long
 copy_user_handle_tail(char *to, char *from, unsigned len);
@@ -213,4 +224,6 @@ copy_user_handle_tail(char *to, char *from, unsigned len);
 unsigned long
 mcsafe_handle_tail(char *to, char *from, unsigned len);
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_UACCESS_64_H */

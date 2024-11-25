@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * fs/kernfs/kernfs-internal.h - kernfs internal header file
  *
  * Copyright (c) 2001-3 Patrick Mochel
  * Copyright (c) 2007 SUSE Linux Products GmbH
  * Copyright (c) 2007, 2013 Tejun Heo <teheo@suse.de>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __KERNFS_INTERNAL_H
@@ -14,6 +21,7 @@
 #include <linux/lockdep.h>
 #include <linux/fs.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/xattr.h>
 
 #include <linux/kernfs.h>
@@ -24,6 +32,24 @@ struct kernfs_iattrs {
 	u32			ia_secdata_len;
 
 	struct simple_xattrs	xattrs;
+=======
+#include <linux/rwsem.h>
+#include <linux/xattr.h>
+
+#include <linux/kernfs.h>
+#include <linux/fs_context.h>
+
+struct kernfs_iattrs {
+	kuid_t			ia_uid;
+	kgid_t			ia_gid;
+	struct timespec64	ia_atime;
+	struct timespec64	ia_mtime;
+	struct timespec64	ia_ctime;
+
+	struct simple_xattrs	xattrs;
+	atomic_t		nr_user_xattrs;
+	atomic_t		user_xattr_size;
+>>>>>>> upstream/android-13
 };
 
 /* +1 to avoid triggering overflow warning when negating it */
@@ -65,7 +91,11 @@ struct kernfs_super_info {
 	 */
 	const void		*ns;
 
+<<<<<<< HEAD
 	/* anchored at kernfs_root->supers, protected by kernfs_mutex */
+=======
+	/* anchored at kernfs_root->supers, protected by kernfs_rwsem */
+>>>>>>> upstream/android-13
 	struct list_head	node;
 };
 #define kernfs_info(SB) ((struct kernfs_super_info *)(SB->s_fs_info))
@@ -77,17 +107,50 @@ static inline struct kernfs_node *kernfs_dentry_node(struct dentry *dentry)
 	return d_inode(dentry)->i_private;
 }
 
+<<<<<<< HEAD
 extern const struct super_operations kernfs_sops;
 extern struct kmem_cache *kernfs_node_cache;
+=======
+static inline void kernfs_set_rev(struct kernfs_node *parent,
+				  struct dentry *dentry)
+{
+	dentry->d_time = parent->dir.rev;
+}
+
+static inline void kernfs_inc_rev(struct kernfs_node *parent)
+{
+	parent->dir.rev++;
+}
+
+static inline bool kernfs_dir_changed(struct kernfs_node *parent,
+				      struct dentry *dentry)
+{
+	if (parent->dir.rev != dentry->d_time)
+		return true;
+	return false;
+}
+
+extern const struct super_operations kernfs_sops;
+extern struct kmem_cache *kernfs_node_cache, *kernfs_iattrs_cache;
+>>>>>>> upstream/android-13
 
 /*
  * inode.c
  */
 extern const struct xattr_handler *kernfs_xattr_handlers[];
 void kernfs_evict_inode(struct inode *inode);
+<<<<<<< HEAD
 int kernfs_iop_permission(struct inode *inode, int mask);
 int kernfs_iop_setattr(struct dentry *dentry, struct iattr *iattr);
 int kernfs_iop_getattr(const struct path *path, struct kstat *stat,
+=======
+int kernfs_iop_permission(struct user_namespace *mnt_userns,
+			  struct inode *inode, int mask);
+int kernfs_iop_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		       struct iattr *iattr);
+int kernfs_iop_getattr(struct user_namespace *mnt_userns,
+		       const struct path *path, struct kstat *stat,
+>>>>>>> upstream/android-13
 		       u32 request_mask, unsigned int query_flags);
 ssize_t kernfs_iop_listxattr(struct dentry *dentry, char *buf, size_t size);
 int __kernfs_setattr(struct kernfs_node *kn, const struct iattr *iattr);
@@ -95,7 +158,11 @@ int __kernfs_setattr(struct kernfs_node *kn, const struct iattr *iattr);
 /*
  * dir.c
  */
+<<<<<<< HEAD
 extern struct mutex kernfs_mutex;
+=======
+extern struct rw_semaphore kernfs_rwsem;
+>>>>>>> upstream/android-13
 extern const struct dentry_operations kernfs_dops;
 extern const struct file_operations kernfs_dir_fops;
 extern const struct inode_operations kernfs_dir_iops;
@@ -107,8 +174,11 @@ struct kernfs_node *kernfs_new_node(struct kernfs_node *parent,
 				    const char *name, umode_t mode,
 				    kuid_t uid, kgid_t gid,
 				    unsigned flags);
+<<<<<<< HEAD
 struct kernfs_node *kernfs_find_and_get_node_by_ino(struct kernfs_root *root,
 						    unsigned int ino);
+=======
+>>>>>>> upstream/android-13
 
 /*
  * file.c

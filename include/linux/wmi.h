@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * wmi.h - ACPI WMI interface
  *
  * Copyright (c) 2015 Andrew Lutomirski
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_WMI_H
@@ -18,6 +25,10 @@
 
 #include <linux/device.h>
 #include <linux/acpi.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/wmi.h>
 
 struct wmi_device {
@@ -39,16 +50,24 @@ extern union acpi_object *wmidev_block_query(struct wmi_device *wdev,
 
 extern int set_required_buffer_size(struct wmi_device *wdev, u64 length);
 
+<<<<<<< HEAD
 struct wmi_device_id {
 	const char *guid_string;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct wmi_driver {
 	struct device_driver driver;
 	const struct wmi_device_id *id_table;
 
+<<<<<<< HEAD
 	int (*probe)(struct wmi_device *wdev);
 	int (*remove)(struct wmi_device *wdev);
+=======
+	int (*probe)(struct wmi_device *wdev, const void *context);
+	void (*remove)(struct wmi_device *wdev);
+>>>>>>> upstream/android-13
 	void (*notify)(struct wmi_device *device, union acpi_object *data);
 	long (*filter_callback)(struct wmi_device *wdev, unsigned int cmd,
 				struct wmi_ioctl_buffer *arg);

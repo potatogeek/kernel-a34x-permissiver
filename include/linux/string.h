@@ -2,11 +2,19 @@
 #ifndef _LINUX_STRING_H_
 #define _LINUX_STRING_H_
 
+<<<<<<< HEAD
 
 #include <linux/compiler.h>	/* for inline */
 #include <linux/types.h>	/* for size_t */
 #include <linux/stddef.h>	/* for NULL */
 #include <stdarg.h>
+=======
+#include <linux/compiler.h>	/* for inline */
+#include <linux/types.h>	/* for size_t */
+#include <linux/stddef.h>	/* for NULL */
+#include <linux/errno.h>	/* for E2BIG */
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/string.h>
 
 extern char *strndup_user(const char __user *, long);
@@ -62,6 +70,10 @@ extern char * strchr(const char *,int);
 #ifndef __HAVE_ARCH_STRCHRNUL
 extern char * strchrnul(const char *,int);
 #endif
+<<<<<<< HEAD
+=======
+extern char * strnchrnul(const char *, size_t, int);
+>>>>>>> upstream/android-13
 #ifndef __HAVE_ARCH_STRNCHR
 extern char * strnchr(const char *, size_t, int);
 #endif
@@ -135,6 +147,16 @@ static inline void *memset_p(void **p, void *v, __kernel_size_t n)
 		return memset64((uint64_t *)p, (uintptr_t)v, n);
 }
 
+<<<<<<< HEAD
+=======
+extern void **__memcat_p(void **a, void **b);
+#define memcat_p(a, b) ({					\
+	BUILD_BUG_ON_MSG(!__same_type(*(a), *(b)),		\
+			 "type mismatch in memcat_p()");	\
+	(typeof(*a) *)__memcat_p((void **)(a), (void **)(b));	\
+})
+
+>>>>>>> upstream/android-13
 #ifndef __HAVE_ARCH_MEMCPY
 extern void * memcpy(void *,const void *,__kernel_size_t);
 #endif
@@ -153,6 +175,7 @@ extern int bcmp(const void *,const void *,__kernel_size_t);
 #ifndef __HAVE_ARCH_MEMCHR
 extern void * memchr(const void *,int,__kernel_size_t);
 #endif
+<<<<<<< HEAD
 #ifndef __HAVE_ARCH_MEMCPY_MCSAFE
 static inline __must_check unsigned long memcpy_mcsafe(void *dst,
 		const void *src, size_t cnt)
@@ -161,12 +184,18 @@ static inline __must_check unsigned long memcpy_mcsafe(void *dst,
 	return 0;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifndef __HAVE_ARCH_MEMCPY_FLUSHCACHE
 static inline void memcpy_flushcache(void *dst, const void *src, size_t cnt)
 {
 	memcpy(dst, src, cnt);
 }
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 void *memchr_inv(const void *s, int c, size_t n);
 char *strreplace(char *s, char old, char new);
 
@@ -182,12 +211,15 @@ extern char **argv_split(gfp_t gfp, const char *str, int *argcp);
 extern void argv_free(char **argv);
 
 extern bool sysfs_streq(const char *s1, const char *s2);
+<<<<<<< HEAD
 extern int kstrtobool(const char *s, bool *res);
 static inline int strtobool(const char *s, bool *res)
 {
 	return kstrtobool(s, res);
 }
 
+=======
+>>>>>>> upstream/android-13
 int match_string(const char * const *array, size_t n, const char *string);
 int __sysfs_match_string(const char * const *array, size_t n, const char *s);
 
@@ -222,7 +254,30 @@ static inline bool strstarts(const char *str, const char *prefix)
 }
 
 size_t memweight(const void *ptr, size_t bytes);
+<<<<<<< HEAD
 void memzero_explicit(void *s, size_t count);
+=======
+
+/**
+ * memzero_explicit - Fill a region of memory (e.g. sensitive
+ *		      keying data) with 0s.
+ * @s: Pointer to the start of the area.
+ * @count: The size of the area.
+ *
+ * Note: usually using memset() is just fine (!), but in cases
+ * where clearing out _local_ data at the end of a scope is
+ * necessary, memzero_explicit() should be used instead in
+ * order to prevent the compiler from optimising away zeroing.
+ *
+ * memzero_explicit() doesn't need an arch-specific version as
+ * it just invokes the one of memset() implicitly.
+ */
+static inline void memzero_explicit(void *s, size_t count)
+{
+	memset(s, 0, count);
+	barrier_data(s);
+}
+>>>>>>> upstream/android-13
 
 /**
  * kbasename - return the last part of a pathname.
@@ -245,6 +300,7 @@ void __read_overflow3(void) __compiletime_error("detected read beyond size of ob
 void __write_overflow(void) __compiletime_error("detected write beyond size of object passed as 1st parameter");
 
 #if !defined(__NO_FORTIFY) && defined(__OPTIMIZE__) && defined(CONFIG_FORTIFY_SOURCE)
+<<<<<<< HEAD
 
 #ifdef CONFIG_KASAN
 extern void *__underlying_memchr(const void *p, int c, __kernel_size_t size) __RENAME(memchr);
@@ -492,6 +548,33 @@ static inline void memcpy_and_pad(void *dest, size_t dest_len,
 		memset(dest + count, pad,  dest_len - count);
 	} else
 		memcpy(dest, src, dest_len);
+=======
+#include <linux/fortify-string.h>
+#endif
+
+void memcpy_and_pad(void *dest, size_t dest_len, const void *src, size_t count,
+		    int pad);
+
+/**
+ * str_has_prefix - Test if a string has a given prefix
+ * @str: The string to test
+ * @prefix: The string to see if @str starts with
+ *
+ * A common way to test a prefix of a string is to do:
+ *  strncmp(str, prefix, sizeof(prefix) - 1)
+ *
+ * But this can lead to bugs due to typos, or if prefix is a pointer
+ * and not a constant. Instead use str_has_prefix().
+ *
+ * Returns:
+ * * strlen(@prefix) if @str starts with @prefix
+ * * 0 if @str does not start with @prefix
+ */
+static __always_inline size_t str_has_prefix(const char *str, const char *prefix)
+{
+	size_t len = strlen(prefix);
+	return strncmp(str, prefix, len) == 0 ? len : 0;
+>>>>>>> upstream/android-13
 }
 
 #endif /* _LINUX_STRING_H_ */

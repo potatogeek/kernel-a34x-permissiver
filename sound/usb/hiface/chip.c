@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Linux driver for M2Tech hiFace compatible devices
  *
@@ -7,11 +11,14 @@
  *           Antonio Ospite <ao2@amarulasolutions.com>
  *
  * The driver is based on the work done in TerraTec DMX 6Fire USB
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -25,6 +32,7 @@ MODULE_AUTHOR("Michael Trimarchi <michael@amarulasolutions.com>");
 MODULE_AUTHOR("Antonio Ospite <ao2@amarulasolutions.com>");
 MODULE_DESCRIPTION("M2Tech hiFace USB-SPDIF audio driver");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{M2Tech,Young},"
 			 "{M2Tech,hiFace},"
 			 "{M2Tech,North Star},"
@@ -42,6 +50,8 @@ MODULE_SUPPORTED_DEVICE("{{M2Tech,Young},"
 			 "{M2Tech,Eeaudio},"
 			 "{The Chord Company,CHORD},"
 			 "{AVA Group A/S,Vitus}}");
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX; /* Index 0-max */
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR; /* Id for card */
@@ -84,12 +94,21 @@ static int hiface_chip_create(struct usb_interface *intf,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	strlcpy(card->driver, DRIVER_NAME, sizeof(card->driver));
 
 	if (quirk && quirk->device_name)
 		strlcpy(card->shortname, quirk->device_name, sizeof(card->shortname));
 	else
 		strlcpy(card->shortname, "M2Tech generic audio", sizeof(card->shortname));
+=======
+	strscpy(card->driver, DRIVER_NAME, sizeof(card->driver));
+
+	if (quirk && quirk->device_name)
+		strscpy(card->shortname, quirk->device_name, sizeof(card->shortname));
+	else
+		strscpy(card->shortname, "M2Tech generic audio", sizeof(card->shortname));
+>>>>>>> upstream/android-13
 
 	strlcat(card->longname, card->shortname, sizeof(card->longname));
 	len = strlcat(card->longname, " at ", sizeof(card->longname));

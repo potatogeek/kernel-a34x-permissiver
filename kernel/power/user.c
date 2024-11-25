@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/kernel/power/user.c
  *
  * This file provides the user space interface for software suspend/resume.
  *
  * Copyright (C) 2006 Rafael J. Wysocki <rjw@sisk.pl>
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
  *
@@ -11,6 +16,11 @@
 
 #include <linux/suspend.h>
 #include <linux/syscalls.h>
+=======
+ */
+
+#include <linux/suspend.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 #include <linux/string.h>
 #include <linux/device.h>
@@ -30,8 +40,11 @@
 #include "power.h"
 
 
+<<<<<<< HEAD
 #define SNAPSHOT_MINOR	231
 
+=======
+>>>>>>> upstream/android-13
 static struct snapshot_data {
 	struct snapshot_handle handle;
 	int swap;
@@ -40,27 +53,49 @@ static struct snapshot_data {
 	bool ready;
 	bool platform_support;
 	bool free_bitmaps;
+<<<<<<< HEAD
 } snapshot_state;
 
 atomic_t snapshot_device_available = ATOMIC_INIT(1);
+=======
+	dev_t dev;
+} snapshot_state;
+
+int is_hibernate_resume_dev(dev_t dev)
+{
+	return hibernation_available() && snapshot_state.dev == dev;
+}
+>>>>>>> upstream/android-13
 
 static int snapshot_open(struct inode *inode, struct file *filp)
 {
 	struct snapshot_data *data;
+<<<<<<< HEAD
 	int error, nr_calls = 0;
+=======
+	int error;
+>>>>>>> upstream/android-13
 
 	if (!hibernation_available())
 		return -EPERM;
 
 	lock_system_sleep();
 
+<<<<<<< HEAD
 	if (!atomic_add_unless(&snapshot_device_available, -1, 0)) {
+=======
+	if (!hibernate_acquire()) {
+>>>>>>> upstream/android-13
 		error = -EBUSY;
 		goto Unlock;
 	}
 
 	if ((filp->f_flags & O_ACCMODE) == O_RDWR) {
+<<<<<<< HEAD
 		atomic_inc(&snapshot_device_available);
+=======
+		hibernate_release();
+>>>>>>> upstream/android-13
 		error = -ENOSYS;
 		goto Unlock;
 	}
@@ -70,6 +105,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
 	memset(&data->handle, 0, sizeof(struct snapshot_handle));
 	if ((filp->f_flags & O_ACCMODE) == O_RDONLY) {
 		/* Hibernating.  The image device should be accessible. */
+<<<<<<< HEAD
 		data->swap = swsusp_resume_device ?
 			swap_type_of(swsusp_resume_device, 0, NULL) : -1;
 		data->mode = O_RDONLY;
@@ -77,6 +113,12 @@ static int snapshot_open(struct inode *inode, struct file *filp)
 		error = __pm_notifier_call_chain(PM_HIBERNATION_PREPARE, -1, &nr_calls);
 		if (error)
 			__pm_notifier_call_chain(PM_POST_HIBERNATION, --nr_calls, NULL);
+=======
+		data->swap = swap_type_of(swsusp_resume_device, 0);
+		data->mode = O_RDONLY;
+		data->free_bitmaps = false;
+		error = pm_notifier_call_chain_robust(PM_HIBERNATION_PREPARE, PM_POST_HIBERNATION);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * Resuming.  We may need to wait for the image device to
@@ -86,6 +128,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
 
 		data->swap = -1;
 		data->mode = O_WRONLY;
+<<<<<<< HEAD
 		error = __pm_notifier_call_chain(PM_RESTORE_PREPARE, -1, &nr_calls);
 		if (!error) {
 			error = create_basic_memory_bitmaps();
@@ -98,10 +141,24 @@ static int snapshot_open(struct inode *inode, struct file *filp)
 	}
 	if (error)
 		atomic_inc(&snapshot_device_available);
+=======
+		error = pm_notifier_call_chain_robust(PM_RESTORE_PREPARE, PM_POST_RESTORE);
+		if (!error) {
+			error = create_basic_memory_bitmaps();
+			data->free_bitmaps = !error;
+		}
+	}
+	if (error)
+		hibernate_release();
+>>>>>>> upstream/android-13
 
 	data->frozen = false;
 	data->ready = false;
 	data->platform_support = false;
+<<<<<<< HEAD
+=======
+	data->dev = 0;
+>>>>>>> upstream/android-13
 
  Unlock:
 	unlock_system_sleep();
@@ -117,6 +174,10 @@ static int snapshot_release(struct inode *inode, struct file *filp)
 
 	swsusp_free();
 	data = filp->private_data;
+<<<<<<< HEAD
+=======
+	data->dev = 0;
+>>>>>>> upstream/android-13
 	free_all_swap_pages(data->swap);
 	if (data->frozen) {
 		pm_restore_gfp_mask();
@@ -127,7 +188,11 @@ static int snapshot_release(struct inode *inode, struct file *filp)
 	}
 	pm_notifier_call_chain(data->mode == O_RDONLY ?
 			PM_POST_HIBERNATION : PM_POST_RESTORE);
+<<<<<<< HEAD
 	atomic_inc(&snapshot_device_available);
+=======
+	hibernate_release();
+>>>>>>> upstream/android-13
 
 	unlock_system_sleep();
 
@@ -201,6 +266,50 @@ unlock:
 	return res;
 }
 
+<<<<<<< HEAD
+=======
+struct compat_resume_swap_area {
+	compat_loff_t offset;
+	u32 dev;
+} __packed;
+
+static int snapshot_set_swap_area(struct snapshot_data *data,
+		void __user *argp)
+{
+	sector_t offset;
+	dev_t swdev;
+
+	if (swsusp_swap_in_use())
+		return -EPERM;
+
+	if (in_compat_syscall()) {
+		struct compat_resume_swap_area swap_area;
+
+		if (copy_from_user(&swap_area, argp, sizeof(swap_area)))
+			return -EFAULT;
+		swdev = new_decode_dev(swap_area.dev);
+		offset = swap_area.offset;
+	} else {
+		struct resume_swap_area swap_area;
+
+		if (copy_from_user(&swap_area, argp, sizeof(swap_area)))
+			return -EFAULT;
+		swdev = new_decode_dev(swap_area.dev);
+		offset = swap_area.offset;
+	}
+
+	/*
+	 * User space encodes device types as two-byte values,
+	 * so we need to recode them
+	 */
+	data->swap = swap_type_of(swdev, offset);
+	if (data->swap < 0)
+		return swdev ? -ENODEV : -EINVAL;
+	data->dev = swdev;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static long snapshot_ioctl(struct file *filp, unsigned int cmd,
 							unsigned long arg)
 {
@@ -228,9 +337,13 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
 		if (data->frozen)
 			break;
 
+<<<<<<< HEAD
 		printk("Syncing filesystems ... ");
 		ksys_sync();
 		printk("done.\n");
+=======
+		ksys_sync_helper();
+>>>>>>> upstream/android-13
 
 		error = freeze_processes();
 		if (error)
@@ -358,6 +471,7 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
 		break;
 
 	case SNAPSHOT_SET_SWAP_AREA:
+<<<<<<< HEAD
 		if (swsusp_swap_in_use()) {
 			error = -EPERM;
 		} else {
@@ -386,6 +500,9 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
 				error = -EINVAL;
 			}
 		}
+=======
+		error = snapshot_set_swap_area(data, (void __user *)arg);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -400,12 +517,15 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
 }
 
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
 
 struct compat_resume_swap_area {
 	compat_loff_t offset;
 	u32 dev;
 } __packed;
 
+=======
+>>>>>>> upstream/android-13
 static long
 snapshot_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
@@ -414,6 +534,7 @@ snapshot_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	switch (cmd) {
 	case SNAPSHOT_GET_IMAGE_SIZE:
 	case SNAPSHOT_AVAIL_SWAP_SIZE:
+<<<<<<< HEAD
 	case SNAPSHOT_ALLOC_SWAP_PAGE: {
 		compat_loff_t __user *uoffset = compat_ptr(arg);
 		loff_t offset;
@@ -452,11 +573,21 @@ snapshot_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		return err;
 	}
 
+=======
+	case SNAPSHOT_ALLOC_SWAP_PAGE:
+	case SNAPSHOT_CREATE_IMAGE:
+	case SNAPSHOT_SET_SWAP_AREA:
+		return snapshot_ioctl(file, cmd,
+				      (unsigned long) compat_ptr(arg));
+>>>>>>> upstream/android-13
 	default:
 		return snapshot_ioctl(file, cmd, arg);
 	}
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_COMPAT */
 
 static const struct file_operations snapshot_fops = {

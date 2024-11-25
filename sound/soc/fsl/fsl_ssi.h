@@ -270,7 +270,10 @@ struct device;
 
 struct fsl_ssi_dbg {
 	struct dentry *dbg_dir;
+<<<<<<< HEAD
 	struct dentry *dbg_stats;
+=======
+>>>>>>> upstream/android-13
 
 	struct {
 		unsigned int rfrc;
@@ -299,7 +302,11 @@ struct fsl_ssi_dbg {
 
 void fsl_ssi_dbg_isr(struct fsl_ssi_dbg *ssi_dbg, u32 sisr);
 
+<<<<<<< HEAD
 int fsl_ssi_debugfs_create(struct fsl_ssi_dbg *ssi_dbg, struct device *dev);
+=======
+void fsl_ssi_debugfs_create(struct fsl_ssi_dbg *ssi_dbg, struct device *dev);
+>>>>>>> upstream/android-13
 
 void fsl_ssi_debugfs_remove(struct fsl_ssi_dbg *ssi_dbg);
 
@@ -312,10 +319,16 @@ static inline void fsl_ssi_dbg_isr(struct fsl_ssi_dbg *stats, u32 sisr)
 {
 }
 
+<<<<<<< HEAD
 static inline int fsl_ssi_debugfs_create(struct fsl_ssi_dbg *ssi_dbg,
 					 struct device *dev)
 {
 	return 0;
+=======
+static inline void fsl_ssi_debugfs_create(struct fsl_ssi_dbg *ssi_dbg,
+					  struct device *dev)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void fsl_ssi_debugfs_remove(struct fsl_ssi_dbg *ssi_dbg)

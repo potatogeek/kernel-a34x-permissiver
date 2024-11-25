@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * AES CBC routines supporting the Power 7+ Nest Accelerators driver
  *
  * Copyright (C) 2011-2012 International Business Machines Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 only.
@@ -16,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Kent Yoder <yoder1@us.ibm.com>
  */
 
@@ -30,11 +38,19 @@
 #include "nx.h"
 
 
+<<<<<<< HEAD
 static int cbc_aes_nx_set_key(struct crypto_tfm *tfm,
 			      const u8          *in_key,
 			      unsigned int       key_len)
 {
 	struct nx_crypto_ctx *nx_ctx = crypto_tfm_ctx(tfm);
+=======
+static int cbc_aes_nx_set_key(struct crypto_skcipher *tfm,
+			      const u8               *in_key,
+			      unsigned int            key_len)
+{
+	struct nx_crypto_ctx *nx_ctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 	struct nx_csbcpb *csbcpb = nx_ctx->csbcpb;
 
 	nx_ctx_init(nx_ctx, HCOP_FC_AES);
@@ -62,6 +78,7 @@ static int cbc_aes_nx_set_key(struct crypto_tfm *tfm,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cbc_aes_nx_crypt(struct blkcipher_desc *desc,
 			    struct scatterlist    *dst,
 			    struct scatterlist    *src,
@@ -69,6 +86,13 @@ static int cbc_aes_nx_crypt(struct blkcipher_desc *desc,
 			    int                    enc)
 {
 	struct nx_crypto_ctx *nx_ctx = crypto_blkcipher_ctx(desc->tfm);
+=======
+static int cbc_aes_nx_crypt(struct skcipher_request *req,
+			    int                      enc)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct nx_crypto_ctx *nx_ctx = crypto_skcipher_ctx(tfm);
+>>>>>>> upstream/android-13
 	struct nx_csbcpb *csbcpb = nx_ctx->csbcpb;
 	unsigned long irq_flags;
 	unsigned int processed = 0, to_process;
@@ -82,10 +106,18 @@ static int cbc_aes_nx_crypt(struct blkcipher_desc *desc,
 		NX_CPB_FDM(csbcpb) &= ~NX_FDM_ENDE_ENCRYPT;
 
 	do {
+<<<<<<< HEAD
 		to_process = nbytes - processed;
 
 		rc = nx_build_sg_lists(nx_ctx, desc, dst, src, &to_process,
 				       processed, csbcpb->cpb.aes_cbc.iv);
+=======
+		to_process = req->cryptlen - processed;
+
+		rc = nx_build_sg_lists(nx_ctx, req->iv, req->dst, req->src,
+				       &to_process, processed,
+				       csbcpb->cpb.aes_cbc.iv);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto out;
 
@@ -95,6 +127,7 @@ static int cbc_aes_nx_crypt(struct blkcipher_desc *desc,
 		}
 
 		rc = nx_hcall_sync(nx_ctx, &nx_ctx->op,
+<<<<<<< HEAD
 				   desc->flags & CRYPTO_TFM_REQ_MAY_SLEEP);
 		if (rc)
 			goto out;
@@ -106,11 +139,25 @@ static int cbc_aes_nx_crypt(struct blkcipher_desc *desc,
 
 		processed += to_process;
 	} while (processed < nbytes);
+=======
+				   req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP);
+		if (rc)
+			goto out;
+
+		memcpy(req->iv, csbcpb->cpb.aes_cbc.cv, AES_BLOCK_SIZE);
+		atomic_inc(&(nx_ctx->stats->aes_ops));
+		atomic64_add(be32_to_cpu(csbcpb->csb.processed_byte_count),
+			     &(nx_ctx->stats->aes_bytes));
+
+		processed += to_process;
+	} while (processed < req->cryptlen);
+>>>>>>> upstream/android-13
 out:
 	spin_unlock_irqrestore(&nx_ctx->lock, irq_flags);
 	return rc;
 }
 
+<<<<<<< HEAD
 static int cbc_aes_nx_encrypt(struct blkcipher_desc *desc,
 			      struct scatterlist    *dst,
 			      struct scatterlist    *src,
@@ -147,4 +194,32 @@ struct crypto_alg nx_cbc_aes_alg = {
 		.encrypt     = cbc_aes_nx_encrypt,
 		.decrypt     = cbc_aes_nx_decrypt,
 	}
+=======
+static int cbc_aes_nx_encrypt(struct skcipher_request *req)
+{
+	return cbc_aes_nx_crypt(req, 1);
+}
+
+static int cbc_aes_nx_decrypt(struct skcipher_request *req)
+{
+	return cbc_aes_nx_crypt(req, 0);
+}
+
+struct skcipher_alg nx_cbc_aes_alg = {
+	.base.cra_name		= "cbc(aes)",
+	.base.cra_driver_name	= "cbc-aes-nx",
+	.base.cra_priority	= 300,
+	.base.cra_blocksize	= AES_BLOCK_SIZE,
+	.base.cra_ctxsize	= sizeof(struct nx_crypto_ctx),
+	.base.cra_alignmask	= 0xf,
+	.base.cra_module	= THIS_MODULE,
+	.init			= nx_crypto_ctx_aes_cbc_init,
+	.exit			= nx_crypto_ctx_skcipher_exit,
+	.min_keysize		= AES_MIN_KEY_SIZE,
+	.max_keysize		= AES_MAX_KEY_SIZE,
+	.ivsize			= AES_BLOCK_SIZE,
+	.setkey			= cbc_aes_nx_set_key,
+	.encrypt		= cbc_aes_nx_encrypt,
+	.decrypt		= cbc_aes_nx_decrypt,
+>>>>>>> upstream/android-13
 };

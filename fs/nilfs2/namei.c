@@ -72,8 +72,13 @@ nilfs_lookup(struct inode *dir, struct dentry *dentry, unsigned int flags)
  * If the create succeeds, we fill in the inode information
  * with d_instantiate().
  */
+<<<<<<< HEAD
 static int nilfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 			bool excl)
+=======
+static int nilfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+			struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct nilfs_transaction_info ti;
@@ -100,7 +105,12 @@ static int nilfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 }
 
 static int
+<<<<<<< HEAD
 nilfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t rdev)
+=======
+nilfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+	    struct dentry *dentry, umode_t mode, dev_t rdev)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct nilfs_transaction_info ti;
@@ -124,8 +134,13 @@ nilfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t rdev)
 	return err;
 }
 
+<<<<<<< HEAD
 static int nilfs_symlink(struct inode *dir, struct dentry *dentry,
 			 const char *symname)
+=======
+static int nilfs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+			 struct dentry *dentry, const char *symname)
+>>>>>>> upstream/android-13
 {
 	struct nilfs_transaction_info ti;
 	struct super_block *sb = dir->i_sb;
@@ -201,7 +216,12 @@ static int nilfs_link(struct dentry *old_dentry, struct inode *dir,
 	return err;
 }
 
+<<<<<<< HEAD
 static int nilfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int nilfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode;
 	struct nilfs_transaction_info ti;
@@ -272,9 +292,15 @@ static int nilfs_do_unlink(struct inode *dir, struct dentry *dentry)
 		goto out;
 
 	if (!inode->i_nlink) {
+<<<<<<< HEAD
 		nilfs_msg(inode->i_sb, KERN_WARNING,
 			  "deleting nonexistent file (ino=%lu), %d",
 			  inode->i_ino, inode->i_nlink);
+=======
+		nilfs_warn(inode->i_sb,
+			   "deleting nonexistent file (ino=%lu), %d",
+			   inode->i_ino, inode->i_nlink);
+>>>>>>> upstream/android-13
 		set_nlink(inode, 1);
 	}
 	err = nilfs_delete_entry(de, page);
@@ -338,8 +364,14 @@ static int nilfs_rmdir(struct inode *dir, struct dentry *dentry)
 	return err;
 }
 
+<<<<<<< HEAD
 static int nilfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 			struct inode *new_dir,	struct dentry *new_dentry,
+=======
+static int nilfs_rename(struct user_namespace *mnt_userns,
+			struct inode *old_dir, struct dentry *old_dentry,
+			struct inode *new_dir, struct dentry *new_dentry,
+>>>>>>> upstream/android-13
 			unsigned int flags)
 {
 	struct inode *old_inode = d_inode(old_dentry);
@@ -437,10 +469,16 @@ static struct dentry *nilfs_get_parent(struct dentry *child)
 {
 	unsigned long ino;
 	struct inode *inode;
+<<<<<<< HEAD
 	struct qstr dotdot = QSTR_INIT("..", 2);
 	struct nilfs_root *root;
 
 	ino = nilfs_inode_by_name(d_inode(child), &dotdot);
+=======
+	struct nilfs_root *root;
+
+	ino = nilfs_inode_by_name(d_inode(child), &dotdot_name);
+>>>>>>> upstream/android-13
 	if (!ino)
 		return ERR_PTR(-ENOENT);
 
@@ -549,6 +587,11 @@ const struct inode_operations nilfs_dir_inode_operations = {
 	.setattr	= nilfs_setattr,
 	.permission	= nilfs_permission,
 	.fiemap		= nilfs_fiemap,
+<<<<<<< HEAD
+=======
+	.fileattr_get	= nilfs_fileattr_get,
+	.fileattr_set	= nilfs_fileattr_set,
+>>>>>>> upstream/android-13
 };
 
 const struct inode_operations nilfs_special_inode_operations = {

@@ -23,7 +23,10 @@
 #ifndef __NOUVEAU_HW_H__
 #define __NOUVEAU_HW_H__
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include "disp.h"
 #include "nvreg.h"
 

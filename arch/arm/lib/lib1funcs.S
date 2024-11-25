@@ -96,7 +96,11 @@ Boston, MA 02111-1307, USA.  */
 	subhs	\dividend, \dividend, \divisor, lsr #3
 	orrhs	\result,   \result,   \curbit,  lsr #3
 	cmp	\dividend, #0			@ Early termination?
+<<<<<<< HEAD
 	movnes	\curbit,   \curbit,  lsr #4	@ No, any more bits to do?
+=======
+	movsne	\curbit,   \curbit,  lsr #4	@ No, any more bits to do?
+>>>>>>> upstream/android-13
 	movne	\divisor,  \divisor, lsr #4
 	bne	1b
 
@@ -182,7 +186,11 @@ Boston, MA 02111-1307, USA.  */
 	subhs	\dividend, \dividend, \divisor, lsr #3
 	cmp	\dividend, #1
 	mov	\divisor, \divisor, lsr #4
+<<<<<<< HEAD
 	subges	\order, \order, #4
+=======
+	subsge	\order, \order, #4
+>>>>>>> upstream/android-13
 	bge	1b
 
 	tst	\order, #3

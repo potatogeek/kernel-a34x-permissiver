@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * SPI Link Layer for ST NCI based Driver
  * Copyright (C) 2014-2015 STMicroelectronics SAS. All rights reserved.
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * SPI Link Layer for ST NCI based Driver
+ * Copyright (C) 2014-2015 STMicroelectronics SAS. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -106,17 +113,25 @@ static int st_nci_spi_write(void *phy_id, struct sk_buff *skb)
 	 */
 	if (!r) {
 		skb_rx = alloc_skb(skb->len, GFP_KERNEL);
+<<<<<<< HEAD
 		if (!skb_rx) {
 			r = -ENOMEM;
 			goto exit;
 		}
+=======
+		if (!skb_rx)
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 
 		skb_put(skb_rx, skb->len);
 		memcpy(skb_rx->data, buf, skb->len);
 		ndlc_recv(phy->ndlc, skb_rx);
 	}
 
+<<<<<<< HEAD
 exit:
+=======
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -212,7 +227,11 @@ static irqreturn_t st_nci_irq_thread_fn(int irq, void *phy_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct nfc_phy_ops spi_phy_ops = {
+=======
+static const struct nfc_phy_ops spi_phy_ops = {
+>>>>>>> upstream/android-13
 	.write = st_nci_spi_write,
 	.enable = st_nci_spi_enable,
 	.disable = st_nci_spi_disable,
@@ -230,9 +249,12 @@ static int st_nci_spi_probe(struct spi_device *dev)
 	struct st_nci_spi_phy *phy;
 	int r;
 
+<<<<<<< HEAD
 	dev_dbg(&dev->dev, "%s\n", __func__);
 	dev_dbg(&dev->dev, "IRQ: %d\n", dev->irq);
 
+=======
+>>>>>>> upstream/android-13
 	/* Check SPI platform functionnalities */
 	if (!dev) {
 		pr_debug("%s: dev is NULL. Device is not accessible.\n",
@@ -288,8 +310,11 @@ static int st_nci_spi_remove(struct spi_device *dev)
 {
 	struct st_nci_spi_phy *phy = spi_get_drvdata(dev);
 
+<<<<<<< HEAD
 	dev_dbg(&dev->dev, "%s\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	ndlc_remove(phy->ndlc);
 
 	return 0;
@@ -297,17 +322,29 @@ static int st_nci_spi_remove(struct spi_device *dev)
 
 static struct spi_device_id st_nci_spi_id_table[] = {
 	{ST_NCI_SPI_DRIVER_NAME, 0},
+<<<<<<< HEAD
+=======
+	{"st21nfcb-spi", 0},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(spi, st_nci_spi_id_table);
 
+<<<<<<< HEAD
 static const struct acpi_device_id st_nci_spi_acpi_match[] = {
+=======
+static const struct acpi_device_id st_nci_spi_acpi_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{"SMO2101", 0},
 	{}
 };
 MODULE_DEVICE_TABLE(acpi, st_nci_spi_acpi_match);
 
+<<<<<<< HEAD
 static const struct of_device_id of_st_nci_spi_match[] = {
+=======
+static const struct of_device_id of_st_nci_spi_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "st,st21nfcb-spi", },
 	{}
 };

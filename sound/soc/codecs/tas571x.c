@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TAS571x amplifier audio driver
  *
@@ -9,11 +13,14 @@
  *
  * TAS5707 support:
  * Copyright (C) 2018 Jerome Brunet, Baylibre SAS <jbrunet@baylibre.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -305,7 +312,11 @@ static int tas571x_hw_params(struct snd_pcm_substream *substream,
 				  TAS571X_SDI_FMT_MASK, val);
 }
 
+<<<<<<< HEAD
 static int tas571x_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int tas571x_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 	u8 sysctl2;
@@ -358,7 +369,12 @@ static int tas571x_set_bias_level(struct snd_soc_component *component,
 static const struct snd_soc_dai_ops tas571x_dai_ops = {
 	.set_fmt	= tas571x_set_dai_fmt,
 	.hw_params	= tas571x_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= tas571x_mute,
+=======
+	.mute_stream	= tas571x_mute,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 
@@ -725,8 +741,13 @@ static const struct regmap_config tas5721_regmap_config = {
 static const struct tas571x_chip tas5721_chip = {
 	.supply_names			= tas5721_supply_names,
 	.num_supply_names		= ARRAY_SIZE(tas5721_supply_names),
+<<<<<<< HEAD
 	.controls			= tas5711_controls,
 	.num_controls			= ARRAY_SIZE(tas5711_controls),
+=======
+	.controls			= tas5721_controls,
+	.num_controls			= ARRAY_SIZE(tas5721_controls),
+>>>>>>> upstream/android-13
 	.regmap_config			= &tas5721_regmap_config,
 	.vol_reg_size			= 1,
 };
@@ -776,7 +797,11 @@ static struct snd_soc_dai_driver tas571x_dai = {
 	.ops = &tas571x_dai_ops,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id tas571x_of_match[];
+=======
+static const struct of_device_id tas571x_of_match[] __maybe_unused;
+>>>>>>> upstream/android-13
 
 static int tas571x_i2c_probe(struct i2c_client *client,
 			     const struct i2c_device_id *id)
@@ -892,7 +917,11 @@ static int tas571x_i2c_remove(struct i2c_client *client)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id tas571x_of_match[] = {
+=======
+static const struct of_device_id tas571x_of_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "ti,tas5707", .data = &tas5707_chip, },
 	{ .compatible = "ti,tas5711", .data = &tas5711_chip, },
 	{ .compatible = "ti,tas5717", .data = &tas5717_chip, },

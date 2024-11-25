@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Register cache access API
  *
@@ -9,6 +10,15 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Register cache access API
+//
+// Copyright 2011 Wolfson Microelectronics plc
+//
+// Author: Dimitris Papastamos <dp@opensource.wolfsonmicro.com>
+>>>>>>> upstream/android-13
 
 #include <linux/bsearch.h>
 #include <linux/device.h>
@@ -72,7 +82,11 @@ static int regcache_hw_init(struct regmap *map)
 		map->cache_bypass = cache_bypass;
 		if (ret == 0) {
 			map->reg_defaults_raw = tmp_buf;
+<<<<<<< HEAD
 			map->cache_free = 1;
+=======
+			map->cache_free = true;
+>>>>>>> upstream/android-13
 		} else {
 			kfree(tmp_buf);
 		}
@@ -721,7 +735,11 @@ static int regcache_sync_block_raw_flush(struct regmap *map, const void **data,
 
 	map->cache_bypass = true;
 
+<<<<<<< HEAD
 	ret = _regmap_raw_write(map, base, *data, count * val_bytes);
+=======
+	ret = _regmap_raw_write(map, base, *data, count * val_bytes, false);
+>>>>>>> upstream/android-13
 	if (ret)
 		dev_err(map->dev, "Unable to sync registers %#x-%#x. %d\n",
 			base, cur - map->reg_stride, ret);

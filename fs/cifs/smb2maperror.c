@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /*
  *   fs/smb2/smb2maperror.c
+=======
+// SPDX-License-Identifier: LGPL-2.1
+/*
+>>>>>>> upstream/android-13
  *
  *   Functions which do error mapping of SMB2 status codes to POSIX errors
  *
  *   Copyright (C) International Business Machines  Corp., 2009
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -19,6 +25,8 @@
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this library; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/errno.h>
 #include "cifsglob.h"
@@ -288,7 +296,11 @@ static const struct status_to_posix_error smb2_error_map_table[] = {
 	{STATUS_FLT_BUFFER_TOO_SMALL, -ENOBUFS, "STATUS_FLT_BUFFER_TOO_SMALL"},
 	{STATUS_FVE_PARTIAL_METADATA, -EIO, "STATUS_FVE_PARTIAL_METADATA"},
 	{STATUS_UNSUCCESSFUL, -EIO, "STATUS_UNSUCCESSFUL"},
+<<<<<<< HEAD
 	{STATUS_NOT_IMPLEMENTED, -ENOSYS, "STATUS_NOT_IMPLEMENTED"},
+=======
+	{STATUS_NOT_IMPLEMENTED, -EOPNOTSUPP, "STATUS_NOT_IMPLEMENTED"},
+>>>>>>> upstream/android-13
 	{STATUS_INVALID_INFO_CLASS, -EIO, "STATUS_INVALID_INFO_CLASS"},
 	{STATUS_INFO_LENGTH_MISMATCH, -EIO, "STATUS_INFO_LENGTH_MISMATCH"},
 	{STATUS_ACCESS_VIOLATION, -EACCES, "STATUS_ACCESS_VIOLATION"},
@@ -488,7 +500,11 @@ static const struct status_to_posix_error smb2_error_map_table[] = {
 	{STATUS_PIPE_CONNECTED, -EIO, "STATUS_PIPE_CONNECTED"},
 	{STATUS_PIPE_LISTENING, -EIO, "STATUS_PIPE_LISTENING"},
 	{STATUS_INVALID_READ_MODE, -EIO, "STATUS_INVALID_READ_MODE"},
+<<<<<<< HEAD
 	{STATUS_IO_TIMEOUT, -ETIMEDOUT, "STATUS_IO_TIMEOUT"},
+=======
+	{STATUS_IO_TIMEOUT, -EAGAIN, "STATUS_IO_TIMEOUT"},
+>>>>>>> upstream/android-13
 	{STATUS_FILE_FORCED_CLOSED, -EIO, "STATUS_FILE_FORCED_CLOSED"},
 	{STATUS_PROFILING_NOT_STARTED, -EIO, "STATUS_PROFILING_NOT_STARTED"},
 	{STATUS_PROFILING_NOT_STOPPED, -EIO, "STATUS_PROFILING_NOT_STOPPED"},
@@ -511,7 +527,11 @@ static const struct status_to_posix_error smb2_error_map_table[] = {
 	{STATUS_PRINT_QUEUE_FULL, -EIO, "STATUS_PRINT_QUEUE_FULL"},
 	{STATUS_NO_SPOOL_SPACE, -EIO, "STATUS_NO_SPOOL_SPACE"},
 	{STATUS_PRINT_CANCELLED, -EIO, "STATUS_PRINT_CANCELLED"},
+<<<<<<< HEAD
 	{STATUS_NETWORK_NAME_DELETED, -EIO, "STATUS_NETWORK_NAME_DELETED"},
+=======
+	{STATUS_NETWORK_NAME_DELETED, -EREMCHG, "STATUS_NETWORK_NAME_DELETED"},
+>>>>>>> upstream/android-13
 	{STATUS_NETWORK_ACCESS_DENIED, -EACCES, "STATUS_NETWORK_ACCESS_DENIED"},
 	{STATUS_BAD_DEVICE_TYPE, -EIO, "STATUS_BAD_DEVICE_TYPE"},
 	{STATUS_BAD_NETWORK_NAME, -ENOENT, "STATUS_BAD_NETWORK_NAME"},
@@ -814,7 +834,11 @@ static const struct status_to_posix_error smb2_error_map_table[] = {
 	{STATUS_INVALID_VARIANT, -EIO, "STATUS_INVALID_VARIANT"},
 	{STATUS_DOMAIN_CONTROLLER_NOT_FOUND, -EIO,
 	"STATUS_DOMAIN_CONTROLLER_NOT_FOUND"},
+<<<<<<< HEAD
 	{STATUS_ACCOUNT_LOCKED_OUT, -EIO, "STATUS_ACCOUNT_LOCKED_OUT"},
+=======
+	{STATUS_ACCOUNT_LOCKED_OUT, -EACCES, "STATUS_ACCOUNT_LOCKED_OUT"},
+>>>>>>> upstream/android-13
 	{STATUS_HANDLE_NOT_CLOSABLE, -EIO, "STATUS_HANDLE_NOT_CLOSABLE"},
 	{STATUS_CONNECTION_REFUSED, -EIO, "STATUS_CONNECTION_REFUSED"},
 	{STATUS_GRACEFUL_DISCONNECT, -EIO, "STATUS_GRACEFUL_DISCONNECT"},

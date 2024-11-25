@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram miXart soundcards
  *
  * main header file
  *
  * Copyright (c) 2003 by Digigram <alsa@digigram.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOUND_MIXART_H
@@ -82,7 +89,11 @@ struct mixart_mgr {
 	u32 msg_fifo[MSG_FIFO_SIZE];
 	int msg_fifo_readptr;
 	int msg_fifo_writeptr;
+<<<<<<< HEAD
 	atomic_t msg_processed;       /* number of messages to be processed in tasklet */
+=======
+	atomic_t msg_processed;       /* number of messages to be processed in irq thread */
+>>>>>>> upstream/android-13
 
 	struct mutex lock;              /* interrupt lock */
 	struct mutex msg_lock;		/* mailbox lock */

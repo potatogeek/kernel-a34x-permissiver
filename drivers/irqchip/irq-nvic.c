@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/irq/irq-nvic.c
  *
  * Copyright (C) 2008 ARM Limited, All Rights Reserved.
  * Copyright (C) 2013 Pengutronix
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Support for the Nested Vectored Interrupt Controller found on the
  * ARMv7-M CPUs (Cortex-M3/M4)
  */
@@ -29,7 +36,11 @@
 
 #define NVIC_ISER		0x000
 #define NVIC_ICER		0x080
+<<<<<<< HEAD
 #define NVIC_IPR		0x300
+=======
+#define NVIC_IPR		0x400
+>>>>>>> upstream/android-13
 
 #define NVIC_MAX_BANKS		16
 /*
@@ -43,6 +54,7 @@ static struct irq_domain *nvic_irq_domain;
 asmlinkage void __exception_irq_entry
 nvic_handle_irq(irq_hw_number_t hwirq, struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	unsigned int irq = irq_linear_revmap(nvic_irq_domain, hwirq);
 
 	handle_IRQ(irq, regs);
@@ -57,6 +69,9 @@ static int nvic_irq_domain_translate(struct irq_domain *d,
 	*hwirq = fwspec->param[0];
 	*type = IRQ_TYPE_NONE;
 	return 0;
+=======
+	handle_domain_irq(nvic_irq_domain, hwirq, regs);
+>>>>>>> upstream/android-13
 }
 
 static int nvic_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
@@ -67,7 +82,11 @@ static int nvic_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 	unsigned int type = IRQ_TYPE_NONE;
 	struct irq_fwspec *fwspec = arg;
 
+<<<<<<< HEAD
 	ret = nvic_irq_domain_translate(domain, fwspec, &hwirq, &type);
+=======
+	ret = irq_domain_translate_onecell(domain, fwspec, &hwirq, &type);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -78,7 +97,11 @@ static int nvic_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
 }
 
 static const struct irq_domain_ops nvic_irq_domain_ops = {
+<<<<<<< HEAD
 	.translate = nvic_irq_domain_translate,
+=======
+	.translate = irq_domain_translate_onecell,
+>>>>>>> upstream/android-13
 	.alloc = nvic_irq_domain_alloc,
 	.free = irq_domain_free_irqs_top,
 };
@@ -108,6 +131,10 @@ static int __init nvic_of_init(struct device_node *node,
 
 	if (!nvic_irq_domain) {
 		pr_warn("Failed to allocate irq domain\n");
+<<<<<<< HEAD
+=======
+		iounmap(nvic_base);
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -117,6 +144,10 @@ static int __init nvic_of_init(struct device_node *node,
 	if (ret) {
 		pr_warn("Failed to allocate irq chips\n");
 		irq_domain_remove(nvic_irq_domain);
+<<<<<<< HEAD
+=======
+		iounmap(nvic_base);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

@@ -4,7 +4,11 @@ KernelVersion:	4.7
 Contact:	linux-iio@vger.kernel.org
 Description:
 		Writing '1' will perform a FOC (Fast Online Calibration). The
+<<<<<<< HEAD
                 corresponding calibration offsets can be read from *_calibbias
+=======
+                corresponding calibration offsets can be read from `*_calibbias`
+>>>>>>> upstream/android-13
                 entries.
 
 What:		/sys/bus/iio/devices/iio:deviceX/location
@@ -18,6 +22,7 @@ Description:
 		values are 'base' and 'lid'.
 
 What:		/sys/bus/iio/devices/iio:deviceX/id
+<<<<<<< HEAD
 Date:		Septembre 2017
 KernelVersion:	4.14
 Contact:	linux-iio@vger.kernel.org
@@ -26,3 +31,13 @@ Description:
 		driver and represents the sensor ID as exposed by the EC. This
 		ID is used by the Android sensor service hardware abstraction
 		layer (sensor HAL) through the Android container on ChromeOS.
+=======
+Date:		September 2017
+KernelVersion:	4.14
+Contact:	linux-iio@vger.kernel.org
+Description:
+		This attribute is exposed by the CrOS EC sensors driver and
+		represents the sensor ID as exposed by the EC. This ID is used
+		by the Android sensor service hardware abstraction layer (sensor
+		HAL) through the Android container on ChromeOS.
+>>>>>>> upstream/android-13

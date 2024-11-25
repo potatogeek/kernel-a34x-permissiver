@@ -4,20 +4,31 @@
  * All Rights Reserved.
  */
 #include "xfs.h"
+<<<<<<< HEAD
+=======
+#include "xfs_shared.h"
+>>>>>>> upstream/android-13
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_da_format.h"
 #include "xfs_da_btree.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_dir2.h"
 #include "xfs_export.h"
 #include "xfs_inode.h"
 #include "xfs_trans.h"
 #include "xfs_inode_item.h"
+<<<<<<< HEAD
 #include "xfs_trace.h"
 #include "xfs_icache.h"
 #include "xfs_log.h"
+=======
+#include "xfs_icache.h"
+>>>>>>> upstream/android-13
 #include "xfs_pnfs.h"
 
 /*
@@ -47,6 +58,10 @@ xfs_fs_encode_fh(
 	int		*max_len,
 	struct inode	*parent)
 {
+<<<<<<< HEAD
+=======
+	struct xfs_mount	*mp = XFS_M(inode->i_sb);
+>>>>>>> upstream/android-13
 	struct fid		*fid = (struct fid *)fh;
 	struct xfs_fid64	*fid64 = (struct xfs_fid64 *)fh;
 	int			fileid_type;
@@ -59,15 +74,23 @@ xfs_fs_encode_fh(
 		fileid_type = FILEID_INO32_GEN_PARENT;
 
 	/*
+<<<<<<< HEAD
 	 * If the the filesystem may contain 64bit inode numbers, we need
+=======
+	 * If the filesystem may contain 64bit inode numbers, we need
+>>>>>>> upstream/android-13
 	 * to use larger file handles that can represent them.
 	 *
 	 * While we only allocate inodes that do not fit into 32 bits any
 	 * large enough filesystem may contain them, thus the slightly
 	 * confusing looking conditional below.
 	 */
+<<<<<<< HEAD
 	if (!(XFS_M(inode->i_sb)->m_flags & XFS_MOUNT_SMALL_INUMS) ||
 	    (XFS_M(inode->i_sb)->m_flags & XFS_MOUNT_32BITINODES))
+=======
+	if (!xfs_has_small_inums(mp) || xfs_is_inode32(mp))
+>>>>>>> upstream/android-13
 		fileid_type |= XFS_FILEID_TYPE_64FLAG;
 
 	/*
@@ -87,7 +110,11 @@ xfs_fs_encode_fh(
 	case FILEID_INO32_GEN_PARENT:
 		fid->i32.parent_ino = XFS_I(parent)->i_ino;
 		fid->i32.parent_gen = parent->i_generation;
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FILEID_INO32_GEN:
 		fid->i32.ino = XFS_I(inode)->i_ino;
 		fid->i32.gen = inode->i_generation;
@@ -95,7 +122,11 @@ xfs_fs_encode_fh(
 	case FILEID_INO32_GEN_PARENT | XFS_FILEID_TYPE_64FLAG:
 		fid64->parent_ino = XFS_I(parent)->i_ino;
 		fid64->parent_gen = parent->i_generation;
+<<<<<<< HEAD
 		/*FALLTHRU*/
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FILEID_INO32_GEN | XFS_FILEID_TYPE_64FLAG:
 		fid64->ino = XFS_I(inode)->i_ino;
 		fid64->gen = inode->i_generation;
@@ -223,6 +254,7 @@ STATIC int
 xfs_fs_nfs_commit_metadata(
 	struct inode		*inode)
 {
+<<<<<<< HEAD
 	struct xfs_inode	*ip = XFS_I(inode);
 	struct xfs_mount	*mp = ip->i_mount;
 	xfs_lsn_t		lsn = 0;
@@ -235,6 +267,9 @@ xfs_fs_nfs_commit_metadata(
 	if (!lsn)
 		return 0;
 	return xfs_log_force_lsn(mp, lsn, XFS_LOG_SYNC, NULL);
+=======
+	return xfs_log_force_inode(XFS_I(inode));
+>>>>>>> upstream/android-13
 }
 
 const struct export_operations xfs_export_operations = {

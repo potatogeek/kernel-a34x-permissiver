@@ -206,6 +206,7 @@ static int adjust_local_phandle_references(struct device_node *local_fixups,
 	for_each_child_of_node(local_fixups, child) {
 
 		for_each_child_of_node(overlay, overlay_child)
+<<<<<<< HEAD
 			if (!node_name_cmp(child, overlay_child))
 				break;
 
@@ -216,6 +217,24 @@ static int adjust_local_phandle_references(struct device_node *local_fixups,
 				phandle_delta);
 		if (err)
 			return err;
+=======
+			if (!node_name_cmp(child, overlay_child)) {
+				of_node_put(overlay_child);
+				break;
+			}
+
+		if (!overlay_child) {
+			of_node_put(child);
+			return -EINVAL;
+		}
+
+		err = adjust_local_phandle_references(child, overlay_child,
+				phandle_delta);
+		if (err) {
+			of_node_put(child);
+			return err;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -281,7 +300,11 @@ int of_resolve_phandles(struct device_node *overlay)
 	adjust_overlay_phandles(overlay, phandle_delta);
 
 	for_each_child_of_node(overlay, local_fixups)
+<<<<<<< HEAD
 		if (!of_node_cmp(local_fixups->name, "__local_fixups__"))
+=======
+		if (of_node_name_eq(local_fixups, "__local_fixups__"))
+>>>>>>> upstream/android-13
 			break;
 
 	err = adjust_local_phandle_references(local_fixups, overlay, phandle_delta);
@@ -291,7 +314,11 @@ int of_resolve_phandles(struct device_node *overlay)
 	overlay_fixups = NULL;
 
 	for_each_child_of_node(overlay, child) {
+<<<<<<< HEAD
 		if (!of_node_cmp(child->name, "__fixups__"))
+=======
+		if (of_node_name_eq(child, "__fixups__"))
+>>>>>>> upstream/android-13
 			overlay_fixups = child;
 	}
 
@@ -315,8 +342,16 @@ int of_resolve_phandles(struct device_node *overlay)
 
 		err = of_property_read_string(tree_symbols,
 				prop->name, &refpath);
+<<<<<<< HEAD
 		if (err)
 			goto out;
+=======
+		if (err) {
+			pr_err("node label '%s' not found in live devicetree symbols table\n",
+			       prop->name);
+			goto out;
+		}
+>>>>>>> upstream/android-13
 
 		refnode = of_find_node_by_path(refpath);
 		if (!refnode) {

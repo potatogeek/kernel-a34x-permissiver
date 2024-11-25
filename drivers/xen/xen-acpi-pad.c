@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * xen-acpi-pad.c - Xen pad interface
  *
  * Copyright (c) 2012, Intel Corporation.
  *    Author: Liu, Jinsong <jinsong.liu@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -12,6 +17,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -19,6 +26,10 @@
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/acpi.h>
+<<<<<<< HEAD
+=======
+#include <xen/xen.h>
+>>>>>>> upstream/android-13
 #include <xen/interface/version.h>
 #include <xen/xen-ops.h>
 #include <asm/xen/hypercall.h>

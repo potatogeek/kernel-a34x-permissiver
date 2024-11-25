@@ -3,10 +3,17 @@
  * @brief This file contains definitions for PCI-E interface.
  * driver.
  *
+<<<<<<< HEAD
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -158,6 +165,7 @@ struct mwifiex_pcie_card_reg {
 	u8 msix_support;
 };
 
+<<<<<<< HEAD
 static const struct mwifiex_pcie_card_reg mwifiex_reg_8766 = {
 	.cmd_addr_lo = PCIE_SCRATCH_0_REG,
 	.cmd_addr_hi = PCIE_SCRATCH_1_REG,
@@ -279,6 +287,8 @@ static struct memory_type_mapping mem_type_mapping_tbl_w8997[] = {
 	{"DUMP", NULL, 0, 0xDD},
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mwifiex_pcie_device {
 	const struct mwifiex_pcie_card_reg *reg;
 	u16 blksz_fw_dl;
@@ -289,6 +299,7 @@ struct mwifiex_pcie_device {
 	bool can_ext_scan;
 };
 
+<<<<<<< HEAD
 static const struct mwifiex_pcie_device mwifiex_pcie8766 = {
 	.reg            = &mwifiex_reg_8766,
 	.blksz_fw_dl = MWIFIEX_PCIE_BLOCK_SIZE_FW_DNLD,
@@ -317,6 +328,8 @@ static const struct mwifiex_pcie_device mwifiex_pcie8997 = {
 	.can_ext_scan = true,
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mwifiex_evt_buf_desc {
 	u64 paddr;
 	u16 len;
@@ -393,6 +406,10 @@ struct pcie_service_card {
 	unsigned long work_flags;
 
 	bool pci_reset_ongoing;
+<<<<<<< HEAD
+=======
+	unsigned long quirks;
+>>>>>>> upstream/android-13
 };
 
 static inline int

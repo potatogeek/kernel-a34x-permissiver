@@ -18,7 +18,11 @@
  *
  * When we spin, we try to use an operation that will cause the
  * current cpu strand to block, and therefore make the core fully
+<<<<<<< HEAD
  * available to any other other runnable strands.  There are two
+=======
+ * available to any other runnable strands.  There are two
+>>>>>>> upstream/android-13
  * options, based upon cpu capabilities.
  *
  * On all cpus prior to SPARC-T4 we do three dummy reads of the

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2017 MOXA Inc. - https://www.moxa.com/
  *
  * Author: SZ Lin (林上智) <sz.lin@moxa.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,22 +16,32 @@
 /dts-v1/;
 
 #include "am33xx.dtsi"
+=======
+ */
+/dts-v1/;
+
+#include "am335x-moxa-uc-8100-common.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	model = "Moxa UC-8100-ME-T";
 	compatible = "moxa,uc-8100-me-t", "ti,am33xx";
 
+<<<<<<< HEAD
 	cpus {
 		cpu@0 {
 			cpu0-supply = <&vdd1_reg>;
 		};
 	};
 
+=======
+>>>>>>> upstream/android-13
 	memory {
 		device_type = "memory";
 		reg = <0x80000000 0x20000000>; /* 512 MB */
 	};
 
+<<<<<<< HEAD
 	vbat: vbat-regulator {
 		compatible = "regulator-fixed";
 	};
@@ -40,6 +55,8 @@
 	      regulator-boot-on;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	leds {
 		compatible = "gpio-leds";
 		led1 {
@@ -91,6 +108,7 @@
 			default-state = "off";
 		};
 	};
+<<<<<<< HEAD
 
 	buttons: push_button {
 		compatible = "gpio-keys";
@@ -257,10 +275,16 @@
 	status = "okay";
 	clock-frequency = <400000>;
 
+=======
+};
+
+&i2c0 {
+>>>>>>> upstream/android-13
 	tpm: tpm@20 {
 		compatible = "infineon,slb9645tt";
 		reg = <0x20>;
 	};
+<<<<<<< HEAD
 
 	tps: tps@2d {
 		compatible = "ti,tps65910";
@@ -344,6 +368,12 @@
 			regulator-always-on;
 		};
 
+=======
+};
+
+&tps {
+	regulators {
+>>>>>>> upstream/android-13
 		vdd1_reg: regulator@2 {
 			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
 			regulator-name = "vdd_mpu";
@@ -361,6 +391,7 @@
 			regulator-boot-on;
 			regulator-always-on;
 		};
+<<<<<<< HEAD
 
 		vdd3_reg: regulator@4 {
 			regulator-always-on;
@@ -523,3 +554,8 @@
 		};
 	};
 };
+=======
+	};
+};
+
+>>>>>>> upstream/android-13

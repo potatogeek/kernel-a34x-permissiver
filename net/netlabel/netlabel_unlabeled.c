@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NetLabel Unlabeled Support
  *
@@ -6,11 +10,15 @@
  * mappings for network protocols such as CIPSO and RIPSO.
  *
  * Author: Paul Moore <paul@paul-moore.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Copyright Hewlett-Packard Development Company, L.P., 2006 - 2008
+<<<<<<< HEAD
  *
  * This program is free software;  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +33,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program;  if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -221,7 +231,12 @@ static struct netlbl_unlhsh_iface *netlbl_unlhsh_search_iface(int ifindex)
 
 	bkt = netlbl_unlhsh_hash(ifindex);
 	bkt_list = &netlbl_unlhsh_rcu_deref(netlbl_unlhsh)->tbl[bkt];
+<<<<<<< HEAD
 	list_for_each_entry_rcu(iter, bkt_list, list)
+=======
+	list_for_each_entry_rcu(iter, bkt_list, list,
+				lockdep_is_held(&netlbl_unlhsh_lock))
+>>>>>>> upstream/android-13
 		if (iter->valid && iter->ifindex == ifindex)
 			return iter;
 
@@ -505,8 +520,12 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
 		netlbl_af4list_audit_addr(audit_buf, 1,
 					  (dev != NULL ? dev->name : NULL),
 					  addr->s_addr, mask->s_addr);
+<<<<<<< HEAD
 		if (dev != NULL)
 			dev_put(dev);
+=======
+		dev_put(dev);
+>>>>>>> upstream/android-13
 		if (entry != NULL &&
 		    security_secid_to_secctx(entry->secid,
 					     &secctx, &secctx_len) == 0) {
@@ -566,8 +585,12 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
 		netlbl_af6list_audit_addr(audit_buf, 1,
 					  (dev != NULL ? dev->name : NULL),
 					  addr, mask);
+<<<<<<< HEAD
 		if (dev != NULL)
 			dev_put(dev);
+=======
+		dev_put(dev);
+>>>>>>> upstream/android-13
 		if (entry != NULL &&
 		    security_secid_to_secctx(entry->secid,
 					     &secctx, &secctx_len) == 0) {
@@ -827,7 +850,11 @@ static int netlbl_unlabel_accept(struct sk_buff *skb, struct genl_info *info)
 	if (info->attrs[NLBL_UNLABEL_A_ACPTFLG]) {
 		value = nla_get_u8(info->attrs[NLBL_UNLABEL_A_ACPTFLG]);
 		if (value == 1 || value == 0) {
+<<<<<<< HEAD
 			netlbl_netlink_auditinfo(skb, &audit_info);
+=======
+			netlbl_netlink_auditinfo(&audit_info);
+>>>>>>> upstream/android-13
 			netlbl_unlabel_acceptflg_set(value, &audit_info);
 			return 0;
 		}
@@ -910,7 +937,11 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
 	       !info->attrs[NLBL_UNLABEL_A_IPV6MASK])))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	netlbl_netlink_auditinfo(skb, &audit_info);
+=======
+	netlbl_netlink_auditinfo(&audit_info);
+>>>>>>> upstream/android-13
 
 	ret_val = netlbl_unlabel_addrinfo_get(info, &addr, &mask, &addr_len);
 	if (ret_val != 0)
@@ -960,7 +991,11 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
 	       !info->attrs[NLBL_UNLABEL_A_IPV6MASK])))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	netlbl_netlink_auditinfo(skb, &audit_info);
+=======
+	netlbl_netlink_auditinfo(&audit_info);
+>>>>>>> upstream/android-13
 
 	ret_val = netlbl_unlabel_addrinfo_get(info, &addr, &mask, &addr_len);
 	if (ret_val != 0)
@@ -1007,7 +1042,11 @@ static int netlbl_unlabel_staticremove(struct sk_buff *skb,
 	       !info->attrs[NLBL_UNLABEL_A_IPV6MASK])))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	netlbl_netlink_auditinfo(skb, &audit_info);
+=======
+	netlbl_netlink_auditinfo(&audit_info);
+>>>>>>> upstream/android-13
 
 	ret_val = netlbl_unlabel_addrinfo_get(info, &addr, &mask, &addr_len);
 	if (ret_val != 0)
@@ -1047,7 +1086,11 @@ static int netlbl_unlabel_staticremovedef(struct sk_buff *skb,
 	       !info->attrs[NLBL_UNLABEL_A_IPV6MASK])))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	netlbl_netlink_auditinfo(skb, &audit_info);
+=======
+	netlbl_netlink_auditinfo(&audit_info);
+>>>>>>> upstream/android-13
 
 	ret_val = netlbl_unlabel_addrinfo_get(info, &addr, &mask, &addr_len);
 	if (ret_val != 0)
@@ -1321,60 +1364,103 @@ unlabel_staticlistdef_return:
  * NetLabel Generic NETLINK Command Definitions
  */
 
+<<<<<<< HEAD
 static const struct genl_ops netlbl_unlabel_genl_ops[] = {
 	{
 	.cmd = NLBL_UNLABEL_C_STATICADD,
 	.flags = GENL_ADMIN_PERM,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+static const struct genl_small_ops netlbl_unlabel_genl_ops[] = {
+	{
+	.cmd = NLBL_UNLABEL_C_STATICADD,
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = GENL_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	.doit = netlbl_unlabel_staticadd,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_UNLABEL_C_STATICREMOVE,
+<<<<<<< HEAD
 	.flags = GENL_ADMIN_PERM,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = GENL_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	.doit = netlbl_unlabel_staticremove,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_UNLABEL_C_STATICLIST,
+<<<<<<< HEAD
 	.flags = 0,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = 0,
+>>>>>>> upstream/android-13
 	.doit = NULL,
 	.dumpit = netlbl_unlabel_staticlist,
 	},
 	{
 	.cmd = NLBL_UNLABEL_C_STATICADDDEF,
+<<<<<<< HEAD
 	.flags = GENL_ADMIN_PERM,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = GENL_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	.doit = netlbl_unlabel_staticadddef,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_UNLABEL_C_STATICREMOVEDEF,
+<<<<<<< HEAD
 	.flags = GENL_ADMIN_PERM,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = GENL_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	.doit = netlbl_unlabel_staticremovedef,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_UNLABEL_C_STATICLISTDEF,
+<<<<<<< HEAD
 	.flags = 0,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = 0,
+>>>>>>> upstream/android-13
 	.doit = NULL,
 	.dumpit = netlbl_unlabel_staticlistdef,
 	},
 	{
 	.cmd = NLBL_UNLABEL_C_ACCEPT,
+<<<<<<< HEAD
 	.flags = GENL_ADMIN_PERM,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = GENL_ADMIN_PERM,
+>>>>>>> upstream/android-13
 	.doit = netlbl_unlabel_accept,
 	.dumpit = NULL,
 	},
 	{
 	.cmd = NLBL_UNLABEL_C_LIST,
+<<<<<<< HEAD
 	.flags = 0,
 	.policy = netlbl_unlabel_genl_policy,
+=======
+	.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+	.flags = 0,
+>>>>>>> upstream/android-13
 	.doit = netlbl_unlabel_list,
 	.dumpit = NULL,
 	},
@@ -1385,9 +1471,16 @@ static struct genl_family netlbl_unlabel_gnl_family __ro_after_init = {
 	.name = NETLBL_NLTYPE_UNLABELED_NAME,
 	.version = NETLBL_PROTO_VERSION,
 	.maxattr = NLBL_UNLABEL_A_MAX,
+<<<<<<< HEAD
 	.module = THIS_MODULE,
 	.ops = netlbl_unlabel_genl_ops,
 	.n_ops = ARRAY_SIZE(netlbl_unlabel_genl_ops),
+=======
+	.policy = netlbl_unlabel_genl_policy,
+	.module = THIS_MODULE,
+	.small_ops = netlbl_unlabel_genl_ops,
+	.n_small_ops = ARRAY_SIZE(netlbl_unlabel_genl_ops),
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1551,7 +1644,11 @@ int __init netlbl_unlabel_defconf(void)
 	/* Only the kernel is allowed to call this function and the only time
 	 * it is called is at bootup before the audit subsystem is reporting
 	 * messages so don't worry to much about these values. */
+<<<<<<< HEAD
 	security_task_getsecid(current, &audit_info.secid);
+=======
+	security_task_getsecid_subj(current, &audit_info.secid);
+>>>>>>> upstream/android-13
 	audit_info.loginuid = GLOBAL_ROOT_UID;
 	audit_info.sessionid = 0;
 

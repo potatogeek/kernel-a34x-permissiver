@@ -4,6 +4,7 @@ TODO:
 	- add proper arch dependencies as needed
 	- audit userspace interfaces to make sure they are sane
 
+<<<<<<< HEAD
 
 ion/
  - Add dt-bindings for remaining heaps (chunk and carveout heaps). This would
@@ -20,5 +21,7 @@ vsoc.c, uapi/vsoc_shm.h
  - Remove VSOC_WAIT_FOR_INCOMING_INTERRUPT ioctl. This functionality has been
    superseded by the futex and is there for legacy reasons.
 
+=======
+>>>>>>> upstream/android-13
 Please send patches to Greg Kroah-Hartman <greg@kroah.com> and Cc:
 Arve Hjønnevåg <arve@android.com> and Riley Andrews <riandrews@android.com>

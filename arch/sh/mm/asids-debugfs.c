@@ -26,7 +26,11 @@
 #include <asm/processor.h>
 #include <asm/mmu_context.h>
 
+<<<<<<< HEAD
 static int asids_seq_show(struct seq_file *file, void *iter)
+=======
+static int asids_debugfs_show(struct seq_file *file, void *iter)
+>>>>>>> upstream/android-13
 {
 	struct task_struct *p;
 
@@ -48,6 +52,7 @@ static int asids_seq_show(struct seq_file *file, void *iter)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int asids_debugfs_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, asids_seq_show, inode->i_private);
@@ -71,5 +76,14 @@ static int __init asids_debugfs_init(void)
 		return -ENOMEM;
 
 	return PTR_ERR_OR_ZERO(asids_dentry);
+=======
+DEFINE_SHOW_ATTRIBUTE(asids_debugfs);
+
+static int __init asids_debugfs_init(void)
+{
+	debugfs_create_file("asids", S_IRUSR, arch_debugfs_dir, NULL,
+			    &asids_debugfs_fops);
+	return 0;
+>>>>>>> upstream/android-13
 }
 device_initcall(asids_debugfs_init);

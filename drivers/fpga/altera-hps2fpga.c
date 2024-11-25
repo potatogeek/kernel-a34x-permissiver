@@ -180,7 +180,12 @@ static int alt_fpga_bridge_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	br = fpga_bridge_create(dev, priv->name, &altera_hps2fpga_br_ops, priv);
+=======
+	br = devm_fpga_bridge_create(dev, priv->name,
+				     &altera_hps2fpga_br_ops, priv);
+>>>>>>> upstream/android-13
 	if (!br) {
 		ret = -ENOMEM;
 		goto err;
@@ -190,12 +195,19 @@ static int alt_fpga_bridge_probe(struct platform_device *pdev)
 
 	ret = fpga_bridge_register(br);
 	if (ret)
+<<<<<<< HEAD
 		goto err_free;
 
 	return 0;
 
 err_free:
 	fpga_bridge_free(br);
+=======
+		goto err;
+
+	return 0;
+
+>>>>>>> upstream/android-13
 err:
 	clk_disable_unprepare(priv->clk);
 

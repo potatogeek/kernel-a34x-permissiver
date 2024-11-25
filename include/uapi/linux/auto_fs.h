@@ -23,7 +23,11 @@
 #define AUTOFS_MIN_PROTO_VERSION	3
 #define AUTOFS_MAX_PROTO_VERSION	5
 
+<<<<<<< HEAD
 #define AUTOFS_PROTO_SUBVERSION		3
+=======
+#define AUTOFS_PROTO_SUBVERSION		5
+>>>>>>> upstream/android-13
 
 /*
  * The wait_queue_token (autofs_wqt_t) is part of a structure which is passed

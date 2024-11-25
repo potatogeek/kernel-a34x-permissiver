@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Main USB camera driver
  *
@@ -5,6 +9,7 @@
  *
  * Camera button input handling by Márton Németh
  * Copyright (C) 2009-2010 Márton Németh <nm127@freemail.hu>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +20,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -916,23 +923,45 @@ static void gspca_set_default_mode(struct gspca_dev *gspca_dev)
 }
 
 static int wxh_to_mode(struct gspca_dev *gspca_dev,
+<<<<<<< HEAD
 			int width, int height)
+=======
+			int width, int height, u32 pixelformat)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < gspca_dev->cam.nmodes; i++) {
 		if (width == gspca_dev->cam.cam_mode[i].width
+<<<<<<< HEAD
 		    && height == gspca_dev->cam.cam_mode[i].height)
+=======
+		    && height == gspca_dev->cam.cam_mode[i].height
+		    && pixelformat == gspca_dev->cam.cam_mode[i].pixelformat)
+>>>>>>> upstream/android-13
 			return i;
 	}
 	return -EINVAL;
 }
 
 static int wxh_to_nearest_mode(struct gspca_dev *gspca_dev,
+<<<<<<< HEAD
 			int width, int height)
 {
 	int i;
 
+=======
+			int width, int height, u32 pixelformat)
+{
+	int i;
+
+	for (i = gspca_dev->cam.nmodes; --i >= 0; ) {
+		if (width >= gspca_dev->cam.cam_mode[i].width
+		    && height >= gspca_dev->cam.cam_mode[i].height
+		    && pixelformat == gspca_dev->cam.cam_mode[i].pixelformat)
+			return i;
+	}
+>>>>>>> upstream/android-13
 	for (i = gspca_dev->cam.nmodes; --i > 0; ) {
 		if (width >= gspca_dev->cam.cam_mode[i].width
 		    && height >= gspca_dev->cam.cam_mode[i].height)
@@ -1026,6 +1055,7 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 		return -EINVAL;		/* no more format */
 
 	fmtdesc->pixelformat = fmt_tb[index];
+<<<<<<< HEAD
 	if (gspca_dev->cam.cam_mode[i].sizeimage <
 			gspca_dev->cam.cam_mode[i].width *
 				gspca_dev->cam.cam_mode[i].height)
@@ -1047,6 +1077,20 @@ static int vidioc_g_fmt_vid_cap(struct file *file, void *priv,
 	/* some drivers use priv internally, zero it before giving it back to
 	   the core */
 	fmt->fmt.pix.priv = 0;
+=======
+	return 0;
+}
+
+static int vidioc_g_fmt_vid_cap(struct file *file, void *_priv,
+				struct v4l2_format *fmt)
+{
+	struct gspca_dev *gspca_dev = video_drvdata(file);
+	u32 priv = fmt->fmt.pix.priv;
+
+	fmt->fmt.pix = gspca_dev->pixfmt;
+	/* some drivers use priv internally, so keep the original value */
+	fmt->fmt.pix.priv = priv;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1062,7 +1106,11 @@ static int try_fmt_vid_cap(struct gspca_dev *gspca_dev,
 		    fmt->fmt.pix.pixelformat, w, h);
 
 	/* search the nearest mode for width and height */
+<<<<<<< HEAD
 	mode = wxh_to_nearest_mode(gspca_dev, w, h);
+=======
+	mode = wxh_to_nearest_mode(gspca_dev, w, h, fmt->fmt.pix.pixelformat);
+>>>>>>> upstream/android-13
 
 	/* OK if right palette */
 	if (gspca_dev->cam.cam_mode[mode].pixelformat
@@ -1081,6 +1129,7 @@ static int try_fmt_vid_cap(struct gspca_dev *gspca_dev,
 		fmt->fmt.pix.height = h;
 		gspca_dev->sd_desc->try_fmt(gspca_dev, fmt);
 	}
+<<<<<<< HEAD
 	/* some drivers use priv internally, zero it before giving it back to
 	   the core */
 	fmt->fmt.pix.priv = 0;
@@ -1102,6 +1151,29 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
 			    struct v4l2_format *fmt)
 {
 	struct gspca_dev *gspca_dev = video_drvdata(file);
+=======
+	return mode;			/* used when s_fmt */
+}
+
+static int vidioc_try_fmt_vid_cap(struct file *file, void *_priv,
+				  struct v4l2_format *fmt)
+{
+	struct gspca_dev *gspca_dev = video_drvdata(file);
+	u32 priv = fmt->fmt.pix.priv;
+
+	if (try_fmt_vid_cap(gspca_dev, fmt) < 0)
+		return -EINVAL;
+	/* some drivers use priv internally, so keep the original value */
+	fmt->fmt.pix.priv = priv;
+	return 0;
+}
+
+static int vidioc_s_fmt_vid_cap(struct file *file, void *_priv,
+				struct v4l2_format *fmt)
+{
+	struct gspca_dev *gspca_dev = video_drvdata(file);
+	u32 priv = fmt->fmt.pix.priv;
+>>>>>>> upstream/android-13
 	int mode;
 
 	if (vb2_is_busy(&gspca_dev->queue))
@@ -1117,6 +1189,11 @@ static int vidioc_s_fmt_vid_cap(struct file *file, void *priv,
 		gspca_dev->pixfmt = fmt->fmt.pix;
 	else
 		gspca_dev->pixfmt = gspca_dev->cam.cam_mode[mode];
+<<<<<<< HEAD
+=======
+	/* some drivers use priv internally, so keep the original value */
+	fmt->fmt.pix.priv = priv;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1156,7 +1233,12 @@ static int vidioc_enum_frameintervals(struct file *filp, void *priv,
 	int mode;
 	__u32 i;
 
+<<<<<<< HEAD
 	mode = wxh_to_mode(gspca_dev, fival->width, fival->height);
+=======
+	mode = wxh_to_mode(gspca_dev, fival->width, fival->height,
+			   fival->pixel_format);
+>>>>>>> upstream/android-13
 	if (mode < 0)
 		return -EINVAL;
 
@@ -1197,11 +1279,19 @@ static int vidioc_querycap(struct file *file, void  *priv,
 {
 	struct gspca_dev *gspca_dev = video_drvdata(file);
 
+<<<<<<< HEAD
 	strlcpy((char *) cap->driver, gspca_dev->sd_desc->name,
 			sizeof cap->driver);
 	if (gspca_dev->dev->product != NULL) {
 		strlcpy((char *) cap->card, gspca_dev->dev->product,
 			sizeof cap->card);
+=======
+	strscpy((char *)cap->driver, gspca_dev->sd_desc->name,
+		sizeof(cap->driver));
+	if (gspca_dev->dev->product != NULL) {
+		strscpy((char *)cap->card, gspca_dev->dev->product,
+			sizeof(cap->card));
+>>>>>>> upstream/android-13
 	} else {
 		snprintf((char *) cap->card, sizeof cap->card,
 			"USB Camera (%04x:%04x)",
@@ -1210,10 +1300,13 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	}
 	usb_make_path(gspca_dev->dev, (char *) cap->bus_info,
 			sizeof(cap->bus_info));
+<<<<<<< HEAD
 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE
 			  | V4L2_CAP_STREAMING
 			  | V4L2_CAP_READWRITE;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1226,7 +1319,11 @@ static int vidioc_enum_input(struct file *file, void *priv,
 		return -EINVAL;
 	input->type = V4L2_INPUT_TYPE_CAMERA;
 	input->status = gspca_dev->cam.input_flags;
+<<<<<<< HEAD
 	strlcpy(input->name, gspca_dev->sd_desc->name,
+=======
+	strscpy(input->name, gspca_dev->sd_desc->name,
+>>>>>>> upstream/android-13
 		sizeof input->name);
 	return 0;
 }
@@ -1509,6 +1606,11 @@ int gspca_dev_probe2(struct usb_interface *intf,
 	gspca_dev->empty_packet = -1;	/* don't check the empty packets */
 	gspca_dev->vdev = gspca_template;
 	gspca_dev->vdev.v4l2_dev = &gspca_dev->v4l2_dev;
+<<<<<<< HEAD
+=======
+	gspca_dev->vdev.device_caps = V4L2_CAP_VIDEO_CAPTURE |
+				      V4L2_CAP_STREAMING | V4L2_CAP_READWRITE;
+>>>>>>> upstream/android-13
 	video_set_drvdata(&gspca_dev->vdev, gspca_dev);
 	gspca_dev->module = module;
 
@@ -1565,7 +1667,11 @@ int gspca_dev_probe2(struct usb_interface *intf,
 
 	/* init video stuff */
 	ret = video_register_device(&gspca_dev->vdev,
+<<<<<<< HEAD
 				  VFL_TYPE_GRABBER,
+=======
+				  VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 				  -1);
 	if (ret < 0) {
 		pr_err("video_register_device err %d\n", ret);

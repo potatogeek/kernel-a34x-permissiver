@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 /* Copyright (C) 2003-2013 Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (C) 2003-2013 Jozsef Kadlecsik <kadlec@netfilter.org> */
+>>>>>>> upstream/android-13
 
 /* Kernel module implementing an IP set type: the hash:ip type */
 
@@ -27,10 +32,18 @@
 /*				1	   Counters support */
 /*				2	   Comments support */
 /*				3	   Forceadd support */
+<<<<<<< HEAD
 #define IPSET_TYPE_REV_MAX	4	/* skbinfo support  */
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>");
+=======
+/*				4	   skbinfo support */
+#define IPSET_TYPE_REV_MAX	5	/* bucketsize, initval support  */
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Jozsef Kadlecsik <kadlec@netfilter.org>");
+>>>>>>> upstream/android-13
 IP_SET_MODULE_DESC("hash:ip", IPSET_TYPE_REV_MIN, IPSET_TYPE_REV_MAX);
 MODULE_ALIAS("ip_set_hash:ip");
 
@@ -48,7 +61,11 @@ struct hash_ip4_elem {
 
 /* Common functions */
 
+<<<<<<< HEAD
 static inline bool
+=======
+static bool
+>>>>>>> upstream/android-13
 hash_ip4_data_equal(const struct hash_ip4_elem *e1,
 		    const struct hash_ip4_elem *e2,
 		    u32 *multi)
@@ -67,7 +84,11 @@ nla_put_failure:
 	return true;
 }
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 hash_ip4_data_next(struct hash_ip4_elem *next, const struct hash_ip4_elem *e)
 {
 	next->ip = e->ip;
@@ -135,8 +156,16 @@ hash_ip4_uadt(struct ip_set *set, struct nlattr *tb[],
 		ret = ip_set_get_hostipaddr4(tb[IPSET_ATTR_IP_TO], &ip_to);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 		if (ip > ip_to)
 			swap(ip, ip_to);
+=======
+		if (ip > ip_to) {
+			if (ip_to == 0)
+				return -IPSET_ERR_HASH_ELEM;
+			swap(ip, ip_to);
+		}
+>>>>>>> upstream/android-13
 	} else if (tb[IPSET_ATTR_CIDR]) {
 		u8 cidr = nla_get_u8(tb[IPSET_ATTR_CIDR]);
 
@@ -147,6 +176,13 @@ hash_ip4_uadt(struct ip_set *set, struct nlattr *tb[],
 
 	hosts = h->netmask == 32 ? 1 : 2 << (32 - h->netmask - 1);
 
+<<<<<<< HEAD
+=======
+	/* 64bit division is not allowed on 32bit */
+	if (((u64)ip_to - ip + 1) >> (32 - h->netmask) > IPSET_MAX_RANGE)
+		return -ERANGE;
+
+>>>>>>> upstream/android-13
 	if (retried) {
 		ip = ntohl(h->next.ip);
 		e.ip = htonl(ip);
@@ -175,7 +211,11 @@ struct hash_ip6_elem {
 
 /* Common functions */
 
+<<<<<<< HEAD
 static inline bool
+=======
+static bool
+>>>>>>> upstream/android-13
 hash_ip6_data_equal(const struct hash_ip6_elem *ip1,
 		    const struct hash_ip6_elem *ip2,
 		    u32 *multi)
@@ -183,7 +223,11 @@ hash_ip6_data_equal(const struct hash_ip6_elem *ip1,
 	return ipv6_addr_equal(&ip1->ip.in6, &ip2->ip.in6);
 }
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 hash_ip6_netmask(union nf_inet_addr *ip, u8 prefix)
 {
 	ip6_netmask(ip, prefix);
@@ -200,7 +244,11 @@ nla_put_failure:
 	return true;
 }
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 hash_ip6_data_next(struct hash_ip6_elem *next, const struct hash_ip6_elem *e)
 {
 }
@@ -281,11 +329,20 @@ static struct ip_set_type hash_ip_type __read_mostly = {
 	.family		= NFPROTO_UNSPEC,
 	.revision_min	= IPSET_TYPE_REV_MIN,
 	.revision_max	= IPSET_TYPE_REV_MAX,
+<<<<<<< HEAD
+=======
+	.create_flags[IPSET_TYPE_REV_MAX] = IPSET_CREATE_FLAG_BUCKETSIZE,
+>>>>>>> upstream/android-13
 	.create		= hash_ip_create,
 	.create_policy	= {
 		[IPSET_ATTR_HASHSIZE]	= { .type = NLA_U32 },
 		[IPSET_ATTR_MAXELEM]	= { .type = NLA_U32 },
+<<<<<<< HEAD
 		[IPSET_ATTR_PROBES]	= { .type = NLA_U8 },
+=======
+		[IPSET_ATTR_INITVAL]	= { .type = NLA_U32 },
+		[IPSET_ATTR_BUCKETSIZE]	= { .type = NLA_U8 },
+>>>>>>> upstream/android-13
 		[IPSET_ATTR_RESIZE]	= { .type = NLA_U8  },
 		[IPSET_ATTR_TIMEOUT]	= { .type = NLA_U32 },
 		[IPSET_ATTR_NETMASK]	= { .type = NLA_U8  },

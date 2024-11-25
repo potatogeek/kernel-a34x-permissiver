@@ -213,8 +213,12 @@ static struct pci_driver orinoco_tmd_driver = {
 	.id_table	= orinoco_tmd_id_table,
 	.probe		= orinoco_tmd_init_one,
 	.remove		= orinoco_tmd_remove_one,
+<<<<<<< HEAD
 	.suspend	= orinoco_pci_suspend,
 	.resume		= orinoco_pci_resume,
+=======
+	.driver.pm	= &orinoco_pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static char version[] __initdata = DRIVER_NAME " " DRIVER_VERSION
@@ -236,6 +240,7 @@ static void __exit orinoco_tmd_exit(void)
 
 module_init(orinoco_tmd_init);
 module_exit(orinoco_tmd_exit);
+<<<<<<< HEAD
 
 /*
  * Local variables:
@@ -244,3 +249,5 @@ module_exit(orinoco_tmd_exit);
  *  tab-width: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * tps65910.h  --  TI TPS6591x
  *
@@ -6,12 +10,15 @@
  * Author: Graeme Gregory <gg@slimlogic.co.uk>
  * Author: Jorge Eduardo Candelaria <jedu@slimlogic.co.uk>
  * Author: Arnaud Deconinck <a-deconinck@ti.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under  the terms of the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_TPS65910_H
@@ -895,11 +902,14 @@ struct tps65910 {
 	struct regmap *regmap;
 	unsigned long id;
 
+<<<<<<< HEAD
 	/* Client devices */
 	struct tps65910_pmic *pmic;
 	struct tps65910_rtc *rtc;
 	struct tps65910_power *power;
 
+=======
+>>>>>>> upstream/android-13
 	/* Device node parsed board data */
 	struct tps65910_board *of_plat_data;
 
@@ -918,6 +928,7 @@ static inline int tps65910_chip_id(struct tps65910 *tps65910)
 	return tps65910->id;
 }
 
+<<<<<<< HEAD
 static inline int tps65910_reg_read(struct tps65910 *tps65910, u8 reg,
 		unsigned int *val)
 {
@@ -953,4 +964,6 @@ static inline int tps65910_irq_get_virq(struct tps65910 *tps65910, int irq)
 	return regmap_irq_get_virq(tps65910->irq_data, irq);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /*  __LINUX_MFD_TPS65910_H */

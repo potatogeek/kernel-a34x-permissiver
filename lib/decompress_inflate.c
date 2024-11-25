@@ -10,6 +10,13 @@
 #include "zlib_inflate/inftrees.c"
 #include "zlib_inflate/inffast.c"
 #include "zlib_inflate/inflate.c"
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ZLIB_DFLTCC
+#include "zlib_dfltcc/dfltcc.c"
+#include "zlib_dfltcc/dfltcc_inflate.c"
+#endif
+>>>>>>> upstream/android-13
 
 #else /* STATIC */
 /* initramfs et al: linked */
@@ -76,7 +83,16 @@ STATIC int INIT __gunzip(unsigned char *buf, long len,
 	}
 
 	strm->workspace = malloc(flush ? zlib_inflate_workspacesize() :
+<<<<<<< HEAD
 				 sizeof(struct inflate_state));
+=======
+#ifdef CONFIG_ZLIB_DFLTCC
+	/* Always allocate the full workspace for DFLTCC */
+				 zlib_inflate_workspacesize());
+#else
+				 sizeof(struct inflate_state));
+#endif
+>>>>>>> upstream/android-13
 	if (strm->workspace == NULL) {
 		error("Out of memory while allocating workspace");
 		goto gunzip_nomem4;
@@ -123,10 +139,20 @@ STATIC int INIT __gunzip(unsigned char *buf, long len,
 
 	rc = zlib_inflateInit2(strm, -MAX_WBITS);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ZLIB_DFLTCC
+	/* Always keep the window for DFLTCC */
+#else
+>>>>>>> upstream/android-13
 	if (!flush) {
 		WS(strm)->inflate_state.wsize = 0;
 		WS(strm)->inflate_state.window = NULL;
 	}
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 	while (rc == Z_OK) {
 		if (strm->avail_in == 0) {

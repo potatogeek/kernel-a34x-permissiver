@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AppliedMicro X-Gene SoC SATA Host Controller Driver
  *
@@ -6,6 +10,7 @@
  *         Tuan Phan <tphan@apm.com>
  *         Suman Tripathi <stripathi@apm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
@@ -21,6 +26,9 @@
  *
  * NOTE: PM support is not currently available.
  *
+=======
+ * NOTE: PM support is not currently available.
+>>>>>>> upstream/android-13
  */
 #include <linux/acpi.h>
 #include <linux/module.h>
@@ -550,7 +558,11 @@ softreset_retry:
 
 /**
  * xgene_ahci_handle_broken_edge_irq - Handle the broken irq.
+<<<<<<< HEAD
  * @ata_host: Host that recieved the irq
+=======
+ * @host: Host that recieved the irq
+>>>>>>> upstream/android-13
  * @irq_masked: HOST_IRQ_STAT value
  *
  * For hardware with broken edge trigger latch

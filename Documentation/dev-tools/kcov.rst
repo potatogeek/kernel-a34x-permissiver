@@ -22,7 +22,11 @@ Configure the kernel with::
 
         CONFIG_KCOV=y
 
+<<<<<<< HEAD
 CONFIG_KCOV requires gcc built on revision 231296 or later.
+=======
+CONFIG_KCOV requires gcc 6.1.0 or later.
+>>>>>>> upstream/android-13
 
 If the comparison operands need to be collected, set::
 
@@ -217,6 +221,7 @@ This allows to collect coverage from two types of kernel background
 threads: the global ones, that are spawned during kernel boot in a limited
 number of instances (e.g. one USB hub_event() worker thread is spawned per
 USB HCD); and the local ones, that are spawned when a user interacts with
+<<<<<<< HEAD
 some kernel interface (e.g. vhost workers).
 
 To enable collecting coverage from a global background thread, a unique
@@ -225,6 +230,17 @@ kcov_remote_start() call. Then a userspace process can pass a list of such
 handles to the KCOV_REMOTE_ENABLE ioctl in the handles array field of the
 kcov_remote_arg struct. This will attach the used kcov device to the code
 sections, that are referenced by those handles.
+=======
+some kernel interface (e.g. vhost workers); as well as from soft
+interrupts.
+
+To enable collecting coverage from a global background thread or from a
+softirq, a unique global handle must be assigned and passed to the
+corresponding kcov_remote_start() call. Then a userspace process can pass
+a list of such handles to the KCOV_REMOTE_ENABLE ioctl in the handles
+array field of the kcov_remote_arg struct. This will attach the used kcov
+device to the code sections, that are referenced by those handles.
+>>>>>>> upstream/android-13
 
 Since there might be many local background threads spawned from different
 userspace processes, we can't use a single global handle per annotation.
@@ -242,7 +258,11 @@ handles as they don't belong to a particular subsystem. The bytes 4-7 are
 currently reserved and must be zero. In the future the number of bytes
 used for the subsystem or handle ids might be increased.
 
+<<<<<<< HEAD
 When a particular userspace proccess collects coverage by via a common
+=======
+When a particular userspace process collects coverage via a common
+>>>>>>> upstream/android-13
 handle, kcov will collect coverage for each code section that is annotated
 to use the common handle obtained as kcov_handle from the current
 task_struct. However non common handles allow to collect coverage

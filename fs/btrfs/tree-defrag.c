@@ -35,7 +35,11 @@ int btrfs_defrag_leaves(struct btrfs_trans_handle *trans,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (!test_bit(BTRFS_ROOT_REF_COWS, &root->state))
+=======
+	if (!test_bit(BTRFS_ROOT_SHAREABLE, &root->state))
+>>>>>>> upstream/android-13
 		goto out;
 
 	path = btrfs_alloc_path();
@@ -52,7 +56,10 @@ int btrfs_defrag_leaves(struct btrfs_trans_handle *trans,
 		u32 nritems;
 
 		root_node = btrfs_lock_root_node(root);
+<<<<<<< HEAD
 		btrfs_set_lock_blocking(root_node);
+=======
+>>>>>>> upstream/android-13
 		nritems = btrfs_header_nritems(root_node);
 		root->defrag_max.objectid = 0;
 		/* from above we know this is not a leaf */
@@ -133,10 +140,17 @@ out:
 		ret = 0;
 	}
 done:
+<<<<<<< HEAD
 	if (ret != -EAGAIN) {
 		memset(&root->defrag_progress, 0,
 		       sizeof(root->defrag_progress));
 		root->defrag_trans_start = trans->transid;
 	}
+=======
+	if (ret != -EAGAIN)
+		memset(&root->defrag_progress, 0,
+		       sizeof(root->defrag_progress));
+
+>>>>>>> upstream/android-13
 	return ret;
 }

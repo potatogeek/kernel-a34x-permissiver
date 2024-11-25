@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_CS46XX_H
 #define __SOUND_CS46XX_H
 
@@ -5,6 +9,7 @@
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>,
  *		     Cirrus Logic, Inc.
  *  Definitions for Cirrus Logic CS46xx chips
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/pcm.h>
@@ -1650,7 +1657,10 @@ struct snd_cs46xx_region {
 	unsigned long base;
 	void __iomem *remap_addr;
 	unsigned long size;
+<<<<<<< HEAD
 	struct resource *resource;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct snd_cs46xx {
@@ -1733,8 +1743,12 @@ struct snd_cs46xx {
 
 int snd_cs46xx_create(struct snd_card *card,
 		      struct pci_dev *pci,
+<<<<<<< HEAD
 		      int external_amp, int thinkpad,
 		      struct snd_cs46xx **rcodec);
+=======
+		      int external_amp, int thinkpad);
+>>>>>>> upstream/android-13
 extern const struct dev_pm_ops snd_cs46xx_pm;
 
 int snd_cs46xx_pcm(struct snd_cs46xx *chip, int device);

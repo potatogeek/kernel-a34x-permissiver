@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef __ASM_NDS32_MEMORY_H
@@ -15,6 +19,7 @@
 #define PHYS_OFFSET     (0x0)
 #endif
 
+<<<<<<< HEAD
 #ifndef __virt_to_bus
 #define __virt_to_bus	__virt_to_phys
 #endif
@@ -23,6 +28,8 @@
 #define __bus_to_virt	__phys_to_virt
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * TASK_SIZE - the maximum size of a user space task.
  * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area
@@ -84,18 +91,24 @@
  *  virt_to_page(k)	convert a _valid_ virtual address to struct page *
  *  virt_addr_valid(k)	indicates whether a virtual address is valid
  */
+<<<<<<< HEAD
 #ifndef CONFIG_DISCONTIGMEM
 
+=======
+>>>>>>> upstream/android-13
 #define ARCH_PFN_OFFSET		PHYS_PFN_OFFSET
 #define pfn_valid(pfn)		((pfn) >= PHYS_PFN_OFFSET && (pfn) < (PHYS_PFN_OFFSET + max_mapnr))
 
 #define virt_to_page(kaddr)	(pfn_to_page(__pa(kaddr) >> PAGE_SHIFT))
 #define virt_addr_valid(kaddr)	((unsigned long)(kaddr) >= PAGE_OFFSET && (unsigned long)(kaddr) < (unsigned long)high_memory)
 
+<<<<<<< HEAD
 #else /* CONFIG_DISCONTIGMEM */
 #error CONFIG_DISCONTIGMEM is not supported yet.
 #endif /* !CONFIG_DISCONTIGMEM */
 
+=======
+>>>>>>> upstream/android-13
 #define page_to_phys(page)	(page_to_pfn(page) << PAGE_SHIFT)
 
 #endif

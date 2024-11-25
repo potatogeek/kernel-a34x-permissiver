@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Microchip / Atmel ECC (I2C) driver.
  *
  * Copyright (c) 2017, Microchip Technology Inc.
  * Author: Tudor Ambarus <tudor.ambarus@microchip.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -17,6 +22,10 @@
 
 #include <linux/bitrev.h>
 #include <linux/crc16.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/device.h>
 #include <linux/err.h>
@@ -32,6 +41,7 @@
 #include <crypto/internal/kpp.h>
 #include <crypto/ecdh.h>
 #include <crypto/kpp.h>
+<<<<<<< HEAD
 #include "atmel-ecc.h"
 
 /* Used for binding tfm objects to i2c clients. */
@@ -39,10 +49,14 @@ struct atmel_ecc_driver_data {
 	struct list_head i2c_client_list;
 	spinlock_t i2c_list_lock;
 } ____cacheline_aligned;
+=======
+#include "atmel-i2c.h"
+>>>>>>> upstream/android-13
 
 static struct atmel_ecc_driver_data driver_data;
 
 /**
+<<<<<<< HEAD
  * atmel_ecc_i2c_client_priv - i2c_client private data
  * @client              : pointer to i2c client device
  * @i2c_client_list_node: part of i2c_client_list
@@ -69,6 +83,9 @@ struct atmel_ecc_i2c_client_priv {
 
 /**
  * atmel_ecdh_ctx - transformation context
+=======
+ * struct atmel_ecdh_ctx - transformation context
+>>>>>>> upstream/android-13
  * @client     : pointer to i2c client device
  * @fallback   : used for unsupported curves or when user wants to use its own
  *               private key.
@@ -76,7 +93,10 @@ struct atmel_ecc_i2c_client_priv {
  *               of the user to not call set_secret() while
  *               generate_public_key() or compute_shared_secret() are in flight.
  * @curve_id   : elliptic curve id
+<<<<<<< HEAD
  * @n_sz       : size in bytes of the n prime
+=======
+>>>>>>> upstream/android-13
  * @do_fallback: true when the device doesn't support the curve or when the user
  *               wants to use its own private key.
  */
@@ -85,6 +105,7 @@ struct atmel_ecdh_ctx {
 	struct crypto_kpp *fallback;
 	const u8 *public_key;
 	unsigned int curve_id;
+<<<<<<< HEAD
 	size_t n_sz;
 	bool do_fallback;
 };
@@ -271,13 +292,27 @@ static void atmel_ecdh_done(struct atmel_ecc_work_data *work_data, void *areq,
 	struct kpp_request *req = areq;
 	struct atmel_ecdh_ctx *ctx = work_data->ctx;
 	struct atmel_ecc_cmd *cmd = &work_data->cmd;
+=======
+	bool do_fallback;
+};
+
+static void atmel_ecdh_done(struct atmel_i2c_work_data *work_data, void *areq,
+			    int status)
+{
+	struct kpp_request *req = areq;
+	struct atmel_i2c_cmd *cmd = &work_data->cmd;
+>>>>>>> upstream/android-13
 	size_t copied, n_sz;
 
 	if (status)
 		goto free_work_data;
 
 	/* might want less than we've got */
+<<<<<<< HEAD
 	n_sz = min_t(size_t, ctx->n_sz, req->dst_len);
+=======
+	n_sz = min_t(size_t, ATMEL_ECC_NIST_P256_N_SIZE, req->dst_len);
+>>>>>>> upstream/android-13
 
 	/* copy the shared secret */
 	copied = sg_copy_from_buffer(req->dst, sg_nents_for_len(req->dst, n_sz),
@@ -287,11 +322,16 @@ static void atmel_ecdh_done(struct atmel_ecc_work_data *work_data, void *areq,
 
 	/* fall through */
 free_work_data:
+<<<<<<< HEAD
 	kzfree(work_data);
+=======
+	kfree_sensitive(work_data);
+>>>>>>> upstream/android-13
 	kpp_request_complete(req, status);
 }
 
 /*
+<<<<<<< HEAD
  * atmel_ecc_send_receive() - send a command to the device and receive its
  *                            response.
  * @client: i2c client device
@@ -376,6 +416,8 @@ static unsigned int atmel_ecdh_supported_curve(unsigned int curve_id)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * A random private key is generated and stored in the device. The device
  * returns the pair public key.
  */
@@ -383,7 +425,11 @@ static int atmel_ecdh_set_secret(struct crypto_kpp *tfm, const void *buf,
 				 unsigned int len)
 {
 	struct atmel_ecdh_ctx *ctx = kpp_tfm_ctx(tfm);
+<<<<<<< HEAD
 	struct atmel_ecc_cmd *cmd;
+=======
+	struct atmel_i2c_cmd *cmd;
+>>>>>>> upstream/android-13
 	void *public_key;
 	struct ecdh params;
 	int ret = -ENOMEM;
@@ -398,8 +444,12 @@ static int atmel_ecdh_set_secret(struct crypto_kpp *tfm, const void *buf,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ctx->n_sz = atmel_ecdh_supported_curve(params.curve_id);
 	if (!ctx->n_sz || params.key_size) {
+=======
+	if (params.key_size) {
+>>>>>>> upstream/android-13
 		/* fallback to ecdh software implementation */
 		ctx->do_fallback = true;
 		return crypto_kpp_set_secret(ctx->fallback, buf, len);
@@ -419,11 +469,18 @@ static int atmel_ecdh_set_secret(struct crypto_kpp *tfm, const void *buf,
 		goto free_cmd;
 
 	ctx->do_fallback = false;
+<<<<<<< HEAD
 	ctx->curve_id = params.curve_id;
 
 	atmel_ecc_init_genkey_cmd(cmd, DATA_SLOT_2);
 
 	ret = atmel_ecc_send_receive(ctx->client, cmd);
+=======
+
+	atmel_i2c_init_genkey_cmd(cmd, DATA_SLOT_2);
+
+	ret = atmel_i2c_send_receive(ctx->client, cmd);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto free_public_key;
 
@@ -453,6 +510,12 @@ static int atmel_ecdh_generate_public_key(struct kpp_request *req)
 		return crypto_kpp_generate_public_key(req);
 	}
 
+<<<<<<< HEAD
+=======
+	if (!ctx->public_key)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* might want less than we've got */
 	nbytes = min_t(size_t, ATMEL_ECC_PUBKEY_SIZE, req->dst_len);
 
@@ -470,7 +533,11 @@ static int atmel_ecdh_compute_shared_secret(struct kpp_request *req)
 {
 	struct crypto_kpp *tfm = crypto_kpp_reqtfm(req);
 	struct atmel_ecdh_ctx *ctx = kpp_tfm_ctx(tfm);
+<<<<<<< HEAD
 	struct atmel_ecc_work_data *work_data;
+=======
+	struct atmel_i2c_work_data *work_data;
+>>>>>>> upstream/android-13
 	gfp_t gfp;
 	int ret;
 
@@ -491,12 +558,22 @@ static int atmel_ecdh_compute_shared_secret(struct kpp_request *req)
 		return -ENOMEM;
 
 	work_data->ctx = ctx;
+<<<<<<< HEAD
 
 	ret = atmel_ecc_init_ecdh_cmd(&work_data->cmd, req->src);
 	if (ret)
 		goto free_work_data;
 
 	atmel_ecc_enqueue(work_data, atmel_ecdh_done, req);
+=======
+	work_data->client = ctx->client;
+
+	ret = atmel_i2c_init_ecdh_cmd(&work_data->cmd, req->src);
+	if (ret)
+		goto free_work_data;
+
+	atmel_i2c_enqueue(work_data, atmel_ecdh_done, req);
+>>>>>>> upstream/android-13
 
 	return -EINPROGRESS;
 
@@ -507,7 +584,11 @@ free_work_data:
 
 static struct i2c_client *atmel_ecc_i2c_client_alloc(void)
 {
+<<<<<<< HEAD
 	struct atmel_ecc_i2c_client_priv *i2c_priv, *min_i2c_priv = NULL;
+=======
+	struct atmel_i2c_client_priv *i2c_priv, *min_i2c_priv = NULL;
+>>>>>>> upstream/android-13
 	struct i2c_client *client = ERR_PTR(-ENODEV);
 	int min_tfm_cnt = INT_MAX;
 	int tfm_cnt;
@@ -542,7 +623,11 @@ static struct i2c_client *atmel_ecc_i2c_client_alloc(void)
 
 static void atmel_ecc_i2c_client_free(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	struct atmel_ecc_i2c_client_priv *i2c_priv = i2c_get_clientdata(client);
+=======
+	struct atmel_i2c_client_priv *i2c_priv = i2c_get_clientdata(client);
+>>>>>>> upstream/android-13
 
 	atomic_dec(&i2c_priv->tfm_count);
 }
@@ -553,6 +638,10 @@ static int atmel_ecdh_init_tfm(struct crypto_kpp *tfm)
 	struct crypto_kpp *fallback;
 	struct atmel_ecdh_ctx *ctx = kpp_tfm_ctx(tfm);
 
+<<<<<<< HEAD
+=======
+	ctx->curve_id = ECC_CURVE_NIST_P256;
+>>>>>>> upstream/android-13
 	ctx->client = atmel_ecc_i2c_client_alloc();
 	if (IS_ERR(ctx->client)) {
 		pr_err("tfm - i2c_client binding failed\n");
@@ -596,7 +685,11 @@ static unsigned int atmel_ecdh_max_size(struct crypto_kpp *tfm)
 	return ATMEL_ECC_PUBKEY_SIZE;
 }
 
+<<<<<<< HEAD
 static struct kpp_alg atmel_ecdh = {
+=======
+static struct kpp_alg atmel_ecdh_nist_p256 = {
+>>>>>>> upstream/android-13
 	.set_secret = atmel_ecdh_set_secret,
 	.generate_public_key = atmel_ecdh_generate_public_key,
 	.compute_shared_secret = atmel_ecdh_compute_shared_secret,
@@ -605,7 +698,11 @@ static struct kpp_alg atmel_ecdh = {
 	.max_size = atmel_ecdh_max_size,
 	.base = {
 		.cra_flags = CRYPTO_ALG_NEED_FALLBACK,
+<<<<<<< HEAD
 		.cra_name = "ecdh",
+=======
+		.cra_name = "ecdh-nist-p256",
+>>>>>>> upstream/android-13
 		.cra_driver_name = "atmel-ecdh",
 		.cra_priority = ATMEL_ECC_PRIORITY,
 		.cra_module = THIS_MODULE,
@@ -613,6 +710,7 @@ static struct kpp_alg atmel_ecdh = {
 	},
 };
 
+<<<<<<< HEAD
 static inline size_t atmel_ecc_wake_token_sz(u32 bus_clk_rate)
 {
 	u32 no_of_bits = DIV_ROUND_UP(TWLO_USEC * bus_clk_rate, USEC_PER_SEC);
@@ -703,21 +801,46 @@ static int atmel_ecc_probe(struct i2c_client *client,
 	if (ret)
 		return ret;
 
+=======
+static int atmel_ecc_probe(struct i2c_client *client,
+			   const struct i2c_device_id *id)
+{
+	struct atmel_i2c_client_priv *i2c_priv;
+	int ret;
+
+	ret = atmel_i2c_probe(client, id);
+	if (ret)
+		return ret;
+
+	i2c_priv = i2c_get_clientdata(client);
+
+>>>>>>> upstream/android-13
 	spin_lock(&driver_data.i2c_list_lock);
 	list_add_tail(&i2c_priv->i2c_client_list_node,
 		      &driver_data.i2c_client_list);
 	spin_unlock(&driver_data.i2c_list_lock);
 
+<<<<<<< HEAD
 	ret = crypto_register_kpp(&atmel_ecdh);
+=======
+	ret = crypto_register_kpp(&atmel_ecdh_nist_p256);
+>>>>>>> upstream/android-13
 	if (ret) {
 		spin_lock(&driver_data.i2c_list_lock);
 		list_del(&i2c_priv->i2c_client_list_node);
 		spin_unlock(&driver_data.i2c_list_lock);
 
+<<<<<<< HEAD
 		dev_err(dev, "%s alg registration failed\n",
 			atmel_ecdh.base.cra_driver_name);
 	} else {
 		dev_info(dev, "atmel ecc algorithms registered in /proc/crypto\n");
+=======
+		dev_err(&client->dev, "%s alg registration failed\n",
+			atmel_ecdh_nist_p256.base.cra_driver_name);
+	} else {
+		dev_info(&client->dev, "atmel ecc algorithms registered in /proc/crypto\n");
+>>>>>>> upstream/android-13
 	}
 
 	return ret;
@@ -725,7 +848,11 @@ static int atmel_ecc_probe(struct i2c_client *client,
 
 static int atmel_ecc_remove(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	struct atmel_ecc_i2c_client_priv *i2c_priv = i2c_get_clientdata(client);
+=======
+	struct atmel_i2c_client_priv *i2c_priv = i2c_get_clientdata(client);
+>>>>>>> upstream/android-13
 
 	/* Return EBUSY if i2c client already allocated. */
 	if (atomic_read(&i2c_priv->tfm_count)) {
@@ -733,7 +860,11 @@ static int atmel_ecc_remove(struct i2c_client *client)
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	crypto_unregister_kpp(&atmel_ecdh);
+=======
+	crypto_unregister_kpp(&atmel_ecdh_nist_p256);
+>>>>>>> upstream/android-13
 
 	spin_lock(&driver_data.i2c_list_lock);
 	list_del(&i2c_priv->i2c_client_list_node);

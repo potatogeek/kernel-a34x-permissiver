@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Device Tree support for Mediatek SoCs
  *
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Matthias Brugger <matthias.bgg@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,14 @@
 #include <asm/mach/arch.h>
 #include <linux/of.h>
 #include <linux/clk-provider.h>
+=======
+ */
+#include <linux/init.h>
+#include <linux/io.h>
+#include <asm/mach/arch.h>
+#include <linux/of.h>
+#include <linux/of_clk.h>
+>>>>>>> upstream/android-13
 #include <linux/clocksource.h>
 
 

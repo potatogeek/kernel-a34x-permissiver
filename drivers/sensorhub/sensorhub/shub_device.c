@@ -70,7 +70,11 @@ static void timestamp_sync_work_func(struct work_struct *work)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = shub_send_command(CMD_SETVALUE, TYPE_HUB, TIME_SYNC, NULL, 0);
+=======
+	ret = shub_send_command(CMD_SETVALUE, TYPE_HUB, RTC_TIME, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		shub_errf("comm fail %d", ret);
 }
@@ -102,20 +106,26 @@ static int initialize_timestamp_sync_timer(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define SYSTEM_INFO_SIZE_V1	40
 #define SYSTEM_INFO_SIZE_V2	48 /* SF_PROBE_V2 */
 #define COPY_FIELD(dst, buffer, index, size) \
 	memcpy(&dst, (buffer + index), (size)); \
 	(index) += (size)
 
+=======
+>>>>>>> upstream/android-13
 static int get_shub_system_info_from_hub(void)
 {
 	int ret = 0;
 	char *buffer = NULL;
 	unsigned int buffer_length;
+<<<<<<< HEAD
 	struct shub_system_info *system_info = &shub_data->system_info;
 	unsigned int sensor_probe_size;
 	unsigned int index = 0;
+=======
+>>>>>>> upstream/android-13
 
 	ret = shub_send_command_wait(CMD_GETVALUE, TYPE_HUB, HUB_SYSTEM_INFO, 1000, NULL, 0, &buffer, &buffer_length,
 				     true);
@@ -125,6 +135,7 @@ static int get_shub_system_info_from_hub(void)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (buffer_length == SYSTEM_INFO_SIZE_V1) {
 		sensor_probe_size = sizeof(system_info->scan_sensor_probe[0]);
 	} else if (buffer_length == SYSTEM_INFO_SIZE_V2) {
@@ -148,6 +159,14 @@ static int get_shub_system_info_from_hub(void)
 		ret = -EINVAL;
 	}
 
+=======
+	if (buffer_length != sizeof(shub_data->system_info)) {
+		shub_errf("buffer length error %d", buffer_length);
+		return -EINVAL;
+	}
+
+	memcpy(&shub_data->system_info, buffer, sizeof(shub_data->system_info));
+>>>>>>> upstream/android-13
 	kfree(buffer);
 
 	return ret;
@@ -158,6 +177,7 @@ struct shub_system_info *get_shub_system_info(void)
 	return &shub_data->system_info;
 }
 
+<<<<<<< HEAD
 bool is_support_system_feature(int feature)
 {
 	return (shub_data->system_info.system_feature & (1 << feature));
@@ -177,6 +197,8 @@ void set_model_name_to_hub(void)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int send_pm_state(u8 pm_state)
 {
 	int ret;
@@ -193,18 +215,26 @@ static int send_pm_state(u8 pm_state)
 static int init_sensorhub(void)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	char buf[][2] = { {0x00, shub_data->intent_screen_state}, {0x00, shub_data->display_screen_state}};
+=======
+>>>>>>> upstream/android-13
 
 	ret = get_shub_system_info_from_hub();
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	set_model_name_to_hub();
 
 	send_pm_state(shub_data->pm_status);
 	shub_send_status(shub_data->lcd_status);
 	shub_send_status_with_buffer(SCREEN_STATE, buf[0], 2);
 	shub_send_status_with_buffer(SCREEN_STATE, buf[1], 2);
+=======
+	send_pm_state(shub_data->pm_status);
+	shub_send_status(shub_data->lcd_status);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -212,7 +242,10 @@ static int init_sensorhub(void)
 void init_others(void)
 {
 	sync_motor_state();
+<<<<<<< HEAD
 	sync_panel_state();
+=======
+>>>>>>> upstream/android-13
 }
 
 struct reset_info_t get_reset_info(void)
@@ -292,6 +325,7 @@ int queue_refresh_task(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 int shub_send_status_with_buffer(u8 state_sub_cmd, char *send_buf, int send_buf_len)
 {
 	int ret;
@@ -305,6 +339,8 @@ int shub_send_status_with_buffer(u8 state_sub_cmd, char *send_buf, int send_buf_
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 int shub_send_status(u8 state_sub_cmd)
 {
 	int ret;
@@ -362,7 +398,10 @@ void reset_mcu(int reason)
 static int init_sensor_vdd(void)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	int prox_ldo_en = 0;
+=======
+>>>>>>> upstream/android-13
 	const char *sensor_vdd;
 	struct device_node *np = shub_data->pdev->dev.of_node;
 	enum of_gpio_flags flags;
@@ -396,6 +435,7 @@ static int init_sensor_vdd(void)
 		}
 	}
 
+<<<<<<< HEAD
 	prox_ldo_en = of_get_named_gpio_flags(np, "prox-ldo-en", 0, &flags);
 
 	if (prox_ldo_en >= 0) {
@@ -412,6 +452,8 @@ static int init_sensor_vdd(void)
 		gpio_free(prox_ldo_en);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -439,6 +481,7 @@ int enable_sensor_vdd(void)
 		}
 	}
 
+<<<<<<< HEAD
 	if (shub_data->prox_ldo_en) {
 		ret = gpio_request(shub_data->prox_ldo_en, "prox_ldo_en");
 		if (ret < 0) {
@@ -448,6 +491,8 @@ int enable_sensor_vdd(void)
 			gpio_free(shub_data->prox_ldo_en);
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -475,6 +520,7 @@ int disable_sensor_vdd(void)
 		}
 	}
 
+<<<<<<< HEAD
 	if (shub_data->prox_ldo_en) {
 		ret = gpio_request(shub_data->prox_ldo_en, "prox_ldo_en");
 		if (ret < 0) {
@@ -484,6 +530,8 @@ int disable_sensor_vdd(void)
 			gpio_free(shub_data->prox_ldo_en);
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -513,9 +561,12 @@ int init_sensorhub_device(void)
 
 		for (type = 0; type <= RESET_TYPE_MAX; type++)
 			shub_data->cnt_shub_reset[type] = 0;
+<<<<<<< HEAD
 
 		for (type = 0; type < MINI_DUMP_LENGTH; type++)
 			shub_data->mini_dump[type] = 0;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	shub_data->pm_status = PM_COMPLETE;
@@ -619,6 +670,7 @@ int shub_probe(struct platform_device *pdev)
 		goto err_init_file_manager;
 	}
 
+<<<<<<< HEAD
 	if (initialize_indio_dev(&shub_data->pdev->dev) < 0) {
 		shub_errf("failed to init initialize_indio_dev");
 		goto err_initialize_indio_dev;
@@ -628,6 +680,9 @@ int shub_probe(struct platform_device *pdev)
 #if IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2) && IS_ENABLED(CONFIG_SHUB_PANEL_NOTIFY)
 	init_shub_panel_callback();
 #endif
+=======
+	init_shub_panel();
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SHUB_DEBUG
 	shub_system_checker_init();
 #endif
@@ -642,8 +697,11 @@ int shub_probe(struct platform_device *pdev)
 
 	return ret;
 
+<<<<<<< HEAD
 err_initialize_indio_dev:
 	remove_indio_dev();
+=======
+>>>>>>> upstream/android-13
 err_init_file_manager:
 	remove_shub_debug_sysfs();
 err_init_debug_sysfs:
@@ -675,9 +733,12 @@ void shub_shutdown(struct platform_device *pdev)
 
 	sensorhub_shutdown();
 	remove_shub_panel();
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SEC_PANEL_NOTIFIER_V2) && IS_ENABLED(CONFIG_SHUB_PANEL_NOTIFY)
 	remove_shub_panel_callback();
 #endif
+=======
+>>>>>>> upstream/android-13
 	remove_shub_dump();
 	remove_shub_motor_callback();
 	remove_factory();

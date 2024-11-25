@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef RXE_NET_H
@@ -43,7 +50,11 @@ struct rxe_recv_sockets {
 	struct socket *sk6;
 };
 
+<<<<<<< HEAD
 struct rxe_dev *rxe_net_add(struct net_device *ndev);
+=======
+int rxe_net_add(const char *ibdev_name, struct net_device *ndev);
+>>>>>>> upstream/android-13
 
 int rxe_net_init(void);
 void rxe_net_exit(void);

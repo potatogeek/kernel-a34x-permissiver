@@ -1,10 +1,19 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2014 Intel Corporation. All rights reserved.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2007 - 2014 Intel Corporation. All rights reserved.
+ * Copyright (C) 2018, 2020 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Portions of this file are derived from the ipw3945 project, as well
  * as portions of the ieee80211 subsystem header files.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -21,6 +30,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -169,7 +180,10 @@ static void iwl_tt_check_exit_ct_kill(struct timer_list *t)
 	struct iwl_priv *priv = from_timer(priv, t,
 					   thermal_throttle.ct_kill_exit_tm);
 	struct iwl_tt_mgmt *tt = &priv->thermal_throttle;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 
 	if (test_bit(STATUS_EXIT_PENDING, &priv->status))
 		return;
@@ -185,8 +199,13 @@ static void iwl_tt_check_exit_ct_kill(struct timer_list *t)
 			priv->thermal_throttle.ct_kill_toggle = true;
 		}
 		iwl_read32(priv->trans, CSR_UCODE_DRV_GP1);
+<<<<<<< HEAD
 		if (iwl_trans_grab_nic_access(priv->trans, &flags))
 			iwl_trans_release_nic_access(priv->trans, &flags);
+=======
+		if (iwl_trans_grab_nic_access(priv->trans))
+			iwl_trans_release_nic_access(priv->trans);
+>>>>>>> upstream/android-13
 
 		/* Reschedule the ct_kill timer to occur in
 		 * CT_KILL_EXIT_DURATION seconds to ensure we get a
@@ -329,9 +348,15 @@ static void iwl_legacy_tt_handler(struct iwl_priv *priv, s32 temp, bool force)
 					iwl_prepare_ct_kill_task(priv);
 					tt->state = old_state;
 				}
+<<<<<<< HEAD
 			} else if (old_state == IWL_TI_CT_KILL &&
 				 tt->state != IWL_TI_CT_KILL)
 				iwl_perform_ct_kill_task(priv, false);
+=======
+			} else if (old_state == IWL_TI_CT_KILL) {
+				iwl_perform_ct_kill_task(priv, false);
+			}
+>>>>>>> upstream/android-13
 			IWL_DEBUG_TEMP(priv, "Temperature state changed %u\n",
 					tt->state);
 			IWL_DEBUG_TEMP(priv, "Power Index change to %u\n",

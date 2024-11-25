@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 /* Copyright (c) 2014 Linaro Ltd.
  * Copyright (c) 2014 Hisilicon Limited.
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/* Copyright (c) 2014 Linaro Ltd.
+ * Copyright (c) 2014 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -20,6 +27,11 @@
 #include <linux/mfd/syscon.h>
 #include <linux/regmap.h>
 
+<<<<<<< HEAD
+=======
+#define SC_PPE_RESET_DREQ		0x026C
+
+>>>>>>> upstream/android-13
 #define PPE_CFG_RX_ADDR			0x100
 #define PPE_CFG_POOL_GRP		0x300
 #define PPE_CFG_RX_BUF_SIZE		0x400
@@ -37,10 +49,30 @@
 #define GE_MODE_CHANGE_REG		0x1b4
 #define GE_RECV_CONTROL_REG		0x1e0
 #define GE_STATION_MAC_ADDRESS		0x210
+<<<<<<< HEAD
 #define PPE_CFG_CPU_ADD_ADDR		0x580
 #define PPE_CFG_MAX_FRAME_LEN_REG	0x408
 #define PPE_CFG_BUS_CTRL_REG		0x424
 #define PPE_CFG_RX_CTRL_REG		0x428
+=======
+
+#define PPE_CFG_BUS_CTRL_REG		0x424
+#define PPE_CFG_RX_CTRL_REG		0x428
+
+#if defined(CONFIG_HI13X1_GMAC)
+#define PPE_CFG_CPU_ADD_ADDR		0x6D0
+#define PPE_CFG_MAX_FRAME_LEN_REG	0x500
+#define PPE_CFG_RX_PKT_MODE_REG		0x504
+#define PPE_CFG_QOS_VMID_GEN		0x520
+#define PPE_CFG_RX_PKT_INT		0x740
+#define PPE_INTEN			0x700
+#define PPE_INTSTS			0x708
+#define PPE_RINT			0x704
+#define PPE_CFG_STS_MODE		0x880
+#else
+#define PPE_CFG_CPU_ADD_ADDR		0x580
+#define PPE_CFG_MAX_FRAME_LEN_REG	0x408
+>>>>>>> upstream/android-13
 #define PPE_CFG_RX_PKT_MODE_REG		0x438
 #define PPE_CFG_QOS_VMID_GEN		0x500
 #define PPE_CFG_RX_PKT_INT		0x538
@@ -48,8 +80,17 @@
 #define PPE_INTSTS			0x608
 #define PPE_RINT			0x604
 #define PPE_CFG_STS_MODE		0x700
+<<<<<<< HEAD
 #define PPE_HIS_RX_PKT_CNT		0x804
 
+=======
+#endif /* CONFIG_HI13X1_GMAC */
+
+#define PPE_HIS_RX_PKT_CNT		0x804
+
+#define RESET_DREQ_ALL			0xffffffff
+
+>>>>>>> upstream/android-13
 /* REG_INTERRUPT */
 #define RCV_INT				BIT(10)
 #define RCV_NOBUF			BIT(8)
@@ -61,8 +102,20 @@
 /* TX descriptor config */
 #define TX_FREE_MEM			BIT(0)
 #define TX_READ_ALLOC_L3		BIT(1)
+<<<<<<< HEAD
 #define TX_FINISH_CACHE_INV		BIT(2)
 #define TX_CLEAR_WB			BIT(4)
+=======
+#if defined(CONFIG_HI13X1_GMAC)
+#define TX_CLEAR_WB			BIT(7)
+#define TX_RELEASE_TO_PPE		BIT(4)
+#define TX_FINISH_CACHE_INV		BIT(6)
+#define TX_POOL_SHIFT			16
+#else
+#define TX_CLEAR_WB			BIT(4)
+#define TX_FINISH_CACHE_INV		BIT(2)
+#endif
+>>>>>>> upstream/android-13
 #define TX_L3_CHECKSUM			BIT(5)
 #define TX_LOOP_BACK			BIT(11)
 
@@ -97,18 +150,49 @@
 #define GE_RX_PORT_EN			BIT(1)
 #define GE_TX_PORT_EN			BIT(2)
 
+<<<<<<< HEAD
 #define PPE_CFG_STS_RX_PKT_CNT_RC	BIT(12)
 
 #define PPE_CFG_RX_PKT_ALIGN		BIT(18)
 #define PPE_CFG_QOS_VMID_MODE		BIT(14)
 #define PPE_CFG_QOS_VMID_GRP_SHIFT	8
+=======
+#define PPE_CFG_RX_PKT_ALIGN		BIT(18)
+
+#if defined(CONFIG_HI13X1_GMAC)
+#define PPE_CFG_QOS_VMID_GRP_SHIFT	4
+#define PPE_CFG_RX_CTRL_ALIGN_SHIFT	7
+#define PPE_CFG_STS_RX_PKT_CNT_RC	BIT(0)
+#define PPE_CFG_QOS_VMID_MODE		BIT(15)
+#define PPE_CFG_BUS_LOCAL_REL		(BIT(9) | BIT(15) | BIT(19) | BIT(23))
+
+/* buf unit size is cache_line_size, which is 64, so the shift is 6 */
+#define PPE_BUF_SIZE_SHIFT		6
+#define PPE_TX_BUF_HOLD			BIT(31)
+#define SOC_CACHE_LINE_MASK		0x3F
+#else
+#define PPE_CFG_QOS_VMID_GRP_SHIFT	8
+#define PPE_CFG_RX_CTRL_ALIGN_SHIFT	11
+#define PPE_CFG_STS_RX_PKT_CNT_RC	BIT(12)
+#define PPE_CFG_QOS_VMID_MODE		BIT(14)
+#define PPE_CFG_BUS_LOCAL_REL		BIT(14)
+
+/* buf unit size is 1, so the shift is 6 */
+#define PPE_BUF_SIZE_SHIFT		0
+#define PPE_TX_BUF_HOLD			0
+#endif /* CONFIG_HI13X1_GMAC */
+>>>>>>> upstream/android-13
 
 #define PPE_CFG_RX_FIFO_FSFU		BIT(11)
 #define PPE_CFG_RX_DEPTH_SHIFT		16
 #define PPE_CFG_RX_START_SHIFT		0
+<<<<<<< HEAD
 #define PPE_CFG_RX_CTRL_ALIGN_SHIFT	11
 
 #define PPE_CFG_BUS_LOCAL_REL		BIT(14)
+=======
+
+>>>>>>> upstream/android-13
 #define PPE_CFG_BUS_BIG_ENDIEN		BIT(0)
 
 #define RX_DESC_NUM			128
@@ -132,26 +216,68 @@
 #define HIP04_MIN_TX_COALESCE_FRAMES	100
 
 struct tx_desc {
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_HI13X1_GMAC)
+	u32 reserved1[2];
+	u32 send_addr;
+	u16 send_size;
+	u16 data_offset;
+	u32 reserved2[7];
+	u32 cfg;
+	u32 wb_addr;
+	u32 reserved3[3];
+#else
+>>>>>>> upstream/android-13
 	u32 send_addr;
 	u32 send_size;
 	u32 next_addr;
 	u32 cfg;
 	u32 wb_addr;
+<<<<<<< HEAD
 } __aligned(64);
 
 struct rx_desc {
+=======
+#endif
+} __aligned(64);
+
+struct rx_desc {
+#if defined(CONFIG_HI13X1_GMAC)
+	u32 reserved1[3];
+	u16 pkt_len;
+	u16 reserved_16;
+	u32 reserved2[6];
+	u32 pkt_err;
+	u32 reserved3[5];
+#else
+>>>>>>> upstream/android-13
 	u16 reserved_16;
 	u16 pkt_len;
 	u32 reserve1[3];
 	u32 pkt_err;
 	u32 reserve2[4];
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 };
 
 struct hip04_priv {
 	void __iomem *base;
+<<<<<<< HEAD
 	int phy_mode;
 	int chan;
 	unsigned int port;
+=======
+#if defined(CONFIG_HI13X1_GMAC)
+	void __iomem *sysctrl_base;
+#endif
+	phy_interface_t phy_mode;
+	int chan;
+	unsigned int port;
+	unsigned int group;
+>>>>>>> upstream/android-13
 	unsigned int speed;
 	unsigned int duplex;
 	unsigned int reg_inten;
@@ -227,6 +353,16 @@ static void hip04_config_port(struct net_device *ndev, u32 speed, u32 duplex)
 	writel_relaxed(val, priv->base + GE_MODE_CHANGE_REG);
 }
 
+<<<<<<< HEAD
+=======
+static void hip04_reset_dreq(struct hip04_priv *priv)
+{
+#if defined(CONFIG_HI13X1_GMAC)
+	writel_relaxed(RESET_DREQ_ALL, priv->sysctrl_base + SC_PPE_RESET_DREQ);
+#endif
+}
+
+>>>>>>> upstream/android-13
 static void hip04_reset_ppe(struct hip04_priv *priv)
 {
 	u32 val, tmp, timeout = 0;
@@ -247,6 +383,7 @@ static void hip04_config_fifo(struct hip04_priv *priv)
 	val |= PPE_CFG_STS_RX_PKT_CNT_RC;
 	writel_relaxed(val, priv->base + PPE_CFG_STS_MODE);
 
+<<<<<<< HEAD
 	val = BIT(priv->port);
 	regmap_write(priv->map, priv->port * 4 + PPE_CFG_POOL_GRP, val);
 
@@ -255,6 +392,16 @@ static void hip04_config_fifo(struct hip04_priv *priv)
 	writel_relaxed(val, priv->base + PPE_CFG_QOS_VMID_GEN);
 
 	val = RX_BUF_SIZE;
+=======
+	val = BIT(priv->group);
+	regmap_write(priv->map, priv->port * 4 + PPE_CFG_POOL_GRP, val);
+
+	val = priv->group << PPE_CFG_QOS_VMID_GRP_SHIFT;
+	val |= PPE_CFG_QOS_VMID_MODE;
+	writel_relaxed(val, priv->base + PPE_CFG_QOS_VMID_GEN);
+
+	val = RX_BUF_SIZE >> PPE_BUF_SIZE_SHIFT;
+>>>>>>> upstream/android-13
 	regmap_write(priv->map, priv->port * 4 + PPE_CFG_RX_BUF_SIZE, val);
 
 	val = RX_DESC_NUM << PPE_CFG_RX_DEPTH_SHIFT;
@@ -291,8 +438,15 @@ static void hip04_config_fifo(struct hip04_priv *priv)
 	val |= GE_RX_STRIP_PAD | GE_RX_PAD_EN;
 	writel_relaxed(val, priv->base + GE_RECV_CONTROL_REG);
 
+<<<<<<< HEAD
 	val = GE_AUTO_NEG_CTL;
 	writel_relaxed(val, priv->base + GE_TX_LOCAL_PAGE_REG);
+=======
+#ifndef CONFIG_HI13X1_GMAC
+	val = GE_AUTO_NEG_CTL;
+	writel_relaxed(val, priv->base + GE_TX_LOCAL_PAGE_REG);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static void hip04_mac_enable(struct net_device *ndev)
@@ -335,12 +489,26 @@ static void hip04_mac_disable(struct net_device *ndev)
 
 static void hip04_set_xmit_desc(struct hip04_priv *priv, dma_addr_t phys)
 {
+<<<<<<< HEAD
 	writel(phys, priv->base + PPE_CFG_CPU_ADD_ADDR);
+=======
+	u32 val;
+
+	val = phys >> PPE_BUF_SIZE_SHIFT | PPE_TX_BUF_HOLD;
+	writel(val, priv->base + PPE_CFG_CPU_ADD_ADDR);
+>>>>>>> upstream/android-13
 }
 
 static void hip04_set_recv_desc(struct hip04_priv *priv, dma_addr_t phys)
 {
+<<<<<<< HEAD
 	regmap_write(priv->map, priv->port * 4 + PPE_CFG_RX_ADDR, phys);
+=======
+	u32 val;
+
+	val = phys >> PPE_BUF_SIZE_SHIFT;
+	regmap_write(priv->map, priv->port * 4 + PPE_CFG_RX_ADDR, val);
+>>>>>>> upstream/android-13
 }
 
 static u32 hip04_recv_cnt(struct hip04_priv *priv)
@@ -448,11 +616,28 @@ hip04_mac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 
 	priv->tx_skb[tx_head] = skb;
 	priv->tx_phys[tx_head] = phys;
+<<<<<<< HEAD
 	desc->send_addr = cpu_to_be32(phys);
 	desc->send_size = cpu_to_be32(skb->len);
 	desc->cfg = cpu_to_be32(TX_CLEAR_WB | TX_FINISH_CACHE_INV);
 	phys = priv->tx_desc_dma + tx_head * sizeof(struct tx_desc);
 	desc->wb_addr = cpu_to_be32(phys);
+=======
+
+	desc->send_size = (__force u32)cpu_to_be32(skb->len);
+#if defined(CONFIG_HI13X1_GMAC)
+	desc->cfg = (__force u32)cpu_to_be32(TX_CLEAR_WB | TX_FINISH_CACHE_INV
+		| TX_RELEASE_TO_PPE | priv->port << TX_POOL_SHIFT);
+	desc->data_offset = (__force u32)cpu_to_be32(phys & SOC_CACHE_LINE_MASK);
+	desc->send_addr =  (__force u32)cpu_to_be32(phys & ~SOC_CACHE_LINE_MASK);
+#else
+	desc->cfg = (__force u32)cpu_to_be32(TX_CLEAR_WB | TX_FINISH_CACHE_INV);
+	desc->send_addr = (__force u32)cpu_to_be32(phys);
+#endif
+	phys = priv->tx_desc_dma + tx_head * sizeof(struct tx_desc);
+	desc->wb_addr = (__force u32)cpu_to_be32(phys +
+		offsetof(struct tx_desc, send_addr));
+>>>>>>> upstream/android-13
 	skb_tx_timestamp(skb);
 
 	hip04_set_xmit_desc(priv, phys);
@@ -515,8 +700,13 @@ static int hip04_rx_poll(struct napi_struct *napi, int budget)
 		priv->rx_phys[priv->rx_head] = 0;
 
 		desc = (struct rx_desc *)skb->data;
+<<<<<<< HEAD
 		len = be16_to_cpu(desc->pkt_len);
 		err = be32_to_cpu(desc->pkt_err);
+=======
+		len = be16_to_cpu((__force __be16)desc->pkt_len);
+		err = be32_to_cpu((__force __be32)desc->pkt_err);
+>>>>>>> upstream/android-13
 
 		if (0 == len) {
 			dev_kfree_skb_any(skb);
@@ -692,7 +882,11 @@ static int hip04_mac_stop(struct net_device *ndev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void hip04_timeout(struct net_device *ndev)
+=======
+static void hip04_timeout(struct net_device *ndev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct hip04_priv *priv = netdev_priv(ndev);
 
@@ -709,7 +903,13 @@ static void hip04_tx_timeout_task(struct work_struct *work)
 }
 
 static int hip04_get_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct hip04_priv *priv = netdev_priv(netdev);
 
@@ -720,6 +920,7 @@ static int hip04_get_coalesce(struct net_device *netdev,
 }
 
 static int hip04_set_coalesce(struct net_device *netdev,
+<<<<<<< HEAD
 			      struct ethtool_coalesce *ec)
 {
 	struct hip04_priv *priv = netdev_priv(netdev);
@@ -738,6 +939,14 @@ static int hip04_set_coalesce(struct net_device *netdev,
 	    (ec->tx_max_coalesced_frames_high) || (ec->rate_sample_interval))
 		return -EOPNOTSUPP;
 
+=======
+			      struct ethtool_coalesce *ec,
+			      struct kernel_ethtool_coalesce *kernel_coal,
+			      struct netlink_ext_ack *extack)
+{
+	struct hip04_priv *priv = netdev_priv(netdev);
+
+>>>>>>> upstream/android-13
 	if ((ec->tx_coalesce_usecs > HIP04_MAX_TX_COALESCE_USECS ||
 	     ec->tx_coalesce_usecs < HIP04_MIN_TX_COALESCE_USECS) ||
 	    (ec->tx_max_coalesced_frames > HIP04_MAX_TX_COALESCE_FRAMES ||
@@ -758,6 +967,11 @@ static void hip04_get_drvinfo(struct net_device *netdev,
 }
 
 static const struct ethtool_ops hip04_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_TX_USECS |
+				     ETHTOOL_COALESCE_TX_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_coalesce		= hip04_get_coalesce,
 	.set_coalesce		= hip04_set_coalesce,
 	.get_drvinfo		= hip04_get_drvinfo,
@@ -818,7 +1032,10 @@ static int hip04_mac_probe(struct platform_device *pdev)
 	struct of_phandle_args arg;
 	struct net_device *ndev;
 	struct hip04_priv *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int irq;
 	int ret;
 
@@ -832,14 +1049,30 @@ static int hip04_mac_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, ndev);
 	SET_NETDEV_DEV(ndev, &pdev->dev);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(d, res);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base)) {
 		ret = PTR_ERR(priv->base);
 		goto init_fail;
 	}
 
+<<<<<<< HEAD
 	ret = of_parse_phandle_with_fixed_args(node, "port-handle", 2, 0, &arg);
+=======
+#if defined(CONFIG_HI13X1_GMAC)
+	priv->sysctrl_base = devm_platform_ioremap_resource(pdev, 1);
+	if (IS_ERR(priv->sysctrl_base)) {
+		ret = PTR_ERR(priv->sysctrl_base);
+		goto init_fail;
+	}
+#endif
+
+	ret = of_parse_phandle_with_fixed_args(node, "port-handle", 3, 0, &arg);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_warn(d, "no port-handle\n");
 		goto init_fail;
@@ -847,6 +1080,10 @@ static int hip04_mac_probe(struct platform_device *pdev)
 
 	priv->port = arg.args[0];
 	priv->chan = arg.args[1] * RX_DESC_NUM;
+<<<<<<< HEAD
+=======
+	priv->group = arg.args[2];
+>>>>>>> upstream/android-13
 
 	hrtimer_init(&priv->tx_coalesce_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 
@@ -867,10 +1104,16 @@ static int hip04_mac_probe(struct platform_device *pdev)
 		goto init_fail;
 	}
 
+<<<<<<< HEAD
 	priv->phy_mode = of_get_phy_mode(node);
 	if (priv->phy_mode < 0) {
 		dev_warn(d, "not find phy-mode\n");
 		ret = -EINVAL;
+=======
+	ret = of_get_phy_mode(node, &priv->phy_mode);
+	if (ret) {
+		dev_warn(d, "not find phy-mode\n");
+>>>>>>> upstream/android-13
 		goto init_fail;
 	}
 
@@ -907,6 +1150,10 @@ static int hip04_mac_probe(struct platform_device *pdev)
 	ndev->irq = irq;
 	netif_napi_add(ndev, &priv->napi, hip04_rx_poll, NAPI_POLL_WEIGHT);
 
+<<<<<<< HEAD
+=======
+	hip04_reset_dreq(priv);
+>>>>>>> upstream/android-13
 	hip04_reset_ppe(priv);
 	if (priv->phy_mode == PHY_INTERFACE_MODE_MII)
 		hip04_config_port(ndev, SPEED_100, DUPLEX_FULL);

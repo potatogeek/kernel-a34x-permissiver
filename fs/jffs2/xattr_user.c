@@ -25,6 +25,10 @@ static int jffs2_user_getxattr(const struct xattr_handler *handler,
 }
 
 static int jffs2_user_setxattr(const struct xattr_handler *handler,
+<<<<<<< HEAD
+=======
+			       struct user_namespace *mnt_userns,
+>>>>>>> upstream/android-13
 			       struct dentry *unused, struct inode *inode,
 			       const char *name, const void *buffer,
 			       size_t size, int flags)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * clk-s2mps11.c - Clock driver for S2MPS11.
  *
@@ -14,6 +15,13 @@
  * GNU General Public License for more details.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// clk-s2mps11.c - Clock driver for S2MPS11.
+//
+// Copyright (C) 2013,2014 Samsung Electornics
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/err.h>
@@ -28,12 +36,16 @@
 #include <linux/mfd/samsung/s5m8767.h>
 #include <linux/mfd/samsung/core.h>
 
+<<<<<<< HEAD
 enum {
 	S2MPS11_CLK_AP = 0,
 	S2MPS11_CLK_CP,
 	S2MPS11_CLK_BT,
 	S2MPS11_CLKS_NUM,
 };
+=======
+#include <dt-bindings/clock/samsung,s2mps11.h>
+>>>>>>> upstream/android-13
 
 struct s2mps11_clk {
 	struct sec_pmic_dev *iodev;
@@ -87,7 +99,11 @@ static unsigned long s2mps11_clk_recalc_rate(struct clk_hw *hw,
 	return 32768;
 }
 
+<<<<<<< HEAD
 static struct clk_ops s2mps11_clk_ops = {
+=======
+static const struct clk_ops s2mps11_clk_ops = {
+>>>>>>> upstream/android-13
 	.prepare	= s2mps11_clk_prepare,
 	.unprepare	= s2mps11_clk_unprepare,
 	.is_prepared	= s2mps11_clk_is_prepared,
@@ -284,6 +300,7 @@ static struct platform_driver s2mps11_clk_driver = {
 	.remove = s2mps11_clk_remove,
 	.id_table = s2mps11_clk_id,
 };
+<<<<<<< HEAD
 
 static int __init s2mps11_clk_init(void)
 {
@@ -296,6 +313,9 @@ static void __exit s2mps11_clk_cleanup(void)
 	platform_driver_unregister(&s2mps11_clk_driver);
 }
 module_exit(s2mps11_clk_cleanup);
+=======
+module_platform_driver(s2mps11_clk_driver);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("S2MPS11 Clock Driver");
 MODULE_AUTHOR("Yadwinder Singh Brar <yadi.brar@samsung.com>");

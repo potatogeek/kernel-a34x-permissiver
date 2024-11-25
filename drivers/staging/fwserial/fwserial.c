@@ -19,7 +19,14 @@
 
 #include "fwserial.h"
 
+<<<<<<< HEAD
 #define be32_to_u64(hi, lo)  ((u64)be32_to_cpu(hi) << 32 | be32_to_cpu(lo))
+=======
+inline u64 be32_to_u64(__be32 hi, __be32 lo)
+{
+	return ((u64)be32_to_cpu(hi) << 32 | be32_to_cpu(lo));
+}
+>>>>>>> upstream/android-13
 
 #define LINUX_VENDOR_ID   0xd00d1eU  /* same id used in card root directory   */
 #define FWSERIAL_VERSION  0x00e81cU  /* must be unique within LINUX_VENDOR_ID */
@@ -42,14 +49,22 @@ module_param_named(loop, create_loop_dev, bool, 0644);
  */
 #define WAKEUP_CHARS             256
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_list: list of every fw_serial created for each fw_card
  * See discussion in fwserial_probe.
  */
 static LIST_HEAD(fwserial_list);
 static DEFINE_MUTEX(fwserial_list_mutex);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * port_table: array of tty ports allocated to each fw_card
  *
  * tty ports are allocated during probe when an fw_serial is first
@@ -281,7 +296,11 @@ static void fwtty_restart_tx(struct fwtty_port *port)
 	spin_unlock_bh(&port->lock);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwtty_update_port_status - decodes & dispatches line status changes
  *
  * Note: in loopback, the port->lock is being held. Only use functions that
@@ -372,7 +391,11 @@ static void fwtty_update_port_status(struct fwtty_port *port,
 		wake_up_interruptible(&port->port.delta_msr_wait);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __fwtty_port_line_status - generate 'line status' for indicated port
  *
  * This function returns a remote 'MSR' state based on the local 'MCR' state,
@@ -400,7 +423,11 @@ static unsigned int __fwtty_port_line_status(struct fwtty_port *port)
 	return status;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __fwtty_write_port_status - send the port line status to peer
  *
  * Note: caller must be holding the port lock.
@@ -423,7 +450,11 @@ static int __fwtty_write_port_status(struct fwtty_port *port)
 	return err;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwtty_write_port_status - same as above but locked by port lock
  */
 static int fwtty_write_port_status(struct fwtty_port *port)
@@ -459,11 +490,19 @@ static void fwtty_throttle_port(struct fwtty_port *port)
 	tty_kref_put(tty);
 }
 
+<<<<<<< HEAD
 /**
  * fwtty_do_hangup - wait for ldisc to deliver all pending rx; only then hangup
  *
  * When the remote has finished tx, and all in-flight rx has been received and
  * and pushed to the flip buffer, the remote may close its device. This will
+=======
+/*
+ * fwtty_do_hangup - wait for ldisc to deliver all pending rx; only then hangup
+ *
+ * When the remote has finished tx, and all in-flight rx has been received and
+ * pushed to the flip buffer, the remote may close its device. This will
+>>>>>>> upstream/android-13
  * drop DTR on the remote which will drop carrier here. Typically, the tty is
  * hung up when carrier is dropped or lost.
  *
@@ -586,9 +625,14 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 /**
  * fwtty_port_handler - bus address handler for port reads/writes
  * @parameters: fw_address_callback_t as specified by firewire core interface
+=======
+/*
+ * fwtty_port_handler - bus address handler for port reads/writes
+>>>>>>> upstream/android-13
  *
  * This handler is responsible for handling inbound read/write dma from remotes.
  */
@@ -653,7 +697,11 @@ respond:
 	fw_send_response(card, request, rcode);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwtty_tx_complete - callback for tx dma
  * @data: ignored, has no meaning for write txns
  * @length: ignored, has no meaning for write txns
@@ -719,7 +767,11 @@ static int fwtty_tx(struct fwtty_port *port, bool drain)
 
 	/* try to write as many dma transactions out as possible */
 	n = -EAGAIN;
+<<<<<<< HEAD
 	while (!tty->stopped && !tty->hw_stopped &&
+=======
+	while (!tty->flow.stopped && !tty->hw_stopped &&
+>>>>>>> upstream/android-13
 	       !test_bit(STOP_TX, &port->flags)) {
 		txn = kmem_cache_alloc(fwtty_txn_cache, GFP_ATOMIC);
 		if (!txn) {
@@ -901,7 +953,11 @@ static void fwtty_port_dtr_rts(struct tty_port *tty_port, int on)
 	spin_unlock_bh(&port->lock);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwtty_port_carrier_raised: required tty_port operation
  *
  * This port operation is polled after a tty has been opened and is waiting for
@@ -1008,7 +1064,11 @@ static int fwtty_port_activate(struct tty_port *tty_port,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwtty_port_shutdown
  *
  * Note: the tty port core ensures this is not the console and
@@ -1110,30 +1170,52 @@ static int fwtty_write(struct tty_struct *tty, const unsigned char *buf, int c)
 	return (n < 0) ? 0 : n;
 }
 
+<<<<<<< HEAD
 static int fwtty_write_room(struct tty_struct *tty)
 {
 	struct fwtty_port *port = tty->driver_data;
 	int n;
+=======
+static unsigned int fwtty_write_room(struct tty_struct *tty)
+{
+	struct fwtty_port *port = tty->driver_data;
+	unsigned int n;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&port->lock);
 	n = dma_fifo_avail(&port->tx_fifo);
 	spin_unlock_bh(&port->lock);
 
+<<<<<<< HEAD
 	fwtty_dbg(port, "%d\n", n);
+=======
+	fwtty_dbg(port, "%u\n", n);
+>>>>>>> upstream/android-13
 
 	return n;
 }
 
+<<<<<<< HEAD
 static int fwtty_chars_in_buffer(struct tty_struct *tty)
 {
 	struct fwtty_port *port = tty->driver_data;
 	int n;
+=======
+static unsigned int fwtty_chars_in_buffer(struct tty_struct *tty)
+{
+	struct fwtty_port *port = tty->driver_data;
+	unsigned int n;
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&port->lock);
 	n = dma_fifo_level(&port->tx_fifo);
 	spin_unlock_bh(&port->lock);
 
+<<<<<<< HEAD
 	fwtty_dbg(port, "%d\n", n);
+=======
+	fwtty_dbg(port, "%u\n", n);
+>>>>>>> upstream/android-13
 
 	return n;
 }
@@ -1209,6 +1291,7 @@ static int wait_msr_change(struct fwtty_port *port, unsigned long mask)
 					check_msr_delta(port, mask, &prev));
 }
 
+<<<<<<< HEAD
 static int get_serial_info(struct fwtty_port *port,
 			   struct serial_struct __user *info)
 {
@@ -1245,6 +1328,42 @@ static int set_serial_info(struct fwtty_port *port,
 	} else {
 		port->port.close_delay = tmp.close_delay * HZ / 100;
 	}
+=======
+static int get_serial_info(struct tty_struct *tty,
+			   struct serial_struct *ss)
+{
+	struct fwtty_port *port = tty->driver_data;
+
+	mutex_lock(&port->port.mutex);
+	ss->line = port->index;
+	ss->baud_base = 400000000;
+	ss->close_delay = jiffies_to_msecs(port->port.close_delay) / 10;
+	ss->closing_wait = 3000;
+	mutex_unlock(&port->port.mutex);
+
+	return 0;
+}
+
+static int set_serial_info(struct tty_struct *tty,
+			   struct serial_struct *ss)
+{
+	struct fwtty_port *port = tty->driver_data;
+	unsigned int cdelay;
+
+	cdelay = msecs_to_jiffies(ss->close_delay * 10);
+
+	mutex_lock(&port->port.mutex);
+	if (!capable(CAP_SYS_ADMIN)) {
+		if (cdelay != port->port.close_delay ||
+		    ((ss->flags & ~ASYNC_USR_MASK) !=
+		     (port->port.flags & ~ASYNC_USR_MASK))) {
+			mutex_unlock(&port->port.mutex);
+			return -EPERM;
+		}
+	}
+	port->port.close_delay = cdelay;
+	mutex_unlock(&port->port.mutex);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1256,6 +1375,7 @@ static int fwtty_ioctl(struct tty_struct *tty, unsigned int cmd,
 	int err;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case TIOCGSERIAL:
 		mutex_lock(&port->port.mutex);
 		err = get_serial_info(port, (void __user *)arg);
@@ -1268,6 +1388,8 @@ static int fwtty_ioctl(struct tty_struct *tty, unsigned int cmd,
 		mutex_unlock(&port->port.mutex);
 		break;
 
+=======
+>>>>>>> upstream/android-13
 	case TIOCMIWAIT:
 		err = wait_msr_change(port, arg);
 		break;
@@ -1308,7 +1430,11 @@ static void fwtty_set_termios(struct tty_struct *tty, struct ktermios *old)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwtty_break_ctl - start/stop sending breaks
  *
  * Signals the remote to start or stop generating simulated breaks.
@@ -1328,8 +1454,13 @@ static int fwtty_break_ctl(struct tty_struct *tty, int state)
 	if (state == -1) {
 		set_bit(STOP_TX, &port->flags);
 		ret = wait_event_interruptible_timeout(port->wait_tx,
+<<<<<<< HEAD
 					       !test_bit(IN_TX, &port->flags),
 					       10);
+=======
+						       !test_bit(IN_TX, &port->flags),
+						       10);
+>>>>>>> upstream/android-13
 		if (ret == 0 || ret == -ERESTARTSYS) {
 			clear_bit(STOP_TX, &port->flags);
 			fwtty_restart_tx(port);
@@ -1472,7 +1603,11 @@ static int fwtty_proc_show(struct seq_file *m, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fwtty_debugfs_stats_show(struct seq_file *m, void *v)
+=======
+static int fwtty_stats_show(struct seq_file *m, void *v)
+>>>>>>> upstream/android-13
 {
 	struct fw_serial *serial = m->private;
 	struct fwtty_port *port;
@@ -1490,8 +1625,14 @@ static int fwtty_debugfs_stats_show(struct seq_file *m, void *v)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 static int fwtty_debugfs_peers_show(struct seq_file *m, void *v)
+=======
+DEFINE_SHOW_ATTRIBUTE(fwtty_stats);
+
+static int fwtty_peers_show(struct seq_file *m, void *v)
+>>>>>>> upstream/android-13
 {
 	struct fw_serial *serial = m->private;
 	struct fwtty_peer *peer;
@@ -1505,6 +1646,7 @@ static int fwtty_debugfs_peers_show(struct seq_file *m, void *v)
 	rcu_read_unlock();
 	return 0;
 }
+<<<<<<< HEAD
 
 static int fwtty_stats_open(struct inode *inode, struct file *fp)
 {
@@ -1531,6 +1673,9 @@ static const struct file_operations fwtty_peers_fops = {
 	.llseek =	seq_lseek,
 	.release =	single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(fwtty_peers);
+>>>>>>> upstream/android-13
 
 static const struct tty_port_operations fwtty_port_ops = {
 	.dtr_rts =		fwtty_port_dtr_rts,
@@ -1557,6 +1702,11 @@ static const struct tty_operations fwtty_ops = {
 	.tiocmget =		fwtty_tiocmget,
 	.tiocmset =		fwtty_tiocmset,
 	.get_icount =		fwtty_get_icount,
+<<<<<<< HEAD
+=======
+	.set_serial =		set_serial_info,
+	.get_serial =		get_serial_info,
+>>>>>>> upstream/android-13
 	.proc_show =		fwtty_proc_show,
 };
 
@@ -1578,6 +1728,11 @@ static const struct tty_operations fwloop_ops = {
 	.tiocmget =		fwtty_tiocmget,
 	.tiocmset =		fwtty_tiocmset,
 	.get_icount =		fwtty_get_icount,
+<<<<<<< HEAD
+=======
+	.set_serial =		set_serial_info,
+	.get_serial =		get_serial_info,
+>>>>>>> upstream/android-13
 };
 
 static inline int mgmt_pkt_expected_len(__be16 code)
@@ -1700,7 +1855,11 @@ static inline int fwserial_send_mgmt_sync(struct fwtty_peer *peer,
 	return rcode;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_claim_port - attempt to claim port @ index for peer
  *
  * Returns ptr to claimed port or error code (as ERR_PTR())
@@ -1728,7 +1887,11 @@ static struct fwtty_port *fwserial_claim_port(struct fwtty_peer *peer,
 	return port;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_find_port - find avail port and claim for peer
  *
  * Returns ptr to claimed port or NULL if none avail
@@ -1795,7 +1958,11 @@ static void fwserial_plug_timeout(struct timer_list *t)
 		fwserial_release_port(port, false);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_connect_peer - initiate virtual cable with peer
  *
  * Returns 0 if VIRT_CABLE_PLUG request was successfully sent,
@@ -1860,7 +2027,11 @@ free_pkt:
 	return err;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_close_port -
  * HUP the tty (if the tty exists) and unregister the tty device.
  * Only used by the unit driver upon unit removal to disconnect and
@@ -1924,7 +2095,11 @@ static struct fw_serial *__fwserial_lookup_rcu(struct fw_card *card)
 	return NULL;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __fwserial_peer_by_node_id - finds a peer matching the given generation + id
  *
  * If a matching peer could not be found for the specified generation/node id,
@@ -2107,7 +2282,11 @@ static int fwserial_add_peer(struct fw_serial *serial, struct fw_unit *unit)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_remove_peer - remove a 'serial' unit device as a 'peer'
  *
  * Remove a 'peer' from its list of peers. This function is only
@@ -2310,7 +2489,11 @@ free_ports:
 	return err;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_probe: bus probe function for firewire 'serial' unit devices
  *
  * A 'serial' unit device is created and probed as a result of:
@@ -2362,7 +2545,11 @@ static int fwserial_probe(struct fw_unit *unit,
 	return err;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_remove: bus removal function for firewire 'serial' unit devices
  *
  * The corresponding 'peer' for this unit device is removed from the list of
@@ -2394,7 +2581,11 @@ static void fwserial_remove(struct fw_unit *unit)
 	mutex_unlock(&fwserial_list_mutex);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * fwserial_update: bus update function for 'firewire' serial unit devices
  *
  * Updates the new node_id and bus generation for this peer. Note that locking
@@ -2662,7 +2853,11 @@ static int fwserial_parse_mgmt_write(struct fwtty_peer *peer,
 
 	rcode = RCODE_COMPLETE;
 
+<<<<<<< HEAD
 	fwtty_dbg(&peer->unit, "mgmt: hdr.code: %04hx\n", pkt->hdr.code);
+=======
+	fwtty_dbg(&peer->unit, "mgmt: hdr.code: %04x\n", pkt->hdr.code);
+>>>>>>> upstream/android-13
 
 	switch (be16_to_cpu(pkt->hdr.code) & FWSC_CODE_MASK) {
 	case FWSC_VIRT_CABLE_PLUG:
@@ -2730,9 +2925,14 @@ static int fwserial_parse_mgmt_write(struct fwtty_peer *peer,
 	return rcode;
 }
 
+<<<<<<< HEAD
 /**
  * fwserial_mgmt_handler: bus address handler for mgmt requests
  * @parameters: fw_address_callback_t as specified by firewire core interface
+=======
+/*
+ * fwserial_mgmt_handler: bus address handler for mgmt requests
+>>>>>>> upstream/android-13
  *
  * This handler is responsible for handling virtual cable requests from remotes
  * for all cards.
@@ -2885,11 +3085,19 @@ unregister_loop:
 		tty_unregister_driver(fwloop_driver);
 put_loop:
 	if (create_loop_dev)
+<<<<<<< HEAD
 		put_tty_driver(fwloop_driver);
 unregister_driver:
 	tty_unregister_driver(fwtty_driver);
 put_tty:
 	put_tty_driver(fwtty_driver);
+=======
+		tty_driver_kref_put(fwloop_driver);
+unregister_driver:
+	tty_unregister_driver(fwtty_driver);
+put_tty:
+	tty_driver_kref_put(fwtty_driver);
+>>>>>>> upstream/android-13
 remove_debugfs:
 	debugfs_remove_recursive(fwserial_debugfs);
 
@@ -2904,10 +3112,17 @@ static void __exit fwserial_exit(void)
 	kmem_cache_destroy(fwtty_txn_cache);
 	if (create_loop_dev) {
 		tty_unregister_driver(fwloop_driver);
+<<<<<<< HEAD
 		put_tty_driver(fwloop_driver);
 	}
 	tty_unregister_driver(fwtty_driver);
 	put_tty_driver(fwtty_driver);
+=======
+		tty_driver_kref_put(fwloop_driver);
+	}
+	tty_unregister_driver(fwtty_driver);
+	tty_driver_kref_put(fwtty_driver);
+>>>>>>> upstream/android-13
 	debugfs_remove_recursive(fwserial_debugfs);
 }
 

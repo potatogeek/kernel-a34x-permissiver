@@ -11,6 +11,10 @@ struct hdlcd_drm_private {
 	struct clk			*clk;
 	struct drm_crtc			crtc;
 	struct drm_plane		*plane;
+<<<<<<< HEAD
+=======
+	unsigned int			irq;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 	atomic_t buffer_underrun_count;
 	atomic_t bus_error_count;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2017 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015 - 2019 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -61,6 +67,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * Code to adjust PCIe capabilities.
  */
 static void tune_pcie_caps(struct hfi1_devdata *);
@@ -74,6 +81,14 @@ static void tune_pcie_caps(struct hfi1_devdata *);
 int hfi1_pcie_init(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
 	int ret;
+=======
+ * Do all the common PCIe setup and initialization.
+ */
+int hfi1_pcie_init(struct hfi1_devdata *dd)
+{
+	int ret;
+	struct pci_dev *pdev = dd->pcidev;
+>>>>>>> upstream/android-13
 
 	ret = pci_enable_device(pdev);
 	if (ret) {
@@ -89,25 +104,39 @@ int hfi1_pcie_init(struct pci_dev *pdev, const struct pci_device_id *ent)
 		 * about that, it appears.  If the original BAR was retained
 		 * in the kernel data structures, this may be OK.
 		 */
+<<<<<<< HEAD
 		hfi1_early_err(&pdev->dev, "pci enable failed: error %d\n",
 			       -ret);
 		goto done;
+=======
+		dd_dev_err(dd, "pci enable failed: error %d\n", -ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	ret = pci_request_regions(pdev, DRIVER_NAME);
 	if (ret) {
+<<<<<<< HEAD
 		hfi1_early_err(&pdev->dev,
 			       "pci_request_regions fails: err %d\n", -ret);
 		goto bail;
 	}
 
 	ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
+=======
+		dd_dev_err(dd, "pci_request_regions fails: err %d\n", -ret);
+		goto bail;
+	}
+
+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+>>>>>>> upstream/android-13
 	if (ret) {
 		/*
 		 * If the 64 bit setup fails, try 32 bit.  Some systems
 		 * do not setup 64 bit maps on systems with 2GB or less
 		 * memory installed.
 		 */
+<<<<<<< HEAD
 		ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
 		if (ret) {
 			hfi1_early_err(&pdev->dev,
@@ -122,15 +151,29 @@ int hfi1_pcie_init(struct pci_dev *pdev, const struct pci_device_id *ent)
 		hfi1_early_err(&pdev->dev,
 			       "Unable to set DMA consistent mask: %d\n", ret);
 		goto bail;
+=======
+		ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+		if (ret) {
+			dd_dev_err(dd, "Unable to set DMA mask: %d\n", ret);
+			goto bail;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	pci_set_master(pdev);
 	(void)pci_enable_pcie_error_reporting(pdev);
+<<<<<<< HEAD
 	goto done;
 
 bail:
 	hfi1_pcie_cleanup(pdev);
 done:
+=======
+	return 0;
+
+bail:
+	hfi1_pcie_cleanup(pdev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -173,7 +216,11 @@ int hfi1_pcie_ddinit(struct hfi1_devdata *dd, struct pci_dev *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	dd->kregbase1 = ioremap_nocache(addr, RCV_ARRAY);
+=======
+	dd->kregbase1 = ioremap(addr, RCV_ARRAY);
+>>>>>>> upstream/android-13
 	if (!dd->kregbase1) {
 		dd_dev_err(dd, "UC mapping of kregbase1 failed\n");
 		return -ENOMEM;
@@ -191,7 +238,11 @@ int hfi1_pcie_ddinit(struct hfi1_devdata *dd, struct pci_dev *pdev)
 	dd_dev_info(dd, "RcvArray count: %u\n", rcv_array_count);
 	dd->base2_start  = RCV_ARRAY + rcv_array_count * 8;
 
+<<<<<<< HEAD
 	dd->kregbase2 = ioremap_nocache(
+=======
+	dd->kregbase2 = ioremap(
+>>>>>>> upstream/android-13
 		addr + dd->base2_start,
 		TXE_PIO_SEND - dd->base2_start);
 	if (!dd->kregbase2) {
@@ -206,7 +257,11 @@ int hfi1_pcie_ddinit(struct hfi1_devdata *dd, struct pci_dev *pdev)
 		dd_dev_err(dd, "WC mapping of send buffers failed\n");
 		goto nomem;
 	}
+<<<<<<< HEAD
 	dd_dev_info(dd, "WC piobase: %p\n for %x", dd->piobase, TXE_PIO_SIZE);
+=======
+	dd_dev_info(dd, "WC piobase: %p for %x\n", dd->piobase, TXE_PIO_SIZE);
+>>>>>>> upstream/android-13
 
 	dd->physaddr = addr;        /* used for io_remap, etc. */
 
@@ -318,7 +373,11 @@ int pcie_speeds(struct hfi1_devdata *dd)
 	ret = pcie_capability_read_dword(dd->pcidev, PCI_EXP_LNKCAP, &linkcap);
 	if (ret) {
 		dd_dev_err(dd, "Unable to read from PCI config\n");
+<<<<<<< HEAD
 		return ret;
+=======
+		return pcibios_err_to_errno(ret);
+>>>>>>> upstream/android-13
 	}
 
 	if ((linkcap & PCI_EXP_LNKCAP_SLS) != PCI_EXP_LNKCAP_SLS_8_0GB) {
@@ -347,6 +406,7 @@ int pcie_speeds(struct hfi1_devdata *dd)
 }
 
 /*
+<<<<<<< HEAD
  * Returns:
  *	- actual number of interrupts allocated or
  *      - error
@@ -370,6 +430,15 @@ int request_msix(struct hfi1_devdata *dd, u32 msireq)
 int restore_pci_variables(struct hfi1_devdata *dd)
 {
 	int ret = 0;
+=======
+ * Restore command and BARs after a reset has wiped them out
+ *
+ * Returns 0 on success, otherwise a negative error value
+ */
+int restore_pci_variables(struct hfi1_devdata *dd)
+{
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = pci_write_config_word(dd->pcidev, PCI_COMMAND, dd->pci_command);
 	if (ret)
@@ -418,6 +487,7 @@ int restore_pci_variables(struct hfi1_devdata *dd)
 
 error:
 	dd_dev_err(dd, "Unable to write to PCI config\n");
+<<<<<<< HEAD
 	return ret;
 }
 
@@ -425,6 +495,19 @@ error:
 int save_pci_variables(struct hfi1_devdata *dd)
 {
 	int ret = 0;
+=======
+	return pcibios_err_to_errno(ret);
+}
+
+/*
+ * Save BARs and command to rewrite after device reset
+ *
+ * Returns 0 on success, otherwise a negative error value
+ */
+int save_pci_variables(struct hfi1_devdata *dd)
+{
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = pci_read_config_dword(dd->pcidev, PCI_BASE_ADDRESS_0,
 				    &dd->pcibar0);
@@ -473,7 +556,11 @@ int save_pci_variables(struct hfi1_devdata *dd)
 
 error:
 	dd_dev_err(dd, "Unable to read from PCI config\n");
+<<<<<<< HEAD
 	return ret;
+=======
+	return pcibios_err_to_errno(ret);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -481,6 +568,7 @@ error:
  * Check and optionally adjust them to maximize our throughput.
  */
 static int hfi1_pcie_caps;
+<<<<<<< HEAD
 module_param_named(pcie_caps, hfi1_pcie_caps, int, S_IRUGO);
 MODULE_PARM_DESC(pcie_caps, "Max PCIe tuning: Payload (0..3), ReadReq (4..7)");
 
@@ -489,6 +577,17 @@ module_param_named(aspm, aspm_mode, uint, S_IRUGO);
 MODULE_PARM_DESC(aspm, "PCIe ASPM: 0: disable, 1: enable, 2: dynamic");
 
 static void tune_pcie_caps(struct hfi1_devdata *dd)
+=======
+module_param_named(pcie_caps, hfi1_pcie_caps, int, 0444);
+MODULE_PARM_DESC(pcie_caps, "Max PCIe tuning: Payload (0..3), ReadReq (4..7)");
+
+/**
+ * tune_pcie_caps() - Code to adjust PCIe capabilities.
+ * @dd: Valid device data structure
+ *
+ */
+void tune_pcie_caps(struct hfi1_devdata *dd)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *parent;
 	u16 rc_mpss, rc_mps, ep_mpss, ep_mps;
@@ -652,7 +751,10 @@ pci_resume(struct pci_dev *pdev)
 	struct hfi1_devdata *dd = pci_get_drvdata(pdev);
 
 	dd_dev_info(dd, "HFI1 resume function called\n");
+<<<<<<< HEAD
 	pci_cleanup_aer_uncorrect_error_status(pdev);
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Running jobs will fail, since it's asynchronous
 	 * unlike sysfs-requested reset.   Better than
@@ -1031,6 +1133,10 @@ int do_pcie_gen3_transition(struct hfi1_devdata *dd)
 	const u8 (*ctle_tunings)[4];
 	uint static_ctle_mode;
 	int return_error = 0;
+<<<<<<< HEAD
+=======
+	u32 target_width;
+>>>>>>> upstream/android-13
 
 	/* PCIe Gen3 is for the ASIC only */
 	if (dd->icode != ICODE_RTL_SILICON)
@@ -1070,6 +1176,12 @@ int do_pcie_gen3_transition(struct hfi1_devdata *dd)
 		return 0;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Previous Gen1/Gen2 bus width */
+	target_width = dd->lbus_width;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Do the Gen3 transition.  Steps are those of the PCIe Gen3
 	 * recipe.
@@ -1438,11 +1550,20 @@ retry:
 	dd_dev_info(dd, "%s: new speed and width: %s\n", __func__,
 		    dd->lbus_info);
 
+<<<<<<< HEAD
 	if (dd->lbus_speed != target_speed) { /* not target */
 		/* maybe retry */
 		do_retry = retry_count < pcie_retry;
 		dd_dev_err(dd, "PCIe link speed did not switch to Gen%d%s\n",
 			   pcie_target, do_retry ? ", retrying" : "");
+=======
+	if (dd->lbus_speed != target_speed ||
+	    dd->lbus_width < target_width) { /* not target */
+		/* maybe retry */
+		do_retry = retry_count < pcie_retry;
+		dd_dev_err(dd, "PCIe link speed or width did not match target%s\n",
+			   do_retry ? ", retrying" : "");
+>>>>>>> upstream/android-13
 		retry_count++;
 		if (do_retry) {
 			msleep(100); /* allow time to settle */

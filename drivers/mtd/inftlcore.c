@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * inftlcore.c -- Linux driver for Inverse Flash Translation Layer (INFTL)
  *
@@ -6,6 +10,7 @@
  * Based heavily on the nftlcore.c code which is:
  * Copyright © 1999 Machine Vision Holdings, Inc.
  * Copyright © 1999 David Woodhouse <dwmw2@infradead.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -950,6 +957,7 @@ static struct mtd_blktrans_ops inftl_tr = {
 	.owner		= THIS_MODULE,
 };
 
+<<<<<<< HEAD
 static int __init init_inftl(void)
 {
 	return register_mtd_blktrans(&inftl_tr);
@@ -962,6 +970,9 @@ static void __exit cleanup_inftl(void)
 
 module_init(init_inftl);
 module_exit(cleanup_inftl);
+=======
+module_mtd_blktrans(inftl_tr);
+>>>>>>> upstream/android-13
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Greg Ungerer <gerg@snapgear.com>, David Woodhouse <dwmw2@infradead.org>, Fabrice Bellard <fabrice.bellard@netgem.com> et al.");

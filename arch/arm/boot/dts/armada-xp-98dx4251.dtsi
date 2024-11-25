@@ -49,6 +49,10 @@
 };
 
 &pp0 {
+<<<<<<< HEAD
 	compatible = "marvell,prestera-98dx4251";
+=======
+	compatible = "marvell,prestera-98dx4251", "marvell,prestera";
+>>>>>>> upstream/android-13
 	interrupts = <33>, <34>, <35>, <36>;
 };

@@ -23,9 +23,16 @@
 /dts-v1/;
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/gpio/gpio.h>
+<<<<<<< HEAD
 #include "skeleton.dtsi"
 
 / {
+=======
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "ARM RealView PB1176";
 	compatible = "arm,realview-pb1176";
 
@@ -40,6 +47,10 @@
 	};
 
 	memory {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		/* 128 MiB memory @ 0x0 */
 		reg = <0x00000000 0x08000000>;
 	};
@@ -118,12 +129,24 @@
 		compatible = "arm,versatile-flash", "cfi-flash";
 		reg = <0x30000000 0x4000000>;
 		bank-width = <4>;
+<<<<<<< HEAD
+=======
+		partitions {
+			compatible = "arm,arm-firmware-suite";
+		};
+>>>>>>> upstream/android-13
 	};
 
 	fpga_flash@38000000 {
 		compatible = "arm,versatile-flash", "cfi-flash";
 		reg = <0x38000000 0x800000>;
 		bank-width = <4>;
+<<<<<<< HEAD
+=======
+		partitions {
+			compatible = "arm,arm-firmware-suite";
+		};
+>>>>>>> upstream/android-13
 	};
 
 	/*
@@ -158,7 +181,11 @@
 		reg = <0x3b000000 0x20000>;
 		interrupt-parent = <&intc_fpga1176>;
 		interrupts = <0 11 IRQ_TYPE_LEVEL_HIGH>;
+<<<<<<< HEAD
 		port1-otg;
+=======
+		dr_mode = "peripheral";
+>>>>>>> upstream/android-13
 	};
 
 	bridge {
@@ -315,7 +342,11 @@
 			      <0x10120000 0x100>;
 		};
 
+<<<<<<< HEAD
 		L2: l2-cache {
+=======
+		L2: cache-controller {
+>>>>>>> upstream/android-13
 			compatible = "arm,l220-cache";
 			reg = <0x10110000 0x1000>;
 			interrupt-parent = <&intc_dc1176>;

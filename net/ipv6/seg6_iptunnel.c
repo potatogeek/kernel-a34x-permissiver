@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  SR-IPv6 implementation
  *
  *  Author:
  *  David Lebrun <david.lebrun@uclouvain.be>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or
  *        modify it under the terms of the GNU General Public License
  *        as published by the Free Software Foundation; either version
  *        2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -31,10 +38,35 @@
 #ifdef CONFIG_IPV6_SEG6_HMAC
 #include <net/seg6_hmac.h>
 #endif
+<<<<<<< HEAD
 
 struct seg6_lwt {
 	struct dst_cache cache;
 	struct seg6_iptunnel_encap tuninfo[0];
+=======
+#include <linux/netfilter.h>
+
+static size_t seg6_lwt_headroom(struct seg6_iptunnel_encap *tuninfo)
+{
+	int head = 0;
+
+	switch (tuninfo->mode) {
+	case SEG6_IPTUN_MODE_INLINE:
+		break;
+	case SEG6_IPTUN_MODE_ENCAP:
+		head = sizeof(struct ipv6hdr);
+		break;
+	case SEG6_IPTUN_MODE_L2ENCAP:
+		return 0;
+	}
+
+	return ((tuninfo->srh->hdrlen + 1) << 3) + head;
+}
+
+struct seg6_lwt {
+	struct dst_cache cache;
+	struct seg6_iptunnel_encap tuninfo[];
+>>>>>>> upstream/android-13
 };
 
 static inline struct seg6_lwt *seg6_lwt_lwtunnel(struct lwtunnel_state *lwt)
@@ -148,6 +180,17 @@ int seg6_do_srh_encap(struct sk_buff *skb, struct ipv6_sr_hdr *osrh, int proto)
 		hdr->hop_limit = ip6_dst_hoplimit(skb_dst(skb));
 
 		memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
+<<<<<<< HEAD
+=======
+
+		/* the control block has been erased, so we have to set the
+		 * iif once again.
+		 * We read the receiving interface index directly from the
+		 * skb->skb_iif as it is done in the IPv4 receiving path (i.e.:
+		 * ip_rcv_core(...)).
+		 */
+		IP6CB(skb)->iif = skb->skb_iif;
+>>>>>>> upstream/android-13
 	}
 
 	hdr->nexthdr = NEXTHDR_ROUTING;
@@ -273,7 +316,11 @@ static int seg6_do_srh(struct sk_buff *skb)
 		skb_mac_header_rebuild(skb);
 		skb_push(skb, skb->mac_len);
 
+<<<<<<< HEAD
 		err = seg6_do_srh_encap(skb, tinfo->srh, NEXTHDR_NONE);
+=======
+		err = seg6_do_srh_encap(skb, tinfo->srh, IPPROTO_ETHERNET);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 
@@ -283,11 +330,26 @@ static int seg6_do_srh(struct sk_buff *skb)
 
 	ipv6_hdr(skb)->payload_len = htons(skb->len - sizeof(struct ipv6hdr));
 	skb_set_transport_header(skb, sizeof(struct ipv6hdr));
+<<<<<<< HEAD
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int seg6_input(struct sk_buff *skb)
+=======
+static int seg6_input_finish(struct net *net, struct sock *sk,
+			     struct sk_buff *skb)
+{
+	return dst_input(skb);
+}
+
+static int seg6_input_core(struct net *net, struct sock *sk,
+			   struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct dst_entry *orig_dst = skb_dst(skb);
 	struct dst_entry *dst = NULL;
@@ -325,15 +387,57 @@ static int seg6_input(struct sk_buff *skb)
 	if (unlikely(err))
 		return err;
 
+<<<<<<< HEAD
 	return dst_input(skb);
 }
 
 static int seg6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+=======
+	if (static_branch_unlikely(&nf_hooks_lwtunnel_enabled))
+		return NF_HOOK(NFPROTO_IPV6, NF_INET_LOCAL_OUT,
+			       dev_net(skb->dev), NULL, skb, NULL,
+			       skb_dst(skb)->dev, seg6_input_finish);
+
+	return seg6_input_finish(dev_net(skb->dev), NULL, skb);
+}
+
+static int seg6_input_nf(struct sk_buff *skb)
+{
+	struct net_device *dev = skb_dst(skb)->dev;
+	struct net *net = dev_net(skb->dev);
+
+	switch (skb->protocol) {
+	case htons(ETH_P_IP):
+		return NF_HOOK(NFPROTO_IPV4, NF_INET_POST_ROUTING, net, NULL,
+			       skb, NULL, dev, seg6_input_core);
+	case htons(ETH_P_IPV6):
+		return NF_HOOK(NFPROTO_IPV6, NF_INET_POST_ROUTING, net, NULL,
+			       skb, NULL, dev, seg6_input_core);
+	}
+
+	return -EINVAL;
+}
+
+static int seg6_input(struct sk_buff *skb)
+{
+	if (static_branch_unlikely(&nf_hooks_lwtunnel_enabled))
+		return seg6_input_nf(skb);
+
+	return seg6_input_core(dev_net(skb->dev), NULL, skb);
+}
+
+static int seg6_output_core(struct net *net, struct sock *sk,
+			    struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct dst_entry *orig_dst = skb_dst(skb);
 	struct dst_entry *dst = NULL;
 	struct seg6_lwt *slwt;
+<<<<<<< HEAD
 	int err = -EINVAL;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	err = seg6_do_srh(skb);
 	if (unlikely(err))
@@ -375,13 +479,48 @@ static int seg6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 	if (unlikely(err))
 		goto drop;
 
+<<<<<<< HEAD
+=======
+	if (static_branch_unlikely(&nf_hooks_lwtunnel_enabled))
+		return NF_HOOK(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk, skb,
+			       NULL, skb_dst(skb)->dev, dst_output);
+
+>>>>>>> upstream/android-13
 	return dst_output(net, sk, skb);
 drop:
 	kfree_skb(skb);
 	return err;
 }
 
+<<<<<<< HEAD
 static int seg6_build_state(struct nlattr *nla,
+=======
+static int seg6_output_nf(struct net *net, struct sock *sk, struct sk_buff *skb)
+{
+	struct net_device *dev = skb_dst(skb)->dev;
+
+	switch (skb->protocol) {
+	case htons(ETH_P_IP):
+		return NF_HOOK(NFPROTO_IPV4, NF_INET_POST_ROUTING, net, sk, skb,
+			       NULL, dev, seg6_output_core);
+	case htons(ETH_P_IPV6):
+		return NF_HOOK(NFPROTO_IPV6, NF_INET_POST_ROUTING, net, sk, skb,
+			       NULL, dev, seg6_output_core);
+	}
+
+	return -EINVAL;
+}
+
+static int seg6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+{
+	if (static_branch_unlikely(&nf_hooks_lwtunnel_enabled))
+		return seg6_output_nf(net, sk, skb);
+
+	return seg6_output_core(net, sk, skb);
+}
+
+static int seg6_build_state(struct net *net, struct nlattr *nla,
+>>>>>>> upstream/android-13
 			    unsigned int family, const void *cfg,
 			    struct lwtunnel_state **ts,
 			    struct netlink_ext_ack *extack)
@@ -396,8 +535,13 @@ static int seg6_build_state(struct nlattr *nla,
 	if (family != AF_INET && family != AF_INET6)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, SEG6_IPTUNNEL_MAX, nla,
 			       seg6_iptunnel_policy, extack);
+=======
+	err = nla_parse_nested_deprecated(tb, SEG6_IPTUNNEL_MAX, nla,
+					  seg6_iptunnel_policy, extack);
+>>>>>>> upstream/android-13
 
 	if (err < 0)
 		return err;
@@ -431,7 +575,11 @@ static int seg6_build_state(struct nlattr *nla,
 	}
 
 	/* verify that SRH is consistent */
+<<<<<<< HEAD
 	if (!seg6_validate_srh(tuninfo->srh, tuninfo_len - sizeof(*tuninfo)))
+=======
+	if (!seg6_validate_srh(tuninfo->srh, tuninfo_len - sizeof(*tuninfo), false))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	newts = lwtunnel_state_alloc(tuninfo_len + sizeof(*slwt));

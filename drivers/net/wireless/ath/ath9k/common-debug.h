@@ -39,6 +39,11 @@
  * @rx_beacons:  No. of beacons received.
  * @rx_frags:  No. of rx-fragements received.
  * @rx_spectral: No of spectral packets received.
+<<<<<<< HEAD
+=======
+ * @rx_spectral_sample_good: No. of good spectral samples
+ * @rx_spectral_sample_err: No. of good spectral samples
+>>>>>>> upstream/android-13
  */
 struct ath_rx_stats {
 	u32 rx_pkts_all;
@@ -58,6 +63,11 @@ struct ath_rx_stats {
 	u32 rx_beacons;
 	u32 rx_frags;
 	u32 rx_spectral;
+<<<<<<< HEAD
+=======
+	u32 rx_spectral_sample_good;
+	u32 rx_spectral_sample_err;
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_ATH9K_COMMON_DEBUG

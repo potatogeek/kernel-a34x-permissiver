@@ -20,5 +20,9 @@ modules).
 OPTIONS
 -------
 -v::
+<<<<<<< HEAD
 --verbose=::
+=======
+--verbose::
+>>>>>>> upstream/android-13
 	Increase verbosity level, showing details about symbol table loading, etc.

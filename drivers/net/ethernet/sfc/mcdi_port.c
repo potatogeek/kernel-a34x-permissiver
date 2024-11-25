@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2009-2013 Solarflare Communications Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/****************************************************************************
+ * Driver for Solarflare network controllers and boards
+ * Copyright 2009-2013 Solarflare Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -13,10 +20,15 @@
 
 #include <linux/slab.h>
 #include "efx.h"
+<<<<<<< HEAD
+=======
+#include "mcdi_port.h"
+>>>>>>> upstream/android-13
 #include "mcdi.h"
 #include "mcdi_pcol.h"
 #include "nic.h"
 #include "selftest.h"
+<<<<<<< HEAD
 
 struct efx_mcdi_phy_data {
 	u32 flags;
@@ -117,6 +129,9 @@ fail:
 	netif_err(efx, hw, efx->net_dev, "%s: failed rc=%d\n", __func__, rc);
 	return rc;
 }
+=======
+#include "mcdi_port_common.h"
+>>>>>>> upstream/android-13
 
 static int efx_mcdi_mdio_read(struct net_device *net_dev,
 			      int prtad, int devad, u16 addr)
@@ -171,6 +186,7 @@ static int efx_mcdi_mdio_write(struct net_device *net_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mcdi_to_ethtool_linkset(u32 media, u32 cap, unsigned long *linkset)
 {
 	#define SET_BIT(name)	__set_bit(ETHTOOL_LINK_MODE_ ## name ## _BIT, \
@@ -1134,6 +1150,8 @@ static const struct efx_phy_operations efx_mcdi_phy_ops = {
 	.get_module_info = efx_mcdi_phy_get_module_info,
 };
 
+=======
+>>>>>>> upstream/android-13
 u32 efx_mcdi_phy_get_caps(struct efx_nic *efx)
 {
 	struct efx_mcdi_phy_data *phy_data = efx->phy_data;
@@ -1141,6 +1159,7 @@ u32 efx_mcdi_phy_get_caps(struct efx_nic *efx)
 	return phy_data->supported_cap;
 }
 
+<<<<<<< HEAD
 static unsigned int efx_mcdi_event_link_speed[] = {
 	[MCDI_EVENT_LINKCHANGE_SPEED_100M] = 100,
 	[MCDI_EVENT_LINKCHANGE_SPEED_1G] = 1000,
@@ -1219,6 +1238,8 @@ int efx_mcdi_set_mac(struct efx_nic *efx)
 			    NULL, 0, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 bool efx_mcdi_mac_check_fault(struct efx_nic *efx)
 {
 	MCDI_DECLARE_BUF(outbuf, MC_CMD_GET_LINK_OUT_LEN);
@@ -1235,6 +1256,7 @@ bool efx_mcdi_mac_check_fault(struct efx_nic *efx)
 	return MCDI_DWORD(outbuf, GET_LINK_OUT_MAC_FAULT) != 0;
 }
 
+<<<<<<< HEAD
 enum efx_stats_action {
 	EFX_STATS_ENABLE,
 	EFX_STATS_DISABLE,
@@ -1312,19 +1334,25 @@ void efx_mcdi_mac_pull_stats(struct efx_nic *efx)
 		udelay(EFX_MAC_STATS_WAIT_US);
 }
 
+=======
+>>>>>>> upstream/android-13
 int efx_mcdi_port_probe(struct efx_nic *efx)
 {
 	int rc;
 
+<<<<<<< HEAD
 	/* Hook in PHY operations table */
 	efx->phy_op = &efx_mcdi_phy_ops;
 
+=======
+>>>>>>> upstream/android-13
 	/* Set up MDIO structure for PHY */
 	efx->mdio.mode_support = MDIO_SUPPORTS_C45 | MDIO_EMULATE_C22;
 	efx->mdio.mdio_read = efx_mcdi_mdio_read;
 	efx->mdio.mdio_write = efx_mcdi_mdio_write;
 
 	/* Fill out MDIO structure, loopback modes, and initial link state */
+<<<<<<< HEAD
 	rc = efx->phy_op->probe(efx);
 	if (rc != 0)
 		return rc;
@@ -1343,10 +1371,18 @@ int efx_mcdi_port_probe(struct efx_nic *efx)
 	efx_mcdi_mac_stats(efx, EFX_STATS_DISABLE, 1);
 
 	return 0;
+=======
+	rc = efx_mcdi_phy_probe(efx);
+	if (rc != 0)
+		return rc;
+
+	return efx_mcdi_mac_init_stats(efx);
+>>>>>>> upstream/android-13
 }
 
 void efx_mcdi_port_remove(struct efx_nic *efx)
 {
+<<<<<<< HEAD
 	efx->phy_op->remove(efx);
 	efx_nic_free_buffer(efx, &efx->stats_buffer);
 }
@@ -1363,4 +1399,8 @@ int efx_mcdi_port_get_number(struct efx_nic *efx)
 		return rc;
 
 	return MCDI_DWORD(outbuf, GET_PORT_ASSIGNMENT_OUT_PORT);
+=======
+	efx_mcdi_phy_remove(efx);
+	efx_mcdi_mac_fini_stats(efx);
+>>>>>>> upstream/android-13
 }

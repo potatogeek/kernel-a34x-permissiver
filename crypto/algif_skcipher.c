@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * algif_skcipher: User-space interface for skcipher algorithms
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (c) 2010 Herbert Xu <herbert@gondor.apana.org.au>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * The following concept of the memory management is used:
  *
  * The kernel maintains two SGLs, the TX SGL and the RX SGL. The TX SGL is
@@ -60,13 +67,22 @@ static int _skcipher_recvmsg(struct socket *sock, struct msghdr *msg,
 	struct alg_sock *pask = alg_sk(psk);
 	struct af_alg_ctx *ctx = ask->private;
 	struct crypto_skcipher *tfm = pask->private;
+<<<<<<< HEAD
 	unsigned int bs = crypto_skcipher_blocksize(tfm);
+=======
+	unsigned int bs = crypto_skcipher_chunksize(tfm);
+>>>>>>> upstream/android-13
 	struct af_alg_async_req *areq;
 	int err = 0;
 	size_t len = 0;
 
+<<<<<<< HEAD
 	if (!ctx->used) {
 		err = af_alg_wait_for_data(sk, flags);
+=======
+	if (!ctx->init || (ctx->more && ctx->used < bs)) {
+		err = af_alg_wait_for_data(sk, flags, bs);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -192,11 +208,17 @@ static struct proto_ops algif_skcipher_ops = {
 	.ioctl		=	sock_no_ioctl,
 	.listen		=	sock_no_listen,
 	.shutdown	=	sock_no_shutdown,
+<<<<<<< HEAD
 	.getsockopt	=	sock_no_getsockopt,
 	.mmap		=	sock_no_mmap,
 	.bind		=	sock_no_bind,
 	.accept		=	sock_no_accept,
 	.setsockopt	=	sock_no_setsockopt,
+=======
+	.mmap		=	sock_no_mmap,
+	.bind		=	sock_no_bind,
+	.accept		=	sock_no_accept,
+>>>>>>> upstream/android-13
 
 	.release	=	af_alg_release,
 	.sendmsg	=	skcipher_sendmsg,
@@ -285,11 +307,17 @@ static struct proto_ops algif_skcipher_ops_nokey = {
 	.ioctl		=	sock_no_ioctl,
 	.listen		=	sock_no_listen,
 	.shutdown	=	sock_no_shutdown,
+<<<<<<< HEAD
 	.getsockopt	=	sock_no_getsockopt,
 	.mmap		=	sock_no_mmap,
 	.bind		=	sock_no_bind,
 	.accept		=	sock_no_accept,
 	.setsockopt	=	sock_no_setsockopt,
+=======
+	.mmap		=	sock_no_mmap,
+	.bind		=	sock_no_bind,
+	.accept		=	sock_no_accept,
+>>>>>>> upstream/android-13
 
 	.release	=	af_alg_release,
 	.sendmsg	=	skcipher_sendmsg_nokey,
@@ -337,6 +365,10 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
 	ctx = sock_kmalloc(sk, len, GFP_KERNEL);
 	if (!ctx)
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+	memset(ctx, 0, len);
+>>>>>>> upstream/android-13
 
 	ctx->iv = sock_kmalloc(sk, crypto_skcipher_ivsize(tfm),
 			       GFP_KERNEL);
@@ -344,16 +376,22 @@ static int skcipher_accept_parent_nokey(void *private, struct sock *sk)
 		sock_kfree_s(sk, ctx, len);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	memset(ctx->iv, 0, crypto_skcipher_ivsize(tfm));
 
 	INIT_LIST_HEAD(&ctx->tsgl_list);
 	ctx->len = len;
+<<<<<<< HEAD
 	ctx->used = 0;
 	atomic_set(&ctx->rcvused, 0);
 	ctx->more = 0;
 	ctx->merge = 0;
 	ctx->enc = 0;
+=======
+>>>>>>> upstream/android-13
 	crypto_init_wait(&ctx->wait);
 
 	ask->private = ctx;

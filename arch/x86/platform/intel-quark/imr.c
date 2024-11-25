@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  * imr.c -- Intel Isolated Memory Region driver
  *
  * Copyright(c) 2013 Intel Corporation.
@@ -28,13 +33,21 @@
 #include <asm/cpu_device_id.h>
 #include <asm/imr.h>
 #include <asm/iosf_mbi.h>
+<<<<<<< HEAD
+=======
+#include <asm/io.h>
+
+>>>>>>> upstream/android-13
 #include <linux/debugfs.h>
 #include <linux/init.h>
 #include <linux/mm.h>
 #include <linux/types.h>
 
 struct imr_device {
+<<<<<<< HEAD
 	struct dentry	*file;
+=======
+>>>>>>> upstream/android-13
 	bool		init;
 	struct mutex	lock;
 	int		max_imr;
@@ -230,6 +243,7 @@ DEFINE_SHOW_ATTRIBUTE(imr_dbgfs_state);
  * imr_debugfs_register - register debugfs hooks.
  *
  * @idev:	pointer to imr_device structure.
+<<<<<<< HEAD
  * @return:	0 on success - errno on failure.
  */
 static int imr_debugfs_register(struct imr_device *idev)
@@ -237,6 +251,13 @@ static int imr_debugfs_register(struct imr_device *idev)
 	idev->file = debugfs_create_file("imr_state", 0444, NULL, idev,
 					 &imr_dbgfs_state_fops);
 	return PTR_ERR_OR_ZERO(idev->file);
+=======
+ */
+static void imr_debugfs_register(struct imr_device *idev)
+{
+	debugfs_create_file("imr_state", 0444, NULL, idev,
+			    &imr_dbgfs_state_fops);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -551,7 +572,11 @@ static void __init imr_fixup_memmap(struct imr_device *idev)
 
 	/*
 	 * Setup an unlocked IMR around the physical extent of the kernel
+<<<<<<< HEAD
 	 * from the beginning of the .text secton to the end of the
+=======
+	 * from the beginning of the .text section to the end of the
+>>>>>>> upstream/android-13
 	 * .rodata section as one physically contiguous block.
 	 *
 	 * We don't round up @size since it is already PAGE_SIZE aligned.
@@ -569,7 +594,11 @@ static void __init imr_fixup_memmap(struct imr_device *idev)
 }
 
 static const struct x86_cpu_id imr_ids[] __initconst = {
+<<<<<<< HEAD
 	{ X86_VENDOR_INTEL, 5, 9 },	/* Intel Quark SoC X1000. */
+=======
+	X86_MATCH_VENDOR_FAM_MODEL(INTEL, 5, INTEL_FAM5_QUARK_X1000, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -581,7 +610,10 @@ static const struct x86_cpu_id imr_ids[] __initconst = {
 static int __init imr_init(void)
 {
 	struct imr_device *idev = &imr_dev;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!x86_match_cpu(imr_ids) || !iosf_mbi_available())
 		return -ENODEV;
@@ -591,9 +623,13 @@ static int __init imr_init(void)
 	idev->init = true;
 
 	mutex_init(&idev->lock);
+<<<<<<< HEAD
 	ret = imr_debugfs_register(idev);
 	if (ret != 0)
 		pr_warn("debugfs register failed!\n");
+=======
+	imr_debugfs_register(idev);
+>>>>>>> upstream/android-13
 	imr_fixup_memmap(idev);
 	return 0;
 }

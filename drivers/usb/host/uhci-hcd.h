@@ -381,10 +381,13 @@ enum uhci_rh_state {
  * The full UHCI controller information:
  */
 struct uhci_hcd {
+<<<<<<< HEAD
 
 	/* debugfs */
 	struct dentry *dentry;
 
+=======
+>>>>>>> upstream/android-13
 	/* Grabbed from PCI */
 	unsigned long io_addr;
 

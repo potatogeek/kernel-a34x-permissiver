@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * tools/testing/selftests/kvm/include/sparsebit.h
  *
  * Copyright (C) 2018, Google LLC.
  *
+<<<<<<< HEAD
  * This work is licensed under the terms of the GNU GPL, version 2.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * Header file that describes API to the sparsebit library.
  * This library provides a memory efficient means of storing
  * the settings of bits indexed via a uint64_t.  Memory usage
@@ -15,8 +22,13 @@
  * even in the case where most bits are set.
  */
 
+<<<<<<< HEAD
 #ifndef _TEST_SPARSEBIT_H_
 #define _TEST_SPARSEBIT_H_
+=======
+#ifndef SELFTEST_KVM_SPARSEBIT_H
+#define SELFTEST_KVM_SPARSEBIT_H
+>>>>>>> upstream/android-13
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -72,4 +84,8 @@ void sparsebit_validate_internal(struct sparsebit *sbit);
 }
 #endif
 
+<<<<<<< HEAD
 #endif /* _TEST_SPARSEBIT_H_ */
+=======
+#endif /* SELFTEST_KVM_SPARSEBIT_H */
+>>>>>>> upstream/android-13

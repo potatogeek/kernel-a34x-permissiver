@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2012, Meador Inge, Mentor Graphics Corporation.
  *
@@ -6,6 +7,11 @@
  * as published by the Free Software Foundation; version 2 of the
  * License.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2011-2012, Meador Inge, Mentor Graphics Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MPIC_MSGR_H

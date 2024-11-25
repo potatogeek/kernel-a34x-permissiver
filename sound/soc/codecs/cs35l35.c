@@ -1,19 +1,29 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cs35l35.c -- CS35L35 ALSA SoC audio driver
  *
  * Copyright 2017 Cirrus Logic, Inc.
  *
  * Author: Brian Austin <brian.austin@cirrus.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/delay.h>
@@ -38,6 +48,10 @@
 #include <linux/completion.h>
 
 #include "cs35l35.h"
+<<<<<<< HEAD
+=======
+#include "cirrus_legacy.h"
+>>>>>>> upstream/android-13
 
 /*
  * Some fields take zero as a valid value so use a high bit flag that won't
@@ -372,6 +386,7 @@ static int cs35l35_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
 	struct snd_soc_component *component = codec_dai->component;
 	struct cs35l35_private *cs35l35 = snd_soc_component_get_drvdata(component);
 
+<<<<<<< HEAD
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBM_CFM:
 		regmap_update_bits(cs35l35->regmap, CS35L35_CLK_CTL1,
@@ -382,6 +397,18 @@ static int cs35l35_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
 		regmap_update_bits(cs35l35->regmap, CS35L35_CLK_CTL1,
 				    CS35L35_MS_MASK, 0 << CS35L35_MS_SHIFT);
 		cs35l35->slave_mode = true;
+=======
+	switch (fmt & SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK) {
+	case SND_SOC_DAIFMT_CBP_CFP:
+		regmap_update_bits(cs35l35->regmap, CS35L35_CLK_CTL1,
+				    CS35L35_MS_MASK, 1 << CS35L35_MS_SHIFT);
+		cs35l35->clock_consumer = false;
+		break;
+	case SND_SOC_DAIFMT_CBC_CFC:
+		regmap_update_bits(cs35l35->regmap, CS35L35_CLK_CTL1,
+				    CS35L35_MS_MASK, 0 << CS35L35_MS_SHIFT);
+		cs35l35->clock_consumer = true;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EINVAL;
@@ -500,10 +527,17 @@ static int cs35l35_hw_params(struct snd_pcm_substream *substream,
 	 * the Class H algorithm does not enable weak-drive operation for
 	 * nonzero values of CH_WKFET_DELAY if SP_RATE = 01 or 10
 	 */
+<<<<<<< HEAD
 	errata_chk = clk_ctl & CS35L35_SP_RATE_MASK;
 
 	if (classh->classh_wk_fet_disable == 0x00 &&
 		(errata_chk == 0x01 || errata_chk == 0x03)) {
+=======
+	errata_chk = (clk_ctl & CS35L35_SP_RATE_MASK) >> CS35L35_SP_RATE_SHIFT;
+
+	if (classh->classh_wk_fet_disable == 0x00 &&
+		(errata_chk == 0x01 || errata_chk == 0x02)) {
+>>>>>>> upstream/android-13
 		ret = regmap_update_bits(cs35l35->regmap,
 					CS35L35_CLASS_H_FET_DRIVE_CTL,
 					CS35L35_CH_WKFET_DEL_MASK,
@@ -560,8 +594,13 @@ static int cs35l35_hw_params(struct snd_pcm_substream *substream,
 		}
 		sp_sclks = ((cs35l35->sclk / srate) / 4) - 1;
 
+<<<<<<< HEAD
 		/* Only certain ratios are supported in I2S Slave Mode */
 		if (cs35l35->slave_mode) {
+=======
+		/* Only certain ratios supported when device is a clock consumer */
+		if (cs35l35->clock_consumer) {
+>>>>>>> upstream/android-13
 			switch (sp_sclks) {
 			case CS35L35_SP_SCLKS_32FS:
 			case CS35L35_SP_SCLKS_48FS:
@@ -572,7 +611,11 @@ static int cs35l35_hw_params(struct snd_pcm_substream *substream,
 				return -EINVAL;
 			}
 		} else {
+<<<<<<< HEAD
 			/* Only certain ratios supported in I2S MASTER Mode */
+=======
+			/* Only certain ratios supported when device is a clock provider */
+>>>>>>> upstream/android-13
 			switch (sp_sclks) {
 			case CS35L35_SP_SCLKS_32FS:
 			case CS35L35_SP_SCLKS_64FS:
@@ -696,7 +739,11 @@ static struct snd_soc_dai_driver cs35l35_dai[] = {
 			.formats = CS35L35_FORMATS,
 		},
 		.ops = &cs35l35_ops,
+<<<<<<< HEAD
 		.symmetric_rates = 1,
+=======
+		.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "cs35l35-pdm",
@@ -1105,7 +1152,12 @@ static struct regmap_config cs35l35_regmap = {
 	.readable_reg = cs35l35_readable_register,
 	.precious_reg = cs35l35_precious_register,
 	.cache_type = REGCACHE_RBTREE,
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t cs35l35_irq(int irq, void *data)
@@ -1475,9 +1527,14 @@ static int cs35l35_i2c_probe(struct i2c_client *i2c_client,
 	struct cs35l35_private *cs35l35;
 	struct device *dev = &i2c_client->dev;
 	struct cs35l35_platform_data *pdata = dev_get_platdata(dev);
+<<<<<<< HEAD
 	int i;
 	int ret;
 	unsigned int devid = 0;
+=======
+	int i, devid;
+	int ret;
+>>>>>>> upstream/android-13
 	unsigned int reg;
 
 	cs35l35 = devm_kzalloc(dev, sizeof(struct cs35l35_private), GFP_KERNEL);
@@ -1491,7 +1548,11 @@ static int cs35l35_i2c_probe(struct i2c_client *i2c_client,
 	if (IS_ERR(cs35l35->regmap)) {
 		ret = PTR_ERR(cs35l35->regmap);
 		dev_err(dev, "regmap_init() failed: %d\n", ret);
+<<<<<<< HEAD
 		goto err;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < ARRAY_SIZE(cs35l35_supplies); i++)
@@ -1556,6 +1617,7 @@ static int cs35l35_i2c_probe(struct i2c_client *i2c_client,
 		goto err;
 	}
 	/* initialize codec */
+<<<<<<< HEAD
 	ret = regmap_read(cs35l35->regmap, CS35L35_DEVID_AB, &reg);
 
 	devid = (reg & 0xFF) << 12;
@@ -1563,6 +1625,14 @@ static int cs35l35_i2c_probe(struct i2c_client *i2c_client,
 	devid |= (reg & 0xFF) << 4;
 	ret = regmap_read(cs35l35->regmap, CS35L35_DEVID_E, &reg);
 	devid |= (reg & 0xF0) >> 4;
+=======
+	devid = cirrus_read_device_id(cs35l35->regmap, CS35L35_DEVID_AB);
+	if (devid < 0) {
+		ret = devid;
+		dev_err(dev, "Failed to read device ID: %d\n", ret);
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	if (devid != CS35L35_CHIP_ID) {
 		dev_err(dev, "CS35L35 Device ID (%X). Expected ID %X\n",

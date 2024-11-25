@@ -39,6 +39,11 @@
 #define ASPEED_CLK_BCLK			33
 #define ASPEED_CLK_MPLL			34
 #define ASPEED_CLK_24M			35
+<<<<<<< HEAD
+=======
+#define ASPEED_CLK_MAC1RCLK		36
+#define ASPEED_CLK_MAC2RCLK		37
+>>>>>>> upstream/android-13
 
 #define ASPEED_RESET_XDMA		0
 #define ASPEED_RESET_MCTP		1

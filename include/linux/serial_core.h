@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/char/serial_core.h
  *
  *  Copyright (C) 2000 Deep Blue Solutions Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +21,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef LINUX_SERIAL_CORE_H
 #define LINUX_SERIAL_CORE_H
 
 #include <linux/bitops.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/console.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/circ_buf.h>
 #include <linux/spinlock.h>
@@ -29,6 +40,10 @@
 #include <linux/tty.h>
 #include <linux/mutex.h>
 #include <linux/sysrq.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/serial_core.h>
 
 #ifdef CONFIG_SERIAL_CORE_CONSOLE
@@ -41,10 +56,18 @@
 struct uart_port;
 struct serial_struct;
 struct device;
+<<<<<<< HEAD
 
 /*
  * This structure describes all the operations that can be done on the
  * physical hardware.  See Documentation/serial/driver for details.
+=======
+struct gpio_desc;
+
+/*
+ * This structure describes all the operations that can be done on the
+ * physical hardware.  See Documentation/driver-api/serial/driver.rst for details.
+>>>>>>> upstream/android-13
  */
 struct uart_ops {
 	unsigned int	(*tx_empty)(struct uart_port *);
@@ -91,6 +114,12 @@ struct uart_ops {
 	void		(*poll_put_char)(struct uart_port *, unsigned char);
 	int		(*poll_get_char)(struct uart_port *);
 #endif
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 #define NO_POLL_CHAR		0x00ff0000
@@ -144,6 +173,11 @@ struct uart_port {
 	void			(*handle_break)(struct uart_port *);
 	int			(*rs485_config)(struct uart_port *,
 						struct serial_rs485 *rs485);
+<<<<<<< HEAD
+=======
+	int			(*iso7816_config)(struct uart_port *,
+						  struct serial_iso7816 *iso7816);
+>>>>>>> upstream/android-13
 	unsigned int		irq;			/* irq number */
 	unsigned long		irqflags;		/* irq flags  */
 	unsigned int		uartclk;		/* base uart clock */
@@ -171,11 +205,14 @@ struct uart_port {
 	struct uart_icount	icount;			/* statistics */
 
 	struct console		*cons;			/* struct console, if any */
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(SUPPORT_SYSRQ)
 	unsigned long		sysrq;			/* sysrq timeout */
 	unsigned int		sysrq_ch;		/* char for sysrq */
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* flags must be updated while holding port mutex */
 	upf_t			flags;
 
@@ -254,14 +291,35 @@ struct uart_port {
 	resource_size_t		mapbase;		/* for ioremap */
 	resource_size_t		mapsize;
 	struct device		*dev;			/* parent device */
+<<<<<<< HEAD
 	unsigned char		hub6;			/* this should be in the 8250 driver */
 	unsigned char		suspended;
 	unsigned char		unused[2];
+=======
+
+	unsigned long		sysrq;			/* sysrq timeout */
+	unsigned int		sysrq_ch;		/* char for sysrq */
+	unsigned char		has_sysrq;
+	unsigned char		sysrq_seq;		/* index in sysrq_toggle_seq */
+
+	unsigned char		hub6;			/* this should be in the 8250 driver */
+	unsigned char		suspended;
+	unsigned char		console_reinit;
+>>>>>>> upstream/android-13
 	const char		*name;			/* port name */
 	struct attribute_group	*attr_group;		/* port specific attributes */
 	const struct attribute_group **tty_groups;	/* all attributes (serial core use only) */
 	struct serial_rs485     rs485;
+<<<<<<< HEAD
 	void			*private_data;		/* generic platform data pointer */
+=======
+	struct gpio_desc	*rs485_term_gpio;	/* enable RS485 bus termination */
+	struct serial_iso7816   iso7816;
+	void			*private_data;		/* generic platform data pointer */
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 static inline int serial_port_in(struct uart_port *up, int offset)
@@ -300,7 +358,11 @@ struct uart_state {
 	struct uart_port	*uart_port;
 };
 
+<<<<<<< HEAD
 #define UART_XMIT_SIZE	PAGE_SIZE
+=======
+#define UART_XMIT_SIZE	(PAGE_SIZE * 4)
+>>>>>>> upstream/android-13
 
 
 /* number of characters left in xmit buffer before we ask for more */
@@ -324,6 +386,11 @@ struct uart_driver {
 	 */
 	struct uart_state	*state;
 	struct tty_driver	*tty_driver;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 void uart_write_wakeup(struct uart_port *port);
@@ -363,8 +430,13 @@ struct earlycon_id {
 	int	(*setup)(struct earlycon_device *, const char *options);
 };
 
+<<<<<<< HEAD
 extern const struct earlycon_id *__earlycon_table[];
 extern const struct earlycon_id *__earlycon_table_end[];
+=======
+extern const struct earlycon_id __earlycon_table[];
+extern const struct earlycon_id __earlycon_table_end[];
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_SERIAL_EARLYCON) && !defined(MODULE)
 #define EARLYCON_USED_OR_UNUSED	__used
@@ -372,6 +444,7 @@ extern const struct earlycon_id *__earlycon_table_end[];
 #define EARLYCON_USED_OR_UNUSED	__maybe_unused
 #endif
 
+<<<<<<< HEAD
 #define _OF_EARLYCON_DECLARE(_name, compat, fn, unique_id)		\
 	static const struct earlycon_id unique_id			\
 	     EARLYCON_USED_OR_UNUSED __initconst			\
@@ -385,6 +458,15 @@ extern const struct earlycon_id *__earlycon_table_end[];
 #define OF_EARLYCON_DECLARE(_name, compat, fn)				\
 	_OF_EARLYCON_DECLARE(_name, compat, fn,				\
 			     __UNIQUE_ID(__earlycon_##_name))
+=======
+#define OF_EARLYCON_DECLARE(_name, compat, fn)				\
+	static const struct earlycon_id __UNIQUE_ID(__earlycon_##_name) \
+		EARLYCON_USED_OR_UNUSED  __section("__earlycon_table")  \
+		__aligned(__alignof__(struct earlycon_id))		\
+		= { .name = __stringify(_name),				\
+		    .compatible = compat,				\
+		    .setup = fn }
+>>>>>>> upstream/android-13
 
 #define EARLYCON_DECLARE(_name, fn)	OF_EARLYCON_DECLARE(_name, "", fn)
 
@@ -420,7 +502,12 @@ int uart_register_driver(struct uart_driver *uart);
 void uart_unregister_driver(struct uart_driver *uart);
 int uart_add_one_port(struct uart_driver *reg, struct uart_port *port);
 int uart_remove_one_port(struct uart_driver *reg, struct uart_port *port);
+<<<<<<< HEAD
 int uart_match_port(struct uart_port *port1, struct uart_port *port2);
+=======
+bool uart_match_port(const struct uart_port *port1,
+		const struct uart_port *port2);
+>>>>>>> upstream/android-13
 
 /*
  * Power Management
@@ -440,7 +527,11 @@ int uart_resume_port(struct uart_driver *reg, struct uart_port *port);
 static inline int uart_tx_stopped(struct uart_port *port)
 {
 	struct tty_struct *tty = port->state->port.tty;
+<<<<<<< HEAD
 	if ((tty && tty->stopped) || port->hw_stopped)
+=======
+	if ((tty && tty->flow.stopped) || port->hw_stopped)
+>>>>>>> upstream/android-13
 		return 1;
 	return 0;
 }
@@ -469,16 +560,34 @@ extern void uart_handle_cts_change(struct uart_port *uport,
 extern void uart_insert_char(struct uart_port *port, unsigned int status,
 		 unsigned int overrun, unsigned int ch, unsigned int flag);
 
+<<<<<<< HEAD
 #if defined(SUPPORT_SYSRQ) && defined(CONFIG_MAGIC_SYSRQ_SERIAL)
 static inline int
 uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
 {
 	if (port->sysrq) {
 		if (ch && time_before(jiffies, port->sysrq)) {
+=======
+void uart_xchar_out(struct uart_port *uport, int offset);
+
+#ifdef CONFIG_MAGIC_SYSRQ_SERIAL
+#define SYSRQ_TIMEOUT	(HZ * 5)
+
+bool uart_try_toggle_sysrq(struct uart_port *port, unsigned int ch);
+
+static inline int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
+{
+	if (!port->sysrq)
+		return 0;
+
+	if (ch && time_before(jiffies, port->sysrq)) {
+		if (sysrq_mask()) {
+>>>>>>> upstream/android-13
 			handle_sysrq(ch);
 			port->sysrq = 0;
 			return 1;
 		}
+<<<<<<< HEAD
 		port->sysrq = 0;
 	}
 	return 0;
@@ -488,10 +597,28 @@ uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
 {
 	if (port->sysrq) {
 		if (ch && time_before(jiffies, port->sysrq)) {
+=======
+		if (uart_try_toggle_sysrq(port, ch))
+			return 1;
+	}
+	port->sysrq = 0;
+
+	return 0;
+}
+
+static inline int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
+{
+	if (!port->sysrq)
+		return 0;
+
+	if (ch && time_before(jiffies, port->sysrq)) {
+		if (sysrq_mask()) {
+>>>>>>> upstream/android-13
 			port->sysrq_ch = ch;
 			port->sysrq = 0;
 			return 1;
 		}
+<<<<<<< HEAD
 		port->sysrq = 0;
 	}
 	return 0;
@@ -505,10 +632,34 @@ uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
 	port->sysrq_ch = 0;
 
 	spin_unlock_irqrestore(&port->lock, irqflags);
+=======
+		if (uart_try_toggle_sysrq(port, ch))
+			return 1;
+	}
+	port->sysrq = 0;
+
+	return 0;
+}
+
+static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
+{
+	int sysrq_ch;
+
+	if (!port->has_sysrq) {
+		spin_unlock(&port->lock);
+		return;
+	}
+
+	sysrq_ch = port->sysrq_ch;
+	port->sysrq_ch = 0;
+
+	spin_unlock(&port->lock);
+>>>>>>> upstream/android-13
 
 	if (sysrq_ch)
 		handle_sysrq(sysrq_ch);
 }
+<<<<<<< HEAD
 #else
 static inline int
 uart_handle_sysrq_char(struct uart_port *port, unsigned int ch) { return 0; }
@@ -520,6 +671,46 @@ uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
 	spin_unlock_irqrestore(&port->lock, irqflags);
 }
 #endif
+=======
+
+static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
+		unsigned long flags)
+{
+	int sysrq_ch;
+
+	if (!port->has_sysrq) {
+		spin_unlock_irqrestore(&port->lock, flags);
+		return;
+	}
+
+	sysrq_ch = port->sysrq_ch;
+	port->sysrq_ch = 0;
+
+	spin_unlock_irqrestore(&port->lock, flags);
+
+	if (sysrq_ch)
+		handle_sysrq(sysrq_ch);
+}
+#else	/* CONFIG_MAGIC_SYSRQ_SERIAL */
+static inline int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
+{
+	return 0;
+}
+static inline int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
+{
+	return 0;
+}
+static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
+{
+	spin_unlock(&port->lock);
+}
+static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
+		unsigned long flags)
+{
+	spin_unlock_irqrestore(&port->lock, flags);
+}
+#endif	/* CONFIG_MAGIC_SYSRQ_SERIAL */
+>>>>>>> upstream/android-13
 
 /*
  * We do the SysRQ and SAK checking like this...
@@ -531,10 +722,17 @@ static inline int uart_handle_break(struct uart_port *port)
 	if (port->handle_break)
 		port->handle_break(port);
 
+<<<<<<< HEAD
 #ifdef SUPPORT_SYSRQ
 	if (port->cons && port->cons->index == port->line) {
 		if (!port->sysrq) {
 			port->sysrq = jiffies + HZ*5;
+=======
+#ifdef CONFIG_MAGIC_SYSRQ_SERIAL
+	if (port->has_sysrq && uart_console(port)) {
+		if (!port->sysrq) {
+			port->sysrq = jiffies + SYSRQ_TIMEOUT;
+>>>>>>> upstream/android-13
 			return 1;
 		}
 		port->sysrq = 0;
@@ -552,5 +750,9 @@ static inline int uart_handle_break(struct uart_port *port)
 					 (cflag) & CRTSCTS || \
 					 !((cflag) & CLOCAL))
 
+<<<<<<< HEAD
 void uart_get_rs485_mode(struct device *dev, struct serial_rs485 *rs485conf);
+=======
+int uart_get_rs485_mode(struct uart_port *port);
+>>>>>>> upstream/android-13
 #endif /* LINUX_SERIAL_CORE_H */

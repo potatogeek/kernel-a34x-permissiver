@@ -1,19 +1,31 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019 MediaTek Inc.
  */
+=======
+* Copyright (c) 2016 MediaTek Inc.
+* Author: PC Chen <pc.chen@mediatek.com>
+*         Tiffany Lin <tiffany.lin@mediatek.com>
+*/
+>>>>>>> upstream/android-13
 
 #include <media/v4l2-event.h>
 #include <media/v4l2-mem2mem.h>
 #include <media/videobuf2-dma-contig.h>
 #include <soc/mediatek/smi.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
 #include <linux/semaphore.h>
+=======
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 
 #include "mtk_vcodec_drv.h"
 #include "mtk_vcodec_enc.h"
 #include "mtk_vcodec_intr.h"
 #include "mtk_vcodec_util.h"
+<<<<<<< HEAD
 #include "mtk_vcodec_enc_pm.h"
 #include "venc_drv_if.h"
 
@@ -221,6 +233,36 @@ static int vidioc_venc_check_supported_profile_level(__u32 fourcc,
 	}
 	return false;
 }
+=======
+#include "venc_drv_if.h"
+
+#define MTK_VENC_MIN_W	160U
+#define MTK_VENC_MIN_H	128U
+#define MTK_VENC_HD_MAX_W	1920U
+#define MTK_VENC_HD_MAX_H	1088U
+#define MTK_VENC_4K_MAX_W	3840U
+#define MTK_VENC_4K_MAX_H	2176U
+
+#define DFT_CFG_WIDTH	MTK_VENC_MIN_W
+#define DFT_CFG_HEIGHT	MTK_VENC_MIN_H
+#define MTK_MAX_CTRLS_HINT	20
+
+#define MTK_DEFAULT_FRAMERATE_NUM 1001
+#define MTK_DEFAULT_FRAMERATE_DENOM 30000
+#define MTK_VENC_4K_CAPABILITY_ENABLE BIT(0)
+
+static void mtk_venc_worker(struct work_struct *work);
+
+static const struct v4l2_frmsize_stepwise mtk_venc_hd_framesizes = {
+	MTK_VENC_MIN_W, MTK_VENC_HD_MAX_W, 16,
+	MTK_VENC_MIN_H, MTK_VENC_HD_MAX_H, 16,
+};
+
+static const struct v4l2_frmsize_stepwise mtk_venc_4k_framesizes = {
+	MTK_VENC_MIN_W, MTK_VENC_4K_MAX_W, 16,
+	MTK_VENC_MIN_H, MTK_VENC_4K_MAX_H, 16,
+};
+>>>>>>> upstream/android-13
 
 static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 {
@@ -228,10 +270,13 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 	struct mtk_enc_params *p = &ctx->enc_params;
 	int ret = 0;
 
+<<<<<<< HEAD
 	mtk_v4l2_debug(4, "[%d] id %d val %d array[0] %d array[1] %d",
 				   ctx->id, ctrl->id, ctrl->val,
 				   ctrl->p_new.p_u32[0], ctrl->p_new.p_u32[1]);
 
+=======
+>>>>>>> upstream/android-13
 	switch (ctrl->id) {
 	case V4L2_CID_MPEG_VIDEO_BITRATE:
 		mtk_v4l2_debug(2, "V4L2_CID_MPEG_VIDEO_BITRATE val = %d",
@@ -239,6 +284,7 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 		p->bitrate = ctrl->val;
 		ctx->param_change |= MTK_ENCODE_PARAM_BITRATE;
 		break;
+<<<<<<< HEAD
 	case V4L2_CID_MPEG_MTK_SEC_ENCODE:
 		p->svp_mode = ctrl->val;
 		ctx->param_change |= MTK_ENCODE_PARAM_SEC_ENCODE;
@@ -246,6 +292,8 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 			ctx->id, ctrl->id, ctrl->val,
 		ctrl->p_new.p_u32[0], ctrl->p_new.p_u32[1]);
 		break;
+=======
+>>>>>>> upstream/android-13
 	case V4L2_CID_MPEG_VIDEO_B_FRAMES:
 		mtk_v4l2_debug(2, "V4L2_CID_MPEG_VIDEO_B_FRAMES val = %d",
 			       ctrl->val);
@@ -274,6 +322,7 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 	case V4L2_CID_MPEG_VIDEO_H264_PROFILE:
 		mtk_v4l2_debug(2, "V4L2_CID_MPEG_VIDEO_H264_PROFILE val = %d",
 			       ctrl->val);
+<<<<<<< HEAD
 		if (!vidioc_venc_check_supported_profile_level(
 				V4L2_PIX_FMT_H264, ctrl->val, 1))
 			return -EINVAL;
@@ -294,10 +343,14 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 			    V4L2_PIX_FMT_MPEG4, ctrl->val, 1))
 			return -EINVAL;
 		p->profile = ctrl->val;
+=======
+		p->h264_profile = ctrl->val;
+>>>>>>> upstream/android-13
 		break;
 	case V4L2_CID_MPEG_VIDEO_H264_LEVEL:
 		mtk_v4l2_debug(2, "V4L2_CID_MPEG_VIDEO_H264_LEVEL val = %d",
 			       ctrl->val);
+<<<<<<< HEAD
 		if (!vidioc_venc_check_supported_profile_level(
 				V4L2_PIX_FMT_H264, ctrl->val, 0))
 			return -EINVAL;
@@ -323,6 +376,9 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 			    V4L2_PIX_FMT_MPEG4, ctrl->val, 0))
 			return -EINVAL;
 		p->level = ctrl->val;
+=======
+		p->h264_level = ctrl->val;
+>>>>>>> upstream/android-13
 		break;
 	case V4L2_CID_MPEG_VIDEO_H264_I_PERIOD:
 		mtk_v4l2_debug(2, "V4L2_CID_MPEG_VIDEO_H264_I_PERIOD val = %d",
@@ -341,6 +397,7 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
 		p->force_intra = 1;
 		ctx->param_change |= MTK_ENCODE_PARAM_FORCE_INTRA;
 		break;
+<<<<<<< HEAD
 	case V4L2_CID_MPEG_MTK_ENCODE_SCENARIO:
 		mtk_v4l2_debug(2,
 			"V4L2_CID_MPEG_MTK_ENCODE_SCENARIO: %d",
@@ -560,6 +617,9 @@ static int vidioc_venc_g_ctrl(struct v4l2_ctrl *ctrl)
 		break;
 	default:
 		mtk_v4l2_err("ctrl-id=%d not support!", ctrl->id);
+=======
+	default:
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		break;
 	}
@@ -569,6 +629,7 @@ static int vidioc_venc_g_ctrl(struct v4l2_ctrl *ctrl)
 
 static const struct v4l2_ctrl_ops mtk_vcodec_enc_ctrl_ops = {
 	.s_ctrl = vidioc_venc_s_ctrl,
+<<<<<<< HEAD
 	.g_volatile_ctrl = vidioc_venc_g_ctrl,
 };
 
@@ -594,17 +655,57 @@ static int vidioc_enum_fmt(struct v4l2_fmtdesc *f, bool output_queue)
 	}
 
 	return -EINVAL;
+=======
+};
+
+static int vidioc_enum_fmt(struct v4l2_fmtdesc *f,
+			   const struct mtk_video_fmt *formats,
+			   size_t num_formats)
+{
+	if (f->index >= num_formats)
+		return -EINVAL;
+
+	f->pixelformat = formats[f->index].fourcc;
+
+	return 0;
+}
+
+static const struct mtk_video_fmt *
+mtk_venc_find_format(u32 fourcc, const struct mtk_vcodec_enc_pdata *pdata)
+{
+	const struct mtk_video_fmt *fmt;
+	unsigned int k;
+
+	for (k = 0; k < pdata->num_capture_formats; k++) {
+		fmt = &pdata->capture_formats[k];
+		if (fmt->fourcc == fourcc)
+			return fmt;
+	}
+
+	for (k = 0; k < pdata->num_output_formats; k++) {
+		fmt = &pdata->output_formats[k];
+		if (fmt->fourcc == fourcc)
+			return fmt;
+	}
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static int vidioc_enum_framesizes(struct file *file, void *fh,
 				  struct v4l2_frmsizeenum *fsize)
 {
+<<<<<<< HEAD
 	unsigned int i = 0;
+=======
+	const struct mtk_video_fmt *fmt;
+>>>>>>> upstream/android-13
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(fh);
 
 	if (fsize->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	get_supported_framesizes(ctx);
 
 	for (i = 0; i < MTK_MAX_ENC_CODECS_SUPPORT &&
@@ -632,17 +733,58 @@ static int vidioc_enum_fmt_vid_out_mplane(struct file *file, void *priv,
 					  struct v4l2_fmtdesc *f)
 {
 	return vidioc_enum_fmt(f, true);
+=======
+	fmt = mtk_venc_find_format(fsize->pixel_format,
+				   ctx->dev->venc_pdata);
+	if (!fmt)
+		return -EINVAL;
+
+	fsize->type = V4L2_FRMSIZE_TYPE_STEPWISE;
+
+	if (ctx->dev->enc_capability & MTK_VENC_4K_CAPABILITY_ENABLE)
+		fsize->stepwise = mtk_venc_4k_framesizes;
+	else
+		fsize->stepwise = mtk_venc_hd_framesizes;
+
+	return 0;
+}
+
+static int vidioc_enum_fmt_vid_cap(struct file *file, void *priv,
+				   struct v4l2_fmtdesc *f)
+{
+	const struct mtk_vcodec_enc_pdata *pdata =
+		fh_to_ctx(priv)->dev->venc_pdata;
+
+	return vidioc_enum_fmt(f, pdata->capture_formats,
+			       pdata->num_capture_formats);
+}
+
+static int vidioc_enum_fmt_vid_out(struct file *file, void *priv,
+				   struct v4l2_fmtdesc *f)
+{
+	const struct mtk_vcodec_enc_pdata *pdata =
+		fh_to_ctx(priv)->dev->venc_pdata;
+
+	return vidioc_enum_fmt(f, pdata->output_formats,
+			       pdata->num_output_formats);
+>>>>>>> upstream/android-13
 }
 
 static int vidioc_venc_querycap(struct file *file, void *priv,
 				struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	strlcpy(cap->driver, MTK_VCODEC_ENC_NAME, sizeof(cap->driver));
 	strlcpy(cap->bus_info, MTK_PLATFORM_STR, sizeof(cap->bus_info));
 	strlcpy(cap->card, MTK_PLATFORM_STR, sizeof(cap->card));
 
 	cap->device_caps  = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, MTK_VCODEC_ENC_NAME, sizeof(cap->driver));
+	strscpy(cap->bus_info, MTK_PLATFORM_STR, sizeof(cap->bus_info));
+	strscpy(cap->card, MTK_PLATFORM_STR, sizeof(cap->card));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -651,14 +793,28 @@ static int vidioc_venc_s_parm(struct file *file, void *priv,
 			      struct v4l2_streamparm *a)
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+<<<<<<< HEAD
+=======
+	struct v4l2_fract *timeperframe = &a->parm.output.timeperframe;
+>>>>>>> upstream/android-13
 
 	if (a->type != V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ctx->enc_params.framerate_num =
 		a->parm.output.timeperframe.denominator;
 	ctx->enc_params.framerate_denom =
 		a->parm.output.timeperframe.numerator;
+=======
+	if (timeperframe->numerator == 0 || timeperframe->denominator == 0) {
+		timeperframe->numerator = MTK_DEFAULT_FRAMERATE_NUM;
+		timeperframe->denominator = MTK_DEFAULT_FRAMERATE_DENOM;
+	}
+
+	ctx->enc_params.framerate_num = timeperframe->denominator;
+	ctx->enc_params.framerate_denom = timeperframe->numerator;
+>>>>>>> upstream/android-13
 	ctx->param_change |= MTK_ENCODE_PARAM_FRAMERATE;
 
 	a->parm.output.capability = V4L2_CAP_TIMEPERFRAME;
@@ -676,9 +832,15 @@ static int vidioc_venc_g_parm(struct file *file, void *priv,
 
 	a->parm.output.capability = V4L2_CAP_TIMEPERFRAME;
 	a->parm.output.timeperframe.denominator =
+<<<<<<< HEAD
 		ctx->enc_params.framerate_num;
 	a->parm.output.timeperframe.numerator =
 		ctx->enc_params.framerate_denom;
+=======
+			ctx->enc_params.framerate_num;
+	a->parm.output.timeperframe.numerator =
+			ctx->enc_params.framerate_denom;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -686,9 +848,12 @@ static int vidioc_venc_g_parm(struct file *file, void *priv,
 static struct mtk_q_data *mtk_venc_get_q_data(struct mtk_vcodec_ctx *ctx,
 					      enum v4l2_buf_type type)
 {
+<<<<<<< HEAD
 	if (ctx == NULL)
 		return NULL;
 
+=======
+>>>>>>> upstream/android-13
 	if (V4L2_TYPE_IS_OUTPUT(type))
 		return &ctx->q_data[MTK_Q_DATA_SRC];
 
@@ -698,6 +863,7 @@ static struct mtk_q_data *mtk_venc_get_q_data(struct mtk_vcodec_ctx *ctx,
 /* V4L2 specification suggests the driver corrects the format struct if any of
  * the dimensions is unsupported
  */
+<<<<<<< HEAD
 static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt,
 			  struct mtk_vcodec_ctx *ctx)
 {
@@ -715,6 +881,12 @@ static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt,
 	unsigned int block_count;
 
 	struct mtk_codec_framesizes *spec_size_info = NULL;
+=======
+static int vidioc_try_fmt(struct mtk_vcodec_ctx *ctx, struct v4l2_format *f,
+			  const struct mtk_video_fmt *fmt)
+{
+	struct v4l2_pix_format_mplane *pix_fmt_mp = &f->fmt.pix_mp;
+>>>>>>> upstream/android-13
 
 	pix_fmt_mp->field = V4L2_FIELD_NONE;
 
@@ -722,6 +894,7 @@ static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt,
 		pix_fmt_mp->num_planes = 1;
 		pix_fmt_mp->plane_fmt[0].bytesperline = 0;
 	} else if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
+<<<<<<< HEAD
 		get_supported_framesizes(ctx);
 		if (ctx->q_data[MTK_Q_DATA_DST].fmt != NULL) {
 			bs_fourcc =
@@ -981,18 +1154,95 @@ static int vidioc_try_fmt(struct v4l2_format *f, struct mtk_video_fmt *fmt,
 	pix_fmt_mp->flags = 0;
 	memset(&pix_fmt_mp->reserved, 0x0,
 	       sizeof(pix_fmt_mp->reserved));
+=======
+		int tmp_w, tmp_h;
+		unsigned int max_width, max_height;
+
+		if (ctx->dev->enc_capability & MTK_VENC_4K_CAPABILITY_ENABLE) {
+			max_width = MTK_VENC_4K_MAX_W;
+			max_height = MTK_VENC_4K_MAX_H;
+		} else {
+			max_width = MTK_VENC_HD_MAX_W;
+			max_height = MTK_VENC_HD_MAX_H;
+		}
+
+		pix_fmt_mp->height = clamp(pix_fmt_mp->height,
+					MTK_VENC_MIN_H,
+					max_height);
+		pix_fmt_mp->width = clamp(pix_fmt_mp->width,
+					MTK_VENC_MIN_W,
+					max_width);
+
+		/* find next closer width align 16, heign align 32, size align
+		 * 64 rectangle
+		 */
+		tmp_w = pix_fmt_mp->width;
+		tmp_h = pix_fmt_mp->height;
+		v4l_bound_align_image(&pix_fmt_mp->width,
+					MTK_VENC_MIN_W,
+					max_width, 4,
+					&pix_fmt_mp->height,
+					MTK_VENC_MIN_H,
+					max_height, 5, 6);
+
+		if (pix_fmt_mp->width < tmp_w &&
+			(pix_fmt_mp->width + 16) <= max_width)
+			pix_fmt_mp->width += 16;
+		if (pix_fmt_mp->height < tmp_h &&
+			(pix_fmt_mp->height + 32) <= max_height)
+			pix_fmt_mp->height += 32;
+
+		mtk_v4l2_debug(0,
+			"before resize width=%d, height=%d, after resize width=%d, height=%d, sizeimage=%d %d",
+			tmp_w, tmp_h, pix_fmt_mp->width,
+			pix_fmt_mp->height,
+			pix_fmt_mp->plane_fmt[0].sizeimage,
+			pix_fmt_mp->plane_fmt[1].sizeimage);
+
+		pix_fmt_mp->num_planes = fmt->num_planes;
+		pix_fmt_mp->plane_fmt[0].sizeimage =
+				pix_fmt_mp->width * pix_fmt_mp->height +
+				((ALIGN(pix_fmt_mp->width, 16) * 2) * 16);
+		pix_fmt_mp->plane_fmt[0].bytesperline = pix_fmt_mp->width;
+
+		if (pix_fmt_mp->num_planes == 2) {
+			pix_fmt_mp->plane_fmt[1].sizeimage =
+				(pix_fmt_mp->width * pix_fmt_mp->height) / 2 +
+				(ALIGN(pix_fmt_mp->width, 16) * 16);
+			pix_fmt_mp->plane_fmt[2].sizeimage = 0;
+			pix_fmt_mp->plane_fmt[1].bytesperline =
+							pix_fmt_mp->width;
+			pix_fmt_mp->plane_fmt[2].bytesperline = 0;
+		} else if (pix_fmt_mp->num_planes == 3) {
+			pix_fmt_mp->plane_fmt[1].sizeimage =
+			pix_fmt_mp->plane_fmt[2].sizeimage =
+				(pix_fmt_mp->width * pix_fmt_mp->height) / 4 +
+				((ALIGN(pix_fmt_mp->width, 16) / 2) * 16);
+			pix_fmt_mp->plane_fmt[1].bytesperline =
+				pix_fmt_mp->plane_fmt[2].bytesperline =
+				pix_fmt_mp->width / 2;
+		}
+	}
+
+	pix_fmt_mp->flags = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static void mtk_venc_set_param(struct mtk_vcodec_ctx *ctx,
+<<<<<<< HEAD
 			       struct venc_enc_param *param)
+=======
+				struct venc_enc_param *param)
+>>>>>>> upstream/android-13
 {
 	struct mtk_q_data *q_data_src = &ctx->q_data[MTK_Q_DATA_SRC];
 	struct mtk_enc_params *enc_params = &ctx->enc_params;
 
 	switch (q_data_src->fmt->fourcc) {
 	case V4L2_PIX_FMT_YUV420M:
+<<<<<<< HEAD
 	case V4L2_PIX_FMT_YUV420:
 		param->input_yuv_fmt = VENC_YUV_FORMAT_I420;
 		break;
@@ -1074,6 +1324,25 @@ static void mtk_venc_set_param(struct mtk_vcodec_ctx *ctx,
 	param->profile = enc_params->profile;
 	param->level = enc_params->level;
 	param->tier = enc_params->tier;
+=======
+		param->input_yuv_fmt = VENC_YUV_FORMAT_I420;
+		break;
+	case V4L2_PIX_FMT_YVU420M:
+		param->input_yuv_fmt = VENC_YUV_FORMAT_YV12;
+		break;
+	case V4L2_PIX_FMT_NV12M:
+		param->input_yuv_fmt = VENC_YUV_FORMAT_NV12;
+		break;
+	case V4L2_PIX_FMT_NV21M:
+		param->input_yuv_fmt = VENC_YUV_FORMAT_NV21;
+		break;
+	default:
+		mtk_v4l2_err("Unsupported fourcc =%d", q_data_src->fmt->fourcc);
+		break;
+	}
+	param->h264_profile = enc_params->h264_profile;
+	param->h264_level = enc_params->h264_level;
+>>>>>>> upstream/android-13
 
 	/* Config visible resolution */
 	param->width = q_data_src->visible_width;
@@ -1082,6 +1351,7 @@ static void mtk_venc_set_param(struct mtk_vcodec_ctx *ctx,
 	param->buf_width = q_data_src->coded_width;
 	param->buf_height = q_data_src->coded_height;
 	param->frm_rate = enc_params->framerate_num /
+<<<<<<< HEAD
 			  enc_params->framerate_denom;
 	param->intra_period = enc_params->intra_period;
 	param->gop_size = enc_params->gop_size;
@@ -1157,6 +1427,32 @@ static int vidioc_venc_s_fmt_cap(struct file *file, void *priv,
 	struct mtk_video_fmt *fmt;
 
 	mtk_v4l2_debug(4, "[%d] type %d", ctx->id, f->type);
+=======
+			enc_params->framerate_denom;
+	param->intra_period = enc_params->intra_period;
+	param->gop_size = enc_params->gop_size;
+	param->bitrate = enc_params->bitrate;
+
+	mtk_v4l2_debug(0,
+		"fmt 0x%x, P/L %d/%d, w/h %d/%d, buf %d/%d, fps/bps %d/%d, gop %d, i_period %d",
+		param->input_yuv_fmt, param->h264_profile,
+		param->h264_level, param->width, param->height,
+		param->buf_width, param->buf_height,
+		param->frm_rate, param->bitrate,
+		param->gop_size, param->intra_period);
+}
+
+static int vidioc_venc_s_fmt_cap(struct file *file, void *priv,
+			     struct v4l2_format *f)
+{
+	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+	const struct mtk_vcodec_enc_pdata *pdata = ctx->dev->venc_pdata;
+	struct vb2_queue *vq;
+	struct mtk_q_data *q_data;
+	int i, ret;
+	const struct mtk_video_fmt *fmt;
+
+>>>>>>> upstream/android-13
 	vq = v4l2_m2m_get_vq(ctx->m2m_ctx, f->type);
 	if (!vq) {
 		mtk_v4l2_err("fail to get vq");
@@ -1174,6 +1470,7 @@ static int vidioc_venc_s_fmt_cap(struct file *file, void *priv,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	fmt = mtk_venc_find_format(f, MTK_FMT_ENC);
 	if (!fmt) {
 		f->fmt.pix.pixelformat =
@@ -1187,6 +1484,16 @@ static int vidioc_venc_s_fmt_cap(struct file *file, void *priv,
 
 	q_data->fmt = fmt;
 	ret = vidioc_try_fmt(f, q_data->fmt, ctx);
+=======
+	fmt = mtk_venc_find_format(f->fmt.pix.pixelformat, pdata);
+	if (!fmt) {
+		fmt = &ctx->dev->venc_pdata->capture_formats[0];
+		f->fmt.pix.pixelformat = fmt->fourcc;
+	}
+
+	q_data->fmt = fmt;
+	ret = vidioc_try_fmt(ctx, f, q_data->fmt);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1195,10 +1502,17 @@ static int vidioc_venc_s_fmt_cap(struct file *file, void *priv,
 	q_data->field = f->fmt.pix_mp.field;
 
 	for (i = 0; i < f->fmt.pix_mp.num_planes; i++) {
+<<<<<<< HEAD
 		struct v4l2_plane_pix_format    *plane_fmt;
 
 		plane_fmt = &f->fmt.pix_mp.plane_fmt[i];
 		q_data->bytesperline[i] = plane_fmt->bytesperline;
+=======
+		struct v4l2_plane_pix_format	*plane_fmt;
+
+		plane_fmt = &f->fmt.pix_mp.plane_fmt[i];
+		q_data->bytesperline[i]	= plane_fmt->bytesperline;
+>>>>>>> upstream/android-13
 		q_data->sizeimage[i] = plane_fmt->sizeimage;
 	}
 
@@ -1206,20 +1520,28 @@ static int vidioc_venc_s_fmt_cap(struct file *file, void *priv,
 		ret = venc_if_init(ctx, q_data->fmt->fourcc);
 		if (ret) {
 			mtk_v4l2_err("venc_if_init failed=%d, codec type=%x",
+<<<<<<< HEAD
 				     ret, q_data->fmt->fourcc);
 			ctx->state = MTK_STATE_ABORT;
 			mtk_venc_queue_error_event(ctx);
+=======
+					ret, q_data->fmt->fourcc);
+>>>>>>> upstream/android-13
 			return -EBUSY;
 		}
 		ctx->state = MTK_STATE_INIT;
 	}
+<<<<<<< HEAD
 	if (ctx->state == MTK_STATE_ABORT)
 		ctx->state = MTK_STATE_INIT; // format change, trigger encode header
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int vidioc_venc_s_fmt_out(struct file *file, void *priv,
+<<<<<<< HEAD
 				 struct v4l2_format *f)
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
@@ -1229,6 +1551,17 @@ static int vidioc_venc_s_fmt_out(struct file *file, void *priv,
 	struct mtk_video_fmt *fmt;
 
 	mtk_v4l2_debug(4, "[%d] type %d", ctx->id, f->type);
+=======
+			     struct v4l2_format *f)
+{
+	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+	const struct mtk_vcodec_enc_pdata *pdata = ctx->dev->venc_pdata;
+	struct vb2_queue *vq;
+	struct mtk_q_data *q_data;
+	int ret, i;
+	const struct mtk_video_fmt *fmt;
+
+>>>>>>> upstream/android-13
 	vq = v4l2_m2m_get_vq(ctx->m2m_ctx, f->type);
 	if (!vq) {
 		mtk_v4l2_err("fail to get vq");
@@ -1246,6 +1579,7 @@ static int vidioc_venc_s_fmt_out(struct file *file, void *priv,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	fmt = mtk_venc_find_format(f, MTK_FMT_FRAME);
 	if (!fmt) {
 		f->fmt.pix.pixelformat =
@@ -1260,6 +1594,21 @@ static int vidioc_venc_s_fmt_out(struct file *file, void *priv,
 	if (ret)
 		return ret;
 
+=======
+	fmt = mtk_venc_find_format(f->fmt.pix.pixelformat, pdata);
+	if (!fmt) {
+		fmt = &ctx->dev->venc_pdata->output_formats[0];
+		f->fmt.pix.pixelformat = fmt->fourcc;
+	}
+
+	ret = vidioc_try_fmt(ctx, f, fmt);
+	if (ret)
+		return ret;
+
+	q_data->fmt = fmt;
+	q_data->visible_width = f->fmt.pix_mp.width;
+	q_data->visible_height = f->fmt.pix_mp.height;
+>>>>>>> upstream/android-13
 	q_data->coded_width = f->fmt.pix_mp.width;
 	q_data->coded_height = f->fmt.pix_mp.height;
 
@@ -1303,8 +1652,11 @@ static int vidioc_venc_g_fmt(struct file *file, void *priv,
 	for (i = 0; i < pix->num_planes; i++) {
 		pix->plane_fmt[i].bytesperline = q_data->bytesperline[i];
 		pix->plane_fmt[i].sizeimage = q_data->sizeimage[i];
+<<<<<<< HEAD
 		memset(&(pix->plane_fmt[i].reserved[0]), 0x0,
 		       sizeof(pix->plane_fmt[i].reserved));
+=======
+>>>>>>> upstream/android-13
 	}
 
 	pix->flags = 0;
@@ -1312,7 +1664,10 @@ static int vidioc_venc_g_fmt(struct file *file, void *priv,
 	pix->ycbcr_enc = ctx->ycbcr_enc;
 	pix->quantization = ctx->quantization;
 	pix->xfer_func = ctx->xfer_func;
+<<<<<<< HEAD
 	mtk_v4l2_debug(4, "[%d] type %d", ctx->id, f->type);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1320,6 +1675,7 @@ static int vidioc_venc_g_fmt(struct file *file, void *priv,
 static int vidioc_try_fmt_vid_cap_mplane(struct file *file, void *priv,
 					 struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct mtk_video_fmt *fmt;
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 
@@ -1334,17 +1690,33 @@ static int vidioc_try_fmt_vid_cap_mplane(struct file *file, void *priv,
 		return -EINVAL;
 	}
 
+=======
+	const struct mtk_video_fmt *fmt;
+	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+	const struct mtk_vcodec_enc_pdata *pdata = ctx->dev->venc_pdata;
+
+	fmt = mtk_venc_find_format(f->fmt.pix.pixelformat, pdata);
+	if (!fmt) {
+		fmt = &ctx->dev->venc_pdata->capture_formats[0];
+		f->fmt.pix.pixelformat = fmt->fourcc;
+	}
+>>>>>>> upstream/android-13
 	f->fmt.pix_mp.colorspace = ctx->colorspace;
 	f->fmt.pix_mp.ycbcr_enc = ctx->ycbcr_enc;
 	f->fmt.pix_mp.quantization = ctx->quantization;
 	f->fmt.pix_mp.xfer_func = ctx->xfer_func;
 
+<<<<<<< HEAD
 	return vidioc_try_fmt(f, fmt, ctx);
+=======
+	return vidioc_try_fmt(ctx, f, fmt);
+>>>>>>> upstream/android-13
 }
 
 static int vidioc_try_fmt_vid_out_mplane(struct file *file, void *priv,
 					 struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct mtk_video_fmt *fmt;
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 
@@ -1359,6 +1731,17 @@ static int vidioc_try_fmt_vid_out_mplane(struct file *file, void *priv,
 		return -EINVAL;
 	}
 
+=======
+	const struct mtk_video_fmt *fmt;
+	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+	const struct mtk_vcodec_enc_pdata *pdata = ctx->dev->venc_pdata;
+
+	fmt = mtk_venc_find_format(f->fmt.pix.pixelformat, pdata);
+	if (!fmt) {
+		fmt = &ctx->dev->venc_pdata->output_formats[0];
+		f->fmt.pix.pixelformat = fmt->fourcc;
+	}
+>>>>>>> upstream/android-13
 	if (!f->fmt.pix_mp.colorspace) {
 		f->fmt.pix_mp.colorspace = V4L2_COLORSPACE_REC709;
 		f->fmt.pix_mp.ycbcr_enc = V4L2_YCBCR_ENC_DEFAULT;
@@ -1366,57 +1749,113 @@ static int vidioc_try_fmt_vid_out_mplane(struct file *file, void *priv,
 		f->fmt.pix_mp.xfer_func = V4L2_XFER_FUNC_DEFAULT;
 	}
 
+<<<<<<< HEAD
 	return vidioc_try_fmt(f, fmt, ctx);
 }
 
 static int vidioc_venc_g_selection(struct file *file, void *priv,
 				   struct v4l2_selection *s)
+=======
+	return vidioc_try_fmt(ctx, f, fmt);
+}
+
+static int vidioc_venc_g_selection(struct file *file, void *priv,
+				     struct v4l2_selection *s)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 	struct mtk_q_data *q_data;
 
+<<<<<<< HEAD
 	if (!V4L2_TYPE_IS_OUTPUT(s->type))
 		return -EINVAL;
 
 	if (s->target != V4L2_SEL_TGT_COMPOSE &&
 	    s->target != V4L2_SEL_TGT_CROP)
+=======
+	if (s->type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	q_data = mtk_venc_get_q_data(ctx, s->type);
 	if (!q_data)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	s->r.top = 0;
 	s->r.left = 0;
 	s->r.width = q_data->visible_width;
 	s->r.height = q_data->visible_height;
+=======
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP_DEFAULT:
+	case V4L2_SEL_TGT_CROP_BOUNDS:
+		s->r.top = 0;
+		s->r.left = 0;
+		s->r.width = q_data->coded_width;
+		s->r.height = q_data->coded_height;
+		break;
+	case V4L2_SEL_TGT_CROP:
+		s->r.top = 0;
+		s->r.left = 0;
+		s->r.width = q_data->visible_width;
+		s->r.height = q_data->visible_height;
+		break;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int vidioc_venc_s_selection(struct file *file, void *priv,
+<<<<<<< HEAD
 				   struct v4l2_selection *s)
+=======
+				     struct v4l2_selection *s)
+>>>>>>> upstream/android-13
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
 	struct mtk_q_data *q_data;
 
+<<<<<<< HEAD
 
 	if (!V4L2_TYPE_IS_OUTPUT(s->type))
 		return -EINVAL;
 
 	if (s->target != V4L2_SEL_TGT_COMPOSE &&
 	    s->target != V4L2_SEL_TGT_CROP)
+=======
+	if (s->type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	q_data = mtk_venc_get_q_data(ctx, s->type);
 	if (!q_data)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	s->r.top = 0;
 	s->r.left = 0;
 	q_data->visible_width = s->r.width;
 	q_data->visible_height = s->r.height;
 
+=======
+	switch (s->target) {
+	case V4L2_SEL_TGT_CROP:
+		/* Only support crop from (0,0) */
+		s->r.top = 0;
+		s->r.left = 0;
+		s->r.width = min(s->r.width, q_data->coded_width);
+		s->r.height = min(s->r.height, q_data->coded_height);
+		q_data->visible_width = s->r.width;
+		q_data->visible_height = s->r.height;
+		break;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1424,6 +1863,7 @@ static int vidioc_venc_qbuf(struct file *file, void *priv,
 			    struct v4l2_buffer *buf)
 {
 	struct mtk_vcodec_ctx *ctx = fh_to_ctx(priv);
+<<<<<<< HEAD
 	struct vb2_queue *vq;
 	struct vb2_buffer *vb;
 	struct mtk_video_enc_buf *mtkbuf;
@@ -1525,6 +1965,15 @@ static int vidioc_venc_qbuf(struct file *file, void *priv,
 		mtkbuf->frm_buf.qpmap = buf->reserved;
 	}
 
+=======
+
+	if (ctx->state == MTK_STATE_ABORT) {
+		mtk_v4l2_err("[%d] Call on QBUF after unrecoverable error",
+				ctx->id);
+		return -EIO;
+	}
+
+>>>>>>> upstream/android-13
 	return v4l2_m2m_qbuf(file, ctx->m2m_ctx, buf);
 }
 
@@ -1535,13 +1984,18 @@ static int vidioc_venc_dqbuf(struct file *file, void *priv,
 
 	if (ctx->state == MTK_STATE_ABORT) {
 		mtk_v4l2_err("[%d] Call on QBUF after unrecoverable error",
+<<<<<<< HEAD
 			     ctx->id);
+=======
+				ctx->id);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
 	return v4l2_m2m_dqbuf(file, ctx->m2m_ctx, buf);
 }
 
+<<<<<<< HEAD
 static int vidioc_try_encoder_cmd(struct file *file, void *priv,
 	struct v4l2_encoder_cmd *cmd)
 {
@@ -1640,6 +2094,41 @@ const struct v4l2_ioctl_ops mtk_venc_ioctl_ops = {
 
 	.vidioc_encoder_cmd             = vidioc_encoder_cmd,
 	.vidioc_try_encoder_cmd         = vidioc_try_encoder_cmd,
+=======
+const struct v4l2_ioctl_ops mtk_venc_ioctl_ops = {
+	.vidioc_streamon		= v4l2_m2m_ioctl_streamon,
+	.vidioc_streamoff		= v4l2_m2m_ioctl_streamoff,
+
+	.vidioc_reqbufs			= v4l2_m2m_ioctl_reqbufs,
+	.vidioc_querybuf		= v4l2_m2m_ioctl_querybuf,
+	.vidioc_qbuf			= vidioc_venc_qbuf,
+	.vidioc_dqbuf			= vidioc_venc_dqbuf,
+
+	.vidioc_querycap		= vidioc_venc_querycap,
+	.vidioc_enum_fmt_vid_cap	= vidioc_enum_fmt_vid_cap,
+	.vidioc_enum_fmt_vid_out	= vidioc_enum_fmt_vid_out,
+	.vidioc_enum_framesizes		= vidioc_enum_framesizes,
+
+	.vidioc_try_fmt_vid_cap_mplane	= vidioc_try_fmt_vid_cap_mplane,
+	.vidioc_try_fmt_vid_out_mplane	= vidioc_try_fmt_vid_out_mplane,
+	.vidioc_expbuf			= v4l2_m2m_ioctl_expbuf,
+	.vidioc_subscribe_event		= v4l2_ctrl_subscribe_event,
+	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
+
+	.vidioc_s_parm			= vidioc_venc_s_parm,
+	.vidioc_g_parm			= vidioc_venc_g_parm,
+	.vidioc_s_fmt_vid_cap_mplane	= vidioc_venc_s_fmt_cap,
+	.vidioc_s_fmt_vid_out_mplane	= vidioc_venc_s_fmt_out,
+
+	.vidioc_g_fmt_vid_cap_mplane	= vidioc_venc_g_fmt,
+	.vidioc_g_fmt_vid_out_mplane	= vidioc_venc_g_fmt,
+
+	.vidioc_create_bufs		= v4l2_m2m_ioctl_create_bufs,
+	.vidioc_prepare_buf		= v4l2_m2m_ioctl_prepare_buf,
+
+	.vidioc_g_selection		= vidioc_venc_g_selection,
+	.vidioc_s_selection		= vidioc_venc_s_selection,
+>>>>>>> upstream/android-13
 };
 
 static int vb2ops_venc_queue_setup(struct vb2_queue *vq,
@@ -1648,6 +2137,7 @@ static int vb2ops_venc_queue_setup(struct vb2_queue *vq,
 				   unsigned int sizes[],
 				   struct device *alloc_devs[])
 {
+<<<<<<< HEAD
 	struct mtk_vcodec_ctx *ctx;
 	struct mtk_q_data *q_data;
 	unsigned int i;
@@ -1665,6 +2155,16 @@ static int vb2ops_venc_queue_setup(struct vb2_queue *vq,
 		mtk_v4l2_err("vq->type=%d nplanes %d err", vq->type, *nplanes);
 		return -EINVAL;
 	}
+=======
+	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vq);
+	struct mtk_q_data *q_data;
+	unsigned int i;
+
+	q_data = mtk_venc_get_q_data(ctx, vq->type);
+
+	if (q_data == NULL)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (*nplanes) {
 		for (i = 0; i < *nplanes; i++)
@@ -1676,6 +2176,7 @@ static int vb2ops_venc_queue_setup(struct vb2_queue *vq,
 			sizes[i] = q_data->sizeimage[i];
 	}
 
+<<<<<<< HEAD
 	mtk_v4l2_debug(2, "[%d] nplanes %d sizeimage %d %d %d, state=%d",
 		       ctx->id,
 		       *nplanes,
@@ -1688,6 +2189,8 @@ static int vb2ops_venc_queue_setup(struct vb2_queue *vq,
 		ctx->state = MTK_STATE_FLUSH;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1696,6 +2199,7 @@ static int vb2ops_venc_buf_prepare(struct vb2_buffer *vb)
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 	struct mtk_q_data *q_data;
 	int i;
+<<<<<<< HEAD
 	struct mtk_video_enc_buf *mtkbuf;
 	struct vb2_v4l2_buffer *vb2_v4l2;
 
@@ -1750,11 +2254,24 @@ static int vb2ops_venc_buf_prepare(struct vb2_buffer *vb)
 				(unsigned int)src_mem.size,
 				&ctx->dev->plat_dev->dev);
 		}
+=======
+
+	q_data = mtk_venc_get_q_data(ctx, vb->vb2_queue->type);
+
+	for (i = 0; i < q_data->fmt->num_planes; i++) {
+		if (vb2_plane_size(vb, i) < q_data->sizeimage[i]) {
+			mtk_v4l2_err("data will not fit into plane %d (%lu < %d)",
+				i, vb2_plane_size(vb, i),
+				q_data->sizeimage[i]);
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void vb2ops_venc_buf_finish(struct vb2_buffer *vb)
 {
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
@@ -1802,33 +2319,52 @@ static void vb2ops_venc_buf_finish(struct vb2_buffer *vb)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static void vb2ops_venc_buf_queue(struct vb2_buffer *vb)
 {
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 	struct vb2_v4l2_buffer *vb2_v4l2 =
+<<<<<<< HEAD
 		container_of(vb, struct vb2_v4l2_buffer, vb2_buf);
 
 	struct mtk_video_enc_buf *mtk_buf =
 		container_of(vb2_v4l2, struct mtk_video_enc_buf, vb);
+=======
+			container_of(vb, struct vb2_v4l2_buffer, vb2_buf);
+
+	struct mtk_video_enc_buf *mtk_buf =
+			container_of(vb2_v4l2, struct mtk_video_enc_buf,
+				     m2m_buf.vb);
+>>>>>>> upstream/android-13
 
 	if ((vb->vb2_queue->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) &&
 	    (ctx->param_change != MTK_ENCODE_PARAM_NONE)) {
 		mtk_v4l2_debug(1, "[%d] Before id=%d encode parameter change %x",
 			       ctx->id,
+<<<<<<< HEAD
 			       mtk_buf->vb.vb2_buf.index,
+=======
+			       vb2_v4l2->vb2_buf.index,
+>>>>>>> upstream/android-13
 			       ctx->param_change);
 		mtk_buf->param_change = ctx->param_change;
 		mtk_buf->enc_params = ctx->enc_params;
 		ctx->param_change = MTK_ENCODE_PARAM_NONE;
 	}
 
+<<<<<<< HEAD
 	v4l2_m2m_buf_queue_check(ctx->m2m_ctx, to_vb2_v4l2_buffer(vb));
+=======
+	v4l2_m2m_buf_queue(ctx->m2m_ctx, to_vb2_v4l2_buffer(vb));
+>>>>>>> upstream/android-13
 }
 
 static int vb2ops_venc_start_streaming(struct vb2_queue *q, unsigned int count)
 {
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(q);
 	struct venc_enc_param param;
+<<<<<<< HEAD
 	int ret;
 	int i;
 
@@ -1839,6 +2375,17 @@ static int vb2ops_venc_start_streaming(struct vb2_queue *q, unsigned int count)
 	if (ctx->state == MTK_STATE_ABORT || ctx->state == MTK_STATE_FREE) {
 		ret = -EIO;
 		goto err_set_param;
+=======
+	int ret, pm_ret;
+	int i;
+
+	/* Once state turn into MTK_STATE_ABORT, we need stop_streaming
+	  * to clear it
+	  */
+	if ((ctx->state == MTK_STATE_ABORT) || (ctx->state == MTK_STATE_FREE)) {
+		ret = -EIO;
+		goto err_start_stream;
+>>>>>>> upstream/android-13
 	}
 
 	/* Do the initialization when both start_streaming have been called */
@@ -1850,6 +2397,7 @@ static int vb2ops_venc_start_streaming(struct vb2_queue *q, unsigned int count)
 			return 0;
 	}
 
+<<<<<<< HEAD
 	memset(&param, 0, sizeof(param));
 	mtk_venc_set_param(ctx, &param);
 	ret = venc_if_set_param(ctx, VENC_SET_PARAM_ENC, &param);
@@ -1869,22 +2417,42 @@ static int vb2ops_venc_start_streaming(struct vb2_queue *q, unsigned int count)
 		mtk_v4l2_err("venc_if_set_param failed=%d", ret);
 		ctx->state = MTK_STATE_ABORT;
 		mtk_venc_queue_error_event(ctx);
+=======
+	ret = pm_runtime_resume_and_get(&ctx->dev->plat_dev->dev);
+	if (ret < 0) {
+		mtk_v4l2_err("pm_runtime_resume_and_get fail %d", ret);
+		goto err_start_stream;
+	}
+
+	mtk_venc_set_param(ctx, &param);
+	ret = venc_if_set_param(ctx, VENC_SET_PARAM_ENC, &param);
+	if (ret) {
+		mtk_v4l2_err("venc_if_set_param failed=%d", ret);
+		ctx->state = MTK_STATE_ABORT;
+>>>>>>> upstream/android-13
 		goto err_set_param;
 	}
 	ctx->param_change = MTK_ENCODE_PARAM_NONE;
 
+<<<<<<< HEAD
 	if ((ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_H264 ||
 	     ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_H265 ||
 	     ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_HEIF ||
 	     ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_MPEG4) &&
 	    (ctx->enc_params.seq_hdr_mode !=
 	     V4L2_MPEG_VIDEO_HEADER_MODE_SEPARATE)) {
+=======
+	if ((ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_H264) &&
+	    (ctx->enc_params.seq_hdr_mode !=
+				V4L2_MPEG_VIDEO_HEADER_MODE_SEPARATE)) {
+>>>>>>> upstream/android-13
 		ret = venc_if_set_param(ctx,
 					VENC_SET_PARAM_PREPEND_HEADER,
 					NULL);
 		if (ret) {
 			mtk_v4l2_err("venc_if_set_param failed=%d", ret);
 			ctx->state = MTK_STATE_ABORT;
+<<<<<<< HEAD
 			mtk_venc_queue_error_event(ctx);
 			goto err_set_param;
 		}
@@ -1894,17 +2462,42 @@ static int vb2ops_venc_start_streaming(struct vb2_queue *q, unsigned int count)
 		ctx->state = MTK_STATE_HEADER; // flush and reset
 	} else {
 		ctx->state = MTK_STATE_INIT;
+=======
+			goto err_set_param;
+		}
+		ctx->state = MTK_STATE_HEADER;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
 err_set_param:
+<<<<<<< HEAD
 	for (i = 0; i < q->num_buffers; ++i) {
 		if (q->bufs[i]->state == VB2_BUF_STATE_ACTIVE) {
 			mtk_v4l2_debug(0, "[%d] id=%d, type=%d, %d -> VB2_BUF_STATE_QUEUED",
 				       ctx->id, i, q->type,
 				       (int)q->bufs[i]->state);
 			v4l2_m2m_buf_done(to_vb2_v4l2_buffer(q->bufs[i]),
+=======
+	pm_ret = pm_runtime_put(&ctx->dev->plat_dev->dev);
+	if (pm_ret < 0)
+		mtk_v4l2_err("pm_runtime_put fail %d", pm_ret);
+
+err_start_stream:
+	for (i = 0; i < q->num_buffers; ++i) {
+		struct vb2_buffer *buf = vb2_get_buffer(q, i);
+
+		/*
+		 * FIXME: This check is not needed as only active buffers
+		 * can be marked as done.
+		 */
+		if (buf->state == VB2_BUF_STATE_ACTIVE) {
+			mtk_v4l2_debug(0, "[%d] id=%d, type=%d, %d -> VB2_BUF_STATE_QUEUED",
+					ctx->id, i, q->type,
+					(int)buf->state);
+			v4l2_m2m_buf_done(to_vb2_v4l2_buffer(buf),
+>>>>>>> upstream/android-13
 					  VB2_BUF_STATE_QUEUED);
 		}
 	}
@@ -1915,12 +2508,17 @@ err_set_param:
 static void vb2ops_venc_stop_streaming(struct vb2_queue *q)
 {
 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(q);
+<<<<<<< HEAD
 	struct vb2_buffer *src_buf, *dst_buf;
 	struct venc_done_result enc_result;
+=======
+	struct vb2_v4l2_buffer *src_buf, *dst_buf;
+>>>>>>> upstream/android-13
 	int ret;
 
 	mtk_v4l2_debug(2, "[%d]-> type=%d", ctx->id, q->type);
 
+<<<<<<< HEAD
 	if (vb2_start_streaming_called(&ctx->m2m_ctx->cap_q_ctx.q) &&
 		vb2_start_streaming_called(&ctx->m2m_ctx->out_q_ctx.q)) {
 		ret = venc_if_encode(ctx,
@@ -1946,6 +2544,16 @@ static void vb2ops_venc_stop_streaming(struct vb2_queue *q)
 					  VB2_BUF_STATE_ERROR);
 		}
 		ctx->enc_flush_buf->lastframe = NON_EOS;
+=======
+	if (q->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+		while ((dst_buf = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx))) {
+			dst_buf->vb2_buf.planes[0].bytesused = 0;
+			v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_ERROR);
+		}
+	} else {
+		while ((src_buf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx)))
+			v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_ERROR);
+>>>>>>> upstream/android-13
 	}
 
 	if ((q->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE &&
@@ -1958,6 +2566,7 @@ static void vb2ops_venc_stop_streaming(struct vb2_queue *q)
 			       vb2_is_streaming(&ctx->m2m_ctx->cap_q_ctx.q));
 		return;
 	}
+<<<<<<< HEAD
 }
 
 static const struct vb2_ops mtk_venc_vb2_ops = {
@@ -1969,12 +2578,45 @@ static const struct vb2_ops mtk_venc_vb2_ops = {
 	.buf_finish             = vb2ops_venc_buf_finish,
 	.start_streaming        = vb2ops_venc_start_streaming,
 	.stop_streaming         = vb2ops_venc_stop_streaming,
+=======
+
+	/* Release the encoder if both streams are stopped. */
+	ret = venc_if_deinit(ctx);
+	if (ret)
+		mtk_v4l2_err("venc_if_deinit failed=%d", ret);
+
+	ret = pm_runtime_put(&ctx->dev->plat_dev->dev);
+	if (ret < 0)
+		mtk_v4l2_err("pm_runtime_put fail %d", ret);
+
+	ctx->state = MTK_STATE_FREE;
+}
+
+static int vb2ops_venc_buf_out_validate(struct vb2_buffer *vb)
+{
+	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+
+	vbuf->field = V4L2_FIELD_NONE;
+	return 0;
+}
+
+static const struct vb2_ops mtk_venc_vb2_ops = {
+	.queue_setup		= vb2ops_venc_queue_setup,
+	.buf_out_validate	= vb2ops_venc_buf_out_validate,
+	.buf_prepare		= vb2ops_venc_buf_prepare,
+	.buf_queue		= vb2ops_venc_buf_queue,
+	.wait_prepare		= vb2_ops_wait_prepare,
+	.wait_finish		= vb2_ops_wait_finish,
+	.start_streaming	= vb2ops_venc_start_streaming,
+	.stop_streaming		= vb2ops_venc_stop_streaming,
+>>>>>>> upstream/android-13
 };
 
 static int mtk_venc_encode_header(void *priv)
 {
 	struct mtk_vcodec_ctx *ctx = priv;
 	int ret;
+<<<<<<< HEAD
 	struct vb2_buffer *src_buf, *dst_buf;
 	struct vb2_v4l2_buffer *dst_vb2_v4l2, *src_vb2_v4l2;
 	struct mtk_video_enc_buf *dst_buf_info;
@@ -1982,11 +2624,18 @@ static int mtk_venc_encode_header(void *priv)
 	struct venc_done_result enc_result;
 
 	memset(&enc_result, 0, sizeof(enc_result));
+=======
+	struct vb2_v4l2_buffer *src_buf, *dst_buf;
+	struct mtk_vcodec_mem bs_buf;
+	struct venc_done_result enc_result;
+
+>>>>>>> upstream/android-13
 	dst_buf = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
 	if (!dst_buf) {
 		mtk_v4l2_debug(1, "No dst buffer");
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	dst_vb2_v4l2 = to_vb2_v4l2_buffer(dst_buf);
 	dst_buf_info = container_of(dst_vb2_v4l2, struct mtk_video_enc_buf, vb);
 
@@ -2019,10 +2668,34 @@ static int mtk_venc_encode_header(void *priv)
 				  VB2_BUF_STATE_ERROR);
 		mtk_v4l2_err("%s venc_if_encode failed=%d",
 			__func__, ret);
+=======
+
+	bs_buf.va = vb2_plane_vaddr(&dst_buf->vb2_buf, 0);
+	bs_buf.dma_addr = vb2_dma_contig_plane_dma_addr(&dst_buf->vb2_buf, 0);
+	bs_buf.size = (size_t)dst_buf->vb2_buf.planes[0].length;
+
+	mtk_v4l2_debug(1,
+			"[%d] buf id=%d va=0x%p dma_addr=0x%llx size=%zu",
+			ctx->id,
+			dst_buf->vb2_buf.index, bs_buf.va,
+			(u64)bs_buf.dma_addr,
+			bs_buf.size);
+
+	ret = venc_if_encode(ctx,
+			VENC_START_OPT_ENCODE_SEQUENCE_HEADER,
+			NULL, &bs_buf, &enc_result);
+
+	if (ret) {
+		dst_buf->vb2_buf.planes[0].bytesused = 0;
+		ctx->state = MTK_STATE_ABORT;
+		v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_ERROR);
+		mtk_v4l2_err("venc_if_encode failed=%d", ret);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	src_buf = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
 	if (src_buf) {
+<<<<<<< HEAD
 		src_vb2_v4l2 = to_vb2_v4l2_buffer(src_buf);
 		dst_vb2_v4l2->vb2_buf.timestamp =
 			src_vb2_v4l2->vb2_buf.timestamp;
@@ -2033,6 +2706,17 @@ static int mtk_venc_encode_header(void *priv)
 	ctx->state = MTK_STATE_HEADER;
 	dst_buf->planes[0].bytesused = enc_result.bs_size;
 	v4l2_m2m_buf_done(to_vb2_v4l2_buffer(dst_buf), VB2_BUF_STATE_DONE);
+=======
+		dst_buf->vb2_buf.timestamp = src_buf->vb2_buf.timestamp;
+		dst_buf->timecode = src_buf->timecode;
+	} else {
+		mtk_v4l2_err("No timestamp for the header buffer.");
+	}
+
+	ctx->state = MTK_STATE_HEADER;
+	dst_buf->vb2_buf.planes[0].bytesused = enc_result.bs_size;
+	v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2040,11 +2724,18 @@ static int mtk_venc_encode_header(void *priv)
 static int mtk_venc_param_change(struct mtk_vcodec_ctx *ctx)
 {
 	struct venc_enc_param enc_prm;
+<<<<<<< HEAD
 	struct vb2_buffer *vb = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
 	struct vb2_v4l2_buffer *vb2_v4l2 =
 		container_of(vb, struct vb2_v4l2_buffer, vb2_buf);
 	struct mtk_video_enc_buf *mtk_buf =
 		container_of(vb2_v4l2, struct mtk_video_enc_buf, vb);
+=======
+	struct vb2_v4l2_buffer *vb2_v4l2 = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
+	struct mtk_video_enc_buf *mtk_buf =
+			container_of(vb2_v4l2, struct mtk_video_enc_buf,
+				     m2m_buf.vb);
+>>>>>>> upstream/android-13
 
 	int ret = 0;
 
@@ -2055,13 +2746,20 @@ static int mtk_venc_param_change(struct mtk_vcodec_ctx *ctx)
 	if (mtk_buf->param_change & MTK_ENCODE_PARAM_BITRATE) {
 		enc_prm.bitrate = mtk_buf->enc_params.bitrate;
 		mtk_v4l2_debug(1, "[%d] id=%d, change param br=%d",
+<<<<<<< HEAD
 			       ctx->id,
 			       mtk_buf->vb.vb2_buf.index,
 			       enc_prm.bitrate);
+=======
+				ctx->id,
+				vb2_v4l2->vb2_buf.index,
+				enc_prm.bitrate);
+>>>>>>> upstream/android-13
 		ret |= venc_if_set_param(ctx,
 					 VENC_SET_PARAM_ADJUST_BITRATE,
 					 &enc_prm);
 	}
+<<<<<<< HEAD
 	if (mtk_buf->param_change & MTK_ENCODE_PARAM_SEC_ENCODE) {
 		enc_prm.svp_mode = mtk_buf->enc_params.svp_mode;
 		mtk_v4l2_debug(0, "[%d] change param svp=%d",
@@ -2071,12 +2769,18 @@ static int mtk_venc_param_change(struct mtk_vcodec_ctx *ctx)
 					 VENC_SET_PARAM_SEC_MODE,
 					 &enc_prm);
 	}
+=======
+>>>>>>> upstream/android-13
 	if (!ret && mtk_buf->param_change & MTK_ENCODE_PARAM_FRAMERATE) {
 		enc_prm.frm_rate = mtk_buf->enc_params.framerate_num /
 				   mtk_buf->enc_params.framerate_denom;
 		mtk_v4l2_debug(1, "[%d] id=%d, change param fr=%d",
 			       ctx->id,
+<<<<<<< HEAD
 			       mtk_buf->vb.vb2_buf.index,
+=======
+			       vb2_v4l2->vb2_buf.index,
+>>>>>>> upstream/android-13
 			       enc_prm.frm_rate);
 		ret |= venc_if_set_param(ctx,
 					 VENC_SET_PARAM_ADJUST_FRAMERATE,
@@ -2092,15 +2796,22 @@ static int mtk_venc_param_change(struct mtk_vcodec_ctx *ctx)
 	}
 	if (!ret && mtk_buf->param_change & MTK_ENCODE_PARAM_FORCE_INTRA) {
 		mtk_v4l2_debug(1, "[%d] id=%d, change param force I=%d",
+<<<<<<< HEAD
 			       ctx->id,
 			       mtk_buf->vb.vb2_buf.index,
 			       mtk_buf->enc_params.force_intra);
+=======
+				ctx->id,
+				vb2_v4l2->vb2_buf.index,
+				mtk_buf->enc_params.force_intra);
+>>>>>>> upstream/android-13
 		if (mtk_buf->enc_params.force_intra)
 			ret |= venc_if_set_param(ctx,
 						 VENC_SET_PARAM_FORCE_INTRA,
 						 NULL);
 	}
 
+<<<<<<< HEAD
 	if (!ret && mtk_buf->param_change & MTK_ENCODE_PARAM_SCENARIO) {
 		enc_prm.scenario = mtk_buf->enc_params.scenario;
 		if (mtk_buf->enc_params.scenario)
@@ -2340,19 +3051,27 @@ static int mtk_venc_param_change(struct mtk_vcodec_ctx *ctx)
 					&enc_prm);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	mtk_buf->param_change = MTK_ENCODE_PARAM_NONE;
 
 	if (ret) {
 		ctx->state = MTK_STATE_ABORT;
+<<<<<<< HEAD
 		mtk_venc_queue_error_event(ctx);
 		mtk_v4l2_err("venc_if_set_param %d failed=%d",
 			     mtk_buf->param_change, ret);
+=======
+		mtk_v4l2_err("venc_if_set_param %d failed=%d",
+				mtk_buf->param_change, ret);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 void mtk_venc_check_queue_cnt(struct mtk_vcodec_ctx *ctx, struct vb2_queue *vq)
 {
 	int done_list_cnt = 0;
@@ -2376,6 +3095,8 @@ void mtk_venc_check_queue_cnt(struct mtk_vcodec_ctx *ctx, struct vb2_queue *vq)
 		done_list_cnt, rdy_q_cnt, vq->num_buffers);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * v4l2_m2m_streamoff() holds dev_mutex and waits mtk_venc_worker()
  * to call v4l2_m2m_job_finish().
@@ -2387,6 +3108,7 @@ void mtk_venc_check_queue_cnt(struct mtk_vcodec_ctx *ctx, struct vb2_queue *vq)
 static void mtk_venc_worker(struct work_struct *work)
 {
 	struct mtk_vcodec_ctx *ctx = container_of(work, struct mtk_vcodec_ctx,
+<<<<<<< HEAD
 					encode_work);
 	struct mtk_q_data *q_data_src = &ctx->q_data[MTK_Q_DATA_SRC];
 	struct vb2_buffer *src_buf, *dst_buf;
@@ -2405,6 +3127,14 @@ static void mtk_venc_worker(struct work_struct *work)
 		mutex_unlock(&ctx->worker_lock);
 		return;
 	}
+=======
+				    encode_work);
+	struct vb2_v4l2_buffer *src_buf, *dst_buf;
+	struct venc_frm_buf frm_buf;
+	struct mtk_vcodec_mem bs_buf;
+	struct venc_done_result enc_result;
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	/* check dst_buf, dst_buf may be removed in device_run
 	 * to stored encdoe header so we need check dst_buf and
@@ -2413,11 +3143,15 @@ static void mtk_venc_worker(struct work_struct *work)
 	dst_buf = v4l2_m2m_dst_buf_remove(ctx->m2m_ctx);
 	if (!dst_buf) {
 		v4l2_m2m_job_finish(ctx->dev->m2m_dev_enc, ctx->m2m_ctx);
+<<<<<<< HEAD
 		mutex_unlock(&ctx->worker_lock);
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	src_buf = v4l2_m2m_src_buf_remove(ctx->m2m_ctx);
+<<<<<<< HEAD
 	if (!src_buf) {
 		v4l2_m2m_job_finish(ctx->dev->m2m_dev_enc, ctx->m2m_ctx);
 		mutex_unlock(&ctx->worker_lock);
@@ -2594,20 +3328,69 @@ static void mtk_venc_worker(struct work_struct *work)
 		}
 	} else if (!ctx->async_mode)
 		mtk_enc_put_buf(ctx);
+=======
+	memset(&frm_buf, 0, sizeof(frm_buf));
+	for (i = 0; i < src_buf->vb2_buf.num_planes ; i++) {
+		frm_buf.fb_addr[i].dma_addr =
+				vb2_dma_contig_plane_dma_addr(&src_buf->vb2_buf, i);
+		frm_buf.fb_addr[i].size =
+				(size_t)src_buf->vb2_buf.planes[i].length;
+	}
+	bs_buf.va = vb2_plane_vaddr(&dst_buf->vb2_buf, 0);
+	bs_buf.dma_addr = vb2_dma_contig_plane_dma_addr(&dst_buf->vb2_buf, 0);
+	bs_buf.size = (size_t)dst_buf->vb2_buf.planes[0].length;
+
+	mtk_v4l2_debug(2,
+			"Framebuf PA=%llx Size=0x%zx;PA=0x%llx Size=0x%zx;PA=0x%llx Size=%zu",
+			(u64)frm_buf.fb_addr[0].dma_addr,
+			frm_buf.fb_addr[0].size,
+			(u64)frm_buf.fb_addr[1].dma_addr,
+			frm_buf.fb_addr[1].size,
+			(u64)frm_buf.fb_addr[2].dma_addr,
+			frm_buf.fb_addr[2].size);
+
+	ret = venc_if_encode(ctx, VENC_START_OPT_ENCODE_FRAME,
+			     &frm_buf, &bs_buf, &enc_result);
+
+	dst_buf->vb2_buf.timestamp = src_buf->vb2_buf.timestamp;
+	dst_buf->timecode = src_buf->timecode;
+
+	if (enc_result.is_key_frm)
+		dst_buf->flags |= V4L2_BUF_FLAG_KEYFRAME;
+
+	if (ret) {
+		v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_ERROR);
+		dst_buf->vb2_buf.planes[0].bytesused = 0;
+		v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_ERROR);
+		mtk_v4l2_err("venc_if_encode failed=%d", ret);
+	} else {
+		v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_DONE);
+		dst_buf->vb2_buf.planes[0].bytesused = enc_result.bs_size;
+		v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_DONE);
+		mtk_v4l2_debug(2, "venc_if_encode bs size=%d",
+				 enc_result.bs_size);
+	}
+>>>>>>> upstream/android-13
 
 	v4l2_m2m_job_finish(ctx->dev->m2m_dev_enc, ctx->m2m_ctx);
 
 	mtk_v4l2_debug(1, "<=== src_buf[%d] dst_buf[%d] venc_if_encode ret=%d Size=%u===>",
+<<<<<<< HEAD
 			src_buf->index, dst_buf->index, ret,
 			enc_result.bs_size);
 
 	mutex_unlock(&ctx->worker_lock);
+=======
+			src_buf->vb2_buf.index, dst_buf->vb2_buf.index, ret,
+			enc_result.bs_size);
+>>>>>>> upstream/android-13
 }
 
 static void m2mops_venc_device_run(void *priv)
 {
 	struct mtk_vcodec_ctx *ctx = priv;
 
+<<<<<<< HEAD
 	mtk_venc_param_change(ctx);
 
 	if ((ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_H264 ||
@@ -2615,6 +3398,9 @@ static void m2mops_venc_device_run(void *priv)
 	     ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_HEIF ||
 	     ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_MPEG4 ||
 	     ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_H263) &&
+=======
+	if ((ctx->q_data[MTK_Q_DATA_DST].fmt->fourcc == V4L2_PIX_FMT_H264) &&
+>>>>>>> upstream/android-13
 	    (ctx->state != MTK_STATE_HEADER)) {
 		/* encode h264 sps/pps header */
 		mtk_venc_encode_header(ctx);
@@ -2622,6 +3408,10 @@ static void m2mops_venc_device_run(void *priv)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	mtk_venc_param_change(ctx);
+>>>>>>> upstream/android-13
 	queue_work(ctx->dev->encode_workqueue, &ctx->encode_work);
 }
 
@@ -2630,7 +3420,11 @@ static int m2mops_venc_job_ready(void *m2m_priv)
 	struct mtk_vcodec_ctx *ctx = m2m_priv;
 
 	if (ctx->state == MTK_STATE_ABORT || ctx->state == MTK_STATE_FREE) {
+<<<<<<< HEAD
 		mtk_v4l2_debug(4, "[%d]Not ready: state=0x%x.",
+=======
+		mtk_v4l2_debug(3, "[%d]Not ready: state=0x%x.",
+>>>>>>> upstream/android-13
 			       ctx->id, ctx->state);
 		return 0;
 	}
@@ -2642,14 +3436,23 @@ static void m2mops_venc_job_abort(void *priv)
 {
 	struct mtk_vcodec_ctx *ctx = priv;
 
+<<<<<<< HEAD
 	mtk_v4l2_debug(4, "[%d]", ctx->id);
+=======
+>>>>>>> upstream/android-13
 	ctx->state = MTK_STATE_ABORT;
 }
 
 const struct v4l2_m2m_ops mtk_venc_m2m_ops = {
+<<<<<<< HEAD
 	.device_run     = m2mops_venc_device_run,
 	.job_ready      = m2mops_venc_job_ready,
 	.job_abort      = m2mops_venc_job_abort,
+=======
+	.device_run	= m2mops_venc_device_run,
+	.job_ready	= m2mops_venc_job_ready,
+	.job_abort	= m2mops_venc_job_abort,
+>>>>>>> upstream/android-13
 };
 
 void mtk_vcodec_enc_set_default_params(struct mtk_vcodec_ctx *ctx)
@@ -2666,8 +3469,11 @@ void mtk_vcodec_enc_set_default_params(struct mtk_vcodec_ctx *ctx)
 	ctx->quantization = V4L2_QUANTIZATION_DEFAULT;
 	ctx->xfer_func = V4L2_XFER_FUNC_DEFAULT;
 
+<<<<<<< HEAD
 	get_supported_format(ctx);
 
+=======
+>>>>>>> upstream/android-13
 	q_data = &ctx->q_data[MTK_Q_DATA_SRC];
 	memset(q_data, 0, sizeof(struct mtk_q_data));
 	q_data->visible_width = DFT_CFG_WIDTH;
@@ -2676,6 +3482,7 @@ void mtk_vcodec_enc_set_default_params(struct mtk_vcodec_ctx *ctx)
 	q_data->coded_height = DFT_CFG_HEIGHT;
 	q_data->field = V4L2_FIELD_NONE;
 
+<<<<<<< HEAD
 	q_data->fmt = &mtk_venc_formats[default_out_fmt_idx];
 
 	v4l_bound_align_image(&q_data->coded_width,
@@ -2694,6 +3501,26 @@ void mtk_vcodec_enc_set_default_params(struct mtk_vcodec_ctx *ctx)
 
 	q_data->sizeimage[0] =
 		q_data->coded_width * q_data->coded_height +
+=======
+	q_data->fmt = &ctx->dev->venc_pdata->output_formats[0];
+
+	v4l_bound_align_image(&q_data->coded_width,
+				MTK_VENC_MIN_W,
+				MTK_VENC_HD_MAX_W, 4,
+				&q_data->coded_height,
+				MTK_VENC_MIN_H,
+				MTK_VENC_HD_MAX_H, 5, 6);
+
+	if (q_data->coded_width < DFT_CFG_WIDTH &&
+		(q_data->coded_width + 16) <= MTK_VENC_HD_MAX_W)
+		q_data->coded_width += 16;
+	if (q_data->coded_height < DFT_CFG_HEIGHT &&
+		(q_data->coded_height + 32) <= MTK_VENC_HD_MAX_H)
+		q_data->coded_height += 32;
+
+	q_data->sizeimage[0] =
+		q_data->coded_width * q_data->coded_height+
+>>>>>>> upstream/android-13
 		((ALIGN(q_data->coded_width, 16) * 2) * 16);
 	q_data->bytesperline[0] = q_data->coded_width;
 	q_data->sizeimage[1] =
@@ -2705,12 +3532,17 @@ void mtk_vcodec_enc_set_default_params(struct mtk_vcodec_ctx *ctx)
 	memset(q_data, 0, sizeof(struct mtk_q_data));
 	q_data->coded_width = DFT_CFG_WIDTH;
 	q_data->coded_height = DFT_CFG_HEIGHT;
+<<<<<<< HEAD
 	q_data->fmt = &mtk_venc_formats[default_cap_fmt_idx];
+=======
+	q_data->fmt = &ctx->dev->venc_pdata->capture_formats[0];
+>>>>>>> upstream/android-13
 	q_data->field = V4L2_FIELD_NONE;
 	ctx->q_data[MTK_Q_DATA_DST].sizeimage[0] =
 		DFT_CFG_WIDTH * DFT_CFG_HEIGHT;
 	ctx->q_data[MTK_Q_DATA_DST].bytesperline[0] = 0;
 
+<<<<<<< HEAD
 }
 
 static const struct v4l2_ctrl_config mtk_enc_color_desc_ctrl = {
@@ -2726,10 +3558,17 @@ static const struct v4l2_ctrl_config mtk_enc_color_desc_ctrl = {
 	.dims = { sizeof(struct mtk_color_desc)/sizeof(u32) }
 };
 
+=======
+	ctx->enc_params.framerate_num = MTK_DEFAULT_FRAMERATE_NUM;
+	ctx->enc_params.framerate_denom = MTK_DEFAULT_FRAMERATE_DENOM;
+}
+
+>>>>>>> upstream/android-13
 int mtk_vcodec_enc_ctrls_setup(struct mtk_vcodec_ctx *ctx)
 {
 	const struct v4l2_ctrl_ops *ops = &mtk_vcodec_enc_ctrl_ops;
 	struct v4l2_ctrl_handler *handler = &ctx->ctrl_hdl;
+<<<<<<< HEAD
 	struct v4l2_ctrl_config cfg;
 	struct v4l2_ctrl *ctrl;
 
@@ -3094,6 +3933,50 @@ int mtk_vcodec_enc_ctrls_setup(struct mtk_vcodec_ctx *ctx)
 	if (handler->error) {
 		mtk_v4l2_err("Init control handler fail %d",
 			     handler->error);
+=======
+	u8 h264_max_level;
+
+	if (ctx->dev->enc_capability & MTK_VENC_4K_CAPABILITY_ENABLE)
+		h264_max_level = V4L2_MPEG_VIDEO_H264_LEVEL_5_1;
+	else
+		h264_max_level = V4L2_MPEG_VIDEO_H264_LEVEL_4_2;
+
+	v4l2_ctrl_handler_init(handler, MTK_MAX_CTRLS_HINT);
+
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MIN_BUFFERS_FOR_OUTPUT,
+			  1, 1, 1, 1);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_BITRATE,
+			  ctx->dev->venc_pdata->min_bitrate,
+			  ctx->dev->venc_pdata->max_bitrate, 1, 4000000);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_B_FRAMES,
+			0, 2, 1, 0);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_FRAME_RC_ENABLE,
+			0, 1, 1, 1);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_H264_MAX_QP,
+			0, 51, 1, 51);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_H264_I_PERIOD,
+			0, 65535, 1, 0);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_GOP_SIZE,
+			0, 65535, 1, 0);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_MB_RC_ENABLE,
+			0, 1, 1, 0);
+	v4l2_ctrl_new_std(handler, ops, V4L2_CID_MPEG_VIDEO_FORCE_KEY_FRAME,
+			0, 0, 0, 0);
+	v4l2_ctrl_new_std_menu(handler, ops,
+			V4L2_CID_MPEG_VIDEO_HEADER_MODE,
+			V4L2_MPEG_VIDEO_HEADER_MODE_JOINED_WITH_1ST_FRAME,
+			0, V4L2_MPEG_VIDEO_HEADER_MODE_SEPARATE);
+	v4l2_ctrl_new_std_menu(handler, ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
+			V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
+			0, V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
+	v4l2_ctrl_new_std_menu(handler, ops, V4L2_CID_MPEG_VIDEO_H264_LEVEL,
+			       h264_max_level,
+			       0, V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
+
+	if (handler->error) {
+		mtk_v4l2_err("Init control handler fail %d",
+				handler->error);
+>>>>>>> upstream/android-13
 		return handler->error;
 	}
 
@@ -3102,6 +3985,7 @@ int mtk_vcodec_enc_ctrls_setup(struct mtk_vcodec_ctx *ctx)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_VB2_MEDIATEK_DMA_CONTIG
 static int venc_dc_ion_map_dmabuf(void *mem_priv)
 {
@@ -3109,6 +3993,8 @@ static int venc_dc_ion_map_dmabuf(void *mem_priv)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int mtk_vcodec_enc_queue_init(void *priv, struct vb2_queue *src_vq,
 			      struct vb2_queue *dst_vq)
 {
@@ -3120,6 +4006,7 @@ int mtk_vcodec_enc_queue_init(void *priv, struct vb2_queue *src_vq,
 	 * https://patchwork.kernel.org/patch/8335461/
 	 * https://patchwork.kernel.org/patch/7596181/
 	 */
+<<<<<<< HEAD
 	src_vq->type            = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	src_vq->io_modes        = VB2_DMABUF | VB2_MMAP | VB2_USERPTR;
 	src_vq->drv_priv        = ctx;
@@ -3139,11 +4026,23 @@ int mtk_vcodec_enc_queue_init(void *priv, struct vb2_queue *src_vq,
 	src_vq->lock            = &ctx->dev->dev_mutex;
 	src_vq->allow_zero_bytesused = 1;
 	src_vq->dev             = &ctx->dev->plat_dev->dev;
+=======
+	src_vq->type		= V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	src_vq->io_modes	= VB2_DMABUF | VB2_MMAP | VB2_USERPTR;
+	src_vq->drv_priv	= ctx;
+	src_vq->buf_struct_size = sizeof(struct mtk_video_enc_buf);
+	src_vq->ops		= &mtk_venc_vb2_ops;
+	src_vq->mem_ops		= &vb2_dma_contig_memops;
+	src_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
+	src_vq->lock		= &ctx->dev->dev_mutex;
+	src_vq->dev		= &ctx->dev->plat_dev->dev;
+>>>>>>> upstream/android-13
 
 	ret = vb2_queue_init(src_vq);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	dst_vq->type            = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	dst_vq->io_modes        = VB2_DMABUF | VB2_MMAP | VB2_USERPTR;
 	dst_vq->drv_priv        = ctx;
@@ -3160,10 +4059,22 @@ int mtk_vcodec_enc_queue_init(void *priv, struct vb2_queue *src_vq,
 	dst_vq->lock            = &ctx->dev->dev_mutex;
 	dst_vq->allow_zero_bytesused = 1;
 	dst_vq->dev             = &ctx->dev->plat_dev->dev;
+=======
+	dst_vq->type		= V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	dst_vq->io_modes	= VB2_DMABUF | VB2_MMAP | VB2_USERPTR;
+	dst_vq->drv_priv	= ctx;
+	dst_vq->buf_struct_size = sizeof(struct v4l2_m2m_buffer);
+	dst_vq->ops		= &mtk_venc_vb2_ops;
+	dst_vq->mem_ops		= &vb2_dma_contig_memops;
+	dst_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
+	dst_vq->lock		= &ctx->dev->dev_mutex;
+	dst_vq->dev		= &ctx->dev->plat_dev->dev;
+>>>>>>> upstream/android-13
 
 	return vb2_queue_init(dst_vq);
 }
 
+<<<<<<< HEAD
 void mtk_venc_unlock(struct mtk_vcodec_ctx *ctx, u32 hw_id)
 {
 
@@ -3242,6 +4153,22 @@ void mtk_vcodec_enc_empty_queues(struct file *file, struct mtk_vcodec_ctx *ctx)
 	}
 
 	ctx->state = MTK_STATE_FREE;
+=======
+int mtk_venc_unlock(struct mtk_vcodec_ctx *ctx)
+{
+	struct mtk_vcodec_dev *dev = ctx->dev;
+
+	mutex_unlock(&dev->enc_mutex);
+	return 0;
+}
+
+int mtk_venc_lock(struct mtk_vcodec_ctx *ctx)
+{
+	struct mtk_vcodec_dev *dev = ctx->dev;
+
+	mutex_lock(&dev->enc_mutex);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 void mtk_vcodec_enc_release(struct mtk_vcodec_ctx *ctx)
@@ -3250,4 +4177,9 @@ void mtk_vcodec_enc_release(struct mtk_vcodec_ctx *ctx)
 
 	if (ret)
 		mtk_v4l2_err("venc_if_deinit failed=%d", ret);
+<<<<<<< HEAD
+=======
+
+	ctx->state = MTK_STATE_FREE;
+>>>>>>> upstream/android-13
 }

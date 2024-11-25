@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Nokia Corporation
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2009 Nokia Corporation
+ * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "DSI"
@@ -25,7 +32,13 @@
 #include <linux/device.h>
 #include <linux/err.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
+=======
+#include <linux/irq.h>
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/module.h>
 #include <linux/semaphore.h>
@@ -44,6 +57,12 @@
 #include <linux/component.h>
 #include <linux/sys_soc.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_bridge.h>
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_panel.h>
+>>>>>>> upstream/android-13
 #include <video/mipi_display.h>
 
 #include "omapdss.h"
@@ -51,6 +70,7 @@
 
 #define DSI_CATCH_MISSING_TE
 
+<<<<<<< HEAD
 struct dsi_reg { u16 module; u16 idx; };
 
 #define DSI_REG(mod, idx)		((const struct dsi_reg) { mod, idx })
@@ -118,6 +138,9 @@ struct dsi_reg { u16 module; u16 idx; };
 #define DSI_PLL_GO			DSI_REG(DSI_PLL, 0x0008)
 #define DSI_PLL_CONFIGURATION1		DSI_REG(DSI_PLL, 0x000C)
 #define DSI_PLL_CONFIGURATION2		DSI_REG(DSI_PLL, 0x0010)
+=======
+#include "dsi.h"
+>>>>>>> upstream/android-13
 
 #define REG_GET(dsi, idx, start, end) \
 	FLD_GET(dsi_read_reg(dsi, idx), start, end)
@@ -125,6 +148,7 @@ struct dsi_reg { u16 module; u16 idx; };
 #define REG_FLD_MOD(dsi, idx, val, start, end) \
 	dsi_write_reg(dsi, idx, FLD_MOD(dsi_read_reg(dsi, idx), val, start, end))
 
+<<<<<<< HEAD
 /* Global interrupts */
 #define DSI_IRQ_VC0		(1 << 0)
 #define DSI_IRQ_VC1		(1 << 1)
@@ -431,17 +455,37 @@ struct dsi_packet_sent_handler_data {
 	struct dsi_data *dsi;
 	struct completion *completion;
 };
+=======
+static int dsi_init_dispc(struct dsi_data *dsi);
+static void dsi_uninit_dispc(struct dsi_data *dsi);
+
+static int dsi_vc_send_null(struct dsi_data *dsi, int vc, int channel);
+
+static ssize_t _omap_dsi_host_transfer(struct dsi_data *dsi, int vc,
+				       const struct mipi_dsi_msg *msg);
+>>>>>>> upstream/android-13
 
 #ifdef DSI_PERF_MEASURE
 static bool dsi_perf;
 module_param(dsi_perf, bool, 0644);
 #endif
 
+<<<<<<< HEAD
+=======
+/* Note: for some reason video mode seems to work only if VC_VIDEO is 0 */
+#define VC_VIDEO	0
+#define VC_CMD		1
+
+#define drm_bridge_to_dsi(bridge) \
+	container_of(bridge, struct dsi_data, bridge)
+
+>>>>>>> upstream/android-13
 static inline struct dsi_data *to_dsi_data(struct omap_dss_device *dssdev)
 {
 	return dev_get_drvdata(dssdev->dev);
 }
 
+<<<<<<< HEAD
 static struct dsi_data *dsi_get_dsi_from_id(int module)
 {
 	struct omap_dss_device *out;
@@ -461,6 +505,11 @@ static struct dsi_data *dsi_get_dsi_from_id(int module)
 	out = omap_dss_get_output(id);
 
 	return out ? to_dsi_data(out) : NULL;
+=======
+static inline struct dsi_data *host_to_omap(struct mipi_dsi_host *host)
+{
+	return container_of(host, struct dsi_data, host);
+>>>>>>> upstream/android-13
 }
 
 static inline void dsi_write_reg(struct dsi_data *dsi,
@@ -492,6 +541,7 @@ static inline u32 dsi_read_reg(struct dsi_data *dsi, const struct dsi_reg idx)
 	return __raw_readl(base + idx.idx);
 }
 
+<<<<<<< HEAD
 static void dsi_bus_lock(struct omap_dss_device *dssdev)
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
@@ -503,6 +553,15 @@ static void dsi_bus_unlock(struct omap_dss_device *dssdev)
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
 
+=======
+static void dsi_bus_lock(struct dsi_data *dsi)
+{
+	down(&dsi->bus_lock);
+}
+
+static void dsi_bus_unlock(struct dsi_data *dsi)
+{
+>>>>>>> upstream/android-13
 	up(&dsi->bus_lock);
 }
 
@@ -545,6 +604,7 @@ static inline bool wait_for_bit_change(struct dsi_data *dsi,
 	return false;
 }
 
+<<<<<<< HEAD
 static u8 dsi_get_pixel_size(enum omap_dss_dsi_pixel_format fmt)
 {
 	switch (fmt) {
@@ -561,6 +621,8 @@ static u8 dsi_get_pixel_size(enum omap_dss_dsi_pixel_format fmt)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DSI_PERF_MEASURE
 static void dsi_perf_mark_setup(struct dsi_data *dsi)
 {
@@ -654,7 +716,11 @@ static void print_irq_status(u32 status)
 #undef PIS
 }
 
+<<<<<<< HEAD
 static void print_irq_status_vc(int channel, u32 status)
+=======
+static void print_irq_status_vc(int vc, u32 status)
+>>>>>>> upstream/android-13
 {
 	if (status == 0)
 		return;
@@ -665,7 +731,11 @@ static void print_irq_status_vc(int channel, u32 status)
 #define PIS(x) (status & DSI_VC_IRQ_##x) ? (#x " ") : ""
 
 	pr_debug("DSI VC(%d) IRQ 0x%x: %s%s%s%s%s%s%s%s%s\n",
+<<<<<<< HEAD
 		channel,
+=======
+		vc,
+>>>>>>> upstream/android-13
 		status,
 		PIS(CS),
 		PIS(ECC_CORR),
@@ -1046,7 +1116,11 @@ static int dsi_unregister_isr(struct dsi_data *dsi, omap_dsi_isr_t isr,
 	return r;
 }
 
+<<<<<<< HEAD
 static int dsi_register_isr_vc(struct dsi_data *dsi, int channel,
+=======
+static int dsi_register_isr_vc(struct dsi_data *dsi, int vc,
+>>>>>>> upstream/android-13
 			       omap_dsi_isr_t isr, void *arg, u32 mask)
 {
 	unsigned long flags;
@@ -1055,18 +1129,30 @@ static int dsi_register_isr_vc(struct dsi_data *dsi, int channel,
 	spin_lock_irqsave(&dsi->irq_lock, flags);
 
 	r = _dsi_register_isr(isr, arg, mask,
+<<<<<<< HEAD
 			dsi->isr_tables.isr_table_vc[channel],
 			ARRAY_SIZE(dsi->isr_tables.isr_table_vc[channel]));
 
 	if (r == 0)
 		_omap_dsi_set_irqs_vc(dsi, channel);
+=======
+			dsi->isr_tables.isr_table_vc[vc],
+			ARRAY_SIZE(dsi->isr_tables.isr_table_vc[vc]));
+
+	if (r == 0)
+		_omap_dsi_set_irqs_vc(dsi, vc);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&dsi->irq_lock, flags);
 
 	return r;
 }
 
+<<<<<<< HEAD
 static int dsi_unregister_isr_vc(struct dsi_data *dsi, int channel,
+=======
+static int dsi_unregister_isr_vc(struct dsi_data *dsi, int vc,
+>>>>>>> upstream/android-13
 				 omap_dsi_isr_t isr, void *arg, u32 mask)
 {
 	unsigned long flags;
@@ -1075,6 +1161,7 @@ static int dsi_unregister_isr_vc(struct dsi_data *dsi, int channel,
 	spin_lock_irqsave(&dsi->irq_lock, flags);
 
 	r = _dsi_unregister_isr(isr, arg, mask,
+<<<<<<< HEAD
 			dsi->isr_tables.isr_table_vc[channel],
 			ARRAY_SIZE(dsi->isr_tables.isr_table_vc[channel]));
 
@@ -1118,6 +1205,13 @@ static int dsi_unregister_isr_cio(struct dsi_data *dsi, omap_dsi_isr_t isr,
 
 	if (r == 0)
 		_omap_dsi_set_irqs_cio(dsi);
+=======
+			dsi->isr_tables.isr_table_vc[vc],
+			ARRAY_SIZE(dsi->isr_tables.isr_table_vc[vc]));
+
+	if (r == 0)
+		_omap_dsi_set_irqs_vc(dsi, vc);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&dsi->irq_lock, flags);
 
@@ -1143,8 +1237,16 @@ static int dsi_runtime_get(struct dsi_data *dsi)
 	DSSDBG("dsi_runtime_get\n");
 
 	r = pm_runtime_get_sync(dsi->dev);
+<<<<<<< HEAD
 	WARN_ON(r < 0);
 	return r < 0 ? r : 0;
+=======
+	if (WARN_ON(r < 0)) {
+		pm_runtime_put_noidle(dsi->dev);
+		return r;
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void dsi_runtime_put(struct dsi_data *dsi)
@@ -1157,6 +1259,7 @@ static void dsi_runtime_put(struct dsi_data *dsi)
 	WARN_ON(r < 0 && r != -ENOSYS);
 }
 
+<<<<<<< HEAD
 static int dsi_regulator_init(struct dsi_data *dsi)
 {
 	struct regulator *vdds_dsi;
@@ -1180,12 +1283,20 @@ static int dsi_regulator_init(struct dsi_data *dsi)
 static void _dsi_print_reset_status(struct dsi_data *dsi)
 {
 	u32 l;
+=======
+static void _dsi_print_reset_status(struct dsi_data *dsi)
+{
+>>>>>>> upstream/android-13
 	int b0, b1, b2;
 
 	/* A dummy read using the SCP interface to any DSIPHY register is
 	 * required after DSIPHY reset to complete the reset of the DSI complex
 	 * I/O. */
+<<<<<<< HEAD
 	l = dsi_read_reg(dsi, DSI_DSIPHY_CFG5);
+=======
+	dsi_read_reg(dsi, DSI_DSIPHY_CFG5);
+>>>>>>> upstream/android-13
 
 	if (dsi->data->quirks & DSI_QUIRK_REVERSE_TXCLKESC) {
 		b0 = 28;
@@ -1373,10 +1484,13 @@ static int dsi_pll_enable(struct dss_pll *pll)
 
 	DSSDBG("PLL init\n");
 
+<<<<<<< HEAD
 	r = dsi_regulator_init(dsi);
 	if (r)
 		return r;
 
+=======
+>>>>>>> upstream/android-13
 	r = dsi_runtime_get(dsi);
 	if (r)
 		return r;
@@ -1434,8 +1548,14 @@ static void dsi_pll_disable(struct dss_pll *pll)
 	DSSDBG("PLL disable done\n");
 }
 
+<<<<<<< HEAD
 static void dsi_dump_dsi_clocks(struct dsi_data *dsi, struct seq_file *s)
 {
+=======
+static int dsi_dump_dsi_clocks(struct seq_file *s, void *p)
+{
+	struct dsi_data *dsi = s->private;
+>>>>>>> upstream/android-13
 	struct dss_pll_clock_info *cinfo = &dsi->pll.cinfo;
 	enum dss_clk_source dispc_clk_src, dsi_clk_src;
 	int dsi_module = dsi->module_id;
@@ -1445,7 +1565,11 @@ static void dsi_dump_dsi_clocks(struct dsi_data *dsi, struct seq_file *s)
 	dsi_clk_src = dss_get_dsi_clk_source(dsi->dss, dsi_module);
 
 	if (dsi_runtime_get(dsi))
+<<<<<<< HEAD
 		return;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	seq_printf(s,	"- DSI%d PLL -\n", dsi_module + 1);
 
@@ -1489,6 +1613,7 @@ static void dsi_dump_dsi_clocks(struct dsi_data *dsi, struct seq_file *s)
 	seq_printf(s,	"LP_CLK\t\t%lu\n", dsi->current_lp_cinfo.lp_clk);
 
 	dsi_runtime_put(dsi);
+<<<<<<< HEAD
 }
 
 void dsi_dump_clocks(struct seq_file *s)
@@ -1506,6 +1631,16 @@ void dsi_dump_clocks(struct seq_file *s)
 #ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
 static void dsi_dump_dsi_irqs(struct dsi_data *dsi, struct seq_file *s)
 {
+=======
+
+	return 0;
+}
+
+#ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
+static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
+{
+	struct dsi_data *dsi = s->private;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	struct dsi_irq_stats stats;
 
@@ -1589,6 +1724,7 @@ static void dsi_dump_dsi_irqs(struct dsi_data *dsi, struct seq_file *s)
 	PIS(ULPSACTIVENOT_ALL0);
 	PIS(ULPSACTIVENOT_ALL1);
 #undef PIS
+<<<<<<< HEAD
 }
 
 static int dsi1_dump_irqs(struct seq_file *s, void *p)
@@ -1604,10 +1740,14 @@ static int dsi2_dump_irqs(struct seq_file *s, void *p)
 	struct dsi_data *dsi = dsi_get_dsi_from_id(1);
 
 	dsi_dump_dsi_irqs(dsi, s);
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
 
+<<<<<<< HEAD
 static void dsi_dump_dsi_regs(struct dsi_data *dsi, struct seq_file *s)
 {
 #define DUMPREG(r) seq_printf(s, "%-35s %08x\n", #r, dsi_read_reg(dsi, r))
@@ -1616,6 +1756,17 @@ static void dsi_dump_dsi_regs(struct dsi_data *dsi, struct seq_file *s)
 		return;
 	dsi_enable_scp_clk(dsi);
 
+=======
+static int dsi_dump_dsi_regs(struct seq_file *s, void *p)
+{
+	struct dsi_data *dsi = s->private;
+
+	if (dsi_runtime_get(dsi))
+		return 0;
+	dsi_enable_scp_clk(dsi);
+
+#define DUMPREG(r) seq_printf(s, "%-35s %08x\n", #r, dsi_read_reg(dsi, r))
+>>>>>>> upstream/android-13
 	DUMPREG(DSI_REVISION);
 	DUMPREG(DSI_SYSCONFIG);
 	DUMPREG(DSI_SYSSTATUS);
@@ -1685,6 +1836,7 @@ static void dsi_dump_dsi_regs(struct dsi_data *dsi, struct seq_file *s)
 	DUMPREG(DSI_PLL_GO);
 	DUMPREG(DSI_PLL_CONFIGURATION1);
 	DUMPREG(DSI_PLL_CONFIGURATION2);
+<<<<<<< HEAD
 
 	dsi_disable_scp_clk(dsi);
 	dsi_runtime_put(dsi);
@@ -1704,6 +1856,13 @@ static int dsi2_dump_regs(struct seq_file *s, void *p)
 	struct dsi_data *dsi = dsi_get_dsi_from_id(1);
 
 	dsi_dump_dsi_regs(dsi, s);
+=======
+#undef DUMPREG
+
+	dsi_disable_scp_clk(dsi);
+	dsi_runtime_put(dsi);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1907,6 +2066,7 @@ static void dsi_cio_timings(struct dsi_data *dsi)
 	dsi_write_reg(dsi, DSI_DSIPHY_CFG2, r);
 }
 
+<<<<<<< HEAD
 /* lane masks have lane 0 at lsb. mask_p for positive lines, n for negative */
 static void dsi_cio_enable_lane_override(struct dsi_data *dsi,
 					 unsigned int mask_p,
@@ -1957,6 +2117,8 @@ static void dsi_cio_disable_lane_override(struct dsi_data *dsi)
 	REG_FLD_MOD(dsi, DSI_DSIPHY_CFG10, 0, 22, 17);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int dsi_cio_wait_tx_clk_esc_reset(struct dsi_data *dsi)
 {
 	int t, i;
@@ -2131,6 +2293,7 @@ static int dsi_cio_init(struct dsi_data *dsi)
 	l = FLD_MOD(l, 0x1fff, 12, 0);	/* STOP_STATE_COUNTER_IO */
 	dsi_write_reg(dsi, DSI_TIMING1, l);
 
+<<<<<<< HEAD
 	if (dsi->ulps_enabled) {
 		unsigned int mask_p;
 		int i;
@@ -2157,6 +2320,8 @@ static int dsi_cio_init(struct dsi_data *dsi)
 		dsi_cio_enable_lane_override(dsi, mask_p, 0);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	r = dsi_cio_power(dsi, DSI_COMPLEXIO_POWER_ON);
 	if (r)
 		goto err_cio_pwr;
@@ -2175,6 +2340,7 @@ static int dsi_cio_init(struct dsi_data *dsi)
 	if (r)
 		goto err_tx_clk_esc_rst;
 
+<<<<<<< HEAD
 	if (dsi->ulps_enabled) {
 		/* Keep Mark-1 state for 1ms (as per DSI spec) */
 		ktime_t wait = ns_to_ktime(1000 * 1000);
@@ -2186,11 +2352,14 @@ static int dsi_cio_init(struct dsi_data *dsi)
 		dsi_cio_disable_lane_override(dsi);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* FORCE_TX_STOP_MODE_IO */
 	REG_FLD_MOD(dsi, DSI_TIMING1, 0, 15, 15);
 
 	dsi_cio_timings(dsi);
 
+<<<<<<< HEAD
 	if (dsi->mode == OMAP_DSS_DSI_VIDEO_MODE) {
 		/* DDR_CLK_ALWAYS_ON */
 		REG_FLD_MOD(dsi, DSI_CLK_CTRL,
@@ -2198,6 +2367,12 @@ static int dsi_cio_init(struct dsi_data *dsi)
 	}
 
 	dsi->ulps_enabled = false;
+=======
+	/* DDR_CLK_ALWAYS_ON */
+	REG_FLD_MOD(dsi, DSI_CLK_CTRL,
+		    !(dsi->dsidev->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS),
+		    13, 13);
+>>>>>>> upstream/android-13
 
 	DSSDBG("CIO init done\n");
 
@@ -2208,8 +2383,11 @@ err_tx_clk_esc_rst:
 err_cio_pwr_dom:
 	dsi_cio_power(dsi, DSI_COMPLEXIO_POWER_OFF);
 err_cio_pwr:
+<<<<<<< HEAD
 	if (dsi->ulps_enabled)
 		dsi_cio_disable_lane_override(dsi);
+=======
+>>>>>>> upstream/android-13
 err_scp_clk_dom:
 	dsi_disable_scp_clk(dsi);
 	dsi_disable_pads(dsi);
@@ -2306,9 +2484,15 @@ static int dsi_force_tx_stop_mode_io(struct dsi_data *dsi)
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool dsi_vc_is_enabled(struct dsi_data *dsi, int channel)
 {
 	return REG_GET(dsi, DSI_VC_CTRL(channel), 0, 0);
+=======
+static bool dsi_vc_is_enabled(struct dsi_data *dsi, int vc)
+{
+	return REG_GET(dsi, DSI_VC_CTRL(vc), 0, 0);
+>>>>>>> upstream/android-13
 }
 
 static void dsi_packet_sent_handler_vp(void *data, u32 mask)
@@ -2316,6 +2500,7 @@ static void dsi_packet_sent_handler_vp(void *data, u32 mask)
 	struct dsi_packet_sent_handler_data *vp_data =
 		(struct dsi_packet_sent_handler_data *) data;
 	struct dsi_data *dsi = vp_data->dsi;
+<<<<<<< HEAD
 	const int channel = dsi->update_channel;
 	u8 bit = dsi->te_enabled ? 30 : 31;
 
@@ -2324,6 +2509,16 @@ static void dsi_packet_sent_handler_vp(void *data, u32 mask)
 }
 
 static int dsi_sync_vc_vp(struct dsi_data *dsi, int channel)
+=======
+	const int vc = dsi->update_vc;
+	u8 bit = dsi->te_enabled ? 30 : 31;
+
+	if (REG_GET(dsi, DSI_VC_TE(vc), bit, bit) == 0)
+		complete(vp_data->completion);
+}
+
+static int dsi_sync_vc_vp(struct dsi_data *dsi, int vc)
+>>>>>>> upstream/android-13
 {
 	DECLARE_COMPLETION_ONSTACK(completion);
 	struct dsi_packet_sent_handler_data vp_data = {
@@ -2335,13 +2530,21 @@ static int dsi_sync_vc_vp(struct dsi_data *dsi, int channel)
 
 	bit = dsi->te_enabled ? 30 : 31;
 
+<<<<<<< HEAD
 	r = dsi_register_isr_vc(dsi, channel, dsi_packet_sent_handler_vp,
+=======
+	r = dsi_register_isr_vc(dsi, vc, dsi_packet_sent_handler_vp,
+>>>>>>> upstream/android-13
 		&vp_data, DSI_VC_IRQ_PACKET_SENT);
 	if (r)
 		goto err0;
 
 	/* Wait for completion only if TE_EN/TE_START is still set */
+<<<<<<< HEAD
 	if (REG_GET(dsi, DSI_VC_TE(channel), bit, bit)) {
+=======
+	if (REG_GET(dsi, DSI_VC_TE(vc), bit, bit)) {
+>>>>>>> upstream/android-13
 		if (wait_for_completion_timeout(&completion,
 				msecs_to_jiffies(10)) == 0) {
 			DSSERR("Failed to complete previous frame transfer\n");
@@ -2350,12 +2553,20 @@ static int dsi_sync_vc_vp(struct dsi_data *dsi, int channel)
 		}
 	}
 
+<<<<<<< HEAD
 	dsi_unregister_isr_vc(dsi, channel, dsi_packet_sent_handler_vp,
+=======
+	dsi_unregister_isr_vc(dsi, vc, dsi_packet_sent_handler_vp,
+>>>>>>> upstream/android-13
 		&vp_data, DSI_VC_IRQ_PACKET_SENT);
 
 	return 0;
 err1:
+<<<<<<< HEAD
 	dsi_unregister_isr_vc(dsi, channel, dsi_packet_sent_handler_vp,
+=======
+	dsi_unregister_isr_vc(dsi, vc, dsi_packet_sent_handler_vp,
+>>>>>>> upstream/android-13
 		&vp_data, DSI_VC_IRQ_PACKET_SENT);
 err0:
 	return r;
@@ -2366,6 +2577,7 @@ static void dsi_packet_sent_handler_l4(void *data, u32 mask)
 	struct dsi_packet_sent_handler_data *l4_data =
 		(struct dsi_packet_sent_handler_data *) data;
 	struct dsi_data *dsi = l4_data->dsi;
+<<<<<<< HEAD
 	const int channel = dsi->update_channel;
 
 	if (REG_GET(dsi, DSI_VC_CTRL(channel), 5, 5) == 0)
@@ -2373,6 +2585,15 @@ static void dsi_packet_sent_handler_l4(void *data, u32 mask)
 }
 
 static int dsi_sync_vc_l4(struct dsi_data *dsi, int channel)
+=======
+	const int vc = dsi->update_vc;
+
+	if (REG_GET(dsi, DSI_VC_CTRL(vc), 5, 5) == 0)
+		complete(l4_data->completion);
+}
+
+static int dsi_sync_vc_l4(struct dsi_data *dsi, int vc)
+>>>>>>> upstream/android-13
 {
 	DECLARE_COMPLETION_ONSTACK(completion);
 	struct dsi_packet_sent_handler_data l4_data = {
@@ -2381,13 +2602,21 @@ static int dsi_sync_vc_l4(struct dsi_data *dsi, int channel)
 	};
 	int r = 0;
 
+<<<<<<< HEAD
 	r = dsi_register_isr_vc(dsi, channel, dsi_packet_sent_handler_l4,
+=======
+	r = dsi_register_isr_vc(dsi, vc, dsi_packet_sent_handler_l4,
+>>>>>>> upstream/android-13
 		&l4_data, DSI_VC_IRQ_PACKET_SENT);
 	if (r)
 		goto err0;
 
 	/* Wait for completion only if TX_FIFO_NOT_EMPTY is still set */
+<<<<<<< HEAD
 	if (REG_GET(dsi, DSI_VC_CTRL(channel), 5, 5)) {
+=======
+	if (REG_GET(dsi, DSI_VC_CTRL(vc), 5, 5)) {
+>>>>>>> upstream/android-13
 		if (wait_for_completion_timeout(&completion,
 				msecs_to_jiffies(10)) == 0) {
 			DSSERR("Failed to complete previous l4 transfer\n");
@@ -2396,23 +2625,36 @@ static int dsi_sync_vc_l4(struct dsi_data *dsi, int channel)
 		}
 	}
 
+<<<<<<< HEAD
 	dsi_unregister_isr_vc(dsi, channel, dsi_packet_sent_handler_l4,
+=======
+	dsi_unregister_isr_vc(dsi, vc, dsi_packet_sent_handler_l4,
+>>>>>>> upstream/android-13
 		&l4_data, DSI_VC_IRQ_PACKET_SENT);
 
 	return 0;
 err1:
+<<<<<<< HEAD
 	dsi_unregister_isr_vc(dsi, channel, dsi_packet_sent_handler_l4,
+=======
+	dsi_unregister_isr_vc(dsi, vc, dsi_packet_sent_handler_l4,
+>>>>>>> upstream/android-13
 		&l4_data, DSI_VC_IRQ_PACKET_SENT);
 err0:
 	return r;
 }
 
+<<<<<<< HEAD
 static int dsi_sync_vc(struct dsi_data *dsi, int channel)
+=======
+static int dsi_sync_vc(struct dsi_data *dsi, int vc)
+>>>>>>> upstream/android-13
 {
 	WARN_ON(!dsi_bus_is_locked(dsi));
 
 	WARN_ON(in_interrupt());
 
+<<<<<<< HEAD
 	if (!dsi_vc_is_enabled(dsi, channel))
 		return 0;
 
@@ -2421,12 +2663,23 @@ static int dsi_sync_vc(struct dsi_data *dsi, int channel)
 		return dsi_sync_vc_vp(dsi, channel);
 	case DSI_VC_SOURCE_L4:
 		return dsi_sync_vc_l4(dsi, channel);
+=======
+	if (!dsi_vc_is_enabled(dsi, vc))
+		return 0;
+
+	switch (dsi->vc[vc].source) {
+	case DSI_VC_SOURCE_VP:
+		return dsi_sync_vc_vp(dsi, vc);
+	case DSI_VC_SOURCE_L4:
+		return dsi_sync_vc_l4(dsi, vc);
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 		return -EINVAL;
 	}
 }
 
+<<<<<<< HEAD
 static int dsi_vc_enable(struct dsi_data *dsi, int channel, bool enable)
 {
 	DSSDBG("dsi_vc_enable channel %d, enable %d\n",
@@ -2437,6 +2690,18 @@ static int dsi_vc_enable(struct dsi_data *dsi, int channel, bool enable)
 	REG_FLD_MOD(dsi, DSI_VC_CTRL(channel), enable, 0, 0);
 
 	if (!wait_for_bit_change(dsi, DSI_VC_CTRL(channel), 0, enable)) {
+=======
+static int dsi_vc_enable(struct dsi_data *dsi, int vc, bool enable)
+{
+	DSSDBG("dsi_vc_enable vc %d, enable %d\n",
+			vc, enable);
+
+	enable = enable ? 1 : 0;
+
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(vc), enable, 0, 0);
+
+	if (!wait_for_bit_change(dsi, DSI_VC_CTRL(vc), 0, enable)) {
+>>>>>>> upstream/android-13
 		DSSERR("Failed to set dsi_vc_enable to %d\n", enable);
 		return -EIO;
 	}
@@ -2444,6 +2709,7 @@ static int dsi_vc_enable(struct dsi_data *dsi, int channel, bool enable)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void dsi_vc_initial_config(struct dsi_data *dsi, int channel)
 {
 	u32 r;
@@ -2455,6 +2721,19 @@ static void dsi_vc_initial_config(struct dsi_data *dsi, int channel)
 	if (FLD_GET(r, 15, 15)) /* VC_BUSY */
 		DSSERR("VC(%d) busy when trying to configure it!\n",
 				channel);
+=======
+static void dsi_vc_initial_config(struct dsi_data *dsi, int vc)
+{
+	u32 r;
+
+	DSSDBG("Initial config of VC %d", vc);
+
+	r = dsi_read_reg(dsi, DSI_VC_CTRL(vc));
+
+	if (FLD_GET(r, 15, 15)) /* VC_BUSY */
+		DSSERR("VC(%d) busy when trying to configure it!\n",
+				vc);
+>>>>>>> upstream/android-13
 
 	r = FLD_MOD(r, 0, 1, 1); /* SOURCE, 0 = L4 */
 	r = FLD_MOD(r, 0, 2, 2); /* BTA_SHORT_EN  */
@@ -2469,6 +2748,7 @@ static void dsi_vc_initial_config(struct dsi_data *dsi, int channel)
 	r = FLD_MOD(r, 4, 29, 27); /* DMA_RX_REQ_NB = no dma */
 	r = FLD_MOD(r, 4, 23, 21); /* DMA_TX_REQ_NB = no dma */
 
+<<<<<<< HEAD
 	dsi_write_reg(dsi, DSI_VC_CTRL(channel), r);
 
 	dsi->vc[channel].source = DSI_VC_SOURCE_L4;
@@ -2509,10 +2789,19 @@ static int dsi_vc_config_source(struct dsi_data *dsi, int channel,
 }
 
 static void dsi_vc_enable_hs(struct omap_dss_device *dssdev, int channel,
+=======
+	dsi_write_reg(dsi, DSI_VC_CTRL(vc), r);
+
+	dsi->vc[vc].source = DSI_VC_SOURCE_L4;
+}
+
+static void dsi_vc_enable_hs(struct omap_dss_device *dssdev, int vc,
+>>>>>>> upstream/android-13
 		bool enable)
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
 
+<<<<<<< HEAD
 	DSSDBG("dsi_vc_enable_hs(%d, %d)\n", channel, enable);
 
 	WARN_ON(!dsi_bus_is_locked(dsi));
@@ -2537,6 +2826,31 @@ static void dsi_vc_flush_long_data(struct dsi_data *dsi, int channel)
 	while (REG_GET(dsi, DSI_VC_CTRL(channel), 20, 20)) {
 		u32 val;
 		val = dsi_read_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(channel));
+=======
+	DSSDBG("dsi_vc_enable_hs(%d, %d)\n", vc, enable);
+
+	if (REG_GET(dsi, DSI_VC_CTRL(vc), 9, 9) == enable)
+		return;
+
+	WARN_ON(!dsi_bus_is_locked(dsi));
+
+	dsi_vc_enable(dsi, vc, 0);
+	dsi_if_enable(dsi, 0);
+
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(vc), enable, 9, 9);
+
+	dsi_vc_enable(dsi, vc, 1);
+	dsi_if_enable(dsi, 1);
+
+	dsi_force_tx_stop_mode_io(dsi);
+}
+
+static void dsi_vc_flush_long_data(struct dsi_data *dsi, int vc)
+{
+	while (REG_GET(dsi, DSI_VC_CTRL(vc), 20, 20)) {
+		u32 val;
+		val = dsi_read_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(vc));
+>>>>>>> upstream/android-13
 		DSSDBG("\t\tb1 %#02x b2 %#02x b3 %#02x b4 %#02x\n",
 				(val >> 0) & 0xff,
 				(val >> 8) & 0xff,
@@ -2582,6 +2896,7 @@ static void dsi_show_rx_ack_with_err(u16 err)
 		DSSERR("\t\tDSI Protocol Violation\n");
 }
 
+<<<<<<< HEAD
 static u16 dsi_vc_flush_receive_data(struct dsi_data *dsi, int channel)
 {
 	/* RX_FIFO_NOT_EMPTY */
@@ -2589,6 +2904,15 @@ static u16 dsi_vc_flush_receive_data(struct dsi_data *dsi, int channel)
 		u32 val;
 		u8 dt;
 		val = dsi_read_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(channel));
+=======
+static u16 dsi_vc_flush_receive_data(struct dsi_data *dsi, int vc)
+{
+	/* RX_FIFO_NOT_EMPTY */
+	while (REG_GET(dsi, DSI_VC_CTRL(vc), 20, 20)) {
+		u32 val;
+		u8 dt;
+		val = dsi_read_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(vc));
+>>>>>>> upstream/android-13
 		DSSERR("\trawval %#08x\n", val);
 		dt = FLD_GET(val, 5, 0);
 		if (dt == MIPI_DSI_RX_ACKNOWLEDGE_AND_ERROR_REPORT) {
@@ -2603,7 +2927,11 @@ static u16 dsi_vc_flush_receive_data(struct dsi_data *dsi, int channel)
 		} else if (dt == MIPI_DSI_RX_DCS_LONG_READ_RESPONSE) {
 			DSSERR("\tDCS long response, len %d\n",
 					FLD_GET(val, 23, 8));
+<<<<<<< HEAD
 			dsi_vc_flush_long_data(dsi, channel);
+=======
+			dsi_vc_flush_long_data(dsi, vc);
+>>>>>>> upstream/android-13
 		} else {
 			DSSERR("\tunknown datatype 0x%02x\n", dt);
 		}
@@ -2611,14 +2939,22 @@ static u16 dsi_vc_flush_receive_data(struct dsi_data *dsi, int channel)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_vc_send_bta(struct dsi_data *dsi, int channel)
 {
 	if (dsi->debug_write || dsi->debug_read)
 		DSSDBG("dsi_vc_send_bta %d\n", channel);
+=======
+static int dsi_vc_send_bta(struct dsi_data *dsi, int vc)
+{
+	if (dsi->debug_write || dsi->debug_read)
+		DSSDBG("dsi_vc_send_bta %d\n", vc);
+>>>>>>> upstream/android-13
 
 	WARN_ON(!dsi_bus_is_locked(dsi));
 
 	/* RX_FIFO_NOT_EMPTY */
+<<<<<<< HEAD
 	if (REG_GET(dsi, DSI_VC_CTRL(channel), 20, 20)) {
 		DSSERR("rx fifo not empty when sending BTA, dumping data:\n");
 		dsi_vc_flush_receive_data(dsi, channel);
@@ -2628,18 +2964,37 @@ static int dsi_vc_send_bta(struct dsi_data *dsi, int channel)
 
 	/* flush posted write */
 	dsi_read_reg(dsi, DSI_VC_CTRL(channel));
+=======
+	if (REG_GET(dsi, DSI_VC_CTRL(vc), 20, 20)) {
+		DSSERR("rx fifo not empty when sending BTA, dumping data:\n");
+		dsi_vc_flush_receive_data(dsi, vc);
+	}
+
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(vc), 1, 6, 6); /* BTA_EN */
+
+	/* flush posted write */
+	dsi_read_reg(dsi, DSI_VC_CTRL(vc));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_vc_send_bta_sync(struct omap_dss_device *dssdev, int channel)
+=======
+static int dsi_vc_send_bta_sync(struct omap_dss_device *dssdev, int vc)
+>>>>>>> upstream/android-13
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
 	DECLARE_COMPLETION_ONSTACK(completion);
 	int r = 0;
 	u32 err;
 
+<<<<<<< HEAD
 	r = dsi_register_isr_vc(dsi, channel, dsi_completion_handler,
+=======
+	r = dsi_register_isr_vc(dsi, vc, dsi_completion_handler,
+>>>>>>> upstream/android-13
 			&completion, DSI_VC_IRQ_BTA);
 	if (r)
 		goto err0;
@@ -2649,7 +3004,11 @@ static int dsi_vc_send_bta_sync(struct omap_dss_device *dssdev, int channel)
 	if (r)
 		goto err1;
 
+<<<<<<< HEAD
 	r = dsi_vc_send_bta(dsi, channel);
+=======
+	r = dsi_vc_send_bta(dsi, vc);
+>>>>>>> upstream/android-13
 	if (r)
 		goto err2;
 
@@ -2670,29 +3029,50 @@ err2:
 	dsi_unregister_isr(dsi, dsi_completion_handler, &completion,
 			DSI_IRQ_ERROR_MASK);
 err1:
+<<<<<<< HEAD
 	dsi_unregister_isr_vc(dsi, channel, dsi_completion_handler,
+=======
+	dsi_unregister_isr_vc(dsi, vc, dsi_completion_handler,
+>>>>>>> upstream/android-13
 			&completion, DSI_VC_IRQ_BTA);
 err0:
 	return r;
 }
 
+<<<<<<< HEAD
 static inline void dsi_vc_write_long_header(struct dsi_data *dsi, int channel,
 					    u8 data_type, u16 len, u8 ecc)
+=======
+static inline void dsi_vc_write_long_header(struct dsi_data *dsi, int vc,
+					    int channel, u8 data_type, u16 len,
+					    u8 ecc)
+>>>>>>> upstream/android-13
 {
 	u32 val;
 	u8 data_id;
 
 	WARN_ON(!dsi_bus_is_locked(dsi));
 
+<<<<<<< HEAD
 	data_id = data_type | dsi->vc[channel].vc_id << 6;
+=======
+	data_id = data_type | channel << 6;
+>>>>>>> upstream/android-13
 
 	val = FLD_VAL(data_id, 7, 0) | FLD_VAL(len, 23, 8) |
 		FLD_VAL(ecc, 31, 24);
 
+<<<<<<< HEAD
 	dsi_write_reg(dsi, DSI_VC_LONG_PACKET_HEADER(channel), val);
 }
 
 static inline void dsi_vc_write_long_payload(struct dsi_data *dsi, int channel,
+=======
+	dsi_write_reg(dsi, DSI_VC_LONG_PACKET_HEADER(vc), val);
+}
+
+static inline void dsi_vc_write_long_payload(struct dsi_data *dsi, int vc,
+>>>>>>> upstream/android-13
 					     u8 b1, u8 b2, u8 b3, u8 b4)
 {
 	u32 val;
@@ -2702,6 +3082,7 @@ static inline void dsi_vc_write_long_payload(struct dsi_data *dsi, int channel,
 /*	DSSDBG("\twriting %02x, %02x, %02x, %02x (%#010x)\n",
 			b1, b2, b3, b4, val); */
 
+<<<<<<< HEAD
 	dsi_write_reg(dsi, DSI_VC_LONG_PACKET_PAYLOAD(channel), val);
 }
 
@@ -2711,24 +3092,49 @@ static int dsi_vc_send_long(struct dsi_data *dsi, int channel, u8 data_type,
 	/*u32 val; */
 	int i;
 	u8 *p;
+=======
+	dsi_write_reg(dsi, DSI_VC_LONG_PACKET_PAYLOAD(vc), val);
+}
+
+static int dsi_vc_send_long(struct dsi_data *dsi, int vc,
+			    const struct mipi_dsi_msg *msg)
+{
+	/*u32 val; */
+	int i;
+	const u8 *p;
+>>>>>>> upstream/android-13
 	int r = 0;
 	u8 b1, b2, b3, b4;
 
 	if (dsi->debug_write)
+<<<<<<< HEAD
 		DSSDBG("dsi_vc_send_long, %d bytes\n", len);
 
 	/* len + header */
 	if (dsi->vc[channel].tx_fifo_size * 32 * 4 < len + 4) {
+=======
+		DSSDBG("dsi_vc_send_long, %d bytes\n", msg->tx_len);
+
+	/* len + header */
+	if (dsi->vc[vc].tx_fifo_size * 32 * 4 < msg->tx_len + 4) {
+>>>>>>> upstream/android-13
 		DSSERR("unable to send long packet: packet too long.\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	dsi_vc_config_source(dsi, channel, DSI_VC_SOURCE_L4);
 
 	dsi_vc_write_long_header(dsi, channel, data_type, len, ecc);
 
 	p = data;
 	for (i = 0; i < len >> 2; i++) {
+=======
+	dsi_vc_write_long_header(dsi, vc, msg->channel, msg->type, msg->tx_len, 0);
+
+	p = msg->tx_buf;
+	for (i = 0; i < msg->tx_len >> 2; i++) {
+>>>>>>> upstream/android-13
 		if (dsi->debug_write)
 			DSSDBG("\tsending full packet %d\n", i);
 
@@ -2737,10 +3143,17 @@ static int dsi_vc_send_long(struct dsi_data *dsi, int channel, u8 data_type,
 		b3 = *p++;
 		b4 = *p++;
 
+<<<<<<< HEAD
 		dsi_vc_write_long_payload(dsi, channel, b1, b2, b3, b4);
 	}
 
 	i = len % 4;
+=======
+		dsi_vc_write_long_payload(dsi, vc, b1, b2, b3, b4);
+	}
+
+	i = msg->tx_len % 4;
+>>>>>>> upstream/android-13
 	if (i) {
 		b1 = 0; b2 = 0; b3 = 0;
 
@@ -2762,21 +3175,39 @@ static int dsi_vc_send_long(struct dsi_data *dsi, int channel, u8 data_type,
 			break;
 		}
 
+<<<<<<< HEAD
 		dsi_vc_write_long_payload(dsi, channel, b1, b2, b3, 0);
+=======
+		dsi_vc_write_long_payload(dsi, vc, b1, b2, b3, 0);
+>>>>>>> upstream/android-13
 	}
 
 	return r;
 }
 
+<<<<<<< HEAD
 static int dsi_vc_send_short(struct dsi_data *dsi, int channel, u8 data_type,
 			     u16 data, u8 ecc)
 {
 	u32 r;
 	u8 data_id;
+=======
+static int dsi_vc_send_short(struct dsi_data *dsi, int vc,
+			     const struct mipi_dsi_msg *msg)
+{
+	struct mipi_dsi_packet pkt;
+	int ret;
+	u32 r;
+
+	ret = mipi_dsi_create_packet(&pkt, msg);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	WARN_ON(!dsi_bus_is_locked(dsi));
 
 	if (dsi->debug_write)
+<<<<<<< HEAD
 		DSSDBG("dsi_vc_send_short(ch%d, dt %#x, b1 %#x, b2 %#x)\n",
 				channel,
 				data_type, data & 0xff, (data >> 8) & 0xff);
@@ -2784,19 +3215,33 @@ static int dsi_vc_send_short(struct dsi_data *dsi, int channel, u8 data_type,
 	dsi_vc_config_source(dsi, channel, DSI_VC_SOURCE_L4);
 
 	if (FLD_GET(dsi_read_reg(dsi, DSI_VC_CTRL(channel)), 16, 16)) {
+=======
+		DSSDBG("dsi_vc_send_short(vc%d, dt %#x, b1 %#x, b2 %#x)\n",
+		       vc, msg->type, pkt.header[1], pkt.header[2]);
+
+	if (FLD_GET(dsi_read_reg(dsi, DSI_VC_CTRL(vc)), 16, 16)) {
+>>>>>>> upstream/android-13
 		DSSERR("ERROR FIFO FULL, aborting transfer\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	data_id = data_type | dsi->vc[channel].vc_id << 6;
 
 	r = (data_id << 0) | (data << 8) | (ecc << 24);
 
 	dsi_write_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(channel), r);
+=======
+	r = pkt.header[3] << 24 | pkt.header[2] << 16 | pkt.header[1] << 8 |
+	    pkt.header[0];
+
+	dsi_write_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(vc), r);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_vc_send_null(struct dsi_data *dsi, int channel)
 {
 	return dsi_vc_send_long(dsi, channel, MIPI_DSI_NULL_PACKET, NULL, 0, 0);
@@ -2909,11 +3354,56 @@ static int dsi_vc_dcs_send_read_request(struct dsi_data *dsi, int channel,
 		DSSERR("dsi_vc_dcs_send_read_request(ch %d, cmd 0x%02x)"
 			" failed\n", channel, dcs_cmd);
 		return r;
+=======
+static int dsi_vc_send_null(struct dsi_data *dsi, int vc, int channel)
+{
+	const struct mipi_dsi_msg msg = {
+		.channel = channel,
+		.type = MIPI_DSI_NULL_PACKET,
+	};
+
+	return dsi_vc_send_long(dsi, vc, &msg);
+}
+
+static int dsi_vc_write_common(struct omap_dss_device *dssdev, int vc,
+			       const struct mipi_dsi_msg *msg)
+{
+	struct dsi_data *dsi = to_dsi_data(dssdev);
+	int r;
+
+	if (mipi_dsi_packet_format_is_short(msg->type))
+		r = dsi_vc_send_short(dsi, vc, msg);
+	else
+		r = dsi_vc_send_long(dsi, vc, msg);
+
+	if (r < 0)
+		return r;
+
+	/*
+	 * TODO: we do not always have to do the BTA sync, for example
+	 * we can improve performance by setting the update window
+	 * information without sending BTA sync between the commands.
+	 * In that case we can return early.
+	 */
+
+	r = dsi_vc_send_bta_sync(dssdev, vc);
+	if (r) {
+		DSSERR("bta sync failed\n");
+		return r;
+	}
+
+	/* RX_FIFO_NOT_EMPTY */
+	if (REG_GET(dsi, DSI_VC_CTRL(vc), 20, 20)) {
+		DSSERR("rx fifo not empty after write, dumping data:\n");
+		dsi_vc_flush_receive_data(dsi, vc);
+		return -EIO;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_vc_generic_send_read_request(struct dsi_data *dsi, int channel,
 					    u8 *reqdata, int reqlen)
 {
@@ -2950,6 +3440,9 @@ static int dsi_vc_generic_send_read_request(struct dsi_data *dsi, int channel,
 }
 
 static int dsi_vc_read_rx_fifo(struct dsi_data *dsi, int channel, u8 *buf,
+=======
+static int dsi_vc_read_rx_fifo(struct dsi_data *dsi, int vc, u8 *buf,
+>>>>>>> upstream/android-13
 			       int buflen, enum dss_dsi_content_type type)
 {
 	u32 val;
@@ -2957,13 +3450,21 @@ static int dsi_vc_read_rx_fifo(struct dsi_data *dsi, int channel, u8 *buf,
 	int r;
 
 	/* RX_FIFO_NOT_EMPTY */
+<<<<<<< HEAD
 	if (REG_GET(dsi, DSI_VC_CTRL(channel), 20, 20) == 0) {
+=======
+	if (REG_GET(dsi, DSI_VC_CTRL(vc), 20, 20) == 0) {
+>>>>>>> upstream/android-13
 		DSSERR("RX fifo empty when trying to read.\n");
 		r = -EIO;
 		goto err;
 	}
 
+<<<<<<< HEAD
 	val = dsi_read_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(channel));
+=======
+	val = dsi_read_reg(dsi, DSI_VC_SHORT_PACKET_HEADER(vc));
+>>>>>>> upstream/android-13
 	if (dsi->debug_read)
 		DSSDBG("\theader: %08x\n", val);
 	dt = FLD_GET(val, 5, 0);
@@ -3027,7 +3528,11 @@ static int dsi_vc_read_rx_fifo(struct dsi_data *dsi, int channel, u8 *buf,
 		for (w = 0; w < len + 2;) {
 			int b;
 			val = dsi_read_reg(dsi,
+<<<<<<< HEAD
 				DSI_VC_SHORT_PACKET_HEADER(channel));
+=======
+				DSI_VC_SHORT_PACKET_HEADER(vc));
+>>>>>>> upstream/android-13
 			if (dsi->debug_read)
 				DSSDBG("\t\t%02x %02x %02x %02x\n",
 						(val >> 0) & 0xff,
@@ -3051,12 +3556,17 @@ static int dsi_vc_read_rx_fifo(struct dsi_data *dsi, int channel, u8 *buf,
 	}
 
 err:
+<<<<<<< HEAD
 	DSSERR("dsi_vc_read_rx_fifo(ch %d type %s) failed\n", channel,
+=======
+	DSSERR("dsi_vc_read_rx_fifo(vc %d type %s) failed\n", vc,
+>>>>>>> upstream/android-13
 		type == DSS_DSI_CONTENT_GENERIC ? "GENERIC" : "DCS");
 
 	return r;
 }
 
+<<<<<<< HEAD
 static int dsi_vc_dcs_read(struct omap_dss_device *dssdev, int channel, u8 dcs_cmd,
 		u8 *buf, int buflen)
 {
@@ -3072,27 +3582,62 @@ static int dsi_vc_dcs_read(struct omap_dss_device *dssdev, int channel, u8 dcs_c
 		goto err;
 
 	r = dsi_vc_read_rx_fifo(dsi, channel, buf, buflen,
+=======
+static int dsi_vc_dcs_read(struct omap_dss_device *dssdev, int vc,
+			   const struct mipi_dsi_msg *msg)
+{
+	struct dsi_data *dsi = to_dsi_data(dssdev);
+	u8 cmd = ((u8 *)msg->tx_buf)[0];
+	int r;
+
+	if (dsi->debug_read)
+		DSSDBG("%s(vc %d, cmd %x)\n", __func__, vc, cmd);
+
+	r = dsi_vc_send_short(dsi, vc, msg);
+	if (r)
+		goto err;
+
+	r = dsi_vc_send_bta_sync(dssdev, vc);
+	if (r)
+		goto err;
+
+	r = dsi_vc_read_rx_fifo(dsi, vc, msg->rx_buf, msg->rx_len,
+>>>>>>> upstream/android-13
 		DSS_DSI_CONTENT_DCS);
 	if (r < 0)
 		goto err;
 
+<<<<<<< HEAD
 	if (r != buflen) {
+=======
+	if (r != msg->rx_len) {
+>>>>>>> upstream/android-13
 		r = -EIO;
 		goto err;
 	}
 
 	return 0;
 err:
+<<<<<<< HEAD
 	DSSERR("dsi_vc_dcs_read(ch %d, cmd 0x%02x) failed\n", channel, dcs_cmd);
 	return r;
 }
 
 static int dsi_vc_generic_read(struct omap_dss_device *dssdev, int channel,
 		u8 *reqdata, int reqlen, u8 *buf, int buflen)
+=======
+	DSSERR("%s(vc %d, cmd 0x%02x) failed\n", __func__,  vc, cmd);
+	return r;
+}
+
+static int dsi_vc_generic_read(struct omap_dss_device *dssdev, int vc,
+			       const struct mipi_dsi_msg *msg)
+>>>>>>> upstream/android-13
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
 	int r;
 
+<<<<<<< HEAD
 	r = dsi_vc_generic_send_read_request(dsi, channel, reqdata, reqlen);
 	if (r)
 		return r;
@@ -3189,10 +3734,27 @@ static int dsi_enter_ulps(struct dsi_data *dsi)
 	if (wait_for_completion_timeout(&completion,
 				msecs_to_jiffies(1000)) == 0) {
 		DSSERR("ULPS enable timeout\n");
+=======
+	r = dsi_vc_send_short(dsi, vc, msg);
+	if (r)
+		goto err;
+
+	r = dsi_vc_send_bta_sync(dssdev, vc);
+	if (r)
+		goto err;
+
+	r = dsi_vc_read_rx_fifo(dsi, vc, msg->rx_buf, msg->rx_len,
+		DSS_DSI_CONTENT_GENERIC);
+	if (r < 0)
+		goto err;
+
+	if (r != msg->rx_len) {
+>>>>>>> upstream/android-13
 		r = -EIO;
 		goto err;
 	}
 
+<<<<<<< HEAD
 	dsi_unregister_isr_cio(dsi, dsi_completion_handler, &completion,
 			DSI_CIO_IRQ_ULPSACTIVENOT_ALL0);
 
@@ -3213,6 +3775,11 @@ static int dsi_enter_ulps(struct dsi_data *dsi)
 err:
 	dsi_unregister_isr_cio(dsi, dsi_completion_handler, &completion,
 			DSI_CIO_IRQ_ULPSACTIVENOT_ALL0);
+=======
+	return 0;
+err:
+	DSSERR("%s(vc %d, reqlen %d) failed\n", __func__,  vc, msg->tx_len);
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -3329,8 +3896,13 @@ static void dsi_config_vp_num_line_buffers(struct dsi_data *dsi)
 	int num_line_buffers;
 
 	if (dsi->mode == OMAP_DSS_DSI_VIDEO_MODE) {
+<<<<<<< HEAD
 		int bpp = dsi_get_pixel_size(dsi->pix_fmt);
 		struct videomode *vm = &dsi->vm;
+=======
+		int bpp = mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt);
+		const struct videomode *vm = &dsi->vm;
+>>>>>>> upstream/android-13
 		/*
 		 * Don't use line buffers if width is greater than the video
 		 * port's line buffer size
@@ -3459,8 +4031,13 @@ static void dsi_config_cmd_mode_interleaving(struct dsi_data *dsi)
 	int ddr_clk_pre, ddr_clk_post, enter_hs_mode_lat, exit_hs_mode_lat;
 	int tclk_trail, ths_exit, exiths_clk;
 	bool ddr_alwon;
+<<<<<<< HEAD
 	struct videomode *vm = &dsi->vm;
 	int bpp = dsi_get_pixel_size(dsi->pix_fmt);
+=======
+	const struct videomode *vm = &dsi->vm;
+	int bpp = mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt);
+>>>>>>> upstream/android-13
 	int ndl = dsi->num_lanes_used - 1;
 	int dsi_fclk_hsdiv = dsi->user_dsi_cinfo.mX[HSDIV_DSI] + 1;
 	int hsa_interleave_hs = 0, hsa_interleave_lp = 0;
@@ -3588,7 +4165,11 @@ static int dsi_proto_config(struct dsi_data *dsi)
 	dsi_set_lp_rx_timeout(dsi, 0x1fff, true, true);
 	dsi_set_hs_tx_timeout(dsi, 0x1fff, true, true);
 
+<<<<<<< HEAD
 	switch (dsi_get_pixel_size(dsi->pix_fmt)) {
+=======
+	switch (mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt)) {
+>>>>>>> upstream/android-13
 	case 16:
 		buswidth = 0;
 		break;
@@ -3638,7 +4219,11 @@ static int dsi_proto_config(struct dsi_data *dsi)
 
 static void dsi_proto_timings(struct dsi_data *dsi)
 {
+<<<<<<< HEAD
 	unsigned int tlpx, tclk_zero, tclk_prepare, tclk_trail;
+=======
+	unsigned int tlpx, tclk_zero, tclk_prepare;
+>>>>>>> upstream/android-13
 	unsigned int tclk_pre, tclk_post;
 	unsigned int ths_prepare, ths_prepare_ths_zero, ths_zero;
 	unsigned int ths_trail, ths_exit;
@@ -3657,7 +4242,10 @@ static void dsi_proto_timings(struct dsi_data *dsi)
 
 	r = dsi_read_reg(dsi, DSI_DSIPHY_CFG1);
 	tlpx = FLD_GET(r, 20, 16) * 2;
+<<<<<<< HEAD
 	tclk_trail = FLD_GET(r, 15, 8);
+=======
+>>>>>>> upstream/android-13
 	tclk_zero = FLD_GET(r, 7, 0);
 
 	r = dsi_read_reg(dsi, DSI_DSIPHY_CFG2);
@@ -3709,8 +4297,13 @@ static void dsi_proto_timings(struct dsi_data *dsi)
 		int vbp = dsi->vm_timings.vbp;
 		int window_sync = dsi->vm_timings.window_sync;
 		bool hsync_end;
+<<<<<<< HEAD
 		struct videomode *vm = &dsi->vm;
 		int bpp = dsi_get_pixel_size(dsi->pix_fmt);
+=======
+		const struct videomode *vm = &dsi->vm;
+		int bpp = mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt);
+>>>>>>> upstream/android-13
 		int tl, t_he, width_bytes;
 
 		hsync_end = dsi->vm_timings.trans_mode == OMAP_DSS_DSI_PULSE_MODE;
@@ -3748,12 +4341,18 @@ static void dsi_proto_timings(struct dsi_data *dsi)
 	}
 }
 
+<<<<<<< HEAD
 static int dsi_configure_pins(struct omap_dss_device *dssdev,
 		const struct omap_dsi_pin_config *pin_cfg)
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
 	int num_pins;
 	const int *pins;
+=======
+static int dsi_configure_pins(struct dsi_data *dsi,
+		int num_pins, const u32 *pins)
+{
+>>>>>>> upstream/android-13
 	struct dsi_lane_config lanes[DSI_MAX_NR_LANES];
 	int num_lanes;
 	int i;
@@ -3766,9 +4365,12 @@ static int dsi_configure_pins(struct omap_dss_device *dssdev,
 		DSI_LANE_DATA4,
 	};
 
+<<<<<<< HEAD
 	num_pins = pin_cfg->num_pins;
 	pins = pin_cfg->pins;
 
+=======
+>>>>>>> upstream/android-13
 	if (num_pins < 4 || num_pins > dsi->num_lanes_supported * 2
 			|| num_pins % 2 != 0)
 		return -EINVAL;
@@ -3780,15 +4382,26 @@ static int dsi_configure_pins(struct omap_dss_device *dssdev,
 
 	for (i = 0; i < num_pins; i += 2) {
 		u8 lane, pol;
+<<<<<<< HEAD
 		int dx, dy;
+=======
+		u32 dx, dy;
+>>>>>>> upstream/android-13
 
 		dx = pins[i];
 		dy = pins[i + 1];
 
+<<<<<<< HEAD
 		if (dx < 0 || dx >= dsi->num_lanes_supported * 2)
 			return -EINVAL;
 
 		if (dy < 0 || dy >= dsi->num_lanes_supported * 2)
+=======
+		if (dx >= dsi->num_lanes_supported * 2)
+			return -EINVAL;
+
+		if (dy >= dsi->num_lanes_supported * 2)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 
 		if (dx & 1) {
@@ -3814,6 +4427,7 @@ static int dsi_configure_pins(struct omap_dss_device *dssdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_enable_video_output(struct omap_dss_device *dssdev, int channel)
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
@@ -3864,17 +4478,91 @@ static int dsi_enable_video_output(struct omap_dss_device *dssdev, int channel)
 
 		dsi_vc_enable(dsi, channel, true);
 		dsi_if_enable(dsi, true);
+=======
+static int dsi_enable_video_mode(struct dsi_data *dsi, int vc)
+{
+	int bpp = mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt);
+	u8 data_type;
+	u16 word_count;
+
+	switch (dsi->pix_fmt) {
+	case MIPI_DSI_FMT_RGB888:
+		data_type = MIPI_DSI_PACKED_PIXEL_STREAM_24;
+		break;
+	case MIPI_DSI_FMT_RGB666:
+		data_type = MIPI_DSI_PIXEL_STREAM_3BYTE_18;
+		break;
+	case MIPI_DSI_FMT_RGB666_PACKED:
+		data_type = MIPI_DSI_PACKED_PIXEL_STREAM_18;
+		break;
+	case MIPI_DSI_FMT_RGB565:
+		data_type = MIPI_DSI_PACKED_PIXEL_STREAM_16;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	dsi_if_enable(dsi, false);
+	dsi_vc_enable(dsi, vc, false);
+
+	/* MODE, 1 = video mode */
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(vc), 1, 4, 4);
+
+	word_count = DIV_ROUND_UP(dsi->vm.hactive * bpp, 8);
+
+	dsi_vc_write_long_header(dsi, vc, dsi->dsidev->channel, data_type,
+			word_count, 0);
+
+	dsi_vc_enable(dsi, vc, true);
+	dsi_if_enable(dsi, true);
+
+	return 0;
+}
+
+static void dsi_disable_video_mode(struct dsi_data *dsi, int vc)
+{
+	dsi_if_enable(dsi, false);
+	dsi_vc_enable(dsi, vc, false);
+
+	/* MODE, 0 = command mode */
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(vc), 0, 4, 4);
+
+	dsi_vc_enable(dsi, vc, true);
+	dsi_if_enable(dsi, true);
+}
+
+static void dsi_enable_video_output(struct omap_dss_device *dssdev, int vc)
+{
+	struct dsi_data *dsi = to_dsi_data(dssdev);
+	int r;
+
+	r = dsi_init_dispc(dsi);
+	if (r) {
+		dev_err(dsi->dev, "failed to init dispc!\n");
+		return;
+	}
+
+	if (dsi->mode == OMAP_DSS_DSI_VIDEO_MODE) {
+		r = dsi_enable_video_mode(dsi, vc);
+		if (r)
+			goto err_video_mode;
+>>>>>>> upstream/android-13
 	}
 
 	r = dss_mgr_enable(&dsi->output);
 	if (r)
 		goto err_mgr_enable;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return;
+>>>>>>> upstream/android-13
 
 err_mgr_enable:
 	if (dsi->mode == OMAP_DSS_DSI_VIDEO_MODE) {
 		dsi_if_enable(dsi, false);
+<<<<<<< HEAD
 		dsi_vc_enable(dsi, channel, false);
 	}
 err_pix_fmt:
@@ -3901,6 +4589,26 @@ static void dsi_disable_video_output(struct omap_dss_device *dssdev, int channel
 	dss_mgr_disable(&dsi->output);
 
 	dsi_display_uninit_dispc(dsi);
+=======
+		dsi_vc_enable(dsi, vc, false);
+	}
+err_video_mode:
+	dsi_uninit_dispc(dsi);
+	dev_err(dsi->dev, "failed to enable DSI encoder!\n");
+	return;
+}
+
+static void dsi_disable_video_output(struct omap_dss_device *dssdev, int vc)
+{
+	struct dsi_data *dsi = to_dsi_data(dssdev);
+
+	if (dsi->mode == OMAP_DSS_DSI_VIDEO_MODE)
+		dsi_disable_video_mode(dsi, vc);
+
+	dss_mgr_disable(&dsi->output);
+
+	dsi_uninit_dispc(dsi);
+>>>>>>> upstream/android-13
 }
 
 static void dsi_update_screen_dispc(struct dsi_data *dsi)
@@ -3913,16 +4621,24 @@ static void dsi_update_screen_dispc(struct dsi_data *dsi)
 	unsigned int packet_len;
 	u32 l;
 	int r;
+<<<<<<< HEAD
 	const unsigned channel = dsi->update_channel;
+=======
+	const unsigned vc = dsi->update_vc;
+>>>>>>> upstream/android-13
 	const unsigned int line_buf_size = dsi->line_buffer_size;
 	u16 w = dsi->vm.hactive;
 	u16 h = dsi->vm.vactive;
 
 	DSSDBG("dsi_update_screen_dispc(%dx%d)\n", w, h);
 
+<<<<<<< HEAD
 	dsi_vc_config_source(dsi, channel, DSI_VC_SOURCE_VP);
 
 	bytespp	= dsi_get_pixel_size(dsi->pix_fmt) / 8;
+=======
+	bytespp	= mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt) / 8;
+>>>>>>> upstream/android-13
 	bytespl = w * bytespp;
 	bytespf = bytespl * h;
 
@@ -3941,16 +4657,26 @@ static void dsi_update_screen_dispc(struct dsi_data *dsi)
 		total_len += (bytespf % packet_payload) + 1;
 
 	l = FLD_VAL(total_len, 23, 0); /* TE_SIZE */
+<<<<<<< HEAD
 	dsi_write_reg(dsi, DSI_VC_TE(channel), l);
 
 	dsi_vc_write_long_header(dsi, channel, MIPI_DSI_DCS_LONG_WRITE,
+=======
+	dsi_write_reg(dsi, DSI_VC_TE(vc), l);
+
+	dsi_vc_write_long_header(dsi, vc, dsi->dsidev->channel, MIPI_DSI_DCS_LONG_WRITE,
+>>>>>>> upstream/android-13
 		packet_len, 0);
 
 	if (dsi->te_enabled)
 		l = FLD_MOD(l, 1, 30, 30); /* TE_EN */
 	else
 		l = FLD_MOD(l, 1, 31, 31); /* TE_START */
+<<<<<<< HEAD
 	dsi_write_reg(dsi, DSI_VC_TE(channel), l);
+=======
+	dsi_write_reg(dsi, DSI_VC_TE(vc), l);
+>>>>>>> upstream/android-13
 
 	/* We put SIDLEMODE to no-idle for the duration of the transfer,
 	 * because DSS interrupts are not capable of waking up the CPU and the
@@ -3966,8 +4692,11 @@ static void dsi_update_screen_dispc(struct dsi_data *dsi)
 		msecs_to_jiffies(250));
 	BUG_ON(r == 0);
 
+<<<<<<< HEAD
 	dss_mgr_set_timings(&dsi->output, &dsi->vm);
 
+=======
+>>>>>>> upstream/android-13
 	dss_mgr_start_update(&dsi->output);
 
 	if (dsi->te_enabled) {
@@ -3975,7 +4704,11 @@ static void dsi_update_screen_dispc(struct dsi_data *dsi)
 		 * for TE is longer than the timer allows */
 		REG_FLD_MOD(dsi, DSI_TIMING2, 0, 15, 15); /* LP_RX_TO */
 
+<<<<<<< HEAD
 		dsi_vc_send_bta(dsi, channel);
+=======
+		dsi_vc_send_bta(dsi, vc);
+>>>>>>> upstream/android-13
 
 #ifdef DSI_CATCH_MISSING_TE
 		mod_timer(&dsi->te_timer, jiffies + msecs_to_jiffies(250));
@@ -4000,7 +4733,11 @@ static void dsi_handle_framedone(struct dsi_data *dsi, int error)
 		REG_FLD_MOD(dsi, DSI_TIMING2, 1, 15, 15); /* LP_RX_TO */
 	}
 
+<<<<<<< HEAD
 	dsi->framedone_callback(error, dsi->framedone_data);
+=======
+	dsi_bus_unlock(dsi);
+>>>>>>> upstream/android-13
 
 	if (!error)
 		dsi_perf_show(dsi, "DISPC");
@@ -4033,6 +4770,7 @@ static void dsi_framedone_irq_callback(void *data)
 
 	cancel_delayed_work(&dsi->framedone_timeout_work);
 
+<<<<<<< HEAD
 	dsi_handle_framedone(dsi, 0);
 }
 
@@ -4055,12 +4793,96 @@ static int dsi_update(struct omap_dss_device *dssdev, int channel,
 #ifdef DSI_PERF_MEASURE
 	dsi->update_bytes = dw * dh *
 		dsi_get_pixel_size(dsi->pix_fmt) / 8;
+=======
+	DSSDBG("Framedone received!\n");
+
+	dsi_handle_framedone(dsi, 0);
+}
+
+static int _dsi_update(struct dsi_data *dsi)
+{
+	dsi_perf_mark_setup(dsi);
+
+#ifdef DSI_PERF_MEASURE
+	dsi->update_bytes = dsi->vm.hactive * dsi->vm.vactive *
+		mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt) / 8;
+>>>>>>> upstream/android-13
 #endif
 	dsi_update_screen_dispc(dsi);
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int _dsi_send_nop(struct dsi_data *dsi, int vc, int channel)
+{
+	const u8 payload[] = { MIPI_DCS_NOP };
+	const struct mipi_dsi_msg msg = {
+		.channel = channel,
+		.type = MIPI_DSI_DCS_SHORT_WRITE,
+		.tx_len = 1,
+		.tx_buf = payload,
+	};
+
+	WARN_ON(!dsi_bus_is_locked(dsi));
+
+	return _omap_dsi_host_transfer(dsi, vc, &msg);
+}
+
+static int dsi_update_channel(struct omap_dss_device *dssdev, int vc)
+{
+	struct dsi_data *dsi = to_dsi_data(dssdev);
+	int r;
+
+	dsi_bus_lock(dsi);
+
+	if (!dsi->video_enabled) {
+		r = -EIO;
+		goto err;
+	}
+
+	if (dsi->vm.hactive == 0 || dsi->vm.vactive == 0) {
+		r = -EINVAL;
+		goto err;
+	}
+
+	DSSDBG("dsi_update_channel: %d", vc);
+
+	/*
+	 * Send NOP between the frames. If we don't send something here, the
+	 * updates stop working. This is probably related to DSI spec stating
+	 * that the DSI host should transition to LP at least once per frame.
+	 */
+	r = _dsi_send_nop(dsi, VC_CMD, dsi->dsidev->channel);
+	if (r < 0) {
+		DSSWARN("failed to send nop between frames: %d\n", r);
+		goto err;
+	}
+
+	dsi->update_vc = vc;
+
+	if (dsi->te_enabled && dsi->te_gpio) {
+		schedule_delayed_work(&dsi->te_timeout_work,
+				      msecs_to_jiffies(250));
+		atomic_set(&dsi->do_ext_te_update, 1);
+	} else {
+		_dsi_update(dsi);
+	}
+
+	return 0;
+
+err:
+	dsi_bus_unlock(dsi);
+	return r;
+}
+
+static int dsi_update_all(struct omap_dss_device *dssdev)
+{
+	return dsi_update_channel(dssdev, VC_VIDEO);
+}
+
+>>>>>>> upstream/android-13
 /* Display funcs */
 
 static int dsi_configure_dispc_clocks(struct dsi_data *dsi)
@@ -4085,12 +4907,21 @@ static int dsi_configure_dispc_clocks(struct dsi_data *dsi)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_display_init_dispc(struct dsi_data *dsi)
 {
 	enum omap_channel channel = dsi->output.dispc_channel;
 	int r;
 
 	dss_select_lcd_clk_source(dsi->dss, channel, dsi->module_id == 0 ?
+=======
+static int dsi_init_dispc(struct dsi_data *dsi)
+{
+	enum omap_channel dispc_channel = dsi->output.dispc_channel;
+	int r;
+
+	dss_select_lcd_clk_source(dsi->dss, dispc_channel, dsi->module_id == 0 ?
+>>>>>>> upstream/android-13
 			DSS_CLK_SRC_PLL1_1 :
 			DSS_CLK_SRC_PLL2_1);
 
@@ -4109,6 +4940,7 @@ static int dsi_display_init_dispc(struct dsi_data *dsi)
 		dsi->mgr_config.fifohandcheck = false;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * override interlace, logic level and edge related parameters in
 	 * videomode with default values
@@ -4127,13 +4959,19 @@ static int dsi_display_init_dispc(struct dsi_data *dsi)
 
 	dss_mgr_set_timings(&dsi->output, &dsi->vm);
 
+=======
+>>>>>>> upstream/android-13
 	r = dsi_configure_dispc_clocks(dsi);
 	if (r)
 		goto err1;
 
 	dsi->mgr_config.io_pad_mode = DSS_IO_PAD_MODE_BYPASS;
 	dsi->mgr_config.video_port_width =
+<<<<<<< HEAD
 			dsi_get_pixel_size(dsi->pix_fmt);
+=======
+			mipi_dsi_pixel_format_to_bpp(dsi->pix_fmt);
+>>>>>>> upstream/android-13
 	dsi->mgr_config.lcden_sig_polarity = 0;
 
 	dss_mgr_set_lcd_config(&dsi->output, &dsi->mgr_config);
@@ -4144,6 +4982,7 @@ err1:
 		dss_mgr_unregister_framedone_handler(&dsi->output,
 				dsi_framedone_irq_callback, dsi);
 err:
+<<<<<<< HEAD
 	dss_select_lcd_clk_source(dsi->dss, channel, DSS_CLK_SRC_FCK);
 	return r;
 }
@@ -4151,12 +4990,25 @@ err:
 static void dsi_display_uninit_dispc(struct dsi_data *dsi)
 {
 	enum omap_channel channel = dsi->output.dispc_channel;
+=======
+	dss_select_lcd_clk_source(dsi->dss, dispc_channel, DSS_CLK_SRC_FCK);
+	return r;
+}
+
+static void dsi_uninit_dispc(struct dsi_data *dsi)
+{
+	enum omap_channel dispc_channel = dsi->output.dispc_channel;
+>>>>>>> upstream/android-13
 
 	if (dsi->mode == OMAP_DSS_DSI_CMD_MODE)
 		dss_mgr_unregister_framedone_handler(&dsi->output,
 				dsi_framedone_irq_callback, dsi);
 
+<<<<<<< HEAD
 	dss_select_lcd_clk_source(dsi->dss, channel, DSS_CLK_SRC_FCK);
+=======
+	dss_select_lcd_clk_source(dsi->dss, dispc_channel, DSS_CLK_SRC_FCK);
+>>>>>>> upstream/android-13
 }
 
 static int dsi_configure_dsi_clocks(struct dsi_data *dsi)
@@ -4175,7 +5027,41 @@ static int dsi_configure_dsi_clocks(struct dsi_data *dsi)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_display_init_dsi(struct dsi_data *dsi)
+=======
+static void dsi_setup_dsi_vcs(struct dsi_data *dsi)
+{
+	/* Setup VC_CMD for LP and cpu transfers */
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(VC_CMD), 0, 9, 9); /* LP */
+
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(VC_CMD), 0, 1, 1); /* SOURCE_L4 */
+	dsi->vc[VC_CMD].source = DSI_VC_SOURCE_L4;
+
+	/* Setup VC_VIDEO for HS and dispc transfers */
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(VC_VIDEO), 1, 9, 9); /* HS */
+
+	REG_FLD_MOD(dsi, DSI_VC_CTRL(VC_VIDEO), 1, 1, 1); /* SOURCE_VP */
+	dsi->vc[VC_VIDEO].source = DSI_VC_SOURCE_VP;
+
+	if ((dsi->data->quirks & DSI_QUIRK_DCS_CMD_CONFIG_VC) &&
+	    !(dsi->dsidev->mode_flags & MIPI_DSI_MODE_VIDEO))
+		REG_FLD_MOD(dsi, DSI_VC_CTRL(VC_VIDEO), 1, 30, 30); /* DCS_CMD_ENABLE */
+
+	dsi_vc_enable(dsi, VC_CMD, 1);
+	dsi_vc_enable(dsi, VC_VIDEO, 1);
+
+	dsi_if_enable(dsi, 1);
+
+	dsi_force_tx_stop_mode_io(dsi);
+
+	/* start the DDR clock by sending a NULL packet */
+	if (!(dsi->dsidev->mode_flags & MIPI_DSI_CLOCK_NON_CONTINUOUS))
+		dsi_vc_send_null(dsi, VC_CMD, dsi->dsidev->channel);
+}
+
+static int dsi_init_dsi(struct dsi_data *dsi)
+>>>>>>> upstream/android-13
 {
 	int r;
 
@@ -4217,6 +5103,7 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
 	if (r)
 		goto err3;
 
+<<<<<<< HEAD
 	/* enable interface */
 	dsi_vc_enable(dsi, 0, 1);
 	dsi_vc_enable(dsi, 1, 1);
@@ -4224,6 +5111,9 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
 	dsi_vc_enable(dsi, 3, 1);
 	dsi_if_enable(dsi, 1);
 	dsi_force_tx_stop_mode_io(dsi);
+=======
+	dsi_setup_dsi_vcs(dsi);
+>>>>>>> upstream/android-13
 
 	return 0;
 err3:
@@ -4239,12 +5129,17 @@ err0:
 	return r;
 }
 
+<<<<<<< HEAD
 static void dsi_display_uninit_dsi(struct dsi_data *dsi, bool disconnect_lanes,
 				   bool enter_ulps)
 {
 	if (enter_ulps && !dsi->ulps_enabled)
 		dsi_enter_ulps(dsi);
 
+=======
+static void dsi_uninit_dsi(struct dsi_data *dsi)
+{
+>>>>>>> upstream/android-13
 	/* disable interface */
 	dsi_if_enable(dsi, 0);
 	dsi_vc_enable(dsi, 0, 0);
@@ -4256,6 +5151,7 @@ static void dsi_display_uninit_dsi(struct dsi_data *dsi, bool disconnect_lanes,
 	dsi_cio_uninit(dsi);
 	dss_pll_disable(&dsi->pll);
 
+<<<<<<< HEAD
 	if (disconnect_lanes) {
 		regulator_disable(dsi->vdds_dsi_reg);
 		dsi->vdds_dsi_enabled = false;
@@ -4271,6 +5167,21 @@ static int dsi_display_enable(struct omap_dss_device *dssdev)
 
 	WARN_ON(!dsi_bus_is_locked(dsi));
 
+=======
+	regulator_disable(dsi->vdds_dsi_reg);
+	dsi->vdds_dsi_enabled = false;
+}
+
+static void dsi_enable(struct dsi_data *dsi)
+{
+	int r;
+
+	WARN_ON(!dsi_bus_is_locked(dsi));
+
+	if (WARN_ON(dsi->iface_enabled))
+		return;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&dsi->lock);
 
 	r = dsi_runtime_get(dsi);
@@ -4279,6 +5190,7 @@ static int dsi_display_enable(struct omap_dss_device *dssdev)
 
 	_dsi_initialize_irq(dsi);
 
+<<<<<<< HEAD
 	r = dsi_display_init_dsi(dsi);
 	if (r)
 		goto err_init_dsi;
@@ -4286,11 +5198,23 @@ static int dsi_display_enable(struct omap_dss_device *dssdev)
 	mutex_unlock(&dsi->lock);
 
 	return 0;
+=======
+	r = dsi_init_dsi(dsi);
+	if (r)
+		goto err_init_dsi;
+
+	dsi->iface_enabled = true;
+
+	mutex_unlock(&dsi->lock);
+
+	return;
+>>>>>>> upstream/android-13
 
 err_init_dsi:
 	dsi_runtime_put(dsi);
 err_get_dsi:
 	mutex_unlock(&dsi->lock);
+<<<<<<< HEAD
 	DSSDBG("dsi_display_enable FAILED\n");
 	return r;
 }
@@ -4304,6 +5228,18 @@ static void dsi_display_disable(struct omap_dss_device *dssdev,
 
 	WARN_ON(!dsi_bus_is_locked(dsi));
 
+=======
+	DSSDBG("dsi_enable FAILED\n");
+}
+
+static void dsi_disable(struct dsi_data *dsi)
+{
+	WARN_ON(!dsi_bus_is_locked(dsi));
+
+	if (WARN_ON(!dsi->iface_enabled))
+		return;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&dsi->lock);
 
 	dsi_sync_vc(dsi, 0);
@@ -4311,6 +5247,7 @@ static void dsi_display_disable(struct omap_dss_device *dssdev,
 	dsi_sync_vc(dsi, 2);
 	dsi_sync_vc(dsi, 3);
 
+<<<<<<< HEAD
 	dsi_display_uninit_dsi(dsi, disconnect_lanes, enter_ulps);
 
 	dsi_runtime_put(dsi);
@@ -4323,6 +5260,28 @@ static int dsi_enable_te(struct omap_dss_device *dssdev, bool enable)
 	struct dsi_data *dsi = to_dsi_data(dssdev);
 
 	dsi->te_enabled = enable;
+=======
+	dsi_uninit_dsi(dsi);
+
+	dsi_runtime_put(dsi);
+
+	dsi->iface_enabled = false;
+
+	mutex_unlock(&dsi->lock);
+}
+
+static int dsi_enable_te(struct dsi_data *dsi, bool enable)
+{
+	dsi->te_enabled = enable;
+
+	if (dsi->te_gpio) {
+		if (enable)
+			enable_irq(dsi->te_irq);
+		else
+			disable_irq(dsi->te_irq);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4472,7 +5431,11 @@ static bool dsi_cm_calc(struct dsi_data *dsi,
 	unsigned long pck, txbyteclk;
 
 	clkin = clk_get_rate(dsi->pll.clkin);
+<<<<<<< HEAD
 	bitspp = dsi_get_pixel_size(cfg->pixel_format);
+=======
+	bitspp = mipi_dsi_pixel_format_to_bpp(cfg->pixel_format);
+>>>>>>> upstream/android-13
 	ndl = dsi->num_lanes_used - 1;
 
 	/*
@@ -4505,7 +5468,11 @@ static bool dsi_vm_calc_blanking(struct dsi_clk_calc_ctx *ctx)
 {
 	struct dsi_data *dsi = ctx->dsi;
 	const struct omap_dss_dsi_config *cfg = ctx->config;
+<<<<<<< HEAD
 	int bitspp = dsi_get_pixel_size(cfg->pixel_format);
+=======
+	int bitspp = mipi_dsi_pixel_format_to_bpp(cfg->pixel_format);
+>>>>>>> upstream/android-13
 	int ndl = dsi->num_lanes_used - 1;
 	unsigned long hsclk = ctx->dsi_cinfo.clkdco / 4;
 	unsigned long byteclk = hsclk / 4;
@@ -4652,7 +5619,10 @@ static bool dsi_vm_calc_blanking(struct dsi_clk_calc_ctx *ctx)
 	dsi_vm->hfp_blanking_mode = 1;
 	dsi_vm->hbp_blanking_mode = 1;
 
+<<<<<<< HEAD
 	dsi_vm->ddr_clk_always_on = cfg->ddr_clk_always_on;
+=======
+>>>>>>> upstream/android-13
 	dsi_vm->window_sync = 4;
 
 	/* setup DISPC videomode */
@@ -4772,7 +5742,11 @@ static bool dsi_vm_calc(struct dsi_data *dsi,
 	unsigned long pll_min;
 	unsigned long pll_max;
 	int ndl = dsi->num_lanes_used - 1;
+<<<<<<< HEAD
 	int bitspp = dsi_get_pixel_size(cfg->pixel_format);
+=======
+	int bitspp = mipi_dsi_pixel_format_to_bpp(cfg->pixel_format);
+>>>>>>> upstream/android-13
 	unsigned long byteclk_min;
 
 	clkin = clk_get_rate(dsi->pll.clkin);
@@ -4805,16 +5779,65 @@ static bool dsi_vm_calc(struct dsi_data *dsi,
 			dsi_vm_calc_pll_cb, ctx);
 }
 
+<<<<<<< HEAD
 static int dsi_set_config(struct omap_dss_device *dssdev,
 		const struct omap_dss_dsi_config *config)
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
 	struct dsi_clk_calc_ctx ctx;
 	bool ok;
+=======
+static bool dsi_is_video_mode(struct omap_dss_device *dssdev)
+{
+	struct dsi_data *dsi = to_dsi_data(dssdev);
+
+	return dsi->mode == OMAP_DSS_DSI_VIDEO_MODE;
+}
+
+static int __dsi_calc_config(struct dsi_data *dsi,
+		const struct drm_display_mode *mode,
+		struct dsi_clk_calc_ctx *ctx)
+{
+	struct omap_dss_dsi_config cfg = dsi->config;
+	struct videomode vm;
+	bool ok;
+	int r;
+
+	drm_display_mode_to_videomode(mode, &vm);
+
+	cfg.vm = &vm;
+	cfg.mode = dsi->mode;
+	cfg.pixel_format = dsi->pix_fmt;
+
+	if (dsi->mode == OMAP_DSS_DSI_VIDEO_MODE)
+		ok = dsi_vm_calc(dsi, &cfg, ctx);
+	else
+		ok = dsi_cm_calc(dsi, &cfg, ctx);
+
+	if (!ok)
+		return -EINVAL;
+
+	dsi_pll_calc_dsi_fck(dsi, &ctx->dsi_cinfo);
+
+	r = dsi_lp_clock_calc(ctx->dsi_cinfo.clkout[HSDIV_DSI],
+		cfg.lp_clk_min, cfg.lp_clk_max, &ctx->lp_cinfo);
+	if (r)
+		return r;
+
+	return 0;
+}
+
+static int dsi_set_config(struct omap_dss_device *dssdev,
+		const struct drm_display_mode *mode)
+{
+	struct dsi_data *dsi = to_dsi_data(dssdev);
+	struct dsi_clk_calc_ctx ctx;
+>>>>>>> upstream/android-13
 	int r;
 
 	mutex_lock(&dsi->lock);
 
+<<<<<<< HEAD
 	dsi->pix_fmt = config->pixel_format;
 	dsi->mode = config->mode;
 
@@ -4838,10 +5861,46 @@ static int dsi_set_config(struct omap_dss_device *dssdev,
 		goto err;
 	}
 
+=======
+	r = __dsi_calc_config(dsi, mode, &ctx);
+	if (r) {
+		DSSERR("failed to find suitable DSI clock settings\n");
+		goto err;
+	}
+
+	dsi->user_lp_cinfo = ctx.lp_cinfo;
+>>>>>>> upstream/android-13
 	dsi->user_dsi_cinfo = ctx.dsi_cinfo;
 	dsi->user_dispc_cinfo = ctx.dispc_cinfo;
 
 	dsi->vm = ctx.vm;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * override interlace, logic level and edge related parameters in
+	 * videomode with default values
+	 */
+	dsi->vm.flags &= ~DISPLAY_FLAGS_INTERLACED;
+	dsi->vm.flags &= ~DISPLAY_FLAGS_HSYNC_LOW;
+	dsi->vm.flags |= DISPLAY_FLAGS_HSYNC_HIGH;
+	dsi->vm.flags &= ~DISPLAY_FLAGS_VSYNC_LOW;
+	dsi->vm.flags |= DISPLAY_FLAGS_VSYNC_HIGH;
+	/*
+	 * HACK: These flags should be handled through the omap_dss_device bus
+	 * flags, but this will only be possible when the DSI encoder will be
+	 * converted to the omapdrm-managed encoder model.
+	 */
+	dsi->vm.flags &= ~DISPLAY_FLAGS_PIXDATA_NEGEDGE;
+	dsi->vm.flags |= DISPLAY_FLAGS_PIXDATA_POSEDGE;
+	dsi->vm.flags &= ~DISPLAY_FLAGS_DE_LOW;
+	dsi->vm.flags |= DISPLAY_FLAGS_DE_HIGH;
+	dsi->vm.flags &= ~DISPLAY_FLAGS_SYNC_POSEDGE;
+	dsi->vm.flags |= DISPLAY_FLAGS_SYNC_NEGEDGE;
+
+	dss_mgr_set_timings(&dsi->output, &dsi->vm);
+
+>>>>>>> upstream/android-13
 	dsi->vm_timings = ctx.dsi_vm;
 
 	mutex_unlock(&dsi->lock);
@@ -4854,12 +5913,20 @@ err:
 }
 
 /*
+<<<<<<< HEAD
  * Return a hardcoded channel for the DSI output. This should work for
+=======
+ * Return a hardcoded dispc channel for the DSI output. This should work for
+>>>>>>> upstream/android-13
  * current use cases, but this can be later expanded to either resolve
  * the channel in some more dynamic manner, or get the channel as a user
  * parameter.
  */
+<<<<<<< HEAD
 static enum omap_channel dsi_get_channel(struct dsi_data *dsi)
+=======
+static enum omap_channel dsi_get_dispc_channel(struct dsi_data *dsi)
+>>>>>>> upstream/android-13
 {
 	switch (dsi->data->model) {
 	case DSI_MODEL_OMAP3:
@@ -4893,6 +5960,7 @@ static enum omap_channel dsi_get_channel(struct dsi_data *dsi)
 	}
 }
 
+<<<<<<< HEAD
 static int dsi_request_vc(struct omap_dss_device *dssdev, int *channel)
 {
 	struct dsi_data *dsi = to_dsi_data(dssdev);
@@ -4946,6 +6014,77 @@ static void dsi_release_vc(struct omap_dss_device *dssdev, int channel)
 	}
 }
 
+=======
+static ssize_t _omap_dsi_host_transfer(struct dsi_data *dsi, int vc,
+				       const struct mipi_dsi_msg *msg)
+{
+	struct omap_dss_device *dssdev = &dsi->output;
+	int r;
+
+	dsi_vc_enable_hs(dssdev, vc, !(msg->flags & MIPI_DSI_MSG_USE_LPM));
+
+	switch (msg->type) {
+	case MIPI_DSI_GENERIC_SHORT_WRITE_0_PARAM:
+	case MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM:
+	case MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM:
+	case MIPI_DSI_GENERIC_LONG_WRITE:
+	case MIPI_DSI_DCS_SHORT_WRITE:
+	case MIPI_DSI_DCS_SHORT_WRITE_PARAM:
+	case MIPI_DSI_DCS_LONG_WRITE:
+	case MIPI_DSI_SET_MAXIMUM_RETURN_PACKET_SIZE:
+	case MIPI_DSI_NULL_PACKET:
+		r = dsi_vc_write_common(dssdev, vc, msg);
+		break;
+	case MIPI_DSI_GENERIC_READ_REQUEST_0_PARAM:
+	case MIPI_DSI_GENERIC_READ_REQUEST_1_PARAM:
+	case MIPI_DSI_GENERIC_READ_REQUEST_2_PARAM:
+		r = dsi_vc_generic_read(dssdev, vc, msg);
+		break;
+	case MIPI_DSI_DCS_READ:
+		r = dsi_vc_dcs_read(dssdev, vc, msg);
+		break;
+	default:
+		r = -EINVAL;
+		break;
+	}
+
+	if (r < 0)
+		return r;
+
+	if (msg->type == MIPI_DSI_DCS_SHORT_WRITE ||
+	    msg->type == MIPI_DSI_DCS_SHORT_WRITE_PARAM) {
+		u8 cmd = ((u8 *)msg->tx_buf)[0];
+
+		if (cmd == MIPI_DCS_SET_TEAR_OFF)
+			dsi_enable_te(dsi, false);
+		else if (cmd == MIPI_DCS_SET_TEAR_ON)
+			dsi_enable_te(dsi, true);
+	}
+
+	return 0;
+}
+
+static ssize_t omap_dsi_host_transfer(struct mipi_dsi_host *host,
+				      const struct mipi_dsi_msg *msg)
+{
+	struct dsi_data *dsi = host_to_omap(host);
+	int r;
+	int vc = VC_CMD;
+
+	dsi_bus_lock(dsi);
+
+	if (!dsi->iface_enabled) {
+		dsi_enable(dsi);
+		schedule_delayed_work(&dsi->dsi_disable_work, msecs_to_jiffies(2000));
+	}
+
+	r = _omap_dsi_host_transfer(dsi, vc, msg);
+
+	dsi_bus_unlock(dsi);
+
+	return r;
+}
+>>>>>>> upstream/android-13
 
 static int dsi_get_clocks(struct dsi_data *dsi)
 {
@@ -4962,6 +6101,7 @@ static int dsi_get_clocks(struct dsi_data *dsi)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dsi_connect(struct omap_dss_device *dssdev,
 		struct omap_dss_device *dst)
 {
@@ -5120,6 +6260,176 @@ err:
 	return r;
 }
 
+=======
+static const struct omapdss_dsi_ops dsi_ops = {
+	.update = dsi_update_all,
+	.is_video_mode = dsi_is_video_mode,
+};
+
+static irqreturn_t omap_dsi_te_irq_handler(int irq, void *dev_id)
+{
+	struct dsi_data *dsi = (struct dsi_data *)dev_id;
+	int old;
+
+	old = atomic_cmpxchg(&dsi->do_ext_te_update, 1, 0);
+	if (old) {
+		cancel_delayed_work(&dsi->te_timeout_work);
+		_dsi_update(dsi);
+	}
+
+	return IRQ_HANDLED;
+}
+
+static void omap_dsi_te_timeout_work_callback(struct work_struct *work)
+{
+	struct dsi_data *dsi =
+		container_of(work, struct dsi_data, te_timeout_work.work);
+	int old;
+
+	old = atomic_cmpxchg(&dsi->do_ext_te_update, 1, 0);
+	if (old) {
+		dev_err(dsi->dev, "TE not received for 250ms!\n");
+		_dsi_update(dsi);
+	}
+}
+
+static int omap_dsi_register_te_irq(struct dsi_data *dsi,
+				    struct mipi_dsi_device *client)
+{
+	int err;
+	int te_irq;
+
+	dsi->te_gpio = gpiod_get(&client->dev, "te-gpios", GPIOD_IN);
+	if (IS_ERR(dsi->te_gpio)) {
+		err = PTR_ERR(dsi->te_gpio);
+
+		if (err == -ENOENT) {
+			dsi->te_gpio = NULL;
+			return 0;
+		}
+
+		dev_err(dsi->dev, "Could not get TE gpio: %d\n", err);
+		return err;
+	}
+
+	te_irq = gpiod_to_irq(dsi->te_gpio);
+	if (te_irq < 0) {
+		gpiod_put(dsi->te_gpio);
+		dsi->te_gpio = NULL;
+		return -EINVAL;
+	}
+
+	dsi->te_irq = te_irq;
+
+	irq_set_status_flags(te_irq, IRQ_NOAUTOEN);
+
+	err = request_threaded_irq(te_irq, NULL, omap_dsi_te_irq_handler,
+				   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+				   "TE", dsi);
+	if (err) {
+		dev_err(dsi->dev, "request irq failed with %d\n", err);
+		gpiod_put(dsi->te_gpio);
+		dsi->te_gpio = NULL;
+		return err;
+	}
+
+	INIT_DEFERRABLE_WORK(&dsi->te_timeout_work,
+			     omap_dsi_te_timeout_work_callback);
+
+	dev_dbg(dsi->dev, "Using GPIO TE\n");
+
+	return 0;
+}
+
+static void omap_dsi_unregister_te_irq(struct dsi_data *dsi)
+{
+	if (dsi->te_gpio) {
+		free_irq(dsi->te_irq, dsi);
+		cancel_delayed_work(&dsi->te_timeout_work);
+		gpiod_put(dsi->te_gpio);
+		dsi->te_gpio = NULL;
+	}
+}
+
+static int omap_dsi_host_attach(struct mipi_dsi_host *host,
+				struct mipi_dsi_device *client)
+{
+	struct dsi_data *dsi = host_to_omap(host);
+	int r;
+
+	if (dsi->dsidev) {
+		DSSERR("dsi client already attached\n");
+		return -EBUSY;
+	}
+
+	if (mipi_dsi_pixel_format_to_bpp(client->format) < 0) {
+		DSSERR("invalid pixel format\n");
+		return -EINVAL;
+	}
+
+	atomic_set(&dsi->do_ext_te_update, 0);
+
+	if (client->mode_flags & MIPI_DSI_MODE_VIDEO) {
+		dsi->mode = OMAP_DSS_DSI_VIDEO_MODE;
+	} else {
+		r = omap_dsi_register_te_irq(dsi, client);
+		if (r)
+			return r;
+
+		dsi->mode = OMAP_DSS_DSI_CMD_MODE;
+	}
+
+	dsi->dsidev = client;
+	dsi->pix_fmt = client->format;
+
+	dsi->config.hs_clk_min = 150000000; // TODO: get from client?
+	dsi->config.hs_clk_max = client->hs_rate;
+	dsi->config.lp_clk_min = 7000000; // TODO: get from client?
+	dsi->config.lp_clk_max = client->lp_rate;
+
+	if (client->mode_flags & MIPI_DSI_MODE_VIDEO_BURST)
+		dsi->config.trans_mode = OMAP_DSS_DSI_BURST_MODE;
+	else if (client->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE)
+		dsi->config.trans_mode = OMAP_DSS_DSI_PULSE_MODE;
+	else
+		dsi->config.trans_mode = OMAP_DSS_DSI_EVENT_MODE;
+
+	return 0;
+}
+
+static int omap_dsi_host_detach(struct mipi_dsi_host *host,
+				struct mipi_dsi_device *client)
+{
+	struct dsi_data *dsi = host_to_omap(host);
+
+	if (WARN_ON(dsi->dsidev != client))
+		return -EINVAL;
+
+	cancel_delayed_work_sync(&dsi->dsi_disable_work);
+
+	dsi_bus_lock(dsi);
+
+	if (dsi->iface_enabled)
+		dsi_disable(dsi);
+
+	dsi_bus_unlock(dsi);
+
+	omap_dsi_unregister_te_irq(dsi);
+	dsi->dsidev = NULL;
+	return 0;
+}
+
+static const struct mipi_dsi_host_ops omap_dsi_host_ops = {
+	.attach = omap_dsi_host_attach,
+	.detach = omap_dsi_host_detach,
+	.transfer = omap_dsi_host_transfer,
+};
+
+/* -----------------------------------------------------------------------------
+ * PLL
+ */
+
+>>>>>>> upstream/android-13
 static const struct dss_pll_ops dsi_pll_ops = {
 	.enable = dsi_pll_enable,
 	.disable = dsi_pll_disable,
@@ -5233,7 +6543,265 @@ static int dsi_init_pll_data(struct dss_device *dss, struct dsi_data *dsi)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* DSI1 HW IP initialisation */
+=======
+/* -----------------------------------------------------------------------------
+ * Component Bind & Unbind
+ */
+
+static int dsi_bind(struct device *dev, struct device *master, void *data)
+{
+	struct dss_device *dss = dss_get_device(master);
+	struct dsi_data *dsi = dev_get_drvdata(dev);
+	char name[10];
+	u32 rev;
+	int r;
+
+	dsi->dss = dss;
+
+	dsi_init_pll_data(dss, dsi);
+
+	r = dsi_runtime_get(dsi);
+	if (r)
+		return r;
+
+	rev = dsi_read_reg(dsi, DSI_REVISION);
+	dev_dbg(dev, "OMAP DSI rev %d.%d\n",
+	       FLD_GET(rev, 7, 4), FLD_GET(rev, 3, 0));
+
+	dsi->line_buffer_size = dsi_get_line_buf_size(dsi);
+
+	dsi_runtime_put(dsi);
+
+	snprintf(name, sizeof(name), "dsi%u_regs", dsi->module_id + 1);
+	dsi->debugfs.regs = dss_debugfs_create_file(dss, name,
+						    dsi_dump_dsi_regs, dsi);
+#ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
+	snprintf(name, sizeof(name), "dsi%u_irqs", dsi->module_id + 1);
+	dsi->debugfs.irqs = dss_debugfs_create_file(dss, name,
+						    dsi_dump_dsi_irqs, dsi);
+#endif
+	snprintf(name, sizeof(name), "dsi%u_clks", dsi->module_id + 1);
+	dsi->debugfs.clks = dss_debugfs_create_file(dss, name,
+						    dsi_dump_dsi_clocks, dsi);
+
+	return 0;
+}
+
+static void dsi_unbind(struct device *dev, struct device *master, void *data)
+{
+	struct dsi_data *dsi = dev_get_drvdata(dev);
+
+	dss_debugfs_remove_file(dsi->debugfs.clks);
+	dss_debugfs_remove_file(dsi->debugfs.irqs);
+	dss_debugfs_remove_file(dsi->debugfs.regs);
+
+	WARN_ON(dsi->scp_clk_refcount > 0);
+
+	dss_pll_unregister(&dsi->pll);
+}
+
+static const struct component_ops dsi_component_ops = {
+	.bind	= dsi_bind,
+	.unbind	= dsi_unbind,
+};
+
+/* -----------------------------------------------------------------------------
+ * DRM Bridge Operations
+ */
+
+static int dsi_bridge_attach(struct drm_bridge *bridge,
+			     enum drm_bridge_attach_flags flags)
+{
+	struct dsi_data *dsi = drm_bridge_to_dsi(bridge);
+
+	if (!(flags & DRM_BRIDGE_ATTACH_NO_CONNECTOR))
+		return -EINVAL;
+
+	return drm_bridge_attach(bridge->encoder, dsi->output.next_bridge,
+				 bridge, flags);
+}
+
+static enum drm_mode_status
+dsi_bridge_mode_valid(struct drm_bridge *bridge,
+		      const struct drm_display_info *info,
+		      const struct drm_display_mode *mode)
+{
+	struct dsi_data *dsi = drm_bridge_to_dsi(bridge);
+	struct dsi_clk_calc_ctx ctx;
+	int r;
+
+	mutex_lock(&dsi->lock);
+	r = __dsi_calc_config(dsi, mode, &ctx);
+	mutex_unlock(&dsi->lock);
+
+	return r ? MODE_CLOCK_RANGE : MODE_OK;
+}
+
+static void dsi_bridge_mode_set(struct drm_bridge *bridge,
+				const struct drm_display_mode *mode,
+				const struct drm_display_mode *adjusted_mode)
+{
+	struct dsi_data *dsi = drm_bridge_to_dsi(bridge);
+
+	dsi_set_config(&dsi->output, adjusted_mode);
+}
+
+static void dsi_bridge_enable(struct drm_bridge *bridge)
+{
+	struct dsi_data *dsi = drm_bridge_to_dsi(bridge);
+	struct omap_dss_device *dssdev = &dsi->output;
+
+	cancel_delayed_work_sync(&dsi->dsi_disable_work);
+
+	dsi_bus_lock(dsi);
+
+	if (!dsi->iface_enabled)
+		dsi_enable(dsi);
+
+	dsi_enable_video_output(dssdev, VC_VIDEO);
+
+	dsi->video_enabled = true;
+
+	dsi_bus_unlock(dsi);
+}
+
+static void dsi_bridge_disable(struct drm_bridge *bridge)
+{
+	struct dsi_data *dsi = drm_bridge_to_dsi(bridge);
+	struct omap_dss_device *dssdev = &dsi->output;
+
+	cancel_delayed_work_sync(&dsi->dsi_disable_work);
+
+	dsi_bus_lock(dsi);
+
+	dsi->video_enabled = false;
+
+	dsi_disable_video_output(dssdev, VC_VIDEO);
+
+	dsi_disable(dsi);
+
+	dsi_bus_unlock(dsi);
+}
+
+static const struct drm_bridge_funcs dsi_bridge_funcs = {
+	.attach = dsi_bridge_attach,
+	.mode_valid = dsi_bridge_mode_valid,
+	.mode_set = dsi_bridge_mode_set,
+	.enable = dsi_bridge_enable,
+	.disable = dsi_bridge_disable,
+};
+
+static void dsi_bridge_init(struct dsi_data *dsi)
+{
+	dsi->bridge.funcs = &dsi_bridge_funcs;
+	dsi->bridge.of_node = dsi->host.dev->of_node;
+	dsi->bridge.type = DRM_MODE_CONNECTOR_DSI;
+
+	drm_bridge_add(&dsi->bridge);
+}
+
+static void dsi_bridge_cleanup(struct dsi_data *dsi)
+{
+	drm_bridge_remove(&dsi->bridge);
+}
+
+/* -----------------------------------------------------------------------------
+ * Probe & Remove, Suspend & Resume
+ */
+
+static int dsi_init_output(struct dsi_data *dsi)
+{
+	struct omap_dss_device *out = &dsi->output;
+	int r;
+
+	dsi_bridge_init(dsi);
+
+	out->dev = dsi->dev;
+	out->id = dsi->module_id == 0 ?
+			OMAP_DSS_OUTPUT_DSI1 : OMAP_DSS_OUTPUT_DSI2;
+
+	out->type = OMAP_DISPLAY_TYPE_DSI;
+	out->name = dsi->module_id == 0 ? "dsi.0" : "dsi.1";
+	out->dispc_channel = dsi_get_dispc_channel(dsi);
+	out->dsi_ops = &dsi_ops;
+	out->of_port = 0;
+	out->bus_flags = DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE
+		       | DRM_BUS_FLAG_DE_HIGH
+		       | DRM_BUS_FLAG_SYNC_DRIVE_NEGEDGE;
+
+	r = omapdss_device_init_output(out, &dsi->bridge);
+	if (r < 0) {
+		dsi_bridge_cleanup(dsi);
+		return r;
+	}
+
+	omapdss_device_register(out);
+
+	return 0;
+}
+
+static void dsi_uninit_output(struct dsi_data *dsi)
+{
+	struct omap_dss_device *out = &dsi->output;
+
+	omapdss_device_unregister(out);
+	omapdss_device_cleanup_output(out);
+	dsi_bridge_cleanup(dsi);
+}
+
+static int dsi_probe_of(struct dsi_data *dsi)
+{
+	struct device_node *node = dsi->dev->of_node;
+	struct property *prop;
+	u32 lane_arr[10];
+	int len, num_pins;
+	int r;
+	struct device_node *ep;
+
+	ep = of_graph_get_endpoint_by_regs(node, 0, 0);
+	if (!ep)
+		return 0;
+
+	prop = of_find_property(ep, "lanes", &len);
+	if (prop == NULL) {
+		dev_err(dsi->dev, "failed to find lane data\n");
+		r = -EINVAL;
+		goto err;
+	}
+
+	num_pins = len / sizeof(u32);
+
+	if (num_pins < 4 || num_pins % 2 != 0 ||
+		num_pins > dsi->num_lanes_supported * 2) {
+		dev_err(dsi->dev, "bad number of lanes\n");
+		r = -EINVAL;
+		goto err;
+	}
+
+	r = of_property_read_u32_array(ep, "lanes", lane_arr, num_pins);
+	if (r) {
+		dev_err(dsi->dev, "failed to read lane data\n");
+		goto err;
+	}
+
+	r = dsi_configure_pins(dsi, num_pins, lane_arr);
+	if (r) {
+		dev_err(dsi->dev, "failed to configure pins");
+		goto err;
+	}
+
+	of_node_put(ep);
+
+	return 0;
+
+err:
+	of_node_put(ep);
+	return r;
+}
+
+>>>>>>> upstream/android-13
 static const struct dsi_of_data dsi_of_data_omap34xx = {
 	.model = DSI_MODEL_OMAP3,
 	.pll_hw = &dss_omap3_dsi_pll_hw,
@@ -5299,6 +6867,7 @@ static const struct soc_device_attribute dsi_soc_devices[] = {
 	{ /* sentinel */ }
 };
 
+<<<<<<< HEAD
 static int dsi_bind(struct device *dev, struct device *master, void *data)
 {
 	struct platform_device *pdev = to_platform_device(dev);
@@ -5310,12 +6879,39 @@ static int dsi_bind(struct device *dev, struct device *master, void *data)
 	struct dsi_data *dsi;
 	struct resource *dsi_mem;
 	struct resource *res;
+=======
+static void omap_dsi_disable_work_callback(struct work_struct *work)
+{
+	struct dsi_data *dsi = container_of(work, struct dsi_data, dsi_disable_work.work);
+
+	dsi_bus_lock(dsi);
+
+	if (dsi->iface_enabled && !dsi->video_enabled)
+		dsi_disable(dsi);
+
+	dsi_bus_unlock(dsi);
+}
+
+static int dsi_probe(struct platform_device *pdev)
+{
+	const struct soc_device_attribute *soc;
+	const struct dsi_module_id_data *d;
+	struct device *dev = &pdev->dev;
+	struct dsi_data *dsi;
+	struct resource *dsi_mem;
+	struct resource *res;
+	unsigned int i;
+	int r;
+>>>>>>> upstream/android-13
 
 	dsi = devm_kzalloc(dev, sizeof(*dsi), GFP_KERNEL);
 	if (!dsi)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	dsi->dss = dss;
+=======
+>>>>>>> upstream/android-13
 	dsi->dev = dev;
 	dev_set_drvdata(dev, dsi);
 
@@ -5334,6 +6930,11 @@ static int dsi_bind(struct device *dev, struct device *master, void *data)
 	INIT_DEFERRABLE_WORK(&dsi->framedone_timeout_work,
 			     dsi_framedone_timeout_work_callback);
 
+<<<<<<< HEAD
+=======
+	INIT_DEFERRABLE_WORK(&dsi->dsi_disable_work, omap_dsi_disable_work_callback);
+
+>>>>>>> upstream/android-13
 #ifdef DSI_CATCH_MISSING_TE
 	timer_setup(&dsi->te_timer, dsi_te_timeout, 0);
 #endif
@@ -5366,6 +6967,16 @@ static int dsi_bind(struct device *dev, struct device *master, void *data)
 		return r;
 	}
 
+<<<<<<< HEAD
+=======
+	dsi->vdds_dsi_reg = devm_regulator_get(dev, "vdd");
+	if (IS_ERR(dsi->vdds_dsi_reg)) {
+		if (PTR_ERR(dsi->vdds_dsi_reg) != -EPROBE_DEFER)
+			DSSERR("can't get DSI VDD regulator\n");
+		return PTR_ERR(dsi->vdds_dsi_reg);
+	}
+
+>>>>>>> upstream/android-13
 	soc = soc_device_match(dsi_soc_devices);
 	if (soc)
 		dsi->data = soc->data;
@@ -5402,16 +7013,22 @@ static int dsi_bind(struct device *dev, struct device *master, void *data)
 	}
 
 	/* DSI VCs initialization */
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(dsi->vc); i++) {
 		dsi->vc[i].source = DSI_VC_SOURCE_L4;
 		dsi->vc[i].dssdev = NULL;
 		dsi->vc[i].vc_id = 0;
 	}
+=======
+	for (i = 0; i < ARRAY_SIZE(dsi->vc); i++)
+		dsi->vc[i].source = DSI_VC_SOURCE_L4;
+>>>>>>> upstream/android-13
 
 	r = dsi_get_clocks(dsi);
 	if (r)
 		return r;
 
+<<<<<<< HEAD
 	dsi_init_pll_data(dss, dsi);
 
 	pm_runtime_enable(dev);
@@ -5435,10 +7052,28 @@ static int dsi_bind(struct device *dev, struct device *master, void *data)
 	dsi->line_buffer_size = dsi_get_line_buf_size(dsi);
 
 	dsi_init_output(dsi);
+=======
+	pm_runtime_enable(dev);
+
+	/* DSI on OMAP3 doesn't have register DSI_GNQ, set number
+	 * of data to 3 by default */
+	if (dsi->data->quirks & DSI_QUIRK_GNQ) {
+		dsi_runtime_get(dsi);
+		/* NB_DATA_LANES */
+		dsi->num_lanes_supported = 1 + REG_GET(dsi, DSI_GNQ, 11, 9);
+		dsi_runtime_put(dsi);
+	} else {
+		dsi->num_lanes_supported = 3;
+	}
+
+	dsi->host.ops = &omap_dsi_host_ops;
+	dsi->host.dev = &pdev->dev;
+>>>>>>> upstream/android-13
 
 	r = dsi_probe_of(dsi);
 	if (r) {
 		DSSERR("Invalid DSI DT data\n");
+<<<<<<< HEAD
 		goto err_probe_of;
 	}
 
@@ -5474,10 +7109,37 @@ err_probe_of:
 	dsi_runtime_put(dsi);
 
 err_runtime_get:
+=======
+		goto err_pm_disable;
+	}
+
+	r = mipi_dsi_host_register(&dsi->host);
+	if (r < 0) {
+		dev_err(&pdev->dev, "failed to register DSI host: %d\n", r);
+		goto err_pm_disable;
+	}
+
+	r = dsi_init_output(dsi);
+	if (r)
+		goto err_dsi_host_unregister;
+
+	r = component_add(&pdev->dev, &dsi_component_ops);
+	if (r)
+		goto err_uninit_output;
+
+	return 0;
+
+err_uninit_output:
+	dsi_uninit_output(dsi);
+err_dsi_host_unregister:
+	mipi_dsi_host_unregister(&dsi->host);
+err_pm_disable:
+>>>>>>> upstream/android-13
 	pm_runtime_disable(dev);
 	return r;
 }
 
+<<<<<<< HEAD
 static void dsi_unbind(struct device *dev, struct device *master, void *data)
 {
 	struct dsi_data *dsi = dev_get_drvdata(dev);
@@ -5494,11 +7156,25 @@ static void dsi_unbind(struct device *dev, struct device *master, void *data)
 	dsi_uninit_output(dsi);
 
 	pm_runtime_disable(dev);
+=======
+static int dsi_remove(struct platform_device *pdev)
+{
+	struct dsi_data *dsi = platform_get_drvdata(pdev);
+
+	component_del(&pdev->dev, &dsi_component_ops);
+
+	dsi_uninit_output(dsi);
+
+	mipi_dsi_host_unregister(&dsi->host);
+
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	if (dsi->vdds_dsi_reg != NULL && dsi->vdds_dsi_enabled) {
 		regulator_disable(dsi->vdds_dsi_reg);
 		dsi->vdds_dsi_enabled = false;
 	}
+<<<<<<< HEAD
 }
 
 static const struct component_ops dsi_component_ops = {
@@ -5514,6 +7190,9 @@ static int dsi_probe(struct platform_device *pdev)
 static int dsi_remove(struct platform_device *pdev)
 {
 	component_del(&pdev->dev, &dsi_component_ops);
+=======
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -5527,19 +7206,25 @@ static int dsi_runtime_suspend(struct device *dev)
 	/* wait for current handler to finish before turning the DSI off */
 	synchronize_irq(dsi->irq);
 
+<<<<<<< HEAD
 	dispc_runtime_put(dsi->dss->dispc);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int dsi_runtime_resume(struct device *dev)
 {
 	struct dsi_data *dsi = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	int r;
 
 	r = dispc_runtime_get(dsi->dss->dispc);
 	if (r)
 		return r;
+=======
+>>>>>>> upstream/android-13
 
 	dsi->is_enabled = true;
 	/* ensure the irq handler sees the is_enabled value */
@@ -5551,6 +7236,10 @@ static int dsi_runtime_resume(struct device *dev)
 static const struct dev_pm_ops dsi_pm_ops = {
 	.runtime_suspend = dsi_runtime_suspend,
 	.runtime_resume = dsi_runtime_resume,
+<<<<<<< HEAD
+=======
+	SET_LATE_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+>>>>>>> upstream/android-13
 };
 
 struct platform_driver omap_dsihw_driver = {

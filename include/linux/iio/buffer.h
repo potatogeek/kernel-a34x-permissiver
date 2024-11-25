@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* The industrial I/O core - generic buffer interfaces.
  *
  * Copyright (c) 2008 Jonathan Cameron
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* The industrial I/O core - generic buffer interfaces.
+ *
+ * Copyright (c) 2008 Jonathan Cameron
+>>>>>>> upstream/android-13
  */
 
 #ifndef _IIO_BUFFER_GENERIC_H_
@@ -14,9 +21,12 @@
 
 struct iio_buffer;
 
+<<<<<<< HEAD
 void iio_buffer_set_attrs(struct iio_buffer *buffer,
 			 const struct attribute **attrs);
 
+=======
+>>>>>>> upstream/android-13
 int iio_push_to_buffers(struct iio_dev *indio_dev, const void *data);
 
 /**
@@ -47,7 +57,12 @@ static inline int iio_push_to_buffers_with_timestamp(struct iio_dev *indio_dev,
 bool iio_validate_scan_mask_onehot(struct iio_dev *indio_dev,
 				   const unsigned long *mask);
 
+<<<<<<< HEAD
 void iio_device_attach_buffer(struct iio_dev *indio_dev,
 			      struct iio_buffer *buffer);
+=======
+int iio_device_attach_buffer(struct iio_dev *indio_dev,
+			     struct iio_buffer *buffer);
+>>>>>>> upstream/android-13
 
 #endif /* _IIO_BUFFER_GENERIC_H_ */

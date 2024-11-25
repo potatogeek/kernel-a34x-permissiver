@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IIO driver for the light sensor ISL29028.
  * ISL29028 is Concurrent Ambient Light and Proximity Sensor
@@ -5,6 +9,7 @@
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  * Copyright (c) 2016-2017 Brian Masney <masneyb@onstation.org>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheets:
  *  - http://www.intersil.com/content/dam/Intersil/documents/isl2/isl29028.pdf
  *  - http://www.intersil.com/content/dam/Intersil/documents/isl2/isl29030.pdf
@@ -350,9 +357,13 @@ static int isl29028_set_pm_runtime_busy(struct isl29028_chip *chip, bool on)
 	int ret;
 
 	if (on) {
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(dev);
 		if (ret < 0)
 			pm_runtime_put_noidle(dev);
+=======
+		ret = pm_runtime_resume_and_get(dev);
+>>>>>>> upstream/android-13
 	} else {
 		pm_runtime_mark_last_busy(dev);
 		ret = pm_runtime_put_autosuspend(dev);
@@ -631,7 +642,10 @@ static int isl29028_probe(struct i2c_client *client,
 	indio_dev->channels = isl29028_channels;
 	indio_dev->num_channels = ARRAY_SIZE(isl29028_channels);
 	indio_dev->name = id->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
 	pm_runtime_enable(&client->dev);
@@ -659,7 +673,10 @@ static int isl29028_remove(struct i2c_client *client)
 
 	pm_runtime_disable(&client->dev);
 	pm_runtime_set_suspended(&client->dev);
+<<<<<<< HEAD
 	pm_runtime_put_noidle(&client->dev);
+=======
+>>>>>>> upstream/android-13
 
 	return isl29028_clear_configure_reg(chip);
 }

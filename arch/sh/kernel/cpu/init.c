@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/kernel/cpu/init.c
  *
@@ -5,10 +9,13 @@
  *
  * Copyright (C) 2002 - 2009  Paul Mundt
  * Copyright (C) 2003  Richard Curnow
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -106,7 +113,11 @@ void __attribute__ ((weak)) l2_cache_init(void)
 /*
  * Generic first-level cache init
  */
+<<<<<<< HEAD
 #if defined(CONFIG_SUPERH32) && !defined(CONFIG_CPU_J2)
+=======
+#if !defined(CONFIG_CPU_J2)
+>>>>>>> upstream/android-13
 static void cache_init(void)
 {
 	unsigned long ccr, flags;

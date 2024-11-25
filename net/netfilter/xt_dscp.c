@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* IP tables module for matching the value of the IPv4/IPv6 DSCP field
  *
  * (C) 2002 by Harald Welte <laforge@netfilter.org>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* IP tables module for matching the value of the IPv4/IPv6 DSCP field
+ *
+ * (C) 2002 by Harald Welte <laforge@netfilter.org>
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>

@@ -17,7 +17,11 @@
 #include <linux/mm.h>
 #include <linux/module.h>
 #include <linux/rtc.h>
+<<<<<<< HEAD
 #include <linux/math64.h>
+=======
+#include <linux/audit.h>
+>>>>>>> upstream/android-13
 
 #include "ntp_internal.h"
 #include "timekeeping_internal.h"
@@ -190,13 +194,21 @@ static inline int is_error_status(int status)
 			&& (status & (STA_PPSWANDER|STA_PPSERROR)));
 }
 
+<<<<<<< HEAD
 static inline void pps_fill_timex(struct timex *txc)
+=======
+static inline void pps_fill_timex(struct __kernel_timex *txc)
+>>>>>>> upstream/android-13
 {
 	txc->ppsfreq	   = shift_right((pps_freq >> PPM_SCALE_INV_SHIFT) *
 					 PPM_SCALE_INV, NTP_SCALE_SHIFT);
 	txc->jitter	   = pps_jitter;
 	if (!(time_status & STA_NANO))
+<<<<<<< HEAD
 		txc->jitter /= NSEC_PER_USEC;
+=======
+		txc->jitter = pps_jitter / NSEC_PER_USEC;
+>>>>>>> upstream/android-13
 	txc->shift	   = pps_shift;
 	txc->stabil	   = pps_stabil;
 	txc->jitcnt	   = pps_jitcnt;
@@ -222,7 +234,11 @@ static inline int is_error_status(int status)
 	return status & (STA_UNSYNC|STA_CLOCKERR);
 }
 
+<<<<<<< HEAD
 static inline void pps_fill_timex(struct timex *txc)
+=======
+static inline void pps_fill_timex(struct __kernel_timex *txc)
+>>>>>>> upstream/android-13
 {
 	/* PPS is not implemented, so these are zero */
 	txc->ppsfreq	   = 0;
@@ -494,6 +510,7 @@ out:
 	return leap;
 }
 
+<<<<<<< HEAD
 static void sync_hw_clock(struct work_struct *work);
 static DECLARE_DELAYED_WORK(sync_work, sync_hw_clock);
 
@@ -610,6 +627,124 @@ static bool sync_cmos_clock(void)
 	sched_sync_hw_clock(now, target_nsec, rc);
 	return true;
 }
+=======
+#if defined(CONFIG_GENERIC_CMOS_UPDATE) || defined(CONFIG_RTC_SYSTOHC)
+static void sync_hw_clock(struct work_struct *work);
+static DECLARE_WORK(sync_work, sync_hw_clock);
+static struct hrtimer sync_hrtimer;
+#define SYNC_PERIOD_NS (11ULL * 60 * NSEC_PER_SEC)
+
+static enum hrtimer_restart sync_timer_callback(struct hrtimer *timer)
+{
+	queue_work(system_freezable_power_efficient_wq, &sync_work);
+
+	return HRTIMER_NORESTART;
+}
+
+static void sched_sync_hw_clock(unsigned long offset_nsec, bool retry)
+{
+	ktime_t exp = ktime_set(ktime_get_real_seconds(), 0);
+
+	if (retry)
+		exp = ktime_add_ns(exp, 2ULL * NSEC_PER_SEC - offset_nsec);
+	else
+		exp = ktime_add_ns(exp, SYNC_PERIOD_NS - offset_nsec);
+
+	hrtimer_start(&sync_hrtimer, exp, HRTIMER_MODE_ABS);
+}
+
+/*
+ * Check whether @now is correct versus the required time to update the RTC
+ * and calculate the value which needs to be written to the RTC so that the
+ * next seconds increment of the RTC after the write is aligned with the next
+ * seconds increment of clock REALTIME.
+ *
+ * tsched     t1 write(t2.tv_sec - 1sec))	t2 RTC increments seconds
+ *
+ * t2.tv_nsec == 0
+ * tsched = t2 - set_offset_nsec
+ * newval = t2 - NSEC_PER_SEC
+ *
+ * ==> neval = tsched + set_offset_nsec - NSEC_PER_SEC
+ *
+ * As the execution of this code is not guaranteed to happen exactly at
+ * tsched this allows it to happen within a fuzzy region:
+ *
+ *	abs(now - tsched) < FUZZ
+ *
+ * If @now is not inside the allowed window the function returns false.
+ */
+static inline bool rtc_tv_nsec_ok(unsigned long set_offset_nsec,
+				  struct timespec64 *to_set,
+				  const struct timespec64 *now)
+{
+	/* Allowed error in tv_nsec, arbitrarily set to 5 jiffies in ns. */
+	const unsigned long TIME_SET_NSEC_FUZZ = TICK_NSEC * 5;
+	struct timespec64 delay = {.tv_sec = -1,
+				   .tv_nsec = set_offset_nsec};
+
+	*to_set = timespec64_add(*now, delay);
+
+	if (to_set->tv_nsec < TIME_SET_NSEC_FUZZ) {
+		to_set->tv_nsec = 0;
+		return true;
+	}
+
+	if (to_set->tv_nsec > NSEC_PER_SEC - TIME_SET_NSEC_FUZZ) {
+		to_set->tv_sec++;
+		to_set->tv_nsec = 0;
+		return true;
+	}
+	return false;
+}
+
+#ifdef CONFIG_GENERIC_CMOS_UPDATE
+int __weak update_persistent_clock64(struct timespec64 now64)
+{
+	return -ENODEV;
+}
+#else
+static inline int update_persistent_clock64(struct timespec64 now64)
+{
+	return -ENODEV;
+}
+#endif
+
+#ifdef CONFIG_RTC_SYSTOHC
+/* Save NTP synchronized time to the RTC */
+static int update_rtc(struct timespec64 *to_set, unsigned long *offset_nsec)
+{
+	struct rtc_device *rtc;
+	struct rtc_time tm;
+	int err = -ENODEV;
+
+	rtc = rtc_class_open(CONFIG_RTC_SYSTOHC_DEVICE);
+	if (!rtc)
+		return -ENODEV;
+
+	if (!rtc->ops || !rtc->ops->set_time)
+		goto out_close;
+
+	/* First call might not have the correct offset */
+	if (*offset_nsec == rtc->set_offset_nsec) {
+		rtc_time64_to_tm(to_set->tv_sec, &tm);
+		err = rtc_set_time(rtc, &tm);
+	} else {
+		/* Store the update offset and let the caller try again */
+		*offset_nsec = rtc->set_offset_nsec;
+		err = -EAGAIN;
+	}
+out_close:
+	rtc_class_close(rtc);
+	return err;
+}
+#else
+static inline int update_rtc(struct timespec64 *to_set, unsigned long *offset_nsec)
+{
+	return -ENODEV;
+}
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * If we have an externally synchronized Linux clock, then update RTC clock
@@ -621,6 +756,7 @@ static bool sync_cmos_clock(void)
  */
 static void sync_hw_clock(struct work_struct *work)
 {
+<<<<<<< HEAD
 	if (!ntp_synced())
 		return;
 
@@ -628,10 +764,50 @@ static void sync_hw_clock(struct work_struct *work)
 		return;
 
 	sync_rtc_clock();
+=======
+	/*
+	 * The default synchronization offset is 500ms for the deprecated
+	 * update_persistent_clock64() under the assumption that it uses
+	 * the infamous CMOS clock (MC146818).
+	 */
+	static unsigned long offset_nsec = NSEC_PER_SEC / 2;
+	struct timespec64 now, to_set;
+	int res = -EAGAIN;
+
+	/*
+	 * Don't update if STA_UNSYNC is set and if ntp_notify_cmos_timer()
+	 * managed to schedule the work between the timer firing and the
+	 * work being able to rearm the timer. Wait for the timer to expire.
+	 */
+	if (!ntp_synced() || hrtimer_is_queued(&sync_hrtimer))
+		return;
+
+	ktime_get_real_ts64(&now);
+	/* If @now is not in the allowed window, try again */
+	if (!rtc_tv_nsec_ok(offset_nsec, &to_set, &now))
+		goto rearm;
+
+	/* Take timezone adjusted RTCs into account */
+	if (persistent_clock_is_local)
+		to_set.tv_sec -= (sys_tz.tz_minuteswest * 60);
+
+	/* Try the legacy RTC first. */
+	res = update_persistent_clock64(to_set);
+	if (res != -ENODEV)
+		goto rearm;
+
+	/* Try the RTC class */
+	res = update_rtc(&to_set, &offset_nsec);
+	if (res == -ENODEV)
+		return;
+rearm:
+	sched_sync_hw_clock(offset_nsec, res != 0);
+>>>>>>> upstream/android-13
 }
 
 void ntp_notify_cmos_timer(void)
 {
+<<<<<<< HEAD
 	if (!ntp_synced())
 		return;
 
@@ -644,6 +820,30 @@ void ntp_notify_cmos_timer(void)
  * Propagate a new txc->status value into the NTP state:
  */
 static inline void process_adj_status(const struct timex *txc)
+=======
+	/*
+	 * When the work is currently executed but has not yet the timer
+	 * rearmed this queues the work immediately again. No big issue,
+	 * just a pointless work scheduled.
+	 */
+	if (ntp_synced() && !hrtimer_is_queued(&sync_hrtimer))
+		queue_work(system_freezable_power_efficient_wq, &sync_work);
+}
+
+static void __init ntp_init_cmos_sync(void)
+{
+	hrtimer_init(&sync_hrtimer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
+	sync_hrtimer.function = sync_timer_callback;
+}
+#else /* CONFIG_GENERIC_CMOS_UPDATE) || defined(CONFIG_RTC_SYSTOHC) */
+static inline void __init ntp_init_cmos_sync(void) { }
+#endif /* !CONFIG_GENERIC_CMOS_UPDATE) || defined(CONFIG_RTC_SYSTOHC) */
+
+/*
+ * Propagate a new txc->status value into the NTP state:
+ */
+static inline void process_adj_status(const struct __kernel_timex *txc)
+>>>>>>> upstream/android-13
 {
 	if ((time_status & STA_PLL) && !(txc->status & STA_PLL)) {
 		time_state = TIME_OK;
@@ -666,7 +866,12 @@ static inline void process_adj_status(const struct timex *txc)
 }
 
 
+<<<<<<< HEAD
 static inline void process_adjtimex_modes(const struct timex *txc, s32 *time_tai)
+=======
+static inline void process_adjtimex_modes(const struct __kernel_timex *txc,
+					  s32 *time_tai)
+>>>>>>> upstream/android-13
 {
 	if (txc->modes & ADJ_STATUS)
 		process_adj_status(txc);
@@ -718,7 +923,12 @@ static inline void process_adjtimex_modes(const struct timex *txc, s32 *time_tai
  * adjtimex mainly allows reading (and writing, if superuser) of
  * kernel time-keeping variables. used by xntpd.
  */
+<<<<<<< HEAD
 int __do_adjtimex(struct timex *txc, const struct timespec64 *ts, s32 *time_tai)
+=======
+int __do_adjtimex(struct __kernel_timex *txc, const struct timespec64 *ts,
+		  s32 *time_tai, struct audit_ntp_data *ad)
+>>>>>>> upstream/android-13
 {
 	int result;
 
@@ -729,6 +939,7 @@ int __do_adjtimex(struct timex *txc, const struct timespec64 *ts, s32 *time_tai)
 			/* adjtime() is independent from ntp_adjtime() */
 			time_adjust = txc->offset;
 			ntp_update_frequency();
+<<<<<<< HEAD
 		}
 		txc->offset = save_adjust;
 	} else {
@@ -741,6 +952,35 @@ int __do_adjtimex(struct timex *txc, const struct timespec64 *ts, s32 *time_tai)
 				  NTP_SCALE_SHIFT);
 		if (!(time_status & STA_NANO))
 			txc->offset /= NSEC_PER_USEC;
+=======
+
+			audit_ntp_set_old(ad, AUDIT_NTP_ADJUST,	save_adjust);
+			audit_ntp_set_new(ad, AUDIT_NTP_ADJUST,	time_adjust);
+		}
+		txc->offset = save_adjust;
+	} else {
+		/* If there are input parameters, then process them: */
+		if (txc->modes) {
+			audit_ntp_set_old(ad, AUDIT_NTP_OFFSET,	time_offset);
+			audit_ntp_set_old(ad, AUDIT_NTP_FREQ,	time_freq);
+			audit_ntp_set_old(ad, AUDIT_NTP_STATUS,	time_status);
+			audit_ntp_set_old(ad, AUDIT_NTP_TAI,	*time_tai);
+			audit_ntp_set_old(ad, AUDIT_NTP_TICK,	tick_usec);
+
+			process_adjtimex_modes(txc, time_tai);
+
+			audit_ntp_set_new(ad, AUDIT_NTP_OFFSET,	time_offset);
+			audit_ntp_set_new(ad, AUDIT_NTP_FREQ,	time_freq);
+			audit_ntp_set_new(ad, AUDIT_NTP_STATUS,	time_status);
+			audit_ntp_set_new(ad, AUDIT_NTP_TAI,	*time_tai);
+			audit_ntp_set_new(ad, AUDIT_NTP_TICK,	tick_usec);
+		}
+
+		txc->offset = shift_right(time_offset * NTP_INTERVAL_FREQ,
+				  NTP_SCALE_SHIFT);
+		if (!(time_status & STA_NANO))
+			txc->offset = (u32)txc->offset / NSEC_PER_USEC;
+>>>>>>> upstream/android-13
 	}
 
 	result = time_state;	/* mostly `TIME_OK' */
@@ -762,10 +1002,17 @@ int __do_adjtimex(struct timex *txc, const struct timespec64 *ts, s32 *time_tai)
 	/* fill PPS status fields */
 	pps_fill_timex(txc);
 
+<<<<<<< HEAD
 	txc->time.tv_sec = (time_t)ts->tv_sec;
 	txc->time.tv_usec = ts->tv_nsec;
 	if (!(time_status & STA_NANO))
 		txc->time.tv_usec /= NSEC_PER_USEC;
+=======
+	txc->time.tv_sec = ts->tv_sec;
+	txc->time.tv_usec = ts->tv_nsec;
+	if (!(time_status & STA_NANO))
+		txc->time.tv_usec = ts->tv_nsec / NSEC_PER_USEC;
+>>>>>>> upstream/android-13
 
 	/* Handle leapsec adjustments */
 	if (unlikely(ts->tv_sec >= ntp_next_leap_sec)) {
@@ -1035,4 +1282,8 @@ __setup("ntp_tick_adj=", ntp_tick_adj_setup);
 void __init ntp_init(void)
 {
 	ntp_clear();
+<<<<<<< HEAD
+=======
+	ntp_init_cmos_sync();
+>>>>>>> upstream/android-13
 }

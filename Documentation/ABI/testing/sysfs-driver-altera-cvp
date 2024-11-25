@@ -1,6 +1,10 @@
 What:		/sys/bus/pci/drivers/altera-cvp/chkcfg
 Date:		May 2017
+<<<<<<< HEAD
 Kernel Version:	4.13
+=======
+KernelVersion:	4.13
+>>>>>>> upstream/android-13
 Contact:	Anatolij Gustschin <agust@denx.de>
 Description:
 		Contains either 1 or 0 and controls if configuration

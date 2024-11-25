@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IPVS:        Weighted Fail Over module
  *
  * Authors:     Kenny Mathis <kmathis@chokepoint.net>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
@@ -11,6 +16,10 @@
  * Changes:
  *     Kenny Mathis            :     added initial functionality based on weight
  *
+=======
+ * Changes:
+ *     Kenny Mathis            :     added initial functionality based on weight
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"

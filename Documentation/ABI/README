@@ -32,7 +32,11 @@ The different levels of stability are:
 	layout of the files below for details on how to do this.)
 
   obsolete/
+<<<<<<< HEAD
   	This directory documents interfaces that are still remaining in
+=======
+	This directory documents interfaces that are still remaining in
+>>>>>>> upstream/android-13
 	the kernel, but are marked to be removed at some later point in
 	time.  The description of the interface will document the reason
 	why it is obsolete and when it can be expected to be removed.
@@ -58,6 +62,17 @@ Users:		All users of this interface who wish to be notified when
 		be changed further.
 
 
+<<<<<<< HEAD
+=======
+Note:
+   The fields should be use a simple notation, compatible with ReST markup.
+   Also, the file **should not** have a top-level index, like::
+
+	===
+	foo
+	===
+
+>>>>>>> upstream/android-13
 How things move between levels:
 
 Interfaces in stable may move to obsolete, as long as the proper

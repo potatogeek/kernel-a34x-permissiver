@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2012  Bjørn Mork <bjorn@mork.no>
  *
  * The probing code is heavily inspired by cdc_ether, which is:
  * Copyright (C) 2003-2005 by David Brownell
  * Copyright (C) 2006 by Ole Andre Vadla Ravnas (ActiveSync)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -22,6 +29,10 @@
 #include <linux/usb/cdc.h>
 #include <linux/usb/usbnet.h>
 #include <linux/usb/cdc-wdm.h>
+<<<<<<< HEAD
+=======
+#include <linux/u64_stats_sync.h>
+>>>>>>> upstream/android-13
 
 /* This driver supports wwan (3G/LTE/?) devices using a vendor
  * specific management protocol called Qualcomm MSM Interface (QMI) -
@@ -59,6 +70,10 @@ struct qmi_wwan_state {
 enum qmi_wwan_flags {
 	QMI_WWAN_FLAG_RAWIP = 1 << 0,
 	QMI_WWAN_FLAG_MUX = 1 << 1,
+<<<<<<< HEAD
+=======
+	QMI_WWAN_FLAG_PASS_THROUGH = 1 << 2,
+>>>>>>> upstream/android-13
 };
 
 enum qmi_wwan_quirks {
@@ -100,12 +115,17 @@ static netdev_tx_t qmimux_start_xmit(struct sk_buff *skb, struct net_device *dev
 	struct qmimux_priv *priv = netdev_priv(dev);
 	unsigned int len = skb->len;
 	struct qmimux_hdr *hdr;
+<<<<<<< HEAD
+=======
+	netdev_tx_t ret;
+>>>>>>> upstream/android-13
 
 	hdr = skb_push(skb, sizeof(struct qmimux_hdr));
 	hdr->pad = 0;
 	hdr->mux_id = priv->mux_id;
 	hdr->pkt_len = cpu_to_be16(len);
 	skb->dev = priv->real_dev;
+<<<<<<< HEAD
 	return dev_queue_xmit(skb);
 }
 
@@ -113,6 +133,23 @@ static const struct net_device_ops qmimux_netdev_ops = {
 	.ndo_open       = qmimux_open,
 	.ndo_stop       = qmimux_stop,
 	.ndo_start_xmit = qmimux_start_xmit,
+=======
+	ret = dev_queue_xmit(skb);
+
+	if (likely(ret == NET_XMIT_SUCCESS || ret == NET_XMIT_CN))
+		dev_sw_netstats_tx_add(dev, 1, len);
+	else
+		dev->stats.tx_dropped++;
+
+	return ret;
+}
+
+static const struct net_device_ops qmimux_netdev_ops = {
+	.ndo_open        = qmimux_open,
+	.ndo_stop        = qmimux_stop,
+	.ndo_start_xmit  = qmimux_start_xmit,
+	.ndo_get_stats64 = dev_get_tstats64,
+>>>>>>> upstream/android-13
 };
 
 static void qmimux_setup(struct net_device *dev)
@@ -179,7 +216,11 @@ static int qmimux_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 		net = qmimux_find_dev(dev, hdr->mux_id);
 		if (!net)
 			goto skip;
+<<<<<<< HEAD
 		skbn = netdev_alloc_skb(net, pkt_len);
+=======
+		skbn = netdev_alloc_skb(net, pkt_len + LL_MAX_HEADER);
+>>>>>>> upstream/android-13
 		if (!skbn)
 			return 0;
 		skbn->dev = net;
@@ -196,9 +237,20 @@ static int qmimux_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 			goto skip;
 		}
 
+<<<<<<< HEAD
 		skb_put_data(skbn, skb->data + offset + qmimux_hdr_sz, pkt_len);
 		if (netif_rx(skbn) != NET_RX_SUCCESS)
 			return 0;
+=======
+		skb_reserve(skbn, LL_MAX_HEADER);
+		skb_put_data(skbn, skb->data + offset + qmimux_hdr_sz, pkt_len);
+		if (netif_rx(skbn) != NET_RX_SUCCESS) {
+			net->stats.rx_errors++;
+			return 0;
+		} else {
+			dev_sw_netstats_rx_add(net, pkt_len);
+		}
+>>>>>>> upstream/android-13
 
 skip:
 		offset += len + qmimux_hdr_sz;
@@ -206,6 +258,31 @@ skip:
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t mux_id_show(struct device *d, struct device_attribute *attr, char *buf)
+{
+	struct net_device *dev = to_net_dev(d);
+	struct qmimux_priv *priv;
+
+	priv = netdev_priv(dev);
+
+	return sysfs_emit(buf, "0x%02x\n", priv->mux_id);
+}
+
+static DEVICE_ATTR_RO(mux_id);
+
+static struct attribute *qmi_wwan_sysfs_qmimux_attrs[] = {
+	&dev_attr_mux_id.attr,
+	NULL,
+};
+
+static struct attribute_group qmi_wwan_sysfs_qmimux_attr_group = {
+	.name = "qmap",
+	.attrs = qmi_wwan_sysfs_qmimux_attrs,
+};
+
+>>>>>>> upstream/android-13
 static int qmimux_register_device(struct net_device *real_dev, u8 mux_id)
 {
 	struct net_device *new_dev;
@@ -222,6 +299,17 @@ static int qmimux_register_device(struct net_device *real_dev, u8 mux_id)
 	priv->mux_id = mux_id;
 	priv->real_dev = real_dev;
 
+<<<<<<< HEAD
+=======
+	new_dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
+	if (!new_dev->tstats) {
+		err = -ENOBUFS;
+		goto out_free_newdev;
+	}
+
+	new_dev->sysfs_groups[0] = &qmi_wwan_sysfs_qmimux_attr_group;
+
+>>>>>>> upstream/android-13
 	err = register_netdevice(new_dev);
 	if (err < 0)
 		goto out_free_newdev;
@@ -252,6 +340,10 @@ static void qmimux_unregister_device(struct net_device *dev,
 	struct qmimux_priv *priv = netdev_priv(dev);
 	struct net_device *real_dev = priv->real_dev;
 
+<<<<<<< HEAD
+=======
+	free_percpu(dev->tstats);
+>>>>>>> upstream/android-13
 	netdev_upper_dev_unlink(real_dev, dev);
 	unregister_netdevice_queue(dev, head);
 
@@ -307,6 +399,16 @@ static ssize_t raw_ip_store(struct device *d,  struct device_attribute *attr, co
 	if (enable == (info->flags & QMI_WWAN_FLAG_RAWIP))
 		return len;
 
+<<<<<<< HEAD
+=======
+	/* ip mode cannot be cleared when pass through mode is set */
+	if (!enable && (info->flags & QMI_WWAN_FLAG_PASS_THROUGH)) {
+		netdev_err(dev->net,
+			   "Cannot clear ip mode on pass through device\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (!rtnl_trylock())
 		return restart_syscall();
 
@@ -423,14 +525,68 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR_RW(raw_ip);
 static DEVICE_ATTR_RW(add_mux);
 static DEVICE_ATTR_RW(del_mux);
+=======
+static ssize_t pass_through_show(struct device *d,
+				 struct device_attribute *attr, char *buf)
+{
+	struct usbnet *dev = netdev_priv(to_net_dev(d));
+	struct qmi_wwan_state *info;
+
+	info = (void *)&dev->data;
+	return sprintf(buf, "%c\n",
+		       info->flags & QMI_WWAN_FLAG_PASS_THROUGH ? 'Y' : 'N');
+}
+
+static ssize_t pass_through_store(struct device *d,
+				  struct device_attribute *attr,
+				  const char *buf, size_t len)
+{
+	struct usbnet *dev = netdev_priv(to_net_dev(d));
+	struct qmi_wwan_state *info;
+	bool enable;
+
+	if (strtobool(buf, &enable))
+		return -EINVAL;
+
+	info = (void *)&dev->data;
+
+	/* no change? */
+	if (enable == (info->flags & QMI_WWAN_FLAG_PASS_THROUGH))
+		return len;
+
+	/* pass through mode can be set for raw ip devices only */
+	if (!(info->flags & QMI_WWAN_FLAG_RAWIP)) {
+		netdev_err(dev->net,
+			   "Cannot set pass through mode on non ip device\n");
+		return -EINVAL;
+	}
+
+	if (enable)
+		info->flags |= QMI_WWAN_FLAG_PASS_THROUGH;
+	else
+		info->flags &= ~QMI_WWAN_FLAG_PASS_THROUGH;
+
+	return len;
+}
+
+static DEVICE_ATTR_RW(raw_ip);
+static DEVICE_ATTR_RW(add_mux);
+static DEVICE_ATTR_RW(del_mux);
+static DEVICE_ATTR_RW(pass_through);
+>>>>>>> upstream/android-13
 
 static struct attribute *qmi_wwan_sysfs_attrs[] = {
 	&dev_attr_raw_ip.attr,
 	&dev_attr_add_mux.attr,
 	&dev_attr_del_mux.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_pass_through.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -477,6 +633,14 @@ static int qmi_wwan_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 	if (info->flags & QMI_WWAN_FLAG_MUX)
 		return qmimux_rx_fixup(dev, skb);
 
+<<<<<<< HEAD
+=======
+	if (info->flags & QMI_WWAN_FLAG_PASS_THROUGH) {
+		skb->protocol = htons(ETH_P_MAP);
+		return 1;
+	}
+
+>>>>>>> upstream/android-13
 	switch (skb->data[0] & 0xf0) {
 	case 0x40:
 		proto = htons(ETH_P_IP);
@@ -543,7 +707,11 @@ static const struct net_device_ops qmi_wwan_netdev_ops = {
 	.ndo_start_xmit		= usbnet_start_xmit,
 	.ndo_tx_timeout		= usbnet_tx_timeout,
 	.ndo_change_mtu		= usbnet_change_mtu,
+<<<<<<< HEAD
 	.ndo_get_stats64	= usbnet_get_stats64,
+=======
+	.ndo_get_stats64	= dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address	= qmi_wwan_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 };
@@ -609,7 +777,12 @@ static int qmi_wwan_register_subdriver(struct usbnet *dev)
 
 	/* register subdriver */
 	subdriver = usb_cdc_wdm_register(info->control, &dev->status->desc,
+<<<<<<< HEAD
 					 4096, &qmi_wwan_cdc_wdm_manage_power);
+=======
+					 4096, WWAN_PORT_QMI,
+					 &qmi_wwan_cdc_wdm_manage_power);
+>>>>>>> upstream/android-13
 	if (IS_ERR(subdriver)) {
 		dev_err(&info->control->dev, "subdriver registration failed\n");
 		rv = PTR_ERR(subdriver);
@@ -642,7 +815,11 @@ static int qmi_wwan_change_dtr(struct usbnet *dev, bool on)
 
 static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
 {
+<<<<<<< HEAD
 	int status = -1;
+=======
+	int status;
+>>>>>>> upstream/android-13
 	u8 *buf = intf->cur_altsetting->extra;
 	int len = intf->cur_altsetting->extralen;
 	struct usb_interface_descriptor *desc = &intf->cur_altsetting->desc;
@@ -1252,6 +1429,10 @@ static const struct usb_device_id products[] = {
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+<<<<<<< HEAD
+=======
+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
+>>>>>>> upstream/android-13
 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
@@ -1292,6 +1473,11 @@ static const struct usb_device_id products[] = {
 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
 	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
+<<<<<<< HEAD
+=======
+	{QMI_FIXED_INTF(0x413c, 0x81e4, 0)},	/* Dell Wireless 5829e with eSIM support*/
+	{QMI_FIXED_INTF(0x413c, 0x81e6, 0)},	/* Dell Wireless 5829e */
+>>>>>>> upstream/android-13
 	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
 	{QMI_FIXED_INTF(0x03f0, 0x9d1d, 1)},	/* HP lt4120 Snapdragon X5 LTE */
 	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */

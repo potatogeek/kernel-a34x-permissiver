@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NetLabel Kernel API
  *
@@ -6,11 +10,15 @@
  * as CIPSO and RIPSO.
  *
  * Author: Paul Moore <paul@paul-moore.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Copyright Hewlett-Packard Development Company, L.P., 2006, 2008
+<<<<<<< HEAD
  *
  * This program is free software;  you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +33,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program;  if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -621,7 +631,11 @@ catmap_getnode_alloc:
  */
 int netlbl_catmap_walk(struct netlbl_lsm_catmap *catmap, u32 offset)
 {
+<<<<<<< HEAD
 	struct netlbl_lsm_catmap *iter = catmap;
+=======
+	struct netlbl_lsm_catmap *iter;
+>>>>>>> upstream/android-13
 	u32 idx;
 	u32 bit;
 	NETLBL_CATMAP_MAPTYPE bitmap;
@@ -733,7 +747,11 @@ int netlbl_catmap_walkrng(struct netlbl_lsm_catmap *catmap, u32 offset)
  * it in @bitmap.  The @offset must be aligned to an unsigned long and will be
  * updated on return if different from what was requested; if the catmap is
  * empty at the requested offset and beyond, the @offset is set to (u32)-1.
+<<<<<<< HEAD
  * Returns zero on sucess, negative values on failure.
+=======
+ * Returns zero on success, negative values on failure.
+>>>>>>> upstream/android-13
  *
  */
 int netlbl_catmap_getlong(struct netlbl_lsm_catmap *catmap,
@@ -899,6 +917,11 @@ int netlbl_bitmap_walk(const unsigned char *bitmap, u32 bitmap_len,
 	unsigned char bitmask;
 	unsigned char byte;
 
+<<<<<<< HEAD
+=======
+	if (offset >= bitmap_len)
+		return -1;
+>>>>>>> upstream/android-13
 	byte_offset = offset / 8;
 	byte = bitmap[byte_offset];
 	bit_spot = offset;

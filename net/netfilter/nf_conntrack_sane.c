@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* SANE connection tracking helper
  * (SANE = Scanner Access Now Easy)
  * For documentation about the SANE network protocol see
@@ -11,10 +15,13 @@
  *  (C) 2002-2004 Netfilter Core Team <coreteam@netfilter.org>
  *  (C) 2003,2004 USAGI/WIDE Project <http://www.linux-ipv6.org>
  *  (C) 2003 Yasuyuki Kozakai @USAGI <yasuyuki.kozakai@toshiba.co.jp>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -30,10 +37,19 @@
 #include <net/netfilter/nf_conntrack_expect.h>
 #include <linux/netfilter/nf_conntrack_sane.h>
 
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michal Schmidt <mschmidt@redhat.com>");
 MODULE_DESCRIPTION("SANE connection tracking helper");
 MODULE_ALIAS_NFCT_HELPER("sane");
+=======
+#define HELPER_NAME "sane"
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Michal Schmidt <mschmidt@redhat.com>");
+MODULE_DESCRIPTION("SANE connection tracking helper");
+MODULE_ALIAS_NFCT_HELPER(HELPER_NAME);
+>>>>>>> upstream/android-13
 
 static char *sane_buffer;
 
@@ -96,7 +112,14 @@ static int help(struct sk_buff *skb,
 
 	spin_lock_bh(&nf_sane_lock);
 	sb_ptr = skb_header_pointer(skb, dataoff, datalen, sane_buffer);
+<<<<<<< HEAD
 	BUG_ON(sb_ptr == NULL);
+=======
+	if (!sb_ptr) {
+		spin_unlock_bh(&nf_sane_lock);
+		return NF_ACCEPT;
+	}
+>>>>>>> upstream/android-13
 
 	if (dir == IP_CT_DIR_ORIGINAL) {
 		if (datalen != sizeof(struct sane_request))
@@ -154,7 +177,11 @@ static int help(struct sk_buff *skb,
 	nf_ct_dump_tuple(&exp->tuple);
 
 	/* Can't expect this?  Best to drop packet now. */
+<<<<<<< HEAD
 	if (nf_ct_expect_related(exp) != 0) {
+=======
+	if (nf_ct_expect_related(exp, 0) != 0) {
+>>>>>>> upstream/android-13
 		nf_ct_helper_log(skb, ct, "cannot add expectation");
 		ret = NF_DROP;
 	}
@@ -195,12 +222,21 @@ static int __init nf_conntrack_sane_init(void)
 	/* FIXME should be configurable whether IPv4 and IPv6 connections
 		 are tracked or not - YK */
 	for (i = 0; i < ports_c; i++) {
+<<<<<<< HEAD
 		nf_ct_helper_init(&sane[2 * i], AF_INET, IPPROTO_TCP, "sane",
 				  SANE_PORT, ports[i], ports[i],
 				  &sane_exp_policy, 0, help, NULL,
 				  THIS_MODULE);
 		nf_ct_helper_init(&sane[2 * i + 1], AF_INET6, IPPROTO_TCP, "sane",
 				  SANE_PORT, ports[i], ports[i],
+=======
+		nf_ct_helper_init(&sane[2 * i], AF_INET, IPPROTO_TCP,
+				  HELPER_NAME, SANE_PORT, ports[i], ports[i],
+				  &sane_exp_policy, 0, help, NULL,
+				  THIS_MODULE);
+		nf_ct_helper_init(&sane[2 * i + 1], AF_INET6, IPPROTO_TCP,
+				  HELPER_NAME, SANE_PORT, ports[i], ports[i],
+>>>>>>> upstream/android-13
 				  &sane_exp_policy, 0, help, NULL,
 				  THIS_MODULE);
 	}

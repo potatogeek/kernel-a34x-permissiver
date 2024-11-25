@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright 2007 Hewlett-Packard Development Company, L.P.
  *
  * This file is part of the SCTP kernel implementation
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -64,7 +71,11 @@ void sctp_auth_key_put(struct sctp_auth_bytes *key)
 		return;
 
 	if (refcount_dec_and_test(&key->refcnt)) {
+<<<<<<< HEAD
 		kzfree(key);
+=======
+		kfree_sensitive(key);
+>>>>>>> upstream/android-13
 		SCTP_DBG_OBJCNT_DEC(keys);
 	}
 }
@@ -404,7 +415,11 @@ int sctp_auth_asoc_init_active_key(struct sctp_association *asoc, gfp_t gfp)
 	/* If we don't support AUTH, or peer is not capable
 	 * we don't need to do anything.
 	 */
+<<<<<<< HEAD
 	if (!asoc->ep->auth_enable || !asoc->peer.auth_capable)
+=======
+	if (!asoc->peer.auth_capable)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* If the key_id is non-zero and we couldn't find an
@@ -460,7 +475,11 @@ struct sctp_shared_key *sctp_auth_get_shkey(
 }
 
 /*
+<<<<<<< HEAD
  * Initialize all the possible digest transforms that we can use.  Right now
+=======
+ * Initialize all the possible digest transforms that we can use.  Right
+>>>>>>> upstream/android-13
  * now, the supported digests are SHA1 and SHA256.  We do this here once
  * because of the restrictiong that transforms may only be allocated in
  * user context.  This forces us to pre-allocated all possible transforms
@@ -471,12 +490,15 @@ int sctp_auth_init_hmacs(struct sctp_endpoint *ep, gfp_t gfp)
 	struct crypto_shash *tfm = NULL;
 	__u16   id;
 
+<<<<<<< HEAD
 	/* If AUTH extension is disabled, we are done */
 	if (!ep->auth_enable) {
 		ep->auth_hmacs = NULL;
 		return 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* If the transforms are already allocated, we are done */
 	if (ep->auth_hmacs)
 		return 0;
@@ -697,7 +719,11 @@ int sctp_auth_send_cid(enum sctp_cid chunk, const struct sctp_association *asoc)
 	if (!asoc)
 		return 0;
 
+<<<<<<< HEAD
 	if (!asoc->ep->auth_enable || !asoc->peer.auth_capable)
+=======
+	if (!asoc->peer.auth_capable)
+>>>>>>> upstream/android-13
 		return 0;
 
 	return __sctp_auth_cid(chunk, asoc->peer.peer_chunks);
@@ -709,7 +735,11 @@ int sctp_auth_recv_cid(enum sctp_cid chunk, const struct sctp_association *asoc)
 	if (!asoc)
 		return 0;
 
+<<<<<<< HEAD
 	if (!asoc->ep->auth_enable)
+=======
+	if (!asoc->peer.auth_capable)
+>>>>>>> upstream/android-13
 		return 0;
 
 	return __sctp_auth_cid(chunk,
@@ -763,6 +793,7 @@ void sctp_auth_calculate_hmac(const struct sctp_association *asoc,
 	if (crypto_shash_setkey(tfm, &asoc_key->data[0], asoc_key->len))
 		goto free;
 
+<<<<<<< HEAD
 	{
 		SHASH_DESC_ON_STACK(desc, tfm);
 
@@ -772,6 +803,10 @@ void sctp_auth_calculate_hmac(const struct sctp_association *asoc,
 				    end - (unsigned char *)auth, digest);
 		shash_desc_zero(desc);
 	}
+=======
+	crypto_shash_tfm_digest(tfm, (u8 *)auth, end - (unsigned char *)auth,
+				digest);
+>>>>>>> upstream/android-13
 
 free:
 	if (free_key)
@@ -839,7 +874,11 @@ int sctp_auth_ep_set_hmacs(struct sctp_endpoint *ep,
 }
 
 /* Set a new shared key on either endpoint or association.  If the
+<<<<<<< HEAD
  * the key with a same ID already exists, replace the key (remove the
+=======
+ * key with a same ID already exists, replace the key (remove the
+>>>>>>> upstream/android-13
  * old key and add a new one).
  */
 int sctp_auth_set_key(struct sctp_endpoint *ep,
@@ -854,10 +893,22 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
 	/* Try to find the given key id to see if
 	 * we are doing a replace, or adding a new key
 	 */
+<<<<<<< HEAD
 	if (asoc)
 		sh_keys = &asoc->endpoint_shared_keys;
 	else
 		sh_keys = &ep->endpoint_shared_keys;
+=======
+	if (asoc) {
+		if (!asoc->peer.auth_capable)
+			return -EACCES;
+		sh_keys = &asoc->endpoint_shared_keys;
+	} else {
+		if (!ep->auth_enable)
+			return -EACCES;
+		sh_keys = &ep->endpoint_shared_keys;
+	}
+>>>>>>> upstream/android-13
 
 	key_for_each(shkey, sh_keys) {
 		if (shkey->key_id == auth_key->sca_keynumber) {
@@ -880,12 +931,27 @@ int sctp_auth_set_key(struct sctp_endpoint *ep,
 	memcpy(key->data, &auth_key->sca_key[0], auth_key->sca_keylength);
 	cur_key->key = key;
 
+<<<<<<< HEAD
 	if (replace) {
 		list_del_init(&shkey->key_list);
 		sctp_auth_shkey_release(shkey);
 	}
 	list_add(&cur_key->key_list, sh_keys);
 
+=======
+	if (!replace) {
+		list_add(&cur_key->key_list, sh_keys);
+		return 0;
+	}
+
+	list_del_init(&shkey->key_list);
+	sctp_auth_shkey_release(shkey);
+	list_add(&cur_key->key_list, sh_keys);
+
+	if (asoc && asoc->active_key_id == auth_key->sca_keynumber)
+		sctp_auth_asoc_init_active_key(asoc, GFP_KERNEL);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -898,10 +964,22 @@ int sctp_auth_set_active_key(struct sctp_endpoint *ep,
 	int found = 0;
 
 	/* The key identifier MUST correst to an existing key */
+<<<<<<< HEAD
 	if (asoc)
 		sh_keys = &asoc->endpoint_shared_keys;
 	else
 		sh_keys = &ep->endpoint_shared_keys;
+=======
+	if (asoc) {
+		if (!asoc->peer.auth_capable)
+			return -EACCES;
+		sh_keys = &asoc->endpoint_shared_keys;
+	} else {
+		if (!ep->auth_enable)
+			return -EACCES;
+		sh_keys = &ep->endpoint_shared_keys;
+	}
+>>>>>>> upstream/android-13
 
 	key_for_each(key, sh_keys) {
 		if (key->key_id == key_id) {
@@ -934,11 +1012,21 @@ int sctp_auth_del_key_id(struct sctp_endpoint *ep,
 	 * The key identifier MUST correst to an existing key
 	 */
 	if (asoc) {
+<<<<<<< HEAD
+=======
+		if (!asoc->peer.auth_capable)
+			return -EACCES;
+>>>>>>> upstream/android-13
 		if (asoc->active_key_id == key_id)
 			return -EINVAL;
 
 		sh_keys = &asoc->endpoint_shared_keys;
 	} else {
+<<<<<<< HEAD
+=======
+		if (!ep->auth_enable)
+			return -EACCES;
+>>>>>>> upstream/android-13
 		if (ep->active_key_id == key_id)
 			return -EINVAL;
 
@@ -973,11 +1061,21 @@ int sctp_auth_deact_key_id(struct sctp_endpoint *ep,
 	 * The key identifier MUST correst to an existing key
 	 */
 	if (asoc) {
+<<<<<<< HEAD
+=======
+		if (!asoc->peer.auth_capable)
+			return -EACCES;
+>>>>>>> upstream/android-13
 		if (asoc->active_key_id == key_id)
 			return -EINVAL;
 
 		sh_keys = &asoc->endpoint_shared_keys;
 	} else {
+<<<<<<< HEAD
+=======
+		if (!ep->auth_enable)
+			return -EACCES;
+>>>>>>> upstream/android-13
 		if (ep->active_key_id == key_id)
 			return -EINVAL;
 
@@ -1012,3 +1110,75 @@ int sctp_auth_deact_key_id(struct sctp_endpoint *ep,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+int sctp_auth_init(struct sctp_endpoint *ep, gfp_t gfp)
+{
+	int err = -ENOMEM;
+
+	/* Allocate space for HMACS and CHUNKS authentication
+	 * variables.  There are arrays that we encode directly
+	 * into parameters to make the rest of the operations easier.
+	 */
+	if (!ep->auth_hmacs_list) {
+		struct sctp_hmac_algo_param *auth_hmacs;
+
+		auth_hmacs = kzalloc(struct_size(auth_hmacs, hmac_ids,
+						 SCTP_AUTH_NUM_HMACS), gfp);
+		if (!auth_hmacs)
+			goto nomem;
+		/* Initialize the HMACS parameter.
+		 * SCTP-AUTH: Section 3.3
+		 *    Every endpoint supporting SCTP chunk authentication MUST
+		 *    support the HMAC based on the SHA-1 algorithm.
+		 */
+		auth_hmacs->param_hdr.type = SCTP_PARAM_HMAC_ALGO;
+		auth_hmacs->param_hdr.length =
+				htons(sizeof(struct sctp_paramhdr) + 2);
+		auth_hmacs->hmac_ids[0] = htons(SCTP_AUTH_HMAC_ID_SHA1);
+		ep->auth_hmacs_list = auth_hmacs;
+	}
+
+	if (!ep->auth_chunk_list) {
+		struct sctp_chunks_param *auth_chunks;
+
+		auth_chunks = kzalloc(sizeof(*auth_chunks) +
+				      SCTP_NUM_CHUNK_TYPES, gfp);
+		if (!auth_chunks)
+			goto nomem;
+		/* Initialize the CHUNKS parameter */
+		auth_chunks->param_hdr.type = SCTP_PARAM_CHUNKS;
+		auth_chunks->param_hdr.length =
+				htons(sizeof(struct sctp_paramhdr));
+		ep->auth_chunk_list = auth_chunks;
+	}
+
+	/* Allocate and initialize transorms arrays for supported
+	 * HMACs.
+	 */
+	err = sctp_auth_init_hmacs(ep, gfp);
+	if (err)
+		goto nomem;
+
+	return 0;
+
+nomem:
+	/* Free all allocations */
+	kfree(ep->auth_hmacs_list);
+	kfree(ep->auth_chunk_list);
+	ep->auth_hmacs_list = NULL;
+	ep->auth_chunk_list = NULL;
+	return err;
+}
+
+void sctp_auth_free(struct sctp_endpoint *ep)
+{
+	kfree(ep->auth_hmacs_list);
+	kfree(ep->auth_chunk_list);
+	ep->auth_hmacs_list = NULL;
+	ep->auth_chunk_list = NULL;
+	sctp_auth_destroy_hmacs(ep->auth_hmacs);
+	ep->auth_hmacs = NULL;
+}
+>>>>>>> upstream/android-13

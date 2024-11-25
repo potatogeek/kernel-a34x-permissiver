@@ -16,6 +16,7 @@
 #include "mtk-afe-fe-dai.h"
 #include "mtk-base-afe.h"
 
+<<<<<<< HEAD
 #if defined(CONFIG_MTK_VOW_BARGE_IN_SUPPORT)
 #include "../scp_vow/mtk-scp-vow-common.h"
 #endif
@@ -58,6 +59,20 @@ int mtk_regmap_update_bits(struct regmap *map, int reg,
 }
 
 int mtk_regmap_write(struct regmap *map, int reg, unsigned int val)
+=======
+#define AFE_BASE_END_OFFSET 8
+
+static int mtk_regmap_update_bits(struct regmap *map, int reg,
+			   unsigned int mask,
+			   unsigned int val, int shift)
+{
+	if (reg < 0 || WARN_ON_ONCE(shift < 0))
+		return 0;
+	return regmap_update_bits(map, reg, mask << shift, val << shift);
+}
+
+static int mtk_regmap_write(struct regmap *map, int reg, unsigned int val)
+>>>>>>> upstream/android-13
 {
 	if (reg < 0)
 		return 0;
@@ -67,10 +82,17 @@ int mtk_regmap_write(struct regmap *map, int reg, unsigned int val)
 int mtk_afe_fe_startup(struct snd_pcm_substream *substream,
 		       struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int memif_num = rtd->cpu_dai->id;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	int memif_num = asoc_rtd_to_cpu(rtd, 0)->id;
+>>>>>>> upstream/android-13
 	struct mtk_base_afe_memif *memif = &afe->memif[memif_num];
 	const struct snd_pcm_hardware *mtk_afe_hardware = afe->mtk_afe_hardware;
 	int ret;
@@ -81,8 +103,12 @@ int mtk_afe_fe_startup(struct snd_pcm_substream *substream,
 				   SNDRV_PCM_HW_PARAM_BUFFER_BYTES, 16);
 	/* enable agent */
 	mtk_regmap_update_bits(afe->regmap, memif->data->agent_disable_reg,
+<<<<<<< HEAD
 			       1 << memif->data->agent_disable_shift,
 			       0 << memif->data->agent_disable_shift);
+=======
+			       1, 0, memif->data->agent_disable_shift);
+>>>>>>> upstream/android-13
 
 	snd_soc_set_runtime_hwparams(substream, mtk_afe_hardware);
 
@@ -129,16 +155,26 @@ EXPORT_SYMBOL_GPL(mtk_afe_fe_startup);
 void mtk_afe_fe_shutdown(struct snd_pcm_substream *substream,
 			 struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
 	struct mtk_base_afe_memif *memif = &afe->memif[rtd->cpu_dai->id];
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+	struct mtk_base_afe_memif *memif = &afe->memif[asoc_rtd_to_cpu(rtd, 0)->id];
+>>>>>>> upstream/android-13
 	int irq_id;
 
 	irq_id = memif->irq_usage;
 
 	mtk_regmap_update_bits(afe->regmap, memif->data->agent_disable_reg,
+<<<<<<< HEAD
 			       1 << memif->data->agent_disable_shift,
 			       1 << memif->data->agent_disable_shift);
+=======
+			       1, 1, memif->data->agent_disable_shift);
+>>>>>>> upstream/android-13
 
 	if (!memif->const_irq) {
 		mtk_dynamic_irq_release(afe, irq_id);
@@ -152,15 +188,22 @@ int mtk_afe_fe_hw_params(struct snd_pcm_substream *substream,
 			 struct snd_pcm_hw_params *params,
 			 struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
 	int id = rtd->cpu_dai->id;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+	int id = asoc_rtd_to_cpu(rtd, 0)->id;
+>>>>>>> upstream/android-13
 	struct mtk_base_afe_memif *memif = &afe->memif[id];
 	int ret;
 	unsigned int channels = params_channels(params);
 	unsigned int rate = params_rate(params);
 	snd_pcm_format_t format = params_format(params);
 
+<<<<<<< HEAD
 #if defined(CONFIG_MTK_ION) && defined(MMAP_SUPPORT)
 	// mmap don't alloc buffer
 	if (memif->use_mmap_share_mem != 0) {
@@ -313,6 +356,21 @@ END:
 	if (memif->using_sram == 0 && afe->request_dram_resource)
 		afe->request_dram_resource(afe->dev);
 
+=======
+	if (afe->request_dram_resource)
+		afe->request_dram_resource(afe->dev);
+
+	dev_dbg(afe->dev, "%s(), %s, ch %d, rate %d, fmt %d, dma_addr %pad, dma_area %p, dma_bytes 0x%zx\n",
+		__func__, memif->data->name,
+		channels, rate, format,
+		&substream->runtime->dma_addr,
+		substream->runtime->dma_area,
+		substream->runtime->dma_bytes);
+
+	memset_io((void __force __iomem *)substream->runtime->dma_area, 0,
+		  substream->runtime->dma_bytes);
+
+>>>>>>> upstream/android-13
 	/* set addr */
 	ret = mtk_memif_set_addr(afe, id,
 				 substream->runtime->dma_area,
@@ -324,12 +382,15 @@ END:
 		return ret;
 	}
 
+<<<<<<< HEAD
 #if defined(CONFIG_MTK_VOW_BARGE_IN_SUPPORT) ||\
 		defined(CONFIG_SND_SOC_MTK_SCP_SMARTPA) ||\
 		defined(CONFIG_MTK_ULTRASND_PROXIMITY)
 BYPASS_AFE_FE_ALLOCATE_MEM:
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/* set channel */
 	ret = mtk_memif_set_channel(afe, id, channels);
 	if (ret) {
@@ -353,10 +414,13 @@ BYPASS_AFE_FE_ALLOCATE_MEM:
 			__func__, id, format, ret);
 		return ret;
 	}
+<<<<<<< HEAD
 #if defined(CONFIG_SND_SOC_MTK_AUDIO_DSP)
 	afe_pcm_ipi_to_dsp(AUDIO_DSP_TASK_PCM_HWPARAM,
 			   substream, params, dai, afe);
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -365,6 +429,7 @@ EXPORT_SYMBOL_GPL(mtk_afe_fe_hw_params);
 int mtk_afe_fe_hw_free(struct snd_pcm_substream *substream,
 		       struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
 	struct mtk_base_afe_memif *memif = &afe->memif[rtd->cpu_dai->id];
@@ -424,25 +489,46 @@ int mtk_afe_fe_hw_free(struct snd_pcm_substream *substream,
 	return snd_pcm_lib_free_pages(substream);
 #endif
 #endif
+=======
+	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+
+	if (afe->release_dram_resource)
+		afe->release_dram_resource(afe->dev);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtk_afe_fe_hw_free);
 
 int mtk_afe_fe_trigger(struct snd_pcm_substream *substream, int cmd,
 		       struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_pcm_runtime * const runtime = substream->runtime;
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
 	int id = rtd->cpu_dai->id;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_pcm_runtime * const runtime = substream->runtime;
+	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+	int id = asoc_rtd_to_cpu(rtd, 0)->id;
+>>>>>>> upstream/android-13
 	struct mtk_base_afe_memif *memif = &afe->memif[id];
 	struct mtk_base_afe_irq *irqs = &afe->irqs[memif->irq_usage];
 	const struct mtk_base_irq_data *irq_data = irqs->irq_data;
 	unsigned int counter = runtime->period_size;
 	int fs;
+<<<<<<< HEAD
 	int ret = 0;
 
 	dev_dbg(afe->dev, "%s(), %s, cmd %d\n",
 		__func__, memif->data->name, cmd);
+=======
+	int ret;
+
+	dev_dbg(afe->dev, "%s %s cmd=%d\n", __func__, memif->data->name, cmd);
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
@@ -456,9 +542,14 @@ int mtk_afe_fe_trigger(struct snd_pcm_substream *substream, int cmd,
 
 		/* set irq counter */
 		mtk_regmap_update_bits(afe->regmap, irq_data->irq_cnt_reg,
+<<<<<<< HEAD
 				       irq_data->irq_cnt_maskbit
 				       << irq_data->irq_cnt_shift,
 				       counter << irq_data->irq_cnt_shift);
+=======
+				       irq_data->irq_cnt_maskbit, counter,
+				       irq_data->irq_cnt_shift);
+>>>>>>> upstream/android-13
 
 		/* set irq fs */
 		fs = afe->irq_fs(substream, runtime->rate);
@@ -467,6 +558,7 @@ int mtk_afe_fe_trigger(struct snd_pcm_substream *substream, int cmd,
 			return -EINVAL;
 
 		mtk_regmap_update_bits(afe->regmap, irq_data->irq_fs_reg,
+<<<<<<< HEAD
 				       irq_data->irq_fs_maskbit
 				       << irq_data->irq_fs_shift,
 				       fs << irq_data->irq_fs_shift);
@@ -475,6 +567,14 @@ int mtk_afe_fe_trigger(struct snd_pcm_substream *substream, int cmd,
 		mtk_regmap_update_bits(afe->regmap, irq_data->irq_en_reg,
 				       1 << irq_data->irq_en_shift,
 				       1 << irq_data->irq_en_shift);
+=======
+				       irq_data->irq_fs_maskbit, fs,
+				       irq_data->irq_fs_shift);
+
+		/* enable interrupt */
+		mtk_regmap_update_bits(afe->regmap, irq_data->irq_en_reg,
+				       1, 1, irq_data->irq_en_shift);
+>>>>>>> upstream/android-13
 
 		return 0;
 	case SNDRV_PCM_TRIGGER_STOP:
@@ -487,8 +587,12 @@ int mtk_afe_fe_trigger(struct snd_pcm_substream *substream, int cmd,
 
 		/* disable interrupt */
 		mtk_regmap_update_bits(afe->regmap, irq_data->irq_en_reg,
+<<<<<<< HEAD
 				       1 << irq_data->irq_en_shift,
 				       0 << irq_data->irq_en_shift);
+=======
+				       1, 0, irq_data->irq_en_shift);
+>>>>>>> upstream/android-13
 		/* and clear pending IRQ */
 		mtk_regmap_write(afe->regmap, irq_data->irq_clr_reg,
 				 1 << irq_data->irq_clr_shift);
@@ -502,6 +606,7 @@ EXPORT_SYMBOL_GPL(mtk_afe_fe_trigger);
 int mtk_afe_fe_prepare(struct snd_pcm_substream *substream,
 		       struct snd_soc_dai *dai)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd  = substream->private_data;
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
 	int id = rtd->cpu_dai->id;
@@ -518,6 +623,19 @@ int mtk_afe_fe_prepare(struct snd_pcm_substream *substream,
 			   substream, NULL, dai, afe);
 #endif
 
+=======
+	struct snd_soc_pcm_runtime *rtd  = asoc_substream_to_rtd(substream);
+	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+	int id = asoc_rtd_to_cpu(rtd, 0)->id;
+	int pbuf_size;
+
+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+		if (afe->get_memif_pbuf_size) {
+			pbuf_size = afe->get_memif_pbuf_size(substream);
+			mtk_memif_set_pbuf_size(afe, id, pbuf_size);
+		}
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mtk_afe_fe_prepare);
@@ -563,9 +681,15 @@ int mtk_dynamic_irq_release(struct mtk_base_afe *afe, int irq_id)
 }
 EXPORT_SYMBOL_GPL(mtk_dynamic_irq_release);
 
+<<<<<<< HEAD
 int mtk_afe_dai_suspend(struct snd_soc_dai *dai)
 {
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+=======
+int mtk_afe_suspend(struct snd_soc_component *component)
+{
+	struct mtk_base_afe *afe = snd_soc_component_get_drvdata(component);
+>>>>>>> upstream/android-13
 	struct device *dev = afe->dev;
 	struct regmap *regmap = afe->regmap;
 	int i;
@@ -578,19 +702,35 @@ int mtk_afe_dai_suspend(struct snd_soc_dai *dai)
 			devm_kcalloc(dev, afe->reg_back_up_list_num,
 				     sizeof(unsigned int), GFP_KERNEL);
 
+<<<<<<< HEAD
 	for (i = 0; i < afe->reg_back_up_list_num; i++)
 		regmap_read(regmap, afe->reg_back_up_list[i],
 			    &afe->reg_back_up[i]);
+=======
+	if (afe->reg_back_up) {
+		for (i = 0; i < afe->reg_back_up_list_num; i++)
+			regmap_read(regmap, afe->reg_back_up_list[i],
+				    &afe->reg_back_up[i]);
+	}
+>>>>>>> upstream/android-13
 
 	afe->suspended = true;
 	afe->runtime_suspend(dev);
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mtk_afe_dai_suspend);
 
 int mtk_afe_dai_resume(struct snd_soc_dai *dai)
 {
 	struct mtk_base_afe *afe = snd_soc_dai_get_drvdata(dai);
+=======
+EXPORT_SYMBOL_GPL(mtk_afe_suspend);
+
+int mtk_afe_resume(struct snd_soc_component *component)
+{
+	struct mtk_base_afe *afe = snd_soc_component_get_drvdata(component);
+>>>>>>> upstream/android-13
 	struct device *dev = afe->dev;
 	struct regmap *regmap = afe->regmap;
 	int i = 0;
@@ -600,17 +740,31 @@ int mtk_afe_dai_resume(struct snd_soc_dai *dai)
 
 	afe->runtime_resume(dev);
 
+<<<<<<< HEAD
 	if (!afe->reg_back_up)
 		dev_dbg(dev, "%s no reg_backup\n", __func__);
 
 	for (i = 0; i < afe->reg_back_up_list_num; i++)
 		mtk_regmap_write(regmap, afe->reg_back_up_list[i],
 				 afe->reg_back_up[i]);
+=======
+	if (!afe->reg_back_up) {
+		dev_dbg(dev, "%s no reg_backup\n", __func__);
+	} else {
+		for (i = 0; i < afe->reg_back_up_list_num; i++)
+			mtk_regmap_write(regmap, afe->reg_back_up_list[i],
+					 afe->reg_back_up[i]);
+	}
+>>>>>>> upstream/android-13
 
 	afe->suspended = false;
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mtk_afe_dai_resume);
+=======
+EXPORT_SYMBOL_GPL(mtk_afe_resume);
+>>>>>>> upstream/android-13
 
 int mtk_memif_set_enable(struct mtk_base_afe *afe, int id)
 {
@@ -621,10 +775,15 @@ int mtk_memif_set_enable(struct mtk_base_afe *afe, int id)
 			 __func__, id);
 		return 0;
 	}
+<<<<<<< HEAD
 	return mtk_regmap_update_bits(afe->regmap,
 				      memif->data->enable_reg,
 				      1 << memif->data->enable_shift,
 				      1 << memif->data->enable_shift);
+=======
+	return mtk_regmap_update_bits(afe->regmap, memif->data->enable_reg,
+				      1, 1, memif->data->enable_shift);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtk_memif_set_enable);
 
@@ -637,6 +796,7 @@ int mtk_memif_set_disable(struct mtk_base_afe *afe, int id)
 			 __func__, id);
 		return 0;
 	}
+<<<<<<< HEAD
 	return mtk_regmap_update_bits(afe->regmap,
 				      memif->data->enable_reg,
 				      1 << memif->data->enable_shift,
@@ -773,6 +933,13 @@ int mtk_dsp_irq_set_disable(struct mtk_base_afe *afe,
 }
 EXPORT_SYMBOL_GPL(mtk_dsp_irq_set_disable);
 
+=======
+	return mtk_regmap_update_bits(afe->regmap, memif->data->enable_reg,
+				      1, 0, memif->data->enable_shift);
+}
+EXPORT_SYMBOL_GPL(mtk_memif_set_disable);
+
+>>>>>>> upstream/android-13
 int mtk_memif_set_addr(struct mtk_base_afe *afe, int id,
 		       unsigned char *dma_area,
 		       dma_addr_t dma_addr,
@@ -810,11 +977,27 @@ int mtk_memif_set_addr(struct mtk_base_afe *afe, int id,
 				 phys_buf_addr_upper_32);
 	}
 
+<<<<<<< HEAD
 	/* set MSB to 33-bit */
 	if (memif->data->msb_reg >= 0)
 		mtk_regmap_update_bits(afe->regmap, memif->data->msb_reg,
 				1 << memif->data->msb_shift,
 				msb_at_bit33 << memif->data->msb_shift);
+=======
+	/*
+	 * set MSB to 33-bit, for memif address
+	 * only for memif base address, if msb_end_reg exists
+	 */
+	if (memif->data->msb_reg)
+		mtk_regmap_update_bits(afe->regmap, memif->data->msb_reg,
+				       1, msb_at_bit33, memif->data->msb_shift);
+
+	/* set MSB to 33-bit, for memif end address */
+	if (memif->data->msb_end_reg)
+		mtk_regmap_update_bits(afe->regmap, memif->data->msb_end_reg,
+				       1, msb_at_bit33,
+				       memif->data->msb_end_shift);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -829,12 +1012,21 @@ int mtk_memif_set_channel(struct mtk_base_afe *afe,
 	if (memif->data->mono_shift < 0)
 		return 0;
 
+<<<<<<< HEAD
 	if (memif->data->quad_ch_mask_shift) {
 		unsigned int quad_ch = (channel == 4) ? 1 : 0;
 
 		mtk_regmap_update_bits(afe->regmap, memif->data->quad_ch_reg,
 				       memif->data->quad_ch_mask_shift,
 				       quad_ch << memif->data->quad_ch_shift);
+=======
+	if (memif->data->quad_ch_mask) {
+		unsigned int quad_ch = (channel == 4) ? 1 : 0;
+
+		mtk_regmap_update_bits(afe->regmap, memif->data->quad_ch_reg,
+				       memif->data->quad_ch_mask,
+				       quad_ch, memif->data->quad_ch_shift);
+>>>>>>> upstream/android-13
 	}
 
 	if (memif->data->mono_invert)
@@ -842,9 +1034,21 @@ int mtk_memif_set_channel(struct mtk_base_afe *afe,
 	else
 		mono = (channel == 1) ? 1 : 0;
 
+<<<<<<< HEAD
 	return mtk_regmap_update_bits(afe->regmap, memif->data->mono_reg,
 				      1 << memif->data->mono_shift,
 				      mono << memif->data->mono_shift);
+=======
+	/* for specific configuration of memif mono mode */
+	if (memif->data->int_odd_flag_reg)
+		mtk_regmap_update_bits(afe->regmap,
+				       memif->data->int_odd_flag_reg,
+				       1, mono,
+				       memif->data->int_odd_flag_shift);
+
+	return mtk_regmap_update_bits(afe->regmap, memif->data->mono_reg,
+				      1, mono, memif->data->mono_shift);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtk_memif_set_channel);
 
@@ -853,9 +1057,16 @@ static int mtk_memif_set_rate_fs(struct mtk_base_afe *afe,
 {
 	struct mtk_base_afe_memif *memif = &afe->memif[id];
 
+<<<<<<< HEAD
 	mtk_regmap_update_bits(afe->regmap, memif->data->fs_reg,
 			       memif->data->fs_maskbit << memif->data->fs_shift,
 			       fs << memif->data->fs_shift);
+=======
+	if (memif->data->fs_shift >= 0)
+		mtk_regmap_update_bits(afe->regmap, memif->data->fs_reg,
+				       memif->data->fs_maskbit,
+				       fs, memif->data->fs_shift);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -877,17 +1088,28 @@ int mtk_memif_set_rate(struct mtk_base_afe *afe,
 		return -EINVAL;
 
 	return mtk_memif_set_rate_fs(afe, id, fs);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtk_memif_set_rate);
 
 int mtk_memif_set_rate_substream(struct snd_pcm_substream *substream,
 				 int id, unsigned int rate)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_component *component =
 		snd_soc_rtdcom_lookup(rtd, AFE_PCM_NAME);
 	struct mtk_base_afe *afe = snd_soc_component_get_drvdata(component);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_component *component =
+		snd_soc_rtdcom_lookup(rtd, AFE_PCM_NAME);
+	struct mtk_base_afe *afe = snd_soc_component_get_drvdata(component);
+
+>>>>>>> upstream/android-13
 	int fs = 0;
 
 	if (!afe->memif_fs) {
@@ -910,7 +1132,11 @@ int mtk_memif_set_format(struct mtk_base_afe *afe,
 {
 	struct mtk_base_afe_memif *memif = &afe->memif[id];
 	int hd_audio = 0;
+<<<<<<< HEAD
 	int memif_32bit_supported = afe->memif_32bit_supported;
+=======
+	int hd_align = 0;
+>>>>>>> upstream/android-13
 
 	/* set hd mode */
 	switch (format) {
@@ -920,10 +1146,20 @@ int mtk_memif_set_format(struct mtk_base_afe *afe,
 		break;
 	case SNDRV_PCM_FORMAT_S32_LE:
 	case SNDRV_PCM_FORMAT_U32_LE:
+<<<<<<< HEAD
 		if (memif_32bit_supported)
 			hd_audio = 2;
 		else
 			hd_audio = 1;
+=======
+		if (afe->memif_32bit_supported) {
+			hd_audio = 2;
+			hd_align = 0;
+		} else {
+			hd_audio = 1;
+			hd_align = 1;
+		}
+>>>>>>> upstream/android-13
 		break;
 	case SNDRV_PCM_FORMAT_S24_LE:
 	case SNDRV_PCM_FORMAT_U24_LE:
@@ -935,9 +1171,19 @@ int mtk_memif_set_format(struct mtk_base_afe *afe,
 		break;
 	}
 
+<<<<<<< HEAD
 	return mtk_regmap_update_bits(afe->regmap, memif->data->hd_reg,
 				      0x3 << memif->data->hd_shift,
 				      hd_audio << memif->data->hd_shift);
+=======
+	mtk_regmap_update_bits(afe->regmap, memif->data->hd_reg,
+			       0x3, hd_audio, memif->data->hd_shift);
+
+	mtk_regmap_update_bits(afe->regmap, memif->data->hd_align_reg,
+			       0x1, hd_align, memif->data->hd_align_mshift);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mtk_memif_set_format);
 
@@ -946,6 +1192,7 @@ int mtk_memif_set_pbuf_size(struct mtk_base_afe *afe,
 {
 	const struct mtk_base_memif_data *memif_data = afe->memif[id].data;
 
+<<<<<<< HEAD
 	if (memif_data->pbuf_mask_shift == 0 ||
 	    memif_data->minlen_mask_shift == 0)
 		return 0;
@@ -957,6 +1204,18 @@ int mtk_memif_set_pbuf_size(struct mtk_base_afe *afe,
 	mtk_regmap_update_bits(afe->regmap, memif_data->minlen_reg,
 			       memif_data->minlen_mask_shift,
 			       pbuf_size << memif_data->minlen_shift);
+=======
+	if (memif_data->pbuf_mask == 0 || memif_data->minlen_mask == 0)
+		return 0;
+
+	mtk_regmap_update_bits(afe->regmap, memif_data->pbuf_reg,
+			       memif_data->pbuf_mask,
+			       pbuf_size, memif_data->pbuf_shift);
+
+	mtk_regmap_update_bits(afe->regmap, memif_data->minlen_reg,
+			       memif_data->minlen_mask,
+			       pbuf_size, memif_data->minlen_shift);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mtk_memif_set_pbuf_size);

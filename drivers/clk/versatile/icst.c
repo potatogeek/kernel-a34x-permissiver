@@ -1,14 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/common/icst307.c
  *
  *  Copyright (C) 2003 Deep Blue Solutions, Ltd, All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
  *  Support functions for calculating clocks/divisors for the ICST307
  *  clock generators.  See http://www.idt.com/ for more information
+=======
+ *  Support functions for calculating clocks/divisors for the ICST307
+ *  clock generators.  See https://www.idt.com/ for more information
+>>>>>>> upstream/android-13
  *  on these devices.
  *
  *  This is an almost identical implementation to the ICST525 clock generator.

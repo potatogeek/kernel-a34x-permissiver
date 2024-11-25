@@ -82,19 +82,32 @@ Required properties:
 	       "atmel,at91sam9rl-udc"
 	       "atmel,at91sam9g45-udc"
 	       "atmel,sama5d3-udc"
+<<<<<<< HEAD
+=======
+	       "microchip,sam9x60-udc"
+>>>>>>> upstream/android-13
  - reg: Address and length of the register set for the device
  - interrupts: Should contain usba interrupt
  - clocks: Should reference the peripheral and host clocks
  - clock-names: Should contain two strings
 		"pclk" for the peripheral clock
 		"hclk" for the host clock
+<<<<<<< HEAD
+=======
+
+Deprecated property:
+>>>>>>> upstream/android-13
  - ep childnode: To specify the number of endpoints and their properties.
 
 Optional properties:
  - atmel,vbus-gpio: If present, specifies a gpio that allows to detect whether
    vbus is present (USB is connected).
 
+<<<<<<< HEAD
 Required child node properties:
+=======
+Deprecated child node properties:
+>>>>>>> upstream/android-13
  - name: Name of the endpoint.
  - reg: Num of the endpoint.
  - atmel,fifo-size: Size of the fifo.
@@ -112,6 +125,7 @@ usb2: gadget@fff78000 {
 	clocks = <&utmi>, <&udphs_clk>;
 	clock-names = "hclk", "pclk";
 	atmel,vbus-gpio = <&pioB 19 0>;
+<<<<<<< HEAD
 
 	ep@0 {
 		reg = <0>;
@@ -164,4 +178,6 @@ usb2: gadget@fff78000 {
 		atmel,can-dma;
 		atmel,can-isoc;
 	};
+=======
+>>>>>>> upstream/android-13
 };

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cs.c -- Kernel Card Services - core services
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * cs.c -- Kernel Card Services - core services
+ *
+>>>>>>> upstream/android-13
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
@@ -669,6 +676,7 @@ static int pccardd(void *__skt)
 		if (events || sysfs_events)
 			continue;
 
+<<<<<<< HEAD
 		if (kthread_should_stop())
 			break;
 
@@ -681,6 +689,18 @@ static int pccardd(void *__skt)
 
 		try_to_freeze();
 	}
+=======
+		set_current_state(TASK_INTERRUPTIBLE);
+		if (kthread_should_stop())
+			break;
+
+		schedule();
+
+		try_to_freeze();
+	}
+	/* make sure we are running before we exit */
+	__set_current_state(TASK_RUNNING);
+>>>>>>> upstream/android-13
 
 	/* shut down socket, if a device is still present */
 	if (skt->state & SOCKET_PRESENT) {

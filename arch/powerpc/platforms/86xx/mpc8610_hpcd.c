@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC8610 HPCD board specific routines
  *
@@ -9,11 +13,14 @@
  * All the integrated device in ULI use sideband interrupt.
  *
  * Copyright 2008 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -38,7 +45,10 @@
 #include <linux/of_platform.h>
 #include <sysdev/fsl_pci.h>
 #include <sysdev/fsl_soc.h>
+<<<<<<< HEAD
 #include <sysdev/simple_gpio.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "mpc86xx.h"
 
@@ -97,9 +107,12 @@ static const struct of_device_id mpc8610_ids[] __initconst = {
 
 static int __init mpc8610_declare_of_platform_devices(void)
 {
+<<<<<<< HEAD
 	/* Firstly, register PIXIS GPIOs. */
 	simple_gpiochip_init("fsl,fpga-pixis-gpio-bank");
 
+=======
+>>>>>>> upstream/android-13
 	/* Enable wakeup on PIXIS' event IRQ. */
 	mpc8610_suspend_init();
 

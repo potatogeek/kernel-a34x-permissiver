@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * dwmac-sunxi.c - Allwinner sunxi DWMAC specific glue layer
  *
  * Copyright (C) 2013 Chen-Yu Tsai
  *
  * Chen-Yu Tsai  <wens@csie.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stmmac.h>
@@ -27,7 +34,11 @@
 #include "stmmac_platform.h"
 
 struct sunxi_priv_data {
+<<<<<<< HEAD
 	int interface;
+=======
+	phy_interface_t interface;
+>>>>>>> upstream/android-13
 	int clk_enabled;
 	struct clk *tx_clk;
 	struct regulator *regulator;
@@ -39,7 +50,11 @@ struct sunxi_priv_data {
 static int sun7i_gmac_init(struct platform_device *pdev, void *priv)
 {
 	struct sunxi_priv_data *gmac = priv;
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (gmac->regulator) {
 		ret = regulator_enable(gmac->regulator);
@@ -60,11 +75,19 @@ static int sun7i_gmac_init(struct platform_device *pdev, void *priv)
 	} else {
 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
 		ret = clk_prepare(gmac->tx_clk);
+<<<<<<< HEAD
 		if (ret)
 			return ret;
 	}
 
 	return 0;
+=======
+		if (ret && gmac->regulator)
+			regulator_disable(gmac->regulator);
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void sun7i_gmac_exit(struct platform_device *pdev, void *priv)
@@ -117,7 +140,11 @@ static int sun7i_gmac_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
+=======
+	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
+>>>>>>> upstream/android-13
 	if (IS_ERR(plat_dat))
 		return PTR_ERR(plat_dat);
 
@@ -127,7 +154,15 @@ static int sun7i_gmac_probe(struct platform_device *pdev)
 		goto err_remove_config_dt;
 	}
 
+<<<<<<< HEAD
 	gmac->interface = of_get_phy_mode(dev->of_node);
+=======
+	ret = of_get_phy_mode(dev->of_node, &gmac->interface);
+	if (ret && ret != -ENODEV) {
+		dev_err(dev, "Can't get phy-mode\n");
+		goto err_remove_config_dt;
+	}
+>>>>>>> upstream/android-13
 
 	gmac->tx_clk = devm_clk_get(dev, "allwinner_gmac_tx");
 	if (IS_ERR(gmac->tx_clk)) {

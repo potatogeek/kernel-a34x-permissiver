@@ -13,7 +13,11 @@
 
 #include <linux/in6.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 /*
  * computes the checksum of a memory block at buff, length len,
@@ -37,6 +41,7 @@ asmlinkage __wsum csum_partial(const void *buff, int len, __wsum sum);
  * better 64-bit) boundary
  */
 
+<<<<<<< HEAD
 asmlinkage __wsum csum_partial_copy_generic(const void *src, void *dst,
 					    int len, __wsum sum,
 					    int *src_err_ptr, int *dst_err_ptr);
@@ -60,6 +65,29 @@ __wsum csum_partial_copy_from_user(const void __user *src, void *dst,
 {
 	return csum_partial_copy_generic((__force const void *)src, dst,
 					len, sum, err_ptr, NULL);
+=======
+asmlinkage __wsum csum_partial_copy_generic(const void *src, void *dst, int len);
+
+#define _HAVE_ARCH_CSUM_AND_COPY
+/*
+ *	Note: when you get a NULL pointer exception here this means someone
+ *	passed in an incorrect kernel address to one of these functions.
+ */
+static inline
+__wsum csum_partial_copy_nocheck(const void *src, void *dst, int len)
+{
+	return csum_partial_copy_generic(src, dst, len);
+}
+
+#define _HAVE_ARCH_COPY_AND_CSUM_FROM_USER
+static inline
+__wsum csum_and_copy_from_user(const void __user *src, void *dst,
+				   int len)
+{
+	if (!access_ok(src, len))
+		return 0;
+	return csum_partial_copy_generic((__force const void *)src, dst, len);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -240,6 +268,7 @@ static __inline__ __sum16 csum_ipv6_magic(const struct in6_addr *saddr,
  */
 #define HAVE_CSUM_COPY_USER
 static __inline__ __wsum csum_and_copy_to_user(const void *src,
+<<<<<<< HEAD
 					       void __user *dst, int len,
 					       __wsum sum, int *err_ptr)
 {
@@ -250,5 +279,12 @@ static __inline__ __wsum csum_and_copy_to_user(const void *src,
 		*err_ptr = -EFAULT;
 
 	return (__force __wsum)-1; /* invalid checksum */
+=======
+					       void __user *dst, int len)
+{
+	if (!access_ok(dst, len))
+		return 0;
+	return csum_partial_copy_generic(src, (__force void *)dst, len);
+>>>>>>> upstream/android-13
 }
 #endif

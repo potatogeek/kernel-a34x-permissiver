@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     On Screen Display cx23415 Framebuffer driver
 
@@ -23,6 +27,7 @@
 
     Copyright (C) 2006  Ian Armstrong <ian@iarmst.demon.co.uk>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -36,6 +41,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ivtv-driver.h"
@@ -48,13 +55,22 @@
 #include <linux/fb.h>
 #include <linux/ivtvfb.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 #include <asm/pat.h>
+=======
+#if defined(CONFIG_X86_64) && !defined(CONFIG_UML)
+#include <asm/memtype.h>
+>>>>>>> upstream/android-13
 #endif
 
 /* card parameters */
 static int ivtvfb_card_id = -1;
 static int ivtvfb_debug = 0;
+<<<<<<< HEAD
+=======
+static bool ivtvfb_force_pat = IS_ENABLED(CONFIG_VIDEO_FB_IVTV_FORCE_PAT);
+>>>>>>> upstream/android-13
 static bool osd_laced;
 static int osd_depth;
 static int osd_upper;
@@ -64,6 +80,10 @@ static int osd_xres;
 
 module_param(ivtvfb_card_id, int, 0444);
 module_param_named(debug,ivtvfb_debug, int, 0644);
+<<<<<<< HEAD
+=======
+module_param_named(force_pat, ivtvfb_force_pat, bool, 0644);
+>>>>>>> upstream/android-13
 module_param(osd_laced, bool, 0444);
 module_param(osd_depth, int, 0444);
 module_param(osd_upper, int, 0444);
@@ -79,6 +99,12 @@ MODULE_PARM_DESC(debug,
 		 "Debug level (bitmask). Default: errors only\n"
 		 "\t\t\t(debug = 3 gives full debugging)");
 
+<<<<<<< HEAD
+=======
+MODULE_PARM_DESC(force_pat,
+		 "Force initialization on x86 PAT-enabled systems (bool).\n");
+
+>>>>>>> upstream/android-13
 /* Why upper, left, xres, yres, depth, laced ? To match terminology used
    by fbset.
    Why start at 1 for left & upper coordinate ? Because X doesn't allow 0 */
@@ -288,10 +314,17 @@ static int ivtvfb_prep_dec_dma_to_device(struct ivtv *itv,
 	/* Map User DMA */
 	if (ivtv_udma_setup(itv, ivtv_dest_addr, userbuf, size_in_bytes) <= 0) {
 		mutex_unlock(&itv->udma.lock);
+<<<<<<< HEAD
 		IVTVFB_WARN("ivtvfb_prep_dec_dma_to_device, Error with get_user_pages: %d bytes, %d pages returned\n",
 			       size_in_bytes, itv->udma.page_count);
 
 		/* get_user_pages must have failed completely */
+=======
+		IVTVFB_WARN("ivtvfb_prep_dec_dma_to_device, Error with pin_user_pages: %d bytes, %d pages returned\n",
+			       size_in_bytes, itv->udma.page_count);
+
+		/* pin_user_pages must have failed completely */
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -356,7 +389,11 @@ static int ivtvfb_prep_frame(struct ivtv *itv, int cmd, void __user *source,
 		IVTVFB_WARN("ivtvfb_prep_frame: Count not a multiple of 4 (%d)\n", count);
 
 	/* Check Source */
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, source + dest_offset, count)) {
+=======
+	if (!access_ok(source + dest_offset, count)) {
+>>>>>>> upstream/android-13
 		IVTVFB_WARN("Invalid userspace pointer %p\n", source);
 
 		IVTVFB_DEBUG_WARN("access_ok() failed for offset 0x%08lx source %p count %d\n",
@@ -624,7 +661,11 @@ static int ivtvfb_get_fix(struct ivtv *itv, struct fb_fix_screeninfo *fix)
 
 	IVTVFB_DEBUG_INFO("ivtvfb_get_fix\n");
 	memset(fix, 0, sizeof(struct fb_fix_screeninfo));
+<<<<<<< HEAD
 	strlcpy(fix->id, "cx23415 TV out", sizeof(fix->id));
+=======
+	strscpy(fix->id, "cx23415 TV out", sizeof(fix->id));
+>>>>>>> upstream/android-13
 	fix->smem_start = oi->video_pbase;
 	fix->smem_len = oi->video_buffer_size;
 	fix->type = FB_TYPE_PACKED_PIXELS;
@@ -932,7 +973,11 @@ static int ivtvfb_blank(int blank_mode, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops ivtvfb_ops = {
+=======
+static const struct fb_ops ivtvfb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_write       = ivtvfb_write,
 	.fb_check_var   = ivtvfb_check_var,
@@ -1056,7 +1101,10 @@ static int ivtvfb_init_vidmode(struct ivtv *itv)
 
 	oi->ivtvfb_info.node = -1;
 	oi->ivtvfb_info.flags = FBINFO_FLAG_DEFAULT;
+<<<<<<< HEAD
 	oi->ivtvfb_info.fbops = &ivtvfb_ops;
+=======
+>>>>>>> upstream/android-13
 	oi->ivtvfb_info.par = itv;
 	oi->ivtvfb_info.var = oi->ivtvfb_defined;
 	oi->ivtvfb_info.fix = oi->ivtvfb_fix;
@@ -1165,10 +1213,24 @@ static int ivtvfb_init_card(struct ivtv *itv)
 {
 	int rc;
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 	if (pat_enabled()) {
 		pr_warn("ivtvfb needs PAT disabled, boot with nopat kernel parameter\n");
 		return -ENODEV;
+=======
+#if defined(CONFIG_X86_64) && !defined(CONFIG_UML)
+	if (pat_enabled()) {
+		if (ivtvfb_force_pat) {
+			pr_info("PAT is enabled. Write-combined framebuffer caching will be disabled.\n");
+			pr_info("To enable caching, boot with nopat kernel parameter\n");
+		} else {
+			pr_warn("ivtvfb needs PAT disabled for write-combined framebuffer caching.\n");
+			pr_warn("Boot with nopat kernel parameter to use caching, or use the\n");
+			pr_warn("force_pat module parameter to run with caching disabled\n");
+			return -ENODEV;
+		}
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -1220,6 +1282,14 @@ static int ivtvfb_init_card(struct ivtv *itv)
 
 	/* Allocate DMA */
 	ivtv_udma_alloc(itv);
+<<<<<<< HEAD
+=======
+	itv->streams[IVTV_DEC_STREAM_TYPE_YUV].vdev.device_caps |=
+		V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+	itv->streams[IVTV_DEC_STREAM_TYPE_MPG].vdev.device_caps |=
+		V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+	itv->v4l2_cap |= V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+>>>>>>> upstream/android-13
 	return 0;
 
 }
@@ -1246,11 +1316,20 @@ static int ivtvfb_callback_cleanup(struct device *dev, void *p)
 	struct osd_info *oi = itv->osd_info;
 
 	if (itv->v4l2_cap & V4L2_CAP_VIDEO_OUTPUT) {
+<<<<<<< HEAD
 		if (unregister_framebuffer(&itv->osd_info->ivtvfb_info)) {
 			IVTVFB_WARN("Framebuffer %d is in use, cannot unload\n",
 				       itv->instance);
 			return 0;
 		}
+=======
+		itv->streams[IVTV_DEC_STREAM_TYPE_YUV].vdev.device_caps &=
+			~V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+		itv->streams[IVTV_DEC_STREAM_TYPE_MPG].vdev.device_caps &=
+			~V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+		itv->v4l2_cap &= ~V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+		unregister_framebuffer(&itv->osd_info->ivtvfb_info);
+>>>>>>> upstream/android-13
 		IVTVFB_INFO("Unregister framebuffer %d\n", itv->instance);
 		itv->ivtvfb_restore = NULL;
 		ivtvfb_blank(FB_BLANK_VSYNC_SUSPEND, &oi->ivtvfb_info);

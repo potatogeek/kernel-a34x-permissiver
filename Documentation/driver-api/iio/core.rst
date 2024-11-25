@@ -2,19 +2,32 @@
 Core elements
 =============
 
+<<<<<<< HEAD
 The Industrial I/O core offers a unified framework for writing drivers for
 many different types of embedded sensors. a standard interface to user space
+=======
+The Industrial I/O core offers both a unified framework for writing drivers for
+many different types of embedded sensors and a standard interface to user space
+>>>>>>> upstream/android-13
 applications manipulating sensors. The implementation can be found under
 :file:`drivers/iio/industrialio-*`
 
 Industrial I/O Devices
 ----------------------
 
+<<<<<<< HEAD
 * struct :c:type:`iio_dev` - industrial I/O device
 * :c:func:`iio_device_alloc()` - alocate an :c:type:`iio_dev` from a driver
 * :c:func:`iio_device_free()` - free an :c:type:`iio_dev` from a driver
 * :c:func:`iio_device_register()` - register a device with the IIO subsystem
 * :c:func:`iio_device_unregister()` - unregister a device from the IIO
+=======
+* struct iio_dev - industrial I/O device
+* iio_device_alloc() - allocate an :c:type:`iio_dev` from a driver
+* iio_device_free() - free an :c:type:`iio_dev` from a driver
+* iio_device_register() - register a device with the IIO subsystem
+* iio_device_unregister() - unregister a device from the IIO
+>>>>>>> upstream/android-13
   subsystem
 
 An IIO device usually corresponds to a single hardware sensor and it
@@ -34,17 +47,29 @@ A typical IIO driver will register itself as an :doc:`I2C <../i2c>` or
 
 At probe:
 
+<<<<<<< HEAD
 1. Call :c:func:`iio_device_alloc()`, which allocates memory for an IIO device.
 2. Initialize IIO device fields with driver specific information (e.g.
    device name, device channels).
 3. Call :c:func:`iio_device_register()`, this registers the device with the
+=======
+1. Call iio_device_alloc(), which allocates memory for an IIO device.
+2. Initialize IIO device fields with driver specific information (e.g.
+   device name, device channels).
+3. Call iio_device_register(), this registers the device with the
+>>>>>>> upstream/android-13
    IIO core. After this call the device is ready to accept requests from user
    space applications.
 
 At remove, we free the resources allocated in probe in reverse order:
 
+<<<<<<< HEAD
 1. :c:func:`iio_device_unregister()`, unregister the device from the IIO core.
 2. :c:func:`iio_device_free()`, free the memory allocated for the IIO device.
+=======
+1. iio_device_unregister(), unregister the device from the IIO core.
+2. iio_device_free(), free the memory allocated for the IIO device.
+>>>>>>> upstream/android-13
 
 IIO device sysfs interface
 ==========================
@@ -66,7 +91,11 @@ Common attributes are:
 IIO device channels
 ===================
 
+<<<<<<< HEAD
 struct :c:type:`iio_chan_spec` - specification of a single channel
+=======
+struct iio_chan_spec - specification of a single channel
+>>>>>>> upstream/android-13
 
 An IIO device channel is a representation of a data channel. An IIO device can
 have one or multiple channels. For example:
@@ -77,7 +106,11 @@ have one or multiple channels. For example:
 * an accelerometer can have up to 3 channels representing acceleration on X, Y
   and Z axes.
 
+<<<<<<< HEAD
 An IIO channel is described by the struct :c:type:`iio_chan_spec`.
+=======
+An IIO channel is described by the struct iio_chan_spec.
+>>>>>>> upstream/android-13
 A thermometer driver for the temperature sensor in the example above would
 have to describe its channel as follows::
 

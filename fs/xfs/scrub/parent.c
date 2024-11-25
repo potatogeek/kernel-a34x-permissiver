@@ -9,29 +9,44 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
 #include "xfs_btree.h"
 #include "xfs_bit.h"
 #include "xfs_log_format.h"
 #include "xfs_trans.h"
 #include "xfs_sb.h"
+=======
+#include "xfs_log_format.h"
+>>>>>>> upstream/android-13
 #include "xfs_inode.h"
 #include "xfs_icache.h"
 #include "xfs_dir2.h"
 #include "xfs_dir2_priv.h"
+<<<<<<< HEAD
 #include "xfs_ialloc.h"
 #include "scrub/xfs_scrub.h"
 #include "scrub/scrub.h"
 #include "scrub/common.h"
 #include "scrub/trace.h"
+=======
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+>>>>>>> upstream/android-13
 
 /* Set us up to scrub parents. */
 int
 xchk_setup_parent(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_inode	*ip)
 {
 	return xchk_setup_inode_contents(sc, ip, 0);
+=======
+	struct xfs_scrub	*sc)
+{
+	return xchk_setup_inode_contents(sc, 0);
+>>>>>>> upstream/android-13
 }
 
 /* Parent pointers */
@@ -40,8 +55,15 @@ xchk_setup_parent(
 
 struct xchk_parent_ctx {
 	struct dir_context	dc;
+<<<<<<< HEAD
 	xfs_ino_t		ino;
 	xfs_nlink_t		nlink;
+=======
+	struct xfs_scrub	*sc;
+	xfs_ino_t		ino;
+	xfs_nlink_t		nlink;
+	bool			cancelled;
+>>>>>>> upstream/android-13
 };
 
 /* Look for a single entry in a directory pointing to an inode. */
@@ -55,11 +77,28 @@ xchk_parent_actor(
 	unsigned		type)
 {
 	struct xchk_parent_ctx	*spc;
+<<<<<<< HEAD
+=======
+	int			error = 0;
+>>>>>>> upstream/android-13
 
 	spc = container_of(dc, struct xchk_parent_ctx, dc);
 	if (spc->ino == ino)
 		spc->nlink++;
+<<<<<<< HEAD
 	return 0;
+=======
+
+	/*
+	 * If we're facing a fatal signal, bail out.  Store the cancellation
+	 * status separately because the VFS readdir code squashes error codes
+	 * into short directory reads.
+	 */
+	if (xchk_should_terminate(spc->sc, &error))
+		spc->cancelled = true;
+
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /* Count the number of dentries in the parent dir that point to this inode. */
@@ -70,10 +109,16 @@ xchk_parent_count_parent_dentries(
 	xfs_nlink_t		*nlink)
 {
 	struct xchk_parent_ctx	spc = {
+<<<<<<< HEAD
 		.dc.actor = xchk_parent_actor,
 		.dc.pos = 0,
 		.ino = sc->ip->i_ino,
 		.nlink = 0,
+=======
+		.dc.actor	= xchk_parent_actor,
+		.ino		= sc->ip->i_ino,
+		.sc		= sc,
+>>>>>>> upstream/android-13
 	};
 	size_t			bufsize;
 	loff_t			oldpos;
@@ -87,8 +132,13 @@ xchk_parent_count_parent_dentries(
 	 * if there is one.
 	 */
 	lock_mode = xfs_ilock_data_map_shared(parent);
+<<<<<<< HEAD
 	if (parent->i_d.di_nextents > 0)
 		error = xfs_dir3_data_readahead(parent, 0, -1);
+=======
+	if (parent->i_df.if_nextents > 0)
+		error = xfs_dir3_data_readahead(parent, 0, 0);
+>>>>>>> upstream/android-13
 	xfs_iunlock(parent, lock_mode);
 	if (error)
 		return error;
@@ -99,12 +149,23 @@ xchk_parent_count_parent_dentries(
 	 * scanned.
 	 */
 	bufsize = (size_t)min_t(loff_t, XFS_READDIR_BUFSIZE,
+<<<<<<< HEAD
 			parent->i_d.di_size);
+=======
+			parent->i_disk_size);
+>>>>>>> upstream/android-13
 	oldpos = 0;
 	while (true) {
 		error = xfs_readdir(sc->tp, parent, &spc.dc, bufsize);
 		if (error)
 			goto out;
+<<<<<<< HEAD
+=======
+		if (spc.cancelled) {
+			error = -EAGAIN;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 		if (oldpos == spc.dc.pos)
 			break;
 		oldpos = spc.dc.pos;
@@ -157,6 +218,7 @@ xchk_parent_validate(
 	 * can't use DONTCACHE here because DONTCACHE inodes can trigger
 	 * immediate inactive cleanup of the inode.
 	 *
+<<<<<<< HEAD
 	 * If _iget returns -EINVAL then the parent inode number is garbage
 	 * and the directory is corrupt.  If the _iget returns -EFSCORRUPTED
 	 * or -EFSBADCRC then the parent is corrupt which is a cross
@@ -164,6 +226,15 @@ xchk_parent_validate(
 	 */
 	error = xfs_iget(mp, sc->tp, dnum, XFS_IGET_UNTRUSTED, 0, &dp);
 	if (error == -EINVAL) {
+=======
+	 * If _iget returns -EINVAL or -ENOENT then the parent inode number is
+	 * garbage and the directory is corrupt.  If the _iget returns
+	 * -EFSCORRUPTED or -EFSBADCRC then the parent is corrupt which is a
+	 *  cross referencing error.  Any other error is an operational error.
+	 */
+	error = xfs_iget(mp, sc->tp, dnum, XFS_IGET_UNTRUSTED, 0, &dp);
+	if (error == -EINVAL || error == -ENOENT) {
+>>>>>>> upstream/android-13
 		error = -EFSCORRUPTED;
 		xchk_fblock_process_error(sc, XFS_DATA_FORK, 0, &error);
 		goto out;
@@ -320,7 +391,11 @@ out:
 	 * If we failed to lock the parent inode even after a retry, just mark
 	 * this scrub incomplete and return.
 	 */
+<<<<<<< HEAD
 	if (sc->try_harder && error == -EDEADLOCK) {
+=======
+	if ((sc->flags & XCHK_TRY_HARDER) && error == -EDEADLOCK) {
+>>>>>>> upstream/android-13
 		error = 0;
 		xchk_set_incomplete(sc);
 	}

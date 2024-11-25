@@ -59,10 +59,13 @@ ENTRY(_start)
 
 	.align	4
 	.literal_position
+<<<<<<< HEAD
 .Lstartup:
 	.word	_startup
 
 	.align	4
+=======
+>>>>>>> upstream/android-13
 _SetupOCD:
 	/*
 	 * Initialize WB, WS, and clear PS.EXCM (to allow loop instructions).
@@ -99,12 +102,21 @@ _SetupMMU:
 1:
 #endif
 #endif
+<<<<<<< HEAD
 	.end	no-absolute-literals
 
 	l32r	a0, .Lstartup
 	jx	a0
 
 ENDPROC(_start)
+=======
+
+	movi	a0, _startup
+	jx	a0
+
+ENDPROC(_start)
+	.end	no-absolute-literals
+>>>>>>> upstream/android-13
 
 	__REF
 	.literal_position
@@ -197,7 +209,11 @@ ENTRY(_startup)
 	movi	a1, start_info
 	l32i	a1, a1, 0
 
+<<<<<<< HEAD
 	movi	a2, (1 << PS_WOE_BIT) | LOCKLEVEL
+=======
+	movi	a2, PS_WOE_MASK | LOCKLEVEL
+>>>>>>> upstream/android-13
 					# WOE=1, INTLEVEL=LOCKLEVEL, UM=0
 	wsr	a2, ps			# (enable reg-windows; progmode stack)
 	rsync
@@ -216,7 +232,11 @@ ENTRY(_startup)
 	 *
 	 * The linker script used to build the Linux kernel image
 	 * creates a table located at __boot_reloc_table_start
+<<<<<<< HEAD
 	 * that contans the information what data needs to be unpacked.
+=======
+	 * that contains the information what data needs to be unpacked.
+>>>>>>> upstream/android-13
 	 *
 	 * Uses a2-a7.
 	 */
@@ -226,7 +246,11 @@ ENTRY(_startup)
 
 1:	beq	a2, a3, 3f	# no more entries?
 	l32i	a4, a2, 0	# start destination (in RAM)
+<<<<<<< HEAD
 	l32i	a5, a2, 4	# end desination (in RAM)
+=======
+	l32i	a5, a2, 4	# end destination (in RAM)
+>>>>>>> upstream/android-13
 	l32i	a6, a2, 8	# start source (in ROM)
 	addi	a2, a2, 12	# next entry
 	beq	a4, a5, 1b	# skip, empty entry
@@ -264,6 +288,16 @@ ENTRY(_startup)
 	___invalidate_icache_all a2 a3
 	isync
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_XIP_KERNEL
+	/* Setup bootstrap CPU stack in XIP kernel */
+
+	movi	a1, start_info
+	l32i	a1, a1, 0
+#endif
+
+>>>>>>> upstream/android-13
 	movi	a6, 0
 	xsr	a6, excsave1
 
@@ -359,10 +393,17 @@ ENDPROC(cpu_restart)
  * DATA section
  */
 
+<<<<<<< HEAD
         .section ".data.init.refok"
         .align  4
 ENTRY(start_info)
         .long   init_thread_union + KERNEL_STACK_SIZE
+=======
+	__REFDATA
+	.align  4
+ENTRY(start_info)
+	.long	init_thread_union + KERNEL_STACK_SIZE
+>>>>>>> upstream/android-13
 
 /*
  * BSS section

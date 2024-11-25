@@ -26,7 +26,11 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "amdgpu.h"
 #include "amdgpu_vce.h"
 #include "cikd.h"
@@ -283,7 +287,11 @@ static int vce_v2_0_stop(struct amdgpu_device *adev)
 	}
 
 	if (vce_v2_0_wait_for_idle(adev)) {
+<<<<<<< HEAD
 		DRM_INFO("VCE is busy, Can't set clock gateing");
+=======
+		DRM_INFO("VCE is busy, Can't set clock gating");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -417,7 +425,11 @@ static int vce_v2_0_sw_init(void *handle)
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
 	/* VCE */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, 167, &adev->vce.irq);
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, 167, &adev->vce.irq);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -433,8 +445,13 @@ static int vce_v2_0_sw_init(void *handle)
 	for (i = 0; i < adev->vce.num_rings; i++) {
 		ring = &adev->vce.ring[i];
 		sprintf(ring->name, "vce%d", i);
+<<<<<<< HEAD
 		r = amdgpu_ring_init(adev, ring, 512,
 				     &adev->vce.irq, 0);
+=======
+		r = amdgpu_ring_init(adev, ring, 512, &adev->vce.irq, 0,
+				     AMDGPU_RING_PRIO_DEFAULT, NULL);
+>>>>>>> upstream/android-13
 		if (r)
 			return r;
 	}
@@ -463,6 +480,7 @@ static int vce_v2_0_hw_init(void *handle)
 
 	amdgpu_asic_set_vce_clocks(adev, 10000, 10000);
 	vce_v2_0_enable_mgcg(adev, true, false);
+<<<<<<< HEAD
 	for (i = 0; i < adev->vce.num_rings; i++)
 		adev->vce.ring[i].ready = false;
 
@@ -472,6 +490,13 @@ static int vce_v2_0_hw_init(void *handle)
 			return r;
 		else
 			adev->vce.ring[i].ready = true;
+=======
+
+	for (i = 0; i < adev->vce.num_rings; i++) {
+		r = amdgpu_ring_test_helper(&adev->vce.ring[i]);
+		if (r)
+			return r;
+>>>>>>> upstream/android-13
 	}
 
 	DRM_INFO("VCE initialized successfully.\n");
@@ -481,6 +506,13 @@ static int vce_v2_0_hw_init(void *handle)
 
 static int vce_v2_0_hw_fini(void *handle)
 {
+<<<<<<< HEAD
+=======
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	cancel_delayed_work_sync(&adev->vce.idle_work);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -489,6 +521,33 @@ static int vce_v2_0_suspend(void *handle)
 	int r;
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Proper cleanups before halting the HW engine:
+	 *   - cancel the delayed idle work
+	 *   - enable powergating
+	 *   - enable clockgating
+	 *   - disable dpm
+	 *
+	 * TODO: to align with the VCN implementation, move the
+	 * jobs for clockgating/powergating/dpm setting to
+	 * ->set_powergating_state().
+	 */
+	cancel_delayed_work_sync(&adev->vce.idle_work);
+
+	if (adev->pm.dpm_enabled) {
+		amdgpu_dpm_enable_vce(adev, false);
+	} else {
+		amdgpu_asic_set_vce_clocks(adev, 0, 0);
+		amdgpu_device_ip_set_powergating_state(adev, AMD_IP_BLOCK_TYPE_VCE,
+						       AMD_PG_STATE_GATE);
+		amdgpu_device_ip_set_clockgating_state(adev, AMD_IP_BLOCK_TYPE_VCE,
+						       AMD_CG_STATE_GATE);
+	}
+
+>>>>>>> upstream/android-13
 	r = vce_v2_0_hw_fini(adev);
 	if (r)
 		return r;
@@ -609,6 +668,10 @@ static const struct amdgpu_ring_funcs vce_v2_0_ring_funcs = {
 	.align_mask = 0xf,
 	.nop = VCE_CMD_NO_OP,
 	.support_64bit_ptrs = false,
+<<<<<<< HEAD
+=======
+	.no_user_fence = true,
+>>>>>>> upstream/android-13
 	.get_rptr = vce_v2_0_ring_get_rptr,
 	.get_wptr = vce_v2_0_ring_get_wptr,
 	.set_wptr = vce_v2_0_ring_set_wptr,

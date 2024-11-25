@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  HID driver for multitouch panels
  *
@@ -17,6 +21,7 @@
  *  Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
  *  Copyright (c) 2010      Henrik Rydberg <rydberg@euromail.se>
  *  Copyright (c) 2010      Canonical, Ltd.
+<<<<<<< HEAD
  *
  */
 
@@ -25,6 +30,11 @@
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+ */
+
+/*
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -72,6 +82,12 @@ MODULE_LICENSE("GPL");
 #define MT_QUIRK_STICKY_FINGERS		BIT(16)
 #define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
 #define MT_QUIRK_WIN8_PTP_BUTTONS	BIT(18)
+<<<<<<< HEAD
+=======
+#define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
+#define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
+#define MT_QUIRK_DISABLE_WAKEUP		BIT(21)
+>>>>>>> upstream/android-13
 
 #define MT_INPUTMODE_TOUCHSCREEN	0x02
 #define MT_INPUTMODE_TOUCHPAD		0x03
@@ -107,6 +123,10 @@ struct mt_usages {
 struct mt_application {
 	struct list_head list;
 	unsigned int application;
+<<<<<<< HEAD
+=======
+	unsigned int report_id;
+>>>>>>> upstream/android-13
 	struct list_head mt_usages;	/* mt usages list */
 
 	__s32 quirks;
@@ -190,7 +210,14 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
 /* reserved					0x0011 */
 #define MT_CLS_WIN_8				0x0012
 #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
+<<<<<<< HEAD
 #define MT_CLS_WIN_8_DUAL			0x0014
+=======
+/* reserved					0x0014 */
+#define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
+#define MT_CLS_WIN_8_DISABLE_WAKEUP		0x0016
+#define MT_CLS_WIN_8_NO_STICKY_FINGERS		0x0017
+>>>>>>> upstream/android-13
 
 /* vendor specific classes */
 #define MT_CLS_3M				0x0101
@@ -207,6 +234,10 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
 #define MT_CLS_VTL				0x0110
 #define MT_CLS_GOOGLE				0x0111
 #define MT_CLS_RAZER_BLADE_STEALTH		0x0112
+<<<<<<< HEAD
+=======
+#define MT_CLS_SMART_TECH			0x0113
+>>>>>>> upstream/android-13
 
 #define MT_DEFAULT_MAXCONTACT	10
 #define MT_MAX_MAXCONTACT	250
@@ -267,12 +298,39 @@ static const struct mt_class mt_classes[] = {
 			MT_QUIRK_HOVERING |
 			MT_QUIRK_CONTACT_CNT_ACCURATE |
 			MT_QUIRK_STICKY_FINGERS |
+<<<<<<< HEAD
 			MT_QUIRK_WIN8_PTP_BUTTONS },
+=======
+			MT_QUIRK_WIN8_PTP_BUTTONS,
+		.export_all_inputs = true },
+>>>>>>> upstream/android-13
 	{ .name = MT_CLS_EXPORT_ALL_INPUTS,
 		.quirks = MT_QUIRK_ALWAYS_VALID |
 			MT_QUIRK_CONTACT_CNT_ACCURATE,
 		.export_all_inputs = true },
+<<<<<<< HEAD
 	{ .name = MT_CLS_WIN_8_DUAL,
+=======
+	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+		.quirks = MT_QUIRK_ALWAYS_VALID |
+			MT_QUIRK_IGNORE_DUPLICATES |
+			MT_QUIRK_HOVERING |
+			MT_QUIRK_CONTACT_CNT_ACCURATE |
+			MT_QUIRK_STICKY_FINGERS |
+			MT_QUIRK_WIN8_PTP_BUTTONS |
+			MT_QUIRK_FORCE_MULTI_INPUT,
+		.export_all_inputs = true },
+	{ .name = MT_CLS_WIN_8_DISABLE_WAKEUP,
+		.quirks = MT_QUIRK_ALWAYS_VALID |
+			MT_QUIRK_IGNORE_DUPLICATES |
+			MT_QUIRK_HOVERING |
+			MT_QUIRK_CONTACT_CNT_ACCURATE |
+			MT_QUIRK_STICKY_FINGERS |
+			MT_QUIRK_WIN8_PTP_BUTTONS |
+			MT_QUIRK_DISABLE_WAKEUP,
+		.export_all_inputs = true },
+	{ .name = MT_CLS_WIN_8_NO_STICKY_FINGERS,
+>>>>>>> upstream/android-13
 		.quirks = MT_QUIRK_ALWAYS_VALID |
 			MT_QUIRK_IGNORE_DUPLICATES |
 			MT_QUIRK_HOVERING |
@@ -357,6 +415,15 @@ static const struct mt_class mt_classes[] = {
 			MT_QUIRK_CONTACT_CNT_ACCURATE |
 			MT_QUIRK_WIN8_PTP_BUTTONS,
 	},
+<<<<<<< HEAD
+=======
+	{ .name = MT_CLS_SMART_TECH,
+		.quirks = MT_QUIRK_ALWAYS_VALID |
+			MT_QUIRK_IGNORE_DUPLICATES |
+			MT_QUIRK_CONTACT_CNT_ACCURATE |
+			MT_QUIRK_SEPARATE_APP_REPORT,
+	},
+>>>>>>> upstream/android-13
 	{ }
 };
 
@@ -513,8 +580,14 @@ static struct mt_usages *mt_allocate_usage(struct hid_device *hdev,
 }
 
 static struct mt_application *mt_allocate_application(struct mt_device *td,
+<<<<<<< HEAD
 						      unsigned int application)
 {
+=======
+						      struct hid_report *report)
+{
+	unsigned int application = report->application;
+>>>>>>> upstream/android-13
 	struct mt_application *mt_application;
 
 	mt_application = devm_kzalloc(&td->hdev->dev, sizeof(*mt_application),
@@ -539,6 +612,10 @@ static struct mt_application *mt_allocate_application(struct mt_device *td,
 	mt_application->scantime = DEFAULT_ZERO;
 	mt_application->raw_cc = DEFAULT_ZERO;
 	mt_application->quirks = td->mtclass.quirks;
+<<<<<<< HEAD
+=======
+	mt_application->report_id = report->id;
+>>>>>>> upstream/android-13
 
 	list_add_tail(&mt_application->list, &td->applications);
 
@@ -546,19 +623,37 @@ static struct mt_application *mt_allocate_application(struct mt_device *td,
 }
 
 static struct mt_application *mt_find_application(struct mt_device *td,
+<<<<<<< HEAD
 						  unsigned int application)
 {
+=======
+						  struct hid_report *report)
+{
+	unsigned int application = report->application;
+>>>>>>> upstream/android-13
 	struct mt_application *tmp, *mt_application = NULL;
 
 	list_for_each_entry(tmp, &td->applications, list) {
 		if (application == tmp->application) {
+<<<<<<< HEAD
 			mt_application = tmp;
 			break;
+=======
+			if (!(td->mtclass.quirks & MT_QUIRK_SEPARATE_APP_REPORT) ||
+			    tmp->report_id == report->id) {
+				mt_application = tmp;
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (!mt_application)
+<<<<<<< HEAD
 		mt_application = mt_allocate_application(td, application);
+=======
+		mt_application = mt_allocate_application(td, report);
+>>>>>>> upstream/android-13
 
 	return mt_application;
 }
@@ -575,7 +670,11 @@ static struct mt_report_data *mt_allocate_report_data(struct mt_device *td,
 		return NULL;
 
 	rdata->report = report;
+<<<<<<< HEAD
 	rdata->application = mt_find_application(td, report->application);
+=======
+	rdata->application = mt_find_application(td, report);
+>>>>>>> upstream/android-13
 
 	if (!rdata->application) {
 		devm_kfree(&td->hdev->dev, rdata);
@@ -588,9 +687,19 @@ static struct mt_report_data *mt_allocate_report_data(struct mt_device *td,
 		if (!(HID_MAIN_ITEM_VARIABLE & field->flags))
 			continue;
 
+<<<<<<< HEAD
 		for (n = 0; n < field->report_count; n++) {
 			if (field->usage[n].hid == HID_DG_CONTACTID)
 				rdata->is_mt_collection = true;
+=======
+		if (field->logical == HID_DG_FINGER || td->hdev->group != HID_GROUP_MULTITOUCH_WIN_8) {
+			for (n = 0; n < field->report_count; n++) {
+				if (field->usage[n].hid == HID_DG_CONTACTID) {
+					rdata->is_mt_collection = true;
+					break;
+				}
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -743,7 +852,12 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 			return 1;
 		case HID_DG_CONFIDENCE:
 			if ((cls->name == MT_CLS_WIN_8 ||
+<<<<<<< HEAD
 				cls->name == MT_CLS_WIN_8_DUAL) &&
+=======
+			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
+			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP) &&
+>>>>>>> upstream/android-13
 				(field->application == HID_DG_TOUCHPAD ||
 				 field->application == HID_DG_TOUCHSCREEN))
 				app->quirks |= MT_QUIRK_CONFIDENCE;
@@ -886,7 +1000,11 @@ static void mt_release_pending_palms(struct mt_device *td,
 		clear_bit(slotnum, app->pending_palm_slots);
 
 		input_mt_slot(input, slotnum);
+<<<<<<< HEAD
 		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
+=======
+		input_mt_report_slot_inactive(input);
+>>>>>>> upstream/android-13
 
 		need_sync = true;
 	}
@@ -1328,6 +1446,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 		return mt_touch_input_mapping(hdev, hi, field, usage, bit, max,
 					      application);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * some egalax touchscreens have "application == DG_TOUCHSCREEN"
+	 * for the stylus. Overwrite the hid_input application
+	 */
+	if (field->physical == HID_DG_STYLUS)
+		hi->application = HID_DG_STYLUS;
+
+>>>>>>> upstream/android-13
 	/* let hid-core decide for the others */
 	return 0;
 }
@@ -1516,14 +1644,20 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
 	struct mt_device *td = hid_get_drvdata(hdev);
 	char *name;
 	const char *suffix = NULL;
+<<<<<<< HEAD
 	unsigned int application = 0;
+=======
+>>>>>>> upstream/android-13
 	struct mt_report_data *rdata;
 	struct mt_application *mt_application = NULL;
 	struct hid_report *report;
 	int ret;
 
 	list_for_each_entry(report, &hi->reports, hidinput_list) {
+<<<<<<< HEAD
 		application = report->application;
+=======
+>>>>>>> upstream/android-13
 		rdata = mt_find_report_data(td, report);
 		if (!rdata) {
 			hid_err(hdev, "failed to allocate data for report\n");
@@ -1538,6 +1672,7 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
 			if (ret)
 				return ret;
 		}
+<<<<<<< HEAD
 
 		/*
 		 * some egalax touchscreens have "application == DG_TOUCHSCREEN"
@@ -1578,6 +1713,38 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
 			suffix = "UNKNOWN";
 			break;
 		}
+=======
+	}
+
+	switch (hi->application) {
+	case HID_GD_KEYBOARD:
+	case HID_GD_KEYPAD:
+	case HID_GD_MOUSE:
+	case HID_DG_TOUCHPAD:
+	case HID_GD_SYSTEM_CONTROL:
+	case HID_CP_CONSUMER_CONTROL:
+	case HID_GD_WIRELESS_RADIO_CTLS:
+	case HID_GD_SYSTEM_MULTIAXIS:
+		/* already handled by hid core */
+		break;
+	case HID_DG_TOUCHSCREEN:
+		/* we do not set suffix = "Touchscreen" */
+		hi->input->name = hdev->name;
+		break;
+	case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
+		suffix = "Custom Media Keys";
+		break;
+	case HID_DG_STYLUS:
+		/* force BTN_STYLUS to allow tablet matching in udev */
+		__set_bit(BTN_STYLUS, hi->input->keybit);
+		fallthrough;
+	case HID_DG_PEN:
+		suffix = "Stylus";
+		break;
+	default:
+		suffix = "UNKNOWN";
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (suffix) {
@@ -1635,9 +1802,13 @@ static void mt_release_contacts(struct hid_device *hid)
 		if (mt) {
 			for (i = 0; i < mt->num_slots; i++) {
 				input_mt_slot(input_dev, i);
+<<<<<<< HEAD
 				input_mt_report_slot_state(input_dev,
 							   MT_TOOL_FINGER,
 							   false);
+=======
+				input_mt_report_slot_inactive(input_dev);
+>>>>>>> upstream/android-13
 			}
 			input_mt_sync_frame(input_dev);
 			input_sync(input_dev);
@@ -1709,6 +1880,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	if (id->group != HID_GROUP_MULTITOUCH_WIN_8)
 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
 
+<<<<<<< HEAD
+=======
+	if (mtclass->quirks & MT_QUIRK_FORCE_MULTI_INPUT) {
+		hdev->quirks &= ~HID_QUIRK_INPUT_PER_APP;
+		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+	}
+
+>>>>>>> upstream/android-13
 	timer_setup(&td->release_timer, mt_expired_timeout, 0);
 
 	ret = hid_parse(hdev);
@@ -1733,6 +1912,23 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
 }
 
 #ifdef CONFIG_PM
+<<<<<<< HEAD
+=======
+static int mt_suspend(struct hid_device *hdev, pm_message_t state)
+{
+	struct mt_device *td = hid_get_drvdata(hdev);
+
+	/* High latency is desirable for power savings during S3/S0ix */
+	if ((td->mtclass.quirks & MT_QUIRK_DISABLE_WAKEUP) ||
+	    !hid_hw_may_wakeup(hdev))
+		mt_set_modes(hdev, HID_LATENCY_HIGH, false, false);
+	else
+		mt_set_modes(hdev, HID_LATENCY_HIGH, true, true);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int mt_reset_resume(struct hid_device *hdev)
 {
 	mt_release_contacts(hdev);
@@ -1748,6 +1944,11 @@ static int mt_resume(struct hid_device *hdev)
 
 	hid_hw_idle(hdev, 0, 0, HID_REQ_SET_IDLE);
 
+<<<<<<< HEAD
+=======
+	mt_set_modes(hdev, HID_LATENCY_NORMAL, true, true);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
@@ -1781,6 +1982,7 @@ static const struct hid_device_id mt_devices[] = {
 		MT_USB_DEVICE(USB_VENDOR_ID_3M,
 			USB_DEVICE_ID_3M3266) },
 
+<<<<<<< HEAD
 	/* Alps devices */
 	{ .driver_data = MT_CLS_WIN_8_DUAL,
 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
@@ -1801,11 +2003,22 @@ static const struct hid_device_id mt_devices[] = {
 			   USB_VENDOR_ID_LENOVO,
 			   USB_DEVICE_ID_LENOVO_X1_TAB) },
 
+=======
+>>>>>>> upstream/android-13
 	/* Anton devices */
 	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
 		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
 			USB_DEVICE_ID_ANTON_TOUCH_PAD) },
 
+<<<<<<< HEAD
+=======
+	/* Asus T101HA */
+	{ .driver_data = MT_CLS_WIN_8_DISABLE_WAKEUP,
+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
+			   USB_VENDOR_ID_ASUSTEK,
+			   USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
+
+>>>>>>> upstream/android-13
 	/* Asus T304UA */
 	{ .driver_data = MT_CLS_ASUS,
 		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
@@ -1835,12 +2048,15 @@ static const struct hid_device_id mt_devices[] = {
 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
 
+<<<<<<< HEAD
 	/* Cirque devices */
 	{ .driver_data = MT_CLS_WIN_8_DUAL,
 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
 			I2C_VENDOR_ID_CIRQUE,
 			I2C_PRODUCT_ID_CIRQUE_121F) },
 
+=======
+>>>>>>> upstream/android-13
 	/* CJTouch panels */
 	{ .driver_data = MT_CLS_NSMU,
 		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
@@ -1915,6 +2131,14 @@ static const struct hid_device_id mt_devices[] = {
 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
 
+<<<<<<< HEAD
+=======
+	/* Elan devices */
+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+			USB_VENDOR_ID_ELAN, 0x313a) },
+
+>>>>>>> upstream/android-13
 	/* Elitegroup panel */
 	{ .driver_data = MT_CLS_SERIAL,
 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
@@ -1981,6 +2205,21 @@ static const struct hid_device_id mt_devices[] = {
 		HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
 			USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_7010) },
 
+<<<<<<< HEAD
+=======
+	/* Lenovo X1 TAB Gen 2 */
+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
+			   USB_VENDOR_ID_LENOVO,
+			   USB_DEVICE_ID_LENOVO_X1_TAB) },
+
+	/* Lenovo X1 TAB Gen 3 */
+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
+			   USB_VENDOR_ID_LENOVO,
+			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
+
+>>>>>>> upstream/android-13
 	/* MosArt panels */
 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
@@ -2036,11 +2275,30 @@ static const struct hid_device_id mt_devices[] = {
 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
 			USB_VENDOR_ID_SYNAPTICS, 0x8323) },
 
+<<<<<<< HEAD
+=======
+	/* Smart Tech panels */
+	{ .driver_data = MT_CLS_SMART_TECH,
+		MT_USB_DEVICE(0x0b8c, 0x0092)},
+
+>>>>>>> upstream/android-13
 	/* Stantum panels */
 	{ .driver_data = MT_CLS_CONFIDENCE,
 		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
 			USB_DEVICE_ID_MTP_STM)},
 
+<<<<<<< HEAD
+=======
+	/* Synaptics devices */
+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
+
+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+			USB_VENDOR_ID_SYNAPTICS, 0xce09) },
+
+>>>>>>> upstream/android-13
 	/* TopSeed panels */
 	{ .driver_data = MT_CLS_TOPSEED,
 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
@@ -2064,6 +2322,14 @@ static const struct hid_device_id mt_devices[] = {
 		MT_USB_DEVICE(USB_VENDOR_ID_VTL,
 			USB_DEVICE_ID_VTL_MULTITOUCH_FF3F) },
 
+<<<<<<< HEAD
+=======
+	/* Winbond Electronics Corp. */
+	{ .driver_data = MT_CLS_WIN_8_NO_STICKY_FINGERS,
+		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
+			   USB_VENDOR_ID_WINBOND, USB_DEVICE_ID_TSTP_MTOUCH) },
+
+>>>>>>> upstream/android-13
 	/* Wistron panels */
 	{ .driver_data = MT_CLS_NSMU,
 		MT_USB_DEVICE(USB_VENDOR_ID_WISTRON,
@@ -2137,6 +2403,10 @@ static struct hid_driver mt_driver = {
 	.event = mt_event,
 	.report = mt_report,
 #ifdef CONFIG_PM
+<<<<<<< HEAD
+=======
+	.suspend = mt_suspend,
+>>>>>>> upstream/android-13
 	.reset_resume = mt_reset_resume,
 	.resume = mt_resume,
 #endif

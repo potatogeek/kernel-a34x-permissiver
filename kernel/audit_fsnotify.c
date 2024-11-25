@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* audit_fsnotify.c -- tracking inodes
  *
  * Copyright 2003-2009,2014-2015 Red Hat, Inc.
  * Copyright 2005 Hewlett-Packard Development Company, L.P.
  * Copyright 2005 IBM Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -45,7 +52,11 @@ static struct fsnotify_group *audit_fsnotify_group;
 
 /* fsnotify events we care about. */
 #define AUDIT_FS_EVENTS (FS_MOVE | FS_CREATE | FS_DELETE | FS_DELETE_SELF |\
+<<<<<<< HEAD
 			 FS_MOVE_SELF | FS_EVENT_ON_CHILD)
+=======
+			 FS_MOVE_SELF)
+>>>>>>> upstream/android-13
 
 static void audit_fsnotify_mark_free(struct audit_fsnotify_mark *audit_mark)
 {
@@ -93,7 +104,11 @@ struct audit_fsnotify_mark *audit_alloc_mark(struct audit_krule *krule, char *pa
 
 	dentry = kern_path_locked(pathname, &path);
 	if (IS_ERR(dentry))
+<<<<<<< HEAD
 		return (void *)dentry; /* returning an error */
+=======
+		return ERR_CAST(dentry); /* returning an error */
+>>>>>>> upstream/android-13
 	inode = path.dentry->d_inode;
 	inode_unlock(inode);
 
@@ -127,6 +142,7 @@ static void audit_mark_log_rule_change(struct audit_fsnotify_mark *audit_mark, c
 
 	if (!audit_enabled)
 		return;
+<<<<<<< HEAD
 	ab = audit_log_start(NULL, GFP_NOFS, AUDIT_CONFIG_CHANGE);
 	if (unlikely(!ab))
 		return;
@@ -134,6 +150,13 @@ static void audit_mark_log_rule_change(struct audit_fsnotify_mark *audit_mark, c
 			 from_kuid(&init_user_ns, audit_get_loginuid(current)),
 			 audit_get_sessionid(current), op);
 	audit_log_format(ab, " path=");
+=======
+	ab = audit_log_start(audit_context(), GFP_NOFS, AUDIT_CONFIG_CHANGE);
+	if (unlikely(!ab))
+		return;
+	audit_log_session_info(ab);
+	audit_log_format(ab, " op=%s path=", op);
+>>>>>>> upstream/android-13
 	audit_log_untrustedstring(ab, audit_mark->path);
 	audit_log_key(ab, rule->filterkey);
 	audit_log_format(ab, " list=%d res=1", rule->listnr);
@@ -163,6 +186,7 @@ static void audit_autoremove_mark_rule(struct audit_fsnotify_mark *audit_mark)
 }
 
 /* Update mark data in audit rules based on fsnotify events. */
+<<<<<<< HEAD
 static int audit_mark_handle_event(struct fsnotify_group *group,
 				    struct inode *to_tell,
 				    u32 mask, const void *data, int data_type,
@@ -188,19 +212,42 @@ static int audit_mark_handle_event(struct fsnotify_group *group,
 		BUG();
 		return 0;
 	}
+=======
+static int audit_mark_handle_event(struct fsnotify_mark *inode_mark, u32 mask,
+				   struct inode *inode, struct inode *dir,
+				   const struct qstr *dname, u32 cookie)
+{
+	struct audit_fsnotify_mark *audit_mark;
+
+	audit_mark = container_of(inode_mark, struct audit_fsnotify_mark, mark);
+
+	if (WARN_ON_ONCE(inode_mark->group != audit_fsnotify_group) ||
+	    WARN_ON_ONCE(!inode))
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (mask & (FS_CREATE|FS_MOVED_TO|FS_DELETE|FS_MOVED_FROM)) {
 		if (audit_compare_dname_path(dname, audit_mark->path, AUDIT_NAME_FULL))
 			return 0;
 		audit_update_mark(audit_mark, inode);
+<<<<<<< HEAD
 	} else if (mask & (FS_DELETE_SELF|FS_UNMOUNT|FS_MOVE_SELF))
 		audit_autoremove_mark_rule(audit_mark);
+=======
+	} else if (mask & (FS_DELETE_SELF|FS_UNMOUNT|FS_MOVE_SELF)) {
+		audit_autoremove_mark_rule(audit_mark);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static const struct fsnotify_ops audit_mark_fsnotify_ops = {
+<<<<<<< HEAD
 	.handle_event =	audit_mark_handle_event,
+=======
+	.handle_inode_event = audit_mark_handle_event,
+>>>>>>> upstream/android-13
 	.free_mark = audit_fsnotify_free_mark,
 };
 

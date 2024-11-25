@@ -23,8 +23,11 @@ int __kernel_clock_getres(clockid_t clock_id,
 {
 	return __cvdso_clock_getres(clock_id, res);
 }
+<<<<<<< HEAD
 
 time_t __kernel_time(time_t *time)
 {
 	return __cvdso_time(time);
 }
+=======
+>>>>>>> upstream/android-13

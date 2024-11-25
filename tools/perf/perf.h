@@ -2,6 +2,7 @@
 #ifndef _PERF_PERF_H
 #define _PERF_PERF_H
 
+<<<<<<< HEAD
 #include <time.h>
 #include <stdbool.h>
 #include <linux/types.h>
@@ -24,6 +25,9 @@ static inline unsigned long long rdclock(void)
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 	return ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
+=======
+#include <stdbool.h>
+>>>>>>> upstream/android-13
 
 #ifndef MAX_NR_CPUS
 #define MAX_NR_CPUS			2048
@@ -35,6 +39,7 @@ extern const char perf_version_string[];
 
 void pthread__unblock_sigwinch(void);
 
+<<<<<<< HEAD
 #include "util/target.h"
 
 struct record_opts {
@@ -90,4 +95,14 @@ extern struct option *record_options;
 extern int version_verbose;
 
 int record__parse_freq(const struct option *opt, const char *str, int unset);
+=======
+enum perf_affinity {
+	PERF_AFFINITY_SYS = 0,
+	PERF_AFFINITY_NODE,
+	PERF_AFFINITY_CPU,
+	PERF_AFFINITY_MAX
+};
+
+extern int version_verbose;
+>>>>>>> upstream/android-13
 #endif

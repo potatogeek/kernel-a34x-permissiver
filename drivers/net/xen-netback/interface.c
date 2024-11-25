@@ -47,7 +47,11 @@
 /* Number of bytes allowed on the internal guest Rx queue. */
 #define XENVIF_RX_QUEUE_BYTES (XEN_NETIF_RX_RING_SIZE/2 * PAGE_SIZE)
 
+<<<<<<< HEAD
 /* This function is used to set SKBTX_DEV_ZEROCOPY as well as
+=======
+/* This function is used to set SKBFL_ZEROCOPY_ENABLE as well as
+>>>>>>> upstream/android-13
  * increasing the inflight counter. We need to increase the inflight
  * counter because core driver calls into xenvif_zerocopy_callback
  * which calls xenvif_skb_zerocopy_complete.
@@ -55,7 +59,11 @@
 void xenvif_skb_zerocopy_prepare(struct xenvif_queue *queue,
 				 struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	skb_shinfo(skb)->tx_flags |= SKBTX_DEV_ZEROCOPY;
+=======
+	skb_shinfo(skb)->flags |= SKBFL_ZEROCOPY_ENABLE;
+>>>>>>> upstream/android-13
 	atomic_inc(&queue->inflight_packets);
 }
 
@@ -193,8 +201,12 @@ void xenvif_wake_queue(struct xenvif_queue *queue)
 }
 
 static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 			       struct net_device *sb_dev,
 			       select_queue_fallback_t fallback)
+=======
+			       struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	struct xenvif *vif = netdev_priv(dev);
 	unsigned int size = vif->hash.size;
@@ -207,7 +219,12 @@ static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
 		return 0;
 
 	if (vif->hash.alg == XEN_NETIF_CTRL_HASH_ALGORITHM_NONE)
+<<<<<<< HEAD
 		return fallback(dev, skb, NULL) % dev->real_num_tx_queues;
+=======
+		return netdev_pick_tx(dev, skb, NULL) %
+		       dev->real_num_tx_queues;
+>>>>>>> upstream/android-13
 
 	xenvif_set_skb_hash(vif, skb);
 
@@ -528,6 +545,11 @@ struct xenvif *xenvif_alloc(struct device *parent, domid_t domid,
 	vif->queues = NULL;
 	vif->num_queues = 0;
 
+<<<<<<< HEAD
+=======
+	vif->xdp_headroom = 0;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&vif->lock);
 	INIT_LIST_HEAD(&vif->fe_mcast_addr);
 
@@ -628,19 +650,42 @@ int xenvif_connect_ctrl(struct xenvif *vif, grant_ref_t ring_ref,
 			unsigned int evtchn)
 {
 	struct net_device *dev = vif->dev;
+<<<<<<< HEAD
 	void *addr;
 	struct xen_netif_ctrl_sring *shared;
 	int err;
 
 	err = xenbus_map_ring_valloc(xenvif_to_xenbus_device(vif),
 				     &ring_ref, 1, &addr);
+=======
+	struct xenbus_device *xendev = xenvif_to_xenbus_device(vif);
+	void *addr;
+	struct xen_netif_ctrl_sring *shared;
+	RING_IDX rsp_prod, req_prod;
+	int err;
+
+	err = xenbus_map_ring_valloc(xendev, &ring_ref, 1, &addr);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err;
 
 	shared = (struct xen_netif_ctrl_sring *)addr;
+<<<<<<< HEAD
 	BACK_RING_INIT(&vif->ctrl, shared, XEN_PAGE_SIZE);
 
 	err = bind_interdomain_evtchn_to_irq_lateeoi(vif->domid, evtchn);
+=======
+	rsp_prod = READ_ONCE(shared->rsp_prod);
+	req_prod = READ_ONCE(shared->req_prod);
+
+	BACK_RING_ATTACH(&vif->ctrl, shared, rsp_prod, XEN_PAGE_SIZE);
+
+	err = -EIO;
+	if (req_prod - rsp_prod > RING_SIZE(&vif->ctrl))
+		goto err_unmap;
+
+	err = bind_interdomain_evtchn_to_irq_lateeoi(xendev, evtchn);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto err_unmap;
 
@@ -663,22 +708,68 @@ err_deinit:
 	vif->ctrl_irq = 0;
 
 err_unmap:
+<<<<<<< HEAD
 	xenbus_unmap_ring_vfree(xenvif_to_xenbus_device(vif),
 				vif->ctrl.sring);
+=======
+	xenbus_unmap_ring_vfree(xendev, vif->ctrl.sring);
+>>>>>>> upstream/android-13
 	vif->ctrl.sring = NULL;
 
 err:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static void xenvif_disconnect_queue(struct xenvif_queue *queue)
+{
+	if (queue->task) {
+		kthread_stop(queue->task);
+		put_task_struct(queue->task);
+		queue->task = NULL;
+	}
+
+	if (queue->dealloc_task) {
+		kthread_stop(queue->dealloc_task);
+		queue->dealloc_task = NULL;
+	}
+
+	if (queue->napi.poll) {
+		netif_napi_del(&queue->napi);
+		queue->napi.poll = NULL;
+	}
+
+	if (queue->tx_irq) {
+		unbind_from_irqhandler(queue->tx_irq, queue);
+		if (queue->tx_irq == queue->rx_irq)
+			queue->rx_irq = 0;
+		queue->tx_irq = 0;
+	}
+
+	if (queue->rx_irq) {
+		unbind_from_irqhandler(queue->rx_irq, queue);
+		queue->rx_irq = 0;
+	}
+
+	xenvif_unmap_frontend_data_rings(queue);
+}
+
+>>>>>>> upstream/android-13
 int xenvif_connect_data(struct xenvif_queue *queue,
 			unsigned long tx_ring_ref,
 			unsigned long rx_ring_ref,
 			unsigned int tx_evtchn,
 			unsigned int rx_evtchn)
 {
+<<<<<<< HEAD
 	struct task_struct *task;
 	int err = -ENOMEM;
+=======
+	struct xenbus_device *dev = xenvif_to_xenbus_device(queue->vif);
+	struct task_struct *task;
+	int err;
+>>>>>>> upstream/android-13
 
 	BUG_ON(queue->tx_irq);
 	BUG_ON(queue->task);
@@ -696,6 +787,7 @@ int xenvif_connect_data(struct xenvif_queue *queue,
 	netif_napi_add(queue->vif->dev, &queue->napi, xenvif_poll,
 			XENVIF_NAPI_WEIGHT);
 
+<<<<<<< HEAD
 	if (tx_evtchn == rx_evtchn) {
 		/* feature-split-event-channels == 0 */
 		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
@@ -703,6 +795,34 @@ int xenvif_connect_data(struct xenvif_queue *queue,
 			queue->name, queue);
 		if (err < 0)
 			goto err_unmap;
+=======
+	queue->stalled = true;
+
+	task = kthread_run(xenvif_kthread_guest_rx, queue,
+			   "%s-guest-rx", queue->name);
+	if (IS_ERR(task))
+		goto kthread_err;
+	queue->task = task;
+	/*
+	 * Take a reference to the task in order to prevent it from being freed
+	 * if the thread function returns before kthread_stop is called.
+	 */
+	get_task_struct(task);
+
+	task = kthread_run(xenvif_dealloc_kthread, queue,
+			   "%s-dealloc", queue->name);
+	if (IS_ERR(task))
+		goto kthread_err;
+	queue->dealloc_task = task;
+
+	if (tx_evtchn == rx_evtchn) {
+		/* feature-split-event-channels == 0 */
+		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+			dev, tx_evtchn, xenvif_interrupt, 0,
+			queue->name, queue);
+		if (err < 0)
+			goto err;
+>>>>>>> upstream/android-13
 		queue->tx_irq = queue->rx_irq = err;
 		disable_irq(queue->tx_irq);
 	} else {
@@ -710,24 +830,39 @@ int xenvif_connect_data(struct xenvif_queue *queue,
 		snprintf(queue->tx_irq_name, sizeof(queue->tx_irq_name),
 			 "%s-tx", queue->name);
 		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+<<<<<<< HEAD
 			queue->vif->domid, tx_evtchn, xenvif_tx_interrupt, 0,
 			queue->tx_irq_name, queue);
 		if (err < 0)
 			goto err_unmap;
+=======
+			dev, tx_evtchn, xenvif_tx_interrupt, 0,
+			queue->tx_irq_name, queue);
+		if (err < 0)
+			goto err;
+>>>>>>> upstream/android-13
 		queue->tx_irq = err;
 		disable_irq(queue->tx_irq);
 
 		snprintf(queue->rx_irq_name, sizeof(queue->rx_irq_name),
 			 "%s-rx", queue->name);
 		err = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+<<<<<<< HEAD
 			queue->vif->domid, rx_evtchn, xenvif_rx_interrupt, 0,
 			queue->rx_irq_name, queue);
 		if (err < 0)
 			goto err_tx_unbind;
+=======
+			dev, rx_evtchn, xenvif_rx_interrupt, 0,
+			queue->rx_irq_name, queue);
+		if (err < 0)
+			goto err;
+>>>>>>> upstream/android-13
 		queue->rx_irq = err;
 		disable_irq(queue->rx_irq);
 	}
 
+<<<<<<< HEAD
 	queue->stalled = true;
 
 	task = kthread_create(xenvif_kthread_guest_rx,
@@ -764,6 +899,15 @@ err_unmap:
 	xenvif_unmap_frontend_data_rings(queue);
 	netif_napi_del(&queue->napi);
 err:
+=======
+	return 0;
+
+kthread_err:
+	pr_warn("Could not allocate kthread for %s\n", queue->name);
+	err = PTR_ERR(task);
+err:
+	xenvif_disconnect_queue(queue);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -791,6 +935,7 @@ void xenvif_disconnect_data(struct xenvif *vif)
 	for (queue_index = 0; queue_index < num_queues; ++queue_index) {
 		queue = &vif->queues[queue_index];
 
+<<<<<<< HEAD
 		netif_napi_del(&queue->napi);
 
 		if (queue->task) {
@@ -815,6 +960,9 @@ void xenvif_disconnect_data(struct xenvif *vif)
 		}
 
 		xenvif_unmap_frontend_data_rings(queue);
+=======
+		xenvif_disconnect_queue(queue);
+>>>>>>> upstream/android-13
 	}
 
 	xenvif_mcast_addr_list_free(vif);

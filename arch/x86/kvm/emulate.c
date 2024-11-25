@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
  * emulate.c
  *
@@ -14,15 +18,22 @@
  *   Avi Kivity <avi@qumranet.com>
  *   Yaniv Kamay <yaniv@qumranet.com>
  *
+<<<<<<< HEAD
  * This work is licensed under the terms of the GNU GPL, version 2.  See
  * the COPYING file in the top-level directory.
  *
+=======
+>>>>>>> upstream/android-13
  * From: xen-unstable 10676:af9809f51f81a3c43f276f00c81a52ef558afda4
  */
 
 #include <linux/kvm_host.h>
 #include "kvm_cache_regs.h"
+<<<<<<< HEAD
 #include <asm/kvm_emulate.h>
+=======
+#include "kvm_emulate.h"
+>>>>>>> upstream/android-13
 #include <linux/stringify.h>
 #include <asm/debugreg.h>
 #include <asm/nospec-branch.h>
@@ -192,6 +203,7 @@
 #define NR_FASTOP (ilog2(sizeof(ulong)) + 1)
 #define FASTOP_SIZE 8
 
+<<<<<<< HEAD
 /*
  * fastop functions have a special calling convention:
  *
@@ -211,6 +223,8 @@
 
 struct fastop;
 
+=======
+>>>>>>> upstream/android-13
 struct opcode {
 	u64 flags : 56;
 	u64 intercept : 8;
@@ -312,24 +326,61 @@ static void invalidate_registers(struct x86_emulate_ctxt *ctxt)
 #define ON64(x)
 #endif
 
+<<<<<<< HEAD
 static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *));
 
 #define FOP_FUNC(name) \
+=======
+/*
+ * fastop functions have a special calling convention:
+ *
+ * dst:    rax        (in/out)
+ * src:    rdx        (in/out)
+ * src2:   rcx        (in)
+ * flags:  rflags     (in/out)
+ * ex:     rsi        (in:fastop pointer, out:zero if exception)
+ *
+ * Moreover, they are all exactly FASTOP_SIZE bytes long, so functions for
+ * different operand sizes can be reached by calculation, rather than a jump
+ * table (which would be bigger than the code).
+ */
+static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+
+#define __FOP_FUNC(name) \
+>>>>>>> upstream/android-13
 	".align " __stringify(FASTOP_SIZE) " \n\t" \
 	".type " name ", @function \n\t" \
 	name ":\n\t"
 
+<<<<<<< HEAD
 #define FOP_RET   "ret \n\t"
+=======
+#define FOP_FUNC(name) \
+	__FOP_FUNC(#name)
+
+#define __FOP_RET(name) \
+	ASM_RET \
+	".size " name ", .-" name "\n\t"
+
+#define FOP_RET(name) \
+	__FOP_RET(#name)
+>>>>>>> upstream/android-13
 
 #define FOP_START(op) \
 	extern void em_##op(struct fastop *fake); \
 	asm(".pushsection .text, \"ax\" \n\t" \
 	    ".global em_" #op " \n\t" \
+<<<<<<< HEAD
 	    FOP_FUNC("em_" #op)
+=======
+	    ".align " __stringify(FASTOP_SIZE) " \n\t" \
+	    "em_" #op ":\n\t"
+>>>>>>> upstream/android-13
 
 #define FOP_END \
 	    ".popsection")
 
+<<<<<<< HEAD
 #define FOPNOP() \
 	FOP_FUNC(__stringify(__UNIQUE_ID(nop))) \
 	FOP_RET
@@ -337,6 +388,19 @@ static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *));
 #define FOP1E(op,  dst) \
 	FOP_FUNC(#op "_" #dst) \
 	"10: " #op " %" #dst " \n\t" FOP_RET
+=======
+#define __FOPNOP(name) \
+	__FOP_FUNC(name) \
+	__FOP_RET(name)
+
+#define FOPNOP() \
+	__FOPNOP(__stringify(__UNIQUE_ID(nop)))
+
+#define FOP1E(op,  dst) \
+	__FOP_FUNC(#op "_" #dst) \
+	"10: " #op " %" #dst " \n\t" \
+	__FOP_RET(#op "_" #dst)
+>>>>>>> upstream/android-13
 
 #define FOP1EEX(op,  dst) \
 	FOP1E(op, dst) _ASM_EXTABLE(10b, kvm_fastop_exception)
@@ -368,8 +432,14 @@ static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *));
 	FOP_END
 
 #define FOP2E(op,  dst, src)	   \
+<<<<<<< HEAD
 	FOP_FUNC(#op "_" #dst "_" #src) \
 	#op " %" #src ", %" #dst " \n\t" FOP_RET
+=======
+	__FOP_FUNC(#op "_" #dst "_" #src) \
+	#op " %" #src ", %" #dst " \n\t" \
+	__FOP_RET(#op "_" #dst "_" #src)
+>>>>>>> upstream/android-13
 
 #define FASTOP2(op) \
 	FOP_START(op) \
@@ -407,8 +477,14 @@ static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *));
 	FOP_END
 
 #define FOP3E(op,  dst, src, src2) \
+<<<<<<< HEAD
 	FOP_FUNC(#op "_" #dst "_" #src "_" #src2) \
 	#op " %" #src2 ", %" #src ", %" #dst " \n\t" FOP_RET
+=======
+	__FOP_FUNC(#op "_" #dst "_" #src "_" #src2) \
+	#op " %" #src2 ", %" #src ", %" #dst " \n\t"\
+	__FOP_RET(#op "_" #dst "_" #src "_" #src2)
+>>>>>>> upstream/android-13
 
 /* 3-operand, word-only, src2=cl */
 #define FASTOP3WCL(op) \
@@ -420,6 +496,7 @@ static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *));
 	FOP_END
 
 /* Special case for SETcc - 1 instruction per cc */
+<<<<<<< HEAD
 #define FOP_SETCC(op) \
 	".align 4 \n\t" \
 	".type " #op ", @function \n\t" \
@@ -430,6 +507,32 @@ static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *));
 asm(".pushsection .fixup, \"ax\"\n"
     ".global kvm_fastop_exception \n"
     "kvm_fastop_exception: xor %esi, %esi; ret\n"
+=======
+
+/*
+ * Depending on .config the SETcc functions look like:
+ *
+ * SETcc %al   [3 bytes]
+ * RET         [1 byte]
+ * INT3        [1 byte; CONFIG_SLS]
+ *
+ * Which gives possible sizes 4 or 5.  When rounded up to the
+ * next power-of-two alignment they become 4 or 8.
+ */
+#define SETCC_LENGTH	(4 + IS_ENABLED(CONFIG_SLS))
+#define SETCC_ALIGN	(4 << IS_ENABLED(CONFIG_SLS))
+static_assert(SETCC_LENGTH <= SETCC_ALIGN);
+
+#define FOP_SETCC(op) \
+	".align " __stringify(SETCC_ALIGN) " \n\t" \
+	".type " #op ", @function \n\t" \
+	#op ": \n\t" \
+	#op " %al \n\t" \
+	__FOP_RET(#op)
+
+asm(".pushsection .fixup, \"ax\"\n"
+    "kvm_fastop_exception: xor %esi, %esi; " ASM_RET
+>>>>>>> upstream/android-13
     ".popsection");
 
 FOP_START(setcc)
@@ -451,7 +554,14 @@ FOP_SETCC(setle)
 FOP_SETCC(setnle)
 FOP_END;
 
+<<<<<<< HEAD
 FOP_START(salc) "pushf; sbb %al, %al; popf \n\t" FOP_RET
+=======
+FOP_START(salc)
+FOP_FUNC(salc)
+"pushf; sbb %al, %al; popf \n\t"
+FOP_RET(salc)
+>>>>>>> upstream/android-13
 FOP_END;
 
 /*
@@ -654,6 +764,20 @@ static void set_segment_selector(struct x86_emulate_ctxt *ctxt, u16 selector,
 	ctxt->ops->set_segment(ctxt, selector, &desc, base3, seg);
 }
 
+<<<<<<< HEAD
+=======
+static inline u8 ctxt_virt_addr_bits(struct x86_emulate_ctxt *ctxt)
+{
+	return (ctxt->ops->get_cr(ctxt, 4) & X86_CR4_LA57) ? 57 : 48;
+}
+
+static inline bool emul_is_noncanonical_address(u64 la,
+						struct x86_emulate_ctxt *ctxt)
+{
+	return get_canonical(la, ctxt_virt_addr_bits(ctxt)) != la;
+}
+
+>>>>>>> upstream/android-13
 /*
  * x86 defines three classes of vector instructions: explicitly
  * aligned, explicitly unaligned, and the rest, which change behaviour
@@ -1033,7 +1157,11 @@ static int em_bsr_c(struct x86_emulate_ctxt *ctxt)
 static __always_inline u8 test_cc(unsigned int condition, unsigned long flags)
 {
 	u8 rc;
+<<<<<<< HEAD
 	void (*fop)(void) = (void *)em_setcc + 4 * (condition & 0xf);
+=======
+	void (*fop)(void) = (void *)em_setcc + SETCC_ALIGN * (condition & 0xf);
+>>>>>>> upstream/android-13
 
 	flags = (flags & EFLAGS_MASK) | X86_EFLAGS_IF;
 	asm("push %[flags]; popf; " CALL_NOSPEC
@@ -1059,6 +1187,7 @@ static void fetch_register_operand(struct operand *op)
 	}
 }
 
+<<<<<<< HEAD
 static void read_sse_reg(struct x86_emulate_ctxt *ctxt, sse128_t *data, int reg)
 {
 	switch (reg) {
@@ -1140,12 +1269,20 @@ static void write_mmx_reg(struct x86_emulate_ctxt *ctxt, u64 *data, int reg)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int em_fninit(struct x86_emulate_ctxt *ctxt)
 {
 	if (ctxt->ops->get_cr(ctxt, 0) & (X86_CR0_TS | X86_CR0_EM))
 		return emulate_nm(ctxt);
 
+<<<<<<< HEAD
 	asm volatile("fninit");
+=======
+	kvm_fpu_get();
+	asm volatile("fninit");
+	kvm_fpu_put();
+>>>>>>> upstream/android-13
 	return X86EMUL_CONTINUE;
 }
 
@@ -1156,7 +1293,13 @@ static int em_fnstcw(struct x86_emulate_ctxt *ctxt)
 	if (ctxt->ops->get_cr(ctxt, 0) & (X86_CR0_TS | X86_CR0_EM))
 		return emulate_nm(ctxt);
 
+<<<<<<< HEAD
 	asm volatile("fnstcw %0": "+m"(fcw));
+=======
+	kvm_fpu_get();
+	asm volatile("fnstcw %0": "+m"(fcw));
+	kvm_fpu_put();
+>>>>>>> upstream/android-13
 
 	ctxt->dst.val = fcw;
 
@@ -1170,7 +1313,13 @@ static int em_fnstsw(struct x86_emulate_ctxt *ctxt)
 	if (ctxt->ops->get_cr(ctxt, 0) & (X86_CR0_TS | X86_CR0_EM))
 		return emulate_nm(ctxt);
 
+<<<<<<< HEAD
 	asm volatile("fnstsw %0": "+m"(fsw));
+=======
+	kvm_fpu_get();
+	asm volatile("fnstsw %0": "+m"(fsw));
+	kvm_fpu_put();
+>>>>>>> upstream/android-13
 
 	ctxt->dst.val = fsw;
 
@@ -1189,7 +1338,11 @@ static void decode_register_operand(struct x86_emulate_ctxt *ctxt,
 		op->type = OP_XMM;
 		op->bytes = 16;
 		op->addr.xmm = reg;
+<<<<<<< HEAD
 		read_sse_reg(ctxt, &op->vec_val, reg);
+=======
+		kvm_read_sse_reg(reg, &op->vec_val);
+>>>>>>> upstream/android-13
 		return;
 	}
 	if (ctxt->d & Mmx) {
@@ -1240,7 +1393,11 @@ static int decode_modrm(struct x86_emulate_ctxt *ctxt,
 			op->type = OP_XMM;
 			op->bytes = 16;
 			op->addr.xmm = ctxt->modrm_rm;
+<<<<<<< HEAD
 			read_sse_reg(ctxt, &op->vec_val, ctxt->modrm_rm);
+=======
+			kvm_read_sse_reg(ctxt->modrm_rm, &op->vec_val);
+>>>>>>> upstream/android-13
 			return rc;
 		}
 		if (ctxt->d & Mmx) {
@@ -1509,7 +1666,11 @@ static int read_interrupt_descriptor(struct x86_emulate_ctxt *ctxt,
 		return emulate_gp(ctxt, index << 3 | 0x2);
 
 	addr = dt.address + index * 8;
+<<<<<<< HEAD
 	return linear_read_system(ctxt, addr, desc, sizeof *desc);
+=======
+	return linear_read_system(ctxt, addr, desc, sizeof(*desc));
+>>>>>>> upstream/android-13
 }
 
 static void get_descriptor_table_ptr(struct x86_emulate_ctxt *ctxt,
@@ -1522,7 +1683,11 @@ static void get_descriptor_table_ptr(struct x86_emulate_ctxt *ctxt,
 		struct desc_struct desc;
 		u16 sel;
 
+<<<<<<< HEAD
 		memset (dt, 0, sizeof *dt);
+=======
+		memset(dt, 0, sizeof(*dt));
+>>>>>>> upstream/android-13
 		if (!ops->get_segment(ctxt, &sel, &desc, &base3,
 				      VCPU_SREG_LDTR))
 			return;
@@ -1586,7 +1751,11 @@ static int write_segment_descriptor(struct x86_emulate_ctxt *ctxt,
 	if (rc != X86EMUL_CONTINUE)
 		return rc;
 
+<<<<<<< HEAD
 	return linear_write_system(ctxt, addr, desc, sizeof *desc);
+=======
+	return linear_write_system(ctxt, addr, desc, sizeof(*desc));
+>>>>>>> upstream/android-13
 }
 
 static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
@@ -1604,7 +1773,11 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
 	u16 dummy;
 	u32 base3 = 0;
 
+<<<<<<< HEAD
 	memset(&seg_desc, 0, sizeof seg_desc);
+=======
+	memset(&seg_desc, 0, sizeof(seg_desc));
+>>>>>>> upstream/android-13
 
 	if (ctxt->mode == X86EMUL_MODE_REAL) {
 		/* set real mode segment descriptor (keep limit etc. for
@@ -1669,11 +1842,14 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
 		goto exception;
 	}
 
+<<<<<<< HEAD
 	if (!seg_desc.p) {
 		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
 		goto exception;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	dpl = seg_desc.dpl;
 
 	switch (seg) {
@@ -1713,6 +1889,13 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
 	case VCPU_SREG_TR:
 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
 			goto exception;
+<<<<<<< HEAD
+=======
+		if (!seg_desc.p) {
+			err_vec = NP_VECTOR;
+			goto exception;
+		}
+>>>>>>> upstream/android-13
 		old_desc = seg_desc;
 		seg_desc.type |= 2; /* busy */
 		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
@@ -1737,6 +1920,14 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!seg_desc.p) {
+		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
+		goto exception;
+	}
+
+>>>>>>> upstream/android-13
 	if (seg_desc.s) {
 		/* mark segment as accessed */
 		if (!(seg_desc.type & 1)) {
@@ -1817,10 +2008,17 @@ static int writeback(struct x86_emulate_ctxt *ctxt, struct operand *op)
 				       op->bytes * op->count);
 		break;
 	case OP_XMM:
+<<<<<<< HEAD
 		write_sse_reg(ctxt, &op->vec_val, op->addr.xmm);
 		break;
 	case OP_MM:
 		write_mmx_reg(ctxt, &op->mm_val, op->addr.mm);
+=======
+		kvm_write_sse_reg(op->addr.xmm, &op->vec_val);
+		break;
+	case OP_MM:
+		kvm_write_mmx_reg(op->addr.mm, &op->mm_val);
+>>>>>>> upstream/android-13
 		break;
 	case OP_NONE:
 		/* no writeback */
@@ -2332,17 +2530,22 @@ static int em_lseg(struct x86_emulate_ctxt *ctxt)
 static int emulator_has_longmode(struct x86_emulate_ctxt *ctxt)
 {
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 	u32 eax, ebx, ecx, edx;
 
 	eax = 0x80000001;
 	ecx = 0;
 	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, false);
 	return edx & bit(X86_FEATURE_LM);
+=======
+	return ctxt->ops->guest_has_long_mode(ctxt);
+>>>>>>> upstream/android-13
 #else
 	return false;
 #endif
 }
 
+<<<<<<< HEAD
 #define GET_SMSTATE(type, smbase, offset)				  \
 	({								  \
 	 type __val;							  \
@@ -2353,6 +2556,8 @@ static int emulator_has_longmode(struct x86_emulate_ctxt *ctxt)
 	 __val;								  \
 	})
 
+=======
+>>>>>>> upstream/android-13
 static void rsm_set_desc_flags(struct desc_struct *desc, u32 flags)
 {
 	desc->g    = (flags >> 23) & 1;
@@ -2365,28 +2570,48 @@ static void rsm_set_desc_flags(struct desc_struct *desc, u32 flags)
 	desc->type = (flags >>  8) & 15;
 }
 
+<<<<<<< HEAD
 static int rsm_load_seg_32(struct x86_emulate_ctxt *ctxt, u64 smbase, int n)
+=======
+static int rsm_load_seg_32(struct x86_emulate_ctxt *ctxt, const char *smstate,
+			   int n)
+>>>>>>> upstream/android-13
 {
 	struct desc_struct desc;
 	int offset;
 	u16 selector;
 
+<<<<<<< HEAD
 	selector = GET_SMSTATE(u32, smbase, 0x7fa8 + n * 4);
+=======
+	selector = GET_SMSTATE(u32, smstate, 0x7fa8 + n * 4);
+>>>>>>> upstream/android-13
 
 	if (n < 3)
 		offset = 0x7f84 + n * 12;
 	else
 		offset = 0x7f2c + (n - 3) * 12;
 
+<<<<<<< HEAD
 	set_desc_base(&desc,      GET_SMSTATE(u32, smbase, offset + 8));
 	set_desc_limit(&desc,     GET_SMSTATE(u32, smbase, offset + 4));
 	rsm_set_desc_flags(&desc, GET_SMSTATE(u32, smbase, offset));
+=======
+	set_desc_base(&desc,      GET_SMSTATE(u32, smstate, offset + 8));
+	set_desc_limit(&desc,     GET_SMSTATE(u32, smstate, offset + 4));
+	rsm_set_desc_flags(&desc, GET_SMSTATE(u32, smstate, offset));
+>>>>>>> upstream/android-13
 	ctxt->ops->set_segment(ctxt, selector, &desc, 0, n);
 	return X86EMUL_CONTINUE;
 }
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 static int rsm_load_seg_64(struct x86_emulate_ctxt *ctxt, u64 smbase, int n)
+=======
+static int rsm_load_seg_64(struct x86_emulate_ctxt *ctxt, const char *smstate,
+			   int n)
+>>>>>>> upstream/android-13
 {
 	struct desc_struct desc;
 	int offset;
@@ -2395,11 +2620,19 @@ static int rsm_load_seg_64(struct x86_emulate_ctxt *ctxt, u64 smbase, int n)
 
 	offset = 0x7e00 + n * 16;
 
+<<<<<<< HEAD
 	selector =                GET_SMSTATE(u16, smbase, offset);
 	rsm_set_desc_flags(&desc, GET_SMSTATE(u16, smbase, offset + 2) << 8);
 	set_desc_limit(&desc,     GET_SMSTATE(u32, smbase, offset + 4));
 	set_desc_base(&desc,      GET_SMSTATE(u32, smbase, offset + 8));
 	base3 =                   GET_SMSTATE(u32, smbase, offset + 12);
+=======
+	selector =                GET_SMSTATE(u16, smstate, offset);
+	rsm_set_desc_flags(&desc, GET_SMSTATE(u16, smstate, offset + 2) << 8);
+	set_desc_limit(&desc,     GET_SMSTATE(u32, smstate, offset + 4));
+	set_desc_base(&desc,      GET_SMSTATE(u32, smstate, offset + 8));
+	base3 =                   GET_SMSTATE(u32, smstate, offset + 12);
+>>>>>>> upstream/android-13
 
 	ctxt->ops->set_segment(ctxt, selector, &desc, base3, n);
 	return X86EMUL_CONTINUE;
@@ -2451,7 +2684,12 @@ static int rsm_enter_protected_mode(struct x86_emulate_ctxt *ctxt,
 	return X86EMUL_CONTINUE;
 }
 
+<<<<<<< HEAD
 static int rsm_load_state_32(struct x86_emulate_ctxt *ctxt, u64 smbase)
+=======
+static int rsm_load_state_32(struct x86_emulate_ctxt *ctxt,
+			     const char *smstate)
+>>>>>>> upstream/android-13
 {
 	struct desc_struct desc;
 	struct desc_ptr dt;
@@ -2459,6 +2697,7 @@ static int rsm_load_state_32(struct x86_emulate_ctxt *ctxt, u64 smbase)
 	u32 val, cr0, cr3, cr4;
 	int i;
 
+<<<<<<< HEAD
 	cr0 =                      GET_SMSTATE(u32, smbase, 0x7ffc);
 	cr3 =                      GET_SMSTATE(u32, smbase, 0x7ff8);
 	ctxt->eflags =             GET_SMSTATE(u32, smbase, 0x7ff4) | X86_EFLAGS_FIXED;
@@ -2494,19 +2733,72 @@ static int rsm_load_state_32(struct x86_emulate_ctxt *ctxt, u64 smbase)
 
 	for (i = 0; i < 6; i++) {
 		int r = rsm_load_seg_32(ctxt, smbase, i);
+=======
+	cr0 =                      GET_SMSTATE(u32, smstate, 0x7ffc);
+	cr3 =                      GET_SMSTATE(u32, smstate, 0x7ff8);
+	ctxt->eflags =             GET_SMSTATE(u32, smstate, 0x7ff4) | X86_EFLAGS_FIXED;
+	ctxt->_eip =               GET_SMSTATE(u32, smstate, 0x7ff0);
+
+	for (i = 0; i < 8; i++)
+		*reg_write(ctxt, i) = GET_SMSTATE(u32, smstate, 0x7fd0 + i * 4);
+
+	val = GET_SMSTATE(u32, smstate, 0x7fcc);
+
+	if (ctxt->ops->set_dr(ctxt, 6, val))
+		return X86EMUL_UNHANDLEABLE;
+
+	val = GET_SMSTATE(u32, smstate, 0x7fc8);
+
+	if (ctxt->ops->set_dr(ctxt, 7, val))
+		return X86EMUL_UNHANDLEABLE;
+
+	selector =                 GET_SMSTATE(u32, smstate, 0x7fc4);
+	set_desc_base(&desc,       GET_SMSTATE(u32, smstate, 0x7f64));
+	set_desc_limit(&desc,      GET_SMSTATE(u32, smstate, 0x7f60));
+	rsm_set_desc_flags(&desc,  GET_SMSTATE(u32, smstate, 0x7f5c));
+	ctxt->ops->set_segment(ctxt, selector, &desc, 0, VCPU_SREG_TR);
+
+	selector =                 GET_SMSTATE(u32, smstate, 0x7fc0);
+	set_desc_base(&desc,       GET_SMSTATE(u32, smstate, 0x7f80));
+	set_desc_limit(&desc,      GET_SMSTATE(u32, smstate, 0x7f7c));
+	rsm_set_desc_flags(&desc,  GET_SMSTATE(u32, smstate, 0x7f78));
+	ctxt->ops->set_segment(ctxt, selector, &desc, 0, VCPU_SREG_LDTR);
+
+	dt.address =               GET_SMSTATE(u32, smstate, 0x7f74);
+	dt.size =                  GET_SMSTATE(u32, smstate, 0x7f70);
+	ctxt->ops->set_gdt(ctxt, &dt);
+
+	dt.address =               GET_SMSTATE(u32, smstate, 0x7f58);
+	dt.size =                  GET_SMSTATE(u32, smstate, 0x7f54);
+	ctxt->ops->set_idt(ctxt, &dt);
+
+	for (i = 0; i < 6; i++) {
+		int r = rsm_load_seg_32(ctxt, smstate, i);
+>>>>>>> upstream/android-13
 		if (r != X86EMUL_CONTINUE)
 			return r;
 	}
 
+<<<<<<< HEAD
 	cr4 = GET_SMSTATE(u32, smbase, 0x7f14);
 
 	ctxt->ops->set_smbase(ctxt, GET_SMSTATE(u32, smbase, 0x7ef8));
+=======
+	cr4 = GET_SMSTATE(u32, smstate, 0x7f14);
+
+	ctxt->ops->set_smbase(ctxt, GET_SMSTATE(u32, smstate, 0x7ef8));
+>>>>>>> upstream/android-13
 
 	return rsm_enter_protected_mode(ctxt, cr0, cr3, cr4);
 }
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt, u64 smbase)
+=======
+static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt,
+			     const char *smstate)
+>>>>>>> upstream/android-13
 {
 	struct desc_struct desc;
 	struct desc_ptr dt;
@@ -2516,6 +2808,7 @@ static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt, u64 smbase)
 	int i, r;
 
 	for (i = 0; i < 16; i++)
+<<<<<<< HEAD
 		*reg_write(ctxt, i) = GET_SMSTATE(u64, smbase, 0x7ff8 - i * 8);
 
 	ctxt->_eip   = GET_SMSTATE(u64, smbase, 0x7f78);
@@ -2553,6 +2846,52 @@ static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt, u64 smbase)
 
 	dt.size =                   GET_SMSTATE(u32, smbase, 0x7e64);
 	dt.address =                GET_SMSTATE(u64, smbase, 0x7e68);
+=======
+		*reg_write(ctxt, i) = GET_SMSTATE(u64, smstate, 0x7ff8 - i * 8);
+
+	ctxt->_eip   = GET_SMSTATE(u64, smstate, 0x7f78);
+	ctxt->eflags = GET_SMSTATE(u32, smstate, 0x7f70) | X86_EFLAGS_FIXED;
+
+	val = GET_SMSTATE(u64, smstate, 0x7f68);
+
+	if (ctxt->ops->set_dr(ctxt, 6, val))
+		return X86EMUL_UNHANDLEABLE;
+
+	val = GET_SMSTATE(u64, smstate, 0x7f60);
+
+	if (ctxt->ops->set_dr(ctxt, 7, val))
+		return X86EMUL_UNHANDLEABLE;
+
+	cr0 =                       GET_SMSTATE(u64, smstate, 0x7f58);
+	cr3 =                       GET_SMSTATE(u64, smstate, 0x7f50);
+	cr4 =                       GET_SMSTATE(u64, smstate, 0x7f48);
+	ctxt->ops->set_smbase(ctxt, GET_SMSTATE(u32, smstate, 0x7f00));
+	val =                       GET_SMSTATE(u64, smstate, 0x7ed0);
+
+	if (ctxt->ops->set_msr(ctxt, MSR_EFER, val & ~EFER_LMA))
+		return X86EMUL_UNHANDLEABLE;
+
+	selector =                  GET_SMSTATE(u32, smstate, 0x7e90);
+	rsm_set_desc_flags(&desc,   GET_SMSTATE(u32, smstate, 0x7e92) << 8);
+	set_desc_limit(&desc,       GET_SMSTATE(u32, smstate, 0x7e94));
+	set_desc_base(&desc,        GET_SMSTATE(u32, smstate, 0x7e98));
+	base3 =                     GET_SMSTATE(u32, smstate, 0x7e9c);
+	ctxt->ops->set_segment(ctxt, selector, &desc, base3, VCPU_SREG_TR);
+
+	dt.size =                   GET_SMSTATE(u32, smstate, 0x7e84);
+	dt.address =                GET_SMSTATE(u64, smstate, 0x7e88);
+	ctxt->ops->set_idt(ctxt, &dt);
+
+	selector =                  GET_SMSTATE(u32, smstate, 0x7e70);
+	rsm_set_desc_flags(&desc,   GET_SMSTATE(u32, smstate, 0x7e72) << 8);
+	set_desc_limit(&desc,       GET_SMSTATE(u32, smstate, 0x7e74));
+	set_desc_base(&desc,        GET_SMSTATE(u32, smstate, 0x7e78));
+	base3 =                     GET_SMSTATE(u32, smstate, 0x7e7c);
+	ctxt->ops->set_segment(ctxt, selector, &desc, base3, VCPU_SREG_LDTR);
+
+	dt.size =                   GET_SMSTATE(u32, smstate, 0x7e64);
+	dt.address =                GET_SMSTATE(u64, smstate, 0x7e68);
+>>>>>>> upstream/android-13
 	ctxt->ops->set_gdt(ctxt, &dt);
 
 	r = rsm_enter_protected_mode(ctxt, cr0, cr3, cr4);
@@ -2560,7 +2899,11 @@ static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt, u64 smbase)
 		return r;
 
 	for (i = 0; i < 6; i++) {
+<<<<<<< HEAD
 		r = rsm_load_seg_64(ctxt, smbase, i);
+=======
+		r = rsm_load_seg_64(ctxt, smstate, i);
+>>>>>>> upstream/android-13
 		if (r != X86EMUL_CONTINUE)
 			return r;
 	}
@@ -2572,12 +2915,30 @@ static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt, u64 smbase)
 static int em_rsm(struct x86_emulate_ctxt *ctxt)
 {
 	unsigned long cr0, cr4, efer;
+<<<<<<< HEAD
+=======
+	char buf[512];
+>>>>>>> upstream/android-13
 	u64 smbase;
 	int ret;
 
 	if ((ctxt->ops->get_hflags(ctxt) & X86EMUL_SMM_MASK) == 0)
 		return emulate_ud(ctxt);
 
+<<<<<<< HEAD
+=======
+	smbase = ctxt->ops->get_smbase(ctxt);
+
+	ret = ctxt->ops->read_phys(ctxt, smbase + 0xfe00, buf, sizeof(buf));
+	if (ret != X86EMUL_CONTINUE)
+		return X86EMUL_UNHANDLEABLE;
+
+	if ((ctxt->ops->get_hflags(ctxt) & X86EMUL_SMM_INSIDE_NMI_MASK) == 0)
+		ctxt->ops->set_nmi_mask(ctxt, false);
+
+	ctxt->ops->exiting_smm(ctxt);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Get back to real mode, to prepare a safe state in which to load
 	 * CR0/CR3/CR4/EFER.  It's all a bit more complicated if the vCPU
@@ -2614,6 +2975,7 @@ static int em_rsm(struct x86_emulate_ctxt *ctxt)
 		ctxt->ops->set_msr(ctxt, MSR_EFER, efer);
 	}
 
+<<<<<<< HEAD
 	smbase = ctxt->ops->get_smbase(ctxt);
 
 	/*
@@ -2641,6 +3003,38 @@ static int em_rsm(struct x86_emulate_ctxt *ctxt)
 
 	ctxt->ops->set_hflags(ctxt, ctxt->ops->get_hflags(ctxt) &
 		~(X86EMUL_SMM_INSIDE_NMI_MASK | X86EMUL_SMM_MASK));
+=======
+	/*
+	 * Give leave_smm() a chance to make ISA-specific changes to the vCPU
+	 * state (e.g. enter guest mode) before loading state from the SMM
+	 * state-save area.
+	 */
+	if (ctxt->ops->leave_smm(ctxt, buf))
+		goto emulate_shutdown;
+
+#ifdef CONFIG_X86_64
+	if (emulator_has_longmode(ctxt))
+		ret = rsm_load_state_64(ctxt, buf);
+	else
+#endif
+		ret = rsm_load_state_32(ctxt, buf);
+
+	if (ret != X86EMUL_CONTINUE)
+		goto emulate_shutdown;
+
+	/*
+	 * Note, the ctxt->ops callbacks are responsible for handling side
+	 * effects when writing MSRs and CRs, e.g. MMU context resets, CPUID
+	 * runtime updates, etc...  If that changes, e.g. this flow is moved
+	 * out of the emulator to make it look more like enter_smm(), then
+	 * those side effects need to be explicitly handled for both success
+	 * and shutdown.
+	 */
+	return X86EMUL_CONTINUE;
+
+emulate_shutdown:
+	ctxt->ops->triple_fault(ctxt);
+>>>>>>> upstream/android-13
 	return X86EMUL_CONTINUE;
 }
 
@@ -2676,10 +3070,15 @@ static bool vendor_intel(struct x86_emulate_ctxt *ctxt)
 	u32 eax, ebx, ecx, edx;
 
 	eax = ecx = 0;
+<<<<<<< HEAD
 	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, false);
 	return ebx == X86EMUL_CPUID_VENDOR_GenuineIntel_ebx
 		&& ecx == X86EMUL_CPUID_VENDOR_GenuineIntel_ecx
 		&& edx == X86EMUL_CPUID_VENDOR_GenuineIntel_edx;
+=======
+	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, true);
+	return is_guest_vendor_intel(ebx, ecx, edx);
+>>>>>>> upstream/android-13
 }
 
 static bool em_syscall_is_enabled(struct x86_emulate_ctxt *ctxt)
@@ -2696,6 +3095,7 @@ static bool em_syscall_is_enabled(struct x86_emulate_ctxt *ctxt)
 
 	eax = 0x00000000;
 	ecx = 0x00000000;
+<<<<<<< HEAD
 	ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, false);
 	/*
 	 * Intel ("GenuineIntel")
@@ -2723,6 +3123,26 @@ static bool em_syscall_is_enabled(struct x86_emulate_ctxt *ctxt)
 		return true;
 
 	/* default: (not Intel, not AMD), apply Intel's stricter rules... */
+=======
+	ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, true);
+	/*
+	 * remark: Intel CPUs only support "syscall" in 64bit longmode. Also a
+	 * 64bit guest with a 32bit compat-app running will #UD !! While this
+	 * behaviour can be fixed (by emulating) into AMD response - CPUs of
+	 * AMD can't behave like Intel.
+	 */
+	if (is_guest_vendor_intel(ebx, ecx, edx))
+		return false;
+
+	if (is_guest_vendor_amd(ebx, ecx, edx) ||
+	    is_guest_vendor_hygon(ebx, ecx, edx))
+		return true;
+
+	/*
+	 * default: (not Intel, not AMD, not Hygon), apply Intel's
+	 * stricter rules...
+	 */
+>>>>>>> upstream/android-13
 	return false;
 }
 
@@ -2743,11 +3163,18 @@ static int em_syscall(struct x86_emulate_ctxt *ctxt)
 		return emulate_ud(ctxt);
 
 	ops->get_msr(ctxt, MSR_EFER, &efer);
+<<<<<<< HEAD
 	setup_syscalls_segments(ctxt, &cs, &ss);
 
 	if (!(efer & EFER_SCE))
 		return emulate_ud(ctxt);
 
+=======
+	if (!(efer & EFER_SCE))
+		return emulate_ud(ctxt);
+
+	setup_syscalls_segments(ctxt, &cs, &ss);
+>>>>>>> upstream/android-13
 	ops->get_msr(ctxt, MSR_STAR, &msr_data);
 	msr_data >>= 32;
 	cs_sel = (u16)(msr_data & 0xfffc);
@@ -2811,12 +3238,19 @@ static int em_sysenter(struct x86_emulate_ctxt *ctxt)
 	if (ctxt->mode == X86EMUL_MODE_PROT64)
 		return X86EMUL_UNHANDLEABLE;
 
+<<<<<<< HEAD
 	setup_syscalls_segments(ctxt, &cs, &ss);
 
+=======
+>>>>>>> upstream/android-13
 	ops->get_msr(ctxt, MSR_IA32_SYSENTER_CS, &msr_data);
 	if ((msr_data & 0xfffc) == 0x0)
 		return emulate_gp(ctxt, 0);
 
+<<<<<<< HEAD
+=======
+	setup_syscalls_segments(ctxt, &cs, &ss);
+>>>>>>> upstream/android-13
 	ctxt->eflags &= ~(X86_EFLAGS_VM | X86_EFLAGS_IF);
 	cs_sel = (u16)msr_data & ~SEGMENT_RPL_MASK;
 	ss_sel = cs_sel + 8;
@@ -2834,6 +3268,11 @@ static int em_sysenter(struct x86_emulate_ctxt *ctxt)
 	ops->get_msr(ctxt, MSR_IA32_SYSENTER_ESP, &msr_data);
 	*reg_write(ctxt, VCPU_REGS_RSP) = (efer & EFER_LMA) ? msr_data :
 							      (u32)msr_data;
+<<<<<<< HEAD
+=======
+	if (efer & EFER_LMA)
+		ctxt->mode = X86EMUL_MODE_PROT64;
+>>>>>>> upstream/android-13
 
 	return X86EMUL_CONTINUE;
 }
@@ -2983,7 +3422,11 @@ static void string_registers_quirk(struct x86_emulate_ctxt *ctxt)
 	case 0xa4:	/* movsb */
 	case 0xa5:	/* movsd/w */
 		*reg_rmw(ctxt, VCPU_REGS_RSI) &= (u32)-1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0xaa:	/* stosb */
 	case 0xab:	/* stosd/w */
 		*reg_rmw(ctxt, VCPU_REGS_RDI) &= (u32)-1;
@@ -3077,17 +3520,29 @@ static int task_switch_16(struct x86_emulate_ctxt *ctxt,
 	int ret;
 	u32 new_tss_base = get_desc_base(new_desc);
 
+<<<<<<< HEAD
 	ret = linear_read_system(ctxt, old_tss_base, &tss_seg, sizeof tss_seg);
+=======
+	ret = linear_read_system(ctxt, old_tss_base, &tss_seg, sizeof(tss_seg));
+>>>>>>> upstream/android-13
 	if (ret != X86EMUL_CONTINUE)
 		return ret;
 
 	save_state_to_tss16(ctxt, &tss_seg);
 
+<<<<<<< HEAD
 	ret = linear_write_system(ctxt, old_tss_base, &tss_seg, sizeof tss_seg);
 	if (ret != X86EMUL_CONTINUE)
 		return ret;
 
 	ret = linear_read_system(ctxt, new_tss_base, &tss_seg, sizeof tss_seg);
+=======
+	ret = linear_write_system(ctxt, old_tss_base, &tss_seg, sizeof(tss_seg));
+	if (ret != X86EMUL_CONTINUE)
+		return ret;
+
+	ret = linear_read_system(ctxt, new_tss_base, &tss_seg, sizeof(tss_seg));
+>>>>>>> upstream/android-13
 	if (ret != X86EMUL_CONTINUE)
 		return ret;
 
@@ -3096,7 +3551,11 @@ static int task_switch_16(struct x86_emulate_ctxt *ctxt,
 
 		ret = linear_write_system(ctxt, new_tss_base,
 					  &tss_seg.prev_task_link,
+<<<<<<< HEAD
 					  sizeof tss_seg.prev_task_link);
+=======
+					  sizeof(tss_seg.prev_task_link));
+>>>>>>> upstream/android-13
 		if (ret != X86EMUL_CONTINUE)
 			return ret;
 	}
@@ -3175,7 +3634,11 @@ static int load_state_from_tss32(struct x86_emulate_ctxt *ctxt,
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Now load segment descriptors. If fault happenes at this stage
+=======
+	 * Now load segment descriptors. If fault happens at this stage
+>>>>>>> upstream/android-13
 	 * it is handled in a context of new task
 	 */
 	ret = __load_segment_descriptor(ctxt, tss->ldt_selector, VCPU_SREG_LDTR,
@@ -3218,7 +3681,11 @@ static int task_switch_32(struct x86_emulate_ctxt *ctxt,
 	u32 eip_offset = offsetof(struct tss_segment_32, eip);
 	u32 ldt_sel_offset = offsetof(struct tss_segment_32, ldt_selector);
 
+<<<<<<< HEAD
 	ret = linear_read_system(ctxt, old_tss_base, &tss_seg, sizeof tss_seg);
+=======
+	ret = linear_read_system(ctxt, old_tss_base, &tss_seg, sizeof(tss_seg));
+>>>>>>> upstream/android-13
 	if (ret != X86EMUL_CONTINUE)
 		return ret;
 
@@ -3230,7 +3697,11 @@ static int task_switch_32(struct x86_emulate_ctxt *ctxt,
 	if (ret != X86EMUL_CONTINUE)
 		return ret;
 
+<<<<<<< HEAD
 	ret = linear_read_system(ctxt, new_tss_base, &tss_seg, sizeof tss_seg);
+=======
+	ret = linear_read_system(ctxt, new_tss_base, &tss_seg, sizeof(tss_seg));
+>>>>>>> upstream/android-13
 	if (ret != X86EMUL_CONTINUE)
 		return ret;
 
@@ -3239,7 +3710,11 @@ static int task_switch_32(struct x86_emulate_ctxt *ctxt,
 
 		ret = linear_write_system(ctxt, new_tss_base,
 					  &tss_seg.prev_task_link,
+<<<<<<< HEAD
 					  sizeof tss_seg.prev_task_link);
+=======
+					  sizeof(tss_seg.prev_task_link));
+>>>>>>> upstream/android-13
 		if (ret != X86EMUL_CONTINUE)
 			return ret;
 	}
@@ -3560,8 +4035,15 @@ static int em_rdpid(struct x86_emulate_ctxt *ctxt)
 {
 	u64 tsc_aux = 0;
 
+<<<<<<< HEAD
 	if (ctxt->ops->get_msr(ctxt, MSR_TSC_AUX, &tsc_aux))
 		return emulate_ud(ctxt);
+=======
+	if (!ctxt->ops->guest_has_rdpid(ctxt))
+		return emulate_ud(ctxt);
+
+	ctxt->ops->get_msr(ctxt, MSR_TSC_AUX, &tsc_aux);
+>>>>>>> upstream/android-13
 	ctxt->dst.val = tsc_aux;
 	return X86EMUL_CONTINUE;
 }
@@ -3593,6 +4075,7 @@ static int em_mov(struct x86_emulate_ctxt *ctxt)
 	return X86EMUL_CONTINUE;
 }
 
+<<<<<<< HEAD
 #define FFL(x) bit(X86_FEATURE_##x)
 
 static int em_movbe(struct x86_emulate_ctxt *ctxt)
@@ -3605,6 +4088,13 @@ static int em_movbe(struct x86_emulate_ctxt *ctxt)
 	 */
 	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, false);
 	if (!(ecx & FFL(MOVBE)))
+=======
+static int em_movbe(struct x86_emulate_ctxt *ctxt)
+{
+	u16 tmp;
+
+	if (!ctxt->ops->guest_has_movbe(ctxt))
+>>>>>>> upstream/android-13
 		return emulate_ud(ctxt);
 
 	switch (ctxt->op_bytes) {
@@ -3663,6 +4153,7 @@ static int em_dr_write(struct x86_emulate_ctxt *ctxt)
 
 static int em_wrmsr(struct x86_emulate_ctxt *ctxt)
 {
+<<<<<<< HEAD
 	u64 msr_data;
 
 	msr_data = (u32)reg_read(ctxt, VCPU_REGS_RAX)
@@ -3671,13 +4162,43 @@ static int em_wrmsr(struct x86_emulate_ctxt *ctxt)
 		return emulate_gp(ctxt, 0);
 
 	return X86EMUL_CONTINUE;
+=======
+	u64 msr_index = reg_read(ctxt, VCPU_REGS_RCX);
+	u64 msr_data;
+	int r;
+
+	msr_data = (u32)reg_read(ctxt, VCPU_REGS_RAX)
+		| ((u64)reg_read(ctxt, VCPU_REGS_RDX) << 32);
+	r = ctxt->ops->set_msr(ctxt, msr_index, msr_data);
+
+	if (r == X86EMUL_IO_NEEDED)
+		return r;
+
+	if (r > 0)
+		return emulate_gp(ctxt, 0);
+
+	return r < 0 ? X86EMUL_UNHANDLEABLE : X86EMUL_CONTINUE;
+>>>>>>> upstream/android-13
 }
 
 static int em_rdmsr(struct x86_emulate_ctxt *ctxt)
 {
+<<<<<<< HEAD
 	u64 msr_data;
 
 	if (ctxt->ops->get_msr(ctxt, reg_read(ctxt, VCPU_REGS_RCX), &msr_data))
+=======
+	u64 msr_index = reg_read(ctxt, VCPU_REGS_RCX);
+	u64 msr_data;
+	int r;
+
+	r = ctxt->ops->get_msr(ctxt, msr_index, &msr_data);
+
+	if (r == X86EMUL_IO_NEEDED)
+		return r;
+
+	if (r)
+>>>>>>> upstream/android-13
 		return emulate_gp(ctxt, 0);
 
 	*reg_write(ctxt, VCPU_REGS_RAX) = (u32)msr_data;
@@ -3945,7 +4466,11 @@ static int em_cpuid(struct x86_emulate_ctxt *ctxt)
 
 	eax = reg_read(ctxt, VCPU_REGS_RAX);
 	ecx = reg_read(ctxt, VCPU_REGS_RCX);
+<<<<<<< HEAD
 	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, true);
+=======
+	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, false);
+>>>>>>> upstream/android-13
 	*reg_write(ctxt, VCPU_REGS_RAX) = eax;
 	*reg_write(ctxt, VCPU_REGS_RBX) = ebx;
 	*reg_write(ctxt, VCPU_REGS_RCX) = ecx;
@@ -4008,10 +4533,14 @@ static int em_movsxd(struct x86_emulate_ctxt *ctxt)
 
 static int check_fxsr(struct x86_emulate_ctxt *ctxt)
 {
+<<<<<<< HEAD
 	u32 eax = 1, ebx, ecx = 0, edx;
 
 	ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx, &edx, false);
 	if (!(edx & FFL(FXSR)))
+=======
+	if (!ctxt->ops->guest_has_fxsr(ctxt))
+>>>>>>> upstream/android-13
 		return emulate_ud(ctxt);
 
 	if (ctxt->ops->get_cr(ctxt, 0) & (X86_CR0_TS | X86_CR0_EM))
@@ -4073,8 +4602,17 @@ static int em_fxsave(struct x86_emulate_ctxt *ctxt)
 	if (rc != X86EMUL_CONTINUE)
 		return rc;
 
+<<<<<<< HEAD
 	rc = asm_safe("fxsave %[fx]", , [fx] "+m"(fx_state));
 
+=======
+	kvm_fpu_get();
+
+	rc = asm_safe("fxsave %[fx]", , [fx] "+m"(fx_state));
+
+	kvm_fpu_put();
+
+>>>>>>> upstream/android-13
 	if (rc != X86EMUL_CONTINUE)
 		return rc;
 
@@ -4117,6 +4655,11 @@ static int em_fxrstor(struct x86_emulate_ctxt *ctxt)
 	if (rc != X86EMUL_CONTINUE)
 		return rc;
 
+<<<<<<< HEAD
+=======
+	kvm_fpu_get();
+
+>>>>>>> upstream/android-13
 	if (size < __fxstate_size(16)) {
 		rc = fxregs_fixup(&fx_state, size);
 		if (rc != X86EMUL_CONTINUE)
@@ -4132,9 +4675,31 @@ static int em_fxrstor(struct x86_emulate_ctxt *ctxt)
 		rc = asm_safe("fxrstor %[fx]", : [fx] "m"(fx_state));
 
 out:
+<<<<<<< HEAD
 	return rc;
 }
 
+=======
+	kvm_fpu_put();
+
+	return rc;
+}
+
+static int em_xsetbv(struct x86_emulate_ctxt *ctxt)
+{
+	u32 eax, ecx, edx;
+
+	eax = reg_read(ctxt, VCPU_REGS_RAX);
+	edx = reg_read(ctxt, VCPU_REGS_RDX);
+	ecx = reg_read(ctxt, VCPU_REGS_RCX);
+
+	if (ctxt->ops->set_xcr(ctxt, ecx, ((u64)edx << 32) | eax))
+		return emulate_gp(ctxt, 0);
+
+	return X86EMUL_CONTINUE;
+}
+
+>>>>>>> upstream/android-13
 static bool valid_cr(int nr)
 {
 	switch (nr) {
@@ -4147,7 +4712,11 @@ static bool valid_cr(int nr)
 	}
 }
 
+<<<<<<< HEAD
 static int check_cr_read(struct x86_emulate_ctxt *ctxt)
+=======
+static int check_cr_access(struct x86_emulate_ctxt *ctxt)
+>>>>>>> upstream/android-13
 {
 	if (!valid_cr(ctxt->modrm_reg))
 		return emulate_ud(ctxt);
@@ -4155,6 +4724,7 @@ static int check_cr_read(struct x86_emulate_ctxt *ctxt)
 	return X86EMUL_CONTINUE;
 }
 
+<<<<<<< HEAD
 static int check_cr_write(struct x86_emulate_ctxt *ctxt)
 {
 	u64 new_val = ctxt->src.val64;
@@ -4229,6 +4799,8 @@ static int check_cr_write(struct x86_emulate_ctxt *ctxt)
 	return X86EMUL_CONTINUE;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int check_dr7_gd(struct x86_emulate_ctxt *ctxt)
 {
 	unsigned long dr7;
@@ -4255,8 +4827,13 @@ static int check_dr_read(struct x86_emulate_ctxt *ctxt)
 		ulong dr6;
 
 		ctxt->ops->get_dr(ctxt, 6, &dr6);
+<<<<<<< HEAD
 		dr6 &= ~15;
 		dr6 |= DR6_BD | DR6_RTM;
+=======
+		dr6 &= ~DR_TRAP_BITS;
+		dr6 |= DR6_BD | DR6_ACTIVE_LOW;
+>>>>>>> upstream/android-13
 		ctxt->ops->set_dr(ctxt, 6, dr6);
 		return emulate_db(ctxt);
 	}
@@ -4303,7 +4880,11 @@ static int check_rdtsc(struct x86_emulate_ctxt *ctxt)
 	u64 cr4 = ctxt->ops->get_cr(ctxt, 4);
 
 	if (cr4 & X86_CR4_TSD && ctxt->ops->cpl(ctxt))
+<<<<<<< HEAD
 		return emulate_ud(ctxt);
+=======
+		return emulate_gp(ctxt, 0);
+>>>>>>> upstream/android-13
 
 	return X86EMUL_CONTINUE;
 }
@@ -4388,6 +4969,15 @@ static const struct opcode group7_rm1[] = {
 	N, N, N, N, N, N,
 };
 
+<<<<<<< HEAD
+=======
+static const struct opcode group7_rm2[] = {
+	N,
+	II(ImplicitOps | Priv,			em_xsetbv,	xsetbv),
+	N, N, N, N, N, N,
+};
+
+>>>>>>> upstream/android-13
 static const struct opcode group7_rm3[] = {
 	DIP(SrcNone | Prot | Priv,		vmrun,		check_svme_pa),
 	II(SrcNone  | Prot | EmulateOnUD,	em_hypercall,	vmmcall),
@@ -4477,7 +5067,12 @@ static const struct group_dual group7 = { {
 }, {
 	EXT(0, group7_rm0),
 	EXT(0, group7_rm1),
+<<<<<<< HEAD
 	N, EXT(0, group7_rm3),
+=======
+	EXT(0, group7_rm2),
+	EXT(0, group7_rm3),
+>>>>>>> upstream/android-13
 	II(SrcNone | DstMem | Mov,		em_smsw, smsw), N,
 	II(SrcMem16 | Mov | Priv,		em_lmsw, lmsw),
 	EXT(0, group7_rm7),
@@ -4496,7 +5091,11 @@ static const struct opcode group8[] = {
  * from the register case of group9.
  */
 static const struct gprefix pfx_0f_c7_7 = {
+<<<<<<< HEAD
 	N, N, N, II(DstMem | ModRM | Op3264 | EmulateOnUD, em_rdpid, rdtscp),
+=======
+	N, N, N, II(DstMem | ModRM | Op3264 | EmulateOnUD, em_rdpid, rdpid),
+>>>>>>> upstream/android-13
 };
 
 
@@ -4754,6 +5353,7 @@ static const struct opcode twobyte_table[256] = {
 	GP(ModRM | DstReg | SrcMem | Mov | Sse, &pfx_0f_10_0f_11),
 	GP(ModRM | DstMem | SrcReg | Mov | Sse, &pfx_0f_10_0f_11),
 	N, N, N, N, N, N,
+<<<<<<< HEAD
 	D(ImplicitOps | ModRM | SrcMem | NoAccess),
 	N, N, N, N, N, N, D(ImplicitOps | ModRM | SrcMem | NoAccess),
 	/* 0x20 - 0x2F */
@@ -4761,6 +5361,19 @@ static const struct opcode twobyte_table[256] = {
 	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, dr_read, check_dr_read),
 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_cr_write, cr_write,
 						check_cr_write),
+=======
+	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 4 * prefetch + 4 * reserved NOP */
+	D(ImplicitOps | ModRM | SrcMem | NoAccess), N, N,
+	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 8 * reserved NOP */
+	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 8 * reserved NOP */
+	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 8 * reserved NOP */
+	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* NOP + 7 * reserved NOP */
+	/* 0x20 - 0x2F */
+	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_access),
+	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, dr_read, check_dr_read),
+	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_cr_write, cr_write,
+						check_cr_access),
+>>>>>>> upstream/android-13
 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_dr_write, dr_write,
 						check_dr_write),
 	N, N, N, N,
@@ -5101,7 +5714,11 @@ done:
 	return rc;
 }
 
+<<<<<<< HEAD
 int x86_decode_insn(struct x86_emulate_ctxt *ctxt, void *insn, int insn_len)
+=======
+int x86_decode_insn(struct x86_emulate_ctxt *ctxt, void *insn, int insn_len, int emulation_type)
+>>>>>>> upstream/android-13
 {
 	int rc = X86EMUL_CONTINUE;
 	int mode = ctxt->mode;
@@ -5124,7 +5741,11 @@ int x86_decode_insn(struct x86_emulate_ctxt *ctxt, void *insn, int insn_len)
 	else {
 		rc = __do_insn_fetch_bytes(ctxt, 1);
 		if (rc != X86EMUL_CONTINUE)
+<<<<<<< HEAD
 			return rc;
+=======
+			goto done;
+>>>>>>> upstream/android-13
 	}
 
 	switch (mode) {
@@ -5312,7 +5933,12 @@ done_prefixes:
 
 	ctxt->execute = opcode.u.execute;
 
+<<<<<<< HEAD
 	if (unlikely(ctxt->ud) && likely(!(ctxt->d & EmulateOnUD)))
+=======
+	if (unlikely(emulation_type & EMULTYPE_TRAP_UD) &&
+	    likely(!(ctxt->d & EmulateOnUD)))
+>>>>>>> upstream/android-13
 		return EMULATION_FAILED;
 
 	if (unlikely(ctxt->d &
@@ -5426,7 +6052,13 @@ static int flush_pending_x87_faults(struct x86_emulate_ctxt *ctxt)
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = asm_safe("fwait");
+=======
+	kvm_fpu_get();
+	rc = asm_safe("fwait");
+	kvm_fpu_put();
+>>>>>>> upstream/android-13
 
 	if (unlikely(rc != X86EMUL_CONTINUE))
 		return emulate_exception(ctxt, MF_VECTOR, 0, false);
@@ -5434,6 +6066,7 @@ static int flush_pending_x87_faults(struct x86_emulate_ctxt *ctxt)
 	return X86EMUL_CONTINUE;
 }
 
+<<<<<<< HEAD
 static void fetch_possible_mmx_operand(struct x86_emulate_ctxt *ctxt,
 				       struct operand *op)
 {
@@ -5442,6 +6075,15 @@ static void fetch_possible_mmx_operand(struct x86_emulate_ctxt *ctxt,
 }
 
 static int fastop(struct x86_emulate_ctxt *ctxt, void (*fop)(struct fastop *))
+=======
+static void fetch_possible_mmx_operand(struct operand *op)
+{
+	if (op->type == OP_MM)
+		kvm_read_mmx_reg(op->addr.mm, &op->mm_val);
+}
+
+static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop)
+>>>>>>> upstream/android-13
 {
 	ulong flags = (ctxt->eflags & EFLAGS_MASK) | X86_EFLAGS_IF;
 
@@ -5517,10 +6159,17 @@ int x86_emulate_insn(struct x86_emulate_ctxt *ctxt)
 			 * Now that we know the fpu is exception safe, we can fetch
 			 * operands from it.
 			 */
+<<<<<<< HEAD
 			fetch_possible_mmx_operand(ctxt, &ctxt->src);
 			fetch_possible_mmx_operand(ctxt, &ctxt->src2);
 			if (!(ctxt->d & Mov))
 				fetch_possible_mmx_operand(ctxt, &ctxt->dst);
+=======
+			fetch_possible_mmx_operand(&ctxt->src);
+			fetch_possible_mmx_operand(&ctxt->src2);
+			if (!(ctxt->d & Mov))
+				fetch_possible_mmx_operand(&ctxt->dst);
+>>>>>>> upstream/android-13
 		}
 
 		if (unlikely(emul_flags & X86EMUL_GUEST_MASK) && ctxt->intercept) {
@@ -5619,6 +6268,7 @@ special_insn:
 		ctxt->eflags &= ~X86_EFLAGS_RF;
 
 	if (ctxt->execute) {
+<<<<<<< HEAD
 		if (ctxt->d & Fastop) {
 			void (*fop)(struct fastop *) = (void *)ctxt->execute;
 			rc = fastop(ctxt, fop);
@@ -5627,6 +6277,12 @@ special_insn:
 			goto writeback;
 		}
 		rc = ctxt->execute(ctxt);
+=======
+		if (ctxt->d & Fastop)
+			rc = fastop(ctxt, ctxt->fop);
+		else
+			rc = ctxt->execute(ctxt);
+>>>>>>> upstream/android-13
 		if (rc != X86EMUL_CONTINUE)
 			goto done;
 		goto writeback;
@@ -5755,6 +6411,11 @@ writeback:
 	}
 
 	ctxt->eip = ctxt->_eip;
+<<<<<<< HEAD
+=======
+	if (ctxt->mode != X86EMUL_MODE_PROT64)
+		ctxt->eip = (u32)ctxt->_eip;
+>>>>>>> upstream/android-13
 
 done:
 	if (rc == X86EMUL_PROPAGATE_FAULT) {

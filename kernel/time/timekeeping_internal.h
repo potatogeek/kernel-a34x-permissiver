@@ -1,12 +1,23 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef _TIMEKEEPING_INTERNAL_H
 #define _TIMEKEEPING_INTERNAL_H
+<<<<<<< HEAD
 /*
  * timekeeping debug functions
  */
 #include <linux/clocksource.h>
 #include <linux/time.h>
 
+=======
+
+#include <linux/clocksource.h>
+#include <linux/spinlock.h>
+#include <linux/time.h>
+
+/*
+ * timekeeping debug functions
+ */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_FS
 extern void tk_debug_account_sleep_time(const struct timespec64 *t);
 #else
@@ -31,4 +42,10 @@ static inline u64 clocksource_delta(u64 now, u64 last, u64 mask)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+/* Semi public for serialization of non timekeeper VDSO updates. */
+extern raw_spinlock_t timekeeper_lock;
+
+>>>>>>> upstream/android-13
 #endif /* _TIMEKEEPING_INTERNAL_H */

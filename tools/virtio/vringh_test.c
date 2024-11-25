@@ -307,6 +307,10 @@ static int parallel_test(u64 features,
 		close(to_host[0]);
 
 		gvdev.vdev.features = features;
+<<<<<<< HEAD
+=======
+		INIT_LIST_HEAD(&gvdev.vdev.vqs);
+>>>>>>> upstream/android-13
 		gvdev.to_host_fd = to_host[1];
 		gvdev.notifies = 0;
 
@@ -453,6 +457,10 @@ int main(int argc, char *argv[])
 
 	getrange = getrange_iov;
 	vdev.features = 0;
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&vdev.vqs);
+>>>>>>> upstream/android-13
 
 	while (argv[1]) {
 		if (strcmp(argv[1], "--indirect") == 0)

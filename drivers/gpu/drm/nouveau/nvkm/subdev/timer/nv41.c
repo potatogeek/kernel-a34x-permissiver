@@ -79,7 +79,14 @@ nv41_timer = {
 };
 
 int
+<<<<<<< HEAD
 nv41_timer_new(struct nvkm_device *device, int index, struct nvkm_timer **ptmr)
 {
 	return nvkm_timer_new_(&nv41_timer, device, index, ptmr);
+=======
+nv41_timer_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	       struct nvkm_timer **ptmr)
+{
+	return nvkm_timer_new_(&nv41_timer, device, type, inst, ptmr);
+>>>>>>> upstream/android-13
 }

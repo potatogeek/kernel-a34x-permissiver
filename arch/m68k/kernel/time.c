@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/m68k/kernel/time.c
  *
@@ -34,6 +38,7 @@
 unsigned long (*mach_random_get_entropy)(void);
 EXPORT_SYMBOL_GPL(mach_random_get_entropy);
 
+<<<<<<< HEAD
 
 /*
  * timer_interrupt() needs to keep up the real-time clock,
@@ -46,6 +51,11 @@ static irqreturn_t timer_interrupt(int irq, void *dummy)
 	profile_tick(CPU_PROFILING);
 
 #ifdef CONFIG_HEARTBEAT
+=======
+#ifdef CONFIG_HEARTBEAT
+void timer_heartbeat(void)
+{
+>>>>>>> upstream/android-13
 	/* use power LED as a heartbeat instead -- much more useful
 	   for debugging -- based on the version for PReP by Cort */
 	/* acts like an actual heart beat -- ie thump-thump-pause... */
@@ -67,9 +77,14 @@ static irqreturn_t timer_interrupt(int irq, void *dummy)
 		dist = period / 4;
 	    }
 	}
+<<<<<<< HEAD
 #endif /* CONFIG_HEARTBEAT */
 	return IRQ_HANDLED;
 }
+=======
+}
+#endif /* CONFIG_HEARTBEAT */
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_M68KCLASSIC
 #if !IS_BUILTIN(CONFIG_RTC_DRV_GENERIC)
@@ -153,5 +168,9 @@ module_init(rtc_init);
 
 void __init time_init(void)
 {
+<<<<<<< HEAD
 	mach_sched_init(timer_interrupt);
+=======
+	mach_sched_init();
+>>>>>>> upstream/android-13
 }

@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2018, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -20,11 +24,19 @@ struct iwd_events_buf {
 	unsigned int size;
 	atomic_t num_events;
 	uint32_t events[];
+<<<<<<< HEAD
 };
+=======
+} __packed;
+>>>>>>> upstream/android-13
 
 void tz_event_init(struct iwd_events_buf *buf, unsigned int size);
 int tz_event_get_num_pending(struct iwd_events_buf *buf);
 int tz_event_add(struct iwd_events_buf *buf, unsigned int id);
+<<<<<<< HEAD
+=======
+int tz_event_del(struct iwd_events_buf *buf, unsigned int id);
+>>>>>>> upstream/android-13
 void tz_event_process(struct iwd_events_buf *buf, void (*callback)(unsigned int id));
 
 #endif /* __TZ_EVENT_H__ */

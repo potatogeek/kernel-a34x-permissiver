@@ -18,12 +18,19 @@
 #include <linux/smp.h>
 #include <linux/kdebug.h>
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/delay.h>
 #include <asm/ptrace.h>
 #include <asm/oplib.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/unistd.h>
 #include <asm/traps.h>
 
@@ -102,8 +109,13 @@ void do_hw_interrupt(struct pt_regs *regs, unsigned long type)
 	if(regs->psr & PSR_PS)
 		die_if_kernel("Kernel bad trap", regs);
 
+<<<<<<< HEAD
 	force_sig_fault(SIGILL, ILL_ILLTRP,
 			(void __user *)regs->pc, type - 0x80, current);
+=======
+	force_sig_fault_trapno(SIGILL, ILL_ILLTRP,
+			       (void __user *)regs->pc, type - 0x80);
+>>>>>>> upstream/android-13
 }
 
 void do_illegal_instruction(struct pt_regs *regs, unsigned long pc, unsigned long npc,
@@ -116,7 +128,11 @@ void do_illegal_instruction(struct pt_regs *regs, unsigned long pc, unsigned lon
 	       regs->pc, *(unsigned long *)regs->pc);
 #endif
 
+<<<<<<< HEAD
 	send_sig_fault(SIGILL, ILL_ILLOPC, (void __user *)pc, 0, current);
+=======
+	send_sig_fault(SIGILL, ILL_ILLOPC, (void __user *)pc, current);
+>>>>>>> upstream/android-13
 }
 
 void do_priv_instruction(struct pt_regs *regs, unsigned long pc, unsigned long npc,
@@ -124,7 +140,11 @@ void do_priv_instruction(struct pt_regs *regs, unsigned long pc, unsigned long n
 {
 	if(psr & PSR_PS)
 		die_if_kernel("Penguin instruction from Penguin mode??!?!", regs);
+<<<<<<< HEAD
 	send_sig_fault(SIGILL, ILL_PRVOPC, (void __user *)pc, 0, current);
+=======
+	send_sig_fault(SIGILL, ILL_PRVOPC, (void __user *)pc, current);
+>>>>>>> upstream/android-13
 }
 
 /* XXX User may want to be allowed to do this. XXX */
@@ -145,7 +165,11 @@ void do_memaccess_unaligned(struct pt_regs *regs, unsigned long pc, unsigned lon
 #endif
 	send_sig_fault(SIGBUS, BUS_ADRALN,
 		       /* FIXME: Should dig out mna address */ (void *)0,
+<<<<<<< HEAD
 		       0, current);
+=======
+		       current);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long init_fsr = 0x0UL;
@@ -291,7 +315,11 @@ void do_fpe_trap(struct pt_regs *regs, unsigned long pc, unsigned long npc,
 		else if (fsr & 0x01)
 			code = FPE_FLTRES;
 	}
+<<<<<<< HEAD
 	send_sig_fault(SIGFPE, code, (void __user *)pc, 0, fpt);
+=======
+	send_sig_fault(SIGFPE, code, (void __user *)pc, fpt);
+>>>>>>> upstream/android-13
 #ifndef CONFIG_SMP
 	last_task_used_math = NULL;
 #endif
@@ -305,7 +333,11 @@ void handle_tag_overflow(struct pt_regs *regs, unsigned long pc, unsigned long n
 {
 	if(psr & PSR_PS)
 		die_if_kernel("Penguin overflow trap from kernel mode", regs);
+<<<<<<< HEAD
 	send_sig_fault(SIGEMT, EMT_TAGOVF, (void __user *)pc, 0, current);
+=======
+	send_sig_fault(SIGEMT, EMT_TAGOVF, (void __user *)pc, current);
+>>>>>>> upstream/android-13
 }
 
 void handle_watchpoint(struct pt_regs *regs, unsigned long pc, unsigned long npc,
@@ -327,13 +359,21 @@ void handle_reg_access(struct pt_regs *regs, unsigned long pc, unsigned long npc
 	printk("Register Access Exception at PC %08lx NPC %08lx PSR %08lx\n",
 	       pc, npc, psr);
 #endif
+<<<<<<< HEAD
 	force_sig_fault(SIGBUS, BUS_OBJERR, (void __user *)pc, 0, current);
+=======
+	force_sig_fault(SIGBUS, BUS_OBJERR, (void __user *)pc);
+>>>>>>> upstream/android-13
 }
 
 void handle_cp_disabled(struct pt_regs *regs, unsigned long pc, unsigned long npc,
 			unsigned long psr)
 {
+<<<<<<< HEAD
 	send_sig_fault(SIGILL, ILL_COPROC, (void __user *)pc, 0, current);
+=======
+	send_sig_fault(SIGILL, ILL_COPROC, (void __user *)pc, current);
+>>>>>>> upstream/android-13
 }
 
 void handle_cp_exception(struct pt_regs *regs, unsigned long pc, unsigned long npc,
@@ -343,13 +383,21 @@ void handle_cp_exception(struct pt_regs *regs, unsigned long pc, unsigned long n
 	printk("Co-Processor Exception at PC %08lx NPC %08lx PSR %08lx\n",
 	       pc, npc, psr);
 #endif
+<<<<<<< HEAD
 	send_sig_fault(SIGILL, ILL_COPROC, (void __user *)pc, 0, current);
+=======
+	send_sig_fault(SIGILL, ILL_COPROC, (void __user *)pc, current);
+>>>>>>> upstream/android-13
 }
 
 void handle_hw_divzero(struct pt_regs *regs, unsigned long pc, unsigned long npc,
 		       unsigned long psr)
 {
+<<<<<<< HEAD
 	send_sig_fault(SIGFPE, FPE_INTDIV, (void __user *)pc, 0, current);
+=======
+	send_sig_fault(SIGFPE, FPE_INTDIV, (void __user *)pc, current);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_DEBUG_BUGVERBOSE

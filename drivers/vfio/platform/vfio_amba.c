@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 - Virtual Open Systems
  * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 - Virtual Open Systems
+ * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -67,13 +74,17 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
 	vdev->flags = VFIO_DEVICE_FLAGS_AMBA;
 	vdev->get_resource = get_amba_resource;
 	vdev->get_irq = get_amba_irq;
+<<<<<<< HEAD
 	vdev->parent_module = THIS_MODULE;
+=======
+>>>>>>> upstream/android-13
 	vdev->reset_required = false;
 
 	ret = vfio_platform_probe_common(vdev, &adev->dev);
 	if (ret) {
 		kfree(vdev->name);
 		kfree(vdev);
+<<<<<<< HEAD
 	}
 
 	return ret;
@@ -91,6 +102,22 @@ static int vfio_amba_remove(struct amba_device *adev)
 	}
 
 	return -EINVAL;
+=======
+		return ret;
+	}
+
+	dev_set_drvdata(&adev->dev, vdev);
+	return 0;
+}
+
+static void vfio_amba_remove(struct amba_device *adev)
+{
+	struct vfio_platform_device *vdev = dev_get_drvdata(&adev->dev);
+
+	vfio_platform_remove_common(vdev);
+	kfree(vdev->name);
+	kfree(vdev);
+>>>>>>> upstream/android-13
 }
 
 static const struct amba_id pl330_ids[] = {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel E3-1200
  * Copyright (C) 2014 Jason Baron <jbaron@akamai.com>
@@ -8,7 +12,11 @@
  * Since the DRAM controller is on the cpu chip, we can use its PCI device
  * id to identify these processors.
  *
+<<<<<<< HEAD
  * PCI DRAM controller device ids (Taken from The PCI ID Repository - http://pci-ids.ucw.cz/)
+=======
+ * PCI DRAM controller device ids (Taken from The PCI ID Repository - https://pci-ids.ucw.cz/)
+>>>>>>> upstream/android-13
  *
  * 0108: Xeon E3-1200 Processor Family DRAM Controller
  * 010c: Xeon E3-1200/2nd Generation Core Processor Family DRAM Controller
@@ -19,11 +27,21 @@
  * 0c08: Xeon E3-1200 v3 Processor DRAM Controller
  * 1918: Xeon E3-1200 v5 Skylake Host Bridge/DRAM Registers
  * 5918: Xeon E3-1200 Xeon E3-1200 v6/7th Gen Core Processor Host Bridge/DRAM Registers
+<<<<<<< HEAD
  *
  * Based on Intel specification:
  * http://www.intel.com/content/dam/www/public/us/en/documents/datasheets/xeon-e3-1200v3-vol-2-datasheet.pdf
  * http://www.intel.com/content/www/us/en/processors/xeon/xeon-e3-1200-family-vol-2-datasheet.html
  * http://www.intel.com/content/www/us/en/processors/core/7th-gen-core-family-mobile-h-processor-lines-datasheet-vol-2.html
+=======
+ * 3e..: 8th/9th Gen Core Processor Host Bridge/DRAM Registers
+ *
+ * Based on Intel specification:
+ * https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/xeon-e3-1200v3-vol-2-datasheet.pdf
+ * http://www.intel.com/content/www/us/en/processors/xeon/xeon-e3-1200-family-vol-2-datasheet.html
+ * https://www.intel.com/content/www/us/en/processors/core/7th-gen-core-family-mobile-h-processor-lines-datasheet-vol-2.html
+ * https://www.intel.com/content/www/us/en/products/docs/processors/core/8th-gen-core-family-datasheet-vol-2.html
+>>>>>>> upstream/android-13
  *
  * According to the above datasheet (p.16):
  * "
@@ -60,6 +78,29 @@
 #define PCI_DEVICE_ID_INTEL_IE31200_HB_8 0x1918
 #define PCI_DEVICE_ID_INTEL_IE31200_HB_9 0x5918
 
+<<<<<<< HEAD
+=======
+/* Coffee Lake-S */
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_MASK 0x3e00
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_1    0x3e0f
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_2    0x3e18
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_3    0x3e1f
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_4    0x3e30
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_5    0x3e31
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_6    0x3e32
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_7    0x3e33
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_8    0x3ec2
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_9    0x3ec6
+#define PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_10   0x3eca
+
+/* Test if HB is for Skylake or later. */
+#define DEVICE_ID_SKYLAKE_OR_LATER(did)                                        \
+	(((did) == PCI_DEVICE_ID_INTEL_IE31200_HB_8) ||                        \
+	 ((did) == PCI_DEVICE_ID_INTEL_IE31200_HB_9) ||                        \
+	 (((did) & PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_MASK) ==                 \
+	  PCI_DEVICE_ID_INTEL_IE31200_HB_CFL_MASK))
+
+>>>>>>> upstream/android-13
 #define IE31200_DIMMS			4
 #define IE31200_RANKS			8
 #define IE31200_RANKS_PER_CHANNEL	4
@@ -310,7 +351,10 @@ static void ie31200_check(struct mem_ctl_info *mci)
 {
 	struct ie31200_error_info info;
 
+<<<<<<< HEAD
 	edac_dbg(1, "MC%d\n", mci->mc_idx);
+=======
+>>>>>>> upstream/android-13
 	ie31200_get_and_clear_error_info(mci, &info);
 	ie31200_process_error_info(mci, &info);
 }
@@ -336,7 +380,11 @@ static void __iomem *ie31200_map_mchbar(struct pci_dev *pdev)
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	window = ioremap_nocache(u.mchbar, IE31200_MMR_WINDOW_SIZE);
+=======
+	window = ioremap(u.mchbar, IE31200_MMR_WINDOW_SIZE);
+>>>>>>> upstream/android-13
 	if (!window)
 		ie31200_printk(KERN_ERR, "Cannot map mmio space at 0x%llx\n",
 			       (unsigned long long)u.mchbar);
@@ -382,10 +430,17 @@ static int ie31200_probe1(struct pci_dev *pdev, int dev_idx)
 	u32 addr_decode, mad_offset;
 
 	/*
+<<<<<<< HEAD
 	 * Kaby Lake seems to work like Skylake. Please re-visit this logic
 	 * when adding new CPU support.
 	 */
 	bool skl = (pdev->device >= PCI_DEVICE_ID_INTEL_IE31200_HB_8);
+=======
+	 * Kaby Lake, Coffee Lake seem to work like Skylake. Please re-visit
+	 * this logic when adding new CPU support.
+	 */
+	bool skl = DEVICE_ID_SKYLAKE_OR_LATER(pdev->device);
+>>>>>>> upstream/android-13
 
 	edac_dbg(0, "MC:\n");
 
@@ -469,9 +524,13 @@ static int ie31200_probe1(struct pci_dev *pdev, int dev_idx)
 
 			if (dimm_info[j][i].dual_rank) {
 				nr_pages = nr_pages / 2;
+<<<<<<< HEAD
 				dimm = EDAC_DIMM_PTR(mci->layers, mci->dimms,
 						     mci->n_layers, (i * 2) + 1,
 						     j, 0);
+=======
+				dimm = edac_get_dimm(mci, (i * 2) + 1, j, 0);
+>>>>>>> upstream/android-13
 				dimm->nr_pages = nr_pages;
 				edac_dbg(0, "set nr pages: 0x%lx\n", nr_pages);
 				dimm->grain = 8; /* just a guess */
@@ -482,8 +541,12 @@ static int ie31200_probe1(struct pci_dev *pdev, int dev_idx)
 				dimm->dtype = DEV_UNKNOWN;
 				dimm->edac_mode = EDAC_UNKNOWN;
 			}
+<<<<<<< HEAD
 			dimm = EDAC_DIMM_PTR(mci->layers, mci->dimms,
 					     mci->n_layers, i * 2, j, 0);
+=======
+			dimm = edac_get_dimm(mci, i * 2, j, 0);
+>>>>>>> upstream/android-13
 			dimm->nr_pages = nr_pages;
 			edac_dbg(0, "set nr pages: 0x%lx\n", nr_pages);
 			dimm->grain = 8; /* same guess */
@@ -549,6 +612,7 @@ static void ie31200_remove_one(struct pci_dev *pdev)
 }
 
 static const struct pci_device_id ie31200_pci_tbl[] = {
+<<<<<<< HEAD
 	{
 		PCI_VEND_DEV(INTEL, IE31200_HB_1), PCI_ANY_ID, PCI_ANY_ID, 0, 0,
 		IE31200},
@@ -579,6 +643,28 @@ static const struct pci_device_id ie31200_pci_tbl[] = {
 	{
 		0,
 	}            /* 0 terminated list. */
+=======
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_1),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_2),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_3),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_4),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_5),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_6),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_7),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_8),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_9),      PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_1),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_2),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_3),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_4),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_5),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_6),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_7),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_8),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_9),  PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ PCI_VEND_DEV(INTEL, IE31200_HB_CFL_10), PCI_ANY_ID, PCI_ANY_ID, 0, 0, IE31200 },
+	{ 0, } /* 0 terminated list. */
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(pci, ie31200_pci_tbl);
 

@@ -26,12 +26,23 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
 
 #include <drm/drmP.h>
 #include <drm/sis_drm.h>
 #include "sis_drv.h"
 
 #include <drm/drm_pciids.h>
+=======
+#include <linux/pci.h>
+
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_pciids.h>
+#include <drm/sis_drm.h>
+
+#include "sis_drv.h"
+>>>>>>> upstream/android-13
 
 static struct pci_device_id pciidlist[] = {
 	sisdrv_PCI_IDS
@@ -39,9 +50,16 @@ static struct pci_device_id pciidlist[] = {
 
 static int sis_driver_load(struct drm_device *dev, unsigned long chipset)
 {
+<<<<<<< HEAD
 	drm_sis_private_t *dev_priv;
 
 	pci_set_master(dev->pdev);
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	drm_sis_private_t *dev_priv;
+
+	pci_set_master(pdev);
+>>>>>>> upstream/android-13
 
 	dev_priv = kzalloc(sizeof(drm_sis_private_t), GFP_KERNEL);
 	if (dev_priv == NULL)

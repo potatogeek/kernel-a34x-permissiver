@@ -4,11 +4,19 @@ Keyboard notifier
 
 One can use register_keyboard_notifier to get called back on keyboard
 events (see kbd_keycode() function for details).  The passed structure is
+<<<<<<< HEAD
 keyboard_notifier_param:
+=======
+keyboard_notifier_param (see <linux/keyboard.h>):
+>>>>>>> upstream/android-13
 
 - 'vc' always provide the VC for which the keyboard event applies;
 - 'down' is 1 for a key press event, 0 for a key release;
 - 'shift' is the current modifier state, mask bit indexes are KG_*;
+<<<<<<< HEAD
+=======
+- 'ledstate' is the current LED state;
+>>>>>>> upstream/android-13
 - 'value' depends on the type of event.
 
 - KBD_KEYCODE events are always sent before other events, value is the keycode.

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * sch_plug.c Queue traffic until an explicit release command
  *
@@ -6,6 +7,12 @@
  *             as published by the Free Software Foundation; either version
  *             2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * sch_plug.c Queue traffic until an explicit release command
+ *
+>>>>>>> upstream/android-13
  * There are two ways to use this qdisc:
  * 1. A simple "instantaneous" plug/unplug operation, by issuing an alternating
  *    sequence of TCQ_PLUG_BUFFER & TCQ_PLUG_RELEASE_INDEFINITE commands.

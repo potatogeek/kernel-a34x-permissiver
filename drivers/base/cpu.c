@@ -55,7 +55,11 @@ static int cpu_subsys_online(struct device *dev)
 	if (from_nid == NUMA_NO_NODE)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	ret = cpu_up(cpuid);
+=======
+	ret = cpu_device_up(dev);
+>>>>>>> upstream/android-13
 	/*
 	 * When hot adding memory to memoryless node and enabling a cpu
 	 * on the node, node number of the cpu may internally change.
@@ -69,7 +73,11 @@ static int cpu_subsys_online(struct device *dev)
 
 static int cpu_subsys_offline(struct device *dev)
 {
+<<<<<<< HEAD
 	return cpu_down(dev->id);
+=======
+	return cpu_device_down(dev);
+>>>>>>> upstream/android-13
 }
 
 void unregister_cpu(struct cpu *cpu)
@@ -139,11 +147,19 @@ EXPORT_SYMBOL_GPL(cpu_subsys);
 #ifdef CONFIG_KEXEC
 #include <linux/kexec.h>
 
+<<<<<<< HEAD
 static ssize_t show_crash_notes(struct device *dev, struct device_attribute *attr,
 				char *buf)
 {
 	struct cpu *cpu = container_of(dev, struct cpu, dev);
 	ssize_t rc;
+=======
+static ssize_t crash_notes_show(struct device *dev,
+				struct device_attribute *attr,
+				char *buf)
+{
+	struct cpu *cpu = container_of(dev, struct cpu, dev);
+>>>>>>> upstream/android-13
 	unsigned long long addr;
 	int cpunum;
 
@@ -156,6 +172,7 @@ static ssize_t show_crash_notes(struct device *dev, struct device_attribute *att
 	 * operation should be safe. No locking required.
 	 */
 	addr = per_cpu_ptr_to_phys(per_cpu_ptr(crash_notes, cpunum));
+<<<<<<< HEAD
 	rc = sprintf(buf, "%Lx\n", addr);
 	return rc;
 }
@@ -171,6 +188,20 @@ static ssize_t show_crash_notes_size(struct device *dev,
 	return rc;
 }
 static DEVICE_ATTR(crash_notes_size, 0400, show_crash_notes_size, NULL);
+=======
+
+	return sysfs_emit(buf, "%llx\n", addr);
+}
+static DEVICE_ATTR_ADMIN_RO(crash_notes);
+
+static ssize_t crash_notes_size_show(struct device *dev,
+				     struct device_attribute *attr,
+				     char *buf)
+{
+	return sysfs_emit(buf, "%zu\n", sizeof(note_buf_t));
+}
+static DEVICE_ATTR_ADMIN_RO(crash_notes_size);
+>>>>>>> upstream/android-13
 
 static struct attribute *crash_note_cpu_attrs[] = {
 	&dev_attr_crash_notes.attr,
@@ -178,7 +209,11 @@ static struct attribute *crash_note_cpu_attrs[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group crash_note_cpu_attr_group = {
+=======
+static const struct attribute_group crash_note_cpu_attr_group = {
+>>>>>>> upstream/android-13
 	.attrs = crash_note_cpu_attrs,
 };
 #endif
@@ -223,9 +258,12 @@ static struct cpu_attr cpu_attrs[] = {
 	_CPU_ATTR(online, &__cpu_online_mask),
 	_CPU_ATTR(possible, &__cpu_possible_mask),
 	_CPU_ATTR(present, &__cpu_present_mask),
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_SCHED_EXTENSION
 	_CPU_ATTR(sched_isolated, &__cpu_isolated_mask),
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -234,8 +272,12 @@ static struct cpu_attr cpu_attrs[] = {
 static ssize_t print_cpus_kernel_max(struct device *dev,
 				     struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	int n = snprintf(buf, PAGE_SIZE-2, "%d\n", NR_CPUS - 1);
 	return n;
+=======
+	return sysfs_emit(buf, "%d\n", NR_CPUS - 1);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR(kernel_max, 0444, print_cpus_kernel_max, NULL);
 
@@ -245,18 +287,27 @@ unsigned int total_cpus;
 static ssize_t print_cpus_offline(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	int n = 0, len = PAGE_SIZE-2;
+=======
+	int len = 0;
+>>>>>>> upstream/android-13
 	cpumask_var_t offline;
 
 	/* display offline cpus < nr_cpu_ids */
 	if (!alloc_cpumask_var(&offline, GFP_KERNEL))
 		return -ENOMEM;
 	cpumask_andnot(offline, cpu_possible_mask, cpu_online_mask);
+<<<<<<< HEAD
 	n = scnprintf(buf, len, "%*pbl", cpumask_pr_args(offline));
+=======
+	len += sysfs_emit_at(buf, len, "%*pbl", cpumask_pr_args(offline));
+>>>>>>> upstream/android-13
 	free_cpumask_var(offline);
 
 	/* display offline cpus >= nr_cpu_ids */
 	if (total_cpus && nr_cpu_ids < total_cpus) {
+<<<<<<< HEAD
 		if (n && n < len)
 			buf[n++] = ',';
 
@@ -269,13 +320,31 @@ static ssize_t print_cpus_offline(struct device *dev,
 
 	n += snprintf(&buf[n], len - n, "\n");
 	return n;
+=======
+		len += sysfs_emit_at(buf, len, ",");
+
+		if (nr_cpu_ids == total_cpus-1)
+			len += sysfs_emit_at(buf, len, "%u", nr_cpu_ids);
+		else
+			len += sysfs_emit_at(buf, len, "%u-%d",
+					     nr_cpu_ids, total_cpus - 1);
+	}
+
+	len += sysfs_emit_at(buf, len, "\n");
+
+	return len;
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR(offline, 0444, print_cpus_offline, NULL);
 
 static ssize_t print_cpus_isolated(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	int n = 0, len = PAGE_SIZE-2;
+=======
+	int len;
+>>>>>>> upstream/android-13
 	cpumask_var_t isolated;
 
 	if (!alloc_cpumask_var(&isolated, GFP_KERNEL))
@@ -283,16 +352,25 @@ static ssize_t print_cpus_isolated(struct device *dev,
 
 	cpumask_andnot(isolated, cpu_possible_mask,
 		       housekeeping_cpumask(HK_FLAG_DOMAIN));
+<<<<<<< HEAD
 	n = scnprintf(buf, len, "%*pbl\n", cpumask_pr_args(isolated));
 
 	free_cpumask_var(isolated);
 
 	return n;
+=======
+	len = sysfs_emit(buf, "%*pbl\n", cpumask_pr_args(isolated));
+
+	free_cpumask_var(isolated);
+
+	return len;
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR(isolated, 0444, print_cpus_isolated, NULL);
 
 #ifdef CONFIG_NO_HZ_FULL
 static ssize_t print_cpus_nohz_full(struct device *dev,
+<<<<<<< HEAD
 				  struct device_attribute *attr, char *buf)
 {
 	int n = 0, len = PAGE_SIZE-2;
@@ -300,6 +378,11 @@ static ssize_t print_cpus_nohz_full(struct device *dev,
 	n = scnprintf(buf, len, "%*pbl\n", cpumask_pr_args(tick_nohz_full_mask));
 
 	return n;
+=======
+				    struct device_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "%*pbl\n", cpumask_pr_args(tick_nohz_full_mask));
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR(nohz_full, 0444, print_cpus_nohz_full, NULL);
 #endif
@@ -328,6 +411,7 @@ static ssize_t print_cpu_modalias(struct device *dev,
 				  struct device_attribute *attr,
 				  char *buf)
 {
+<<<<<<< HEAD
 	ssize_t n;
 	u32 i;
 
@@ -344,6 +428,25 @@ static ssize_t print_cpu_modalias(struct device *dev,
 		}
 	buf[n++] = '\n';
 	return n;
+=======
+	int len = 0;
+	u32 i;
+
+	len += sysfs_emit_at(buf, len,
+			     "cpu:type:" CPU_FEATURE_TYPEFMT ":feature:",
+			     CPU_FEATURE_TYPEVAL);
+
+	for (i = 0; i < MAX_CPU_FEATURES; i++)
+		if (cpu_have_feature(i)) {
+			if (len + sizeof(",XXXX\n") >= PAGE_SIZE) {
+				WARN(1, "CPU features overflow page\n");
+				break;
+			}
+			len += sysfs_emit_at(buf, len, ",%04X", i);
+		}
+	len += sysfs_emit_at(buf, len, "\n");
+	return len;
+>>>>>>> upstream/android-13
 }
 
 static int cpu_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -398,7 +501,11 @@ int register_cpu(struct cpu *cpu, int num)
 	return 0;
 }
 
+<<<<<<< HEAD
 struct device *get_cpu_device(unsigned cpu)
+=======
+struct device *get_cpu_device(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	if (cpu < nr_cpu_ids && cpu_possible(cpu))
 		return per_cpu(cpu_sys_devices, cpu);
@@ -412,12 +519,17 @@ static void device_create_release(struct device *dev)
 	kfree(dev);
 }
 
+<<<<<<< HEAD
+=======
+__printf(4, 0)
+>>>>>>> upstream/android-13
 static struct device *
 __cpu_device_create(struct device *parent, void *drvdata,
 		    const struct attribute_group **groups,
 		    const char *fmt, va_list args)
 {
 	struct device *dev = NULL;
+<<<<<<< HEAD
 	int retval = -ENODEV;
 
 	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
@@ -425,6 +537,13 @@ __cpu_device_create(struct device *parent, void *drvdata,
 		retval = -ENOMEM;
 		goto error;
 	}
+=======
+	int retval = -ENOMEM;
+
+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+	if (!dev)
+		goto error;
+>>>>>>> upstream/android-13
 
 	device_initialize(dev);
 	dev->parent = parent;
@@ -474,9 +593,12 @@ static struct attribute *cpu_root_attrs[] = {
 	&cpu_attrs[0].attr.attr,
 	&cpu_attrs[1].attr.attr,
 	&cpu_attrs[2].attr.attr,
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_SCHED_EXTENSION
 	&cpu_attrs[3].attr.attr,
 #endif
+=======
+>>>>>>> upstream/android-13
 	&dev_attr_kernel_max.attr,
 	&dev_attr_offline.attr,
 	&dev_attr_isolated.attr,
@@ -489,7 +611,11 @@ static struct attribute *cpu_root_attrs[] = {
 	NULL
 };
 
+<<<<<<< HEAD
 static struct attribute_group cpu_root_attr_group = {
+=======
+static const struct attribute_group cpu_root_attr_group = {
+>>>>>>> upstream/android-13
 	.attrs = cpu_root_attrs,
 };
 
@@ -498,7 +624,11 @@ static const struct attribute_group *cpu_root_attr_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 bool cpu_is_hotpluggable(unsigned cpu)
+=======
+bool cpu_is_hotpluggable(unsigned int cpu)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = get_cpu_device(cpu);
 	return dev && container_of(dev, struct cpu, dev)->hotpluggable;
@@ -526,43 +656,68 @@ static void __init cpu_dev_register_generic(void)
 ssize_t __weak cpu_show_meltdown(struct device *dev,
 				 struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 ssize_t __weak cpu_show_spectre_v1(struct device *dev,
 				   struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 ssize_t __weak cpu_show_spectre_v2(struct device *dev,
 				   struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 ssize_t __weak cpu_show_spec_store_bypass(struct device *dev,
 					  struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 ssize_t __weak cpu_show_l1tf(struct device *dev,
 			     struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 ssize_t __weak cpu_show_mds(struct device *dev,
 			    struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 ssize_t __weak cpu_show_tsx_async_abort(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
 }
 
@@ -570,12 +725,25 @@ ssize_t __weak cpu_show_itlb_multihit(struct device *dev,
 			    struct device_attribute *attr, char *buf)
 {
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+}
+
+ssize_t __weak cpu_show_itlb_multihit(struct device *dev,
+				      struct device_attribute *attr, char *buf)
+{
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 ssize_t __weak cpu_show_srbds(struct device *dev,
 			      struct device_attribute *attr, char *buf)
 {
+<<<<<<< HEAD
 	return sprintf(buf, "Not affected\n");
+=======
+	return sysfs_emit(buf, "Not affected\n");
+>>>>>>> upstream/android-13
 }
 
 static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);

@@ -61,6 +61,7 @@ static void do_rw_io(struct goldfish_tty *qtty,
 	spin_lock_irqsave(&qtty->lock, irq_flags);
 	gf_write_ptr((void *)address, base + GOLDFISH_TTY_REG_DATA_PTR,
 		     base + GOLDFISH_TTY_REG_DATA_PTR_HIGH);
+<<<<<<< HEAD
 	writel(count, base + GOLDFISH_TTY_REG_DATA_LEN);
 
 	if (is_write)
@@ -68,6 +69,15 @@ static void do_rw_io(struct goldfish_tty *qtty,
 		       base + GOLDFISH_TTY_REG_CMD);
 	else
 		writel(GOLDFISH_TTY_CMD_READ_BUFFER,
+=======
+	__raw_writel(count, base + GOLDFISH_TTY_REG_DATA_LEN);
+
+	if (is_write)
+		__raw_writel(GOLDFISH_TTY_CMD_WRITE_BUFFER,
+		       base + GOLDFISH_TTY_REG_CMD);
+	else
+		__raw_writel(GOLDFISH_TTY_CMD_READ_BUFFER,
+>>>>>>> upstream/android-13
 		       base + GOLDFISH_TTY_REG_CMD);
 
 	spin_unlock_irqrestore(&qtty->lock, irq_flags);
@@ -142,7 +152,11 @@ static irqreturn_t goldfish_tty_interrupt(int irq, void *dev_id)
 	unsigned char *buf;
 	u32 count;
 
+<<<<<<< HEAD
 	count = readl(base + GOLDFISH_TTY_REG_BYTES_READY);
+=======
+	count = __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
+>>>>>>> upstream/android-13
 	if (count == 0)
 		return IRQ_NONE;
 
@@ -159,7 +173,11 @@ static int goldfish_tty_activate(struct tty_port *port, struct tty_struct *tty)
 {
 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
 									port);
+<<<<<<< HEAD
 	writel(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+=======
+	__raw_writel(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -167,7 +185,11 @@ static void goldfish_tty_shutdown(struct tty_port *port)
 {
 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
 									port);
+<<<<<<< HEAD
 	writel(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+=======
+	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+>>>>>>> upstream/android-13
 }
 
 static int goldfish_tty_open(struct tty_struct *tty, struct file *filp)
@@ -193,16 +215,28 @@ static int goldfish_tty_write(struct tty_struct *tty, const unsigned char *buf,
 	return count;
 }
 
+<<<<<<< HEAD
 static int goldfish_tty_write_room(struct tty_struct *tty)
+=======
+static unsigned int goldfish_tty_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	return 0x10000;
 }
 
+<<<<<<< HEAD
 static int goldfish_tty_chars_in_buffer(struct tty_struct *tty)
 {
 	struct goldfish_tty *qtty = &goldfish_ttys[tty->index];
 	void __iomem *base = qtty->base;
 	return readl(base + GOLDFISH_TTY_REG_BYTES_READY);
+=======
+static unsigned int goldfish_tty_chars_in_buffer(struct tty_struct *tty)
+{
+	struct goldfish_tty *qtty = &goldfish_ttys[tty->index];
+	void __iomem *base = qtty->base;
+	return __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
+>>>>>>> upstream/android-13
 }
 
 static void goldfish_tty_console_write(struct console *co, const char *b,
@@ -253,18 +287,30 @@ static int goldfish_tty_create_driver(void)
 		ret = -ENOMEM;
 		goto err_alloc_goldfish_ttys_failed;
 	}
+<<<<<<< HEAD
 	tty = alloc_tty_driver(goldfish_tty_line_count);
 	if (tty == NULL) {
 		ret = -ENOMEM;
 		goto err_alloc_tty_driver_failed;
+=======
+	tty = tty_alloc_driver(goldfish_tty_line_count,
+			TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW |
+			TTY_DRIVER_DYNAMIC_DEV);
+	if (IS_ERR(tty)) {
+		ret = PTR_ERR(tty);
+		goto err_tty_alloc_driver_failed;
+>>>>>>> upstream/android-13
 	}
 	tty->driver_name = "goldfish";
 	tty->name = "ttyGF";
 	tty->type = TTY_DRIVER_TYPE_SERIAL;
 	tty->subtype = SERIAL_TYPE_NORMAL;
 	tty->init_termios = tty_std_termios;
+<<<<<<< HEAD
 	tty->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW |
 						TTY_DRIVER_DYNAMIC_DEV;
+=======
+>>>>>>> upstream/android-13
 	tty_set_operations(tty, &goldfish_tty_ops);
 	ret = tty_register_driver(tty);
 	if (ret)
@@ -274,8 +320,13 @@ static int goldfish_tty_create_driver(void)
 	return 0;
 
 err_tty_register_driver_failed:
+<<<<<<< HEAD
 	put_tty_driver(tty);
 err_alloc_tty_driver_failed:
+=======
+	tty_driver_kref_put(tty);
+err_tty_alloc_driver_failed:
+>>>>>>> upstream/android-13
 	kfree(goldfish_ttys);
 	goldfish_ttys = NULL;
 err_alloc_goldfish_ttys_failed:
@@ -285,7 +336,11 @@ err_alloc_goldfish_ttys_failed:
 static void goldfish_tty_delete_driver(void)
 {
 	tty_unregister_driver(goldfish_tty_driver);
+<<<<<<< HEAD
 	put_tty_driver(goldfish_tty_driver);
+=======
+	tty_driver_kref_put(goldfish_tty_driver);
+>>>>>>> upstream/android-13
 	goldfish_tty_driver = NULL;
 	kfree(goldfish_ttys);
 	goldfish_ttys = NULL;
@@ -357,7 +412,11 @@ static int goldfish_tty_probe(struct platform_device *pdev)
 	 * on Ranchu emulator (qemu2) returns 1 here and
 	 * driver will use physical addresses.
 	 */
+<<<<<<< HEAD
 	qtty->version = readl(base + GOLDFISH_TTY_REG_VERSION);
+=======
+	qtty->version = __raw_readl(base + GOLDFISH_TTY_REG_VERSION);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Goldfish TTY device on Ranchu emulator (qemu2)
@@ -376,7 +435,11 @@ static int goldfish_tty_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	writel(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
+=======
+	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
+>>>>>>> upstream/android-13
 
 	ret = request_irq(irq, goldfish_tty_interrupt, IRQF_SHARED,
 			  "goldfish_tty", qtty);

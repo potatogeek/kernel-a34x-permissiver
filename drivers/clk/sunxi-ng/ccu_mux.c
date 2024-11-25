@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Maxime Ripard
  * Maxime Ripard <maxime.ripard@free-electrons.com>
@@ -6,11 +7,21 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Maxime Ripard
+ * Maxime Ripard <maxime.ripard@free-electrons.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #include "ccu_gate.h"
 #include "ccu_mux.h"

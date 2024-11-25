@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Intel Management Engine Interface (Intel MEI) Linux driver
  * Copyright (c) 2012-2013, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2012-2019, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -28,7 +35,10 @@
 #include "client.h"
 
 #define to_mei_cl_driver(d) container_of(d, struct mei_cl_driver, driver)
+<<<<<<< HEAD
 #define to_mei_cl_device(d) container_of(d, struct mei_cl_device, dev)
+=======
+>>>>>>> upstream/android-13
 
 /**
  * __mei_cl_send - internal client send (write)
@@ -36,11 +46,19 @@
  * @cl: host client
  * @buf: buffer to send
  * @length: buffer length
+<<<<<<< HEAD
+=======
+ * @vtag: virtual tag
+>>>>>>> upstream/android-13
  * @mode: sending mode
  *
  * Return: written size bytes or < 0 on error
  */
+<<<<<<< HEAD
 ssize_t __mei_cl_send(struct mei_cl *cl, u8 *buf, size_t length,
+=======
+ssize_t __mei_cl_send(struct mei_cl *cl, const u8 *buf, size_t length, u8 vtag,
+>>>>>>> upstream/android-13
 		      unsigned int mode)
 {
 	struct mei_device *bus;
@@ -53,7 +71,12 @@ ssize_t __mei_cl_send(struct mei_cl *cl, u8 *buf, size_t length,
 	bus = cl->dev;
 
 	mutex_lock(&bus->device_lock);
+<<<<<<< HEAD
 	if (bus->dev_state != MEI_DEV_ENABLED) {
+=======
+	if (bus->dev_state != MEI_DEV_ENABLED &&
+	    bus->dev_state != MEI_DEV_POWERING_DOWN) {
+>>>>>>> upstream/android-13
 		rets = -ENODEV;
 		goto out;
 	}
@@ -69,6 +92,16 @@ ssize_t __mei_cl_send(struct mei_cl *cl, u8 *buf, size_t length,
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	if (vtag) {
+		/* Check if vtag is supported by client */
+		rets = mei_cl_vt_support_check(cl);
+		if (rets)
+			goto out;
+	}
+
+>>>>>>> upstream/android-13
 	if (length > mei_cl_mtu(cl)) {
 		rets = -EFBIG;
 		goto out;
@@ -96,6 +129,10 @@ ssize_t __mei_cl_send(struct mei_cl *cl, u8 *buf, size_t length,
 		rets = -ENOMEM;
 		goto out;
 	}
+<<<<<<< HEAD
+=======
+	cb->vtag = vtag;
+>>>>>>> upstream/android-13
 
 	cb->internal = !!(mode & MEI_CL_IO_TX_INTERNAL);
 	cb->blocking = !!(mode & MEI_CL_IO_TX_BLOCKING);
@@ -116,11 +153,19 @@ out:
  * @buf: buffer to receive
  * @length: buffer length
  * @mode: io mode
+<<<<<<< HEAD
+=======
+ * @vtag: virtual tag
+>>>>>>> upstream/android-13
  * @timeout: recv timeout, 0 for infinite timeout
  *
  * Return: read size in bytes of < 0 on error
  */
+<<<<<<< HEAD
 ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length,
+=======
+ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length, u8 *vtag,
+>>>>>>> upstream/android-13
 		      unsigned int mode, unsigned long timeout)
 {
 	struct mei_device *bus;
@@ -135,7 +180,12 @@ ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length,
 	bus = cl->dev;
 
 	mutex_lock(&bus->device_lock);
+<<<<<<< HEAD
 	if (bus->dev_state != MEI_DEV_ENABLED) {
+=======
+	if (bus->dev_state != MEI_DEV_ENABLED &&
+	    bus->dev_state != MEI_DEV_POWERING_DOWN) {
+>>>>>>> upstream/android-13
 		rets = -ENODEV;
 		goto out;
 	}
@@ -162,7 +212,11 @@ ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length,
 		if (timeout) {
 			rets = wait_event_interruptible_timeout
 					(cl->rx_wait,
+<<<<<<< HEAD
 					(!list_empty(&cl->rd_completed)) ||
+=======
+					mei_cl_read_cb(cl, NULL) ||
+>>>>>>> upstream/android-13
 					(!mei_cl_is_connected(cl)),
 					msecs_to_jiffies(timeout));
 			if (rets == 0)
@@ -175,7 +229,11 @@ ssize_t __mei_cl_recv(struct mei_cl *cl, u8 *buf, size_t length,
 		} else {
 			if (wait_event_interruptible
 					(cl->rx_wait,
+<<<<<<< HEAD
 					(!list_empty(&cl->rd_completed)) ||
+=======
+					mei_cl_read_cb(cl, NULL) ||
+>>>>>>> upstream/android-13
 					(!mei_cl_is_connected(cl)))) {
 				if (signal_pending(current))
 					return -EINTR;
@@ -206,9 +264,17 @@ copy:
 	r_length = min_t(size_t, length, cb->buf_idx);
 	memcpy(buf, cb->buf.data, r_length);
 	rets = r_length;
+<<<<<<< HEAD
 
 free:
 	mei_io_cb_free(cb);
+=======
+	if (vtag)
+		*vtag = cb->vtag;
+
+free:
+	mei_cl_del_rd_completed(cl, cb);
+>>>>>>> upstream/android-13
 out:
 	mutex_unlock(&bus->device_lock);
 
@@ -216,12 +282,82 @@ out:
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * mei_cldev_send_vtag - me device send with vtag  (write)
+ *
+ * @cldev: me client device
+ * @buf: buffer to send
+ * @length: buffer length
+ * @vtag: virtual tag
+ *
+ * Return:
+ *  * written size in bytes
+ *  * < 0 on error
+ */
+
+ssize_t mei_cldev_send_vtag(struct mei_cl_device *cldev, const u8 *buf,
+			    size_t length, u8 vtag)
+{
+	struct mei_cl *cl = cldev->cl;
+
+	return __mei_cl_send(cl, buf, length, vtag, MEI_CL_IO_TX_BLOCKING);
+}
+EXPORT_SYMBOL_GPL(mei_cldev_send_vtag);
+
+/**
+ * mei_cldev_recv_vtag - client receive with vtag (read)
+ *
+ * @cldev: me client device
+ * @buf: buffer to receive
+ * @length: buffer length
+ * @vtag: virtual tag
+ *
+ * Return:
+ * * read size in bytes
+ * *  < 0 on error
+ */
+
+ssize_t mei_cldev_recv_vtag(struct mei_cl_device *cldev, u8 *buf, size_t length,
+			    u8 *vtag)
+{
+	struct mei_cl *cl = cldev->cl;
+
+	return __mei_cl_recv(cl, buf, length, vtag, 0, 0);
+}
+EXPORT_SYMBOL_GPL(mei_cldev_recv_vtag);
+
+/**
+ * mei_cldev_recv_nonblock_vtag - non block client receive with vtag (read)
+ *
+ * @cldev: me client device
+ * @buf: buffer to receive
+ * @length: buffer length
+ * @vtag: virtual tag
+ *
+ * Return:
+ * * read size in bytes
+ * * -EAGAIN if function will block.
+ * * < 0 on other error
+ */
+ssize_t mei_cldev_recv_nonblock_vtag(struct mei_cl_device *cldev, u8 *buf,
+				     size_t length, u8 *vtag)
+{
+	struct mei_cl *cl = cldev->cl;
+
+	return __mei_cl_recv(cl, buf, length, vtag, MEI_CL_IO_RX_NONBLOCK, 0);
+}
+EXPORT_SYMBOL_GPL(mei_cldev_recv_nonblock_vtag);
+
+/**
+>>>>>>> upstream/android-13
  * mei_cldev_send - me device send  (write)
  *
  * @cldev: me client device
  * @buf: buffer to send
  * @length: buffer length
  *
+<<<<<<< HEAD
  * Return: written size in bytes or < 0 on error
  */
 ssize_t mei_cldev_send(struct mei_cl_device *cldev, u8 *buf, size_t length)
@@ -229,10 +365,37 @@ ssize_t mei_cldev_send(struct mei_cl_device *cldev, u8 *buf, size_t length)
 	struct mei_cl *cl = cldev->cl;
 
 	return __mei_cl_send(cl, buf, length, MEI_CL_IO_TX_BLOCKING);
+=======
+ * Return:
+ *  * written size in bytes
+ *  * < 0 on error
+ */
+ssize_t mei_cldev_send(struct mei_cl_device *cldev, const u8 *buf, size_t length)
+{
+	return mei_cldev_send_vtag(cldev, buf, length, 0);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mei_cldev_send);
 
 /**
+<<<<<<< HEAD
+=======
+ * mei_cldev_recv - client receive (read)
+ *
+ * @cldev: me client device
+ * @buf: buffer to receive
+ * @length: buffer length
+ *
+ * Return: read size in bytes of < 0 on error
+ */
+ssize_t mei_cldev_recv(struct mei_cl_device *cldev, u8 *buf, size_t length)
+{
+	return mei_cldev_recv_vtag(cldev, buf, length, NULL);
+}
+EXPORT_SYMBOL_GPL(mei_cldev_recv);
+
+/**
+>>>>>>> upstream/android-13
  * mei_cldev_recv_nonblock - non block client receive (read)
  *
  * @cldev: me client device
@@ -245,13 +408,18 @@ EXPORT_SYMBOL_GPL(mei_cldev_send);
 ssize_t mei_cldev_recv_nonblock(struct mei_cl_device *cldev, u8 *buf,
 				size_t length)
 {
+<<<<<<< HEAD
 	struct mei_cl *cl = cldev->cl;
 
 	return __mei_cl_recv(cl, buf, length, MEI_CL_IO_RX_NONBLOCK, 0);
+=======
+	return mei_cldev_recv_nonblock_vtag(cldev, buf, length, NULL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(mei_cldev_recv_nonblock);
 
 /**
+<<<<<<< HEAD
  * mei_cldev_recv - client receive (read)
  *
  * @cldev: me client device
@@ -269,6 +437,8 @@ ssize_t mei_cldev_recv(struct mei_cl_device *cldev, u8 *buf, size_t length)
 EXPORT_SYMBOL_GPL(mei_cldev_recv);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * mei_cl_bus_rx_work - dispatch rx event for a bus device
  *
  * @work: work
@@ -286,7 +456,12 @@ static void mei_cl_bus_rx_work(struct work_struct *work)
 		cldev->rx_cb(cldev);
 
 	mutex_lock(&bus->device_lock);
+<<<<<<< HEAD
 	mei_cl_read_start(cldev->cl, mei_cl_mtu(cldev->cl), NULL);
+=======
+	if (mei_cl_is_connected(cldev->cl))
+		mei_cl_read_start(cldev->cl, mei_cl_mtu(cldev->cl), NULL);
+>>>>>>> upstream/android-13
 	mutex_unlock(&bus->device_lock);
 }
 
@@ -374,10 +549,23 @@ int mei_cldev_register_rx_cb(struct mei_cl_device *cldev, mei_cldev_cb_t rx_cb)
 	INIT_WORK(&cldev->rx_work, mei_cl_bus_rx_work);
 
 	mutex_lock(&bus->device_lock);
+<<<<<<< HEAD
 	ret = mei_cl_read_start(cldev->cl, mei_cl_mtu(cldev->cl), NULL);
 	mutex_unlock(&bus->device_lock);
 	if (ret && ret != -EBUSY)
 		return ret;
+=======
+	if (mei_cl_is_connected(cldev->cl))
+		ret = mei_cl_read_start(cldev->cl, mei_cl_mtu(cldev->cl), NULL);
+	else
+		ret = -ENODEV;
+	mutex_unlock(&bus->device_lock);
+	if (ret && ret != -EBUSY) {
+		cancel_work_sync(&cldev->rx_work);
+		cldev->rx_cb = NULL;
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -411,8 +599,16 @@ int mei_cldev_register_notif_cb(struct mei_cl_device *cldev,
 	mutex_lock(&bus->device_lock);
 	ret = mei_cl_notify_request(cldev->cl, NULL, 1);
 	mutex_unlock(&bus->device_lock);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
+=======
+	if (ret) {
+		cancel_work_sync(&cldev->notif_work);
+		cldev->notif_cb = NULL;
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -476,7 +672,11 @@ EXPORT_SYMBOL_GPL(mei_cldev_ver);
  *
  * Return: true if me client is initialized and connected
  */
+<<<<<<< HEAD
 bool mei_cldev_enabled(struct mei_cl_device *cldev)
+=======
+bool mei_cldev_enabled(const struct mei_cl_device *cldev)
+>>>>>>> upstream/android-13
 {
 	return mei_cl_is_connected(cldev->cl);
 }
@@ -506,6 +706,71 @@ static void mei_cl_bus_module_put(struct mei_cl_device *cldev)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * mei_cl_bus_vtag - get bus vtag entry wrapper
+ *     The tag for bus client is always first.
+ *
+ * @cl: host client
+ *
+ * Return: bus vtag or NULL
+ */
+static inline struct mei_cl_vtag *mei_cl_bus_vtag(struct mei_cl *cl)
+{
+	return list_first_entry_or_null(&cl->vtag_map,
+					struct mei_cl_vtag, list);
+}
+
+/**
+ * mei_cl_bus_vtag_alloc - add bus client entry to vtag map
+ *
+ * @cldev: me client device
+ *
+ * Return:
+ * * 0 on success
+ * * -ENOMEM if memory allocation failed
+ */
+static int mei_cl_bus_vtag_alloc(struct mei_cl_device *cldev)
+{
+	struct mei_cl *cl = cldev->cl;
+	struct mei_cl_vtag *cl_vtag;
+
+	/*
+	 * Bail out if the client does not supports vtags
+	 * or has already allocated one
+	 */
+	if (mei_cl_vt_support_check(cl) || mei_cl_bus_vtag(cl))
+		return 0;
+
+	cl_vtag = mei_cl_vtag_alloc(NULL, 0);
+	if (IS_ERR(cl_vtag))
+		return -ENOMEM;
+
+	list_add_tail(&cl_vtag->list, &cl->vtag_map);
+
+	return 0;
+}
+
+/**
+ * mei_cl_bus_vtag_free - remove the bus entry from vtag map
+ *
+ * @cldev: me client device
+ */
+static void mei_cl_bus_vtag_free(struct mei_cl_device *cldev)
+{
+	struct mei_cl *cl = cldev->cl;
+	struct mei_cl_vtag *cl_vtag;
+
+	cl_vtag = mei_cl_bus_vtag(cl);
+	if (!cl_vtag)
+		return;
+
+	list_del(&cl_vtag->list);
+	kfree(cl_vtag);
+}
+
+/**
+>>>>>>> upstream/android-13
  * mei_cldev_enable - enable me client device
  *     create connection with me client
  *
@@ -541,9 +806,21 @@ int mei_cldev_enable(struct mei_cl_device *cldev)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = mei_cl_connect(cl, cldev->me_cl, NULL);
 	if (ret < 0)
 		dev_err(&cldev->dev, "cannot connect\n");
+=======
+	ret = mei_cl_bus_vtag_alloc(cldev);
+	if (ret)
+		goto out;
+
+	ret = mei_cl_connect(cl, cldev->me_cl, NULL);
+	if (ret < 0) {
+		dev_err(&cldev->dev, "cannot connect\n");
+		mei_cl_bus_vtag_free(cldev);
+	}
+>>>>>>> upstream/android-13
 
 out:
 	mutex_unlock(&bus->device_lock);
@@ -596,6 +873,11 @@ int mei_cldev_disable(struct mei_cl_device *cldev)
 
 	mutex_lock(&bus->device_lock);
 
+<<<<<<< HEAD
+=======
+	mei_cl_bus_vtag_free(cldev);
+
+>>>>>>> upstream/android-13
 	if (!mei_cl_is_connected(cl)) {
 		dev_dbg(bus->dev, "Already disconnected\n");
 		err = 0;
@@ -625,8 +907,13 @@ EXPORT_SYMBOL_GPL(mei_cldev_disable);
  * Return: id on success; NULL if no id is matching
  */
 static const
+<<<<<<< HEAD
 struct mei_cl_device_id *mei_cl_device_find(struct mei_cl_device *cldev,
 					    struct mei_cl_driver *cldrv)
+=======
+struct mei_cl_device_id *mei_cl_device_find(const struct mei_cl_device *cldev,
+					    const struct mei_cl_driver *cldrv)
+>>>>>>> upstream/android-13
 {
 	const struct mei_cl_device_id *id;
 	const uuid_le *uuid;
@@ -669,8 +956,13 @@ struct mei_cl_device_id *mei_cl_device_find(struct mei_cl_device *cldev,
  */
 static int mei_cl_device_match(struct device *dev, struct device_driver *drv)
 {
+<<<<<<< HEAD
 	struct mei_cl_device *cldev = to_mei_cl_device(dev);
 	struct mei_cl_driver *cldrv = to_mei_cl_driver(drv);
+=======
+	const struct mei_cl_device *cldev = to_mei_cl_device(dev);
+	const struct mei_cl_driver *cldrv = to_mei_cl_driver(drv);
+>>>>>>> upstream/android-13
 	const struct mei_cl_device_id *found_id;
 
 	if (!cldev)
@@ -738,6 +1030,7 @@ static int mei_cl_device_probe(struct device *dev)
  *
  * Return:  0 on success; < 0 otherwise
  */
+<<<<<<< HEAD
 static int mei_cl_device_remove(struct device *dev)
 {
 	struct mei_cl_device *cldev = to_mei_cl_device(dev);
@@ -750,13 +1043,25 @@ static int mei_cl_device_remove(struct device *dev)
 	cldrv = to_mei_cl_driver(dev->driver);
 	if (cldrv->remove)
 		ret = cldrv->remove(cldev);
+=======
+static void mei_cl_device_remove(struct device *dev)
+{
+	struct mei_cl_device *cldev = to_mei_cl_device(dev);
+	struct mei_cl_driver *cldrv = to_mei_cl_driver(dev->driver);
+
+	if (cldrv->remove)
+		cldrv->remove(cldev);
+>>>>>>> upstream/android-13
 
 	mei_cldev_unregister_callbacks(cldev);
 
 	mei_cl_bus_module_put(cldev);
 	module_put(THIS_MODULE);
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static ssize_t name_show(struct device *dev, struct device_attribute *a,
@@ -774,7 +1079,11 @@ static ssize_t uuid_show(struct device *dev, struct device_attribute *a,
 	struct mei_cl_device *cldev = to_mei_cl_device(dev);
 	const uuid_le *uuid = mei_me_cl_uuid(cldev->me_cl);
 
+<<<<<<< HEAD
 	return scnprintf(buf, PAGE_SIZE, "%pUl", uuid);
+=======
+	return sprintf(buf, "%pUl", uuid);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(uuid);
 
@@ -784,7 +1093,11 @@ static ssize_t version_show(struct device *dev, struct device_attribute *a,
 	struct mei_cl_device *cldev = to_mei_cl_device(dev);
 	u8 version = mei_me_cl_ver(cldev->me_cl);
 
+<<<<<<< HEAD
 	return scnprintf(buf, PAGE_SIZE, "%02X", version);
+=======
+	return sprintf(buf, "%02X", version);
+>>>>>>> upstream/android-13
 }
 static DEVICE_ATTR_RO(version);
 
@@ -800,11 +1113,61 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
 }
 static DEVICE_ATTR_RO(modalias);
 
+<<<<<<< HEAD
+=======
+static ssize_t max_conn_show(struct device *dev, struct device_attribute *a,
+			     char *buf)
+{
+	struct mei_cl_device *cldev = to_mei_cl_device(dev);
+	u8 maxconn = mei_me_cl_max_conn(cldev->me_cl);
+
+	return sprintf(buf, "%d", maxconn);
+}
+static DEVICE_ATTR_RO(max_conn);
+
+static ssize_t fixed_show(struct device *dev, struct device_attribute *a,
+			  char *buf)
+{
+	struct mei_cl_device *cldev = to_mei_cl_device(dev);
+	u8 fixed = mei_me_cl_fixed(cldev->me_cl);
+
+	return sprintf(buf, "%d", fixed);
+}
+static DEVICE_ATTR_RO(fixed);
+
+static ssize_t vtag_show(struct device *dev, struct device_attribute *a,
+			 char *buf)
+{
+	struct mei_cl_device *cldev = to_mei_cl_device(dev);
+	bool vt = mei_me_cl_vt(cldev->me_cl);
+
+	return sprintf(buf, "%d", vt);
+}
+static DEVICE_ATTR_RO(vtag);
+
+static ssize_t max_len_show(struct device *dev, struct device_attribute *a,
+			    char *buf)
+{
+	struct mei_cl_device *cldev = to_mei_cl_device(dev);
+	u32 maxlen = mei_me_cl_max_len(cldev->me_cl);
+
+	return sprintf(buf, "%u", maxlen);
+}
+static DEVICE_ATTR_RO(max_len);
+
+>>>>>>> upstream/android-13
 static struct attribute *mei_cldev_attrs[] = {
 	&dev_attr_name.attr,
 	&dev_attr_uuid.attr,
 	&dev_attr_version.attr,
 	&dev_attr_modalias.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_max_conn.attr,
+	&dev_attr_fixed.attr,
+	&dev_attr_vtag.attr,
+	&dev_attr_max_len.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 ATTRIBUTE_GROUPS(mei_cldev);
@@ -908,7 +1271,11 @@ static struct mei_cl_device *mei_cl_bus_dev_alloc(struct mei_device *bus,
 	struct mei_cl_device *cldev;
 	struct mei_cl *cl;
 
+<<<<<<< HEAD
 	cldev = kzalloc(sizeof(struct mei_cl_device), GFP_KERNEL);
+=======
+	cldev = kzalloc(sizeof(*cldev), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!cldev)
 		return NULL;
 
@@ -933,7 +1300,11 @@ static struct mei_cl_device *mei_cl_bus_dev_alloc(struct mei_device *bus,
 }
 
 /**
+<<<<<<< HEAD
  * mei_cl_dev_setup - setup me client device
+=======
+ * mei_cl_bus_dev_setup - setup me client device
+>>>>>>> upstream/android-13
  *    run fix up routines and set the device name
  *
  * @bus: mei device

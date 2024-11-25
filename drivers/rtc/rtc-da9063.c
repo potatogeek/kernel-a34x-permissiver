@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* rtc-da9063.c - Real time clock device driver for DA9063
  * Copyright (C) 2013-2015  Dialog Semiconductor Ltd.
  *
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Real time clock device driver for DA9063
+ * Copyright (C) 2013-2015  Dialog Semiconductor Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -247,11 +254,19 @@ static int da9063_rtc_read_time(struct device *dev, struct rtc_time *tm)
 
 	da9063_data_to_tm(data, tm, rtc);
 
+<<<<<<< HEAD
 	rtc_tm_to_time(tm, &tm_secs);
 	rtc_tm_to_time(&rtc->alarm_time, &al_secs);
 
 	/* handle the rtc synchronisation delay */
 	if (rtc->rtc_sync == true && al_secs - tm_secs == 1)
+=======
+	tm_secs = rtc_tm_to_time64(tm);
+	al_secs = rtc_tm_to_time64(&rtc->alarm_time);
+
+	/* handle the rtc synchronisation delay */
+	if (rtc->rtc_sync && al_secs - tm_secs == 1)
+>>>>>>> upstream/android-13
 		memcpy(tm, &rtc->alarm_time, sizeof(struct rtc_time));
 	else
 		rtc->rtc_sync = false;
@@ -472,11 +487,22 @@ static int da9063_rtc_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, rtc);
 
+<<<<<<< HEAD
 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, DA9063_DRVNAME_RTC,
 					   &da9063_rtc_ops, THIS_MODULE);
 	if (IS_ERR(rtc->rtc_dev))
 		return PTR_ERR(rtc->rtc_dev);
 
+=======
+	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc->rtc_dev))
+		return PTR_ERR(rtc->rtc_dev);
+
+	rtc->rtc_dev->ops = &da9063_rtc_ops;
+	rtc->rtc_dev->range_min = RTC_TIMESTAMP_BEGIN_2000;
+	rtc->rtc_dev->range_max = RTC_TIMESTAMP_END_2063;
+
+>>>>>>> upstream/android-13
 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
 	rtc->rtc_sync = false;
 
@@ -488,6 +514,12 @@ static int da9063_rtc_probe(struct platform_device *pdev)
 		rtc->rtc_dev->uie_unsupported = 1;
 
 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
+<<<<<<< HEAD
+=======
+	if (irq_alarm < 0)
+		return irq_alarm;
+
+>>>>>>> upstream/android-13
 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
 					da9063_alarm_event,
 					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
@@ -496,7 +528,11 @@ static int da9063_rtc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Failed to request ALARM IRQ %d: %d\n",
 			irq_alarm, ret);
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return devm_rtc_register_device(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver da9063_rtc_driver = {

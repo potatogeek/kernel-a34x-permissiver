@@ -6,7 +6,11 @@
 
 #undef DEBUG
 
+<<<<<<< HEAD
 #include <linux/dma-noncoherent.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
@@ -15,6 +19,7 @@
 #include <linux/vmalloc.h>
 #include <linux/export.h>
 
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 
 #if defined(CONFIG_MMU) && !defined(CONFIG_COLDFIRE)
@@ -73,6 +78,27 @@ void arch_dma_free(struct device *dev, size_t size, void *addr,
 
 #include <asm/cacheflush.h>
 
+=======
+#include <asm/cacheflush.h>
+
+#if defined(CONFIG_MMU) && !defined(CONFIG_COLDFIRE)
+void arch_dma_prep_coherent(struct page *page, size_t size)
+{
+	cache_push(page_to_phys(page), size);
+}
+
+pgprot_t pgprot_dmacoherent(pgprot_t prot)
+{
+	if (CPU_IS_040_OR_060) {
+		pgprot_val(prot) &= ~_PAGE_CACHE040;
+		pgprot_val(prot) |= _PAGE_GLOBAL040 | _PAGE_NOCACHE_S;
+	} else {
+		pgprot_val(prot) |= _PAGE_NOCACHE030;
+	}
+	return prot;
+}
+#else
+>>>>>>> upstream/android-13
 void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
 		gfp_t gfp, unsigned long attrs)
 {
@@ -97,8 +123,13 @@ void arch_dma_free(struct device *dev, size_t size, void *vaddr,
 
 #endif /* CONFIG_MMU && !CONFIG_COLDFIRE */
 
+<<<<<<< HEAD
 void arch_sync_dma_for_device(struct device *dev, phys_addr_t handle,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_device(phys_addr_t handle, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	switch (dir) {
 	case DMA_BIDIRECTIONAL:
@@ -114,6 +145,7 @@ void arch_sync_dma_for_device(struct device *dev, phys_addr_t handle,
 		break;
 	}
 }
+<<<<<<< HEAD
 
 void arch_setup_pdev_archdata(struct platform_device *pdev)
 {
@@ -123,3 +155,5 @@ void arch_setup_pdev_archdata(struct platform_device *pdev)
 		pdev->dev.dma_mask = &pdev->dev.coherent_dma_mask;
 	}
 }
+=======
+>>>>>>> upstream/android-13

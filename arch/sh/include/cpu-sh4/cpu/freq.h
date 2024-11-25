@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * include/asm-sh/cpu-sh4/freq.h
  *
@@ -6,6 +7,13 @@
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * include/asm-sh/cpu-sh4/freq.h
+ *
+ * Copyright (C) 2002, 2003 Paul Mundt
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_CPU_SH4_FREQ_H
 #define __ASM_CPU_SH4_FREQ_H

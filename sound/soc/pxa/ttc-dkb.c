@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/sound/soc/pxa/ttc_dkb.c
  *
  * Copyright (C) 2012 Marvell International Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -75,7 +82,11 @@ static const struct snd_soc_dapm_route ttc_audio_map[] = {
 
 static int ttc_pm860x_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_component *component = rtd->codec_dai->component;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(rtd, 0)->component;
+>>>>>>> upstream/android-13
 
 	/* Headset jack detection */
 	snd_soc_card_jack_new(rtd->card, "Headphone Jack", SND_JACK_HEADPHONE |
@@ -94,10 +105,19 @@ static int ttc_pm860x_init(struct snd_soc_pcm_runtime *rtd)
 }
 
 /* ttc/td-dkb digital audio interface glue - connects codec <--> CPU */
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(i2s,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa-ssp-dai.1")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("88pm860x-codec", "88pm860x-i2s")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("mmp-pcm-audio")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link ttc_pm860x_hifi_dai[] = {
 {
 	 .name = "88pm860x i2s",
 	 .stream_name = "audio playback",
+<<<<<<< HEAD
 	 .codec_name = "88pm860x-codec",
 	 .platform_name = "mmp-pcm-audio",
 	 .cpu_dai_name = "pxa-ssp-dai.1",
@@ -105,6 +125,12 @@ static struct snd_soc_dai_link ttc_pm860x_hifi_dai[] = {
 	 .dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBM_CFM,
 	 .init = ttc_pm860x_init,
+=======
+	 .dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+			SND_SOC_DAIFMT_CBM_CFM,
+	 .init = ttc_pm860x_init,
+	 SND_SOC_DAILINK_REG(i2s),
+>>>>>>> upstream/android-13
 },
 };
 

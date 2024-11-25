@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright 2011 Linaro Ltd.
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2011 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>

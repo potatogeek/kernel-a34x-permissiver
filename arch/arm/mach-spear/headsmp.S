@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-spear13XX/headsmp.S
  *
  * Picked from realview
  * Copyright (c) 2012 ST Microelectronics Limited
  * Shiraz Hashim <shiraz.linux.kernel@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -43,5 +50,9 @@ pen:	ldr	r7, [r6]
 
 	.align
 1:	.long	.
+<<<<<<< HEAD
 	.long	pen_release
+=======
+	.long	spear_pen_release
+>>>>>>> upstream/android-13
 ENDPROC(spear13xx_secondary_startup)

@@ -8,6 +8,10 @@
 
 #include <net/inet_sock.h>
 #include <net/dsfield.h>
+<<<<<<< HEAD
+=======
+#include <net/checksum.h>
+>>>>>>> upstream/android-13
 
 enum {
 	INET_ECN_NOT_ECT = 0,
@@ -75,8 +79,13 @@ static inline void INET_ECN_dontxmit(struct sock *sk)
 
 static inline int IP_ECN_set_ce(struct iphdr *iph)
 {
+<<<<<<< HEAD
 	u32 check = (__force u32)iph->check;
 	u32 ecn = (iph->tos + 1) & INET_ECN_MASK;
+=======
+	u32 ecn = (iph->tos + 1) & INET_ECN_MASK;
+	__be16 check_add;
+>>>>>>> upstream/android-13
 
 	/*
 	 * After the last operation we have (in binary):
@@ -93,13 +102,33 @@ static inline int IP_ECN_set_ce(struct iphdr *iph)
 	 * INET_ECN_ECT_1 => check += htons(0xFFFD)
 	 * INET_ECN_ECT_0 => check += htons(0xFFFE)
 	 */
+<<<<<<< HEAD
 	check += (__force u16)htons(0xFFFB) + (__force u16)htons(ecn);
 
 	iph->check = (__force __sum16)(check + (check>=0xFFFF));
+=======
+	check_add = (__force __be16)((__force u16)htons(0xFFFB) +
+				     (__force u16)htons(ecn));
+
+	iph->check = csum16_add(iph->check, check_add);
+>>>>>>> upstream/android-13
 	iph->tos |= INET_ECN_CE;
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static inline int IP_ECN_set_ect1(struct iphdr *iph)
+{
+	if ((iph->tos & INET_ECN_MASK) != INET_ECN_ECT_0)
+		return 0;
+
+	iph->check = csum16_add(iph->check, htons(0x1));
+	iph->tos ^= INET_ECN_MASK;
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 static inline void IP_ECN_clear(struct iphdr *iph)
 {
 	iph->tos &= ~INET_ECN_MASK;
@@ -135,6 +164,25 @@ static inline int IP6_ECN_set_ce(struct sk_buff *skb, struct ipv6hdr *iph)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static inline int IP6_ECN_set_ect1(struct sk_buff *skb, struct ipv6hdr *iph)
+{
+	__be32 from, to;
+
+	if ((ipv6_get_dsfield(iph) & INET_ECN_MASK) != INET_ECN_ECT_0)
+		return 0;
+
+	from = *(__be32 *)iph;
+	to = from ^ htonl(INET_ECN_MASK << 20);
+	*(__be32 *)iph = to;
+	if (skb->ip_summed == CHECKSUM_COMPLETE)
+		skb->csum = csum_add(csum_sub(skb->csum, (__force __wsum)from),
+				     (__force __wsum)to);
+	return 1;
+}
+
+>>>>>>> upstream/android-13
 static inline void ipv6_copy_dscp(unsigned int dscp, struct ipv6hdr *inner)
 {
 	dscp &= ~INET_ECN_MASK;
@@ -160,6 +208,28 @@ static inline int INET_ECN_set_ce(struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static inline int INET_ECN_set_ect1(struct sk_buff *skb)
+{
+	switch (skb_protocol(skb, true)) {
+	case cpu_to_be16(ETH_P_IP):
+		if (skb_network_header(skb) + sizeof(struct iphdr) <=
+		    skb_tail_pointer(skb))
+			return IP_ECN_set_ect1(ip_hdr(skb));
+		break;
+
+	case cpu_to_be16(ETH_P_IPV6):
+		if (skb_network_header(skb) + sizeof(struct ipv6hdr) <=
+		    skb_tail_pointer(skb))
+			return IP6_ECN_set_ect1(skb, ipv6_hdr(skb));
+		break;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * RFC 6040 4.2
  *  To decapsulate the inner header at the tunnel egress, a compliant
@@ -184,8 +254,12 @@ static inline int INET_ECN_set_ce(struct sk_buff *skb)
  *          1 if something is broken and should be logged (!!! above)
  *          2 if packet should be dropped
  */
+<<<<<<< HEAD
 static inline int INET_ECN_decapsulate(struct sk_buff *skb,
 				       __u8 outer, __u8 inner)
+=======
+static inline int __INET_ECN_decapsulate(__u8 outer, __u8 inner, bool *set_ce)
+>>>>>>> upstream/android-13
 {
 	if (INET_ECN_is_not_ect(inner)) {
 		switch (outer & INET_ECN_MASK) {
@@ -199,12 +273,36 @@ static inline int INET_ECN_decapsulate(struct sk_buff *skb,
 		}
 	}
 
+<<<<<<< HEAD
 	if (INET_ECN_is_ce(outer))
 		INET_ECN_set_ce(skb);
 
 	return 0;
 }
 
+=======
+	*set_ce = INET_ECN_is_ce(outer);
+	return 0;
+}
+
+static inline int INET_ECN_decapsulate(struct sk_buff *skb,
+				       __u8 outer, __u8 inner)
+{
+	bool set_ce = false;
+	int rc;
+
+	rc = __INET_ECN_decapsulate(outer, inner, &set_ce);
+	if (!rc) {
+		if (set_ce)
+			INET_ECN_set_ce(skb);
+		else if ((outer & INET_ECN_MASK) == INET_ECN_ECT_1)
+			INET_ECN_set_ect1(skb);
+	}
+
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 static inline int IP_ECN_decapsulate(const struct iphdr *oiph,
 				     struct sk_buff *skb)
 {

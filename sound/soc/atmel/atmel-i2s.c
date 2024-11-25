@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for Atmel I2S controller
  *
  * Copyright (C) 2015 Atmel Corporation
  *
  * Author: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -211,6 +218,10 @@ struct atmel_i2s_dev {
 	unsigned int				fmt;
 	const struct atmel_i2s_gck_param	*gck_param;
 	const struct atmel_i2s_caps		*caps;
+<<<<<<< HEAD
+=======
+	int					clk_use_no;
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t atmel_i2s_interrupt(int irq, void *dev_id)
@@ -332,9 +343,22 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
 {
 	struct atmel_i2s_dev *dev = snd_soc_dai_get_drvdata(dai);
 	bool is_playback = (substream->stream == SNDRV_PCM_STREAM_PLAYBACK);
+<<<<<<< HEAD
 	unsigned int mr = 0;
 	int ret;
 
+=======
+	unsigned int mr = 0, mr_mask;
+	int ret;
+
+	mr_mask = ATMEL_I2SC_MR_FORMAT_MASK | ATMEL_I2SC_MR_MODE_MASK |
+		ATMEL_I2SC_MR_DATALENGTH_MASK;
+	if (is_playback)
+		mr_mask |= ATMEL_I2SC_MR_TXMONO;
+	else
+		mr_mask |= ATMEL_I2SC_MR_RXMONO;
+
+>>>>>>> upstream/android-13
 	switch (dev->fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
 	case SND_SOC_DAIFMT_I2S:
 		mr |= ATMEL_I2SC_MR_FORMAT_I2S;
@@ -413,7 +437,11 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	return regmap_write(dev->regmap, ATMEL_I2SC_MR, mr);
+=======
+	return regmap_update_bits(dev->regmap, ATMEL_I2SC_MR, mr_mask, mr);
+>>>>>>> upstream/android-13
 }
 
 static int atmel_i2s_switch_mck_generator(struct atmel_i2s_dev *dev,
@@ -506,18 +534,40 @@ static int atmel_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
 	is_master = (mr & ATMEL_I2SC_MR_MODE_MASK) == ATMEL_I2SC_MR_MODE_MASTER;
 
 	/* If master starts, enable the audio clock. */
+<<<<<<< HEAD
 	if (is_master && mck_enabled)
 		err = atmel_i2s_switch_mck_generator(dev, true);
 	if (err)
 		return err;
+=======
+	if (is_master && mck_enabled) {
+		if (!dev->clk_use_no) {
+			err = atmel_i2s_switch_mck_generator(dev, true);
+			if (err)
+				return err;
+		}
+		dev->clk_use_no++;
+	}
+>>>>>>> upstream/android-13
 
 	err = regmap_write(dev->regmap, ATMEL_I2SC_CR, cr);
 	if (err)
 		return err;
 
 	/* If master stops, disable the audio clock. */
+<<<<<<< HEAD
 	if (is_master && !mck_enabled)
 		err = atmel_i2s_switch_mck_generator(dev, false);
+=======
+	if (is_master && !mck_enabled) {
+		if (dev->clk_use_no == 1) {
+			err = atmel_i2s_switch_mck_generator(dev, false);
+			if (err)
+				return err;
+		}
+		dev->clk_use_no--;
+	}
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -552,7 +602,12 @@ static struct snd_soc_dai_driver atmel_i2s_dai = {
 		.formats = ATMEL_I2S_FORMATS,
 	},
 	.ops = &atmel_i2s_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+	.symmetric_sample_bits = 1,
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_component_driver atmel_i2s_component = {
@@ -574,8 +629,13 @@ static int atmel_i2s_sama5d2_mck_init(struct atmel_i2s_dev *dev,
 		err = PTR_ERR(muxclk);
 		if (err == -EPROBE_DEFER)
 			return -EPROBE_DEFER;
+<<<<<<< HEAD
 		dev_warn(dev->dev,
 			 "failed to get the I2S clock control: %d\n", err);
+=======
+		dev_dbg(dev->dev,
+			"failed to get the I2S clock control: %d\n", err);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -606,7 +666,11 @@ static int atmel_i2s_probe(struct platform_device *pdev)
 	struct regmap *regmap;
 	void __iomem *base;
 	int irq;
+<<<<<<< HEAD
 	int err = -ENXIO;
+=======
+	int err;
+>>>>>>> upstream/android-13
 	unsigned int pcm_flags = 0;
 	unsigned int version;
 
@@ -621,8 +685,12 @@ static int atmel_i2s_probe(struct platform_device *pdev)
 		dev->caps = match->data;
 
 	/* Map I/O registers. */
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	base = devm_platform_get_and_ioremap_resource(pdev, 0, &mem);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 

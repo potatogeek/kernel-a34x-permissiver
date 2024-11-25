@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: key.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: Implement functions for 802.11i Key management
  *
  * Author: Jerry Chen
@@ -51,15 +54,26 @@ static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
 		/* default key last entry */
 		entry = MAX_KEY_TABLE - 1;
 		key->hw_key_idx = entry;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case VNT_KEY_ALLGROUP:
 		key_mode |= VNT_KEY_ALLGROUP;
 		if (onfly_latch)
 			key_mode |= VNT_KEY_ONFLY_ALL;
+<<<<<<< HEAD
 		/* fall through */
 	case VNT_KEY_GROUP_ADDRESS:
 		key_mode |= mode;
 		/* fall through */
+=======
+		fallthrough;
+	case VNT_KEY_GROUP_ADDRESS:
+		key_mode |= mode;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case VNT_KEY_GROUP:
 		key_mode |= (mode << 4);
 		key_mode |= VNT_KEY_GROUP;

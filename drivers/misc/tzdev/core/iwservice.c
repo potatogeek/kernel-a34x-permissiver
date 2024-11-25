@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -31,7 +35,11 @@ unsigned long tz_iwservice_get_cpu_mask(void)
 	if (!iw_channel)
 		return 0;
 
+<<<<<<< HEAD
 	return (iw_channel->cpu_mask | iw_channel->user_cpu_mask);
+=======
+	return iw_channel->cpu_mask;
+>>>>>>> upstream/android-13
 }
 
 unsigned long tz_iwservice_get_user_cpu_mask(void)

@@ -15,7 +15,11 @@
 #ifndef _XTENSA_XT2000_HARDWARE_H
 #define _XTENSA_XT2000_HARDWARE_H
 
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 /*
  * On-board components.

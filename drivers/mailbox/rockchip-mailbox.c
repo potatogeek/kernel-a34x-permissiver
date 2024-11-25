@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Fuzhou Rockchip Electronics Co., Ltd
  *
@@ -9,6 +10,11 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015, Fuzhou Rockchip Electronics Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -247,13 +253,18 @@ static int rockchip_mbox_probe(struct platform_device *pdev)
 		mb->chans[i].msg = NULL;
 	}
 
+<<<<<<< HEAD
 	ret = mbox_controller_register(&mb->mbox);
+=======
+	ret = devm_mbox_controller_register(&pdev->dev, &mb->mbox);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(&pdev->dev, "Failed to register mailbox: %d\n", ret);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int rockchip_mbox_remove(struct platform_device *pdev)
 {
 	struct rockchip_mbox *mb = platform_get_drvdata(pdev);
@@ -269,6 +280,10 @@ static int rockchip_mbox_remove(struct platform_device *pdev)
 static struct platform_driver rockchip_mbox_driver = {
 	.probe	= rockchip_mbox_probe,
 	.remove	= rockchip_mbox_remove,
+=======
+static struct platform_driver rockchip_mbox_driver = {
+	.probe	= rockchip_mbox_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "rockchip-mailbox",
 		.of_match_table = of_match_ptr(rockchip_mbox_of_match),

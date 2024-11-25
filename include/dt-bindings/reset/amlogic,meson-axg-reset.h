@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 /*
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) 2016 BayLibre, SAS.
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  *
  * Copyright (c) 2017 Amlogic, inc.
  * Author: Yixun Lan <yixun.lan@amlogic.com>
  *
+<<<<<<< HEAD
  * SPDX-License-Identifier: (GPL-2.0+ OR BSD)
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_AMLOGIC_MESON_AXG_RESET_H

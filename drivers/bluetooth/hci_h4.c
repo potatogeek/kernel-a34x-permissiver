@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Bluetooth HCI UART driver
@@ -5,6 +9,7 @@
  *  Copyright (C) 2000-2001  Qualcomm Incorporated
  *  Copyright (C) 2002-2003  Maxim Krasnyansky <maxk@qualcomm.com>
  *  Copyright (C) 2004-2005  Marcel Holtmann <marcel@holtmann.org>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -86,8 +93,11 @@ static int h4_close(struct hci_uart *hu)
 {
 	struct h4_struct *h4 = hu->priv;
 
+<<<<<<< HEAD
 	hu->priv = NULL;
 
+=======
+>>>>>>> upstream/android-13
 	BT_DBG("hu %p", hu);
 
 	skb_queue_purge(&h4->txq);
@@ -100,7 +110,11 @@ static int h4_close(struct hci_uart *hu)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Enqueue frame for transmittion (padding, crc, etc) */
+=======
+/* Enqueue frame for transmission (padding, crc, etc) */
+>>>>>>> upstream/android-13
 static int h4_enqueue(struct hci_uart *hu, struct sk_buff *skb)
 {
 	struct h4_struct *h4 = hu->priv;
@@ -118,6 +132,10 @@ static const struct h4_recv_pkt h4_recv_pkts[] = {
 	{ H4_RECV_ACL,   .recv = hci_recv_frame },
 	{ H4_RECV_SCO,   .recv = hci_recv_frame },
 	{ H4_RECV_EVENT, .recv = hci_recv_frame },
+<<<<<<< HEAD
+=======
+	{ H4_RECV_ISO,   .recv = hci_recv_frame },
+>>>>>>> upstream/android-13
 };
 
 /* Recv data */

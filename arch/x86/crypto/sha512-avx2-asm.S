@@ -49,7 +49,10 @@
 # This code schedules 1 blocks at a time, with 4 lanes per block
 ########################################################################
 
+<<<<<<< HEAD
 #ifdef CONFIG_AS_AVX2
+=======
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 
 .text
@@ -103,17 +106,24 @@ SRND_SIZE = 1*8
 INP_SIZE = 1*8
 INPEND_SIZE = 1*8
 CTX_SIZE = 1*8
+<<<<<<< HEAD
 RSPSAVE_SIZE = 1*8
 GPRSAVE_SIZE = 5*8
+=======
+>>>>>>> upstream/android-13
 
 frame_XFER = 0
 frame_SRND = frame_XFER + XFER_SIZE
 frame_INP = frame_SRND + SRND_SIZE
 frame_INPEND = frame_INP + INP_SIZE
 frame_CTX = frame_INPEND + INPEND_SIZE
+<<<<<<< HEAD
 frame_RSPSAVE = frame_CTX + CTX_SIZE
 frame_GPRSAVE = frame_RSPSAVE + RSPSAVE_SIZE
 frame_size = frame_GPRSAVE + GPRSAVE_SIZE
+=======
+frame_size = frame_CTX + CTX_SIZE
+>>>>>>> upstream/android-13
 
 ## assume buffers not aligned
 #define	VMOVDQ vmovdqu
@@ -570,6 +580,7 @@ frame_size = frame_GPRSAVE + GPRSAVE_SIZE
 # of SHA512 message blocks.
 # "blocks" is the message length in SHA512 blocks
 ########################################################################
+<<<<<<< HEAD
 ENTRY(sha512_transform_rorx)
 	# Allocate Stack Space
 	mov	%rsp, %rax
@@ -583,6 +594,21 @@ ENTRY(sha512_transform_rorx)
 	mov	%r13, 8*2+frame_GPRSAVE(%rsp)
 	mov	%r14, 8*3+frame_GPRSAVE(%rsp)
 	mov	%r15, 8*4+frame_GPRSAVE(%rsp)
+=======
+SYM_FUNC_START(sha512_transform_rorx)
+	# Save GPRs
+	push	%rbx
+	push	%r12
+	push	%r13
+	push	%r14
+	push	%r15
+
+	# Allocate Stack Space
+	push	%rbp
+	mov	%rsp, %rbp
+	sub	$frame_size, %rsp
+	and	$~(0x20 - 1), %rsp
+>>>>>>> upstream/android-13
 
 	shl	$7, NUM_BLKS	# convert to bytes
 	jz	done_hash
@@ -673,6 +699,7 @@ loop2:
 
 done_hash:
 
+<<<<<<< HEAD
 # Restore GPRs
 	mov	8*0+frame_GPRSAVE(%rsp), %rbx
 	mov	8*1+frame_GPRSAVE(%rsp), %r12
@@ -684,6 +711,21 @@ done_hash:
 	mov	frame_RSPSAVE(%rsp), %rsp
 	ret
 ENDPROC(sha512_transform_rorx)
+=======
+	# Restore Stack Pointer
+	mov	%rbp, %rsp
+	pop	%rbp
+
+	# Restore GPRs
+	pop	%r15
+	pop	%r14
+	pop	%r13
+	pop	%r12
+	pop	%rbx
+
+	RET
+SYM_FUNC_END(sha512_transform_rorx)
+>>>>>>> upstream/android-13
 
 ########################################################################
 ### Binary Data
@@ -749,5 +791,8 @@ PSHUFFLE_BYTE_FLIP_MASK:
 MASK_YMM_LO:
 	.octa 0x00000000000000000000000000000000
 	.octa 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+<<<<<<< HEAD
 
 #endif
+=======
+>>>>>>> upstream/android-13

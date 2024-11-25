@@ -16,7 +16,11 @@
 
 #include "gdm_mux.h"
 
+<<<<<<< HEAD
 static u16 packet_type[TTY_MAX_COUNT] = {0xF011, 0xF010};
+=======
+static u16 packet_type_for_tty_index[TTY_MAX_COUNT] = {0xF011, 0xF010};
+>>>>>>> upstream/android-13
 
 #define USB_DEVICE_CDC_DATA(vid, pid) \
 	.match_flags = \
@@ -38,12 +42,20 @@ static const struct usb_device_id id_table[] = {
 
 MODULE_DEVICE_TABLE(usb, id_table);
 
+<<<<<<< HEAD
 static int packet_type_to_index(u16 packetType)
+=======
+static int packet_type_to_tty_index(u16 packet_type)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	for (i = 0; i < TTY_MAX_COUNT; i++) {
+<<<<<<< HEAD
 		if (packet_type[i] == packetType)
+=======
+		if (packet_type_for_tty_index[i] == packet_type)
+>>>>>>> upstream/android-13
 			return i;
 	}
 
@@ -164,14 +176,22 @@ static int up_to_host(struct mux_rx *r)
 
 		total_len = ALIGN(MUX_HEADER_SIZE + payload_size, 4);
 
+<<<<<<< HEAD
 		if (len - packet_size_sum <
 			total_len) {
+=======
+		if (len - packet_size_sum < total_len) {
+>>>>>>> upstream/android-13
 			pr_err("invalid payload : %d %d %04x\n",
 			       payload_size, len, packet_type);
 			break;
 		}
 
+<<<<<<< HEAD
 		index = packet_type_to_index(packet_type);
+=======
+		index = packet_type_to_tty_index(packet_type);
+>>>>>>> upstream/android-13
 		if (index < 0) {
 			pr_err("invalid index %d\n", index);
 			break;
@@ -373,11 +393,19 @@ static int gdm_mux_send(void *priv_dev, void *data, int len, int tty_index,
 	mux_header->start_flag = __cpu_to_le32(START_FLAG);
 	mux_header->seq_num = __cpu_to_le32(seq_num++);
 	mux_header->payload_size = __cpu_to_le32((u32)len);
+<<<<<<< HEAD
 	mux_header->packet_type = __cpu_to_le16(packet_type[tty_index]);
 
 	memcpy(t->buf + MUX_HEADER_SIZE, data, len);
 	memset(t->buf + MUX_HEADER_SIZE + len, 0, total_len - MUX_HEADER_SIZE -
 	       len);
+=======
+	mux_header->packet_type = __cpu_to_le16(packet_type_for_tty_index[tty_index]);
+
+	memcpy(t->buf + MUX_HEADER_SIZE, data, len);
+	memset(t->buf + MUX_HEADER_SIZE + len, 0,
+	       total_len - MUX_HEADER_SIZE - len);
+>>>>>>> upstream/android-13
 
 	t->len = total_len;
 	t->callback = cb;

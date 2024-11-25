@@ -8,7 +8,11 @@
  *	Copyright (C) 1999 - 2001
  *	    Greg Kroah-Hartman (greg@kroah.com)
  *
+<<<<<<< HEAD
  * See Documentation/usb/usb-serial.txt for more information on using this
+=======
+ * See Documentation/usb/usb-serial.rst for more information on using this
+>>>>>>> upstream/android-13
  * driver
  */
 

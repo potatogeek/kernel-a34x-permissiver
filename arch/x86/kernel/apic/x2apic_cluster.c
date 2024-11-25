@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/threads.h>
 #include <linux/cpumask.h>
 #include <linux/string.h>
@@ -10,6 +11,17 @@
 
 #include <asm/smp.h>
 #include "x2apic.h"
+=======
+
+#include <linux/cpuhotplug.h>
+#include <linux/cpumask.h>
+#include <linux/slab.h>
+#include <linux/mm.h>
+
+#include <asm/apic.h>
+
+#include "local.h"
+>>>>>>> upstream/android-13
 
 struct cluster_mask {
 	unsigned int	clusterid;
@@ -52,7 +64,11 @@ __x2apic_send_IPI_mask(const struct cpumask *mask, int vector, int apic_dest)
 	cpumask_copy(tmpmsk, mask);
 	/* If IPI should not be sent to self, clear current CPU */
 	if (apic_dest != APIC_DEST_ALLINC)
+<<<<<<< HEAD
 		cpumask_clear_cpu(smp_processor_id(), tmpmsk);
+=======
+		__cpumask_clear_cpu(smp_processor_id(), tmpmsk);
+>>>>>>> upstream/android-13
 
 	/* Collapse cpus in a cluster so a single IPI per cluster is sent */
 	for_each_cpu(cpu, tmpmsk) {
@@ -65,7 +81,11 @@ __x2apic_send_IPI_mask(const struct cpumask *mask, int vector, int apic_dest)
 		if (!dest)
 			continue;
 
+<<<<<<< HEAD
 		__x2apic_send_IPI_dest(dest, vector, apic->dest_logical);
+=======
+		__x2apic_send_IPI_dest(dest, vector, APIC_DEST_LOGICAL);
+>>>>>>> upstream/android-13
 		/* Remove cluster CPUs from tmpmask */
 		cpumask_andnot(tmpmsk, tmpmsk, &cmsk->mask);
 	}
@@ -86,12 +106,20 @@ x2apic_send_IPI_mask_allbutself(const struct cpumask *mask, int vector)
 
 static void x2apic_send_IPI_allbutself(int vector)
 {
+<<<<<<< HEAD
 	__x2apic_send_IPI_mask(cpu_online_mask, vector, APIC_DEST_ALLBUT);
+=======
+	__x2apic_send_IPI_shorthand(vector, APIC_DEST_ALLBUT);
+>>>>>>> upstream/android-13
 }
 
 static void x2apic_send_IPI_all(int vector)
 {
+<<<<<<< HEAD
 	__x2apic_send_IPI_mask(cpu_online_mask, vector, APIC_DEST_ALLINC);
+=======
+	__x2apic_send_IPI_shorthand(vector, APIC_DEST_ALLINC);
+>>>>>>> upstream/android-13
 }
 
 static u32 x2apic_calc_apicid(unsigned int cpu)
@@ -188,6 +216,7 @@ static struct apic apic_x2apic_cluster __ro_after_init = {
 	.apic_id_valid			= x2apic_apic_id_valid,
 	.apic_id_registered		= x2apic_apic_id_registered,
 
+<<<<<<< HEAD
 	.irq_delivery_mode		= dest_Fixed,
 	.irq_dest_mode			= 1, /* logical */
 
@@ -197,6 +226,15 @@ static struct apic apic_x2apic_cluster __ro_after_init = {
 
 	.init_apic_ldr			= init_x2apic_ldr,
 
+=======
+	.delivery_mode			= APIC_DELIVERY_MODE_FIXED,
+	.dest_mode_logical		= true,
+
+	.disable_esr			= 0,
+
+	.check_apicid_used		= NULL,
+	.init_apic_ldr			= init_x2apic_ldr,
+>>>>>>> upstream/android-13
 	.ioapic_phys_id_map		= NULL,
 	.setup_apic_routing		= NULL,
 	.cpu_present_to_apicid		= default_cpu_present_to_apicid,

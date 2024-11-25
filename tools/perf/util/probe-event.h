@@ -4,8 +4,14 @@
 
 #include <linux/compiler.h>
 #include <stdbool.h>
+<<<<<<< HEAD
 #include "intlist.h"
 #include "namespaces.h"
+=======
+
+struct intlist;
+struct nsinfo;
+>>>>>>> upstream/android-13
 
 /* Probe related configurations */
 struct probe_conf {
@@ -14,11 +20,22 @@ struct probe_conf {
 	bool	force_add;
 	bool	no_inlines;
 	bool	cache;
+<<<<<<< HEAD
 	int	max_probes;
+=======
+	bool	bootconfig;
+	int	max_probes;
+	unsigned long	magic_num;
+>>>>>>> upstream/android-13
 };
 extern struct probe_conf probe_conf;
 extern bool probe_event_dry_run;
 
+<<<<<<< HEAD
+=======
+#define DEFAULT_PROBE_MAGIC_NUM	0xdeade12d	/* u32: 3735937325 */
+
+>>>>>>> upstream/android-13
 struct symbol;
 
 /* kprobe-tracer and uprobe-tracer tracing point */
@@ -27,7 +44,12 @@ struct probe_trace_point {
 	char		*symbol;	/* Base symbol */
 	char		*module;	/* Module name */
 	unsigned long	offset;		/* Offset from symbol */
+<<<<<<< HEAD
 	unsigned long	address;	/* Actual address of the trace point */
+=======
+	unsigned long	ref_ctr_offset;	/* SDT reference counter offset */
+	u64		address;	/* Actual address of the trace point */
+>>>>>>> upstream/android-13
 	bool		retprobe;	/* Return probe flag */
 };
 
@@ -35,6 +57,10 @@ struct probe_trace_point {
 struct probe_trace_arg_ref {
 	struct probe_trace_arg_ref	*next;	/* Next reference */
 	long				offset;	/* Offset value */
+<<<<<<< HEAD
+=======
+	bool				user_access;	/* User-memory access */
+>>>>>>> upstream/android-13
 };
 
 /* kprobe-tracer and uprobe-tracer tracing argument */
@@ -63,7 +89,11 @@ struct perf_probe_point {
 	bool		retprobe;	/* Return probe flag */
 	char		*lazy_line;	/* Lazy matching pattern */
 	unsigned long	offset;		/* Offset from function entry */
+<<<<<<< HEAD
 	unsigned long	abs_address;	/* Absolute address of the point */
+=======
+	u64		abs_address;	/* Absolute address of the point */
+>>>>>>> upstream/android-13
 };
 
 /* Perf probe probing argument field chain */
@@ -80,6 +110,10 @@ struct perf_probe_arg {
 	char				*var;	/* Variable name */
 	char				*type;	/* Type name */
 	struct perf_probe_arg_field	*field;	/* Structure fields */
+<<<<<<< HEAD
+=======
+	bool				user_access;	/* User-memory access */
+>>>>>>> upstream/android-13
 };
 
 /* Perf probe probing event (point + arg) */
@@ -156,6 +190,10 @@ int add_perf_probe_events(struct perf_probe_event *pevs, int npevs);
 int convert_perf_probe_events(struct perf_probe_event *pevs, int npevs);
 int apply_perf_probe_events(struct perf_probe_event *pevs, int npevs);
 int show_probe_trace_events(struct perf_probe_event *pevs, int npevs);
+<<<<<<< HEAD
+=======
+int show_bootconfig_events(struct perf_probe_event *pevs, int npevs);
+>>>>>>> upstream/android-13
 void cleanup_perf_probe_events(struct perf_probe_event *pevs, int npevs);
 
 struct strfilter;

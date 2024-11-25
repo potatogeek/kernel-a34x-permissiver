@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * An I2C driver for the Philips PCF8563 RTC
  * Copyright 2005-06 Tower Technologies
@@ -7,11 +11,15 @@
  *
  * based on the other drivers in this same directory.
  *
+<<<<<<< HEAD
  * http://www.semiconductors.philips.com/acrobat/datasheets/PCF8563-04.pdf
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * https://www.nxp.com/docs/en/data-sheet/PCF8563.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -25,8 +33,13 @@
 
 #define PCF8563_REG_ST1		0x00 /* status */
 #define PCF8563_REG_ST2		0x01
+<<<<<<< HEAD
 #define PCF8563_BIT_AIE		(1 << 1)
 #define PCF8563_BIT_AF		(1 << 3)
+=======
+#define PCF8563_BIT_AIE		BIT(1)
+#define PCF8563_BIT_AF		BIT(3)
+>>>>>>> upstream/android-13
 #define PCF8563_BITS_ST2_N	(7 << 5)
 
 #define PCF8563_REG_SC		0x02 /* datetime */
@@ -79,7 +92,10 @@ struct pcf8563 {
 	 * 1970...2069.
 	 */
 	int c_polarity;	/* 0: MO_C=1 means 19xx, otherwise MO_C=1 means 20xx */
+<<<<<<< HEAD
 	int voltage_low; /* incicates if a low_voltage was detected */
+=======
+>>>>>>> upstream/android-13
 
 	struct i2c_client *client;
 #ifdef CONFIG_COMMON_CLK
@@ -199,8 +215,14 @@ static irqreturn_t pcf8563_irq(int irq, void *dev_id)
  * In the routines that deal directly with the pcf8563 hardware, we use
  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
  */
+<<<<<<< HEAD
 static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
 {
+=======
+static int pcf8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+>>>>>>> upstream/android-13
 	struct pcf8563 *pcf8563 = i2c_get_clientdata(client);
 	unsigned char buf[9];
 	int err;
@@ -210,7 +232,10 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
 		return err;
 
 	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV) {
+<<<<<<< HEAD
 		pcf8563->voltage_low = 1;
+=======
+>>>>>>> upstream/android-13
 		dev_err(&client->dev,
 			"low voltage detected, date/time is not reliable.\n");
 		return -EINVAL;
@@ -231,9 +256,13 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
 	tm->tm_mday = bcd2bin(buf[PCF8563_REG_DM] & 0x3F);
 	tm->tm_wday = buf[PCF8563_REG_DW] & 0x07;
 	tm->tm_mon = bcd2bin(buf[PCF8563_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
+<<<<<<< HEAD
 	tm->tm_year = bcd2bin(buf[PCF8563_REG_YR]);
 	if (tm->tm_year < 70)
 		tm->tm_year += 100;	/* assume we are in 1970...2069 */
+=======
+	tm->tm_year = bcd2bin(buf[PCF8563_REG_YR]) + 100;
+>>>>>>> upstream/android-13
 	/* detect the polarity heuristically. see note above. */
 	pcf8563->c_polarity = (buf[PCF8563_REG_MO] & PCF8563_MO_C) ?
 		(tm->tm_year >= 100) : (tm->tm_year < 100);
@@ -247,8 +276,14 @@ static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
 {
+=======
+static int pcf8563_rtc_set_time(struct device *dev, struct rtc_time *tm)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+>>>>>>> upstream/android-13
 	struct pcf8563 *pcf8563 = i2c_get_clientdata(client);
 	unsigned char buf[9];
 
@@ -269,7 +304,11 @@ static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
 	buf[PCF8563_REG_MO] = bin2bcd(tm->tm_mon + 1);
 
 	/* year and century */
+<<<<<<< HEAD
 	buf[PCF8563_REG_YR] = bin2bcd(tm->tm_year % 100);
+=======
+	buf[PCF8563_REG_YR] = bin2bcd(tm->tm_year - 100);
+>>>>>>> upstream/android-13
 	if (pcf8563->c_polarity ? (tm->tm_year >= 100) : (tm->tm_year < 100))
 		buf[PCF8563_REG_MO] |= PCF8563_MO_C;
 
@@ -279,6 +318,7 @@ static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
 				9 - PCF8563_REG_SC, buf + PCF8563_REG_SC);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_RTC_INTF_DEV
 static int pcf8563_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
 {
@@ -309,10 +349,26 @@ static int pcf8563_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long
 		pcf8563->voltage_low = 0;
 
 		return 0;
+=======
+static int pcf8563_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+	int ret;
+
+	switch (cmd) {
+	case RTC_VL_READ:
+		ret = i2c_smbus_read_byte_data(client, PCF8563_REG_SC);
+		if (ret < 0)
+			return ret;
+
+		return put_user(ret & PCF8563_SC_LV ? RTC_VL_DATA_INVALID : 0,
+				(unsigned int __user *)arg);
+>>>>>>> upstream/android-13
 	default:
 		return -ENOIOCTLCMD;
 	}
 }
+<<<<<<< HEAD
 #else
 #define pcf8563_rtc_ioctl NULL
 #endif
@@ -326,6 +382,8 @@ static int pcf8563_rtc_set_time(struct device *dev, struct rtc_time *tm)
 {
 	return pcf8563_set_datetime(to_i2c_client(dev), tm);
 }
+=======
+>>>>>>> upstream/android-13
 
 static int pcf8563_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *tm)
 {
@@ -403,7 +461,11 @@ static int pcf8563_irq_enable(struct device *dev, unsigned int enabled)
 
 #define clkout_hw_to_pcf8563(_hw) container_of(_hw, struct pcf8563, clkout_hw)
 
+<<<<<<< HEAD
 static int clkout_rates[] = {
+=======
+static const int clkout_rates[] = {
+>>>>>>> upstream/android-13
 	32768,
 	1024,
 	32,
@@ -594,6 +656,7 @@ static int pcf8563_probe(struct i2c_client *client,
 		return err;
 	}
 
+<<<<<<< HEAD
 	pcf8563->rtc = devm_rtc_device_register(&client->dev,
 				pcf8563_driver.driver.name,
 				&pcf8563_rtc_ops, THIS_MODULE);
@@ -601,6 +664,19 @@ static int pcf8563_probe(struct i2c_client *client,
 	if (IS_ERR(pcf8563->rtc))
 		return PTR_ERR(pcf8563->rtc);
 
+=======
+	pcf8563->rtc = devm_rtc_allocate_device(&client->dev);
+	if (IS_ERR(pcf8563->rtc))
+		return PTR_ERR(pcf8563->rtc);
+
+	pcf8563->rtc->ops = &pcf8563_rtc_ops;
+	/* the pcf8563 alarm only supports a minute accuracy */
+	pcf8563->rtc->uie_unsupported = 1;
+	pcf8563->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+	pcf8563->rtc->range_max = RTC_TIMESTAMP_END_2099;
+	pcf8563->rtc->set_start_time = true;
+
+>>>>>>> upstream/android-13
 	if (client->irq > 0) {
 		err = devm_request_threaded_irq(&client->dev, client->irq,
 				NULL, pcf8563_irq,
@@ -611,23 +687,39 @@ static int pcf8563_probe(struct i2c_client *client,
 								client->irq);
 			return err;
 		}
+<<<<<<< HEAD
 
 	}
 
+=======
+	}
+
+	err = devm_rtc_register_device(pcf8563->rtc);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMMON_CLK
 	/* register clk in common clk framework */
 	pcf8563_clkout_register_clk(pcf8563);
 #endif
 
+<<<<<<< HEAD
 	/* the pcf8563 alarm only supports a minute accuracy */
 	pcf8563->rtc->uie_unsupported = 1;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static const struct i2c_device_id pcf8563_id[] = {
 	{ "pcf8563", 0 },
 	{ "rtc8564", 0 },
+<<<<<<< HEAD
+=======
+	{ "pca8565", 0 },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, pcf8563_id);
@@ -635,6 +727,12 @@ MODULE_DEVICE_TABLE(i2c, pcf8563_id);
 #ifdef CONFIG_OF
 static const struct of_device_id pcf8563_of_match[] = {
 	{ .compatible = "nxp,pcf8563" },
+<<<<<<< HEAD
+=======
+	{ .compatible = "epson,rtc8564" },
+	{ .compatible = "microcrystal,rv8564" },
+	{ .compatible = "nxp,pca8565" },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, pcf8563_of_match);

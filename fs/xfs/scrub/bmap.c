@@ -9,11 +9,15 @@
 #include "xfs_format.h"
 #include "xfs_trans_resv.h"
 #include "xfs_mount.h"
+<<<<<<< HEAD
 #include "xfs_defer.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_btree.h"
 #include "xfs_bit.h"
 #include "xfs_log_format.h"
 #include "xfs_trans.h"
+<<<<<<< HEAD
 #include "xfs_sb.h"
 #include "xfs_inode.h"
 #include "xfs_inode_fork.h"
@@ -30,16 +34,36 @@
 #include "scrub/common.h"
 #include "scrub/btree.h"
 #include "scrub/trace.h"
+=======
+#include "xfs_inode.h"
+#include "xfs_alloc.h"
+#include "xfs_bmap.h"
+#include "xfs_bmap_btree.h"
+#include "xfs_rmap.h"
+#include "xfs_rmap_btree.h"
+#include "scrub/scrub.h"
+#include "scrub/common.h"
+#include "scrub/btree.h"
+#include "xfs_ag.h"
+>>>>>>> upstream/android-13
 
 /* Set us up with an inode's bmap. */
 int
 xchk_setup_inode_bmap(
+<<<<<<< HEAD
 	struct xfs_scrub	*sc,
 	struct xfs_inode	*ip)
 {
 	int			error;
 
 	error = xchk_get_inode(sc, ip);
+=======
+	struct xfs_scrub	*sc)
+{
+	int			error;
+
+	error = xchk_get_inode(sc);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -101,6 +125,10 @@ struct xchk_bmap_info {
 	xfs_fileoff_t		lastoff;
 	bool			is_rt;
 	bool			is_shared;
+<<<<<<< HEAD
+=======
+	bool			was_loaded;
+>>>>>>> upstream/android-13
 	int			whichfork;
 };
 
@@ -241,6 +269,7 @@ xchk_bmap_xref_rmap(
 
 /* Cross-reference a single rtdev extent record. */
 STATIC void
+<<<<<<< HEAD
 xchk_bmap_rt_extent_xref(
 	struct xchk_bmap_info	*info,
 	struct xfs_inode	*ip,
@@ -250,16 +279,29 @@ xchk_bmap_rt_extent_xref(
 	if (info->sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
 		return;
 
+=======
+xchk_bmap_rt_iextent_xref(
+	struct xfs_inode	*ip,
+	struct xchk_bmap_info	*info,
+	struct xfs_bmbt_irec	*irec)
+{
+>>>>>>> upstream/android-13
 	xchk_xref_is_used_rt_space(info->sc, irec->br_startblock,
 			irec->br_blockcount);
 }
 
 /* Cross-reference a single datadev extent record. */
 STATIC void
+<<<<<<< HEAD
 xchk_bmap_extent_xref(
 	struct xchk_bmap_info	*info,
 	struct xfs_inode	*ip,
 	struct xfs_btree_cur	*cur,
+=======
+xchk_bmap_iextent_xref(
+	struct xfs_inode	*ip,
+	struct xchk_bmap_info	*info,
+>>>>>>> upstream/android-13
 	struct xfs_bmbt_irec	*irec)
 {
 	struct xfs_mount	*mp = info->sc->mp;
@@ -268,17 +310,27 @@ xchk_bmap_extent_xref(
 	xfs_extlen_t		len;
 	int			error;
 
+<<<<<<< HEAD
 	if (info->sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	agno = XFS_FSB_TO_AGNO(mp, irec->br_startblock);
 	agbno = XFS_FSB_TO_AGBNO(mp, irec->br_startblock);
 	len = irec->br_blockcount;
 
+<<<<<<< HEAD
 	error = xchk_ag_init(info->sc, agno, &info->sc->sa);
 	if (!xchk_fblock_process_error(info->sc, info->whichfork,
 			irec->br_startoff, &error))
 		return;
+=======
+	error = xchk_ag_init_existing(info->sc, agno, &info->sc->sa);
+	if (!xchk_fblock_process_error(info->sc, info->whichfork,
+			irec->br_startoff, &error))
+		goto out_free;
+>>>>>>> upstream/android-13
 
 	xchk_xref_is_used_space(info->sc, agbno, len);
 	xchk_xref_is_not_inode_chunk(info->sc, agbno, len);
@@ -287,7 +339,11 @@ xchk_bmap_extent_xref(
 	case XFS_DATA_FORK:
 		if (xfs_is_reflink_inode(info->sc->ip))
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case XFS_ATTR_FORK:
 		xchk_xref_is_not_shared(info->sc, agbno,
 				irec->br_blockcount);
@@ -298,6 +354,7 @@ xchk_bmap_extent_xref(
 		break;
 	}
 
+<<<<<<< HEAD
 	xchk_ag_free(info->sc, &info->sc->sa);
 }
 
@@ -306,10 +363,46 @@ STATIC int
 xchk_bmap_extent(
 	struct xfs_inode	*ip,
 	struct xfs_btree_cur	*cur,
+=======
+out_free:
+	xchk_ag_free(info->sc, &info->sc->sa);
+}
+
+/*
+ * Directories and attr forks should never have blocks that can't be addressed
+ * by a xfs_dablk_t.
+ */
+STATIC void
+xchk_bmap_dirattr_extent(
+	struct xfs_inode	*ip,
+	struct xchk_bmap_info	*info,
+	struct xfs_bmbt_irec	*irec)
+{
+	struct xfs_mount	*mp = ip->i_mount;
+	xfs_fileoff_t		off;
+
+	if (!S_ISDIR(VFS_I(ip)->i_mode) && info->whichfork != XFS_ATTR_FORK)
+		return;
+
+	if (!xfs_verify_dablk(mp, irec->br_startoff))
+		xchk_fblock_set_corrupt(info->sc, info->whichfork,
+				irec->br_startoff);
+
+	off = irec->br_startoff + irec->br_blockcount - 1;
+	if (!xfs_verify_dablk(mp, off))
+		xchk_fblock_set_corrupt(info->sc, info->whichfork, off);
+}
+
+/* Scrub a single extent record. */
+STATIC int
+xchk_bmap_iextent(
+	struct xfs_inode	*ip,
+>>>>>>> upstream/android-13
 	struct xchk_bmap_info	*info,
 	struct xfs_bmbt_irec	*irec)
 {
 	struct xfs_mount	*mp = info->sc->mp;
+<<<<<<< HEAD
 	struct xfs_buf		*bp = NULL;
 	xfs_filblks_t		end;
 	int			error = 0;
@@ -317,6 +410,10 @@ xchk_bmap_extent(
 	if (cur)
 		xfs_btree_get_block(cur, 0, &bp);
 
+=======
+	int			error = 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Check for out-of-order extents.  This record could have come
 	 * from the incore list, for which there is no ordering check.
@@ -325,6 +422,15 @@ xchk_bmap_extent(
 		xchk_fblock_set_corrupt(info->sc, info->whichfork,
 				irec->br_startoff);
 
+<<<<<<< HEAD
+=======
+	if (!xfs_verify_fileext(mp, irec->br_startoff, irec->br_blockcount))
+		xchk_fblock_set_corrupt(info->sc, info->whichfork,
+				irec->br_startoff);
+
+	xchk_bmap_dirattr_extent(ip, info, irec);
+
+>>>>>>> upstream/android-13
 	/* There should never be a "hole" extent in either extent list. */
 	if (irec->br_startblock == HOLESTARTBLOCK)
 		xchk_fblock_set_corrupt(info->sc, info->whichfork,
@@ -342,6 +448,7 @@ xchk_bmap_extent(
 	if (irec->br_blockcount > MAXEXTLEN)
 		xchk_fblock_set_corrupt(info->sc, info->whichfork,
 				irec->br_startoff);
+<<<<<<< HEAD
 	if (irec->br_startblock + irec->br_blockcount <= irec->br_startblock)
 		xchk_fblock_set_corrupt(info->sc, info->whichfork,
 				irec->br_startoff);
@@ -356,6 +463,14 @@ xchk_bmap_extent(
 	     !xfs_verify_fsbno(mp, end) ||
 	     XFS_FSB_TO_AGNO(mp, irec->br_startblock) !=
 				XFS_FSB_TO_AGNO(mp, end)))
+=======
+	if (info->is_rt &&
+	    !xfs_verify_rtext(mp, irec->br_startblock, irec->br_blockcount))
+		xchk_fblock_set_corrupt(info->sc, info->whichfork,
+				irec->br_startoff);
+	if (!info->is_rt &&
+	    !xfs_verify_fsbext(mp, irec->br_startblock, irec->br_blockcount))
+>>>>>>> upstream/android-13
 		xchk_fblock_set_corrupt(info->sc, info->whichfork,
 				irec->br_startoff);
 
@@ -365,10 +480,20 @@ xchk_bmap_extent(
 		xchk_fblock_set_corrupt(info->sc, info->whichfork,
 				irec->br_startoff);
 
+<<<<<<< HEAD
 	if (info->is_rt)
 		xchk_bmap_rt_extent_xref(info, ip, cur, irec);
 	else
 		xchk_bmap_extent_xref(info, ip, cur, irec);
+=======
+	if (info->sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
+		return 0;
+
+	if (info->is_rt)
+		xchk_bmap_rt_iextent_xref(ip, info, irec);
+	else
+		xchk_bmap_iextent_xref(ip, info, irec);
+>>>>>>> upstream/android-13
 
 	info->lastoff = irec->br_startoff + irec->br_blockcount;
 	return error;
@@ -378,6 +503,7 @@ xchk_bmap_extent(
 STATIC int
 xchk_bmapbt_rec(
 	struct xchk_btree	*bs,
+<<<<<<< HEAD
 	union xfs_btree_rec	*rec)
 {
 	struct xfs_bmbt_irec	irec;
@@ -385,6 +511,18 @@ xchk_bmapbt_rec(
 	struct xfs_inode	*ip = bs->cur->bc_private.b.ip;
 	struct xfs_buf		*bp = NULL;
 	struct xfs_btree_block	*block;
+=======
+	const union xfs_btree_rec *rec)
+{
+	struct xfs_bmbt_irec	irec;
+	struct xfs_bmbt_irec	iext_irec;
+	struct xfs_iext_cursor	icur;
+	struct xchk_bmap_info	*info = bs->private;
+	struct xfs_inode	*ip = bs->cur->bc_ino.ip;
+	struct xfs_buf		*bp = NULL;
+	struct xfs_btree_block	*block;
+	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, info->whichfork);
+>>>>>>> upstream/android-13
 	uint64_t		owner;
 	int			i;
 
@@ -392,7 +530,11 @@ xchk_bmapbt_rec(
 	 * Check the owners of the btree blocks up to the level below
 	 * the root since the verifiers don't do that.
 	 */
+<<<<<<< HEAD
 	if (xfs_sb_version_hascrc(&bs->cur->bc_mp->m_sb) &&
+=======
+	if (xfs_has_crc(bs->cur->bc_mp) &&
+>>>>>>> upstream/android-13
 	    bs->cur->bc_ptrs[0] == 1) {
 		for (i = 0; i < bs->cur->bc_nlevels - 1; i++) {
 			block = xfs_btree_get_block(bs->cur, i, &bp);
@@ -403,9 +545,32 @@ xchk_bmapbt_rec(
 		}
 	}
 
+<<<<<<< HEAD
 	/* Set up the in-core record and scrub it. */
 	xfs_bmbt_disk_get_all(&rec->bmbt, &irec);
 	return xchk_bmap_extent(ip, bs->cur, info, &irec);
+=======
+	/*
+	 * Check that the incore extent tree contains an extent that matches
+	 * this one exactly.  We validate those cached bmaps later, so we don't
+	 * need to check them here.  If the incore extent tree was just loaded
+	 * from disk by the scrubber, we assume that its contents match what's
+	 * on disk (we still hold the ILOCK) and skip the equivalence check.
+	 */
+	if (!info->was_loaded)
+		return 0;
+
+	xfs_bmbt_disk_get_all(&rec->bmbt, &irec);
+	if (!xfs_iext_lookup_extent(ip, ifp, irec.br_startoff, &icur,
+				&iext_irec) ||
+	    irec.br_startoff != iext_irec.br_startoff ||
+	    irec.br_startblock != iext_irec.br_startblock ||
+	    irec.br_blockcount != iext_irec.br_blockcount ||
+	    irec.br_state != iext_irec.br_state)
+		xchk_fblock_set_corrupt(bs->sc, info->whichfork,
+				irec.br_startoff);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Scan the btree records. */
@@ -416,15 +581,34 @@ xchk_bmap_btree(
 	struct xchk_bmap_info	*info)
 {
 	struct xfs_owner_info	oinfo;
+<<<<<<< HEAD
+=======
+	struct xfs_ifork	*ifp = XFS_IFORK_PTR(sc->ip, whichfork);
+>>>>>>> upstream/android-13
 	struct xfs_mount	*mp = sc->mp;
 	struct xfs_inode	*ip = sc->ip;
 	struct xfs_btree_cur	*cur;
 	int			error;
 
+<<<<<<< HEAD
+=======
+	/* Load the incore bmap cache if it's not loaded. */
+	info->was_loaded = !xfs_need_iread_extents(ifp);
+
+	error = xfs_iread_extents(sc->tp, ip, whichfork);
+	if (!xchk_fblock_process_error(sc, whichfork, 0, &error))
+		goto out;
+
+	/* Check the btree structure. */
+>>>>>>> upstream/android-13
 	cur = xfs_bmbt_init_cursor(mp, sc->tp, ip, whichfork);
 	xfs_rmap_ino_bmbt_owner(&oinfo, ip->i_ino, whichfork);
 	error = xchk_btree(sc, cur, xchk_bmapbt_rec, &oinfo, info);
 	xfs_btree_del_cursor(cur, error);
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -438,10 +622,18 @@ struct xchk_bmap_check_rmap_info {
 STATIC int
 xchk_bmap_check_rmap(
 	struct xfs_btree_cur		*cur,
+<<<<<<< HEAD
 	struct xfs_rmap_irec		*rec,
 	void				*priv)
 {
 	struct xfs_bmbt_irec		irec;
+=======
+	const struct xfs_rmap_irec	*rec,
+	void				*priv)
+{
+	struct xfs_bmbt_irec		irec;
+	struct xfs_rmap_irec		check_rec;
+>>>>>>> upstream/android-13
 	struct xchk_bmap_check_rmap_info	*sbcri = priv;
 	struct xfs_ifork		*ifp;
 	struct xfs_scrub		*sc = sbcri->sc;
@@ -475,6 +667,7 @@ xchk_bmap_check_rmap(
 	 * length, so we have to loop through the bmbt to make sure that the
 	 * entire rmap is covered by bmbt records.
 	 */
+<<<<<<< HEAD
 	while (have_map) {
 		if (irec.br_startoff != rec->rm_offset)
 			xchk_fblock_set_corrupt(sc, sbcri->whichfork,
@@ -492,16 +685,45 @@ xchk_bmap_check_rmap(
 		rec->rm_offset += irec.br_blockcount;
 		rec->rm_blockcount -= irec.br_blockcount;
 		if (rec->rm_blockcount == 0)
+=======
+	check_rec = *rec;
+	while (have_map) {
+		if (irec.br_startoff != check_rec.rm_offset)
+			xchk_fblock_set_corrupt(sc, sbcri->whichfork,
+					check_rec.rm_offset);
+		if (irec.br_startblock != XFS_AGB_TO_FSB(sc->mp,
+				cur->bc_ag.pag->pag_agno,
+				check_rec.rm_startblock))
+			xchk_fblock_set_corrupt(sc, sbcri->whichfork,
+					check_rec.rm_offset);
+		if (irec.br_blockcount > check_rec.rm_blockcount)
+			xchk_fblock_set_corrupt(sc, sbcri->whichfork,
+					check_rec.rm_offset);
+		if (sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
+			break;
+		check_rec.rm_startblock += irec.br_blockcount;
+		check_rec.rm_offset += irec.br_blockcount;
+		check_rec.rm_blockcount -= irec.br_blockcount;
+		if (check_rec.rm_blockcount == 0)
+>>>>>>> upstream/android-13
 			break;
 		have_map = xfs_iext_next_extent(ifp, &sbcri->icur, &irec);
 		if (!have_map)
 			xchk_fblock_set_corrupt(sc, sbcri->whichfork,
+<<<<<<< HEAD
 					rec->rm_offset);
+=======
+					check_rec.rm_offset);
+>>>>>>> upstream/android-13
 	}
 
 out:
 	if (sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
+<<<<<<< HEAD
 		return XFS_BTREE_QUERY_RANGE_ABORT;
+=======
+		return -ECANCELED;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -510,13 +732,18 @@ STATIC int
 xchk_bmap_check_ag_rmaps(
 	struct xfs_scrub		*sc,
 	int				whichfork,
+<<<<<<< HEAD
 	xfs_agnumber_t			agno)
+=======
+	struct xfs_perag		*pag)
+>>>>>>> upstream/android-13
 {
 	struct xchk_bmap_check_rmap_info	sbcri;
 	struct xfs_btree_cur		*cur;
 	struct xfs_buf			*agf;
 	int				error;
 
+<<<<<<< HEAD
 	error = xfs_alloc_read_agf(sc->mp, sc->tp, agno, 0, &agf);
 	if (error)
 		return error;
@@ -526,15 +753,29 @@ xchk_bmap_check_ag_rmaps(
 		error = -ENOMEM;
 		goto out_agf;
 	}
+=======
+	error = xfs_alloc_read_agf(sc->mp, sc->tp, pag->pag_agno, 0, &agf);
+	if (error)
+		return error;
+
+	cur = xfs_rmapbt_init_cursor(sc->mp, sc->tp, agf, pag);
+>>>>>>> upstream/android-13
 
 	sbcri.sc = sc;
 	sbcri.whichfork = whichfork;
 	error = xfs_rmap_query_all(cur, xchk_bmap_check_rmap, &sbcri);
+<<<<<<< HEAD
 	if (error == XFS_BTREE_QUERY_RANGE_ABORT)
 		error = 0;
 
 	xfs_btree_del_cursor(cur, error);
 out_agf:
+=======
+	if (error == -ECANCELED)
+		error = 0;
+
+	xfs_btree_del_cursor(cur, error);
+>>>>>>> upstream/android-13
 	xfs_trans_brelse(sc->tp, agf);
 	return error;
 }
@@ -545,11 +786,21 @@ xchk_bmap_check_rmaps(
 	struct xfs_scrub	*sc,
 	int			whichfork)
 {
+<<<<<<< HEAD
 	loff_t			size;
 	xfs_agnumber_t		agno;
 	int			error;
 
 	if (!xfs_sb_version_hasrmapbt(&sc->mp->m_sb) ||
+=======
+	struct xfs_ifork	*ifp = XFS_IFORK_PTR(sc->ip, whichfork);
+	struct xfs_perag	*pag;
+	xfs_agnumber_t		agno;
+	bool			zero_size;
+	int			error;
+
+	if (!xfs_has_rmapbt(sc->mp) ||
+>>>>>>> upstream/android-13
 	    whichfork == XFS_COW_FORK ||
 	    (sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT))
 		return 0;
@@ -558,6 +809,11 @@ xchk_bmap_check_rmaps(
 	if (XFS_IS_REALTIME_INODE(sc->ip) && whichfork == XFS_DATA_FORK)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	ASSERT(XFS_IFORK_PTR(sc->ip, whichfork) != NULL);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Only do this for complex maps that are in btree format, or for
 	 * situations where we would seem to have a size but zero extents.
@@ -565,6 +821,7 @@ xchk_bmap_check_rmaps(
 	 * to flag this bmap as corrupt if there are rmaps that need to be
 	 * reattached.
 	 */
+<<<<<<< HEAD
 	switch (whichfork) {
 	case XFS_DATA_FORK:
 		size = i_size_read(VFS_I(sc->ip));
@@ -589,6 +846,28 @@ xchk_bmap_check_rmaps(
 	}
 
 	return 0;
+=======
+
+	if (whichfork == XFS_DATA_FORK)
+		zero_size = i_size_read(VFS_I(sc->ip)) == 0;
+	else
+		zero_size = false;
+
+	if (ifp->if_format != XFS_DINODE_FMT_BTREE &&
+	    (zero_size || ifp->if_nextents > 0))
+		return 0;
+
+	for_each_perag(sc->mp, agno, pag) {
+		error = xchk_bmap_check_ag_rmaps(sc, whichfork, pag);
+		if (error)
+			break;
+		if (sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
+			break;
+	}
+	if (pag)
+		xfs_perag_put(pag);
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -606,12 +885,22 @@ xchk_bmap(
 	struct xchk_bmap_info	info = { NULL };
 	struct xfs_mount	*mp = sc->mp;
 	struct xfs_inode	*ip = sc->ip;
+<<<<<<< HEAD
 	struct xfs_ifork	*ifp;
+=======
+	struct xfs_ifork	*ifp = XFS_IFORK_PTR(ip, whichfork);
+>>>>>>> upstream/android-13
 	xfs_fileoff_t		endoff;
 	struct xfs_iext_cursor	icur;
 	int			error = 0;
 
+<<<<<<< HEAD
 	ifp = XFS_IFORK_PTR(ip, whichfork);
+=======
+	/* Non-existent forks can be ignored. */
+	if (!ifp)
+		goto out;
+>>>>>>> upstream/android-13
 
 	info.is_rt = whichfork == XFS_DATA_FORK && XFS_IS_REALTIME_INODE(ip);
 	info.whichfork = whichfork;
@@ -620,9 +909,12 @@ xchk_bmap(
 
 	switch (whichfork) {
 	case XFS_COW_FORK:
+<<<<<<< HEAD
 		/* Non-existent CoW forks are ignorable. */
 		if (!ifp)
 			goto out;
+=======
+>>>>>>> upstream/android-13
 		/* No CoW forks on non-reflink inodes/filesystems. */
 		if (!xfs_is_reflink_inode(ip)) {
 			xchk_ino_set_corrupt(sc, sc->ip->i_ino);
@@ -630,10 +922,14 @@ xchk_bmap(
 		}
 		break;
 	case XFS_ATTR_FORK:
+<<<<<<< HEAD
 		if (!ifp)
 			goto out_check_rmap;
 		if (!xfs_sb_version_hasattr(&mp->m_sb) &&
 		    !xfs_sb_version_hasattr2(&mp->m_sb))
+=======
+		if (!xfs_has_attr(mp) && !xfs_has_attr2(mp))
+>>>>>>> upstream/android-13
 			xchk_ino_set_corrupt(sc, sc->ip->i_ino);
 		break;
 	default:
@@ -642,17 +938,24 @@ xchk_bmap(
 	}
 
 	/* Check the fork values */
+<<<<<<< HEAD
 	switch (XFS_IFORK_FORMAT(ip, whichfork)) {
+=======
+	switch (ifp->if_format) {
+>>>>>>> upstream/android-13
 	case XFS_DINODE_FMT_UUID:
 	case XFS_DINODE_FMT_DEV:
 	case XFS_DINODE_FMT_LOCAL:
 		/* No mappings to check. */
 		goto out;
 	case XFS_DINODE_FMT_EXTENTS:
+<<<<<<< HEAD
 		if (!(ifp->if_flags & XFS_IFEXTENTS)) {
 			xchk_fblock_set_corrupt(sc, whichfork, 0);
 			goto out;
 		}
+=======
+>>>>>>> upstream/android-13
 		break;
 	case XFS_DINODE_FMT_BTREE:
 		if (whichfork == XFS_COW_FORK) {
@@ -672,6 +975,7 @@ xchk_bmap(
 	if (sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT)
 		goto out;
 
+<<<<<<< HEAD
 	/* Now try to scrub the in-memory extent list. */
         if (!(ifp->if_flags & XFS_IFEXTENTS)) {
 		error = xfs_iread_extents(sc->tp, ip, whichfork);
@@ -679,6 +983,8 @@ xchk_bmap(
 			goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Find the offset of the last extent in the mapping. */
 	error = xfs_bmap_last_offset(ip, &endoff, whichfork);
 	if (!xchk_fblock_process_error(sc, whichfork, 0, &error))
@@ -690,7 +996,11 @@ xchk_bmap(
 	for_each_xfs_iext(ifp, &icur, &irec) {
 		if (xchk_should_terminate(sc, &error) ||
 		    (sc->sm->sm_flags & XFS_SCRUB_OFLAG_CORRUPT))
+<<<<<<< HEAD
 			break;
+=======
+			goto out;
+>>>>>>> upstream/android-13
 		if (isnullstartblock(irec.br_startblock))
 			continue;
 		if (irec.br_startoff >= endoff) {
@@ -698,12 +1008,19 @@ xchk_bmap(
 					irec.br_startoff);
 			goto out;
 		}
+<<<<<<< HEAD
 		error = xchk_bmap_extent(ip, NULL, &info, &irec);
+=======
+		error = xchk_bmap_iextent(ip, &info, &irec);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out;
 	}
 
+<<<<<<< HEAD
 out_check_rmap:
+=======
+>>>>>>> upstream/android-13
 	error = xchk_bmap_check_rmaps(sc, whichfork);
 	if (!xchk_fblock_xref_process_error(sc, whichfork, 0, &error))
 		goto out;

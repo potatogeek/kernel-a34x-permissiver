@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ds.h -- 16-bit PCMCIA core support
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * ds.h -- 16-bit PCMCIA core support
+ *
+>>>>>>> upstream/android-13
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
@@ -39,7 +46,11 @@ struct config_t;
 struct net_device;
 
 /* dynamic device IDs for PCMCIA device drivers. See
+<<<<<<< HEAD
  * Documentation/pcmcia/driver.txt for details.
+=======
+ * Documentation/pcmcia/driver.rst for details.
+>>>>>>> upstream/android-13
 */
 struct pcmcia_dynids {
 	struct mutex		lock;

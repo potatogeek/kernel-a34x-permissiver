@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wanXL serial card driver for Linux
  * host part
  *
  * Copyright (C) 2003 Krzysztof Halasa <khc@pm.waw.pl>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Status:
  *   - Only DTE (external clock) support with NRZ and NRZI encodings
  *   - wanXL100 will require minor driver modifications, no access to hw
@@ -35,7 +42,11 @@
 
 #include "wanxl.h"
 
+<<<<<<< HEAD
 static const char* version = "wanXL serial card driver version: 0.48";
+=======
+static const char *version = "wanXL serial card driver version: 0.48";
+>>>>>>> upstream/android-13
 
 #define PLX_CTL_RESET   0x40000000 /* adapter reset */
 
@@ -53,24 +64,37 @@ static const char* version = "wanXL serial card driver version: 0.48";
 /* MAILBOX #2 - DRAM SIZE */
 #define MBX2_MEMSZ_MASK 0xFFFF0000 /* PUTS Memory Size Register mask */
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct port {
 	struct net_device *dev;
 	struct card *card;
 	spinlock_t lock;	/* for wanxl_xmit */
+<<<<<<< HEAD
         int node;		/* physical port #0 - 3 */
+=======
+	int node;		/* physical port #0 - 3 */
+>>>>>>> upstream/android-13
 	unsigned int clock_type;
 	int tx_in, tx_out;
 	struct sk_buff *tx_skbs[TX_BUFFERS];
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct card_status {
 	desc_t rx_descs[RX_QUEUE_LENGTH];
 	port_status_t port_status[4];
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct card {
 	int n_ports;		/* 1, 2 or 4 ports */
 	u8 irq;
@@ -81,28 +105,45 @@ struct card {
 	struct sk_buff *rx_skbs[RX_QUEUE_LENGTH];
 	struct card_status *status;	/* shared between host and card */
 	dma_addr_t status_address;
+<<<<<<< HEAD
 	struct port ports[0];	/* 1 - 4 port structures follow */
 };
 
 
 
+=======
+	struct port ports[];	/* 1 - 4 port structures follow */
+};
+
+>>>>>>> upstream/android-13
 static inline struct port *dev_to_port(struct net_device *dev)
 {
 	return (struct port *)dev_to_hdlc(dev)->priv;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static inline port_status_t *get_status(struct port *port)
 {
 	return &port->card->status->port_status[port->node];
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG_PCI
 static inline dma_addr_t pci_map_single_debug(struct pci_dev *pdev, void *ptr,
 					      size_t size, int direction)
 {
+<<<<<<< HEAD
 	dma_addr_t addr = pci_map_single(pdev, ptr, size, direction);
+=======
+	dma_addr_t addr = dma_map_single(&pdev->dev, ptr, size, direction);
+
+>>>>>>> upstream/android-13
 	if (addr + size > 0x100000000LL)
 		pr_crit("%s: pci_map_single() returned memory at 0x%llx!\n",
 			pci_name(pdev), (unsigned long long)addr);
@@ -113,7 +154,10 @@ static inline dma_addr_t pci_map_single_debug(struct pci_dev *pdev, void *ptr,
 #define pci_map_single pci_map_single_debug
 #endif
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /* Cable and/or personality module change interrupt service */
 static inline void wanxl_cable_intr(struct port *port)
 {
@@ -121,6 +165,7 @@ static inline void wanxl_cable_intr(struct port *port)
 	int valid = 1;
 	const char *cable, *pm, *dte = "", *dsr = "", *dcd = "";
 
+<<<<<<< HEAD
 	switch(value & 0x7) {
 	case STATUS_CABLE_V35: cable = "V.35"; break;
 	case STATUS_CABLE_X21: cable = "X.21"; break;
@@ -137,6 +182,48 @@ static inline void wanxl_cable_intr(struct port *port)
 	case STATUS_CABLE_EIA530: pm = "EIA530"; break;
 	case STATUS_CABLE_NONE: pm = "no personality"; valid = 0; break;
 	default: pm = "invalid personality"; valid = 0;
+=======
+	switch (value & 0x7) {
+	case STATUS_CABLE_V35:
+		cable = "V.35";
+		break;
+	case STATUS_CABLE_X21:
+		cable = "X.21";
+		break;
+	case STATUS_CABLE_V24:
+		cable = "V.24";
+		break;
+	case STATUS_CABLE_EIA530:
+		cable = "EIA530";
+		break;
+	case STATUS_CABLE_NONE:
+		cable = "no";
+		break;
+	default:
+		cable = "invalid";
+	}
+
+	switch ((value >> STATUS_CABLE_PM_SHIFT) & 0x7) {
+	case STATUS_CABLE_V35:
+		pm = "V.35";
+		break;
+	case STATUS_CABLE_X21:
+		pm = "X.21";
+		break;
+	case STATUS_CABLE_V24:
+		pm = "V.24";
+		break;
+	case STATUS_CABLE_EIA530:
+		pm = "EIA530";
+		break;
+	case STATUS_CABLE_NONE:
+		pm = "no personality";
+		valid = 0;
+		break;
+	default:
+		pm = "invalid personality";
+		valid = 0;
+>>>>>>> upstream/android-13
 	}
 
 	if (valid) {
@@ -157,14 +244,23 @@ static inline void wanxl_cable_intr(struct port *port)
 		netif_carrier_off(port->dev);
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 /* Transmit complete interrupt service */
 static inline void wanxl_tx_intr(struct port *port)
 {
 	struct net_device *dev = port->dev;
+<<<<<<< HEAD
 	while (1) {
                 desc_t *desc = &get_status(port)->tx_descs[port->tx_in];
+=======
+
+	while (1) {
+		desc_t *desc = &get_status(port)->tx_descs[port->tx_in];
+>>>>>>> upstream/android-13
 		struct sk_buff *skb = port->tx_skbs[port->tx_in];
 
 		switch (desc->stat) {
@@ -182,6 +278,7 @@ static inline void wanxl_tx_intr(struct port *port)
 			dev->stats.tx_packets++;
 			dev->stats.tx_bytes += skb->len;
 		}
+<<<<<<< HEAD
                 desc->stat = PACKET_EMPTY; /* Free descriptor */
 		pci_unmap_single(port->card->pdev, desc->address, skb->len,
 				 PCI_DMA_TODEVICE);
@@ -192,27 +289,56 @@ static inline void wanxl_tx_intr(struct port *port)
 
 
 
+=======
+		desc->stat = PACKET_EMPTY; /* Free descriptor */
+		dma_unmap_single(&port->card->pdev->dev, desc->address,
+				 skb->len, DMA_TO_DEVICE);
+		dev_consume_skb_irq(skb);
+		port->tx_in = (port->tx_in + 1) % TX_BUFFERS;
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Receive complete interrupt service */
 static inline void wanxl_rx_intr(struct card *card)
 {
 	desc_t *desc;
+<<<<<<< HEAD
 	while (desc = &card->status->rx_descs[card->rx_in],
 	       desc->stat != PACKET_EMPTY) {
 		if ((desc->stat & PACKET_PORT_MASK) > card->n_ports)
 			pr_crit("%s: received packet for nonexistent port\n",
 				pci_name(card->pdev));
 		else {
+=======
+
+	while (desc = &card->status->rx_descs[card->rx_in],
+	       desc->stat != PACKET_EMPTY) {
+		if ((desc->stat & PACKET_PORT_MASK) > card->n_ports) {
+			pr_crit("%s: received packet for nonexistent port\n",
+				pci_name(card->pdev));
+		} else {
+>>>>>>> upstream/android-13
 			struct sk_buff *skb = card->rx_skbs[card->rx_in];
 			struct port *port = &card->ports[desc->stat &
 						    PACKET_PORT_MASK];
 			struct net_device *dev = port->dev;
 
+<<<<<<< HEAD
 			if (!skb)
 				dev->stats.rx_dropped++;
 			else {
 				pci_unmap_single(card->pdev, desc->address,
 						 BUFFER_LENGTH,
 						 PCI_DMA_FROMDEVICE);
+=======
+			if (!skb) {
+				dev->stats.rx_dropped++;
+			} else {
+				dma_unmap_single(&card->pdev->dev,
+						 desc->address, BUFFER_LENGTH,
+						 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				skb_put(skb, desc->length);
 
 #ifdef DEBUG_PKT
@@ -230,9 +356,16 @@ static inline void wanxl_rx_intr(struct card *card)
 			if (!skb) {
 				skb = dev_alloc_skb(BUFFER_LENGTH);
 				desc->address = skb ?
+<<<<<<< HEAD
 					pci_map_single(card->pdev, skb->data,
 						       BUFFER_LENGTH,
 						       PCI_DMA_FROMDEVICE) : 0;
+=======
+					dma_map_single(&card->pdev->dev,
+						       skb->data,
+						       BUFFER_LENGTH,
+						       DMA_FROM_DEVICE) : 0;
+>>>>>>> upstream/android-13
 				card->rx_skbs[card->rx_in] = skb;
 			}
 		}
@@ -241,6 +374,7 @@ static inline void wanxl_rx_intr(struct card *card)
 	}
 }
 
+<<<<<<< HEAD
 
 
 static irqreturn_t wanxl_intr(int irq, void* dev_id)
@@ -256,6 +390,20 @@ static irqreturn_t wanxl_intr(int irq, void* dev_id)
 		writel(stat, card->plx + PLX_DOORBELL_FROM_CARD);
 
                 for (i = 0; i < card->n_ports; i++) {
+=======
+static irqreturn_t wanxl_intr(int irq, void *dev_id)
+{
+	struct card *card = dev_id;
+	int i;
+	u32 stat;
+	int handled = 0;
+
+	while ((stat = readl(card->plx + PLX_DOORBELL_FROM_CARD)) != 0) {
+		handled = 1;
+		writel(stat, card->plx + PLX_DOORBELL_FROM_CARD);
+
+		for (i = 0; i < card->n_ports; i++) {
+>>>>>>> upstream/android-13
 			if (stat & (1 << (DOORBELL_FROM_CARD_TX_0 + i)))
 				wanxl_tx_intr(&card->ports[i]);
 			if (stat & (1 << (DOORBELL_FROM_CARD_CABLE_0 + i)))
@@ -263,6 +411,7 @@ static irqreturn_t wanxl_intr(int irq, void* dev_id)
 		}
 		if (stat & (1 << DOORBELL_FROM_CARD_RX))
 			wanxl_rx_intr(card);
+<<<<<<< HEAD
         }
 
         return IRQ_RETVAL(handled);
@@ -270,16 +419,31 @@ static irqreturn_t wanxl_intr(int irq, void* dev_id)
 
 
 
+=======
+	}
+
+	return IRQ_RETVAL(handled);
+}
+
+>>>>>>> upstream/android-13
 static netdev_tx_t wanxl_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	struct port *port = dev_to_port(dev);
 	desc_t *desc;
 
+<<<<<<< HEAD
         spin_lock(&port->lock);
 
 	desc = &get_status(port)->tx_descs[port->tx_out];
         if (desc->stat != PACKET_EMPTY) {
                 /* should never happen - previous xmit should stop queue */
+=======
+	spin_lock(&port->lock);
+
+	desc = &get_status(port)->tx_descs[port->tx_out];
+	if (desc->stat != PACKET_EMPTY) {
+		/* should never happen - previous xmit should stop queue */
+>>>>>>> upstream/android-13
 #ifdef DEBUG_PKT
                 printk(KERN_DEBUG "%s: transmitter buffer full\n", dev->name);
 #endif
@@ -294,8 +458,13 @@ static netdev_tx_t wanxl_xmit(struct sk_buff *skb, struct net_device *dev)
 #endif
 
 	port->tx_skbs[port->tx_out] = skb;
+<<<<<<< HEAD
 	desc->address = pci_map_single(port->card->pdev, skb->data, skb->len,
 				       PCI_DMA_TODEVICE);
+=======
+	desc->address = dma_map_single(&port->card->pdev->dev, skb->data,
+				       skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	desc->length = skb->len;
 	desc->stat = PACKET_FULL;
 	writel(1 << (DOORBELL_TO_CARD_TX_0 + port->node),
@@ -314,8 +483,11 @@ static netdev_tx_t wanxl_xmit(struct sk_buff *skb, struct net_device *dev)
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int wanxl_attach(struct net_device *dev, unsigned short encoding,
 			unsigned short parity)
 {
@@ -337,14 +509,19 @@ static int wanxl_attach(struct net_device *dev, unsigned short encoding,
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
 static int wanxl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int wanxl_ioctl(struct net_device *dev, struct if_settings *ifs)
+>>>>>>> upstream/android-13
 {
 	const size_t size = sizeof(sync_serial_settings);
 	sync_serial_settings line;
 	struct port *port = dev_to_port(dev);
 
+<<<<<<< HEAD
 	if (cmd != SIOCWANDEV)
 		return hdlc_ioctl(dev, ifr, cmd);
 
@@ -353,6 +530,13 @@ static int wanxl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		ifr->ifr_settings.type = IF_IFACE_SYNC_SERIAL;
 		if (ifr->ifr_settings.size < size) {
 			ifr->ifr_settings.size = size; /* data size wanted */
+=======
+	switch (ifs->type) {
+	case IF_GET_IFACE:
+		ifs->type = IF_IFACE_SYNC_SERIAL;
+		if (ifs->size < size) {
+			ifs->size = size; /* data size wanted */
+>>>>>>> upstream/android-13
 			return -ENOBUFS;
 		}
 		memset(&line, 0, sizeof(line));
@@ -360,7 +544,11 @@ static int wanxl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		line.clock_rate = 0;
 		line.loopback = 0;
 
+<<<<<<< HEAD
 		if (copy_to_user(ifr->ifr_settings.ifs_ifsu.sync, &line, size))
+=======
+		if (copy_to_user(ifs->ifs_ifsu.sync, &line, size))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 		return 0;
 
@@ -370,7 +558,11 @@ static int wanxl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		if (dev->flags & IFF_UP)
 			return -EBUSY;
 
+<<<<<<< HEAD
 		if (copy_from_user(&line, ifr->ifr_settings.ifs_ifsu.sync,
+=======
+		if (copy_from_user(&line, ifs->ifs_ifsu.sync,
+>>>>>>> upstream/android-13
 				   size))
 			return -EFAULT;
 
@@ -385,12 +577,19 @@ static int wanxl_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return 0;
 
 	default:
+<<<<<<< HEAD
 		return hdlc_ioctl(dev, ifr, cmd);
         }
 }
 
 
 
+=======
+		return hdlc_ioctl(dev, ifs);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int wanxl_open(struct net_device *dev)
 {
 	struct port *port = dev_to_port(dev);
@@ -402,7 +601,13 @@ static int wanxl_open(struct net_device *dev)
 		netdev_err(dev, "port already open\n");
 		return -EIO;
 	}
+<<<<<<< HEAD
 	if ((i = hdlc_open(dev)) != 0)
+=======
+
+	i = hdlc_open(dev);
+	if (i)
+>>>>>>> upstream/android-13
 		return i;
 
 	port->tx_in = port->tx_out = 0;
@@ -425,8 +630,11 @@ static int wanxl_open(struct net_device *dev)
 	return -EFAULT;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int wanxl_close(struct net_device *dev)
 {
 	struct port *port = dev_to_port(dev);
@@ -454,17 +662,26 @@ static int wanxl_close(struct net_device *dev)
 
 		if (desc->stat != PACKET_EMPTY) {
 			desc->stat = PACKET_EMPTY;
+<<<<<<< HEAD
 			pci_unmap_single(port->card->pdev, desc->address,
 					 port->tx_skbs[i]->len,
 					 PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&port->card->pdev->dev,
+					 desc->address, port->tx_skbs[i]->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(port->tx_skbs[i]);
 		}
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static struct net_device_stats *wanxl_get_stats(struct net_device *dev)
 {
 	struct port *port = dev_to_port(dev);
@@ -476,8 +693,11 @@ static struct net_device_stats *wanxl_get_stats(struct net_device *dev)
 	return &dev->stats;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static int wanxl_puts_command(struct card *card, u32 cmd)
 {
 	unsigned long timeout = jiffies + 5 * HZ;
@@ -488,13 +708,20 @@ static int wanxl_puts_command(struct card *card, u32 cmd)
 			return 0;
 
 		schedule();
+<<<<<<< HEAD
 	}while (time_after(timeout, jiffies));
+=======
+	} while (time_after(timeout, jiffies));
+>>>>>>> upstream/android-13
 
 	return -1;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static void wanxl_reset(struct card *card)
 {
 	u32 old_value = readl(card->plx + PLX_CONTROL) & ~PLX_CTL_RESET;
@@ -507,8 +734,11 @@ static void wanxl_reset(struct card *card)
 	readl(card->plx + PLX_CONTROL); /* wait for posted write */
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13
 static void wanxl_pci_remove_one(struct pci_dev *pdev)
 {
 	struct card *card = pci_get_drvdata(pdev);
@@ -527,9 +757,15 @@ static void wanxl_pci_remove_one(struct pci_dev *pdev)
 
 	for (i = 0; i < RX_QUEUE_LENGTH; i++)
 		if (card->rx_skbs[i]) {
+<<<<<<< HEAD
 			pci_unmap_single(card->pdev,
 					 card->status->rx_descs[i].address,
 					 BUFFER_LENGTH, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&card->pdev->dev,
+					 card->status->rx_descs[i].address,
+					 BUFFER_LENGTH, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb(card->rx_skbs[i]);
 		}
 
@@ -537,22 +773,34 @@ static void wanxl_pci_remove_one(struct pci_dev *pdev)
 		iounmap(card->plx);
 
 	if (card->status)
+<<<<<<< HEAD
 		pci_free_consistent(pdev, sizeof(struct card_status),
 				    card->status, card->status_address);
+=======
+		dma_free_coherent(&pdev->dev, sizeof(struct card_status),
+				  card->status, card->status_address);
+>>>>>>> upstream/android-13
 
 	pci_release_regions(pdev);
 	pci_disable_device(pdev);
 	kfree(card);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #include "wanxlfw.inc"
 
 static const struct net_device_ops wanxl_ops = {
 	.ndo_open       = wanxl_open,
 	.ndo_stop       = wanxl_close,
 	.ndo_start_xmit = hdlc_start_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl   = wanxl_ioctl,
+=======
+	.ndo_siocwandev = wanxl_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_get_stats  = wanxl_get_stats,
 };
 
@@ -565,7 +813,11 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	u32 plx_phy;		/* PLX PCI base address */
 	u32 mem_phy;		/* memory PCI base addr */
 	u8 __iomem *mem;	/* memory virtual base addr */
+<<<<<<< HEAD
 	int i, ports, alloc_size;
+=======
+	int i, ports;
+>>>>>>> upstream/android-13
 
 #ifndef MODULE
 	pr_info_once("%s\n", version);
@@ -576,6 +828,7 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 		return i;
 
 	/* QUICC can only access first 256 MB of host RAM directly,
+<<<<<<< HEAD
 	   but PLX9060 DMA does 32-bits for actual packet data transfers */
 
 	/* FIXME when PCI/DMA subsystems are fixed.
@@ -584,6 +837,18 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	   work on most platforms */
 	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(28)) ||
 	    pci_set_dma_mask(pdev, DMA_BIT_MASK(28))) {
+=======
+	 * but PLX9060 DMA does 32-bits for actual packet data transfers
+	 */
+
+	/* FIXME when PCI/DMA subsystems are fixed.
+	 * We set both dma_mask and consistent_dma_mask to 28 bits
+	 * and pray pci_alloc_consistent() will use this info. It should
+	 * work on most platforms
+	 */
+	if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(28)) ||
+	    dma_set_mask(&pdev->dev, DMA_BIT_MASK(28))) {
+>>>>>>> upstream/android-13
 		pr_err("No usable DMA configuration\n");
 		pci_disable_device(pdev);
 		return -EIO;
@@ -596,6 +861,7 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	}
 
 	switch (pdev->device) {
+<<<<<<< HEAD
 	case PCI_DEVICE_ID_SBE_WANXL100: ports = 1; break;
 	case PCI_DEVICE_ID_SBE_WANXL200: ports = 2; break;
 	default: ports = 4;
@@ -604,6 +870,20 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	alloc_size = sizeof(struct card) + ports * sizeof(struct port);
 	card = kzalloc(alloc_size, GFP_KERNEL);
 	if (card == NULL) {
+=======
+	case PCI_DEVICE_ID_SBE_WANXL100:
+		ports = 1;
+		break;
+	case PCI_DEVICE_ID_SBE_WANXL200:
+		ports = 2;
+		break;
+	default:
+		ports = 4;
+	}
+
+	card = kzalloc(struct_size(card, ports, ports), GFP_KERNEL);
+	if (!card) {
+>>>>>>> upstream/android-13
 		pci_release_regions(pdev);
 		pci_disable_device(pdev);
 		return -ENOBUFS;
@@ -612,10 +892,17 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	pci_set_drvdata(pdev, card);
 	card->pdev = pdev;
 
+<<<<<<< HEAD
 	card->status = pci_alloc_consistent(pdev,
 					    sizeof(struct card_status),
 					    &card->status_address);
 	if (card->status == NULL) {
+=======
+	card->status = dma_alloc_coherent(&pdev->dev,
+					  sizeof(struct card_status),
+					  &card->status_address, GFP_KERNEL);
+	if (!card->status) {
+>>>>>>> upstream/android-13
 		wanxl_pci_remove_one(pdev);
 		return -ENOBUFS;
 	}
@@ -627,10 +914,18 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 #endif
 
 	/* FIXME when PCI/DMA subsystems are fixed.
+<<<<<<< HEAD
 	   We set both dma_mask and consistent_dma_mask back to 32 bits
 	   to indicate the card can do 32-bit DMA addressing */
 	if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)) ||
 	    pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	 * We set both dma_mask and consistent_dma_mask back to 32 bits
+	 * to indicate the card can do 32-bit DMA addressing
+	 */
+	if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32)) ||
+	    dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		pr_err("No usable DMA configuration\n");
 		wanxl_pci_remove_one(pdev);
 		return -EIO;
@@ -639,10 +934,17 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	/* set up PLX mapping */
 	plx_phy = pci_resource_start(pdev, 0);
 
+<<<<<<< HEAD
 	card->plx = ioremap_nocache(plx_phy, 0x70);
 	if (!card->plx) {
 		pr_err("ioremap() failed\n");
  		wanxl_pci_remove_one(pdev);
+=======
+	card->plx = ioremap(plx_phy, 0x70);
+	if (!card->plx) {
+		pr_err("ioremap() failed\n");
+		wanxl_pci_remove_one(pdev);
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -659,7 +961,11 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 			return -ENODEV;
 		}
 
+<<<<<<< HEAD
 		switch(stat & 0xC0) {
+=======
+		switch (stat & 0xC0) {
+>>>>>>> upstream/android-13
 		case 0x00:	/* hmm - PUTS completed with non-zero code? */
 		case 0x80:	/* PUTS still testing the hardware */
 			break;
@@ -680,7 +986,10 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	/* set up on-board RAM mapping */
 	mem_phy = pci_resource_start(pdev, 2);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* sanity check the board's reported memory size */
 	if (ramsize < BUFFERS_ADDR +
 	    (TX_BUFFERS + RX_BUFFERS) * BUFFER_LENGTH * ports) {
@@ -700,6 +1009,7 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 
 	for (i = 0; i < RX_QUEUE_LENGTH; i++) {
 		struct sk_buff *skb = dev_alloc_skb(BUFFER_LENGTH);
+<<<<<<< HEAD
 		card->rx_skbs[i] = skb;
 		if (skb)
 			card->status->rx_descs[i].address =
@@ -712,11 +1022,29 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 	if (!mem) {
 		pr_err("ioremap() failed\n");
  		wanxl_pci_remove_one(pdev);
+=======
+
+		card->rx_skbs[i] = skb;
+		if (skb)
+			card->status->rx_descs[i].address =
+				dma_map_single(&card->pdev->dev, skb->data,
+					       BUFFER_LENGTH, DMA_FROM_DEVICE);
+	}
+
+	mem = ioremap(mem_phy, PDM_OFFSET + sizeof(firmware));
+	if (!mem) {
+		pr_err("ioremap() failed\n");
+		wanxl_pci_remove_one(pdev);
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
 	for (i = 0; i < sizeof(firmware); i += 4)
+<<<<<<< HEAD
 		writel(ntohl(*(__be32*)(firmware + i)), mem + PDM_OFFSET + i);
+=======
+		writel(ntohl(*(__be32 *)(firmware + i)), mem + PDM_OFFSET + i);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ports; i++)
 		writel(card->status_address +
@@ -736,10 +1064,18 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 
 	timeout = jiffies + 5 * HZ;
 	do {
+<<<<<<< HEAD
 		if ((stat = readl(card->plx + PLX_MAILBOX_5)) != 0)
 			break;
 		schedule();
 	}while (time_after(timeout, jiffies));
+=======
+		stat = readl(card->plx + PLX_MAILBOX_5);
+		if (stat)
+			break;
+		schedule();
+	} while (time_after(timeout, jiffies));
+>>>>>>> upstream/android-13
 
 	if (!stat) {
 		pr_warn("%s: timeout while initializing card firmware\n",
@@ -768,6 +1104,10 @@ static int wanxl_pci_init_one(struct pci_dev *pdev,
 		hdlc_device *hdlc;
 		struct port *port = &card->ports[i];
 		struct net_device *dev = alloc_hdlcdev(port);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (!dev) {
 			pr_err("%s: unable to allocate memory\n",
 			       pci_name(pdev));
@@ -817,7 +1157,10 @@ static const struct pci_device_id wanxl_pci_tbl[] = {
 	{ 0, }
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static struct pci_driver wanxl_pci_driver = {
 	.name		= "wanXL",
 	.id_table	= wanxl_pci_tbl,
@@ -825,7 +1168,10 @@ static struct pci_driver wanxl_pci_driver = {
 	.remove		= wanxl_pci_remove_one,
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int __init wanxl_init_module(void)
 {
 #ifdef MODULE
@@ -839,7 +1185,10 @@ static void __exit wanxl_cleanup_module(void)
 	pci_unregister_driver(&wanxl_pci_driver);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Krzysztof Halasa <khc@pm.waw.pl>");
 MODULE_DESCRIPTION("SBE Inc. wanXL serial port driver");
 MODULE_LICENSE("GPL v2");

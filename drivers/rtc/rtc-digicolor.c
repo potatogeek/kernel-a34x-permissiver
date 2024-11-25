@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Real Time Clock driver for Conexant Digicolor
  *
  * Copyright (C) 2015 Paradox Innovation Ltd.
  *
  * Author: Baruch Siach <baruch@tkos.co.il>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -106,11 +113,19 @@ static int dc_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dc_rtc_set_mmss(struct device *dev, unsigned long secs)
 {
 	struct dc_rtc *rtc = dev_get_drvdata(dev);
 
 	return dc_rtc_write(rtc, secs);
+=======
+static int dc_rtc_set_time(struct device *dev, struct rtc_time *tm)
+{
+	struct dc_rtc *rtc = dev_get_drvdata(dev);
+
+	return dc_rtc_write(rtc, rtc_tm_to_time64(tm));
+>>>>>>> upstream/android-13
 }
 
 static int dc_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
@@ -161,7 +176,11 @@ static int dc_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
 
 static const struct rtc_class_ops dc_rtc_ops = {
 	.read_time		= dc_rtc_read_time,
+<<<<<<< HEAD
 	.set_mmss		= dc_rtc_set_mmss,
+=======
+	.set_time		= dc_rtc_set_time,
+>>>>>>> upstream/android-13
 	.read_alarm		= dc_rtc_read_alarm,
 	.set_alarm		= dc_rtc_set_alarm,
 	.alarm_irq_enable	= dc_rtc_alarm_irq_enable,
@@ -179,7 +198,10 @@ static irqreturn_t dc_rtc_irq(int irq, void *dev_id)
 
 static int __init dc_rtc_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct dc_rtc *rtc;
 	int irq, ret;
 
@@ -187,11 +209,22 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
 	if (!rtc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rtc->regs = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(rtc->regs))
 		return PTR_ERR(rtc->regs);
 
+=======
+	rtc->regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(rtc->regs))
+		return PTR_ERR(rtc->regs);
+
+	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(rtc->rtc_dev))
+		return PTR_ERR(rtc->rtc_dev);
+
+>>>>>>> upstream/android-13
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0)
 		return irq;
@@ -200,6 +233,7 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
 		return ret;
 
 	platform_set_drvdata(pdev, rtc);
+<<<<<<< HEAD
 	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
 						&dc_rtc_ops, THIS_MODULE);
 	if (IS_ERR(rtc->rtc_dev))
@@ -209,6 +243,16 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id dc_dt_ids[] = {
+=======
+
+	rtc->rtc_dev->ops = &dc_rtc_ops;
+	rtc->rtc_dev->range_max = U32_MAX;
+
+	return devm_rtc_register_device(rtc->rtc_dev);
+}
+
+static const __maybe_unused struct of_device_id dc_dt_ids[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "cnxt,cx92755-rtc" },
 	{ /* sentinel */ }
 };

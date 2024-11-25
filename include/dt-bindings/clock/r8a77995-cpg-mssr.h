@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Glider bvba
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0+
+ *
+ * Copyright (C) 2017 Glider bvba
+>>>>>>> upstream/android-13
  */
 #ifndef __DT_BINDINGS_CLOCK_R8A77995_CPG_MSSR_H__
 #define __DT_BINDINGS_CLOCK_R8A77995_CPG_MSSR_H__
@@ -39,8 +45,13 @@
 #define R8A77995_CLK_CRD2		24
 #define R8A77995_CLK_SD0H		25
 #define R8A77995_CLK_SD0		26
+<<<<<<< HEAD
 #define R8A77995_CLK_SSP2		27
 #define R8A77995_CLK_SSP1		28
+=======
+/* CLK_SSP2 was removed */
+/* CLK_SSP1 was removed */
+>>>>>>> upstream/android-13
 #define R8A77995_CLK_RPC		29
 #define R8A77995_CLK_RPCD2		30
 #define R8A77995_CLK_ZA2		31
@@ -53,5 +64,9 @@
 #define R8A77995_CLK_LV0		38
 #define R8A77995_CLK_LV1		39
 #define R8A77995_CLK_CP			40
+<<<<<<< HEAD
+=======
+#define R8A77995_CLK_CPEX		41
+>>>>>>> upstream/android-13
 
 #endif /* __DT_BINDINGS_CLOCK_R8A77995_CPG_MSSR_H__ */

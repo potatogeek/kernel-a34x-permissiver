@@ -1,28 +1,54 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * DesignWare MIPI DSI Host Controller v1.02 driver
  *
  * Copyright (c) 2016 Linaro Limited.
+<<<<<<< HEAD
  * Copyright (c) 2014-2016 Hisilicon Limited.
+=======
+ * Copyright (c) 2014-2016 HiSilicon Limited.
+>>>>>>> upstream/android-13
  *
  * Author:
  *	Xinliang Liu <z.liuxinliang@hisilicon.com>
  *	Xinliang Liu <xinliang.liu@linaro.org>
  *	Xinwei Kong <kong.kongxinwei@hisilicon.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 #include <linux/component.h>
+<<<<<<< HEAD
 
 #include <drm/drm_of.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_encoder_slave.h>
 #include <drm/drm_atomic_helper.h>
+=======
+#include <linux/delay.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_device.h>
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_of.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "dw_dsi_reg.h"
 
@@ -694,10 +720,13 @@ static const struct drm_encoder_helper_funcs dw_encoder_helper_funcs = {
 	.disable	= dsi_encoder_disable
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs dw_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int dw_drm_encoder_init(struct device *dev,
 			       struct drm_device *drm_dev,
 			       struct drm_encoder *encoder)
@@ -711,8 +740,12 @@ static int dw_drm_encoder_init(struct device *dev,
 	}
 
 	encoder->possible_crtcs = crtc_mask;
+<<<<<<< HEAD
 	ret = drm_encoder_init(drm_dev, encoder, &dw_encoder_funcs,
 			       DRM_MODE_ENCODER_DSI, NULL);
+=======
+	ret = drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_DSI);
+>>>>>>> upstream/android-13
 	if (ret) {
 		DRM_ERROR("failed to init dsi encoder\n");
 		return ret;
@@ -772,6 +805,7 @@ static int dsi_bridge_init(struct drm_device *dev, struct dw_dsi *dsi)
 {
 	struct drm_encoder *encoder = &dsi->encoder;
 	struct drm_bridge *bridge = dsi->bridge;
+<<<<<<< HEAD
 	int ret;
 
 	/* associate the bridge to dsi encoder */
@@ -782,6 +816,11 @@ static int dsi_bridge_init(struct drm_device *dev, struct dw_dsi *dsi)
 	}
 
 	return 0;
+=======
+
+	/* associate the bridge to dsi encoder */
+	return drm_bridge_attach(encoder, bridge, NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 static int dsi_bind(struct device *dev, struct device *master, void *data)

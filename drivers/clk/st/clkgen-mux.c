@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * clkgen-mux.c: ST GEN-MUX Clock driver
  *
@@ -5,6 +9,7 @@
  *
  * Authors: Stephen Gallimore <stephen.gallimore@st.com>
  *	    Pankaj Dev <pankaj.dev@st.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,12 @@
  */
 
 #include <linux/slab.h>
+=======
+ */
+
+#include <linux/slab.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>

@@ -25,8 +25,17 @@
 #include <linux/module.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <asm/unaligned.h>
 
+=======
+
+#include <asm/unaligned.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_util.h>
+
+>>>>>>> upstream/android-13
 #define ATOM_DEBUG
 
 #include "atom.h"
@@ -1207,8 +1216,12 @@ static int atom_execute_table_locked(struct atom_context *ctx, int index, uint32
 	SDEBUG("<<\n");
 
 free:
+<<<<<<< HEAD
 	if (ws)
 		kfree(ectx.ws);
+=======
+	kfree(ectx.ws);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

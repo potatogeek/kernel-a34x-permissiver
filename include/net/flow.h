@@ -38,8 +38,14 @@ struct flowi_common {
 #define FLOWI_FLAG_KNOWN_NH		0x02
 #define FLOWI_FLAG_SKIP_NH_OIF		0x04
 	__u32	flowic_secid;
+<<<<<<< HEAD
 	struct flowi_tunnel flowic_tun_key;
 	kuid_t  flowic_uid;
+=======
+	kuid_t  flowic_uid;
+	struct flowi_tunnel flowic_tun_key;
+	__u32		flowic_multipath_hash;
+>>>>>>> upstream/android-13
 };
 
 union flowi_uli {
@@ -58,7 +64,10 @@ union flowi_uli {
 		__le16	sport;
 	} dnports;
 
+<<<<<<< HEAD
 	__be32		spi;
+=======
+>>>>>>> upstream/android-13
 	__be32		gre_key;
 
 	struct {
@@ -78,6 +87,10 @@ struct flowi4 {
 #define flowi4_secid		__fl_common.flowic_secid
 #define flowi4_tun_key		__fl_common.flowic_tun_key
 #define flowi4_uid		__fl_common.flowic_uid
+<<<<<<< HEAD
+=======
+#define flowi4_multipath_hash	__fl_common.flowic_multipath_hash
+>>>>>>> upstream/android-13
 
 	/* (saddr,daddr) must be grouped, same order as in IP header */
 	__be32			saddr;
@@ -88,7 +101,10 @@ struct flowi4 {
 #define fl4_dport		uli.ports.dport
 #define fl4_icmp_type		uli.icmpt.type
 #define fl4_icmp_code		uli.icmpt.code
+<<<<<<< HEAD
 #define fl4_ipsec_spi		uli.spi
+=======
+>>>>>>> upstream/android-13
 #define fl4_mh_type		uli.mht.type
 #define fl4_gre_key		uli.gre_key
 } __attribute__((__aligned__(BITS_PER_LONG/8)));
@@ -114,6 +130,10 @@ static inline void flowi4_init_output(struct flowi4 *fl4, int oif,
 	fl4->saddr = saddr;
 	fl4->fl4_dport = dport;
 	fl4->fl4_sport = sport;
+<<<<<<< HEAD
+=======
+	fl4->flowi4_multipath_hash = 0;
+>>>>>>> upstream/android-13
 }
 
 /* Reset some input parameters after previous lookup */
@@ -147,7 +167,10 @@ struct flowi6 {
 #define fl6_dport		uli.ports.dport
 #define fl6_icmp_type		uli.icmpt.type
 #define fl6_icmp_code		uli.icmpt.code
+<<<<<<< HEAD
 #define fl6_ipsec_spi		uli.spi
+=======
+>>>>>>> upstream/android-13
 #define fl6_mh_type		uli.mht.type
 #define fl6_gre_key		uli.gre_key
 	__u32			mp_hash;
@@ -192,16 +215,33 @@ static inline struct flowi *flowi4_to_flowi(struct flowi4 *fl4)
 	return container_of(fl4, struct flowi, u.ip4);
 }
 
+<<<<<<< HEAD
+=======
+static inline struct flowi_common *flowi4_to_flowi_common(struct flowi4 *fl4)
+{
+	return &(fl4->__fl_common);
+}
+
+>>>>>>> upstream/android-13
 static inline struct flowi *flowi6_to_flowi(struct flowi6 *fl6)
 {
 	return container_of(fl6, struct flowi, u.ip6);
 }
 
+<<<<<<< HEAD
+=======
+static inline struct flowi_common *flowi6_to_flowi_common(struct flowi6 *fl6)
+{
+	return &(fl6->__fl_common);
+}
+
+>>>>>>> upstream/android-13
 static inline struct flowi *flowidn_to_flowi(struct flowidn *fldn)
 {
 	return container_of(fldn, struct flowi, u.dn);
 }
 
+<<<<<<< HEAD
 typedef unsigned long flow_compare_t;
 
 static inline unsigned int flow_key_size(u16 family)
@@ -220,6 +260,8 @@ static inline unsigned int flow_key_size(u16 family)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 __u32 __get_hash_from_flowi6(const struct flowi6 *fl6, struct flow_keys *keys);
 
 #endif

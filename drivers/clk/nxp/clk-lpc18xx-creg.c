@@ -141,7 +141,11 @@ static struct clk *clk_register_creg_clk(struct device *dev,
 					 const char **parent_name,
 					 struct regmap *syscon)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	init.ops = creg_clk->ops;
 	init.name = creg_clk->name;

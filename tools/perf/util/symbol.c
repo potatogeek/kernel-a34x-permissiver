@@ -4,8 +4,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/mman.h>
+=======
+#include <linux/capability.h>
+#include <linux/kernel.h>
+#include <linux/mman.h>
+#include <linux/string.h>
+#include <linux/time64.h>
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/param.h>
@@ -14,16 +22,35 @@
 #include <inttypes.h>
 #include "annotate.h"
 #include "build-id.h"
+<<<<<<< HEAD
 #include "util.h"
 #include "debug.h"
 #include "machine.h"
 #include "symbol.h"
+=======
+#include "cap.h"
+#include "dso.h"
+#include "util.h" // lsdir()
+#include "debug.h"
+#include "event.h"
+#include "machine.h"
+#include "map.h"
+#include "symbol.h"
+#include "map_symbol.h"
+#include "mem-events.h"
+#include "symsrc.h"
+>>>>>>> upstream/android-13
 #include "strlist.h"
 #include "intlist.h"
 #include "namespaces.h"
 #include "header.h"
 #include "path.h"
+<<<<<<< HEAD
 #include "sane_ctype.h"
+=======
+#include <linux/ctype.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 #include <elf.h>
 #include <limits.h>
@@ -38,15 +65,27 @@ int vmlinux_path__nr_entries;
 char **vmlinux_path;
 
 struct symbol_conf symbol_conf = {
+<<<<<<< HEAD
+=======
+	.nanosecs		= false,
+>>>>>>> upstream/android-13
 	.use_modules		= true,
 	.try_vmlinux_path	= true,
 	.demangle		= true,
 	.demangle_kernel	= false,
 	.cumulate_callchain	= true,
+<<<<<<< HEAD
+=======
+	.time_quantum		= 100 * NSEC_PER_MSEC, /* 100ms */
+>>>>>>> upstream/android-13
 	.show_hist_headers	= true,
 	.symfs			= "",
 	.event_group		= true,
 	.inline_name		= true,
+<<<<<<< HEAD
+=======
+	.res_sample		= 0,
+>>>>>>> upstream/android-13
 };
 
 static enum dso_binary_type binary_type_symtab[] = {
@@ -87,11 +126,14 @@ static int prefix_underscores_count(const char *str)
 	return tail - str;
 }
 
+<<<<<<< HEAD
 void __weak arch__symbols__fixup_end(struct symbol *p, struct symbol *c)
 {
 	p->end = c->start;
 }
 
+=======
+>>>>>>> upstream/android-13
 const char * __weak arch__normalize_symbol_name(const char *name)
 {
 	return name;
@@ -169,7 +211,11 @@ static int choose_best_symbol(struct symbol *syma, struct symbol *symb)
 	return arch__choose_best_symbol(syma, symb);
 }
 
+<<<<<<< HEAD
 void symbols__fixup_duplicate(struct rb_root *symbols)
+=======
+void symbols__fixup_duplicate(struct rb_root_cached *symbols)
+>>>>>>> upstream/android-13
 {
 	struct rb_node *nd;
 	struct symbol *curr, *next;
@@ -177,7 +223,11 @@ void symbols__fixup_duplicate(struct rb_root *symbols)
 	if (symbol_conf.allow_aliases)
 		return;
 
+<<<<<<< HEAD
 	nd = rb_first(symbols);
+=======
+	nd = rb_first_cached(symbols);
+>>>>>>> upstream/android-13
 
 	while (nd) {
 		curr = rb_entry(nd, struct symbol, rb_node);
@@ -192,20 +242,35 @@ again:
 			continue;
 
 		if (choose_best_symbol(curr, next) == SYMBOL_A) {
+<<<<<<< HEAD
 			rb_erase(&next->rb_node, symbols);
+=======
+			rb_erase_cached(&next->rb_node, symbols);
+>>>>>>> upstream/android-13
 			symbol__delete(next);
 			goto again;
 		} else {
 			nd = rb_next(&curr->rb_node);
+<<<<<<< HEAD
 			rb_erase(&curr->rb_node, symbols);
+=======
+			rb_erase_cached(&curr->rb_node, symbols);
+>>>>>>> upstream/android-13
 			symbol__delete(curr);
 		}
 	}
 }
 
+<<<<<<< HEAD
 void symbols__fixup_end(struct rb_root *symbols)
 {
 	struct rb_node *nd, *prevnd = rb_first(symbols);
+=======
+/* Update zero-sized symbols using the address of the next symbol */
+void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms)
+{
+	struct rb_node *nd, *prevnd = rb_first_cached(symbols);
+>>>>>>> upstream/android-13
 	struct symbol *curr, *prev;
 
 	if (prevnd == NULL)
@@ -217,8 +282,34 @@ void symbols__fixup_end(struct rb_root *symbols)
 		prev = curr;
 		curr = rb_entry(nd, struct symbol, rb_node);
 
+<<<<<<< HEAD
 		if (prev->end == prev->start && prev->end != curr->start)
 			arch__symbols__fixup_end(prev, curr);
+=======
+		/*
+		 * On some architecture kernel text segment start is located at
+		 * some low memory address, while modules are located at high
+		 * memory addresses (or vice versa).  The gap between end of
+		 * kernel text segment and beginning of first module's text
+		 * segment is very big.  Therefore do not fill this gap and do
+		 * not assign it to the kernel dso map (kallsyms).
+		 *
+		 * In kallsyms, it determines module symbols using '[' character
+		 * like in:
+		 *   ffffffffc1937000 T hdmi_driver_init  [snd_hda_codec_hdmi]
+		 */
+		if (prev->end == prev->start) {
+			/* Last kernel/module symbol mapped to end of page */
+			if (is_kallsyms && (!strchr(prev->name, '[') !=
+					    !strchr(curr->name, '[')))
+				prev->end = roundup(prev->end + 4096, 4096);
+			else
+				prev->end = curr->start;
+
+			pr_debug4("%s sym:%s end:%#" PRIx64 "\n",
+				  __func__, prev->name, prev->end);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Last entry */
@@ -226,6 +317,7 @@ void symbols__fixup_end(struct rb_root *symbols)
 		curr->end = roundup(curr->start, 4096) + 4096;
 }
 
+<<<<<<< HEAD
 void map_groups__fixup_end(struct map_groups *mg)
 {
 	struct maps *maps = &mg->maps;
@@ -241,16 +333,35 @@ void map_groups__fixup_end(struct map_groups *mg)
 		if (!curr->end)
 			curr->end = next->start;
 		curr = next;
+=======
+void maps__fixup_end(struct maps *maps)
+{
+	struct map *prev = NULL, *curr;
+
+	down_write(&maps->lock);
+
+	maps__for_each_entry(maps, curr) {
+		if (prev != NULL && !prev->end)
+			prev->end = curr->start;
+
+		prev = curr;
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * We still haven't the actual symbols, so guess the
 	 * last map final address.
 	 */
+<<<<<<< HEAD
 	if (!curr->end)
 		curr->end = ~0ULL;
 
 out_unlock:
+=======
+	if (curr && !curr->end)
+		curr->end = ~0ULL;
+
+>>>>>>> upstream/android-13
 	up_write(&maps->lock);
 }
 
@@ -288,25 +399,47 @@ void symbol__delete(struct symbol *sym)
 	free(((void *)sym) - symbol_conf.priv_size);
 }
 
+<<<<<<< HEAD
 void symbols__delete(struct rb_root *symbols)
 {
 	struct symbol *pos;
 	struct rb_node *next = rb_first(symbols);
+=======
+void symbols__delete(struct rb_root_cached *symbols)
+{
+	struct symbol *pos;
+	struct rb_node *next = rb_first_cached(symbols);
+>>>>>>> upstream/android-13
 
 	while (next) {
 		pos = rb_entry(next, struct symbol, rb_node);
 		next = rb_next(&pos->rb_node);
+<<<<<<< HEAD
 		rb_erase(&pos->rb_node, symbols);
+=======
+		rb_erase_cached(&pos->rb_node, symbols);
+>>>>>>> upstream/android-13
 		symbol__delete(pos);
 	}
 }
 
+<<<<<<< HEAD
 void __symbols__insert(struct rb_root *symbols, struct symbol *sym, bool kernel)
 {
 	struct rb_node **p = &symbols->rb_node;
 	struct rb_node *parent = NULL;
 	const u64 ip = sym->start;
 	struct symbol *s;
+=======
+void __symbols__insert(struct rb_root_cached *symbols,
+		       struct symbol *sym, bool kernel)
+{
+	struct rb_node **p = &symbols->rb_root.rb_node;
+	struct rb_node *parent = NULL;
+	const u64 ip = sym->start;
+	struct symbol *s;
+	bool leftmost = true;
+>>>>>>> upstream/android-13
 
 	if (kernel) {
 		const char *name = sym->name;
@@ -324,6 +457,7 @@ void __symbols__insert(struct rb_root *symbols, struct symbol *sym, bool kernel)
 		s = rb_entry(parent, struct symbol, rb_node);
 		if (ip < s->start)
 			p = &(*p)->rb_left;
+<<<<<<< HEAD
 		else
 			p = &(*p)->rb_right;
 	}
@@ -332,18 +466,38 @@ void __symbols__insert(struct rb_root *symbols, struct symbol *sym, bool kernel)
 }
 
 void symbols__insert(struct rb_root *symbols, struct symbol *sym)
+=======
+		else {
+			p = &(*p)->rb_right;
+			leftmost = false;
+		}
+	}
+	rb_link_node(&sym->rb_node, parent, p);
+	rb_insert_color_cached(&sym->rb_node, symbols, leftmost);
+}
+
+void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym)
+>>>>>>> upstream/android-13
 {
 	__symbols__insert(symbols, sym, false);
 }
 
+<<<<<<< HEAD
 static struct symbol *symbols__find(struct rb_root *symbols, u64 ip)
+=======
+static struct symbol *symbols__find(struct rb_root_cached *symbols, u64 ip)
+>>>>>>> upstream/android-13
 {
 	struct rb_node *n;
 
 	if (symbols == NULL)
 		return NULL;
 
+<<<<<<< HEAD
 	n = symbols->rb_node;
+=======
+	n = symbols->rb_root.rb_node;
+>>>>>>> upstream/android-13
 
 	while (n) {
 		struct symbol *s = rb_entry(n, struct symbol, rb_node);
@@ -359,9 +513,15 @@ static struct symbol *symbols__find(struct rb_root *symbols, u64 ip)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct symbol *symbols__first(struct rb_root *symbols)
 {
 	struct rb_node *n = rb_first(symbols);
+=======
+static struct symbol *symbols__first(struct rb_root_cached *symbols)
+{
+	struct rb_node *n = rb_first_cached(symbols);
+>>>>>>> upstream/android-13
 
 	if (n)
 		return rb_entry(n, struct symbol, rb_node);
@@ -369,9 +529,15 @@ static struct symbol *symbols__first(struct rb_root *symbols)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static struct symbol *symbols__last(struct rb_root *symbols)
 {
 	struct rb_node *n = rb_last(symbols);
+=======
+static struct symbol *symbols__last(struct rb_root_cached *symbols)
+{
+	struct rb_node *n = rb_last(&symbols->rb_root);
+>>>>>>> upstream/android-13
 
 	if (n)
 		return rb_entry(n, struct symbol, rb_node);
@@ -389,11 +555,20 @@ static struct symbol *symbols__next(struct symbol *sym)
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void symbols__insert_by_name(struct rb_root *symbols, struct symbol *sym)
 {
 	struct rb_node **p = &symbols->rb_node;
 	struct rb_node *parent = NULL;
 	struct symbol_name_rb_node *symn, *s;
+=======
+static void symbols__insert_by_name(struct rb_root_cached *symbols, struct symbol *sym)
+{
+	struct rb_node **p = &symbols->rb_root.rb_node;
+	struct rb_node *parent = NULL;
+	struct symbol_name_rb_node *symn, *s;
+	bool leftmost = true;
+>>>>>>> upstream/android-13
 
 	symn = container_of(sym, struct symbol_name_rb_node, sym);
 
@@ -402,6 +577,7 @@ static void symbols__insert_by_name(struct rb_root *symbols, struct symbol *sym)
 		s = rb_entry(parent, struct symbol_name_rb_node, rb_node);
 		if (strcmp(sym->name, s->sym.name) < 0)
 			p = &(*p)->rb_left;
+<<<<<<< HEAD
 		else
 			p = &(*p)->rb_right;
 	}
@@ -415,6 +591,23 @@ static void symbols__sort_by_name(struct rb_root *symbols,
 	struct rb_node *nd;
 
 	for (nd = rb_first(source); nd; nd = rb_next(nd)) {
+=======
+		else {
+			p = &(*p)->rb_right;
+			leftmost = false;
+		}
+	}
+	rb_link_node(&symn->rb_node, parent, p);
+	rb_insert_color_cached(&symn->rb_node, symbols, leftmost);
+}
+
+static void symbols__sort_by_name(struct rb_root_cached *symbols,
+				  struct rb_root_cached *source)
+{
+	struct rb_node *nd;
+
+	for (nd = rb_first_cached(source); nd; nd = rb_next(nd)) {
+>>>>>>> upstream/android-13
 		struct symbol *pos = rb_entry(nd, struct symbol, rb_node);
 		symbols__insert_by_name(symbols, pos);
 	}
@@ -437,7 +630,11 @@ int symbol__match_symbol_name(const char *name, const char *str,
 		return arch__compare_symbol_names(name, str);
 }
 
+<<<<<<< HEAD
 static struct symbol *symbols__find_by_name(struct rb_root *symbols,
+=======
+static struct symbol *symbols__find_by_name(struct rb_root_cached *symbols,
+>>>>>>> upstream/android-13
 					    const char *name,
 					    enum symbol_tag_include includes)
 {
@@ -447,7 +644,11 @@ static struct symbol *symbols__find_by_name(struct rb_root *symbols,
 	if (symbols == NULL)
 		return NULL;
 
+<<<<<<< HEAD
 	n = symbols->rb_node;
+=======
+	n = symbols->rb_root.rb_node;
+>>>>>>> upstream/android-13
 
 	while (n) {
 		int cmp;
@@ -499,6 +700,16 @@ void dso__insert_symbol(struct dso *dso, struct symbol *sym)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void dso__delete_symbol(struct dso *dso, struct symbol *sym)
+{
+	rb_erase_cached(&sym->rb_node, &dso->symbols);
+	symbol__delete(sym);
+	dso__reset_find_symbol_cache(dso);
+}
+
+>>>>>>> upstream/android-13
 struct symbol *dso__find_symbol(struct dso *dso, u64 addr)
 {
 	if (dso->last_find_result.addr != addr || dso->last_find_result.symbol == NULL) {
@@ -551,6 +762,23 @@ void dso__sort_by_name(struct dso *dso)
 	return symbols__sort_by_name(&dso->symbol_names, &dso->symbols);
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * While we find nice hex chars, build a long_val.
+ * Return number of chars processed.
+ */
+static int hex2u64(const char *ptr, u64 *long_val)
+{
+	char *p;
+
+	*long_val = strtoull(ptr, &p, 16);
+
+	return p - ptr;
+}
+
+
+>>>>>>> upstream/android-13
 int modules__parse(const char *filename, void *arg,
 		   int (*process_module)(void *arg, const char *name,
 					 u64 start, u64 size))
@@ -620,8 +848,17 @@ out:
 static bool symbol__is_idle(const char *name)
 {
 	const char * const idle_symbols[] = {
+<<<<<<< HEAD
 		"cpu_idle",
 		"cpu_startup_entry",
+=======
+		"acpi_idle_do_entry",
+		"acpi_processor_ffh_cstate_enter",
+		"arch_cpu_idle",
+		"cpu_idle",
+		"cpu_startup_entry",
+		"idle_cpu",
+>>>>>>> upstream/android-13
 		"intel_idle",
 		"default_idle",
 		"native_safe_halt",
@@ -629,6 +866,7 @@ static bool symbol__is_idle(const char *name)
 		"exit_idle",
 		"mwait_idle",
 		"mwait_idle_with_hints",
+<<<<<<< HEAD
 		"poll_idle",
 		"ppc64_runlatch_off",
 		"pseries_dedicated_idle_sleep",
@@ -642,6 +880,28 @@ static bool symbol__is_idle(const char *name)
 	}
 
 	return false;
+=======
+		"mwait_idle_with_hints.constprop.0",
+		"poll_idle",
+		"ppc64_runlatch_off",
+		"pseries_dedicated_idle_sleep",
+		"psw_idle",
+		"psw_idle_exit",
+		NULL
+	};
+	int i;
+	static struct strlist *idle_symbols_list;
+
+	if (idle_symbols_list)
+		return strlist__has_entry(idle_symbols_list, name);
+
+	idle_symbols_list = strlist__new(NULL, NULL);
+
+	for (i = 0; idle_symbols[i]; i++)
+		strlist__add(idle_symbols_list, idle_symbols[i]);
+
+	return strlist__has_entry(idle_symbols_list, name);
+>>>>>>> upstream/android-13
 }
 
 static int map__process_kallsym_symbol(void *arg, const char *name,
@@ -649,7 +909,11 @@ static int map__process_kallsym_symbol(void *arg, const char *name,
 {
 	struct symbol *sym;
 	struct dso *dso = arg;
+<<<<<<< HEAD
 	struct rb_root *root = &dso->symbols;
+=======
+	struct rb_root_cached *root = &dso->symbols;
+>>>>>>> upstream/android-13
 
 	if (!symbol_type__filter(type))
 		return 0;
@@ -681,19 +945,33 @@ static int dso__load_all_kallsyms(struct dso *dso, const char *filename)
 	return kallsyms__parse(filename, dso, map__process_kallsym_symbol);
 }
 
+<<<<<<< HEAD
 static int map_groups__split_kallsyms_for_kcore(struct map_groups *kmaps, struct dso *dso)
+=======
+static int maps__split_kallsyms_for_kcore(struct maps *kmaps, struct dso *dso)
+>>>>>>> upstream/android-13
 {
 	struct map *curr_map;
 	struct symbol *pos;
 	int count = 0;
+<<<<<<< HEAD
 	struct rb_root old_root = dso->symbols;
 	struct rb_root *root = &dso->symbols;
 	struct rb_node *next = rb_first(root);
+=======
+	struct rb_root_cached old_root = dso->symbols;
+	struct rb_root_cached *root = &dso->symbols;
+	struct rb_node *next = rb_first_cached(root);
+>>>>>>> upstream/android-13
 
 	if (!kmaps)
 		return -1;
 
+<<<<<<< HEAD
 	*root = RB_ROOT;
+=======
+	*root = RB_ROOT_CACHED;
+>>>>>>> upstream/android-13
 
 	while (next) {
 		char *module;
@@ -701,13 +979,22 @@ static int map_groups__split_kallsyms_for_kcore(struct map_groups *kmaps, struct
 		pos = rb_entry(next, struct symbol, rb_node);
 		next = rb_next(&pos->rb_node);
 
+<<<<<<< HEAD
 		rb_erase_init(&pos->rb_node, &old_root);
 
+=======
+		rb_erase_cached(&pos->rb_node, &old_root);
+		RB_CLEAR_NODE(&pos->rb_node);
+>>>>>>> upstream/android-13
 		module = strchr(pos->name, '\t');
 		if (module)
 			*module = '\0';
 
+<<<<<<< HEAD
 		curr_map = map_groups__find(kmaps, pos->start);
+=======
+		curr_map = maps__find(kmaps, pos->start);
+>>>>>>> upstream/android-13
 
 		if (!curr_map) {
 			symbol__delete(pos);
@@ -734,15 +1021,25 @@ static int map_groups__split_kallsyms_for_kcore(struct map_groups *kmaps, struct
  * kernel range is broken in several maps, named [kernel].N, as we don't have
  * the original ELF section names vmlinux have.
  */
+<<<<<<< HEAD
 static int map_groups__split_kallsyms(struct map_groups *kmaps, struct dso *dso, u64 delta,
 				      struct map *initial_map)
+=======
+static int maps__split_kallsyms(struct maps *kmaps, struct dso *dso, u64 delta,
+				struct map *initial_map)
+>>>>>>> upstream/android-13
 {
 	struct machine *machine;
 	struct map *curr_map = initial_map;
 	struct symbol *pos;
 	int count = 0, moved = 0;
+<<<<<<< HEAD
 	struct rb_root *root = &dso->symbols;
 	struct rb_node *next = rb_first(root);
+=======
+	struct rb_root_cached *root = &dso->symbols;
+	struct rb_node *next = rb_first_cached(root);
+>>>>>>> upstream/android-13
 	int kernel_range = 0;
 	bool x86_64;
 
@@ -768,7 +1065,11 @@ static int map_groups__split_kallsyms(struct map_groups *kmaps, struct dso *dso,
 
 			if (strcmp(curr_map->dso->short_name, module)) {
 				if (curr_map != initial_map &&
+<<<<<<< HEAD
 				    dso->kernel == DSO_TYPE_GUEST_KERNEL &&
+=======
+				    dso->kernel == DSO_SPACE__KERNEL_GUEST &&
+>>>>>>> upstream/android-13
 				    machine__is_default_guest(machine)) {
 					/*
 					 * We assume all symbols of a module are
@@ -780,7 +1081,11 @@ static int map_groups__split_kallsyms(struct map_groups *kmaps, struct dso *dso,
 					dso__set_loaded(curr_map->dso);
 				}
 
+<<<<<<< HEAD
 				curr_map = map_groups__find_by_name(kmaps, module);
+=======
+				curr_map = maps__find_by_name(kmaps, module);
+>>>>>>> upstream/android-13
 				if (curr_map == NULL) {
 					pr_debug("%s/proc/{kallsyms,modules} "
 					         "inconsistency while looking "
@@ -825,7 +1130,11 @@ static int map_groups__split_kallsyms(struct map_groups *kmaps, struct dso *dso,
 				goto add_symbol;
 			}
 
+<<<<<<< HEAD
 			if (dso->kernel == DSO_TYPE_GUEST_KERNEL)
+=======
+			if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+>>>>>>> upstream/android-13
 				snprintf(dso_name, sizeof(dso_name),
 					"[guest.kernel].%d",
 					kernel_range++);
@@ -847,7 +1156,11 @@ static int map_groups__split_kallsyms(struct map_groups *kmaps, struct dso *dso,
 			}
 
 			curr_map->map_ip = curr_map->unmap_ip = identity__map_ip;
+<<<<<<< HEAD
 			map_groups__insert(kmaps, curr_map);
+=======
+			maps__insert(kmaps, curr_map);
+>>>>>>> upstream/android-13
 			++kernel_range;
 		} else if (delta) {
 			/* Kernel was relocated at boot time */
@@ -856,7 +1169,11 @@ static int map_groups__split_kallsyms(struct map_groups *kmaps, struct dso *dso,
 		}
 add_symbol:
 		if (curr_map != initial_map) {
+<<<<<<< HEAD
 			rb_erase(&pos->rb_node, root);
+=======
+			rb_erase_cached(&pos->rb_node, root);
+>>>>>>> upstream/android-13
 			symbols__insert(&curr_map->dso->symbols, pos);
 			++moved;
 		} else
@@ -864,12 +1181,20 @@ add_symbol:
 
 		continue;
 discard_symbol:
+<<<<<<< HEAD
 		rb_erase(&pos->rb_node, root);
+=======
+		rb_erase_cached(&pos->rb_node, root);
+>>>>>>> upstream/android-13
 		symbol__delete(pos);
 	}
 
 	if (curr_map != initial_map &&
+<<<<<<< HEAD
 	    dso->kernel == DSO_TYPE_GUEST_KERNEL &&
+=======
+	    dso->kernel == DSO_SPACE__KERNEL_GUEST &&
+>>>>>>> upstream/android-13
 	    machine__is_default_guest(kmaps->machine)) {
 		dso__set_loaded(curr_map->dso);
 	}
@@ -1032,6 +1357,7 @@ out_delete_from:
 	return ret;
 }
 
+<<<<<<< HEAD
 struct map *map_groups__first(struct map_groups *mg)
 {
 	return maps__first(&mg->maps);
@@ -1039,6 +1365,9 @@ struct map *map_groups__first(struct map_groups *mg)
 
 static int do_validate_kcore_modules(const char *filename,
 				  struct map_groups *kmaps)
+=======
+static int do_validate_kcore_modules(const char *filename, struct maps *kmaps)
+>>>>>>> upstream/android-13
 {
 	struct rb_root modules = RB_ROOT;
 	struct map *old_map;
@@ -1048,6 +1377,7 @@ static int do_validate_kcore_modules(const char *filename,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	old_map = map_groups__first(kmaps);
 	while (old_map) {
 		struct map *next = map_groups__next(old_map);
@@ -1055,6 +1385,12 @@ static int do_validate_kcore_modules(const char *filename,
 
 		if (!__map__is_kmodule(old_map)) {
 			old_map = next;
+=======
+	maps__for_each_entry(kmaps, old_map) {
+		struct module_info *mi;
+
+		if (!__map__is_kmodule(old_map)) {
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -1064,8 +1400,11 @@ static int do_validate_kcore_modules(const char *filename,
 			err = -EINVAL;
 			goto out;
 		}
+<<<<<<< HEAD
 
 		old_map = next;
+=======
+>>>>>>> upstream/android-13
 	}
 out:
 	delete_modules(&modules);
@@ -1100,7 +1439,11 @@ static bool filename_from_kallsyms_filename(char *filename,
 static int validate_kcore_modules(const char *kallsyms_filename,
 				  struct map *map)
 {
+<<<<<<< HEAD
 	struct map_groups *kmaps = map__kmaps(map);
+=======
+	struct maps *kmaps = map__kmaps(map);
+>>>>>>> upstream/android-13
 	char modules_filename[PATH_MAX];
 
 	if (!kmaps)
@@ -1159,12 +1502,100 @@ static int kcore_mapfn(u64 start, u64 len, u64 pgoff, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dso__load_kcore(struct dso *dso, struct map *map,
 			   const char *kallsyms_filename)
 {
 	struct map_groups *kmaps = map__kmaps(map);
 	struct kcore_mapfn_data md;
 	struct map *old_map, *new_map, *replacement_map = NULL;
+=======
+/*
+ * Merges map into maps by splitting the new map within the existing map
+ * regions.
+ */
+int maps__merge_in(struct maps *kmaps, struct map *new_map)
+{
+	struct map *old_map;
+	LIST_HEAD(merged);
+
+	maps__for_each_entry(kmaps, old_map) {
+		/* no overload with this one */
+		if (new_map->end < old_map->start ||
+		    new_map->start >= old_map->end)
+			continue;
+
+		if (new_map->start < old_map->start) {
+			/*
+			 * |new......
+			 *       |old....
+			 */
+			if (new_map->end < old_map->end) {
+				/*
+				 * |new......|     -> |new..|
+				 *       |old....| ->       |old....|
+				 */
+				new_map->end = old_map->start;
+			} else {
+				/*
+				 * |new.............| -> |new..|       |new..|
+				 *       |old....|    ->       |old....|
+				 */
+				struct map *m = map__clone(new_map);
+
+				if (!m)
+					return -ENOMEM;
+
+				m->end = old_map->start;
+				list_add_tail(&m->node, &merged);
+				new_map->pgoff += old_map->end - new_map->start;
+				new_map->start = old_map->end;
+			}
+		} else {
+			/*
+			 *      |new......
+			 * |old....
+			 */
+			if (new_map->end < old_map->end) {
+				/*
+				 *      |new..|   -> x
+				 * |old.........| -> |old.........|
+				 */
+				map__put(new_map);
+				new_map = NULL;
+				break;
+			} else {
+				/*
+				 *      |new......| ->         |new...|
+				 * |old....|        -> |old....|
+				 */
+				new_map->pgoff += old_map->end - new_map->start;
+				new_map->start = old_map->end;
+			}
+		}
+	}
+
+	while (!list_empty(&merged)) {
+		old_map = list_entry(merged.next, struct map, node);
+		list_del_init(&old_map->node);
+		maps__insert(kmaps, old_map);
+		map__put(old_map);
+	}
+
+	if (new_map) {
+		maps__insert(kmaps, new_map);
+		map__put(new_map);
+	}
+	return 0;
+}
+
+static int dso__load_kcore(struct dso *dso, struct map *map,
+			   const char *kallsyms_filename)
+{
+	struct maps *kmaps = map__kmaps(map);
+	struct kcore_mapfn_data md;
+	struct map *old_map, *new_map, *replacement_map = NULL, *next;
+>>>>>>> upstream/android-13
 	struct machine *machine;
 	bool is_64_bit;
 	int err, fd;
@@ -1211,6 +1642,7 @@ static int dso__load_kcore(struct dso *dso, struct map *map,
 	}
 
 	/* Remove old maps */
+<<<<<<< HEAD
 	old_map = map_groups__first(kmaps);
 	while (old_map) {
 		struct map *next = map_groups__next(old_map);
@@ -1218,6 +1650,16 @@ static int dso__load_kcore(struct dso *dso, struct map *map,
 		if (old_map != map)
 			map_groups__remove(kmaps, old_map);
 		old_map = next;
+=======
+	maps__for_each_entry_safe(kmaps, old_map, next) {
+		/*
+		 * We need to preserve eBPF maps even if they are
+		 * covered by kcore, because we need to access
+		 * eBPF dso for source data.
+		 */
+		if (old_map != map && !__map__is_bpf_prog(old_map))
+			maps__remove(kmaps, old_map);
+>>>>>>> upstream/android-13
 	}
 	machine->trampolines_mapped = false;
 
@@ -1246,6 +1688,7 @@ static int dso__load_kcore(struct dso *dso, struct map *map,
 			map->unmap_ip	= new_map->unmap_ip;
 			/* Ensure maps are correctly ordered */
 			map__get(map);
+<<<<<<< HEAD
 			map_groups__remove(kmaps, map);
 			map_groups__insert(kmaps, map);
 			map__put(map);
@@ -1254,6 +1697,21 @@ static int dso__load_kcore(struct dso *dso, struct map *map,
 		}
 
 		map__put(new_map);
+=======
+			maps__remove(kmaps, map);
+			maps__insert(kmaps, map);
+			map__put(map);
+			map__put(new_map);
+		} else {
+			/*
+			 * Merge kcore map into existing maps,
+			 * and ensure that current maps (eBPF)
+			 * stay intact.
+			 */
+			if (maps__merge_in(kmaps, new_map))
+				goto out_err;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (machine__is(machine, "x86_64")) {
@@ -1273,7 +1731,11 @@ static int dso__load_kcore(struct dso *dso, struct map *map,
 	 * Set the data type and long name so that kcore can be read via
 	 * dso__data_read_addr().
 	 */
+<<<<<<< HEAD
 	if (dso->kernel == DSO_TYPE_GUEST_KERNEL)
+=======
+	if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+>>>>>>> upstream/android-13
 		dso->binary_type = DSO_BINARY_TYPE__GUEST_KCORE;
 	else
 		dso->binary_type = DSO_BINARY_TYPE__KCORE;
@@ -1334,18 +1796,31 @@ int __dso__load_kallsyms(struct dso *dso, const char *filename,
 	if (kallsyms__delta(kmap, filename, &delta))
 		return -1;
 
+<<<<<<< HEAD
 	symbols__fixup_end(&dso->symbols);
 	symbols__fixup_duplicate(&dso->symbols);
 
 	if (dso->kernel == DSO_TYPE_GUEST_KERNEL)
+=======
+	symbols__fixup_end(&dso->symbols, true);
+	symbols__fixup_duplicate(&dso->symbols);
+
+	if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+>>>>>>> upstream/android-13
 		dso->symtab_type = DSO_BINARY_TYPE__GUEST_KALLSYMS;
 	else
 		dso->symtab_type = DSO_BINARY_TYPE__KALLSYMS;
 
 	if (!no_kcore && !dso__load_kcore(dso, map, filename))
+<<<<<<< HEAD
 		return map_groups__split_kallsyms_for_kcore(kmap->kmaps, dso);
 	else
 		return map_groups__split_kallsyms(kmap->kmaps, dso, delta, map);
+=======
+		return maps__split_kallsyms_for_kcore(kmap->kmaps, dso);
+	else
+		return maps__split_kallsyms(kmap->kmaps, dso, delta, map);
+>>>>>>> upstream/android-13
 }
 
 int dso__load_kallsyms(struct dso *dso, const char *filename,
@@ -1411,6 +1886,137 @@ out_failure:
 	return -1;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef HAVE_LIBBFD_SUPPORT
+#define PACKAGE 'perf'
+#include <bfd.h>
+
+static int bfd_symbols__cmpvalue(const void *a, const void *b)
+{
+	const asymbol *as = *(const asymbol **)a, *bs = *(const asymbol **)b;
+
+	if (bfd_asymbol_value(as) != bfd_asymbol_value(bs))
+		return bfd_asymbol_value(as) - bfd_asymbol_value(bs);
+
+	return bfd_asymbol_name(as)[0] - bfd_asymbol_name(bs)[0];
+}
+
+static int bfd2elf_binding(asymbol *symbol)
+{
+	if (symbol->flags & BSF_WEAK)
+		return STB_WEAK;
+	if (symbol->flags & BSF_GLOBAL)
+		return STB_GLOBAL;
+	if (symbol->flags & BSF_LOCAL)
+		return STB_LOCAL;
+	return -1;
+}
+
+int dso__load_bfd_symbols(struct dso *dso, const char *debugfile)
+{
+	int err = -1;
+	long symbols_size, symbols_count, i;
+	asection *section;
+	asymbol **symbols, *sym;
+	struct symbol *symbol;
+	bfd *abfd;
+	u64 start, len;
+
+	abfd = bfd_openr(debugfile, NULL);
+	if (!abfd)
+		return -1;
+
+	if (!bfd_check_format(abfd, bfd_object)) {
+		pr_debug2("%s: cannot read %s bfd file.\n", __func__,
+			  dso->long_name);
+		goto out_close;
+	}
+
+	if (bfd_get_flavour(abfd) == bfd_target_elf_flavour)
+		goto out_close;
+
+	symbols_size = bfd_get_symtab_upper_bound(abfd);
+	if (symbols_size == 0) {
+		bfd_close(abfd);
+		return 0;
+	}
+
+	if (symbols_size < 0)
+		goto out_close;
+
+	symbols = malloc(symbols_size);
+	if (!symbols)
+		goto out_close;
+
+	symbols_count = bfd_canonicalize_symtab(abfd, symbols);
+	if (symbols_count < 0)
+		goto out_free;
+
+	section = bfd_get_section_by_name(abfd, ".text");
+	if (section) {
+		for (i = 0; i < symbols_count; ++i) {
+			if (!strcmp(bfd_asymbol_name(symbols[i]), "__ImageBase") ||
+			    !strcmp(bfd_asymbol_name(symbols[i]), "__image_base__"))
+				break;
+		}
+		if (i < symbols_count) {
+			/* PE symbols can only have 4 bytes, so use .text high bits */
+			dso->text_offset = section->vma - (u32)section->vma;
+			dso->text_offset += (u32)bfd_asymbol_value(symbols[i]);
+		} else {
+			dso->text_offset = section->vma - section->filepos;
+		}
+	}
+
+	qsort(symbols, symbols_count, sizeof(asymbol *), bfd_symbols__cmpvalue);
+
+#ifdef bfd_get_section
+#define bfd_asymbol_section bfd_get_section
+#endif
+	for (i = 0; i < symbols_count; ++i) {
+		sym = symbols[i];
+		section = bfd_asymbol_section(sym);
+		if (bfd2elf_binding(sym) < 0)
+			continue;
+
+		while (i + 1 < symbols_count &&
+		       bfd_asymbol_section(symbols[i + 1]) == section &&
+		       bfd2elf_binding(symbols[i + 1]) < 0)
+			i++;
+
+		if (i + 1 < symbols_count &&
+		    bfd_asymbol_section(symbols[i + 1]) == section)
+			len = symbols[i + 1]->value - sym->value;
+		else
+			len = section->size - sym->value;
+
+		start = bfd_asymbol_value(sym) - dso->text_offset;
+		symbol = symbol__new(start, len, bfd2elf_binding(sym), STT_FUNC,
+				     bfd_asymbol_name(sym));
+		if (!symbol)
+			goto out_free;
+
+		symbols__insert(&dso->symbols, symbol);
+	}
+#ifdef bfd_get_section
+#undef bfd_asymbol_section
+#endif
+
+	symbols__fixup_end(&dso->symbols, false);
+	symbols__fixup_duplicate(&dso->symbols);
+	dso->adjust_symbols = 1;
+
+	err = 0;
+out_free:
+	free(symbols);
+out_close:
+	bfd_close(abfd);
+	return err;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static bool dso__is_compatible_symtab_type(struct dso *dso, bool kmod,
 					   enum dso_binary_type type)
 {
@@ -1423,17 +2029,29 @@ static bool dso__is_compatible_symtab_type(struct dso *dso, bool kmod,
 	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
 	case DSO_BINARY_TYPE__BUILDID_DEBUGINFO:
 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
+<<<<<<< HEAD
 		return !kmod && dso->kernel == DSO_TYPE_USER;
+=======
+		return !kmod && dso->kernel == DSO_SPACE__USER;
+>>>>>>> upstream/android-13
 
 	case DSO_BINARY_TYPE__KALLSYMS:
 	case DSO_BINARY_TYPE__VMLINUX:
 	case DSO_BINARY_TYPE__KCORE:
+<<<<<<< HEAD
 		return dso->kernel == DSO_TYPE_KERNEL;
+=======
+		return dso->kernel == DSO_SPACE__KERNEL;
+>>>>>>> upstream/android-13
 
 	case DSO_BINARY_TYPE__GUEST_KALLSYMS:
 	case DSO_BINARY_TYPE__GUEST_VMLINUX:
 	case DSO_BINARY_TYPE__GUEST_KCORE:
+<<<<<<< HEAD
 		return dso->kernel == DSO_TYPE_GUEST_KERNEL;
+=======
+		return dso->kernel == DSO_SPACE__KERNEL_GUEST;
+>>>>>>> upstream/android-13
 
 	case DSO_BINARY_TYPE__GUEST_KMODULE:
 	case DSO_BINARY_TYPE__GUEST_KMODULE_COMP:
@@ -1441,7 +2059,11 @@ static bool dso__is_compatible_symtab_type(struct dso *dso, bool kmod,
 	case DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP:
 		/*
 		 * kernel modules know their symtab type - it's set when
+<<<<<<< HEAD
 		 * creating a module dso in machine__findnew_module_map().
+=======
+		 * creating a module dso in machine__addnew_module_map().
+>>>>>>> upstream/android-13
 		 */
 		return kmod && dso->symtab_type == type;
 
@@ -1449,6 +2071,12 @@ static bool dso__is_compatible_symtab_type(struct dso *dso, bool kmod,
 	case DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO:
 		return true;
 
+<<<<<<< HEAD
+=======
+	case DSO_BINARY_TYPE__BPF_PROG_INFO:
+	case DSO_BINARY_TYPE__BPF_IMAGE:
+	case DSO_BINARY_TYPE__OOL:
+>>>>>>> upstream/android-13
 	case DSO_BINARY_TYPE__NOT_FOUND:
 	default:
 		return false;
@@ -1498,14 +2126,22 @@ int dso__load(struct dso *dso, struct map *map)
 	char *name;
 	int ret = -1;
 	u_int i;
+<<<<<<< HEAD
 	struct machine *machine;
+=======
+	struct machine *machine = NULL;
+>>>>>>> upstream/android-13
 	char *root_dir = (char *) "";
 	int ss_pos = 0;
 	struct symsrc ss_[2];
 	struct symsrc *syms_ss = NULL, *runtime_ss = NULL;
 	bool kmod;
 	bool perfmap;
+<<<<<<< HEAD
 	unsigned char build_id[BUILD_ID_SIZE];
+=======
+	struct build_id bid;
+>>>>>>> upstream/android-13
 	struct nscookie nsc;
 	char newmapname[PATH_MAX];
 	const char *map_path = dso->long_name;
@@ -1527,6 +2163,7 @@ int dso__load(struct dso *dso, struct map *map)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (map->groups && map->groups->machine)
 		machine = map->groups->machine;
 	else
@@ -1538,6 +2175,20 @@ int dso__load(struct dso *dso, struct map *map)
 		else if (dso->kernel == DSO_TYPE_GUEST_KERNEL)
 			ret = dso__load_guest_kernel_sym(dso, map);
 
+=======
+	kmod = dso->symtab_type == DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE ||
+		dso->symtab_type == DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP ||
+		dso->symtab_type == DSO_BINARY_TYPE__GUEST_KMODULE ||
+		dso->symtab_type == DSO_BINARY_TYPE__GUEST_KMODULE_COMP;
+
+	if (dso->kernel && !kmod) {
+		if (dso->kernel == DSO_SPACE__KERNEL)
+			ret = dso__load_kernel_sym(dso, map);
+		else if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+			ret = dso__load_guest_kernel_sym(dso, map);
+
+		machine = map__kmaps(map)->machine;
+>>>>>>> upstream/android-13
 		if (machine__is(machine, "x86_64"))
 			machine__map_x86_64_entry_trampolines(machine, dso);
 		goto out;
@@ -1546,6 +2197,7 @@ int dso__load(struct dso *dso, struct map *map)
 	dso->adjust_symbols = 0;
 
 	if (perfmap) {
+<<<<<<< HEAD
 		struct stat st;
 
 		if (lstat(map_path, &st) < 0)
@@ -1557,6 +2209,8 @@ int dso__load(struct dso *dso, struct map *map)
 			goto out;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		ret = dso__load_perf_map(map_path, dso);
 		dso->symtab_type = ret > 0 ? DSO_BINARY_TYPE__JAVA_JIT :
 					     DSO_BINARY_TYPE__NOT_FOUND;
@@ -1570,12 +2224,15 @@ int dso__load(struct dso *dso, struct map *map)
 	if (!name)
 		goto out;
 
+<<<<<<< HEAD
 	kmod = dso->symtab_type == DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE ||
 		dso->symtab_type == DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP ||
 		dso->symtab_type == DSO_BINARY_TYPE__GUEST_KMODULE ||
 		dso->symtab_type == DSO_BINARY_TYPE__GUEST_KMODULE_COMP;
 
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Read the build id if possible. This is required for
 	 * DSO_BINARY_TYPE__BUILDID_DEBUGINFO to work
@@ -1583,8 +2240,13 @@ int dso__load(struct dso *dso, struct map *map)
 	if (!dso->has_build_id &&
 	    is_regular_file(dso->long_name)) {
 	    __symbol__join_symfs(name, PATH_MAX, dso->long_name);
+<<<<<<< HEAD
 	    if (filename__read_build_id(name, build_id, BUILD_ID_SIZE) > 0)
 		dso__set_build_id(dso, build_id);
+=======
+		if (filename__read_build_id(name, &bid) > 0)
+			dso__set_build_id(dso, &bid);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1597,6 +2259,10 @@ int dso__load(struct dso *dso, struct map *map)
 		bool next_slot = false;
 		bool is_reg;
 		bool nsexit;
+<<<<<<< HEAD
+=======
+		int bfdrc = -1;
+>>>>>>> upstream/android-13
 		int sirc = -1;
 
 		enum dso_binary_type symtab_type = binary_type_symtab[i];
@@ -1615,12 +2281,28 @@ int dso__load(struct dso *dso, struct map *map)
 			nsinfo__mountns_exit(&nsc);
 
 		is_reg = is_regular_file(name);
+<<<<<<< HEAD
 		if (is_reg)
+=======
+#ifdef HAVE_LIBBFD_SUPPORT
+		if (is_reg)
+			bfdrc = dso__load_bfd_symbols(dso, name);
+#endif
+		if (is_reg && bfdrc < 0)
+>>>>>>> upstream/android-13
 			sirc = symsrc__init(ss, dso, name, symtab_type);
 
 		if (nsexit)
 			nsinfo__mountns_enter(dso->nsinfo, &nsc);
 
+<<<<<<< HEAD
+=======
+		if (bfdrc == 0) {
+			ret = 0;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		if (!is_reg || sirc < 0)
 			continue;
 
@@ -1685,17 +2367,94 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 struct map *map_groups__find_by_name(struct map_groups *mg, const char *name)
 {
 	struct maps *maps = &mg->maps;
+=======
+static int map__strcmp(const void *a, const void *b)
+{
+	const struct map *ma = *(const struct map **)a, *mb = *(const struct map **)b;
+	return strcmp(ma->dso->short_name, mb->dso->short_name);
+}
+
+static int map__strcmp_name(const void *name, const void *b)
+{
+	const struct map *map = *(const struct map **)b;
+	return strcmp(name, map->dso->short_name);
+}
+
+void __maps__sort_by_name(struct maps *maps)
+{
+	qsort(maps->maps_by_name, maps->nr_maps, sizeof(struct map *), map__strcmp);
+}
+
+static int map__groups__sort_by_name_from_rbtree(struct maps *maps)
+{
+	struct map *map;
+	struct map **maps_by_name = realloc(maps->maps_by_name, maps->nr_maps * sizeof(map));
+	int i = 0;
+
+	if (maps_by_name == NULL)
+		return -1;
+
+	maps->maps_by_name = maps_by_name;
+	maps->nr_maps_allocated = maps->nr_maps;
+
+	maps__for_each_entry(maps, map)
+		maps_by_name[i++] = map;
+
+	__maps__sort_by_name(maps);
+	return 0;
+}
+
+static struct map *__maps__find_by_name(struct maps *maps, const char *name)
+{
+	struct map **mapp;
+
+	if (maps->maps_by_name == NULL &&
+	    map__groups__sort_by_name_from_rbtree(maps))
+		return NULL;
+
+	mapp = bsearch(name, maps->maps_by_name, maps->nr_maps, sizeof(*mapp), map__strcmp_name);
+	if (mapp)
+		return *mapp;
+	return NULL;
+}
+
+struct map *maps__find_by_name(struct maps *maps, const char *name)
+{
+>>>>>>> upstream/android-13
 	struct map *map;
 
 	down_read(&maps->lock);
 
+<<<<<<< HEAD
 	for (map = maps__first(maps); map; map = map__next(map)) {
 		if (map->dso && strcmp(map->dso->short_name, name) == 0)
 			goto out_unlock;
 	}
+=======
+	if (maps->last_search_by_name && strcmp(maps->last_search_by_name->dso->short_name, name) == 0) {
+		map = maps->last_search_by_name;
+		goto out_unlock;
+	}
+	/*
+	 * If we have maps->maps_by_name, then the name isn't in the rbtree,
+	 * as maps->maps_by_name mirrors the rbtree when lookups by name are
+	 * made.
+	 */
+	map = __maps__find_by_name(maps, name);
+	if (map || maps->maps_by_name != NULL)
+		goto out_unlock;
+
+	/* Fallback to traversing the rbtree... */
+	maps__for_each_entry(maps, map)
+		if (strcmp(map->dso->short_name, name) == 0) {
+			maps->last_search_by_name = map;
+			goto out_unlock;
+		}
+>>>>>>> upstream/android-13
 
 	map = NULL;
 
@@ -1717,7 +2476,11 @@ int dso__load_vmlinux(struct dso *dso, struct map *map,
 	else
 		symbol__join_symfs(symfs_vmlinux, vmlinux);
 
+<<<<<<< HEAD
 	if (dso->kernel == DSO_TYPE_GUEST_KERNEL)
+=======
+	if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+>>>>>>> upstream/android-13
 		symtab_type = DSO_BINARY_TYPE__GUEST_VMLINUX;
 	else
 		symtab_type = DSO_BINARY_TYPE__VMLINUX;
@@ -1729,7 +2492,11 @@ int dso__load_vmlinux(struct dso *dso, struct map *map,
 	symsrc__destroy(&ss);
 
 	if (err > 0) {
+<<<<<<< HEAD
 		if (dso->kernel == DSO_TYPE_GUEST_KERNEL)
+=======
+		if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+>>>>>>> upstream/android-13
 			dso->binary_type = DSO_BINARY_TYPE__GUEST_VMLINUX;
 		else
 			dso->binary_type = DSO_BINARY_TYPE__VMLINUX;
@@ -1816,7 +2583,11 @@ static bool filename__readable(const char *file)
 
 static char *dso__find_kallsyms(struct dso *dso, struct map *map)
 {
+<<<<<<< HEAD
 	u8 host_build_id[BUILD_ID_SIZE];
+=======
+	struct build_id bid;
+>>>>>>> upstream/android-13
 	char sbuild_id[SBUILD_ID_SIZE];
 	bool is_host = false;
 	char path[PATH_MAX];
@@ -1829,9 +2600,14 @@ static char *dso__find_kallsyms(struct dso *dso, struct map *map)
 		goto proc_kallsyms;
 	}
 
+<<<<<<< HEAD
 	if (sysfs__read_build_id("/sys/kernel/notes", host_build_id,
 				 sizeof(host_build_id)) == 0)
 		is_host = dso__build_id_equal(dso, host_build_id);
+=======
+	if (sysfs__read_build_id("/sys/kernel/notes", &bid) == 0)
+		is_host = dso__build_id_equal(dso, &bid);
+>>>>>>> upstream/android-13
 
 	/* Try a fast path for /proc/kallsyms if possible */
 	if (is_host) {
@@ -1847,7 +2623,11 @@ static char *dso__find_kallsyms(struct dso *dso, struct map *map)
 			goto proc_kallsyms;
 	}
 
+<<<<<<< HEAD
 	build_id__sprintf(dso->build_id, sizeof(dso->build_id), sbuild_id);
+=======
+	build_id__sprintf(&dso->bid, sbuild_id);
+>>>>>>> upstream/android-13
 
 	/* Find kallsyms in build-id cache with kcore */
 	scnprintf(path, sizeof(path), "%s/%s/%s",
@@ -1877,6 +2657,11 @@ static int dso__load_kernel_sym(struct dso *dso, struct map *map)
 	int err;
 	const char *kallsyms_filename = NULL;
 	char *kallsyms_allocated_filename = NULL;
+<<<<<<< HEAD
+=======
+	char *filename = NULL;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Step 1: if the user specified a kallsyms or vmlinux filename, use
 	 * it and only it, reporting errors to the user if it cannot be used.
@@ -1901,6 +2686,23 @@ static int dso__load_kernel_sym(struct dso *dso, struct map *map)
 		return dso__load_vmlinux(dso, map, symbol_conf.vmlinux_name, false);
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Before checking on common vmlinux locations, check if it's
+	 * stored as standard build id binary (not kallsyms) under
+	 * .debug cache.
+	 */
+	if (!symbol_conf.ignore_vmlinux_buildid)
+		filename = __dso__build_id_filename(dso, NULL, 0, false, false);
+	if (filename != NULL) {
+		err = dso__load_vmlinux(dso, map, filename, true);
+		if (err > 0)
+			return err;
+		free(filename);
+	}
+
+>>>>>>> upstream/android-13
 	if (!symbol_conf.ignore_vmlinux && vmlinux_path != NULL) {
 		err = dso__load_vmlinux_path(dso, map);
 		if (err > 0)
@@ -1937,6 +2739,7 @@ static int dso__load_guest_kernel_sym(struct dso *dso, struct map *map)
 {
 	int err;
 	const char *kallsyms_filename = NULL;
+<<<<<<< HEAD
 	struct machine *machine;
 	char path[PATH_MAX];
 
@@ -1946,6 +2749,11 @@ static int dso__load_guest_kernel_sym(struct dso *dso, struct map *map)
 	}
 	machine = map->groups->machine;
 
+=======
+	struct machine *machine = map__kmaps(map)->machine;
+	char path[PATH_MAX];
+
+>>>>>>> upstream/android-13
 	if (machine__is_default_guest(machine)) {
 		/*
 		 * if the user specified a vmlinux filename, use it and only
@@ -2084,6 +2892,52 @@ int setup_intlist(struct intlist **list, const char *list_str,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int setup_addrlist(struct intlist **addr_list, struct strlist *sym_list)
+{
+	struct str_node *pos, *tmp;
+	unsigned long val;
+	char *sep;
+	const char *end;
+	int i = 0, err;
+
+	*addr_list = intlist__new(NULL);
+	if (!*addr_list)
+		return -1;
+
+	strlist__for_each_entry_safe(pos, tmp, sym_list) {
+		errno = 0;
+		val = strtoul(pos->s, &sep, 16);
+		if (errno || (sep == pos->s))
+			continue;
+
+		if (*sep != '\0') {
+			end = pos->s + strlen(pos->s) - 1;
+			while (end >= sep && isspace(*end))
+				end--;
+
+			if (end >= sep)
+				continue;
+		}
+
+		err = intlist__add(*addr_list, val);
+		if (err)
+			break;
+
+		strlist__remove(sym_list, pos);
+		i++;
+	}
+
+	if (i == 0) {
+		intlist__delete(*addr_list);
+		*addr_list = NULL;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static bool symbol__read_kptr_restrict(void)
 {
 	bool value = false;
@@ -2093,13 +2947,28 @@ static bool symbol__read_kptr_restrict(void)
 		char line[8];
 
 		if (fgets(line, sizeof(line), fp) != NULL)
+<<<<<<< HEAD
 			value = ((geteuid() != 0) || (getuid() != 0)) ?
 					(atoi(line) != 0) :
 					(atoi(line) == 2);
+=======
+			value = perf_cap__capable(CAP_SYSLOG) ?
+					(atoi(line) >= 2) :
+					(atoi(line) != 0);
+>>>>>>> upstream/android-13
 
 		fclose(fp);
 	}
 
+<<<<<<< HEAD
+=======
+	/* Per kernel/kallsyms.c:
+	 * we also restrict when perf_event_paranoid > 1 w/o CAP_SYSLOG
+	 */
+	if (perf_event_paranoid() > 1 && !perf_cap__capable(CAP_SYSLOG))
+		value = true;
+
+>>>>>>> upstream/android-13
 	return value;
 }
 
@@ -2161,6 +3030,13 @@ int symbol__init(struct perf_env *env)
 		       symbol_conf.sym_list_str, "symbol") < 0)
 		goto out_free_tid_list;
 
+<<<<<<< HEAD
+=======
+	if (symbol_conf.sym_list &&
+	    setup_addrlist(&symbol_conf.addr_list, symbol_conf.sym_list) < 0)
+		goto out_free_sym_list;
+
+>>>>>>> upstream/android-13
 	if (setup_list(&symbol_conf.bt_stop_list,
 		       symbol_conf.bt_stop_list_str, "symbol") < 0)
 		goto out_free_sym_list;
@@ -2184,6 +3060,10 @@ int symbol__init(struct perf_env *env)
 
 out_free_sym_list:
 	strlist__delete(symbol_conf.sym_list);
+<<<<<<< HEAD
+=======
+	intlist__delete(symbol_conf.addr_list);
+>>>>>>> upstream/android-13
 out_free_tid_list:
 	intlist__delete(symbol_conf.tid_list);
 out_free_pid_list:
@@ -2205,6 +3085,10 @@ void symbol__exit(void)
 	strlist__delete(symbol_conf.comm_list);
 	intlist__delete(symbol_conf.tid_list);
 	intlist__delete(symbol_conf.pid_list);
+<<<<<<< HEAD
+=======
+	intlist__delete(symbol_conf.addr_list);
+>>>>>>> upstream/android-13
 	vmlinux_path__exit();
 	symbol_conf.sym_list = symbol_conf.dso_list = symbol_conf.comm_list = NULL;
 	symbol_conf.bt_stop_list = NULL;

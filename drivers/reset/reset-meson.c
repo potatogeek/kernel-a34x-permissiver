@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Amlogic Meson Reset Controller driver
  *
@@ -53,23 +54,48 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Amlogic Meson Reset Controller driver
+ *
+ * Copyright (c) 2016 BayLibre, SAS.
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/io.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/reset-controller.h>
 #include <linux/slab.h>
 #include <linux/types.h>
 #include <linux/of_device.h>
 
+<<<<<<< HEAD
 #define REG_COUNT	8
 #define BITS_PER_REG	32
 #define LEVEL_OFFSET	0x7c
 
 struct meson_reset {
 	void __iomem *reg_base;
+=======
+#define BITS_PER_REG	32
+
+struct meson_reset_param {
+	int reg_count;
+	int level_offset;
+};
+
+struct meson_reset {
+	void __iomem *reg_base;
+	const struct meson_reset_param *param;
+>>>>>>> upstream/android-13
 	struct reset_controller_dev rcdev;
 	spinlock_t lock;
 };
@@ -95,10 +121,19 @@ static int meson_reset_level(struct reset_controller_dev *rcdev,
 		container_of(rcdev, struct meson_reset, rcdev);
 	unsigned int bank = id / BITS_PER_REG;
 	unsigned int offset = id % BITS_PER_REG;
+<<<<<<< HEAD
 	void __iomem *reg_addr = data->reg_base + LEVEL_OFFSET + (bank << 2);
 	unsigned long flags;
 	u32 reg;
 
+=======
+	void __iomem *reg_addr;
+	unsigned long flags;
+	u32 reg;
+
+	reg_addr = data->reg_base + data->param->level_offset + (bank << 2);
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&data->lock, flags);
 
 	reg = readl(reg_addr);
@@ -130,12 +165,33 @@ static const struct reset_control_ops meson_reset_ops = {
 	.deassert	= meson_reset_deassert,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id meson_reset_dt_ids[] = {
 	 { .compatible = "amlogic,meson8b-reset" },
 	 { .compatible = "amlogic,meson-gxbb-reset" },
 	 { .compatible = "amlogic,meson-axg-reset" },
 	 { /* sentinel */ },
 };
+=======
+static const struct meson_reset_param meson8b_param = {
+	.reg_count	= 8,
+	.level_offset	= 0x7c,
+};
+
+static const struct meson_reset_param meson_a1_param = {
+	.reg_count	= 3,
+	.level_offset	= 0x40,
+};
+
+static const struct of_device_id meson_reset_dt_ids[] = {
+	 { .compatible = "amlogic,meson8b-reset",    .data = &meson8b_param},
+	 { .compatible = "amlogic,meson-gxbb-reset", .data = &meson8b_param},
+	 { .compatible = "amlogic,meson-axg-reset",  .data = &meson8b_param},
+	 { .compatible = "amlogic,meson-a1-reset",   .data = &meson_a1_param},
+	 { /* sentinel */ },
+};
+MODULE_DEVICE_TABLE(of, meson_reset_dt_ids);
+>>>>>>> upstream/android-13
 
 static int meson_reset_probe(struct platform_device *pdev)
 {
@@ -151,12 +207,23 @@ static int meson_reset_probe(struct platform_device *pdev)
 	if (IS_ERR(data->reg_base))
 		return PTR_ERR(data->reg_base);
 
+<<<<<<< HEAD
+=======
+	data->param = of_device_get_match_data(&pdev->dev);
+	if (!data->param)
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, data);
 
 	spin_lock_init(&data->lock);
 
 	data->rcdev.owner = THIS_MODULE;
+<<<<<<< HEAD
 	data->rcdev.nr_resets = REG_COUNT * BITS_PER_REG;
+=======
+	data->rcdev.nr_resets = data->param->reg_count * BITS_PER_REG;
+>>>>>>> upstream/android-13
 	data->rcdev.ops = &meson_reset_ops;
 	data->rcdev.of_node = pdev->dev.of_node;
 
@@ -170,4 +237,12 @@ static struct platform_driver meson_reset_driver = {
 		.of_match_table	= meson_reset_dt_ids,
 	},
 };
+<<<<<<< HEAD
 builtin_platform_driver(meson_reset_driver);
+=======
+module_platform_driver(meson_reset_driver);
+
+MODULE_DESCRIPTION("Amlogic Meson Reset Controller driver");
+MODULE_AUTHOR("Neil Armstrong <narmstrong@baylibre.com>");
+MODULE_LICENSE("Dual BSD/GPL");
+>>>>>>> upstream/android-13

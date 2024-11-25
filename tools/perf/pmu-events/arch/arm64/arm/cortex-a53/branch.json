@@ -1,6 +1,10 @@
 [
   {
+<<<<<<< HEAD
     "ArchStdEvent":  "BR_INDIRECT_SPEC",
+=======
+    "ArchStdEvent":  "BR_INDIRECT_SPEC"
+>>>>>>> upstream/android-13
   },
   {
     "EventCode": "0xC9",

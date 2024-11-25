@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *   Copyright (C) 2017, Microsoft Corporation.
  *
  *   Author(s): Long Li <longli@microsoft.com>
+<<<<<<< HEAD
  *
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *   but WITHOUT ANY WARRANTY;  without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
  *   the GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _SMBDIRECT_H
 #define _SMBDIRECT_H
@@ -70,14 +77,22 @@ struct smbd_connection {
 	int ri_rc;
 	struct completion ri_done;
 	wait_queue_head_t conn_wait;
+<<<<<<< HEAD
 	wait_queue_head_t wait_destroy;
+=======
+	wait_queue_head_t disconn_wait;
+>>>>>>> upstream/android-13
 
 	struct completion negotiate_completion;
 	bool negotiate_done;
 
+<<<<<<< HEAD
 	struct work_struct destroy_work;
 	struct work_struct disconnect_work;
 	struct work_struct recv_done_work;
+=======
+	struct work_struct disconnect_work;
+>>>>>>> upstream/android-13
 	struct work_struct post_send_credits_work;
 
 	spinlock_t lock_new_credits_offered;
@@ -123,6 +138,7 @@ struct smbd_connection {
 	wait_queue_head_t wait_for_mr_cleanup;
 
 	/* Activity accoutning */
+<<<<<<< HEAD
 	/* Pending reqeusts issued from upper layer */
 	int smbd_send_pending;
 	wait_queue_head_t wait_smbd_send_pending;
@@ -134,6 +150,11 @@ struct smbd_connection {
 	wait_queue_head_t wait_send_pending;
 	atomic_t send_payload_pending;
 	wait_queue_head_t wait_send_payload_pending;
+=======
+	atomic_t send_pending;
+	wait_queue_head_t wait_send_pending;
+	wait_queue_head_t wait_post_send;
+>>>>>>> upstream/android-13
 
 	/* Receive queue */
 	struct list_head receive_queue;
@@ -172,7 +193,10 @@ struct smbd_connection {
 
 	struct workqueue_struct *workqueue;
 	struct delayed_work idle_timer_work;
+<<<<<<< HEAD
 	struct delayed_work send_immediate_work;
+=======
+>>>>>>> upstream/android-13
 
 	/* Memory pool for preallocating buffers */
 	/* request pool for RDMA send */
@@ -252,9 +276,12 @@ struct smbd_request {
 	struct smbd_connection *info;
 	struct ib_cqe cqe;
 
+<<<<<<< HEAD
 	/* true if this request carries upper layer payload */
 	bool has_payload;
 
+=======
+>>>>>>> upstream/android-13
 	/* the SGE entries for this packet */
 	struct ib_sge sge[SMBDIRECT_MAX_SGE];
 	int num_sge;
@@ -288,7 +315,11 @@ struct smbd_connection *smbd_get_connection(
 /* Reconnect SMBDirect session */
 int smbd_reconnect(struct TCP_Server_Info *server);
 /* Destroy SMBDirect session */
+<<<<<<< HEAD
 void smbd_destroy(struct smbd_connection *info);
+=======
+void smbd_destroy(struct TCP_Server_Info *server);
+>>>>>>> upstream/android-13
 
 /* Interface for carrying upper layer I/O through send/recv */
 int smbd_recv(struct smbd_connection *info, struct msghdr *msg);
@@ -331,7 +362,11 @@ struct smbd_connection {};
 static inline void *smbd_get_connection(
 	struct TCP_Server_Info *server, struct sockaddr *dstaddr) {return NULL;}
 static inline int smbd_reconnect(struct TCP_Server_Info *server) {return -1; }
+<<<<<<< HEAD
 static inline void smbd_destroy(struct smbd_connection *info) {}
+=======
+static inline void smbd_destroy(struct TCP_Server_Info *server) {}
+>>>>>>> upstream/android-13
 static inline int smbd_recv(struct smbd_connection *info, struct msghdr *msg) {return -1; }
 static inline int smbd_send(struct TCP_Server_Info *server, int num_rqst, struct smb_rqst *rqst) {return -1; }
 #endif

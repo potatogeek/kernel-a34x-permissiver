@@ -26,6 +26,11 @@
 
 #include "pci.h"
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PCI_MSI
+
+>>>>>>> upstream/android-13
 static int pci_msi_enable = 1;
 int pci_msi_ignore_mask;
 
@@ -58,6 +63,7 @@ static void pci_msi_teardown_msi_irqs(struct pci_dev *dev)
 #define pci_msi_teardown_msi_irqs	arch_teardown_msi_irqs
 #endif
 
+<<<<<<< HEAD
 /* Arch hooks */
 
 int __weak arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
@@ -75,26 +81,42 @@ int __weak arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
 	irq_set_chip_data(desc->irq, chip);
 
 	return 0;
+=======
+#ifdef CONFIG_PCI_MSI_ARCH_FALLBACKS
+/* Arch hooks */
+int __weak arch_setup_msi_irq(struct pci_dev *dev, struct msi_desc *desc)
+{
+	return -EINVAL;
+>>>>>>> upstream/android-13
 }
 
 void __weak arch_teardown_msi_irq(unsigned int irq)
 {
+<<<<<<< HEAD
 	struct msi_controller *chip = irq_get_chip_data(irq);
 
 	if (!chip || !chip->teardown_irq)
 		return;
 
 	chip->teardown_irq(chip, irq);
+=======
+>>>>>>> upstream/android-13
 }
 
 int __weak arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
 {
+<<<<<<< HEAD
 	struct msi_controller *chip = dev->bus->msi;
 	struct msi_desc *entry;
 	int ret;
 
 	if (chip && chip->setup_irqs)
 		return chip->setup_irqs(chip, dev, nvec, type);
+=======
+	struct msi_desc *entry;
+	int ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If an architecture wants to support multiple MSI, it needs to
 	 * override arch_setup_msi_irqs()
@@ -113,11 +135,15 @@ int __weak arch_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * We have a default implementation available as a separate non-weak
  * function, as it is used by the Xen x86 PCI code
  */
 void default_teardown_msi_irqs(struct pci_dev *dev)
+=======
+void __weak arch_teardown_msi_irqs(struct pci_dev *dev)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct msi_desc *entry;
@@ -127,11 +153,15 @@ void default_teardown_msi_irqs(struct pci_dev *dev)
 			for (i = 0; i < entry->nvec_used; i++)
 				arch_teardown_msi_irq(entry->irq + i);
 }
+<<<<<<< HEAD
 
 void __weak arch_teardown_msi_irqs(struct pci_dev *dev)
 {
 	return default_teardown_msi_irqs(dev);
 }
+=======
+#endif /* CONFIG_PCI_MSI_ARCH_FALLBACKS */
+>>>>>>> upstream/android-13
 
 static void default_restore_msi_irq(struct pci_dev *dev, int irq)
 {
@@ -156,6 +186,7 @@ void __weak arch_restore_msi_irqs(struct pci_dev *dev)
 	return default_restore_msi_irqs(dev);
 }
 
+<<<<<<< HEAD
 static inline __attribute_const__ u32 msi_mask(unsigned x)
 {
 	/* Don't shift by >= width of type */
@@ -164,12 +195,15 @@ static inline __attribute_const__ u32 msi_mask(unsigned x)
 	return (1 << (1 << x)) - 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * PCI 2.3 does not specify mask bits for each MSI interrupt.  Attempting to
  * mask all MSI interrupts by clearing the MSI enable bit does not work
  * reliably as devices without an INTx disable bit will then generate a
  * level IRQ which will never be cleared.
  */
+<<<<<<< HEAD
 u32 __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
 {
 	u32 mask_bits = desc->masked;
@@ -238,21 +272,124 @@ static void msi_set_mask_bit(struct irq_data *data, u32 flag)
 
 /**
  * pci_msi_mask_irq - Generic irq chip callback to mask PCI/MSI interrupts
+=======
+static inline __attribute_const__ u32 msi_multi_mask(struct msi_desc *desc)
+{
+	/* Don't shift by >= width of type */
+	if (desc->msi_attrib.multi_cap >= 5)
+		return 0xffffffff;
+	return (1 << (1 << desc->msi_attrib.multi_cap)) - 1;
+}
+
+static noinline void pci_msi_update_mask(struct msi_desc *desc, u32 clear, u32 set)
+{
+	raw_spinlock_t *lock = &desc->dev->msi_lock;
+	unsigned long flags;
+
+	if (!desc->msi_attrib.can_mask)
+		return;
+
+	raw_spin_lock_irqsave(lock, flags);
+	desc->msi_mask &= ~clear;
+	desc->msi_mask |= set;
+	pci_write_config_dword(msi_desc_to_pci_dev(desc), desc->mask_pos,
+			       desc->msi_mask);
+	raw_spin_unlock_irqrestore(lock, flags);
+}
+
+static inline void pci_msi_mask(struct msi_desc *desc, u32 mask)
+{
+	pci_msi_update_mask(desc, 0, mask);
+}
+
+static inline void pci_msi_unmask(struct msi_desc *desc, u32 mask)
+{
+	pci_msi_update_mask(desc, mask, 0);
+}
+
+static inline void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
+{
+	return desc->mask_base + desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
+}
+
+/*
+ * This internal function does not flush PCI writes to the device.  All
+ * users must ensure that they read from the device before either assuming
+ * that the device state is up to date, or returning out of this file.
+ * It does not affect the msi_desc::msix_ctrl cache either. Use with care!
+ */
+static void pci_msix_write_vector_ctrl(struct msi_desc *desc, u32 ctrl)
+{
+	void __iomem *desc_addr = pci_msix_desc_addr(desc);
+
+	if (desc->msi_attrib.can_mask)
+		writel(ctrl, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
+}
+
+static inline void pci_msix_mask(struct msi_desc *desc)
+{
+	desc->msix_ctrl |= PCI_MSIX_ENTRY_CTRL_MASKBIT;
+	pci_msix_write_vector_ctrl(desc, desc->msix_ctrl);
+	/* Flush write to device */
+	readl(desc->mask_base);
+}
+
+static inline void pci_msix_unmask(struct msi_desc *desc)
+{
+	desc->msix_ctrl &= ~PCI_MSIX_ENTRY_CTRL_MASKBIT;
+	pci_msix_write_vector_ctrl(desc, desc->msix_ctrl);
+}
+
+static void __pci_msi_mask_desc(struct msi_desc *desc, u32 mask)
+{
+	if (desc->msi_attrib.is_msix)
+		pci_msix_mask(desc);
+	else
+		pci_msi_mask(desc, mask);
+}
+
+static void __pci_msi_unmask_desc(struct msi_desc *desc, u32 mask)
+{
+	if (desc->msi_attrib.is_msix)
+		pci_msix_unmask(desc);
+	else
+		pci_msi_unmask(desc, mask);
+}
+
+/**
+ * pci_msi_mask_irq - Generic IRQ chip callback to mask PCI/MSI interrupts
+>>>>>>> upstream/android-13
  * @data:	pointer to irqdata associated to that interrupt
  */
 void pci_msi_mask_irq(struct irq_data *data)
 {
+<<<<<<< HEAD
 	msi_set_mask_bit(data, 1);
+=======
+	struct msi_desc *desc = irq_data_get_msi_desc(data);
+
+	__pci_msi_mask_desc(desc, BIT(data->irq - desc->irq));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_msi_mask_irq);
 
 /**
+<<<<<<< HEAD
  * pci_msi_unmask_irq - Generic irq chip callback to unmask PCI/MSI interrupts
+=======
+ * pci_msi_unmask_irq - Generic IRQ chip callback to unmask PCI/MSI interrupts
+>>>>>>> upstream/android-13
  * @data:	pointer to irqdata associated to that interrupt
  */
 void pci_msi_unmask_irq(struct irq_data *data)
 {
+<<<<<<< HEAD
 	msi_set_mask_bit(data, 0);
+=======
+	struct msi_desc *desc = irq_data_get_msi_desc(data);
+
+	__pci_msi_unmask_desc(desc, BIT(data->irq - desc->irq));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_msi_unmask_irq);
 
@@ -273,6 +410,12 @@ void __pci_read_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
 	if (entry->msi_attrib.is_msix) {
 		void __iomem *base = pci_msix_desc_addr(entry);
 
+<<<<<<< HEAD
+=======
+		if (WARN_ON_ONCE(entry->msi_attrib.is_virtual))
+			return;
+
+>>>>>>> upstream/android-13
 		msg->address_lo = readl(base + PCI_MSIX_ENTRY_LOWER_ADDR);
 		msg->address_hi = readl(base + PCI_MSIX_ENTRY_UPPER_ADDR);
 		msg->data = readl(base + PCI_MSIX_ENTRY_DATA);
@@ -302,10 +445,38 @@ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
 		/* Don't touch the hardware now */
 	} else if (entry->msi_attrib.is_msix) {
 		void __iomem *base = pci_msix_desc_addr(entry);
+<<<<<<< HEAD
+=======
+		u32 ctrl = entry->msix_ctrl;
+		bool unmasked = !(ctrl & PCI_MSIX_ENTRY_CTRL_MASKBIT);
+
+		if (entry->msi_attrib.is_virtual)
+			goto skip;
+
+		/*
+		 * The specification mandates that the entry is masked
+		 * when the message is modified:
+		 *
+		 * "If software changes the Address or Data value of an
+		 * entry while the entry is unmasked, the result is
+		 * undefined."
+		 */
+		if (unmasked)
+			pci_msix_write_vector_ctrl(entry, ctrl | PCI_MSIX_ENTRY_CTRL_MASKBIT);
+>>>>>>> upstream/android-13
 
 		writel(msg->address_lo, base + PCI_MSIX_ENTRY_LOWER_ADDR);
 		writel(msg->address_hi, base + PCI_MSIX_ENTRY_UPPER_ADDR);
 		writel(msg->data, base + PCI_MSIX_ENTRY_DATA);
+<<<<<<< HEAD
+=======
+
+		if (unmasked)
+			pci_msix_write_vector_ctrl(entry, ctrl);
+
+		/* Ensure that the writes are visible in the device */
+		readl(base + PCI_MSIX_ENTRY_DATA);
+>>>>>>> upstream/android-13
 	} else {
 		int pos = dev->msi_cap;
 		u16 msgctl;
@@ -326,8 +497,21 @@ void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
 			pci_write_config_word(dev, pos + PCI_MSI_DATA_32,
 					      msg->data);
 		}
+<<<<<<< HEAD
 	}
 	entry->msg = *msg;
+=======
+		/* Ensure that the writes are visible in the device */
+		pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
+	}
+
+skip:
+	entry->msg = *msg;
+
+	if (entry->write_msi_msg)
+		entry->write_msi_msg(entry, entry->write_msi_msg_data);
+
+>>>>>>> upstream/android-13
 }
 
 void pci_write_msi_msg(unsigned int irq, struct msi_msg *msg)
@@ -342,15 +526,27 @@ static void free_msi_irqs(struct pci_dev *dev)
 {
 	struct list_head *msi_list = dev_to_msi_list(&dev->dev);
 	struct msi_desc *entry, *tmp;
+<<<<<<< HEAD
 	struct attribute **msi_attrs;
 	struct device_attribute *dev_attr;
 	int i, count = 0;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	for_each_pci_msi_entry(entry, dev)
 		if (entry->irq)
 			for (i = 0; i < entry->nvec_used; i++)
 				BUG_ON(irq_has_action(entry->irq + i));
 
+<<<<<<< HEAD
+=======
+	if (dev->msi_irq_groups) {
+		msi_destroy_sysfs(&dev->dev, dev->msi_irq_groups);
+		dev->msi_irq_groups = NULL;
+	}
+
+>>>>>>> upstream/android-13
 	pci_msi_teardown_msi_irqs(dev);
 
 	list_for_each_entry_safe(entry, tmp, msi_list, list) {
@@ -362,6 +558,7 @@ static void free_msi_irqs(struct pci_dev *dev)
 		list_del(&entry->list);
 		free_msi_entry(entry);
 	}
+<<<<<<< HEAD
 
 	if (dev->msi_irq_groups) {
 		sysfs_remove_groups(&dev->dev.kobj, dev->msi_irq_groups);
@@ -378,6 +575,8 @@ static void free_msi_irqs(struct pci_dev *dev)
 		kfree(dev->msi_irq_groups);
 		dev->msi_irq_groups = NULL;
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 static void pci_intx_for_msi(struct pci_dev *dev, int enable)
@@ -386,6 +585,20 @@ static void pci_intx_for_msi(struct pci_dev *dev, int enable)
 		pci_intx(dev, enable);
 }
 
+<<<<<<< HEAD
+=======
+static void pci_msi_set_enable(struct pci_dev *dev, int enable)
+{
+	u16 control;
+
+	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, &control);
+	control &= ~PCI_MSI_FLAGS_ENABLE;
+	if (enable)
+		control |= PCI_MSI_FLAGS_ENABLE;
+	pci_write_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, control);
+}
+
+>>>>>>> upstream/android-13
 static void __pci_restore_msi_state(struct pci_dev *dev)
 {
 	u16 control;
@@ -401,13 +614,30 @@ static void __pci_restore_msi_state(struct pci_dev *dev)
 	arch_restore_msi_irqs(dev);
 
 	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, &control);
+<<<<<<< HEAD
 	msi_mask_irq(entry, msi_mask(entry->msi_attrib.multi_cap),
 		     entry->masked);
+=======
+	pci_msi_update_mask(entry, 0, 0);
+>>>>>>> upstream/android-13
 	control &= ~PCI_MSI_FLAGS_QSIZE;
 	control |= (entry->msi_attrib.multiple << 4) | PCI_MSI_FLAGS_ENABLE;
 	pci_write_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, control);
 }
 
+<<<<<<< HEAD
+=======
+static void pci_msix_clear_and_set_ctrl(struct pci_dev *dev, u16 clear, u16 set)
+{
+	u16 ctrl;
+
+	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &ctrl);
+	ctrl &= ~clear;
+	ctrl |= set;
+	pci_write_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, ctrl);
+}
+
+>>>>>>> upstream/android-13
 static void __pci_restore_msix_state(struct pci_dev *dev)
 {
 	struct msi_desc *entry;
@@ -423,7 +653,11 @@ static void __pci_restore_msix_state(struct pci_dev *dev)
 
 	arch_restore_msi_irqs(dev);
 	for_each_pci_msi_entry(entry, dev)
+<<<<<<< HEAD
 		msix_mask_irq(entry, entry->masked);
+=======
+		pci_msix_write_vector_ctrl(entry, entry->msix_ctrl);
+>>>>>>> upstream/android-13
 
 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
 }
@@ -435,6 +669,7 @@ void pci_restore_msi_state(struct pci_dev *dev)
 }
 EXPORT_SYMBOL_GPL(pci_restore_msi_state);
 
+<<<<<<< HEAD
 static ssize_t msi_mode_show(struct device *dev, struct device_attribute *attr,
 			     char *buf)
 {
@@ -535,24 +770,46 @@ static struct msi_desc *
 msi_setup_entry(struct pci_dev *dev, int nvec, const struct irq_affinity *affd)
 {
 	struct cpumask *masks = NULL;
+=======
+static struct msi_desc *
+msi_setup_entry(struct pci_dev *dev, int nvec, struct irq_affinity *affd)
+{
+	struct irq_affinity_desc *masks = NULL;
+>>>>>>> upstream/android-13
 	struct msi_desc *entry;
 	u16 control;
 
 	if (affd)
 		masks = irq_create_affinity_masks(nvec, affd);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* MSI Entry Initialization */
 	entry = alloc_msi_entry(&dev->dev, nvec, masks);
 	if (!entry)
 		goto out;
 
 	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, &control);
+<<<<<<< HEAD
 
 	entry->msi_attrib.is_msix	= 0;
 	entry->msi_attrib.is_64		= !!(control & PCI_MSI_FLAGS_64BIT);
 	entry->msi_attrib.entry_nr	= 0;
 	entry->msi_attrib.maskbit	= !!(control & PCI_MSI_FLAGS_MASKBIT);
+=======
+	/* Lies, damned lies, and MSIs */
+	if (dev->dev_flags & PCI_DEV_FLAGS_HAS_MSI_MASKING)
+		control |= PCI_MSI_FLAGS_MASKBIT;
+
+	entry->msi_attrib.is_msix	= 0;
+	entry->msi_attrib.is_64		= !!(control & PCI_MSI_FLAGS_64BIT);
+	entry->msi_attrib.is_virtual    = 0;
+	entry->msi_attrib.entry_nr	= 0;
+	entry->msi_attrib.can_mask	= !pci_msi_ignore_mask &&
+					  !!(control & PCI_MSI_FLAGS_MASKBIT);
+>>>>>>> upstream/android-13
 	entry->msi_attrib.default_irq	= dev->irq;	/* Save IOAPIC IRQ */
 	entry->msi_attrib.multi_cap	= (control & PCI_MSI_FLAGS_QMASK) >> 1;
 	entry->msi_attrib.multiple	= ilog2(__roundup_pow_of_two(nvec));
@@ -563,8 +820,13 @@ msi_setup_entry(struct pci_dev *dev, int nvec, const struct irq_affinity *affd)
 		entry->mask_pos = dev->msi_cap + PCI_MSI_MASK_32;
 
 	/* Save the initial mask status */
+<<<<<<< HEAD
 	if (entry->msi_attrib.maskbit)
 		pci_read_config_dword(dev, entry->mask_pos, &entry->masked);
+=======
+	if (entry->msi_attrib.can_mask)
+		pci_read_config_dword(dev, entry->mask_pos, &entry->msi_mask);
+>>>>>>> upstream/android-13
 
 out:
 	kfree(masks);
@@ -575,12 +837,24 @@ static int msi_verify_entries(struct pci_dev *dev)
 {
 	struct msi_desc *entry;
 
+<<<<<<< HEAD
 	for_each_pci_msi_entry(entry, dev) {
 		if (!dev->no_64bit_msi || !entry->msg.address_hi)
 			continue;
 		pci_err(dev, "Device has broken 64-bit MSI but arch"
 			" tried to assign one above 4G\n");
 		return -EIO;
+=======
+	if (!dev->no_64bit_msi)
+		return 0;
+
+	for_each_pci_msi_entry(entry, dev) {
+		if (entry->msg.address_hi) {
+			pci_err(dev, "arch assigned 64-bit MSI address %#x%08x but device only supports 32 bits\n",
+				entry->msg.address_hi, entry->msg.address_lo);
+			return -EIO;
+		}
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -589,20 +863,36 @@ static int msi_verify_entries(struct pci_dev *dev)
  * msi_capability_init - configure device's MSI capability structure
  * @dev: pointer to the pci_dev data structure of MSI device function
  * @nvec: number of interrupts to allocate
+<<<<<<< HEAD
  * @affd: description of automatic irq affinity assignments (may be %NULL)
  *
  * Setup the MSI capability structure of the device with the requested
  * number of interrupts.  A return value of zero indicates the successful
  * setup of an entry with the new MSI irq.  A negative return value indicates
+=======
+ * @affd: description of automatic IRQ affinity assignments (may be %NULL)
+ *
+ * Setup the MSI capability structure of the device with the requested
+ * number of interrupts.  A return value of zero indicates the successful
+ * setup of an entry with the new MSI IRQ.  A negative return value indicates
+>>>>>>> upstream/android-13
  * an error, and a positive return value indicates the number of interrupts
  * which could have been allocated.
  */
 static int msi_capability_init(struct pci_dev *dev, int nvec,
+<<<<<<< HEAD
 			       const struct irq_affinity *affd)
 {
 	struct msi_desc *entry;
 	int ret;
 	unsigned mask;
+=======
+			       struct irq_affinity *affd)
+{
+	const struct attribute_group **groups;
+	struct msi_desc *entry;
+	int ret;
+>>>>>>> upstream/android-13
 
 	pci_msi_set_enable(dev, 0);	/* Disable MSI during set up */
 
@@ -610,14 +900,20 @@ static int msi_capability_init(struct pci_dev *dev, int nvec,
 	if (!entry)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	/* All MSIs are unmasked by default, Mask them all */
 	mask = msi_mask(entry->msi_attrib.multi_cap);
 	msi_mask_irq(entry, mask, mask);
+=======
+	/* All MSIs are unmasked by default; mask them all */
+	pci_msi_mask(entry, msi_multi_mask(entry));
+>>>>>>> upstream/android-13
 
 	list_add_tail(&entry->list, dev_to_msi_list(&dev->dev));
 
 	/* Configure MSI capability structure */
 	ret = pci_msi_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSI);
+<<<<<<< HEAD
 	if (ret) {
 		msi_mask_irq(entry, mask, ~mask);
 		free_msi_irqs(dev);
@@ -639,6 +935,24 @@ static int msi_capability_init(struct pci_dev *dev, int nvec,
 	}
 
 	/* Set MSI enabled bits	 */
+=======
+	if (ret)
+		goto err;
+
+	ret = msi_verify_entries(dev);
+	if (ret)
+		goto err;
+
+	groups = msi_populate_sysfs(&dev->dev);
+	if (IS_ERR(groups)) {
+		ret = PTR_ERR(groups);
+		goto err;
+	}
+
+	dev->msi_irq_groups = groups;
+
+	/* Set MSI enabled bits	*/
+>>>>>>> upstream/android-13
 	pci_intx_for_msi(dev, 0);
 	pci_msi_set_enable(dev, 1);
 	dev->msi_enabled = 1;
@@ -646,6 +960,14 @@ static int msi_capability_init(struct pci_dev *dev, int nvec,
 	pcibios_free_irq(dev);
 	dev->irq = entry->irq;
 	return 0;
+<<<<<<< HEAD
+=======
+
+err:
+	pci_msi_unmask(entry, msi_multi_mask(entry));
+	free_msi_irqs(dev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void __iomem *msix_map_region(struct pci_dev *dev, unsigned nr_entries)
@@ -665,16 +987,30 @@ static void __iomem *msix_map_region(struct pci_dev *dev, unsigned nr_entries)
 	table_offset &= PCI_MSIX_TABLE_OFFSET;
 	phys_addr = pci_resource_start(dev, bir) + table_offset;
 
+<<<<<<< HEAD
 	return ioremap_nocache(phys_addr, nr_entries * PCI_MSIX_ENTRY_SIZE);
+=======
+	return ioremap(phys_addr, nr_entries * PCI_MSIX_ENTRY_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
 			      struct msix_entry *entries, int nvec,
+<<<<<<< HEAD
 			      const struct irq_affinity *affd)
 {
 	struct cpumask *curmsk, *masks = NULL;
 	struct msi_desc *entry;
 	int ret, i;
+=======
+			      struct irq_affinity *affd)
+{
+	struct irq_affinity_desc *curmsk, *masks = NULL;
+	struct msi_desc *entry;
+	void __iomem *addr;
+	int ret, i;
+	int vec_count = pci_msix_vec_count(dev);
+>>>>>>> upstream/android-13
 
 	if (affd)
 		masks = irq_create_affinity_masks(nvec, affd);
@@ -693,13 +1029,35 @@ static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
 
 		entry->msi_attrib.is_msix	= 1;
 		entry->msi_attrib.is_64		= 1;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (entries)
 			entry->msi_attrib.entry_nr = entries[i].entry;
 		else
 			entry->msi_attrib.entry_nr = i;
+<<<<<<< HEAD
 		entry->msi_attrib.default_irq	= dev->irq;
 		entry->mask_base		= base;
 
+=======
+
+		entry->msi_attrib.is_virtual =
+			entry->msi_attrib.entry_nr >= vec_count;
+
+		entry->msi_attrib.can_mask	= !pci_msi_ignore_mask &&
+						  !entry->msi_attrib.is_virtual;
+
+		entry->msi_attrib.default_irq	= dev->irq;
+		entry->mask_base		= base;
+
+		if (entry->msi_attrib.can_mask) {
+			addr = pci_msix_desc_addr(entry);
+			entry->msix_ctrl = readl(addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
+		}
+
+>>>>>>> upstream/android-13
 		list_add_tail(&entry->list, dev_to_msi_list(&dev->dev));
 		if (masks)
 			curmsk++;
@@ -710,6 +1068,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void msix_program_entries(struct pci_dev *dev,
 				 struct msix_entry *entries)
 {
@@ -725,11 +1084,38 @@ static void msix_program_entries(struct pci_dev *dev,
 	}
 }
 
+=======
+static void msix_update_entries(struct pci_dev *dev, struct msix_entry *entries)
+{
+	struct msi_desc *entry;
+
+	for_each_pci_msi_entry(entry, dev) {
+		if (entries) {
+			entries->vector = entry->irq;
+			entries++;
+		}
+	}
+}
+
+static void msix_mask_all(void __iomem *base, int tsize)
+{
+	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
+	int i;
+
+	if (pci_msi_ignore_mask)
+		return;
+
+	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
+		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
+}
+
+>>>>>>> upstream/android-13
 /**
  * msix_capability_init - configure device's MSI-X capability
  * @dev: pointer to the pci_dev data structure of MSI-X device function
  * @entries: pointer to an array of struct msix_entry entries
  * @nvec: number of @entries
+<<<<<<< HEAD
  * @affd: Optional pointer to enable automatic affinity assignement
  *
  * Setup the MSI-X capability structure of device function with a
@@ -755,6 +1141,42 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
 	ret = msix_setup_entries(dev, base, entries, nvec, affd);
 	if (ret)
 		return ret;
+=======
+ * @affd: Optional pointer to enable automatic affinity assignment
+ *
+ * Setup the MSI-X capability structure of device function with a
+ * single MSI-X IRQ. A return of zero indicates the successful setup of
+ * requested MSI-X entries with allocated IRQs or non-zero for otherwise.
+ **/
+static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
+				int nvec, struct irq_affinity *affd)
+{
+	const struct attribute_group **groups;
+	void __iomem *base;
+	int ret, tsize;
+	u16 control;
+
+	/*
+	 * Some devices require MSI-X to be enabled before the MSI-X
+	 * registers can be accessed.  Mask all the vectors to prevent
+	 * interrupts coming in before they're fully set up.
+	 */
+	pci_msix_clear_and_set_ctrl(dev, 0, PCI_MSIX_FLAGS_MASKALL |
+				    PCI_MSIX_FLAGS_ENABLE);
+
+	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
+	/* Request & Map MSI-X table region */
+	tsize = msix_table_size(control);
+	base = msix_map_region(dev, tsize);
+	if (!base) {
+		ret = -ENOMEM;
+		goto out_disable;
+	}
+
+	ret = msix_setup_entries(dev, base, entries, nvec, affd);
+	if (ret)
+		goto out_disable;
+>>>>>>> upstream/android-13
 
 	ret = pci_msi_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
 	if (ret)
@@ -765,6 +1187,7 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
 	if (ret)
 		goto out_free;
 
+<<<<<<< HEAD
 	/*
 	 * Some devices require MSI-X to be enabled before we can touch the
 	 * MSI-X registers.  We need to mask all the vectors to prevent
@@ -778,10 +1201,34 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
 	ret = populate_msi_sysfs(dev);
 	if (ret)
 		goto out_free;
+=======
+	msix_update_entries(dev, entries);
+
+	groups = msi_populate_sysfs(&dev->dev);
+	if (IS_ERR(groups)) {
+		ret = PTR_ERR(groups);
+		goto out_free;
+	}
+
+	dev->msi_irq_groups = groups;
+>>>>>>> upstream/android-13
 
 	/* Set MSI-X enabled bits and unmask the function */
 	pci_intx_for_msi(dev, 0);
 	dev->msix_enabled = 1;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Ensure that all table entries are masked to prevent
+	 * stale entries from firing in a crash kernel.
+	 *
+	 * Done late to deal with a broken Marvell NVME device
+	 * which takes the MSI-X mask bits into account even
+	 * when MSI-X is disabled, which prevents MSI delivery.
+	 */
+	msix_mask_all(base, tsize);
+>>>>>>> upstream/android-13
 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
 
 	pcibios_free_irq(dev);
@@ -790,7 +1237,11 @@ static int msix_capability_init(struct pci_dev *dev, struct msix_entry *entries,
 out_avail:
 	if (ret < 0) {
 		/*
+<<<<<<< HEAD
 		 * If we had some success, report the number of irqs
+=======
+		 * If we had some success, report the number of IRQs
+>>>>>>> upstream/android-13
 		 * we succeeded in setting up.
 		 */
 		struct msi_desc *entry;
@@ -807,13 +1258,23 @@ out_avail:
 out_free:
 	free_msi_irqs(dev);
 
+<<<<<<< HEAD
+=======
+out_disable:
+	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE, 0);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /**
  * pci_msi_supported - check whether MSI may be enabled on a device
  * @dev: pointer to the pci_dev data structure of MSI device function
+<<<<<<< HEAD
  * @nvec: how many MSIs have been requested ?
+=======
+ * @nvec: how many MSIs have been requested?
+>>>>>>> upstream/android-13
  *
  * Look at global flags, the device itself, and its parent buses
  * to determine if MSI/-X are supported for the device. If MSI/-X is
@@ -827,7 +1288,11 @@ static int pci_msi_supported(struct pci_dev *dev, int nvec)
 	if (!pci_msi_enable)
 		return 0;
 
+<<<<<<< HEAD
 	if (!dev || dev->no_msi || dev->current_state != PCI_D0)
+=======
+	if (!dev || dev->no_msi)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -842,8 +1307,20 @@ static int pci_msi_supported(struct pci_dev *dev, int nvec)
 	 * Any bridge which does NOT route MSI transactions from its
 	 * secondary bus to its primary bus must set NO_MSI flag on
 	 * the secondary pci_bus.
+<<<<<<< HEAD
 	 * We expect only arch-specific PCI host bus controller driver
 	 * or quirks for specific PCI bridges to be setting NO_MSI.
+=======
+	 *
+	 * The NO_MSI flag can either be set directly by:
+	 * - arch-specific PCI host bus controller drivers (deprecated)
+	 * - quirks for specific PCI bridges
+	 *
+	 * or indirectly by platform-specific PCI host bridge drivers by
+	 * advertising the 'msi_domain' property, which results in
+	 * the NO_MSI flag when no MSI domain is found for this bridge
+	 * at probe time.
+>>>>>>> upstream/android-13
 	 */
 	for (bus = dev->bus; bus; bus = bus->parent)
 		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
@@ -880,7 +1357,10 @@ EXPORT_SYMBOL(pci_msi_vec_count);
 static void pci_msi_shutdown(struct pci_dev *dev)
 {
 	struct msi_desc *desc;
+<<<<<<< HEAD
 	u32 mask;
+=======
+>>>>>>> upstream/android-13
 
 	if (!pci_msi_enable || !dev || !dev->msi_enabled)
 		return;
@@ -893,11 +1373,17 @@ static void pci_msi_shutdown(struct pci_dev *dev)
 	dev->msi_enabled = 0;
 
 	/* Return the device with MSI unmasked as initial states */
+<<<<<<< HEAD
 	mask = msi_mask(desc->msi_attrib.multi_cap);
 	/* Keep cached state to be restored */
 	__pci_msi_desc_mask_irq(desc, mask, ~mask);
 
 	/* Restore dev->irq to its default pin-assertion irq */
+=======
+	pci_msi_unmask(desc, msi_multi_mask(desc));
+
+	/* Restore dev->irq to its default pin-assertion IRQ */
+>>>>>>> upstream/android-13
 	dev->irq = desc->msi_attrib.default_irq;
 	pcibios_alloc_irq(dev);
 }
@@ -933,18 +1419,30 @@ int pci_msix_vec_count(struct pci_dev *dev)
 EXPORT_SYMBOL(pci_msix_vec_count);
 
 static int __pci_enable_msix(struct pci_dev *dev, struct msix_entry *entries,
+<<<<<<< HEAD
 			     int nvec, const struct irq_affinity *affd)
+=======
+			     int nvec, struct irq_affinity *affd, int flags)
+>>>>>>> upstream/android-13
 {
 	int nr_entries;
 	int i, j;
 
+<<<<<<< HEAD
 	if (!pci_msi_supported(dev, nvec))
+=======
+	if (!pci_msi_supported(dev, nvec) || dev->current_state != PCI_D0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	nr_entries = pci_msix_vec_count(dev);
 	if (nr_entries < 0)
 		return nr_entries;
+<<<<<<< HEAD
 	if (nvec > nr_entries)
+=======
+	if (nvec > nr_entries && !(flags & PCI_IRQ_VIRTUAL))
+>>>>>>> upstream/android-13
 		return nr_entries;
 
 	if (entries) {
@@ -959,7 +1457,11 @@ static int __pci_enable_msix(struct pci_dev *dev, struct msix_entry *entries,
 		}
 	}
 
+<<<<<<< HEAD
 	/* Check whether driver already requested for MSI irq */
+=======
+	/* Check whether driver already requested for MSI IRQ */
+>>>>>>> upstream/android-13
 	if (dev->msi_enabled) {
 		pci_info(dev, "can't enable MSI-X (MSI IRQ already assigned)\n");
 		return -EINVAL;
@@ -980,10 +1482,15 @@ static void pci_msix_shutdown(struct pci_dev *dev)
 	}
 
 	/* Return the device with MSI-X masked as initial states */
+<<<<<<< HEAD
 	for_each_pci_msi_entry(entry, dev) {
 		/* Keep cached states to be restored */
 		__pci_msix_desc_mask_irq(entry, 1);
 	}
+=======
+	for_each_pci_msi_entry(entry, dev)
+		pci_msix_mask(entry);
+>>>>>>> upstream/android-13
 
 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
 	pci_intx_for_msi(dev, 1);
@@ -1019,15 +1526,26 @@ int pci_msi_enabled(void)
 EXPORT_SYMBOL(pci_msi_enabled);
 
 static int __pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec,
+<<<<<<< HEAD
 				  const struct irq_affinity *affd)
+=======
+				  struct irq_affinity *affd)
+>>>>>>> upstream/android-13
 {
 	int nvec;
 	int rc;
 
+<<<<<<< HEAD
 	if (!pci_msi_supported(dev, minvec))
 		return -EINVAL;
 
 	/* Check whether driver already requested MSI-X irqs */
+=======
+	if (!pci_msi_supported(dev, minvec) || dev->current_state != PCI_D0)
+		return -EINVAL;
+
+	/* Check whether driver already requested MSI-X IRQs */
+>>>>>>> upstream/android-13
 	if (dev->msix_enabled) {
 		pci_info(dev, "can't enable MSI (MSI-X already enabled)\n");
 		return -EINVAL;
@@ -1080,7 +1598,12 @@ EXPORT_SYMBOL(pci_enable_msi);
 
 static int __pci_enable_msix_range(struct pci_dev *dev,
 				   struct msix_entry *entries, int minvec,
+<<<<<<< HEAD
 				   int maxvec, const struct irq_affinity *affd)
+=======
+				   int maxvec, struct irq_affinity *affd,
+				   int flags)
+>>>>>>> upstream/android-13
 {
 	int rc, nvec = maxvec;
 
@@ -1097,7 +1620,11 @@ static int __pci_enable_msix_range(struct pci_dev *dev,
 				return -ENOSPC;
 		}
 
+<<<<<<< HEAD
 		rc = __pci_enable_msix(dev, entries, nvec, affd);
+=======
+		rc = __pci_enable_msix(dev, entries, nvec, affd, flags);
+>>>>>>> upstream/android-13
 		if (rc == 0)
 			return nvec;
 
@@ -1114,8 +1641,13 @@ static int __pci_enable_msix_range(struct pci_dev *dev,
  * pci_enable_msix_range - configure device's MSI-X capability structure
  * @dev: pointer to the pci_dev data structure of MSI-X device function
  * @entries: pointer to an array of MSI-X entries
+<<<<<<< HEAD
  * @minvec: minimum number of MSI-X irqs requested
  * @maxvec: maximum number of MSI-X irqs requested
+=======
+ * @minvec: minimum number of MSI-X IRQs requested
+ * @maxvec: maximum number of MSI-X IRQs requested
+>>>>>>> upstream/android-13
  *
  * Setup the MSI-X capability structure of device function with a maximum
  * possible number of interrupts in the range between @minvec and @maxvec
@@ -1128,7 +1660,11 @@ static int __pci_enable_msix_range(struct pci_dev *dev,
 int pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries,
 		int minvec, int maxvec)
 {
+<<<<<<< HEAD
 	return __pci_enable_msix_range(dev, entries, minvec, maxvec, NULL);
+=======
+	return __pci_enable_msix_range(dev, entries, minvec, maxvec, NULL, 0);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_enable_msix_range);
 
@@ -1152,11 +1688,18 @@ EXPORT_SYMBOL(pci_enable_msix_range);
  */
 int pci_alloc_irq_vectors_affinity(struct pci_dev *dev, unsigned int min_vecs,
 				   unsigned int max_vecs, unsigned int flags,
+<<<<<<< HEAD
 				   const struct irq_affinity *affd)
 {
 	static const struct irq_affinity msi_default_affd;
 	int msix_vecs = -ENOSPC;
 	int msi_vecs = -ENOSPC;
+=======
+				   struct irq_affinity *affd)
+{
+	struct irq_affinity msi_default_affd = {0};
+	int nvecs = -ENOSPC;
+>>>>>>> upstream/android-13
 
 	if (flags & PCI_IRQ_AFFINITY) {
 		if (!affd)
@@ -1167,6 +1710,7 @@ int pci_alloc_irq_vectors_affinity(struct pci_dev *dev, unsigned int min_vecs,
 	}
 
 	if (flags & PCI_IRQ_MSIX) {
+<<<<<<< HEAD
 		msix_vecs = __pci_enable_msix_range(dev, NULL, min_vecs,
 						    max_vecs, affd);
 		if (msix_vecs > 0)
@@ -1183,14 +1727,42 @@ int pci_alloc_irq_vectors_affinity(struct pci_dev *dev, unsigned int min_vecs,
 	/* use legacy irq if allowed */
 	if (flags & PCI_IRQ_LEGACY) {
 		if (min_vecs == 1 && dev->irq) {
+=======
+		nvecs = __pci_enable_msix_range(dev, NULL, min_vecs, max_vecs,
+						affd, flags);
+		if (nvecs > 0)
+			return nvecs;
+	}
+
+	if (flags & PCI_IRQ_MSI) {
+		nvecs = __pci_enable_msi_range(dev, min_vecs, max_vecs, affd);
+		if (nvecs > 0)
+			return nvecs;
+	}
+
+	/* use legacy IRQ if allowed */
+	if (flags & PCI_IRQ_LEGACY) {
+		if (min_vecs == 1 && dev->irq) {
+			/*
+			 * Invoke the affinity spreading logic to ensure that
+			 * the device driver can adjust queue configuration
+			 * for the single interrupt case.
+			 */
+			if (affd)
+				irq_create_affinity_masks(1, affd);
+>>>>>>> upstream/android-13
 			pci_intx(dev, 1);
 			return 1;
 		}
 	}
 
+<<<<<<< HEAD
 	if (msix_vecs == -ENOSPC)
 		return -ENOSPC;
 	return msi_vecs;
+=======
+	return nvecs;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_alloc_irq_vectors_affinity);
 
@@ -1209,19 +1781,38 @@ EXPORT_SYMBOL(pci_free_irq_vectors);
 
 /**
  * pci_irq_vector - return Linux IRQ number of a device vector
+<<<<<<< HEAD
  * @dev: PCI device to operate on
  * @nr: device-relative interrupt vector index (0-based).
+=======
+ * @dev:	PCI device to operate on
+ * @nr:		Interrupt vector index (0-based)
+ *
+ * @nr has the following meanings depending on the interrupt mode:
+ *   MSI-X:	The index in the MSI-X vector table
+ *   MSI:	The index of the enabled MSI vectors
+ *   INTx:	Must be 0
+ *
+ * Return: The Linux interrupt number or -EINVAl if @nr is out of range.
+>>>>>>> upstream/android-13
  */
 int pci_irq_vector(struct pci_dev *dev, unsigned int nr)
 {
 	if (dev->msix_enabled) {
 		struct msi_desc *entry;
+<<<<<<< HEAD
 		int i = 0;
 
 		for_each_pci_msi_entry(entry, dev) {
 			if (i == nr)
 				return entry->irq;
 			i++;
+=======
+
+		for_each_pci_msi_entry(entry, dev) {
+			if (entry->msi_attrib.entry_nr == nr)
+				return entry->irq;
+>>>>>>> upstream/android-13
 		}
 		WARN_ON_ONCE(1);
 		return -EINVAL;
@@ -1242,20 +1833,40 @@ int pci_irq_vector(struct pci_dev *dev, unsigned int nr)
 EXPORT_SYMBOL(pci_irq_vector);
 
 /**
+<<<<<<< HEAD
  * pci_irq_get_affinity - return the affinity of a particular msi vector
  * @dev:	PCI device to operate on
  * @nr:		device-relative interrupt vector index (0-based).
+=======
+ * pci_irq_get_affinity - return the affinity of a particular MSI vector
+ * @dev:	PCI device to operate on
+ * @nr:		device-relative interrupt vector index (0-based).
+ *
+ * @nr has the following meanings depending on the interrupt mode:
+ *   MSI-X:	The index in the MSI-X vector table
+ *   MSI:	The index of the enabled MSI vectors
+ *   INTx:	Must be 0
+ *
+ * Return: A cpumask pointer or NULL if @nr is out of range
+>>>>>>> upstream/android-13
  */
 const struct cpumask *pci_irq_get_affinity(struct pci_dev *dev, int nr)
 {
 	if (dev->msix_enabled) {
 		struct msi_desc *entry;
+<<<<<<< HEAD
 		int i = 0;
 
 		for_each_pci_msi_entry(entry, dev) {
 			if (i == nr)
 				return entry->affinity;
 			i++;
+=======
+
+		for_each_pci_msi_entry(entry, dev) {
+			if (entry->msi_attrib.entry_nr == nr)
+				return &entry->affinity->mask;
+>>>>>>> upstream/android-13
 		}
 		WARN_ON_ONCE(1);
 		return NULL;
@@ -1266,13 +1877,18 @@ const struct cpumask *pci_irq_get_affinity(struct pci_dev *dev, int nr)
 				 nr >= entry->nvec_used))
 			return NULL;
 
+<<<<<<< HEAD
 		return &entry->affinity[nr];
+=======
+		return &entry->affinity[nr].mask;
+>>>>>>> upstream/android-13
 	} else {
 		return cpu_possible_mask;
 	}
 }
 EXPORT_SYMBOL(pci_irq_get_affinity);
 
+<<<<<<< HEAD
 /**
  * pci_irq_get_node - return the numa node of a particular msi vector
  * @pdev:	PCI device to operate on
@@ -1289,6 +1905,8 @@ int pci_irq_get_node(struct pci_dev *pdev, int vec)
 }
 EXPORT_SYMBOL(pci_irq_get_node);
 
+=======
+>>>>>>> upstream/android-13
 struct pci_dev *msi_desc_to_pci_dev(struct msi_desc *desc)
 {
 	return to_pci_dev(desc->dev);
@@ -1323,6 +1941,7 @@ void pci_msi_domain_write_msg(struct irq_data *irq_data, struct msi_msg *msg)
 
 /**
  * pci_msi_domain_calc_hwirq - Generate a unique ID for an MSI source
+<<<<<<< HEAD
  * @dev:	Pointer to the PCI device
  * @desc:	Pointer to the msi descriptor
  *
@@ -1333,6 +1952,18 @@ irq_hw_number_t pci_msi_domain_calc_hwirq(struct pci_dev *dev,
 {
 	return (irq_hw_number_t)desc->msi_attrib.entry_nr |
 		PCI_DEVID(dev->bus->number, dev->devfn) << 11 |
+=======
+ * @desc:	Pointer to the MSI descriptor
+ *
+ * The ID number is only used within the irqdomain.
+ */
+static irq_hw_number_t pci_msi_domain_calc_hwirq(struct msi_desc *desc)
+{
+	struct pci_dev *dev = msi_desc_to_pci_dev(desc);
+
+	return (irq_hw_number_t)desc->msi_attrib.entry_nr |
+		pci_dev_id(dev) << 11 |
+>>>>>>> upstream/android-13
 		(pci_domain_nr(dev->bus) & 0xFFFFFFFF) << 27;
 }
 
@@ -1342,7 +1973,12 @@ static inline bool pci_msi_desc_is_multi_msi(struct msi_desc *desc)
 }
 
 /**
+<<<<<<< HEAD
  * pci_msi_domain_check_cap - Verify that @domain supports the capabilities for @dev
+=======
+ * pci_msi_domain_check_cap - Verify that @domain supports the capabilities
+ * 			      for @dev
+>>>>>>> upstream/android-13
  * @domain:	The interrupt domain to check
  * @info:	The domain info for verification
  * @dev:	The device to check
@@ -1377,17 +2013,25 @@ static int pci_msi_domain_handle_error(struct irq_domain *domain,
 	return error;
 }
 
+<<<<<<< HEAD
 #ifdef GENERIC_MSI_DOMAIN_OPS
+=======
+>>>>>>> upstream/android-13
 static void pci_msi_domain_set_desc(msi_alloc_info_t *arg,
 				    struct msi_desc *desc)
 {
 	arg->desc = desc;
+<<<<<<< HEAD
 	arg->hwirq = pci_msi_domain_calc_hwirq(msi_desc_to_pci_dev(desc),
 					       desc);
 }
 #else
 #define pci_msi_domain_set_desc		NULL
 #endif
+=======
+	arg->hwirq = pci_msi_domain_calc_hwirq(desc);
+}
+>>>>>>> upstream/android-13
 
 static struct msi_domain_ops pci_msi_domain_ops_default = {
 	.set_desc	= pci_msi_domain_set_desc,
@@ -1502,13 +2146,22 @@ static int get_msi_id_cb(struct pci_dev *pdev, u16 alias, void *data)
 u32 pci_msi_domain_get_msi_rid(struct irq_domain *domain, struct pci_dev *pdev)
 {
 	struct device_node *of_node;
+<<<<<<< HEAD
 	u32 rid = PCI_DEVID(pdev->bus->number, pdev->devfn);
+=======
+	u32 rid = pci_dev_id(pdev);
+>>>>>>> upstream/android-13
 
 	pci_for_each_dma_alias(pdev, get_msi_id_cb, &rid);
 
 	of_node = irq_domain_get_of_node(domain);
+<<<<<<< HEAD
 	rid = of_node ? of_msi_map_rid(&pdev->dev, of_node, rid) :
 			iort_msi_map_rid(&pdev->dev, rid);
+=======
+	rid = of_node ? of_msi_map_id(&pdev->dev, of_node, rid) :
+			iort_msi_map_id(&pdev->dev, rid);
+>>>>>>> upstream/android-13
 
 	return rid;
 }
@@ -1525,6 +2178,7 @@ u32 pci_msi_domain_get_msi_rid(struct irq_domain *domain, struct pci_dev *pdev)
 struct irq_domain *pci_msi_get_device_domain(struct pci_dev *pdev)
 {
 	struct irq_domain *dom;
+<<<<<<< HEAD
 	u32 rid = PCI_DEVID(pdev->bus->number, pdev->devfn);
 
 	pci_for_each_dma_alias(pdev, get_msi_id_cb, &rid);
@@ -1534,3 +2188,74 @@ struct irq_domain *pci_msi_get_device_domain(struct pci_dev *pdev)
 	return dom;
 }
 #endif /* CONFIG_PCI_MSI_IRQ_DOMAIN */
+=======
+	u32 rid = pci_dev_id(pdev);
+
+	pci_for_each_dma_alias(pdev, get_msi_id_cb, &rid);
+	dom = of_msi_map_get_device_domain(&pdev->dev, rid, DOMAIN_BUS_PCI_MSI);
+	if (!dom)
+		dom = iort_get_device_domain(&pdev->dev, rid,
+					     DOMAIN_BUS_PCI_MSI);
+	return dom;
+}
+
+/**
+ * pci_dev_has_special_msi_domain - Check whether the device is handled by
+ *				    a non-standard PCI-MSI domain
+ * @pdev:	The PCI device to check.
+ *
+ * Returns: True if the device irqdomain or the bus irqdomain is
+ * non-standard PCI/MSI.
+ */
+bool pci_dev_has_special_msi_domain(struct pci_dev *pdev)
+{
+	struct irq_domain *dom = dev_get_msi_domain(&pdev->dev);
+
+	if (!dom)
+		dom = dev_get_msi_domain(&pdev->bus->dev);
+
+	if (!dom)
+		return true;
+
+	return dom->bus_token != DOMAIN_BUS_PCI_MSI;
+}
+
+#endif /* CONFIG_PCI_MSI_IRQ_DOMAIN */
+#endif /* CONFIG_PCI_MSI */
+
+void pci_msi_init(struct pci_dev *dev)
+{
+	u16 ctrl;
+
+	/*
+	 * Disable the MSI hardware to avoid screaming interrupts
+	 * during boot.  This is the power on reset default so
+	 * usually this should be a noop.
+	 */
+	dev->msi_cap = pci_find_capability(dev, PCI_CAP_ID_MSI);
+	if (!dev->msi_cap)
+		return;
+
+	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, &ctrl);
+	if (ctrl & PCI_MSI_FLAGS_ENABLE)
+		pci_write_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS,
+				      ctrl & ~PCI_MSI_FLAGS_ENABLE);
+
+	if (!(ctrl & PCI_MSI_FLAGS_64BIT))
+		dev->no_64bit_msi = 1;
+}
+
+void pci_msix_init(struct pci_dev *dev)
+{
+	u16 ctrl;
+
+	dev->msix_cap = pci_find_capability(dev, PCI_CAP_ID_MSIX);
+	if (!dev->msix_cap)
+		return;
+
+	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &ctrl);
+	if (ctrl & PCI_MSIX_FLAGS_ENABLE)
+		pci_write_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS,
+				      ctrl & ~PCI_MSIX_FLAGS_ENABLE);
+}
+>>>>>>> upstream/android-13

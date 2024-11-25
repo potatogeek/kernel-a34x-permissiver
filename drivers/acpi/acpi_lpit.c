@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /*
  * acpi_lpit.c - LPIT table processing functions
  *
  * Copyright (C) 2017 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu.h>
@@ -112,7 +119,11 @@ static void lpit_update_residency(struct lpit_residency_info *info,
 
 	info->gaddr = lpit_native->residency_counter;
 	if (info->gaddr.space_id == ACPI_ADR_SPACE_SYSTEM_MEMORY) {
+<<<<<<< HEAD
 		info->iomem_addr = ioremap_nocache(info->gaddr.address,
+=======
+		info->iomem_addr = ioremap(info->gaddr.address,
+>>>>>>> upstream/android-13
 						   info->gaddr.bit_width / 8);
 		if (!info->iomem_addr)
 			return;
@@ -137,7 +148,11 @@ static void lpit_update_residency(struct lpit_residency_info *info,
 
 static void lpit_process(u64 begin, u64 end)
 {
+<<<<<<< HEAD
 	while (begin + sizeof(struct acpi_lpit_native) < end) {
+=======
+	while (begin + sizeof(struct acpi_lpit_native) <= end) {
+>>>>>>> upstream/android-13
 		struct acpi_lpit_native *lpit_native = (struct acpi_lpit_native *)begin;
 
 		if (!lpit_native->header.type && !lpit_native->header.flags) {
@@ -156,6 +171,7 @@ static void lpit_process(u64 begin, u64 end)
 void acpi_init_lpit(void)
 {
 	acpi_status status;
+<<<<<<< HEAD
 	u64 lpit_begin;
 	struct acpi_table_lpit *lpit;
 
@@ -166,4 +182,16 @@ void acpi_init_lpit(void)
 
 	lpit_begin = (u64)lpit + sizeof(*lpit);
 	lpit_process(lpit_begin, lpit_begin + lpit->header.length);
+=======
+	struct acpi_table_lpit *lpit;
+
+	status = acpi_get_table(ACPI_SIG_LPIT, 0, (struct acpi_table_header **)&lpit);
+	if (ACPI_FAILURE(status))
+		return;
+
+	lpit_process((u64)lpit + sizeof(*lpit),
+		     (u64)lpit + lpit->header.length);
+
+	acpi_put_table((struct acpi_table_header *)lpit);
+>>>>>>> upstream/android-13
 }

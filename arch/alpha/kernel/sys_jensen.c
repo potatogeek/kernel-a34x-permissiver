@@ -7,7 +7,16 @@
  *
  * Code supporting the Jensen.
  */
+<<<<<<< HEAD
 
+=======
+#define __EXTERN_INLINE
+#include <asm/io.h>
+#include <asm/jensen.h>
+#undef  __EXTERN_INLINE
+
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/mm.h>
@@ -17,6 +26,7 @@
 
 #include <asm/ptrace.h>
 
+<<<<<<< HEAD
 #define __EXTERN_INLINE inline
 #include <asm/io.h>
 #include <asm/jensen.h>
@@ -26,6 +36,11 @@
 #include <asm/irq.h>
 #include <asm/mmu_context.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/dma.h>
+#include <asm/irq.h>
+#include <asm/mmu_context.h>
+>>>>>>> upstream/android-13
 #include <asm/tlbflush.h>
 
 #include "proto.h"

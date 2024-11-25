@@ -27,7 +27,11 @@ What is a GPIO?
 ===============
 
 A "General Purpose Input/Output" (GPIO) is a flexible software-controlled
+<<<<<<< HEAD
 digital signal. They are provided from many kinds of chip, and are familiar
+=======
+digital signal. They are provided from many kinds of chips, and are familiar
+>>>>>>> upstream/android-13
 to Linux developers working with embedded and custom hardware. Each GPIO
 represents a bit connected to a particular pin, or "ball" on Ball Grid Array
 (BGA) packages. Board schematics show which external hardware connects to
@@ -106,11 +110,19 @@ don't. When you need open drain signaling but your hardware doesn't directly
 support it, there's a common idiom you can use to emulate it with any GPIO pin
 that can be used as either an input or an output:
 
+<<<<<<< HEAD
  LOW:	gpiod_direction_output(gpio, 0) ... this drives the signal and overrides
 	the pullup.
 
  HIGH:	gpiod_direction_input(gpio) ... this turns off the output, so the pullup
 	(or some other device) controls the signal.
+=======
+ **LOW**: ``gpiod_direction_output(gpio, 0)`` ... this drives the signal and
+ overrides the pullup.
+
+ **HIGH**: ``gpiod_direction_input(gpio)`` ... this turns off the output, so
+ the pullup (or some other device) controls the signal.
+>>>>>>> upstream/android-13
 
 The same logic can be applied to emulate open source signaling, by driving the
 high signal and configuring the GPIO as input for low. This open drain/open

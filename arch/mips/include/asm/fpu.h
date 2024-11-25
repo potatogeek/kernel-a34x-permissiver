@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 MontaVista Software Inc.
  * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2002 MontaVista Software Inc.
+ * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
+>>>>>>> upstream/android-13
  */
 #ifndef _ASM_FPU_H
 #define _ASM_FPU_H
@@ -30,6 +37,7 @@
 #include <asm/mips_mt.h>
 #endif
 
+<<<<<<< HEAD
 struct sigcontext;
 struct sigcontext32;
 
@@ -37,6 +45,8 @@ extern void _init_fpu(unsigned int);
 extern void _save_fp(struct task_struct *);
 extern void _restore_fp(struct task_struct *);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This enum specifies a mode in which we want the FPU to operate, for cores
  * which implement the Status.FR bit. Note that the bottom bit of the value
@@ -51,6 +61,14 @@ enum fpu_mode {
 #define FPU_FR_MASK		0x1
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_MIPS_FP_SUPPORT
+
+extern void _save_fp(struct task_struct *);
+extern void _restore_fp(struct task_struct *);
+
+>>>>>>> upstream/android-13
 #define __disable_fpu()							\
 do {									\
 	clear_c0_status(ST0_CU1);					\
@@ -77,12 +95,21 @@ static inline int __enable_fpu(enum fpu_mode mode)
 		goto fr_common;
 
 	case FPU_64BIT:
+<<<<<<< HEAD
 #if !(defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR6) \
       || defined(CONFIG_64BIT))
 		/* we only have a 32-bit FPU */
 		return SIGFPE;
 #endif
 		/* fall through */
+=======
+#if !(defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR5) || \
+      defined(CONFIG_CPU_MIPSR6) || defined(CONFIG_64BIT))
+		/* we only have a 32-bit FPU */
+		return SIGFPE;
+#endif
+		/* fallthrough */
+>>>>>>> upstream/android-13
 	case FPU_32BIT:
 		if (cpu_has_fre) {
 			/* clear FRE */
@@ -198,6 +225,7 @@ static inline void lose_fpu(int save)
 	preempt_enable();
 }
 
+<<<<<<< HEAD
 static inline int init_fpu(void)
 {
 	unsigned int fcr31 = current->thread.fpu.fcr31;
@@ -234,6 +262,38 @@ static inline int init_fpu(void)
 		fpu_emulator_init_fpu();
 
 	return ret;
+=======
+/**
+ * init_fp_ctx() - Initialize task FP context
+ * @target: The task whose FP context should be initialized.
+ *
+ * Initializes the FP context of the target task to sane default values if that
+ * target task does not already have valid FP context. Once the context has
+ * been initialized, the task will be marked as having used FP & thus having
+ * valid FP context.
+ *
+ * Returns: true if context is initialized, else false.
+ */
+static inline bool init_fp_ctx(struct task_struct *target)
+{
+	/* If FP has been used then the target already has context */
+	if (tsk_used_math(target))
+		return false;
+
+	/* Begin with data registers set to all 1s... */
+	memset(&target->thread.fpu.fpr, ~0, sizeof(target->thread.fpu.fpr));
+
+	/* FCSR has been preset by `mips_set_personality_nan'.  */
+
+	/*
+	 * Record that the target has "used" math, such that the context
+	 * just initialised, and any modifications made by the caller,
+	 * aren't discarded.
+	 */
+	set_stopped_child_used_math(target);
+
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static inline void save_fp(struct task_struct *tsk)
@@ -260,4 +320,84 @@ static inline union fpureg *get_fpu_regs(struct task_struct *tsk)
 	return tsk->thread.fpu.fpr;
 }
 
+<<<<<<< HEAD
+=======
+#else /* !CONFIG_MIPS_FP_SUPPORT */
+
+/*
+ * When FP support is disabled we provide only a minimal set of stub functions
+ * to avoid callers needing to care too much about CONFIG_MIPS_FP_SUPPORT.
+ */
+
+static inline int __enable_fpu(enum fpu_mode mode)
+{
+	return SIGILL;
+}
+
+static inline void __disable_fpu(void)
+{
+	/* no-op */
+}
+
+
+static inline int is_fpu_owner(void)
+{
+	return 0;
+}
+
+static inline void clear_fpu_owner(void)
+{
+	/* no-op */
+}
+
+static inline int own_fpu_inatomic(int restore)
+{
+	return SIGILL;
+}
+
+static inline int own_fpu(int restore)
+{
+	return SIGILL;
+}
+
+static inline void lose_fpu_inatomic(int save, struct task_struct *tsk)
+{
+	/* no-op */
+}
+
+static inline void lose_fpu(int save)
+{
+	/* no-op */
+}
+
+static inline bool init_fp_ctx(struct task_struct *target)
+{
+	return false;
+}
+
+/*
+ * The following functions should only be called in paths where we know that FP
+ * support is enabled, typically a path where own_fpu() or __enable_fpu() have
+ * returned successfully. When CONFIG_MIPS_FP_SUPPORT=n it is known at compile
+ * time that this should never happen, so calls to these functions should be
+ * optimized away & never actually be emitted.
+ */
+
+extern void save_fp(struct task_struct *tsk)
+	__compiletime_error("save_fp() should not be called when CONFIG_MIPS_FP_SUPPORT=n");
+
+extern void _save_fp(struct task_struct *)
+	__compiletime_error("_save_fp() should not be called when CONFIG_MIPS_FP_SUPPORT=n");
+
+extern void restore_fp(struct task_struct *tsk)
+	__compiletime_error("restore_fp() should not be called when CONFIG_MIPS_FP_SUPPORT=n");
+
+extern void _restore_fp(struct task_struct *)
+	__compiletime_error("_restore_fp() should not be called when CONFIG_MIPS_FP_SUPPORT=n");
+
+extern union fpureg *get_fpu_regs(struct task_struct *tsk)
+	__compiletime_error("get_fpu_regs() should not be called when CONFIG_MIPS_FP_SUPPORT=n");
+
+#endif /* !CONFIG_MIPS_FP_SUPPORT */
+>>>>>>> upstream/android-13
 #endif /* _ASM_FPU_H */

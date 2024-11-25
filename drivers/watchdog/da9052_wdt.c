@@ -150,13 +150,22 @@ static const struct watchdog_ops da9052_wdt_ops = {
 
 static int da9052_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct da9052 *da9052 = dev_get_drvdata(pdev->dev.parent);
+=======
+	struct device *dev = &pdev->dev;
+	struct da9052 *da9052 = dev_get_drvdata(dev->parent);
+>>>>>>> upstream/android-13
 	struct da9052_wdt_data *driver_data;
 	struct watchdog_device *da9052_wdt;
 	int ret;
 
+<<<<<<< HEAD
 	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
 				   GFP_KERNEL);
+=======
+	driver_data = devm_kzalloc(dev, sizeof(*driver_data), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!driver_data)
 		return -ENOMEM;
 	driver_data->da9052 = da9052;
@@ -166,12 +175,17 @@ static int da9052_wdt_probe(struct platform_device *pdev)
 	da9052_wdt->timeout = DA9052_DEF_TIMEOUT;
 	da9052_wdt->info = &da9052_wdt_info;
 	da9052_wdt->ops = &da9052_wdt_ops;
+<<<<<<< HEAD
 	da9052_wdt->parent = &pdev->dev;
+=======
+	da9052_wdt->parent = dev;
+>>>>>>> upstream/android-13
 	watchdog_set_drvdata(da9052_wdt, driver_data);
 
 	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
 				DA9052_CONTROLD_TWDSCALE, 0);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to disable watchdog bits, %d\n",
 			ret);
 		return ret;
@@ -185,6 +199,13 @@ static int da9052_wdt_probe(struct platform_device *pdev)
 	}
 
 	return ret;
+=======
+		dev_err(dev, "Failed to disable watchdog bits, %d\n", ret);
+		return ret;
+	}
+
+	return devm_watchdog_register_device(dev, &driver_data->wdt);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver da9052_wdt_driver = {

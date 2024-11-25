@@ -204,7 +204,11 @@ int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 	if (!(filp->f_mode & FMODE_WRITE))
 		ro = 1;
 
+<<<<<<< HEAD
 	inode = file_inode(filp);
+=======
+	inode = filp->f_mapping->host;
+>>>>>>> upstream/android-13
 	if ((!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))) {
 		LINFO(curlun, "invalid file type: %s\n", filename);
 		goto out;
@@ -221,7 +225,11 @@ int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 	if (!(filp->f_mode & FMODE_CAN_WRITE))
 		ro = 1;
 
+<<<<<<< HEAD
 	size = i_size_read(inode->i_mapping->host);
+=======
+	size = i_size_read(inode);
+>>>>>>> upstream/android-13
 	if (size < 0) {
 		LINFO(curlun, "unable to find file size: %s\n", filename);
 		rc = (int) size;
@@ -231,8 +239,13 @@ int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 	if (curlun->cdrom) {
 		blksize = 2048;
 		blkbits = 11;
+<<<<<<< HEAD
 	} else if (inode->i_bdev) {
 		blksize = bdev_logical_block_size(inode->i_bdev);
+=======
+	} else if (S_ISBLK(inode->i_mode)) {
+		blksize = bdev_logical_block_size(I_BDEV(inode));
+>>>>>>> upstream/android-13
 		blkbits = blksize_bits(blksize);
 	} else {
 		blksize = 512;
@@ -441,6 +454,7 @@ ssize_t fsg_store_file(struct fsg_lun *curlun, struct rw_semaphore *filesem,
 		return -EBUSY;				/* "Door is locked" */
 	}
 
+<<<<<<< HEAD
 	pr_notice("%s file=%s, count=%d, curlun->cdrom=%d\n",
 			__func__, buf, (int)count, curlun->cdrom);
 
@@ -464,6 +478,8 @@ ssize_t fsg_store_file(struct fsg_lun *curlun, struct rw_semaphore *filesem,
 			fsg_lun_is_open(curlun))
 		((char *) buf)[0] = 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* Remove a trailing newline */
 	if (count > 0 && buf[count-1] == '\n')
 		((char *) buf)[count-1] = 0;		/* Ugh! */
@@ -543,3 +559,7 @@ ssize_t fsg_store_inquiry_string(struct fsg_lun *curlun, const char *buf,
 EXPORT_SYMBOL_GPL(fsg_store_inquiry_string);
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+>>>>>>> upstream/android-13

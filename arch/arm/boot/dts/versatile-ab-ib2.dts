@@ -10,7 +10,11 @@
 	model = "ARM Versatile AB + IB2 board";
 
 	/* Special IB2 control register */
+<<<<<<< HEAD
 	ib2_syscon@27000000 {
+=======
+	syscon@27000000 {
+>>>>>>> upstream/android-13
 		compatible = "arm,versatile-ib2-syscon", "syscon", "simple-mfd";
 		reg = <0x27000000 0x4>;
 

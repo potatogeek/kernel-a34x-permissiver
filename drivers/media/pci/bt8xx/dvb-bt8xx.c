@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Bt8xx based DVB adapter driver
  *
  * Copyright (C) 2002,2003 Florian Schirmer <jolt@tuxbox.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -49,9 +56,16 @@ DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 
 #define IF_FREQUENCYx6 217    /* 6 * 36.16666666667MHz */
 
+<<<<<<< HEAD
 static void dvb_bt8xx_task(unsigned long data)
 {
 	struct dvb_bt8xx_card *card = (struct dvb_bt8xx_card *)data;
+=======
+static void dvb_bt8xx_task(struct tasklet_struct *t)
+{
+	struct bt878 *bt = from_tasklet(bt, t, tasklet);
+	struct dvb_bt8xx_card *card = dev_get_drvdata(&bt->adapter->dev);
+>>>>>>> upstream/android-13
 
 	dprintk("%d\n", card->bt->finished_block);
 
@@ -403,7 +417,11 @@ static struct mt352_config advbt771_samsung_tdtc9251dh0_config = {
 	.demod_init = advbt771_samsung_tdtc9251dh0_demod_init,
 };
 
+<<<<<<< HEAD
 static struct dst_config dst_config = {
+=======
+static const struct dst_config dst_config = {
+>>>>>>> upstream/android-13
 	.demod_address = 0x55,
 };
 
@@ -787,7 +805,11 @@ static int dvb_bt8xx_load_card(struct dvb_bt8xx_card *card, u32 type)
 		goto err_disconnect_frontend;
 	}
 
+<<<<<<< HEAD
 	tasklet_init(&card->bt->tasklet, dvb_bt8xx_task, (unsigned long) card);
+=======
+	tasklet_setup(&card->bt->tasklet, dvb_bt8xx_task);
+>>>>>>> upstream/android-13
 
 	frontend_init(card, type);
 
@@ -819,7 +841,12 @@ static int dvb_bt8xx_probe(struct bttv_sub_device *sub)
 
 	mutex_init(&card->lock);
 	card->bttv_nr = sub->core->nr;
+<<<<<<< HEAD
 	strlcpy(card->card_name, sub->core->v4l2_dev.name, sizeof(card->card_name));
+=======
+	strscpy(card->card_name, sub->core->v4l2_dev.name,
+		sizeof(card->card_name));
+>>>>>>> upstream/android-13
 	card->i2c_adapter = &sub->core->i2c_adap;
 
 	switch(sub->core->type) {

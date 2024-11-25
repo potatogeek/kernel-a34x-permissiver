@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/landisk/gio.c - driver for landisk
  *
@@ -6,11 +10,14 @@
  *
  *   Copylight (C) 2006 kogiidena
  *   Copylight (C) 2002 Atom Create Engineering Co., Ltd. *
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -31,11 +38,18 @@ static int openCnt;
 
 static int gio_open(struct inode *inode, struct file *filp)
 {
+<<<<<<< HEAD
 	int minor;
 	int ret = -ENOENT;
 
 	preempt_disable();
 	minor = MINOR(inode->i_rdev);
+=======
+	int minor = iminor(inode);
+	int ret = -ENOENT;
+
+	preempt_disable();
+>>>>>>> upstream/android-13
 	if (minor < DEVCOUNT) {
 		if (openCnt > 0) {
 			ret = -EALREADY;
@@ -50,9 +64,14 @@ static int gio_open(struct inode *inode, struct file *filp)
 
 static int gio_close(struct inode *inode, struct file *filp)
 {
+<<<<<<< HEAD
 	int minor;
 
 	minor = MINOR(inode->i_rdev);
+=======
+	int minor = iminor(inode);
+
+>>>>>>> upstream/android-13
 	if (minor < DEVCOUNT) {
 		openCnt--;
 	}

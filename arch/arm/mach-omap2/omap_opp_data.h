@@ -1,7 +1,11 @@
 /*
  * OMAP SoC specific OPP Data helpers
  *
+<<<<<<< HEAD
  * Copyright (C) 2009-2010 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2009-2010 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *	Nishanth Menon
  *	Kevin Hilman
  * Copyright (C) 2010 Nokia Corporation.

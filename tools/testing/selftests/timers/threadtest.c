@@ -76,7 +76,11 @@ void checklist(struct timespec *list, int size)
 
 /* The shared thread shares a global list
  * that each thread fills while holding the lock.
+<<<<<<< HEAD
  * This stresses clock syncronization across cpus.
+=======
+ * This stresses clock synchronization across cpus.
+>>>>>>> upstream/android-13
  */
 void *shared_thread(void *arg)
 {

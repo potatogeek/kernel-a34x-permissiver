@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     Samsung S5H1411 VSB/QAM demodulator driver
 
     Copyright (C) 2008 Steven Toth <stoth@linuxtv.org>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -410,7 +417,11 @@ static int s5h1411_set_if_freq(struct dvb_frontend *fe, int KHz)
 	default:
 		dprintk("%s(%d KHz) Invalid, defaulting to 5380\n",
 			__func__, KHz);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 5380:
 	case 44000:
 		s5h1411_writereg(state, S5H1411_I2C_TOP_ADDR, 0x38, 0x1be4);

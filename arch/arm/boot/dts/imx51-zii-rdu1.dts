@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Zodiac Inflight Innovations
  *
@@ -37,6 +38,11 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2017 Zodiac Inflight Innovations
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -253,8 +259,13 @@
 		simple-audio-card,widgets =
 			"Headphone", "Headphone Jack";
 		simple-audio-card,routing =
+<<<<<<< HEAD
 			"Headphone Jack", "HPLEFT",
 			"Headphone Jack", "HPRIGHT";
+=======
+			"Headphone Jack", "TPA6130A2 HPLEFT",
+			"Headphone Jack", "TPA6130A2 HPRIGHT";
+>>>>>>> upstream/android-13
 		simple-audio-card,aux-devs = <&hpa1>;
 
 		sound_cpu: simple-audio-card,cpu {
@@ -487,7 +498,11 @@
 			  "", "", "", "",
 			  "", "", "", "";
 
+<<<<<<< HEAD
 	unused-sd3-wp-gpio {
+=======
+	unused-sd3-wp-hog {
+>>>>>>> upstream/android-13
 		/*
 		 * See pinctrl_esdhc1 below for more details on this
 		 */
@@ -502,16 +517,23 @@
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
+<<<<<<< HEAD
 	eeprom@50 {
 		compatible = "atmel,24c04";
 		pagesize = <16>;
 		reg = <0x50>;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	hpa1: amp@60 {
 		compatible = "ti,tpa6130a2";
 		reg = <0x60>;
 		Vdd-supply = <&reg_3p3v>;
+<<<<<<< HEAD
+=======
+		sound-name-prefix = "TPA6130A2";
+>>>>>>> upstream/android-13
 	};
 
 	ds1341: rtc@68 {

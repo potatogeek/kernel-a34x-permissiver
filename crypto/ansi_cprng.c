@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PRNG: Pseudo Random Number Generator
  *       Based on NIST Recommended PRNG From ANSI X9.31 Appendix A.2.4 using
  *       AES 128 cipher
  *
  *  (C) Neil Horman <nhorman@tuxdriver.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -13,6 +18,11 @@
  *
  */
 
+=======
+ */
+
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/rng.h>
 #include <linux/err.h>
 #include <linux/init.h>
@@ -472,7 +482,15 @@ MODULE_DESCRIPTION("Software Pseudo Random Number Generator");
 MODULE_AUTHOR("Neil Horman <nhorman@tuxdriver.com>");
 module_param(dbg, int, 0);
 MODULE_PARM_DESC(dbg, "Boolean to enable debugging (0/1 == off/on)");
+<<<<<<< HEAD
 module_init(prng_mod_init);
 module_exit(prng_mod_fini);
 MODULE_ALIAS_CRYPTO("stdrng");
 MODULE_ALIAS_CRYPTO("ansi_cprng");
+=======
+subsys_initcall(prng_mod_init);
+module_exit(prng_mod_fini);
+MODULE_ALIAS_CRYPTO("stdrng");
+MODULE_ALIAS_CRYPTO("ansi_cprng");
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

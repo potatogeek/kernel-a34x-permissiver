@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2012 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2007-2012 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef VPORT_H
@@ -33,7 +39,11 @@
 struct vport;
 struct vport_parms;
 
+<<<<<<< HEAD
 /* The following definitions are for users of the vport subsytem: */
+=======
+/* The following definitions are for users of the vport subsystem: */
+>>>>>>> upstream/android-13
 
 int ovs_vport_init(void);
 void ovs_vport_exit(void);

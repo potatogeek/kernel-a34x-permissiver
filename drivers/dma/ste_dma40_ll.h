@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2007-2010
  * Author: Per Friden <per.friden@stericsson.com> for ST-Ericsson SA
  * Author: Jonas Aaberg <jonas.aberg@stericsson.com> for ST-Ericsson SA
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef STE_DMA40_LL_H
 #define STE_DMA40_LL_H

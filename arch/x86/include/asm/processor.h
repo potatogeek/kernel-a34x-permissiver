@@ -7,6 +7,10 @@
 /* Forward declaration, a strange C thing */
 struct task_struct;
 struct mm_struct;
+<<<<<<< HEAD
+=======
+struct io_bitmap;
+>>>>>>> upstream/android-13
 struct vm86;
 
 #include <asm/math_emu.h>
@@ -24,6 +28,10 @@ struct vm86;
 #include <asm/special_insns.h>
 #include <asm/fpu/types.h>
 #include <asm/unwind_hints.h>
+<<<<<<< HEAD
+=======
+#include <asm/vmxfeatures.h>
+>>>>>>> upstream/android-13
 #include <asm/vdso/processor.h>
 
 #include <linux/personality.h>
@@ -43,6 +51,7 @@ struct vm86;
 #define NET_IP_ALIGN	0
 
 #define HBP_NUM 4
+<<<<<<< HEAD
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
@@ -55,6 +64,8 @@ static inline void *current_text_addr(void)
 
 	return pc;
 }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * These alignment constraints are for performance in the vSMP case,
@@ -97,6 +108,12 @@ struct cpuinfo_x86 {
 	/* Number of 4K pages in DTLB/ITLB combined(in pages): */
 	int			x86_tlbsize;
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_VMX_FEATURE_NAMES
+	__u32			vmx_capability[NVMXINTS];
+#endif
+>>>>>>> upstream/android-13
 	__u8			x86_virt_bits;
 	__u8			x86_phys_bits;
 	/* CPUID returned core id bits: */
@@ -106,12 +123,25 @@ struct cpuinfo_x86 {
 	__u32			extended_cpuid_level;
 	/* Maximum supported CPUID level, -1=no CPUID: */
 	int			cpuid_level;
+<<<<<<< HEAD
 	__u32			x86_capability[NCAPINTS + NBUGINTS];
+=======
+	/*
+	 * Align to size of unsigned long because the x86_capability array
+	 * is passed to bitops which require the alignment. Use unnamed
+	 * union to enforce the array is aligned to size of unsigned long.
+	 */
+	union {
+		__u32		x86_capability[NCAPINTS + NBUGINTS];
+		unsigned long	x86_capability_alignment;
+	};
+>>>>>>> upstream/android-13
 	char			x86_vendor_id[16];
 	char			x86_model_id[64];
 	/* in KB - valid for CPUS which support this call: */
 	unsigned int		x86_cache_size;
 	int			x86_cache_alignment;	/* In bytes */
+<<<<<<< HEAD
 	/* Cache QoS architectural values: */
 	int			x86_cache_max_rmid;	/* max index */
 	int			x86_cache_occ_scale;	/* scale to bytes */
@@ -119,6 +149,16 @@ struct cpuinfo_x86 {
 	unsigned long		loops_per_jiffy;
 	/* cpuid returned max cores value: */
 	u16			 x86_max_cores;
+=======
+	/* Cache QoS architectural values, valid only on the BSP: */
+	int			x86_cache_max_rmid;	/* max index */
+	int			x86_cache_occ_scale;	/* scale to bytes */
+	int			x86_cache_mbm_width_offset;
+	int			x86_power;
+	unsigned long		loops_per_jiffy;
+	/* cpuid returned max cores value: */
+	u16			x86_max_cores;
+>>>>>>> upstream/android-13
 	u16			apicid;
 	u16			initial_apicid;
 	u16			x86_clflush_size;
@@ -130,8 +170,17 @@ struct cpuinfo_x86 {
 	u16			logical_proc_id;
 	/* Core id: */
 	u16			cpu_core_id;
+<<<<<<< HEAD
 	/* Index into per_cpu list: */
 	u16			cpu_index;
+=======
+	u16			cpu_die_id;
+	u16			logical_die_id;
+	/* Index into per_cpu list: */
+	u16			cpu_index;
+	/*  Is SMT active on this core? */
+	bool			smt_active;
+>>>>>>> upstream/android-13
 	u32			microcode;
 	/* Address space bits used by the cache internally */
 	u8			x86_cache_bits;
@@ -156,7 +205,13 @@ enum cpuid_regs_idx {
 #define X86_VENDOR_CENTAUR	5
 #define X86_VENDOR_TRANSMETA	7
 #define X86_VENDOR_NSC		8
+<<<<<<< HEAD
 #define X86_VENDOR_NUM		9
+=======
+#define X86_VENDOR_HYGON	9
+#define X86_VENDOR_ZHAOXIN	10
+#define X86_VENDOR_NUM		11
+>>>>>>> upstream/android-13
 
 #define X86_VENDOR_UNKNOWN	0xff
 
@@ -166,7 +221,10 @@ enum cpuid_regs_idx {
 extern struct cpuinfo_x86	boot_cpu_data;
 extern struct cpuinfo_x86	new_cpu_data;
 
+<<<<<<< HEAD
 extern struct x86_hw_tss	doublefault_tss;
+=======
+>>>>>>> upstream/android-13
 extern __u32			cpu_caps_cleared[NCAPINTS + NBUGINTS];
 extern __u32			cpu_caps_set[NCAPINTS + NBUGINTS];
 
@@ -309,6 +367,7 @@ struct x86_hw_tss {
 struct x86_hw_tss {
 	u32			reserved1;
 	u64			sp0;
+<<<<<<< HEAD
 
 	/*
 	 * We store cpu_current_top_of_stack in sp1 so it's always accessible.
@@ -317,6 +376,17 @@ struct x86_hw_tss {
 	u64			sp1;
 
 	u64			sp2;
+=======
+	u64			sp1;
+
+	/*
+	 * Since Linux does not use ring 2, the 'sp2' slot is unused by
+	 * hardware.  entry_SYSCALL_64 uses it as scratch space to stash
+	 * the user RSP value.
+	 */
+	u64			sp2;
+
+>>>>>>> upstream/android-13
 	u64			reserved2;
 	u64			ist[7];
 	u32			reserved3;
@@ -331,10 +401,39 @@ struct x86_hw_tss {
  * IO-bitmap sizes:
  */
 #define IO_BITMAP_BITS			65536
+<<<<<<< HEAD
 #define IO_BITMAP_BYTES			(IO_BITMAP_BITS/8)
 #define IO_BITMAP_LONGS			(IO_BITMAP_BYTES/sizeof(long))
 #define IO_BITMAP_OFFSET		(offsetof(struct tss_struct, io_bitmap) - offsetof(struct tss_struct, x86_tss))
 #define INVALID_IO_BITMAP_OFFSET	0x8000
+=======
+#define IO_BITMAP_BYTES			(IO_BITMAP_BITS / BITS_PER_BYTE)
+#define IO_BITMAP_LONGS			(IO_BITMAP_BYTES / sizeof(long))
+
+#define IO_BITMAP_OFFSET_VALID_MAP				\
+	(offsetof(struct tss_struct, io_bitmap.bitmap) -	\
+	 offsetof(struct tss_struct, x86_tss))
+
+#define IO_BITMAP_OFFSET_VALID_ALL				\
+	(offsetof(struct tss_struct, io_bitmap.mapall) -	\
+	 offsetof(struct tss_struct, x86_tss))
+
+#ifdef CONFIG_X86_IOPL_IOPERM
+/*
+ * sizeof(unsigned long) coming from an extra "long" at the end of the
+ * iobitmap. The limit is inclusive, i.e. the last valid byte.
+ */
+# define __KERNEL_TSS_LIMIT	\
+	(IO_BITMAP_OFFSET_VALID_ALL + IO_BITMAP_BYTES + \
+	 sizeof(unsigned long) - 1)
+#else
+# define __KERNEL_TSS_LIMIT	\
+	(offsetof(struct tss_struct, x86_tss) + sizeof(struct x86_hw_tss) - 1)
+#endif
+
+/* Base offset outside of TSS_LIMIT so unpriviledged IO causes #GP */
+#define IO_BITMAP_OFFSET_INVALID	(__KERNEL_TSS_LIMIT + 1)
+>>>>>>> upstream/android-13
 
 struct entry_stack {
 	char	stack[PAGE_SIZE];
@@ -344,6 +443,40 @@ struct entry_stack_page {
 	struct entry_stack stack;
 } __aligned(PAGE_SIZE);
 
+<<<<<<< HEAD
+=======
+/*
+ * All IO bitmap related data stored in the TSS:
+ */
+struct x86_io_bitmap {
+	/* The sequence number of the last active bitmap. */
+	u64			prev_sequence;
+
+	/*
+	 * Store the dirty size of the last io bitmap offender. The next
+	 * one will have to do the cleanup as the switch out to a non io
+	 * bitmap user will just set x86_tss.io_bitmap_base to a value
+	 * outside of the TSS limit. So for sane tasks there is no need to
+	 * actually touch the io_bitmap at all.
+	 */
+	unsigned int		prev_max;
+
+	/*
+	 * The extra 1 is there because the CPU will access an
+	 * additional byte beyond the end of the IO permission
+	 * bitmap. The extra byte must be all 1 bits, and must
+	 * be within the limit.
+	 */
+	unsigned long		bitmap[IO_BITMAP_LONGS + 1];
+
+	/*
+	 * Special I/O bitmap to emulate IOPL(3). All bytes zero,
+	 * except the additional byte at the end.
+	 */
+	unsigned long		mapall[IO_BITMAP_LONGS + 1];
+};
+
+>>>>>>> upstream/android-13
 struct tss_struct {
 	/*
 	 * The fixed hardware portion.  This must not cross a page boundary
@@ -352,6 +485,7 @@ struct tss_struct {
 	 */
 	struct x86_hw_tss	x86_tss;
 
+<<<<<<< HEAD
 	/*
 	 * The extra 1 is there because the CPU will access an
 	 * additional byte beyond the end of the IO permission
@@ -359,10 +493,14 @@ struct tss_struct {
 	 * be within the limit.
 	 */
 	unsigned long		io_bitmap[IO_BITMAP_LONGS + 1];
+=======
+	struct x86_io_bitmap	io_bitmap;
+>>>>>>> upstream/android-13
 } __aligned(PAGE_SIZE);
 
 DECLARE_PER_CPU_PAGE_ALIGNED(struct tss_struct, cpu_tss_rw);
 
+<<<<<<< HEAD
 /*
  * sizeof(unsigned long) coming from an extra "long" at the end
  * of the iobitmap.
@@ -392,10 +530,22 @@ DECLARE_PER_CPU(struct orig_ist, orig_ist);
 
 union irq_stack_union {
 	char irq_stack[IRQ_STACK_SIZE];
+=======
+/* Per CPU interrupt stacks */
+struct irq_stack {
+	char		stack[IRQ_STACK_SIZE];
+} __aligned(IRQ_STACK_SIZE);
+
+DECLARE_PER_CPU(unsigned long, cpu_current_top_of_stack);
+
+#ifdef CONFIG_X86_64
+struct fixed_percpu_data {
+>>>>>>> upstream/android-13
 	/*
 	 * GCC hardcodes the stack canary as %gs:40.  Since the
 	 * irq_stack is the object at %gs:0, we reserve the bottom
 	 * 48 bytes of the irq stack for the canary.
+<<<<<<< HEAD
 	 */
 	struct {
 		char gs_base[40];
@@ -443,16 +593,50 @@ struct irq_stack {
 DECLARE_PER_CPU(struct irq_stack *, hardirq_stack);
 DECLARE_PER_CPU(struct irq_stack *, softirq_stack);
 #endif	/* X86_64 */
+=======
+	 *
+	 * Once we are willing to require -mstack-protector-guard-symbol=
+	 * support for x86_64 stackprotector, we can get rid of this.
+	 */
+	char		gs_base[40];
+	unsigned long	stack_canary;
+};
+
+DECLARE_PER_CPU_FIRST(struct fixed_percpu_data, fixed_percpu_data) __visible;
+DECLARE_INIT_PER_CPU(fixed_percpu_data);
+
+static inline unsigned long cpu_kernelmode_gs_base(int cpu)
+{
+	return (unsigned long)per_cpu(fixed_percpu_data.gs_base, cpu);
+}
+
+DECLARE_PER_CPU(void *, hardirq_stack_ptr);
+DECLARE_PER_CPU(bool, hardirq_stack_inuse);
+extern asmlinkage void ignore_sysret(void);
+
+/* Save actual FS/GS selectors and bases to current->thread */
+void current_save_fsgs(void);
+#else	/* X86_64 */
+#ifdef CONFIG_STACKPROTECTOR
+DECLARE_PER_CPU(unsigned long, __stack_chk_guard);
+#endif
+DECLARE_PER_CPU(struct irq_stack *, hardirq_stack_ptr);
+DECLARE_PER_CPU(struct irq_stack *, softirq_stack_ptr);
+#endif	/* !X86_64 */
+>>>>>>> upstream/android-13
 
 extern unsigned int fpu_kernel_xstate_size;
 extern unsigned int fpu_user_xstate_size;
 
 struct perf_event;
 
+<<<<<<< HEAD
 typedef struct {
 	unsigned long		seg;
 } mm_segment_t;
 
+=======
+>>>>>>> upstream/android-13
 struct thread_struct {
 	/* Cached TLS descriptors: */
 	struct desc_struct	tls_array[GDT_ENTRY_TLS_ENTRIES];
@@ -484,7 +668,11 @@ struct thread_struct {
 	/* Save middle states of ptrace breakpoints */
 	struct perf_event	*ptrace_bps[HBP_NUM];
 	/* Debug status used for traps, single steps, etc... */
+<<<<<<< HEAD
 	unsigned long           debugreg6;
+=======
+	unsigned long           virtual_dr6;
+>>>>>>> upstream/android-13
 	/* Keep track of the exact dr7 value set by the user */
 	unsigned long           ptrace_dr7;
 	/* Fault info: */
@@ -496,6 +684,7 @@ struct thread_struct {
 	struct vm86		*vm86;
 #endif
 	/* IO permissions: */
+<<<<<<< HEAD
 	unsigned long		*io_bitmap_ptr;
 	unsigned long		iopl;
 	/* Max allowed port in the bitmap, in bytes: */
@@ -505,6 +694,28 @@ struct thread_struct {
 
 	unsigned int		sig_on_uaccess_err:1;
 	unsigned int		uaccess_err:1;	/* uaccess failed */
+=======
+	struct io_bitmap	*io_bitmap;
+
+	/*
+	 * IOPL. Privilege level dependent I/O permission which is
+	 * emulated via the I/O bitmap to prevent user space from disabling
+	 * interrupts.
+	 */
+	unsigned long		iopl_emul;
+
+	unsigned int		iopl_warn:1;
+	unsigned int		sig_on_uaccess_err:1;
+
+	/*
+	 * Protection Keys Register for Userspace.  Loaded immediately on
+	 * context switch. Store it in thread_struct to avoid a lookup in
+	 * the tasks's FPU xstate buffer. This value is only valid when a
+	 * task is scheduled out. For 'current' the authoritative source of
+	 * PKRU is the hardware itself.
+	 */
+	u32			pkru;
+>>>>>>> upstream/android-13
 
 	/* Floating point and extended processor state */
 	struct fpu		fpu;
@@ -522,6 +733,7 @@ static inline void arch_thread_struct_whitelist(unsigned long *offset,
 	*size = fpu_kernel_xstate_size;
 }
 
+<<<<<<< HEAD
 /*
  * Set IOPL bits in EFLAGS from given mask
  */
@@ -541,13 +753,19 @@ static inline void native_set_iopl_mask(unsigned mask)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void
 native_load_sp0(unsigned long sp0)
 {
 	this_cpu_write(cpu_tss_rw.x86_tss.sp0, sp0);
 }
 
+<<<<<<< HEAD
 static inline void native_swapgs(void)
+=======
+static __always_inline void native_swapgs(void)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_X86_64
 	asm volatile("swapgs" ::: "memory");
@@ -570,7 +788,11 @@ static inline bool on_thread_stack(void)
 			       current_stack_pointer) < THREAD_SIZE;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
+=======
+#ifdef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 #include <asm/paravirt.h>
 #else
 #define __cpuid			native_cpuid
@@ -580,8 +802,12 @@ static inline void load_sp0(unsigned long sp0)
 	native_load_sp0(sp0);
 }
 
+<<<<<<< HEAD
 #define set_iopl_mask native_set_iopl_mask
 #endif /* CONFIG_PARAVIRT */
+=======
+#endif /* CONFIG_PARAVIRT_XXL */
+>>>>>>> upstream/android-13
 
 /* Free all resources held by a thread. */
 extern void release_thread(struct task_struct *);
@@ -651,6 +877,7 @@ static inline unsigned int cpuid_edx(unsigned int op)
 	return edx;
 }
 
+<<<<<<< HEAD
 /*
  * This function forces the icache and prefetched instruction stream to
  * catch up with reality in two very specific cases:
@@ -717,6 +944,8 @@ static inline void sync_core(void)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 extern void select_idle_routine(const struct cpuinfo_x86 *c);
 extern void amd_e400_c1e_apic_setup(void);
 
@@ -728,7 +957,10 @@ enum idle_boot_override {IDLE_NO_OVERRIDE=0, IDLE_HALT, IDLE_NOMWAIT,
 extern void enable_sep_cpu(void);
 extern int sysenter_setup(void);
 
+<<<<<<< HEAD
 void early_trap_pf_init(void);
+=======
+>>>>>>> upstream/android-13
 
 /* Defined in head.S */
 extern struct desc_ptr		early_gdt_descr;
@@ -738,6 +970,12 @@ extern void load_direct_gdt(int);
 extern void load_fixmap_gdt(int);
 extern void load_percpu_segment(int);
 extern void cpu_init(void);
+<<<<<<< HEAD
+=======
+extern void cpu_init_secondary(void);
+extern void cpu_init_exception_handling(void);
+extern void cr4_init(void);
+>>>>>>> upstream/android-13
 
 static inline unsigned long get_debugctlmsr(void)
 {
@@ -798,7 +1036,11 @@ static inline void prefetch(const void *x)
  * Useful for spinlocks to avoid one state transition in the
  * cache coherency protocol:
  */
+<<<<<<< HEAD
 static inline void prefetchw(const void *x)
+=======
+static __always_inline void prefetchw(const void *x)
+>>>>>>> upstream/android-13
 {
 	alternative_input(BASE_PREFETCH, "prefetchw %P1",
 			  X86_FEATURE_3DNOWPREFETCH,
@@ -823,6 +1065,7 @@ static inline void spin_lock_prefetch(const void *x)
 })
 
 #ifdef CONFIG_X86_32
+<<<<<<< HEAD
 /*
  * User space process size: 3GB (default).
  */
@@ -839,11 +1082,17 @@ static inline void spin_lock_prefetch(const void *x)
 	.sysenter_cs		= __KERNEL_CS,				  \
 	.io_bitmap_ptr		= NULL,					  \
 	.addr_limit		= KERNEL_DS,				  \
+=======
+#define INIT_THREAD  {							  \
+	.sp0			= TOP_OF_INIT_STACK,			  \
+	.sysenter_cs		= __KERNEL_CS,				  \
+>>>>>>> upstream/android-13
 }
 
 #define KSTK_ESP(task)		(task_pt_regs(task)->sp)
 
 #else
+<<<<<<< HEAD
 /*
  * User space process size.  This is the first address outside the user range.
  * There are a few constraints that determine this:
@@ -885,6 +1134,9 @@ static inline void spin_lock_prefetch(const void *x)
 #define INIT_THREAD  {						\
 	.addr_limit		= KERNEL_DS,			\
 }
+=======
+#define INIT_THREAD { }
+>>>>>>> upstream/android-13
 
 extern unsigned long KSTK_ESP(struct task_struct *task);
 
@@ -911,6 +1163,7 @@ extern int set_tsc_mode(unsigned int val);
 
 DECLARE_PER_CPU(u64, msr_misc_features_shadow);
 
+<<<<<<< HEAD
 /* Register/unregister a process' MPX related resource */
 #define MPX_ENABLE_MANAGEMENT()	mpx_enable_management()
 #define MPX_DISABLE_MANAGEMENT()	mpx_disable_management()
@@ -935,6 +1188,16 @@ extern u32 amd_get_nodes_per_socket(void);
 #else
 static inline u16 amd_get_nb_id(int cpu)		{ return 0; }
 static inline u32 amd_get_nodes_per_socket(void)	{ return 0; }
+=======
+extern u16 get_llc_id(unsigned int cpu);
+
+#ifdef CONFIG_CPU_SUP_AMD
+extern u32 amd_get_nodes_per_socket(void);
+extern u32 amd_get_highest_perf(void);
+#else
+static inline u32 amd_get_nodes_per_socket(void)	{ return 0; }
+static inline u32 amd_get_highest_perf(void)		{ return 0; }
+>>>>>>> upstream/android-13
 #endif
 
 static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leaves)
@@ -953,8 +1216,13 @@ static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leaves)
 }
 
 extern unsigned long arch_align_stack(unsigned long sp);
+<<<<<<< HEAD
 extern void free_init_pages(char *what, unsigned long begin, unsigned long end);
 extern void free_kernel_image_pages(void *begin, void *end);
+=======
+void free_init_pages(const char *what, unsigned long begin, unsigned long end);
+extern void free_kernel_image_pages(const char *what, void *begin, void *end);
+>>>>>>> upstream/android-13
 
 void default_idle(void);
 #ifdef	CONFIG_XEN
@@ -964,7 +1232,10 @@ bool xen_set_default_idle(void);
 #endif
 
 void stop_this_cpu(void *dummy);
+<<<<<<< HEAD
 void df_debug(struct pt_regs *regs, long error_code);
+=======
+>>>>>>> upstream/android-13
 void microcode_check(void);
 
 enum l1tf_mitigations {
@@ -984,6 +1255,7 @@ enum mds_mitigations {
 	MDS_MITIGATION_VMWERV,
 };
 
+<<<<<<< HEAD
 enum taa_mitigations {
 	TAA_MITIGATION_OFF,
 	TAA_MITIGATION_UCODE_NEEDED,
@@ -991,4 +1263,6 @@ enum taa_mitigations {
 	TAA_MITIGATION_TSX_DISABLED,
 };
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_X86_PROCESSOR_H */

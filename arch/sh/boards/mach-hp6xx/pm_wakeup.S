@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2006 Andriy Skulysh <askulsyh@gmail.com>
  *
@@ -5,6 +6,11 @@
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0
+ *
+ * Copyright (c) 2006 Andriy Skulysh <askulsyh@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>

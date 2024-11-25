@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Interface to Linux block layer for MTD 'translation layers'.
  *
  * Copyright © 2003-2010 David Woodhouse <dwmw2@infradead.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -27,6 +34,10 @@
 #include <linux/mtd/blktrans.h>
 #include <linux/mtd/mtd.h>
 #include <linux/blkdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/blk-mq.h>
+>>>>>>> upstream/android-13
 #include <linux/blkpg.h>
 #include <linux/spinlock.h>
 #include <linux/hdreg.h>
@@ -36,20 +47,30 @@
 #include "mtdcore.h"
 
 static LIST_HEAD(blktrans_majors);
+<<<<<<< HEAD
 static DEFINE_MUTEX(blktrans_ref_mutex);
+=======
+>>>>>>> upstream/android-13
 
 static void blktrans_dev_release(struct kref *kref)
 {
 	struct mtd_blktrans_dev *dev =
 		container_of(kref, struct mtd_blktrans_dev, ref);
 
+<<<<<<< HEAD
 	dev->disk->private_data = NULL;
 	blk_cleanup_queue(dev->rq);
 	put_disk(dev->disk);
+=======
+	blk_cleanup_disk(dev->disk);
+	blk_mq_free_tag_set(dev->tag_set);
+	kfree(dev->tag_set);
+>>>>>>> upstream/android-13
 	list_del(&dev->list);
 	kfree(dev);
 }
 
+<<<<<<< HEAD
 static struct mtd_blktrans_dev *blktrans_dev_get(struct gendisk *disk)
 {
 	struct mtd_blktrans_dev *dev;
@@ -70,6 +91,11 @@ static void blktrans_dev_put(struct mtd_blktrans_dev *dev)
 	mutex_lock(&blktrans_ref_mutex);
 	kref_put(&dev->ref, blktrans_dev_release);
 	mutex_unlock(&blktrans_ref_mutex);
+=======
+static void blktrans_dev_put(struct mtd_blktrans_dev *dev)
+{
+	kref_put(&dev->ref, blktrans_dev_release);
+>>>>>>> upstream/android-13
 }
 
 
@@ -134,6 +160,7 @@ int mtd_blktrans_cease_background(struct mtd_blktrans_dev *dev)
 }
 EXPORT_SYMBOL_GPL(mtd_blktrans_cease_background);
 
+<<<<<<< HEAD
 static void mtd_blktrans_work(struct work_struct *work)
 {
 	struct mtd_blktrans_dev *dev =
@@ -145,10 +172,35 @@ static void mtd_blktrans_work(struct work_struct *work)
 
 	spin_lock_irq(rq->queue_lock);
 
+=======
+static struct request *mtd_next_request(struct mtd_blktrans_dev *dev)
+{
+	struct request *rq;
+
+	rq = list_first_entry_or_null(&dev->rq_list, struct request, queuelist);
+	if (rq) {
+		list_del_init(&rq->queuelist);
+		blk_mq_start_request(rq);
+		return rq;
+	}
+
+	return NULL;
+}
+
+static void mtd_blktrans_work(struct mtd_blktrans_dev *dev)
+	__releases(&dev->queue_lock)
+	__acquires(&dev->queue_lock)
+{
+	struct mtd_blktrans_ops *tr = dev->tr;
+	struct request *req = NULL;
+	int background_done = 0;
+
+>>>>>>> upstream/android-13
 	while (1) {
 		blk_status_t res;
 
 		dev->bg_stop = false;
+<<<<<<< HEAD
 		if (!req && !(req = blk_fetch_request(rq))) {
 			if (tr->background && !background_done) {
 				spin_unlock_irq(rq->queue_lock);
@@ -156,6 +208,15 @@ static void mtd_blktrans_work(struct work_struct *work)
 				tr->background(dev);
 				mutex_unlock(&dev->lock);
 				spin_lock_irq(rq->queue_lock);
+=======
+		if (!req && !(req = mtd_next_request(dev))) {
+			if (tr->background && !background_done) {
+				spin_unlock_irq(&dev->queue_lock);
+				mutex_lock(&dev->lock);
+				tr->background(dev);
+				mutex_unlock(&dev->lock);
+				spin_lock_irq(&dev->queue_lock);
+>>>>>>> upstream/android-13
 				/*
 				 * Do background processing just once per idle
 				 * period.
@@ -166,12 +227,17 @@ static void mtd_blktrans_work(struct work_struct *work)
 			break;
 		}
 
+<<<<<<< HEAD
 		spin_unlock_irq(rq->queue_lock);
+=======
+		spin_unlock_irq(&dev->queue_lock);
+>>>>>>> upstream/android-13
 
 		mutex_lock(&dev->lock);
 		res = do_blktrans_request(dev->tr, dev, req);
 		mutex_unlock(&dev->lock);
 
+<<<<<<< HEAD
 		spin_lock_irq(rq->queue_lock);
 
 		if (!__blk_end_request_cur(req, res))
@@ -195,10 +261,40 @@ static void mtd_blktrans_request(struct request_queue *rq)
 			__blk_end_request_all(req, BLK_STS_IOERR);
 	else
 		queue_work(dev->wq, &dev->work);
+=======
+		if (!blk_update_request(req, res, blk_rq_cur_bytes(req))) {
+			__blk_mq_end_request(req, res);
+			req = NULL;
+		}
+
+		background_done = 0;
+		spin_lock_irq(&dev->queue_lock);
+	}
+}
+
+static blk_status_t mtd_queue_rq(struct blk_mq_hw_ctx *hctx,
+				 const struct blk_mq_queue_data *bd)
+{
+	struct mtd_blktrans_dev *dev;
+
+	dev = hctx->queue->queuedata;
+	if (!dev) {
+		blk_mq_start_request(bd->rq);
+		return BLK_STS_IOERR;
+	}
+
+	spin_lock_irq(&dev->queue_lock);
+	list_add_tail(&bd->rq->queuelist, &dev->rq_list);
+	mtd_blktrans_work(dev);
+	spin_unlock_irq(&dev->queue_lock);
+
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 static int blktrans_open(struct block_device *bdev, fmode_t mode)
 {
+<<<<<<< HEAD
 	struct mtd_blktrans_dev *dev = blktrans_dev_get(bdev->bd_disk);
 	int ret = 0;
 
@@ -206,12 +302,22 @@ static int blktrans_open(struct block_device *bdev, fmode_t mode)
 		return -ERESTARTSYS; /* FIXME: busy loop! -arnd*/
 
 	mutex_lock(&mtd_table_mutex);
+=======
+	struct mtd_blktrans_dev *dev = bdev->bd_disk->private_data;
+	int ret = 0;
+
+	kref_get(&dev->ref);
+
+>>>>>>> upstream/android-13
 	mutex_lock(&dev->lock);
 
 	if (dev->open)
 		goto unlock;
 
+<<<<<<< HEAD
 	kref_get(&dev->ref);
+=======
+>>>>>>> upstream/android-13
 	__module_get(dev->tr->owner);
 
 	if (!dev->mtd)
@@ -231,8 +337,11 @@ static int blktrans_open(struct block_device *bdev, fmode_t mode)
 unlock:
 	dev->open++;
 	mutex_unlock(&dev->lock);
+<<<<<<< HEAD
 	mutex_unlock(&mtd_table_mutex);
 	blktrans_dev_put(dev);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 
 error_release:
@@ -240,27 +349,39 @@ error_release:
 		dev->tr->release(dev);
 error_put:
 	module_put(dev->tr->owner);
+<<<<<<< HEAD
 	kref_put(&dev->ref, blktrans_dev_release);
 	mutex_unlock(&dev->lock);
 	mutex_unlock(&mtd_table_mutex);
+=======
+	mutex_unlock(&dev->lock);
+>>>>>>> upstream/android-13
 	blktrans_dev_put(dev);
 	return ret;
 }
 
 static void blktrans_release(struct gendisk *disk, fmode_t mode)
 {
+<<<<<<< HEAD
 	struct mtd_blktrans_dev *dev = blktrans_dev_get(disk);
 
 	if (!dev)
 		return;
 
 	mutex_lock(&mtd_table_mutex);
+=======
+	struct mtd_blktrans_dev *dev = disk->private_data;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&dev->lock);
 
 	if (--dev->open)
 		goto unlock;
 
+<<<<<<< HEAD
 	kref_put(&dev->ref, blktrans_dev_release);
+=======
+>>>>>>> upstream/android-13
 	module_put(dev->tr->owner);
 
 	if (dev->mtd) {
@@ -270,18 +391,27 @@ static void blktrans_release(struct gendisk *disk, fmode_t mode)
 	}
 unlock:
 	mutex_unlock(&dev->lock);
+<<<<<<< HEAD
 	mutex_unlock(&mtd_table_mutex);
+=======
+>>>>>>> upstream/android-13
 	blktrans_dev_put(dev);
 }
 
 static int blktrans_getgeo(struct block_device *bdev, struct hd_geometry *geo)
 {
+<<<<<<< HEAD
 	struct mtd_blktrans_dev *dev = blktrans_dev_get(bdev->bd_disk);
 	int ret = -ENXIO;
 
 	if (!dev)
 		return ret;
 
+=======
+	struct mtd_blktrans_dev *dev = bdev->bd_disk->private_data;
+	int ret = -ENXIO;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&dev->lock);
 
 	if (!dev->mtd)
@@ -290,6 +420,7 @@ static int blktrans_getgeo(struct block_device *bdev, struct hd_geometry *geo)
 	ret = dev->tr->getgeo ? dev->tr->getgeo(dev, geo) : -ENOTTY;
 unlock:
 	mutex_unlock(&dev->lock);
+<<<<<<< HEAD
 	blktrans_dev_put(dev);
 	return ret;
 }
@@ -318,6 +449,8 @@ static int blktrans_ioctl(struct block_device *bdev, fmode_t mode,
 unlock:
 	mutex_unlock(&dev->lock);
 	blktrans_dev_put(dev);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -325,10 +458,20 @@ static const struct block_device_operations mtd_block_ops = {
 	.owner		= THIS_MODULE,
 	.open		= blktrans_open,
 	.release	= blktrans_release,
+<<<<<<< HEAD
 	.ioctl		= blktrans_ioctl,
 	.getgeo		= blktrans_getgeo,
 };
 
+=======
+	.getgeo		= blktrans_getgeo,
+};
+
+static const struct blk_mq_ops mtd_mq_ops = {
+	.queue_rq	= mtd_queue_rq,
+};
+
+>>>>>>> upstream/android-13
 int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 {
 	struct mtd_blktrans_ops *tr = new->tr;
@@ -337,12 +480,17 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 	struct gendisk *gd;
 	int ret;
 
+<<<<<<< HEAD
 	if (mutex_trylock(&mtd_table_mutex)) {
 		mutex_unlock(&mtd_table_mutex);
 		BUG();
 	}
 
 	mutex_lock(&blktrans_ref_mutex);
+=======
+	lockdep_assert_held(&mtd_table_mutex);
+
+>>>>>>> upstream/android-13
 	list_for_each_entry(d, &tr->devs, list) {
 		if (new->devnum == -1) {
 			/* Use first free number */
@@ -354,7 +502,10 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 			}
 		} else if (d->devnum == new->devnum) {
 			/* Required number taken */
+<<<<<<< HEAD
 			mutex_unlock(&blktrans_ref_mutex);
+=======
+>>>>>>> upstream/android-13
 			return -EBUSY;
 		} else if (d->devnum > new->devnum) {
 			/* Required number was free */
@@ -372,6 +523,7 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 	 * minor numbers and that the disk naming code below can cope
 	 * with this number. */
 	if (new->devnum > (MINORMASK >> tr->part_bits) ||
+<<<<<<< HEAD
 	    (tr->part_bits && new->devnum >= 27 * 26)) {
 		mutex_unlock(&blktrans_ref_mutex);
 		goto error1;
@@ -380,12 +532,20 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 	list_add_tail(&new->list, &tr->devs);
  added:
 	mutex_unlock(&blktrans_ref_mutex);
+=======
+	    (tr->part_bits && new->devnum >= 27 * 26))
+		return ret;
+
+	list_add_tail(&new->list, &tr->devs);
+ added:
+>>>>>>> upstream/android-13
 
 	mutex_init(&new->lock);
 	kref_init(&new->ref);
 	if (!tr->writesect)
 		new->readonly = 1;
 
+<<<<<<< HEAD
 	/* Create gendisk */
 	ret = -ENOMEM;
 	gd = alloc_disk(1 << tr->part_bits);
@@ -397,6 +557,31 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 	gd->private_data = new;
 	gd->major = tr->major;
 	gd->first_minor = (new->devnum) << tr->part_bits;
+=======
+	ret = -ENOMEM;
+	new->tag_set = kzalloc(sizeof(*new->tag_set), GFP_KERNEL);
+	if (!new->tag_set)
+		goto out_list_del;
+
+	ret = blk_mq_alloc_sq_tag_set(new->tag_set, &mtd_mq_ops, 2,
+			BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING);
+	if (ret)
+		goto out_kfree_tag_set;
+
+	/* Create gendisk */
+	gd = blk_mq_alloc_disk(new->tag_set, new);
+	if (IS_ERR(gd)) {
+		ret = PTR_ERR(gd);
+		goto out_free_tag_set;
+	}
+
+	new->disk = gd;
+	new->rq = new->disk->queue;
+	gd->private_data = new;
+	gd->major = tr->major;
+	gd->first_minor = (new->devnum) << tr->part_bits;
+	gd->minors = 1 << tr->part_bits;
+>>>>>>> upstream/android-13
 	gd->fops = &mtd_block_ops;
 
 	if (tr->part_bits)
@@ -416,15 +601,22 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 
 	/* Create the request queue */
 	spin_lock_init(&new->queue_lock);
+<<<<<<< HEAD
 	new->rq = blk_init_queue(mtd_blktrans_request, &new->queue_lock);
 
 	if (!new->rq)
 		goto error3;
+=======
+	INIT_LIST_HEAD(&new->rq_list);
+>>>>>>> upstream/android-13
 
 	if (tr->flush)
 		blk_queue_write_cache(new->rq, true, false);
 
+<<<<<<< HEAD
 	new->rq->queuedata = new;
+=======
+>>>>>>> upstream/android-13
 	blk_queue_logical_block_size(new->rq, tr->blksize);
 
 	blk_queue_flag_set(QUEUE_FLAG_NONROT, new->rq);
@@ -433,10 +625,15 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 	if (tr->discard) {
 		blk_queue_flag_set(QUEUE_FLAG_DISCARD, new->rq);
 		blk_queue_max_discard_sectors(new->rq, UINT_MAX);
+<<<<<<< HEAD
+=======
+		new->rq->limits.discard_granularity = tr->blksize;
+>>>>>>> upstream/android-13
 	}
 
 	gd->queue = new->rq;
 
+<<<<<<< HEAD
 	/* Create processing workqueue */
 	new->wq = alloc_workqueue("%s%d", 0, 0,
 				  tr->name, new->mtd->index);
@@ -448,6 +645,12 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 		set_disk_ro(gd, 1);
 
 	device_add_disk(&new->mtd->dev, gd);
+=======
+	if (new->readonly)
+		set_disk_ro(gd, 1);
+
+	device_add_disk(&new->mtd->dev, gd, NULL);
+>>>>>>> upstream/android-13
 
 	if (new->disk_attributes) {
 		ret = sysfs_create_group(&disk_to_dev(gd)->kobj,
@@ -455,6 +658,7 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
 		WARN_ON(ret);
 	}
 	return 0;
+<<<<<<< HEAD
 error4:
 	blk_cleanup_queue(new->rq);
 error3:
@@ -462,6 +666,15 @@ error3:
 error2:
 	list_del(&new->list);
 error1:
+=======
+
+out_free_tag_set:
+	blk_mq_free_tag_set(new->tag_set);
+out_kfree_tag_set:
+	kfree(new->tag_set);
+out_list_del:
+	list_del(&new->list);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -469,10 +682,14 @@ int del_mtd_blktrans_dev(struct mtd_blktrans_dev *old)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (mutex_trylock(&mtd_table_mutex)) {
 		mutex_unlock(&mtd_table_mutex);
 		BUG();
 	}
+=======
+	lockdep_assert_held(&mtd_table_mutex);
+>>>>>>> upstream/android-13
 
 	if (old->disk_attributes)
 		sysfs_remove_group(&disk_to_dev(old->disk)->kobj,
@@ -481,6 +698,7 @@ int del_mtd_blktrans_dev(struct mtd_blktrans_dev *old)
 	/* Stop new requests to arrive */
 	del_gendisk(old->disk);
 
+<<<<<<< HEAD
 	/* Stop workqueue. This will perform any pending request. */
 	destroy_workqueue(old->wq);
 
@@ -490,6 +708,19 @@ int del_mtd_blktrans_dev(struct mtd_blktrans_dev *old)
 	blk_start_queue(old->rq);
 	spin_unlock_irqrestore(&old->queue_lock, flags);
 
+=======
+	/* Kill current requests */
+	spin_lock_irqsave(&old->queue_lock, flags);
+	old->rq->queuedata = NULL;
+	spin_unlock_irqrestore(&old->queue_lock, flags);
+
+	/* freeze+quiesce queue to ensure all requests are flushed */
+	blk_mq_freeze_queue(old->rq);
+	blk_mq_quiesce_queue(old->rq);
+	blk_mq_unquiesce_queue(old->rq);
+	blk_mq_unfreeze_queue(old->rq);
+
+>>>>>>> upstream/android-13
 	/* If the device is currently open, tell trans driver to close it,
 		then put mtd device, and don't touch it again */
 	mutex_lock(&old->lock);
@@ -544,14 +775,20 @@ int register_mtd_blktrans(struct mtd_blktrans_ops *tr)
 	if (!blktrans_notifier.list.next)
 		register_mtd_user(&blktrans_notifier);
 
+<<<<<<< HEAD
 
 	mutex_lock(&mtd_table_mutex);
 
+=======
+>>>>>>> upstream/android-13
 	ret = register_blkdev(tr->major, tr->name);
 	if (ret < 0) {
 		printk(KERN_WARNING "Unable to register %s block device on major %d: %d\n",
 		       tr->name, tr->major, ret);
+<<<<<<< HEAD
 		mutex_unlock(&mtd_table_mutex);
+=======
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -561,12 +798,21 @@ int register_mtd_blktrans(struct mtd_blktrans_ops *tr)
 	tr->blkshift = ffs(tr->blksize) - 1;
 
 	INIT_LIST_HEAD(&tr->devs);
+<<<<<<< HEAD
 	list_add(&tr->list, &blktrans_majors);
 
 	mtd_for_each_device(mtd)
 		if (mtd->type != MTD_ABSENT)
 			tr->add_mtd(tr, mtd);
 
+=======
+
+	mutex_lock(&mtd_table_mutex);
+	list_add(&tr->list, &blktrans_majors);
+	mtd_for_each_device(mtd)
+		if (mtd->type != MTD_ABSENT)
+			tr->add_mtd(tr, mtd);
+>>>>>>> upstream/android-13
 	mutex_unlock(&mtd_table_mutex);
 	return 0;
 }
@@ -583,8 +829,13 @@ int deregister_mtd_blktrans(struct mtd_blktrans_ops *tr)
 	list_for_each_entry_safe(dev, next, &tr->devs, list)
 		tr->remove_dev(dev);
 
+<<<<<<< HEAD
 	unregister_blkdev(tr->major, tr->name);
 	mutex_unlock(&mtd_table_mutex);
+=======
+	mutex_unlock(&mtd_table_mutex);
+	unregister_blkdev(tr->major, tr->name);
+>>>>>>> upstream/android-13
 
 	BUG_ON(!list_empty(&tr->devs));
 	return 0;

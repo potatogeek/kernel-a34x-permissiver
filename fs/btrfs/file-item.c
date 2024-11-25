@@ -7,6 +7,12 @@
 #include <linux/slab.h>
 #include <linux/pagemap.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+#include <crypto/hash.h>
+#include "misc.h"
+>>>>>>> upstream/android-13
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
@@ -21,9 +27,116 @@
 #define MAX_CSUM_ITEMS(r, size) (min_t(u32, __MAX_CSUM_ITEMS(r, size), \
 				       PAGE_SIZE))
 
+<<<<<<< HEAD
 #define MAX_ORDERED_SUM_BYTES(fs_info) ((PAGE_SIZE - \
 				   sizeof(struct btrfs_ordered_sum)) / \
 				   sizeof(u32) * (fs_info)->sectorsize)
+=======
+/**
+ * Set inode's size according to filesystem options
+ *
+ * @inode:      inode we want to update the disk_i_size for
+ * @new_i_size: i_size we want to set to, 0 if we use i_size
+ *
+ * With NO_HOLES set this simply sets the disk_is_size to whatever i_size_read()
+ * returns as it is perfectly fine with a file that has holes without hole file
+ * extent items.
+ *
+ * However without NO_HOLES we need to only return the area that is contiguous
+ * from the 0 offset of the file.  Otherwise we could end up adjust i_size up
+ * to an extent that has a gap in between.
+ *
+ * Finally new_i_size should only be set in the case of truncate where we're not
+ * ready to use i_size_read() as the limiter yet.
+ */
+void btrfs_inode_safe_disk_i_size_write(struct btrfs_inode *inode, u64 new_i_size)
+{
+	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+	u64 start, end, i_size;
+	int ret;
+
+	i_size = new_i_size ?: i_size_read(&inode->vfs_inode);
+	if (btrfs_fs_incompat(fs_info, NO_HOLES)) {
+		inode->disk_i_size = i_size;
+		return;
+	}
+
+	spin_lock(&inode->lock);
+	ret = find_contiguous_extent_bit(&inode->file_extent_tree, 0, &start,
+					 &end, EXTENT_DIRTY);
+	if (!ret && start == 0)
+		i_size = min(i_size, end + 1);
+	else
+		i_size = 0;
+	inode->disk_i_size = i_size;
+	spin_unlock(&inode->lock);
+}
+
+/**
+ * Mark range within a file as having a new extent inserted
+ *
+ * @inode: inode being modified
+ * @start: start file offset of the file extent we've inserted
+ * @len:   logical length of the file extent item
+ *
+ * Call when we are inserting a new file extent where there was none before.
+ * Does not need to call this in the case where we're replacing an existing file
+ * extent, however if not sure it's fine to call this multiple times.
+ *
+ * The start and len must match the file extent item, so thus must be sectorsize
+ * aligned.
+ */
+int btrfs_inode_set_file_extent_range(struct btrfs_inode *inode, u64 start,
+				      u64 len)
+{
+	if (len == 0)
+		return 0;
+
+	ASSERT(IS_ALIGNED(start + len, inode->root->fs_info->sectorsize));
+
+	if (btrfs_fs_incompat(inode->root->fs_info, NO_HOLES))
+		return 0;
+	return set_extent_bits(&inode->file_extent_tree, start, start + len - 1,
+			       EXTENT_DIRTY);
+}
+
+/**
+ * Marks an inode range as not having a backing extent
+ *
+ * @inode: inode being modified
+ * @start: start file offset of the file extent we've inserted
+ * @len:   logical length of the file extent item
+ *
+ * Called when we drop a file extent, for example when we truncate.  Doesn't
+ * need to be called for cases where we're replacing a file extent, like when
+ * we've COWed a file extent.
+ *
+ * The start and len must match the file extent item, so thus must be sectorsize
+ * aligned.
+ */
+int btrfs_inode_clear_file_extent_range(struct btrfs_inode *inode, u64 start,
+					u64 len)
+{
+	if (len == 0)
+		return 0;
+
+	ASSERT(IS_ALIGNED(start + len, inode->root->fs_info->sectorsize) ||
+	       len == (u64)-1);
+
+	if (btrfs_fs_incompat(inode->root->fs_info, NO_HOLES))
+		return 0;
+	return clear_extent_bit(&inode->file_extent_tree, start,
+				start + len - 1, EXTENT_DIRTY, 0, 0, NULL);
+}
+
+static inline u32 max_ordered_sum_bytes(struct btrfs_fs_info *fs_info,
+					u16 csum_size)
+{
+	u32 ncsums = (PAGE_SIZE - sizeof(struct btrfs_ordered_sum)) / csum_size;
+
+	return ncsums * fs_info->sectorsize;
+}
+>>>>>>> upstream/android-13
 
 int btrfs_insert_file_extent(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *root,
@@ -45,7 +158,10 @@ int btrfs_insert_file_extent(struct btrfs_trans_handle *trans,
 	file_key.offset = pos;
 	file_key.type = BTRFS_EXTENT_DATA_KEY;
 
+<<<<<<< HEAD
 	path->leave_spinning = 1;
+=======
+>>>>>>> upstream/android-13
 	ret = btrfs_insert_empty_item(trans, root, path, &file_key,
 				      sizeof(*item));
 	if (ret < 0)
@@ -84,7 +200,11 @@ btrfs_lookup_csum(struct btrfs_trans_handle *trans,
 	struct btrfs_csum_item *item;
 	struct extent_buffer *leaf;
 	u64 csum_offset = 0;
+<<<<<<< HEAD
 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
+=======
+	const u32 csum_size = fs_info->csum_size;
+>>>>>>> upstream/android-13
 	int csums_in_item;
 
 	file_key.objectid = BTRFS_EXTENT_CSUM_OBJECTID;
@@ -104,7 +224,11 @@ btrfs_lookup_csum(struct btrfs_trans_handle *trans,
 			goto fail;
 
 		csum_offset = (bytenr - found_key.offset) >>
+<<<<<<< HEAD
 				fs_info->sb->s_blocksize_bits;
+=======
+				fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 		csums_in_item = btrfs_item_size_nr(leaf, path->slots[0]);
 		csums_in_item /= csum_size;
 
@@ -130,7 +254,10 @@ int btrfs_lookup_file_extent(struct btrfs_trans_handle *trans,
 			     struct btrfs_path *path, u64 objectid,
 			     u64 offset, int mod)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	struct btrfs_key file_key;
 	int ins_len = mod < 0 ? -1 : 0;
 	int cow = mod != 0;
@@ -138,6 +265,7 @@ int btrfs_lookup_file_extent(struct btrfs_trans_handle *trans,
 	file_key.objectid = objectid;
 	file_key.offset = offset;
 	file_key.type = BTRFS_EXTENT_DATA_KEY;
+<<<<<<< HEAD
 	ret = btrfs_search_slot(trans, root, &file_key, path, ins_len, cow);
 	return ret;
 }
@@ -168,10 +296,165 @@ static blk_status_t __btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio
 	int count = 0;
 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
 
+=======
+
+	return btrfs_search_slot(trans, root, &file_key, path, ins_len, cow);
+}
+
+/*
+ * Find checksums for logical bytenr range [disk_bytenr, disk_bytenr + len) and
+ * estore the result to @dst.
+ *
+ * Return >0 for the number of sectors we found.
+ * Return 0 for the range [disk_bytenr, disk_bytenr + sectorsize) has no csum
+ * for it. Caller may want to try next sector until one range is hit.
+ * Return <0 for fatal error.
+ */
+static int search_csum_tree(struct btrfs_fs_info *fs_info,
+			    struct btrfs_path *path, u64 disk_bytenr,
+			    u64 len, u8 *dst)
+{
+	struct btrfs_csum_item *item = NULL;
+	struct btrfs_key key;
+	const u32 sectorsize = fs_info->sectorsize;
+	const u32 csum_size = fs_info->csum_size;
+	u32 itemsize;
+	int ret;
+	u64 csum_start;
+	u64 csum_len;
+
+	ASSERT(IS_ALIGNED(disk_bytenr, sectorsize) &&
+	       IS_ALIGNED(len, sectorsize));
+
+	/* Check if the current csum item covers disk_bytenr */
+	if (path->nodes[0]) {
+		item = btrfs_item_ptr(path->nodes[0], path->slots[0],
+				      struct btrfs_csum_item);
+		btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
+		itemsize = btrfs_item_size_nr(path->nodes[0], path->slots[0]);
+
+		csum_start = key.offset;
+		csum_len = (itemsize / csum_size) * sectorsize;
+
+		if (in_range(disk_bytenr, csum_start, csum_len))
+			goto found;
+	}
+
+	/* Current item doesn't contain the desired range, search again */
+	btrfs_release_path(path);
+	item = btrfs_lookup_csum(NULL, fs_info->csum_root, path, disk_bytenr, 0);
+	if (IS_ERR(item)) {
+		ret = PTR_ERR(item);
+		goto out;
+	}
+	btrfs_item_key_to_cpu(path->nodes[0], &key, path->slots[0]);
+	itemsize = btrfs_item_size_nr(path->nodes[0], path->slots[0]);
+
+	csum_start = key.offset;
+	csum_len = (itemsize / csum_size) * sectorsize;
+	ASSERT(in_range(disk_bytenr, csum_start, csum_len));
+
+found:
+	ret = (min(csum_start + csum_len, disk_bytenr + len) -
+		   disk_bytenr) >> fs_info->sectorsize_bits;
+	read_extent_buffer(path->nodes[0], dst, (unsigned long)item,
+			ret * csum_size);
+out:
+	if (ret == -ENOENT || ret == -EFBIG)
+		ret = 0;
+	return ret;
+}
+
+/*
+ * Locate the file_offset of @cur_disk_bytenr of a @bio.
+ *
+ * Bio of btrfs represents read range of
+ * [bi_sector << 9, bi_sector << 9 + bi_size).
+ * Knowing this, we can iterate through each bvec to locate the page belong to
+ * @cur_disk_bytenr and get the file offset.
+ *
+ * @inode is used to determine if the bvec page really belongs to @inode.
+ *
+ * Return 0 if we can't find the file offset
+ * Return >0 if we find the file offset and restore it to @file_offset_ret
+ */
+static int search_file_offset_in_bio(struct bio *bio, struct inode *inode,
+				     u64 disk_bytenr, u64 *file_offset_ret)
+{
+	struct bvec_iter iter;
+	struct bio_vec bvec;
+	u64 cur = bio->bi_iter.bi_sector << SECTOR_SHIFT;
+	int ret = 0;
+
+	bio_for_each_segment(bvec, bio, iter) {
+		struct page *page = bvec.bv_page;
+
+		if (cur > disk_bytenr)
+			break;
+		if (cur + bvec.bv_len <= disk_bytenr) {
+			cur += bvec.bv_len;
+			continue;
+		}
+		ASSERT(in_range(disk_bytenr, cur, bvec.bv_len));
+		if (page->mapping && page->mapping->host &&
+		    page->mapping->host == inode) {
+			ret = 1;
+			*file_offset_ret = page_offset(page) + bvec.bv_offset +
+					   disk_bytenr - cur;
+			break;
+		}
+	}
+	return ret;
+}
+
+/**
+ * Lookup the checksum for the read bio in csum tree.
+ *
+ * @inode: inode that the bio is for.
+ * @bio: bio to look up.
+ * @dst: Buffer of size nblocks * btrfs_super_csum_size() used to return
+ *       checksum (nblocks = bio->bi_iter.bi_size / fs_info->sectorsize). If
+ *       NULL, the checksum buffer is allocated and returned in
+ *       btrfs_io_bio(bio)->csum instead.
+ *
+ * Return: BLK_STS_RESOURCE if allocating memory fails, BLK_STS_OK otherwise.
+ */
+blk_status_t btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio, u8 *dst)
+{
+	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+	struct extent_io_tree *io_tree = &BTRFS_I(inode)->io_tree;
+	struct btrfs_path *path;
+	const u32 sectorsize = fs_info->sectorsize;
+	const u32 csum_size = fs_info->csum_size;
+	u32 orig_len = bio->bi_iter.bi_size;
+	u64 orig_disk_bytenr = bio->bi_iter.bi_sector << SECTOR_SHIFT;
+	u64 cur_disk_bytenr;
+	u8 *csum;
+	const unsigned int nblocks = orig_len >> fs_info->sectorsize_bits;
+	int count = 0;
+
+	if (!fs_info->csum_root || (BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM))
+		return BLK_STS_OK;
+
+	/*
+	 * This function is only called for read bio.
+	 *
+	 * This means two things:
+	 * - All our csums should only be in csum tree
+	 *   No ordered extents csums, as ordered extents are only for write
+	 *   path.
+	 * - No need to bother any other info from bvec
+	 *   Since we're looking up csums, the only important info is the
+	 *   disk_bytenr and the length, which can be extracted from bi_iter
+	 *   directly.
+	 */
+	ASSERT(bio_op(bio) == REQ_OP_READ);
+>>>>>>> upstream/android-13
 	path = btrfs_alloc_path();
 	if (!path)
 		return BLK_STS_RESOURCE;
 
+<<<<<<< HEAD
 	nblocks = bio->bi_iter.bi_size >> inode->i_sb->s_blocksize_bits;
 	if (!dst) {
 		if (nblocks * csum_size > BTRFS_BIO_INLINE_CSUM_SIZE) {
@@ -183,15 +466,38 @@ static blk_status_t __btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio
 			}
 			btrfs_bio->csum = btrfs_bio->csum_allocated;
 			btrfs_bio->end_io = btrfs_io_bio_endio_readpage;
+=======
+	if (!dst) {
+		struct btrfs_io_bio *btrfs_bio = btrfs_io_bio(bio);
+
+		if (nblocks * csum_size > BTRFS_BIO_INLINE_CSUM_SIZE) {
+			btrfs_bio->csum = kmalloc_array(nblocks, csum_size,
+							GFP_NOFS);
+			if (!btrfs_bio->csum) {
+				btrfs_free_path(path);
+				return BLK_STS_RESOURCE;
+			}
+>>>>>>> upstream/android-13
 		} else {
 			btrfs_bio->csum = btrfs_bio->csum_inline;
 		}
 		csum = btrfs_bio->csum;
 	} else {
+<<<<<<< HEAD
 		csum = (u8 *)dst;
 	}
 
 	if (bio->bi_iter.bi_size > PAGE_SIZE * 8)
+=======
+		csum = dst;
+	}
+
+	/*
+	 * If requested number of sectors is larger than one leaf can contain,
+	 * kick the readahead for csum tree.
+	 */
+	if (nblocks > fs_info->csums_per_leaf)
+>>>>>>> upstream/android-13
 		path->reada = READA_FORWARD;
 
 	/*
@@ -205,6 +511,7 @@ static blk_status_t __btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio
 		path->skip_locking = 1;
 	}
 
+<<<<<<< HEAD
 	disk_bytenr = (u64)bio->bi_iter.bi_sector << 9;
 	if (dio)
 		offset = logical_offset;
@@ -298,6 +605,66 @@ blk_status_t btrfs_lookup_bio_sums(struct inode *inode, struct bio *bio, u32 *ds
 blk_status_t btrfs_lookup_bio_sums_dio(struct inode *inode, struct bio *bio, u64 offset)
 {
 	return __btrfs_lookup_bio_sums(inode, bio, offset, NULL, 1);
+=======
+	for (cur_disk_bytenr = orig_disk_bytenr;
+	     cur_disk_bytenr < orig_disk_bytenr + orig_len;
+	     cur_disk_bytenr += (count * sectorsize)) {
+		u64 search_len = orig_disk_bytenr + orig_len - cur_disk_bytenr;
+		unsigned int sector_offset;
+		u8 *csum_dst;
+
+		/*
+		 * Although both cur_disk_bytenr and orig_disk_bytenr is u64,
+		 * we're calculating the offset to the bio start.
+		 *
+		 * Bio size is limited to UINT_MAX, thus unsigned int is large
+		 * enough to contain the raw result, not to mention the right
+		 * shifted result.
+		 */
+		ASSERT(cur_disk_bytenr - orig_disk_bytenr < UINT_MAX);
+		sector_offset = (cur_disk_bytenr - orig_disk_bytenr) >>
+				fs_info->sectorsize_bits;
+		csum_dst = csum + sector_offset * csum_size;
+
+		count = search_csum_tree(fs_info, path, cur_disk_bytenr,
+					 search_len, csum_dst);
+		if (count <= 0) {
+			/*
+			 * Either we hit a critical error or we didn't find
+			 * the csum.
+			 * Either way, we put zero into the csums dst, and skip
+			 * to the next sector.
+			 */
+			memset(csum_dst, 0, csum_size);
+			count = 1;
+
+			/*
+			 * For data reloc inode, we need to mark the range
+			 * NODATASUM so that balance won't report false csum
+			 * error.
+			 */
+			if (BTRFS_I(inode)->root->root_key.objectid ==
+			    BTRFS_DATA_RELOC_TREE_OBJECTID) {
+				u64 file_offset;
+				int ret;
+
+				ret = search_file_offset_in_bio(bio, inode,
+						cur_disk_bytenr, &file_offset);
+				if (ret)
+					set_extent_bits(io_tree, file_offset,
+						file_offset + sectorsize - 1,
+						EXTENT_NODATASUM);
+			} else {
+				btrfs_warn_rl(fs_info,
+			"csum hole found for disk bytenr range [%llu, %llu)",
+				cur_disk_bytenr, cur_disk_bytenr + sectorsize);
+			}
+		}
+	}
+
+	btrfs_free_path(path);
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
@@ -314,7 +681,11 @@ int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
 	int ret;
 	size_t size;
 	u64 csum_end;
+<<<<<<< HEAD
 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
+=======
+	const u32 csum_size = fs_info->csum_size;
+>>>>>>> upstream/android-13
 
 	ASSERT(IS_ALIGNED(start, fs_info->sectorsize) &&
 	       IS_ALIGNED(end + 1, fs_info->sectorsize));
@@ -341,8 +712,12 @@ int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
 		btrfs_item_key_to_cpu(leaf, &key, path->slots[0] - 1);
 		if (key.objectid == BTRFS_EXTENT_CSUM_OBJECTID &&
 		    key.type == BTRFS_EXTENT_CSUM_KEY) {
+<<<<<<< HEAD
 			offset = (start - key.offset) >>
 				 fs_info->sb->s_blocksize_bits;
+=======
+			offset = (start - key.offset) >> fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 			if (offset * csum_size <
 			    btrfs_item_size_nr(leaf, path->slots[0] - 1))
 				path->slots[0]--;
@@ -381,7 +756,11 @@ int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
 				      struct btrfs_csum_item);
 		while (start < csum_end) {
 			size = min_t(size_t, csum_end - start,
+<<<<<<< HEAD
 				     MAX_ORDERED_SUM_BYTES(fs_info));
+=======
+				     max_ordered_sum_bytes(fs_info, csum_size));
+>>>>>>> upstream/android-13
 			sums = kzalloc(btrfs_ordered_sum_size(fs_info, size),
 				       GFP_NOFS);
 			if (!sums) {
@@ -392,10 +771,16 @@ int btrfs_lookup_csums_range(struct btrfs_root *root, u64 start, u64 end,
 			sums->bytenr = start;
 			sums->len = (int)size;
 
+<<<<<<< HEAD
 			offset = (start - key.offset) >>
 				fs_info->sb->s_blocksize_bits;
 			offset *= csum_size;
 			size >>= fs_info->sb->s_blocksize_bits;
+=======
+			offset = (start - key.offset) >> fs_info->sectorsize_bits;
+			offset *= csum_size;
+			size >>= fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 
 			read_extent_buffer(path->nodes[0],
 					   sums->sums,
@@ -420,10 +805,28 @@ fail:
 	return ret;
 }
 
+<<<<<<< HEAD
 blk_status_t btrfs_csum_one_bio(struct inode *inode, struct bio *bio,
 		       u64 file_start, int contig)
 {
 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+=======
+/*
+ * btrfs_csum_one_bio - Calculates checksums of the data contained inside a bio
+ * @inode:	 Owner of the data inside the bio
+ * @bio:	 Contains the data to be checksummed
+ * @file_start:  offset in file this bio begins to describe
+ * @contig:	 Boolean. If true/1 means all bio vecs in this bio are
+ *		 contiguous and they begin at @file_start in the file. False/0
+ *		 means this bio can contain potentially discontiguous bio vecs
+ *		 so the logical offset of each should be calculated separately.
+ */
+blk_status_t btrfs_csum_one_bio(struct btrfs_inode *inode, struct bio *bio,
+		       u64 file_start, int contig)
+{
+	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+>>>>>>> upstream/android-13
 	struct btrfs_ordered_sum *sums;
 	struct btrfs_ordered_extent *ordered = NULL;
 	char *data;
@@ -435,9 +838,19 @@ blk_status_t btrfs_csum_one_bio(struct inode *inode, struct bio *bio,
 	unsigned long this_sum_bytes = 0;
 	int i;
 	u64 offset;
+<<<<<<< HEAD
 
 	sums = kzalloc(btrfs_ordered_sum_size(fs_info, bio->bi_iter.bi_size),
 		       GFP_NOFS);
+=======
+	unsigned nofs_flag;
+
+	nofs_flag = memalloc_nofs_save();
+	sums = kvzalloc(btrfs_ordered_sum_size(fs_info, bio->bi_iter.bi_size),
+		       GFP_KERNEL);
+	memalloc_nofs_restore(nofs_flag);
+
+>>>>>>> upstream/android-13
 	if (!sums)
 		return BLK_STS_RESOURCE;
 
@@ -449,25 +862,51 @@ blk_status_t btrfs_csum_one_bio(struct inode *inode, struct bio *bio,
 	else
 		offset = 0; /* shut up gcc */
 
+<<<<<<< HEAD
 	sums->bytenr = (u64)bio->bi_iter.bi_sector << 9;
 	index = 0;
 
+=======
+	sums->bytenr = bio->bi_iter.bi_sector << 9;
+	index = 0;
+
+	shash->tfm = fs_info->csum_shash;
+
+>>>>>>> upstream/android-13
 	bio_for_each_segment(bvec, bio, iter) {
 		if (!contig)
 			offset = page_offset(bvec.bv_page) + bvec.bv_offset;
 
 		if (!ordered) {
 			ordered = btrfs_lookup_ordered_extent(inode, offset);
+<<<<<<< HEAD
 			BUG_ON(!ordered); /* Logic error */
 		}
 
 		data = kmap_atomic(bvec.bv_page);
 
+=======
+			/*
+			 * The bio range is not covered by any ordered extent,
+			 * must be a code logic error.
+			 */
+			if (unlikely(!ordered)) {
+				WARN(1, KERN_WARNING
+			"no ordered extent for root %llu ino %llu offset %llu\n",
+				     inode->root->root_key.objectid,
+				     btrfs_ino(inode), offset);
+				kvfree(sums);
+				return BLK_STS_IOERR;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		nr_sectors = BTRFS_BYTES_TO_BLKS(fs_info,
 						 bvec.bv_len + fs_info->sectorsize
 						 - 1);
 
 		for (i = 0; i < nr_sectors; i++) {
+<<<<<<< HEAD
 			if (offset >= ordered->file_offset + ordered->len ||
 				offset < ordered->file_offset) {
 				unsigned long bytes_left;
@@ -476,17 +915,34 @@ blk_status_t btrfs_csum_one_bio(struct inode *inode, struct bio *bio,
 				sums->len = this_sum_bytes;
 				this_sum_bytes = 0;
 				btrfs_add_ordered_sum(inode, ordered, sums);
+=======
+			if (offset >= ordered->file_offset + ordered->num_bytes ||
+			    offset < ordered->file_offset) {
+				unsigned long bytes_left;
+
+				sums->len = this_sum_bytes;
+				this_sum_bytes = 0;
+				btrfs_add_ordered_sum(ordered, sums);
+>>>>>>> upstream/android-13
 				btrfs_put_ordered_extent(ordered);
 
 				bytes_left = bio->bi_iter.bi_size - total_bytes;
 
+<<<<<<< HEAD
 				sums = kzalloc(btrfs_ordered_sum_size(fs_info, bytes_left),
 					       GFP_NOFS);
+=======
+				nofs_flag = memalloc_nofs_save();
+				sums = kvzalloc(btrfs_ordered_sum_size(fs_info,
+						      bytes_left), GFP_KERNEL);
+				memalloc_nofs_restore(nofs_flag);
+>>>>>>> upstream/android-13
 				BUG_ON(!sums); /* -ENOMEM */
 				sums->len = bytes_left;
 				ordered = btrfs_lookup_ordered_extent(inode,
 								offset);
 				ASSERT(ordered); /* Logic error */
+<<<<<<< HEAD
 				sums->bytenr = ((u64)bio->bi_iter.bi_sector << 9)
 					+ total_bytes;
 				index = 0;
@@ -503,15 +959,35 @@ blk_status_t btrfs_csum_one_bio(struct inode *inode, struct bio *bio,
 			btrfs_csum_final(sums->sums[index],
 					(char *)(sums->sums + index));
 			index++;
+=======
+				sums->bytenr = (bio->bi_iter.bi_sector << 9)
+					+ total_bytes;
+				index = 0;
+			}
+
+			data = kmap_atomic(bvec.bv_page);
+			crypto_shash_digest(shash, data + bvec.bv_offset
+					    + (i * fs_info->sectorsize),
+					    fs_info->sectorsize,
+					    sums->sums + index);
+			kunmap_atomic(data);
+			index += fs_info->csum_size;
+>>>>>>> upstream/android-13
 			offset += fs_info->sectorsize;
 			this_sum_bytes += fs_info->sectorsize;
 			total_bytes += fs_info->sectorsize;
 		}
 
+<<<<<<< HEAD
 		kunmap_atomic(data);
 	}
 	this_sum_bytes = 0;
 	btrfs_add_ordered_sum(inode, ordered, sums);
+=======
+	}
+	this_sum_bytes = 0;
+	btrfs_add_ordered_sum(ordered, sums);
+>>>>>>> upstream/android-13
 	btrfs_put_ordered_extent(ordered);
 	return 0;
 }
@@ -533,6 +1009,7 @@ static noinline void truncate_one_csum(struct btrfs_fs_info *fs_info,
 				       u64 bytenr, u64 len)
 {
 	struct extent_buffer *leaf;
+<<<<<<< HEAD
 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
 	u64 csum_end;
 	u64 end_byte = bytenr + len;
@@ -541,6 +1018,16 @@ static noinline void truncate_one_csum(struct btrfs_fs_info *fs_info,
 	leaf = path->nodes[0];
 	csum_end = btrfs_item_size_nr(leaf, path->slots[0]) / csum_size;
 	csum_end <<= fs_info->sb->s_blocksize_bits;
+=======
+	const u32 csum_size = fs_info->csum_size;
+	u64 csum_end;
+	u64 end_byte = bytenr + len;
+	u32 blocksize_bits = fs_info->sectorsize_bits;
+
+	leaf = path->nodes[0];
+	csum_end = btrfs_item_size_nr(leaf, path->slots[0]) / csum_size;
+	csum_end <<= blocksize_bits;
+>>>>>>> upstream/android-13
 	csum_end += key->offset;
 
 	if (key->offset < bytenr && csum_end <= end_byte) {
@@ -552,7 +1039,11 @@ static noinline void truncate_one_csum(struct btrfs_fs_info *fs_info,
 		 */
 		u32 new_size = (bytenr - key->offset) >> blocksize_bits;
 		new_size *= csum_size;
+<<<<<<< HEAD
 		btrfs_truncate_item(fs_info, path, new_size, 1);
+=======
+		btrfs_truncate_item(path, new_size, 1);
+>>>>>>> upstream/android-13
 	} else if (key->offset >= bytenr && csum_end > end_byte &&
 		   end_byte > key->offset) {
 		/*
@@ -564,7 +1055,11 @@ static noinline void truncate_one_csum(struct btrfs_fs_info *fs_info,
 		u32 new_size = (csum_end - end_byte) >> blocksize_bits;
 		new_size *= csum_size;
 
+<<<<<<< HEAD
 		btrfs_truncate_item(fs_info, path, new_size, 0);
+=======
+		btrfs_truncate_item(path, new_size, 0);
+>>>>>>> upstream/android-13
 
 		key->offset = end_byte;
 		btrfs_set_item_key_safe(fs_info, path, key);
@@ -586,9 +1081,15 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 	u64 end_byte = bytenr + len;
 	u64 csum_end;
 	struct extent_buffer *leaf;
+<<<<<<< HEAD
 	int ret;
 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
 	int blocksize_bits = fs_info->sb->s_blocksize_bits;
+=======
+	int ret = 0;
+	const u32 csum_size = fs_info->csum_size;
+	u32 blocksize_bits = fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 
 	ASSERT(root == fs_info->csum_root ||
 	       root->root_key.objectid == BTRFS_TREE_LOG_OBJECTID);
@@ -602,9 +1103,15 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 		key.offset = end_byte - 1;
 		key.type = BTRFS_EXTENT_CSUM_KEY;
 
+<<<<<<< HEAD
 		path->leave_spinning = 1;
 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
 		if (ret > 0) {
+=======
+		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+		if (ret > 0) {
+			ret = 0;
+>>>>>>> upstream/android-13
 			if (path->slots[0] == 0)
 				break;
 			path->slots[0]--;
@@ -661,7 +1168,11 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 			ret = btrfs_del_items(trans, root, path,
 					      path->slots[0], del_nr);
 			if (ret)
+<<<<<<< HEAD
 				goto out;
+=======
+				break;
+>>>>>>> upstream/android-13
 			if (key.offset == bytenr)
 				break;
 		} else if (key.offset < bytenr && csum_end > end_byte) {
@@ -705,8 +1216,14 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 			ret = btrfs_split_item(trans, root, path, &key, offset);
 			if (ret && ret != -EAGAIN) {
 				btrfs_abort_transaction(trans, ret);
+<<<<<<< HEAD
 				goto out;
 			}
+=======
+				break;
+			}
+			ret = 0;
+>>>>>>> upstream/android-13
 
 			key.offset = end_byte - 1;
 		} else {
@@ -716,12 +1233,49 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 		}
 		btrfs_release_path(path);
 	}
+<<<<<<< HEAD
 	ret = 0;
 out:
+=======
+>>>>>>> upstream/android-13
 	btrfs_free_path(path);
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int find_next_csum_offset(struct btrfs_root *root,
+				 struct btrfs_path *path,
+				 u64 *next_offset)
+{
+	const u32 nritems = btrfs_header_nritems(path->nodes[0]);
+	struct btrfs_key found_key;
+	int slot = path->slots[0] + 1;
+	int ret;
+
+	if (nritems == 0 || slot >= nritems) {
+		ret = btrfs_next_leaf(root, path);
+		if (ret < 0) {
+			return ret;
+		} else if (ret > 0) {
+			*next_offset = (u64)-1;
+			return 0;
+		}
+		slot = path->slots[0];
+	}
+
+	btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
+
+	if (found_key.objectid != BTRFS_EXTENT_CSUM_OBJECTID ||
+	    found_key.type != BTRFS_EXTENT_CSUM_KEY)
+		*next_offset = (u64)-1;
+	else
+		*next_offset = found_key.offset;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
 			   struct btrfs_root *root,
 			   struct btrfs_ordered_sum *sums)
@@ -737,12 +1291,19 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
 	u64 total_bytes = 0;
 	u64 csum_offset;
 	u64 bytenr;
+<<<<<<< HEAD
 	u32 nritems;
+=======
+>>>>>>> upstream/android-13
 	u32 ins_size;
 	int index = 0;
 	int found_next;
 	int ret;
+<<<<<<< HEAD
 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
+=======
+	const u32 csum_size = fs_info->csum_size;
+>>>>>>> upstream/android-13
 
 	path = btrfs_alloc_path();
 	if (!path)
@@ -767,7 +1328,11 @@ again:
 	}
 	ret = PTR_ERR(item);
 	if (ret != -EFBIG && ret != -ENOENT)
+<<<<<<< HEAD
 		goto fail_unlock;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (ret == -EFBIG) {
 		u32 item_size;
@@ -780,6 +1345,7 @@ again:
 			goto insert;
 		}
 	} else {
+<<<<<<< HEAD
 		int slot = path->slots[0] + 1;
 		/* we didn't find a csum item, insert one */
 		nritems = btrfs_header_nritems(path->nodes[0]);
@@ -800,11 +1366,18 @@ again:
 			goto insert;
 		}
 		next_offset = found_key.offset;
+=======
+		/* We didn't find a csum item, insert one. */
+		ret = find_next_csum_offset(root, path, &next_offset);
+		if (ret < 0)
+			goto out;
+>>>>>>> upstream/android-13
 		found_next = 1;
 		goto insert;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * at this point, we know the tree has an item, but it isn't big
 	 * enough yet to put our csum in.  Grow it
 	 */
@@ -813,6 +1386,31 @@ again:
 				csum_size, 1);
 	if (ret < 0)
 		goto fail_unlock;
+=======
+	 * At this point, we know the tree has a checksum item that ends at an
+	 * offset matching the start of the checksum range we want to insert.
+	 * We try to extend that item as much as possible and then add as many
+	 * checksums to it as they fit.
+	 *
+	 * First check if the leaf has enough free space for at least one
+	 * checksum. If it has go directly to the item extension code, otherwise
+	 * release the path and do a search for insertion before the extension.
+	 */
+	if (btrfs_leaf_free_space(leaf) >= csum_size) {
+		btrfs_item_key_to_cpu(leaf, &found_key, path->slots[0]);
+		csum_offset = (bytenr - found_key.offset) >>
+			fs_info->sectorsize_bits;
+		goto extend_csum;
+	}
+
+	btrfs_release_path(path);
+	path->search_for_extension = 1;
+	ret = btrfs_search_slot(trans, root, &file_key, path,
+				csum_size, 1);
+	path->search_for_extension = 0;
+	if (ret < 0)
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (ret > 0) {
 		if (path->slots[0] == 0)
@@ -822,8 +1420,12 @@ again:
 
 	leaf = path->nodes[0];
 	btrfs_item_key_to_cpu(leaf, &found_key, path->slots[0]);
+<<<<<<< HEAD
 	csum_offset = (bytenr - found_key.offset) >>
 			fs_info->sb->s_blocksize_bits;
+=======
+	csum_offset = (bytenr - found_key.offset) >> fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 
 	if (found_key.type != BTRFS_EXTENT_CSUM_KEY ||
 	    found_key.objectid != BTRFS_EXTENT_CSUM_OBJECTID ||
@@ -831,11 +1433,16 @@ again:
 		goto insert;
 	}
 
+<<<<<<< HEAD
+=======
+extend_csum:
+>>>>>>> upstream/android-13
 	if (csum_offset == btrfs_item_size_nr(leaf, path->slots[0]) /
 	    csum_size) {
 		int extend_nr;
 		u64 tmp;
 		u32 diff;
+<<<<<<< HEAD
 		u32 free_space;
 
 		if (btrfs_leaf_free_space(fs_info, leaf) <
@@ -849,16 +1456,72 @@ again:
 		WARN_ON(tmp < 1);
 
 		extend_nr = max_t(int, 1, (int)tmp);
+=======
+
+		tmp = sums->len - total_bytes;
+		tmp >>= fs_info->sectorsize_bits;
+		WARN_ON(tmp < 1);
+		extend_nr = max_t(int, 1, tmp);
+
+		/*
+		 * A log tree can already have checksum items with a subset of
+		 * the checksums we are trying to log. This can happen after
+		 * doing a sequence of partial writes into prealloc extents and
+		 * fsyncs in between, with a full fsync logging a larger subrange
+		 * of an extent for which a previous fast fsync logged a smaller
+		 * subrange. And this happens in particular due to merging file
+		 * extent items when we complete an ordered extent for a range
+		 * covered by a prealloc extent - this is done at
+		 * btrfs_mark_extent_written().
+		 *
+		 * So if we try to extend the previous checksum item, which has
+		 * a range that ends at the start of the range we want to insert,
+		 * make sure we don't extend beyond the start offset of the next
+		 * checksum item. If we are at the last item in the leaf, then
+		 * forget the optimization of extending and add a new checksum
+		 * item - it is not worth the complexity of releasing the path,
+		 * getting the first key for the next leaf, repeat the btree
+		 * search, etc, because log trees are temporary anyway and it
+		 * would only save a few bytes of leaf space.
+		 */
+		if (root->root_key.objectid == BTRFS_TREE_LOG_OBJECTID) {
+			if (path->slots[0] + 1 >=
+			    btrfs_header_nritems(path->nodes[0])) {
+				ret = find_next_csum_offset(root, path, &next_offset);
+				if (ret < 0)
+					goto out;
+				found_next = 1;
+				goto insert;
+			}
+
+			ret = find_next_csum_offset(root, path, &next_offset);
+			if (ret < 0)
+				goto out;
+
+			tmp = (next_offset - bytenr) >> fs_info->sectorsize_bits;
+			if (tmp <= INT_MAX)
+				extend_nr = min_t(int, extend_nr, tmp);
+		}
+
+>>>>>>> upstream/android-13
 		diff = (csum_offset + extend_nr) * csum_size;
 		diff = min(diff,
 			   MAX_CSUM_ITEMS(fs_info, csum_size) * csum_size);
 
 		diff = diff - btrfs_item_size_nr(leaf, path->slots[0]);
+<<<<<<< HEAD
 		diff = min(free_space, diff);
 		diff /= csum_size;
 		diff *= csum_size;
 
 		btrfs_extend_item(fs_info, path, diff);
+=======
+		diff = min_t(u32, btrfs_leaf_free_space(leaf), diff);
+		diff /= csum_size;
+		diff *= csum_size;
+
+		btrfs_extend_item(path, diff);
+>>>>>>> upstream/android-13
 		ret = 0;
 		goto csum;
 	}
@@ -870,9 +1533,15 @@ insert:
 		u64 tmp;
 
 		tmp = sums->len - total_bytes;
+<<<<<<< HEAD
 		tmp >>= fs_info->sb->s_blocksize_bits;
 		tmp = min(tmp, (next_offset - file_key.offset) >>
 					 fs_info->sb->s_blocksize_bits);
+=======
+		tmp >>= fs_info->sectorsize_bits;
+		tmp = min(tmp, (next_offset - file_key.offset) >>
+					 fs_info->sectorsize_bits);
+>>>>>>> upstream/android-13
 
 		tmp = max_t(u64, 1, tmp);
 		tmp = min_t(u64, tmp, MAX_CSUM_ITEMS(fs_info, csum_size));
@@ -880,6 +1549,7 @@ insert:
 	} else {
 		ins_size = csum_size;
 	}
+<<<<<<< HEAD
 	path->leave_spinning = 1;
 	ret = btrfs_insert_empty_item(trans, root, path, &file_key,
 				      ins_size);
@@ -888,6 +1558,14 @@ insert:
 		goto fail_unlock;
 	if (WARN_ON(ret != 0))
 		goto fail_unlock;
+=======
+	ret = btrfs_insert_empty_item(trans, root, path, &file_key,
+				      ins_size);
+	if (ret < 0)
+		goto out;
+	if (WARN_ON(ret != 0))
+		goto out;
+>>>>>>> upstream/android-13
 	leaf = path->nodes[0];
 csum:
 	item = btrfs_item_ptr(leaf, path->slots[0], struct btrfs_csum_item);
@@ -896,17 +1574,27 @@ csum:
 	item = (struct btrfs_csum_item *)((unsigned char *)item +
 					  csum_offset * csum_size);
 found:
+<<<<<<< HEAD
 	ins_size = (u32)(sums->len - total_bytes) >>
 		   fs_info->sb->s_blocksize_bits;
+=======
+	ins_size = (u32)(sums->len - total_bytes) >> fs_info->sectorsize_bits;
+>>>>>>> upstream/android-13
 	ins_size *= csum_size;
 	ins_size = min_t(u32, (unsigned long)item_end - (unsigned long)item,
 			      ins_size);
 	write_extent_buffer(leaf, sums->sums + index, (unsigned long)item,
 			    ins_size);
 
+<<<<<<< HEAD
 	ins_size /= csum_size;
 	total_bytes += ins_size * fs_info->sectorsize;
 	index += ins_size;
+=======
+	index += ins_size;
+	ins_size /= csum_size;
+	total_bytes += ins_size * fs_info->sectorsize;
+>>>>>>> upstream/android-13
 
 	btrfs_mark_buffer_dirty(path->nodes[0]);
 	if (total_bytes < sums->len) {
@@ -917,9 +1605,12 @@ found:
 out:
 	btrfs_free_path(path);
 	return ret;
+<<<<<<< HEAD
 
 fail_unlock:
 	goto out;
+=======
+>>>>>>> upstream/android-13
 }
 
 void btrfs_extent_item_to_extent_map(struct btrfs_inode *inode,
@@ -938,6 +1629,7 @@ void btrfs_extent_item_to_extent_map(struct btrfs_inode *inode,
 	u8 type = btrfs_file_extent_type(leaf, fi);
 	int compress_type = btrfs_file_extent_compression(leaf, fi);
 
+<<<<<<< HEAD
 	em->bdev = fs_info->fs_devices->latest_bdev;
 	btrfs_item_key_to_cpu(leaf, &key, slot);
 	extent_start = key.offset;
@@ -953,6 +1645,11 @@ void btrfs_extent_item_to_extent_map(struct btrfs_inode *inode,
 				   fs_info->sectorsize);
 	}
 
+=======
+	btrfs_item_key_to_cpu(leaf, &key, slot);
+	extent_start = key.offset;
+	extent_end = btrfs_file_extent_end(path);
+>>>>>>> upstream/android-13
 	em->ram_bytes = btrfs_file_extent_ram_bytes(leaf, fi);
 	if (type == BTRFS_FILE_EXTENT_REG ||
 	    type == BTRFS_FILE_EXTENT_PREALLOC) {
@@ -999,3 +1696,33 @@ void btrfs_extent_item_to_extent_map(struct btrfs_inode *inode,
 			  root->root_key.objectid);
 	}
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Returns the end offset (non inclusive) of the file extent item the given path
+ * points to. If it points to an inline extent, the returned offset is rounded
+ * up to the sector size.
+ */
+u64 btrfs_file_extent_end(const struct btrfs_path *path)
+{
+	const struct extent_buffer *leaf = path->nodes[0];
+	const int slot = path->slots[0];
+	struct btrfs_file_extent_item *fi;
+	struct btrfs_key key;
+	u64 end;
+
+	btrfs_item_key_to_cpu(leaf, &key, slot);
+	ASSERT(key.type == BTRFS_EXTENT_DATA_KEY);
+	fi = btrfs_item_ptr(leaf, slot, struct btrfs_file_extent_item);
+
+	if (btrfs_file_extent_type(leaf, fi) == BTRFS_FILE_EXTENT_INLINE) {
+		end = btrfs_file_extent_ram_bytes(leaf, fi);
+		end = ALIGN(key.offset + end, leaf->fs_info->sectorsize);
+	} else {
+		end = key.offset + btrfs_file_extent_num_bytes(leaf, fi);
+	}
+
+	return end;
+}
+>>>>>>> upstream/android-13

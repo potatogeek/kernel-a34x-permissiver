@@ -207,7 +207,11 @@ repeat:
 					self_test_last_rcv = jiffies;
 					break;
 				}
+<<<<<<< HEAD
 				/* FALL THROUGH */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 
 			default:
 				break_flag = scancode & BREAK_MASK;

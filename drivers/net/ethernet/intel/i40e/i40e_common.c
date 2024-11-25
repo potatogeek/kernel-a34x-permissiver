@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
 
+=======
+/* Copyright(c) 2013 - 2021 Intel Corporation. */
+
+#include "i40e.h"
+>>>>>>> upstream/android-13
 #include "i40e_type.h"
 #include "i40e_adminq.h"
 #include "i40e_prototype.h"
@@ -13,7 +19,11 @@
  * This function sets the mac type of the adapter based on the
  * vendor ID and device ID stored in the hw structure.
  **/
+<<<<<<< HEAD
 static i40e_status i40e_set_mac_type(struct i40e_hw *hw)
+=======
+i40e_status i40e_set_mac_type(struct i40e_hw *hw)
+>>>>>>> upstream/android-13
 {
 	i40e_status status = 0;
 
@@ -26,12 +36,26 @@ static i40e_status i40e_set_mac_type(struct i40e_hw *hw)
 		case I40E_DEV_ID_QSFP_A:
 		case I40E_DEV_ID_QSFP_B:
 		case I40E_DEV_ID_QSFP_C:
+<<<<<<< HEAD
 		case I40E_DEV_ID_10G_BASE_T:
 		case I40E_DEV_ID_10G_BASE_T4:
+=======
+		case I40E_DEV_ID_5G_BASE_T_BC:
+		case I40E_DEV_ID_10G_BASE_T:
+		case I40E_DEV_ID_10G_BASE_T4:
+		case I40E_DEV_ID_10G_BASE_T_BC:
+		case I40E_DEV_ID_10G_B:
+		case I40E_DEV_ID_10G_SFP:
+>>>>>>> upstream/android-13
 		case I40E_DEV_ID_20G_KR2:
 		case I40E_DEV_ID_20G_KR2_A:
 		case I40E_DEV_ID_25G_B:
 		case I40E_DEV_ID_25G_SFP28:
+<<<<<<< HEAD
+=======
+		case I40E_DEV_ID_X710_N3000:
+		case I40E_DEV_ID_XXV710_N3000:
+>>>>>>> upstream/android-13
 			hw->mac.type = I40E_MAC_XL710;
 			break;
 		case I40E_DEV_ID_KX_X722:
@@ -277,20 +301,34 @@ void i40e_debug_aq(struct i40e_hw *hw, enum i40e_debug_mask mask, void *desc,
 		   void *buffer, u16 buf_len)
 {
 	struct i40e_aq_desc *aq_desc = (struct i40e_aq_desc *)desc;
+<<<<<<< HEAD
 	u16 len;
 	u8 *buf = (u8 *)buffer;
 
 	if ((!(mask & hw->debug_mask)) || (desc == NULL))
+=======
+	u32 effective_mask = hw->debug_mask & mask;
+	char prefix[27];
+	u16 len;
+	u8 *buf = (u8 *)buffer;
+
+	if (!effective_mask || !desc)
+>>>>>>> upstream/android-13
 		return;
 
 	len = le16_to_cpu(aq_desc->datalen);
 
+<<<<<<< HEAD
 	i40e_debug(hw, mask,
+=======
+	i40e_debug(hw, mask & I40E_DEBUG_AQ_DESCRIPTOR,
+>>>>>>> upstream/android-13
 		   "AQ CMD: opcode 0x%04X, flags 0x%04X, datalen 0x%04X, retval 0x%04X\n",
 		   le16_to_cpu(aq_desc->opcode),
 		   le16_to_cpu(aq_desc->flags),
 		   le16_to_cpu(aq_desc->datalen),
 		   le16_to_cpu(aq_desc->retval));
+<<<<<<< HEAD
 	i40e_debug(hw, mask, "\tcookie (h,l) 0x%08X 0x%08X\n",
 		   le32_to_cpu(aq_desc->cookie_high),
 		   le32_to_cpu(aq_desc->cookie_low));
@@ -318,6 +356,35 @@ void i40e_debug_aq(struct i40e_hw *hw, enum i40e_debug_mask mask, void *desc,
 			print_hex_dump(KERN_INFO, prefix, DUMP_PREFIX_OFFSET,
 				       16, 1, buf, len, false);
 		}
+=======
+	i40e_debug(hw, mask & I40E_DEBUG_AQ_DESCRIPTOR,
+		   "\tcookie (h,l) 0x%08X 0x%08X\n",
+		   le32_to_cpu(aq_desc->cookie_high),
+		   le32_to_cpu(aq_desc->cookie_low));
+	i40e_debug(hw, mask & I40E_DEBUG_AQ_DESCRIPTOR,
+		   "\tparam (0,1)  0x%08X 0x%08X\n",
+		   le32_to_cpu(aq_desc->params.internal.param0),
+		   le32_to_cpu(aq_desc->params.internal.param1));
+	i40e_debug(hw, mask & I40E_DEBUG_AQ_DESCRIPTOR,
+		   "\taddr (h,l)   0x%08X 0x%08X\n",
+		   le32_to_cpu(aq_desc->params.external.addr_high),
+		   le32_to_cpu(aq_desc->params.external.addr_low));
+
+	if (buffer && buf_len != 0 && len != 0 &&
+	    (effective_mask & I40E_DEBUG_AQ_DESC_BUFFER)) {
+		i40e_debug(hw, mask, "AQ CMD Buffer:\n");
+		if (buf_len < len)
+			len = buf_len;
+
+		snprintf(prefix, sizeof(prefix),
+			 "i40e %02x:%02x.%x: \t0x",
+			 hw->bus.bus_id,
+			 hw->bus.device,
+			 hw->bus.func);
+
+		print_hex_dump(KERN_INFO, prefix, DUMP_PREFIX_OFFSET,
+			       16, 1, buf, len, false);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -543,9 +610,15 @@ i40e_status i40e_aq_set_rss_key(struct i40e_hw *hw,
  * ENDIF
  */
 
+<<<<<<< HEAD
 /* macro to make the table lines short */
 #define I40E_PTT(PTYPE, OUTER_IP, OUTER_IP_VER, OUTER_FRAG, T, TE, TEF, I, PL)\
 	{	PTYPE, \
+=======
+/* macro to make the table lines short, use explicit indexing with [PTYPE] */
+#define I40E_PTT(PTYPE, OUTER_IP, OUTER_IP_VER, OUTER_FRAG, T, TE, TEF, I, PL)\
+	[PTYPE] = { \
+>>>>>>> upstream/android-13
 		1, \
 		I40E_RX_PTYPE_OUTER_##OUTER_IP, \
 		I40E_RX_PTYPE_OUTER_##OUTER_IP_VER, \
@@ -556,16 +629,25 @@ i40e_status i40e_aq_set_rss_key(struct i40e_hw *hw,
 		I40E_RX_PTYPE_INNER_PROT_##I, \
 		I40E_RX_PTYPE_PAYLOAD_LAYER_##PL }
 
+<<<<<<< HEAD
 #define I40E_PTT_UNUSED_ENTRY(PTYPE) \
 		{ PTYPE, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+=======
+#define I40E_PTT_UNUSED_ENTRY(PTYPE) [PTYPE] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+>>>>>>> upstream/android-13
 
 /* shorter macros makes the table fit but are terse */
 #define I40E_RX_PTYPE_NOF		I40E_RX_PTYPE_NOT_FRAG
 #define I40E_RX_PTYPE_FRG		I40E_RX_PTYPE_FRAG
 #define I40E_RX_PTYPE_INNER_PROT_TS	I40E_RX_PTYPE_INNER_PROT_TIMESYNC
 
+<<<<<<< HEAD
 /* Lookup table mapping the HW PTYPE to the bit field for decoding */
 struct i40e_rx_ptype_decoded i40e_ptype_lookup[] = {
+=======
+/* Lookup table mapping in the 8-bit HW PTYPE to the bit field for decoding */
+struct i40e_rx_ptype_decoded i40e_ptype_lookup[BIT(8)] = {
+>>>>>>> upstream/android-13
 	/* L2 Packet types */
 	I40E_PTT_UNUSED_ENTRY(0),
 	I40E_PTT(1,  L2, NONE, NOF, NONE, NONE, NOF, NONE, PAY2),
@@ -771,6 +853,7 @@ struct i40e_rx_ptype_decoded i40e_ptype_lookup[] = {
 	I40E_PTT(153, IP, IPV6, NOF, IP_GRENAT_MAC_VLAN, IPV6, NOF, ICMP, PAY4),
 
 	/* unused entries */
+<<<<<<< HEAD
 	I40E_PTT_UNUSED_ENTRY(154),
 	I40E_PTT_UNUSED_ENTRY(155),
 	I40E_PTT_UNUSED_ENTRY(156),
@@ -883,6 +966,9 @@ struct i40e_rx_ptype_decoded i40e_ptype_lookup[] = {
 	I40E_PTT_UNUSED_ENTRY(253),
 	I40E_PTT_UNUSED_ENTRY(254),
 	I40E_PTT_UNUSED_ENTRY(255)
+=======
+	[154 ... 255] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -926,10 +1012,13 @@ i40e_status i40e_init_shared_code(struct i40e_hw *hw)
 	else
 		hw->pf_id = (u8)(func_rid & 0x7);
 
+<<<<<<< HEAD
 	if (hw->mac.type == I40E_MAC_X722)
 		hw->flags |= I40E_HW_FLAG_AQ_SRCTL_ACCESS_ENABLE |
 			     I40E_HW_FLAG_NVM_READ_REQUIRES_LOCK;
 
+=======
+>>>>>>> upstream/android-13
 	status = i40e_init_nvm(hw);
 	return status;
 }
@@ -1109,7 +1198,11 @@ i40e_status i40e_read_pba_string(struct i40e_hw *hw, u8 *pba_num,
 	 */
 	pba_size--;
 	if (pba_num_size < (((u32)pba_size * 2) + 1)) {
+<<<<<<< HEAD
 		hw_dbg(hw, "Buffer to small for PBA data.\n");
+=======
+		hw_dbg(hw, "Buffer too small for PBA data.\n");
+>>>>>>> upstream/android-13
 		return I40E_ERR_PARAM;
 	}
 
@@ -1149,6 +1242,11 @@ static enum i40e_media_type i40e_get_media_type(struct i40e_hw *hw)
 		break;
 	case I40E_PHY_TYPE_100BASE_TX:
 	case I40E_PHY_TYPE_1000BASE_T:
+<<<<<<< HEAD
+=======
+	case I40E_PHY_TYPE_2_5GBASE_T_LINK_STATUS:
+	case I40E_PHY_TYPE_5GBASE_T_LINK_STATUS:
+>>>>>>> upstream/android-13
 	case I40E_PHY_TYPE_10GBASE_T:
 		media = I40E_MEDIA_TYPE_BASET;
 		break;
@@ -1432,9 +1530,15 @@ static u32 i40e_led_is_mine(struct i40e_hw *hw, int idx)
 	u32 gpio_val = 0;
 	u32 port;
 
+<<<<<<< HEAD
 	if (!hw->func_caps.led[idx])
 		return 0;
 
+=======
+	if (!I40E_IS_X710TL_DEVICE(hw->device_id) &&
+	    !hw->func_caps.led[idx])
+		return 0;
+>>>>>>> upstream/android-13
 	gpio_val = rd32(hw, I40E_GLGEN_GPIO_CTL(idx));
 	port = (gpio_val & I40E_GLGEN_GPIO_CTL_PRT_NUM_MASK) >>
 		I40E_GLGEN_GPIO_CTL_PRT_NUM_SHIFT;
@@ -1449,12 +1553,24 @@ static u32 i40e_led_is_mine(struct i40e_hw *hw, int idx)
 	return gpio_val;
 }
 
+<<<<<<< HEAD
 #define I40E_COMBINED_ACTIVITY 0xA
 #define I40E_FILTER_ACTIVITY 0xE
 #define I40E_LINK_ACTIVITY 0xC
 #define I40E_MAC_ACTIVITY 0xD
 #define I40E_LED0 22
 
+=======
+#define I40E_FW_LED BIT(4)
+#define I40E_LED_MODE_VALID (I40E_GLGEN_GPIO_CTL_LED_MODE_MASK >> \
+			     I40E_GLGEN_GPIO_CTL_LED_MODE_SHIFT)
+
+#define I40E_LED0 22
+
+#define I40E_PIN_FUNC_SDP 0x0
+#define I40E_PIN_FUNC_LED 0x1
+
+>>>>>>> upstream/android-13
 /**
  * i40e_led_get - return current on/off mode
  * @hw: pointer to the hw struct
@@ -1466,7 +1582,10 @@ static u32 i40e_led_is_mine(struct i40e_hw *hw, int idx)
  **/
 u32 i40e_led_get(struct i40e_hw *hw)
 {
+<<<<<<< HEAD
 	u32 current_mode = 0;
+=======
+>>>>>>> upstream/android-13
 	u32 mode = 0;
 	int i;
 
@@ -1479,6 +1598,7 @@ u32 i40e_led_get(struct i40e_hw *hw)
 		if (!gpio_val)
 			continue;
 
+<<<<<<< HEAD
 		/* ignore gpio LED src mode entries related to the activity
 		 * LEDs
 		 */
@@ -1494,6 +1614,8 @@ u32 i40e_led_get(struct i40e_hw *hw)
 			break;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		mode = (gpio_val & I40E_GLGEN_GPIO_CTL_LED_MODE_MASK) >>
 			I40E_GLGEN_GPIO_CTL_LED_MODE_SHIFT;
 		break;
@@ -1513,11 +1635,20 @@ u32 i40e_led_get(struct i40e_hw *hw)
  **/
 void i40e_led_set(struct i40e_hw *hw, u32 mode, bool blink)
 {
+<<<<<<< HEAD
 	u32 current_mode = 0;
 	int i;
 
 	if (mode & 0xfffffff0)
 		hw_dbg(hw, "invalid mode passed in %X\n", mode);
+=======
+	int i;
+
+	if (mode & ~I40E_LED_MODE_VALID) {
+		hw_dbg(hw, "invalid mode passed in %X\n", mode);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/* as per the documentation GPIO 22-29 are the LED
 	 * GPIO pins named LED0..LED7
@@ -1528,6 +1659,7 @@ void i40e_led_set(struct i40e_hw *hw, u32 mode, bool blink)
 		if (!gpio_val)
 			continue;
 
+<<<<<<< HEAD
 		/* ignore gpio LED src mode entries related to the activity
 		 * LEDs
 		 */
@@ -1543,6 +1675,21 @@ void i40e_led_set(struct i40e_hw *hw, u32 mode, bool blink)
 			break;
 		}
 
+=======
+		if (I40E_IS_X710TL_DEVICE(hw->device_id)) {
+			u32 pin_func = 0;
+
+			if (mode & I40E_FW_LED)
+				pin_func = I40E_PIN_FUNC_SDP;
+			else
+				pin_func = I40E_PIN_FUNC_LED;
+
+			gpio_val &= ~I40E_GLGEN_GPIO_CTL_PIN_FUNC_MASK;
+			gpio_val |= ((pin_func <<
+				     I40E_GLGEN_GPIO_CTL_PIN_FUNC_SHIFT) &
+				     I40E_GLGEN_GPIO_CTL_PIN_FUNC_MASK);
+		}
+>>>>>>> upstream/android-13
 		gpio_val &= ~I40E_GLGEN_GPIO_CTL_LED_MODE_MASK;
 		/* this & is a bit of paranoia, but serves as a range check */
 		gpio_val |= ((mode << I40E_GLGEN_GPIO_CTL_LED_MODE_SHIFT) &
@@ -1602,6 +1749,7 @@ i40e_status i40e_aq_get_phy_capabilities(struct i40e_hw *hw,
 		status = i40e_asq_send_command(hw, &desc, abilities,
 					       abilities_size, cmd_details);
 
+<<<<<<< HEAD
 		if (status)
 			break;
 
@@ -1615,6 +1763,24 @@ i40e_status i40e_aq_get_phy_capabilities(struct i40e_hw *hw,
 		}
 	} while ((hw->aq.asq_last_status != I40E_AQ_RC_OK) &&
 		 (total_delay < max_delay));
+=======
+		switch (hw->aq.asq_last_status) {
+		case I40E_AQ_RC_EIO:
+			status = I40E_ERR_UNKNOWN_PHY;
+			break;
+		case I40E_AQ_RC_EAGAIN:
+			usleep_range(1000, 2000);
+			total_delay++;
+			status = I40E_ERR_TIMEOUT;
+			break;
+		/* also covers I40E_AQ_RC_OK */
+		default:
+			break;
+		}
+
+	} while ((hw->aq.asq_last_status == I40E_AQ_RC_EAGAIN) &&
+		(total_delay < max_delay));
+>>>>>>> upstream/android-13
 
 	if (status)
 		return status;
@@ -1897,8 +2063,13 @@ i40e_status i40e_aq_get_link_info(struct i40e_hw *hw,
 	     hw->aq.fw_min_ver < 40)) && hw_link_info->phy_type == 0xE)
 		hw_link_info->phy_type = I40E_PHY_TYPE_10GBASE_SFPP_CU;
 
+<<<<<<< HEAD
 	if (hw->aq.api_maj_ver == I40E_FW_API_VERSION_MAJOR &&
 	    hw->aq.api_min_ver >= 7) {
+=======
+	if (hw->flags & I40E_HW_FLAG_AQ_PHY_ACCESS_CAPABLE &&
+	    hw->mac.type != I40E_MAC_X722) {
+>>>>>>> upstream/android-13
 		__le32 tmp;
 
 		memcpy(&tmp, resp->link_type, sizeof(tmp));
@@ -2336,7 +2507,11 @@ i40e_status i40e_aq_set_vsi_vlan_promisc(struct i40e_hw *hw,
 }
 
 /**
+<<<<<<< HEAD
  * i40e_get_vsi_params - get VSI configuration info
+=======
+ * i40e_aq_get_vsi_params - get VSI configuration info
+>>>>>>> upstream/android-13
  * @hw: pointer to the hw struct
  * @vsi_ctx: pointer to a vsi context struct
  * @cmd_details: pointer to command details structure or NULL
@@ -2590,7 +2765,11 @@ i40e_status i40e_get_link_status(struct i40e_hw *hw, bool *link_up)
 }
 
 /**
+<<<<<<< HEAD
  * i40e_updatelink_status - update status of the HW network link
+=======
+ * i40e_update_link_info - update status of the HW network link
+>>>>>>> upstream/android-13
  * @hw: pointer to the hw struct
  **/
 noinline_for_stack i40e_status i40e_update_link_info(struct i40e_hw *hw)
@@ -2611,9 +2790,22 @@ noinline_for_stack i40e_status i40e_update_link_info(struct i40e_hw *hw)
 		if (status)
 			return status;
 
+<<<<<<< HEAD
 		hw->phy.link_info.req_fec_info =
 			abilities.fec_cfg_curr_mod_ext_info &
 			(I40E_AQ_REQUEST_FEC_KR | I40E_AQ_REQUEST_FEC_RS);
+=======
+		if (abilities.fec_cfg_curr_mod_ext_info &
+		    I40E_AQ_ENABLE_FEC_AUTO)
+			hw->phy.link_info.req_fec_info =
+				(I40E_AQ_REQUEST_FEC_KR |
+				 I40E_AQ_REQUEST_FEC_RS);
+		else
+			hw->phy.link_info.req_fec_info =
+				abilities.fec_cfg_curr_mod_ext_info &
+				(I40E_AQ_REQUEST_FEC_KR |
+				 I40E_AQ_REQUEST_FEC_RS);
+>>>>>>> upstream/android-13
 
 		memcpy(hw->phy.link_info.module_type, &abilities.module_type,
 		       sizeof(hw->phy.link_info.module_type));
@@ -3659,6 +3851,49 @@ i40e_status i40e_aq_get_lldp_mib(struct i40e_hw *hw, u8 bridge_type,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * i40e_aq_set_lldp_mib - Set the LLDP MIB
+ * @hw: pointer to the hw struct
+ * @mib_type: Local, Remote or both Local and Remote MIBs
+ * @buff: pointer to a user supplied buffer to store the MIB block
+ * @buff_size: size of the buffer (in bytes)
+ * @cmd_details: pointer to command details structure or NULL
+ *
+ * Set the LLDP MIB.
+ **/
+enum i40e_status_code
+i40e_aq_set_lldp_mib(struct i40e_hw *hw,
+		     u8 mib_type, void *buff, u16 buff_size,
+		     struct i40e_asq_cmd_details *cmd_details)
+{
+	struct i40e_aqc_lldp_set_local_mib *cmd;
+	enum i40e_status_code status;
+	struct i40e_aq_desc desc;
+
+	cmd = (struct i40e_aqc_lldp_set_local_mib *)&desc.params.raw;
+	if (buff_size == 0 || !buff)
+		return I40E_ERR_PARAM;
+
+	i40e_fill_default_direct_cmd_desc(&desc,
+					  i40e_aqc_opc_lldp_set_local_mib);
+	/* Indirect Command */
+	desc.flags |= cpu_to_le16((u16)(I40E_AQ_FLAG_BUF | I40E_AQ_FLAG_RD));
+	if (buff_size > I40E_AQ_LARGE_BUF)
+		desc.flags |= cpu_to_le16((u16)I40E_AQ_FLAG_LB);
+	desc.datalen = cpu_to_le16(buff_size);
+
+	cmd->type = mib_type;
+	cmd->length = cpu_to_le16(buff_size);
+	cmd->address_high = cpu_to_le32(upper_32_bits((uintptr_t)buff));
+	cmd->address_low = cpu_to_le32(lower_32_bits((uintptr_t)buff));
+
+	status = i40e_asq_send_command(hw, &desc, buff, buff_size, cmd_details);
+	return status;
+}
+
+/**
+>>>>>>> upstream/android-13
  * i40e_aq_cfg_lldp_mib_change_event
  * @hw: pointer to the hw struct
  * @enable_update: Enable or Disable event posting
@@ -3687,14 +3922,63 @@ i40e_status i40e_aq_cfg_lldp_mib_change_event(struct i40e_hw *hw,
 }
 
 /**
+<<<<<<< HEAD
  * i40e_aq_stop_lldp
  * @hw: pointer to the hw struct
  * @shutdown_agent: True if LLDP Agent needs to be Shutdown
+=======
+ * i40e_aq_restore_lldp
+ * @hw: pointer to the hw struct
+ * @setting: pointer to factory setting variable or NULL
+ * @restore: True if factory settings should be restored
+ * @cmd_details: pointer to command details structure or NULL
+ *
+ * Restore LLDP Agent factory settings if @restore set to True. In other case
+ * only returns factory setting in AQ response.
+ **/
+enum i40e_status_code
+i40e_aq_restore_lldp(struct i40e_hw *hw, u8 *setting, bool restore,
+		     struct i40e_asq_cmd_details *cmd_details)
+{
+	struct i40e_aq_desc desc;
+	struct i40e_aqc_lldp_restore *cmd =
+		(struct i40e_aqc_lldp_restore *)&desc.params.raw;
+	i40e_status status;
+
+	if (!(hw->flags & I40E_HW_FLAG_FW_LLDP_PERSISTENT)) {
+		i40e_debug(hw, I40E_DEBUG_ALL,
+			   "Restore LLDP not supported by current FW version.\n");
+		return I40E_ERR_DEVICE_NOT_SUPPORTED;
+	}
+
+	i40e_fill_default_direct_cmd_desc(&desc, i40e_aqc_opc_lldp_restore);
+
+	if (restore)
+		cmd->command |= I40E_AQ_LLDP_AGENT_RESTORE;
+
+	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
+
+	if (setting)
+		*setting = cmd->command & 1;
+
+	return status;
+}
+
+/**
+ * i40e_aq_stop_lldp
+ * @hw: pointer to the hw struct
+ * @shutdown_agent: True if LLDP Agent needs to be Shutdown
+ * @persist: True if stop of LLDP should be persistent across power cycles
+>>>>>>> upstream/android-13
  * @cmd_details: pointer to command details structure or NULL
  *
  * Stop or Shutdown the embedded LLDP Agent
  **/
 i40e_status i40e_aq_stop_lldp(struct i40e_hw *hw, bool shutdown_agent,
+<<<<<<< HEAD
+=======
+				bool persist,
+>>>>>>> upstream/android-13
 				struct i40e_asq_cmd_details *cmd_details)
 {
 	struct i40e_aq_desc desc;
@@ -3707,6 +3991,17 @@ i40e_status i40e_aq_stop_lldp(struct i40e_hw *hw, bool shutdown_agent,
 	if (shutdown_agent)
 		cmd->command |= I40E_AQ_LLDP_AGENT_SHUTDOWN;
 
+<<<<<<< HEAD
+=======
+	if (persist) {
+		if (hw->flags & I40E_HW_FLAG_FW_LLDP_PERSISTENT)
+			cmd->command |= I40E_AQ_LLDP_AGENT_STOP_PERSIST;
+		else
+			i40e_debug(hw, I40E_DEBUG_ALL,
+				   "Persistent Stop LLDP not supported by current FW version.\n");
+	}
+
+>>>>>>> upstream/android-13
 	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
 
 	return status;
@@ -3715,14 +4010,23 @@ i40e_status i40e_aq_stop_lldp(struct i40e_hw *hw, bool shutdown_agent,
 /**
  * i40e_aq_start_lldp
  * @hw: pointer to the hw struct
+<<<<<<< HEAD
  * @buff: buffer for result
  * @buff_size: buffer size
+=======
+ * @persist: True if start of LLDP should be persistent across power cycles
+>>>>>>> upstream/android-13
  * @cmd_details: pointer to command details structure or NULL
  *
  * Start the embedded LLDP Agent on all ports.
  **/
+<<<<<<< HEAD
 i40e_status i40e_aq_start_lldp(struct i40e_hw *hw,
 				struct i40e_asq_cmd_details *cmd_details)
+=======
+i40e_status i40e_aq_start_lldp(struct i40e_hw *hw, bool persist,
+			       struct i40e_asq_cmd_details *cmd_details)
+>>>>>>> upstream/android-13
 {
 	struct i40e_aq_desc desc;
 	struct i40e_aqc_lldp_start *cmd =
@@ -3732,6 +4036,18 @@ i40e_status i40e_aq_start_lldp(struct i40e_hw *hw,
 	i40e_fill_default_direct_cmd_desc(&desc, i40e_aqc_opc_lldp_start);
 
 	cmd->command = I40E_AQ_LLDP_AGENT_START;
+<<<<<<< HEAD
+=======
+
+	if (persist) {
+		if (hw->flags & I40E_HW_FLAG_FW_LLDP_PERSISTENT)
+			cmd->command |= I40E_AQ_LLDP_AGENT_START_PERSIST;
+		else
+			i40e_debug(hw, I40E_DEBUG_ALL,
+				   "Persistent Start LLDP not supported by current FW version.\n");
+	}
+
+>>>>>>> upstream/android-13
 	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
 
 	return status;
@@ -3753,6 +4069,12 @@ i40e_aq_set_dcb_parameters(struct i40e_hw *hw, bool dcb_enable,
 		(struct i40e_aqc_set_dcb_parameters *)&desc.params.raw;
 	i40e_status status;
 
+<<<<<<< HEAD
+=======
+	if (!(hw->flags & I40E_HW_FLAG_FW_LLDP_STOPPABLE))
+		return I40E_ERR_DEVICE_NOT_SUPPORTED;
+
+>>>>>>> upstream/android-13
 	i40e_fill_default_direct_cmd_desc(&desc,
 					  i40e_aqc_opc_set_dcb_parameters);
 
@@ -4418,6 +4740,32 @@ static i40e_status i40e_aq_alternate_read(struct i40e_hw *hw,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * i40e_aq_suspend_port_tx
+ * @hw: pointer to the hardware structure
+ * @seid: port seid
+ * @cmd_details: pointer to command details structure or NULL
+ *
+ * Suspend port's Tx traffic
+ **/
+i40e_status i40e_aq_suspend_port_tx(struct i40e_hw *hw, u16 seid,
+				    struct i40e_asq_cmd_details *cmd_details)
+{
+	struct i40e_aqc_tx_sched_ind *cmd;
+	struct i40e_aq_desc desc;
+	i40e_status status;
+
+	cmd = (struct i40e_aqc_tx_sched_ind *)&desc.params.raw;
+	i40e_fill_default_direct_cmd_desc(&desc, i40e_aqc_opc_suspend_port_tx);
+	cmd->vsi_seid = cpu_to_le16(seid);
+	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
+
+	return status;
+}
+
+/**
+>>>>>>> upstream/android-13
  * i40e_aq_resume_port_tx
  * @hw: pointer to the hardware structure
  * @cmd_details: pointer to command details structure or NULL
@@ -4862,8 +5210,15 @@ i40e_status i40e_write_phy_register(struct i40e_hw *hw,
 		status = i40e_write_phy_register_clause22(hw, reg, phy_addr,
 							  value);
 		break;
+<<<<<<< HEAD
 	case I40E_DEV_ID_10G_BASE_T:
 	case I40E_DEV_ID_10G_BASE_T4:
+=======
+	case I40E_DEV_ID_5G_BASE_T_BC:
+	case I40E_DEV_ID_10G_BASE_T:
+	case I40E_DEV_ID_10G_BASE_T4:
+	case I40E_DEV_ID_10G_BASE_T_BC:
+>>>>>>> upstream/android-13
 	case I40E_DEV_ID_10G_BASE_T_X722:
 	case I40E_DEV_ID_25G_B:
 	case I40E_DEV_ID_25G_SFP28:
@@ -4898,8 +5253,15 @@ i40e_status i40e_read_phy_register(struct i40e_hw *hw,
 		status = i40e_read_phy_register_clause22(hw, reg, phy_addr,
 							 value);
 		break;
+<<<<<<< HEAD
 	case I40E_DEV_ID_10G_BASE_T:
 	case I40E_DEV_ID_10G_BASE_T4:
+=======
+	case I40E_DEV_ID_5G_BASE_T_BC:
+	case I40E_DEV_ID_10G_BASE_T:
+	case I40E_DEV_ID_10G_BASE_T4:
+	case I40E_DEV_ID_10G_BASE_T_BC:
+>>>>>>> upstream/android-13
 	case I40E_DEV_ID_10G_BASE_T_X722:
 	case I40E_DEV_ID_25G_B:
 	case I40E_DEV_ID_25G_SFP28:
@@ -4930,7 +5292,11 @@ u8 i40e_get_phy_address(struct i40e_hw *hw, u8 dev_num)
 }
 
 /**
+<<<<<<< HEAD
  * i40e_blink_phy_led
+=======
+ * i40e_blink_phy_link_led
+>>>>>>> upstream/android-13
  * @hw: pointer to the HW structure
  * @time: time how long led will blinks in secs
  * @interval: gap between LED on and off in msecs
@@ -5022,7 +5388,11 @@ static enum i40e_status_code i40e_led_get_reg(struct i40e_hw *hw, u16 led_addr,
 		status =
 		       i40e_aq_get_phy_register(hw,
 						I40E_AQ_PHY_REG_ACCESS_EXTERNAL,
+<<<<<<< HEAD
 						I40E_PHY_COM_REG_PAGE,
+=======
+						I40E_PHY_COM_REG_PAGE, true,
+>>>>>>> upstream/android-13
 						I40E_PHY_LED_PROV_REG_1,
 						reg_val, NULL);
 	} else {
@@ -5055,7 +5425,11 @@ static enum i40e_status_code i40e_led_set_reg(struct i40e_hw *hw, u16 led_addr,
 		status =
 		       i40e_aq_set_phy_register(hw,
 						I40E_AQ_PHY_REG_ACCESS_EXTERNAL,
+<<<<<<< HEAD
 						I40E_PHY_COM_REG_PAGE,
+=======
+						I40E_PHY_COM_REG_PAGE, true,
+>>>>>>> upstream/android-13
 						I40E_PHY_LED_PROV_REG_1,
 						reg_val, NULL);
 	} else {
@@ -5094,7 +5468,11 @@ i40e_status i40e_led_get_phy(struct i40e_hw *hw, u16 *led_addr,
 		status =
 		      i40e_aq_get_phy_register(hw,
 					       I40E_AQ_PHY_REG_ACCESS_EXTERNAL,
+<<<<<<< HEAD
 					       I40E_PHY_COM_REG_PAGE,
+=======
+					       I40E_PHY_COM_REG_PAGE, true,
+>>>>>>> upstream/android-13
 					       I40E_PHY_LED_PROV_REG_1,
 					       &reg_val_aq, NULL);
 		if (status == I40E_SUCCESS)
@@ -5299,20 +5677,65 @@ do_retry:
 }
 
 /**
+<<<<<<< HEAD
  * i40e_aq_set_phy_register
  * @hw: pointer to the hw struct
  * @phy_select: select which phy should be accessed
  * @dev_addr: PHY device address
+=======
+ * i40e_mdio_if_number_selection - MDIO I/F number selection
+ * @hw: pointer to the hw struct
+ * @set_mdio: use MDIO I/F number specified by mdio_num
+ * @mdio_num: MDIO I/F number
+ * @cmd: pointer to PHY Register command structure
+ **/
+static void i40e_mdio_if_number_selection(struct i40e_hw *hw, bool set_mdio,
+					  u8 mdio_num,
+					  struct i40e_aqc_phy_register_access *cmd)
+{
+	if (set_mdio && cmd->phy_interface == I40E_AQ_PHY_REG_ACCESS_EXTERNAL) {
+		if (hw->flags & I40E_HW_FLAG_AQ_PHY_ACCESS_EXTENDED)
+			cmd->cmd_flags |=
+				I40E_AQ_PHY_REG_ACCESS_SET_MDIO_IF_NUMBER |
+				((mdio_num <<
+				I40E_AQ_PHY_REG_ACCESS_MDIO_IF_NUMBER_SHIFT) &
+				I40E_AQ_PHY_REG_ACCESS_MDIO_IF_NUMBER_MASK);
+		else
+			i40e_debug(hw, I40E_DEBUG_PHY,
+				   "MDIO I/F number selection not supported by current FW version.\n");
+	}
+}
+
+/**
+ * i40e_aq_set_phy_register_ext
+ * @hw: pointer to the hw struct
+ * @phy_select: select which phy should be accessed
+ * @dev_addr: PHY device address
+ * @page_change: flag to indicate if phy page should be updated
+ * @set_mdio: use MDIO I/F number specified by mdio_num
+ * @mdio_num: MDIO I/F number
+>>>>>>> upstream/android-13
  * @reg_addr: PHY register address
  * @reg_val: new register value
  * @cmd_details: pointer to command details structure or NULL
  *
  * Write the external PHY register.
+<<<<<<< HEAD
  **/
 i40e_status i40e_aq_set_phy_register(struct i40e_hw *hw,
 				     u8 phy_select, u8 dev_addr,
 				     u32 reg_addr, u32 reg_val,
 				     struct i40e_asq_cmd_details *cmd_details)
+=======
+ * NOTE: In common cases MDIO I/F number should not be changed, thats why you
+ * may use simple wrapper i40e_aq_set_phy_register.
+ **/
+enum i40e_status_code i40e_aq_set_phy_register_ext(struct i40e_hw *hw,
+			     u8 phy_select, u8 dev_addr, bool page_change,
+			     bool set_mdio, u8 mdio_num,
+			     u32 reg_addr, u32 reg_val,
+			     struct i40e_asq_cmd_details *cmd_details)
+>>>>>>> upstream/android-13
 {
 	struct i40e_aq_desc desc;
 	struct i40e_aqc_phy_register_access *cmd =
@@ -5327,26 +5750,55 @@ i40e_status i40e_aq_set_phy_register(struct i40e_hw *hw,
 	cmd->reg_address = cpu_to_le32(reg_addr);
 	cmd->reg_value = cpu_to_le32(reg_val);
 
+<<<<<<< HEAD
+=======
+	i40e_mdio_if_number_selection(hw, set_mdio, mdio_num, cmd);
+
+	if (!page_change)
+		cmd->cmd_flags = I40E_AQ_PHY_REG_ACCESS_DONT_CHANGE_QSFP_PAGE;
+
+>>>>>>> upstream/android-13
 	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
 
 	return status;
 }
 
 /**
+<<<<<<< HEAD
  * i40e_aq_get_phy_register
  * @hw: pointer to the hw struct
  * @phy_select: select which phy should be accessed
  * @dev_addr: PHY device address
+=======
+ * i40e_aq_get_phy_register_ext
+ * @hw: pointer to the hw struct
+ * @phy_select: select which phy should be accessed
+ * @dev_addr: PHY device address
+ * @page_change: flag to indicate if phy page should be updated
+ * @set_mdio: use MDIO I/F number specified by mdio_num
+ * @mdio_num: MDIO I/F number
+>>>>>>> upstream/android-13
  * @reg_addr: PHY register address
  * @reg_val: read register value
  * @cmd_details: pointer to command details structure or NULL
  *
  * Read the external PHY register.
+<<<<<<< HEAD
  **/
 i40e_status i40e_aq_get_phy_register(struct i40e_hw *hw,
 				     u8 phy_select, u8 dev_addr,
 				     u32 reg_addr, u32 *reg_val,
 				     struct i40e_asq_cmd_details *cmd_details)
+=======
+ * NOTE: In common cases MDIO I/F number should not be changed, thats why you
+ * may use simple wrapper i40e_aq_get_phy_register.
+ **/
+enum i40e_status_code i40e_aq_get_phy_register_ext(struct i40e_hw *hw,
+			     u8 phy_select, u8 dev_addr, bool page_change,
+			     bool set_mdio, u8 mdio_num,
+			     u32 reg_addr, u32 *reg_val,
+			     struct i40e_asq_cmd_details *cmd_details)
+>>>>>>> upstream/android-13
 {
 	struct i40e_aq_desc desc;
 	struct i40e_aqc_phy_register_access *cmd =
@@ -5360,6 +5812,14 @@ i40e_status i40e_aq_get_phy_register(struct i40e_hw *hw,
 	cmd->dev_address = dev_addr;
 	cmd->reg_address = cpu_to_le32(reg_addr);
 
+<<<<<<< HEAD
+=======
+	i40e_mdio_if_number_selection(hw, set_mdio, mdio_num, cmd);
+
+	if (!page_change)
+		cmd->cmd_flags = I40E_AQ_PHY_REG_ACCESS_DONT_CHANGE_QSFP_PAGE;
+
+>>>>>>> upstream/android-13
 	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
 	if (!status)
 		*reg_val = le32_to_cpu(cmd->reg_value);
@@ -5475,6 +5935,166 @@ i40e_find_segment_in_package(u32 segment_type,
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+/* Get section table in profile */
+#define I40E_SECTION_TABLE(profile, sec_tbl)				\
+	do {								\
+		struct i40e_profile_segment *p = (profile);		\
+		u32 count;						\
+		u32 *nvm;						\
+		count = p->device_table_count;				\
+		nvm = (u32 *)&p->device_table[count];			\
+		sec_tbl = (struct i40e_section_table *)&nvm[nvm[0] + 1]; \
+	} while (0)
+
+/* Get section header in profile */
+#define I40E_SECTION_HEADER(profile, offset)				\
+	(struct i40e_profile_section_header *)((u8 *)(profile) + (offset))
+
+/**
+ * i40e_find_section_in_profile
+ * @section_type: the section type to search for (i.e., SECTION_TYPE_NOTE)
+ * @profile: pointer to the i40e segment header to be searched
+ *
+ * This function searches i40e segment for a particular section type. On
+ * success it returns a pointer to the section header, otherwise it will
+ * return NULL.
+ **/
+struct i40e_profile_section_header *
+i40e_find_section_in_profile(u32 section_type,
+			     struct i40e_profile_segment *profile)
+{
+	struct i40e_profile_section_header *sec;
+	struct i40e_section_table *sec_tbl;
+	u32 sec_off;
+	u32 i;
+
+	if (profile->header.type != SEGMENT_TYPE_I40E)
+		return NULL;
+
+	I40E_SECTION_TABLE(profile, sec_tbl);
+
+	for (i = 0; i < sec_tbl->section_count; i++) {
+		sec_off = sec_tbl->section_offset[i];
+		sec = I40E_SECTION_HEADER(profile, sec_off);
+		if (sec->section.type == section_type)
+			return sec;
+	}
+
+	return NULL;
+}
+
+/**
+ * i40e_ddp_exec_aq_section - Execute generic AQ for DDP
+ * @hw: pointer to the hw struct
+ * @aq: command buffer containing all data to execute AQ
+ **/
+static enum
+i40e_status_code i40e_ddp_exec_aq_section(struct i40e_hw *hw,
+					  struct i40e_profile_aq_section *aq)
+{
+	i40e_status status;
+	struct i40e_aq_desc desc;
+	u8 *msg = NULL;
+	u16 msglen;
+
+	i40e_fill_default_direct_cmd_desc(&desc, aq->opcode);
+	desc.flags |= cpu_to_le16(aq->flags);
+	memcpy(desc.params.raw, aq->param, sizeof(desc.params.raw));
+
+	msglen = aq->datalen;
+	if (msglen) {
+		desc.flags |= cpu_to_le16((u16)(I40E_AQ_FLAG_BUF |
+						I40E_AQ_FLAG_RD));
+		if (msglen > I40E_AQ_LARGE_BUF)
+			desc.flags |= cpu_to_le16((u16)I40E_AQ_FLAG_LB);
+		desc.datalen = cpu_to_le16(msglen);
+		msg = &aq->data[0];
+	}
+
+	status = i40e_asq_send_command(hw, &desc, msg, msglen, NULL);
+
+	if (status) {
+		i40e_debug(hw, I40E_DEBUG_PACKAGE,
+			   "unable to exec DDP AQ opcode %u, error %d\n",
+			   aq->opcode, status);
+		return status;
+	}
+
+	/* copy returned desc to aq_buf */
+	memcpy(aq->param, desc.params.raw, sizeof(desc.params.raw));
+
+	return 0;
+}
+
+/**
+ * i40e_validate_profile
+ * @hw: pointer to the hardware structure
+ * @profile: pointer to the profile segment of the package to be validated
+ * @track_id: package tracking id
+ * @rollback: flag if the profile is for rollback.
+ *
+ * Validates supported devices and profile's sections.
+ */
+static enum i40e_status_code
+i40e_validate_profile(struct i40e_hw *hw, struct i40e_profile_segment *profile,
+		      u32 track_id, bool rollback)
+{
+	struct i40e_profile_section_header *sec = NULL;
+	i40e_status status = 0;
+	struct i40e_section_table *sec_tbl;
+	u32 vendor_dev_id;
+	u32 dev_cnt;
+	u32 sec_off;
+	u32 i;
+
+	if (track_id == I40E_DDP_TRACKID_INVALID) {
+		i40e_debug(hw, I40E_DEBUG_PACKAGE, "Invalid track_id\n");
+		return I40E_NOT_SUPPORTED;
+	}
+
+	dev_cnt = profile->device_table_count;
+	for (i = 0; i < dev_cnt; i++) {
+		vendor_dev_id = profile->device_table[i].vendor_dev_id;
+		if ((vendor_dev_id >> 16) == PCI_VENDOR_ID_INTEL &&
+		    hw->device_id == (vendor_dev_id & 0xFFFF))
+			break;
+	}
+	if (dev_cnt && i == dev_cnt) {
+		i40e_debug(hw, I40E_DEBUG_PACKAGE,
+			   "Device doesn't support DDP\n");
+		return I40E_ERR_DEVICE_NOT_SUPPORTED;
+	}
+
+	I40E_SECTION_TABLE(profile, sec_tbl);
+
+	/* Validate sections types */
+	for (i = 0; i < sec_tbl->section_count; i++) {
+		sec_off = sec_tbl->section_offset[i];
+		sec = I40E_SECTION_HEADER(profile, sec_off);
+		if (rollback) {
+			if (sec->section.type == SECTION_TYPE_MMIO ||
+			    sec->section.type == SECTION_TYPE_AQ ||
+			    sec->section.type == SECTION_TYPE_RB_AQ) {
+				i40e_debug(hw, I40E_DEBUG_PACKAGE,
+					   "Not a roll-back package\n");
+				return I40E_NOT_SUPPORTED;
+			}
+		} else {
+			if (sec->section.type == SECTION_TYPE_RB_AQ ||
+			    sec->section.type == SECTION_TYPE_RB_MMIO) {
+				i40e_debug(hw, I40E_DEBUG_PACKAGE,
+					   "Not an original package\n");
+				return I40E_NOT_SUPPORTED;
+			}
+		}
+	}
+
+	return status;
+}
+
+>>>>>>> upstream/android-13
 /**
  * i40e_write_profile
  * @hw: pointer to the hardware structure
@@ -5490,6 +6110,7 @@ i40e_write_profile(struct i40e_hw *hw, struct i40e_profile_segment *profile,
 	i40e_status status = 0;
 	struct i40e_section_table *sec_tbl;
 	struct i40e_profile_section_header *sec = NULL;
+<<<<<<< HEAD
 	u32 dev_cnt;
 	u32 vendor_dev_id;
 	u32 *nvm;
@@ -5518,19 +6139,110 @@ i40e_write_profile(struct i40e_hw *hw, struct i40e_profile_segment *profile,
 					     sec_tbl->section_offset[i]);
 
 		/* Skip 'AQ', 'note' and 'name' sections */
+=======
+	struct i40e_profile_aq_section *ddp_aq;
+	u32 section_size = 0;
+	u32 offset = 0, info = 0;
+	u32 sec_off;
+	u32 i;
+
+	status = i40e_validate_profile(hw, profile, track_id, false);
+	if (status)
+		return status;
+
+	I40E_SECTION_TABLE(profile, sec_tbl);
+
+	for (i = 0; i < sec_tbl->section_count; i++) {
+		sec_off = sec_tbl->section_offset[i];
+		sec = I40E_SECTION_HEADER(profile, sec_off);
+		/* Process generic admin command */
+		if (sec->section.type == SECTION_TYPE_AQ) {
+			ddp_aq = (struct i40e_profile_aq_section *)&sec[1];
+			status = i40e_ddp_exec_aq_section(hw, ddp_aq);
+			if (status) {
+				i40e_debug(hw, I40E_DEBUG_PACKAGE,
+					   "Failed to execute aq: section %d, opcode %u\n",
+					   i, ddp_aq->opcode);
+				break;
+			}
+			sec->section.type = SECTION_TYPE_RB_AQ;
+		}
+
+		/* Skip any non-mmio sections */
+>>>>>>> upstream/android-13
 		if (sec->section.type != SECTION_TYPE_MMIO)
 			continue;
 
 		section_size = sec->section.size +
 			sizeof(struct i40e_profile_section_header);
 
+<<<<<<< HEAD
 		/* Write profile */
+=======
+		/* Write MMIO section */
+>>>>>>> upstream/android-13
 		status = i40e_aq_write_ddp(hw, (void *)sec, (u16)section_size,
 					   track_id, &offset, &info, NULL);
 		if (status) {
 			i40e_debug(hw, I40E_DEBUG_PACKAGE,
+<<<<<<< HEAD
 				   "Failed to write profile: offset %d, info %d",
 				   offset, info);
+=======
+				   "Failed to write profile: section %d, offset %d, info %d\n",
+				   i, offset, info);
+			break;
+		}
+	}
+	return status;
+}
+
+/**
+ * i40e_rollback_profile
+ * @hw: pointer to the hardware structure
+ * @profile: pointer to the profile segment of the package to be removed
+ * @track_id: package tracking id
+ *
+ * Rolls back previously loaded package.
+ */
+enum i40e_status_code
+i40e_rollback_profile(struct i40e_hw *hw, struct i40e_profile_segment *profile,
+		      u32 track_id)
+{
+	struct i40e_profile_section_header *sec = NULL;
+	i40e_status status = 0;
+	struct i40e_section_table *sec_tbl;
+	u32 offset = 0, info = 0;
+	u32 section_size = 0;
+	u32 sec_off;
+	int i;
+
+	status = i40e_validate_profile(hw, profile, track_id, true);
+	if (status)
+		return status;
+
+	I40E_SECTION_TABLE(profile, sec_tbl);
+
+	/* For rollback write sections in reverse */
+	for (i = sec_tbl->section_count - 1; i >= 0; i--) {
+		sec_off = sec_tbl->section_offset[i];
+		sec = I40E_SECTION_HEADER(profile, sec_off);
+
+		/* Skip any non-rollback sections */
+		if (sec->section.type != SECTION_TYPE_RB_MMIO)
+			continue;
+
+		section_size = sec->section.size +
+			sizeof(struct i40e_profile_section_header);
+
+		/* Write roll-back MMIO section */
+		status = i40e_aq_write_ddp(hw, (void *)sec, (u16)section_size,
+					   track_id, &offset, &info, NULL);
+		if (status) {
+			i40e_debug(hw, I40E_DEBUG_PACKAGE,
+				   "Failed to write profile: section %d, offset %d, info %d\n",
+				   i, offset, info);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}

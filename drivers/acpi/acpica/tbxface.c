@@ -3,7 +3,11 @@
  *
  * Module Name: tbxface - ACPI table-oriented external interfaces
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -108,7 +112,11 @@ acpi_initialize_tables(struct acpi_table_desc *initial_table_array,
 	/*
 	 * Get the root table (RSDT or XSDT) and extract all entries to the local
 	 * Root Table Array. This array contains the information of the RSDT/XSDT
+<<<<<<< HEAD
 	 * in a common, more useable format.
+=======
+	 * in a common, more usable format.
+>>>>>>> upstream/android-13
 	 */
 	status = acpi_tb_parse_root_table(rsdp_address);
 	return_ACPI_STATUS(status);
@@ -169,7 +177,11 @@ acpi_status ACPI_INIT_FUNCTION acpi_reallocate_root_table(void)
 	if (!acpi_gbl_enable_table_validation) {
 		/*
 		 * Now it's safe to do full table validation. We can do deferred
+<<<<<<< HEAD
 		 * table initilization here once the flag is set.
+=======
+		 * table initialization here once the flag is set.
+>>>>>>> upstream/android-13
 		 */
 		acpi_gbl_enable_table_validation = TRUE;
 		for (i = 0; i < acpi_gbl_root_table_list.current_table_count;
@@ -202,6 +214,7 @@ ACPI_EXPORT_SYMBOL_INIT(acpi_reallocate_root_table)
  *
  * PARAMETERS:  signature           - ACPI signature of needed table
  *              instance            - Which instance (for SSDTs)
+<<<<<<< HEAD
  *              out_table_header    - The pointer to the table header to fill
  *
  * RETURN:      Status and pointer to mapped table header
@@ -210,6 +223,16 @@ ACPI_EXPORT_SYMBOL_INIT(acpi_reallocate_root_table)
  *
  * NOTE:        Caller is responsible in unmapping the header with
  *              acpi_os_unmap_memory
+=======
+ *              out_table_header    - The pointer to the where the table header
+ *                                    is returned
+ *
+ * RETURN:      Status and a copy of the table header
+ *
+ * DESCRIPTION: Finds and returns an ACPI table header. Caller provides the
+ *              memory where a copy of the header is to be returned
+ *              (fixed length).
+>>>>>>> upstream/android-13
  *
  ******************************************************************************/
 acpi_status
@@ -230,7 +253,11 @@ acpi_get_table_header(char *signature,
 
 	for (i = 0, j = 0; i < acpi_gbl_root_table_list.current_table_count;
 	     i++) {
+<<<<<<< HEAD
 		if (!ACPI_COMPARE_NAME
+=======
+		if (!ACPI_COMPARE_NAMESEG
+>>>>>>> upstream/android-13
 		    (&(acpi_gbl_root_table_list.tables[i].signature),
 		     signature)) {
 			continue;
@@ -323,7 +350,11 @@ acpi_get_table(char *signature,
 	     i++) {
 		table_desc = &acpi_gbl_root_table_list.tables[i];
 
+<<<<<<< HEAD
 		if (!ACPI_COMPARE_NAME(&table_desc->signature, signature)) {
+=======
+		if (!ACPI_COMPARE_NAMESEG(&table_desc->signature, signature)) {
+>>>>>>> upstream/android-13
 			continue;
 		}
 

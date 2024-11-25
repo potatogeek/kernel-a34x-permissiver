@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012-2014 Mentor Graphics Inc.
  * Copyright 2005-2012 Freescale Semiconductor, Inc. All Rights Reserved.
@@ -8,6 +9,12 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2012-2014 Mentor Graphics Inc.
+ * Copyright 2005-2012 Freescale Semiconductor, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -146,8 +153,15 @@ struct ipu_ic {
 	const struct ic_task_regoffs *reg;
 	const struct ic_task_bitfields *bit;
 
+<<<<<<< HEAD
 	enum ipu_color_space in_cs, g_in_cs;
 	enum ipu_color_space out_cs;
+=======
+	struct ipu_ic_colorspace in_cs;
+	struct ipu_ic_colorspace g_in_cs;
+	struct ipu_ic_colorspace out_cs;
+
+>>>>>>> upstream/android-13
 	bool graphics;
 	bool rotation;
 	bool in_use;
@@ -175,6 +189,7 @@ static inline void ipu_ic_write(struct ipu_ic *ic, u32 value, unsigned offset)
 	writel(value, ic->priv->base + offset);
 }
 
+<<<<<<< HEAD
 struct ic_csc_params {
 	s16 coeff[3][3];	/* signed 9-bit integer coefficients */
 	s16 offset[3];		/* signed 11+2-bit fixed point offset */
@@ -229,6 +244,13 @@ static int init_csc(struct ipu_ic *ic,
 {
 	struct ipu_ic_priv *priv = ic->priv;
 	const struct ic_csc_params *params;
+=======
+static int init_csc(struct ipu_ic *ic,
+		    const struct ipu_ic_csc *csc,
+		    int csc_index)
+{
+	struct ipu_ic_priv *priv = ic->priv;
+>>>>>>> upstream/android-13
 	u32 __iomem *base;
 	const u16 (*c)[3];
 	const u16 *a;
@@ -237,6 +259,7 @@ static int init_csc(struct ipu_ic *ic,
 	base = (u32 __iomem *)
 		(priv->tpmem_base + ic->reg->tpmem_csc[csc_index]);
 
+<<<<<<< HEAD
 	if (inf == IPUV3_COLORSPACE_YUV && outf == IPUV3_COLORSPACE_RGB)
 		params = &ic_csc_ycbcr2rgb;
 	else if (inf == IPUV3_COLORSPACE_RGB && outf == IPUV3_COLORSPACE_YUV)
@@ -251,13 +274,23 @@ static int init_csc(struct ipu_ic *ic,
 	/* Cast to unsigned */
 	c = (const u16 (*)[3])params->coeff;
 	a = (const u16 *)params->offset;
+=======
+	/* Cast to unsigned */
+	c = (const u16 (*)[3])csc->params.coeff;
+	a = (const u16 *)csc->params.offset;
+>>>>>>> upstream/android-13
 
 	param = ((a[0] & 0x1f) << 27) | ((c[0][0] & 0x1ff) << 18) |
 		((c[1][1] & 0x1ff) << 9) | (c[2][2] & 0x1ff);
 	writel(param, base++);
 
+<<<<<<< HEAD
 	param = ((a[0] & 0x1fe0) >> 5) | (params->scale << 8) |
 		(params->sat << 10);
+=======
+	param = ((a[0] & 0x1fe0) >> 5) | (csc->params.scale << 8) |
+		(csc->params.sat << 10);
+>>>>>>> upstream/android-13
 	writel(param, base++);
 
 	param = ((a[1] & 0x1f) << 27) | ((c[0][1] & 0x1ff) << 18) |
@@ -344,14 +377,22 @@ void ipu_ic_task_enable(struct ipu_ic *ic)
 	if (ic->rotation)
 		ic_conf |= ic->bit->ic_conf_rot_en;
 
+<<<<<<< HEAD
 	if (ic->in_cs != ic->out_cs)
+=======
+	if (ic->in_cs.cs != ic->out_cs.cs)
+>>>>>>> upstream/android-13
 		ic_conf |= ic->bit->ic_conf_csc1_en;
 
 	if (ic->graphics) {
 		ic_conf |= ic->bit->ic_conf_cmb_en;
 		ic_conf |= ic->bit->ic_conf_csc1_en;
 
+<<<<<<< HEAD
 		if (ic->g_in_cs != ic->out_cs)
+=======
+		if (ic->g_in_cs.cs != ic->out_cs.cs)
+>>>>>>> upstream/android-13
 			ic_conf |= ic->bit->ic_conf_csc2_en;
 	}
 
@@ -386,11 +427,19 @@ void ipu_ic_task_disable(struct ipu_ic *ic)
 EXPORT_SYMBOL_GPL(ipu_ic_task_disable);
 
 int ipu_ic_task_graphics_init(struct ipu_ic *ic,
+<<<<<<< HEAD
 			      enum ipu_color_space in_g_cs,
+=======
+			      const struct ipu_ic_colorspace *g_in_cs,
+>>>>>>> upstream/android-13
 			      bool galpha_en, u32 galpha,
 			      bool colorkey_en, u32 colorkey)
 {
 	struct ipu_ic_priv *priv = ic->priv;
+<<<<<<< HEAD
+=======
+	struct ipu_ic_csc csc2;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	u32 reg, ic_conf;
 	int ret = 0;
@@ -403,13 +452,31 @@ int ipu_ic_task_graphics_init(struct ipu_ic *ic,
 	ic_conf = ipu_ic_read(ic, IC_CONF);
 
 	if (!(ic_conf & ic->bit->ic_conf_csc1_en)) {
+<<<<<<< HEAD
 		/* need transparent CSC1 conversion */
 		ret = init_csc(ic, IPUV3_COLORSPACE_RGB,
 			       IPUV3_COLORSPACE_RGB, 0);
+=======
+		struct ipu_ic_csc csc1;
+
+		ret = ipu_ic_calc_csc(&csc1,
+				      V4L2_YCBCR_ENC_601,
+				      V4L2_QUANTIZATION_FULL_RANGE,
+				      IPUV3_COLORSPACE_RGB,
+				      V4L2_YCBCR_ENC_601,
+				      V4L2_QUANTIZATION_FULL_RANGE,
+				      IPUV3_COLORSPACE_RGB);
+		if (ret)
+			goto unlock;
+
+		/* need transparent CSC1 conversion */
+		ret = init_csc(ic, &csc1, 0);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto unlock;
 	}
 
+<<<<<<< HEAD
 	ic->g_in_cs = in_g_cs;
 
 	if (ic->g_in_cs != ic->out_cs) {
@@ -417,6 +484,19 @@ int ipu_ic_task_graphics_init(struct ipu_ic *ic,
 		if (ret)
 			goto unlock;
 	}
+=======
+	ic->g_in_cs = *g_in_cs;
+	csc2.in_cs = ic->g_in_cs;
+	csc2.out_cs = ic->out_cs;
+
+	ret = __ipu_ic_calc_csc(&csc2);
+	if (ret)
+		goto unlock;
+
+	ret = init_csc(ic, &csc2, 1);
+	if (ret)
+		goto unlock;
+>>>>>>> upstream/android-13
 
 	if (galpha_en) {
 		ic_conf |= IC_CONF_IC_GLB_LOC_A;
@@ -442,6 +522,7 @@ unlock:
 }
 EXPORT_SYMBOL_GPL(ipu_ic_task_graphics_init);
 
+<<<<<<< HEAD
 int ipu_ic_task_init(struct ipu_ic *ic,
 		     int in_width, int in_height,
 		     int out_width, int out_height,
@@ -487,6 +568,61 @@ unlock:
 	spin_unlock_irqrestore(&priv->lock, flags);
 	return ret;
 }
+=======
+int ipu_ic_task_init_rsc(struct ipu_ic *ic,
+			 const struct ipu_ic_csc *csc,
+			 int in_width, int in_height,
+			 int out_width, int out_height,
+			 u32 rsc)
+{
+	struct ipu_ic_priv *priv = ic->priv;
+	u32 downsize_coeff, resize_coeff;
+	unsigned long flags;
+	int ret = 0;
+
+	if (!rsc) {
+		/* Setup vertical resizing */
+
+		ret = calc_resize_coeffs(ic, in_height, out_height,
+					 &resize_coeff, &downsize_coeff);
+		if (ret)
+			return ret;
+
+		rsc = (downsize_coeff << 30) | (resize_coeff << 16);
+
+		/* Setup horizontal resizing */
+		ret = calc_resize_coeffs(ic, in_width, out_width,
+					 &resize_coeff, &downsize_coeff);
+		if (ret)
+			return ret;
+
+		rsc |= (downsize_coeff << 14) | resize_coeff;
+	}
+
+	spin_lock_irqsave(&priv->lock, flags);
+
+	ipu_ic_write(ic, rsc, ic->reg->rsc);
+
+	/* Setup color space conversion */
+	ic->in_cs = csc->in_cs;
+	ic->out_cs = csc->out_cs;
+
+	ret = init_csc(ic, csc, 0);
+
+	spin_unlock_irqrestore(&priv->lock, flags);
+	return ret;
+}
+
+int ipu_ic_task_init(struct ipu_ic *ic,
+		     const struct ipu_ic_csc *csc,
+		     int in_width, int in_height,
+		     int out_width, int out_height)
+{
+	return ipu_ic_task_init_rsc(ic, csc,
+				    in_width, in_height,
+				    out_width, out_height, 0);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(ipu_ic_task_init);
 
 int ipu_ic_task_idma_init(struct ipu_ic *ic, struct ipuv3_channel *channel,

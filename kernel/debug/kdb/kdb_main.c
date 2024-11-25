@@ -62,7 +62,11 @@ int kdb_grep_trailing;
 /*
  * Kernel debugger state flags
  */
+<<<<<<< HEAD
 int kdb_flags;
+=======
+unsigned int kdb_flags;
+>>>>>>> upstream/android-13
 
 /*
  * kdb_lock protects updates to kdb_initial_cpu.  Used to
@@ -73,7 +77,10 @@ int kdb_nextline = 1;
 int kdb_state;			/* General KDB state */
 
 struct task_struct *kdb_current_task;
+<<<<<<< HEAD
 EXPORT_SYMBOL(kdb_current_task);
+=======
+>>>>>>> upstream/android-13
 struct pt_regs *kdb_current_regs;
 
 const char *kdb_diemsg;
@@ -85,6 +92,7 @@ static unsigned int kdb_continue_catastrophic =
 static unsigned int kdb_continue_catastrophic;
 #endif
 
+<<<<<<< HEAD
 /* kdb_commands describes the available commands. */
 static kdbtab_t *kdb_commands;
 #define KDB_BASE_CMD_MAX 50
@@ -94,6 +102,10 @@ static kdbtab_t kdb_base_commands[KDB_BASE_CMD_MAX];
 	for ((cmd) = kdb_base_commands, (num) = 0;			\
 	     num < kdb_max_commands;					\
 	     num++, num == KDB_BASE_CMD_MAX ? cmd = kdb_commands : cmd++)
+=======
+/* kdb_cmds_head describes the available commands. */
+static LIST_HEAD(kdb_cmds_head);
+>>>>>>> upstream/android-13
 
 typedef struct _kdbmsg {
 	int	km_diag;	/* kdb diagnostic */
@@ -147,6 +159,7 @@ static const int __nkdb_err = ARRAY_SIZE(kdbmsgs);
  * KDB_ENVBUFSIZE if required).
  */
 
+<<<<<<< HEAD
 static char *__env[] = {
 #if defined(CONFIG_SMP)
  "PROMPT=[%d]kdb> ",
@@ -183,6 +196,20 @@ static char *__env[] = {
  (char *)0,
  (char *)0,
  (char *)0,
+=======
+static char *__env[31] = {
+#if defined(CONFIG_SMP)
+	"PROMPT=[%d]kdb> ",
+#else
+	"PROMPT=kdb> ",
+#endif
+	"MOREPROMPT=more> ",
+	"RADIX=16",
+	"MDCOUNT=8",		/* lines of md output */
+	KDB_PLATFORM_ENV,
+	"DTABCOUNT=30",
+	"NOSECT=1",
+>>>>>>> upstream/android-13
 };
 
 static const int __nenv = ARRAY_SIZE(__env);
@@ -284,7 +311,11 @@ static char *kdballocenv(size_t bytes)
  * Parameters:
  *	match	A character string representing a numeric value
  * Outputs:
+<<<<<<< HEAD
  *	*value  the unsigned long represntation of the env variable 'match'
+=======
+ *	*value  the unsigned long representation of the env variable 'match'
+>>>>>>> upstream/android-13
  * Returns:
  *	Zero on success, a kdb diagnostic on failure.
  */
@@ -325,12 +356,76 @@ int kdbgetintenv(const char *match, int *value)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * kdb_setenv() - Alter an existing environment variable or create a new one.
+ * @var: Name of the variable
+ * @val: Value of the variable
+ *
+ * Return: Zero on success, a kdb diagnostic on failure.
+ */
+static int kdb_setenv(const char *var, const char *val)
+{
+	int i;
+	char *ep;
+	size_t varlen, vallen;
+
+	varlen = strlen(var);
+	vallen = strlen(val);
+	ep = kdballocenv(varlen + vallen + 2);
+	if (ep == (char *)0)
+		return KDB_ENVBUFFULL;
+
+	sprintf(ep, "%s=%s", var, val);
+
+	for (i = 0; i < __nenv; i++) {
+		if (__env[i]
+		 && ((strncmp(__env[i], var, varlen) == 0)
+		   && ((__env[i][varlen] == '\0')
+		    || (__env[i][varlen] == '=')))) {
+			__env[i] = ep;
+			return 0;
+		}
+	}
+
+	/*
+	 * Wasn't existing variable.  Fit into slot.
+	 */
+	for (i = 0; i < __nenv-1; i++) {
+		if (__env[i] == (char *)0) {
+			__env[i] = ep;
+			return 0;
+		}
+	}
+
+	return KDB_ENVFULL;
+}
+
+/*
+ * kdb_printenv() - Display the current environment variables.
+ */
+static void kdb_printenv(void)
+{
+	int i;
+
+	for (i = 0; i < __nenv; i++) {
+		if (__env[i])
+			kdb_printf("%s\n", __env[i]);
+	}
+}
+
+/*
+>>>>>>> upstream/android-13
  * kdbgetularg - This function will convert a numeric string into an
  *	unsigned long value.
  * Parameters:
  *	arg	A character string representing a numeric value
  * Outputs:
+<<<<<<< HEAD
  *	*value  the unsigned long represntation of arg.
+=======
+ *	*value  the unsigned long representation of arg.
+>>>>>>> upstream/android-13
  * Returns:
  *	Zero on success, a kdb diagnostic on failure.
  */
@@ -381,10 +476,13 @@ int kdbgetu64arg(const char *arg, u64 *value)
  */
 int kdb_set(int argc, const char **argv)
 {
+<<<<<<< HEAD
 	int i;
 	char *ep;
 	size_t varlen, vallen;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * we can be invoked two ways:
 	 *   set var=value    argv[1]="var", argv[2]="value"
@@ -400,6 +498,16 @@ int kdb_set(int argc, const char **argv)
 		return KDB_ARGCOUNT;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Censor sensitive variables
+	 */
+	if (strcmp(argv[1], "PROMPT") == 0 &&
+	    !kdb_check_flags(KDB_ENABLE_MEM_READ, kdb_cmd_enabled, false))
+		return KDB_NOPERM;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Check for internal variables
 	 */
 	if (strcmp(argv[1], "KDBDEBUG") == 0) {
@@ -412,8 +520,12 @@ int kdb_set(int argc, const char **argv)
 				    argv[2]);
 			return 0;
 		}
+<<<<<<< HEAD
 		kdb_flags = (kdb_flags &
 			     ~(KDB_DEBUG_FLAG_MASK << KDB_DEBUG_FLAG_SHIFT))
+=======
+		kdb_flags = (kdb_flags & ~KDB_DEBUG(MASK))
+>>>>>>> upstream/android-13
 			| (debugflags << KDB_DEBUG_FLAG_SHIFT);
 
 		return 0;
@@ -423,6 +535,7 @@ int kdb_set(int argc, const char **argv)
 	 * Tokenizer squashed the '=' sign.  argv[1] is variable
 	 * name, argv[2] = value.
 	 */
+<<<<<<< HEAD
 	varlen = strlen(argv[1]);
 	vallen = strlen(argv[2]);
 	ep = kdballocenv(varlen + vallen + 2);
@@ -454,6 +567,9 @@ int kdb_set(int argc, const char **argv)
 	}
 
 	return KDB_ENVFULL;
+=======
+	return kdb_setenv(argv[1], argv[2]);
+>>>>>>> upstream/android-13
 }
 
 static int kdb_check_regs(void)
@@ -472,7 +588,11 @@ static int kdb_check_regs(void)
  *	symbol name, and offset to the caller.
  *
  *	The argument may consist of a numeric value (decimal or
+<<<<<<< HEAD
  *	hexidecimal), a symbol name, a register name (preceded by the
+=======
+ *	hexadecimal), a symbol name, a register name (preceded by the
+>>>>>>> upstream/android-13
  *	percent sign), an environment variable with a numeric value
  *	(preceded by a dollar sign) or a simple arithmetic expression
  *	consisting of a symbol name, +/-, and a numeric constant value
@@ -656,6 +776,7 @@ static void kdb_cmderror(int diag)
  * Returns:
  *	zero for success, a kdb diagnostic if error
  */
+<<<<<<< HEAD
 struct defcmd_set {
 	int count;
 	int usable;
@@ -667,12 +788,27 @@ struct defcmd_set {
 static struct defcmd_set *defcmd_set;
 static int defcmd_set_count;
 static int defcmd_in_progress;
+=======
+struct kdb_macro {
+	kdbtab_t cmd;			/* Macro command */
+	struct list_head statements;	/* Associated statement list */
+};
+
+struct kdb_macro_statement {
+	char *statement;		/* Statement text */
+	struct list_head list_node;	/* Statement list node */
+};
+
+static struct kdb_macro *kdb_macro;
+static bool defcmd_in_progress;
+>>>>>>> upstream/android-13
 
 /* Forward references */
 static int kdb_exec_defcmd(int argc, const char **argv);
 
 static int kdb_defcmd2(const char *cmdstr, const char *argv0)
 {
+<<<<<<< HEAD
 	struct defcmd_set *s = defcmd_set + defcmd_set_count - 1;
 	char **save_command = s->command;
 	if (strcmp(argv0, "endefcmd") == 0) {
@@ -701,18 +837,48 @@ static int kdb_defcmd2(const char *cmdstr, const char *argv0)
 	memcpy(s->command, save_command, s->count * sizeof(*(s->command)));
 	s->command[s->count++] = kdb_strdup(cmdstr, GFP_KDB);
 	kfree(save_command);
+=======
+	struct kdb_macro_statement *kms;
+
+	if (!kdb_macro)
+		return KDB_NOTIMP;
+
+	if (strcmp(argv0, "endefcmd") == 0) {
+		defcmd_in_progress = false;
+		if (!list_empty(&kdb_macro->statements))
+			kdb_register(&kdb_macro->cmd);
+		return 0;
+	}
+
+	kms = kmalloc(sizeof(*kms), GFP_KDB);
+	if (!kms) {
+		kdb_printf("Could not allocate new kdb macro command: %s\n",
+			   cmdstr);
+		return KDB_NOTIMP;
+	}
+
+	kms->statement = kdb_strdup(cmdstr, GFP_KDB);
+	list_add_tail(&kms->list_node, &kdb_macro->statements);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int kdb_defcmd(int argc, const char **argv)
 {
+<<<<<<< HEAD
 	struct defcmd_set *save_defcmd_set = defcmd_set, *s;
+=======
+	kdbtab_t *mp;
+
+>>>>>>> upstream/android-13
 	if (defcmd_in_progress) {
 		kdb_printf("kdb: nested defcmd detected, assuming missing "
 			   "endefcmd\n");
 		kdb_defcmd2("endefcmd", "endefcmd");
 	}
 	if (argc == 0) {
+<<<<<<< HEAD
 		int i;
 		for (s = defcmd_set; s < defcmd_set + defcmd_set_count; ++s) {
 			kdb_printf("defcmd %s \"%s\" \"%s\"\n", s->name,
@@ -720,6 +886,22 @@ static int kdb_defcmd(int argc, const char **argv)
 			for (i = 0; i < s->count; ++i)
 				kdb_printf("%s", s->command[i]);
 			kdb_printf("endefcmd\n");
+=======
+		kdbtab_t *kp;
+		struct kdb_macro *kmp;
+		struct kdb_macro_statement *kms;
+
+		list_for_each_entry(kp, &kdb_cmds_head, list_node) {
+			if (kp->func == kdb_exec_defcmd) {
+				kdb_printf("defcmd %s \"%s\" \"%s\"\n",
+					   kp->name, kp->usage, kp->help);
+				kmp = container_of(kp, struct kdb_macro, cmd);
+				list_for_each_entry(kms, &kmp->statements,
+						    list_node)
+					kdb_printf("%s", kms->statement);
+				kdb_printf("endefcmd\n");
+			}
+>>>>>>> upstream/android-13
 		}
 		return 0;
 	}
@@ -729,6 +911,7 @@ static int kdb_defcmd(int argc, const char **argv)
 		kdb_printf("Command only available during kdb_init()\n");
 		return KDB_NOTIMP;
 	}
+<<<<<<< HEAD
 	defcmd_set = kmalloc_array(defcmd_set_count + 1, sizeof(*defcmd_set),
 				   GFP_KDB);
 	if (!defcmd_set)
@@ -768,6 +951,45 @@ fail_name:
 fail_defcmd:
 	kdb_printf("Could not allocate new defcmd_set entry for %s\n", argv[1]);
 	defcmd_set = save_defcmd_set;
+=======
+	kdb_macro = kzalloc(sizeof(*kdb_macro), GFP_KDB);
+	if (!kdb_macro)
+		goto fail_defcmd;
+
+	mp = &kdb_macro->cmd;
+	mp->func = kdb_exec_defcmd;
+	mp->minlen = 0;
+	mp->flags = KDB_ENABLE_ALWAYS_SAFE;
+	mp->name = kdb_strdup(argv[1], GFP_KDB);
+	if (!mp->name)
+		goto fail_name;
+	mp->usage = kdb_strdup(argv[2], GFP_KDB);
+	if (!mp->usage)
+		goto fail_usage;
+	mp->help = kdb_strdup(argv[3], GFP_KDB);
+	if (!mp->help)
+		goto fail_help;
+	if (mp->usage[0] == '"') {
+		strcpy(mp->usage, argv[2]+1);
+		mp->usage[strlen(mp->usage)-1] = '\0';
+	}
+	if (mp->help[0] == '"') {
+		strcpy(mp->help, argv[3]+1);
+		mp->help[strlen(mp->help)-1] = '\0';
+	}
+
+	INIT_LIST_HEAD(&kdb_macro->statements);
+	defcmd_in_progress = true;
+	return 0;
+fail_help:
+	kfree(mp->usage);
+fail_usage:
+	kfree(mp->name);
+fail_name:
+	kfree(kdb_macro);
+fail_defcmd:
+	kdb_printf("Could not allocate new kdb_macro entry for %s\n", argv[1]);
+>>>>>>> upstream/android-13
 	return KDB_NOTIMP;
 }
 
@@ -782,6 +1004,7 @@ fail_defcmd:
  */
 static int kdb_exec_defcmd(int argc, const char **argv)
 {
+<<<<<<< HEAD
 	int i, ret;
 	struct defcmd_set *s;
 	if (argc != 0)
@@ -791,16 +1014,42 @@ static int kdb_exec_defcmd(int argc, const char **argv)
 			break;
 	}
 	if (i == defcmd_set_count) {
+=======
+	int ret;
+	kdbtab_t *kp;
+	struct kdb_macro *kmp;
+	struct kdb_macro_statement *kms;
+
+	if (argc != 0)
+		return KDB_ARGCOUNT;
+
+	list_for_each_entry(kp, &kdb_cmds_head, list_node) {
+		if (strcmp(kp->name, argv[0]) == 0)
+			break;
+	}
+	if (list_entry_is_head(kp, &kdb_cmds_head, list_node)) {
+>>>>>>> upstream/android-13
 		kdb_printf("kdb_exec_defcmd: could not find commands for %s\n",
 			   argv[0]);
 		return KDB_NOTIMP;
 	}
+<<<<<<< HEAD
 	for (i = 0; i < s->count; ++i) {
 		/* Recursive use of kdb_parse, do not use argv after
 		 * this point */
 		argv = NULL;
 		kdb_printf("[%s]kdb> %s\n", s->name, s->command[i]);
 		ret = kdb_parse(s->command[i]);
+=======
+	kmp = container_of(kp, struct kdb_macro, cmd);
+	list_for_each_entry(kms, &kmp->statements, list_node) {
+		/*
+		 * Recursive use of kdb_parse, do not use argv after this point.
+		 */
+		argv = NULL;
+		kdb_printf("[%s]kdb> %s\n", kmp->cmd.name, kms->statement);
+		ret = kdb_parse(kms->statement);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -830,7 +1079,11 @@ static void parse_grep(const char *str)
 	cp++;
 	while (isspace(*cp))
 		cp++;
+<<<<<<< HEAD
 	if (strncmp(cp, "grep ", 5)) {
+=======
+	if (!str_has_prefix(cp, "grep ")) {
+>>>>>>> upstream/android-13
 		kdb_printf("invalid 'pipe', see grephelp\n");
 		return;
 	}
@@ -896,7 +1149,11 @@ static void parse_grep(const char *str)
  *	Limited to 20 tokens.
  *
  *	Real rudimentary tokenization. Basically only whitespace
+<<<<<<< HEAD
  *	is considered a token delimeter (but special consideration
+=======
+ *	is considered a token delimiter (but special consideration
+>>>>>>> upstream/android-13
  *	is taken of the '=' sign as used by the 'set' command).
  *
  *	The algorithm used to tokenize the input string relies on
@@ -916,7 +1173,11 @@ int kdb_parse(const char *cmdstr)
 	char *cp;
 	char *cpp, quoted;
 	kdbtab_t *tp;
+<<<<<<< HEAD
 	int i, escaped, ignore_errors = 0, check_grep = 0;
+=======
+	int escaped, ignore_errors = 0, check_grep = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * First tokenize the command string.
@@ -1006,6 +1267,7 @@ int kdb_parse(const char *cmdstr)
 		++argv[0];
 	}
 
+<<<<<<< HEAD
 	for_each_kdbcmd(tp, i) {
 		if (tp->cmd_name) {
 			/*
@@ -1025,6 +1287,19 @@ int kdb_parse(const char *cmdstr)
 			if (strcmp(argv[0], tp->cmd_name) == 0)
 				break;
 		}
+=======
+	list_for_each_entry(tp, &kdb_cmds_head, list_node) {
+		/*
+		 * If this command is allowed to be abbreviated,
+		 * check to see if this is it.
+		 */
+		if (tp->minlen && (strlen(argv[0]) <= tp->minlen) &&
+		    (strncmp(argv[0], tp->name, tp->minlen) == 0))
+			break;
+
+		if (strcmp(argv[0], tp->name) == 0)
+			break;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1032,6 +1307,7 @@ int kdb_parse(const char *cmdstr)
 	 * few characters of this match any of the known commands.
 	 * e.g., md1c20 should match md.
 	 */
+<<<<<<< HEAD
 	if (i == kdb_max_commands) {
 		for_each_kdbcmd(tp, i) {
 			if (tp->cmd_name) {
@@ -1052,14 +1328,38 @@ int kdb_parse(const char *cmdstr)
 
 		KDB_STATE_SET(CMD);
 		result = (*tp->cmd_func)(argc-1, (const char **)argv);
+=======
+	if (list_entry_is_head(tp, &kdb_cmds_head, list_node)) {
+		list_for_each_entry(tp, &kdb_cmds_head, list_node) {
+			if (strncmp(argv[0], tp->name, strlen(tp->name)) == 0)
+				break;
+		}
+	}
+
+	if (!list_entry_is_head(tp, &kdb_cmds_head, list_node)) {
+		int result;
+
+		if (!kdb_check_flags(tp->flags, kdb_cmd_enabled, argc <= 1))
+			return KDB_NOPERM;
+
+		KDB_STATE_SET(CMD);
+		result = (*tp->func)(argc-1, (const char **)argv);
+>>>>>>> upstream/android-13
 		if (result && ignore_errors && result > KDB_CMD_GO)
 			result = 0;
 		KDB_STATE_CLEAR(CMD);
 
+<<<<<<< HEAD
 		if (tp->cmd_flags & KDB_REPEAT_WITH_ARGS)
 			return result;
 
 		argc = tp->cmd_flags & KDB_REPEAT_NO_ARGS ? 1 : 0;
+=======
+		if (tp->flags & KDB_REPEAT_WITH_ARGS)
+			return result;
+
+		argc = tp->flags & KDB_REPEAT_NO_ARGS ? 1 : 0;
+>>>>>>> upstream/android-13
 		if (argv[argc])
 			*(argv[argc]) = '\0';
 		return result;
@@ -1102,13 +1402,23 @@ static int handle_ctrl_cmd(char *cmd)
 	switch (*cmd) {
 	case CTRL_P:
 		if (cmdptr != cmd_tail)
+<<<<<<< HEAD
 			cmdptr = (cmdptr-1) % KDB_CMD_HISTORY_COUNT;
 		strncpy(cmd_cur, cmd_hist[cmdptr], CMD_BUFLEN);
+=======
+			cmdptr = (cmdptr + KDB_CMD_HISTORY_COUNT - 1) %
+				 KDB_CMD_HISTORY_COUNT;
+		strscpy(cmd_cur, cmd_hist[cmdptr], CMD_BUFLEN);
+>>>>>>> upstream/android-13
 		return 1;
 	case CTRL_N:
 		if (cmdptr != cmd_head)
 			cmdptr = (cmdptr+1) % KDB_CMD_HISTORY_COUNT;
+<<<<<<< HEAD
 		strncpy(cmd_cur, cmd_hist[cmdptr], CMD_BUFLEN);
+=======
+		strscpy(cmd_cur, cmd_hist[cmdptr], CMD_BUFLEN);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 	return 0;
@@ -1139,7 +1449,11 @@ static void kdb_dumpregs(struct pt_regs *regs)
 	console_loglevel = old_lvl;
 }
 
+<<<<<<< HEAD
 void kdb_set_current_task(struct task_struct *p)
+=======
+static void kdb_set_current_task(struct task_struct *p)
+>>>>>>> upstream/android-13
 {
 	kdb_current_task = p;
 
@@ -1299,12 +1613,18 @@ static int kdb_local(kdb_reason_t reason, int error, struct pt_regs *regs,
 		*(cmd_hist[cmd_head]) = '\0';
 
 do_full_getstr:
+<<<<<<< HEAD
 #if defined(CONFIG_SMP)
 		snprintf(kdb_prompt_str, CMD_BUFLEN, kdbgetenv("PROMPT"),
 			 raw_smp_processor_id());
 #else
 		snprintf(kdb_prompt_str, CMD_BUFLEN, kdbgetenv("PROMPT"));
 #endif
+=======
+		/* PROMPT can only be set if we have MEM_READ permission. */
+		snprintf(kdb_prompt_str, CMD_BUFLEN, kdbgetenv("PROMPT"),
+			 raw_smp_processor_id());
+>>>>>>> upstream/android-13
 		if (defcmd_in_progress)
 			strncat(kdb_prompt_str, "[defcmd]", CMD_BUFLEN);
 
@@ -1315,7 +1635,11 @@ do_full_getstr:
 		if (*cmdbuf != '\n') {
 			if (*cmdbuf < 32) {
 				if (cmdptr == cmd_head) {
+<<<<<<< HEAD
 					strncpy(cmd_hist[cmd_head], cmd_cur,
+=======
+					strscpy(cmd_hist[cmd_head], cmd_cur,
+>>>>>>> upstream/android-13
 						CMD_BUFLEN);
 					*(cmd_hist[cmd_head] +
 					  strlen(cmd_hist[cmd_head])-1) = '\0';
@@ -1325,7 +1649,11 @@ do_full_getstr:
 				cmdbuf = cmd_cur;
 				goto do_full_getstr;
 			} else {
+<<<<<<< HEAD
 				strncpy(cmd_hist[cmd_head], cmd_cur,
+=======
+				strscpy(cmd_hist[cmd_head], cmd_cur,
+>>>>>>> upstream/android-13
 					CMD_BUFLEN);
 			}
 
@@ -1493,6 +1821,10 @@ static void kdb_md_line(const char *fmtstr, unsigned long addr,
 	char cbuf[32];
 	char *c = cbuf;
 	int i;
+<<<<<<< HEAD
+=======
+	int j;
+>>>>>>> upstream/android-13
 	unsigned long word;
 
 	memset(cbuf, '\0', sizeof(cbuf));
@@ -1538,6 +1870,7 @@ static void kdb_md_line(const char *fmtstr, unsigned long addr,
 			wc.word = word;
 #define printable_char(c) \
 	({unsigned char __c = c; isascii(__c) && isprint(__c) ? __c : '.'; })
+<<<<<<< HEAD
 			switch (bytesperword) {
 			case 8:
 				*c++ = printable_char(*cp++);
@@ -1557,6 +1890,11 @@ static void kdb_md_line(const char *fmtstr, unsigned long addr,
 				addr++;
 				break;
 			}
+=======
+			for (j = 0; j < bytesperword; j++)
+				*c++ = printable_char(*cp++);
+			addr += bytesperword;
+>>>>>>> upstream/android-13
 #undef printable_char
 		}
 	}
@@ -2085,6 +2423,7 @@ static int kdb_lsmod(int argc, const char **argv)
 
 static int kdb_env(int argc, const char **argv)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < __nenv; i++) {
@@ -2094,6 +2433,13 @@ static int kdb_env(int argc, const char **argv)
 
 	if (KDB_DEBUG(MASK))
 		kdb_printf("KDBFLAGS=0x%x\n", kdb_flags);
+=======
+	kdb_printenv();
+
+	if (KDB_DEBUG(MASK))
+		kdb_printf("KDBDEBUG=0x%x\n",
+			(kdb_flags & KDB_DEBUG(MASK)) >> KDB_DEBUG_FLAG_SHIFT);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2112,7 +2458,11 @@ static int kdb_dmesg(int argc, const char **argv)
 	int adjust = 0;
 	int n = 0;
 	int skip = 0;
+<<<<<<< HEAD
 	struct kmsg_dumper dumper = { .active = 1 };
+=======
+	struct kmsg_dump_iter iter;
+>>>>>>> upstream/android-13
 	size_t len;
 	char buf[201];
 
@@ -2137,8 +2487,13 @@ static int kdb_dmesg(int argc, const char **argv)
 		kdb_set(2, setargs);
 	}
 
+<<<<<<< HEAD
 	kmsg_dump_rewind_nolock(&dumper);
 	while (kmsg_dump_get_line_nolock(&dumper, 1, NULL, 0, NULL))
+=======
+	kmsg_dump_rewind(&iter);
+	while (kmsg_dump_get_line(&iter, 1, NULL, 0, NULL))
+>>>>>>> upstream/android-13
 		n++;
 
 	if (lines < 0) {
@@ -2170,8 +2525,13 @@ static int kdb_dmesg(int argc, const char **argv)
 	if (skip >= n || skip < 0)
 		return 0;
 
+<<<<<<< HEAD
 	kmsg_dump_rewind_nolock(&dumper);
 	while (kmsg_dump_get_line_nolock(&dumper, 1, buf, sizeof(buf), &len)) {
+=======
+	kmsg_dump_rewind(&iter);
+	while (kmsg_dump_get_line(&iter, 1, buf, sizeof(buf), &len)) {
+>>>>>>> upstream/android-13
 		if (skip) {
 			skip--;
 			continue;
@@ -2233,8 +2593,13 @@ static void kdb_cpu_status(void)
 			state = 'D';	/* cpu is online but unresponsive */
 		} else {
 			state = ' ';	/* cpu is responding to kdb */
+<<<<<<< HEAD
 			if (kdb_task_state_char(KDB_TSK(i)) == 'I')
 				state = 'I';	/* idle task */
+=======
+			if (kdb_task_state_char(KDB_TSK(i)) == '-')
+				state = '-';	/* idle task */
+>>>>>>> upstream/android-13
 		}
 		if (state != prev_state) {
 			if (prev_state != '?') {
@@ -2301,12 +2666,16 @@ static int kdb_cpu(int argc, const char **argv)
 void kdb_ps_suppressed(void)
 {
 	int idle = 0, daemon = 0;
+<<<<<<< HEAD
 	unsigned long mask_I = kdb_task_state_string("I"),
 		      mask_M = kdb_task_state_string("M");
+=======
+>>>>>>> upstream/android-13
 	unsigned long cpu;
 	const struct task_struct *p, *g;
 	for_each_online_cpu(cpu) {
 		p = kdb_curr_task(cpu);
+<<<<<<< HEAD
 		if (kdb_task_state(p, mask_I))
 			++idle;
 	}
@@ -2321,23 +2690,47 @@ void kdb_ps_suppressed(void)
 				   daemon ? " and " : "");
 		if (daemon)
 			kdb_printf("%d sleeping system daemon (state M) "
+=======
+		if (kdb_task_state(p, "-"))
+			++idle;
+	}
+	for_each_process_thread(g, p) {
+		if (kdb_task_state(p, "ims"))
+			++daemon;
+	}
+	if (idle || daemon) {
+		if (idle)
+			kdb_printf("%d idle process%s (state -)%s\n",
+				   idle, idle == 1 ? "" : "es",
+				   daemon ? " and " : "");
+		if (daemon)
+			kdb_printf("%d sleeping system daemon (state [ims]) "
+>>>>>>> upstream/android-13
 				   "process%s", daemon,
 				   daemon == 1 ? "" : "es");
 		kdb_printf(" suppressed,\nuse 'ps A' to see all.\n");
 	}
 }
 
+<<<<<<< HEAD
 /*
  * kdb_ps - This function implements the 'ps' command which shows a
  *	list of the active processes.
  *		ps [DRSTCZEUIMA]   All processes, optionally filtered by state
  */
+=======
+>>>>>>> upstream/android-13
 void kdb_ps1(const struct task_struct *p)
 {
 	int cpu;
 	unsigned long tmp;
 
+<<<<<<< HEAD
 	if (!p || probe_kernel_read(&tmp, (char *)p, sizeof(unsigned long)))
+=======
+	if (!p ||
+	    copy_from_kernel_nofault(&tmp, (char *)p, sizeof(unsigned long)))
+>>>>>>> upstream/android-13
 		return;
 
 	cpu = kdb_process_cpu(p);
@@ -2359,17 +2752,36 @@ void kdb_ps1(const struct task_struct *p)
 	}
 }
 
+<<<<<<< HEAD
 static int kdb_ps(int argc, const char **argv)
 {
 	struct task_struct *g, *p;
 	unsigned long mask, cpu;
+=======
+/*
+ * kdb_ps - This function implements the 'ps' command which shows a
+ *	    list of the active processes.
+ *
+ * ps [<state_chars>]   Show processes, optionally selecting only those whose
+ *                      state character is found in <state_chars>.
+ */
+static int kdb_ps(int argc, const char **argv)
+{
+	struct task_struct *g, *p;
+	const char *mask;
+	unsigned long cpu;
+>>>>>>> upstream/android-13
 
 	if (argc == 0)
 		kdb_ps_suppressed();
 	kdb_printf("%-*s      Pid   Parent [*] cpu State %-*s Command\n",
 		(int)(2*sizeof(void *))+2, "Task Addr",
 		(int)(2*sizeof(void *))+2, "Thread");
+<<<<<<< HEAD
 	mask = kdb_task_state_string(argc ? argv[1] : NULL);
+=======
+	mask = argc ? argv[1] : kdbgetenv("PS");
+>>>>>>> upstream/android-13
 	/* Run the active tasks first */
 	for_each_online_cpu(cpu) {
 		if (KDB_FLAG(CMD_INTERRUPT))
@@ -2380,12 +2792,20 @@ static int kdb_ps(int argc, const char **argv)
 	}
 	kdb_printf("\n");
 	/* Now the real tasks */
+<<<<<<< HEAD
 	kdb_do_each_thread(g, p) {
+=======
+	for_each_process_thread(g, p) {
+>>>>>>> upstream/android-13
 		if (KDB_FLAG(CMD_INTERRUPT))
 			return 0;
 		if (kdb_task_state(p, mask))
 			kdb_ps1(p);
+<<<<<<< HEAD
 	} kdb_while_each_thread(g, p);
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2438,11 +2858,15 @@ static int kdb_kgdb(int argc, const char **argv)
 static int kdb_help(int argc, const char **argv)
 {
 	kdbtab_t *kt;
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	kdb_printf("%-15.15s %-20.20s %s\n", "Command", "Usage", "Description");
 	kdb_printf("-----------------------------"
 		   "-----------------------------\n");
+<<<<<<< HEAD
 	for_each_kdbcmd(kt, i) {
 		char *space = "";
 		if (KDB_FLAG(CMD_INTERRUPT))
@@ -2455,6 +2879,18 @@ static int kdb_help(int argc, const char **argv)
 			space = "\n                                    ";
 		kdb_printf("%-15.15s %-20s%s%s\n", kt->cmd_name,
 			   kt->cmd_usage, space, kt->cmd_help);
+=======
+	list_for_each_entry(kt, &kdb_cmds_head, list_node) {
+		char *space = "";
+		if (KDB_FLAG(CMD_INTERRUPT))
+			return 0;
+		if (!kdb_check_flags(kt->flags, kdb_cmd_enabled, true))
+			continue;
+		if (strlen(kt->usage) > 20)
+			space = "\n                                    ";
+		kdb_printf("%-15.15s %-20s%s%s\n", kt->name,
+			   kt->usage, space, kt->help);
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -2525,7 +2961,10 @@ static void kdb_sysinfo(struct sysinfo *val)
 static int kdb_summary(int argc, const char **argv)
 {
 	time64_t now;
+<<<<<<< HEAD
 	struct tm tm;
+=======
+>>>>>>> upstream/android-13
 	struct sysinfo val;
 
 	if (argc)
@@ -2537,6 +2976,7 @@ static int kdb_summary(int argc, const char **argv)
 	kdb_printf("machine    %s\n", init_uts_ns.name.machine);
 	kdb_printf("nodename   %s\n", init_uts_ns.name.nodename);
 	kdb_printf("domainname %s\n", init_uts_ns.name.domainname);
+<<<<<<< HEAD
 	kdb_printf("ccversion  %s\n", __stringify(CCVERSION));
 
 	now = __ktime_get_real_seconds();
@@ -2547,6 +2987,11 @@ static int kdb_summary(int argc, const char **argv)
 		tm.tm_hour, tm.tm_min, tm.tm_sec,
 		sys_tz.tz_minuteswest);
 
+=======
+
+	now = __ktime_get_real_seconds();
+	kdb_printf("date       %ptTs tz_minuteswest %d\n", &now, sys_tz.tz_minuteswest);
+>>>>>>> upstream/android-13
 	kdb_sysinfo(&val);
 	kdb_printf("uptime     ");
 	if (val.uptime > (24*60*60)) {
@@ -2658,6 +3103,7 @@ static int kdb_grep_help(int argc, const char **argv)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * kdb_register_flags - This function is used to register a kernel
  * 	debugger command.
@@ -2688,10 +3134,29 @@ int kdb_register_flags(char *cmd,
 		if (kp->cmd_name && (strcmp(kp->cmd_name, cmd) == 0)) {
 			kdb_printf("Duplicate kdb command registered: "
 				"%s, func %px help %s\n", cmd, func, help);
+=======
+/**
+ * kdb_register() - This function is used to register a kernel debugger
+ *                  command.
+ * @cmd: pointer to kdb command
+ *
+ * Note that it's the job of the caller to keep the memory for the cmd
+ * allocated until unregister is called.
+ */
+int kdb_register(kdbtab_t *cmd)
+{
+	kdbtab_t *kp;
+
+	list_for_each_entry(kp, &kdb_cmds_head, list_node) {
+		if (strcmp(kp->name, cmd->name) == 0) {
+			kdb_printf("Duplicate kdb cmd: %s, func %p help %s\n",
+				   cmd->name, cmd->func, cmd->help);
+>>>>>>> upstream/android-13
 			return 1;
 		}
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Insert command into first available location in table
 	 */
@@ -2898,6 +3363,260 @@ static void __init kdb_inittab(void)
 	kdb_register_flags("grephelp", kdb_grep_help, "",
 	  "Display help on | grep", 0,
 	  KDB_ENABLE_ALWAYS_SAFE);
+=======
+	list_add_tail(&cmd->list_node, &kdb_cmds_head);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(kdb_register);
+
+/**
+ * kdb_register_table() - This function is used to register a kdb command
+ *                        table.
+ * @kp: pointer to kdb command table
+ * @len: length of kdb command table
+ */
+void kdb_register_table(kdbtab_t *kp, size_t len)
+{
+	while (len--) {
+		list_add_tail(&kp->list_node, &kdb_cmds_head);
+		kp++;
+	}
+}
+
+/**
+ * kdb_unregister() - This function is used to unregister a kernel debugger
+ *                    command. It is generally called when a module which
+ *                    implements kdb command is unloaded.
+ * @cmd: pointer to kdb command
+ */
+void kdb_unregister(kdbtab_t *cmd)
+{
+	list_del(&cmd->list_node);
+}
+EXPORT_SYMBOL_GPL(kdb_unregister);
+
+static kdbtab_t maintab[] = {
+	{	.name = "md",
+		.func = kdb_md,
+		.usage = "<vaddr>",
+		.help = "Display Memory Contents, also mdWcN, e.g. md8c1",
+		.minlen = 1,
+		.flags = KDB_ENABLE_MEM_READ | KDB_REPEAT_NO_ARGS,
+	},
+	{	.name = "mdr",
+		.func = kdb_md,
+		.usage = "<vaddr> <bytes>",
+		.help = "Display Raw Memory",
+		.flags = KDB_ENABLE_MEM_READ | KDB_REPEAT_NO_ARGS,
+	},
+	{	.name = "mdp",
+		.func = kdb_md,
+		.usage = "<paddr> <bytes>",
+		.help = "Display Physical Memory",
+		.flags = KDB_ENABLE_MEM_READ | KDB_REPEAT_NO_ARGS,
+	},
+	{	.name = "mds",
+		.func = kdb_md,
+		.usage = "<vaddr>",
+		.help = "Display Memory Symbolically",
+		.flags = KDB_ENABLE_MEM_READ | KDB_REPEAT_NO_ARGS,
+	},
+	{	.name = "mm",
+		.func = kdb_mm,
+		.usage = "<vaddr> <contents>",
+		.help = "Modify Memory Contents",
+		.flags = KDB_ENABLE_MEM_WRITE | KDB_REPEAT_NO_ARGS,
+	},
+	{	.name = "go",
+		.func = kdb_go,
+		.usage = "[<vaddr>]",
+		.help = "Continue Execution",
+		.minlen = 1,
+		.flags = KDB_ENABLE_REG_WRITE |
+			     KDB_ENABLE_ALWAYS_SAFE_NO_ARGS,
+	},
+	{	.name = "rd",
+		.func = kdb_rd,
+		.usage = "",
+		.help = "Display Registers",
+		.flags = KDB_ENABLE_REG_READ,
+	},
+	{	.name = "rm",
+		.func = kdb_rm,
+		.usage = "<reg> <contents>",
+		.help = "Modify Registers",
+		.flags = KDB_ENABLE_REG_WRITE,
+	},
+	{	.name = "ef",
+		.func = kdb_ef,
+		.usage = "<vaddr>",
+		.help = "Display exception frame",
+		.flags = KDB_ENABLE_MEM_READ,
+	},
+	{	.name = "bt",
+		.func = kdb_bt,
+		.usage = "[<vaddr>]",
+		.help = "Stack traceback",
+		.minlen = 1,
+		.flags = KDB_ENABLE_MEM_READ | KDB_ENABLE_INSPECT_NO_ARGS,
+	},
+	{	.name = "btp",
+		.func = kdb_bt,
+		.usage = "<pid>",
+		.help = "Display stack for process <pid>",
+		.flags = KDB_ENABLE_INSPECT,
+	},
+	{	.name = "bta",
+		.func = kdb_bt,
+		.usage = "[<state_chars>|A]",
+		.help = "Backtrace all processes whose state matches",
+		.flags = KDB_ENABLE_INSPECT,
+	},
+	{	.name = "btc",
+		.func = kdb_bt,
+		.usage = "",
+		.help = "Backtrace current process on each cpu",
+		.flags = KDB_ENABLE_INSPECT,
+	},
+	{	.name = "btt",
+		.func = kdb_bt,
+		.usage = "<vaddr>",
+		.help = "Backtrace process given its struct task address",
+		.flags = KDB_ENABLE_MEM_READ | KDB_ENABLE_INSPECT_NO_ARGS,
+	},
+	{	.name = "env",
+		.func = kdb_env,
+		.usage = "",
+		.help = "Show environment variables",
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+	{	.name = "set",
+		.func = kdb_set,
+		.usage = "",
+		.help = "Set environment variables",
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+	{	.name = "help",
+		.func = kdb_help,
+		.usage = "",
+		.help = "Display Help Message",
+		.minlen = 1,
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+	{	.name = "?",
+		.func = kdb_help,
+		.usage = "",
+		.help = "Display Help Message",
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+	{	.name = "cpu",
+		.func = kdb_cpu,
+		.usage = "<cpunum>",
+		.help = "Switch to new cpu",
+		.flags = KDB_ENABLE_ALWAYS_SAFE_NO_ARGS,
+	},
+	{	.name = "kgdb",
+		.func = kdb_kgdb,
+		.usage = "",
+		.help = "Enter kgdb mode",
+		.flags = 0,
+	},
+	{	.name = "ps",
+		.func = kdb_ps,
+		.usage = "[<state_chars>|A]",
+		.help = "Display active task list",
+		.flags = KDB_ENABLE_INSPECT,
+	},
+	{	.name = "pid",
+		.func = kdb_pid,
+		.usage = "<pidnum>",
+		.help = "Switch to another task",
+		.flags = KDB_ENABLE_INSPECT,
+	},
+	{	.name = "reboot",
+		.func = kdb_reboot,
+		.usage = "",
+		.help = "Reboot the machine immediately",
+		.flags = KDB_ENABLE_REBOOT,
+	},
+#if defined(CONFIG_MODULES)
+	{	.name = "lsmod",
+		.func = kdb_lsmod,
+		.usage = "",
+		.help = "List loaded kernel modules",
+		.flags = KDB_ENABLE_INSPECT,
+	},
+#endif
+#if defined(CONFIG_MAGIC_SYSRQ)
+	{	.name = "sr",
+		.func = kdb_sr,
+		.usage = "<key>",
+		.help = "Magic SysRq key",
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+#endif
+#if defined(CONFIG_PRINTK)
+	{	.name = "dmesg",
+		.func = kdb_dmesg,
+		.usage = "[lines]",
+		.help = "Display syslog buffer",
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+#endif
+	{	.name = "defcmd",
+		.func = kdb_defcmd,
+		.usage = "name \"usage\" \"help\"",
+		.help = "Define a set of commands, down to endefcmd",
+		/*
+		 * Macros are always safe because when executed each
+		 * internal command re-enters kdb_parse() and is safety
+		 * checked individually.
+		 */
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+	{	.name = "kill",
+		.func = kdb_kill,
+		.usage = "<-signal> <pid>",
+		.help = "Send a signal to a process",
+		.flags = KDB_ENABLE_SIGNAL,
+	},
+	{	.name = "summary",
+		.func = kdb_summary,
+		.usage = "",
+		.help = "Summarize the system",
+		.minlen = 4,
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+	{	.name = "per_cpu",
+		.func = kdb_per_cpu,
+		.usage = "<sym> [<bytes>] [<cpu>]",
+		.help = "Display per_cpu variables",
+		.minlen = 3,
+		.flags = KDB_ENABLE_MEM_READ,
+	},
+	{	.name = "grephelp",
+		.func = kdb_grep_help,
+		.usage = "",
+		.help = "Display help on | grep",
+		.flags = KDB_ENABLE_ALWAYS_SAFE,
+	},
+};
+
+static kdbtab_t nmicmd = {
+	.name = "disable_nmi",
+	.func = kdb_disable_nmi,
+	.usage = "",
+	.help = "Disable NMI entry to KDB",
+	.flags = KDB_ENABLE_ALWAYS_SAFE,
+};
+
+/* Initialize the kdb command table. */
+static void __init kdb_inittab(void)
+{
+	kdb_register_table(maintab, ARRAY_SIZE(maintab));
+	if (arch_kgdb_ops.enable_nmi)
+		kdb_register_table(&nmicmd, 1);
+>>>>>>> upstream/android-13
 }
 
 /* Execute any commands defined in kdb_cmds.  */

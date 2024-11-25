@@ -22,6 +22,7 @@
 #include "head.h"
 #include "core.h"
 
+<<<<<<< HEAD
 static void
 head917d_dither(struct nv50_head *head, struct nv50_head_atom *asyh)
 {
@@ -49,10 +50,50 @@ head917d_base(struct nv50_head *head, struct nv50_head_atom *asyh)
 		case 4: bounds |= 0x00000300; break;
 		case 2: bounds |= 0x00000100; break;
 		case 1: bounds |= 0x00000000; break;
+=======
+#include "nvif/push.h"
+#include <nvif/push507c.h>
+
+#include <nvhw/class/cl917d.h>
+
+static int
+head917d_dither(struct nv50_head *head, struct nv50_head_atom *asyh)
+{
+	struct nvif_push *push = nv50_disp(head->base.base.dev)->core->chan.push;
+	const int i = head->base.index;
+	int ret;
+
+	if ((ret = PUSH_WAIT(push, 2)))
+		return ret;
+
+	PUSH_MTHD(push, NV917D, HEAD_SET_DITHER_CONTROL(i),
+		  NVVAL(NV917D, HEAD_SET_DITHER_CONTROL, ENABLE, asyh->dither.enable) |
+		  NVVAL(NV917D, HEAD_SET_DITHER_CONTROL, BITS, asyh->dither.bits) |
+		  NVVAL(NV917D, HEAD_SET_DITHER_CONTROL, MODE, asyh->dither.mode) |
+		  NVVAL(NV917D, HEAD_SET_DITHER_CONTROL, PHASE, 0));
+	return 0;
+}
+
+static int
+head917d_base(struct nv50_head *head, struct nv50_head_atom *asyh)
+{
+	struct nvif_push *push = nv50_disp(head->base.base.dev)->core->chan.push;
+	const int i = head->base.index;
+	u32 bounds = 0;
+	int ret;
+
+	if (asyh->base.cpp) {
+		switch (asyh->base.cpp) {
+		case 8: bounds |= NVDEF(NV917D, HEAD_SET_BASE_CHANNEL_USAGE_BOUNDS, PIXEL_DEPTH, BPP_64); break;
+		case 4: bounds |= NVDEF(NV917D, HEAD_SET_BASE_CHANNEL_USAGE_BOUNDS, PIXEL_DEPTH, BPP_32); break;
+		case 2: bounds |= NVDEF(NV917D, HEAD_SET_BASE_CHANNEL_USAGE_BOUNDS, PIXEL_DEPTH, BPP_16); break;
+		case 1: bounds |= NVDEF(NV917D, HEAD_SET_BASE_CHANNEL_USAGE_BOUNDS, PIXEL_DEPTH, BPP_8); break;
+>>>>>>> upstream/android-13
 		default:
 			WARN_ON(1);
 			break;
 		}
+<<<<<<< HEAD
 		bounds |= 0x00020001;
 	}
 
@@ -61,6 +102,42 @@ head917d_base(struct nv50_head *head, struct nv50_head_atom *asyh)
 		evo_data(push, bounds);
 		evo_kick(push, core);
 	}
+=======
+		bounds |= NVDEF(NV917D, HEAD_SET_BASE_CHANNEL_USAGE_BOUNDS, USABLE, TRUE);
+		bounds |= NVDEF(NV917D, HEAD_SET_BASE_CHANNEL_USAGE_BOUNDS, BASE_LUT, USAGE_1025);
+	}
+
+	if ((ret = PUSH_WAIT(push, 2)))
+		return ret;
+
+	PUSH_MTHD(push, NV917D, HEAD_SET_BASE_CHANNEL_USAGE_BOUNDS(i), bounds);
+	return 0;
+}
+
+static int
+head917d_curs_set(struct nv50_head *head, struct nv50_head_atom *asyh)
+{
+	struct nvif_push *push = nv50_disp(head->base.base.dev)->core->chan.push;
+	const int i = head->base.index;
+	int ret;
+
+	ret = PUSH_WAIT(push, 5);
+	if (ret)
+		return ret;
+
+	PUSH_MTHD(push, NV917D, HEAD_SET_CONTROL_CURSOR(i),
+		  NVDEF(NV917D, HEAD_SET_CONTROL_CURSOR, ENABLE, ENABLE) |
+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, FORMAT, asyh->curs.format) |
+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, SIZE, asyh->curs.layout) |
+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, HOT_SPOT_X, 0) |
+		  NVVAL(NV917D, HEAD_SET_CONTROL_CURSOR, HOT_SPOT_Y, 0) |
+		  NVDEF(NV917D, HEAD_SET_CONTROL_CURSOR, COMPOSITION, ALPHA_BLEND),
+
+				HEAD_SET_OFFSET_CURSOR(i), asyh->curs.offset >> 8);
+
+	PUSH_MTHD(push, NV917D, HEAD_SET_CONTEXT_DMA_CURSOR(i), asyh->curs.handle);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int
@@ -68,10 +145,17 @@ head917d_curs_layout(struct nv50_head *head, struct nv50_wndw_atom *asyw,
 		     struct nv50_head_atom *asyh)
 {
 	switch (asyw->state.fb->width) {
+<<<<<<< HEAD
 	case  32: asyh->curs.layout = 0; break;
 	case  64: asyh->curs.layout = 1; break;
 	case 128: asyh->curs.layout = 2; break;
 	case 256: asyh->curs.layout = 3; break;
+=======
+	case  32: asyh->curs.layout = NV917D_HEAD_SET_CONTROL_CURSOR_SIZE_W32_H32; break;
+	case  64: asyh->curs.layout = NV917D_HEAD_SET_CONTROL_CURSOR_SIZE_W64_H64; break;
+	case 128: asyh->curs.layout = NV917D_HEAD_SET_CONTROL_CURSOR_SIZE_W128_H128; break;
+	case 256: asyh->curs.layout = NV917D_HEAD_SET_CONTROL_CURSOR_SIZE_W256_H256; break;
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -83,6 +167,10 @@ head917d = {
 	.view = head907d_view,
 	.mode = head907d_mode,
 	.olut = head907d_olut,
+<<<<<<< HEAD
+=======
+	.olut_size = 1024,
+>>>>>>> upstream/android-13
 	.olut_set = head907d_olut_set,
 	.olut_clr = head907d_olut_clr,
 	.core_calc = head507d_core_calc,
@@ -90,7 +178,11 @@ head917d = {
 	.core_clr = head907d_core_clr,
 	.curs_layout = head917d_curs_layout,
 	.curs_format = head507d_curs_format,
+<<<<<<< HEAD
 	.curs_set = head907d_curs_set,
+=======
+	.curs_set = head917d_curs_set,
+>>>>>>> upstream/android-13
 	.curs_clr = head907d_curs_clr,
 	.base = head917d_base,
 	.ovly = head907d_ovly,

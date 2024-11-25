@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/firmware/memmap.c
  *  Copyright (C) 2008 SUSE LINUX Products GmbH
  *  by Bernhard Walle <bernhard.walle@gmx.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/string.h>
@@ -19,7 +26,11 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/mm.h>
 
@@ -333,7 +344,12 @@ int __init firmware_map_add_early(u64 start, u64 end, const char *type)
 {
 	struct firmware_map_entry *entry;
 
+<<<<<<< HEAD
 	entry = memblock_virt_alloc(sizeof(struct firmware_map_entry), 0);
+=======
+	entry = memblock_alloc(sizeof(struct firmware_map_entry),
+			       SMP_CACHE_BYTES);
+>>>>>>> upstream/android-13
 	if (WARN_ON(!entry))
 		return -ENOMEM;
 

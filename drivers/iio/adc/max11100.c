@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * iio/adc/max11100.c
  * Maxim max11100 ADC Driver with IIO interface
  *
  * Copyright (C) 2016-17 Renesas Electronics Corporation
  * Copyright (C) 2016-17 Jacopo Mondi
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,16 @@
 #include <linux/module.h>
 #include <linux/regulator/consumer.h>
 #include <linux/spi/spi.h>
+=======
+ */
+#include <linux/delay.h>
+#include <linux/kernel.h>
+#include <linux/mod_devicetable.h>
+#include <linux/module.h>
+#include <linux/regulator/consumer.h>
+#include <linux/spi/spi.h>
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/driver.h>
@@ -40,7 +55,11 @@ struct max11100_state {
 	u8 buffer[3] ____cacheline_aligned;
 };
 
+<<<<<<< HEAD
 static struct iio_chan_spec max11100_channels[] = {
+=======
+static const struct iio_chan_spec max11100_channels[] = {
+>>>>>>> upstream/android-13
 	{ /* [0] */
 		.type = IIO_VOLTAGE,
 		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
@@ -65,7 +84,11 @@ static int max11100_read_single(struct iio_dev *indio_dev, int *val)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	*val = (state->buffer[1] << 8) | state->buffer[2];
+=======
+	*val = get_unaligned_be16(&state->buffer[1]);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -103,6 +126,14 @@ static const struct iio_info max11100_info = {
 	.read_raw = max11100_read_raw,
 };
 
+<<<<<<< HEAD
+=======
+static void max11100_regulator_disable(void *reg)
+{
+	regulator_disable(reg);
+}
+
+>>>>>>> upstream/android-13
 static int max11100_probe(struct spi_device *spi)
 {
 	int ret;
@@ -113,6 +144,7 @@ static int max11100_probe(struct spi_device *spi)
 	if (!indio_dev)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	spi_set_drvdata(spi, indio_dev);
 
 	state = iio_priv(indio_dev);
@@ -120,6 +152,11 @@ static int max11100_probe(struct spi_device *spi)
 
 	indio_dev->dev.parent = &spi->dev;
 	indio_dev->dev.of_node = spi->dev.of_node;
+=======
+	state = iio_priv(indio_dev);
+	state->spi = spi;
+
+>>>>>>> upstream/android-13
 	indio_dev->name = "max11100";
 	indio_dev->info = &max11100_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
@@ -134,6 +171,7 @@ static int max11100_probe(struct spi_device *spi)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret)
 		goto disable_regulator;
@@ -155,6 +193,14 @@ static int max11100_remove(struct spi_device *spi)
 	regulator_disable(state->vref_reg);
 
 	return 0;
+=======
+	ret = devm_add_action_or_reset(&spi->dev, max11100_regulator_disable,
+				       state->vref_reg);
+	if (ret)
+		return ret;
+
+	return devm_iio_device_register(&spi->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id max11100_ids[] = {
@@ -166,10 +212,16 @@ MODULE_DEVICE_TABLE(of, max11100_ids);
 static struct spi_driver max11100_driver = {
 	.driver = {
 		.name	= "max11100",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(max11100_ids),
 	},
 	.probe		= max11100_probe,
 	.remove		= max11100_remove,
+=======
+		.of_match_table = max11100_ids,
+	},
+	.probe		= max11100_probe,
+>>>>>>> upstream/android-13
 };
 
 module_spi_driver(max11100_driver);

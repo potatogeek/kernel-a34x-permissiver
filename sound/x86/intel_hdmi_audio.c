@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *   intel_hdmi_audio.c - Intel HDMI audio driver
  *
@@ -8,6 +12,7 @@
  *		Jerome Anand <jerome.anand@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -17,6 +22,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * ALSA driver for Intel HDMI audio
  */
@@ -30,7 +37,10 @@
 #include <linux/pm_runtime.h>
 #include <linux/dma-mapping.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <asm/set_memory.h>
+=======
+>>>>>>> upstream/android-13
 #include <sound/core.h>
 #include <sound/asoundef.h>
 #include <sound/pcm.h>
@@ -245,7 +255,11 @@ static void had_write_register(struct snd_intelhad *ctx, u32 reg, u32 val)
  * updating AUD_CONFIG register.
  * This is because:
  * Bit6 of AUD_CONFIG register is writeonly due to a silicon bug on VLV2
+<<<<<<< HEAD
  * HDMI IP. As a result a read-modify of AUD_CONFIG regiter will always
+=======
+ * HDMI IP. As a result a read-modify of AUD_CONFIG register will always
+>>>>>>> upstream/android-13
  * clear bit6. AUD_CONFIG[6:4] represents the "channels" field of the
  * register. This field should be 1xy binary for configuration with 6 or
  * more channels. Read-modify of AUD_CONFIG (Eg. for enabling audio)
@@ -351,7 +365,11 @@ static int had_prog_status_reg(struct snd_pcm_substream *substream,
 
 /*
  * function to initialize audio
+<<<<<<< HEAD
  * registers and buffer confgiuration registers
+=======
+ * registers and buffer configuration registers
+>>>>>>> upstream/android-13
  * This function is called in the prepare callback
  */
 static int had_init_audio_ctrl(struct snd_pcm_substream *substream,
@@ -1033,6 +1051,7 @@ static void wait_clear_underrun_bit(struct snd_intelhad *intelhaddata)
 	dev_err(intelhaddata->dev, "Unable to clear UNDERRUN bits\n");
 }
 
+<<<<<<< HEAD
 /* Perform some reset procedure but only when need_reset is set;
  * this is called from prepare or hw_free callbacks once after trigger STOP
  * or underrun has been processed in order to settle down the h/w state.
@@ -1041,11 +1060,27 @@ static void had_do_reset(struct snd_intelhad *intelhaddata)
 {
 	if (!intelhaddata->need_reset || !intelhaddata->connected)
 		return;
+=======
+/* Perform some reset procedure after stopping the stream;
+ * this is called from prepare or hw_free callbacks once after trigger STOP
+ * or underrun has been processed in order to settle down the h/w state.
+ */
+static int had_pcm_sync_stop(struct snd_pcm_substream *substream)
+{
+	struct snd_intelhad *intelhaddata = snd_pcm_substream_chip(substream);
+
+	if (!intelhaddata->connected)
+		return 0;
+>>>>>>> upstream/android-13
 
 	/* Reset buffer pointers */
 	had_reset_audio(intelhaddata);
 	wait_clear_underrun_bit(intelhaddata);
+<<<<<<< HEAD
 	intelhaddata->need_reset = false;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* called from irq handler */
@@ -1059,7 +1094,10 @@ static void had_process_buffer_underrun(struct snd_intelhad *intelhaddata)
 		snd_pcm_stop_xrun(substream);
 		had_substream_put(intelhaddata);
 	}
+<<<<<<< HEAD
 	intelhaddata->need_reset = true;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1141,6 +1179,7 @@ static int had_pcm_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_intelhad *intelhaddata;
+<<<<<<< HEAD
 	unsigned long addr;
 	int pages, buf_size, retval;
 
@@ -1185,6 +1224,14 @@ static int had_pcm_hw_free(struct snd_pcm_substream *substream)
 		set_memory_wb(addr, pages);
 		return snd_pcm_lib_free_pages(substream);
 	}
+=======
+	int buf_size;
+
+	intelhaddata = snd_pcm_substream_chip(substream);
+	buf_size = params_buffer_bytes(hw_params);
+	dev_dbg(intelhaddata->dev, "%s:allocated memory = %d\n",
+		__func__, buf_size);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1212,7 +1259,10 @@ static int had_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
 		/* Disable Audio */
 		had_enable_audio(intelhaddata, false);
+<<<<<<< HEAD
 		intelhaddata->need_reset = true;
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -1244,8 +1294,11 @@ static int had_pcm_prepare(struct snd_pcm_substream *substream)
 	dev_dbg(intelhaddata->dev, "rate=%d\n", runtime->rate);
 	dev_dbg(intelhaddata->dev, "channels=%d\n", runtime->channels);
 
+<<<<<<< HEAD
 	had_do_reset(intelhaddata);
 
+=======
+>>>>>>> upstream/android-13
 	/* Get N value in KHz */
 	disp_samp_freq = intelhaddata->tmds_clock_speed;
 
@@ -1310,7 +1363,11 @@ static int had_pcm_mmap(struct snd_pcm_substream *substream,
 {
 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
 	return remap_pfn_range(vma, vma->vm_start,
+<<<<<<< HEAD
 			substream->dma_buffer.addr >> PAGE_SHIFT,
+=======
+			substream->runtime->dma_addr >> PAGE_SHIFT,
+>>>>>>> upstream/android-13
 			vma->vm_end - vma->vm_start, vma->vm_page_prot);
 }
 
@@ -1320,11 +1377,18 @@ static int had_pcm_mmap(struct snd_pcm_substream *substream,
 static const struct snd_pcm_ops had_pcm_ops = {
 	.open =		had_pcm_open,
 	.close =	had_pcm_close,
+<<<<<<< HEAD
 	.ioctl =	snd_pcm_lib_ioctl,
 	.hw_params =	had_pcm_hw_params,
 	.hw_free =	had_pcm_hw_free,
 	.prepare =	had_pcm_prepare,
 	.trigger =	had_pcm_trigger,
+=======
+	.hw_params =	had_pcm_hw_params,
+	.prepare =	had_pcm_prepare,
+	.trigger =	had_pcm_trigger,
+	.sync_stop =	had_pcm_sync_stop,
+>>>>>>> upstream/android-13
 	.pointer =	had_pcm_pointer,
 	.mmap =		had_pcm_mmap,
 };
@@ -1671,6 +1735,7 @@ static int had_create_jack(struct snd_intelhad *ctx,
  * PM callbacks
  */
 
+<<<<<<< HEAD
 static int hdmi_lpe_audio_runtime_suspend(struct device *dev)
 {
 	struct snd_intelhad_card *card_ctx = dev_get_drvdata(dev);
@@ -1704,6 +1769,14 @@ static int __maybe_unused hdmi_lpe_audio_suspend(struct device *dev)
 static int hdmi_lpe_audio_runtime_resume(struct device *dev)
 {
 	pm_runtime_mark_last_busy(dev);
+=======
+static int __maybe_unused hdmi_lpe_audio_suspend(struct device *dev)
+{
+	struct snd_intelhad_card *card_ctx = dev_get_drvdata(dev);
+
+	snd_power_change_state(card_ctx->card, SNDRV_CTL_POWER_D3hot);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1711,8 +1784,15 @@ static int __maybe_unused hdmi_lpe_audio_resume(struct device *dev)
 {
 	struct snd_intelhad_card *card_ctx = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	hdmi_lpe_audio_runtime_resume(dev);
 	snd_power_change_state(card_ctx->card, SNDRV_CTL_POWER_D0);
+=======
+	pm_runtime_mark_last_busy(dev);
+
+	snd_power_change_state(card_ctx->card, SNDRV_CTL_POWER_D0);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1732,11 +1812,14 @@ static void hdmi_lpe_audio_free(struct snd_card *card)
 
 		cancel_work_sync(&ctx->hdmi_audio_wq);
 	}
+<<<<<<< HEAD
 
 	if (card_ctx->mmio_start)
 		iounmap(card_ctx->mmio_start);
 	if (card_ctx->irq >= 0)
 		free_irq(card_ctx->irq, card_ctx);
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1745,7 +1828,11 @@ static void hdmi_lpe_audio_free(struct snd_card *card)
  * This function is called when the i915 driver creates the
  * hdmi-lpe-audio platform device.
  */
+<<<<<<< HEAD
 static int hdmi_lpe_audio_probe(struct platform_device *pdev)
+=======
+static int __hdmi_lpe_audio_probe(struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	struct snd_card *card;
 	struct snd_intelhad_card *card_ctx;
@@ -1764,10 +1851,15 @@ static int hdmi_lpe_audio_probe(struct platform_device *pdev)
 
 	/* get resources */
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "Could not get irq resource: %d\n", irq);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	res_mmio = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res_mmio) {
@@ -1776,8 +1868,13 @@ static int hdmi_lpe_audio_probe(struct platform_device *pdev)
 	}
 
 	/* create a card instance with ALSA framework */
+<<<<<<< HEAD
 	ret = snd_card_new(&pdev->dev, hdmi_card_index, hdmi_card_id,
 			   THIS_MODULE, sizeof(*card_ctx), &card);
+=======
+	ret = snd_devm_card_new(&pdev->dev, hdmi_card_index, hdmi_card_id,
+				THIS_MODULE, sizeof(*card_ctx), &card);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1813,6 +1910,7 @@ static int hdmi_lpe_audio_probe(struct platform_device *pdev)
 		__func__, (unsigned int)res_mmio->start,
 		(unsigned int)res_mmio->end);
 
+<<<<<<< HEAD
 	card_ctx->mmio_start = ioremap_nocache(res_mmio->start,
 					       (size_t)(resource_size(res_mmio)));
 	if (!card_ctx->mmio_start) {
@@ -1827,13 +1925,33 @@ static int hdmi_lpe_audio_probe(struct platform_device *pdev)
 	if (ret < 0) {
 		dev_err(&pdev->dev, "request_irq failed\n");
 		goto err;
+=======
+	card_ctx->mmio_start =
+		devm_ioremap(&pdev->dev, res_mmio->start,
+			     (size_t)(resource_size(res_mmio)));
+	if (!card_ctx->mmio_start) {
+		dev_err(&pdev->dev, "Could not get ioremap\n");
+		return -EACCES;
+	}
+
+	/* setup interrupt handler */
+	ret = devm_request_irq(&pdev->dev, irq, display_pipe_interrupt_handler,
+			       0, pdev->name, card_ctx);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "request_irq failed\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	card_ctx->irq = irq;
 
 	/* only 32bit addressable */
+<<<<<<< HEAD
 	dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
 	dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
+=======
+	dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 
 	init_channel_allocations();
 
@@ -1847,52 +1965,88 @@ static int hdmi_lpe_audio_probe(struct platform_device *pdev)
 		ret = snd_pcm_new(card, INTEL_HAD, port, MAX_PB_STREAMS,
 				  MAX_CAP_STREAMS, &pcm);
 		if (ret)
+<<<<<<< HEAD
 			goto err;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		/* setup private data which can be retrieved when required */
 		pcm->private_data = ctx;
 		pcm->info_flags = 0;
+<<<<<<< HEAD
 		strlcpy(pcm->name, card->shortname, strlen(card->shortname));
 		/* setup the ops for playabck */
+=======
+		strscpy(pcm->name, card->shortname, strlen(card->shortname));
+		/* setup the ops for playback */
+>>>>>>> upstream/android-13
 		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &had_pcm_ops);
 
 		/* allocate dma pages;
 		 * try to allocate 600k buffer as default which is large enough
 		 */
+<<<<<<< HEAD
 		snd_pcm_lib_preallocate_pages_for_all(pcm,
 						      SNDRV_DMA_TYPE_DEV, NULL,
 						      HAD_DEFAULT_BUFFER, HAD_MAX_BUFFER);
+=======
+		snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV_WC,
+					       card->dev, HAD_DEFAULT_BUFFER,
+					       HAD_MAX_BUFFER);
+>>>>>>> upstream/android-13
 
 		/* create controls */
 		for (i = 0; i < ARRAY_SIZE(had_controls); i++) {
 			struct snd_kcontrol *kctl;
 
 			kctl = snd_ctl_new1(&had_controls[i], ctx);
+<<<<<<< HEAD
 			if (!kctl) {
 				ret = -ENOMEM;
 				goto err;
 			}
+=======
+			if (!kctl)
+				return -ENOMEM;
+>>>>>>> upstream/android-13
 
 			kctl->id.device = pcm->device;
 
 			ret = snd_ctl_add(card, kctl);
 			if (ret < 0)
+<<<<<<< HEAD
 				goto err;
+=======
+				return ret;
+>>>>>>> upstream/android-13
 		}
 
 		/* Register channel map controls */
 		ret = had_register_chmap_ctls(ctx, pcm);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto err;
 
 		ret = had_create_jack(ctx, pcm);
 		if (ret < 0)
 			goto err;
+=======
+			return ret;
+
+		ret = had_create_jack(ctx, pcm);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	ret = snd_card_register(card);
 	if (ret)
+<<<<<<< HEAD
 		goto err;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&pdata->lpe_audio_slock);
 	pdata->notify_audio_lpe = notify_audio_lpe;
@@ -1909,6 +2063,7 @@ static int hdmi_lpe_audio_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+<<<<<<< HEAD
 
 err:
 	snd_card_free(card);
@@ -1926,12 +2081,22 @@ static int hdmi_lpe_audio_remove(struct platform_device *pdev)
 
 	snd_card_free(card_ctx->card);
 	return 0;
+=======
+}
+
+static int hdmi_lpe_audio_probe(struct platform_device *pdev)
+{
+	return snd_card_free_on_error(&pdev->dev, __hdmi_lpe_audio_probe(pdev));
+>>>>>>> upstream/android-13
 }
 
 static const struct dev_pm_ops hdmi_lpe_audio_pm = {
 	SET_SYSTEM_SLEEP_PM_OPS(hdmi_lpe_audio_suspend, hdmi_lpe_audio_resume)
+<<<<<<< HEAD
 	SET_RUNTIME_PM_OPS(hdmi_lpe_audio_runtime_suspend,
 			   hdmi_lpe_audio_runtime_resume, NULL)
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct platform_driver hdmi_lpe_audio_driver = {
@@ -1940,7 +2105,10 @@ static struct platform_driver hdmi_lpe_audio_driver = {
 		.pm = &hdmi_lpe_audio_pm,
 	},
 	.probe          = hdmi_lpe_audio_probe,
+<<<<<<< HEAD
 	.remove		= hdmi_lpe_audio_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(hdmi_lpe_audio_driver);
@@ -1952,4 +2120,7 @@ MODULE_AUTHOR("Vaibhav Agarwal <vaibhav.agarwal@intel.com>");
 MODULE_AUTHOR("Jerome Anand <jerome.anand@intel.com>");
 MODULE_DESCRIPTION("Intel HDMI Audio driver");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{Intel,Intel_HAD}");
+=======
+>>>>>>> upstream/android-13

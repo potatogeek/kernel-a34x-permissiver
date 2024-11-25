@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * This software may be redistributed and/or modified under
  * the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or
@@ -12,6 +17,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * File: via-velocity.h
  *
  * Purpose: Header file to define driver's private structures.
@@ -1295,6 +1302,7 @@ struct velocity_context {
     velocity_mii_read((p),MII_PHYSID1,((u16 *) &id)+1);\
     (id);})
 
+<<<<<<< HEAD
 /*
  * Inline debug routine
  */
@@ -1339,6 +1347,8 @@ enum velocity_msg_level {
 
 
 
+=======
+>>>>>>> upstream/android-13
 #define     VELOCITY_WOL_MAGIC             0x00000000UL
 #define     VELOCITY_WOL_PHY               0x00000001UL
 #define     VELOCITY_WOL_ARP               0x00000002UL
@@ -1492,6 +1502,10 @@ struct velocity_info {
 	struct velocity_context context;
 
 	u32 ticks;
+<<<<<<< HEAD
+=======
+	u32 ethtool_ops_nesting;
+>>>>>>> upstream/android-13
 
 	u8 rev_id;
 
@@ -1518,7 +1532,11 @@ static inline int velocity_get_ip(struct velocity_info *vptr)
 	rcu_read_lock();
 	in_dev = __in_dev_get_rcu(vptr->netdev);
 	if (in_dev != NULL) {
+<<<<<<< HEAD
 		ifa = (struct in_ifaddr *) in_dev->ifa_list;
+=======
+		ifa = rcu_dereference(in_dev->ifa_list);
+>>>>>>> upstream/android-13
 		if (ifa != NULL) {
 			memcpy(vptr->ip_addr, &ifa->ifa_address, 4);
 			res = 0;

@@ -1,9 +1,17 @@
 # SPDX-License-Identifier: GPL-2.0
 menu "Generic Driver Options"
 
+<<<<<<< HEAD
 config UEVENT_HELPER
 	bool "Support for uevent helper"
 	default y
+=======
+config AUXILIARY_BUS
+	bool
+
+config UEVENT_HELPER
+	bool "Support for uevent helper"
+>>>>>>> upstream/android-13
 	help
 	  The uevent helper program is forked by the kernel for
 	  every uevent.
@@ -149,6 +157,22 @@ config DEBUG_TEST_DRIVER_REMOVE
 	  unusable. You should say N here unless you are explicitly looking to
 	  test this functionality.
 
+<<<<<<< HEAD
+=======
+config PM_QOS_KUNIT_TEST
+	bool "KUnit Test for PM QoS features" if !KUNIT_ALL_TESTS
+	depends on KUNIT=y
+	default KUNIT_ALL_TESTS
+
+config HMEM_REPORTING
+	bool
+	default n
+	depends on NUMA
+	help
+	  Enable reporting for heterogeneous memory access attributes under
+	  their non-uniform memory nodes.
+
+>>>>>>> upstream/android-13
 source "drivers/base/test/Kconfig"
 
 config SYS_HYPERVISOR
@@ -190,6 +214,7 @@ config DMA_FENCE_TRACE
 	  lockup related problems for dma-buffers shared across multiple
 	  devices.
 
+<<<<<<< HEAD
 config DMA_CMA
 	bool "DMA Contiguous Memory Allocator"
 	depends on HAVE_DMA_CONTIGUOUS && CMA
@@ -267,12 +292,26 @@ config CMA_ALIGNMENT
 
 endif
 
+=======
+>>>>>>> upstream/android-13
 config GENERIC_ARCH_TOPOLOGY
 	bool
 	help
 	  Enable support for architectures common topology code: e.g., parsing
 	  CPU capacity information from DT, usage of such information for
+<<<<<<< HEAD
 	  appropriate scaling, sysfs interface for changing capacity values at
 	  runtime.
 
+=======
+	  appropriate scaling, sysfs interface for reading capacity values at
+	  runtime.
+
+config GENERIC_ARCH_NUMA
+	bool
+	help
+	  Enable support for generic NUMA implementation. Currently, RISC-V
+	  and ARM64 use it.
+
+>>>>>>> upstream/android-13
 endmenu

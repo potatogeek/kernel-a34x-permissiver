@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 ARM Limited, All Rights Reserved.
  * Author: Marc Zyngier <marc.zyngier@arm.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2016 ARM Limited, All Rights Reserved.
+ * Author: Marc Zyngier <marc.zyngier@arm.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -135,6 +142,7 @@ static void partition_handle_irq(struct irq_desc *desc)
 			break;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(hwirq == part->nr_parts)) {
 		handle_bad_irq(desc);
 	} else {
@@ -142,6 +150,12 @@ static void partition_handle_irq(struct irq_desc *desc)
 		irq = irq_find_mapping(part->domain, hwirq);
 		generic_handle_irq(irq);
 	}
+=======
+	if (unlikely(hwirq == part->nr_parts))
+		handle_bad_irq(desc);
+	else
+		generic_handle_domain_irq(part->domain, hwirq);
+>>>>>>> upstream/android-13
 
 	chained_irq_exit(chip, desc);
 }
@@ -229,8 +243,12 @@ struct partition_desc *partition_create_desc(struct fwnode_handle *fwnode,
 		goto out;
 	desc->domain = d;
 
+<<<<<<< HEAD
 	desc->bitmap = kcalloc(BITS_TO_LONGS(nr_parts), sizeof(long),
 			       GFP_KERNEL);
+=======
+	desc->bitmap = bitmap_zalloc(nr_parts, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (WARN_ON(!desc->bitmap))
 		goto out;
 

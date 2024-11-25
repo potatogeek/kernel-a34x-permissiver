@@ -25,7 +25,11 @@
 #include "fpu_emu.h"
 
 .text
+<<<<<<< HEAD
 ENTRY(mul32_Xsig)
+=======
+SYM_FUNC_START(mul32_Xsig)
+>>>>>>> upstream/android-13
 	pushl %ebp
 	movl %esp,%ebp
 	subl $16,%esp
@@ -62,11 +66,19 @@ ENTRY(mul32_Xsig)
 
 	popl %esi
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(mul32_Xsig)
 
 
 ENTRY(mul64_Xsig)
+=======
+	RET
+SYM_FUNC_END(mul32_Xsig)
+
+
+SYM_FUNC_START(mul64_Xsig)
+>>>>>>> upstream/android-13
 	pushl %ebp
 	movl %esp,%ebp
 	subl $16,%esp
@@ -115,12 +127,21 @@ ENTRY(mul64_Xsig)
 
 	popl %esi
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(mul64_Xsig)
 
 
 
 ENTRY(mul_Xsig_Xsig)
+=======
+	RET
+SYM_FUNC_END(mul64_Xsig)
+
+
+
+SYM_FUNC_START(mul_Xsig_Xsig)
+>>>>>>> upstream/android-13
 	pushl %ebp
 	movl %esp,%ebp
 	subl $16,%esp
@@ -175,5 +196,10 @@ ENTRY(mul_Xsig_Xsig)
 
 	popl %esi
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(mul_Xsig_Xsig)
+=======
+	RET
+SYM_FUNC_END(mul_Xsig_Xsig)
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Firmware I/O code for mac80211 ST-Ericsson CW1200 drivers
  *
@@ -8,10 +12,13 @@
  * ST-Ericsson UMAC CW1200 driver which is
  * Copyright (c) 2010, ST-Ericsson
  * Author: Ajitpal Singh <ajitpal.singh@stericsson.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/vmalloc.h>
@@ -465,8 +472,13 @@ int cw1200_load_firmware(struct cw1200_common *priv)
 
 	if (!(val32 & ST90TDS_CONFIG_ACCESS_MODE_BIT)) {
 		pr_err("Device is already in QUEUE mode!\n");
+<<<<<<< HEAD
 			ret = -EINVAL;
 			goto out;
+=======
+		ret = -EINVAL;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	switch (priv->hw_type)  {

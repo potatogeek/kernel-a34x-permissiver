@@ -48,11 +48,29 @@
 	{(unsigned long)__GFP_WRITE,		"__GFP_WRITE"},		\
 	{(unsigned long)__GFP_RECLAIM,		"__GFP_RECLAIM"},	\
 	{(unsigned long)__GFP_DIRECT_RECLAIM,	"__GFP_DIRECT_RECLAIM"},\
+<<<<<<< HEAD
 	{(unsigned long)__GFP_KSWAPD_RECLAIM,	"__GFP_KSWAPD_RECLAIM"}\
 
 #define show_gfp_flags(flags)						\
 	(flags) ? __print_flags(flags, "|",				\
 	__def_gfpflag_names						\
+=======
+	{(unsigned long)__GFP_KSWAPD_RECLAIM,	"__GFP_KSWAPD_RECLAIM"},\
+	{(unsigned long)__GFP_ZEROTAGS,		"__GFP_ZEROTAGS"}	\
+
+#ifdef CONFIG_KASAN_HW_TAGS
+#define __def_gfpflag_names_kasan ,					       \
+	{(unsigned long)__GFP_SKIP_ZERO,	   "__GFP_SKIP_ZERO"},	       \
+	{(unsigned long)__GFP_SKIP_KASAN_POISON,   "__GFP_SKIP_KASAN_POISON"}, \
+	{(unsigned long)__GFP_SKIP_KASAN_UNPOISON, "__GFP_SKIP_KASAN_UNPOISON"}
+#else
+#define __def_gfpflag_names_kasan
+#endif
+
+#define show_gfp_flags(flags)						\
+	(flags) ? __print_flags(flags, "|",				\
+	__def_gfpflag_names __def_gfpflag_names_kasan			\
+>>>>>>> upstream/android-13
 	) : "none"
 
 #ifdef CONFIG_MMU
@@ -73,12 +91,33 @@
 #define IF_HAVE_PG_HWPOISON(flag,string)
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_IDLE_PAGE_TRACKING) && defined(CONFIG_64BIT)
+=======
+#if defined(CONFIG_PAGE_IDLE_FLAG) && defined(CONFIG_64BIT)
+>>>>>>> upstream/android-13
 #define IF_HAVE_PG_IDLE(flag,string) ,{1UL << flag, string}
 #else
 #define IF_HAVE_PG_IDLE(flag,string)
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_64BIT
+#define IF_HAVE_PG_ARCH_2(flag,string) ,{1UL << flag, string}
+#define IF_HAVE_PG_OEM_RESERVED(flag,string) ,{1UL << flag, string}
+#else
+#define IF_HAVE_PG_ARCH_2(flag,string)
+#define IF_HAVE_PG_OEM_RESERVED(flag,string)
+#endif
+
+#ifdef CONFIG_KASAN_HW_TAGS
+#define IF_HAVE_PG_SKIP_KASAN_POISON(flag,string) ,{1UL << flag, string}
+#else
+#define IF_HAVE_PG_SKIP_KASAN_POISON(flag,string)
+#endif
+
+>>>>>>> upstream/android-13
 #define __def_pageflag_names						\
 	{1UL << PG_locked,		"locked"	},		\
 	{1UL << PG_waiters,		"waiters"	},		\
@@ -105,8 +144,15 @@ IF_HAVE_PG_MLOCK(PG_mlocked,		"mlocked"	)		\
 IF_HAVE_PG_UNCACHED(PG_uncached,	"uncached"	)		\
 IF_HAVE_PG_HWPOISON(PG_hwpoison,	"hwpoison"	)		\
 IF_HAVE_PG_IDLE(PG_young,		"young"		)		\
+<<<<<<< HEAD
 IF_HAVE_PG_IDLE(PG_idle,		"idle"		),		\
 	{1UL << PG_iommu,		"iommu"		}
+=======
+IF_HAVE_PG_IDLE(PG_idle,		"idle"		)		\
+IF_HAVE_PG_ARCH_2(PG_arch_2,		"arch_2"	)		\
+IF_HAVE_PG_OEM_RESERVED(PG_oem_reserved,"oem_reserved"	)		\
+IF_HAVE_PG_SKIP_KASAN_POISON(PG_skip_kasan_poison, "skip_kasan_poison")
+>>>>>>> upstream/android-13
 
 #define show_page_flags(flags)						\
 	(flags) ? __print_flags(flags, "|",				\
@@ -131,6 +177,15 @@ IF_HAVE_PG_IDLE(PG_idle,		"idle"		),		\
 #define IF_HAVE_VM_SOFTDIRTY(flag,name)
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HAVE_ARCH_USERFAULTFD_MINOR
+# define IF_HAVE_UFFD_MINOR(flag, name) {flag, name},
+#else
+# define IF_HAVE_UFFD_MINOR(flag, name)
+#endif
+
+>>>>>>> upstream/android-13
 #define __def_vmaflag_names						\
 	{VM_READ,			"read"		},		\
 	{VM_WRITE,			"write"		},		\
@@ -142,8 +197,13 @@ IF_HAVE_PG_IDLE(PG_idle,		"idle"		),		\
 	{VM_MAYSHARE,			"mayshare"	},		\
 	{VM_GROWSDOWN,			"growsdown"	},		\
 	{VM_UFFD_MISSING,		"uffd_missing"	},		\
+<<<<<<< HEAD
 	{VM_PFNMAP,			"pfnmap"	},		\
 	{VM_DENYWRITE,			"denywrite"	},		\
+=======
+IF_HAVE_UFFD_MINOR(VM_UFFD_MINOR,	"uffd_minor"	)		\
+	{VM_PFNMAP,			"pfnmap"	},		\
+>>>>>>> upstream/android-13
 	{VM_UFFD_WP,			"uffd_wp"	},		\
 	{VM_LOCKED,			"locked"	},		\
 	{VM_IO,				"io"		},		\
@@ -155,6 +215,10 @@ IF_HAVE_PG_IDLE(PG_idle,		"idle"		),		\
 	{VM_ACCOUNT,			"account"	},		\
 	{VM_NORESERVE,			"noreserve"	},		\
 	{VM_HUGETLB,			"hugetlb"	},		\
+<<<<<<< HEAD
+=======
+	{VM_SYNC,			"sync"		},		\
+>>>>>>> upstream/android-13
 	__VM_ARCH_SPECIFIC_1				,		\
 	{VM_WIPEONFORK,			"wipeonfork"	},		\
 	{VM_DONTDUMP,			"dontdump"	},		\

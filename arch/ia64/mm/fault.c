@@ -14,13 +14,19 @@
 #include <linux/kdebug.h>
 #include <linux/prefetch.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/perf_event.h>
+
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/exception.h>
 
 extern int die(char *, struct pt_regs *, long);
 
+<<<<<<< HEAD
 #ifdef CONFIG_KPROBES
 static inline int notify_page_fault(struct pt_regs *regs, int trap)
 {
@@ -43,6 +49,8 @@ static inline int notify_page_fault(struct pt_regs *regs, int trap)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Return TRUE if ADDRESS points at a page in the kernel's mapped segment
  * (inside region 5, on ia64) and that page is present.
@@ -51,6 +59,10 @@ static int
 mapped_kernel_page_is_present (unsigned long address)
 {
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *ptep, pte;
@@ -59,7 +71,15 @@ mapped_kernel_page_is_present (unsigned long address)
 	if (pgd_none(*pgd) || pgd_bad(*pgd))
 		return 0;
 
+<<<<<<< HEAD
 	pud = pud_offset(pgd, address);
+=======
+	p4d = p4d_offset(pgd, address);
+	if (p4d_none(*p4d) || p4d_bad(*p4d))
+		return 0;
+
+	pud = pud_offset(p4d, address);
+>>>>>>> upstream/android-13
 	if (pud_none(*pud) || pud_bad(*pud))
 		return 0;
 
@@ -87,13 +107,22 @@ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *re
 	struct mm_struct *mm = current->mm;
 	unsigned long mask;
 	vm_fault_t fault;
+<<<<<<< HEAD
 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
+=======
+	unsigned int flags = FAULT_FLAG_DEFAULT;
+>>>>>>> upstream/android-13
 
 	mask = ((((isr >> IA64_ISR_X_BIT) & 1UL) << VM_EXEC_BIT)
 		| (((isr >> IA64_ISR_W_BIT) & 1UL) << VM_WRITE_BIT));
 
+<<<<<<< HEAD
 	/* mmap_sem is performance critical.... */
 	prefetchw(&mm->mmap_sem);
+=======
+	/* mmap_lock is performance critical.... */
+	prefetchw(&mm->mmap_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we're in an interrupt or have no user context, we must not take the fault..
@@ -101,6 +130,7 @@ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *re
 	if (faulthandler_disabled() || !mm)
 		goto no_context;
 
+<<<<<<< HEAD
 #ifdef CONFIG_VIRTUAL_MEM_MAP
 	/*
 	 * If fault is in region 5 and we are in the kernel, we may already
@@ -117,14 +147,27 @@ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *re
 	 * This is to handle the kprobes on user space access instructions
 	 */
 	if (notify_page_fault(regs, TRAP_BRKPT))
+=======
+	/*
+	 * This is to handle the kprobes on user space access instructions
+	 */
+	if (kprobe_page_fault(regs, TRAP_BRKPT))
+>>>>>>> upstream/android-13
 		return;
 
 	if (user_mode(regs))
 		flags |= FAULT_FLAG_USER;
 	if (mask & VM_WRITE)
 		flags |= FAULT_FLAG_WRITE;
+<<<<<<< HEAD
 retry:
 	down_read(&mm->mmap_sem);
+=======
+
+	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
+retry:
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 
 	vma = find_vma_prev(mm, address, &prev_vma);
 	if (!vma && !prev_vma )
@@ -161,9 +204,15 @@ retry:
 	 * sure we exit gracefully rather than endlessly redo the
 	 * fault.
 	 */
+<<<<<<< HEAD
 	fault = handle_mm_fault(vma, address, flags);
 
 	if ((fault & VM_FAULT_RETRY) && fatal_signal_pending(current))
+=======
+	fault = handle_mm_fault(vma, address, flags, regs);
+
+	if (fault_signal_pending(fault, regs))
+>>>>>>> upstream/android-13
 		return;
 
 	if (unlikely(fault & VM_FAULT_ERROR)) {
@@ -184,6 +233,7 @@ retry:
 	}
 
 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+<<<<<<< HEAD
 		if (fault & VM_FAULT_MAJOR)
 			current->maj_flt++;
 		else
@@ -193,6 +243,12 @@ retry:
 			flags |= FAULT_FLAG_TRIED;
 
 			 /* No need to up_read(&mm->mmap_sem) as we would
+=======
+		if (fault & VM_FAULT_RETRY) {
+			flags |= FAULT_FLAG_TRIED;
+
+			 /* No need to mmap_read_unlock(mm) as we would
+>>>>>>> upstream/android-13
 			 * have already released it in __lock_page_or_retry
 			 * in mm/filemap.c.
 			 */
@@ -201,7 +257,11 @@ retry:
 		}
 	}
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return;
 
   check_expansion:
@@ -232,10 +292,14 @@ retry:
 	goto good_area;
 
   bad_area:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
 #ifdef CONFIG_VIRTUAL_MEM_MAP
   bad_area_no_up:
 #endif
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	if ((isr & IA64_ISR_SP)
 	    || ((isr & IA64_ISR_NA) && (isr & IA64_ISR_CODE_MASK) == IA64_ISR_CODE_LFETCH))
 	{
@@ -248,6 +312,7 @@ retry:
 		return;
 	}
 	if (user_mode(regs)) {
+<<<<<<< HEAD
 		struct siginfo si;
 
 		clear_siginfo(&si);
@@ -258,6 +323,10 @@ retry:
 		si.si_isr = isr;
 		si.si_flags = __ISR_VALID;
 		force_sig_info(signal, &si, current);
+=======
+		force_sig_fault(signal, code, (void __user *) address,
+				0, __ISR_VALID, isr);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -306,7 +375,11 @@ retry:
 	return;
 
   out_of_memory:
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	if (!user_mode(regs))
 		goto no_context;
 	pagefault_out_of_memory();

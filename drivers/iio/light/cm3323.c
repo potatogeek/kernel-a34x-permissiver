@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * CM3323 - Capella Color Light Sensor
  *
  * Copyright (c) 2015, Intel Corporation.
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * IIO driver for CM3323 (7-bit I2C slave address 0x10)
  *
  * TODO: calibscale to correct the lens factor
@@ -104,6 +111,7 @@ static int cm3323_init(struct iio_dev *indio_dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void cm3323_disable(struct iio_dev *indio_dev)
 {
 	int ret;
@@ -113,6 +121,18 @@ static void cm3323_disable(struct iio_dev *indio_dev)
 					CM3323_CONF_SD_BIT);
 	if (ret < 0)
 		dev_err(&data->client->dev, "Error writing reg_conf\n");
+=======
+static void cm3323_disable(void *data)
+{
+	int ret;
+	struct iio_dev *indio_dev = data;
+	struct cm3323_data *cm_data = iio_priv(indio_dev);
+
+	ret = i2c_smbus_write_word_data(cm_data->client, CM3323_CMD_CONF,
+					CM3323_CONF_SD_BIT);
+	if (ret < 0)
+		dev_err(&cm_data->client->dev, "Error writing reg_conf\n");
+>>>>>>> upstream/android-13
 }
 
 static int cm3323_set_it_bits(struct cm3323_data *data, int val, int val2)
@@ -233,7 +253,10 @@ static int cm3323_probe(struct i2c_client *client,
 
 	mutex_init(&data->mutex);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &cm3323_info;
 	indio_dev->name = CM3323_DRV_NAME;
 	indio_dev->channels = cm3323_channels;
@@ -246,6 +269,7 @@ static int cm3323_probe(struct i2c_client *client,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret < 0) {
 		dev_err(&client->dev, "failed to register iio dev\n");
@@ -266,6 +290,13 @@ static int cm3323_remove(struct i2c_client *client)
 	cm3323_disable(indio_dev);
 
 	return 0;
+=======
+	ret = devm_add_action_or_reset(&client->dev, cm3323_disable, indio_dev);
+	if (ret < 0)
+		return ret;
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id cm3323_id[] = {
@@ -274,12 +305,27 @@ static const struct i2c_device_id cm3323_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, cm3323_id);
 
+<<<<<<< HEAD
 static struct i2c_driver cm3323_driver = {
 	.driver = {
 		.name = CM3323_DRV_NAME,
 	},
 	.probe		= cm3323_probe,
 	.remove		= cm3323_remove,
+=======
+static const struct of_device_id cm3323_of_match[] = {
+	{ .compatible = "capella,cm3323", },
+	{ /* sentinel */ }
+};
+MODULE_DEVICE_TABLE(of, cm3323_of_match);
+
+static struct i2c_driver cm3323_driver = {
+	.driver = {
+		.name = CM3323_DRV_NAME,
+		.of_match_table = cm3323_of_match,
+	},
+	.probe		= cm3323_probe,
+>>>>>>> upstream/android-13
 	.id_table	= cm3323_id,
 };
 

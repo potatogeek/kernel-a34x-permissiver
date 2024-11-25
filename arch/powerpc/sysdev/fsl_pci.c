@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC83xx/85xx/86xx PCI/PCIE support routing.
  *
@@ -11,11 +15,14 @@
  * MPC83xx PCI-Express support:
  * 	Tony Li <tony.li@freescale.com>
  * 	Anton Vorontsov <avorontsov@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/pci.h>
@@ -40,6 +47,10 @@
 #include <asm/mpc85xx.h>
 #include <asm/disassemble.h>
 #include <asm/ppc-opcode.h>
+<<<<<<< HEAD
+=======
+#include <asm/swiotlb.h>
+>>>>>>> upstream/android-13
 #include <sysdev/fsl_soc.h>
 #include <sysdev/fsl_pci.h>
 
@@ -114,33 +125,59 @@ static struct pci_ops fsl_indirect_pcie_ops =
 static u64 pci64_dma_offset;
 
 #ifdef CONFIG_SWIOTLB
+<<<<<<< HEAD
 static void setup_swiotlb_ops(struct pci_controller *hose)
 {
 	if (ppc_swiotlb_enable) {
 		hose->controller_ops.dma_dev_setup = pci_dma_dev_setup_swiotlb;
 		set_pci_dma_ops(&powerpc_swiotlb_dma_ops);
 	}
+=======
+static void pci_dma_dev_setup_swiotlb(struct pci_dev *pdev)
+{
+	struct pci_controller *hose = pci_bus_to_host(pdev->bus);
+
+	pdev->dev.bus_dma_limit =
+		hose->dma_window_base_cur + hose->dma_window_size - 1;
+}
+
+static void setup_swiotlb_ops(struct pci_controller *hose)
+{
+	if (ppc_swiotlb_enable)
+		hose->controller_ops.dma_dev_setup = pci_dma_dev_setup_swiotlb;
+>>>>>>> upstream/android-13
 }
 #else
 static inline void setup_swiotlb_ops(struct pci_controller *hose) {}
 #endif
 
+<<<<<<< HEAD
 static int fsl_pci_dma_set_mask(struct device *dev, u64 dma_mask)
 {
 	if (!dev->dma_mask || !dma_supported(dev, dma_mask))
 		return -EIO;
 
+=======
+static void fsl_pci_dma_set_mask(struct device *dev, u64 dma_mask)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Fix up PCI devices that are able to DMA to the large inbound
 	 * mapping that allows addressing any RAM address from across PCI.
 	 */
 	if (dev_is_pci(dev) && dma_mask >= pci64_dma_offset * 2 - 1) {
+<<<<<<< HEAD
 		set_dma_ops(dev, &dma_nommu_ops);
 		set_dma_offset(dev, pci64_dma_offset);
 	}
 
 	*dev->dma_mask = dma_mask;
 	return 0;
+=======
+		dev->bus_dma_limit = 0;
+		dev->archdata.dma_offset = pci64_dma_offset;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int setup_one_atmu(struct ccsr_pci __iomem *pci,
@@ -458,7 +495,11 @@ static void setup_pci_atmu(struct pci_controller *hose)
 	}
 }
 
+<<<<<<< HEAD
 static void __init setup_pci_cmd(struct pci_controller *hose)
+=======
+static void setup_pci_cmd(struct pci_controller *hose)
+>>>>>>> upstream/android-13
 {
 	u16 cmd;
 	int cap_x;
@@ -1068,6 +1109,7 @@ int fsl_pci_mcheck_exception(struct pt_regs *regs)
 	addr += mfspr(SPRN_MCAR);
 
 	if (is_in_pci_mem_space(addr)) {
+<<<<<<< HEAD
 		if (user_mode(regs)) {
 			pagefault_disable();
 			ret = get_user(inst, (__u32 __user *)regs->nip);
@@ -1078,6 +1120,16 @@ int fsl_pci_mcheck_exception(struct pt_regs *regs)
 
 		if (!ret && mcheck_handle_load(regs, inst)) {
 			regs->nip += 4;
+=======
+		if (user_mode(regs))
+			ret = copy_from_user_nofault(&inst,
+					(void __user *)regs->nip, sizeof(inst));
+		else
+			ret = get_kernel_nofault(inst, (void *)regs->nip);
+
+		if (!ret && mcheck_handle_load(regs, inst)) {
+			regs_add_return_ip(regs, 4);
+>>>>>>> upstream/android-13
 			return 1;
 		}
 	}

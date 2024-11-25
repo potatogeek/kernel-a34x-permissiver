@@ -14,7 +14,11 @@ struct qm1d1b0004_config {
 	struct dvb_frontend *fe;
 
 	u32 lpf_freq;   /* LPF frequency[kHz]. Default: symbol rate */
+<<<<<<< HEAD
 	bool half_step; /* use PLL frequency step of 500Hz istead of 1000Hz */
+=======
+	bool half_step; /* use PLL frequency step of 500Hz instead of 1000Hz */
+>>>>>>> upstream/android-13
 };
 
 /* special values indicating to use the default in qm1d1b0004_config */

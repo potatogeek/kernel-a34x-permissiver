@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2010 Christoph Mair <christoph.mair@gmail.com>
  * Copyright (c) 2012 Bosch Sensortec GmbH
@@ -7,10 +11,13 @@
  *
  * Driver for Bosch Sensortec BMP180 and BMP280 digital pressure sensor.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheet:
  * https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BMP180-DS000-121.pdf
  * https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BMP280-DS001-12.pdf
@@ -77,6 +84,15 @@ struct bmp280_calib {
 	s8  H6;
 };
 
+<<<<<<< HEAD
+=======
+static const char *const bmp280_supply_names[] = {
+	"vddd", "vdda"
+};
+
+#define BMP280_NUM_SUPPLIES ARRAY_SIZE(bmp280_supply_names)
+
+>>>>>>> upstream/android-13
 struct bmp280_data {
 	struct device *dev;
 	struct mutex lock;
@@ -88,8 +104,12 @@ struct bmp280_data {
 		struct bmp180_calib bmp180;
 		struct bmp280_calib bmp280;
 	} calib;
+<<<<<<< HEAD
 	struct regulator *vddd;
 	struct regulator *vdda;
+=======
+	struct regulator_bulk_data supplies[BMP280_NUM_SUPPLIES];
+>>>>>>> upstream/android-13
 	unsigned int start_up_time; /* in microseconds */
 
 	/* log of base 2 of oversampling rate */
@@ -151,6 +171,11 @@ static int bmp280_read_calib(struct bmp280_data *data,
 {
 	int ret;
 	unsigned int tmp;
+<<<<<<< HEAD
+=======
+	__le16 l16;
+	__be16 b16;
+>>>>>>> upstream/android-13
 	struct device *dev = data->dev;
 	__le16 t_buf[BMP280_COMP_TEMP_REG_COUNT / 2];
 	__le16 p_buf[BMP280_COMP_PRESS_REG_COUNT / 2];
@@ -164,6 +189,12 @@ static int bmp280_read_calib(struct bmp280_data *data,
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Toss the temperature calibration data into the entropy pool */
+	add_device_randomness(t_buf, sizeof(t_buf));
+
+>>>>>>> upstream/android-13
 	calib->T1 = le16_to_cpu(t_buf[T1]);
 	calib->T2 = le16_to_cpu(t_buf[T2]);
 	calib->T3 = le16_to_cpu(t_buf[T3]);
@@ -177,6 +208,12 @@ static int bmp280_read_calib(struct bmp280_data *data,
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	/* Toss the pressure calibration data into the entropy pool */
+	add_device_randomness(p_buf, sizeof(p_buf));
+
+>>>>>>> upstream/android-13
 	calib->P1 = le16_to_cpu(p_buf[P1]);
 	calib->P2 = le16_to_cpu(p_buf[P2]);
 	calib->P3 = le16_to_cpu(p_buf[P3]);
@@ -204,12 +241,20 @@ static int bmp280_read_calib(struct bmp280_data *data,
 	}
 	calib->H1 = tmp;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, BMP280_REG_COMP_H2, &tmp, 2);
+=======
+	ret = regmap_bulk_read(data->regmap, BMP280_REG_COMP_H2, &l16, 2);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read H2 comp value\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	calib->H2 = sign_extend32(le16_to_cpu(tmp), 15);
+=======
+	calib->H2 = sign_extend32(le16_to_cpu(l16), 15);
+>>>>>>> upstream/android-13
 
 	ret = regmap_read(data->regmap, BMP280_REG_COMP_H3, &tmp);
 	if (ret < 0) {
@@ -218,20 +263,35 @@ static int bmp280_read_calib(struct bmp280_data *data,
 	}
 	calib->H3 = tmp;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, BMP280_REG_COMP_H4, &tmp, 2);
+=======
+	ret = regmap_bulk_read(data->regmap, BMP280_REG_COMP_H4, &b16, 2);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read H4 comp value\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	calib->H4 = sign_extend32(((be16_to_cpu(tmp) >> 4) & 0xff0) |
 				  (be16_to_cpu(tmp) & 0xf), 11);
 
 	ret = regmap_bulk_read(data->regmap, BMP280_REG_COMP_H5, &tmp, 2);
+=======
+	calib->H4 = sign_extend32(((be16_to_cpu(b16) >> 4) & 0xff0) |
+				  (be16_to_cpu(b16) & 0xf), 11);
+
+	ret = regmap_bulk_read(data->regmap, BMP280_REG_COMP_H5, &l16, 2);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "failed to read H5 comp value\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	calib->H5 = sign_extend32(((le16_to_cpu(tmp) >> 4) & 0xfff), 11);
+=======
+	calib->H5 = sign_extend32(((le16_to_cpu(l16) >> 4) & 0xfff), 11);
+>>>>>>> upstream/android-13
 
 	ret = regmap_read(data->regmap, BMP280_REG_COMP_H6, &tmp);
 	if (ret < 0) {
@@ -329,8 +389,12 @@ static int bmp280_read_temp(struct bmp280_data *data,
 	__be32 tmp = 0;
 	s32 adc_temp, comp_temp;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, BMP280_REG_TEMP_MSB,
 			       (u8 *) &tmp, 3);
+=======
+	ret = regmap_bulk_read(data->regmap, BMP280_REG_TEMP_MSB, &tmp, 3);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(data->dev, "failed to read temperature\n");
 		return ret;
@@ -369,8 +433,12 @@ static int bmp280_read_press(struct bmp280_data *data,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, BMP280_REG_PRESS_MSB,
 			       (u8 *) &tmp, 3);
+=======
+	ret = regmap_bulk_read(data->regmap, BMP280_REG_PRESS_MSB, &tmp, 3);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(data->dev, "failed to read pressure\n");
 		return ret;
@@ -392,8 +460,13 @@ static int bmp280_read_press(struct bmp280_data *data,
 
 static int bmp280_read_humid(struct bmp280_data *data, int *val, int *val2)
 {
+<<<<<<< HEAD
 	int ret;
 	__be16 tmp = 0;
+=======
+	__be16 tmp;
+	int ret;
+>>>>>>> upstream/android-13
 	s32 adc_humidity;
 	u32 comp_humidity;
 
@@ -402,8 +475,12 @@ static int bmp280_read_humid(struct bmp280_data *data, int *val, int *val2)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, BMP280_REG_HUMIDITY_MSB,
 			       (u8 *) &tmp, 2);
+=======
+	ret = regmap_bulk_read(data->regmap, BMP280_REG_HUMIDITY_MSB, &tmp, 2);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(data->dev, "failed to read humidity\n");
 		return ret;
@@ -567,6 +644,7 @@ static int bmp280_write_raw(struct iio_dev *indio_dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t bmp280_show_avail(char *buf, const int *vals, const int n)
 {
 	size_t len = 0;
@@ -618,6 +696,40 @@ static const struct iio_info bmp280_info = {
 	.read_raw = &bmp280_read_raw,
 	.write_raw = &bmp280_write_raw,
 	.attrs = &bmp280_attrs_group,
+=======
+static int bmp280_read_avail(struct iio_dev *indio_dev,
+			     struct iio_chan_spec const *chan,
+			     const int **vals, int *type, int *length,
+			     long mask)
+{
+	struct bmp280_data *data = iio_priv(indio_dev);
+
+	switch (mask) {
+	case IIO_CHAN_INFO_OVERSAMPLING_RATIO:
+		switch (chan->type) {
+		case IIO_PRESSURE:
+			*vals = data->chip_info->oversampling_press_avail;
+			*length = data->chip_info->num_oversampling_press_avail;
+			break;
+		case IIO_TEMP:
+			*vals = data->chip_info->oversampling_temp_avail;
+			*length = data->chip_info->num_oversampling_temp_avail;
+			break;
+		default:
+			return -EINVAL;
+		}
+		*type = IIO_VAL_INT;
+		return IIO_AVAIL_LIST;
+	default:
+		return -EINVAL;
+	}
+}
+
+static const struct iio_info bmp280_info = {
+	.read_raw = &bmp280_read_raw,
+	.read_avail = &bmp280_read_avail,
+	.write_raw = &bmp280_write_raw,
+>>>>>>> upstream/android-13
 };
 
 static int bmp280_chip_config(struct bmp280_data *data)
@@ -744,14 +856,23 @@ static int bmp180_measure(struct bmp280_data *data, u8 ctrl_meas)
 
 static int bmp180_read_adc_temp(struct bmp280_data *data, int *val)
 {
+<<<<<<< HEAD
 	int ret;
 	__be16 tmp = 0;
+=======
+	__be16 tmp;
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = bmp180_measure(data, BMP180_MEAS_TEMP);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, BMP180_REG_OUT_MSB, (u8 *)&tmp, 2);
+=======
+	ret = regmap_bulk_read(data->regmap, BMP180_REG_OUT_MSB, &tmp, 2);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -848,7 +969,11 @@ static int bmp180_read_adc_press(struct bmp280_data *data, int *val)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(data->regmap, BMP180_REG_OUT_MSB, (u8 *)&tmp, 3);
+=======
+	ret = regmap_bulk_read(data->regmap, BMP180_REG_OUT_MSB, &tmp, 3);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -957,8 +1082,12 @@ static int bmp085_fetch_eoc_irq(struct device *dev,
 
 	irq_trig = irqd_get_trigger_type(irq_get_irq_data(irq));
 	if (irq_trig != IRQF_TRIGGER_RISING) {
+<<<<<<< HEAD
 		dev_err(dev, "non-rising trigger given for EOC interrupt, "
 			"trying to enforce it\n");
+=======
+		dev_err(dev, "non-rising trigger given for EOC interrupt, trying to enforce it\n");
+>>>>>>> upstream/android-13
 		irq_trig = IRQF_TRIGGER_RISING;
 	}
 
@@ -981,6 +1110,25 @@ static int bmp085_fetch_eoc_irq(struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void bmp280_pm_disable(void *data)
+{
+	struct device *dev = data;
+
+	pm_runtime_get_sync(dev);
+	pm_runtime_put_noidle(dev);
+	pm_runtime_disable(dev);
+}
+
+static void bmp280_regulators_disable(void *data)
+{
+	struct regulator_bulk_data *supplies = data;
+
+	regulator_bulk_disable(BMP280_NUM_SUPPLIES, supplies);
+}
+
+>>>>>>> upstream/android-13
 int bmp280_common_probe(struct device *dev,
 			struct regmap *regmap,
 			unsigned int chip,
@@ -1001,7 +1149,10 @@ int bmp280_common_probe(struct device *dev,
 	mutex_init(&data->lock);
 	data->dev = dev;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = name;
 	indio_dev->channels = bmp280_channels;
 	indio_dev->info = &bmp280_info;
@@ -1035,6 +1186,7 @@ int bmp280_common_probe(struct device *dev,
 	}
 
 	/* Bring up regulators */
+<<<<<<< HEAD
 	data->vddd = devm_regulator_get(dev, "vddd");
 	if (IS_ERR(data->vddd)) {
 		dev_err(dev, "failed to get VDDD regulator\n");
@@ -1056,13 +1208,43 @@ int bmp280_common_probe(struct device *dev,
 		dev_err(dev, "failed to enable VDDA regulator\n");
 		goto out_disable_vddd;
 	}
+=======
+	regulator_bulk_set_supply_names(data->supplies,
+					bmp280_supply_names,
+					BMP280_NUM_SUPPLIES);
+
+	ret = devm_regulator_bulk_get(dev,
+				      BMP280_NUM_SUPPLIES, data->supplies);
+	if (ret) {
+		dev_err(dev, "failed to get regulators\n");
+		return ret;
+	}
+
+	ret = regulator_bulk_enable(BMP280_NUM_SUPPLIES, data->supplies);
+	if (ret) {
+		dev_err(dev, "failed to enable regulators\n");
+		return ret;
+	}
+
+	ret = devm_add_action_or_reset(dev, bmp280_regulators_disable,
+				       data->supplies);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	/* Wait to make sure we started up properly */
 	usleep_range(data->start_up_time, data->start_up_time + 100);
 
 	/* Bring chip out of reset if there is an assigned GPIO line */
+<<<<<<< HEAD
 	gpiod = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
 	/* Deassert the signal */
 	if (!IS_ERR(gpiod)) {
+=======
+	gpiod = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+	/* Deassert the signal */
+	if (gpiod) {
+>>>>>>> upstream/android-13
 		dev_info(dev, "release reset\n");
 		gpiod_set_value(gpiod, 0);
 	}
@@ -1070,17 +1252,29 @@ int bmp280_common_probe(struct device *dev,
 	data->regmap = regmap;
 	ret = regmap_read(regmap, BMP280_REG_ID, &chip_id);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto out_disable_vdda;
 	if (chip_id != chip) {
 		dev_err(dev, "bad chip id: expected %x got %x\n",
 			chip, chip_id);
 		ret = -EINVAL;
 		goto out_disable_vdda;
+=======
+		return ret;
+	if (chip_id != chip) {
+		dev_err(dev, "bad chip id: expected %x got %x\n",
+			chip, chip_id);
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	ret = data->chip_info->chip_config(data);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto out_disable_vdda;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	dev_set_drvdata(dev, indio_dev);
 
@@ -1094,14 +1288,22 @@ int bmp280_common_probe(struct device *dev,
 		if (ret < 0) {
 			dev_err(data->dev,
 				"failed to read calibration coefficients\n");
+<<<<<<< HEAD
 			goto out_disable_vdda;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	} else if (chip_id == BMP280_CHIP_ID || chip_id == BME280_CHIP_ID) {
 		ret = bmp280_read_calib(data, &data->calib.bmp280, chip_id);
 		if (ret < 0) {
 			dev_err(data->dev,
 				"failed to read calibration coefficients\n");
+<<<<<<< HEAD
 			goto out_disable_vdda;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1113,7 +1315,11 @@ int bmp280_common_probe(struct device *dev,
 	if (irq > 0 || (chip_id  == BMP180_CHIP_ID)) {
 		ret = bmp085_fetch_eoc_irq(dev, name, irq, data);
 		if (ret)
+<<<<<<< HEAD
 			goto out_disable_vdda;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 	}
 
 	/* Enable runtime PM */
@@ -1128,6 +1334,7 @@ int bmp280_common_probe(struct device *dev,
 	pm_runtime_use_autosuspend(dev);
 	pm_runtime_put(dev);
 
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret)
 		goto out_runtime_pm_disable;
@@ -1162,17 +1369,32 @@ int bmp280_common_remove(struct device *dev)
 }
 EXPORT_SYMBOL(bmp280_common_remove);
 
+=======
+	ret = devm_add_action_or_reset(dev, bmp280_pm_disable, dev);
+	if (ret)
+		return ret;
+
+	return devm_iio_device_register(dev, indio_dev);
+}
+EXPORT_SYMBOL(bmp280_common_probe);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int bmp280_runtime_suspend(struct device *dev)
 {
 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
 	struct bmp280_data *data = iio_priv(indio_dev);
+<<<<<<< HEAD
 	int ret;
 
 	ret = regulator_disable(data->vdda);
 	if (ret)
 		return ret;
 	return regulator_disable(data->vddd);
+=======
+
+	return regulator_bulk_disable(BMP280_NUM_SUPPLIES, data->supplies);
+>>>>>>> upstream/android-13
 }
 
 static int bmp280_runtime_resume(struct device *dev)
@@ -1181,10 +1403,14 @@ static int bmp280_runtime_resume(struct device *dev)
 	struct bmp280_data *data = iio_priv(indio_dev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = regulator_enable(data->vddd);
 	if (ret)
 		return ret;
 	ret = regulator_enable(data->vdda);
+=======
+	ret = regulator_bulk_enable(BMP280_NUM_SUPPLIES, data->supplies);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 	usleep_range(data->start_up_time, data->start_up_time + 100);

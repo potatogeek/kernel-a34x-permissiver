@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Find uses of standard freeing functons on values allocated using devm_
 /// functions.  Values allocated using the devm_functions are freed when
 /// the device is detached, and thus the use of the standard freeing
 /// function would cause a double free.
+<<<<<<< HEAD
 /// See Documentation/driver-model/devres.txt for more information.
+=======
+/// See Documentation/driver-api/driver-model/devres.rst for more information.
+>>>>>>> upstream/android-13
 ///
 /// A difficulty of detecting this problem is that the standard freeing
 /// function might be called from a different function than the one
@@ -14,8 +22,13 @@
 /// less reliable in these cases.
 ///
 // Confidence: Moderate
+<<<<<<< HEAD
 // Copyright: (C) 2011 Julia Lawall, INRIA/LIP6.  GPLv2.
 // Copyright: (C) 2011 Gilles Muller, INRIA/LiP6.  GPLv2.
+=======
+// Copyright: (C) 2011 Julia Lawall, INRIA/LIP6.
+// Copyright: (C) 2011 Gilles Muller, INRIA/LiP6.
+>>>>>>> upstream/android-13
 // URL: http://coccinelle.lip6.fr/
 // Comments:
 // Options: --no-includes --include-headers
@@ -51,8 +64,11 @@ expression x;
 |
  x = devm_ioremap(...)
 |
+<<<<<<< HEAD
  x = devm_ioremap_nocache(...)
 |
+=======
+>>>>>>> upstream/android-13
  x = devm_ioport_map(...)
 )
 
@@ -84,17 +100,24 @@ position p;
 |
  x = ioremap(...)
 |
+<<<<<<< HEAD
  x = ioremap_nocache(...)
 |
+=======
+>>>>>>> upstream/android-13
  x = ioport_map(...)
 )
 ...
 (
  kfree@p(x)
 |
+<<<<<<< HEAD
  kzfree@p(x)
 |
  __krealloc@p(x, ...)
+=======
+ kfree_sensitive@p(x)
+>>>>>>> upstream/android-13
 |
  krealloc@p(x, ...)
 |
@@ -117,9 +140,13 @@ position p != safe.p;
 (
 * kfree@p(x)
 |
+<<<<<<< HEAD
 * kzfree@p(x)
 |
 * __krealloc@p(x, ...)
+=======
+* kfree_sensitive@p(x)
+>>>>>>> upstream/android-13
 |
 * krealloc@p(x, ...)
 |

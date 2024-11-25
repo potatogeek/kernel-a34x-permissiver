@@ -15,6 +15,11 @@ EXPORT_SYMBOL(wbinvd_on_cpu);
 
 int wbinvd_on_all_cpus(void)
 {
+<<<<<<< HEAD
 	return on_each_cpu(__wbinvd, NULL, 1);
+=======
+	on_each_cpu(__wbinvd, NULL, 1);
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(wbinvd_on_all_cpus);

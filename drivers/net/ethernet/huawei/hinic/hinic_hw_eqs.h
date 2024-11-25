@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #ifndef HINIC_HW_EQS_H
@@ -152,8 +159,14 @@ enum hinic_eq_type {
 };
 
 enum hinic_aeq_type {
+<<<<<<< HEAD
 	HINIC_MSG_FROM_MGMT_CPU = 2,
 
+=======
+	HINIC_MBX_FROM_FUNC = 1,
+	HINIC_MSG_FROM_MGMT_CPU = 2,
+	HINIC_MBX_SEND_RSLT = 5,
+>>>>>>> upstream/android-13
 	HINIC_MAX_AEQ_EVENTS,
 };
 
@@ -170,7 +183,11 @@ enum hinic_eqe_state {
 
 struct hinic_aeq_elem {
 	u8      data[HINIC_AEQE_DATA_SIZE];
+<<<<<<< HEAD
 	u32     desc;
+=======
+	__be32  desc;
+>>>>>>> upstream/android-13
 };
 
 struct hinic_eq_work {
@@ -180,7 +197,11 @@ struct hinic_eq_work {
 
 struct hinic_eq {
 	struct hinic_hwif       *hwif;
+<<<<<<< HEAD
 
+=======
+	struct hinic_hwdev      *hwdev;
+>>>>>>> upstream/android-13
 	enum hinic_eq_type      type;
 	int                     q_id;
 	u32                     q_len;
@@ -194,6 +215,10 @@ struct hinic_eq {
 	int                     num_elem_in_pg;
 
 	struct msix_entry       msix_entry;
+<<<<<<< HEAD
+=======
+	char			irq_name[64];
+>>>>>>> upstream/android-13
 
 	dma_addr_t              *dma_addr;
 	void                    **virt_addr;
@@ -228,7 +253,11 @@ struct hinic_ceq_cb {
 
 struct hinic_ceqs {
 	struct hinic_hwif       *hwif;
+<<<<<<< HEAD
 
+=======
+	struct hinic_hwdev		*hwdev;
+>>>>>>> upstream/android-13
 	struct hinic_eq         ceq[HINIC_MAX_CEQS];
 	int                     num_ceqs;
 
@@ -262,4 +291,11 @@ int hinic_ceqs_init(struct hinic_ceqs *ceqs, struct hinic_hwif *hwif,
 
 void hinic_ceqs_free(struct hinic_ceqs *ceqs);
 
+<<<<<<< HEAD
+=======
+void hinic_dump_ceq_info(struct hinic_hwdev *hwdev);
+
+void hinic_dump_aeq_info(struct hinic_hwdev *hwdev);
+
+>>>>>>> upstream/android-13
 #endif

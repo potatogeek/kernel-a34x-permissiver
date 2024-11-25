@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PHY support for Xenon SDHC
  *
@@ -5,10 +9,13 @@
  *
  * Author:	Hu Ziji <huziji@marvell.com>
  * Date:	2016-8-24
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -530,7 +537,11 @@ static bool xenon_emmc_phy_slow_mode(struct sdhci_host *host,
 			ret = true;
 			break;
 		}
+<<<<<<< HEAD
 		/* else: fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		reg &= ~XENON_TIMING_ADJUST_SLOW_MODE;
 		ret = false;
@@ -654,18 +665,32 @@ static int get_dt_pad_ctrl_data(struct sdhci_host *host,
 				struct device_node *np,
 				struct xenon_emmc_phy_params *params)
 {
+<<<<<<< HEAD
+=======
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct xenon_priv *priv = sdhci_pltfm_priv(pltfm_host);
+>>>>>>> upstream/android-13
 	int ret = 0;
 	const char *name;
 	struct resource iomem;
 
+<<<<<<< HEAD
 	if (of_device_is_compatible(np, "marvell,armada-3700-sdhci"))
+=======
+	if (priv->hw_version == XENON_A3700)
+>>>>>>> upstream/android-13
 		params->pad_ctrl.set_soc_pad = armada_3700_soc_pad_voltage_set;
 	else
 		return 0;
 
 	if (of_address_to_resource(np, 1, &iomem)) {
+<<<<<<< HEAD
 		dev_err(mmc_dev(host->mmc), "Unable to find SoC PAD ctrl register address for %s\n",
 			np->name);
+=======
+		dev_err(mmc_dev(host->mmc), "Unable to find SoC PAD ctrl register address for %pOFn\n",
+			np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -692,13 +717,20 @@ static int get_dt_pad_ctrl_data(struct sdhci_host *host,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int xenon_emmc_phy_parse_param_dt(struct sdhci_host *host,
 					 struct device_node *np,
 					 struct xenon_emmc_phy_params *params)
+=======
+static int xenon_emmc_phy_parse_params(struct sdhci_host *host,
+				       struct device *dev,
+				       struct xenon_emmc_phy_params *params)
+>>>>>>> upstream/android-13
 {
 	u32 value;
 
 	params->slow_mode = false;
+<<<<<<< HEAD
 	if (of_property_read_bool(np, "marvell,xenon-phy-slow-mode"))
 		params->slow_mode = true;
 
@@ -721,6 +753,32 @@ static int xenon_emmc_phy_parse_param_dt(struct sdhci_host *host,
 		params->tun_step_divider = value & 0xFF;
 
 	return get_dt_pad_ctrl_data(host, np, params);
+=======
+	if (device_property_read_bool(dev, "marvell,xenon-phy-slow-mode"))
+		params->slow_mode = true;
+
+	params->znr = XENON_ZNR_DEF_VALUE;
+	if (!device_property_read_u32(dev, "marvell,xenon-phy-znr", &value))
+		params->znr = value & XENON_ZNR_MASK;
+
+	params->zpr = XENON_ZPR_DEF_VALUE;
+	if (!device_property_read_u32(dev, "marvell,xenon-phy-zpr", &value))
+		params->zpr = value & XENON_ZPR_MASK;
+
+	params->nr_tun_times = XENON_TUN_CONSECUTIVE_TIMES;
+	if (!device_property_read_u32(dev, "marvell,xenon-phy-nr-success-tun",
+				      &value))
+		params->nr_tun_times = value & XENON_TUN_CONSECUTIVE_TIMES_MASK;
+
+	params->tun_step_divider = XENON_TUNING_STEP_DIVIDER;
+	if (!device_property_read_u32(dev, "marvell,xenon-phy-tun-step-divider",
+				      &value))
+		params->tun_step_divider = value & 0xFF;
+
+	if (dev->of_node)
+		return get_dt_pad_ctrl_data(host, dev->of_node, params);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Set SoC PHY Voltage PAD */
@@ -814,7 +872,11 @@ int xenon_phy_adj(struct sdhci_host *host, struct mmc_ios *ios)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int xenon_add_phy(struct device_node *np, struct sdhci_host *host,
+=======
+static int xenon_add_phy(struct device *dev, struct sdhci_host *host,
+>>>>>>> upstream/android-13
 			 const char *phy_name)
 {
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
@@ -833,6 +895,7 @@ static int xenon_add_phy(struct device_node *np, struct sdhci_host *host,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	return xenon_emmc_phy_parse_param_dt(host, np, priv->phy_params);
 }
 
@@ -844,4 +907,17 @@ int xenon_phy_parse_dt(struct device_node *np, struct sdhci_host *host)
 		return xenon_add_phy(np, host, phy_type);
 
 	return xenon_add_phy(np, host, "emmc 5.1 phy");
+=======
+	return xenon_emmc_phy_parse_params(host, dev, priv->phy_params);
+}
+
+int xenon_phy_parse_params(struct device *dev, struct sdhci_host *host)
+{
+	const char *phy_type = NULL;
+
+	if (!device_property_read_string(dev, "marvell,xenon-phy-type", &phy_type))
+		return xenon_add_phy(dev, host, phy_type);
+
+	return xenon_add_phy(dev, host, "emmc 5.1 phy");
+>>>>>>> upstream/android-13
 }

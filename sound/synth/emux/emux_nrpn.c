@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  NRPN / SYSEX callbacks for Emu8k/Emu10k1
  *
  *  Copyright (c) 1999-2000 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "emux_voice.h"
@@ -77,16 +84,27 @@ static int send_converted_effect(const struct nrpn_conv_table *table,
 /* effect sensitivities for GS NRPN:
  *  adjusted for chaos 8MB soundfonts
  */
+<<<<<<< HEAD
 static int gs_sense[] = 
+=======
+static const int gs_sense[] =
+>>>>>>> upstream/android-13
 {
 	DEF_FX_CUTOFF, DEF_FX_RESONANCE, DEF_FX_ATTACK, DEF_FX_RELEASE,
 	DEF_FX_VIBRATE, DEF_FX_VIBDEPTH, DEF_FX_VIBDELAY
 };
 
+<<<<<<< HEAD
 /* effect sensitivies for XG controls:
  * adjusted for chaos 8MB soundfonts
  */
 static int xg_sense[] = 
+=======
+/* effect sensitivities for XG controls:
+ * adjusted for chaos 8MB soundfonts
+ */
+static const int xg_sense[] =
+>>>>>>> upstream/android-13
 {
 	DEF_FX_CUTOFF, DEF_FX_RESONANCE, DEF_FX_ATTACK, DEF_FX_RELEASE,
 	DEF_FX_VIBRATE, DEF_FX_VIBDEPTH, DEF_FX_VIBDELAY

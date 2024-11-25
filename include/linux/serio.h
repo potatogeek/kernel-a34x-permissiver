@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 1999-2002 Vojtech Pavlik
 *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 1999-2002 Vojtech Pavlik
+>>>>>>> upstream/android-13
  */
 #ifndef _SERIO_H
 #define _SERIO_H
@@ -16,6 +22,10 @@
 #include <linux/mutex.h>
 #include <linux/device.h>
 #include <linux/mod_devicetable.h>
+<<<<<<< HEAD
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/serio.h>
 
 extern struct bus_type serio_bus;
@@ -64,6 +74,11 @@ struct serio {
 	 * may get indigestion when exposed to concurrent access (i8042).
 	 */
 	struct mutex *ps2_cmd_mutex;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 #define to_serio_port(d)	container_of(d, struct serio, dev)
 
@@ -82,6 +97,11 @@ struct serio_driver {
 	void (*cleanup)(struct serio *);
 
 	struct device_driver driver;
+<<<<<<< HEAD
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 #define to_serio_driver(d)	container_of(d, struct serio_driver, driver)
 

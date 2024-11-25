@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <types.h>
@@ -116,6 +122,7 @@ static const u32 dot11lcn_gain_tbl_rev0[] = {
 	0x00000000,
 };
 
+<<<<<<< HEAD
 static const u32 dot11lcn_gain_tbl_rev1[] = {
 	0x00000000,
 	0x00000000,
@@ -215,6 +222,8 @@ static const u32 dot11lcn_gain_tbl_rev1[] = {
 	0x00000000,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const u16 dot11lcn_aux_gain_idx_tbl_rev0[] = {
 	0x0401,
 	0x0402,
@@ -1518,6 +1527,7 @@ const struct phytbl_info dot11lcnphytbl_rx_gain_info_rev0[] = {
 	,
 };
 
+<<<<<<< HEAD
 static const struct phytbl_info dot11lcnphytbl_rx_gain_info_rev1[] = {
 	{&dot11lcn_gain_tbl_rev1,
 	 ARRAY_SIZE(dot11lcn_gain_tbl_rev1), 18,
@@ -1531,6 +1541,8 @@ static const struct phytbl_info dot11lcnphytbl_rx_gain_info_rev1[] = {
 	,
 };
 
+=======
+>>>>>>> upstream/android-13
 const struct phytbl_info dot11lcnphytbl_rx_gain_info_2G_rev2[] = {
 	{&dot11lcn_gain_tbl_2G,
 	 ARRAY_SIZE(dot11lcn_gain_tbl_2G), 18, 0,

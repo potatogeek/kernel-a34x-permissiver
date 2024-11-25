@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 #ifndef _UAPI_LINUX_BPFILTER_H
 #define _UAPI_LINUX_BPFILTER_H
 

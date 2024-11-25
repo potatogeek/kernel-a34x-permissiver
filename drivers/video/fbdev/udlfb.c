@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * udlfb.c -- Framebuffer driver for DisplayLink USB controller
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2009 Jaya Kumar <jayakumar.lkml@gmail.com>
  * Copyright (C) 2009 Bernie Thompson <bernie@plugable.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of the GNU General Public
  * License v2. See the file COPYING in the main directory of this archive for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Layout is based on skeletonfb by James Simmons and Geert Uytterhoeven,
  * usb-skeleton by GregKH.
  *
@@ -67,9 +74,15 @@ static const struct usb_device_id id_table[] = {
 MODULE_DEVICE_TABLE(usb, id_table);
 
 /* module options */
+<<<<<<< HEAD
 static bool console = 1; /* Allow fbcon to open framebuffer */
 static bool fb_defio = 1;  /* Detect mmap writes using page faults */
 static bool shadow = 1; /* Optionally disable shadow framebuffer */
+=======
+static bool console = true; /* Allow fbcon to open framebuffer */
+static bool fb_defio = true;  /* Detect mmap writes using page faults */
+static bool shadow = true; /* Optionally disable shadow framebuffer */
+>>>>>>> upstream/android-13
 static int pixel_limit; /* Optionally force a pixel resolution limit */
 
 struct dlfb_deferred_free {
@@ -1041,7 +1054,10 @@ static int dlfb_ops_release(struct fb_info *info, int user)
 		fb_deferred_io_cleanup(info);
 		kfree(info->fbdefio);
 		info->fbdefio = NULL;
+<<<<<<< HEAD
 		info->fbops->fb_mmap = dlfb_ops_mmap;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	dev_dbg(info->dev, "release, user=%d count=%d\n", user, dlfb->fb_count);
@@ -1187,7 +1203,11 @@ static int dlfb_ops_blank(int blank_mode, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops dlfb_ops = {
+=======
+static const struct fb_ops dlfb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_read = fb_sys_read,
 	.fb_write = dlfb_ops_write,
@@ -1430,7 +1450,11 @@ static ssize_t metrics_bytes_rendered_show(struct device *fbdev,
 				   struct device_attribute *a, char *buf) {
 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
 	struct dlfb_data *dlfb = fb_info->par;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n",
+=======
+	return sysfs_emit(buf, "%u\n",
+>>>>>>> upstream/android-13
 			atomic_read(&dlfb->bytes_rendered));
 }
 
@@ -1438,7 +1462,11 @@ static ssize_t metrics_bytes_identical_show(struct device *fbdev,
 				   struct device_attribute *a, char *buf) {
 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
 	struct dlfb_data *dlfb = fb_info->par;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n",
+=======
+	return sysfs_emit(buf, "%u\n",
+>>>>>>> upstream/android-13
 			atomic_read(&dlfb->bytes_identical));
 }
 
@@ -1446,7 +1474,11 @@ static ssize_t metrics_bytes_sent_show(struct device *fbdev,
 				   struct device_attribute *a, char *buf) {
 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
 	struct dlfb_data *dlfb = fb_info->par;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n",
+=======
+	return sysfs_emit(buf, "%u\n",
+>>>>>>> upstream/android-13
 			atomic_read(&dlfb->bytes_sent));
 }
 
@@ -1454,7 +1486,11 @@ static ssize_t metrics_cpu_kcycles_used_show(struct device *fbdev,
 				   struct device_attribute *a, char *buf) {
 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
 	struct dlfb_data *dlfb = fb_info->par;
+<<<<<<< HEAD
 	return snprintf(buf, PAGE_SIZE, "%u\n",
+=======
+	return sysfs_emit(buf, "%u\n",
+>>>>>>> upstream/android-13
 			atomic_read(&dlfb->cpu_kcycles_used));
 }
 
@@ -1462,7 +1498,11 @@ static ssize_t edid_show(
 			struct file *filp,
 			struct kobject *kobj, struct bin_attribute *a,
 			 char *buf, loff_t off, size_t count) {
+<<<<<<< HEAD
 	struct device *fbdev = container_of(kobj, struct device, kobj);
+=======
+	struct device *fbdev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
 	struct dlfb_data *dlfb = fb_info->par;
 
@@ -1484,7 +1524,11 @@ static ssize_t edid_store(
 			struct file *filp,
 			struct kobject *kobj, struct bin_attribute *a,
 			char *src, loff_t src_off, size_t src_size) {
+<<<<<<< HEAD
 	struct device *fbdev = container_of(kobj, struct device, kobj);
+=======
+	struct device *fbdev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
 	struct dlfb_data *dlfb = fb_info->par;
 	int ret;
@@ -1653,8 +1697,14 @@ static int dlfb_usb_probe(struct usb_interface *intf,
 	const struct device_attribute *attr;
 	struct dlfb_data *dlfb;
 	struct fb_info *info;
+<<<<<<< HEAD
 	int retval = -ENOMEM;
 	struct usb_device *usbdev = interface_to_usbdev(intf);
+=======
+	int retval;
+	struct usb_device *usbdev = interface_to_usbdev(intf);
+	struct usb_endpoint_descriptor *out;
+>>>>>>> upstream/android-13
 
 	/* usb initialization */
 	dlfb = kzalloc(sizeof(*dlfb), GFP_KERNEL);
@@ -1668,6 +1718,15 @@ static int dlfb_usb_probe(struct usb_interface *intf,
 	dlfb->udev = usb_get_dev(usbdev);
 	usb_set_intfdata(intf, dlfb);
 
+<<<<<<< HEAD
+=======
+	retval = usb_find_common_endpoints(intf->cur_altsetting, NULL, &out, NULL, NULL);
+	if (retval) {
+		dev_err(&intf->dev, "Device should have at lease 1 bulk endpoint!\n");
+		goto error;
+	}
+
+>>>>>>> upstream/android-13
 	dev_dbg(&intf->dev, "console enable=%d\n", console);
 	dev_dbg(&intf->dev, "fb_defio enable=%d\n", fb_defio);
 	dev_dbg(&intf->dev, "shadow enable=%d\n", shadow);
@@ -1677,6 +1736,10 @@ static int dlfb_usb_probe(struct usb_interface *intf,
 	if (!dlfb_parse_vendor_descriptor(dlfb, intf)) {
 		dev_err(&intf->dev,
 			"firmware not recognized, incompatible device?\n");
+<<<<<<< HEAD
+=======
+		retval = -ENODEV;
+>>>>>>> upstream/android-13
 		goto error;
 	}
 
@@ -1691,7 +1754,11 @@ static int dlfb_usb_probe(struct usb_interface *intf,
 	/* allocates framebuffer driver structure, not framebuffer memory */
 	info = framebuffer_alloc(0, &dlfb->udev->dev);
 	if (!info) {
+<<<<<<< HEAD
 		dev_err(&dlfb->udev->dev, "framebuffer_alloc failed\n");
+=======
+		retval = -ENOMEM;
+>>>>>>> upstream/android-13
 		goto error;
 	}
 

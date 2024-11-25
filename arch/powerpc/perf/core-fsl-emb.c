@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Performance event support - Freescale Embedded Performance Monitor
  *
  * Copyright 2008-2009 Paul Mackerras, IBM Corporation.
  * Copyright 2010 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -35,6 +42,7 @@ static atomic_t num_events;
 /* Used to avoid races in calling reserve/release_pmc_hardware */
 static DEFINE_MUTEX(pmc_reserve_mutex);
 
+<<<<<<< HEAD
 /*
  * If interrupts were soft-disabled when a PMU interrupt occurs, treat
  * it as an NMI.
@@ -48,6 +56,8 @@ static inline int perf_intr_is_nmi(struct pt_regs *regs)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static void perf_event_interrupt(struct pt_regs *regs);
 
 /*
@@ -663,6 +673,7 @@ static void perf_event_interrupt(struct pt_regs *regs)
 	struct perf_event *event;
 	unsigned long val;
 	int found = 0;
+<<<<<<< HEAD
 	int nmi;
 
 	nmi = perf_intr_is_nmi(regs);
@@ -670,6 +681,8 @@ static void perf_event_interrupt(struct pt_regs *regs)
 		nmi_enter();
 	else
 		irq_enter();
+=======
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ppmu->n_counter; ++i) {
 		event = cpuhw->event[i];
@@ -694,11 +707,14 @@ static void perf_event_interrupt(struct pt_regs *regs)
 	mtmsr(mfmsr() | MSR_PMM);
 	mtpmr(PMRN_PMGC0, PMGC0_PMIE | PMGC0_FCECE);
 	isync();
+<<<<<<< HEAD
 
 	if (nmi)
 		nmi_exit();
 	else
 		irq_exit();
+=======
+>>>>>>> upstream/android-13
 }
 
 void hw_perf_event_setup(int cpu)

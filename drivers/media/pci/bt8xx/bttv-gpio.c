@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
     bttv-gpio.c  --  gpio sub drivers
@@ -10,6 +14,7 @@
 			   & Marcus Metzler (mocm@thp.uni-koeln.de)
     (c) 1999-2003 Gerd Knorr <kraxel@bytesex.org>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +28,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -58,14 +65,21 @@ static int bttv_sub_probe(struct device *dev)
 	return sub->probe ? sub->probe(sdev) : -ENODEV;
 }
 
+<<<<<<< HEAD
 static int bttv_sub_remove(struct device *dev)
+=======
+static void bttv_sub_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct bttv_sub_device *sdev = to_bttv_sub_dev(dev);
 	struct bttv_sub_driver *sub = to_bttv_sub_drv(dev->driver);
 
 	if (sub->remove)
 		sub->remove(sdev);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 struct bus_type bttv_sub_bus_type = {

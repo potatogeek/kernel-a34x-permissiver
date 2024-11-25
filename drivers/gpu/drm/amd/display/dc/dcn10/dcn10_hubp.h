@@ -34,6 +34,10 @@
 #define HUBP_REG_LIST_DCN(id)\
 	SRI(DCHUBP_CNTL, HUBP, id),\
 	SRI(HUBPREQ_DEBUG_DB, HUBP, id),\
+<<<<<<< HEAD
+=======
+	SRI(HUBPREQ_DEBUG, HUBP, id),\
+>>>>>>> upstream/android-13
 	SRI(DCSURF_ADDR_CONFIG, HUBP, id),\
 	SRI(DCSURF_TILING_CONFIG, HUBP, id),\
 	SRI(DCSURF_SURFACE_PITCH, HUBPREQ, id),\
@@ -46,6 +50,11 @@
 	SRI(DCSURF_SEC_VIEWPORT_START, HUBP, id), \
 	SRI(DCSURF_PRI_VIEWPORT_DIMENSION_C, HUBP, id), \
 	SRI(DCSURF_PRI_VIEWPORT_START_C, HUBP, id), \
+<<<<<<< HEAD
+=======
+	SRI(DCSURF_SEC_VIEWPORT_DIMENSION_C, HUBP, id), \
+	SRI(DCSURF_SEC_VIEWPORT_START_C, HUBP, id), \
+>>>>>>> upstream/android-13
 	SRI(DCSURF_PRIMARY_SURFACE_ADDRESS_HIGH, HUBPREQ, id),\
 	SRI(DCSURF_PRIMARY_SURFACE_ADDRESS, HUBPREQ, id),\
 	SRI(DCSURF_SECONDARY_SURFACE_ADDRESS_HIGH, HUBPREQ, id),\
@@ -56,8 +65,17 @@
 	SRI(DCSURF_SECONDARY_META_SURFACE_ADDRESS, HUBPREQ, id),\
 	SRI(DCSURF_PRIMARY_SURFACE_ADDRESS_HIGH_C, HUBPREQ, id),\
 	SRI(DCSURF_PRIMARY_SURFACE_ADDRESS_C, HUBPREQ, id),\
+<<<<<<< HEAD
 	SRI(DCSURF_PRIMARY_META_SURFACE_ADDRESS_HIGH_C, HUBPREQ, id),\
 	SRI(DCSURF_PRIMARY_META_SURFACE_ADDRESS_C, HUBPREQ, id),\
+=======
+	SRI(DCSURF_SECONDARY_SURFACE_ADDRESS_HIGH_C, HUBPREQ, id),\
+	SRI(DCSURF_SECONDARY_SURFACE_ADDRESS_C, HUBPREQ, id),\
+	SRI(DCSURF_PRIMARY_META_SURFACE_ADDRESS_HIGH_C, HUBPREQ, id),\
+	SRI(DCSURF_PRIMARY_META_SURFACE_ADDRESS_C, HUBPREQ, id),\
+	SRI(DCSURF_SECONDARY_META_SURFACE_ADDRESS_HIGH_C, HUBPREQ, id),\
+	SRI(DCSURF_SECONDARY_META_SURFACE_ADDRESS_C, HUBPREQ, id),\
+>>>>>>> upstream/android-13
 	SRI(DCSURF_SURFACE_INUSE, HUBPREQ, id),\
 	SRI(DCSURF_SURFACE_INUSE_HIGH, HUBPREQ, id),\
 	SRI(DCSURF_SURFACE_INUSE_C, HUBPREQ, id),\
@@ -67,6 +85,10 @@
 	SRI(DCSURF_SURFACE_EARLIEST_INUSE_C, HUBPREQ, id),\
 	SRI(DCSURF_SURFACE_EARLIEST_INUSE_HIGH_C, HUBPREQ, id),\
 	SRI(DCSURF_SURFACE_CONTROL, HUBPREQ, id),\
+<<<<<<< HEAD
+=======
+	SRI(DCSURF_SURFACE_FLIP_INTERRUPT, HUBPREQ, id),\
+>>>>>>> upstream/android-13
 	SRI(HUBPRET_CONTROL, HUBPRET, id),\
 	SRI(DCN_EXPANSION_MODE, HUBPREQ, id),\
 	SRI(DCHUBP_REQ_SIZE_CONFIG, HUBP, id),\
@@ -124,8 +146,11 @@
 	SRI(DCN_VM_SYSTEM_APERTURE_LOW_ADDR_LSB, HUBPREQ, id),\
 	SRI(DCN_VM_SYSTEM_APERTURE_HIGH_ADDR_MSB, HUBPREQ, id),\
 	SRI(DCN_VM_SYSTEM_APERTURE_HIGH_ADDR_LSB, HUBPREQ, id),\
+<<<<<<< HEAD
 	SR(DCHUBBUB_SDPIF_FB_BASE),\
 	SR(DCHUBBUB_SDPIF_FB_OFFSET),\
+=======
+>>>>>>> upstream/android-13
 	SRI(CURSOR_SETTINS, HUBPREQ, id), \
 	SRI(CURSOR_SURFACE_ADDRESS_HIGH, CURSOR, id), \
 	SRI(CURSOR_SURFACE_ADDRESS, CURSOR, id), \
@@ -138,6 +163,10 @@
 #define HUBP_COMMON_REG_VARIABLE_LIST \
 	uint32_t DCHUBP_CNTL; \
 	uint32_t HUBPREQ_DEBUG_DB; \
+<<<<<<< HEAD
+=======
+	uint32_t HUBPREQ_DEBUG; \
+>>>>>>> upstream/android-13
 	uint32_t DCSURF_ADDR_CONFIG; \
 	uint32_t DCSURF_TILING_CONFIG; \
 	uint32_t DCSURF_SURFACE_PITCH; \
@@ -150,6 +179,11 @@
 	uint32_t DCSURF_SEC_VIEWPORT_START; \
 	uint32_t DCSURF_PRI_VIEWPORT_DIMENSION_C; \
 	uint32_t DCSURF_PRI_VIEWPORT_START_C; \
+<<<<<<< HEAD
+=======
+	uint32_t DCSURF_SEC_VIEWPORT_DIMENSION_C; \
+	uint32_t DCSURF_SEC_VIEWPORT_START_C; \
+>>>>>>> upstream/android-13
 	uint32_t DCSURF_PRIMARY_SURFACE_ADDRESS_HIGH; \
 	uint32_t DCSURF_PRIMARY_SURFACE_ADDRESS; \
 	uint32_t DCSURF_SECONDARY_SURFACE_ADDRESS_HIGH; \
@@ -160,8 +194,17 @@
 	uint32_t DCSURF_SECONDARY_META_SURFACE_ADDRESS; \
 	uint32_t DCSURF_PRIMARY_SURFACE_ADDRESS_HIGH_C; \
 	uint32_t DCSURF_PRIMARY_SURFACE_ADDRESS_C; \
+<<<<<<< HEAD
 	uint32_t DCSURF_PRIMARY_META_SURFACE_ADDRESS_HIGH_C; \
 	uint32_t DCSURF_PRIMARY_META_SURFACE_ADDRESS_C; \
+=======
+	uint32_t DCSURF_SECONDARY_SURFACE_ADDRESS_HIGH_C; \
+	uint32_t DCSURF_SECONDARY_SURFACE_ADDRESS_C; \
+	uint32_t DCSURF_PRIMARY_META_SURFACE_ADDRESS_HIGH_C; \
+	uint32_t DCSURF_PRIMARY_META_SURFACE_ADDRESS_C; \
+	uint32_t DCSURF_SECONDARY_META_SURFACE_ADDRESS_HIGH_C; \
+	uint32_t DCSURF_SECONDARY_META_SURFACE_ADDRESS_C; \
+>>>>>>> upstream/android-13
 	uint32_t DCSURF_SURFACE_INUSE; \
 	uint32_t DCSURF_SURFACE_INUSE_HIGH; \
 	uint32_t DCSURF_SURFACE_INUSE_C; \
@@ -171,6 +214,10 @@
 	uint32_t DCSURF_SURFACE_EARLIEST_INUSE_C; \
 	uint32_t DCSURF_SURFACE_EARLIEST_INUSE_HIGH_C; \
 	uint32_t DCSURF_SURFACE_CONTROL; \
+<<<<<<< HEAD
+=======
+	uint32_t DCSURF_SURFACE_FLIP_INTERRUPT; \
+>>>>>>> upstream/android-13
 	uint32_t HUBPRET_CONTROL; \
 	uint32_t DCN_EXPANSION_MODE; \
 	uint32_t DCHUBP_REQ_SIZE_CONFIG; \
@@ -224,6 +271,7 @@
 	uint32_t DCN_VM_SYSTEM_APERTURE_HIGH_ADDR_LSB; \
 	uint32_t DCN_VM_SYSTEM_APERTURE_LOW_ADDR; \
 	uint32_t DCN_VM_SYSTEM_APERTURE_HIGH_ADDR; \
+<<<<<<< HEAD
 	uint32_t DCHUBBUB_SDPIF_FB_BASE; \
 	uint32_t DCHUBBUB_SDPIF_FB_OFFSET; \
 	uint32_t DCN_VM_FB_LOCATION_TOP; \
@@ -232,6 +280,8 @@
 	uint32_t DCN_VM_AGP_BASE; \
 	uint32_t DCN_VM_AGP_BOT; \
 	uint32_t DCN_VM_AGP_TOP; \
+=======
+>>>>>>> upstream/android-13
 	uint32_t CURSOR_SETTINS; \
 	uint32_t CURSOR_SETTINGS; \
 	uint32_t CURSOR_SURFACE_ADDRESS_HIGH; \
@@ -247,6 +297,7 @@
 	.field_name = reg_name ## __ ## field_name ## post_fix
 
 /* Mask/shift struct generation macro for all ASICs (including those with reduced functionality) */
+<<<<<<< HEAD
 #define HUBP_MASK_SH_LIST_DCN(mask_sh)\
 	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_BLANK_EN, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_TTU_DISABLE, mask_sh),\
@@ -254,6 +305,18 @@
 	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_NO_OUTSTANDING_REQ, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_VTG_SEL, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_DISABLE, mask_sh),\
+=======
+/*1.x, 2.x, and 3.x*/
+#define HUBP_MASK_SH_LIST_DCN_SHARE_COMMON(mask_sh)\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_BLANK_EN, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_TTU_DISABLE, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_UNDERFLOW_STATUS, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_UNDERFLOW_CLEAR, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_NO_OUTSTANDING_REQ, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_VTG_SEL, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_DISABLE, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_CNTL, HUBP_IN_BLANK, mask_sh),\
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBP0_DCSURF_ADDR_CONFIG, NUM_PIPES, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_ADDR_CONFIG, NUM_BANKS, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_ADDR_CONFIG, PIPE_INTERLEAVE, mask_sh),\
@@ -262,7 +325,10 @@
 	HUBP_SF(HUBP0_DCSURF_ADDR_CONFIG, MAX_COMPRESSED_FRAGS, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_TILING_CONFIG, SW_MODE, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_TILING_CONFIG, META_LINEAR, mask_sh),\
+<<<<<<< HEAD
 	HUBP_SF(HUBP0_DCSURF_TILING_CONFIG, RB_ALIGNED, mask_sh),\
+=======
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBP0_DCSURF_TILING_CONFIG, PIPE_ALIGNED, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_PITCH, PITCH, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_PITCH, META_PITCH, mask_sh),\
@@ -270,6 +336,11 @@
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_PITCH_C, META_PITCH_C, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_SURFACE_CONFIG, SURFACE_PIXEL_FORMAT, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_FLIP_CONTROL, SURFACE_FLIP_TYPE, mask_sh),\
+<<<<<<< HEAD
+=======
+	HUBP_SF(HUBPREQ0_DCSURF_FLIP_CONTROL, SURFACE_FLIP_MODE_FOR_STEREOSYNC, mask_sh),\
+	HUBP_SF(HUBPREQ0_DCSURF_FLIP_CONTROL, SURFACE_FLIP_IN_STEREOSYNC, mask_sh),\
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBPREQ0_DCSURF_FLIP_CONTROL, SURFACE_FLIP_PENDING, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_FLIP_CONTROL, SURFACE_UPDATE_LOCK, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH, mask_sh),\
@@ -284,6 +355,13 @@
 	HUBP_SF(HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_C, PRI_VIEWPORT_HEIGHT_C, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_PRI_VIEWPORT_START_C, PRI_VIEWPORT_X_START_C, mask_sh),\
 	HUBP_SF(HUBP0_DCSURF_PRI_VIEWPORT_START_C, PRI_VIEWPORT_Y_START_C, mask_sh),\
+<<<<<<< HEAD
+=======
+	HUBP_SF(HUBP0_DCSURF_SEC_VIEWPORT_DIMENSION_C, SEC_VIEWPORT_WIDTH_C, mask_sh),\
+	HUBP_SF(HUBP0_DCSURF_SEC_VIEWPORT_DIMENSION_C, SEC_VIEWPORT_HEIGHT_C, mask_sh),\
+	HUBP_SF(HUBP0_DCSURF_SEC_VIEWPORT_START_C, SEC_VIEWPORT_X_START_C, mask_sh),\
+	HUBP_SF(HUBP0_DCSURF_SEC_VIEWPORT_START_C, SEC_VIEWPORT_Y_START_C, mask_sh),\
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_SURFACE_ADDRESS_HIGH, PRIMARY_SURFACE_ADDRESS_HIGH, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_SURFACE_ADDRESS, PRIMARY_SURFACE_ADDRESS, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_SECONDARY_SURFACE_ADDRESS_HIGH, SECONDARY_SURFACE_ADDRESS_HIGH, mask_sh),\
@@ -294,8 +372,17 @@
 	HUBP_SF(HUBPREQ0_DCSURF_SECONDARY_META_SURFACE_ADDRESS, SECONDARY_META_SURFACE_ADDRESS, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_SURFACE_ADDRESS_HIGH_C, PRIMARY_SURFACE_ADDRESS_HIGH_C, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_SURFACE_ADDRESS_C, PRIMARY_SURFACE_ADDRESS_C, mask_sh),\
+<<<<<<< HEAD
 	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_META_SURFACE_ADDRESS_HIGH_C, PRIMARY_META_SURFACE_ADDRESS_HIGH_C, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_META_SURFACE_ADDRESS_C, PRIMARY_META_SURFACE_ADDRESS_C, mask_sh),\
+=======
+	HUBP_SF(HUBPREQ0_DCSURF_SECONDARY_SURFACE_ADDRESS_HIGH_C, SECONDARY_SURFACE_ADDRESS_HIGH_C, mask_sh),\
+	HUBP_SF(HUBPREQ0_DCSURF_SECONDARY_SURFACE_ADDRESS_C, SECONDARY_SURFACE_ADDRESS_C, mask_sh),\
+	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_META_SURFACE_ADDRESS_HIGH_C, PRIMARY_META_SURFACE_ADDRESS_HIGH_C, mask_sh),\
+	HUBP_SF(HUBPREQ0_DCSURF_PRIMARY_META_SURFACE_ADDRESS_C, PRIMARY_META_SURFACE_ADDRESS_C, mask_sh),\
+	HUBP_SF(HUBPREQ0_DCSURF_SECONDARY_META_SURFACE_ADDRESS_HIGH_C, SECONDARY_META_SURFACE_ADDRESS_HIGH_C, mask_sh),\
+	HUBP_SF(HUBPREQ0_DCSURF_SECONDARY_META_SURFACE_ADDRESS_C, SECONDARY_META_SURFACE_ADDRESS_C, mask_sh),\
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_INUSE, SURFACE_INUSE_ADDRESS, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_INUSE_HIGH, SURFACE_INUSE_ADDRESS_HIGH, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_INUSE_C, SURFACE_INUSE_ADDRESS_C, mask_sh),\
@@ -316,6 +403,10 @@
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_META_SURFACE_TMZ_C, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_EN, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_IND_64B_BLK, mask_sh),\
+<<<<<<< HEAD
+=======
+	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_FLIP_INTERRUPT, SURFACE_FLIP_INT_MASK, mask_sh),\
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, DET_BUF_PLANE1_BASE_ADDRESS, mask_sh),\
 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CB_B, mask_sh),\
 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CR_R, mask_sh),\
@@ -328,7 +419,10 @@
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG, META_CHUNK_SIZE, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG, MIN_META_CHUNK_SIZE, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG, DPTE_GROUP_SIZE, mask_sh),\
+<<<<<<< HEAD
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG, MPTE_GROUP_SIZE, mask_sh),\
+=======
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG, SWATH_HEIGHT, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG, PTE_ROW_HEIGHT_LINEAR, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, CHUNK_SIZE_C, mask_sh),\
@@ -336,7 +430,10 @@
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, META_CHUNK_SIZE_C, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, MIN_META_CHUNK_SIZE_C, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, DPTE_GROUP_SIZE_C, mask_sh),\
+<<<<<<< HEAD
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, MPTE_GROUP_SIZE_C, mask_sh),\
+=======
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, SWATH_HEIGHT_C, mask_sh),\
 	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, PTE_ROW_HEIGHT_LINEAR_C, mask_sh),\
 	HUBP_SF(HUBPREQ0_BLANK_OFFSET_0, REFCYC_H_BLANK_END, mask_sh),\
@@ -369,6 +466,19 @@
 	HUBP_SF(HUBPREQ0_DCN_SURF0_TTU_CNTL0, QoS_RAMP_DISABLE, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCN_SURF0_TTU_CNTL1, REFCYC_PER_REQ_DELIVERY_PRE, mask_sh),\
 	HUBP_SF(HUBP0_HUBP_CLK_CNTL, HUBP_CLOCK_ENABLE, mask_sh)
+<<<<<<< HEAD
+=======
+/*2.x and 1.x only*/
+#define HUBP_MASK_SH_LIST_DCN_COMMON(mask_sh)\
+	HUBP_MASK_SH_LIST_DCN_SHARE_COMMON(mask_sh),\
+	HUBP_SF(HUBP0_DCSURF_TILING_CONFIG, RB_ALIGNED, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG, MPTE_GROUP_SIZE, mask_sh),\
+	HUBP_SF(HUBP0_DCHUBP_REQ_SIZE_CONFIG_C, MPTE_GROUP_SIZE_C, mask_sh)
+
+/*2.x and 1.x only*/
+#define HUBP_MASK_SH_LIST_DCN(mask_sh)\
+	HUBP_MASK_SH_LIST_DCN_COMMON(mask_sh)
+>>>>>>> upstream/android-13
 
 /* Mask/shift struct generation macro for ASICs with VM */
 #define HUBP_MASK_SH_LIST_DCN_VM(mask_sh)\
@@ -404,8 +514,11 @@
 	HUBP_SF(HUBPREQ0_DCN_VM_SYSTEM_APERTURE_LOW_ADDR_LSB, MC_VM_SYSTEM_APERTURE_LOW_ADDR_LSB, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCN_VM_SYSTEM_APERTURE_HIGH_ADDR_MSB, MC_VM_SYSTEM_APERTURE_HIGH_ADDR_MSB, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCN_VM_SYSTEM_APERTURE_HIGH_ADDR_LSB, MC_VM_SYSTEM_APERTURE_HIGH_ADDR_LSB, mask_sh),\
+<<<<<<< HEAD
 	HUBP_SF(DCHUBBUB_SDPIF_FB_BASE, SDPIF_FB_BASE, mask_sh),\
 	HUBP_SF(DCHUBBUB_SDPIF_FB_OFFSET, SDPIF_FB_OFFSET, mask_sh),\
+=======
+>>>>>>> upstream/android-13
 	HUBP_SF(HUBPREQ0_DCN_VM_SYSTEM_APERTURE_DEFAULT_ADDR_MSB, MC_VM_SYSTEM_APERTURE_DEFAULT_SYSTEM, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCN_VM_SYSTEM_APERTURE_DEFAULT_ADDR_MSB, MC_VM_SYSTEM_APERTURE_DEFAULT_ADDR_MSB, mask_sh),\
 	HUBP_SF(HUBPREQ0_DCN_VM_SYSTEM_APERTURE_DEFAULT_ADDR_LSB, MC_VM_SYSTEM_APERTURE_DEFAULT_ADDR_LSB, mask_sh),\
@@ -426,13 +539,22 @@
 	HUBP_SF(CURSOR0_CURSOR_HOT_SPOT, CURSOR_HOT_SPOT_Y, mask_sh), \
 	HUBP_SF(CURSOR0_CURSOR_DST_OFFSET, CURSOR_DST_X_OFFSET, mask_sh)
 
+<<<<<<< HEAD
 #define DCN_HUBP_REG_FIELD_LIST(type) \
+=======
+#define DCN_HUBP_REG_FIELD_BASE_LIST(type) \
+>>>>>>> upstream/android-13
 	type HUBP_BLANK_EN;\
 	type HUBP_DISABLE;\
 	type HUBP_TTU_DISABLE;\
 	type HUBP_NO_OUTSTANDING_REQ;\
 	type HUBP_VTG_SEL;\
 	type HUBP_UNDERFLOW_STATUS;\
+<<<<<<< HEAD
+=======
+	type HUBP_UNDERFLOW_CLEAR;\
+	type HUBP_IN_BLANK;\
+>>>>>>> upstream/android-13
 	type NUM_PIPES;\
 	type NUM_BANKS;\
 	type PIPE_INTERLEAVE;\
@@ -451,6 +573,11 @@
 	type H_MIRROR_EN;\
 	type SURFACE_PIXEL_FORMAT;\
 	type SURFACE_FLIP_TYPE;\
+<<<<<<< HEAD
+=======
+	type SURFACE_FLIP_MODE_FOR_STEREOSYNC;\
+	type SURFACE_FLIP_IN_STEREOSYNC;\
+>>>>>>> upstream/android-13
 	type SURFACE_UPDATE_LOCK;\
 	type SURFACE_FLIP_PENDING;\
 	type PRI_VIEWPORT_WIDTH; \
@@ -465,6 +592,13 @@
 	type PRI_VIEWPORT_HEIGHT_C; \
 	type PRI_VIEWPORT_X_START_C; \
 	type PRI_VIEWPORT_Y_START_C; \
+<<<<<<< HEAD
+=======
+	type SEC_VIEWPORT_WIDTH_C; \
+	type SEC_VIEWPORT_HEIGHT_C; \
+	type SEC_VIEWPORT_X_START_C; \
+	type SEC_VIEWPORT_Y_START_C; \
+>>>>>>> upstream/android-13
 	type PRIMARY_SURFACE_ADDRESS_HIGH;\
 	type PRIMARY_SURFACE_ADDRESS;\
 	type SECONDARY_SURFACE_ADDRESS_HIGH;\
@@ -475,8 +609,17 @@
 	type SECONDARY_META_SURFACE_ADDRESS;\
 	type PRIMARY_SURFACE_ADDRESS_HIGH_C;\
 	type PRIMARY_SURFACE_ADDRESS_C;\
+<<<<<<< HEAD
 	type PRIMARY_META_SURFACE_ADDRESS_HIGH_C;\
 	type PRIMARY_META_SURFACE_ADDRESS_C;\
+=======
+	type SECONDARY_SURFACE_ADDRESS_HIGH_C;\
+	type SECONDARY_SURFACE_ADDRESS_C;\
+	type PRIMARY_META_SURFACE_ADDRESS_HIGH_C;\
+	type PRIMARY_META_SURFACE_ADDRESS_C;\
+	type SECONDARY_META_SURFACE_ADDRESS_HIGH_C;\
+	type SECONDARY_META_SURFACE_ADDRESS_C;\
+>>>>>>> upstream/android-13
 	type SURFACE_INUSE_ADDRESS;\
 	type SURFACE_INUSE_ADDRESS_HIGH;\
 	type SURFACE_INUSE_ADDRESS_C;\
@@ -497,6 +640,10 @@
 	type PRIMARY_SURFACE_DCC_IND_64B_BLK;\
 	type SECONDARY_SURFACE_DCC_EN;\
 	type SECONDARY_SURFACE_DCC_IND_64B_BLK;\
+<<<<<<< HEAD
+=======
+	type SURFACE_FLIP_INT_MASK;\
+>>>>>>> upstream/android-13
 	type DET_BUF_PLANE1_BASE_ADDRESS;\
 	type CROSSBAR_SRC_CB_B;\
 	type CROSSBAR_SRC_CR_R;\
@@ -577,6 +724,7 @@
 	type MC_VM_SYSTEM_APERTURE_HIGH_ADDR_LSB;\
 	type MC_VM_SYSTEM_APERTURE_LOW_ADDR;\
 	type MC_VM_SYSTEM_APERTURE_HIGH_ADDR;\
+<<<<<<< HEAD
 	type SDPIF_FB_TOP;\
 	type SDPIF_FB_BASE;\
 	type SDPIF_FB_OFFSET;\
@@ -589,6 +737,11 @@
 	type AGP_BASE;\
 	type AGP_BOT;\
 	type AGP_TOP;\
+=======
+	type DCN_VM_SYSTEM_APERTURE_DEFAULT_SYSTEM;\
+	type DCN_VM_SYSTEM_APERTURE_DEFAULT_ADDR_MSB;\
+	type DCN_VM_SYSTEM_APERTURE_DEFAULT_ADDR_LSB;\
+>>>>>>> upstream/android-13
 	/* todo:  get these from GVM instead of reading registers ourselves */\
 	type PAGE_DIRECTORY_ENTRY_HI32;\
 	type PAGE_DIRECTORY_ENTRY_LO32;\
@@ -617,6 +770,13 @@
 	type CURSOR_DST_X_OFFSET; \
 	type OUTPUT_FP
 
+<<<<<<< HEAD
+=======
+#define DCN_HUBP_REG_FIELD_LIST(type) \
+	DCN_HUBP_REG_FIELD_BASE_LIST(type);\
+	type ALPHA_PLANE_EN
+
+>>>>>>> upstream/android-13
 struct dcn_mi_registers {
 	HUBP_COMMON_REG_VARIABLE_LIST;
 };
@@ -635,6 +795,10 @@ struct dcn_hubp_state {
 	struct _vcs_dpi_display_rq_regs_st rq_regs;
 	uint32_t pixel_format;
 	uint32_t inuse_addr_hi;
+<<<<<<< HEAD
+=======
+	uint32_t inuse_addr_lo;
+>>>>>>> upstream/android-13
 	uint32_t viewport_width;
 	uint32_t viewport_height;
 	uint32_t rotation_angle;
@@ -642,11 +806,22 @@ struct dcn_hubp_state {
 	uint32_t sw_mode;
 	uint32_t dcc_en;
 	uint32_t blank_en;
+<<<<<<< HEAD
+=======
+	uint32_t clock_en;
+>>>>>>> upstream/android-13
 	uint32_t underflow_status;
 	uint32_t ttu_disable;
 	uint32_t min_ttu_vblank;
 	uint32_t qos_level_low_wm;
 	uint32_t qos_level_high_wm;
+<<<<<<< HEAD
+=======
+	uint32_t primary_surface_addr_lo;
+	uint32_t primary_surface_addr_hi;
+	uint32_t primary_meta_addr_lo;
+	uint32_t primary_meta_addr_hi;
+>>>>>>> upstream/android-13
 };
 
 struct dcn10_hubp {
@@ -661,10 +836,18 @@ void hubp1_program_surface_config(
 	struct hubp *hubp,
 	enum surface_pixel_format format,
 	union dc_tiling_info *tiling_info,
+<<<<<<< HEAD
 	union plane_size *plane_size,
 	enum dc_rotation_angle rotation,
 	struct dc_plane_dcc_param *dcc,
 	bool horizontal_mirror);
+=======
+	struct plane_size *plane_size,
+	enum dc_rotation_angle rotation,
+	struct dc_plane_dcc_param *dcc,
+	bool horizontal_mirror,
+	unsigned int compat_level);
+>>>>>>> upstream/android-13
 
 void hubp1_program_deadline(
 		struct hubp *hubp,
@@ -682,7 +865,11 @@ void hubp1_program_pixel_format(
 void hubp1_program_size(
 	struct hubp *hubp,
 	enum surface_pixel_format format,
+<<<<<<< HEAD
 	const union plane_size *plane_size,
+=======
+	const struct plane_size *plane_size,
+>>>>>>> upstream/android-13
 	struct dc_plane_dcc_param *dcc);
 
 void hubp1_program_rotation(
@@ -697,7 +884,11 @@ void hubp1_program_tiling(
 
 void hubp1_dcc_control(struct hubp *hubp,
 		bool enable,
+<<<<<<< HEAD
 		bool independent_64b_blks);
+=======
+		enum hubp_ind_block_size independent_64b_blks);
+>>>>>>> upstream/android-13
 
 bool hubp1_program_surface_flip_and_addr(
 	struct hubp *hubp,
@@ -733,8 +924,24 @@ void dcn10_hubp_construct(
 	const struct dcn_mi_mask *hubp_mask);
 
 void hubp1_read_state(struct hubp *hubp);
+<<<<<<< HEAD
 
 enum cursor_pitch hubp1_get_cursor_pitch(unsigned int pitch);
 
+=======
+void hubp1_clear_underflow(struct hubp *hubp);
+
+enum cursor_pitch hubp1_get_cursor_pitch(unsigned int pitch);
+
+void hubp1_vready_workaround(struct hubp *hubp,
+		struct _vcs_dpi_display_pipe_dest_params_st *pipe_dest);
+
+void hubp1_init(struct hubp *hubp);
+void hubp1_read_state_common(struct hubp *hubp);
+bool hubp1_in_blank(struct hubp *hubp);
+void hubp1_soft_reset(struct hubp *hubp, bool reset);
+
+void hubp1_set_flip_int(struct hubp *hubp);
+>>>>>>> upstream/android-13
 
 #endif

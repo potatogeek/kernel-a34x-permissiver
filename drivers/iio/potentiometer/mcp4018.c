@@ -16,8 +16,13 @@
 #include <linux/i2c.h>
 #include <linux/iio/iio.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_device.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 #define MCP4018_WIPER_MAX 127
 
@@ -116,8 +121,11 @@ static const struct i2c_device_id mcp4018_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, mcp4018_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 
+=======
+>>>>>>> upstream/android-13
 #define MCP4018_COMPATIBLE(of_compatible, cfg) {	\
 	.compatible = of_compatible,			\
 	.data = &mcp4018_cfg[cfg],			\
@@ -140,14 +148,20 @@ static const struct of_device_id mcp4018_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, mcp4018_of_match);
 
+<<<<<<< HEAD
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int mcp4018_probe(struct i2c_client *client)
 {
 	struct device *dev = &client->dev;
 	struct mcp4018_data *data;
 	struct iio_dev *indio_dev;
+<<<<<<< HEAD
 	const struct of_device_id *match;
+=======
+>>>>>>> upstream/android-13
 
 	if (!i2c_check_functionality(client->adapter,
 				     I2C_FUNC_SMBUS_BYTE)) {
@@ -162,6 +176,7 @@ static int mcp4018_probe(struct i2c_client *client)
 	i2c_set_clientdata(client, indio_dev);
 	data->client = client;
 
+<<<<<<< HEAD
 	match = of_match_device(of_match_ptr(mcp4018_of_match), dev);
 	if (match)
 		data->cfg = of_device_get_match_data(dev);
@@ -169,6 +184,12 @@ static int mcp4018_probe(struct i2c_client *client)
 		data->cfg = &mcp4018_cfg[i2c_match_id(mcp4018_id, client)->driver_data];
 
 	indio_dev->dev.parent = dev;
+=======
+	data->cfg = device_get_match_data(dev);
+	if (!data->cfg)
+		data->cfg = &mcp4018_cfg[i2c_match_id(mcp4018_id, client)->driver_data];
+
+>>>>>>> upstream/android-13
 	indio_dev->info = &mcp4018_info;
 	indio_dev->channels = &mcp4018_channel;
 	indio_dev->num_channels = 1;
@@ -180,7 +201,11 @@ static int mcp4018_probe(struct i2c_client *client)
 static struct i2c_driver mcp4018_driver = {
 	.driver = {
 		.name	= "mcp4018",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(mcp4018_of_match),
+=======
+		.of_match_table = mcp4018_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe_new	= mcp4018_probe,
 	.id_table	= mcp4018_id,
@@ -190,4 +215,8 @@ module_i2c_driver(mcp4018_driver);
 
 MODULE_AUTHOR("Peter Rosin <peda@axentia.se>");
 MODULE_DESCRIPTION("MCP4018 digital potentiometer");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

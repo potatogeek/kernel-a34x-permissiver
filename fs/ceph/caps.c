@@ -8,6 +8,10 @@
 #include <linux/vmalloc.h>
 #include <linux/wait.h>
 #include <linux/writeback.h>
+<<<<<<< HEAD
+=======
+#include <linux/iversion.h>
+>>>>>>> upstream/android-13
 
 #include "super.h"
 #include "mds_client.h"
@@ -148,11 +152,25 @@ void ceph_caps_finalize(struct ceph_mds_client *mdsc)
 	spin_unlock(&mdsc->caps_list_lock);
 }
 
+<<<<<<< HEAD
 void ceph_adjust_min_caps(struct ceph_mds_client *mdsc, int delta)
 {
 	spin_lock(&mdsc->caps_list_lock);
 	mdsc->caps_min_count += delta;
 	BUG_ON(mdsc->caps_min_count < 0);
+=======
+void ceph_adjust_caps_max_min(struct ceph_mds_client *mdsc,
+			      struct ceph_mount_options *fsopt)
+{
+	spin_lock(&mdsc->caps_list_lock);
+	mdsc->caps_min_count = fsopt->max_readdir;
+	if (mdsc->caps_min_count < 1024)
+		mdsc->caps_min_count = 1024;
+	mdsc->caps_use_max = fsopt->caps_max;
+	if (mdsc->caps_use_max > 0 &&
+	    mdsc->caps_use_max < mdsc->caps_min_count)
+		mdsc->caps_use_max = mdsc->caps_min_count;
+>>>>>>> upstream/android-13
 	spin_unlock(&mdsc->caps_list_lock);
 }
 
@@ -272,6 +290,10 @@ int ceph_reserve_caps(struct ceph_mds_client *mdsc,
 	if (!err) {
 		BUG_ON(have + alloc != need);
 		ctx->count = need;
+<<<<<<< HEAD
+=======
+		ctx->used = 0;
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock(&mdsc->caps_list_lock);
@@ -295,13 +317,33 @@ int ceph_reserve_caps(struct ceph_mds_client *mdsc,
 }
 
 void ceph_unreserve_caps(struct ceph_mds_client *mdsc,
+<<<<<<< HEAD
 			struct ceph_cap_reservation *ctx)
 {
+=======
+			 struct ceph_cap_reservation *ctx)
+{
+	bool reclaim = false;
+	if (!ctx->count)
+		return;
+
+>>>>>>> upstream/android-13
 	dout("unreserve caps ctx=%p count=%d\n", ctx, ctx->count);
 	spin_lock(&mdsc->caps_list_lock);
 	__ceph_unreserve_caps(mdsc, ctx->count);
 	ctx->count = 0;
+<<<<<<< HEAD
 	spin_unlock(&mdsc->caps_list_lock);
+=======
+
+	if (mdsc->caps_use_max > 0 &&
+	    mdsc->caps_use_count > mdsc->caps_use_max)
+		reclaim = true;
+	spin_unlock(&mdsc->caps_list_lock);
+
+	if (reclaim)
+		ceph_reclaim_caps_nr(mdsc, ctx->used);
+>>>>>>> upstream/android-13
 }
 
 struct ceph_cap *ceph_get_cap(struct ceph_mds_client *mdsc,
@@ -346,6 +388,10 @@ struct ceph_cap *ceph_get_cap(struct ceph_mds_client *mdsc,
 	BUG_ON(list_empty(&mdsc->caps_list));
 
 	ctx->count--;
+<<<<<<< HEAD
+=======
+	ctx->used++;
+>>>>>>> upstream/android-13
 	mdsc->caps_reserve_count--;
 	mdsc->caps_use_count++;
 
@@ -438,6 +484,7 @@ struct ceph_cap *ceph_get_cap_for_mds(struct ceph_inode_info *ci, int mds)
 }
 
 /*
+<<<<<<< HEAD
  * Return id of any MDS with a cap, preferably FILE_WR|BUFFER|EXCL, else -1.
  */
 static int __ceph_get_cap_mds(struct ceph_inode_info *ci)
@@ -469,6 +516,8 @@ int ceph_get_cap_mds(struct inode *inode)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Called under i_ceph_lock.
  */
 static void __insert_cap_node(struct ceph_inode_info *ci,
@@ -500,6 +549,7 @@ static void __insert_cap_node(struct ceph_inode_info *ci,
 static void __cap_set_timeouts(struct ceph_mds_client *mdsc,
 			       struct ceph_inode_info *ci)
 {
+<<<<<<< HEAD
 	struct ceph_mount_options *ma = mdsc->fsc->mount_options;
 
 	ci->i_hold_caps_min = round_jiffies(jiffies +
@@ -508,6 +558,13 @@ static void __cap_set_timeouts(struct ceph_mds_client *mdsc,
 					    ma->caps_wanted_delay_max * HZ);
 	dout("__cap_set_timeouts %p min %lu max %lu\n", &ci->vfs_inode,
 	     ci->i_hold_caps_min - jiffies, ci->i_hold_caps_max - jiffies);
+=======
+	struct ceph_mount_options *opt = mdsc->fsc->mount_options;
+	ci->i_hold_caps_max = round_jiffies(jiffies +
+					    opt->caps_wanted_delay_max * HZ);
+	dout("__cap_set_timeouts %p %lu\n", &ci->vfs_inode,
+	     ci->i_hold_caps_max - jiffies);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -521,8 +578,12 @@ static void __cap_set_timeouts(struct ceph_mds_client *mdsc,
 static void __cap_delay_requeue(struct ceph_mds_client *mdsc,
 				struct ceph_inode_info *ci)
 {
+<<<<<<< HEAD
 	__cap_set_timeouts(mdsc, ci);
 	dout("__cap_delay_requeue %p flags %d at %lu\n", &ci->vfs_inode,
+=======
+	dout("__cap_delay_requeue %p flags 0x%lx at %lu\n", &ci->vfs_inode,
+>>>>>>> upstream/android-13
 	     ci->i_ceph_flags, ci->i_hold_caps_max);
 	if (!mdsc->stopping) {
 		spin_lock(&mdsc->cap_delay_lock);
@@ -531,6 +592,10 @@ static void __cap_delay_requeue(struct ceph_mds_client *mdsc,
 				goto no_change;
 			list_del_init(&ci->i_cap_delay_list);
 		}
+<<<<<<< HEAD
+=======
+		__cap_set_timeouts(mdsc, ci);
+>>>>>>> upstream/android-13
 		list_add_tail(&ci->i_cap_delay_list, &mdsc->cap_delay_list);
 no_change:
 		spin_unlock(&mdsc->cap_delay_lock);
@@ -570,19 +635,33 @@ static void __cap_delay_cancel(struct ceph_mds_client *mdsc,
 	spin_unlock(&mdsc->cap_delay_lock);
 }
 
+<<<<<<< HEAD
 /*
  * Common issue checks for add_cap, handle_cap_grant.
  */
+=======
+/* Common issue checks for add_cap, handle_cap_grant. */
+>>>>>>> upstream/android-13
 static void __check_cap_issue(struct ceph_inode_info *ci, struct ceph_cap *cap,
 			      unsigned issued)
 {
 	unsigned had = __ceph_caps_issued(ci, NULL);
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Each time we receive FILE_CACHE anew, we increment
 	 * i_rdcache_gen.
 	 */
+<<<<<<< HEAD
 	if ((issued & (CEPH_CAP_FILE_CACHE|CEPH_CAP_FILE_LAZYIO)) &&
+=======
+	if (S_ISREG(ci->vfs_inode.i_mode) &&
+	    (issued & (CEPH_CAP_FILE_CACHE|CEPH_CAP_FILE_LAZYIO)) &&
+>>>>>>> upstream/android-13
 	    (had & (CEPH_CAP_FILE_CACHE|CEPH_CAP_FILE_LAZYIO)) == 0) {
 		ci->i_rdcache_gen++;
 	}
@@ -601,12 +680,47 @@ static void __check_cap_issue(struct ceph_inode_info *ci, struct ceph_cap *cap,
 			__ceph_dir_clear_complete(ci);
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	/* Wipe saved layout if we're losing DIR_CREATE caps */
+	if (S_ISDIR(ci->vfs_inode.i_mode) && (had & CEPH_CAP_DIR_CREATE) &&
+		!(issued & CEPH_CAP_DIR_CREATE)) {
+	     ceph_put_string(rcu_dereference_raw(ci->i_cached_layout.pool_ns));
+	     memset(&ci->i_cached_layout, 0, sizeof(ci->i_cached_layout));
+	}
+}
+
+/**
+ * change_auth_cap_ses - move inode to appropriate lists when auth caps change
+ * @ci: inode to be moved
+ * @session: new auth caps session
+ */
+static void change_auth_cap_ses(struct ceph_inode_info *ci,
+				struct ceph_mds_session *session)
+{
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+	if (list_empty(&ci->i_dirty_item) && list_empty(&ci->i_flushing_item))
+		return;
+
+	spin_lock(&session->s_mdsc->cap_dirty_lock);
+	if (!list_empty(&ci->i_dirty_item))
+		list_move(&ci->i_dirty_item, &session->s_cap_dirty);
+	if (!list_empty(&ci->i_flushing_item))
+		list_move_tail(&ci->i_flushing_item, &session->s_cap_flushing);
+	spin_unlock(&session->s_mdsc->cap_dirty_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Add a capability under the given MDS session.
  *
+<<<<<<< HEAD
  * Caller should hold session snap_rwsem (read) and s_mutex.
+=======
+ * Caller should hold session snap_rwsem (read) and ci->i_ceph_lock
+>>>>>>> upstream/android-13
  *
  * @fmode is the open file mode, if we are opening a file, otherwise
  * it is < 0.  (This is so we can atomically add the cap and add an
@@ -614,7 +728,11 @@ static void __check_cap_issue(struct ceph_inode_info *ci, struct ceph_cap *cap,
  */
 void ceph_add_cap(struct inode *inode,
 		  struct ceph_mds_session *session, u64 cap_id,
+<<<<<<< HEAD
 		  int fmode, unsigned issued, unsigned wanted,
+=======
+		  unsigned issued, unsigned wanted,
+>>>>>>> upstream/android-13
 		  unsigned seq, unsigned mseq, u64 realmino, int flags,
 		  struct ceph_cap **new_cap)
 {
@@ -623,16 +741,26 @@ void ceph_add_cap(struct inode *inode,
 	struct ceph_cap *cap;
 	int mds = session->s_mds;
 	int actual_wanted;
+<<<<<<< HEAD
+=======
+	u32 gen;
+
+	lockdep_assert_held(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 
 	dout("add_cap %p mds%d cap %llx %s seq %d\n", inode,
 	     session->s_mds, cap_id, ceph_cap_string(issued), seq);
 
+<<<<<<< HEAD
 	/*
 	 * If we are opening the file, include file mode wanted bits
 	 * in wanted.
 	 */
 	if (fmode >= 0)
 		wanted |= ceph_caps_for_mode(fmode);
+=======
+	gen = atomic_read(&session->s_cap_gen);
+>>>>>>> upstream/android-13
 
 	cap = __get_cap_for_mds(ci, mds);
 	if (!cap) {
@@ -653,8 +781,21 @@ void ceph_add_cap(struct inode *inode,
 		spin_lock(&session->s_cap_lock);
 		list_add_tail(&cap->session_caps, &session->s_caps);
 		session->s_nr_caps++;
+<<<<<<< HEAD
 		spin_unlock(&session->s_cap_lock);
 	} else {
+=======
+		atomic64_inc(&mdsc->metric.total_caps);
+		spin_unlock(&session->s_cap_lock);
+	} else {
+		spin_lock(&session->s_cap_lock);
+		list_move_tail(&cap->session_caps, &session->s_caps);
+		spin_unlock(&session->s_cap_lock);
+
+		if (cap->cap_gen < gen)
+			cap->issued = cap->implemented = CEPH_CAP_PIN;
+
+>>>>>>> upstream/android-13
 		/*
 		 * auth mds of the inode changed. we received the cap export
 		 * message, but still haven't received the cap import message.
@@ -682,6 +823,7 @@ void ceph_add_cap(struct inode *inode,
 		 */
 		struct ceph_snap_realm *realm = ceph_lookup_snap_realm(mdsc,
 							       realmino);
+<<<<<<< HEAD
 		if (realm) {
 			struct ceph_snap_realm *oldrealm = ci->i_snap_realm;
 			if (oldrealm) {
@@ -705,6 +847,14 @@ void ceph_add_cap(struct inode *inode,
 			       realmino);
 			WARN_ON(!realm);
 		}
+=======
+		if (realm)
+			ceph_change_snap_realm(inode, realm);
+		else
+			WARN(1, "%s: couldn't find snap realm 0x%llx (ino 0x%llx oldrealm 0x%llx)\n",
+			     __func__, realmino, ci->i_vino.ino,
+			     ci->i_snap_realm ? ci->i_snap_realm->ino : 0);
+>>>>>>> upstream/android-13
 	}
 
 	__check_cap_issue(ci, cap, issued);
@@ -726,6 +876,12 @@ void ceph_add_cap(struct inode *inode,
 	if (flags & CEPH_CAP_FLAG_AUTH) {
 		if (!ci->i_auth_cap ||
 		    ceph_seq_cmp(ci->i_auth_cap->mseq, mseq) < 0) {
+<<<<<<< HEAD
+=======
+			if (ci->i_auth_cap &&
+			    ci->i_auth_cap->session != cap->session)
+				change_auth_cap_ses(ci, cap->session);
+>>>>>>> upstream/android-13
 			ci->i_auth_cap = cap;
 			cap->mds_wanted = wanted;
 		}
@@ -746,10 +902,14 @@ void ceph_add_cap(struct inode *inode,
 	cap->seq = seq;
 	cap->issue_seq = seq;
 	cap->mseq = mseq;
+<<<<<<< HEAD
 	cap->cap_gen = session->s_cap_gen;
 
 	if (fmode >= 0)
 		__ceph_get_fmode(ci, fmode);
+=======
+	cap->cap_gen = gen;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -762,10 +922,15 @@ static int __cap_is_valid(struct ceph_cap *cap)
 	unsigned long ttl;
 	u32 gen;
 
+<<<<<<< HEAD
 	spin_lock(&cap->session->s_gen_ttl_lock);
 	gen = cap->session->s_cap_gen;
 	ttl = cap->session->s_cap_ttl;
 	spin_unlock(&cap->session->s_gen_ttl_lock);
+=======
+	gen = atomic_read(&cap->session->s_cap_gen);
+	ttl = cap->session->s_cap_ttl;
+>>>>>>> upstream/android-13
 
 	if (cap->cap_gen < gen || time_after_eq(jiffies, ttl)) {
 		dout("__cap_is_valid %p cap %p issued %s "
@@ -864,8 +1029,13 @@ int __ceph_caps_issued_mask(struct ceph_inode_info *ci, int mask, int touch)
 	int have = ci->i_snap_caps;
 
 	if ((have & mask) == mask) {
+<<<<<<< HEAD
 		dout("__ceph_caps_issued_mask %p snap issued %s"
 		     " (mask %s)\n", &ci->vfs_inode,
+=======
+		dout("__ceph_caps_issued_mask ino 0x%llx snap issued %s"
+		     " (mask %s)\n", ceph_ino(&ci->vfs_inode),
+>>>>>>> upstream/android-13
 		     ceph_cap_string(have),
 		     ceph_cap_string(mask));
 		return 1;
@@ -876,8 +1046,13 @@ int __ceph_caps_issued_mask(struct ceph_inode_info *ci, int mask, int touch)
 		if (!__cap_is_valid(cap))
 			continue;
 		if ((cap->issued & mask) == mask) {
+<<<<<<< HEAD
 			dout("__ceph_caps_issued_mask %p cap %p issued %s"
 			     " (mask %s)\n", &ci->vfs_inode, cap,
+=======
+			dout("__ceph_caps_issued_mask ino 0x%llx cap %p issued %s"
+			     " (mask %s)\n", ceph_ino(&ci->vfs_inode), cap,
+>>>>>>> upstream/android-13
 			     ceph_cap_string(cap->issued),
 			     ceph_cap_string(mask));
 			if (touch)
@@ -888,8 +1063,13 @@ int __ceph_caps_issued_mask(struct ceph_inode_info *ci, int mask, int touch)
 		/* does a combination of caps satisfy mask? */
 		have |= cap->issued;
 		if ((have & mask) == mask) {
+<<<<<<< HEAD
 			dout("__ceph_caps_issued_mask %p combo issued %s"
 			     " (mask %s)\n", &ci->vfs_inode,
+=======
+			dout("__ceph_caps_issued_mask ino 0x%llx combo issued %s"
+			     " (mask %s)\n", ceph_ino(&ci->vfs_inode),
+>>>>>>> upstream/android-13
 			     ceph_cap_string(cap->issued),
 			     ceph_cap_string(mask));
 			if (touch) {
@@ -903,7 +1083,12 @@ int __ceph_caps_issued_mask(struct ceph_inode_info *ci, int mask, int touch)
 						       ci_node);
 					if (!__cap_is_valid(cap))
 						continue;
+<<<<<<< HEAD
 					__touch_cap(cap);
+=======
+					if (cap->issued & mask)
+						__touch_cap(cap);
+>>>>>>> upstream/android-13
 				}
 			}
 			return 1;
@@ -913,6 +1098,23 @@ int __ceph_caps_issued_mask(struct ceph_inode_info *ci, int mask, int touch)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int __ceph_caps_issued_mask_metric(struct ceph_inode_info *ci, int mask,
+				   int touch)
+{
+	struct ceph_fs_client *fsc = ceph_sb_to_client(ci->vfs_inode.i_sb);
+	int r;
+
+	r = __ceph_caps_issued_mask(ci, mask, touch);
+	if (r)
+		ceph_update_cap_hit(&fsc->mdsc->metric);
+	else
+		ceph_update_cap_mis(&fsc->mdsc->metric);
+	return r;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Return true if mask caps are currently being revoked by an MDS.
  */
@@ -952,21 +1154,36 @@ int __ceph_caps_used(struct ceph_inode_info *ci)
 	if (ci->i_rd_ref)
 		used |= CEPH_CAP_FILE_RD;
 	if (ci->i_rdcache_ref ||
+<<<<<<< HEAD
 	    (!S_ISDIR(ci->vfs_inode.i_mode) && /* ignore readdir cache */
+=======
+	    (S_ISREG(ci->vfs_inode.i_mode) &&
+>>>>>>> upstream/android-13
 	     ci->vfs_inode.i_data.nrpages))
 		used |= CEPH_CAP_FILE_CACHE;
 	if (ci->i_wr_ref)
 		used |= CEPH_CAP_FILE_WR;
 	if (ci->i_wb_ref || ci->i_wrbuffer_ref)
 		used |= CEPH_CAP_FILE_BUFFER;
+<<<<<<< HEAD
 	return used;
 }
 
+=======
+	if (ci->i_fx_ref)
+		used |= CEPH_CAP_FILE_EXCL;
+	return used;
+}
+
+#define FMODE_WAIT_BIAS 1000
+
+>>>>>>> upstream/android-13
 /*
  * wanted, by virtue of open file modes
  */
 int __ceph_caps_file_wanted(struct ceph_inode_info *ci)
 {
+<<<<<<< HEAD
 	int i, bits = 0;
 	for (i = 0; i < CEPH_FILE_MODE_BITS; i++) {
 		if (ci->i_nr_by_mode[i])
@@ -975,6 +1192,80 @@ int __ceph_caps_file_wanted(struct ceph_inode_info *ci)
 	if (bits == 0)
 		return 0;
 	return ceph_caps_for_mode(bits >> 1);
+=======
+	const int PIN_SHIFT = ffs(CEPH_FILE_MODE_PIN);
+	const int RD_SHIFT = ffs(CEPH_FILE_MODE_RD);
+	const int WR_SHIFT = ffs(CEPH_FILE_MODE_WR);
+	const int LAZY_SHIFT = ffs(CEPH_FILE_MODE_LAZY);
+	struct ceph_mount_options *opt =
+		ceph_inode_to_client(&ci->vfs_inode)->mount_options;
+	unsigned long used_cutoff = jiffies - opt->caps_wanted_delay_max * HZ;
+	unsigned long idle_cutoff = jiffies - opt->caps_wanted_delay_min * HZ;
+
+	if (S_ISDIR(ci->vfs_inode.i_mode)) {
+		int want = 0;
+
+		/* use used_cutoff here, to keep dir's wanted caps longer */
+		if (ci->i_nr_by_mode[RD_SHIFT] > 0 ||
+		    time_after(ci->i_last_rd, used_cutoff))
+			want |= CEPH_CAP_ANY_SHARED;
+
+		if (ci->i_nr_by_mode[WR_SHIFT] > 0 ||
+		    time_after(ci->i_last_wr, used_cutoff)) {
+			want |= CEPH_CAP_ANY_SHARED | CEPH_CAP_FILE_EXCL;
+			if (opt->flags & CEPH_MOUNT_OPT_ASYNC_DIROPS)
+				want |= CEPH_CAP_ANY_DIR_OPS;
+		}
+
+		if (want || ci->i_nr_by_mode[PIN_SHIFT] > 0)
+			want |= CEPH_CAP_PIN;
+
+		return want;
+	} else {
+		int bits = 0;
+
+		if (ci->i_nr_by_mode[RD_SHIFT] > 0) {
+			if (ci->i_nr_by_mode[RD_SHIFT] >= FMODE_WAIT_BIAS ||
+			    time_after(ci->i_last_rd, used_cutoff))
+				bits |= 1 << RD_SHIFT;
+		} else if (time_after(ci->i_last_rd, idle_cutoff)) {
+			bits |= 1 << RD_SHIFT;
+		}
+
+		if (ci->i_nr_by_mode[WR_SHIFT] > 0) {
+			if (ci->i_nr_by_mode[WR_SHIFT] >= FMODE_WAIT_BIAS ||
+			    time_after(ci->i_last_wr, used_cutoff))
+				bits |= 1 << WR_SHIFT;
+		} else if (time_after(ci->i_last_wr, idle_cutoff)) {
+			bits |= 1 << WR_SHIFT;
+		}
+
+		/* check lazyio only when read/write is wanted */
+		if ((bits & (CEPH_FILE_MODE_RDWR << 1)) &&
+		    ci->i_nr_by_mode[LAZY_SHIFT] > 0)
+			bits |= 1 << LAZY_SHIFT;
+
+		return bits ? ceph_caps_for_mode(bits >> 1) : 0;
+	}
+}
+
+/*
+ * wanted, by virtue of open file modes AND cap refs (buffered/cached data)
+ */
+int __ceph_caps_wanted(struct ceph_inode_info *ci)
+{
+	int w = __ceph_caps_file_wanted(ci) | __ceph_caps_used(ci);
+	if (S_ISDIR(ci->vfs_inode.i_mode)) {
+		/* we want EXCL if holding caps of dir ops */
+		if (w & CEPH_CAP_ANY_DIR_OPS)
+			w |= CEPH_CAP_FILE_EXCL;
+	} else {
+		/* we want EXCL if dirty data */
+		if (w & CEPH_CAP_FILE_BUFFER)
+			w |= CEPH_CAP_FILE_EXCL;
+	}
+	return w;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -998,6 +1289,7 @@ int __ceph_caps_mds_wanted(struct ceph_inode_info *ci, bool check)
 	return mds_wanted;
 }
 
+<<<<<<< HEAD
 /*
  * called under i_ceph_lock
  */
@@ -1011,18 +1303,25 @@ static int __ceph_is_any_caps(struct ceph_inode_info *ci)
 	return !RB_EMPTY_ROOT(&ci->i_caps);
 }
 
+=======
+>>>>>>> upstream/android-13
 int ceph_is_any_caps(struct inode *inode)
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	int ret;
 
 	spin_lock(&ci->i_ceph_lock);
+<<<<<<< HEAD
 	ret = __ceph_is_any_caps(ci);
+=======
+	ret = __ceph_is_any_real_caps(ci);
+>>>>>>> upstream/android-13
 	spin_unlock(&ci->i_ceph_lock);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static void drop_inode_snap_realm(struct ceph_inode_info *ci)
 {
 	struct ceph_snap_realm *realm = ci->i_snap_realm;
@@ -1037,6 +1336,8 @@ static void drop_inode_snap_realm(struct ceph_inode_info *ci)
 			    realm);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Remove a cap.  Take steps to deal with a racing iterate_session_caps.
  *
@@ -1056,6 +1357,11 @@ void __ceph_remove_cap(struct ceph_cap *cap, bool queue_release)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+>>>>>>> upstream/android-13
 	dout("__ceph_remove_cap %p from %p\n", cap, &ci->vfs_inode);
 
 	mdsc = ceph_inode_to_client(&ci->vfs_inode)->mdsc;
@@ -1074,6 +1380,10 @@ void __ceph_remove_cap(struct ceph_cap *cap, bool queue_release)
 	} else {
 		list_del_init(&cap->session_caps);
 		session->s_nr_caps--;
+<<<<<<< HEAD
+=======
+		atomic64_dec(&mdsc->metric.total_caps);
+>>>>>>> upstream/android-13
 		cap->session = NULL;
 		removed = 1;
 	}
@@ -1085,12 +1395,20 @@ void __ceph_remove_cap(struct ceph_cap *cap, bool queue_release)
 	 * s_cap_gen while session is in the reconnect state.
 	 */
 	if (queue_release &&
+<<<<<<< HEAD
 	    (!session->s_cap_reconnect || cap->cap_gen == session->s_cap_gen)) {
 		cap->queue_release = 1;
 		if (removed) {
 			list_add_tail(&cap->session_caps,
 				      &session->s_cap_releases);
 			session->s_num_cap_releases++;
+=======
+	    (!session->s_cap_reconnect ||
+	     cap->cap_gen == atomic_read(&session->s_cap_gen))) {
+		cap->queue_release = 1;
+		if (removed) {
+			__ceph_queue_cap_release(session, cap);
+>>>>>>> upstream/android-13
 			removed = 0;
 		}
 	} else {
@@ -1103,6 +1421,7 @@ void __ceph_remove_cap(struct ceph_cap *cap, bool queue_release)
 	if (removed)
 		ceph_put_cap(mdsc, cap);
 
+<<<<<<< HEAD
 	/* when reconnect denied, we remove session caps forcibly,
 	 * i_wr_ref can be non-zero. If there are ongoing write,
 	 * keep i_snap_realm.
@@ -1112,6 +1431,40 @@ void __ceph_remove_cap(struct ceph_cap *cap, bool queue_release)
 
 	if (!__ceph_is_any_real_caps(ci))
 		__cap_delay_cancel(mdsc, ci);
+=======
+	if (!__ceph_is_any_real_caps(ci)) {
+		/* when reconnect denied, we remove session caps forcibly,
+		 * i_wr_ref can be non-zero. If there are ongoing write,
+		 * keep i_snap_realm.
+		 */
+		if (ci->i_wr_ref == 0 && ci->i_snap_realm)
+			ceph_change_snap_realm(&ci->vfs_inode, NULL);
+
+		__cap_delay_cancel(mdsc, ci);
+	}
+}
+
+void ceph_remove_cap(struct ceph_cap *cap, bool queue_release)
+{
+	struct ceph_inode_info *ci = cap->ci;
+	struct ceph_fs_client *fsc;
+
+	/* 'ci' being NULL means the remove have already occurred */
+	if (!ci) {
+		dout("%s: cap inode is NULL\n", __func__);
+		return;
+	}
+
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+	fsc = ceph_sb_to_client(ci->vfs_inode.i_sb);
+	WARN_ON_ONCE(ci->i_auth_cap == cap &&
+		     !list_empty(&ci->i_dirty_item) &&
+		     !fsc->blocklisted &&
+		     READ_ONCE(fsc->mount_state) != CEPH_MOUNT_SHUTDOWN);
+
+	__ceph_remove_cap(cap, queue_release);
+>>>>>>> upstream/android-13
 }
 
 struct cap_msg_args {
@@ -1119,8 +1472,15 @@ struct cap_msg_args {
 	u64			ino, cid, follows;
 	u64			flush_tid, oldest_flush_tid, size, max_size;
 	u64			xattr_version;
+<<<<<<< HEAD
 	struct ceph_buffer	*xattr_buf;
 	struct timespec64	atime, mtime, ctime;
+=======
+	u64			change_attr;
+	struct ceph_buffer	*xattr_buf;
+	struct ceph_buffer	*old_xattr_buf;
+	struct timespec64	atime, mtime, ctime, btime;
+>>>>>>> upstream/android-13
 	int			op, caps, wanted, dirty;
 	u32			seq, issue_seq, mseq, time_warp_seq;
 	u32			flags;
@@ -1128,6 +1488,7 @@ struct cap_msg_args {
 	kgid_t			gid;
 	umode_t			mode;
 	bool			inline_data;
+<<<<<<< HEAD
 };
 
 /*
@@ -1162,6 +1523,33 @@ static int send_cap_msg(struct cap_msg_args *arg)
 	if (!msg)
 		return -ENOMEM;
 
+=======
+	bool			wake;
+};
+
+/*
+ * cap struct size + flock buffer size + inline version + inline data size +
+ * osd_epoch_barrier + oldest_flush_tid
+ */
+#define CAP_MSG_SIZE (sizeof(struct ceph_mds_caps) + \
+		      4 + 8 + 4 + 4 + 8 + 4 + 4 + 4 + 8 + 8 + 4)
+
+/* Marshal up the cap msg to the MDS */
+static void encode_cap_msg(struct ceph_msg *msg, struct cap_msg_args *arg)
+{
+	struct ceph_mds_caps *fc;
+	void *p;
+	struct ceph_osd_client *osdc = &arg->session->s_mdsc->fsc->client->osdc;
+
+	dout("%s %s %llx %llx caps %s wanted %s dirty %s seq %u/%u tid %llu/%llu mseq %u follows %lld size %llu/%llu xattr_ver %llu xattr_len %d\n",
+	     __func__, ceph_cap_op_name(arg->op), arg->cid, arg->ino,
+	     ceph_cap_string(arg->caps), ceph_cap_string(arg->wanted),
+	     ceph_cap_string(arg->dirty), arg->seq, arg->issue_seq,
+	     arg->flush_tid, arg->oldest_flush_tid, arg->mseq, arg->follows,
+	     arg->size, arg->max_size, arg->xattr_version,
+	     arg->xattr_buf ? (int)arg->xattr_buf->vec.iov_len : 0);
+
+>>>>>>> upstream/android-13
 	msg->hdr.version = cpu_to_le16(10);
 	msg->hdr.tid = cpu_to_le64(arg->flush_tid);
 
@@ -1226,6 +1614,7 @@ static int send_cap_msg(struct cap_msg_args *arg)
 	/* pool namespace (version 8) (mds always ignores this) */
 	ceph_encode_32(&p, 0);
 
+<<<<<<< HEAD
 	/*
 	 * btime and change_attr (version 9)
 	 *
@@ -1241,14 +1630,28 @@ static int send_cap_msg(struct cap_msg_args *arg)
 
 	ceph_con_send(&arg->session->s_con, msg);
 	return 0;
+=======
+	/* btime and change_attr (version 9) */
+	ceph_encode_timespec64(p, &arg->btime);
+	p += sizeof(struct ceph_timespec);
+	ceph_encode_64(&p, arg->change_attr);
+
+	/* Advisory flags (version 10) */
+	ceph_encode_32(&p, arg->flags);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Queue cap releases when an inode is dropped from our cache.
  */
+<<<<<<< HEAD
 void ceph_queue_caps_release(struct inode *inode)
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
+=======
+void __ceph_remove_caps(struct ceph_inode_info *ci)
+{
+>>>>>>> upstream/android-13
 	struct rb_node *p;
 
 	/* lock i_ceph_lock, because ceph_d_revalidate(..., LOOKUP_RCU)
@@ -1258,12 +1661,17 @@ void ceph_queue_caps_release(struct inode *inode)
 	while (p) {
 		struct ceph_cap *cap = rb_entry(p, struct ceph_cap, ci_node);
 		p = rb_next(p);
+<<<<<<< HEAD
 		__ceph_remove_cap(cap, true);
+=======
+		ceph_remove_cap(cap, true);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&ci->i_ceph_lock);
 }
 
 /*
+<<<<<<< HEAD
  * Send a cap msg on the given inode.  Update our caps state, then
  * drop i_ceph_lock and send the message.
  *
@@ -1293,17 +1701,41 @@ static int __send_cap(struct ceph_mds_client *mdsc, struct ceph_cap *cap,
 	int wake = 0;
 	int delayed = 0;
 	int ret;
+=======
+ * Prepare to send a cap message to an MDS. Update the cap state, and populate
+ * the arg struct with the parameters that will need to be sent. This should
+ * be done under the i_ceph_lock to guard against changes to cap state.
+ *
+ * Make note of max_size reported/requested from mds, revoked caps
+ * that have now been implemented.
+ */
+static void __prep_cap(struct cap_msg_args *arg, struct ceph_cap *cap,
+		       int op, int flags, int used, int want, int retain,
+		       int flushing, u64 flush_tid, u64 oldest_flush_tid)
+{
+	struct ceph_inode_info *ci = cap->ci;
+	struct inode *inode = &ci->vfs_inode;
+	int held, revoking;
+
+	lockdep_assert_held(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 
 	held = cap->issued | cap->implemented;
 	revoking = cap->implemented & ~cap->issued;
 	retain &= ~revoking;
 
+<<<<<<< HEAD
 	dout("__send_cap %p cap %p session %p %s -> %s (revoking %s)\n",
 	     inode, cap, cap->session,
+=======
+	dout("%s %p cap %p session %p %s -> %s (revoking %s)\n",
+	     __func__, inode, cap, cap->session,
+>>>>>>> upstream/android-13
 	     ceph_cap_string(held), ceph_cap_string(held & retain),
 	     ceph_cap_string(revoking));
 	BUG_ON((retain & CEPH_CAP_PIN) == 0);
 
+<<<<<<< HEAD
 	arg.session = cap->session;
 
 	/* don't release wanted unless we've waited a bit. */
@@ -1399,6 +1831,108 @@ static int __send_cap(struct ceph_mds_client *mdsc, struct ceph_cap *cap,
 		wake_up_all(&ci->i_cap_wq);
 
 	return delayed;
+=======
+	ci->i_ceph_flags &= ~CEPH_I_FLUSH;
+
+	cap->issued &= retain;  /* drop bits we don't want */
+	/*
+	 * Wake up any waiters on wanted -> needed transition. This is due to
+	 * the weird transition from buffered to sync IO... we need to flush
+	 * dirty pages _before_ allowing sync writes to avoid reordering.
+	 */
+	arg->wake = cap->implemented & ~cap->issued;
+	cap->implemented &= cap->issued | used;
+	cap->mds_wanted = want;
+
+	arg->session = cap->session;
+	arg->ino = ceph_vino(inode).ino;
+	arg->cid = cap->cap_id;
+	arg->follows = flushing ? ci->i_head_snapc->seq : 0;
+	arg->flush_tid = flush_tid;
+	arg->oldest_flush_tid = oldest_flush_tid;
+
+	arg->size = i_size_read(inode);
+	ci->i_reported_size = arg->size;
+	arg->max_size = ci->i_wanted_max_size;
+	if (cap == ci->i_auth_cap) {
+		if (want & CEPH_CAP_ANY_FILE_WR)
+			ci->i_requested_max_size = arg->max_size;
+		else
+			ci->i_requested_max_size = 0;
+	}
+
+	if (flushing & CEPH_CAP_XATTR_EXCL) {
+		arg->old_xattr_buf = __ceph_build_xattrs_blob(ci);
+		arg->xattr_version = ci->i_xattrs.version;
+		arg->xattr_buf = ci->i_xattrs.blob;
+	} else {
+		arg->xattr_buf = NULL;
+		arg->old_xattr_buf = NULL;
+	}
+
+	arg->mtime = inode->i_mtime;
+	arg->atime = inode->i_atime;
+	arg->ctime = inode->i_ctime;
+	arg->btime = ci->i_btime;
+	arg->change_attr = inode_peek_iversion_raw(inode);
+
+	arg->op = op;
+	arg->caps = cap->implemented;
+	arg->wanted = want;
+	arg->dirty = flushing;
+
+	arg->seq = cap->seq;
+	arg->issue_seq = cap->issue_seq;
+	arg->mseq = cap->mseq;
+	arg->time_warp_seq = ci->i_time_warp_seq;
+
+	arg->uid = inode->i_uid;
+	arg->gid = inode->i_gid;
+	arg->mode = inode->i_mode;
+
+	arg->inline_data = ci->i_inline_version != CEPH_INLINE_NONE;
+	if (!(flags & CEPH_CLIENT_CAPS_PENDING_CAPSNAP) &&
+	    !list_empty(&ci->i_cap_snaps)) {
+		struct ceph_cap_snap *capsnap;
+		list_for_each_entry_reverse(capsnap, &ci->i_cap_snaps, ci_item) {
+			if (capsnap->cap_flush.tid)
+				break;
+			if (capsnap->need_flush) {
+				flags |= CEPH_CLIENT_CAPS_PENDING_CAPSNAP;
+				break;
+			}
+		}
+	}
+	arg->flags = flags;
+}
+
+/*
+ * Send a cap msg on the given inode.
+ *
+ * Caller should hold snap_rwsem (read), s_mutex.
+ */
+static void __send_cap(struct cap_msg_args *arg, struct ceph_inode_info *ci)
+{
+	struct ceph_msg *msg;
+	struct inode *inode = &ci->vfs_inode;
+
+	msg = ceph_msg_new(CEPH_MSG_CLIENT_CAPS, CAP_MSG_SIZE, GFP_NOFS, false);
+	if (!msg) {
+		pr_err("error allocating cap msg: ino (%llx.%llx) flushing %s tid %llu, requeuing cap.\n",
+		       ceph_vinop(inode), ceph_cap_string(arg->dirty),
+		       arg->flush_tid);
+		spin_lock(&ci->i_ceph_lock);
+		__cap_delay_requeue(arg->session->s_mdsc, ci);
+		spin_unlock(&ci->i_ceph_lock);
+		return;
+	}
+
+	encode_cap_msg(msg, arg);
+	ceph_con_send(&arg->session->s_con, msg);
+	ceph_buffer_put(arg->old_xattr_buf);
+	if (arg->wake)
+		wake_up_all(&ci->i_cap_wq);
+>>>>>>> upstream/android-13
 }
 
 static inline int __send_flush_snap(struct inode *inode,
@@ -1407,6 +1941,14 @@ static inline int __send_flush_snap(struct inode *inode,
 				    u32 mseq, u64 oldest_flush_tid)
 {
 	struct cap_msg_args	arg;
+<<<<<<< HEAD
+=======
+	struct ceph_msg		*msg;
+
+	msg = ceph_msg_new(CEPH_MSG_CLIENT_CAPS, CAP_MSG_SIZE, GFP_NOFS, false);
+	if (!msg)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	arg.session = session;
 	arg.ino = ceph_vino(inode).ino;
@@ -1419,10 +1961,19 @@ static inline int __send_flush_snap(struct inode *inode,
 	arg.max_size = 0;
 	arg.xattr_version = capsnap->xattr_version;
 	arg.xattr_buf = capsnap->xattr_blob;
+<<<<<<< HEAD
+=======
+	arg.old_xattr_buf = NULL;
+>>>>>>> upstream/android-13
 
 	arg.atime = capsnap->atime;
 	arg.mtime = capsnap->mtime;
 	arg.ctime = capsnap->ctime;
+<<<<<<< HEAD
+=======
+	arg.btime = capsnap->btime;
+	arg.change_attr = capsnap->change_attr;
+>>>>>>> upstream/android-13
 
 	arg.op = CEPH_CAP_OP_FLUSHSNAP;
 	arg.caps = capsnap->issued;
@@ -1440,8 +1991,16 @@ static inline int __send_flush_snap(struct inode *inode,
 
 	arg.inline_data = capsnap->inline_data;
 	arg.flags = 0;
+<<<<<<< HEAD
 
 	return send_cap_msg(&arg);
+=======
+	arg.wake = false;
+
+	encode_cap_msg(msg, &arg);
+	ceph_con_send(&arg.session->s_con, msg);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1451,7 +2010,11 @@ static inline int __send_flush_snap(struct inode *inode,
  * asynchronously back to the MDS once sync writes complete and dirty
  * data is written out.
  *
+<<<<<<< HEAD
  * Called under i_ceph_lock.  Takes s_mutex as needed.
+=======
+ * Called under i_ceph_lock.
+>>>>>>> upstream/android-13
  */
 static void __ceph_flush_snaps(struct ceph_inode_info *ci,
 			       struct ceph_mds_session *session)
@@ -1573,7 +2136,10 @@ retry:
 	mds = ci->i_auth_cap->session->s_mds;
 	if (session && session->s_mds != mds) {
 		dout(" oops, wrong session %p mutex\n", session);
+<<<<<<< HEAD
 		mutex_unlock(&session->s_mutex);
+=======
+>>>>>>> upstream/android-13
 		ceph_put_mds_session(session);
 		session = NULL;
 	}
@@ -1582,29 +2148,44 @@ retry:
 		mutex_lock(&mdsc->mutex);
 		session = __ceph_lookup_mds_session(mdsc, mds);
 		mutex_unlock(&mdsc->mutex);
+<<<<<<< HEAD
 		if (session) {
 			dout(" inverting session/ino locks on %p\n", session);
 			mutex_lock(&session->s_mutex);
 		}
+=======
+>>>>>>> upstream/android-13
 		goto retry;
 	}
 
 	// make sure flushsnap messages are sent in proper order.
+<<<<<<< HEAD
 	if (ci->i_ceph_flags & CEPH_I_KICK_FLUSH) {
 		__kick_flushing_caps(mdsc, session, ci, 0);
 		ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
 	}
+=======
+	if (ci->i_ceph_flags & CEPH_I_KICK_FLUSH)
+		__kick_flushing_caps(mdsc, session, ci, 0);
+>>>>>>> upstream/android-13
 
 	__ceph_flush_snaps(ci, session);
 out:
 	spin_unlock(&ci->i_ceph_lock);
 
+<<<<<<< HEAD
 	if (psession) {
 		*psession = session;
 	} else if (session) {
 		mutex_unlock(&session->s_mutex);
 		ceph_put_mds_session(session);
 	}
+=======
+	if (psession)
+		*psession = session;
+	else
+		ceph_put_mds_session(session);
+>>>>>>> upstream/android-13
 	/* we flushed them all; remove this inode from the queue */
 	spin_lock(&mdsc->snap_flush_lock);
 	list_del_init(&ci->i_snap_flush_item);
@@ -1625,6 +2206,11 @@ int __ceph_mark_dirty_caps(struct ceph_inode_info *ci, int mask,
 	int was = ci->i_dirty_caps;
 	int dirty = 0;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+>>>>>>> upstream/android-13
 	if (!ci->i_auth_cap) {
 		pr_warn("__mark_dirty_caps %p %llx mask %s, "
 			"but no auth cap (session was closed?)\n",
@@ -1637,6 +2223,11 @@ int __ceph_mark_dirty_caps(struct ceph_inode_info *ci, int mask,
 	     ceph_cap_string(was | mask));
 	ci->i_dirty_caps |= mask;
 	if (was == 0) {
+<<<<<<< HEAD
+=======
+		struct ceph_mds_session *session = ci->i_auth_cap->session;
+
+>>>>>>> upstream/android-13
 		WARN_ON_ONCE(ci->i_prealloc_cap_flush);
 		swap(ci->i_prealloc_cap_flush, *pcf);
 
@@ -1649,7 +2240,11 @@ int __ceph_mark_dirty_caps(struct ceph_inode_info *ci, int mask,
 		     &ci->vfs_inode, ci->i_head_snapc, ci->i_auth_cap);
 		BUG_ON(!list_empty(&ci->i_dirty_item));
 		spin_lock(&mdsc->cap_dirty_lock);
+<<<<<<< HEAD
 		list_add(&ci->i_dirty_item, &mdsc->cap_dirty);
+=======
+		list_add(&ci->i_dirty_item, &session->s_cap_dirty);
+>>>>>>> upstream/android-13
 		spin_unlock(&mdsc->cap_dirty_lock);
 		if (ci->i_flushing_caps == 0) {
 			ihold(inode);
@@ -1668,7 +2263,18 @@ int __ceph_mark_dirty_caps(struct ceph_inode_info *ci, int mask,
 
 struct ceph_cap_flush *ceph_alloc_cap_flush(void)
 {
+<<<<<<< HEAD
 	return kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
+=======
+	struct ceph_cap_flush *cf;
+
+	cf = kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
+	if (!cf)
+		return NULL;
+
+	cf->is_capsnap = false;
+	return cf;
+>>>>>>> upstream/android-13
 }
 
 void ceph_free_cap_flush(struct ceph_cap_flush *cf)
@@ -1692,6 +2298,7 @@ static u64 __get_oldest_flush_tid(struct ceph_mds_client *mdsc)
  * Remove cap_flush from the mdsc's or inode's flushing cap list.
  * Return true if caller needs to wake up flush waiters.
  */
+<<<<<<< HEAD
 static bool __finish_cap_flush(struct ceph_mds_client *mdsc,
 			       struct ceph_inode_info *ci,
 			       struct ceph_cap_flush *cf)
@@ -1716,6 +2323,35 @@ static bool __finish_cap_flush(struct ceph_mds_client *mdsc,
 	} else {
 		BUG_ON(1);
 	}
+=======
+static bool __detach_cap_flush_from_mdsc(struct ceph_mds_client *mdsc,
+					 struct ceph_cap_flush *cf)
+{
+	struct ceph_cap_flush *prev;
+	bool wake = cf->wake;
+
+	if (wake && cf->g_list.prev != &mdsc->cap_flush_list) {
+		prev = list_prev_entry(cf, g_list);
+		prev->wake = true;
+		wake = false;
+	}
+	list_del_init(&cf->g_list);
+	return wake;
+}
+
+static bool __detach_cap_flush_from_ci(struct ceph_inode_info *ci,
+				       struct ceph_cap_flush *cf)
+{
+	struct ceph_cap_flush *prev;
+	bool wake = cf->wake;
+
+	if (wake && cf->i_list.prev != &ci->i_cap_flush_list) {
+		prev = list_prev_entry(cf, i_list);
+		prev->wake = true;
+		wake = false;
+	}
+	list_del_init(&cf->i_list);
+>>>>>>> upstream/android-13
 	return wake;
 }
 
@@ -1723,17 +2359,29 @@ static bool __finish_cap_flush(struct ceph_mds_client *mdsc,
  * Add dirty inode to the flushing list.  Assigned a seq number so we
  * can wait for caps to flush without starving.
  *
+<<<<<<< HEAD
  * Called under i_ceph_lock.
  */
 static int __mark_caps_flushing(struct inode *inode,
 				struct ceph_mds_session *session, bool wake,
 				u64 *flush_tid, u64 *oldest_flush_tid)
+=======
+ * Called under i_ceph_lock. Returns the flush tid.
+ */
+static u64 __mark_caps_flushing(struct inode *inode,
+				struct ceph_mds_session *session, bool wake,
+				u64 *oldest_flush_tid)
+>>>>>>> upstream/android-13
 {
 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	struct ceph_cap_flush *cf = NULL;
 	int flushing;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 	BUG_ON(ci->i_dirty_caps == 0);
 	BUG_ON(list_empty(&ci->i_dirty_item));
 	BUG_ON(!ci->i_prealloc_cap_flush);
@@ -1766,14 +2414,23 @@ static int __mark_caps_flushing(struct inode *inode,
 
 	list_add_tail(&cf->i_list, &ci->i_cap_flush_list);
 
+<<<<<<< HEAD
 	*flush_tid = cf->tid;
 	return flushing;
+=======
+	return cf->tid;
+>>>>>>> upstream/android-13
 }
 
 /*
  * try to invalidate mapping pages without blocking.
  */
 static int try_nonblocking_invalidate(struct inode *inode)
+<<<<<<< HEAD
+=======
+	__releases(ci->i_ceph_lock)
+	__acquires(ci->i_ceph_lock)
+>>>>>>> upstream/android-13
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	u32 invalidating_gen = ci->i_rdcache_gen;
@@ -1797,7 +2454,11 @@ static int try_nonblocking_invalidate(struct inode *inode)
 
 bool __ceph_should_report_size(struct ceph_inode_info *ci)
 {
+<<<<<<< HEAD
 	loff_t size = ci->vfs_inode.i_size;
+=======
+	loff_t size = i_size_read(&ci->vfs_inode);
+>>>>>>> upstream/android-13
 	/* mds will adjust max size according to the reported size */
 	if (ci->i_flushing_caps & CEPH_CAP_FILE_WR)
 		return false;
@@ -1815,8 +2476,11 @@ bool __ceph_should_report_size(struct ceph_inode_info *ci)
  * versus held caps.  Release, flush, ack revoked caps to mds as
  * appropriate.
  *
+<<<<<<< HEAD
  *  CHECK_CAPS_NODELAY - caller is delayed work and we should not delay
  *    cap release further.
+=======
+>>>>>>> upstream/android-13
  *  CHECK_CAPS_AUTHONLY - we should only check the auth cap
  *  CHECK_CAPS_FLUSH - we should flush any dirty caps immediately, without
  *    further delay.
@@ -1824,6 +2488,7 @@ bool __ceph_should_report_size(struct ceph_inode_info *ci)
 void ceph_check_caps(struct ceph_inode_info *ci, int flags,
 		     struct ceph_mds_session *session)
 {
+<<<<<<< HEAD
 	struct ceph_fs_client *fsc = ceph_inode_to_client(&ci->vfs_inode);
 	struct ceph_mds_client *mdsc = fsc->mdsc;
 	struct inode *inode = &ci->vfs_inode;
@@ -1831,10 +2496,18 @@ void ceph_check_caps(struct ceph_inode_info *ci, int flags,
 	u64 flush_tid, oldest_flush_tid;
 	int file_wanted, used, cap_used;
 	int took_snap_rwsem = 0;             /* true if mdsc->snap_rwsem held */
+=======
+	struct inode *inode = &ci->vfs_inode;
+	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(inode->i_sb);
+	struct ceph_cap *cap;
+	u64 flush_tid, oldest_flush_tid;
+	int file_wanted, used, cap_used;
+>>>>>>> upstream/android-13
 	int issued, implemented, want, retain, revoking, flushing = 0;
 	int mds = -1;   /* keep track of how far we've gone through i_caps list
 			   to avoid an infinite loop on retry */
 	struct rb_node *p;
+<<<<<<< HEAD
 	int delayed = 0, sent = 0;
 	bool no_delay = flags & CHECK_CAPS_NODELAY;
 	bool queue_invalidate = false;
@@ -1859,24 +2532,65 @@ retry:
 retry_locked:
 	file_wanted = __ceph_caps_file_wanted(ci);
 	used = __ceph_caps_used(ci);
+=======
+	bool queue_invalidate = false;
+	bool tried_invalidate = false;
+
+	if (session)
+		ceph_get_mds_session(session);
+
+	spin_lock(&ci->i_ceph_lock);
+	if (ci->i_ceph_flags & CEPH_I_FLUSH)
+		flags |= CHECK_CAPS_FLUSH;
+retry:
+	/* Caps wanted by virtue of active open files. */
+	file_wanted = __ceph_caps_file_wanted(ci);
+
+	/* Caps which have active references against them */
+	used = __ceph_caps_used(ci);
+
+	/*
+	 * "issued" represents the current caps that the MDS wants us to have.
+	 * "implemented" is the set that we have been granted, and includes the
+	 * ones that have not yet been returned to the MDS (the "revoking" set,
+	 * usually because they have outstanding references).
+	 */
+>>>>>>> upstream/android-13
 	issued = __ceph_caps_issued(ci, &implemented);
 	revoking = implemented & ~issued;
 
 	want = file_wanted;
+<<<<<<< HEAD
+=======
+
+	/* The ones we currently want to retain (may be adjusted below) */
+>>>>>>> upstream/android-13
 	retain = file_wanted | used | CEPH_CAP_PIN;
 	if (!mdsc->stopping && inode->i_nlink > 0) {
 		if (file_wanted) {
 			retain |= CEPH_CAP_ANY;       /* be greedy */
 		} else if (S_ISDIR(inode->i_mode) &&
 			   (issued & CEPH_CAP_FILE_SHARED) &&
+<<<<<<< HEAD
 			    __ceph_dir_is_complete(ci)) {
+=======
+			   __ceph_dir_is_complete(ci)) {
+>>>>>>> upstream/android-13
 			/*
 			 * If a directory is complete, we want to keep
 			 * the exclusive cap. So that MDS does not end up
 			 * revoking the shared cap on every create/unlink
 			 * operation.
 			 */
+<<<<<<< HEAD
 			want = CEPH_CAP_ANY_SHARED | CEPH_CAP_FILE_EXCL;
+=======
+			if (IS_RDONLY(inode)) {
+				want = CEPH_CAP_ANY_SHARED;
+			} else {
+				want |= CEPH_CAP_ANY_SHARED | CEPH_CAP_FILE_EXCL;
+			}
+>>>>>>> upstream/android-13
 			retain |= want;
 		} else {
 
@@ -1892,14 +2606,21 @@ retry_locked:
 	}
 
 	dout("check_caps %p file_want %s used %s dirty %s flushing %s"
+<<<<<<< HEAD
 	     " issued %s revoking %s retain %s %s%s%s\n", inode,
+=======
+	     " issued %s revoking %s retain %s %s%s\n", inode,
+>>>>>>> upstream/android-13
 	     ceph_cap_string(file_wanted),
 	     ceph_cap_string(used), ceph_cap_string(ci->i_dirty_caps),
 	     ceph_cap_string(ci->i_flushing_caps),
 	     ceph_cap_string(issued), ceph_cap_string(revoking),
 	     ceph_cap_string(retain),
 	     (flags & CHECK_CAPS_AUTHONLY) ? " AUTHONLY" : "",
+<<<<<<< HEAD
 	     (flags & CHECK_CAPS_NODELAY) ? " NODELAY" : "",
+=======
+>>>>>>> upstream/android-13
 	     (flags & CHECK_CAPS_FLUSH) ? " FLUSH" : "");
 
 	/*
@@ -1907,8 +2628,13 @@ retry_locked:
 	 * have cached pages, but don't want them, then try to invalidate.
 	 * If we fail, it's because pages are locked.... try again later.
 	 */
+<<<<<<< HEAD
 	if ((!no_delay || mdsc->stopping) &&
 	    !S_ISDIR(inode->i_mode) &&		/* ignore readdir cache */
+=======
+	if ((!(flags & CHECK_CAPS_NOINVAL) || mdsc->stopping) &&
+	    S_ISREG(inode->i_mode) &&
+>>>>>>> upstream/android-13
 	    !(ci->i_wb_ref || ci->i_wrbuffer_ref) &&   /* no dirty pages... */
 	    inode->i_data.nrpages &&		/* have cached pages */
 	    (revoking & (CEPH_CAP_FILE_CACHE|
@@ -1921,10 +2647,20 @@ retry_locked:
 			ci->i_rdcache_revoking = ci->i_rdcache_gen;
 		}
 		tried_invalidate = true;
+<<<<<<< HEAD
 		goto retry_locked;
 	}
 
 	for (p = rb_first(&ci->i_caps); p; p = rb_next(p)) {
+=======
+		goto retry;
+	}
+
+	for (p = rb_first(&ci->i_caps); p; p = rb_next(p)) {
+		int mflags = 0;
+		struct cap_msg_args arg;
+
+>>>>>>> upstream/android-13
 		cap = rb_entry(p, struct ceph_cap, ci_node);
 
 		/* avoid looping forever */
@@ -1932,8 +2668,15 @@ retry_locked:
 		    ((flags & CHECK_CAPS_AUTHONLY) && cap != ci->i_auth_cap))
 			continue;
 
+<<<<<<< HEAD
 		/* NOTE: no side-effects allowed, until we take s_mutex */
 
+=======
+		/*
+		 * If we have an auth cap, we don't need to consider any
+		 * overlapping caps as used.
+		 */
+>>>>>>> upstream/android-13
 		cap_used = used;
 		if (ci->i_auth_cap && cap != ci->i_auth_cap)
 			cap_used &= ~ci->i_auth_cap->issued;
@@ -1988,6 +2731,7 @@ retry_locked:
 		}
 
 		/* things we might delay */
+<<<<<<< HEAD
 		if ((cap->issued & ~retain) == 0 &&
 		    cap->mds_wanted == want)
 			continue;     /* nope, all good */
@@ -2044,12 +2788,21 @@ ack:
 				goto retry;
 			}
 		}
+=======
+		if ((cap->issued & ~retain) == 0)
+			continue;     /* nope, all good */
+
+ack:
+		ceph_put_mds_session(session);
+		session = ceph_get_mds_session(cap->session);
+>>>>>>> upstream/android-13
 
 		/* kick flushing and flush snaps before sending normal
 		 * cap message */
 		if (cap == ci->i_auth_cap &&
 		    (ci->i_ceph_flags &
 		     (CEPH_I_KICK_FLUSH | CEPH_I_FLUSH_SNAPS))) {
+<<<<<<< HEAD
 			if (ci->i_ceph_flags & CEPH_I_KICK_FLUSH) {
 				__kick_flushing_caps(mdsc, session, ci, 0);
 				ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
@@ -2077,6 +2830,23 @@ ack:
 			flushing = __mark_caps_flushing(inode, session, false,
 							&flush_tid,
 							&oldest_flush_tid);
+=======
+			if (ci->i_ceph_flags & CEPH_I_KICK_FLUSH)
+				__kick_flushing_caps(mdsc, session, ci, 0);
+			if (ci->i_ceph_flags & CEPH_I_FLUSH_SNAPS)
+				__ceph_flush_snaps(ci, session);
+
+			goto retry;
+		}
+
+		if (cap == ci->i_auth_cap && ci->i_dirty_caps) {
+			flushing = ci->i_dirty_caps;
+			flush_tid = __mark_caps_flushing(inode, session, false,
+							 &oldest_flush_tid);
+			if (flags & CHECK_CAPS_FLUSH &&
+			    list_empty(&session->s_cap_dirty))
+				mflags |= CEPH_CLIENT_CAPS_SYNC;
+>>>>>>> upstream/android-13
 		} else {
 			flushing = 0;
 			flush_tid = 0;
@@ -2086,6 +2856,7 @@ ack:
 		}
 
 		mds = cap->mds;  /* remember mds, so we don't repeat */
+<<<<<<< HEAD
 		sent++;
 
 		/* __send_cap drops i_ceph_lock */
@@ -2108,6 +2879,32 @@ ack:
 		mutex_unlock(&session->s_mutex);
 	if (took_snap_rwsem)
 		up_read(&mdsc->snap_rwsem);
+=======
+
+		__prep_cap(&arg, cap, CEPH_CAP_OP_UPDATE, mflags, cap_used,
+			   want, retain, flushing, flush_tid, oldest_flush_tid);
+
+		spin_unlock(&ci->i_ceph_lock);
+		__send_cap(&arg, ci);
+		spin_lock(&ci->i_ceph_lock);
+
+		goto retry; /* retake i_ceph_lock and restart our cap scan. */
+	}
+
+	/* periodically re-calculate caps wanted by open files */
+	if (__ceph_is_any_real_caps(ci) &&
+	    list_empty(&ci->i_cap_delay_list) &&
+	    (file_wanted & ~CEPH_CAP_PIN) &&
+	    !(used & (CEPH_CAP_FILE_RD | CEPH_CAP_ANY_FILE_WR))) {
+		__cap_delay_requeue(mdsc, ci);
+	}
+
+	spin_unlock(&ci->i_ceph_lock);
+
+	ceph_put_mds_session(session);
+	if (queue_invalidate)
+		ceph_queue_invalidate(inode);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2117,6 +2914,7 @@ static int try_flush_caps(struct inode *inode, u64 *ptid)
 {
 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
 	struct ceph_inode_info *ci = ceph_inode(inode);
+<<<<<<< HEAD
 	struct ceph_mds_session *session = NULL;
 	int flushing = 0;
 	u64 flush_tid = 0, oldest_flush_tid = 0;
@@ -2143,10 +2941,24 @@ retry:
 			goto retry;
 		}
 		if (cap->session->s_state < CEPH_MDS_SESSION_OPEN) {
+=======
+	int flushing = 0;
+	u64 flush_tid = 0, oldest_flush_tid = 0;
+
+	spin_lock(&ci->i_ceph_lock);
+retry_locked:
+	if (ci->i_dirty_caps && ci->i_auth_cap) {
+		struct ceph_cap *cap = ci->i_auth_cap;
+		struct cap_msg_args arg;
+		struct ceph_mds_session *session = cap->session;
+
+		if (session->s_state < CEPH_MDS_SESSION_OPEN) {
+>>>>>>> upstream/android-13
 			spin_unlock(&ci->i_ceph_lock);
 			goto out;
 		}
 
+<<<<<<< HEAD
 		flushing = __mark_caps_flushing(inode, session, true,
 						&flush_tid, &oldest_flush_tid);
 
@@ -2160,6 +2972,28 @@ retry:
 			__cap_delay_requeue(mdsc, ci);
 			spin_unlock(&ci->i_ceph_lock);
 		}
+=======
+		if (ci->i_ceph_flags &
+		    (CEPH_I_KICK_FLUSH | CEPH_I_FLUSH_SNAPS)) {
+			if (ci->i_ceph_flags & CEPH_I_KICK_FLUSH)
+				__kick_flushing_caps(mdsc, session, ci, 0);
+			if (ci->i_ceph_flags & CEPH_I_FLUSH_SNAPS)
+				__ceph_flush_snaps(ci, session);
+			goto retry_locked;
+		}
+
+		flushing = ci->i_dirty_caps;
+		flush_tid = __mark_caps_flushing(inode, session, true,
+						 &oldest_flush_tid);
+
+		__prep_cap(&arg, cap, CEPH_CAP_OP_FLUSH, CEPH_CLIENT_CAPS_SYNC,
+			   __ceph_caps_used(ci), __ceph_caps_wanted(ci),
+			   (cap->issued | cap->implemented),
+			   flushing, flush_tid, oldest_flush_tid);
+		spin_unlock(&ci->i_ceph_lock);
+
+		__send_cap(&arg, ci);
+>>>>>>> upstream/android-13
 	} else {
 		if (!list_empty(&ci->i_cap_flush_list)) {
 			struct ceph_cap_flush *cf =
@@ -2172,9 +3006,12 @@ retry:
 		spin_unlock(&ci->i_ceph_lock);
 	}
 out:
+<<<<<<< HEAD
 	if (session)
 		mutex_unlock(&session->s_mutex);
 
+=======
+>>>>>>> upstream/android-13
 	*ptid = flush_tid;
 	return flushing;
 }
@@ -2204,8 +3041,15 @@ static int caps_are_flushed(struct inode *inode, u64 flush_tid)
  */
 static int unsafe_request_wait(struct inode *inode)
 {
+<<<<<<< HEAD
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	struct ceph_mds_request *req1 = NULL, *req2 = NULL;
+=======
+	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
+	struct ceph_inode_info *ci = ceph_inode(inode);
+	struct ceph_mds_request *req1 = NULL, *req2 = NULL;
+	unsigned int max_sessions;
+>>>>>>> upstream/android-13
 	int ret, err = 0;
 
 	spin_lock(&ci->i_unsafe_lock);
@@ -2223,6 +3067,102 @@ static int unsafe_request_wait(struct inode *inode)
 	}
 	spin_unlock(&ci->i_unsafe_lock);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * The mdsc->max_sessions is unlikely to be changed
+	 * mostly, here we will retry it by reallocating the
+	 * sessions array memory to get rid of the mdsc->mutex
+	 * lock.
+	 */
+retry:
+	max_sessions = mdsc->max_sessions;
+
+	/*
+	 * Trigger to flush the journal logs in all the relevant MDSes
+	 * manually, or in the worst case we must wait at most 5 seconds
+	 * to wait the journal logs to be flushed by the MDSes periodically.
+	 */
+	if ((req1 || req2) && likely(max_sessions)) {
+		struct ceph_mds_session **sessions = NULL;
+		struct ceph_mds_session *s;
+		struct ceph_mds_request *req;
+		int i;
+
+		sessions = kzalloc(max_sessions * sizeof(s), GFP_KERNEL);
+		if (!sessions) {
+			err = -ENOMEM;
+			goto out;
+		}
+
+		spin_lock(&ci->i_unsafe_lock);
+		if (req1) {
+			list_for_each_entry(req, &ci->i_unsafe_dirops,
+					    r_unsafe_dir_item) {
+				s = req->r_session;
+				if (!s)
+					continue;
+				if (unlikely(s->s_mds >= max_sessions)) {
+					spin_unlock(&ci->i_unsafe_lock);
+					for (i = 0; i < max_sessions; i++) {
+						s = sessions[i];
+						if (s)
+							ceph_put_mds_session(s);
+					}
+					kfree(sessions);
+					goto retry;
+				}
+				if (!sessions[s->s_mds]) {
+					s = ceph_get_mds_session(s);
+					sessions[s->s_mds] = s;
+				}
+			}
+		}
+		if (req2) {
+			list_for_each_entry(req, &ci->i_unsafe_iops,
+					    r_unsafe_target_item) {
+				s = req->r_session;
+				if (!s)
+					continue;
+				if (unlikely(s->s_mds >= max_sessions)) {
+					spin_unlock(&ci->i_unsafe_lock);
+					for (i = 0; i < max_sessions; i++) {
+						s = sessions[i];
+						if (s)
+							ceph_put_mds_session(s);
+					}
+					kfree(sessions);
+					goto retry;
+				}
+				if (!sessions[s->s_mds]) {
+					s = ceph_get_mds_session(s);
+					sessions[s->s_mds] = s;
+				}
+			}
+		}
+		spin_unlock(&ci->i_unsafe_lock);
+
+		/* the auth MDS */
+		spin_lock(&ci->i_ceph_lock);
+		if (ci->i_auth_cap) {
+		      s = ci->i_auth_cap->session;
+		      if (!sessions[s->s_mds])
+			      sessions[s->s_mds] = ceph_get_mds_session(s);
+		}
+		spin_unlock(&ci->i_ceph_lock);
+
+		/* send flush mdlog request to MDSes */
+		for (i = 0; i < max_sessions; i++) {
+			s = sessions[i];
+			if (s) {
+				send_flush_mdlog(s);
+				ceph_put_mds_session(s);
+			}
+		}
+		kfree(sessions);
+	}
+
+>>>>>>> upstream/android-13
 	dout("unsafe_request_wait %p wait on tid %llu %llu\n",
 	     inode, req1 ? req1->r_tid : 0ULL, req2 ? req2->r_tid : 0ULL);
 	if (req1) {
@@ -2230,15 +3170,28 @@ static int unsafe_request_wait(struct inode *inode)
 					ceph_timeout_jiffies(req1->r_timeout));
 		if (ret)
 			err = -EIO;
+<<<<<<< HEAD
 		ceph_mdsc_put_request(req1);
+=======
+>>>>>>> upstream/android-13
 	}
 	if (req2) {
 		ret = !wait_for_completion_timeout(&req2->r_safe_completion,
 					ceph_timeout_jiffies(req2->r_timeout));
 		if (ret)
 			err = -EIO;
+<<<<<<< HEAD
 		ceph_mdsc_put_request(req2);
 	}
+=======
+	}
+
+out:
+	if (req1)
+		ceph_mdsc_put_request(req1);
+	if (req2)
+		ceph_mdsc_put_request(req2);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -2247,12 +3200,17 @@ int ceph_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 	struct inode *inode = file->f_mapping->host;
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	u64 flush_tid;
+<<<<<<< HEAD
 	int ret;
+=======
+	int ret, err;
+>>>>>>> upstream/android-13
 	int dirty;
 
 	dout("fsync %p%s\n", inode, datasync ? " datasync" : "");
 
 	ret = file_write_and_wait_range(file, start, end);
+<<<<<<< HEAD
 	if (ret < 0)
 		goto out;
 
@@ -2260,22 +3218,48 @@ int ceph_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 		goto out;
 
 	inode_lock(inode);
+=======
+	if (datasync)
+		goto out;
+
+	ret = ceph_wait_on_async_create(inode);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	dirty = try_flush_caps(inode, &flush_tid);
 	dout("fsync dirty caps are %s\n", ceph_cap_string(dirty));
 
+<<<<<<< HEAD
 	ret = unsafe_request_wait(inode);
+=======
+	err = unsafe_request_wait(inode);
+>>>>>>> upstream/android-13
 
 	/*
 	 * only wait on non-file metadata writeback (the mds
 	 * can recover size and mtime, so we don't need to
 	 * wait for that)
 	 */
+<<<<<<< HEAD
 	if (!ret && (dirty & ~CEPH_CAP_ANY_FILE_WR)) {
 		ret = wait_event_interruptible(ci->i_cap_wq,
 					caps_are_flushed(inode, flush_tid));
 	}
 	inode_unlock(inode);
+=======
+	if (!err && (dirty & ~CEPH_CAP_ANY_FILE_WR)) {
+		err = wait_event_interruptible(ci->i_cap_wq,
+					caps_are_flushed(inode, flush_tid));
+	}
+
+	if (err < 0)
+		ret = err;
+
+	err = file_check_and_advance_wb_err(file);
+	if (err < 0)
+		ret = err;
+>>>>>>> upstream/android-13
 out:
 	dout("fsync %p%s result=%d\n", inode, datasync ? " datasync" : "", ret);
 	return ret;
@@ -2325,6 +3309,19 @@ static void __kick_flushing_caps(struct ceph_mds_client *mdsc,
 	struct ceph_cap_flush *cf;
 	int ret;
 	u64 first_tid = 0;
+<<<<<<< HEAD
+=======
+	u64 last_snap_flush = 0;
+
+	ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
+
+	list_for_each_entry_reverse(cf, &ci->i_cap_flush_list, i_list) {
+		if (cf->is_capsnap) {
+			last_snap_flush = cf->tid;
+			break;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(cf, &ci->i_cap_flush_list, i_list) {
 		if (cf->tid < first_tid)
@@ -2339,6 +3336,7 @@ static void __kick_flushing_caps(struct ceph_mds_client *mdsc,
 
 		first_tid = cf->tid + 1;
 
+<<<<<<< HEAD
 		if (cf->caps) {
 			dout("kick_flushing_caps %p cap %p tid %llu %s\n",
 			     inode, cap, cf->tid, ceph_cap_string(cf->caps));
@@ -2355,6 +3353,22 @@ static void __kick_flushing_caps(struct ceph_mds_client *mdsc,
 					ceph_vinop(inode), cf->tid,
 					ceph_cap_string(cf->caps));
 			}
+=======
+		if (!cf->is_capsnap) {
+			struct cap_msg_args arg;
+
+			dout("kick_flushing_caps %p cap %p tid %llu %s\n",
+			     inode, cap, cf->tid, ceph_cap_string(cf->caps));
+			__prep_cap(&arg, cap, CEPH_CAP_OP_FLUSH,
+					 (cf->tid < last_snap_flush ?
+					  CEPH_CLIENT_CAPS_PENDING_CAPSNAP : 0),
+					  __ceph_caps_used(ci),
+					  __ceph_caps_wanted(ci),
+					  (cap->issued | cap->implemented),
+					  cf->caps, cf->tid, oldest_flush_tid);
+			spin_unlock(&ci->i_ceph_lock);
+			__send_cap(&arg, ci);
+>>>>>>> upstream/android-13
 		} else {
 			struct ceph_cap_snap *capsnap =
 					container_of(cf, struct ceph_cap_snap,
@@ -2415,7 +3429,16 @@ void ceph_early_kick_flushing_caps(struct ceph_mds_client *mdsc,
 		 */
 		if ((cap->issued & ci->i_flushing_caps) !=
 		    ci->i_flushing_caps) {
+<<<<<<< HEAD
 			ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
+=======
+			/* encode_caps_cb() also will reset these sequence
+			 * numbers. make sure sequence numbers in cap flush
+			 * message match later reconnect message */
+			cap->seq = 0;
+			cap->issue_seq = 0;
+			cap->mseq = 0;
+>>>>>>> upstream/android-13
 			__kick_flushing_caps(mdsc, session, ci,
 					     oldest_flush_tid);
 		} else {
@@ -2433,6 +3456,11 @@ void ceph_kick_flushing_caps(struct ceph_mds_client *mdsc,
 	struct ceph_cap *cap;
 	u64 oldest_flush_tid;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&session->s_mutex);
+
+>>>>>>> upstream/android-13
 	dout("kick_flushing_caps mds%d\n", session->s_mds);
 
 	spin_lock(&mdsc->cap_dirty_lock);
@@ -2449,7 +3477,10 @@ void ceph_kick_flushing_caps(struct ceph_mds_client *mdsc,
 			continue;
 		}
 		if (ci->i_ceph_flags & CEPH_I_KICK_FLUSH) {
+<<<<<<< HEAD
 			ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
+=======
+>>>>>>> upstream/android-13
 			__kick_flushing_caps(mdsc, session, ci,
 					     oldest_flush_tid);
 		}
@@ -2457,6 +3488,7 @@ void ceph_kick_flushing_caps(struct ceph_mds_client *mdsc,
 	}
 }
 
+<<<<<<< HEAD
 static void kick_flushing_inode_caps(struct ceph_mds_client *mdsc,
 				     struct ceph_mds_session *session,
 				     struct inode *inode)
@@ -2467,6 +3499,17 @@ static void kick_flushing_inode_caps(struct ceph_mds_client *mdsc,
 
 	cap = ci->i_auth_cap;
 	dout("kick_flushing_inode_caps %p flushing %s\n", inode,
+=======
+void ceph_kick_flushing_inode_caps(struct ceph_mds_session *session,
+				   struct ceph_inode_info *ci)
+{
+	struct ceph_mds_client *mdsc = session->s_mdsc;
+	struct ceph_cap *cap = ci->i_auth_cap;
+
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+	dout("%s %p flushing %s\n", __func__, &ci->vfs_inode,
+>>>>>>> upstream/android-13
 	     ceph_cap_string(ci->i_flushing_caps));
 
 	if (!list_empty(&ci->i_cap_flush_list)) {
@@ -2477,11 +3520,15 @@ static void kick_flushing_inode_caps(struct ceph_mds_client *mdsc,
 		oldest_flush_tid = __get_oldest_flush_tid(mdsc);
 		spin_unlock(&mdsc->cap_dirty_lock);
 
+<<<<<<< HEAD
 		ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
 		__kick_flushing_caps(mdsc, session, ci, oldest_flush_tid);
 		spin_unlock(&ci->i_ceph_lock);
 	} else {
 		spin_unlock(&ci->i_ceph_lock);
+=======
+		__kick_flushing_caps(mdsc, session, ci, oldest_flush_tid);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2489,18 +3536,32 @@ static void kick_flushing_inode_caps(struct ceph_mds_client *mdsc,
 /*
  * Take references to capabilities we hold, so that we don't release
  * them to the MDS prematurely.
+<<<<<<< HEAD
  *
  * Protected by i_ceph_lock.
  */
 static void __take_cap_refs(struct ceph_inode_info *ci, int got,
 			    bool snap_rwsem_locked)
 {
+=======
+ */
+void ceph_take_cap_refs(struct ceph_inode_info *ci, int got,
+			    bool snap_rwsem_locked)
+{
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+>>>>>>> upstream/android-13
 	if (got & CEPH_CAP_PIN)
 		ci->i_pin_ref++;
 	if (got & CEPH_CAP_FILE_RD)
 		ci->i_rd_ref++;
 	if (got & CEPH_CAP_FILE_CACHE)
 		ci->i_rdcache_ref++;
+<<<<<<< HEAD
+=======
+	if (got & CEPH_CAP_FILE_EXCL)
+		ci->i_fx_ref++;
+>>>>>>> upstream/android-13
 	if (got & CEPH_CAP_FILE_WR) {
 		if (ci->i_wr_ref == 0 && !ci->i_head_snapc) {
 			BUG_ON(!snap_rwsem_locked);
@@ -2513,7 +3574,11 @@ static void __take_cap_refs(struct ceph_inode_info *ci, int got,
 		if (ci->i_wb_ref == 0)
 			ihold(&ci->vfs_inode);
 		ci->i_wb_ref++;
+<<<<<<< HEAD
 		dout("__take_cap_refs %p wb %d -> %d (?)\n",
+=======
+		dout("%s %p wb %d -> %d (?)\n", __func__,
+>>>>>>> upstream/android-13
 		     &ci->vfs_inode, ci->i_wb_ref-1, ci->i_wb_ref);
 	}
 }
@@ -2524,6 +3589,7 @@ static void __take_cap_refs(struct ceph_inode_info *ci, int got,
  * to (when applicable), and check against max_size here as well.
  * Note that caller is responsible for ensuring max_size increases are
  * requested from the MDS.
+<<<<<<< HEAD
  */
 static int try_get_cap_refs(struct ceph_inode_info *ci, int need, int want,
 			    loff_t endoff, bool nonblock, int *got, int *err)
@@ -2533,6 +3599,28 @@ static int try_get_cap_refs(struct ceph_inode_info *ci, int need, int want,
 	int ret = 0;
 	int have, implemented;
 	int file_wanted;
+=======
+ *
+ * Returns 0 if caps were not able to be acquired (yet), 1 if succeed,
+ * or a negative error code. There are 3 speical error codes:
+ *  -EAGAIN: need to sleep but non-blocking is specified
+ *  -EFBIG:  ask caller to call check_max_size() and try again.
+ *  -ESTALE: ask caller to call ceph_renew_caps() and try again.
+ */
+enum {
+	/* first 8 bits are reserved for CEPH_FILE_MODE_FOO */
+	NON_BLOCKING	= (1 << 8),
+	CHECK_FILELOCK	= (1 << 9),
+};
+
+static int try_get_cap_refs(struct inode *inode, int need, int want,
+			    loff_t endoff, int flags, int *got)
+{
+	struct ceph_inode_info *ci = ceph_inode(inode);
+	struct ceph_mds_client *mdsc = ceph_inode_to_client(inode)->mdsc;
+	int ret = 0;
+	int have, implemented;
+>>>>>>> upstream/android-13
 	bool snap_rwsem_locked = false;
 
 	dout("get_cap_refs %p need %s want %s\n", inode,
@@ -2541,6 +3629,7 @@ static int try_get_cap_refs(struct ceph_inode_info *ci, int need, int want,
 again:
 	spin_lock(&ci->i_ceph_lock);
 
+<<<<<<< HEAD
 	/* make sure file is actually open */
 	file_wanted = __ceph_caps_file_wanted(ci);
 	if ((file_wanted & need) != need) {
@@ -2548,6 +3637,12 @@ again:
 		     ceph_cap_string(need), ceph_cap_string(file_wanted));
 		*err = -EBADF;
 		ret = 1;
+=======
+	if ((flags & CHECK_FILELOCK) &&
+	    (ci->i_ceph_flags & CEPH_I_ERROR_FILELOCK)) {
+		dout("try_get_cap_refs %p error filelock\n", inode);
+		ret = -EIO;
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	}
 
@@ -2568,10 +3663,15 @@ again:
 		if (endoff >= 0 && endoff > (loff_t)ci->i_max_size) {
 			dout("get_cap_refs %p endoff %llu > maxsize %llu\n",
 			     inode, endoff, ci->i_max_size);
+<<<<<<< HEAD
 			if (endoff > ci->i_requested_max_size) {
 				*err = -EAGAIN;
 				ret = 1;
 			}
+=======
+			if (endoff > ci->i_requested_max_size)
+				ret = ci->i_auth_cap ? -EFBIG : -ESTALE;
+>>>>>>> upstream/android-13
 			goto out_unlock;
 		}
 		/*
@@ -2605,9 +3705,14 @@ again:
 					 * we can not call down_read() when
 					 * task isn't in TASK_RUNNING state
 					 */
+<<<<<<< HEAD
 					if (nonblock) {
 						*err = -EAGAIN;
 						ret = 1;
+=======
+					if (flags & NON_BLOCKING) {
+						ret = -EAGAIN;
+>>>>>>> upstream/android-13
 						goto out_unlock;
 					}
 
@@ -2618,22 +3723,37 @@ again:
 				}
 				snap_rwsem_locked = true;
 			}
+<<<<<<< HEAD
 			*got = need | (have & want);
 			if ((need & CEPH_CAP_FILE_RD) &&
 			    !(*got & CEPH_CAP_FILE_CACHE))
 				ceph_disable_fscache_readpage(ci);
 			__take_cap_refs(ci, *got, true);
+=======
+			if ((have & want) == want)
+				*got = need | want;
+			else
+				*got = need;
+			ceph_take_cap_refs(ci, *got, true);
+>>>>>>> upstream/android-13
 			ret = 1;
 		}
 	} else {
 		int session_readonly = false;
+<<<<<<< HEAD
 		if ((need & CEPH_CAP_FILE_WR) && ci->i_auth_cap) {
+=======
+		int mds_wanted;
+		if (ci->i_auth_cap &&
+		    (need & (CEPH_CAP_FILE_WR | CEPH_CAP_FILE_EXCL))) {
+>>>>>>> upstream/android-13
 			struct ceph_mds_session *s = ci->i_auth_cap->session;
 			spin_lock(&s->s_cap_lock);
 			session_readonly = s->s_readonly;
 			spin_unlock(&s->s_cap_lock);
 		}
 		if (session_readonly) {
+<<<<<<< HEAD
 			dout("get_cap_refs %p needed %s but mds%d readonly\n",
 			     inode, ceph_cap_string(need), ci->i_auth_cap->mds);
 			*err = -EROFS;
@@ -2666,10 +3786,47 @@ again:
 		     ceph_cap_string(have), ceph_cap_string(need));
 	}
 out_unlock:
+=======
+			dout("get_cap_refs %p need %s but mds%d readonly\n",
+			     inode, ceph_cap_string(need), ci->i_auth_cap->mds);
+			ret = -EROFS;
+			goto out_unlock;
+		}
+
+		if (READ_ONCE(mdsc->fsc->mount_state) >= CEPH_MOUNT_SHUTDOWN) {
+			dout("get_cap_refs %p forced umount\n", inode);
+			ret = -EIO;
+			goto out_unlock;
+		}
+		mds_wanted = __ceph_caps_mds_wanted(ci, false);
+		if (need & ~mds_wanted) {
+			dout("get_cap_refs %p need %s > mds_wanted %s\n",
+			     inode, ceph_cap_string(need),
+			     ceph_cap_string(mds_wanted));
+			ret = -ESTALE;
+			goto out_unlock;
+		}
+
+		dout("get_cap_refs %p have %s need %s\n", inode,
+		     ceph_cap_string(have), ceph_cap_string(need));
+	}
+out_unlock:
+
+	__ceph_touch_fmode(ci, mdsc, flags);
+
+>>>>>>> upstream/android-13
 	spin_unlock(&ci->i_ceph_lock);
 	if (snap_rwsem_locked)
 		up_read(&mdsc->snap_rwsem);
 
+<<<<<<< HEAD
+=======
+	if (!ret)
+		ceph_update_cap_mis(&mdsc->metric);
+	else if (ret == 1)
+		ceph_update_cap_hit(&mdsc->metric);
+
+>>>>>>> upstream/android-13
 	dout("get_cap_refs %p ret %d got %s\n", inode,
 	     ret, ceph_cap_string(*got));
 	return ret;
@@ -2703,6 +3860,7 @@ static void check_max_size(struct inode *inode, loff_t endoff)
 		ceph_check_caps(ci, CHECK_CAPS_AUTHONLY, NULL);
 }
 
+<<<<<<< HEAD
 int ceph_try_get_caps(struct ceph_inode_info *ci, int need, int want, int *got)
 {
 	int ret, err = 0;
@@ -2721,6 +3879,41 @@ int ceph_try_get_caps(struct ceph_inode_info *ci, int need, int want, int *got)
 			ret = err;
 		}
 	}
+=======
+static inline int get_used_fmode(int caps)
+{
+	int fmode = 0;
+	if (caps & CEPH_CAP_FILE_RD)
+		fmode |= CEPH_FILE_MODE_RD;
+	if (caps & CEPH_CAP_FILE_WR)
+		fmode |= CEPH_FILE_MODE_WR;
+	return fmode;
+}
+
+int ceph_try_get_caps(struct inode *inode, int need, int want,
+		      bool nonblock, int *got)
+{
+	int ret, flags;
+
+	BUG_ON(need & ~CEPH_CAP_FILE_RD);
+	BUG_ON(want & ~(CEPH_CAP_FILE_CACHE | CEPH_CAP_FILE_LAZYIO |
+			CEPH_CAP_FILE_SHARED | CEPH_CAP_FILE_EXCL |
+			CEPH_CAP_ANY_DIR_OPS));
+	if (need) {
+		ret = ceph_pool_perm_check(inode, need);
+		if (ret < 0)
+			return ret;
+	}
+
+	flags = get_used_fmode(need | want);
+	if (nonblock)
+		flags |= NON_BLOCKING;
+
+	ret = try_get_cap_refs(inode, need, want, 0, flags, got);
+	/* three special error codes */
+	if (ret == -EAGAIN || ret == -EFBIG || ret == -ESTALE)
+		ret = 0;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2729,6 +3922,7 @@ int ceph_try_get_caps(struct ceph_inode_info *ci, int need, int want, int *got)
  * due to a small max_size, make sure we check_max_size (and possibly
  * ask the mds) so we don't get hung up indefinitely.
  */
+<<<<<<< HEAD
 int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 		  loff_t endoff, int *got, struct page **pinned_page)
 {
@@ -2757,6 +3951,55 @@ int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 
 			while (!try_get_cap_refs(ci, need, want, endoff,
 						 true, &_got, &err)) {
+=======
+int ceph_get_caps(struct file *filp, int need, int want, loff_t endoff, int *got)
+{
+	struct ceph_file_info *fi = filp->private_data;
+	struct inode *inode = file_inode(filp);
+	struct ceph_inode_info *ci = ceph_inode(inode);
+	struct ceph_fs_client *fsc = ceph_inode_to_client(inode);
+	int ret, _got, flags;
+
+	ret = ceph_pool_perm_check(inode, need);
+	if (ret < 0)
+		return ret;
+
+	if ((fi->fmode & CEPH_FILE_MODE_WR) &&
+	    fi->filp_gen != READ_ONCE(fsc->filp_gen))
+		return -EBADF;
+
+	flags = get_used_fmode(need | want);
+
+	while (true) {
+		flags &= CEPH_FILE_MODE_MASK;
+		if (atomic_read(&fi->num_locks))
+			flags |= CHECK_FILELOCK;
+		_got = 0;
+		ret = try_get_cap_refs(inode, need, want, endoff,
+				       flags, &_got);
+		WARN_ON_ONCE(ret == -EAGAIN);
+		if (!ret) {
+			struct ceph_mds_client *mdsc = fsc->mdsc;
+			struct cap_wait cw;
+			DEFINE_WAIT_FUNC(wait, woken_wake_function);
+
+			cw.ino = ceph_ino(inode);
+			cw.tgid = current->tgid;
+			cw.need = need;
+			cw.want = want;
+
+			spin_lock(&mdsc->caps_list_lock);
+			list_add(&cw.list, &mdsc->cap_wait_list);
+			spin_unlock(&mdsc->caps_list_lock);
+
+			/* make sure used fmode not timeout */
+			ceph_get_fmode(ci, flags, FMODE_WAIT_BIAS);
+			add_wait_queue(&ci->i_cap_wq, &wait);
+
+			flags |= NON_BLOCKING;
+			while (!(ret = try_get_cap_refs(inode, need, want,
+							endoff, flags, &_got))) {
+>>>>>>> upstream/android-13
 				if (signal_pending(current)) {
 					ret = -ERESTARTSYS;
 					break;
@@ -2765,6 +4008,7 @@ int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 			}
 
 			remove_wait_queue(&ci->i_cap_wq, &wait);
+<<<<<<< HEAD
 
 			if (err == -EAGAIN)
 				continue;
@@ -2775,12 +4019,45 @@ int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 			if (err == -ESTALE) {
 				/* session was killed, try renew caps */
 				ret = ceph_renew_caps(&ci->vfs_inode);
+=======
+			ceph_put_fmode(ci, flags, FMODE_WAIT_BIAS);
+
+			spin_lock(&mdsc->caps_list_lock);
+			list_del(&cw.list);
+			spin_unlock(&mdsc->caps_list_lock);
+
+			if (ret == -EAGAIN)
+				continue;
+		}
+
+		if ((fi->fmode & CEPH_FILE_MODE_WR) &&
+		    fi->filp_gen != READ_ONCE(fsc->filp_gen)) {
+			if (ret >= 0 && _got)
+				ceph_put_cap_refs(ci, _got);
+			return -EBADF;
+		}
+
+		if (ret < 0) {
+			if (ret == -EFBIG || ret == -ESTALE) {
+				int ret2 = ceph_wait_on_async_create(inode);
+				if (ret2 < 0)
+					return ret2;
+			}
+			if (ret == -EFBIG) {
+				check_max_size(inode, endoff);
+				continue;
+			}
+			if (ret == -ESTALE) {
+				/* session was killed, try renew caps */
+				ret = ceph_renew_caps(inode, flags);
+>>>>>>> upstream/android-13
 				if (ret == 0)
 					continue;
 			}
 			return ret;
 		}
 
+<<<<<<< HEAD
 		if (ci->i_inline_version != CEPH_INLINE_NONE &&
 		    (_got & (CEPH_CAP_FILE_CACHE|CEPH_CAP_FILE_LAZYIO)) &&
 		    i_size_read(&ci->vfs_inode) > 0) {
@@ -2792,6 +4069,20 @@ int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 					break;
 				}
 				put_page(page);
+=======
+		if (S_ISREG(ci->vfs_inode.i_mode) &&
+		    ci->i_inline_version != CEPH_INLINE_NONE &&
+		    (_got & (CEPH_CAP_FILE_CACHE|CEPH_CAP_FILE_LAZYIO)) &&
+		    i_size_read(inode) > 0) {
+			struct page *page =
+				find_get_page(inode->i_mapping, 0);
+			if (page) {
+				bool uptodate = PageUptodate(page);
+
+				put_page(page);
+				if (uptodate)
+					break;
+>>>>>>> upstream/android-13
 			}
 			/*
 			 * drop cap refs first because getattr while
@@ -2804,7 +4095,11 @@ int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 			 * getattr request will bring inline data into
 			 * page cache
 			 */
+<<<<<<< HEAD
 			ret = __ceph_do_getattr(&ci->vfs_inode, NULL,
+=======
+			ret = __ceph_do_getattr(inode, NULL,
+>>>>>>> upstream/android-13
 						CEPH_STAT_CAP_INLINE_DATA,
 						true);
 			if (ret < 0)
@@ -2813,10 +4108,13 @@ int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 		}
 		break;
 	}
+<<<<<<< HEAD
 
 	if ((_got & CEPH_CAP_FILE_RD) && (_got & CEPH_CAP_FILE_CACHE))
 		ceph_fscache_revalidate_cookie(ci);
 
+=======
+>>>>>>> upstream/android-13
 	*got = _got;
 	return 0;
 }
@@ -2828,7 +4126,11 @@ int ceph_get_caps(struct ceph_inode_info *ci, int need, int want,
 void ceph_get_cap_refs(struct ceph_inode_info *ci, int caps)
 {
 	spin_lock(&ci->i_ceph_lock);
+<<<<<<< HEAD
 	__take_cap_refs(ci, caps, false);
+=======
+	ceph_take_cap_refs(ci, caps, false);
+>>>>>>> upstream/android-13
 	spin_unlock(&ci->i_ceph_lock);
 }
 
@@ -2856,6 +4158,15 @@ static int ceph_try_drop_cap_snap(struct ceph_inode_info *ci,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+enum put_cap_refs_mode {
+	PUT_CAP_REFS_SYNC = 0,
+	PUT_CAP_REFS_NO_CHECK,
+	PUT_CAP_REFS_ASYNC,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Release cap refs.
  *
@@ -2865,10 +4176,19 @@ static int ceph_try_drop_cap_snap(struct ceph_inode_info *ci,
  * If we are releasing a WR cap (from a sync write), finalize any affected
  * cap_snap, and wake up any waiters.
  */
+<<<<<<< HEAD
 void ceph_put_cap_refs(struct ceph_inode_info *ci, int had)
 {
 	struct inode *inode = &ci->vfs_inode;
 	int last = 0, put = 0, flushsnaps = 0, wake = 0;
+=======
+static void __ceph_put_cap_refs(struct ceph_inode_info *ci, int had,
+				enum put_cap_refs_mode mode)
+{
+	struct inode *inode = &ci->vfs_inode;
+	int last = 0, put = 0, flushsnaps = 0, wake = 0;
+	bool check_flushsnaps = false;
+>>>>>>> upstream/android-13
 
 	spin_lock(&ci->i_ceph_lock);
 	if (had & CEPH_CAP_PIN)
@@ -2879,14 +4199,27 @@ void ceph_put_cap_refs(struct ceph_inode_info *ci, int had)
 	if (had & CEPH_CAP_FILE_CACHE)
 		if (--ci->i_rdcache_ref == 0)
 			last++;
+<<<<<<< HEAD
 	if (had & CEPH_CAP_FILE_BUFFER) {
 		if (--ci->i_wb_ref == 0) {
 			last++;
 			put++;
+=======
+	if (had & CEPH_CAP_FILE_EXCL)
+		if (--ci->i_fx_ref == 0)
+			last++;
+	if (had & CEPH_CAP_FILE_BUFFER) {
+		if (--ci->i_wb_ref == 0) {
+			last++;
+			/* put the ref held by ceph_take_cap_refs() */
+			put++;
+			check_flushsnaps = true;
+>>>>>>> upstream/android-13
 		}
 		dout("put_cap_refs %p wb %d -> %d (?)\n",
 		     inode, ci->i_wb_ref+1, ci->i_wb_ref);
 	}
+<<<<<<< HEAD
 	if (had & CEPH_CAP_FILE_WR)
 		if (--ci->i_wr_ref == 0) {
 			last++;
@@ -2902,6 +4235,12 @@ void ceph_put_cap_refs(struct ceph_inode_info *ci, int had)
 					flushsnaps = 1;
 				wake = 1;
 			}
+=======
+	if (had & CEPH_CAP_FILE_WR) {
+		if (--ci->i_wr_ref == 0) {
+			last++;
+			check_flushsnaps = true;
+>>>>>>> upstream/android-13
 			if (ci->i_wrbuffer_ref_head == 0 &&
 			    ci->i_dirty_caps == 0 &&
 			    ci->i_flushing_caps == 0) {
@@ -2910,24 +4249,82 @@ void ceph_put_cap_refs(struct ceph_inode_info *ci, int had)
 				ci->i_head_snapc = NULL;
 			}
 			/* see comment in __ceph_remove_cap() */
+<<<<<<< HEAD
 			if (!__ceph_is_any_caps(ci) && ci->i_snap_realm)
 				drop_inode_snap_realm(ci);
 		}
+=======
+			if (!__ceph_is_any_real_caps(ci) && ci->i_snap_realm)
+				ceph_change_snap_realm(inode, NULL);
+		}
+	}
+	if (check_flushsnaps && __ceph_have_pending_cap_snap(ci)) {
+		struct ceph_cap_snap *capsnap =
+			list_last_entry(&ci->i_cap_snaps,
+					struct ceph_cap_snap,
+					ci_item);
+
+		capsnap->writing = 0;
+		if (ceph_try_drop_cap_snap(ci, capsnap))
+			/* put the ref held by ceph_queue_cap_snap() */
+			put++;
+		else if (__ceph_finish_cap_snap(ci, capsnap))
+			flushsnaps = 1;
+		wake = 1;
+	}
+>>>>>>> upstream/android-13
 	spin_unlock(&ci->i_ceph_lock);
 
 	dout("put_cap_refs %p had %s%s%s\n", inode, ceph_cap_string(had),
 	     last ? " last" : "", put ? " put" : "");
 
+<<<<<<< HEAD
 	if (last && !flushsnaps)
 		ceph_check_caps(ci, 0, NULL);
 	else if (flushsnaps)
 		ceph_flush_snaps(ci, NULL);
+=======
+	switch (mode) {
+	case PUT_CAP_REFS_SYNC:
+		if (last)
+			ceph_check_caps(ci, 0, NULL);
+		else if (flushsnaps)
+			ceph_flush_snaps(ci, NULL);
+		break;
+	case PUT_CAP_REFS_ASYNC:
+		if (last)
+			ceph_queue_check_caps(inode);
+		else if (flushsnaps)
+			ceph_queue_flush_snaps(inode);
+		break;
+	default:
+		break;
+	}
+>>>>>>> upstream/android-13
 	if (wake)
 		wake_up_all(&ci->i_cap_wq);
 	while (put-- > 0)
 		iput(inode);
 }
 
+<<<<<<< HEAD
+=======
+void ceph_put_cap_refs(struct ceph_inode_info *ci, int had)
+{
+	__ceph_put_cap_refs(ci, had, PUT_CAP_REFS_SYNC);
+}
+
+void ceph_put_cap_refs_async(struct ceph_inode_info *ci, int had)
+{
+	__ceph_put_cap_refs(ci, had, PUT_CAP_REFS_ASYNC);
+}
+
+void ceph_put_cap_refs_no_check_caps(struct ceph_inode_info *ci, int had)
+{
+	__ceph_put_cap_refs(ci, had, PUT_CAP_REFS_NO_CHECK);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Release @nr WRBUFFER refs on dirty pages for the given @snapc snap
  * context.  Adjust per-snap dirty page accounting as appropriate.
@@ -2975,7 +4372,20 @@ void ceph_put_wrbuffer_cap_refs(struct ceph_inode_info *ci, int nr,
 				break;
 			}
 		}
+<<<<<<< HEAD
 		BUG_ON(!found);
+=======
+
+		if (!found) {
+			/*
+			 * The capsnap should already be removed when removing
+			 * auth cap in the case of a forced unmount.
+			 */
+			WARN_ON_ONCE(ci->i_auth_cap);
+			goto unlock;
+		}
+
+>>>>>>> upstream/android-13
 		capsnap->dirty_pages -= nr;
 		if (capsnap->dirty_pages == 0) {
 			complete_capsnap = true;
@@ -2997,17 +4407,31 @@ void ceph_put_wrbuffer_cap_refs(struct ceph_inode_info *ci, int nr,
 		     complete_capsnap ? " (complete capsnap)" : "");
 	}
 
+<<<<<<< HEAD
 	spin_unlock(&ci->i_ceph_lock);
 
 	if (last) {
 		ceph_check_caps(ci, CHECK_CAPS_AUTHONLY, NULL);
+=======
+unlock:
+	spin_unlock(&ci->i_ceph_lock);
+
+	if (last) {
+		ceph_check_caps(ci, 0, NULL);
+>>>>>>> upstream/android-13
 	} else if (flush_snaps) {
 		ceph_flush_snaps(ci, NULL);
 	}
 	if (complete_capsnap)
 		wake_up_all(&ci->i_cap_wq);
+<<<<<<< HEAD
 	while (put-- > 0)
 		iput(inode);
+=======
+	while (put-- > 0) {
+		iput(inode);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3052,8 +4476,15 @@ struct cap_extra_info {
 	bool dirstat_valid;
 	u64 nfiles;
 	u64 nsubdirs;
+<<<<<<< HEAD
 	/* currently issued */
 	int issued;
+=======
+	u64 change_attr;
+	/* currently issued */
+	int issued;
+	struct timespec64 btime;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -3077,7 +4508,12 @@ static void handle_cap_grant(struct inode *inode,
 	int used, wanted, dirty;
 	u64 size = le64_to_cpu(grant->size);
 	u64 max_size = le64_to_cpu(grant->max_size);
+<<<<<<< HEAD
 	int check_caps = 0;
+=======
+	unsigned char check_caps = 0;
+	bool was_stale = cap->cap_gen < atomic_read(&session->s_cap_gen);
+>>>>>>> upstream/android-13
 	bool wake = false;
 	bool writeback = false;
 	bool queue_trunc = false;
@@ -3088,10 +4524,39 @@ static void handle_cap_grant(struct inode *inode,
 	dout("handle_cap_grant inode %p cap %p mds%d seq %d %s\n",
 	     inode, cap, session->s_mds, seq, ceph_cap_string(newcaps));
 	dout(" size %llu max_size %llu, i_size %llu\n", size, max_size,
+<<<<<<< HEAD
 		inode->i_size);
 
 
 	/*
+=======
+		i_size_read(inode));
+
+
+	/*
+	 * If CACHE is being revoked, and we have no dirty buffers,
+	 * try to invalidate (once).  (If there are dirty buffers, we
+	 * will invalidate _after_ writeback.)
+	 */
+	if (S_ISREG(inode->i_mode) && /* don't invalidate readdir cache */
+	    ((cap->issued & ~newcaps) & CEPH_CAP_FILE_CACHE) &&
+	    (newcaps & CEPH_CAP_FILE_LAZYIO) == 0 &&
+	    !(ci->i_wrbuffer_ref || ci->i_wb_ref)) {
+		if (try_nonblocking_invalidate(inode)) {
+			/* there were locked pages.. invalidate later
+			   in a separate thread. */
+			if (ci->i_rdcache_revoking != ci->i_rdcache_gen) {
+				queue_invalidate = true;
+				ci->i_rdcache_revoking = ci->i_rdcache_gen;
+			}
+		}
+	}
+
+	if (was_stale)
+		cap->issued = cap->implemented = CEPH_CAP_PIN;
+
+	/*
+>>>>>>> upstream/android-13
 	 * auth mds of the inode changed. we received the cap export message,
 	 * but still haven't received the cap import message. handle_cap_export
 	 * updated the new auth MDS' cap.
@@ -3106,6 +4571,7 @@ static void handle_cap_grant(struct inode *inode,
 		newcaps |= cap->issued;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * If CACHE is being revoked, and we have no dirty buffers,
 	 * try to invalidate (once).  (If there are dirty buffers, we
@@ -3127,15 +4593,36 @@ static void handle_cap_grant(struct inode *inode,
 
 	/* side effects now are allowed */
 	cap->cap_gen = session->s_cap_gen;
+=======
+	/* side effects now are allowed */
+	cap->cap_gen = atomic_read(&session->s_cap_gen);
+>>>>>>> upstream/android-13
 	cap->seq = seq;
 
 	__check_cap_issue(ci, cap, newcaps);
 
+<<<<<<< HEAD
 	if ((newcaps & CEPH_CAP_AUTH_SHARED) &&
 	    (extra_info->issued & CEPH_CAP_AUTH_EXCL) == 0) {
 		inode->i_mode = le32_to_cpu(grant->mode);
 		inode->i_uid = make_kuid(&init_user_ns, le32_to_cpu(grant->uid));
 		inode->i_gid = make_kgid(&init_user_ns, le32_to_cpu(grant->gid));
+=======
+	inode_set_max_iversion_raw(inode, extra_info->change_attr);
+
+	if ((newcaps & CEPH_CAP_AUTH_SHARED) &&
+	    (extra_info->issued & CEPH_CAP_AUTH_EXCL) == 0) {
+		umode_t mode = le32_to_cpu(grant->mode);
+
+		if (inode_wrong_type(inode, mode))
+			pr_warn_once("inode type changed! (ino %llx.%llx is 0%o, mds says 0%o)\n",
+				     ceph_vinop(inode), inode->i_mode, mode);
+		else
+			inode->i_mode = mode;
+		inode->i_uid = make_kuid(&init_user_ns, le32_to_cpu(grant->uid));
+		inode->i_gid = make_kgid(&init_user_ns, le32_to_cpu(grant->gid));
+		ci->i_btime = extra_info->btime;
+>>>>>>> upstream/android-13
 		dout("%p mode 0%o uid.gid %d.%d\n", inode, inode->i_mode,
 		     from_kuid(&init_user_ns, inode->i_uid),
 		     from_kgid(&init_user_ns, inode->i_gid));
@@ -3162,6 +4649,10 @@ static void handle_cap_grant(struct inode *inode,
 			ci->i_xattrs.blob = ceph_buffer_get(xattr_buf);
 			ci->i_xattrs.version = version;
 			ceph_forget_all_cached_acls(inode);
+<<<<<<< HEAD
+=======
+			ceph_security_invalidate_secctx(inode);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3214,10 +4705,13 @@ static void handle_cap_grant(struct inode *inode,
 				ci->i_requested_max_size = 0;
 			}
 			wake = true;
+<<<<<<< HEAD
 		} else if (ci->i_wanted_max_size > ci->i_max_size &&
 			   ci->i_wanted_max_size > ci->i_requested_max_size) {
 			/* CEPH_CAP_OP_IMPORT */
 			wake = true;
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -3229,6 +4723,7 @@ static void handle_cap_grant(struct inode *inode,
 	     ceph_cap_string(wanted),
 	     ceph_cap_string(used),
 	     ceph_cap_string(dirty));
+<<<<<<< HEAD
 	if (wanted != le32_to_cpu(grant->wanted)) {
 		dout("mds wanted %s -> %s\n",
 		     ceph_cap_string(le32_to_cpu(grant->wanted)),
@@ -3236,6 +4731,22 @@ static void handle_cap_grant(struct inode *inode,
 		/* imported cap may not have correct mds_wanted */
 		if (le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT)
 			check_caps = 1;
+=======
+
+	if ((was_stale || le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT) &&
+	    (wanted & ~(cap->mds_wanted | newcaps))) {
+		/*
+		 * If mds is importing cap, prior cap messages that update
+		 * 'wanted' may get dropped by mds (migrate seq mismatch).
+		 *
+		 * We don't send cap message to update 'wanted' if what we
+		 * want are already issued. If mds revokes caps, cap message
+		 * that releases caps also tells mds what we want. But if
+		 * caps got revoked by mds forcedly (session stale). We may
+		 * haven't told mds what we want.
+		 */
+		check_caps = 1;
+>>>>>>> upstream/android-13
 	}
 
 	/* revocation, grant, or no-op? */
@@ -3246,11 +4757,20 @@ static void handle_cap_grant(struct inode *inode,
 		     ceph_cap_string(cap->issued),
 		     ceph_cap_string(newcaps),
 		     ceph_cap_string(revoking));
+<<<<<<< HEAD
 		if (revoking & used & CEPH_CAP_FILE_BUFFER)
 			writeback = true;  /* initiate writeback; will delay ack */
 		else if (revoking == CEPH_CAP_FILE_CACHE &&
 			 (newcaps & CEPH_CAP_FILE_LAZYIO) == 0 &&
 			 queue_invalidate)
+=======
+		if (S_ISREG(inode->i_mode) &&
+		    (revoking & used & CEPH_CAP_FILE_BUFFER))
+			writeback = true;  /* initiate writeback; will delay ack */
+		else if (queue_invalidate &&
+			 revoking == CEPH_CAP_FILE_CACHE &&
+			 (newcaps & CEPH_CAP_FILE_LAZYIO) == 0)
+>>>>>>> upstream/android-13
 			; /* do nothing yet, invalidation will be queued */
 		else if (cap == ci->i_auth_cap)
 			check_caps = 1; /* check auth cap only */
@@ -3285,10 +4805,27 @@ static void handle_cap_grant(struct inode *inode,
 			fill_inline = true;
 	}
 
+<<<<<<< HEAD
 	if (le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT) {
 		if (newcaps & ~extra_info->issued)
 			wake = true;
 		kick_flushing_inode_caps(session->s_mdsc, session, inode);
+=======
+	if (ci->i_auth_cap == cap &&
+	    le32_to_cpu(grant->op) == CEPH_CAP_OP_IMPORT) {
+		if (newcaps & ~extra_info->issued)
+			wake = true;
+
+		if (ci->i_requested_max_size > max_size ||
+		    !(le32_to_cpu(grant->wanted) & CEPH_CAP_ANY_FILE_WR)) {
+			/* re-request max_size if necessary */
+			ci->i_requested_max_size = 0;
+			wake = true;
+		}
+
+		ceph_kick_flushing_inode_caps(session, ci);
+		spin_unlock(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 		up_read(&session->s_mdsc->snap_rwsem);
 	} else {
 		spin_unlock(&ci->i_ceph_lock);
@@ -3315,6 +4852,7 @@ static void handle_cap_grant(struct inode *inode,
 	if (wake)
 		wake_up_all(&ci->i_cap_wq);
 
+<<<<<<< HEAD
 	if (check_caps == 1)
 		ceph_check_caps(ci, CHECK_CAPS_NODELAY|CHECK_CAPS_AUTHONLY,
 				session);
@@ -3322,6 +4860,14 @@ static void handle_cap_grant(struct inode *inode,
 		ceph_check_caps(ci, CHECK_CAPS_NODELAY, session);
 	else
 		mutex_unlock(&session->s_mutex);
+=======
+	mutex_unlock(&session->s_mutex);
+	if (check_caps == 1)
+		ceph_check_caps(ci, CHECK_CAPS_AUTHONLY | CHECK_CAPS_NOINVAL,
+				session);
+	else if (check_caps == 2)
+		ceph_check_caps(ci, CHECK_CAPS_NOINVAL, session);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3346,6 +4892,7 @@ static void handle_cap_flush_ack(struct inode *inode, u64 flush_tid,
 	bool wake_mdsc = false;
 
 	list_for_each_entry_safe(cf, tmp_cf, &ci->i_cap_flush_list, i_list) {
+<<<<<<< HEAD
 		if (cf->tid == flush_tid)
 			cleaned = cf->caps;
 		if (cf->caps == 0) /* capsnap */
@@ -3355,6 +4902,28 @@ static void handle_cap_flush_ack(struct inode *inode, u64 flush_tid,
 				wake_ci = true;
 			list_add_tail(&cf->i_list, &to_remove);
 		} else {
+=======
+		/* Is this the one that was flushed? */
+		if (cf->tid == flush_tid)
+			cleaned = cf->caps;
+
+		/* Is this a capsnap? */
+		if (cf->is_capsnap)
+			continue;
+
+		if (cf->tid <= flush_tid) {
+			/*
+			 * An earlier or current tid. The FLUSH_ACK should
+			 * represent a superset of this flush's caps.
+			 */
+			wake_ci |= __detach_cap_flush_from_ci(ci, cf);
+			list_add_tail(&cf->i_list, &to_remove);
+		} else {
+			/*
+			 * This is a later one. Any caps in it are still dirty
+			 * so don't count them as cleaned.
+			 */
+>>>>>>> upstream/android-13
 			cleaned &= ~cf->caps;
 			if (!cleaned)
 				break;
@@ -3374,10 +4943,15 @@ static void handle_cap_flush_ack(struct inode *inode, u64 flush_tid,
 
 	spin_lock(&mdsc->cap_dirty_lock);
 
+<<<<<<< HEAD
 	list_for_each_entry(cf, &to_remove, i_list) {
 		if (__finish_cap_flush(mdsc, NULL, cf))
 			wake_mdsc = true;
 	}
+=======
+	list_for_each_entry(cf, &to_remove, i_list)
+		wake_mdsc |= __detach_cap_flush_from_mdsc(mdsc, cf);
+>>>>>>> upstream/android-13
 
 	if (ci->i_flushing_caps == 0) {
 		if (list_empty(&ci->i_cap_flush_list)) {
@@ -3415,8 +4989,14 @@ out:
 	while (!list_empty(&to_remove)) {
 		cf = list_first_entry(&to_remove,
 				      struct ceph_cap_flush, i_list);
+<<<<<<< HEAD
 		list_del(&cf->i_list);
 		ceph_free_cap_flush(cf);
+=======
+		list_del_init(&cf->i_list);
+		if (!cf->is_capsnap)
+			ceph_free_cap_flush(cf);
+>>>>>>> upstream/android-13
 	}
 
 	if (wake_ci)
@@ -3427,6 +5007,46 @@ out:
 		iput(inode);
 }
 
+<<<<<<< HEAD
+=======
+void __ceph_remove_capsnap(struct inode *inode, struct ceph_cap_snap *capsnap,
+			   bool *wake_ci, bool *wake_mdsc)
+{
+	struct ceph_inode_info *ci = ceph_inode(inode);
+	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
+	bool ret;
+
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+	dout("removing capsnap %p, inode %p ci %p\n", capsnap, inode, ci);
+
+	list_del_init(&capsnap->ci_item);
+	ret = __detach_cap_flush_from_ci(ci, &capsnap->cap_flush);
+	if (wake_ci)
+		*wake_ci = ret;
+
+	spin_lock(&mdsc->cap_dirty_lock);
+	if (list_empty(&ci->i_cap_flush_list))
+		list_del_init(&ci->i_flushing_item);
+
+	ret = __detach_cap_flush_from_mdsc(mdsc, &capsnap->cap_flush);
+	if (wake_mdsc)
+		*wake_mdsc = ret;
+	spin_unlock(&mdsc->cap_dirty_lock);
+}
+
+void ceph_remove_capsnap(struct inode *inode, struct ceph_cap_snap *capsnap,
+			 bool *wake_ci, bool *wake_mdsc)
+{
+	struct ceph_inode_info *ci = ceph_inode(inode);
+
+	lockdep_assert_held(&ci->i_ceph_lock);
+
+	WARN_ON_ONCE(capsnap->dirty_pages || capsnap->writing);
+	__ceph_remove_capsnap(inode, capsnap, wake_ci, wake_mdsc);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Handle FLUSHSNAP_ACK.  MDS has flushed snap data to disk and we can
  * throw away our cap_snap.
@@ -3464,6 +5084,7 @@ static void handle_cap_flushsnap_ack(struct inode *inode, u64 flush_tid,
 			     capsnap, capsnap->follows);
 		}
 	}
+<<<<<<< HEAD
 	if (flushed) {
 		WARN_ON(capsnap->dirty_pages || capsnap->writing);
 		dout(" removing %p cap_snap %p follows %lld\n",
@@ -3483,6 +5104,12 @@ static void handle_cap_flushsnap_ack(struct inode *inode, u64 flush_tid,
 		spin_unlock(&mdsc->cap_dirty_lock);
 	}
 	spin_unlock(&ci->i_ceph_lock);
+=======
+	if (flushed)
+		ceph_remove_capsnap(inode, capsnap, &wake_ci, &wake_mdsc);
+	spin_unlock(&ci->i_ceph_lock);
+
+>>>>>>> upstream/android-13
 	if (flushed) {
 		ceph_put_snap_context(capsnap->context);
 		ceph_put_cap_snap(capsnap);
@@ -3499,10 +5126,16 @@ static void handle_cap_flushsnap_ack(struct inode *inode, u64 flush_tid,
  *
  * caller hold s_mutex.
  */
+<<<<<<< HEAD
 static void handle_cap_trunc(struct inode *inode,
 			     struct ceph_mds_caps *trunc,
 			     struct ceph_mds_session *session)
 	__releases(ci->i_ceph_lock)
+=======
+static bool handle_cap_trunc(struct inode *inode,
+			     struct ceph_mds_caps *trunc,
+			     struct ceph_mds_session *session)
+>>>>>>> upstream/android-13
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	int mds = session->s_mds;
@@ -3513,7 +5146,13 @@ static void handle_cap_trunc(struct inode *inode,
 	int implemented = 0;
 	int dirty = __ceph_caps_dirty(ci);
 	int issued = __ceph_caps_issued(ceph_inode(inode), &implemented);
+<<<<<<< HEAD
 	int queue_trunc = 0;
+=======
+	bool queue_trunc = false;
+
+	lockdep_assert_held(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 
 	issued |= implemented | dirty;
 
@@ -3521,10 +5160,14 @@ static void handle_cap_trunc(struct inode *inode,
 	     inode, mds, seq, truncate_size, truncate_seq);
 	queue_trunc = ceph_fill_file_size(inode, issued,
 					  truncate_seq, truncate_size, size);
+<<<<<<< HEAD
 	spin_unlock(&ci->i_ceph_lock);
 
 	if (queue_trunc)
 		ceph_queue_vmtruncate(inode);
+=======
+	return queue_trunc;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3568,9 +5211,13 @@ retry:
 		goto out_unlock;
 
 	if (target < 0) {
+<<<<<<< HEAD
 		__ceph_remove_cap(cap, false);
 		if (!ci->i_auth_cap)
 			ci->i_ceph_flags |= CEPH_I_CAP_DROPPED;
+=======
+		ceph_remove_cap(cap, false);
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	}
 
@@ -3600,6 +5247,7 @@ retry:
 			tcap->issue_seq = t_seq - 1;
 			tcap->issued |= issued;
 			tcap->implemented |= issued;
+<<<<<<< HEAD
 			if (cap == ci->i_auth_cap)
 				ci->i_auth_cap = tcap;
 
@@ -3612,12 +5260,24 @@ retry:
 			}
 		}
 		__ceph_remove_cap(cap, false);
+=======
+			if (cap == ci->i_auth_cap) {
+				ci->i_auth_cap = tcap;
+				change_auth_cap_ses(ci, tcap->session);
+			}
+		}
+		ceph_remove_cap(cap, false);
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	} else if (tsession) {
 		/* add placeholder for the export tagert */
 		int flag = (cap == ci->i_auth_cap) ? CEPH_CAP_FLAG_AUTH : 0;
 		tcap = new_cap;
+<<<<<<< HEAD
 		ceph_add_cap(inode, tsession, t_cap_id, -1, issued, 0,
+=======
+		ceph_add_cap(inode, tsession, t_cap_id, issued, 0,
+>>>>>>> upstream/android-13
 			     t_seq - 1, t_mseq, (u64)-1, flag, &new_cap);
 
 		if (!list_empty(&ci->i_cap_flush_list) &&
@@ -3628,7 +5288,11 @@ retry:
 			spin_unlock(&mdsc->cap_dirty_lock);
 		}
 
+<<<<<<< HEAD
 		__ceph_remove_cap(cap, false);
+=======
+		ceph_remove_cap(cap, false);
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	}
 
@@ -3677,7 +5341,10 @@ static void handle_cap_import(struct ceph_mds_client *mdsc,
 			      struct ceph_mds_cap_peer *ph,
 			      struct ceph_mds_session *session,
 			      struct ceph_cap **target_cap, int *old_issued)
+<<<<<<< HEAD
 	__acquires(ci->i_ceph_lock)
+=======
+>>>>>>> upstream/android-13
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	struct ceph_cap *cap, *ocap, *new_cap = NULL;
@@ -3702,14 +5369,22 @@ static void handle_cap_import(struct ceph_mds_client *mdsc,
 
 	dout("handle_cap_import inode %p ci %p mds%d mseq %d peer %d\n",
 	     inode, ci, mds, mseq, peer);
+<<<<<<< HEAD
 
 retry:
 	spin_lock(&ci->i_ceph_lock);
+=======
+retry:
+>>>>>>> upstream/android-13
 	cap = __get_cap_for_mds(ci, mds);
 	if (!cap) {
 		if (!new_cap) {
 			spin_unlock(&ci->i_ceph_lock);
 			new_cap = ceph_get_cap(mdsc, NULL);
+<<<<<<< HEAD
+=======
+			spin_lock(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 			goto retry;
 		}
 		cap = new_cap;
@@ -3723,7 +5398,11 @@ retry:
 	__ceph_caps_issued(ci, &issued);
 	issued |= __ceph_caps_dirty(ci);
 
+<<<<<<< HEAD
 	ceph_add_cap(inode, session, cap_id, -1, caps, wanted, seq, mseq,
+=======
+	ceph_add_cap(inode, session, cap_id, caps, wanted, seq, mseq,
+>>>>>>> upstream/android-13
 		     realmino, CEPH_CAP_FLAG_AUTH, &new_cap);
 
 	ocap = peer >= 0 ? __get_cap_for_mds(ci, peer) : NULL;
@@ -3741,12 +5420,18 @@ retry:
 					ocap->mseq, mds, le32_to_cpu(ph->seq),
 					le32_to_cpu(ph->mseq));
 		}
+<<<<<<< HEAD
 		__ceph_remove_cap(ocap, (ph->flags & CEPH_CAP_FLAG_RELEASE));
 	}
 
 	/* make sure we re-request max_size, if necessary */
 	ci->i_requested_max_size = 0;
 
+=======
+		ceph_remove_cap(ocap, (ph->flags & CEPH_CAP_FLAG_RELEASE));
+	}
+
+>>>>>>> upstream/android-13
 	*old_issued = issued;
 	*target_cap = cap;
 }
@@ -3775,6 +5460,10 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 	size_t snaptrace_len;
 	void *p, *end;
 	struct cap_extra_info extra_info = {};
+<<<<<<< HEAD
+=======
+	bool queue_trunc;
+>>>>>>> upstream/android-13
 
 	dout("handle_caps from mds%d\n", session->s_mds);
 
@@ -3831,6 +5520,7 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 	}
 
 	if (msg_version >= 8) {
+<<<<<<< HEAD
 		u64 flush_tid;
 		u32 caller_uid, caller_gid;
 		u32 pool_ns_len;
@@ -3840,6 +5530,15 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 		/* version >= 7 */
 		ceph_decode_32_safe(&p, end, caller_uid, bad);
 		ceph_decode_32_safe(&p, end, caller_gid, bad);
+=======
+		u32 pool_ns_len;
+
+		/* version >= 6 */
+		ceph_decode_skip_64(&p, end, bad);	// flush_tid
+		/* version >= 7 */
+		ceph_decode_skip_32(&p, end, bad);	// caller_uid
+		ceph_decode_skip_32(&p, end, bad);	// caller_gid
+>>>>>>> upstream/android-13
 		/* version >= 8 */
 		ceph_decode_32_safe(&p, end, pool_ns_len, bad);
 		if (pool_ns_len > 0) {
@@ -3850,6 +5549,7 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 		}
 	}
 
+<<<<<<< HEAD
 	if (msg_version >= 11) {
 		struct ceph_timespec *btime;
 		u64 change_attr;
@@ -3863,6 +5563,22 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 		ceph_decode_64_safe(&p, end, change_attr, bad);
 		/* version >= 10 */
 		ceph_decode_32_safe(&p, end, flags, bad);
+=======
+	if (msg_version >= 9) {
+		struct ceph_timespec *btime;
+
+		if (p + sizeof(*btime) > end)
+			goto bad;
+		btime = p;
+		ceph_decode_timespec64(&extra_info.btime, btime);
+		p += sizeof(*btime);
+		ceph_decode_64_safe(&p, end, extra_info.change_attr, bad);
+	}
+
+	if (msg_version >= 11) {
+		/* version >= 10 */
+		ceph_decode_skip_32(&p, end, bad); // flags
+>>>>>>> upstream/android-13
 		/* version >= 11 */
 		extra_info.dirstat_valid = true;
 		ceph_decode_64_safe(&p, end, extra_info.nfiles, bad);
@@ -3876,7 +5592,11 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 	     vino.snap, inode);
 
 	mutex_lock(&session->s_mutex);
+<<<<<<< HEAD
 	session->s_seq++;
+=======
+	inc_session_sequence(session);
+>>>>>>> upstream/android-13
 	dout(" mds%d seq %lld cap seq %u\n", session->s_mds, session->s_seq,
 	     (unsigned)seq);
 
@@ -3892,9 +5612,13 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 			cap->seq = seq;
 			cap->issue_seq = seq;
 			spin_lock(&session->s_cap_lock);
+<<<<<<< HEAD
 			list_add_tail(&cap->session_caps,
 					&session->s_cap_releases);
 			session->s_num_cap_releases++;
+=======
+			__ceph_queue_cap_release(session, cap);
+>>>>>>> upstream/android-13
 			spin_unlock(&session->s_cap_lock);
 		}
 		goto flush_cap_releases;
@@ -3922,6 +5646,10 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 		} else {
 			down_read(&mdsc->snap_rwsem);
 		}
+<<<<<<< HEAD
+=======
+		spin_lock(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 		handle_cap_import(mdsc, inode, h, peer, session,
 				  &cap, &extra_info.issued);
 		handle_cap_grant(inode, session, cap,
@@ -3958,7 +5686,14 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 		break;
 
 	case CEPH_CAP_OP_TRUNC:
+<<<<<<< HEAD
 		handle_cap_trunc(inode, h, session);
+=======
+		queue_trunc = handle_cap_trunc(inode, h, session);
+		spin_unlock(&ci->i_ceph_lock);
+		if (queue_trunc)
+			ceph_queue_vmtruncate(inode);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -3967,7 +5702,17 @@ void ceph_handle_caps(struct ceph_mds_session *session,
 		       ceph_cap_op_name(op));
 	}
 
+<<<<<<< HEAD
 	goto done;
+=======
+done:
+	mutex_unlock(&session->s_mutex);
+done_unlocked:
+	iput(inode);
+out:
+	ceph_put_string(extra_info.pool_ns);
+	return;
+>>>>>>> upstream/android-13
 
 flush_cap_releases:
 	/*
@@ -3975,6 +5720,7 @@ flush_cap_releases:
 	 * along for the mds (who clearly thinks we still have this
 	 * cap).
 	 */
+<<<<<<< HEAD
 	ceph_send_cap_releases(mdsc, session);
 
 done:
@@ -3983,15 +5729,24 @@ done_unlocked:
 	iput(inode);
 	ceph_put_string(extra_info.pool_ns);
 	return;
+=======
+	ceph_flush_cap_releases(mdsc, session);
+	goto done;
+>>>>>>> upstream/android-13
 
 bad:
 	pr_err("ceph_handle_caps: corrupt message\n");
 	ceph_msg_dump(msg);
+<<<<<<< HEAD
 	return;
+=======
+	goto out;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Delayed work handler to process end of delayed cap release LRU list.
+<<<<<<< HEAD
  */
 void ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
 {
@@ -4007,12 +5762,40 @@ void ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
 		ci = list_first_entry(&mdsc->cap_delay_list,
 				      struct ceph_inode_info,
 				      i_cap_delay_list);
+=======
+ *
+ * If new caps are added to the list while processing it, these won't get
+ * processed in this run.  In this case, the ci->i_hold_caps_max will be
+ * returned so that the work can be scheduled accordingly.
+ */
+unsigned long ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
+{
+	struct inode *inode;
+	struct ceph_inode_info *ci;
+	struct ceph_mount_options *opt = mdsc->fsc->mount_options;
+	unsigned long delay_max = opt->caps_wanted_delay_max * HZ;
+	unsigned long loop_start = jiffies;
+	unsigned long delay = 0;
+
+	dout("check_delayed_caps\n");
+	spin_lock(&mdsc->cap_delay_lock);
+	while (!list_empty(&mdsc->cap_delay_list)) {
+		ci = list_first_entry(&mdsc->cap_delay_list,
+				      struct ceph_inode_info,
+				      i_cap_delay_list);
+		if (time_before(loop_start, ci->i_hold_caps_max - delay_max)) {
+			dout("%s caps added recently.  Exiting loop", __func__);
+			delay = ci->i_hold_caps_max;
+			break;
+		}
+>>>>>>> upstream/android-13
 		if ((ci->i_ceph_flags & CEPH_I_FLUSH) == 0 &&
 		    time_before(jiffies, ci->i_hold_caps_max))
 			break;
 		list_del_init(&ci->i_cap_delay_list);
 
 		inode = igrab(&ci->vfs_inode);
+<<<<<<< HEAD
 		spin_unlock(&mdsc->cap_delay_lock);
 
 		if (inode) {
@@ -4022,26 +5805,54 @@ void ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
 		}
 	}
 	spin_unlock(&mdsc->cap_delay_lock);
+=======
+		if (inode) {
+			spin_unlock(&mdsc->cap_delay_lock);
+			dout("check_delayed_caps on %p\n", inode);
+			ceph_check_caps(ci, 0, NULL);
+			iput(inode);
+			spin_lock(&mdsc->cap_delay_lock);
+		}
+	}
+	spin_unlock(&mdsc->cap_delay_lock);
+
+	return delay;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Flush all dirty caps to the mds
  */
+<<<<<<< HEAD
 void ceph_flush_dirty_caps(struct ceph_mds_client *mdsc)
 {
+=======
+static void flush_dirty_session_caps(struct ceph_mds_session *s)
+{
+	struct ceph_mds_client *mdsc = s->s_mdsc;
+>>>>>>> upstream/android-13
 	struct ceph_inode_info *ci;
 	struct inode *inode;
 
 	dout("flush_dirty_caps\n");
 	spin_lock(&mdsc->cap_dirty_lock);
+<<<<<<< HEAD
 	while (!list_empty(&mdsc->cap_dirty)) {
 		ci = list_first_entry(&mdsc->cap_dirty, struct ceph_inode_info,
+=======
+	while (!list_empty(&s->s_cap_dirty)) {
+		ci = list_first_entry(&s->s_cap_dirty, struct ceph_inode_info,
+>>>>>>> upstream/android-13
 				      i_dirty_item);
 		inode = &ci->vfs_inode;
 		ihold(inode);
 		dout("flush_dirty_caps %p\n", inode);
 		spin_unlock(&mdsc->cap_dirty_lock);
+<<<<<<< HEAD
 		ceph_check_caps(ci, CHECK_CAPS_NODELAY|CHECK_CAPS_FLUSH, NULL);
+=======
+		ceph_check_caps(ci, CHECK_CAPS_FLUSH, NULL);
+>>>>>>> upstream/android-13
 		iput(inode);
 		spin_lock(&mdsc->cap_dirty_lock);
 	}
@@ -4049,6 +5860,7 @@ void ceph_flush_dirty_caps(struct ceph_mds_client *mdsc)
 	dout("flush_dirty_caps done\n");
 }
 
+<<<<<<< HEAD
 void __ceph_get_fmode(struct ceph_inode_info *ci, int fmode)
 {
 	int i;
@@ -4057,6 +5869,55 @@ void __ceph_get_fmode(struct ceph_inode_info *ci, int fmode)
 		if (bits & (1 << i))
 			ci->i_nr_by_mode[i]++;
 	}
+=======
+void ceph_flush_dirty_caps(struct ceph_mds_client *mdsc)
+{
+	ceph_mdsc_iterate_sessions(mdsc, flush_dirty_session_caps, true);
+}
+
+void __ceph_touch_fmode(struct ceph_inode_info *ci,
+			struct ceph_mds_client *mdsc, int fmode)
+{
+	unsigned long now = jiffies;
+	if (fmode & CEPH_FILE_MODE_RD)
+		ci->i_last_rd = now;
+	if (fmode & CEPH_FILE_MODE_WR)
+		ci->i_last_wr = now;
+	/* queue periodic check */
+	if (fmode &&
+	    __ceph_is_any_real_caps(ci) &&
+	    list_empty(&ci->i_cap_delay_list))
+		__cap_delay_requeue(mdsc, ci);
+}
+
+void ceph_get_fmode(struct ceph_inode_info *ci, int fmode, int count)
+{
+	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(ci->vfs_inode.i_sb);
+	int bits = (fmode << 1) | 1;
+	bool already_opened = false;
+	int i;
+
+	if (count == 1)
+		atomic64_inc(&mdsc->metric.opened_files);
+
+	spin_lock(&ci->i_ceph_lock);
+	for (i = 0; i < CEPH_FILE_MODE_BITS; i++) {
+		/*
+		 * If any of the mode ref is larger than 0,
+		 * that means it has been already opened by
+		 * others. Just skip checking the PIN ref.
+		 */
+		if (i && ci->i_nr_by_mode[i])
+			already_opened = true;
+
+		if (bits & (1 << i))
+			ci->i_nr_by_mode[i] += count;
+	}
+
+	if (!already_opened)
+		percpu_counter_inc(&mdsc->metric.opened_inodes);
+	spin_unlock(&ci->i_ceph_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -4064,6 +5925,7 @@ void __ceph_get_fmode(struct ceph_inode_info *ci, int fmode)
  * we may need to release capabilities to the MDS (or schedule
  * their delayed release).
  */
+<<<<<<< HEAD
 void ceph_put_fmode(struct ceph_inode_info *ci, int fmode)
 {
 	int i, last = 0;
@@ -4088,6 +5950,41 @@ void ceph_put_fmode(struct ceph_inode_info *ci, int fmode)
 
 /*
  * For a soon-to-be unlinked file, drop the AUTH_RDCACHE caps. If it
+=======
+void ceph_put_fmode(struct ceph_inode_info *ci, int fmode, int count)
+{
+	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(ci->vfs_inode.i_sb);
+	int bits = (fmode << 1) | 1;
+	bool is_closed = true;
+	int i;
+
+	if (count == 1)
+		atomic64_dec(&mdsc->metric.opened_files);
+
+	spin_lock(&ci->i_ceph_lock);
+	for (i = 0; i < CEPH_FILE_MODE_BITS; i++) {
+		if (bits & (1 << i)) {
+			BUG_ON(ci->i_nr_by_mode[i] < count);
+			ci->i_nr_by_mode[i] -= count;
+		}
+
+		/*
+		 * If any of the mode ref is not 0 after
+		 * decreased, that means it is still opened
+		 * by others. Just skip checking the PIN ref.
+		 */
+		if (i && ci->i_nr_by_mode[i])
+			is_closed = false;
+	}
+
+	if (is_closed)
+		percpu_counter_dec(&mdsc->metric.opened_inodes);
+	spin_unlock(&ci->i_ceph_lock);
+}
+
+/*
+ * For a soon-to-be unlinked file, drop the LINK caps. If it
+>>>>>>> upstream/android-13
  * looks like the link count will hit 0, drop any other caps (other
  * than PIN) we don't specifically want (due to the file still being
  * open).
@@ -4101,7 +5998,10 @@ int ceph_drop_caps_for_unlink(struct inode *inode)
 	if (inode->i_nlink == 1) {
 		drop |= ~(__ceph_caps_wanted(ci) | CEPH_CAP_PIN);
 
+<<<<<<< HEAD
 		ci->i_ceph_flags |= CEPH_I_NODELAY;
+=======
+>>>>>>> upstream/android-13
 		if (__ceph_caps_dirty(ci)) {
 			struct ceph_mds_client *mdsc =
 				ceph_inode_to_client(inode)->mdsc;
@@ -4157,8 +6057,11 @@ int ceph_encode_inode_release(void **p, struct inode *inode,
 		if (force || (cap->issued & drop)) {
 			if (cap->issued & drop) {
 				int wanted = __ceph_caps_wanted(ci);
+<<<<<<< HEAD
 				if ((ci->i_ceph_flags & CEPH_I_NODELAY) == 0)
 					wanted |= cap->mds_wanted;
+=======
+>>>>>>> upstream/android-13
 				dout("encode_inode_release %p cap %p "
 				     "%s -> %s, wanted %s -> %s\n", inode, cap,
 				     ceph_cap_string(cap->issued),
@@ -4169,6 +6072,12 @@ int ceph_encode_inode_release(void **p, struct inode *inode,
 				cap->issued &= ~drop;
 				cap->implemented &= ~drop;
 				cap->mds_wanted = wanted;
+<<<<<<< HEAD
+=======
+				if (cap == ci->i_auth_cap &&
+				    !(wanted & CEPH_CAP_ANY_FILE_WR))
+					ci->i_requested_max_size = 0;
+>>>>>>> upstream/android-13
 			} else {
 				dout("encode_inode_release %p cap %p %s"
 				     " (force)\n", inode, cap,

@@ -21,6 +21,11 @@ static acpi_status
 acpi_db_walk_for_execute(acpi_handle obj_handle,
 			 u32 nesting_level, void *context, void **return_value);
 
+<<<<<<< HEAD
+=======
+static acpi_status acpi_db_evaluate_object(struct acpi_namespace_node *node);
+
+>>>>>>> upstream/android-13
 /*******************************************************************************
  *
  * FUNCTION:    acpi_db_set_method_breakpoint
@@ -302,6 +307,13 @@ acpi_status acpi_db_disassemble_method(char *name)
 	}
 
 	status = acpi_ut_allocate_owner_id(&obj_desc->method.owner_id);
+<<<<<<< HEAD
+=======
+	if (ACPI_FAILURE(status)) {
+		return (status);
+	}
+
+>>>>>>> upstream/android-13
 	walk_state->owner_id = obj_desc->method.owner_id;
 
 	/* Push start scope on scope stack and make it current */
@@ -317,6 +329,13 @@ acpi_status acpi_db_disassemble_method(char *name)
 	walk_state->parse_flags |= ACPI_PARSE_DISASSEMBLE;
 
 	status = acpi_ps_parse_aml(walk_state);
+<<<<<<< HEAD
+=======
+	if (ACPI_FAILURE(status)) {
+		return (status);
+	}
+
+>>>>>>> upstream/android-13
 	(void)acpi_dm_parse_deferred_ops(op);
 
 	/* Now we can disassemble the method */
@@ -338,6 +357,7 @@ acpi_status acpi_db_disassemble_method(char *name)
 
 /*******************************************************************************
  *
+<<<<<<< HEAD
  * FUNCTION:    acpi_db_walk_for_execute
  *
  * PARAMETERS:  Callback from walk_namespace
@@ -359,11 +379,27 @@ acpi_db_walk_for_execute(acpi_handle obj_handle,
 	    (struct acpi_db_execute_walk *)context;
 	struct acpi_buffer return_obj;
 	acpi_status status;
+=======
+ * FUNCTION:    acpi_db_evaluate_object
+ *
+ * PARAMETERS:  node                - Namespace node for the object
+ *
+ * RETURN:      Status
+ *
+ * DESCRIPTION: Main execution function for the Evaluate/Execute/All debugger
+ *              commands.
+ *
+ ******************************************************************************/
+
+static acpi_status acpi_db_evaluate_object(struct acpi_namespace_node *node)
+{
+>>>>>>> upstream/android-13
 	char *pathname;
 	u32 i;
 	struct acpi_device_info *obj_info;
 	struct acpi_object_list param_objects;
 	union acpi_object params[ACPI_METHOD_NUM_ARGS];
+<<<<<<< HEAD
 	const union acpi_predefined_info *predefined;
 
 	predefined = acpi_ut_match_predefined_method(node->name.ascii);
@@ -374,6 +410,10 @@ acpi_db_walk_for_execute(acpi_handle obj_handle,
 	if (node->type == ACPI_TYPE_LOCAL_SCOPE) {
 		return (AE_OK);
 	}
+=======
+	struct acpi_buffer return_obj;
+	acpi_status status;
+>>>>>>> upstream/android-13
 
 	pathname = acpi_ns_get_external_pathname(node);
 	if (!pathname) {
@@ -382,7 +422,11 @@ acpi_db_walk_for_execute(acpi_handle obj_handle,
 
 	/* Get the object info for number of method parameters */
 
+<<<<<<< HEAD
 	status = acpi_get_object_info(obj_handle, &obj_info);
+=======
+	status = acpi_get_object_info(node, &obj_info);
+>>>>>>> upstream/android-13
 	if (ACPI_FAILURE(status)) {
 		ACPI_FREE(pathname);
 		return (status);
@@ -413,14 +457,77 @@ acpi_db_walk_for_execute(acpi_handle obj_handle,
 	acpi_gbl_method_executing = TRUE;
 
 	status = acpi_evaluate_object(node, NULL, &param_objects, &return_obj);
+<<<<<<< HEAD
 
 	acpi_os_printf("%-32s returned %s\n", pathname,
 		       acpi_format_exception(status));
 	acpi_gbl_method_executing = FALSE;
+=======
+	acpi_gbl_method_executing = FALSE;
+
+	acpi_os_printf("%-32s returned %s\n", pathname,
+		       acpi_format_exception(status));
+	if (return_obj.length) {
+		acpi_os_printf("Evaluation of %s returned object %p, "
+			       "external buffer length %X\n",
+			       pathname, return_obj.pointer,
+			       (u32)return_obj.length);
+
+		acpi_db_dump_external_object(return_obj.pointer, 1);
+		acpi_os_printf("\n");
+	}
+
+>>>>>>> upstream/android-13
 	ACPI_FREE(pathname);
 
 	/* Ignore status from method execution */
 
+<<<<<<< HEAD
+=======
+	return (AE_OK);
+
+	/* Update count, check if we have executed enough methods */
+
+}
+
+/*******************************************************************************
+ *
+ * FUNCTION:    acpi_db_walk_for_execute
+ *
+ * PARAMETERS:  Callback from walk_namespace
+ *
+ * RETURN:      Status
+ *
+ * DESCRIPTION: Batch execution function. Evaluates all "predefined" objects --
+ *              the nameseg begins with an underscore.
+ *
+ ******************************************************************************/
+
+static acpi_status
+acpi_db_walk_for_execute(acpi_handle obj_handle,
+			 u32 nesting_level, void *context, void **return_value)
+{
+	struct acpi_namespace_node *node =
+	    (struct acpi_namespace_node *)obj_handle;
+	struct acpi_db_execute_walk *info =
+	    (struct acpi_db_execute_walk *)context;
+	acpi_status status;
+	const union acpi_predefined_info *predefined;
+
+	predefined = acpi_ut_match_predefined_method(node->name.ascii);
+	if (!predefined) {
+		return (AE_OK);
+	}
+
+	if (node->type == ACPI_TYPE_LOCAL_SCOPE) {
+		return (AE_OK);
+	}
+
+	acpi_db_evaluate_object(node);
+
+	/* Ignore status from object evaluation */
+
+>>>>>>> upstream/android-13
 	status = AE_OK;
 
 	/* Update count, check if we have executed enough methods */
@@ -435,6 +542,55 @@ acpi_db_walk_for_execute(acpi_handle obj_handle,
 
 /*******************************************************************************
  *
+<<<<<<< HEAD
+=======
+ * FUNCTION:    acpi_db_walk_for_execute_all
+ *
+ * PARAMETERS:  Callback from walk_namespace
+ *
+ * RETURN:      Status
+ *
+ * DESCRIPTION: Batch execution function. Evaluates all objects whose path ends
+ *              with the nameseg "Info->NameSeg". Used for the "ALL" command.
+ *
+ ******************************************************************************/
+
+static acpi_status
+acpi_db_walk_for_execute_all(acpi_handle obj_handle,
+			     u32 nesting_level,
+			     void *context, void **return_value)
+{
+	struct acpi_namespace_node *node =
+	    (struct acpi_namespace_node *)obj_handle;
+	struct acpi_db_execute_walk *info =
+	    (struct acpi_db_execute_walk *)context;
+	acpi_status status;
+
+	if (!ACPI_COMPARE_NAMESEG(node->name.ascii, info->name_seg)) {
+		return (AE_OK);
+	}
+
+	if (node->type == ACPI_TYPE_LOCAL_SCOPE) {
+		return (AE_OK);
+	}
+
+	/* Now evaluate the input object (node) */
+
+	acpi_db_evaluate_object(node);
+
+	/* Ignore status from method execution */
+
+	status = AE_OK;
+
+	/* Update count of executed methods/objects */
+
+	info->count++;
+	return (status);
+}
+
+/*******************************************************************************
+ *
+>>>>>>> upstream/android-13
  * FUNCTION:    acpi_db_evaluate_predefined_names
  *
  * PARAMETERS:  None
@@ -462,3 +618,38 @@ void acpi_db_evaluate_predefined_names(void)
 	acpi_os_printf("Evaluated %u predefined names in the namespace\n",
 		       info.count);
 }
+<<<<<<< HEAD
+=======
+
+/*******************************************************************************
+ *
+ * FUNCTION:    acpi_db_evaluate_all
+ *
+ * PARAMETERS:  none_acpi_gbl_db_method_info
+ *
+ * RETURN:      None
+ *
+ * DESCRIPTION: Namespace batch execution. Implements the "ALL" command.
+ *              Execute all namepaths whose final nameseg matches the
+ *              input nameseg.
+ *
+ ******************************************************************************/
+
+void acpi_db_evaluate_all(char *name_seg)
+{
+	struct acpi_db_execute_walk info;
+
+	info.count = 0;
+	info.max_count = ACPI_UINT32_MAX;
+	ACPI_COPY_NAMESEG(info.name_seg, name_seg);
+	info.name_seg[ACPI_NAMESEG_SIZE] = 0;
+
+	/* Search all nodes in namespace */
+
+	(void)acpi_walk_namespace(ACPI_TYPE_ANY, ACPI_ROOT_OBJECT,
+				  ACPI_UINT32_MAX, acpi_db_walk_for_execute_all,
+				  NULL, (void *)&info, NULL);
+
+	acpi_os_printf("Evaluated %u names in the namespace\n", info.count);
+}
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 ///Find conditions where if and else branch are functionally
 // identical.
 //
@@ -37,7 +41,11 @@
 // All other cases look like bugs or at least lack of documentation
 //
 // Confidence: Moderate
+<<<<<<< HEAD
 // Copyright: (C) 2016 Nicholas Mc Guire, OSADL.  GPLv2.
+=======
+// Copyright: (C) 2016 Nicholas Mc Guire, OSADL.
+>>>>>>> upstream/android-13
 // Comments:
 // Options: --no-includes --include-headers
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005-2006 Intel Corporation.  All rights reserved.
  *
@@ -31,6 +32,14 @@
  */
 
 #if !defined(IB_USER_MARSHALL_H)
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2005-2006 Intel Corporation.  All rights reserved.
+ */
+
+#ifndef IB_USER_MARSHALL_H
+>>>>>>> upstream/android-13
 #define IB_USER_MARSHALL_H
 
 #include <rdma/ib_verbs.h>

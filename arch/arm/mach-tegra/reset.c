@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-tegra/reset.c
  *
  * Copyright (C) 2011,2012 NVIDIA Corporation.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -19,6 +26,11 @@
 #include <linux/init.h>
 #include <linux/io.h>
 
+<<<<<<< HEAD
+=======
+#include <linux/firmware/trusted_foundations.h>
+
+>>>>>>> upstream/android-13
 #include <soc/tegra/fuse.h>
 
 #include <asm/cacheflush.h>
@@ -77,7 +89,11 @@ static void __init tegra_cpu_reset_handler_enable(void)
 	switch (err) {
 	case -ENOSYS:
 		tegra_cpu_reset_handler_set(reset_address);
+<<<<<<< HEAD
 		/* pass-through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		is_enabled = true;
 		break;
@@ -89,6 +105,11 @@ static void __init tegra_cpu_reset_handler_enable(void)
 
 void __init tegra_cpu_reset_handler_init(void)
 {
+<<<<<<< HEAD
+=======
+	__tegra_cpu_reset_handler_data[TEGRA_RESET_TF_PRESENT] =
+		trusted_foundations_registered();
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 	__tegra_cpu_reset_handler_data[TEGRA_RESET_MASK_PRESENT] =

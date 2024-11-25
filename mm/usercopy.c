@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This implements the various checks for CONFIG_HARDENED_USERCOPY*,
  * which are designed to protect kernel memory from needless exposure
@@ -6,11 +10,14 @@
  *
  * Copyright (C) 2001-2016 PaX Team, Bradley Spengler, Open Source
  * Security Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -47,7 +54,11 @@ static noinline int check_stack_object(const void *obj, unsigned long len)
 
 	/*
 	 * Reject: object partially overlaps the stack (passing the
+<<<<<<< HEAD
 	 * the check above means at least one end is within the stack,
+=======
+	 * check above means at least one end is within the stack,
+>>>>>>> upstream/android-13
 	 * so if this check fails, the other end is outside the stack).
 	 */
 	if (obj < stack || stackend < obj + len)
@@ -298,7 +309,14 @@ static bool enable_checks __initdata = true;
 
 static int __init parse_hardened_usercopy(char *str)
 {
+<<<<<<< HEAD
 	return strtobool(str, &enable_checks);
+=======
+	if (strtobool(str, &enable_checks))
+		pr_warn("Invalid option string for hardened_usercopy: '%s'\n",
+			str);
+	return 1;
+>>>>>>> upstream/android-13
 }
 
 __setup("hardened_usercopy=", parse_hardened_usercopy);

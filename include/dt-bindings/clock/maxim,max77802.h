@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Google, Inc
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2014 Google, Inc
+ *
+>>>>>>> upstream/android-13
  * Device Tree binding constants clocks for the Maxim 77802 PMIC.
  */
 

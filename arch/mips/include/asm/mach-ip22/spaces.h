@@ -10,6 +10,7 @@
 #ifndef _ASM_MACH_IP22_SPACES_H
 #define _ASM_MACH_IP22_SPACES_H
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_64BIT
 
@@ -21,6 +22,9 @@
 #define MAP_BASE		0xc000000000000000
 
 #endif /* CONFIG_64BIT */
+=======
+#define PHYS_OFFSET     _AC(0x08000000, UL)
+>>>>>>> upstream/android-13
 
 #include <asm/mach-generic/spaces.h>
 

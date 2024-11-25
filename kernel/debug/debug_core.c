@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Kernel Debug Core
  *
@@ -22,10 +26,13 @@
  *
  * Original KGDB stub: David Grothe <dave@gcom.com>,
  * Tigran Aivazian <tigran@sco.com>
+<<<<<<< HEAD
  *
  * This file is licensed under the terms of the GNU General Public License
  * version 2. This program is licensed "as is" without any warranty of any
  * kind, whether express or implied.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "KGDB: " fmt
@@ -55,6 +62,10 @@
 #include <linux/mm.h>
 #include <linux/vmacache.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
+=======
+#include <linux/irq.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cacheflush.h>
 #include <asm/byteorder.h>
@@ -66,9 +77,13 @@ static int kgdb_break_asap;
 
 struct debuggerinfo_struct kgdb_info[NR_CPUS];
 
+<<<<<<< HEAD
 /**
  * kgdb_connected - Is a host GDB connected to us?
  */
+=======
+/* kgdb_connected - Is a host GDB connected to us? */
+>>>>>>> upstream/android-13
 int				kgdb_connected;
 EXPORT_SYMBOL_GPL(kgdb_connected);
 
@@ -81,7 +96,11 @@ static int			exception_level;
 struct kgdb_io		*dbg_io_ops;
 static DEFINE_SPINLOCK(kgdb_registration_lock);
 
+<<<<<<< HEAD
 /* Action for the reboot notifiter, a global allow kdb to change it */
+=======
+/* Action for the reboot notifier, a global allow kdb to change it */
+>>>>>>> upstream/android-13
 static int kgdbreboot;
 /* kgdb console driver is loaded */
 static int kgdb_con_registered;
@@ -120,7 +139,10 @@ static DEFINE_RAW_SPINLOCK(dbg_slave_lock);
  */
 static atomic_t			masters_in_kgdb;
 static atomic_t			slaves_in_kgdb;
+<<<<<<< HEAD
 static atomic_t			kgdb_break_tasklet_var;
+=======
+>>>>>>> upstream/android-13
 atomic_t			kgdb_setting_breakpoint;
 
 struct task_struct		*kgdb_usethread;
@@ -156,12 +178,17 @@ early_param("nokgdbroundup", opt_nokgdbroundup);
 
 /*
  * Weak aliases for breakpoint management,
+<<<<<<< HEAD
  * can be overriden by architectures when needed:
+=======
+ * can be overridden by architectures when needed:
+>>>>>>> upstream/android-13
  */
 int __weak kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = probe_kernel_read(bpt->saved_instr, (char *)bpt->bpt_addr,
 				BREAK_INSTR_SIZE);
 	if (err)
@@ -176,11 +203,36 @@ int __weak kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
 	return probe_kernel_write((char *)bpt->bpt_addr,
 				  (char *)bpt->saved_instr, BREAK_INSTR_SIZE);
 }
+=======
+	err = copy_from_kernel_nofault(bpt->saved_instr, (char *)bpt->bpt_addr,
+				BREAK_INSTR_SIZE);
+	if (err)
+		return err;
+	err = copy_to_kernel_nofault((char *)bpt->bpt_addr,
+				 arch_kgdb_ops.gdb_bpt_instr, BREAK_INSTR_SIZE);
+	return err;
+}
+NOKPROBE_SYMBOL(kgdb_arch_set_breakpoint);
+
+int __weak kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
+{
+	return copy_to_kernel_nofault((char *)bpt->bpt_addr,
+				  (char *)bpt->saved_instr, BREAK_INSTR_SIZE);
+}
+NOKPROBE_SYMBOL(kgdb_arch_remove_breakpoint);
+>>>>>>> upstream/android-13
 
 int __weak kgdb_validate_break_address(unsigned long addr)
 {
 	struct kgdb_bkpt tmp;
 	int err;
+<<<<<<< HEAD
+=======
+
+	if (kgdb_within_blocklist(addr))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* Validate setting the breakpoint and then removing it.  If the
 	 * remove fails, the kernel needs to emit a bad message because we
 	 * are deep trouble not being able to put things back the way we
@@ -201,6 +253,10 @@ unsigned long __weak kgdb_arch_pc(int exception, struct pt_regs *regs)
 {
 	return instruction_pointer(regs);
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_arch_pc);
+>>>>>>> upstream/android-13
 
 int __weak kgdb_arch_init(void)
 {
@@ -211,6 +267,68 @@ int __weak kgdb_skipexception(int exception, struct pt_regs *regs)
 {
 	return 0;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_skipexception);
+
+#ifdef CONFIG_SMP
+
+/*
+ * Default (weak) implementation for kgdb_roundup_cpus
+ */
+
+void __weak kgdb_call_nmi_hook(void *ignored)
+{
+	/*
+	 * NOTE: get_irq_regs() is supposed to get the registers from
+	 * before the IPI interrupt happened and so is supposed to
+	 * show where the processor was.  In some situations it's
+	 * possible we might be called without an IPI, so it might be
+	 * safer to figure out how to make kgdb_breakpoint() work
+	 * properly here.
+	 */
+	kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
+}
+NOKPROBE_SYMBOL(kgdb_call_nmi_hook);
+
+static DEFINE_PER_CPU(call_single_data_t, kgdb_roundup_csd) =
+	CSD_INIT(kgdb_call_nmi_hook, NULL);
+
+void __weak kgdb_roundup_cpus(void)
+{
+	call_single_data_t *csd;
+	int this_cpu = raw_smp_processor_id();
+	int cpu;
+	int ret;
+
+	for_each_online_cpu(cpu) {
+		/* No need to roundup ourselves */
+		if (cpu == this_cpu)
+			continue;
+
+		csd = &per_cpu(kgdb_roundup_csd, cpu);
+
+		/*
+		 * If it didn't round up last time, don't try again
+		 * since smp_call_function_single_async() will block.
+		 *
+		 * If rounding_up is false then we know that the
+		 * previous call must have at least started and that
+		 * means smp_call_function_single_async() won't block.
+		 */
+		if (kgdb_info[cpu].rounding_up)
+			continue;
+		kgdb_info[cpu].rounding_up = true;
+
+		ret = smp_call_function_single_async(cpu, csd);
+		if (ret)
+			kgdb_info[cpu].rounding_up = false;
+	}
+}
+NOKPROBE_SYMBOL(kgdb_roundup_cpus);
+
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * Some architectures need cache flushes when we set/clear a
@@ -235,6 +353,10 @@ static void kgdb_flush_swbreak_addr(unsigned long addr)
 	/* Force flush instruction cache if it was outside the mm */
 	flush_icache_range(addr, addr + BREAK_INSTR_SIZE);
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_flush_swbreak_addr);
+>>>>>>> upstream/android-13
 
 /*
  * SW breakpoint management:
@@ -262,6 +384,10 @@ int dbg_activate_sw_breakpoints(void)
 	}
 	return ret;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(dbg_activate_sw_breakpoints);
+>>>>>>> upstream/android-13
 
 int dbg_set_sw_break(unsigned long addr)
 {
@@ -325,6 +451,10 @@ int dbg_deactivate_sw_breakpoints(void)
 	}
 	return ret;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(dbg_deactivate_sw_breakpoints);
+>>>>>>> upstream/android-13
 
 int dbg_remove_sw_break(unsigned long addr)
 {
@@ -352,6 +482,21 @@ int kgdb_isremovedbreak(unsigned long addr)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int kgdb_has_hit_break(unsigned long addr)
+{
+	int i;
+
+	for (i = 0; i < KGDB_MAX_BREAKPOINTS; i++) {
+		if (kgdb_break[i].state == BP_ACTIVE &&
+		    kgdb_break[i].bpt_addr == addr)
+			return 1;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int dbg_remove_all_break(void)
 {
 	int error;
@@ -376,6 +521,51 @@ setundefined:
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+void kgdb_free_init_mem(void)
+{
+	int i;
+
+	/* Clear init memory breakpoints. */
+	for (i = 0; i < KGDB_MAX_BREAKPOINTS; i++) {
+		if (init_section_contains((void *)kgdb_break[i].bpt_addr, 0))
+			kgdb_break[i].state = BP_UNDEFINED;
+	}
+}
+
+#ifdef CONFIG_KGDB_KDB
+void kdb_dump_stack_on_cpu(int cpu)
+{
+	if (cpu == raw_smp_processor_id() || !IS_ENABLED(CONFIG_SMP)) {
+		dump_stack();
+		return;
+	}
+
+	if (!(kgdb_info[cpu].exception_state & DCPU_IS_SLAVE)) {
+		kdb_printf("ERROR: Task on cpu %d didn't stop in the debugger\n",
+			   cpu);
+		return;
+	}
+
+	/*
+	 * In general, architectures don't support dumping the stack of a
+	 * "running" process that's not the current one.  From the point of
+	 * view of the Linux, kernel processes that are looping in the kgdb
+	 * slave loop are still "running".  There's also no API (that actually
+	 * works across all architectures) that can do a stack crawl based
+	 * on registers passed as a parameter.
+	 *
+	 * Solve this conundrum by asking slave CPUs to do the backtrace
+	 * themselves.
+	 */
+	kgdb_info[cpu].exception_state |= DCPU_WANT_BT;
+	while (kgdb_info[cpu].exception_state & DCPU_WANT_BT)
+		cpu_relax();
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * Return true if there is a valid kgdb I/O module.  Also if no
  * debugger is attached a message can be printed to the console about
@@ -403,6 +593,10 @@ static int kgdb_io_ready(int print_wait)
 	}
 	return 1;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_io_ready);
+>>>>>>> upstream/android-13
 
 static int kgdb_reenter_check(struct kgdb_state *ks)
 {
@@ -450,6 +644,10 @@ static int kgdb_reenter_check(struct kgdb_state *ks)
 
 	return 1;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_reenter_check);
+>>>>>>> upstream/android-13
 
 static void dbg_touch_watchdogs(void)
 {
@@ -457,6 +655,10 @@ static void dbg_touch_watchdogs(void)
 	clocksource_touch_watchdog();
 	rcu_cpu_stall_reset();
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(dbg_touch_watchdogs);
+>>>>>>> upstream/android-13
 
 static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
 		int exception_state)
@@ -517,6 +719,12 @@ cpu_loop:
 				atomic_xchg(&kgdb_active, cpu);
 				break;
 			}
+<<<<<<< HEAD
+=======
+		} else if (kgdb_info[cpu].exception_state & DCPU_WANT_BT) {
+			dump_stack();
+			kgdb_info[cpu].exception_state &= ~DCPU_WANT_BT;
+>>>>>>> upstream/android-13
 		} else if (kgdb_info[cpu].exception_state & DCPU_IS_SLAVE) {
 			if (!raw_spin_is_locked(&dbg_slave_lock))
 				goto return_normal;
@@ -593,7 +801,11 @@ return_normal:
 
 	/* Signal the other CPUs to enter kgdb_wait() */
 	else if ((!kgdb_single_step) && kgdb_do_roundup)
+<<<<<<< HEAD
 		kgdb_roundup_cpus(flags);
+=======
+		kgdb_roundup_cpus();
+>>>>>>> upstream/android-13
 #endif
 
 	/*
@@ -643,6 +855,11 @@ cpu_master_loop:
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	dbg_activate_sw_breakpoints();
+
+>>>>>>> upstream/android-13
 	/* Call the I/O driver's post_exception routine */
 	if (dbg_io_ops->post_exception)
 		dbg_io_ops->post_exception();
@@ -685,6 +902,10 @@ kgdb_restore:
 
 	return kgdb_info[cpu].ret_state;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_cpu_enter);
+>>>>>>> upstream/android-13
 
 /*
  * kgdb_handle_exception() - main entry point from a kernel exception
@@ -729,6 +950,7 @@ out:
 		arch_kgdb_ops.enable_nmi(1);
 	return ret;
 }
+<<<<<<< HEAD
 
 /*
  * GDB places a breakpoint at this function to know dynamically
@@ -736,6 +958,13 @@ out:
  * name exists in the kernel.
  */
 
+=======
+NOKPROBE_SYMBOL(kgdb_handle_exception);
+
+/*
+ * GDB places a breakpoint at this function to know dynamically loaded objects.
+ */
+>>>>>>> upstream/android-13
 static int module_event(struct notifier_block *self, unsigned long val,
 	void *data)
 {
@@ -752,6 +981,11 @@ int kgdb_nmicallback(int cpu, void *regs)
 	struct kgdb_state kgdb_var;
 	struct kgdb_state *ks = &kgdb_var;
 
+<<<<<<< HEAD
+=======
+	kgdb_info[cpu].rounding_up = false;
+
+>>>>>>> upstream/android-13
 	memset(ks, 0, sizeof(struct kgdb_state));
 	ks->cpu			= cpu;
 	ks->linux_regs		= regs;
@@ -764,6 +998,10 @@ int kgdb_nmicallback(int cpu, void *regs)
 #endif
 	return 1;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_nmicallback);
+>>>>>>> upstream/android-13
 
 int kgdb_nmicallin(int cpu, int trapnr, void *regs, int err_code,
 							atomic_t *send_ready)
@@ -789,6 +1027,10 @@ int kgdb_nmicallin(int cpu, int trapnr, void *regs, int err_code,
 #endif
 	return 1;
 }
+<<<<<<< HEAD
+=======
+NOKPROBE_SYMBOL(kgdb_nmicallin);
+>>>>>>> upstream/android-13
 
 static void kgdb_console_write(struct console *co, const char *s,
    unsigned count)
@@ -845,13 +1087,18 @@ static void sysrq_handle_dbg(int key)
 	kgdb_breakpoint();
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_dbg_op = {
+=======
+static const struct sysrq_key_op sysrq_dbg_op = {
+>>>>>>> upstream/android-13
 	.handler	= sysrq_handle_dbg,
 	.help_msg	= "debug(g)",
 	.action_msg	= "DEBUG",
 };
 #endif
 
+<<<<<<< HEAD
 static int kgdb_panic_event(struct notifier_block *self,
 			    unsigned long val,
 			    void *data)
@@ -875,6 +1122,34 @@ static struct notifier_block kgdb_panic_event_nb = {
        .notifier_call	= kgdb_panic_event,
        .priority	= INT_MAX,
 };
+=======
+void kgdb_panic(const char *msg)
+{
+	if (!kgdb_io_module_registered)
+		return;
+
+	/*
+	 * We don't want to get stuck waiting for input from user if
+	 * "panic_timeout" indicates the system should automatically
+	 * reboot on panic.
+	 */
+	if (panic_timeout)
+		return;
+
+	if (dbg_kdb_mode)
+		kdb_printf("PANIC: %s\n", msg);
+
+	kgdb_breakpoint();
+}
+
+static void kgdb_initial_breakpoint(void)
+{
+	kgdb_break_asap = 0;
+
+	pr_crit("Waiting for connection from remote gdb...\n");
+	kgdb_breakpoint();
+}
+>>>>>>> upstream/android-13
 
 void __weak kgdb_arch_late(void)
 {
@@ -886,6 +1161,12 @@ void __init dbg_late_init(void)
 	if (kgdb_io_module_registered)
 		kgdb_arch_late();
 	kdb_init(KDB_INIT_FULL);
+<<<<<<< HEAD
+=======
+
+	if (kgdb_io_module_registered && kgdb_break_asap)
+		kgdb_initial_breakpoint();
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -894,12 +1175,20 @@ dbg_notify_reboot(struct notifier_block *this, unsigned long code, void *x)
 	/*
 	 * Take the following action on reboot notify depending on value:
 	 *    1 == Enter debugger
+<<<<<<< HEAD
 	 *    0 == [the default] detatch debug client
+=======
+	 *    0 == [the default] detach debug client
+>>>>>>> upstream/android-13
 	 *   -1 == Do nothing... and use this until the board resets
 	 */
 	switch (kgdbreboot) {
 	case 1:
 		kgdb_breakpoint();
+<<<<<<< HEAD
+=======
+		goto done;
+>>>>>>> upstream/android-13
 	case -1:
 		goto done;
 	}
@@ -924,8 +1213,11 @@ static void kgdb_register_callbacks(void)
 			kgdb_arch_late();
 		register_module_notifier(&dbg_module_load_nb);
 		register_reboot_notifier(&dbg_reboot_notifier);
+<<<<<<< HEAD
 		atomic_notifier_chain_register(&panic_notifier_list,
 					       &kgdb_panic_event_nb);
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MAGIC_SYSRQ
 		register_sysrq_key('g', &sysrq_dbg_op);
 #endif
@@ -939,16 +1231,24 @@ static void kgdb_register_callbacks(void)
 static void kgdb_unregister_callbacks(void)
 {
 	/*
+<<<<<<< HEAD
 	 * When this routine is called KGDB should unregister from the
 	 * panic handler and clean up, making sure it is not handling any
+=======
+	 * When this routine is called KGDB should unregister from
+	 * handlers and clean up, making sure it is not handling any
+>>>>>>> upstream/android-13
 	 * break exceptions at the time.
 	 */
 	if (kgdb_io_module_registered) {
 		kgdb_io_module_registered = 0;
 		unregister_reboot_notifier(&dbg_reboot_notifier);
 		unregister_module_notifier(&dbg_module_load_nb);
+<<<<<<< HEAD
 		atomic_notifier_chain_unregister(&panic_notifier_list,
 					       &kgdb_panic_event_nb);
+=======
+>>>>>>> upstream/android-13
 		kgdb_arch_exit();
 #ifdef CONFIG_MAGIC_SYSRQ
 		unregister_sysrq_key('g', &sysrq_dbg_op);
@@ -960,6 +1260,7 @@ static void kgdb_unregister_callbacks(void)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * There are times a tasklet needs to be used vs a compiled in
  * break point so as to cause an exception outside a kgdb I/O module,
@@ -993,6 +1294,8 @@ static void kgdb_initial_breakpoint(void)
 	kgdb_breakpoint();
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  *	kgdb_register_io_module - register KGDB IO module
  *	@new_dbg_io_ops: the io ops vector
@@ -1001,15 +1304,33 @@ static void kgdb_initial_breakpoint(void)
  */
 int kgdb_register_io_module(struct kgdb_io *new_dbg_io_ops)
 {
+<<<<<<< HEAD
+=======
+	struct kgdb_io *old_dbg_io_ops;
+>>>>>>> upstream/android-13
 	int err;
 
 	spin_lock(&kgdb_registration_lock);
 
+<<<<<<< HEAD
 	if (dbg_io_ops) {
 		spin_unlock(&kgdb_registration_lock);
 
 		pr_err("Another I/O driver is already registered with KGDB\n");
 		return -EBUSY;
+=======
+	old_dbg_io_ops = dbg_io_ops;
+	if (old_dbg_io_ops) {
+		if (!old_dbg_io_ops->deinit) {
+			spin_unlock(&kgdb_registration_lock);
+
+			pr_err("KGDB I/O driver %s can't replace %s.\n",
+				new_dbg_io_ops->name, old_dbg_io_ops->name);
+			return -EBUSY;
+		}
+		pr_info("Replacing I/O driver %s with %s\n",
+			old_dbg_io_ops->name, new_dbg_io_ops->name);
+>>>>>>> upstream/android-13
 	}
 
 	if (new_dbg_io_ops->init) {
@@ -1024,12 +1345,25 @@ int kgdb_register_io_module(struct kgdb_io *new_dbg_io_ops)
 
 	spin_unlock(&kgdb_registration_lock);
 
+<<<<<<< HEAD
+=======
+	if (old_dbg_io_ops) {
+		old_dbg_io_ops->deinit();
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	pr_info("Registered I/O driver %s\n", new_dbg_io_ops->name);
 
 	/* Arm KGDB now. */
 	kgdb_register_callbacks();
 
+<<<<<<< HEAD
 	if (kgdb_break_asap)
+=======
+	if (kgdb_break_asap &&
+	    (!dbg_is_early || IS_ENABLED(CONFIG_ARCH_HAS_EARLY_DEBUG)))
+>>>>>>> upstream/android-13
 		kgdb_initial_breakpoint();
 
 	return 0;
@@ -1037,7 +1371,11 @@ int kgdb_register_io_module(struct kgdb_io *new_dbg_io_ops)
 EXPORT_SYMBOL_GPL(kgdb_register_io_module);
 
 /**
+<<<<<<< HEAD
  *	kkgdb_unregister_io_module - unregister KGDB IO module
+=======
+ *	kgdb_unregister_io_module - unregister KGDB IO module
+>>>>>>> upstream/android-13
  *	@old_dbg_io_ops: the io ops vector
  *
  *	Unregister it with the KGDB core.
@@ -1059,6 +1397,12 @@ void kgdb_unregister_io_module(struct kgdb_io *old_dbg_io_ops)
 
 	spin_unlock(&kgdb_registration_lock);
 
+<<<<<<< HEAD
+=======
+	if (old_dbg_io_ops->deinit)
+		old_dbg_io_ops->deinit();
+
+>>>>>>> upstream/android-13
 	pr_info("Unregistered I/O driver %s, debugger disabled\n",
 		old_dbg_io_ops->name);
 }
@@ -1099,7 +1443,12 @@ static int __init opt_kgdb_wait(char *str)
 	kgdb_break_asap = 1;
 
 	kdb_init(KDB_INIT_EARLY);
+<<<<<<< HEAD
 	if (kgdb_io_module_registered)
+=======
+	if (kgdb_io_module_registered &&
+	    IS_ENABLED(CONFIG_ARCH_HAS_EARLY_DEBUG))
+>>>>>>> upstream/android-13
 		kgdb_initial_breakpoint();
 
 	return 0;

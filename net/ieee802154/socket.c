@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IEEE802154.4 socket interface
  *
  * Copyright 2007, 2008 Siemens AG
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Written by:
  * Sergey Lapin <slapin@ossfans.org>
  * Maxim Gorbachyov <maxim.gorbachev@siemens.com>
@@ -49,8 +56,12 @@ ieee802154_get_dev(struct net *net, const struct ieee802154_addr *addr)
 		ieee802154_devaddr_to_raw(hwaddr, addr->extended_addr);
 		rcu_read_lock();
 		dev = dev_getbyhwaddr_rcu(net, ARPHRD_IEEE802154, hwaddr);
+<<<<<<< HEAD
 		if (dev)
 			dev_hold(dev);
+=======
+		dev_hold(dev);
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		break;
 	case IEEE802154_ADDR_SHORT:
@@ -137,7 +148,11 @@ static int ieee802154_dev_ioctl(struct sock *sk, struct ifreq __user *arg,
 	int ret = -ENOIOCTLCMD;
 	struct net_device *dev;
 
+<<<<<<< HEAD
 	if (copy_from_user(&ifr, arg, sizeof(struct ifreq)))
+=======
+	if (get_user_ifreq(&ifr, NULL, arg))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	ifr.ifr_name[IFNAMSIZ-1] = 0;
@@ -151,7 +166,11 @@ static int ieee802154_dev_ioctl(struct sock *sk, struct ifreq __user *arg,
 	if (dev->type == ARPHRD_IEEE802154 && dev->netdev_ops->ndo_do_ioctl)
 		ret = dev->netdev_ops->ndo_do_ioctl(dev, &ifr, cmd);
 
+<<<<<<< HEAD
 	if (!ret && copy_to_user(arg, &ifr, sizeof(struct ifreq)))
+=======
+	if (!ret && put_user_ifreq(&ifr, arg))
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 	dev_put(dev);
 
@@ -164,10 +183,13 @@ static int ieee802154_sock_ioctl(struct socket *sock, unsigned int cmd,
 	struct sock *sk = sock->sk;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case SIOCGSTAMP:
 		return sock_get_timestamp(sk, (struct timeval __user *)arg);
 	case SIOCGSTAMPNS:
 		return sock_get_timestampns(sk, (struct timespec __user *)arg);
+=======
+>>>>>>> upstream/android-13
 	case SIOCGIFADDR:
 	case SIOCSIFADDR:
 		return ieee802154_dev_ioctl(sk, (struct ifreq __user *)arg,
@@ -394,7 +416,11 @@ static int raw_getsockopt(struct sock *sk, int level, int optname,
 }
 
 static int raw_setsockopt(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 			  char __user *optval, unsigned int optlen)
+=======
+			  sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	return -EOPNOTSUPP;
 }
@@ -426,6 +452,10 @@ static const struct proto_ops ieee802154_raw_ops = {
 	.getname	   = sock_no_getname,
 	.poll		   = datagram_poll,
 	.ioctl		   = ieee802154_sock_ioctl,
+<<<<<<< HEAD
+=======
+	.gettstamp	   = sock_gettstamp,
+>>>>>>> upstream/android-13
 	.listen		   = sock_no_listen,
 	.shutdown	   = sock_no_shutdown,
 	.setsockopt	   = sock_common_setsockopt,
@@ -434,10 +464,13 @@ static const struct proto_ops ieee802154_raw_ops = {
 	.recvmsg	   = sock_common_recvmsg,
 	.mmap		   = sock_no_mmap,
 	.sendpage	   = sock_no_sendpage,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_sock_common_setsockopt,
 	.compat_getsockopt = compat_sock_common_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 /* DGRAM Sockets (802.15.4 dataframes) */
@@ -887,7 +920,11 @@ static int dgram_getsockopt(struct sock *sk, int level, int optname,
 }
 
 static int dgram_setsockopt(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 			    char __user *optval, unsigned int optlen)
+=======
+			    sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct dgram_sock *ro = dgram_sk(sk);
 	struct net *net = sock_net(sk);
@@ -897,7 +934,11 @@ static int dgram_setsockopt(struct sock *sk, int level, int optname,
 	if (optlen < sizeof(int))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (get_user(val, (int __user *)optval))
+=======
+	if (copy_from_sockptr(&val, optval, sizeof(int)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	lock_sock(sk);
@@ -988,6 +1029,10 @@ static const struct proto_ops ieee802154_dgram_ops = {
 	.getname	   = sock_no_getname,
 	.poll		   = datagram_poll,
 	.ioctl		   = ieee802154_sock_ioctl,
+<<<<<<< HEAD
+=======
+	.gettstamp	   = sock_gettstamp,
+>>>>>>> upstream/android-13
 	.listen		   = sock_no_listen,
 	.shutdown	   = sock_no_shutdown,
 	.setsockopt	   = sock_common_setsockopt,
@@ -996,12 +1041,22 @@ static const struct proto_ops ieee802154_dgram_ops = {
 	.recvmsg	   = sock_common_recvmsg,
 	.mmap		   = sock_no_mmap,
 	.sendpage	   = sock_no_sendpage,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_sock_common_setsockopt,
 	.compat_getsockopt = compat_sock_common_getsockopt,
 #endif
 };
 
+=======
+};
+
+static void ieee802154_sock_destruct(struct sock *sk)
+{
+	skb_queue_purge(&sk->sk_receive_queue);
+}
+
+>>>>>>> upstream/android-13
 /* Create a socket. Initialise the socket, blank the addresses
  * set the state.
  */
@@ -1042,7 +1097,11 @@ static int ieee802154_create(struct net *net, struct socket *sock,
 	sock->ops = ops;
 
 	sock_init_data(sock, sk);
+<<<<<<< HEAD
 	/* FIXME: sk->sk_destruct */
+=======
+	sk->sk_destruct = ieee802154_sock_destruct;
+>>>>>>> upstream/android-13
 	sk->sk_family = PF_IEEE802154;
 
 	/* Checksums on by default */
@@ -1105,7 +1164,11 @@ static struct packet_type ieee802154_packet_type = {
 
 static int __init af_ieee802154_init(void)
 {
+<<<<<<< HEAD
 	int rc = -EINVAL;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	rc = proto_register(&ieee802154_raw_prot, 1);
 	if (rc)

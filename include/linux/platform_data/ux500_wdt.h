@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST Ericsson SA 2011
  *
  * License Terms: GNU General Public License v2
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) ST Ericsson SA 2011
+ *
+>>>>>>> upstream/android-13
  * STE Ux500 Watchdog platform data
  */
 #ifndef __UX500_WDT_H

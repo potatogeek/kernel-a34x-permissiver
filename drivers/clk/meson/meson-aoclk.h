@@ -11,15 +11,27 @@
 #ifndef __MESON_AOCLK_H__
 #define __MESON_AOCLK_H__
 
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/reset-controller.h>
+=======
+#include <linux/clk-provider.h>
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+#include <linux/reset-controller.h>
+
+>>>>>>> upstream/android-13
 #include "clk-regmap.h"
 
 struct meson_aoclk_data {
 	const unsigned int			reset_reg;
 	const int				num_reset;
 	const unsigned int			*reset;
+<<<<<<< HEAD
 	int					num_clks;
+=======
+	const int				num_clks;
+>>>>>>> upstream/android-13
 	struct clk_regmap			**clks;
 	const struct clk_hw_onecell_data	*hw_data;
 };

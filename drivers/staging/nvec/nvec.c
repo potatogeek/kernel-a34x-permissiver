@@ -99,6 +99,10 @@ static const struct mfd_cell nvec_devices[] = {
  * nvec_register_notifier - Register a notifier with nvec
  * @nvec: A &struct nvec_chip
  * @nb: The notifier block to register
+<<<<<<< HEAD
+=======
+ * @events: Unused
+>>>>>>> upstream/android-13
  *
  * Registers a notifier with @nvec. The notifier will be added to an atomic
  * notifier chain that is called for all received messages except those that
@@ -125,7 +129,11 @@ int nvec_unregister_notifier(struct nvec_chip *nvec, struct notifier_block *nb)
 }
 EXPORT_SYMBOL_GPL(nvec_unregister_notifier);
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * nvec_status_notifier - The final notifier
  *
  * Prints a message about control events not handled in the notifier
@@ -289,7 +297,11 @@ EXPORT_SYMBOL(nvec_write_async);
  * interrupt handlers.
  *
  * Returns: 0 on success, a negative error code on failure.
+<<<<<<< HEAD
  * The response message is returned in @msg. Shall be freed with
+=======
+ * The response message is returned in @msg. Shall be freed
+>>>>>>> upstream/android-13
  * with nvec_msg_free() once no longer used.
  *
  */
@@ -343,8 +355,13 @@ static void nvec_toggle_global_events(struct nvec_chip *nvec, bool state)
 
 /**
  * nvec_event_mask - fill the command string with event bitfield
+<<<<<<< HEAD
  * ev: points to event command string
  * mask: bit to insert into the event mask
+=======
+ * @ev: points to event command string
+ * @mask: bit to insert into the event mask
+>>>>>>> upstream/android-13
  *
  * Configure event command expects a 32 bit bitfield which describes
  * which events to enable. The bitfield has the following structure
@@ -767,7 +784,10 @@ static int tegra_nvec_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct nvec_chip *nvec;
 	struct nvec_msg *msg;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	char	get_firmware_version[] = { NVEC_CNTL, GET_FIRMWARE_VERSION },
 		unmute_speakers[] = { NVEC_OEM0, 0x10, 0x59, 0x95 },
@@ -790,16 +810,25 @@ static int tegra_nvec_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
 	nvec->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (nvec->irq < 0) {
 		dev_err(dev, "no irq resource?\n");
 		return -ENODEV;
 	}
+=======
+	if (nvec->irq < 0)
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	i2c_clk = devm_clk_get(dev, "div-clk");
 	if (IS_ERR(i2c_clk)) {

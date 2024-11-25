@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for IMS Passenger Control Unit Devices
  *
  * Copyright (C) 2013 The IMS Company
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/completion.h>
@@ -39,8 +46,11 @@ struct ims_pcu_gamepad {
 
 struct ims_pcu_backlight {
 	struct led_classdev cdev;
+<<<<<<< HEAD
 	struct work_struct work;
 	enum led_brightness desired_brightness;
+=======
+>>>>>>> upstream/android-13
 	char name[32];
 };
 
@@ -340,7 +350,11 @@ static int ims_pcu_setup_gamepad(struct ims_pcu *pcu)
 err_free_mem:
 	input_free_device(input);
 	kfree(gamepad);
+<<<<<<< HEAD
 	return -ENOMEM;
+=======
+	return error;
+>>>>>>> upstream/android-13
 }
 
 static void ims_pcu_destroy_gamepad(struct ims_pcu *pcu)
@@ -652,8 +666,13 @@ static int __ims_pcu_execute_command(struct ims_pcu *pcu,
 #define IMS_PCU_BL_DATA_OFFSET		3
 
 static int __ims_pcu_execute_bl_command(struct ims_pcu *pcu,
+<<<<<<< HEAD
 				        u8 command, const void *data, size_t len,
 				        u8 expected_response, int response_time)
+=======
+					u8 command, const void *data, size_t len,
+					u8 expected_response, int response_time)
+>>>>>>> upstream/android-13
 {
 	int error;
 
@@ -949,6 +968,7 @@ out:
 
 #define IMS_PCU_MAX_BRIGHTNESS		31998
 
+<<<<<<< HEAD
 static void ims_pcu_backlight_work(struct work_struct *work)
 {
 	struct ims_pcu_backlight *backlight =
@@ -957,6 +977,16 @@ static void ims_pcu_backlight_work(struct work_struct *work)
 			container_of(backlight, struct ims_pcu, backlight);
 	int desired_brightness = backlight->desired_brightness;
 	__le16 br_val = cpu_to_le16(desired_brightness);
+=======
+static int ims_pcu_backlight_set_brightness(struct led_classdev *cdev,
+					    enum led_brightness value)
+{
+	struct ims_pcu_backlight *backlight =
+			container_of(cdev, struct ims_pcu_backlight, cdev);
+	struct ims_pcu *pcu =
+			container_of(backlight, struct ims_pcu, backlight);
+	__le16 br_val = cpu_to_le16(value);
+>>>>>>> upstream/android-13
 	int error;
 
 	mutex_lock(&pcu->cmd_mutex);
@@ -966,6 +996,7 @@ static void ims_pcu_backlight_work(struct work_struct *work)
 	if (error && error != -ENODEV)
 		dev_warn(pcu->dev,
 			 "Failed to set desired brightness %u, error: %d\n",
+<<<<<<< HEAD
 			 desired_brightness, error);
 
 	mutex_unlock(&pcu->cmd_mutex);
@@ -979,6 +1010,13 @@ static void ims_pcu_backlight_set_brightness(struct led_classdev *cdev,
 
 	backlight->desired_brightness = value;
 	schedule_work(&backlight->work);
+=======
+			 value, error);
+
+	mutex_unlock(&pcu->cmd_mutex);
+
+	return error;
+>>>>>>> upstream/android-13
 }
 
 static enum led_brightness
@@ -1015,14 +1053,22 @@ static int ims_pcu_setup_backlight(struct ims_pcu *pcu)
 	struct ims_pcu_backlight *backlight = &pcu->backlight;
 	int error;
 
+<<<<<<< HEAD
 	INIT_WORK(&backlight->work, ims_pcu_backlight_work);
+=======
+>>>>>>> upstream/android-13
 	snprintf(backlight->name, sizeof(backlight->name),
 		 "pcu%d::kbd_backlight", pcu->device_no);
 
 	backlight->cdev.name = backlight->name;
 	backlight->cdev.max_brightness = IMS_PCU_MAX_BRIGHTNESS;
 	backlight->cdev.brightness_get = ims_pcu_backlight_get_brightness;
+<<<<<<< HEAD
 	backlight->cdev.brightness_set = ims_pcu_backlight_set_brightness;
+=======
+	backlight->cdev.brightness_set_blocking =
+					 ims_pcu_backlight_set_brightness;
+>>>>>>> upstream/android-13
 
 	error = led_classdev_register(pcu->dev, &backlight->cdev);
 	if (error) {
@@ -1040,7 +1086,10 @@ static void ims_pcu_destroy_backlight(struct ims_pcu *pcu)
 	struct ims_pcu_backlight *backlight = &pcu->backlight;
 
 	led_classdev_unregister(&backlight->cdev);
+<<<<<<< HEAD
 	cancel_work_sync(&backlight->work);
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -1242,7 +1291,11 @@ static struct attribute *ims_pcu_attrs[] = {
 static umode_t ims_pcu_is_attr_visible(struct kobject *kobj,
 				       struct attribute *attr, int n)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct usb_interface *intf = to_usb_interface(dev);
 	struct ims_pcu *pcu = usb_get_intfdata(intf);
 	umode_t mode = attr->mode;
@@ -2032,7 +2085,10 @@ static int ims_pcu_probe(struct usb_interface *intf,
 	}
 
 	usb_set_intfdata(pcu->ctrl_intf, pcu);
+<<<<<<< HEAD
 	usb_set_intfdata(pcu->data_intf, pcu);
+=======
+>>>>>>> upstream/android-13
 
 	error = ims_pcu_buffers_alloc(pcu);
 	if (error)

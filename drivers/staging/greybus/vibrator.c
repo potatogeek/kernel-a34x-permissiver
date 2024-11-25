@@ -13,8 +13,12 @@
 #include <linux/kdev_t.h>
 #include <linux/idr.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+>>>>>>> upstream/android-13
 
 struct gb_vibrator_device {
 	struct gb_connection	*connection;

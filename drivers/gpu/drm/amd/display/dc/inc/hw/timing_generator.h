@@ -59,6 +59,11 @@ struct gsl_params {
 struct drr_params {
 	uint32_t vertical_total_min;
 	uint32_t vertical_total_max;
+<<<<<<< HEAD
+=======
+	uint32_t vertical_total_mid;
+	uint32_t vertical_total_mid_frame_num;
+>>>>>>> upstream/android-13
 	bool immediate_flip;
 };
 
@@ -70,6 +75,7 @@ enum crtc_state {
 	CRTC_STATE_VACTIVE
 };
 
+<<<<<<< HEAD
 struct _dlg_otg_param {
 	int vstartup_start;
 	int vupdate_offset;
@@ -78,6 +84,8 @@ struct _dlg_otg_param {
 	enum signal_type signal;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct vupdate_keepout_params {
 	int start_offset;
 	int end_offset;
@@ -104,6 +112,26 @@ enum crc_selection {
 	INTERSECT_WINDOW_NOT_A_NOT_B,
 };
 
+<<<<<<< HEAD
+=======
+enum otg_out_mux_dest {
+	OUT_MUX_DIO = 0,
+};
+
+enum h_timing_div_mode {
+	H_TIMING_NO_DIV,
+	H_TIMING_DIV_BY2,
+	H_TIMING_RESERVED,
+	H_TIMING_DIV_BY4,
+};
+
+enum timing_synchronization_type {
+	NOT_SYNCHRONIZABLE,
+	TIMING_SYNCHRONIZABLE,
+	VBLANK_SYNCHRONIZABLE
+};
+
+>>>>>>> upstream/android-13
 struct crc_params {
 	/* Regions used to calculate CRC*/
 	uint16_t windowa_x_start;
@@ -118,6 +146,12 @@ struct crc_params {
 
 	enum crc_selection selection;
 
+<<<<<<< HEAD
+=======
+	uint8_t dsc_mode;
+	uint8_t odm_mode;
+
+>>>>>>> upstream/android-13
 	bool continuous_mode;
 	bool enable;
 };
@@ -126,7 +160,10 @@ struct timing_generator {
 	const struct timing_generator_funcs *funcs;
 	struct dc_bios *bp;
 	struct dc_context *ctx;
+<<<<<<< HEAD
 	struct _dlg_otg_param dlg_otg_param;
+=======
+>>>>>>> upstream/android-13
 	int inst;
 };
 
@@ -134,17 +171,45 @@ struct dc_crtc_timing;
 
 struct drr_params;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 struct timing_generator_funcs {
 	bool (*validate_timing)(struct timing_generator *tg,
 							const struct dc_crtc_timing *timing);
 	void (*program_timing)(struct timing_generator *tg,
 							const struct dc_crtc_timing *timing,
+<<<<<<< HEAD
 							bool use_vbios);
 	void (*program_vline_interrupt)(struct timing_generator *optc,
 			const struct dc_crtc_timing *dc_crtc_timing,
 			unsigned long long vsync_delta);
 	bool (*enable_crtc)(struct timing_generator *tg);
 	bool (*disable_crtc)(struct timing_generator *tg);
+=======
+							int vready_offset,
+							int vstartup_start,
+							int vupdate_offset,
+							int vupdate_width,
+							const enum signal_type signal,
+							bool use_vbios
+	);
+	void (*setup_vertical_interrupt0)(
+			struct timing_generator *optc,
+			uint32_t start_line,
+			uint32_t end_line);
+	void (*setup_vertical_interrupt1)(
+			struct timing_generator *optc,
+			uint32_t start_line);
+	void (*setup_vertical_interrupt2)(
+			struct timing_generator *optc,
+			uint32_t start_line);
+
+	bool (*enable_crtc)(struct timing_generator *tg);
+	bool (*disable_crtc)(struct timing_generator *tg);
+	bool (*immediate_disable_crtc)(struct timing_generator *tg);
+>>>>>>> upstream/android-13
 	bool (*is_counter_moving)(struct timing_generator *tg);
 	void (*get_position)(struct timing_generator *tg,
 				struct crtc_position *position);
@@ -159,6 +224,11 @@ struct timing_generator_funcs {
 	bool (*get_otg_active_size)(struct timing_generator *optc,
 			uint32_t *otg_active_width,
 			uint32_t *otg_active_height);
+<<<<<<< HEAD
+=======
+	bool (*is_matching_timing)(struct timing_generator *tg,
+			const struct dc_crtc_timing *otg_timing);
+>>>>>>> upstream/android-13
 	void (*set_early_control)(struct timing_generator *tg,
 							   uint32_t early_cntl);
 	void (*wait_for_state)(struct timing_generator *tg,
@@ -166,6 +236,10 @@ struct timing_generator_funcs {
 	void (*set_blank)(struct timing_generator *tg,
 					bool enable_blanking);
 	bool (*is_blanked)(struct timing_generator *tg);
+<<<<<<< HEAD
+=======
+	bool (*is_locked)(struct timing_generator *tg);
+>>>>>>> upstream/android-13
 	void (*set_overscan_blank_color) (struct timing_generator *tg, const struct tg_color *color);
 	void (*set_blank_color)(struct timing_generator *tg, const struct tg_color *color);
 	void (*set_colors)(struct timing_generator *tg,
@@ -178,6 +252,13 @@ struct timing_generator_funcs {
 							const struct dcp_gsl_params *gsl_params);
 	void (*unlock)(struct timing_generator *tg);
 	void (*lock)(struct timing_generator *tg);
+<<<<<<< HEAD
+=======
+	void (*lock_doublebuffer_disable)(struct timing_generator *tg);
+	void (*lock_doublebuffer_enable)(struct timing_generator *tg);
+	void(*triplebuffer_unlock)(struct timing_generator *tg);
+	void(*triplebuffer_lock)(struct timing_generator *tg);
+>>>>>>> upstream/android-13
 	void (*enable_reset_trigger)(struct timing_generator *tg,
 				     int source_tg_inst);
 	void (*enable_crtc_reset)(struct timing_generator *tg,
@@ -188,8 +269,16 @@ struct timing_generator_funcs {
 	void (*enable_advanced_request)(struct timing_generator *tg,
 					bool enable, const struct dc_crtc_timing *timing);
 	void (*set_drr)(struct timing_generator *tg, const struct drr_params *params);
+<<<<<<< HEAD
 	void (*set_static_screen_control)(struct timing_generator *tg,
 							uint32_t value);
+=======
+	void (*set_vtotal_min_max)(struct timing_generator *optc, int vtotal_min, int vtotal_max);
+	void (*get_last_used_drr_vtotal)(struct timing_generator *optc, uint32_t *refresh_rate);
+	void (*set_static_screen_control)(struct timing_generator *tg,
+						uint32_t event_triggers,
+						uint32_t num_frames);
+>>>>>>> upstream/android-13
 	void (*set_test_pattern)(
 		struct timing_generator *tg,
 		enum controller_dp_test_pattern test_pattern,
@@ -197,7 +286,15 @@ struct timing_generator_funcs {
 
 	bool (*arm_vert_intr)(struct timing_generator *tg, uint8_t width);
 
+<<<<<<< HEAD
 	void (*program_global_sync)(struct timing_generator *tg);
+=======
+	void (*program_global_sync)(struct timing_generator *tg,
+			int vready_offset,
+			int vstartup_start,
+			int vupdate_offset,
+			int vupdate_width);
+>>>>>>> upstream/android-13
 	void (*enable_optc_clock)(struct timing_generator *tg, bool enable);
 	void (*program_stereo)(struct timing_generator *tg,
 		const struct dc_crtc_timing *timing, struct crtc_stereo_flags *flags);
@@ -210,6 +307,17 @@ struct timing_generator_funcs {
 	bool (*is_optc_underflow_occurred)(struct timing_generator *tg);
 	void (*clear_optc_underflow)(struct timing_generator *tg);
 
+<<<<<<< HEAD
+=======
+	void (*set_dwb_source)(struct timing_generator *optc,
+		uint32_t dwb_pipe_inst);
+
+	void (*get_optc_source)(struct timing_generator *optc,
+			uint32_t *num_of_input_segments,
+			uint32_t *seg0_src_sel,
+			uint32_t *seg1_src_sel);
+
+>>>>>>> upstream/android-13
 	/**
 	 * Configure CRCs for the given timing generator. Return false if TG is
 	 * not on.
@@ -224,6 +332,41 @@ struct timing_generator_funcs {
 	bool (*get_crc)(struct timing_generator *tg,
 			uint32_t *r_cr, uint32_t *g_y, uint32_t *b_cb);
 
+<<<<<<< HEAD
+=======
+	void (*program_manual_trigger)(struct timing_generator *optc);
+	void (*setup_manual_trigger)(struct timing_generator *optc);
+	bool (*get_hw_timing)(struct timing_generator *optc,
+			struct dc_crtc_timing *hw_crtc_timing);
+
+	void (*set_vtg_params)(struct timing_generator *optc,
+			const struct dc_crtc_timing *dc_crtc_timing, bool program_fp2);
+
+	void (*set_dsc_config)(struct timing_generator *optc,
+			       enum optc_dsc_mode dsc_mode,
+			       uint32_t dsc_bytes_per_pixel,
+			       uint32_t dsc_slice_width);
+	void (*set_odm_bypass)(struct timing_generator *optc, const struct dc_crtc_timing *dc_crtc_timing);
+	void (*set_odm_combine)(struct timing_generator *optc, int *opp_id, int opp_cnt,
+			struct dc_crtc_timing *timing);
+	void (*set_gsl)(struct timing_generator *optc, const struct gsl_params *params);
+	void (*set_gsl_source_select)(struct timing_generator *optc,
+			int group_idx,
+			uint32_t gsl_ready_signal);
+	void (*set_out_mux)(struct timing_generator *tg, enum otg_out_mux_dest dest);
+	void (*set_vrr_m_const)(struct timing_generator *optc,
+			double vtotal_avg);
+	void (*set_drr_trigger_window)(struct timing_generator *optc,
+			uint32_t window_start, uint32_t window_end);
+	void (*set_vtotal_change_limit)(struct timing_generator *optc,
+			uint32_t limit);
+	void (*align_vblanks)(struct timing_generator *master_optc,
+			struct timing_generator *slave_optc,
+			uint32_t master_pixel_clock_100Hz,
+			uint32_t slave_pixel_clock_100Hz,
+			uint8_t master_clock_divider,
+			uint8_t slave_clock_divider);
+>>>>>>> upstream/android-13
 };
 
 #endif

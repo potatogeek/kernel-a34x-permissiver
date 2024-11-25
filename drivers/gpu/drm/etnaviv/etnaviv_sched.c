@@ -3,7 +3,11 @@
  * Copyright (C) 2017 Etnaviv Project
  */
 
+<<<<<<< HEAD
 #include <linux/kthread.h>
+=======
+#include <linux/moduleparam.h>
+>>>>>>> upstream/android-13
 
 #include "etnaviv_drv.h"
 #include "etnaviv_dump.h"
@@ -82,19 +86,34 @@ static struct dma_fence *etnaviv_sched_run_job(struct drm_sched_job *sched_job)
 	return fence;
 }
 
+<<<<<<< HEAD
 static void etnaviv_sched_timedout_job(struct drm_sched_job *sched_job)
+=======
+static enum drm_gpu_sched_stat etnaviv_sched_timedout_job(struct drm_sched_job
+							  *sched_job)
+>>>>>>> upstream/android-13
 {
 	struct etnaviv_gem_submit *submit = to_etnaviv_submit(sched_job);
 	struct etnaviv_gpu *gpu = submit->gpu;
 	u32 dma_addr;
 	int change;
 
+<<<<<<< HEAD
+=======
+	/* block scheduler */
+	drm_sched_stop(&gpu->sched, sched_job);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If the GPU managed to complete this jobs fence, the timout is
 	 * spurious. Bail out.
 	 */
 	if (dma_fence_is_signaled(submit->out_fence))
+<<<<<<< HEAD
 		return;
+=======
+		goto out_no_timeout;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the GPU is still making forward progress on the front-end (which
@@ -103,6 +122,7 @@ static void etnaviv_sched_timedout_job(struct drm_sched_job *sched_job)
 	 */
 	dma_addr = gpu_read(gpu, VIVS_FE_DMA_ADDRESS);
 	change = dma_addr - gpu->hangcheck_dma_addr;
+<<<<<<< HEAD
 	if (change < 0 || change > 16) {
 		gpu->hangcheck_dma_addr = dma_addr;
 		schedule_delayed_work(&sched_job->work_tdr,
@@ -121,12 +141,42 @@ static void etnaviv_sched_timedout_job(struct drm_sched_job *sched_job)
 	/* restart scheduler after GPU is usable again */
 	drm_sched_job_recovery(&gpu->sched);
 	kthread_unpark(gpu->sched.thread);
+=======
+	if (gpu->completed_fence != gpu->hangcheck_fence ||
+	    change < 0 || change > 16) {
+		gpu->hangcheck_dma_addr = dma_addr;
+		gpu->hangcheck_fence = gpu->completed_fence;
+		goto out_no_timeout;
+	}
+
+	if(sched_job)
+		drm_sched_increase_karma(sched_job);
+
+	/* get the GPU back into the init state */
+	etnaviv_core_dump(submit);
+	etnaviv_gpu_recover_hang(gpu);
+
+	drm_sched_resubmit_jobs(&gpu->sched);
+
+	drm_sched_start(&gpu->sched, true);
+	return DRM_GPU_SCHED_STAT_NOMINAL;
+
+out_no_timeout:
+	/* restart scheduler after GPU is usable again */
+	drm_sched_start(&gpu->sched, true);
+	return DRM_GPU_SCHED_STAT_NOMINAL;
+>>>>>>> upstream/android-13
 }
 
 static void etnaviv_sched_free_job(struct drm_sched_job *sched_job)
 {
 	struct etnaviv_gem_submit *submit = to_etnaviv_submit(sched_job);
 
+<<<<<<< HEAD
+=======
+	drm_sched_job_cleanup(sched_job);
+
+>>>>>>> upstream/android-13
 	etnaviv_submit_put(submit);
 }
 
@@ -150,7 +200,11 @@ int etnaviv_sched_push_job(struct drm_sched_entity *sched_entity,
 	mutex_lock(&submit->gpu->fence_lock);
 
 	ret = drm_sched_job_init(&submit->sched_job, sched_entity,
+<<<<<<< HEAD
 				 submit->cmdbuf.ctx);
+=======
+				 submit->ctx);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto out_unlock;
 
@@ -159,6 +213,10 @@ int etnaviv_sched_push_job(struct drm_sched_entity *sched_entity,
 						submit->out_fence, 0,
 						INT_MAX, GFP_KERNEL);
 	if (submit->out_fence_id < 0) {
+<<<<<<< HEAD
+=======
+		drm_sched_job_cleanup(&submit->sched_job);
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_unlock;
 	}
@@ -180,7 +238,12 @@ int etnaviv_sched_init(struct etnaviv_gpu *gpu)
 
 	ret = drm_sched_init(&gpu->sched, &etnaviv_sched_ops,
 			     etnaviv_hw_jobs_limit, etnaviv_job_hang_limit,
+<<<<<<< HEAD
 			     msecs_to_jiffies(500), dev_name(gpu->dev));
+=======
+			     msecs_to_jiffies(500), NULL, NULL,
+			     dev_name(gpu->dev));
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 

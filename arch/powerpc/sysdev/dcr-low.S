@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * "Indirect" DCR access
  *
  * Copyright (c) 2004 Eugene Surovegin <ebs@ebshome.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of  the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/ppc_asm.h>
@@ -15,7 +22,11 @@
 #include <asm/export.h>
 
 #define DCR_ACCESS_PROLOG(table) \
+<<<<<<< HEAD
 	cmpli	cr0,r3,1024;	 \
+=======
+	cmplwi	cr0,r3,1024;	 \
+>>>>>>> upstream/android-13
 	rlwinm  r3,r3,4,18,27;   \
 	lis     r5,table@h;      \
 	ori     r5,r5,table@l;   \

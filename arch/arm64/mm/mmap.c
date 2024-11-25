@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/mm/mmap.c
  *
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -106,6 +111,17 @@ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
 		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
 	}
 }
+=======
+ */
+
+#include <linux/io.h>
+#include <linux/memblock.h>
+#include <linux/mm.h>
+#include <linux/types.h>
+
+#include <asm/cpufeature.h>
+#include <asm/page.h>
+>>>>>>> upstream/android-13
 
 /*
  * You really shouldn't be using read() or write() on /dev/mem.  This might go
@@ -135,6 +151,7 @@ int valid_mmap_phys_addr_range(unsigned long pfn, size_t size)
 	return !(((pfn << PAGE_SHIFT) + size) & ~PHYS_MASK);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_STRICT_DEVMEM
 
 #include <linux/ioport.h>
@@ -155,3 +172,19 @@ int devmem_is_allowed(unsigned long pfn)
 }
 
 #endif
+=======
+static int __init adjust_protection_map(void)
+{
+	/*
+	 * With Enhanced PAN we can honour the execute-only permissions as
+	 * there is no PAN override with such mappings.
+	 */
+	if (cpus_have_const_cap(ARM64_HAS_EPAN)) {
+		protection_map[VM_EXEC] = PAGE_EXECONLY;
+		protection_map[VM_EXEC | VM_SHARED] = PAGE_EXECONLY;
+	}
+
+	return 0;
+}
+arch_initcall(adjust_protection_map);
+>>>>>>> upstream/android-13

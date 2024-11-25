@@ -9,6 +9,7 @@
 #include <linux/uaccess.h>
 #include <asm/elf.h>
 #include <asm/proc-fns.h>
+<<<<<<< HEAD
 #include <linux/ptrace.h>
 #include <linux/reboot.h>
 
@@ -18,6 +19,18 @@ struct proc_dir_entry *proc_dir_cpu;
 EXPORT_SYMBOL(proc_dir_cpu);
 #endif
 
+=======
+#include <asm/fpu.h>
+#include <linux/ptrace.h>
+#include <linux/reboot.h>
+
+#if IS_ENABLED(CONFIG_LAZY_FPU)
+struct task_struct *last_task_used_math;
+#endif
+
+extern void setup_mm_for_reboot(char mode);
+
+>>>>>>> upstream/android-13
 extern inline void arch_reset(char mode)
 {
 	if (mode == 's') {
@@ -120,26 +133,59 @@ void show_regs(struct pt_regs *regs)
 		regs->uregs[3], regs->uregs[2], regs->uregs[1], regs->uregs[0]);
 	pr_info("  IRQs o%s  Segment %s\n",
 		interrupts_enabled(regs) ? "n" : "ff",
+<<<<<<< HEAD
 		segment_eq(get_fs(), get_ds())? "kernel" : "user");
+=======
+		uaccess_kernel() ? "kernel" : "user");
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL(show_regs);
 
+<<<<<<< HEAD
 void flush_thread(void)
 {
+=======
+void exit_thread(struct task_struct *tsk)
+{
+#if defined(CONFIG_FPU) && defined(CONFIG_LAZY_FPU)
+	if (last_task_used_math == tsk)
+		last_task_used_math = NULL;
+#endif
+}
+
+void flush_thread(void)
+{
+#if defined(CONFIG_FPU)
+	clear_fpu(task_pt_regs(current));
+	clear_used_math();
+# ifdef CONFIG_LAZY_FPU
+	if (last_task_used_math == current)
+		last_task_used_math = NULL;
+# endif
+#endif
+>>>>>>> upstream/android-13
 }
 
 DEFINE_PER_CPU(struct task_struct *, __entry_task);
 
 asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
 int copy_thread(unsigned long clone_flags, unsigned long stack_start,
+<<<<<<< HEAD
 	    unsigned long stk_sz, struct task_struct *p)
+=======
+		unsigned long stk_sz, struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *childregs = task_pt_regs(p);
 
 	memset(&p->thread.cpu_context, 0, sizeof(struct cpu_context));
 
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		memset(childregs, 0, sizeof(struct pt_regs));
 		/* kernel thread fn */
 		p->thread.cpu_context.r6 = stack_start;
@@ -153,12 +199,35 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
 		childregs->uregs[0] = 0;
 		childregs->osp = 0;
 		if (clone_flags & CLONE_SETTLS)
+<<<<<<< HEAD
 			childregs->uregs[25] = childregs->uregs[3];
+=======
+			childregs->uregs[25] = tls;
+>>>>>>> upstream/android-13
 	}
 	/* cpu context switching  */
 	p->thread.cpu_context.pc = (unsigned long)ret_from_fork;
 	p->thread.cpu_context.sp = (unsigned long)childregs;
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_FPU)
+	if (used_math()) {
+# if !IS_ENABLED(CONFIG_LAZY_FPU)
+		unlazy_fpu(current);
+# else
+		preempt_disable();
+		if (last_task_used_math == current)
+			save_fpu(current);
+		preempt_enable();
+# endif
+		p->thread.fpu = current->thread.fpu;
+		clear_fpu(task_pt_regs(p));
+		set_stopped_child_used_math(p);
+	}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_HWZOL
 	childregs->lb = 0;
 	childregs->le = 0;
@@ -168,12 +237,39 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_FPU)
+struct task_struct *_switch_fpu(struct task_struct *prev, struct task_struct *next)
+{
+#if !IS_ENABLED(CONFIG_LAZY_FPU)
+	unlazy_fpu(prev);
+#endif
+	if (!(next->flags & PF_KTHREAD))
+		clear_fpu(task_pt_regs(next));
+	return prev;
+}
+#endif
+
+>>>>>>> upstream/android-13
 /*
  * fill in the fpe structure for a core dump...
  */
 int dump_fpu(struct pt_regs *regs, elf_fpregset_t * fpu)
 {
 	int fpvalid = 0;
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_FPU)
+	struct task_struct *tsk = current;
+
+	fpvalid = tsk_used_math(tsk);
+	if (fpvalid) {
+		lose_fpu();
+		memcpy(fpu, &tsk->thread.fpu, sizeof(*fpu));
+	}
+#endif
+>>>>>>> upstream/android-13
 	return fpvalid;
 }
 
@@ -185,7 +281,11 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long stack_start, stack_end;
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (!p || p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (IS_ENABLED(CONFIG_FRAME_POINTER)) {

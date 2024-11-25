@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pistachio SoC pinctrl driver
  *
  * Copyright (C) 2014 Imagination Technologies Ltd.
  * Copyright (C) 2014 Google, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -10,6 +15,10 @@
  */
 
 #include <linux/gpio.h>
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/gpio/driver.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -1170,7 +1179,14 @@ static int pistachio_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 {
 	struct pistachio_gpio_bank *bank = gpiochip_get_data(chip);
 
+<<<<<<< HEAD
 	return !(gpio_readl(bank, GPIO_OUTPUT_EN) & BIT(offset));
+=======
+	if (gpio_readl(bank, GPIO_OUTPUT_EN) & BIT(offset))
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int pistachio_gpio_get(struct gpio_chip *chip, unsigned offset)
@@ -1307,7 +1323,11 @@ static void pistachio_gpio_irq_handler(struct irq_desc *desc)
 	pending = gpio_readl(bank, GPIO_INTERRUPT_STATUS) &
 		gpio_readl(bank, GPIO_INTERRUPT_EN);
 	for_each_set_bit(pin, &pending, 16)
+<<<<<<< HEAD
 		generic_handle_irq(irq_linear_revmap(gc->irq.domain, pin));
+=======
+		generic_handle_domain_irq(gc->irq.domain, pin);
+>>>>>>> upstream/android-13
 	chained_irq_exit(chip, desc);
 }
 
@@ -1356,6 +1376,10 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
 	for (i = 0; i < pctl->nbanks; i++) {
 		char child_name[sizeof("gpioXX")];
 		struct device_node *child;
+<<<<<<< HEAD
+=======
+		struct gpio_irq_chip *girq;
+>>>>>>> upstream/android-13
 
 		snprintf(child_name, sizeof(child_name), "gpio%d", i);
 		child = of_get_child_by_name(node, child_name);
@@ -1374,10 +1398,17 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
 		}
 
 		irq = irq_of_parse_and_map(child, 0);
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(pctl->dev, "No IRQ for bank %u: %d\n", i, irq);
 			of_node_put(child);
 			ret = irq;
+=======
+		if (!irq) {
+			dev_err(pctl->dev, "No IRQ for bank %u\n", i);
+			of_node_put(child);
+			ret = -EINVAL;
+>>>>>>> upstream/android-13
 			goto err;
 		}
 
@@ -1387,6 +1418,25 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
 
 		bank->gpio_chip.parent = pctl->dev;
 		bank->gpio_chip.of_node = child;
+<<<<<<< HEAD
+=======
+
+		girq = &bank->gpio_chip.irq;
+		girq->chip = &bank->irq_chip;
+		girq->parent_handler = pistachio_gpio_irq_handler;
+		girq->num_parents = 1;
+		girq->parents = devm_kcalloc(pctl->dev, 1,
+					     sizeof(*girq->parents),
+					     GFP_KERNEL);
+		if (!girq->parents) {
+			ret = -ENOMEM;
+			goto err;
+		}
+		girq->parents[0] = irq;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_level_irq;
+
+>>>>>>> upstream/android-13
 		ret = gpiochip_add_data(&bank->gpio_chip, bank);
 		if (ret < 0) {
 			dev_err(pctl->dev, "Failed to add GPIO chip %u: %d\n",
@@ -1394,6 +1444,7 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
 			goto err;
 		}
 
+<<<<<<< HEAD
 		ret = gpiochip_irqchip_add(&bank->gpio_chip, &bank->irq_chip,
 					   0, handle_level_irq, IRQ_TYPE_NONE);
 		if (ret < 0) {
@@ -1405,6 +1456,8 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
 		gpiochip_set_chained_irqchip(&bank->gpio_chip, &bank->irq_chip,
 					     irq, pistachio_gpio_irq_handler);
 
+=======
+>>>>>>> upstream/android-13
 		ret = gpiochip_add_pin_range(&bank->gpio_chip,
 					     dev_name(pctl->dev), 0,
 					     bank->pin_base, bank->npins);
@@ -1433,7 +1486,10 @@ static const struct of_device_id pistachio_pinctrl_of_match[] = {
 static int pistachio_pinctrl_probe(struct platform_device *pdev)
 {
 	struct pistachio_pinctrl *pctl;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 
 	pctl = devm_kzalloc(&pdev->dev, sizeof(*pctl), GFP_KERNEL);
 	if (!pctl)
@@ -1441,8 +1497,12 @@ static int pistachio_pinctrl_probe(struct platform_device *pdev)
 	pctl->dev = &pdev->dev;
 	dev_set_drvdata(&pdev->dev, pctl);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pctl->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	pctl->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pctl->base))
 		return PTR_ERR(pctl->base);
 

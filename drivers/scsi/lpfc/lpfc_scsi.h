@@ -1,7 +1,11 @@
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
+<<<<<<< HEAD
  * Copyright (C) 2017-2018 Broadcom. All Rights Reserved. The term *
+=======
+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
+>>>>>>> upstream/android-13
  * “Broadcom” refers to Broadcom Inc and/or its subsidiaries.  *
  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
  * EMULEX and SLI are trademarks of Emulex.                        *
@@ -130,6 +134,7 @@ struct lpfc_scsicmd_bkt {
 	uint32_t cmd_count;
 };
 
+<<<<<<< HEAD
 struct lpfc_scsi_buf {
 	struct list_head list;
 	struct scsi_cmnd *pCmd;
@@ -186,6 +191,8 @@ struct lpfc_scsi_buf {
 #endif
 };
 
+=======
+>>>>>>> upstream/android-13
 #define LPFC_SCSI_DMA_EXT_SIZE	264
 #define LPFC_BPL_SIZE		1024
 #define MDAC_DIRECT_CMD		0x22
@@ -194,7 +201,23 @@ struct lpfc_scsi_buf {
 #define NO_MORE_OAS_LUN		-1
 #define NOT_OAS_ENABLED_LUN	NO_MORE_OAS_LUN
 
+<<<<<<< HEAD
 #define TXRDY_PAYLOAD_LEN	12
 
 int lpfc_sli4_scmd_to_wqidx_distr(struct lpfc_hba *phba,
 				  struct lpfc_scsi_buf *lpfc_cmd);
+=======
+#ifndef FC_PORTSPEED_128GBIT
+#define FC_PORTSPEED_128GBIT	0x2000
+#endif
+
+#ifndef FC_PORTSPEED_256GBIT
+#define FC_PORTSPEED_256GBIT	0x4000
+#endif
+
+#define TXRDY_PAYLOAD_LEN	12
+
+/* For sysfs/debugfs tmp string max len */
+#define LPFC_MAX_SCSI_INFO_TMP_LEN	79
+
+>>>>>>> upstream/android-13

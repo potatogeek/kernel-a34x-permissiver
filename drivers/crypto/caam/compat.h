@@ -17,6 +17,10 @@
 #include <linux/of_platform.h>
 #include <linux/dma-mapping.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iommu.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/rtnetlink.h>
 #include <linux/in.h>
@@ -31,14 +35,28 @@
 #include <crypto/null.h>
 #include <crypto/aes.h>
 #include <crypto/ctr.h>
+<<<<<<< HEAD
 #include <crypto/des.h>
 #include <crypto/gcm.h>
 #include <crypto/sha.h>
 #include <crypto/md5.h>
+=======
+#include <crypto/internal/des.h>
+#include <crypto/gcm.h>
+#include <crypto/sha1.h>
+#include <crypto/sha2.h>
+#include <crypto/md5.h>
+#include <crypto/chacha.h>
+#include <crypto/poly1305.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/aead.h>
 #include <crypto/authenc.h>
 #include <crypto/akcipher.h>
 #include <crypto/scatterwalk.h>
+<<<<<<< HEAD
+=======
+#include <crypto/skcipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <crypto/internal/hash.h>
 #include <crypto/internal/rsa.h>

@@ -12,6 +12,13 @@ void early_ioremap_page_table_range_init(void);
 
 unsigned long kernel_physical_mapping_init(unsigned long start,
 					     unsigned long end,
+<<<<<<< HEAD
+=======
+					     unsigned long page_size_mask,
+					     pgprot_t prot);
+unsigned long kernel_physical_mapping_change(unsigned long start,
+					     unsigned long end,
+>>>>>>> upstream/android-13
 					     unsigned long page_size_mask);
 void zone_sizes_init(void);
 
@@ -19,4 +26,9 @@ extern int after_bootmem;
 
 void update_cache_mode_entry(unsigned entry, enum page_cache_mode cache);
 
+<<<<<<< HEAD
+=======
+extern unsigned long tlb_single_page_flush_ceiling;
+
+>>>>>>> upstream/android-13
 #endif	/* __X86_MM_INTERNAL_H */

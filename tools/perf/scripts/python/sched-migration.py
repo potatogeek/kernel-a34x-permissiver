@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 #!/usr/bin/python
 #
+=======
+>>>>>>> upstream/android-13
 # Cpu task migration overview toy
 #
 # Copyright (C) 2010 Frederic Weisbecker <fweisbec@gmail.com>
@@ -16,10 +19,17 @@ import sys
 
 from collections import defaultdict
 try:
+<<<<<<< HEAD
     from UserList import UserList
 except ImportError:
     # Python 3: UserList moved to the collections package
     from collections import UserList
+=======
+	from UserList import UserList
+except ImportError:
+	# Python 3: UserList moved to the collections package
+	from collections import UserList
+>>>>>>> upstream/android-13
 
 sys.path.append(os.environ['PERF_EXEC_PATH'] + \
 	'/scripts/python/Perf-Trace-Util/lib/Perf/Trace')

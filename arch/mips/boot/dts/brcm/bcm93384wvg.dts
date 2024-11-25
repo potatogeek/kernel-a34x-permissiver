@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 
+<<<<<<< HEAD
 /include/ "bcm3384_zephyr.dtsi"
+=======
+#include "bcm3384_zephyr.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	compatible = "brcm,bcm93384wvg", "brcm,bcm3384";

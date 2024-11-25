@@ -37,12 +37,19 @@ static const char version[] =
 #include <linux/etherdevice.h>
 #include <linux/skbuff.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cacheflush.h>
 #include <asm/setup.h>
 #include <asm/irq.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/dvma.h>
 #include <asm/idprom.h>
 #include <asm/machines.h>
@@ -150,7 +157,11 @@ struct lance_memory {
 struct lance_private {
 	volatile unsigned short	*iobase;
 	struct lance_memory	*mem;
+<<<<<<< HEAD
      	int new_rx, new_tx;	/* The next free ring entry */
+=======
+	int new_rx, new_tx;	/* The next free ring entry */
+>>>>>>> upstream/android-13
 	int old_tx, old_rx;     /* ring entry to be processed */
 /* These two must be longs for set_bit() */
 	long	    tx_full;
@@ -245,7 +256,11 @@ static void set_multicast_list( struct net_device *dev );
 
 /************************* End of Prototypes **************************/
 
+<<<<<<< HEAD
 struct net_device * __init sun3lance_probe(int unit)
+=======
+static struct net_device * __init sun3lance_probe(void)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev;
 	static int found;
@@ -272,10 +287,13 @@ struct net_device * __init sun3lance_probe(int unit)
 	dev = alloc_etherdev(sizeof(struct lance_private));
 	if (!dev)
 		return ERR_PTR(-ENOMEM);
+<<<<<<< HEAD
 	if (unit >= 0) {
 		sprintf(dev->name, "eth%d", unit);
 		netdev_boot_setup_check(dev);
 	}
+=======
+>>>>>>> upstream/android-13
 
 	if (!lance_probe(dev))
 		goto out;
@@ -465,7 +483,11 @@ static void lance_init_ring( struct net_device *dev )
 	for( i = 0; i < TX_RING_SIZE; i++ ) {
 		MEM->tx_head[i].base = dvma_vtob(MEM->tx_data[i]);
 		MEM->tx_head[i].flag = 0;
+<<<<<<< HEAD
  		MEM->tx_head[i].base_hi =
+=======
+		MEM->tx_head[i].base_hi =
+>>>>>>> upstream/android-13
 			(dvma_vtob(MEM->tx_data[i])) >>16;
 		MEM->tx_head[i].length = 0;
 		MEM->tx_head[i].misc = 0;
@@ -581,8 +603,13 @@ lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	}
 
 	AREG = CSR0;
+<<<<<<< HEAD
   	DPRINTK( 2, ( "%s: lance_start_xmit() called, csr0 %4.4x.\n",
   				  dev->name, DREG ));
+=======
+	DPRINTK( 2, ( "%s: lance_start_xmit() called, csr0 %4.4x.\n",
+				  dev->name, DREG ));
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SUN3X
 	/* this weirdness doesn't appear on sun3... */
@@ -636,8 +663,13 @@ lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	/* Trigger an immediate send poll. */
 	REGA(CSR0) = CSR0_INEA | CSR0_TDMD | CSR0_STRT;
 	AREG = CSR0;
+<<<<<<< HEAD
   	DPRINTK( 2, ( "%s: lance_start_xmit() exiting, csr0 %4.4x.\n",
   				  dev->name, DREG ));
+=======
+	DPRINTK( 2, ( "%s: lance_start_xmit() exiting, csr0 %4.4x.\n",
+				  dev->name, DREG ));
+>>>>>>> upstream/android-13
 	dev_kfree_skb(skb);
 
 	lp->lock = 0;
@@ -657,6 +689,7 @@ static irqreturn_t lance_interrupt( int irq, void *dev_id)
 	struct net_device *dev = dev_id;
 	struct lance_private *lp = netdev_priv(dev);
 	int csr0;
+<<<<<<< HEAD
 	static int in_interrupt;
 
 	if (dev == NULL) {
@@ -667,6 +700,8 @@ static irqreturn_t lance_interrupt( int irq, void *dev_id)
 	if (in_interrupt)
 		DPRINTK( 2, ( "%s: Re-entering the interrupt handler.\n", dev->name ));
 	in_interrupt = 1;
+=======
+>>>>>>> upstream/android-13
 
  still_more:
 	flush_cache_all();
@@ -774,7 +809,10 @@ static irqreturn_t lance_interrupt( int irq, void *dev_id)
 
 	DPRINTK( 2, ( "%s: exiting interrupt, csr0=%#04x.\n",
 				  dev->name, DREG ));
+<<<<<<< HEAD
 	in_interrupt = 0;
+=======
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -935,6 +973,7 @@ static void set_multicast_list( struct net_device *dev )
 }
 
 
+<<<<<<< HEAD
 #ifdef MODULE
 
 static struct net_device *sun3lance_dev;
@@ -946,6 +985,18 @@ int __init init_module(void)
 }
 
 void __exit cleanup_module(void)
+=======
+static struct net_device *sun3lance_dev;
+
+static int __init sun3lance_init(void)
+{
+	sun3lance_dev = sun3lance_probe();
+	return PTR_ERR_OR_ZERO(sun3lance_dev);
+}
+module_init(sun3lance_init);
+
+static void __exit sun3lance_cleanup(void)
+>>>>>>> upstream/android-13
 {
 	unregister_netdev(sun3lance_dev);
 #ifdef CONFIG_SUN3
@@ -953,6 +1004,10 @@ void __exit cleanup_module(void)
 #endif
 	free_netdev(sun3lance_dev);
 }
+<<<<<<< HEAD
 
 #endif /* MODULE */
 
+=======
+module_exit(sun3lance_cleanup);
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI Driver for Microchip MCP795 RTC
  *
@@ -6,12 +10,16 @@
  * based on other Linux RTC drivers
  *
  * Device datasheet:
+<<<<<<< HEAD
  * http://ww1.microchip.com/downloads/en/DeviceDoc/22280A.pdf
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+ * https://ww1.microchip.com/downloads/en/DeviceDoc/22280A.pdf
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -233,9 +241,13 @@ static int mcp795_set_time(struct device *dev, struct rtc_time *tim)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "Set mcp795: %04d-%02d-%02d(%d) %02d:%02d:%02d\n",
 			tim->tm_year + 1900, tim->tm_mon, tim->tm_mday,
 			tim->tm_wday, tim->tm_hour, tim->tm_min, tim->tm_sec);
+=======
+	dev_dbg(dev, "Set mcp795: %ptR\n", tim);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -258,9 +270,13 @@ static int mcp795_read_time(struct device *dev, struct rtc_time *tim)
 	tim->tm_mon	= bcd2bin(data[5] & 0x1F) - 1;
 	tim->tm_year	= bcd2bin(data[6]) + 100; /* Assume we are in 20xx */
 
+<<<<<<< HEAD
 	dev_dbg(dev, "Read from mcp795: %04d-%02d-%02d(%d) %02d:%02d:%02d\n",
 			tim->tm_year + 1900, tim->tm_mon, tim->tm_mday,
 			tim->tm_wday, tim->tm_hour, tim->tm_min, tim->tm_sec);
+=======
+	dev_dbg(dev, "Read from mcp795: %ptR\n", tim);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -319,9 +335,14 @@ static int mcp795_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
 			return ret;
 		dev_dbg(dev, "Alarm IRQ armed\n");
 	}
+<<<<<<< HEAD
 	dev_dbg(dev, "Set alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
 			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
 			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
+=======
+	dev_dbg(dev, "Set alarm: %ptRdr(%d) %ptRt\n",
+		&alm->time, alm->time.tm_wday, &alm->time);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -345,9 +366,14 @@ static int mcp795_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
 	alm->time.tm_isdst	= -1;
 	alm->time.tm_yday	= -1;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "Read alarm: %02d-%02d(%d) %02d:%02d:%02d\n",
 			alm->time.tm_mon, alm->time.tm_mday, alm->time.tm_wday,
 			alm->time.tm_hour, alm->time.tm_min, alm->time.tm_sec);
+=======
+	dev_dbg(dev, "Read alarm: %ptRdr(%d) %ptRt\n",
+		&alm->time, alm->time.tm_wday, &alm->time);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -360,10 +386,16 @@ static irqreturn_t mcp795_irq(int irq, void *data)
 {
 	struct spi_device *spi = data;
 	struct rtc_device *rtc = spi_get_drvdata(spi);
+<<<<<<< HEAD
 	struct mutex *lock = &rtc->ops_lock;
 	int ret;
 
 	mutex_lock(lock);
+=======
+	int ret;
+
+	rtc_lock(rtc);
+>>>>>>> upstream/android-13
 
 	/* Disable alarm.
 	 * There is no need to clear ALM0IF (Alarm 0 Interrupt Flag) bit,
@@ -375,7 +407,11 @@ static irqreturn_t mcp795_irq(int irq, void *data)
 			"Failed to disable alarm in IRQ (ret=%d)\n", ret);
 	rtc_update_irq(rtc, 1, RTC_AF | RTC_IRQF);
 
+<<<<<<< HEAD
 	mutex_unlock(lock);
+=======
+	rtc_unlock(rtc);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -441,12 +477,25 @@ static const struct of_device_id mcp795_of_match[] = {
 MODULE_DEVICE_TABLE(of, mcp795_of_match);
 #endif
 
+<<<<<<< HEAD
+=======
+static const struct spi_device_id mcp795_spi_ids[] = {
+	{ .name = "mcp795" },
+	{ }
+};
+MODULE_DEVICE_TABLE(spi, mcp795_spi_ids);
+
+>>>>>>> upstream/android-13
 static struct spi_driver mcp795_driver = {
 		.driver = {
 				.name = "rtc-mcp795",
 				.of_match_table = of_match_ptr(mcp795_of_match),
 		},
 		.probe = mcp795_probe,
+<<<<<<< HEAD
+=======
+		.id_table = mcp795_spi_ids,
+>>>>>>> upstream/android-13
 };
 
 module_spi_driver(mcp795_driver);

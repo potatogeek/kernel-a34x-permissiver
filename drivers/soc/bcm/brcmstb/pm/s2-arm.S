@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2014-2017 Broadcom
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright © 2014-2017 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>

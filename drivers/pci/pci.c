@@ -13,8 +13,13 @@
 #include <linux/delay.h>
 #include <linux/dmi.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_pci.h>
+=======
+#include <linux/msi.h>
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/pm.h>
 #include <linux/slab.h>
@@ -29,10 +34,16 @@
 #include <linux/pm_runtime.h>
 #include <linux/pci_hotplug.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 #include <linux/pci-ats.h>
 #include <asm/setup.h>
 #include <asm/dma.h>
 #include <linux/aer.h>
+=======
+#include <asm/dma.h>
+#include <linux/aer.h>
+#include <linux/bitfield.h>
+>>>>>>> upstream/android-13
 #include "pci.h"
 
 DEFINE_MUTEX(pci_slot_mutex);
@@ -48,7 +59,11 @@ EXPORT_SYMBOL(isa_dma_bridge_buggy);
 int pci_pci_problems;
 EXPORT_SYMBOL(pci_pci_problems);
 
+<<<<<<< HEAD
 unsigned int pci_pm_d3_delay;
+=======
+unsigned int pci_pm_d3hot_delay;
+>>>>>>> upstream/android-13
 
 static void pci_pme_list_scan(struct work_struct *work);
 
@@ -65,15 +80,30 @@ struct pci_pme_device {
 
 static void pci_dev_d3_sleep(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	unsigned int delay = dev->d3_delay;
 
 	if (delay < pci_pm_d3_delay)
 		delay = pci_pm_d3_delay;
+=======
+	unsigned int delay = dev->d3hot_delay;
+
+	if (delay < pci_pm_d3hot_delay)
+		delay = pci_pm_d3hot_delay;
+>>>>>>> upstream/android-13
 
 	if (delay)
 		msleep(delay);
 }
 
+<<<<<<< HEAD
+=======
+bool pci_reset_supported(struct pci_dev *dev)
+{
+	return dev->reset_methods[0] != 0;
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PCI_DOMAINS
 int pci_domains_supported = 1;
 #endif
@@ -85,15 +115,45 @@ unsigned long pci_cardbus_io_size = DEFAULT_CARDBUS_IO_SIZE;
 unsigned long pci_cardbus_mem_size = DEFAULT_CARDBUS_MEM_SIZE;
 
 #define DEFAULT_HOTPLUG_IO_SIZE		(256)
+<<<<<<< HEAD
 #define DEFAULT_HOTPLUG_MEM_SIZE	(2*1024*1024)
 /* pci=hpmemsize=nnM,hpiosize=nn can override this */
 unsigned long pci_hotplug_io_size  = DEFAULT_HOTPLUG_IO_SIZE;
 unsigned long pci_hotplug_mem_size = DEFAULT_HOTPLUG_MEM_SIZE;
+=======
+#define DEFAULT_HOTPLUG_MMIO_SIZE	(2*1024*1024)
+#define DEFAULT_HOTPLUG_MMIO_PREF_SIZE	(2*1024*1024)
+/* hpiosize=nn can override this */
+unsigned long pci_hotplug_io_size  = DEFAULT_HOTPLUG_IO_SIZE;
+/*
+ * pci=hpmmiosize=nnM overrides non-prefetchable MMIO size,
+ * pci=hpmmioprefsize=nnM overrides prefetchable MMIO size;
+ * pci=hpmemsize=nnM overrides both
+ */
+unsigned long pci_hotplug_mmio_size = DEFAULT_HOTPLUG_MMIO_SIZE;
+unsigned long pci_hotplug_mmio_pref_size = DEFAULT_HOTPLUG_MMIO_PREF_SIZE;
+>>>>>>> upstream/android-13
 
 #define DEFAULT_HOTPLUG_BUS_SIZE	1
 unsigned long pci_hotplug_bus_size = DEFAULT_HOTPLUG_BUS_SIZE;
 
+<<<<<<< HEAD
 enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_DEFAULT;
+=======
+
+/* PCIe MPS/MRRS strategy; can be overridden by kernel command-line param */
+#ifdef CONFIG_PCIE_BUS_TUNE_OFF
+enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_TUNE_OFF;
+#elif defined CONFIG_PCIE_BUS_SAFE
+enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_SAFE;
+#elif defined CONFIG_PCIE_BUS_PERFORMANCE
+enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_PERFORMANCE;
+#elif defined CONFIG_PCIE_BUS_PEER2PEER
+enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_PEER2PEER;
+#else
+enum pcie_bus_config_types pcie_bus_config = PCIE_BUS_DEFAULT;
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * The default CLS is used if arch didn't set CLS explicitly and not
@@ -123,6 +183,10 @@ bool pci_ats_disabled(void)
 {
 	return pcie_ats_disabled;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(pci_ats_disabled);
+>>>>>>> upstream/android-13
 
 /* Disable bridge_d3 for all PCIe ports */
 static bool pci_bridge_d3_disable;
@@ -164,24 +228,74 @@ unsigned char pci_bus_max_busnr(struct pci_bus *bus)
 }
 EXPORT_SYMBOL_GPL(pci_bus_max_busnr);
 
+<<<<<<< HEAD
 #ifdef CONFIG_HAS_IOMEM
 void __iomem *pci_ioremap_bar(struct pci_dev *pdev, int bar)
 {
 	struct resource *res = &pdev->resource[bar];
+=======
+/**
+ * pci_status_get_and_clear_errors - return and clear error bits in PCI_STATUS
+ * @pdev: the PCI device
+ *
+ * Returns error bits set in PCI_STATUS and clears them.
+ */
+int pci_status_get_and_clear_errors(struct pci_dev *pdev)
+{
+	u16 status;
+	int ret;
+
+	ret = pci_read_config_word(pdev, PCI_STATUS, &status);
+	if (ret != PCIBIOS_SUCCESSFUL)
+		return -EIO;
+
+	status &= PCI_STATUS_ERROR_BITS;
+	if (status)
+		pci_write_config_word(pdev, PCI_STATUS, status);
+
+	return status;
+}
+EXPORT_SYMBOL_GPL(pci_status_get_and_clear_errors);
+
+#ifdef CONFIG_HAS_IOMEM
+static void __iomem *__pci_ioremap_resource(struct pci_dev *pdev, int bar,
+					    bool write_combine)
+{
+	struct resource *res = &pdev->resource[bar];
+	resource_size_t start = res->start;
+	resource_size_t size = resource_size(res);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Make sure the BAR is actually a memory resource, not an IO resource
 	 */
 	if (res->flags & IORESOURCE_UNSET || !(res->flags & IORESOURCE_MEM)) {
+<<<<<<< HEAD
 		pci_warn(pdev, "can't ioremap BAR %d: %pR\n", bar, res);
 		return NULL;
 	}
 	return ioremap_nocache(res->start, resource_size(res));
+=======
+		pci_err(pdev, "can't ioremap BAR %d: %pR\n", bar, res);
+		return NULL;
+	}
+
+	if (write_combine)
+		return ioremap_wc(start, size);
+
+	return ioremap(start, size);
+}
+
+void __iomem *pci_ioremap_bar(struct pci_dev *pdev, int bar)
+{
+	return __pci_ioremap_resource(pdev, bar, false);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_ioremap_bar);
 
 void __iomem *pci_ioremap_wc_bar(struct pci_dev *pdev, int bar)
 {
+<<<<<<< HEAD
 	/*
 	 * Make sure the BAR is actually a memory resource, not an IO resource
 	 */
@@ -191,14 +305,22 @@ void __iomem *pci_ioremap_wc_bar(struct pci_dev *pdev, int bar)
 	}
 	return ioremap_wc(pci_resource_start(pdev, bar),
 			  pci_resource_len(pdev, bar));
+=======
+	return __pci_ioremap_resource(pdev, bar, true);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_ioremap_wc_bar);
 #endif
 
 /**
  * pci_dev_str_match_path - test if a path string matches a device
+<<<<<<< HEAD
  * @dev:    the PCI device to test
  * @p:      string to match the device against
+=======
+ * @dev: the PCI device to test
+ * @path: string to match the device against
+>>>>>>> upstream/android-13
  * @endptr: pointer to the string after the match
  *
  * Test if a string (typically from a kernel parameter) formatted as a
@@ -224,7 +346,11 @@ static int pci_dev_str_match_path(struct pci_dev *dev, const char *path,
 
 	*endptr = strchrnul(path, ';');
 
+<<<<<<< HEAD
 	wpath = kmemdup_nul(path, *endptr - path, GFP_KERNEL);
+=======
+	wpath = kmemdup_nul(path, *endptr - path, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!wpath)
 		return -ENOMEM;
 
@@ -280,8 +406,13 @@ free_and_exit:
 
 /**
  * pci_dev_str_match - test if a string matches a device
+<<<<<<< HEAD
  * @dev:    the PCI device to test
  * @p:      string to match the device against
+=======
+ * @dev: the PCI device to test
+ * @p: string to match the device against
+>>>>>>> upstream/android-13
  * @endptr: pointer to the string after the match
  *
  * Test if a string (typically from a kernel parameter) matches a specified
@@ -341,7 +472,11 @@ static int pci_dev_str_match(struct pci_dev *dev, const char *p,
 	} else {
 		/*
 		 * PCI Bus, Device, Function IDs are specified
+<<<<<<< HEAD
 		 *  (optionally, may include a path of devfns following it)
+=======
+		 * (optionally, may include a path of devfns following it)
+>>>>>>> upstream/android-13
 		 */
 		ret = pci_dev_str_match_path(dev, p, &p);
 		if (ret < 0)
@@ -358,8 +493,13 @@ found:
 	return 1;
 }
 
+<<<<<<< HEAD
 static int __pci_find_next_cap_ttl(struct pci_bus *bus, unsigned int devfn,
 				   u8 pos, int cap, int *ttl)
+=======
+static u8 __pci_find_next_cap_ttl(struct pci_bus *bus, unsigned int devfn,
+				  u8 pos, int cap, int *ttl)
+>>>>>>> upstream/android-13
 {
 	u8 id;
 	u16 ent;
@@ -382,22 +522,35 @@ static int __pci_find_next_cap_ttl(struct pci_bus *bus, unsigned int devfn,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __pci_find_next_cap(struct pci_bus *bus, unsigned int devfn,
 			       u8 pos, int cap)
+=======
+static u8 __pci_find_next_cap(struct pci_bus *bus, unsigned int devfn,
+			      u8 pos, int cap)
+>>>>>>> upstream/android-13
 {
 	int ttl = PCI_FIND_CAP_TTL;
 
 	return __pci_find_next_cap_ttl(bus, devfn, pos, cap, &ttl);
 }
 
+<<<<<<< HEAD
 int pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
+=======
+u8 pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
+>>>>>>> upstream/android-13
 {
 	return __pci_find_next_cap(dev->bus, dev->devfn,
 				   pos + PCI_CAP_LIST_NEXT, cap);
 }
 EXPORT_SYMBOL_GPL(pci_find_next_capability);
 
+<<<<<<< HEAD
 static int __pci_bus_find_cap_start(struct pci_bus *bus,
+=======
+static u8 __pci_bus_find_cap_start(struct pci_bus *bus,
+>>>>>>> upstream/android-13
 				    unsigned int devfn, u8 hdr_type)
 {
 	u16 status;
@@ -425,7 +578,11 @@ static int __pci_bus_find_cap_start(struct pci_bus *bus,
  * Tell if a device supports a given PCI capability.
  * Returns the address of the requested capability structure within the
  * device's PCI configuration space or 0 in case the device does not
+<<<<<<< HEAD
  * support it.  Possible values for @cap:
+=======
+ * support it.  Possible values for @cap include:
+>>>>>>> upstream/android-13
  *
  *  %PCI_CAP_ID_PM           Power Management
  *  %PCI_CAP_ID_AGP          Accelerated Graphics Port
@@ -436,9 +593,15 @@ static int __pci_bus_find_cap_start(struct pci_bus *bus,
  *  %PCI_CAP_ID_PCIX         PCI-X
  *  %PCI_CAP_ID_EXP          PCI Express
  */
+<<<<<<< HEAD
 int pci_find_capability(struct pci_dev *dev, int cap)
 {
 	int pos;
+=======
+u8 pci_find_capability(struct pci_dev *dev, int cap)
+{
+	u8 pos;
+>>>>>>> upstream/android-13
 
 	pos = __pci_bus_find_cap_start(dev->bus, dev->devfn, dev->hdr_type);
 	if (pos)
@@ -450,21 +613,35 @@ EXPORT_SYMBOL(pci_find_capability);
 
 /**
  * pci_bus_find_capability - query for devices' capabilities
+<<<<<<< HEAD
  * @bus:   the PCI bus to query
  * @devfn: PCI device to query
  * @cap:   capability code
  *
  * Like pci_find_capability() but works for pci devices that do not have a
+=======
+ * @bus: the PCI bus to query
+ * @devfn: PCI device to query
+ * @cap: capability code
+ *
+ * Like pci_find_capability() but works for PCI devices that do not have a
+>>>>>>> upstream/android-13
  * pci_dev structure set up yet.
  *
  * Returns the address of the requested capability structure within the
  * device's PCI configuration space or 0 in case the device does not
  * support it.
  */
+<<<<<<< HEAD
 int pci_bus_find_capability(struct pci_bus *bus, unsigned int devfn, int cap)
 {
 	int pos;
 	u8 hdr_type;
+=======
+u8 pci_bus_find_capability(struct pci_bus *bus, unsigned int devfn, int cap)
+{
+	u8 hdr_type, pos;
+>>>>>>> upstream/android-13
 
 	pci_bus_read_config_byte(bus, devfn, PCI_HEADER_TYPE, &hdr_type);
 
@@ -487,11 +664,19 @@ EXPORT_SYMBOL(pci_bus_find_capability);
  * not support it.  Some capabilities can occur several times, e.g., the
  * vendor-specific capability, and this provides a way to find them all.
  */
+<<<<<<< HEAD
 int pci_find_next_ext_capability(struct pci_dev *dev, int start, int cap)
 {
 	u32 header;
 	int ttl;
 	int pos = PCI_CFG_SPACE_SIZE;
+=======
+u16 pci_find_next_ext_capability(struct pci_dev *dev, u16 start, int cap)
+{
+	u32 header;
+	int ttl;
+	u16 pos = PCI_CFG_SPACE_SIZE;
+>>>>>>> upstream/android-13
 
 	/* minimum 8 bytes per capability */
 	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
@@ -535,20 +720,66 @@ EXPORT_SYMBOL_GPL(pci_find_next_ext_capability);
  *
  * Returns the address of the requested extended capability structure
  * within the device's PCI configuration space or 0 if the device does
+<<<<<<< HEAD
  * not support it.  Possible values for @cap:
+=======
+ * not support it.  Possible values for @cap include:
+>>>>>>> upstream/android-13
  *
  *  %PCI_EXT_CAP_ID_ERR		Advanced Error Reporting
  *  %PCI_EXT_CAP_ID_VC		Virtual Channel
  *  %PCI_EXT_CAP_ID_DSN		Device Serial Number
  *  %PCI_EXT_CAP_ID_PWR		Power Budgeting
  */
+<<<<<<< HEAD
 int pci_find_ext_capability(struct pci_dev *dev, int cap)
+=======
+u16 pci_find_ext_capability(struct pci_dev *dev, int cap)
+>>>>>>> upstream/android-13
 {
 	return pci_find_next_ext_capability(dev, 0, cap);
 }
 EXPORT_SYMBOL_GPL(pci_find_ext_capability);
 
+<<<<<<< HEAD
 static int __pci_find_next_ht_cap(struct pci_dev *dev, int pos, int ht_cap)
+=======
+/**
+ * pci_get_dsn - Read and return the 8-byte Device Serial Number
+ * @dev: PCI device to query
+ *
+ * Looks up the PCI_EXT_CAP_ID_DSN and reads the 8 bytes of the Device Serial
+ * Number.
+ *
+ * Returns the DSN, or zero if the capability does not exist.
+ */
+u64 pci_get_dsn(struct pci_dev *dev)
+{
+	u32 dword;
+	u64 dsn;
+	int pos;
+
+	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_DSN);
+	if (!pos)
+		return 0;
+
+	/*
+	 * The Device Serial Number is two dwords offset 4 bytes from the
+	 * capability position. The specification says that the first dword is
+	 * the lower half, and the second dword is the upper half.
+	 */
+	pos += 4;
+	pci_read_config_dword(dev, pos, &dword);
+	dsn = (u64)dword;
+	pci_read_config_dword(dev, pos + 4, &dword);
+	dsn |= ((u64)dword) << 32;
+
+	return dsn;
+}
+EXPORT_SYMBOL_GPL(pci_get_dsn);
+
+static u8 __pci_find_next_ht_cap(struct pci_dev *dev, u8 pos, int ht_cap)
+>>>>>>> upstream/android-13
 {
 	int rc, ttl = PCI_FIND_CAP_TTL;
 	u8 cap, mask;
@@ -575,11 +806,20 @@ static int __pci_find_next_ht_cap(struct pci_dev *dev, int pos, int ht_cap)
 
 	return 0;
 }
+<<<<<<< HEAD
 /**
  * pci_find_next_ht_capability - query a device's Hypertransport capabilities
  * @dev: PCI device to query
  * @pos: Position from which to continue searching
  * @ht_cap: Hypertransport capability code
+=======
+
+/**
+ * pci_find_next_ht_capability - query a device's HyperTransport capabilities
+ * @dev: PCI device to query
+ * @pos: Position from which to continue searching
+ * @ht_cap: HyperTransport capability code
+>>>>>>> upstream/android-13
  *
  * To be used in conjunction with pci_find_ht_capability() to search for
  * all capabilities matching @ht_cap. @pos should always be a value returned
@@ -588,13 +828,18 @@ static int __pci_find_next_ht_cap(struct pci_dev *dev, int pos, int ht_cap)
  * NB. To be 100% safe against broken PCI devices, the caller should take
  * steps to avoid an infinite loop.
  */
+<<<<<<< HEAD
 int pci_find_next_ht_capability(struct pci_dev *dev, int pos, int ht_cap)
+=======
+u8 pci_find_next_ht_capability(struct pci_dev *dev, u8 pos, int ht_cap)
+>>>>>>> upstream/android-13
 {
 	return __pci_find_next_ht_cap(dev, pos + PCI_CAP_LIST_NEXT, ht_cap);
 }
 EXPORT_SYMBOL_GPL(pci_find_next_ht_capability);
 
 /**
+<<<<<<< HEAD
  * pci_find_ht_capability - query a device's Hypertransport capabilities
  * @dev: PCI device to query
  * @ht_cap: Hypertransport capability code
@@ -608,6 +853,21 @@ EXPORT_SYMBOL_GPL(pci_find_next_ht_capability);
 int pci_find_ht_capability(struct pci_dev *dev, int ht_cap)
 {
 	int pos;
+=======
+ * pci_find_ht_capability - query a device's HyperTransport capabilities
+ * @dev: PCI device to query
+ * @ht_cap: HyperTransport capability code
+ *
+ * Tell if a device supports a given HyperTransport capability.
+ * Returns an address within the device's PCI configuration space
+ * or 0 in case the device does not support the request capability.
+ * The address points to the PCI capability, of type PCI_CAP_ID_HT,
+ * which has a HyperTransport capability matching @ht_cap.
+ */
+u8 pci_find_ht_capability(struct pci_dev *dev, int ht_cap)
+{
+	u8 pos;
+>>>>>>> upstream/android-13
 
 	pos = __pci_bus_find_cap_start(dev->bus, dev->devfn, dev->hdr_type);
 	if (pos)
@@ -618,12 +878,52 @@ int pci_find_ht_capability(struct pci_dev *dev, int ht_cap)
 EXPORT_SYMBOL_GPL(pci_find_ht_capability);
 
 /**
+<<<<<<< HEAD
  * pci_find_parent_resource - return resource region of parent bus of given region
  * @dev: PCI device structure contains resources to be searched
  * @res: child resource record for which parent is sought
  *
  *  For given resource region of given device, return the resource
  *  region of parent bus the given region is contained in.
+=======
+ * pci_find_vsec_capability - Find a vendor-specific extended capability
+ * @dev: PCI device to query
+ * @vendor: Vendor ID for which capability is defined
+ * @cap: Vendor-specific capability ID
+ *
+ * If @dev has Vendor ID @vendor, search for a VSEC capability with
+ * VSEC ID @cap. If found, return the capability offset in
+ * config space; otherwise return 0.
+ */
+u16 pci_find_vsec_capability(struct pci_dev *dev, u16 vendor, int cap)
+{
+	u16 vsec = 0;
+	u32 header;
+
+	if (vendor != dev->vendor)
+		return 0;
+
+	while ((vsec = pci_find_next_ext_capability(dev, vsec,
+						     PCI_EXT_CAP_ID_VNDR))) {
+		if (pci_read_config_dword(dev, vsec + PCI_VNDR_HEADER,
+					  &header) == PCIBIOS_SUCCESSFUL &&
+		    PCI_VNDR_HEADER_ID(header) == cap)
+			return vsec;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(pci_find_vsec_capability);
+
+/**
+ * pci_find_parent_resource - return resource region of parent bus of given
+ *			      region
+ * @dev: PCI device structure contains resources to be searched
+ * @res: child resource record for which parent is sought
+ *
+ * For given resource region of given device, return the resource region of
+ * parent bus the given region is contained in.
+>>>>>>> upstream/android-13
  */
 struct resource *pci_find_parent_resource(const struct pci_dev *dev,
 					  struct resource *res)
@@ -673,7 +973,11 @@ struct resource *pci_find_resource(struct pci_dev *dev, struct resource *res)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < PCI_ROM_RESOURCE; i++) {
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>>>>>> upstream/android-13
 		struct resource *r = &dev->resource[i];
 
 		if (r->start && resource_contains(r, res))
@@ -685,6 +989,7 @@ struct resource *pci_find_resource(struct pci_dev *dev, struct resource *res)
 EXPORT_SYMBOL(pci_find_resource);
 
 /**
+<<<<<<< HEAD
  * pci_find_pcie_root_port - return PCIe Root Port
  * @dev: PCI device to query
  *
@@ -709,6 +1014,8 @@ struct pci_dev *pci_find_pcie_root_port(struct pci_dev *dev)
 EXPORT_SYMBOL(pci_find_pcie_root_port);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * pci_wait_for_pending - wait for @mask bit(s) to clear in status word @pos
  * @dev: the PCI device to operate on
  * @pos: config space offset of status word
@@ -734,6 +1041,140 @@ int pci_wait_for_pending(struct pci_dev *dev, int pos, u16 mask)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int pci_acs_enable;
+
+/**
+ * pci_request_acs - ask for ACS to be enabled if supported
+ */
+void pci_request_acs(void)
+{
+	pci_acs_enable = 1;
+}
+
+static const char *disable_acs_redir_param;
+
+/**
+ * pci_disable_acs_redir - disable ACS redirect capabilities
+ * @dev: the PCI device
+ *
+ * For only devices specified in the disable_acs_redir parameter.
+ */
+static void pci_disable_acs_redir(struct pci_dev *dev)
+{
+	int ret = 0;
+	const char *p;
+	int pos;
+	u16 ctrl;
+
+	if (!disable_acs_redir_param)
+		return;
+
+	p = disable_acs_redir_param;
+	while (*p) {
+		ret = pci_dev_str_match(dev, p, &p);
+		if (ret < 0) {
+			pr_info_once("PCI: Can't parse disable_acs_redir parameter: %s\n",
+				     disable_acs_redir_param);
+
+			break;
+		} else if (ret == 1) {
+			/* Found a match */
+			break;
+		}
+
+		if (*p != ';' && *p != ',') {
+			/* End of param or invalid format */
+			break;
+		}
+		p++;
+	}
+
+	if (ret != 1)
+		return;
+
+	if (!pci_dev_specific_disable_acs_redir(dev))
+		return;
+
+	pos = dev->acs_cap;
+	if (!pos) {
+		pci_warn(dev, "cannot disable ACS redirect for this hardware as it does not have ACS capabilities\n");
+		return;
+	}
+
+	pci_read_config_word(dev, pos + PCI_ACS_CTRL, &ctrl);
+
+	/* P2P Request & Completion Redirect */
+	ctrl &= ~(PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_EC);
+
+	pci_write_config_word(dev, pos + PCI_ACS_CTRL, ctrl);
+
+	pci_info(dev, "disabled ACS redirect\n");
+}
+
+/**
+ * pci_std_enable_acs - enable ACS on devices using standard ACS capabilities
+ * @dev: the PCI device
+ */
+static void pci_std_enable_acs(struct pci_dev *dev)
+{
+	int pos;
+	u16 cap;
+	u16 ctrl;
+
+	pos = dev->acs_cap;
+	if (!pos)
+		return;
+
+	pci_read_config_word(dev, pos + PCI_ACS_CAP, &cap);
+	pci_read_config_word(dev, pos + PCI_ACS_CTRL, &ctrl);
+
+	/* Source Validation */
+	ctrl |= (cap & PCI_ACS_SV);
+
+	/* P2P Request Redirect */
+	ctrl |= (cap & PCI_ACS_RR);
+
+	/* P2P Completion Redirect */
+	ctrl |= (cap & PCI_ACS_CR);
+
+	/* Upstream Forwarding */
+	ctrl |= (cap & PCI_ACS_UF);
+
+	/* Enable Translation Blocking for external devices and noats */
+	if (pci_ats_disabled() || dev->external_facing || dev->untrusted)
+		ctrl |= (cap & PCI_ACS_TB);
+
+	pci_write_config_word(dev, pos + PCI_ACS_CTRL, ctrl);
+}
+
+/**
+ * pci_enable_acs - enable ACS if hardware support it
+ * @dev: the PCI device
+ */
+static void pci_enable_acs(struct pci_dev *dev)
+{
+	if (!pci_acs_enable)
+		goto disable_acs_redir;
+
+	if (!pci_dev_specific_enable_acs(dev))
+		goto disable_acs_redir;
+
+	pci_std_enable_acs(dev);
+
+disable_acs_redir:
+	/*
+	 * Note: pci_disable_acs_redir() must be called even if ACS was not
+	 * enabled by the kernel because it may have been enabled by
+	 * platform firmware.  So if we are told to disable it, we should
+	 * always disable it after setting the kernel's default
+	 * preferences.
+	 */
+	pci_disable_acs_redir(dev);
+}
+
+>>>>>>> upstream/android-13
 /**
  * pci_restore_bars - restore a device's BAR values (e.g. after wake-up)
  * @dev: PCI device to have its BARs restored
@@ -776,6 +1217,15 @@ static inline pci_power_t platform_pci_get_power_state(struct pci_dev *dev)
 	return pci_platform_pm ? pci_platform_pm->get_state(dev) : PCI_UNKNOWN;
 }
 
+<<<<<<< HEAD
+=======
+static inline void platform_pci_refresh_power_state(struct pci_dev *dev)
+{
+	if (pci_platform_pm && pci_platform_pm->refresh_state)
+		pci_platform_pm->refresh_state(dev);
+}
+
+>>>>>>> upstream/android-13
 static inline pci_power_t platform_pci_choose_state(struct pci_dev *dev)
 {
 	return pci_platform_pm ?
@@ -793,9 +1243,22 @@ static inline bool platform_pci_need_resume(struct pci_dev *dev)
 	return pci_platform_pm ? pci_platform_pm->need_resume(dev) : false;
 }
 
+<<<<<<< HEAD
 /**
  * pci_raw_set_power_state - Use PCI PM registers to set the power state of
  *                           given PCI device
+=======
+static inline bool platform_pci_bridge_d3(struct pci_dev *dev)
+{
+	if (pci_platform_pm && pci_platform_pm->bridge_d3)
+		return pci_platform_pm->bridge_d3(dev);
+	return false;
+}
+
+/**
+ * pci_raw_set_power_state - Use PCI PM registers to set the power state of
+ *			     given PCI device
+>>>>>>> upstream/android-13
  * @dev: PCI device to handle.
  * @state: PCI power state (D0, D1, D2, D3hot) to put the device into.
  *
@@ -821,6 +1284,7 @@ static int pci_raw_set_power_state(struct pci_dev *dev, pci_power_t state)
 	if (state < PCI_D0 || state > PCI_D3hot)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Validate current state:
 	 * Can enter D0 from any state, but if we can only go deeper
 	 * to sleep if we're already in a low power state
@@ -833,13 +1297,42 @@ static int pci_raw_set_power_state(struct pci_dev *dev, pci_power_t state)
 	}
 
 	/* check if this device supports the desired state */
+=======
+	/*
+	 * Validate transition: We can enter D0 from any state, but if
+	 * we're already in a low-power state, we can only go deeper.  E.g.,
+	 * we can go from D1 to D3, but we can't go directly from D3 to D1;
+	 * we'd have to go from D3 to D0, then to D1.
+	 */
+	if (state != PCI_D0 && dev->current_state <= PCI_D3cold
+	    && dev->current_state > state) {
+		pci_err(dev, "invalid power transition (from %s to %s)\n",
+			pci_power_name(dev->current_state),
+			pci_power_name(state));
+		return -EINVAL;
+	}
+
+	/* Check if this device supports the desired state */
+>>>>>>> upstream/android-13
 	if ((state == PCI_D1 && !dev->d1_support)
 	   || (state == PCI_D2 && !dev->d2_support))
 		return -EIO;
 
 	pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
+<<<<<<< HEAD
 
 	/* If we're (effectively) in D3, force entire word to 0.
+=======
+	if (pmcsr == (u16) ~0) {
+		pci_err(dev, "can't change power state from %s to %s (config space inaccessible)\n",
+			pci_power_name(dev->current_state),
+			pci_power_name(state));
+		return -EIO;
+	}
+
+	/*
+	 * If we're (effectively) in D3, force entire word to 0.
+>>>>>>> upstream/android-13
 	 * This doesn't affect PME_Status, disables PME_En, and
 	 * sets PowerState to 0.
 	 */
@@ -856,17 +1349,31 @@ static int pci_raw_set_power_state(struct pci_dev *dev, pci_power_t state)
 		if ((pmcsr & PCI_PM_CTRL_STATE_MASK) == PCI_D3hot
 		 && !(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
 			need_restore = true;
+<<<<<<< HEAD
 		/* Fall-through: force to D0 */
+=======
+		fallthrough;	/* force to D0 */
+>>>>>>> upstream/android-13
 	default:
 		pmcsr = 0;
 		break;
 	}
 
+<<<<<<< HEAD
 	/* enter specified state */
 	pci_write_config_word(dev, dev->pm_cap + PCI_PM_CTRL, pmcsr);
 
 	/* Mandatory power management transition delays */
 	/* see PCI PM 1.1 5.6.1 table 18 */
+=======
+	/* Enter specified state */
+	pci_write_config_word(dev, dev->pm_cap + PCI_PM_CTRL, pmcsr);
+
+	/*
+	 * Mandatory power management transition delays; see PCI PM 1.1
+	 * 5.6.1 table 18
+	 */
+>>>>>>> upstream/android-13
 	if (state == PCI_D3hot || dev->current_state == PCI_D3hot)
 		pci_dev_d3_sleep(dev);
 	else if (state == PCI_D2 || dev->current_state == PCI_D2)
@@ -874,9 +1381,16 @@ static int pci_raw_set_power_state(struct pci_dev *dev, pci_power_t state)
 
 	pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
 	dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
+<<<<<<< HEAD
 	if (dev->current_state != state && printk_ratelimit())
 		pci_info(dev, "Refused to change power state, currently in D%d\n",
 			 dev->current_state);
+=======
+	if (dev->current_state != state)
+		pci_info_ratelimited(dev, "refused to change power state from %s to %s\n",
+			 pci_power_name(dev->current_state),
+			 pci_power_name(state));
+>>>>>>> upstream/android-13
 
 	/*
 	 * According to section 5.4.1 of the "PCI BUS POWER MANAGEMENT
@@ -928,11 +1442,33 @@ void pci_update_current_state(struct pci_dev *dev, pci_power_t state)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * pci_refresh_power_state - Refresh the given device's power state data
+ * @dev: Target PCI device.
+ *
+ * Ask the platform to refresh the devices power state information and invoke
+ * pci_update_current_state() to update its current PCI power state.
+ */
+void pci_refresh_power_state(struct pci_dev *dev)
+{
+	if (platform_pci_power_manageable(dev))
+		platform_pci_refresh_power_state(dev);
+
+	pci_update_current_state(dev, dev->current_state);
+}
+
+/**
+>>>>>>> upstream/android-13
  * pci_platform_power_transition - Use platform to change device power state
  * @dev: PCI device to handle.
  * @state: State to put the device into.
  */
+<<<<<<< HEAD
 static int pci_platform_power_transition(struct pci_dev *dev, pci_power_t state)
+=======
+int pci_platform_power_transition(struct pci_dev *dev, pci_power_t state)
+>>>>>>> upstream/android-13
 {
 	int error;
 
@@ -948,6 +1484,7 @@ static int pci_platform_power_transition(struct pci_dev *dev, pci_power_t state)
 
 	return error;
 }
+<<<<<<< HEAD
 
 /**
  * pci_wakeup - Wake up a PCI device
@@ -957,11 +1494,18 @@ static int pci_platform_power_transition(struct pci_dev *dev, pci_power_t state)
 static int pci_wakeup(struct pci_dev *pci_dev, void *ign)
 {
 	pci_wakeup_event(pci_dev);
+=======
+EXPORT_SYMBOL_GPL(pci_platform_power_transition);
+
+static int pci_resume_one(struct pci_dev *pci_dev, void *ign)
+{
+>>>>>>> upstream/android-13
 	pm_request_resume(&pci_dev->dev);
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
  * pci_wakeup_bus - Walk given bus and wake up devices on it
  * @bus: Top bus of the subtree to walk.
  */
@@ -999,6 +1543,81 @@ static void __pci_start_power_transition(struct pci_dev *dev, pci_power_t state)
 			pci_wakeup_bus(dev->subordinate);
 		}
 	}
+=======
+ * pci_resume_bus - Walk given bus and runtime resume devices on it
+ * @bus: Top bus of the subtree to walk.
+ */
+void pci_resume_bus(struct pci_bus *bus)
+{
+	if (bus)
+		pci_walk_bus(bus, pci_resume_one, NULL);
+}
+
+static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
+{
+	int delay = 1;
+	u32 id;
+
+	/*
+	 * After reset, the device should not silently discard config
+	 * requests, but it may still indicate that it needs more time by
+	 * responding to them with CRS completions.  The Root Port will
+	 * generally synthesize ~0 data to complete the read (except when
+	 * CRS SV is enabled and the read was for the Vendor ID; in that
+	 * case it synthesizes 0x0001 data).
+	 *
+	 * Wait for the device to return a non-CRS completion.  Read the
+	 * Command register instead of Vendor ID so we don't have to
+	 * contend with the CRS SV value.
+	 */
+	pci_read_config_dword(dev, PCI_COMMAND, &id);
+	while (id == ~0) {
+		if (delay > timeout) {
+			pci_warn(dev, "not ready %dms after %s; giving up\n",
+				 delay - 1, reset_type);
+			return -ENOTTY;
+		}
+
+		if (delay > 1000)
+			pci_info(dev, "not ready %dms after %s; waiting\n",
+				 delay - 1, reset_type);
+
+		msleep(delay);
+		delay *= 2;
+		pci_read_config_dword(dev, PCI_COMMAND, &id);
+	}
+
+	if (delay > 1000)
+		pci_info(dev, "ready %dms after %s\n", delay - 1,
+			 reset_type);
+
+	return 0;
+}
+
+/**
+ * pci_power_up - Put the given device into D0
+ * @dev: PCI device to power up
+ */
+int pci_power_up(struct pci_dev *dev)
+{
+	pci_platform_power_transition(dev, PCI_D0);
+
+	/*
+	 * Mandatory power management transition delays are handled in
+	 * pci_pm_resume_noirq() and pci_pm_runtime_resume() of the
+	 * corresponding bridge.
+	 */
+	if (dev->runtime_d3cold) {
+		/*
+		 * When powering on a bridge from D3cold, the whole hierarchy
+		 * may be powered on into D0uninitialized state, resume them to
+		 * give them a chance to suspend again
+		 */
+		pci_resume_bus(dev->subordinate);
+	}
+
+	return pci_raw_set_power_state(dev, PCI_D0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1026,6 +1645,7 @@ void pci_bus_set_current_state(struct pci_bus *bus, pci_power_t state)
 }
 
 /**
+<<<<<<< HEAD
  * __pci_complete_power_transition - Complete power transition of a PCI device
  * @dev: PCI device to handle.
  * @state: State to put the device into.
@@ -1047,6 +1667,8 @@ int __pci_complete_power_transition(struct pci_dev *dev, pci_power_t state)
 EXPORT_SYMBOL_GPL(__pci_complete_power_transition);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * pci_set_power_state - Set the power state of a PCI device
  * @dev: PCI device to handle.
  * @state: PCI power state (D0, D1, D2, D3hot) to put the device into.
@@ -1067,16 +1689,29 @@ int pci_set_power_state(struct pci_dev *dev, pci_power_t state)
 {
 	int error;
 
+<<<<<<< HEAD
 	/* bound the state we're entering */
+=======
+	/* Bound the state we're entering */
+>>>>>>> upstream/android-13
 	if (state > PCI_D3cold)
 		state = PCI_D3cold;
 	else if (state < PCI_D0)
 		state = PCI_D0;
 	else if ((state == PCI_D1 || state == PCI_D2) && pci_no_d1d2(dev))
+<<<<<<< HEAD
 		/*
 		 * If the device or the parent bridge do not support PCI PM,
 		 * ignore the request if we're doing anything other than putting
 		 * it into D0 (which would only happen on boot).
+=======
+
+		/*
+		 * If the device or the parent bridge do not support PCI
+		 * PM, ignore the request if we're doing anything other
+		 * than putting it into D0 (which would only happen on
+		 * boot).
+>>>>>>> upstream/android-13
 		 */
 		return 0;
 
@@ -1084,10 +1719,20 @@ int pci_set_power_state(struct pci_dev *dev, pci_power_t state)
 	if (dev->current_state == state)
 		return 0;
 
+<<<<<<< HEAD
 	__pci_start_power_transition(dev, state);
 
 	/* This device is quirked not to be put into D3, so
 	   don't put it in D3 */
+=======
+	if (state == PCI_D0)
+		return pci_power_up(dev);
+
+	/*
+	 * This device is quirked not to be put into D3, so don't put it in
+	 * D3
+	 */
+>>>>>>> upstream/android-13
 	if (state >= PCI_D3hot && (dev->dev_flags & PCI_DEV_FLAGS_NO_D3))
 		return 0;
 
@@ -1098,14 +1743,26 @@ int pci_set_power_state(struct pci_dev *dev, pci_power_t state)
 	error = pci_raw_set_power_state(dev, state > PCI_D3hot ?
 					PCI_D3hot : state);
 
+<<<<<<< HEAD
 	if (!__pci_complete_power_transition(dev, state))
 		error = 0;
 
 	return error;
+=======
+	if (pci_platform_power_transition(dev, state))
+		return error;
+
+	/* Powering off a bridge may power off the whole hierarchy */
+	if (state == PCI_D3cold)
+		pci_bus_set_current_state(dev->subordinate, PCI_D3cold);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_set_power_state);
 
 /**
+<<<<<<< HEAD
  * pci_power_up - Put the given device into D0 forcibly
  * @dev: PCI device to power up
  */
@@ -1121,11 +1778,20 @@ void pci_power_up(struct pci_dev *dev)
  * @dev: PCI device to be suspended
  * @state: target sleep state for the whole system. This is the value
  *	that is passed to suspend() function.
+=======
+ * pci_choose_state - Choose the power state of a PCI device
+ * @dev: PCI device to be suspended
+ * @state: target sleep state for the whole system. This is the value
+ *	   that is passed to suspend() function.
+>>>>>>> upstream/android-13
  *
  * Returns PCI power state suitable for given device and given system
  * message.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 pci_power_t pci_choose_state(struct pci_dev *dev, pm_message_t state)
 {
 	pci_power_t ret;
@@ -1226,7 +1892,10 @@ static void pci_restore_pcie_state(struct pci_dev *dev)
 	pcie_capability_write_word(dev, PCI_EXP_SLTCTL2, cap[i++]);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static int pci_save_pcix_state(struct pci_dev *dev)
 {
 	int pos;
@@ -1263,17 +1932,72 @@ static void pci_restore_pcix_state(struct pci_dev *dev)
 	pci_write_config_word(dev, pos + PCI_X_CMD, cap[i++]);
 }
 
+<<<<<<< HEAD
 
 /**
  * pci_save_state - save the PCI configuration space of a device before suspending
  * @dev: - PCI device that we're dealing with
+=======
+static void pci_save_ltr_state(struct pci_dev *dev)
+{
+	int ltr;
+	struct pci_cap_saved_state *save_state;
+	u16 *cap;
+
+	if (!pci_is_pcie(dev))
+		return;
+
+	ltr = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_LTR);
+	if (!ltr)
+		return;
+
+	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_LTR);
+	if (!save_state) {
+		pci_err(dev, "no suspend buffer for LTR; ASPM issues possible after resume\n");
+		return;
+	}
+
+	cap = (u16 *)&save_state->cap.data[0];
+	pci_read_config_word(dev, ltr + PCI_LTR_MAX_SNOOP_LAT, cap++);
+	pci_read_config_word(dev, ltr + PCI_LTR_MAX_NOSNOOP_LAT, cap++);
+}
+
+static void pci_restore_ltr_state(struct pci_dev *dev)
+{
+	struct pci_cap_saved_state *save_state;
+	int ltr;
+	u16 *cap;
+
+	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_LTR);
+	ltr = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_LTR);
+	if (!save_state || !ltr)
+		return;
+
+	cap = (u16 *)&save_state->cap.data[0];
+	pci_write_config_word(dev, ltr + PCI_LTR_MAX_SNOOP_LAT, *cap++);
+	pci_write_config_word(dev, ltr + PCI_LTR_MAX_NOSNOOP_LAT, *cap++);
+}
+
+/**
+ * pci_save_state - save the PCI configuration space of a device before
+ *		    suspending
+ * @dev: PCI device that we're dealing with
+>>>>>>> upstream/android-13
  */
 int pci_save_state(struct pci_dev *dev)
 {
 	int i;
 	/* XXX: 100% dword access ok here? */
+<<<<<<< HEAD
 	for (i = 0; i < 16; i++)
 		pci_read_config_dword(dev, i * 4, &dev->saved_config_space[i]);
+=======
+	for (i = 0; i < 16; i++) {
+		pci_read_config_dword(dev, i * 4, &dev->saved_config_space[i]);
+		pci_dbg(dev, "saving config space at offset %#x (reading %#x)\n",
+			i * 4, dev->saved_config_space[i]);
+	}
+>>>>>>> upstream/android-13
 	dev->state_saved = true;
 
 	i = pci_save_pcie_state(dev);
@@ -1284,6 +2008,13 @@ int pci_save_state(struct pci_dev *dev)
 	if (i != 0)
 		return i;
 
+<<<<<<< HEAD
+=======
+	pci_save_ltr_state(dev);
+	pci_save_dpc_state(dev);
+	pci_save_aer_state(dev);
+	pci_save_ptm_state(dev);
+>>>>>>> upstream/android-13
 	return pci_save_vc_state(dev);
 }
 EXPORT_SYMBOL(pci_save_state);
@@ -1366,7 +2097,11 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
 		pci_read_config_dword(pdev, pos + PCI_REBAR_CTRL, &ctrl);
 		bar_idx = ctrl & PCI_REBAR_CTRL_BAR_IDX;
 		res = pdev->resource + bar_idx;
+<<<<<<< HEAD
 		size = ilog2(resource_size(res)) - 20;
+=======
+		size = pci_rebar_bytes_to_size(resource_size(res));
+>>>>>>> upstream/android-13
 		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
 		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
 		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
@@ -1375,22 +2110,43 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
 
 /**
  * pci_restore_state - Restore the saved state of a PCI device
+<<<<<<< HEAD
  * @dev: - PCI device that we're dealing with
+=======
+ * @dev: PCI device that we're dealing with
+>>>>>>> upstream/android-13
  */
 void pci_restore_state(struct pci_dev *dev)
 {
 	if (!dev->state_saved)
 		return;
 
+<<<<<<< HEAD
 	/* PCI Express register must be restored first */
+=======
+	/*
+	 * Restore max latencies (in the LTR capability) before enabling
+	 * LTR itself (in the PCIe capability).
+	 */
+	pci_restore_ltr_state(dev);
+
+>>>>>>> upstream/android-13
 	pci_restore_pcie_state(dev);
 	pci_restore_pasid_state(dev);
 	pci_restore_pri_state(dev);
 	pci_restore_ats_state(dev);
 	pci_restore_vc_state(dev);
 	pci_restore_rebar_state(dev);
+<<<<<<< HEAD
 
 	pci_cleanup_aer_error_status_regs(dev);
+=======
+	pci_restore_dpc_state(dev);
+	pci_restore_ptm_state(dev);
+
+	pci_aer_clear_status(dev);
+	pci_restore_aer_state(dev);
+>>>>>>> upstream/android-13
 
 	pci_restore_config_space(dev);
 
@@ -1407,7 +2163,11 @@ EXPORT_SYMBOL(pci_restore_state);
 
 struct pci_saved_state {
 	u32 config_space[16];
+<<<<<<< HEAD
 	struct pci_cap_saved_data cap[0];
+=======
+	struct pci_cap_saved_data cap[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1546,8 +2306,13 @@ static int do_pci_enable_device(struct pci_dev *dev, int bars)
  * pci_reenable_device - Resume abandoned device
  * @dev: PCI device to be resumed
  *
+<<<<<<< HEAD
  *  Note this function is a backend of pci_default_resume and is not supposed
  *  to be called by normal code, write proper resume handler and use it instead.
+=======
+ * NOTE: This function is a backend of pci_default_resume() and is not supposed
+ * to be called by normal code, write proper resume handler and use it instead.
+>>>>>>> upstream/android-13
  */
 int pci_reenable_device(struct pci_dev *dev)
 {
@@ -1585,10 +2350,23 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
 	int err;
 	int i, bars = 0;
 
+<<<<<<< HEAD
 	if (atomic_inc_return(&dev->enable_cnt) > 1) {
 		pci_update_current_state(dev, dev->current_state);
 		return 0;		/* already enabled */
 	}
+=======
+	/*
+	 * Power state could be unknown at this point, either due to a fresh
+	 * boot or a device removal call.  So get the current power state
+	 * so that things like MSI message writing will behave as expected
+	 * (e.g. if the device really is in D0 at enable time).
+	 */
+	pci_update_current_state(dev, dev->current_state);
+
+	if (atomic_inc_return(&dev->enable_cnt) > 1)
+		return 0;		/* already enabled */
+>>>>>>> upstream/android-13
 
 	bridge = pci_upstream_bridge(dev);
 	if (bridge)
@@ -1612,9 +2390,15 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
  * pci_enable_device_io - Initialize a device for use with IO space
  * @dev: PCI device to be initialized
  *
+<<<<<<< HEAD
  *  Initialize device before it's used by a driver. Ask low-level code
  *  to enable I/O resources. Wake up the device if it was suspended.
  *  Beware, this function can fail.
+=======
+ * Initialize device before it's used by a driver. Ask low-level code
+ * to enable I/O resources. Wake up the device if it was suspended.
+ * Beware, this function can fail.
+>>>>>>> upstream/android-13
  */
 int pci_enable_device_io(struct pci_dev *dev)
 {
@@ -1626,9 +2410,15 @@ EXPORT_SYMBOL(pci_enable_device_io);
  * pci_enable_device_mem - Initialize a device for use with Memory space
  * @dev: PCI device to be initialized
  *
+<<<<<<< HEAD
  *  Initialize device before it's used by a driver. Ask low-level code
  *  to enable Memory resources. Wake up the device if it was suspended.
  *  Beware, this function can fail.
+=======
+ * Initialize device before it's used by a driver. Ask low-level code
+ * to enable Memory resources. Wake up the device if it was suspended.
+ * Beware, this function can fail.
+>>>>>>> upstream/android-13
  */
 int pci_enable_device_mem(struct pci_dev *dev)
 {
@@ -1640,12 +2430,21 @@ EXPORT_SYMBOL(pci_enable_device_mem);
  * pci_enable_device - Initialize device before it's used by a driver.
  * @dev: PCI device to be initialized
  *
+<<<<<<< HEAD
  *  Initialize device before it's used by a driver. Ask low-level code
  *  to enable I/O and memory. Wake up the device if it was suspended.
  *  Beware, this function can fail.
  *
  *  Note we don't actually enable the device many times if we call
  *  this function repeatedly (we just increment the count).
+=======
+ * Initialize device before it's used by a driver. Ask low-level code
+ * to enable I/O and memory. Wake up the device if it was suspended.
+ * Beware, this function can fail.
+ *
+ * Note we don't actually enable the device many times if we call
+ * this function repeatedly (we just increment the count).
+>>>>>>> upstream/android-13
  */
 int pci_enable_device(struct pci_dev *dev)
 {
@@ -1654,8 +2453,13 @@ int pci_enable_device(struct pci_dev *dev)
 EXPORT_SYMBOL(pci_enable_device);
 
 /*
+<<<<<<< HEAD
  * Managed PCI resources.  This manages device on/off, intx/msi/msix
  * on/off and BAR regions.  pci_dev itself records msi/msix status, so
+=======
+ * Managed PCI resources.  This manages device on/off, INTx/MSI/MSI-X
+ * on/off and BAR regions.  pci_dev itself records MSI/MSI-X status, so
+>>>>>>> upstream/android-13
  * there's no need to track it separately.  pci_devres is initialized
  * when a device is enabled using managed PCI device enable interface.
  */
@@ -1773,7 +2577,12 @@ int __weak pcibios_add_device(struct pci_dev *dev)
 }
 
 /**
+<<<<<<< HEAD
  * pcibios_release_device - provide arch specific hooks when releasing device dev
+=======
+ * pcibios_release_device - provide arch specific hooks when releasing
+ *			    device dev
+>>>>>>> upstream/android-13
  * @dev: the PCI device being released
  *
  * Permits the platform to provide architecture specific functionality when
@@ -1864,8 +2673,12 @@ EXPORT_SYMBOL(pci_disable_device);
  * @dev: the PCIe device reset
  * @state: Reset state to enter into
  *
+<<<<<<< HEAD
  *
  * Sets the PCIe reset state for the device. This is the default
+=======
+ * Set the PCIe reset state for the device. This is the default
+>>>>>>> upstream/android-13
  * implementation. Architecture implementations can override this.
  */
 int __weak pcibios_set_pcie_reset_state(struct pci_dev *dev,
@@ -1879,7 +2692,10 @@ int __weak pcibios_set_pcie_reset_state(struct pci_dev *dev,
  * @dev: the PCIe device reset
  * @state: Reset state to enter into
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  * Sets the PCI reset state for the device.
  */
 int pci_set_pcie_reset_state(struct pci_dev *dev, enum pcie_reset_state state)
@@ -1888,6 +2704,17 @@ int pci_set_pcie_reset_state(struct pci_dev *dev, enum pcie_reset_state state)
 }
 EXPORT_SYMBOL_GPL(pci_set_pcie_reset_state);
 
+<<<<<<< HEAD
+=======
+void pcie_clear_device_status(struct pci_dev *dev)
+{
+	u16 sta;
+
+	pcie_capability_read_word(dev, PCI_EXP_DEVSTA, &sta);
+	pcie_capability_write_word(dev, PCI_EXP_DEVSTA, sta);
+}
+
+>>>>>>> upstream/android-13
 /**
  * pcie_clear_root_pme_status - Clear root port PME interrupt status.
  * @dev: PCIe root port or event collector.
@@ -2141,10 +2968,20 @@ static int __pci_enable_wake(struct pci_dev *dev, pci_power_t state, bool enable
 	int ret = 0;
 
 	/*
+<<<<<<< HEAD
 	 * Bridges can only signal wakeup on behalf of subordinate devices,
 	 * but that is set up elsewhere, so skip them.
 	 */
 	if (pci_has_subordinate(dev))
+=======
+	 * Bridges that are not power-manageable directly only signal
+	 * wakeup on behalf of subordinate devices which is set up
+	 * elsewhere, so skip them. However, bridges that are
+	 * power-manageable may signal wakeup for themselves (for example,
+	 * on a hotplug event) and they need to be covered here.
+	 */
+	if (!pci_power_manageable(dev))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* Don't do the same thing twice in a row for one device. */
@@ -2160,7 +2997,18 @@ static int __pci_enable_wake(struct pci_dev *dev, pci_power_t state, bool enable
 	if (enable) {
 		int error;
 
+<<<<<<< HEAD
 		if (pci_pme_capable(dev, state))
+=======
+		/*
+		 * Enable PME signaling if the device can signal PME from
+		 * D3cold regardless of whether or not it can signal PME from
+		 * the current target state, because that will allow it to
+		 * signal PME when the hierarchy above it goes into D3cold and
+		 * the device itself ends up in D3cold as a result of that.
+		 */
+		if (pci_pme_capable(dev, state) || pci_pme_capable(dev, PCI_D3cold))
+>>>>>>> upstream/android-13
 			pci_pme_active(dev, true);
 		else
 			ret = 1;
@@ -2245,7 +3093,11 @@ static pci_power_t pci_target_state(struct pci_dev *dev, bool wakeup)
 		case PCI_D2:
 			if (pci_no_d1d2(dev))
 				break;
+<<<<<<< HEAD
 			/* else: fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			target_state = state;
 		}
@@ -2264,23 +3116,44 @@ static pci_power_t pci_target_state(struct pci_dev *dev, bool wakeup)
 	if (dev->current_state == PCI_D3cold)
 		target_state = PCI_D3cold;
 
+<<<<<<< HEAD
 	if (wakeup) {
+=======
+	if (wakeup && dev->pme_support) {
+		pci_power_t state = target_state;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Find the deepest state from which the device can generate
 		 * PME#.
 		 */
+<<<<<<< HEAD
 		if (dev->pme_support) {
 			while (target_state
 			      && !(dev->pme_support & (1 << target_state)))
 				target_state--;
 		}
+=======
+		while (state && !(dev->pme_support & (1 << state)))
+			state--;
+
+		if (state)
+			return state;
+		else if (dev->pme_support & 1)
+			return PCI_D0;
+>>>>>>> upstream/android-13
 	}
 
 	return target_state;
 }
 
 /**
+<<<<<<< HEAD
  * pci_prepare_to_sleep - prepare PCI device for system-wide transition into a sleep state
+=======
+ * pci_prepare_to_sleep - prepare PCI device for system-wide transition
+ *			  into a sleep state
+>>>>>>> upstream/android-13
  * @dev: Device to handle.
  *
  * Choose the power state appropriate for the device depending on whether
@@ -2296,19 +3169,44 @@ int pci_prepare_to_sleep(struct pci_dev *dev)
 	if (target_state == PCI_POWER_ERROR)
 		return -EIO;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * There are systems (for example, Intel mobile chips since Coffee
+	 * Lake) where the power drawn while suspended can be significantly
+	 * reduced by disabling PTM on PCIe root ports as this allows the
+	 * port to enter a lower-power PM state and the SoC to reach a
+	 * lower-power idle state as a whole.
+	 */
+	if (pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT)
+		pci_disable_ptm(dev);
+
+>>>>>>> upstream/android-13
 	pci_enable_wake(dev, target_state, wakeup);
 
 	error = pci_set_power_state(dev, target_state);
 
+<<<<<<< HEAD
 	if (error)
 		pci_enable_wake(dev, target_state, false);
+=======
+	if (error) {
+		pci_enable_wake(dev, target_state, false);
+		pci_restore_ptm_state(dev);
+	}
+>>>>>>> upstream/android-13
 
 	return error;
 }
 EXPORT_SYMBOL(pci_prepare_to_sleep);
 
 /**
+<<<<<<< HEAD
  * pci_back_from_sleep - turn PCI device on during system-wide transition into working state
+=======
+ * pci_back_from_sleep - turn PCI device on during system-wide transition
+ *			 into working state
+>>>>>>> upstream/android-13
  * @dev: Device to handle.
  *
  * Disable device's system wake-up capability and put it into D0.
@@ -2338,12 +3236,29 @@ int pci_finish_runtime_suspend(struct pci_dev *dev)
 
 	dev->runtime_d3cold = target_state == PCI_D3cold;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * There are systems (for example, Intel mobile chips since Coffee
+	 * Lake) where the power drawn while suspended can be significantly
+	 * reduced by disabling PTM on PCIe root ports as this allows the
+	 * port to enter a lower-power PM state and the SoC to reach a
+	 * lower-power idle state as a whole.
+	 */
+	if (pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT)
+		pci_disable_ptm(dev);
+
+>>>>>>> upstream/android-13
 	__pci_enable_wake(dev, target_state, pci_dev_run_wake(dev));
 
 	error = pci_set_power_state(dev, target_state);
 
 	if (error) {
 		pci_enable_wake(dev, target_state, false);
+<<<<<<< HEAD
+=======
+		pci_restore_ptm_state(dev);
+>>>>>>> upstream/android-13
 		dev->runtime_d3cold = false;
 	}
 
@@ -2390,6 +3305,7 @@ bool pci_dev_run_wake(struct pci_dev *dev)
 EXPORT_SYMBOL_GPL(pci_dev_run_wake);
 
 /**
+<<<<<<< HEAD
  * pci_dev_keep_suspended - Check if the device can stay in the suspended state.
  * @pci_dev: Device to check.
  *
@@ -2429,6 +3345,58 @@ bool pci_dev_keep_suspended(struct pci_dev *pci_dev)
 
 	spin_unlock_irq(&dev->power.lock);
 	return true;
+=======
+ * pci_dev_need_resume - Check if it is necessary to resume the device.
+ * @pci_dev: Device to check.
+ *
+ * Return 'true' if the device is not runtime-suspended or it has to be
+ * reconfigured due to wakeup settings difference between system and runtime
+ * suspend, or the current power state of it is not suitable for the upcoming
+ * (system-wide) transition.
+ */
+bool pci_dev_need_resume(struct pci_dev *pci_dev)
+{
+	struct device *dev = &pci_dev->dev;
+	pci_power_t target_state;
+
+	if (!pm_runtime_suspended(dev) || platform_pci_need_resume(pci_dev))
+		return true;
+
+	target_state = pci_target_state(pci_dev, device_may_wakeup(dev));
+
+	/*
+	 * If the earlier platform check has not triggered, D3cold is just power
+	 * removal on top of D3hot, so no need to resume the device in that
+	 * case.
+	 */
+	return target_state != pci_dev->current_state &&
+		target_state != PCI_D3cold &&
+		pci_dev->current_state != PCI_D3hot;
+}
+
+/**
+ * pci_dev_adjust_pme - Adjust PME setting for a suspended device.
+ * @pci_dev: Device to check.
+ *
+ * If the device is suspended and it is not configured for system wakeup,
+ * disable PME for it to prevent it from waking up the system unnecessarily.
+ *
+ * Note that if the device's power state is D3cold and the platform check in
+ * pci_dev_need_resume() has not triggered, the device's configuration need not
+ * be changed.
+ */
+void pci_dev_adjust_pme(struct pci_dev *pci_dev)
+{
+	struct device *dev = &pci_dev->dev;
+
+	spin_lock_irq(&dev->power.lock);
+
+	if (pm_runtime_suspended(dev) && !device_may_wakeup(dev) &&
+	    pci_dev->current_state < PCI_D3cold)
+		__pci_pme_active(pci_dev, false);
+
+	spin_unlock_irq(&dev->power.lock);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2538,6 +3506,13 @@ bool pci_bridge_d3_possible(struct pci_dev *bridge)
 		if (bridge->is_thunderbolt)
 			return true;
 
+<<<<<<< HEAD
+=======
+		/* Platform might know better if the bridge supports D3 */
+		if (platform_pci_bridge_d3(bridge))
+			return true;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Hotplug ports handled natively by the OS were not validated
 		 * by vendors for runtime D3 at least until 2018 because there
@@ -2674,6 +3649,10 @@ EXPORT_SYMBOL_GPL(pci_d3cold_disable);
 void pci_pm_init(struct pci_dev *dev)
 {
 	int pm;
+<<<<<<< HEAD
+=======
+	u16 status;
+>>>>>>> upstream/android-13
 	u16 pmc;
 
 	pm_runtime_forbid(&dev->dev);
@@ -2699,7 +3678,11 @@ void pci_pm_init(struct pci_dev *dev)
 	}
 
 	dev->pm_cap = pm;
+<<<<<<< HEAD
 	dev->d3_delay = PCI_PM_D3_WAIT;
+=======
+	dev->d3hot_delay = PCI_PM_D3HOT_WAIT;
+>>>>>>> upstream/android-13
 	dev->d3cold_delay = PCI_PM_D3COLD_WAIT;
 	dev->bridge_d3 = pci_bridge_d3_possible(dev);
 	dev->d3cold_allowed = true;
@@ -2713,18 +3696,30 @@ void pci_pm_init(struct pci_dev *dev)
 			dev->d2_support = true;
 
 		if (dev->d1_support || dev->d2_support)
+<<<<<<< HEAD
 			pci_printk(KERN_DEBUG, dev, "supports%s%s\n",
+=======
+			pci_info(dev, "supports%s%s\n",
+>>>>>>> upstream/android-13
 				   dev->d1_support ? " D1" : "",
 				   dev->d2_support ? " D2" : "");
 	}
 
 	pmc &= PCI_PM_CAP_PME_MASK;
 	if (pmc) {
+<<<<<<< HEAD
 		pci_printk(KERN_DEBUG, dev, "PME# supported from%s%s%s%s%s\n",
 			 (pmc & PCI_PM_CAP_PME_D0) ? " D0" : "",
 			 (pmc & PCI_PM_CAP_PME_D1) ? " D1" : "",
 			 (pmc & PCI_PM_CAP_PME_D2) ? " D2" : "",
 			 (pmc & PCI_PM_CAP_PME_D3) ? " D3hot" : "",
+=======
+		pci_info(dev, "PME# supported from%s%s%s%s%s\n",
+			 (pmc & PCI_PM_CAP_PME_D0) ? " D0" : "",
+			 (pmc & PCI_PM_CAP_PME_D1) ? " D1" : "",
+			 (pmc & PCI_PM_CAP_PME_D2) ? " D2" : "",
+			 (pmc & PCI_PM_CAP_PME_D3hot) ? " D3hot" : "",
+>>>>>>> upstream/android-13
 			 (pmc & PCI_PM_CAP_PME_D3cold) ? " D3cold" : "");
 		dev->pme_support = pmc >> PCI_PM_CAP_PME_SHIFT;
 		dev->pme_poll = true;
@@ -2736,6 +3731,13 @@ void pci_pm_init(struct pci_dev *dev)
 		/* Disable the PME# generation functionality */
 		pci_pme_active(dev, false);
 	}
+<<<<<<< HEAD
+=======
+
+	pci_read_config_word(dev, PCI_STATUS, &status);
+	if (status & PCI_STATUS_IMM_READY)
+		dev->imm_ready = 1;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long pci_ea_flags(struct pci_dev *dev, u8 prop)
@@ -2884,6 +3886,7 @@ static int pci_ea_read(struct pci_dev *dev, int offset)
 	res->flags = flags;
 
 	if (bei <= PCI_EA_BEI_BAR5)
+<<<<<<< HEAD
 		pci_printk(KERN_DEBUG, dev, "BAR %d: %pR (from Enhanced Allocation, properties %#02x)\n",
 			   bei, res, prop);
 	else if (bei == PCI_EA_BEI_ROM)
@@ -2894,6 +3897,18 @@ static int pci_ea_read(struct pci_dev *dev, int offset)
 			   bei - PCI_EA_BEI_VF_BAR0, res, prop);
 	else
 		pci_printk(KERN_DEBUG, dev, "BEI %d res: %pR (from Enhanced Allocation, properties %#02x)\n",
+=======
+		pci_info(dev, "BAR %d: %pR (from Enhanced Allocation, properties %#02x)\n",
+			   bei, res, prop);
+	else if (bei == PCI_EA_BEI_ROM)
+		pci_info(dev, "ROM: %pR (from Enhanced Allocation, properties %#02x)\n",
+			   res, prop);
+	else if (bei >= PCI_EA_BEI_VF_BAR0 && bei <= PCI_EA_BEI_VF_BAR5)
+		pci_info(dev, "VF BAR %d: %pR (from Enhanced Allocation, properties %#02x)\n",
+			   bei - PCI_EA_BEI_VF_BAR0, res, prop);
+	else
+		pci_info(dev, "BEI %d res: %pR (from Enhanced Allocation, properties %#02x)\n",
+>>>>>>> upstream/android-13
 			   bei, res, prop);
 
 out:
@@ -2937,7 +3952,11 @@ static void pci_add_saved_cap(struct pci_dev *pci_dev,
 
 /**
  * _pci_add_cap_save_buffer - allocate buffer for saving given
+<<<<<<< HEAD
  *                            capability registers
+=======
+ *			      capability registers
+>>>>>>> upstream/android-13
  * @dev: the PCI device
  * @cap: the capability to allocate the buffer for
  * @extended: Standard or Extended capability ID
@@ -2996,6 +4015,14 @@ void pci_allocate_cap_save_buffers(struct pci_dev *dev)
 	if (error)
 		pci_err(dev, "unable to preallocate PCI-X save buffer\n");
 
+<<<<<<< HEAD
+=======
+	error = pci_add_ext_cap_save_buffer(dev, PCI_EXT_CAP_ID_LTR,
+					    2 * sizeof(u16));
+	if (error)
+		pci_err(dev, "unable to allocate suspend buffer for LTR\n");
+
+>>>>>>> upstream/android-13
 	pci_allocate_vc_save_buffers(dev);
 }
 
@@ -3042,6 +4069,7 @@ void pci_configure_ari(struct pci_dev *dev)
 	}
 }
 
+<<<<<<< HEAD
 static int pci_acs_enable;
 
 /**
@@ -3170,12 +4198,18 @@ disable_acs_redir:
 	pci_disable_acs_redir(dev);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool pci_acs_flags_enabled(struct pci_dev *pdev, u16 acs_flags)
 {
 	int pos;
 	u16 cap, ctrl;
 
+<<<<<<< HEAD
 	pos = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ACS);
+=======
+	pos = pdev->acs_cap;
+>>>>>>> upstream/android-13
 	if (!pos)
 		return false;
 
@@ -3272,7 +4306,11 @@ bool pci_acs_enabled(struct pci_dev *pdev, u16 acs_flags)
 }
 
 /**
+<<<<<<< HEAD
  * pci_acs_path_enable - test ACS flags from start to end in a hierarchy
+=======
+ * pci_acs_path_enabled - test ACS flags from start to end in a hierarchy
+>>>>>>> upstream/android-13
  * @start: starting downstream device
  * @end: ending upstream device or NULL to search to the root bus
  * @acs_flags: required flags
@@ -3301,6 +4339,26 @@ bool pci_acs_path_enabled(struct pci_dev *start,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * pci_acs_init - Initialize ACS if hardware supports it
+ * @dev: the PCI device
+ */
+void pci_acs_init(struct pci_dev *dev)
+{
+	dev->acs_cap = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ACS);
+
+	/*
+	 * Attempt to enable ACS regardless of capability because some Root
+	 * Ports (e.g. those quirked with *_intel_pch_acs_*) do not have
+	 * the standard ACS capability but still support ACS via those
+	 * quirks.
+	 */
+	pci_enable_acs(dev);
+}
+
+/**
+>>>>>>> upstream/android-13
  * pci_rebar_find_pos - find position of resize ctrl reg for BAR
  * @pdev: PCI device
  * @bar: BAR to find
@@ -3361,6 +4419,10 @@ u32 pci_rebar_get_possible_sizes(struct pci_dev *pdev, int bar)
 
 	return cap >> 4;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(pci_rebar_get_possible_sizes);
+>>>>>>> upstream/android-13
 
 /**
  * pci_rebar_get_current_size - get the current size of a BAR
@@ -3427,6 +4489,17 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
 	struct pci_dev *bridge;
 	u32 cap, ctl2;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Per PCIe r5.0, sec 9.3.5.10, the AtomicOp Requester Enable bit
+	 * in Device Control 2 is reserved in VFs and the PF value applies
+	 * to all associated VFs.
+	 */
+	if (dev->is_virtfn)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (!pci_is_pcie(dev))
 		return -EINVAL;
 
@@ -3467,7 +4540,11 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
 		}
 
 		/* Ensure upstream ports don't block AtomicOps on egress */
+<<<<<<< HEAD
 		if (!bridge->has_secondary_link) {
+=======
+		if (pci_pcie_type(bridge) == PCI_EXP_TYPE_UPSTREAM) {
+>>>>>>> upstream/android-13
 			pcie_capability_read_dword(bridge, PCI_EXP_DEVCTL2,
 						   &ctl2);
 			if (ctl2 & PCI_EXP_DEVCTL2_ATOMIC_EGRESS_BLOCK)
@@ -3544,6 +4621,7 @@ u8 pci_common_swizzle(struct pci_dev *dev, u8 *pinp)
 EXPORT_SYMBOL_GPL(pci_common_swizzle);
 
 /**
+<<<<<<< HEAD
  *	pci_release_region - Release a PCI bar
  *	@pdev: PCI device whose resources were previously reserved by pci_request_region
  *	@bar: BAR to release
@@ -3551,6 +4629,16 @@ EXPORT_SYMBOL_GPL(pci_common_swizzle);
  *	Releases the PCI I/O and memory resources previously reserved by a
  *	successful call to pci_request_region.  Call this function only
  *	after all use of the PCI regions has ceased.
+=======
+ * pci_release_region - Release a PCI bar
+ * @pdev: PCI device whose resources were previously reserved by
+ *	  pci_request_region()
+ * @bar: BAR to release
+ *
+ * Releases the PCI I/O and memory resources previously reserved by a
+ * successful call to pci_request_region().  Call this function only
+ * after all use of the PCI regions has ceased.
+>>>>>>> upstream/android-13
  */
 void pci_release_region(struct pci_dev *pdev, int bar)
 {
@@ -3572,6 +4660,7 @@ void pci_release_region(struct pci_dev *pdev, int bar)
 EXPORT_SYMBOL(pci_release_region);
 
 /**
+<<<<<<< HEAD
  *	__pci_request_region - Reserved PCI I/O and memory resource
  *	@pdev: PCI device whose resources are to be reserved
  *	@bar: BAR to be reserved
@@ -3589,6 +4678,25 @@ EXPORT_SYMBOL(pci_release_region);
  *
  *	Returns 0 on success, or %EBUSY on error.  A warning
  *	message is also printed on failure.
+=======
+ * __pci_request_region - Reserved PCI I/O and memory resource
+ * @pdev: PCI device whose resources are to be reserved
+ * @bar: BAR to be reserved
+ * @res_name: Name to be associated with resource.
+ * @exclusive: whether the region access is exclusive or not
+ *
+ * Mark the PCI region associated with PCI device @pdev BAR @bar as
+ * being reserved by owner @res_name.  Do not access any
+ * address inside the PCI regions unless this call returns
+ * successfully.
+ *
+ * If @exclusive is set, then the region is marked so that userspace
+ * is explicitly not allowed to map the resource via /dev/mem or
+ * sysfs MMIO access.
+ *
+ * Returns 0 on success, or %EBUSY on error.  A warning
+ * message is also printed on failure.
+>>>>>>> upstream/android-13
  */
 static int __pci_request_region(struct pci_dev *pdev, int bar,
 				const char *res_name, int exclusive)
@@ -3622,6 +4730,7 @@ err_out:
 }
 
 /**
+<<<<<<< HEAD
  *	pci_request_region - Reserve PCI I/O and memory resource
  *	@pdev: PCI device whose resources are to be reserved
  *	@bar: BAR to be reserved
@@ -3634,6 +4743,20 @@ err_out:
  *
  *	Returns 0 on success, or %EBUSY on error.  A warning
  *	message is also printed on failure.
+=======
+ * pci_request_region - Reserve PCI I/O and memory resource
+ * @pdev: PCI device whose resources are to be reserved
+ * @bar: BAR to be reserved
+ * @res_name: Name to be associated with resource
+ *
+ * Mark the PCI region associated with PCI device @pdev BAR @bar as
+ * being reserved by owner @res_name.  Do not access any
+ * address inside the PCI regions unless this call returns
+ * successfully.
+ *
+ * Returns 0 on success, or %EBUSY on error.  A warning
+ * message is also printed on failure.
+>>>>>>> upstream/android-13
  */
 int pci_request_region(struct pci_dev *pdev, int bar, const char *res_name)
 {
@@ -3642,6 +4765,7 @@ int pci_request_region(struct pci_dev *pdev, int bar, const char *res_name)
 EXPORT_SYMBOL(pci_request_region);
 
 /**
+<<<<<<< HEAD
  *	pci_request_region_exclusive - Reserved PCI I/O and memory resource
  *	@pdev: PCI device whose resources are to be reserved
  *	@bar: BAR to be reserved
@@ -3667,6 +4791,8 @@ int pci_request_region_exclusive(struct pci_dev *pdev, int bar,
 EXPORT_SYMBOL(pci_request_region_exclusive);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * pci_release_selected_regions - Release selected PCI I/O and memory resources
  * @pdev: PCI device whose resources were previously reserved
  * @bars: Bitmask of BARs to be released
@@ -3678,7 +4804,11 @@ void pci_release_selected_regions(struct pci_dev *pdev, int bars)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < 6; i++)
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++)
+>>>>>>> upstream/android-13
 		if (bars & (1 << i))
 			pci_release_region(pdev, i);
 }
@@ -3689,7 +4819,11 @@ static int __pci_request_selected_regions(struct pci_dev *pdev, int bars,
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < 6; i++)
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++)
+>>>>>>> upstream/android-13
 		if (bars & (1 << i))
 			if (__pci_request_region(pdev, i, res_name, excl))
 				goto err_out;
@@ -3726,21 +4860,36 @@ int pci_request_selected_regions_exclusive(struct pci_dev *pdev, int bars,
 EXPORT_SYMBOL(pci_request_selected_regions_exclusive);
 
 /**
+<<<<<<< HEAD
  *	pci_release_regions - Release reserved PCI I/O and memory resources
  *	@pdev: PCI device whose resources were previously reserved by pci_request_regions
  *
  *	Releases all PCI I/O and memory resources previously reserved by a
  *	successful call to pci_request_regions.  Call this function only
  *	after all use of the PCI regions has ceased.
+=======
+ * pci_release_regions - Release reserved PCI I/O and memory resources
+ * @pdev: PCI device whose resources were previously reserved by
+ *	  pci_request_regions()
+ *
+ * Releases all PCI I/O and memory resources previously reserved by a
+ * successful call to pci_request_regions().  Call this function only
+ * after all use of the PCI regions has ceased.
+>>>>>>> upstream/android-13
  */
 
 void pci_release_regions(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	pci_release_selected_regions(pdev, (1 << 6) - 1);
+=======
+	pci_release_selected_regions(pdev, (1 << PCI_STD_NUM_BARS) - 1);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_release_regions);
 
 /**
+<<<<<<< HEAD
  *	pci_request_regions - Reserved PCI I/O and memory resources
  *	@pdev: PCI device whose resources are to be reserved
  *	@res_name: Name to be associated with resource.
@@ -3756,10 +4905,29 @@ EXPORT_SYMBOL(pci_release_regions);
 int pci_request_regions(struct pci_dev *pdev, const char *res_name)
 {
 	return pci_request_selected_regions(pdev, ((1 << 6) - 1), res_name);
+=======
+ * pci_request_regions - Reserve PCI I/O and memory resources
+ * @pdev: PCI device whose resources are to be reserved
+ * @res_name: Name to be associated with resource.
+ *
+ * Mark all PCI regions associated with PCI device @pdev as
+ * being reserved by owner @res_name.  Do not access any
+ * address inside the PCI regions unless this call returns
+ * successfully.
+ *
+ * Returns 0 on success, or %EBUSY on error.  A warning
+ * message is also printed on failure.
+ */
+int pci_request_regions(struct pci_dev *pdev, const char *res_name)
+{
+	return pci_request_selected_regions(pdev,
+			((1 << PCI_STD_NUM_BARS) - 1), res_name);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_request_regions);
 
 /**
+<<<<<<< HEAD
  *	pci_request_regions_exclusive - Reserved PCI I/O and memory resources
  *	@pdev: PCI device whose resources are to be reserved
  *	@res_name: Name to be associated with resource.
@@ -3774,17 +4942,40 @@ EXPORT_SYMBOL(pci_request_regions);
  *
  *	Returns 0 on success, or %EBUSY on error.  A warning
  *	message is also printed on failure.
+=======
+ * pci_request_regions_exclusive - Reserve PCI I/O and memory resources
+ * @pdev: PCI device whose resources are to be reserved
+ * @res_name: Name to be associated with resource.
+ *
+ * Mark all PCI regions associated with PCI device @pdev as being reserved
+ * by owner @res_name.  Do not access any address inside the PCI regions
+ * unless this call returns successfully.
+ *
+ * pci_request_regions_exclusive() will mark the region so that /dev/mem
+ * and the sysfs MMIO access will not be allowed.
+ *
+ * Returns 0 on success, or %EBUSY on error.  A warning message is also
+ * printed on failure.
+>>>>>>> upstream/android-13
  */
 int pci_request_regions_exclusive(struct pci_dev *pdev, const char *res_name)
 {
 	return pci_request_selected_regions_exclusive(pdev,
+<<<<<<< HEAD
 					((1 << 6) - 1), res_name);
+=======
+				((1 << PCI_STD_NUM_BARS) - 1), res_name);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pci_request_regions_exclusive);
 
 /*
  * Record the PCI IO range (expressed as CPU physical address + size).
+<<<<<<< HEAD
  * Return a negative value if an error has occured, zero otherwise
+=======
+ * Return a negative value if an error has occurred, zero otherwise
+>>>>>>> upstream/android-13
  */
 int pci_register_io_range(struct fwnode_handle *fwnode, phys_addr_t addr,
 			resource_size_t	size)
@@ -3830,6 +5021,10 @@ phys_addr_t pci_pio_to_address(unsigned long pio)
 
 	return address;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(pci_pio_to_address);
+>>>>>>> upstream/android-13
 
 unsigned long __weak pci_address_to_pio(phys_addr_t address)
 {
@@ -3844,6 +5039,7 @@ unsigned long __weak pci_address_to_pio(phys_addr_t address)
 }
 
 /**
+<<<<<<< HEAD
  *	pci_remap_iospace - Remap the memory mapped I/O space
  *	@res: Resource describing the I/O space
  *	@phys_addr: physical address of range to be mapped
@@ -3852,6 +5048,16 @@ unsigned long __weak pci_address_to_pio(phys_addr_t address)
  *	and the CPU physical address @phys_addr into virtual address space.
  *	Only architectures that have memory mapped IO functions defined
  *	(and the PCI_IOBASE value defined) should call this function.
+=======
+ * pci_remap_iospace - Remap the memory mapped I/O space
+ * @res: Resource describing the I/O space
+ * @phys_addr: physical address of range to be mapped
+ *
+ * Remap the memory mapped I/O space described by the @res and the CPU
+ * physical address @phys_addr into virtual address space.  Only
+ * architectures that have memory mapped IO functions defined (and the
+ * PCI_IOBASE value defined) should call this function.
+>>>>>>> upstream/android-13
  */
 int pci_remap_iospace(const struct resource *res, phys_addr_t phys_addr)
 {
@@ -3867,8 +5073,15 @@ int pci_remap_iospace(const struct resource *res, phys_addr_t phys_addr)
 	return ioremap_page_range(vaddr, vaddr + resource_size(res), phys_addr,
 				  pgprot_device(PAGE_KERNEL));
 #else
+<<<<<<< HEAD
 	/* this architecture does not have memory mapped I/O space,
 	   so this function should never be called */
+=======
+	/*
+	 * This architecture does not have memory mapped I/O space,
+	 * so this function should never be called
+	 */
+>>>>>>> upstream/android-13
 	WARN_ONCE(1, "This architecture does not support memory mapped I/O\n");
 	return -ENODEV;
 #endif
@@ -3876,19 +5089,32 @@ int pci_remap_iospace(const struct resource *res, phys_addr_t phys_addr)
 EXPORT_SYMBOL(pci_remap_iospace);
 
 /**
+<<<<<<< HEAD
  *	pci_unmap_iospace - Unmap the memory mapped I/O space
  *	@res: resource to be unmapped
  *
  *	Unmap the CPU virtual address @res from virtual address space.
  *	Only architectures that have memory mapped IO functions defined
  *	(and the PCI_IOBASE value defined) should call this function.
+=======
+ * pci_unmap_iospace - Unmap the memory mapped I/O space
+ * @res: resource to be unmapped
+ *
+ * Unmap the CPU virtual address @res from virtual address space.  Only
+ * architectures that have memory mapped IO functions defined (and the
+ * PCI_IOBASE value defined) should call this function.
+>>>>>>> upstream/android-13
  */
 void pci_unmap_iospace(struct resource *res)
 {
 #if defined(PCI_IOBASE) && defined(CONFIG_MMU)
 	unsigned long vaddr = (unsigned long)PCI_IOBASE + res->start;
 
+<<<<<<< HEAD
 	unmap_kernel_range(vaddr, resource_size(res));
+=======
+	vunmap_range(vaddr, vaddr + resource_size(res));
+>>>>>>> upstream/android-13
 #endif
 }
 EXPORT_SYMBOL(pci_unmap_iospace);
@@ -3995,7 +5221,18 @@ void __iomem *devm_pci_remap_cfg_resource(struct device *dev,
 	}
 
 	size = resource_size(res);
+<<<<<<< HEAD
 	name = res->name ?: dev_name(dev);
+=======
+
+	if (res->name)
+		name = devm_kasprintf(dev, GFP_KERNEL, "%s %s", dev_name(dev),
+				      res->name);
+	else
+		name = devm_kstrdup(dev, dev_name(dev), GFP_KERNEL);
+	if (!name)
+		return IOMEM_ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 
 	if (!devm_request_mem_region(dev, res->start, size, name)) {
 		dev_err(dev, "can't request region for resource %pR\n", res);
@@ -4124,7 +5361,11 @@ int pci_set_cacheline_size(struct pci_dev *dev)
 	if (cacheline_size == pci_cache_line_size)
 		return 0;
 
+<<<<<<< HEAD
 	pci_printk(KERN_DEBUG, dev, "cache line size of %d is not supported\n",
+=======
+	pci_dbg(dev, "cache line size of %d is not supported\n",
+>>>>>>> upstream/android-13
 		   pci_cache_line_size << 2);
 
 	return -EINVAL;
@@ -4223,11 +5464,35 @@ void pci_clear_mwi(struct pci_dev *dev)
 EXPORT_SYMBOL(pci_clear_mwi);
 
 /**
+<<<<<<< HEAD
+=======
+ * pci_disable_parity - disable parity checking for device
+ * @dev: the PCI device to operate on
+ *
+ * Disable parity checking for device @dev
+ */
+void pci_disable_parity(struct pci_dev *dev)
+{
+	u16 cmd;
+
+	pci_read_config_word(dev, PCI_COMMAND, &cmd);
+	if (cmd & PCI_COMMAND_PARITY) {
+		cmd &= ~PCI_COMMAND_PARITY;
+		pci_write_config_word(dev, PCI_COMMAND, cmd);
+	}
+}
+
+/**
+>>>>>>> upstream/android-13
  * pci_intx - enables/disables PCI INTx for device dev
  * @pdev: the PCI device to operate on
  * @enable: boolean: whether to enable or disable PCI INTx
  *
+<<<<<<< HEAD
  * Enables/disables PCI INTx for device dev
+=======
+ * Enables/disables PCI INTx for device @pdev
+>>>>>>> upstream/android-13
  */
 void pci_intx(struct pci_dev *pdev, int enable)
 {
@@ -4303,9 +5568,14 @@ done:
  * pci_check_and_mask_intx - mask INTx on pending interrupt
  * @dev: the PCI device to operate on
  *
+<<<<<<< HEAD
  * Check if the device dev has its INTx line asserted, mask it and
  * return true in that case. False is returned if no interrupt was
  * pending.
+=======
+ * Check if the device dev has its INTx line asserted, mask it and return
+ * true in that case. False is returned if no interrupt was pending.
+>>>>>>> upstream/android-13
  */
 bool pci_check_and_mask_intx(struct pci_dev *dev)
 {
@@ -4317,9 +5587,15 @@ EXPORT_SYMBOL_GPL(pci_check_and_mask_intx);
  * pci_check_and_unmask_intx - unmask INTx if no interrupt is pending
  * @dev: the PCI device to operate on
  *
+<<<<<<< HEAD
  * Check if the device dev has its INTx line asserted, unmask it if not
  * and return true. False is returned and the mask remains active if
  * there was still an interrupt pending.
+=======
+ * Check if the device dev has its INTx line asserted, unmask it if not and
+ * return true. False is returned and the mask remains active if there was
+ * still an interrupt pending.
+>>>>>>> upstream/android-13
  */
 bool pci_check_and_unmask_intx(struct pci_dev *dev)
 {
@@ -4328,7 +5604,11 @@ bool pci_check_and_unmask_intx(struct pci_dev *dev)
 EXPORT_SYMBOL_GPL(pci_check_and_unmask_intx);
 
 /**
+<<<<<<< HEAD
  * pci_wait_for_pending_transaction - waits for pending transaction
+=======
+ * pci_wait_for_pending_transaction - wait for pending transaction
+>>>>>>> upstream/android-13
  * @dev: the PCI device to operate on
  *
  * Return 0 if transaction is pending 1 otherwise.
@@ -4343,6 +5623,7 @@ int pci_wait_for_pending_transaction(struct pci_dev *dev)
 }
 EXPORT_SYMBOL(pci_wait_for_pending_transaction);
 
+<<<<<<< HEAD
 static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
 {
 	int delay = 1;
@@ -4410,6 +5691,14 @@ EXPORT_SYMBOL_GPL(pcie_has_flr);
  * Initiate a function level reset on @dev.  The caller should ensure the
  * device supports FLR before calling this function, e.g. by using the
  * pcie_has_flr() helper.
+=======
+/**
+ * pcie_flr - initiate a PCIe function level reset
+ * @dev: device to reset
+ *
+ * Initiate a function level reset unconditionally on @dev without
+ * checking any flags and DEVCAP
+>>>>>>> upstream/android-13
  */
 int pcie_flr(struct pci_dev *dev)
 {
@@ -4418,6 +5707,12 @@ int pcie_flr(struct pci_dev *dev)
 
 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_BCR_FLR);
 
+<<<<<<< HEAD
+=======
+	if (dev->imm_ready)
+		return 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Per PCIe r4.0, sec 6.6.2, a device must complete an FLR within
 	 * 100ms, but may silently discard requests while the FLR is in
@@ -4429,7 +5724,33 @@ int pcie_flr(struct pci_dev *dev)
 }
 EXPORT_SYMBOL_GPL(pcie_flr);
 
+<<<<<<< HEAD
 static int pci_af_flr(struct pci_dev *dev, int probe)
+=======
+/**
+ * pcie_reset_flr - initiate a PCIe function level reset
+ * @dev: device to reset
+ * @probe: if true, return 0 if device can be reset this way
+ *
+ * Initiate a function level reset on @dev.
+ */
+int pcie_reset_flr(struct pci_dev *dev, bool probe)
+{
+	if (dev->dev_flags & PCI_DEV_FLAGS_NO_FLR_RESET)
+		return -ENOTTY;
+
+	if (!(dev->devcap & PCI_EXP_DEVCAP_FLR))
+		return -ENOTTY;
+
+	if (probe)
+		return 0;
+
+	return pcie_flr(dev);
+}
+EXPORT_SYMBOL_GPL(pcie_reset_flr);
+
+static int pci_af_flr(struct pci_dev *dev, bool probe)
+>>>>>>> upstream/android-13
 {
 	int pos;
 	u8 cap;
@@ -4450,7 +5771,11 @@ static int pci_af_flr(struct pci_dev *dev, int probe)
 
 	/*
 	 * Wait for Transaction Pending bit to clear.  A word-aligned test
+<<<<<<< HEAD
 	 * is used, so we use the conrol offset rather than status and shift
+=======
+	 * is used, so we use the control offset rather than status and shift
+>>>>>>> upstream/android-13
 	 * the test bit to match.
 	 */
 	if (!pci_wait_for_pending(dev, pos + PCI_AF_CTRL,
@@ -4459,6 +5784,12 @@ static int pci_af_flr(struct pci_dev *dev, int probe)
 
 	pci_write_config_byte(dev, pos + PCI_AF_CTRL, PCI_AF_CTRL_FLR);
 
+<<<<<<< HEAD
+=======
+	if (dev->imm_ready)
+		return 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Per Advanced Capabilities for Conventional PCI ECN, 13 April 2006,
 	 * updated 27 July 2006; a device must complete an FLR within
@@ -4473,7 +5804,11 @@ static int pci_af_flr(struct pci_dev *dev, int probe)
 /**
  * pci_pm_reset - Put device into PCI_D3 and back into PCI_D0.
  * @dev: Device to reset.
+<<<<<<< HEAD
  * @probe: If set, only check if the device can be reset this way.
+=======
+ * @probe: if true, return 0 if the device can be reset this way.
+>>>>>>> upstream/android-13
  *
  * If @dev supports native PCI PM and its PCI_PM_CTRL_NO_SOFT_RESET flag is
  * unset, it will be reinitialized internally when going from PCI_D3hot to
@@ -4482,10 +5817,17 @@ static int pci_af_flr(struct pci_dev *dev, int probe)
  *
  * NOTE: This causes the caller to sleep for twice the device power transition
  * cooldown period, which for the D0->D3hot and D3hot->D0 transitions is 10 ms
+<<<<<<< HEAD
  * by default (i.e. unless the @dev's d3_delay field has a different value).
  * Moreover, only devices in D0 can be reset by this function.
  */
 static int pci_pm_reset(struct pci_dev *dev, int probe)
+=======
+ * by default (i.e. unless the @dev's d3hot_delay field has a different value).
+ * Moreover, only devices in D0 can be reset by this function.
+ */
+static int pci_pm_reset(struct pci_dev *dev, bool probe)
+>>>>>>> upstream/android-13
 {
 	u16 csr;
 
@@ -4512,8 +5854,65 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
 	pci_write_config_word(dev, dev->pm_cap + PCI_PM_CTRL, csr);
 	pci_dev_d3_sleep(dev);
 
+<<<<<<< HEAD
 	return pci_dev_wait(dev, "PM D3->D0", PCIE_RESET_READY_POLL_MS);
 }
+=======
+	return pci_dev_wait(dev, "PM D3hot->D0", PCIE_RESET_READY_POLL_MS);
+}
+
+/**
+ * pcie_wait_for_link_delay - Wait until link is active or inactive
+ * @pdev: Bridge device
+ * @active: waiting for active or inactive?
+ * @delay: Delay to wait after link has become active (in ms)
+ *
+ * Use this to wait till link becomes active or inactive.
+ */
+static bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active,
+				     int delay)
+{
+	int timeout = 1000;
+	bool ret;
+	u16 lnk_status;
+
+	/*
+	 * Some controllers might not implement link active reporting. In this
+	 * case, we wait for 1000 ms + any delay requested by the caller.
+	 */
+	if (!pdev->link_active_reporting) {
+		msleep(timeout + delay);
+		return true;
+	}
+
+	/*
+	 * PCIe r4.0 sec 6.6.1, a component must enter LTSSM Detect within 20ms,
+	 * after which we should expect an link active if the reset was
+	 * successful. If so, software must wait a minimum 100ms before sending
+	 * configuration requests to devices downstream this port.
+	 *
+	 * If the link fails to activate, either the device was physically
+	 * removed or the link is permanently failed.
+	 */
+	if (active)
+		msleep(20);
+	for (;;) {
+		pcie_capability_read_word(pdev, PCI_EXP_LNKSTA, &lnk_status);
+		ret = !!(lnk_status & PCI_EXP_LNKSTA_DLLLA);
+		if (ret == active)
+			break;
+		if (timeout <= 0)
+			break;
+		msleep(10);
+		timeout -= 10;
+	}
+	if (active && ret)
+		msleep(delay);
+
+	return ret == active;
+}
+
+>>>>>>> upstream/android-13
 /**
  * pcie_wait_for_link - Wait until link is active or inactive
  * @pdev: Bridge device
@@ -4523,6 +5922,7 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
  */
 bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
 {
+<<<<<<< HEAD
 	int timeout = 1000;
 	bool ret;
 	u16 lnk_status;
@@ -4542,6 +5942,129 @@ bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
 		 active ? "set" : "cleared");
 
 	return false;
+=======
+	return pcie_wait_for_link_delay(pdev, active, 100);
+}
+
+/*
+ * Find maximum D3cold delay required by all the devices on the bus.  The
+ * spec says 100 ms, but firmware can lower it and we allow drivers to
+ * increase it as well.
+ *
+ * Called with @pci_bus_sem locked for reading.
+ */
+static int pci_bus_max_d3cold_delay(const struct pci_bus *bus)
+{
+	const struct pci_dev *pdev;
+	int min_delay = 100;
+	int max_delay = 0;
+
+	list_for_each_entry(pdev, &bus->devices, bus_list) {
+		if (pdev->d3cold_delay < min_delay)
+			min_delay = pdev->d3cold_delay;
+		if (pdev->d3cold_delay > max_delay)
+			max_delay = pdev->d3cold_delay;
+	}
+
+	return max(min_delay, max_delay);
+}
+
+/**
+ * pci_bridge_wait_for_secondary_bus - Wait for secondary bus to be accessible
+ * @dev: PCI bridge
+ *
+ * Handle necessary delays before access to the devices on the secondary
+ * side of the bridge are permitted after D3cold to D0 transition.
+ *
+ * For PCIe this means the delays in PCIe 5.0 section 6.6.1. For
+ * conventional PCI it means Tpvrh + Trhfa specified in PCI 3.0 section
+ * 4.3.2.
+ */
+void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
+{
+	struct pci_dev *child;
+	int delay;
+
+	if (pci_dev_is_disconnected(dev))
+		return;
+
+	if (!pci_is_bridge(dev) || !dev->bridge_d3)
+		return;
+
+	down_read(&pci_bus_sem);
+
+	/*
+	 * We only deal with devices that are present currently on the bus.
+	 * For any hot-added devices the access delay is handled in pciehp
+	 * board_added(). In case of ACPI hotplug the firmware is expected
+	 * to configure the devices before OS is notified.
+	 */
+	if (!dev->subordinate || list_empty(&dev->subordinate->devices)) {
+		up_read(&pci_bus_sem);
+		return;
+	}
+
+	/* Take d3cold_delay requirements into account */
+	delay = pci_bus_max_d3cold_delay(dev->subordinate);
+	if (!delay) {
+		up_read(&pci_bus_sem);
+		return;
+	}
+
+	child = list_first_entry(&dev->subordinate->devices, struct pci_dev,
+				 bus_list);
+	up_read(&pci_bus_sem);
+
+	/*
+	 * Conventional PCI and PCI-X we need to wait Tpvrh + Trhfa before
+	 * accessing the device after reset (that is 1000 ms + 100 ms). In
+	 * practice this should not be needed because we don't do power
+	 * management for them (see pci_bridge_d3_possible()).
+	 */
+	if (!pci_is_pcie(dev)) {
+		pci_dbg(dev, "waiting %d ms for secondary bus\n", 1000 + delay);
+		msleep(1000 + delay);
+		return;
+	}
+
+	/*
+	 * For PCIe downstream and root ports that do not support speeds
+	 * greater than 5 GT/s need to wait minimum 100 ms. For higher
+	 * speeds (gen3) we need to wait first for the data link layer to
+	 * become active.
+	 *
+	 * However, 100 ms is the minimum and the PCIe spec says the
+	 * software must allow at least 1s before it can determine that the
+	 * device that did not respond is a broken device. There is
+	 * evidence that 100 ms is not always enough, for example certain
+	 * Titan Ridge xHCI controller does not always respond to
+	 * configuration requests if we only wait for 100 ms (see
+	 * https://bugzilla.kernel.org/show_bug.cgi?id=203885).
+	 *
+	 * Therefore we wait for 100 ms and check for the device presence.
+	 * If it is still not present give it an additional 100 ms.
+	 */
+	if (!pcie_downstream_port(dev))
+		return;
+
+	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
+		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
+		msleep(delay);
+	} else {
+		pci_dbg(dev, "waiting %d ms for downstream link, after activation\n",
+			delay);
+		if (!pcie_wait_for_link_delay(dev, true, delay)) {
+			/* Did not train, no need to wait any further */
+			pci_info(dev, "Data Link Layer Link Active not set in 1000 msec\n");
+			return;
+		}
+	}
+
+	if (!pci_device_is_present(child)) {
+		pci_dbg(child, "waiting additional %d ms to become accessible\n", delay);
+		msleep(delay);
+	}
+>>>>>>> upstream/android-13
 }
 
 void pci_reset_secondary_bus(struct pci_dev *dev)
@@ -4591,7 +6114,11 @@ int pci_bridge_secondary_bus_reset(struct pci_dev *dev)
 }
 EXPORT_SYMBOL_GPL(pci_bridge_secondary_bus_reset);
 
+<<<<<<< HEAD
 static int pci_parent_bus_reset(struct pci_dev *dev, int probe)
+=======
+static int pci_parent_bus_reset(struct pci_dev *dev, bool probe)
+>>>>>>> upstream/android-13
 {
 	struct pci_dev *pdev;
 
@@ -4609,21 +6136,34 @@ static int pci_parent_bus_reset(struct pci_dev *dev, int probe)
 	return pci_bridge_secondary_bus_reset(dev->bus->self);
 }
 
+<<<<<<< HEAD
 static int pci_reset_hotplug_slot(struct hotplug_slot *hotplug, int probe)
 {
 	int rc = -ENOTTY;
 
 	if (!hotplug || !try_module_get(hotplug->ops->owner))
+=======
+static int pci_reset_hotplug_slot(struct hotplug_slot *hotplug, bool probe)
+{
+	int rc = -ENOTTY;
+
+	if (!hotplug || !try_module_get(hotplug->owner))
+>>>>>>> upstream/android-13
 		return rc;
 
 	if (hotplug->ops->reset_slot)
 		rc = hotplug->ops->reset_slot(hotplug, probe);
 
+<<<<<<< HEAD
 	module_put(hotplug->ops->owner);
+=======
+	module_put(hotplug->owner);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
 
+<<<<<<< HEAD
 static int pci_dev_reset_slot_function(struct pci_dev *dev, int probe)
 {
 	struct pci_dev *pdev;
@@ -4639,6 +6179,27 @@ static int pci_dev_reset_slot_function(struct pci_dev *dev, int probe)
 	return pci_reset_hotplug_slot(dev->slot->hotplug, probe);
 }
 
+=======
+static int pci_dev_reset_slot_function(struct pci_dev *dev, bool probe)
+{
+	if (dev->multifunction || dev->subordinate || !dev->slot ||
+	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET)
+		return -ENOTTY;
+
+	return pci_reset_hotplug_slot(dev->slot->hotplug, probe);
+}
+
+static int pci_reset_bus_function(struct pci_dev *dev, bool probe)
+{
+	int rc;
+
+	rc = pci_dev_reset_slot_function(dev, probe);
+	if (rc != -ENOTTY)
+		return rc;
+	return pci_parent_bus_reset(dev, probe);
+}
+
+>>>>>>> upstream/android-13
 static void pci_dev_lock(struct pci_dev *dev)
 {
 	pci_cfg_access_lock(dev);
@@ -4647,7 +6208,11 @@ static void pci_dev_lock(struct pci_dev *dev)
 }
 
 /* Return 1 on successful lock, 0 on contention */
+<<<<<<< HEAD
 static int pci_dev_trylock(struct pci_dev *dev)
+=======
+int pci_dev_trylock(struct pci_dev *dev)
+>>>>>>> upstream/android-13
 {
 	if (pci_cfg_access_trylock(dev)) {
 		if (device_trylock(&dev->dev))
@@ -4657,12 +6222,22 @@ static int pci_dev_trylock(struct pci_dev *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static void pci_dev_unlock(struct pci_dev *dev)
+=======
+EXPORT_SYMBOL_GPL(pci_dev_trylock);
+
+void pci_dev_unlock(struct pci_dev *dev)
+>>>>>>> upstream/android-13
 {
 	device_unlock(&dev->dev);
 	pci_cfg_access_unlock(dev);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(pci_dev_unlock);
+>>>>>>> upstream/android-13
 
 static void pci_dev_save_and_disable(struct pci_dev *dev)
 {
@@ -4711,6 +6286,142 @@ static void pci_dev_restore(struct pci_dev *dev)
 		err_handler->reset_done(dev);
 }
 
+<<<<<<< HEAD
+=======
+/* dev->reset_methods[] is a 0-terminated list of indices into this array */
+static const struct pci_reset_fn_method pci_reset_fn_methods[] = {
+	{ },
+	{ pci_dev_specific_reset, .name = "device_specific" },
+	{ pci_dev_acpi_reset, .name = "acpi" },
+	{ pcie_reset_flr, .name = "flr" },
+	{ pci_af_flr, .name = "af_flr" },
+	{ pci_pm_reset, .name = "pm" },
+	{ pci_reset_bus_function, .name = "bus" },
+};
+
+static ssize_t reset_method_show(struct device *dev,
+				 struct device_attribute *attr, char *buf)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	ssize_t len = 0;
+	int i, m;
+
+	for (i = 0; i < PCI_NUM_RESET_METHODS; i++) {
+		m = pdev->reset_methods[i];
+		if (!m)
+			break;
+
+		len += sysfs_emit_at(buf, len, "%s%s", len ? " " : "",
+				     pci_reset_fn_methods[m].name);
+	}
+
+	if (len)
+		len += sysfs_emit_at(buf, len, "\n");
+
+	return len;
+}
+
+static int reset_method_lookup(const char *name)
+{
+	int m;
+
+	for (m = 1; m < PCI_NUM_RESET_METHODS; m++) {
+		if (sysfs_streq(name, pci_reset_fn_methods[m].name))
+			return m;
+	}
+
+	return 0;	/* not found */
+}
+
+static ssize_t reset_method_store(struct device *dev,
+				  struct device_attribute *attr,
+				  const char *buf, size_t count)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	char *options, *name;
+	int m, n;
+	u8 reset_methods[PCI_NUM_RESET_METHODS] = { 0 };
+
+	if (sysfs_streq(buf, "")) {
+		pdev->reset_methods[0] = 0;
+		pci_warn(pdev, "All device reset methods disabled by user");
+		return count;
+	}
+
+	if (sysfs_streq(buf, "default")) {
+		pci_init_reset_methods(pdev);
+		return count;
+	}
+
+	options = kstrndup(buf, count, GFP_KERNEL);
+	if (!options)
+		return -ENOMEM;
+
+	n = 0;
+	while ((name = strsep(&options, " ")) != NULL) {
+		if (sysfs_streq(name, ""))
+			continue;
+
+		name = strim(name);
+
+		m = reset_method_lookup(name);
+		if (!m) {
+			pci_err(pdev, "Invalid reset method '%s'", name);
+			goto error;
+		}
+
+		if (pci_reset_fn_methods[m].reset_fn(pdev, PCI_RESET_PROBE)) {
+			pci_err(pdev, "Unsupported reset method '%s'", name);
+			goto error;
+		}
+
+		if (n == PCI_NUM_RESET_METHODS - 1) {
+			pci_err(pdev, "Too many reset methods\n");
+			goto error;
+		}
+
+		reset_methods[n++] = m;
+	}
+
+	reset_methods[n] = 0;
+
+	/* Warn if dev-specific supported but not highest priority */
+	if (pci_reset_fn_methods[1].reset_fn(pdev, PCI_RESET_PROBE) == 0 &&
+	    reset_methods[0] != 1)
+		pci_warn(pdev, "Device-specific reset disabled/de-prioritized by user");
+	memcpy(pdev->reset_methods, reset_methods, sizeof(pdev->reset_methods));
+	kfree(options);
+	return count;
+
+error:
+	/* Leave previous methods unchanged */
+	kfree(options);
+	return -EINVAL;
+}
+static DEVICE_ATTR_RW(reset_method);
+
+static struct attribute *pci_dev_reset_method_attrs[] = {
+	&dev_attr_reset_method.attr,
+	NULL,
+};
+
+static umode_t pci_dev_reset_method_attr_is_visible(struct kobject *kobj,
+						    struct attribute *a, int n)
+{
+	struct pci_dev *pdev = to_pci_dev(kobj_to_dev(kobj));
+
+	if (!pci_reset_supported(pdev))
+		return 0;
+
+	return a->mode;
+}
+
+const struct attribute_group pci_dev_reset_method_attr_group = {
+	.attrs = pci_dev_reset_method_attrs,
+	.is_visible = pci_dev_reset_method_attr_is_visible,
+};
+
+>>>>>>> upstream/android-13
 /**
  * __pci_reset_function_locked - reset a PCI device function while holding
  * the @dev mutex lock.
@@ -4722,6 +6433,10 @@ static void pci_dev_restore(struct pci_dev *dev)
  *
  * The device function is presumed to be unused and the caller is holding
  * the device mutex lock when this function is called.
+<<<<<<< HEAD
+=======
+ *
+>>>>>>> upstream/android-13
  * Resetting the device will make the contents of PCI configuration space
  * random, so any caller of this must be prepared to reinitialise the
  * device including MSI, bus mastering, BARs, decoding IO and memory spaces,
@@ -4732,11 +6447,16 @@ static void pci_dev_restore(struct pci_dev *dev)
  */
 int __pci_reset_function_locked(struct pci_dev *dev)
 {
+<<<<<<< HEAD
 	int rc;
+=======
+	int i, m, rc = -ENOTTY;
+>>>>>>> upstream/android-13
 
 	might_sleep();
 
 	/*
+<<<<<<< HEAD
 	 * A reset method returns -ENOTTY if it doesn't support this device
 	 * and we should try the next method.
 	 *
@@ -4762,10 +6482,33 @@ int __pci_reset_function_locked(struct pci_dev *dev)
 	if (rc != -ENOTTY)
 		return rc;
 	return pci_parent_bus_reset(dev, 0);
+=======
+	 * A reset method returns -ENOTTY if it doesn't support this device and
+	 * we should try the next method.
+	 *
+	 * If it returns 0 (success), we're finished.  If it returns any other
+	 * error, we're also finished: this indicates that further reset
+	 * mechanisms might be broken on the device.
+	 */
+	for (i = 0; i < PCI_NUM_RESET_METHODS; i++) {
+		m = dev->reset_methods[i];
+		if (!m)
+			return -ENOTTY;
+
+		rc = pci_reset_fn_methods[m].reset_fn(dev, PCI_RESET_DO_RESET);
+		if (!rc)
+			return 0;
+		if (rc != -ENOTTY)
+			return rc;
+	}
+
+	return -ENOTTY;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__pci_reset_function_locked);
 
 /**
+<<<<<<< HEAD
  * pci_probe_reset_function - check whether the device can be safely reset
  * @dev: PCI device to reset
  *
@@ -4798,6 +6541,37 @@ int pci_probe_reset_function(struct pci_dev *dev)
 		return rc;
 
 	return pci_parent_bus_reset(dev, 1);
+=======
+ * pci_init_reset_methods - check whether device can be safely reset
+ * and store supported reset mechanisms.
+ * @dev: PCI device to check for reset mechanisms
+ *
+ * Some devices allow an individual function to be reset without affecting
+ * other functions in the same device.  The PCI device must be in D0-D3hot
+ * state.
+ *
+ * Stores reset mechanisms supported by device in reset_methods byte array
+ * which is a member of struct pci_dev.
+ */
+void pci_init_reset_methods(struct pci_dev *dev)
+{
+	int m, i, rc;
+
+	BUILD_BUG_ON(ARRAY_SIZE(pci_reset_fn_methods) != PCI_NUM_RESET_METHODS);
+
+	might_sleep();
+
+	i = 0;
+	for (m = 1; m < PCI_NUM_RESET_METHODS; m++) {
+		rc = pci_reset_fn_methods[m].reset_fn(dev, PCI_RESET_PROBE);
+		if (!rc)
+			dev->reset_methods[i++] = m;
+		else if (rc != -ENOTTY)
+			break;
+	}
+
+	dev->reset_methods[i] = 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -4820,7 +6594,11 @@ int pci_reset_function(struct pci_dev *dev)
 {
 	int rc;
 
+<<<<<<< HEAD
 	if (!dev->reset_fn)
+=======
+	if (!pci_reset_supported(dev))
+>>>>>>> upstream/android-13
 		return -ENOTTY;
 
 	pci_dev_lock(dev);
@@ -4856,7 +6634,11 @@ int pci_reset_function_locked(struct pci_dev *dev)
 {
 	int rc;
 
+<<<<<<< HEAD
 	if (!dev->reset_fn)
+=======
+	if (!pci_reset_supported(dev))
+>>>>>>> upstream/android-13
 		return -ENOTTY;
 
 	pci_dev_save_and_disable(dev);
@@ -4879,7 +6661,11 @@ int pci_try_reset_function(struct pci_dev *dev)
 {
 	int rc;
 
+<<<<<<< HEAD
 	if (!dev->reset_fn)
+=======
+	if (!pci_reset_supported(dev))
+>>>>>>> upstream/android-13
 		return -ENOTTY;
 
 	if (!pci_dev_trylock(dev))
@@ -5107,7 +6893,11 @@ static void pci_slot_restore_locked(struct pci_slot *slot)
 	}
 }
 
+<<<<<<< HEAD
 static int pci_slot_reset(struct pci_slot *slot, int probe)
+=======
+static int pci_slot_reset(struct pci_slot *slot, bool probe)
+>>>>>>> upstream/android-13
 {
 	int rc;
 
@@ -5135,7 +6925,11 @@ static int pci_slot_reset(struct pci_slot *slot, int probe)
  */
 int pci_probe_reset_slot(struct pci_slot *slot)
 {
+<<<<<<< HEAD
 	return pci_slot_reset(slot, 1);
+=======
+	return pci_slot_reset(slot, PCI_RESET_PROBE);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_probe_reset_slot);
 
@@ -5158,14 +6952,22 @@ static int __pci_reset_slot(struct pci_slot *slot)
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = pci_slot_reset(slot, 1);
+=======
+	rc = pci_slot_reset(slot, PCI_RESET_PROBE);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
 	if (pci_slot_trylock(slot)) {
 		pci_slot_save_and_disable_locked(slot);
 		might_sleep();
+<<<<<<< HEAD
 		rc = pci_reset_hotplug_slot(slot->hotplug, 0);
+=======
+		rc = pci_reset_hotplug_slot(slot->hotplug, PCI_RESET_DO_RESET);
+>>>>>>> upstream/android-13
 		pci_slot_restore_locked(slot);
 		pci_slot_unlock(slot);
 	} else
@@ -5174,7 +6976,11 @@ static int __pci_reset_slot(struct pci_slot *slot)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int pci_bus_reset(struct pci_bus *bus, int probe)
+=======
+static int pci_bus_reset(struct pci_bus *bus, bool probe)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -5220,14 +7026,22 @@ int pci_bus_error_reset(struct pci_dev *bridge)
 			goto bus_reset;
 
 	list_for_each_entry(slot, &bus->slots, list)
+<<<<<<< HEAD
 		if (pci_slot_reset(slot, 0))
+=======
+		if (pci_slot_reset(slot, PCI_RESET_DO_RESET))
+>>>>>>> upstream/android-13
 			goto bus_reset;
 
 	mutex_unlock(&pci_slot_mutex);
 	return 0;
 bus_reset:
 	mutex_unlock(&pci_slot_mutex);
+<<<<<<< HEAD
 	return pci_bus_reset(bridge->subordinate, 0);
+=======
+	return pci_bus_reset(bridge->subordinate, PCI_RESET_DO_RESET);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -5238,7 +7052,11 @@ bus_reset:
  */
 int pci_probe_reset_bus(struct pci_bus *bus)
 {
+<<<<<<< HEAD
 	return pci_bus_reset(bus, 1);
+=======
+	return pci_bus_reset(bus, PCI_RESET_PROBE);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(pci_probe_reset_bus);
 
@@ -5252,7 +7070,11 @@ static int __pci_reset_bus(struct pci_bus *bus)
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = pci_bus_reset(bus, 1);
+=======
+	rc = pci_bus_reset(bus, PCI_RESET_PROBE);
+>>>>>>> upstream/android-13
 	if (rc)
 		return rc;
 
@@ -5285,8 +7107,13 @@ EXPORT_SYMBOL_GPL(pci_reset_bus);
  * pcix_get_max_mmrbc - get PCI-X maximum designed memory read byte count
  * @dev: PCI device to query
  *
+<<<<<<< HEAD
  * Returns mmrbc: maximum designed memory read count in bytes
  *    or appropriate error value.
+=======
+ * Returns mmrbc: maximum designed memory read count in bytes or
+ * appropriate error value.
+>>>>>>> upstream/android-13
  */
 int pcix_get_max_mmrbc(struct pci_dev *dev)
 {
@@ -5308,8 +7135,13 @@ EXPORT_SYMBOL(pcix_get_max_mmrbc);
  * pcix_get_mmrbc - get PCI-X maximum memory read byte count
  * @dev: PCI device to query
  *
+<<<<<<< HEAD
  * Returns mmrbc: maximum memory read count in bytes
  *    or appropriate error value.
+=======
+ * Returns mmrbc: maximum memory read count in bytes or appropriate error
+ * value.
+>>>>>>> upstream/android-13
  */
 int pcix_get_mmrbc(struct pci_dev *dev)
 {
@@ -5333,7 +7165,11 @@ EXPORT_SYMBOL(pcix_get_mmrbc);
  * @mmrbc: maximum memory read count in bytes
  *    valid values are 512, 1024, 2048, 4096
  *
+<<<<<<< HEAD
  * If possible sets maximum memory read byte count, some bridges have erratas
+=======
+ * If possible sets maximum memory read byte count, some bridges have errata
+>>>>>>> upstream/android-13
  * that prevent this.
  */
 int pcix_set_mmrbc(struct pci_dev *dev, int mmrbc)
@@ -5378,8 +7214,12 @@ EXPORT_SYMBOL(pcix_set_mmrbc);
  * pcie_get_readrq - get PCI Express read request size
  * @dev: PCI device to query
  *
+<<<<<<< HEAD
  * Returns maximum memory read request in bytes
  *    or appropriate error value.
+=======
+ * Returns maximum memory read request in bytes or appropriate error value.
+>>>>>>> upstream/android-13
  */
 int pcie_get_readrq(struct pci_dev *dev)
 {
@@ -5402,15 +7242,25 @@ EXPORT_SYMBOL(pcie_get_readrq);
 int pcie_set_readrq(struct pci_dev *dev, int rq)
 {
 	u16 v;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (rq < 128 || rq > 4096 || !is_power_of_2(rq))
 		return -EINVAL;
 
 	/*
+<<<<<<< HEAD
 	 * If using the "performance" PCIe config, we clamp the
 	 * read rq size to the max packet size to prevent the
 	 * host bridge generating requests larger than we can
 	 * cope with
+=======
+	 * If using the "performance" PCIe config, we clamp the read rq
+	 * size to the max packet size to keep the host bridge from
+	 * generating requests larger than we can cope with.
+>>>>>>> upstream/android-13
 	 */
 	if (pcie_bus_config == PCIE_BUS_PERFORMANCE) {
 		int mps = pcie_get_mps(dev);
@@ -5421,8 +7271,15 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
 
 	v = (ffs(rq) - 8) << 12;
 
+<<<<<<< HEAD
 	return pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
 						  PCI_EXP_DEVCTL_READRQ, v);
+=======
+	ret = pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
+						  PCI_EXP_DEVCTL_READRQ, v);
+
+	return pcibios_err_to_errno(ret);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pcie_set_readrq);
 
@@ -5453,6 +7310,10 @@ EXPORT_SYMBOL(pcie_get_mps);
 int pcie_set_mps(struct pci_dev *dev, int mps)
 {
 	u16 v;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (mps < 128 || mps > 4096 || !is_power_of_2(mps))
 		return -EINVAL;
@@ -5462,8 +7323,15 @@ int pcie_set_mps(struct pci_dev *dev, int mps)
 		return -EINVAL;
 	v <<= 5;
 
+<<<<<<< HEAD
 	return pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
 						  PCI_EXP_DEVCTL_PAYLOAD, v);
+=======
+	ret = pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
+						  PCI_EXP_DEVCTL_PAYLOAD, v);
+
+	return pcibios_err_to_errno(ret);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(pcie_set_mps);
 
@@ -5546,6 +7414,7 @@ enum pci_bus_speed pcie_get_speed_cap(struct pci_dev *dev)
 	 * where only 2.5 GT/s and 5.0 GT/s speeds were defined.
 	 */
 	pcie_capability_read_dword(dev, PCI_EXP_LNKCAP2, &lnkcap2);
+<<<<<<< HEAD
 	if (lnkcap2) { /* PCIe r3.0-compliant */
 		if (lnkcap2 & PCI_EXP_LNKCAP2_SLS_16_0GB)
 			return PCIE_SPEED_16_0GT;
@@ -5557,6 +7426,12 @@ enum pci_bus_speed pcie_get_speed_cap(struct pci_dev *dev)
 			return PCIE_SPEED_2_5GT;
 		return PCI_SPEED_UNKNOWN;
 	}
+=======
+
+	/* PCIe r3.0-compliant */
+	if (lnkcap2)
+		return PCIE_LNKCAP2_SLS2SPEED(lnkcap2);
+>>>>>>> upstream/android-13
 
 	pcie_capability_read_dword(dev, PCI_EXP_LNKCAP, &lnkcap);
 	if ((lnkcap & PCI_EXP_LNKCAP_SLS) == PCI_EXP_LNKCAP_SLS_5_0GB)
@@ -5632,6 +7507,7 @@ void __pcie_print_link_status(struct pci_dev *dev, bool verbose)
 	if (bw_avail >= bw_cap && verbose)
 		pci_info(dev, "%u.%03u Gb/s available PCIe bandwidth (%s x%d link)\n",
 			 bw_cap / 1000, bw_cap % 1000,
+<<<<<<< HEAD
 			 PCIE_SPEED2STR(speed_cap), width_cap);
 	else if (bw_avail < bw_cap)
 		pci_info(dev, "%u.%03u Gb/s available PCIe bandwidth, limited by %s x%d link at %s (capable of %u.%03u Gb/s with %s x%d link)\n",
@@ -5640,6 +7516,16 @@ void __pcie_print_link_status(struct pci_dev *dev, bool verbose)
 			 limiting_dev ? pci_name(limiting_dev) : "<unknown>",
 			 bw_cap / 1000, bw_cap % 1000,
 			 PCIE_SPEED2STR(speed_cap), width_cap);
+=======
+			 pci_speed_string(speed_cap), width_cap);
+	else if (bw_avail < bw_cap)
+		pci_info(dev, "%u.%03u Gb/s available PCIe bandwidth, limited by %s x%d link at %s (capable of %u.%03u Gb/s with %s x%d link)\n",
+			 bw_avail / 1000, bw_avail % 1000,
+			 pci_speed_string(speed), width,
+			 limiting_dev ? pci_name(limiting_dev) : "<unknown>",
+			 bw_cap / 1000, bw_cap % 1000,
+			 pci_speed_string(speed_cap), width_cap);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -5713,7 +7599,11 @@ int pci_set_vga_state(struct pci_dev *dev, bool decode,
 
 	if (flags & PCI_VGA_STATE_CHANGE_DECODES) {
 		pci_read_config_word(dev, PCI_COMMAND, &cmd);
+<<<<<<< HEAD
 		if (decode == true)
+=======
+		if (decode)
+>>>>>>> upstream/android-13
 			cmd |= command_bits;
 		else
 			cmd &= ~command_bits;
@@ -5729,7 +7619,11 @@ int pci_set_vga_state(struct pci_dev *dev, bool decode,
 		if (bridge) {
 			pci_read_config_word(bridge, PCI_BRIDGE_CONTROL,
 					     &cmd);
+<<<<<<< HEAD
 			if (decode == true)
+=======
+			if (decode)
+>>>>>>> upstream/android-13
 				cmd |= PCI_BRIDGE_CTL_VGA;
 			else
 				cmd &= ~PCI_BRIDGE_CTL_VGA;
@@ -5741,10 +7635,36 @@ int pci_set_vga_state(struct pci_dev *dev, bool decode,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * pci_add_dma_alias - Add a DMA devfn alias for a device
  * @dev: the PCI device for which alias is added
  * @devfn: alias slot and function
+=======
+#ifdef CONFIG_ACPI
+bool pci_pr3_present(struct pci_dev *pdev)
+{
+	struct acpi_device *adev;
+
+	if (acpi_disabled)
+		return false;
+
+	adev = ACPI_COMPANION(&pdev->dev);
+	if (!adev)
+		return false;
+
+	return adev->power.flags.power_resources &&
+		acpi_has_method(adev->handle, "_PR3");
+}
+EXPORT_SYMBOL_GPL(pci_pr3_present);
+#endif
+
+/**
+ * pci_add_dma_alias - Add a DMA devfn alias for a device
+ * @dev: the PCI device for which alias is added
+ * @devfn_from: alias slot and function
+ * @nr_devfns: number of subsequent devfns to alias
+>>>>>>> upstream/android-13
  *
  * This helper encodes an 8-bit devfn as a bit number in dma_alias_mask
  * which is used to program permissible bus-devfn source addresses for DMA
@@ -5760,19 +7680,43 @@ int pci_set_vga_state(struct pci_dev *dev, bool decode,
  * cannot be left as a userspace activity).  DMA aliases should therefore
  * be configured via quirks, such as the PCI fixup header quirk.
  */
+<<<<<<< HEAD
 void pci_add_dma_alias(struct pci_dev *dev, u8 devfn)
 {
 	if (!dev->dma_alias_mask)
 		dev->dma_alias_mask = kcalloc(BITS_TO_LONGS(U8_MAX),
 					      sizeof(long), GFP_KERNEL);
+=======
+void pci_add_dma_alias(struct pci_dev *dev, u8 devfn_from, unsigned nr_devfns)
+{
+	int devfn_to;
+
+	nr_devfns = min(nr_devfns, (unsigned) MAX_NR_DEVFNS - devfn_from);
+	devfn_to = devfn_from + nr_devfns - 1;
+
+	if (!dev->dma_alias_mask)
+		dev->dma_alias_mask = bitmap_zalloc(MAX_NR_DEVFNS, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev->dma_alias_mask) {
 		pci_warn(dev, "Unable to allocate DMA alias mask\n");
 		return;
 	}
 
+<<<<<<< HEAD
 	set_bit(devfn, dev->dma_alias_mask);
 	pci_info(dev, "Enabling fixed DMA alias to %02x.%d\n",
 		 PCI_SLOT(devfn), PCI_FUNC(devfn));
+=======
+	bitmap_set(dev->dma_alias_mask, devfn_from, nr_devfns);
+
+	if (nr_devfns == 1)
+		pci_info(dev, "Enabling fixed DMA alias to %02x.%d\n",
+				PCI_SLOT(devfn_from), PCI_FUNC(devfn_from));
+	else if (nr_devfns > 1)
+		pci_info(dev, "Enabling fixed DMA alias for devfn range from %02x.%d to %02x.%d\n",
+				PCI_SLOT(devfn_from), PCI_FUNC(devfn_from),
+				PCI_SLOT(devfn_to), PCI_FUNC(devfn_to));
+>>>>>>> upstream/android-13
 }
 
 bool pci_devs_are_dma_aliases(struct pci_dev *dev1, struct pci_dev *dev2)
@@ -5780,7 +7724,13 @@ bool pci_devs_are_dma_aliases(struct pci_dev *dev1, struct pci_dev *dev2)
 	return (dev1->dma_alias_mask &&
 		test_bit(dev2->devfn, dev1->dma_alias_mask)) ||
 	       (dev2->dma_alias_mask &&
+<<<<<<< HEAD
 		test_bit(dev1->devfn, dev2->dma_alias_mask));
+=======
+		test_bit(dev1->devfn, dev2->dma_alias_mask)) ||
+	       pci_real_dma_dev(dev1) == dev2 ||
+	       pci_real_dma_dev(dev2) == dev1;
+>>>>>>> upstream/android-13
 }
 
 bool pci_device_is_present(struct pci_dev *pdev)
@@ -5804,13 +7754,47 @@ void pci_ignore_hotplug(struct pci_dev *dev)
 }
 EXPORT_SYMBOL_GPL(pci_ignore_hotplug);
 
+<<<<<<< HEAD
+=======
+/**
+ * pci_real_dma_dev - Get PCI DMA device for PCI device
+ * @dev: the PCI device that may have a PCI DMA alias
+ *
+ * Permits the platform to provide architecture-specific functionality to
+ * devices needing to alias DMA to another PCI device on another PCI bus. If
+ * the PCI device is on the same bus, it is recommended to use
+ * pci_add_dma_alias(). This is the default implementation. Architecture
+ * implementations can override this.
+ */
+struct pci_dev __weak *pci_real_dma_dev(struct pci_dev *dev)
+{
+	return dev;
+}
+
+>>>>>>> upstream/android-13
 resource_size_t __weak pcibios_default_alignment(void)
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 #define RESOURCE_ALIGNMENT_PARAM_SIZE COMMAND_LINE_SIZE
 static char resource_alignment_param[RESOURCE_ALIGNMENT_PARAM_SIZE] = {0};
+=======
+/*
+ * Arches that don't want to expose struct resource to userland as-is in
+ * sysfs and /proc can implement their own pci_resource_to_user().
+ */
+void __weak pci_resource_to_user(const struct pci_dev *dev, int bar,
+				 const struct resource *rsrc,
+				 resource_size_t *start, resource_size_t *end)
+{
+	*start = rsrc->start;
+	*end = rsrc->end;
+}
+
+static char *resource_alignment_param;
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(resource_alignment_lock);
 
 /**
@@ -5831,7 +7815,11 @@ static resource_size_t pci_specified_resource_alignment(struct pci_dev *dev,
 
 	spin_lock(&resource_alignment_lock);
 	p = resource_alignment_param;
+<<<<<<< HEAD
 	if (!*p && !align)
+=======
+	if (!p || !*p)
+>>>>>>> upstream/android-13
 		goto out;
 	if (pci_has_flag(PCI_PROBE_ONLY)) {
 		align = 0;
@@ -5984,8 +7972,12 @@ void pci_reassigndev_resource_alignment(struct pci_dev *dev)
 	 * to enable the kernel to reassign new resource
 	 * window later on.
 	 */
+<<<<<<< HEAD
 	if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE &&
 	    (dev->class >> 8) == PCI_CLASS_BRIDGE_PCI) {
+=======
+	if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
+>>>>>>> upstream/android-13
 		for (i = PCI_BRIDGE_RESOURCES; i < PCI_NUM_RESOURCES; i++) {
 			r = &dev->resource[i];
 			if (!(r->flags & IORESOURCE_MEM))
@@ -5998,6 +7990,7 @@ void pci_reassigndev_resource_alignment(struct pci_dev *dev)
 	}
 }
 
+<<<<<<< HEAD
 static ssize_t pci_set_resource_alignment_param(const char *buf, size_t count)
 {
 	if (count > RESOURCE_ALIGNMENT_PARAM_SIZE - 1)
@@ -6031,6 +8024,52 @@ static ssize_t pci_resource_alignment_store(struct bus_type *bus,
 
 static BUS_ATTR(resource_alignment, 0644, pci_resource_alignment_show,
 					pci_resource_alignment_store);
+=======
+static ssize_t resource_alignment_show(struct bus_type *bus, char *buf)
+{
+	size_t count = 0;
+
+	spin_lock(&resource_alignment_lock);
+	if (resource_alignment_param)
+		count = sysfs_emit(buf, "%s\n", resource_alignment_param);
+	spin_unlock(&resource_alignment_lock);
+
+	return count;
+}
+
+static ssize_t resource_alignment_store(struct bus_type *bus,
+					const char *buf, size_t count)
+{
+	char *param, *old, *end;
+
+	if (count >= (PAGE_SIZE - 1))
+		return -EINVAL;
+
+	param = kstrndup(buf, count, GFP_KERNEL);
+	if (!param)
+		return -ENOMEM;
+
+	end = strchr(param, '\n');
+	if (end)
+		*end = '\0';
+
+	spin_lock(&resource_alignment_lock);
+	old = resource_alignment_param;
+	if (strlen(param)) {
+		resource_alignment_param = param;
+	} else {
+		kfree(param);
+		resource_alignment_param = NULL;
+	}
+	spin_unlock(&resource_alignment_lock);
+
+	kfree(old);
+
+	return count;
+}
+
+static BUS_ATTR_RW(resource_alignment);
+>>>>>>> upstream/android-13
 
 static int __init pci_resource_alignment_sysfs_init(void)
 {
@@ -6061,6 +8100,10 @@ static int of_pci_bus_find_domain_nr(struct device *parent)
 
 	if (parent)
 		domain = of_get_pci_domain_nr(parent->of_node);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	 * Check DT domain and use_dt_domains values.
 	 *
@@ -6155,14 +8198,28 @@ static int __init pci_setup(char *str)
 			} else if (!strncmp(str, "cbmemsize=", 10)) {
 				pci_cardbus_mem_size = memparse(str + 10, &str);
 			} else if (!strncmp(str, "resource_alignment=", 19)) {
+<<<<<<< HEAD
 				pci_set_resource_alignment_param(str + 19,
 							strlen(str + 19));
+=======
+				resource_alignment_param = str + 19;
+>>>>>>> upstream/android-13
 			} else if (!strncmp(str, "ecrc=", 5)) {
 				pcie_ecrc_get_policy(str + 5);
 			} else if (!strncmp(str, "hpiosize=", 9)) {
 				pci_hotplug_io_size = memparse(str + 9, &str);
+<<<<<<< HEAD
 			} else if (!strncmp(str, "hpmemsize=", 10)) {
 				pci_hotplug_mem_size = memparse(str + 10, &str);
+=======
+			} else if (!strncmp(str, "hpmmiosize=", 11)) {
+				pci_hotplug_mmio_size = memparse(str + 11, &str);
+			} else if (!strncmp(str, "hpmmioprefsize=", 15)) {
+				pci_hotplug_mmio_pref_size = memparse(str + 15, &str);
+			} else if (!strncmp(str, "hpmemsize=", 10)) {
+				pci_hotplug_mmio_size = memparse(str + 10, &str);
+				pci_hotplug_mmio_pref_size = pci_hotplug_mmio_size;
+>>>>>>> upstream/android-13
 			} else if (!strncmp(str, "hpbussize=", 10)) {
 				pci_hotplug_bus_size =
 					simple_strtoul(str + 10, &str, 0);
@@ -6181,8 +8238,12 @@ static int __init pci_setup(char *str)
 			} else if (!strncmp(str, "disable_acs_redir=", 18)) {
 				disable_acs_redir_param = str + 18;
 			} else {
+<<<<<<< HEAD
 				printk(KERN_ERR "PCI: Unknown option `%s'\n",
 						str);
+=======
+				pr_err("PCI: Unknown option `%s'\n", str);
+>>>>>>> upstream/android-13
 			}
 		}
 		str = k;
@@ -6192,6 +8253,7 @@ static int __init pci_setup(char *str)
 early_param("pci", pci_setup);
 
 /*
+<<<<<<< HEAD
  * 'disable_acs_redir_param' is initialized in pci_setup(), above, to point
  * to data in the __initdata section which will be freed after the init
  * sequence is complete. We can't allocate memory in pci_setup() because some
@@ -6201,6 +8263,20 @@ early_param("pci", pci_setup);
  */
 static int __init pci_realloc_setup_params(void)
 {
+=======
+ * 'resource_alignment_param' and 'disable_acs_redir_param' are initialized
+ * in pci_setup(), above, to point to data in the __initdata section which
+ * will be freed after the init sequence is complete. We can't allocate memory
+ * in pci_setup() because some architectures do not have any memory allocation
+ * service available during an early_param() call. So we allocate memory and
+ * copy the variable here before the init section is freed.
+ *
+ */
+static int __init pci_realloc_setup_params(void)
+{
+	resource_alignment_param = kstrdup(resource_alignment_param,
+					   GFP_KERNEL);
+>>>>>>> upstream/android-13
 	disable_acs_redir_param = kstrdup(disable_acs_redir_param, GFP_KERNEL);
 
 	return 0;

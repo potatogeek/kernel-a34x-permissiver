@@ -19,8 +19,11 @@
 #include <linux/time.h>
 #include <linux/uidgid.h>
 
+<<<<<<< HEAD
 #define KSTAT_QUERY_FLAGS (AT_STATX_SYNC_TYPE)
 
+=======
+>>>>>>> upstream/android-13
 struct kstat {
 	u32		result_mask;	/* What fields the user got */
 	umode_t		mode;
@@ -36,6 +39,13 @@ struct kstat {
 	 STATX_ATTR_ENCRYPTED |				\
 	 STATX_ATTR_VERITY				\
 	 )/* Attrs corresponding to FS_*_FL flags */
+<<<<<<< HEAD
+=======
+#define KSTAT_ATTR_VFS_FLAGS				\
+	(STATX_ATTR_IMMUTABLE |				\
+	 STATX_ATTR_APPEND				\
+	 ) /* Attrs corresponding to S_* flags that are enforced by the VFS */
+>>>>>>> upstream/android-13
 	u64		ino;
 	dev_t		dev;
 	dev_t		rdev;
@@ -47,6 +57,10 @@ struct kstat {
 	struct timespec64 ctime;
 	struct timespec64 btime;			/* File creation time */
 	u64		blocks;
+<<<<<<< HEAD
+=======
+	u64		mnt_id;
+>>>>>>> upstream/android-13
 };
 
 #endif

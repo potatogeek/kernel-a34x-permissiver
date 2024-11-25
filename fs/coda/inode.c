@@ -27,7 +27,11 @@
 #include <linux/vmalloc.h>
 
 #include <linux/coda.h>
+<<<<<<< HEAD
 #include <linux/coda_psdev.h>
+=======
+#include "coda_psdev.h"
+>>>>>>> upstream/android-13
 #include "coda_linux.h"
 #include "coda_cache.h"
 
@@ -54,6 +58,7 @@ static struct inode *coda_alloc_inode(struct super_block *sb)
 	return &ei->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void coda_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -65,6 +70,13 @@ static void coda_destroy_inode(struct inode *inode)
 	call_rcu(&inode->i_rcu, coda_i_callback);
 }
 
+=======
+static void coda_free_inode(struct inode *inode)
+{
+	kmem_cache_free(coda_inode_cachep, ITOC(inode));
+}
+
+>>>>>>> upstream/android-13
 static void init_once(void *foo)
 {
 	struct coda_inode_info *ei = (struct coda_inode_info *) foo;
@@ -104,7 +116,11 @@ static int coda_remount(struct super_block *sb, int *flags, char *data)
 static const struct super_operations coda_super_operations =
 {
 	.alloc_inode	= coda_alloc_inode,
+<<<<<<< HEAD
 	.destroy_inode	= coda_destroy_inode,
+=======
+	.free_inode	= coda_free_inode,
+>>>>>>> upstream/android-13
 	.evict_inode	= coda_evict_inode,
 	.put_super	= coda_put_super,
 	.statfs		= coda_statfs,
@@ -194,6 +210,12 @@ static int coda_fill_super(struct super_block *sb, void *data, int silent)
 	sb->s_magic = CODA_SUPER_MAGIC;
 	sb->s_op = &coda_super_operations;
 	sb->s_d_op = &coda_dentry_operations;
+<<<<<<< HEAD
+=======
+	sb->s_time_gran = 1;
+	sb->s_time_min = S64_MIN;
+	sb->s_time_max = S64_MAX;
+>>>>>>> upstream/android-13
 
 	error = super_setup_bdi(sb);
 	if (error)
@@ -242,6 +264,10 @@ static void coda_put_super(struct super_block *sb)
 	vcp->vc_sb = NULL;
 	sb->s_fs_info = NULL;
 	mutex_unlock(&vcp->vc_mutex);
+<<<<<<< HEAD
+=======
+	mutex_destroy(&vcp->vc_mutex);
+>>>>>>> upstream/android-13
 
 	pr_info("Bye bye.\n");
 }
@@ -253,6 +279,7 @@ static void coda_evict_inode(struct inode *inode)
 	coda_cache_clear_inode(inode);
 }
 
+<<<<<<< HEAD
 int coda_getattr(const struct path *path, struct kstat *stat,
 		 u32 request_mask, unsigned int flags)
 {
@@ -263,6 +290,19 @@ int coda_getattr(const struct path *path, struct kstat *stat,
 }
 
 int coda_setattr(struct dentry *de, struct iattr *iattr)
+=======
+int coda_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		 struct kstat *stat, u32 request_mask, unsigned int flags)
+{
+	int err = coda_revalidate_inode(d_inode(path->dentry));
+	if (!err)
+		generic_fillattr(&init_user_ns, d_inode(path->dentry), stat);
+	return err;
+}
+
+int coda_setattr(struct user_namespace *mnt_userns, struct dentry *de,
+		 struct iattr *iattr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(de);
 	struct coda_vattr vattr;

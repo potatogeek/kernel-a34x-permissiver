@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* sound/soc/rockchip/rk_spdif.c
  *
  * ALSA SoC Audio Layer - Rockchip I2S Controller driver
@@ -6,10 +10,13 @@
  * Author: Jianqun <jay.xu@rock-chips.com>
  * Copyright (c) 2015 Collabora Ltd.
  * Author: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -44,7 +51,11 @@ struct rk_spdif_dev {
 	struct regmap *regmap;
 };
 
+<<<<<<< HEAD
 static const struct of_device_id rk_spdif_match[] = {
+=======
+static const struct of_device_id rk_spdif_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "rockchip,rk3066-spdif",
 	  .data = (void *)RK_SPDIF_RK3066 },
 	{ .compatible = "rockchip,rk3188-spdif",
@@ -61,6 +72,11 @@ static const struct of_device_id rk_spdif_match[] = {
 	  .data = (void *)RK_SPDIF_RK3366 },
 	{ .compatible = "rockchip,rk3399-spdif",
 	  .data = (void *)RK_SPDIF_RK3366 },
+<<<<<<< HEAD
+=======
+	{ .compatible = "rockchip,rk3568-spdif",
+	  .data = (void *)RK_SPDIF_RK3366 },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, rk_spdif_match);
@@ -106,8 +122,13 @@ static int __maybe_unused rk_spdif_runtime_resume(struct device *dev)
 }
 
 static int rk_spdif_hw_params(struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 				  struct snd_pcm_hw_params *params,
 				  struct snd_soc_dai *dai)
+=======
+			      struct snd_pcm_hw_params *params,
+			      struct snd_soc_dai *dai)
+>>>>>>> upstream/android-13
 {
 	struct rk_spdif_dev *spdif = snd_soc_dai_get_drvdata(dai);
 	unsigned int val = SPDIF_CFGR_HALFWORD_ENABLE;
@@ -140,15 +161,25 @@ static int rk_spdif_hw_params(struct snd_pcm_substream *substream,
 	}
 
 	ret = regmap_update_bits(spdif->regmap, SPDIF_CFGR,
+<<<<<<< HEAD
 		SPDIF_CFGR_CLK_DIV_MASK | SPDIF_CFGR_HALFWORD_ENABLE |
 		SDPIF_CFGR_VDW_MASK,
 		val);
+=======
+				 SPDIF_CFGR_CLK_DIV_MASK |
+				 SPDIF_CFGR_HALFWORD_ENABLE |
+				 SDPIF_CFGR_VDW_MASK, val);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static int rk_spdif_trigger(struct snd_pcm_substream *substream,
+<<<<<<< HEAD
 				int cmd, struct snd_soc_dai *dai)
+=======
+			    int cmd, struct snd_soc_dai *dai)
+>>>>>>> upstream/android-13
 {
 	struct rk_spdif_dev *spdif = snd_soc_dai_get_drvdata(dai);
 	int ret;
@@ -158,31 +189,53 @@ static int rk_spdif_trigger(struct snd_pcm_substream *substream,
 	case SNDRV_PCM_TRIGGER_RESUME:
 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
 		ret = regmap_update_bits(spdif->regmap, SPDIF_DMACR,
+<<<<<<< HEAD
 				   SPDIF_DMACR_TDE_ENABLE |
 				   SPDIF_DMACR_TDL_MASK,
 				   SPDIF_DMACR_TDE_ENABLE |
 				   SPDIF_DMACR_TDL(16));
+=======
+					 SPDIF_DMACR_TDE_ENABLE |
+					 SPDIF_DMACR_TDL_MASK,
+					 SPDIF_DMACR_TDE_ENABLE |
+					 SPDIF_DMACR_TDL(16));
+>>>>>>> upstream/android-13
 
 		if (ret != 0)
 			return ret;
 
 		ret = regmap_update_bits(spdif->regmap, SPDIF_XFER,
+<<<<<<< HEAD
 				   SPDIF_XFER_TXS_START,
 				   SPDIF_XFER_TXS_START);
+=======
+					 SPDIF_XFER_TXS_START,
+					 SPDIF_XFER_TXS_START);
+>>>>>>> upstream/android-13
 		break;
 	case SNDRV_PCM_TRIGGER_SUSPEND:
 	case SNDRV_PCM_TRIGGER_STOP:
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
 		ret = regmap_update_bits(spdif->regmap, SPDIF_DMACR,
+<<<<<<< HEAD
 				   SPDIF_DMACR_TDE_ENABLE,
 				   SPDIF_DMACR_TDE_DISABLE);
+=======
+					 SPDIF_DMACR_TDE_ENABLE,
+					 SPDIF_DMACR_TDE_DISABLE);
+>>>>>>> upstream/android-13
 
 		if (ret != 0)
 			return ret;
 
 		ret = regmap_update_bits(spdif->regmap, SPDIF_XFER,
+<<<<<<< HEAD
 				   SPDIF_XFER_TXS_START,
 				   SPDIF_XFER_TXS_STOP);
+=======
+					 SPDIF_XFER_TXS_START,
+					 SPDIF_XFER_TXS_STOP);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -250,6 +303,10 @@ static bool rk_spdif_rd_reg(struct device *dev, unsigned int reg)
 	case SPDIF_INTCR:
 	case SPDIF_INTSR:
 	case SPDIF_XFER:
+<<<<<<< HEAD
+=======
+	case SPDIF_SMPDR:
+>>>>>>> upstream/android-13
 		return true;
 	default:
 		return false;
@@ -261,6 +318,10 @@ static bool rk_spdif_volatile_reg(struct device *dev, unsigned int reg)
 	switch (reg) {
 	case SPDIF_INTSR:
 	case SPDIF_SDBLR:
+<<<<<<< HEAD
+=======
+	case SPDIF_SMPDR:
+>>>>>>> upstream/android-13
 		return true;
 	default:
 		return false;
@@ -294,7 +355,11 @@ static int rk_spdif_probe(struct platform_device *pdev)
 		grf = syscon_regmap_lookup_by_phandle(np, "rockchip,grf");
 		if (IS_ERR(grf)) {
 			dev_err(&pdev->dev,
+<<<<<<< HEAD
 				"rockchip_spdif missing 'rockchip,grf' \n");
+=======
+				"rockchip_spdif missing 'rockchip,grf'\n");
+>>>>>>> upstream/android-13
 			return PTR_ERR(grf);
 		}
 
@@ -309,6 +374,7 @@ static int rk_spdif_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	spdif->hclk = devm_clk_get(&pdev->dev, "hclk");
+<<<<<<< HEAD
 	if (IS_ERR(spdif->hclk)) {
 		dev_err(&pdev->dev, "Can't retrieve rk_spdif bus clock\n");
 		return PTR_ERR(spdif->hclk);
@@ -347,6 +413,23 @@ static int rk_spdif_probe(struct platform_device *pdev)
 		ret = PTR_ERR(spdif->regmap);
 		goto err_disable_clocks;
 	}
+=======
+	if (IS_ERR(spdif->hclk))
+		return PTR_ERR(spdif->hclk);
+
+	spdif->mclk = devm_clk_get(&pdev->dev, "mclk");
+	if (IS_ERR(spdif->mclk))
+		return PTR_ERR(spdif->mclk);
+
+	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+	if (IS_ERR(regs))
+		return PTR_ERR(regs);
+
+	spdif->regmap = devm_regmap_init_mmio_clk(&pdev->dev, "hclk", regs,
+						  &rk_spdif_regmap_config);
+	if (IS_ERR(spdif->regmap))
+		return PTR_ERR(spdif->regmap);
+>>>>>>> upstream/android-13
 
 	spdif->playback_dma_data.addr = res->start + SPDIF_SMPDR;
 	spdif->playback_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
@@ -355,47 +438,78 @@ static int rk_spdif_probe(struct platform_device *pdev)
 	spdif->dev = &pdev->dev;
 	dev_set_drvdata(&pdev->dev, spdif);
 
+<<<<<<< HEAD
 	pm_runtime_set_active(&pdev->dev);
 	pm_runtime_enable(&pdev->dev);
 	pm_request_idle(&pdev->dev);
+=======
+	pm_runtime_enable(&pdev->dev);
+	if (!pm_runtime_enabled(&pdev->dev)) {
+		ret = rk_spdif_runtime_resume(&pdev->dev);
+		if (ret)
+			goto err_pm_runtime;
+	}
+>>>>>>> upstream/android-13
 
 	ret = devm_snd_soc_register_component(&pdev->dev,
 					      &rk_spdif_component,
 					      &rk_spdif_dai, 1);
 	if (ret) {
 		dev_err(&pdev->dev, "Could not register DAI\n");
+<<<<<<< HEAD
 		goto err_pm_runtime;
+=======
+		goto err_pm_suspend;
+>>>>>>> upstream/android-13
 	}
 
 	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
 	if (ret) {
 		dev_err(&pdev->dev, "Could not register PCM\n");
+<<<<<<< HEAD
 		goto err_pm_runtime;
+=======
+		goto err_pm_suspend;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
+<<<<<<< HEAD
 err_pm_runtime:
 	pm_runtime_disable(&pdev->dev);
 err_disable_clocks:
 	clk_disable_unprepare(spdif->mclk);
 err_disable_hclk:
 	clk_disable_unprepare(spdif->hclk);
+=======
+err_pm_suspend:
+	if (!pm_runtime_status_suspended(&pdev->dev))
+		rk_spdif_runtime_suspend(&pdev->dev);
+err_pm_runtime:
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
 static int rk_spdif_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct rk_spdif_dev *spdif = dev_get_drvdata(&pdev->dev);
 
+=======
+>>>>>>> upstream/android-13
 	pm_runtime_disable(&pdev->dev);
 	if (!pm_runtime_status_suspended(&pdev->dev))
 		rk_spdif_runtime_suspend(&pdev->dev);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(spdif->mclk);
 	clk_disable_unprepare(spdif->hclk);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

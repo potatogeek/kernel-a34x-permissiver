@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * phonet.c -- USB CDC Phonet host driver
  *
  * Copyright (C) 2008-2009 Nokia Corporation. All rights reserved.
  *
  * Author: Rémi Denis-Courmont
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -49,7 +56,11 @@ struct usbpn_dev {
 
 	spinlock_t		rx_lock;
 	struct sk_buff		*rx_skb;
+<<<<<<< HEAD
 	struct urb		*urbs[0];
+=======
+	struct urb		*urbs[];
+>>>>>>> upstream/android-13
 };
 
 static void tx_complete(struct urb *req);
@@ -110,7 +121,11 @@ static void tx_complete(struct urb *req)
 	case -ECONNRESET:
 	case -ESHUTDOWN:
 		dev->stats.tx_aborted_errors++;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev->stats.tx_errors++;
 		dev_dbg(&dev->dev, "TX error (%d)\n", status);
@@ -266,7 +281,12 @@ static int usbpn_close(struct net_device *dev)
 	return usb_set_interface(pnd->usb, num, !pnd->active_setting);
 }
 
+<<<<<<< HEAD
 static int usbpn_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int usbpn_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+				void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct if_phonet_req *req = (struct if_phonet_req *)ifr;
 
@@ -282,13 +302,21 @@ static const struct net_device_ops usbpn_ops = {
 	.ndo_open	= usbpn_open,
 	.ndo_stop	= usbpn_close,
 	.ndo_start_xmit = usbpn_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl	= usbpn_ioctl,
+=======
+	.ndo_siocdevprivate = usbpn_siocdevprivate,
+>>>>>>> upstream/android-13
 };
 
 static void usbpn_setup(struct net_device *dev)
 {
 	dev->features		= 0;
+<<<<<<< HEAD
 	dev->netdev_ops		= &usbpn_ops,
+=======
+	dev->netdev_ops		= &usbpn_ops;
+>>>>>>> upstream/android-13
 	dev->header_ops		= &phonet_header_ops;
 	dev->type		= ARPHRD_PHONET;
 	dev->flags		= IFF_POINTOPOINT | IFF_NOARP;
@@ -361,8 +389,13 @@ static int usbpn_probe(struct usb_interface *intf, const struct usb_device_id *i
 	else
 		return -EINVAL;
 
+<<<<<<< HEAD
 	dev = alloc_netdev(sizeof(*pnd) + sizeof(pnd->urbs[0]) * rxq_size,
 			   ifname, NET_NAME_UNKNOWN, usbpn_setup);
+=======
+	dev = alloc_netdev(struct_size(pnd, urbs, rxq_size), ifname,
+			   NET_NAME_UNKNOWN, usbpn_setup);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return -ENOMEM;
 

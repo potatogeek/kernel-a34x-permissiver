@@ -14,6 +14,10 @@
 #define KMSG_COMPONENT "dasd"
 
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/major.h>
+>>>>>>> upstream/android-13
 #include <linux/fs.h>
 #include <linux/blkpg.h>
 
@@ -24,6 +28,11 @@
 
 #include "dasd_int.h"
 
+<<<<<<< HEAD
+=======
+static struct lock_class_key dasd_bio_compl_lkclass;
+
+>>>>>>> upstream/android-13
 /*
  * Allocate and register gendisk structure for device.
  */
@@ -38,13 +47,22 @@ int dasd_gendisk_alloc(struct dasd_block *block)
 	if (base->devindex >= DASD_PER_MAJOR)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	gdp = alloc_disk(1 << DASD_PARTN_BITS);
+=======
+	gdp = __alloc_disk_node(block->request_queue, NUMA_NO_NODE,
+				&dasd_bio_compl_lkclass);
+>>>>>>> upstream/android-13
 	if (!gdp)
 		return -ENOMEM;
 
 	/* Initialize gendisk structure. */
 	gdp->major = DASD_MAJOR;
 	gdp->first_minor = base->devindex << DASD_PARTN_BITS;
+<<<<<<< HEAD
+=======
+	gdp->minors = 1 << DASD_PARTN_BITS;
+>>>>>>> upstream/android-13
 	gdp->fops = &dasd_device_operations;
 
 	/*
@@ -73,10 +91,16 @@ int dasd_gendisk_alloc(struct dasd_block *block)
 	    test_bit(DASD_FLAG_DEVICE_RO, &base->flags))
 		set_disk_ro(gdp, 1);
 	dasd_add_link_to_gendisk(gdp, base);
+<<<<<<< HEAD
 	gdp->queue = block->request_queue;
 	block->gdp = gdp;
 	set_capacity(block->gdp, 0);
 	device_add_disk(&base->cdev->dev, block->gdp);
+=======
+	block->gdp = gdp;
+	set_capacity(block->gdp, 0);
+	device_add_disk(&base->cdev->dev, block->gdp, NULL);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -101,6 +125,7 @@ int dasd_scan_partitions(struct dasd_block *block)
 	struct block_device *bdev;
 	int rc;
 
+<<<<<<< HEAD
 	bdev = bdget_disk(block->gdp, 0);
 	if (!bdev) {
 		DBF_DEV_EVENT(DBF_ERR, block->base, "%s",
@@ -117,6 +142,19 @@ int dasd_scan_partitions(struct dasd_block *block)
 	}
 
 	rc = blkdev_reread_part(bdev);
+=======
+	bdev = blkdev_get_by_dev(disk_devt(block->gdp), FMODE_READ, NULL);
+	if (IS_ERR(bdev)) {
+		DBF_DEV_EVENT(DBF_ERR, block->base,
+			      "scan partitions error, blkdev_get returned %ld",
+			      PTR_ERR(bdev));
+		return -ENODEV;
+	}
+
+	mutex_lock(&block->gdp->open_mutex);
+	rc = bdev_disk_changed(block->gdp, false);
+	mutex_unlock(&block->gdp->open_mutex);
+>>>>>>> upstream/android-13
 	if (rc)
 		DBF_DEV_EVENT(DBF_ERR, block->base,
 				"scan partitions error, rc %d", rc);
@@ -141,9 +179,12 @@ int dasd_scan_partitions(struct dasd_block *block)
  */
 void dasd_destroy_partitions(struct dasd_block *block)
 {
+<<<<<<< HEAD
 	/* The two structs have 168/176 byte on 31/64 bit. */
 	struct blkpg_partition bpart;
 	struct blkpg_ioctl_arg barg;
+=======
+>>>>>>> upstream/android-13
 	struct block_device *bdev;
 
 	/*
@@ -153,6 +194,7 @@ void dasd_destroy_partitions(struct dasd_block *block)
 	bdev = block->bdev;
 	block->bdev = NULL;
 
+<<<<<<< HEAD
 	/*
 	 * See fs/partition/check.c:delete_partition
 	 * Can't call delete_partitions directly. Use ioctl.
@@ -169,6 +211,14 @@ void dasd_destroy_partitions(struct dasd_block *block)
 	/* Matching blkdev_put to the blkdev_get in dasd_scan_partitions. */
 	blkdev_put(bdev, FMODE_READ);
 	set_capacity(block->gdp, 0);
+=======
+	mutex_lock(&bdev->bd_disk->open_mutex);
+	bdev_disk_changed(bdev->bd_disk, true);
+	mutex_unlock(&bdev->bd_disk->open_mutex);
+
+	/* Matching blkdev_put to the blkdev_get in dasd_scan_partitions. */
+	blkdev_put(bdev, FMODE_READ);
+>>>>>>> upstream/android-13
 }
 
 int dasd_gendisk_init(void)

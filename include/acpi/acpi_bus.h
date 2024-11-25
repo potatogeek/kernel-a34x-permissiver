@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  acpi_bus.h - ACPI Bus Driver ($Revision: 22 $)
  *
  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
  *  Copyright (C) 2001, 2002 Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -17,6 +22,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ACPI_BUS_H__
@@ -57,6 +64,10 @@ acpi_status acpi_execute_simple_method(acpi_handle handle, char *method,
 				       u64 arg);
 acpi_status acpi_evaluate_ej0(acpi_handle handle);
 acpi_status acpi_evaluate_lck(acpi_handle handle, int lock);
+<<<<<<< HEAD
+=======
+acpi_status acpi_evaluate_reg(acpi_handle handle, u8 space_id, u32 function);
+>>>>>>> upstream/android-13
 bool acpi_ata_match(acpi_handle handle);
 bool acpi_bay_match(acpi_handle handle);
 bool acpi_dock_match(acpi_handle handle);
@@ -90,6 +101,7 @@ acpi_evaluate_dsm_typed(acpi_handle handle, const guid_t *guid, u64 rev,
 
 bool acpi_dev_found(const char *hid);
 bool acpi_dev_present(const char *hid, const char *uid, s64 hrv);
+<<<<<<< HEAD
 
 const char *
 acpi_dev_get_first_match_name(const char *hid, const char *uid, s64 hrv);
@@ -97,6 +109,13 @@ acpi_dev_get_first_match_name(const char *hid, const char *uid, s64 hrv);
 #ifdef CONFIG_ACPI
 
 #include <linux/proc_fs.h>
+=======
+bool acpi_reduced_hardware(void);
+
+#ifdef CONFIG_ACPI
+
+struct proc_dir_entry;
+>>>>>>> upstream/android-13
 
 #define ACPI_BUS_FILE_ROOT	"acpi"
 extern struct proc_dir_entry *acpi_root_dir;
@@ -230,7 +249,11 @@ struct acpi_device_dir {
 /* Plug and Play */
 
 typedef char acpi_bus_id[8];
+<<<<<<< HEAD
 typedef unsigned long acpi_bus_address;
+=======
+typedef u64 acpi_bus_address;
+>>>>>>> upstream/android-13
 typedef char acpi_device_name[40];
 typedef char acpi_device_class[20];
 
@@ -294,6 +317,15 @@ struct acpi_device_power {
 	struct acpi_device_power_state states[ACPI_D_STATE_COUNT];	/* Power states (D0-D3Cold) */
 };
 
+<<<<<<< HEAD
+=======
+struct acpi_dep_data {
+	struct list_head node;
+	acpi_handle supplier;
+	acpi_handle consumer;
+};
+
+>>>>>>> upstream/android-13
 /* Performance Management */
 
 struct acpi_device_perf_flags {
@@ -347,10 +379,23 @@ struct acpi_device_physical_node {
 	bool put_online:1;
 };
 
+<<<<<<< HEAD
 /* ACPI Device Specific Data (_DSD) */
 struct acpi_device_data {
 	const union acpi_object *pointer;
 	const union acpi_object *properties;
+=======
+struct acpi_device_properties {
+	const guid_t *guid;
+	const union acpi_object *properties;
+	struct list_head list;
+};
+
+/* ACPI Device Specific Data (_DSD) */
+struct acpi_device_data {
+	const union acpi_object *pointer;
+	struct list_head properties;
+>>>>>>> upstream/android-13
 	const union acpi_object *of_compatible;
 	struct list_head subnodes;
 };
@@ -506,21 +551,34 @@ extern int unregister_acpi_notifier(struct notifier_block *);
  */
 
 int acpi_bus_get_device(acpi_handle handle, struct acpi_device **device);
+<<<<<<< HEAD
 struct acpi_device *acpi_bus_get_acpi_device(acpi_handle handle);
 void acpi_bus_put_acpi_device(struct acpi_device *adev);
+=======
+>>>>>>> upstream/android-13
 acpi_status acpi_bus_get_status_handle(acpi_handle handle,
 				       unsigned long long *sta);
 int acpi_bus_get_status(struct acpi_device *device);
 
 int acpi_bus_set_power(acpi_handle handle, int state);
 const char *acpi_power_state_string(int state);
+<<<<<<< HEAD
 int acpi_device_get_power(struct acpi_device *device, int *state);
+=======
+>>>>>>> upstream/android-13
 int acpi_device_set_power(struct acpi_device *device, int state);
 int acpi_bus_init_power(struct acpi_device *device);
 int acpi_device_fix_up_power(struct acpi_device *device);
 int acpi_bus_update_power(acpi_handle handle, int *state_p);
 int acpi_device_update_power(struct acpi_device *device, int *state_p);
 bool acpi_bus_power_manageable(acpi_handle handle);
+<<<<<<< HEAD
+=======
+int acpi_device_power_add_dependent(struct acpi_device *adev,
+				    struct device *dev);
+void acpi_device_power_remove_dependent(struct acpi_device *adev,
+					struct device *dev);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 bool acpi_bus_can_wakeup(acpi_handle handle);
@@ -591,6 +649,7 @@ struct acpi_pci_root {
 
 /* helper */
 
+<<<<<<< HEAD
 bool acpi_dma_supported(struct acpi_device *adev);
 enum dev_dma_attr acpi_get_dma_attr(struct acpi_device *adev);
 int acpi_dma_get_range(struct device *dev, u64 *dma_addr, u64 *offset,
@@ -598,6 +657,22 @@ int acpi_dma_get_range(struct device *dev, u64 *dma_addr, u64 *offset,
 int acpi_dma_configure(struct device *dev, enum dev_dma_attr attr);
 void acpi_dma_deconfigure(struct device *dev);
 
+=======
+bool acpi_dma_supported(const struct acpi_device *adev);
+enum dev_dma_attr acpi_get_dma_attr(struct acpi_device *adev);
+int acpi_iommu_fwspec_init(struct device *dev, u32 id,
+			   struct fwnode_handle *fwnode,
+			   const struct iommu_ops *ops);
+int acpi_dma_get_range(struct device *dev, u64 *dma_addr, u64 *offset,
+		       u64 *size);
+int acpi_dma_configure_id(struct device *dev, enum dev_dma_attr attr,
+			   const u32 *input_id);
+static inline int acpi_dma_configure(struct device *dev,
+				     enum dev_dma_attr attr)
+{
+	return acpi_dma_configure_id(dev, attr, NULL);
+}
+>>>>>>> upstream/android-13
 struct acpi_device *acpi_find_child_device(struct acpi_device *parent,
 					   u64 address, bool check_children);
 int acpi_is_root_bridge(acpi_handle);
@@ -607,9 +682,16 @@ int acpi_enable_wakeup_device_power(struct acpi_device *dev, int state);
 int acpi_disable_wakeup_device_power(struct acpi_device *dev);
 
 #ifdef CONFIG_X86
+<<<<<<< HEAD
 bool acpi_device_always_present(struct acpi_device *adev);
 #else
 static inline bool acpi_device_always_present(struct acpi_device *adev)
+=======
+bool acpi_device_override_status(struct acpi_device *adev, unsigned long long *status);
+#else
+static inline bool acpi_device_override_status(struct acpi_device *adev,
+					       unsigned long long *status)
+>>>>>>> upstream/android-13
 {
 	return false;
 }
@@ -655,6 +737,15 @@ static inline int acpi_pm_set_device_wakeup(struct device *dev, bool enable)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT
+bool acpi_sleep_state_supported(u8 sleep_state);
+#else
+static inline bool acpi_sleep_state_supported(u8 sleep_state) { return false; }
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ACPI_SLEEP
 u32 acpi_target_system_state(void);
 #else
@@ -678,6 +769,49 @@ static inline bool acpi_device_can_poweroff(struct acpi_device *adev)
 		adev->power.states[ACPI_STATE_D3_HOT].flags.explicit_set);
 }
 
+<<<<<<< HEAD
+=======
+bool acpi_dev_hid_uid_match(struct acpi_device *adev, const char *hid2, const char *uid2);
+
+void acpi_dev_clear_dependencies(struct acpi_device *supplier);
+struct acpi_device *acpi_dev_get_first_consumer_dev(struct acpi_device *supplier);
+struct acpi_device *
+acpi_dev_get_next_match_dev(struct acpi_device *adev, const char *hid, const char *uid, s64 hrv);
+struct acpi_device *
+acpi_dev_get_first_match_dev(const char *hid, const char *uid, s64 hrv);
+
+/**
+ * for_each_acpi_dev_match - iterate over ACPI devices that matching the criteria
+ * @adev: pointer to the matching ACPI device, NULL at the end of the loop
+ * @hid: Hardware ID of the device.
+ * @uid: Unique ID of the device, pass NULL to not check _UID
+ * @hrv: Hardware Revision of the device, pass -1 to not check _HRV
+ *
+ * The caller is responsible for invoking acpi_dev_put() on the returned device.
+ */
+#define for_each_acpi_dev_match(adev, hid, uid, hrv)			\
+	for (adev = acpi_dev_get_first_match_dev(hid, uid, hrv);	\
+	     adev;							\
+	     adev = acpi_dev_get_next_match_dev(adev, hid, uid, hrv))
+
+static inline struct acpi_device *acpi_dev_get(struct acpi_device *adev)
+{
+	return adev ? to_acpi_device(get_device(&adev->dev)) : NULL;
+}
+
+static inline void acpi_dev_put(struct acpi_device *adev)
+{
+	if (adev)
+		put_device(&adev->dev);
+}
+
+struct acpi_device *acpi_bus_get_acpi_device(acpi_handle handle);
+
+static inline void acpi_bus_put_acpi_device(struct acpi_device *adev)
+{
+	acpi_dev_put(adev);
+}
+>>>>>>> upstream/android-13
 #else	/* CONFIG_ACPI */
 
 static inline int register_acpi_bus_type(void *bus) { return 0; }

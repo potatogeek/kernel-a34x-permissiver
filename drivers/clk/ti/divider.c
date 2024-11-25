@@ -26,6 +26,7 @@
 #undef pr_fmt
 #define pr_fmt(fmt) "%s: " fmt, __func__
 
+<<<<<<< HEAD
 #define div_mask(d)	((1 << ((d)->width)) - 1)
 
 static unsigned int _get_table_maxdiv(const struct clk_div_table *table)
@@ -50,6 +51,8 @@ static unsigned int _get_maxdiv(struct clk_omap_divider *divider)
 	return div_mask(divider) + 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 static unsigned int _get_table_div(const struct clk_div_table *table,
 				   unsigned int val)
 {
@@ -61,6 +64,37 @@ static unsigned int _get_table_div(const struct clk_div_table *table,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void _setup_mask(struct clk_omap_divider *divider)
+{
+	u16 mask;
+	u32 max_val;
+	const struct clk_div_table *clkt;
+
+	if (divider->table) {
+		max_val = 0;
+
+		for (clkt = divider->table; clkt->div; clkt++)
+			if (clkt->val > max_val)
+				max_val = clkt->val;
+	} else {
+		max_val = divider->max;
+
+		if (!(divider->flags & CLK_DIVIDER_ONE_BASED) &&
+		    !(divider->flags & CLK_DIVIDER_POWER_OF_TWO))
+			max_val--;
+	}
+
+	if (divider->flags & CLK_DIVIDER_POWER_OF_TWO)
+		mask = fls(max_val) - 1;
+	else
+		mask = max_val;
+
+	divider->mask = (1 << fls(mask)) - 1;
+}
+
+>>>>>>> upstream/android-13
 static unsigned int _get_div(struct clk_omap_divider *divider, unsigned int val)
 {
 	if (divider->flags & CLK_DIVIDER_ONE_BASED)
@@ -101,7 +135,11 @@ static unsigned long ti_clk_divider_recalc_rate(struct clk_hw *hw,
 	unsigned int div, val;
 
 	val = ti_clk_ll_ops->clk_readl(&divider->reg) >> divider->shift;
+<<<<<<< HEAD
 	val &= div_mask(divider);
+=======
+	val &= divider->mask;
+>>>>>>> upstream/android-13
 
 	div = _get_div(divider, val);
 	if (!div) {
@@ -180,7 +218,11 @@ static int ti_clk_divider_bestdiv(struct clk_hw *hw, unsigned long rate,
 	if (!rate)
 		rate = 1;
 
+<<<<<<< HEAD
 	maxdiv = _get_maxdiv(divider);
+=======
+	maxdiv = divider->max;
+>>>>>>> upstream/android-13
 
 	if (!(clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT)) {
 		parent_rate = *best_parent_rate;
@@ -219,7 +261,11 @@ static int ti_clk_divider_bestdiv(struct clk_hw *hw, unsigned long rate,
 	}
 
 	if (!bestdiv) {
+<<<<<<< HEAD
 		bestdiv = _get_maxdiv(divider);
+=======
+		bestdiv = divider->max;
+>>>>>>> upstream/android-13
 		*best_parent_rate =
 			clk_hw_round_rate(clk_hw_get_parent(hw), 1);
 	}
@@ -249,6 +295,7 @@ static int ti_clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
 	divider = to_clk_omap_divider(hw);
 
 	div = DIV_ROUND_UP(parent_rate, rate);
+<<<<<<< HEAD
 	value = _get_val(divider, div);
 
 	if (value > div_mask(divider))
@@ -260,6 +307,18 @@ static int ti_clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
 		val = ti_clk_ll_ops->clk_readl(&divider->reg);
 		val &= ~(div_mask(divider) << divider->shift);
 	}
+=======
+
+	if (div > divider->max)
+		div = divider->max;
+	if (div < divider->min)
+		div = divider->min;
+
+	value = _get_val(divider, div);
+
+	val = ti_clk_ll_ops->clk_readl(&divider->reg);
+	val &= ~(divider->mask << divider->shift);
+>>>>>>> upstream/android-13
 	val |= value << divider->shift;
 	ti_clk_ll_ops->clk_writel(val, &divider->reg);
 
@@ -268,10 +327,48 @@ static int ti_clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * clk_divider_save_context - Save the divider value
+ * @hw: pointer  struct clk_hw
+ *
+ * Save the divider value
+ */
+static int clk_divider_save_context(struct clk_hw *hw)
+{
+	struct clk_omap_divider *divider = to_clk_omap_divider(hw);
+	u32 val;
+
+	val = ti_clk_ll_ops->clk_readl(&divider->reg) >> divider->shift;
+	divider->context = val & divider->mask;
+
+	return 0;
+}
+
+/**
+ * clk_divider_restore_context - restore the saved the divider value
+ * @hw: pointer  struct clk_hw
+ *
+ * Restore the saved the divider value
+ */
+static void clk_divider_restore_context(struct clk_hw *hw)
+{
+	struct clk_omap_divider *divider = to_clk_omap_divider(hw);
+	u32 val;
+
+	val = ti_clk_ll_ops->clk_readl(&divider->reg);
+	val &= ~(divider->mask << divider->shift);
+	val |= divider->context << divider->shift;
+	ti_clk_ll_ops->clk_writel(val, &divider->reg);
+}
+
+>>>>>>> upstream/android-13
 const struct clk_ops ti_clk_divider_ops = {
 	.recalc_rate = ti_clk_divider_recalc_rate,
 	.round_rate = ti_clk_divider_round_rate,
 	.set_rate = ti_clk_divider_set_rate,
+<<<<<<< HEAD
 };
 
 static struct clk *_register_divider(struct device *dev, const char *name,
@@ -315,6 +412,32 @@ static struct clk *_register_divider(struct device *dev, const char *name,
 
 	/* register the clock */
 	clk = ti_clk_register(dev, &div->hw, name);
+=======
+	.save_context = clk_divider_save_context,
+	.restore_context = clk_divider_restore_context,
+};
+
+static struct clk *_register_divider(struct device_node *node,
+				     u32 flags,
+				     struct clk_omap_divider *div)
+{
+	struct clk *clk;
+	struct clk_init_data init;
+	const char *parent_name;
+
+	parent_name = of_clk_get_parent_name(node, 0);
+
+	init.name = node->name;
+	init.ops = &ti_clk_divider_ops;
+	init.flags = flags;
+	init.parent_names = (parent_name ? &parent_name : NULL);
+	init.num_parents = (parent_name ? 1 : 0);
+
+	div->hw.init = &init;
+
+	/* register the clock */
+	clk = ti_clk_register(NULL, &div->hw, node->name);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(clk))
 		kfree(div);
@@ -323,6 +446,7 @@ static struct clk *_register_divider(struct device *dev, const char *name,
 }
 
 int ti_clk_parse_divider_data(int *div_table, int num_dividers, int max_div,
+<<<<<<< HEAD
 			      u8 flags, u8 *width,
 			      const struct clk_div_table **table)
 {
@@ -351,6 +475,19 @@ int ti_clk_parse_divider_data(int *div_table, int num_dividers, int max_div,
 		*width = fls(val);
 		*table = NULL;
 
+=======
+			      u8 flags, struct clk_omap_divider *divider)
+{
+	int valid_div = 0;
+	int i;
+	struct clk_div_table *tmp;
+	u16 min_div = 0;
+
+	if (!div_table) {
+		divider->min = 1;
+		divider->max = max_div;
+		_setup_mask(divider);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -367,6 +504,7 @@ int ti_clk_parse_divider_data(int *div_table, int num_dividers, int max_div,
 	num_dividers = i;
 
 	tmp = kcalloc(valid_div + 1, sizeof(*tmp), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!tmp) {
 		*table = ERR_PTR(-ENOMEM);
 		return -ENOMEM;
@@ -374,21 +512,41 @@ int ti_clk_parse_divider_data(int *div_table, int num_dividers, int max_div,
 
 	valid_div = 0;
 	*width = 0;
+=======
+	if (!tmp)
+		return -ENOMEM;
+
+	valid_div = 0;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < num_dividers; i++)
 		if (div_table[i] > 0) {
 			tmp[valid_div].div = div_table[i];
 			tmp[valid_div].val = i;
 			valid_div++;
+<<<<<<< HEAD
 			*width = i;
 		}
 
 	*width = fls(*width);
 	*table = tmp;
+=======
+			if (div_table[i] > max_div)
+				max_div = div_table[i];
+			if (!min_div || div_table[i] < min_div)
+				min_div = div_table[i];
+		}
+
+	divider->min = min_div;
+	divider->max = max_div;
+	divider->table = tmp;
+	_setup_mask(divider);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct clk_div_table *
 _get_div_table_from_setup(struct ti_clk_divider *setup, u8 *width)
 {
@@ -476,6 +634,10 @@ struct clk *ti_clk_register_divider(struct ti_clk *setup)
 
 static struct clk_div_table *
 __init ti_clk_get_div_table(struct device_node *node)
+=======
+static int __init ti_clk_get_div_table(struct device_node *node,
+				       struct clk_omap_divider *div)
+>>>>>>> upstream/android-13
 {
 	struct clk_div_table *table;
 	const __be32 *divspec;
@@ -487,7 +649,11 @@ __init ti_clk_get_div_table(struct device_node *node)
 	divspec = of_get_property(node, "ti,dividers", &num_div);
 
 	if (!divspec)
+<<<<<<< HEAD
 		return NULL;
+=======
+		return 0;
+>>>>>>> upstream/android-13
 
 	num_div /= 4;
 
@@ -501,6 +667,7 @@ __init ti_clk_get_div_table(struct device_node *node)
 	}
 
 	if (!valid_div) {
+<<<<<<< HEAD
 		pr_err("no valid dividers for %s table\n", node->name);
 		return ERR_PTR(-EINVAL);
 	}
@@ -509,6 +676,15 @@ __init ti_clk_get_div_table(struct device_node *node)
 
 	if (!table)
 		return ERR_PTR(-ENOMEM);
+=======
+		pr_err("no valid dividers for %pOFn table\n", node);
+		return -EINVAL;
+	}
+
+	table = kcalloc(valid_div + 1, sizeof(*table), GFP_KERNEL);
+	if (!table)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	valid_div = 0;
 
@@ -521,6 +697,7 @@ __init ti_clk_get_div_table(struct device_node *node)
 		}
 	}
 
+<<<<<<< HEAD
 	return table;
 }
 
@@ -534,11 +711,28 @@ static int _get_divider_width(struct device_node *node,
 	u32 div;
 
 	if (!table) {
+=======
+	div->table = table;
+
+	return 0;
+}
+
+static int _populate_divider_min_max(struct device_node *node,
+				     struct clk_omap_divider *divider)
+{
+	u32 min_div = 0;
+	u32 max_div = 0;
+	u32 val;
+	const struct clk_div_table *clkt;
+
+	if (!divider->table) {
+>>>>>>> upstream/android-13
 		/* Clk divider table not provided, determine min/max divs */
 		if (of_property_read_u32(node, "ti,min-div", &min_div))
 			min_div = 1;
 
 		if (of_property_read_u32(node, "ti,max-div", &max_div)) {
+<<<<<<< HEAD
 			pr_err("no max-div for %s!\n", node->name);
 			return -EINVAL;
 		}
@@ -571,15 +765,46 @@ static int _get_divider_width(struct device_node *node,
 static int __init ti_clk_divider_populate(struct device_node *node,
 	struct clk_omap_reg *reg, const struct clk_div_table **table,
 	u32 *flags, u8 *div_flags, u8 *width, u8 *shift, s8 *latch)
+=======
+			pr_err("no max-div for %pOFn!\n", node);
+			return -EINVAL;
+		}
+	} else {
+
+		for (clkt = divider->table; clkt->div; clkt++) {
+			val = clkt->div;
+			if (val > max_div)
+				max_div = val;
+			if (!min_div || val < min_div)
+				min_div = val;
+		}
+	}
+
+	divider->min = min_div;
+	divider->max = max_div;
+	_setup_mask(divider);
+
+	return 0;
+}
+
+static int __init ti_clk_divider_populate(struct device_node *node,
+					  struct clk_omap_divider *div,
+					  u32 *flags)
+>>>>>>> upstream/android-13
 {
 	u32 val;
 	int ret;
 
+<<<<<<< HEAD
 	ret = ti_clk_get_reg_addr(node, 0, reg);
+=======
+	ret = ti_clk_get_reg_addr(node, 0, &div->reg);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	if (!of_property_read_u32(node, "ti,bit-shift", &val))
+<<<<<<< HEAD
 		*shift = val;
 	else
 		*shift = 0;
@@ -599,10 +824,30 @@ static int __init ti_clk_divider_populate(struct device_node *node,
 
 	if (of_property_read_bool(node, "ti,index-power-of-two"))
 		*div_flags |= CLK_DIVIDER_POWER_OF_TWO;
+=======
+		div->shift = val;
+	else
+		div->shift = 0;
+
+	if (!of_property_read_u32(node, "ti,latch-bit", &val))
+		div->latch = val;
+	else
+		div->latch = -EINVAL;
+
+	*flags = 0;
+	div->flags = 0;
+
+	if (of_property_read_bool(node, "ti,index-starts-at-one"))
+		div->flags |= CLK_DIVIDER_ONE_BASED;
+
+	if (of_property_read_bool(node, "ti,index-power-of-two"))
+		div->flags |= CLK_DIVIDER_POWER_OF_TWO;
+>>>>>>> upstream/android-13
 
 	if (of_property_read_bool(node, "ti,set-rate-parent"))
 		*flags |= CLK_SET_RATE_PARENT;
 
+<<<<<<< HEAD
 	*table = ti_clk_get_div_table(node);
 
 	if (IS_ERR(*table))
@@ -611,6 +856,13 @@ static int __init ti_clk_divider_populate(struct device_node *node,
 	*width = _get_divider_width(node, *table, *div_flags);
 
 	return 0;
+=======
+	ret = ti_clk_get_div_table(node, div);
+	if (ret)
+		return ret;
+
+	return _populate_divider_min_max(node, div);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -622,6 +874,7 @@ static int __init ti_clk_divider_populate(struct device_node *node,
 static void __init of_ti_divider_clk_setup(struct device_node *node)
 {
 	struct clk *clk;
+<<<<<<< HEAD
 	const char *parent_name;
 	struct clk_omap_reg reg;
 	u8 clk_divider_flags = 0;
@@ -640,6 +893,19 @@ static void __init of_ti_divider_clk_setup(struct device_node *node)
 	clk = _register_divider(NULL, node->name, parent_name, flags, &reg,
 				shift, width, latch, clk_divider_flags, table);
 
+=======
+	u32 flags = 0;
+	struct clk_omap_divider *div;
+
+	div = kzalloc(sizeof(*div), GFP_KERNEL);
+	if (!div)
+		return;
+
+	if (ti_clk_divider_populate(node, div, &flags))
+		goto cleanup;
+
+	clk = _register_divider(node, flags, div);
+>>>>>>> upstream/android-13
 	if (!IS_ERR(clk)) {
 		of_clk_add_provider(node, of_clk_src_simple_get, clk);
 		of_ti_clk_autoidle_setup(node);
@@ -647,22 +913,35 @@ static void __init of_ti_divider_clk_setup(struct device_node *node)
 	}
 
 cleanup:
+<<<<<<< HEAD
 	kfree(table);
+=======
+	kfree(div->table);
+	kfree(div);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(divider_clk, "ti,divider-clock", of_ti_divider_clk_setup);
 
 static void __init of_ti_composite_divider_clk_setup(struct device_node *node)
 {
 	struct clk_omap_divider *div;
+<<<<<<< HEAD
 	u32 val;
+=======
+	u32 tmp;
+>>>>>>> upstream/android-13
 
 	div = kzalloc(sizeof(*div), GFP_KERNEL);
 	if (!div)
 		return;
 
+<<<<<<< HEAD
 	if (ti_clk_divider_populate(node, &div->reg, &div->table, &val,
 				    &div->flags, &div->width, &div->shift,
 				    NULL) < 0)
+=======
+	if (ti_clk_divider_populate(node, div, &tmp))
+>>>>>>> upstream/android-13
 		goto cleanup;
 
 	if (!ti_clk_add_component(node, &div->hw, CLK_COMPONENT_TYPE_DIVIDER))

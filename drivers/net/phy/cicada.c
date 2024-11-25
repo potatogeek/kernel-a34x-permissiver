@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * drivers/net/phy/cicada.c
  *
@@ -6,12 +10,15 @@
  * Author: Andy Fleming
  *
  * Copyright (c) 2004 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -92,35 +99,87 @@ static int cis820x_config_intr(struct phy_device *phydev)
 {
 	int err;
 
+<<<<<<< HEAD
 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
 		err = phy_write(phydev, MII_CIS8201_IMASK,
 				MII_CIS8201_IMASK_MASK);
 	else
 		err = phy_write(phydev, MII_CIS8201_IMASK, 0);
+=======
+	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
+		err = cis820x_ack_interrupt(phydev);
+		if (err)
+			return err;
+
+		err = phy_write(phydev, MII_CIS8201_IMASK,
+				MII_CIS8201_IMASK_MASK);
+	} else {
+		err = phy_write(phydev, MII_CIS8201_IMASK, 0);
+		if (err)
+			return err;
+
+		err = cis820x_ack_interrupt(phydev);
+	}
+>>>>>>> upstream/android-13
 
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static irqreturn_t cis820x_handle_interrupt(struct phy_device *phydev)
+{
+	int irq_status;
+
+	irq_status = phy_read(phydev, MII_CIS8201_ISTAT);
+	if (irq_status < 0) {
+		phy_error(phydev);
+		return IRQ_NONE;
+	}
+
+	if (!(irq_status & MII_CIS8201_IMASK_MASK))
+		return IRQ_NONE;
+
+	phy_trigger_machine(phydev);
+
+	return IRQ_HANDLED;
+}
+
+>>>>>>> upstream/android-13
 /* Cicada 8201, a.k.a Vitesse VSC8201 */
 static struct phy_driver cis820x_driver[] = {
 {
 	.phy_id		= 0x000fc410,
 	.name		= "Cicada Cis8201",
 	.phy_id_mask	= 0x000ffff0,
+<<<<<<< HEAD
 	.features	= PHY_GBIT_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
 	.config_init	= &cis820x_config_init,
 	.ack_interrupt	= &cis820x_ack_interrupt,
 	.config_intr	= &cis820x_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init	= &cis820x_config_init,
+	.config_intr	= &cis820x_config_intr,
+	.handle_interrupt = &cis820x_handle_interrupt,
+>>>>>>> upstream/android-13
 }, {
 	.phy_id		= 0x000fc440,
 	.name		= "Cicada Cis8204",
 	.phy_id_mask	= 0x000fffc0,
+<<<<<<< HEAD
 	.features	= PHY_GBIT_FEATURES,
 	.flags		= PHY_HAS_INTERRUPT,
 	.config_init	= &cis820x_config_init,
 	.ack_interrupt	= &cis820x_ack_interrupt,
 	.config_intr	= &cis820x_config_intr,
+=======
+	/* PHY_GBIT_FEATURES */
+	.config_init	= &cis820x_config_init,
+	.config_intr	= &cis820x_config_intr,
+	.handle_interrupt = &cis820x_handle_interrupt,
+>>>>>>> upstream/android-13
 } };
 
 module_phy_driver(cis820x_driver);

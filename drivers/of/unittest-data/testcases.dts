@@ -2,6 +2,7 @@
 /dts-v1/;
 /plugin/;
 
+<<<<<<< HEAD
 / {
 	testcase-data {
 		changeset {
@@ -17,3 +18,22 @@
 #include "tests-match.dtsi"
 #include "tests-platform.dtsi"
 #include "tests-overlay.dtsi"
+=======
+#include "testcases_common.dtsi"
+
+/ {
+	/*
+	 * testcase data that intentionally results in an error is located here
+	 * instead of in testcases_common.dtsi so that the static overlay apply
+	 * tests will not include the error.
+	 */
+	testcase-data {
+		testcase-device2 {
+			compatible = "testcase-device";
+			interrupt-parent = <&test_intc2>;
+			interrupts = <1>; /* invalid specifier - too short */
+		};
+	};
+
+};
+>>>>>>> upstream/android-13

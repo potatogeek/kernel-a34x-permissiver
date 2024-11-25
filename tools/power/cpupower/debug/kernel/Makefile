@@ -12,8 +12,13 @@ default:
 	$(MAKE) -C $(KDIR) M=$(CURDIR)
 
 clean:
+<<<<<<< HEAD
 	- rm -rf *.o *.ko .tmp-versions .*.cmd .*.mod.* *.mod.c
 	- rm -rf .tmp_versions* Module.symvers modules.order
+=======
+	- rm -rf *.o *.ko .*.cmd .*.mod.* *.mod.c
+	- rm -rf Module.symvers modules.order
+>>>>>>> upstream/android-13
 
 install: default
 	install -d $(KMISC)

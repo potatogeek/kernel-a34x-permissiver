@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Nios2 KGDB support
  *
@@ -6,6 +10,7 @@
  *
  * Based on the code posted by Kazuyasu on the Altera Forum at:
  * http://www.alteraforum.com/forum/showpost.php?p=77003&postcount=20
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/ptrace.h>
 #include <linux/kgdb.h>
@@ -165,7 +172,11 @@ void kgdb_arch_exit(void)
 	/* Nothing to do */
 }
 
+<<<<<<< HEAD
 struct kgdb_arch arch_kgdb_ops = {
+=======
+const struct kgdb_arch arch_kgdb_ops = {
+>>>>>>> upstream/android-13
 	/* Breakpoint instruction: trap 30 */
 	.gdb_bpt_instr = { 0xba, 0x6f, 0x3b, 0x00 },
 };

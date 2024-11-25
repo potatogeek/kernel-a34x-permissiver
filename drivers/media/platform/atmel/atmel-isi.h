@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Register definitions for the Atmel Image Sensor Interface.
  *
@@ -6,10 +10,13 @@
  *
  * Based on previous work by Lars Haring, <lars.haring@atmel.com>
  * and Sedji Gaouaou
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ATMEL_ISI_H__
 #define __ATMEL_ISI_H__
@@ -65,6 +72,11 @@
 #define		ISI_CFG1_THMASK_BEATS_16	(2 << 13)
 
 /* Bitfields in CFG2 */
+<<<<<<< HEAD
+=======
+#define ISI_CFG2_GS_MODE_2_PIXEL		(0 << 11)
+#define ISI_CFG2_GS_MODE_1_PIXEL		(1 << 11)
+>>>>>>> upstream/android-13
 #define ISI_CFG2_GRAYSCALE			(1 << 13)
 #define ISI_CFG2_COL_SPACE_YCbCr		(0 << 15)
 #define ISI_CFG2_COL_SPACE_RGB			(1 << 15)

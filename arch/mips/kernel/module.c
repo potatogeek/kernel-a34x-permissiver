@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2001 Rusty Russell.
  *  Copyright (C) 2003, 2004 Ralf Baechle (ralf@linux-mips.org)
@@ -33,7 +38,10 @@
 #include <linux/spinlock.h>
 #include <linux/jump_label.h>
 
+<<<<<<< HEAD
 #include <asm/pgtable.h>	/* MODULE_START */
+=======
+>>>>>>> upstream/android-13
 
 struct mips_hi16 {
 	struct mips_hi16 *next;
@@ -53,6 +61,7 @@ void *module_alloc(unsigned long size)
 }
 #endif
 
+<<<<<<< HEAD
 static int apply_r_mips_none(struct module *me, u32 *location,
 			     u32 base, Elf_Addr v, bool rela)
 {
@@ -69,6 +78,15 @@ static int apply_r_mips_32(struct module *me, u32 *location,
 
 static int apply_r_mips_26(struct module *me, u32 *location,
 			   u32 base, Elf_Addr v, bool rela)
+=======
+static void apply_r_mips_32(u32 *location, u32 base, Elf_Addr v)
+{
+	*location = base + v;
+}
+
+static int apply_r_mips_26(struct module *me, u32 *location, u32 base,
+			   Elf_Addr v)
+>>>>>>> upstream/android-13
 {
 	if (v % 4) {
 		pr_err("module %s: dangerous R_MIPS_26 relocation\n",
@@ -88,8 +106,13 @@ static int apply_r_mips_26(struct module *me, u32 *location,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int apply_r_mips_hi16(struct module *me, u32 *location,
 			     u32 base, Elf_Addr v, bool rela)
+=======
+static int apply_r_mips_hi16(struct module *me, u32 *location, Elf_Addr v,
+			     bool rela)
+>>>>>>> upstream/android-13
 {
 	struct mips_hi16 *n;
 
@@ -230,26 +253,45 @@ static int apply_r_mips_pc(struct module *me, u32 *location, u32 base,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int apply_r_mips_pc16(struct module *me, u32 *location,
 			     u32 base, Elf_Addr v, bool rela)
+=======
+static int apply_r_mips_pc16(struct module *me, u32 *location, u32 base,
+			     Elf_Addr v)
+>>>>>>> upstream/android-13
 {
 	return apply_r_mips_pc(me, location, base, v, 16);
 }
 
+<<<<<<< HEAD
 static int apply_r_mips_pc21(struct module *me, u32 *location,
 			     u32 base, Elf_Addr v, bool rela)
+=======
+static int apply_r_mips_pc21(struct module *me, u32 *location, u32 base,
+			     Elf_Addr v)
+>>>>>>> upstream/android-13
 {
 	return apply_r_mips_pc(me, location, base, v, 21);
 }
 
+<<<<<<< HEAD
 static int apply_r_mips_pc26(struct module *me, u32 *location,
 			     u32 base, Elf_Addr v, bool rela)
+=======
+static int apply_r_mips_pc26(struct module *me, u32 *location, u32 base,
+			     Elf_Addr v)
+>>>>>>> upstream/android-13
 {
 	return apply_r_mips_pc(me, location, base, v, 26);
 }
 
+<<<<<<< HEAD
 static int apply_r_mips_64(struct module *me, u32 *location,
 			   u32 base, Elf_Addr v, bool rela)
+=======
+static int apply_r_mips_64(u32 *location, Elf_Addr v, bool rela)
+>>>>>>> upstream/android-13
 {
 	if (WARN_ON(!rela))
 		return -EINVAL;
@@ -259,8 +301,12 @@ static int apply_r_mips_64(struct module *me, u32 *location,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int apply_r_mips_higher(struct module *me, u32 *location,
 			       u32 base, Elf_Addr v, bool rela)
+=======
+static int apply_r_mips_higher(u32 *location, Elf_Addr v, bool rela)
+>>>>>>> upstream/android-13
 {
 	if (WARN_ON(!rela))
 		return -EINVAL;
@@ -271,8 +317,12 @@ static int apply_r_mips_higher(struct module *me, u32 *location,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int apply_r_mips_highest(struct module *me, u32 *location,
 				u32 base, Elf_Addr v, bool rela)
+=======
+static int apply_r_mips_highest(u32 *location, Elf_Addr v, bool rela)
+>>>>>>> upstream/android-13
 {
 	if (WARN_ON(!rela))
 		return -EINVAL;
@@ -285,12 +335,22 @@ static int apply_r_mips_highest(struct module *me, u32 *location,
 
 /**
  * reloc_handler() - Apply a particular relocation to a module
+<<<<<<< HEAD
+=======
+ * @type: type of the relocation to apply
+>>>>>>> upstream/android-13
  * @me: the module to apply the reloc to
  * @location: the address at which the reloc is to be applied
  * @base: the existing value at location for REL-style; 0 for RELA-style
  * @v: the value of the reloc, with addend for RELA-style
+<<<<<<< HEAD
  *
  * Each implemented reloc_handler function applies a particular type of
+=======
+ * @rela: indication of is this a RELA (true) or REL (false) relocation
+ *
+ * Each implemented relocation function applies a particular type of
+>>>>>>> upstream/android-13
  * relocation to the module @me. Relocs that may be found in either REL or RELA
  * variants can be handled by making use of the @base & @v parameters which are
  * set to values which abstract the difference away from the particular reloc
@@ -298,6 +358,7 @@ static int apply_r_mips_highest(struct module *me, u32 *location,
  *
  * Return: 0 upon success, else -ERRNO
  */
+<<<<<<< HEAD
 typedef int (*reloc_handler)(struct module *me, u32 *location,
 			     u32 base, Elf_Addr v, bool rela);
 
@@ -315,6 +376,42 @@ static reloc_handler reloc_handlers[] = {
 	[R_MIPS_PC21_S2]	= apply_r_mips_pc21,
 	[R_MIPS_PC26_S2]	= apply_r_mips_pc26,
 };
+=======
+static int reloc_handler(u32 type, struct module *me, u32 *location, u32 base,
+			 Elf_Addr v, bool rela)
+{
+	switch (type) {
+	case R_MIPS_NONE:
+		break;
+	case R_MIPS_32:
+		apply_r_mips_32(location, base, v);
+		break;
+	case R_MIPS_26:
+		return apply_r_mips_26(me, location, base, v);
+	case R_MIPS_HI16:
+		return apply_r_mips_hi16(me, location, v, rela);
+	case R_MIPS_LO16:
+		return apply_r_mips_lo16(me, location, base, v, rela);
+	case R_MIPS_PC16:
+		return apply_r_mips_pc16(me, location, base, v);
+	case R_MIPS_PC21_S2:
+		return apply_r_mips_pc21(me, location, base, v);
+	case R_MIPS_PC26_S2:
+		return apply_r_mips_pc26(me, location, base, v);
+	case R_MIPS_64:
+		return apply_r_mips_64(location, v, rela);
+	case R_MIPS_HIGHER:
+		return apply_r_mips_higher(location, v, rela);
+	case R_MIPS_HIGHEST:
+		return apply_r_mips_highest(location, v, rela);
+	default:
+		pr_err("%s: Unknown relocation type %u\n", me->name, type);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static int __apply_relocate(Elf_Shdr *sechdrs, const char *strtab,
 			    unsigned int symindex, unsigned int relsec,
@@ -324,7 +421,10 @@ static int __apply_relocate(Elf_Shdr *sechdrs, const char *strtab,
 		Elf_Mips_Rel *rel;
 		Elf_Mips_Rela *rela;
 	} r;
+<<<<<<< HEAD
 	reloc_handler handler;
+=======
+>>>>>>> upstream/android-13
 	Elf_Sym *sym;
 	u32 *location, base;
 	unsigned int i, type;
@@ -356,6 +456,7 @@ static int __apply_relocate(Elf_Shdr *sechdrs, const char *strtab,
 		}
 
 		type = ELF_MIPS_R_TYPE(*r.rel);
+<<<<<<< HEAD
 		if (type < ARRAY_SIZE(reloc_handlers))
 			handler = reloc_handlers[type];
 		else
@@ -367,6 +468,8 @@ static int __apply_relocate(Elf_Shdr *sechdrs, const char *strtab,
 			err = -EINVAL;
 			goto out;
 		}
+=======
+>>>>>>> upstream/android-13
 
 		if (rela) {
 			v = sym->st_value + r.rela->r_addend;
@@ -378,7 +481,11 @@ static int __apply_relocate(Elf_Shdr *sechdrs, const char *strtab,
 			r.rel = &r.rel[1];
 		}
 
+<<<<<<< HEAD
 		err = handler(me, location, base, v, rela);
+=======
+		err = reloc_handler(type, me, location, base, v, rela);
+>>>>>>> upstream/android-13
 		if (err)
 			goto out;
 	}

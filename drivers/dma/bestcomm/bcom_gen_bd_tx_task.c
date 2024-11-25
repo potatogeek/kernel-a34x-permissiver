@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Bestcomm GenBD TX task microcode
  *
@@ -5,6 +9,7 @@
  *                    Jeff Gibbons <jeff.gibbons@appspec.com>
  * Copyright (c) 2004 Freescale Semiconductor, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
@@ -12,6 +17,10 @@
  * Based on BestCommAPI-2.2/code_dma/image_rtos1/dma_image.hex
  * on Tue Mar 4 10:14:12 2006 GMT
  *
+=======
+ * Based on BestCommAPI-2.2/code_dma/image_rtos1/dma_image.hex
+ * on Tue Mar 4 10:14:12 2006 GMT
+>>>>>>> upstream/android-13
  */
 
 #include <asm/types.h>

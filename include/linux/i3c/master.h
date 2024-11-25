@@ -71,6 +71,12 @@ struct i2c_dev_boardinfo {
  * @common: common part of the I2C device descriptor
  * @boardinfo: pointer to the boardinfo attached to this I2C device
  * @dev: I2C device object registered to the I2C framework
+<<<<<<< HEAD
+=======
+ * @addr: I2C device address
+ * @lvr: LVR (Legacy Virtual Register) needed by the I3C core to know about
+ *	 the I2C device limitations
+>>>>>>> upstream/android-13
  *
  * Each I2C device connected on the bus will have an i2c_dev_desc.
  * This object is created by the core and later attached to the controller
@@ -84,6 +90,11 @@ struct i2c_dev_desc {
 	struct i3c_i2c_dev_desc common;
 	const struct i2c_dev_boardinfo *boardinfo;
 	struct i2c_client *dev;
+<<<<<<< HEAD
+=======
+	u16 addr;
+	u8 lvr;
+>>>>>>> upstream/android-13
 };
 
 /**

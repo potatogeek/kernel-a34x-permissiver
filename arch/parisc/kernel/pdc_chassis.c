@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* 
  *    interfaces to Chassis Codes via PDC (firmware)
  *
  *    Copyright (C) 2002 Laurent Canet <canetl@esiee.fr>
  *    Copyright (C) 2002-2006 Thibaut VARENE <varenet@parisc-linux.org>
  *
+<<<<<<< HEAD
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License, version 2, as
  *    published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  *    TODO: poll chassis warns, trigger (configurable) machine shutdown when
  *    		needed.
  *    	    Find out how to get Chassis warnings out of PAT boxes?
@@ -32,6 +39,10 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 #include <linux/notifier.h>
 #include <linux/cache.h>

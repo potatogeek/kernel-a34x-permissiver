@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Page table types definitions.
  *
  * Copyright (C) 2014 ARM Ltd.
  * Author: Catalin Marinas <catalin.marinas@arm.com>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_PGTABLE_TYPES_H
@@ -25,6 +32,10 @@
 typedef u64 pteval_t;
 typedef u64 pmdval_t;
 typedef u64 pudval_t;
+<<<<<<< HEAD
+=======
+typedef u64 p4dval_t;
+>>>>>>> upstream/android-13
 typedef u64 pgdval_t;
 
 /*
@@ -55,6 +66,7 @@ typedef struct { pteval_t pgprot; } pgprot_t;
 #define __pgprot(x)	((pgprot_t) { (x) } )
 
 #if CONFIG_PGTABLE_LEVELS == 2
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
 #include <asm-generic/pgtable-nopmd.h>
 #elif CONFIG_PGTABLE_LEVELS == 3
@@ -62,6 +74,13 @@ typedef struct { pteval_t pgprot; } pgprot_t;
 #include <asm-generic/pgtable-nopud.h>
 #elif CONFIG_PGTABLE_LEVELS == 4
 #include <asm-generic/5level-fixup.h>
+=======
+#include <asm-generic/pgtable-nopmd.h>
+#elif CONFIG_PGTABLE_LEVELS == 3
+#include <asm-generic/pgtable-nopud.h>
+#elif CONFIG_PGTABLE_LEVELS == 4
+#include <asm-generic/pgtable-nop4d.h>
+>>>>>>> upstream/android-13
 #endif
 
 #endif	/* __ASM_PGTABLE_TYPES_H */

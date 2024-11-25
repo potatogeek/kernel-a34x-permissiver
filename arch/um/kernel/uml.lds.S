@@ -25,10 +25,17 @@ SECTIONS
   __binary_start = START;
 
   . = START + SIZEOF_HEADERS;
+<<<<<<< HEAD
 
   _text = .;
   INIT_TEXT_SECTION(0)
   . = ALIGN(PAGE_SIZE);
+=======
+  . = ALIGN(PAGE_SIZE);
+
+  _text = .;
+  INIT_TEXT_SECTION(0)
+>>>>>>> upstream/android-13
 
   .text      :
   {
@@ -37,6 +44,11 @@ SECTIONS
     SCHED_TEXT
     CPUIDLE_TEXT
     LOCK_TEXT
+<<<<<<< HEAD
+=======
+    IRQENTRY_TEXT
+    SOFTIRQENTRY_TEXT
+>>>>>>> upstream/android-13
     *(.fixup)
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
@@ -112,8 +124,13 @@ SECTIONS
   PROVIDE (end = .);
 
   STABS_DEBUG
+<<<<<<< HEAD
 
   DWARF_DEBUG
+=======
+  DWARF_DEBUG
+  ELF_DETAILS
+>>>>>>> upstream/android-13
 
   DISCARDS
 }

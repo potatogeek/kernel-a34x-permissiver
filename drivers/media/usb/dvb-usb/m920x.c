@@ -1,12 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* DVB USB compliant linux driver for MSI Mega Sky 580 DVB-T USB2.0 receiver
  *
  * Copyright (C) 2006 Aapo Tahkola (aet@rasterburn.org)
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify it
  *	under the terms of the GNU General Public License as published by the
  *	Free Software Foundation, version 2.
  *
  * see Documentation/media/dvb-drivers/dvb-usb.rst for more information
+=======
+ * see Documentation/driver-api/media/drivers/dvb-usb.rst for more information
+>>>>>>> upstream/android-13
  */
 
 #include "m920x.h"
@@ -277,6 +285,16 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
 			/* Should check for ack here, if we knew how. */
 		}
 		if (msg[i].flags & I2C_M_RD) {
+<<<<<<< HEAD
+=======
+			char *read = kmalloc(1, GFP_KERNEL);
+			if (!read) {
+				ret = -ENOMEM;
+				kfree(read);
+				goto unlock;
+			}
+
+>>>>>>> upstream/android-13
 			for (j = 0; j < msg[i].len; j++) {
 				/* Last byte of transaction?
 				 * Send STOP, otherwise send ACK. */
@@ -284,9 +302,18 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
 
 				if ((ret = m920x_read(d->udev, M9206_I2C, 0x0,
 						      0x20 | stop,
+<<<<<<< HEAD
 						      &msg[i].buf[j], 1)) != 0)
 					goto unlock;
 			}
+=======
+						      read, 1)) != 0)
+					goto unlock;
+				msg[i].buf[j] = read[0];
+			}
+
+			kfree(read);
+>>>>>>> upstream/android-13
 		} else {
 			for (j = 0; j < msg[i].len; j++) {
 				/* Last byte of transaction? Then send STOP. */
@@ -462,8 +489,13 @@ static int m920x_firmware_download(struct usb_device *udev, const struct firmwar
 
 /* Callbacks for DVB USB */
 static int m920x_identify_state(struct usb_device *udev,
+<<<<<<< HEAD
 				struct dvb_usb_device_properties *props,
 				struct dvb_usb_device_description **desc,
+=======
+				const struct dvb_usb_device_properties *props,
+				const struct dvb_usb_device_description **desc,
+>>>>>>> upstream/android-13
 				int *cold)
 {
 	struct usb_host_interface *alt;

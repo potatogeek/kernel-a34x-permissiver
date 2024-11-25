@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2016 Marvell International Ltd.
 
@@ -10,6 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2015-2016 Marvell International Ltd.
+
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -41,7 +48,10 @@
 #define MV_XOR_V2_DMA_IMSG_CDAT_OFF			0x014
 #define MV_XOR_V2_DMA_IMSG_THRD_OFF			0x018
 #define   MV_XOR_V2_DMA_IMSG_THRD_MASK			0x7FFF
+<<<<<<< HEAD
 #define   MV_XOR_V2_DMA_IMSG_THRD_SHIFT			0x0
+=======
+>>>>>>> upstream/android-13
 #define   MV_XOR_V2_DMA_IMSG_TIMER_EN			BIT(18)
 #define MV_XOR_V2_DMA_DESQ_AWATTR_OFF			0x01C
   /* Same flags as MV_XOR_V2_DMA_DESQ_ARATTR_OFF */
@@ -58,7 +68,10 @@
 #define MV_XOR_V2_DMA_DESQ_ADD_OFF			0x808
 #define MV_XOR_V2_DMA_IMSG_TMOT				0x810
 #define   MV_XOR_V2_DMA_IMSG_TIMER_THRD_MASK		0x1FFF
+<<<<<<< HEAD
 #define   MV_XOR_V2_DMA_IMSG_TIMER_THRD_SHIFT		0
+=======
+>>>>>>> upstream/android-13
 
 /* XOR Global registers */
 #define MV_XOR_V2_GLOB_BW_CTRL				0x4
@@ -145,9 +158,17 @@ struct mv_xor_v2_descriptor {
 /**
  * struct mv_xor_v2_device - implements a xor device
  * @lock: lock for the engine
+<<<<<<< HEAD
  * @dma_base: memory mapped DMA register base
  * @glob_base: memory mapped global register base
  * @irq_tasklet:
+=======
+ * @clk: reference to the 'core' clock
+ * @reg_clk: reference to the 'reg' clock
+ * @dma_base: memory mapped DMA register base
+ * @glob_base: memory mapped global register base
+ * @irq_tasklet: tasklet used for IRQ handling call-backs
+>>>>>>> upstream/android-13
  * @free_sw_desc: linked list of free SW descriptors
  * @dmadev: dma device
  * @dmachan: dma channel
@@ -156,6 +177,11 @@ struct mv_xor_v2_descriptor {
  * @sw_desq: SW descriptors queue
  * @desc_size: HW descriptor size
  * @npendings: number of pending descriptors (for which tx_submit has
+<<<<<<< HEAD
+=======
+ * @hw_queue_idx: HW queue index
+ * @msi_desc: local interrupt descriptor information
+>>>>>>> upstream/android-13
  * been called, but not yet issue_pending)
  */
 struct mv_xor_v2_device {
@@ -269,16 +295,26 @@ void mv_xor_v2_enable_imsg_thrd(struct mv_xor_v2_device *xor_dev)
 
 	/* Configure threshold of number of descriptors, and enable timer */
 	reg = readl(xor_dev->dma_base + MV_XOR_V2_DMA_IMSG_THRD_OFF);
+<<<<<<< HEAD
 	reg &= (~MV_XOR_V2_DMA_IMSG_THRD_MASK << MV_XOR_V2_DMA_IMSG_THRD_SHIFT);
 	reg |= (MV_XOR_V2_DONE_IMSG_THRD << MV_XOR_V2_DMA_IMSG_THRD_SHIFT);
+=======
+	reg &= ~MV_XOR_V2_DMA_IMSG_THRD_MASK;
+	reg |= MV_XOR_V2_DONE_IMSG_THRD;
+>>>>>>> upstream/android-13
 	reg |= MV_XOR_V2_DMA_IMSG_TIMER_EN;
 	writel(reg, xor_dev->dma_base + MV_XOR_V2_DMA_IMSG_THRD_OFF);
 
 	/* Configure Timer Threshold */
 	reg = readl(xor_dev->dma_base + MV_XOR_V2_DMA_IMSG_TMOT);
+<<<<<<< HEAD
 	reg &= (~MV_XOR_V2_DMA_IMSG_TIMER_THRD_MASK <<
 		MV_XOR_V2_DMA_IMSG_TIMER_THRD_SHIFT);
 	reg |= (MV_XOR_V2_TIMER_THRD << MV_XOR_V2_DMA_IMSG_TIMER_THRD_SHIFT);
+=======
+	reg &= ~MV_XOR_V2_DMA_IMSG_TIMER_THRD_MASK;
+	reg |= MV_XOR_V2_TIMER_THRD;
+>>>>>>> upstream/android-13
 	writel(reg, xor_dev->dma_base + MV_XOR_V2_DMA_IMSG_TMOT);
 }
 
@@ -560,9 +596,16 @@ int mv_xor_v2_get_pending_params(struct mv_xor_v2_device *xor_dev,
 /*
  * handle the descriptors after HW process
  */
+<<<<<<< HEAD
 static void mv_xor_v2_tasklet(unsigned long data)
 {
 	struct mv_xor_v2_device *xor_dev = (struct mv_xor_v2_device *) data;
+=======
+static void mv_xor_v2_tasklet(struct tasklet_struct *t)
+{
+	struct mv_xor_v2_device *xor_dev = from_tasklet(xor_dev, t,
+							irq_tasklet);
+>>>>>>> upstream/android-13
 	int pending_ptr, num_of_pending, i;
 	struct mv_xor_v2_sw_desc *next_pending_sw_desc = NULL;
 
@@ -761,7 +804,11 @@ static int mv_xor_v2_probe(struct platform_device *pdev)
 	}
 
 	xor_dev->clk = devm_clk_get(&pdev->dev, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(xor_dev->clk) && PTR_ERR(xor_dev->clk) == -EPROBE_DEFER) {
+=======
+	if (PTR_ERR(xor_dev->clk) == -EPROBE_DEFER) {
+>>>>>>> upstream/android-13
 		ret = EPROBE_DEFER;
 		goto disable_reg_clk;
 	}
@@ -789,8 +836,12 @@ static int mv_xor_v2_probe(struct platform_device *pdev)
 	if (ret)
 		goto free_msi_irqs;
 
+<<<<<<< HEAD
 	tasklet_init(&xor_dev->irq_tasklet, mv_xor_v2_tasklet,
 		     (unsigned long) xor_dev);
+=======
+	tasklet_setup(&xor_dev->irq_tasklet, mv_xor_v2_tasklet);
+>>>>>>> upstream/android-13
 
 	xor_dev->desc_size = mv_xor_v2_set_desc_size(xor_dev);
 

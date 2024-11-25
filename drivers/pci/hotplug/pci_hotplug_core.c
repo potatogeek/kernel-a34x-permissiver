@@ -49,6 +49,7 @@ static DEFINE_MUTEX(pci_hp_mutex);
 #define GET_STATUS(name, type)	\
 static int get_##name(struct hotplug_slot *slot, type *value)		\
 {									\
+<<<<<<< HEAD
 	struct hotplug_slot_ops *ops = slot->ops;			\
 	int retval = 0;							\
 	if (!try_module_get(ops->owner))				\
@@ -58,6 +59,15 @@ static int get_##name(struct hotplug_slot *slot, type *value)		\
 	else								\
 		*value = slot->info->name;				\
 	module_put(ops->owner);						\
+=======
+	const struct hotplug_slot_ops *ops = slot->ops;			\
+	int retval = 0;							\
+	if (!try_module_get(slot->owner))				\
+		return -ENODEV;						\
+	if (ops->get_##name)						\
+		retval = ops->get_##name(slot, value);			\
+	module_put(slot->owner);					\
+>>>>>>> upstream/android-13
 	return retval;							\
 }
 
@@ -75,7 +85,11 @@ static ssize_t power_read_file(struct pci_slot *pci_slot, char *buf)
 	if (retval)
 		return retval;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", value);
+=======
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t power_write_file(struct pci_slot *pci_slot, const char *buf,
@@ -90,7 +104,11 @@ static ssize_t power_write_file(struct pci_slot *pci_slot, const char *buf,
 	power = (u8)(lpower & 0xff);
 	dbg("power = %d\n", power);
 
+<<<<<<< HEAD
 	if (!try_module_get(slot->ops->owner)) {
+=======
+	if (!try_module_get(slot->owner)) {
+>>>>>>> upstream/android-13
 		retval = -ENODEV;
 		goto exit;
 	}
@@ -109,7 +127,11 @@ static ssize_t power_write_file(struct pci_slot *pci_slot, const char *buf,
 		err("Illegal value specified for power\n");
 		retval = -EINVAL;
 	}
+<<<<<<< HEAD
 	module_put(slot->ops->owner);
+=======
+	module_put(slot->owner);
+>>>>>>> upstream/android-13
 
 exit:
 	if (retval)
@@ -132,13 +154,22 @@ static ssize_t attention_read_file(struct pci_slot *pci_slot, char *buf)
 	if (retval)
 		return retval;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", value);
+=======
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t attention_write_file(struct pci_slot *pci_slot, const char *buf,
 				    size_t count)
 {
+<<<<<<< HEAD
 	struct hotplug_slot_ops *ops = pci_slot->hotplug->ops;
+=======
+	struct hotplug_slot *slot = pci_slot->hotplug;
+	const struct hotplug_slot_ops *ops = slot->ops;
+>>>>>>> upstream/android-13
 	unsigned long lattention;
 	u8 attention;
 	int retval = 0;
@@ -147,13 +178,22 @@ static ssize_t attention_write_file(struct pci_slot *pci_slot, const char *buf,
 	attention = (u8)(lattention & 0xff);
 	dbg(" - attention = %d\n", attention);
 
+<<<<<<< HEAD
 	if (!try_module_get(ops->owner)) {
+=======
+	if (!try_module_get(slot->owner)) {
+>>>>>>> upstream/android-13
 		retval = -ENODEV;
 		goto exit;
 	}
 	if (ops->set_attention_status)
+<<<<<<< HEAD
 		retval = ops->set_attention_status(pci_slot->hotplug, attention);
 	module_put(ops->owner);
+=======
+		retval = ops->set_attention_status(slot, attention);
+	module_put(slot->owner);
+>>>>>>> upstream/android-13
 
 exit:
 	if (retval)
@@ -176,7 +216,11 @@ static ssize_t latch_read_file(struct pci_slot *pci_slot, char *buf)
 	if (retval)
 		return retval;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", value);
+=======
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static struct pci_slot_attribute hotplug_slot_attr_latch = {
@@ -193,7 +237,11 @@ static ssize_t presence_read_file(struct pci_slot *pci_slot, char *buf)
 	if (retval)
 		return retval;
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", value);
+=======
+	return sysfs_emit(buf, "%d\n", value);
+>>>>>>> upstream/android-13
 }
 
 static struct pci_slot_attribute hotplug_slot_attr_presence = {
@@ -213,13 +261,21 @@ static ssize_t test_write_file(struct pci_slot *pci_slot, const char *buf,
 	test = (u32)(ltest & 0xffffffff);
 	dbg("test = %d\n", test);
 
+<<<<<<< HEAD
 	if (!try_module_get(slot->ops->owner)) {
+=======
+	if (!try_module_get(slot->owner)) {
+>>>>>>> upstream/android-13
 		retval = -ENODEV;
 		goto exit;
 	}
 	if (slot->ops->hardware_test)
 		retval = slot->ops->hardware_test(slot, test);
+<<<<<<< HEAD
 	module_put(slot->ops->owner);
+=======
+	module_put(slot->owner);
+>>>>>>> upstream/android-13
 
 exit:
 	if (retval)
@@ -444,11 +500,19 @@ int __pci_hp_initialize(struct hotplug_slot *slot, struct pci_bus *bus,
 
 	if (slot == NULL)
 		return -ENODEV;
+<<<<<<< HEAD
 	if ((slot->info == NULL) || (slot->ops == NULL))
 		return -EINVAL;
 
 	slot->ops->owner = owner;
 	slot->ops->mod_name = mod_name;
+=======
+	if (slot->ops == NULL)
+		return -EINVAL;
+
+	slot->owner = owner;
+	slot->mod_name = mod_name;
+>>>>>>> upstream/android-13
 
 	/*
 	 * No problems if we call this interface from both ACPI_PCI_SLOT
@@ -559,6 +623,7 @@ void pci_hp_destroy(struct hotplug_slot *slot)
 }
 EXPORT_SYMBOL_GPL(pci_hp_destroy);
 
+<<<<<<< HEAD
 /**
  * pci_hp_change_slot_info - changes the slot's information structure in the core
  * @slot: pointer to the slot whose info has changed
@@ -581,6 +646,8 @@ int pci_hp_change_slot_info(struct hotplug_slot *slot,
 }
 EXPORT_SYMBOL_GPL(pci_hp_change_slot_info);
 
+=======
+>>>>>>> upstream/android-13
 static int __init pci_hotplug_init(void)
 {
 	int result;

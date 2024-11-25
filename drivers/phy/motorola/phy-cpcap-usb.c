@@ -122,7 +122,10 @@ enum cpcap_gpio_mode {
 struct cpcap_phy_ddata {
 	struct regmap *reg;
 	struct device *dev;
+<<<<<<< HEAD
 	struct clk *refclk;
+=======
+>>>>>>> upstream/android-13
 	struct usb_phy phy;
 	struct delayed_work detect_work;
 	struct pinctrl *pins;
@@ -134,6 +137,11 @@ struct cpcap_phy_ddata {
 	struct iio_channel *id;
 	struct regulator *vusb;
 	atomic_t active;
+<<<<<<< HEAD
+=======
+	unsigned int vbus_provider:1;
+	unsigned int docked:1;
+>>>>>>> upstream/android-13
 };
 
 static bool cpcap_usb_vbus_valid(struct cpcap_phy_ddata *ddata)
@@ -142,7 +150,11 @@ static bool cpcap_usb_vbus_valid(struct cpcap_phy_ddata *ddata)
 
 	error = iio_read_channel_processed(ddata->vbus, &value);
 	if (error >= 0)
+<<<<<<< HEAD
 		return value > 3900 ? true : false;
+=======
+		return value > 3900;
+>>>>>>> upstream/android-13
 
 	dev_err(ddata->dev, "error reading VBUS: %i\n", error);
 
@@ -233,8 +245,65 @@ static void cpcap_usb_detect(struct work_struct *work)
 	if (error)
 		return;
 
+<<<<<<< HEAD
 	if (s.id_ground) {
 		dev_dbg(ddata->dev, "id ground, USB host mode\n");
+=======
+	vbus = cpcap_usb_vbus_valid(ddata);
+
+	/* We need to kick the VBUS as USB A-host */
+	if (s.id_ground && ddata->vbus_provider) {
+		dev_dbg(ddata->dev, "still in USB A-host mode, kicking VBUS\n");
+
+		cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
+
+		error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC3,
+					   CPCAP_BIT_VBUSSTBY_EN |
+					   CPCAP_BIT_VBUSEN_SPI,
+					   CPCAP_BIT_VBUSEN_SPI);
+		if (error)
+			goto out_err;
+
+		return;
+	}
+
+	if (vbus && s.id_ground && ddata->docked) {
+		dev_dbg(ddata->dev, "still docked as A-host, signal ID down\n");
+
+		cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
+
+		return;
+	}
+
+	/* No VBUS needed with docks */
+	if (vbus && s.id_ground && !ddata->vbus_provider) {
+		dev_dbg(ddata->dev, "connected to a dock\n");
+
+		ddata->docked = true;
+
+		error = cpcap_usb_set_usb_mode(ddata);
+		if (error)
+			goto out_err;
+
+		cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
+
+		/*
+		 * Force check state again after musb has reoriented,
+		 * otherwise devices won't enumerate after loading PHY
+		 * driver.
+		 */
+		schedule_delayed_work(&ddata->detect_work,
+				      msecs_to_jiffies(1000));
+
+		return;
+	}
+
+	if (s.id_ground && !ddata->docked) {
+		dev_dbg(ddata->dev, "id ground, USB host mode\n");
+
+		ddata->vbus_provider = true;
+
+>>>>>>> upstream/android-13
 		error = cpcap_usb_set_usb_mode(ddata);
 		if (error)
 			goto out_err;
@@ -242,8 +311,14 @@ static void cpcap_usb_detect(struct work_struct *work)
 		cpcap_usb_try_musb_mailbox(ddata, MUSB_ID_GROUND);
 
 		error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC3,
+<<<<<<< HEAD
 					   CPCAP_BIT_VBUSSTBY_EN,
 					   CPCAP_BIT_VBUSSTBY_EN);
+=======
+					   CPCAP_BIT_VBUSSTBY_EN |
+					   CPCAP_BIT_VBUSEN_SPI,
+					   CPCAP_BIT_VBUSEN_SPI);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out_err;
 
@@ -251,12 +326,18 @@ static void cpcap_usb_detect(struct work_struct *work)
 	}
 
 	error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC3,
+<<<<<<< HEAD
 				   CPCAP_BIT_VBUSSTBY_EN, 0);
+=======
+				   CPCAP_BIT_VBUSSTBY_EN |
+				   CPCAP_BIT_VBUSEN_SPI, 0);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_err;
 
 	vbus = cpcap_usb_vbus_valid(ddata);
 
+<<<<<<< HEAD
 	if (vbus) {
 		/* Are we connected to a docking station with vbus? */
 		if (s.id_ground) {
@@ -272,6 +353,10 @@ static void cpcap_usb_detect(struct work_struct *work)
 		}
 
 		/* Otherwise assume we're connected to a USB host */
+=======
+	/* Otherwise assume we're connected to a USB host */
+	if (vbus) {
+>>>>>>> upstream/android-13
 		dev_dbg(ddata->dev, "connected to USB host\n");
 		error = cpcap_usb_set_usb_mode(ddata);
 		if (error)
@@ -281,6 +366,11 @@ static void cpcap_usb_detect(struct work_struct *work)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	ddata->vbus_provider = false;
+	ddata->docked = false;
+>>>>>>> upstream/android-13
 	cpcap_usb_try_musb_mailbox(ddata, MUSB_VBUS_OFF);
 
 	/* Default to debug UART mode */
@@ -320,7 +410,12 @@ static int cpcap_usb_init_irq(struct platform_device *pdev,
 
 	error = devm_request_threaded_irq(ddata->dev, irq, NULL,
 					  cpcap_phy_irq_thread,
+<<<<<<< HEAD
 					  IRQF_SHARED,
+=======
+					  IRQF_SHARED |
+					  IRQF_ONESHOT,
+>>>>>>> upstream/android-13
 					  name, ddata);
 	if (error) {
 		dev_err(ddata->dev, "could not get irq %s: %i\n",
@@ -444,12 +539,15 @@ static int cpcap_usb_set_usb_mode(struct cpcap_phy_ddata *ddata)
 	if (error)
 		goto out_err;
 
+<<<<<<< HEAD
 	error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC2,
 				   CPCAP_BIT_USBXCVREN,
 				   CPCAP_BIT_USBXCVREN);
 	if (error)
 		goto out_err;
 
+=======
+>>>>>>> upstream/android-13
 	error = regmap_update_bits(ddata->reg, CPCAP_REG_USBC3,
 				   CPCAP_BIT_PU_SPI |
 				   CPCAP_BIT_DMPD_SPI |
@@ -675,7 +773,10 @@ static int cpcap_usb_phy_remove(struct platform_device *pdev)
 
 	usb_remove_phy(&ddata->phy);
 	cancel_delayed_work_sync(&ddata->detect_work);
+<<<<<<< HEAD
 	clk_unprepare(ddata->refclk);
+=======
+>>>>>>> upstream/android-13
 	regulator_disable(ddata->vusb);
 
 	return 0;

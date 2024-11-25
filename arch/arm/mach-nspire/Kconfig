@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config ARCH_NSPIRE
 	bool "TI-NSPIRE based"
 	depends on ARCH_MULTI_V4_V5

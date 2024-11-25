@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #include "fm10k.h"
 #include <linux/vmalloc.h>
@@ -54,7 +58,11 @@ err:
  **/
 static int fm10k_setup_all_tx_resources(struct fm10k_intfc *interface)
 {
+<<<<<<< HEAD
 	int i, err = 0;
+=======
+	int i, err;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < interface->num_tx_queues; i++) {
 		err = fm10k_setup_tx_resources(interface->tx_ring[i]);
@@ -121,7 +129,11 @@ err:
  **/
 static int fm10k_setup_all_rx_resources(struct fm10k_intfc *interface)
 {
+<<<<<<< HEAD
 	int i, err = 0;
+=======
+	int i, err;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < interface->num_rx_queues; i++) {
 		err = fm10k_setup_rx_resources(interface->rx_ring[i]);
@@ -169,7 +181,10 @@ void fm10k_unmap_and_free_tx_resource(struct fm10k_ring *ring,
  **/
 static void fm10k_clean_tx_ring(struct fm10k_ring *tx_ring)
 {
+<<<<<<< HEAD
 	struct fm10k_tx_buffer *tx_buffer;
+=======
+>>>>>>> upstream/android-13
 	unsigned long size;
 	u16 i;
 
@@ -179,7 +194,12 @@ static void fm10k_clean_tx_ring(struct fm10k_ring *tx_ring)
 
 	/* Free all the Tx ring sk_buffs */
 	for (i = 0; i < tx_ring->count; i++) {
+<<<<<<< HEAD
 		tx_buffer = &tx_ring->tx_buffer[i];
+=======
+		struct fm10k_tx_buffer *tx_buffer = &tx_ring->tx_buffer[i];
+
+>>>>>>> upstream/android-13
 		fm10k_unmap_and_free_tx_resource(tx_ring, tx_buffer);
 	}
 
@@ -253,8 +273,12 @@ static void fm10k_clean_rx_ring(struct fm10k_ring *rx_ring)
 	if (!rx_ring->rx_buffer)
 		return;
 
+<<<<<<< HEAD
 	if (rx_ring->skb)
 		dev_kfree_skb(rx_ring->skb);
+=======
+	dev_kfree_skb(rx_ring->skb);
+>>>>>>> upstream/android-13
 	rx_ring->skb = NULL;
 
 	/* Free all the Rx ring sk_buffs */
@@ -368,6 +392,7 @@ static void fm10k_request_glort_range(struct fm10k_intfc *interface)
 }
 
 /**
+<<<<<<< HEAD
  * fm10k_free_udp_port_info
  * @interface: board private structure
  *
@@ -401,6 +426,8 @@ static void fm10k_free_udp_port_info(struct fm10k_intfc *interface)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * fm10k_restore_udp_port_info
  * @interface: board private structure
  *
@@ -409,12 +436,16 @@ static void fm10k_free_udp_port_info(struct fm10k_intfc *interface)
 static void fm10k_restore_udp_port_info(struct fm10k_intfc *interface)
 {
 	struct fm10k_hw *hw = &interface->hw;
+<<<<<<< HEAD
 	struct fm10k_udp_port *port;
+=======
+>>>>>>> upstream/android-13
 
 	/* only the PF supports configuring tunnels */
 	if (hw->mac.type != fm10k_mac_pf)
 		return;
 
+<<<<<<< HEAD
 	port = list_first_entry_or_null(&interface->vxlan_port,
 					struct fm10k_udp_port, list);
 
@@ -534,6 +565,49 @@ static void fm10k_udp_tunnel_del(struct net_device *dev,
 
 	fm10k_restore_udp_port_info(interface);
 }
+=======
+	/* restore tunnel configuration register */
+	fm10k_write_reg(hw, FM10K_TUNNEL_CFG,
+			ntohs(interface->vxlan_port) |
+			(ETH_P_TEB << FM10K_TUNNEL_CFG_NVGRE_SHIFT));
+
+	/* restore Geneve tunnel configuration register */
+	fm10k_write_reg(hw, FM10K_TUNNEL_CFG_GENEVE,
+			ntohs(interface->geneve_port));
+}
+
+/**
+ * fm10k_udp_tunnel_sync - Called when UDP tunnel ports change
+ * @dev: network interface device structure
+ * @table: Tunnel table (according to tables of @fm10k_udp_tunnels)
+ *
+ * This function is called when a new UDP tunnel port is added or deleted.
+ * Due to hardware restrictions, only one port per type can be offloaded at
+ * once. Core will send to the driver a port of its choice.
+ **/
+static int fm10k_udp_tunnel_sync(struct net_device *dev, unsigned int table)
+{
+	struct fm10k_intfc *interface = netdev_priv(dev);
+	struct udp_tunnel_info ti;
+
+	udp_tunnel_nic_get_port(dev, table, 0, &ti);
+	if (!table)
+		interface->vxlan_port = ti.port;
+	else
+		interface->geneve_port = ti.port;
+
+	fm10k_restore_udp_port_info(interface);
+	return 0;
+}
+
+static const struct udp_tunnel_nic_info fm10k_udp_tunnels = {
+	.sync_table	= fm10k_udp_tunnel_sync,
+	.tables		= {
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_VXLAN,  },
+		{ .n_entries = 1, .tunnel_types = UDP_TUNNEL_TYPE_GENEVE, },
+	},
+};
+>>>>>>> upstream/android-13
 
 /**
  * fm10k_open - Called when a network interface is made active
@@ -581,8 +655,11 @@ int fm10k_open(struct net_device *netdev)
 	if (err)
 		goto err_set_queues;
 
+<<<<<<< HEAD
 	udp_tunnel_get_rx_info(netdev);
 
+=======
+>>>>>>> upstream/android-13
 	fm10k_up(interface);
 
 	return 0;
@@ -616,8 +693,11 @@ int fm10k_close(struct net_device *netdev)
 
 	fm10k_qv_free_irq(interface);
 
+<<<<<<< HEAD
 	fm10k_free_udp_port_info(interface);
 
+=======
+>>>>>>> upstream/android-13
 	fm10k_free_all_tx_resources(interface);
 	fm10k_free_all_rx_resources(interface);
 
@@ -697,6 +777,7 @@ static netdev_tx_t fm10k_xmit_frame(struct sk_buff *skb, struct net_device *dev)
 /**
  * fm10k_tx_timeout - Respond to a Tx Hang
  * @netdev: network interface device structure
+<<<<<<< HEAD
  **/
 static void fm10k_tx_timeout(struct net_device *netdev)
 {
@@ -712,6 +793,26 @@ static void fm10k_tx_timeout(struct net_device *netdev)
 			real_tx_hang = true;
 	}
 
+=======
+ * @txqueue: the index of the Tx queue that timed out
+ **/
+static void fm10k_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+{
+	struct fm10k_intfc *interface = netdev_priv(netdev);
+	struct fm10k_ring *tx_ring;
+	bool real_tx_hang = false;
+
+	if (txqueue >= interface->num_tx_queues) {
+		WARN(1, "invalid Tx queue index %d", txqueue);
+		return;
+	}
+
+	tx_ring = interface->tx_ring[txqueue];
+	if (check_for_tx_hang(tx_ring) && fm10k_check_tx_hang(tx_ring))
+		real_tx_hang = true;
+
+#define TX_TIMEO_LIMIT 16000
+>>>>>>> upstream/android-13
 	if (real_tx_hang) {
 		fm10k_tx_timeout_reset(interface);
 	} else {
@@ -851,7 +952,11 @@ void fm10k_clear_macvlan_queue(struct fm10k_intfc *interface,
 			/* Don't free requests for other interfaces */
 			if (r->mac.glort != glort)
 				break;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case FM10K_VLAN_REQUEST:
 			if (vlans) {
 				list_del(&r->list);
@@ -871,7 +976,11 @@ static int fm10k_uc_vlan_unsync(struct net_device *netdev,
 	u16 glort = interface->glort;
 	u16 vid = interface->vid;
 	bool set = !!(vid / VLAN_N_VID);
+<<<<<<< HEAD
 	int err = -EHOSTDOWN;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* drop any leading bits on the VLAN ID */
 	vid &= VLAN_N_VID - 1;
@@ -891,7 +1000,11 @@ static int fm10k_mc_vlan_unsync(struct net_device *netdev,
 	u16 glort = interface->glort;
 	u16 vid = interface->vid;
 	bool set = !!(vid / VLAN_N_VID);
+<<<<<<< HEAD
 	int err = -EHOSTDOWN;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* drop any leading bits on the VLAN ID */
 	vid &= VLAN_N_VID - 1;
@@ -1444,11 +1557,19 @@ static int __fm10k_setup_tc(struct net_device *dev, enum tc_setup_type type,
 static void fm10k_assign_l2_accel(struct fm10k_intfc *interface,
 				  struct fm10k_l2_accel *l2_accel)
 {
+<<<<<<< HEAD
 	struct fm10k_ring *ring;
 	int i;
 
 	for (i = 0; i < interface->num_rx_queues; i++) {
 		ring = interface->rx_ring[i];
+=======
+	int i;
+
+	for (i = 0; i < interface->num_rx_queues; i++) {
+		struct fm10k_ring *ring = interface->rx_ring[i];
+
+>>>>>>> upstream/android-13
 		rcu_assign_pointer(ring->l2_accel, l2_accel);
 	}
 
@@ -1463,7 +1584,11 @@ static void *fm10k_dfwd_add_station(struct net_device *dev,
 	struct fm10k_l2_accel *old_l2_accel = NULL;
 	struct fm10k_dglort_cfg dglort = { 0 };
 	struct fm10k_hw *hw = &interface->hw;
+<<<<<<< HEAD
 	int size = 0, i;
+=======
+	int size, i;
+>>>>>>> upstream/android-13
 	u16 vid, glort;
 
 	/* The hardware supported by fm10k only filters on the destination MAC
@@ -1644,8 +1769,12 @@ static const struct net_device_ops fm10k_netdev_ops = {
 	.ndo_set_vf_vlan	= fm10k_ndo_set_vf_vlan,
 	.ndo_set_vf_rate	= fm10k_ndo_set_vf_bw,
 	.ndo_get_vf_config	= fm10k_ndo_get_vf_config,
+<<<<<<< HEAD
 	.ndo_udp_tunnel_add	= fm10k_udp_tunnel_add,
 	.ndo_udp_tunnel_del	= fm10k_udp_tunnel_del,
+=======
+	.ndo_get_vf_stats	= fm10k_ndo_get_vf_stats,
+>>>>>>> upstream/android-13
 	.ndo_dfwd_add_station	= fm10k_dfwd_add_station,
 	.ndo_dfwd_del_station	= fm10k_dfwd_del_station,
 	.ndo_features_check	= fm10k_features_check,
@@ -1692,6 +1821,11 @@ struct net_device *fm10k_alloc_netdev(const struct fm10k_info *info)
 				       NETIF_F_SG;
 
 		dev->features |= NETIF_F_GSO_UDP_TUNNEL;
+<<<<<<< HEAD
+=======
+
+		dev->udp_tunnel_nic_info = &fm10k_udp_tunnels;
+>>>>>>> upstream/android-13
 	}
 
 	/* all features defined to this point should be changeable */

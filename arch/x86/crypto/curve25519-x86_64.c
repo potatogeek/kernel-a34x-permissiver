@@ -11,6 +11,10 @@
 #include <linux/jump_label.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/scatterlist.h>
+>>>>>>> upstream/android-13
 
 #include <asm/cpufeature.h>
 #include <asm/processor.h>
@@ -113,11 +117,19 @@ static inline void fadd(u64 *out, const u64 *f1, const u64 *f2)
 	);
 }
 
+<<<<<<< HEAD
 /* Computes the field substraction of two field elements */
 static inline void fsub(u64 *out, const u64 *f1, const u64 *f2)
 {
 	asm volatile(
 		/* Compute the raw substraction of f1-f2 */
+=======
+/* Computes the field subtraction of two field elements */
+static inline void fsub(u64 *out, const u64 *f1, const u64 *f2)
+{
+	asm volatile(
+		/* Compute the raw subtraction of f1-f2 */
+>>>>>>> upstream/android-13
 		"  movq 0(%1), %%r8;"
 		"  subq 0(%2), %%r8;"
 		"  movq 8(%1), %%r9;"
@@ -134,7 +146,11 @@ static inline void fsub(u64 *out, const u64 *f1, const u64 *f2)
 		"  mov $38, %%rcx;"
 		"  cmovc %%rcx, %%rax;"
 
+<<<<<<< HEAD
 		/* Step 2: Substract carry*38 from the original difference */
+=======
+		/* Step 2: Subtract carry*38 from the original difference */
+>>>>>>> upstream/android-13
 		"  sub %%rax, %%r8;"
 		"  sbb $0, %%r9;"
 		"  sbb $0, %%r10;"
@@ -1499,7 +1515,11 @@ static int __init curve25519_mod_init(void)
 static void __exit curve25519_mod_exit(void)
 {
 	if (IS_REACHABLE(CONFIG_CRYPTO_KPP) &&
+<<<<<<< HEAD
 	    (boot_cpu_has(X86_FEATURE_BMI2) || boot_cpu_has(X86_FEATURE_ADX)))
+=======
+	    static_branch_likely(&curve25519_use_bmi2_adx))
+>>>>>>> upstream/android-13
 		crypto_unregister_kpp(&curve25519_alg);
 }
 

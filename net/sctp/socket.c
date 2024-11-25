@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
  * Copyright (c) 1999-2000 Cisco, Inc.
@@ -15,6 +19,7 @@
  * functions--this file is the functions which populate the struct proto
  * for SCTP which is the BOTTOM of the sockets interface.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -31,6 +36,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -102,9 +109,15 @@ static int sctp_send_asconf(struct sctp_association *asoc,
 			    struct sctp_chunk *chunk);
 static int sctp_do_bind(struct sock *, union sctp_addr *, int);
 static int sctp_autobind(struct sock *sk);
+<<<<<<< HEAD
 static void sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
 			      struct sctp_association *assoc,
 			      enum sctp_socket_type type);
+=======
+static int sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
+			     struct sctp_association *assoc,
+			     enum sctp_socket_type type);
+>>>>>>> upstream/android-13
 
 static unsigned long sctp_memory_pressure;
 static atomic_long_t sctp_memory_allocated;
@@ -151,12 +164,18 @@ static inline void sctp_set_owner_w(struct sctp_chunk *chunk)
 	/* Save the chunk pointer in skb for sctp_wfree to use later.  */
 	skb_shinfo(chunk->skb)->destructor_arg = chunk;
 
+<<<<<<< HEAD
 	asoc->sndbuf_used += SCTP_DATA_SNDSIZE(chunk) +
 				sizeof(struct sk_buff) +
 				sizeof(struct sctp_chunk);
 
 	refcount_add(sizeof(struct sctp_chunk), &sk->sk_wmem_alloc);
 	sk->sk_wmem_queued += chunk->skb->truesize;
+=======
+	refcount_add(sizeof(struct sctp_chunk), &sk->sk_wmem_alloc);
+	asoc->sndbuf_used += chunk->skb->truesize + sizeof(struct sctp_chunk);
+	sk->sk_wmem_queued += chunk->skb->truesize + sizeof(struct sctp_chunk);
+>>>>>>> upstream/android-13
 	sk_mem_charge(sk, chunk->skb->truesize);
 }
 
@@ -266,7 +285,11 @@ struct sctp_association *sctp_id2assoc(struct sock *sk, sctp_assoc_t id)
 	}
 
 	/* Otherwise this is a UDP-style socket. */
+<<<<<<< HEAD
 	if (!id || (id == (sctp_assoc_t)-1))
+=======
+	if (id <= SCTP_ALL_ASSOC)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	spin_lock_bh(&sctp_assocs_id_lock);
@@ -342,7 +365,11 @@ static int sctp_bind(struct sock *sk, struct sockaddr *addr, int addr_len)
 	return retval;
 }
 
+<<<<<<< HEAD
 static long sctp_get_port_local(struct sock *, union sctp_addr *);
+=======
+static int sctp_get_port_local(struct sock *, union sctp_addr *);
+>>>>>>> upstream/android-13
 
 /* Verify this is a valid sockaddr. */
 static struct sctp_af *sctp_sockaddr_af(struct sctp_sock *opt,
@@ -429,7 +456,14 @@ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
 		}
 	}
 
+<<<<<<< HEAD
 	if (snum && snum < inet_prot_sock(net) &&
+=======
+	if (snum && inet_is_local_unbindable_port(net, snum))
+		return -EPERM;
+
+	if (snum && inet_port_requires_bind_service(net, snum) &&
+>>>>>>> upstream/android-13
 	    !ns_capable(net->user_ns, CAP_NET_BIND_SERVICE))
 		return -EACCES;
 
@@ -444,9 +478,14 @@ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
 	 * detection.
 	 */
 	addr->v4.sin_port = htons(snum);
+<<<<<<< HEAD
 	if ((ret = sctp_get_port_local(sk, addr))) {
 		return -EADDRINUSE;
 	}
+=======
+	if (sctp_get_port_local(sk, addr))
+		return -EADDRINUSE;
+>>>>>>> upstream/android-13
 
 	/* Refresh ephemeral port.  */
 	if (!bp->port) {
@@ -460,11 +499,21 @@ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
 	ret = sctp_add_bind_addr(bp, addr, af->sockaddr_len,
 				 SCTP_ADDR_SRC, GFP_ATOMIC);
 
+<<<<<<< HEAD
 	/* Copy back into socket for getsockname() use. */
 	if (!ret) {
 		inet_sk(sk)->inet_sport = htons(inet_sk(sk)->inet_num);
 		sp->pf->to_sk_saddr(addr, sk);
 	}
+=======
+	if (ret) {
+		sctp_put_port(sk);
+		return ret;
+	}
+	/* Copy back into socket for getsockname() use. */
+	inet_sk(sk)->inet_sport = htons(inet_sk(sk)->inet_num);
+	sp->pf->to_sk_saddr(addr, sk);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -482,8 +531,12 @@ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
 static int sctp_send_asconf(struct sctp_association *asoc,
 			    struct sctp_chunk *chunk)
 {
+<<<<<<< HEAD
 	struct net 	*net = sock_net(asoc->base.sk);
 	int		retval = 0;
+=======
+	int retval = 0;
+>>>>>>> upstream/android-13
 
 	/* If there is an outstanding ASCONF chunk, queue it for later
 	 * transmission.
@@ -495,7 +548,11 @@ static int sctp_send_asconf(struct sctp_association *asoc,
 
 	/* Hold the chunk until an ASCONF_ACK is received. */
 	sctp_chunk_hold(chunk);
+<<<<<<< HEAD
 	retval = sctp_primitive_ASCONF(net, asoc, chunk);
+=======
+	retval = sctp_primitive_ASCONF(asoc->base.net, asoc, chunk);
+>>>>>>> upstream/android-13
 	if (retval)
 		sctp_chunk_free(chunk);
 	else
@@ -788,7 +845,10 @@ static int sctp_send_asconf_del_ip(struct sock		*sk,
 	int			stored = 0;
 
 	chunk = NULL;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	sp = sctp_sk(sk);
 	ep = sp->ep;
 
@@ -1005,31 +1065,50 @@ int sctp_asconf_mgmt(struct sctp_sock *sp, struct sctp_sockaddr_entry *addrw)
  * it.
  *
  * sk        The sk of the socket
+<<<<<<< HEAD
  * addrs     The pointer to the addresses in user land
+=======
+ * addrs     The pointer to the addresses
+>>>>>>> upstream/android-13
  * addrssize Size of the addrs buffer
  * op        Operation to perform (add or remove, see the flags of
  *           sctp_bindx)
  *
  * Returns 0 if ok, <0 errno code on error.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_bindx(struct sock *sk,
 				 struct sockaddr __user *addrs,
 				 int addrs_size, int op)
 {
 	struct sockaddr *kaddrs;
+=======
+static int sctp_setsockopt_bindx(struct sock *sk, struct sockaddr *addrs,
+				 int addrs_size, int op)
+{
+>>>>>>> upstream/android-13
 	int err;
 	int addrcnt = 0;
 	int walk_size = 0;
 	struct sockaddr *sa_addr;
+<<<<<<< HEAD
 	void *addr_buf;
 	struct sctp_af *af;
 
 	pr_debug("%s: sk:%p addrs:%p addrs_size:%d opt:%d\n",
 		 __func__, sk, addrs, addrs_size, op);
+=======
+	void *addr_buf = addrs;
+	struct sctp_af *af;
+
+	pr_debug("%s: sk:%p addrs:%p addrs_size:%d opt:%d\n",
+		 __func__, sk, addr_buf, addrs_size, op);
+>>>>>>> upstream/android-13
 
 	if (unlikely(addrs_size <= 0))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	kaddrs = memdup_user(addrs, addrs_size);
 	if (unlikely(IS_ERR(kaddrs)))
 		return PTR_ERR(kaddrs);
@@ -1041,6 +1120,12 @@ static int sctp_setsockopt_bindx(struct sock *sk,
 			kfree(kaddrs);
 			return -EINVAL;
 		}
+=======
+	/* Walk through the addrs buffer and count the number of addresses. */
+	while (walk_size < addrs_size) {
+		if (walk_size + sizeof(sa_family_t) > addrs_size)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 
 		sa_addr = addr_buf;
 		af = sctp_get_af_specific(sa_addr->sa_family);
@@ -1048,10 +1133,15 @@ static int sctp_setsockopt_bindx(struct sock *sk,
 		/* If the address family is not supported or if this address
 		 * causes the address buffer to overflow return EINVAL.
 		 */
+<<<<<<< HEAD
 		if (!af || (walk_size + af->sockaddr_len) > addrs_size) {
 			kfree(kaddrs);
 			return -EINVAL;
 		}
+=======
+		if (!af || (walk_size + af->sockaddr_len) > addrs_size)
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		addrcnt++;
 		addr_buf += af->sockaddr_len;
 		walk_size += af->sockaddr_len;
@@ -1062,6 +1152,7 @@ static int sctp_setsockopt_bindx(struct sock *sk,
 	case SCTP_BINDX_ADD_ADDR:
 		/* Allow security module to validate bindx addresses. */
 		err = security_sctp_bind_connect(sk, SCTP_SOCKOPT_BINDX_ADD,
+<<<<<<< HEAD
 						 (struct sockaddr *)kaddrs,
 						 addrs_size);
 		if (err)
@@ -1090,11 +1181,139 @@ out:
 	return err;
 }
 
+=======
+						 addrs, addrs_size);
+		if (err)
+			return err;
+		err = sctp_bindx_add(sk, addrs, addrcnt);
+		if (err)
+			return err;
+		return sctp_send_asconf_add_ip(sk, addrs, addrcnt);
+	case SCTP_BINDX_REM_ADDR:
+		err = sctp_bindx_rem(sk, addrs, addrcnt);
+		if (err)
+			return err;
+		return sctp_send_asconf_del_ip(sk, addrs, addrcnt);
+
+	default:
+		return -EINVAL;
+	}
+}
+
+static int sctp_bind_add(struct sock *sk, struct sockaddr *addrs,
+		int addrlen)
+{
+	int err;
+
+	lock_sock(sk);
+	err = sctp_setsockopt_bindx(sk, addrs, addrlen, SCTP_BINDX_ADD_ADDR);
+	release_sock(sk);
+	return err;
+}
+
+static int sctp_connect_new_asoc(struct sctp_endpoint *ep,
+				 const union sctp_addr *daddr,
+				 const struct sctp_initmsg *init,
+				 struct sctp_transport **tp)
+{
+	struct sctp_association *asoc;
+	struct sock *sk = ep->base.sk;
+	struct net *net = sock_net(sk);
+	enum sctp_scope scope;
+	int err;
+
+	if (sctp_endpoint_is_peeled_off(ep, daddr))
+		return -EADDRNOTAVAIL;
+
+	if (!ep->base.bind_addr.port) {
+		if (sctp_autobind(sk))
+			return -EAGAIN;
+	} else {
+		if (inet_is_local_unbindable_port(net, ep->base.bind_addr.port))
+			return -EPERM;
+		if (inet_port_requires_bind_service(net, ep->base.bind_addr.port) &&
+		    !ns_capable(net->user_ns, CAP_NET_BIND_SERVICE))
+			return -EACCES;
+	}
+
+	scope = sctp_scope(daddr);
+	asoc = sctp_association_new(ep, sk, scope, GFP_KERNEL);
+	if (!asoc)
+		return -ENOMEM;
+
+	err = sctp_assoc_set_bind_addr_from_ep(asoc, scope, GFP_KERNEL);
+	if (err < 0)
+		goto free;
+
+	*tp = sctp_assoc_add_peer(asoc, daddr, GFP_KERNEL, SCTP_UNKNOWN);
+	if (!*tp) {
+		err = -ENOMEM;
+		goto free;
+	}
+
+	if (!init)
+		return 0;
+
+	if (init->sinit_num_ostreams) {
+		__u16 outcnt = init->sinit_num_ostreams;
+
+		asoc->c.sinit_num_ostreams = outcnt;
+		/* outcnt has been changed, need to re-init stream */
+		err = sctp_stream_init(&asoc->stream, outcnt, 0, GFP_KERNEL);
+		if (err)
+			goto free;
+	}
+
+	if (init->sinit_max_instreams)
+		asoc->c.sinit_max_instreams = init->sinit_max_instreams;
+
+	if (init->sinit_max_attempts)
+		asoc->max_init_attempts = init->sinit_max_attempts;
+
+	if (init->sinit_max_init_timeo)
+		asoc->max_init_timeo =
+			msecs_to_jiffies(init->sinit_max_init_timeo);
+
+	return 0;
+free:
+	sctp_association_free(asoc);
+	return err;
+}
+
+static int sctp_connect_add_peer(struct sctp_association *asoc,
+				 union sctp_addr *daddr, int addr_len)
+{
+	struct sctp_endpoint *ep = asoc->ep;
+	struct sctp_association *old;
+	struct sctp_transport *t;
+	int err;
+
+	err = sctp_verify_addr(ep->base.sk, daddr, addr_len);
+	if (err)
+		return err;
+
+	old = sctp_endpoint_lookup_assoc(ep, daddr, &t);
+	if (old && old != asoc)
+		return old->state >= SCTP_STATE_ESTABLISHED ? -EISCONN
+							    : -EALREADY;
+
+	if (sctp_endpoint_is_peeled_off(ep, daddr))
+		return -EADDRNOTAVAIL;
+
+	t = sctp_assoc_add_peer(asoc, daddr, GFP_KERNEL, SCTP_UNKNOWN);
+	if (!t)
+		return -ENOMEM;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* __sctp_connect(struct sock* sk, struct sockaddr *kaddrs, int addrs_size)
  *
  * Common routine for handling connect() and sctp_connectx().
  * Connect will come in with just a single address.
  */
+<<<<<<< HEAD
 static int __sctp_connect(struct sock *sk,
 			  struct sockaddr *kaddrs,
 			  int addrs_size, int flags,
@@ -1242,6 +1461,64 @@ static int __sctp_connect(struct sock *sk,
 
 		addrcnt++;
 		addr_buf += af->sockaddr_len;
+=======
+static int __sctp_connect(struct sock *sk, struct sockaddr *kaddrs,
+			  int addrs_size, int flags, sctp_assoc_t *assoc_id)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_endpoint *ep = sp->ep;
+	struct sctp_transport *transport;
+	struct sctp_association *asoc;
+	void *addr_buf = kaddrs;
+	union sctp_addr *daddr;
+	struct sctp_af *af;
+	int walk_size, err;
+	long timeo;
+
+	if (sctp_sstate(sk, ESTABLISHED) || sctp_sstate(sk, CLOSING) ||
+	    (sctp_style(sk, TCP) && sctp_sstate(sk, LISTENING)))
+		return -EISCONN;
+
+	daddr = addr_buf;
+	af = sctp_get_af_specific(daddr->sa.sa_family);
+	if (!af || af->sockaddr_len > addrs_size)
+		return -EINVAL;
+
+	err = sctp_verify_addr(sk, daddr, af->sockaddr_len);
+	if (err)
+		return err;
+
+	asoc = sctp_endpoint_lookup_assoc(ep, daddr, &transport);
+	if (asoc)
+		return asoc->state >= SCTP_STATE_ESTABLISHED ? -EISCONN
+							     : -EALREADY;
+
+	err = sctp_connect_new_asoc(ep, daddr, NULL, &transport);
+	if (err)
+		return err;
+	asoc = transport->asoc;
+
+	addr_buf += af->sockaddr_len;
+	walk_size = af->sockaddr_len;
+	while (walk_size < addrs_size) {
+		err = -EINVAL;
+		if (walk_size + sizeof(sa_family_t) > addrs_size)
+			goto out_free;
+
+		daddr = addr_buf;
+		af = sctp_get_af_specific(daddr->sa.sa_family);
+		if (!af || af->sockaddr_len + walk_size > addrs_size)
+			goto out_free;
+
+		if (asoc->peer.port != ntohs(daddr->v4.sin_port))
+			goto out_free;
+
+		err = sctp_connect_add_peer(asoc, daddr, af->sockaddr_len);
+		if (err)
+			goto out_free;
+
+		addr_buf  += af->sockaddr_len;
+>>>>>>> upstream/android-13
 		walk_size += af->sockaddr_len;
 	}
 
@@ -1254,6 +1531,7 @@ static int __sctp_connect(struct sock *sk,
 			goto out_free;
 	}
 
+<<<<<<< HEAD
 	err = sctp_primitive_ASSOCIATE(net, asoc, NULL);
 	if (err < 0) {
 		goto out_free;
@@ -1276,10 +1554,27 @@ static int __sctp_connect(struct sock *sk,
 
 	/* Don't free association on exit. */
 	asoc = NULL;
+=======
+	err = sctp_primitive_ASSOCIATE(sock_net(sk), asoc, NULL);
+	if (err < 0)
+		goto out_free;
+
+	/* Initialize sk's dport and daddr for getpeername() */
+	inet_sk(sk)->inet_dport = htons(asoc->peer.port);
+	sp->pf->to_sk_daddr(daddr, sk);
+	sk->sk_err = 0;
+
+	if (assoc_id)
+		*assoc_id = asoc->assoc_id;
+
+	timeo = sock_sndtimeo(sk, flags & O_NONBLOCK);
+	return sctp_wait_for_connect(asoc, &timeo);
+>>>>>>> upstream/android-13
 
 out_free:
 	pr_debug("%s: took out_free path with asoc:%p kaddrs:%p err:%d\n",
 		 __func__, asoc, kaddrs, err);
+<<<<<<< HEAD
 
 	if (asoc) {
 		/* sctp_primitive_ASSOCIATE may have added this association
@@ -1288,6 +1583,9 @@ out_free:
 		 */
 		sctp_association_free(asoc);
 	}
+=======
+	sctp_association_free(asoc);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1341,11 +1639,16 @@ out_free:
  * it.
  *
  * sk        The sk of the socket
+<<<<<<< HEAD
  * addrs     The pointer to the addresses in user land
+=======
+ * addrs     The pointer to the addresses
+>>>>>>> upstream/android-13
  * addrssize Size of the addrs buffer
  *
  * Returns >=0 if ok, <0 errno code on error.
  */
+<<<<<<< HEAD
 static int __sctp_setsockopt_connectx(struct sock *sk,
 				      struct sockaddr __user *addrs,
 				      int addrs_size,
@@ -1364,12 +1667,30 @@ static int __sctp_setsockopt_connectx(struct sock *sk,
 	if (unlikely(IS_ERR(kaddrs)))
 		return PTR_ERR(kaddrs);
 
+=======
+static int __sctp_setsockopt_connectx(struct sock *sk, struct sockaddr *kaddrs,
+				      int addrs_size, sctp_assoc_t *assoc_id)
+{
+	int err = 0, flags = 0;
+
+	pr_debug("%s: sk:%p addrs:%p addrs_size:%d\n",
+		 __func__, sk, kaddrs, addrs_size);
+
+	/* make sure the 1st addr's sa_family is accessible later */
+	if (unlikely(addrs_size < sizeof(sa_family_t)))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* Allow security module to validate connectx addresses. */
 	err = security_sctp_bind_connect(sk, SCTP_SOCKOPT_CONNECTX,
 					 (struct sockaddr *)kaddrs,
 					  addrs_size);
 	if (err)
+<<<<<<< HEAD
 		goto out_free;
+=======
+		return err;
+>>>>>>> upstream/android-13
 
 	/* in-kernel sockets don't generally have a file allocated to them
 	 * if all they do is call sock_create_kern().
@@ -1377,12 +1698,16 @@ static int __sctp_setsockopt_connectx(struct sock *sk,
 	if (sk->sk_socket->file)
 		flags = sk->sk_socket->file->f_flags;
 
+<<<<<<< HEAD
 	err = __sctp_connect(sk, kaddrs, addrs_size, flags, assoc_id);
 
 out_free:
 	kfree(kaddrs);
 
 	return err;
+=======
+	return __sctp_connect(sk, kaddrs, addrs_size, flags, assoc_id);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1390,10 +1715,17 @@ out_free:
  * to the option that doesn't provide association id.
  */
 static int sctp_setsockopt_connectx_old(struct sock *sk,
+<<<<<<< HEAD
 					struct sockaddr __user *addrs,
 					int addrs_size)
 {
 	return __sctp_setsockopt_connectx(sk, addrs, addrs_size, NULL);
+=======
+					struct sockaddr *kaddrs,
+					int addrs_size)
+{
+	return __sctp_setsockopt_connectx(sk, kaddrs, addrs_size, NULL);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1403,13 +1735,21 @@ static int sctp_setsockopt_connectx_old(struct sock *sk,
  * always positive.
  */
 static int sctp_setsockopt_connectx(struct sock *sk,
+<<<<<<< HEAD
 				    struct sockaddr __user *addrs,
+=======
+				    struct sockaddr *kaddrs,
+>>>>>>> upstream/android-13
 				    int addrs_size)
 {
 	sctp_assoc_t assoc_id = 0;
 	int err = 0;
 
+<<<<<<< HEAD
 	err = __sctp_setsockopt_connectx(sk, addrs, addrs_size, &assoc_id);
+=======
+	err = __sctp_setsockopt_connectx(sk, kaddrs, addrs_size, &assoc_id);
+>>>>>>> upstream/android-13
 
 	if (err)
 		return err;
@@ -1439,6 +1779,10 @@ static int sctp_getsockopt_connectx3(struct sock *sk, int len,
 {
 	struct sctp_getaddrs_old param;
 	sctp_assoc_t assoc_id = 0;
+<<<<<<< HEAD
+=======
+	struct sockaddr *kaddrs;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 #ifdef CONFIG_COMPAT
@@ -1462,9 +1806,18 @@ static int sctp_getsockopt_connectx3(struct sock *sk, int len,
 			return -EFAULT;
 	}
 
+<<<<<<< HEAD
 	err = __sctp_setsockopt_connectx(sk, (struct sockaddr __user *)
 					 param.addrs, param.addr_num,
 					 &assoc_id);
+=======
+	kaddrs = memdup_user(param.addrs, param.addr_num);
+	if (IS_ERR(kaddrs))
+		return PTR_ERR(kaddrs);
+
+	err = __sctp_setsockopt_connectx(sk, kaddrs, param.addr_num, &assoc_id);
+	kfree(kaddrs);
+>>>>>>> upstream/android-13
 	if (err == 0 || err == -EINPROGRESS) {
 		if (copy_to_user(optval, &assoc_id, sizeof(assoc_id)))
 			return -EFAULT;
@@ -1705,9 +2058,13 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 				 struct sctp_transport **tp)
 {
 	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+<<<<<<< HEAD
 	struct net *net = sock_net(sk);
 	struct sctp_association *asoc;
 	enum sctp_scope scope;
+=======
+	struct sctp_association *asoc;
+>>>>>>> upstream/android-13
 	struct cmsghdr *cmsg;
 	__be32 flowinfo = 0;
 	struct sctp_af *af;
@@ -1722,6 +2079,7 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 				    sctp_sstate(sk, CLOSING)))
 		return -EADDRNOTAVAIL;
 
+<<<<<<< HEAD
 	if (sctp_endpoint_is_peeled_off(ep, daddr))
 		return -EADDRNOTAVAIL;
 
@@ -1736,6 +2094,8 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 
 	scope = sctp_scope(daddr);
 
+=======
+>>>>>>> upstream/android-13
 	/* Label connection socket for first association 1-to-many
 	 * style for client sequence socket()->sendmsg(). This
 	 * needs to be done before sctp_assoc_add_peer() as that will
@@ -1751,6 +2111,7 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	asoc = sctp_association_new(ep, sk, scope, GFP_KERNEL);
 	if (!asoc)
 		return -ENOMEM;
@@ -1790,6 +2151,12 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 		err = -ENOMEM;
 		goto free;
 	}
+=======
+	err = sctp_connect_new_asoc(ep, daddr, cmsgs->init, tp);
+	if (err)
+		return err;
+	asoc = (*tp)->asoc;
+>>>>>>> upstream/android-13
 
 	if (!cmsgs->addrs_msg)
 		return 0;
@@ -1799,8 +2166,11 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 
 	/* sendv addr list parse */
 	for_each_cmsghdr(cmsg, cmsgs->addrs_msg) {
+<<<<<<< HEAD
 		struct sctp_transport *transport;
 		struct sctp_association *old;
+=======
+>>>>>>> upstream/android-13
 		union sctp_addr _daddr;
 		int dlen;
 
@@ -1834,6 +2204,7 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 			daddr->v6.sin6_port = htons(asoc->peer.port);
 			memcpy(&daddr->v6.sin6_addr, CMSG_DATA(cmsg), dlen);
 		}
+<<<<<<< HEAD
 		err = sctp_verify_addr(sk, daddr, sizeof(*daddr));
 		if (err)
 			goto free;
@@ -1858,6 +2229,12 @@ static int sctp_sendmsg_new_asoc(struct sock *sk, __u16 sflags,
 			err = -ENOMEM;
 			goto free;
 		}
+=======
+
+		err = sctp_connect_add_peer(asoc, daddr, sizeof(*daddr));
+		if (err)
+			goto free;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1959,7 +2336,11 @@ static int sctp_sendmsg_to_asoc(struct sctp_association *asoc,
 		if (err)
 			goto err;
 
+<<<<<<< HEAD
 		if (sp->strm_interleave) {
+=======
+		if (asoc->ep->intl_enable) {
+>>>>>>> upstream/android-13
 			timeo = sock_sndtimeo(sk, 0);
 			err = sctp_wait_for_connect(asoc, &timeo);
 			if (err) {
@@ -2265,7 +2646,11 @@ static int sctp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
 	if (sp->recvrcvinfo)
 		sctp_ulpevent_read_rcvinfo(event, msg);
 	/* Check if we allow SCTP_SNDRCVINFO. */
+<<<<<<< HEAD
 	if (sp->subscribe.sctp_data_io_event)
+=======
+	if (sctp_ulpevent_type_enabled(sp->subscribe, SCTP_DATA_IO_EVENT))
+>>>>>>> upstream/android-13
 		sctp_ulpevent_read_sndrcvinfo(event, msg);
 
 	err = copied;
@@ -2319,6 +2704,7 @@ out:
  * exceeds the current PMTU size, the message will NOT be sent and
  * instead a error will be indicated to the user.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_disable_fragments(struct sock *sk,
 					     char __user *optval,
 					     unsigned int optlen)
@@ -2346,15 +2732,49 @@ static int sctp_setsockopt_events(struct sock *sk, char __user *optval,
 		return -EINVAL;
 	if (copy_from_user(&sctp_sk(sk)->subscribe, optval, optlen))
 		return -EFAULT;
+=======
+static int sctp_setsockopt_disable_fragments(struct sock *sk, int *val,
+					     unsigned int optlen)
+{
+	if (optlen < sizeof(int))
+		return -EINVAL;
+	sctp_sk(sk)->disable_fragments = (*val == 0) ? 0 : 1;
+	return 0;
+}
+
+static int sctp_setsockopt_events(struct sock *sk, __u8 *sn_type,
+				  unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+	int i;
+
+	if (optlen > sizeof(struct sctp_event_subscribe))
+		return -EINVAL;
+
+	for (i = 0; i < optlen; i++)
+		sctp_ulpevent_type_set(&sp->subscribe, SCTP_SN_TYPE_BASE + i,
+				       sn_type[i]);
+
+	list_for_each_entry(asoc, &sp->ep->asocs, asocs)
+		asoc->subscribe = sctp_sk(sk)->subscribe;
+>>>>>>> upstream/android-13
 
 	/* At the time when a user app subscribes to SCTP_SENDER_DRY_EVENT,
 	 * if there is no data to be sent or retransmit, the stack will
 	 * immediately send up this notification.
 	 */
+<<<<<<< HEAD
 	if (sctp_ulpevent_type_enabled(SCTP_SENDER_DRY_EVENT,
 				       &sctp_sk(sk)->subscribe)) {
 		asoc = sctp_id2assoc(sk, 0);
 
+=======
+	if (sctp_ulpevent_type_enabled(sp->subscribe, SCTP_SENDER_DRY_EVENT)) {
+		struct sctp_ulpevent *event;
+
+		asoc = sctp_id2assoc(sk, 0);
+>>>>>>> upstream/android-13
 		if (asoc && sctp_outq_is_empty(&asoc->outqueue)) {
 			event = sctp_ulpevent_make_sender_dry_event(asoc,
 					GFP_USER | __GFP_NOWARN);
@@ -2379,7 +2799,11 @@ static int sctp_setsockopt_events(struct sock *sk, char __user *optval,
  * integer defining the number of seconds of idle time before an
  * association is closed.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_autoclose(struct sock *sk, char __user *optval,
+=======
+static int sctp_setsockopt_autoclose(struct sock *sk, u32 *optval,
+>>>>>>> upstream/android-13
 				     unsigned int optlen)
 {
 	struct sctp_sock *sp = sctp_sk(sk);
@@ -2390,9 +2814,14 @@ static int sctp_setsockopt_autoclose(struct sock *sk, char __user *optval,
 		return -EOPNOTSUPP;
 	if (optlen != sizeof(int))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (copy_from_user(&sp->autoclose, optval, optlen))
 		return -EFAULT;
 
+=======
+
+	sp->autoclose = *optval;
+>>>>>>> upstream/android-13
 	if (sp->autoclose > net->sctp.max_autoclose)
 		sp->autoclose = net->sctp.max_autoclose;
 
@@ -2548,9 +2977,14 @@ static int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
 	int error;
 
 	if (params->spp_flags & SPP_HB_DEMAND && trans) {
+<<<<<<< HEAD
 		struct net *net = sock_net(trans->asoc->base.sk);
 
 		error = sctp_primitive_REQUESTHEARTBEAT(net, trans->asoc, trans);
+=======
+		error = sctp_primitive_REQUESTHEARTBEAT(trans->asoc->base.net,
+							trans->asoc, trans);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 	}
@@ -2621,6 +3055,10 @@ static int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
 				sctp_transport_pmtu(trans, sctp_opt2sk(sp));
 				sctp_assoc_sync_pmtu(asoc);
 			}
+<<<<<<< HEAD
+=======
+			sctp_transport_pl_reset(trans);
+>>>>>>> upstream/android-13
 		} else if (asoc) {
 			asoc->param_flags =
 				(asoc->param_flags & ~SPP_PMTUD) | pmtud_change;
@@ -2728,16 +3166,23 @@ static int sctp_apply_peer_addr_params(struct sctp_paddrparams *params,
 }
 
 static int sctp_setsockopt_peer_addr_params(struct sock *sk,
+<<<<<<< HEAD
 					    char __user *optval,
 					    unsigned int optlen)
 {
 	struct sctp_paddrparams  params;
+=======
+					    struct sctp_paddrparams *params,
+					    unsigned int optlen)
+{
+>>>>>>> upstream/android-13
 	struct sctp_transport   *trans = NULL;
 	struct sctp_association *asoc = NULL;
 	struct sctp_sock        *sp = sctp_sk(sk);
 	int error;
 	int hb_change, pmtud_change, sackdelay_change;
 
+<<<<<<< HEAD
 	if (optlen == sizeof(params)) {
 		if (copy_from_user(&params, optval, optlen))
 			return -EFAULT;
@@ -2748,48 +3193,91 @@ static int sctp_setsockopt_peer_addr_params(struct sock *sk,
 		if (params.spp_flags & (SPP_DSCP | SPP_IPV6_FLOWLABEL))
 			return -EINVAL;
 	} else {
+=======
+	if (optlen == ALIGN(offsetof(struct sctp_paddrparams,
+					    spp_ipv6_flowlabel), 4)) {
+		if (params->spp_flags & (SPP_DSCP | SPP_IPV6_FLOWLABEL))
+			return -EINVAL;
+	} else if (optlen != sizeof(*params)) {
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	/* Validate flags and value parameters. */
+<<<<<<< HEAD
 	hb_change        = params.spp_flags & SPP_HB;
 	pmtud_change     = params.spp_flags & SPP_PMTUD;
 	sackdelay_change = params.spp_flags & SPP_SACKDELAY;
+=======
+	hb_change        = params->spp_flags & SPP_HB;
+	pmtud_change     = params->spp_flags & SPP_PMTUD;
+	sackdelay_change = params->spp_flags & SPP_SACKDELAY;
+>>>>>>> upstream/android-13
 
 	if (hb_change        == SPP_HB ||
 	    pmtud_change     == SPP_PMTUD ||
 	    sackdelay_change == SPP_SACKDELAY ||
+<<<<<<< HEAD
 	    params.spp_sackdelay > 500 ||
 	    (params.spp_pathmtu &&
 	     params.spp_pathmtu < SCTP_DEFAULT_MINSEGMENT))
+=======
+	    params->spp_sackdelay > 500 ||
+	    (params->spp_pathmtu &&
+	     params->spp_pathmtu < SCTP_DEFAULT_MINSEGMENT))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* If an address other than INADDR_ANY is specified, and
 	 * no transport is found, then the request is invalid.
 	 */
+<<<<<<< HEAD
 	if (!sctp_is_any(sk, (union sctp_addr *)&params.spp_address)) {
 		trans = sctp_addr_id2transport(sk, &params.spp_address,
 					       params.spp_assoc_id);
+=======
+	if (!sctp_is_any(sk, (union sctp_addr *)&params->spp_address)) {
+		trans = sctp_addr_id2transport(sk, &params->spp_address,
+					       params->spp_assoc_id);
+>>>>>>> upstream/android-13
 		if (!trans)
 			return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* Get association, if assoc_id != 0 and the socket is a one
 	 * to many style socket, and an association was not found, then
 	 * the id was invalid.
 	 */
 	asoc = sctp_id2assoc(sk, params.spp_assoc_id);
 	if (!asoc && params.spp_assoc_id && sctp_style(sk, UDP))
+=======
+	/* Get association, if assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, params->spp_assoc_id);
+	if (!asoc && params->spp_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* Heartbeat demand can only be sent on a transport or
 	 * association, but not a socket.
 	 */
+<<<<<<< HEAD
 	if (params.spp_flags & SPP_HB_DEMAND && !trans && !asoc)
 		return -EINVAL;
 
 	/* Process parameters. */
 	error = sctp_apply_peer_addr_params(&params, trans, asoc, sp,
+=======
+	if (params->spp_flags & SPP_HB_DEMAND && !trans && !asoc)
+		return -EINVAL;
+
+	/* Process parameters. */
+	error = sctp_apply_peer_addr_params(params, trans, asoc, sp,
+>>>>>>> upstream/android-13
 					    hb_change, pmtud_change,
 					    sackdelay_change);
 
@@ -2802,7 +3290,11 @@ static int sctp_setsockopt_peer_addr_params(struct sock *sk,
 	if (!trans && asoc) {
 		list_for_each_entry(trans, &asoc->peer.transport_addr_list,
 				transports) {
+<<<<<<< HEAD
 			sctp_apply_peer_addr_params(&params, trans, asoc, sp,
+=======
+			sctp_apply_peer_addr_params(params, trans, asoc, sp,
+>>>>>>> upstream/android-13
 						    hb_change, pmtud_change,
 						    sackdelay_change);
 		}
@@ -2821,6 +3313,46 @@ static inline __u32 sctp_spp_sackdelay_disable(__u32 param_flags)
 	return (param_flags & ~SPP_SACKDELAY) | SPP_SACKDELAY_DISABLE;
 }
 
+<<<<<<< HEAD
+=======
+static void sctp_apply_asoc_delayed_ack(struct sctp_sack_info *params,
+					struct sctp_association *asoc)
+{
+	struct sctp_transport *trans;
+
+	if (params->sack_delay) {
+		asoc->sackdelay = msecs_to_jiffies(params->sack_delay);
+		asoc->param_flags =
+			sctp_spp_sackdelay_enable(asoc->param_flags);
+	}
+	if (params->sack_freq == 1) {
+		asoc->param_flags =
+			sctp_spp_sackdelay_disable(asoc->param_flags);
+	} else if (params->sack_freq > 1) {
+		asoc->sackfreq = params->sack_freq;
+		asoc->param_flags =
+			sctp_spp_sackdelay_enable(asoc->param_flags);
+	}
+
+	list_for_each_entry(trans, &asoc->peer.transport_addr_list,
+			    transports) {
+		if (params->sack_delay) {
+			trans->sackdelay = msecs_to_jiffies(params->sack_delay);
+			trans->param_flags =
+				sctp_spp_sackdelay_enable(trans->param_flags);
+		}
+		if (params->sack_freq == 1) {
+			trans->param_flags =
+				sctp_spp_sackdelay_disable(trans->param_flags);
+		} else if (params->sack_freq > 1) {
+			trans->sackfreq = params->sack_freq;
+			trans->param_flags =
+				sctp_spp_sackdelay_enable(trans->param_flags);
+		}
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * 7.1.23.  Get or set delayed ack timer (SCTP_DELAYED_SACK)
  *
@@ -2856,6 +3388,7 @@ static inline __u32 sctp_spp_sackdelay_disable(__u32 param_flags)
  *    timer to expire.  The default value for this is 2, setting this
  *    value to 1 will disable the delayed sack algorithm.
  */
+<<<<<<< HEAD
 
 static int sctp_setsockopt_delayed_ack(struct sock *sk,
 				       char __user *optval, unsigned int optlen)
@@ -2872,11 +3405,75 @@ static int sctp_setsockopt_delayed_ack(struct sock *sk,
 		if (params.sack_delay == 0 && params.sack_freq == 0)
 			return 0;
 	} else if (optlen == sizeof(struct sctp_assoc_value)) {
+=======
+static int __sctp_setsockopt_delayed_ack(struct sock *sk,
+					 struct sctp_sack_info *params)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+
+	/* Validate value parameter. */
+	if (params->sack_delay > 500)
+		return -EINVAL;
+
+	/* Get association, if sack_assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, params->sack_assoc_id);
+	if (!asoc && params->sack_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		sctp_apply_asoc_delayed_ack(params, asoc);
+
+		return 0;
+	}
+
+	if (sctp_style(sk, TCP))
+		params->sack_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (params->sack_assoc_id == SCTP_FUTURE_ASSOC ||
+	    params->sack_assoc_id == SCTP_ALL_ASSOC) {
+		if (params->sack_delay) {
+			sp->sackdelay = params->sack_delay;
+			sp->param_flags =
+				sctp_spp_sackdelay_enable(sp->param_flags);
+		}
+		if (params->sack_freq == 1) {
+			sp->param_flags =
+				sctp_spp_sackdelay_disable(sp->param_flags);
+		} else if (params->sack_freq > 1) {
+			sp->sackfreq = params->sack_freq;
+			sp->param_flags =
+				sctp_spp_sackdelay_enable(sp->param_flags);
+		}
+	}
+
+	if (params->sack_assoc_id == SCTP_CURRENT_ASSOC ||
+	    params->sack_assoc_id == SCTP_ALL_ASSOC)
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs)
+			sctp_apply_asoc_delayed_ack(params, asoc);
+
+	return 0;
+}
+
+static int sctp_setsockopt_delayed_ack(struct sock *sk,
+				       struct sctp_sack_info *params,
+				       unsigned int optlen)
+{
+	if (optlen == sizeof(struct sctp_assoc_value)) {
+		struct sctp_assoc_value *v = (struct sctp_assoc_value *)params;
+		struct sctp_sack_info p;
+
+>>>>>>> upstream/android-13
 		pr_warn_ratelimited(DEPRECATED
 				    "%s (pid %d) "
 				    "Use of struct sctp_assoc_value in delayed_ack socket option.\n"
 				    "Use struct sctp_sack_info instead\n",
 				    current->comm, task_pid_nr(current));
+<<<<<<< HEAD
 		if (copy_from_user(&params, optval, optlen))
 			return -EFAULT;
 
@@ -2954,6 +3551,20 @@ static int sctp_setsockopt_delayed_ack(struct sock *sk,
 	}
 
 	return 0;
+=======
+
+		p.sack_assoc_id = v->assoc_id;
+		p.sack_delay = v->assoc_value;
+		p.sack_freq = v->assoc_value ? 0 : 1;
+		return __sctp_setsockopt_delayed_ack(sk, &p);
+	}
+
+	if (optlen != sizeof(struct sctp_sack_info))
+		return -EINVAL;
+	if (params->sack_delay == 0 && params->sack_freq == 0)
+		return 0;
+	return __sctp_setsockopt_delayed_ack(sk, params);
+>>>>>>> upstream/android-13
 }
 
 /* 7.1.3 Initialization Parameters (SCTP_INITMSG)
@@ -2967,13 +3578,20 @@ static int sctp_setsockopt_delayed_ack(struct sock *sk,
  * by the change).  With TCP-style sockets, this option is inherited by
  * sockets derived from a listener socket.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_initmsg(struct sock *sk, char __user *optval, unsigned int optlen)
 {
 	struct sctp_initmsg sinit;
+=======
+static int sctp_setsockopt_initmsg(struct sock *sk, struct sctp_initmsg *sinit,
+				   unsigned int optlen)
+{
+>>>>>>> upstream/android-13
 	struct sctp_sock *sp = sctp_sk(sk);
 
 	if (optlen != sizeof(struct sctp_initmsg))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (copy_from_user(&sinit, optval, optlen))
 		return -EFAULT;
 
@@ -2985,6 +3603,17 @@ static int sctp_setsockopt_initmsg(struct sock *sk, char __user *optval, unsigne
 		sp->initmsg.sinit_max_attempts = sinit.sinit_max_attempts;
 	if (sinit.sinit_max_init_timeo)
 		sp->initmsg.sinit_max_init_timeo = sinit.sinit_max_init_timeo;
+=======
+
+	if (sinit->sinit_num_ostreams)
+		sp->initmsg.sinit_num_ostreams = sinit->sinit_num_ostreams;
+	if (sinit->sinit_max_instreams)
+		sp->initmsg.sinit_max_instreams = sinit->sinit_max_instreams;
+	if (sinit->sinit_max_attempts)
+		sp->initmsg.sinit_max_attempts = sinit->sinit_max_attempts;
+	if (sinit->sinit_max_init_timeo)
+		sp->initmsg.sinit_max_init_timeo = sinit->sinit_max_init_timeo;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3004,11 +3633,16 @@ static int sctp_setsockopt_initmsg(struct sock *sk, char __user *optval, unsigne
  *   to this call if the caller is using the UDP model.
  */
 static int sctp_setsockopt_default_send_param(struct sock *sk,
+<<<<<<< HEAD
 					      char __user *optval,
+=======
+					      struct sctp_sndrcvinfo *info,
+>>>>>>> upstream/android-13
 					      unsigned int optlen)
 {
 	struct sctp_sock *sp = sctp_sk(sk);
 	struct sctp_association *asoc;
+<<<<<<< HEAD
 	struct sctp_sndrcvinfo info;
 
 	if (optlen != sizeof(info))
@@ -3016,10 +3650,17 @@ static int sctp_setsockopt_default_send_param(struct sock *sk,
 	if (copy_from_user(&info, optval, optlen))
 		return -EFAULT;
 	if (info.sinfo_flags &
+=======
+
+	if (optlen != sizeof(*info))
+		return -EINVAL;
+	if (info->sinfo_flags &
+>>>>>>> upstream/android-13
 	    ~(SCTP_UNORDERED | SCTP_ADDR_OVER |
 	      SCTP_ABORT | SCTP_EOF))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	asoc = sctp_id2assoc(sk, info.sinfo_assoc_id);
 	if (!asoc && info.sinfo_assoc_id && sctp_style(sk, UDP))
 		return -EINVAL;
@@ -3035,6 +3676,44 @@ static int sctp_setsockopt_default_send_param(struct sock *sk,
 		sp->default_ppid = info.sinfo_ppid;
 		sp->default_context = info.sinfo_context;
 		sp->default_timetolive = info.sinfo_timetolive;
+=======
+	asoc = sctp_id2assoc(sk, info->sinfo_assoc_id);
+	if (!asoc && info->sinfo_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		asoc->default_stream = info->sinfo_stream;
+		asoc->default_flags = info->sinfo_flags;
+		asoc->default_ppid = info->sinfo_ppid;
+		asoc->default_context = info->sinfo_context;
+		asoc->default_timetolive = info->sinfo_timetolive;
+
+		return 0;
+	}
+
+	if (sctp_style(sk, TCP))
+		info->sinfo_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (info->sinfo_assoc_id == SCTP_FUTURE_ASSOC ||
+	    info->sinfo_assoc_id == SCTP_ALL_ASSOC) {
+		sp->default_stream = info->sinfo_stream;
+		sp->default_flags = info->sinfo_flags;
+		sp->default_ppid = info->sinfo_ppid;
+		sp->default_context = info->sinfo_context;
+		sp->default_timetolive = info->sinfo_timetolive;
+	}
+
+	if (info->sinfo_assoc_id == SCTP_CURRENT_ASSOC ||
+	    info->sinfo_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs) {
+			asoc->default_stream = info->sinfo_stream;
+			asoc->default_flags = info->sinfo_flags;
+			asoc->default_ppid = info->sinfo_ppid;
+			asoc->default_context = info->sinfo_context;
+			asoc->default_timetolive = info->sinfo_timetolive;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -3044,11 +3723,16 @@ static int sctp_setsockopt_default_send_param(struct sock *sk,
  * (SCTP_DEFAULT_SNDINFO)
  */
 static int sctp_setsockopt_default_sndinfo(struct sock *sk,
+<<<<<<< HEAD
 					   char __user *optval,
+=======
+					   struct sctp_sndinfo *info,
+>>>>>>> upstream/android-13
 					   unsigned int optlen)
 {
 	struct sctp_sock *sp = sctp_sk(sk);
 	struct sctp_association *asoc;
+<<<<<<< HEAD
 	struct sctp_sndinfo info;
 
 	if (optlen != sizeof(info))
@@ -3056,10 +3740,17 @@ static int sctp_setsockopt_default_sndinfo(struct sock *sk,
 	if (copy_from_user(&info, optval, optlen))
 		return -EFAULT;
 	if (info.snd_flags &
+=======
+
+	if (optlen != sizeof(*info))
+		return -EINVAL;
+	if (info->snd_flags &
+>>>>>>> upstream/android-13
 	    ~(SCTP_UNORDERED | SCTP_ADDR_OVER |
 	      SCTP_ABORT | SCTP_EOF))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	asoc = sctp_id2assoc(sk, info.snd_assoc_id);
 	if (!asoc && info.snd_assoc_id && sctp_style(sk, UDP))
 		return -EINVAL;
@@ -3073,6 +3764,41 @@ static int sctp_setsockopt_default_sndinfo(struct sock *sk,
 		sp->default_flags = info.snd_flags;
 		sp->default_ppid = info.snd_ppid;
 		sp->default_context = info.snd_context;
+=======
+	asoc = sctp_id2assoc(sk, info->snd_assoc_id);
+	if (!asoc && info->snd_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		asoc->default_stream = info->snd_sid;
+		asoc->default_flags = info->snd_flags;
+		asoc->default_ppid = info->snd_ppid;
+		asoc->default_context = info->snd_context;
+
+		return 0;
+	}
+
+	if (sctp_style(sk, TCP))
+		info->snd_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (info->snd_assoc_id == SCTP_FUTURE_ASSOC ||
+	    info->snd_assoc_id == SCTP_ALL_ASSOC) {
+		sp->default_stream = info->snd_sid;
+		sp->default_flags = info->snd_flags;
+		sp->default_ppid = info->snd_ppid;
+		sp->default_context = info->snd_context;
+	}
+
+	if (info->snd_assoc_id == SCTP_CURRENT_ASSOC ||
+	    info->snd_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs) {
+			asoc->default_stream = info->snd_sid;
+			asoc->default_flags = info->snd_flags;
+			asoc->default_ppid = info->snd_ppid;
+			asoc->default_context = info->snd_context;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -3084,10 +3810,16 @@ static int sctp_setsockopt_default_sndinfo(struct sock *sk,
  * the association primary.  The enclosed address must be one of the
  * association peer's addresses.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_primary_addr(struct sock *sk, char __user *optval,
 					unsigned int optlen)
 {
 	struct sctp_prim prim;
+=======
+static int sctp_setsockopt_primary_addr(struct sock *sk, struct sctp_prim *prim,
+					unsigned int optlen)
+{
+>>>>>>> upstream/android-13
 	struct sctp_transport *trans;
 	struct sctp_af *af;
 	int err;
@@ -3095,21 +3827,34 @@ static int sctp_setsockopt_primary_addr(struct sock *sk, char __user *optval,
 	if (optlen != sizeof(struct sctp_prim))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (copy_from_user(&prim, optval, sizeof(struct sctp_prim)))
 		return -EFAULT;
 
 	/* Allow security module to validate address but need address len. */
 	af = sctp_get_af_specific(prim.ssp_addr.ss_family);
+=======
+	/* Allow security module to validate address but need address len. */
+	af = sctp_get_af_specific(prim->ssp_addr.ss_family);
+>>>>>>> upstream/android-13
 	if (!af)
 		return -EINVAL;
 
 	err = security_sctp_bind_connect(sk, SCTP_PRIMARY_ADDR,
+<<<<<<< HEAD
 					 (struct sockaddr *)&prim.ssp_addr,
+=======
+					 (struct sockaddr *)&prim->ssp_addr,
+>>>>>>> upstream/android-13
 					 af->sockaddr_len);
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	trans = sctp_addr_id2transport(sk, &prim.ssp_addr, prim.ssp_assoc_id);
+=======
+	trans = sctp_addr_id2transport(sk, &prim->ssp_addr, prim->ssp_assoc_id);
+>>>>>>> upstream/android-13
 	if (!trans)
 		return -EINVAL;
 
@@ -3126,6 +3871,7 @@ static int sctp_setsockopt_primary_addr(struct sock *sk, char __user *optval,
  * introduced, at the cost of more packets in the network.  Expects an
  *  integer boolean flag.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_nodelay(struct sock *sk, char __user *optval,
 				   unsigned int optlen)
 {
@@ -3137,6 +3883,14 @@ static int sctp_setsockopt_nodelay(struct sock *sk, char __user *optval,
 		return -EFAULT;
 
 	sctp_sk(sk)->nodelay = (val == 0) ? 0 : 1;
+=======
+static int sctp_setsockopt_nodelay(struct sock *sk, int *val,
+				   unsigned int optlen)
+{
+	if (optlen < sizeof(int))
+		return -EINVAL;
+	sctp_sk(sk)->nodelay = (*val == 0) ? 0 : 1;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3152,9 +3906,16 @@ static int sctp_setsockopt_nodelay(struct sock *sk, char __user *optval,
  * be changed.
  *
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_rtoinfo(struct sock *sk, char __user *optval, unsigned int optlen)
 {
 	struct sctp_rtoinfo rtoinfo;
+=======
+static int sctp_setsockopt_rtoinfo(struct sock *sk,
+				   struct sctp_rtoinfo *rtoinfo,
+				   unsigned int optlen)
+{
+>>>>>>> upstream/android-13
 	struct sctp_association *asoc;
 	unsigned long rto_min, rto_max;
 	struct sctp_sock *sp = sctp_sk(sk);
@@ -3162,6 +3923,7 @@ static int sctp_setsockopt_rtoinfo(struct sock *sk, char __user *optval, unsigne
 	if (optlen != sizeof (struct sctp_rtoinfo))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (copy_from_user(&rtoinfo, optval, optlen))
 		return -EFAULT;
 
@@ -3173,6 +3935,17 @@ static int sctp_setsockopt_rtoinfo(struct sock *sk, char __user *optval, unsigne
 
 	rto_max = rtoinfo.srto_max;
 	rto_min = rtoinfo.srto_min;
+=======
+	asoc = sctp_id2assoc(sk, rtoinfo->srto_assoc_id);
+
+	/* Set the values to the specific association */
+	if (!asoc && rtoinfo->srto_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	rto_max = rtoinfo->srto_max;
+	rto_min = rtoinfo->srto_min;
+>>>>>>> upstream/android-13
 
 	if (rto_max)
 		rto_max = asoc ? msecs_to_jiffies(rto_max) : rto_max;
@@ -3188,17 +3961,28 @@ static int sctp_setsockopt_rtoinfo(struct sock *sk, char __user *optval, unsigne
 		return -EINVAL;
 
 	if (asoc) {
+<<<<<<< HEAD
 		if (rtoinfo.srto_initial != 0)
 			asoc->rto_initial =
 				msecs_to_jiffies(rtoinfo.srto_initial);
+=======
+		if (rtoinfo->srto_initial != 0)
+			asoc->rto_initial =
+				msecs_to_jiffies(rtoinfo->srto_initial);
+>>>>>>> upstream/android-13
 		asoc->rto_max = rto_max;
 		asoc->rto_min = rto_min;
 	} else {
 		/* If there is no association or the association-id = 0
 		 * set the values to the endpoint.
 		 */
+<<<<<<< HEAD
 		if (rtoinfo.srto_initial != 0)
 			sp->rtoinfo.srto_initial = rtoinfo.srto_initial;
+=======
+		if (rtoinfo->srto_initial != 0)
+			sp->rtoinfo.srto_initial = rtoinfo->srto_initial;
+>>>>>>> upstream/android-13
 		sp->rtoinfo.srto_max = rto_max;
 		sp->rtoinfo.srto_min = rto_min;
 	}
@@ -3217,25 +4001,45 @@ static int sctp_setsockopt_rtoinfo(struct sock *sk, char __user *optval, unsigne
  * See [SCTP] for more information.
  *
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_associnfo(struct sock *sk, char __user *optval, unsigned int optlen)
 {
 
 	struct sctp_assocparams assocparams;
+=======
+static int sctp_setsockopt_associnfo(struct sock *sk,
+				     struct sctp_assocparams *assocparams,
+				     unsigned int optlen)
+{
+
+>>>>>>> upstream/android-13
 	struct sctp_association *asoc;
 
 	if (optlen != sizeof(struct sctp_assocparams))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (copy_from_user(&assocparams, optval, optlen))
 		return -EFAULT;
 
 	asoc = sctp_id2assoc(sk, assocparams.sasoc_assoc_id);
 
 	if (!asoc && assocparams.sasoc_assoc_id && sctp_style(sk, UDP))
+=======
+
+	asoc = sctp_id2assoc(sk, assocparams->sasoc_assoc_id);
+
+	if (!asoc && assocparams->sasoc_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* Set the values to the specific association */
 	if (asoc) {
+<<<<<<< HEAD
 		if (assocparams.sasoc_asocmaxrxt != 0) {
+=======
+		if (assocparams->sasoc_asocmaxrxt != 0) {
+>>>>>>> upstream/android-13
 			__u32 path_sum = 0;
 			int   paths = 0;
 			struct sctp_transport *peer_addr;
@@ -3252,6 +4056,7 @@ static int sctp_setsockopt_associnfo(struct sock *sk, char __user *optval, unsig
 			 * then one path.
 			 */
 			if (paths > 1 &&
+<<<<<<< HEAD
 			    assocparams.sasoc_asocmaxrxt > path_sum)
 				return -EINVAL;
 
@@ -3260,16 +4065,36 @@ static int sctp_setsockopt_associnfo(struct sock *sk, char __user *optval, unsig
 
 		if (assocparams.sasoc_cookie_life != 0)
 			asoc->cookie_life = ms_to_ktime(assocparams.sasoc_cookie_life);
+=======
+			    assocparams->sasoc_asocmaxrxt > path_sum)
+				return -EINVAL;
+
+			asoc->max_retrans = assocparams->sasoc_asocmaxrxt;
+		}
+
+		if (assocparams->sasoc_cookie_life != 0)
+			asoc->cookie_life =
+				ms_to_ktime(assocparams->sasoc_cookie_life);
+>>>>>>> upstream/android-13
 	} else {
 		/* Set the values to the endpoint */
 		struct sctp_sock *sp = sctp_sk(sk);
 
+<<<<<<< HEAD
 		if (assocparams.sasoc_asocmaxrxt != 0)
 			sp->assocparams.sasoc_asocmaxrxt =
 						assocparams.sasoc_asocmaxrxt;
 		if (assocparams.sasoc_cookie_life != 0)
 			sp->assocparams.sasoc_cookie_life =
 						assocparams.sasoc_cookie_life;
+=======
+		if (assocparams->sasoc_asocmaxrxt != 0)
+			sp->assocparams.sasoc_asocmaxrxt =
+						assocparams->sasoc_asocmaxrxt;
+		if (assocparams->sasoc_cookie_life != 0)
+			sp->assocparams.sasoc_cookie_life =
+						assocparams->sasoc_cookie_life;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -3284,16 +4109,26 @@ static int sctp_setsockopt_associnfo(struct sock *sk, char __user *optval, unsig
  * addresses and a user will receive both PF_INET6 and PF_INET type
  * addresses on the socket.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_mappedv4(struct sock *sk, char __user *optval, unsigned int optlen)
 {
 	int val;
+=======
+static int sctp_setsockopt_mappedv4(struct sock *sk, int *val,
+				    unsigned int optlen)
+{
+>>>>>>> upstream/android-13
 	struct sctp_sock *sp = sctp_sk(sk);
 
 	if (optlen < sizeof(int))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (get_user(val, (int __user *)optval))
 		return -EFAULT;
 	if (val)
+=======
+	if (*val)
+>>>>>>> upstream/android-13
 		sp->v4mapped = 1;
 	else
 		sp->v4mapped = 0;
@@ -3328,11 +4163,21 @@ static int sctp_setsockopt_mappedv4(struct sock *sk, char __user *optval, unsign
  *    changed (effecting future associations only).
  * assoc_value:  This parameter specifies the maximum size in bytes.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_maxseg(struct sock *sk, char __user *optval, unsigned int optlen)
 {
 	struct sctp_sock *sp = sctp_sk(sk);
 	struct sctp_assoc_value params;
 	struct sctp_association *asoc;
+=======
+static int sctp_setsockopt_maxseg(struct sock *sk,
+				  struct sctp_assoc_value *params,
+				  unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+	sctp_assoc_t assoc_id;
+>>>>>>> upstream/android-13
 	int val;
 
 	if (optlen == sizeof(int)) {
@@ -3341,6 +4186,7 @@ static int sctp_setsockopt_maxseg(struct sock *sk, char __user *optval, unsigned
 				    "Use of int in maxseg socket option.\n"
 				    "Use struct sctp_assoc_value instead\n",
 				    current->comm, task_pid_nr(current));
+<<<<<<< HEAD
 		if (copy_from_user(&val, optval, optlen))
 			return -EFAULT;
 		params.assoc_id = 0;
@@ -3348,11 +4194,25 @@ static int sctp_setsockopt_maxseg(struct sock *sk, char __user *optval, unsigned
 		if (copy_from_user(&params, optval, optlen))
 			return -EFAULT;
 		val = params.assoc_value;
+=======
+		assoc_id = SCTP_FUTURE_ASSOC;
+		val = *(int *)params;
+	} else if (optlen == sizeof(struct sctp_assoc_value)) {
+		assoc_id = params->assoc_id;
+		val = params->assoc_value;
+>>>>>>> upstream/android-13
 	} else {
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	asoc = sctp_id2assoc(sk, params.assoc_id);
+=======
+	asoc = sctp_id2assoc(sk, assoc_id);
+	if (!asoc && assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (val) {
 		int min_len, max_len;
@@ -3370,8 +4230,11 @@ static int sctp_setsockopt_maxseg(struct sock *sk, char __user *optval, unsigned
 		asoc->user_frag = val;
 		sctp_assoc_update_frag_point(asoc);
 	} else {
+<<<<<<< HEAD
 		if (params.assoc_id && sctp_style(sk, UDP))
 			return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 		sp->user_frag = val;
 	}
 
@@ -3387,12 +4250,20 @@ static int sctp_setsockopt_maxseg(struct sock *sk, char __user *optval, unsigned
  *   locally bound addresses. The following structure is used to make a
  *   set primary request:
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_peer_primary_addr(struct sock *sk, char __user *optval,
+=======
+static int sctp_setsockopt_peer_primary_addr(struct sock *sk,
+					     struct sctp_setpeerprim *prim,
+>>>>>>> upstream/android-13
 					     unsigned int optlen)
 {
 	struct sctp_sock	*sp;
 	struct sctp_association	*asoc = NULL;
+<<<<<<< HEAD
 	struct sctp_setpeerprim	prim;
+=======
+>>>>>>> upstream/android-13
 	struct sctp_chunk	*chunk;
 	struct sctp_af		*af;
 	int 			err;
@@ -3405,10 +4276,14 @@ static int sctp_setsockopt_peer_primary_addr(struct sock *sk, char __user *optva
 	if (optlen != sizeof(struct sctp_setpeerprim))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (copy_from_user(&prim, optval, optlen))
 		return -EFAULT;
 
 	asoc = sctp_id2assoc(sk, prim.sspp_assoc_id);
+=======
+	asoc = sctp_id2assoc(sk, prim->sspp_assoc_id);
+>>>>>>> upstream/android-13
 	if (!asoc)
 		return -EINVAL;
 
@@ -3421,6 +4296,7 @@ static int sctp_setsockopt_peer_primary_addr(struct sock *sk, char __user *optva
 	if (!sctp_state(asoc, ESTABLISHED))
 		return -ENOTCONN;
 
+<<<<<<< HEAD
 	af = sctp_get_af_specific(prim.sspp_addr.ss_family);
 	if (!af)
 		return -EINVAL;
@@ -3429,18 +4305,36 @@ static int sctp_setsockopt_peer_primary_addr(struct sock *sk, char __user *optva
 		return -EADDRNOTAVAIL;
 
 	if (!sctp_assoc_lookup_laddr(asoc, (union sctp_addr *)&prim.sspp_addr))
+=======
+	af = sctp_get_af_specific(prim->sspp_addr.ss_family);
+	if (!af)
+		return -EINVAL;
+
+	if (!af->addr_valid((union sctp_addr *)&prim->sspp_addr, sp, NULL))
+		return -EADDRNOTAVAIL;
+
+	if (!sctp_assoc_lookup_laddr(asoc, (union sctp_addr *)&prim->sspp_addr))
+>>>>>>> upstream/android-13
 		return -EADDRNOTAVAIL;
 
 	/* Allow security module to validate address. */
 	err = security_sctp_bind_connect(sk, SCTP_SET_PEER_PRIMARY_ADDR,
+<<<<<<< HEAD
 					 (struct sockaddr *)&prim.sspp_addr,
+=======
+					 (struct sockaddr *)&prim->sspp_addr,
+>>>>>>> upstream/android-13
 					 af->sockaddr_len);
 	if (err)
 		return err;
 
 	/* Create an ASCONF chunk with SET_PRIMARY parameter	*/
 	chunk = sctp_make_asconf_set_prim(asoc,
+<<<<<<< HEAD
 					  (union sctp_addr *)&prim.sspp_addr);
+=======
+					  (union sctp_addr *)&prim->sspp_addr);
+>>>>>>> upstream/android-13
 	if (!chunk)
 		return -ENOMEM;
 
@@ -3451,6 +4345,7 @@ static int sctp_setsockopt_peer_primary_addr(struct sock *sk, char __user *optva
 	return err;
 }
 
+<<<<<<< HEAD
 static int sctp_setsockopt_adaptation_layer(struct sock *sk, char __user *optval,
 					    unsigned int optlen)
 {
@@ -3462,6 +4357,16 @@ static int sctp_setsockopt_adaptation_layer(struct sock *sk, char __user *optval
 		return -EFAULT;
 
 	sctp_sk(sk)->adaptation_ind = adaptation.ssb_adaptation_ind;
+=======
+static int sctp_setsockopt_adaptation_layer(struct sock *sk,
+					    struct sctp_setadaptation *adapt,
+					    unsigned int optlen)
+{
+	if (optlen != sizeof(struct sctp_setadaptation))
+		return -EINVAL;
+
+	sctp_sk(sk)->adaptation_ind = adapt->ssb_adaptation_ind;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3480,15 +4385,24 @@ static int sctp_setsockopt_adaptation_layer(struct sock *sk, char __user *optval
  * received messages from the peer and does not effect the value that is
  * saved with outbound messages.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_context(struct sock *sk, char __user *optval,
 				   unsigned int optlen)
 {
 	struct sctp_assoc_value params;
 	struct sctp_sock *sp;
+=======
+static int sctp_setsockopt_context(struct sock *sk,
+				   struct sctp_assoc_value *params,
+				   unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+>>>>>>> upstream/android-13
 	struct sctp_association *asoc;
 
 	if (optlen != sizeof(struct sctp_assoc_value))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (copy_from_user(&params, optval, optlen))
 		return -EFAULT;
 
@@ -3503,6 +4417,32 @@ static int sctp_setsockopt_context(struct sock *sk, char __user *optval,
 		sp->default_rcv_context = params.assoc_value;
 	}
 
+=======
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		asoc->default_rcv_context = params->assoc_value;
+
+		return 0;
+	}
+
+	if (sctp_style(sk, TCP))
+		params->assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (params->assoc_id == SCTP_FUTURE_ASSOC ||
+	    params->assoc_id == SCTP_ALL_ASSOC)
+		sp->default_rcv_context = params->assoc_value;
+
+	if (params->assoc_id == SCTP_CURRENT_ASSOC ||
+	    params->assoc_id == SCTP_ALL_ASSOC)
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs)
+			asoc->default_rcv_context = params->assoc_value;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3530,6 +4470,7 @@ static int sctp_setsockopt_context(struct sock *sk, char __user *optval,
  * application using the one to many model may become confused and act
  * incorrectly.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_fragment_interleave(struct sock *sk,
 					       char __user *optval,
 					       unsigned int optlen)
@@ -3545,6 +4486,18 @@ static int sctp_setsockopt_fragment_interleave(struct sock *sk,
 
 	if (!sctp_sk(sk)->frag_interleave)
 		sctp_sk(sk)->strm_interleave = 0;
+=======
+static int sctp_setsockopt_fragment_interleave(struct sock *sk, int *val,
+					       unsigned int optlen)
+{
+	if (optlen != sizeof(int))
+		return -EINVAL;
+
+	sctp_sk(sk)->frag_interleave = !!*val;
+
+	if (!sctp_sk(sk)->frag_interleave)
+		sctp_sk(sk)->ep->intl_enable = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3566,6 +4519,7 @@ static int sctp_setsockopt_fragment_interleave(struct sock *sk,
  * call as long as the user provided buffer is large enough to hold the
  * message.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_partial_delivery_point(struct sock *sk,
 						  char __user *optval,
 						  unsigned int optlen)
@@ -3576,14 +4530,28 @@ static int sctp_setsockopt_partial_delivery_point(struct sock *sk,
 		return -EINVAL;
 	if (get_user(val, (int __user *)optval))
 		return -EFAULT;
+=======
+static int sctp_setsockopt_partial_delivery_point(struct sock *sk, u32 *val,
+						  unsigned int optlen)
+{
+	if (optlen != sizeof(u32))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	/* Note: We double the receive buffer from what the user sets
 	 * it to be, also initial rwnd is based on rcvbuf/2.
 	 */
+<<<<<<< HEAD
 	if (val > (sk->sk_rcvbuf >> 1))
 		return -EINVAL;
 
 	sctp_sk(sk)->pd_point = val;
+=======
+	if (*val > (sk->sk_rcvbuf >> 1))
+		return -EINVAL;
+
+	sctp_sk(sk)->pd_point = *val;
+>>>>>>> upstream/android-13
 
 	return 0; /* is this the right error code? */
 }
@@ -3600,6 +4568,7 @@ static int sctp_setsockopt_partial_delivery_point(struct sock *sk,
  * future associations inheriting the socket value.
  */
 static int sctp_setsockopt_maxburst(struct sock *sk,
+<<<<<<< HEAD
 				    char __user *optval,
 				    unsigned int optlen)
 {
@@ -3608,6 +4577,15 @@ static int sctp_setsockopt_maxburst(struct sock *sk,
 	struct sctp_association *asoc;
 	int val;
 	int assoc_id = 0;
+=======
+				    struct sctp_assoc_value *params,
+				    unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+	sctp_assoc_t assoc_id;
+	u32 assoc_value;
+>>>>>>> upstream/android-13
 
 	if (optlen == sizeof(int)) {
 		pr_warn_ratelimited(DEPRECATED
@@ -3615,6 +4593,7 @@ static int sctp_setsockopt_maxburst(struct sock *sk,
 				    "Use of int in max_burst socket option deprecated.\n"
 				    "Use struct sctp_assoc_value instead\n",
 				    current->comm, task_pid_nr(current));
+<<<<<<< HEAD
 		if (copy_from_user(&val, optval, optlen))
 			return -EFAULT;
 	} else if (optlen == sizeof(struct sctp_assoc_value)) {
@@ -3634,6 +4613,35 @@ static int sctp_setsockopt_maxburst(struct sock *sk,
 		asoc->max_burst = val;
 	} else
 		sp->max_burst = val;
+=======
+		assoc_id = SCTP_FUTURE_ASSOC;
+		assoc_value = *((int *)params);
+	} else if (optlen == sizeof(struct sctp_assoc_value)) {
+		assoc_id = params->assoc_id;
+		assoc_value = params->assoc_value;
+	} else
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, assoc_id);
+	if (!asoc && assoc_id > SCTP_ALL_ASSOC && sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		asoc->max_burst = assoc_value;
+
+		return 0;
+	}
+
+	if (sctp_style(sk, TCP))
+		assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (assoc_id == SCTP_FUTURE_ASSOC || assoc_id == SCTP_ALL_ASSOC)
+		sp->max_burst = assoc_value;
+
+	if (assoc_id == SCTP_CURRENT_ASSOC || assoc_id == SCTP_ALL_ASSOC)
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs)
+			asoc->max_burst = assoc_value;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3646,21 +4654,33 @@ static int sctp_setsockopt_maxburst(struct sock *sk,
  * will only effect future associations on the socket.
  */
 static int sctp_setsockopt_auth_chunk(struct sock *sk,
+<<<<<<< HEAD
 				      char __user *optval,
 				      unsigned int optlen)
 {
 	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
 	struct sctp_authchunk val;
+=======
+				      struct sctp_authchunk *val,
+				      unsigned int optlen)
+{
+	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+>>>>>>> upstream/android-13
 
 	if (!ep->auth_enable)
 		return -EACCES;
 
 	if (optlen != sizeof(struct sctp_authchunk))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (copy_from_user(&val, optval, optlen))
 		return -EFAULT;
 
 	switch (val.sauth_chunk) {
+=======
+
+	switch (val->sauth_chunk) {
+>>>>>>> upstream/android-13
 	case SCTP_CID_INIT:
 	case SCTP_CID_INIT_ACK:
 	case SCTP_CID_SHUTDOWN_COMPLETE:
@@ -3669,7 +4689,11 @@ static int sctp_setsockopt_auth_chunk(struct sock *sk,
 	}
 
 	/* add this chunk id to the endpoint */
+<<<<<<< HEAD
 	return sctp_auth_ep_add_chunkid(ep, val.sauth_chunk);
+=======
+	return sctp_auth_ep_add_chunkid(ep, val->sauth_chunk);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3679,6 +4703,7 @@ static int sctp_setsockopt_auth_chunk(struct sock *sk,
  * endpoint requires the peer to use.
  */
 static int sctp_setsockopt_hmac_ident(struct sock *sk,
+<<<<<<< HEAD
 				      char __user *optval,
 				      unsigned int optlen)
 {
@@ -3686,6 +4711,13 @@ static int sctp_setsockopt_hmac_ident(struct sock *sk,
 	struct sctp_hmacalgo *hmacs;
 	u32 idents;
 	int err;
+=======
+				      struct sctp_hmacalgo *hmacs,
+				      unsigned int optlen)
+{
+	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+	u32 idents;
+>>>>>>> upstream/android-13
 
 	if (!ep->auth_enable)
 		return -EACCES;
@@ -3695,6 +4727,7 @@ static int sctp_setsockopt_hmac_ident(struct sock *sk,
 	optlen = min_t(unsigned int, optlen, sizeof(struct sctp_hmacalgo) +
 					     SCTP_AUTH_NUM_HMACS * sizeof(u16));
 
+<<<<<<< HEAD
 	hmacs = memdup_user(optval, optlen);
 	if (IS_ERR(hmacs))
 		return PTR_ERR(hmacs);
@@ -3710,6 +4743,14 @@ static int sctp_setsockopt_hmac_ident(struct sock *sk,
 out:
 	kfree(hmacs);
 	return err;
+=======
+	idents = hmacs->shmac_num_idents;
+	if (idents == 0 || idents > SCTP_AUTH_NUM_HMACS ||
+	    (idents * sizeof(u16)) > (optlen - sizeof(struct sctp_hmacalgo)))
+		return -EINVAL;
+
+	return sctp_auth_ep_set_hmacs(ep, hmacs);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3719,6 +4760,7 @@ out:
  * association shared key.
  */
 static int sctp_setsockopt_auth_key(struct sock *sk,
+<<<<<<< HEAD
 				    char __user *optval,
 				    unsigned int optlen)
 {
@@ -3729,12 +4771,21 @@ static int sctp_setsockopt_auth_key(struct sock *sk,
 
 	if (!ep->auth_enable)
 		return -EACCES;
+=======
+				    struct sctp_authkey *authkey,
+				    unsigned int optlen)
+{
+	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+	struct sctp_association *asoc;
+	int ret = -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (optlen <= sizeof(struct sctp_authkey))
 		return -EINVAL;
 	/* authkey->sca_keylength is u16, so optlen can't be bigger than
 	 * this.
 	 */
+<<<<<<< HEAD
 	optlen = min_t(unsigned int, optlen, USHRT_MAX +
 					     sizeof(struct sctp_authkey));
 
@@ -3756,6 +4807,47 @@ static int sctp_setsockopt_auth_key(struct sock *sk,
 	ret = sctp_auth_set_key(ep, asoc, authkey);
 out:
 	kzfree(authkey);
+=======
+	optlen = min_t(unsigned int, optlen, USHRT_MAX + sizeof(*authkey));
+
+	if (authkey->sca_keylength > optlen - sizeof(*authkey))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, authkey->sca_assoc_id);
+	if (!asoc && authkey->sca_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	if (asoc) {
+		ret = sctp_auth_set_key(ep, asoc, authkey);
+		goto out;
+	}
+
+	if (sctp_style(sk, TCP))
+		authkey->sca_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (authkey->sca_assoc_id == SCTP_FUTURE_ASSOC ||
+	    authkey->sca_assoc_id == SCTP_ALL_ASSOC) {
+		ret = sctp_auth_set_key(ep, asoc, authkey);
+		if (ret)
+			goto out;
+	}
+
+	ret = 0;
+
+	if (authkey->sca_assoc_id == SCTP_CURRENT_ASSOC ||
+	    authkey->sca_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &ep->asocs, asocs) {
+			int res = sctp_auth_set_key(ep, asoc, authkey);
+
+			if (res && !ret)
+				ret = res;
+		}
+	}
+
+out:
+	memzero_explicit(authkey, optlen);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -3766,6 +4858,7 @@ out:
  * the association shared key.
  */
 static int sctp_setsockopt_active_key(struct sock *sk,
+<<<<<<< HEAD
 				      char __user *optval,
 				      unsigned int optlen)
 {
@@ -3786,6 +4879,48 @@ static int sctp_setsockopt_active_key(struct sock *sk,
 		return -EINVAL;
 
 	return sctp_auth_set_active_key(ep, asoc, val.scact_keynumber);
+=======
+				      struct sctp_authkeyid *val,
+				      unsigned int optlen)
+{
+	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+	struct sctp_association *asoc;
+	int ret = 0;
+
+	if (optlen != sizeof(struct sctp_authkeyid))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, val->scact_assoc_id);
+	if (!asoc && val->scact_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc)
+		return sctp_auth_set_active_key(ep, asoc, val->scact_keynumber);
+
+	if (sctp_style(sk, TCP))
+		val->scact_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (val->scact_assoc_id == SCTP_FUTURE_ASSOC ||
+	    val->scact_assoc_id == SCTP_ALL_ASSOC) {
+		ret = sctp_auth_set_active_key(ep, asoc, val->scact_keynumber);
+		if (ret)
+			return ret;
+	}
+
+	if (val->scact_assoc_id == SCTP_CURRENT_ASSOC ||
+	    val->scact_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &ep->asocs, asocs) {
+			int res = sctp_auth_set_active_key(ep, asoc,
+							   val->scact_keynumber);
+
+			if (res && !ret)
+				ret = res;
+		}
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3794,6 +4929,7 @@ static int sctp_setsockopt_active_key(struct sock *sk,
  * This set option will delete a shared secret key from use.
  */
 static int sctp_setsockopt_del_key(struct sock *sk,
+<<<<<<< HEAD
 				   char __user *optval,
 				   unsigned int optlen)
 {
@@ -3815,6 +4951,48 @@ static int sctp_setsockopt_del_key(struct sock *sk,
 
 	return sctp_auth_del_key_id(ep, asoc, val.scact_keynumber);
 
+=======
+				   struct sctp_authkeyid *val,
+				   unsigned int optlen)
+{
+	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+	struct sctp_association *asoc;
+	int ret = 0;
+
+	if (optlen != sizeof(struct sctp_authkeyid))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, val->scact_assoc_id);
+	if (!asoc && val->scact_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc)
+		return sctp_auth_del_key_id(ep, asoc, val->scact_keynumber);
+
+	if (sctp_style(sk, TCP))
+		val->scact_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (val->scact_assoc_id == SCTP_FUTURE_ASSOC ||
+	    val->scact_assoc_id == SCTP_ALL_ASSOC) {
+		ret = sctp_auth_del_key_id(ep, asoc, val->scact_keynumber);
+		if (ret)
+			return ret;
+	}
+
+	if (val->scact_assoc_id == SCTP_CURRENT_ASSOC ||
+	    val->scact_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &ep->asocs, asocs) {
+			int res = sctp_auth_del_key_id(ep, asoc,
+						       val->scact_keynumber);
+
+			if (res && !ret)
+				ret = res;
+		}
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3822,6 +5000,7 @@ static int sctp_setsockopt_del_key(struct sock *sk,
  *
  * This set option will deactivate a shared secret key.
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_deactivate_key(struct sock *sk, char __user *optval,
 					  unsigned int optlen)
 {
@@ -3842,6 +5021,49 @@ static int sctp_setsockopt_deactivate_key(struct sock *sk, char __user *optval,
 		return -EINVAL;
 
 	return sctp_auth_deact_key_id(ep, asoc, val.scact_keynumber);
+=======
+static int sctp_setsockopt_deactivate_key(struct sock *sk,
+					  struct sctp_authkeyid *val,
+					  unsigned int optlen)
+{
+	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+	struct sctp_association *asoc;
+	int ret = 0;
+
+	if (optlen != sizeof(struct sctp_authkeyid))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, val->scact_assoc_id);
+	if (!asoc && val->scact_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc)
+		return sctp_auth_deact_key_id(ep, asoc, val->scact_keynumber);
+
+	if (sctp_style(sk, TCP))
+		val->scact_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (val->scact_assoc_id == SCTP_FUTURE_ASSOC ||
+	    val->scact_assoc_id == SCTP_ALL_ASSOC) {
+		ret = sctp_auth_deact_key_id(ep, asoc, val->scact_keynumber);
+		if (ret)
+			return ret;
+	}
+
+	if (val->scact_assoc_id == SCTP_CURRENT_ASSOC ||
+	    val->scact_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &ep->asocs, asocs) {
+			int res = sctp_auth_deact_key_id(ep, asoc,
+							 val->scact_keynumber);
+
+			if (res && !ret)
+				ret = res;
+		}
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3858,14 +5080,21 @@ static int sctp_setsockopt_deactivate_key(struct sock *sk, char __user *optval,
  * Note. In this implementation, socket operation overrides default parameter
  * being set by sysctl as well as FreeBSD implementation
  */
+<<<<<<< HEAD
 static int sctp_setsockopt_auto_asconf(struct sock *sk, char __user *optval,
 					unsigned int optlen)
 {
 	int val;
+=======
+static int sctp_setsockopt_auto_asconf(struct sock *sk, int *val,
+					unsigned int optlen)
+{
+>>>>>>> upstream/android-13
 	struct sctp_sock *sp = sctp_sk(sk);
 
 	if (optlen < sizeof(int))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (get_user(val, (int __user *)optval))
 		return -EFAULT;
 	if (!sctp_is_ep_boundall(sk) && val)
@@ -3878,6 +5107,18 @@ static int sctp_setsockopt_auto_asconf(struct sock *sk, char __user *optval,
 		list_del(&sp->auto_asconf_list);
 		sp->do_auto_asconf = 0;
 	} else if (val && !sp->do_auto_asconf) {
+=======
+	if (!sctp_is_ep_boundall(sk) && *val)
+		return -EINVAL;
+	if ((*val && sp->do_auto_asconf) || (!*val && !sp->do_auto_asconf))
+		return 0;
+
+	spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
+	if (*val == 0 && sp->do_auto_asconf) {
+		list_del(&sp->auto_asconf_list);
+		sp->do_auto_asconf = 0;
+	} else if (*val && !sp->do_auto_asconf) {
+>>>>>>> upstream/android-13
 		list_add_tail(&sp->auto_asconf_list,
 		    &sock_net(sk)->sctp.auto_asconf_splist);
 		sp->do_auto_asconf = 1;
@@ -3894,6 +5135,7 @@ static int sctp_setsockopt_auto_asconf(struct sock *sk, char __user *optval,
  * http://www.ietf.org/id/draft-nishida-tsvwg-sctp-failover-05.txt
  */
 static int sctp_setsockopt_paddr_thresholds(struct sock *sk,
+<<<<<<< HEAD
 					    char __user *optval,
 					    unsigned int optlen)
 {
@@ -3931,11 +5173,71 @@ static int sctp_setsockopt_paddr_thresholds(struct sock *sk,
 		if (val.spt_pathmaxrxt)
 			trans->pathmaxrxt = val.spt_pathmaxrxt;
 		trans->pf_retrans = val.spt_pathpfthld;
+=======
+					    struct sctp_paddrthlds_v2 *val,
+					    unsigned int optlen, bool v2)
+{
+	struct sctp_transport *trans;
+	struct sctp_association *asoc;
+	int len;
+
+	len = v2 ? sizeof(*val) : sizeof(struct sctp_paddrthlds);
+	if (optlen < len)
+		return -EINVAL;
+
+	if (v2 && val->spt_pathpfthld > val->spt_pathcpthld)
+		return -EINVAL;
+
+	if (!sctp_is_any(sk, (const union sctp_addr *)&val->spt_address)) {
+		trans = sctp_addr_id2transport(sk, &val->spt_address,
+					       val->spt_assoc_id);
+		if (!trans)
+			return -ENOENT;
+
+		if (val->spt_pathmaxrxt)
+			trans->pathmaxrxt = val->spt_pathmaxrxt;
+		if (v2)
+			trans->ps_retrans = val->spt_pathcpthld;
+		trans->pf_retrans = val->spt_pathpfthld;
+
+		return 0;
+	}
+
+	asoc = sctp_id2assoc(sk, val->spt_assoc_id);
+	if (!asoc && val->spt_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		list_for_each_entry(trans, &asoc->peer.transport_addr_list,
+				    transports) {
+			if (val->spt_pathmaxrxt)
+				trans->pathmaxrxt = val->spt_pathmaxrxt;
+			if (v2)
+				trans->ps_retrans = val->spt_pathcpthld;
+			trans->pf_retrans = val->spt_pathpfthld;
+		}
+
+		if (val->spt_pathmaxrxt)
+			asoc->pathmaxrxt = val->spt_pathmaxrxt;
+		if (v2)
+			asoc->ps_retrans = val->spt_pathcpthld;
+		asoc->pf_retrans = val->spt_pathpfthld;
+	} else {
+		struct sctp_sock *sp = sctp_sk(sk);
+
+		if (val->spt_pathmaxrxt)
+			sp->pathmaxrxt = val->spt_pathmaxrxt;
+		if (v2)
+			sp->ps_retrans = val->spt_pathcpthld;
+		sp->pf_retrans = val->spt_pathpfthld;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sctp_setsockopt_recvrcvinfo(struct sock *sk,
 				       char __user *optval,
 				       unsigned int optlen)
@@ -3948,10 +5250,20 @@ static int sctp_setsockopt_recvrcvinfo(struct sock *sk,
 		return -EFAULT;
 
 	sctp_sk(sk)->recvrcvinfo = (val == 0) ? 0 : 1;
+=======
+static int sctp_setsockopt_recvrcvinfo(struct sock *sk, int *val,
+				       unsigned int optlen)
+{
+	if (optlen < sizeof(int))
+		return -EINVAL;
+
+	sctp_sk(sk)->recvrcvinfo = (*val == 0) ? 0 : 1;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sctp_setsockopt_recvnxtinfo(struct sock *sk,
 				       char __user *optval,
 				       unsigned int optlen)
@@ -3964,11 +5276,21 @@ static int sctp_setsockopt_recvnxtinfo(struct sock *sk,
 		return -EFAULT;
 
 	sctp_sk(sk)->recvnxtinfo = (val == 0) ? 0 : 1;
+=======
+static int sctp_setsockopt_recvnxtinfo(struct sock *sk, int *val,
+				       unsigned int optlen)
+{
+	if (optlen < sizeof(int))
+		return -EINVAL;
+
+	sctp_sk(sk)->recvnxtinfo = (*val == 0) ? 0 : 1;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int sctp_setsockopt_pr_supported(struct sock *sk,
+<<<<<<< HEAD
 					char __user *optval,
 					unsigned int optlen)
 {
@@ -3981,11 +5303,28 @@ static int sctp_setsockopt_pr_supported(struct sock *sk,
 		return -EFAULT;
 
 	sctp_sk(sk)->ep->prsctp_enable = !!params.assoc_value;
+=======
+					struct sctp_assoc_value *params,
+					unsigned int optlen)
+{
+	struct sctp_association *asoc;
+
+	if (optlen != sizeof(*params))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	sctp_sk(sk)->ep->prsctp_enable = !!params->assoc_value;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static int sctp_setsockopt_default_prinfo(struct sock *sk,
+<<<<<<< HEAD
 					  char __user *optval,
 					  unsigned int optlen)
 {
@@ -4022,11 +5361,61 @@ static int sctp_setsockopt_default_prinfo(struct sock *sk,
 
 	retval = 0;
 
+=======
+					  struct sctp_default_prinfo *info,
+					  unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+	int retval = -EINVAL;
+
+	if (optlen != sizeof(*info))
+		goto out;
+
+	if (info->pr_policy & ~SCTP_PR_SCTP_MASK)
+		goto out;
+
+	if (info->pr_policy == SCTP_PR_SCTP_NONE)
+		info->pr_value = 0;
+
+	asoc = sctp_id2assoc(sk, info->pr_assoc_id);
+	if (!asoc && info->pr_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	retval = 0;
+
+	if (asoc) {
+		SCTP_PR_SET_POLICY(asoc->default_flags, info->pr_policy);
+		asoc->default_timetolive = info->pr_value;
+		goto out;
+	}
+
+	if (sctp_style(sk, TCP))
+		info->pr_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (info->pr_assoc_id == SCTP_FUTURE_ASSOC ||
+	    info->pr_assoc_id == SCTP_ALL_ASSOC) {
+		SCTP_PR_SET_POLICY(sp->default_flags, info->pr_policy);
+		sp->default_timetolive = info->pr_value;
+	}
+
+	if (info->pr_assoc_id == SCTP_CURRENT_ASSOC ||
+	    info->pr_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs) {
+			SCTP_PR_SET_POLICY(asoc->default_flags,
+					   info->pr_policy);
+			asoc->default_timetolive = info->pr_value;
+		}
+	}
+
+>>>>>>> upstream/android-13
 out:
 	return retval;
 }
 
 static int sctp_setsockopt_reconfig_supported(struct sock *sk,
+<<<<<<< HEAD
 					      char __user *optval,
 					      unsigned int optlen)
 {
@@ -4052,6 +5441,23 @@ static int sctp_setsockopt_reconfig_supported(struct sock *sk,
 	} else {
 		goto out;
 	}
+=======
+					      struct sctp_assoc_value *params,
+					      unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	int retval = -EINVAL;
+
+	if (optlen != sizeof(*params))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	sctp_sk(sk)->ep->reconf_enable = !!params->assoc_value;
+>>>>>>> upstream/android-13
 
 	retval = 0;
 
@@ -4060,6 +5466,7 @@ out:
 }
 
 static int sctp_setsockopt_enable_strreset(struct sock *sk,
+<<<<<<< HEAD
 					   char __user *optval,
 					   unsigned int optlen)
 {
@@ -4091,17 +5498,63 @@ static int sctp_setsockopt_enable_strreset(struct sock *sk,
 
 	retval = 0;
 
+=======
+					   struct sctp_assoc_value *params,
+					   unsigned int optlen)
+{
+	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+	struct sctp_association *asoc;
+	int retval = -EINVAL;
+
+	if (optlen != sizeof(*params))
+		goto out;
+
+	if (params->assoc_value & (~SCTP_ENABLE_STRRESET_MASK))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	retval = 0;
+
+	if (asoc) {
+		asoc->strreset_enable = params->assoc_value;
+		goto out;
+	}
+
+	if (sctp_style(sk, TCP))
+		params->assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (params->assoc_id == SCTP_FUTURE_ASSOC ||
+	    params->assoc_id == SCTP_ALL_ASSOC)
+		ep->strreset_enable = params->assoc_value;
+
+	if (params->assoc_id == SCTP_CURRENT_ASSOC ||
+	    params->assoc_id == SCTP_ALL_ASSOC)
+		list_for_each_entry(asoc, &ep->asocs, asocs)
+			asoc->strreset_enable = params->assoc_value;
+
+>>>>>>> upstream/android-13
 out:
 	return retval;
 }
 
 static int sctp_setsockopt_reset_streams(struct sock *sk,
+<<<<<<< HEAD
 					 char __user *optval,
 					 unsigned int optlen)
 {
 	struct sctp_reset_streams *params;
 	struct sctp_association *asoc;
 	int retval = -EINVAL;
+=======
+					 struct sctp_reset_streams *params,
+					 unsigned int optlen)
+{
+	struct sctp_association *asoc;
+>>>>>>> upstream/android-13
 
 	if (optlen < sizeof(*params))
 		return -EINVAL;
@@ -4109,6 +5562,7 @@ static int sctp_setsockopt_reset_streams(struct sock *sk,
 	optlen = min_t(unsigned int, optlen, USHRT_MAX +
 					     sizeof(__u16) * sizeof(*params));
 
+<<<<<<< HEAD
 	params = memdup_user(optval, optlen);
 	if (IS_ERR(params))
 		return PTR_ERR(params);
@@ -4207,10 +5661,95 @@ static int sctp_setsockopt_scheduler(struct sock *sk,
 	retval = sctp_sched_set_sched(asoc, params.assoc_value);
 
 out:
+=======
+	if (params->srs_number_streams * sizeof(__u16) >
+	    optlen - sizeof(*params))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, params->srs_assoc_id);
+	if (!asoc)
+		return -EINVAL;
+
+	return sctp_send_reset_streams(asoc, params);
+}
+
+static int sctp_setsockopt_reset_assoc(struct sock *sk, sctp_assoc_t *associd,
+				       unsigned int optlen)
+{
+	struct sctp_association *asoc;
+
+	if (optlen != sizeof(*associd))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, *associd);
+	if (!asoc)
+		return -EINVAL;
+
+	return sctp_send_reset_assoc(asoc);
+}
+
+static int sctp_setsockopt_add_streams(struct sock *sk,
+				       struct sctp_add_streams *params,
+				       unsigned int optlen)
+{
+	struct sctp_association *asoc;
+
+	if (optlen != sizeof(*params))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, params->sas_assoc_id);
+	if (!asoc)
+		return -EINVAL;
+
+	return sctp_send_add_streams(asoc, params);
+}
+
+static int sctp_setsockopt_scheduler(struct sock *sk,
+				     struct sctp_assoc_value *params,
+				     unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+	int retval = 0;
+
+	if (optlen < sizeof(*params))
+		return -EINVAL;
+
+	if (params->assoc_value > SCTP_SS_MAX)
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc)
+		return sctp_sched_set_sched(asoc, params->assoc_value);
+
+	if (sctp_style(sk, TCP))
+		params->assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (params->assoc_id == SCTP_FUTURE_ASSOC ||
+	    params->assoc_id == SCTP_ALL_ASSOC)
+		sp->default_ss = params->assoc_value;
+
+	if (params->assoc_id == SCTP_CURRENT_ASSOC ||
+	    params->assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs) {
+			int ret = sctp_sched_set_sched(asoc,
+						       params->assoc_value);
+
+			if (ret && !retval)
+				retval = ret;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return retval;
 }
 
 static int sctp_setsockopt_scheduler_value(struct sock *sk,
+<<<<<<< HEAD
 					   char __user *optval,
 					   unsigned int optlen)
 {
@@ -4233,12 +5772,44 @@ static int sctp_setsockopt_scheduler_value(struct sock *sk,
 
 	retval = sctp_sched_set_value(asoc, params.stream_id,
 				      params.stream_value, GFP_KERNEL);
+=======
+					   struct sctp_stream_value *params,
+					   unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	int retval = -EINVAL;
+
+	if (optlen < sizeof(*params))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id != SCTP_CURRENT_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	if (asoc) {
+		retval = sctp_sched_set_value(asoc, params->stream_id,
+					      params->stream_value, GFP_KERNEL);
+		goto out;
+	}
+
+	retval = 0;
+
+	list_for_each_entry(asoc, &sctp_sk(sk)->ep->asocs, asocs) {
+		int ret = sctp_sched_set_value(asoc, params->stream_id,
+					       params->stream_value,
+					       GFP_KERNEL);
+		if (ret && !retval) /* try to return the 1st error. */
+			retval = ret;
+	}
+>>>>>>> upstream/android-13
 
 out:
 	return retval;
 }
 
 static int sctp_setsockopt_interleaving_supported(struct sock *sk,
+<<<<<<< HEAD
 						  char __user *optval,
 						  unsigned int optlen)
 {
@@ -4277,6 +5848,32 @@ static int sctp_setsockopt_reuse_port(struct sock *sk, char __user *optval,
 {
 	int val;
 
+=======
+						  struct sctp_assoc_value *p,
+						  unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+
+	if (optlen < sizeof(*p))
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, p->assoc_id);
+	if (!asoc && p->assoc_id != SCTP_FUTURE_ASSOC && sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (!sock_net(sk)->sctp.intl_enable || !sp->frag_interleave) {
+		return -EPERM;
+	}
+
+	sp->ep->intl_enable = !!p->assoc_value;
+	return 0;
+}
+
+static int sctp_setsockopt_reuse_port(struct sock *sk, int *val,
+				      unsigned int optlen)
+{
+>>>>>>> upstream/android-13
 	if (!sctp_style(sk, TCP))
 		return -EOPNOTSUPP;
 
@@ -4286,11 +5883,299 @@ static int sctp_setsockopt_reuse_port(struct sock *sk, char __user *optval,
 	if (optlen < sizeof(int))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (get_user(val, (int __user *)optval))
 		return -EFAULT;
 
 	sctp_sk(sk)->reuse = !!val;
 
+=======
+	sctp_sk(sk)->reuse = !!*val;
+
+	return 0;
+}
+
+static int sctp_assoc_ulpevent_type_set(struct sctp_event *param,
+					struct sctp_association *asoc)
+{
+	struct sctp_ulpevent *event;
+
+	sctp_ulpevent_type_set(&asoc->subscribe, param->se_type, param->se_on);
+
+	if (param->se_type == SCTP_SENDER_DRY_EVENT && param->se_on) {
+		if (sctp_outq_is_empty(&asoc->outqueue)) {
+			event = sctp_ulpevent_make_sender_dry_event(asoc,
+					GFP_USER | __GFP_NOWARN);
+			if (!event)
+				return -ENOMEM;
+
+			asoc->stream.si->enqueue_event(&asoc->ulpq, event);
+		}
+	}
+
+	return 0;
+}
+
+static int sctp_setsockopt_event(struct sock *sk, struct sctp_event *param,
+				 unsigned int optlen)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	struct sctp_association *asoc;
+	int retval = 0;
+
+	if (optlen < sizeof(*param))
+		return -EINVAL;
+
+	if (param->se_type < SCTP_SN_TYPE_BASE ||
+	    param->se_type > SCTP_SN_TYPE_MAX)
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, param->se_assoc_id);
+	if (!asoc && param->se_assoc_id > SCTP_ALL_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc)
+		return sctp_assoc_ulpevent_type_set(param, asoc);
+
+	if (sctp_style(sk, TCP))
+		param->se_assoc_id = SCTP_FUTURE_ASSOC;
+
+	if (param->se_assoc_id == SCTP_FUTURE_ASSOC ||
+	    param->se_assoc_id == SCTP_ALL_ASSOC)
+		sctp_ulpevent_type_set(&sp->subscribe,
+				       param->se_type, param->se_on);
+
+	if (param->se_assoc_id == SCTP_CURRENT_ASSOC ||
+	    param->se_assoc_id == SCTP_ALL_ASSOC) {
+		list_for_each_entry(asoc, &sp->ep->asocs, asocs) {
+			int ret = sctp_assoc_ulpevent_type_set(param, asoc);
+
+			if (ret && !retval)
+				retval = ret;
+		}
+	}
+
+	return retval;
+}
+
+static int sctp_setsockopt_asconf_supported(struct sock *sk,
+					    struct sctp_assoc_value *params,
+					    unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	struct sctp_endpoint *ep;
+	int retval = -EINVAL;
+
+	if (optlen != sizeof(*params))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	ep = sctp_sk(sk)->ep;
+	ep->asconf_enable = !!params->assoc_value;
+
+	if (ep->asconf_enable && ep->auth_enable) {
+		sctp_auth_ep_add_chunkid(ep, SCTP_CID_ASCONF);
+		sctp_auth_ep_add_chunkid(ep, SCTP_CID_ASCONF_ACK);
+	}
+
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_setsockopt_auth_supported(struct sock *sk,
+					  struct sctp_assoc_value *params,
+					  unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	struct sctp_endpoint *ep;
+	int retval = -EINVAL;
+
+	if (optlen != sizeof(*params))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	ep = sctp_sk(sk)->ep;
+	if (params->assoc_value) {
+		retval = sctp_auth_init(ep, GFP_KERNEL);
+		if (retval)
+			goto out;
+		if (ep->asconf_enable) {
+			sctp_auth_ep_add_chunkid(ep, SCTP_CID_ASCONF);
+			sctp_auth_ep_add_chunkid(ep, SCTP_CID_ASCONF_ACK);
+		}
+	}
+
+	ep->auth_enable = !!params->assoc_value;
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_setsockopt_ecn_supported(struct sock *sk,
+					 struct sctp_assoc_value *params,
+					 unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	int retval = -EINVAL;
+
+	if (optlen != sizeof(*params))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	sctp_sk(sk)->ep->ecn_enable = !!params->assoc_value;
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_setsockopt_pf_expose(struct sock *sk,
+				     struct sctp_assoc_value *params,
+				     unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	int retval = -EINVAL;
+
+	if (optlen != sizeof(*params))
+		goto out;
+
+	if (params->assoc_value > SCTP_PF_EXPOSE_MAX)
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params->assoc_id);
+	if (!asoc && params->assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		goto out;
+
+	if (asoc)
+		asoc->pf_expose = params->assoc_value;
+	else
+		sctp_sk(sk)->pf_expose = params->assoc_value;
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_setsockopt_encap_port(struct sock *sk,
+				      struct sctp_udpencaps *encap,
+				      unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	struct sctp_transport *t;
+	__be16 encap_port;
+
+	if (optlen != sizeof(*encap))
+		return -EINVAL;
+
+	/* If an address other than INADDR_ANY is specified, and
+	 * no transport is found, then the request is invalid.
+	 */
+	encap_port = (__force __be16)encap->sue_port;
+	if (!sctp_is_any(sk, (union sctp_addr *)&encap->sue_address)) {
+		t = sctp_addr_id2transport(sk, &encap->sue_address,
+					   encap->sue_assoc_id);
+		if (!t)
+			return -EINVAL;
+
+		t->encap_port = encap_port;
+		return 0;
+	}
+
+	/* Get association, if assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, encap->sue_assoc_id);
+	if (!asoc && encap->sue_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	/* If changes are for association, also apply encap_port to
+	 * each transport.
+	 */
+	if (asoc) {
+		list_for_each_entry(t, &asoc->peer.transport_addr_list,
+				    transports)
+			t->encap_port = encap_port;
+
+		asoc->encap_port = encap_port;
+		return 0;
+	}
+
+	sctp_sk(sk)->encap_port = encap_port;
+	return 0;
+}
+
+static int sctp_setsockopt_probe_interval(struct sock *sk,
+					  struct sctp_probeinterval *params,
+					  unsigned int optlen)
+{
+	struct sctp_association *asoc;
+	struct sctp_transport *t;
+	__u32 probe_interval;
+
+	if (optlen != sizeof(*params))
+		return -EINVAL;
+
+	probe_interval = params->spi_interval;
+	if (probe_interval && probe_interval < SCTP_PROBE_TIMER_MIN)
+		return -EINVAL;
+
+	/* If an address other than INADDR_ANY is specified, and
+	 * no transport is found, then the request is invalid.
+	 */
+	if (!sctp_is_any(sk, (union sctp_addr *)&params->spi_address)) {
+		t = sctp_addr_id2transport(sk, &params->spi_address,
+					   params->spi_assoc_id);
+		if (!t)
+			return -EINVAL;
+
+		t->probe_interval = msecs_to_jiffies(probe_interval);
+		sctp_transport_pl_reset(t);
+		return 0;
+	}
+
+	/* Get association, if assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, params->spi_assoc_id);
+	if (!asoc && params->spi_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	/* If changes are for association, also apply probe_interval to
+	 * each transport.
+	 */
+	if (asoc) {
+		list_for_each_entry(t, &asoc->peer.transport_addr_list, transports) {
+			t->probe_interval = msecs_to_jiffies(probe_interval);
+			sctp_transport_pl_reset(t);
+		}
+
+		asoc->probe_interval = msecs_to_jiffies(probe_interval);
+		return 0;
+	}
+
+	sctp_sk(sk)->probe_interval = probe_interval;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4314,8 +6199,14 @@ static int sctp_setsockopt_reuse_port(struct sock *sk, char __user *optval,
  *   optlen  - the size of the buffer.
  */
 static int sctp_setsockopt(struct sock *sk, int level, int optname,
+<<<<<<< HEAD
 			   char __user *optval, unsigned int optlen)
 {
+=======
+			   sockptr_t optval, unsigned int optlen)
+{
+	void *kopt = NULL;
+>>>>>>> upstream/android-13
 	int retval = 0;
 
 	pr_debug("%s: sk:%p, optname:%d\n", __func__, sk, optname);
@@ -4328,8 +6219,23 @@ static int sctp_setsockopt(struct sock *sk, int level, int optname,
 	 */
 	if (level != SOL_SCTP) {
 		struct sctp_af *af = sctp_sk(sk)->pf->af;
+<<<<<<< HEAD
 		retval = af->setsockopt(sk, level, optname, optval, optlen);
 		goto out_nounlock;
+=======
+
+		return af->setsockopt(sk, level, optname, optval, optlen);
+	}
+
+	if (optlen > 0) {
+		/* Trim it to the biggest size sctp sockopt may need if necessary */
+		optlen = min_t(unsigned int, optlen,
+			       PAGE_ALIGN(USHRT_MAX +
+					  sizeof(__u16) * sizeof(struct sctp_reset_streams)));
+		kopt = memdup_sockptr(optval, optlen);
+		if (IS_ERR(kopt))
+			return PTR_ERR(kopt);
+>>>>>>> upstream/android-13
 	}
 
 	lock_sock(sk);
@@ -4337,25 +6243,40 @@ static int sctp_setsockopt(struct sock *sk, int level, int optname,
 	switch (optname) {
 	case SCTP_SOCKOPT_BINDX_ADD:
 		/* 'optlen' is the size of the addresses buffer. */
+<<<<<<< HEAD
 		retval = sctp_setsockopt_bindx(sk, (struct sockaddr __user *)optval,
 					       optlen, SCTP_BINDX_ADD_ADDR);
+=======
+		retval = sctp_setsockopt_bindx(sk, kopt, optlen,
+					       SCTP_BINDX_ADD_ADDR);
+>>>>>>> upstream/android-13
 		break;
 
 	case SCTP_SOCKOPT_BINDX_REM:
 		/* 'optlen' is the size of the addresses buffer. */
+<<<<<<< HEAD
 		retval = sctp_setsockopt_bindx(sk, (struct sockaddr __user *)optval,
 					       optlen, SCTP_BINDX_REM_ADDR);
+=======
+		retval = sctp_setsockopt_bindx(sk, kopt, optlen,
+					       SCTP_BINDX_REM_ADDR);
+>>>>>>> upstream/android-13
 		break;
 
 	case SCTP_SOCKOPT_CONNECTX_OLD:
 		/* 'optlen' is the size of the addresses buffer. */
+<<<<<<< HEAD
 		retval = sctp_setsockopt_connectx_old(sk,
 					    (struct sockaddr __user *)optval,
 					    optlen);
+=======
+		retval = sctp_setsockopt_connectx_old(sk, kopt, optlen);
+>>>>>>> upstream/android-13
 		break;
 
 	case SCTP_SOCKOPT_CONNECTX:
 		/* 'optlen' is the size of the addresses buffer. */
+<<<<<<< HEAD
 		retval = sctp_setsockopt_connectx(sk,
 					    (struct sockaddr __user *)optval,
 					    optlen);
@@ -4490,6 +6411,165 @@ static int sctp_setsockopt(struct sock *sk, int level, int optname,
 		break;
 	case SCTP_REUSE_PORT:
 		retval = sctp_setsockopt_reuse_port(sk, optval, optlen);
+=======
+		retval = sctp_setsockopt_connectx(sk, kopt, optlen);
+		break;
+
+	case SCTP_DISABLE_FRAGMENTS:
+		retval = sctp_setsockopt_disable_fragments(sk, kopt, optlen);
+		break;
+
+	case SCTP_EVENTS:
+		retval = sctp_setsockopt_events(sk, kopt, optlen);
+		break;
+
+	case SCTP_AUTOCLOSE:
+		retval = sctp_setsockopt_autoclose(sk, kopt, optlen);
+		break;
+
+	case SCTP_PEER_ADDR_PARAMS:
+		retval = sctp_setsockopt_peer_addr_params(sk, kopt, optlen);
+		break;
+
+	case SCTP_DELAYED_SACK:
+		retval = sctp_setsockopt_delayed_ack(sk, kopt, optlen);
+		break;
+	case SCTP_PARTIAL_DELIVERY_POINT:
+		retval = sctp_setsockopt_partial_delivery_point(sk, kopt, optlen);
+		break;
+
+	case SCTP_INITMSG:
+		retval = sctp_setsockopt_initmsg(sk, kopt, optlen);
+		break;
+	case SCTP_DEFAULT_SEND_PARAM:
+		retval = sctp_setsockopt_default_send_param(sk, kopt, optlen);
+		break;
+	case SCTP_DEFAULT_SNDINFO:
+		retval = sctp_setsockopt_default_sndinfo(sk, kopt, optlen);
+		break;
+	case SCTP_PRIMARY_ADDR:
+		retval = sctp_setsockopt_primary_addr(sk, kopt, optlen);
+		break;
+	case SCTP_SET_PEER_PRIMARY_ADDR:
+		retval = sctp_setsockopt_peer_primary_addr(sk, kopt, optlen);
+		break;
+	case SCTP_NODELAY:
+		retval = sctp_setsockopt_nodelay(sk, kopt, optlen);
+		break;
+	case SCTP_RTOINFO:
+		retval = sctp_setsockopt_rtoinfo(sk, kopt, optlen);
+		break;
+	case SCTP_ASSOCINFO:
+		retval = sctp_setsockopt_associnfo(sk, kopt, optlen);
+		break;
+	case SCTP_I_WANT_MAPPED_V4_ADDR:
+		retval = sctp_setsockopt_mappedv4(sk, kopt, optlen);
+		break;
+	case SCTP_MAXSEG:
+		retval = sctp_setsockopt_maxseg(sk, kopt, optlen);
+		break;
+	case SCTP_ADAPTATION_LAYER:
+		retval = sctp_setsockopt_adaptation_layer(sk, kopt, optlen);
+		break;
+	case SCTP_CONTEXT:
+		retval = sctp_setsockopt_context(sk, kopt, optlen);
+		break;
+	case SCTP_FRAGMENT_INTERLEAVE:
+		retval = sctp_setsockopt_fragment_interleave(sk, kopt, optlen);
+		break;
+	case SCTP_MAX_BURST:
+		retval = sctp_setsockopt_maxburst(sk, kopt, optlen);
+		break;
+	case SCTP_AUTH_CHUNK:
+		retval = sctp_setsockopt_auth_chunk(sk, kopt, optlen);
+		break;
+	case SCTP_HMAC_IDENT:
+		retval = sctp_setsockopt_hmac_ident(sk, kopt, optlen);
+		break;
+	case SCTP_AUTH_KEY:
+		retval = sctp_setsockopt_auth_key(sk, kopt, optlen);
+		break;
+	case SCTP_AUTH_ACTIVE_KEY:
+		retval = sctp_setsockopt_active_key(sk, kopt, optlen);
+		break;
+	case SCTP_AUTH_DELETE_KEY:
+		retval = sctp_setsockopt_del_key(sk, kopt, optlen);
+		break;
+	case SCTP_AUTH_DEACTIVATE_KEY:
+		retval = sctp_setsockopt_deactivate_key(sk, kopt, optlen);
+		break;
+	case SCTP_AUTO_ASCONF:
+		retval = sctp_setsockopt_auto_asconf(sk, kopt, optlen);
+		break;
+	case SCTP_PEER_ADDR_THLDS:
+		retval = sctp_setsockopt_paddr_thresholds(sk, kopt, optlen,
+							  false);
+		break;
+	case SCTP_PEER_ADDR_THLDS_V2:
+		retval = sctp_setsockopt_paddr_thresholds(sk, kopt, optlen,
+							  true);
+		break;
+	case SCTP_RECVRCVINFO:
+		retval = sctp_setsockopt_recvrcvinfo(sk, kopt, optlen);
+		break;
+	case SCTP_RECVNXTINFO:
+		retval = sctp_setsockopt_recvnxtinfo(sk, kopt, optlen);
+		break;
+	case SCTP_PR_SUPPORTED:
+		retval = sctp_setsockopt_pr_supported(sk, kopt, optlen);
+		break;
+	case SCTP_DEFAULT_PRINFO:
+		retval = sctp_setsockopt_default_prinfo(sk, kopt, optlen);
+		break;
+	case SCTP_RECONFIG_SUPPORTED:
+		retval = sctp_setsockopt_reconfig_supported(sk, kopt, optlen);
+		break;
+	case SCTP_ENABLE_STREAM_RESET:
+		retval = sctp_setsockopt_enable_strreset(sk, kopt, optlen);
+		break;
+	case SCTP_RESET_STREAMS:
+		retval = sctp_setsockopt_reset_streams(sk, kopt, optlen);
+		break;
+	case SCTP_RESET_ASSOC:
+		retval = sctp_setsockopt_reset_assoc(sk, kopt, optlen);
+		break;
+	case SCTP_ADD_STREAMS:
+		retval = sctp_setsockopt_add_streams(sk, kopt, optlen);
+		break;
+	case SCTP_STREAM_SCHEDULER:
+		retval = sctp_setsockopt_scheduler(sk, kopt, optlen);
+		break;
+	case SCTP_STREAM_SCHEDULER_VALUE:
+		retval = sctp_setsockopt_scheduler_value(sk, kopt, optlen);
+		break;
+	case SCTP_INTERLEAVING_SUPPORTED:
+		retval = sctp_setsockopt_interleaving_supported(sk, kopt,
+								optlen);
+		break;
+	case SCTP_REUSE_PORT:
+		retval = sctp_setsockopt_reuse_port(sk, kopt, optlen);
+		break;
+	case SCTP_EVENT:
+		retval = sctp_setsockopt_event(sk, kopt, optlen);
+		break;
+	case SCTP_ASCONF_SUPPORTED:
+		retval = sctp_setsockopt_asconf_supported(sk, kopt, optlen);
+		break;
+	case SCTP_AUTH_SUPPORTED:
+		retval = sctp_setsockopt_auth_supported(sk, kopt, optlen);
+		break;
+	case SCTP_ECN_SUPPORTED:
+		retval = sctp_setsockopt_ecn_supported(sk, kopt, optlen);
+		break;
+	case SCTP_EXPOSE_POTENTIALLY_FAILED_STATE:
+		retval = sctp_setsockopt_pf_expose(sk, kopt, optlen);
+		break;
+	case SCTP_REMOTE_UDP_ENCAPS_PORT:
+		retval = sctp_setsockopt_encap_port(sk, kopt, optlen);
+		break;
+	case SCTP_PLPMTUD_PROBE_INTERVAL:
+		retval = sctp_setsockopt_probe_interval(sk, kopt, optlen);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		retval = -ENOPROTOOPT;
@@ -4497,8 +6577,12 @@ static int sctp_setsockopt(struct sock *sk, int level, int optname,
 	}
 
 	release_sock(sk);
+<<<<<<< HEAD
 
 out_nounlock:
+=======
+	kfree(kopt);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -4525,7 +6609,10 @@ static int sctp_connect(struct sock *sk, struct sockaddr *addr,
 	int err = -EINVAL;
 
 	lock_sock(sk);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	pr_debug("%s: sk:%p, sockaddr:%p, addr_len:%d\n", __func__, sk,
 		 addr, addr_len);
 
@@ -4607,7 +6694,15 @@ static struct sock *sctp_accept(struct sock *sk, int flags, int *err, bool kern)
 	/* Populate the fields of the newsk from the oldsk and migrate the
 	 * asoc to the newsk.
 	 */
+<<<<<<< HEAD
 	sctp_sock_migrate(sk, newsk, asoc, SCTP_SOCKET_TCP);
+=======
+	error = sctp_sock_migrate(sk, newsk, asoc, SCTP_SOCKET_TCP);
+	if (error) {
+		sk_common_release(newsk);
+		newsk = NULL;
+	}
+>>>>>>> upstream/android-13
 
 out:
 	release_sock(sk);
@@ -4723,19 +6818,36 @@ static int sctp_init_sock(struct sock *sk)
 	/* Initialize default event subscriptions. By default, all the
 	 * options are off.
 	 */
+<<<<<<< HEAD
 	memset(&sp->subscribe, 0, sizeof(struct sctp_event_subscribe));
+=======
+	sp->subscribe = 0;
+>>>>>>> upstream/android-13
 
 	/* Default Peer Address Parameters.  These defaults can
 	 * be modified via SCTP_PEER_ADDR_PARAMS
 	 */
 	sp->hbinterval  = net->sctp.hb_interval;
+<<<<<<< HEAD
 	sp->pathmaxrxt  = net->sctp.max_retrans_path;
+=======
+	sp->udp_port    = htons(net->sctp.udp_port);
+	sp->encap_port  = htons(net->sctp.encap_port);
+	sp->pathmaxrxt  = net->sctp.max_retrans_path;
+	sp->pf_retrans  = net->sctp.pf_retrans;
+	sp->ps_retrans  = net->sctp.ps_retrans;
+	sp->pf_expose   = net->sctp.pf_expose;
+>>>>>>> upstream/android-13
 	sp->pathmtu     = 0; /* allow default discovery */
 	sp->sackdelay   = net->sctp.sack_timeout;
 	sp->sackfreq	= 2;
 	sp->param_flags = SPP_HB_ENABLE |
 			  SPP_PMTUD_ENABLE |
 			  SPP_SACKDELAY_ENABLE;
+<<<<<<< HEAD
+=======
+	sp->default_ss = SCTP_SS_DEFAULT;
+>>>>>>> upstream/android-13
 
 	/* If enabled no SCTP message fragmentation will be performed.
 	 * Configure through SCTP_DISABLE_FRAGMENTS socket option.
@@ -4769,6 +6881,10 @@ static int sctp_init_sock(struct sock *sk)
 	atomic_set(&sp->pd_mode, 0);
 	skb_queue_head_init(&sp->pd_lobby);
 	sp->frag_interleave = 0;
+<<<<<<< HEAD
+=======
+	sp->probe_interval = net->sctp.probe_interval;
+>>>>>>> upstream/android-13
 
 	/* Create a per socket endpoint structure.  Even if we
 	 * change the data structure relationships, this may still
@@ -4954,14 +7070,22 @@ int sctp_get_sctp_info(struct sock *sk, struct sctp_association *asoc,
 EXPORT_SYMBOL_GPL(sctp_get_sctp_info);
 
 /* use callback to avoid exporting the core structure */
+<<<<<<< HEAD
 void sctp_transport_walk_start(struct rhashtable_iter *iter)
+=======
+void sctp_transport_walk_start(struct rhashtable_iter *iter) __acquires(RCU)
+>>>>>>> upstream/android-13
 {
 	rhltable_walk_enter(&sctp_transport_hashtable, iter);
 
 	rhashtable_walk_start(iter);
 }
 
+<<<<<<< HEAD
 void sctp_transport_walk_stop(struct rhashtable_iter *iter)
+=======
+void sctp_transport_walk_stop(struct rhashtable_iter *iter) __releases(RCU)
+>>>>>>> upstream/android-13
 {
 	rhashtable_walk_stop(iter);
 	rhashtable_walk_exit(iter);
@@ -4983,7 +7107,11 @@ struct sctp_transport *sctp_transport_get_next(struct net *net,
 		if (!sctp_transport_hold(t))
 			continue;
 
+<<<<<<< HEAD
 		if (net_eq(sock_net(t->asoc->base.sk), net) &&
+=======
+		if (net_eq(t->asoc->base.net, net) &&
+>>>>>>> upstream/android-13
 		    t->asoc->peer.primary_path == t)
 			break;
 
@@ -5033,12 +7161,17 @@ int sctp_for_each_endpoint(int (*cb)(struct sctp_endpoint *, void *),
 }
 EXPORT_SYMBOL_GPL(sctp_for_each_endpoint);
 
+<<<<<<< HEAD
 int sctp_transport_lookup_process(int (*cb)(struct sctp_transport *, void *),
 				  struct net *net,
+=======
+int sctp_transport_lookup_process(sctp_callback_t cb, struct net *net,
+>>>>>>> upstream/android-13
 				  const union sctp_addr *laddr,
 				  const union sctp_addr *paddr, void *p)
 {
 	struct sctp_transport *transport;
+<<<<<<< HEAD
 	int err;
 
 	rcu_read_lock();
@@ -5050,15 +7183,46 @@ int sctp_transport_lookup_process(int (*cb)(struct sctp_transport *, void *),
 	err = cb(transport, p);
 	sctp_transport_put(transport);
 
+=======
+	struct sctp_endpoint *ep;
+	int err = -ENOENT;
+
+	rcu_read_lock();
+	transport = sctp_addrs_lookup_transport(net, laddr, paddr);
+	if (!transport) {
+		rcu_read_unlock();
+		return err;
+	}
+	ep = transport->asoc->ep;
+	if (!sctp_endpoint_hold(ep)) { /* asoc can be peeled off */
+		sctp_transport_put(transport);
+		rcu_read_unlock();
+		return err;
+	}
+	rcu_read_unlock();
+
+	err = cb(ep, transport, p);
+	sctp_endpoint_put(ep);
+	sctp_transport_put(transport);
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL_GPL(sctp_transport_lookup_process);
 
+<<<<<<< HEAD
 int sctp_for_each_transport(int (*cb)(struct sctp_transport *, void *),
 			    int (*cb_done)(struct sctp_transport *, void *),
 			    struct net *net, int *pos, void *p) {
 	struct rhashtable_iter hti;
 	struct sctp_transport *tsp;
+=======
+int sctp_transport_traverse_process(sctp_callback_t cb, sctp_callback_t cb_done,
+				    struct net *net, int *pos, void *p)
+{
+	struct rhashtable_iter hti;
+	struct sctp_transport *tsp;
+	struct sctp_endpoint *ep;
+>>>>>>> upstream/android-13
 	int ret;
 
 again:
@@ -5067,26 +7231,50 @@ again:
 
 	tsp = sctp_transport_get_idx(net, &hti, *pos + 1);
 	for (; !IS_ERR_OR_NULL(tsp); tsp = sctp_transport_get_next(net, &hti)) {
+<<<<<<< HEAD
 		ret = cb(tsp, p);
 		if (ret)
 			break;
+=======
+		ep = tsp->asoc->ep;
+		if (sctp_endpoint_hold(ep)) { /* asoc can be peeled off */
+			ret = cb(ep, tsp, p);
+			if (ret)
+				break;
+			sctp_endpoint_put(ep);
+		}
+>>>>>>> upstream/android-13
 		(*pos)++;
 		sctp_transport_put(tsp);
 	}
 	sctp_transport_walk_stop(&hti);
 
 	if (ret) {
+<<<<<<< HEAD
 		if (cb_done && !cb_done(tsp, p)) {
 			(*pos)++;
 			sctp_transport_put(tsp);
 			goto again;
 		}
+=======
+		if (cb_done && !cb_done(ep, tsp, p)) {
+			(*pos)++;
+			sctp_endpoint_put(ep);
+			sctp_transport_put(tsp);
+			goto again;
+		}
+		sctp_endpoint_put(ep);
+>>>>>>> upstream/android-13
 		sctp_transport_put(tsp);
 	}
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(sctp_for_each_transport);
+=======
+EXPORT_SYMBOL_GPL(sctp_transport_traverse_process);
+>>>>>>> upstream/android-13
 
 /* 7.2.1 Association Status (SCTP_STATUS)
 
@@ -5196,8 +7384,21 @@ static int sctp_getsockopt_peer_addr_info(struct sock *sk, int len,
 
 	transport = sctp_addr_id2transport(sk, &pinfo.spinfo_address,
 					   pinfo.spinfo_assoc_id);
+<<<<<<< HEAD
 	if (!transport)
 		return -EINVAL;
+=======
+	if (!transport) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	if (transport->state == SCTP_PF &&
+	    transport->asoc->pf_expose == SCTP_PF_EXPOSE_DISABLE) {
+		retval = -EACCES;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	pinfo.spinfo_assoc_id = sctp_assoc2id(transport->asoc);
 	pinfo.spinfo_state = transport->state;
@@ -5255,14 +7456,32 @@ static int sctp_getsockopt_disable_fragments(struct sock *sk, int len,
 static int sctp_getsockopt_events(struct sock *sk, int len, char __user *optval,
 				  int __user *optlen)
 {
+<<<<<<< HEAD
+=======
+	struct sctp_event_subscribe subscribe;
+	__u8 *sn_type = (__u8 *)&subscribe;
+	int i;
+
+>>>>>>> upstream/android-13
 	if (len == 0)
 		return -EINVAL;
 	if (len > sizeof(struct sctp_event_subscribe))
 		len = sizeof(struct sctp_event_subscribe);
 	if (put_user(len, optlen))
 		return -EFAULT;
+<<<<<<< HEAD
 	if (copy_to_user(optval, &sctp_sk(sk)->subscribe, len))
 		return -EFAULT;
+=======
+
+	for (i = 0; i < len; i++)
+		sn_type[i] = sctp_ulpevent_type_enabled(sctp_sk(sk)->subscribe,
+							SCTP_SN_TYPE_BASE + i);
+
+	if (copy_to_user(optval, &subscribe, len))
+		return -EFAULT;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -5324,13 +7543,26 @@ int sctp_do_peeloff(struct sock *sk, sctp_assoc_t id, struct socket **sockp)
 	 * Set the daddr and initialize id to something more random and also
 	 * copy over any ip options.
 	 */
+<<<<<<< HEAD
 	sp->pf->to_sk_daddr(&asoc->peer.primary_addr, sk);
+=======
+	sp->pf->to_sk_daddr(&asoc->peer.primary_addr, sock->sk);
+>>>>>>> upstream/android-13
 	sp->pf->copy_ip_options(sk, sock->sk);
 
 	/* Populate the fields of the newsk from the oldsk and migrate the
 	 * asoc to the newsk.
 	 */
+<<<<<<< HEAD
 	sctp_sock_migrate(sk, sock->sk, asoc, SCTP_SOCKET_UDP_HIGH_BANDWIDTH);
+=======
+	err = sctp_sock_migrate(sk, sock->sk, asoc,
+				SCTP_SOCKET_UDP_HIGH_BANDWIDTH);
+	if (err) {
+		sock_release(sock);
+		sock = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	*sockp = sock;
 
@@ -5606,12 +7838,22 @@ static int sctp_getsockopt_peer_addr_params(struct sock *sk, int len,
 		}
 	}
 
+<<<<<<< HEAD
 	/* Get association, if assoc_id != 0 and the socket is a one
 	 * to many style socket, and an association was not found, then
 	 * the id was invalid.
 	 */
 	asoc = sctp_id2assoc(sk, params.spp_assoc_id);
 	if (!asoc && params.spp_assoc_id && sctp_style(sk, UDP)) {
+=======
+	/* Get association, if assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, params.spp_assoc_id);
+	if (!asoc && params.spp_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+>>>>>>> upstream/android-13
 		pr_debug("%s: failed no association\n", __func__);
 		return -EINVAL;
 	}
@@ -5740,19 +7982,33 @@ static int sctp_getsockopt_delayed_ack(struct sock *sk, int len,
 	} else
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Get association, if sack_assoc_id != 0 and the socket is a one
 	 * to many style socket, and an association was not found, then
 	 * the id was invalid.
 	 */
 	asoc = sctp_id2assoc(sk, params.sack_assoc_id);
 	if (!asoc && params.sack_assoc_id && sctp_style(sk, UDP))
+=======
+	/* Get association, if sack_assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, params.sack_assoc_id);
+	if (!asoc && params.sack_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (asoc) {
 		/* Fetch association values. */
 		if (asoc->param_flags & SPP_SACKDELAY_ENABLE) {
+<<<<<<< HEAD
 			params.sack_delay = jiffies_to_msecs(
 				asoc->sackdelay);
+=======
+			params.sack_delay = jiffies_to_msecs(asoc->sackdelay);
+>>>>>>> upstream/android-13
 			params.sack_freq = asoc->sackfreq;
 
 		} else {
@@ -6105,8 +8361,15 @@ static int sctp_getsockopt_default_send_param(struct sock *sk,
 		return -EFAULT;
 
 	asoc = sctp_id2assoc(sk, info.sinfo_assoc_id);
+<<<<<<< HEAD
 	if (!asoc && info.sinfo_assoc_id && sctp_style(sk, UDP))
 		return -EINVAL;
+=======
+	if (!asoc && info.sinfo_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (asoc) {
 		info.sinfo_stream = asoc->default_stream;
 		info.sinfo_flags = asoc->default_flags;
@@ -6149,8 +8412,15 @@ static int sctp_getsockopt_default_sndinfo(struct sock *sk, int len,
 		return -EFAULT;
 
 	asoc = sctp_id2assoc(sk, info.snd_assoc_id);
+<<<<<<< HEAD
 	if (!asoc && info.snd_assoc_id && sctp_style(sk, UDP))
 		return -EINVAL;
+=======
+	if (!asoc && info.snd_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (asoc) {
 		info.snd_sid = asoc->default_stream;
 		info.snd_flags = asoc->default_flags;
@@ -6226,7 +8496,12 @@ static int sctp_getsockopt_rtoinfo(struct sock *sk, int len,
 
 	asoc = sctp_id2assoc(sk, rtoinfo.srto_assoc_id);
 
+<<<<<<< HEAD
 	if (!asoc && rtoinfo.srto_assoc_id && sctp_style(sk, UDP))
+=======
+	if (!asoc && rtoinfo.srto_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* Values corresponding to the specific association. */
@@ -6283,7 +8558,12 @@ static int sctp_getsockopt_associnfo(struct sock *sk, int len,
 
 	asoc = sctp_id2assoc(sk, assocparams.sasoc_assoc_id);
 
+<<<<<<< HEAD
 	if (!asoc && assocparams.sasoc_assoc_id && sctp_style(sk, UDP))
+=======
+	if (!asoc && assocparams.sasoc_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/* Values correspoinding to the specific association */
@@ -6358,7 +8638,10 @@ static int sctp_getsockopt_context(struct sock *sk, int len,
 				   char __user *optval, int __user *optlen)
 {
 	struct sctp_assoc_value params;
+<<<<<<< HEAD
 	struct sctp_sock *sp;
+=======
+>>>>>>> upstream/android-13
 	struct sctp_association *asoc;
 
 	if (len < sizeof(struct sctp_assoc_value))
@@ -6369,6 +8652,7 @@ static int sctp_getsockopt_context(struct sock *sk, int len,
 	if (copy_from_user(&params, optval, len))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	sp = sctp_sk(sk);
 
 	if (params.assoc_id != 0) {
@@ -6379,6 +8663,15 @@ static int sctp_getsockopt_context(struct sock *sk, int len,
 	} else {
 		params.assoc_value = sp->default_rcv_context;
 	}
+=======
+	asoc = sctp_id2assoc(sk, params.assoc_id);
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	params.assoc_value = asoc ? asoc->default_rcv_context
+				  : sctp_sk(sk)->default_rcv_context;
+>>>>>>> upstream/android-13
 
 	if (put_user(len, optlen))
 		return -EFAULT;
@@ -6427,7 +8720,11 @@ static int sctp_getsockopt_maxseg(struct sock *sk, int len,
 				    "Use of int in maxseg socket option.\n"
 				    "Use struct sctp_assoc_value instead\n",
 				    current->comm, task_pid_nr(current));
+<<<<<<< HEAD
 		params.assoc_id = 0;
+=======
+		params.assoc_id = SCTP_FUTURE_ASSOC;
+>>>>>>> upstream/android-13
 	} else if (len >= sizeof(struct sctp_assoc_value)) {
 		len = sizeof(struct sctp_assoc_value);
 		if (copy_from_user(&params, optval, len))
@@ -6436,7 +8733,12 @@ static int sctp_getsockopt_maxseg(struct sock *sk, int len,
 		return -EINVAL;
 
 	asoc = sctp_id2assoc(sk, params.assoc_id);
+<<<<<<< HEAD
 	if (!asoc && params.assoc_id && sctp_style(sk, UDP))
+=======
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (asoc)
@@ -6513,7 +8815,10 @@ static int sctp_getsockopt_maxburst(struct sock *sk, int len,
 				    int __user *optlen)
 {
 	struct sctp_assoc_value params;
+<<<<<<< HEAD
 	struct sctp_sock *sp;
+=======
+>>>>>>> upstream/android-13
 	struct sctp_association *asoc;
 
 	if (len == sizeof(int)) {
@@ -6522,7 +8827,11 @@ static int sctp_getsockopt_maxburst(struct sock *sk, int len,
 				    "Use of int in max_burst socket option.\n"
 				    "Use struct sctp_assoc_value instead\n",
 				    current->comm, task_pid_nr(current));
+<<<<<<< HEAD
 		params.assoc_id = 0;
+=======
+		params.assoc_id = SCTP_FUTURE_ASSOC;
+>>>>>>> upstream/android-13
 	} else if (len >= sizeof(struct sctp_assoc_value)) {
 		len = sizeof(struct sctp_assoc_value);
 		if (copy_from_user(&params, optval, len))
@@ -6530,6 +8839,7 @@ static int sctp_getsockopt_maxburst(struct sock *sk, int len,
 	} else
 		return -EINVAL;
 
+<<<<<<< HEAD
 	sp = sctp_sk(sk);
 
 	if (params.assoc_id != 0) {
@@ -6539,6 +8849,14 @@ static int sctp_getsockopt_maxburst(struct sock *sk, int len,
 		params.assoc_value = asoc->max_burst;
 	} else
 		params.assoc_value = sp->max_burst;
+=======
+	asoc = sctp_id2assoc(sk, params.assoc_id);
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	params.assoc_value = asoc ? asoc->max_burst : sctp_sk(sk)->max_burst;
+>>>>>>> upstream/android-13
 
 	if (len == sizeof(int)) {
 		if (copy_to_user(optval, &params.assoc_value, len))
@@ -6595,9 +8913,12 @@ static int sctp_getsockopt_active_key(struct sock *sk, int len,
 	struct sctp_authkeyid val;
 	struct sctp_association *asoc;
 
+<<<<<<< HEAD
 	if (!ep->auth_enable)
 		return -EACCES;
 
+=======
+>>>>>>> upstream/android-13
 	if (len < sizeof(struct sctp_authkeyid))
 		return -EINVAL;
 
@@ -6609,10 +8930,22 @@ static int sctp_getsockopt_active_key(struct sock *sk, int len,
 	if (!asoc && val.scact_assoc_id && sctp_style(sk, UDP))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (asoc)
 		val.scact_keynumber = asoc->active_key_id;
 	else
 		val.scact_keynumber = ep->active_key_id;
+=======
+	if (asoc) {
+		if (!asoc->peer.auth_capable)
+			return -EACCES;
+		val.scact_keynumber = asoc->active_key_id;
+	} else {
+		if (!ep->auth_enable)
+			return -EACCES;
+		val.scact_keynumber = ep->active_key_id;
+	}
+>>>>>>> upstream/android-13
 
 	if (put_user(len, optlen))
 		return -EFAULT;
@@ -6625,7 +8958,10 @@ static int sctp_getsockopt_active_key(struct sock *sk, int len,
 static int sctp_getsockopt_peer_auth_chunks(struct sock *sk, int len,
 				    char __user *optval, int __user *optlen)
 {
+<<<<<<< HEAD
 	struct sctp_endpoint *ep = sctp_sk(sk)->ep;
+=======
+>>>>>>> upstream/android-13
 	struct sctp_authchunks __user *p = (void __user *)optval;
 	struct sctp_authchunks val;
 	struct sctp_association *asoc;
@@ -6633,9 +8969,12 @@ static int sctp_getsockopt_peer_auth_chunks(struct sock *sk, int len,
 	u32    num_chunks = 0;
 	char __user *to;
 
+<<<<<<< HEAD
 	if (!ep->auth_enable)
 		return -EACCES;
 
+=======
+>>>>>>> upstream/android-13
 	if (len < sizeof(struct sctp_authchunks))
 		return -EINVAL;
 
@@ -6647,6 +8986,12 @@ static int sctp_getsockopt_peer_auth_chunks(struct sock *sk, int len,
 	if (!asoc)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (!asoc->peer.auth_capable)
+		return -EACCES;
+
+>>>>>>> upstream/android-13
 	ch = asoc->peer.peer_chunks;
 	if (!ch)
 		goto num;
@@ -6678,9 +9023,12 @@ static int sctp_getsockopt_local_auth_chunks(struct sock *sk, int len,
 	u32    num_chunks = 0;
 	char __user *to;
 
+<<<<<<< HEAD
 	if (!ep->auth_enable)
 		return -EACCES;
 
+=======
+>>>>>>> upstream/android-13
 	if (len < sizeof(struct sctp_authchunks))
 		return -EINVAL;
 
@@ -6689,6 +9037,7 @@ static int sctp_getsockopt_local_auth_chunks(struct sock *sk, int len,
 
 	to = p->gauth_chunks;
 	asoc = sctp_id2assoc(sk, val.gauth_assoc_id);
+<<<<<<< HEAD
 	if (!asoc && val.gauth_assoc_id && sctp_style(sk, UDP))
 		return -EINVAL;
 
@@ -6697,6 +9046,21 @@ static int sctp_getsockopt_local_auth_chunks(struct sock *sk, int len,
 	else
 		ch = ep->auth_chunk_list;
 
+=======
+	if (!asoc && val.gauth_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		if (!asoc->peer.auth_capable)
+			return -EACCES;
+		ch = (struct sctp_chunks_param *)asoc->c.auth_chunks;
+	} else {
+		if (!ep->auth_enable)
+			return -EACCES;
+		ch = ep->auth_chunk_list;
+	}
+>>>>>>> upstream/android-13
 	if (!ch)
 		goto num;
 
@@ -6827,6 +9191,7 @@ static int sctp_getsockopt_assoc_ids(struct sock *sk, int len,
  * http://www.ietf.org/id/draft-nishida-tsvwg-sctp-failover-05.txt
  */
 static int sctp_getsockopt_paddr_thresholds(struct sock *sk,
+<<<<<<< HEAD
 					    char __user *optval,
 					    int len,
 					    int __user *optlen)
@@ -6849,6 +9214,24 @@ static int sctp_getsockopt_paddr_thresholds(struct sock *sk,
 		val.spt_pathpfthld = asoc->pf_retrans;
 		val.spt_pathmaxrxt = asoc->pathmaxrxt;
 	} else {
+=======
+					    char __user *optval, int len,
+					    int __user *optlen, bool v2)
+{
+	struct sctp_paddrthlds_v2 val;
+	struct sctp_transport *trans;
+	struct sctp_association *asoc;
+	int min;
+
+	min = v2 ? sizeof(val) : sizeof(struct sctp_paddrthlds);
+	if (len < min)
+		return -EINVAL;
+	len = min;
+	if (copy_from_user(&val, optval, len))
+		return -EFAULT;
+
+	if (!sctp_is_any(sk, (const union sctp_addr *)&val.spt_address)) {
+>>>>>>> upstream/android-13
 		trans = sctp_addr_id2transport(sk, &val.spt_address,
 					       val.spt_assoc_id);
 		if (!trans)
@@ -6856,8 +9239,34 @@ static int sctp_getsockopt_paddr_thresholds(struct sock *sk,
 
 		val.spt_pathmaxrxt = trans->pathmaxrxt;
 		val.spt_pathpfthld = trans->pf_retrans;
+<<<<<<< HEAD
 	}
 
+=======
+		val.spt_pathcpthld = trans->ps_retrans;
+
+		goto out;
+	}
+
+	asoc = sctp_id2assoc(sk, val.spt_assoc_id);
+	if (!asoc && val.spt_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	if (asoc) {
+		val.spt_pathpfthld = asoc->pf_retrans;
+		val.spt_pathmaxrxt = asoc->pathmaxrxt;
+		val.spt_pathcpthld = asoc->ps_retrans;
+	} else {
+		struct sctp_sock *sp = sctp_sk(sk);
+
+		val.spt_pathpfthld = sp->pf_retrans;
+		val.spt_pathmaxrxt = sp->pathmaxrxt;
+		val.spt_pathcpthld = sp->ps_retrans;
+	}
+
+out:
+>>>>>>> upstream/android-13
 	if (put_user(len, optlen) || copy_to_user(optval, &val, len))
 		return -EFAULT;
 
@@ -6986,6 +9395,7 @@ static int sctp_getsockopt_pr_supported(struct sock *sk, int len,
 		goto out;
 
 	asoc = sctp_id2assoc(sk, params.assoc_id);
+<<<<<<< HEAD
 	if (asoc) {
 		params.assoc_value = asoc->prsctp_enable;
 	} else if (!params.assoc_id) {
@@ -6993,10 +9403,20 @@ static int sctp_getsockopt_pr_supported(struct sock *sk, int len,
 
 		params.assoc_value = sp->ep->prsctp_enable;
 	} else {
+=======
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+>>>>>>> upstream/android-13
 		retval = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	params.assoc_value = asoc ? asoc->peer.prsctp_capable
+				  : sctp_sk(sk)->ep->prsctp_enable;
+
+>>>>>>> upstream/android-13
 	if (put_user(len, optlen))
 		goto out;
 
@@ -7027,17 +9447,33 @@ static int sctp_getsockopt_default_prinfo(struct sock *sk, int len,
 		goto out;
 
 	asoc = sctp_id2assoc(sk, info.pr_assoc_id);
+<<<<<<< HEAD
 	if (asoc) {
 		info.pr_policy = SCTP_PR_POLICY(asoc->default_flags);
 		info.pr_value = asoc->default_timetolive;
 	} else if (!info.pr_assoc_id) {
+=======
+	if (!asoc && info.pr_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	if (asoc) {
+		info.pr_policy = SCTP_PR_POLICY(asoc->default_flags);
+		info.pr_value = asoc->default_timetolive;
+	} else {
+>>>>>>> upstream/android-13
 		struct sctp_sock *sp = sctp_sk(sk);
 
 		info.pr_policy = SCTP_PR_POLICY(sp->default_flags);
 		info.pr_value = sp->default_timetolive;
+<<<<<<< HEAD
 	} else {
 		retval = -EINVAL;
 		goto out;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	if (put_user(len, optlen))
@@ -7193,6 +9629,7 @@ static int sctp_getsockopt_reconfig_supported(struct sock *sk, int len,
 		goto out;
 
 	asoc = sctp_id2assoc(sk, params.assoc_id);
+<<<<<<< HEAD
 	if (asoc) {
 		params.assoc_value = asoc->reconf_enable;
 	} else if (!params.assoc_id) {
@@ -7200,10 +9637,20 @@ static int sctp_getsockopt_reconfig_supported(struct sock *sk, int len,
 
 		params.assoc_value = sp->ep->reconf_enable;
 	} else {
+=======
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+>>>>>>> upstream/android-13
 		retval = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	params.assoc_value = asoc ? asoc->peer.reconf_capable
+				  : sctp_sk(sk)->ep->reconf_enable;
+
+>>>>>>> upstream/android-13
 	if (put_user(len, optlen))
 		goto out;
 
@@ -7234,6 +9681,7 @@ static int sctp_getsockopt_enable_strreset(struct sock *sk, int len,
 		goto out;
 
 	asoc = sctp_id2assoc(sk, params.assoc_id);
+<<<<<<< HEAD
 	if (asoc) {
 		params.assoc_value = asoc->strreset_enable;
 	} else if (!params.assoc_id) {
@@ -7241,10 +9689,20 @@ static int sctp_getsockopt_enable_strreset(struct sock *sk, int len,
 
 		params.assoc_value = sp->ep->strreset_enable;
 	} else {
+=======
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+>>>>>>> upstream/android-13
 		retval = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	params.assoc_value = asoc ? asoc->strreset_enable
+				  : sctp_sk(sk)->ep->strreset_enable;
+
+>>>>>>> upstream/android-13
 	if (put_user(len, optlen))
 		goto out;
 
@@ -7275,12 +9733,22 @@ static int sctp_getsockopt_scheduler(struct sock *sk, int len,
 		goto out;
 
 	asoc = sctp_id2assoc(sk, params.assoc_id);
+<<<<<<< HEAD
 	if (!asoc) {
+=======
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+>>>>>>> upstream/android-13
 		retval = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	params.assoc_value = sctp_sched_get_sched(asoc);
+=======
+	params.assoc_value = asoc ? sctp_sched_get_sched(asoc)
+				  : sctp_sk(sk)->default_ss;
+>>>>>>> upstream/android-13
 
 	if (put_user(len, optlen))
 		goto out;
@@ -7354,6 +9822,7 @@ static int sctp_getsockopt_interleaving_supported(struct sock *sk, int len,
 		goto out;
 
 	asoc = sctp_id2assoc(sk, params.assoc_id);
+<<<<<<< HEAD
 	if (asoc) {
 		params.assoc_value = asoc->intl_enable;
 	} else if (!params.assoc_id) {
@@ -7361,10 +9830,20 @@ static int sctp_getsockopt_interleaving_supported(struct sock *sk, int len,
 
 		params.assoc_value = sp->strm_interleave;
 	} else {
+=======
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+>>>>>>> upstream/android-13
 		retval = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	params.assoc_value = asoc ? asoc->peer.intl_capable
+				  : sctp_sk(sk)->ep->intl_enable;
+
+>>>>>>> upstream/android-13
 	if (put_user(len, optlen))
 		goto out;
 
@@ -7397,6 +9876,319 @@ static int sctp_getsockopt_reuse_port(struct sock *sk, int len,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int sctp_getsockopt_event(struct sock *sk, int len, char __user *optval,
+				 int __user *optlen)
+{
+	struct sctp_association *asoc;
+	struct sctp_event param;
+	__u16 subscribe;
+
+	if (len < sizeof(param))
+		return -EINVAL;
+
+	len = sizeof(param);
+	if (copy_from_user(&param, optval, len))
+		return -EFAULT;
+
+	if (param.se_type < SCTP_SN_TYPE_BASE ||
+	    param.se_type > SCTP_SN_TYPE_MAX)
+		return -EINVAL;
+
+	asoc = sctp_id2assoc(sk, param.se_assoc_id);
+	if (!asoc && param.se_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP))
+		return -EINVAL;
+
+	subscribe = asoc ? asoc->subscribe : sctp_sk(sk)->subscribe;
+	param.se_on = sctp_ulpevent_type_enabled(subscribe, param.se_type);
+
+	if (put_user(len, optlen))
+		return -EFAULT;
+
+	if (copy_to_user(optval, &param, len))
+		return -EFAULT;
+
+	return 0;
+}
+
+static int sctp_getsockopt_asconf_supported(struct sock *sk, int len,
+					    char __user *optval,
+					    int __user *optlen)
+{
+	struct sctp_assoc_value params;
+	struct sctp_association *asoc;
+	int retval = -EFAULT;
+
+	if (len < sizeof(params)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	len = sizeof(params);
+	if (copy_from_user(&params, optval, len))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params.assoc_id);
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	params.assoc_value = asoc ? asoc->peer.asconf_capable
+				  : sctp_sk(sk)->ep->asconf_enable;
+
+	if (put_user(len, optlen))
+		goto out;
+
+	if (copy_to_user(optval, &params, len))
+		goto out;
+
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_getsockopt_auth_supported(struct sock *sk, int len,
+					  char __user *optval,
+					  int __user *optlen)
+{
+	struct sctp_assoc_value params;
+	struct sctp_association *asoc;
+	int retval = -EFAULT;
+
+	if (len < sizeof(params)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	len = sizeof(params);
+	if (copy_from_user(&params, optval, len))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params.assoc_id);
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	params.assoc_value = asoc ? asoc->peer.auth_capable
+				  : sctp_sk(sk)->ep->auth_enable;
+
+	if (put_user(len, optlen))
+		goto out;
+
+	if (copy_to_user(optval, &params, len))
+		goto out;
+
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_getsockopt_ecn_supported(struct sock *sk, int len,
+					 char __user *optval,
+					 int __user *optlen)
+{
+	struct sctp_assoc_value params;
+	struct sctp_association *asoc;
+	int retval = -EFAULT;
+
+	if (len < sizeof(params)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	len = sizeof(params);
+	if (copy_from_user(&params, optval, len))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params.assoc_id);
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	params.assoc_value = asoc ? asoc->peer.ecn_capable
+				  : sctp_sk(sk)->ep->ecn_enable;
+
+	if (put_user(len, optlen))
+		goto out;
+
+	if (copy_to_user(optval, &params, len))
+		goto out;
+
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_getsockopt_pf_expose(struct sock *sk, int len,
+				     char __user *optval,
+				     int __user *optlen)
+{
+	struct sctp_assoc_value params;
+	struct sctp_association *asoc;
+	int retval = -EFAULT;
+
+	if (len < sizeof(params)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	len = sizeof(params);
+	if (copy_from_user(&params, optval, len))
+		goto out;
+
+	asoc = sctp_id2assoc(sk, params.assoc_id);
+	if (!asoc && params.assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+		retval = -EINVAL;
+		goto out;
+	}
+
+	params.assoc_value = asoc ? asoc->pf_expose
+				  : sctp_sk(sk)->pf_expose;
+
+	if (put_user(len, optlen))
+		goto out;
+
+	if (copy_to_user(optval, &params, len))
+		goto out;
+
+	retval = 0;
+
+out:
+	return retval;
+}
+
+static int sctp_getsockopt_encap_port(struct sock *sk, int len,
+				      char __user *optval, int __user *optlen)
+{
+	struct sctp_association *asoc;
+	struct sctp_udpencaps encap;
+	struct sctp_transport *t;
+	__be16 encap_port;
+
+	if (len < sizeof(encap))
+		return -EINVAL;
+
+	len = sizeof(encap);
+	if (copy_from_user(&encap, optval, len))
+		return -EFAULT;
+
+	/* If an address other than INADDR_ANY is specified, and
+	 * no transport is found, then the request is invalid.
+	 */
+	if (!sctp_is_any(sk, (union sctp_addr *)&encap.sue_address)) {
+		t = sctp_addr_id2transport(sk, &encap.sue_address,
+					   encap.sue_assoc_id);
+		if (!t) {
+			pr_debug("%s: failed no transport\n", __func__);
+			return -EINVAL;
+		}
+
+		encap_port = t->encap_port;
+		goto out;
+	}
+
+	/* Get association, if assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, encap.sue_assoc_id);
+	if (!asoc && encap.sue_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+		pr_debug("%s: failed no association\n", __func__);
+		return -EINVAL;
+	}
+
+	if (asoc) {
+		encap_port = asoc->encap_port;
+		goto out;
+	}
+
+	encap_port = sctp_sk(sk)->encap_port;
+
+out:
+	encap.sue_port = (__force uint16_t)encap_port;
+	if (copy_to_user(optval, &encap, len))
+		return -EFAULT;
+
+	if (put_user(len, optlen))
+		return -EFAULT;
+
+	return 0;
+}
+
+static int sctp_getsockopt_probe_interval(struct sock *sk, int len,
+					  char __user *optval,
+					  int __user *optlen)
+{
+	struct sctp_probeinterval params;
+	struct sctp_association *asoc;
+	struct sctp_transport *t;
+	__u32 probe_interval;
+
+	if (len < sizeof(params))
+		return -EINVAL;
+
+	len = sizeof(params);
+	if (copy_from_user(&params, optval, len))
+		return -EFAULT;
+
+	/* If an address other than INADDR_ANY is specified, and
+	 * no transport is found, then the request is invalid.
+	 */
+	if (!sctp_is_any(sk, (union sctp_addr *)&params.spi_address)) {
+		t = sctp_addr_id2transport(sk, &params.spi_address,
+					   params.spi_assoc_id);
+		if (!t) {
+			pr_debug("%s: failed no transport\n", __func__);
+			return -EINVAL;
+		}
+
+		probe_interval = jiffies_to_msecs(t->probe_interval);
+		goto out;
+	}
+
+	/* Get association, if assoc_id != SCTP_FUTURE_ASSOC and the
+	 * socket is a one to many style socket, and an association
+	 * was not found, then the id was invalid.
+	 */
+	asoc = sctp_id2assoc(sk, params.spi_assoc_id);
+	if (!asoc && params.spi_assoc_id != SCTP_FUTURE_ASSOC &&
+	    sctp_style(sk, UDP)) {
+		pr_debug("%s: failed no association\n", __func__);
+		return -EINVAL;
+	}
+
+	if (asoc) {
+		probe_interval = jiffies_to_msecs(asoc->probe_interval);
+		goto out;
+	}
+
+	probe_interval = sctp_sk(sk)->probe_interval;
+
+out:
+	params.spi_interval = probe_interval;
+	if (copy_to_user(optval, &params, len))
+		return -EFAULT;
+
+	if (put_user(len, optlen))
+		return -EFAULT;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int sctp_getsockopt(struct sock *sk, int level, int optname,
 			   char __user *optval, int __user *optlen)
 {
@@ -7546,7 +10338,16 @@ static int sctp_getsockopt(struct sock *sk, int level, int optname,
 		retval = sctp_getsockopt_auto_asconf(sk, len, optval, optlen);
 		break;
 	case SCTP_PEER_ADDR_THLDS:
+<<<<<<< HEAD
 		retval = sctp_getsockopt_paddr_thresholds(sk, optval, len, optlen);
+=======
+		retval = sctp_getsockopt_paddr_thresholds(sk, optval, len,
+							  optlen, false);
+		break;
+	case SCTP_PEER_ADDR_THLDS_V2:
+		retval = sctp_getsockopt_paddr_thresholds(sk, optval, len,
+							  optlen, true);
+>>>>>>> upstream/android-13
 		break;
 	case SCTP_GET_ASSOC_STATS:
 		retval = sctp_getsockopt_assoc_stats(sk, len, optval, optlen);
@@ -7595,6 +10396,32 @@ static int sctp_getsockopt(struct sock *sk, int level, int optname,
 	case SCTP_REUSE_PORT:
 		retval = sctp_getsockopt_reuse_port(sk, len, optval, optlen);
 		break;
+<<<<<<< HEAD
+=======
+	case SCTP_EVENT:
+		retval = sctp_getsockopt_event(sk, len, optval, optlen);
+		break;
+	case SCTP_ASCONF_SUPPORTED:
+		retval = sctp_getsockopt_asconf_supported(sk, len, optval,
+							  optlen);
+		break;
+	case SCTP_AUTH_SUPPORTED:
+		retval = sctp_getsockopt_auth_supported(sk, len, optval,
+							optlen);
+		break;
+	case SCTP_ECN_SUPPORTED:
+		retval = sctp_getsockopt_ecn_supported(sk, len, optval, optlen);
+		break;
+	case SCTP_EXPOSE_POTENTIALLY_FAILED_STATE:
+		retval = sctp_getsockopt_pf_expose(sk, len, optval, optlen);
+		break;
+	case SCTP_REMOTE_UDP_ENCAPS_PORT:
+		retval = sctp_getsockopt_encap_port(sk, len, optval, optlen);
+		break;
+	case SCTP_PLPMTUD_PROBE_INTERVAL:
+		retval = sctp_getsockopt_probe_interval(sk, len, optval, optlen);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		retval = -ENOPROTOOPT;
 		break;
@@ -7630,10 +10457,20 @@ static void sctp_unhash(struct sock *sk)
 static struct sctp_bind_bucket *sctp_bucket_create(
 	struct sctp_bind_hashbucket *head, struct net *, unsigned short snum);
 
+<<<<<<< HEAD
 static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
 {
 	bool reuse = (sk->sk_reuse || sctp_sk(sk)->reuse);
 	struct sctp_bind_hashbucket *head; /* hash list */
+=======
+static int sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
+{
+	struct sctp_sock *sp = sctp_sk(sk);
+	bool reuse = (sk->sk_reuse || sp->reuse);
+	struct sctp_bind_hashbucket *head; /* hash list */
+	struct net *net = sock_net(sk);
+	kuid_t uid = sock_i_uid(sk);
+>>>>>>> upstream/android-13
 	struct sctp_bind_bucket *pp;
 	unsigned short snum;
 	int ret;
@@ -7646,7 +10483,10 @@ static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
 		/* Search for an available port. */
 		int low, high, remaining, index;
 		unsigned int rover;
+<<<<<<< HEAD
 		struct net *net = sock_net(sk);
+=======
+>>>>>>> upstream/android-13
 
 		inet_get_local_port_range(net, &low, &high);
 		remaining = (high - low) + 1;
@@ -7658,12 +10498,20 @@ static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
 				rover = low;
 			if (inet_is_local_reserved_port(net, rover))
 				continue;
+<<<<<<< HEAD
 			index = sctp_phashfn(sock_net(sk), rover);
+=======
+			index = sctp_phashfn(net, rover);
+>>>>>>> upstream/android-13
 			head = &sctp_port_hashtable[index];
 			spin_lock_bh(&head->lock);
 			sctp_for_each_hentry(pp, &head->chain)
 				if ((pp->port == rover) &&
+<<<<<<< HEAD
 				    net_eq(sock_net(sk), pp->net))
+=======
+				    net_eq(net, pp->net))
+>>>>>>> upstream/android-13
 					goto next;
 			break;
 		next:
@@ -7688,10 +10536,17 @@ static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
 		 * to the port number (snum) - we detect that with the
 		 * port iterator, pp being NULL.
 		 */
+<<<<<<< HEAD
 		head = &sctp_port_hashtable[sctp_phashfn(sock_net(sk), snum)];
 		spin_lock_bh(&head->lock);
 		sctp_for_each_hentry(pp, &head->chain) {
 			if ((pp->port == snum) && net_eq(pp->net, sock_net(sk)))
+=======
+		head = &sctp_port_hashtable[sctp_phashfn(net, snum)];
+		spin_lock_bh(&head->lock);
+		sctp_for_each_hentry(pp, &head->chain) {
+			if ((pp->port == snum) && net_eq(pp->net, net))
+>>>>>>> upstream/android-13
 				goto pp_found;
 		}
 	}
@@ -7708,7 +10563,14 @@ pp_found:
 
 		pr_debug("%s: found a possible match\n", __func__);
 
+<<<<<<< HEAD
 		if (pp->fastreuse && reuse && sk->sk_state != SCTP_SS_LISTENING)
+=======
+		if ((pp->fastreuse && reuse &&
+		     sk->sk_state != SCTP_SS_LISTENING) ||
+		    (pp->fastreuseport && sk->sk_reuseport &&
+		     uid_eq(pp->fastuid, uid)))
+>>>>>>> upstream/android-13
 			goto success;
 
 		/* Run through the list of sockets bound to the port
@@ -7722,6 +10584,7 @@ pp_found:
 		 * in an endpoint.
 		 */
 		sk_for_each_bound(sk2, &pp->owner) {
+<<<<<<< HEAD
 			struct sctp_endpoint *ep2;
 			ep2 = sctp_sk(sk2)->ep;
 
@@ -7733,6 +10596,21 @@ pp_found:
 			if (sctp_bind_addr_conflict(&ep2->base.bind_addr, addr,
 						 sctp_sk(sk2), sctp_sk(sk))) {
 				ret = (long)sk2;
+=======
+			struct sctp_sock *sp2 = sctp_sk(sk2);
+			struct sctp_endpoint *ep2 = sp2->ep;
+
+			if (sk == sk2 ||
+			    (reuse && (sk2->sk_reuse || sp2->reuse) &&
+			     sk2->sk_state != SCTP_SS_LISTENING) ||
+			    (sk->sk_reuseport && sk2->sk_reuseport &&
+			     uid_eq(uid, sock_i_uid(sk2))))
+				continue;
+
+			if (sctp_bind_addr_conflict(&ep2->base.bind_addr,
+						    addr, sp2, sp)) {
+				ret = 1;
+>>>>>>> upstream/android-13
 				goto fail_unlock;
 			}
 		}
@@ -7742,7 +10620,11 @@ pp_found:
 pp_not_found:
 	/* If there was a hash table miss, create a new port.  */
 	ret = 1;
+<<<<<<< HEAD
 	if (!pp && !(pp = sctp_bucket_create(head, sock_net(sk), snum)))
+=======
+	if (!pp && !(pp = sctp_bucket_create(head, net, snum)))
+>>>>>>> upstream/android-13
 		goto fail_unlock;
 
 	/* In either case (hit or miss), make sure fastreuse is 1 only
@@ -7754,19 +10636,45 @@ pp_not_found:
 			pp->fastreuse = 1;
 		else
 			pp->fastreuse = 0;
+<<<<<<< HEAD
 	} else if (pp->fastreuse &&
 		   (!reuse || sk->sk_state == SCTP_SS_LISTENING))
 		pp->fastreuse = 0;
+=======
+
+		if (sk->sk_reuseport) {
+			pp->fastreuseport = 1;
+			pp->fastuid = uid;
+		} else {
+			pp->fastreuseport = 0;
+		}
+	} else {
+		if (pp->fastreuse &&
+		    (!reuse || sk->sk_state == SCTP_SS_LISTENING))
+			pp->fastreuse = 0;
+
+		if (pp->fastreuseport &&
+		    (!sk->sk_reuseport || !uid_eq(pp->fastuid, uid)))
+			pp->fastreuseport = 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* We are set, so fill up all the data in the hash table
 	 * entry, tie the socket list information with the rest of the
 	 * sockets FIXME: Blurry, NPI (ipg).
 	 */
 success:
+<<<<<<< HEAD
 	if (!sctp_sk(sk)->bind_hash) {
 		inet_sk(sk)->inet_num = snum;
 		sk_add_bind_node(sk, &pp->owner);
 		sctp_sk(sk)->bind_hash = pp;
+=======
+	if (!sp->bind_hash) {
+		inet_sk(sk)->inet_num = snum;
+		sk_add_bind_node(sk, &pp->owner);
+		sp->bind_hash = pp;
+>>>>>>> upstream/android-13
 	}
 	ret = 0;
 
@@ -7788,7 +10696,11 @@ static int sctp_get_port(struct sock *sk, unsigned short snum)
 	addr.v4.sin_port = htons(snum);
 
 	/* Note: sk->sk_num gets filled in if ephemeral port request. */
+<<<<<<< HEAD
 	return !!sctp_get_port_local(sk, &addr);
+=======
+	return sctp_get_port_local(sk, &addr);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -7835,9 +10747,14 @@ static int sctp_listen_start(struct sock *sk, int backlog)
 		}
 	}
 
+<<<<<<< HEAD
 	sk->sk_max_ack_backlog = backlog;
 	sctp_hash_endpoint(ep);
 	return 0;
+=======
+	WRITE_ONCE(sk->sk_max_ack_backlog, backlog);
+	return sctp_hash_endpoint(ep);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -7890,7 +10807,11 @@ int sctp_inet_listen(struct socket *sock, int backlog)
 
 	/* If we are already listening, just update the backlog */
 	if (sctp_sstate(sk, LISTENING))
+<<<<<<< HEAD
 		sk->sk_max_ack_backlog = backlog;
+=======
+		WRITE_ONCE(sk->sk_max_ack_backlog, backlog);
+>>>>>>> upstream/android-13
 	else {
 		err = sctp_listen_start(sk, backlog);
 		if (err)
@@ -8429,6 +11350,7 @@ static void sctp_wfree(struct sk_buff *skb)
 	struct sctp_association *asoc = chunk->asoc;
 	struct sock *sk = asoc->base.sk;
 
+<<<<<<< HEAD
 	asoc->sndbuf_used -= SCTP_DATA_SNDSIZE(chunk) +
 				sizeof(struct sk_buff) +
 				sizeof(struct sctp_chunk);
@@ -8440,6 +11362,13 @@ static void sctp_wfree(struct sk_buff *skb)
 	 */
 	sk->sk_wmem_queued   -= skb->truesize;
 	sk_mem_uncharge(sk, skb->truesize);
+=======
+	sk_mem_uncharge(sk, skb->truesize);
+	sk->sk_wmem_queued -= skb->truesize + sizeof(struct sctp_chunk);
+	asoc->sndbuf_used -= skb->truesize + sizeof(struct sctp_chunk);
+	WARN_ON(refcount_sub_and_test(sizeof(struct sctp_chunk),
+				      &sk->sk_wmem_alloc));
+>>>>>>> upstream/android-13
 
 	if (chunk->shkey) {
 		struct sctp_shared_key *shkey = chunk->shkey;
@@ -8783,7 +11712,11 @@ void sctp_copy_sock(struct sock *newsk, struct sock *sk,
 	if (newsk->sk_flags & SK_FLAGS_TIMESTAMP)
 		net_enable_timestamp();
 
+<<<<<<< HEAD
 	/* Set newsk security attributes from orginal sk and connection
+=======
+	/* Set newsk security attributes from original sk and connection
+>>>>>>> upstream/android-13
 	 * security attribute from ep.
 	 */
 	security_sctp_sk_clone(ep, sk, newsk);
@@ -8792,6 +11725,7 @@ void sctp_copy_sock(struct sock *newsk, struct sock *sk,
 static inline void sctp_copy_descendant(struct sock *sk_to,
 					const struct sock *sk_from)
 {
+<<<<<<< HEAD
 	int ancestor_size = sizeof(struct inet_sock) +
 			    sizeof(struct sctp_sock) -
 			    offsetof(struct sctp_sock, auto_asconf_list);
@@ -8799,15 +11733,27 @@ static inline void sctp_copy_descendant(struct sock *sk_to,
 	if (sk_from->sk_family == PF_INET6)
 		ancestor_size += sizeof(struct ipv6_pinfo);
 
+=======
+	size_t ancestor_size = sizeof(struct inet_sock);
+
+	ancestor_size += sk_from->sk_prot->obj_size;
+	ancestor_size -= offsetof(struct sctp_sock, pd_lobby);
+>>>>>>> upstream/android-13
 	__inet_sk_copy_descendant(sk_to, sk_from, ancestor_size);
 }
 
 /* Populate the fields of the newsk from the oldsk and migrate the assoc
  * and its messages to the newsk.
  */
+<<<<<<< HEAD
 static void sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
 			      struct sctp_association *assoc,
 			      enum sctp_socket_type type)
+=======
+static int sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
+			     struct sctp_association *assoc,
+			     enum sctp_socket_type type)
+>>>>>>> upstream/android-13
 {
 	struct sctp_sock *oldsp = sctp_sk(oldsk);
 	struct sctp_sock *newsp = sctp_sk(newsk);
@@ -8816,6 +11762,10 @@ static void sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
 	struct sk_buff *skb, *tmp;
 	struct sctp_ulpevent *event;
 	struct sctp_bind_hashbucket *head;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* Migrate socket buffer sizes and all the socket level options to the
 	 * new socket.
@@ -8844,8 +11794,25 @@ static void sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
 	/* Copy the bind_addr list from the original endpoint to the new
 	 * endpoint so that we can handle restarts properly
 	 */
+<<<<<<< HEAD
 	sctp_bind_addr_dup(&newsp->ep->base.bind_addr,
 				&oldsp->ep->base.bind_addr, GFP_KERNEL);
+=======
+	err = sctp_bind_addr_dup(&newsp->ep->base.bind_addr,
+				 &oldsp->ep->base.bind_addr, GFP_KERNEL);
+	if (err)
+		return err;
+
+	/* New ep's auth_hmacs should be set if old ep's is set, in case
+	 * that net->sctp.auth_enable has been changed to 0 by users and
+	 * new ep's auth_hmacs couldn't be set in sctp_endpoint_init().
+	 */
+	if (oldsp->ep->auth_hmacs) {
+		err = sctp_auth_init_hmacs(newsp->ep, GFP_KERNEL);
+		if (err)
+			return err;
+	}
+>>>>>>> upstream/android-13
 
 	sctp_auto_asconf_init(newsp);
 
@@ -8867,7 +11834,10 @@ static void sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
 	 * 2) Peeling off partial delivery; keep pd_lobby in new pd_lobby.
 	 * 3) Peeling off non-partial delivery; move pd_lobby to receive_queue.
 	 */
+<<<<<<< HEAD
 	skb_queue_head_init(&newsp->pd_lobby);
+=======
+>>>>>>> upstream/android-13
 	atomic_set(&sctp_sk(newsk)->pd_mode, assoc->ulpq.pd_mode);
 
 	if (atomic_read(&sctp_sk(oldsk)->pd_mode)) {
@@ -8932,6 +11902,11 @@ static void sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
 	}
 
 	release_sock(newsk);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -8951,6 +11926,10 @@ struct proto sctp_prot = {
 	.sendmsg     =	sctp_sendmsg,
 	.recvmsg     =	sctp_recvmsg,
 	.bind        =	sctp_bind,
+<<<<<<< HEAD
+=======
+	.bind_add    =  sctp_bind_add,
+>>>>>>> upstream/android-13
 	.backlog_rcv =	sctp_backlog_rcv,
 	.hash        =	sctp_hash,
 	.unhash      =	sctp_unhash,
@@ -8993,6 +11972,10 @@ struct proto sctpv6_prot = {
 	.sendmsg	= sctp_sendmsg,
 	.recvmsg	= sctp_recvmsg,
 	.bind		= sctp_bind,
+<<<<<<< HEAD
+=======
+	.bind_add	= sctp_bind_add,
+>>>>>>> upstream/android-13
 	.backlog_rcv	= sctp_backlog_rcv,
 	.hash		= sctp_hash,
 	.unhash		= sctp_unhash,

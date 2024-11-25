@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * lm92 - Hardware monitoring driver
  * Copyright (C) 2005-2008  Jean Delvare <jdelvare@suse.de>
@@ -24,6 +28,7 @@
  * Support could easily be added for the National Semiconductor LM76
  * and Maxim MAX6633 and MAX6634 chips, which are mostly compatible
  * with the LM92.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +39,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -127,8 +134,13 @@ static struct lm92_data *lm92_update_device(struct device *dev)
 
 	mutex_lock(&data->update_lock);
 
+<<<<<<< HEAD
 	if (time_after(jiffies, data->last_updated + HZ)
 	 || !data->valid) {
+=======
+	if (time_after(jiffies, data->last_updated + HZ) ||
+	    !data->valid) {
+>>>>>>> upstream/android-13
 		dev_dbg(&client->dev, "Updating lm92 data\n");
 		for (i = 0; i < t_num_regs; i++) {
 			data->temp[i] =
@@ -143,7 +155,11 @@ static struct lm92_data *lm92_update_device(struct device *dev)
 	return data;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *devattr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -152,8 +168,14 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[attr->index]));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
 			   const char *buf, size_t count)
+=======
+static ssize_t temp_store(struct device *dev,
+			  struct device_attribute *devattr, const char *buf,
+			  size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct lm92_data *data = dev_get_drvdata(dev);
@@ -161,7 +183,11 @@ static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
 	int nr = attr->index;
 	long val;
 	int err;
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	err = kstrtol(buf, 10, &val);
 	if (err)
 		return err;
@@ -173,11 +199,19 @@ static ssize_t set_temp(struct device *dev, struct device_attribute *devattr,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_hyst(struct device *dev,
+=======
+static ssize_t temp_hyst_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct lm92_data *data = lm92_update_device(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[attr->index])
 		       - TEMP_FROM_REG(data->temp[t_hyst]));
 }
@@ -186,13 +220,23 @@ static ssize_t temp1_min_hyst_show(struct device *dev,
 				   struct device_attribute *attr, char *buf)
 {
 	struct lm92_data *data = lm92_update_device(dev);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[t_min])
 		       + TEMP_FROM_REG(data->temp[t_hyst]));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_hyst(struct device *dev,
 			     struct device_attribute *devattr,
 			     const char *buf, size_t count)
+=======
+static ssize_t temp_hyst_store(struct device *dev,
+			       struct device_attribute *devattr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct lm92_data *data = dev_get_drvdata(dev);
@@ -206,7 +250,11 @@ static ssize_t set_temp_hyst(struct device *dev,
 
 	val = clamp_val(val, -120000, 220000);
 	mutex_lock(&data->update_lock);
+<<<<<<< HEAD
 	 data->temp[t_hyst] =
+=======
+	data->temp[t_hyst] =
+>>>>>>> upstream/android-13
 		TEMP_TO_REG(TEMP_FROM_REG(data->temp[attr->index]) - val);
 	i2c_smbus_write_word_swapped(client, LM92_REG_TEMP_HYST,
 				     data->temp[t_hyst]);
@@ -218,10 +266,18 @@ static ssize_t alarms_show(struct device *dev, struct device_attribute *attr,
 			   char *buf)
 {
 	struct lm92_data *data = lm92_update_device(dev);
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", ALARMS_FROM_REG(data->temp[t_input]));
 }
 
 static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
+=======
+
+	return sprintf(buf, "%d\n", ALARMS_FROM_REG(data->temp[t_input]));
+}
+
+static ssize_t alarm_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  char *buf)
 {
 	int bitnr = to_sensor_dev_attr(attr)->index;
@@ -229,6 +285,7 @@ static ssize_t show_alarm(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%d\n", (data->temp[t_input] >> bitnr) & 1);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL, t_input);
 static SENSOR_DEVICE_ATTR(temp1_crit, S_IWUSR | S_IRUGO, show_temp, set_temp,
 			  t_crit);
@@ -244,6 +301,19 @@ static DEVICE_ATTR_RO(alarms);
 static SENSOR_DEVICE_ATTR(temp1_crit_alarm, S_IRUGO, show_alarm, NULL, 2);
 static SENSOR_DEVICE_ATTR(temp1_min_alarm, S_IRUGO, show_alarm, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO, show_alarm, NULL, 1);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, t_input);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit, temp, t_crit);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit_hyst, temp_hyst, t_crit);
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp, t_min);
+static DEVICE_ATTR_RO(temp1_min_hyst);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp, t_max);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_hyst, temp_hyst, t_max);
+static DEVICE_ATTR_RO(alarms);
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_alarm, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, alarm, 1);
+>>>>>>> upstream/android-13
 
 /*
  * Detection and registration
@@ -301,8 +371,12 @@ static int lm92_detect(struct i2c_client *new_client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lm92_probe(struct i2c_client *new_client,
 		      const struct i2c_device_id *id)
+=======
+static int lm92_probe(struct i2c_client *new_client)
+>>>>>>> upstream/android-13
 {
 	struct device *hwmon_dev;
 	struct lm92_data *data;
@@ -324,7 +398,10 @@ static int lm92_probe(struct i2c_client *new_client,
 	return PTR_ERR_OR_ZERO(hwmon_dev);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Module and driver stuff
  */
@@ -341,7 +418,11 @@ static struct i2c_driver lm92_driver = {
 	.driver = {
 		.name	= "lm92",
 	},
+<<<<<<< HEAD
 	.probe		= lm92_probe,
+=======
+	.probe_new	= lm92_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm92_id,
 	.detect		= lm92_detect,
 	.address_list	= normal_i2c,

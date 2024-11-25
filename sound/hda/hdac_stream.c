@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HD-audio stream operations
  */
@@ -13,6 +17,43 @@
 #include "trace.h"
 
 /**
+<<<<<<< HEAD
+=======
+ * snd_hdac_get_stream_stripe_ctl - get stripe control value
+ * @bus: HD-audio core bus
+ * @substream: PCM substream
+ */
+int snd_hdac_get_stream_stripe_ctl(struct hdac_bus *bus,
+				   struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	unsigned int channels = runtime->channels,
+		     rate = runtime->rate,
+		     bits_per_sample = runtime->sample_bits,
+		     max_sdo_lines, value, sdo_line;
+
+	/* T_AZA_GCAP_NSDO is 1:2 bitfields in GCAP */
+	max_sdo_lines = snd_hdac_chip_readl(bus, GCAP) & AZX_GCAP_NSDO;
+
+	/* following is from HD audio spec */
+	for (sdo_line = max_sdo_lines; sdo_line > 0; sdo_line >>= 1) {
+		if (rate > 48000)
+			value = (channels * bits_per_sample *
+					(rate / 48000)) / sdo_line;
+		else
+			value = (channels * bits_per_sample) / sdo_line;
+
+		if (value >= bus->sdo_limit)
+			break;
+	}
+
+	/* stripe value: 0 for 1SDO, 1 for 2SDO, 2 for 4SDO lines */
+	return sdo_line >> 1;
+}
+EXPORT_SYMBOL_GPL(snd_hdac_get_stream_stripe_ctl);
+
+/**
+>>>>>>> upstream/android-13
  * snd_hdac_stream_init - initialize each stream (aka device)
  * @bus: HD-audio core bus
  * @azx_dev: HD-audio core stream object to initialize
@@ -48,6 +89,10 @@ EXPORT_SYMBOL_GPL(snd_hdac_stream_init);
 void snd_hdac_stream_start(struct hdac_stream *azx_dev, bool fresh_start)
 {
 	struct hdac_bus *bus = azx_dev->bus;
+<<<<<<< HEAD
+=======
+	int stripe_ctl;
+>>>>>>> upstream/android-13
 
 	trace_snd_hdac_stream_start(bus, azx_dev);
 
@@ -56,7 +101,22 @@ void snd_hdac_stream_start(struct hdac_stream *azx_dev, bool fresh_start)
 		azx_dev->start_wallclk -= azx_dev->period_wallclk;
 
 	/* enable SIE */
+<<<<<<< HEAD
 	snd_hdac_chip_updatel(bus, INTCTL, 0, 1 << azx_dev->index);
+=======
+	snd_hdac_chip_updatel(bus, INTCTL,
+			      1 << azx_dev->index,
+			      1 << azx_dev->index);
+	/* set stripe control */
+	if (azx_dev->stripe) {
+		if (azx_dev->substream)
+			stripe_ctl = snd_hdac_get_stream_stripe_ctl(bus, azx_dev->substream);
+		else
+			stripe_ctl = 0;
+		snd_hdac_stream_updateb(azx_dev, SD_CTL_3B, SD_CTL_STRIPE_MASK,
+					stripe_ctl);
+	}
+>>>>>>> upstream/android-13
 	/* set DMA start and interrupt mask */
 	snd_hdac_stream_updateb(azx_dev, SD_CTL,
 				0, SD_CTL_DMA_START | SD_INT_MASK);
@@ -73,6 +133,11 @@ void snd_hdac_stream_clear(struct hdac_stream *azx_dev)
 	snd_hdac_stream_updateb(azx_dev, SD_CTL,
 				SD_CTL_DMA_START | SD_INT_MASK, 0);
 	snd_hdac_stream_writeb(azx_dev, SD_STS, SD_INT_MASK); /* to be sure */
+<<<<<<< HEAD
+=======
+	if (azx_dev->stripe)
+		snd_hdac_stream_updateb(azx_dev, SD_CTL_3B, SD_CTL_STRIPE_MASK, 0);
+>>>>>>> upstream/android-13
 	azx_dev->running = false;
 }
 EXPORT_SYMBOL_GPL(snd_hdac_stream_clear);
@@ -101,9 +166,18 @@ void snd_hdac_stream_reset(struct hdac_stream *azx_dev)
 {
 	unsigned char val;
 	int timeout;
+<<<<<<< HEAD
 
 	snd_hdac_stream_clear(azx_dev);
 
+=======
+	int dma_run_state;
+
+	snd_hdac_stream_clear(azx_dev);
+
+	dma_run_state = snd_hdac_stream_readb(azx_dev, SD_CTL) & SD_CTL_DMA_START;
+
+>>>>>>> upstream/android-13
 	snd_hdac_stream_updateb(azx_dev, SD_CTL, 0, SD_CTL_STREAM_RESET);
 	udelay(3);
 	timeout = 300;
@@ -113,6 +187,13 @@ void snd_hdac_stream_reset(struct hdac_stream *azx_dev)
 		if (val)
 			break;
 	} while (--timeout);
+<<<<<<< HEAD
+=======
+
+	if (azx_dev->bus->dma_stop_delay && dma_run_state)
+		udelay(azx_dev->bus->dma_stop_delay);
+
+>>>>>>> upstream/android-13
 	val &= ~SD_CTL_STREAM_RESET;
 	snd_hdac_stream_writeb(azx_dev, SD_CTL, val);
 	udelay(3);
@@ -183,11 +264,15 @@ int snd_hdac_stream_setup(struct hdac_stream *azx_dev)
 	/* set the interrupt enable bits in the descriptor control register */
 	snd_hdac_stream_updatel(azx_dev, SD_CTL, 0, SD_INT_MASK);
 
+<<<<<<< HEAD
 	if (azx_dev->direction == SNDRV_PCM_STREAM_PLAYBACK)
 		azx_dev->fifo_size =
 			snd_hdac_stream_readw(azx_dev, SD_FIFOSIZE) + 1;
 	else
 		azx_dev->fifo_size = 0;
+=======
+	azx_dev->fifo_size = snd_hdac_stream_readw(azx_dev, SD_FIFOSIZE) + 1;
+>>>>>>> upstream/android-13
 
 	/* when LPIB delay correction gives a small negative value,
 	 * we ignore it; currently set the threshold statically to
@@ -244,6 +329,10 @@ struct hdac_stream *snd_hdac_stream_assign(struct hdac_bus *bus,
 	int key = (substream->pcm->device << 16) | (substream->number << 2) |
 		(substream->stream + 1);
 
+<<<<<<< HEAD
+=======
+	spin_lock_irq(&bus->reg_lock);
+>>>>>>> upstream/android-13
 	list_for_each_entry(azx_dev, &bus->stream_list, list) {
 		if (azx_dev->direction != substream->stream)
 			continue;
@@ -257,13 +346,21 @@ struct hdac_stream *snd_hdac_stream_assign(struct hdac_bus *bus,
 			res = azx_dev;
 	}
 	if (res) {
+<<<<<<< HEAD
 		spin_lock_irq(&bus->reg_lock);
+=======
+>>>>>>> upstream/android-13
 		res->opened = 1;
 		res->running = 0;
 		res->assigned_key = key;
 		res->substream = substream;
+<<<<<<< HEAD
 		spin_unlock_irq(&bus->reg_lock);
 	}
+=======
+	}
+	spin_unlock_irq(&bus->reg_lock);
+>>>>>>> upstream/android-13
 	return res;
 }
 EXPORT_SYMBOL_GPL(snd_hdac_stream_assign);
@@ -383,12 +480,20 @@ int snd_hdac_stream_setup_periods(struct hdac_stream *azx_dev)
 	pos_adj = bus->bdl_pos_adj;
 	if (!azx_dev->no_period_wakeup && pos_adj > 0) {
 		pos_align = pos_adj;
+<<<<<<< HEAD
 		pos_adj = (pos_adj * runtime->rate + 47999) / 48000;
 		if (!pos_adj)
 			pos_adj = pos_align;
 		else
 			pos_adj = ((pos_adj + pos_align - 1) / pos_align) *
 				pos_align;
+=======
+		pos_adj = DIV_ROUND_UP(pos_adj * runtime->rate, 48000);
+		if (!pos_adj)
+			pos_adj = pos_align;
+		else
+			pos_adj = roundup(pos_adj, pos_align);
+>>>>>>> upstream/android-13
 		pos_adj = frames_to_bytes(runtime, pos_adj);
 		if (pos_adj >= period_bytes) {
 			dev_warn(bus->dev, "Too big adjustment %d\n",
@@ -483,6 +588,7 @@ static void azx_timecounter_init(struct hdac_stream *azx_dev,
 	cc->mask = CLOCKSOURCE_MASK(32);
 
 	/*
+<<<<<<< HEAD
 	 * Converting from 24 MHz to ns means applying a 125/3 factor.
 	 * To avoid any saturation issues in intermediate operations,
 	 * the 125 factor is applied first. The division is applied
@@ -494,6 +600,13 @@ static void azx_timecounter_init(struct hdac_stream *azx_dev,
 
 	cc->mult = 125; /* saturation after 195 years */
 	cc->shift = 0;
+=======
+	 * Calculate the optimal mult/shift values. The counter wraps
+	 * around after ~178.9 seconds.
+	 */
+	clocks_calc_mult_shift(&cc->mult, &cc->shift, 24000000,
+			       NSEC_PER_SEC, 178);
+>>>>>>> upstream/android-13
 
 	nsec = 0; /* audio time is elapsed time since trigger */
 	timecounter_init(tc, cc, nsec);
@@ -545,7 +658,13 @@ EXPORT_SYMBOL_GPL(snd_hdac_stream_timecounter_init);
 /**
  * snd_hdac_stream_sync_trigger - turn on/off stream sync register
  * @azx_dev: HD-audio core stream (master stream)
+<<<<<<< HEAD
  * @streams: bit flags of streams to sync
+=======
+ * @set: true = set, false = clear
+ * @streams: bit flags of streams to sync
+ * @reg: the stream sync register address
+>>>>>>> upstream/android-13
  */
 void snd_hdac_stream_sync_trigger(struct hdac_stream *azx_dev, bool set,
 				  unsigned int streams, unsigned int reg)
@@ -565,7 +684,11 @@ void snd_hdac_stream_sync_trigger(struct hdac_stream *azx_dev, bool set,
 EXPORT_SYMBOL_GPL(snd_hdac_stream_sync_trigger);
 
 /**
+<<<<<<< HEAD
  * snd_hdac_stream_sync - sync with start/strop trigger operation
+=======
+ * snd_hdac_stream_sync - sync with start/stop trigger operation
+>>>>>>> upstream/android-13
  * @azx_dev: HD-audio core stream (master stream)
  * @start: true = start, false = stop
  * @streams: bit flags of streams to sync
@@ -584,6 +707,7 @@ void snd_hdac_stream_sync(struct hdac_stream *azx_dev, bool start,
 		nwait = 0;
 		i = 0;
 		list_for_each_entry(s, &bus->stream_list, list) {
+<<<<<<< HEAD
 			if (streams & (1 << i)) {
 				if (start) {
 					/* check FIFO gets ready */
@@ -598,6 +722,29 @@ void snd_hdac_stream_sync(struct hdac_stream *azx_dev, bool start,
 				}
 			}
 			i++;
+=======
+			if (!(streams & (1 << i++)))
+				continue;
+
+			if (start) {
+				/* check FIFO gets ready */
+				if (!(snd_hdac_stream_readb(s, SD_STS) &
+				      SD_STS_FIFO_READY))
+					nwait++;
+			} else {
+				/* check RUN bit is cleared */
+				if (snd_hdac_stream_readb(s, SD_CTL) &
+				    SD_CTL_DMA_START) {
+					nwait++;
+					/*
+					 * Perform stream reset if DMA RUN
+					 * bit not cleared within given timeout
+					 */
+					if (timeout == 1)
+						snd_hdac_stream_reset(s);
+				}
+			}
+>>>>>>> upstream/android-13
 		}
 		if (!nwait)
 			break;
@@ -634,8 +781,13 @@ int snd_hdac_dsp_prepare(struct hdac_stream *azx_dev, unsigned int format,
 	azx_dev->locked = true;
 	spin_unlock_irq(&bus->reg_lock);
 
+<<<<<<< HEAD
 	err = bus->io_ops->dma_alloc_pages(bus, SNDRV_DMA_TYPE_DEV_SG,
 					   byte_size, bufp);
+=======
+	err = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV_SG, bus->dev,
+				  byte_size, bufp);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto err_alloc;
 
@@ -661,7 +813,11 @@ int snd_hdac_dsp_prepare(struct hdac_stream *azx_dev, unsigned int format,
 	return azx_dev->stream_tag;
 
  error:
+<<<<<<< HEAD
 	bus->io_ops->dma_free_pages(bus, bufp);
+=======
+	snd_dma_free_pages(bufp);
+>>>>>>> upstream/android-13
  err_alloc:
 	spin_lock_irq(&bus->reg_lock);
 	azx_dev->locked = false;
@@ -708,7 +864,11 @@ void snd_hdac_dsp_cleanup(struct hdac_stream *azx_dev,
 	azx_dev->period_bytes = 0;
 	azx_dev->format_val = 0;
 
+<<<<<<< HEAD
 	bus->io_ops->dma_free_pages(bus, dmab);
+=======
+	snd_dma_free_pages(dmab);
+>>>>>>> upstream/android-13
 	dmab->area = NULL;
 
 	spin_lock_irq(&bus->reg_lock);

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) Alan Cox GW4PTS (alan@lxorguk.ukuu.org.uk)
  * Copyright (C) Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
@@ -328,7 +333,10 @@ void ax25_kick(ax25_cb *ax25)
 
 void ax25_transmit_buffer(ax25_cb *ax25, struct sk_buff *skb, int type)
 {
+<<<<<<< HEAD
 	struct sk_buff *skbn;
+=======
+>>>>>>> upstream/android-13
 	unsigned char *ptr;
 	int headroom;
 
@@ -339,6 +347,7 @@ void ax25_transmit_buffer(ax25_cb *ax25, struct sk_buff *skb, int type)
 
 	headroom = ax25_addr_size(ax25->digipeat);
 
+<<<<<<< HEAD
 	if (skb_headroom(skb) < headroom) {
 		if ((skbn = skb_realloc_headroom(skb, headroom)) == NULL) {
 			printk(KERN_CRIT "AX.25: ax25_transmit_buffer - out of memory\n");
@@ -351,6 +360,14 @@ void ax25_transmit_buffer(ax25_cb *ax25, struct sk_buff *skb, int type)
 
 		consume_skb(skb);
 		skb = skbn;
+=======
+	if (unlikely(skb_headroom(skb) < headroom)) {
+		skb = skb_expand_head(skb, headroom);
+		if (!skb) {
+			printk(KERN_CRIT "AX.25: ax25_transmit_buffer - out of memory\n");
+			return;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	ptr = skb_push(skb, headroom);

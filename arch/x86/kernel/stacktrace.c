@@ -12,6 +12,7 @@
 #include <asm/stacktrace.h>
 #include <asm/unwind.h>
 
+<<<<<<< HEAD
 static int save_stack_address(struct stack_trace *trace, unsigned long addr,
 			      bool nosched)
 {
@@ -33,16 +34,26 @@ static int save_stack_address(struct stack_trace *trace, unsigned long addr,
 static void noinline __save_stack_trace(struct stack_trace *trace,
 			       struct task_struct *task, struct pt_regs *regs,
 			       bool nosched)
+=======
+void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
+		     struct task_struct *task, struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 	struct unwind_state state;
 	unsigned long addr;
 
+<<<<<<< HEAD
 	if (regs)
 		save_stack_address(trace, regs->ip, nosched);
+=======
+	if (regs && !consume_entry(cookie, regs->ip))
+		return;
+>>>>>>> upstream/android-13
 
 	for (unwind_start(&state, task, regs, NULL); !unwind_done(&state);
 	     unwind_next_frame(&state)) {
 		addr = unwind_get_return_address(&state);
+<<<<<<< HEAD
 		if (!addr || save_stack_address(trace, addr, nosched))
 			break;
 	}
@@ -84,6 +95,15 @@ EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
 static int __always_inline
 __save_stack_trace_reliable(struct stack_trace *trace,
 			    struct task_struct *task)
+=======
+		if (!addr || !consume_entry(cookie, addr))
+			break;
+	}
+}
+
+int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
+			     void *cookie, struct task_struct *task)
+>>>>>>> upstream/android-13
 {
 	struct unwind_state state;
 	struct pt_regs *regs;
@@ -97,7 +117,11 @@ __save_stack_trace_reliable(struct stack_trace *trace,
 		if (regs) {
 			/* Success path for user tasks */
 			if (user_mode(regs))
+<<<<<<< HEAD
 				goto success;
+=======
+				return 0;
+>>>>>>> upstream/android-13
 
 			/*
 			 * Kernel mode registers on the stack indicate an
@@ -105,7 +129,10 @@ __save_stack_trace_reliable(struct stack_trace *trace,
 			 * or a page fault), which can make frame pointers
 			 * unreliable.
 			 */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 			if (IS_ENABLED(CONFIG_FRAME_POINTER))
 				return -EINVAL;
 		}
@@ -120,7 +147,11 @@ __save_stack_trace_reliable(struct stack_trace *trace,
 		if (!addr)
 			return -EINVAL;
 
+<<<<<<< HEAD
 		if (save_stack_address(trace, addr, false))
+=======
+		if (!consume_entry(cookie, addr))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 	}
 
@@ -128,6 +159,7 @@ __save_stack_trace_reliable(struct stack_trace *trace,
 	if (unwind_error(&state))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Success path for non-user tasks, i.e. kthreads and idle tasks */
 	if (!(task->flags & (PF_KTHREAD | PF_IDLE)))
 		return -EINVAL;
@@ -165,6 +197,11 @@ int save_stack_trace_tsk_reliable(struct task_struct *tsk,
 }
 #endif /* CONFIG_HAVE_RELIABLE_STACKTRACE */
 
+=======
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Userspace stacktrace - based on kernel/trace/trace_sysprof.c */
 
 struct stack_frame_user {
@@ -173,22 +210,37 @@ struct stack_frame_user {
 };
 
 static int
+<<<<<<< HEAD
 copy_stack_frame(const void __user *fp, struct stack_frame_user *frame)
 {
 	int ret;
 
 	if (!access_ok(VERIFY_READ, fp, sizeof(*frame)))
+=======
+copy_stack_frame(const struct stack_frame_user __user *fp,
+		 struct stack_frame_user *frame)
+{
+	int ret;
+
+	if (__range_not_ok(fp, sizeof(*frame), TASK_SIZE))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ret = 1;
 	pagefault_disable();
+<<<<<<< HEAD
 	if (__copy_from_user_inatomic(frame, fp, sizeof(*frame)))
+=======
+	if (__get_user(frame->next_fp, &fp->next_fp) ||
+	    __get_user(frame->ret_addr, &fp->ret_addr))
+>>>>>>> upstream/android-13
 		ret = 0;
 	pagefault_enable();
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline void __save_stack_trace_user(struct stack_trace *trace)
 {
 	const struct pt_regs *regs = task_pt_regs(current);
@@ -198,6 +250,17 @@ static inline void __save_stack_trace_user(struct stack_trace *trace)
 		trace->entries[trace->nr_entries++] = regs->ip;
 
 	while (trace->nr_entries < trace->max_entries) {
+=======
+void arch_stack_walk_user(stack_trace_consume_fn consume_entry, void *cookie,
+			  const struct pt_regs *regs)
+{
+	const void __user *fp = (const void __user *)regs->bp;
+
+	if (!consume_entry(cookie, regs->ip))
+		return;
+
+	while (1) {
+>>>>>>> upstream/android-13
 		struct stack_frame_user frame;
 
 		frame.next_fp = NULL;
@@ -206,16 +269,23 @@ static inline void __save_stack_trace_user(struct stack_trace *trace)
 			break;
 		if ((unsigned long)fp < regs->sp)
 			break;
+<<<<<<< HEAD
 		if (frame.ret_addr) {
 			trace->entries[trace->nr_entries++] =
 				frame.ret_addr;
 		}
 		if (fp == frame.next_fp)
+=======
+		if (!frame.ret_addr)
+			break;
+		if (!consume_entry(cookie, frame.ret_addr))
+>>>>>>> upstream/android-13
 			break;
 		fp = frame.next_fp;
 	}
 }
 
+<<<<<<< HEAD
 void save_stack_trace_user(struct stack_trace *trace)
 {
 	/*
@@ -227,3 +297,5 @@ void save_stack_trace_user(struct stack_trace *trace)
 	if (trace->nr_entries < trace->max_entries)
 		trace->entries[trace->nr_entries++] = ULONG_MAX;
 }
+=======
+>>>>>>> upstream/android-13

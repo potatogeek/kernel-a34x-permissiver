@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ngene-i2c.c: nGene PCIe bridge driver i2c functions
  *
@@ -7,6 +11,7 @@
  *                         Modifications for new nGene firmware,
  *                         support for EEPROM-copying,
  *                         support for new dual DVB-S2 card prototype
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +26,8 @@
  *
  * To obtain the license, point your browser to
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 /* FIXME - some of these can probably be removed */
@@ -161,7 +168,11 @@ int ngene_i2c_init(struct ngene *dev, int dev_nr)
 
 	i2c_set_adapdata(adap, &(dev->channel[dev_nr]));
 
+<<<<<<< HEAD
 	strcpy(adap->name, "nGene");
+=======
+	strscpy(adap->name, "nGene", sizeof(adap->name));
+>>>>>>> upstream/android-13
 
 	adap->algo = &ngene_i2c_algo;
 	adap->algo_data = (void *)&(dev->channel[dev_nr]);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2010  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2010  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../pci.h"
@@ -42,8 +47,13 @@ void rtl8821ae_sw_led_on(struct ieee80211_hw *hw, struct rtl_led *pled)
 	u8 ledcfg;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD,
 		 "LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD,
+		"LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin);
+>>>>>>> upstream/android-13
 
 	switch (pled->ledpin) {
 	case LED_PIN_GPIO0:
@@ -59,8 +69,13 @@ void rtl8821ae_sw_led_on(struct ieee80211_hw *hw, struct rtl_led *pled)
 		rtl_write_byte(rtlpriv, REG_LEDCFG1, ledcfg & 0x10);
 		break;
 	default:
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 			 "switch case %#x not processed\n", pled->ledpin);
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+			"switch case %#x not processed\n", pled->ledpin);
+>>>>>>> upstream/android-13
 		break;
 	}
 	pled->ledon = true;
@@ -86,9 +101,15 @@ void rtl8812ae_sw_led_on(struct ieee80211_hw *hw, struct rtl_led *pled)
 		break;
 	}
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD,
 		 "In SwLedOn, LedAddr:%X LEDPIN=%d\n",
 		 ledreg, pled->ledpin);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD,
+		"In SwLedOn, LedAddr:%X LEDPIN=%d\n",
+		ledreg, pled->ledpin);
+>>>>>>> upstream/android-13
 
 	ledcfg =  rtl_read_byte(rtlpriv, ledreg);
 	ledcfg |= BIT(5); /*Set 0x4c[21]*/
@@ -103,8 +124,13 @@ void rtl8821ae_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u8 ledcfg;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD,
 		 "LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD,
+		"LedAddr:%X ledpin=%d\n", REG_LEDCFG2, pled->ledpin);
+>>>>>>> upstream/android-13
 
 	ledcfg = rtl_read_byte(rtlpriv, REG_LEDCFG2);
 
@@ -131,8 +157,13 @@ void rtl8821ae_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
 		rtl_write_byte(rtlpriv, REG_LEDCFG1, ledcfg|BIT(3));
 		break;
 	default:
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 			 "switch case %#x not processed\n", pled->ledpin);
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+			"switch case %#x not processed\n", pled->ledpin);
+>>>>>>> upstream/android-13
 		break;
 	}
 	pled->ledon = false;
@@ -157,9 +188,15 @@ void rtl8812ae_sw_led_off(struct ieee80211_hw *hw, struct rtl_led *pled)
 		break;
 	}
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD,
 		 "In SwLedOff,LedAddr:%X LEDPIN=%d\n",
 		 ledreg, pled->ledpin);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD,
+		"In SwLedOff,LedAddr:%X LEDPIN=%d\n",
+		ledreg, pled->ledpin);
+>>>>>>> upstream/android-13
 	/*Open-drain arrangement for controlling the LED*/
 	if (rtlpriv->ledctl.led_opendrain) {
 		u8 ledcfg = rtl_read_byte(rtlpriv, ledreg);
@@ -229,7 +266,12 @@ void rtl8821ae_led_control(struct ieee80211_hw *hw,
 	     ledaction == LED_CTL_POWER_ON)) {
 		return;
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_LED, DBG_LOUD, "ledaction %d,\n",
 		 ledaction);
+=======
+	rtl_dbg(rtlpriv, COMP_LED, DBG_LOUD, "ledaction %d,\n",
+		ledaction);
+>>>>>>> upstream/android-13
 	_rtl8821ae_sw_led_control(hw, ledaction);
 }

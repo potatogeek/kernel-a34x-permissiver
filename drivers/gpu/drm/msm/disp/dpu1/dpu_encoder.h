@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DPU_ENCODER_H__
@@ -32,6 +39,7 @@
 /**
  * Encoder functions and data types
  * @intfs:	Interfaces this encoder is using, INTF_MODE_NONE if unused
+<<<<<<< HEAD
  * @needs_cdm:	Encoder requests a CDM based on pixel format conversion needs
  * @display_num_of_h_tiles: Number of horizontal tiles in case of split
  *                          interface
@@ -50,12 +58,18 @@ struct dpu_encoder_hw_resources {
  */
 struct dpu_encoder_kickoff_params {
 	unsigned long affected_displays;
+=======
+ */
+struct dpu_encoder_hw_resources {
+	enum dpu_intf_mode intfs[INTF_MAX];
+>>>>>>> upstream/android-13
 };
 
 /**
  * dpu_encoder_get_hw_resources - Populate table of required hardware resources
  * @encoder:	encoder pointer
  * @hw_res:	resource table to populate with encoder required resources
+<<<<<<< HEAD
  * @conn_state:	report hw reqs based on this proposed connector state
  */
 void dpu_encoder_get_hw_resources(struct drm_encoder *encoder,
@@ -71,6 +85,29 @@ void dpu_encoder_get_hw_resources(struct drm_encoder *encoder,
  */
 void dpu_encoder_register_vblank_callback(struct drm_encoder *encoder,
 		void (*cb)(void *), void *data);
+=======
+ */
+void dpu_encoder_get_hw_resources(struct drm_encoder *encoder,
+				  struct dpu_encoder_hw_resources *hw_res);
+
+/**
+ * dpu_encoder_assign_crtc - Link the encoder to the crtc it's assigned to
+ * @encoder:	encoder pointer
+ * @crtc:	crtc pointer
+ */
+void dpu_encoder_assign_crtc(struct drm_encoder *encoder,
+			     struct drm_crtc *crtc);
+
+/**
+ * dpu_encoder_toggle_vblank_for_crtc - Toggles vblank interrupts on or off if
+ *	the encoder is assigned to the given crtc
+ * @encoder:	encoder pointer
+ * @crtc:	crtc pointer
+ * @enable:	true if vblank should be enabled
+ */
+void dpu_encoder_toggle_vblank_for_crtc(struct drm_encoder *encoder,
+					struct drm_crtc *crtc, bool enable);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_encoder_register_frame_event_callback - provide callback to encoder that
@@ -88,10 +125,15 @@ void dpu_encoder_register_frame_event_callback(struct drm_encoder *encoder,
  *	Immediately: if no previous commit is outstanding.
  *	Delayed: Block until next trigger can be issued.
  * @encoder:	encoder pointer
+<<<<<<< HEAD
  * @params:	kickoff time parameters
  */
 void dpu_encoder_prepare_for_kickoff(struct drm_encoder *encoder,
 		struct dpu_encoder_kickoff_params *params);
+=======
+ */
+void dpu_encoder_prepare_for_kickoff(struct drm_encoder *encoder);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_encoder_trigger_kickoff_pending - Clear the flush bits from previous
@@ -108,6 +150,14 @@ void dpu_encoder_trigger_kickoff_pending(struct drm_encoder *encoder);
 void dpu_encoder_kickoff(struct drm_encoder *encoder);
 
 /**
+<<<<<<< HEAD
+=======
+ * dpu_encoder_wakeup_time - get the time of the next vsync
+ */
+int dpu_encoder_vsync_time(struct drm_encoder *drm_enc, ktime_t *wakeup_time);
+
+/**
+>>>>>>> upstream/android-13
  * dpu_encoder_wait_for_event - Waits for encoder events
  * @encoder:	encoder pointer
  * @event:      event to wait for
@@ -134,10 +184,17 @@ int dpu_encoder_wait_for_event(struct drm_encoder *drm_encoder,
 enum dpu_intf_mode dpu_encoder_get_intf_mode(struct drm_encoder *encoder);
 
 /**
+<<<<<<< HEAD
  * dpu_encoder_virt_restore - restore the encoder configs
  * @encoder:	encoder pointer
  */
 void dpu_encoder_virt_restore(struct drm_encoder *encoder);
+=======
+ * dpu_encoder_virt_runtime_resume - pm runtime resume the encoder configs
+ * @encoder:	encoder pointer
+ */
+void dpu_encoder_virt_runtime_resume(struct drm_encoder *encoder);
+>>>>>>> upstream/android-13
 
 /**
  * dpu_encoder_init - initialize virtual encoder object
@@ -173,5 +230,19 @@ void dpu_encoder_prepare_commit(struct drm_encoder *drm_enc);
  */
 void dpu_encoder_set_idle_timeout(struct drm_encoder *drm_enc,
 							u32 idle_timeout);
+<<<<<<< HEAD
+=======
+/**
+ * dpu_encoder_get_linecount - get interface line count for the encoder.
+ * @drm_enc:    Pointer to previously created drm encoder structure
+ */
+int dpu_encoder_get_linecount(struct drm_encoder *drm_enc);
+
+/**
+ * dpu_encoder_get_frame_count - get interface frame count for the encoder.
+ * @drm_enc:    Pointer to previously created drm encoder structure
+ */
+int dpu_encoder_get_frame_count(struct drm_encoder *drm_enc);
+>>>>>>> upstream/android-13
 
 #endif /* __DPU_ENCODER_H__ */

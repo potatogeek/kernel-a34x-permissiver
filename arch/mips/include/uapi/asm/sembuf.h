@@ -2,6 +2,11 @@
 #ifndef _ASM_SEMBUF_H
 #define _ASM_SEMBUF_H
 
+<<<<<<< HEAD
+=======
+#include <asm/ipcbuf.h>
+
+>>>>>>> upstream/android-13
 /*
  * The semid64_ds structure for the MIPS architecture.
  * Note extra padding because this structure is passed back and forth
@@ -14,8 +19,13 @@
 #ifdef __mips64
 struct semid64_ds {
 	struct ipc64_perm sem_perm;		/* permissions .. see ipc.h */
+<<<<<<< HEAD
 	__kernel_time_t sem_otime;		/* last semop time */
 	__kernel_time_t sem_ctime;		/* last change time */
+=======
+	long		 sem_otime;		/* last semop time */
+	long		 sem_ctime;		/* last change time */
+>>>>>>> upstream/android-13
 	unsigned long	sem_nsems;		/* no. of semaphores in array */
 	unsigned long	__unused1;
 	unsigned long	__unused2;

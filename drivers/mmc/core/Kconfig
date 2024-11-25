@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # MMC core configuration
 #
@@ -14,7 +18,11 @@ config PWRSEQ_EMMC
 
 config PWRSEQ_SD8787
 	tristate "HW reset support for SD8787 BT + Wifi module"
+<<<<<<< HEAD
 	depends on OF && (MWIFIEX || BT_MRVL_SDIO)
+=======
+	depends on OF && (MWIFIEX || BT_MRVL_SDIO || LIBERTAS_SDIO || WILC1000_SDIO)
+>>>>>>> upstream/android-13
 	help
 	  This selects hardware reset support for the SD8787 BT + Wifi
 	  module. By default this option is set to n.
@@ -43,11 +51,14 @@ config MMC_BLOCK
 	  mount the filesystem. Almost everyone wishing MMC support
 	  should say Y or M here.
 
+<<<<<<< HEAD
 config MMC_SUPPORT_STLOG
         bool "Enable storage log"
         depends on MMC && PROC_STLOG
         default y
 
+=======
+>>>>>>> upstream/android-13
 config MMC_BLOCK_MINORS
 	int "Number of minors per block device"
 	depends on MMC_BLOCK
@@ -93,6 +104,7 @@ config MMC_CRYPTO
 	  Enabling this makes it possible for the kernel to use the crypto
 	  capabilities of the MMC device (if present) to perform crypto
 	  operations on data being transferred to/from the device.
+<<<<<<< HEAD
 
 config MMC_CRYPTO_LEGACY
 	bool "MMC Crypto legacy Support"
@@ -115,3 +127,5 @@ config MMC_BLOCK_IO_LOG
 	  can be displayed by "cat /sys/kernel/debug/blockio".
 	  The trace is default enabled on user and eng builts, say N here to
 	  disable it.
+=======
+>>>>>>> upstream/android-13

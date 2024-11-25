@@ -25,5 +25,9 @@
 #define K_ERROR	 -2
 #define K_RESIZE -3
 #define K_SWITCH_INPUT_DATA -4
+<<<<<<< HEAD
+=======
+#define K_RELOAD -5
+>>>>>>> upstream/android-13
 
 #endif /* _PERF_KEYSYMS_H_ */

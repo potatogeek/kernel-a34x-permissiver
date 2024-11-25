@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /* Bootloader to resume MIO A701
  *
  * 2007-1-12 Robert Jarzmik
  *
  * This code is licenced under the GPLv2.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Bootloader to resume MIO A701
+ *
+ * 2007-1-12 Robert Jarzmik
+>>>>>>> upstream/android-13
 */
 
 #include <linux/linkage.h>

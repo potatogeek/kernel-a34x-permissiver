@@ -10,4 +10,8 @@ ixgbevf-objs := vf.o \
                 mbx.o \
                 ethtool.o \
                 ixgbevf_main.o
+<<<<<<< HEAD
+=======
+ixgbevf-$(CONFIG_IXGBEVF_IPSEC) += ipsec.o
+>>>>>>> upstream/android-13
 

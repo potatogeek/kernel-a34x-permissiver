@@ -62,7 +62,11 @@ static void sdma_get(struct qib_sdma_state *);
 static void sdma_put(struct qib_sdma_state *);
 static void sdma_set_state(struct qib_pportdata *, enum qib_sdma_states);
 static void sdma_start_sw_clean_up(struct qib_pportdata *);
+<<<<<<< HEAD
 static void sdma_sw_clean_up_task(unsigned long);
+=======
+static void sdma_sw_clean_up_task(struct tasklet_struct *);
+>>>>>>> upstream/android-13
 static void unmap_desc(struct qib_pportdata *, unsigned);
 
 static void sdma_get(struct qib_sdma_state *ss)
@@ -119,9 +123,16 @@ static void clear_sdma_activelist(struct qib_pportdata *ppd)
 	}
 }
 
+<<<<<<< HEAD
 static void sdma_sw_clean_up_task(unsigned long opaque)
 {
 	struct qib_pportdata *ppd = (struct qib_pportdata *) opaque;
+=======
+static void sdma_sw_clean_up_task(struct tasklet_struct *t)
+{
+	struct qib_pportdata *ppd = from_tasklet(ppd, t,
+						 sdma_sw_clean_up_task);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&ppd->sdma_lock, flags);
@@ -436,8 +447,12 @@ int qib_setup_sdma(struct qib_pportdata *ppd)
 
 	INIT_LIST_HEAD(&ppd->sdma_activelist);
 
+<<<<<<< HEAD
 	tasklet_init(&ppd->sdma_sw_clean_up_task, sdma_sw_clean_up_task,
 		(unsigned long)ppd);
+=======
+	tasklet_setup(&ppd->sdma_sw_clean_up_task, sdma_sw_clean_up_task);
+>>>>>>> upstream/android-13
 
 	ret = dd->f_init_sdma_regs(ppd);
 	if (ret)
@@ -565,6 +580,7 @@ retry:
 	sge = &ss->sge;
 	while (dwords) {
 		u32 dw;
+<<<<<<< HEAD
 		u32 len;
 
 		len = dwords << 2;
@@ -573,6 +589,10 @@ retry:
 		if (len > sge->sge_length)
 			len = sge->sge_length;
 		BUG_ON(len == 0);
+=======
+		u32 len = rvt_get_sge_length(sge, dwords << 2);
+
+>>>>>>> upstream/android-13
 		dw = (len + 3) >> 2;
 		addr = dma_map_single(&ppd->dd->pcidev->dev, sge->vaddr,
 				      dw << 2, DMA_TO_DEVICE);
@@ -595,6 +615,7 @@ retry:
 			descqp = &ppd->sdma_descq[0].qw[0];
 			++ppd->sdma_generation;
 		}
+<<<<<<< HEAD
 		sge->vaddr += len;
 		sge->length -= len;
 		sge->sge_length -= len;
@@ -613,6 +634,9 @@ retry:
 				sge->mr->map[sge->m]->segs[sge->n].length;
 		}
 
+=======
+		rvt_update_sge(ss, len, false);
+>>>>>>> upstream/android-13
 		dwoffset += dw;
 		dwords -= dw;
 	}
@@ -653,7 +677,11 @@ unmap:
 		if (ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK)
 			rvt_error_qp(qp, IB_WC_GENERAL_ERR);
 	} else if (qp->s_wqe)
+<<<<<<< HEAD
 		qib_send_complete(qp, qp->s_wqe, IB_WC_GENERAL_ERR);
+=======
+		rvt_send_complete(qp, qp->s_wqe, IB_WC_GENERAL_ERR);
+>>>>>>> upstream/android-13
 	spin_unlock(&qp->s_lock);
 	spin_unlock(&qp->r_lock);
 	/* return zero to process the next send work request */
@@ -786,7 +814,11 @@ void __qib_sdma_process_event(struct qib_pportdata *ppd,
 			 * bringing the link up with traffic active on
 			 * 7220, e.g. */
 			ss->go_s99_running = 1;
+<<<<<<< HEAD
 			/* fall through -- and start dma engine */
+=======
+			fallthrough;	/* and start dma engine */
+>>>>>>> upstream/android-13
 		case qib_sdma_event_e10_go_hw_start:
 			/* This reference means the state machine is started */
 			sdma_get(&ppd->sdma_state);

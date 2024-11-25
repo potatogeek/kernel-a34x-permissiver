@@ -4,6 +4,7 @@
  *
  * Drives the local APIC in "clustered mode".
  */
+<<<<<<< HEAD
 #include <linux/threads.h>
 #include <linux/cpumask.h>
 #include <linux/kernel.h>
@@ -16,6 +17,16 @@
 #include <asm/mpspec.h>
 #include <asm/apic.h>
 #include <asm/ipi.h>
+=======
+#include <linux/cpumask.h>
+#include <linux/dmi.h>
+#include <linux/smp.h>
+
+#include <asm/apic.h>
+#include <asm/io_apic.h>
+
+#include "local.h"
+>>>>>>> upstream/android-13
 
 static unsigned bigsmp_get_apic_id(unsigned long x)
 {
@@ -131,6 +142,7 @@ static struct apic apic_bigsmp __ro_after_init = {
 	.apic_id_valid			= default_apic_id_valid,
 	.apic_id_registered		= bigsmp_apic_id_registered,
 
+<<<<<<< HEAD
 	.irq_delivery_mode		= dest_Fixed,
 	/* phys delivery to target CPU: */
 	.irq_dest_mode			= 0,
@@ -141,6 +153,15 @@ static struct apic apic_bigsmp __ro_after_init = {
 
 	.init_apic_ldr			= bigsmp_init_apic_ldr,
 
+=======
+	.delivery_mode			= APIC_DELIVERY_MODE_FIXED,
+	.dest_mode_logical		= false,
+
+	.disable_esr			= 1,
+
+	.check_apicid_used		= bigsmp_check_apicid_used,
+	.init_apic_ldr			= bigsmp_init_apic_ldr,
+>>>>>>> upstream/android-13
 	.ioapic_phys_id_map		= bigsmp_ioapic_phys_id_map,
 	.setup_apic_routing		= bigsmp_setup_apic_routing,
 	.cpu_present_to_apicid		= bigsmp_cpu_present_to_apicid,

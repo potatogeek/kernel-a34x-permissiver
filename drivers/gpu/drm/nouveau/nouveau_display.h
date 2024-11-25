@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __NOUVEAU_DISPLAY_H__
 #define __NOUVEAU_DISPLAY_H__
@@ -32,12 +33,34 @@ struct nouveau_page_flip_state {
 	int bpp, pitch;
 	u64 offset;
 };
+=======
+/* SPDX-License-Identifier: MIT */
+#ifndef __NOUVEAU_DISPLAY_H__
+#define __NOUVEAU_DISPLAY_H__
+
+#include "nouveau_drv.h"
+
+#include <nvif/disp.h>
+
+#include <drm/drm_framebuffer.h>
+
+int
+nouveau_framebuffer_new(struct drm_device *dev,
+			const struct drm_mode_fb_cmd2 *mode_cmd,
+			struct drm_gem_object *gem,
+			struct drm_framebuffer **pfb);
+>>>>>>> upstream/android-13
 
 struct nouveau_display {
 	void *priv;
 	void (*dtor)(struct drm_device *);
+<<<<<<< HEAD
 	int  (*init)(struct drm_device *);
 	void (*fini)(struct drm_device *);
+=======
+	int  (*init)(struct drm_device *, bool resume, bool runtime);
+	void (*fini)(struct drm_device *, bool suspend, bool runtime);
+>>>>>>> upstream/android-13
 
 	struct nvif_disp disp;
 
@@ -51,6 +74,11 @@ struct nouveau_display {
 	struct drm_property *color_vibrance_property;
 
 	struct drm_atomic_state *suspend;
+<<<<<<< HEAD
+=======
+
+	const u64 *format_modifiers;
+>>>>>>> upstream/android-13
 };
 
 static inline struct nouveau_display *
@@ -61,6 +89,7 @@ nouveau_display(struct drm_device *dev)
 
 int  nouveau_display_create(struct drm_device *dev);
 void nouveau_display_destroy(struct drm_device *dev);
+<<<<<<< HEAD
 int  nouveau_display_init(struct drm_device *dev);
 void nouveau_display_fini(struct drm_device *dev, bool suspend, bool runtime);
 int  nouveau_display_suspend(struct drm_device *dev, bool runtime);
@@ -109,6 +138,28 @@ static inline void
 nouveau_backlight_dtor(void) {
 }
 #endif
+=======
+int  nouveau_display_init(struct drm_device *dev, bool resume, bool runtime);
+void nouveau_display_hpd_resume(struct drm_device *dev);
+void nouveau_display_fini(struct drm_device *dev, bool suspend, bool runtime);
+int  nouveau_display_suspend(struct drm_device *dev, bool runtime);
+void nouveau_display_resume(struct drm_device *dev, bool runtime);
+int  nouveau_display_vblank_enable(struct drm_crtc *crtc);
+void nouveau_display_vblank_disable(struct drm_crtc *crtc);
+bool nouveau_display_scanoutpos(struct drm_crtc *crtc,
+				bool in_vblank_irq, int *vpos, int *hpos,
+				ktime_t *stime, ktime_t *etime,
+				const struct drm_display_mode *mode);
+
+int  nouveau_display_dumb_create(struct drm_file *, struct drm_device *,
+				 struct drm_mode_create_dumb *args);
+
+void nouveau_hdmi_mode_set(struct drm_encoder *, struct drm_display_mode *);
+
+void
+nouveau_framebuffer_get_layout(struct drm_framebuffer *fb, uint32_t *tile_mode,
+			       uint8_t *kind);
+>>>>>>> upstream/android-13
 
 struct drm_framebuffer *
 nouveau_user_framebuffer_create(struct drm_device *, struct drm_file *,

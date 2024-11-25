@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble ICE1712 (Envy24)
  *
@@ -5,6 +9,7 @@
  *			    Audiophile, Digigram VX442
  *
  *	Copyright (c) 2000 Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */      
 
 #include <linux/delay.h>
@@ -690,13 +697,23 @@ static int snd_ice1712_delta_init(struct snd_ice1712 *ice)
 	case ICE1712_SUBDEVICE_DELTA1010LT:
 	case ICE1712_SUBDEVICE_VX442:
 	case ICE1712_SUBDEVICE_DELTA66E:
+<<<<<<< HEAD
 		if ((err = snd_i2c_bus_create(ice->card, "ICE1712 GPIO 1", NULL, &ice->i2c)) < 0) {
+=======
+		err = snd_i2c_bus_create(ice->card, "ICE1712 GPIO 1", NULL, &ice->i2c);
+		if (err < 0) {
+>>>>>>> upstream/android-13
 			dev_err(ice->card->dev, "unable to create I2C bus\n");
 			return err;
 		}
 		ice->i2c->private_data = ice;
 		ice->i2c->ops = &ap_cs8427_i2c_ops;
+<<<<<<< HEAD
 		if ((err = snd_ice1712_init_cs8427(ice, CS8427_BASE_ADDR)) < 0)
+=======
+		err = snd_ice1712_init_cs8427(ice, CS8427_BASE_ADDR);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 		break;
 	case ICE1712_SUBDEVICE_DELTA1010:
@@ -705,7 +722,11 @@ static int snd_ice1712_delta_init(struct snd_ice1712 *ice)
 		break;
 	case ICE1712_SUBDEVICE_DELTADIO2496:
 		ice->gpio.set_pro_rate = delta_1010_set_rate_val;
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ICE1712_SUBDEVICE_DELTA66:
 		ice->spdif.ops.open = delta_open_spdif;
 		ice->spdif.ops.setup_rate = delta_setup_spdif;
@@ -767,6 +788,7 @@ static int snd_ice1712_delta_init(struct snd_ice1712 *ice)
  * additional controls for M-Audio cards
  */
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_ice1712_delta1010_wordclock_select =
 ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "Word Clock Sync", 0, ICE1712_DELTA_WORD_CLOCK_SELECT, 1, 0);
 static struct snd_kcontrol_new snd_ice1712_delta1010lt_wordclock_select =
@@ -776,6 +798,17 @@ ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "Word Clock Status", 0, ICE1712_DELTA_W
 static struct snd_kcontrol_new snd_ice1712_deltadio2496_spdif_in_select =
 ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "IEC958 Input Optical", 0, ICE1712_DELTA_SPDIF_INPUT_SELECT, 0, 0);
 static struct snd_kcontrol_new snd_ice1712_delta_spdif_in_status =
+=======
+static const struct snd_kcontrol_new snd_ice1712_delta1010_wordclock_select =
+ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "Word Clock Sync", 0, ICE1712_DELTA_WORD_CLOCK_SELECT, 1, 0);
+static const struct snd_kcontrol_new snd_ice1712_delta1010lt_wordclock_select =
+ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "Word Clock Sync", 0, ICE1712_DELTA_1010LT_WORDCLOCK, 0, 0);
+static const struct snd_kcontrol_new snd_ice1712_delta1010_wordclock_status =
+ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "Word Clock Status", 0, ICE1712_DELTA_WORD_CLOCK_STATUS, 1, SNDRV_CTL_ELEM_ACCESS_READ | SNDRV_CTL_ELEM_ACCESS_VOLATILE);
+static const struct snd_kcontrol_new snd_ice1712_deltadio2496_spdif_in_select =
+ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "IEC958 Input Optical", 0, ICE1712_DELTA_SPDIF_INPUT_SELECT, 0, 0);
+static const struct snd_kcontrol_new snd_ice1712_delta_spdif_in_status =
+>>>>>>> upstream/android-13
 ICE1712_GPIO(SNDRV_CTL_ELEM_IFACE_MIXER, "Delta IEC958 Input Status", 0, ICE1712_DELTA_SPDIF_IN_STAT, 1, SNDRV_CTL_ELEM_ACCESS_READ | SNDRV_CTL_ELEM_ACCESS_VOLATILE);
 
 

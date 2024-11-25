@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * User-space Probes (UProbes) for powerpc
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * User-space Probes (UProbes) for powerpc
+ *
+>>>>>>> upstream/android-13
  * Copyright IBM Corporation, 2007-2012
  *
  * Adapted from the x86 port by Ananth N Mavinakayanahalli <ananth@in.ibm.com>
@@ -27,6 +34,10 @@
 #include <linux/kdebug.h>
 
 #include <asm/sstep.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 #define UPROBE_TRAP_NR	UINT_MAX
 
@@ -53,6 +64,16 @@ int arch_uprobe_analyze_insn(struct arch_uprobe *auprobe,
 	if (addr & 0x03)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (cpu_has_feature(CPU_FTR_ARCH_31) &&
+	    ppc_inst_prefixed(ppc_inst_read(auprobe->insn)) &&
+	    (addr & 0x3f) == 60) {
+		pr_info_ratelimited("Cannot register a uprobe on 64 byte unaligned prefixed instruction\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -67,7 +88,11 @@ int arch_uprobe_pre_xol(struct arch_uprobe *auprobe, struct pt_regs *regs)
 
 	autask->saved_trap_nr = current->thread.trap_nr;
 	current->thread.trap_nr = UPROBE_TRAP_NR;
+<<<<<<< HEAD
 	regs->nip = current->utask->xol_vaddr;
+=======
+	regs_set_return_ip(regs, current->utask->xol_vaddr);
+>>>>>>> upstream/android-13
 
 	user_enable_single_step(current);
 	return 0;
@@ -124,7 +149,11 @@ int arch_uprobe_post_xol(struct arch_uprobe *auprobe, struct pt_regs *regs)
 	 * support doesn't exist and have to fix-up the next instruction
 	 * to be executed.
 	 */
+<<<<<<< HEAD
 	regs->nip = utask->vaddr + MAX_UINSN_BYTES;
+=======
+	regs_set_return_ip(regs, (unsigned long)ppc_inst_next((void *)utask->vaddr, auprobe->insn));
+>>>>>>> upstream/android-13
 
 	user_disable_single_step(current);
 	return 0;
@@ -153,6 +182,10 @@ int arch_uprobe_exception_notify(struct notifier_block *self,
 	case DIE_SSTEP:
 		if (uprobe_post_sstep_notifier(regs))
 			return NOTIFY_STOP;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -186,7 +219,11 @@ bool arch_uprobe_skip_sstep(struct arch_uprobe *auprobe, struct pt_regs *regs)
 	 * emulate_step() returns 1 if the insn was successfully emulated.
 	 * For all other cases, we need to single-step in hardware.
 	 */
+<<<<<<< HEAD
 	ret = emulate_step(regs, auprobe->insn);
+=======
+	ret = emulate_step(regs, ppc_inst_read(auprobe->insn));
+>>>>>>> upstream/android-13
 	if (ret > 0)
 		return true;
 

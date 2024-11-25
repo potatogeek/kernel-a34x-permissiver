@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C)2003-2006 Helsinki University of Technology
  * Copyright (C)2003-2006 USAGI/WIDE Project
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C)2003-2006 Helsinki University of Technology
+ * Copyright (C)2003-2006 USAGI/WIDE Project
+>>>>>>> upstream/android-13
  */
 /*
  * Authors:
@@ -37,7 +44,11 @@ struct ip6_mh {
 	__u8	ip6mh_reserved;
 	__u16	ip6mh_cksum;
 	/* Followed by type specific messages */
+<<<<<<< HEAD
 	__u8	data[0];
+=======
+	__u8	data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define IP6_MH_TYPE_BRR		0   /* Binding Refresh Request */

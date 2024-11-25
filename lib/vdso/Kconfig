@@ -24,4 +24,13 @@ config GENERIC_COMPAT_VDSO
 	help
 	  This config option enables the compat VDSO layer.
 
+<<<<<<< HEAD
+=======
+config GENERIC_VDSO_TIME_NS
+	bool
+	help
+	  Selected by architectures which support time namespaces in the
+	  VDSO
+
+>>>>>>> upstream/android-13
 endif

@@ -11,7 +11,10 @@
  * Note: SDO pin cannot be left floating otherwise I2C address
  *	 will be undefined.
  */
+<<<<<<< HEAD
 #include <linux/acpi.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/module.h>
 #include <linux/regmap.h>
@@ -26,8 +29,12 @@ static int bme680_i2c_probe(struct i2c_client *client,
 
 	regmap = devm_regmap_init_i2c(client, &bme680_regmap_config);
 	if (IS_ERR(regmap)) {
+<<<<<<< HEAD
 		dev_err(&client->dev, "Failed to register i2c regmap %d\n",
 				(int)PTR_ERR(regmap));
+=======
+		dev_err(&client->dev, "Failed to register i2c regmap %ld\n", PTR_ERR(regmap));
+>>>>>>> upstream/android-13
 		return PTR_ERR(regmap);
 	}
 
@@ -43,16 +50,28 @@ static const struct i2c_device_id bme680_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, bme680_i2c_id);
 
+<<<<<<< HEAD
 static const struct acpi_device_id bme680_acpi_match[] = {
 	{"BME0680", 0},
 	{},
 };
 MODULE_DEVICE_TABLE(acpi, bme680_acpi_match);
+=======
+static const struct of_device_id bme680_of_i2c_match[] = {
+	{ .compatible = "bosch,bme680", },
+	{},
+};
+MODULE_DEVICE_TABLE(of, bme680_of_i2c_match);
+>>>>>>> upstream/android-13
 
 static struct i2c_driver bme680_i2c_driver = {
 	.driver = {
 		.name			= "bme680_i2c",
+<<<<<<< HEAD
 		.acpi_match_table       = ACPI_PTR(bme680_acpi_match),
+=======
+		.of_match_table		= bme680_of_i2c_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = bme680_i2c_probe,
 	.id_table = bme680_i2c_id,

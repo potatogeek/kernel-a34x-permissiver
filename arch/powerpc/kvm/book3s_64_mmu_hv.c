@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright 2010 Paul Mackerras, IBM Corp. <paulus@au1.ibm.com>
  */
@@ -38,6 +43,10 @@
 #include <asm/cputable.h>
 #include <asm/pte-walk.h>
 
+<<<<<<< HEAD
+=======
+#include "book3s.h"
+>>>>>>> upstream/android-13
 #include "trace_hv.h"
 
 //#define DEBUG_RESIZE_HPT	1
@@ -63,7 +72,11 @@ struct kvm_resize_hpt {
 	struct work_struct work;
 	u32 order;
 
+<<<<<<< HEAD
 	/* These fields protected by kvm->lock */
+=======
+	/* These fields protected by kvm->arch.mmu_setup_lock */
+>>>>>>> upstream/android-13
 
 	/* Possible values and their usage:
 	 *  <0     an error occurred during allocation,
@@ -73,7 +86,11 @@ struct kvm_resize_hpt {
 	int error;
 
 	/* Private to the work thread, until error != -EBUSY,
+<<<<<<< HEAD
 	 * then protected by kvm->lock.
+=======
+	 * then protected by kvm->arch.mmu_setup_lock.
+>>>>>>> upstream/android-13
 	 */
 	struct kvm_hpt_info hpt;
 };
@@ -139,7 +156,11 @@ long kvmppc_alloc_reset_hpt(struct kvm *kvm, int order)
 	long err = -EBUSY;
 	struct kvm_hpt_info info;
 
+<<<<<<< HEAD
 	mutex_lock(&kvm->lock);
+=======
+	mutex_lock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 	if (kvm->arch.mmu_ready) {
 		kvm->arch.mmu_ready = 0;
 		/* order mmu_ready vs. vcpus_running */
@@ -183,7 +204,11 @@ out:
 		/* Ensure that each vcpu will flush its TLB on next entry. */
 		cpumask_setall(&kvm->arch.need_tlb_flush);
 
+<<<<<<< HEAD
 	mutex_unlock(&kvm->lock);
+=======
+	mutex_unlock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -268,6 +293,7 @@ int kvmppc_mmu_hv_init(void)
 {
 	unsigned long host_lpid, rsvd_lpid;
 
+<<<<<<< HEAD
 	if (!cpu_has_feature(CPU_FTR_HVMODE))
 		return -EINVAL;
 
@@ -277,6 +303,20 @@ int kvmppc_mmu_hv_init(void)
 	/* POWER7 has 10-bit LPIDs (12-bit in POWER8) */
 	host_lpid = mfspr(SPRN_LPID);
 	rsvd_lpid = LPID_RSVD;
+=======
+	if (!mmu_has_feature(MMU_FTR_LOCKLESS_TLBIE))
+		return -EINVAL;
+
+	host_lpid = 0;
+	if (cpu_has_feature(CPU_FTR_HVMODE))
+		host_lpid = mfspr(SPRN_LPID);
+
+	/* POWER8 and above have 12-bit LPIDs (10-bit in POWER7) */
+	if (cpu_has_feature(CPU_FTR_ARCH_207S))
+		rsvd_lpid = LPID_RSVD;
+	else
+		rsvd_lpid = LPID_RSVD_POWER7;
+>>>>>>> upstream/android-13
 
 	kvmppc_init_lpid(rsvd_lpid + 1);
 
@@ -287,6 +327,7 @@ int kvmppc_mmu_hv_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void kvmppc_mmu_book3s_64_hv_reset_msr(struct kvm_vcpu *vcpu)
 {
 	unsigned long msr = vcpu->arch.intr_msr;
@@ -299,17 +340,26 @@ static void kvmppc_mmu_book3s_64_hv_reset_msr(struct kvm_vcpu *vcpu)
 	kvmppc_set_msr(vcpu, msr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static long kvmppc_virtmode_do_h_enter(struct kvm *kvm, unsigned long flags,
 				long pte_index, unsigned long pteh,
 				unsigned long ptel, unsigned long *pte_idx_ret)
 {
 	long ret;
 
+<<<<<<< HEAD
 	/* Protect linux PTE lookup from page table destruction */
 	rcu_read_lock_sched();	/* this disables preemption too */
 	ret = kvmppc_do_h_enter(kvm, flags, pte_index, pteh, ptel,
 				current->mm->pgd, false, pte_idx_ret);
 	rcu_read_unlock_sched();
+=======
+	preempt_disable();
+	ret = kvmppc_do_h_enter(kvm, flags, pte_index, pteh, ptel,
+				kvm->mm->pgd, false, pte_idx_ret);
+	preempt_enable();
+>>>>>>> upstream/android-13
 	if (ret == H_TOO_HARD) {
 		/* this can't happen */
 		pr_err("KVM: Oops, kvmppc_h_enter returned too hard!\n");
@@ -437,12 +487,37 @@ static int instruction_is_store(unsigned int instr)
 	return (instr & mask) != 0;
 }
 
+<<<<<<< HEAD
 int kvmppc_hv_emulate_mmio(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_hv_emulate_mmio(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 			   unsigned long gpa, gva_t ea, int is_store)
 {
 	u32 last_inst;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Fast path - check if the guest physical address corresponds to a
+	 * device on the FAST_MMIO_BUS, if so we can avoid loading the
+	 * instruction all together, then we can just handle it and return.
+	 */
+	if (is_store) {
+		int idx, ret;
+
+		idx = srcu_read_lock(&vcpu->kvm->srcu);
+		ret = kvm_io_bus_write(vcpu, KVM_FAST_MMIO_BUS, (gpa_t) gpa, 0,
+				       NULL);
+		srcu_read_unlock(&vcpu->kvm->srcu, idx);
+		if (!ret) {
+			kvmppc_set_pc(vcpu, kvmppc_get_pc(vcpu) + 4);
+			return RESUME_GUEST;
+		}
+	}
+
+	/*
+>>>>>>> upstream/android-13
 	 * If we fail, we just return to the guest and try executing it again.
 	 */
 	if (kvmppc_get_last_inst(vcpu, INST_GENERIC, &last_inst) !=
@@ -479,10 +554,17 @@ int kvmppc_hv_emulate_mmio(struct kvm_run *run, struct kvm_vcpu *vcpu,
 
 	vcpu->arch.paddr_accessed = gpa;
 	vcpu->arch.vaddr_accessed = ea;
+<<<<<<< HEAD
 	return kvmppc_emulate_mmio(run, vcpu);
 }
 
 int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+	return kvmppc_emulate_mmio(vcpu);
+}
+
+int kvmppc_book3s_hv_page_fault(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 				unsigned long ea, unsigned long dsisr)
 {
 	struct kvm *kvm = vcpu->kvm;
@@ -491,6 +573,7 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	__be64 *hptep;
 	unsigned long mmu_seq, psize, pte_size;
 	unsigned long gpa_base, gfn_base;
+<<<<<<< HEAD
 	unsigned long gpa, gfn, hva, pfn;
 	struct kvm_memory_slot *memslot;
 	unsigned long *rmap;
@@ -505,6 +588,23 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 
 	if (kvm_is_radix(kvm))
 		return kvmppc_book3s_radix_page_fault(run, vcpu, ea, dsisr);
+=======
+	unsigned long gpa, gfn, hva, pfn, hpa;
+	struct kvm_memory_slot *memslot;
+	unsigned long *rmap;
+	struct revmap_entry *rev;
+	struct page *page;
+	long index, ret;
+	bool is_ci;
+	bool writing, write_ok;
+	unsigned int shift;
+	unsigned long rcbits;
+	long mmio_update;
+	pte_t pte, *ptep;
+
+	if (kvm_is_radix(kvm))
+		return kvmppc_book3s_radix_page_fault(vcpu, ea, dsisr);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Real-mode code has already searched the HPT and found the
@@ -524,7 +624,11 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			gpa_base = r & HPTE_R_RPN & ~(psize - 1);
 			gfn_base = gpa_base >> PAGE_SHIFT;
 			gpa = gpa_base | (ea & (psize - 1));
+<<<<<<< HEAD
 			return kvmppc_hv_emulate_mmio(run, vcpu, gpa, ea,
+=======
+			return kvmppc_hv_emulate_mmio(vcpu, gpa, ea,
+>>>>>>> upstream/android-13
 						dsisr & DSISR_ISSTORE);
 		}
 	}
@@ -560,7 +664,11 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 
 	/* No memslot means it's an emulated MMIO region */
 	if (!memslot || (memslot->flags & KVM_MEMSLOT_INVALID))
+<<<<<<< HEAD
 		return kvmppc_hv_emulate_mmio(run, vcpu, gpa, ea,
+=======
+		return kvmppc_hv_emulate_mmio(vcpu, gpa, ea,
+>>>>>>> upstream/android-13
 					      dsisr & DSISR_ISSTORE);
 
 	/*
@@ -575,14 +683,19 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	smp_rmb();
 
 	ret = -EFAULT;
+<<<<<<< HEAD
 	is_ci = false;
 	pfn = 0;
 	page = NULL;
 	pte_size = PAGE_SIZE;
+=======
+	page = NULL;
+>>>>>>> upstream/android-13
 	writing = (dsisr & DSISR_ISSTORE) != 0;
 	/* If writing != 0, then the HPTE must allow writing, if we get here */
 	write_ok = writing;
 	hva = gfn_to_hva_memslot(memslot, gfn);
+<<<<<<< HEAD
 	npages = get_user_pages_fast(hva, 1, writing, pages);
 	if (npages < 1) {
 		/* Check if it's an I/O mapping */
@@ -628,6 +741,60 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 
 	if (psize > pte_size)
 		goto out_put;
+=======
+
+	/*
+	 * Do a fast check first, since __gfn_to_pfn_memslot doesn't
+	 * do it with !atomic && !async, which is how we call it.
+	 * We always ask for write permission since the common case
+	 * is that the page is writable.
+	 */
+	if (get_user_page_fast_only(hva, FOLL_WRITE, &page)) {
+		write_ok = true;
+	} else {
+		/* Call KVM generic code to do the slow-path check */
+		pfn = __gfn_to_pfn_memslot(memslot, gfn, false, NULL,
+					   writing, &write_ok, NULL);
+		if (is_error_noslot_pfn(pfn))
+			return -EFAULT;
+		page = NULL;
+		if (pfn_valid(pfn)) {
+			page = pfn_to_page(pfn);
+			if (PageReserved(page))
+				page = NULL;
+		}
+	}
+
+	/*
+	 * Read the PTE from the process' radix tree and use that
+	 * so we get the shift and attribute bits.
+	 */
+	spin_lock(&kvm->mmu_lock);
+	ptep = find_kvm_host_pte(kvm, mmu_seq, hva, &shift);
+	pte = __pte(0);
+	if (ptep)
+		pte = READ_ONCE(*ptep);
+	spin_unlock(&kvm->mmu_lock);
+	/*
+	 * If the PTE disappeared temporarily due to a THP
+	 * collapse, just return and let the guest try again.
+	 */
+	if (!pte_present(pte)) {
+		if (page)
+			put_page(page);
+		return RESUME_GUEST;
+	}
+	hpa = pte_pfn(pte) << PAGE_SHIFT;
+	pte_size = PAGE_SIZE;
+	if (shift)
+		pte_size = 1ul << shift;
+	is_ci = pte_ci(pte);
+
+	if (psize > pte_size)
+		goto out_put;
+	if (pte_size > psize)
+		hpa |= hva & (pte_size - psize);
+>>>>>>> upstream/android-13
 
 	/* Check WIMG vs. the actual page we're accessing */
 	if (!hpte_cache_flags_ok(r, is_ci)) {
@@ -641,14 +808,23 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Set the HPTE to point to pfn.
 	 * Since the pfn is at PAGE_SIZE granularity, make sure we
+=======
+	 * Set the HPTE to point to hpa.
+	 * Since the hpa is at PAGE_SIZE granularity, make sure we
+>>>>>>> upstream/android-13
 	 * don't mask out lower-order bits if psize < PAGE_SIZE.
 	 */
 	if (psize < PAGE_SIZE)
 		psize = PAGE_SIZE;
+<<<<<<< HEAD
 	r = (r & HPTE_R_KEY_HI) | (r & ~(HPTE_R_PP0 - psize)) |
 					((pfn << PAGE_SHIFT) & ~(psize - 1));
+=======
+	r = (r & HPTE_R_KEY_HI) | (r & ~(HPTE_R_PP0 - psize)) | hpa;
+>>>>>>> upstream/android-13
 	if (hpte_is_writable(r) && !write_ok)
 		r = hpte_make_readonly(r);
 	ret = RESUME_GUEST;
@@ -713,11 +889,16 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	asm volatile("ptesync" : : : "memory");
 	preempt_enable();
 	if (page && hpte_is_writable(r))
+<<<<<<< HEAD
 		SetPageDirty(page);
+=======
+		set_page_dirty_lock(page);
+>>>>>>> upstream/android-13
 
  out_put:
 	trace_kvm_page_fault_exit(vcpu, hpte, ret);
 
+<<<<<<< HEAD
 	if (page) {
 		/*
 		 * We drop pages[0] here, not page because page might
@@ -727,6 +908,10 @@ int kvmppc_book3s_hv_page_fault(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		 */
 		put_page(pages[0]);
 	}
+=======
+	if (page)
+		put_page(page);
+>>>>>>> upstream/android-13
 	return ret;
 
  out_unlock:
@@ -757,6 +942,7 @@ void kvmppc_rmap_reset(struct kvm *kvm)
 	srcu_read_unlock(&kvm->srcu, srcu_idx);
 }
 
+<<<<<<< HEAD
 typedef int (*hva_handler_fn)(struct kvm *kvm, struct kvm_memory_slot *memslot,
 			      unsigned long gfn);
 
@@ -802,6 +988,8 @@ static int kvm_handle_hva(struct kvm *kvm, unsigned long hva,
 	return kvm_handle_hva_range(kvm, hva, hva + 1, handler);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Must be called with both HPTE and rmap locked */
 static void kvmppc_unmap_hpte(struct kvm *kvm, unsigned long i,
 			      struct kvm_memory_slot *memslot,
@@ -845,8 +1033,13 @@ static void kvmppc_unmap_hpte(struct kvm *kvm, unsigned long i,
 	}
 }
 
+<<<<<<< HEAD
 static int kvm_unmap_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
 			   unsigned long gfn)
+=======
+static void kvm_unmap_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
+			    unsigned long gfn)
+>>>>>>> upstream/android-13
 {
 	unsigned long i;
 	__be64 *hptep;
@@ -879,6 +1072,7 @@ static int kvm_unmap_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
 		unlock_rmap(rmapp);
 		__unlock_hpte(hptep, be64_to_cpu(hptep[0]));
 	}
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -889,6 +1083,23 @@ int kvm_unmap_hva_range_hv(struct kvm *kvm, unsigned long start, unsigned long e
 	handler = kvm_is_radix(kvm) ? kvm_unmap_radix : kvm_unmap_rmapp;
 	kvm_handle_hva_range(kvm, start, end, handler);
 	return 0;
+=======
+}
+
+bool kvm_unmap_gfn_range_hv(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	gfn_t gfn;
+
+	if (kvm_is_radix(kvm)) {
+		for (gfn = range->start; gfn < range->end; gfn++)
+			kvm_unmap_radix(kvm, range->slot, gfn);
+	} else {
+		for (gfn = range->start; gfn < range->end; gfn++)
+			kvm_unmap_rmapp(kvm, range->slot, gfn);
+	}
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 void kvmppc_core_flush_memslot_hv(struct kvm *kvm,
@@ -900,11 +1111,20 @@ void kvmppc_core_flush_memslot_hv(struct kvm *kvm,
 
 	gfn = memslot->base_gfn;
 	rmapp = memslot->arch.rmap;
+<<<<<<< HEAD
 	for (n = memslot->npages; n; --n, ++gfn) {
 		if (kvm_is_radix(kvm)) {
 			kvm_unmap_radix(kvm, memslot, gfn);
 			continue;
 		}
+=======
+	if (kvm_is_radix(kvm)) {
+		kvmppc_radix_flush_memslot(kvm, memslot);
+		return;
+	}
+
+	for (n = memslot->npages; n; --n, ++gfn) {
+>>>>>>> upstream/android-13
 		/*
 		 * Testing the present bit without locking is OK because
 		 * the memslot has been marked invalid already, and hence
@@ -917,8 +1137,13 @@ void kvmppc_core_flush_memslot_hv(struct kvm *kvm,
 	}
 }
 
+<<<<<<< HEAD
 static int kvm_age_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
 			 unsigned long gfn)
+=======
+static bool kvm_age_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
+			  unsigned long gfn)
+>>>>>>> upstream/android-13
 {
 	struct revmap_entry *rev = kvm->arch.hpt.rev;
 	unsigned long head, i, j;
@@ -972,6 +1197,7 @@ static int kvm_age_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
 	return ret;
 }
 
+<<<<<<< HEAD
 int kvm_age_hva_hv(struct kvm *kvm, unsigned long start, unsigned long end)
 {
 	hva_handler_fn handler;
@@ -982,16 +1208,44 @@ int kvm_age_hva_hv(struct kvm *kvm, unsigned long start, unsigned long end)
 
 static int kvm_test_age_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
 			      unsigned long gfn)
+=======
+bool kvm_age_gfn_hv(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	gfn_t gfn;
+	bool ret = false;
+
+	if (kvm_is_radix(kvm)) {
+		for (gfn = range->start; gfn < range->end; gfn++)
+			ret |= kvm_age_radix(kvm, range->slot, gfn);
+	} else {
+		for (gfn = range->start; gfn < range->end; gfn++)
+			ret |= kvm_age_rmapp(kvm, range->slot, gfn);
+	}
+
+	return ret;
+}
+
+static bool kvm_test_age_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
+			       unsigned long gfn)
+>>>>>>> upstream/android-13
 {
 	struct revmap_entry *rev = kvm->arch.hpt.rev;
 	unsigned long head, i, j;
 	unsigned long *hp;
+<<<<<<< HEAD
 	int ret = 1;
+=======
+	bool ret = true;
+>>>>>>> upstream/android-13
 	unsigned long *rmapp;
 
 	rmapp = &memslot->arch.rmap[gfn - memslot->base_gfn];
 	if (*rmapp & KVMPPC_RMAP_REFERENCED)
+<<<<<<< HEAD
 		return 1;
+=======
+		return true;
+>>>>>>> upstream/android-13
 
 	lock_rmap(rmapp);
 	if (*rmapp & KVMPPC_RMAP_REFERENCED)
@@ -1006,13 +1260,18 @@ static int kvm_test_age_rmapp(struct kvm *kvm, struct kvm_memory_slot *memslot,
 				goto out;
 		} while ((i = j) != head);
 	}
+<<<<<<< HEAD
 	ret = 0;
+=======
+	ret = false;
+>>>>>>> upstream/android-13
 
  out:
 	unlock_rmap(rmapp);
 	return ret;
 }
 
+<<<<<<< HEAD
 int kvm_test_age_hva_hv(struct kvm *kvm, unsigned long hva)
 {
 	hva_handler_fn handler;
@@ -1027,6 +1286,28 @@ void kvm_set_spte_hva_hv(struct kvm *kvm, unsigned long hva, pte_t pte)
 
 	handler = kvm_is_radix(kvm) ? kvm_unmap_radix : kvm_unmap_rmapp;
 	kvm_handle_hva(kvm, hva, handler);
+=======
+bool kvm_test_age_gfn_hv(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	WARN_ON(range->start + 1 != range->end);
+
+	if (kvm_is_radix(kvm))
+		return kvm_test_age_radix(kvm, range->slot, range->start);
+	else
+		return kvm_test_age_rmapp(kvm, range->slot, range->start);
+}
+
+bool kvm_set_spte_gfn_hv(struct kvm *kvm, struct kvm_gfn_range *range)
+{
+	WARN_ON(range->start + 1 != range->end);
+
+	if (kvm_is_radix(kvm))
+		kvm_unmap_radix(kvm, range->slot, range->start);
+	else
+		kvm_unmap_rmapp(kvm, range->slot, range->start);
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static int vcpus_running(struct kvm *kvm)
@@ -1175,7 +1456,11 @@ void *kvmppc_pin_guest_page(struct kvm *kvm, unsigned long gpa,
 	if (!memslot || (memslot->flags & KVM_MEMSLOT_INVALID))
 		goto err;
 	hva = gfn_to_hva_memslot(memslot, gfn);
+<<<<<<< HEAD
 	npages = get_user_pages_fast(hva, 1, 1, pages);
+=======
+	npages = get_user_pages_fast(hva, 1, FOLL_WRITE, pages);
+>>>>>>> upstream/android-13
 	if (npages < 1)
 		goto err;
 	page = pages[0];
@@ -1429,7 +1714,11 @@ static void resize_hpt_pivot(struct kvm_resize_hpt *resize)
 
 static void resize_hpt_release(struct kvm *kvm, struct kvm_resize_hpt *resize)
 {
+<<<<<<< HEAD
 	if (WARN_ON(!mutex_is_locked(&kvm->lock)))
+=======
+	if (WARN_ON(!mutex_is_locked(&kvm->arch.mmu_setup_lock)))
+>>>>>>> upstream/android-13
 		return;
 
 	if (!resize)
@@ -1456,14 +1745,24 @@ static void resize_hpt_prepare_work(struct work_struct *work)
 	if (WARN_ON(resize->error != -EBUSY))
 		return;
 
+<<<<<<< HEAD
 	mutex_lock(&kvm->lock);
+=======
+	mutex_lock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 
 	/* Request is still current? */
 	if (kvm->arch.resize_hpt == resize) {
 		/* We may request large allocations here:
+<<<<<<< HEAD
 		 * do not sleep with kvm->lock held for a while.
 		 */
 		mutex_unlock(&kvm->lock);
+=======
+		 * do not sleep with kvm->arch.mmu_setup_lock held for a while.
+		 */
+		mutex_unlock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 
 		resize_hpt_debug(resize, "resize_hpt_prepare_work(): order = %d\n",
 				 resize->order);
@@ -1476,9 +1775,15 @@ static void resize_hpt_prepare_work(struct work_struct *work)
 		if (WARN_ON(err == -EBUSY))
 			err = -EINPROGRESS;
 
+<<<<<<< HEAD
 		mutex_lock(&kvm->lock);
 		/* It is possible that kvm->arch.resize_hpt != resize
 		 * after we grab kvm->lock again.
+=======
+		mutex_lock(&kvm->arch.mmu_setup_lock);
+		/* It is possible that kvm->arch.resize_hpt != resize
+		 * after we grab kvm->arch.mmu_setup_lock again.
+>>>>>>> upstream/android-13
 		 */
 	}
 
@@ -1487,7 +1792,11 @@ static void resize_hpt_prepare_work(struct work_struct *work)
 	if (kvm->arch.resize_hpt != resize)
 		resize_hpt_release(kvm, resize);
 
+<<<<<<< HEAD
 	mutex_unlock(&kvm->lock);
+=======
+	mutex_unlock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 }
 
 long kvm_vm_ioctl_resize_hpt_prepare(struct kvm *kvm,
@@ -1504,7 +1813,11 @@ long kvm_vm_ioctl_resize_hpt_prepare(struct kvm *kvm,
 	if (shift && ((shift < 18) || (shift > 46)))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mutex_lock(&kvm->lock);
+=======
+	mutex_lock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 
 	resize = kvm->arch.resize_hpt;
 
@@ -1547,7 +1860,11 @@ long kvm_vm_ioctl_resize_hpt_prepare(struct kvm *kvm,
 	ret = 100; /* estimated time in ms */
 
 out:
+<<<<<<< HEAD
 	mutex_unlock(&kvm->lock);
+=======
+	mutex_unlock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1570,7 +1887,11 @@ long kvm_vm_ioctl_resize_hpt_commit(struct kvm *kvm,
 	if (shift && ((shift < 18) || (shift > 46)))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	mutex_lock(&kvm->lock);
+=======
+	mutex_lock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 
 	resize = kvm->arch.resize_hpt;
 
@@ -1607,7 +1928,11 @@ out:
 	smp_mb();
 out_no_hpt:
 	resize_hpt_release(kvm, resize);
+<<<<<<< HEAD
 	mutex_unlock(&kvm->lock);
+=======
+	mutex_unlock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1744,7 +2069,11 @@ static ssize_t kvm_htab_read(struct file *file, char __user *buf,
 	int first_pass;
 	unsigned long hpte[2];
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	if (kvm_is_radix(kvm))
 		return 0;
@@ -1844,13 +2173,21 @@ static ssize_t kvm_htab_write(struct file *file, const char __user *buf,
 	int mmu_ready;
 	int pshift;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, buf, count))
+=======
+	if (!access_ok(buf, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	if (kvm_is_radix(kvm))
 		return -EINVAL;
 
 	/* lock out vcpus from running while we're doing this */
+<<<<<<< HEAD
 	mutex_lock(&kvm->lock);
+=======
+	mutex_lock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 	mmu_ready = kvm->arch.mmu_ready;
 	if (mmu_ready) {
 		kvm->arch.mmu_ready = 0;	/* temporarily */
@@ -1858,7 +2195,11 @@ static ssize_t kvm_htab_write(struct file *file, const char __user *buf,
 		smp_mb();
 		if (atomic_read(&kvm->arch.vcpus_running)) {
 			kvm->arch.mmu_ready = 1;
+<<<<<<< HEAD
 			mutex_unlock(&kvm->lock);
+=======
+			mutex_unlock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 			return -EBUSY;
 		}
 	}
@@ -1945,7 +2286,11 @@ static ssize_t kvm_htab_write(struct file *file, const char __user *buf,
 	/* Order HPTE updates vs. mmu_ready */
 	smp_wmb();
 	kvm->arch.mmu_ready = mmu_ready;
+<<<<<<< HEAD
 	mutex_unlock(&kvm->lock);
+=======
+	mutex_unlock(&kvm->arch.mmu_setup_lock);
+>>>>>>> upstream/android-13
 
 	if (err)
 		return err;
@@ -1993,7 +2338,11 @@ int kvm_vm_ioctl_get_htab_fd(struct kvm *kvm, struct kvm_get_htab_fd *ghf)
 	ret = anon_inode_getfd("kvm-htab", &kvm_htab_fops, ctx, rwflag | O_CLOEXEC);
 	if (ret < 0) {
 		kfree(ctx);
+<<<<<<< HEAD
 		kvm_put_kvm(kvm);
+=======
+		kvm_put_kvm_no_destroy(kvm);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -2142,9 +2491,14 @@ static const struct file_operations debugfs_htab_fops = {
 
 void kvmppc_mmu_debugfs_init(struct kvm *kvm)
 {
+<<<<<<< HEAD
 	kvm->arch.htab_dentry = debugfs_create_file("htab", 0400,
 						    kvm->arch.debugfs_dir, kvm,
 						    &debugfs_htab_fops);
+=======
+	debugfs_create_file("htab", 0400, kvm->arch.debugfs_dir, kvm,
+			    &debugfs_htab_fops);
+>>>>>>> upstream/android-13
 }
 
 void kvmppc_mmu_book3s_hv_init(struct kvm_vcpu *vcpu)
@@ -2154,7 +2508,10 @@ void kvmppc_mmu_book3s_hv_init(struct kvm_vcpu *vcpu)
 	vcpu->arch.slb_nr = 32;		/* POWER7/POWER8 */
 
 	mmu->xlate = kvmppc_mmu_book3s_64_hv_xlate;
+<<<<<<< HEAD
 	mmu->reset_msr = kvmppc_mmu_book3s_64_hv_reset_msr;
+=======
+>>>>>>> upstream/android-13
 
 	vcpu->arch.hflags |= BOOK3S_HFLAG_SLB;
 }

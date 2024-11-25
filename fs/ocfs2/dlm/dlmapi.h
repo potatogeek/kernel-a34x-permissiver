@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+>>>>>>> upstream/android-13
  * dlmapi.h
  *
  * externally exported dlm interfaces
  *
  * Copyright (C) 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,6 +28,8 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef DLMAPI_H

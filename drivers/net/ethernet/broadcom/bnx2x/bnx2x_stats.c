@@ -23,6 +23,11 @@
 #include "bnx2x_cmn.h"
 #include "bnx2x_sriov.h"
 
+<<<<<<< HEAD
+=======
+extern const u32 dmae_reg_go_c[];
+
+>>>>>>> upstream/android-13
 /* Statistics */
 
 /*

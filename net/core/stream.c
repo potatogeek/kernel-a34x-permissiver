@@ -32,7 +32,11 @@ void sk_stream_write_space(struct sock *sk)
 	struct socket *sock = sk->sk_socket;
 	struct socket_wq *wq;
 
+<<<<<<< HEAD
 	if (sk_stream_is_writeable(sk) && sock) {
+=======
+	if (__sk_stream_is_writeable(sk, 1) && sock) {
+>>>>>>> upstream/android-13
 		clear_bit(SOCK_NOSPACE, &sock->flags);
 
 		rcu_read_lock();
@@ -195,9 +199,12 @@ void sk_stream_kill_queues(struct sock *sk)
 	/* First the read buffer. */
 	__skb_queue_purge(&sk->sk_receive_queue);
 
+<<<<<<< HEAD
 	/* Next, the error queue. */
 	__skb_queue_purge(&sk->sk_error_queue);
 
+=======
+>>>>>>> upstream/android-13
 	/* Next, the write queue. */
 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
 

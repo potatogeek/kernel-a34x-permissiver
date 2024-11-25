@@ -20,6 +20,15 @@ typedef long            __kernel_ssize_t;
 typedef unsigned short	__kernel_old_dev_t;
 #define __kernel_old_dev_t __kernel_old_dev_t
 
+<<<<<<< HEAD
+=======
+#ifdef __KERNEL__
+typedef unsigned short __kernel_old_uid_t;
+typedef unsigned short __kernel_old_gid_t;
+#define __kernel_old_uid_t __kernel_old_uid_t
+#endif
+
+>>>>>>> upstream/android-13
 #ifndef __s390x__
 
 typedef unsigned long   __kernel_ino_t;

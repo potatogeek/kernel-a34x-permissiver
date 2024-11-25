@@ -34,6 +34,7 @@ struct vb2_vmalloc_buf {
 
 static void vb2_vmalloc_put(void *buf_priv);
 
+<<<<<<< HEAD
 static void *vb2_vmalloc_alloc(struct device *dev, unsigned long attrs,
 			       unsigned long size, enum dma_data_direction dma_dir,
 			       gfp_t gfp_flags)
@@ -41,22 +42,41 @@ static void *vb2_vmalloc_alloc(struct device *dev, unsigned long attrs,
 	struct vb2_vmalloc_buf *buf;
 
 	buf = kzalloc(sizeof(*buf), GFP_KERNEL | gfp_flags);
+=======
+static void *vb2_vmalloc_alloc(struct vb2_buffer *vb, struct device *dev,
+			       unsigned long size)
+{
+	struct vb2_vmalloc_buf *buf;
+
+	buf = kzalloc(sizeof(*buf), GFP_KERNEL | vb->vb2_queue->gfp_flags);
+>>>>>>> upstream/android-13
 	if (!buf)
 		return ERR_PTR(-ENOMEM);
 
 	buf->size = size;
 	buf->vaddr = vmalloc_user(buf->size);
+<<<<<<< HEAD
 	buf->dma_dir = dma_dir;
 	buf->handler.refcount = &buf->refcount;
 	buf->handler.put = vb2_vmalloc_put;
 	buf->handler.arg = buf;
 
+=======
+>>>>>>> upstream/android-13
 	if (!buf->vaddr) {
 		pr_debug("vmalloc of size %ld failed\n", buf->size);
 		kfree(buf);
 		return ERR_PTR(-ENOMEM);
 	}
 
+<<<<<<< HEAD
+=======
+	buf->dma_dir = vb->vb2_queue->dma_dir;
+	buf->handler.refcount = &buf->refcount;
+	buf->handler.put = vb2_vmalloc_put;
+	buf->handler.arg = buf;
+
+>>>>>>> upstream/android-13
 	refcount_set(&buf->refcount, 1);
 	return buf;
 }
@@ -71,10 +91,15 @@ static void vb2_vmalloc_put(void *buf_priv)
 	}
 }
 
+<<<<<<< HEAD
 static void *vb2_vmalloc_get_userptr(struct device *dev, unsigned long vaddr,
 				     unsigned long size,
 				     enum dma_data_direction dma_dir,
 				     unsigned long dma_attrs)
+=======
+static void *vb2_vmalloc_get_userptr(struct vb2_buffer *vb, struct device *dev,
+				     unsigned long vaddr, unsigned long size)
+>>>>>>> upstream/android-13
 {
 	struct vb2_vmalloc_buf *buf;
 	struct frame_vector *vec;
@@ -85,11 +110,18 @@ static void *vb2_vmalloc_get_userptr(struct device *dev, unsigned long vaddr,
 	if (!buf)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	buf->dma_dir = dma_dir;
 	offset = vaddr & ~PAGE_MASK;
 	buf->size = size;
 	vec = vb2_create_framevec(vaddr, size, dma_dir == DMA_FROM_DEVICE ||
 					       dma_dir == DMA_BIDIRECTIONAL);
+=======
+	buf->dma_dir = vb->vb2_queue->dma_dir;
+	offset = vaddr & ~PAGE_MASK;
+	buf->size = size;
+	vec = vb2_create_framevec(vaddr, size);
+>>>>>>> upstream/android-13
 	if (IS_ERR(vec)) {
 		ret = PTR_ERR(vec);
 		goto fail_pfnvec_create;
@@ -107,10 +139,16 @@ static void *vb2_vmalloc_get_userptr(struct device *dev, unsigned long vaddr,
 			if (nums[i-1] + 1 != nums[i])
 				goto fail_map;
 		buf->vaddr = (__force void *)
+<<<<<<< HEAD
 			ioremap_nocache(__pfn_to_phys(nums[0]), size + offset);
 	} else {
 		buf->vaddr = vm_map_ram(frame_vector_pages(vec), n_pages, -1,
 					PAGE_KERNEL);
+=======
+			ioremap(__pfn_to_phys(nums[0]), size + offset);
+	} else {
+		buf->vaddr = vm_map_ram(frame_vector_pages(vec), n_pages, -1);
+>>>>>>> upstream/android-13
 	}
 
 	if (!buf->vaddr)
@@ -150,7 +188,11 @@ static void vb2_vmalloc_put_userptr(void *buf_priv)
 	kfree(buf);
 }
 
+<<<<<<< HEAD
 static void *vb2_vmalloc_vaddr(void *buf_priv)
+=======
+static void *vb2_vmalloc_vaddr(struct vb2_buffer *vb, void *buf_priv)
+>>>>>>> upstream/android-13
 {
 	struct vb2_vmalloc_buf *buf = buf_priv;
 
@@ -232,7 +274,11 @@ static int vb2_vmalloc_dmabuf_ops_attach(struct dma_buf *dbuf,
 		kfree(attach);
 		return ret;
 	}
+<<<<<<< HEAD
 	for_each_sg(sgt->sgl, sg, sgt->nents, i) {
+=======
+	for_each_sgtable_sg(sgt, sg, i) {
+>>>>>>> upstream/android-13
 		struct page *page = vmalloc_to_page(vaddr);
 
 		if (!page) {
@@ -262,8 +308,12 @@ static void vb2_vmalloc_dmabuf_ops_detach(struct dma_buf *dbuf,
 
 	/* release the scatterlist cache */
 	if (attach->dma_dir != DMA_NONE)
+<<<<<<< HEAD
 		dma_unmap_sg(db_attach->dev, sgt->sgl, sgt->orig_nents,
 			attach->dma_dir);
+=======
+		dma_unmap_sgtable(db_attach->dev, sgt, attach->dma_dir, 0);
+>>>>>>> upstream/android-13
 	sg_free_table(sgt);
 	kfree(attach);
 	db_attach->priv = NULL;
@@ -288,15 +338,23 @@ static struct sg_table *vb2_vmalloc_dmabuf_ops_map(
 
 	/* release any previous cache */
 	if (attach->dma_dir != DMA_NONE) {
+<<<<<<< HEAD
 		dma_unmap_sg(db_attach->dev, sgt->sgl, sgt->orig_nents,
 			attach->dma_dir);
+=======
+		dma_unmap_sgtable(db_attach->dev, sgt, attach->dma_dir, 0);
+>>>>>>> upstream/android-13
 		attach->dma_dir = DMA_NONE;
 	}
 
 	/* mapping to the client with new direction */
+<<<<<<< HEAD
 	sgt->nents = dma_map_sg(db_attach->dev, sgt->sgl, sgt->orig_nents,
 				dma_dir);
 	if (!sgt->nents) {
+=======
+	if (dma_map_sgtable(db_attach->dev, sgt, dma_dir, 0)) {
+>>>>>>> upstream/android-13
 		pr_err("failed to map scatterlist\n");
 		mutex_unlock(lock);
 		return ERR_PTR(-EIO);
@@ -321,6 +379,7 @@ static void vb2_vmalloc_dmabuf_ops_release(struct dma_buf *dbuf)
 	vb2_vmalloc_put(dbuf->priv);
 }
 
+<<<<<<< HEAD
 static void *vb2_vmalloc_dmabuf_ops_kmap(struct dma_buf *dbuf, unsigned long pgnum)
 {
 	struct vb2_vmalloc_buf *buf = dbuf->priv;
@@ -333,6 +392,15 @@ static void *vb2_vmalloc_dmabuf_ops_vmap(struct dma_buf *dbuf)
 	struct vb2_vmalloc_buf *buf = dbuf->priv;
 
 	return buf->vaddr;
+=======
+static int vb2_vmalloc_dmabuf_ops_vmap(struct dma_buf *dbuf, struct dma_buf_map *map)
+{
+	struct vb2_vmalloc_buf *buf = dbuf->priv;
+
+	dma_buf_map_set_vaddr(map, buf->vaddr);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int vb2_vmalloc_dmabuf_ops_mmap(struct dma_buf *dbuf,
@@ -346,13 +414,22 @@ static const struct dma_buf_ops vb2_vmalloc_dmabuf_ops = {
 	.detach = vb2_vmalloc_dmabuf_ops_detach,
 	.map_dma_buf = vb2_vmalloc_dmabuf_ops_map,
 	.unmap_dma_buf = vb2_vmalloc_dmabuf_ops_unmap,
+<<<<<<< HEAD
 	.map = vb2_vmalloc_dmabuf_ops_kmap,
+=======
+>>>>>>> upstream/android-13
 	.vmap = vb2_vmalloc_dmabuf_ops_vmap,
 	.mmap = vb2_vmalloc_dmabuf_ops_mmap,
 	.release = vb2_vmalloc_dmabuf_ops_release,
 };
 
+<<<<<<< HEAD
 static struct dma_buf *vb2_vmalloc_get_dmabuf(void *buf_priv, unsigned long flags)
+=======
+static struct dma_buf *vb2_vmalloc_get_dmabuf(struct vb2_buffer *vb,
+					      void *buf_priv,
+					      unsigned long flags)
+>>>>>>> upstream/android-13
 {
 	struct vb2_vmalloc_buf *buf = buf_priv;
 	struct dma_buf *dbuf;
@@ -385,32 +462,64 @@ static struct dma_buf *vb2_vmalloc_get_dmabuf(void *buf_priv, unsigned long flag
 static int vb2_vmalloc_map_dmabuf(void *mem_priv)
 {
 	struct vb2_vmalloc_buf *buf = mem_priv;
+<<<<<<< HEAD
 
 	buf->vaddr = dma_buf_vmap(buf->dbuf);
 
 	return buf->vaddr ? 0 : -EFAULT;
+=======
+	struct dma_buf_map map;
+	int ret;
+
+	ret = dma_buf_vmap(buf->dbuf, &map);
+	if (ret)
+		return -EFAULT;
+	buf->vaddr = map.vaddr;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void vb2_vmalloc_unmap_dmabuf(void *mem_priv)
 {
 	struct vb2_vmalloc_buf *buf = mem_priv;
+<<<<<<< HEAD
 
 	dma_buf_vunmap(buf->dbuf, buf->vaddr);
+=======
+	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(buf->vaddr);
+
+	dma_buf_vunmap(buf->dbuf, &map);
+>>>>>>> upstream/android-13
 	buf->vaddr = NULL;
 }
 
 static void vb2_vmalloc_detach_dmabuf(void *mem_priv)
 {
 	struct vb2_vmalloc_buf *buf = mem_priv;
+<<<<<<< HEAD
 
 	if (buf->vaddr)
 		dma_buf_vunmap(buf->dbuf, buf->vaddr);
+=======
+	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(buf->vaddr);
+
+	if (buf->vaddr)
+		dma_buf_vunmap(buf->dbuf, &map);
+>>>>>>> upstream/android-13
 
 	kfree(buf);
 }
 
+<<<<<<< HEAD
 static void *vb2_vmalloc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
 	unsigned long size, enum dma_data_direction dma_dir)
+=======
+static void *vb2_vmalloc_attach_dmabuf(struct vb2_buffer *vb,
+				       struct device *dev,
+				       struct dma_buf *dbuf,
+				       unsigned long size)
+>>>>>>> upstream/android-13
 {
 	struct vb2_vmalloc_buf *buf;
 
@@ -422,7 +531,11 @@ static void *vb2_vmalloc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
 		return ERR_PTR(-ENOMEM);
 
 	buf->dbuf = dbuf;
+<<<<<<< HEAD
 	buf->dma_dir = dma_dir;
+=======
+	buf->dma_dir = vb->vb2_queue->dma_dir;
+>>>>>>> upstream/android-13
 	buf->size = size;
 
 	return buf;

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/kernel/signal.c
  *
  * Copyright (C) 1995-2009 Russell King
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cache.h>
@@ -40,6 +47,10 @@
 #include <asm/unistd.h>
 #include <asm/fpsimd.h>
 #include <asm/ptrace.h>
+<<<<<<< HEAD
+=======
+#include <asm/syscall.h>
+>>>>>>> upstream/android-13
 #include <asm/signal32.h>
 #include <asm/traps.h>
 #include <asm/vdso.h>
@@ -255,7 +266,12 @@ static int preserve_sve_context(struct sve_context __user *ctx)
 	if (vq) {
 		/*
 		 * This assumes that the SVE state has already been saved to
+<<<<<<< HEAD
 		 * the task struct by calling preserve_fpsimd_context().
+=======
+		 * the task struct by calling the function
+		 * fpsimd_signal_preserve_current_state().
+>>>>>>> upstream/android-13
 		 */
 		err |= __copy_to_user((char __user *)ctx + SVE_SIG_REGS_OFFSET,
 				      current->thread.sve_state,
@@ -296,6 +312,7 @@ static int restore_sve_fpsimd_context(struct user_ctxs *user)
 	 */
 
 	fpsimd_flush_task_state(current);
+<<<<<<< HEAD
 	barrier();
 	/* From now, fpsimd_thread_switch() won't clear TIF_FOREIGN_FPSTATE */
 
@@ -304,6 +321,16 @@ static int restore_sve_fpsimd_context(struct user_ctxs *user)
 	/* From now, fpsimd_thread_switch() won't touch thread.sve_state */
 
 	sve_alloc(current);
+=======
+	/* From now, fpsimd_thread_switch() won't touch thread.sve_state */
+
+	sve_alloc(current);
+	if (!current->thread.sve_state) {
+		clear_thread_flag(TIF_SVE);
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	err = __copy_from_user(current->thread.sve_state,
 			       (char __user const *)user->sve +
 					SVE_SIG_REGS_OFFSET,
@@ -387,6 +414,11 @@ static int parse_user_sigframe(struct user_ctxs *user,
 			goto done;
 
 		case FPSIMD_MAGIC:
+<<<<<<< HEAD
+=======
+			if (!system_supports_fpsimd())
+				goto invalid;
+>>>>>>> upstream/android-13
 			if (user->fpsimd)
 				goto invalid;
 
@@ -470,7 +502,11 @@ static int parse_user_sigframe(struct user_ctxs *user,
 			offset = 0;
 			limit = extra_size;
 
+<<<<<<< HEAD
 			if (!access_ok(VERIFY_READ, base, limit))
+=======
+			if (!access_ok(base, limit))
+>>>>>>> upstream/android-13
 				goto invalid;
 
 			continue;
@@ -522,7 +558,11 @@ static int restore_sigframe(struct pt_regs *regs,
 	if (err == 0)
 		err = parse_user_sigframe(&user, sf);
 
+<<<<<<< HEAD
 	if (err == 0) {
+=======
+	if (err == 0 && system_supports_fpsimd()) {
+>>>>>>> upstream/android-13
 		if (!user.fpsimd)
 			return -EINVAL;
 
@@ -556,7 +596,11 @@ SYSCALL_DEFINE0(rt_sigreturn)
 
 	frame = (struct rt_sigframe __user *)regs->sp;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, frame, sizeof (*frame)))
+=======
+	if (!access_ok(frame, sizeof (*frame)))
+>>>>>>> upstream/android-13
 		goto badframe;
 
 	if (restore_sigframe(regs, frame))
@@ -584,10 +628,19 @@ static int setup_sigframe_layout(struct rt_sigframe_user_layout *user,
 {
 	int err;
 
+<<<<<<< HEAD
 	err = sigframe_alloc(user, &user->fpsimd_offset,
 			     sizeof(struct fpsimd_context));
 	if (err)
 		return err;
+=======
+	if (system_supports_fpsimd()) {
+		err = sigframe_alloc(user, &user->fpsimd_offset,
+				     sizeof(struct fpsimd_context));
+		if (err)
+			return err;
+	}
+>>>>>>> upstream/android-13
 
 	/* fault information, if valid */
 	if (add_all || current->thread.fault_code) {
@@ -639,7 +692,11 @@ static int setup_sigframe(struct rt_sigframe_user_layout *user,
 
 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(*set));
 
+<<<<<<< HEAD
 	if (err == 0) {
+=======
+	if (err == 0 && system_supports_fpsimd()) {
+>>>>>>> upstream/android-13
 		struct fpsimd_context __user *fpsimd_ctx =
 			apply_user_offset(user, user->fpsimd_offset);
 		err |= preserve_fpsimd_context(fpsimd_ctx);
@@ -730,7 +787,11 @@ static int get_sigframe(struct rt_sigframe_user_layout *user,
 	/*
 	 * Check that we can actually write to the signal frame.
 	 */
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, user->sigframe, sp_top - sp))
+=======
+	if (!access_ok(user->sigframe, sp_top - sp))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	return 0;
@@ -746,6 +807,28 @@ static void setup_return(struct pt_regs *regs, struct k_sigaction *ka,
 	regs->regs[29] = (unsigned long)&user->next_frame->fp;
 	regs->pc = (unsigned long)ka->sa.sa_handler;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Signal delivery is a (wacky) indirect function call in
+	 * userspace, so simulate the same setting of BTYPE as a BLR
+	 * <register containing the signal handler entry point>.
+	 * Signal delivery to a location in a PROT_BTI guarded page
+	 * that is not a function entry point will now trigger a
+	 * SIGILL in userspace.
+	 *
+	 * If the signal handler entry point is not in a PROT_BTI
+	 * guarded page, this is harmless.
+	 */
+	if (system_supports_bti()) {
+		regs->pstate &= ~PSR_BTYPE_MASK;
+		regs->pstate |= PSR_BTYPE_C;
+	}
+
+	/* TCO (Tag Check Override) always cleared for signal handlers */
+	regs->pstate &= ~PSR_TCO_BIT;
+
+>>>>>>> upstream/android-13
 	if (ka->sa.sa_flags & SA_RESTORER)
 		sigtramp = ka->sa.sa_restorer;
 	else
@@ -884,7 +967,11 @@ static void do_signal(struct pt_regs *regs)
 		     retval == -ERESTART_RESTARTBLOCK ||
 		     (retval == -ERESTARTSYS &&
 		      !(ksig.ka.sa.sa_flags & SA_RESTART)))) {
+<<<<<<< HEAD
 			regs->regs[0] = -EINTR;
+=======
+			syscall_set_return_value(current, regs, -EINTR, 0);
+>>>>>>> upstream/android-13
 			regs->pc = continue_addr;
 		}
 
@@ -905,6 +992,7 @@ static void do_signal(struct pt_regs *regs)
 	restore_saved_sigmask();
 }
 
+<<<<<<< HEAD
 asmlinkage void do_notify_resume(struct pt_regs *regs,
 				 unsigned long thread_flags)
 {
@@ -919,6 +1007,11 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
 		/* Check valid user FS if needed */
 		addr_limit_user_check();
 
+=======
+void do_notify_resume(struct pt_regs *regs, unsigned long thread_flags)
+{
+	do {
+>>>>>>> upstream/android-13
 		if (thread_flags & _TIF_NEED_RESCHED) {
 			/* Unmask Debug and SError for the next task */
 			local_daif_restore(DAIF_PROCCTX_NOIRQ);
@@ -930,6 +1023,7 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
 			if (thread_flags & _TIF_UPROBE)
 				uprobe_notify_resume(regs);
 
+<<<<<<< HEAD
 			if (thread_flags & _TIF_SIGPENDING)
 				do_signal(regs);
 
@@ -938,6 +1032,19 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
 				tracehook_notify_resume(regs);
 				rseq_handle_notify_resume(NULL, regs);
 			}
+=======
+			if (thread_flags & _TIF_MTE_ASYNC_FAULT) {
+				clear_thread_flag(TIF_MTE_ASYNC_FAULT);
+				send_sig_fault(SIGSEGV, SEGV_MTEAERR,
+					       (void __user *)NULL, current);
+			}
+
+			if (thread_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
+				do_signal(regs);
+
+			if (thread_flags & _TIF_NOTIFY_RESUME)
+				tracehook_notify_resume(regs);
+>>>>>>> upstream/android-13
 
 			if (thread_flags & _TIF_FOREIGN_FPSTATE)
 				fpsimd_restore_current_state();
@@ -972,3 +1079,45 @@ void __init minsigstksz_setup(void)
 		round_up(sizeof(struct frame_record), 16) +
 		16; /* max alignment padding */
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Compile-time assertions for siginfo_t offsets. Check NSIG* as well, as
+ * changes likely come with new fields that should be added below.
+ */
+static_assert(NSIGILL	== 11);
+static_assert(NSIGFPE	== 15);
+static_assert(NSIGSEGV	== 9);
+static_assert(NSIGBUS	== 5);
+static_assert(NSIGTRAP	== 6);
+static_assert(NSIGCHLD	== 6);
+static_assert(NSIGSYS	== 2);
+static_assert(sizeof(siginfo_t) == 128);
+static_assert(__alignof__(siginfo_t) == 8);
+static_assert(offsetof(siginfo_t, si_signo)	== 0x00);
+static_assert(offsetof(siginfo_t, si_errno)	== 0x04);
+static_assert(offsetof(siginfo_t, si_code)	== 0x08);
+static_assert(offsetof(siginfo_t, si_pid)	== 0x10);
+static_assert(offsetof(siginfo_t, si_uid)	== 0x14);
+static_assert(offsetof(siginfo_t, si_tid)	== 0x10);
+static_assert(offsetof(siginfo_t, si_overrun)	== 0x14);
+static_assert(offsetof(siginfo_t, si_status)	== 0x18);
+static_assert(offsetof(siginfo_t, si_utime)	== 0x20);
+static_assert(offsetof(siginfo_t, si_stime)	== 0x28);
+static_assert(offsetof(siginfo_t, si_value)	== 0x18);
+static_assert(offsetof(siginfo_t, si_int)	== 0x18);
+static_assert(offsetof(siginfo_t, si_ptr)	== 0x18);
+static_assert(offsetof(siginfo_t, si_addr)	== 0x10);
+static_assert(offsetof(siginfo_t, si_addr_lsb)	== 0x18);
+static_assert(offsetof(siginfo_t, si_lower)	== 0x20);
+static_assert(offsetof(siginfo_t, si_upper)	== 0x28);
+static_assert(offsetof(siginfo_t, si_pkey)	== 0x20);
+static_assert(offsetof(siginfo_t, si_perf_data)	== 0x18);
+static_assert(offsetof(siginfo_t, si_perf_type)	== 0x20);
+static_assert(offsetof(siginfo_t, si_band)	== 0x10);
+static_assert(offsetof(siginfo_t, si_fd)	== 0x18);
+static_assert(offsetof(siginfo_t, si_call_addr)	== 0x10);
+static_assert(offsetof(siginfo_t, si_syscall)	== 0x18);
+static_assert(offsetof(siginfo_t, si_arch)	== 0x1c);
+>>>>>>> upstream/android-13

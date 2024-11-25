@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
@@ -7,16 +8,29 @@
  */
 
 #include <linux/dma-noncoherent.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+ */
+
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <asm/cache.h>
 #include <asm/cacheflush.h>
 
 /*
+<<<<<<< HEAD
  * ARCH specific callbacks for generic noncoherent DMA ops (dma/noncoherent.c)
+=======
+ * ARCH specific callbacks for generic noncoherent DMA ops
+>>>>>>> upstream/android-13
  *  - hardware IOC not available (or "dma-coherent" not set for device in DT)
  *  - But still handle both coherent and non-coherent requests from caller
  *
  * For DMA coherent hardware (IOC) generic code suffices
  */
+<<<<<<< HEAD
 void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
 		gfp_t gfp, unsigned long attrs)
 {
@@ -56,6 +70,11 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
 		kvaddr = (void *)(u32)paddr;
 	}
 
+=======
+
+void arch_dma_prep_coherent(struct page *page, size_t size)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Evict any existing L1 and/or L2 lines for the backing page
 	 * in case it was used earlier as a normal "cached" page.
@@ -66,6 +85,7 @@ void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
 	 * Currently flush_cache_vmap nukes the L1 cache completely which
 	 * will be optimized as a separate commit
 	 */
+<<<<<<< HEAD
 	if (need_coh)
 		dma_cache_wback_inv(paddr, size);
 
@@ -107,6 +127,9 @@ int arch_dma_mmap(struct device *dev, struct vm_area_struct *vma,
 	}
 
 	return ret;
+=======
+	dma_cache_wback_inv(page_to_phys(page), size);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -127,8 +150,13 @@ int arch_dma_mmap(struct device *dev, struct vm_area_struct *vma,
  * upper layer functions (in include/linux/dma-mapping.h)
  */
 
+<<<<<<< HEAD
 void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	switch (dir) {
 	case DMA_TO_DEVICE:
@@ -148,8 +176,13 @@ void arch_sync_dma_for_device(struct device *dev, phys_addr_t paddr,
 	}
 }
 
+<<<<<<< HEAD
 void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	switch (dir) {
 	case DMA_TO_DEVICE:
@@ -167,7 +200,11 @@ void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 }
 
 /*
+<<<<<<< HEAD
  * Plug in coherent or noncoherent dma ops
+=======
+ * Plug in direct dma map ops.
+>>>>>>> upstream/android-13
  */
 void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 			const struct iommu_ops *iommu, bool coherent)
@@ -175,6 +212,7 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 	/*
 	 * IOC hardware snoops all DMA traffic keeping the caches consistent
 	 * with memory - eliding need for any explicit cache maintenance of
+<<<<<<< HEAD
 	 * DMA buffers - so we can use dma_direct cache ops.
 	 */
 	if (is_isa_arcv2() && ioc_enable && coherent) {
@@ -184,4 +222,13 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
 		set_dma_ops(dev, &dma_noncoherent_ops);
 		dev_info(dev, "use dma_noncoherent_ops cache ops\n");
 	}
+=======
+	 * DMA buffers.
+	 */
+	if (is_isa_arcv2() && ioc_enable && coherent)
+		dev->dma_coherent = true;
+
+	dev_info(dev, "use %scoherent DMA ops\n",
+		 dev->dma_coherent ? "" : "non");
+>>>>>>> upstream/android-13
 }

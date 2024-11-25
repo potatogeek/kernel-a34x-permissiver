@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * handle saa7134 IR remotes via linux kernel input layer.
@@ -12,6 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *
+ * handle saa7134 IR remotes via linux kernel input layer.
+>>>>>>> upstream/android-13
  */
 
 #include "saa7134.h"
@@ -299,6 +306,7 @@ static int get_key_purpletv(struct IR_i2c *ir, enum rc_proto *protocol,
 	return 1;
 }
 
+<<<<<<< HEAD
 static int get_key_hvr1110(struct IR_i2c *ir, enum rc_proto *protocol,
 			   u32 *scancode, u8 *toggle)
 {
@@ -336,6 +344,8 @@ static int get_key_hvr1110(struct IR_i2c *ir, enum rc_proto *protocol,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static int get_key_beholdm6xx(struct IR_i2c *ir, enum rc_proto *protocol,
 			      u32 *scancode, u8 *toggle)
 {
@@ -485,6 +495,7 @@ static void saa7134_input_timer(struct timer_list *t)
 	mod_timer(&ir->timer, jiffies + msecs_to_jiffies(ir->polling));
 }
 
+<<<<<<< HEAD
 static int __saa7134_ir_start(void *priv)
 {
 	struct saa7134_dev *dev = priv;
@@ -496,6 +507,12 @@ static int __saa7134_ir_start(void *priv)
 	ir  = dev->remote;
 	if (ir->running)
 		return 0;
+=======
+int saa7134_ir_open(struct rc_dev *rc)
+{
+	struct saa7134_dev *dev = rc->priv;
+	struct saa7134_card_ir *ir = dev->remote;
+>>>>>>> upstream/android-13
 
 	/* Moved here from saa7134_input_init1() because the latter
 	 * is not called on device resume */
@@ -544,6 +561,7 @@ static int __saa7134_ir_start(void *priv)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __saa7134_ir_stop(void *priv)
 {
 	struct saa7134_dev *dev = priv;
@@ -555,11 +573,18 @@ static void __saa7134_ir_stop(void *priv)
 	ir  = dev->remote;
 	if (!ir->running)
 		return;
+=======
+void saa7134_ir_close(struct rc_dev *rc)
+{
+	struct saa7134_dev *dev = rc->priv;
+	struct saa7134_card_ir *ir = dev->remote;
+>>>>>>> upstream/android-13
 
 	if (ir->polling)
 		del_timer_sync(&ir->timer);
 
 	ir->running = false;
+<<<<<<< HEAD
 
 	return;
 }
@@ -593,6 +618,8 @@ static void saa7134_ir_close(struct rc_dev *rc)
 	dev->remote->users--;
 	if (!dev->remote->users)
 		__saa7134_ir_stop(dev);
+=======
+>>>>>>> upstream/android-13
 }
 
 int saa7134_input_init1(struct saa7134_dev *dev)
@@ -661,7 +688,11 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		mask_keycode = 0x0007C8;
 		mask_keydown = 0x000010;
 		polling      = 50; // ms
+<<<<<<< HEAD
 		/* GPIO stuff moved to __saa7134_ir_start() */
+=======
+		/* GPIO stuff moved to saa7134_ir_open() */
+>>>>>>> upstream/android-13
 		break;
 	case SAA7134_BOARD_AVERMEDIA_M135A:
 		ir_codes     = RC_MAP_AVERMEDIA_M135A;
@@ -683,14 +714,22 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		mask_keycode = 0x02F200;
 		mask_keydown = 0x000400;
 		polling      = 50; // ms
+<<<<<<< HEAD
 		/* GPIO stuff moved to __saa7134_ir_start() */
+=======
+		/* GPIO stuff moved to saa7134_ir_open() */
+>>>>>>> upstream/android-13
 		break;
 	case SAA7134_BOARD_AVERMEDIA_A16D:
 		ir_codes     = RC_MAP_AVERMEDIA_A16D;
 		mask_keycode = 0x02F200;
 		mask_keydown = 0x000400;
 		polling      = 50; /* ms */
+<<<<<<< HEAD
 		/* GPIO stuff moved to __saa7134_ir_start() */
+=======
+		/* GPIO stuff moved to saa7134_ir_open() */
+>>>>>>> upstream/android-13
 		break;
 	case SAA7134_BOARD_KWORLD_TERMINATOR:
 		ir_codes     = RC_MAP_PIXELVIEW;
@@ -742,7 +781,11 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		mask_keycode = 0x0003CC;
 		mask_keydown = 0x000010;
 		polling	     = 5; /* ms */
+<<<<<<< HEAD
 		/* GPIO stuff moved to __saa7134_ir_start() */
+=======
+		/* GPIO stuff moved to saa7134_ir_open() */
+>>>>>>> upstream/android-13
 		break;
 	case SAA7134_BOARD_VIDEOMATE_TV_PVR:
 	case SAA7134_BOARD_VIDEOMATE_GOLD_PLUS:
@@ -880,8 +923,11 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 	ir->raw_decode	 = raw_decode;
 
 	/* init input device */
+<<<<<<< HEAD
 	snprintf(ir->name, sizeof(ir->name), "saa7134 IR (%s)",
 		 saa7134_boards[dev->board].name);
+=======
+>>>>>>> upstream/android-13
 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
 		 pci_name(dev->pci));
 
@@ -893,7 +939,11 @@ int saa7134_input_init1(struct saa7134_dev *dev)
 		rc->allowed_protocols = RC_PROTO_BIT_ALL_IR_DECODER;
 	}
 
+<<<<<<< HEAD
 	rc->device_name = ir->name;
+=======
+	rc->device_name = saa7134_boards[dev->board].name;
+>>>>>>> upstream/android-13
 	rc->input_phys = ir->phys;
 	rc->input_id.bustype = BUS_PCI;
 	rc->input_id.version = 1;
@@ -929,7 +979,10 @@ void saa7134_input_fini(struct saa7134_dev *dev)
 	if (NULL == dev->remote)
 		return;
 
+<<<<<<< HEAD
 	saa7134_ir_stop(dev);
+=======
+>>>>>>> upstream/android-13
 	rc_unregister_device(dev->remote->dev);
 	kfree(dev->remote);
 	dev->remote = NULL;
@@ -953,7 +1006,11 @@ void saa7134_probe_i2c_ir(struct saa7134_dev *dev)
 
 	memset(&info, 0, sizeof(struct i2c_board_info));
 	memset(&dev->init_data, 0, sizeof(dev->init_data));
+<<<<<<< HEAD
 	strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
+=======
+	strscpy(info.type, "ir_video", I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 
 	switch (dev->board) {
 	case SAA7134_BOARD_PINNACLE_PCTV_110i:
@@ -1031,9 +1088,17 @@ void saa7134_probe_i2c_ir(struct saa7134_dev *dev)
 			(1 == rc) ? "yes" : "no");
 		break;
 	case SAA7134_BOARD_HAUPPAUGE_HVR1110:
+<<<<<<< HEAD
 		dev->init_data.name = "HVR 1110";
 		dev->init_data.get_key = get_key_hvr1110;
 		dev->init_data.ir_codes = RC_MAP_HAUPPAUGE;
+=======
+		dev->init_data.name = saa7134_boards[dev->board].name;
+		dev->init_data.ir_codes = RC_MAP_HAUPPAUGE;
+		dev->init_data.type = RC_PROTO_BIT_RC5 |
+				RC_PROTO_BIT_RC6_MCE | RC_PROTO_BIT_RC6_6A_32;
+		dev->init_data.internal_get_key_func = IR_KBD_GET_KEY_HAUP_XVR;
+>>>>>>> upstream/android-13
 		info.addr = 0x71;
 		break;
 	case SAA7134_BOARD_BEHOLD_607FM_MK3:
@@ -1077,7 +1142,11 @@ void saa7134_probe_i2c_ir(struct saa7134_dev *dev)
 
 	if (dev->init_data.name)
 		info.platform_data = &dev->init_data;
+<<<<<<< HEAD
 	i2c_new_device(&dev->i2c_adap, &info);
+=======
+	i2c_new_client_device(&dev->i2c_adap, &info);
+>>>>>>> upstream/android-13
 }
 
 static int saa7134_raw_decode_irq(struct saa7134_dev *dev)

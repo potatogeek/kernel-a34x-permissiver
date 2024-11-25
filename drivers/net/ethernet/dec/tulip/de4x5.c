@@ -396,7 +396,11 @@
 			   <earl@exis.net>.
 			  Updated the PCI interface to conform with the latest
 			   version. I hope nothing is broken...
+<<<<<<< HEAD
           		  Add TX done interrupt modification from suggestion
+=======
+			  Add TX done interrupt modification from suggestion
+>>>>>>> upstream/android-13
 			   by <Austin.Donnelly@cl.cam.ac.uk>.
 			  Fix is_anc_capable() bug reported by
 			   <Austin.Donnelly@cl.cam.ac.uk>.
@@ -443,6 +447,10 @@
     =========================================================================
 */
 
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
@@ -902,7 +910,12 @@ static int     de4x5_close(struct net_device *dev);
 static struct  net_device_stats *de4x5_get_stats(struct net_device *dev);
 static void    de4x5_local_stats(struct net_device *dev, char *buf, int pkt_len);
 static void    set_multicast_list(struct net_device *dev);
+<<<<<<< HEAD
 static int     de4x5_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+=======
+static int     de4x5_siocdevprivate(struct net_device *dev, struct ifreq *rq,
+				    void __user *data, int cmd);
+>>>>>>> upstream/android-13
 
 /*
 ** Private functions
@@ -951,7 +964,11 @@ static void    reset_init_sia(struct net_device *dev, s32 sicr, s32 strr, s32 si
 static int     test_ans(struct net_device *dev, s32 irqs, s32 irq_mask, s32 msec);
 static int     test_tp(struct net_device *dev, s32 msec);
 static int     EISA_signature(char *name, struct device *device);
+<<<<<<< HEAD
 static int     PCI_signature(char *name, struct de4x5_private *lp);
+=======
+static void    PCI_signature(char *name, struct de4x5_private *lp);
+>>>>>>> upstream/android-13
 static void    DevicePresent(struct net_device *dev, u_long iobase);
 static void    enet_addr_rst(u_long aprom_addr);
 static int     de4x5_bad_srom(struct de4x5_private *lp);
@@ -1084,7 +1101,11 @@ static const struct net_device_ops de4x5_netdev_ops = {
     .ndo_start_xmit	= de4x5_queue_pkt,
     .ndo_get_stats	= de4x5_get_stats,
     .ndo_set_rx_mode	= set_multicast_list,
+<<<<<<< HEAD
     .ndo_do_ioctl	= de4x5_ioctl,
+=======
+    .ndo_siocdevprivate	= de4x5_siocdevprivate,
+>>>>>>> upstream/android-13
     .ndo_set_mac_address= eth_mac_addr,
     .ndo_validate_addr	= eth_validate_addr,
 };
@@ -1499,7 +1520,11 @@ de4x5_queue_pkt(struct sk_buff *skb, struct net_device *dev)
 	    spin_lock_irqsave(&lp->lock, flags);
 	    netif_stop_queue(dev);
 	    load_packet(dev, skb->data, TD_IC | TD_LS | TD_FS | skb->len, skb);
+<<<<<<< HEAD
  	    lp->stats.tx_bytes += skb->len;
+=======
+	    lp->stats.tx_bytes += skb->len;
+>>>>>>> upstream/android-13
 	    outl(POLL_DEMAND, DE4X5_TPD);/* Start the TX */
 
 	    lp->tx_new = (lp->tx_new + 1) % lp->txRingSize;
@@ -1651,7 +1676,11 @@ de4x5_rx(struct net_device *dev)
 
 		    /* Update stats */
 		    lp->stats.rx_packets++;
+<<<<<<< HEAD
  		    lp->stats.rx_bytes += pkt_len;
+=======
+		    lp->stats.rx_bytes += pkt_len;
+>>>>>>> upstream/android-13
 		}
 	    }
 
@@ -3203,7 +3232,11 @@ srom_map_media(struct net_device *dev)
       case SROM_10BASETF:
 	if (!lp->params.fdx) return -1;
 	lp->fdx = true;
+<<<<<<< HEAD
 	/* fall through */
+=======
+	fallthrough;
+>>>>>>> upstream/android-13
 
       case SROM_10BASET:
 	if (lp->params.fdx && !lp->fdx) return -1;
@@ -3225,7 +3258,11 @@ srom_map_media(struct net_device *dev)
       case SROM_100BASETF:
         if (!lp->params.fdx) return -1;
 	lp->fdx = true;
+<<<<<<< HEAD
 	/* fall through */
+=======
+	fallthrough;
+>>>>>>> upstream/android-13
 
       case SROM_100BASET:
 	if (lp->params.fdx && !lp->fdx) return -1;
@@ -3239,7 +3276,11 @@ srom_map_media(struct net_device *dev)
       case SROM_100BASEFF:
 	if (!lp->params.fdx) return -1;
 	lp->fdx = true;
+<<<<<<< HEAD
 	/* fall through */
+=======
+	fallthrough;
+>>>>>>> upstream/android-13
 
       case SROM_100BASEF:
 	if (lp->params.fdx && !lp->fdx) return -1;
@@ -3902,6 +3943,7 @@ EISA_signature(char *name, struct device *device)
 /*
 ** Look for a particular board name in the PCI configuration space
 */
+<<<<<<< HEAD
 static int
 PCI_signature(char *name, struct de4x5_private *lp)
 {
@@ -3910,6 +3952,16 @@ PCI_signature(char *name, struct de4x5_private *lp)
     if (lp->chipset == DC21040) {
 	strcpy(name, "DE434/5");
 	return status;
+=======
+static void
+PCI_signature(char *name, struct de4x5_private *lp)
+{
+    int i, siglen = ARRAY_SIZE(de4x5_signatures);
+
+    if (lp->chipset == DC21040) {
+	strcpy(name, "DE434/5");
+	return;
+>>>>>>> upstream/android-13
     } else {                           /* Search for a DEC name in the SROM */
 	int tmp = *((char *)&lp->srom + 19) * 3;
 	strncpy(name, (char *)&lp->srom + 26 + tmp, 8);
@@ -3935,8 +3987,11 @@ PCI_signature(char *name, struct de4x5_private *lp)
     } else if ((lp->chipset & ~0x00ff) == DC2114x) {
 	lp->useSROM = true;
     }
+<<<<<<< HEAD
 
     return status;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -4708,6 +4763,13 @@ type3_infoblock(struct net_device *dev, u_char count, u_char *p)
         lp->ibn = 3;
         lp->active = *p++;
 	if (MOTO_SROM_BUG) lp->active = 0;
+<<<<<<< HEAD
+=======
+	/* if (MOTO_SROM_BUG) statement indicates lp->active could
+	 * be 8 (i.e. the size of array lp->phy) */
+	if (WARN_ON(lp->active >= ARRAY_SIZE(lp->phy)))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
 	lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
 	lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
@@ -4927,11 +4989,19 @@ mii_get_oui(u_char phyaddr, u_long ioaddr)
 	u_char breg[2];
     } a;
     int i, r2, r3, ret=0;*/
+<<<<<<< HEAD
     int r2, r3;
 
     /* Read r2 and r3 */
     r2 = mii_rd(MII_ID0, phyaddr, ioaddr);
     r3 = mii_rd(MII_ID1, phyaddr, ioaddr);
+=======
+    int r2;
+
+    /* Read r2 and r3 */
+    r2 = mii_rd(MII_ID0, phyaddr, ioaddr);
+    mii_rd(MII_ID1, phyaddr, ioaddr);
+>>>>>>> upstream/android-13
                                                 /* SEEQ and Cypress way * /
     / * Shuffle r2 and r3 * /
     a.reg=0;
@@ -4999,6 +5069,7 @@ mii_get_phy(struct net_device *dev)
 	}
 	if ((j == limit) && (i < DE4X5_MAX_MII)) {
 	    for (k=0; k < DE4X5_MAX_PHY && lp->phy[k].id; k++);
+<<<<<<< HEAD
 	    lp->phy[k].addr = i;
 	    lp->phy[k].id = id;
 	    lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
@@ -5012,6 +5083,25 @@ mii_get_phy(struct net_device *dev)
 	    de4x5_dbg_mii(dev, k);
 	    de4x5_debug = j;
 	    printk("\n");
+=======
+	    if (k < DE4X5_MAX_PHY) {
+		lp->phy[k].addr = i;
+		lp->phy[k].id = id;
+		lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
+		lp->phy[k].spd.mask = GENERIC_MASK;    /* 100Mb/s technologies   */
+		lp->phy[k].spd.value = GENERIC_VALUE;  /* TX & T4, H/F Duplex    */
+		lp->mii_cnt++;
+		lp->active++;
+		printk("%s: Using generic MII device control. If the board doesn't operate,\nplease mail the following dump to the author:\n", dev->name);
+		j = de4x5_debug;
+		de4x5_debug |= DEBUG_MII;
+		de4x5_dbg_mii(dev, k);
+		de4x5_debug = j;
+		printk("\n");
+	    } else {
+		goto purgatory;
+	    }
+>>>>>>> upstream/android-13
 	}
     }
   purgatory:
@@ -5359,7 +5449,11 @@ de4x5_dbg_rx(struct sk_buff *skb, int len)
 ** this function is only used for my testing.
 */
 static int
+<<<<<<< HEAD
 de4x5_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+=======
+de4x5_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
     struct de4x5_private *lp = netdev_priv(dev);
     struct de4x5_ioctl *ioc = (struct de4x5_ioctl *) &rq->ifr_ifru;
@@ -5373,6 +5467,12 @@ de4x5_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
     } tmp;
     u_long flags = 0;
 
+<<<<<<< HEAD
+=======
+    if (cmd != SIOCDEVPRIVATE || in_compat_syscall())
+	return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
     switch(ioc->cmd) {
     case DE4X5_GET_HWADDR:           /* Get the hardware address */
 	ioc->len = ETH_ALEN;

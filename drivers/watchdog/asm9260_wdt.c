@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Watchdog driver for Alphascale ASM9260.
  *
  * Copyright (c) 2014 Oleksij Rempel <linux@rempel-privat.de>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -196,6 +203,14 @@ static const struct watchdog_ops asm9260_wdt_ops = {
 	.restart	= asm9260_restart,
 };
 
+<<<<<<< HEAD
+=======
+static void asm9260_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+>>>>>>> upstream/android-13
 static int asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
 {
 	int err;
@@ -219,26 +234,51 @@ static int asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
 		dev_err(priv->dev, "Failed to enable ahb_clk!\n");
 		return err;
 	}
+<<<<<<< HEAD
 
 	err = clk_set_rate(priv->clk, CLOCK_FREQ);
 	if (err) {
 		clk_disable_unprepare(priv->clk_ahb);
+=======
+	err = devm_add_action_or_reset(priv->dev,
+				       asm9260_clk_disable_unprepare,
+				       priv->clk_ahb);
+	if (err)
+		return err;
+
+	err = clk_set_rate(priv->clk, CLOCK_FREQ);
+	if (err) {
+>>>>>>> upstream/android-13
 		dev_err(priv->dev, "Failed to set rate!\n");
 		return err;
 	}
 
 	err = clk_prepare_enable(priv->clk);
 	if (err) {
+<<<<<<< HEAD
 		clk_disable_unprepare(priv->clk_ahb);
 		dev_err(priv->dev, "Failed to enable clk!\n");
 		return err;
 	}
+=======
+		dev_err(priv->dev, "Failed to enable clk!\n");
+		return err;
+	}
+	err = devm_add_action_or_reset(priv->dev,
+				       asm9260_clk_disable_unprepare,
+				       priv->clk);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	/* wdt has internal divider */
 	clk = clk_get_rate(priv->clk);
 	if (!clk) {
+<<<<<<< HEAD
 		clk_disable_unprepare(priv->clk);
 		clk_disable_unprepare(priv->clk_ahb);
+=======
+>>>>>>> upstream/android-13
 		dev_err(priv->dev, "Failed, clk is 0!\n");
 		return -EINVAL;
 	}
@@ -274,6 +314,7 @@ static void asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
 
 static int asm9260_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct asm9260_wdt_priv *priv;
 	struct watchdog_device *wdd;
 	struct resource *res;
@@ -293,6 +334,25 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->iobase);
 
 	priv->rst = devm_reset_control_get_exclusive(&pdev->dev, "wdt_rst");
+=======
+	struct device *dev = &pdev->dev;
+	struct asm9260_wdt_priv *priv;
+	struct watchdog_device *wdd;
+	int ret;
+	static const char * const mode_name[] = { "hw", "sw", "debug", };
+
+	priv = devm_kzalloc(dev, sizeof(struct asm9260_wdt_priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+
+	priv->dev = dev;
+
+	priv->iobase = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(priv->iobase))
+		return PTR_ERR(priv->iobase);
+
+	priv->rst = devm_reset_control_get_exclusive(dev, "wdt_rst");
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->rst))
 		return PTR_ERR(priv->rst);
 
@@ -305,7 +365,11 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
 	wdd->ops = &asm9260_wdt_ops;
 	wdd->min_timeout = 1;
 	wdd->max_timeout = BM_WDTC_MAX(priv->wdt_freq);
+<<<<<<< HEAD
 	wdd->parent = &pdev->dev;
+=======
+	wdd->parent = dev;
+>>>>>>> upstream/android-13
 
 	watchdog_set_drvdata(wdd, priv);
 
@@ -315,7 +379,11 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
 	 * the max instead.
 	 */
 	wdd->timeout = ASM9260_WDT_DEFAULT_TIMEOUT;
+<<<<<<< HEAD
 	watchdog_init_timeout(wdd, 0, &pdev->dev);
+=======
+	watchdog_init_timeout(wdd, 0, dev);
+>>>>>>> upstream/android-13
 
 	asm9260_wdt_get_dt_mode(priv);
 
@@ -327,14 +395,22 @@ static int asm9260_wdt_probe(struct platform_device *pdev)
 		 * Not all supported platforms specify an interrupt for the
 		 * watchdog, so let's make it optional.
 		 */
+<<<<<<< HEAD
 		ret = devm_request_irq(&pdev->dev, priv->irq,
 				       asm9260_wdt_irq, 0, pdev->name, priv);
 		if (ret < 0)
 			dev_warn(&pdev->dev, "failed to request IRQ\n");
+=======
+		ret = devm_request_irq(dev, priv->irq, asm9260_wdt_irq, 0,
+				       pdev->name, priv);
+		if (ret < 0)
+			dev_warn(dev, "failed to request IRQ\n");
+>>>>>>> upstream/android-13
 	}
 
 	watchdog_set_restart_priority(wdd, 128);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdd);
 	if (ret)
 		goto clk_off;
@@ -370,6 +446,19 @@ static int asm9260_wdt_remove(struct platform_device *pdev)
 	clk_disable_unprepare(priv->clk_ahb);
 
 	return 0;
+=======
+	watchdog_stop_on_reboot(wdd);
+	watchdog_stop_on_unregister(wdd);
+	ret = devm_watchdog_register_device(dev, wdd);
+	if (ret)
+		return ret;
+
+	platform_set_drvdata(pdev, priv);
+
+	dev_info(dev, "Watchdog enabled (timeout: %d sec, mode: %s)\n",
+		 wdd->timeout, mode_name[priv->mode]);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id asm9260_wdt_of_match[] = {
@@ -384,8 +473,11 @@ static struct platform_driver asm9260_wdt_driver = {
 		.of_match_table	= asm9260_wdt_of_match,
 	},
 	.probe = asm9260_wdt_probe,
+<<<<<<< HEAD
 	.remove = asm9260_wdt_remove,
 	.shutdown = asm9260_wdt_shutdown,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(asm9260_wdt_driver);
 

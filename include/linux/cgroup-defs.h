@@ -71,6 +71,12 @@ enum {
 
 	/* Cgroup is frozen. */
 	CGRP_FROZEN,
+<<<<<<< HEAD
+=======
+
+	/* Control group has to be killed. */
+	CGRP_KILL,
+>>>>>>> upstream/android-13
 };
 
 /* cgroup_root->flags */
@@ -89,6 +95,19 @@ enum {
 	 * Enable cpuset controller in v1 cgroup to use v2 behavior.
 	 */
 	CGRP_ROOT_CPUSET_V2_MODE = (1 << 4),
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Enable legacy local memory.events.
+	 */
+	CGRP_ROOT_MEMORY_LOCAL_EVENTS = (1 << 5),
+
+	/*
+	 * Enable recursive subtree protection
+	 */
+	CGRP_ROOT_MEMORY_RECURSIVE_PROT = (1 << 6),
+>>>>>>> upstream/android-13
 };
 
 /* cftype->flags */
@@ -99,6 +118,11 @@ enum {
 
 	CFTYPE_NO_PREFIX	= (1 << 3),	/* (DON'T USE FOR NEW FILES) no subsys prefix */
 	CFTYPE_WORLD_WRITABLE	= (1 << 4),	/* (DON'T USE FOR NEW FILES) S_IWUGO */
+<<<<<<< HEAD
+=======
+	CFTYPE_DEBUG		= (1 << 5),	/* create when cgroup_debug */
+	CFTYPE_PRESSURE		= (1 << 6),	/* only if pressure feature is enabled */
+>>>>>>> upstream/android-13
 
 	/* internal flags, do not use outside cgroup core proper */
 	__CFTYPE_ONLY_ON_DFL	= (1 << 16),	/* only on default hierarchy */
@@ -221,7 +245,11 @@ struct css_set {
 	struct list_head task_iters;
 
 	/*
+<<<<<<< HEAD
 	 * On the default hierarhcy, ->subsys[ssid] may point to a css
+=======
+	 * On the default hierarchy, ->subsys[ssid] may point to a css
+>>>>>>> upstream/android-13
 	 * attached to an ancestor instead of the cgroup this css_set is
 	 * associated with.  The following node is anchored at
 	 * ->subsys[ssid]->cgroup->e_csets[ssid] and provides a way to
@@ -249,7 +277,12 @@ struct css_set {
 	 * List of csets participating in the on-going migration either as
 	 * source or destination.  Protected by cgroup_mutex.
 	 */
+<<<<<<< HEAD
 	struct list_head mg_preload_node;
+=======
+	struct list_head mg_src_preload_node;
+	struct list_head mg_dst_preload_node;
+>>>>>>> upstream/android-13
 	struct list_head mg_node;
 
 	/*
@@ -349,6 +382,7 @@ struct cgroup {
 	unsigned long flags;		/* "unsigned long" so bitops work */
 
 	/*
+<<<<<<< HEAD
 	 * idr allocated in-hierarchy ID.
 	 *
 	 * ID 0 is not used, the ID of the root cgroup is always 1, and a
@@ -359,6 +393,8 @@ struct cgroup {
 	int id;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * The depth this cgroup is at.  The root is at depth zero and each
 	 * step down the hierarchy increments the level.  This along with
 	 * ancestor_ids[] can determine whether a given cgroup is a
@@ -452,7 +488,11 @@ struct cgroup {
 	struct list_head rstat_css_list;
 
 	/* cgroup basic resource statistics */
+<<<<<<< HEAD
 	struct cgroup_base_stat pending_bstat;	/* pending from children */
+=======
+	struct cgroup_base_stat last_bstat;
+>>>>>>> upstream/android-13
 	struct cgroup_base_stat bstat;
 	struct prev_cputime prev_cputime;	/* for printing out cputime */
 
@@ -481,12 +521,17 @@ struct cgroup {
 	/* Used to store internal freezer state */
 	struct cgroup_freezer_state freezer;
 
+<<<<<<< HEAD
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 
 	/* ids of the ancestors at each level including self */
 	int ancestor_ids[];
+=======
+	/* ids of the ancestors at each level including self */
+	u64 ancestor_ids[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -507,7 +552,11 @@ struct cgroup_root {
 	struct cgroup cgrp;
 
 	/* for cgrp->ancestor_ids[0] */
+<<<<<<< HEAD
 	int cgrp_ancestor_id_storage;
+=======
+	u64 cgrp_ancestor_id_storage;
+>>>>>>> upstream/android-13
 
 	/* Number of cgroups in the hierarchy, used only for /proc/cgroups */
 	atomic_t nr_cgrps;
@@ -518,9 +567,12 @@ struct cgroup_root {
 	/* Hierarchy-specific flags */
 	unsigned int flags;
 
+<<<<<<< HEAD
 	/* IDs for cgroups in this hierarchy */
 	struct idr cgroup_idr;
 
+=======
+>>>>>>> upstream/android-13
 	/* The path to use for release notifications. */
 	char release_agent_path[PATH_MAX];
 
@@ -622,7 +674,11 @@ struct cftype {
 
 /*
  * Control Group subsystem type.
+<<<<<<< HEAD
  * See Documentation/cgroup-v1/cgroups.txt for details
+=======
+ * See Documentation/admin-guide/cgroup-v1/cgroups.rst for details
+>>>>>>> upstream/android-13
  */
 struct cgroup_subsys {
 	struct cgroup_subsys_state *(*css_alloc)(struct cgroup_subsys_state *parent_css);
@@ -639,8 +695,14 @@ struct cgroup_subsys {
 	void (*cancel_attach)(struct cgroup_taskset *tset);
 	void (*attach)(struct cgroup_taskset *tset);
 	void (*post_attach)(void);
+<<<<<<< HEAD
 	int (*can_fork)(struct task_struct *task);
 	void (*cancel_fork)(struct task_struct *task);
+=======
+	int (*can_fork)(struct task_struct *task,
+			struct css_set *cset);
+	void (*cancel_fork)(struct task_struct *task, struct css_set *cset);
+>>>>>>> upstream/android-13
 	void (*fork)(struct task_struct *task);
 	void (*exit)(struct task_struct *task);
 	void (*release)(struct task_struct *task);
@@ -673,6 +735,7 @@ struct cgroup_subsys {
 	 */
 	bool threaded:1;
 
+<<<<<<< HEAD
 	/*
 	 * If %false, this subsystem is properly hierarchical -
 	 * configuration, resource accounting and restriction on a parent
@@ -689,6 +752,9 @@ struct cgroup_subsys {
 	bool warned_broken_hierarchy:1;
 
 	/* the following two fields are initialized automtically during boot */
+=======
+	/* the following two fields are initialized automatically during boot */
+>>>>>>> upstream/android-13
 	int id;
 	const char *name;
 
@@ -768,6 +834,7 @@ static inline void cgroup_threadgroup_change_end(struct task_struct *tsk) {}
  * sock_cgroup_data is embedded at sock->sk_cgrp_data and contains
  * per-socket cgroup information except for memcg association.
  *
+<<<<<<< HEAD
  * On legacy hierarchies, net_prio and net_cls controllers directly set
  * attributes on each sock which can then be tested by the network layer.
  * On the default hierarchy, each sock is associated with the cgroup it was
@@ -829,10 +896,36 @@ static inline u16 sock_cgroup_prioidx(const struct sock_cgroup_data *skcd)
 {
 	/* fallback to 1 which is always the ID of the root cgroup */
 	return (skcd->is_data & 1) ? skcd->prioidx : 1;
+=======
+ * On legacy hierarchies, net_prio and net_cls controllers directly
+ * set attributes on each sock which can then be tested by the network
+ * layer. On the default hierarchy, each sock is associated with the
+ * cgroup it was created in and the networking layer can match the
+ * cgroup directly.
+ */
+struct sock_cgroup_data {
+	struct cgroup	*cgroup; /* v2 */
+#ifdef CONFIG_CGROUP_NET_CLASSID
+	u32		classid; /* v1 */
+#endif
+#ifdef CONFIG_CGROUP_NET_PRIO
+	u16		prioidx; /* v1 */
+#endif
+};
+
+static inline u16 sock_cgroup_prioidx(const struct sock_cgroup_data *skcd)
+{
+#ifdef CONFIG_CGROUP_NET_PRIO
+	return READ_ONCE(skcd->prioidx);
+#else
+	return 1;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline u32 sock_cgroup_classid(const struct sock_cgroup_data *skcd)
 {
+<<<<<<< HEAD
 	/* fallback to 0 which is the unconfigured default classid */
 	return (skcd->is_data & 1) ? skcd->classid : 0;
 }
@@ -856,11 +949,27 @@ static inline void sock_cgroup_set_prioidx(struct sock_cgroup_data *skcd,
 
 	skcd_buf.prioidx = prioidx;
 	WRITE_ONCE(skcd->val, skcd_buf.val);	/* see sock_cgroup_ptr() */
+=======
+#ifdef CONFIG_CGROUP_NET_CLASSID
+	return READ_ONCE(skcd->classid);
+#else
+	return 0;
+#endif
+}
+
+static inline void sock_cgroup_set_prioidx(struct sock_cgroup_data *skcd,
+					   u16 prioidx)
+{
+#ifdef CONFIG_CGROUP_NET_PRIO
+	WRITE_ONCE(skcd->prioidx, prioidx);
+#endif
+>>>>>>> upstream/android-13
 }
 
 static inline void sock_cgroup_set_classid(struct sock_cgroup_data *skcd,
 					   u32 classid)
 {
+<<<<<<< HEAD
 	struct sock_cgroup_data skcd_buf = {{ .val = READ_ONCE(skcd->val) }};
 
 	if (sock_cgroup_classid(&skcd_buf) == classid)
@@ -873,6 +982,11 @@ static inline void sock_cgroup_set_classid(struct sock_cgroup_data *skcd,
 
 	skcd_buf.classid = classid;
 	WRITE_ONCE(skcd->val, skcd_buf.val);	/* see sock_cgroup_ptr() */
+=======
+#ifdef CONFIG_CGROUP_NET_CLASSID
+	WRITE_ONCE(skcd->classid, classid);
+#endif
+>>>>>>> upstream/android-13
 }
 
 #else	/* CONFIG_SOCK_CGROUP_DATA */

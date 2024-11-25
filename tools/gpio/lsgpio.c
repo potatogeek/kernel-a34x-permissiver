@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lsgpio - example on how to list the GPIO lines on a system
  *
  * Copyright (C) 2015 Linus Walleij
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Usage:
  *	lsgpio <-n device-name>
  */
@@ -28,11 +35,16 @@
 
 struct gpio_flag {
 	char *name;
+<<<<<<< HEAD
 	unsigned long mask;
+=======
+	unsigned long long mask;
+>>>>>>> upstream/android-13
 };
 
 struct gpio_flag flagnames[] = {
 	{
+<<<<<<< HEAD
 		.name = "kernel",
 		.mask = GPIOLINE_FLAG_KERNEL,
 	},
@@ -67,6 +79,74 @@ void print_flags(unsigned long flags)
 			printed++;
 		}
 	}
+=======
+		.name = "used",
+		.mask = GPIO_V2_LINE_FLAG_USED,
+	},
+	{
+		.name = "input",
+		.mask = GPIO_V2_LINE_FLAG_INPUT,
+	},
+	{
+		.name = "output",
+		.mask = GPIO_V2_LINE_FLAG_OUTPUT,
+	},
+	{
+		.name = "active-low",
+		.mask = GPIO_V2_LINE_FLAG_ACTIVE_LOW,
+	},
+	{
+		.name = "open-drain",
+		.mask = GPIO_V2_LINE_FLAG_OPEN_DRAIN,
+	},
+	{
+		.name = "open-source",
+		.mask = GPIO_V2_LINE_FLAG_OPEN_SOURCE,
+	},
+	{
+		.name = "pull-up",
+		.mask = GPIO_V2_LINE_FLAG_BIAS_PULL_UP,
+	},
+	{
+		.name = "pull-down",
+		.mask = GPIO_V2_LINE_FLAG_BIAS_PULL_DOWN,
+	},
+	{
+		.name = "bias-disabled",
+		.mask = GPIO_V2_LINE_FLAG_BIAS_DISABLED,
+	},
+	{
+		.name = "clock-realtime",
+		.mask = GPIO_V2_LINE_FLAG_EVENT_CLOCK_REALTIME,
+	},
+};
+
+static void print_attributes(struct gpio_v2_line_info *info)
+{
+	int i;
+	const char *field_format = "%s";
+
+	for (i = 0; i < ARRAY_SIZE(flagnames); i++) {
+		if (info->flags & flagnames[i].mask) {
+			fprintf(stdout, field_format, flagnames[i].name);
+			field_format = ", %s";
+		}
+	}
+
+	if ((info->flags & GPIO_V2_LINE_FLAG_EDGE_RISING) &&
+	    (info->flags & GPIO_V2_LINE_FLAG_EDGE_FALLING))
+		fprintf(stdout, field_format, "both-edges");
+	else if (info->flags & GPIO_V2_LINE_FLAG_EDGE_RISING)
+		fprintf(stdout, field_format, "rising-edge");
+	else if (info->flags & GPIO_V2_LINE_FLAG_EDGE_FALLING)
+		fprintf(stdout, field_format, "falling-edge");
+
+	for (i = 0; i < info->num_attrs; i++) {
+		if (info->attrs[i].id == GPIO_V2_LINE_ATTR_ID_DEBOUNCE)
+			fprintf(stdout, ", debounce_period=%dusec",
+				info->attrs[0].debounce_period_us);
+	}
+>>>>>>> upstream/android-13
 }
 
 int list_device(const char *device_name)
@@ -85,7 +165,11 @@ int list_device(const char *device_name)
 	if (fd == -1) {
 		ret = -errno;
 		fprintf(stderr, "Failed to open %s\n", chrdev_name);
+<<<<<<< HEAD
 		goto exit_close_error;
+=======
+		goto exit_free_name;
+>>>>>>> upstream/android-13
 	}
 
 	/* Inspect this GPIO chip */
@@ -100,18 +184,31 @@ int list_device(const char *device_name)
 
 	/* Loop over the lines and print info */
 	for (i = 0; i < cinfo.lines; i++) {
+<<<<<<< HEAD
 		struct gpioline_info linfo;
 
 		memset(&linfo, 0, sizeof(linfo));
 		linfo.line_offset = i;
 
 		ret = ioctl(fd, GPIO_GET_LINEINFO_IOCTL, &linfo);
+=======
+		struct gpio_v2_line_info linfo;
+
+		memset(&linfo, 0, sizeof(linfo));
+		linfo.offset = i;
+
+		ret = ioctl(fd, GPIO_V2_GET_LINEINFO_IOCTL, &linfo);
+>>>>>>> upstream/android-13
 		if (ret == -1) {
 			ret = -errno;
 			perror("Failed to issue LINEINFO IOCTL\n");
 			goto exit_close_error;
 		}
+<<<<<<< HEAD
 		fprintf(stdout, "\tline %2d:", linfo.line_offset);
+=======
+		fprintf(stdout, "\tline %2d:", linfo.offset);
+>>>>>>> upstream/android-13
 		if (linfo.name[0])
 			fprintf(stdout, " \"%s\"", linfo.name);
 		else
@@ -122,7 +219,11 @@ int list_device(const char *device_name)
 			fprintf(stdout, " unused");
 		if (linfo.flags) {
 			fprintf(stdout, " [");
+<<<<<<< HEAD
 			print_flags(linfo.flags);
+=======
+			print_attributes(&linfo);
+>>>>>>> upstream/android-13
 			fprintf(stdout, "]");
 		}
 		fprintf(stdout, "\n");
@@ -132,6 +233,10 @@ int list_device(const char *device_name)
 exit_close_error:
 	if (close(fd) == -1)
 		perror("Failed to close GPIO character device file");
+<<<<<<< HEAD
+=======
+exit_free_name:
+>>>>>>> upstream/android-13
 	free(chrdev_name);
 	return ret;
 }

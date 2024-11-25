@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
@@ -10,17 +14,21 @@
  * Copyright (c) Alan Smithee.
  * Copyright (c) Andrew McDonald <andrew@mcdonald.org.uk>
  * Copyright (c) Jean-Francois Dive <jef@linuxbe.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <crypto/internal/hash.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
 #include <linux/types.h>
 #include <crypto/sha.h>
@@ -29,6 +37,15 @@
 extern void powerpc_sha_transform(u32 *state, const u8 *src, u32 *temp);
 
 static int sha1_init(struct shash_desc *desc)
+=======
+#include <linux/types.h>
+#include <crypto/sha1.h>
+#include <asm/byteorder.h>
+
+void powerpc_sha_transform(u32 *state, const u8 *src);
+
+static int powerpc_sha1_init(struct shash_desc *desc)
+>>>>>>> upstream/android-13
 {
 	struct sha1_state *sctx = shash_desc_ctx(desc);
 
@@ -39,8 +56,13 @@ static int sha1_init(struct shash_desc *desc)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sha1_update(struct shash_desc *desc, const u8 *data,
 			unsigned int len)
+=======
+static int powerpc_sha1_update(struct shash_desc *desc, const u8 *data,
+			       unsigned int len)
+>>>>>>> upstream/android-13
 {
 	struct sha1_state *sctx = shash_desc_ctx(desc);
 	unsigned int partial, done;
@@ -52,7 +74,10 @@ static int sha1_update(struct shash_desc *desc, const u8 *data,
 	src = data;
 
 	if ((partial + len) > 63) {
+<<<<<<< HEAD
 		u32 temp[SHA_WORKSPACE_WORDS];
+=======
+>>>>>>> upstream/android-13
 
 		if (partial) {
 			done = -partial;
@@ -61,12 +86,19 @@ static int sha1_update(struct shash_desc *desc, const u8 *data,
 		}
 
 		do {
+<<<<<<< HEAD
 			powerpc_sha_transform(sctx->state, src, temp);
+=======
+			powerpc_sha_transform(sctx->state, src);
+>>>>>>> upstream/android-13
 			done += 64;
 			src = data + done;
 		} while (done + 63 < len);
 
+<<<<<<< HEAD
 		memzero_explicit(temp, sizeof(temp));
+=======
+>>>>>>> upstream/android-13
 		partial = 0;
 	}
 	memcpy(sctx->buffer + partial, src, len - done);
@@ -76,7 +108,11 @@ static int sha1_update(struct shash_desc *desc, const u8 *data,
 
 
 /* Add padding and return the message digest. */
+<<<<<<< HEAD
 static int sha1_final(struct shash_desc *desc, u8 *out)
+=======
+static int powerpc_sha1_final(struct shash_desc *desc, u8 *out)
+>>>>>>> upstream/android-13
 {
 	struct sha1_state *sctx = shash_desc_ctx(desc);
 	__be32 *dst = (__be32 *)out;
@@ -89,10 +125,17 @@ static int sha1_final(struct shash_desc *desc, u8 *out)
 	/* Pad out to 56 mod 64 */
 	index = sctx->count & 0x3f;
 	padlen = (index < 56) ? (56 - index) : ((64+56) - index);
+<<<<<<< HEAD
 	sha1_update(desc, padding, padlen);
 
 	/* Append length */
 	sha1_update(desc, (const u8 *)&bits, sizeof(bits));
+=======
+	powerpc_sha1_update(desc, padding, padlen);
+
+	/* Append length */
+	powerpc_sha1_update(desc, (const u8 *)&bits, sizeof(bits));
+>>>>>>> upstream/android-13
 
 	/* Store state in digest */
 	for (i = 0; i < 5; i++)
@@ -104,7 +147,11 @@ static int sha1_final(struct shash_desc *desc, u8 *out)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sha1_export(struct shash_desc *desc, void *out)
+=======
+static int powerpc_sha1_export(struct shash_desc *desc, void *out)
+>>>>>>> upstream/android-13
 {
 	struct sha1_state *sctx = shash_desc_ctx(desc);
 
@@ -112,7 +159,11 @@ static int sha1_export(struct shash_desc *desc, void *out)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sha1_import(struct shash_desc *desc, const void *in)
+=======
+static int powerpc_sha1_import(struct shash_desc *desc, const void *in)
+>>>>>>> upstream/android-13
 {
 	struct sha1_state *sctx = shash_desc_ctx(desc);
 
@@ -122,11 +173,19 @@ static int sha1_import(struct shash_desc *desc, const void *in)
 
 static struct shash_alg alg = {
 	.digestsize	=	SHA1_DIGEST_SIZE,
+<<<<<<< HEAD
 	.init		=	sha1_init,
 	.update		=	sha1_update,
 	.final		=	sha1_final,
 	.export		=	sha1_export,
 	.import		=	sha1_import,
+=======
+	.init		=	powerpc_sha1_init,
+	.update		=	powerpc_sha1_update,
+	.final		=	powerpc_sha1_final,
+	.export		=	powerpc_sha1_export,
+	.import		=	powerpc_sha1_import,
+>>>>>>> upstream/android-13
 	.descsize	=	sizeof(struct sha1_state),
 	.statesize	=	sizeof(struct sha1_state),
 	.base		=	{

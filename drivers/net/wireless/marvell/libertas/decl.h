@@ -23,7 +23,10 @@ struct lbs_private;
 typedef void (*lbs_fw_cb)(struct lbs_private *priv, int ret,
 		const struct firmware *helper, const struct firmware *mainfw);
 
+<<<<<<< HEAD
 struct lbs_private;
+=======
+>>>>>>> upstream/android-13
 struct sk_buff;
 struct net_device;
 struct cmd_ds_command;

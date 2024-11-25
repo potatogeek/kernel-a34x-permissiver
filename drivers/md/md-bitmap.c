@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * bitmap.c two-level bitmap (C) Peter T. Breuer (ptb@ot.uc3m.es) 2003
  *
@@ -323,6 +327,7 @@ static void end_bitmap_write(struct buffer_head *bh, int uptodate)
 		wake_up(&bitmap->write_wait);
 }
 
+<<<<<<< HEAD
 /* copied from buffer.c */
 static void
 __clear_page_buffers(struct page *page)
@@ -331,6 +336,8 @@ __clear_page_buffers(struct page *page)
 	set_page_private(page, 0);
 	put_page(page);
 }
+=======
+>>>>>>> upstream/android-13
 static void free_buffers(struct page *page)
 {
 	struct buffer_head *bh;
@@ -344,7 +351,11 @@ static void free_buffers(struct page *page)
 		free_buffer_head(bh);
 		bh = next;
 	}
+<<<<<<< HEAD
 	__clear_page_buffers(page);
+=======
+	detach_page_private(page);
+>>>>>>> upstream/android-13
 	put_page(page);
 }
 
@@ -363,16 +374,26 @@ static int read_page(struct file *file, unsigned long index,
 	int ret = 0;
 	struct inode *inode = file_inode(file);
 	struct buffer_head *bh;
+<<<<<<< HEAD
 	sector_t block;
+=======
+	sector_t block, blk_cur;
+	unsigned long blocksize = i_blocksize(inode);
+>>>>>>> upstream/android-13
 
 	pr_debug("read bitmap file (%dB @ %llu)\n", (int)PAGE_SIZE,
 		 (unsigned long long)index << PAGE_SHIFT);
 
+<<<<<<< HEAD
 	bh = alloc_page_buffers(page, 1<<inode->i_blkbits, false);
+=======
+	bh = alloc_page_buffers(page, blocksize, false);
+>>>>>>> upstream/android-13
 	if (!bh) {
 		ret = -ENOMEM;
 		goto out;
 	}
+<<<<<<< HEAD
 	attach_page_buffers(page, bh);
 	block = index << (PAGE_SHIFT - inode->i_blkbits);
 	while (bh) {
@@ -390,6 +411,29 @@ static int read_page(struct file *file, unsigned long index,
 				count = 0;
 			else
 				count -= (1<<inode->i_blkbits);
+=======
+	attach_page_private(page, bh);
+	blk_cur = index << (PAGE_SHIFT - inode->i_blkbits);
+	while (bh) {
+		block = blk_cur;
+
+		if (count == 0)
+			bh->b_blocknr = 0;
+		else {
+			ret = bmap(inode, &block);
+			if (ret || !block) {
+				ret = -EINVAL;
+				bh->b_blocknr = 0;
+				goto out;
+			}
+
+			bh->b_blocknr = block;
+			bh->b_bdev = inode->i_sb->s_bdev;
+			if (count < blocksize)
+				count = 0;
+			else
+				count -= blocksize;
+>>>>>>> upstream/android-13
 
 			bh->b_end_io = end_bitmap_write;
 			bh->b_private = bitmap;
@@ -398,7 +442,11 @@ static int read_page(struct file *file, unsigned long index,
 			set_buffer_mapped(bh);
 			submit_bh(REQ_OP_READ, 0, bh);
 		}
+<<<<<<< HEAD
 		block++;
+=======
+		blk_cur++;
+>>>>>>> upstream/android-13
 		bh = bh->b_this_page;
 	}
 	page->index = index;
@@ -490,10 +538,17 @@ void md_bitmap_print_sb(struct bitmap *bitmap)
 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
 	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
+<<<<<<< HEAD
 		 le32_to_cpu(*(__u32 *)(sb->uuid+0)),
 		 le32_to_cpu(*(__u32 *)(sb->uuid+4)),
 		 le32_to_cpu(*(__u32 *)(sb->uuid+8)),
 		 le32_to_cpu(*(__u32 *)(sb->uuid+12)));
+=======
+		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
+		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
+		 le32_to_cpu(*(__le32 *)(sb->uuid+8)),
+		 le32_to_cpu(*(__le32 *)(sb->uuid+12)));
+>>>>>>> upstream/android-13
 	pr_debug("        events: %llu\n",
 		 (unsigned long long) le64_to_cpu(sb->events));
 	pr_debug("events cleared: %llu\n",
@@ -608,8 +663,13 @@ re_read:
 	if (bitmap->cluster_slot >= 0) {
 		sector_t bm_blocks = bitmap->mddev->resync_max_sectors;
 
+<<<<<<< HEAD
 		sector_div(bm_blocks,
 			   bitmap->mddev->bitmap_info.chunksize >> 9);
+=======
+		bm_blocks = DIV_ROUND_UP_SECTOR_T(bm_blocks,
+			   (bitmap->mddev->bitmap_info.chunksize >> 9));
+>>>>>>> upstream/android-13
 		/* bits to bytes */
 		bm_blocks = ((bm_blocks+7) >> 3) + sizeof(bitmap_super_t);
 		/* to 4k blocks */
@@ -1018,8 +1078,11 @@ void md_bitmap_unplug(struct bitmap *bitmap)
 	/* look at each page to see if there are any set bits that need to be
 	 * flushed out to disk */
 	for (i = 0; i < bitmap->storage.file_pages; i++) {
+<<<<<<< HEAD
 		if (!bitmap->storage.filemap)
 			return;
+=======
+>>>>>>> upstream/android-13
 		dirty = test_and_clear_page_attr(bitmap, i, BITMAP_PAGE_DIRTY);
 		need_write = test_and_clear_page_attr(bitmap, i,
 						      BITMAP_PAGE_NEEDWRITE);
@@ -1337,7 +1400,12 @@ void md_bitmap_daemon_work(struct mddev *mddev)
 				   BITMAP_PAGE_DIRTY))
 			/* bitmap_unplug will handle the rest */
 			break;
+<<<<<<< HEAD
 		if (test_and_clear_page_attr(bitmap, j,
+=======
+		if (bitmap->storage.filemap &&
+		    test_and_clear_page_attr(bitmap, j,
+>>>>>>> upstream/android-13
 					     BITMAP_PAGE_NEEDWRITE)) {
 			write_page(bitmap, bitmap->storage.filemap[j], 0);
 		}
@@ -1437,7 +1505,11 @@ int md_bitmap_startwrite(struct bitmap *bitmap, sector_t offset, unsigned long s
 		case 0:
 			md_bitmap_file_set_bit(bitmap, offset);
 			md_bitmap_count_page(&bitmap->counts, offset, 1);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 1:
 			*bmc = 2;
 		}
@@ -1635,7 +1707,11 @@ void md_bitmap_cond_end_sync(struct bitmap *bitmap, sector_t sector, bool force)
 		s += blocks;
 	}
 	bitmap->last_end_sync = jiffies;
+<<<<<<< HEAD
 	sysfs_notify(&bitmap->mddev->kobj, NULL, "sync_completed");
+=======
+	sysfs_notify_dirent_safe(bitmap->mddev->sysfs_completed);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(md_bitmap_cond_end_sync);
 
@@ -1791,6 +1867,11 @@ void md_bitmap_destroy(struct mddev *mddev)
 		return;
 
 	md_bitmap_wait_behind_writes(mddev);
+<<<<<<< HEAD
+=======
+	if (!mddev->serialize_policy)
+		mddev_destroy_serial_pool(mddev, NULL, true);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&mddev->bitmap_info.mutex);
 	spin_lock(&mddev->lock);
@@ -1901,10 +1982,20 @@ int md_bitmap_load(struct mddev *mddev)
 	sector_t start = 0;
 	sector_t sector = 0;
 	struct bitmap *bitmap = mddev->bitmap;
+<<<<<<< HEAD
+=======
+	struct md_rdev *rdev;
+>>>>>>> upstream/android-13
 
 	if (!bitmap)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	rdev_for_each(rdev, mddev)
+		mddev_create_serial_pool(mddev, rdev, true);
+
+>>>>>>> upstream/android-13
 	if (mddev_is_clustered(mddev))
 		md_cluster_ops->load_bitmaps(mddev, mddev->bitmap_info.nodes);
 
@@ -1949,6 +2040,10 @@ out:
 }
 EXPORT_SYMBOL_GPL(md_bitmap_load);
 
+<<<<<<< HEAD
+=======
+/* caller need to free returned bitmap with md_bitmap_free() */
+>>>>>>> upstream/android-13
 struct bitmap *get_bitmap_from_slot(struct mddev *mddev, int slot)
 {
 	int rv = 0;
@@ -2012,6 +2107,10 @@ int md_bitmap_copy_from_slot(struct mddev *mddev, int slot,
 	md_bitmap_unplug(mddev->bitmap);
 	*low = lo;
 	*high = hi;
+<<<<<<< HEAD
+=======
+	md_bitmap_free(bitmap);
+>>>>>>> upstream/android-13
 
 	return rv;
 }
@@ -2290,9 +2389,15 @@ location_store(struct mddev *mddev, const char *buf, size_t len)
 			goto out;
 		}
 		if (mddev->pers) {
+<<<<<<< HEAD
 			mddev->pers->quiesce(mddev, 1);
 			md_bitmap_destroy(mddev);
 			mddev->pers->quiesce(mddev, 0);
+=======
+			mddev_suspend(mddev);
+			md_bitmap_destroy(mddev);
+			mddev_resume(mddev);
+>>>>>>> upstream/android-13
 		}
 		mddev->bitmap_info.offset = 0;
 		if (mddev->bitmap_info.file) {
@@ -2329,8 +2434,13 @@ location_store(struct mddev *mddev, const char *buf, size_t len)
 			mddev->bitmap_info.offset = offset;
 			if (mddev->pers) {
 				struct bitmap *bitmap;
+<<<<<<< HEAD
 				mddev->pers->quiesce(mddev, 1);
 				bitmap = md_bitmap_create(mddev, -1);
+=======
+				bitmap = md_bitmap_create(mddev, -1);
+				mddev_suspend(mddev);
+>>>>>>> upstream/android-13
 				if (IS_ERR(bitmap))
 					rv = PTR_ERR(bitmap);
 				else {
@@ -2339,11 +2449,20 @@ location_store(struct mddev *mddev, const char *buf, size_t len)
 					if (rv)
 						mddev->bitmap_info.offset = 0;
 				}
+<<<<<<< HEAD
 				mddev->pers->quiesce(mddev, 0);
 				if (rv) {
 					md_bitmap_destroy(mddev);
 					goto out;
 				}
+=======
+				if (rv) {
+					md_bitmap_destroy(mddev);
+					mddev_resume(mddev);
+					goto out;
+				}
+				mddev_resume(mddev);
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -2462,12 +2581,32 @@ static ssize_t
 backlog_store(struct mddev *mddev, const char *buf, size_t len)
 {
 	unsigned long backlog;
+<<<<<<< HEAD
+=======
+	unsigned long old_mwb = mddev->bitmap_info.max_write_behind;
+>>>>>>> upstream/android-13
 	int rv = kstrtoul(buf, 10, &backlog);
 	if (rv)
 		return rv;
 	if (backlog > COUNTER_MAX)
 		return -EINVAL;
 	mddev->bitmap_info.max_write_behind = backlog;
+<<<<<<< HEAD
+=======
+	if (!backlog && mddev->serial_info_pool) {
+		/* serial_info_pool is not needed if backlog is zero */
+		if (!mddev->serialize_policy)
+			mddev_destroy_serial_pool(mddev, NULL, false);
+	} else if (backlog && !mddev->serial_info_pool) {
+		/* serial_info_pool is needed since backlog is not zero */
+		struct md_rdev *rdev;
+
+		rdev_for_each(rdev, mddev)
+			mddev_create_serial_pool(mddev, rdev, false);
+	}
+	if (old_mwb != backlog)
+		md_bitmap_update_sb(mddev->bitmap);
+>>>>>>> upstream/android-13
 	return len;
 }
 
@@ -2596,8 +2735,15 @@ static struct attribute *md_bitmap_attrs[] = {
 	&max_backlog_used.attr,
 	NULL
 };
+<<<<<<< HEAD
 struct attribute_group md_bitmap_group = {
 	.name = "bitmap",
 	.attrs = md_bitmap_attrs,
 };
 
+=======
+const struct attribute_group md_bitmap_group = {
+	.name = "bitmap",
+	.attrs = md_bitmap_attrs,
+};
+>>>>>>> upstream/android-13

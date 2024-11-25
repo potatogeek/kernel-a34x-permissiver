@@ -15,6 +15,10 @@
 #include <linux/sched/task_stack.h>
 #include <linux/init.h>
 #include <linux/export.h>
+<<<<<<< HEAD
+=======
+#include <linux/kexec.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mmu_context.h>
 #include <asm/time.h>
@@ -90,7 +94,11 @@ static irqreturn_t mailbox_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Cause the function described by call_data to be executed on the passed
  * cpu.	 When the function has finished, increment the finished field of
  * call_data.
@@ -114,7 +122,11 @@ static inline void octeon_send_ipi_mask(const struct cpumask *mask,
 		octeon_send_ipi_single(i, action);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Detect available CPUs, populate cpu_possible_mask
  */
 static void octeon_smp_hotplug_setup(void)
@@ -201,9 +213,14 @@ int plat_post_relocation(long offset)
 }
 #endif /* CONFIG_RELOCATABLE */
 
+<<<<<<< HEAD
 /**
  * Firmware CPU startup hook
  *
+=======
+/*
+ * Firmware CPU startup hook
+>>>>>>> upstream/android-13
  */
 static int octeon_boot_secondary(int cpu, struct task_struct *idle)
 {
@@ -231,7 +248,11 @@ static int octeon_boot_secondary(int cpu, struct task_struct *idle)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * After we've done initial boot, this function is called to allow the
  * board code to clean up state, if needed
  */
@@ -249,9 +270,14 @@ static void octeon_init_secondary(void)
 	octeon_irq_setup_secondary();
 }
 
+<<<<<<< HEAD
 /**
  * Callout to firmware before smp_init
  *
+=======
+/*
+ * Callout to firmware before smp_init
+>>>>>>> upstream/android-13
  */
 static void __init octeon_prepare_cpus(unsigned int max_cpus)
 {
@@ -267,7 +293,11 @@ static void __init octeon_prepare_cpus(unsigned int max_cpus)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Last chance for the board code to finish SMP initialization before
  * the CPU is "online".
  */
@@ -283,15 +313,22 @@ static void octeon_smp_finish(void)
 #ifdef CONFIG_HOTPLUG_CPU
 
 /* State of each CPU. */
+<<<<<<< HEAD
 DEFINE_PER_CPU(int, cpu_state);
+=======
+static DEFINE_PER_CPU(int, cpu_state);
+>>>>>>> upstream/android-13
 
 static int octeon_cpu_disable(void)
 {
 	unsigned int cpu = smp_processor_id();
 
+<<<<<<< HEAD
 	if (cpu == 0)
 		return -EBUSY;
 
+=======
+>>>>>>> upstream/android-13
 	if (!octeon_bootloader_entry_addr)
 		return -ENOTSUPP;
 
@@ -412,7 +449,11 @@ late_initcall(register_cavium_notifier);
 
 #endif	/* CONFIG_HOTPLUG_CPU */
 
+<<<<<<< HEAD
 const struct plat_smp_ops octeon_smp_ops = {
+=======
+static const struct plat_smp_ops octeon_smp_ops = {
+>>>>>>> upstream/android-13
 	.send_ipi_single	= octeon_send_ipi_single,
 	.send_ipi_mask		= octeon_send_ipi_mask,
 	.init_secondary		= octeon_init_secondary,
@@ -424,6 +465,12 @@ const struct plat_smp_ops octeon_smp_ops = {
 	.cpu_disable		= octeon_cpu_disable,
 	.cpu_die		= octeon_cpu_die,
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEXEC
+	.kexec_nonboot_cpu	= kexec_nonboot_cpu_jump,
+#endif
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t octeon_78xx_reched_interrupt(int irq, void *dev_id)
@@ -501,6 +548,12 @@ static const struct plat_smp_ops octeon_78xx_smp_ops = {
 	.cpu_disable		= octeon_cpu_disable,
 	.cpu_die		= octeon_cpu_die,
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KEXEC
+	.kexec_nonboot_cpu	= kexec_nonboot_cpu_jump,
+#endif
+>>>>>>> upstream/android-13
 };
 
 void __init octeon_setup_smp(void)

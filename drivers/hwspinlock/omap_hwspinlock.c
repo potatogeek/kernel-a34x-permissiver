@@ -2,11 +2,19 @@
 /*
  * OMAP hardware spinlock driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2010-2015 Texas Instruments Incorporated - http://www.ti.com
+=======
+ * Copyright (C) 2010-2021 Texas Instruments Incorporated - https://www.ti.com
+>>>>>>> upstream/android-13
  *
  * Contact: Simon Que <sque@ti.com>
  *          Hari Kanigeri <h-kanigeri2@ti.com>
  *          Ohad Ben-Cohen <ohad@wizery.com>
+<<<<<<< HEAD
+=======
+ *          Suman Anna <s-anna@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -76,7 +84,10 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	struct device_node *node = pdev->dev.of_node;
 	struct hwspinlock_device *bank;
 	struct hwspinlock *hwlock;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *io_base;
 	int num_locks, i, ret;
 	/* Only a single hwspinlock block device is supported */
@@ -85,6 +96,7 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	if (!node)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res)
 		return -ENODEV;
@@ -92,6 +104,11 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	io_base = ioremap(res->start, resource_size(res));
 	if (!io_base)
 		return -ENOMEM;
+=======
+	io_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(io_base))
+		return PTR_ERR(io_base);
+>>>>>>> upstream/android-13
 
 	/*
 	 * make sure the module is enabled and clocked before reading
@@ -101,7 +118,11 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	ret = pm_runtime_get_sync(&pdev->dev);
 	if (ret < 0) {
 		pm_runtime_put_noidle(&pdev->dev);
+<<<<<<< HEAD
 		goto iounmap_base;
+=======
+		goto runtime_err;
+>>>>>>> upstream/android-13
 	}
 
 	/* Determine number of locks */
@@ -114,20 +135,36 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	 */
 	ret = pm_runtime_put(&pdev->dev);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto iounmap_base;
+=======
+		goto runtime_err;
+>>>>>>> upstream/android-13
 
 	/* one of the four lsb's must be set, and nothing else */
 	if (hweight_long(i & 0xf) != 1 || i > 8) {
 		ret = -EINVAL;
+<<<<<<< HEAD
 		goto iounmap_base;
+=======
+		goto runtime_err;
+>>>>>>> upstream/android-13
 	}
 
 	num_locks = i * 32; /* actual number of locks in this device */
 
+<<<<<<< HEAD
 	bank = kzalloc(struct_size(bank, lock, num_locks), GFP_KERNEL);
 	if (!bank) {
 		ret = -ENOMEM;
 		goto iounmap_base;
+=======
+	bank = devm_kzalloc(&pdev->dev, struct_size(bank, lock, num_locks),
+			    GFP_KERNEL);
+	if (!bank) {
+		ret = -ENOMEM;
+		goto runtime_err;
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, bank);
@@ -138,6 +175,7 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	ret = hwspin_lock_register(bank, &pdev->dev, &omap_hwspinlock_ops,
 						base_id, num_locks);
 	if (ret)
+<<<<<<< HEAD
 		goto reg_fail;
 
 	return 0;
@@ -147,13 +185,27 @@ reg_fail:
 iounmap_base:
 	pm_runtime_disable(&pdev->dev);
 	iounmap(io_base);
+=======
+		goto runtime_err;
+
+	dev_dbg(&pdev->dev, "Registered %d locks with HwSpinlock core\n",
+		num_locks);
+
+	return 0;
+
+runtime_err:
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int omap_hwspinlock_remove(struct platform_device *pdev)
 {
 	struct hwspinlock_device *bank = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	void __iomem *io_base = bank->lock[0].priv - LOCK_BASE_OFFSET;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = hwspin_lock_unregister(bank);
@@ -163,14 +215,22 @@ static int omap_hwspinlock_remove(struct platform_device *pdev)
 	}
 
 	pm_runtime_disable(&pdev->dev);
+<<<<<<< HEAD
 	iounmap(io_base);
 	kfree(bank);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static const struct of_device_id omap_hwspinlock_of_match[] = {
 	{ .compatible = "ti,omap4-hwspinlock", },
+<<<<<<< HEAD
+=======
+	{ .compatible = "ti,am64-hwspinlock", },
+	{ .compatible = "ti,am654-hwspinlock", },
+>>>>>>> upstream/android-13
 	{ /* end */ },
 };
 MODULE_DEVICE_TABLE(of, omap_hwspinlock_of_match);

@@ -12,7 +12,11 @@
 
 
 #define MAX_RTC_WAIT 5000	/* 5 sec */
+<<<<<<< HEAD
 #define RTAS_CLOCK_BUSY (-2)
+=======
+
+>>>>>>> upstream/android-13
 time64_t __init rtas_get_boot_time(void)
 {
 	int ret[8];

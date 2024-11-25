@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 Texas Instruments Inc
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2010 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -93,6 +99,7 @@ static int vpbe_find_encoder_sd_index(struct vpbe_config *cfg,
 }
 
 /**
+<<<<<<< HEAD
  * vpbe_g_cropcap - Get crop capabilities of the display
  * @vpbe_dev: vpbe device ptr
  * @cropcap: cropcap is a ptr to struct v4l2_cropcap
@@ -115,6 +122,8 @@ static int vpbe_g_cropcap(struct vpbe_device *vpbe_dev,
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * vpbe_enum_outputs - enumerate outputs
  * @vpbe_dev: vpbe device ptr
  * @output: ptr to v4l2_output structure
@@ -264,7 +273,11 @@ static int vpbe_set_output(struct vpbe_device *vpbe_dev, int index)
 		goto unlock;
 
 	/*
+<<<<<<< HEAD
 	 * It is assumed that venc or extenal encoder will set a default
+=======
+	 * It is assumed that venc or external encoder will set a default
+>>>>>>> upstream/android-13
 	 * mode in the sub device. For external encoder or LCD pannel output,
 	 * we also need to set up the lcd port for the required mode. So setup
 	 * the lcd port for the default mode that is configured in the board
@@ -658,7 +671,11 @@ static int vpbe_initialize(struct device *dev, struct vpbe_device *vpbe_dev)
 		if (err) {
 			v4l2_err(&vpbe_dev->v4l2_dev,
 				 "unable to initialize the OSD device");
+<<<<<<< HEAD
 			err = -ENOMEM;
+=======
+			ret = -ENOMEM;
+>>>>>>> upstream/android-13
 			goto fail_dev_unregister;
 		}
 	}
@@ -796,7 +813,10 @@ static void vpbe_deinitialize(struct device *dev, struct vpbe_device *vpbe_dev)
 }
 
 static const struct vpbe_device_ops vpbe_dev_ops = {
+<<<<<<< HEAD
 	.g_cropcap = vpbe_g_cropcap,
+=======
+>>>>>>> upstream/android-13
 	.enum_outputs = vpbe_enum_outputs,
 	.set_output = vpbe_set_output,
 	.get_output = vpbe_get_output,

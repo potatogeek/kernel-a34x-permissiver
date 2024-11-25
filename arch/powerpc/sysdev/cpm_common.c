@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Common CPM code
  *
@@ -11,10 +15,13 @@
  * Copyright (c) 2000 MontaVista Software, Inc (source@mvista.com)
  * 2006 (c) MontaVista Software, Inc.
  * Vitaly Bordug <vbordug@ru.mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -71,6 +78,11 @@ static void udbg_putc_cpm(char c)
 void __init udbg_init_cpm(void)
 {
 #ifdef CONFIG_PPC_8xx
+<<<<<<< HEAD
+=======
+	mmu_mapin_immr();
+
+>>>>>>> upstream/android-13
 	cpm_udbg_txdesc = (u32 __iomem __force *)
 			  (CONFIG_PPC_EARLY_DEBUG_CPM_ADDR - PHYS_IMMR_BASE +
 			   VIRT_IMMR_BASE);

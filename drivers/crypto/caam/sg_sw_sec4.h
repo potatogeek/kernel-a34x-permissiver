@@ -35,11 +35,17 @@ static inline void dma_to_sec4_sg_one(struct sec4_sg_entry *sec4_sg_ptr,
 		sec4_sg_ptr->bpid_offset = cpu_to_caam32(offset &
 							 SEC4_SG_OFFSET_MASK);
 	}
+<<<<<<< HEAD
 #ifdef DEBUG
 	print_hex_dump(KERN_ERR, "sec4_sg_ptr@: ",
 		       DUMP_PREFIX_ADDRESS, 16, 4, sec4_sg_ptr,
 		       sizeof(struct sec4_sg_entry), 1);
 #endif
+=======
+
+	print_hex_dump_debug("sec4_sg_ptr@: ", DUMP_PREFIX_ADDRESS, 16, 4,
+			     sec4_sg_ptr, sizeof(struct sec4_sg_entry), 1);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -47,6 +53,7 @@ static inline void dma_to_sec4_sg_one(struct sec4_sg_entry *sec4_sg_ptr,
  * but does not have final bit; instead, returns last entry
  */
 static inline struct sec4_sg_entry *
+<<<<<<< HEAD
 sg_to_sec4_sg(struct scatterlist *sg, int sg_count,
 	      struct sec4_sg_entry *sec4_sg_ptr, u16 offset)
 {
@@ -56,6 +63,21 @@ sg_to_sec4_sg(struct scatterlist *sg, int sg_count,
 		sec4_sg_ptr++;
 		sg = sg_next(sg);
 		sg_count--;
+=======
+sg_to_sec4_sg(struct scatterlist *sg, int len,
+	      struct sec4_sg_entry *sec4_sg_ptr, u16 offset)
+{
+	int ent_len;
+
+	while (len) {
+		ent_len = min_t(int, sg_dma_len(sg), len);
+
+		dma_to_sec4_sg_one(sec4_sg_ptr, sg_dma_address(sg), ent_len,
+				   offset);
+		sec4_sg_ptr++;
+		sg = sg_next(sg);
+		len -= ent_len;
+>>>>>>> upstream/android-13
 	}
 	return sec4_sg_ptr - 1;
 }
@@ -72,11 +94,19 @@ static inline void sg_to_sec4_set_last(struct sec4_sg_entry *sec4_sg_ptr)
  * convert scatterlist to h/w link table format
  * scatterlist must have been previously dma mapped
  */
+<<<<<<< HEAD
 static inline void sg_to_sec4_sg_last(struct scatterlist *sg, int sg_count,
 				      struct sec4_sg_entry *sec4_sg_ptr,
 				      u16 offset)
 {
 	sec4_sg_ptr = sg_to_sec4_sg(sg, sg_count, sec4_sg_ptr, offset);
+=======
+static inline void sg_to_sec4_sg_last(struct scatterlist *sg, int len,
+				      struct sec4_sg_entry *sec4_sg_ptr,
+				      u16 offset)
+{
+	sec4_sg_ptr = sg_to_sec4_sg(sg, len, sec4_sg_ptr, offset);
+>>>>>>> upstream/android-13
 	sg_to_sec4_set_last(sec4_sg_ptr);
 }
 

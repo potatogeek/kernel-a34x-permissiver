@@ -37,6 +37,7 @@
  * is on, and remove the appropriate bits from attr->ia_mode (attr is a
  * "struct iattr *"). -BlaisorBlade
  */
+<<<<<<< HEAD
 
 struct hostfs_iattr {
 	unsigned int	ia_valid;
@@ -47,6 +48,22 @@ struct hostfs_iattr {
 	struct timespec	ia_atime;
 	struct timespec	ia_mtime;
 	struct timespec	ia_ctime;
+=======
+struct hostfs_timespec {
+	long long tv_sec;
+	long long tv_nsec;
+};
+
+struct hostfs_iattr {
+	unsigned int		ia_valid;
+	unsigned short		ia_mode;
+	uid_t			ia_uid;
+	gid_t			ia_gid;
+	loff_t			ia_size;
+	struct hostfs_timespec	ia_atime;
+	struct hostfs_timespec	ia_mtime;
+	struct hostfs_timespec	ia_ctime;
+>>>>>>> upstream/android-13
 };
 
 struct hostfs_stat {
@@ -56,7 +73,11 @@ struct hostfs_stat {
 	unsigned int uid;
 	unsigned int gid;
 	unsigned long long size;
+<<<<<<< HEAD
 	struct timespec atime, mtime, ctime;
+=======
+	struct hostfs_timespec atime, mtime, ctime;
+>>>>>>> upstream/android-13
 	unsigned int blksize;
 	unsigned long long blocks;
 	unsigned int maj;
@@ -87,7 +108,11 @@ extern int do_mkdir(const char *file, int mode);
 extern int hostfs_do_rmdir(const char *file);
 extern int do_mknod(const char *file, int mode, unsigned int major,
 		    unsigned int minor);
+<<<<<<< HEAD
 extern int link_file(const char *from, const char *to);
+=======
+extern int link_file(const char *to, const char *from);
+>>>>>>> upstream/android-13
 extern int hostfs_do_readlink(char *file, char *buf, int size);
 extern int rename_file(char *from, char *to);
 extern int rename2_file(char *from, char *to, unsigned int flags);

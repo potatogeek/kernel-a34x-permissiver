@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+>>>>>>> upstream/android-13
 /*
  * sama5d36ek_cmp.dts - Device Tree file for SAMA5D36-EK CMP board
  *
  *  Copyright (C) 2016 Atmel,
+<<<<<<< HEAD
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,6 +45,8 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "sama5d36.dtsi"

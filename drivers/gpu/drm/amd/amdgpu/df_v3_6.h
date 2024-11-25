@@ -35,6 +35,10 @@ enum DF_V3_6_MGCG {
 	DF_V3_6_MGCG_ENABLE_63_CYCLE_DELAY = 15
 };
 
+<<<<<<< HEAD
+=======
+extern const struct attribute_group *df_v3_6_attr_groups[];
+>>>>>>> upstream/android-13
 extern const struct amdgpu_df_funcs df_v3_6_funcs;
 
 #endif

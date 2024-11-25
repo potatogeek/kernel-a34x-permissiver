@@ -2,15 +2,29 @@
 /*
  * handling kvm guest interrupts
  *
+<<<<<<< HEAD
  * Copyright IBM Corp. 2008, 2015
+=======
+ * Copyright IBM Corp. 2008, 2020
+>>>>>>> upstream/android-13
  *
  *    Author(s): Carsten Otte <cotte@de.ibm.com>
  */
 
+<<<<<<< HEAD
+=======
+#define KMSG_COMPONENT "kvm-s390"
+#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/kvm_host.h>
 #include <linux/hrtimer.h>
 #include <linux/mmu_context.h>
+<<<<<<< HEAD
+=======
+#include <linux/nospec.h>
+>>>>>>> upstream/android-13
 #include <linux/signal.h>
 #include <linux/slab.h>
 #include <linux/bitmap.h>
@@ -23,6 +37,10 @@
 #include <asm/gmap.h>
 #include <asm/switch_to.h>
 #include <asm/nmi.h>
+<<<<<<< HEAD
+=======
+#include <asm/airq.h>
+>>>>>>> upstream/android-13
 #include "kvm-s390.h"
 #include "gaccess.h"
 #include "trace-s390.h"
@@ -31,6 +49,11 @@
 #define PFAULT_DONE 0x0680
 #define VIRTIO_PARAM 0x0d00
 
+<<<<<<< HEAD
+=======
+static struct kvm_s390_gib *gib;
+
+>>>>>>> upstream/android-13
 /* handle external calls via sigp interpretation facility */
 static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
 {
@@ -217,36 +240,148 @@ static inline u8 int_word_to_isc(u32 int_word)
  */
 #define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * BITS_PER_BYTE)
 
+<<<<<<< HEAD
 static inline void kvm_s390_gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+=======
+/**
+ * gisa_set_iam - change the GISA interruption alert mask
+ *
+ * @gisa: gisa to operate on
+ * @iam: new IAM value to use
+ *
+ * Change the IAM atomically with the next alert address and the IPM
+ * of the GISA if the GISA is not part of the GIB alert list. All three
+ * fields are located in the first long word of the GISA.
+ *
+ * Returns: 0 on success
+ *          -EBUSY in case the gisa is part of the alert list
+ */
+static inline int gisa_set_iam(struct kvm_s390_gisa *gisa, u8 iam)
+{
+	u64 word, _word;
+
+	do {
+		word = READ_ONCE(gisa->u64.word[0]);
+		if ((u64)gisa != word >> 32)
+			return -EBUSY;
+		_word = (word & ~0xffUL) | iam;
+	} while (cmpxchg(&gisa->u64.word[0], word, _word) != word);
+
+	return 0;
+}
+
+/**
+ * gisa_clear_ipm - clear the GISA interruption pending mask
+ *
+ * @gisa: gisa to operate on
+ *
+ * Clear the IPM atomically with the next alert address and the IAM
+ * of the GISA unconditionally. All three fields are located in the
+ * first long word of the GISA.
+ */
+static inline void gisa_clear_ipm(struct kvm_s390_gisa *gisa)
+{
+	u64 word, _word;
+
+	do {
+		word = READ_ONCE(gisa->u64.word[0]);
+		_word = word & ~(0xffUL << 24);
+	} while (cmpxchg(&gisa->u64.word[0], word, _word) != word);
+}
+
+/**
+ * gisa_get_ipm_or_restore_iam - return IPM or restore GISA IAM
+ *
+ * @gi: gisa interrupt struct to work on
+ *
+ * Atomically restores the interruption alert mask if none of the
+ * relevant ISCs are pending and return the IPM.
+ *
+ * Returns: the relevant pending ISCs
+ */
+static inline u8 gisa_get_ipm_or_restore_iam(struct kvm_s390_gisa_interrupt *gi)
+{
+	u8 pending_mask, alert_mask;
+	u64 word, _word;
+
+	do {
+		word = READ_ONCE(gi->origin->u64.word[0]);
+		alert_mask = READ_ONCE(gi->alert.mask);
+		pending_mask = (u8)(word >> 24) & alert_mask;
+		if (pending_mask)
+			return pending_mask;
+		_word = (word & ~0xffUL) | alert_mask;
+	} while (cmpxchg(&gi->origin->u64.word[0], word, _word) != word);
+
+	return 0;
+}
+
+static inline int gisa_in_alert_list(struct kvm_s390_gisa *gisa)
+{
+	return READ_ONCE(gisa->next_alert) != (u32)(u64)gisa;
+}
+
+static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+>>>>>>> upstream/android-13
 {
 	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
 }
 
+<<<<<<< HEAD
 static inline u8 kvm_s390_gisa_get_ipm(struct kvm_s390_gisa *gisa)
+=======
+static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
+>>>>>>> upstream/android-13
 {
 	return READ_ONCE(gisa->ipm);
 }
 
+<<<<<<< HEAD
 static inline void kvm_s390_gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+=======
+static inline void gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+>>>>>>> upstream/android-13
 {
 	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
 }
 
+<<<<<<< HEAD
 static inline int kvm_s390_gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+=======
+static inline int gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+>>>>>>> upstream/android-13
 {
 	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
 }
 
 static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
 	return vcpu->kvm->arch.float_int.pending_irqs |
 		vcpu->arch.local_int.pending_irqs;
+=======
+	unsigned long pending = vcpu->kvm->arch.float_int.pending_irqs |
+				vcpu->arch.local_int.pending_irqs;
+
+	pending &= ~vcpu->kvm->arch.float_int.masked_irqs;
+	return pending;
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
 	return pending_irqs_no_gisa(vcpu) |
 		kvm_s390_gisa_get_ipm(vcpu->kvm->arch.gisa) << IRQ_PEND_IO_ISC_7;
+=======
+	struct kvm_s390_gisa_interrupt *gi = &vcpu->kvm->arch.gisa_int;
+	unsigned long pending_mask;
+
+	pending_mask = pending_irqs_no_gisa(vcpu);
+	if (gi->origin)
+		pending_mask |= gisa_get_ipm(gi->origin) << IRQ_PEND_IO_ISC_7;
+	return pending_mask;
+>>>>>>> upstream/android-13
 }
 
 static inline int isc_to_irq_type(unsigned long isc)
@@ -293,10 +428,25 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
 		__clear_bit(IRQ_PEND_EXT_CLOCK_COMP, &active_mask);
 	if (!(vcpu->arch.sie_block->gcr[0] & CR0_CPU_TIMER_SUBMASK))
 		__clear_bit(IRQ_PEND_EXT_CPU_TIMER, &active_mask);
+<<<<<<< HEAD
 	if (!(vcpu->arch.sie_block->gcr[0] & CR0_SERVICE_SIGNAL_SUBMASK))
 		__clear_bit(IRQ_PEND_EXT_SERVICE, &active_mask);
 	if (psw_mchk_disabled(vcpu))
 		active_mask &= ~IRQ_PEND_MCHK_MASK;
+=======
+	if (!(vcpu->arch.sie_block->gcr[0] & CR0_SERVICE_SIGNAL_SUBMASK)) {
+		__clear_bit(IRQ_PEND_EXT_SERVICE, &active_mask);
+		__clear_bit(IRQ_PEND_EXT_SERVICE_EV, &active_mask);
+	}
+	if (psw_mchk_disabled(vcpu))
+		active_mask &= ~IRQ_PEND_MCHK_MASK;
+	/* PV guest cpus can have a single interruption injected at a time. */
+	if (kvm_s390_pv_cpu_get_handle(vcpu) &&
+	    vcpu->arch.sie_block->iictl != IICTL_CODE_NONE)
+		active_mask &= ~(IRQ_PEND_EXT_II_MASK |
+				 IRQ_PEND_IO_MASK |
+				 IRQ_PEND_MCHK_MASK);
+>>>>>>> upstream/android-13
 	/*
 	 * Check both floating and local interrupt's cr14 because
 	 * bit IRQ_PEND_MCHK_REP could be set in both cases.
@@ -318,13 +468,21 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
 static void __set_cpu_idle(struct kvm_vcpu *vcpu)
 {
 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
+<<<<<<< HEAD
 	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
+=======
+	set_bit(vcpu->vcpu_idx, vcpu->kvm->arch.idle_mask);
+>>>>>>> upstream/android-13
 }
 
 static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
 {
 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
+<<<<<<< HEAD
 	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.float_int.idle_mask);
+=======
+	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.idle_mask);
+>>>>>>> upstream/android-13
 }
 
 static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
@@ -345,7 +503,11 @@ static void set_intercept_indicators_io(struct kvm_vcpu *vcpu)
 {
 	if (!(pending_irqs_no_gisa(vcpu) & IRQ_PEND_IO_MASK))
 		return;
+<<<<<<< HEAD
 	else if (psw_ioint_disabled(vcpu))
+=======
+	if (psw_ioint_disabled(vcpu))
+>>>>>>> upstream/android-13
 		kvm_s390_set_cpuflags(vcpu, CPUSTAT_IO_INT);
 	else
 		vcpu->arch.sie_block->lctl |= LCTL_CR6;
@@ -353,7 +515,11 @@ static void set_intercept_indicators_io(struct kvm_vcpu *vcpu)
 
 static void set_intercept_indicators_ext(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
 	if (!(pending_irqs(vcpu) & IRQ_PEND_EXT_MASK))
+=======
+	if (!(pending_irqs_no_gisa(vcpu) & IRQ_PEND_EXT_MASK))
+>>>>>>> upstream/android-13
 		return;
 	if (psw_extint_disabled(vcpu))
 		kvm_s390_set_cpuflags(vcpu, CPUSTAT_EXT_INT);
@@ -363,7 +529,11 @@ static void set_intercept_indicators_ext(struct kvm_vcpu *vcpu)
 
 static void set_intercept_indicators_mchk(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
 	if (!(pending_irqs(vcpu) & IRQ_PEND_MCHK_MASK))
+=======
+	if (!(pending_irqs_no_gisa(vcpu) & IRQ_PEND_MCHK_MASK))
+>>>>>>> upstream/android-13
 		return;
 	if (psw_mchk_disabled(vcpu))
 		vcpu->arch.sie_block->ictl |= ICTL_LPSW;
@@ -389,11 +559,16 @@ static void set_intercept_indicators(struct kvm_vcpu *vcpu)
 static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
 {
 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+<<<<<<< HEAD
 	int rc;
+=======
+	int rc = 0;
+>>>>>>> upstream/android-13
 
 	vcpu->stat.deliver_cputm++;
 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CPU_TIMER,
 					 0, 0);
+<<<<<<< HEAD
 
 	rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
 			   (u16 *)__LC_EXT_INT_CODE);
@@ -402,6 +577,20 @@ static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
 			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
 	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
 			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+=======
+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
+		vcpu->arch.sie_block->eic = EXT_IRQ_CPU_TIMER;
+	} else {
+		rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
+				   (u16 *)__LC_EXT_INT_CODE);
+		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
+		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+	}
+>>>>>>> upstream/android-13
 	clear_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
 	return rc ? -EFAULT : 0;
 }
@@ -409,11 +598,16 @@ static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
 static int __must_check __deliver_ckc(struct kvm_vcpu *vcpu)
 {
 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+<<<<<<< HEAD
 	int rc;
+=======
+	int rc = 0;
+>>>>>>> upstream/android-13
 
 	vcpu->stat.deliver_ckc++;
 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CLOCK_COMP,
 					 0, 0);
+<<<<<<< HEAD
 
 	rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
 			   (u16 __user *)__LC_EXT_INT_CODE);
@@ -422,6 +616,20 @@ static int __must_check __deliver_ckc(struct kvm_vcpu *vcpu)
 			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
 	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
 			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+=======
+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
+		vcpu->arch.sie_block->eic = EXT_IRQ_CLK_COMP;
+	} else {
+		rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
+				   (u16 __user *)__LC_EXT_INT_CODE);
+		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
+		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+	}
+>>>>>>> upstream/android-13
 	clear_bit(IRQ_PEND_EXT_CLOCK_COMP, &li->pending_irqs);
 	return rc ? -EFAULT : 0;
 }
@@ -463,6 +671,23 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
 	union mci mci;
 	int rc;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * All other possible payload for a machine check (e.g. the register
+	 * contents in the save area) will be handled by the ultravisor, as
+	 * the hypervisor does not not have the needed information for
+	 * protected guests.
+	 */
+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_MCHK;
+		vcpu->arch.sie_block->mcic = mchk->mcic;
+		vcpu->arch.sie_block->faddr = mchk->failing_storage_address;
+		vcpu->arch.sie_block->edc = mchk->ext_damage_code;
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	mci.val = mchk->mcic;
 	/* take care of lazy register loading */
 	save_fpu_regs();
@@ -606,17 +831,33 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
 static int __must_check __deliver_restart(struct kvm_vcpu *vcpu)
 {
 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+<<<<<<< HEAD
 	int rc;
+=======
+	int rc = 0;
+>>>>>>> upstream/android-13
 
 	VCPU_EVENT(vcpu, 3, "%s", "deliver: cpu restart");
 	vcpu->stat.deliver_restart_signal++;
 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
 
+<<<<<<< HEAD
 	rc  = write_guest_lc(vcpu,
 			     offsetof(struct lowcore, restart_old_psw),
 			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
 	rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
 			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+=======
+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_RESTART;
+	} else {
+		rc  = write_guest_lc(vcpu,
+				     offsetof(struct lowcore, restart_old_psw),
+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+		rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+	}
+>>>>>>> upstream/android-13
 	clear_bit(IRQ_PEND_RESTART, &li->pending_irqs);
 	return rc ? -EFAULT : 0;
 }
@@ -658,6 +899,15 @@ static int __must_check __deliver_emergency_signal(struct kvm_vcpu *vcpu)
 	vcpu->stat.deliver_emergency_signal++;
 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
 					 cpu_addr, 0);
+<<<<<<< HEAD
+=======
+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
+		vcpu->arch.sie_block->eic = EXT_IRQ_EMERGENCY_SIG;
+		vcpu->arch.sie_block->extcpuaddr = cpu_addr;
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	rc  = put_guest_lc(vcpu, EXT_IRQ_EMERGENCY_SIG,
 			   (u16 *)__LC_EXT_INT_CODE);
@@ -686,6 +936,15 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
 					 KVM_S390_INT_EXTERNAL_CALL,
 					 extcall.code, 0);
+<<<<<<< HEAD
+=======
+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
+		vcpu->arch.sie_block->eic = EXT_IRQ_EXTERNAL_CALL;
+		vcpu->arch.sie_block->extcpuaddr = extcall.code;
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	rc  = put_guest_lc(vcpu, EXT_IRQ_EXTERNAL_CALL,
 			   (u16 *)__LC_EXT_INT_CODE);
@@ -697,6 +956,24 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
 	return rc ? -EFAULT : 0;
 }
 
+<<<<<<< HEAD
+=======
+static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
+{
+	switch (code) {
+	case PGM_SPECIFICATION:
+		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
+		break;
+	case PGM_OPERAND:
+		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
+		break;
+	default:
+		return -EINVAL;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
 {
 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
@@ -717,6 +994,13 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
 					 pgm_info.code, 0);
 
+<<<<<<< HEAD
+=======
+	/* PER is handled by the ultravisor */
+	if (kvm_s390_pv_cpu_is_protected(vcpu))
+		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
+
+>>>>>>> upstream/android-13
 	switch (pgm_info.code & ~PGM_PER) {
 	case PGM_AFX_TRANSLATION:
 	case PGM_ASX_TRANSLATION:
@@ -728,7 +1012,11 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
 	case PGM_PRIMARY_AUTHORITY:
 	case PGM_SECONDARY_AUTHORITY:
 		nullifying = true;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PGM_SPACE_SWITCH:
 		rc = put_guest_lc(vcpu, pgm_info.trans_exc_code,
 				  (u64 *)__LC_TRANS_EXC_CODE);
@@ -812,20 +1100,62 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
 	return rc ? -EFAULT : 0;
 }
 
+<<<<<<< HEAD
+=======
+#define SCCB_MASK 0xFFFFFFF8
+#define SCCB_EVENT_PENDING 0x3
+
+static int write_sclp(struct kvm_vcpu *vcpu, u32 parm)
+{
+	int rc;
+
+	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
+		vcpu->arch.sie_block->eic = EXT_IRQ_SERVICE_SIG;
+		vcpu->arch.sie_block->eiparams = parm;
+		return 0;
+	}
+
+	rc  = put_guest_lc(vcpu, EXT_IRQ_SERVICE_SIG, (u16 *)__LC_EXT_INT_CODE);
+	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
+	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+	rc |= put_guest_lc(vcpu, parm,
+			   (u32 *)__LC_EXT_PARAMS);
+
+	return rc ? -EFAULT : 0;
+}
+
+>>>>>>> upstream/android-13
 static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
 {
 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
 	struct kvm_s390_ext_info ext;
+<<<<<<< HEAD
 	int rc = 0;
 
 	spin_lock(&fi->lock);
 	if (!(test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs))) {
+=======
+
+	spin_lock(&fi->lock);
+	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs) ||
+	    !(test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs))) {
+>>>>>>> upstream/android-13
 		spin_unlock(&fi->lock);
 		return 0;
 	}
 	ext = fi->srv_signal;
 	memset(&fi->srv_signal, 0, sizeof(ext));
 	clear_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
+<<<<<<< HEAD
+=======
+	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
+	if (kvm_s390_pv_cpu_is_protected(vcpu))
+		set_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs);
+>>>>>>> upstream/android-13
 	spin_unlock(&fi->lock);
 
 	VCPU_EVENT(vcpu, 4, "deliver: sclp parameter 0x%x",
@@ -834,6 +1164,7 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
 					 ext.ext_params, 0);
 
+<<<<<<< HEAD
 	rc  = put_guest_lc(vcpu, EXT_IRQ_SERVICE_SIG, (u16 *)__LC_EXT_INT_CODE);
 	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
 	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
@@ -844,6 +1175,33 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
 			   (u32 *)__LC_EXT_PARAMS);
 
 	return rc ? -EFAULT : 0;
+=======
+	return write_sclp(vcpu, ext.ext_params);
+}
+
+static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
+{
+	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
+	struct kvm_s390_ext_info ext;
+
+	spin_lock(&fi->lock);
+	if (!(test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs))) {
+		spin_unlock(&fi->lock);
+		return 0;
+	}
+	ext = fi->srv_signal;
+	/* only clear the event bit */
+	fi->srv_signal.ext_params &= ~SCCB_EVENT_PENDING;
+	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
+	spin_unlock(&fi->lock);
+
+	VCPU_EVENT(vcpu, 4, "%s", "deliver: sclp parameter event");
+	vcpu->stat.deliver_service_signal++;
+	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
+					 ext.ext_params, 0);
+
+	return write_sclp(vcpu, SCCB_EVENT_PENDING);
+>>>>>>> upstream/android-13
 }
 
 static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
@@ -938,6 +1296,18 @@ static int __do_deliver_io(struct kvm_vcpu *vcpu, struct kvm_s390_io_info *io)
 {
 	int rc;
 
+<<<<<<< HEAD
+=======
+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+		vcpu->arch.sie_block->iictl = IICTL_CODE_IO;
+		vcpu->arch.sie_block->subchannel_id = io->subchannel_id;
+		vcpu->arch.sie_block->subchannel_nr = io->subchannel_nr;
+		vcpu->arch.sie_block->io_int_parm = io->io_int_parm;
+		vcpu->arch.sie_block->io_int_word = io->io_int_word;
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	rc  = put_guest_lc(vcpu, io->subchannel_id, (u16 *)__LC_SUBCHANNEL_ID);
 	rc |= put_guest_lc(vcpu, io->subchannel_nr, (u16 *)__LC_SUBCHANNEL_NR);
 	rc |= put_guest_lc(vcpu, io->io_int_parm, (u32 *)__LC_IO_INT_PARM);
@@ -956,6 +1326,10 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
 {
 	struct list_head *isc_list;
 	struct kvm_s390_float_interrupt *fi;
+<<<<<<< HEAD
+=======
+	struct kvm_s390_gisa_interrupt *gi = &vcpu->kvm->arch.gisa_int;
+>>>>>>> upstream/android-13
 	struct kvm_s390_interrupt_info *inti = NULL;
 	struct kvm_s390_io_info io;
 	u32 isc;
@@ -998,8 +1372,12 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (vcpu->kvm->arch.gisa &&
 	    kvm_s390_gisa_tac_ipm_gisc(vcpu->kvm->arch.gisa, isc)) {
+=======
+	if (gi->origin && gisa_tac_ipm_gisc(gi->origin, isc)) {
+>>>>>>> upstream/android-13
 		/*
 		 * in case an adapter interrupt was not delivered
 		 * in SIE context KVM will handle the delivery
@@ -1076,7 +1454,11 @@ static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
 			/* already expired? */
 			if (cputm >> 63)
 				return 0;
+<<<<<<< HEAD
 			return min(sltime, tod_to_ns(cputm));
+=======
+			return min_t(u64, sltime, tod_to_ns(cputm));
+>>>>>>> upstream/android-13
 		}
 	} else if (cpu_timer_interrupts_enabled(vcpu)) {
 		sltime = kvm_s390_get_cpu_timer(vcpu);
@@ -1089,6 +1471,10 @@ static u64 __calculate_sltime(struct kvm_vcpu *vcpu)
 
 int kvm_s390_handle_wait(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
+=======
+	struct kvm_s390_gisa_interrupt *gi = &vcpu->kvm->arch.gisa_int;
+>>>>>>> upstream/android-13
 	u64 sltime;
 
 	vcpu->stat.exit_wait_state++;
@@ -1102,6 +1488,14 @@ int kvm_s390_handle_wait(struct kvm_vcpu *vcpu)
 		return -EOPNOTSUPP; /* disabled wait */
 	}
 
+<<<<<<< HEAD
+=======
+	if (gi->origin &&
+	    (gisa_get_ipm_or_restore_iam(gi) &
+	     vcpu->arch.sie_block->gcr[6] >> 24))
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (!ckc_interrupts_enabled(vcpu) &&
 	    !cpu_timer_interrupts_enabled(vcpu)) {
 		VCPU_EVENT(vcpu, 3, "%s", "enabled wait w/o timer");
@@ -1128,6 +1522,7 @@ no_timer:
 
 void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
 	/*
 	 * We cannot move this into the if, as the CPU might be already
 	 * in kvm_vcpu_block without having the waitqueue set (polling)
@@ -1150,6 +1545,13 @@ void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu)
 	}
 	/*
 	 * The VCPU might not be sleeping but is executing the VSIE. Let's
+=======
+	vcpu->valid_wakeup = true;
+	kvm_vcpu_wake_up(vcpu);
+
+	/*
+	 * The VCPU might not be sleeping but rather executing VSIE. Let's
+>>>>>>> upstream/android-13
 	 * kick it, so it leaves the SIE to process the request.
 	 */
 	kvm_s390_vsie_kick(vcpu);
@@ -1250,6 +1652,12 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
 		case IRQ_PEND_EXT_SERVICE:
 			rc = __deliver_service(vcpu);
 			break;
+<<<<<<< HEAD
+=======
+		case IRQ_PEND_EXT_SERVICE_EV:
+			rc = __deliver_service_ev(vcpu);
+			break;
+>>>>>>> upstream/android-13
 		case IRQ_PEND_PFAULT_DONE:
 			rc = __deliver_pfault_done(vcpu);
 			break;
@@ -1342,7 +1750,11 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
 	if (kvm_get_vcpu_by_id(vcpu->kvm, src_id) == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (sclp.has_sigpif)
+=======
+	if (sclp.has_sigpif && !kvm_s390_pv_cpu_get_handle(vcpu))
+>>>>>>> upstream/android-13
 		return sca_inject_ext_call(vcpu, src_id);
 
 	if (test_and_set_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs))
@@ -1398,8 +1810,12 @@ static int __inject_sigp_stop(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
 				 struct kvm_s390_irq *irq)
+=======
+static int __inject_sigp_restart(struct kvm_vcpu *vcpu)
+>>>>>>> upstream/android-13
 {
 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
 
@@ -1533,11 +1949,16 @@ static struct kvm_s390_interrupt_info *get_top_io_int(struct kvm *kvm,
 
 static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
 {
+<<<<<<< HEAD
+=======
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+>>>>>>> upstream/android-13
 	unsigned long active_mask;
 	int isc;
 
 	if (schid)
 		goto out;
+<<<<<<< HEAD
 	if (!kvm->arch.gisa)
 		goto out;
 
@@ -1545,6 +1966,15 @@ static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
 	while (active_mask) {
 		isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
 		if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
+=======
+	if (!gi->origin)
+		goto out;
+
+	active_mask = (isc_mask & gisa_get_ipm(gi->origin) << 24) << 32;
+	while (active_mask) {
+		isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
+		if (gisa_tac_ipm_gisc(gi->origin, isc))
+>>>>>>> upstream/android-13
 			return isc;
 		clear_bit_inv(isc, &active_mask);
 	}
@@ -1567,6 +1997,10 @@ out:
 struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
 						    u64 isc_mask, u32 schid)
 {
+<<<<<<< HEAD
+=======
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+>>>>>>> upstream/android-13
 	struct kvm_s390_interrupt_info *inti, *tmp_inti;
 	int isc;
 
@@ -1584,11 +2018,19 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
 	/* both types of interrupts present */
 	if (int_word_to_isc(inti->io.io_int_word) <= isc) {
 		/* classical IO int with higher priority */
+<<<<<<< HEAD
 		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
 		goto out;
 	}
 gisa_out:
 	tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+=======
+		gisa_set_ipm_gisc(gi->origin, isc);
+		goto out;
+	}
+gisa_out:
+	tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (tmp_inti) {
 		tmp_inti->type = KVM_S390_INT_IO(1, 0, 0, 0);
 		tmp_inti->io.io_int_word = isc_to_int_word(isc);
@@ -1596,14 +2038,21 @@ gisa_out:
 			kvm_s390_reinject_io_int(kvm, inti);
 		inti = tmp_inti;
 	} else
+<<<<<<< HEAD
 		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
+=======
+		gisa_set_ipm_gisc(gi->origin, isc);
+>>>>>>> upstream/android-13
 out:
 	return inti;
 }
 
+<<<<<<< HEAD
 #define SCCB_MASK 0xFFFFFFF8
 #define SCCB_EVENT_PENDING 0x3
 
+=======
+>>>>>>> upstream/android-13
 static int __inject_service(struct kvm *kvm,
 			     struct kvm_s390_interrupt_info *inti)
 {
@@ -1612,6 +2061,14 @@ static int __inject_service(struct kvm *kvm,
 	kvm->stat.inject_service_signal++;
 	spin_lock(&fi->lock);
 	fi->srv_signal.ext_params |= inti->ext.ext_params & SCCB_EVENT_PENDING;
+<<<<<<< HEAD
+=======
+
+	/* We always allow events, track them separately from the sccb ints */
+	if (fi->srv_signal.ext_params & SCCB_EVENT_PENDING)
+		set_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Early versions of the QEMU s390 bios will inject several
 	 * service interrupts after another without handling a
@@ -1685,6 +2142,10 @@ static int __inject_float_mchk(struct kvm *kvm,
 
 static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
 {
+<<<<<<< HEAD
+=======
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+>>>>>>> upstream/android-13
 	struct kvm_s390_float_interrupt *fi;
 	struct list_head *list;
 	int isc;
@@ -1692,9 +2153,22 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
 	kvm->stat.inject_io++;
 	isc = int_word_to_isc(inti->io.io_int_word);
 
+<<<<<<< HEAD
 	if (kvm->arch.gisa && inti->type & KVM_S390_INT_IO_AI_MASK) {
 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
 		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
+=======
+	/*
+	 * Do not make use of gisa in protected mode. We do not use the lock
+	 * checking variant as this is just a performance optimization and we
+	 * do not hold the lock here. This is ok as the code will pick
+	 * interrupts from both "lists" for delivery.
+	 */
+	if (!kvm_s390_pv_get_handle(kvm) &&
+	    gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
+		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
+		gisa_set_ipm_gisc(gi->origin, isc);
+>>>>>>> upstream/android-13
 		kfree(inti);
 		return 0;
 	}
@@ -1726,7 +2200,10 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
  */
 static void __floating_irq_kick(struct kvm *kvm, u64 type)
 {
+<<<<<<< HEAD
 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
+=======
+>>>>>>> upstream/android-13
 	struct kvm_vcpu *dst_vcpu;
 	int sigcpu, online_vcpus, nr_tries = 0;
 
@@ -1735,11 +2212,19 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
 		return;
 
 	/* find idle VCPUs first, then round robin */
+<<<<<<< HEAD
 	sigcpu = find_first_bit(fi->idle_mask, online_vcpus);
 	if (sigcpu == online_vcpus) {
 		do {
 			sigcpu = fi->next_rr_cpu;
 			fi->next_rr_cpu = (fi->next_rr_cpu + 1) % online_vcpus;
+=======
+	sigcpu = find_first_bit(kvm->arch.idle_mask, online_vcpus);
+	if (sigcpu == online_vcpus) {
+		do {
+			sigcpu = kvm->arch.float_int.next_rr_cpu++;
+			kvm->arch.float_int.next_rr_cpu %= online_vcpus;
+>>>>>>> upstream/android-13
 			/* avoid endless loops if all vcpus are stopped */
 			if (nr_tries++ >= online_vcpus)
 				return;
@@ -1753,7 +2238,13 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
 		kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_STOP_INT);
 		break;
 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+<<<<<<< HEAD
 		if (!(type & KVM_S390_INT_IO_AI_MASK && kvm->arch.gisa))
+=======
+		if (!(type & KVM_S390_INT_IO_AI_MASK &&
+		      kvm->arch.gisa_int.origin) ||
+		      kvm_s390_pv_cpu_get_handle(dst_vcpu))
+>>>>>>> upstream/android-13
 			kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_IO_INT);
 		break;
 	default:
@@ -1800,7 +2291,11 @@ int kvm_s390_inject_vm(struct kvm *kvm,
 	struct kvm_s390_interrupt_info *inti;
 	int rc;
 
+<<<<<<< HEAD
 	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+=======
+	inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!inti)
 		return -ENOMEM;
 
@@ -1900,6 +2395,16 @@ int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu)
 	return test_bit(IRQ_PEND_SIGP_STOP, &li->pending_irqs);
 }
 
+<<<<<<< HEAD
+=======
+int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu)
+{
+	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+
+	return test_bit(IRQ_PEND_RESTART, &li->pending_irqs);
+}
+
+>>>>>>> upstream/android-13
 void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu)
 {
 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
@@ -1925,7 +2430,11 @@ static int do_inject_vcpu(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
 		rc = __inject_sigp_stop(vcpu, irq);
 		break;
 	case KVM_S390_RESTART:
+<<<<<<< HEAD
 		rc = __inject_sigp_restart(vcpu, irq);
+=======
+		rc = __inject_sigp_restart(vcpu);
+>>>>>>> upstream/android-13
 		break;
 	case KVM_S390_INT_CLOCK_COMP:
 		rc = __inject_ckc(vcpu);
@@ -1999,6 +2508,13 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
 	int i;
 
+<<<<<<< HEAD
+=======
+	mutex_lock(&kvm->lock);
+	if (!kvm_s390_pv_is_protected(kvm))
+		fi->masked_irqs = 0;
+	mutex_unlock(&kvm->lock);
+>>>>>>> upstream/android-13
 	spin_lock(&fi->lock);
 	fi->pending_irqs = 0;
 	memset(&fi->srv_signal, 0, sizeof(fi->srv_signal));
@@ -2013,6 +2529,10 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
 
 static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
 {
+<<<<<<< HEAD
+=======
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+>>>>>>> upstream/android-13
 	struct kvm_s390_interrupt_info *inti;
 	struct kvm_s390_float_interrupt *fi;
 	struct kvm_s390_irq *buf;
@@ -2036,15 +2556,23 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
 
 	max_irqs = len / sizeof(struct kvm_s390_irq);
 
+<<<<<<< HEAD
 	if (kvm->arch.gisa &&
 	    kvm_s390_gisa_get_ipm(kvm->arch.gisa)) {
+=======
+	if (gi->origin && gisa_get_ipm(gi->origin)) {
+>>>>>>> upstream/android-13
 		for (i = 0; i <= MAX_ISC; i++) {
 			if (n == max_irqs) {
 				/* signal userspace to try again */
 				ret = -ENOMEM;
 				goto out_nolock;
 			}
+<<<<<<< HEAD
 			if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, i)) {
+=======
+			if (gisa_tac_ipm_gisc(gi->origin, i)) {
+>>>>>>> upstream/android-13
 				irq = (struct kvm_s390_irq *) &buf[n];
 				irq->type = KVM_S390_INT_IO(1, 0, 0, 0);
 				irq->u.io.io_int_word = isc_to_int_word(i);
@@ -2065,7 +2593,12 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
 			n++;
 		}
 	}
+<<<<<<< HEAD
 	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs)) {
+=======
+	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs) ||
+	    test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs)) {
+>>>>>>> upstream/android-13
 		if (n == max_irqs) {
 			/* signal userspace to try again */
 			ret = -ENOMEM;
@@ -2194,7 +2727,11 @@ static int enqueue_floating_irq(struct kvm_device *dev,
 		return -EINVAL;
 
 	while (len >= sizeof(struct kvm_s390_irq)) {
+<<<<<<< HEAD
 		inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+=======
+		inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 		if (!inti)
 			return -ENOMEM;
 
@@ -2219,6 +2756,10 @@ static struct s390_io_adapter *get_io_adapter(struct kvm *kvm, unsigned int id)
 {
 	if (id >= MAX_S390_IO_ADAPTERS)
 		return NULL;
+<<<<<<< HEAD
+=======
+	id = array_index_nospec(id, MAX_S390_IO_ADAPTERS);
+>>>>>>> upstream/android-13
 	return kvm->arch.adapters[id];
 }
 
@@ -2232,6 +2773,7 @@ static int register_io_adapter(struct kvm_device *dev,
 			   (void __user *)attr->addr, sizeof(adapter_info)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	if ((adapter_info.id >= MAX_S390_IO_ADAPTERS) ||
 	    (dev->kvm->arch.adapters[adapter_info.id] != NULL))
 		return -EINVAL;
@@ -2243,6 +2785,21 @@ static int register_io_adapter(struct kvm_device *dev,
 	INIT_LIST_HEAD(&adapter->maps);
 	init_rwsem(&adapter->maps_lock);
 	atomic_set(&adapter->nr_maps, 0);
+=======
+	if (adapter_info.id >= MAX_S390_IO_ADAPTERS)
+		return -EINVAL;
+
+	adapter_info.id = array_index_nospec(adapter_info.id,
+					     MAX_S390_IO_ADAPTERS);
+
+	if (dev->kvm->arch.adapters[adapter_info.id] != NULL)
+		return -EINVAL;
+
+	adapter = kzalloc(sizeof(*adapter), GFP_KERNEL_ACCOUNT);
+	if (!adapter)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	adapter->id = adapter_info.id;
 	adapter->isc = adapter_info.isc;
 	adapter->maskable = adapter_info.maskable;
@@ -2267,6 +2824,7 @@ int kvm_s390_mask_adapter(struct kvm *kvm, unsigned int id, bool masked)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
 {
 	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
@@ -2348,6 +2906,14 @@ void kvm_s390_destroy_adapters(struct kvm *kvm)
 		}
 		kfree(kvm->arch.adapters[i]);
 	}
+=======
+void kvm_s390_destroy_adapters(struct kvm *kvm)
+{
+	int i;
+
+	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++)
+		kfree(kvm->arch.adapters[i]);
+>>>>>>> upstream/android-13
 }
 
 static int modify_io_adapter(struct kvm_device *dev,
@@ -2369,11 +2935,22 @@ static int modify_io_adapter(struct kvm_device *dev,
 		if (ret > 0)
 			ret = 0;
 		break;
+<<<<<<< HEAD
 	case KVM_S390_IO_ADAPTER_MAP:
 		ret = kvm_s390_adapter_map(dev->kvm, req.id, req.addr);
 		break;
 	case KVM_S390_IO_ADAPTER_UNMAP:
 		ret = kvm_s390_adapter_unmap(dev->kvm, req.id, req.addr);
+=======
+	/*
+	 * The following operations are no longer needed and therefore no-ops.
+	 * The gpa to hva translation is done when an IRQ route is set up. The
+	 * set_irq code uses get_user_pages_remote() to do the actual write.
+	 */
+	case KVM_S390_IO_ADAPTER_MAP:
+	case KVM_S390_IO_ADAPTER_UNMAP:
+		ret = 0;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -2612,6 +3189,7 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
 	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
 }
 
+<<<<<<< HEAD
 static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
 					  u64 addr)
 {
@@ -2625,6 +3203,17 @@ static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
 			return map;
 	}
 	return NULL;
+=======
+static struct page *get_map_page(struct kvm *kvm, u64 uaddr)
+{
+	struct page *page = NULL;
+
+	mmap_read_lock(kvm->mm);
+	get_user_pages_remote(kvm->mm, uaddr, 1, FOLL_WRITE,
+			      &page, NULL, NULL);
+	mmap_read_unlock(kvm->mm);
+	return page;
+>>>>>>> upstream/android-13
 }
 
 static int adapter_indicators_set(struct kvm *kvm,
@@ -2633,6 +3222,7 @@ static int adapter_indicators_set(struct kvm *kvm,
 {
 	unsigned long bit;
 	int summary_set, idx;
+<<<<<<< HEAD
 	struct s390_map_info *info;
 	void *map;
 
@@ -2657,6 +3247,37 @@ static int adapter_indicators_set(struct kvm *kvm,
 	mark_page_dirty(kvm, info->guest_addr >> PAGE_SHIFT);
 	set_page_dirty_lock(info->page);
 	srcu_read_unlock(&kvm->srcu, idx);
+=======
+	struct page *ind_page, *summary_page;
+	void *map;
+
+	ind_page = get_map_page(kvm, adapter_int->ind_addr);
+	if (!ind_page)
+		return -1;
+	summary_page = get_map_page(kvm, adapter_int->summary_addr);
+	if (!summary_page) {
+		put_page(ind_page);
+		return -1;
+	}
+
+	idx = srcu_read_lock(&kvm->srcu);
+	map = page_address(ind_page);
+	bit = get_ind_bit(adapter_int->ind_addr,
+			  adapter_int->ind_offset, adapter->swap);
+	set_bit(bit, map);
+	mark_page_dirty(kvm, adapter_int->ind_addr >> PAGE_SHIFT);
+	set_page_dirty_lock(ind_page);
+	map = page_address(summary_page);
+	bit = get_ind_bit(adapter_int->summary_addr,
+			  adapter_int->summary_offset, adapter->swap);
+	summary_set = test_and_set_bit(bit, map);
+	mark_page_dirty(kvm, adapter_int->summary_addr >> PAGE_SHIFT);
+	set_page_dirty_lock(summary_page);
+	srcu_read_unlock(&kvm->srcu, idx);
+
+	put_page(ind_page);
+	put_page(summary_page);
+>>>>>>> upstream/android-13
 	return summary_set ? 0 : 1;
 }
 
@@ -2678,9 +3299,13 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
 	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
 	if (!adapter)
 		return -1;
+<<<<<<< HEAD
 	down_read(&adapter->maps_lock);
 	ret = adapter_indicators_set(kvm, adapter, &e->adapter);
 	up_read(&adapter->maps_lock);
+=======
+	ret = adapter_indicators_set(kvm, adapter, &e->adapter);
+>>>>>>> upstream/android-13
 	if ((ret > 0) && !adapter->masked) {
 		ret = kvm_s390_inject_airq(kvm, adapter);
 		if (ret == 0)
@@ -2731,6 +3356,7 @@ int kvm_set_routing_entry(struct kvm *kvm,
 			  struct kvm_kernel_irq_routing_entry *e,
 			  const struct kvm_irq_routing_entry *ue)
 {
+<<<<<<< HEAD
 	int ret;
 
 	switch (ue->type) {
@@ -2748,6 +3374,29 @@ int kvm_set_routing_entry(struct kvm *kvm,
 	}
 
 	return ret;
+=======
+	u64 uaddr;
+
+	switch (ue->type) {
+	/* we store the userspace addresses instead of the guest addresses */
+	case KVM_IRQ_ROUTING_S390_ADAPTER:
+		e->set = set_adapter_int;
+		uaddr =  gmap_translate(kvm->arch.gmap, ue->u.adapter.summary_addr);
+		if (uaddr == -EFAULT)
+			return -EFAULT;
+		e->adapter.summary_addr = uaddr;
+		uaddr =  gmap_translate(kvm->arch.gmap, ue->u.adapter.ind_addr);
+		if (uaddr == -EFAULT)
+			return -EFAULT;
+		e->adapter.ind_addr = uaddr;
+		e->adapter.summary_offset = ue->u.adapter.summary_offset;
+		e->adapter.ind_offset = ue->u.adapter.ind_offset;
+		e->adapter.adapter_id = ue->u.adapter.adapter_id;
+		return 0;
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 int kvm_set_msi(struct kvm_kernel_irq_routing_entry *e, struct kvm *kvm,
@@ -2841,7 +3490,11 @@ static void store_local_irq(struct kvm_s390_local_interrupt *li,
 int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
 {
 	int scn;
+<<<<<<< HEAD
 	unsigned long sigp_emerg_pending[BITS_TO_LONGS(KVM_MAX_VCPUS)];
+=======
+	DECLARE_BITMAP(sigp_emerg_pending, KVM_MAX_VCPUS);
+>>>>>>> upstream/android-13
 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
 	unsigned long pending_irqs;
 	struct kvm_s390_irq irq;
@@ -2894,6 +3547,7 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
 	return n;
 }
 
+<<<<<<< HEAD
 void kvm_s390_gisa_clear(struct kvm *kvm)
 {
 	if (kvm->arch.gisa) {
@@ -2901,20 +3555,295 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
 		kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
 		VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
 	}
+=======
+static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
+{
+	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+	struct kvm_vcpu *vcpu;
+	u8 vcpu_isc_mask;
+
+	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
+		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
+		if (psw_ioint_disabled(vcpu))
+			continue;
+		vcpu_isc_mask = (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+		if (deliverable_mask & vcpu_isc_mask) {
+			/* lately kicked but not yet running */
+			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
+				return;
+			kvm_s390_vcpu_wakeup(vcpu);
+			return;
+		}
+	}
+}
+
+static enum hrtimer_restart gisa_vcpu_kicker(struct hrtimer *timer)
+{
+	struct kvm_s390_gisa_interrupt *gi =
+		container_of(timer, struct kvm_s390_gisa_interrupt, timer);
+	struct kvm *kvm =
+		container_of(gi->origin, struct sie_page2, gisa)->kvm;
+	u8 pending_mask;
+
+	pending_mask = gisa_get_ipm_or_restore_iam(gi);
+	if (pending_mask) {
+		__airqs_kick_single_vcpu(kvm, pending_mask);
+		hrtimer_forward_now(timer, ns_to_ktime(gi->expires));
+		return HRTIMER_RESTART;
+	}
+
+	return HRTIMER_NORESTART;
+}
+
+#define NULL_GISA_ADDR 0x00000000UL
+#define NONE_GISA_ADDR 0x00000001UL
+#define GISA_ADDR_MASK 0xfffff000UL
+
+static void process_gib_alert_list(void)
+{
+	struct kvm_s390_gisa_interrupt *gi;
+	struct kvm_s390_gisa *gisa;
+	struct kvm *kvm;
+	u32 final, origin = 0UL;
+
+	do {
+		/*
+		 * If the NONE_GISA_ADDR is still stored in the alert list
+		 * origin, we will leave the outer loop. No further GISA has
+		 * been added to the alert list by millicode while processing
+		 * the current alert list.
+		 */
+		final = (origin & NONE_GISA_ADDR);
+		/*
+		 * Cut off the alert list and store the NONE_GISA_ADDR in the
+		 * alert list origin to avoid further GAL interruptions.
+		 * A new alert list can be build up by millicode in parallel
+		 * for guests not in the yet cut-off alert list. When in the
+		 * final loop, store the NULL_GISA_ADDR instead. This will re-
+		 * enable GAL interruptions on the host again.
+		 */
+		origin = xchg(&gib->alert_list_origin,
+			      (!final) ? NONE_GISA_ADDR : NULL_GISA_ADDR);
+		/*
+		 * Loop through the just cut-off alert list and start the
+		 * gisa timers to kick idle vcpus to consume the pending
+		 * interruptions asap.
+		 */
+		while (origin & GISA_ADDR_MASK) {
+			gisa = (struct kvm_s390_gisa *)(u64)origin;
+			origin = gisa->next_alert;
+			gisa->next_alert = (u32)(u64)gisa;
+			kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
+			gi = &kvm->arch.gisa_int;
+			if (hrtimer_active(&gi->timer))
+				hrtimer_cancel(&gi->timer);
+			hrtimer_start(&gi->timer, 0, HRTIMER_MODE_REL);
+		}
+	} while (!final);
+
+}
+
+void kvm_s390_gisa_clear(struct kvm *kvm)
+{
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+
+	if (!gi->origin)
+		return;
+	gisa_clear_ipm(gi->origin);
+	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", gi->origin);
+>>>>>>> upstream/android-13
 }
 
 void kvm_s390_gisa_init(struct kvm *kvm)
 {
+<<<<<<< HEAD
 	if (css_general_characteristics.aiv) {
 		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
 		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
 		kvm_s390_gisa_clear(kvm);
 	}
+=======
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+
+	if (!css_general_characteristics.aiv)
+		return;
+	gi->origin = &kvm->arch.sie_page2->gisa;
+	gi->alert.mask = 0;
+	spin_lock_init(&gi->alert.ref_lock);
+	gi->expires = 50 * 1000; /* 50 usec */
+	hrtimer_init(&gi->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	gi->timer.function = gisa_vcpu_kicker;
+	memset(gi->origin, 0, sizeof(struct kvm_s390_gisa));
+	gi->origin->next_alert = (u32)(u64)gi->origin;
+	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
+>>>>>>> upstream/android-13
 }
 
 void kvm_s390_gisa_destroy(struct kvm *kvm)
 {
+<<<<<<< HEAD
 	if (!kvm->arch.gisa)
 		return;
 	kvm->arch.gisa = NULL;
+=======
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+
+	if (!gi->origin)
+		return;
+	if (gi->alert.mask)
+		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
+			  kvm, gi->alert.mask);
+	while (gisa_in_alert_list(gi->origin))
+		cpu_relax();
+	hrtimer_cancel(&gi->timer);
+	gi->origin = NULL;
+}
+
+/**
+ * kvm_s390_gisc_register - register a guest ISC
+ *
+ * @kvm:  the kernel vm to work with
+ * @gisc: the guest interruption sub class to register
+ *
+ * The function extends the vm specific alert mask to use.
+ * The effective IAM mask in the GISA is updated as well
+ * in case the GISA is not part of the GIB alert list.
+ * It will be updated latest when the IAM gets restored
+ * by gisa_get_ipm_or_restore_iam().
+ *
+ * Returns: the nonspecific ISC (NISC) the gib alert mechanism
+ *          has registered with the channel subsystem.
+ *          -ENODEV in case the vm uses no GISA
+ *          -ERANGE in case the guest ISC is invalid
+ */
+int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc)
+{
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+
+	if (!gi->origin)
+		return -ENODEV;
+	if (gisc > MAX_ISC)
+		return -ERANGE;
+
+	spin_lock(&gi->alert.ref_lock);
+	gi->alert.ref_count[gisc]++;
+	if (gi->alert.ref_count[gisc] == 1) {
+		gi->alert.mask |= 0x80 >> gisc;
+		gisa_set_iam(gi->origin, gi->alert.mask);
+	}
+	spin_unlock(&gi->alert.ref_lock);
+
+	return gib->nisc;
+}
+EXPORT_SYMBOL_GPL(kvm_s390_gisc_register);
+
+/**
+ * kvm_s390_gisc_unregister - unregister a guest ISC
+ *
+ * @kvm:  the kernel vm to work with
+ * @gisc: the guest interruption sub class to register
+ *
+ * The function reduces the vm specific alert mask to use.
+ * The effective IAM mask in the GISA is updated as well
+ * in case the GISA is not part of the GIB alert list.
+ * It will be updated latest when the IAM gets restored
+ * by gisa_get_ipm_or_restore_iam().
+ *
+ * Returns: the nonspecific ISC (NISC) the gib alert mechanism
+ *          has registered with the channel subsystem.
+ *          -ENODEV in case the vm uses no GISA
+ *          -ERANGE in case the guest ISC is invalid
+ *          -EINVAL in case the guest ISC is not registered
+ */
+int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
+{
+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+	int rc = 0;
+
+	if (!gi->origin)
+		return -ENODEV;
+	if (gisc > MAX_ISC)
+		return -ERANGE;
+
+	spin_lock(&gi->alert.ref_lock);
+	if (gi->alert.ref_count[gisc] == 0) {
+		rc = -EINVAL;
+		goto out;
+	}
+	gi->alert.ref_count[gisc]--;
+	if (gi->alert.ref_count[gisc] == 0) {
+		gi->alert.mask &= ~(0x80 >> gisc);
+		gisa_set_iam(gi->origin, gi->alert.mask);
+	}
+out:
+	spin_unlock(&gi->alert.ref_lock);
+
+	return rc;
+}
+EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
+
+static void gib_alert_irq_handler(struct airq_struct *airq, bool floating)
+{
+	inc_irq_stat(IRQIO_GAL);
+	process_gib_alert_list();
+}
+
+static struct airq_struct gib_alert_irq = {
+	.handler = gib_alert_irq_handler,
+	.lsi_ptr = &gib_alert_irq.lsi_mask,
+};
+
+void kvm_s390_gib_destroy(void)
+{
+	if (!gib)
+		return;
+	chsc_sgib(0);
+	unregister_adapter_interrupt(&gib_alert_irq);
+	free_page((unsigned long)gib);
+	gib = NULL;
+}
+
+int kvm_s390_gib_init(u8 nisc)
+{
+	int rc = 0;
+
+	if (!css_general_characteristics.aiv) {
+		KVM_EVENT(3, "%s", "gib not initialized, no AIV facility");
+		goto out;
+	}
+
+	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
+	if (!gib) {
+		rc = -ENOMEM;
+		goto out;
+	}
+
+	gib_alert_irq.isc = nisc;
+	if (register_adapter_interrupt(&gib_alert_irq)) {
+		pr_err("Registering the GIB alert interruption handler failed\n");
+		rc = -EIO;
+		goto out_free_gib;
+	}
+
+	gib->nisc = nisc;
+	if (chsc_sgib((u32)(u64)gib)) {
+		pr_err("Associating the GIB with the AIV facility failed\n");
+		free_page((unsigned long)gib);
+		gib = NULL;
+		rc = -EIO;
+		goto out_unreg_gal;
+	}
+
+	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
+	goto out;
+
+out_unreg_gal:
+	unregister_adapter_interrupt(&gib_alert_irq);
+out_free_gib:
+	free_page((unsigned long)gib);
+	gib = NULL;
+out:
+	return rc;
+>>>>>>> upstream/android-13
 }

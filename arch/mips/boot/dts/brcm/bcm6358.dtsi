@@ -1,4 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
+=======
+
+#include "dt-bindings/clock/bcm6358-clock.h"
+#include "dt-bindings/reset/bcm6358-reset.h"
+
+>>>>>>> upstream/android-13
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
@@ -24,16 +31,31 @@
 	};
 
 	clocks {
+<<<<<<< HEAD
 		periph_clk: periph-clk {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <50000000>;
+=======
+		periph_osc: periph-osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <50000000>;
+			clock-output-names = "periph";
+>>>>>>> upstream/android-13
 		};
 	};
 
 	aliases {
+<<<<<<< HEAD
 		serial0 = &uart0;
 		serial1 = &uart1;
+=======
+		pflash = &pflash;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		spi0 = &lsspi;
+>>>>>>> upstream/android-13
 	};
 
 	cpu_intc: interrupt-controller {
@@ -51,6 +73,7 @@
 		compatible = "simple-bus";
 		ranges;
 
+<<<<<<< HEAD
 		periph_cntl: syscon@fffe0000 {
 			compatible = "syscon";
 			reg = <0xfffe0000 0xc>;
@@ -62,6 +85,24 @@
 			regmap = <&periph_cntl>;
 			offset = <0x8>;
 			mask = <0x1>;
+=======
+		periph_clk: clock-controller@fffe0004 {
+			compatible = "brcm,bcm6358-clocks";
+			reg = <0xfffe0004 0x4>;
+			#clock-cells = <1>;
+		};
+
+		pll_cntl: syscon@fffe0008 {
+			compatible = "syscon";
+			reg = <0xfffe0008 0x4>;
+			native-endian;
+
+			reboot {
+				compatible = "syscon-reboot";
+				offset = <0x0>;
+				mask = <0x1>;
+			};
+>>>>>>> upstream/android-13
 		};
 
 		periph_intc: interrupt-controller@fffe000c {
@@ -76,6 +117,25 @@
 			interrupts = <2>, <3>;
 		};
 
+<<<<<<< HEAD
+=======
+		periph_rst: reset-controller@fffe0034 {
+			compatible = "brcm,bcm6345-reset";
+			reg = <0xfffe0034 0x4>;
+			#reset-cells = <1>;
+		};
+
+		wdt: watchdog@fffe005c {
+			compatible = "brcm,bcm7038-wdt";
+			reg = <0xfffe005c 0xc>;
+
+			clocks = <&periph_osc>;
+			clock-names = "refclk";
+
+			timeout-sec = <30>;
+		};
+
+>>>>>>> upstream/android-13
 		leds0: led-controller@fffe00d0 {
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -92,7 +152,11 @@
 			interrupt-parent = <&periph_intc>;
 			interrupts = <2>;
 
+<<<<<<< HEAD
 			clocks = <&periph_clk>;
+=======
+			clocks = <&periph_osc>;
+>>>>>>> upstream/android-13
 			clock-names = "refclk";
 
 			status = "disabled";
@@ -105,18 +169,53 @@
 			interrupt-parent = <&periph_intc>;
 			interrupts = <3>;
 
+<<<<<<< HEAD
 			clocks = <&periph_clk>;
+=======
+			clocks = <&periph_osc>;
+>>>>>>> upstream/android-13
 			clock-names = "refclk";
 
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
+=======
+		lsspi: spi@fffe0800 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "brcm,bcm6358-spi";
+			reg = <0xfffe0800 0x70c>;
+
+			interrupt-parent = <&periph_intc>;
+			interrupts = <1>;
+
+			clocks = <&periph_clk BCM6358_CLK_SPI>;
+			clock-names = "spi";
+
+			resets = <&periph_rst BCM6358_RST_SPI>;
+			reset-names = "spi";
+
+			status = "disabled";
+		};
+
+>>>>>>> upstream/android-13
 		ehci: usb@fffe1300 {
 			compatible = "brcm,bcm6358-ehci", "generic-ehci";
 			reg = <0xfffe1300 0x100>;
 			big-endian;
+<<<<<<< HEAD
 			interrupt-parent = <&periph_intc>;
 			interrupts = <10>;
+=======
+
+			interrupt-parent = <&periph_intc>;
+			interrupts = <10>;
+
+			phys = <&usbh 0>;
+			phy-names = "usb";
+
+>>>>>>> upstream/android-13
 			status = "disabled";
 		};
 
@@ -125,9 +224,43 @@
 			reg = <0xfffe1400 0x100>;
 			big-endian;
 			no-big-frame-no;
+<<<<<<< HEAD
 			interrupt-parent = <&periph_intc>;
 			interrupts = <5>;
 			status = "disabled";
 		};
 	};
+=======
+
+			interrupt-parent = <&periph_intc>;
+			interrupts = <5>;
+
+			phys = <&usbh 0>;
+			phy-names = "usb";
+
+			status = "disabled";
+		};
+
+		usbh: usb-phy@fffe1500 {
+			compatible = "brcm,bcm6358-usbh-phy";
+			reg = <0xfffe1500 0x38>;
+			#phy-cells = <1>;
+
+			resets = <&periph_rst BCM6358_RST_USBH>;
+			reset-names = "usbh";
+
+			status = "disabled";
+		};
+	};
+
+	pflash: nor@1e000000 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "cfi-flash";
+		reg = <0x1e000000 0x2000000>;
+		bank-width = <2>;
+
+		status = "disabled";
+	};
+>>>>>>> upstream/android-13
 };

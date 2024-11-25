@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Connection state tracking for netfilter.  This is separated from,
    but required by, the NAT layer; it can also be used by an iptables
    extension. */
@@ -6,10 +10,13 @@
  * (C) 2002-2006 Netfilter Core Team <coreteam@netfilter.org>
  * (C) 2003,2004 USAGI/WIDE Project <http://www.linux-ipv6.org>
  * (C) 2005-2012 Patrick McHardy <kaber@trash.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -24,7 +31,10 @@
 #include <linux/stddef.h>
 #include <linux/slab.h>
 #include <linux/random.h>
+<<<<<<< HEAD
 #include <linux/jhash.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/siphash.h>
 #include <linux/err.h>
 #include <linux/percpu.h>
@@ -36,6 +46,10 @@
 #include <linux/mm.h>
 #include <linux/nsproxy.h>
 #include <linux/rculist_nulls.h>
+<<<<<<< HEAD
+=======
+#include <trace/hooks/net.h>
+>>>>>>> upstream/android-13
 
 #include <net/netfilter/nf_conntrack.h>
 #include <net/netfilter/nf_conntrack_l4proto.h>
@@ -52,15 +66,21 @@
 #include <net/netfilter/nf_conntrack_labels.h>
 #include <net/netfilter/nf_conntrack_synproxy.h>
 #include <net/netfilter/nf_nat.h>
+<<<<<<< HEAD
 #include <net/netfilter/nf_nat_core.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/netfilter/nf_nat_helper.h>
 #include <net/netns/hash.h>
 #include <net/ip.h>
 
 #include "nf_internals.h"
+<<<<<<< HEAD
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
 #include <net/ncm.h>
 // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+=======
+>>>>>>> upstream/android-13
 
 __cacheline_aligned_in_smp spinlock_t nf_conntrack_locks[CONNTRACK_LOCKS];
 EXPORT_SYMBOL_GPL(nf_conntrack_locks);
@@ -73,6 +93,7 @@ EXPORT_SYMBOL_GPL(nf_conntrack_hash);
 
 struct conntrack_gc_work {
 	struct delayed_work	dwork;
+<<<<<<< HEAD
 	u32			last_bucket;
 	bool			exiting;
 	bool			early_drop;
@@ -90,6 +111,38 @@ static __read_mostly bool nf_conntrack_locks_all;
 #define GC_MAX_SCAN_JIFFIES	(16u * HZ)
 /* desired ratio of entries found to be expired */
 #define GC_EVICT_RATIO	50u
+=======
+	u32			next_bucket;
+	u32			avg_timeout;
+	u32			start_time;
+	bool			exiting;
+	bool			early_drop;
+};
+
+static __read_mostly struct kmem_cache *nf_conntrack_cachep;
+static DEFINE_SPINLOCK(nf_conntrack_locks_all_lock);
+static __read_mostly bool nf_conntrack_locks_all;
+
+/* serialize hash resizes and nf_ct_iterate_cleanup */
+static DEFINE_MUTEX(nf_conntrack_mutex);
+
+#define GC_SCAN_INTERVAL_MAX	(60ul * HZ)
+#define GC_SCAN_INTERVAL_MIN	(1ul * HZ)
+
+/* clamp timeouts to this value (TCP unacked) */
+#define GC_SCAN_INTERVAL_CLAMP	(300ul * HZ)
+
+/* large initial bias so that we don't scan often just because we have
+ * three entries with a 1s timeout.
+ */
+#define GC_SCAN_INTERVAL_INIT	INT_MAX
+
+#define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
+#define GC_SCAN_EXPIRED_MAX	(64000u / HZ)
+
+#define MIN_CHAINLEN	8u
+#define MAX_CHAINLEN	(32u - MIN_CHAINLEN)
+>>>>>>> upstream/android-13
 
 static struct conntrack_gc_work conntrack_gc_work;
 
@@ -151,12 +204,28 @@ static bool nf_conntrack_double_lock(struct net *net, unsigned int h1,
 }
 
 static void nf_conntrack_all_lock(void)
+<<<<<<< HEAD
+=======
+	__acquires(&nf_conntrack_locks_all_lock)
+>>>>>>> upstream/android-13
 {
 	int i;
 
 	spin_lock(&nf_conntrack_locks_all_lock);
 
+<<<<<<< HEAD
 	nf_conntrack_locks_all = true;
+=======
+	/* For nf_contrack_locks_all, only the latest time when another
+	 * CPU will see an update is controlled, by the "release" of the
+	 * spin_lock below.
+	 * The earliest time is not controlled, an thus KCSAN could detect
+	 * a race when nf_conntract_lock() reads the variable.
+	 * WRITE_ONCE() is used to ensure the compiler will not
+	 * optimize the write.
+	 */
+	WRITE_ONCE(nf_conntrack_locks_all, true);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < CONNTRACK_LOCKS; i++) {
 		spin_lock(&nf_conntrack_locks[i]);
@@ -170,6 +239,10 @@ static void nf_conntrack_all_lock(void)
 }
 
 static void nf_conntrack_all_unlock(void)
+<<<<<<< HEAD
+=======
+	__releases(&nf_conntrack_locks_all_lock)
+>>>>>>> upstream/android-13
 {
 	/* All prior stores must be complete before we clear
 	 * 'nf_conntrack_locks_all'. Otherwise nf_conntrack_lock()
@@ -186,6 +259,7 @@ EXPORT_SYMBOL_GPL(nf_conntrack_htable_size);
 
 unsigned int nf_conntrack_max __read_mostly;
 EXPORT_SYMBOL_GPL(nf_conntrack_max);
+<<<<<<< HEAD
 seqcount_t nf_conntrack_generation __read_mostly;
 static unsigned int nf_conntrack_hash_rnd __read_mostly;
 
@@ -206,6 +280,37 @@ static u32 hash_conntrack_raw(const struct nf_conntrack_tuple *tuple,
 	return jhash2((u32 *)tuple, n, seed ^
 		      (((__force __u16)tuple->dst.u.all << 16) |
 		      tuple->dst.protonum));
+=======
+seqcount_spinlock_t nf_conntrack_generation __read_mostly;
+static siphash_key_t nf_conntrack_hash_rnd __read_mostly;
+
+static u32 hash_conntrack_raw(const struct nf_conntrack_tuple *tuple,
+			      unsigned int zoneid,
+			      const struct net *net)
+{
+	struct {
+		struct nf_conntrack_man src;
+		union nf_inet_addr dst_addr;
+		unsigned int zone;
+		u32 net_mix;
+		u16 dport;
+		u16 proto;
+	} __aligned(SIPHASH_ALIGNMENT) combined;
+
+	get_random_once(&nf_conntrack_hash_rnd, sizeof(nf_conntrack_hash_rnd));
+
+	memset(&combined, 0, sizeof(combined));
+
+	/* The direction must be ignored, so handle usable members manually. */
+	combined.src = tuple->src;
+	combined.dst_addr = tuple->dst.u3;
+	combined.zone = zoneid;
+	combined.net_mix = net_hash_mix(net);
+	combined.dport = (__force __u16)tuple->dst.u.all;
+	combined.proto = tuple->dst.protonum;
+
+	return (u32)siphash(&combined, sizeof(combined), &nf_conntrack_hash_rnd);
+>>>>>>> upstream/android-13
 }
 
 static u32 scale_hash(u32 hash)
@@ -215,6 +320,7 @@ static u32 scale_hash(u32 hash)
 
 static u32 __hash_conntrack(const struct net *net,
 			    const struct nf_conntrack_tuple *tuple,
+<<<<<<< HEAD
 			    unsigned int size)
 {
 	return reciprocal_scale(hash_conntrack_raw(tuple, net), size);
@@ -224,6 +330,37 @@ static u32 hash_conntrack(const struct net *net,
 			  const struct nf_conntrack_tuple *tuple)
 {
 	return scale_hash(hash_conntrack_raw(tuple, net));
+=======
+			    unsigned int zoneid,
+			    unsigned int size)
+{
+	return reciprocal_scale(hash_conntrack_raw(tuple, zoneid, net), size);
+}
+
+static u32 hash_conntrack(const struct net *net,
+			  const struct nf_conntrack_tuple *tuple,
+			  unsigned int zoneid)
+{
+	return scale_hash(hash_conntrack_raw(tuple, zoneid, net));
+}
+
+static bool nf_ct_get_tuple_ports(const struct sk_buff *skb,
+				  unsigned int dataoff,
+				  struct nf_conntrack_tuple *tuple)
+{	struct {
+		__be16 sport;
+		__be16 dport;
+	} _inet_hdr, *inet_hdr;
+
+	/* Actually only need first 4 bytes to get ports. */
+	inet_hdr = skb_header_pointer(skb, dataoff, sizeof(_inet_hdr), &_inet_hdr);
+	if (!inet_hdr)
+		return false;
+
+	tuple->src.u.udp.port = inet_hdr->sport;
+	tuple->dst.u.udp.port = inet_hdr->dport;
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static bool
@@ -233,16 +370,23 @@ nf_ct_get_tuple(const struct sk_buff *skb,
 		u_int16_t l3num,
 		u_int8_t protonum,
 		struct net *net,
+<<<<<<< HEAD
 		struct nf_conntrack_tuple *tuple,
 		const struct nf_conntrack_l4proto *l4proto)
+=======
+		struct nf_conntrack_tuple *tuple)
+>>>>>>> upstream/android-13
 {
 	unsigned int size;
 	const __be32 *ap;
 	__be32 _addrs[8];
+<<<<<<< HEAD
 	struct {
 		__be16 sport;
 		__be16 dport;
 	} _inet_hdr, *inet_hdr;
+=======
+>>>>>>> upstream/android-13
 
 	memset(tuple, 0, sizeof(*tuple));
 
@@ -278,6 +422,7 @@ nf_ct_get_tuple(const struct sk_buff *skb,
 	tuple->dst.protonum = protonum;
 	tuple->dst.dir = IP_CT_DIR_ORIGINAL;
 
+<<<<<<< HEAD
 	if (unlikely(l4proto->pkt_to_tuple))
 		return l4proto->pkt_to_tuple(skb, dataoff, net, tuple);
 
@@ -288,6 +433,38 @@ nf_ct_get_tuple(const struct sk_buff *skb,
 
 	tuple->src.u.udp.port = inet_hdr->sport;
 	tuple->dst.u.udp.port = inet_hdr->dport;
+=======
+	switch (protonum) {
+#if IS_ENABLED(CONFIG_IPV6)
+	case IPPROTO_ICMPV6:
+		return icmpv6_pkt_to_tuple(skb, dataoff, net, tuple);
+#endif
+	case IPPROTO_ICMP:
+		return icmp_pkt_to_tuple(skb, dataoff, net, tuple);
+#ifdef CONFIG_NF_CT_PROTO_GRE
+	case IPPROTO_GRE:
+		return gre_pkt_to_tuple(skb, dataoff, net, tuple);
+#endif
+	case IPPROTO_TCP:
+	case IPPROTO_UDP: /* fallthrough */
+		return nf_ct_get_tuple_ports(skb, dataoff, tuple);
+#ifdef CONFIG_NF_CT_PROTO_UDPLITE
+	case IPPROTO_UDPLITE:
+		return nf_ct_get_tuple_ports(skb, dataoff, tuple);
+#endif
+#ifdef CONFIG_NF_CT_PROTO_SCTP
+	case IPPROTO_SCTP:
+		return nf_ct_get_tuple_ports(skb, dataoff, tuple);
+#endif
+#ifdef CONFIG_NF_CT_PROTO_DCCP
+	case IPPROTO_DCCP:
+		return nf_ct_get_tuple_ports(skb, dataoff, tuple);
+#endif
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -370,6 +547,7 @@ bool nf_ct_get_tuplepr(const struct sk_buff *skb, unsigned int nhoff,
 		       u_int16_t l3num,
 		       struct net *net, struct nf_conntrack_tuple *tuple)
 {
+<<<<<<< HEAD
 	const struct nf_conntrack_l4proto *l4proto;
 	u8 protonum;
 	int protoff;
@@ -390,13 +568,27 @@ bool nf_ct_get_tuplepr(const struct sk_buff *skb, unsigned int nhoff,
 
 	rcu_read_unlock();
 	return ret;
+=======
+	u8 protonum;
+	int protoff;
+
+	protoff = get_l4proto(skb, nhoff, l3num, &protonum);
+	if (protoff <= 0)
+		return false;
+
+	return nf_ct_get_tuple(skb, nhoff, protoff, l3num, protonum, net, tuple);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nf_ct_get_tuplepr);
 
 bool
 nf_ct_invert_tuple(struct nf_conntrack_tuple *inverse,
+<<<<<<< HEAD
 		   const struct nf_conntrack_tuple *orig,
 		   const struct nf_conntrack_l4proto *l4proto)
+=======
+		   const struct nf_conntrack_tuple *orig)
+>>>>>>> upstream/android-13
 {
 	memset(inverse, 0, sizeof(*inverse));
 
@@ -419,8 +611,19 @@ nf_ct_invert_tuple(struct nf_conntrack_tuple *inverse,
 
 	inverse->dst.protonum = orig->dst.protonum;
 
+<<<<<<< HEAD
 	if (unlikely(l4proto->invert_tuple))
 		return l4proto->invert_tuple(inverse, orig);
+=======
+	switch (orig->dst.protonum) {
+	case IPPROTO_ICMP:
+		return nf_conntrack_invert_icmp_tuple(inverse, orig);
+#if IS_ENABLED(CONFIG_IPV6)
+	case IPPROTO_ICMPV6:
+		return nf_conntrack_invert_icmpv6_tuple(inverse, orig);
+#endif
+	}
+>>>>>>> upstream/android-13
 
 	inverse->src.u.all = orig->dst.u.all;
 	inverse->dst.u.all = orig->src.u.all;
@@ -465,7 +668,11 @@ EXPORT_SYMBOL_GPL(nf_ct_get_id);
 static void
 clean_from_lists(struct nf_conn *ct)
 {
+<<<<<<< HEAD
 	pr_debug("clean_from_lists(%p)\n", ct);
+=======
+	pr_debug("clean_from_lists(%pK)\n", ct);
+>>>>>>> upstream/android-13
 	hlist_nulls_del_rcu(&ct->tuplehash[IP_CT_DIR_ORIGINAL].hnnode);
 	hlist_nulls_del_rcu(&ct->tuplehash[IP_CT_DIR_REPLY].hnnode);
 
@@ -477,6 +684,7 @@ clean_from_lists(struct nf_conn *ct)
 static void nf_ct_add_to_dying_list(struct nf_conn *ct)
 {
 	struct ct_pcpu *pcpu;
+<<<<<<< HEAD
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
 	/* Add 'del_timer(&ct->npa_timeout)' if struct nf_conn->timeout is of type struct timer_list; */
 	/* send dying conntrack entry to collect data */
@@ -484,6 +692,8 @@ static void nf_ct_add_to_dying_list(struct nf_conn *ct)
 		knox_collect_conntrack_data(ct, NCM_FLOW_TYPE_CLOSE, 10);
 	}
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+=======
+>>>>>>> upstream/android-13
 
 	/* add this conntrack to the (per cpu) dying list */
 	ct->cpu = smp_processor_id();
@@ -526,7 +736,11 @@ static void nf_ct_del_from_dying_or_unconfirmed_list(struct nf_conn *ct)
 
 #define NFCT_ALIGN(len)	(((len) + NFCT_INFOMASK) & ~NFCT_INFOMASK)
 
+<<<<<<< HEAD
 /* Released via destroy_conntrack() */
+=======
+/* Released via nf_ct_destroy() */
+>>>>>>> upstream/android-13
 struct nf_conn *nf_ct_tmpl_alloc(struct net *net,
 				 const struct nf_conntrack_zone *zone,
 				 gfp_t flags)
@@ -553,7 +767,11 @@ struct nf_conn *nf_ct_tmpl_alloc(struct net *net,
 	tmpl->status = IPS_TEMPLATE;
 	write_pnet(&tmpl->ct_net, net);
 	nf_ct_zone_add(tmpl, zone);
+<<<<<<< HEAD
 	atomic_set(&tmpl->ct_general.use, 0);
+=======
+	refcount_set(&tmpl->ct_general.use, 1);
+>>>>>>> upstream/android-13
 
 	return tmpl;
 }
@@ -562,7 +780,10 @@ EXPORT_SYMBOL_GPL(nf_ct_tmpl_alloc);
 void nf_ct_tmpl_free(struct nf_conn *tmpl)
 {
 	nf_ct_ext_destroy(tmpl);
+<<<<<<< HEAD
 	nf_ct_ext_free(tmpl);
+=======
+>>>>>>> upstream/android-13
 
 	if (ARCH_KMALLOC_MINALIGN <= NFCT_INFOMASK)
 		kfree((char *)tmpl - tmpl->proto.tmpl_padto);
@@ -571,6 +792,7 @@ void nf_ct_tmpl_free(struct nf_conn *tmpl)
 }
 EXPORT_SYMBOL_GPL(nf_ct_tmpl_free);
 
+<<<<<<< HEAD
 static void
 destroy_conntrack(struct nf_conntrack *nfct)
 {
@@ -579,14 +801,38 @@ destroy_conntrack(struct nf_conntrack *nfct)
 
 	pr_debug("destroy_conntrack(%p)\n", ct);
 	WARN_ON(atomic_read(&nfct->use) != 0);
+=======
+static void destroy_gre_conntrack(struct nf_conn *ct)
+{
+#ifdef CONFIG_NF_CT_PROTO_GRE
+	struct nf_conn *master = ct->master;
+
+	if (master)
+		nf_ct_gre_keymap_destroy(master);
+#endif
+}
+
+void nf_ct_destroy(struct nf_conntrack *nfct)
+{
+	struct nf_conn *ct = (struct nf_conn *)nfct;
+
+	pr_debug("%s(%pK)\n", __func__, ct);
+	WARN_ON(refcount_read(&nfct->use) != 0);
+>>>>>>> upstream/android-13
 
 	if (unlikely(nf_ct_is_template(ct))) {
 		nf_ct_tmpl_free(ct);
 		return;
 	}
+<<<<<<< HEAD
 	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), nf_ct_protonum(ct));
 	if (l4proto->destroy)
 		l4proto->destroy(ct);
+=======
+
+	if (unlikely(nf_ct_protonum(ct) == IPPROTO_GRE))
+		destroy_gre_conntrack(ct);
+>>>>>>> upstream/android-13
 
 	local_bh_disable();
 	/* Expectations will have been removed in clean_from_lists,
@@ -603,9 +849,16 @@ destroy_conntrack(struct nf_conntrack *nfct)
 	if (ct->master)
 		nf_ct_put(ct->master);
 
+<<<<<<< HEAD
 	pr_debug("destroy_conntrack: returning ct=%p to slab\n", ct);
 	nf_conntrack_free(ct);
 }
+=======
+	pr_debug("%s: returning ct=%pK to slab\n", __func__, ct);
+	nf_conntrack_free(ct);
+}
+EXPORT_SYMBOL(nf_ct_destroy);
+>>>>>>> upstream/android-13
 
 static void nf_ct_delete_from_lists(struct nf_conn *ct)
 {
@@ -619,9 +872,17 @@ static void nf_ct_delete_from_lists(struct nf_conn *ct)
 	do {
 		sequence = read_seqcount_begin(&nf_conntrack_generation);
 		hash = hash_conntrack(net,
+<<<<<<< HEAD
 				      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
 		reply_hash = hash_conntrack(net,
 					   &ct->tuplehash[IP_CT_DIR_REPLY].tuple);
+=======
+				      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
+				      nf_ct_zone_id(nf_ct_zone(ct), IP_CT_DIR_ORIGINAL));
+		reply_hash = hash_conntrack(net,
+					   &ct->tuplehash[IP_CT_DIR_REPLY].tuple,
+					   nf_ct_zone_id(nf_ct_zone(ct), IP_CT_DIR_REPLY));
+>>>>>>> upstream/android-13
 	} while (nf_conntrack_double_lock(net, hash, reply_hash, sequence));
 
 	clean_from_lists(ct);
@@ -635,13 +896,27 @@ static void nf_ct_delete_from_lists(struct nf_conn *ct)
 bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
 {
 	struct nf_conn_tstamp *tstamp;
+<<<<<<< HEAD
+=======
+	struct net *net;
+>>>>>>> upstream/android-13
 
 	if (test_and_set_bit(IPS_DYING_BIT, &ct->status))
 		return false;
 
 	tstamp = nf_conn_tstamp_find(ct);
+<<<<<<< HEAD
 	if (tstamp && tstamp->stop == 0)
 		tstamp->stop = ktime_get_real_ns();
+=======
+	if (tstamp) {
+		s32 timeout = READ_ONCE(ct->timeout) - nfct_time_stamp;
+
+		tstamp->stop = ktime_get_real_ns();
+		if (timeout < 0)
+			tstamp->stop -= jiffies_to_nsecs(-timeout);
+	}
+>>>>>>> upstream/android-13
 
 	if (nf_conntrack_event_report(IPCT_DESTROY, ct,
 				    portid, report) < 0) {
@@ -649,11 +924,21 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
 		 * be done by event cache worker on redelivery.
 		 */
 		nf_ct_delete_from_lists(ct);
+<<<<<<< HEAD
 		nf_conntrack_ecache_delayed_work(nf_ct_net(ct));
 		return false;
 	}
 
 	nf_conntrack_ecache_work(nf_ct_net(ct));
+=======
+		nf_conntrack_ecache_work(nf_ct_net(ct), NFCT_ECACHE_DESTROY_FAIL);
+		return false;
+	}
+
+	net = nf_ct_net(ct);
+	if (nf_conntrack_ecache_dwork_pending(net))
+		nf_conntrack_ecache_work(net, NFCT_ECACHE_DESTROY_SENT);
+>>>>>>> upstream/android-13
 	nf_ct_delete_from_lists(ct);
 	nf_ct_put(ct);
 	return true;
@@ -692,7 +977,11 @@ nf_ct_match(const struct nf_conn *ct1, const struct nf_conn *ct2)
 /* caller must hold rcu readlock and none of the nf_conntrack_locks */
 static void nf_ct_gc_expired(struct nf_conn *ct)
 {
+<<<<<<< HEAD
 	if (!atomic_inc_not_zero(&ct->ct_general.use))
+=======
+	if (!refcount_inc_not_zero(&ct->ct_general.use))
+>>>>>>> upstream/android-13
 		return;
 
 	if (nf_ct_should_gc(ct))
@@ -728,9 +1017,12 @@ begin:
 			continue;
 		}
 
+<<<<<<< HEAD
 		if (nf_ct_is_dying(ct))
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		if (nf_ct_key_equal(h, tuple, zone, net))
 			return h;
 	}
@@ -756,6 +1048,7 @@ __nf_conntrack_find_get(struct net *net, const struct nf_conntrack_zone *zone,
 	struct nf_conn *ct;
 
 	rcu_read_lock();
+<<<<<<< HEAD
 begin:
 	h = ____nf_conntrack_find(net, zone, tuple, hash);
 	if (h) {
@@ -770,6 +1063,26 @@ begin:
 			}
 		}
 	}
+=======
+
+	h = ____nf_conntrack_find(net, zone, tuple, hash);
+	if (h) {
+		/* We have a candidate that matches the tuple we're interested
+		 * in, try to obtain a reference and re-check tuple
+		 */
+		ct = nf_ct_tuplehash_to_ctrack(h);
+		if (likely(refcount_inc_not_zero(&ct->ct_general.use))) {
+			if (likely(nf_ct_key_equal(h, tuple, zone, net)))
+				goto found;
+
+			/* TYPESAFE_BY_RCU recycled the candidate */
+			nf_ct_put(ct);
+		}
+
+		h = NULL;
+	}
+found:
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	return h;
@@ -779,8 +1092,25 @@ struct nf_conntrack_tuple_hash *
 nf_conntrack_find_get(struct net *net, const struct nf_conntrack_zone *zone,
 		      const struct nf_conntrack_tuple *tuple)
 {
+<<<<<<< HEAD
 	return __nf_conntrack_find_get(net, zone, tuple,
 				       hash_conntrack_raw(tuple, net));
+=======
+	unsigned int rid, zone_id = nf_ct_zone_id(zone, IP_CT_DIR_ORIGINAL);
+	struct nf_conntrack_tuple_hash *thash;
+
+	thash = __nf_conntrack_find_get(net, zone, tuple,
+					hash_conntrack_raw(tuple, zone_id, net));
+
+	if (thash)
+		return thash;
+
+	rid = nf_ct_zone_id(zone, IP_CT_DIR_REPLY);
+	if (rid != zone_id)
+		return __nf_conntrack_find_get(net, zone, tuple,
+					       hash_conntrack_raw(tuple, rid, net));
+	return thash;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nf_conntrack_find_get);
 
@@ -802,7 +1132,14 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
 	unsigned int hash, reply_hash;
 	struct nf_conntrack_tuple_hash *h;
 	struct hlist_nulls_node *n;
+<<<<<<< HEAD
 	unsigned int sequence;
+=======
+	unsigned int max_chainlen;
+	unsigned int chainlen = 0;
+	unsigned int sequence;
+	int err = -EEXIST;
+>>>>>>> upstream/android-13
 
 	zone = nf_ct_zone(ct);
 
@@ -810,6 +1147,7 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
 	do {
 		sequence = read_seqcount_begin(&nf_conntrack_generation);
 		hash = hash_conntrack(net,
+<<<<<<< HEAD
 				      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
 		reply_hash = hash_conntrack(net,
 					   &ct->tuplehash[IP_CT_DIR_REPLY].tuple);
@@ -817,10 +1155,24 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
 
 	/* See if there's one in the list already, including reverse */
 	hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[hash], hnnode)
+=======
+				      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
+				      nf_ct_zone_id(nf_ct_zone(ct), IP_CT_DIR_ORIGINAL));
+		reply_hash = hash_conntrack(net,
+					   &ct->tuplehash[IP_CT_DIR_REPLY].tuple,
+					   nf_ct_zone_id(nf_ct_zone(ct), IP_CT_DIR_REPLY));
+	} while (nf_conntrack_double_lock(net, hash, reply_hash, sequence));
+
+	max_chainlen = MIN_CHAINLEN + prandom_u32_max(MAX_CHAINLEN);
+
+	/* See if there's one in the list already, including reverse */
+	hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[hash], hnnode) {
+>>>>>>> upstream/android-13
 		if (nf_ct_key_equal(h, &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
 				    zone, net))
 			goto out;
 
+<<<<<<< HEAD
 	hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[reply_hash], hnnode)
 		if (nf_ct_key_equal(h, &ct->tuplehash[IP_CT_DIR_REPLY].tuple,
 				    zone, net))
@@ -829,11 +1181,31 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
 	smp_wmb();
 	/* The caller holds a reference to this object */
 	atomic_set(&ct->ct_general.use, 2);
+=======
+		if (chainlen++ > max_chainlen)
+			goto chaintoolong;
+	}
+
+	chainlen = 0;
+
+	hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[reply_hash], hnnode) {
+		if (nf_ct_key_equal(h, &ct->tuplehash[IP_CT_DIR_REPLY].tuple,
+				    zone, net))
+			goto out;
+		if (chainlen++ > max_chainlen)
+			goto chaintoolong;
+	}
+
+	smp_wmb();
+	/* The caller holds a reference to this object */
+	refcount_set(&ct->ct_general.use, 2);
+>>>>>>> upstream/android-13
 	__nf_conntrack_hash_insert(ct, hash, reply_hash);
 	nf_conntrack_double_unlock(hash, reply_hash);
 	NF_CT_STAT_INC(net, insert);
 	local_bh_enable();
 	return 0;
+<<<<<<< HEAD
 
 out:
 	nf_conntrack_double_unlock(hash, reply_hash);
@@ -846,6 +1218,20 @@ EXPORT_SYMBOL_GPL(nf_conntrack_hash_check_insert);
 static inline void nf_ct_acct_update(struct nf_conn *ct,
 				     enum ip_conntrack_info ctinfo,
 				     unsigned int len)
+=======
+chaintoolong:
+	NF_CT_STAT_INC(net, chaintoolong);
+	err = -ENOSPC;
+out:
+	nf_conntrack_double_unlock(hash, reply_hash);
+	local_bh_enable();
+	return err;
+}
+EXPORT_SYMBOL_GPL(nf_conntrack_hash_check_insert);
+
+void nf_ct_acct_add(struct nf_conn *ct, u32 dir, unsigned int packets,
+		    unsigned int bytes)
+>>>>>>> upstream/android-13
 {
 	struct nf_conn_acct *acct;
 
@@ -853,10 +1239,18 @@ static inline void nf_ct_acct_update(struct nf_conn *ct,
 	if (acct) {
 		struct nf_conn_counter *counter = acct->counter;
 
+<<<<<<< HEAD
 		atomic64_inc(&counter[CTINFO2DIR(ctinfo)].packets);
 		atomic64_add(len, &counter[CTINFO2DIR(ctinfo)].bytes);
 	}
 }
+=======
+		atomic64_add(packets, &counter[dir].packets);
+		atomic64_add(bytes, &counter[dir].bytes);
+	}
+}
+EXPORT_SYMBOL_GPL(nf_ct_acct_add);
+>>>>>>> upstream/android-13
 
 static void nf_ct_acct_merge(struct nf_conn *ct, enum ip_conntrack_info ctinfo,
 			     const struct nf_conn *loser_ct)
@@ -870,6 +1264,7 @@ static void nf_ct_acct_merge(struct nf_conn *ct, enum ip_conntrack_info ctinfo,
 
 		/* u32 should be fine since we must have seen one packet. */
 		bytes = atomic64_read(&counter[CTINFO2DIR(ctinfo)].bytes);
+<<<<<<< HEAD
 		nf_ct_acct_update(ct, ctinfo, bytes);
 	}
 }
@@ -878,10 +1273,159 @@ static void nf_ct_acct_merge(struct nf_conn *ct, enum ip_conntrack_info ctinfo,
 static int nf_ct_resolve_clash(struct net *net, struct sk_buff *skb,
 			       enum ip_conntrack_info ctinfo,
 			       struct nf_conntrack_tuple_hash *h)
+=======
+		nf_ct_acct_update(ct, CTINFO2DIR(ctinfo), bytes);
+	}
+}
+
+static void __nf_conntrack_insert_prepare(struct nf_conn *ct)
+{
+	struct nf_conn_tstamp *tstamp;
+
+	refcount_inc(&ct->ct_general.use);
+	ct->status |= IPS_CONFIRMED;
+
+	/* set conntrack timestamp, if enabled. */
+	tstamp = nf_conn_tstamp_find(ct);
+	if (tstamp)
+		tstamp->start = ktime_get_real_ns();
+}
+
+/* caller must hold locks to prevent concurrent changes */
+static int __nf_ct_resolve_clash(struct sk_buff *skb,
+				 struct nf_conntrack_tuple_hash *h)
+{
+	/* This is the conntrack entry already in hashes that won race. */
+	struct nf_conn *ct = nf_ct_tuplehash_to_ctrack(h);
+	enum ip_conntrack_info ctinfo;
+	struct nf_conn *loser_ct;
+
+	loser_ct = nf_ct_get(skb, &ctinfo);
+
+	if (nf_ct_is_dying(ct))
+		return NF_DROP;
+
+	if (((ct->status & IPS_NAT_DONE_MASK) == 0) ||
+	    nf_ct_match(ct, loser_ct)) {
+		struct net *net = nf_ct_net(ct);
+
+		nf_conntrack_get(&ct->ct_general);
+
+		nf_ct_acct_merge(ct, ctinfo, loser_ct);
+		nf_ct_add_to_dying_list(loser_ct);
+		nf_ct_put(loser_ct);
+		nf_ct_set(skb, ct, ctinfo);
+
+		NF_CT_STAT_INC(net, clash_resolve);
+		return NF_ACCEPT;
+	}
+
+	return NF_DROP;
+}
+
+/**
+ * nf_ct_resolve_clash_harder - attempt to insert clashing conntrack entry
+ *
+ * @skb: skb that causes the collision
+ * @repl_idx: hash slot for reply direction
+ *
+ * Called when origin or reply direction had a clash.
+ * The skb can be handled without packet drop provided the reply direction
+ * is unique or there the existing entry has the identical tuple in both
+ * directions.
+ *
+ * Caller must hold conntrack table locks to prevent concurrent updates.
+ *
+ * Returns NF_DROP if the clash could not be handled.
+ */
+static int nf_ct_resolve_clash_harder(struct sk_buff *skb, u32 repl_idx)
+{
+	struct nf_conn *loser_ct = (struct nf_conn *)skb_nfct(skb);
+	const struct nf_conntrack_zone *zone;
+	struct nf_conntrack_tuple_hash *h;
+	struct hlist_nulls_node *n;
+	struct net *net;
+
+	zone = nf_ct_zone(loser_ct);
+	net = nf_ct_net(loser_ct);
+
+	/* Reply direction must never result in a clash, unless both origin
+	 * and reply tuples are identical.
+	 */
+	hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[repl_idx], hnnode) {
+		if (nf_ct_key_equal(h,
+				    &loser_ct->tuplehash[IP_CT_DIR_REPLY].tuple,
+				    zone, net))
+			return __nf_ct_resolve_clash(skb, h);
+	}
+
+	/* We want the clashing entry to go away real soon: 1 second timeout. */
+	WRITE_ONCE(loser_ct->timeout, nfct_time_stamp + HZ);
+
+	/* IPS_NAT_CLASH removes the entry automatically on the first
+	 * reply.  Also prevents UDP tracker from moving the entry to
+	 * ASSURED state, i.e. the entry can always be evicted under
+	 * pressure.
+	 */
+	loser_ct->status |= IPS_FIXED_TIMEOUT | IPS_NAT_CLASH;
+
+	__nf_conntrack_insert_prepare(loser_ct);
+
+	/* fake add for ORIGINAL dir: we want lookups to only find the entry
+	 * already in the table.  This also hides the clashing entry from
+	 * ctnetlink iteration, i.e. conntrack -L won't show them.
+	 */
+	hlist_nulls_add_fake(&loser_ct->tuplehash[IP_CT_DIR_ORIGINAL].hnnode);
+
+	hlist_nulls_add_head_rcu(&loser_ct->tuplehash[IP_CT_DIR_REPLY].hnnode,
+				 &nf_conntrack_hash[repl_idx]);
+
+	NF_CT_STAT_INC(net, clash_resolve);
+	return NF_ACCEPT;
+}
+
+/**
+ * nf_ct_resolve_clash - attempt to handle clash without packet drop
+ *
+ * @skb: skb that causes the clash
+ * @h: tuplehash of the clashing entry already in table
+ * @reply_hash: hash slot for reply direction
+ *
+ * A conntrack entry can be inserted to the connection tracking table
+ * if there is no existing entry with an identical tuple.
+ *
+ * If there is one, @skb (and the assocated, unconfirmed conntrack) has
+ * to be dropped.  In case @skb is retransmitted, next conntrack lookup
+ * will find the already-existing entry.
+ *
+ * The major problem with such packet drop is the extra delay added by
+ * the packet loss -- it will take some time for a retransmit to occur
+ * (or the sender to time out when waiting for a reply).
+ *
+ * This function attempts to handle the situation without packet drop.
+ *
+ * If @skb has no NAT transformation or if the colliding entries are
+ * exactly the same, only the to-be-confirmed conntrack entry is discarded
+ * and @skb is associated with the conntrack entry already in the table.
+ *
+ * Failing that, the new, unconfirmed conntrack is still added to the table
+ * provided that the collision only occurs in the ORIGINAL direction.
+ * The new entry will be added only in the non-clashing REPLY direction,
+ * so packets in the ORIGINAL direction will continue to match the existing
+ * entry.  The new entry will also have a fixed timeout so it expires --
+ * due to the collision, it will only see reply traffic.
+ *
+ * Returns NF_DROP if the clash could not be resolved.
+ */
+static __cold noinline int
+nf_ct_resolve_clash(struct sk_buff *skb, struct nf_conntrack_tuple_hash *h,
+		    u32 reply_hash)
+>>>>>>> upstream/android-13
 {
 	/* This is the conntrack entry already in hashes that won race. */
 	struct nf_conn *ct = nf_ct_tuplehash_to_ctrack(h);
 	const struct nf_conntrack_l4proto *l4proto;
+<<<<<<< HEAD
 	enum ip_conntrack_info oldinfo;
 	struct nf_conn *loser_ct = nf_ct_get(skb, &oldinfo);
 
@@ -899,6 +1443,32 @@ static int nf_ct_resolve_clash(struct net *net, struct sk_buff *skb,
 		nf_ct_put(ct);
 	}
 	NF_CT_STAT_INC(net, drop);
+=======
+	enum ip_conntrack_info ctinfo;
+	struct nf_conn *loser_ct;
+	struct net *net;
+	int ret;
+
+	loser_ct = nf_ct_get(skb, &ctinfo);
+	net = nf_ct_net(loser_ct);
+
+	l4proto = nf_ct_l4proto_find(nf_ct_protonum(ct));
+	if (!l4proto->allow_clash)
+		goto drop;
+
+	ret = __nf_ct_resolve_clash(skb, h);
+	if (ret == NF_ACCEPT)
+		return ret;
+
+	ret = nf_ct_resolve_clash_harder(skb, reply_hash);
+	if (ret == NF_ACCEPT)
+		return ret;
+
+drop:
+	nf_ct_add_to_dying_list(loser_ct);
+	NF_CT_STAT_INC(net, drop);
+	NF_CT_STAT_INC(net, insert_failed);
+>>>>>>> upstream/android-13
 	return NF_DROP;
 }
 
@@ -906,16 +1476,26 @@ static int nf_ct_resolve_clash(struct net *net, struct sk_buff *skb,
 int
 __nf_conntrack_confirm(struct sk_buff *skb)
 {
+<<<<<<< HEAD
+=======
+	unsigned int chainlen = 0, sequence, max_chainlen;
+>>>>>>> upstream/android-13
 	const struct nf_conntrack_zone *zone;
 	unsigned int hash, reply_hash;
 	struct nf_conntrack_tuple_hash *h;
 	struct nf_conn *ct;
 	struct nf_conn_help *help;
+<<<<<<< HEAD
 	struct nf_conn_tstamp *tstamp;
 	struct hlist_nulls_node *n;
 	enum ip_conntrack_info ctinfo;
 	struct net *net;
 	unsigned int sequence;
+=======
+	struct hlist_nulls_node *n;
+	enum ip_conntrack_info ctinfo;
+	struct net *net;
+>>>>>>> upstream/android-13
 	int ret = NF_DROP;
 
 	ct = nf_ct_get(skb, &ctinfo);
@@ -937,8 +1517,13 @@ __nf_conntrack_confirm(struct sk_buff *skb)
 		hash = *(unsigned long *)&ct->tuplehash[IP_CT_DIR_REPLY].hnnode.pprev;
 		hash = scale_hash(hash);
 		reply_hash = hash_conntrack(net,
+<<<<<<< HEAD
 					   &ct->tuplehash[IP_CT_DIR_REPLY].tuple);
 
+=======
+					   &ct->tuplehash[IP_CT_DIR_REPLY].tuple,
+					   nf_ct_zone_id(nf_ct_zone(ct), IP_CT_DIR_REPLY));
+>>>>>>> upstream/android-13
 	} while (nf_conntrack_double_lock(net, hash, reply_hash, sequence));
 
 	/* We're not in hash table, and we refuse to set up related
@@ -958,7 +1543,11 @@ __nf_conntrack_confirm(struct sk_buff *skb)
 		return NF_DROP;
 	}
 
+<<<<<<< HEAD
 	pr_debug("Confirming conntrack %p\n", ct);
+=======
+	pr_debug("Confirming conntrack %pK\n", ct);
+>>>>>>> upstream/android-13
 	/* We have to check the DYING flag after unlink to prevent
 	 * a race against nf_ct_get_next_corpse() possibly called from
 	 * user context, else we insert an already 'dead' hash, blocking
@@ -968,6 +1557,7 @@ __nf_conntrack_confirm(struct sk_buff *skb)
 
 	if (unlikely(nf_ct_is_dying(ct))) {
 		nf_ct_add_to_dying_list(ct);
+<<<<<<< HEAD
 		goto dying;
 	}
 
@@ -983,11 +1573,44 @@ __nf_conntrack_confirm(struct sk_buff *skb)
 		if (nf_ct_key_equal(h, &ct->tuplehash[IP_CT_DIR_REPLY].tuple,
 				    zone, net))
 			goto out;
+=======
+		NF_CT_STAT_INC(net, insert_failed);
+		goto dying;
+	}
+
+	max_chainlen = MIN_CHAINLEN + prandom_u32_max(MAX_CHAINLEN);
+	/* See if there's one in the list already, including reverse:
+	   NAT could have grabbed it without realizing, since we're
+	   not in the hash.  If there is, we lost race. */
+	hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[hash], hnnode) {
+		if (nf_ct_key_equal(h, &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
+				    zone, net))
+			goto out;
+		if (chainlen++ > max_chainlen)
+			goto chaintoolong;
+	}
+
+	chainlen = 0;
+	hlist_nulls_for_each_entry(h, n, &nf_conntrack_hash[reply_hash], hnnode) {
+		if (nf_ct_key_equal(h, &ct->tuplehash[IP_CT_DIR_REPLY].tuple,
+				    zone, net))
+			goto out;
+		if (chainlen++ > max_chainlen) {
+chaintoolong:
+			nf_ct_add_to_dying_list(ct);
+			NF_CT_STAT_INC(net, chaintoolong);
+			NF_CT_STAT_INC(net, insert_failed);
+			ret = NF_DROP;
+			goto dying;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* Timer relative to confirmation time, not original
 	   setting time, otherwise we'd get timer wrap in
 	   weird delay cases. */
 	ct->timeout += nfct_time_stamp;
+<<<<<<< HEAD
 	atomic_inc(&ct->ct_general.use);
 	ct->status |= IPS_CONFIRMED;
 
@@ -999,6 +1622,11 @@ __nf_conntrack_confirm(struct sk_buff *skb)
 
 		tstamp->start = ktime_to_ns(skb->tstamp);
 	}
+=======
+
+	__nf_conntrack_insert_prepare(ct);
+
+>>>>>>> upstream/android-13
 	/* Since the lookup is lockless, hash insertion must be done after
 	 * starting the timer and setting the CONFIRMED bit. The RCU barriers
 	 * guarantee that no other CPU can find the conntrack before the above
@@ -1017,11 +1645,17 @@ __nf_conntrack_confirm(struct sk_buff *skb)
 	return NF_ACCEPT;
 
 out:
+<<<<<<< HEAD
 	nf_ct_add_to_dying_list(ct);
 	ret = nf_ct_resolve_clash(net, skb, ctinfo, h);
 dying:
 	nf_conntrack_double_unlock(hash, reply_hash);
 	NF_CT_STAT_INC(net, insert_failed);
+=======
+	ret = nf_ct_resolve_clash(skb, h, reply_hash);
+dying:
+	nf_conntrack_double_unlock(hash, reply_hash);
+>>>>>>> upstream/android-13
 	local_bh_enable();
 	return ret;
 }
@@ -1046,7 +1680,11 @@ nf_conntrack_tuple_taken(const struct nf_conntrack_tuple *tuple,
 	rcu_read_lock();
  begin:
 	nf_conntrack_get_ht(&ct_hash, &hsize);
+<<<<<<< HEAD
 	hash = __hash_conntrack(net, tuple, hsize);
+=======
+	hash = __hash_conntrack(net, tuple, nf_ct_zone_id(zone, IP_CT_DIR_REPLY), hsize);
+>>>>>>> upstream/android-13
 
 	hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[hash], hnnode) {
 		ct = nf_ct_tuplehash_to_ctrack(h);
@@ -1122,7 +1760,11 @@ static unsigned int early_drop_list(struct net *net,
 		    nf_ct_is_dying(tmp))
 			continue;
 
+<<<<<<< HEAD
 		if (!atomic_inc_not_zero(&tmp->ct_general.use))
+=======
+		if (!refcount_inc_not_zero(&tmp->ct_general.use))
+>>>>>>> upstream/android-13
 			continue;
 
 		/* kill only if still in same netns -- might have moved due to
@@ -1182,13 +1824,18 @@ static bool gc_worker_can_early_drop(const struct nf_conn *ct)
 	if (!test_bit(IPS_ASSURED_BIT, &ct->status))
 		return true;
 
+<<<<<<< HEAD
 	l4proto = __nf_ct_l4proto_find(nf_ct_l3num(ct), nf_ct_protonum(ct));
+=======
+	l4proto = nf_ct_l4proto_find(nf_ct_protonum(ct));
+>>>>>>> upstream/android-13
 	if (l4proto->can_early_drop && l4proto->can_early_drop(ct))
 		return true;
 
 	return false;
 }
 
+<<<<<<< HEAD
 #define	DAY	(86400 * HZ)
 
 /* Set an arbitrary timeout large enough not to ever expire, this save
@@ -1217,10 +1864,37 @@ static void gc_worker(struct work_struct *work)
 	if (gc_work->early_drop)
 		nf_conntrack_max95 = nf_conntrack_max / 100u * 95u;
 
+=======
+static void gc_worker(struct work_struct *work)
+{
+	unsigned int i, hashsz, nf_conntrack_max95 = 0;
+	u32 end_time, start_time = nfct_time_stamp;
+	struct conntrack_gc_work *gc_work;
+	unsigned int expired_count = 0;
+	unsigned long next_run;
+	s32 delta_time;
+
+	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
+
+	i = gc_work->next_bucket;
+	if (gc_work->early_drop)
+		nf_conntrack_max95 = nf_conntrack_max / 100u * 95u;
+
+	if (i == 0) {
+		gc_work->avg_timeout = GC_SCAN_INTERVAL_INIT;
+		gc_work->start_time = start_time;
+	}
+
+	next_run = gc_work->avg_timeout;
+
+	end_time = start_time + GC_SCAN_MAX_DURATION;
+
+>>>>>>> upstream/android-13
 	do {
 		struct nf_conntrack_tuple_hash *h;
 		struct hlist_nulls_head *ct_hash;
 		struct hlist_nulls_node *n;
+<<<<<<< HEAD
 		unsigned int hashsz;
 		struct nf_conn *tmp;
 
@@ -1232,20 +1906,55 @@ static void gc_worker(struct work_struct *work)
 			i = 0;
 
 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
+=======
+		struct nf_conn *tmp;
+
+		rcu_read_lock();
+
+		nf_conntrack_get_ht(&ct_hash, &hashsz);
+		if (i >= hashsz) {
+			rcu_read_unlock();
+			break;
+		}
+
+		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
+			struct nf_conntrack_net *cnet;
+			unsigned long expires;
+>>>>>>> upstream/android-13
 			struct net *net;
 
 			tmp = nf_ct_tuplehash_to_ctrack(h);
 
+<<<<<<< HEAD
 			scanned++;
+=======
+>>>>>>> upstream/android-13
 			if (test_bit(IPS_OFFLOAD_BIT, &tmp->status)) {
 				nf_ct_offload_timeout(tmp);
 				continue;
 			}
 
+<<<<<<< HEAD
+=======
+			if (expired_count > GC_SCAN_EXPIRED_MAX) {
+				rcu_read_unlock();
+
+				gc_work->next_bucket = i;
+				gc_work->avg_timeout = next_run;
+
+				delta_time = nfct_time_stamp - gc_work->start_time;
+
+				/* re-sched immediately if total cycle time is exceeded */
+				next_run = delta_time < (s32)GC_SCAN_INTERVAL_MAX;
+				goto early_exit;
+			}
+
+>>>>>>> upstream/android-13
 			if (nf_ct_is_expired(tmp)) {
 				nf_ct_gc_expired(tmp);
 				expired_count++;
 				continue;
+<<<<<<< HEAD
 			// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
 			} else if ( (tmp != NULL) && (check_ncm_flag()) && (check_intermediate_flag()) && (atomic_read(&tmp->startFlow)) && (atomic_read(&tmp->intermediateFlow)) ) {
 				s32 npa_timeout = tmp->npa_timeout - ((u32)(jiffies));
@@ -1255,16 +1964,32 @@ static void gc_worker(struct work_struct *work)
 				}
 			}
             // SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+=======
+			}
+
+			expires = clamp(nf_ct_expires(tmp), GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_CLAMP);
+			next_run += expires;
+			next_run /= 2u;
+>>>>>>> upstream/android-13
 
 			if (nf_conntrack_max95 == 0 || gc_worker_skip_ct(tmp))
 				continue;
 
 			net = nf_ct_net(tmp);
+<<<<<<< HEAD
 			if (atomic_read(&net->ct.count) < nf_conntrack_max95)
 				continue;
 
 			/* need to take reference to avoid possible races */
 			if (!atomic_inc_not_zero(&tmp->ct_general.use))
+=======
+			cnet = nf_ct_pernet(net);
+			if (atomic_read(&cnet->count) < nf_conntrack_max95)
+				continue;
+
+			/* need to take reference to avoid possible races */
+			if (!refcount_inc_not_zero(&tmp->ct_general.use))
+>>>>>>> upstream/android-13
 				continue;
 
 			if (gc_worker_skip_ct(tmp)) {
@@ -1272,8 +1997,15 @@ static void gc_worker(struct work_struct *work)
 				continue;
 			}
 
+<<<<<<< HEAD
 			if (gc_worker_can_early_drop(tmp))
 				nf_ct_kill(tmp);
+=======
+			if (gc_worker_can_early_drop(tmp)) {
+				nf_ct_kill(tmp);
+				expired_count++;
+			}
+>>>>>>> upstream/android-13
 
 			nf_ct_put(tmp);
 		}
@@ -1284,6 +2016,7 @@ static void gc_worker(struct work_struct *work)
 		 */
 		rcu_read_unlock();
 		cond_resched();
+<<<<<<< HEAD
 	} while (++buckets < goal);
 
 	if (gc_work->exiting)
@@ -1332,13 +2065,47 @@ static void gc_worker(struct work_struct *work)
 	next_run = gc_work->next_gc_run;
 	gc_work->last_bucket = i;
 	gc_work->early_drop = false;
+=======
+		i++;
+
+		delta_time = nfct_time_stamp - end_time;
+		if (delta_time > 0 && i < hashsz) {
+			gc_work->avg_timeout = next_run;
+			gc_work->next_bucket = i;
+			next_run = 0;
+			goto early_exit;
+		}
+	} while (i < hashsz);
+
+	gc_work->next_bucket = 0;
+
+	next_run = clamp(next_run, GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_MAX);
+
+	delta_time = max_t(s32, nfct_time_stamp - gc_work->start_time, 1);
+	if (next_run > (unsigned long)delta_time)
+		next_run -= delta_time;
+	else
+		next_run = 1;
+
+early_exit:
+	if (gc_work->exiting)
+		return;
+
+	if (next_run)
+		gc_work->early_drop = false;
+
+>>>>>>> upstream/android-13
 	queue_delayed_work(system_power_efficient_wq, &gc_work->dwork, next_run);
 }
 
 static void conntrack_gc_work_init(struct conntrack_gc_work *gc_work)
 {
+<<<<<<< HEAD
 	INIT_DEFERRABLE_WORK(&gc_work->dwork, gc_worker);
 	gc_work->next_gc_run = HZ;
+=======
+	INIT_DELAYED_WORK(&gc_work->dwork, gc_worker);
+>>>>>>> upstream/android-13
 	gc_work->exiting = false;
 }
 
@@ -1349,6 +2116,7 @@ __nf_conntrack_alloc(struct net *net,
 		     const struct nf_conntrack_tuple *repl,
 		     gfp_t gfp, u32 hash)
 {
+<<<<<<< HEAD
 	struct nf_conn *ct;
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
 	struct timespec open_timespec;
@@ -1363,6 +2131,20 @@ __nf_conntrack_alloc(struct net *net,
 			if (!conntrack_gc_work.early_drop)
 				conntrack_gc_work.early_drop = true;
 			atomic_dec(&net->ct.count);
+=======
+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+	unsigned int ct_count;
+	struct nf_conn *ct;
+
+	/* We don't want any race condition at early drop stage */
+	ct_count = atomic_inc_return(&cnet->count);
+
+	if (nf_conntrack_max && unlikely(ct_count > nf_conntrack_max)) {
+		if (!early_drop(net, hash)) {
+			if (!conntrack_gc_work.early_drop)
+				conntrack_gc_work.early_drop = true;
+			atomic_dec(&cnet->count);
+>>>>>>> upstream/android-13
 			net_warn_ratelimited("nf_conntrack: table full, dropping packet\n");
 			return ERR_PTR(-ENOMEM);
 		}
@@ -1377,6 +2159,7 @@ __nf_conntrack_alloc(struct net *net,
 		goto out;
 
 	spin_lock_init(&ct->lock);
+<<<<<<< HEAD
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA {
 	/* initialize the conntrack structure members when memory is allocated */
 	if (ct != NULL) {
@@ -1399,12 +2182,18 @@ __nf_conntrack_alloc(struct net *net,
 		atomic_set(&ct->intermediateFlow, 0);
 	}
 	// SEC_PRODUCT_FEATURE_KNOX_SUPPORT_NPA }
+=======
+>>>>>>> upstream/android-13
 	ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple = *orig;
 	ct->tuplehash[IP_CT_DIR_ORIGINAL].hnnode.pprev = NULL;
 	ct->tuplehash[IP_CT_DIR_REPLY].tuple = *repl;
 	/* save hash for reusing when confirming */
 	*(unsigned long *)(&ct->tuplehash[IP_CT_DIR_REPLY].hnnode.pprev) = hash;
 	ct->status = 0;
+<<<<<<< HEAD
+=======
+	WRITE_ONCE(ct->timeout, 0);
+>>>>>>> upstream/android-13
 	write_pnet(&ct->ct_net, net);
 	memset(&ct->__nfct_init_offset, 0,
 	       offsetof(struct nf_conn, proto) -
@@ -1412,6 +2201,7 @@ __nf_conntrack_alloc(struct net *net,
 
 	nf_ct_zone_add(ct, zone);
 
+<<<<<<< HEAD
 	/* Because we use RCU lookups, we set ct_general.use to zero before
 	 * this is inserted in any list.
 	 */
@@ -1419,6 +2209,17 @@ __nf_conntrack_alloc(struct net *net,
 	return ct;
 out:
 	atomic_dec(&net->ct.count);
+=======
+	trace_android_rvh_nf_conn_alloc(ct);
+
+	/* Because we use RCU lookups, we set ct_general.use to zero before
+	 * this is inserted in any list.
+	 */
+	refcount_set(&ct->ct_general.use, 0);
+	return ct;
+out:
+	atomic_dec(&cnet->count);
+>>>>>>> upstream/android-13
 	return ERR_PTR(-ENOMEM);
 }
 
@@ -1435,10 +2236,15 @@ EXPORT_SYMBOL_GPL(nf_conntrack_alloc);
 void nf_conntrack_free(struct nf_conn *ct)
 {
 	struct net *net = nf_ct_net(ct);
+<<<<<<< HEAD
+=======
+	struct nf_conntrack_net *cnet;
+>>>>>>> upstream/android-13
 
 	/* A freed object has refcnt == 0, that's
 	 * the golden rule for SLAB_TYPESAFE_BY_RCU
 	 */
+<<<<<<< HEAD
 	WARN_ON(atomic_read(&ct->ct_general.use) != 0);
 
 	nf_ct_ext_destroy(ct);
@@ -1446,6 +2252,17 @@ void nf_conntrack_free(struct nf_conn *ct)
 	kmem_cache_free(nf_conntrack_cachep, ct);
 	smp_mb__before_atomic();
 	atomic_dec(&net->ct.count);
+=======
+	WARN_ON(refcount_read(&ct->ct_general.use) != 0);
+
+	nf_ct_ext_destroy(ct);
+	kmem_cache_free(nf_conntrack_cachep, ct);
+	cnet = nf_ct_pernet(net);
+
+	smp_mb__before_atomic();
+	trace_android_rvh_nf_conn_free(ct);
+	atomic_dec(&cnet->count);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nf_conntrack_free);
 
@@ -1455,7 +2272,10 @@ EXPORT_SYMBOL_GPL(nf_conntrack_free);
 static noinline struct nf_conntrack_tuple_hash *
 init_conntrack(struct net *net, struct nf_conn *tmpl,
 	       const struct nf_conntrack_tuple *tuple,
+<<<<<<< HEAD
 	       const struct nf_conntrack_l4proto *l4proto,
+=======
+>>>>>>> upstream/android-13
 	       struct sk_buff *skb,
 	       unsigned int dataoff, u32 hash)
 {
@@ -1467,8 +2287,14 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
 	const struct nf_conntrack_zone *zone;
 	struct nf_conn_timeout *timeout_ext;
 	struct nf_conntrack_zone tmp;
+<<<<<<< HEAD
 
 	if (!nf_ct_invert_tuple(&repl_tuple, tuple, l4proto)) {
+=======
+	struct nf_conntrack_net *cnet;
+
+	if (!nf_ct_invert_tuple(&repl_tuple, tuple)) {
+>>>>>>> upstream/android-13
 		pr_debug("Can't invert tuple.\n");
 		return NULL;
 	}
@@ -1486,12 +2312,15 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
 
 	timeout_ext = tmpl ? nf_ct_timeout_find(tmpl) : NULL;
 
+<<<<<<< HEAD
 	if (!l4proto->new(ct, skb, dataoff)) {
 		nf_conntrack_free(ct);
 		pr_debug("can't track with proto module\n");
 		return NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (timeout_ext)
 		nf_ct_timeout_ext_add(ct, rcu_dereference(timeout_ext->timeout),
 				      GFP_ATOMIC);
@@ -1506,11 +2335,20 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
 			     GFP_ATOMIC);
 
 	local_bh_disable();
+<<<<<<< HEAD
 	if (net->ct.expect_count) {
 		spin_lock(&nf_conntrack_expect_lock);
 		exp = nf_ct_find_expectation(net, zone, tuple);
 		if (exp) {
 			pr_debug("expectation arrives ct=%p exp=%p\n",
+=======
+	cnet = nf_ct_pernet(net);
+	if (cnet->expect_count) {
+		spin_lock(&nf_conntrack_expect_lock);
+		exp = nf_ct_find_expectation(net, zone, tuple);
+		if (exp) {
+			pr_debug("expectation arrives ct=%pK exp=%pK\n",
+>>>>>>> upstream/android-13
 				 ct, exp);
 			/* Welcome, Mr. Bond.  We've been expecting you... */
 			__set_bit(IPS_EXPECTED_BIT, &ct->status);
@@ -1535,8 +2373,13 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
 	if (!exp)
 		__nf_ct_try_assign_helper(ct, tmpl, GFP_ATOMIC);
 
+<<<<<<< HEAD
 	/* Now it is inserted into the unconfirmed list, bump refcount */
 	nf_conntrack_get(&ct->ct_general);
+=======
+	/* Now it is inserted into the unconfirmed list, set refcount to 1. */
+	refcount_set(&ct->ct_general.use, 1);
+>>>>>>> upstream/android-13
 	nf_ct_add_to_unconfirmed_list(ct);
 
 	local_bh_enable();
@@ -1552,33 +2395,69 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
 
 /* On success, returns 0, sets skb->_nfct | ctinfo */
 static int
+<<<<<<< HEAD
 resolve_normal_ct(struct net *net, struct nf_conn *tmpl,
 		  struct sk_buff *skb,
 		  unsigned int dataoff,
 		  u_int16_t l3num,
 		  u_int8_t protonum,
 		  const struct nf_conntrack_l4proto *l4proto)
+=======
+resolve_normal_ct(struct nf_conn *tmpl,
+		  struct sk_buff *skb,
+		  unsigned int dataoff,
+		  u_int8_t protonum,
+		  const struct nf_hook_state *state)
+>>>>>>> upstream/android-13
 {
 	const struct nf_conntrack_zone *zone;
 	struct nf_conntrack_tuple tuple;
 	struct nf_conntrack_tuple_hash *h;
 	enum ip_conntrack_info ctinfo;
 	struct nf_conntrack_zone tmp;
+<<<<<<< HEAD
 	struct nf_conn *ct;
 	u32 hash;
 
 	if (!nf_ct_get_tuple(skb, skb_network_offset(skb),
 			     dataoff, l3num, protonum, net, &tuple, l4proto)) {
+=======
+	u32 hash, zone_id, rid;
+	struct nf_conn *ct;
+
+	if (!nf_ct_get_tuple(skb, skb_network_offset(skb),
+			     dataoff, state->pf, protonum, state->net,
+			     &tuple)) {
+>>>>>>> upstream/android-13
 		pr_debug("Can't get tuple\n");
 		return 0;
 	}
 
 	/* look for tuple match */
 	zone = nf_ct_zone_tmpl(tmpl, skb, &tmp);
+<<<<<<< HEAD
 	hash = hash_conntrack_raw(&tuple, net);
 	h = __nf_conntrack_find_get(net, zone, &tuple, hash);
 	if (!h) {
 		h = init_conntrack(net, tmpl, &tuple, l4proto,
+=======
+
+	zone_id = nf_ct_zone_id(zone, IP_CT_DIR_ORIGINAL);
+	hash = hash_conntrack_raw(&tuple, zone_id, state->net);
+	h = __nf_conntrack_find_get(state->net, zone, &tuple, hash);
+
+	if (!h) {
+		rid = nf_ct_zone_id(zone, IP_CT_DIR_REPLY);
+		if (zone_id != rid) {
+			u32 tmp = hash_conntrack_raw(&tuple, rid, state->net);
+
+			h = __nf_conntrack_find_get(state->net, zone, &tuple, tmp);
+		}
+	}
+
+	if (!h) {
+		h = init_conntrack(state->net, tmpl, &tuple,
+>>>>>>> upstream/android-13
 				   skb, dataoff, hash);
 		if (!h)
 			return 0;
@@ -1593,6 +2472,7 @@ resolve_normal_ct(struct net *net, struct nf_conn *tmpl,
 	} else {
 		/* Once we've had two way comms, always ESTABLISHED. */
 		if (test_bit(IPS_SEEN_REPLY_BIT, &ct->status)) {
+<<<<<<< HEAD
 			pr_debug("normal packet for %p\n", ct);
 			ctinfo = IP_CT_ESTABLISHED;
 		} else if (test_bit(IPS_EXPECTED_BIT, &ct->status)) {
@@ -1600,6 +2480,15 @@ resolve_normal_ct(struct net *net, struct nf_conn *tmpl,
 			ctinfo = IP_CT_RELATED;
 		} else {
 			pr_debug("new packet for %p\n", ct);
+=======
+			pr_debug("normal packet for %pK\n", ct);
+			ctinfo = IP_CT_ESTABLISHED;
+		} else if (test_bit(IPS_EXPECTED_BIT, &ct->status)) {
+			pr_debug("related packet for %pK\n", ct);
+			ctinfo = IP_CT_RELATED;
+		} else {
+			pr_debug("new packet for %pK\n", ct);
+>>>>>>> upstream/android-13
 			ctinfo = IP_CT_NEW;
 		}
 	}
@@ -1607,6 +2496,7 @@ resolve_normal_ct(struct net *net, struct nf_conn *tmpl,
 	return 0;
 }
 
+<<<<<<< HEAD
 unsigned int
 nf_conntrack_in(struct net *net, u_int8_t pf, unsigned int hooknum,
 		struct sk_buff *skb)
@@ -1614,6 +2504,101 @@ nf_conntrack_in(struct net *net, u_int8_t pf, unsigned int hooknum,
 	const struct nf_conntrack_l4proto *l4proto;
 	struct nf_conn *ct, *tmpl;
 	enum ip_conntrack_info ctinfo;
+=======
+/*
+ * icmp packets need special treatment to handle error messages that are
+ * related to a connection.
+ *
+ * Callers need to check if skb has a conntrack assigned when this
+ * helper returns; in such case skb belongs to an already known connection.
+ */
+static unsigned int __cold
+nf_conntrack_handle_icmp(struct nf_conn *tmpl,
+			 struct sk_buff *skb,
+			 unsigned int dataoff,
+			 u8 protonum,
+			 const struct nf_hook_state *state)
+{
+	int ret;
+
+	if (state->pf == NFPROTO_IPV4 && protonum == IPPROTO_ICMP)
+		ret = nf_conntrack_icmpv4_error(tmpl, skb, dataoff, state);
+#if IS_ENABLED(CONFIG_IPV6)
+	else if (state->pf == NFPROTO_IPV6 && protonum == IPPROTO_ICMPV6)
+		ret = nf_conntrack_icmpv6_error(tmpl, skb, dataoff, state);
+#endif
+	else
+		return NF_ACCEPT;
+
+	if (ret <= 0)
+		NF_CT_STAT_INC_ATOMIC(state->net, error);
+
+	return ret;
+}
+
+static int generic_packet(struct nf_conn *ct, struct sk_buff *skb,
+			  enum ip_conntrack_info ctinfo)
+{
+	const unsigned int *timeout = nf_ct_timeout_lookup(ct);
+
+	if (!timeout)
+		timeout = &nf_generic_pernet(nf_ct_net(ct))->timeout;
+
+	nf_ct_refresh_acct(ct, ctinfo, skb, *timeout);
+	return NF_ACCEPT;
+}
+
+/* Returns verdict for packet, or -1 for invalid. */
+static int nf_conntrack_handle_packet(struct nf_conn *ct,
+				      struct sk_buff *skb,
+				      unsigned int dataoff,
+				      enum ip_conntrack_info ctinfo,
+				      const struct nf_hook_state *state)
+{
+	switch (nf_ct_protonum(ct)) {
+	case IPPROTO_TCP:
+		return nf_conntrack_tcp_packet(ct, skb, dataoff,
+					       ctinfo, state);
+	case IPPROTO_UDP:
+		return nf_conntrack_udp_packet(ct, skb, dataoff,
+					       ctinfo, state);
+	case IPPROTO_ICMP:
+		return nf_conntrack_icmp_packet(ct, skb, ctinfo, state);
+#if IS_ENABLED(CONFIG_IPV6)
+	case IPPROTO_ICMPV6:
+		return nf_conntrack_icmpv6_packet(ct, skb, ctinfo, state);
+#endif
+#ifdef CONFIG_NF_CT_PROTO_UDPLITE
+	case IPPROTO_UDPLITE:
+		return nf_conntrack_udplite_packet(ct, skb, dataoff,
+						   ctinfo, state);
+#endif
+#ifdef CONFIG_NF_CT_PROTO_SCTP
+	case IPPROTO_SCTP:
+		return nf_conntrack_sctp_packet(ct, skb, dataoff,
+						ctinfo, state);
+#endif
+#ifdef CONFIG_NF_CT_PROTO_DCCP
+	case IPPROTO_DCCP:
+		return nf_conntrack_dccp_packet(ct, skb, dataoff,
+						ctinfo, state);
+#endif
+#ifdef CONFIG_NF_CT_PROTO_GRE
+	case IPPROTO_GRE:
+		return nf_conntrack_gre_packet(ct, skb, dataoff,
+					       ctinfo, state);
+#endif
+	}
+
+	return generic_packet(ct, skb, ctinfo);
+}
+
+unsigned int
+nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+{
+	enum ip_conntrack_info ctinfo;
+	struct nf_conn *ct, *tmpl;
+>>>>>>> upstream/android-13
 	u_int8_t protonum;
 	int dataoff, ret;
 
@@ -1621,23 +2606,36 @@ nf_conntrack_in(struct net *net, u_int8_t pf, unsigned int hooknum,
 	if (tmpl || ctinfo == IP_CT_UNTRACKED) {
 		/* Previously seen (loopback or untracked)?  Ignore. */
 		if ((tmpl && !nf_ct_is_template(tmpl)) ||
+<<<<<<< HEAD
 		     ctinfo == IP_CT_UNTRACKED) {
 			NF_CT_STAT_INC_ATOMIC(net, ignore);
 			return NF_ACCEPT;
 		}
+=======
+		     ctinfo == IP_CT_UNTRACKED)
+			return NF_ACCEPT;
+>>>>>>> upstream/android-13
 		skb->_nfct = 0;
 	}
 
 	/* rcu_read_lock()ed by nf_hook_thresh */
+<<<<<<< HEAD
 	dataoff = get_l4proto(skb, skb_network_offset(skb), pf, &protonum);
 	if (dataoff <= 0) {
 		pr_debug("not prepared to track yet or error occurred\n");
 		NF_CT_STAT_INC_ATOMIC(net, error);
 		NF_CT_STAT_INC_ATOMIC(net, invalid);
+=======
+	dataoff = get_l4proto(skb, skb_network_offset(skb), state->pf, &protonum);
+	if (dataoff <= 0) {
+		pr_debug("not prepared to track yet or error occurred\n");
+		NF_CT_STAT_INC_ATOMIC(state->net, invalid);
+>>>>>>> upstream/android-13
 		ret = NF_ACCEPT;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	l4proto = __nf_ct_l4proto_find(pf, protonum);
 
 	/* It may be an special packet, error, unclean...
@@ -1648,6 +2646,12 @@ nf_conntrack_in(struct net *net, u_int8_t pf, unsigned int hooknum,
 		if (ret <= 0) {
 			NF_CT_STAT_INC_ATOMIC(net, error);
 			NF_CT_STAT_INC_ATOMIC(net, invalid);
+=======
+	if (protonum == IPPROTO_ICMP || protonum == IPPROTO_ICMPV6) {
+		ret = nf_conntrack_handle_icmp(tmpl, skb, dataoff,
+					       protonum, state);
+		if (ret <= 0) {
+>>>>>>> upstream/android-13
 			ret = -ret;
 			goto out;
 		}
@@ -1656,10 +2660,18 @@ nf_conntrack_in(struct net *net, u_int8_t pf, unsigned int hooknum,
 			goto out;
 	}
 repeat:
+<<<<<<< HEAD
 	ret = resolve_normal_ct(net, tmpl, skb, dataoff, pf, protonum, l4proto);
 	if (ret < 0) {
 		/* Too stressed to deal. */
 		NF_CT_STAT_INC_ATOMIC(net, drop);
+=======
+	ret = resolve_normal_ct(tmpl, skb, dataoff,
+				protonum, state);
+	if (ret < 0) {
+		/* Too stressed to deal. */
+		NF_CT_STAT_INC_ATOMIC(state->net, drop);
+>>>>>>> upstream/android-13
 		ret = NF_DROP;
 		goto out;
 	}
@@ -1667,27 +2679,48 @@ repeat:
 	ct = nf_ct_get(skb, &ctinfo);
 	if (!ct) {
 		/* Not valid part of a connection */
+<<<<<<< HEAD
 		NF_CT_STAT_INC_ATOMIC(net, invalid);
+=======
+		NF_CT_STAT_INC_ATOMIC(state->net, invalid);
+>>>>>>> upstream/android-13
 		ret = NF_ACCEPT;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = l4proto->packet(ct, skb, dataoff, ctinfo);
+=======
+	ret = nf_conntrack_handle_packet(ct, skb, dataoff, ctinfo, state);
+>>>>>>> upstream/android-13
 	if (ret <= 0) {
 		/* Invalid: inverse of the return code tells
 		 * the netfilter core what to do */
 		pr_debug("nf_conntrack_in: Can't track with proto module\n");
+<<<<<<< HEAD
 		nf_conntrack_put(&ct->ct_general);
 		skb->_nfct = 0;
 		NF_CT_STAT_INC_ATOMIC(net, invalid);
 		if (ret == -NF_DROP)
 			NF_CT_STAT_INC_ATOMIC(net, drop);
+=======
+		nf_ct_put(ct);
+		skb->_nfct = 0;
+>>>>>>> upstream/android-13
 		/* Special case: TCP tracker reports an attempt to reopen a
 		 * closed/aborted connection. We have to go back and create a
 		 * fresh conntrack.
 		 */
 		if (ret == -NF_REPEAT)
 			goto repeat;
+<<<<<<< HEAD
+=======
+
+		NF_CT_STAT_INC_ATOMIC(state->net, invalid);
+		if (ret == -NF_DROP)
+			NF_CT_STAT_INC_ATOMIC(state->net, drop);
+
+>>>>>>> upstream/android-13
 		ret = -ret;
 		goto out;
 	}
@@ -1703,6 +2736,7 @@ out:
 }
 EXPORT_SYMBOL_GPL(nf_conntrack_in);
 
+<<<<<<< HEAD
 bool nf_ct_invert_tuplepr(struct nf_conntrack_tuple *inverse,
 			  const struct nf_conntrack_tuple *orig)
 {
@@ -1717,6 +2751,8 @@ bool nf_ct_invert_tuplepr(struct nf_conntrack_tuple *inverse,
 }
 EXPORT_SYMBOL_GPL(nf_ct_invert_tuplepr);
 
+=======
+>>>>>>> upstream/android-13
 /* Alter reply tuple (maybe alter helper).  This is for NAT, and is
    implicitly racy: see __nf_conntrack_confirm */
 void nf_conntrack_alter_reply(struct nf_conn *ct,
@@ -1727,7 +2763,11 @@ void nf_conntrack_alter_reply(struct nf_conn *ct,
 	/* Should be unconfirmed, so not in hash table yet */
 	WARN_ON(nf_ct_is_confirmed(ct));
 
+<<<<<<< HEAD
 	pr_debug("Altering reply tuple of %p to ", ct);
+=======
+	pr_debug("Altering reply tuple of %pK to ", ct);
+>>>>>>> upstream/android-13
 	nf_ct_dump_tuple(newreply);
 
 	ct->tuplehash[IP_CT_DIR_REPLY].tuple = *newreply;
@@ -1744,11 +2784,17 @@ EXPORT_SYMBOL_GPL(nf_conntrack_alter_reply);
 void __nf_ct_refresh_acct(struct nf_conn *ct,
 			  enum ip_conntrack_info ctinfo,
 			  const struct sk_buff *skb,
+<<<<<<< HEAD
 			  unsigned long extra_jiffies,
 			  int do_acct)
 {
 	WARN_ON(!skb);
 
+=======
+			  u32 extra_jiffies,
+			  bool do_acct)
+{
+>>>>>>> upstream/android-13
 	/* Only update if this is not a fixed timeout */
 	if (test_bit(IPS_FIXED_TIMEOUT_BIT, &ct->status))
 		goto acct;
@@ -1757,10 +2803,18 @@ void __nf_ct_refresh_acct(struct nf_conn *ct,
 	if (nf_ct_is_confirmed(ct))
 		extra_jiffies += nfct_time_stamp;
 
+<<<<<<< HEAD
 	ct->timeout = extra_jiffies;
 acct:
 	if (do_acct)
 		nf_ct_acct_update(ct, ctinfo, skb->len);
+=======
+	if (READ_ONCE(ct->timeout) != extra_jiffies)
+		WRITE_ONCE(ct->timeout, extra_jiffies);
+acct:
+	if (do_acct)
+		nf_ct_acct_update(ct, CTINFO2DIR(ctinfo), skb->len);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__nf_ct_refresh_acct);
 
@@ -1768,7 +2822,11 @@ bool nf_ct_kill_acct(struct nf_conn *ct,
 		     enum ip_conntrack_info ctinfo,
 		     const struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	nf_ct_acct_update(ct, ctinfo, skb->len);
+=======
+	nf_ct_acct_update(ct, CTINFO2DIR(ctinfo), skb->len);
+>>>>>>> upstream/android-13
 
 	return nf_ct_delete(ct, 0, 0);
 }
@@ -1780,9 +2838,13 @@ EXPORT_SYMBOL_GPL(nf_ct_kill_acct);
 #include <linux/netfilter/nfnetlink_conntrack.h>
 #include <linux/mutex.h>
 
+<<<<<<< HEAD
 /* Generic function for tcp/udp/sctp/dccp and alike. This needs to be
  * in ip_conntrack_core, since we don't want the protocols to autoload
  * or depend on ctnetlink */
+=======
+/* Generic function for tcp/udp/sctp/dccp and alike. */
+>>>>>>> upstream/android-13
 int nf_ct_port_tuple_to_nlattr(struct sk_buff *skb,
 			       const struct nf_conntrack_tuple *tuple)
 {
@@ -1803,6 +2865,7 @@ const struct nla_policy nf_ct_port_nla_policy[CTA_PROTO_MAX+1] = {
 EXPORT_SYMBOL_GPL(nf_ct_port_nla_policy);
 
 int nf_ct_port_nlattr_to_tuple(struct nlattr *tb[],
+<<<<<<< HEAD
 			       struct nf_conntrack_tuple *t)
 {
 	if (!tb[CTA_PROTO_SRC_PORT] || !tb[CTA_PROTO_DST_PORT])
@@ -1810,6 +2873,24 @@ int nf_ct_port_nlattr_to_tuple(struct nlattr *tb[],
 
 	t->src.u.tcp.port = nla_get_be16(tb[CTA_PROTO_SRC_PORT]);
 	t->dst.u.tcp.port = nla_get_be16(tb[CTA_PROTO_DST_PORT]);
+=======
+			       struct nf_conntrack_tuple *t,
+			       u_int32_t flags)
+{
+	if (flags & CTA_FILTER_FLAG(CTA_PROTO_SRC_PORT)) {
+		if (!tb[CTA_PROTO_SRC_PORT])
+			return -EINVAL;
+
+		t->src.u.tcp.port = nla_get_be16(tb[CTA_PROTO_SRC_PORT]);
+	}
+
+	if (flags & CTA_FILTER_FLAG(CTA_PROTO_DST_PORT)) {
+		if (!tb[CTA_PROTO_DST_PORT])
+			return -EINVAL;
+
+		t->dst.u.tcp.port = nla_get_be16(tb[CTA_PROTO_DST_PORT]);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1845,6 +2926,7 @@ static void nf_conntrack_attach(struct sk_buff *nskb, const struct sk_buff *skb)
 	nf_conntrack_get(skb_nfct(nskb));
 }
 
+<<<<<<< HEAD
 static int nf_conntrack_update(struct net *net, struct sk_buff *skb)
 {
 	const struct nf_conntrack_l4proto *l4proto;
@@ -1854,24 +2936,42 @@ static int nf_conntrack_update(struct net *net, struct sk_buff *skb)
 	struct nf_nat_hook *nat_hook;
 	unsigned int status;
 	struct nf_conn *ct;
+=======
+static int __nf_conntrack_update(struct net *net, struct sk_buff *skb,
+				 struct nf_conn *ct,
+				 enum ip_conntrack_info ctinfo)
+{
+	struct nf_conntrack_tuple_hash *h;
+	struct nf_conntrack_tuple tuple;
+	struct nf_nat_hook *nat_hook;
+	unsigned int status;
+>>>>>>> upstream/android-13
 	int dataoff;
 	u16 l3num;
 	u8 l4num;
 
+<<<<<<< HEAD
 	ct = nf_ct_get(skb, &ctinfo);
 	if (!ct || nf_ct_is_confirmed(ct))
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	l3num = nf_ct_l3num(ct);
 
 	dataoff = get_l4proto(skb, skb_network_offset(skb), l3num, &l4num);
 	if (dataoff <= 0)
 		return -1;
 
+<<<<<<< HEAD
 	l4proto = nf_ct_l4proto_find_get(l3num, l4num);
 
 	if (!nf_ct_get_tuple(skb, skb_network_offset(skb), dataoff, l3num,
 			     l4num, net, &tuple, l4proto))
+=======
+	if (!nf_ct_get_tuple(skb, skb_network_offset(skb), dataoff, l3num,
+			     l4num, net, &tuple))
+>>>>>>> upstream/android-13
 		return -1;
 
 	if (ct->status & IPS_SRC_NAT) {
@@ -1920,6 +3020,81 @@ static int nf_conntrack_update(struct net *net, struct sk_buff *skb)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* This packet is coming from userspace via nf_queue, complete the packet
+ * processing after the helper invocation in nf_confirm().
+ */
+static int nf_confirm_cthelper(struct sk_buff *skb, struct nf_conn *ct,
+			       enum ip_conntrack_info ctinfo)
+{
+	const struct nf_conntrack_helper *helper;
+	const struct nf_conn_help *help;
+	int protoff;
+
+	help = nfct_help(ct);
+	if (!help)
+		return 0;
+
+	helper = rcu_dereference(help->helper);
+	if (!(helper->flags & NF_CT_HELPER_F_USERSPACE))
+		return 0;
+
+	switch (nf_ct_l3num(ct)) {
+	case NFPROTO_IPV4:
+		protoff = skb_network_offset(skb) + ip_hdrlen(skb);
+		break;
+#if IS_ENABLED(CONFIG_IPV6)
+	case NFPROTO_IPV6: {
+		__be16 frag_off;
+		u8 pnum;
+
+		pnum = ipv6_hdr(skb)->nexthdr;
+		protoff = ipv6_skip_exthdr(skb, sizeof(struct ipv6hdr), &pnum,
+					   &frag_off);
+		if (protoff < 0 || (frag_off & htons(~0x7)) != 0)
+			return 0;
+		break;
+	}
+#endif
+	default:
+		return 0;
+	}
+
+	if (test_bit(IPS_SEQ_ADJUST_BIT, &ct->status) &&
+	    !nf_is_loopback_packet(skb)) {
+		if (!nf_ct_seq_adjust(skb, ct, ctinfo, protoff)) {
+			NF_CT_STAT_INC_ATOMIC(nf_ct_net(ct), drop);
+			return -1;
+		}
+	}
+
+	/* We've seen it coming out the other side: confirm it */
+	return nf_conntrack_confirm(skb) == NF_DROP ? - 1 : 0;
+}
+
+static int nf_conntrack_update(struct net *net, struct sk_buff *skb)
+{
+	enum ip_conntrack_info ctinfo;
+	struct nf_conn *ct;
+	int err;
+
+	ct = nf_ct_get(skb, &ctinfo);
+	if (!ct)
+		return 0;
+
+	if (!nf_ct_is_confirmed(ct)) {
+		err = __nf_conntrack_update(net, skb, ct, ctinfo);
+		if (err < 0)
+			return err;
+
+		ct = nf_ct_get(skb, &ctinfo);
+	}
+
+	return nf_confirm_cthelper(skb, ct, ctinfo);
+}
+
+>>>>>>> upstream/android-13
 static bool nf_conntrack_get_tuple_skb(struct nf_conntrack_tuple *dst_tuple,
 				       const struct sk_buff *skb)
 {
@@ -1966,6 +3141,7 @@ get_next_corpse(int (*iter)(struct nf_conn *i, void *data),
 	spinlock_t *lockp;
 
 	for (; *bucket < nf_conntrack_htable_size; (*bucket)++) {
+<<<<<<< HEAD
 		lockp = &nf_conntrack_locks[*bucket % CONNTRACK_LOCKS];
 		local_bh_disable();
 		nf_conntrack_lock(lockp);
@@ -1977,6 +3153,33 @@ get_next_corpse(int (*iter)(struct nf_conn *i, void *data),
 				if (iter(ct, data))
 					goto found;
 			}
+=======
+		struct hlist_nulls_head *hslot = &nf_conntrack_hash[*bucket];
+
+		if (hlist_nulls_empty(hslot))
+			continue;
+
+		lockp = &nf_conntrack_locks[*bucket % CONNTRACK_LOCKS];
+		local_bh_disable();
+		nf_conntrack_lock(lockp);
+		hlist_nulls_for_each_entry(h, n, hslot, hnnode) {
+			if (NF_CT_DIRECTION(h) != IP_CT_DIR_REPLY)
+				continue;
+			/* All nf_conn objects are added to hash table twice, one
+			 * for original direction tuple, once for the reply tuple.
+			 *
+			 * Exception: In the IPS_NAT_CLASH case, only the reply
+			 * tuple is added (the original tuple already existed for
+			 * a different object).
+			 *
+			 * We only need to call the iterator once for each
+			 * conntrack, so we just use the 'reply' direction
+			 * tuple while iterating.
+			 */
+			ct = nf_ct_tuplehash_to_ctrack(h);
+			if (iter(ct, data))
+				goto found;
+>>>>>>> upstream/android-13
 		}
 		spin_unlock(lockp);
 		local_bh_enable();
@@ -1985,7 +3188,11 @@ get_next_corpse(int (*iter)(struct nf_conn *i, void *data),
 
 	return NULL;
 found:
+<<<<<<< HEAD
 	atomic_inc(&ct->ct_general.use);
+=======
+	refcount_inc(&ct->ct_general.use);
+>>>>>>> upstream/android-13
 	spin_unlock(lockp);
 	local_bh_enable();
 	return ct;
@@ -1994,11 +3201,16 @@ found:
 static void nf_ct_iterate_cleanup(int (*iter)(struct nf_conn *i, void *data),
 				  void *data, u32 portid, int report)
 {
+<<<<<<< HEAD
 	unsigned int bucket = 0, sequence;
+=======
+	unsigned int bucket = 0;
+>>>>>>> upstream/android-13
 	struct nf_conn *ct;
 
 	might_sleep();
 
+<<<<<<< HEAD
 	for (;;) {
 		sequence = read_seqcount_begin(&nf_conntrack_generation);
 
@@ -2014,6 +3226,17 @@ static void nf_ct_iterate_cleanup(int (*iter)(struct nf_conn *i, void *data),
 			break;
 		bucket = 0;
 	}
+=======
+	mutex_lock(&nf_conntrack_mutex);
+	while ((ct = get_next_corpse(iter, data, &bucket)) != NULL) {
+		/* Time to push up daises... */
+
+		nf_ct_delete(ct, portid, report);
+		nf_ct_put(ct);
+		cond_resched();
+	}
+	mutex_unlock(&nf_conntrack_mutex);
+>>>>>>> upstream/android-13
 }
 
 struct iter_data {
@@ -2062,9 +3285,17 @@ __nf_ct_unconfirmed_destroy(struct net *net)
 
 void nf_ct_unconfirmed_destroy(struct net *net)
 {
+<<<<<<< HEAD
 	might_sleep();
 
 	if (atomic_read(&net->ct.count) > 0) {
+=======
+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+
+	might_sleep();
+
+	if (atomic_read(&cnet->count) > 0) {
+>>>>>>> upstream/android-13
 		__nf_ct_unconfirmed_destroy(net);
 		nf_queue_nf_hook_drop(net);
 		synchronize_net();
@@ -2076,11 +3307,19 @@ void nf_ct_iterate_cleanup_net(struct net *net,
 			       int (*iter)(struct nf_conn *i, void *data),
 			       void *data, u32 portid, int report)
 {
+<<<<<<< HEAD
+=======
+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+>>>>>>> upstream/android-13
 	struct iter_data d;
 
 	might_sleep();
 
+<<<<<<< HEAD
 	if (atomic_read(&net->ct.count) == 0)
+=======
+	if (atomic_read(&cnet->count) == 0)
+>>>>>>> upstream/android-13
 		return;
 
 	d.iter = iter;
@@ -2109,7 +3348,13 @@ nf_ct_iterate_destroy(int (*iter)(struct nf_conn *i, void *data), void *data)
 
 	down_read(&net_rwsem);
 	for_each_net(net) {
+<<<<<<< HEAD
 		if (atomic_read(&net->ct.count) == 0)
+=======
+		struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+
+		if (atomic_read(&cnet->count) == 0)
+>>>>>>> upstream/android-13
 			continue;
 		__nf_ct_unconfirmed_destroy(net);
 		nf_queue_nf_hook_drop(net);
@@ -2189,8 +3434,15 @@ void nf_conntrack_cleanup_net_list(struct list_head *net_exit_list)
 i_see_dead_people:
 	busy = 0;
 	list_for_each_entry(net, net_exit_list, exit_list) {
+<<<<<<< HEAD
 		nf_ct_iterate_cleanup(kill_all, net, 0, 0);
 		if (atomic_read(&net->ct.count) != 0)
+=======
+		struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+
+		nf_ct_iterate_cleanup(kill_all, net, 0, 0);
+		if (atomic_read(&cnet->count) != 0)
+>>>>>>> upstream/android-13
 			busy = 1;
 	}
 	if (busy) {
@@ -2199,11 +3451,15 @@ i_see_dead_people:
 	}
 
 	list_for_each_entry(net, net_exit_list, exit_list) {
+<<<<<<< HEAD
 		nf_conntrack_proto_pernet_fini(net);
 		nf_conntrack_helper_pernet_fini(net);
 		nf_conntrack_ecache_pernet_fini(net);
 		nf_conntrack_tstamp_pernet_fini(net);
 		nf_conntrack_acct_pernet_fini(net);
+=======
+		nf_conntrack_ecache_pernet_fini(net);
+>>>>>>> upstream/android-13
 		nf_conntrack_expect_pernet_fini(net);
 		free_percpu(net->ct.stat);
 		free_percpu(net->ct.pcpu_lists);
@@ -2221,8 +3477,12 @@ void *nf_ct_alloc_hashtable(unsigned int *sizep, int nulls)
 	BUILD_BUG_ON(sizeof(struct hlist_nulls_head) != sizeof(struct hlist_head));
 	nr_slots = *sizep = roundup(*sizep, PAGE_SIZE / sizeof(struct hlist_nulls_head));
 
+<<<<<<< HEAD
 	hash = kvmalloc_array(nr_slots, sizeof(struct hlist_nulls_head),
 			      GFP_KERNEL | __GFP_ZERO);
+=======
+	hash = kvcalloc(nr_slots, sizeof(struct hlist_nulls_head), GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (hash && nulls)
 		for (i = 0; i < nr_slots; i++)
@@ -2247,8 +3507,15 @@ int nf_conntrack_hash_resize(unsigned int hashsize)
 	if (!hash)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	old_size = nf_conntrack_htable_size;
 	if (old_size == hashsize) {
+=======
+	mutex_lock(&nf_conntrack_mutex);
+	old_size = nf_conntrack_htable_size;
+	if (old_size == hashsize) {
+		mutex_unlock(&nf_conntrack_mutex);
+>>>>>>> upstream/android-13
 		kvfree(hash);
 		return 0;
 	}
@@ -2265,12 +3532,24 @@ int nf_conntrack_hash_resize(unsigned int hashsize)
 
 	for (i = 0; i < nf_conntrack_htable_size; i++) {
 		while (!hlist_nulls_empty(&nf_conntrack_hash[i])) {
+<<<<<<< HEAD
+=======
+			unsigned int zone_id;
+
+>>>>>>> upstream/android-13
 			h = hlist_nulls_entry(nf_conntrack_hash[i].first,
 					      struct nf_conntrack_tuple_hash, hnnode);
 			ct = nf_ct_tuplehash_to_ctrack(h);
 			hlist_nulls_del_rcu(&h->hnnode);
+<<<<<<< HEAD
 			bucket = __hash_conntrack(nf_ct_net(ct),
 						  &h->tuple, hashsize);
+=======
+
+			zone_id = nf_ct_zone_id(nf_ct_zone(ct), NF_CT_DIRECTION(h));
+			bucket = __hash_conntrack(nf_ct_net(ct),
+						  &h->tuple, zone_id, hashsize);
+>>>>>>> upstream/android-13
 			hlist_nulls_add_head_rcu(&h->hnnode, &hash[bucket]);
 		}
 	}
@@ -2284,6 +3563,11 @@ int nf_conntrack_hash_resize(unsigned int hashsize)
 	nf_conntrack_all_unlock();
 	local_bh_enable();
 
+<<<<<<< HEAD
+=======
+	mutex_unlock(&nf_conntrack_mutex);
+
+>>>>>>> upstream/android-13
 	synchronize_net();
 	kvfree(old_hash);
 	return 0;
@@ -2307,7 +3591,10 @@ int nf_conntrack_set_hashsize(const char *val, const struct kernel_param *kp)
 
 	return nf_conntrack_hash_resize(hashsize);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(nf_conntrack_set_hashsize);
+=======
+>>>>>>> upstream/android-13
 
 static __always_inline unsigned int total_extension_size(void)
 {
@@ -2341,6 +3628,10 @@ static __always_inline unsigned int total_extension_size(void)
 
 int nf_conntrack_init_start(void)
 {
+<<<<<<< HEAD
+=======
+	unsigned long nr_pages = totalram_pages();
+>>>>>>> upstream/android-13
 	int max_factor = 8;
 	int ret = -ENOMEM;
 	int i;
@@ -2348,12 +3639,18 @@ int nf_conntrack_init_start(void)
 	/* struct nf_ct_ext uses u8 to store offsets/size */
 	BUILD_BUG_ON(total_extension_size() > 255u);
 
+<<<<<<< HEAD
 	seqcount_init(&nf_conntrack_generation);
+=======
+	seqcount_spinlock_init(&nf_conntrack_generation,
+			       &nf_conntrack_locks_all_lock);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < CONNTRACK_LOCKS; i++)
 		spin_lock_init(&nf_conntrack_locks[i]);
 
 	if (!nf_conntrack_htable_size) {
+<<<<<<< HEAD
 		/* Idea from tcp.c: use 1/16384 of memory.
 		 * On i386: 32MB machine has 512 buckets.
 		 * >= 1GB machines have 16384 buckets.
@@ -2374,6 +3671,26 @@ int nf_conntrack_init_start(void)
 		 * we use the old value of 8 to avoid reducing the max.
 		 * entries. */
 		max_factor = 4;
+=======
+		nf_conntrack_htable_size
+			= (((nr_pages << PAGE_SHIFT) / 16384)
+			   / sizeof(struct hlist_head));
+		if (BITS_PER_LONG >= 64 &&
+		    nr_pages > (4 * (1024 * 1024 * 1024 / PAGE_SIZE)))
+			nf_conntrack_htable_size = 262144;
+		else if (nr_pages > (1024 * 1024 * 1024 / PAGE_SIZE))
+			nf_conntrack_htable_size = 65536;
+
+		if (nf_conntrack_htable_size < 1024)
+			nf_conntrack_htable_size = 1024;
+		/* Use a max. factor of one by default to keep the average
+		 * hash chain length at 2 entries.  Each entry has to be added
+		 * twice (once for original direction, once for reply).
+		 * When a table size is given we use the old value of 8 to
+		 * avoid implicit reduction of the max entries setting.
+		 */
+		max_factor = 1;
+>>>>>>> upstream/android-13
 	}
 
 	nf_conntrack_hash = nf_ct_alloc_hashtable(&nf_conntrack_htable_size, 1);
@@ -2455,7 +3772,11 @@ err_cachep:
 
 static struct nf_ct_hook nf_conntrack_hook = {
 	.update		= nf_conntrack_update,
+<<<<<<< HEAD
 	.destroy	= destroy_conntrack,
+=======
+	.destroy	= nf_ct_destroy,
+>>>>>>> upstream/android-13
 	.get_tuple_skb  = nf_conntrack_get_tuple_skb,
 };
 
@@ -2471,15 +3792,27 @@ void nf_conntrack_init_end(void)
  */
 #define UNCONFIRMED_NULLS_VAL	((1<<30)+0)
 #define DYING_NULLS_VAL		((1<<30)+1)
+<<<<<<< HEAD
 #define TEMPLATE_NULLS_VAL	((1<<30)+2)
 
 int nf_conntrack_init_net(struct net *net)
 {
+=======
+
+int nf_conntrack_init_net(struct net *net)
+{
+	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+>>>>>>> upstream/android-13
 	int ret = -ENOMEM;
 	int cpu;
 
 	BUILD_BUG_ON(IP_CT_UNTRACKED == IP_CT_NUMBER);
+<<<<<<< HEAD
 	atomic_set(&net->ct.count, 0);
+=======
+	BUILD_BUG_ON_NOT_POWER_OF_2(CONNTRACK_LOCKS);
+	atomic_set(&cnet->count, 0);
+>>>>>>> upstream/android-13
 
 	net->ct.pcpu_lists = alloc_percpu(struct ct_pcpu);
 	if (!net->ct.pcpu_lists)
@@ -2500,6 +3833,7 @@ int nf_conntrack_init_net(struct net *net)
 	ret = nf_conntrack_expect_pernet_init(net);
 	if (ret < 0)
 		goto err_expect;
+<<<<<<< HEAD
 	ret = nf_conntrack_acct_pernet_init(net);
 	if (ret < 0)
 		goto err_acct;
@@ -2527,6 +3861,17 @@ err_tstamp:
 	nf_conntrack_acct_pernet_fini(net);
 err_acct:
 	nf_conntrack_expect_pernet_fini(net);
+=======
+
+	nf_conntrack_acct_pernet_init(net);
+	nf_conntrack_tstamp_pernet_init(net);
+	nf_conntrack_ecache_pernet_init(net);
+	nf_conntrack_helper_pernet_init(net);
+	nf_conntrack_proto_pernet_init(net);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 err_expect:
 	free_percpu(net->ct.stat);
 err_pcpu_lists:

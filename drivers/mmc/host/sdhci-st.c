@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Support for SDHCI on STMicroelectronics SoCs
  *
@@ -6,6 +10,7 @@
  * Contributors: Peter Griffin <peter.griffin@linaro.org>
  *
  * Based on sdhci-cns3xxx.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -371,11 +378,18 @@ static int sdhci_st_probe(struct platform_device *pdev)
 	if (IS_ERR(icnclk))
 		icnclk = NULL;
 
+<<<<<<< HEAD
 	rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
 	if (IS_ERR(rstc))
 		rstc = NULL;
 	else
 		reset_control_deassert(rstc);
+=======
+	rstc = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
+	if (IS_ERR(rstc))
+		return PTR_ERR(rstc);
+	reset_control_deassert(rstc);
+>>>>>>> upstream/android-13
 
 	host = sdhci_pltfm_init(pdev, &sdhci_st_pdata, sizeof(*pdata));
 	if (IS_ERR(host)) {
@@ -410,10 +424,15 @@ static int sdhci_st_probe(struct platform_device *pdev)
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 					   "top-mmc-delay");
 	pdata->top_ioaddr = devm_ioremap_resource(&pdev->dev, res);
+<<<<<<< HEAD
 	if (IS_ERR(pdata->top_ioaddr)) {
 		dev_warn(&pdev->dev, "FlashSS Top Dly registers not available");
 		pdata->top_ioaddr = NULL;
 	}
+=======
+	if (IS_ERR(pdata->top_ioaddr))
+		pdata->top_ioaddr = NULL;
+>>>>>>> upstream/android-13
 
 	pltfm_host->clk = clk;
 	pdata->icnclk = icnclk;
@@ -441,8 +460,12 @@ err_icnclk:
 err_of:
 	sdhci_pltfm_free(pdev);
 err_pltfm_init:
+<<<<<<< HEAD
 	if (rstc)
 		reset_control_assert(rstc);
+=======
+	reset_control_assert(rstc);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -459,8 +482,12 @@ static int sdhci_st_remove(struct platform_device *pdev)
 
 	clk_disable_unprepare(pdata->icnclk);
 
+<<<<<<< HEAD
 	if (rstc)
 		reset_control_assert(rstc);
+=======
+	reset_control_assert(rstc);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -480,8 +507,12 @@ static int sdhci_st_suspend(struct device *dev)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	if (pdata->rstc)
 		reset_control_assert(pdata->rstc);
+=======
+	reset_control_assert(pdata->rstc);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(pdata->icnclk);
 	clk_disable_unprepare(pltfm_host->clk);
@@ -507,8 +538,12 @@ static int sdhci_st_resume(struct device *dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (pdata->rstc)
 		reset_control_deassert(pdata->rstc);
+=======
+	reset_control_deassert(pdata->rstc);
+>>>>>>> upstream/android-13
 
 	st_mmcss_cconfig(np, host);
 
@@ -530,8 +565,14 @@ static struct platform_driver sdhci_st_driver = {
 	.remove = sdhci_st_remove,
 	.driver = {
 		   .name = "sdhci-st",
+<<<<<<< HEAD
 		   .pm = &sdhci_st_pmops,
 		   .of_match_table = of_match_ptr(st_sdhci_match),
+=======
+		   .probe_type = PROBE_PREFER_ASYNCHRONOUS,
+		   .pm = &sdhci_st_pmops,
+		   .of_match_table = st_sdhci_match,
+>>>>>>> upstream/android-13
 		  },
 };
 

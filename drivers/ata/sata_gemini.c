@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Cortina Systems Gemini SATA bridge add-on to Faraday FTIDE010
  * Copyright (C) 2017 Linus Walleij <linus.walleij@linaro.org>

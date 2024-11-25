@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  leds-blinkm.c
  *  (c) Jan-Simon Möller (dl9pf@gmx.de)
@@ -15,6 +16,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  leds-blinkm.c
+ *  (c) Jan-Simon Möller (dl9pf@gmx.de)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -205,13 +212,21 @@ static int store_color_common(struct device *dev, const char *buf, int color)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t show_red(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t red_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	return show_color_common(dev, buf, RED);
 }
 
+<<<<<<< HEAD
 static ssize_t store_red(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t red_store(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			 const char *buf, size_t count)
 {
 	int ret;
@@ -222,15 +237,25 @@ static ssize_t store_red(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(red, S_IRUGO | S_IWUSR, show_red, store_red);
 
 static ssize_t show_green(struct device *dev, struct device_attribute *attr,
+=======
+static DEVICE_ATTR_RW(red);
+
+static ssize_t green_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  char *buf)
 {
 	return show_color_common(dev, buf, GREEN);
 }
 
+<<<<<<< HEAD
 static ssize_t store_green(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t green_store(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			   const char *buf, size_t count)
 {
 
@@ -242,15 +267,25 @@ static ssize_t store_green(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(green, S_IRUGO | S_IWUSR, show_green, store_green);
 
 static ssize_t show_blue(struct device *dev, struct device_attribute *attr,
+=======
+static DEVICE_ATTR_RW(green);
+
+static ssize_t blue_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	return show_color_common(dev, buf, BLUE);
 }
 
+<<<<<<< HEAD
 static ssize_t store_blue(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t blue_store(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  const char *buf, size_t count)
 {
 	int ret;
@@ -261,16 +296,26 @@ static ssize_t store_blue(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(blue, S_IRUGO | S_IWUSR, show_blue, store_blue);
 
 static ssize_t show_test(struct device *dev, struct device_attribute *attr,
+=======
+static DEVICE_ATTR_RW(blue);
+
+static ssize_t test_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	return scnprintf(buf, PAGE_SIZE,
 			 "#Write into test to start test sequence!#\n");
 }
 
+<<<<<<< HEAD
 static ssize_t store_test(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t test_store(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			  const char *buf, size_t count)
 {
 
@@ -286,7 +331,11 @@ static ssize_t store_test(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(test, S_IRUGO | S_IWUSR, show_test, store_test);
+=======
+static DEVICE_ATTR_RW(test);
+>>>>>>> upstream/android-13
 
 /* TODO: HSB, fade, timeadj, script ... */
 
@@ -493,9 +542,14 @@ static int blinkm_led_blue_set(struct led_classdev *led_cdev,
 
 static void blinkm_init_hw(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	int ret;
 	ret = blinkm_transfer_hw(client, BLM_STOP_SCRIPT);
 	ret = blinkm_transfer_hw(client, BLM_GO_RGB);
+=======
+	blinkm_transfer_hw(client, BLM_STOP_SCRIPT);
+	blinkm_transfer_hw(client, BLM_GO_RGB);
+>>>>>>> upstream/android-13
 }
 
 static int blinkm_test_run(struct i2c_client *client)
@@ -594,7 +648,10 @@ static int blinkm_probe(struct i2c_client *client,
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	data->i2c_addr = 0x09;
+=======
+>>>>>>> upstream/android-13
 	data->i2c_addr = 0x08;
 	/* i2c addr  - use fake addr of 0x08 initially (real is 0x09) */
 	data->fw_ver = 0xfe;

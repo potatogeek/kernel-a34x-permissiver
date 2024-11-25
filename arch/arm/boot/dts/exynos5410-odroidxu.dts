@@ -19,6 +19,13 @@
 	model = "Hardkernel Odroid XU";
 	compatible = "hardkernel,odroid-xu", "samsung,exynos5410", "samsung,exynos5";
 
+<<<<<<< HEAD
+=======
+	aliases {
+		ethernet = &ethernet;
+	};
+
+>>>>>>> upstream/android-13
 	memory@40000000 {
 		device_type = "memory";
 		reg = <0x40000000 0x7ea00000>;
@@ -38,8 +45,11 @@
 	fan0: pwm-fan {
 		compatible = "pwm-fan";
 		pwms = <&pwm 0 20972 0>;
+<<<<<<< HEAD
 		cooling-min-state = <0>;
 		cooling-max-state = <3>;
+=======
+>>>>>>> upstream/android-13
 		#cooling-cells = <2>;
 		cooling-levels = <0 130 170 230>;
 	};
@@ -87,6 +97,14 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&adc {
+	vdd-supply = <&ldo10_reg>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &audi2s0 {
 	status = "okay";
 };
@@ -106,10 +124,17 @@
 	assigned-clock-parents = <&clock CLK_FOUT_EPLL>,
 			<&clock_audss EXYNOS_MOUT_AUDSS>;
 
+<<<<<<< HEAD
 	assigned-clock-rates =  <0>,
 				<0>,
 				<96000000>,
 				<19200000>;
+=======
+	assigned-clock-rates = <0>,
+			       <0>,
+			       <96000000>,
+			       <19200000>;
+>>>>>>> upstream/android-13
 };
 
 &cpu0_thermal {
@@ -167,7 +192,11 @@
 
 		intn-gpios = <&gpx0 7 GPIO_ACTIVE_HIGH>;
 		connect-gpios = <&gpx0 6 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
 		reset-gpios = <&gpx1 4 GPIO_ACTIVE_HIGH>;
+=======
+		reset-gpios = <&gpx1 4 GPIO_ACTIVE_LOW>;
+>>>>>>> upstream/android-13
 		initial-mode = <1>;
 
 		clock-names = "refclk";
@@ -183,6 +212,10 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&max77802_irq>, <&pmic_dvs_1>, <&pmic_dvs_2>,
 			    <&pmic_dvs_3>;
+<<<<<<< HEAD
+=======
+		wakeup-source;
+>>>>>>> upstream/android-13
 		#clock-cells = <1>;
 
 		inl1-supply = <&buck5_reg>;
@@ -497,7 +530,11 @@
 
 &i2c_1 {
 	status = "okay";
+<<<<<<< HEAD
 	max98090: max98090@10 {
+=======
+	max98090: audio-codec@10 {
+>>>>>>> upstream/android-13
 		compatible = "maxim,max98090";
 		reg = <0x10>;
 		interrupt-parent = <&gpj3>;
@@ -532,7 +569,11 @@
 	samsung,dw-mshc-sdr-timing = <0 4>;
 	samsung,dw-mshc-ddr-timing = <0 2>;
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus1 &sd2_bus4>;
+=======
+	pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus1 &sd2_bus4 &sd2_wp>;
+>>>>>>> upstream/android-13
 	bus-width = <4>;
 	cap-sd-highspeed;
 	vmmc-supply = <&ldo21_reg>;
@@ -547,6 +588,17 @@
 		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
 	};
 
+<<<<<<< HEAD
+=======
+	sd2_wp: sd2-wp {
+		samsung,pins = "gpm5-0";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
+		/* Pin is floating so be sure to disable write-protect */
+		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
+		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV4>;
+	};
+
+>>>>>>> upstream/android-13
 	pmic_dvs_3: pmic-dvs-3 {
 		samsung,pins = "gpx0-0";
 		samsung,pin-function = <EXYNOS_PIN_FUNC_OUTPUT>;
@@ -627,6 +679,19 @@
 	vtmu-supply = <&ldo10_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&usb3_0_oc {
+	/* External pull up */
+	samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+};
+
+&usb3_1_oc {
+	/* External pull up */
+	samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+};
+
+>>>>>>> upstream/android-13
 &usbdrd_dwc3_0 {
 	dr_mode = "peripheral";
 };
@@ -644,3 +709,17 @@
 	vdd33-supply = <&ldo12_reg>;
 	vdd10-supply = <&ldo15_reg>;
 };
+<<<<<<< HEAD
+=======
+
+&usbhost2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	ethernet: usbether@2 {
+		compatible = "usb0424,9730";
+		reg = <2>;
+		local-mac-address = [00 00 00 00 00 00]; /* Filled in by a bootloader */
+	};
+};
+>>>>>>> upstream/android-13

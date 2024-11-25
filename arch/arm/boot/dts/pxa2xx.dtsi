@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * pxa2xx.dtsi - Device Tree Include file for Marvell PXA2xx family SoC
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
  */
@@ -10,6 +15,34 @@
 #include "dt-bindings/clock/pxa-clock.h"
 
 / {
+=======
+ */
+
+#include "dt-bindings/clock/pxa-clock.h"
+
+#define PMGROUP(pin) #pin
+#define PMMUX(func, pin, af)			\
+	mux- ## func {				\
+		groups = PMGROUP(P ## pin);	\
+		function = #af;			\
+	}
+#define PMMUX_LPM_LOW(func, pin, af)		\
+	mux- ## func {				\
+		groups = PMGROUP(P ## pin);	\
+		function = #af;			\
+		low-power-disable;		\
+	}
+#define PMMUX_LPM_HIGH(func, pin, af)		\
+	mux- ## func {				\
+		groups = PMGROUP(P ## pin);	\
+		function = #af;			\
+		low-power-enable;		\
+	}
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "Marvell PXA2xx family SoC";
 	compatible = "marvell,pxa2xx";
 	interrupt-parent = <&pxairq>;
@@ -24,8 +57,11 @@
 	};
 
 	cpus {
+<<<<<<< HEAD
 		#address-cells = <0>;
 		#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 		cpu {
 			compatible = "marvell,xscale";
 			device_type = "cpu";
@@ -76,7 +112,11 @@
 			};
 		};
 
+<<<<<<< HEAD
 		ffuart: uart@40100000 {
+=======
+		ffuart: serial@40100000 {
+>>>>>>> upstream/android-13
 			compatible = "mrvl,pxa-uart";
 			reg = <0x40100000 0x30>;
 			interrupts = <22>;
@@ -84,7 +124,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		btuart: uart@40200000 {
+=======
+		btuart: serial@40200000 {
+>>>>>>> upstream/android-13
 			compatible = "mrvl,pxa-uart";
 			reg = <0x40200000 0x30>;
 			interrupts = <21>;
@@ -92,7 +136,11 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		stuart: uart@40700000 {
+=======
+		stuart: serial@40700000 {
+>>>>>>> upstream/android-13
 			compatible = "mrvl,pxa-uart";
 			reg = <0x40700000 0x30>;
 			interrupts = <20>;
@@ -100,9 +148,15 @@
 			status = "disabled";
 		};
 
+<<<<<<< HEAD
 		hwuart: uart@41100000 {
 			compatible = "mrvl,pxa-uart";
 			reg = <0x41100000 0x30>;
+=======
+		hwuart: serial@41600000 {
+			compatible = "mrvl,pxa-uart";
+			reg = <0x41600000 0x30>;
+>>>>>>> upstream/android-13
 			interrupts = <7>;
 			status = "disabled";
 		};

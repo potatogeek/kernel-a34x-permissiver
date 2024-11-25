@@ -6,15 +6,27 @@
  * Author: Matt Ranostay <matt.ranostay@konsulko.com>
  *
  * Datasheets:
+<<<<<<< HEAD
  * http://www.ti.com/product/HDC1000/datasheet
  * http://www.ti.com/product/HDC1008/datasheet
  * http://www.ti.com/product/HDC1010/datasheet
  * http://www.ti.com/product/HDC1050/datasheet
  * http://www.ti.com/product/HDC1080/datasheet
+=======
+ * https://www.ti.com/product/HDC1000/datasheet
+ * https://www.ti.com/product/HDC1008/datasheet
+ * https://www.ti.com/product/HDC1010/datasheet
+ * https://www.ti.com/product/HDC1050/datasheet
+ * https://www.ti.com/product/HDC1080/datasheet
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/i2c.h>
 
@@ -24,6 +36,11 @@
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
 
+<<<<<<< HEAD
+=======
+#include <linux/time.h>
+
+>>>>>>> upstream/android-13
 #define HDC100X_REG_TEMP			0x00
 #define HDC100X_REG_HUMIDITY			0x01
 
@@ -165,7 +182,11 @@ static int hdc100x_get_measurement(struct hdc100x_data *data,
 				   struct iio_chan_spec const *chan)
 {
 	struct i2c_client *client = data->client;
+<<<<<<< HEAD
 	int delay = data->adc_int_us[chan->address];
+=======
+	int delay = data->adc_int_us[chan->address] + 1*USEC_PER_MSEC;
+>>>>>>> upstream/android-13
 	int ret;
 	__be16 val;
 
@@ -288,10 +309,15 @@ static int hdc100x_buffer_postenable(struct iio_dev *indio_dev)
 	ret = hdc100x_update_config(data, HDC100X_REG_CONFIG_ACQ_MODE,
 				    HDC100X_REG_CONFIG_ACQ_MODE);
 	mutex_unlock(&data->lock);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
 
 	return iio_triggered_buffer_postenable(indio_dev);
+=======
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int hdc100x_buffer_predisable(struct iio_dev *indio_dev)
@@ -299,11 +325,14 @@ static int hdc100x_buffer_predisable(struct iio_dev *indio_dev)
 	struct hdc100x_data *data = iio_priv(indio_dev);
 	int ret;
 
+<<<<<<< HEAD
 	/* First detach poll func, then reset ACQ mode. OK to disable buffer */
 	ret = iio_triggered_buffer_predisable(indio_dev);
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&data->lock);
 	ret = hdc100x_update_config(data, HDC100X_REG_CONFIG_ACQ_MODE, 0);
 	mutex_unlock(&data->lock);
@@ -322,7 +351,11 @@ static irqreturn_t hdc100x_trigger_handler(int irq, void *p)
 	struct iio_dev *indio_dev = pf->indio_dev;
 	struct hdc100x_data *data = iio_priv(indio_dev);
 	struct i2c_client *client = data->client;
+<<<<<<< HEAD
 	int delay = data->adc_int_us[0] + data->adc_int_us[1];
+=======
+	int delay = data->adc_int_us[0] + data->adc_int_us[1] + 2*USEC_PER_MSEC;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* dual read starts at temp register */
@@ -375,7 +408,10 @@ static int hdc100x_probe(struct i2c_client *client,
 	data->client = client;
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&client->dev);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &hdc100x_info;
@@ -389,13 +425,19 @@ static int hdc100x_probe(struct i2c_client *client,
 	hdc100x_set_it_time(data, 1, hdc100x_int_time[1][0]);
 	hdc100x_update_config(data, HDC100X_REG_CONFIG_ACQ_MODE, 0);
 
+<<<<<<< HEAD
 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
+=======
+	ret = devm_iio_triggered_buffer_setup(&client->dev,
+					 indio_dev, NULL,
+>>>>>>> upstream/android-13
 					 hdc100x_trigger_handler,
 					 &hdc_buffer_setup_ops);
 	if (ret < 0) {
 		dev_err(&client->dev, "iio triggered buffer setup failed\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	ret = iio_device_register(indio_dev);
 	if (ret < 0)
 		iio_triggered_buffer_cleanup(indio_dev);
@@ -411,6 +453,10 @@ static int hdc100x_remove(struct i2c_client *client)
 	iio_triggered_buffer_cleanup(indio_dev);
 
 	return 0;
+=======
+
+	return devm_iio_device_register(&client->dev, indio_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id hdc100x_id[] = {
@@ -437,10 +483,16 @@ MODULE_DEVICE_TABLE(of, hdc100x_dt_ids);
 static struct i2c_driver hdc100x_driver = {
 	.driver = {
 		.name	= "hdc100x",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(hdc100x_dt_ids),
 	},
 	.probe = hdc100x_probe,
 	.remove = hdc100x_remove,
+=======
+		.of_match_table = hdc100x_dt_ids,
+	},
+	.probe = hdc100x_probe,
+>>>>>>> upstream/android-13
 	.id_table = hdc100x_id,
 };
 module_i2c_driver(hdc100x_driver);

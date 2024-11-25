@@ -12,11 +12,15 @@ enum dphy3_algo {
 };
 
 struct mmp_camera_platform_data {
+<<<<<<< HEAD
 	struct platform_device *i2c_device;
 	int sensor_power_gpio;
 	int sensor_reset_gpio;
 	enum v4l2_mbus_type bus_type;
 	int mclk_min;	/* The minimal value of MCLK */
+=======
+	enum v4l2_mbus_type bus_type;
+>>>>>>> upstream/android-13
 	int mclk_src;	/* which clock source the MCLK derives from */
 	int mclk_div;	/* Clock Divider Value for MCLK */
 	/*

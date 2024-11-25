@@ -3,7 +3,11 @@
  *
  * Module Name: dsmethod - Parser/Interpreter interface - control method parsing
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -532,6 +536,12 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
 		goto cleanup;
 	}
 
+<<<<<<< HEAD
+=======
+	next_walk_state->method_nesting_depth =
+	    this_walk_state->method_nesting_depth + 1;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Delete the operands on the previous walkstate operand stack
 	 * (they were copied to new objects)
@@ -549,6 +559,20 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
 			  "**** Begin nested execution of [%4.4s] **** WalkState=%p\n",
 			  method_node->name.ascii, next_walk_state));
 
+<<<<<<< HEAD
+=======
+	this_walk_state->method_pathname =
+	    acpi_ns_get_normalized_pathname(method_node, TRUE);
+	this_walk_state->method_is_nested = TRUE;
+
+	/* Optional object evaluation log */
+
+	ACPI_DEBUG_PRINT_RAW((ACPI_DB_EVALUATION,
+			      "%-26s:  %*s%s\n", "   Nested method call",
+			      next_walk_state->method_nesting_depth * 3, " ",
+			      &this_walk_state->method_pathname[1]));
+
+>>>>>>> upstream/android-13
 	/* Invoke an internal method if necessary */
 
 	if (obj_desc->method.info_flags & ACPI_METHOD_INTERNAL_ONLY) {

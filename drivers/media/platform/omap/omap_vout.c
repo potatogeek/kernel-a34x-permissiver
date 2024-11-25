@@ -40,9 +40,15 @@
 #include <linux/dma-mapping.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
 #include <media/videobuf-dma-contig.h>
 #include <media/v4l2-device.h>
 #include <media/v4l2-ioctl.h>
+=======
+#include <media/v4l2-device.h>
+#include <media/v4l2-ioctl.h>
+#include <media/v4l2-event.h>
+>>>>>>> upstream/android-13
 
 #include <video/omapvrfb.h>
 #include <video/omapfb_dss.h>
@@ -63,17 +69,22 @@ enum omap_vout_channels {
 	OMAP_VIDEO2,
 };
 
+<<<<<<< HEAD
 static struct videobuf_queue_ops video_vbq_ops;
 /* Variables configurable through module params*/
 static u32 video1_numbuffers = 3;
 static u32 video2_numbuffers = 3;
 static u32 video1_bufsize = OMAP_VOUT_MAX_BUF_SIZE;
 static u32 video2_bufsize = OMAP_VOUT_MAX_BUF_SIZE;
+=======
+/* Variables configurable through module params*/
+>>>>>>> upstream/android-13
 static bool vid1_static_vrfb_alloc;
 static bool vid2_static_vrfb_alloc;
 static bool debug;
 
 /* Module parameters */
+<<<<<<< HEAD
 module_param(video1_numbuffers, uint, S_IRUGO);
 MODULE_PARM_DESC(video1_numbuffers,
 	"Number of buffers to be allocated at init time for Video1 device.");
@@ -90,6 +101,8 @@ module_param(video2_bufsize, uint, S_IRUGO);
 MODULE_PARM_DESC(video2_bufsize,
 	"Size of the buffer to be allocated for video2 device");
 
+=======
+>>>>>>> upstream/android-13
 module_param(vid1_static_vrfb_alloc, bool, S_IRUGO);
 MODULE_PARM_DESC(vid1_static_vrfb_alloc,
 	"Static allocation of the VRFB buffer for video1 device");
@@ -114,14 +127,20 @@ static const struct v4l2_fmtdesc omap_formats[] = {
 		 *      Byte 0                    Byte 1
 		 *      g2 g1 g0 b4 b3 b2 b1 b0   r4 r3 r2 r1 r0 g5 g4 g3
 		 */
+<<<<<<< HEAD
 		.description = "RGB565, le",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat = V4L2_PIX_FMT_RGB565,
 	},
 	{
 		/* Note:  V4L2 defines RGB32 as: RGB-8-8-8-8  we use
 		 *  this for RGB24 unpack mode, the last 8 bits are ignored
 		 * */
+<<<<<<< HEAD
 		.description = "RGB32, le",
+=======
+>>>>>>> upstream/android-13
 		.pixelformat = V4L2_PIX_FMT_RGB32,
 	},
 	{
@@ -129,6 +148,7 @@ static const struct v4l2_fmtdesc omap_formats[] = {
 		 *        this for RGB24 packed mode
 		 *
 		 */
+<<<<<<< HEAD
 		.description = "RGB24, le",
 		.pixelformat = V4L2_PIX_FMT_RGB24,
 	},
@@ -138,6 +158,14 @@ static const struct v4l2_fmtdesc omap_formats[] = {
 	},
 	{
 		.description = "UYVY, packed",
+=======
+		.pixelformat = V4L2_PIX_FMT_RGB24,
+	},
+	{
+		.pixelformat = V4L2_PIX_FMT_YUYV,
+	},
+	{
+>>>>>>> upstream/android-13
 		.pixelformat = V4L2_PIX_FMT_UYVY,
 	},
 };
@@ -164,13 +192,21 @@ static int omap_vout_try_format(struct v4l2_pix_format *pix)
 		ifmt = 0;
 
 	pix->pixelformat = omap_formats[ifmt].pixelformat;
+<<<<<<< HEAD
 	pix->field = V4L2_FIELD_ANY;
+=======
+	pix->field = V4L2_FIELD_NONE;
+>>>>>>> upstream/android-13
 
 	switch (pix->pixelformat) {
 	case V4L2_PIX_FMT_YUYV:
 	case V4L2_PIX_FMT_UYVY:
 	default:
+<<<<<<< HEAD
 		pix->colorspace = V4L2_COLORSPACE_JPEG;
+=======
+		pix->colorspace = V4L2_COLORSPACE_SRGB;
+>>>>>>> upstream/android-13
 		bpp = YUYV_BPP;
 		break;
 	case V4L2_PIX_FMT_RGB565:
@@ -195,6 +231,7 @@ static int omap_vout_try_format(struct v4l2_pix_format *pix)
 }
 
 /*
+<<<<<<< HEAD
  * omap_vout_get_userptr: Convert user space virtual address to physical
  * address.
  */
@@ -245,6 +282,8 @@ void omap_vout_free_buffers(struct omap_vout_device *vout)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Convert V4L2 rotation to DSS rotation
  *	V4L2 understand 0, 90, 180, 270.
  *	Convert to 0, 1, 2 and 3 respectively for DSS
@@ -513,7 +552,11 @@ static int omapvid_apply_changes(struct omap_vout_device *vout)
 }
 
 static int omapvid_handle_interlace_display(struct omap_vout_device *vout,
+<<<<<<< HEAD
 		unsigned int irqstatus, struct timeval timevalue)
+=======
+		unsigned int irqstatus, u64 ts)
+>>>>>>> upstream/android-13
 {
 	u32 fid;
 
@@ -537,9 +580,15 @@ static int omapvid_handle_interlace_display(struct omap_vout_device *vout,
 		if (vout->cur_frm == vout->next_frm)
 			goto err;
 
+<<<<<<< HEAD
 		vout->cur_frm->ts = timevalue;
 		vout->cur_frm->state = VIDEOBUF_DONE;
 		wake_up_interruptible(&vout->cur_frm->done);
+=======
+		vout->cur_frm->vbuf.vb2_buf.timestamp = ts;
+		vout->cur_frm->vbuf.sequence = vout->sequence++;
+		vb2_buffer_done(&vout->cur_frm->vbuf.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 		vout->cur_frm = vout->next_frm;
 	} else {
 		if (list_empty(&vout->dma_queue) ||
@@ -557,14 +606,21 @@ static void omap_vout_isr(void *arg, unsigned int irqstatus)
 	int ret, fid, mgr_id;
 	u32 addr, irq;
 	struct omap_overlay *ovl;
+<<<<<<< HEAD
 	struct timeval timevalue;
+=======
+	u64 ts;
+>>>>>>> upstream/android-13
 	struct omapvideo_info *ovid;
 	struct omap_dss_device *cur_display;
 	struct omap_vout_device *vout = (struct omap_vout_device *)arg;
 
+<<<<<<< HEAD
 	if (!vout->streaming)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	ovid = &vout->vid_info;
 	ovl = ovid->overlays[0];
 
@@ -577,7 +633,11 @@ static void omap_vout_isr(void *arg, unsigned int irqstatus)
 		return;
 
 	spin_lock(&vout->vbq_lock);
+<<<<<<< HEAD
 	v4l2_get_timestamp(&timevalue);
+=======
+	ts = ktime_get_ns();
+>>>>>>> upstream/android-13
 
 	switch (cur_display->type) {
 	case OMAP_DISPLAY_TYPE_DSI:
@@ -595,7 +655,11 @@ static void omap_vout_isr(void *arg, unsigned int irqstatus)
 		break;
 	case OMAP_DISPLAY_TYPE_VENC:
 		fid = omapvid_handle_interlace_display(vout, irqstatus,
+<<<<<<< HEAD
 				timevalue);
+=======
+				ts);
+>>>>>>> upstream/android-13
 		if (!fid)
 			goto vout_isr_err;
 		break;
@@ -608,9 +672,15 @@ static void omap_vout_isr(void *arg, unsigned int irqstatus)
 	}
 
 	if (!vout->first_int && (vout->cur_frm != vout->next_frm)) {
+<<<<<<< HEAD
 		vout->cur_frm->ts = timevalue;
 		vout->cur_frm->state = VIDEOBUF_DONE;
 		wake_up_interruptible(&vout->cur_frm->done);
+=======
+		vout->cur_frm->vbuf.vb2_buf.timestamp = ts;
+		vout->cur_frm->vbuf.sequence = vout->sequence++;
+		vb2_buffer_done(&vout->cur_frm->vbuf.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> upstream/android-13
 		vout->cur_frm = vout->next_frm;
 	}
 
@@ -619,12 +689,19 @@ static void omap_vout_isr(void *arg, unsigned int irqstatus)
 		goto vout_isr_err;
 
 	vout->next_frm = list_entry(vout->dma_queue.next,
+<<<<<<< HEAD
 			struct videobuf_buffer, queue);
 	list_del(&vout->next_frm->queue);
 
 	vout->next_frm->state = VIDEOBUF_ACTIVE;
 
 	addr = (unsigned long) vout->queued_buf_addr[vout->next_frm->i]
+=======
+			struct omap_vout_buffer, queue);
+	list_del(&vout->next_frm->queue);
+
+	addr = (unsigned long)vout->queued_buf_addr[vout->next_frm->vbuf.vb2_buf.index]
+>>>>>>> upstream/android-13
 		+ vout->cropped_offset;
 
 	/* First save the configuration in ovelray structure */
@@ -644,6 +721,7 @@ vout_isr_err:
 	spin_unlock(&vout->vbq_lock);
 }
 
+<<<<<<< HEAD
 /* Video buffer call backs */
 
 /*
@@ -1032,6 +1110,8 @@ static int omap_vout_open(struct file *file)
 	v4l2_dbg(1, debug, &vout->vid_dev->v4l2_dev, "Exiting %s\n", __func__);
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 /*
  * V4L2 ioctls
@@ -1039,6 +1119,7 @@ static int omap_vout_open(struct file *file)
 static int vidioc_querycap(struct file *file, void *fh,
 		struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
 
 	strlcpy(cap->driver, VOUT_NAME, sizeof(cap->driver));
@@ -1048,6 +1129,14 @@ static int vidioc_querycap(struct file *file, void *fh,
 		V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+
+	strscpy(cap->driver, VOUT_NAME, sizeof(cap->driver));
+	strscpy(cap->card, vout->vfd->name, sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info),
+		 "platform:%s.%d", VOUT_NAME, vout->vid);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1060,8 +1149,11 @@ static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
 		return -EINVAL;
 
 	fmt->flags = omap_formats[index].flags;
+<<<<<<< HEAD
 	strlcpy(fmt->description, omap_formats[index].description,
 			sizeof(fmt->description));
+=======
+>>>>>>> upstream/android-13
 	fmt->pixelformat = omap_formats[index].pixelformat;
 
 	return 0;
@@ -1070,7 +1162,11 @@ static int vidioc_enum_fmt_vid_out(struct file *file, void *fh,
 static int vidioc_g_fmt_vid_out(struct file *file, void *fh,
 			struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+>>>>>>> upstream/android-13
 
 	f->fmt.pix = vout->pix;
 	return 0;
@@ -1083,7 +1179,11 @@ static int vidioc_try_fmt_vid_out(struct file *file, void *fh,
 	struct omap_overlay *ovl;
 	struct omapvideo_info *ovid;
 	struct omap_video_timings *timing;
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+>>>>>>> upstream/android-13
 	struct omap_dss_device *dssdev;
 
 	ovid = &vout->vid_info;
@@ -1110,6 +1210,7 @@ static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
 	struct omap_overlay *ovl;
 	struct omapvideo_info *ovid;
 	struct omap_video_timings *timing;
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
 	struct omap_dss_device *dssdev;
 
@@ -1118,6 +1219,14 @@ static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
 
 	mutex_lock(&vout->lock);
 
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+	struct omap_dss_device *dssdev;
+
+	if (vb2_is_busy(&vout->vq))
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	ovid = &vout->vid_info;
 	ovl = ovid->overlays[0];
 	dssdev = ovl->get_device(ovl);
@@ -1129,7 +1238,11 @@ static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
 	}
 	timing = &dssdev->panel.timings;
 
+<<<<<<< HEAD
 	/* We dont support RGB24-packed mode if vrfb rotation
+=======
+	/* We don't support RGB24-packed mode if vrfb rotation
+>>>>>>> upstream/android-13
 	 * is enabled*/
 	if ((is_rotation_enabled(vout)) &&
 			f->fmt.pix.pixelformat == V4L2_PIX_FMT_RGB24) {
@@ -1147,7 +1260,11 @@ static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
 		vout->fbuf.fmt.width = timing->x_res;
 	}
 
+<<<<<<< HEAD
 	/* change to samller size is OK */
+=======
+	/* change to smaller size is OK */
+>>>>>>> upstream/android-13
 
 	bpp = omap_vout_try_format(&f->fmt.pix);
 	f->fmt.pix.sizeimage = f->fmt.pix.width * f->fmt.pix.height * bpp;
@@ -1168,7 +1285,10 @@ static int vidioc_s_fmt_vid_out(struct file *file, void *fh,
 	ret = 0;
 
 s_fmt_vid_out_exit:
+<<<<<<< HEAD
 	mutex_unlock(&vout->lock);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1176,7 +1296,11 @@ static int vidioc_try_fmt_vid_overlay(struct file *file, void *fh,
 			struct v4l2_format *f)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+>>>>>>> upstream/android-13
 	struct omap_overlay *ovl;
 	struct omapvideo_info *ovid;
 	struct v4l2_window *win = &f->fmt.win;
@@ -1186,12 +1310,17 @@ static int vidioc_try_fmt_vid_overlay(struct file *file, void *fh,
 
 	ret = omap_vout_try_window(&vout->fbuf, win);
 
+<<<<<<< HEAD
 	if (!ret) {
 		if ((ovl->caps & OMAP_DSS_OVL_CAP_GLOBAL_ALPHA) == 0)
 			win->global_alpha = 255;
 		else
 			win->global_alpha = f->fmt.win.global_alpha;
 	}
+=======
+	if (!ret && !(ovl->caps & OMAP_DSS_OVL_CAP_GLOBAL_ALPHA))
+		win->global_alpha = 0;
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1202,15 +1331,22 @@ static int vidioc_s_fmt_vid_overlay(struct file *file, void *fh,
 	int ret = 0;
 	struct omap_overlay *ovl;
 	struct omapvideo_info *ovid;
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
 	struct v4l2_window *win = &f->fmt.win;
 
 	mutex_lock(&vout->lock);
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+	struct v4l2_window *win = &f->fmt.win;
+
+>>>>>>> upstream/android-13
 	ovid = &vout->vid_info;
 	ovl = ovid->overlays[0];
 
 	ret = omap_vout_new_window(&vout->crop, &vout->win, &vout->fbuf, win);
 	if (!ret) {
+<<<<<<< HEAD
 		/* Video1 plane does not support global alpha on OMAP3 */
 		if ((ovl->caps & OMAP_DSS_OVL_CAP_GLOBAL_ALPHA) == 0)
 			vout->win.global_alpha = 255;
@@ -1220,17 +1356,55 @@ static int vidioc_s_fmt_vid_overlay(struct file *file, void *fh,
 		vout->win.chromakey = f->fmt.win.chromakey;
 	}
 	mutex_unlock(&vout->lock);
+=======
+		enum omap_dss_trans_key_type key_type =
+			OMAP_DSS_COLOR_KEY_GFX_DST;
+		int enable;
+
+		/* Video1 plane does not support global alpha on OMAP3 */
+		if (ovl->caps & OMAP_DSS_OVL_CAP_GLOBAL_ALPHA)
+			vout->win.global_alpha = win->global_alpha;
+		else
+			win->global_alpha = 0;
+		if (vout->fbuf.flags & (V4L2_FBUF_FLAG_CHROMAKEY |
+					V4L2_FBUF_FLAG_SRC_CHROMAKEY))
+			enable = 1;
+		else
+			enable = 0;
+		if (vout->fbuf.flags & V4L2_FBUF_FLAG_SRC_CHROMAKEY)
+			key_type = OMAP_DSS_COLOR_KEY_VID_SRC;
+
+		if (ovl->manager && ovl->manager->get_manager_info &&
+		    ovl->manager->set_manager_info) {
+			struct omap_overlay_manager_info info;
+
+			ovl->manager->get_manager_info(ovl->manager, &info);
+			info.trans_enabled = enable;
+			info.trans_key_type = key_type;
+			info.trans_key = vout->win.chromakey;
+
+			if (ovl->manager->set_manager_info(ovl->manager, &info))
+				return -EINVAL;
+		}
+	}
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int vidioc_g_fmt_vid_overlay(struct file *file, void *fh,
 			struct v4l2_format *f)
 {
+<<<<<<< HEAD
 	u32 key_value =  0;
 	struct omap_overlay *ovl;
 	struct omapvideo_info *ovid;
 	struct omap_vout_device *vout = fh;
 	struct omap_overlay_manager_info info;
+=======
+	struct omap_overlay *ovl;
+	struct omapvideo_info *ovid;
+	struct omap_vout_device *vout = video_drvdata(file);
+>>>>>>> upstream/android-13
 	struct v4l2_window *win = &f->fmt.win;
 
 	ovid = &vout->vid_info;
@@ -1238,6 +1412,7 @@ static int vidioc_g_fmt_vid_overlay(struct file *file, void *fh,
 
 	win->w = vout->win.w;
 	win->field = vout->win.field;
+<<<<<<< HEAD
 	win->global_alpha = vout->win.global_alpha;
 
 	if (ovl->manager && ovl->manager->get_manager_info) {
@@ -1245,12 +1420,26 @@ static int vidioc_g_fmt_vid_overlay(struct file *file, void *fh,
 		key_value = info.trans_key;
 	}
 	win->chromakey = key_value;
+=======
+	win->chromakey = vout->win.chromakey;
+	if (ovl->caps & OMAP_DSS_OVL_CAP_GLOBAL_ALPHA)
+		win->global_alpha = vout->win.global_alpha;
+	else
+		win->global_alpha = 0;
+	win->clips = NULL;
+	win->clipcount = 0;
+	win->bitmap = NULL;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int vidioc_g_selection(struct file *file, void *fh, struct v4l2_selection *sel)
 {
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+>>>>>>> upstream/android-13
 	struct v4l2_pix_format *pix = &vout->pix;
 
 	if (sel->type != V4L2_BUF_TYPE_VIDEO_OUTPUT)
@@ -1277,7 +1466,11 @@ static int vidioc_g_selection(struct file *file, void *fh, struct v4l2_selection
 static int vidioc_s_selection(struct file *file, void *fh, struct v4l2_selection *sel)
 {
 	int ret = -EINVAL;
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+>>>>>>> upstream/android-13
 	struct omapvideo_info *ovid;
 	struct omap_overlay *ovl;
 	struct omap_video_timings *timing;
@@ -1289,10 +1482,16 @@ static int vidioc_s_selection(struct file *file, void *fh, struct v4l2_selection
 	if (sel->target != V4L2_SEL_TGT_CROP)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (vout->streaming)
 		return -EBUSY;
 
 	mutex_lock(&vout->lock);
+=======
+	if (vb2_is_busy(&vout->vq))
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	ovid = &vout->vid_info;
 	ovl = ovid->overlays[0];
 	/* get the display device attached to the overlay */
@@ -1317,7 +1516,10 @@ static int vidioc_s_selection(struct file *file, void *fh, struct v4l2_selection
 				 &vout->fbuf, &sel->r);
 
 s_crop_err:
+<<<<<<< HEAD
 	mutex_unlock(&vout->lock);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1334,26 +1536,39 @@ static int omap_vout_s_ctrl(struct v4l2_ctrl *ctrl)
 
 		ovid = &vout->vid_info;
 
+<<<<<<< HEAD
 		mutex_lock(&vout->lock);
 		if (rotation && ovid->rotation_type == VOUT_ROT_NONE) {
 			mutex_unlock(&vout->lock);
+=======
+		if (rotation && ovid->rotation_type == VOUT_ROT_NONE) {
+>>>>>>> upstream/android-13
 			ret = -ERANGE;
 			break;
 		}
 
 		if (rotation && vout->pix.pixelformat == V4L2_PIX_FMT_RGB24) {
+<<<<<<< HEAD
 			mutex_unlock(&vout->lock);
+=======
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
 
 		if (v4l2_rot_to_dss_rot(rotation, &vout->rotation,
 							vout->mirror)) {
+<<<<<<< HEAD
 			mutex_unlock(&vout->lock);
 			ret = -EINVAL;
 			break;
 		}
 		mutex_unlock(&vout->lock);
+=======
+			ret = -EINVAL;
+			break;
+		}
+>>>>>>> upstream/android-13
 		break;
 	}
 	case V4L2_CID_BG_COLOR:
@@ -1364,9 +1579,13 @@ static int omap_vout_s_ctrl(struct v4l2_ctrl *ctrl)
 
 		ovl = vout->vid_info.overlays[0];
 
+<<<<<<< HEAD
 		mutex_lock(&vout->lock);
 		if (!ovl->manager || !ovl->manager->get_manager_info) {
 			mutex_unlock(&vout->lock);
+=======
+		if (!ovl->manager || !ovl->manager->get_manager_info) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
@@ -1374,11 +1593,17 @@ static int omap_vout_s_ctrl(struct v4l2_ctrl *ctrl)
 		ovl->manager->get_manager_info(ovl->manager, &info);
 		info.default_color = color;
 		if (ovl->manager->set_manager_info(ovl->manager, &info)) {
+<<<<<<< HEAD
 			mutex_unlock(&vout->lock);
 			ret = -EINVAL;
 			break;
 		}
 		mutex_unlock(&vout->lock);
+=======
+			ret = -EINVAL;
+			break;
+		}
+>>>>>>> upstream/android-13
 		break;
 	}
 	case V4L2_CID_VFLIP:
@@ -1388,20 +1613,30 @@ static int omap_vout_s_ctrl(struct v4l2_ctrl *ctrl)
 
 		ovid = &vout->vid_info;
 
+<<<<<<< HEAD
 		mutex_lock(&vout->lock);
 		if (mirror && ovid->rotation_type == VOUT_ROT_NONE) {
 			mutex_unlock(&vout->lock);
+=======
+		if (mirror && ovid->rotation_type == VOUT_ROT_NONE) {
+>>>>>>> upstream/android-13
 			ret = -ERANGE;
 			break;
 		}
 
 		if (mirror  && vout->pix.pixelformat == V4L2_PIX_FMT_RGB24) {
+<<<<<<< HEAD
 			mutex_unlock(&vout->lock);
+=======
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			break;
 		}
 		vout->mirror = mirror;
+<<<<<<< HEAD
 		mutex_unlock(&vout->lock);
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 	default:
@@ -1414,6 +1649,7 @@ static const struct v4l2_ctrl_ops omap_vout_ctrl_ops = {
 	.s_ctrl = omap_vout_s_ctrl,
 };
 
+<<<<<<< HEAD
 static int vidioc_reqbufs(struct file *file, void *fh,
 			struct v4l2_requestbuffers *req)
 {
@@ -1587,12 +1823,100 @@ static int vidioc_streamon(struct file *file, void *fh, enum v4l2_buf_type i)
 		goto streamon_err1;
 	}
 	addr = (unsigned long) vout->queued_buf_addr[vout->cur_frm->i]
+=======
+static int omap_vout_vb2_queue_setup(struct vb2_queue *vq,
+				     unsigned int *nbufs,
+				     unsigned int *num_planes, unsigned int sizes[],
+				     struct device *alloc_devs[])
+{
+	struct omap_vout_device *vout = vb2_get_drv_priv(vq);
+	int size = vout->pix.sizeimage;
+
+	if (is_rotation_enabled(vout) && vq->num_buffers + *nbufs > VRFB_NUM_BUFS) {
+		*nbufs = VRFB_NUM_BUFS - vq->num_buffers;
+		if (*nbufs == 0)
+			return -EINVAL;
+	}
+
+	if (*num_planes)
+		return sizes[0] < size ? -EINVAL : 0;
+
+	*num_planes = 1;
+	sizes[0] = size;
+	return 0;
+}
+
+static int omap_vout_vb2_prepare(struct vb2_buffer *vb)
+{
+	struct omap_vout_device *vout = vb2_get_drv_priv(vb->vb2_queue);
+	struct omapvideo_info *ovid = &vout->vid_info;
+	struct omap_vout_buffer *voutbuf = vb2_to_omap_vout_buffer(vb);
+	dma_addr_t buf_phy_addr = vb2_dma_contig_plane_dma_addr(vb, 0);
+
+	if (vb2_plane_size(vb, 0) < vout->pix.sizeimage) {
+		v4l2_dbg(1, debug, &vout->vid_dev->v4l2_dev,
+			 "%s data will not fit into plane (%lu < %u)\n",
+			__func__, vb2_plane_size(vb, 0), vout->pix.sizeimage);
+		return -EINVAL;
+	}
+
+	vb2_set_plane_payload(vb, 0, vout->pix.sizeimage);
+	voutbuf->vbuf.field = V4L2_FIELD_NONE;
+
+	vout->queued_buf_addr[vb->index] = (u8 *)buf_phy_addr;
+	if (ovid->rotation_type == VOUT_ROT_VRFB)
+		return omap_vout_prepare_vrfb(vout, vb);
+	return 0;
+}
+
+static void omap_vout_vb2_queue(struct vb2_buffer *vb)
+{
+	struct omap_vout_device *vout = vb2_get_drv_priv(vb->vb2_queue);
+	struct omap_vout_buffer *voutbuf = vb2_to_omap_vout_buffer(vb);
+
+	list_add_tail(&voutbuf->queue, &vout->dma_queue);
+}
+
+static int omap_vout_vb2_start_streaming(struct vb2_queue *vq, unsigned int count)
+{
+	struct omap_vout_device *vout = vb2_get_drv_priv(vq);
+	struct omapvideo_info *ovid = &vout->vid_info;
+	struct omap_vout_buffer *buf, *tmp;
+	u32 addr = 0, mask = 0;
+	int ret, j;
+
+	/* Get the next frame from the buffer queue */
+	vout->next_frm = vout->cur_frm = list_entry(vout->dma_queue.next,
+			struct omap_vout_buffer, queue);
+	/* Remove buffer from the buffer queue */
+	list_del(&vout->cur_frm->queue);
+	/* Initialize field_id and started member */
+	vout->field_id = 0;
+	vout->first_int = 1;
+	vout->sequence = 0;
+
+	if (omap_vout_calculate_offset(vout)) {
+		ret = -EINVAL;
+		goto out;
+	}
+	if (ovid->rotation_type == VOUT_ROT_VRFB)
+		if (omap_vout_vrfb_buffer_setup(vout, &count, 0)) {
+			ret = -ENOMEM;
+			goto out;
+		}
+
+	addr = (unsigned long)vout->queued_buf_addr[vout->cur_frm->vbuf.vb2_buf.index]
+>>>>>>> upstream/android-13
 		+ vout->cropped_offset;
 
 	mask = DISPC_IRQ_VSYNC | DISPC_IRQ_EVSYNC_EVEN | DISPC_IRQ_EVSYNC_ODD
 		| DISPC_IRQ_VSYNC2;
 
+<<<<<<< HEAD
 	/* First save the configuration in ovelray structure */
+=======
+	/* First save the configuration in overlay structure */
+>>>>>>> upstream/android-13
 	ret = omapvid_init(vout, addr);
 	if (ret) {
 		v4l2_err(&vout->vid_dev->v4l2_dev,
@@ -1617,6 +1941,7 @@ static int vidioc_streamon(struct file *file, void *fh, enum v4l2_buf_type i)
 				goto streamon_err1;
 		}
 	}
+<<<<<<< HEAD
 
 	ret = 0;
 
@@ -1639,6 +1964,11 @@ static int vidioc_streamoff(struct file *file, void *fh, enum v4l2_buf_type i)
 		return -EINVAL;
 
 	vout->streaming = false;
+=======
+	return 0;
+
+streamon_err1:
+>>>>>>> upstream/android-13
 	mask = DISPC_IRQ_VSYNC | DISPC_IRQ_EVSYNC_EVEN | DISPC_IRQ_EVSYNC_ODD
 		| DISPC_IRQ_VSYNC2;
 
@@ -1651,6 +1981,7 @@ static int vidioc_streamoff(struct file *file, void *fh, enum v4l2_buf_type i)
 		if (dssdev)
 			ovl->disable(ovl);
 	}
+<<<<<<< HEAD
 
 	/* Turn of the pipeline */
 	ret = omapvid_apply_changes(vout);
@@ -1664,13 +1995,67 @@ static int vidioc_streamoff(struct file *file, void *fh, enum v4l2_buf_type i)
 	return ret;
 }
 
+=======
+	/* Turn of the pipeline */
+	if (omapvid_apply_changes(vout))
+		v4l2_err(&vout->vid_dev->v4l2_dev,
+			 "failed to change mode in streamoff\n");
+
+out:
+	vb2_buffer_done(&vout->cur_frm->vbuf.vb2_buf, VB2_BUF_STATE_QUEUED);
+	list_for_each_entry_safe(buf, tmp, &vout->dma_queue, queue) {
+		list_del(&buf->queue);
+		vb2_buffer_done(&buf->vbuf.vb2_buf, VB2_BUF_STATE_QUEUED);
+	}
+	return ret;
+}
+
+static void omap_vout_vb2_stop_streaming(struct vb2_queue *vq)
+{
+	struct omap_vout_device *vout = vb2_get_drv_priv(vq);
+	struct omapvideo_info *ovid = &vout->vid_info;
+	struct omap_vout_buffer *buf, *tmp;
+	u32 mask = 0;
+	int j;
+
+	mask = DISPC_IRQ_VSYNC | DISPC_IRQ_EVSYNC_EVEN | DISPC_IRQ_EVSYNC_ODD
+		| DISPC_IRQ_VSYNC2;
+
+	omap_dispc_unregister_isr(omap_vout_isr, vout, mask);
+
+	for (j = 0; j < ovid->num_overlays; j++) {
+		struct omap_overlay *ovl = ovid->overlays[j];
+		struct omap_dss_device *dssdev = ovl->get_device(ovl);
+
+		if (dssdev)
+			ovl->disable(ovl);
+	}
+	/* Turn of the pipeline */
+	if (omapvid_apply_changes(vout))
+		v4l2_err(&vout->vid_dev->v4l2_dev,
+			 "failed to change mode in streamoff\n");
+
+	if (vout->next_frm != vout->cur_frm)
+		vb2_buffer_done(&vout->next_frm->vbuf.vb2_buf, VB2_BUF_STATE_ERROR);
+	vb2_buffer_done(&vout->cur_frm->vbuf.vb2_buf, VB2_BUF_STATE_ERROR);
+	list_for_each_entry_safe(buf, tmp, &vout->dma_queue, queue) {
+		list_del(&buf->queue);
+		vb2_buffer_done(&buf->vbuf.vb2_buf, VB2_BUF_STATE_ERROR);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int vidioc_s_fbuf(struct file *file, void *fh,
 				const struct v4l2_framebuffer *a)
 {
 	int enable = 0;
 	struct omap_overlay *ovl;
 	struct omapvideo_info *ovid;
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+>>>>>>> upstream/android-13
 	struct omap_overlay_manager_info info;
 	enum omap_dss_trans_key_type key_type = OMAP_DSS_COLOR_KEY_GFX_DST;
 
@@ -1741,6 +2126,7 @@ static int vidioc_g_fbuf(struct file *file, void *fh,
 {
 	struct omap_overlay *ovl;
 	struct omapvideo_info *ovid;
+<<<<<<< HEAD
 	struct omap_vout_device *vout = fh;
 	struct omap_overlay_manager_info info;
 
@@ -1752,6 +2138,38 @@ static int vidioc_g_fbuf(struct file *file, void *fh,
 	a->flags = V4L2_FBUF_FLAG_OVERLAY;
 	a->capability = V4L2_FBUF_CAP_LOCAL_ALPHA | V4L2_FBUF_CAP_CHROMAKEY
 		| V4L2_FBUF_CAP_SRC_CHROMAKEY;
+=======
+	struct omap_vout_device *vout = video_drvdata(file);
+	struct omap_overlay_manager_info info;
+	struct omap_video_timings *timing;
+	struct omap_dss_device *dssdev;
+
+	ovid = &vout->vid_info;
+	ovl = ovid->overlays[0];
+	/* get the display device attached to the overlay */
+	dssdev = ovl->get_device(ovl);
+
+	if (!dssdev)
+		return -EINVAL;
+
+	timing = &dssdev->panel.timings;
+
+	vout->fbuf.fmt.height = timing->y_res;
+	vout->fbuf.fmt.width = timing->x_res;
+	a->fmt.field = V4L2_FIELD_NONE;
+	a->fmt.colorspace = V4L2_COLORSPACE_SRGB;
+	a->fmt.pixelformat = V4L2_PIX_FMT_RGBA32;
+	a->fmt.height = vout->fbuf.fmt.height;
+	a->fmt.width = vout->fbuf.fmt.width;
+	a->fmt.bytesperline = vout->fbuf.fmt.width * 4;
+	a->fmt.sizeimage = a->fmt.height * a->fmt.bytesperline;
+	a->base = vout->fbuf.base;
+
+	a->flags = vout->fbuf.flags;
+	a->capability = vout->fbuf.capability;
+	a->flags &= ~(V4L2_FBUF_FLAG_SRC_CHROMAKEY | V4L2_FBUF_FLAG_CHROMAKEY |
+		      V4L2_FBUF_FLAG_LOCAL_ALPHA);
+>>>>>>> upstream/android-13
 
 	if (ovl->manager && ovl->manager->get_manager_info) {
 		ovl->manager->get_manager_info(ovl->manager, &info);
@@ -1759,9 +2177,12 @@ static int vidioc_g_fbuf(struct file *file, void *fh,
 			a->flags |= V4L2_FBUF_FLAG_SRC_CHROMAKEY;
 		if (info.trans_key_type == OMAP_DSS_COLOR_KEY_GFX_DST)
 			a->flags |= V4L2_FBUF_FLAG_CHROMAKEY;
+<<<<<<< HEAD
 	}
 	if (ovl->manager && ovl->manager->get_manager_info) {
 		ovl->manager->get_manager_info(ovl->manager, &info);
+=======
+>>>>>>> upstream/android-13
 		if (info.partial_alpha_enabled)
 			a->flags |= V4L2_FBUF_FLAG_LOCAL_ALPHA;
 	}
@@ -1769,6 +2190,30 @@ static int vidioc_g_fbuf(struct file *file, void *fh,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int vidioc_enum_output(struct file *file, void *priv_fh,
+			      struct v4l2_output *out)
+{
+	if (out->index)
+		return -EINVAL;
+	snprintf(out->name, sizeof(out->name), "Overlay");
+	out->type = V4L2_OUTPUT_TYPE_ANALOGVGAOVERLAY;
+	return 0;
+}
+
+static int vidioc_g_output(struct file *file, void *priv_fh, unsigned int *i)
+{
+	*i = 0;
+	return 0;
+}
+
+static int vidioc_s_output(struct file *file, void *priv_fh, unsigned int i)
+{
+	return i ? -EINVAL : 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct v4l2_ioctl_ops vout_ioctl_ops = {
 	.vidioc_querycap			= vidioc_querycap,
 	.vidioc_enum_fmt_vid_out		= vidioc_enum_fmt_vid_out,
@@ -1782,21 +2227,55 @@ static const struct v4l2_ioctl_ops vout_ioctl_ops = {
 	.vidioc_g_fmt_vid_out_overlay		= vidioc_g_fmt_vid_overlay,
 	.vidioc_g_selection			= vidioc_g_selection,
 	.vidioc_s_selection			= vidioc_s_selection,
+<<<<<<< HEAD
 	.vidioc_reqbufs				= vidioc_reqbufs,
 	.vidioc_querybuf			= vidioc_querybuf,
 	.vidioc_qbuf				= vidioc_qbuf,
 	.vidioc_dqbuf				= vidioc_dqbuf,
 	.vidioc_streamon			= vidioc_streamon,
 	.vidioc_streamoff			= vidioc_streamoff,
+=======
+	.vidioc_enum_output			= vidioc_enum_output,
+	.vidioc_g_output			= vidioc_g_output,
+	.vidioc_s_output			= vidioc_s_output,
+	.vidioc_reqbufs				= vb2_ioctl_reqbufs,
+	.vidioc_create_bufs			= vb2_ioctl_create_bufs,
+	.vidioc_querybuf			= vb2_ioctl_querybuf,
+	.vidioc_qbuf				= vb2_ioctl_qbuf,
+	.vidioc_dqbuf				= vb2_ioctl_dqbuf,
+	.vidioc_expbuf				= vb2_ioctl_expbuf,
+	.vidioc_streamon			= vb2_ioctl_streamon,
+	.vidioc_streamoff			= vb2_ioctl_streamoff,
+	.vidioc_subscribe_event			= v4l2_ctrl_subscribe_event,
+	.vidioc_unsubscribe_event		= v4l2_event_unsubscribe,
+>>>>>>> upstream/android-13
 };
 
 static const struct v4l2_file_operations omap_vout_fops = {
 	.owner		= THIS_MODULE,
+<<<<<<< HEAD
 	.poll		= omap_vout_poll,
 	.unlocked_ioctl	= video_ioctl2,
 	.mmap		= omap_vout_mmap,
 	.open		= omap_vout_open,
 	.release	= omap_vout_release,
+=======
+	.unlocked_ioctl	= video_ioctl2,
+	.poll		= vb2_fop_poll,
+	.mmap		= vb2_fop_mmap,
+	.open		= v4l2_fh_open,
+	.release	= vb2_fop_release,
+};
+
+static const struct vb2_ops omap_vout_vb2_ops = {
+	.queue_setup		= omap_vout_vb2_queue_setup,
+	.buf_queue		= omap_vout_vb2_queue,
+	.buf_prepare		= omap_vout_vb2_prepare,
+	.start_streaming	= omap_vout_vb2_start_streaming,
+	.stop_streaming		= omap_vout_vb2_stop_streaming,
+	.wait_prepare		= vb2_ops_wait_prepare,
+	.wait_finish		= vb2_ops_wait_finish,
+>>>>>>> upstream/android-13
 };
 
 /* Init functions used during driver initialization */
@@ -1808,6 +2287,11 @@ static int __init omap_vout_setup_video_data(struct omap_vout_device *vout)
 	struct omap_overlay *ovl = vout->vid_info.overlays[0];
 	struct omap_dss_device *display = ovl->get_device(ovl);
 	struct v4l2_ctrl_handler *hdl;
+<<<<<<< HEAD
+=======
+	struct vb2_queue *vq;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* set the default pix */
 	pix = &vout->pix;
@@ -1818,14 +2302,22 @@ static int __init omap_vout_setup_video_data(struct omap_vout_device *vout)
 
 	/* Default pixel format is RGB 5-6-5 */
 	pix->pixelformat = V4L2_PIX_FMT_RGB565;
+<<<<<<< HEAD
 	pix->field = V4L2_FIELD_ANY;
 	pix->bytesperline = pix->width * 2;
 	pix->sizeimage = pix->bytesperline * pix->height;
 	pix->colorspace = V4L2_COLORSPACE_JPEG;
+=======
+	pix->field = V4L2_FIELD_NONE;
+	pix->bytesperline = pix->width * 2;
+	pix->sizeimage = pix->bytesperline * pix->height;
+	pix->colorspace = V4L2_COLORSPACE_SRGB;
+>>>>>>> upstream/android-13
 
 	vout->bpp = RGB565_BPP;
 	vout->fbuf.fmt.width  =  display->panel.timings.x_res;
 	vout->fbuf.fmt.height =  display->panel.timings.y_res;
+<<<<<<< HEAD
 
 	/* Set the data structures for the overlay parameters*/
 	vout->win.global_alpha = 255;
@@ -1833,22 +2325,54 @@ static int __init omap_vout_setup_video_data(struct omap_vout_device *vout)
 	vout->fbuf.capability = V4L2_FBUF_CAP_LOCAL_ALPHA |
 		V4L2_FBUF_CAP_SRC_CHROMAKEY | V4L2_FBUF_CAP_CHROMAKEY;
 	vout->win.chromakey = 0;
+=======
+	vout->cropped_offset = 0;
+
+	/* Set the data structures for the overlay parameters*/
+	vout->fbuf.flags = V4L2_FBUF_FLAG_OVERLAY;
+	vout->fbuf.capability = V4L2_FBUF_CAP_LOCAL_ALPHA |
+		V4L2_FBUF_CAP_SRC_CHROMAKEY | V4L2_FBUF_CAP_CHROMAKEY |
+		V4L2_FBUF_CAP_EXTERNOVERLAY;
+	if (ovl->caps & OMAP_DSS_OVL_CAP_GLOBAL_ALPHA) {
+		vout->win.global_alpha = 255;
+		vout->fbuf.capability |= V4L2_FBUF_CAP_GLOBAL_ALPHA;
+		vout->fbuf.flags |= V4L2_FBUF_FLAG_GLOBAL_ALPHA;
+	} else {
+		vout->win.global_alpha = 0;
+	}
+	vout->win.field = V4L2_FIELD_NONE;
+>>>>>>> upstream/android-13
 
 	omap_vout_new_format(pix, &vout->fbuf, &vout->crop, &vout->win);
 
 	hdl = &vout->ctrl_handler;
 	v4l2_ctrl_handler_init(hdl, 3);
+<<<<<<< HEAD
 	v4l2_ctrl_new_std(hdl, &omap_vout_ctrl_ops,
 			  V4L2_CID_ROTATE, 0, 270, 90, 0);
 	v4l2_ctrl_new_std(hdl, &omap_vout_ctrl_ops,
 			  V4L2_CID_BG_COLOR, 0, 0xffffff, 1, 0);
 	v4l2_ctrl_new_std(hdl, &omap_vout_ctrl_ops,
 			  V4L2_CID_VFLIP, 0, 1, 1, 0);
+=======
+	if (vout->vid_info.rotation_type == VOUT_ROT_VRFB) {
+		v4l2_ctrl_new_std(hdl, &omap_vout_ctrl_ops,
+				  V4L2_CID_ROTATE, 0, 270, 90, 0);
+		v4l2_ctrl_new_std(hdl, &omap_vout_ctrl_ops,
+				  V4L2_CID_VFLIP, 0, 1, 1, 0);
+	}
+	v4l2_ctrl_new_std(hdl, &omap_vout_ctrl_ops,
+			  V4L2_CID_BG_COLOR, 0, 0xffffff, 1, 0);
+>>>>>>> upstream/android-13
 	if (hdl->error)
 		return hdl->error;
 
 	vout->rotation = 0;
 	vout->mirror = false;
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&vout->dma_queue);
+>>>>>>> upstream/android-13
 	if (vout->vid_info.rotation_type == VOUT_ROT_VRFB)
 		vout->vrfb_bpp = 2;
 
@@ -1865,33 +2389,73 @@ static int __init omap_vout_setup_video_data(struct omap_vout_device *vout)
 	vfd->release = video_device_release;
 	vfd->ioctl_ops = &vout_ioctl_ops;
 
+<<<<<<< HEAD
 	strlcpy(vfd->name, VOUT_NAME, sizeof(vfd->name));
+=======
+	strscpy(vfd->name, VOUT_NAME, sizeof(vfd->name));
+>>>>>>> upstream/android-13
 
 	vfd->fops = &omap_vout_fops;
 	vfd->v4l2_dev = &vout->vid_dev->v4l2_dev;
 	vfd->vfl_dir = VFL_DIR_TX;
+<<<<<<< HEAD
 	mutex_init(&vout->lock);
 
 	vfd->minor = -1;
 	return 0;
 
+=======
+	vfd->minor = -1;
+	vfd->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_OUTPUT |
+			   V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+	mutex_init(&vout->lock);
+
+	vq = &vout->vq;
+	vq->type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	vq->io_modes = VB2_MMAP | VB2_DMABUF;
+	vq->drv_priv = vout;
+	vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+	vq->buf_struct_size = sizeof(struct omap_vout_buffer);
+	vq->dev = vfd->v4l2_dev->dev;
+
+	vq->ops = &omap_vout_vb2_ops;
+	vq->mem_ops = &vb2_dma_contig_memops;
+	vq->lock = &vout->lock;
+	vq->min_buffers_needed = 1;
+	vfd->queue = vq;
+
+	ret = vb2_queue_init(vq);
+	if (ret) {
+		v4l2_ctrl_handler_free(hdl);
+		video_device_release(vfd);
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Setup video buffers */
 static int __init omap_vout_setup_video_bufs(struct platform_device *pdev,
 		int vid_num)
 {
+<<<<<<< HEAD
 	u32 numbuffers;
 	int ret = 0, i;
+=======
+>>>>>>> upstream/android-13
 	struct omapvideo_info *ovid;
 	struct omap_vout_device *vout;
 	struct v4l2_device *v4l2_dev = platform_get_drvdata(pdev);
 	struct omap2video_device *vid_dev =
 		container_of(v4l2_dev, struct omap2video_device, v4l2_dev);
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	vout = vid_dev->vouts[vid_num];
 	ovid = &vout->vid_info;
 
+<<<<<<< HEAD
 	numbuffers = (vid_num == 0) ? video1_numbuffers : video2_numbuffers;
 	vout->buffer_size = (vid_num == 0) ? video1_bufsize : video2_bufsize;
 	dev_info(&pdev->dev, "Buffer Size = %d\n", vout->buffer_size);
@@ -1909,12 +2473,15 @@ static int __init omap_vout_setup_video_bufs(struct platform_device *pdev,
 
 	vout->cropped_offset = 0;
 
+=======
+>>>>>>> upstream/android-13
 	if (ovid->rotation_type == VOUT_ROT_VRFB) {
 		bool static_vrfb_allocation = (vid_num == 0) ?
 			vid1_static_vrfb_alloc : vid2_static_vrfb_alloc;
 		ret = omap_vout_setup_vrfb_bufs(pdev, vid_num,
 				static_vrfb_allocation);
 	}
+<<<<<<< HEAD
 
 	return ret;
 
@@ -1927,6 +2494,9 @@ free_buffers:
 	}
 	return ret;
 
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Create video out devices */
@@ -1938,6 +2508,13 @@ static int __init omap_vout_create_video_devices(struct platform_device *pdev)
 	struct v4l2_device *v4l2_dev = platform_get_drvdata(pdev);
 	struct omap2video_device *vid_dev = container_of(v4l2_dev,
 			struct omap2video_device, v4l2_dev);
+<<<<<<< HEAD
+=======
+	struct omap_overlay *ovl = vid_dev->overlays[0];
+	struct omap_overlay_info info;
+
+	ovl->get_overlay_info(ovl, &info);
+>>>>>>> upstream/android-13
 
 	for (k = 0; k < pdev->num_resources; k++) {
 
@@ -1958,6 +2535,18 @@ static int __init omap_vout_create_video_devices(struct platform_device *pdev)
 			vout->vid_info.overlays[0] = vid_dev->overlays[k + 1];
 		vout->vid_info.num_overlays = 1;
 		vout->vid_info.id = k + 1;
+<<<<<<< HEAD
+=======
+		spin_lock_init(&vout->vbq_lock);
+		/*
+		 * Set the framebuffer base, this allows applications to find
+		 * the fb corresponding to this overlay.
+		 *
+		 * To be precise: fbuf.base should match smem_start of
+		 * struct fb_fix_screeninfo.
+		 */
+		vout->fbuf.base = (void *)info.paddr;
+>>>>>>> upstream/android-13
 
 		/* Set VRFB as rotation_type for omap2 and omap3 */
 		if (omap_vout_dss_omap24xx() || omap_vout_dss_omap34xx())
@@ -1981,7 +2570,11 @@ static int __init omap_vout_create_video_devices(struct platform_device *pdev)
 		/* Register the Video device with V4L2
 		 */
 		vfd = vout->vfd;
+<<<<<<< HEAD
 		if (video_register_device(vfd, VFL_TYPE_GRABBER, -1) < 0) {
+=======
+		if (video_register_device(vfd, VFL_TYPE_VIDEO, -1) < 0) {
+>>>>>>> upstream/android-13
 			dev_err(&pdev->dev,
 				": Could not register Video for Linux device\n");
 			vfd->minor = -1;
@@ -2000,7 +2593,10 @@ static int __init omap_vout_create_video_devices(struct platform_device *pdev)
 error2:
 		if (vout->vid_info.rotation_type == VOUT_ROT_VRFB)
 			omap_vout_release_vrfb(vout);
+<<<<<<< HEAD
 		omap_vout_free_buffers(vout);
+=======
+>>>>>>> upstream/android-13
 error1:
 		video_device_release(vfd);
 error:
@@ -2045,7 +2641,10 @@ static void omap_vout_cleanup_device(struct omap_vout_device *vout)
 		if (vout->vrfb_static_allocation)
 			omap_vout_free_vrfb_buffers(vout);
 	}
+<<<<<<< HEAD
 	omap_vout_free_buffers(vout);
+=======
+>>>>>>> upstream/android-13
 
 	kfree(vout);
 }

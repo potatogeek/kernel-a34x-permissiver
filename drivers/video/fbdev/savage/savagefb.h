@@ -21,7 +21,11 @@
 #ifdef SAVAGEFB_DEBUG
 # define DBG(x)		printk (KERN_DEBUG "savagefb: %s\n", (x));
 #else
+<<<<<<< HEAD
 # define DBG(x)
+=======
+# define DBG(x)		no_printk(x)
+>>>>>>> upstream/android-13
 # define SavagePrintRegs(...)
 #endif
 

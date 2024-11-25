@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /**
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Shujuan Chen <shujuan.chen@stericsson.com> for ST-Ericsson.
  * Author: Jonas Linde <jonas.linde@stericsson.com> for ST-Ericsson.
  * Author: Joakim Bech <joakim.xx.bech@stericsson.com> for ST-Ericsson.
  * Author: Berne Hebark <berne.herbark@stericsson.com> for ST-Ericsson.
  * Author: Niklas Hernaeus <niklas.hernaeus@stericsson.com> for ST-Ericsson.
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYP_H_
@@ -241,12 +249,20 @@ struct cryp_device_data {
 	struct clk *clk;
 	struct regulator *pwr_regulator;
 	int power_status;
+<<<<<<< HEAD
 	struct spinlock ctx_lock;
+=======
+	spinlock_t ctx_lock;
+>>>>>>> upstream/android-13
 	struct cryp_ctx *current_ctx;
 	struct klist_node list_node;
 	struct cryp_dma dma;
 	bool power_state;
+<<<<<<< HEAD
 	struct spinlock power_state_spinlock;
+=======
+	spinlock_t power_state_spinlock;
+>>>>>>> upstream/android-13
 	bool restore_dev_ctx;
 };
 

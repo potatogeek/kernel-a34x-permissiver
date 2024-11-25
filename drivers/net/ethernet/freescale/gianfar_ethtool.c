@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  drivers/net/ethernet/freescale/gianfar_ethtool.c
  *
@@ -10,10 +14,13 @@
  *  Modifier: Sandeep Gopalpet <sandeep.kumar@freescale.com>
  *
  *  Copyright 2003-2006, 2008-2009, 2011 Freescale Semiconductor, Inc.
+<<<<<<< HEAD
  *
  *  This software may be used and distributed according to
  *  the terms of the GNU Public License, Version 2, incorporated herein
  *  by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -48,6 +55,7 @@
 
 #define GFAR_MAX_COAL_USECS 0xffff
 #define GFAR_MAX_COAL_FRAMES 0xff
+<<<<<<< HEAD
 static void gfar_fill_stats(struct net_device *dev, struct ethtool_stats *dummy,
 			    u64 *buf);
 static void gfar_gstrings(struct net_device *dev, u32 stringset, u8 * buf);
@@ -61,6 +69,8 @@ static int gfar_sringparam(struct net_device *dev,
 			   struct ethtool_ringparam *rvals);
 static void gfar_gdrvinfo(struct net_device *dev,
 			  struct ethtool_drvinfo *drvinfo);
+=======
+>>>>>>> upstream/android-13
 
 static const char stat_gstrings[][ETH_GSTRING_LEN] = {
 	/* extra stats */
@@ -180,10 +190,13 @@ static void gfar_gdrvinfo(struct net_device *dev,
 			  struct ethtool_drvinfo *drvinfo)
 {
 	strlcpy(drvinfo->driver, DRV_NAME, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, gfar_driver_version,
 		sizeof(drvinfo->version));
 	strlcpy(drvinfo->fw_version, "N/A", sizeof(drvinfo->fw_version));
 	strlcpy(drvinfo->bus_info, "N/A", sizeof(drvinfo->bus_info));
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Return the length of the register structure */
@@ -230,7 +243,11 @@ static unsigned int gfar_usecs2ticks(struct gfar_private *priv,
 
 	/* Make sure we return a number greater than 0
 	 * if usecs > 0 */
+<<<<<<< HEAD
 	return (usecs * 1000 + count - 1) / count;
+=======
+	return DIV_ROUND_UP(usecs * 1000, count);
+>>>>>>> upstream/android-13
 }
 
 /* Convert ethernet clock ticks to microseconds */
@@ -263,7 +280,13 @@ static unsigned int gfar_ticks2usecs(struct gfar_private *priv,
 /* Get the coalescing parameters, and put them in the cvals
  * structure.  */
 static int gfar_gcoalesce(struct net_device *dev,
+<<<<<<< HEAD
 			  struct ethtool_coalesce *cvals)
+=======
+			  struct ethtool_coalesce *cvals,
+			  struct kernel_ethtool_coalesce *kernel_coal,
+			  struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct gfar_private *priv = netdev_priv(dev);
 	struct gfar_priv_rx_q *rx_queue = NULL;
@@ -292,6 +315,7 @@ static int gfar_gcoalesce(struct net_device *dev,
 	cvals->tx_coalesce_usecs = gfar_ticks2usecs(priv, txtime);
 	cvals->tx_max_coalesced_frames = txcount;
 
+<<<<<<< HEAD
 	cvals->use_adaptive_rx_coalesce = 0;
 	cvals->use_adaptive_tx_coalesce = 0;
 
@@ -321,6 +345,8 @@ static int gfar_gcoalesce(struct net_device *dev,
 	 */
 	cvals->rate_sample_interval = 0;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -329,7 +355,13 @@ static int gfar_gcoalesce(struct net_device *dev,
  * in order for coalescing to be active
  */
 static int gfar_scoalesce(struct net_device *dev,
+<<<<<<< HEAD
 			  struct ethtool_coalesce *cvals)
+=======
+			  struct ethtool_coalesce *cvals,
+			  struct kernel_ethtool_coalesce *kernel_coal,
+			  struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct gfar_private *priv = netdev_priv(dev);
 	int i, err = 0;
@@ -503,22 +535,34 @@ static int gfar_spauseparam(struct net_device *dev,
 	struct gfar_private *priv = netdev_priv(dev);
 	struct phy_device *phydev = dev->phydev;
 	struct gfar __iomem *regs = priv->gfargrp[0].regs;
+<<<<<<< HEAD
 	u32 oldadv, newadv;
+=======
+>>>>>>> upstream/android-13
 
 	if (!phydev)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (!(phydev->supported & SUPPORTED_Pause) ||
 	    (!(phydev->supported & SUPPORTED_Asym_Pause) &&
 	     (epause->rx_pause != epause->tx_pause)))
 		return -EINVAL;
 
 	priv->rx_pause_en = priv->tx_pause_en = 0;
+=======
+	if (!phy_validate_pause(phydev, epause))
+		return -EINVAL;
+
+	priv->rx_pause_en = priv->tx_pause_en = 0;
+	phy_set_asym_pause(phydev, epause->rx_pause, epause->tx_pause);
+>>>>>>> upstream/android-13
 	if (epause->rx_pause) {
 		priv->rx_pause_en = 1;
 
 		if (epause->tx_pause) {
 			priv->tx_pause_en = 1;
+<<<<<<< HEAD
 			/* FLOW_CTRL_RX & TX */
 			newadv = ADVERTISED_Pause;
 		} else  /* FLOW_CTLR_RX */
@@ -529,12 +573,19 @@ static int gfar_spauseparam(struct net_device *dev,
 		newadv = ADVERTISED_Asym_Pause;
 	} else
 		newadv = 0;
+=======
+		}
+	} else if (epause->tx_pause) {
+		priv->tx_pause_en = 1;
+	}
+>>>>>>> upstream/android-13
 
 	if (epause->autoneg)
 		priv->pause_aneg_en = 1;
 	else
 		priv->pause_aneg_en = 0;
 
+<<<<<<< HEAD
 	oldadv = phydev->advertising &
 		(ADVERTISED_Pause | ADVERTISED_Asym_Pause);
 	if (oldadv != newadv) {
@@ -562,6 +613,22 @@ static int gfar_spauseparam(struct net_device *dev,
 				tempval |= MACCFG1_RX_FLOW;
 			gfar_write(&regs->maccfg1, tempval);
 		}
+=======
+	if (!epause->autoneg) {
+		u32 tempval = gfar_read(&regs->maccfg1);
+
+		tempval &= ~(MACCFG1_TX_FLOW | MACCFG1_RX_FLOW);
+
+		priv->tx_actual_en = 0;
+		if (priv->tx_pause_en) {
+			priv->tx_actual_en = 1;
+			tempval |= MACCFG1_TX_FLOW;
+		}
+
+		if (priv->rx_pause_en)
+			tempval |= MACCFG1_RX_FLOW;
+		gfar_write(&regs->maccfg1, tempval);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1155,11 +1222,17 @@ static int gfar_convert_to_filer(struct ethtool_rx_flow_spec *rule,
 		prio = vlan_tci_prio(rule);
 		prio_mask = vlan_tci_priom(rule);
 
+<<<<<<< HEAD
 		if (cfi == VLAN_TAG_PRESENT && cfi_mask == VLAN_TAG_PRESENT) {
 			vlan |= RQFPR_CFI;
 			vlan_mask |= RQFPR_CFI;
 		} else if (cfi != VLAN_TAG_PRESENT &&
 			   cfi_mask == VLAN_TAG_PRESENT) {
+=======
+		if (cfi_mask) {
+			if (cfi)
+				vlan |= RQFPR_CFI;
+>>>>>>> upstream/android-13
 			vlan_mask |= RQFPR_CFI;
 		}
 	}
@@ -1515,7 +1588,11 @@ static int gfar_get_ts_info(struct net_device *dev,
 	struct gfar_private *priv = netdev_priv(dev);
 	struct platform_device *ptp_dev;
 	struct device_node *ptp_node;
+<<<<<<< HEAD
 	struct qoriq_ptp *ptp = NULL;
+=======
+	struct ptp_qoriq *ptp = NULL;
+>>>>>>> upstream/android-13
 
 	info->phc_index = -1;
 
@@ -1528,6 +1605,10 @@ static int gfar_get_ts_info(struct net_device *dev,
 	ptp_node = of_find_compatible_node(NULL, NULL, "fsl,etsec-ptp");
 	if (ptp_node) {
 		ptp_dev = of_find_device_by_node(ptp_node);
+<<<<<<< HEAD
+=======
+		of_node_put(ptp_node);
+>>>>>>> upstream/android-13
 		if (ptp_dev)
 			ptp = platform_get_drvdata(ptp_dev);
 	}
@@ -1546,6 +1627,11 @@ static int gfar_get_ts_info(struct net_device *dev,
 }
 
 const struct ethtool_ops gfar_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_USECS |
+				     ETHTOOL_COALESCE_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo = gfar_gdrvinfo,
 	.get_regs_len = gfar_reglen,
 	.get_regs = gfar_get_regs,

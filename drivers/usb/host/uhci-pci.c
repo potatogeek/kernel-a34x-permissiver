@@ -261,7 +261,11 @@ static const struct hc_driver uhci_driver = {
 
 	/* Generic hardware linkage */
 	.irq =			uhci_irq,
+<<<<<<< HEAD
 	.flags =		HCD_USB11,
+=======
+	.flags =		HCD_DMA | HCD_USB11,
+>>>>>>> upstream/android-13
 
 	/* Basic lifecycle operations */
 	.reset =		uhci_pci_init,
@@ -287,17 +291,33 @@ static const struct hc_driver uhci_driver = {
 static const struct pci_device_id uhci_pci_ids[] = { {
 	/* handle any USB UHCI controller */
 	PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_UHCI, ~0),
+<<<<<<< HEAD
 	.driver_data =	(unsigned long) &uhci_driver,
+=======
+>>>>>>> upstream/android-13
 	}, { /* end: all zeroes */ }
 };
 
 MODULE_DEVICE_TABLE(pci, uhci_pci_ids);
 
+<<<<<<< HEAD
 static struct pci_driver uhci_pci_driver = {
 	.name =		(char *)hcd_name,
 	.id_table =	uhci_pci_ids,
 
 	.probe =	usb_hcd_pci_probe,
+=======
+static int uhci_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+{
+	return usb_hcd_pci_probe(dev, id, &uhci_driver);
+}
+
+static struct pci_driver uhci_pci_driver = {
+	.name =		hcd_name,
+	.id_table =	uhci_pci_ids,
+
+	.probe =	uhci_pci_probe,
+>>>>>>> upstream/android-13
 	.remove =	usb_hcd_pci_remove,
 	.shutdown =	uhci_shutdown,
 

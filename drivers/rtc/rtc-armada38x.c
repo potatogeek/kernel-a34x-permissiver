@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RTC driver for the Armada 38x Marvell SoCs
  *
  * Copyright (C) 2015 Marvell
  *
  * Gregory Clement <gregory.clement@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -79,7 +86,11 @@ struct armada38x_rtc {
 	int		    irq;
 	bool		    initialized;
 	struct value_to_freq *val_to_freq;
+<<<<<<< HEAD
 	struct armada38x_rtc_data *data;
+=======
+	const struct armada38x_rtc_data *data;
+>>>>>>> upstream/android-13
 };
 
 #define ALARM1	0
@@ -224,7 +235,11 @@ static int armada38x_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	time = rtc->data->read_rtc_reg(rtc, RTC_TIME);
 	spin_unlock_irqrestore(&rtc->lock, flags);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(time, tm);
+=======
+	rtc_time64_to_tm(time, tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -249,6 +264,7 @@ static void armada38x_rtc_reset(struct armada38x_rtc *rtc)
 static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 {
 	struct armada38x_rtc *rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	int ret = 0;
 	unsigned long time, flags;
 
@@ -256,6 +272,11 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 
 	if (ret)
 		goto out;
+=======
+	unsigned long time, flags;
+
+	time = rtc_tm_to_time64(tm);
+>>>>>>> upstream/android-13
 
 	if (!rtc->initialized)
 		armada38x_rtc_reset(rtc);
@@ -264,8 +285,12 @@ static int armada38x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	rtc_delayed_write(time, rtc, RTC_TIME);
 	spin_unlock_irqrestore(&rtc->lock, flags);
 
+<<<<<<< HEAD
 out:
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
@@ -284,7 +309,11 @@ static int armada38x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	spin_unlock_irqrestore(&rtc->lock, flags);
 
 	alrm->enabled = val ? 1 : 0;
+<<<<<<< HEAD
 	rtc_time_to_tm(time,  &alrm->time);
+=======
+	rtc_time64_to_tm(time,  &alrm->time);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -295,12 +324,17 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	u32 reg = ALARM_REG(RTC_ALARM1, rtc->data->alarm);
 	u32 reg_irq = ALARM_REG(RTC_IRQ1_CONF, rtc->data->alarm);
 	unsigned long time, flags;
+<<<<<<< HEAD
 	int ret = 0;
 
 	ret = rtc_tm_to_time(&alrm->time, &time);
 
 	if (ret)
 		goto out;
+=======
+
+	time = rtc_tm_to_time64(&alrm->time);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&rtc->lock, flags);
 
@@ -313,8 +347,12 @@ static int armada38x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 
 	spin_unlock_irqrestore(&rtc->lock, flags);
 
+<<<<<<< HEAD
 out:
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int armada38x_rtc_alarm_irq_enable(struct device *dev,
@@ -473,6 +511,7 @@ static const struct rtc_class_ops armada38x_rtc_ops = {
 	.set_offset = armada38x_rtc_set_offset,
 };
 
+<<<<<<< HEAD
 static const struct rtc_class_ops armada38x_rtc_ops_noirq = {
 	.read_time = armada38x_rtc_read_time,
 	.set_time = armada38x_rtc_set_time,
@@ -481,6 +520,8 @@ static const struct rtc_class_ops armada38x_rtc_ops_noirq = {
 	.set_offset = armada38x_rtc_set_offset,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct armada38x_rtc_data armada38x_data = {
 	.update_mbus_timing = rtc_update_38x_mbus_timing_params,
 	.read_rtc_reg = read_rtc_register_38x_wa,
@@ -516,18 +557,26 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
 {
 	struct resource *res;
 	struct armada38x_rtc *rtc;
+<<<<<<< HEAD
 	const struct of_device_id *match;
 	int ret;
 
 	match = of_match_device(armada38x_rtc_of_match_table, &pdev->dev);
 	if (!match)
 		return -ENODEV;
+=======
+>>>>>>> upstream/android-13
 
 	rtc = devm_kzalloc(&pdev->dev, sizeof(struct armada38x_rtc),
 			    GFP_KERNEL);
 	if (!rtc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	rtc->data = of_device_get_match_data(&pdev->dev);
+
+>>>>>>> upstream/android-13
 	rtc->val_to_freq = devm_kcalloc(&pdev->dev, SAMPLE_NR,
 				sizeof(struct value_to_freq), GFP_KERNEL);
 	if (!rtc->val_to_freq)
@@ -545,11 +594,16 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
 		return PTR_ERR(rtc->regs_soc);
 
 	rtc->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 
 	if (rtc->irq < 0) {
 		dev_err(&pdev->dev, "no irq\n");
 		return rtc->irq;
 	}
+=======
+	if (rtc->irq < 0)
+		return rtc->irq;
+>>>>>>> upstream/android-13
 
 	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
 	if (IS_ERR(rtc->rtc_dev))
@@ -562,6 +616,7 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
 	}
 	platform_set_drvdata(pdev, rtc);
 
+<<<<<<< HEAD
 	if (rtc->irq != -1) {
 		device_init_wakeup(&pdev->dev, 1);
 		rtc->rtc_dev->ops = &armada38x_rtc_ops;
@@ -573,15 +628,28 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
 		rtc->rtc_dev->ops = &armada38x_rtc_ops_noirq;
 	}
 	rtc->data = (struct armada38x_rtc_data *)match->data;
+=======
+	if (rtc->irq != -1)
+		device_init_wakeup(&pdev->dev, 1);
+	else
+		clear_bit(RTC_FEATURE_ALARM, rtc->rtc_dev->features);
+>>>>>>> upstream/android-13
 
 	/* Update RTC-MBUS bridge timing parameters */
 	rtc->data->update_mbus_timing(rtc);
 
+<<<<<<< HEAD
 	ret = rtc_register_device(rtc->rtc_dev);
 	if (ret)
 		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
 
 	return ret;
+=======
+	rtc->rtc_dev->ops = &armada38x_rtc_ops;
+	rtc->rtc_dev->range_max = U32_MAX;
+
+	return devm_rtc_register_device(rtc->rtc_dev);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PM_SLEEP

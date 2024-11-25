@@ -26,8 +26,11 @@
 #include <linux/kernel.h>
 #include <linux/errno.h>
 
+<<<<<<< HEAD
 #include <sound/aess.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "omap_hwmod.h"
 #include "common.h"
 
@@ -41,6 +44,7 @@
 #define OMAP_RTC_MAX_READY_TIME	50
 
 /**
+<<<<<<< HEAD
  * omap_hwmod_aess_preprogram - enable AESS internal autogating
  * @oh: struct omap_hwmod *
  *
@@ -63,6 +67,8 @@ int omap_hwmod_aess_preprogram(struct omap_hwmod *oh)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * omap_rtc_wait_not_busy - Wait for the RTC BUSY flag
  * @oh: struct omap_hwmod *
  *

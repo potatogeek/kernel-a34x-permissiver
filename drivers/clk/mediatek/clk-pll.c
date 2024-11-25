@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2019 MediaTek Inc.
@@ -15,6 +16,23 @@
 
 #include "clk-mtk.h"
 #include "clk-gate.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: James Liao <jamesjj.liao@mediatek.com>
+ */
+
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/io.h>
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/clkdev.h>
+#include <linux/delay.h>
+
+#include "clk-mtk.h"
+>>>>>>> upstream/android-13
 
 #define REG_CON0		0
 #define REG_CON1		4
@@ -27,8 +45,14 @@
 #define AUDPLL_TUNER_EN		BIT(31)
 
 #define POSTDIV_MASK		0x7
+<<<<<<< HEAD
 #define INTEGER_BITS		7
 #define INV_OFS		-1
+=======
+
+/* default 7 bits integer, can be overridden with pcwibits. */
+#define INTEGER_BITS		7
+>>>>>>> upstream/android-13
 
 /*
  * MediaTek PLLs are configured through their pcw value. The pcw value describes
@@ -47,6 +71,7 @@ struct mtk_clk_pll {
 	void __iomem	*pcw_addr;
 	void __iomem	*pcw_chg_addr;
 	void __iomem	*en_addr;
+<<<<<<< HEAD
 	void __iomem	*rst_bar_addr;
 	const struct mtk_pll_data *data;
 	uint32_t	en_mask;
@@ -60,11 +85,17 @@ bool (*mtk_fh_set_rate)(int pll_id, unsigned long dds, int postdiv) = NULL;
 EXPORT_SYMBOL(mtk_fh_set_rate);
 
 
+=======
+	const struct mtk_pll_data *data;
+};
+
+>>>>>>> upstream/android-13
 static inline struct mtk_clk_pll *to_mtk_clk_pll(struct clk_hw *hw)
 {
 	return container_of(hw, struct mtk_clk_pll, hw);
 }
 
+<<<<<<< HEAD
 #if (defined(CONFIG_MACH_MT6877) \
 	|| defined(CONFIG_MACH_MT6768) \
 	|| defined(CONFIG_MACH_MT6781) \
@@ -96,10 +127,13 @@ static int is_subsys_pwr_on(struct mtk_clk_pll *pll)
 	return true;
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 static int mtk_pll_is_prepared(struct clk_hw *hw)
 {
 	struct mtk_clk_pll *pll = to_mtk_clk_pll(hw);
 
+<<<<<<< HEAD
 #if (defined(CONFIG_MACH_MT6877) \
 	|| defined(CONFIG_MACH_MT6768) \
 	|| defined(CONFIG_MACH_MT6781) \
@@ -113,6 +147,9 @@ static int mtk_pll_is_prepared(struct clk_hw *hw)
 #else
 	return (readl(pll->base_addr + REG_CON0) & CON0_BASE_EN) != 0;
 #endif
+=======
+	return (readl(pll->en_addr) & BIT(pll->data->pll_en_bit)) != 0;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long __mtk_pll_recalc_rate(struct mtk_clk_pll *pll, u32 fin,
@@ -126,7 +163,12 @@ static unsigned long __mtk_pll_recalc_rate(struct mtk_clk_pll *pll, u32 fin,
 
 	/* The fractional part of the PLL divider. */
 	ibits = pll->data->pcwibits ? pll->data->pcwibits : INTEGER_BITS;
+<<<<<<< HEAD
 	pcwfbits = pcwbits > ibits ? pcwbits - ibits : 0;
+=======
+	if (pcwbits > ibits)
+		pcwfbits = pcwbits - ibits;
+>>>>>>> upstream/android-13
 
 	vco = (u64)fin * pcw;
 
@@ -141,6 +183,7 @@ static unsigned long __mtk_pll_recalc_rate(struct mtk_clk_pll *pll, u32 fin,
 	return ((unsigned long)vco + postdiv - 1) / postdiv;
 }
 
+<<<<<<< HEAD
 #if (defined(CONFIG_MACH_MT6877) \
 	|| defined(CONFIG_MACH_MT6768) \
 	|| defined(CONFIG_MACH_MT6781) \
@@ -216,6 +259,8 @@ static void mtk_pll_set_rate_regs(struct mtk_clk_pll *pll, u32 pcw,
 
 #else
 
+=======
+>>>>>>> upstream/android-13
 static void __mtk_pll_tuner_enable(struct mtk_clk_pll *pll)
 {
 	u32 r;
@@ -276,7 +321,11 @@ static void mtk_pll_set_rate_regs(struct mtk_clk_pll *pll, u32 pcw,
 
 	udelay(20);
 }
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 /*
  * mtk_pll_calc_values - calculate good values for a given input frequency.
  * @pll:	The pll
@@ -318,8 +367,12 @@ static void mtk_pll_calc_values(struct mtk_clk_pll *pll, u32 *pcw, u32 *postdiv,
 	/* _pcw = freq * postdiv / fin * 2^pcwfbits */
 	ibits = pll->data->pcwibits ? pll->data->pcwibits : INTEGER_BITS;
 	_pcw = ((u64)freq << val) << (pll->data->pcwbits - ibits);
+<<<<<<< HEAD
 	if (fin != 0)
 		_pcw = div_u64(_pcw, fin);
+=======
+	do_div(_pcw, fin);
+>>>>>>> upstream/android-13
 
 	*pcw = (u32)_pcw;
 }
@@ -332,6 +385,7 @@ static int mtk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
 	u32 postdiv;
 
 	mtk_pll_calc_values(pll, &pcw, &postdiv, rate, parent_rate);
+<<<<<<< HEAD
 #if (defined(CONFIG_MACH_MT6877) \
 	|| defined(CONFIG_MACH_MT6768) \
 	|| defined(CONFIG_MACH_MT6781) \
@@ -346,6 +400,10 @@ static int mtk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
 	if (!mtk_fh_set_rate || !mtk_fh_set_rate(pll->data->id, pcw, postdiv))
 		mtk_pll_set_rate_regs(pll, pcw, postdiv);
 #endif
+=======
+	mtk_pll_set_rate_regs(pll, pcw, postdiv);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -377,6 +435,7 @@ static long mtk_pll_round_rate(struct clk_hw *hw, unsigned long rate,
 	return __mtk_pll_recalc_rate(pll, *prate, pcw, postdiv);
 }
 
+<<<<<<< HEAD
 #if (defined(CONFIG_MACH_MT6877) \
 	|| defined(CONFIG_MACH_MT6768) \
 	|| defined(CONFIG_MACH_MT6781) \
@@ -423,10 +482,16 @@ static int mtk_pll_prepare(struct clk_hw *hw)
 }
 
 #else
+=======
+>>>>>>> upstream/android-13
 static int mtk_pll_prepare(struct clk_hw *hw)
 {
 	struct mtk_clk_pll *pll = to_mtk_clk_pll(hw);
 	u32 r;
+<<<<<<< HEAD
+=======
+	u32 div_en_mask;
+>>>>>>> upstream/android-13
 
 	r = readl(pll->pwr_addr) | CON0_PWR_ON;
 	writel(r, pll->pwr_addr);
@@ -436,12 +501,22 @@ static int mtk_pll_prepare(struct clk_hw *hw)
 	writel(r, pll->pwr_addr);
 	udelay(1);
 
+<<<<<<< HEAD
 	r = readl(pll->en_addr) | pll->en_mask;
 	writel(r, pll->en_addr);
 
 	if (pll->data->flags & EN_BIT_CTRL) {
 		r = readl(pll->en_addr) | BIT(pll->data->pll_en_bit);
 		writel(r, pll->en_addr);
+=======
+	r = readl(pll->en_addr) | BIT(pll->data->pll_en_bit);
+	writel(r, pll->en_addr);
+
+	div_en_mask = pll->data->en_mask & ~CON0_BASE_EN;
+	if (div_en_mask) {
+		r = readl(pll->base_addr + REG_CON0) | div_en_mask;
+		writel(r, pll->base_addr + REG_CON0);
+>>>>>>> upstream/android-13
 	}
 
 	__mtk_pll_tuner_enable(pll);
@@ -456,6 +531,7 @@ static int mtk_pll_prepare(struct clk_hw *hw)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
 
 #if (defined(CONFIG_MACH_MT6877) \
@@ -520,11 +596,17 @@ static void mtk_pll_unprepare(struct clk_hw *hw)
 	writel(r, pll->pwr_addr);
 }
 #else
+=======
+>>>>>>> upstream/android-13
 
 static void mtk_pll_unprepare(struct clk_hw *hw)
 {
 	struct mtk_clk_pll *pll = to_mtk_clk_pll(hw);
 	u32 r;
+<<<<<<< HEAD
+=======
+	u32 div_en_mask;
+>>>>>>> upstream/android-13
 
 	if (pll->data->flags & HAVE_RST_BAR) {
 		r = readl(pll->base_addr + REG_CON0);
@@ -534,12 +616,22 @@ static void mtk_pll_unprepare(struct clk_hw *hw)
 
 	__mtk_pll_tuner_disable(pll);
 
+<<<<<<< HEAD
 	if (pll->data->flags & EN_BIT_CTRL) {
 		r = readl(pll->en_addr) & ~BIT(pll->data->pll_en_bit);
 		writel(r, pll->en_addr);
 	}
 
 	r = readl(pll->en_addr) & ~pll->en_mask;
+=======
+	div_en_mask = pll->data->en_mask & ~CON0_BASE_EN;
+	if (div_en_mask) {
+		r = readl(pll->base_addr + REG_CON0) & ~div_en_mask;
+		writel(r, pll->base_addr + REG_CON0);
+	}
+
+	r = readl(pll->en_addr) & ~BIT(pll->data->pll_en_bit);
+>>>>>>> upstream/android-13
 	writel(r, pll->en_addr);
 
 	r = readl(pll->pwr_addr) | CON0_ISO_EN;
@@ -548,6 +640,7 @@ static void mtk_pll_unprepare(struct clk_hw *hw)
 	r = readl(pll->pwr_addr) & ~CON0_PWR_ON;
 	writel(r, pll->pwr_addr);
 }
+<<<<<<< HEAD
 #endif
 
 static void mtk_pll_unprepare_unused(struct clk_hw *hw)
@@ -575,6 +668,9 @@ static const struct clk_ops mtk_pll_ops = {
 	.disable_unused	= mtk_pll_unprepare_unused,
 };
 #else
+=======
+
+>>>>>>> upstream/android-13
 static const struct clk_ops mtk_pll_ops = {
 	.is_prepared	= mtk_pll_is_prepared,
 	.prepare	= mtk_pll_prepare,
@@ -582,6 +678,7 @@ static const struct clk_ops mtk_pll_ops = {
 	.recalc_rate	= mtk_pll_recalc_rate,
 	.round_rate	= mtk_pll_round_rate,
 	.set_rate	= mtk_pll_set_rate,
+<<<<<<< HEAD
 	.unprepare_unused	= mtk_pll_unprepare_unused,
 };
 #endif
@@ -589,6 +686,12 @@ static const struct clk_ops mtk_pll_ops = {
 static struct clk *mtk_clk_register_pll(const struct mtk_pll_data *data,
 		void __iomem *base,
 		struct regmap *pwr_regmap)
+=======
+};
+
+static struct clk *mtk_clk_register_pll(const struct mtk_pll_data *data,
+		void __iomem *base)
+>>>>>>> upstream/android-13
 {
 	struct mtk_clk_pll *pll;
 	struct clk_init_data init = {};
@@ -603,22 +706,29 @@ static struct clk *mtk_clk_register_pll(const struct mtk_pll_data *data,
 	pll->pwr_addr = base + data->pwr_reg;
 	pll->pd_addr = base + data->pd_reg;
 	pll->pcw_addr = base + data->pcw_reg;
+<<<<<<< HEAD
 	if (data->en_reg)
 		pll->en_addr = base + data->en_reg;
 	else
 		pll->en_addr = pll->base_addr + REG_CON0;
+=======
+>>>>>>> upstream/android-13
 	if (data->pcw_chg_reg)
 		pll->pcw_chg_addr = base + data->pcw_chg_reg;
 	else
 		pll->pcw_chg_addr = pll->base_addr + REG_CON1;
+<<<<<<< HEAD
 	if (data->rst_bar_reg)
 		pll->rst_bar_addr = base + data->rst_bar_reg;
 	else
 		pll->rst_bar_addr = pll->base_addr + REG_CON0;
+=======
+>>>>>>> upstream/android-13
 	if (data->tuner_reg)
 		pll->tuner_addr = base + data->tuner_reg;
 	if (data->tuner_en_reg)
 		pll->tuner_en_addr = base + data->tuner_en_reg;
+<<<<<<< HEAD
 	if (data->en_mask)
 		pll->en_mask = data->en_mask;
 	else
@@ -638,6 +748,12 @@ static struct clk *mtk_clk_register_pll(const struct mtk_pll_data *data,
 		pll->pwr_stat = NULL;
 	pll->pwr_regmap = pwr_regmap;
 
+=======
+	if (data->en_reg)
+		pll->en_addr = base + data->en_reg;
+	else
+		pll->en_addr = pll->base_addr + REG_CON0;
+>>>>>>> upstream/android-13
 	pll->hw.init = &init;
 	pll->data = data;
 
@@ -659,13 +775,20 @@ static struct clk *mtk_clk_register_pll(const struct mtk_pll_data *data,
 }
 
 void mtk_clk_register_plls(struct device_node *node,
+<<<<<<< HEAD
 		const struct mtk_pll_data *plls, int num_plls,
 		struct clk_onecell_data *clk_data)
+=======
+		const struct mtk_pll_data *plls, int num_plls, struct clk_onecell_data *clk_data)
+>>>>>>> upstream/android-13
 {
 	void __iomem *base;
 	int i;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct regmap *pwr_regmap;
+=======
+>>>>>>> upstream/android-13
 
 	base = of_iomap(node, 0);
 	if (!base) {
@@ -673,6 +796,7 @@ void mtk_clk_register_plls(struct device_node *node,
 		return;
 	}
 
+<<<<<<< HEAD
 	pwr_regmap = syscon_regmap_lookup_by_phandle(node, "pwr-regmap");
 	if (IS_ERR(pwr_regmap))
 		pwr_regmap = NULL;
@@ -681,6 +805,12 @@ void mtk_clk_register_plls(struct device_node *node,
 		const struct mtk_pll_data *pll = &plls[i];
 
 		clk = mtk_clk_register_pll(pll, base, pwr_regmap);
+=======
+	for (i = 0; i < num_plls; i++) {
+		const struct mtk_pll_data *pll = &plls[i];
+
+		clk = mtk_clk_register_pll(pll, base);
+>>>>>>> upstream/android-13
 
 		if (IS_ERR(clk)) {
 			pr_err("Failed to register clk %s: %ld\n",
@@ -691,9 +821,15 @@ void mtk_clk_register_plls(struct device_node *node,
 		clk_data->clks[pll->id] = clk;
 	}
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(mtk_clk_register_plls);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("MediaTek PLL");
 MODULE_AUTHOR("MediaTek Inc.");
+=======
+EXPORT_SYMBOL_GPL(mtk_clk_register_plls);
+
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * include/linux/sizes.h
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * include/linux/sizes.h
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_SIZES_H__
 #define __LINUX_SIZES_H__
@@ -47,5 +53,12 @@
 #define SZ_2G				0x80000000
 
 #define SZ_4G				_AC(0x100000000, ULL)
+<<<<<<< HEAD
+=======
+#define SZ_8G				_AC(0x200000000, ULL)
+#define SZ_16G				_AC(0x400000000, ULL)
+#define SZ_32G				_AC(0x800000000, ULL)
+#define SZ_64T				_AC(0x400000000000, ULL)
+>>>>>>> upstream/android-13
 
 #endif /* __LINUX_SIZES_H__ */

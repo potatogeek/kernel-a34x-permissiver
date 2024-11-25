@@ -35,8 +35,13 @@ DECLARE_EVENT_CLASS(kmem_alloc,
 		__entry->gfp_flags	= gfp_flags;
 	),
 
+<<<<<<< HEAD
 	TP_printk("call_site=%lx ptr=%p bytes_req=%zu bytes_alloc=%zu gfp_flags=%s",
 		__entry->call_site,
+=======
+	TP_printk("call_site=%pS ptr=%p bytes_req=%zu bytes_alloc=%zu gfp_flags=%s",
+		(void *)__entry->call_site,
+>>>>>>> upstream/android-13
 		__entry->ptr,
 		__entry->bytes_req,
 		__entry->bytes_alloc,
@@ -88,8 +93,13 @@ DECLARE_EVENT_CLASS(kmem_alloc_node,
 		__entry->node		= node;
 	),
 
+<<<<<<< HEAD
 	TP_printk("call_site=%lx ptr=%p bytes_req=%zu bytes_alloc=%zu gfp_flags=%s node=%d",
 		__entry->call_site,
+=======
+	TP_printk("call_site=%pS ptr=%p bytes_req=%zu bytes_alloc=%zu gfp_flags=%s node=%d",
+		(void *)__entry->call_site,
+>>>>>>> upstream/android-13
 		__entry->ptr,
 		__entry->bytes_req,
 		__entry->bytes_alloc,
@@ -115,7 +125,11 @@ DEFINE_EVENT(kmem_alloc_node, kmem_cache_alloc_node,
 	TP_ARGS(call_site, ptr, bytes_req, bytes_alloc, gfp_flags, node)
 );
 
+<<<<<<< HEAD
 DECLARE_EVENT_CLASS(kmem_free,
+=======
+TRACE_EVENT(kfree,
+>>>>>>> upstream/android-13
 
 	TP_PROTO(unsigned long call_site, const void *ptr),
 
@@ -131,6 +145,7 @@ DECLARE_EVENT_CLASS(kmem_free,
 		__entry->ptr		= ptr;
 	),
 
+<<<<<<< HEAD
 	TP_printk("call_site=%lx ptr=%p", __entry->call_site, __entry->ptr)
 );
 
@@ -146,6 +161,32 @@ DEFINE_EVENT(kmem_free, kmem_cache_free,
 	TP_PROTO(unsigned long call_site, const void *ptr),
 
 	TP_ARGS(call_site, ptr)
+=======
+	TP_printk("call_site=%pS ptr=%p",
+		  (void *)__entry->call_site, __entry->ptr)
+);
+
+TRACE_EVENT(kmem_cache_free,
+
+	TP_PROTO(unsigned long call_site, const void *ptr, const char *name),
+
+	TP_ARGS(call_site, ptr, name),
+
+	TP_STRUCT__entry(
+		__field(	unsigned long,	call_site	)
+		__field(	const void *,	ptr		)
+		__string(	name,	name	)
+	),
+
+	TP_fast_assign(
+		__entry->call_site	= call_site;
+		__entry->ptr		= ptr;
+		__assign_str(name, name);
+	),
+
+	TP_printk("call_site=%pS ptr=%p name=%s",
+		  (void *)__entry->call_site, __entry->ptr, __get_str(name))
+>>>>>>> upstream/android-13
 );
 
 TRACE_EVENT(mm_page_free,
@@ -164,7 +205,11 @@ TRACE_EVENT(mm_page_free,
 		__entry->order		= order;
 	),
 
+<<<<<<< HEAD
 	TP_printk("page=%p pfn=%lu order=%d",
+=======
+	TP_printk("page=%p pfn=0x%lx order=%d",
+>>>>>>> upstream/android-13
 			pfn_to_page(__entry->pfn),
 			__entry->pfn,
 			__entry->order)
@@ -184,7 +229,11 @@ TRACE_EVENT(mm_page_free_batched,
 		__entry->pfn		= page_to_pfn(page);
 	),
 
+<<<<<<< HEAD
 	TP_printk("page=%p pfn=%lu order=0",
+=======
+	TP_printk("page=%p pfn=0x%lx order=0",
+>>>>>>> upstream/android-13
 			pfn_to_page(__entry->pfn),
 			__entry->pfn)
 );
@@ -210,7 +259,11 @@ TRACE_EVENT(mm_page_alloc,
 		__entry->migratetype	= migratetype;
 	),
 
+<<<<<<< HEAD
 	TP_printk("page=%p pfn=%lu order=%d migratetype=%d gfp_flags=%s",
+=======
+	TP_printk("page=%p pfn=0x%lx order=%d migratetype=%d gfp_flags=%s",
+>>>>>>> upstream/android-13
 		__entry->pfn != -1UL ? pfn_to_page(__entry->pfn) : NULL,
 		__entry->pfn != -1UL ? __entry->pfn : 0,
 		__entry->order,
@@ -236,7 +289,11 @@ DECLARE_EVENT_CLASS(mm_page,
 		__entry->migratetype	= migratetype;
 	),
 
+<<<<<<< HEAD
 	TP_printk("page=%p pfn=%lu order=%u migratetype=%d percpu_refill=%d",
+=======
+	TP_printk("page=%p pfn=0x%lx order=%u migratetype=%d percpu_refill=%d",
+>>>>>>> upstream/android-13
 		__entry->pfn != -1UL ? pfn_to_page(__entry->pfn) : NULL,
 		__entry->pfn != -1UL ? __entry->pfn : 0,
 		__entry->order,
@@ -269,7 +326,11 @@ TRACE_EVENT(mm_page_pcpu_drain,
 		__entry->migratetype	= migratetype;
 	),
 
+<<<<<<< HEAD
 	TP_printk("page=%p pfn=%lu order=%d migratetype=%d",
+=======
+	TP_printk("page=%p pfn=0x%lx order=%d migratetype=%d",
+>>>>>>> upstream/android-13
 		pfn_to_page(__entry->pfn), __entry->pfn,
 		__entry->order, __entry->migratetype)
 );
@@ -303,7 +364,11 @@ TRACE_EVENT(mm_page_alloc_extfrag,
 					get_pageblock_migratetype(page));
 	),
 
+<<<<<<< HEAD
 	TP_printk("page=%p pfn=%lu alloc_order=%d fallback_order=%d pageblock_order=%d alloc_migratetype=%d fallback_migratetype=%d fragmenting=%d change_ownership=%d",
+=======
+	TP_printk("page=%p pfn=0x%lx alloc_order=%d fallback_order=%d pageblock_order=%d alloc_migratetype=%d fallback_migratetype=%d fragmenting=%d change_ownership=%d",
+>>>>>>> upstream/android-13
 		pfn_to_page(__entry->pfn),
 		__entry->pfn,
 		__entry->alloc_order,
@@ -334,6 +399,7 @@ static unsigned int __maybe_unused mm_ptr_to_hash(const void *ptr)
 #define __PTR_TO_HASHVAL
 #endif
 
+<<<<<<< HEAD
 DECLARE_EVENT_CLASS(ion_rbin,
 
 	TP_PROTO(const char *heap_name,
@@ -436,6 +502,27 @@ DEFINE_EVENT(ion_rbin, ion_rbin_pool_alloc_end,
 
 	TP_ARGS(heap_name, buffer, size, page)
 );
+=======
+#define TRACE_MM_PAGES		\
+	EM(MM_FILEPAGES)	\
+	EM(MM_ANONPAGES)	\
+	EM(MM_SWAPENTS)		\
+	EMe(MM_SHMEMPAGES)
+
+#undef EM
+#undef EMe
+
+#define EM(a)	TRACE_DEFINE_ENUM(a);
+#define EMe(a)	TRACE_DEFINE_ENUM(a);
+
+TRACE_MM_PAGES
+
+#undef EM
+#undef EMe
+
+#define EM(a)	{ a, #a },
+#define EMe(a)	{ a, #a }
+>>>>>>> upstream/android-13
 
 TRACE_EVENT(rss_stat,
 
@@ -459,10 +546,17 @@ TRACE_EVENT(rss_stat,
 		__entry->size = (count << PAGE_SHIFT);
 	),
 
+<<<<<<< HEAD
 	TP_printk("mm_id=%u curr=%d member=%d size=%ldB",
 		__entry->mm_id,
 		__entry->curr,
 		__entry->member,
+=======
+	TP_printk("mm_id=%u curr=%d type=%s size=%ldB",
+		__entry->mm_id,
+		__entry->curr,
+		__print_symbolic(__entry->member, TRACE_MM_PAGES),
+>>>>>>> upstream/android-13
 		__entry->size)
 	);
 #endif /* _TRACE_KMEM_H */

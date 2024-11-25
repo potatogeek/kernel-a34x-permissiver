@@ -140,10 +140,15 @@ bail:		spin_unlock_irqrestore(&emsgs_lock, flags);
 	}
 
 	mp = kmemdup(msg, n, GFP_ATOMIC);
+<<<<<<< HEAD
 	if (mp == NULL) {
 		printk(KERN_ERR "aoe: allocation failure, len=%ld\n", n);
 		goto bail;
 	}
+=======
+	if (!mp)
+		goto bail;
+>>>>>>> upstream/android-13
 
 	em->msg = mp;
 	em->flags |= EMFL_VALID;

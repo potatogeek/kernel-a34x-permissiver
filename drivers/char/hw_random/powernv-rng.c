@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Michael Ellerman, Guo Chao, IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Michael Ellerman, Guo Chao, IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
@@ -37,6 +43,7 @@ static struct hwrng powernv_hwrng = {
 	.read = powernv_rng_read,
 };
 
+<<<<<<< HEAD
 static int powernv_rng_remove(struct platform_device *pdev)
 {
 	hwrng_unregister(&powernv_hwrng);
@@ -44,11 +51,17 @@ static int powernv_rng_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int powernv_rng_probe(struct platform_device *pdev)
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = hwrng_register(&powernv_hwrng);
+=======
+	rc = devm_hwrng_register(&pdev->dev, &powernv_hwrng);
+>>>>>>> upstream/android-13
 	if (rc) {
 		/* We only register one device, ignore any others */
 		if (rc == -EEXIST)
@@ -74,7 +87,10 @@ static struct platform_driver powernv_rng_driver = {
 		.of_match_table = powernv_rng_match,
 	},
 	.probe	= powernv_rng_probe,
+<<<<<<< HEAD
 	.remove = powernv_rng_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_platform_driver(powernv_rng_driver);
 

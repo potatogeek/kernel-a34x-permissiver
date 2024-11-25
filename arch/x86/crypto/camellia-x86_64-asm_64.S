@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Camellia Cipher Algorithm (x86_64)
  *
  * Copyright (C) 2012 Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -190,7 +197,11 @@
 	bswapq				RAB0; \
 	movq RAB0,			4*2(RIO);
 
+<<<<<<< HEAD
 ENTRY(__camellia_enc_blk)
+=======
+SYM_FUNC_START(__camellia_enc_blk)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -228,16 +239,27 @@ ENTRY(__camellia_enc_blk)
 	enc_outunpack(mov, RT1);
 
 	movq RR12, %r12;
+<<<<<<< HEAD
 	ret;
+=======
+	RET;
+>>>>>>> upstream/android-13
 
 .L__enc_xor:
 	enc_outunpack(xor, RT1);
 
 	movq RR12, %r12;
+<<<<<<< HEAD
 	ret;
 ENDPROC(__camellia_enc_blk)
 
 ENTRY(camellia_dec_blk)
+=======
+	RET;
+SYM_FUNC_END(__camellia_enc_blk)
+
+SYM_FUNC_START(camellia_dec_blk)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -272,8 +294,13 @@ ENTRY(camellia_dec_blk)
 	dec_outunpack();
 
 	movq RR12, %r12;
+<<<<<<< HEAD
 	ret;
 ENDPROC(camellia_dec_blk)
+=======
+	RET;
+SYM_FUNC_END(camellia_dec_blk)
+>>>>>>> upstream/android-13
 
 /**********************************************************************
   2-way camellia
@@ -424,7 +451,11 @@ ENDPROC(camellia_dec_blk)
 		bswapq				RAB1; \
 		movq RAB1,			12*2(RIO);
 
+<<<<<<< HEAD
 ENTRY(__camellia_enc_blk_2way)
+=======
+SYM_FUNC_START(__camellia_enc_blk_2way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -463,17 +494,28 @@ ENTRY(__camellia_enc_blk_2way)
 
 	movq RR12, %r12;
 	popq %rbx;
+<<<<<<< HEAD
 	ret;
+=======
+	RET;
+>>>>>>> upstream/android-13
 
 .L__enc2_xor:
 	enc_outunpack2(xor, RT2);
 
 	movq RR12, %r12;
 	popq %rbx;
+<<<<<<< HEAD
 	ret;
 ENDPROC(__camellia_enc_blk_2way)
 
 ENTRY(camellia_dec_blk_2way)
+=======
+	RET;
+SYM_FUNC_END(__camellia_enc_blk_2way)
+
+SYM_FUNC_START(camellia_dec_blk_2way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -510,5 +552,10 @@ ENTRY(camellia_dec_blk_2way)
 
 	movq RR12, %r12;
 	movq RXOR, %rbx;
+<<<<<<< HEAD
 	ret;
 ENDPROC(camellia_dec_blk_2way)
+=======
+	RET;
+SYM_FUNC_END(camellia_dec_blk_2way)
+>>>>>>> upstream/android-13

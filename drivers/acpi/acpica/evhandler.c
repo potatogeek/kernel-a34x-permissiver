@@ -3,7 +3,11 @@
  *
  * Module Name: evhandler - Support for Address Space handlers
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -364,25 +368,41 @@ acpi_ev_install_space_handler(struct acpi_namespace_node *node,
 			handler = acpi_ex_system_io_space_handler;
 			setup = acpi_ev_io_space_region_setup;
 			break;
+<<<<<<< HEAD
 
+=======
+#ifdef ACPI_PCI_CONFIGURED
+>>>>>>> upstream/android-13
 		case ACPI_ADR_SPACE_PCI_CONFIG:
 
 			handler = acpi_ex_pci_config_space_handler;
 			setup = acpi_ev_pci_config_region_setup;
 			break;
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> upstream/android-13
 		case ACPI_ADR_SPACE_CMOS:
 
 			handler = acpi_ex_cmos_space_handler;
 			setup = acpi_ev_cmos_region_setup;
 			break;
+<<<<<<< HEAD
 
+=======
+#ifdef ACPI_PCI_CONFIGURED
+>>>>>>> upstream/android-13
 		case ACPI_ADR_SPACE_PCI_BAR_TARGET:
 
 			handler = acpi_ex_pci_bar_space_handler;
 			setup = acpi_ev_pci_bar_region_setup;
 			break;
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> upstream/android-13
 		case ACPI_ADR_SPACE_DATA_TABLE:
 
 			handler = acpi_ex_data_table_space_handler;
@@ -489,6 +509,16 @@ acpi_ev_install_space_handler(struct acpi_namespace_node *node,
 
 	/* Init handler obj */
 
+<<<<<<< HEAD
+=======
+	status =
+	    acpi_os_create_mutex(&handler_obj->address_space.context_mutex);
+	if (ACPI_FAILURE(status)) {
+		acpi_ut_remove_reference(handler_obj);
+		goto unlock_and_exit;
+	}
+
+>>>>>>> upstream/android-13
 	handler_obj->address_space.space_id = (u8)space_id;
 	handler_obj->address_space.handler_flags = flags;
 	handler_obj->address_space.region_list = NULL;

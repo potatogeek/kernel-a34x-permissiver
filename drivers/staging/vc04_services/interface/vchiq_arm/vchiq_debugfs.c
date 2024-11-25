@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2014 Raspberry Pi (Trading) Ltd. All rights reserved.
  * Copyright (c) 2010-2012 Broadcom. All rights reserved.
@@ -30,6 +31,12 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (c) 2014 Raspberry Pi (Trading) Ltd. All rights reserved.
+ * Copyright (c) 2010-2012 Broadcom. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -39,11 +46,14 @@
 
 #ifdef CONFIG_DEBUG_FS
 
+<<<<<<< HEAD
 /****************************************************************************
 *
 *   log category entries
 *
 ***************************************************************************/
+=======
+>>>>>>> upstream/android-13
 #define DEBUGFS_WRITE_BUF_SIZE 256
 
 #define VCHIQ_LOG_ERROR_STR   "error"
@@ -68,6 +78,10 @@ static struct vchiq_debugfs_log_entry vchiq_debugfs_log_entries[] = {
 	{ "susp", &vchiq_susp_log_level },
 	{ "arm",  &vchiq_arm_log_level },
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static int n_log_entries = ARRAY_SIZE(vchiq_debugfs_log_entries);
 
 static int debugfs_log_show(struct seq_file *f, void *offset)
@@ -114,7 +128,11 @@ static ssize_t debugfs_log_write(struct file *file,
 	if (count >= DEBUGFS_WRITE_BUF_SIZE)
 		count = DEBUGFS_WRITE_BUF_SIZE;
 
+<<<<<<< HEAD
 	if (copy_from_user(kbuf, buffer, count) != 0)
+=======
+	if (copy_from_user(kbuf, buffer, count))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	kbuf[count - 1] = 0;
 
@@ -145,7 +163,11 @@ static const struct file_operations debugfs_log_fops = {
 
 static int debugfs_usecount_show(struct seq_file *f, void *offset)
 {
+<<<<<<< HEAD
 	VCHIQ_INSTANCE_T instance = f->private;
+=======
+	struct vchiq_instance *instance = f->private;
+>>>>>>> upstream/android-13
 	int use_count;
 
 	use_count = vchiq_instance_get_use_count(instance);
@@ -153,6 +175,7 @@ static int debugfs_usecount_show(struct seq_file *f, void *offset)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int debugfs_usecount_open(struct inode *inode, struct file *file)
 {
@@ -170,6 +193,13 @@ static const struct file_operations debugfs_usecount_fops = {
 static int debugfs_trace_show(struct seq_file *f, void *offset)
 {
 	VCHIQ_INSTANCE_T instance = f->private;
+=======
+DEFINE_SHOW_ATTRIBUTE(debugfs_usecount);
+
+static int debugfs_trace_show(struct seq_file *f, void *offset)
+{
+	struct vchiq_instance *instance = f->private;
+>>>>>>> upstream/android-13
 	int trace;
 
 	trace = vchiq_instance_get_trace(instance);
@@ -188,10 +218,17 @@ static ssize_t debugfs_trace_write(struct file *file,
 	size_t count, loff_t *ppos)
 {
 	struct seq_file *f = (struct seq_file *)file->private_data;
+<<<<<<< HEAD
 	VCHIQ_INSTANCE_T instance = f->private;
 	char firstchar;
 
 	if (copy_from_user(&firstchar, buffer, 1) != 0)
+=======
+	struct vchiq_instance *instance = f->private;
+	char firstchar;
+
+	if (copy_from_user(&firstchar, buffer, 1))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	switch (firstchar) {
@@ -224,7 +261,11 @@ static const struct file_operations debugfs_trace_fops = {
 };
 
 /* add an instance (process) to the debugfs entries */
+<<<<<<< HEAD
 void vchiq_debugfs_add_instance(VCHIQ_INSTANCE_T instance)
+=======
+void vchiq_debugfs_add_instance(struct vchiq_instance *instance)
+>>>>>>> upstream/android-13
 {
 	char pidstr[16];
 	struct dentry *top;
@@ -241,9 +282,16 @@ void vchiq_debugfs_add_instance(VCHIQ_INSTANCE_T instance)
 	vchiq_instance_get_debugfs_node(instance)->dentry = top;
 }
 
+<<<<<<< HEAD
 void vchiq_debugfs_remove_instance(VCHIQ_INSTANCE_T instance)
 {
 	VCHIQ_DEBUGFS_NODE_T *node = vchiq_instance_get_debugfs_node(instance);
+=======
+void vchiq_debugfs_remove_instance(struct vchiq_instance *instance)
+{
+	struct vchiq_debugfs_node *node =
+				vchiq_instance_get_debugfs_node(instance);
+>>>>>>> upstream/android-13
 
 	debugfs_remove_recursive(node->dentry);
 }
@@ -281,11 +329,19 @@ void vchiq_debugfs_deinit(void)
 {
 }
 
+<<<<<<< HEAD
 void vchiq_debugfs_add_instance(VCHIQ_INSTANCE_T instance)
 {
 }
 
 void vchiq_debugfs_remove_instance(VCHIQ_INSTANCE_T instance)
+=======
+void vchiq_debugfs_add_instance(struct vchiq_instance *instance)
+{
+}
+
+void vchiq_debugfs_remove_instance(struct vchiq_instance *instance)
+>>>>>>> upstream/android-13
 {
 }
 

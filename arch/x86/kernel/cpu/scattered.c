@@ -4,10 +4,18 @@
  */
 #include <linux/cpu.h>
 
+<<<<<<< HEAD
 #include <asm/pat.h>
 #include <asm/processor.h>
 
 #include <asm/apic.h>
+=======
+#include <asm/memtype.h>
+#include <asm/apic.h>
+#include <asm/processor.h>
+
+#include "cpu.h"
+>>>>>>> upstream/android-13
 
 struct cpuid_bit {
 	u16 feature;
@@ -17,7 +25,15 @@ struct cpuid_bit {
 	u32 sub_leaf;
 };
 
+<<<<<<< HEAD
 /* Please keep the leaf sorted by cpuid_bit.level for faster search. */
+=======
+/*
+ * Please keep the leaf sorted by cpuid_bit.level for faster search.
+ * X86_FEATURE_MBA is supported by both Intel and AMD. But the CPUID
+ * levels are different and there is a separate entry for each.
+ */
+>>>>>>> upstream/android-13
 static const struct cpuid_bit cpuid_bits[] = {
 	{ X86_FEATURE_APERFMPERF,       CPUID_ECX,  0, 0x00000006, 0 },
 	{ X86_FEATURE_EPB,		CPUID_ECX,  3, 0x00000006, 0 },
@@ -30,11 +46,21 @@ static const struct cpuid_bit cpuid_bits[] = {
 	{ X86_FEATURE_CDP_L3,		CPUID_ECX,  2, 0x00000010, 1 },
 	{ X86_FEATURE_CDP_L2,		CPUID_ECX,  2, 0x00000010, 2 },
 	{ X86_FEATURE_MBA,		CPUID_EBX,  3, 0x00000010, 0 },
+<<<<<<< HEAD
 	{ X86_FEATURE_HW_PSTATE,	CPUID_EDX,  7, 0x80000007, 0 },
 	{ X86_FEATURE_CPB,		CPUID_EDX,  9, 0x80000007, 0 },
 	{ X86_FEATURE_PROC_FEEDBACK,    CPUID_EDX, 11, 0x80000007, 0 },
 	{ X86_FEATURE_SME,		CPUID_EAX,  0, 0x8000001f, 0 },
 	{ X86_FEATURE_SEV,		CPUID_EAX,  1, 0x8000001f, 0 },
+=======
+	{ X86_FEATURE_PER_THREAD_MBA,	CPUID_ECX,  0, 0x00000010, 3 },
+	{ X86_FEATURE_SGX1,		CPUID_EAX,  0, 0x00000012, 0 },
+	{ X86_FEATURE_SGX2,		CPUID_EAX,  1, 0x00000012, 0 },
+	{ X86_FEATURE_HW_PSTATE,	CPUID_EDX,  7, 0x80000007, 0 },
+	{ X86_FEATURE_CPB,		CPUID_EDX,  9, 0x80000007, 0 },
+	{ X86_FEATURE_PROC_FEEDBACK,    CPUID_EDX, 11, 0x80000007, 0 },
+	{ X86_FEATURE_MBA,		CPUID_EBX,  6, 0x80000008, 0 },
+>>>>>>> upstream/android-13
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -60,6 +86,7 @@ void init_scattered_cpuid_features(struct cpuinfo_x86 *c)
 			set_cpu_cap(c, cb->feature);
 	}
 }
+<<<<<<< HEAD
 
 u32 get_scattered_cpuid_leaf(unsigned int level, unsigned int sub_leaf,
 			     enum cpuid_regs_idx reg)
@@ -84,3 +111,5 @@ u32 get_scattered_cpuid_leaf(unsigned int level, unsigned int sub_leaf,
 	return cpuid_val;
 }
 EXPORT_SYMBOL_GPL(get_scattered_cpuid_leaf);
+=======
+>>>>>>> upstream/android-13

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007-2012 Siemens AG
  *
  * Written by:
  * Alexander Smirnov <alex.bluesman.smirnov@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -28,9 +35,15 @@
 #include "ieee802154_i.h"
 #include "cfg.h"
 
+<<<<<<< HEAD
 static void ieee802154_tasklet_handler(unsigned long data)
 {
 	struct ieee802154_local *local = (struct ieee802154_local *)data;
+=======
+static void ieee802154_tasklet_handler(struct tasklet_struct *t)
+{
+	struct ieee802154_local *local = from_tasklet(local, t, tasklet);
+>>>>>>> upstream/android-13
 	struct sk_buff *skb;
 
 	while ((skb = skb_dequeue(&local->skb_queue))) {
@@ -99,9 +112,13 @@ ieee802154_alloc_hw(size_t priv_data_len, const struct ieee802154_ops *ops)
 	INIT_LIST_HEAD(&local->interfaces);
 	mutex_init(&local->iflist_mtx);
 
+<<<<<<< HEAD
 	tasklet_init(&local->tasklet,
 		     ieee802154_tasklet_handler,
 		     (unsigned long)local);
+=======
+	tasklet_setup(&local->tasklet, ieee802154_tasklet_handler);
+>>>>>>> upstream/android-13
 
 	skb_queue_head_init(&local->skb_queue);
 

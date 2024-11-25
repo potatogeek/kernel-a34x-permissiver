@@ -23,7 +23,17 @@
 #define GET_R2L_SEGNO(free_i, segno)	((segno) + (free_i)->start_segno)
 
 #define IS_DATASEG(t)	((t) <= CURSEG_COLD_DATA)
+<<<<<<< HEAD
 #define IS_NODESEG(t)	((t) >= CURSEG_HOT_NODE)
+=======
+#define IS_NODESEG(t)	((t) >= CURSEG_HOT_NODE && (t) <= CURSEG_COLD_NODE)
+
+static inline void sanity_check_seg_type(struct f2fs_sb_info *sbi,
+						unsigned short seg_type)
+{
+	f2fs_bug_on(sbi, seg_type >= NR_PERSISTENT_LOG);
+}
+>>>>>>> upstream/android-13
 
 #define IS_HOT(t)	((t) == CURSEG_HOT_NODE || (t) == CURSEG_HOT_DATA)
 #define IS_WARM(t)	((t) == CURSEG_WARM_NODE || (t) == CURSEG_WARM_DATA)
@@ -35,7 +45,13 @@
 	 ((seg) == CURSEG_I(sbi, CURSEG_COLD_DATA)->segno) ||	\
 	 ((seg) == CURSEG_I(sbi, CURSEG_HOT_NODE)->segno) ||	\
 	 ((seg) == CURSEG_I(sbi, CURSEG_WARM_NODE)->segno) ||	\
+<<<<<<< HEAD
 	 ((seg) == CURSEG_I(sbi, CURSEG_COLD_NODE)->segno))
+=======
+	 ((seg) == CURSEG_I(sbi, CURSEG_COLD_NODE)->segno) ||	\
+	 ((seg) == CURSEG_I(sbi, CURSEG_COLD_DATA_PINNED)->segno) ||	\
+	 ((seg) == CURSEG_I(sbi, CURSEG_ALL_DATA_ATGC)->segno))
+>>>>>>> upstream/android-13
 
 #define IS_CURSEC(sbi, secno)						\
 	(((secno) == CURSEG_I(sbi, CURSEG_HOT_DATA)->segno /		\
@@ -49,7 +65,15 @@
 	 ((secno) == CURSEG_I(sbi, CURSEG_WARM_NODE)->segno /		\
 	  (sbi)->segs_per_sec) ||	\
 	 ((secno) == CURSEG_I(sbi, CURSEG_COLD_NODE)->segno /		\
+<<<<<<< HEAD
 	  (sbi)->segs_per_sec))	\
+=======
+	  (sbi)->segs_per_sec) ||	\
+	 ((secno) == CURSEG_I(sbi, CURSEG_COLD_DATA_PINNED)->segno /	\
+	  (sbi)->segs_per_sec) ||	\
+	 ((secno) == CURSEG_I(sbi, CURSEG_ALL_DATA_ATGC)->segno /	\
+	  (sbi)->segs_per_sec))
+>>>>>>> upstream/android-13
 
 #define MAIN_BLKADDR(sbi)						\
 	(SM_I(sbi) ? SM_I(sbi)->main_blkaddr : 				\
@@ -130,6 +154,7 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
  * In the victim_sel_policy->alloc_mode, there are two block allocation modes.
  * LFS writes data sequentially with cleaning operations.
  * SSR (Slack Space Recycle) reuses obsolete space without cleaning operations.
@@ -143,10 +168,33 @@ enum {
  * In the victim_sel_policy->gc_mode, there are two gc, aka cleaning, modes.
  * GC_CB is based on cost-benefit algorithm.
  * GC_GREEDY is based on greedy algorithm.
+=======
+ * In the victim_sel_policy->alloc_mode, there are three block allocation modes.
+ * LFS writes data sequentially with cleaning operations.
+ * SSR (Slack Space Recycle) reuses obsolete space without cleaning operations.
+ * AT_SSR (Age Threshold based Slack Space Recycle) merges fragments into
+ * fragmented segment which has similar aging degree.
+ */
+enum {
+	LFS = 0,
+	SSR,
+	AT_SSR,
+};
+
+/*
+ * In the victim_sel_policy->gc_mode, there are three gc, aka cleaning, modes.
+ * GC_CB is based on cost-benefit algorithm.
+ * GC_GREEDY is based on greedy algorithm.
+ * GC_AT is based on age-threshold algorithm.
+>>>>>>> upstream/android-13
  */
 enum {
 	GC_CB = 0,
 	GC_GREEDY,
+<<<<<<< HEAD
+=======
+	GC_AT,
+>>>>>>> upstream/android-13
 	ALLOC_NEXT,
 	FLUSH_DEVICE,
 	MAX_GC_POLICY,
@@ -155,24 +203,45 @@ enum {
 /*
  * BG_GC means the background cleaning job.
  * FG_GC means the on-demand cleaning job.
+<<<<<<< HEAD
  * FORCE_FG_GC means on-demand cleaning job in background.
+=======
+>>>>>>> upstream/android-13
  */
 enum {
 	BG_GC = 0,
 	FG_GC,
+<<<<<<< HEAD
 	FORCE_FG_GC,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* for a function parameter to select a victim segment */
 struct victim_sel_policy {
 	int alloc_mode;			/* LFS or SSR */
 	int gc_mode;			/* GC_CB or GC_GREEDY */
+<<<<<<< HEAD
 	unsigned long *dirty_segmap;	/* dirty segment bitmap */
 	unsigned int max_search;	/* maximum # of segments to search */
 	unsigned int offset;		/* last scanned bitmap offset */
 	unsigned int ofs_unit;		/* bitmap search unit */
 	unsigned int min_cost;		/* minimum cost */
 	unsigned int min_segno;		/* segment # having min. cost */
+=======
+	unsigned long *dirty_bitmap;	/* dirty segment/section bitmap */
+	unsigned int max_search;	/*
+					 * maximum # of segments/sections
+					 * to search
+					 */
+	unsigned int offset;		/* last scanned bitmap offset */
+	unsigned int ofs_unit;		/* bitmap search unit */
+	unsigned int min_cost;		/* minimum cost */
+	unsigned long long oldest_age;	/* oldest age of segments having the same min cost */
+	unsigned int min_segno;		/* segment # having min. cost */
+	unsigned long long age;		/* mtime of GCed section*/
+	unsigned long long age_threshold;/* age threshold */
+>>>>>>> upstream/android-13
 };
 
 struct seg_entry {
@@ -185,7 +254,11 @@ struct seg_entry {
 	unsigned char *cur_valid_map_mir;	/* mirror of current valid bitmap */
 #endif
 	/*
+<<<<<<< HEAD
 	 * # of valid blocks and the validity bitmap stored in the the last
+=======
+	 * # of valid blocks and the validity bitmap stored in the last
+>>>>>>> upstream/android-13
 	 * checkpoint pack. This information is used by the SSR mode.
 	 */
 	unsigned char *ckpt_valid_map;	/* validity bitmap of blocks last cp */
@@ -238,6 +311,11 @@ struct sit_info {
 	unsigned long long mounted_time;	/* mount time */
 	unsigned long long min_mtime;		/* min. modification time */
 	unsigned long long max_mtime;		/* max. modification time */
+<<<<<<< HEAD
+=======
+	unsigned long long dirty_min_mtime;	/* rerange candidates in GC_AT */
+	unsigned long long dirty_max_mtime;	/* rerange candidates in GC_AT */
+>>>>>>> upstream/android-13
 
 	unsigned int last_victim[MAX_GC_POLICY]; /* last victim segment # */
 };
@@ -267,6 +345,10 @@ enum dirty_type {
 struct dirty_seglist_info {
 	const struct victim_selection *v_ops;	/* victim selction operation */
 	unsigned long *dirty_segmap[NR_DIRTY_TYPE];
+<<<<<<< HEAD
+=======
+	unsigned long *dirty_secmap;
+>>>>>>> upstream/android-13
 	struct mutex seglist_lock;		/* lock for segment bitmaps */
 	int nr_dirty[NR_DIRTY_TYPE];		/* # of dirty segments */
 	unsigned long *victim_secmap;		/* background GC victims */
@@ -278,7 +360,11 @@ struct dirty_seglist_info {
 /* victim selection function for cleaning and SSR */
 struct victim_selection {
 	int (*get_victim)(struct f2fs_sb_info *, unsigned int *,
+<<<<<<< HEAD
 							int, int, char);
+=======
+					int, int, char, unsigned long long);
+>>>>>>> upstream/android-13
 };
 
 /* for active log information */
@@ -288,10 +374,19 @@ struct curseg_info {
 	struct rw_semaphore journal_rwsem;	/* protect journal area */
 	struct f2fs_journal *journal;		/* cached journal info */
 	unsigned char alloc_type;		/* current allocation type */
+<<<<<<< HEAD
+=======
+	unsigned short seg_type;		/* segment type like CURSEG_XXX_TYPE */
+>>>>>>> upstream/android-13
 	unsigned int segno;			/* current segment number */
 	unsigned short next_blkoff;		/* next block offset to write */
 	unsigned int zone;			/* current zone number */
 	unsigned int next_segno;		/* preallocated segment */
+<<<<<<< HEAD
+=======
+	int fragment_remained_chunk;		/* remained block size in a chunk for block fragmentation mode */
+	bool inited;				/* indicate inmem log is inited */
+>>>>>>> upstream/android-13
 };
 
 struct sit_entry_set {
@@ -305,8 +400,11 @@ struct sit_entry_set {
  */
 static inline struct curseg_info *CURSEG_I(struct f2fs_sb_info *sbi, int type)
 {
+<<<<<<< HEAD
 	if (type == CURSEG_COLD_DATA_PINNED)
 		type = CURSEG_COLD_DATA;
+=======
+>>>>>>> upstream/android-13
 	return (struct curseg_info *)(SM_I(sbi)->curseg_array + type);
 }
 
@@ -338,8 +436,25 @@ static inline unsigned int get_valid_blocks(struct f2fs_sb_info *sbi,
 }
 
 static inline unsigned int get_ckpt_valid_blocks(struct f2fs_sb_info *sbi,
+<<<<<<< HEAD
 				unsigned int segno)
 {
+=======
+				unsigned int segno, bool use_section)
+{
+	if (use_section && __is_large_section(sbi)) {
+		unsigned int start_segno = START_SEGNO(segno);
+		unsigned int blocks = 0;
+		int i;
+
+		for (i = 0; i < sbi->segs_per_sec; i++, start_segno++) {
+			struct seg_entry *se = get_seg_entry(sbi, start_segno);
+
+			blocks += se->ckpt_valid_blocks;
+		}
+		return blocks;
+	}
+>>>>>>> upstream/android-13
 	return get_seg_entry(sbi, segno)->ckpt_valid_blocks;
 }
 
@@ -411,6 +526,10 @@ static inline void __set_free(struct f2fs_sb_info *sbi, unsigned int segno)
 	unsigned int secno = GET_SEC_FROM_SEG(sbi, segno);
 	unsigned int start_segno = GET_SEG_FROM_SEC(sbi, secno);
 	unsigned int next;
+<<<<<<< HEAD
+=======
+	unsigned int usable_segs = f2fs_usable_segs_in_sec(sbi, segno);
+>>>>>>> upstream/android-13
 
 	spin_lock(&free_i->segmap_lock);
 	clear_bit(segno, free_i->free_segmap);
@@ -418,7 +537,11 @@ static inline void __set_free(struct f2fs_sb_info *sbi, unsigned int segno)
 
 	next = find_next_bit(free_i->free_segmap,
 			start_segno + sbi->segs_per_sec, start_segno);
+<<<<<<< HEAD
 	if (next >= start_segno + sbi->segs_per_sec) {
+=======
+	if (next >= start_segno + usable_segs) {
+>>>>>>> upstream/android-13
 		clear_bit(secno, free_i->free_secmap);
 		free_i->free_sections++;
 	}
@@ -438,22 +561,38 @@ static inline void __set_inuse(struct f2fs_sb_info *sbi,
 }
 
 static inline void __set_test_and_free(struct f2fs_sb_info *sbi,
+<<<<<<< HEAD
 		unsigned int segno)
+=======
+		unsigned int segno, bool inmem)
+>>>>>>> upstream/android-13
 {
 	struct free_segmap_info *free_i = FREE_I(sbi);
 	unsigned int secno = GET_SEC_FROM_SEG(sbi, segno);
 	unsigned int start_segno = GET_SEG_FROM_SEC(sbi, secno);
 	unsigned int next;
+<<<<<<< HEAD
+=======
+	unsigned int usable_segs = f2fs_usable_segs_in_sec(sbi, segno);
+>>>>>>> upstream/android-13
 
 	spin_lock(&free_i->segmap_lock);
 	if (test_and_clear_bit(segno, free_i->free_segmap)) {
 		free_i->free_segments++;
 
+<<<<<<< HEAD
 		if (IS_CURSEC(sbi, secno))
 			goto skip_free;
 		next = find_next_bit(free_i->free_segmap,
 				start_segno + sbi->segs_per_sec, start_segno);
 		if (next >= start_segno + sbi->segs_per_sec) {
+=======
+		if (!inmem && IS_CURSEC(sbi, secno))
+			goto skip_free;
+		next = find_next_bit(free_i->free_segmap,
+				start_segno + sbi->segs_per_sec, start_segno);
+		if (next >= start_segno + usable_segs) {
+>>>>>>> upstream/android-13
 			if (test_and_clear_bit(secno, free_i->free_secmap))
 				free_i->free_sections++;
 		}
@@ -500,9 +639,16 @@ static inline unsigned int free_segments(struct f2fs_sb_info *sbi)
 	return FREE_I(sbi)->free_segments;
 }
 
+<<<<<<< HEAD
 static inline int reserved_segments(struct f2fs_sb_info *sbi)
 {
 	return SM_I(sbi)->reserved_segments;
+=======
+static inline unsigned int reserved_segments(struct f2fs_sb_info *sbi)
+{
+	return SM_I(sbi)->reserved_segments +
+			SM_I(sbi)->additional_reserved_segments;
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int free_sections(struct f2fs_sb_info *sbi)
@@ -532,7 +678,11 @@ static inline int overprovision_segments(struct f2fs_sb_info *sbi)
 
 static inline int reserved_sections(struct f2fs_sb_info *sbi)
 {
+<<<<<<< HEAD
 	return GET_SEC_FROM_SEG(sbi, (unsigned int)reserved_segments(sbi));
+=======
+	return GET_SEC_FROM_SEG(sbi, reserved_segments(sbi));
+>>>>>>> upstream/android-13
 }
 
 static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
@@ -546,8 +696,13 @@ static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
 	/* check current node segment */
 	for (i = CURSEG_HOT_NODE; i <= CURSEG_COLD_NODE; i++) {
 		segno = CURSEG_I(sbi, i)->segno;
+<<<<<<< HEAD
 		left_blocks = sbi->blocks_per_seg -
 			get_seg_entry(sbi, segno)->ckpt_valid_blocks;
+=======
+		left_blocks = f2fs_usable_blks_in_seg(sbi, segno) -
+				get_seg_entry(sbi, segno)->ckpt_valid_blocks;
+>>>>>>> upstream/android-13
 
 		if (node_blocks > left_blocks)
 			return false;
@@ -555,7 +710,11 @@ static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
 
 	/* check current data segment */
 	segno = CURSEG_I(sbi, CURSEG_HOT_DATA)->segno;
+<<<<<<< HEAD
 	left_blocks = sbi->blocks_per_seg -
+=======
+	left_blocks = f2fs_usable_blks_in_seg(sbi, segno) -
+>>>>>>> upstream/android-13
 			get_seg_entry(sbi, segno)->ckpt_valid_blocks;
 	if (dent_blocks > left_blocks)
 		return false;
@@ -614,7 +773,13 @@ static inline int utilization(struct f2fs_sb_info *sbi)
  *                     pages over min_fsync_blocks. (=default option)
  * F2FS_IPU_ASYNC - do IPU given by asynchronous write requests.
  * F2FS_IPU_NOCACHE - disable IPU bio cache.
+<<<<<<< HEAD
  * F2FS_IPUT_DISABLE - disable IPU. (=default option in LFS mode)
+=======
+ * F2FS_IPU_HONOR_OPU_WRITE - use OPU write prior to IPU write if inode has
+ *                            FI_OPU_WRITE flag.
+ * F2FS_IPU_DISABLE - disable IPU. (=default option in LFS mode)
+>>>>>>> upstream/android-13
  */
 #define DEF_MIN_IPU_UTIL	70
 #define DEF_MIN_FSYNC_BLOCKS	8
@@ -633,6 +798,10 @@ enum {
 	F2FS_IPU_FSYNC,
 	F2FS_IPU_ASYNC,
 	F2FS_IPU_NOCACHE,
+<<<<<<< HEAD
+=======
+	F2FS_IPU_HONOR_OPU_WRITE,
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned int curseg_segno(struct f2fs_sb_info *sbi,
@@ -680,21 +849,37 @@ static inline int check_block_count(struct f2fs_sb_info *sbi,
 	bool is_valid  = test_bit_le(0, raw_sit->valid_map) ? true : false;
 	int valid_blocks = 0;
 	int cur_pos = 0, next_pos;
+<<<<<<< HEAD
+=======
+	unsigned int usable_blks_per_seg = f2fs_usable_blks_in_seg(sbi, segno);
+>>>>>>> upstream/android-13
 
 	/* check bitmap with valid block count */
 	do {
 		if (is_valid) {
 			next_pos = find_next_zero_bit_le(&raw_sit->valid_map,
+<<<<<<< HEAD
 					sbi->blocks_per_seg,
+=======
+					usable_blks_per_seg,
+>>>>>>> upstream/android-13
 					cur_pos);
 			valid_blocks += next_pos - cur_pos;
 		} else
 			next_pos = find_next_bit_le(&raw_sit->valid_map,
+<<<<<<< HEAD
 					sbi->blocks_per_seg,
 					cur_pos);
 		cur_pos = next_pos;
 		is_valid = !is_valid;
 	} while (cur_pos < sbi->blocks_per_seg);
+=======
+					usable_blks_per_seg,
+					cur_pos);
+		cur_pos = next_pos;
+		is_valid = !is_valid;
+	} while (cur_pos < usable_blks_per_seg);
+>>>>>>> upstream/android-13
 
 	if (unlikely(GET_SIT_VBLOCKS(raw_sit) != valid_blocks)) {
 		f2fs_err(sbi, "Mismatch valid blocks %d vs. %d",
@@ -703,8 +888,18 @@ static inline int check_block_count(struct f2fs_sb_info *sbi,
 		return -EFSCORRUPTED;
 	}
 
+<<<<<<< HEAD
 	/* check segment usage, and check boundary of a given segment number */
 	if (unlikely(GET_SIT_VBLOCKS(raw_sit) > sbi->blocks_per_seg
+=======
+	if (usable_blks_per_seg < sbi->blocks_per_seg)
+		f2fs_bug_on(sbi, find_next_bit_le(&raw_sit->valid_map,
+				sbi->blocks_per_seg,
+				usable_blks_per_seg) != sbi->blocks_per_seg);
+
+	/* check segment usage, and check boundary of a given segment number */
+	if (unlikely(GET_SIT_VBLOCKS(raw_sit) > usable_blks_per_seg
+>>>>>>> upstream/android-13
 					|| segno > TOTAL_SEGS(sbi) - 1)) {
 		f2fs_err(sbi, "Wrong valid blocks %d or segno %u",
 			 GET_SIT_VBLOCKS(raw_sit), segno);
@@ -823,7 +1018,11 @@ static inline int nr_pages_to_skip(struct f2fs_sb_info *sbi, int type)
 	else if (type == NODE)
 		return 8 * sbi->blocks_per_seg;
 	else if (type == META)
+<<<<<<< HEAD
 		return 8 * BIO_MAX_PAGES;
+=======
+		return 8 * BIO_MAX_VECS;
+>>>>>>> upstream/android-13
 	else
 		return 0;
 }
@@ -840,7 +1039,11 @@ static inline long nr_pages_to_write(struct f2fs_sb_info *sbi, int type,
 		return 0;
 
 	nr_to_write = wbc->nr_to_write;
+<<<<<<< HEAD
 	desired = BIO_MAX_PAGES;
+=======
+	desired = BIO_MAX_VECS;
+>>>>>>> upstream/android-13
 	if (type == NODE)
 		desired <<= 1;
 

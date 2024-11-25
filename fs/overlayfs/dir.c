@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Copyright (C) 2011 Novell Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ * Copyright (C) 2011 Novell Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -21,7 +28,11 @@
 
 static unsigned short ovl_redirect_max = 256;
 module_param_named(redirect_max, ovl_redirect_max, ushort, 0644);
+<<<<<<< HEAD
 MODULE_PARM_DESC(ovl_redirect_max,
+=======
+MODULE_PARM_DESC(redirect_max,
+>>>>>>> upstream/android-13
 		 "Maximum length of absolute redirect xattr value");
 
 static int ovl_set_redirect(struct dentry *dentry, bool samedir);
@@ -38,14 +49,22 @@ int ovl_cleanup(struct inode *wdir, struct dentry *wdentry)
 	dput(wdentry);
 
 	if (err) {
+<<<<<<< HEAD
 		pr_err("overlayfs: cleanup of '%pd2' failed (%i)\n",
+=======
+		pr_err("cleanup of '%pd2' failed (%i)\n",
+>>>>>>> upstream/android-13
 		       wdentry, err);
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static struct dentry *ovl_lookup_temp(struct dentry *workdir)
+=======
+struct dentry *ovl_lookup_temp(struct dentry *workdir)
+>>>>>>> upstream/android-13
 {
 	struct dentry *temp;
 	char name[20];
@@ -56,7 +75,11 @@ static struct dentry *ovl_lookup_temp(struct dentry *workdir)
 
 	temp = lookup_one_len(name, workdir, strlen(name));
 	if (!IS_ERR(temp) && temp->d_inode) {
+<<<<<<< HEAD
 		pr_err("overlayfs: workdir/%s already exists\n", name);
+=======
+		pr_err("workdir/%s already exists\n", name);
+>>>>>>> upstream/android-13
 		dput(temp);
 		temp = ERR_PTR(-EIO);
 	}
@@ -65,6 +88,7 @@ static struct dentry *ovl_lookup_temp(struct dentry *workdir)
 }
 
 /* caller holds i_mutex on workdir */
+<<<<<<< HEAD
 static struct dentry *ovl_whiteout(struct dentry *workdir)
 {
 	int err;
@@ -81,19 +105,72 @@ static struct dentry *ovl_whiteout(struct dentry *workdir)
 		whiteout = ERR_PTR(err);
 	}
 
+=======
+static struct dentry *ovl_whiteout(struct ovl_fs *ofs)
+{
+	int err;
+	struct dentry *whiteout;
+	struct dentry *workdir = ofs->workdir;
+	struct inode *wdir = workdir->d_inode;
+
+	if (!ofs->whiteout) {
+		whiteout = ovl_lookup_temp(workdir);
+		if (IS_ERR(whiteout))
+			goto out;
+
+		err = ovl_do_whiteout(wdir, whiteout);
+		if (err) {
+			dput(whiteout);
+			whiteout = ERR_PTR(err);
+			goto out;
+		}
+		ofs->whiteout = whiteout;
+	}
+
+	if (ofs->share_whiteout) {
+		whiteout = ovl_lookup_temp(workdir);
+		if (IS_ERR(whiteout))
+			goto out;
+
+		err = ovl_do_link(ofs->whiteout, wdir, whiteout);
+		if (!err)
+			goto out;
+
+		if (err != -EMLINK) {
+			pr_warn("Failed to link whiteout - disabling whiteout inode sharing(nlink=%u, err=%i)\n",
+				ofs->whiteout->d_inode->i_nlink, err);
+			ofs->share_whiteout = false;
+		}
+		dput(whiteout);
+	}
+	whiteout = ofs->whiteout;
+	ofs->whiteout = NULL;
+out:
+>>>>>>> upstream/android-13
 	return whiteout;
 }
 
 /* Caller must hold i_mutex on both workdir and dir */
+<<<<<<< HEAD
 int ovl_cleanup_and_whiteout(struct dentry *workdir, struct inode *dir,
 			     struct dentry *dentry)
 {
 	struct inode *wdir = workdir->d_inode;
+=======
+int ovl_cleanup_and_whiteout(struct ovl_fs *ofs, struct inode *dir,
+			     struct dentry *dentry)
+{
+	struct inode *wdir = ofs->workdir->d_inode;
+>>>>>>> upstream/android-13
 	struct dentry *whiteout;
 	int err;
 	int flags = 0;
 
+<<<<<<< HEAD
 	whiteout = ovl_whiteout(workdir);
+=======
+	whiteout = ovl_whiteout(ofs);
+>>>>>>> upstream/android-13
 	err = PTR_ERR(whiteout);
 	if (IS_ERR(whiteout))
 		return err;
@@ -116,8 +193,12 @@ kill_whiteout:
 	goto out;
 }
 
+<<<<<<< HEAD
 static int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry,
 			  umode_t mode)
+=======
+int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct dentry *d, *dentry = *newdentry;
@@ -137,7 +218,11 @@ static int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry,
 	d = lookup_one_len(dentry->d_name.name, dentry->d_parent,
 			   dentry->d_name.len);
 	if (IS_ERR(d)) {
+<<<<<<< HEAD
 		pr_warn("overlayfs: failed lookup after mkdir (%pd2, err=%i).\n",
+=======
+		pr_warn("failed lookup after mkdir (%pd2, err=%i).\n",
+>>>>>>> upstream/android-13
 			dentry, err);
 		return PTR_ERR(d);
 	}
@@ -212,9 +297,16 @@ struct dentry *ovl_create_temp(struct dentry *workdir, struct ovl_cattr *attr)
 static int ovl_set_opaque_xerr(struct dentry *dentry, struct dentry *upper,
 			       int xerr)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = ovl_check_setxattr(dentry, upper, OVL_XATTR_OPAQUE, "y", 1, xerr);
+=======
+	struct ovl_fs *ofs = OVL_FS(dentry->d_sb);
+	int err;
+
+	err = ovl_check_setxattr(ofs, upper, OVL_XATTR_OPAQUE, "y", 1, xerr);
+>>>>>>> upstream/android-13
 	if (!err)
 		ovl_dentry_set_opaque(dentry);
 
@@ -246,6 +338,12 @@ static int ovl_instantiate(struct dentry *dentry, struct inode *inode,
 
 	ovl_dir_modified(dentry->d_parent, false);
 	ovl_dentry_set_upper_alias(dentry);
+<<<<<<< HEAD
+=======
+	ovl_dentry_update_reval(dentry, newdentry,
+			DCACHE_OP_REVALIDATE | DCACHE_OP_WEAK_REVALIDATE);
+
+>>>>>>> upstream/android-13
 	if (!hardlink) {
 		/*
 		 * ovl_obtain_alias() can be called after ovl_create_real()
@@ -262,6 +360,11 @@ static int ovl_instantiate(struct dentry *dentry, struct inode *inode,
 		inode = ovl_get_inode(dentry->d_sb, &oip);
 		if (IS_ERR(inode))
 			return PTR_ERR(inode);
+<<<<<<< HEAD
+=======
+		if (inode == oip.newinode)
+			ovl_set_flag(OVL_UPPERDATA, inode);
+>>>>>>> upstream/android-13
 	} else {
 		WARN_ON(ovl_inode_real(inode) != d_inode(newdentry));
 		dput(newdentry);
@@ -270,7 +373,11 @@ static int ovl_instantiate(struct dentry *dentry, struct inode *inode,
 
 	d_instantiate(dentry, inode);
 	if (inode != oip.newinode) {
+<<<<<<< HEAD
 		pr_warn_ratelimited("overlayfs: newly created inode found in cache (%pd2)\n",
+=======
+		pr_warn_ratelimited("newly created inode found in cache (%pd2)\n",
+>>>>>>> upstream/android-13
 				    dentry);
 	}
 
@@ -294,6 +401,10 @@ static bool ovl_type_origin(struct dentry *dentry)
 static int ovl_create_upper(struct dentry *dentry, struct inode *inode,
 			    struct ovl_cattr *attr)
 {
+<<<<<<< HEAD
+=======
+	struct ovl_fs *ofs = OVL_FS(dentry->d_sb);
+>>>>>>> upstream/android-13
 	struct dentry *upperdir = ovl_dentry_upper(dentry->d_parent);
 	struct inode *udir = upperdir->d_inode;
 	struct dentry *newdentry;
@@ -312,7 +423,12 @@ static int ovl_create_upper(struct dentry *dentry, struct inode *inode,
 	if (IS_ERR(newdentry))
 		goto out_unlock;
 
+<<<<<<< HEAD
 	if (ovl_type_merge(dentry->d_parent) && d_is_dir(newdentry)) {
+=======
+	if (ovl_type_merge(dentry->d_parent) && d_is_dir(newdentry) &&
+	    !ovl_allow_offline_changes(ofs)) {
+>>>>>>> upstream/android-13
 		/* Setting opaque here is just an optimization, allow to fail */
 		ovl_set_opaque(dentry, newdentry);
 	}
@@ -368,7 +484,11 @@ static struct dentry *ovl_clear_empty(struct dentry *dentry,
 	if (IS_ERR(opaquedir))
 		goto out_unlock;
 
+<<<<<<< HEAD
 	err = ovl_copy_xattr(upper, opaquedir);
+=======
+	err = ovl_copy_xattr(dentry->d_sb, upper, opaquedir);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_cleanup;
 
@@ -414,17 +534,29 @@ static int ovl_set_upper_acl(struct dentry *upperdentry, const char *name,
 	if (!IS_ENABLED(CONFIG_FS_POSIX_ACL) || !acl)
 		return 0;
 
+<<<<<<< HEAD
 	size = posix_acl_to_xattr(NULL, acl, NULL, 0);
+=======
+	size = posix_acl_xattr_size(acl->a_count);
+>>>>>>> upstream/android-13
 	buffer = kmalloc(size, GFP_KERNEL);
 	if (!buffer)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	size = posix_acl_to_xattr(&init_user_ns, acl, buffer, size);
 	err = size;
 	if (err < 0)
 		goto out_free;
 
 	err = vfs_setxattr(upperdentry, name, buffer, size, XATTR_CREATE);
+=======
+	err = posix_acl_to_xattr(&init_user_ns, acl, buffer, size);
+	if (err < 0)
+		goto out_free;
+
+	err = vfs_setxattr(&init_user_ns, upperdentry, name, buffer, size, XATTR_CREATE);
+>>>>>>> upstream/android-13
 out_free:
 	kfree(buffer);
 	return err;
@@ -483,7 +615,11 @@ static int ovl_create_over_whiteout(struct dentry *dentry, struct inode *inode,
 			.ia_mode = cattr->mode,
 		};
 		inode_lock(newdentry->d_inode);
+<<<<<<< HEAD
 		err = notify_change(newdentry, &attr, NULL);
+=======
+		err = notify_change(&init_user_ns, newdentry, &attr, NULL);
+>>>>>>> upstream/android-13
 		inode_unlock(newdentry->d_inode);
 		if (err)
 			goto out_cleanup;
@@ -517,8 +653,15 @@ static int ovl_create_over_whiteout(struct dentry *dentry, struct inode *inode,
 			goto out_cleanup;
 	}
 	err = ovl_instantiate(dentry, inode, newdentry, hardlink);
+<<<<<<< HEAD
 	if (err)
 		goto out_cleanup;
+=======
+	if (err) {
+		ovl_cleanup(udir, newdentry);
+		dput(newdentry);
+	}
+>>>>>>> upstream/android-13
 out_dput:
 	dput(upper);
 out_unlock:
@@ -584,7 +727,11 @@ static int ovl_create_or_link(struct dentry *dentry, struct inode *inode,
 			err = ovl_create_over_whiteout(dentry, inode, attr);
 	}
 out_revert_creds:
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred ?: hold_cred);
+=======
+	ovl_revert_creds(dentry->d_sb, old_cred ?: hold_cred);
+>>>>>>> upstream/android-13
 	if (old_cred && hold_cred)
 		put_cred(hold_cred);
 	return err;
@@ -614,7 +761,11 @@ static int ovl_create_object(struct dentry *dentry, int mode, dev_t rdev,
 	inode->i_state |= I_CREATING;
 	spin_unlock(&inode->i_lock);
 
+<<<<<<< HEAD
 	inode_init_owner(inode, dentry->d_parent->d_inode, mode);
+=======
+	inode_init_owner(&init_user_ns, inode, dentry->d_parent->d_inode, mode);
+>>>>>>> upstream/android-13
 	attr.mode = inode->i_mode;
 
 	err = ovl_create_or_link(dentry, inode, &attr, false);
@@ -628,19 +779,34 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ovl_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		      bool excl)
+=======
+static int ovl_create(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	return ovl_create_object(dentry, (mode & 07777) | S_IFREG, 0, NULL);
 }
 
+<<<<<<< HEAD
 static int ovl_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int ovl_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		     struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	return ovl_create_object(dentry, (mode & 07777) | S_IFDIR, 0, NULL);
 }
 
+<<<<<<< HEAD
 static int ovl_mknod(struct inode *dir, struct dentry *dentry, umode_t mode,
 		     dev_t rdev)
+=======
+static int ovl_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+		     struct dentry *dentry, umode_t mode, dev_t rdev)
+>>>>>>> upstream/android-13
 {
 	/* Don't allow creation of "whiteout" on overlay */
 	if (S_ISCHR(mode) && rdev == WHITEOUT_DEV)
@@ -649,8 +815,13 @@ static int ovl_mknod(struct inode *dir, struct dentry *dentry, umode_t mode,
 	return ovl_create_object(dentry, mode, rdev, NULL);
 }
 
+<<<<<<< HEAD
 static int ovl_symlink(struct inode *dir, struct dentry *dentry,
 		       const char *link)
+=======
+static int ovl_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, const char *link)
+>>>>>>> upstream/android-13
 {
 	return ovl_create_object(dentry, S_IFLNK, 0, link);
 }
@@ -662,7 +833,11 @@ static int ovl_set_link_redirect(struct dentry *dentry)
 
 	old_cred = ovl_override_creds(dentry->d_sb);
 	err = ovl_set_redirect(dentry, false);
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred);
+=======
+	ovl_revert_creds(dentry->d_sb, old_cred);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -671,7 +846,10 @@ static int ovl_link(struct dentry *old, struct inode *newdir,
 		    struct dentry *new)
 {
 	int err;
+<<<<<<< HEAD
 	bool locked = false;
+=======
+>>>>>>> upstream/android-13
 	struct inode *inode;
 
 	err = ovl_want_write(old);
@@ -692,7 +870,11 @@ static int ovl_link(struct dentry *old, struct inode *newdir,
 			goto out_drop_write;
 	}
 
+<<<<<<< HEAD
 	err = ovl_nlink_start(old, &locked);
+=======
+	err = ovl_nlink_start(old);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_drop_write;
 
@@ -705,7 +887,11 @@ static int ovl_link(struct dentry *old, struct inode *newdir,
 	if (err)
 		iput(inode);
 
+<<<<<<< HEAD
 	ovl_nlink_end(old, locked);
+=======
+	ovl_nlink_end(old);
+>>>>>>> upstream/android-13
 out_drop_write:
 	ovl_drop_write(old);
 out:
@@ -720,6 +906,10 @@ static bool ovl_matches_upper(struct dentry *dentry, struct dentry *upper)
 static int ovl_remove_and_whiteout(struct dentry *dentry,
 				   struct list_head *list)
 {
+<<<<<<< HEAD
+=======
+	struct ovl_fs *ofs = OVL_FS(dentry->d_sb);
+>>>>>>> upstream/android-13
 	struct dentry *workdir = ovl_workdir(dentry);
 	struct dentry *upperdir = ovl_dentry_upper(dentry->d_parent);
 	struct dentry *upper;
@@ -753,7 +943,11 @@ static int ovl_remove_and_whiteout(struct dentry *dentry,
 		goto out_dput_upper;
 	}
 
+<<<<<<< HEAD
 	err = ovl_cleanup_and_whiteout(workdir, d_inode(upperdir), upper);
+=======
+	err = ovl_cleanup_and_whiteout(ofs, d_inode(upperdir), upper);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_d_drop;
 
@@ -799,9 +993,15 @@ static int ovl_remove_upper(struct dentry *dentry, bool is_dir,
 		goto out_dput_upper;
 
 	if (is_dir)
+<<<<<<< HEAD
 		err = vfs_rmdir(dir, upper);
 	else
 		err = vfs_unlink(dir, upper, NULL);
+=======
+		err = vfs_rmdir(&init_user_ns, dir, upper);
+	else
+		err = vfs_unlink(&init_user_ns, dir, upper, NULL);
+>>>>>>> upstream/android-13
 	ovl_dir_modified(dentry->d_parent, ovl_type_origin(dentry));
 
 	/*
@@ -827,10 +1027,38 @@ static bool ovl_pure_upper(struct dentry *dentry)
 	       !ovl_test_flag(OVL_WHITEOUTS, d_inode(dentry));
 }
 
+<<<<<<< HEAD
 static int ovl_do_remove(struct dentry *dentry, bool is_dir)
 {
 	int err;
 	bool locked = false;
+=======
+static void ovl_drop_nlink(struct dentry *dentry)
+{
+	struct inode *inode = d_inode(dentry);
+	struct dentry *alias;
+
+	/* Try to find another, hashed alias */
+	spin_lock(&inode->i_lock);
+	hlist_for_each_entry(alias, &inode->i_dentry, d_u.d_alias) {
+		if (alias != dentry && !d_unhashed(alias))
+			break;
+	}
+	spin_unlock(&inode->i_lock);
+
+	/*
+	 * Changes to underlying layers may cause i_nlink to lose sync with
+	 * reality.  In this case prevent the link count from going to zero
+	 * prematurely.
+	 */
+	if (inode->i_nlink > !!alias)
+		drop_nlink(inode);
+}
+
+static int ovl_do_remove(struct dentry *dentry, bool is_dir)
+{
+	int err;
+>>>>>>> upstream/android-13
 	const struct cred *old_cred;
 	struct dentry *upperdentry;
 	bool lower_positive = ovl_lower_positive(dentry);
@@ -851,7 +1079,11 @@ static int ovl_do_remove(struct dentry *dentry, bool is_dir)
 	if (err)
 		goto out_drop_write;
 
+<<<<<<< HEAD
 	err = ovl_nlink_start(dentry, &locked);
+=======
+	err = ovl_nlink_start(dentry);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_drop_write;
 
@@ -860,14 +1092,24 @@ static int ovl_do_remove(struct dentry *dentry, bool is_dir)
 		err = ovl_remove_upper(dentry, is_dir, &list);
 	else
 		err = ovl_remove_and_whiteout(dentry, &list);
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred);
+=======
+	ovl_revert_creds(dentry->d_sb, old_cred);
+>>>>>>> upstream/android-13
 	if (!err) {
 		if (is_dir)
 			clear_nlink(dentry->d_inode);
 		else
+<<<<<<< HEAD
 			drop_nlink(dentry->d_inode);
 	}
 	ovl_nlink_end(dentry, locked);
+=======
+			ovl_drop_nlink(dentry);
+	}
+	ovl_nlink_end(dentry);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Copy ctime
@@ -999,6 +1241,10 @@ static bool ovl_need_absolute_redirect(struct dentry *dentry, bool samedir)
 static int ovl_set_redirect(struct dentry *dentry, bool samedir)
 {
 	int err;
+<<<<<<< HEAD
+=======
+	struct ovl_fs *ofs = OVL_FS(dentry->d_sb);
+>>>>>>> upstream/android-13
 	const char *redirect = ovl_dentry_get_redirect(dentry);
 	bool absolute_redirect = ovl_need_absolute_redirect(dentry, samedir);
 
@@ -1009,7 +1255,11 @@ static int ovl_set_redirect(struct dentry *dentry, bool samedir)
 	if (IS_ERR(redirect))
 		return PTR_ERR(redirect);
 
+<<<<<<< HEAD
 	err = ovl_check_setxattr(dentry, ovl_dentry_upper(dentry),
+=======
+	err = ovl_check_setxattr(ofs, ovl_dentry_upper(dentry),
+>>>>>>> upstream/android-13
 				 OVL_XATTR_REDIRECT,
 				 redirect, strlen(redirect), -EXDEV);
 	if (!err) {
@@ -1018,7 +1268,11 @@ static int ovl_set_redirect(struct dentry *dentry, bool samedir)
 		spin_unlock(&dentry->d_lock);
 	} else {
 		kfree(redirect);
+<<<<<<< HEAD
 		pr_warn_ratelimited("overlayfs: failed to set redirect (%i)\n",
+=======
+		pr_warn_ratelimited("failed to set redirect (%i)\n",
+>>>>>>> upstream/android-13
 				    err);
 		/* Fall back to userspace copy-up */
 		err = -EXDEV;
@@ -1026,12 +1280,20 @@ static int ovl_set_redirect(struct dentry *dentry, bool samedir)
 	return err;
 }
 
+<<<<<<< HEAD
 static int ovl_rename(struct inode *olddir, struct dentry *old,
 		      struct inode *newdir, struct dentry *new,
 		      unsigned int flags)
 {
 	int err;
 	bool locked = false;
+=======
+static int ovl_rename(struct user_namespace *mnt_userns, struct inode *olddir,
+		      struct dentry *old, struct inode *newdir,
+		      struct dentry *new, unsigned int flags)
+{
+	int err;
+>>>>>>> upstream/android-13
 	struct dentry *old_upperdir;
 	struct dentry *new_upperdir;
 	struct dentry *olddentry;
@@ -1040,6 +1302,10 @@ static int ovl_rename(struct inode *olddir, struct dentry *old,
 	bool old_opaque;
 	bool new_opaque;
 	bool cleanup_whiteout = false;
+<<<<<<< HEAD
+=======
+	bool update_nlink = false;
+>>>>>>> upstream/android-13
 	bool overwrite = !(flags & RENAME_EXCHANGE);
 	bool is_dir = d_is_dir(old);
 	bool new_is_dir = d_is_dir(new);
@@ -1097,10 +1363,19 @@ static int ovl_rename(struct inode *olddir, struct dentry *old,
 		err = ovl_copy_up(new);
 		if (err)
 			goto out_drop_write;
+<<<<<<< HEAD
 	} else {
 		err = ovl_nlink_start(new, &locked);
 		if (err)
 			goto out_drop_write;
+=======
+	} else if (d_inode(new)) {
+		err = ovl_nlink_start(new);
+		if (err)
+			goto out_drop_write;
+
+		update_nlink = true;
+>>>>>>> upstream/android-13
 	}
 
 	old_cred = ovl_override_creds(old->d_sb);
@@ -1167,9 +1442,19 @@ static int ovl_rename(struct inode *olddir, struct dentry *old,
 				goto out_dput;
 		}
 	} else {
+<<<<<<< HEAD
 		if (!d_is_negative(newdentry) &&
 		    (!new_opaque || !ovl_is_whiteout(newdentry)))
 			goto out_dput;
+=======
+		if (!d_is_negative(newdentry)) {
+			if (!new_opaque || !ovl_is_whiteout(newdentry))
+				goto out_dput;
+		} else {
+			if (flags & RENAME_EXCHANGE)
+				goto out_dput;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (olddentry == trap)
@@ -1208,7 +1493,11 @@ static int ovl_rename(struct inode *olddir, struct dentry *old,
 		if (new_is_dir)
 			clear_nlink(d_inode(new));
 		else
+<<<<<<< HEAD
 			drop_nlink(d_inode(new));
+=======
+			ovl_drop_nlink(new);
+>>>>>>> upstream/android-13
 	}
 
 	ovl_dir_modified(old->d_parent, ovl_type_origin(old) ||
@@ -1228,8 +1517,14 @@ out_dput_old:
 out_unlock:
 	unlock_rename(new_upperdir, old_upperdir);
 out_revert_creds:
+<<<<<<< HEAD
 	ovl_revert_creds(old_cred);
 	ovl_nlink_end(new, locked);
+=======
+	ovl_revert_creds(old->d_sb, old_cred);
+	if (update_nlink)
+		ovl_nlink_end(new);
+>>>>>>> upstream/android-13
 out_drop_write:
 	ovl_drop_write(old);
 out:
@@ -1254,4 +1549,9 @@ const struct inode_operations ovl_dir_inode_operations = {
 	.listxattr	= ovl_listxattr,
 	.get_acl	= ovl_get_acl,
 	.update_time	= ovl_update_time,
+<<<<<<< HEAD
+=======
+	.fileattr_get	= ovl_fileattr_get,
+	.fileattr_set	= ovl_fileattr_set,
+>>>>>>> upstream/android-13
 };

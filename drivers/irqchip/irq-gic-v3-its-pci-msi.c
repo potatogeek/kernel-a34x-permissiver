@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013-2015 ARM Limited, All Rights Reserved.
  * Author: Marc Zyngier <marc.zyngier@arm.com>
@@ -16,6 +17,16 @@
  */
 
 #include <linux/acpi_iort.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013-2015 ARM Limited, All Rights Reserved.
+ * Author: Marc Zyngier <marc.zyngier@arm.com>
+ */
+
+#include <linux/acpi_iort.h>
+#include <linux/pci.h>
+>>>>>>> upstream/android-13
 #include <linux/msi.h>
 #include <linux/of.h>
 #include <linux/of_irq.h>
@@ -77,11 +88,24 @@ static int its_pci_msi_prepare(struct irq_domain *domain, struct device *dev,
 	/*
 	 * If pdev is downstream of any aliasing bridges, take an upper
 	 * bound of how many other vectors could map to the same DevID.
+<<<<<<< HEAD
 	 */
 	pci_for_each_dma_alias(pdev, its_get_pci_alias, &alias_dev);
 	if (alias_dev != pdev && alias_dev->subordinate)
 		pci_walk_bus(alias_dev->subordinate, its_pci_msi_vec_count,
 			     &alias_count);
+=======
+	 * Also tell the ITS that the signalling will come from a proxy
+	 * device, and that special allocation rules apply.
+	 */
+	pci_for_each_dma_alias(pdev, its_get_pci_alias, &alias_dev);
+	if (alias_dev != pdev) {
+		if (alias_dev->subordinate)
+			pci_walk_bus(alias_dev->subordinate,
+				     its_pci_msi_vec_count, &alias_count);
+		info->flags |= MSI_ALLOC_FLAGS_PROXY_DEVICE;
+	}
+>>>>>>> upstream/android-13
 
 	/* ITS specific DeviceID, as the core ITS ignores dev. */
 	info->scratchpad[0].ul = pci_msi_domain_get_msi_rid(domain, pdev);
@@ -159,7 +183,11 @@ static int __init its_pci_of_msi_init(void)
 #ifdef CONFIG_ACPI
 
 static int __init
+<<<<<<< HEAD
 its_pci_msi_parse_madt(struct acpi_subtable_header *header,
+=======
+its_pci_msi_parse_madt(union acpi_subtable_headers *header,
+>>>>>>> upstream/android-13
 		       const unsigned long end)
 {
 	struct acpi_madt_generic_translator *its_entry;

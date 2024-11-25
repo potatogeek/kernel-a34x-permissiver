@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * V4L2 deinterlacing support.
  *
  * Copyright (c) 2012 Vista Silicon S.L.
  * Javier Martin <javier.martin@vista-silicon.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -41,7 +48,10 @@ module_param(debug, bool, 0644);
 	v4l2_dbg(1, debug, &dev->v4l2_dev, "%s: " fmt, __func__, ## arg)
 
 struct deinterlace_fmt {
+<<<<<<< HEAD
 	char	*name;
+=======
+>>>>>>> upstream/android-13
 	u32	fourcc;
 	/* Types the format can be used for */
 	u32	types;
@@ -49,12 +59,18 @@ struct deinterlace_fmt {
 
 static struct deinterlace_fmt formats[] = {
 	{
+<<<<<<< HEAD
 		.name	= "YUV 4:2:0 Planar",
+=======
+>>>>>>> upstream/android-13
 		.fourcc	= V4L2_PIX_FMT_YUV420,
 		.types	= MEM2MEM_CAPTURE | MEM2MEM_OUTPUT,
 	},
 	{
+<<<<<<< HEAD
 		.name	= "YUYV 4:2:2",
+=======
+>>>>>>> upstream/android-13
 		.fourcc	= V4L2_PIX_FMT_YUYV,
 		.types	= MEM2MEM_CAPTURE | MEM2MEM_OUTPUT,
 	},
@@ -139,13 +155,20 @@ struct deinterlace_dev {
 };
 
 struct deinterlace_ctx {
+<<<<<<< HEAD
+=======
+	struct v4l2_fh		fh;
+>>>>>>> upstream/android-13
 	struct deinterlace_dev	*dev;
 
 	/* Abort requested by m2m */
 	int			aborting;
 	enum v4l2_colorspace	colorspace;
 	dma_cookie_t		cookie;
+<<<<<<< HEAD
 	struct v4l2_m2m_ctx	*m2m_ctx;
+=======
+>>>>>>> upstream/android-13
 	struct dma_interleaved_template *xt;
 };
 
@@ -157,9 +180,15 @@ static int deinterlace_job_ready(void *priv)
 	struct deinterlace_ctx *ctx = priv;
 	struct deinterlace_dev *pcdev = ctx->dev;
 
+<<<<<<< HEAD
 	if ((v4l2_m2m_num_src_bufs_ready(ctx->m2m_ctx) > 0)
 	    && (v4l2_m2m_num_dst_bufs_ready(ctx->m2m_ctx) > 0)
 	    && (atomic_read(&ctx->dev->busy) == 0)) {
+=======
+	if (v4l2_m2m_num_src_bufs_ready(ctx->fh.m2m_ctx) > 0 &&
+	    v4l2_m2m_num_dst_bufs_ready(ctx->fh.m2m_ctx) > 0 &&
+	    !atomic_read(&ctx->dev->busy)) {
+>>>>>>> upstream/android-13
 		dprintk(pcdev, "Task ready\n");
 		return 1;
 	}
@@ -178,7 +207,11 @@ static void deinterlace_job_abort(void *priv)
 
 	dprintk(pcdev, "Aborting task\n");
 
+<<<<<<< HEAD
 	v4l2_m2m_job_finish(pcdev->m2m_dev, ctx->m2m_ctx);
+=======
+	v4l2_m2m_job_finish(pcdev->m2m_dev, ctx->fh.m2m_ctx);
+>>>>>>> upstream/android-13
 }
 
 static void dma_callback(void *data)
@@ -189,8 +222,13 @@ static void dma_callback(void *data)
 
 	atomic_set(&pcdev->busy, 0);
 
+<<<<<<< HEAD
 	src_vb = v4l2_m2m_src_buf_remove(curr_ctx->m2m_ctx);
 	dst_vb = v4l2_m2m_dst_buf_remove(curr_ctx->m2m_ctx);
+=======
+	src_vb = v4l2_m2m_src_buf_remove(curr_ctx->fh.m2m_ctx);
+	dst_vb = v4l2_m2m_dst_buf_remove(curr_ctx->fh.m2m_ctx);
+>>>>>>> upstream/android-13
 
 	dst_vb->vb2_buf.timestamp = src_vb->vb2_buf.timestamp;
 	dst_vb->flags &= ~V4L2_BUF_FLAG_TSTAMP_SRC_MASK;
@@ -201,7 +239,11 @@ static void dma_callback(void *data)
 	v4l2_m2m_buf_done(src_vb, VB2_BUF_STATE_DONE);
 	v4l2_m2m_buf_done(dst_vb, VB2_BUF_STATE_DONE);
 
+<<<<<<< HEAD
 	v4l2_m2m_job_finish(pcdev->m2m_dev, curr_ctx->m2m_ctx);
+=======
+	v4l2_m2m_job_finish(pcdev->m2m_dev, curr_ctx->fh.m2m_ctx);
+>>>>>>> upstream/android-13
 
 	dprintk(pcdev, "dma transfers completed.\n");
 }
@@ -220,8 +262,13 @@ static void deinterlace_issue_dma(struct deinterlace_ctx *ctx, int op,
 	dma_addr_t p_in, p_out;
 	enum dma_ctrl_flags flags;
 
+<<<<<<< HEAD
 	src_buf = v4l2_m2m_next_src_buf(ctx->m2m_ctx);
 	dst_buf = v4l2_m2m_next_dst_buf(ctx->m2m_ctx);
+=======
+	src_buf = v4l2_m2m_next_src_buf(ctx->fh.m2m_ctx);
+	dst_buf = v4l2_m2m_next_dst_buf(ctx->fh.m2m_ctx);
+>>>>>>> upstream/android-13
 
 	s_q_data = get_q_data(V4L2_BUF_TYPE_VIDEO_OUTPUT);
 	s_width	= s_q_data->width;
@@ -438,6 +485,7 @@ static void deinterlace_device_run(void *priv)
 static int vidioc_querycap(struct file *file, void *priv,
 			   struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	strlcpy(cap->driver, MEM2MEM_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, MEM2MEM_NAME, sizeof(cap->card));
 	strlcpy(cap->bus_info, MEM2MEM_NAME, sizeof(cap->card));
@@ -450,6 +498,11 @@ static int vidioc_querycap(struct file *file, void *priv,
 			   V4L2_CAP_VIDEO_M2M | V4L2_CAP_STREAMING;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
 
+=======
+	strscpy(cap->driver, MEM2MEM_NAME, sizeof(cap->driver));
+	strscpy(cap->card, MEM2MEM_NAME, sizeof(cap->card));
+	strscpy(cap->bus_info, MEM2MEM_NAME, sizeof(cap->bus_info));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -474,7 +527,10 @@ static int enum_fmt(struct v4l2_fmtdesc *f, u32 type)
 	if (i < NUM_FORMATS) {
 		/* Format found */
 		fmt = &formats[i];
+<<<<<<< HEAD
 		strlcpy(f->description, fmt->name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 		f->pixelformat = fmt->fourcc;
 		return 0;
 	}
@@ -500,7 +556,11 @@ static int vidioc_g_fmt(struct deinterlace_ctx *ctx, struct v4l2_format *f)
 	struct vb2_queue *vq;
 	struct deinterlace_q_data *q_data;
 
+<<<<<<< HEAD
 	vq = v4l2_m2m_get_vq(ctx->m2m_ctx, f->type);
+=======
+	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
+>>>>>>> upstream/android-13
 	if (!vq)
 		return -EINVAL;
 
@@ -597,7 +657,11 @@ static int vidioc_s_fmt(struct deinterlace_ctx *ctx, struct v4l2_format *f)
 	struct deinterlace_q_data *q_data;
 	struct vb2_queue *vq;
 
+<<<<<<< HEAD
 	vq = v4l2_m2m_get_vq(ctx->m2m_ctx, f->type);
+=======
+	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
+>>>>>>> upstream/android-13
 	if (!vq)
 		return -EINVAL;
 
@@ -670,6 +734,7 @@ static int vidioc_s_fmt_vid_out(struct file *file, void *priv,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int vidioc_reqbufs(struct file *file, void *priv,
 			  struct v4l2_requestbuffers *reqbufs)
 {
@@ -700,6 +765,8 @@ static int vidioc_dqbuf(struct file *file, void *priv, struct v4l2_buffer *buf)
 	return v4l2_m2m_dqbuf(file, ctx->m2m_ctx, buf);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vidioc_streamon(struct file *file, void *priv,
 			   enum v4l2_buf_type type)
 {
@@ -740,6 +807,7 @@ static int vidioc_streamon(struct file *file, void *priv,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	return v4l2_m2m_streamon(file, ctx->m2m_ctx, type);
 }
 
@@ -749,6 +817,9 @@ static int vidioc_streamoff(struct file *file, void *priv,
 	struct deinterlace_ctx *ctx = priv;
 
 	return v4l2_m2m_streamoff(file, ctx->m2m_ctx, type);
+=======
+	return v4l2_m2m_streamon(file, ctx->fh.m2m_ctx, type);
+>>>>>>> upstream/android-13
 }
 
 static const struct v4l2_ioctl_ops deinterlace_ioctl_ops = {
@@ -764,6 +835,7 @@ static const struct v4l2_ioctl_ops deinterlace_ioctl_ops = {
 	.vidioc_try_fmt_vid_out	= vidioc_try_fmt_vid_out,
 	.vidioc_s_fmt_vid_out	= vidioc_s_fmt_vid_out,
 
+<<<<<<< HEAD
 	.vidioc_reqbufs		= vidioc_reqbufs,
 	.vidioc_querybuf	= vidioc_querybuf,
 
@@ -772,6 +844,17 @@ static const struct v4l2_ioctl_ops deinterlace_ioctl_ops = {
 
 	.vidioc_streamon	= vidioc_streamon,
 	.vidioc_streamoff	= vidioc_streamoff,
+=======
+	.vidioc_reqbufs		= v4l2_m2m_ioctl_reqbufs,
+	.vidioc_querybuf	= v4l2_m2m_ioctl_querybuf,
+	.vidioc_qbuf		= v4l2_m2m_ioctl_qbuf,
+	.vidioc_dqbuf		= v4l2_m2m_ioctl_dqbuf,
+	.vidioc_prepare_buf	= v4l2_m2m_ioctl_prepare_buf,
+	.vidioc_expbuf		= v4l2_m2m_ioctl_expbuf,
+
+	.vidioc_streamon	= vidioc_streamon,
+	.vidioc_streamoff	= v4l2_m2m_ioctl_streamoff,
+>>>>>>> upstream/android-13
 };
 
 
@@ -835,7 +918,11 @@ static void deinterlace_buf_queue(struct vb2_buffer *vb)
 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
 	struct deinterlace_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 
+<<<<<<< HEAD
 	v4l2_m2m_buf_queue(ctx->m2m_ctx, vbuf);
+=======
+	v4l2_m2m_buf_queue(ctx->fh.m2m_ctx, vbuf);
+>>>>>>> upstream/android-13
 }
 
 static const struct vb2_ops deinterlace_qops = {
@@ -853,7 +940,11 @@ static int queue_init(void *priv, struct vb2_queue *src_vq,
 	int ret;
 
 	src_vq->type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+<<<<<<< HEAD
 	src_vq->io_modes = VB2_MMAP | VB2_USERPTR;
+=======
+	src_vq->io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF;
+>>>>>>> upstream/android-13
 	src_vq->drv_priv = ctx;
 	src_vq->buf_struct_size = sizeof(struct v4l2_m2m_buffer);
 	src_vq->ops = &deinterlace_qops;
@@ -872,7 +963,11 @@ static int queue_init(void *priv, struct vb2_queue *src_vq,
 		return ret;
 
 	dst_vq->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+<<<<<<< HEAD
 	dst_vq->io_modes = VB2_MMAP | VB2_USERPTR;
+=======
+	dst_vq->io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF;
+>>>>>>> upstream/android-13
 	dst_vq->drv_priv = ctx;
 	dst_vq->buf_struct_size = sizeof(struct v4l2_m2m_buffer);
 	dst_vq->ops = &deinterlace_qops;
@@ -901,12 +996,22 @@ static int deinterlace_open(struct file *file)
 	if (!ctx)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	file->private_data = ctx;
 	ctx->dev = pcdev;
 
 	ctx->m2m_ctx = v4l2_m2m_ctx_init(pcdev->m2m_dev, ctx, &queue_init);
 	if (IS_ERR(ctx->m2m_ctx)) {
 		int ret = PTR_ERR(ctx->m2m_ctx);
+=======
+	v4l2_fh_init(&ctx->fh, video_devdata(file));
+	file->private_data = &ctx->fh;
+	ctx->dev = pcdev;
+
+	ctx->fh.m2m_ctx = v4l2_m2m_ctx_init(pcdev->m2m_dev, ctx, &queue_init);
+	if (IS_ERR(ctx->fh.m2m_ctx)) {
+		int ret = PTR_ERR(ctx->fh.m2m_ctx);
+>>>>>>> upstream/android-13
 
 		kfree(ctx);
 		return ret;
@@ -920,8 +1025,15 @@ static int deinterlace_open(struct file *file)
 	}
 
 	ctx->colorspace = V4L2_COLORSPACE_REC709;
+<<<<<<< HEAD
 
 	dprintk(pcdev, "Created instance %p, m2m_ctx: %p\n", ctx, ctx->m2m_ctx);
+=======
+	v4l2_fh_add(&ctx->fh);
+
+	dprintk(pcdev, "Created instance %p, m2m_ctx: %p\n",
+		ctx, ctx->fh.m2m_ctx);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -933,13 +1045,20 @@ static int deinterlace_release(struct file *file)
 
 	dprintk(pcdev, "Releasing instance %p\n", ctx);
 
+<<<<<<< HEAD
 	v4l2_m2m_ctx_release(ctx->m2m_ctx);
+=======
+	v4l2_fh_del(&ctx->fh);
+	v4l2_fh_exit(&ctx->fh);
+	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
+>>>>>>> upstream/android-13
 	kfree(ctx->xt);
 	kfree(ctx);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static __poll_t deinterlace_poll(struct file *file,
 				 struct poll_table_struct *wait)
 {
@@ -960,13 +1079,21 @@ static int deinterlace_mmap(struct file *file, struct vm_area_struct *vma)
 	return v4l2_m2m_mmap(file, ctx->m2m_ctx, vma);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct v4l2_file_operations deinterlace_fops = {
 	.owner		= THIS_MODULE,
 	.open		= deinterlace_open,
 	.release	= deinterlace_release,
+<<<<<<< HEAD
 	.poll		= deinterlace_poll,
 	.unlocked_ioctl	= video_ioctl2,
 	.mmap		= deinterlace_mmap,
+=======
+	.poll		= v4l2_m2m_fop_poll,
+	.unlocked_ioctl	= video_ioctl2,
+	.mmap		= v4l2_m2m_fop_mmap,
+>>>>>>> upstream/android-13
 };
 
 static const struct video_device deinterlace_videodev = {
@@ -976,6 +1103,10 @@ static const struct video_device deinterlace_videodev = {
 	.minor		= -1,
 	.release	= video_device_release_empty,
 	.vfl_dir	= VFL_DIR_M2M,
+<<<<<<< HEAD
+=======
+	.device_caps	= V4L2_CAP_VIDEO_M2M | V4L2_CAP_STREAMING,
+>>>>>>> upstream/android-13
 };
 
 static const struct v4l2_m2m_ops m2m_ops = {
@@ -1021,7 +1152,11 @@ static int deinterlace_probe(struct platform_device *pdev)
 	vfd->lock = &pcdev->dev_mutex;
 	vfd->v4l2_dev = &pcdev->v4l2_dev;
 
+<<<<<<< HEAD
 	ret = video_register_device(vfd, VFL_TYPE_GRABBER, 0);
+=======
+	ret = video_register_device(vfd, VFL_TYPE_VIDEO, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		v4l2_err(&pcdev->v4l2_dev, "Failed to register video device\n");
 		goto unreg_dev;

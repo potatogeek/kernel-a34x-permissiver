@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hierarchical Budget Worst-case Fair Weighted Fair Queueing
  * (B-WF2Q+): hierarchical scheduling algorithm by which the BFQ I/O
  * scheduler schedules generic entities. The latter can represent
  * either single bfq queues (associated with processes) or groups of
  * bfq queues (associated with cgroups).
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include "bfq-iosched.h"
 
@@ -44,6 +51,15 @@ static unsigned int bfq_class_idx(struct bfq_entity *entity)
 		BFQ_DEFAULT_GRP_CLASS - 1;
 }
 
+<<<<<<< HEAD
+=======
+unsigned int bfq_tot_busy_queues(struct bfq_data *bfqd)
+{
+	return bfqd->busy_queues[0] + bfqd->busy_queues[1] +
+		bfqd->busy_queues[2];
+}
+
+>>>>>>> upstream/android-13
 static struct bfq_entity *bfq_lookup_next_entity(struct bfq_sched_data *sd,
 						 bool expiration);
 
@@ -53,7 +69,11 @@ static bool bfq_update_parent_budget(struct bfq_entity *next_in_service);
  * bfq_update_next_in_service - update sd->next_in_service
  * @sd: sched_data for which to perform the update.
  * @new_entity: if not NULL, pointer to the entity whose activation,
+<<<<<<< HEAD
  *		requeueing or repositionig triggered the invocation of
+=======
+ *		requeueing or repositioning triggered the invocation of
+>>>>>>> upstream/android-13
  *		this function.
  * @expiration: id true, this function is being invoked after the
  *             expiration of the in-service entity
@@ -84,7 +104,11 @@ static bool bfq_update_next_in_service(struct bfq_sched_data *sd,
 
 	/*
 	 * If this update is triggered by the activation, requeueing
+<<<<<<< HEAD
 	 * or repositiong of an entity that does not coincide with
+=======
+	 * or repositioning of an entity that does not coincide with
+>>>>>>> upstream/android-13
 	 * sd->next_in_service, then a full lookup in the active tree
 	 * can be avoided. In fact, it is enough to check whether the
 	 * just-modified entity has the same priority as
@@ -140,9 +164,12 @@ static bool bfq_update_next_in_service(struct bfq_sched_data *sd,
 
 	sd->next_in_service = next_in_service;
 
+<<<<<<< HEAD
 	if (!next_in_service)
 		return parent_sched_may_change;
 
+=======
+>>>>>>> upstream/android-13
 	return parent_sched_may_change;
 }
 
@@ -280,10 +307,14 @@ struct bfq_queue *bfq_entity_to_bfqq(struct bfq_entity *entity)
  */
 static u64 bfq_delta(unsigned long service, unsigned long weight)
 {
+<<<<<<< HEAD
 	u64 d = (u64)service << WFQ_SERVICE_SHIFT;
 
 	do_div(d, weight);
 	return d;
+=======
+	return div64_ul((u64)service << WFQ_SERVICE_SHIFT, weight);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -514,7 +545,11 @@ static void bfq_active_insert(struct bfq_service_tree *st,
  */
 unsigned short bfq_ioprio_to_weight(int ioprio)
 {
+<<<<<<< HEAD
 	return (IOPRIO_BE_NR - ioprio) * BFQ_WEIGHT_CONVERSION_COEFF;
+=======
+	return (IOPRIO_NR_LEVELS - ioprio) * BFQ_WEIGHT_CONVERSION_COEFF;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -523,12 +558,20 @@ unsigned short bfq_ioprio_to_weight(int ioprio)
  *
  * To preserve as much as possible the old only-ioprio user interface,
  * 0 is used as an escape ioprio value for weights (numerically) equal or
+<<<<<<< HEAD
  * larger than IOPRIO_BE_NR * BFQ_WEIGHT_CONVERSION_COEFF.
+=======
+ * larger than IOPRIO_NR_LEVELS * BFQ_WEIGHT_CONVERSION_COEFF.
+>>>>>>> upstream/android-13
  */
 static unsigned short bfq_weight_to_ioprio(int weight)
 {
 	return max_t(int, 0,
+<<<<<<< HEAD
 		     IOPRIO_BE_NR * BFQ_WEIGHT_CONVERSION_COEFF - weight);
+=======
+		     IOPRIO_NR_LEVELS - weight / BFQ_WEIGHT_CONVERSION_COEFF);
+>>>>>>> upstream/android-13
 }
 
 static void bfq_get_entity(struct bfq_entity *entity)
@@ -651,7 +694,11 @@ static void bfq_forget_entity(struct bfq_service_tree *st,
 {
 	struct bfq_queue *bfqq = bfq_entity_to_bfqq(entity);
 
+<<<<<<< HEAD
 	entity->on_st = false;
+=======
+	entity->on_st_or_in_serv = false;
+>>>>>>> upstream/android-13
 	st->wsum -= entity->weight;
 	if (bfqq && !is_in_service)
 		bfq_put_queue(bfqq);
@@ -731,7 +778,11 @@ __bfq_entity_update_weight_prio(struct bfq_service_tree *old_st,
 		struct bfq_queue *bfqq = bfq_entity_to_bfqq(entity);
 		unsigned int prev_weight, new_weight;
 		struct bfq_data *bfqd = NULL;
+<<<<<<< HEAD
 		struct rb_root *root;
+=======
+		struct rb_root_cached *root;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BFQ_GROUP_IOSCHED
 		struct bfq_sched_data *sd;
 		struct bfq_group *bfqg;
@@ -747,6 +798,11 @@ __bfq_entity_update_weight_prio(struct bfq_service_tree *old_st,
 		}
 #endif
 
+<<<<<<< HEAD
+=======
+		/* Matches the smp_wmb() in bfq_group_set_weight. */
+		smp_rmb();
+>>>>>>> upstream/android-13
 		old_st->wsum -= entity->weight;
 
 		if (entity->new_weight != entity->orig_weight) {
@@ -788,6 +844,7 @@ __bfq_entity_update_weight_prio(struct bfq_service_tree *old_st,
 		new_weight = entity->orig_weight *
 			     (bfqq ? bfqq->wr_coeff : 1);
 		/*
+<<<<<<< HEAD
 		 * If the weight of the entity changes, remove the entity
 		 * from its old weight counter (if there is a counter
 		 * associated with the entity), and add it to the counter
@@ -807,6 +864,25 @@ __bfq_entity_update_weight_prio(struct bfq_service_tree *old_st,
 		    (bfqq ? bfqq->wr_coeff == 1 : 1))
 			/* If we get here, root has been initialized. */
 			bfq_weights_tree_add(bfqd, entity, root);
+=======
+		 * If the weight of the entity changes, and the entity is a
+		 * queue, remove the entity from its old weight counter (if
+		 * there is a counter associated with the entity).
+		 */
+		if (prev_weight != new_weight && bfqq) {
+			root = &bfqd->queue_weights_tree;
+			__bfq_weights_tree_remove(bfqd, bfqq, root);
+		}
+		entity->weight = new_weight;
+		/*
+		 * Add the entity, if it is not a weight-raised queue,
+		 * to the counter associated with its new weight.
+		 */
+		if (prev_weight != new_weight && bfqq && bfqq->wr_coeff == 1) {
+			/* If we get here, root has been initialized. */
+			bfq_weights_tree_add(bfqd, bfqq, root);
+		}
+>>>>>>> upstream/android-13
 
 		new_st->wsum += entity->weight;
 
@@ -1005,6 +1081,7 @@ static void __bfq_activate_entity(struct bfq_entity *entity,
 		 */
 		bfq_get_entity(entity);
 
+<<<<<<< HEAD
 		entity->on_st = true;
 	}
 
@@ -1015,6 +1092,21 @@ static void __bfq_activate_entity(struct bfq_entity *entity,
 
 		bfq_weights_tree_add(bfqg->bfqd, entity,
 				     &bfqd->group_weights_tree);
+=======
+		entity->on_st_or_in_serv = true;
+	}
+
+#ifdef CONFIG_BFQ_GROUP_IOSCHED
+	if (!bfq_entity_to_bfqq(entity)) { /* bfq_group */
+		struct bfq_group *bfqg =
+			container_of(entity, struct bfq_group, entity);
+		struct bfq_data *bfqd = bfqg->bfqd;
+
+		if (!entity->in_groups_with_pending_reqs) {
+			entity->in_groups_with_pending_reqs = true;
+			bfqd->num_groups_with_pending_reqs++;
+		}
+>>>>>>> upstream/android-13
 	}
 #endif
 
@@ -1153,6 +1245,7 @@ static void bfq_activate_requeue_entity(struct bfq_entity *entity,
 }
 
 /**
+<<<<<<< HEAD
  * __bfq_deactivate_entity - deactivate an entity from its service tree.
  * @entity: the entity to deactivate.
  * @ins_into_idle_tree: if false, the entity will not be put into the
@@ -1162,6 +1255,16 @@ static void bfq_activate_requeue_entity(struct bfq_entity *entity,
  * be invoked only if entity is on a service tree. Extracts the entity
  * from that tree, and if necessary and allowed, puts it into the idle
  * tree.
+=======
+ * __bfq_deactivate_entity - update sched_data and service trees for
+ * entity, so as to represent entity as inactive
+ * @entity: the entity being deactivated.
+ * @ins_into_idle_tree: if false, the entity will not be put into the
+ *			idle tree.
+ *
+ * If necessary and allowed, puts entity into the idle tree. NOTE:
+ * entity may be on no tree if in service.
+>>>>>>> upstream/android-13
  */
 bool __bfq_deactivate_entity(struct bfq_entity *entity, bool ins_into_idle_tree)
 {
@@ -1169,7 +1272,14 @@ bool __bfq_deactivate_entity(struct bfq_entity *entity, bool ins_into_idle_tree)
 	struct bfq_service_tree *st;
 	bool is_in_service;
 
+<<<<<<< HEAD
 	if (!entity->on_st) /* entity never activated, or already inactive */
+=======
+	if (!entity->on_st_or_in_serv) /*
+					* entity never activated, or
+					* already inactive
+					*/
+>>>>>>> upstream/android-13
 		return false;
 
 	/*
@@ -1390,7 +1500,11 @@ left:
  * In this first case, update the virtual time in @st too (see the
  * comments on this update inside the function).
  *
+<<<<<<< HEAD
  * In constrast, if there is an in-service entity, then return the
+=======
+ * In contrast, if there is an in-service entity, then return the
+>>>>>>> upstream/android-13
  * entity that would be set in service if not only the above
  * conditions, but also the next one held true: the currently
  * in-service entity, on expiration,
@@ -1473,12 +1587,20 @@ static struct bfq_entity *bfq_lookup_next_entity(struct bfq_sched_data *sd,
 		 * is being invoked as a part of the expiration path
 		 * of the in-service queue. In this case, even if
 		 * sd->in_service_entity is not NULL,
+<<<<<<< HEAD
 		 * sd->in_service_entiy at this point is actually not
+=======
+		 * sd->in_service_entity at this point is actually not
+>>>>>>> upstream/android-13
 		 * in service any more, and, if needed, has already
 		 * been properly queued or requeued into the right
 		 * tree. The reason why sd->in_service_entity is still
 		 * not NULL here, even if expiration is true, is that
+<<<<<<< HEAD
 		 * sd->in_service_entiy is reset as a last step in the
+=======
+		 * sd->in_service_entity is reset as a last step in the
+>>>>>>> upstream/android-13
 		 * expiration path. So, if expiration is true, tell
 		 * __bfq_lookup_next_entity that there is no
 		 * sd->in_service_entity.
@@ -1513,7 +1635,11 @@ struct bfq_queue *bfq_get_next_queue(struct bfq_data *bfqd)
 	struct bfq_sched_data *sd;
 	struct bfq_queue *bfqq;
 
+<<<<<<< HEAD
 	if (bfqd->busy_queues == 0)
+=======
+	if (bfq_tot_busy_queues(bfqd) == 0)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	/*
@@ -1599,7 +1725,12 @@ struct bfq_queue *bfq_get_next_queue(struct bfq_data *bfqd)
 	return bfqq;
 }
 
+<<<<<<< HEAD
 void __bfq_bfqd_reset_in_service(struct bfq_data *bfqd)
+=======
+/* returns true if the in-service queue gets freed */
+bool __bfq_bfqd_reset_in_service(struct bfq_data *bfqd)
+>>>>>>> upstream/android-13
 {
 	struct bfq_queue *in_serv_bfqq = bfqd->in_service_queue;
 	struct bfq_entity *in_serv_entity = &in_serv_bfqq->entity;
@@ -1623,8 +1754,25 @@ void __bfq_bfqd_reset_in_service(struct bfq_data *bfqd)
 	 * service tree either, then release the service reference to
 	 * the queue it represents (taken with bfq_get_entity).
 	 */
+<<<<<<< HEAD
 	if (!in_serv_entity->on_st)
 		bfq_put_queue(in_serv_bfqq);
+=======
+	if (!in_serv_entity->on_st_or_in_serv) {
+		/*
+		 * If no process is referencing in_serv_bfqq any
+		 * longer, then the service reference may be the only
+		 * reference to the queue. If this is the case, then
+		 * bfqq gets freed here.
+		 */
+		int ref = in_serv_bfqq->ref;
+		bfq_put_queue(in_serv_bfqq);
+		if (ref == 1)
+			return true;
+	}
+
+	return false;
+>>>>>>> upstream/android-13
 }
 
 void bfq_deactivate_bfqq(struct bfq_data *bfqd, struct bfq_queue *bfqq,
@@ -1665,10 +1813,14 @@ void bfq_del_bfqq_busy(struct bfq_data *bfqd, struct bfq_queue *bfqq,
 
 	bfq_clear_bfqq_busy(bfqq);
 
+<<<<<<< HEAD
 	bfqd->busy_queues--;
 
 	if (!bfqq->dispatched)
 		bfq_weights_tree_remove(bfqd, bfqq);
+=======
+	bfqd->busy_queues[bfqq->ioprio_class - 1]--;
+>>>>>>> upstream/android-13
 
 	if (bfqq->wr_coeff > 1)
 		bfqd->wr_busy_queues--;
@@ -1676,6 +1828,12 @@ void bfq_del_bfqq_busy(struct bfq_data *bfqd, struct bfq_queue *bfqq,
 	bfqg_stats_update_dequeue(bfqq_group(bfqq));
 
 	bfq_deactivate_bfqq(bfqd, bfqq, true, expiration);
+<<<<<<< HEAD
+=======
+
+	if (!bfqq->dispatched)
+		bfq_weights_tree_remove(bfqd, bfqq);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1688,13 +1846,32 @@ void bfq_add_bfqq_busy(struct bfq_data *bfqd, struct bfq_queue *bfqq)
 	bfq_activate_bfqq(bfqd, bfqq);
 
 	bfq_mark_bfqq_busy(bfqq);
+<<<<<<< HEAD
 	bfqd->busy_queues++;
 
 	if (!bfqq->dispatched)
 		if (bfqq->wr_coeff == 1)
 			bfq_weights_tree_add(bfqd, &bfqq->entity,
+=======
+	bfqd->busy_queues[bfqq->ioprio_class - 1]++;
+
+	if (!bfqq->dispatched)
+		if (bfqq->wr_coeff == 1)
+			bfq_weights_tree_add(bfqd, bfqq,
+>>>>>>> upstream/android-13
 					     &bfqd->queue_weights_tree);
 
 	if (bfqq->wr_coeff > 1)
 		bfqd->wr_busy_queues++;
+<<<<<<< HEAD
+=======
+
+	/* Move bfqq to the head of the woken list of its waker */
+	if (!hlist_unhashed(&bfqq->woken_list_node) &&
+	    &bfqq->woken_list_node != bfqq->waker_bfqq->woken_list.first) {
+		hlist_del_init(&bfqq->woken_list_node);
+		hlist_add_head(&bfqq->woken_list_node,
+			       &bfqq->waker_bfqq->woken_list);
+	}
+>>>>>>> upstream/android-13
 }

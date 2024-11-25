@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2012 - 2017 Intel Corporation.  All rights reserved.
+=======
+ * Copyright (c) 2012 - 2019 Intel Corporation.  All rights reserved.
+>>>>>>> upstream/android-13
  * Copyright (c) 2006 - 2012 QLogic Corporation.  * All rights reserved.
  * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
  *
@@ -125,7 +129,11 @@ static void get_map_page(struct rvt_qpn_table *qpt, struct rvt_qpn_map *map)
  * zero/one for QP type IB_QPT_SMI/IB_QPT_GSI.
  */
 int qib_alloc_qpn(struct rvt_dev_info *rdi, struct rvt_qpn_table *qpt,
+<<<<<<< HEAD
 		  enum ib_qp_type type, u8 port)
+=======
+		  enum ib_qp_type type, u32 port)
+>>>>>>> upstream/android-13
 {
 	u32 i, offset, max_scan, qpn;
 	struct rvt_qpn_map *map;
@@ -136,7 +144,11 @@ int qib_alloc_qpn(struct rvt_dev_info *rdi, struct rvt_qpn_table *qpt,
 	u16 qpt_mask = dd->qpn_mask;
 
 	if (type == IB_QPT_SMI || type == IB_QPT_GSI) {
+<<<<<<< HEAD
 		unsigned n;
+=======
+		u32 n;
+>>>>>>> upstream/android-13
 
 		ret = type == IB_QPT_GSI;
 		n = 1 << (ret + 2 * (port - 1));
@@ -207,7 +219,11 @@ bail:
 	return ret;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * qib_free_all_qps - check for QPs still in use
  */
 unsigned qib_free_all_qps(struct rvt_dev_info *rdi)
@@ -376,6 +392,7 @@ void qib_flush_qp_waiters(struct rvt_qp *qp)
 
 /**
  * qib_check_send_wqe - validate wr/wqe
+<<<<<<< HEAD
  * @qp - The qp
  * @wqe - The built wqe
  *
@@ -391,26 +408,55 @@ int qib_check_send_wqe(struct rvt_qp *qp,
 {
 	struct rvt_ah *ah;
 	int ret = 0;
+=======
+ * @qp: The qp
+ * @wqe: The built wqe
+ * @call_send: Determine if the send should be posted or scheduled
+ *
+ * Returns 0 on success, -EINVAL on failure
+ */
+int qib_check_send_wqe(struct rvt_qp *qp,
+		       struct rvt_swqe *wqe, bool *call_send)
+{
+	struct rvt_ah *ah;
+>>>>>>> upstream/android-13
 
 	switch (qp->ibqp.qp_type) {
 	case IB_QPT_RC:
 	case IB_QPT_UC:
 		if (wqe->length > 0x80000000U)
 			return -EINVAL;
+<<<<<<< HEAD
+=======
+		if (wqe->length > qp->pmtu)
+			*call_send = false;
+>>>>>>> upstream/android-13
 		break;
 	case IB_QPT_SMI:
 	case IB_QPT_GSI:
 	case IB_QPT_UD:
+<<<<<<< HEAD
 		ah = ibah_to_rvtah(wqe->ud_wr.ah);
 		if (wqe->length > (1 << ah->log_pmtu))
 			return -EINVAL;
 		/* progress hint */
 		ret = 1;
+=======
+		ah = rvt_get_swqe_ah(wqe);
+		if (wqe->length > (1 << ah->log_pmtu))
+			return -EINVAL;
+		/* progress hint */
+		*call_send = true;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
 	}
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_DEBUG_FS
@@ -421,8 +467,13 @@ static const char * const qp_type_str[] = {
 
 /**
  * qib_qp_iter_print - print information to seq_file
+<<<<<<< HEAD
  * @s - the seq_file
  * @iter - the iterator
+=======
+ * @s: the seq_file
+ * @iter: the iterator
+>>>>>>> upstream/android-13
  */
 void qib_qp_iter_print(struct seq_file *s, struct rvt_qp_iter *iter)
 {

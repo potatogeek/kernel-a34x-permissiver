@@ -1,13 +1,28 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # CAIF physical drivers
 #
 
+<<<<<<< HEAD
 comment "CAIF transport drivers"
+=======
+menuconfig CAIF_DRIVERS
+	bool "CAIF transport drivers"
+	depends on CAIF
+	help
+	  Enable this to see CAIF physical drivers.
+
+if CAIF_DRIVERS
+>>>>>>> upstream/android-13
 
 config CAIF_TTY
 	tristate "CAIF TTY transport driver"
 	depends on CAIF && TTY
 	default n
+<<<<<<< HEAD
 	---help---
 	The CAIF TTY transport driver is a Line Discipline (ldisc)
 	identified as N_CAIF. When this ldisc is opened from user space
@@ -40,6 +55,12 @@ config CAIF_HSI
        The caif low level driver for CAIF over HSI.
        Be aware that if you enable this then you also need to
        enable a low-level HSI driver.
+=======
+	help
+	  The CAIF TTY transport driver is a Line Discipline (ldisc)
+	  identified as N_CAIF. When this ldisc is opened from user space
+	  it will redirect the TTY's traffic into the CAIF stack.
+>>>>>>> upstream/android-13
 
 config CAIF_VIRTIO
 	tristate "CAIF virtio transport driver"
@@ -48,9 +69,16 @@ config CAIF_VIRTIO
 	select VIRTIO
 	select GENERIC_ALLOCATOR
 	default n
+<<<<<<< HEAD
 	---help---
 	The caif driver for CAIF over Virtio.
 
 if CAIF_VIRTIO
 source "drivers/vhost/Kconfig.vringh"
 endif
+=======
+	help
+	  The CAIF driver for CAIF over Virtio.
+
+endif # CAIF_DRIVERS
+>>>>>>> upstream/android-13

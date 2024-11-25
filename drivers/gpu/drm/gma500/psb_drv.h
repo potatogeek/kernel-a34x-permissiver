@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /**************************************************************************
  * Copyright (c) 2007-2011, Intel Corporation.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  **************************************************************************/
 
 #ifndef _PSB_DRV_H_
@@ -23,6 +30,7 @@
 #include <linux/kref.h>
 #include <linux/mm_types.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_global.h>
 #include <drm/gma_drm.h>
@@ -35,6 +43,19 @@
 #include "opregion.h"
 #include "oaktrail.h"
 #include "mmu.h"
+=======
+#include <drm/drm_device.h>
+
+#include "gma_display.h"
+#include "gtt.h"
+#include "intel_bios.h"
+#include "mmu.h"
+#include "oaktrail.h"
+#include "opregion.h"
+#include "power.h"
+#include "psb_intel_drv.h"
+#include "psb_reg.h"
+>>>>>>> upstream/android-13
 
 #define DRIVER_AUTHOR "Alan Cox <alan@linux.intel.com> and others"
 
@@ -53,6 +74,7 @@ enum {
 	CHIP_PSB_8108 = 0,		/* Poulsbo */
 	CHIP_PSB_8109 = 1,		/* Poulsbo */
 	CHIP_MRST_4100 = 2,		/* Moorestown/Oaktrail */
+<<<<<<< HEAD
 	CHIP_MFLD_0130 = 3,		/* Medfield */
 };
 
@@ -60,12 +82,22 @@ enum {
 #define IS_MRST(dev) (((dev)->pdev->device & 0xfff0) == 0x4100)
 #define IS_MFLD(dev) (((dev)->pdev->device & 0xfff8) == 0x0130)
 #define IS_CDV(dev) (((dev)->pdev->device & 0xfff0) == 0x0be0)
+=======
+};
+
+#define IS_PSB(drm) ((to_pci_dev((drm)->dev)->device & 0xfffe) == 0x8108)
+#define IS_MRST(drm) ((to_pci_dev((drm)->dev)->device & 0xfff0) == 0x4100)
+#define IS_CDV(drm) ((to_pci_dev((drm)->dev)->device & 0xfff0) == 0x0be0)
+>>>>>>> upstream/android-13
 
 /* Hardware offsets */
 #define PSB_VDC_OFFSET		 0x00000000
 #define PSB_VDC_SIZE		 0x000080000
 #define MRST_MMIO_SIZE		 0x0000C0000
+<<<<<<< HEAD
 #define MDFLD_MMIO_SIZE          0x000100000
+=======
+>>>>>>> upstream/android-13
 #define PSB_SGX_SIZE		 0x8000
 #define PSB_SGX_OFFSET		 0x00040000
 #define MRST_SGX_OFFSET		 0x00080000
@@ -122,8 +154,11 @@ enum {
 #define _PSB_DPST_PIPEA_FLAG      (1<<6)
 #define _PSB_PIPEA_EVENT_FLAG     (1<<6)
 #define _PSB_VSYNC_PIPEA_FLAG	  (1<<7)
+<<<<<<< HEAD
 #define _MDFLD_MIPIA_FLAG	  (1<<16)
 #define _MDFLD_MIPIC_FLAG	  (1<<17)
+=======
+>>>>>>> upstream/android-13
 #define _PSB_IRQ_DISP_HOTSYNC	  (1<<17)
 #define _PSB_IRQ_SGX_FLAG	  (1<<18)
 #define _PSB_IRQ_MSVDX_FLAG	  (1<<19)
@@ -132,6 +167,7 @@ enum {
 #define _PSB_PIPE_EVENT_FLAG	(_PSB_VSYNC_PIPEA_FLAG | \
 				 _PSB_VSYNC_PIPEB_FLAG)
 
+<<<<<<< HEAD
 /* This flag includes all the display IRQ bits excepts the vblank irqs. */
 #define _MDFLD_DISP_ALL_IRQ_FLAG (_MDFLD_PIPEC_EVENT_FLAG | \
 				  _MDFLD_PIPEB_EVENT_FLAG | \
@@ -139,6 +175,8 @@ enum {
 				  _PSB_VSYNC_PIPEA_FLAG | \
 				  _MDFLD_MIPIA_FLAG | \
 				  _MDFLD_MIPIC_FLAG)
+=======
+>>>>>>> upstream/android-13
 #define PSB_INT_IDENTITY_R	  0x20A4
 #define PSB_INT_MASK_R		  0x20A8
 #define PSB_INT_ENABLE_R	  0x20A0
@@ -204,6 +242,7 @@ enum {
 #define PSB_WATCHDOG_DELAY (HZ * 2)
 #define PSB_LID_DELAY (HZ / 10)
 
+<<<<<<< HEAD
 #define MDFLD_PNW_B0 0x04
 #define MDFLD_PNW_C0 0x08
 
@@ -223,6 +262,8 @@ enum {
 #define MDFLD_DSR_FULLSCREEN 	(1 << 30)
 #define MDFLD_DSR_DELAY		(HZ / MDFLD_DSR_RR)
 
+=======
+>>>>>>> upstream/android-13
 #define PSB_PWR_STATE_ON		1
 #define PSB_PWR_STATE_OFF		2
 
@@ -242,6 +283,11 @@ enum {
 #define KSEL_BYPASS_25 6
 #define KSEL_BYPASS_83_100 7
 
+<<<<<<< HEAD
+=======
+struct drm_fb_helper;
+
+>>>>>>> upstream/android-13
 struct opregion_header;
 struct opregion_acpi;
 struct opregion_swsci;
@@ -393,6 +439,7 @@ struct psb_state {
 	uint32_t savePWM_CONTROL_LOGIC;
 };
 
+<<<<<<< HEAD
 struct medfield_state {
 	uint32_t saveMIPI;
 	uint32_t saveMIPI_C;
@@ -403,6 +450,8 @@ struct medfield_state {
 	uint32_t saveHDMIB_CONTROL;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct cdv_state {
 	uint32_t saveDSPCLK_GATE_D;
 	uint32_t saveRAMCLK_GATE_D;
@@ -428,7 +477,10 @@ struct psb_save_area {
 	uint32_t saveVBT;
 	union {
 	        struct psb_state psb;
+<<<<<<< HEAD
 		struct medfield_state mdfld;
+=======
+>>>>>>> upstream/android-13
 		struct cdv_state cdv;
 	};
 	uint32_t saveBLC_PWM_CTL2;
@@ -439,13 +491,22 @@ struct psb_ops;
 
 #define PSB_NUM_PIPE		3
 
+<<<<<<< HEAD
+=======
+struct intel_scu_ipc_dev;
+
+>>>>>>> upstream/android-13
 struct drm_psb_private {
 	struct drm_device *dev;
 	struct pci_dev *aux_pdev; /* Currently only used by mrst */
 	struct pci_dev *lpc_pdev; /* Currently only used by mrst */
 	const struct psb_ops *ops;
 	const struct psb_offset *regmap;
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	struct child_device_config *child_dev;
 	int child_dev_num;
 
@@ -553,7 +614,11 @@ struct drm_psb_private {
 
 	/* Oaktrail HDMI state */
 	struct oaktrail_hdmi_dev *hdmi_priv;
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	/* Register state */
 	struct psb_save_area regs;
 
@@ -578,6 +643,10 @@ struct drm_psb_private {
 	 * Used for modifying backlight from
 	 * xrandr -- consider removing and using HAL instead
 	 */
+<<<<<<< HEAD
+=======
+	struct intel_scu_ipc_dev *scu;
+>>>>>>> upstream/android-13
 	struct backlight_device *backlight_device;
 	struct drm_property *backlight_property;
 	bool backlight_enabled;
@@ -585,10 +654,14 @@ struct drm_psb_private {
 	uint32_t blc_adj1;
 	uint32_t blc_adj2;
 
+<<<<<<< HEAD
 	void *fbdev;
 
 	/* 2D acceleration */
 	spinlock_t lock_2d;
+=======
+	struct drm_fb_helper *fb_helper;
+>>>>>>> upstream/android-13
 
 	/* Panel brightness */
 	int brightness;
@@ -604,8 +677,11 @@ struct drm_psb_private {
 	u32 pipeconf[3];
 	u32 dspcntr[3];
 
+<<<<<<< HEAD
 	int mdfld_panel_id;
 
+=======
+>>>>>>> upstream/android-13
 	bool dplla_96mhz;	/* DPLL data from the VBT */
 
 	struct {
@@ -626,7 +702,10 @@ struct drm_psb_private {
 /* Operations for each board type */
 struct psb_ops {
 	const char *name;
+<<<<<<< HEAD
 	unsigned int accel_2d:1;
+=======
+>>>>>>> upstream/android-13
 	int pipes;		/* Number of output pipes */
 	int crtcs;		/* Number of CRTCs */
 	int sgx_offset;		/* Base offset of SGX device */
@@ -680,6 +759,7 @@ static inline struct drm_psb_private *psb_priv(struct drm_device *dev)
 }
 
 /* psb_irq.c */
+<<<<<<< HEAD
 extern irqreturn_t psb_irq_handler(int irq, void *arg);
 extern int psb_irq_enable_dpst(struct drm_device *dev);
 extern int psb_irq_disable_dpst(struct drm_device *dev);
@@ -694,22 +774,37 @@ extern int psb_vblank_wait2(struct drm_device *dev, unsigned int *sequence);
 extern int psb_vblank_wait(struct drm_device *dev, unsigned int *sequence);
 extern int psb_enable_vblank(struct drm_device *dev, unsigned int pipe);
 extern void psb_disable_vblank(struct drm_device *dev, unsigned int pipe);
+=======
+extern void psb_irq_uninstall_islands(struct drm_device *dev, int hw_islands);
+extern int psb_vblank_wait2(struct drm_device *dev, unsigned int *sequence);
+extern int psb_vblank_wait(struct drm_device *dev, unsigned int *sequence);
+extern int psb_enable_vblank(struct drm_crtc *crtc);
+extern void psb_disable_vblank(struct drm_crtc *crtc);
+>>>>>>> upstream/android-13
 void
 psb_enable_pipestat(struct drm_psb_private *dev_priv, int pipe, u32 mask);
 
 void
 psb_disable_pipestat(struct drm_psb_private *dev_priv, int pipe, u32 mask);
 
+<<<<<<< HEAD
 extern u32 psb_get_vblank_counter(struct drm_device *dev, unsigned int pipe);
+=======
+extern u32 psb_get_vblank_counter(struct drm_crtc *crtc);
+>>>>>>> upstream/android-13
 
 /* framebuffer.c */
 extern int psbfb_probed(struct drm_device *dev);
 extern int psbfb_remove(struct drm_device *dev,
 			struct drm_framebuffer *fb);
+<<<<<<< HEAD
 /* accel_2d.c */
 extern void psbfb_copyarea(struct fb_info *info,
 					const struct fb_copyarea *region);
 extern int psbfb_sync(struct fb_info *info);
+=======
+/* psb_drv.c */
+>>>>>>> upstream/android-13
 extern void psb_spank(struct drm_psb_private *dev_priv);
 
 /* psb_reset.c */
@@ -738,7 +833,11 @@ extern void oaktrail_lvds_init(struct drm_device *dev,
 
 /* psb_intel_display.c */
 extern const struct drm_crtc_helper_funcs psb_intel_helper_funcs;
+<<<<<<< HEAD
 extern const struct drm_crtc_funcs psb_intel_crtc_funcs;
+=======
+extern const struct drm_crtc_funcs gma_intel_crtc_funcs;
+>>>>>>> upstream/android-13
 
 /* psb_intel_lvds.c */
 extern const struct drm_connector_helper_funcs
@@ -746,12 +845,17 @@ extern const struct drm_connector_helper_funcs
 extern const struct drm_connector_funcs psb_intel_lvds_connector_funcs;
 
 /* gem.c */
+<<<<<<< HEAD
 extern void psb_gem_free_object(struct drm_gem_object *obj);
 extern int psb_gem_get_aperture(struct drm_device *dev, void *data,
 			struct drm_file *file);
 extern int psb_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
 			struct drm_mode_create_dumb *args);
 extern vm_fault_t psb_gem_fault(struct vm_fault *vmf);
+=======
+extern int psb_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
+			struct drm_mode_create_dumb *args);
+>>>>>>> upstream/android-13
 
 /* psb_device.c */
 extern const struct psb_ops psb_chip_ops;
@@ -759,9 +863,12 @@ extern const struct psb_ops psb_chip_ops;
 /* oaktrail_device.c */
 extern const struct psb_ops oaktrail_chip_ops;
 
+<<<<<<< HEAD
 /* mdlfd_device.c */
 extern const struct psb_ops mdfld_chip_ops;
 
+=======
+>>>>>>> upstream/android-13
 /* cdv_device.c */
 extern const struct psb_ops cdv_chip_ops;
 
@@ -801,6 +908,7 @@ static inline void MRST_MSG_WRITE32(int domain, uint port, uint offset,
 	pci_write_config_dword(pci_root, 0xD0, mcr);
 	pci_dev_put(pci_root);
 }
+<<<<<<< HEAD
 static inline u32 MDFLD_MSG_READ32(int domain, uint port, uint offset)
 {
 	int mcr = (0x10<<24) | (port << 16) | (offset << 8);
@@ -820,6 +928,8 @@ static inline void MDFLD_MSG_WRITE32(int domain, uint port, uint offset,
 	pci_write_config_dword(pci_root, 0xD0, mcr);
 	pci_dev_put(pci_root);
 }
+=======
+>>>>>>> upstream/android-13
 
 static inline uint32_t REGISTER_READ(struct drm_device *dev, uint32_t reg)
 {

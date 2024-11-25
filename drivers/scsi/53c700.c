@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8 -*- */
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /* NCR (or Symbios) 53c700 and 53c700-66 Driver
  *
  * Copyright (C) 2001 by James.Bottomley@HansenPartnership.com
 **-----------------------------------------------------------------------------
 **  
+<<<<<<< HEAD
 **  This program is free software; you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
 **  the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
 **  You should have received a copy of the GNU General Public License
 **  along with this program; if not, write to the Free Software
 **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 **
 **-----------------------------------------------------------------------------
  */
@@ -128,9 +135,15 @@
 #include <linux/module.h>
 #include <linux/interrupt.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <asm/dma.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/dma.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/byteorder.h>
 
 #include <scsi/scsi.h>
@@ -281,6 +294,30 @@ NCR_700_get_SXFER(struct scsi_device *SDp)
 					      spi_period(SDp->sdev_target));
 }
 
+<<<<<<< HEAD
+=======
+static inline dma_addr_t virt_to_dma(struct NCR_700_Host_Parameters *h, void *p)
+{
+	return h->pScript + ((uintptr_t)p - (uintptr_t)h->script);
+}
+
+static inline void dma_sync_to_dev(struct NCR_700_Host_Parameters *h,
+		void *addr, size_t size)
+{
+	if (h->noncoherent)
+		dma_sync_single_for_device(h->dev, virt_to_dma(h, addr),
+					   size, DMA_BIDIRECTIONAL);
+}
+
+static inline void dma_sync_from_dev(struct NCR_700_Host_Parameters *h,
+		void *addr, size_t size)
+{
+	if (h->noncoherent)
+		dma_sync_single_for_device(h->dev, virt_to_dma(h, addr), size,
+					   DMA_BIDIRECTIONAL);
+}
+
+>>>>>>> upstream/android-13
 struct Scsi_Host *
 NCR_700_detect(struct scsi_host_template *tpnt,
 	       struct NCR_700_Host_Parameters *hostdata, struct device *dev)
@@ -295,9 +332,19 @@ NCR_700_detect(struct scsi_host_template *tpnt,
 	if(tpnt->sdev_attrs == NULL)
 		tpnt->sdev_attrs = NCR_700_dev_attrs;
 
+<<<<<<< HEAD
 	memory = dma_alloc_attrs(dev, TOTAL_MEM_SIZE, &pScript,
 				 GFP_KERNEL, DMA_ATTR_NON_CONSISTENT);
 	if(memory == NULL) {
+=======
+	memory = dma_alloc_coherent(dev, TOTAL_MEM_SIZE, &pScript, GFP_KERNEL);
+	if (!memory) {
+		hostdata->noncoherent = 1;
+		memory = dma_alloc_noncoherent(dev, TOTAL_MEM_SIZE, &pScript,
+					 DMA_BIDIRECTIONAL, GFP_KERNEL);
+	}
+	if (!memory) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "53c700: Failed to allocate memory for driver, detaching\n");
 		return NULL;
 	}
@@ -318,7 +365,10 @@ NCR_700_detect(struct scsi_host_template *tpnt,
 	tpnt->can_queue = NCR_700_COMMAND_SLOTS_PER_HOST;
 	tpnt->sg_tablesize = NCR_700_SG_SEGMENTS;
 	tpnt->cmd_per_lun = NCR_700_CMD_PER_LUN;
+<<<<<<< HEAD
 	tpnt->use_clustering = ENABLE_CLUSTERING;
+=======
+>>>>>>> upstream/android-13
 	tpnt->slave_configure = NCR_700_slave_configure;
 	tpnt->slave_destroy = NCR_700_slave_destroy;
 	tpnt->slave_alloc = NCR_700_slave_alloc;
@@ -352,11 +402,19 @@ NCR_700_detect(struct scsi_host_template *tpnt,
 	for (j = 0; j < PATCHES; j++)
 		script[LABELPATCHES[j]] = bS_to_host(pScript + SCRIPT[LABELPATCHES[j]]);
 	/* now patch up fixed addresses. */
+<<<<<<< HEAD
 	script_patch_32(hostdata->dev, script, MessageLocation,
 			pScript + MSGOUT_OFFSET);
 	script_patch_32(hostdata->dev, script, StatusAddress,
 			pScript + STATUS_OFFSET);
 	script_patch_32(hostdata->dev, script, ReceiveMsgAddress,
+=======
+	script_patch_32(hostdata, script, MessageLocation,
+			pScript + MSGOUT_OFFSET);
+	script_patch_32(hostdata, script, StatusAddress,
+			pScript + STATUS_OFFSET);
+	script_patch_32(hostdata, script, ReceiveMsgAddress,
+>>>>>>> upstream/android-13
 			pScript + MSGIN_OFFSET);
 
 	hostdata->script = script;
@@ -408,8 +466,18 @@ NCR_700_release(struct Scsi_Host *host)
 	struct NCR_700_Host_Parameters *hostdata = 
 		(struct NCR_700_Host_Parameters *)host->hostdata[0];
 
+<<<<<<< HEAD
 	dma_free_attrs(hostdata->dev, TOTAL_MEM_SIZE, hostdata->script,
 		       hostdata->pScript, DMA_ATTR_NON_CONSISTENT);
+=======
+	if (hostdata->noncoherent)
+		dma_free_noncoherent(hostdata->dev, TOTAL_MEM_SIZE,
+				hostdata->script, hostdata->pScript,
+				DMA_BIDIRECTIONAL);
+	else
+		dma_free_coherent(hostdata->dev, TOTAL_MEM_SIZE,
+				  hostdata->script, hostdata->pScript);
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -817,8 +885,13 @@ process_extended_message(struct Scsi_Host *host,
 			shost_printk(KERN_WARNING, host,
 				"Unexpected SDTR msg\n");
 			hostdata->msgout[0] = A_REJECT_MSG;
+<<<<<<< HEAD
 			dma_cache_sync(hostdata->dev, hostdata->msgout, 1, DMA_TO_DEVICE);
 			script_patch_16(hostdata->dev, hostdata->script,
+=======
+			dma_sync_to_dev(hostdata, hostdata->msgout, 1);
+			script_patch_16(hostdata, hostdata->script,
+>>>>>>> upstream/android-13
 			                MessageCount, 1);
 			/* SendMsgOut returns, so set up the return
 			 * address */
@@ -830,9 +903,14 @@ process_extended_message(struct Scsi_Host *host,
 		printk(KERN_INFO "scsi%d: (%d:%d), Unsolicited WDTR after CMD, Rejecting\n",
 		       host->host_no, pun, lun);
 		hostdata->msgout[0] = A_REJECT_MSG;
+<<<<<<< HEAD
 		dma_cache_sync(hostdata->dev, hostdata->msgout, 1, DMA_TO_DEVICE);
 		script_patch_16(hostdata->dev, hostdata->script, MessageCount,
 		                1);
+=======
+		dma_sync_to_dev(hostdata, hostdata->msgout, 1);
+		script_patch_16(hostdata, hostdata->script, MessageCount, 1);
+>>>>>>> upstream/android-13
 		resume_offset = hostdata->pScript + Ent_SendMessageWithATN;
 
 		break;
@@ -845,9 +923,14 @@ process_extended_message(struct Scsi_Host *host,
 		printk("\n");
 		/* just reject it */
 		hostdata->msgout[0] = A_REJECT_MSG;
+<<<<<<< HEAD
 		dma_cache_sync(hostdata->dev, hostdata->msgout, 1, DMA_TO_DEVICE);
 		script_patch_16(hostdata->dev, hostdata->script, MessageCount,
 		                1);
+=======
+		dma_sync_to_dev(hostdata, hostdata->msgout, 1);
+		script_patch_16(hostdata, hostdata->script, MessageCount, 1);
+>>>>>>> upstream/android-13
 		/* SendMsgOut returns, so set up the return
 		 * address */
 		resume_offset = hostdata->pScript + Ent_SendMessageWithATN;
@@ -930,9 +1013,14 @@ process_message(struct Scsi_Host *host,	struct NCR_700_Host_Parameters *hostdata
 		printk("\n");
 		/* just reject it */
 		hostdata->msgout[0] = A_REJECT_MSG;
+<<<<<<< HEAD
 		dma_cache_sync(hostdata->dev, hostdata->msgout, 1, DMA_TO_DEVICE);
 		script_patch_16(hostdata->dev, hostdata->script, MessageCount,
 		                1);
+=======
+		dma_sync_to_dev(hostdata, hostdata->msgout, 1);
+		script_patch_16(hostdata, hostdata->script, MessageCount, 1);
+>>>>>>> upstream/android-13
 		/* SendMsgOut returns, so set up the return
 		 * address */
 		resume_offset = hostdata->pScript + Ent_SendMessageWithATN;
@@ -941,7 +1029,11 @@ process_message(struct Scsi_Host *host,	struct NCR_700_Host_Parameters *hostdata
 	}
 	NCR_700_writel(temp, host, TEMP_REG);
 	/* set us up to receive another message */
+<<<<<<< HEAD
 	dma_cache_sync(hostdata->dev, hostdata->msgin, MSG_ARRAY_SIZE, DMA_FROM_DEVICE);
+=======
+	dma_sync_from_dev(hostdata, hostdata->msgin, MSG_ARRAY_SIZE);
+>>>>>>> upstream/android-13
 	return resume_offset;
 }
 
@@ -965,10 +1057,17 @@ process_script_interrupt(__u32 dsps, __u32 dsp, struct scsi_cmnd *SCp,
 		if (NCR_700_get_tag_neg_state(SCp->device) == NCR_700_DURING_TAG_NEGOTIATION)
 			NCR_700_set_tag_neg_state(SCp->device,
 						  NCR_700_FINISHED_TAG_NEGOTIATION);
+<<<<<<< HEAD
 			
 		/* check for contingent allegiance contitions */
 		if(status_byte(hostdata->status[0]) == CHECK_CONDITION ||
 		   status_byte(hostdata->status[0]) == COMMAND_TERMINATED) {
+=======
+
+		/* check for contingent allegiance conditions */
+		if (hostdata->status[0] == SAM_STAT_CHECK_CONDITION ||
+		    hostdata->status[0] == SAM_STAT_COMMAND_TERMINATED) {
+>>>>>>> upstream/android-13
 			struct NCR_700_command_slot *slot =
 				(struct NCR_700_command_slot *)SCp->host_scribble;
 			if(slot->flags == NCR_700_FLAG_AUTOSENSE) {
@@ -1021,8 +1120,13 @@ process_script_interrupt(__u32 dsps, __u32 dsp, struct scsi_cmnd *SCp,
 				slot->SG[1].ins = bS_to_host(SCRIPT_RETURN);
 				slot->SG[1].pAddr = 0;
 				slot->resume_offset = hostdata->pScript;
+<<<<<<< HEAD
 				dma_cache_sync(hostdata->dev, slot->SG, sizeof(slot->SG[0])*2, DMA_TO_DEVICE);
 				dma_cache_sync(hostdata->dev, SCp->sense_buffer, SCSI_SENSE_BUFFERSIZE, DMA_FROM_DEVICE);
+=======
+				dma_sync_to_dev(hostdata, slot->SG, sizeof(slot->SG[0])*2);
+				dma_sync_from_dev(hostdata, SCp->sense_buffer, SCSI_SENSE_BUFFERSIZE);
+>>>>>>> upstream/android-13
 
 				/* queue the command for reissue */
 				slot->state = NCR_700_SLOT_QUEUED;
@@ -1142,11 +1246,19 @@ process_script_interrupt(__u32 dsps, __u32 dsp, struct scsi_cmnd *SCp,
 			hostdata->cmd = slot->cmnd;
 
 			/* re-patch for this command */
+<<<<<<< HEAD
 			script_patch_32_abs(hostdata->dev, hostdata->script,
 			                    CommandAddress, slot->pCmd);
 			script_patch_16(hostdata->dev, hostdata->script,
 					CommandCount, slot->cmnd->cmd_len);
 			script_patch_32_abs(hostdata->dev, hostdata->script,
+=======
+			script_patch_32_abs(hostdata, hostdata->script,
+			                    CommandAddress, slot->pCmd);
+			script_patch_16(hostdata, hostdata->script,
+					CommandCount, slot->cmnd->cmd_len);
+			script_patch_32_abs(hostdata, hostdata->script,
+>>>>>>> upstream/android-13
 			                    SGScriptStartAddress,
 					    to32bit(&slot->pSG[0].ins));
 
@@ -1157,6 +1269,7 @@ process_script_interrupt(__u32 dsps, __u32 dsp, struct scsi_cmnd *SCp,
 			 * should therefore always clear ACK */
 			NCR_700_writeb(NCR_700_get_SXFER(hostdata->cmd->device),
 				       host, SXFER_REG);
+<<<<<<< HEAD
 			dma_cache_sync(hostdata->dev, hostdata->msgin,
 				       MSG_ARRAY_SIZE, DMA_FROM_DEVICE);
 			dma_cache_sync(hostdata->dev, hostdata->msgout,
@@ -1165,6 +1278,16 @@ process_script_interrupt(__u32 dsps, __u32 dsp, struct scsi_cmnd *SCp,
 			 * already have been flushed from the cache */
 			dma_cache_sync(hostdata->dev, slot->cmnd->cmnd,
 				       slot->cmnd->cmd_len, DMA_TO_DEVICE);
+=======
+			dma_sync_from_dev(hostdata, hostdata->msgin,
+				       MSG_ARRAY_SIZE);
+			dma_sync_to_dev(hostdata, hostdata->msgout,
+				       MSG_ARRAY_SIZE);
+			/* I'm just being paranoid here, the command should
+			 * already have been flushed from the cache */
+			dma_sync_to_dev(hostdata, slot->cmnd->cmnd,
+				       slot->cmnd->cmd_len);
+>>>>>>> upstream/android-13
 
 
 			
@@ -1227,8 +1350,12 @@ process_script_interrupt(__u32 dsps, __u32 dsp, struct scsi_cmnd *SCp,
 		hostdata->reselection_id = reselection_id;
 		/* just in case we have a stale simple tag message, clear it */
 		hostdata->msgin[1] = 0;
+<<<<<<< HEAD
 		dma_cache_sync(hostdata->dev, hostdata->msgin,
 			       MSG_ARRAY_SIZE, DMA_BIDIRECTIONAL);
+=======
+		dma_sync_to_dev(hostdata, hostdata->msgin, MSG_ARRAY_SIZE);
+>>>>>>> upstream/android-13
 		if(hostdata->tag_negotiated & (1<<reselection_id)) {
 			resume_offset = hostdata->pScript + Ent_GetReselectionWithTag;
 		} else {
@@ -1342,8 +1469,12 @@ process_selection(struct Scsi_Host *host, __u32 dsp)
 	hostdata->cmd = NULL;
 	/* clear any stale simple tag message */
 	hostdata->msgin[1] = 0;
+<<<<<<< HEAD
 	dma_cache_sync(hostdata->dev, hostdata->msgin, MSG_ARRAY_SIZE,
 		       DMA_BIDIRECTIONAL);
+=======
+	dma_sync_to_dev(hostdata, hostdata->msgin, MSG_ARRAY_SIZE);
+>>>>>>> upstream/android-13
 
 	if(id == 0xff) {
 		/* Selected as target, Ignore */
@@ -1440,6 +1571,7 @@ NCR_700_start_command(struct scsi_cmnd *SCp)
 		NCR_700_set_flag(SCp->device, NCR_700_DEV_BEGIN_SYNC_NEGOTIATION);
 	}
 
+<<<<<<< HEAD
 	script_patch_16(hostdata->dev, hostdata->script, MessageCount, count);
 
 
@@ -1453,17 +1585,36 @@ NCR_700_start_command(struct scsi_cmnd *SCp)
 	/* finally plumb the beginning of the SG list into the script
 	 * */
 	script_patch_32_abs(hostdata->dev, hostdata->script,
+=======
+	script_patch_16(hostdata, hostdata->script, MessageCount, count);
+
+	script_patch_ID(hostdata, hostdata->script, Device_ID, 1<<scmd_id(SCp));
+
+	script_patch_32_abs(hostdata, hostdata->script, CommandAddress,
+			    slot->pCmd);
+	script_patch_16(hostdata, hostdata->script, CommandCount, SCp->cmd_len);
+	/* finally plumb the beginning of the SG list into the script
+	 * */
+	script_patch_32_abs(hostdata, hostdata->script,
+>>>>>>> upstream/android-13
 	                    SGScriptStartAddress, to32bit(&slot->pSG[0].ins));
 	NCR_700_clear_fifo(SCp->device->host);
 
 	if(slot->resume_offset == 0)
 		slot->resume_offset = hostdata->pScript;
 	/* now perform all the writebacks and invalidates */
+<<<<<<< HEAD
 	dma_cache_sync(hostdata->dev, hostdata->msgout, count, DMA_TO_DEVICE);
 	dma_cache_sync(hostdata->dev, hostdata->msgin, MSG_ARRAY_SIZE,
 		       DMA_FROM_DEVICE);
 	dma_cache_sync(hostdata->dev, SCp->cmnd, SCp->cmd_len, DMA_TO_DEVICE);
 	dma_cache_sync(hostdata->dev, hostdata->status, 1, DMA_FROM_DEVICE);
+=======
+	dma_sync_to_dev(hostdata, hostdata->msgout, count);
+	dma_sync_from_dev(hostdata, hostdata->msgin, MSG_ARRAY_SIZE);
+	dma_sync_to_dev(hostdata, SCp->cmnd, SCp->cmd_len);
+	dma_sync_from_dev(hostdata, hostdata->status, 1);
+>>>>>>> upstream/android-13
 
 	/* set the synchronous period/offset */
 	NCR_700_writeb(NCR_700_get_SXFER(SCp->device),
@@ -1498,10 +1649,15 @@ NCR_700_intr(int irq, void *dev_id)
 		__u8 sstat0 = 0, dstat = 0;
 		__u32 dsp;
 		struct scsi_cmnd *SCp = hostdata->cmd;
+<<<<<<< HEAD
 		enum NCR_700_Host_State state;
 
 		handled = 1;
 		state = hostdata->state;
+=======
+
+		handled = 1;
+>>>>>>> upstream/android-13
 		SCp = hostdata->cmd;
 
 		if(istat & SCSI_INT_PENDING) {
@@ -1639,7 +1795,11 @@ NCR_700_intr(int irq, void *dev_id)
 					slot->SG[i].ins = bS_to_host(SCRIPT_NOP);
 					slot->SG[i].pAddr = 0;
 				}
+<<<<<<< HEAD
 				dma_cache_sync(hostdata->dev, slot->SG, sizeof(slot->SG), DMA_TO_DEVICE);
+=======
+				dma_sync_to_dev(hostdata, slot->SG, sizeof(slot->SG));
+>>>>>>> upstream/android-13
 				/* and pretend we disconnected after
 				 * the command phase */
 				resume_offset = hostdata->pScript + Ent_MsgInDuringData;
@@ -1752,7 +1912,10 @@ NCR_700_queuecommand_lck(struct scsi_cmnd *SCp, void (*done)(struct scsi_cmnd *)
 	struct NCR_700_Host_Parameters *hostdata = 
 		(struct NCR_700_Host_Parameters *)SCp->device->host->hostdata[0];
 	__u32 move_ins;
+<<<<<<< HEAD
 	enum dma_data_direction direction;
+=======
+>>>>>>> upstream/android-13
 	struct NCR_700_command_slot *slot;
 
 	if(hostdata->command_slot_count >= NCR_700_COMMAND_SLOTS_PER_HOST) {
@@ -1819,7 +1982,11 @@ NCR_700_queuecommand_lck(struct scsi_cmnd *SCp, void (*done)(struct scsi_cmnd *)
 
 	if ((hostdata->tag_negotiated & (1<<scmd_id(SCp))) &&
 	    SCp->device->simple_tags) {
+<<<<<<< HEAD
 		slot->tag = SCp->request->tag;
+=======
+		slot->tag = scsi_cmd_to_rq(SCp)->tag;
+>>>>>>> upstream/android-13
 		CDEBUG(KERN_DEBUG, SCp, "sending out tag %d, slot %p\n",
 		       slot->tag, slot);
 	} else {
@@ -1845,7 +2012,11 @@ NCR_700_queuecommand_lck(struct scsi_cmnd *SCp, void (*done)(struct scsi_cmnd *)
 	case REQUEST_SENSE:
 		/* clear the internal sense magic */
 		SCp->cmnd[6] = 0;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* OK, get it from the command */
 		switch(SCp->sc_data_direction) {
@@ -1869,7 +2040,10 @@ NCR_700_queuecommand_lck(struct scsi_cmnd *SCp, void (*done)(struct scsi_cmnd *)
 	}
 
 	/* now build the scatter gather list */
+<<<<<<< HEAD
 	direction = SCp->sc_data_direction;
+=======
+>>>>>>> upstream/android-13
 	if(move_ins != 0) {
 		int i;
 		int sg_count;
@@ -1891,7 +2065,11 @@ NCR_700_queuecommand_lck(struct scsi_cmnd *SCp, void (*done)(struct scsi_cmnd *)
 		}
 		slot->SG[i].ins = bS_to_host(SCRIPT_RETURN);
 		slot->SG[i].pAddr = 0;
+<<<<<<< HEAD
 		dma_cache_sync(hostdata->dev, slot->SG, sizeof(slot->SG), DMA_TO_DEVICE);
+=======
+		dma_sync_to_dev(hostdata, slot->SG, sizeof(slot->SG));
+>>>>>>> upstream/android-13
 		DEBUG((" SETTING %p to %x\n",
 		       (&slot->pSG[i].ins),
 		       slot->SG[i].ins));

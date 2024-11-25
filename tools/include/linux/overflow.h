@@ -5,12 +5,18 @@
 #include <linux/compiler.h>
 
 /*
+<<<<<<< HEAD
  * In the fallback code below, we need to compute the minimum and
  * maximum values representable in a given type. These macros may also
  * be useful elsewhere, so we provide them outside the
  * COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW block.
  *
  * It would seem more obvious to do something like
+=======
+ * We need to compute the minimum and maximum values representable in a given
+ * type. These macros may also be useful elsewhere. It would seem more obvious
+ * to do something like:
+>>>>>>> upstream/android-13
  *
  * #define type_min(T) (T)(is_signed_type(T) ? (T)1 << (8*sizeof(T)-1) : 0)
  * #define type_max(T) (T)(is_signed_type(T) ? ((T)1 << (8*sizeof(T)-1)) - 1 : ~(T)0)
@@ -36,8 +42,11 @@
 #define type_max(T) ((T)((__type_half_max(T) - 1) + __type_half_max(T)))
 #define type_min(T) ((T)((T)-type_max(T)-(T)1))
 
+<<<<<<< HEAD
 
 #ifdef COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW
+=======
+>>>>>>> upstream/android-13
 /*
  * For simplicity and code hygiene, the fallback code below insists on
  * a, b and *d having the same type (similar to the min() and max()
@@ -73,6 +82,7 @@
 	__builtin_mul_overflow(__a, __b, __d);	\
 })
 
+<<<<<<< HEAD
 #else
 
 
@@ -202,6 +212,8 @@
 
 #endif /* COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW */
 
+=======
+>>>>>>> upstream/android-13
 /**
  * array_size() - Calculate size of 2-dimensional array.
  *

@@ -1,7 +1,11 @@
 /* Upcall routine, designed to work as a key type and working through
  * /sbin/request-key to contact userspace when handling DNS queries.
  *
+<<<<<<< HEAD
  * See Documentation/networking/dns_resolver.txt
+=======
+ * See Documentation/networking/dns_resolver.rst
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) 2007 Igor Mammedov
  *   Author(s): Igor Mammedov (niallain@gmail.com)
@@ -40,6 +44,10 @@
 #include <linux/cred.h>
 #include <linux/dns_resolver.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <net/net_namespace.h>
+>>>>>>> upstream/android-13
 
 #include <keys/dns_resolver-type.h>
 #include <keys/user-type.h>
@@ -48,12 +56,20 @@
 
 /**
  * dns_query - Query the DNS
+<<<<<<< HEAD
+=======
+ * @net: The network namespace to operate in.
+>>>>>>> upstream/android-13
  * @type: Query type (or NULL for straight host->IP lookup)
  * @name: Name to look up
  * @namelen: Length of name
  * @options: Request options (or NULL if no options)
  * @_result: Where to place the returned data (or NULL)
  * @_expiry: Where to store the result expiry time (or NULL)
+<<<<<<< HEAD
+=======
+ * @invalidate: Always invalidate the key after use
+>>>>>>> upstream/android-13
  *
  * The data will be returned in the pointer at *result, if provided, and the
  * caller is responsible for freeing it.
@@ -68,8 +84,15 @@
  *
  * Returns the size of the result on success, -ve error code otherwise.
  */
+<<<<<<< HEAD
 int dns_query(const char *type, const char *name, size_t namelen,
 	      const char *options, char **_result, time64_t *_expiry)
+=======
+int dns_query(struct net *net,
+	      const char *type, const char *name, size_t namelen,
+	      const char *options, char **_result, time64_t *_expiry,
+	      bool invalidate)
+>>>>>>> upstream/android-13
 {
 	struct key *rkey;
 	struct user_key_payload *upayload;
@@ -94,8 +117,11 @@ int dns_query(const char *type, const char *name, size_t namelen,
 		desclen += typelen + 1;
 	}
 
+<<<<<<< HEAD
 	if (!namelen)
 		namelen = strnlen(name, 256);
+=======
+>>>>>>> upstream/android-13
 	if (namelen < 3 || namelen > 255)
 		return -EINVAL;
 	desclen += namelen + 1;
@@ -122,7 +148,11 @@ int dns_query(const char *type, const char *name, size_t namelen,
 	 * add_key() to preinstall malicious redirections
 	 */
 	saved_cred = override_creds(dns_resolver_cache);
+<<<<<<< HEAD
 	rkey = request_key(&key_type_dns_resolver, desc, options);
+=======
+	rkey = request_key_net(&key_type_dns_resolver, desc, net, options);
+>>>>>>> upstream/android-13
 	revert_creds(saved_cred);
 	kfree(desc);
 	if (IS_ERR(rkey)) {
@@ -148,12 +178,18 @@ int dns_query(const char *type, const char *name, size_t namelen,
 
 	if (_result) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		*_result = kmalloc(len + 1, GFP_KERNEL);
 		if (!*_result)
 			goto put;
 
 		memcpy(*_result, upayload->data, len);
 		(*_result)[len] = '\0';
+=======
+		*_result = kmemdup_nul(upayload->data, len, GFP_KERNEL);
+		if (!*_result)
+			goto put;
+>>>>>>> upstream/android-13
 	}
 
 	if (_expiry)
@@ -162,6 +198,11 @@ int dns_query(const char *type, const char *name, size_t namelen,
 	ret = len;
 put:
 	up_read(&rkey->sem);
+<<<<<<< HEAD
+=======
+	if (invalidate)
+		key_invalidate(rkey);
+>>>>>>> upstream/android-13
 	key_put(rkey);
 out:
 	kleave(" = %d", ret);

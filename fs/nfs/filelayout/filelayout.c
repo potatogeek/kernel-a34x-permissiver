@@ -49,6 +49,10 @@ MODULE_AUTHOR("Dean Hildebrand <dhildebz@umich.edu>");
 MODULE_DESCRIPTION("The NFSv4 file layout driver");
 
 #define FILELAYOUT_POLL_RETRY_MAX     (15*HZ)
+<<<<<<< HEAD
+=======
+static const struct pnfs_commit_ops filelayout_commit_ops;
+>>>>>>> upstream/android-13
 
 static loff_t
 filelayout_get_dense_offset(struct nfs4_filelayout_segment *flseg,
@@ -186,7 +190,11 @@ static int filelayout_async_handle_error(struct rpc_task *task,
 		pnfs_error_mark_layout_for_return(inode, lseg);
 		pnfs_set_lo_fail(lseg);
 		rpc_wake_up(&tbl->slot_tbl_waitq);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 reset:
 		dprintk("%s Retry through MDS. Error %d\n", __func__,
@@ -665,7 +673,11 @@ filelayout_decode_layout(struct pnfs_layout_hdr *flo,
 		return -ENOMEM;
 
 	xdr_init_decode_pages(&stream, &buf, lgr->layoutp->pages, lgr->layoutp->len);
+<<<<<<< HEAD
 	xdr_set_scratch_buffer(&stream, page_address(scratch), PAGE_SIZE);
+=======
+	xdr_set_scratch_page(&stream, scratch);
+>>>>>>> upstream/android-13
 
 	/* 20 = ufl_util (4), first_stripe_index (4), pattern_offset (8),
 	 * num_fh (4) */
@@ -717,7 +729,11 @@ filelayout_decode_layout(struct pnfs_layout_hdr *flo,
 		if (unlikely(!p))
 			goto out_err;
 		fl->fh_array[i]->size = be32_to_cpup(p++);
+<<<<<<< HEAD
 		if (sizeof(struct nfs_fh) < fl->fh_array[i]->size) {
+=======
+		if (fl->fh_array[i]->size > NFS_MAXFHSIZE) {
+>>>>>>> upstream/android-13
 			printk(KERN_ERR "NFS: Too big fh %d received %d\n",
 			       i, fl->fh_array[i]->size);
 			goto out_err;
@@ -750,15 +766,26 @@ filelayout_free_lseg(struct pnfs_layout_segment *lseg)
 	/* This assumes a single RW lseg */
 	if (lseg->pls_range.iomode == IOMODE_RW) {
 		struct nfs4_filelayout *flo;
+<<<<<<< HEAD
 
 		flo = FILELAYOUT_FROM_HDR(lseg->pls_layout);
 		flo->commit_info.nbuckets = 0;
 		kfree(flo->commit_info.buckets);
 		flo->commit_info.buckets = NULL;
+=======
+		struct inode *inode;
+
+		flo = FILELAYOUT_FROM_HDR(lseg->pls_layout);
+		inode = flo->generic_hdr.plh_inode;
+		spin_lock(&inode->i_lock);
+		pnfs_generic_ds_cinfo_release_lseg(&flo->commit_info, lseg);
+		spin_unlock(&inode->i_lock);
+>>>>>>> upstream/android-13
 	}
 	_filelayout_free_lseg(fl);
 }
 
+<<<<<<< HEAD
 static int
 filelayout_alloc_commit_info(struct pnfs_layout_segment *lseg,
 			     struct nfs_commit_info *cinfo,
@@ -816,6 +843,8 @@ out:
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct pnfs_layout_segment *
 filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
 		      struct nfs4_layoutget_res *lgr,
@@ -917,7 +946,11 @@ filelayout_pg_init_read(struct nfs_pageio_descriptor *pgio,
 	pnfs_generic_pg_check_layout(pgio);
 	if (!pgio->pg_lseg) {
 		pgio->pg_lseg = fl_pnfs_update_layout(pgio->pg_inode,
+<<<<<<< HEAD
 						      req->wb_context,
+=======
+						      nfs_req_openctx(req),
+>>>>>>> upstream/android-13
 						      0,
 						      NFS4_MAX_UINT64,
 						      IOMODE_READ,
@@ -938,6 +971,7 @@ static void
 filelayout_pg_init_write(struct nfs_pageio_descriptor *pgio,
 			 struct nfs_page *req)
 {
+<<<<<<< HEAD
 	struct nfs_commit_info cinfo;
 	int status;
 
@@ -945,6 +979,12 @@ filelayout_pg_init_write(struct nfs_pageio_descriptor *pgio,
 	if (!pgio->pg_lseg) {
 		pgio->pg_lseg = fl_pnfs_update_layout(pgio->pg_inode,
 						      req->wb_context,
+=======
+	pnfs_generic_pg_check_layout(pgio);
+	if (!pgio->pg_lseg) {
+		pgio->pg_lseg = fl_pnfs_update_layout(pgio->pg_inode,
+						      nfs_req_openctx(req),
+>>>>>>> upstream/android-13
 						      0,
 						      NFS4_MAX_UINT64,
 						      IOMODE_RW,
@@ -959,6 +999,7 @@ filelayout_pg_init_write(struct nfs_pageio_descriptor *pgio,
 
 	/* If no lseg, fall back to write through mds */
 	if (pgio->pg_lseg == NULL)
+<<<<<<< HEAD
 		goto out_mds;
 	nfs_init_cinfo(&cinfo, pgio->pg_inode, pgio->pg_dreq);
 	status = filelayout_alloc_commit_info(pgio->pg_lseg, &cinfo, GFP_NOFS);
@@ -970,6 +1011,9 @@ filelayout_pg_init_write(struct nfs_pageio_descriptor *pgio,
 	return;
 out_mds:
 	nfs_pageio_reset_write_mds(pgio);
+=======
+		nfs_pageio_reset_write_mds(pgio);
+>>>>>>> upstream/android-13
 }
 
 static const struct nfs_pageio_ops filelayout_pg_read_ops = {
@@ -1078,6 +1122,7 @@ out_err:
 	return -EAGAIN;
 }
 
+<<<<<<< HEAD
 /* filelayout_search_commit_reqs - Search lists in @cinfo for the head reqest
  *				   for @page
  * @cinfo - commit info for current inode
@@ -1108,6 +1153,8 @@ filelayout_search_commit_reqs(struct nfs_commit_info *cinfo, struct page *page)
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int
 filelayout_commit_pagelist(struct inode *inode, struct list_head *mds_pages,
 			   int how, struct nfs_commit_info *cinfo)
@@ -1140,13 +1187,25 @@ filelayout_alloc_layout_hdr(struct inode *inode, gfp_t gfp_flags)
 	struct nfs4_filelayout *flo;
 
 	flo = kzalloc(sizeof(*flo), gfp_flags);
+<<<<<<< HEAD
 	return flo != NULL ? &flo->generic_hdr : NULL;
+=======
+	if (flo == NULL)
+		return NULL;
+	pnfs_init_ds_commit_info(&flo->commit_info);
+	flo->commit_info.ops = &filelayout_commit_ops;
+	return &flo->generic_hdr;
+>>>>>>> upstream/android-13
 }
 
 static void
 filelayout_free_layout_hdr(struct pnfs_layout_hdr *lo)
 {
+<<<<<<< HEAD
 	kfree(FILELAYOUT_FROM_HDR(lo));
+=======
+	kfree_rcu(FILELAYOUT_FROM_HDR(lo), generic_hdr.plh_rcu);
+>>>>>>> upstream/android-13
 }
 
 static struct pnfs_ds_commit_info *
@@ -1160,10 +1219,58 @@ filelayout_get_ds_info(struct inode *inode)
 		return &FILELAYOUT_FROM_HDR(layout)->commit_info;
 }
 
+<<<<<<< HEAD
+=======
+static void
+filelayout_setup_ds_info(struct pnfs_ds_commit_info *fl_cinfo,
+		struct pnfs_layout_segment *lseg)
+{
+	struct nfs4_filelayout_segment *fl = FILELAYOUT_LSEG(lseg);
+	struct inode *inode = lseg->pls_layout->plh_inode;
+	struct pnfs_commit_array *array, *new;
+	unsigned int size = (fl->stripe_type == STRIPE_SPARSE) ?
+		fl->dsaddr->ds_num : fl->dsaddr->stripe_count;
+
+	new = pnfs_alloc_commit_array(size, GFP_NOIO);
+	if (new) {
+		spin_lock(&inode->i_lock);
+		array = pnfs_add_commit_array(fl_cinfo, new, lseg);
+		spin_unlock(&inode->i_lock);
+		if (array != new)
+			pnfs_free_commit_array(new);
+	}
+}
+
+static void
+filelayout_release_ds_info(struct pnfs_ds_commit_info *fl_cinfo,
+		struct inode *inode)
+{
+	spin_lock(&inode->i_lock);
+	pnfs_generic_ds_cinfo_destroy(fl_cinfo);
+	spin_unlock(&inode->i_lock);
+}
+
+static const struct pnfs_commit_ops filelayout_commit_ops = {
+	.setup_ds_info		= filelayout_setup_ds_info,
+	.release_ds_info	= filelayout_release_ds_info,
+	.mark_request_commit	= filelayout_mark_request_commit,
+	.clear_request_commit	= pnfs_generic_clear_request_commit,
+	.scan_commit_lists	= pnfs_generic_scan_commit_lists,
+	.recover_commit_reqs	= pnfs_generic_recover_commit_reqs,
+	.search_commit_reqs	= pnfs_generic_search_commit_reqs,
+	.commit_pagelist	= filelayout_commit_pagelist,
+};
+
+>>>>>>> upstream/android-13
 static struct pnfs_layoutdriver_type filelayout_type = {
 	.id			= LAYOUT_NFSV4_1_FILES,
 	.name			= "LAYOUT_NFSV4_1_FILES",
 	.owner			= THIS_MODULE,
+<<<<<<< HEAD
+=======
+	.flags			= PNFS_LAYOUTGET_ON_OPEN,
+	.max_layoutget_response	= 4096, /* 1 page or so... */
+>>>>>>> upstream/android-13
 	.alloc_layout_hdr	= filelayout_alloc_layout_hdr,
 	.free_layout_hdr	= filelayout_free_layout_hdr,
 	.alloc_lseg		= filelayout_alloc_lseg,
@@ -1171,12 +1278,15 @@ static struct pnfs_layoutdriver_type filelayout_type = {
 	.pg_read_ops		= &filelayout_pg_read_ops,
 	.pg_write_ops		= &filelayout_pg_write_ops,
 	.get_ds_info		= &filelayout_get_ds_info,
+<<<<<<< HEAD
 	.mark_request_commit	= filelayout_mark_request_commit,
 	.clear_request_commit	= pnfs_generic_clear_request_commit,
 	.scan_commit_lists	= pnfs_generic_scan_commit_lists,
 	.recover_commit_reqs	= pnfs_generic_recover_commit_reqs,
 	.search_commit_reqs	= filelayout_search_commit_reqs,
 	.commit_pagelist	= filelayout_commit_pagelist,
+=======
+>>>>>>> upstream/android-13
 	.read_pagelist		= filelayout_read_pagelist,
 	.write_pagelist		= filelayout_write_pagelist,
 	.alloc_deviceid_node	= filelayout_alloc_deviceid_node,

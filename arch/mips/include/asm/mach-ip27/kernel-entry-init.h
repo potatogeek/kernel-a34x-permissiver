@@ -10,6 +10,7 @@
 #define __ASM_MACH_IP27_KERNEL_ENTRY_H
 
 #include <asm/sn/addrs.h>
+<<<<<<< HEAD
 #include <asm/sn/sn0/hubni.h>
 #include <asm/sn/klkernvars.h>
 
@@ -24,6 +25,12 @@
 	.endm
 
 /*
+=======
+#include <asm/sn/agent.h>
+#include <asm/sn/klkernvars.h>
+
+/*
+>>>>>>> upstream/android-13
  * TLB bits
  */
 #define PAGE_GLOBAL		(1 << 6)

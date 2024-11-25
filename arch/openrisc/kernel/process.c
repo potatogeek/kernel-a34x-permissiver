@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenRISC process.c
  *
@@ -9,17 +13,23 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This file handles the architecture-dependent parts of process handling...
  */
 
 #define __KERNEL_SYSCALLS__
+<<<<<<< HEAD
 #include <stdarg.h>
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/sched.h>
 #include <linux/sched/debug.h>
@@ -38,9 +48,15 @@
 #include <linux/init_task.h>
 #include <linux/mqueue.h>
 #include <linux/fs.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/reboot.h>
+
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/spr_defs.h>
@@ -54,10 +70,23 @@
  */
 struct thread_info *current_thread_info_set[NR_CPUS] = { &init_thread_info, };
 
+<<<<<<< HEAD
 void machine_restart(void)
 {
 	printk(KERN_INFO "*** MACHINE RESTART ***\n");
 	__asm__("l.nop 1");
+=======
+void machine_restart(char *cmd)
+{
+	do_kernel_restart(cmd);
+
+	/* Give a grace period for failure to restart of 1s */
+	mdelay(1000);
+
+	/* Whoops - the platform was unable to reboot. Tell the user! */
+	pr_emerg("Reboot failed -- System halted\n");
+	while (1);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -84,7 +113,11 @@ void machine_power_off(void)
  */
 void arch_cpu_idle(void)
 {
+<<<<<<< HEAD
 	local_irq_enable();
+=======
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 	if (mfspr(SPR_UPR) & SPR_UPR_PMP)
 		mtspr(SPR_PMR, mfspr(SPR_PMR) | SPR_PMR_DME);
 }
@@ -126,7 +159,11 @@ extern asmlinkage void ret_from_fork(void);
  * @usp: user stack pointer or fn for kernel thread
  * @arg: arg to fn for kernel thread; always NULL for userspace thread
  * @p: the newly created task
+<<<<<<< HEAD
  * @regs: CPU context to copy for userspace thread; always NULL for kthread
+=======
+ * @tls: the Thread Local Storage pointer for the new process
+>>>>>>> upstream/android-13
  *
  * At the top of a newly initialized kernel stack are two stacked pt_reg
  * structures.  The first (topmost) is the userspace context of the thread.
@@ -152,8 +189,13 @@ extern asmlinkage void ret_from_fork(void);
  */
 
 int
+<<<<<<< HEAD
 copy_thread(unsigned long clone_flags, unsigned long usp,
 	    unsigned long arg, struct task_struct *p)
+=======
+copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
+	    struct task_struct *p, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct pt_regs *userregs;
 	struct pt_regs *kregs;
@@ -172,7 +214,11 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
 	sp -= sizeof(struct pt_regs);
 	kregs = (struct pt_regs *)sp;
 
+<<<<<<< HEAD
 	if (unlikely(p->flags & PF_KTHREAD)) {
+=======
+	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>>>>>>> upstream/android-13
 		memset(kregs, 0, sizeof(struct pt_regs));
 		kregs->gpr[20] = usp; /* fn, kernel thread */
 		kregs->gpr[22] = arg;
@@ -183,6 +229,7 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
 			userregs->sp = usp;
 
 		/*
+<<<<<<< HEAD
 		 * For CLONE_SETTLS set "tp" (r10) to the TLS pointer passed to sys_clone.
 		 *
 		 * The kernel entry is:
@@ -193,6 +240,12 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
 		 */
 		if (clone_flags & CLONE_SETTLS)
 			userregs->gpr[10] = userregs->gpr[7];
+=======
+		 * For CLONE_SETTLS set "tp" (r10) to the TLS pointer.
+		 */
+		if (clone_flags & CLONE_SETTLS)
+			userregs->gpr[10] = tls;
+>>>>>>> upstream/android-13
 
 		userregs->gpr[11] = 0;	/* Result from fork() */
 
@@ -225,6 +278,7 @@ void start_thread(struct pt_regs *regs, unsigned long pc, unsigned long sp)
 	regs->sp = sp;
 }
 
+<<<<<<< HEAD
 /* Fill in the fpu structure for a core dump.  */
 int dump_fpu(struct pt_regs *regs, elf_fpregset_t * fpu)
 {
@@ -232,6 +286,8 @@ int dump_fpu(struct pt_regs *regs, elf_fpregset_t * fpu)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 extern struct thread_info *_switch(struct thread_info *old_ti,
 				   struct thread_info *new_ti);
 extern int lwa_flag;

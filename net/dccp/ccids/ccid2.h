@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) 2005 Andrea Bittau <a.bittau@cs.ucl.ac.uk>
  *
@@ -14,6 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Copyright (c) 2005 Andrea Bittau <a.bittau@cs.ucl.ac.uk>
+>>>>>>> upstream/android-13
  */
 #ifndef _DCCP_CCID2_H_
 #define _DCCP_CCID2_H_

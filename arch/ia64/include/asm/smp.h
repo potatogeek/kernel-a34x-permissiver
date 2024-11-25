@@ -18,7 +18,10 @@
 #include <linux/bitops.h>
 #include <linux/irqreturn.h>
 
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/param.h>
 #include <asm/processor.h>
 #include <asm/ptrace.h>
@@ -44,11 +47,14 @@ ia64_get_lid (void)
 
 #ifdef CONFIG_SMP
 
+<<<<<<< HEAD
 #define XTP_OFFSET		0x1e0008
 
 #define SMP_IRQ_REDIRECTION	(1 << 0)
 #define SMP_IPI_REDIRECTION	(1 << 1)
 
+=======
+>>>>>>> upstream/android-13
 #define raw_smp_processor_id() (current_thread_info()->cpu)
 
 extern struct smp_boot_data {
@@ -62,7 +68,10 @@ extern cpumask_t cpu_core_map[NR_CPUS];
 DECLARE_PER_CPU_SHARED_ALIGNED(cpumask_t, cpu_sibling_map);
 extern int smp_num_siblings;
 extern void __iomem *ipi_base_addr;
+<<<<<<< HEAD
 extern unsigned char smp_int_redirect;
+=======
+>>>>>>> upstream/android-13
 
 extern volatile int ia64_cpu_to_sapicid[];
 #define cpu_physical_id(i)	ia64_cpu_to_sapicid[i]
@@ -84,6 +93,7 @@ cpu_logical_id (int cpuid)
 	return i;
 }
 
+<<<<<<< HEAD
 /*
  * XTP control functions:
  *	min_xtp   : route all interrupts to this CPU
@@ -112,6 +122,8 @@ max_xtp (void)
 		writeb(0x0f, ipi_base_addr + XTP_OFFSET); /* Set XTP to max */
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Upping and downing of CPUs */
 extern int __cpu_disable (void);
 extern void __cpu_die (unsigned int cpu);

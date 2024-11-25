@@ -11,6 +11,7 @@
 #include <linux/ratelimit.h>
 #include <net/dst.h>
 
+<<<<<<< HEAD
 #include <asm/octeon/octeon.h>
 
 #include "ethernet-defines.h"
@@ -22,6 +23,13 @@
 
 #include <asm/octeon/cvmx-gmxx-defs.h>
 
+=======
+#include "octeon-ethernet.h"
+#include "ethernet-defines.h"
+#include "ethernet-util.h"
+#include "ethernet-mdio.h"
+
+>>>>>>> upstream/android-13
 int cvm_oct_sgmii_open(struct net_device *dev)
 {
 	return cvm_oct_common_open(dev, cvm_oct_link_poll);

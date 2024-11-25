@@ -453,8 +453,13 @@ static int initialize_controller(struct scsi_device *sdev,
 		if (!h->ctlr)
 			err = SCSI_DH_RES_TEMP_UNAVAIL;
 		else {
+<<<<<<< HEAD
 			list_add_rcu(&h->node, &h->ctlr->dh_list);
 			h->sdev = sdev;
+=======
+			h->sdev = sdev;
+			list_add_rcu(&h->node, &h->ctlr->dh_list);
+>>>>>>> upstream/android-13
 		}
 		spin_unlock(&list_lock);
 		err = SCSI_DH_OK;
@@ -644,6 +649,7 @@ done:
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rdac_prep_fn(struct scsi_device *sdev, struct request *req)
 {
 	struct rdac_dh_data *h = sdev->handler_data;
@@ -659,6 +665,22 @@ static int rdac_prep_fn(struct scsi_device *sdev, struct request *req)
 
 static int rdac_check_sense(struct scsi_device *sdev,
 				struct scsi_sense_hdr *sense_hdr)
+=======
+static blk_status_t rdac_prep_fn(struct scsi_device *sdev, struct request *req)
+{
+	struct rdac_dh_data *h = sdev->handler_data;
+
+	if (h->state != RDAC_STATE_ACTIVE) {
+		req->rq_flags |= RQF_QUIET;
+		return BLK_STS_IOERR;
+	}
+
+	return BLK_STS_OK;
+}
+
+static enum scsi_disposition rdac_check_sense(struct scsi_device *sdev,
+					      struct scsi_sense_hdr *sense_hdr)
+>>>>>>> upstream/android-13
 {
 	struct rdac_dh_data *h = sdev->handler_data;
 
@@ -779,11 +801,18 @@ static void rdac_bus_detach( struct scsi_device *sdev )
 	spin_lock(&list_lock);
 	if (h->ctlr) {
 		list_del_rcu(&h->node);
+<<<<<<< HEAD
 		h->sdev = NULL;
+=======
+>>>>>>> upstream/android-13
 		kref_put(&h->ctlr->kref, release_controller);
 	}
 	spin_unlock(&list_lock);
 	sdev->handler_data = NULL;
+<<<<<<< HEAD
+=======
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 	kfree(h);
 }
 

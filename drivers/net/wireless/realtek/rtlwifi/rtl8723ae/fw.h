@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -21,6 +22,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92C__FW__H__
 #define __RTL92C__FW__H__
@@ -39,6 +44,7 @@
 #define pagenum_128(_len)	(u32)(((_len)>>7) + ((_len)&0x7F ? 1 : 0))
 
 #define SET_H2CCMD_PWRMODE_PARM_MODE(__ph2ccmd, __val)			\
+<<<<<<< HEAD
 	SET_BITS_TO_LE_1BYTE(__ph2ccmd, 0, 8, __val)
 #define SET_H2CCMD_PWRMODE_PARM_SMART_PS(__ph2ccmd, __val)		\
 	SET_BITS_TO_LE_1BYTE((__ph2ccmd)+1, 0, 8, __val)
@@ -52,6 +58,21 @@
 	SET_BITS_TO_LE_1BYTE((__ph2ccmd)+1, 0, 8, __val)
 #define SET_H2CCMD_RSVDPAGE_LOC_NULL_DATA(__ph2ccmd, __val)		\
 	SET_BITS_TO_LE_1BYTE((__ph2ccmd)+2, 0, 8, __val)
+=======
+	*(u8 *)__ph2ccmd = __val
+#define SET_H2CCMD_PWRMODE_PARM_SMART_PS(__ph2ccmd, __val)		\
+	*(u8 *)(__ph2ccmd + 1) = __val
+#define SET_H2CCMD_PWRMODE_PARM_BCN_PASS_TIME(__ph2ccmd, __val)	\
+	*(u8 *)(__ph2ccmd + 2) = __val
+#define SET_H2CCMD_JOINBSSRPT_PARM_OPMODE(__ph2ccmd, __val)		\
+	*(u8 *)__ph2ccmd = __val
+#define SET_H2CCMD_RSVDPAGE_LOC_PROBE_RSP(__ph2ccmd, __val)		\
+	*(u8 *)__ph2ccmd = __val
+#define SET_H2CCMD_RSVDPAGE_LOC_PSPOLL(__ph2ccmd, __val)		\
+	*(u8 *)(__ph2ccmd + 1) = __val
+#define SET_H2CCMD_RSVDPAGE_LOC_NULL_DATA(__ph2ccmd, __val)		\
+	*(u8 *)(__ph2ccmd + 2) = __val
+>>>>>>> upstream/android-13
 
 void rtl8723e_fill_h2c_cmd(struct ieee80211_hw *hw, u8 element_id,
 			   u32 cmd_len, u8 *p_cmdbuffer);

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /* (C) 2015 Pengutronix, Alexander Aring <aar@pengutronix.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* (C) 2015 Pengutronix, Alexander Aring <aar@pengutronix.de>
+ *
+>>>>>>> upstream/android-13
  * Authors:
  * Alexander Aring <aar@pengutronix.de>
  * Eric Anholt <eric@anholt.net>
@@ -180,7 +186,11 @@ static int rpi_power_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	rpi_domains->fw = rpi_firmware_get(fw_np);
+=======
+	rpi_domains->fw = devm_rpi_firmware_get(&pdev->dev, fw_np);
+>>>>>>> upstream/android-13
 	of_node_put(fw_np);
 	if (!rpi_domains->fw)
 		return -EPROBE_DEFER;

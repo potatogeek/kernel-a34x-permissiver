@@ -41,6 +41,10 @@ enum as_signal_type {
 	AS_SIGNAL_TYPE_LVDS,
 	AS_SIGNAL_TYPE_DISPLAY_PORT,
 	AS_SIGNAL_TYPE_GPU_PLL,
+<<<<<<< HEAD
+=======
+	AS_SIGNAL_TYPE_XGMI,
+>>>>>>> upstream/android-13
 	AS_SIGNAL_TYPE_UNKNOWN
 };
 
@@ -100,6 +104,16 @@ enum bp_pipe_control_action {
 	ASIC_PIPE_INIT
 };
 
+<<<<<<< HEAD
+=======
+enum bp_lvtma_control_action {
+	LVTMA_CONTROL_LCD_BLOFF = 2,
+	LVTMA_CONTROL_LCD_BLON = 3,
+	LVTMA_CONTROL_POWER_ON = 12,
+	LVTMA_CONTROL_POWER_OFF = 13
+};
+
+>>>>>>> upstream/android-13
 struct bp_encoder_control {
 	enum bp_encoder_control_action action;
 	enum engine_id engine_id;
@@ -210,8 +224,13 @@ struct bp_pixel_clock_parameters {
 	/* signal_type -> Encoder Mode - needed by VBIOS Exec table */
 	enum signal_type signal_type;
 	/* Adjusted Pixel Clock (after VBIOS exec table)
+<<<<<<< HEAD
 	 * that becomes Target Pixel Clock (KHz) */
 	uint32_t target_pixel_clock;
+=======
+	 * that becomes Target Pixel Clock (100 Hz units) */
+	uint32_t target_pixel_clock_100hz;
+>>>>>>> upstream/android-13
 	/* Calculated Reference divider of Display PLL */
 	uint32_t reference_divider;
 	/* Calculated Feedback divider of Display PLL */
@@ -234,6 +253,11 @@ struct bp_pixel_clock_parameters {
 		uint32_t USE_E_CLOCK_AS_SOURCE_FOR_D_CLOCK:1;
 		/* Use external reference clock (refDivSrc for PLL) */
 		uint32_t SET_EXTERNAL_REF_DIV_SRC:1;
+<<<<<<< HEAD
+=======
+		/* Use DFS bypass for Display clock. */
+		uint32_t SET_DISPCLK_DFS_BYPASS:1;
+>>>>>>> upstream/android-13
 		/* Force program PHY PLL only */
 		uint32_t PROGRAM_PHY_PLL_ONLY:1;
 		/* Support for YUV420 */
@@ -299,12 +323,31 @@ struct bp_spread_spectrum_parameters {
 	struct spread_spectrum_flags flags;
 };
 
+<<<<<<< HEAD
+=======
+struct bp_disp_connector_caps_info {
+	uint32_t INTERNAL_DISPLAY    : 1;
+	uint32_t INTERNAL_DISPLAY_BL : 1;
+};
+
+>>>>>>> upstream/android-13
 struct bp_encoder_cap_info {
 	uint32_t DP_HBR2_CAP:1;
 	uint32_t DP_HBR2_EN:1;
 	uint32_t DP_HBR3_EN:1;
 	uint32_t HDMI_6GB_EN:1;
+<<<<<<< HEAD
 	uint32_t RESERVED:30;
+=======
+	uint32_t DP_IS_USB_C:1;
+	uint32_t RESERVED:27;
+};
+
+struct bp_soc_bb_info {
+	uint32_t dram_clock_change_latency_100ns;
+	uint32_t dram_sr_exit_latency_100ns;
+	uint32_t dram_sr_enter_exit_latency_100ns;
+>>>>>>> upstream/android-13
 };
 
 #endif /*__DAL_BIOS_PARSER_TYPES_H__ */

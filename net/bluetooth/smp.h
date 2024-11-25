@@ -79,8 +79,13 @@ struct smp_cmd_encrypt_info {
 	__u8	ltk[16];
 } __packed;
 
+<<<<<<< HEAD
 #define SMP_CMD_MASTER_IDENT	0x07
 struct smp_cmd_master_ident {
+=======
+#define SMP_CMD_INITIATOR_IDENT	0x07
+struct smp_cmd_initiator_ident {
+>>>>>>> upstream/android-13
 	__le16	ediv;
 	__le64	rand;
 } __packed;
@@ -146,7 +151,11 @@ struct smp_cmd_keypress_notify {
 enum {
 	SMP_STK,
 	SMP_LTK,
+<<<<<<< HEAD
 	SMP_LTK_SLAVE,
+=======
+	SMP_LTK_RESPONDER,
+>>>>>>> upstream/android-13
 	SMP_LTK_P256,
 	SMP_LTK_P256_DEBUG,
 };
@@ -193,6 +202,11 @@ bool smp_irk_matches(struct hci_dev *hdev, const u8 irk[16],
 int smp_generate_rpa(struct hci_dev *hdev, const u8 irk[16], bdaddr_t *rpa);
 int smp_generate_oob(struct hci_dev *hdev, u8 hash[16], u8 rand[16]);
 
+<<<<<<< HEAD
+=======
+int smp_force_bredr(struct hci_dev *hdev, bool enable);
+
+>>>>>>> upstream/android-13
 int smp_register(struct hci_dev *hdev);
 void smp_unregister(struct hci_dev *hdev);
 

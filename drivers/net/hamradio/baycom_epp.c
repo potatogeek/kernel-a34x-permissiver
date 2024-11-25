@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*****************************************************************************/
 
 /*
@@ -6,6 +10,7 @@
  *	Copyright (C) 1998-2000
  *          Thomas Sailer (sailer@ife.ee.ethz.ch)
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -20,11 +25,16 @@
  *	along with this program; if not, write to the Free Software
  *	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Please note that the GPL allows you to use the driver, NOT the radio.
  *  In order to use the radio, you need a license from the communications
  *  authority of your country.
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  History:
  *   0.1  xx.xx.1998  Initial version by Matthias Welwarsky (dg2fef)
  *   0.2  21.04.1998  Massive rework by Thomas Sailer
@@ -35,7 +45,10 @@
  *                    removed some pre-2.2 kernel compatibility cruft
  *   0.6  10.08.1999  Check if parport can do SPP and is safe to access during interrupt contexts
  *   0.7  12.02.2000  adapted to softnet driver interface
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*****************************************************************************/
@@ -246,7 +259,11 @@ struct baycom_state {
 #if 0
 static inline void append_crc_ccitt(unsigned char *buffer, int len)
 {
+<<<<<<< HEAD
  	unsigned int crc = 0xffff;
+=======
+	unsigned int crc = 0xffff;
+>>>>>>> upstream/android-13
 
 	for (;len>0;len--)
 		crc = (crc >> 8) ^ crc_ccitt_table[(crc ^ *buffer++) & 0xff];
@@ -405,7 +422,11 @@ static void encode_hdlc(struct baycom_state *bc)
 		for (j = 0; j < 8; j++)
 			if (unlikely(!(notbitstream & (0x1f0 << j)))) {
 				bitstream &= ~(0x100 << j);
+<<<<<<< HEAD
  				bitbuf = (bitbuf & (((2 << j) << numbit) - 1)) |
+=======
+				bitbuf = (bitbuf & (((2 << j) << numbit) - 1)) |
+>>>>>>> upstream/android-13
 					((bitbuf & ~(((2 << j) << numbit) - 1)) << 1);
 				numbit++;
 				notbitstream = ~bitstream;
@@ -515,8 +536,14 @@ static int transmit(struct baycom_state *bc, int cnt, unsigned char stat)
 				}
 				break;
 			}
+<<<<<<< HEAD
 
 		default:  /* fall through */
+=======
+			fallthrough;
+
+		default:
+>>>>>>> upstream/android-13
 			if (bc->hdlctx.calibrate <= 0)
 				return 0;
 			i = min_t(int, cnt, bc->hdlctx.calibrate);
@@ -637,16 +664,26 @@ static int receive(struct net_device *dev, int cnt)
 
 /* --------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 #ifdef __i386__
+=======
+#if defined(__i386__) && !defined(CONFIG_UML)
+>>>>>>> upstream/android-13
 #include <asm/msr.h>
 #define GETTICK(x)						\
 ({								\
 	if (boot_cpu_has(X86_FEATURE_TSC))			\
 		x = (unsigned int)rdtsc();			\
 })
+<<<<<<< HEAD
 #else /* __i386__ */
 #define GETTICK(x)
 #endif /* __i386__ */
+=======
+#else /* __i386__  && !CONFIG_UML */
+#define GETTICK(x)
+#endif /* __i386__  && !CONFIG_UML */
+>>>>>>> upstream/android-13
 
 static void epp_bh(struct work_struct *work)
 {
@@ -975,8 +1012,12 @@ static int epp_close(struct net_device *dev)
 	parport_write_control(pp, 0); /* reset the adapter */
         parport_release(bc->pdev);
         parport_unregister_device(bc->pdev);
+<<<<<<< HEAD
 	if (bc->skb)
 		dev_kfree_skb(bc->skb);
+=======
+	dev_kfree_skb(bc->skb);
+>>>>>>> upstream/android-13
 	bc->skb = NULL;
 	printk(KERN_INFO "%s: close epp at iobase 0x%lx irq %u\n",
 	       bc_drvname, dev->base_addr, dev->irq);
@@ -1020,7 +1061,12 @@ static int baycom_setmode(struct baycom_state *bc, const char *modestr)
 
 /* --------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int baycom_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+				 void __user *data, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct baycom_state *bc = netdev_priv(dev);
 	struct hdlcdrv_ioctl hi;
@@ -1028,7 +1074,11 @@ static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	if (cmd != SIOCDEVPRIVATE)
 		return -ENOIOCTLCMD;
 
+<<<<<<< HEAD
 	if (copy_from_user(&hi, ifr->ifr_data, sizeof(hi)))
+=======
+	if (copy_from_user(&hi, data, sizeof(hi)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	switch (hi.cmd) {
 	default:
@@ -1119,7 +1169,11 @@ static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		return HDLCDRV_PARMASK_IOBASE;
 
 	}
+<<<<<<< HEAD
 	if (copy_to_user(ifr->ifr_data, &hi, sizeof(hi)))
+=======
+	if (copy_to_user(data, &hi, sizeof(hi)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	return 0;
 }
@@ -1129,7 +1183,11 @@ static int baycom_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 static const struct net_device_ops baycom_netdev_ops = {
 	.ndo_open	     = epp_open,
 	.ndo_stop	     = epp_close,
+<<<<<<< HEAD
 	.ndo_do_ioctl	     = baycom_ioctl,
+=======
+	.ndo_siocdevprivate  = baycom_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_start_xmit      = baycom_send_packet,
 	.ndo_set_mac_address = baycom_set_mac_address,
 };

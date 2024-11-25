@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * tas5720.h - ALSA SoC Texas Instruments TAS5720 Mono Audio Amplifier
  *
@@ -13,6 +14,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * tas5720.h - ALSA SoC Texas Instruments TAS5720 Mono Audio Amplifier
+ *
+ * Copyright (C)2015-2016 Texas Instruments Incorporated -  https://www.ti.com
+ *
+ * Author: Andreas Dannenberg <dannenberg@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __TAS5720_H__

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Texas Instruments
  * Author: Rob Clark <robdclark@gmail.com>
@@ -23,6 +24,27 @@
 #include <video/of_display_timing.h>
 #include <video/videomode.h>
 #include <drm/drm_atomic_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Texas Instruments
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <linux/gpio/consumer.h>
+#include <linux/pinctrl/consumer.h>
+#include <linux/platform_device.h>
+
+#include <video/display_timing.h>
+#include <video/of_display_timing.h>
+#include <video/videomode.h>
+
+#include <drm/drm_atomic_state_helper.h>
+#include <drm/drm_connector.h>
+#include <drm/drm_modeset_helper_vtables.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "tilcdc_drv.h"
 #include "tilcdc_panel.h"
@@ -81,10 +103,13 @@ static void panel_encoder_mode_set(struct drm_encoder *encoder,
 	/* nothing needed */
 }
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs panel_encoder_funcs = {
 		.destroy        = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct drm_encoder_helper_funcs panel_encoder_helper_funcs = {
 		.dpms           = panel_encoder_dpms,
 		.prepare        = panel_encoder_prepare,
@@ -109,8 +134,12 @@ static struct drm_encoder *panel_encoder_create(struct drm_device *dev,
 	encoder = &panel_encoder->base;
 	encoder->possible_crtcs = 1;
 
+<<<<<<< HEAD
 	ret = drm_encoder_init(dev, encoder, &panel_encoder_funcs,
 			DRM_MODE_ENCODER_LVDS, NULL);
+=======
+	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto fail;
 
@@ -174,6 +203,7 @@ static int panel_connector_get_modes(struct drm_connector *connector)
 	return i;
 }
 
+<<<<<<< HEAD
 static int panel_connector_mode_valid(struct drm_connector *connector,
 		  struct drm_display_mode *mode)
 {
@@ -182,6 +212,8 @@ static int panel_connector_mode_valid(struct drm_connector *connector,
 	return tilcdc_crtc_mode_valid(priv->crtc, mode);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct drm_encoder *panel_connector_best_encoder(
 		struct drm_connector *connector)
 {
@@ -199,7 +231,10 @@ static const struct drm_connector_funcs panel_connector_funcs = {
 
 static const struct drm_connector_helper_funcs panel_connector_helper_funcs = {
 	.get_modes          = panel_connector_get_modes,
+<<<<<<< HEAD
 	.mode_valid         = panel_connector_mode_valid,
+=======
+>>>>>>> upstream/android-13
 	.best_encoder       = panel_connector_best_encoder,
 };
 
@@ -323,7 +358,12 @@ put_node:
 
 static int panel_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device_node *bl_node, *node = pdev->dev.of_node;
+=======
+	struct device_node *node = pdev->dev.of_node;
+	struct backlight_device *backlight;
+>>>>>>> upstream/android-13
 	struct panel_module *panel_mod;
 	struct tilcdc_module *mod;
 	struct pinctrl *pinctrl;
@@ -339,6 +379,7 @@ static int panel_probe(struct platform_device *pdev)
 	if (!panel_mod)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	bl_node = of_parse_phandle(node, "backlight", 0);
 	if (bl_node) {
 		panel_mod->backlight = of_find_backlight_by_node(bl_node);
@@ -349,6 +390,12 @@ static int panel_probe(struct platform_device *pdev)
 
 		dev_info(&pdev->dev, "found backlight\n");
 	}
+=======
+	backlight = devm_of_find_backlight(&pdev->dev);
+	if (IS_ERR(backlight))
+		return PTR_ERR(backlight);
+	panel_mod->backlight = backlight;
+>>>>>>> upstream/android-13
 
 	panel_mod->enable_gpio = devm_gpiod_get_optional(&pdev->dev, "enable",
 							 GPIOD_OUT_LOW);
@@ -420,11 +467,18 @@ static const struct of_device_id panel_of_match[] = {
 		{ },
 };
 
+<<<<<<< HEAD
 struct platform_driver panel_driver = {
 	.probe = panel_probe,
 	.remove = panel_remove,
 	.driver = {
 		.owner = THIS_MODULE,
+=======
+static struct platform_driver panel_driver = {
+	.probe = panel_probe,
+	.remove = panel_remove,
+	.driver = {
+>>>>>>> upstream/android-13
 		.name = "tilcdc-panel",
 		.of_match_table = panel_of_match,
 	},

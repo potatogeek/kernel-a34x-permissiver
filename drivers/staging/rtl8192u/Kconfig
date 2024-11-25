@@ -1,7 +1,19 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 config RTL8192U
 	tristate "RealTek RTL8192U Wireless LAN NIC driver"
 	depends on PCI && WLAN && USB
 	depends on m
 	select WIRELESS_EXT
 	select WEXT_PRIV
+<<<<<<< HEAD
 	select CRYPTO
+=======
+	select CRC32
+	select CRYPTO
+	select CRYPTO_AES
+	select CRYPTO_CCM
+	select CRYPTO_LIB_ARC4
+>>>>>>> upstream/android-13

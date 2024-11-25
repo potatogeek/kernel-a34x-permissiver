@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PowerNV OPAL high level interfaces
  *
  * Copyright 2011 IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"opal: " fmt
@@ -26,7 +33,10 @@
 #include <linux/memblock.h>
 #include <linux/kthread.h>
 #include <linux/freezer.h>
+<<<<<<< HEAD
 #include <linux/printk.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kmsg_dump.h>
 #include <linux/console.h>
 #include <linux/sched/debug.h>
@@ -40,6 +50,19 @@
 
 #include "powernv.h"
 
+<<<<<<< HEAD
+=======
+#define OPAL_MSG_QUEUE_MAX 16
+
+struct opal_msg_node {
+	struct list_head	list;
+	struct opal_msg		msg;
+};
+
+static DEFINE_SPINLOCK(msg_list_lock);
+static LIST_HEAD(msg_list);
+
+>>>>>>> upstream/android-13
 /* /sys/firmware/opal */
 struct kobject *opal_kobj;
 
@@ -55,6 +78,11 @@ struct mcheck_recoverable_range {
 	u64 recover_addr;
 };
 
+<<<<<<< HEAD
+=======
+static int msg_list_size;
+
+>>>>>>> upstream/android-13
 static struct mcheck_recoverable_range *mc_recoverable_range;
 static int mc_recoverable_range_len;
 
@@ -63,6 +91,11 @@ static DEFINE_SPINLOCK(opal_write_lock);
 static struct atomic_notifier_head opal_msg_notifier_head[OPAL_MSG_TYPE_MAX];
 static uint32_t opal_heartbeat;
 static struct task_struct *kopald_tsk;
+<<<<<<< HEAD
+=======
+static struct opal_msg *opal_msg;
+static u32 opal_msg_size __ro_after_init;
+>>>>>>> upstream/android-13
 
 void opal_configure_cores(void)
 {
@@ -171,8 +204,15 @@ int __init early_init_dt_scan_recoverable_ranges(unsigned long node,
 	/*
 	 * Allocate a buffer to hold the MC recoverable ranges.
 	 */
+<<<<<<< HEAD
 	mc_recoverable_range =__va(memblock_alloc(size, __alignof__(u64)));
 	memset(mc_recoverable_range, 0, size);
+=======
+	mc_recoverable_range = memblock_alloc(size, __alignof__(u64));
+	if (!mc_recoverable_range)
+		panic("%s: Failed to allocate %u bytes align=0x%lx\n",
+		      __func__, size, __alignof__(u64));
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < mc_recoverable_range_len; i++) {
 		mc_recoverable_range[i].start_addr =
@@ -205,6 +245,7 @@ static int __init opal_register_exception_handlers(void)
 	glue = 0x7000;
 
 	/*
+<<<<<<< HEAD
 	 * Check if we are running on newer firmware that exports
 	 * OPAL_HANDLE_HMI token. If yes, then don't ask OPAL to patch
 	 * the HMI interrupt and we catch it directly in Linux.
@@ -215,6 +256,20 @@ static int __init opal_register_exception_handlers(void)
 	 *
 	 * For newer firmware (in development/yet to be released) we will
 	 * start catching/handling HMI directly in Linux.
+=======
+	 * Only ancient OPAL firmware requires this.
+	 * Specifically, firmware from FW810.00 (released June 2014)
+	 * through FW810.20 (Released October 2014).
+	 *
+	 * Check if we are running on newer (post Oct 2014) firmware that
+	 * exports the OPAL_HANDLE_HMI token. If yes, then don't ask OPAL to
+	 * patch the HMI interrupt and we catch it directly in Linux.
+	 *
+	 * For older firmware (i.e < FW810.20), we fallback to old behavior and
+	 * let OPAL patch the HMI vector and handle it inside OPAL firmware.
+	 *
+	 * For newer firmware we catch/handle the HMI directly in Linux.
+>>>>>>> upstream/android-13
 	 */
 	if (!opal_check_token(OPAL_HANDLE_HMI)) {
 		pr_info("Old firmware detected, OPAL handles HMIs.\n");
@@ -224,6 +279,14 @@ static int __init opal_register_exception_handlers(void)
 		glue += 128;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Only applicable to ancient firmware, all modern
+	 * (post March 2015/skiboot 5.0) firmware will just return
+	 * OPAL_UNSUPPORTED.
+	 */
+>>>>>>> upstream/android-13
 	opal_register_exception_handler(OPAL_SOFTPATCH_HANDLER, 0, glue);
 #endif
 
@@ -231,6 +294,46 @@ static int __init opal_register_exception_handlers(void)
 }
 machine_early_initcall(powernv, opal_register_exception_handlers);
 
+<<<<<<< HEAD
+=======
+static void queue_replay_msg(void *msg)
+{
+	struct opal_msg_node *msg_node;
+
+	if (msg_list_size < OPAL_MSG_QUEUE_MAX) {
+		msg_node = kzalloc(sizeof(*msg_node), GFP_ATOMIC);
+		if (msg_node) {
+			INIT_LIST_HEAD(&msg_node->list);
+			memcpy(&msg_node->msg, msg, sizeof(struct opal_msg));
+			list_add_tail(&msg_node->list, &msg_list);
+			msg_list_size++;
+		} else
+			pr_warn_once("message queue no memory\n");
+
+		if (msg_list_size >= OPAL_MSG_QUEUE_MAX)
+			pr_warn_once("message queue full\n");
+	}
+}
+
+static void dequeue_replay_msg(enum opal_msg_type msg_type)
+{
+	struct opal_msg_node *msg_node, *tmp;
+
+	list_for_each_entry_safe(msg_node, tmp, &msg_list, list) {
+		if (be32_to_cpu(msg_node->msg.msg_type) != msg_type)
+			continue;
+
+		atomic_notifier_call_chain(&opal_msg_notifier_head[msg_type],
+					msg_type,
+					&msg_node->msg);
+
+		list_del(&msg_node->list);
+		kfree(msg_node);
+		msg_list_size--;
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * Opal message notifier based on message type. Allow subscribers to get
  * notified for specific messgae type.
@@ -238,14 +341,38 @@ machine_early_initcall(powernv, opal_register_exception_handlers);
 int opal_message_notifier_register(enum opal_msg_type msg_type,
 					struct notifier_block *nb)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	if (!nb || msg_type >= OPAL_MSG_TYPE_MAX) {
 		pr_warn("%s: Invalid arguments, msg_type:%d\n",
 			__func__, msg_type);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	return atomic_notifier_chain_register(
 				&opal_msg_notifier_head[msg_type], nb);
+=======
+	spin_lock_irqsave(&msg_list_lock, flags);
+	ret = atomic_notifier_chain_register(
+		&opal_msg_notifier_head[msg_type], nb);
+
+	/*
+	 * If the registration succeeded, replay any queued messages that came
+	 * in prior to the notifier chain registration. msg_list_lock held here
+	 * to ensure they're delivered prior to any subsequent messages.
+	 */
+	if (ret == 0)
+		dequeue_replay_msg(msg_type);
+
+	spin_unlock_irqrestore(&msg_list_lock, flags);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(opal_message_notifier_register);
 
@@ -259,6 +386,26 @@ EXPORT_SYMBOL_GPL(opal_message_notifier_unregister);
 
 static void opal_message_do_notify(uint32_t msg_type, void *msg)
 {
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+	bool queued = false;
+
+	spin_lock_irqsave(&msg_list_lock, flags);
+	if (opal_msg_notifier_head[msg_type].head == NULL) {
+		/*
+		 * Queue up the msg since no notifiers have registered
+		 * yet for this msg_type.
+		 */
+		queue_replay_msg(msg);
+		queued = true;
+	}
+	spin_unlock_irqrestore(&msg_list_lock, flags);
+
+	if (queued)
+		return;
+
+>>>>>>> upstream/android-13
 	/* notify subscribers */
 	atomic_notifier_call_chain(&opal_msg_notifier_head[msg_type],
 					msg_type, msg);
@@ -267,6 +414,7 @@ static void opal_message_do_notify(uint32_t msg_type, void *msg)
 static void opal_handle_message(void)
 {
 	s64 ret;
+<<<<<<< HEAD
 	/*
 	 * TODO: pre-allocate a message buffer depending on opal-msg-size
 	 * value in /proc/device-tree.
@@ -275,6 +423,11 @@ static void opal_handle_message(void)
 	u32 type;
 
 	ret = opal_get_msg(__pa(&msg), sizeof(msg));
+=======
+	u32 type;
+
+	ret = opal_get_msg(__pa(opal_msg), opal_msg_size);
+>>>>>>> upstream/android-13
 	/* No opal message pending. */
 	if (ret == OPAL_RESOURCE)
 		return;
@@ -286,14 +439,22 @@ static void opal_handle_message(void)
 		return;
 	}
 
+<<<<<<< HEAD
 	type = be32_to_cpu(msg.msg_type);
+=======
+	type = be32_to_cpu(opal_msg->msg_type);
+>>>>>>> upstream/android-13
 
 	/* Sanity check */
 	if (type >= OPAL_MSG_TYPE_MAX) {
 		pr_warn_once("%s: Unknown message type: %u\n", __func__, type);
 		return;
 	}
+<<<<<<< HEAD
 	opal_message_do_notify(type, (void *)&msg);
+=======
+	opal_message_do_notify(type, (void *)opal_msg);
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t opal_message_notify(int irq, void *data)
@@ -302,10 +463,31 @@ static irqreturn_t opal_message_notify(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int __init opal_message_init(void)
 {
 	int ret, i, irq;
 
+=======
+static int __init opal_message_init(struct device_node *opal_node)
+{
+	int ret, i, irq;
+
+	ret = of_property_read_u32(opal_node, "opal-msg-size", &opal_msg_size);
+	if (ret) {
+		pr_notice("Failed to read opal-msg-size property\n");
+		opal_msg_size = sizeof(struct opal_msg);
+	}
+
+	opal_msg = kmalloc(opal_msg_size, GFP_KERNEL);
+	if (!opal_msg) {
+		opal_msg_size = sizeof(struct opal_msg);
+		/* Try to allocate fixed message size */
+		opal_msg = kmalloc(opal_msg_size, GFP_KERNEL);
+		BUG_ON(opal_msg == NULL);
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < OPAL_MSG_TYPE_MAX; i++)
 		ATOMIC_INIT_NOTIFIER_HEAD(&opal_msg_notifier_head[i]);
 
@@ -491,7 +673,11 @@ static int opal_recover_mce(struct pt_regs *regs,
 {
 	int recovered = 0;
 
+<<<<<<< HEAD
 	if (!(regs->msr & MSR_RI)) {
+=======
+	if (regs_is_unrecoverable(regs)) {
+>>>>>>> upstream/android-13
 		/* If MSR_RI isn't set, we cannot recover */
 		pr_err("Machine check interrupt unrecoverable: MSR(RI=0)\n");
 		recovered = 0;
@@ -504,7 +690,11 @@ static int opal_recover_mce(struct pt_regs *regs,
 		recovered = 0;
 	}
 
+<<<<<<< HEAD
 	if (!recovered && evt->severity == MCE_SEV_ERROR_SYNC) {
+=======
+	if (!recovered && evt->sync_error) {
+>>>>>>> upstream/android-13
 		/*
 		 * Try to kill processes if we get a synchronous machine check
 		 * (e.g., one caused by execution of this instruction). This
@@ -527,7 +717,11 @@ static int opal_recover_mce(struct pt_regs *regs,
 			 */
 			recovered = 0;
 		} else {
+<<<<<<< HEAD
 			die("Machine check", regs, SIGBUS);
+=======
+			die_mce("Machine check", regs, SIGBUS);
+>>>>>>> upstream/android-13
 			recovered = 1;
 		}
 	}
@@ -535,7 +729,11 @@ static int opal_recover_mce(struct pt_regs *regs,
 	return recovered;
 }
 
+<<<<<<< HEAD
 void pnv_platform_error_reboot(struct pt_regs *regs, const char *msg)
+=======
+void __noreturn pnv_platform_error_reboot(struct pt_regs *regs, const char *msg)
+>>>>>>> upstream/android-13
 {
 	panic_flush_kmsg_start();
 
@@ -587,7 +785,11 @@ int opal_machine_check(struct pt_regs *regs)
 		       evt.version);
 		return 0;
 	}
+<<<<<<< HEAD
 	machine_check_print_event_info(&evt, user_mode(regs));
+=======
+	machine_check_print_event_info(&evt, user_mode(regs), false);
+>>>>>>> upstream/android-13
 
 	if (opal_recover_mce(regs, &evt))
 		return 1;
@@ -613,7 +815,32 @@ int opal_hmi_exception_early(struct pt_regs *regs)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* HMI exception handler called in virtual mode during check_irq_replay. */
+=======
+int opal_hmi_exception_early2(struct pt_regs *regs)
+{
+	s64 rc;
+	__be64 out_flags;
+
+	/*
+	 * call opal hmi handler.
+	 * Check 64-bit flag mask to find out if an event was generated,
+	 * and whether TB is still valid or not etc.
+	 */
+	rc = opal_handle_hmi2(&out_flags);
+	if (rc != OPAL_SUCCESS)
+		return 0;
+
+	if (be64_to_cpu(out_flags) & OPAL_HMI_FLAGS_NEW_EVENT)
+		local_paca->hmi_event_available = 1;
+	if (be64_to_cpu(out_flags) & OPAL_HMI_FLAGS_TOD_TB_FAIL)
+		tb_invalid = true;
+	return 1;
+}
+
+/* HMI exception handler called in virtual mode when irqs are next enabled. */
+>>>>>>> upstream/android-13
 int opal_handle_hmi_exception(struct pt_regs *regs)
 {
 	/*
@@ -655,7 +882,11 @@ bool opal_mce_check_early_recovery(struct pt_regs *regs)
 	 * Setup regs->nip to rfi into fixup address.
 	 */
 	if (recover_addr)
+<<<<<<< HEAD
 		regs->nip = recover_addr;
+=======
+		regs_set_return_ip(regs, recover_addr);
+>>>>>>> upstream/android-13
 
 out:
 	return !!recover_addr;
@@ -672,6 +903,7 @@ static int opal_sysfs_init(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t symbol_map_read(struct file *fp, struct kobject *kobj,
 			       struct bin_attribute *bin_attr,
 			       char *buf, loff_t off, size_t count)
@@ -708,6 +940,8 @@ static void opal_export_symmap(void)
 		pr_warn("Error %d creating OPAL symbols file\n", rc);
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t export_attr_read(struct file *fp, struct kobject *kobj,
 				struct bin_attribute *bin_attr, char *buf,
 				loff_t off, size_t count)
@@ -716,6 +950,82 @@ static ssize_t export_attr_read(struct file *fp, struct kobject *kobj,
 				       bin_attr->size);
 }
 
+<<<<<<< HEAD
+=======
+static int opal_add_one_export(struct kobject *parent, const char *export_name,
+			       struct device_node *np, const char *prop_name)
+{
+	struct bin_attribute *attr = NULL;
+	const char *name = NULL;
+	u64 vals[2];
+	int rc;
+
+	rc = of_property_read_u64_array(np, prop_name, &vals[0], 2);
+	if (rc)
+		goto out;
+
+	attr = kzalloc(sizeof(*attr), GFP_KERNEL);
+	if (!attr) {
+		rc = -ENOMEM;
+		goto out;
+	}
+	name = kstrdup(export_name, GFP_KERNEL);
+	if (!name) {
+		rc = -ENOMEM;
+		goto out;
+	}
+
+	sysfs_bin_attr_init(attr);
+	attr->attr.name = name;
+	attr->attr.mode = 0400;
+	attr->read = export_attr_read;
+	attr->private = __va(vals[0]);
+	attr->size = vals[1];
+
+	rc = sysfs_create_bin_file(parent, attr);
+out:
+	if (rc) {
+		kfree(name);
+		kfree(attr);
+	}
+
+	return rc;
+}
+
+static void opal_add_exported_attrs(struct device_node *np,
+				    struct kobject *kobj)
+{
+	struct device_node *child;
+	struct property *prop;
+
+	for_each_property_of_node(np, prop) {
+		int rc;
+
+		if (!strcmp(prop->name, "name") ||
+		    !strcmp(prop->name, "phandle"))
+			continue;
+
+		rc = opal_add_one_export(kobj, prop->name, np, prop->name);
+		if (rc) {
+			pr_warn("Unable to add export %pOF/%s, rc = %d!\n",
+				np, prop->name, rc);
+		}
+	}
+
+	for_each_child_of_node(np, child) {
+		struct kobject *child_kobj;
+
+		child_kobj = kobject_create_and_add(child->name, kobj);
+		if (!child_kobj) {
+			pr_err("Unable to create export dir for %pOF\n", child);
+			continue;
+		}
+
+		opal_add_exported_attrs(child, child_kobj);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * opal_export_attrs: creates a sysfs node for each property listed in
  * the device-tree under /ibm,opal/firmware/exports/
@@ -725,11 +1035,16 @@ static ssize_t export_attr_read(struct file *fp, struct kobject *kobj,
  */
 static void opal_export_attrs(void)
 {
+<<<<<<< HEAD
 	struct bin_attribute *attr;
 	struct device_node *np;
 	struct property *prop;
 	struct kobject *kobj;
 	u64 vals[2];
+=======
+	struct device_node *np;
+	struct kobject *kobj;
+>>>>>>> upstream/android-13
 	int rc;
 
 	np = of_find_node_by_path("/ibm,opal/firmware/exports");
@@ -743,6 +1058,7 @@ static void opal_export_attrs(void)
 		return;
 	}
 
+<<<<<<< HEAD
 	for_each_property_of_node(np, prop) {
 		if (!strcmp(prop->name, "name") || !strcmp(prop->name, "phandle"))
 			continue;
@@ -778,6 +1094,18 @@ static void opal_export_attrs(void)
 			kfree(attr);
 		}
 	}
+=======
+	opal_add_exported_attrs(np, kobj);
+
+	/*
+	 * NB: symbol_map existed before the generic export interface so it
+	 * lives under the top level opal_kobj.
+	 */
+	rc = opal_add_one_export(opal_kobj, "symbol_map",
+				 np->parent, "symbol-map");
+	if (rc)
+		pr_warn("Error %d creating OPAL symbols file\n", rc);
+>>>>>>> upstream/android-13
 
 	of_node_put(np);
 }
@@ -880,7 +1208,11 @@ static int __init opal_init(void)
 	consoles = of_find_node_by_path("/ibm,opal/consoles");
 	if (consoles) {
 		for_each_child_of_node(consoles, np) {
+<<<<<<< HEAD
 			if (strcmp(np->name, "serial"))
+=======
+			if (!of_node_name_eq(np, "serial"))
+>>>>>>> upstream/android-13
 				continue;
 			of_platform_device_create(np, NULL, NULL);
 		}
@@ -888,7 +1220,11 @@ static int __init opal_init(void)
 	}
 
 	/* Initialise OPAL messaging system */
+<<<<<<< HEAD
 	opal_message_init();
+=======
+	opal_message_init(opal_node);
+>>>>>>> upstream/android-13
 
 	/* Initialise OPAL asynchronous completion interface */
 	opal_async_comp_init();
@@ -924,8 +1260,11 @@ static int __init opal_init(void)
 	/* Create "opal" kobject under /sys/firmware */
 	rc = opal_sysfs_init();
 	if (rc == 0) {
+<<<<<<< HEAD
 		/* Export symbol map to userspace */
 		opal_export_symmap();
+=======
+>>>>>>> upstream/android-13
 		/* Setup dump region interface */
 		opal_dump_region_init();
 		/* Setup error log interface */
@@ -938,11 +1277,18 @@ static int __init opal_init(void)
 		opal_sys_param_init();
 		/* Setup message log sysfs interface. */
 		opal_msglog_sysfs_init();
+<<<<<<< HEAD
 	}
 
 	/* Export all properties */
 	opal_export_attrs();
 
+=======
+		/* Add all export properties*/
+		opal_export_attrs();
+	}
+
+>>>>>>> upstream/android-13
 	/* Initialize platform devices: IPMI backend, PRD & flash interface */
 	opal_pdev_init("ibm,opal-ipmi");
 	opal_pdev_init("ibm,opal-flash");
@@ -963,6 +1309,15 @@ static int __init opal_init(void)
 	/* Initialise OPAL sensor groups */
 	opal_sensor_groups_init();
 
+<<<<<<< HEAD
+=======
+	/* Initialise OPAL Power control interface */
+	opal_power_control_init();
+
+	/* Initialize OPAL secure variables */
+	opal_pdev_init("ibm,secvar-backend");
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 machine_subsys_initcall(powernv, opal_init);

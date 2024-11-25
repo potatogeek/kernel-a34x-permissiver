@@ -3,6 +3,12 @@
 
 # This test is for checking IPv4 and IPv6 FIB rules API
 
+<<<<<<< HEAD
+=======
+# Kselftest framework requirement - SKIP code is 4.
+ksft_skip=4
+
+>>>>>>> upstream/android-13
 ret=0
 
 PAUSE_ON_FAIL=${PAUSE_ON_FAIL:=no}
@@ -187,8 +193,18 @@ fib_rule4_test()
 	match="oif $DEV"
 	fib_rule4_test_match_n_redirect "$match" "$match" "oif redirect to table"
 
+<<<<<<< HEAD
 	match="from $SRC_IP iif $DEV"
 	fib_rule4_test_match_n_redirect "$match" "$match" "iif redirect to table"
+=======
+	# need enable forwarding and disable rp_filter temporarily as all the
+	# addresses are in the same subnet and egress device == ingress device.
+	ip netns exec testns sysctl -w net.ipv4.ip_forward=1
+	ip netns exec testns sysctl -w net.ipv4.conf.$DEV.rp_filter=0
+	match="from $SRC_IP iif $DEV"
+	fib_rule4_test_match_n_redirect "$match" "$match" "iif redirect to table"
+	ip netns exec testns sysctl -w net.ipv4.ip_forward=0
+>>>>>>> upstream/android-13
 
 	match="tos 0x10"
 	fib_rule4_test_match_n_redirect "$match" "$match" "tos redirect to table"
@@ -233,12 +249,20 @@ run_fibrule_tests()
 
 if [ "$(id -u)" -ne 0 ];then
 	echo "SKIP: Need root privileges"
+<<<<<<< HEAD
 	exit 0
+=======
+	exit $ksft_skip
+>>>>>>> upstream/android-13
 fi
 
 if [ ! -x "$(command -v ip)" ]; then
 	echo "SKIP: Could not run test without ip tool"
+<<<<<<< HEAD
 	exit 0
+=======
+	exit $ksft_skip
+>>>>>>> upstream/android-13
 fi
 
 # start clean

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 // Copyright (c) 2016-2017 Hisilicon Limited.
 
 #ifndef __HNS3_ENET_H
 #define __HNS3_ENET_H
 
+<<<<<<< HEAD
 #include <linux/if_vlan.h>
 
 #include "hnae3.h"
@@ -16,12 +21,29 @@ enum hns3_nic_state {
 	HNS3_NIC_STATE_TESTING,
 	HNS3_NIC_STATE_RESETTING,
 	HNS3_NIC_STATE_REINITING,
+=======
+#include <linux/dim.h>
+#include <linux/if_vlan.h>
+#include <net/page_pool.h>
+
+#include "hnae3.h"
+
+enum hns3_nic_state {
+	HNS3_NIC_STATE_TESTING,
+	HNS3_NIC_STATE_RESETTING,
+	HNS3_NIC_STATE_INITED,
+>>>>>>> upstream/android-13
 	HNS3_NIC_STATE_DOWN,
 	HNS3_NIC_STATE_DISABLED,
 	HNS3_NIC_STATE_REMOVING,
 	HNS3_NIC_STATE_SERVICE_INITED,
 	HNS3_NIC_STATE_SERVICE_SCHED,
 	HNS3_NIC_STATE2_RESET_REQUESTED,
+<<<<<<< HEAD
+=======
+	HNS3_NIC_STATE_HW_TX_CSUM_ENABLE,
+	HNS3_NIC_STATE_RXD_ADV_LAYOUT_ENABLE,
+>>>>>>> upstream/android-13
 	HNS3_NIC_STATE_MAX
 };
 
@@ -42,6 +64,7 @@ enum hns3_nic_state {
 #define HNS3_RING_TX_RING_HEAD_REG		0x0005C
 #define HNS3_RING_TX_RING_FBDNUM_REG		0x00060
 #define HNS3_RING_TX_RING_OFFSET_REG		0x00064
+<<<<<<< HEAD
 #define HNS3_RING_TX_RING_PKTNUM_RECORD_REG	0x0006C
 
 #define HNS3_RING_PREFETCH_EN_REG		0x0007C
@@ -67,16 +90,34 @@ enum hns3_nic_state {
 #define HNS3_RING_MB_DATA_BASE_REG		0x00200
 
 #define HNS3_TX_REG_OFFSET			0x40
+=======
+#define HNS3_RING_TX_RING_EBDNUM_REG		0x00068
+#define HNS3_RING_TX_RING_PKTNUM_RECORD_REG	0x0006C
+#define HNS3_RING_TX_RING_EBD_OFFSET_REG	0x00070
+#define HNS3_RING_TX_RING_BD_ERR_REG		0x00074
+#define HNS3_RING_EN_REG			0x00090
+#define HNS3_RING_RX_EN_REG			0x00098
+#define HNS3_RING_TX_EN_REG			0x000D4
+>>>>>>> upstream/android-13
 
 #define HNS3_RX_HEAD_SIZE			256
 
 #define HNS3_TX_TIMEOUT (5 * HZ)
 #define HNS3_RING_NAME_LEN			16
 #define HNS3_BUFFER_SIZE_2048			2048
+<<<<<<< HEAD
 #define HNS3_RING_MAX_PENDING			32768
 #define HNS3_RING_MIN_PENDING			8
 #define HNS3_RING_BD_MULTIPLE			8
 #define HNS3_MAX_MTU				9728
+=======
+#define HNS3_RING_MAX_PENDING			32760
+#define HNS3_RING_MIN_PENDING			72
+#define HNS3_RING_BD_MULTIPLE			8
+/* max frame size of mac */
+#define HNS3_MAX_MTU(max_frm_size) \
+	((max_frm_size) - (ETH_HLEN + ETH_FCS_LEN + 2 * VLAN_HLEN))
+>>>>>>> upstream/android-13
 
 #define HNS3_BD_SIZE_512_TYPE			0
 #define HNS3_BD_SIZE_1024_TYPE			1
@@ -109,6 +150,13 @@ enum hns3_nic_state {
 #define HNS3_RXD_DOI_B				21
 #define HNS3_RXD_OL3E_B				22
 #define HNS3_RXD_OL4E_B				23
+<<<<<<< HEAD
+=======
+#define HNS3_RXD_GRO_COUNT_S			24
+#define HNS3_RXD_GRO_COUNT_M			(0x3f << HNS3_RXD_GRO_COUNT_S)
+#define HNS3_RXD_GRO_FIXID_B			30
+#define HNS3_RXD_GRO_ECN_B			31
+>>>>>>> upstream/android-13
 
 #define HNS3_RXD_ODMAC_S			0
 #define HNS3_RXD_ODMAC_M			(0x3 << HNS3_RXD_ODMAC_S)
@@ -123,6 +171,12 @@ enum hns3_nic_state {
 #define HNS3_RXD_FBLI_S				14
 #define HNS3_RXD_FBLI_M				(0x3 << HNS3_RXD_FBLI_S)
 
+<<<<<<< HEAD
+=======
+#define HNS3_RXD_PTYPE_S			4
+#define HNS3_RXD_PTYPE_M			GENMASK(11, 4)
+
+>>>>>>> upstream/android-13
 #define HNS3_RXD_BDTYPE_S			0
 #define HNS3_RXD_BDTYPE_M			(0xf << HNS3_RXD_BDTYPE_S)
 #define HNS3_RXD_VLD_B				4
@@ -132,12 +186,21 @@ enum hns3_nic_state {
 #define HNS3_RXD_LUM_B				9
 #define HNS3_RXD_CRCP_B				10
 #define HNS3_RXD_L3L4P_B			11
+<<<<<<< HEAD
 #define HNS3_RXD_TSIND_S			12
 #define HNS3_RXD_TSIND_M			(0x7 << HNS3_RXD_TSIND_S)
 #define HNS3_RXD_LKBK_B				15
 #define HNS3_RXD_HDL_S				16
 #define HNS3_RXD_HDL_M				(0x7ff << HNS3_RXD_HDL_S)
 #define HNS3_RXD_HSIND_B			31
+=======
+#define HNS3_RXD_TSIDX_S			12
+#define HNS3_RXD_TSIDX_M			(0x3 << HNS3_RXD_TSIDX_S)
+#define HNS3_RXD_TS_VLD_B			14
+#define HNS3_RXD_LKBK_B				15
+#define HNS3_RXD_GRO_SIZE_S			16
+#define HNS3_RXD_GRO_SIZE_M			(0x3fff << HNS3_RXD_GRO_SIZE_S)
+>>>>>>> upstream/android-13
 
 #define HNS3_TXD_L3T_S				0
 #define HNS3_TXD_L3T_M				(0x3 << HNS3_TXD_L3T_S)
@@ -155,6 +218,12 @@ enum hns3_nic_state {
 #define HNS3_TXD_L4LEN_S			24
 #define HNS3_TXD_L4LEN_M			(0xff << HNS3_TXD_L4LEN_S)
 
+<<<<<<< HEAD
+=======
+#define HNS3_TXD_CSUM_START_S		8
+#define HNS3_TXD_CSUM_START_M		(0xffff << HNS3_TXD_CSUM_START_S)
+
+>>>>>>> upstream/android-13
 #define HNS3_TXD_OL3T_S				0
 #define HNS3_TXD_OL3T_M				(0x3 << HNS3_TXD_OL3T_S)
 #define HNS3_TXD_OVLAN_B			2
@@ -162,6 +231,12 @@ enum hns3_nic_state {
 #define HNS3_TXD_TUNTYPE_S			4
 #define HNS3_TXD_TUNTYPE_M			(0xf << HNS3_TXD_TUNTYPE_S)
 
+<<<<<<< HEAD
+=======
+#define HNS3_TXD_CSUM_OFFSET_S		8
+#define HNS3_TXD_CSUM_OFFSET_M		(0xffff << HNS3_TXD_CSUM_OFFSET_S)
+
+>>>>>>> upstream/android-13
 #define HNS3_TXD_BDTYPE_S			0
 #define HNS3_TXD_BDTYPE_M			(0xf << HNS3_TXD_BDTYPE_S)
 #define HNS3_TXD_FE_B				4
@@ -175,8 +250,16 @@ enum hns3_nic_state {
 #define HNS3_TXD_DECTTL_S			12
 #define HNS3_TXD_DECTTL_M			(0xf << HNS3_TXD_DECTTL_S)
 
+<<<<<<< HEAD
 #define HNS3_TXD_MSS_S				0
 #define HNS3_TXD_MSS_M				(0x3fff << HNS3_TXD_MSS_S)
+=======
+#define HNS3_TXD_OL4CS_B			22
+
+#define HNS3_TXD_MSS_S				0
+#define HNS3_TXD_MSS_M				(0x3fff << HNS3_TXD_MSS_S)
+#define HNS3_TXD_HW_CS_B			14
+>>>>>>> upstream/android-13
 
 #define HNS3_VECTOR_TX_IRQ			BIT_ULL(0)
 #define HNS3_VECTOR_RX_IRQ			BIT_ULL(1)
@@ -185,14 +268,41 @@ enum hns3_nic_state {
 #define HNS3_VECTOR_INITED			1
 
 #define HNS3_MAX_BD_SIZE			65535
+<<<<<<< HEAD
 #define HNS3_MAX_BD_PER_FRAG			8
 #define HNS3_MAX_BD_PER_PKT			MAX_SKB_FRAGS
+=======
+#define HNS3_MAX_TSO_BD_NUM			63U
+#define HNS3_MAX_TSO_SIZE			1048576U
+#define HNS3_MAX_NON_TSO_SIZE			9728U
+
+>>>>>>> upstream/android-13
 
 #define HNS3_VECTOR_GL0_OFFSET			0x100
 #define HNS3_VECTOR_GL1_OFFSET			0x200
 #define HNS3_VECTOR_GL2_OFFSET			0x300
 #define HNS3_VECTOR_RL_OFFSET			0x900
 #define HNS3_VECTOR_RL_EN_B			6
+<<<<<<< HEAD
+=======
+#define HNS3_VECTOR_TX_QL_OFFSET		0xe00
+#define HNS3_VECTOR_RX_QL_OFFSET		0xf00
+
+#define HNS3_RING_EN_B				0
+
+#define HNS3_GL0_CQ_MODE_REG			0x20d00
+#define HNS3_GL1_CQ_MODE_REG			0x20d04
+#define HNS3_GL2_CQ_MODE_REG			0x20d08
+#define HNS3_CQ_MODE_EQE			1U
+#define HNS3_CQ_MODE_CQE			0U
+
+enum hns3_pkt_l2t_type {
+	HNS3_L2_TYPE_UNICAST,
+	HNS3_L2_TYPE_MULTICAST,
+	HNS3_L2_TYPE_BROADCAST,
+	HNS3_L2_TYPE_INVALID,
+};
+>>>>>>> upstream/android-13
 
 enum hns3_pkt_l3t_type {
 	HNS3_L3T_NONE,
@@ -224,7 +334,18 @@ enum hns3_pkt_tun_type {
 
 /* hardware spec ring buffer format */
 struct __packed hns3_desc {
+<<<<<<< HEAD
 	__le64 addr;
+=======
+	union {
+		__le64 addr;
+		__le16 csum;
+		struct {
+			__le32 ts_nsec;
+			__le32 ts_sec;
+		};
+	};
+>>>>>>> upstream/android-13
 	union {
 		struct {
 			__le16 vlan_tag;
@@ -251,9 +372,15 @@ struct __packed hns3_desc {
 			};
 		};
 
+<<<<<<< HEAD
 			__le32 paylen;
 			__le16 bdtp_fe_sc_vld_ra_ri;
 			__le16 mss;
+=======
+			__le32 paylen_ol4cs;
+			__le16 bdtp_fe_sc_vld_ra_ri;
+			__le16 mss_hw_csum;
+>>>>>>> upstream/android-13
 		} tx;
 
 		struct {
@@ -278,10 +405,25 @@ struct __packed hns3_desc {
 	};
 };
 
+<<<<<<< HEAD
+=======
+enum hns3_desc_type {
+	DESC_TYPE_UNKNOWN		= 0,
+	DESC_TYPE_SKB			= 1 << 0,
+	DESC_TYPE_FRAGLIST_SKB		= 1 << 1,
+	DESC_TYPE_PAGE			= 1 << 2,
+	DESC_TYPE_BOUNCE_ALL		= 1 << 3,
+	DESC_TYPE_BOUNCE_HEAD		= 1 << 4,
+	DESC_TYPE_SGL_SKB		= 1 << 5,
+	DESC_TYPE_PP_FRAG		= 1 << 6,
+};
+
+>>>>>>> upstream/android-13
 struct hns3_desc_cb {
 	dma_addr_t dma; /* dma address of this desc */
 	void *buf;      /* cpu addr for a desc */
 
+<<<<<<< HEAD
 	/* priv data for the desc, e.g. skb when use with ip stack*/
 	void *priv;
 	u32 page_offset;
@@ -291,6 +433,24 @@ struct hns3_desc_cb {
 
        /* desc type, used by the ring user to mark the type of the priv data */
 	u16 type;
+=======
+	/* priv data for the desc, e.g. skb when use with ip stack */
+	void *priv;
+
+	union {
+		u32 page_offset;	/* for rx */
+		u32 send_bytes;		/* for tx */
+	};
+
+	u32 length;     /* length of the buffer */
+
+	u16 reuse_flag;
+	u16 refill;
+
+	/* desc type, used by the ring user to mark the type of the priv data */
+	u16 type;
+	u16 pagecnt_bias;
+>>>>>>> upstream/android-13
 };
 
 enum hns3_pkt_l3type {
@@ -303,6 +463,7 @@ enum hns3_pkt_l3type {
 	HNS3_L3_TYPE_LLDP,
 	HNS3_L3_TYPE_BPDU,
 	HNS3_L3_TYPE_MAC_PAUSE,
+<<<<<<< HEAD
 	HNS3_L3_TYPE_PFC_PAUSE,/* 0x9*/
 
 	/* reserved for 0xA~0xB*/
@@ -310,6 +471,15 @@ enum hns3_pkt_l3type {
 	HNS3_L3_TYPE_CNM = 0xc,
 
 	/* reserved for 0xD~0xE*/
+=======
+	HNS3_L3_TYPE_PFC_PAUSE, /* 0x9 */
+
+	/* reserved for 0xA~0xB */
+
+	HNS3_L3_TYPE_CNM = 0xc,
+
+	/* reserved for 0xD~0xE */
+>>>>>>> upstream/android-13
 
 	HNS3_L3_TYPE_PARSE_FAIL	= 0xf /* must be last */
 };
@@ -334,7 +504,11 @@ enum hns3_pkt_ol3type {
 	HNS3_OL3_TYPE_IPV4_OPT = 4,
 	HNS3_OL3_TYPE_IPV6_EXT,
 
+<<<<<<< HEAD
 	/* reserved for 0x6~0xE*/
+=======
+	/* reserved for 0x6~0xE */
+>>>>>>> upstream/android-13
 
 	HNS3_OL3_TYPE_PARSE_FAIL = 0xf	/* must be last */
 };
@@ -346,17 +520,48 @@ enum hns3_pkt_ol4type {
 	HNS3_OL4_TYPE_UNKNOWN
 };
 
+<<<<<<< HEAD
 struct ring_stats {
 	u64 io_err_cnt;
+=======
+struct hns3_rx_ptype {
+	u32 ptype : 8;
+	u32 csum_level : 2;
+	u32 ip_summed : 2;
+	u32 l3_type : 4;
+	u32 valid : 1;
+};
+
+struct ring_stats {
+>>>>>>> upstream/android-13
 	u64 sw_err_cnt;
 	u64 seg_pkt_cnt;
 	union {
 		struct {
 			u64 tx_pkts;
 			u64 tx_bytes;
+<<<<<<< HEAD
 			u64 tx_err_cnt;
 			u64 restart_queue;
 			u64 tx_busy;
+=======
+			u64 tx_more;
+			u64 restart_queue;
+			u64 tx_busy;
+			u64 tx_copy;
+			u64 tx_vlan_err;
+			u64 tx_l4_proto_err;
+			u64 tx_l2l3l4_err;
+			u64 tx_tso_err;
+			u64 over_max_recursion;
+			u64 hw_limitation;
+			u64 tx_bounce;
+			u64 tx_spare_full;
+			u64 copy_bits_err;
+			u64 tx_sgl;
+			u64 skb2sgl_err;
+			u64 map_sg_err;
+>>>>>>> upstream/android-13
 		};
 		struct {
 			u64 rx_pkts;
@@ -364,6 +569,7 @@ struct ring_stats {
 			u64 rx_err_cnt;
 			u64 reuse_pg_cnt;
 			u64 err_pkt_len;
+<<<<<<< HEAD
 			u64 non_vld_descs;
 			u64 err_bd_num;
 			u64 l2_err;
@@ -374,13 +580,44 @@ struct ring_stats {
 
 struct hns3_enet_ring {
 	u8 __iomem *io_base; /* base io address for the ring */
+=======
+			u64 err_bd_num;
+			u64 l2_err;
+			u64 l3l4_csum_err;
+			u64 csum_complete;
+			u64 rx_multicast;
+			u64 non_reuse_pg;
+			u64 frag_alloc_err;
+			u64 frag_alloc;
+		};
+		__le16 csum;
+	};
+};
+
+struct hns3_tx_spare {
+	dma_addr_t dma;
+	void *buf;
+	u32 next_to_use;
+	u32 next_to_clean;
+	u32 last_to_clean;
+	u32 len;
+};
+
+struct hns3_enet_ring {
+>>>>>>> upstream/android-13
 	struct hns3_desc *desc; /* dma map address space */
 	struct hns3_desc_cb *desc_cb;
 	struct hns3_enet_ring *next;
 	struct hns3_enet_tqp_vector *tqp_vector;
 	struct hnae3_queue *tqp;
+<<<<<<< HEAD
 	char ring_name[HNS3_RING_NAME_LEN];
 	struct device *dev; /* will be used for DMA mapping of descriptors */
+=======
+	int queue_index;
+	struct device *dev; /* will be used for DMA mapping of descriptors */
+	struct page_pool *page_pool;
+>>>>>>> upstream/android-13
 
 	/* statistic */
 	struct ring_stats stats;
@@ -389,15 +626,19 @@ struct hns3_enet_ring {
 	dma_addr_t desc_dma_addr;
 	u32 buf_size;       /* size for hnae_desc->addr, preset by AE */
 	u16 desc_num;       /* total number of desc */
+<<<<<<< HEAD
 	u16 max_desc_num_per_pkt;
 	u16 max_raw_data_sz_per_desc;
 	u16 max_pkt_size;
+=======
+>>>>>>> upstream/android-13
 	int next_to_use;    /* idx of next spare desc */
 
 	/* idx of lastest sent desc, the ring is empty when equal to
 	 * next_to_use
 	 */
 	int next_to_clean;
+<<<<<<< HEAD
 
 	u32 flag;          /* ring attribute */
 	int irq_init_flag;
@@ -425,6 +666,32 @@ struct hns3_nic_ops {
 			     int *bnum, struct hns3_enet_ring *ring);
 	void (*get_rxd_bnum)(u32 bnum_flag, int *out_bnum);
 };
+=======
+	u32 flag;          /* ring attribute */
+
+	int pending_buf;
+	union {
+		/* for Tx ring */
+		struct {
+			u32 fd_qb_tx_sample;
+			int last_to_use;        /* last idx used by xmit */
+			u32 tx_copybreak;
+			struct hns3_tx_spare *tx_spare;
+		};
+
+		/* for Rx ring */
+		struct {
+			u32 pull_len;   /* memcpy len for current rx packet */
+			u32 rx_copybreak;
+			u32 frag_num;
+			/* first buffer address for current packet */
+			unsigned char *va;
+			struct sk_buff *skb;
+			struct sk_buff *tail_skb;
+		};
+	};
+} ____cacheline_internodealigned_in_smp;
+>>>>>>> upstream/android-13
 
 enum hns3_flow_level_range {
 	HNS3_FLOW_LOW = 0,
@@ -433,6 +700,7 @@ enum hns3_flow_level_range {
 	HNS3_FLOW_ULTRA = 3,
 };
 
+<<<<<<< HEAD
 enum hns3_link_mode_bits {
 	HNS3_LM_FIBRE_BIT = BIT(0),
 	HNS3_LM_AUTONEG_BIT = BIT(1),
@@ -453,11 +721,14 @@ enum hns3_link_mode_bits {
 };
 
 #define HNS3_INT_GL_MAX			0x1FE0
+=======
+>>>>>>> upstream/android-13
 #define HNS3_INT_GL_50K			0x0014
 #define HNS3_INT_GL_20K			0x0032
 #define HNS3_INT_GL_18K			0x0036
 #define HNS3_INT_GL_8K			0x007C
 
+<<<<<<< HEAD
 #define HNS3_INT_RL_MAX			0x00EC
 #define HNS3_INT_RL_ENABLE_MASK		0x40
 
@@ -466,6 +737,22 @@ enum hns3_link_mode_bits {
 struct hns3_enet_coalesce {
 	u16 int_gl;
 	u8 gl_adapt_enable;
+=======
+#define HNS3_INT_GL_1US			BIT(31)
+
+#define HNS3_INT_RL_MAX			0x00EC
+#define HNS3_INT_RL_ENABLE_MASK		0x40
+
+#define HNS3_INT_QL_DEFAULT_CFG		0x20
+
+struct hns3_enet_coalesce {
+	u16 int_gl;
+	u16 int_ql;
+	u16 int_ql_max;
+	u8 adapt_enable : 1;
+	u8 ql_enable : 1;
+	u8 unit_1us : 1;
+>>>>>>> upstream/android-13
 	enum hns3_flow_level_range flow_level;
 };
 
@@ -476,6 +763,10 @@ struct hns3_enet_ring_group {
 	u64 total_packets;	/* total packets processed this group */
 	u16 count;
 	struct hns3_enet_coalesce coal;
+<<<<<<< HEAD
+=======
+	struct dim dim;
+>>>>>>> upstream/android-13
 };
 
 struct hns3_enet_tqp_vector {
@@ -491,6 +782,7 @@ struct hns3_enet_tqp_vector {
 	struct hns3_enet_ring_group rx_group;
 	struct hns3_enet_ring_group tx_group;
 
+<<<<<<< HEAD
 	u16 num_tqps;	/* total number of tqps in TQP vector */
 
 	char name[HNAE3_INT_NAME_LEN];
@@ -518,21 +810,45 @@ struct hns3_nic_priv {
 	struct net_device *netdev;
 	struct device *dev;
 	struct hns3_nic_ops ops;
+=======
+	cpumask_t affinity_mask;
+	u16 num_tqps;	/* total number of tqps in TQP vector */
+	struct irq_affinity_notify affinity_notify;
+
+	char name[HNAE3_INT_NAME_LEN];
+
+	u64 event_cnt;
+} ____cacheline_internodealigned_in_smp;
+
+struct hns3_nic_priv {
+	struct hnae3_handle *ae_handle;
+	struct net_device *netdev;
+	struct device *dev;
+>>>>>>> upstream/android-13
 
 	/**
 	 * the cb for nic to manage the ring buffer, the first half of the
 	 * array is for tx_ring and vice versa for the second half
 	 */
+<<<<<<< HEAD
 	struct hns3_nic_ring_data *ring_data;
 	struct hns3_enet_tqp_vector *tqp_vector;
 	u16 vector_num;
 
 	/* The most recently read link state */
 	int link;
+=======
+	struct hns3_enet_ring *ring;
+	struct hns3_enet_tqp_vector *tqp_vector;
+	u16 vector_num;
+	u8 max_non_tso_bd_num;
+
+>>>>>>> upstream/android-13
 	u64 tx_timeout_count;
 
 	unsigned long state;
 
+<<<<<<< HEAD
 	struct timer_list service_timer;
 
 	struct work_struct service_task;
@@ -543,6 +859,14 @@ struct hns3_nic_priv {
 	unsigned long active_vlans[BITS_TO_LONGS(VLAN_N_VID)];
 	struct hns3_enet_coalesce tx_coal;
 	struct hns3_enet_coalesce rx_coal;
+=======
+	enum dim_cq_period_mode tx_cqe_mode;
+	enum dim_cq_period_mode rx_cqe_mode;
+	struct hns3_enet_coalesce tx_coal;
+	struct hns3_enet_coalesce rx_coal;
+	u32 tx_copybreak;
+	u32 rx_copybreak;
+>>>>>>> upstream/android-13
 };
 
 union l3_hdr_info {
@@ -554,6 +878,7 @@ union l3_hdr_info {
 union l4_hdr_info {
 	struct tcphdr *tcp;
 	struct udphdr *udp;
+<<<<<<< HEAD
 	unsigned char *hdr;
 };
 
@@ -574,6 +899,37 @@ static inline int ring_space(struct hns3_enet_ring *ring)
 static inline int is_ring_empty(struct hns3_enet_ring *ring)
 {
 	return ring->next_to_use == ring->next_to_clean;
+=======
+	struct gre_base_hdr *gre;
+	unsigned char *hdr;
+};
+
+struct hns3_hw_error_info {
+	enum hnae3_hw_error_type type;
+	const char *msg;
+};
+
+struct hns3_reset_type_map {
+	enum ethtool_reset_flags rst_flags;
+	enum hnae3_reset_type rst_type;
+};
+
+static inline int ring_space(struct hns3_enet_ring *ring)
+{
+	/* This smp_load_acquire() pairs with smp_store_release() in
+	 * hns3_nic_reclaim_one_desc called by hns3_clean_tx_ring.
+	 */
+	int begin = smp_load_acquire(&ring->next_to_clean);
+	int end = READ_ONCE(ring->next_to_use);
+
+	return ((end >= begin) ? (ring->desc_num - end + begin) :
+			(begin - end)) - 1;
+}
+
+static inline u32 hns3_read_reg(void __iomem *base, u32 reg)
+{
+	return readl(base + reg);
+>>>>>>> upstream/android-13
 }
 
 static inline void hns3_write_reg(void __iomem *base, u32 reg, u32 value)
@@ -583,6 +939,7 @@ static inline void hns3_write_reg(void __iomem *base, u32 reg, u32 value)
 	writel(value, reg_addr + reg);
 }
 
+<<<<<<< HEAD
 #define hns3_write_dev(a, reg, value) \
 	hns3_write_reg((a)->io_base, (reg), (value))
 
@@ -590,10 +947,29 @@ static inline void hns3_write_reg(void __iomem *base, u32 reg, u32 value)
 		(tqp)->io_base + HNS3_RING_TX_RING_TAIL_REG)
 
 #define ring_to_dev(ring) (&(ring)->tqp->handle->pdev->dev)
+=======
+#define hns3_read_dev(a, reg) \
+	hns3_read_reg((a)->io_base, reg)
+
+static inline bool hns3_nic_resetting(struct net_device *netdev)
+{
+	struct hns3_nic_priv *priv = netdev_priv(netdev);
+
+	return test_bit(HNS3_NIC_STATE_RESETTING, &priv->state);
+}
+
+#define hns3_write_dev(a, reg, value) \
+	hns3_write_reg((a)->io_base, reg, value)
+
+#define ring_to_dev(ring) ((ring)->dev)
+
+#define ring_to_netdev(ring)	((ring)->tqp_vector->napi.dev)
+>>>>>>> upstream/android-13
 
 #define ring_to_dma_dir(ring) (HNAE3_IS_TX_RING(ring) ? \
 	DMA_TO_DEVICE : DMA_FROM_DEVICE)
 
+<<<<<<< HEAD
 #define tx_ring_data(priv, idx) ((priv)->ring_data[idx])
 
 #define hnae3_buf_size(_ring) ((_ring)->buf_size)
@@ -603,25 +979,59 @@ static inline void hns3_write_reg(void __iomem *base, u32 reg, u32 value)
 /* iterator for handling rings in ring group */
 #define hns3_for_each_ring(pos, head) \
 	for (pos = (head).ring; pos; pos = pos->next)
+=======
+#define hns3_buf_size(_ring) ((_ring)->buf_size)
+
+static inline unsigned int hns3_page_order(struct hns3_enet_ring *ring)
+{
+#if (PAGE_SIZE < 8192)
+	if (ring->buf_size > (PAGE_SIZE / 2))
+		return 1;
+#endif
+	return 0;
+}
+
+#define hns3_page_size(_ring) (PAGE_SIZE << hns3_page_order(_ring))
+
+/* iterator for handling rings in ring group */
+#define hns3_for_each_ring(pos, head) \
+	for (pos = (head).ring; (pos); pos = (pos)->next)
+>>>>>>> upstream/android-13
 
 #define hns3_get_handle(ndev) \
 	(((struct hns3_nic_priv *)netdev_priv(ndev))->ae_handle)
 
+<<<<<<< HEAD
 #define hns3_gl_usec_to_reg(int_gl) (int_gl >> 1)
 #define hns3_gl_round_down(int_gl) round_down(int_gl, 2)
 
 #define hns3_rl_usec_to_reg(int_rl) (int_rl >> 2)
+=======
+#define hns3_gl_usec_to_reg(int_gl) ((int_gl) >> 1)
+#define hns3_gl_round_down(int_gl) round_down(int_gl, 2)
+
+#define hns3_rl_usec_to_reg(int_rl) ((int_rl) >> 2)
+>>>>>>> upstream/android-13
 #define hns3_rl_round_down(int_rl) round_down(int_rl, 4)
 
 void hns3_ethtool_set_ops(struct net_device *netdev);
 int hns3_set_channels(struct net_device *netdev,
 		      struct ethtool_channels *ch);
 
+<<<<<<< HEAD
 bool hns3_clean_tx_ring(struct hns3_enet_ring *ring, int budget);
 int hns3_init_all_ring(struct hns3_nic_priv *priv);
 int hns3_uninit_all_ring(struct hns3_nic_priv *priv);
 int hns3_nic_reset_all_ring(struct hnae3_handle *h);
 netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev);
+=======
+void hns3_clean_tx_ring(struct hns3_enet_ring *ring, int budget);
+int hns3_init_all_ring(struct hns3_nic_priv *priv);
+int hns3_nic_reset_all_ring(struct hnae3_handle *h);
+void hns3_fini_ring(struct hns3_enet_ring *ring);
+netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev);
+bool hns3_is_phys_func(struct pci_dev *pdev);
+>>>>>>> upstream/android-13
 int hns3_clean_rx_ring(
 		struct hns3_enet_ring *ring, int budget,
 		void (*rx_fn)(struct hns3_enet_ring *, struct sk_buff *));
@@ -632,6 +1042,15 @@ void hns3_set_vector_coalesce_tx_gl(struct hns3_enet_tqp_vector *tqp_vector,
 				    u32 gl_value);
 void hns3_set_vector_coalesce_rl(struct hns3_enet_tqp_vector *tqp_vector,
 				 u32 rl_value);
+<<<<<<< HEAD
+=======
+void hns3_set_vector_coalesce_rx_ql(struct hns3_enet_tqp_vector *tqp_vector,
+				    u32 ql_value);
+void hns3_set_vector_coalesce_tx_ql(struct hns3_enet_tqp_vector *tqp_vector,
+				    u32 ql_value);
+
+void hns3_request_update_promisc_mode(struct hnae3_handle *handle);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_HNS3_DCB
 void hns3_dcbnl_setup(struct hnae3_handle *handle);
@@ -639,4 +1058,16 @@ void hns3_dcbnl_setup(struct hnae3_handle *handle);
 static inline void hns3_dcbnl_setup(struct hnae3_handle *handle) {}
 #endif
 
+<<<<<<< HEAD
+=======
+int hns3_dbg_init(struct hnae3_handle *handle);
+void hns3_dbg_uninit(struct hnae3_handle *handle);
+void hns3_dbg_register_debugfs(const char *debugfs_dir_name);
+void hns3_dbg_unregister_debugfs(void);
+void hns3_shinfo_pack(struct skb_shared_info *shinfo, __u32 *size);
+u16 hns3_get_max_available_channels(struct hnae3_handle *h);
+void hns3_cq_period_mode_init(struct hns3_nic_priv *priv,
+			      enum dim_cq_period_mode tx_mode,
+			      enum dim_cq_period_mode rx_mode);
+>>>>>>> upstream/android-13
 #endif

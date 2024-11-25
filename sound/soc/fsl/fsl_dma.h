@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * mpc8610-pcm.h - ALSA PCM interface for the Freescale MPC8610 SoC
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * mpc8610-pcm.h - ALSA PCM interface for the Freescale MPC8610 SoC
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MPC8610_PCM_H

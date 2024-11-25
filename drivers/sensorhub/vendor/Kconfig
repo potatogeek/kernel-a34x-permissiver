@@ -1,3 +1,10 @@
 config SHUB_MTK
 	tristate "Mediatek project"
 	default n
+<<<<<<< HEAD
+=======
+
+config SHUB_LSI
+	tristate "lsi sensorhub"
+	default y
+>>>>>>> upstream/android-13

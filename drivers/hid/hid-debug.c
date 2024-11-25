@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  (c) 1999 Andreas Gal		<gal@cs.uni-magdeburg.de>
  *  (c) 2000-2001 Vojtech Pavlik	<vojtech@ucw.cz>
@@ -7,6 +11,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  *
  * Should you need to contact me, the author, you can do so either by
  * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
@@ -134,6 +141,10 @@ static const struct hid_usage_entry hid_usage_table[] = {
   {  9, 0, "Button" },
   { 10, 0, "Ordinal" },
   { 12, 0, "Consumer" },
+<<<<<<< HEAD
+=======
+      {0, 0x003, "ProgrammableButtons"},
+>>>>>>> upstream/android-13
       {0, 0x238, "HorizontalWheel"},
   { 13, 0, "Digitizers" },
     {0, 0x01, "Digitizer"},
@@ -429,6 +440,10 @@ static const struct hid_usage_entry hid_usage_table[] = {
     { 0x85, 0x44, "Charging" },
     { 0x85, 0x45, "Discharging" },
     { 0x85, 0x4b, "NeedReplacement" },
+<<<<<<< HEAD
+=======
+    { 0x85, 0x65, "AbsoluteStateOfCharge" },
+>>>>>>> upstream/android-13
     { 0x85, 0x66, "RemainingCapacity" },
     { 0x85, 0x68, "RunTimeToEmpty" },
     { 0x85, 0x6a, "AverageTimeToFull" },
@@ -835,7 +850,13 @@ static const char *keys[KEY_MAX + 1] = {
 	[KEY_F22] = "F22",			[KEY_F23] = "F23",
 	[KEY_F24] = "F24",			[KEY_PLAYCD] = "PlayCD",
 	[KEY_PAUSECD] = "PauseCD",		[KEY_PROG3] = "Prog3",
+<<<<<<< HEAD
 	[KEY_PROG4] = "Prog4",			[KEY_SUSPEND] = "Suspend",
+=======
+	[KEY_PROG4] = "Prog4",
+	[KEY_ALL_APPLICATIONS] = "AllApplications",
+	[KEY_SUSPEND] = "Suspend",
+>>>>>>> upstream/android-13
 	[KEY_CLOSE] = "Close",			[KEY_PLAY] = "Play",
 	[KEY_FASTFORWARD] = "FastForward",	[KEY_BASSBOOST] = "BassBoost",
 	[KEY_PRINT] = "Print",			[KEY_HP] = "HP",
@@ -941,6 +962,13 @@ static const char *keys[KEY_MAX + 1] = {
 	[KEY_APPSELECT] = "AppSelect",
 	[KEY_SCREENSAVER] = "ScreenSaver",
 	[KEY_VOICECOMMAND] = "VoiceCommand",
+<<<<<<< HEAD
+=======
+	[KEY_ASSISTANT] = "Assistant",
+	[KEY_KBD_LAYOUT_NEXT] = "KbdLayoutNext",
+	[KEY_EMOJI_PICKER] = "EmojiPicker",
+	[KEY_DICTATE] = "Dictate",
+>>>>>>> upstream/android-13
 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
@@ -950,6 +978,19 @@ static const char *keys[KEY_MAX + 1] = {
 	[KEY_KBDINPUTASSIST_NEXTGROUP] = "KbdInputAssistNextGroup",
 	[KEY_KBDINPUTASSIST_ACCEPT] = "KbdInputAssistAccept",
 	[KEY_KBDINPUTASSIST_CANCEL] = "KbdInputAssistCancel",
+<<<<<<< HEAD
+=======
+	[KEY_MACRO1] = "Macro1", [KEY_MACRO2] = "Macro2", [KEY_MACRO3] = "Macro3",
+	[KEY_MACRO4] = "Macro4", [KEY_MACRO5] = "Macro5", [KEY_MACRO6] = "Macro6",
+	[KEY_MACRO7] = "Macro7", [KEY_MACRO8] = "Macro8", [KEY_MACRO9] = "Macro9",
+	[KEY_MACRO10] = "Macro10", [KEY_MACRO11] = "Macro11", [KEY_MACRO12] = "Macro12",
+	[KEY_MACRO13] = "Macro13", [KEY_MACRO14] = "Macro14", [KEY_MACRO15] = "Macro15",
+	[KEY_MACRO16] = "Macro16", [KEY_MACRO17] = "Macro17", [KEY_MACRO18] = "Macro18",
+	[KEY_MACRO19] = "Macro19", [KEY_MACRO20] = "Macro20", [KEY_MACRO21] = "Macro21",
+	[KEY_MACRO22] = "Macro22", [KEY_MACRO23] = "Macro23", [KEY_MACRO24] = "Macro24",
+	[KEY_MACRO25] = "Macro25", [KEY_MACRO26] = "Macro26", [KEY_MACRO27] = "Macro27",
+	[KEY_MACRO28] = "Macro28", [KEY_MACRO29] = "Macro29", [KEY_MACRO30] = "Macro30",
+>>>>>>> upstream/android-13
 };
 
 static const char *relatives[REL_MAX + 1] = {
@@ -1072,11 +1113,14 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hid_debug_rdesc_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, hid_debug_rdesc_show, inode->i_private);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int hid_debug_events_open(struct inode *inode, struct file *file)
 {
 	int err = 0;
@@ -1118,11 +1162,14 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
 		set_current_state(TASK_INTERRUPTIBLE);
 
 		while (kfifo_is_empty(&list->hid_debug_fifo)) {
+<<<<<<< HEAD
 			if (file->f_flags & O_NONBLOCK) {
 				ret = -EAGAIN;
 				break;
 			}
 
+=======
+>>>>>>> upstream/android-13
 			if (signal_pending(current)) {
 				ret = -ERESTARTSYS;
 				break;
@@ -1139,6 +1186,14 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
 				goto out;
 			}
 
+<<<<<<< HEAD
+=======
+			if (file->f_flags & O_NONBLOCK) {
+				ret = -EAGAIN;
+				break;
+			}
+
+>>>>>>> upstream/android-13
 			/* allow O_NONBLOCK from other threads */
 			mutex_unlock(&list->read_mutex);
 			schedule();
@@ -1191,12 +1246,16 @@ static int hid_debug_events_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations hid_debug_rdesc_fops = {
 	.open           = hid_debug_rdesc_open,
 	.read           = seq_read,
 	.llseek         = seq_lseek,
 	.release        = single_release,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(hid_debug_rdesc);
+>>>>>>> upstream/android-13
 
 static const struct file_operations hid_debug_events_fops = {
 	.owner =        THIS_MODULE,

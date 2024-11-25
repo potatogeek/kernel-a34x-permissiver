@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * i740fb - framebuffer driver for Intel740
  * Copyright (c) 2011 Ondrej Zary
@@ -429,7 +433,11 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
 		break;
 	case 9 ... 15:
 		bpp = 15;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 16:
 		if ((1000000 / var->pixclock) > DACSPEED16) {
 			dev_err(info->device, "requested pixclock %i MHz out of range (max. %i MHz at 15/16bpp)\n",
@@ -980,7 +988,11 @@ static int i740fb_blank(int blank_mode, struct fb_info *info)
 	return (blank_mode == FB_BLANK_NORMAL) ? 1 : 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops i740fb_ops = {
+=======
+static const struct fb_ops i740fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_open	= i740fb_open,
 	.fb_release	= i740fb_release,
@@ -1005,10 +1017,15 @@ static int i740fb_probe(struct pci_dev *dev, const struct pci_device_id *ent)
 	u8 *edid;
 
 	info = framebuffer_alloc(sizeof(struct i740fb_par), &(dev->dev));
+<<<<<<< HEAD
 	if (!info) {
 		dev_err(&(dev->dev), "cannot allocate framebuffer\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	par = info->par;
 	mutex_init(&par->open_lock);
@@ -1176,6 +1193,7 @@ static void i740fb_remove(struct pci_dev *dev)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 static int i740fb_suspend(struct pci_dev *dev, pm_message_t state)
 {
@@ -1186,6 +1204,13 @@ static int i740fb_suspend(struct pci_dev *dev, pm_message_t state)
 	if (state.event == PM_EVENT_FREEZE || state.event == PM_EVENT_PRETHAW)
 		return 0;
 
+=======
+static int __maybe_unused i740fb_suspend(struct device *dev)
+{
+	struct fb_info *info = dev_get_drvdata(dev);
+	struct i740fb_par *par = info->par;
+
+>>>>>>> upstream/android-13
 	console_lock();
 	mutex_lock(&(par->open_lock));
 
@@ -1198,19 +1223,28 @@ static int i740fb_suspend(struct pci_dev *dev, pm_message_t state)
 
 	fb_set_suspend(info, 1);
 
+<<<<<<< HEAD
 	pci_save_state(dev);
 	pci_disable_device(dev);
 	pci_set_power_state(dev, pci_choose_state(dev, state));
 
+=======
+>>>>>>> upstream/android-13
 	mutex_unlock(&(par->open_lock));
 	console_unlock();
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int i740fb_resume(struct pci_dev *dev)
 {
 	struct fb_info *info = pci_get_drvdata(dev);
+=======
+static int __maybe_unused i740fb_resume(struct device *dev)
+{
+	struct fb_info *info = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct i740fb_par *par = info->par;
 
 	console_lock();
@@ -1219,11 +1253,14 @@ static int i740fb_resume(struct pci_dev *dev)
 	if (par->ref_count == 0)
 		goto fail;
 
+<<<<<<< HEAD
 	pci_set_power_state(dev, PCI_D0);
 	pci_restore_state(dev);
 	if (pci_enable_device(dev))
 		goto fail;
 
+=======
+>>>>>>> upstream/android-13
 	i740fb_set_par(info);
 	fb_set_suspend(info, 0);
 
@@ -1232,10 +1269,24 @@ fail:
 	console_unlock();
 	return 0;
 }
+<<<<<<< HEAD
 #else
 #define i740fb_suspend NULL
 #define i740fb_resume NULL
 #endif /* CONFIG_PM */
+=======
+
+static const struct dev_pm_ops i740fb_pm_ops = {
+#ifdef CONFIG_PM_SLEEP
+	.suspend	= i740fb_suspend,
+	.resume		= i740fb_resume,
+	.freeze		= NULL,
+	.thaw		= i740fb_resume,
+	.poweroff	= i740fb_suspend,
+	.restore	= i740fb_resume,
+#endif /* CONFIG_PM_SLEEP */
+};
+>>>>>>> upstream/android-13
 
 #define I740_ID_PCI 0x00d1
 #define I740_ID_AGP 0x7800
@@ -1252,8 +1303,12 @@ static struct pci_driver i740fb_driver = {
 	.id_table	= i740fb_id_table,
 	.probe		= i740fb_probe,
 	.remove		= i740fb_remove,
+<<<<<<< HEAD
 	.suspend	= i740fb_suspend,
 	.resume		= i740fb_resume,
+=======
+	.driver.pm	= &i740fb_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 #ifndef MODULE

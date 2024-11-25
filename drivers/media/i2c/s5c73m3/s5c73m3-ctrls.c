@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Samsung LSI S5C73M3 8M pixel camera driver
  *
  * Copyright (C) 2012, Samsung Electronics, Co., Ltd.
  * Sylwester Nawrocki <s.nawrocki@samsung.com>
  * Andrzej Hajda <a.hajda@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sizes.h>
@@ -54,7 +61,11 @@ static int s5c73m3_get_af_status(struct s5c73m3 *state, struct v4l2_ctrl *ctrl)
 		break;
 	default:
 		v4l2_info(&state->sensor_sd, "Unknown AF status %#x\n", reg);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case REG_CAF_STATUS_UNFOCUSED:
 	case REG_AF_STATUS_UNFOCUSED:
 	case REG_AF_STATUS_INVALID:
@@ -555,7 +566,11 @@ int s5c73m3_init_controls(struct s5c73m3 *state)
 				V4L2_CTRL_FLAG_UPDATE;
 	v4l2_ctrl_auto_cluster(2, &ctrls->auto_iso, 0, false);
 	ctrls->af_status->flags |= V4L2_CTRL_FLAG_VOLATILE;
+<<<<<<< HEAD
 	v4l2_ctrl_cluster(6, &ctrls->focus_auto);
+=======
+	v4l2_ctrl_cluster(5, &ctrls->focus_auto);
+>>>>>>> upstream/android-13
 
 	state->sensor_sd.ctrl_handler = hdl;
 

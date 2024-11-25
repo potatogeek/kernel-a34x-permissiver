@@ -101,5 +101,9 @@ Example:
       nuvoton,crosstalk-enable;
 
       clock-names = "mclk";
+<<<<<<< HEAD
       clocks = <&tegra_car TEGRA210_CLK_CLK_OUT_2>;
+=======
+      clocks = <&tegra_pmc TEGRA_PMC_CLK_OUT_2>;
+>>>>>>> upstream/android-13
   };

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * (C) 2013 Astaro GmbH & Co KG
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * (C) 2013 Astaro GmbH & Co KG
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -15,7 +21,11 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Florian Westphal <fw@strlen.de>");
+<<<<<<< HEAD
 MODULE_DESCRIPTION("Xtables: add/match connection trackling labels");
+=======
+MODULE_DESCRIPTION("Xtables: add/match connection tracking labels");
+>>>>>>> upstream/android-13
 MODULE_ALIAS("ipt_connlabel");
 MODULE_ALIAS("ip6t_connlabel");
 

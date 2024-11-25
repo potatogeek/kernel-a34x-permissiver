@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config SCSI_BNX2X_FCOE
 	tristate "QLogic FCoE offload support"
 	depends on PCI
@@ -9,5 +13,9 @@ config SCSI_BNX2X_FCOE
 	select ETHERNET
 	select NET_VENDOR_BROADCOM
 	select CNIC
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This driver supports FCoE offload for the QLogic devices.

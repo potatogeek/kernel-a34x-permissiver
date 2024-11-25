@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Serial Attached SCSI (SAS) Transport Layer initialization
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -36,7 +43,11 @@
 
 #include "sas_internal.h"
 
+<<<<<<< HEAD
 #include "../scsi_sas_internal.h"
+=======
+#include "scsi_sas_internal.h"
+>>>>>>> upstream/android-13
 
 static struct kmem_cache *sas_task_cache;
 static struct kmem_cache *sas_event_cache;
@@ -87,6 +98,7 @@ EXPORT_SYMBOL_GPL(sas_free_task);
 /*------------ SAS addr hash -----------*/
 void sas_hash_addr(u8 *hashed, const u8 *sas_addr)
 {
+<<<<<<< HEAD
         const u32 poly = 0x00DB2777;
         u32     r = 0;
         int     i;
@@ -106,6 +118,29 @@ void sas_hash_addr(u8 *hashed, const u8 *sas_addr)
         hashed[0] = (r >> 16) & 0xFF;
         hashed[1] = (r >> 8) & 0xFF ;
         hashed[2] = r & 0xFF;
+=======
+	const u32 poly = 0x00DB2777;
+	u32 r = 0;
+	int i;
+
+	for (i = 0; i < SAS_ADDR_SIZE; i++) {
+		int b;
+
+		for (b = (SAS_ADDR_SIZE - 1); b >= 0; b--) {
+			r <<= 1;
+			if ((1 << b) & sas_addr[i]) {
+				if (!(r & 0x01000000))
+					r ^= poly;
+			} else if (r & 0x01000000) {
+				r ^= poly;
+			}
+		}
+	}
+
+	hashed[0] = (r >> 16) & 0xFF;
+	hashed[1] = (r >> 8) & 0xFF;
+	hashed[2] = r & 0xFF;
+>>>>>>> upstream/android-13
 }
 
 int sas_register_ha(struct sas_ha_struct *sas_ha)
@@ -128,12 +163,17 @@ int sas_register_ha(struct sas_ha_struct *sas_ha)
 
 	error = sas_register_phys(sas_ha);
 	if (error) {
+<<<<<<< HEAD
 		printk(KERN_NOTICE "couldn't register sas phys:%d\n", error);
+=======
+		pr_notice("couldn't register sas phys:%d\n", error);
+>>>>>>> upstream/android-13
 		return error;
 	}
 
 	error = sas_register_ports(sas_ha);
 	if (error) {
+<<<<<<< HEAD
 		printk(KERN_NOTICE "couldn't register sas ports:%d\n", error);
 		goto Undo_phys;
 	}
@@ -144,6 +184,12 @@ int sas_register_ha(struct sas_ha_struct *sas_ha)
 		goto Undo_ports;
 	}
 
+=======
+		pr_notice("couldn't register sas ports:%d\n", error);
+		goto Undo_phys;
+	}
+
+>>>>>>> upstream/android-13
 	error = -ENOMEM;
 	snprintf(name, sizeof(name), "%s_event_q", dev_name(sas_ha->dev));
 	sas_ha->event_q = create_singlethread_workqueue(name);
@@ -425,7 +471,12 @@ void sas_resume_ha(struct sas_ha_struct *ha)
 
 		if (phy->suspended) {
 			dev_warn(&phy->phy->dev, "resume timeout\n");
+<<<<<<< HEAD
 			sas_notify_phy_event(phy, PHYE_RESUME_TIMEOUT);
+=======
+			sas_notify_phy_event(phy, PHYE_RESUME_TIMEOUT,
+					     GFP_KERNEL);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -605,16 +656,27 @@ sas_domain_attach_transport(struct sas_domain_function_template *dft)
 }
 EXPORT_SYMBOL_GPL(sas_domain_attach_transport);
 
+<<<<<<< HEAD
 
 struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy)
 {
 	struct asd_sas_event *event;
 	gfp_t flags = in_interrupt() ? GFP_ATOMIC : GFP_KERNEL;
+=======
+struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy,
+				      gfp_t gfp_flags)
+{
+	struct asd_sas_event *event;
+>>>>>>> upstream/android-13
 	struct sas_ha_struct *sas_ha = phy->ha;
 	struct sas_internal *i =
 		to_sas_internal(sas_ha->core.shost->transportt);
 
+<<<<<<< HEAD
 	event = kmem_cache_zalloc(sas_event_cache, flags);
+=======
+	event = kmem_cache_zalloc(sas_event_cache, gfp_flags);
+>>>>>>> upstream/android-13
 	if (!event)
 		return NULL;
 
@@ -623,9 +685,16 @@ struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy)
 	if (atomic_read(&phy->event_nr) > phy->ha->event_thres) {
 		if (i->dft->lldd_control_phy) {
 			if (cmpxchg(&phy->in_shutdown, 0, 1) == 0) {
+<<<<<<< HEAD
 				sas_printk("The phy%02d bursting events, shut it down.\n",
 					phy->id);
 				sas_notify_phy_event(phy, PHYE_SHUTDOWN);
+=======
+				pr_notice("The phy%d bursting events, shut it down.\n",
+					  phy->id);
+				sas_notify_phy_event(phy, PHYE_SHUTDOWN,
+						     gfp_flags);
+>>>>>>> upstream/android-13
 			}
 		} else {
 			/* Do not support PHY control, stop allocating events */

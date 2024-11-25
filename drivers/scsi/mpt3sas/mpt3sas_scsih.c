@@ -51,10 +51,17 @@
 #include <linux/workqueue.h>
 #include <linux/delay.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <linux/pci-aspm.h>
 #include <linux/interrupt.h>
 #include <linux/aer.h>
 #include <linux/raid_class.h>
+=======
+#include <linux/interrupt.h>
+#include <linux/aer.h>
+#include <linux/raid_class.h>
+#include <linux/blk-mq-pci.h>
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 
 #include "mpt3sas_base.h"
@@ -78,6 +85,10 @@ static void _scsih_pcie_device_remove_from_sml(struct MPT3SAS_ADAPTER *ioc,
 static void
 _scsih_pcie_check_device(struct MPT3SAS_ADAPTER *ioc, u16 handle);
 static u8 _scsih_check_for_pending_tm(struct MPT3SAS_ADAPTER *ioc, u16 smid);
+<<<<<<< HEAD
+=======
+static void _scsih_complete_devices_scanning(struct MPT3SAS_ADAPTER *ioc);
+>>>>>>> upstream/android-13
 
 /* global parameters */
 LIST_HEAD(mpt3sas_ioc_list);
@@ -113,22 +124,38 @@ MODULE_PARM_DESC(logging_level,
 
 
 static ushort max_sectors = 0xFFFF;
+<<<<<<< HEAD
 module_param(max_sectors, ushort, 0);
+=======
+module_param(max_sectors, ushort, 0444);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(max_sectors, "max sectors, range 64 to 32767  default=32767");
 
 
 static int missing_delay[2] = {-1, -1};
+<<<<<<< HEAD
 module_param_array(missing_delay, int, NULL, 0);
+=======
+module_param_array(missing_delay, int, NULL, 0444);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(missing_delay, " device missing delay , io missing delay");
 
 /* scsi-mid layer global parmeter is max_report_luns, which is 511 */
 #define MPT3SAS_MAX_LUN (16895)
 static u64 max_lun = MPT3SAS_MAX_LUN;
+<<<<<<< HEAD
 module_param(max_lun, ullong, 0);
 MODULE_PARM_DESC(max_lun, " max lun, default=16895 ");
 
 static ushort hbas_to_enumerate;
 module_param(hbas_to_enumerate, ushort, 0);
+=======
+module_param(max_lun, ullong, 0444);
+MODULE_PARM_DESC(max_lun, " max lun, default=16895 ");
+
+static ushort hbas_to_enumerate;
+module_param(hbas_to_enumerate, ushort, 0444);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(hbas_to_enumerate,
 		" 0 - enumerates both SAS 2.0 & SAS 3.0 generation HBAs\n \
 		  1 - enumerates only SAS 2.0 generation HBAs\n \
@@ -142,19 +169,51 @@ MODULE_PARM_DESC(hbas_to_enumerate,
  * Either bit can be set, or both
  */
 static int diag_buffer_enable = -1;
+<<<<<<< HEAD
 module_param(diag_buffer_enable, int, 0);
 MODULE_PARM_DESC(diag_buffer_enable,
 	" post diag buffers (TRACE=1/SNAPSHOT=2/EXTENDED=4/default=0)");
 static int disable_discovery = -1;
 module_param(disable_discovery, int, 0);
+=======
+module_param(diag_buffer_enable, int, 0444);
+MODULE_PARM_DESC(diag_buffer_enable,
+	" post diag buffers (TRACE=1/SNAPSHOT=2/EXTENDED=4/default=0)");
+static int disable_discovery = -1;
+module_param(disable_discovery, int, 0444);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(disable_discovery, " disable discovery ");
 
 
 /* permit overriding the host protection capabilities mask (EEDP/T10 PI) */
 static int prot_mask = -1;
+<<<<<<< HEAD
 module_param(prot_mask, int, 0);
 MODULE_PARM_DESC(prot_mask, " host protection capabilities mask, def=7 ");
 
+=======
+module_param(prot_mask, int, 0444);
+MODULE_PARM_DESC(prot_mask, " host protection capabilities mask, def=7 ");
+
+static bool enable_sdev_max_qd;
+module_param(enable_sdev_max_qd, bool, 0444);
+MODULE_PARM_DESC(enable_sdev_max_qd,
+	"Enable sdev max qd as can_queue, def=disabled(0)");
+
+static int multipath_on_hba = -1;
+module_param(multipath_on_hba, int, 0);
+MODULE_PARM_DESC(multipath_on_hba,
+	"Multipath support to add same target device\n\t\t"
+	"as many times as it is visible to HBA from various paths\n\t\t"
+	"(by default:\n\t\t"
+	"\t SAS 2.0 & SAS 3.0 HBA - This will be disabled,\n\t\t"
+	"\t SAS 3.5 HBA - This will be enabled)");
+
+static int host_tagset_enable = 1;
+module_param(host_tagset_enable, int, 0444);
+MODULE_PARM_DESC(host_tagset_enable,
+	"Shared host tagset enable/disable Default: enable(1)");
+>>>>>>> upstream/android-13
 
 /* raid transport support */
 static struct raid_template *mpt3sas_raid_template;
@@ -204,7 +263,11 @@ struct fw_event_work {
 	u8			ignore;
 	u16			event;
 	struct kref		refcount;
+<<<<<<< HEAD
 	char			event_data[0] __aligned(4);
+=======
+	char			event_data[] __aligned(4);
+>>>>>>> upstream/android-13
 };
 
 static void fw_event_work_free(struct kref *r)
@@ -354,6 +417,90 @@ _scsih_srch_boot_encl_slot(u64 enclosure_logical_id, u16 slot_number,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * mpt3sas_get_port_by_id - get hba port entry corresponding to provided
+ *			  port number from port list
+ * @ioc: per adapter object
+ * @port_id: port number
+ * @bypass_dirty_port_flag: when set look the matching hba port entry even
+ *			if hba port entry is marked as dirty.
+ *
+ * Search for hba port entry corresponding to provided port number,
+ * if available return port object otherwise return NULL.
+ */
+struct hba_port *
+mpt3sas_get_port_by_id(struct MPT3SAS_ADAPTER *ioc,
+	u8 port_id, u8 bypass_dirty_port_flag)
+{
+	struct hba_port *port, *port_next;
+
+	/*
+	 * When multipath_on_hba is disabled then
+	 * search the hba_port entry using default
+	 * port id i.e. 255
+	 */
+	if (!ioc->multipath_on_hba)
+		port_id = MULTIPATH_DISABLED_PORT_ID;
+
+	list_for_each_entry_safe(port, port_next,
+	    &ioc->port_table_list, list) {
+		if (port->port_id != port_id)
+			continue;
+		if (bypass_dirty_port_flag)
+			return port;
+		if (port->flags & HBA_PORT_FLAG_DIRTY_PORT)
+			continue;
+		return port;
+	}
+
+	/*
+	 * Allocate hba_port object for default port id (i.e. 255)
+	 * when multipath_on_hba is disabled for the HBA.
+	 * And add this object to port_table_list.
+	 */
+	if (!ioc->multipath_on_hba) {
+		port = kzalloc(sizeof(struct hba_port), GFP_ATOMIC);
+		if (!port)
+			return NULL;
+
+		port->port_id = port_id;
+		ioc_info(ioc,
+		   "hba_port entry: %p, port: %d is added to hba_port list\n",
+		   port, port->port_id);
+		list_add_tail(&port->list,
+		    &ioc->port_table_list);
+		return port;
+	}
+	return NULL;
+}
+
+/**
+ * mpt3sas_get_vphy_by_phy - get virtual_phy object corresponding to phy number
+ * @ioc: per adapter object
+ * @port: hba_port object
+ * @phy: phy number
+ *
+ * Return virtual_phy object corresponding to phy number.
+ */
+struct virtual_phy *
+mpt3sas_get_vphy_by_phy(struct MPT3SAS_ADAPTER *ioc,
+	struct hba_port *port, u32 phy)
+{
+	struct virtual_phy *vphy, *vphy_next;
+
+	if (!port->vphys_mask)
+		return NULL;
+
+	list_for_each_entry_safe(vphy, vphy_next, &port->vphys_list, list) {
+		if (vphy->phy_mask & (1 << phy))
+			return vphy;
+	}
+	return NULL;
+}
+
+/**
+>>>>>>> upstream/android-13
  * _scsih_is_boot_device - search for matching boot device.
  * @sas_address: sas address
  * @device_name: device name specified in INDENTIFY fram
@@ -418,8 +565,13 @@ _scsih_get_sas_address(struct MPT3SAS_ADAPTER *ioc, u16 handle,
 
 	if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply, &sas_device_pg0,
 	    MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, handle))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n", ioc->name,
 		__FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	}
 
@@ -442,10 +594,15 @@ _scsih_get_sas_address(struct MPT3SAS_ADAPTER *ioc, u16 handle,
 		return -ENXIO;
 
 	/* else error case */
+<<<<<<< HEAD
 	pr_err(MPT3SAS_FMT
 		"handle(0x%04x), ioc_status(0x%04x), failure at %s:%d/%s()!\n",
 		ioc->name, handle, ioc_status,
 	     __FILE__, __LINE__, __func__);
+=======
+	ioc_err(ioc, "handle(0x%04x), ioc_status(0x%04x), failure at %s:%d/%s()!\n",
+		handle, ioc_status, __FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 	return -EIO;
 }
 
@@ -508,10 +665,16 @@ _scsih_determine_boot_device(struct MPT3SAS_ADAPTER *ioc, void *device,
 		    (ioc->bios_pg2.ReqBootDeviceForm &
 		    MPI2_BIOSPAGE2_FORM_MASK),
 		    &ioc->bios_pg2.RequestedBootDevice)) {
+<<<<<<< HEAD
 			dinitprintk(ioc, pr_info(MPT3SAS_FMT
 			   "%s: req_boot_device(0x%016llx)\n",
 			    ioc->name, __func__,
 			    (unsigned long long)sas_address));
+=======
+			dinitprintk(ioc,
+				    ioc_info(ioc, "%s: req_boot_device(0x%016llx)\n",
+					     __func__, (u64)sas_address));
+>>>>>>> upstream/android-13
 			ioc->req_boot_device.device = device;
 			ioc->req_boot_device.channel = channel;
 		}
@@ -523,10 +686,16 @@ _scsih_determine_boot_device(struct MPT3SAS_ADAPTER *ioc, void *device,
 		    (ioc->bios_pg2.ReqAltBootDeviceForm &
 		    MPI2_BIOSPAGE2_FORM_MASK),
 		    &ioc->bios_pg2.RequestedAltBootDevice)) {
+<<<<<<< HEAD
 			dinitprintk(ioc, pr_info(MPT3SAS_FMT
 			   "%s: req_alt_boot_device(0x%016llx)\n",
 			    ioc->name, __func__,
 			    (unsigned long long)sas_address));
+=======
+			dinitprintk(ioc,
+				    ioc_info(ioc, "%s: req_alt_boot_device(0x%016llx)\n",
+					     __func__, (u64)sas_address));
+>>>>>>> upstream/android-13
 			ioc->req_alt_boot_device.device = device;
 			ioc->req_alt_boot_device.channel = channel;
 		}
@@ -538,10 +707,16 @@ _scsih_determine_boot_device(struct MPT3SAS_ADAPTER *ioc, void *device,
 		    (ioc->bios_pg2.CurrentBootDeviceForm &
 		    MPI2_BIOSPAGE2_FORM_MASK),
 		    &ioc->bios_pg2.CurrentBootDevice)) {
+<<<<<<< HEAD
 			dinitprintk(ioc, pr_info(MPT3SAS_FMT
 			   "%s: current_boot_device(0x%016llx)\n",
 			    ioc->name, __func__,
 			    (unsigned long long)sas_address));
+=======
+			dinitprintk(ioc,
+				    ioc_info(ioc, "%s: current_boot_device(0x%016llx)\n",
+					     __func__, (u64)sas_address));
+>>>>>>> upstream/android-13
 			ioc->current_boot_device.device = device;
 			ioc->current_boot_device.channel = channel;
 		}
@@ -616,14 +791,33 @@ mpt3sas_get_pdev_from_target(struct MPT3SAS_ADAPTER *ioc,
 	return ret;
 }
 
+<<<<<<< HEAD
 struct _sas_device *
 __mpt3sas_get_sdev_by_addr(struct MPT3SAS_ADAPTER *ioc,
 					u64 sas_address)
+=======
+
+/**
+ * __mpt3sas_get_sdev_by_rphy - sas device search
+ * @ioc: per adapter object
+ * @rphy: sas_rphy pointer
+ *
+ * Context: This function will acquire ioc->sas_device_lock and will release
+ * before returning the sas_device object.
+ *
+ * This searches for sas_device from rphy object
+ * then return sas_device object.
+ */
+struct _sas_device *
+__mpt3sas_get_sdev_by_rphy(struct MPT3SAS_ADAPTER *ioc,
+	struct sas_rphy *rphy)
+>>>>>>> upstream/android-13
 {
 	struct _sas_device *sas_device;
 
 	assert_spin_locked(&ioc->sas_device_lock);
 
+<<<<<<< HEAD
 	list_for_each_entry(sas_device, &ioc->sas_device_list, list)
 		if (sas_device->sas_address == sas_address)
 			goto found_device;
@@ -637,12 +831,73 @@ __mpt3sas_get_sdev_by_addr(struct MPT3SAS_ADAPTER *ioc,
 found_device:
 	sas_device_get(sas_device);
 	return sas_device;
+=======
+	list_for_each_entry(sas_device, &ioc->sas_device_list, list) {
+		if (sas_device->rphy != rphy)
+			continue;
+		sas_device_get(sas_device);
+		return sas_device;
+	}
+
+	sas_device = NULL;
+	list_for_each_entry(sas_device, &ioc->sas_device_init_list, list) {
+		if (sas_device->rphy != rphy)
+			continue;
+		sas_device_get(sas_device);
+		return sas_device;
+	}
+
+	return NULL;
+}
+
+/**
+ * __mpt3sas_get_sdev_by_addr - get _sas_device object corresponding to provided
+ *				sas address from sas_device_list list
+ * @ioc: per adapter object
+ * @sas_address: device sas address
+ * @port: port number
+ *
+ * Search for _sas_device object corresponding to provided sas address,
+ * if available return _sas_device object address otherwise return NULL.
+ */
+struct _sas_device *
+__mpt3sas_get_sdev_by_addr(struct MPT3SAS_ADAPTER *ioc,
+	u64 sas_address, struct hba_port *port)
+{
+	struct _sas_device *sas_device;
+
+	if (!port)
+		return NULL;
+
+	assert_spin_locked(&ioc->sas_device_lock);
+
+	list_for_each_entry(sas_device, &ioc->sas_device_list, list) {
+		if (sas_device->sas_address != sas_address)
+			continue;
+		if (sas_device->port != port)
+			continue;
+		sas_device_get(sas_device);
+		return sas_device;
+	}
+
+	list_for_each_entry(sas_device, &ioc->sas_device_init_list, list) {
+		if (sas_device->sas_address != sas_address)
+			continue;
+		if (sas_device->port != port)
+			continue;
+		sas_device_get(sas_device);
+		return sas_device;
+	}
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 /**
  * mpt3sas_get_sdev_by_addr - sas device search
  * @ioc: per adapter object
  * @sas_address: sas address
+<<<<<<< HEAD
  * Context: Calling function should acquire ioc->sas_device_lock
  *
  * This searches for sas_device based on sas_address, then return sas_device
@@ -651,13 +906,28 @@ found_device:
 struct _sas_device *
 mpt3sas_get_sdev_by_addr(struct MPT3SAS_ADAPTER *ioc,
 	u64 sas_address)
+=======
+ * @port: hba port entry
+ * Context: Calling function should acquire ioc->sas_device_lock
+ *
+ * This searches for sas_device based on sas_address & port number,
+ * then return sas_device object.
+ */
+struct _sas_device *
+mpt3sas_get_sdev_by_addr(struct MPT3SAS_ADAPTER *ioc,
+	u64 sas_address, struct hba_port *port)
+>>>>>>> upstream/android-13
 {
 	struct _sas_device *sas_device;
 	unsigned long flags;
 
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	sas_device = __mpt3sas_get_sdev_by_addr(ioc,
+<<<<<<< HEAD
 			sas_address);
+=======
+	    sas_address, port);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
 
 	return sas_device;
@@ -752,6 +1022,7 @@ _scsih_display_enclosure_chassis_info(struct MPT3SAS_ADAPTER *ioc,
 			    sas_device->chassis_slot);
 	} else {
 		if (sas_device->enclosure_handle != 0)
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT
 			    "enclosure logical id(0x%016llx), slot(%d) \n",
 			    ioc->name, (unsigned long long)
@@ -765,6 +1036,18 @@ _scsih_display_enclosure_chassis_info(struct MPT3SAS_ADAPTER *ioc,
 		if (sas_device->is_chassis_slot_valid)
 			pr_info(MPT3SAS_FMT "chassis slot(0x%04x)\n",
 			    ioc->name, sas_device->chassis_slot);
+=======
+			ioc_info(ioc, "enclosure logical id(0x%016llx), slot(%d)\n",
+				 (u64)sas_device->enclosure_logical_id,
+				 sas_device->slot);
+		if (sas_device->connector_name[0] != '\0')
+			ioc_info(ioc, "enclosure level(0x%04x), connector name( %s)\n",
+				 sas_device->enclosure_level,
+				 sas_device->connector_name);
+		if (sas_device->is_chassis_slot_valid)
+			ioc_info(ioc, "chassis slot(0x%04x)\n",
+				 sas_device->chassis_slot);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -784,10 +1067,15 @@ _scsih_sas_device_remove(struct MPT3SAS_ADAPTER *ioc,
 
 	if (!sas_device)
 		return;
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT
 	    "removing handle(0x%04x), sas_addr(0x%016llx)\n",
 	    ioc->name, sas_device->handle,
 	    (unsigned long long) sas_device->sas_address);
+=======
+	ioc_info(ioc, "removing handle(0x%04x), sas_addr(0x%016llx)\n",
+		 sas_device->handle, (u64)sas_device->sas_address);
+>>>>>>> upstream/android-13
 
 	_scsih_display_enclosure_chassis_info(ioc, sas_device, NULL, NULL);
 
@@ -831,6 +1119,7 @@ _scsih_device_remove_by_handle(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 }
 
 /**
+<<<<<<< HEAD
  * mpt3sas_device_remove_by_sas_address - removing device object by sas address
  * @ioc: per adapter object
  * @sas_address: device sas_address
@@ -838,6 +1127,19 @@ _scsih_device_remove_by_handle(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 void
 mpt3sas_device_remove_by_sas_address(struct MPT3SAS_ADAPTER *ioc,
 	u64 sas_address)
+=======
+ * mpt3sas_device_remove_by_sas_address - removing device object by
+ *					sas address & port number
+ * @ioc: per adapter object
+ * @sas_address: device sas_address
+ * @port: hba port entry
+ *
+ * Return nothing.
+ */
+void
+mpt3sas_device_remove_by_sas_address(struct MPT3SAS_ADAPTER *ioc,
+	u64 sas_address, struct hba_port *port)
+>>>>>>> upstream/android-13
 {
 	struct _sas_device *sas_device;
 	unsigned long flags;
@@ -846,7 +1148,11 @@ mpt3sas_device_remove_by_sas_address(struct MPT3SAS_ADAPTER *ioc,
 		return;
 
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
+<<<<<<< HEAD
 	sas_device = __mpt3sas_get_sdev_by_addr(ioc, sas_address);
+=======
+	sas_device = __mpt3sas_get_sdev_by_addr(ioc, sas_address, port);
+>>>>>>> upstream/android-13
 	if (sas_device) {
 		list_del_init(&sas_device->list);
 		sas_device_put(sas_device);
@@ -872,10 +1178,17 @@ _scsih_sas_device_add(struct MPT3SAS_ADAPTER *ioc,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: handle(0x%04x), sas_addr(0x%016llx)\n",
 		ioc->name, __func__, sas_device->handle,
 		(unsigned long long)sas_device->sas_address));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: handle(0x%04x), sas_addr(0x%016llx)\n",
+			    __func__, sas_device->handle,
+			    (u64)sas_device->sas_address));
+>>>>>>> upstream/android-13
 
 	dewtprintk(ioc, _scsih_display_enclosure_chassis_info(ioc, sas_device,
 	    NULL, NULL));
@@ -891,7 +1204,11 @@ _scsih_sas_device_add(struct MPT3SAS_ADAPTER *ioc,
 	}
 
 	if (!mpt3sas_transport_port_add(ioc, sas_device->handle,
+<<<<<<< HEAD
 	     sas_device->sas_address_parent)) {
+=======
+	     sas_device->sas_address_parent, sas_device->port)) {
+>>>>>>> upstream/android-13
 		_scsih_sas_device_remove(ioc, sas_device);
 	} else if (!sas_device->starget) {
 		/*
@@ -902,7 +1219,12 @@ _scsih_sas_device_add(struct MPT3SAS_ADAPTER *ioc,
 		if (!ioc->is_driver_loading) {
 			mpt3sas_transport_port_remove(ioc,
 			    sas_device->sas_address,
+<<<<<<< HEAD
 			    sas_device->sas_address_parent);
+=======
+			    sas_device->sas_address_parent,
+			    sas_device->port);
+>>>>>>> upstream/android-13
 			_scsih_sas_device_remove(ioc, sas_device);
 		}
 	} else
@@ -923,10 +1245,17 @@ _scsih_sas_device_init_add(struct MPT3SAS_ADAPTER *ioc,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: handle(0x%04x), sas_addr(0x%016llx)\n", ioc->name,
 		__func__, sas_device->handle,
 		(unsigned long long)sas_device->sas_address));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: handle(0x%04x), sas_addr(0x%016llx)\n",
+			    __func__, sas_device->handle,
+			    (u64)sas_device->sas_address));
+>>>>>>> upstream/android-13
 
 	dewtprintk(ioc, _scsih_display_enclosure_chassis_info(ioc, sas_device,
 	    NULL, NULL));
@@ -1057,6 +1386,37 @@ mpt3sas_get_pdev_by_handle(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * _scsih_set_nvme_max_shutdown_latency - Update max_shutdown_latency.
+ * @ioc: per adapter object
+ * Context: This function will acquire ioc->pcie_device_lock
+ *
+ * Update ioc->max_shutdown_latency to that NVMe drives RTD3 Entry Latency
+ * which has reported maximum among all available NVMe drives.
+ * Minimum max_shutdown_latency will be six seconds.
+ */
+static void
+_scsih_set_nvme_max_shutdown_latency(struct MPT3SAS_ADAPTER *ioc)
+{
+	struct _pcie_device *pcie_device;
+	unsigned long flags;
+	u16 shutdown_latency = IO_UNIT_CONTROL_SHUTDOWN_TIMEOUT;
+
+	spin_lock_irqsave(&ioc->pcie_device_lock, flags);
+	list_for_each_entry(pcie_device, &ioc->pcie_device_list, list) {
+		if (pcie_device->shutdown_latency) {
+			if (shutdown_latency < pcie_device->shutdown_latency)
+				shutdown_latency =
+					pcie_device->shutdown_latency;
+		}
+	}
+	ioc->max_shutdown_latency = shutdown_latency;
+	spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
+}
+
+/**
+>>>>>>> upstream/android-13
  * _scsih_pcie_device_remove - remove pcie_device from list.
  * @ioc: per adapter object
  * @pcie_device: the pcie_device object
@@ -1070,6 +1430,7 @@ _scsih_pcie_device_remove(struct MPT3SAS_ADAPTER *ioc,
 {
 	unsigned long flags;
 	int was_on_pcie_device_list = 0;
+<<<<<<< HEAD
 
 	if (!pcie_device)
 		return;
@@ -1088,17 +1449,49 @@ _scsih_pcie_device_remove(struct MPT3SAS_ADAPTER *ioc,
 		    "removing enclosure level(0x%04x), connector name( %s)\n",
 			ioc->name, pcie_device->enclosure_level,
 			pcie_device->connector_name);
+=======
+	u8 update_latency = 0;
+
+	if (!pcie_device)
+		return;
+	ioc_info(ioc, "removing handle(0x%04x), wwid(0x%016llx)\n",
+		 pcie_device->handle, (u64)pcie_device->wwid);
+	if (pcie_device->enclosure_handle != 0)
+		ioc_info(ioc, "removing enclosure logical id(0x%016llx), slot(%d)\n",
+			 (u64)pcie_device->enclosure_logical_id,
+			 pcie_device->slot);
+	if (pcie_device->connector_name[0] != '\0')
+		ioc_info(ioc, "removing enclosure level(0x%04x), connector name( %s)\n",
+			 pcie_device->enclosure_level,
+			 pcie_device->connector_name);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&ioc->pcie_device_lock, flags);
 	if (!list_empty(&pcie_device->list)) {
 		list_del_init(&pcie_device->list);
 		was_on_pcie_device_list = 1;
 	}
+<<<<<<< HEAD
+=======
+	if (pcie_device->shutdown_latency == ioc->max_shutdown_latency)
+		update_latency = 1;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
 	if (was_on_pcie_device_list) {
 		kfree(pcie_device->serial_number);
 		pcie_device_put(pcie_device);
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * This device's RTD3 Entry Latency matches IOC's
+	 * max_shutdown_latency. Recalculate IOC's max_shutdown_latency
+	 * from the available drives as current drive is getting removed.
+	 */
+	if (update_latency)
+		_scsih_set_nvme_max_shutdown_latency(ioc);
+>>>>>>> upstream/android-13
 }
 
 
@@ -1113,6 +1506,10 @@ _scsih_pcie_device_remove_by_handle(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	struct _pcie_device *pcie_device;
 	unsigned long flags;
 	int was_on_pcie_device_list = 0;
+<<<<<<< HEAD
+=======
+	u8 update_latency = 0;
+>>>>>>> upstream/android-13
 
 	if (ioc->shost_recovery)
 		return;
@@ -1125,12 +1522,28 @@ _scsih_pcie_device_remove_by_handle(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 			was_on_pcie_device_list = 1;
 			pcie_device_put(pcie_device);
 		}
+<<<<<<< HEAD
+=======
+		if (pcie_device->shutdown_latency == ioc->max_shutdown_latency)
+			update_latency = 1;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
 	if (was_on_pcie_device_list) {
 		_scsih_pcie_device_remove_from_sml(ioc, pcie_device);
 		pcie_device_put(pcie_device);
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * This device's RTD3 Entry Latency matches IOC's
+	 * max_shutdown_latency. Recalculate IOC's max_shutdown_latency
+	 * from the available drives as current drive is getting removed.
+	 */
+	if (update_latency)
+		_scsih_set_nvme_max_shutdown_latency(ioc);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1146,6 +1559,7 @@ _scsih_pcie_device_add(struct MPT3SAS_ADAPTER *ioc,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: handle (0x%04x), wwid(0x%016llx)\n", ioc->name, __func__,
 		pcie_device->handle, (unsigned long long)pcie_device->wwid));
@@ -1160,12 +1574,37 @@ _scsih_pcie_device_add(struct MPT3SAS_ADAPTER *ioc,
 			"%s: enclosure level(0x%04x), connector name( %s)\n",
 			ioc->name, __func__, pcie_device->enclosure_level,
 			pcie_device->connector_name));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: handle (0x%04x), wwid(0x%016llx)\n",
+			    __func__,
+			    pcie_device->handle, (u64)pcie_device->wwid));
+	if (pcie_device->enclosure_handle != 0)
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: enclosure logical id(0x%016llx), slot( %d)\n",
+				    __func__,
+				    (u64)pcie_device->enclosure_logical_id,
+				    pcie_device->slot));
+	if (pcie_device->connector_name[0] != '\0')
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: enclosure level(0x%04x), connector name( %s)\n",
+				    __func__, pcie_device->enclosure_level,
+				    pcie_device->connector_name));
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&ioc->pcie_device_lock, flags);
 	pcie_device_get(pcie_device);
 	list_add_tail(&pcie_device->list, &ioc->pcie_device_list);
 	spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (pcie_device->access_status ==
+	    MPI26_PCIEDEV0_ASTATUS_DEVICE_BLOCKED) {
+		clear_bit(pcie_device->handle, ioc->pend_os_device_add);
+		return;
+	}
+>>>>>>> upstream/android-13
 	if (scsi_add_device(ioc->shost, PCIE_CHANNEL, pcie_device->id, 0)) {
 		_scsih_pcie_device_remove(ioc, pcie_device);
 	} else if (!pcie_device->starget) {
@@ -1191,6 +1630,7 @@ _scsih_pcie_device_init_add(struct MPT3SAS_ADAPTER *ioc,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: handle (0x%04x), wwid(0x%016llx)\n", ioc->name, __func__,
 		pcie_device->handle, (unsigned long long)pcie_device->wwid));
@@ -1205,11 +1645,34 @@ _scsih_pcie_device_init_add(struct MPT3SAS_ADAPTER *ioc,
 			"%s: enclosure level(0x%04x), connector name( %s)\n",
 			ioc->name, __func__, pcie_device->enclosure_level,
 			pcie_device->connector_name));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: handle (0x%04x), wwid(0x%016llx)\n",
+			    __func__,
+			    pcie_device->handle, (u64)pcie_device->wwid));
+	if (pcie_device->enclosure_handle != 0)
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: enclosure logical id(0x%016llx), slot( %d)\n",
+				    __func__,
+				    (u64)pcie_device->enclosure_logical_id,
+				    pcie_device->slot));
+	if (pcie_device->connector_name[0] != '\0')
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: enclosure level(0x%04x), connector name( %s)\n",
+				    __func__, pcie_device->enclosure_level,
+				    pcie_device->connector_name));
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&ioc->pcie_device_lock, flags);
 	pcie_device_get(pcie_device);
 	list_add_tail(&pcie_device->list, &ioc->pcie_device_init_list);
+<<<<<<< HEAD
 	_scsih_determine_boot_device(ioc, pcie_device, PCIE_CHANNEL);
+=======
+	if (pcie_device->access_status !=
+	    MPI26_PCIEDEV0_ASTATUS_DEVICE_BLOCKED)
+		_scsih_determine_boot_device(ioc, pcie_device, PCIE_CHANNEL);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
 }
 /**
@@ -1304,9 +1767,16 @@ _scsih_raid_device_add(struct MPT3SAS_ADAPTER *ioc,
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: handle(0x%04x), wwid(0x%016llx)\n", ioc->name, __func__,
 	    raid_device->handle, (unsigned long long)raid_device->wwid));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: handle(0x%04x), wwid(0x%016llx)\n",
+			    __func__,
+			    raid_device->handle, (u64)raid_device->wwid));
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&ioc->raid_device_lock, flags);
 	list_add_tail(&raid_device->list, &ioc->raid_device_list);
@@ -1384,6 +1854,7 @@ out:
  * mpt3sas_scsih_expander_find_by_sas_address - expander device search
  * @ioc: per adapter object
  * @sas_address: sas address
+<<<<<<< HEAD
  * Context: Calling function should acquire ioc->sas_node_lock.
  *
  * This searches for expander device based on sas_address, then returns the
@@ -1399,6 +1870,28 @@ mpt3sas_scsih_expander_find_by_sas_address(struct MPT3SAS_ADAPTER *ioc,
 	list_for_each_entry(sas_expander, &ioc->sas_expander_list, list) {
 		if (sas_expander->sas_address != sas_address)
 			continue;
+=======
+ * @port: hba port entry
+ * Context: Calling function should acquire ioc->sas_node_lock.
+ *
+ * This searches for expander device based on sas_address & port number,
+ * then returns the sas_node object.
+ */
+struct _sas_node *
+mpt3sas_scsih_expander_find_by_sas_address(struct MPT3SAS_ADAPTER *ioc,
+	u64 sas_address, struct hba_port *port)
+{
+	struct _sas_node *sas_expander, *r = NULL;
+
+	if (!port)
+		return r;
+
+	list_for_each_entry(sas_expander, &ioc->sas_expander_list, list) {
+		if (sas_expander->sas_address != sas_address)
+			continue;
+		if (sas_expander->port != port)
+			continue;
+>>>>>>> upstream/android-13
 		r = sas_expander;
 		goto out;
 	}
@@ -1445,6 +1938,7 @@ _scsih_is_end_device(u32 device_info)
 }
 
 /**
+<<<<<<< HEAD
  * _scsih_is_nvme_device - determines if device is an nvme device
  * @device_info: bitfield providing information about the device.
  * Context: none
@@ -1456,12 +1950,91 @@ _scsih_is_nvme_device(u32 device_info)
 {
 	if ((device_info & MPI26_PCIE_DEVINFO_MASK_DEVICE_TYPE)
 					== MPI26_PCIE_DEVINFO_NVME)
+=======
+ * _scsih_is_nvme_pciescsi_device - determines if
+ *			device is an pcie nvme/scsi device
+ * @device_info: bitfield providing information about the device.
+ * Context: none
+ *
+ * Returns 1 if device is pcie device type nvme/scsi.
+ */
+static int
+_scsih_is_nvme_pciescsi_device(u32 device_info)
+{
+	if (((device_info & MPI26_PCIE_DEVINFO_MASK_DEVICE_TYPE)
+	    == MPI26_PCIE_DEVINFO_NVME) ||
+	    ((device_info & MPI26_PCIE_DEVINFO_MASK_DEVICE_TYPE)
+	    == MPI26_PCIE_DEVINFO_SCSI))
+>>>>>>> upstream/android-13
 		return 1;
 	else
 		return 0;
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * _scsih_scsi_lookup_find_by_target - search for matching channel:id
+ * @ioc: per adapter object
+ * @id: target id
+ * @channel: channel
+ * Context: This function will acquire ioc->scsi_lookup_lock.
+ *
+ * This will search for a matching channel:id in the scsi_lookup array,
+ * returning 1 if found.
+ */
+static u8
+_scsih_scsi_lookup_find_by_target(struct MPT3SAS_ADAPTER *ioc, int id,
+	int channel)
+{
+	int smid;
+	struct scsi_cmnd *scmd;
+
+	for (smid = 1;
+	     smid <= ioc->shost->can_queue; smid++) {
+		scmd = mpt3sas_scsih_scsi_lookup_get(ioc, smid);
+		if (!scmd)
+			continue;
+		if (scmd->device->id == id &&
+		    scmd->device->channel == channel)
+			return 1;
+	}
+	return 0;
+}
+
+/**
+ * _scsih_scsi_lookup_find_by_lun - search for matching channel:id:lun
+ * @ioc: per adapter object
+ * @id: target id
+ * @lun: lun number
+ * @channel: channel
+ * Context: This function will acquire ioc->scsi_lookup_lock.
+ *
+ * This will search for a matching channel:id:lun in the scsi_lookup array,
+ * returning 1 if found.
+ */
+static u8
+_scsih_scsi_lookup_find_by_lun(struct MPT3SAS_ADAPTER *ioc, int id,
+	unsigned int lun, int channel)
+{
+	int smid;
+	struct scsi_cmnd *scmd;
+
+	for (smid = 1; smid <= ioc->shost->can_queue; smid++) {
+
+		scmd = mpt3sas_scsih_scsi_lookup_get(ioc, smid);
+		if (!scmd)
+			continue;
+		if (scmd->device->id == id &&
+		    scmd->device->channel == channel &&
+		    scmd->device->lun == lun)
+			return 1;
+	}
+	return 0;
+}
+
+/**
+>>>>>>> upstream/android-13
  * mpt3sas_scsih_scsi_lookup_get - returns scmd entry
  * @ioc: per adapter object
  * @smid: system request message index
@@ -1475,10 +2048,19 @@ mpt3sas_scsih_scsi_lookup_get(struct MPT3SAS_ADAPTER *ioc, u16 smid)
 	struct scsi_cmnd *scmd = NULL;
 	struct scsiio_tracker *st;
 	Mpi25SCSIIORequest_t *mpi_request;
+<<<<<<< HEAD
 
 	if (smid > 0  &&
 	    smid <= ioc->scsiio_depth - INTERNAL_SCSIIO_CMDS_COUNT) {
 		u32 unique_tag = smid - 1;
+=======
+	u16 tag = smid - 1;
+
+	if (smid > 0  &&
+	    smid <= ioc->scsiio_depth - INTERNAL_SCSIIO_CMDS_COUNT) {
+		u32 unique_tag =
+		    ioc->io_queue_num[tag] << BLK_MQ_UNIQUE_TAG_BITS | tag;
+>>>>>>> upstream/android-13
 
 		mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
 
@@ -1521,7 +2103,17 @@ scsih_change_queue_depth(struct scsi_device *sdev, int qdepth)
 
 	max_depth = shost->can_queue;
 
+<<<<<<< HEAD
 	/* limit max device queue for SATA to 32 */
+=======
+	/*
+	 * limit max device queue for SATA to 32 if enable_sdev_max_qd
+	 * is disabled.
+	 */
+	if (ioc->enable_sdev_max_qd || ioc->is_gen35_ioc)
+		goto not_sata;
+
+>>>>>>> upstream/android-13
 	sas_device_priv_data = sdev->hostdata;
 	if (!sas_device_priv_data)
 		goto not_sata;
@@ -1547,7 +2139,35 @@ scsih_change_queue_depth(struct scsi_device *sdev, int qdepth)
 		max_depth = 1;
 	if (qdepth > max_depth)
 		qdepth = max_depth;
+<<<<<<< HEAD
 	return scsi_change_queue_depth(sdev, qdepth);
+=======
+	scsi_change_queue_depth(sdev, qdepth);
+	sdev_printk(KERN_INFO, sdev,
+	    "qdepth(%d), tagged(%d), scsi_level(%d), cmd_que(%d)\n",
+	    sdev->queue_depth, sdev->tagged_supported,
+	    sdev->scsi_level, ((sdev->inquiry[7] & 2) >> 1));
+	return sdev->queue_depth;
+}
+
+/**
+ * mpt3sas_scsih_change_queue_depth - setting device queue depth
+ * @sdev: scsi device struct
+ * @qdepth: requested queue depth
+ *
+ * Returns nothing.
+ */
+void
+mpt3sas_scsih_change_queue_depth(struct scsi_device *sdev, int qdepth)
+{
+	struct Scsi_Host *shost = sdev->host;
+	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+
+	if (ioc->enable_sdev_max_qd)
+		qdepth = shost->can_queue;
+
+	scsih_change_queue_depth(sdev, qdepth);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1603,6 +2223,10 @@ scsih_target_alloc(struct scsi_target *starget)
 		if (pcie_device) {
 			sas_target_priv_data->handle = pcie_device->handle;
 			sas_target_priv_data->sas_address = pcie_device->wwid;
+<<<<<<< HEAD
+=======
+			sas_target_priv_data->port = NULL;
+>>>>>>> upstream/android-13
 			sas_target_priv_data->pcie_dev = pcie_device;
 			pcie_device->starget = starget;
 			pcie_device->id = starget->id;
@@ -1620,12 +2244,20 @@ scsih_target_alloc(struct scsi_target *starget)
 	/* sas/sata devices */
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	rphy = dev_to_rphy(starget->dev.parent);
+<<<<<<< HEAD
 	sas_device = __mpt3sas_get_sdev_by_addr(ioc,
 	   rphy->identify.sas_address);
+=======
+	sas_device = __mpt3sas_get_sdev_by_rphy(ioc, rphy);
+>>>>>>> upstream/android-13
 
 	if (sas_device) {
 		sas_target_priv_data->handle = sas_device->handle;
 		sas_target_priv_data->sas_address = sas_device->sas_address;
+<<<<<<< HEAD
+=======
+		sas_target_priv_data->port = sas_device->port;
+>>>>>>> upstream/android-13
 		sas_target_priv_data->sas_dev = sas_device;
 		sas_device->starget = starget;
 		sas_device->id = starget->id;
@@ -1781,7 +2413,12 @@ scsih_slave_alloc(struct scsi_device *sdev)
 	} else  if (!(sas_target_priv_data->flags & MPT_TARGET_FLAGS_VOLUME)) {
 		spin_lock_irqsave(&ioc->sas_device_lock, flags);
 		sas_device = __mpt3sas_get_sdev_by_addr(ioc,
+<<<<<<< HEAD
 					sas_target_priv_data->sas_address);
+=======
+		    sas_target_priv_data->sas_address,
+		    sas_target_priv_data->port);
+>>>>>>> upstream/android-13
 		if (sas_device && (sas_device->starget == NULL)) {
 			sdev_printk(KERN_INFO, sdev,
 			"%s : sas_device->starget set to starget @ %d\n",
@@ -1869,16 +2506,26 @@ _scsih_display_sata_capabilities(struct MPT3SAS_ADAPTER *ioc,
 
 	if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply, &sas_device_pg0,
 	    MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, handle))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 	    MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1964,8 +2611,13 @@ scsih_get_resync(struct device *dev)
 	if (mpt3sas_config_get_raid_volume_pg0(ioc, &mpi_reply, &vol_pg0,
 	     MPI2_RAID_VOLUME_PGAD_FORM_HANDLE, handle,
 	     sizeof(Mpi2RaidVolPage0_t))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		percent_complete = 0;
 		goto out;
 	}
@@ -2018,8 +2670,13 @@ scsih_get_state(struct device *dev)
 	if (mpt3sas_config_get_raid_volume_pg0(ioc, &mpi_reply, &vol_pg0,
 	     MPI2_RAID_VOLUME_PGAD_FORM_HANDLE, handle,
 	     sizeof(Mpi2RaidVolPage0_t))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -2115,9 +2772,15 @@ _scsih_get_volume_capabilities(struct MPT3SAS_ADAPTER *ioc,
 
 	if ((mpt3sas_config_get_number_pds(ioc, raid_device->handle,
 	    &num_pds)) || !num_pds) {
+<<<<<<< HEAD
 		dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 		    "failure at %s:%d/%s()!\n", ioc->name, __FILE__, __LINE__,
 		    __func__));
+=======
+		dfailprintk(ioc,
+			    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+				     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -2126,17 +2789,29 @@ _scsih_get_volume_capabilities(struct MPT3SAS_ADAPTER *ioc,
 	    sizeof(Mpi2RaidVol0PhysDisk_t));
 	vol_pg0 = kzalloc(sz, GFP_KERNEL);
 	if (!vol_pg0) {
+<<<<<<< HEAD
 		dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 		    "failure at %s:%d/%s()!\n", ioc->name, __FILE__, __LINE__,
 		    __func__));
+=======
+		dfailprintk(ioc,
+			    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+				     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	if ((mpt3sas_config_get_raid_volume_pg0(ioc, &mpi_reply, vol_pg0,
 	     MPI2_RAID_VOLUME_PGAD_FORM_HANDLE, raid_device->handle, sz))) {
+<<<<<<< HEAD
 		dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 		    "failure at %s:%d/%s()!\n", ioc->name, __FILE__, __LINE__,
 		    __func__));
+=======
+		dfailprintk(ioc,
+			    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+				     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 		kfree(vol_pg0);
 		return 1;
 	}
@@ -2227,16 +2902,28 @@ scsih_slave_configure(struct scsi_device *sdev)
 		raid_device = mpt3sas_raid_device_find_by_handle(ioc, handle);
 		spin_unlock_irqrestore(&ioc->raid_device_lock, flags);
 		if (!raid_device) {
+<<<<<<< HEAD
 			dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 			    "failure at %s:%d/%s()!\n", ioc->name, __FILE__,
 			    __LINE__, __func__));
+=======
+			dfailprintk(ioc,
+				    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+					     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 			return 1;
 		}
 
 		if (_scsih_get_volume_capabilities(ioc, raid_device)) {
+<<<<<<< HEAD
 			dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 			    "failure at %s:%d/%s()!\n", ioc->name, __FILE__,
 			    __LINE__, __func__));
+=======
+			dfailprintk(ioc,
+				    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+					     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 			return 1;
 		}
 
@@ -2308,7 +2995,11 @@ scsih_slave_configure(struct scsi_device *sdev)
 						MPT3SAS_RAID_MAX_SECTORS);
 		}
 
+<<<<<<< HEAD
 		scsih_change_queue_depth(sdev, qdepth);
+=======
+		mpt3sas_scsih_change_queue_depth(sdev, qdepth);
+>>>>>>> upstream/android-13
 
 		/* raid transport support */
 		if (!ioc->is_warpdrive)
@@ -2320,16 +3011,28 @@ scsih_slave_configure(struct scsi_device *sdev)
 	if (sas_target_priv_data->flags & MPT_TARGET_FLAGS_RAID_COMPONENT) {
 		if (mpt3sas_config_get_volume_handle(ioc, handle,
 		    &volume_handle)) {
+<<<<<<< HEAD
 			dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 			    "failure at %s:%d/%s()!\n", ioc->name,
 			    __FILE__, __LINE__, __func__));
+=======
+			dfailprintk(ioc,
+				    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+					     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 			return 1;
 		}
 		if (volume_handle && mpt3sas_config_get_volume_wwid(ioc,
 		    volume_handle, &volume_wwid)) {
+<<<<<<< HEAD
 			dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 			    "failure at %s:%d/%s()!\n", ioc->name,
 			    __FILE__, __LINE__, __func__));
+=======
+			dfailprintk(ioc,
+				    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+					     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 			return 1;
 		}
 	}
@@ -2341,6 +3044,7 @@ scsih_slave_configure(struct scsi_device *sdev)
 				sas_device_priv_data->sas_target->sas_address);
 		if (!pcie_device) {
 			spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
+<<<<<<< HEAD
 			dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 				"failure at %s:%d/%s()!\n", ioc->name, __FILE__,
 				__LINE__, __func__));
@@ -2348,6 +3052,15 @@ scsih_slave_configure(struct scsi_device *sdev)
 		}
 
 		qdepth = MPT3SAS_NVME_QUEUE_DEPTH;
+=======
+			dfailprintk(ioc,
+				    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+					     __FILE__, __LINE__, __func__));
+			return 1;
+		}
+
+		qdepth = ioc->max_nvme_qd;
+>>>>>>> upstream/android-13
 		ds = "NVMe";
 		sdev_printk(KERN_INFO, sdev,
 			"%s: handle(0x%04x), wwid(0x%016llx), port(%d)\n",
@@ -2372,7 +3085,11 @@ scsih_slave_configure(struct scsi_device *sdev)
 
 		pcie_device_put(pcie_device);
 		spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
+<<<<<<< HEAD
 		scsih_change_queue_depth(sdev, qdepth);
+=======
+		mpt3sas_scsih_change_queue_depth(sdev, qdepth);
+>>>>>>> upstream/android-13
 		/* Enable QUEUE_FLAG_NOMERGES flag, so that IOs won't be
 		 ** merged and can eliminate holes created during merging
 		 ** operation.
@@ -2386,19 +3103,34 @@ scsih_slave_configure(struct scsi_device *sdev)
 
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	sas_device = __mpt3sas_get_sdev_by_addr(ioc,
+<<<<<<< HEAD
 	   sas_device_priv_data->sas_target->sas_address);
 	if (!sas_device) {
 		spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
 		dfailprintk(ioc, pr_warn(MPT3SAS_FMT
 		    "failure at %s:%d/%s()!\n", ioc->name, __FILE__, __LINE__,
 		    __func__));
+=======
+	   sas_device_priv_data->sas_target->sas_address,
+	   sas_device_priv_data->sas_target->port);
+	if (!sas_device) {
+		spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
+		dfailprintk(ioc,
+			    ioc_warn(ioc, "failure at %s:%d/%s()!\n",
+				     __FILE__, __LINE__, __func__));
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	sas_device->volume_handle = volume_handle;
 	sas_device->volume_wwid = volume_wwid;
 	if (sas_device->device_info & MPI2_SAS_DEVICE_INFO_SSP_TARGET) {
+<<<<<<< HEAD
 		qdepth = MPT3SAS_SAS_QUEUE_DEPTH;
+=======
+		qdepth = (sas_device->port_type > 1) ?
+			ioc->max_wideport_qd : ioc->max_narrowport_qd;
+>>>>>>> upstream/android-13
 		ssp_target = 1;
 		if (sas_device->device_info &
 				MPI2_SAS_DEVICE_INFO_SEP) {
@@ -2410,7 +3142,11 @@ scsih_slave_configure(struct scsi_device *sdev)
 		} else
 			ds = "SSP";
 	} else {
+<<<<<<< HEAD
 		qdepth = MPT3SAS_SATA_QUEUE_DEPTH;
+=======
+		qdepth = ioc->max_sata_qd;
+>>>>>>> upstream/android-13
 		if (sas_device->device_info & MPI2_SAS_DEVICE_INFO_STP_TARGET)
 			ds = "STP";
 		else if (sas_device->device_info &
@@ -2432,7 +3168,11 @@ scsih_slave_configure(struct scsi_device *sdev)
 		_scsih_display_sata_capabilities(ioc, handle, sdev);
 
 
+<<<<<<< HEAD
 	scsih_change_queue_depth(sdev, qdepth);
+=======
+	mpt3sas_scsih_change_queue_depth(sdev, qdepth);
+>>>>>>> upstream/android-13
 
 	if (ssp_target) {
 		sas_read_port_mode_page(sdev);
@@ -2527,8 +3267,12 @@ _scsih_response_code(struct MPT3SAS_ADAPTER *ioc, u8 response_code)
 		desc = "unknown";
 		break;
 	}
+<<<<<<< HEAD
 	pr_warn(MPT3SAS_FMT "response_code(0x%01x): %s\n",
 		ioc->name, response_code, desc);
+=======
+	ioc_warn(ioc, "response_code(0x%01x): %s\n", response_code, desc);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2621,9 +3365,107 @@ mpt3sas_scsih_clear_tm_flag(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 }
 
 /**
+<<<<<<< HEAD
  * mpt3sas_scsih_issue_tm - main routine for sending tm requests
  * @ioc: per adapter struct
  * @handle: device handle
+=======
+ * scsih_tm_cmd_map_status - map the target reset & LUN reset TM status
+ * @ioc: per adapter object
+ * @channel: the channel assigned by the OS
+ * @id: the id assigned by the OS
+ * @lun: lun number
+ * @type: MPI2_SCSITASKMGMT_TASKTYPE__XXX (defined in mpi2_init.h)
+ * @smid_task: smid assigned to the task
+ *
+ * Look whether TM has aborted the timed out SCSI command, if
+ * TM has aborted the IO then return SUCCESS else return FAILED.
+ */
+static int
+scsih_tm_cmd_map_status(struct MPT3SAS_ADAPTER *ioc, uint channel,
+	uint id, uint lun, u8 type, u16 smid_task)
+{
+
+	if (smid_task <= ioc->shost->can_queue) {
+		switch (type) {
+		case MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET:
+			if (!(_scsih_scsi_lookup_find_by_target(ioc,
+			    id, channel)))
+				return SUCCESS;
+			break;
+		case MPI2_SCSITASKMGMT_TASKTYPE_ABRT_TASK_SET:
+		case MPI2_SCSITASKMGMT_TASKTYPE_LOGICAL_UNIT_RESET:
+			if (!(_scsih_scsi_lookup_find_by_lun(ioc, id,
+			    lun, channel)))
+				return SUCCESS;
+			break;
+		default:
+			return SUCCESS;
+		}
+	} else if (smid_task == ioc->scsih_cmds.smid) {
+		if ((ioc->scsih_cmds.status & MPT3_CMD_COMPLETE) ||
+		    (ioc->scsih_cmds.status & MPT3_CMD_NOT_USED))
+			return SUCCESS;
+	} else if (smid_task == ioc->ctl_cmds.smid) {
+		if ((ioc->ctl_cmds.status & MPT3_CMD_COMPLETE) ||
+		    (ioc->ctl_cmds.status & MPT3_CMD_NOT_USED))
+			return SUCCESS;
+	}
+
+	return FAILED;
+}
+
+/**
+ * scsih_tm_post_processing - post processing of target & LUN reset
+ * @ioc: per adapter object
+ * @handle: device handle
+ * @channel: the channel assigned by the OS
+ * @id: the id assigned by the OS
+ * @lun: lun number
+ * @type: MPI2_SCSITASKMGMT_TASKTYPE__XXX (defined in mpi2_init.h)
+ * @smid_task: smid assigned to the task
+ *
+ * Post processing of target & LUN reset. Due to interrupt latency
+ * issue it possible that interrupt for aborted IO might not be
+ * received yet. So before returning failure status, poll the
+ * reply descriptor pools for the reply of timed out SCSI command.
+ * Return FAILED status if reply for timed out is not received
+ * otherwise return SUCCESS.
+ */
+static int
+scsih_tm_post_processing(struct MPT3SAS_ADAPTER *ioc, u16 handle,
+	uint channel, uint id, uint lun, u8 type, u16 smid_task)
+{
+	int rc;
+
+	rc = scsih_tm_cmd_map_status(ioc, channel, id, lun, type, smid_task);
+	if (rc == SUCCESS)
+		return rc;
+
+	ioc_info(ioc,
+	    "Poll ReplyDescriptor queues for completion of"
+	    " smid(%d), task_type(0x%02x), handle(0x%04x)\n",
+	    smid_task, type, handle);
+
+	/*
+	 * Due to interrupt latency issues, driver may receive interrupt for
+	 * TM first and then for aborted SCSI IO command. So, poll all the
+	 * ReplyDescriptor pools before returning the FAILED status to SML.
+	 */
+	mpt3sas_base_mask_interrupts(ioc);
+	mpt3sas_base_sync_reply_irqs(ioc, 1);
+	mpt3sas_base_unmask_interrupts(ioc);
+
+	return scsih_tm_cmd_map_status(ioc, channel, id, lun, type, smid_task);
+}
+
+/**
+ * mpt3sas_scsih_issue_tm - main routine for sending tm requests
+ * @ioc: per adapter struct
+ * @handle: device handle
+ * @channel: the channel assigned by the OS
+ * @id: the id assigned by the OS
+>>>>>>> upstream/android-13
  * @lun: lun number
  * @type: MPI2_SCSITASKMGMT_TASKTYPE__XXX (defined in mpi2_init.h)
  * @smid_task: smid assigned to the task
@@ -2640,6 +3482,7 @@ mpt3sas_scsih_clear_tm_flag(struct MPT3SAS_ADAPTER *ioc, u16 handle)
  * Return: SUCCESS or FAILED.
  */
 int
+<<<<<<< HEAD
 mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
 	u8 type, u16 smid_task, u16 msix_task, u8 timeout, u8 tr_method)
 {
@@ -2648,32 +3491,67 @@ mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
 	u16 smid = 0;
 	u32 ioc_state;
 	int rc;
+=======
+mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, uint channel,
+	uint id, u64 lun, u8 type, u16 smid_task, u16 msix_task,
+	u8 timeout, u8 tr_method)
+{
+	Mpi2SCSITaskManagementRequest_t *mpi_request;
+	Mpi2SCSITaskManagementReply_t *mpi_reply;
+	Mpi25SCSIIORequest_t *request;
+	u16 smid = 0;
+	u32 ioc_state;
+	int rc;
+	u8 issue_reset = 0;
+>>>>>>> upstream/android-13
 
 	lockdep_assert_held(&ioc->tm_cmds.mutex);
 
 	if (ioc->tm_cmds.status != MPT3_CMD_NOT_USED) {
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "%s: tm_cmd busy!!!\n",
 		    __func__, ioc->name);
+=======
+		ioc_info(ioc, "%s: tm_cmd busy!!!\n", __func__);
+>>>>>>> upstream/android-13
 		return FAILED;
 	}
 
 	if (ioc->shost_recovery || ioc->remove_host ||
 	    ioc->pci_error_recovery) {
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "%s: host reset in progress!\n",
 		    __func__, ioc->name);
+=======
+		ioc_info(ioc, "%s: host reset in progress!\n", __func__);
+>>>>>>> upstream/android-13
 		return FAILED;
 	}
 
 	ioc_state = mpt3sas_base_get_iocstate(ioc, 0);
 	if (ioc_state & MPI2_DOORBELL_USED) {
+<<<<<<< HEAD
 		dhsprintk(ioc, pr_info(MPT3SAS_FMT
 			"unexpected doorbell active!\n", ioc->name));
+=======
+		dhsprintk(ioc, ioc_info(ioc, "unexpected doorbell active!\n"));
+>>>>>>> upstream/android-13
 		rc = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
 		return (!rc) ? SUCCESS : FAILED;
 	}
 
 	if ((ioc_state & MPI2_IOC_STATE_MASK) == MPI2_IOC_STATE_FAULT) {
+<<<<<<< HEAD
 		mpt3sas_base_fault_info(ioc, ioc_state &
+=======
+		mpt3sas_print_fault_code(ioc, ioc_state &
+		    MPI2_DOORBELL_DATA_MASK);
+		rc = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
+		return (!rc) ? SUCCESS : FAILED;
+	} else if ((ioc_state & MPI2_IOC_STATE_MASK) ==
+	    MPI2_IOC_STATE_COREDUMP) {
+		mpt3sas_print_coredump_info(ioc, ioc_state &
+>>>>>>> upstream/android-13
 		    MPI2_DOORBELL_DATA_MASK);
 		rc = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
 		return (!rc) ? SUCCESS : FAILED;
@@ -2681,6 +3559,7 @@ mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
 
 	smid = mpt3sas_base_get_smid_hpr(ioc, ioc->tm_cb_idx);
 	if (!smid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
 		return FAILED;
@@ -2689,6 +3568,15 @@ mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 		"sending tm: handle(0x%04x), task_type(0x%02x), smid(%d), timeout(%d), tr_method(0x%x)\n",
 		ioc->name, handle, type, smid_task, timeout, tr_method));
+=======
+		ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+		return FAILED;
+	}
+
+	dtmprintk(ioc,
+		  ioc_info(ioc, "sending tm: handle(0x%04x), task_type(0x%02x), smid(%d), timeout(%d), tr_method(0x%x)\n",
+			   handle, type, smid_task, timeout, tr_method));
+>>>>>>> upstream/android-13
 	ioc->tm_cmds.status = MPT3_CMD_PENDING;
 	mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
 	ioc->tm_cmds.smid = smid;
@@ -2697,17 +3585,33 @@ mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
 	mpi_request->Function = MPI2_FUNCTION_SCSI_TASK_MGMT;
 	mpi_request->DevHandle = cpu_to_le16(handle);
 	mpi_request->TaskType = type;
+<<<<<<< HEAD
 	mpi_request->MsgFlags = tr_method;
+=======
+	if (type == MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK ||
+	    type == MPI2_SCSITASKMGMT_TASKTYPE_QUERY_TASK)
+		mpi_request->MsgFlags = tr_method;
+>>>>>>> upstream/android-13
 	mpi_request->TaskMID = cpu_to_le16(smid_task);
 	int_to_scsilun(lun, (struct scsi_lun *)mpi_request->LUN);
 	mpt3sas_scsih_set_tm_flag(ioc, handle);
 	init_completion(&ioc->tm_cmds.done);
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_hi_priority(ioc, smid, msix_task);
 	wait_for_completion_timeout(&ioc->tm_cmds.done, timeout*HZ);
 	if (!(ioc->tm_cmds.status & MPT3_CMD_COMPLETE)) {
 		if (mpt3sas_base_check_cmd_timeout(ioc,
 			ioc->tm_cmds.status, mpi_request,
 			sizeof(Mpi2SCSITaskManagementRequest_t)/4)) {
+=======
+	ioc->put_smid_hi_priority(ioc, smid, msix_task);
+	wait_for_completion_timeout(&ioc->tm_cmds.done, timeout*HZ);
+	if (!(ioc->tm_cmds.status & MPT3_CMD_COMPLETE)) {
+		mpt3sas_check_cmd_timeout(ioc,
+		    ioc->tm_cmds.status, mpi_request,
+		    sizeof(Mpi2SCSITaskManagementRequest_t)/4, issue_reset);
+		if (issue_reset) {
+>>>>>>> upstream/android-13
 			rc = mpt3sas_base_hard_reset_handler(ioc,
 					FORCE_BIG_HAMMER);
 			rc = (!rc) ? SUCCESS : FAILED;
@@ -2716,16 +3620,28 @@ mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
 	}
 
 	/* sync IRQs in case those were busy during flush. */
+<<<<<<< HEAD
 	mpt3sas_base_sync_reply_irqs(ioc);
+=======
+	mpt3sas_base_sync_reply_irqs(ioc, 0);
+>>>>>>> upstream/android-13
 
 	if (ioc->tm_cmds.status & MPT3_CMD_REPLY_VALID) {
 		mpt3sas_trigger_master(ioc, MASTER_TRIGGER_TASK_MANAGMENT);
 		mpi_reply = ioc->tm_cmds.reply;
+<<<<<<< HEAD
 		dtmprintk(ioc, pr_info(MPT3SAS_FMT "complete tm: " \
 		    "ioc_status(0x%04x), loginfo(0x%08x), term_count(0x%08x)\n",
 		    ioc->name, le16_to_cpu(mpi_reply->IOCStatus),
 		    le32_to_cpu(mpi_reply->IOCLogInfo),
 		    le32_to_cpu(mpi_reply->TerminationCount)));
+=======
+		dtmprintk(ioc,
+			  ioc_info(ioc, "complete tm: ioc_status(0x%04x), loginfo(0x%08x), term_count(0x%08x)\n",
+				   le16_to_cpu(mpi_reply->IOCStatus),
+				   le32_to_cpu(mpi_reply->IOCLogInfo),
+				   le32_to_cpu(mpi_reply->TerminationCount)));
+>>>>>>> upstream/android-13
 		if (ioc->logging_level & MPT_DEBUG_TM) {
 			_scsih_response_code(ioc, mpi_reply->ResponseCode);
 			if (mpi_reply->IOCStatus)
@@ -2733,7 +3649,48 @@ mpt3sas_scsih_issue_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle, u64 lun,
 				    sizeof(Mpi2SCSITaskManagementRequest_t)/4);
 		}
 	}
+<<<<<<< HEAD
 	rc = SUCCESS;
+=======
+
+	switch (type) {
+	case MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK:
+		rc = SUCCESS;
+		/*
+		 * If DevHandle filed in smid_task's entry of request pool
+		 * doesn't match with device handle on which this task abort
+		 * TM is received then it means that TM has successfully
+		 * aborted the timed out command. Since smid_task's entry in
+		 * request pool will be memset to zero once the timed out
+		 * command is returned to the SML. If the command is not
+		 * aborted then smid_task’s entry won’t be cleared and it
+		 * will have same DevHandle value on which this task abort TM
+		 * is received and driver will return the TM status as FAILED.
+		 */
+		request = mpt3sas_base_get_msg_frame(ioc, smid_task);
+		if (le16_to_cpu(request->DevHandle) != handle)
+			break;
+
+		ioc_info(ioc, "Task abort tm failed: handle(0x%04x),"
+		    "timeout(%d) tr_method(0x%x) smid(%d) msix_index(%d)\n",
+		    handle, timeout, tr_method, smid_task, msix_task);
+		rc = FAILED;
+		break;
+
+	case MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET:
+	case MPI2_SCSITASKMGMT_TASKTYPE_ABRT_TASK_SET:
+	case MPI2_SCSITASKMGMT_TASKTYPE_LOGICAL_UNIT_RESET:
+		rc = scsih_tm_post_processing(ioc, handle, channel, id, lun,
+		    type, smid_task);
+		break;
+	case MPI2_SCSITASKMGMT_TASKTYPE_QUERY_TASK:
+		rc = SUCCESS;
+		break;
+	default:
+		rc = FAILED;
+		break;
+	}
+>>>>>>> upstream/android-13
 
 out:
 	mpt3sas_scsih_clear_tm_flag(ioc, handle);
@@ -2742,14 +3699,24 @@ out:
 }
 
 int mpt3sas_scsih_issue_locked_tm(struct MPT3SAS_ADAPTER *ioc, u16 handle,
+<<<<<<< HEAD
 		u64 lun, u8 type, u16 smid_task, u16 msix_task,
 		u8 timeout, u8 tr_method)
+=======
+		uint channel, uint id, u64 lun, u8 type, u16 smid_task,
+		u16 msix_task, u8 timeout, u8 tr_method)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
 	mutex_lock(&ioc->tm_cmds.mutex);
+<<<<<<< HEAD
 	ret = mpt3sas_scsih_issue_tm(ioc, handle, lun, type, smid_task,
 			msix_task, timeout, tr_method);
+=======
+	ret = mpt3sas_scsih_issue_tm(ioc, handle, channel, id, lun, type,
+			smid_task, msix_task, timeout, tr_method);
+>>>>>>> upstream/android-13
 	mutex_unlock(&ioc->tm_cmds.mutex);
 
 	return ret;
@@ -2854,15 +3821,26 @@ scsih_abort(struct scsi_cmnd *scmd)
 
 	u8 timeout = 30;
 	struct _pcie_device *pcie_device = NULL;
+<<<<<<< HEAD
 	sdev_printk(KERN_INFO, scmd->device,
 		"attempting task abort! scmd(%p)\n", scmd);
+=======
+	sdev_printk(KERN_INFO, scmd->device, "attempting task abort!"
+	    "scmd(0x%p), outstanding for %u ms & timeout %u ms\n",
+	    scmd, jiffies_to_msecs(jiffies - scmd->jiffies_at_alloc),
+	    (scsi_cmd_to_rq(scmd)->timeout / HZ) * 1000);
+>>>>>>> upstream/android-13
 	_scsih_tm_display_info(ioc, scmd);
 
 	sas_device_priv_data = scmd->device->hostdata;
 	if (!sas_device_priv_data || !sas_device_priv_data->sas_target ||
 	    ioc->remove_host) {
 		sdev_printk(KERN_INFO, scmd->device,
+<<<<<<< HEAD
 			"device been deleted! scmd(%p)\n", scmd);
+=======
+		    "device been deleted! scmd(0x%p)\n", scmd);
+>>>>>>> upstream/android-13
 		scmd->result = DID_NO_CONNECT << 16;
 		scmd->scsi_done(scmd);
 		r = SUCCESS;
@@ -2871,6 +3849,11 @@ scsih_abort(struct scsi_cmnd *scmd)
 
 	/* check for completed command */
 	if (st == NULL || st->cb_idx == 0xFF) {
+<<<<<<< HEAD
+=======
+		sdev_printk(KERN_INFO, scmd->device, "No reference found at "
+		    "driver, assuming scmd(0x%p) might have completed\n", scmd);
+>>>>>>> upstream/android-13
 		scmd->result = DID_RESET << 16;
 		r = SUCCESS;
 		goto out;
@@ -2889,16 +3872,28 @@ scsih_abort(struct scsi_cmnd *scmd)
 
 	handle = sas_device_priv_data->sas_target->handle;
 	pcie_device = mpt3sas_get_pdev_by_handle(ioc, handle);
+<<<<<<< HEAD
 	if (pcie_device && (!ioc->tm_custom_handling))
 		timeout = ioc->nvme_abort_timeout;
 	r = mpt3sas_scsih_issue_locked_tm(ioc, handle, scmd->device->lun,
+=======
+	if (pcie_device && (!ioc->tm_custom_handling) &&
+	    (!(mpt3sas_scsih_is_pcie_scsi_device(pcie_device->device_info))))
+		timeout = ioc->nvme_abort_timeout;
+	r = mpt3sas_scsih_issue_locked_tm(ioc, handle, scmd->device->channel,
+		scmd->device->id, scmd->device->lun,
+>>>>>>> upstream/android-13
 		MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK,
 		st->smid, st->msix_io, timeout, 0);
 	/* Command must be cleared after abort */
 	if (r == SUCCESS && st->cb_idx != 0xFF)
 		r = FAILED;
  out:
+<<<<<<< HEAD
 	sdev_printk(KERN_INFO, scmd->device, "task abort: %s scmd(%p)\n",
+=======
+	sdev_printk(KERN_INFO, scmd->device, "task abort: %s scmd(0x%p)\n",
+>>>>>>> upstream/android-13
 	    ((r == SUCCESS) ? "SUCCESS" : "FAILED"), scmd);
 	if (pcie_device)
 		pcie_device_put(pcie_device);
@@ -2927,14 +3922,22 @@ scsih_dev_reset(struct scsi_cmnd *scmd)
 	struct MPT3SAS_TARGET *target_priv_data = starget->hostdata;
 
 	sdev_printk(KERN_INFO, scmd->device,
+<<<<<<< HEAD
 		"attempting device reset! scmd(%p)\n", scmd);
+=======
+	    "attempting device reset! scmd(0x%p)\n", scmd);
+>>>>>>> upstream/android-13
 	_scsih_tm_display_info(ioc, scmd);
 
 	sas_device_priv_data = scmd->device->hostdata;
 	if (!sas_device_priv_data || !sas_device_priv_data->sas_target ||
 	    ioc->remove_host) {
 		sdev_printk(KERN_INFO, scmd->device,
+<<<<<<< HEAD
 			"device been deleted! scmd(%p)\n", scmd);
+=======
+		    "device been deleted! scmd(0x%p)\n", scmd);
+>>>>>>> upstream/android-13
 		scmd->result = DID_NO_CONNECT << 16;
 		scmd->scsi_done(scmd);
 		r = SUCCESS;
@@ -2960,11 +3963,17 @@ scsih_dev_reset(struct scsi_cmnd *scmd)
 
 	pcie_device = mpt3sas_get_pdev_by_handle(ioc, handle);
 
+<<<<<<< HEAD
 	if (pcie_device && (!ioc->tm_custom_handling)) {
+=======
+	if (pcie_device && (!ioc->tm_custom_handling) &&
+	    (!(mpt3sas_scsih_is_pcie_scsi_device(pcie_device->device_info)))) {
+>>>>>>> upstream/android-13
 		tr_timeout = pcie_device->reset_timeout;
 		tr_method = MPI26_SCSITASKMGMT_MSGFLAGS_PROTOCOL_LVL_RST_PCIE;
 	} else
 		tr_method = MPI2_SCSITASKMGMT_MSGFLAGS_LINK_RESET;
+<<<<<<< HEAD
 	r = mpt3sas_scsih_issue_locked_tm(ioc, handle, scmd->device->lun,
 		MPI2_SCSITASKMGMT_TASKTYPE_LOGICAL_UNIT_RESET, 0, 0,
 		tr_timeout, tr_method);
@@ -2973,6 +3982,18 @@ scsih_dev_reset(struct scsi_cmnd *scmd)
 		r = FAILED;
  out:
 	sdev_printk(KERN_INFO, scmd->device, "device reset: %s scmd(%p)\n",
+=======
+
+	r = mpt3sas_scsih_issue_locked_tm(ioc, handle, scmd->device->channel,
+		scmd->device->id, scmd->device->lun,
+		MPI2_SCSITASKMGMT_TASKTYPE_LOGICAL_UNIT_RESET, 0, 0,
+		tr_timeout, tr_method);
+	/* Check for busy commands after reset */
+	if (r == SUCCESS && scsi_device_busy(scmd->device))
+		r = FAILED;
+ out:
+	sdev_printk(KERN_INFO, scmd->device, "device reset: %s scmd(0x%p)\n",
+>>>>>>> upstream/android-13
 	    ((r == SUCCESS) ? "SUCCESS" : "FAILED"), scmd);
 
 	if (sas_device)
@@ -3003,15 +4024,25 @@ scsih_target_reset(struct scsi_cmnd *scmd)
 	struct scsi_target *starget = scmd->device->sdev_target;
 	struct MPT3SAS_TARGET *target_priv_data = starget->hostdata;
 
+<<<<<<< HEAD
 	starget_printk(KERN_INFO, starget, "attempting target reset! scmd(%p)\n",
 		scmd);
+=======
+	starget_printk(KERN_INFO, starget,
+	    "attempting target reset! scmd(0x%p)\n", scmd);
+>>>>>>> upstream/android-13
 	_scsih_tm_display_info(ioc, scmd);
 
 	sas_device_priv_data = scmd->device->hostdata;
 	if (!sas_device_priv_data || !sas_device_priv_data->sas_target ||
 	    ioc->remove_host) {
+<<<<<<< HEAD
 		starget_printk(KERN_INFO, starget, "target been deleted! scmd(%p)\n",
 			scmd);
+=======
+		starget_printk(KERN_INFO, starget,
+		    "target been deleted! scmd(0x%p)\n", scmd);
+>>>>>>> upstream/android-13
 		scmd->result = DID_NO_CONNECT << 16;
 		scmd->scsi_done(scmd);
 		r = SUCCESS;
@@ -3037,19 +4068,33 @@ scsih_target_reset(struct scsi_cmnd *scmd)
 
 	pcie_device = mpt3sas_get_pdev_by_handle(ioc, handle);
 
+<<<<<<< HEAD
 	if (pcie_device && (!ioc->tm_custom_handling)) {
+=======
+	if (pcie_device && (!ioc->tm_custom_handling) &&
+	    (!(mpt3sas_scsih_is_pcie_scsi_device(pcie_device->device_info)))) {
+>>>>>>> upstream/android-13
 		tr_timeout = pcie_device->reset_timeout;
 		tr_method = MPI26_SCSITASKMGMT_MSGFLAGS_PROTOCOL_LVL_RST_PCIE;
 	} else
 		tr_method = MPI2_SCSITASKMGMT_MSGFLAGS_LINK_RESET;
+<<<<<<< HEAD
 	r = mpt3sas_scsih_issue_locked_tm(ioc, handle, 0,
+=======
+	r = mpt3sas_scsih_issue_locked_tm(ioc, handle, scmd->device->channel,
+		scmd->device->id, 0,
+>>>>>>> upstream/android-13
 		MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET, 0, 0,
 	    tr_timeout, tr_method);
 	/* Check for busy commands after reset */
 	if (r == SUCCESS && atomic_read(&starget->target_busy))
 		r = FAILED;
  out:
+<<<<<<< HEAD
 	starget_printk(KERN_INFO, starget, "target reset: %s scmd(%p)\n",
+=======
+	starget_printk(KERN_INFO, starget, "target reset: %s scmd(0x%p)\n",
+>>>>>>> upstream/android-13
 	    ((r == SUCCESS) ? "SUCCESS" : "FAILED"), scmd);
 
 	if (sas_device)
@@ -3072,6 +4117,7 @@ scsih_host_reset(struct scsi_cmnd *scmd)
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(scmd->device->host);
 	int r, retval;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "attempting host reset! scmd(%p)\n",
 	    ioc->name, scmd);
 	scsi_print_command(scmd);
@@ -3079,6 +4125,13 @@ scsih_host_reset(struct scsi_cmnd *scmd)
 	if (ioc->is_driver_loading || ioc->remove_host) {
 		pr_info(MPT3SAS_FMT "Blocking the host reset\n",
 		    ioc->name);
+=======
+	ioc_info(ioc, "attempting host reset! scmd(0x%p)\n", scmd);
+	scsi_print_command(scmd);
+
+	if (ioc->is_driver_loading || ioc->remove_host) {
+		ioc_info(ioc, "Blocking the host reset\n");
+>>>>>>> upstream/android-13
 		r = FAILED;
 		goto out;
 	}
@@ -3086,8 +4139,13 @@ scsih_host_reset(struct scsi_cmnd *scmd)
 	retval = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
 	r = (retval < 0) ? FAILED : SUCCESS;
 out:
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "host reset: %s scmd(%p)\n",
 	    ioc->name, ((r == SUCCESS) ? "SUCCESS" : "FAILED"), scmd);
+=======
+	ioc_info(ioc, "host reset: %s scmd(0x%p)\n",
+		 r == SUCCESS ? "SUCCESS" : "FAILED", scmd);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -3176,8 +4234,11 @@ _scsih_error_recovery_delete_devices(struct MPT3SAS_ADAPTER *ioc)
 {
 	struct fw_event_work *fw_event;
 
+<<<<<<< HEAD
 	if (ioc->is_driver_loading)
 		return;
+=======
+>>>>>>> upstream/android-13
 	fw_event = alloc_fw_event_work(0);
 	if (!fw_event)
 		return;
@@ -3227,17 +4288,75 @@ static struct fw_event_work *dequeue_next_fw_event(struct MPT3SAS_ADAPTER *ioc)
  *
  * Walk the firmware event queue, either killing timers, or waiting
  * for outstanding events to complete
+<<<<<<< HEAD
+=======
+ *
+ * Context: task, can sleep
+>>>>>>> upstream/android-13
  */
 static void
 _scsih_fw_event_cleanup_queue(struct MPT3SAS_ADAPTER *ioc)
 {
 	struct fw_event_work *fw_event;
 
+<<<<<<< HEAD
 	if (list_empty(&ioc->fw_event_list) ||
 	     !ioc->firmware_event_thread || in_interrupt())
 		return;
 
 	while ((fw_event = dequeue_next_fw_event(ioc))) {
+=======
+	if ((list_empty(&ioc->fw_event_list) && !ioc->current_event) ||
+	    !ioc->firmware_event_thread)
+		return;
+	/*
+	 * Set current running event as ignore, so that
+	 * current running event will exit quickly.
+	 * As diag reset has occurred it is of no use
+	 * to process remaining stale event data entries.
+	 */
+	if (ioc->shost_recovery && ioc->current_event)
+		ioc->current_event->ignore = 1;
+
+	ioc->fw_events_cleanup = 1;
+	while ((fw_event = dequeue_next_fw_event(ioc)) ||
+	     (fw_event = ioc->current_event)) {
+
+		/*
+		 * Don't call cancel_work_sync() for current_event
+		 * other than MPT3SAS_REMOVE_UNRESPONDING_DEVICES;
+		 * otherwise we may observe deadlock if current
+		 * hard reset issued as part of processing the current_event.
+		 *
+		 * Orginal logic of cleaning the current_event is added
+		 * for handling the back to back host reset issued by the user.
+		 * i.e. during back to back host reset, driver use to process
+		 * the two instances of MPT3SAS_REMOVE_UNRESPONDING_DEVICES
+		 * event back to back and this made the drives to unregister
+		 * the devices from SML.
+		 */
+
+		if (fw_event == ioc->current_event &&
+		    ioc->current_event->event !=
+		    MPT3SAS_REMOVE_UNRESPONDING_DEVICES) {
+			ioc->current_event = NULL;
+			continue;
+		}
+
+		/*
+		 * Driver has to clear ioc->start_scan flag when
+		 * it is cleaning up MPT3SAS_PORT_ENABLE_COMPLETE,
+		 * otherwise scsi_scan_host() API waits for the
+		 * 5 minute timer to expire. If we exit from
+		 * scsi_scan_host() early then we can issue the
+		 * new port enable request as part of current diag reset.
+		 */
+		if (fw_event->event == MPT3SAS_PORT_ENABLE_COMPLETE) {
+			ioc->port_enable_cmds.status |= MPT3_CMD_RESET;
+			ioc->start_scan = 0;
+		}
+
+>>>>>>> upstream/android-13
 		/*
 		 * Wait on the fw_event to complete. If this returns 1, then
 		 * the event was never executed, and we need a put for the
@@ -3251,6 +4370,10 @@ _scsih_fw_event_cleanup_queue(struct MPT3SAS_ADAPTER *ioc)
 
 		fw_event_work_put(fw_event);
 	}
+<<<<<<< HEAD
+=======
+	ioc->fw_events_cleanup = 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3353,22 +4476,40 @@ _scsih_ublock_io_all_device(struct MPT3SAS_ADAPTER *ioc)
  * _scsih_ublock_io_device - prepare device to be deleted
  * @ioc: per adapter object
  * @sas_address: sas address
+<<<<<<< HEAD
+=======
+ * @port: hba port entry
+>>>>>>> upstream/android-13
  *
  * unblock then put device in offline state
  */
 static void
+<<<<<<< HEAD
 _scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc, u64 sas_address)
+=======
+_scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc,
+	u64 sas_address, struct hba_port *port)
+>>>>>>> upstream/android-13
 {
 	struct MPT3SAS_DEVICE *sas_device_priv_data;
 	struct scsi_device *sdev;
 
 	shost_for_each_device(sdev, ioc->shost) {
 		sas_device_priv_data = sdev->hostdata;
+<<<<<<< HEAD
 		if (!sas_device_priv_data)
+=======
+		if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
+>>>>>>> upstream/android-13
 			continue;
 		if (sas_device_priv_data->sas_target->sas_address
 		    != sas_address)
 			continue;
+<<<<<<< HEAD
+=======
+		if (sas_device_priv_data->sas_target->port != port)
+			continue;
+>>>>>>> upstream/android-13
 		if (sas_device_priv_data->block)
 			_scsih_internal_device_unblock(sdev,
 				sas_device_priv_data);
@@ -3469,7 +4610,12 @@ _scsih_block_io_to_children_attached_to_ex(struct MPT3SAS_ADAPTER *ioc,
 		    SAS_END_DEVICE) {
 			spin_lock_irqsave(&ioc->sas_device_lock, flags);
 			sas_device = __mpt3sas_get_sdev_by_addr(ioc,
+<<<<<<< HEAD
 			    mpt3sas_port->remote_identify.sas_address);
+=======
+			    mpt3sas_port->remote_identify.sas_address,
+			    mpt3sas_port->hba_port);
+>>>>>>> upstream/android-13
 			if (sas_device) {
 				set_bit(sas_device->handle,
 						ioc->blocking_handles);
@@ -3488,7 +4634,12 @@ _scsih_block_io_to_children_attached_to_ex(struct MPT3SAS_ADAPTER *ioc,
 		    SAS_FANOUT_EXPANDER_DEVICE) {
 			expander_sibling =
 			    mpt3sas_scsih_expander_find_by_sas_address(
+<<<<<<< HEAD
 			    ioc, mpt3sas_port->remote_identify.sas_address);
+=======
+			    ioc, mpt3sas_port->remote_identify.sas_address,
+			    mpt3sas_port->hba_port);
+>>>>>>> upstream/android-13
 			_scsih_block_io_to_children_attached_to_ex(ioc,
 			    expander_sibling);
 		}
@@ -3577,20 +4728,35 @@ _scsih_tm_tr_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	struct _tr_list *delayed_tr;
 	u32 ioc_state;
 	u8 tr_method = 0;
+<<<<<<< HEAD
 
 	if (ioc->pci_error_recovery) {
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: host in pci error recovery: handle(0x%04x)\n",
 			__func__, ioc->name,
 		    handle));
+=======
+	struct hba_port *port = NULL;
+
+	if (ioc->pci_error_recovery) {
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host in pci error recovery: handle(0x%04x)\n",
+				    __func__, handle));
+>>>>>>> upstream/android-13
 		return;
 	}
 	ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
 	if (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: host is not operational: handle(0x%04x)\n",
 			__func__, ioc->name,
 		   handle));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host is not operational: handle(0x%04x)\n",
+				    __func__, handle));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -3607,6 +4773,10 @@ _scsih_tm_tr_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		sas_target_priv_data = sas_device->starget->hostdata;
 		sas_target_priv_data->deleted = 1;
 		sas_address = sas_device->sas_address;
+<<<<<<< HEAD
+=======
+		port = sas_device->port;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
 	if (!sas_device) {
@@ -3619,13 +4789,20 @@ _scsih_tm_tr_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 			sas_address = pcie_device->wwid;
 		}
 		spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
+<<<<<<< HEAD
 		if (pcie_device && (!ioc->tm_custom_handling))
+=======
+		if (pcie_device && (!ioc->tm_custom_handling) &&
+		    (!(mpt3sas_scsih_is_pcie_scsi_device(
+		    pcie_device->device_info))))
+>>>>>>> upstream/android-13
 			tr_method =
 			    MPI26_SCSITASKMGMT_MSGFLAGS_PROTOCOL_LVL_RST_PCIE;
 		else
 			tr_method = MPI2_SCSITASKMGMT_MSGFLAGS_LINK_RESET;
 	}
 	if (sas_target_priv_data) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"setting delete flag: handle(0x%04x), sas_addr(0x%016llx)\n",
 			ioc->name, handle,
@@ -3661,6 +4838,35 @@ _scsih_tm_tr_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 				    pcie_device->connector_name));
 		}
 		_scsih_ublock_io_device(ioc, sas_address);
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "setting delete flag: handle(0x%04x), sas_addr(0x%016llx)\n",
+				    handle, (u64)sas_address));
+		if (sas_device) {
+			if (sas_device->enclosure_handle != 0)
+				dewtprintk(ioc,
+					   ioc_info(ioc, "setting delete flag:enclosure logical id(0x%016llx), slot(%d)\n",
+						    (u64)sas_device->enclosure_logical_id,
+						    sas_device->slot));
+			if (sas_device->connector_name[0] != '\0')
+				dewtprintk(ioc,
+					   ioc_info(ioc, "setting delete flag: enclosure level(0x%04x), connector name( %s)\n",
+						    sas_device->enclosure_level,
+						    sas_device->connector_name));
+		} else if (pcie_device) {
+			if (pcie_device->enclosure_handle != 0)
+				dewtprintk(ioc,
+					   ioc_info(ioc, "setting delete flag: logical id(0x%016llx), slot(%d)\n",
+						    (u64)pcie_device->enclosure_logical_id,
+						    pcie_device->slot));
+			if (pcie_device->connector_name[0] != '\0')
+				dewtprintk(ioc,
+					   ioc_info(ioc, "setting delete flag:, enclosure level(0x%04x), connector name( %s)\n",
+						    pcie_device->enclosure_level,
+						    pcie_device->connector_name));
+		}
+		_scsih_ublock_io_device(ioc, sas_address, port);
+>>>>>>> upstream/android-13
 		sas_target_priv_data->handle = MPT3SAS_INVALID_DEVICE_HANDLE;
 	}
 
@@ -3672,6 +4878,7 @@ _scsih_tm_tr_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		INIT_LIST_HEAD(&delayed_tr->list);
 		delayed_tr->handle = handle;
 		list_add_tail(&delayed_tr->list, &ioc->delayed_tr_list);
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		    "DELAYED:tr:handle(0x%04x), (open)\n",
 		    ioc->name, handle));
@@ -3682,6 +4889,17 @@ _scsih_tm_tr_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		"tr_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
 		ioc->name, handle, smid,
 	    ioc->tm_tr_cb_idx));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "DELAYED:tr:handle(0x%04x), (open)\n",
+				    handle));
+		goto out;
+	}
+
+	dewtprintk(ioc,
+		   ioc_info(ioc, "tr_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
+			    handle, smid, ioc->tm_tr_cb_idx));
+>>>>>>> upstream/android-13
 	mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
 	memset(mpi_request, 0, sizeof(Mpi2SCSITaskManagementRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SCSI_TASK_MGMT;
@@ -3689,7 +4907,11 @@ _scsih_tm_tr_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	mpi_request->TaskType = MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET;
 	mpi_request->MsgFlags = tr_method;
 	set_bit(handle, ioc->device_remove_in_progress);
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_hi_priority(ioc, smid, 0);
+=======
+	ioc->put_smid_hi_priority(ioc, smid, 0);
+>>>>>>> upstream/android-13
 	mpt3sas_trigger_master(ioc, MASTER_TRIGGER_DEVICE_REMOVAL);
 
 out:
@@ -3729,13 +4951,20 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	struct _sc_list *delayed_sc;
 
 	if (ioc->pci_error_recovery) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: host in pci error recovery\n", __func__,
 			ioc->name));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host in pci error recovery\n",
+				    __func__));
+>>>>>>> upstream/android-13
 		return 1;
 	}
 	ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
 	if (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: host is not operational\n", __func__, ioc->name));
 		return 1;
@@ -3743,25 +4972,50 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 	if (unlikely(!mpi_reply)) {
 		pr_err(MPT3SAS_FMT "mpi_reply not valid at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host is not operational\n",
+				    __func__));
+		return 1;
+	}
+	if (unlikely(!mpi_reply)) {
+		ioc_err(ioc, "mpi_reply not valid at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 	mpi_request_tm = mpt3sas_base_get_msg_frame(ioc, smid);
 	handle = le16_to_cpu(mpi_request_tm->DevHandle);
 	if (handle != le16_to_cpu(mpi_reply->DevHandle)) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_err(MPT3SAS_FMT
 			"spurious interrupt: handle(0x%04x:0x%04x), smid(%d)!!!\n",
 			ioc->name, handle,
 		    le16_to_cpu(mpi_reply->DevHandle), smid));
+=======
+		dewtprintk(ioc,
+			   ioc_err(ioc, "spurious interrupt: handle(0x%04x:0x%04x), smid(%d)!!!\n",
+				   handle,
+				   le16_to_cpu(mpi_reply->DevHandle), smid));
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	mpt3sas_trigger_master(ioc, MASTER_TRIGGER_TASK_MANAGMENT);
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 	    "tr_complete:handle(0x%04x), (open) smid(%d), ioc_status(0x%04x), "
 	    "loginfo(0x%08x), completed(%d)\n", ioc->name,
 	    handle, smid, le16_to_cpu(mpi_reply->IOCStatus),
 	    le32_to_cpu(mpi_reply->IOCLogInfo),
 	    le32_to_cpu(mpi_reply->TerminationCount)));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "tr_complete:handle(0x%04x), (open) smid(%d), ioc_status(0x%04x), loginfo(0x%08x), completed(%d)\n",
+			    handle, smid, le16_to_cpu(mpi_reply->IOCStatus),
+			    le32_to_cpu(mpi_reply->IOCLogInfo),
+			    le32_to_cpu(mpi_reply->TerminationCount)));
+>>>>>>> upstream/android-13
 
 	smid_sas_ctrl = mpt3sas_base_get_smid(ioc, ioc->tm_sas_control_cb_idx);
 	if (!smid_sas_ctrl) {
@@ -3771,6 +5025,7 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 		INIT_LIST_HEAD(&delayed_sc->list);
 		delayed_sc->handle = le16_to_cpu(mpi_request_tm->DevHandle);
 		list_add_tail(&delayed_sc->list, &ioc->delayed_sc_list);
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		    "DELAYED:sc:handle(0x%04x), (open)\n",
 		    ioc->name, handle));
@@ -3781,12 +5036,27 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
 		"sc_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
 		ioc->name, handle, smid_sas_ctrl,
 	    ioc->tm_sas_control_cb_idx));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "DELAYED:sc:handle(0x%04x), (open)\n",
+				    handle));
+		return _scsih_check_for_pending_tm(ioc, smid);
+	}
+
+	dewtprintk(ioc,
+		   ioc_info(ioc, "sc_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
+			    handle, smid_sas_ctrl, ioc->tm_sas_control_cb_idx));
+>>>>>>> upstream/android-13
 	mpi_request = mpt3sas_base_get_msg_frame(ioc, smid_sas_ctrl);
 	memset(mpi_request, 0, sizeof(Mpi2SasIoUnitControlRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SAS_IO_UNIT_CONTROL;
 	mpi_request->Operation = MPI2_SAS_OP_REMOVE_DEVICE;
 	mpi_request->DevHandle = mpi_request_tm->DevHandle;
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_default(ioc, smid_sas_ctrl);
+=======
+	ioc->put_smid_default(ioc, smid_sas_ctrl);
+>>>>>>> upstream/android-13
 
 	return _scsih_check_for_pending_tm(ioc, smid);
 }
@@ -3849,20 +5119,33 @@ _scsih_sas_control_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 	    mpt3sas_base_get_reply_virt_addr(ioc, reply);
 
 	if (likely(mpi_reply)) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"sc_complete:handle(0x%04x), (open) "
 		"smid(%d), ioc_status(0x%04x), loginfo(0x%08x)\n",
 		ioc->name, le16_to_cpu(mpi_reply->DevHandle), smid,
 		le16_to_cpu(mpi_reply->IOCStatus),
 		le32_to_cpu(mpi_reply->IOCLogInfo)));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "sc_complete:handle(0x%04x), (open) smid(%d), ioc_status(0x%04x), loginfo(0x%08x)\n",
+				    le16_to_cpu(mpi_reply->DevHandle), smid,
+				    le16_to_cpu(mpi_reply->IOCStatus),
+				    le32_to_cpu(mpi_reply->IOCLogInfo)));
+>>>>>>> upstream/android-13
 		if (le16_to_cpu(mpi_reply->IOCStatus) ==
 		     MPI2_IOCSTATUS_SUCCESS) {
 			clear_bit(le16_to_cpu(mpi_reply->DevHandle),
 			    ioc->device_remove_in_progress);
 		}
 	} else {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "mpi_reply not valid at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "mpi_reply not valid at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 	}
 	return mpt3sas_check_for_pending_internal_cmds(ioc, smid);
 }
@@ -3885,9 +5168,15 @@ _scsih_tm_tr_volume_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	struct _tr_list *delayed_tr;
 
 	if (ioc->pci_error_recovery) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: host reset in progress!\n",
 			__func__, ioc->name));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host reset in progress!\n",
+				    __func__));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -3899,6 +5188,7 @@ _scsih_tm_tr_volume_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		INIT_LIST_HEAD(&delayed_tr->list);
 		delayed_tr->handle = handle;
 		list_add_tail(&delayed_tr->list, &ioc->delayed_tr_volume_list);
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		    "DELAYED:tr:handle(0x%04x), (open)\n",
 		    ioc->name, handle));
@@ -3909,12 +5199,27 @@ _scsih_tm_tr_volume_send(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		"tr_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
 		ioc->name, handle, smid,
 	    ioc->tm_tr_volume_cb_idx));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "DELAYED:tr:handle(0x%04x), (open)\n",
+				    handle));
+		return;
+	}
+
+	dewtprintk(ioc,
+		   ioc_info(ioc, "tr_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
+			    handle, smid, ioc->tm_tr_volume_cb_idx));
+>>>>>>> upstream/android-13
 	mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
 	memset(mpi_request, 0, sizeof(Mpi2SCSITaskManagementRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SCSI_TASK_MGMT;
 	mpi_request->DevHandle = cpu_to_le16(handle);
 	mpi_request->TaskType = MPI2_SCSITASKMGMT_TASKTYPE_TARGET_RESET;
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_hi_priority(ioc, smid, 0);
+=======
+	ioc->put_smid_hi_priority(ioc, smid, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -3938,6 +5243,7 @@ _scsih_tm_volume_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 	    mpt3sas_base_get_reply_virt_addr(ioc, reply);
 
 	if (ioc->shost_recovery || ioc->pci_error_recovery) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: host reset in progress!\n",
 			__func__, ioc->name));
@@ -3946,12 +5252,23 @@ _scsih_tm_volume_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 	if (unlikely(!mpi_reply)) {
 		pr_err(MPT3SAS_FMT "mpi_reply not valid at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host reset in progress!\n",
+				    __func__));
+		return 1;
+	}
+	if (unlikely(!mpi_reply)) {
+		ioc_err(ioc, "mpi_reply not valid at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
 	mpi_request_tm = mpt3sas_base_get_msg_frame(ioc, smid);
 	handle = le16_to_cpu(mpi_request_tm->DevHandle);
 	if (handle != le16_to_cpu(mpi_reply->DevHandle)) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_err(MPT3SAS_FMT
 			"spurious interrupt: handle(0x%04x:0x%04x), smid(%d)!!!\n",
 			ioc->name, handle,
@@ -3965,6 +5282,20 @@ _scsih_tm_volume_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid,
 	    handle, smid, le16_to_cpu(mpi_reply->IOCStatus),
 	    le32_to_cpu(mpi_reply->IOCLogInfo),
 	    le32_to_cpu(mpi_reply->TerminationCount)));
+=======
+		dewtprintk(ioc,
+			   ioc_err(ioc, "spurious interrupt: handle(0x%04x:0x%04x), smid(%d)!!!\n",
+				   handle, le16_to_cpu(mpi_reply->DevHandle),
+				   smid));
+		return 0;
+	}
+
+	dewtprintk(ioc,
+		   ioc_info(ioc, "tr_complete:handle(0x%04x), (open) smid(%d), ioc_status(0x%04x), loginfo(0x%08x), completed(%d)\n",
+			    handle, smid, le16_to_cpu(mpi_reply->IOCStatus),
+			    le32_to_cpu(mpi_reply->IOCLogInfo),
+			    le32_to_cpu(mpi_reply->TerminationCount)));
+>>>>>>> upstream/android-13
 
 	return _scsih_check_for_pending_tm(ioc, smid);
 }
@@ -3994,10 +5325,16 @@ _scsih_issue_delayed_event_ack(struct MPT3SAS_ADAPTER *ioc, u16 smid, U16 event,
 	ioc->internal_lookup[i].cb_idx = ioc->base_cb_idx;
 	spin_unlock_irqrestore(&ioc->scsi_lookup_lock, flags);
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"EVENT ACK: event(0x%04x), smid(%d), cb(%d)\n",
 		ioc->name, le16_to_cpu(event), smid,
 		ioc->base_cb_idx));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "EVENT ACK: event(0x%04x), smid(%d), cb(%d)\n",
+			    le16_to_cpu(event), smid, ioc->base_cb_idx));
+>>>>>>> upstream/android-13
 	ack_request = mpt3sas_base_get_msg_frame(ioc, smid);
 	memset(ack_request, 0, sizeof(Mpi2EventAckRequest_t));
 	ack_request->Function = MPI2_FUNCTION_EVENT_ACK;
@@ -4005,7 +5342,11 @@ _scsih_issue_delayed_event_ack(struct MPT3SAS_ADAPTER *ioc, u16 smid, U16 event,
 	ack_request->EventContext = event_context;
 	ack_request->VF_ID = 0;  /* TODO */
 	ack_request->VP_ID = 0;
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_default(ioc, smid);
+=======
+	ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -4027,6 +5368,7 @@ _scsih_issue_delayed_sas_io_unit_ctrl(struct MPT3SAS_ADAPTER *ioc,
 	unsigned long flags;
 
 	if (ioc->remove_host) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			    "%s: host has been removed\n",
 			     __func__, ioc->name));
@@ -4035,13 +5377,29 @@ _scsih_issue_delayed_sas_io_unit_ctrl(struct MPT3SAS_ADAPTER *ioc,
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			    "%s: host in pci error recovery\n",
 			    __func__, ioc->name));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host has been removed\n",
+				    __func__));
+		return;
+	} else if (ioc->pci_error_recovery) {
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host in pci error recovery\n",
+				    __func__));
+>>>>>>> upstream/android-13
 		return;
 	}
 	ioc_state = mpt3sas_base_get_iocstate(ioc, 1);
 	if (ioc_state != MPI2_IOC_STATE_OPERATIONAL) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		    "%s: host is not operational\n",
 		    __func__, ioc->name));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: host is not operational\n",
+				    __func__));
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -4053,20 +5411,34 @@ _scsih_issue_delayed_sas_io_unit_ctrl(struct MPT3SAS_ADAPTER *ioc,
 	ioc->internal_lookup[i].cb_idx = ioc->tm_sas_control_cb_idx;
 	spin_unlock_irqrestore(&ioc->scsi_lookup_lock, flags);
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 	    "sc_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
 	    ioc->name, handle, smid,
 	    ioc->tm_sas_control_cb_idx));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "sc_send:handle(0x%04x), (open), smid(%d), cb(%d)\n",
+			    handle, smid, ioc->tm_sas_control_cb_idx));
+>>>>>>> upstream/android-13
 	mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
 	memset(mpi_request, 0, sizeof(Mpi2SasIoUnitControlRequest_t));
 	mpi_request->Function = MPI2_FUNCTION_SAS_IO_UNIT_CONTROL;
 	mpi_request->Operation = MPI2_SAS_OP_REMOVE_DEVICE;
 	mpi_request->DevHandle = cpu_to_le16(handle);
+<<<<<<< HEAD
 	mpt3sas_base_put_smid_default(ioc, smid);
 }
 
 /**
  * _scsih_check_for_pending_internal_cmds - check for pending internal messages
+=======
+	ioc->put_smid_default(ioc, smid);
+}
+
+/**
+ * mpt3sas_check_for_pending_internal_cmds - check for pending internal messages
+>>>>>>> upstream/android-13
  * @ioc: per adapter object
  * @smid: system request message index
  *
@@ -4217,8 +5589,13 @@ _scsih_check_topo_delete_events(struct MPT3SAS_ADAPTER *ioc,
 		    MPI2_EVENT_SAS_TOPO_ES_RESPONDING) {
 			if (le16_to_cpu(local_event_data->ExpanderDevHandle) ==
 			    expander_handle) {
+<<<<<<< HEAD
 				dewtprintk(ioc, pr_info(MPT3SAS_FMT
 				    "setting ignoring flag\n", ioc->name));
+=======
+				dewtprintk(ioc,
+					   ioc_info(ioc, "setting ignoring flag\n"));
+>>>>>>> upstream/android-13
 				fw_event->ignore = 1;
 			}
 		}
@@ -4289,9 +5666,14 @@ _scsih_check_pcie_topo_remove_events(struct MPT3SAS_ADAPTER *ioc,
 		    MPI2_EVENT_SAS_TOPO_ES_RESPONDING) {
 			if (le16_to_cpu(local_event_data->SwitchDevHandle) ==
 				switch_handle) {
+<<<<<<< HEAD
 				dewtprintk(ioc, pr_info(MPT3SAS_FMT
 					"setting ignoring flag for switch event\n",
 					ioc->name));
+=======
+				dewtprintk(ioc,
+					   ioc_info(ioc, "setting ignoring flag for switch event\n"));
+>>>>>>> upstream/android-13
 				fw_event->ignore = 1;
 			}
 		}
@@ -4320,10 +5702,16 @@ _scsih_set_volume_delete_flag(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		sas_target_priv_data =
 		    raid_device->starget->hostdata;
 		sas_target_priv_data->deleted = 1;
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		    "setting delete flag: handle(0x%04x), "
 		    "wwid(0x%016llx)\n", ioc->name, handle,
 		    (unsigned long long) raid_device->wwid));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "setting delete flag: handle(0x%04x), wwid(0x%016llx)\n",
+				    handle, (u64)raid_device->wwid));
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&ioc->raid_device_lock, flags);
 }
@@ -4425,9 +5813,15 @@ _scsih_check_ir_config_unhide_events(struct MPT3SAS_ADAPTER *ioc,
 			INIT_LIST_HEAD(&delayed_tr->list);
 			delayed_tr->handle = handle;
 			list_add_tail(&delayed_tr->list, &ioc->delayed_tr_list);
+<<<<<<< HEAD
 			dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			    "DELAYED:tr:handle(0x%04x), (open)\n", ioc->name,
 			    handle));
+=======
+			dewtprintk(ioc,
+				   ioc_info(ioc, "DELAYED:tr:handle(0x%04x), (open)\n",
+					    handle));
+>>>>>>> upstream/android-13
 		} else
 			_scsih_tm_tr_send(ioc, handle);
 	}
@@ -4469,6 +5863,7 @@ static void
 _scsih_temp_threshold_events(struct MPT3SAS_ADAPTER *ioc,
 	Mpi2EventDataTemperature_t *event_data)
 {
+<<<<<<< HEAD
 	if (ioc->temp_sensors_count >= event_data->SensorNum) {
 		pr_err(MPT3SAS_FMT "Temperature Threshold flags %s%s%s%s"
 		  " exceeded for Sensor: %d !!!\n", ioc->name,
@@ -4479,6 +5874,30 @@ _scsih_temp_threshold_events(struct MPT3SAS_ADAPTER *ioc,
 		  event_data->SensorNum);
 		pr_err(MPT3SAS_FMT "Current Temp In Celsius: %d\n",
 			ioc->name, event_data->CurrentTemperature);
+=======
+	u32 doorbell;
+	if (ioc->temp_sensors_count >= event_data->SensorNum) {
+		ioc_err(ioc, "Temperature Threshold flags %s%s%s%s exceeded for Sensor: %d !!!\n",
+			le16_to_cpu(event_data->Status) & 0x1 ? "0 " : " ",
+			le16_to_cpu(event_data->Status) & 0x2 ? "1 " : " ",
+			le16_to_cpu(event_data->Status) & 0x4 ? "2 " : " ",
+			le16_to_cpu(event_data->Status) & 0x8 ? "3 " : " ",
+			event_data->SensorNum);
+		ioc_err(ioc, "Current Temp In Celsius: %d\n",
+			event_data->CurrentTemperature);
+		if (ioc->hba_mpi_version_belonged != MPI2_VERSION) {
+			doorbell = mpt3sas_base_get_iocstate(ioc, 0);
+			if ((doorbell & MPI2_IOC_STATE_MASK) ==
+			    MPI2_IOC_STATE_FAULT) {
+				mpt3sas_print_fault_code(ioc,
+				    doorbell & MPI2_DOORBELL_DATA_MASK);
+			} else if ((doorbell & MPI2_IOC_STATE_MASK) ==
+			    MPI2_IOC_STATE_COREDUMP) {
+				mpt3sas_print_coredump_info(ioc,
+				    doorbell & MPI2_DOORBELL_DATA_MASK);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -4526,8 +5945,12 @@ _scsih_flush_running_cmds(struct MPT3SAS_ADAPTER *ioc)
 			scmd->result = DID_RESET << 16;
 		scmd->scsi_done(scmd);
 	}
+<<<<<<< HEAD
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT "completing %d cmds\n",
 	    ioc->name, count));
+=======
+	dtmprintk(ioc, ioc_info(ioc, "completing %d cmds\n", count));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -4543,6 +5966,7 @@ _scsih_setup_eedp(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 	Mpi25SCSIIORequest_t *mpi_request)
 {
 	u16 eedp_flags;
+<<<<<<< HEAD
 	unsigned char prot_op = scsi_get_prot_op(scmd);
 	unsigned char prot_type = scsi_get_prot_type(scmd);
 	Mpi25SCSIIORequest_t *mpi_request_3v =
@@ -4585,6 +6009,36 @@ _scsih_setup_eedp(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 
 	mpi_request_3v->EEDPBlockSize =
 	    cpu_to_le16(scmd->device->sector_size);
+=======
+	Mpi25SCSIIORequest_t *mpi_request_3v =
+	   (Mpi25SCSIIORequest_t *)mpi_request;
+
+	switch (scsi_get_prot_op(scmd)) {
+	case SCSI_PROT_READ_STRIP:
+		eedp_flags = MPI2_SCSIIO_EEDPFLAGS_CHECK_REMOVE_OP;
+		break;
+	case SCSI_PROT_WRITE_INSERT:
+		eedp_flags = MPI2_SCSIIO_EEDPFLAGS_INSERT_OP;
+		break;
+	default:
+		return;
+	}
+
+	if (scmd->prot_flags & SCSI_PROT_GUARD_CHECK)
+		eedp_flags |= MPI2_SCSIIO_EEDPFLAGS_CHECK_GUARD;
+
+	if (scmd->prot_flags & SCSI_PROT_REF_CHECK)
+		eedp_flags |= MPI2_SCSIIO_EEDPFLAGS_CHECK_REFTAG;
+
+	if (scmd->prot_flags & SCSI_PROT_REF_INCREMENT) {
+		eedp_flags |= MPI2_SCSIIO_EEDPFLAGS_INC_PRI_REFTAG;
+
+		mpi_request->CDB.EEDP32.PrimaryReferenceTag =
+			cpu_to_be32(scsi_prot_ref_tag(scmd));
+	}
+
+	mpi_request_3v->EEDPBlockSize = cpu_to_le16(scsi_prot_interval(scmd));
+>>>>>>> upstream/android-13
 
 	if (ioc->is_gen35_ioc)
 		eedp_flags |= MPI25_SCSIIO_EEDPFLAGS_APPTAG_DISABLE_MODE;
@@ -4615,10 +6069,15 @@ _scsih_eedp_error_handling(struct scsi_cmnd *scmd, u16 ioc_status)
 		ascq = 0x00;
 		break;
 	}
+<<<<<<< HEAD
 	scsi_build_sense_buffer(0, scmd->sense_buffer, ILLEGAL_REQUEST, 0x10,
 	    ascq);
 	scmd->result = DRIVER_SENSE << 24 | (DID_ABORT << 16) |
 	    SAM_STAT_CHECK_CONDITION;
+=======
+	scsi_build_sense(scmd, 0, ILLEGAL_REQUEST, 0x10, ascq);
+	set_host_byte(scmd, DID_ABORT);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -4639,7 +6098,11 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
 	struct MPT3SAS_DEVICE *sas_device_priv_data;
 	struct MPT3SAS_TARGET *sas_target_priv_data;
 	struct _raid_device *raid_device;
+<<<<<<< HEAD
 	struct request *rq = scmd->request;
+=======
+	struct request *rq = scsi_cmd_to_rq(scmd);
+>>>>>>> upstream/android-13
 	int class;
 	Mpi25SCSIIORequest_t *mpi_request;
 	struct _pcie_device *pcie_device = NULL;
@@ -4694,11 +6157,16 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
 	 * since we're lockless at this point
 	 */
 	do {
+<<<<<<< HEAD
 		if (test_bit(0, &sas_device_priv_data->ata_command_pending)) {
 			scmd->result = SAM_STAT_BUSY;
 			scmd->scsi_done(scmd);
 			return 0;
 		}
+=======
+		if (test_bit(0, &sas_device_priv_data->ata_command_pending))
+			return SCSI_MLQUEUE_DEVICE_BUSY;
+>>>>>>> upstream/android-13
 	} while (_scsih_set_satl_pending(scmd, true));
 
 	if (scmd->sc_data_direction == DMA_FROM_DEVICE)
@@ -4726,8 +6194,12 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
 
 	smid = mpt3sas_base_get_smid_scsiio(ioc, ioc->scsi_io_cb_idx, scmd);
 	if (!smid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+>>>>>>> upstream/android-13
 		_scsih_set_satl_pending(scmd, false);
 		goto out;
 	}
@@ -4775,12 +6247,20 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
 		if (sas_target_priv_data->flags & MPT_TARGET_FASTPATH_IO) {
 			mpi_request->IoFlags = cpu_to_le16(scmd->cmd_len |
 			    MPI25_SCSIIO_IOFLAGS_FAST_PATH);
+<<<<<<< HEAD
 			mpt3sas_base_put_smid_fast_path(ioc, smid, handle);
+=======
+			ioc->put_smid_fast_path(ioc, smid, handle);
+>>>>>>> upstream/android-13
 		} else
 			ioc->put_smid_scsi_io(ioc, smid,
 			    le16_to_cpu(mpi_request->DevHandle));
 	} else
+<<<<<<< HEAD
 		mpt3sas_base_put_smid_default(ioc, smid);
+=======
+		ioc->put_smid_default(ioc, smid);
+>>>>>>> upstream/android-13
 	return 0;
 
  out:
@@ -4965,6 +6445,7 @@ _scsih_scsi_ioc_info(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 	scsi_print_command(scmd);
 
 	if (priv_target->flags & MPT_TARGET_FLAGS_VOLUME) {
+<<<<<<< HEAD
 		pr_warn(MPT3SAS_FMT "\t%s wwid(0x%016llx)\n", ioc->name,
 		    device_str, (unsigned long long)priv_target->sas_address);
 	} else if (priv_target->flags & MPT_TARGET_FLAGS_PCIE_DEVICE) {
@@ -4987,15 +6468,37 @@ _scsih_scsi_ioc_info(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 				    "connector name( %s)\n",
 				    ioc->name, pcie_device->enclosure_level,
 				    pcie_device->connector_name);
+=======
+		ioc_warn(ioc, "\t%s wwid(0x%016llx)\n",
+			 device_str, (u64)priv_target->sas_address);
+	} else if (priv_target->flags & MPT_TARGET_FLAGS_PCIE_DEVICE) {
+		pcie_device = mpt3sas_get_pdev_from_target(ioc, priv_target);
+		if (pcie_device) {
+			ioc_info(ioc, "\twwid(0x%016llx), port(%d)\n",
+				 (u64)pcie_device->wwid, pcie_device->port_num);
+			if (pcie_device->enclosure_handle != 0)
+				ioc_info(ioc, "\tenclosure logical id(0x%016llx), slot(%d)\n",
+					 (u64)pcie_device->enclosure_logical_id,
+					 pcie_device->slot);
+			if (pcie_device->connector_name[0])
+				ioc_info(ioc, "\tenclosure level(0x%04x), connector name( %s)\n",
+					 pcie_device->enclosure_level,
+					 pcie_device->connector_name);
+>>>>>>> upstream/android-13
 			pcie_device_put(pcie_device);
 		}
 	} else {
 		sas_device = mpt3sas_get_sdev_from_target(ioc, priv_target);
 		if (sas_device) {
+<<<<<<< HEAD
 			pr_warn(MPT3SAS_FMT
 				"\tsas_address(0x%016llx), phy(%d)\n",
 				ioc->name, (unsigned long long)
 			    sas_device->sas_address, sas_device->phy);
+=======
+			ioc_warn(ioc, "\tsas_address(0x%016llx), phy(%d)\n",
+				 (u64)sas_device->sas_address, sas_device->phy);
+>>>>>>> upstream/android-13
 
 			_scsih_display_enclosure_chassis_info(ioc, sas_device,
 			    NULL, NULL);
@@ -5004,6 +6507,7 @@ _scsih_scsi_ioc_info(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 		}
 	}
 
+<<<<<<< HEAD
 	pr_warn(MPT3SAS_FMT
 		"\thandle(0x%04x), ioc_status(%s)(0x%04x), smid(%d)\n",
 		ioc->name, le16_to_cpu(mpi_reply->DevHandle),
@@ -5020,14 +6524,32 @@ _scsih_scsi_ioc_info(struct MPT3SAS_ADAPTER *ioc, struct scsi_cmnd *scmd,
 		"\tscsi_status(%s)(0x%02x), scsi_state(%s)(0x%02x)\n",
 		ioc->name, desc_scsi_status,
 	    scsi_status, desc_scsi_state, scsi_state);
+=======
+	ioc_warn(ioc, "\thandle(0x%04x), ioc_status(%s)(0x%04x), smid(%d)\n",
+		 le16_to_cpu(mpi_reply->DevHandle),
+		 desc_ioc_state, ioc_status, smid);
+	ioc_warn(ioc, "\trequest_len(%d), underflow(%d), resid(%d)\n",
+		 scsi_bufflen(scmd), scmd->underflow, scsi_get_resid(scmd));
+	ioc_warn(ioc, "\ttag(%d), transfer_count(%d), sc->result(0x%08x)\n",
+		 le16_to_cpu(mpi_reply->TaskTag),
+		 le32_to_cpu(mpi_reply->TransferCount), scmd->result);
+	ioc_warn(ioc, "\tscsi_status(%s)(0x%02x), scsi_state(%s)(0x%02x)\n",
+		 desc_scsi_status, scsi_status, desc_scsi_state, scsi_state);
+>>>>>>> upstream/android-13
 
 	if (scsi_state & MPI2_SCSI_STATE_AUTOSENSE_VALID) {
 		struct sense_info data;
 		_scsih_normalize_sense(scmd->sense_buffer, &data);
+<<<<<<< HEAD
 		pr_warn(MPT3SAS_FMT
 		  "\t[sense_key,asc,ascq]: [0x%02x,0x%02x,0x%02x], count(%d)\n",
 		  ioc->name, data.skey,
 		  data.asc, data.ascq, le32_to_cpu(mpi_reply->SenseCount));
+=======
+		ioc_warn(ioc, "\t[sense_key,asc,ascq]: [0x%02x,0x%02x,0x%02x], count(%d)\n",
+			 data.skey, data.asc, data.ascq,
+			 le32_to_cpu(mpi_reply->SenseCount));
+>>>>>>> upstream/android-13
 	}
 	if (scsi_state & MPI2_SCSI_STATE_RESPONSE_INFO_VALID) {
 		response_info = le32_to_cpu(mpi_reply->ResponseInfo);
@@ -5062,17 +6584,29 @@ _scsih_turn_on_pfa_led(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	mpi_request.Flags = MPI2_SEP_REQ_FLAGS_DEVHANDLE_ADDRESS;
 	if ((mpt3sas_base_scsi_enclosure_processor(ioc, &mpi_reply,
 	    &mpi_request)) != 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n", ioc->name,
 		__FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	sas_device->pfa_led_on = 1;
 
 	if (mpi_reply.IOCStatus || mpi_reply.IOCLogInfo) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"enclosure_processor: ioc_status (0x%04x), loginfo(0x%08x)\n",
 			ioc->name, le16_to_cpu(mpi_reply.IOCStatus),
 		    le32_to_cpu(mpi_reply.IOCLogInfo)));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "enclosure_processor: ioc_status (0x%04x), loginfo(0x%08x)\n",
+				    le16_to_cpu(mpi_reply.IOCStatus),
+				    le32_to_cpu(mpi_reply.IOCLogInfo)));
+>>>>>>> upstream/android-13
 		goto out;
 	}
 out:
@@ -5102,16 +6636,28 @@ _scsih_turn_off_pfa_led(struct MPT3SAS_ADAPTER *ioc,
 	mpi_request.Flags = MPI2_SEP_REQ_FLAGS_ENCLOSURE_SLOT_ADDRESS;
 	if ((mpt3sas_base_scsi_enclosure_processor(ioc, &mpi_reply,
 		&mpi_request)) != 0) {
+<<<<<<< HEAD
 		printk(MPT3SAS_FMT "failure at %s:%d/%s()!\n", ioc->name,
 		__FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (mpi_reply.IOCStatus || mpi_reply.IOCLogInfo) {
+<<<<<<< HEAD
 		dewtprintk(ioc, printk(MPT3SAS_FMT
 		 "enclosure_processor: ioc_status (0x%04x), loginfo(0x%08x)\n",
 		 ioc->name, le16_to_cpu(mpi_reply.IOCStatus),
 		 le32_to_cpu(mpi_reply.IOCLogInfo)));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "enclosure_processor: ioc_status (0x%04x), loginfo(0x%08x)\n",
+				    le16_to_cpu(mpi_reply.IOCStatus),
+				    le32_to_cpu(mpi_reply.IOCLogInfo)));
+>>>>>>> upstream/android-13
 		return;
 	}
 }
@@ -5177,10 +6723,17 @@ _scsih_smart_predicted_fault(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	/* insert into event log */
 	sz = offsetof(Mpi2EventNotificationReply_t, EventData) +
 	     sizeof(Mpi2EventDataSasDeviceStatusChange_t);
+<<<<<<< HEAD
 	event_reply = kzalloc(sz, GFP_KERNEL);
 	if (!event_reply) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+	event_reply = kzalloc(sz, GFP_ATOMIC);
+	if (!event_reply) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -5267,6 +6820,10 @@ _scsih_io_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index, u32 reply)
 	     ((ioc_status & MPI2_IOCSTATUS_MASK)
 	      != MPI2_IOCSTATUS_SCSI_TASK_TERMINATED)) {
 		st->direct_io = 0;
+<<<<<<< HEAD
+=======
+		st->scmd = scmd;
+>>>>>>> upstream/android-13
 		memcpy(mpi_request->CDB.CDB32, scmd->cmnd, scmd->cmd_len);
 		mpi_request->DevHandle =
 		    cpu_to_le16(sas_device_priv_data->sas_target->handle);
@@ -5394,18 +6951,27 @@ _scsih_io_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index, u32 reply)
 		else if (!xfer_cnt && scmd->cmnd[0] == REPORT_LUNS) {
 			mpi_reply->SCSIState = MPI2_SCSI_STATE_AUTOSENSE_VALID;
 			mpi_reply->SCSIStatus = SAM_STAT_CHECK_CONDITION;
+<<<<<<< HEAD
 			scmd->result = (DRIVER_SENSE << 24) |
 			    SAM_STAT_CHECK_CONDITION;
 			scmd->sense_buffer[0] = 0x70;
 			scmd->sense_buffer[2] = ILLEGAL_REQUEST;
 			scmd->sense_buffer[12] = 0x20;
 			scmd->sense_buffer[13] = 0;
+=======
+			scsi_build_sense(scmd, 0, ILLEGAL_REQUEST,
+					 0x20, 0);
+>>>>>>> upstream/android-13
 		}
 		break;
 
 	case MPI2_IOCSTATUS_SCSI_DATA_OVERRUN:
 		scsi_set_resid(scmd, 0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MPI2_IOCSTATUS_SCSI_RECOVERED_ERROR:
 	case MPI2_IOCSTATUS_SUCCESS:
 		scmd->result = (DID_OK << 16) | scsi_status;
@@ -5451,6 +7017,634 @@ _scsih_io_done(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index, u32 reply)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * _scsih_update_vphys_after_reset - update the Port's
+ *			vphys_list after reset
+ * @ioc: per adapter object
+ *
+ * Returns nothing.
+ */
+static void
+_scsih_update_vphys_after_reset(struct MPT3SAS_ADAPTER *ioc)
+{
+	u16 sz, ioc_status;
+	int i;
+	Mpi2ConfigReply_t mpi_reply;
+	Mpi2SasIOUnitPage0_t *sas_iounit_pg0 = NULL;
+	u16 attached_handle;
+	u64 attached_sas_addr;
+	u8 found = 0, port_id;
+	Mpi2SasPhyPage0_t phy_pg0;
+	struct hba_port *port, *port_next, *mport;
+	struct virtual_phy *vphy, *vphy_next;
+	struct _sas_device *sas_device;
+
+	/*
+	 * Mark all the vphys objects as dirty.
+	 */
+	list_for_each_entry_safe(port, port_next,
+	    &ioc->port_table_list, list) {
+		if (!port->vphys_mask)
+			continue;
+		list_for_each_entry_safe(vphy, vphy_next,
+		    &port->vphys_list, list) {
+			vphy->flags |= MPT_VPHY_FLAG_DIRTY_PHY;
+		}
+	}
+
+	/*
+	 * Read SASIOUnitPage0 to get each HBA Phy's data.
+	 */
+	sz = offsetof(Mpi2SasIOUnitPage0_t, PhyData) +
+	    (ioc->sas_hba.num_phys * sizeof(Mpi2SasIOUnit0PhyData_t));
+	sas_iounit_pg0 = kzalloc(sz, GFP_KERNEL);
+	if (!sas_iounit_pg0) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		    __FILE__, __LINE__, __func__);
+		return;
+	}
+	if ((mpt3sas_config_get_sas_iounit_pg0(ioc, &mpi_reply,
+	    sas_iounit_pg0, sz)) != 0)
+		goto out;
+	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) & MPI2_IOCSTATUS_MASK;
+	if (ioc_status != MPI2_IOCSTATUS_SUCCESS)
+		goto out;
+	/*
+	 * Loop over each HBA Phy.
+	 */
+	for (i = 0; i < ioc->sas_hba.num_phys; i++) {
+		/*
+		 * Check whether Phy's Negotiation Link Rate is > 1.5G or not.
+		 */
+		if ((sas_iounit_pg0->PhyData[i].NegotiatedLinkRate >> 4) <
+		    MPI2_SAS_NEG_LINK_RATE_1_5)
+			continue;
+		/*
+		 * Check whether Phy is connected to SEP device or not,
+		 * if it is SEP device then read the Phy's SASPHYPage0 data to
+		 * determine whether Phy is a virtual Phy or not. if it is
+		 * virtual phy then it is conformed that the attached remote
+		 * device is a HBA's vSES device.
+		 */
+		if (!(le32_to_cpu(
+		    sas_iounit_pg0->PhyData[i].ControllerPhyDeviceInfo) &
+		    MPI2_SAS_DEVICE_INFO_SEP))
+			continue;
+
+		if ((mpt3sas_config_get_phy_pg0(ioc, &mpi_reply, &phy_pg0,
+		    i))) {
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			    __FILE__, __LINE__, __func__);
+			continue;
+		}
+
+		if (!(le32_to_cpu(phy_pg0.PhyInfo) &
+		    MPI2_SAS_PHYINFO_VIRTUAL_PHY))
+			continue;
+		/*
+		 * Get the vSES device's SAS Address.
+		 */
+		attached_handle = le16_to_cpu(
+		    sas_iounit_pg0->PhyData[i].AttachedDevHandle);
+		if (_scsih_get_sas_address(ioc, attached_handle,
+		    &attached_sas_addr) != 0) {
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			    __FILE__, __LINE__, __func__);
+			continue;
+		}
+
+		found = 0;
+		port = port_next = NULL;
+		/*
+		 * Loop over each virtual_phy object from
+		 * each port's vphys_list.
+		 */
+		list_for_each_entry_safe(port,
+		    port_next, &ioc->port_table_list, list) {
+			if (!port->vphys_mask)
+				continue;
+			list_for_each_entry_safe(vphy, vphy_next,
+			    &port->vphys_list, list) {
+				/*
+				 * Continue with next virtual_phy object
+				 * if the object is not marked as dirty.
+				 */
+				if (!(vphy->flags & MPT_VPHY_FLAG_DIRTY_PHY))
+					continue;
+
+				/*
+				 * Continue with next virtual_phy object
+				 * if the object's SAS Address is not equals
+				 * to current Phy's vSES device SAS Address.
+				 */
+				if (vphy->sas_address != attached_sas_addr)
+					continue;
+				/*
+				 * Enable current Phy number bit in object's
+				 * phy_mask field.
+				 */
+				if (!(vphy->phy_mask & (1 << i)))
+					vphy->phy_mask = (1 << i);
+				/*
+				 * Get hba_port object from hba_port table
+				 * corresponding to current phy's Port ID.
+				 * if there is no hba_port object corresponding
+				 * to Phy's Port ID then create a new hba_port
+				 * object & add to hba_port table.
+				 */
+				port_id = sas_iounit_pg0->PhyData[i].Port;
+				mport = mpt3sas_get_port_by_id(ioc, port_id, 1);
+				if (!mport) {
+					mport = kzalloc(
+					    sizeof(struct hba_port), GFP_KERNEL);
+					if (!mport)
+						break;
+					mport->port_id = port_id;
+					ioc_info(ioc,
+					    "%s: hba_port entry: %p, port: %d is added to hba_port list\n",
+					    __func__, mport, mport->port_id);
+					list_add_tail(&mport->list,
+						&ioc->port_table_list);
+				}
+				/*
+				 * If mport & port pointers are not pointing to
+				 * same hba_port object then it means that vSES
+				 * device's Port ID got changed after reset and
+				 * hence move current virtual_phy object from
+				 * port's vphys_list to mport's vphys_list.
+				 */
+				if (port != mport) {
+					if (!mport->vphys_mask)
+						INIT_LIST_HEAD(
+						    &mport->vphys_list);
+					mport->vphys_mask |= (1 << i);
+					port->vphys_mask &= ~(1 << i);
+					list_move(&vphy->list,
+					    &mport->vphys_list);
+					sas_device = mpt3sas_get_sdev_by_addr(
+					    ioc, attached_sas_addr, port);
+					if (sas_device)
+						sas_device->port = mport;
+				}
+				/*
+				 * Earlier while updating the hba_port table,
+				 * it is determined that there is no other
+				 * direct attached device with mport's Port ID,
+				 * Hence mport was marked as dirty. Only vSES
+				 * device has this Port ID, so unmark the mport
+				 * as dirt.
+				 */
+				if (mport->flags & HBA_PORT_FLAG_DIRTY_PORT) {
+					mport->sas_address = 0;
+					mport->phy_mask = 0;
+					mport->flags &=
+					    ~HBA_PORT_FLAG_DIRTY_PORT;
+				}
+				/*
+				 * Unmark current virtual_phy object as dirty.
+				 */
+				vphy->flags &= ~MPT_VPHY_FLAG_DIRTY_PHY;
+				found = 1;
+				break;
+			}
+			if (found)
+				break;
+		}
+	}
+out:
+	kfree(sas_iounit_pg0);
+}
+
+/**
+ * _scsih_get_port_table_after_reset - Construct temporary port table
+ * @ioc: per adapter object
+ * @port_table: address where port table needs to be constructed
+ *
+ * return number of HBA port entries available after reset.
+ */
+static int
+_scsih_get_port_table_after_reset(struct MPT3SAS_ADAPTER *ioc,
+	struct hba_port *port_table)
+{
+	u16 sz, ioc_status;
+	int i, j;
+	Mpi2ConfigReply_t mpi_reply;
+	Mpi2SasIOUnitPage0_t *sas_iounit_pg0 = NULL;
+	u16 attached_handle;
+	u64 attached_sas_addr;
+	u8 found = 0, port_count = 0, port_id;
+
+	sz = offsetof(Mpi2SasIOUnitPage0_t, PhyData) + (ioc->sas_hba.num_phys
+	    * sizeof(Mpi2SasIOUnit0PhyData_t));
+	sas_iounit_pg0 = kzalloc(sz, GFP_KERNEL);
+	if (!sas_iounit_pg0) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		    __FILE__, __LINE__, __func__);
+		return port_count;
+	}
+
+	if ((mpt3sas_config_get_sas_iounit_pg0(ioc, &mpi_reply,
+	    sas_iounit_pg0, sz)) != 0)
+		goto out;
+	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) & MPI2_IOCSTATUS_MASK;
+	if (ioc_status != MPI2_IOCSTATUS_SUCCESS)
+		goto out;
+	for (i = 0; i < ioc->sas_hba.num_phys; i++) {
+		found = 0;
+		if ((sas_iounit_pg0->PhyData[i].NegotiatedLinkRate >> 4) <
+		    MPI2_SAS_NEG_LINK_RATE_1_5)
+			continue;
+		attached_handle =
+		    le16_to_cpu(sas_iounit_pg0->PhyData[i].AttachedDevHandle);
+		if (_scsih_get_sas_address(
+		    ioc, attached_handle, &attached_sas_addr) != 0) {
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			    __FILE__, __LINE__, __func__);
+			continue;
+		}
+
+		for (j = 0; j < port_count; j++) {
+			port_id = sas_iounit_pg0->PhyData[i].Port;
+			if (port_table[j].port_id == port_id &&
+			    port_table[j].sas_address == attached_sas_addr) {
+				port_table[j].phy_mask |= (1 << i);
+				found = 1;
+				break;
+			}
+		}
+
+		if (found)
+			continue;
+
+		port_id = sas_iounit_pg0->PhyData[i].Port;
+		port_table[port_count].port_id = port_id;
+		port_table[port_count].phy_mask = (1 << i);
+		port_table[port_count].sas_address = attached_sas_addr;
+		port_count++;
+	}
+out:
+	kfree(sas_iounit_pg0);
+	return port_count;
+}
+
+enum hba_port_matched_codes {
+	NOT_MATCHED = 0,
+	MATCHED_WITH_ADDR_AND_PHYMASK,
+	MATCHED_WITH_ADDR_SUBPHYMASK_AND_PORT,
+	MATCHED_WITH_ADDR_AND_SUBPHYMASK,
+	MATCHED_WITH_ADDR,
+};
+
+/**
+ * _scsih_look_and_get_matched_port_entry - Get matched hba port entry
+ *					from HBA port table
+ * @ioc: per adapter object
+ * @port_entry: hba port entry from temporary port table which needs to be
+ *		searched for matched entry in the HBA port table
+ * @matched_port_entry: save matched hba port entry here
+ * @count: count of matched entries
+ *
+ * return type of matched entry found.
+ */
+static enum hba_port_matched_codes
+_scsih_look_and_get_matched_port_entry(struct MPT3SAS_ADAPTER *ioc,
+	struct hba_port *port_entry,
+	struct hba_port **matched_port_entry, int *count)
+{
+	struct hba_port *port_table_entry, *matched_port = NULL;
+	enum hba_port_matched_codes matched_code = NOT_MATCHED;
+	int lcount = 0;
+	*matched_port_entry = NULL;
+
+	list_for_each_entry(port_table_entry, &ioc->port_table_list, list) {
+		if (!(port_table_entry->flags & HBA_PORT_FLAG_DIRTY_PORT))
+			continue;
+
+		if ((port_table_entry->sas_address == port_entry->sas_address)
+		    && (port_table_entry->phy_mask == port_entry->phy_mask)) {
+			matched_code = MATCHED_WITH_ADDR_AND_PHYMASK;
+			matched_port = port_table_entry;
+			break;
+		}
+
+		if ((port_table_entry->sas_address == port_entry->sas_address)
+		    && (port_table_entry->phy_mask & port_entry->phy_mask)
+		    && (port_table_entry->port_id == port_entry->port_id)) {
+			matched_code = MATCHED_WITH_ADDR_SUBPHYMASK_AND_PORT;
+			matched_port = port_table_entry;
+			continue;
+		}
+
+		if ((port_table_entry->sas_address == port_entry->sas_address)
+		    && (port_table_entry->phy_mask & port_entry->phy_mask)) {
+			if (matched_code ==
+			    MATCHED_WITH_ADDR_SUBPHYMASK_AND_PORT)
+				continue;
+			matched_code = MATCHED_WITH_ADDR_AND_SUBPHYMASK;
+			matched_port = port_table_entry;
+			continue;
+		}
+
+		if (port_table_entry->sas_address == port_entry->sas_address) {
+			if (matched_code ==
+			    MATCHED_WITH_ADDR_SUBPHYMASK_AND_PORT)
+				continue;
+			if (matched_code == MATCHED_WITH_ADDR_AND_SUBPHYMASK)
+				continue;
+			matched_code = MATCHED_WITH_ADDR;
+			matched_port = port_table_entry;
+			lcount++;
+		}
+	}
+
+	*matched_port_entry = matched_port;
+	if (matched_code ==  MATCHED_WITH_ADDR)
+		*count = lcount;
+	return matched_code;
+}
+
+/**
+ * _scsih_del_phy_part_of_anther_port - remove phy if it
+ *				is a part of anther port
+ *@ioc: per adapter object
+ *@port_table: port table after reset
+ *@index: hba port entry index
+ *@port_count: number of ports available after host reset
+ *@offset: HBA phy bit offset
+ *
+ */
+static void
+_scsih_del_phy_part_of_anther_port(struct MPT3SAS_ADAPTER *ioc,
+	struct hba_port *port_table,
+	int index, u8 port_count, int offset)
+{
+	struct _sas_node *sas_node = &ioc->sas_hba;
+	u32 i, found = 0;
+
+	for (i = 0; i < port_count; i++) {
+		if (i == index)
+			continue;
+
+		if (port_table[i].phy_mask & (1 << offset)) {
+			mpt3sas_transport_del_phy_from_an_existing_port(
+			    ioc, sas_node, &sas_node->phy[offset]);
+			found = 1;
+			break;
+		}
+	}
+	if (!found)
+		port_table[index].phy_mask |= (1 << offset);
+}
+
+/**
+ * _scsih_add_or_del_phys_from_existing_port - add/remove phy to/from
+ *						right port
+ *@ioc: per adapter object
+ *@hba_port_entry: hba port table entry
+ *@port_table: temporary port table
+ *@index: hba port entry index
+ *@port_count: number of ports available after host reset
+ *
+ */
+static void
+_scsih_add_or_del_phys_from_existing_port(struct MPT3SAS_ADAPTER *ioc,
+	struct hba_port *hba_port_entry, struct hba_port *port_table,
+	int index, int port_count)
+{
+	u32 phy_mask, offset = 0;
+	struct _sas_node *sas_node = &ioc->sas_hba;
+
+	phy_mask = hba_port_entry->phy_mask ^ port_table[index].phy_mask;
+
+	for (offset = 0; offset < ioc->sas_hba.num_phys; offset++) {
+		if (phy_mask & (1 << offset)) {
+			if (!(port_table[index].phy_mask & (1 << offset))) {
+				_scsih_del_phy_part_of_anther_port(
+				    ioc, port_table, index, port_count,
+				    offset);
+				continue;
+			}
+			if (sas_node->phy[offset].phy_belongs_to_port)
+				mpt3sas_transport_del_phy_from_an_existing_port(
+				    ioc, sas_node, &sas_node->phy[offset]);
+			mpt3sas_transport_add_phy_to_an_existing_port(
+			    ioc, sas_node, &sas_node->phy[offset],
+			    hba_port_entry->sas_address,
+			    hba_port_entry);
+		}
+	}
+}
+
+/**
+ * _scsih_del_dirty_vphy - delete virtual_phy objects marked as dirty.
+ * @ioc: per adapter object
+ *
+ * Returns nothing.
+ */
+static void
+_scsih_del_dirty_vphy(struct MPT3SAS_ADAPTER *ioc)
+{
+	struct hba_port *port, *port_next;
+	struct virtual_phy *vphy, *vphy_next;
+
+	list_for_each_entry_safe(port, port_next,
+	    &ioc->port_table_list, list) {
+		if (!port->vphys_mask)
+			continue;
+		list_for_each_entry_safe(vphy, vphy_next,
+		    &port->vphys_list, list) {
+			if (vphy->flags & MPT_VPHY_FLAG_DIRTY_PHY) {
+				drsprintk(ioc, ioc_info(ioc,
+				    "Deleting vphy %p entry from port id: %d\t, Phy_mask 0x%08x\n",
+				    vphy, port->port_id,
+				    vphy->phy_mask));
+				port->vphys_mask &= ~vphy->phy_mask;
+				list_del(&vphy->list);
+				kfree(vphy);
+			}
+		}
+		if (!port->vphys_mask && !port->sas_address)
+			port->flags |= HBA_PORT_FLAG_DIRTY_PORT;
+	}
+}
+
+/**
+ * _scsih_del_dirty_port_entries - delete dirty port entries from port list
+ *					after host reset
+ *@ioc: per adapter object
+ *
+ */
+static void
+_scsih_del_dirty_port_entries(struct MPT3SAS_ADAPTER *ioc)
+{
+	struct hba_port *port, *port_next;
+
+	list_for_each_entry_safe(port, port_next,
+	    &ioc->port_table_list, list) {
+		if (!(port->flags & HBA_PORT_FLAG_DIRTY_PORT) ||
+		    port->flags & HBA_PORT_FLAG_NEW_PORT)
+			continue;
+
+		drsprintk(ioc, ioc_info(ioc,
+		    "Deleting port table entry %p having Port: %d\t Phy_mask 0x%08x\n",
+		    port, port->port_id, port->phy_mask));
+		list_del(&port->list);
+		kfree(port);
+	}
+}
+
+/**
+ * _scsih_sas_port_refresh - Update HBA port table after host reset
+ * @ioc: per adapter object
+ */
+static void
+_scsih_sas_port_refresh(struct MPT3SAS_ADAPTER *ioc)
+{
+	u32 port_count = 0;
+	struct hba_port *port_table;
+	struct hba_port *port_table_entry;
+	struct hba_port *port_entry = NULL;
+	int i, j, count = 0, lcount = 0;
+	int ret;
+	u64 sas_addr;
+	u8 num_phys;
+
+	drsprintk(ioc, ioc_info(ioc,
+	    "updating ports for sas_host(0x%016llx)\n",
+	    (unsigned long long)ioc->sas_hba.sas_address));
+
+	mpt3sas_config_get_number_hba_phys(ioc, &num_phys);
+	if (!num_phys) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		    __FILE__, __LINE__, __func__);
+		return;
+	}
+
+	if (num_phys > ioc->sas_hba.nr_phys_allocated) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		   __FILE__, __LINE__, __func__);
+		return;
+	}
+	ioc->sas_hba.num_phys = num_phys;
+
+	port_table = kcalloc(ioc->sas_hba.num_phys,
+	    sizeof(struct hba_port), GFP_KERNEL);
+	if (!port_table)
+		return;
+
+	port_count = _scsih_get_port_table_after_reset(ioc, port_table);
+	if (!port_count)
+		return;
+
+	drsprintk(ioc, ioc_info(ioc, "New Port table\n"));
+	for (j = 0; j < port_count; j++)
+		drsprintk(ioc, ioc_info(ioc,
+		    "Port: %d\t Phy_mask 0x%08x\t sas_addr(0x%016llx)\n",
+		    port_table[j].port_id,
+		    port_table[j].phy_mask, port_table[j].sas_address));
+
+	list_for_each_entry(port_table_entry, &ioc->port_table_list, list)
+		port_table_entry->flags |= HBA_PORT_FLAG_DIRTY_PORT;
+
+	drsprintk(ioc, ioc_info(ioc, "Old Port table\n"));
+	port_table_entry = NULL;
+	list_for_each_entry(port_table_entry, &ioc->port_table_list, list) {
+		drsprintk(ioc, ioc_info(ioc,
+		    "Port: %d\t Phy_mask 0x%08x\t sas_addr(0x%016llx)\n",
+		    port_table_entry->port_id,
+		    port_table_entry->phy_mask,
+		    port_table_entry->sas_address));
+	}
+
+	for (j = 0; j < port_count; j++) {
+		ret = _scsih_look_and_get_matched_port_entry(ioc,
+		    &port_table[j], &port_entry, &count);
+		if (!port_entry) {
+			drsprintk(ioc, ioc_info(ioc,
+			    "No Matched entry for sas_addr(0x%16llx), Port:%d\n",
+			    port_table[j].sas_address,
+			    port_table[j].port_id));
+			continue;
+		}
+
+		switch (ret) {
+		case MATCHED_WITH_ADDR_SUBPHYMASK_AND_PORT:
+		case MATCHED_WITH_ADDR_AND_SUBPHYMASK:
+			_scsih_add_or_del_phys_from_existing_port(ioc,
+			    port_entry, port_table, j, port_count);
+			break;
+		case MATCHED_WITH_ADDR:
+			sas_addr = port_table[j].sas_address;
+			for (i = 0; i < port_count; i++) {
+				if (port_table[i].sas_address == sas_addr)
+					lcount++;
+			}
+
+			if (count > 1 || lcount > 1)
+				port_entry = NULL;
+			else
+				_scsih_add_or_del_phys_from_existing_port(ioc,
+				    port_entry, port_table, j, port_count);
+		}
+
+		if (!port_entry)
+			continue;
+
+		if (port_entry->port_id != port_table[j].port_id)
+			port_entry->port_id = port_table[j].port_id;
+		port_entry->flags &= ~HBA_PORT_FLAG_DIRTY_PORT;
+		port_entry->phy_mask = port_table[j].phy_mask;
+	}
+
+	port_table_entry = NULL;
+}
+
+/**
+ * _scsih_alloc_vphy - allocate virtual_phy object
+ * @ioc: per adapter object
+ * @port_id: Port ID number
+ * @phy_num: HBA Phy number
+ *
+ * Returns allocated virtual_phy object.
+ */
+static struct virtual_phy *
+_scsih_alloc_vphy(struct MPT3SAS_ADAPTER *ioc, u8 port_id, u8 phy_num)
+{
+	struct virtual_phy *vphy;
+	struct hba_port *port;
+
+	port = mpt3sas_get_port_by_id(ioc, port_id, 0);
+	if (!port)
+		return NULL;
+
+	vphy = mpt3sas_get_vphy_by_phy(ioc, port, phy_num);
+	if (!vphy) {
+		vphy = kzalloc(sizeof(struct virtual_phy), GFP_KERNEL);
+		if (!vphy)
+			return NULL;
+
+		if (!port->vphys_mask)
+			INIT_LIST_HEAD(&port->vphys_list);
+
+		/*
+		 * Enable bit corresponding to HBA phy number on its
+		 * parent hba_port object's vphys_mask field.
+		 */
+		port->vphys_mask |= (1 << phy_num);
+		vphy->phy_mask |= (1 << phy_num);
+
+		list_add_tail(&vphy->list, &port->vphys_list);
+
+		ioc_info(ioc,
+		    "vphy entry: %p, port id: %d, phy:%d is added to port's vphys_list\n",
+		    vphy, port->port_id, phy_num);
+	}
+	return vphy;
+}
+
+/**
+>>>>>>> upstream/android-13
  * _scsih_sas_host_refresh - refreshing sas host object contents
  * @ioc: per adapter object
  * Context: user
@@ -5468,18 +7662,33 @@ _scsih_sas_host_refresh(struct MPT3SAS_ADAPTER *ioc)
 	Mpi2ConfigReply_t mpi_reply;
 	Mpi2SasIOUnitPage0_t *sas_iounit_pg0 = NULL;
 	u16 attached_handle;
+<<<<<<< HEAD
 	u8 link_rate;
 
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 	    "updating handles for sas_host(0x%016llx)\n",
 	    ioc->name, (unsigned long long)ioc->sas_hba.sas_address));
+=======
+	u8 link_rate, port_id;
+	struct hba_port *port;
+	Mpi2SasPhyPage0_t phy_pg0;
+
+	dtmprintk(ioc,
+		  ioc_info(ioc, "updating handles for sas_host(0x%016llx)\n",
+			   (u64)ioc->sas_hba.sas_address));
+>>>>>>> upstream/android-13
 
 	sz = offsetof(Mpi2SasIOUnitPage0_t, PhyData) + (ioc->sas_hba.num_phys
 	    * sizeof(Mpi2SasIOUnit0PhyData_t));
 	sas_iounit_pg0 = kzalloc(sz, GFP_KERNEL);
 	if (!sas_iounit_pg0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -5492,15 +7701,104 @@ _scsih_sas_host_refresh(struct MPT3SAS_ADAPTER *ioc)
 	for (i = 0; i < ioc->sas_hba.num_phys ; i++) {
 		link_rate = sas_iounit_pg0->PhyData[i].NegotiatedLinkRate >> 4;
 		if (i == 0)
+<<<<<<< HEAD
 			ioc->sas_hba.handle = le16_to_cpu(sas_iounit_pg0->
 			    PhyData[0].ControllerDevHandle);
+=======
+			ioc->sas_hba.handle = le16_to_cpu(
+			    sas_iounit_pg0->PhyData[0].ControllerDevHandle);
+		port_id = sas_iounit_pg0->PhyData[i].Port;
+		if (!(mpt3sas_get_port_by_id(ioc, port_id, 0))) {
+			port = kzalloc(sizeof(struct hba_port), GFP_KERNEL);
+			if (!port)
+				goto out;
+
+			port->port_id = port_id;
+			ioc_info(ioc,
+			    "hba_port entry: %p, port: %d is added to hba_port list\n",
+			    port, port->port_id);
+			if (ioc->shost_recovery)
+				port->flags = HBA_PORT_FLAG_NEW_PORT;
+			list_add_tail(&port->list, &ioc->port_table_list);
+		}
+		/*
+		 * Check whether current Phy belongs to HBA vSES device or not.
+		 */
+		if (le32_to_cpu(sas_iounit_pg0->PhyData[i].ControllerPhyDeviceInfo) &
+		    MPI2_SAS_DEVICE_INFO_SEP &&
+		    (link_rate >=  MPI2_SAS_NEG_LINK_RATE_1_5)) {
+			if ((mpt3sas_config_get_phy_pg0(ioc, &mpi_reply,
+			    &phy_pg0, i))) {
+				ioc_err(ioc,
+				    "failure at %s:%d/%s()!\n",
+				     __FILE__, __LINE__, __func__);
+				goto out;
+			}
+			if (!(le32_to_cpu(phy_pg0.PhyInfo) &
+			    MPI2_SAS_PHYINFO_VIRTUAL_PHY))
+				continue;
+			/*
+			 * Allocate a virtual_phy object for vSES device, if
+			 * this vSES device is hot added.
+			 */
+			if (!_scsih_alloc_vphy(ioc, port_id, i))
+				goto out;
+			ioc->sas_hba.phy[i].hba_vphy = 1;
+		}
+
+		/*
+		 * Add new HBA phys to STL if these new phys got added as part
+		 * of HBA Firmware upgrade/downgrade operation.
+		 */
+		if (!ioc->sas_hba.phy[i].phy) {
+			if ((mpt3sas_config_get_phy_pg0(ioc, &mpi_reply,
+							&phy_pg0, i))) {
+				ioc_err(ioc, "failure at %s:%d/%s()!\n",
+					__FILE__, __LINE__, __func__);
+				continue;
+			}
+			ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
+				MPI2_IOCSTATUS_MASK;
+			if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+				ioc_err(ioc, "failure at %s:%d/%s()!\n",
+					__FILE__, __LINE__, __func__);
+				continue;
+			}
+			ioc->sas_hba.phy[i].phy_id = i;
+			mpt3sas_transport_add_host_phy(ioc,
+				&ioc->sas_hba.phy[i], phy_pg0,
+				ioc->sas_hba.parent_dev);
+			continue;
+		}
+>>>>>>> upstream/android-13
 		ioc->sas_hba.phy[i].handle = ioc->sas_hba.handle;
 		attached_handle = le16_to_cpu(sas_iounit_pg0->PhyData[i].
 		    AttachedDevHandle);
 		if (attached_handle && link_rate < MPI2_SAS_NEG_LINK_RATE_1_5)
 			link_rate = MPI2_SAS_NEG_LINK_RATE_1_5;
+<<<<<<< HEAD
 		mpt3sas_transport_update_links(ioc, ioc->sas_hba.sas_address,
 		    attached_handle, i, link_rate);
+=======
+		ioc->sas_hba.phy[i].port =
+		    mpt3sas_get_port_by_id(ioc, port_id, 0);
+		mpt3sas_transport_update_links(ioc, ioc->sas_hba.sas_address,
+		    attached_handle, i, link_rate,
+		    ioc->sas_hba.phy[i].port);
+	}
+	/*
+	 * Clear the phy details if this phy got disabled as part of
+	 * HBA Firmware upgrade/downgrade operation.
+	 */
+	for (i = ioc->sas_hba.num_phys;
+	     i < ioc->sas_hba.nr_phys_allocated; i++) {
+		if (ioc->sas_hba.phy[i].phy &&
+		    ioc->sas_hba.phy[i].phy->negotiated_linkrate >=
+		    SAS_LINK_RATE_1_5_GBPS)
+			mpt3sas_transport_update_links(ioc,
+				ioc->sas_hba.sas_address, 0, i,
+				MPI2_SAS_NEG_LINK_RATE_PHY_DISABLED, NULL);
+>>>>>>> upstream/android-13
 	}
  out:
 	kfree(sas_iounit_pg0);
@@ -5525,6 +7823,7 @@ _scsih_sas_host_add(struct MPT3SAS_ADAPTER *ioc)
 	u16 ioc_status;
 	u16 sz;
 	u8 device_missing_delay;
+<<<<<<< HEAD
 	u8 num_phys;
 
 	mpt3sas_config_get_number_hba_phys(ioc, &num_phys);
@@ -5538,6 +7837,25 @@ _scsih_sas_host_add(struct MPT3SAS_ADAPTER *ioc)
 	if (!ioc->sas_hba.phy) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+	u8 num_phys, port_id;
+	struct hba_port *port;
+
+	mpt3sas_config_get_number_hba_phys(ioc, &num_phys);
+	if (!num_phys) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+		return;
+	}
+
+	ioc->sas_hba.nr_phys_allocated = max_t(u8,
+	    MPT_MAX_HBA_NUM_PHYS, num_phys);
+	ioc->sas_hba.phy = kcalloc(ioc->sas_hba.nr_phys_allocated,
+	    sizeof(struct _sas_phy), GFP_KERNEL);
+	if (!ioc->sas_hba.phy) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	ioc->sas_hba.num_phys = num_phys;
@@ -5547,21 +7865,36 @@ _scsih_sas_host_add(struct MPT3SAS_ADAPTER *ioc)
 	    sizeof(Mpi2SasIOUnit0PhyData_t));
 	sas_iounit_pg0 = kzalloc(sz, GFP_KERNEL);
 	if (!sas_iounit_pg0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 	if ((mpt3sas_config_get_sas_iounit_pg0(ioc, &mpi_reply,
 	    sas_iounit_pg0, sz))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 	    MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -5570,21 +7903,36 @@ _scsih_sas_host_add(struct MPT3SAS_ADAPTER *ioc)
 	    sizeof(Mpi2SasIOUnit1PhyData_t));
 	sas_iounit_pg1 = kzalloc(sz, GFP_KERNEL);
 	if (!sas_iounit_pg1) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	if ((mpt3sas_config_get_sas_iounit_pg1(ioc, &mpi_reply,
 	    sas_iounit_pg1, sz))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 	    MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -5603,40 +7951,99 @@ _scsih_sas_host_add(struct MPT3SAS_ADAPTER *ioc)
 	for (i = 0; i < ioc->sas_hba.num_phys ; i++) {
 		if ((mpt3sas_config_get_phy_pg0(ioc, &mpi_reply, &phy_pg0,
 		    i))) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			    ioc->name, __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			    ioc->name, __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
 		if (i == 0)
 			ioc->sas_hba.handle = le16_to_cpu(sas_iounit_pg0->
 			    PhyData[0].ControllerDevHandle);
+<<<<<<< HEAD
 		ioc->sas_hba.phy[i].handle = ioc->sas_hba.handle;
 		ioc->sas_hba.phy[i].phy_id = i;
+=======
+
+		port_id = sas_iounit_pg0->PhyData[i].Port;
+		if (!(mpt3sas_get_port_by_id(ioc, port_id, 0))) {
+			port = kzalloc(sizeof(struct hba_port), GFP_KERNEL);
+			if (!port)
+				goto out;
+
+			port->port_id = port_id;
+			ioc_info(ioc,
+			   "hba_port entry: %p, port: %d is added to hba_port list\n",
+			   port, port->port_id);
+			list_add_tail(&port->list,
+			    &ioc->port_table_list);
+		}
+
+		/*
+		 * Check whether current Phy belongs to HBA vSES device or not.
+		 */
+		if ((le32_to_cpu(phy_pg0.PhyInfo) &
+		    MPI2_SAS_PHYINFO_VIRTUAL_PHY) &&
+		    (phy_pg0.NegotiatedLinkRate >> 4) >=
+		    MPI2_SAS_NEG_LINK_RATE_1_5) {
+			/*
+			 * Allocate a virtual_phy object for vSES device.
+			 */
+			if (!_scsih_alloc_vphy(ioc, port_id, i))
+				goto out;
+			ioc->sas_hba.phy[i].hba_vphy = 1;
+		}
+
+		ioc->sas_hba.phy[i].handle = ioc->sas_hba.handle;
+		ioc->sas_hba.phy[i].phy_id = i;
+		ioc->sas_hba.phy[i].port =
+		    mpt3sas_get_port_by_id(ioc, port_id, 0);
+>>>>>>> upstream/android-13
 		mpt3sas_transport_add_host_phy(ioc, &ioc->sas_hba.phy[i],
 		    phy_pg0, ioc->sas_hba.parent_dev);
 	}
 	if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply, &sas_device_pg0,
 	    MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, ioc->sas_hba.handle))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	ioc->sas_hba.enclosure_handle =
 	    le16_to_cpu(sas_device_pg0.EnclosureHandle);
 	ioc->sas_hba.sas_address = le64_to_cpu(sas_device_pg0.SASAddress);
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT
 		"host_add: handle(0x%04x), sas_addr(0x%016llx), phys(%d)\n",
 		ioc->name, ioc->sas_hba.handle,
 	    (unsigned long long) ioc->sas_hba.sas_address,
 	    ioc->sas_hba.num_phys) ;
+=======
+	ioc_info(ioc, "host_add: handle(0x%04x), sas_addr(0x%016llx), phys(%d)\n",
+		 ioc->sas_hba.handle,
+		 (u64)ioc->sas_hba.sas_address,
+		 ioc->sas_hba.num_phys);
+>>>>>>> upstream/android-13
 
 	if (ioc->sas_hba.enclosure_handle) {
 		if (!(mpt3sas_config_get_enclosure_pg0(ioc, &mpi_reply,
@@ -5674,6 +8081,10 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	int i;
 	unsigned long flags;
 	struct _sas_port *mpt3sas_port = NULL;
+<<<<<<< HEAD
+=======
+	u8 port_id;
+>>>>>>> upstream/android-13
 
 	int rc = 0;
 
@@ -5685,16 +8096,26 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 
 	if ((mpt3sas_config_get_expander_pg0(ioc, &mpi_reply, &expander_pg0,
 	    MPI2_SAS_EXPAND_PGAD_FORM_HNDL, handle))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 	    MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -5702,6 +8123,7 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	parent_handle = le16_to_cpu(expander_pg0.ParentDevHandle);
 	if (_scsih_get_sas_address(ioc, parent_handle, &sas_address_parent)
 	    != 0) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
 		return -1;
@@ -5710,6 +8132,19 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		spin_lock_irqsave(&ioc->sas_node_lock, flags);
 		sas_expander = mpt3sas_scsih_expander_find_by_sas_address(ioc,
 		    sas_address_parent);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+		return -1;
+	}
+
+	port_id = expander_pg0.PhysicalPort;
+	if (sas_address_parent != ioc->sas_hba.sas_address) {
+		spin_lock_irqsave(&ioc->sas_node_lock, flags);
+		sas_expander = mpt3sas_scsih_expander_find_by_sas_address(ioc,
+		    sas_address_parent,
+		    mpt3sas_get_port_by_id(ioc, port_id, 0));
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 		if (!sas_expander) {
 			rc = _scsih_expander_add(ioc, parent_handle);
@@ -5721,7 +8156,11 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
 	sas_address = le64_to_cpu(expander_pg0.SASAddress);
 	sas_expander = mpt3sas_scsih_expander_find_by_sas_address(ioc,
+<<<<<<< HEAD
 	    sas_address);
+=======
+	    sas_address, mpt3sas_get_port_by_id(ioc, port_id, 0));
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 
 	if (sas_expander)
@@ -5730,8 +8169,13 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	sas_expander = kzalloc(sizeof(struct _sas_node),
 	    GFP_KERNEL);
 	if (!sas_expander) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -5739,6 +8183,7 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	sas_expander->num_phys = expander_pg0.NumPhys;
 	sas_expander->sas_address_parent = sas_address_parent;
 	sas_expander->sas_address = sas_address;
+<<<<<<< HEAD
 
 	pr_info(MPT3SAS_FMT "expander_add: handle(0x%04x)," \
 	    " parent(0x%04x), sas_addr(0x%016llx), phys(%d)\n", ioc->name,
@@ -5752,37 +8197,86 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	if (!sas_expander->phy) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+	sas_expander->port = mpt3sas_get_port_by_id(ioc, port_id, 0);
+	if (!sas_expander->port) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		    __FILE__, __LINE__, __func__);
+		rc = -1;
+		goto out_fail;
+	}
+
+	ioc_info(ioc, "expander_add: handle(0x%04x), parent(0x%04x), sas_addr(0x%016llx), phys(%d)\n",
+		 handle, parent_handle,
+		 (u64)sas_expander->sas_address, sas_expander->num_phys);
+
+	if (!sas_expander->num_phys) {
+		rc = -1;
+		goto out_fail;
+	}
+	sas_expander->phy = kcalloc(sas_expander->num_phys,
+	    sizeof(struct _sas_phy), GFP_KERNEL);
+	if (!sas_expander->phy) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		rc = -1;
 		goto out_fail;
 	}
 
 	INIT_LIST_HEAD(&sas_expander->sas_port_list);
 	mpt3sas_port = mpt3sas_transport_port_add(ioc, handle,
+<<<<<<< HEAD
 	    sas_address_parent);
 	if (!mpt3sas_port) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+	    sas_address_parent, sas_expander->port);
+	if (!mpt3sas_port) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		rc = -1;
 		goto out_fail;
 	}
 	sas_expander->parent_dev = &mpt3sas_port->rphy->dev;
+<<<<<<< HEAD
+=======
+	sas_expander->rphy = mpt3sas_port->rphy;
+>>>>>>> upstream/android-13
 
 	for (i = 0 ; i < sas_expander->num_phys ; i++) {
 		if ((mpt3sas_config_get_expander_pg1(ioc, &mpi_reply,
 		    &expander_pg1, i, handle))) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			    ioc->name, __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			rc = -1;
 			goto out_fail;
 		}
 		sas_expander->phy[i].handle = handle;
 		sas_expander->phy[i].phy_id = i;
+<<<<<<< HEAD
+=======
+		sas_expander->phy[i].port =
+		    mpt3sas_get_port_by_id(ioc, port_id, 0);
+>>>>>>> upstream/android-13
 
 		if ((mpt3sas_transport_add_expander_phy(ioc,
 		    &sas_expander->phy[i], expander_pg1,
 		    sas_expander->parent_dev))) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			    ioc->name, __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			rc = -1;
 			goto out_fail;
 		}
@@ -5804,7 +8298,11 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 
 	if (mpt3sas_port)
 		mpt3sas_transport_port_remove(ioc, sas_expander->sas_address,
+<<<<<<< HEAD
 		    sas_address_parent);
+=======
+		    sas_address_parent, sas_expander->port);
+>>>>>>> upstream/android-13
 	kfree(sas_expander);
 	return rc;
 }
@@ -5813,9 +8311,17 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
  * mpt3sas_expander_remove - removing expander object
  * @ioc: per adapter object
  * @sas_address: expander sas_address
+<<<<<<< HEAD
  */
 void
 mpt3sas_expander_remove(struct MPT3SAS_ADAPTER *ioc, u64 sas_address)
+=======
+ * @port: hba port entry
+ */
+void
+mpt3sas_expander_remove(struct MPT3SAS_ADAPTER *ioc, u64 sas_address,
+	struct hba_port *port)
+>>>>>>> upstream/android-13
 {
 	struct _sas_node *sas_expander;
 	unsigned long flags;
@@ -5823,9 +8329,18 @@ mpt3sas_expander_remove(struct MPT3SAS_ADAPTER *ioc, u64 sas_address)
 	if (ioc->shost_recovery)
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
 	sas_expander = mpt3sas_scsih_expander_find_by_sas_address(ioc,
 	    sas_address);
+=======
+	if (!port)
+		return;
+
+	spin_lock_irqsave(&ioc->sas_node_lock, flags);
+	sas_expander = mpt3sas_scsih_expander_find_by_sas_address(ioc,
+	    sas_address, port);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 	if (sas_expander)
 		_scsih_expander_node_remove(ioc, sas_expander);
@@ -5929,9 +8444,14 @@ _scsih_check_access_status(struct MPT3SAS_ADAPTER *ioc, u64 sas_address,
 	if (!rc)
 		return 0;
 
+<<<<<<< HEAD
 	pr_err(MPT3SAS_FMT
 		"discovery errors(%s): sas_address(0x%016llx), handle(0x%04x)\n",
 		ioc->name, desc, (unsigned long long)sas_address, handle);
+=======
+	ioc_err(ioc, "discovery errors(%s): sas_address(0x%016llx), handle(0x%04x)\n",
+		desc, (u64)sas_address, handle);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -5949,7 +8469,11 @@ _scsih_check_device(struct MPT3SAS_ADAPTER *ioc,
 {
 	Mpi2ConfigReply_t mpi_reply;
 	Mpi2SasDevicePage0_t sas_device_pg0;
+<<<<<<< HEAD
 	struct _sas_device *sas_device;
+=======
+	struct _sas_device *sas_device = NULL;
+>>>>>>> upstream/android-13
 	struct _enclosure_node *enclosure_dev = NULL;
 	u32 ioc_status;
 	unsigned long flags;
@@ -5957,6 +8481,10 @@ _scsih_check_device(struct MPT3SAS_ADAPTER *ioc,
 	struct scsi_target *starget;
 	struct MPT3SAS_TARGET *sas_target_priv_data;
 	u32 device_info;
+<<<<<<< HEAD
+=======
+	struct hba_port *port;
+>>>>>>> upstream/android-13
 
 	if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply, &sas_device_pg0,
 	    MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, handle)))
@@ -5979,8 +8507,16 @@ _scsih_check_device(struct MPT3SAS_ADAPTER *ioc,
 
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	sas_address = le64_to_cpu(sas_device_pg0.SASAddress);
+<<<<<<< HEAD
 	sas_device = __mpt3sas_get_sdev_by_addr(ioc,
 	    sas_address);
+=======
+	port = mpt3sas_get_port_by_id(ioc, sas_device_pg0.PhysicalPort, 0);
+	if (!port)
+		goto out_unlock;
+	sas_device = __mpt3sas_get_sdev_by_addr(ioc,
+	    sas_address, port);
+>>>>>>> upstream/android-13
 
 	if (!sas_device)
 		goto out_unlock;
@@ -6025,9 +8561,14 @@ _scsih_check_device(struct MPT3SAS_ADAPTER *ioc,
 	/* check if device is present */
 	if (!(le16_to_cpu(sas_device_pg0.Flags) &
 	    MPI2_SAS_DEVICE0_FLAGS_DEVICE_PRESENT)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 			"device is not present handle(0x%04x), flags!!!\n",
 			ioc->name, handle);
+=======
+		ioc_err(ioc, "device is not present handle(0x%04x), flags!!!\n",
+			handle);
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	}
 
@@ -6037,7 +8578,11 @@ _scsih_check_device(struct MPT3SAS_ADAPTER *ioc,
 		goto out_unlock;
 
 	spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
+<<<<<<< HEAD
 	_scsih_ublock_io_device(ioc, sas_address);
+=======
+	_scsih_ublock_io_device(ioc, sas_address, port);
+>>>>>>> upstream/android-13
 
 	if (sas_device)
 		sas_device_put(sas_device);
@@ -6071,19 +8616,33 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 	u32 ioc_status;
 	u64 sas_address;
 	u32 device_info;
+<<<<<<< HEAD
 
 	if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply, &sas_device_pg0,
 	    MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, handle))) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+	u8 port_id;
+
+	if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply, &sas_device_pg0,
+	    MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, handle))) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 	    MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -6097,8 +8656,13 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 	/* check if device is present */
 	if (!(le16_to_cpu(sas_device_pg0.Flags) &
 	    MPI2_SAS_DEVICE0_FLAGS_DEVICE_PRESENT)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "device is not present handle(0x04%x)!!!\n",
 			ioc->name, handle);
+=======
+		ioc_err(ioc, "device is not present handle(0x04%x)!!!\n",
+			handle);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -6107,8 +8671,14 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 	    sas_device_pg0.AccessStatus))
 		return -1;
 
+<<<<<<< HEAD
 	sas_device = mpt3sas_get_sdev_by_addr(ioc,
 					sas_address);
+=======
+	port_id = sas_device_pg0.PhysicalPort;
+	sas_device = mpt3sas_get_sdev_by_addr(ioc,
+	    sas_address, mpt3sas_get_port_by_id(ioc, port_id, 0));
+>>>>>>> upstream/android-13
 	if (sas_device) {
 		clear_bit(handle, ioc->pend_os_device_add);
 		sas_device_put(sas_device);
@@ -6120,16 +8690,26 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 			mpt3sas_scsih_enclosure_find_by_handle(ioc,
 			    le16_to_cpu(sas_device_pg0.EnclosureHandle));
 		if (enclosure_dev == NULL)
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "Enclosure handle(0x%04x)"
 			    "doesn't match with enclosure device!\n",
 			    ioc->name, sas_device_pg0.EnclosureHandle);
+=======
+			ioc_info(ioc, "Enclosure handle(0x%04x) doesn't match with enclosure device!\n",
+				 sas_device_pg0.EnclosureHandle);
+>>>>>>> upstream/android-13
 	}
 
 	sas_device = kzalloc(sizeof(struct _sas_device),
 	    GFP_KERNEL);
 	if (!sas_device) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -6138,8 +8718,13 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 	if (_scsih_get_sas_address(ioc,
 	    le16_to_cpu(sas_device_pg0.ParentDevHandle),
 	    &sas_device->sas_address_parent) != 0)
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 	sas_device->enclosure_handle =
 	    le16_to_cpu(sas_device_pg0.EnclosureHandle);
 	if (sas_device->enclosure_handle != 0)
@@ -6150,6 +8735,15 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 	sas_device->phy = sas_device_pg0.PhyNum;
 	sas_device->fast_path = (le16_to_cpu(sas_device_pg0.Flags) &
 	    MPI25_SAS_DEVICE0_FLAGS_FAST_PATH_CAPABLE) ? 1 : 0;
+<<<<<<< HEAD
+=======
+	sas_device->port = mpt3sas_get_port_by_id(ioc, port_id, 0);
+	if (!sas_device->port) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+		    __FILE__, __LINE__, __func__);
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	if (le16_to_cpu(sas_device_pg0.Flags)
 		& MPI2_SAS_DEVICE0_FLAGS_ENCL_LEVEL_VALID) {
@@ -6177,12 +8771,23 @@ _scsih_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phy_num,
 
 	/* get device name */
 	sas_device->device_name = le64_to_cpu(sas_device_pg0.DeviceName);
+<<<<<<< HEAD
+=======
+	sas_device->port_type = sas_device_pg0.MaxPortConnections;
+	ioc_info(ioc,
+	    "handle(0x%0x) sas_address(0x%016llx) port_type(0x%0x)\n",
+	    handle, sas_device->sas_address, sas_device->port_type);
+>>>>>>> upstream/android-13
 
 	if (ioc->wait_for_discovery_to_complete)
 		_scsih_sas_device_init_add(ioc, sas_device);
 	else
 		_scsih_sas_device_add(ioc, sas_device);
 
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	sas_device_put(sas_device);
 	return 0;
 }
@@ -6204,11 +8809,18 @@ _scsih_remove_device(struct MPT3SAS_ADAPTER *ioc,
 		sas_device->pfa_led_on = 0;
 	}
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		"%s: enter: handle(0x%04x), sas_addr(0x%016llx)\n",
 		ioc->name, __func__,
 	    sas_device->handle, (unsigned long long)
 	    sas_device->sas_address));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: enter: handle(0x%04x), sas_addr(0x%016llx)\n",
+			    __func__,
+			    sas_device->handle, (u64)sas_device->sas_address));
+>>>>>>> upstream/android-13
 
 	dewtprintk(ioc, _scsih_display_enclosure_chassis_info(ioc, sas_device,
 	    NULL, NULL));
@@ -6216,7 +8828,12 @@ _scsih_remove_device(struct MPT3SAS_ADAPTER *ioc,
 	if (sas_device->starget && sas_device->starget->hostdata) {
 		sas_target_priv_data = sas_device->starget->hostdata;
 		sas_target_priv_data->deleted = 1;
+<<<<<<< HEAD
 		_scsih_ublock_io_device(ioc, sas_device->sas_address);
+=======
+		_scsih_ublock_io_device(ioc, sas_device->sas_address,
+		    sas_device->port);
+>>>>>>> upstream/android-13
 		sas_target_priv_data->handle =
 		     MPT3SAS_INVALID_DEVICE_HANDLE;
 	}
@@ -6224,6 +8841,7 @@ _scsih_remove_device(struct MPT3SAS_ADAPTER *ioc,
 	if (!ioc->hide_drives)
 		mpt3sas_transport_port_remove(ioc,
 		    sas_device->sas_address,
+<<<<<<< HEAD
 		    sas_device->sas_address_parent);
 
 	pr_info(MPT3SAS_FMT
@@ -6238,6 +8856,20 @@ _scsih_remove_device(struct MPT3SAS_ADAPTER *ioc,
 		ioc->name, __func__,
 		sas_device->handle, (unsigned long long)
 		sas_device->sas_address));
+=======
+		    sas_device->sas_address_parent,
+		    sas_device->port);
+
+	ioc_info(ioc, "removing handle(0x%04x), sas_addr(0x%016llx)\n",
+		 sas_device->handle, (u64)sas_device->sas_address);
+
+	_scsih_display_enclosure_chassis_info(ioc, sas_device, NULL, NULL);
+
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: exit: handle(0x%04x), sas_addr(0x%016llx)\n",
+			    __func__,
+			    sas_device->handle, (u64)sas_device->sas_address));
+>>>>>>> upstream/android-13
 	dewtprintk(ioc, _scsih_display_enclosure_chassis_info(ioc, sas_device,
 	    NULL, NULL));
 }
@@ -6277,8 +8909,12 @@ _scsih_sas_topology_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 		status_str = "unknown status";
 		break;
 	}
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "sas topology change: (%s)\n",
 	    ioc->name, status_str);
+=======
+	ioc_info(ioc, "sas topology change: (%s)\n", status_str);
+>>>>>>> upstream/android-13
 	pr_info("\thandle(0x%04x), enclosure_handle(0x%04x) " \
 	    "start_phy(%02d), count(%d)\n",
 	    le16_to_cpu(event_data->ExpanderDevHandle),
@@ -6339,6 +8975,10 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 	u64 sas_address;
 	unsigned long flags;
 	u8 link_rate, prev_link_rate;
+<<<<<<< HEAD
+=======
+	struct hba_port *port;
+>>>>>>> upstream/android-13
 	Mpi2EventDataSasTopologyChangeList_t *event_data =
 		(Mpi2EventDataSasTopologyChangeList_t *)
 		fw_event->event_data;
@@ -6355,12 +8995,20 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 		_scsih_sas_host_refresh(ioc);
 
 	if (fw_event->ignore) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"ignoring expander event\n", ioc->name));
+=======
+		dewtprintk(ioc, ioc_info(ioc, "ignoring expander event\n"));
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	parent_handle = le16_to_cpu(event_data->ExpanderDevHandle);
+<<<<<<< HEAD
+=======
+	port = mpt3sas_get_port_by_id(ioc, event_data->PhysicalPort, 0);
+>>>>>>> upstream/android-13
 
 	/* handle expander add */
 	if (event_data->ExpStatus == MPI2_EVENT_SAS_TOPO_ES_ADDED)
@@ -6373,6 +9021,10 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 	if (sas_expander) {
 		sas_address = sas_expander->sas_address;
 		max_phys = sas_expander->num_phys;
+<<<<<<< HEAD
+=======
+		port = sas_expander->port;
+>>>>>>> upstream/android-13
 	} else if (parent_handle < ioc->sas_hba.num_phys) {
 		sas_address = ioc->sas_hba.sas_address;
 		max_phys = ioc->sas_hba.num_phys;
@@ -6385,8 +9037,13 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 	/* handle siblings events */
 	for (i = 0; i < event_data->NumEntries; i++) {
 		if (fw_event->ignore) {
+<<<<<<< HEAD
 			dewtprintk(ioc, pr_info(MPT3SAS_FMT
 				"ignoring expander event\n", ioc->name));
+=======
+			dewtprintk(ioc,
+				   ioc_info(ioc, "ignoring expander event\n"));
+>>>>>>> upstream/android-13
 			return 0;
 		}
 		if (ioc->remove_host || ioc->pci_error_recovery)
@@ -6415,7 +9072,11 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 				break;
 
 			mpt3sas_transport_update_links(ioc, sas_address,
+<<<<<<< HEAD
 			    handle, phy_number, link_rate);
+=======
+			    handle, phy_number, link_rate, port);
+>>>>>>> upstream/android-13
 
 			if (link_rate < MPI2_SAS_NEG_LINK_RATE_1_5)
 				break;
@@ -6426,7 +9087,11 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 			if (!test_bit(handle, ioc->pend_os_device_add))
 				break;
 
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 
 		case MPI2_EVENT_SAS_TOPO_RC_TARG_ADDED:
 
@@ -6434,7 +9099,11 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 				break;
 
 			mpt3sas_transport_update_links(ioc, sas_address,
+<<<<<<< HEAD
 			    handle, phy_number, link_rate);
+=======
+			    handle, phy_number, link_rate, port);
+>>>>>>> upstream/android-13
 
 			_scsih_add_device(ioc, handle, phy_number, 0);
 
@@ -6449,7 +9118,11 @@ _scsih_sas_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 	/* handle expander removal */
 	if (event_data->ExpStatus == MPI2_EVENT_SAS_TOPO_ES_NOT_RESPONDING &&
 	    sas_expander)
+<<<<<<< HEAD
 		mpt3sas_expander_remove(ioc, sas_address);
+=======
+		mpt3sas_expander_remove(ioc, sas_address, port);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -6510,6 +9183,7 @@ _scsih_sas_device_status_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 		reason_str = "unknown reason";
 		break;
 	}
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "device status change: (%s)\n"
 	    "\thandle(0x%04x), sas address(0x%016llx), tag(%d)",
 	    ioc->name, reason_str, le16_to_cpu(event_data->DevHandle),
@@ -6519,22 +9193,41 @@ _scsih_sas_device_status_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 		pr_info(MPT3SAS_FMT ", ASC(0x%x), ASCQ(0x%x)\n", ioc->name,
 		    event_data->ASC, event_data->ASCQ);
 	pr_info("\n");
+=======
+	ioc_info(ioc, "device status change: (%s)\thandle(0x%04x), sas address(0x%016llx), tag(%d)",
+		 reason_str, le16_to_cpu(event_data->DevHandle),
+		 (u64)le64_to_cpu(event_data->SASAddress),
+		 le16_to_cpu(event_data->TaskTag));
+	if (event_data->ReasonCode == MPI2_EVENT_SAS_DEV_STAT_RC_SMART_DATA)
+		pr_cont(", ASC(0x%x), ASCQ(0x%x)\n",
+			event_data->ASC, event_data->ASCQ);
+	pr_cont("\n");
+>>>>>>> upstream/android-13
 }
 
 /**
  * _scsih_sas_device_status_change_event - handle device status change
  * @ioc: per adapter object
+<<<<<<< HEAD
  * @fw_event: The fw_event_work object
+=======
+ * @event_data: The fw event
+>>>>>>> upstream/android-13
  * Context: user.
  */
 static void
 _scsih_sas_device_status_change_event(struct MPT3SAS_ADAPTER *ioc,
+<<<<<<< HEAD
 	struct fw_event_work *fw_event)
+=======
+	Mpi2EventDataSasDeviceStatusChange_t *event_data)
+>>>>>>> upstream/android-13
 {
 	struct MPT3SAS_TARGET *target_priv_data;
 	struct _sas_device *sas_device;
 	u64 sas_address;
 	unsigned long flags;
+<<<<<<< HEAD
 	Mpi2EventDataSasDeviceStatusChange_t *event_data =
 		(Mpi2EventDataSasDeviceStatusChange_t *)
 		fw_event->event_data;
@@ -6542,6 +9235,8 @@ _scsih_sas_device_status_change_event(struct MPT3SAS_ADAPTER *ioc,
 	if (ioc->logging_level & MPT_DEBUG_EVENT_WORK_TASK)
 		_scsih_sas_device_status_change_event_debug(ioc,
 		     event_data);
+=======
+>>>>>>> upstream/android-13
 
 	/* In MPI Revision K (0xC), the internal device reset complete was
 	 * implemented, so avoid setting tm_busy flag for older firmware.
@@ -6558,7 +9253,12 @@ _scsih_sas_device_status_change_event(struct MPT3SAS_ADAPTER *ioc,
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
 	sas_address = le64_to_cpu(event_data->SASAddress);
 	sas_device = __mpt3sas_get_sdev_by_addr(ioc,
+<<<<<<< HEAD
 	    sas_address);
+=======
+	    sas_address,
+	    mpt3sas_get_port_by_id(ioc, event_data->PhysicalPort, 0));
+>>>>>>> upstream/android-13
 
 	if (!sas_device || !sas_device->starget)
 		goto out;
@@ -6573,6 +9273,15 @@ _scsih_sas_device_status_change_event(struct MPT3SAS_ADAPTER *ioc,
 	else
 		target_priv_data->tm_busy = 0;
 
+<<<<<<< HEAD
+=======
+	if (ioc->logging_level & MPT_DEBUG_EVENT_WORK_TASK)
+		ioc_info(ioc,
+		    "%s tm_busy flag for handle(0x%04x)\n",
+		    (target_priv_data->tm_busy == 1) ? "Enable" : "Disable",
+		    target_priv_data->handle);
+
+>>>>>>> upstream/android-13
 out:
 	if (sas_device)
 		sas_device_put(sas_device);
@@ -6607,6 +9316,14 @@ _scsih_check_pcie_access_status(struct MPT3SAS_ADAPTER *ioc, u64 wwid,
 		break;
 	case MPI26_PCIEDEV0_ASTATUS_DEVICE_BLOCKED:
 		desc = "PCIe device blocked";
+<<<<<<< HEAD
+=======
+		ioc_info(ioc,
+		    "Device with Access Status (%s): wwid(0x%016llx), "
+		    "handle(0x%04x)\n ll only be added to the internal list",
+		    desc, (u64)wwid, handle);
+		rc = 0;
+>>>>>>> upstream/android-13
 		break;
 	case MPI26_PCIEDEV0_ASTATUS_MEMORY_SPACE_ACCESS_FAILED:
 		desc = "PCIe device mem space access failed";
@@ -6651,20 +9368,30 @@ _scsih_check_pcie_access_status(struct MPT3SAS_ADAPTER *ioc, u64 wwid,
 		desc = "nvme failure status";
 		break;
 	default:
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 		    " NVMe discovery error(0x%02x): wwid(0x%016llx),"
 			"handle(0x%04x)\n", ioc->name, access_status,
 			(unsigned long long)wwid, handle);
+=======
+		ioc_err(ioc, "NVMe discovery error(0x%02x): wwid(0x%016llx), handle(0x%04x)\n",
+			access_status, (u64)wwid, handle);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
 	if (!rc)
 		return rc;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT
 		"NVMe discovery error(%s): wwid(0x%016llx), handle(0x%04x)\n",
 			ioc->name, desc,
 			(unsigned long long)wwid, handle);
+=======
+	ioc_info(ioc, "NVMe discovery error(%s): wwid(0x%016llx), handle(0x%04x)\n",
+		 desc, (u64)wwid, handle);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -6680,6 +9407,7 @@ _scsih_pcie_device_remove_from_sml(struct MPT3SAS_ADAPTER *ioc,
 {
 	struct MPT3SAS_TARGET *sas_target_priv_data;
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 	    "%s: enter: handle(0x%04x), wwid(0x%016llx)\n", ioc->name, __func__,
 	    pcie_device->handle, (unsigned long long)
@@ -6696,10 +9424,29 @@ _scsih_pcie_device_remove_from_sml(struct MPT3SAS_ADAPTER *ioc,
 		    ioc->name, __func__,
 		    pcie_device->enclosure_level,
 		    pcie_device->connector_name));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: enter: handle(0x%04x), wwid(0x%016llx)\n",
+			    __func__,
+			    pcie_device->handle, (u64)pcie_device->wwid));
+	if (pcie_device->enclosure_handle != 0)
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: enter: enclosure logical id(0x%016llx), slot(%d)\n",
+				    __func__,
+				    (u64)pcie_device->enclosure_logical_id,
+				    pcie_device->slot));
+	if (pcie_device->connector_name[0] != '\0')
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: enter: enclosure level(0x%04x), connector name(%s)\n",
+				    __func__,
+				    pcie_device->enclosure_level,
+				    pcie_device->connector_name));
+>>>>>>> upstream/android-13
 
 	if (pcie_device->starget && pcie_device->starget->hostdata) {
 		sas_target_priv_data = pcie_device->starget->hostdata;
 		sas_target_priv_data->deleted = 1;
+<<<<<<< HEAD
 		_scsih_ublock_io_device(ioc, pcie_device->wwid);
 		sas_target_priv_data->handle = MPT3SAS_INVALID_DEVICE_HANDLE;
 	}
@@ -6737,6 +9484,42 @@ _scsih_pcie_device_remove_from_sml(struct MPT3SAS_ADAPTER *ioc,
 		    "%s: exit: enclosure level(0x%04x), connector name( %s)\n",
 		    ioc->name, __func__, pcie_device->enclosure_level,
 		    pcie_device->connector_name));
+=======
+		_scsih_ublock_io_device(ioc, pcie_device->wwid, NULL);
+		sas_target_priv_data->handle = MPT3SAS_INVALID_DEVICE_HANDLE;
+	}
+
+	ioc_info(ioc, "removing handle(0x%04x), wwid(0x%016llx)\n",
+		 pcie_device->handle, (u64)pcie_device->wwid);
+	if (pcie_device->enclosure_handle != 0)
+		ioc_info(ioc, "removing : enclosure logical id(0x%016llx), slot(%d)\n",
+			 (u64)pcie_device->enclosure_logical_id,
+			 pcie_device->slot);
+	if (pcie_device->connector_name[0] != '\0')
+		ioc_info(ioc, "removing: enclosure level(0x%04x), connector name( %s)\n",
+			 pcie_device->enclosure_level,
+			 pcie_device->connector_name);
+
+	if (pcie_device->starget && (pcie_device->access_status !=
+				MPI26_PCIEDEV0_ASTATUS_DEVICE_BLOCKED))
+		scsi_remove_target(&pcie_device->starget->dev);
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s: exit: handle(0x%04x), wwid(0x%016llx)\n",
+			    __func__,
+			    pcie_device->handle, (u64)pcie_device->wwid));
+	if (pcie_device->enclosure_handle != 0)
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: exit: enclosure logical id(0x%016llx), slot(%d)\n",
+				    __func__,
+				    (u64)pcie_device->enclosure_logical_id,
+				    pcie_device->slot));
+	if (pcie_device->connector_name[0] != '\0')
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: exit: enclosure level(0x%04x), connector name( %s)\n",
+				    __func__,
+				    pcie_device->enclosure_level,
+				    pcie_device->connector_name));
+>>>>>>> upstream/android-13
 
 	kfree(pcie_device->serial_number);
 }
@@ -6770,7 +9553,11 @@ _scsih_pcie_check_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 
 	/* check if this is end device */
 	device_info = le32_to_cpu(pcie_device_pg0.DeviceInfo);
+<<<<<<< HEAD
 	if (!(_scsih_is_nvme_device(device_info)))
+=======
+	if (!(_scsih_is_nvme_pciescsi_device(device_info)))
+>>>>>>> upstream/android-13
 		return;
 
 	wwid = le64_to_cpu(pcie_device_pg0.WWID);
@@ -6785,6 +9572,10 @@ _scsih_pcie_check_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	if (unlikely(pcie_device->handle != handle)) {
 		starget = pcie_device->starget;
 		sas_target_priv_data = starget->hostdata;
+<<<<<<< HEAD
+=======
+		pcie_device->access_status = pcie_device_pg0.AccessStatus;
+>>>>>>> upstream/android-13
 		starget_printk(KERN_INFO, starget,
 		    "handle changed from(0x%04x) to (0x%04x)!!!\n",
 		    pcie_device->handle, handle);
@@ -6806,9 +9597,14 @@ _scsih_pcie_check_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	/* check if device is present */
 	if (!(le32_to_cpu(pcie_device_pg0.Flags) &
 	    MPI26_PCIEDEV0_FLAGS_DEVICE_PRESENT)) {
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT
 		    "device is not present handle(0x%04x), flags!!!\n",
 		    ioc->name, handle);
+=======
+		ioc_info(ioc, "device is not present handle(0x%04x), flags!!!\n",
+			 handle);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
 		pcie_device_put(pcie_device);
 		return;
@@ -6825,7 +9621,11 @@ _scsih_pcie_check_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
 	pcie_device_put(pcie_device);
 
+<<<<<<< HEAD
 	_scsih_ublock_io_device(ioc, wwid);
+=======
+	_scsih_ublock_io_device(ioc, wwid, NULL);
+>>>>>>> upstream/android-13
 
 	return;
 }
@@ -6852,16 +9652,26 @@ _scsih_pcie_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 
 	if ((mpt3sas_config_get_pcie_device_pg0(ioc, &mpi_reply,
 	    &pcie_device_pg0, MPI26_PCIE_DEVICE_PGAD_FORM_HANDLE, handle))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 	    MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 		    "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -6871,9 +9681,14 @@ _scsih_pcie_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	/* check if device is present */
 	if (!(le32_to_cpu(pcie_device_pg0.Flags) &
 		MPI26_PCIEDEV0_FLAGS_DEVICE_PRESENT)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 		    "device is not present handle(0x04%x)!!!\n",
 		    ioc->name, handle);
+=======
+		ioc_err(ioc, "device is not present handle(0x04%x)!!!\n",
+			handle);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -6882,7 +9697,12 @@ _scsih_pcie_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	    pcie_device_pg0.AccessStatus))
 		return 0;
 
+<<<<<<< HEAD
 	if (!(_scsih_is_nvme_device(le32_to_cpu(pcie_device_pg0.DeviceInfo))))
+=======
+	if (!(_scsih_is_nvme_pciescsi_device(le32_to_cpu
+	    (pcie_device_pg0.DeviceInfo))))
+>>>>>>> upstream/android-13
 		return 0;
 
 	pcie_device = mpt3sas_get_pdev_by_wwid(ioc, wwid);
@@ -6892,10 +9712,42 @@ _scsih_pcie_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	pcie_device = kzalloc(sizeof(struct _pcie_device), GFP_KERNEL);
 	if (!pcie_device) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			ioc->name, __FILE__, __LINE__, __func__);
+=======
+	/* PCIe Device Page 2 contains read-only information about a
+	 * specific NVMe device; therefore, this page is only
+	 * valid for NVMe devices and skip for pcie devices of type scsi.
+	 */
+	if (!(mpt3sas_scsih_is_pcie_scsi_device(
+		le32_to_cpu(pcie_device_pg0.DeviceInfo)))) {
+		if (mpt3sas_config_get_pcie_device_pg2(ioc, &mpi_reply,
+		    &pcie_device_pg2, MPI2_SAS_DEVICE_PGAD_FORM_HANDLE,
+		    handle)) {
+			ioc_err(ioc,
+			    "failure at %s:%d/%s()!\n", __FILE__,
+			    __LINE__, __func__);
+			return 0;
+		}
+
+		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
+					MPI2_IOCSTATUS_MASK;
+		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+			ioc_err(ioc,
+			    "failure at %s:%d/%s()!\n", __FILE__,
+			    __LINE__, __func__);
+			return 0;
+		}
+	}
+
+	pcie_device = kzalloc(sizeof(struct _pcie_device), GFP_KERNEL);
+	if (!pcie_device) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -6903,6 +9755,10 @@ _scsih_pcie_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 	pcie_device->id = ioc->pcie_target_id++;
 	pcie_device->channel = PCIE_CHANNEL;
 	pcie_device->handle = handle;
+<<<<<<< HEAD
+=======
+	pcie_device->access_status = pcie_device_pg0.AccessStatus;
+>>>>>>> upstream/android-13
 	pcie_device->device_info = le32_to_cpu(pcie_device_pg0.DeviceInfo);
 	pcie_device->wwid = wwid;
 	pcie_device->port_num = pcie_device_pg0.PortNum;
@@ -6934,6 +9790,7 @@ _scsih_pcie_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 			    le64_to_cpu(enclosure_dev->pg0.EnclosureLogicalID);
 	}
 	/* TODO -- Add device name once FW supports it */
+<<<<<<< HEAD
 	if (mpt3sas_config_get_pcie_device_pg2(ioc, &mpi_reply,
 		&pcie_device_pg2, MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, handle)) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
@@ -6955,6 +9812,28 @@ _scsih_pcie_add_device(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 		pcie_device->reset_timeout =
 			pcie_device_pg2.ControllerResetTO;
 	else
+=======
+	if (!(mpt3sas_scsih_is_pcie_scsi_device(
+	    le32_to_cpu(pcie_device_pg0.DeviceInfo)))) {
+		pcie_device->nvme_mdts =
+		    le32_to_cpu(pcie_device_pg2.MaximumDataTransferSize);
+		pcie_device->shutdown_latency =
+			le16_to_cpu(pcie_device_pg2.ShutdownLatency);
+		/*
+		 * Set IOC's max_shutdown_latency to drive's RTD3 Entry Latency
+		 * if drive's RTD3 Entry Latency is greater then IOC's
+		 * max_shutdown_latency.
+		 */
+		if (pcie_device->shutdown_latency > ioc->max_shutdown_latency)
+			ioc->max_shutdown_latency =
+				pcie_device->shutdown_latency;
+		if (pcie_device_pg2.ControllerResetTO)
+			pcie_device->reset_timeout =
+			    pcie_device_pg2.ControllerResetTO;
+		else
+			pcie_device->reset_timeout = 30;
+	} else
+>>>>>>> upstream/android-13
 		pcie_device->reset_timeout = 30;
 
 	if (ioc->wait_for_discovery_to_complete)
@@ -7002,8 +9881,12 @@ _scsih_pcie_topology_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 		status_str = "unknown status";
 		break;
 	}
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "pcie topology change: (%s)\n",
 		ioc->name, status_str);
+=======
+	ioc_info(ioc, "pcie topology change: (%s)\n", status_str);
+>>>>>>> upstream/android-13
 	pr_info("\tswitch_handle(0x%04x), enclosure_handle(0x%04x)"
 		"start_port(%02d), count(%d)\n",
 		le16_to_cpu(event_data->SwitchDevHandle),
@@ -7076,16 +9959,25 @@ _scsih_pcie_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 		return;
 
 	if (fw_event->ignore) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT "ignoring switch event\n",
 			ioc->name));
+=======
+		dewtprintk(ioc, ioc_info(ioc, "ignoring switch event\n"));
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* handle siblings events */
 	for (i = 0; i < event_data->NumEntries; i++) {
 		if (fw_event->ignore) {
+<<<<<<< HEAD
 			dewtprintk(ioc, pr_info(MPT3SAS_FMT
 				"ignoring switch event\n", ioc->name));
+=======
+			dewtprintk(ioc,
+				   ioc_info(ioc, "ignoring switch event\n"));
+>>>>>>> upstream/android-13
 			return;
 		}
 		if (ioc->remove_host || ioc->pci_error_recovery)
@@ -7130,6 +10022,7 @@ _scsih_pcie_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 			if (!test_bit(handle, ioc->pend_os_device_add))
 				break;
 
+<<<<<<< HEAD
 			dewtprintk(ioc, pr_info(MPT3SAS_FMT
 				"handle(0x%04x) device not found: convert "
 				"event to a device add\n", ioc->name, handle));
@@ -7137,6 +10030,15 @@ _scsih_pcie_topology_change_event(struct MPT3SAS_ADAPTER *ioc,
 			event_data->PortEntry[i].PortStatus |=
 				MPI26_EVENT_PCIE_TOPO_PS_DEV_ADDED;
 			/* fall through */
+=======
+			dewtprintk(ioc,
+				   ioc_info(ioc, "handle(0x%04x) device not found: convert event to a device add\n",
+					    handle));
+			event_data->PortEntry[i].PortStatus &= 0xF0;
+			event_data->PortEntry[i].PortStatus |=
+				MPI26_EVENT_PCIE_TOPO_PS_DEV_ADDED;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case MPI26_EVENT_PCIE_TOPO_PS_DEV_ADDED:
 			if (ioc->shost_recovery)
 				break;
@@ -7215,6 +10117,7 @@ _scsih_pcie_device_status_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 		break;
 	}
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "PCIE device status change: (%s)\n"
 		"\thandle(0x%04x), WWID(0x%016llx), tag(%d)",
 		ioc->name, reason_str, le16_to_cpu(event_data->DevHandle),
@@ -7224,6 +10127,17 @@ _scsih_pcie_device_status_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 		pr_info(MPT3SAS_FMT ", ASC(0x%x), ASCQ(0x%x)\n", ioc->name,
 			event_data->ASC, event_data->ASCQ);
 	pr_info("\n");
+=======
+	ioc_info(ioc, "PCIE device status change: (%s)\n"
+		 "\thandle(0x%04x), WWID(0x%016llx), tag(%d)",
+		 reason_str, le16_to_cpu(event_data->DevHandle),
+		 (u64)le64_to_cpu(event_data->WWID),
+		 le16_to_cpu(event_data->TaskTag));
+	if (event_data->ReasonCode == MPI26_EVENT_PCIDEV_STAT_RC_SMART_DATA)
+		pr_cont(", ASC(0x%x), ASCQ(0x%x)\n",
+			event_data->ASC, event_data->ASCQ);
+	pr_cont("\n");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -7301,12 +10215,21 @@ _scsih_sas_enclosure_dev_status_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 		break;
 	}
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "enclosure status change: (%s)\n"
 	    "\thandle(0x%04x), enclosure logical id(0x%016llx)"
 	    " number slots(%d)\n", ioc->name, reason_str,
 	    le16_to_cpu(event_data->EnclosureHandle),
 	    (unsigned long long)le64_to_cpu(event_data->EnclosureLogicalID),
 	    le16_to_cpu(event_data->StartSlot));
+=======
+	ioc_info(ioc, "enclosure status change: (%s)\n"
+		 "\thandle(0x%04x), enclosure logical id(0x%016llx) number slots(%d)\n",
+		 reason_str,
+		 le16_to_cpu(event_data->EnclosureHandle),
+		 (u64)le64_to_cpu(event_data->EnclosureLogicalID),
+		 le16_to_cpu(event_data->StartSlot));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -7344,9 +10267,14 @@ _scsih_sas_enclosure_dev_status_change_event(struct MPT3SAS_ADAPTER *ioc,
 				kzalloc(sizeof(struct _enclosure_node),
 					GFP_KERNEL);
 			if (!enclosure_dev) {
+<<<<<<< HEAD
 				pr_info(MPT3SAS_FMT
 					"failure at %s:%d/%s()!\n", ioc->name,
 					__FILE__, __LINE__, __func__);
+=======
+				ioc_info(ioc, "failure at %s:%d/%s()!\n",
+					 __FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 				return;
 			}
 			rc = mpt3sas_config_get_enclosure_pg0(ioc, &mpi_reply,
@@ -7404,10 +10332,15 @@ _scsih_sas_broadcast_primitive_event(struct MPT3SAS_ADAPTER *ioc,
 	u8 task_abort_retries;
 
 	mutex_lock(&ioc->tm_cmds.mutex);
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT
 		"%s: enter: phy number(%d), width(%d)\n",
 		ioc->name, __func__, event_data->PhyNum,
 	     event_data->PortWidth);
+=======
+	ioc_info(ioc, "%s: enter: phy number(%d), width(%d)\n",
+		 __func__, event_data->PhyNum, event_data->PortWidth);
+>>>>>>> upstream/android-13
 
 	_scsih_block_io_all_device(ioc);
 
@@ -7417,12 +10350,21 @@ _scsih_sas_broadcast_primitive_event(struct MPT3SAS_ADAPTER *ioc,
 
 	/* sanity checks for retrying this loop */
 	if (max_retries++ == 5) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT "%s: giving up\n",
 		    ioc->name, __func__));
 		goto out;
 	} else if (max_retries > 1)
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT "%s: %d retry\n",
 		    ioc->name, __func__, max_retries - 1));
+=======
+		dewtprintk(ioc, ioc_info(ioc, "%s: giving up\n", __func__));
+		goto out;
+	} else if (max_retries > 1)
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: %d retry\n",
+				    __func__, max_retries - 1));
+>>>>>>> upstream/android-13
 
 	termination_count = 0;
 	query_count = 0;
@@ -7458,7 +10400,11 @@ _scsih_sas_broadcast_primitive_event(struct MPT3SAS_ADAPTER *ioc,
 			goto out;
 
 		spin_unlock_irqrestore(&ioc->scsi_lookup_lock, flags);
+<<<<<<< HEAD
 		r = mpt3sas_scsih_issue_tm(ioc, handle, lun,
+=======
+		r = mpt3sas_scsih_issue_tm(ioc, handle, 0, 0, lun,
+>>>>>>> upstream/android-13
 			MPI2_SCSITASKMGMT_TASKTYPE_QUERY_TASK, st->smid,
 			st->msix_io, 30, 0);
 		if (r == FAILED) {
@@ -7489,9 +10435,15 @@ _scsih_sas_broadcast_primitive_event(struct MPT3SAS_ADAPTER *ioc,
 		task_abort_retries = 0;
  tm_retry:
 		if (task_abort_retries++ == 60) {
+<<<<<<< HEAD
 			dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			    "%s: ABORT_TASK: giving up\n", ioc->name,
 			    __func__));
+=======
+			dewtprintk(ioc,
+				   ioc_info(ioc, "%s: ABORT_TASK: giving up\n",
+					    __func__));
+>>>>>>> upstream/android-13
 			spin_lock_irqsave(&ioc->scsi_lookup_lock, flags);
 			goto broadcast_aen_retry;
 		}
@@ -7499,9 +10451,15 @@ _scsih_sas_broadcast_primitive_event(struct MPT3SAS_ADAPTER *ioc,
 		if (ioc->shost_recovery)
 			goto out_no_lock;
 
+<<<<<<< HEAD
 		r = mpt3sas_scsih_issue_tm(ioc, handle, sdev->lun,
 			MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK, st->smid,
 			st->msix_io, 30, 0);
+=======
+		r = mpt3sas_scsih_issue_tm(ioc, handle, sdev->channel, sdev->id,
+			sdev->lun, MPI2_SCSITASKMGMT_TASKTYPE_ABORT_TASK,
+			st->smid, st->msix_io, 30, 0);
+>>>>>>> upstream/android-13
 		if (r == FAILED || st->cb_idx != 0xFF) {
 			sdev_printk(KERN_WARNING, sdev,
 			    "mpt3sas_scsih_issue_tm: ABORT_TASK: FAILED : "
@@ -7520,9 +10478,16 @@ _scsih_sas_broadcast_primitive_event(struct MPT3SAS_ADAPTER *ioc,
 	}
 
 	if (ioc->broadcast_aen_pending) {
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: loop back due to pending AEN\n",
 			ioc->name, __func__));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc,
+				    "%s: loop back due to pending AEN\n",
+				    __func__));
+>>>>>>> upstream/android-13
 		 ioc->broadcast_aen_pending = 0;
 		 goto broadcast_aen_retry;
 	}
@@ -7531,9 +10496,15 @@ _scsih_sas_broadcast_primitive_event(struct MPT3SAS_ADAPTER *ioc,
 	spin_unlock_irqrestore(&ioc->scsi_lookup_lock, flags);
  out_no_lock:
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT
 	    "%s - exit, query_count = %d termination_count = %d\n",
 	    ioc->name, __func__, query_count, termination_count));
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "%s - exit, query_count = %d termination_count = %d\n",
+			    __func__, query_count, termination_count));
+>>>>>>> upstream/android-13
 
 	ioc->broadcast_aen_busy = 0;
 	if (!ioc->shost_recovery)
@@ -7555,6 +10526,7 @@ _scsih_sas_discovery_event(struct MPT3SAS_ADAPTER *ioc,
 		(Mpi2EventDataSasDiscovery_t *) fw_event->event_data;
 
 	if (ioc->logging_level & MPT_DEBUG_EVENT_WORK_TASK) {
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "discovery event: (%s)", ioc->name,
 		    (event_data->ReasonCode == MPI2_EVENT_SAS_DISC_RC_STARTED) ?
 		    "start" : "stop");
@@ -7562,6 +10534,15 @@ _scsih_sas_discovery_event(struct MPT3SAS_ADAPTER *ioc,
 			pr_info("discovery_status(0x%08x)",
 			    le32_to_cpu(event_data->DiscoveryStatus));
 		pr_info("\n");
+=======
+		ioc_info(ioc, "discovery event: (%s)",
+			 event_data->ReasonCode == MPI2_EVENT_SAS_DISC_RC_STARTED ?
+			 "start" : "stop");
+		if (event_data->DiscoveryStatus)
+			pr_cont("discovery_status(0x%08x)",
+				le32_to_cpu(event_data->DiscoveryStatus));
+		pr_cont("\n");
+>>>>>>> upstream/android-13
 	}
 
 	if (event_data->ReasonCode == MPI2_EVENT_SAS_DISC_RC_STARTED &&
@@ -7591,6 +10572,7 @@ _scsih_sas_device_discovery_error_event(struct MPT3SAS_ADAPTER *ioc,
 
 	switch (event_data->ReasonCode) {
 	case MPI25_EVENT_SAS_DISC_ERR_SMP_FAILED:
+<<<<<<< HEAD
 		pr_warn(MPT3SAS_FMT "SMP command sent to the expander"
 			"(handle:0x%04x, sas_address:0x%016llx,"
 			"physical_port:0x%02x) has failed",
@@ -7605,6 +10587,18 @@ _scsih_sas_device_discovery_error_event(struct MPT3SAS_ADAPTER *ioc,
 			ioc->name, le16_to_cpu(event_data->DevHandle),
 			(unsigned long long)le64_to_cpu(event_data->SASAddress),
 			event_data->PhysicalPort);
+=======
+		ioc_warn(ioc, "SMP command sent to the expander (handle:0x%04x, sas_address:0x%016llx, physical_port:0x%02x) has failed\n",
+			 le16_to_cpu(event_data->DevHandle),
+			 (u64)le64_to_cpu(event_data->SASAddress),
+			 event_data->PhysicalPort);
+		break;
+	case MPI25_EVENT_SAS_DISC_ERR_SMP_TIMEOUT:
+		ioc_warn(ioc, "SMP command sent to the expander (handle:0x%04x, sas_address:0x%016llx, physical_port:0x%02x) has timed out\n",
+			 le16_to_cpu(event_data->DevHandle),
+			 (u64)le64_to_cpu(event_data->SASAddress),
+			 event_data->PhysicalPort);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -7627,11 +10621,18 @@ _scsih_pcie_enumeration_event(struct MPT3SAS_ADAPTER *ioc,
 	if (!(ioc->logging_level & MPT_DEBUG_EVENT_WORK_TASK))
 		return;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "pcie enumeration event: (%s) Flag 0x%02x",
 		ioc->name,
 		(event_data->ReasonCode == MPI26_EVENT_PCIE_ENUM_RC_STARTED) ?
 			"started" : "completed",
 		event_data->Flags);
+=======
+	ioc_info(ioc, "pcie enumeration event: (%s) Flag 0x%02x",
+		 (event_data->ReasonCode == MPI26_EVENT_PCIE_ENUM_RC_STARTED) ?
+		 "started" : "completed",
+		 event_data->Flags);
+>>>>>>> upstream/android-13
 	if (event_data->EnumerationStatus)
 		pr_cont("enumeration_status(0x%08x)",
 			le32_to_cpu(event_data->EnumerationStatus));
@@ -7663,8 +10664,12 @@ _scsih_ir_fastpath(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phys_disk_num)
 	mutex_lock(&ioc->scsih_cmds.mutex);
 
 	if (ioc->scsih_cmds.status != MPT3_CMD_NOT_USED) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: scsih_cmd in use\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: scsih_cmd in use\n", __func__);
+>>>>>>> upstream/android-13
 		rc = -EAGAIN;
 		goto out;
 	}
@@ -7672,8 +10677,12 @@ _scsih_ir_fastpath(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phys_disk_num)
 
 	smid = mpt3sas_base_get_smid(ioc, ioc->scsih_cb_idx);
 	if (!smid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+>>>>>>> upstream/android-13
 		ioc->scsih_cmds.status = MPT3_CMD_NOT_USED;
 		rc = -EAGAIN;
 		goto out;
@@ -7687,6 +10696,7 @@ _scsih_ir_fastpath(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phys_disk_num)
 	mpi_request->Action = MPI2_RAID_ACTION_PHYSDISK_HIDDEN;
 	mpi_request->PhysDiskNum = phys_disk_num;
 
+<<<<<<< HEAD
 	dewtprintk(ioc, pr_info(MPT3SAS_FMT "IR RAID_ACTION: turning fast "\
 	    "path on for handle(0x%04x), phys_disk_num (0x%02x)\n", ioc->name,
 	    handle, phys_disk_num));
@@ -7700,6 +10710,20 @@ _scsih_ir_fastpath(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phys_disk_num)
 			mpt3sas_base_check_cmd_timeout(ioc,
 				ioc->scsih_cmds.status, mpi_request,
 				sizeof(Mpi2RaidActionRequest_t)/4);
+=======
+	dewtprintk(ioc,
+		   ioc_info(ioc, "IR RAID_ACTION: turning fast path on for handle(0x%04x), phys_disk_num (0x%02x)\n",
+			    handle, phys_disk_num));
+
+	init_completion(&ioc->scsih_cmds.done);
+	ioc->put_smid_default(ioc, smid);
+	wait_for_completion_timeout(&ioc->scsih_cmds.done, 10*HZ);
+
+	if (!(ioc->scsih_cmds.status & MPT3_CMD_COMPLETE)) {
+		mpt3sas_check_cmd_timeout(ioc,
+		    ioc->scsih_cmds.status, mpi_request,
+		    sizeof(Mpi2RaidActionRequest_t)/4, issue_reset);
+>>>>>>> upstream/android-13
 		rc = -EFAULT;
 		goto out;
 	}
@@ -7714,6 +10738,7 @@ _scsih_ir_fastpath(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phys_disk_num)
 			log_info = 0;
 		ioc_status &= MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			    "IR RAID_ACTION: failed: ioc_status(0x%04x), "
 			    "loginfo(0x%08x)!!!\n", ioc->name, ioc_status,
@@ -7723,6 +10748,15 @@ _scsih_ir_fastpath(struct MPT3SAS_ADAPTER *ioc, u16 handle, u8 phys_disk_num)
 			dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			    "IR RAID_ACTION: completed successfully\n",
 			    ioc->name));
+=======
+			dewtprintk(ioc,
+				   ioc_info(ioc, "IR RAID_ACTION: failed: ioc_status(0x%04x), loginfo(0x%08x)!!!\n",
+					    ioc_status, log_info));
+			rc = -EFAULT;
+		} else
+			dewtprintk(ioc,
+				   ioc_info(ioc, "IR RAID_ACTION: completed successfully\n"));
+>>>>>>> upstream/android-13
 	}
 
  out:
@@ -7767,9 +10801,14 @@ _scsih_sas_volume_add(struct MPT3SAS_ADAPTER *ioc,
 
 	mpt3sas_config_get_volume_wwid(ioc, handle, &wwid);
 	if (!wwid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 		    "failure at %s:%d/%s()!\n", ioc->name,
 		    __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -7782,9 +10821,14 @@ _scsih_sas_volume_add(struct MPT3SAS_ADAPTER *ioc,
 
 	raid_device = kzalloc(sizeof(struct _raid_device), GFP_KERNEL);
 	if (!raid_device) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT
 		    "failure at %s:%d/%s()!\n", ioc->name,
 		    __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -7827,9 +10871,14 @@ _scsih_sas_volume_delete(struct MPT3SAS_ADAPTER *ioc, u16 handle)
 			sas_target_priv_data = starget->hostdata;
 			sas_target_priv_data->deleted = 1;
 		}
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "removing handle(0x%04x), wwid(0x%016llx)\n",
 			ioc->name,  raid_device->handle,
 		    (unsigned long long) raid_device->wwid);
+=======
+		ioc_info(ioc, "removing handle(0x%04x), wwid(0x%016llx)\n",
+			 raid_device->handle, (u64)raid_device->wwid);
+>>>>>>> upstream/android-13
 		list_del(&raid_device->list);
 		kfree(raid_device);
 	}
@@ -7971,23 +11020,39 @@ _scsih_sas_pd_add(struct MPT3SAS_ADAPTER *ioc,
 
 	if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply, &sas_device_pg0,
 	    MPI2_SAS_DEVICE_PGAD_FORM_HANDLE, handle))) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 	    MPI2_IOCSTATUS_MASK;
 	if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	parent_handle = le16_to_cpu(sas_device_pg0.ParentDevHandle);
 	if (!_scsih_get_sas_address(ioc, parent_handle, &sas_address))
 		mpt3sas_transport_update_links(ioc, sas_address, handle,
+<<<<<<< HEAD
 		    sas_device_pg0.PhyNum, MPI2_SAS_NEG_LINK_RATE_1_5);
+=======
+		    sas_device_pg0.PhyNum, MPI2_SAS_NEG_LINK_RATE_1_5,
+		    mpt3sas_get_port_by_id(ioc,
+		    sas_device_pg0.PhysicalPort, 0));
+>>>>>>> upstream/android-13
 
 	_scsih_ir_fastpath(ioc, handle, element->PhysDiskNum);
 	_scsih_add_device(ioc, handle, 0, 1);
@@ -8010,10 +11075,17 @@ _scsih_sas_ir_config_change_event_debug(struct MPT3SAS_ADAPTER *ioc,
 
 	element = (Mpi2EventIrConfigElement_t *)&event_data->ConfigElement[0];
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "raid config change: (%s), elements(%d)\n",
 	    ioc->name, (le32_to_cpu(event_data->Flags) &
 	    MPI2_EVENT_IR_CHANGE_FLAGS_FOREIGN_CONFIG) ?
 	    "foreign" : "native", event_data->NumElements);
+=======
+	ioc_info(ioc, "raid config change: (%s), elements(%d)\n",
+		 le32_to_cpu(event_data->Flags) & MPI2_EVENT_IR_CHANGE_FLAGS_FOREIGN_CONFIG ?
+		 "foreign" : "native",
+		 event_data->NumElements);
+>>>>>>> upstream/android-13
 	for (i = 0; i < event_data->NumElements; i++, element++) {
 		switch (element->ReasonCode) {
 		case MPI2_EVENT_IR_CHANGE_RC_ADDED:
@@ -8169,10 +11241,18 @@ _scsih_sas_ir_volume_event(struct MPT3SAS_ADAPTER *ioc,
 	handle = le16_to_cpu(event_data->VolDevHandle);
 	state = le32_to_cpu(event_data->NewValue);
 	if (!ioc->hide_ir_msg)
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		    "%s: handle(0x%04x), old(0x%08x), new(0x%08x)\n",
 		    ioc->name, __func__,  handle,
 		    le32_to_cpu(event_data->PreviousValue), state));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: handle(0x%04x), old(0x%08x), new(0x%08x)\n",
+				    __func__, handle,
+				    le32_to_cpu(event_data->PreviousValue),
+				    state));
+>>>>>>> upstream/android-13
 	switch (state) {
 	case MPI2_RAID_VOL_STATE_MISSING:
 	case MPI2_RAID_VOL_STATE_FAILED:
@@ -8192,17 +11272,27 @@ _scsih_sas_ir_volume_event(struct MPT3SAS_ADAPTER *ioc,
 
 		mpt3sas_config_get_volume_wwid(ioc, handle, &wwid);
 		if (!wwid) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT
 			    "failure at %s:%d/%s()!\n", ioc->name,
 			    __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		raid_device = kzalloc(sizeof(struct _raid_device), GFP_KERNEL);
 		if (!raid_device) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT
 			    "failure at %s:%d/%s()!\n", ioc->name,
 			    __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -8253,10 +11343,18 @@ _scsih_sas_ir_physical_disk_event(struct MPT3SAS_ADAPTER *ioc,
 	state = le32_to_cpu(event_data->NewValue);
 
 	if (!ioc->hide_ir_msg)
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 		    "%s: handle(0x%04x), old(0x%08x), new(0x%08x)\n",
 		    ioc->name, __func__,  handle,
 		    le32_to_cpu(event_data->PreviousValue), state));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "%s: handle(0x%04x), old(0x%08x), new(0x%08x)\n",
+				    __func__, handle,
+				    le32_to_cpu(event_data->PreviousValue),
+				    state));
+>>>>>>> upstream/android-13
 
 	switch (state) {
 	case MPI2_RAID_PD_STATE_ONLINE:
@@ -8277,23 +11375,39 @@ _scsih_sas_ir_physical_disk_event(struct MPT3SAS_ADAPTER *ioc,
 		if ((mpt3sas_config_get_sas_device_pg0(ioc, &mpi_reply,
 		    &sas_device_pg0, MPI2_SAS_DEVICE_PGAD_FORM_HANDLE,
 		    handle))) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			    ioc->name, __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			return;
 		}
 
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			    ioc->name, __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			return;
 		}
 
 		parent_handle = le16_to_cpu(sas_device_pg0.ParentDevHandle);
 		if (!_scsih_get_sas_address(ioc, parent_handle, &sas_address))
 			mpt3sas_transport_update_links(ioc, sas_address, handle,
+<<<<<<< HEAD
 			    sas_device_pg0.PhyNum, MPI2_SAS_NEG_LINK_RATE_1_5);
+=======
+			    sas_device_pg0.PhyNum, MPI2_SAS_NEG_LINK_RATE_1_5,
+			    mpt3sas_get_port_by_id(ioc,
+			    sas_device_pg0.PhysicalPort, 0));
+>>>>>>> upstream/android-13
 
 		_scsih_add_device(ioc, handle, 0, 1);
 
@@ -8340,11 +11454,18 @@ _scsih_sas_ir_operation_status_event_debug(struct MPT3SAS_ADAPTER *ioc,
 	if (!reason_str)
 		return;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "raid operational status: (%s)" \
 	    "\thandle(0x%04x), percent complete(%d)\n",
 	    ioc->name, reason_str,
 	    le16_to_cpu(event_data->VolDevHandle),
 	    event_data->PercentComplete);
+=======
+	ioc_info(ioc, "raid operational status: (%s)\thandle(0x%04x), percent complete(%d)\n",
+		 reason_str,
+		 le16_to_cpu(event_data->VolDevHandle),
+		 event_data->PercentComplete);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -8403,6 +11524,45 @@ _scsih_prep_device_scan(struct MPT3SAS_ADAPTER *ioc)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * _scsih_update_device_qdepth - Update QD during Reset.
+ * @ioc: per adapter object
+ *
+ */
+static void
+_scsih_update_device_qdepth(struct MPT3SAS_ADAPTER *ioc)
+{
+	struct MPT3SAS_DEVICE *sas_device_priv_data;
+	struct MPT3SAS_TARGET *sas_target_priv_data;
+	struct _sas_device *sas_device;
+	struct scsi_device *sdev;
+	u16 qdepth;
+
+	ioc_info(ioc, "Update devices with firmware reported queue depth\n");
+	shost_for_each_device(sdev, ioc->shost) {
+		sas_device_priv_data = sdev->hostdata;
+		if (sas_device_priv_data && sas_device_priv_data->sas_target) {
+			sas_target_priv_data = sas_device_priv_data->sas_target;
+			sas_device = sas_device_priv_data->sas_target->sas_dev;
+			if (sas_target_priv_data->flags & MPT_TARGET_FLAGS_PCIE_DEVICE)
+				qdepth = ioc->max_nvme_qd;
+			else if (sas_device &&
+			    sas_device->device_info & MPI2_SAS_DEVICE_INFO_SSP_TARGET)
+				qdepth = (sas_device->port_type > 1) ?
+				    ioc->max_wideport_qd : ioc->max_narrowport_qd;
+			else if (sas_device &&
+			    sas_device->device_info & MPI2_SAS_DEVICE_INFO_SATA_DEVICE)
+				qdepth = ioc->max_sata_qd;
+			else
+				continue;
+			mpt3sas_scsih_change_queue_depth(sdev, qdepth);
+		}
+	}
+}
+
+/**
+>>>>>>> upstream/android-13
  * _scsih_mark_responding_sas_device - mark a sas_devices as responding
  * @ioc: per adapter object
  * @sas_device_pg0: SAS Device page 0
@@ -8419,12 +11579,18 @@ Mpi2SasDevicePage0_t *sas_device_pg0)
 	struct _sas_device *sas_device = NULL;
 	struct _enclosure_node *enclosure_dev = NULL;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	struct hba_port *port = mpt3sas_get_port_by_id(
+	    ioc, sas_device_pg0->PhysicalPort, 0);
+>>>>>>> upstream/android-13
 
 	if (sas_device_pg0->EnclosureHandle) {
 		enclosure_dev =
 			mpt3sas_scsih_enclosure_find_by_handle(ioc,
 				le16_to_cpu(sas_device_pg0->EnclosureHandle));
 		if (enclosure_dev == NULL)
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "Enclosure handle(0x%04x)"
 			    "doesn't match with enclosure device!\n",
 			    ioc->name, sas_device_pg0->EnclosureHandle);
@@ -8494,6 +11660,78 @@ Mpi2SasDevicePage0_t *sas_device_pg0)
 				    le16_to_cpu(sas_device_pg0->DevHandle);
 			goto out;
 		}
+=======
+			ioc_info(ioc, "Enclosure handle(0x%04x) doesn't match with enclosure device!\n",
+				 sas_device_pg0->EnclosureHandle);
+	}
+	spin_lock_irqsave(&ioc->sas_device_lock, flags);
+	list_for_each_entry(sas_device, &ioc->sas_device_list, list) {
+		if (sas_device->sas_address != le64_to_cpu(
+		    sas_device_pg0->SASAddress))
+			continue;
+		if (sas_device->slot != le16_to_cpu(sas_device_pg0->Slot))
+			continue;
+		if (sas_device->port != port)
+			continue;
+		sas_device->responding = 1;
+		starget = sas_device->starget;
+		if (starget && starget->hostdata) {
+			sas_target_priv_data = starget->hostdata;
+			sas_target_priv_data->tm_busy = 0;
+			sas_target_priv_data->deleted = 0;
+		} else
+			sas_target_priv_data = NULL;
+		if (starget) {
+			starget_printk(KERN_INFO, starget,
+			    "handle(0x%04x), sas_addr(0x%016llx)\n",
+			    le16_to_cpu(sas_device_pg0->DevHandle),
+			    (unsigned long long)
+			    sas_device->sas_address);
+
+			if (sas_device->enclosure_handle != 0)
+				starget_printk(KERN_INFO, starget,
+				 "enclosure logical id(0x%016llx), slot(%d)\n",
+				 (unsigned long long)
+				 sas_device->enclosure_logical_id,
+				 sas_device->slot);
+		}
+		if (le16_to_cpu(sas_device_pg0->Flags) &
+		      MPI2_SAS_DEVICE0_FLAGS_ENCL_LEVEL_VALID) {
+			sas_device->enclosure_level =
+			   sas_device_pg0->EnclosureLevel;
+			memcpy(&sas_device->connector_name[0],
+				&sas_device_pg0->ConnectorName[0], 4);
+		} else {
+			sas_device->enclosure_level = 0;
+			sas_device->connector_name[0] = '\0';
+		}
+
+		sas_device->enclosure_handle =
+			le16_to_cpu(sas_device_pg0->EnclosureHandle);
+		sas_device->is_chassis_slot_valid = 0;
+		if (enclosure_dev) {
+			sas_device->enclosure_logical_id = le64_to_cpu(
+				enclosure_dev->pg0.EnclosureLogicalID);
+			if (le16_to_cpu(enclosure_dev->pg0.Flags) &
+			    MPI2_SAS_ENCLS0_FLAGS_CHASSIS_SLOT_VALID) {
+				sas_device->is_chassis_slot_valid = 1;
+				sas_device->chassis_slot =
+					enclosure_dev->pg0.ChassisSlot;
+			}
+		}
+
+		if (sas_device->handle == le16_to_cpu(
+		    sas_device_pg0->DevHandle))
+			goto out;
+		pr_info("\thandle changed from(0x%04x)!!!\n",
+		    sas_device->handle);
+		sas_device->handle = le16_to_cpu(
+		    sas_device_pg0->DevHandle);
+		if (sas_target_priv_data)
+			sas_target_priv_data->handle =
+			    le16_to_cpu(sas_device_pg0->DevHandle);
+		goto out;
+>>>>>>> upstream/android-13
 	}
  out:
 	spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
@@ -8521,8 +11759,12 @@ _scsih_create_enclosure_list_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		enclosure_dev =
 			kzalloc(sizeof(struct _enclosure_node), GFP_KERNEL);
 		if (!enclosure_dev) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT
 				"failure at %s:%d/%s()!\n", ioc->name,
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+>>>>>>> upstream/android-13
 				__FILE__, __LINE__, __func__);
 			return;
 		}
@@ -8559,7 +11801,11 @@ _scsih_search_responding_sas_devices(struct MPT3SAS_ADAPTER *ioc)
 	u16 handle;
 	u32 device_info;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "search for end-devices: start\n", ioc->name);
+=======
+	ioc_info(ioc, "search for end-devices: start\n");
+>>>>>>> upstream/android-13
 
 	if (list_empty(&ioc->sas_device_list))
 		goto out;
@@ -8580,8 +11826,12 @@ _scsih_search_responding_sas_devices(struct MPT3SAS_ADAPTER *ioc)
 	}
 
  out:
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "search for end-devices: complete\n",
 	    ioc->name);
+=======
+	ioc_info(ioc, "search for end-devices: complete\n");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -8606,6 +11856,11 @@ _scsih_mark_responding_pcie_device(struct MPT3SAS_ADAPTER *ioc,
 		if ((pcie_device->wwid == le64_to_cpu(pcie_device_pg0->WWID))
 		    && (pcie_device->slot == le16_to_cpu(
 		    pcie_device_pg0->Slot))) {
+<<<<<<< HEAD
+=======
+			pcie_device->access_status =
+					pcie_device_pg0->AccessStatus;
+>>>>>>> upstream/android-13
 			pcie_device->responding = 1;
 			starget = pcie_device->starget;
 			if (starget && starget->hostdata) {
@@ -8674,7 +11929,11 @@ _scsih_search_responding_pcie_devices(struct MPT3SAS_ADAPTER *ioc)
 	u16 handle;
 	u32 device_info;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "search for end-devices: start\n", ioc->name);
+=======
+	ioc_info(ioc, "search for end-devices: start\n");
+>>>>>>> upstream/android-13
 
 	if (list_empty(&ioc->pcie_device_list))
 		goto out;
@@ -8686,21 +11945,35 @@ _scsih_search_responding_pcie_devices(struct MPT3SAS_ADAPTER *ioc)
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tbreak from %s: "
 			    "ioc_status(0x%04x), loginfo(0x%08x)\n", ioc->name,
 			    __func__, ioc_status,
 			    le32_to_cpu(mpi_reply.IOCLogInfo));
+=======
+			ioc_info(ioc, "\tbreak from %s: ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 __func__, ioc_status,
+				 le32_to_cpu(mpi_reply.IOCLogInfo));
+>>>>>>> upstream/android-13
 			break;
 		}
 		handle = le16_to_cpu(pcie_device_pg0.DevHandle);
 		device_info = le32_to_cpu(pcie_device_pg0.DeviceInfo);
+<<<<<<< HEAD
 		if (!(_scsih_is_nvme_device(device_info)))
+=======
+		if (!(_scsih_is_nvme_pciescsi_device(device_info)))
+>>>>>>> upstream/android-13
 			continue;
 		_scsih_mark_responding_pcie_device(ioc, &pcie_device_pg0);
 	}
 out:
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "search for PCIe end-devices: complete\n",
 	    ioc->name);
+=======
+	ioc_info(ioc, "search for PCIe end-devices: complete\n");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -8781,8 +12054,12 @@ _scsih_search_responding_raid_devices(struct MPT3SAS_ADAPTER *ioc)
 	if (!ioc->ir_firmware)
 		return;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "search for raid volumes: start\n",
 	    ioc->name);
+=======
+	ioc_info(ioc, "search for raid volumes: start\n");
+>>>>>>> upstream/android-13
 
 	if (list_empty(&ioc->raid_device_list))
 		goto out;
@@ -8825,8 +12102,12 @@ _scsih_search_responding_raid_devices(struct MPT3SAS_ADAPTER *ioc)
 		}
 	}
  out:
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "search for responding raid volumes: complete\n",
 		ioc->name);
+=======
+	ioc_info(ioc, "search for responding raid volumes: complete\n");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -8848,6 +12129,11 @@ _scsih_mark_responding_expander(struct MPT3SAS_ADAPTER *ioc,
 	u16 handle = le16_to_cpu(expander_pg0->DevHandle);
 	u16 enclosure_handle = le16_to_cpu(expander_pg0->EnclosureHandle);
 	u64 sas_address = le64_to_cpu(expander_pg0->SASAddress);
+<<<<<<< HEAD
+=======
+	struct hba_port *port = mpt3sas_get_port_by_id(
+	    ioc, expander_pg0->PhysicalPort, 0);
+>>>>>>> upstream/android-13
 
 	if (enclosure_handle)
 		enclosure_dev =
@@ -8858,6 +12144,11 @@ _scsih_mark_responding_expander(struct MPT3SAS_ADAPTER *ioc,
 	list_for_each_entry(sas_expander, &ioc->sas_expander_list, list) {
 		if (sas_expander->sas_address != sas_address)
 			continue;
+<<<<<<< HEAD
+=======
+		if (sas_expander->port != port)
+			continue;
+>>>>>>> upstream/android-13
 		sas_expander->responding = 1;
 
 		if (enclosure_dev) {
@@ -8897,8 +12188,14 @@ _scsih_search_responding_expanders(struct MPT3SAS_ADAPTER *ioc)
 	u16 ioc_status;
 	u64 sas_address;
 	u16 handle;
+<<<<<<< HEAD
 
 	pr_info(MPT3SAS_FMT "search for expanders: start\n", ioc->name);
+=======
+	u8 port;
+
+	ioc_info(ioc, "search for expanders: start\n");
+>>>>>>> upstream/android-13
 
 	if (list_empty(&ioc->sas_expander_list))
 		goto out;
@@ -8914,14 +12211,27 @@ _scsih_search_responding_expanders(struct MPT3SAS_ADAPTER *ioc)
 
 		handle = le16_to_cpu(expander_pg0.DevHandle);
 		sas_address = le64_to_cpu(expander_pg0.SASAddress);
+<<<<<<< HEAD
 		pr_info("\texpander present: handle(0x%04x), sas_addr(0x%016llx)\n",
 			handle,
 		    (unsigned long long)sas_address);
+=======
+		port = expander_pg0.PhysicalPort;
+		pr_info(
+		    "\texpander present: handle(0x%04x), sas_addr(0x%016llx), port:%d\n",
+		    handle, (unsigned long long)sas_address,
+		    (ioc->multipath_on_hba ?
+		    port : MULTIPATH_DISABLED_PORT_ID));
+>>>>>>> upstream/android-13
 		_scsih_mark_responding_expander(ioc, &expander_pg0);
 	}
 
  out:
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "search for expanders: complete\n", ioc->name);
+=======
+	ioc_info(ioc, "search for expanders: complete\n");
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -8939,17 +12249,38 @@ _scsih_remove_unresponding_devices(struct MPT3SAS_ADAPTER *ioc)
 	unsigned long flags;
 	LIST_HEAD(head);
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "removing unresponding devices: start\n",
 	    ioc->name);
 
 	/* removing unresponding end devices */
 	pr_info(MPT3SAS_FMT "removing unresponding devices: end-devices\n",
 	    ioc->name);
+=======
+	ioc_info(ioc, "removing unresponding devices: start\n");
+
+	/* removing unresponding end devices */
+	ioc_info(ioc, "removing unresponding devices: end-devices\n");
+>>>>>>> upstream/android-13
 	/*
 	 * Iterate, pulling off devices marked as non-responding. We become the
 	 * owner for the reference the list had on any object we prune.
 	 */
 	spin_lock_irqsave(&ioc->sas_device_lock, flags);
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Clean up the sas_device_init_list list as
+	 * driver goes for fresh scan as part of diag reset.
+	 */
+	list_for_each_entry_safe(sas_device, sas_device_next,
+	    &ioc->sas_device_init_list, list) {
+		list_del_init(&sas_device->list);
+		sas_device_put(sas_device);
+	}
+
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(sas_device, sas_device_next,
 	    &ioc->sas_device_list, list) {
 		if (!sas_device->responding)
@@ -8968,11 +12299,27 @@ _scsih_remove_unresponding_devices(struct MPT3SAS_ADAPTER *ioc)
 		sas_device_put(sas_device);
 	}
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT
 		" Removing unresponding devices: pcie end-devices\n"
 		, ioc->name);
 	INIT_LIST_HEAD(&head);
 	spin_lock_irqsave(&ioc->pcie_device_lock, flags);
+=======
+	ioc_info(ioc, "Removing unresponding devices: pcie end-devices\n");
+	INIT_LIST_HEAD(&head);
+	spin_lock_irqsave(&ioc->pcie_device_lock, flags);
+	/*
+	 * Clean up the pcie_device_init_list list as
+	 * driver goes for fresh scan as part of diag reset.
+	 */
+	list_for_each_entry_safe(pcie_device, pcie_device_next,
+	    &ioc->pcie_device_init_list, list) {
+		list_del_init(&pcie_device->list);
+		pcie_device_put(pcie_device);
+	}
+
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(pcie_device, pcie_device_next,
 	    &ioc->pcie_device_list, list) {
 		if (!pcie_device->responding)
@@ -8990,8 +12337,12 @@ _scsih_remove_unresponding_devices(struct MPT3SAS_ADAPTER *ioc)
 
 	/* removing unresponding volumes */
 	if (ioc->ir_firmware) {
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "removing unresponding devices: volumes\n",
 			ioc->name);
+=======
+		ioc_info(ioc, "removing unresponding devices: volumes\n");
+>>>>>>> upstream/android-13
 		list_for_each_entry_safe(raid_device, raid_device_next,
 		    &ioc->raid_device_list, list) {
 			if (!raid_device->responding)
@@ -9003,8 +12354,12 @@ _scsih_remove_unresponding_devices(struct MPT3SAS_ADAPTER *ioc)
 	}
 
 	/* removing unresponding expanders */
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "removing unresponding devices: expanders\n",
 	    ioc->name);
+=======
+	ioc_info(ioc, "removing unresponding devices: expanders\n");
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
 	INIT_LIST_HEAD(&tmp_list);
 	list_for_each_entry_safe(sas_expander, sas_expander_next,
@@ -9020,8 +12375,12 @@ _scsih_remove_unresponding_devices(struct MPT3SAS_ADAPTER *ioc)
 		_scsih_expander_node_remove(ioc, sas_expander);
 	}
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "removing unresponding devices: complete\n",
 	    ioc->name);
+=======
+	ioc_info(ioc, "removing unresponding devices: complete\n");
+>>>>>>> upstream/android-13
 
 	/* unblock devices */
 	_scsih_ublock_io_all_device(ioc);
@@ -9038,14 +12397,24 @@ _scsih_refresh_expander_links(struct MPT3SAS_ADAPTER *ioc,
 	for (i = 0 ; i < sas_expander->num_phys ; i++) {
 		if ((mpt3sas_config_get_expander_pg1(ioc, &mpi_reply,
 		    &expander_pg1, i, handle))) {
+<<<<<<< HEAD
 			pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 			    ioc->name, __FILE__, __LINE__, __func__);
+=======
+			ioc_err(ioc, "failure at %s:%d/%s()!\n",
+				__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 			return;
 		}
 
 		mpt3sas_transport_update_links(ioc, sas_expander->sas_address,
 		    le16_to_cpu(expander_pg1.AttachedDevHandle), i,
+<<<<<<< HEAD
 		    expander_pg1.NegotiatedLinkRate >> 4);
+=======
+		    expander_pg1.NegotiatedLinkRate >> 4,
+		    sas_expander->port);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -9059,12 +12428,21 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 	Mpi2ExpanderPage0_t expander_pg0;
 	Mpi2SasDevicePage0_t sas_device_pg0;
 	Mpi26PCIeDevicePage0_t pcie_device_pg0;
+<<<<<<< HEAD
 	Mpi2RaidVolPage1_t volume_pg1;
 	Mpi2RaidVolPage0_t volume_pg0;
 	Mpi2RaidPhysDiskPage0_t pd_pg0;
 	Mpi2EventIrConfigElement_t element;
 	Mpi2ConfigReply_t mpi_reply;
 	u8 phys_disk_num;
+=======
+	Mpi2RaidVolPage1_t *volume_pg1;
+	Mpi2RaidVolPage0_t *volume_pg0;
+	Mpi2RaidPhysDiskPage0_t pd_pg0;
+	Mpi2EventIrConfigElement_t element;
+	Mpi2ConfigReply_t mpi_reply;
+	u8 phys_disk_num, port_id;
+>>>>>>> upstream/android-13
 	u16 ioc_status;
 	u16 handle, parent_handle;
 	u64 sas_address;
@@ -9075,11 +12453,29 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 	u8 retry_count;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "scan devices: start\n", ioc->name);
 
 	_scsih_sas_host_refresh(ioc);
 
 	pr_info(MPT3SAS_FMT "\tscan devices: expanders start\n", ioc->name);
+=======
+	volume_pg0 = kzalloc(sizeof(*volume_pg0), GFP_KERNEL);
+	if (!volume_pg0)
+		return;
+
+	volume_pg1 = kzalloc(sizeof(*volume_pg1), GFP_KERNEL);
+	if (!volume_pg1) {
+		kfree(volume_pg0);
+		return;
+	}
+
+	ioc_info(ioc, "scan devices: start\n");
+
+	_scsih_sas_host_refresh(ioc);
+
+	ioc_info(ioc, "\tscan devices: expanders start\n");
+>>>>>>> upstream/android-13
 
 	/* expanders */
 	handle = 0xFFFF;
@@ -9088,21 +12484,34 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tbreak from expander scan: " \
 			    "ioc_status(0x%04x), loginfo(0x%08x)\n",
 			    ioc->name, ioc_status,
 			    le32_to_cpu(mpi_reply.IOCLogInfo));
+=======
+			ioc_info(ioc, "\tbreak from expander scan: ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 ioc_status, le32_to_cpu(mpi_reply.IOCLogInfo));
+>>>>>>> upstream/android-13
 			break;
 		}
 		handle = le16_to_cpu(expander_pg0.DevHandle);
 		spin_lock_irqsave(&ioc->sas_node_lock, flags);
+<<<<<<< HEAD
 		expander_device = mpt3sas_scsih_expander_find_by_sas_address(
 		    ioc, le64_to_cpu(expander_pg0.SASAddress));
+=======
+		port_id = expander_pg0.PhysicalPort;
+		expander_device = mpt3sas_scsih_expander_find_by_sas_address(
+		    ioc, le64_to_cpu(expander_pg0.SASAddress),
+		    mpt3sas_get_port_by_id(ioc, port_id, 0));
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&ioc->sas_node_lock, flags);
 		if (expander_device)
 			_scsih_refresh_expander_links(ioc, expander_device,
 			    handle);
 		else {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tBEFORE adding expander: " \
 			    "handle (0x%04x), sas_addr(0x%016llx)\n", ioc->name,
 			    handle, (unsigned long long)
@@ -9117,11 +12526,28 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 
 	pr_info(MPT3SAS_FMT "\tscan devices: expanders complete\n",
 	    ioc->name);
+=======
+			ioc_info(ioc, "\tBEFORE adding expander: handle (0x%04x), sas_addr(0x%016llx)\n",
+				 handle,
+				 (u64)le64_to_cpu(expander_pg0.SASAddress));
+			_scsih_expander_add(ioc, handle);
+			ioc_info(ioc, "\tAFTER adding expander: handle (0x%04x), sas_addr(0x%016llx)\n",
+				 handle,
+				 (u64)le64_to_cpu(expander_pg0.SASAddress));
+		}
+	}
+
+	ioc_info(ioc, "\tscan devices: expanders complete\n");
+>>>>>>> upstream/android-13
 
 	if (!ioc->ir_firmware)
 		goto skip_to_sas;
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "\tscan devices: phys disk start\n", ioc->name);
+=======
+	ioc_info(ioc, "\tscan devices: phys disk start\n");
+>>>>>>> upstream/android-13
 
 	/* phys disk */
 	phys_disk_num = 0xFF;
@@ -9131,10 +12557,15 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tbreak from phys disk scan: "\
 			    "ioc_status(0x%04x), loginfo(0x%08x)\n",
 			    ioc->name, ioc_status,
 			    le32_to_cpu(mpi_reply.IOCLogInfo));
+=======
+			ioc_info(ioc, "\tbreak from phys disk scan: ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 ioc_status, le32_to_cpu(mpi_reply.IOCLogInfo));
+>>>>>>> upstream/android-13
 			break;
 		}
 		phys_disk_num = pd_pg0.PhysDiskNum;
@@ -9151,15 +12582,21 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tbreak from phys disk scan " \
 			    "ioc_status(0x%04x), loginfo(0x%08x)\n",
 			    ioc->name, ioc_status,
 			    le32_to_cpu(mpi_reply.IOCLogInfo));
+=======
+			ioc_info(ioc, "\tbreak from phys disk scan ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 ioc_status, le32_to_cpu(mpi_reply.IOCLogInfo));
+>>>>>>> upstream/android-13
 			break;
 		}
 		parent_handle = le16_to_cpu(sas_device_pg0.ParentDevHandle);
 		if (!_scsih_get_sas_address(ioc, parent_handle,
 		    &sas_address)) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tBEFORE adding phys disk: " \
 			    " handle (0x%04x), sas_addr(0x%016llx)\n",
 			    ioc->name, handle, (unsigned long long)
@@ -9167,6 +12604,16 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 			mpt3sas_transport_update_links(ioc, sas_address,
 			    handle, sas_device_pg0.PhyNum,
 			    MPI2_SAS_NEG_LINK_RATE_1_5);
+=======
+			ioc_info(ioc, "\tBEFORE adding phys disk: handle (0x%04x), sas_addr(0x%016llx)\n",
+				 handle,
+				 (u64)le64_to_cpu(sas_device_pg0.SASAddress));
+			port_id = sas_device_pg0.PhysicalPort;
+			mpt3sas_transport_update_links(ioc, sas_address,
+			    handle, sas_device_pg0.PhyNum,
+			    MPI2_SAS_NEG_LINK_RATE_1_5,
+			    mpt3sas_get_port_by_id(ioc, port_id, 0));
+>>>>>>> upstream/android-13
 			set_bit(handle, ioc->pd_handles);
 			retry_count = 0;
 			/* This will retry adding the end device.
@@ -9177,6 +12624,7 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 			    1)) {
 				ssleep(1);
 			}
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tAFTER adding phys disk: " \
 			    " handle (0x%04x), sas_addr(0x%016llx)\n",
 			    ioc->name, handle, (unsigned long long)
@@ -9188,10 +12636,22 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 	    ioc->name);
 
 	pr_info(MPT3SAS_FMT "\tscan devices: volumes start\n", ioc->name);
+=======
+			ioc_info(ioc, "\tAFTER adding phys disk: handle (0x%04x), sas_addr(0x%016llx)\n",
+				 handle,
+				 (u64)le64_to_cpu(sas_device_pg0.SASAddress));
+		}
+	}
+
+	ioc_info(ioc, "\tscan devices: phys disk complete\n");
+
+	ioc_info(ioc, "\tscan devices: volumes start\n");
+>>>>>>> upstream/android-13
 
 	/* volumes */
 	handle = 0xFFFF;
 	while (!(mpt3sas_config_get_raid_volume_pg1(ioc, &mpi_reply,
+<<<<<<< HEAD
 	    &volume_pg1, MPI2_RAID_VOLUME_PGAD_FORM_GET_NEXT_HANDLE, handle))) {
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
@@ -9206,16 +12666,35 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		spin_lock_irqsave(&ioc->raid_device_lock, flags);
 		raid_device = _scsih_raid_device_find_by_wwid(ioc,
 		    le64_to_cpu(volume_pg1.WWID));
+=======
+	    volume_pg1, MPI2_RAID_VOLUME_PGAD_FORM_GET_NEXT_HANDLE, handle))) {
+		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
+		    MPI2_IOCSTATUS_MASK;
+		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+			ioc_info(ioc, "\tbreak from volume scan: ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 ioc_status, le32_to_cpu(mpi_reply.IOCLogInfo));
+			break;
+		}
+		handle = le16_to_cpu(volume_pg1->DevHandle);
+		spin_lock_irqsave(&ioc->raid_device_lock, flags);
+		raid_device = _scsih_raid_device_find_by_wwid(ioc,
+		    le64_to_cpu(volume_pg1->WWID));
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&ioc->raid_device_lock, flags);
 		if (raid_device)
 			continue;
 		if (mpt3sas_config_get_raid_volume_pg0(ioc, &mpi_reply,
+<<<<<<< HEAD
 		    &volume_pg0, MPI2_RAID_VOLUME_PGAD_FORM_HANDLE, handle,
+=======
+		    volume_pg0, MPI2_RAID_VOLUME_PGAD_FORM_HANDLE, handle,
+>>>>>>> upstream/android-13
 		     sizeof(Mpi2RaidVolPage0_t)))
 			continue;
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tbreak from volume scan: " \
 			    "ioc_status(0x%04x), loginfo(0x%08x)\n",
 			    ioc->name, ioc_status,
@@ -9245,6 +12724,31 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 
 	pr_info(MPT3SAS_FMT "\tscan devices: end devices start\n",
 	    ioc->name);
+=======
+			ioc_info(ioc, "\tbreak from volume scan: ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 ioc_status, le32_to_cpu(mpi_reply.IOCLogInfo));
+			break;
+		}
+		if (volume_pg0->VolumeState == MPI2_RAID_VOL_STATE_OPTIMAL ||
+		    volume_pg0->VolumeState == MPI2_RAID_VOL_STATE_ONLINE ||
+		    volume_pg0->VolumeState == MPI2_RAID_VOL_STATE_DEGRADED) {
+			memset(&element, 0, sizeof(Mpi2EventIrConfigElement_t));
+			element.ReasonCode = MPI2_EVENT_IR_CHANGE_RC_ADDED;
+			element.VolDevHandle = volume_pg1->DevHandle;
+			ioc_info(ioc, "\tBEFORE adding volume: handle (0x%04x)\n",
+				 volume_pg1->DevHandle);
+			_scsih_sas_volume_add(ioc, &element);
+			ioc_info(ioc, "\tAFTER adding volume: handle (0x%04x)\n",
+				 volume_pg1->DevHandle);
+		}
+	}
+
+	ioc_info(ioc, "\tscan devices: volumes complete\n");
+
+ skip_to_sas:
+
+	ioc_info(ioc, "\tscan devices: end devices start\n");
+>>>>>>> upstream/android-13
 
 	/* sas devices */
 	handle = 0xFFFF;
@@ -9254,30 +12758,51 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus) &
 		    MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tbreak from end device scan:"\
 			    " ioc_status(0x%04x), loginfo(0x%08x)\n",
 			    ioc->name, ioc_status,
 			    le32_to_cpu(mpi_reply.IOCLogInfo));
+=======
+			ioc_info(ioc, "\tbreak from end device scan: ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 ioc_status, le32_to_cpu(mpi_reply.IOCLogInfo));
+>>>>>>> upstream/android-13
 			break;
 		}
 		handle = le16_to_cpu(sas_device_pg0.DevHandle);
 		if (!(_scsih_is_end_device(
 		    le32_to_cpu(sas_device_pg0.DeviceInfo))))
 			continue;
+<<<<<<< HEAD
 		sas_device = mpt3sas_get_sdev_by_addr(ioc,
 		    le64_to_cpu(sas_device_pg0.SASAddress));
+=======
+		port_id = sas_device_pg0.PhysicalPort;
+		sas_device = mpt3sas_get_sdev_by_addr(ioc,
+		    le64_to_cpu(sas_device_pg0.SASAddress),
+		    mpt3sas_get_port_by_id(ioc, port_id, 0));
+>>>>>>> upstream/android-13
 		if (sas_device) {
 			sas_device_put(sas_device);
 			continue;
 		}
 		parent_handle = le16_to_cpu(sas_device_pg0.ParentDevHandle);
 		if (!_scsih_get_sas_address(ioc, parent_handle, &sas_address)) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tBEFORE adding end device: " \
 			    "handle (0x%04x), sas_addr(0x%016llx)\n", ioc->name,
 			    handle, (unsigned long long)
 			    le64_to_cpu(sas_device_pg0.SASAddress));
 			mpt3sas_transport_update_links(ioc, sas_address, handle,
 			    sas_device_pg0.PhyNum, MPI2_SAS_NEG_LINK_RATE_1_5);
+=======
+			ioc_info(ioc, "\tBEFORE adding end device: handle (0x%04x), sas_addr(0x%016llx)\n",
+				 handle,
+				 (u64)le64_to_cpu(sas_device_pg0.SASAddress));
+			mpt3sas_transport_update_links(ioc, sas_address, handle,
+			    sas_device_pg0.PhyNum, MPI2_SAS_NEG_LINK_RATE_1_5,
+			    mpt3sas_get_port_by_id(ioc, port_id, 0));
+>>>>>>> upstream/android-13
 			retry_count = 0;
 			/* This will retry adding the end device.
 			 * _scsih_add_device() will decide on retries and
@@ -9287,6 +12812,7 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 			    0)) {
 				ssleep(1);
 			}
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tAFTER adding end device: " \
 			    "handle (0x%04x), sas_addr(0x%016llx)\n", ioc->name,
 			    handle, (unsigned long long)
@@ -9297,6 +12823,15 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 	    ioc->name);
 	pr_info(MPT3SAS_FMT "\tscan devices: pcie end devices start\n",
 	    ioc->name);
+=======
+			ioc_info(ioc, "\tAFTER adding end device: handle (0x%04x), sas_addr(0x%016llx)\n",
+				 handle,
+				 (u64)le64_to_cpu(sas_device_pg0.SASAddress));
+		}
+	}
+	ioc_info(ioc, "\tscan devices: end devices complete\n");
+	ioc_info(ioc, "\tscan devices: pcie end devices start\n");
+>>>>>>> upstream/android-13
 
 	/* pcie devices */
 	handle = 0xFFFF;
@@ -9306,6 +12841,7 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		ioc_status = le16_to_cpu(mpi_reply.IOCStatus)
 				& MPI2_IOCSTATUS_MASK;
 		if (ioc_status != MPI2_IOCSTATUS_SUCCESS) {
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "\tbreak from pcie end device"
 				" scan: ioc_status(0x%04x), loginfo(0x%08x)\n",
 				ioc->name, ioc_status,
@@ -9314,6 +12850,14 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		}
 		handle = le16_to_cpu(pcie_device_pg0.DevHandle);
 		if (!(_scsih_is_nvme_device(
+=======
+			ioc_info(ioc, "\tbreak from pcie end device scan: ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 ioc_status, le32_to_cpu(mpi_reply.IOCLogInfo));
+			break;
+		}
+		handle = le16_to_cpu(pcie_device_pg0.DevHandle);
+		if (!(_scsih_is_nvme_pciescsi_device(
+>>>>>>> upstream/android-13
 			le32_to_cpu(pcie_device_pg0.DeviceInfo))))
 			continue;
 		pcie_device = mpt3sas_get_pdev_by_wwid(ioc,
@@ -9326,6 +12870,7 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 		parent_handle = le16_to_cpu(pcie_device_pg0.ParentDevHandle);
 		_scsih_pcie_add_device(ioc, handle);
 
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "\tAFTER adding pcie end device: "
 			"handle (0x%04x), wwid(0x%016llx)\n", ioc->name,
 			handle,
@@ -9338,27 +12883,58 @@ _scsih_scan_for_devices_after_reset(struct MPT3SAS_ADAPTER *ioc)
 
 /**
  * mpt3sas_scsih_reset_handler - reset callback handler (for scsih)
+=======
+		ioc_info(ioc, "\tAFTER adding pcie end device: handle (0x%04x), wwid(0x%016llx)\n",
+			 handle, (u64)le64_to_cpu(pcie_device_pg0.WWID));
+	}
+
+	kfree(volume_pg0);
+	kfree(volume_pg1);
+
+	ioc_info(ioc, "\tpcie devices: pcie end devices complete\n");
+	ioc_info(ioc, "scan devices: complete\n");
+}
+
+/**
+ * mpt3sas_scsih_pre_reset_handler - reset callback handler (for scsih)
+>>>>>>> upstream/android-13
  * @ioc: per adapter object
  *
  * The handler for doing any required cleanup or initialization.
  */
 void mpt3sas_scsih_pre_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 {
+<<<<<<< HEAD
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: MPT3_IOC_PRE_RESET\n", ioc->name, __func__));
 }
 
 /**
  * mpt3sas_scsih_after_reset_handler - reset callback handler (for scsih)
+=======
+	dtmprintk(ioc, ioc_info(ioc, "%s: MPT3_IOC_PRE_RESET\n", __func__));
+}
+
+/**
+ * mpt3sas_scsih_clear_outstanding_scsi_tm_commands - clears outstanding
+ *							scsi & tm cmds.
+>>>>>>> upstream/android-13
  * @ioc: per adapter object
  *
  * The handler for doing any required cleanup or initialization.
  */
 void
+<<<<<<< HEAD
 mpt3sas_scsih_after_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 {
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: MPT3_IOC_AFTER_RESET\n", ioc->name, __func__));
+=======
+mpt3sas_scsih_clear_outstanding_scsi_tm_commands(struct MPT3SAS_ADAPTER *ioc)
+{
+	dtmprintk(ioc,
+	    ioc_info(ioc, "%s: clear outstanding scsi & tm cmds\n", __func__));
+>>>>>>> upstream/android-13
 	if (ioc->scsih_cmds.status & MPT3_CMD_PENDING) {
 		ioc->scsih_cmds.status |= MPT3_CMD_RESET;
 		mpt3sas_base_free_smid(ioc, ioc->scsih_cmds.smid);
@@ -9378,7 +12954,11 @@ mpt3sas_scsih_after_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 }
 
 /**
+<<<<<<< HEAD
  * mpt3sas_scsih_reset_handler - reset callback handler (for scsih)
+=======
+ * mpt3sas_scsih_reset_done_handler - reset callback handler (for scsih)
+>>>>>>> upstream/android-13
  * @ioc: per adapter object
  *
  * The handler for doing any required cleanup or initialization.
@@ -9386,10 +12966,19 @@ mpt3sas_scsih_after_reset_handler(struct MPT3SAS_ADAPTER *ioc)
 void
 mpt3sas_scsih_reset_done_handler(struct MPT3SAS_ADAPTER *ioc)
 {
+<<<<<<< HEAD
 	dtmprintk(ioc, pr_info(MPT3SAS_FMT
 			"%s: MPT3_IOC_DONE_RESET\n", ioc->name, __func__));
 	if ((!ioc->is_driver_loading) && !(disable_discovery > 0 &&
 					   !ioc->sas_hba.num_phys)) {
+=======
+	dtmprintk(ioc, ioc_info(ioc, "%s: MPT3_IOC_DONE_RESET\n", __func__));
+	if (!(disable_discovery > 0 && !ioc->sas_hba.num_phys)) {
+		if (ioc->multipath_on_hba) {
+			_scsih_sas_port_refresh(ioc);
+			_scsih_update_vphys_after_reset(ioc);
+		}
+>>>>>>> upstream/android-13
 		_scsih_prep_device_scan(ioc);
 		_scsih_create_enclosure_list_after_reset(ioc);
 		_scsih_search_responding_sas_devices(ioc);
@@ -9409,11 +12998,19 @@ mpt3sas_scsih_reset_done_handler(struct MPT3SAS_ADAPTER *ioc)
 static void
 _mpt3sas_fw_work(struct MPT3SAS_ADAPTER *ioc, struct fw_event_work *fw_event)
 {
+<<<<<<< HEAD
+=======
+	ioc->current_event = fw_event;
+>>>>>>> upstream/android-13
 	_scsih_fw_event_del_from_list(ioc, fw_event);
 
 	/* the queue is being flushed so ignore this event */
 	if (ioc->remove_host || ioc->pci_error_recovery) {
 		fw_event_work_put(fw_event);
+<<<<<<< HEAD
+=======
+		ioc->current_event = NULL;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -9427,24 +13024,57 @@ _mpt3sas_fw_work(struct MPT3SAS_ADAPTER *ioc, struct fw_event_work *fw_event)
 		while (scsi_host_in_recovery(ioc->shost) ||
 					 ioc->shost_recovery) {
 			/*
+<<<<<<< HEAD
 			 * If we're unloading, bail. Otherwise, this can become
 			 * an infinite loop.
 			 */
 			if (ioc->remove_host)
+=======
+			 * If we're unloading or cancelling the work, bail.
+			 * Otherwise, this can become an infinite loop.
+			 */
+			if (ioc->remove_host || ioc->fw_events_cleanup)
+>>>>>>> upstream/android-13
 				goto out;
 			ssleep(1);
 		}
 		_scsih_remove_unresponding_devices(ioc);
+<<<<<<< HEAD
 		_scsih_scan_for_devices_after_reset(ioc);
+=======
+		_scsih_del_dirty_vphy(ioc);
+		_scsih_del_dirty_port_entries(ioc);
+		if (ioc->is_gen35_ioc)
+			_scsih_update_device_qdepth(ioc);
+		_scsih_scan_for_devices_after_reset(ioc);
+		/*
+		 * If diag reset has occurred during the driver load
+		 * then driver has to complete the driver load operation
+		 * by executing the following items:
+		 *- Register the devices from sas_device_init_list to SML
+		 *- clear is_driver_loading flag,
+		 *- start the watchdog thread.
+		 * In happy driver load path, above things are taken care of when
+		 * driver executes scsih_scan_finished().
+		 */
+		if (ioc->is_driver_loading)
+			_scsih_complete_devices_scanning(ioc);
+		_scsih_set_nvme_max_shutdown_latency(ioc);
+>>>>>>> upstream/android-13
 		break;
 	case MPT3SAS_PORT_ENABLE_COMPLETE:
 		ioc->start_scan = 0;
 		if (missing_delay[0] != -1 && missing_delay[1] != -1)
 			mpt3sas_base_update_missing_delay(ioc, missing_delay[0],
 			    missing_delay[1]);
+<<<<<<< HEAD
 		dewtprintk(ioc, pr_info(MPT3SAS_FMT
 			"port enable: complete from worker thread\n",
 			ioc->name));
+=======
+		dewtprintk(ioc,
+			   ioc_info(ioc, "port enable: complete from worker thread\n"));
+>>>>>>> upstream/android-13
 		break;
 	case MPT3SAS_TURN_ON_PFA_LED:
 		_scsih_turn_on_pfa_led(ioc, fw_event->device_handle);
@@ -9453,7 +13083,14 @@ _mpt3sas_fw_work(struct MPT3SAS_ADAPTER *ioc, struct fw_event_work *fw_event)
 		_scsih_sas_topology_change_event(ioc, fw_event);
 		break;
 	case MPI2_EVENT_SAS_DEVICE_STATUS_CHANGE:
+<<<<<<< HEAD
 		_scsih_sas_device_status_change_event(ioc, fw_event);
+=======
+		if (ioc->logging_level & MPT_DEBUG_EVENT_WORK_TASK)
+			_scsih_sas_device_status_change_event_debug(ioc,
+			    (Mpi2EventDataSasDeviceStatusChange_t *)
+			    fw_event->event_data);
+>>>>>>> upstream/android-13
 		break;
 	case MPI2_EVENT_SAS_DISCOVERY:
 		_scsih_sas_discovery_event(ioc, fw_event);
@@ -9488,11 +13125,20 @@ _mpt3sas_fw_work(struct MPT3SAS_ADAPTER *ioc, struct fw_event_work *fw_event)
 		break;
 	case MPI2_EVENT_PCIE_TOPOLOGY_CHANGE_LIST:
 		_scsih_pcie_topology_change_event(ioc, fw_event);
+<<<<<<< HEAD
 			return;
 	break;
 	}
 out:
 	fw_event_work_put(fw_event);
+=======
+		ioc->current_event = NULL;
+		return;
+	}
+out:
+	fw_event_work_put(fw_event);
+	ioc->current_event = NULL;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -9542,8 +13188,13 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 	mpi_reply = mpt3sas_base_get_reply_virt_addr(ioc, reply);
 
 	if (unlikely(!mpi_reply)) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "mpi_reply not valid at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "mpi_reply not valid at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -9576,11 +13227,29 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 		_scsih_check_topo_delete_events(ioc,
 		    (Mpi2EventDataSasTopologyChangeList_t *)
 		    mpi_reply->EventData);
+<<<<<<< HEAD
+=======
+		/*
+		 * No need to add the topology change list
+		 * event to fw event work queue when
+		 * diag reset is going on. Since during diag
+		 * reset driver scan the devices by reading
+		 * sas device page0's not by processing the
+		 * events.
+		 */
+		if (ioc->shost_recovery)
+			return 1;
+>>>>>>> upstream/android-13
 		break;
 	case MPI2_EVENT_PCIE_TOPOLOGY_CHANGE_LIST:
 	_scsih_check_pcie_topo_remove_events(ioc,
 		    (Mpi26EventDataPCIeTopologyChangeList_t *)
 		    mpi_reply->EventData);
+<<<<<<< HEAD
+=======
+		if (ioc->shost_recovery)
+			return 1;
+>>>>>>> upstream/android-13
 		break;
 	case MPI2_EVENT_IR_CONFIGURATION_CHANGE_LIST:
 		_scsih_check_ir_config_unhide_events(ioc,
@@ -9610,6 +13279,7 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 
 		switch (le32_to_cpu(*log_code)) {
 		case MPT2_WARPDRIVE_LC_SSDT:
+<<<<<<< HEAD
 			pr_warn(MPT3SAS_FMT "WarpDrive Warning: "
 			    "IO Throttling has occurred in the WarpDrive "
 			    "subsystem. Check WarpDrive documentation for "
@@ -9634,12 +13304,31 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 			    "WarpDrive subsystem. Check WarpDrive "
 			    "documentation for additional details.\n",
 			    ioc->name);
+=======
+			ioc_warn(ioc, "WarpDrive Warning: IO Throttling has occurred in the WarpDrive subsystem. Check WarpDrive documentation for additional details.\n");
+			break;
+		case MPT2_WARPDRIVE_LC_SSDLW:
+			ioc_warn(ioc, "WarpDrive Warning: Program/Erase Cycles for the WarpDrive subsystem in degraded range. Check WarpDrive documentation for additional details.\n");
+			break;
+		case MPT2_WARPDRIVE_LC_SSDLF:
+			ioc_err(ioc, "WarpDrive Fatal Error: There are no Program/Erase Cycles for the WarpDrive subsystem. The storage device will be in read-only mode. Check WarpDrive documentation for additional details.\n");
+			break;
+		case MPT2_WARPDRIVE_LC_BRMF:
+			ioc_err(ioc, "WarpDrive Fatal Error: The Backup Rail Monitor has failed on the WarpDrive subsystem. Check WarpDrive documentation for additional details.\n");
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		break;
 	}
 	case MPI2_EVENT_SAS_DEVICE_STATUS_CHANGE:
+<<<<<<< HEAD
+=======
+		_scsih_sas_device_status_change_event(ioc,
+		    (Mpi2EventDataSasDeviceStatusChange_t *)
+		    mpi_reply->EventData);
+		break;
+>>>>>>> upstream/android-13
 	case MPI2_EVENT_IR_OPERATION_STATUS:
 	case MPI2_EVENT_SAS_DISCOVERY:
 	case MPI2_EVENT_SAS_DEVICE_DISCOVERY_ERROR:
@@ -9659,6 +13348,7 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 		    (Mpi26EventDataActiveCableExcept_t *) mpi_reply->EventData;
 		switch (ActiveCableEventData->ReasonCode) {
 		case MPI26_EVENT_ACTIVE_CABLE_INSUFFICIENT_POWER:
+<<<<<<< HEAD
 			pr_notice(MPT3SAS_FMT
 			    "Currently an active cable with ReceptacleID %d\n",
 			    ioc->name, ActiveCableEventData->ReceptacleID);
@@ -9672,6 +13362,20 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 			pr_notice(MPT3SAS_FMT
 			    "Currently a cable with ReceptacleID %d\n",
 			    ioc->name, ActiveCableEventData->ReceptacleID);
+=======
+			ioc_notice(ioc, "Currently an active cable with ReceptacleID %d\n",
+				   ActiveCableEventData->ReceptacleID);
+			pr_notice("cannot be powered and devices connected\n");
+			pr_notice("to this active cable will not be seen\n");
+			pr_notice("This active cable requires %d mW of power\n",
+			    le32_to_cpu(
+			    ActiveCableEventData->ActiveCablePowerRequirement));
+			break;
+
+		case MPI26_EVENT_ACTIVE_CABLE_DEGRADED:
+			ioc_notice(ioc, "Currently a cable with ReceptacleID %d\n",
+				   ActiveCableEventData->ReceptacleID);
+>>>>>>> upstream/android-13
 			pr_notice(
 			    "is not running at optimal speed(12 Gb/s rate)\n");
 			break;
@@ -9686,8 +13390,13 @@ mpt3sas_scsih_event_callback(struct MPT3SAS_ADAPTER *ioc, u8 msix_index,
 	sz = le16_to_cpu(mpi_reply->EventDataLength) * 4;
 	fw_event = alloc_fw_event_work(sz);
 	if (!fw_event) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -9715,6 +13424,10 @@ _scsih_expander_node_remove(struct MPT3SAS_ADAPTER *ioc,
 {
 	struct _sas_port *mpt3sas_port, *next;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	int port_id;
+>>>>>>> upstream/android-13
 
 	/* remove sibling ports attached to this expander */
 	list_for_each_entry_safe(mpt3sas_port, next,
@@ -9724,12 +13437,18 @@ _scsih_expander_node_remove(struct MPT3SAS_ADAPTER *ioc,
 		if (mpt3sas_port->remote_identify.device_type ==
 		    SAS_END_DEVICE)
 			mpt3sas_device_remove_by_sas_address(ioc,
+<<<<<<< HEAD
 			    mpt3sas_port->remote_identify.sas_address);
+=======
+			    mpt3sas_port->remote_identify.sas_address,
+			    mpt3sas_port->hba_port);
+>>>>>>> upstream/android-13
 		else if (mpt3sas_port->remote_identify.device_type ==
 		    SAS_EDGE_EXPANDER_DEVICE ||
 		    mpt3sas_port->remote_identify.device_type ==
 		    SAS_FANOUT_EXPANDER_DEVICE)
 			mpt3sas_expander_remove(ioc,
+<<<<<<< HEAD
 			    mpt3sas_port->remote_identify.sas_address);
 	}
 
@@ -9741,6 +13460,22 @@ _scsih_expander_node_remove(struct MPT3SAS_ADAPTER *ioc,
 		ioc->name,
 	    sas_expander->handle, (unsigned long long)
 	    sas_expander->sas_address);
+=======
+			    mpt3sas_port->remote_identify.sas_address,
+			    mpt3sas_port->hba_port);
+	}
+
+	port_id = sas_expander->port->port_id;
+
+	mpt3sas_transport_port_remove(ioc, sas_expander->sas_address,
+	    sas_expander->sas_address_parent, sas_expander->port);
+
+	ioc_info(ioc,
+	    "expander_remove: handle(0x%04x), sas_addr(0x%016llx), port:%d\n",
+	    sas_expander->handle, (unsigned long long)
+	    sas_expander->sas_address,
+	    port_id);
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
 	list_del(&sas_expander->list);
@@ -9751,6 +13486,78 @@ _scsih_expander_node_remove(struct MPT3SAS_ADAPTER *ioc,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * _scsih_nvme_shutdown - NVMe shutdown notification
+ * @ioc: per adapter object
+ *
+ * Sending IoUnitControl request with shutdown operation code to alert IOC that
+ * the host system is shutting down so that IOC can issue NVMe shutdown to
+ * NVMe drives attached to it.
+ */
+static void
+_scsih_nvme_shutdown(struct MPT3SAS_ADAPTER *ioc)
+{
+	Mpi26IoUnitControlRequest_t *mpi_request;
+	Mpi26IoUnitControlReply_t *mpi_reply;
+	u16 smid;
+
+	/* are there any NVMe devices ? */
+	if (list_empty(&ioc->pcie_device_list))
+		return;
+
+	mutex_lock(&ioc->scsih_cmds.mutex);
+
+	if (ioc->scsih_cmds.status != MPT3_CMD_NOT_USED) {
+		ioc_err(ioc, "%s: scsih_cmd in use\n", __func__);
+		goto out;
+	}
+
+	ioc->scsih_cmds.status = MPT3_CMD_PENDING;
+
+	smid = mpt3sas_base_get_smid(ioc, ioc->scsih_cb_idx);
+	if (!smid) {
+		ioc_err(ioc,
+		    "%s: failed obtaining a smid\n", __func__);
+		ioc->scsih_cmds.status = MPT3_CMD_NOT_USED;
+		goto out;
+	}
+
+	mpi_request = mpt3sas_base_get_msg_frame(ioc, smid);
+	ioc->scsih_cmds.smid = smid;
+	memset(mpi_request, 0, sizeof(Mpi26IoUnitControlRequest_t));
+	mpi_request->Function = MPI2_FUNCTION_IO_UNIT_CONTROL;
+	mpi_request->Operation = MPI26_CTRL_OP_SHUTDOWN;
+
+	init_completion(&ioc->scsih_cmds.done);
+	ioc->put_smid_default(ioc, smid);
+	/* Wait for max_shutdown_latency seconds */
+	ioc_info(ioc,
+		"Io Unit Control shutdown (sending), Shutdown latency %d sec\n",
+		ioc->max_shutdown_latency);
+	wait_for_completion_timeout(&ioc->scsih_cmds.done,
+			ioc->max_shutdown_latency*HZ);
+
+	if (!(ioc->scsih_cmds.status & MPT3_CMD_COMPLETE)) {
+		ioc_err(ioc, "%s: timeout\n", __func__);
+		goto out;
+	}
+
+	if (ioc->scsih_cmds.status & MPT3_CMD_REPLY_VALID) {
+		mpi_reply = ioc->scsih_cmds.reply;
+		ioc_info(ioc, "Io Unit Control shutdown (complete):"
+			"ioc_status(0x%04x), loginfo(0x%08x)\n",
+			le16_to_cpu(mpi_reply->IOCStatus),
+			le32_to_cpu(mpi_reply->IOCLogInfo));
+	}
+ out:
+	ioc->scsih_cmds.status = MPT3_CMD_NOT_USED;
+	mutex_unlock(&ioc->scsih_cmds.mutex);
+}
+
+
+/**
+>>>>>>> upstream/android-13
  * _scsih_ir_shutdown - IR shutdown notification
  * @ioc: per adapter object
  *
@@ -9775,16 +13582,24 @@ _scsih_ir_shutdown(struct MPT3SAS_ADAPTER *ioc)
 	mutex_lock(&ioc->scsih_cmds.mutex);
 
 	if (ioc->scsih_cmds.status != MPT3_CMD_NOT_USED) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: scsih_cmd in use\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: scsih_cmd in use\n", __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	ioc->scsih_cmds.status = MPT3_CMD_PENDING;
 
 	smid = mpt3sas_base_get_smid(ioc, ioc->scsih_cb_idx);
 	if (!smid) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "%s: failed obtaining a smid\n",
 		    ioc->name, __func__);
+=======
+		ioc_err(ioc, "%s: failed obtaining a smid\n", __func__);
+>>>>>>> upstream/android-13
 		ioc->scsih_cmds.status = MPT3_CMD_NOT_USED;
 		goto out;
 	}
@@ -9797,6 +13612,7 @@ _scsih_ir_shutdown(struct MPT3SAS_ADAPTER *ioc)
 	mpi_request->Action = MPI2_RAID_ACTION_SYSTEM_SHUTDOWN_INITIATED;
 
 	if (!ioc->hide_ir_msg)
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "IR shutdown (sending)\n", ioc->name);
 	init_completion(&ioc->scsih_cmds.done);
 	mpt3sas_base_put_smid_default(ioc, smid);
@@ -9805,16 +13621,31 @@ _scsih_ir_shutdown(struct MPT3SAS_ADAPTER *ioc)
 	if (!(ioc->scsih_cmds.status & MPT3_CMD_COMPLETE)) {
 		pr_err(MPT3SAS_FMT "%s: timeout\n",
 		    ioc->name, __func__);
+=======
+		ioc_info(ioc, "IR shutdown (sending)\n");
+	init_completion(&ioc->scsih_cmds.done);
+	ioc->put_smid_default(ioc, smid);
+	wait_for_completion_timeout(&ioc->scsih_cmds.done, 10*HZ);
+
+	if (!(ioc->scsih_cmds.status & MPT3_CMD_COMPLETE)) {
+		ioc_err(ioc, "%s: timeout\n", __func__);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	if (ioc->scsih_cmds.status & MPT3_CMD_REPLY_VALID) {
 		mpi_reply = ioc->scsih_cmds.reply;
 		if (!ioc->hide_ir_msg)
+<<<<<<< HEAD
 			pr_info(MPT3SAS_FMT "IR shutdown "
 			   "(complete): ioc_status(0x%04x), loginfo(0x%08x)\n",
 			    ioc->name, le16_to_cpu(mpi_reply->IOCStatus),
 			    le32_to_cpu(mpi_reply->IOCLogInfo));
+=======
+			ioc_info(ioc, "IR shutdown (complete): ioc_status(0x%04x), loginfo(0x%08x)\n",
+				 le16_to_cpu(mpi_reply->IOCStatus),
+				 le32_to_cpu(mpi_reply->IOCLogInfo));
+>>>>>>> upstream/android-13
 	}
 
  out:
@@ -9823,6 +13654,37 @@ _scsih_ir_shutdown(struct MPT3SAS_ADAPTER *ioc)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * _scsih_get_shost_and_ioc - get shost and ioc
+ *			and verify whether they are NULL or not
+ * @pdev: PCI device struct
+ * @shost: address of scsi host pointer
+ * @ioc: address of HBA adapter pointer
+ *
+ * Return zero if *shost and *ioc are not NULL otherwise return error number.
+ */
+static int
+_scsih_get_shost_and_ioc(struct pci_dev *pdev,
+	struct Scsi_Host **shost, struct MPT3SAS_ADAPTER **ioc)
+{
+	*shost = pci_get_drvdata(pdev);
+	if (*shost == NULL) {
+		dev_err(&pdev->dev, "pdev's driver data is null\n");
+		return -ENXIO;
+	}
+
+	*ioc = shost_priv(*shost);
+	if (*ioc == NULL) {
+		dev_err(&pdev->dev, "shost's private data is null\n");
+		return -ENXIO;
+	}
+
+	return 0;
+}
+
+/**
+>>>>>>> upstream/android-13
  * scsih_remove - detach and remove add host
  * @pdev: PCI device struct
  *
@@ -9830,19 +13692,39 @@ _scsih_ir_shutdown(struct MPT3SAS_ADAPTER *ioc)
  */
 static void scsih_remove(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+=======
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+>>>>>>> upstream/android-13
 	struct _sas_port *mpt3sas_port, *next_port;
 	struct _raid_device *raid_device, *next;
 	struct MPT3SAS_TARGET *sas_target_priv_data;
 	struct _pcie_device *pcie_device, *pcienext;
 	struct workqueue_struct	*wq;
 	unsigned long flags;
+<<<<<<< HEAD
 
 	ioc->remove_host = 1;
 
 	if (!pci_device_is_present(pdev))
 		_scsih_flush_running_cmds(ioc);
+=======
+	Mpi2ConfigReply_t mpi_reply;
+	struct hba_port *port, *port_next;
+
+	if (_scsih_get_shost_and_ioc(pdev, &shost, &ioc))
+		return;
+
+	ioc->remove_host = 1;
+
+	if (!pci_device_is_present(pdev)) {
+		mpt3sas_base_pause_mq_polling(ioc);
+		_scsih_flush_running_cmds(ioc);
+	}
+>>>>>>> upstream/android-13
 
 	_scsih_fw_event_cleanup_queue(ioc);
 
@@ -9852,9 +13734,22 @@ static void scsih_remove(struct pci_dev *pdev)
 	spin_unlock_irqrestore(&ioc->fw_event_lock, flags);
 	if (wq)
 		destroy_workqueue(wq);
+<<<<<<< HEAD
 
 	/* release all the volumes */
 	_scsih_ir_shutdown(ioc);
+=======
+	/*
+	 * Copy back the unmodified ioc page1. so that on next driver load,
+	 * current modified changes on ioc page1 won't take effect.
+	 */
+	if (ioc->is_aero_ioc)
+		mpt3sas_config_set_ioc_pg1(ioc, &mpi_reply,
+				&ioc->ioc_pg1_copy);
+	/* release all the volumes */
+	_scsih_ir_shutdown(ioc);
+	mpt3sas_destroy_debugfs(ioc);
+>>>>>>> upstream/android-13
 	sas_remove_host(shost);
 	list_for_each_entry_safe(raid_device, next, &ioc->raid_device_list,
 	    list) {
@@ -9864,9 +13759,14 @@ static void scsih_remove(struct pci_dev *pdev)
 			sas_target_priv_data->deleted = 1;
 			scsi_remove_target(&raid_device->starget->dev);
 		}
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "removing handle(0x%04x), wwid(0x%016llx)\n",
 			ioc->name,  raid_device->handle,
 		    (unsigned long long) raid_device->wwid);
+=======
+		ioc_info(ioc, "removing handle(0x%04x), wwid(0x%016llx)\n",
+			 raid_device->handle, (u64)raid_device->wwid);
+>>>>>>> upstream/android-13
 		_scsih_raid_device_remove(ioc, raid_device);
 	}
 	list_for_each_entry_safe(pcie_device, pcienext, &ioc->pcie_device_list,
@@ -9882,13 +13782,29 @@ static void scsih_remove(struct pci_dev *pdev)
 		if (mpt3sas_port->remote_identify.device_type ==
 		    SAS_END_DEVICE)
 			mpt3sas_device_remove_by_sas_address(ioc,
+<<<<<<< HEAD
 			    mpt3sas_port->remote_identify.sas_address);
+=======
+			    mpt3sas_port->remote_identify.sas_address,
+			    mpt3sas_port->hba_port);
+>>>>>>> upstream/android-13
 		else if (mpt3sas_port->remote_identify.device_type ==
 		    SAS_EDGE_EXPANDER_DEVICE ||
 		    mpt3sas_port->remote_identify.device_type ==
 		    SAS_FANOUT_EXPANDER_DEVICE)
 			mpt3sas_expander_remove(ioc,
+<<<<<<< HEAD
 			    mpt3sas_port->remote_identify.sas_address);
+=======
+			    mpt3sas_port->remote_identify.sas_address,
+			    mpt3sas_port->hba_port);
+	}
+
+	list_for_each_entry_safe(port, port_next,
+	    &ioc->port_table_list, list) {
+		list_del(&port->list);
+		kfree(port);
+>>>>>>> upstream/android-13
 	}
 
 	/* free phys attached to the sas_host */
@@ -9912,6 +13828,7 @@ static void scsih_remove(struct pci_dev *pdev)
 static void
 scsih_shutdown(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
 	struct workqueue_struct	*wq;
@@ -9921,6 +13838,23 @@ scsih_shutdown(struct pci_dev *pdev)
 
 	if (!pci_device_is_present(pdev))
 		_scsih_flush_running_cmds(ioc);
+=======
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+	struct workqueue_struct	*wq;
+	unsigned long flags;
+	Mpi2ConfigReply_t mpi_reply;
+
+	if (_scsih_get_shost_and_ioc(pdev, &shost, &ioc))
+		return;
+
+	ioc->remove_host = 1;
+
+	if (!pci_device_is_present(pdev)) {
+		mpt3sas_base_pause_mq_polling(ioc);
+		_scsih_flush_running_cmds(ioc);
+	}
+>>>>>>> upstream/android-13
 
 	_scsih_fw_event_cleanup_queue(ioc);
 
@@ -9930,9 +13864,28 @@ scsih_shutdown(struct pci_dev *pdev)
 	spin_unlock_irqrestore(&ioc->fw_event_lock, flags);
 	if (wq)
 		destroy_workqueue(wq);
+<<<<<<< HEAD
 
 	_scsih_ir_shutdown(ioc);
 	mpt3sas_base_detach(ioc);
+=======
+	/*
+	 * Copy back the unmodified ioc page1 so that on next driver load,
+	 * current modified changes on ioc page1 won't take effect.
+	 */
+	if (ioc->is_aero_ioc)
+		mpt3sas_config_set_ioc_pg1(ioc, &mpi_reply,
+				&ioc->ioc_pg1_copy);
+
+	_scsih_ir_shutdown(ioc);
+	_scsih_nvme_shutdown(ioc);
+	mpt3sas_base_mask_interrupts(ioc);
+	ioc->shost_recovery = 1;
+	mpt3sas_base_make_ioc_ready(ioc, SOFT_RESET);
+	ioc->shost_recovery = 0;
+	mpt3sas_base_free_irq(ioc);
+	mpt3sas_base_disable_msix(ioc);
+>>>>>>> upstream/android-13
 }
 
 
@@ -9958,6 +13911,10 @@ _scsih_probe_boot_devices(struct MPT3SAS_ADAPTER *ioc)
 	unsigned long flags;
 	int rc;
 	int tid;
+<<<<<<< HEAD
+=======
+	struct hba_port *port;
+>>>>>>> upstream/android-13
 
 	 /* no Bios, return immediately */
 	if (!ioc->bios_pg3.BiosVersion)
@@ -9980,13 +13937,35 @@ _scsih_probe_boot_devices(struct MPT3SAS_ADAPTER *ioc)
 
 	if (channel == RAID_CHANNEL) {
 		raid_device = device;
+<<<<<<< HEAD
+=======
+		/*
+		 * If this boot vd is already registered with SML then
+		 * no need to register it again as part of device scanning
+		 * after diag reset during driver load operation.
+		 */
+		if (raid_device->starget)
+			return;
+>>>>>>> upstream/android-13
 		rc = scsi_add_device(ioc->shost, RAID_CHANNEL,
 		    raid_device->id, 0);
 		if (rc)
 			_scsih_raid_device_remove(ioc, raid_device);
 	} else if (channel == PCIE_CHANNEL) {
+<<<<<<< HEAD
 		spin_lock_irqsave(&ioc->pcie_device_lock, flags);
 		pcie_device = device;
+=======
+		pcie_device = device;
+		/*
+		 * If this boot NVMe device is already registered with SML then
+		 * no need to register it again as part of device scanning
+		 * after diag reset during driver load operation.
+		 */
+		if (pcie_device->starget)
+			return;
+		spin_lock_irqsave(&ioc->pcie_device_lock, flags);
+>>>>>>> upstream/android-13
 		tid = pcie_device->id;
 		list_move_tail(&pcie_device->list, &ioc->pcie_device_list);
 		spin_unlock_irqrestore(&ioc->pcie_device_lock, flags);
@@ -9994,24 +13973,53 @@ _scsih_probe_boot_devices(struct MPT3SAS_ADAPTER *ioc)
 		if (rc)
 			_scsih_pcie_device_remove(ioc, pcie_device);
 	} else {
+<<<<<<< HEAD
 		spin_lock_irqsave(&ioc->sas_device_lock, flags);
 		sas_device = device;
 		handle = sas_device->handle;
 		sas_address_parent = sas_device->sas_address_parent;
 		sas_address = sas_device->sas_address;
+=======
+		sas_device = device;
+		/*
+		 * If this boot sas/sata device is already registered with SML
+		 * then no need to register it again as part of device scanning
+		 * after diag reset during driver load operation.
+		 */
+		if (sas_device->starget)
+			return;
+		spin_lock_irqsave(&ioc->sas_device_lock, flags);
+		handle = sas_device->handle;
+		sas_address_parent = sas_device->sas_address_parent;
+		sas_address = sas_device->sas_address;
+		port = sas_device->port;
+>>>>>>> upstream/android-13
 		list_move_tail(&sas_device->list, &ioc->sas_device_list);
 		spin_unlock_irqrestore(&ioc->sas_device_lock, flags);
 
 		if (ioc->hide_drives)
 			return;
+<<<<<<< HEAD
 		if (!mpt3sas_transport_port_add(ioc, handle,
 		    sas_address_parent)) {
+=======
+
+		if (!port)
+			return;
+
+		if (!mpt3sas_transport_port_add(ioc, handle,
+		    sas_address_parent, port)) {
+>>>>>>> upstream/android-13
 			_scsih_sas_device_remove(ioc, sas_device);
 		} else if (!sas_device->starget) {
 			if (!ioc->is_driver_loading) {
 				mpt3sas_transport_port_remove(ioc,
 				    sas_address,
+<<<<<<< HEAD
 				    sas_address_parent);
+=======
+				    sas_address_parent, port);
+>>>>>>> upstream/android-13
 				_scsih_sas_device_remove(ioc, sas_device);
 			}
 		}
@@ -10099,7 +14107,11 @@ _scsih_probe_sas(struct MPT3SAS_ADAPTER *ioc)
 
 	while ((sas_device = get_next_sas_device(ioc))) {
 		if (!mpt3sas_transport_port_add(ioc, sas_device->handle,
+<<<<<<< HEAD
 		    sas_device->sas_address_parent)) {
+=======
+		    sas_device->sas_address_parent, sas_device->port)) {
+>>>>>>> upstream/android-13
 			_scsih_sas_device_remove(ioc, sas_device);
 			sas_device_put(sas_device);
 			continue;
@@ -10113,7 +14125,12 @@ _scsih_probe_sas(struct MPT3SAS_ADAPTER *ioc)
 			if (!ioc->is_driver_loading) {
 				mpt3sas_transport_port_remove(ioc,
 				    sas_device->sas_address,
+<<<<<<< HEAD
 				    sas_device->sas_address_parent);
+=======
+				    sas_device->sas_address_parent,
+				    sas_device->port);
+>>>>>>> upstream/android-13
 				_scsih_sas_device_remove(ioc, sas_device);
 				sas_device_put(sas_device);
 				continue;
@@ -10192,6 +14209,15 @@ _scsih_probe_pcie(struct MPT3SAS_ADAPTER *ioc)
 			pcie_device_put(pcie_device);
 			continue;
 		}
+<<<<<<< HEAD
+=======
+		if (pcie_device->access_status ==
+		    MPI26_PCIEDEV0_ASTATUS_DEVICE_BLOCKED) {
+			pcie_device_make_active(ioc, pcie_device);
+			pcie_device_put(pcie_device);
+			continue;
+		}
+>>>>>>> upstream/android-13
 		rc = scsi_add_device(ioc->shost, PCIE_CHANNEL,
 			pcie_device->id, 0);
 		if (rc) {
@@ -10268,6 +14294,11 @@ scsih_scan_start(struct Scsi_Host *shost)
 	int rc;
 	if (diag_buffer_enable != -1 && diag_buffer_enable != 0)
 		mpt3sas_enable_diag_buffer(ioc, diag_buffer_enable);
+<<<<<<< HEAD
+=======
+	else if (ioc->manu_pg11.HostTraceBufferMaxSizeKB != 0)
+		mpt3sas_enable_diag_buffer(ioc, 1);
+>>>>>>> upstream/android-13
 
 	if (disable_discovery > 0)
 		return;
@@ -10276,7 +14307,30 @@ scsih_scan_start(struct Scsi_Host *shost)
 	rc = mpt3sas_port_enable(ioc);
 
 	if (rc != 0)
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT "port enable: FAILED\n", ioc->name);
+=======
+		ioc_info(ioc, "port enable: FAILED\n");
+}
+
+/**
+ * _scsih_complete_devices_scanning - add the devices to sml and
+ * complete ioc initialization.
+ * @ioc: per adapter object
+ *
+ * Return nothing.
+ */
+static void _scsih_complete_devices_scanning(struct MPT3SAS_ADAPTER *ioc)
+{
+
+	if (ioc->wait_for_discovery_to_complete) {
+		ioc->wait_for_discovery_to_complete = 0;
+		_scsih_probe_devices(ioc);
+	}
+
+	mpt3sas_base_start_watchdog(ioc);
+	ioc->is_driver_loading = 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -10292,6 +14346,11 @@ static int
 scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 {
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
+<<<<<<< HEAD
+=======
+	u32 ioc_state;
+	int issue_hard_reset = 0;
+>>>>>>> upstream/android-13
 
 	if (disable_discovery > 0) {
 		ioc->is_driver_loading = 0;
@@ -10301,13 +14360,18 @@ scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 
 	if (time >= (300 * HZ)) {
 		ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT
 			"port enable: FAILED with timeout (timeout=300s)\n",
 			ioc->name);
+=======
+		ioc_info(ioc, "port enable: FAILED with timeout (timeout=300s)\n");
+>>>>>>> upstream/android-13
 		ioc->is_driver_loading = 0;
 		return 1;
 	}
 
+<<<<<<< HEAD
 	if (ioc->start_scan)
 		return 0;
 
@@ -10315,12 +14379,42 @@ scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 		pr_info(MPT3SAS_FMT
 			"port enable: FAILED with (ioc_status=0x%08x)\n",
 			ioc->name, ioc->start_scan_failed);
+=======
+	if (ioc->start_scan) {
+		ioc_state = mpt3sas_base_get_iocstate(ioc, 0);
+		if ((ioc_state & MPI2_IOC_STATE_MASK) == MPI2_IOC_STATE_FAULT) {
+			mpt3sas_print_fault_code(ioc, ioc_state &
+			    MPI2_DOORBELL_DATA_MASK);
+			issue_hard_reset = 1;
+			goto out;
+		} else if ((ioc_state & MPI2_IOC_STATE_MASK) ==
+				MPI2_IOC_STATE_COREDUMP) {
+			mpt3sas_base_coredump_info(ioc, ioc_state &
+			    MPI2_DOORBELL_DATA_MASK);
+			mpt3sas_base_wait_for_coredump_completion(ioc, __func__);
+			issue_hard_reset = 1;
+			goto out;
+		}
+		return 0;
+	}
+
+	if (ioc->port_enable_cmds.status & MPT3_CMD_RESET) {
+		ioc_info(ioc,
+		    "port enable: aborted due to diag reset\n");
+		ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+		goto out;
+	}
+	if (ioc->start_scan_failed) {
+		ioc_info(ioc, "port enable: FAILED with (ioc_status=0x%08x)\n",
+			 ioc->start_scan_failed);
+>>>>>>> upstream/android-13
 		ioc->is_driver_loading = 0;
 		ioc->wait_for_discovery_to_complete = 0;
 		ioc->remove_host = 1;
 		return 1;
 	}
 
+<<<<<<< HEAD
 	pr_info(MPT3SAS_FMT "port enable: SUCCESS\n", ioc->name);
 	ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
 
@@ -10333,6 +14427,66 @@ scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
 	return 1;
 }
 
+=======
+	ioc_info(ioc, "port enable: SUCCESS\n");
+	ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+	_scsih_complete_devices_scanning(ioc);
+
+out:
+	if (issue_hard_reset) {
+		ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+		if (mpt3sas_base_hard_reset_handler(ioc, SOFT_RESET))
+			ioc->is_driver_loading = 0;
+	}
+	return 1;
+}
+
+/**
+ * scsih_map_queues - map reply queues with request queues
+ * @shost: SCSI host pointer
+ */
+static int scsih_map_queues(struct Scsi_Host *shost)
+{
+	struct MPT3SAS_ADAPTER *ioc =
+	    (struct MPT3SAS_ADAPTER *)shost->hostdata;
+	struct blk_mq_queue_map *map;
+	int i, qoff, offset;
+	int nr_msix_vectors = ioc->iopoll_q_start_index;
+	int iopoll_q_count = ioc->reply_queue_count - nr_msix_vectors;
+
+	if (shost->nr_hw_queues == 1)
+		return 0;
+
+	for (i = 0, qoff = 0; i < shost->nr_maps; i++) {
+		map = &shost->tag_set.map[i];
+		map->nr_queues = 0;
+		offset = 0;
+		if (i == HCTX_TYPE_DEFAULT) {
+			map->nr_queues =
+			    nr_msix_vectors - ioc->high_iops_queues;
+			offset = ioc->high_iops_queues;
+		} else if (i == HCTX_TYPE_POLL)
+			map->nr_queues = iopoll_q_count;
+
+		if (!map->nr_queues)
+			BUG_ON(i == HCTX_TYPE_DEFAULT);
+
+		/*
+		 * The poll queue(s) doesn't have an IRQ (and hence IRQ
+		 * affinity), so use the regular blk-mq cpu mapping
+		 */
+		map->queue_offset = qoff;
+		if (i != HCTX_TYPE_POLL)
+			blk_mq_pci_map_queues(map, ioc->pdev, offset);
+		else
+			blk_mq_map_queues(map);
+
+		qoff += map->nr_queues;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* shost template for SAS 2.0 HBA devices */
 static struct scsi_host_template mpt2sas_driver_template = {
 	.module				= THIS_MODULE,
@@ -10357,7 +14511,10 @@ static struct scsi_host_template mpt2sas_driver_template = {
 	.sg_tablesize			= MPT2SAS_SG_DEPTH,
 	.max_sectors			= 32767,
 	.cmd_per_lun			= 7,
+<<<<<<< HEAD
 	.use_clustering			= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.shost_attrs			= mpt3sas_host_attrs,
 	.sdev_attrs			= mpt3sas_dev_attrs,
 	.track_queue_depth		= 1,
@@ -10395,12 +14552,22 @@ static struct scsi_host_template mpt3sas_driver_template = {
 	.this_id			= -1,
 	.sg_tablesize			= MPT3SAS_SG_DEPTH,
 	.max_sectors			= 32767,
+<<<<<<< HEAD
 	.cmd_per_lun			= 7,
 	.use_clustering			= ENABLE_CLUSTERING,
+=======
+	.max_segment_size		= 0xffffffff,
+	.cmd_per_lun			= 7,
+>>>>>>> upstream/android-13
 	.shost_attrs			= mpt3sas_host_attrs,
 	.sdev_attrs			= mpt3sas_dev_attrs,
 	.track_queue_depth		= 1,
 	.cmd_size			= sizeof(struct scsiio_tracker),
+<<<<<<< HEAD
+=======
+	.map_queues			= scsih_map_queues,
+	.mq_poll			= mpt3sas_blk_mq_poll,
+>>>>>>> upstream/android-13
 };
 
 /* raid transport support for SAS 3.0 HBA devices */
@@ -10442,7 +14609,12 @@ _scsih_determine_hba_mpi_version(struct pci_dev *pdev)
 	case MPI2_MFGPAGE_DEVID_SAS2308_1:
 	case MPI2_MFGPAGE_DEVID_SAS2308_2:
 	case MPI2_MFGPAGE_DEVID_SAS2308_3:
+<<<<<<< HEAD
 	case MPI2_MFGPAGE_DEVID_SAS2308_MPI_EP:
+=======
+	case MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP:
+	case MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP_1:
+>>>>>>> upstream/android-13
 		return MPI2_VERSION;
 	case MPI25_MFGPAGE_DEVID_SAS3004:
 	case MPI25_MFGPAGE_DEVID_SAS3008:
@@ -10468,6 +14640,18 @@ _scsih_determine_hba_mpi_version(struct pci_dev *pdev)
 	case MPI26_MFGPAGE_DEVID_SAS3516_1:
 	case MPI26_MFGPAGE_DEVID_SAS3416:
 	case MPI26_MFGPAGE_DEVID_SAS3616:
+<<<<<<< HEAD
+=======
+	case MPI26_ATLAS_PCIe_SWITCH_DEVID:
+	case MPI26_MFGPAGE_DEVID_CFG_SEC_3916:
+	case MPI26_MFGPAGE_DEVID_HARD_SEC_3916:
+	case MPI26_MFGPAGE_DEVID_CFG_SEC_3816:
+	case MPI26_MFGPAGE_DEVID_HARD_SEC_3816:
+	case MPI26_MFGPAGE_DEVID_INVALID0_3916:
+	case MPI26_MFGPAGE_DEVID_INVALID1_3916:
+	case MPI26_MFGPAGE_DEVID_INVALID0_3816:
+	case MPI26_MFGPAGE_DEVID_INVALID1_3816:
+>>>>>>> upstream/android-13
 		return MPI26_VERSION;
 	}
 	return 0;
@@ -10487,6 +14671,10 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	struct Scsi_Host *shost = NULL;
 	int rv;
 	u16 hba_mpi_version;
+<<<<<<< HEAD
+=======
+	int iopoll_q_count = 0;
+>>>>>>> upstream/android-13
 
 	/* Determine in which MPI version class this pci device belongs */
 	hba_mpi_version = _scsih_determine_hba_mpi_version(pdev);
@@ -10525,13 +14713,27 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 			ioc->is_warpdrive = 1;
 			ioc->hide_ir_msg = 1;
 			break;
+<<<<<<< HEAD
 		case MPI2_MFGPAGE_DEVID_SAS2308_MPI_EP:
+=======
+		case MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP:
+		case MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP_1:
+>>>>>>> upstream/android-13
 			ioc->is_mcpu_endpoint = 1;
 			break;
 		default:
 			ioc->mfg_pg10_hide_flag = MFG_PAGE10_EXPOSE_ALL_DISKS;
 			break;
 		}
+<<<<<<< HEAD
+=======
+
+		if (multipath_on_hba == -1 || multipath_on_hba == 0)
+			ioc->multipath_on_hba = 0;
+		else
+			ioc->multipath_on_hba = 1;
+
+>>>>>>> upstream/android-13
 		break;
 	case MPI25_VERSION:
 	case MPI26_VERSION:
@@ -10553,10 +14755,41 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		case MPI26_MFGPAGE_DEVID_SAS3516_1:
 		case MPI26_MFGPAGE_DEVID_SAS3416:
 		case MPI26_MFGPAGE_DEVID_SAS3616:
+<<<<<<< HEAD
 			ioc->is_gen35_ioc = 1;
 			break;
 		default:
 			ioc->is_gen35_ioc = 0;
+=======
+		case MPI26_ATLAS_PCIe_SWITCH_DEVID:
+			ioc->is_gen35_ioc = 1;
+			break;
+		case MPI26_MFGPAGE_DEVID_INVALID0_3816:
+		case MPI26_MFGPAGE_DEVID_INVALID0_3916:
+			dev_err(&pdev->dev,
+			    "HBA with DeviceId 0x%04x, sub VendorId 0x%04x, sub DeviceId 0x%04x is Invalid",
+			    pdev->device, pdev->subsystem_vendor,
+			    pdev->subsystem_device);
+			return 1;
+		case MPI26_MFGPAGE_DEVID_INVALID1_3816:
+		case MPI26_MFGPAGE_DEVID_INVALID1_3916:
+			dev_err(&pdev->dev,
+			    "HBA with DeviceId 0x%04x, sub VendorId 0x%04x, sub DeviceId 0x%04x is Tampered",
+			    pdev->device, pdev->subsystem_vendor,
+			    pdev->subsystem_device);
+			return 1;
+		case MPI26_MFGPAGE_DEVID_CFG_SEC_3816:
+		case MPI26_MFGPAGE_DEVID_CFG_SEC_3916:
+			dev_info(&pdev->dev,
+			    "HBA is in Configurable Secure mode\n");
+			fallthrough;
+		case MPI26_MFGPAGE_DEVID_HARD_SEC_3816:
+		case MPI26_MFGPAGE_DEVID_HARD_SEC_3916:
+			ioc->is_aero_ioc = ioc->is_gen35_ioc = 1;
+			break;
+		default:
+			ioc->is_gen35_ioc = ioc->is_aero_ioc = 0;
+>>>>>>> upstream/android-13
 		}
 		if ((ioc->hba_mpi_version_belonged == MPI25_VERSION &&
 			pdev->revision >= SAS3_PCI_DEVICE_C0_REVISION) ||
@@ -10569,6 +14802,27 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 				ioc->combined_reply_index_count =
 				 MPT3_SUP_REPLY_POST_HOST_INDEX_REG_COUNT_G3;
 		}
+<<<<<<< HEAD
+=======
+
+		switch (ioc->is_gen35_ioc) {
+		case 0:
+			if (multipath_on_hba == -1 || multipath_on_hba == 0)
+				ioc->multipath_on_hba = 0;
+			else
+				ioc->multipath_on_hba = 1;
+			break;
+		case 1:
+			if (multipath_on_hba == -1 || multipath_on_hba > 0)
+				ioc->multipath_on_hba = 1;
+			else
+				ioc->multipath_on_hba = 0;
+			break;
+		default:
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -ENODEV;
@@ -10593,6 +14847,20 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	ioc->tm_sas_control_cb_idx = tm_sas_control_cb_idx;
 	ioc->logging_level = logging_level;
 	ioc->schedule_dead_ioc_flush_running_cmds = &_scsih_flush_running_cmds;
+<<<<<<< HEAD
+=======
+	/* Host waits for minimum of six seconds */
+	ioc->max_shutdown_latency = IO_UNIT_CONTROL_SHUTDOWN_TIMEOUT;
+	/*
+	 * Enable MEMORY MOVE support flag.
+	 */
+	ioc->drv_support_bitmap |= MPT_DRV_SUPPORT_BITMAP_MEMMOVE;
+	/* Enable ADDITIONAL QUERY support flag. */
+	ioc->drv_support_bitmap |= MPT_DRV_SUPPORT_BITMAP_ADDNLQUERY;
+
+	ioc->enable_sdev_max_qd = enable_sdev_max_qd;
+
+>>>>>>> upstream/android-13
 	/* misc semaphores and spin locks */
 	mutex_init(&ioc->reset_in_progress_mutex);
 	/* initializing pci_access_mutex lock */
@@ -10620,6 +14888,10 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	INIT_LIST_HEAD(&ioc->delayed_event_ack_list);
 	INIT_LIST_HEAD(&ioc->delayed_tr_volume_list);
 	INIT_LIST_HEAD(&ioc->reply_queue_list);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&ioc->port_table_list);
+>>>>>>> upstream/android-13
 
 	sprintf(ioc->name, "%s_cm%d", ioc->driver_name, ioc->id);
 
@@ -10632,13 +14904,19 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (ioc->is_mcpu_endpoint) {
 		/* mCPU MPI support 64K max IO */
 		shost->max_sectors = 128;
+<<<<<<< HEAD
 		pr_info(MPT3SAS_FMT
 				"The max_sectors value is set to %d\n",
 				ioc->name, shost->max_sectors);
+=======
+		ioc_info(ioc, "The max_sectors value is set to %d\n",
+			 shost->max_sectors);
+>>>>>>> upstream/android-13
 	} else {
 		if (max_sectors != 0xFFFF) {
 			if (max_sectors < 64) {
 				shost->max_sectors = 64;
+<<<<<<< HEAD
 				pr_warn(MPT3SAS_FMT "Invalid value %d passed " \
 				    "for max_sectors, range is 64 to 32767. " \
 				    "Assigning value of 64.\n", \
@@ -10654,12 +14932,29 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 				pr_info(MPT3SAS_FMT
 					"The max_sectors value is set to %d\n",
 					ioc->name, shost->max_sectors);
+=======
+				ioc_warn(ioc, "Invalid value %d passed for max_sectors, range is 64 to 32767. Assigning value of 64.\n",
+					 max_sectors);
+			} else if (max_sectors > 32767) {
+				shost->max_sectors = 32767;
+				ioc_warn(ioc, "Invalid value %d passed for max_sectors, range is 64 to 32767.Assigning default value of 32767.\n",
+					 max_sectors);
+			} else {
+				shost->max_sectors = max_sectors & 0xFFFE;
+				ioc_info(ioc, "The max_sectors value is set to %d\n",
+					 shost->max_sectors);
+>>>>>>> upstream/android-13
 			}
 		}
 	}
 	/* register EEDP capabilities with SCSI layer */
+<<<<<<< HEAD
 	if (prot_mask > 0)
 		scsi_host_set_prot(shost, prot_mask);
+=======
+	if (prot_mask >= 0)
+		scsi_host_set_prot(shost, (prot_mask & 0x07));
+>>>>>>> upstream/android-13
 	else
 		scsi_host_set_prot(shost, SHOST_DIF_TYPE1_PROTECTION
 				   | SHOST_DIF_TYPE2_PROTECTION
@@ -10673,16 +14968,33 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	ioc->firmware_event_thread = alloc_ordered_workqueue(
 	    ioc->firmware_event_name, 0);
 	if (!ioc->firmware_event_thread) {
+<<<<<<< HEAD
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		rv = -ENODEV;
 		goto out_thread_fail;
 	}
 
+<<<<<<< HEAD
 	ioc->is_driver_loading = 1;
 	if ((mpt3sas_base_attach(ioc))) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+	shost->host_tagset = 0;
+
+	if (ioc->is_gen35_ioc && host_tagset_enable)
+		shost->host_tagset = 1;
+
+	ioc->is_driver_loading = 1;
+	if ((mpt3sas_base_attach(ioc))) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		rv = -ENODEV;
 		goto out_attach_fail;
 	}
@@ -10701,14 +15013,41 @@ _scsih_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	} else
 		ioc->hide_drives = 0;
 
+<<<<<<< HEAD
 	rv = scsi_add_host(shost, &pdev->dev);
 	if (rv) {
 		pr_err(MPT3SAS_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
+=======
+	shost->nr_hw_queues = 1;
+
+	if (shost->host_tagset) {
+		shost->nr_hw_queues =
+		    ioc->reply_queue_count - ioc->high_iops_queues;
+
+		iopoll_q_count =
+		    ioc->reply_queue_count - ioc->iopoll_q_start_index;
+
+		shost->nr_maps = iopoll_q_count ? 3 : 1;
+
+		dev_info(&ioc->pdev->dev,
+		    "Max SCSIIO MPT commands: %d shared with nr_hw_queues = %d\n",
+		    shost->can_queue, shost->nr_hw_queues);
+	}
+
+	rv = scsi_add_host(shost, &pdev->dev);
+	if (rv) {
+		ioc_err(ioc, "failure at %s:%d/%s()!\n",
+			__FILE__, __LINE__, __func__);
+>>>>>>> upstream/android-13
 		goto out_add_shost_fail;
 	}
 
 	scsi_scan_host(shost);
+<<<<<<< HEAD
+=======
+	mpt3sas_setup_debugfs(ioc);
+>>>>>>> upstream/android-13
 	return 0;
 out_add_shost_fail:
 	mpt3sas_base_detach(ioc);
@@ -10722,6 +15061,7 @@ out_add_shost_fail:
 	return rv;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 /**
  * scsih_suspend - power management suspend main entry point
@@ -10736,10 +15076,30 @@ scsih_suspend(struct pci_dev *pdev, pm_message_t state)
 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
 	pci_power_t device_state;
+=======
+/**
+ * scsih_suspend - power management suspend main entry point
+ * @dev: Device struct
+ *
+ * Return: 0 success, anything else error.
+ */
+static int __maybe_unused
+scsih_suspend(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+	int rc;
+
+	rc = _scsih_get_shost_and_ioc(pdev, &shost, &ioc);
+	if (rc)
+		return rc;
+>>>>>>> upstream/android-13
 
 	mpt3sas_base_stop_watchdog(ioc);
 	flush_scheduled_work();
 	scsi_block_requests(shost);
+<<<<<<< HEAD
 	device_state = pci_choose_state(pdev, state);
 	pr_info(MPT3SAS_FMT
 		"pdev=0x%p, slot=%s, entering operating state [D%d]\n",
@@ -10748,11 +15108,19 @@ scsih_suspend(struct pci_dev *pdev, pm_message_t state)
 	pci_save_state(pdev);
 	mpt3sas_base_free_resources(ioc);
 	pci_set_power_state(pdev, device_state);
+=======
+	_scsih_nvme_shutdown(ioc);
+	ioc_info(ioc, "pdev=0x%p, slot=%s, entering operating state\n",
+		 pdev, pci_name(pdev));
+
+	mpt3sas_base_free_resources(ioc);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
  * scsih_resume - power management resume main entry point
+<<<<<<< HEAD
  * @pdev: PCI device struct
  *
  * Return: 0 success, anything else error.
@@ -10772,17 +15140,46 @@ scsih_resume(struct pci_dev *pdev)
 	pci_set_power_state(pdev, PCI_D0);
 	pci_enable_wake(pdev, PCI_D0, 0);
 	pci_restore_state(pdev);
+=======
+ * @dev: Device struct
+ *
+ * Return: 0 success, anything else error.
+ */
+static int __maybe_unused
+scsih_resume(struct device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev);
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+	pci_power_t device_state = pdev->current_state;
+	int r;
+
+	r = _scsih_get_shost_and_ioc(pdev, &shost, &ioc);
+	if (r)
+		return r;
+
+	ioc_info(ioc, "pdev=0x%p, slot=%s, previous operating state [D%d]\n",
+		 pdev, pci_name(pdev), device_state);
+
+>>>>>>> upstream/android-13
 	ioc->pdev = pdev;
 	r = mpt3sas_base_map_resources(ioc);
 	if (r)
 		return r;
+<<<<<<< HEAD
 
+=======
+	ioc_info(ioc, "Issuing Hard Reset as part of OS Resume\n");
+>>>>>>> upstream/android-13
 	mpt3sas_base_hard_reset_handler(ioc, SOFT_RESET);
 	scsi_unblock_requests(shost);
 	mpt3sas_base_start_watchdog(ioc);
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
+=======
+>>>>>>> upstream/android-13
 
 /**
  * scsih_pci_error_detected - Called when a PCI error is detected.
@@ -10796,11 +15193,21 @@ scsih_resume(struct pci_dev *pdev)
 static pci_ers_result_t
 scsih_pci_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
 {
+<<<<<<< HEAD
 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
 
 	pr_info(MPT3SAS_FMT "PCI error: detected callback, state(%d)!!\n",
 	    ioc->name, state);
+=======
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+
+	if (_scsih_get_shost_and_ioc(pdev, &shost, &ioc))
+		return PCI_ERS_RESULT_DISCONNECT;
+
+	ioc_info(ioc, "PCI error: detected callback, state(%d)!!\n", state);
+>>>>>>> upstream/android-13
 
 	switch (state) {
 	case pci_channel_io_normal:
@@ -10816,6 +15223,10 @@ scsih_pci_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
 		/* Permanent error, prepare for device removal */
 		ioc->pci_error_recovery = 1;
 		mpt3sas_base_stop_watchdog(ioc);
+<<<<<<< HEAD
+=======
+		mpt3sas_base_pause_mq_polling(ioc);
+>>>>>>> upstream/android-13
 		_scsih_flush_running_cmds(ioc);
 		return PCI_ERS_RESULT_DISCONNECT;
 	}
@@ -10833,12 +15244,23 @@ scsih_pci_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
 static pci_ers_result_t
 scsih_pci_slot_reset(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
 	int rc;
 
 	pr_info(MPT3SAS_FMT "PCI error: slot reset callback!!\n",
 	     ioc->name);
+=======
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+	int rc;
+
+	if (_scsih_get_shost_and_ioc(pdev, &shost, &ioc))
+		return PCI_ERS_RESULT_DISCONNECT;
+
+	ioc_info(ioc, "PCI error: slot reset callback!!\n");
+>>>>>>> upstream/android-13
 
 	ioc->pci_error_recovery = 0;
 	ioc->pdev = pdev;
@@ -10847,10 +15269,18 @@ scsih_pci_slot_reset(struct pci_dev *pdev)
 	if (rc)
 		return PCI_ERS_RESULT_DISCONNECT;
 
+<<<<<<< HEAD
 	rc = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
 
 	pr_warn(MPT3SAS_FMT "hard reset: %s\n", ioc->name,
 	    (rc == 0) ? "success" : "failed");
+=======
+	ioc_info(ioc, "Issuing Hard Reset as part of PCI Slot Reset\n");
+	rc = mpt3sas_base_hard_reset_handler(ioc, FORCE_BIG_HAMMER);
+
+	ioc_warn(ioc, "hard reset: %s\n",
+		 (rc == 0) ? "success" : "failed");
+>>>>>>> upstream/android-13
 
 	if (!rc)
 		return PCI_ERS_RESULT_RECOVERED;
@@ -10869,12 +15299,23 @@ scsih_pci_slot_reset(struct pci_dev *pdev)
 static void
 scsih_pci_resume(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
 
 	pr_info(MPT3SAS_FMT "PCI error: resume callback!!\n", ioc->name);
 
 	pci_cleanup_aer_uncorrect_error_status(pdev);
+=======
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+
+	if (_scsih_get_shost_and_ioc(pdev, &shost, &ioc))
+		return;
+
+	ioc_info(ioc, "PCI error: resume callback!!\n");
+
+>>>>>>> upstream/android-13
 	mpt3sas_base_start_watchdog(ioc);
 	scsi_unblock_requests(ioc->shost);
 }
@@ -10886,11 +15327,21 @@ scsih_pci_resume(struct pci_dev *pdev)
 static pci_ers_result_t
 scsih_pci_mmio_enabled(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
 	struct MPT3SAS_ADAPTER *ioc = shost_priv(shost);
 
 	pr_info(MPT3SAS_FMT "PCI error: mmio enabled callback!!\n",
 	    ioc->name);
+=======
+	struct Scsi_Host *shost;
+	struct MPT3SAS_ADAPTER *ioc;
+
+	if (_scsih_get_shost_and_ioc(pdev, &shost, &ioc))
+		return PCI_ERS_RESULT_DISCONNECT;
+
+	ioc_info(ioc, "PCI error: mmio enabled callback!!\n");
+>>>>>>> upstream/android-13
 
 	/* TODO - dump whatever for debugging purposes */
 
@@ -10902,7 +15353,11 @@ scsih_pci_mmio_enabled(struct pci_dev *pdev)
 }
 
 /**
+<<<<<<< HEAD
  * scsih__ncq_prio_supp - Check for NCQ command priority support
+=======
+ * scsih_ncq_prio_supp - Check for NCQ command priority support
+>>>>>>> upstream/android-13
  * @sdev: scsi device struct
  *
  * This is called when a user indicates they would like to enable
@@ -10968,7 +15423,13 @@ static const struct pci_device_id mpt3sas_pci_table[] = {
 		PCI_ANY_ID, PCI_ANY_ID },
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2308_3,
 		PCI_ANY_ID, PCI_ANY_ID },
+<<<<<<< HEAD
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2308_MPI_EP,
+=======
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SWITCH_MPI_EP_1,
+>>>>>>> upstream/android-13
 		PCI_ANY_ID, PCI_ANY_ID },
 	/* SSS6200 */
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SSS6200,
@@ -11025,6 +15486,46 @@ static const struct pci_device_id mpt3sas_pci_table[] = {
 	/* Mercator ~ 3616*/
 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_SAS3616,
 		PCI_ANY_ID, PCI_ANY_ID },
+<<<<<<< HEAD
+=======
+
+	/* Aero SI 0x00E1 Configurable Secure
+	 * 0x00E2 Hard Secure
+	 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_CFG_SEC_3916,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_HARD_SEC_3916,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	/*
+	 *  Aero SI –> 0x00E0 Invalid, 0x00E3 Tampered
+	 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_INVALID0_3916,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_INVALID1_3916,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	/* Atlas PCIe Switch Management Port */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_ATLAS_PCIe_SWITCH_DEVID,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	/* Sea SI 0x00E5 Configurable Secure
+	 * 0x00E6 Hard Secure
+	 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_CFG_SEC_3816,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_HARD_SEC_3816,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+	/*
+	 *  Sea SI –> 0x00E4 Invalid, 0x00E7 Tampered
+	 */
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_INVALID0_3816,
+		PCI_ANY_ID, PCI_ANY_ID },
+	{ MPI2_MFGPAGE_VENDORID_LSI, MPI26_MFGPAGE_DEVID_INVALID1_3816,
+		PCI_ANY_ID, PCI_ANY_ID },
+
+>>>>>>> upstream/android-13
 	{0}     /* Terminating entry */
 };
 MODULE_DEVICE_TABLE(pci, mpt3sas_pci_table);
@@ -11036,6 +15537,11 @@ static struct pci_error_handlers _mpt3sas_err_handler = {
 	.resume		= scsih_pci_resume,
 };
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(scsih_pm_ops, scsih_suspend, scsih_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver mpt3sas_driver = {
 	.name		= MPT3SAS_DRIVER_NAME,
 	.id_table	= mpt3sas_pci_table,
@@ -11043,10 +15549,14 @@ static struct pci_driver mpt3sas_driver = {
 	.remove		= scsih_remove,
 	.shutdown	= scsih_shutdown,
 	.err_handler	= &_mpt3sas_err_handler,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= scsih_suspend,
 	.resume		= scsih_resume,
 #endif
+=======
+	.driver.pm	= &scsih_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -11096,6 +15606,10 @@ scsih_init(void)
 	tm_sas_control_cb_idx = mpt3sas_base_register_callback_handler(
 	    _scsih_sas_control_complete);
 
+<<<<<<< HEAD
+=======
+	mpt3sas_init_debugfs();
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -11127,6 +15641,10 @@ scsih_exit(void)
 	if (hbas_to_enumerate != 2)
 		raid_class_release(mpt2sas_raid_template);
 	sas_release_transport(mpt3sas_transport_template);
+<<<<<<< HEAD
+=======
+	mpt3sas_exit_debugfs();
+>>>>>>> upstream/android-13
 }
 
 /**

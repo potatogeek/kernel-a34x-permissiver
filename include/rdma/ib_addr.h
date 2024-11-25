@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005 Voltaire Inc.  All rights reserved.
  * Copyright (c) 2005 Intel Corporation.  All rights reserved.
@@ -34,6 +35,18 @@
 #if !defined(IB_ADDR_H)
 #define IB_ADDR_H
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2005 Voltaire Inc.  All rights reserved.
+ * Copyright (c) 2005 Intel Corporation.  All rights reserved.
+ */
+
+#ifndef IB_ADDR_H
+#define IB_ADDR_H
+
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/in.h>
 #include <linux/in6.h>
 #include <linux/if_arp.h>
@@ -46,7 +59,10 @@
 #include <net/ip.h>
 #include <rdma/ib_verbs.h>
 #include <rdma/ib_pack.h>
+<<<<<<< HEAD
 #include <net/ipv6.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/net_namespace.h>
 
 /**
@@ -95,6 +111,7 @@ int rdma_translate_ip(const struct sockaddr *addr,
  * @timeout_ms: Amount of time to wait for the address resolution to complete.
  * @callback: Call invoked once address resolution has completed, timed out,
  *   or been canceled.  A status of 0 indicates success.
+<<<<<<< HEAD
  * @context: User-specified context associated with the call.
  */
 int rdma_resolve_ip(struct sockaddr *src_addr, const struct sockaddr *dst_addr,
@@ -109,6 +126,20 @@ void rdma_copy_addr(struct rdma_dev_addr *dev_addr,
 		    const struct net_device *dev,
 		    const unsigned char *dst_dev_addr);
 
+=======
+ * @resolve_by_gid_attr:	Resolve the ip based on the GID attribute from
+ *				rdma_dev_addr.
+ * @context: User-specified context associated with the call.
+ */
+int rdma_resolve_ip(struct sockaddr *src_addr, const struct sockaddr *dst_addr,
+		    struct rdma_dev_addr *addr, unsigned long timeout_ms,
+		    void (*callback)(int status, struct sockaddr *src_addr,
+				     struct rdma_dev_addr *addr, void *context),
+		    bool resolve_by_gid_attr, void *context);
+
+void rdma_addr_cancel(struct rdma_dev_addr *addr);
+
+>>>>>>> upstream/android-13
 int rdma_addr_size(const struct sockaddr *addr);
 int rdma_addr_size_in6(struct sockaddr_in6 *addr);
 int rdma_addr_size_kss(struct __kernel_sockaddr_storage *addr);

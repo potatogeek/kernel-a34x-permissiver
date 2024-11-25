@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_CFG_USER_H_
 #define ADF_CFG_USER_H_
 
@@ -55,7 +60,11 @@ struct adf_user_cfg_key_val {
 	char val[ADF_CFG_MAX_VAL_LEN_IN_BYTES];
 	union {
 		struct adf_user_cfg_key_val *next;
+<<<<<<< HEAD
 		uint64_t padding3;
+=======
+		__u64 padding3;
+>>>>>>> upstream/android-13
 	};
 	enum adf_cfg_val_type type;
 } __packed;
@@ -64,19 +73,33 @@ struct adf_user_cfg_section {
 	char name[ADF_CFG_MAX_SECTION_LEN_IN_BYTES];
 	union {
 		struct adf_user_cfg_key_val *params;
+<<<<<<< HEAD
 		uint64_t padding1;
 	};
 	union {
 		struct adf_user_cfg_section *next;
 		uint64_t padding3;
+=======
+		__u64 padding1;
+	};
+	union {
+		struct adf_user_cfg_section *next;
+		__u64 padding3;
+>>>>>>> upstream/android-13
 	};
 } __packed;
 
 struct adf_user_cfg_ctl_data {
 	union {
 		struct adf_user_cfg_section *config_section;
+<<<<<<< HEAD
 		uint64_t padding;
 	};
 	uint8_t device_id;
+=======
+		__u64 padding;
+	};
+	__u8 device_id;
+>>>>>>> upstream/android-13
 } __packed;
 #endif

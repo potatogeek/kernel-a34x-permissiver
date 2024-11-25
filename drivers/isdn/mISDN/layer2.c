@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Author	Karsten Keil <kkeil@novell.com>
  *
  * Copyright 2008  by Karsten Keil <kkeil@novell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mISDNif.h>
@@ -909,8 +916,12 @@ l2_disconnect(struct FsmInst *fi, int event, void *arg)
 	send_uframe(l2, NULL, DISC | 0x10, CMD);
 	mISDN_FsmDelTimer(&l2->t203, 1);
 	restart_t200(l2, 2);
+<<<<<<< HEAD
 	if (skb)
 		dev_kfree_skb(skb);
+=======
+	dev_kfree_skb(skb);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1731,8 +1742,12 @@ l2_set_own_busy(struct FsmInst *fi, int event, void *arg)
 		enquiry_cr(l2, RNR, RSP, 0);
 		test_and_clear_bit(FLG_ACK_PEND, &l2->flag);
 	}
+<<<<<<< HEAD
 	if (skb)
 		dev_kfree_skb(skb);
+=======
+	dev_kfree_skb(skb);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1745,8 +1760,12 @@ l2_clear_own_busy(struct FsmInst *fi, int event, void *arg)
 		enquiry_cr(l2, RR, RSP, 0);
 		test_and_clear_bit(FLG_ACK_PEND, &l2->flag);
 	}
+<<<<<<< HEAD
 	if (skb)
 		dev_kfree_skb(skb);
+=======
+	dev_kfree_skb(skb);
+>>>>>>> upstream/android-13
 }
 
 static void

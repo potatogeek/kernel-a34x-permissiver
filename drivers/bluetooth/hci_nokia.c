@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Bluetooth HCI UART H4 driver with Nokia Extensions AKA Nokia H4+
  *
  *  Copyright (C) 2015 Marcel Holtmann <marcel@holtmann.org>
  *  Copyright (C) 2015-2017 Sebastian Reichel <sre@kernel.org>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -529,7 +536,11 @@ static int nokia_enqueue(struct hci_uart *hu, struct sk_buff *skb)
 		err = skb_pad(skb, 1);
 		if (err)
 			return err;
+<<<<<<< HEAD
 		skb_put_u8(skb, 0x00);
+=======
+		skb_put(skb, 1);
+>>>>>>> upstream/android-13
 	}
 
 	skb_queue_tail(&btdev->txq, skb);

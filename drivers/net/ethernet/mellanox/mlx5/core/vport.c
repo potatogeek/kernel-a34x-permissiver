@@ -34,15 +34,29 @@
 #include <linux/etherdevice.h>
 #include <linux/mlx5/driver.h>
 #include <linux/mlx5/vport.h>
+<<<<<<< HEAD
 #include "mlx5_core.h"
+=======
+#include <linux/mlx5/eswitch.h>
+#include "mlx5_core.h"
+#include "sf/sf.h"
+>>>>>>> upstream/android-13
 
 /* Mutex to hold while enabling or disabling RoCE */
 static DEFINE_MUTEX(mlx5_roce_en_lock);
 
+<<<<<<< HEAD
 static int _mlx5_query_vport_state(struct mlx5_core_dev *mdev, u8 opmod,
 				   u16 vport, u32 *out, int outlen)
 {
 	u32 in[MLX5_ST_SZ_DW(query_vport_state_in)] = {0};
+=======
+u8 mlx5_query_vport_state(struct mlx5_core_dev *mdev, u8 opmod, u16 vport)
+{
+	u32 out[MLX5_ST_SZ_DW(query_vport_state_out)] = {};
+	u32 in[MLX5_ST_SZ_DW(query_vport_state_in)] = {};
+	int err;
+>>>>>>> upstream/android-13
 
 	MLX5_SET(query_vport_state_in, in, opcode,
 		 MLX5_CMD_OP_QUERY_VPORT_STATE);
@@ -51,6 +65,7 @@ static int _mlx5_query_vport_state(struct mlx5_core_dev *mdev, u8 opmod,
 	if (vport)
 		MLX5_SET(query_vport_state_in, in, other_vport, 1);
 
+<<<<<<< HEAD
 	return mlx5_cmd_exec(mdev, in, sizeof(in), out, outlen);
 }
 
@@ -59,20 +74,32 @@ u8 mlx5_query_vport_state(struct mlx5_core_dev *mdev, u8 opmod, u16 vport)
 	u32 out[MLX5_ST_SZ_DW(query_vport_state_out)] = {0};
 
 	_mlx5_query_vport_state(mdev, opmod, vport, out, sizeof(out));
+=======
+	err = mlx5_cmd_exec_inout(mdev, query_vport_state, in, out);
+	if (err)
+		return 0;
+>>>>>>> upstream/android-13
 
 	return MLX5_GET(query_vport_state_out, out, state);
 }
 
 int mlx5_modify_vport_admin_state(struct mlx5_core_dev *mdev, u8 opmod,
+<<<<<<< HEAD
 				  u16 vport, u8 state)
 {
 	u32 in[MLX5_ST_SZ_DW(modify_vport_state_in)]   = {0};
 	u32 out[MLX5_ST_SZ_DW(modify_vport_state_out)] = {0};
+=======
+				  u16 vport, u8 other_vport, u8 state)
+{
+	u32 in[MLX5_ST_SZ_DW(modify_vport_state_in)] = {};
+>>>>>>> upstream/android-13
 
 	MLX5_SET(modify_vport_state_in, in, opcode,
 		 MLX5_CMD_OP_MODIFY_VPORT_STATE);
 	MLX5_SET(modify_vport_state_in, in, op_mod, opmod);
 	MLX5_SET(modify_vport_state_in, in, vport_number, vport);
+<<<<<<< HEAD
 	if (vport)
 		MLX5_SET(modify_vport_state_in, in, other_vport, 1);
 	MLX5_SET(modify_vport_state_in, in, admin_state, state);
@@ -84,6 +111,18 @@ static int mlx5_query_nic_vport_context(struct mlx5_core_dev *mdev, u16 vport,
 					u32 *out, int outlen)
 {
 	u32 in[MLX5_ST_SZ_DW(query_nic_vport_context_in)] = {0};
+=======
+	MLX5_SET(modify_vport_state_in, in, other_vport, other_vport);
+	MLX5_SET(modify_vport_state_in, in, admin_state, state);
+
+	return mlx5_cmd_exec_in(mdev, modify_vport_state, in);
+}
+
+static int mlx5_query_nic_vport_context(struct mlx5_core_dev *mdev, u16 vport,
+					u32 *out)
+{
+	u32 in[MLX5_ST_SZ_DW(query_nic_vport_context_in)] = {};
+>>>>>>> upstream/android-13
 
 	MLX5_SET(query_nic_vport_context_in, in, opcode,
 		 MLX5_CMD_OP_QUERY_NIC_VPORT_CONTEXT);
@@ -91,6 +130,7 @@ static int mlx5_query_nic_vport_context(struct mlx5_core_dev *mdev, u16 vport,
 	if (vport)
 		MLX5_SET(query_nic_vport_context_in, in, other_vport, 1);
 
+<<<<<<< HEAD
 	return mlx5_cmd_exec(mdev, in, sizeof(in), out, outlen);
 }
 
@@ -102,15 +142,25 @@ static int mlx5_modify_nic_vport_context(struct mlx5_core_dev *mdev, void *in,
 	MLX5_SET(modify_nic_vport_context_in, in, opcode,
 		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
 	return mlx5_cmd_exec(mdev, in, inlen, out, sizeof(out));
+=======
+	return mlx5_cmd_exec_inout(mdev, query_nic_vport_context, in, out);
+>>>>>>> upstream/android-13
 }
 
 int mlx5_query_nic_vport_min_inline(struct mlx5_core_dev *mdev,
 				    u16 vport, u8 *min_inline)
 {
+<<<<<<< HEAD
 	u32 out[MLX5_ST_SZ_DW(query_nic_vport_context_out)] = {0};
 	int err;
 
 	err = mlx5_query_nic_vport_context(mdev, vport, out, sizeof(out));
+=======
+	u32 out[MLX5_ST_SZ_DW(query_nic_vport_context_out)] = {};
+	int err;
+
+	err = mlx5_query_nic_vport_context(mdev, vport, out);
+>>>>>>> upstream/android-13
 	if (!err)
 		*min_inline = MLX5_GET(query_nic_vport_context_out, out,
 				       nic_vport_context.min_wqe_inline_mode);
@@ -122,12 +172,22 @@ void mlx5_query_min_inline(struct mlx5_core_dev *mdev,
 			   u8 *min_inline_mode)
 {
 	switch (MLX5_CAP_ETH(mdev, wqe_inline_mode)) {
+<<<<<<< HEAD
 	case MLX5_CAP_INLINE_MODE_L2:
 		*min_inline_mode = MLX5_INLINE_MODE_L2;
 		break;
 	case MLX5_CAP_INLINE_MODE_VPORT_CONTEXT:
 		mlx5_query_nic_vport_min_inline(mdev, 0, min_inline_mode);
 		break;
+=======
+	case MLX5_CAP_INLINE_MODE_VPORT_CONTEXT:
+		if (!mlx5_query_nic_vport_min_inline(mdev, 0, min_inline_mode))
+			break;
+		fallthrough;
+	case MLX5_CAP_INLINE_MODE_L2:
+		*min_inline_mode = MLX5_INLINE_MODE_L2;
+		break;
+>>>>>>> upstream/android-13
 	case MLX5_CAP_INLINE_MODE_NOT_REQUIRED:
 		*min_inline_mode = MLX5_INLINE_MODE_NONE;
 		break;
@@ -138,8 +198,12 @@ EXPORT_SYMBOL_GPL(mlx5_query_min_inline);
 int mlx5_modify_nic_vport_min_inline(struct mlx5_core_dev *mdev,
 				     u16 vport, u8 min_inline)
 {
+<<<<<<< HEAD
 	u32 in[MLX5_ST_SZ_DW(modify_nic_vport_context_in)] = {0};
 	int inlen = MLX5_ST_SZ_BYTES(modify_nic_vport_context_in);
+=======
+	u32 in[MLX5_ST_SZ_DW(modify_nic_vport_context_in)] = {};
+>>>>>>> upstream/android-13
 	void *nic_vport_ctx;
 
 	MLX5_SET(modify_nic_vport_context_in, in,
@@ -151,6 +215,7 @@ int mlx5_modify_nic_vport_min_inline(struct mlx5_core_dev *mdev,
 				     in, nic_vport_context);
 	MLX5_SET(nic_vport_context, nic_vport_ctx,
 		 min_wqe_inline_mode, min_inline);
+<<<<<<< HEAD
 
 	return mlx5_modify_nic_vport_context(mdev, in, inlen);
 }
@@ -175,12 +240,51 @@ int mlx5_query_nic_vport_mac_address(struct mlx5_core_dev *mdev,
 		ether_addr_copy(addr, &out_addr[2]);
 
 	kvfree(out);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	return mlx5_cmd_exec_in(mdev, modify_nic_vport_context, in);
+}
+
+int mlx5_query_nic_vport_mac_address(struct mlx5_core_dev *mdev,
+				     u16 vport, bool other, u8 *addr)
+{
+	u32 out[MLX5_ST_SZ_DW(query_nic_vport_context_out)] = {};
+	u32 in[MLX5_ST_SZ_DW(query_nic_vport_context_in)] = {};
+	u8 *out_addr;
+	int err;
+
+	out_addr = MLX5_ADDR_OF(query_nic_vport_context_out, out,
+				nic_vport_context.permanent_address);
+
+	MLX5_SET(query_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_QUERY_NIC_VPORT_CONTEXT);
+	MLX5_SET(query_nic_vport_context_in, in, vport_number, vport);
+	MLX5_SET(query_nic_vport_context_in, in, other_vport, other);
+
+	err = mlx5_cmd_exec_inout(mdev, query_nic_vport_context, in, out);
+	if (!err)
+		ether_addr_copy(addr, &out_addr[2]);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 EXPORT_SYMBOL_GPL(mlx5_query_nic_vport_mac_address);
 
+<<<<<<< HEAD
 int mlx5_modify_nic_vport_mac_address(struct mlx5_core_dev *mdev,
 				      u16 vport, u8 *addr)
+=======
+int mlx5_query_mac_address(struct mlx5_core_dev *mdev, u8 *addr)
+{
+	return mlx5_query_nic_vport_mac_address(mdev, 0, false, addr);
+}
+EXPORT_SYMBOL_GPL(mlx5_query_mac_address);
+
+int mlx5_modify_nic_vport_mac_address(struct mlx5_core_dev *mdev,
+				      u16 vport, const u8 *addr)
+>>>>>>> upstream/android-13
 {
 	void *in;
 	int inlen = MLX5_ST_SZ_BYTES(modify_nic_vport_context_in);
@@ -195,9 +299,13 @@ int mlx5_modify_nic_vport_mac_address(struct mlx5_core_dev *mdev,
 	MLX5_SET(modify_nic_vport_context_in, in,
 		 field_select.permanent_address, 1);
 	MLX5_SET(modify_nic_vport_context_in, in, vport_number, vport);
+<<<<<<< HEAD
 
 	if (vport)
 		MLX5_SET(modify_nic_vport_context_in, in, other_vport, 1);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, other_vport, 1);
+>>>>>>> upstream/android-13
 
 	nic_vport_ctx = MLX5_ADDR_OF(modify_nic_vport_context_in,
 				     in, nic_vport_context);
@@ -205,8 +313,15 @@ int mlx5_modify_nic_vport_mac_address(struct mlx5_core_dev *mdev,
 				permanent_address);
 
 	ether_addr_copy(&perm_mac[2], addr);
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 
 	kvfree(in);
 
@@ -224,7 +339,11 @@ int mlx5_query_nic_vport_mtu(struct mlx5_core_dev *mdev, u16 *mtu)
 	if (!out)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	err = mlx5_query_nic_vport_context(mdev, 0, out, outlen);
+=======
+	err = mlx5_query_nic_vport_context(mdev, 0, out);
+>>>>>>> upstream/android-13
 	if (!err)
 		*mtu = MLX5_GET(query_nic_vport_context_out, out,
 				nic_vport_context.mtu);
@@ -246,8 +365,15 @@ int mlx5_modify_nic_vport_mtu(struct mlx5_core_dev *mdev, u16 mtu)
 
 	MLX5_SET(modify_nic_vport_context_in, in, field_select.mtu, 1);
 	MLX5_SET(modify_nic_vport_context_in, in, nic_vport_context.mtu, mtu);
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 
 	kvfree(in);
 	return err;
@@ -255,7 +381,11 @@ int mlx5_modify_nic_vport_mtu(struct mlx5_core_dev *mdev, u16 mtu)
 EXPORT_SYMBOL_GPL(mlx5_modify_nic_vport_mtu);
 
 int mlx5_query_nic_vport_mac_list(struct mlx5_core_dev *dev,
+<<<<<<< HEAD
 				  u32 vport,
+=======
+				  u16 vport,
+>>>>>>> upstream/android-13
 				  enum mlx5_list_type list_type,
 				  u8 addr_list[][ETH_ALEN],
 				  int *list_size)
@@ -281,7 +411,11 @@ int mlx5_query_nic_vport_mac_list(struct mlx5_core_dev *dev,
 		req_list_size = max_list_size;
 	}
 
+<<<<<<< HEAD
 	out_sz = MLX5_ST_SZ_BYTES(modify_nic_vport_context_in) +
+=======
+	out_sz = MLX5_ST_SZ_BYTES(query_nic_vport_context_in) +
+>>>>>>> upstream/android-13
 			req_list_size * MLX5_ST_SZ_BYTES(mac_address_layout);
 
 	out = kzalloc(out_sz, GFP_KERNEL);
@@ -292,9 +426,13 @@ int mlx5_query_nic_vport_mac_list(struct mlx5_core_dev *dev,
 		 MLX5_CMD_OP_QUERY_NIC_VPORT_CONTEXT);
 	MLX5_SET(query_nic_vport_context_in, in, allowed_list_type, list_type);
 	MLX5_SET(query_nic_vport_context_in, in, vport_number, vport);
+<<<<<<< HEAD
 
 	if (vport)
 		MLX5_SET(query_nic_vport_context_in, in, other_vport, 1);
+=======
+	MLX5_SET(query_nic_vport_context_in, in, other_vport, 1);
+>>>>>>> upstream/android-13
 
 	err = mlx5_cmd_exec(dev, in, sizeof(in), out, out_sz);
 	if (err)
@@ -323,7 +461,11 @@ int mlx5_modify_nic_vport_mac_list(struct mlx5_core_dev *dev,
 				   u8 addr_list[][ETH_ALEN],
 				   int list_size)
 {
+<<<<<<< HEAD
 	u32 out[MLX5_ST_SZ_DW(modify_nic_vport_context_out)];
+=======
+	u32 out[MLX5_ST_SZ_DW(modify_nic_vport_context_out)] = {};
+>>>>>>> upstream/android-13
 	void *nic_vport_ctx;
 	int max_list_size;
 	int in_sz;
@@ -341,7 +483,10 @@ int mlx5_modify_nic_vport_mac_list(struct mlx5_core_dev *dev,
 	in_sz = MLX5_ST_SZ_BYTES(modify_nic_vport_context_in) +
 		list_size * MLX5_ST_SZ_BYTES(mac_address_layout);
 
+<<<<<<< HEAD
 	memset(out, 0, sizeof(out));
+=======
+>>>>>>> upstream/android-13
 	in = kzalloc(in_sz, GFP_KERNEL);
 	if (!in)
 		return -ENOMEM;
@@ -372,6 +517,7 @@ int mlx5_modify_nic_vport_mac_list(struct mlx5_core_dev *dev,
 }
 EXPORT_SYMBOL_GPL(mlx5_modify_nic_vport_mac_list);
 
+<<<<<<< HEAD
 int mlx5_query_nic_vport_vlans(struct mlx5_core_dev *dev,
 			       u32 vport,
 			       u16 vlans[],
@@ -433,6 +579,8 @@ out:
 }
 EXPORT_SYMBOL_GPL(mlx5_query_nic_vport_vlans);
 
+=======
+>>>>>>> upstream/android-13
 int mlx5_modify_nic_vport_vlans(struct mlx5_core_dev *dev,
 				u16 vlans[],
 				int list_size)
@@ -494,7 +642,11 @@ int mlx5_query_nic_vport_system_image_guid(struct mlx5_core_dev *mdev,
 	if (!out)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mlx5_query_nic_vport_context(mdev, 0, out, outlen);
+=======
+	mlx5_query_nic_vport_context(mdev, 0, out);
+>>>>>>> upstream/android-13
 
 	*system_image_guid = MLX5_GET64(query_nic_vport_context_out, out,
 					nic_vport_context.system_image_guid);
@@ -514,7 +666,11 @@ int mlx5_query_nic_vport_node_guid(struct mlx5_core_dev *mdev, u64 *node_guid)
 	if (!out)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mlx5_query_nic_vport_context(mdev, 0, out, outlen);
+=======
+	mlx5_query_nic_vport_context(mdev, 0, out);
+>>>>>>> upstream/android-13
 
 	*node_guid = MLX5_GET64(query_nic_vport_context_out, out,
 				nic_vport_context.node_guid);
@@ -526,15 +682,22 @@ int mlx5_query_nic_vport_node_guid(struct mlx5_core_dev *mdev, u64 *node_guid)
 EXPORT_SYMBOL_GPL(mlx5_query_nic_vport_node_guid);
 
 int mlx5_modify_nic_vport_node_guid(struct mlx5_core_dev *mdev,
+<<<<<<< HEAD
 				    u32 vport, u64 node_guid)
+=======
+				    u16 vport, u64 node_guid)
+>>>>>>> upstream/android-13
 {
 	int inlen = MLX5_ST_SZ_BYTES(modify_nic_vport_context_in);
 	void *nic_vport_context;
 	void *in;
 	int err;
 
+<<<<<<< HEAD
 	if (!vport)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 	if (!MLX5_CAP_GEN(mdev, vport_group_manager))
 		return -EACCES;
 
@@ -545,13 +708,24 @@ int mlx5_modify_nic_vport_node_guid(struct mlx5_core_dev *mdev,
 	MLX5_SET(modify_nic_vport_context_in, in,
 		 field_select.node_guid, 1);
 	MLX5_SET(modify_nic_vport_context_in, in, vport_number, vport);
+<<<<<<< HEAD
 	MLX5_SET(modify_nic_vport_context_in, in, other_vport, !!vport);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, other_vport, 1);
+>>>>>>> upstream/android-13
 
 	nic_vport_context = MLX5_ADDR_OF(modify_nic_vport_context_in,
 					 in, nic_vport_context);
 	MLX5_SET64(nic_vport_context, nic_vport_context, node_guid, node_guid);
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 
 	kvfree(in);
 
@@ -568,7 +742,11 @@ int mlx5_query_nic_vport_qkey_viol_cntr(struct mlx5_core_dev *mdev,
 	if (!out)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mlx5_query_nic_vport_context(mdev, 0, out, outlen);
+=======
+	mlx5_query_nic_vport_context(mdev, 0, out);
+>>>>>>> upstream/android-13
 
 	*qkey_viol_cntr = MLX5_GET(query_nic_vport_context_out, out,
 				   nic_vport_context.qkey_violation_counter);
@@ -716,7 +894,11 @@ int mlx5_query_hca_vport_context(struct mlx5_core_dev *dev,
 				 struct mlx5_hca_vport_context *rep)
 {
 	int out_sz = MLX5_ST_SZ_BYTES(query_hca_vport_context_out);
+<<<<<<< HEAD
 	int in[MLX5_ST_SZ_DW(query_hca_vport_context_in)] = {0};
+=======
+	int in[MLX5_ST_SZ_DW(query_hca_vport_context_in)] = {};
+>>>>>>> upstream/android-13
 	int is_group_manager;
 	void *out;
 	void *ctx;
@@ -743,7 +925,11 @@ int mlx5_query_hca_vport_context(struct mlx5_core_dev *dev,
 	if (MLX5_CAP_GEN(dev, num_ports) == 2)
 		MLX5_SET(query_hca_vport_context_in, in, port_num, port_num);
 
+<<<<<<< HEAD
 	err = mlx5_cmd_exec(dev, in, sizeof(in), out,  out_sz);
+=======
+	err = mlx5_cmd_exec_inout(dev, query_hca_vport_context, in, out);
+>>>>>>> upstream/android-13
 	if (err)
 		goto ex;
 
@@ -827,7 +1013,11 @@ int mlx5_query_hca_vport_node_guid(struct mlx5_core_dev *dev,
 EXPORT_SYMBOL_GPL(mlx5_query_hca_vport_node_guid);
 
 int mlx5_query_nic_vport_promisc(struct mlx5_core_dev *mdev,
+<<<<<<< HEAD
 				 u32 vport,
+=======
+				 u16 vport,
+>>>>>>> upstream/android-13
 				 int *promisc_uc,
 				 int *promisc_mc,
 				 int *promisc_all)
@@ -840,7 +1030,11 @@ int mlx5_query_nic_vport_promisc(struct mlx5_core_dev *mdev,
 	if (!out)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	err = mlx5_query_nic_vport_context(mdev, vport, out, outlen);
+=======
+	err = mlx5_query_nic_vport_context(mdev, vport, out);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
@@ -877,8 +1071,15 @@ int mlx5_modify_nic_vport_promisc(struct mlx5_core_dev *mdev,
 		 nic_vport_context.promisc_mc, promisc_mc);
 	MLX5_SET(modify_nic_vport_context_in, in,
 		 nic_vport_context.promisc_all, promisc_all);
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 
 	kvfree(in);
 
@@ -917,8 +1118,15 @@ int mlx5_nic_vport_update_local_lb(struct mlx5_core_dev *mdev, bool enable)
 	if (MLX5_CAP_GEN(mdev, disable_local_lb_uc))
 		MLX5_SET(modify_nic_vport_context_in, in,
 			 field_select.disable_uc_local_lb, 1);
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 
 	if (!err)
 		mlx5_core_dbg(mdev, "%s local_lb\n",
@@ -940,7 +1148,11 @@ int mlx5_nic_vport_query_local_lb(struct mlx5_core_dev *mdev, bool *status)
 	if (!out)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	err = mlx5_query_nic_vport_context(mdev, 0, out, outlen);
+=======
+	err = mlx5_query_nic_vport_context(mdev, 0, out);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
@@ -977,8 +1189,15 @@ static int mlx5_nic_vport_update_roce_state(struct mlx5_core_dev *mdev,
 	MLX5_SET(modify_nic_vport_context_in, in, field_select.roce_en, 1);
 	MLX5_SET(modify_nic_vport_context_in, in, nic_vport_context.roce_en,
 		 state);
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 
 	kvfree(in);
 
@@ -1017,6 +1236,7 @@ int mlx5_nic_vport_disable_roce(struct mlx5_core_dev *mdev)
 	mutex_unlock(&mlx5_roce_en_lock);
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mlx5_nic_vport_disable_roce);
 
 int mlx5_core_query_vport_counter(struct mlx5_core_dev *dev, u8 other_vport,
@@ -1027,6 +1247,17 @@ int mlx5_core_query_vport_counter(struct mlx5_core_dev *dev, u8 other_vport,
 	int	is_group_manager;
 	void   *in;
 	int	err;
+=======
+EXPORT_SYMBOL(mlx5_nic_vport_disable_roce);
+
+int mlx5_core_query_vport_counter(struct mlx5_core_dev *dev, u8 other_vport,
+				  int vf, u8 port_num, void *out)
+{
+	int in_sz = MLX5_ST_SZ_BYTES(query_vport_counter_in);
+	int is_group_manager;
+	void *in;
+	int err;
+>>>>>>> upstream/android-13
 
 	is_group_manager = MLX5_CAP_GEN(dev, vport_group_manager);
 	in = kvzalloc(in_sz, GFP_KERNEL);
@@ -1049,7 +1280,11 @@ int mlx5_core_query_vport_counter(struct mlx5_core_dev *dev, u8 other_vport,
 	if (MLX5_CAP_GEN(dev, num_ports) == 2)
 		MLX5_SET(query_vport_counter_in, in, port_num, port_num);
 
+<<<<<<< HEAD
 	err = mlx5_cmd_exec(dev, in, in_sz, out,  out_sz);
+=======
+	err = mlx5_cmd_exec_inout(dev, query_vport_counter, in, out);
+>>>>>>> upstream/android-13
 free:
 	kvfree(in);
 	return err;
@@ -1057,21 +1292,35 @@ free:
 EXPORT_SYMBOL_GPL(mlx5_core_query_vport_counter);
 
 int mlx5_query_vport_down_stats(struct mlx5_core_dev *mdev, u16 vport,
+<<<<<<< HEAD
 				u64 *rx_discard_vport_down,
 				u64 *tx_discard_vport_down)
 {
 	u32 out[MLX5_ST_SZ_DW(query_vnic_env_out)] = {0};
 	u32 in[MLX5_ST_SZ_DW(query_vnic_env_in)] = {0};
+=======
+				u8 other_vport, u64 *rx_discard_vport_down,
+				u64 *tx_discard_vport_down)
+{
+	u32 out[MLX5_ST_SZ_DW(query_vnic_env_out)] = {};
+	u32 in[MLX5_ST_SZ_DW(query_vnic_env_in)] = {};
+>>>>>>> upstream/android-13
 	int err;
 
 	MLX5_SET(query_vnic_env_in, in, opcode,
 		 MLX5_CMD_OP_QUERY_VNIC_ENV);
 	MLX5_SET(query_vnic_env_in, in, op_mod, 0);
 	MLX5_SET(query_vnic_env_in, in, vport_number, vport);
+<<<<<<< HEAD
 	if (vport)
 		MLX5_SET(query_vnic_env_in, in, other_vport, 1);
 
 	err = mlx5_cmd_exec(mdev, in, sizeof(in), out, sizeof(out));
+=======
+	MLX5_SET(query_vnic_env_in, in, other_vport, other_vport);
+
+	err = mlx5_cmd_exec_inout(mdev, query_vnic_env, in, out);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -1088,11 +1337,18 @@ int mlx5_core_modify_hca_vport_context(struct mlx5_core_dev *dev,
 				       struct mlx5_hca_vport_context *req)
 {
 	int in_sz = MLX5_ST_SZ_BYTES(modify_hca_vport_context_in);
+<<<<<<< HEAD
 	u8 out[MLX5_ST_SZ_BYTES(modify_hca_vport_context_out)];
 	int is_group_manager;
 	void *in;
 	int err;
 	void *ctx;
+=======
+	int is_group_manager;
+	void *ctx;
+	void *in;
+	int err;
+>>>>>>> upstream/android-13
 
 	mlx5_core_dbg(dev, "vf %d\n", vf);
 	is_group_manager = MLX5_CAP_GEN(dev, vport_group_manager);
@@ -1100,7 +1356,10 @@ int mlx5_core_modify_hca_vport_context(struct mlx5_core_dev *dev,
 	if (!in)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(out, 0, sizeof(out));
+=======
+>>>>>>> upstream/android-13
 	MLX5_SET(modify_hca_vport_context_in, in, opcode, MLX5_CMD_OP_MODIFY_HCA_VPORT_CONTEXT);
 	if (other_vport) {
 		if (is_group_manager) {
@@ -1117,6 +1376,7 @@ int mlx5_core_modify_hca_vport_context(struct mlx5_core_dev *dev,
 
 	ctx = MLX5_ADDR_OF(modify_hca_vport_context_in, in, hca_vport_context);
 	MLX5_SET(hca_vport_context, ctx, field_select, req->field_select);
+<<<<<<< HEAD
 	MLX5_SET(hca_vport_context, ctx, sm_virt_aware, req->sm_virt_aware);
 	MLX5_SET(hca_vport_context, ctx, has_smi, req->has_smi);
 	MLX5_SET(hca_vport_context, ctx, has_raw, req->has_raw);
@@ -1138,6 +1398,19 @@ int mlx5_core_modify_hca_vport_context(struct mlx5_core_dev *dev,
 	MLX5_SET(hca_vport_context, ctx, qkey_violation_counter, req->qkey_violation_counter);
 	MLX5_SET(hca_vport_context, ctx, pkey_violation_counter, req->pkey_violation_counter);
 	err = mlx5_cmd_exec(dev, in, in_sz, out, sizeof(out));
+=======
+	if (req->field_select & MLX5_HCA_VPORT_SEL_STATE_POLICY)
+		MLX5_SET(hca_vport_context, ctx, vport_state_policy,
+			 req->policy);
+	if (req->field_select & MLX5_HCA_VPORT_SEL_PORT_GUID)
+		MLX5_SET64(hca_vport_context, ctx, port_guid, req->port_guid);
+	if (req->field_select & MLX5_HCA_VPORT_SEL_NODE_GUID)
+		MLX5_SET64(hca_vport_context, ctx, node_guid, req->node_guid);
+	MLX5_SET(hca_vport_context, ctx, cap_mask1, req->cap_mask1);
+	MLX5_SET(hca_vport_context, ctx, cap_mask1_field_select,
+		 req->cap_mask1_perm);
+	err = mlx5_cmd_exec_in(dev, modify_hca_vport_context, in);
+>>>>>>> upstream/android-13
 ex:
 	kfree(in);
 	return err;
@@ -1166,8 +1439,15 @@ int mlx5_nic_vport_affiliate_multiport(struct mlx5_core_dev *master_mdev,
 	MLX5_SET(modify_nic_vport_context_in, in,
 		 nic_vport_context.affiliation_criteria,
 		 MLX5_CAP_GEN(port_mdev, affiliate_nic_vport_criteria));
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(port_mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(port_mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 	if (err)
 		mlx5_nic_vport_disable_roce(port_mdev);
 
@@ -1192,8 +1472,15 @@ int mlx5_nic_vport_unaffiliate_multiport(struct mlx5_core_dev *port_mdev)
 		 nic_vport_context.affiliated_vhca_id, 0);
 	MLX5_SET(modify_nic_vport_context_in, in,
 		 nic_vport_context.affiliation_criteria, 0);
+<<<<<<< HEAD
 
 	err = mlx5_modify_nic_vport_context(port_mdev, in, inlen);
+=======
+	MLX5_SET(modify_nic_vport_context_in, in, opcode,
+		 MLX5_CMD_OP_MODIFY_NIC_VPORT_CONTEXT);
+
+	err = mlx5_cmd_exec_in(port_mdev, modify_nic_vport_context, in);
+>>>>>>> upstream/android-13
 	if (!err)
 		mlx5_nic_vport_disable_roce(port_mdev);
 
@@ -1201,3 +1488,37 @@ int mlx5_nic_vport_unaffiliate_multiport(struct mlx5_core_dev *port_mdev)
 	return err;
 }
 EXPORT_SYMBOL_GPL(mlx5_nic_vport_unaffiliate_multiport);
+<<<<<<< HEAD
+=======
+
+u64 mlx5_query_nic_system_image_guid(struct mlx5_core_dev *mdev)
+{
+	int port_type_cap = MLX5_CAP_GEN(mdev, port_type);
+	u64 tmp = 0;
+
+	if (mdev->sys_image_guid)
+		return mdev->sys_image_guid;
+
+	if (port_type_cap == MLX5_CAP_PORT_TYPE_ETH)
+		mlx5_query_nic_vport_system_image_guid(mdev, &tmp);
+	else
+		mlx5_query_hca_vport_system_image_guid(mdev, &tmp);
+
+	mdev->sys_image_guid = tmp;
+
+	return tmp;
+}
+EXPORT_SYMBOL_GPL(mlx5_query_nic_system_image_guid);
+
+int mlx5_vport_get_other_func_cap(struct mlx5_core_dev *dev, u16 function_id, void *out)
+{
+	u16 opmod = (MLX5_CAP_GENERAL << 1) | (HCA_CAP_OPMOD_GET_MAX & 0x01);
+	u8 in[MLX5_ST_SZ_BYTES(query_hca_cap_in)] = {};
+
+	MLX5_SET(query_hca_cap_in, in, opcode, MLX5_CMD_OP_QUERY_HCA_CAP);
+	MLX5_SET(query_hca_cap_in, in, op_mod, opmod);
+	MLX5_SET(query_hca_cap_in, in, function_id, function_id);
+	MLX5_SET(query_hca_cap_in, in, other_function, true);
+	return mlx5_cmd_exec_inout(dev, query_hca_cap, in, out);
+}
+>>>>>>> upstream/android-13

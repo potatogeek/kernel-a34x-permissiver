@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/fs.h>
 #include <linux/quota.h>
@@ -127,7 +131,11 @@ static int v1_check_quota_file(struct super_block *sb, int type)
 {
 	struct inode *inode = sb_dqopt(sb)->files[type];
 	ulong blocks;
+<<<<<<< HEAD
 	size_t off; 
+=======
+	size_t off;
+>>>>>>> upstream/android-13
 	struct v2_disk_dqheader dqhead;
 	ssize_t size;
 	loff_t isize;
@@ -216,7 +224,10 @@ static const struct quota_format_ops v1_format_ops = {
 	.check_quota_file	= v1_check_quota_file,
 	.read_file_info		= v1_read_file_info,
 	.write_file_info	= v1_write_file_info,
+<<<<<<< HEAD
 	.free_file_info		= NULL,
+=======
+>>>>>>> upstream/android-13
 	.read_dqblk		= v1_read_dqblk,
 	.commit_dqblk		= v1_commit_dqblk,
 };

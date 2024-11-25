@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI controller driver for the Atheros AR71XX/AR724X/AR913X SoCs
  *
@@ -5,11 +9,14 @@
  *
  * This driver has been based on the spi-gpio.c:
  *	Copyright (C) 2006,2008 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -21,6 +28,7 @@
 #include <linux/spi/spi.h>
 #include <linux/spi/spi_bitbang.h>
 #include <linux/bitops.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/clk.h>
 #include <linux/err.h>
@@ -28,11 +36,30 @@
 #include <asm/mach-ath79/ar71xx_regs.h>
 #include <asm/mach-ath79/ath79_spi_platform.h>
 
+=======
+#include <linux/clk.h>
+#include <linux/err.h>
+
+>>>>>>> upstream/android-13
 #define DRV_NAME	"ath79-spi"
 
 #define ATH79_SPI_RRW_DELAY_FACTOR	12000
 #define MHZ				(1000 * 1000)
 
+<<<<<<< HEAD
+=======
+#define AR71XX_SPI_REG_FS		0x00	/* Function Select */
+#define AR71XX_SPI_REG_CTRL		0x04	/* SPI Control */
+#define AR71XX_SPI_REG_IOC		0x08	/* SPI I/O Control */
+#define AR71XX_SPI_REG_RDS		0x0c	/* Read Data Shift */
+
+#define AR71XX_SPI_FS_GPIO		BIT(0)	/* Enable GPIO mode */
+
+#define AR71XX_SPI_IOC_DO		BIT(0)	/* Data Out pin */
+#define AR71XX_SPI_IOC_CLK		BIT(8)	/* CLK pin */
+#define AR71XX_SPI_IOC_CS(n)		BIT(16 + (n))
+
+>>>>>>> upstream/android-13
 struct ath79_spi {
 	struct spi_bitbang	bitbang;
 	u32			ioc_base;
@@ -67,6 +94,7 @@ static void ath79_spi_chipselect(struct spi_device *spi, int is_active)
 {
 	struct ath79_spi *sp = ath79_spidev_to_sp(spi);
 	int cs_high = (spi->mode & SPI_CS_HIGH) ? is_active : !is_active;
+<<<<<<< HEAD
 
 	if (is_active) {
 		/* set initial clock polarity */
@@ -92,6 +120,16 @@ static void ath79_spi_chipselect(struct spi_device *spi, int is_active)
 		ath79_spi_wr(sp, AR71XX_SPI_REG_IOC, sp->ioc_base);
 	}
 
+=======
+	u32 cs_bit = AR71XX_SPI_IOC_CS(spi->chip_select);
+
+	if (cs_high)
+		sp->ioc_base |= cs_bit;
+	else
+		sp->ioc_base &= ~cs_bit;
+
+	ath79_spi_wr(sp, AR71XX_SPI_REG_IOC, sp->ioc_base);
+>>>>>>> upstream/android-13
 }
 
 static void ath79_spi_enable(struct ath79_spi *sp)
@@ -103,6 +141,12 @@ static void ath79_spi_enable(struct ath79_spi *sp)
 	sp->reg_ctrl = ath79_spi_rr(sp, AR71XX_SPI_REG_CTRL);
 	sp->ioc_base = ath79_spi_rr(sp, AR71XX_SPI_REG_IOC);
 
+<<<<<<< HEAD
+=======
+	/* clear clk and mosi in the base state */
+	sp->ioc_base &= ~(AR71XX_SPI_IOC_DO | AR71XX_SPI_IOC_CLK);
+
+>>>>>>> upstream/android-13
 	/* TODO: setup speed? */
 	ath79_spi_wr(sp, AR71XX_SPI_REG_CTRL, 0x43);
 }
@@ -115,6 +159,7 @@ static void ath79_spi_disable(struct ath79_spi *sp)
 	ath79_spi_wr(sp, AR71XX_SPI_REG_FS, 0);
 }
 
+<<<<<<< HEAD
 static int ath79_spi_setup_cs(struct spi_device *spi)
 {
 	struct ath79_spi *sp = ath79_spidev_to_sp(spi);
@@ -175,6 +220,8 @@ static void ath79_spi_cleanup(struct spi_device *spi)
 	spi_bitbang_cleanup(spi);
 }
 
+=======
+>>>>>>> upstream/android-13
 static u32 ath79_spi_txrx_mode0(struct spi_device *spi, unsigned int nsecs,
 			       u32 word, u8 bits, unsigned flags)
 {
@@ -208,8 +255,11 @@ static int ath79_spi_probe(struct platform_device *pdev)
 {
 	struct spi_master *master;
 	struct ath79_spi *sp;
+<<<<<<< HEAD
 	struct ath79_spi_platform_data *pdata;
 	struct resource	*r;
+=======
+>>>>>>> upstream/android-13
 	unsigned long rate;
 	int ret;
 
@@ -223,6 +273,7 @@ static int ath79_spi_probe(struct platform_device *pdev)
 	master->dev.of_node = pdev->dev.of_node;
 	platform_set_drvdata(pdev, sp);
 
+<<<<<<< HEAD
 	pdata = dev_get_platdata(&pdev->dev);
 
 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(1, 32);
@@ -232,15 +283,27 @@ static int ath79_spi_probe(struct platform_device *pdev)
 		master->bus_num = pdata->bus_num;
 		master->num_chipselect = pdata->num_chipselect;
 	}
+=======
+	master->use_gpio_descriptors = true;
+	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(1, 32);
+	master->flags = SPI_MASTER_GPIO_SS;
+	master->num_chipselect = 3;
+>>>>>>> upstream/android-13
 
 	sp->bitbang.master = master;
 	sp->bitbang.chipselect = ath79_spi_chipselect;
 	sp->bitbang.txrx_word[SPI_MODE_0] = ath79_spi_txrx_mode0;
+<<<<<<< HEAD
 	sp->bitbang.setup_transfer = spi_bitbang_setup_transfer;
 	sp->bitbang.flags = SPI_CS_HIGH;
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	sp->base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	sp->bitbang.flags = SPI_CS_HIGH;
+
+	sp->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(sp->base)) {
 		ret = PTR_ERR(sp->base);
 		goto err_put_master;

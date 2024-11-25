@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 #ifndef __ASM_SH_SE7724_H
 #define __ASM_SH_SE7724_H
 
@@ -12,11 +16,14 @@
  *
  * Based on se7722.h
  * Copyright (C) 2007  Nobuhiro Iwamatsu
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/sh_intc.h>
 #include <asm/addrspace.h>

@@ -28,10 +28,16 @@
  */
 
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
 #include <linux/swiotlb.h>
 
 #include "nouveau_drv.h"
 #include "nouveau_dma.h"
+=======
+
+#include "nouveau_drv.h"
+#include "nouveau_chan.h"
+>>>>>>> upstream/android-13
 #include "nouveau_fence.h"
 
 #include "nouveau_bo.h"
@@ -44,6 +50,13 @@
 #include <nvif/if500b.h>
 #include <nvif/if900b.h>
 
+<<<<<<< HEAD
+=======
+static int nouveau_ttm_tt_bind(struct ttm_device *bdev, struct ttm_tt *ttm,
+			       struct ttm_resource *reg);
+static void nouveau_ttm_tt_unbind(struct ttm_device *bdev, struct ttm_tt *ttm);
+
+>>>>>>> upstream/android-13
 /*
  * NV10-NV40 tiling helpers
  */
@@ -136,10 +149,26 @@ nouveau_bo_del_ttm(struct ttm_buffer_object *bo)
 	struct drm_device *dev = drm->dev;
 	struct nouveau_bo *nvbo = nouveau_bo(bo);
 
+<<<<<<< HEAD
 	if (unlikely(nvbo->gem.filp))
 		DRM_ERROR("bo %p still attached to GEM object\n", bo);
 	WARN_ON(nvbo->pin_refcnt > 0);
 	nv10_bo_put_tile_region(dev, nvbo->tile, NULL);
+=======
+	WARN_ON(nvbo->bo.pin_count > 0);
+	nouveau_bo_del_io_reserve_lru(bo);
+	nv10_bo_put_tile_region(dev, nvbo->tile, NULL);
+
+	/*
+	 * If nouveau_bo_new() allocated this buffer, the GEM object was never
+	 * initialized, so don't attempt to release it.
+	 */
+	if (bo->base.dev)
+		drm_gem_object_release(&bo->base);
+	else
+		dma_resv_fini(&bo->base._resv);
+
+>>>>>>> upstream/android-13
 	kfree(nvbo);
 }
 
@@ -152,8 +181,12 @@ roundup_64(u64 x, u32 y)
 }
 
 static void
+<<<<<<< HEAD
 nouveau_bo_fixup_align(struct nouveau_bo *nvbo, u32 flags,
 		       int *align, u64 *size)
+=======
+nouveau_bo_fixup_align(struct nouveau_bo *nvbo, int *align, u64 *size)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_drm *drm = nouveau_bdev(nvbo->bo.bdev);
 	struct nvif_device *device = &drm->client.device;
@@ -185,15 +218,22 @@ nouveau_bo_fixup_align(struct nouveau_bo *nvbo, u32 flags,
 	*size = roundup_64(*size, PAGE_SIZE);
 }
 
+<<<<<<< HEAD
 int
 nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 	       uint32_t flags, uint32_t tile_mode, uint32_t tile_flags,
 	       struct sg_table *sg, struct reservation_object *robj,
 	       struct nouveau_bo **pnvbo)
+=======
+struct nouveau_bo *
+nouveau_bo_alloc(struct nouveau_cli *cli, u64 *size, int *align, u32 domain,
+		 u32 tile_mode, u32 tile_flags)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_drm *drm = cli->drm;
 	struct nouveau_bo *nvbo;
 	struct nvif_mmu *mmu = &cli->mmu;
+<<<<<<< HEAD
 	struct nvif_vmm *vmm = &cli->vmm.vmm;
 	size_t acc_size;
 	int type = ttm_bo_type_device;
@@ -210,6 +250,19 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 	nvbo = kzalloc(sizeof(struct nouveau_bo), GFP_KERNEL);
 	if (!nvbo)
 		return -ENOMEM;
+=======
+	struct nvif_vmm *vmm = cli->svm.cli ? &cli->svm.vmm : &cli->vmm.vmm;
+	int i, pi = -1;
+
+	if (!*size) {
+		NV_WARN(drm, "skipped size %016llx\n", *size);
+		return ERR_PTR(-EINVAL);
+	}
+
+	nvbo = kzalloc(sizeof(struct nouveau_bo), GFP_KERNEL);
+	if (!nvbo)
+		return ERR_PTR(-ENOMEM);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&nvbo->head);
 	INIT_LIST_HEAD(&nvbo->entry);
 	INIT_LIST_HEAD(&nvbo->vma_list);
@@ -219,7 +272,11 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 	 * mapping, but is what NOUVEAU_GEM_DOMAIN_COHERENT gets translated
 	 * into in nouveau_gem_new().
 	 */
+<<<<<<< HEAD
 	if (flags & TTM_PL_FLAG_UNCACHED) {
+=======
+	if (domain & NOUVEAU_GEM_DOMAIN_COHERENT) {
+>>>>>>> upstream/android-13
 		/* Determine if we can get a cache-coherent map, forcing
 		 * uncached mapping if we can't.
 		 */
@@ -231,7 +288,11 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 		nvbo->kind = (tile_flags & 0x0000ff00) >> 8;
 		if (!nvif_mmu_kind_valid(mmu, nvbo->kind)) {
 			kfree(nvbo);
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			return ERR_PTR(-EINVAL);
+>>>>>>> upstream/android-13
 		}
 
 		nvbo->comp = mmu->kind[nvbo->kind] != nvbo->kind;
@@ -241,7 +302,11 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 		nvbo->comp = (tile_flags & 0x00030000) >> 16;
 		if (!nvif_mmu_kind_valid(mmu, nvbo->kind)) {
 			kfree(nvbo);
+<<<<<<< HEAD
 			return -EINVAL;
+=======
+			return ERR_PTR(-EINVAL);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		nvbo->zeta = (tile_flags & 0x00000007);
@@ -259,9 +324,15 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 		 * Skip page sizes that can't support needed domains.
 		 */
 		if (cli->device.info.family > NV_DEVICE_INFO_V0_CURIE &&
+<<<<<<< HEAD
 		    (flags & TTM_PL_FLAG_VRAM) && !vmm->page[i].vram)
 			continue;
 		if ((flags & TTM_PL_FLAG_TT) &&
+=======
+		    (domain & NOUVEAU_GEM_DOMAIN_VRAM) && !vmm->page[i].vram)
+			continue;
+		if ((domain & NOUVEAU_GEM_DOMAIN_GART) &&
+>>>>>>> upstream/android-13
 		    (!vmm->page[i].host || vmm->page[i].shift > PAGE_SHIFT))
 			continue;
 
@@ -273,12 +344,20 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 			pi = i;
 
 		/* Stop once the buffer is larger than the current page size. */
+<<<<<<< HEAD
 		if (size >= 1ULL << vmm->page[i].shift)
+=======
+		if (*size >= 1ULL << vmm->page[i].shift)
+>>>>>>> upstream/android-13
 			break;
 	}
 
 	if (WARN_ON(pi < 0))
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return ERR_PTR(-EINVAL);
+>>>>>>> upstream/android-13
 
 	/* Disable compression if suitable settings couldn't be found. */
 	if (nvbo->comp && !vmm->page[pi].comp) {
@@ -288,6 +367,7 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 	}
 	nvbo->page = vmm->page[pi].shift;
 
+<<<<<<< HEAD
 	nouveau_bo_fixup_align(nvbo, flags, &align, &size);
 	nvbo->bo.mem.num_pages = size >> PAGE_SHIFT;
 	nouveau_bo_placement_set(nvbo, flags, 0);
@@ -298,17 +378,65 @@ nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
 	ret = ttm_bo_init(&drm->ttm.bdev, &nvbo->bo, size,
 			  type, &nvbo->placement,
 			  align >> PAGE_SHIFT, false, acc_size, sg,
+=======
+	nouveau_bo_fixup_align(nvbo, align, size);
+
+	return nvbo;
+}
+
+int
+nouveau_bo_init(struct nouveau_bo *nvbo, u64 size, int align, u32 domain,
+		struct sg_table *sg, struct dma_resv *robj)
+{
+	int type = sg ? ttm_bo_type_sg : ttm_bo_type_device;
+	int ret;
+
+	nouveau_bo_placement_set(nvbo, domain, 0);
+	INIT_LIST_HEAD(&nvbo->io_reserve_lru);
+
+	ret = ttm_bo_init(nvbo->bo.bdev, &nvbo->bo, size, type,
+			  &nvbo->placement, align >> PAGE_SHIFT, false, sg,
+>>>>>>> upstream/android-13
 			  robj, nouveau_bo_del_ttm);
 	if (ret) {
 		/* ttm will call nouveau_bo_del_ttm if it fails.. */
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	return 0;
+}
+
+int
+nouveau_bo_new(struct nouveau_cli *cli, u64 size, int align,
+	       uint32_t domain, uint32_t tile_mode, uint32_t tile_flags,
+	       struct sg_table *sg, struct dma_resv *robj,
+	       struct nouveau_bo **pnvbo)
+{
+	struct nouveau_bo *nvbo;
+	int ret;
+
+	nvbo = nouveau_bo_alloc(cli, &size, &align, domain, tile_mode,
+				tile_flags);
+	if (IS_ERR(nvbo))
+		return PTR_ERR(nvbo);
+
+	nvbo->bo.base.size = size;
+	dma_resv_init(&nvbo->bo.base._resv);
+	drm_vma_node_reset(&nvbo->bo.base.vma_node);
+
+	ret = nouveau_bo_init(nvbo, size, align, domain, sg, robj);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	*pnvbo = nvbo;
 	return 0;
 }
 
 static void
+<<<<<<< HEAD
 set_placement_list(struct ttm_place *pl, unsigned *n, uint32_t type, uint32_t flags)
 {
 	*n = 0;
@@ -331,6 +459,38 @@ set_placement_range(struct nouveau_bo *nvbo, uint32_t type)
 	if (drm->client.device.info.family == NV_DEVICE_INFO_V0_CELSIUS &&
 	    nvbo->mode && (type & TTM_PL_FLAG_VRAM) &&
 	    nvbo->bo.mem.num_pages < vram_pages / 4) {
+=======
+set_placement_list(struct ttm_place *pl, unsigned *n, uint32_t domain)
+{
+	*n = 0;
+
+	if (domain & NOUVEAU_GEM_DOMAIN_VRAM) {
+		pl[*n].mem_type = TTM_PL_VRAM;
+		pl[*n].flags = 0;
+		(*n)++;
+	}
+	if (domain & NOUVEAU_GEM_DOMAIN_GART) {
+		pl[*n].mem_type = TTM_PL_TT;
+		pl[*n].flags = 0;
+		(*n)++;
+	}
+	if (domain & NOUVEAU_GEM_DOMAIN_CPU) {
+		pl[*n].mem_type = TTM_PL_SYSTEM;
+		pl[(*n)++].flags = 0;
+	}
+}
+
+static void
+set_placement_range(struct nouveau_bo *nvbo, uint32_t domain)
+{
+	struct nouveau_drm *drm = nouveau_bdev(nvbo->bo.bdev);
+	u64 vram_size = drm->client.device.info.ram_size;
+	unsigned i, fpfn, lpfn;
+
+	if (drm->client.device.info.family == NV_DEVICE_INFO_V0_CELSIUS &&
+	    nvbo->mode && (domain & NOUVEAU_GEM_DOMAIN_VRAM) &&
+	    nvbo->bo.base.size < vram_size / 4) {
+>>>>>>> upstream/android-13
 		/*
 		 * Make sure that the color and depth buffers are handled
 		 * by independent memory controller units. Up to a 9x
@@ -338,11 +498,19 @@ set_placement_range(struct nouveau_bo *nvbo, uint32_t type)
 		 * at the same time.
 		 */
 		if (nvbo->zeta) {
+<<<<<<< HEAD
 			fpfn = vram_pages / 2;
 			lpfn = ~0;
 		} else {
 			fpfn = 0;
 			lpfn = vram_pages / 2;
+=======
+			fpfn = (vram_size / 2) >> PAGE_SHIFT;
+			lpfn = ~0;
+		} else {
+			fpfn = 0;
+			lpfn = (vram_size / 2) >> PAGE_SHIFT;
+>>>>>>> upstream/android-13
 		}
 		for (i = 0; i < nvbo->placement.num_placement; ++i) {
 			nvbo->placements[i].fpfn = fpfn;
@@ -356,6 +524,7 @@ set_placement_range(struct nouveau_bo *nvbo, uint32_t type)
 }
 
 void
+<<<<<<< HEAD
 nouveau_bo_placement_set(struct nouveau_bo *nvbo, uint32_t type, uint32_t busy)
 {
 	struct ttm_placement *pl = &nvbo->placement;
@@ -376,6 +545,25 @@ nouveau_bo_placement_set(struct nouveau_bo *nvbo, uint32_t type, uint32_t busy)
 
 int
 nouveau_bo_pin(struct nouveau_bo *nvbo, uint32_t memtype, bool contig)
+=======
+nouveau_bo_placement_set(struct nouveau_bo *nvbo, uint32_t domain,
+			 uint32_t busy)
+{
+	struct ttm_placement *pl = &nvbo->placement;
+
+	pl->placement = nvbo->placements;
+	set_placement_list(nvbo->placements, &pl->num_placement, domain);
+
+	pl->busy_placement = nvbo->busy_placements;
+	set_placement_list(nvbo->busy_placements, &pl->num_busy_placement,
+			   domain | busy);
+
+	set_placement_range(nvbo, domain);
+}
+
+int
+nouveau_bo_pin(struct nouveau_bo *nvbo, uint32_t domain, bool contig)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_drm *drm = nouveau_bdev(nvbo->bo.bdev);
 	struct ttm_buffer_object *bo = &nvbo->bo;
@@ -387,7 +575,11 @@ nouveau_bo_pin(struct nouveau_bo *nvbo, uint32_t memtype, bool contig)
 		return ret;
 
 	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA &&
+<<<<<<< HEAD
 	    memtype == TTM_PL_FLAG_VRAM && contig) {
+=======
+	    domain == NOUVEAU_GEM_DOMAIN_VRAM && contig) {
+>>>>>>> upstream/android-13
 		if (!nvbo->contig) {
 			nvbo->contig = true;
 			force = true;
@@ -395,6 +587,7 @@ nouveau_bo_pin(struct nouveau_bo *nvbo, uint32_t memtype, bool contig)
 		}
 	}
 
+<<<<<<< HEAD
 	if (nvbo->pin_refcnt) {
 		if (!(memtype & (1 << bo->mem.mem_type)) || evict) {
 			NV_ERROR(drm, "bo %p pinned elsewhere: "
@@ -403,16 +596,44 @@ nouveau_bo_pin(struct nouveau_bo *nvbo, uint32_t memtype, bool contig)
 			ret = -EBUSY;
 		}
 		nvbo->pin_refcnt++;
+=======
+	if (nvbo->bo.pin_count) {
+		bool error = evict;
+
+		switch (bo->resource->mem_type) {
+		case TTM_PL_VRAM:
+			error |= !(domain & NOUVEAU_GEM_DOMAIN_VRAM);
+			break;
+		case TTM_PL_TT:
+			error |= !(domain & NOUVEAU_GEM_DOMAIN_GART);
+			break;
+		default:
+			break;
+		}
+
+		if (error) {
+			NV_ERROR(drm, "bo %p pinned elsewhere: "
+				      "0x%08x vs 0x%08x\n", bo,
+				 bo->resource->mem_type, domain);
+			ret = -EBUSY;
+		}
+		ttm_bo_pin(&nvbo->bo);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	if (evict) {
+<<<<<<< HEAD
 		nouveau_bo_placement_set(nvbo, TTM_PL_FLAG_TT, 0);
+=======
+		nouveau_bo_placement_set(nvbo, NOUVEAU_GEM_DOMAIN_GART, 0);
+>>>>>>> upstream/android-13
 		ret = nouveau_bo_validate(nvbo, false, false);
 		if (ret)
 			goto out;
 	}
 
+<<<<<<< HEAD
 	nvbo->pin_refcnt++;
 	nouveau_bo_placement_set(nvbo, memtype, 0);
 
@@ -432,6 +653,21 @@ nouveau_bo_pin(struct nouveau_bo *nvbo, uint32_t memtype, bool contig)
 		break;
 	case TTM_PL_TT:
 		drm->gem.gart_available -= bo->mem.size;
+=======
+	nouveau_bo_placement_set(nvbo, domain, 0);
+	ret = nouveau_bo_validate(nvbo, false, false);
+	if (ret)
+		goto out;
+
+	ttm_bo_pin(&nvbo->bo);
+
+	switch (bo->resource->mem_type) {
+	case TTM_PL_VRAM:
+		drm->gem.vram_available -= bo->base.size;
+		break;
+	case TTM_PL_TT:
+		drm->gem.gart_available -= bo->base.size;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -449,12 +685,17 @@ nouveau_bo_unpin(struct nouveau_bo *nvbo)
 {
 	struct nouveau_drm *drm = nouveau_bdev(nvbo->bo.bdev);
 	struct ttm_buffer_object *bo = &nvbo->bo;
+<<<<<<< HEAD
 	int ret, ref;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = ttm_bo_reserve(bo, false, false, NULL);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ref = --nvbo->pin_refcnt;
 	WARN_ON_ONCE(ref < 0);
 	if (ref)
@@ -470,15 +711,30 @@ nouveau_bo_unpin(struct nouveau_bo *nvbo)
 			break;
 		case TTM_PL_TT:
 			drm->gem.gart_available += bo->mem.size;
+=======
+	ttm_bo_unpin(&nvbo->bo);
+	if (!nvbo->bo.pin_count) {
+		switch (bo->resource->mem_type) {
+		case TTM_PL_VRAM:
+			drm->gem.vram_available += bo->base.size;
+			break;
+		case TTM_PL_TT:
+			drm->gem.gart_available += bo->base.size;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 out:
 	ttm_bo_unreserve(bo);
 	return ret;
+=======
+	ttm_bo_unreserve(bo);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int
@@ -490,7 +746,11 @@ nouveau_bo_map(struct nouveau_bo *nvbo)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = ttm_bo_kmap(&nvbo->bo, 0, nvbo->bo.mem.num_pages, &nvbo->kmap);
+=======
+	ret = ttm_bo_kmap(&nvbo->bo, 0, nvbo->bo.resource->num_pages, &nvbo->kmap);
+>>>>>>> upstream/android-13
 
 	ttm_bo_unreserve(&nvbo->bo);
 	return ret;
@@ -509,39 +769,121 @@ void
 nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
 {
 	struct nouveau_drm *drm = nouveau_bdev(nvbo->bo.bdev);
+<<<<<<< HEAD
 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
 	int i;
 
 	if (!ttm_dma)
 		return;
+=======
+	struct ttm_tt *ttm_dma = (struct ttm_tt *)nvbo->bo.ttm;
+	int i, j;
+
+	if (!ttm_dma || !ttm_dma->dma_address)
+		return;
+	if (!ttm_dma->pages) {
+		NV_DEBUG(drm, "ttm_dma 0x%p: pages NULL\n", ttm_dma);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/* Don't waste time looping if the object is coherent */
 	if (nvbo->force_coherent)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < ttm_dma->ttm.num_pages; i++)
 		dma_sync_single_for_device(drm->dev->dev,
 					   ttm_dma->dma_address[i],
 					   PAGE_SIZE, DMA_TO_DEVICE);
+=======
+	i = 0;
+	while (i < ttm_dma->num_pages) {
+		struct page *p = ttm_dma->pages[i];
+		size_t num_pages = 1;
+
+		for (j = i + 1; j < ttm_dma->num_pages; ++j) {
+			if (++p != ttm_dma->pages[j])
+				break;
+
+			++num_pages;
+		}
+		dma_sync_single_for_device(drm->dev->dev,
+					   ttm_dma->dma_address[i],
+					   num_pages * PAGE_SIZE, DMA_TO_DEVICE);
+		i += num_pages;
+	}
+>>>>>>> upstream/android-13
 }
 
 void
 nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
 {
 	struct nouveau_drm *drm = nouveau_bdev(nvbo->bo.bdev);
+<<<<<<< HEAD
 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
 	int i;
 
 	if (!ttm_dma)
 		return;
+=======
+	struct ttm_tt *ttm_dma = (struct ttm_tt *)nvbo->bo.ttm;
+	int i, j;
+
+	if (!ttm_dma || !ttm_dma->dma_address)
+		return;
+	if (!ttm_dma->pages) {
+		NV_DEBUG(drm, "ttm_dma 0x%p: pages NULL\n", ttm_dma);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/* Don't waste time looping if the object is coherent */
 	if (nvbo->force_coherent)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < ttm_dma->ttm.num_pages; i++)
 		dma_sync_single_for_cpu(drm->dev->dev, ttm_dma->dma_address[i],
 					PAGE_SIZE, DMA_FROM_DEVICE);
+=======
+	i = 0;
+	while (i < ttm_dma->num_pages) {
+		struct page *p = ttm_dma->pages[i];
+		size_t num_pages = 1;
+
+		for (j = i + 1; j < ttm_dma->num_pages; ++j) {
+			if (++p != ttm_dma->pages[j])
+				break;
+
+			++num_pages;
+		}
+
+		dma_sync_single_for_cpu(drm->dev->dev, ttm_dma->dma_address[i],
+					num_pages * PAGE_SIZE, DMA_FROM_DEVICE);
+		i += num_pages;
+	}
+}
+
+void nouveau_bo_add_io_reserve_lru(struct ttm_buffer_object *bo)
+{
+	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
+	struct nouveau_bo *nvbo = nouveau_bo(bo);
+
+	mutex_lock(&drm->ttm.io_reserve_mutex);
+	list_move_tail(&nvbo->io_reserve_lru, &drm->ttm.io_reserve_lru);
+	mutex_unlock(&drm->ttm.io_reserve_mutex);
+}
+
+void nouveau_bo_del_io_reserve_lru(struct ttm_buffer_object *bo)
+{
+	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
+	struct nouveau_bo *nvbo = nouveau_bo(bo);
+
+	mutex_lock(&drm->ttm.io_reserve_mutex);
+	list_del_init(&nvbo->io_reserve_lru);
+	mutex_unlock(&drm->ttm.io_reserve_mutex);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -617,6 +959,7 @@ nouveau_ttm_tt_create(struct ttm_buffer_object *bo, uint32_t page_flags)
 }
 
 static int
+<<<<<<< HEAD
 nouveau_bo_invalidate_caches(struct ttm_bo_device *bdev, uint32_t flags)
 {
 	/* We'll do this from user space. */
@@ -684,6 +1027,35 @@ nouveau_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
 		return -EINVAL;
 	}
 	return 0;
+=======
+nouveau_ttm_tt_bind(struct ttm_device *bdev, struct ttm_tt *ttm,
+		    struct ttm_resource *reg)
+{
+#if IS_ENABLED(CONFIG_AGP)
+	struct nouveau_drm *drm = nouveau_bdev(bdev);
+#endif
+	if (!reg)
+		return -EINVAL;
+#if IS_ENABLED(CONFIG_AGP)
+	if (drm->agp.bridge)
+		return ttm_agp_bind(ttm, reg);
+#endif
+	return nouveau_sgdma_bind(bdev, ttm, reg);
+}
+
+static void
+nouveau_ttm_tt_unbind(struct ttm_device *bdev, struct ttm_tt *ttm)
+{
+#if IS_ENABLED(CONFIG_AGP)
+	struct nouveau_drm *drm = nouveau_bdev(bdev);
+
+	if (drm->agp.bridge) {
+		ttm_agp_unbind(ttm);
+		return;
+	}
+#endif
+	nouveau_sgdma_unbind(bdev, ttm);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -691,6 +1063,7 @@ nouveau_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
 {
 	struct nouveau_bo *nvbo = nouveau_bo(bo);
 
+<<<<<<< HEAD
 	switch (bo->mem.mem_type) {
 	case TTM_PL_VRAM:
 		nouveau_bo_placement_set(nvbo, TTM_PL_FLAG_TT,
@@ -698,12 +1071,22 @@ nouveau_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
 		break;
 	default:
 		nouveau_bo_placement_set(nvbo, TTM_PL_FLAG_SYSTEM, 0);
+=======
+	switch (bo->resource->mem_type) {
+	case TTM_PL_VRAM:
+		nouveau_bo_placement_set(nvbo, NOUVEAU_GEM_DOMAIN_GART,
+					 NOUVEAU_GEM_DOMAIN_CPU);
+		break;
+	default:
+		nouveau_bo_placement_set(nvbo, NOUVEAU_GEM_DOMAIN_CPU, 0);
+>>>>>>> upstream/android-13
 		break;
 	}
 
 	*pl = nvbo->placement;
 }
 
+<<<<<<< HEAD
 
 static int
 nve0_bo_move_init(struct nouveau_channel *chan, u32 handle)
@@ -1063,6 +1446,13 @@ nouveau_bo_move_prep(struct nouveau_drm *drm, struct ttm_buffer_object *bo,
 		     struct ttm_mem_reg *reg)
 {
 	struct nouveau_mem *old_mem = nouveau_mem(&bo->mem);
+=======
+static int
+nouveau_bo_move_prep(struct nouveau_drm *drm, struct ttm_buffer_object *bo,
+		     struct ttm_resource *reg)
+{
+	struct nouveau_mem *old_mem = nouveau_mem(bo->resource);
+>>>>>>> upstream/android-13
 	struct nouveau_mem *new_mem = nouveau_mem(reg);
 	struct nvif_vmm *vmm = &drm->client.vmm.vmm;
 	int ret;
@@ -1091,8 +1481,14 @@ done:
 }
 
 static int
+<<<<<<< HEAD
 nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict, bool intr,
 		     bool no_wait_gpu, struct ttm_mem_reg *new_reg)
+=======
+nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict,
+		     struct ttm_operation_ctx *ctx,
+		     struct ttm_resource *new_reg)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
 	struct nouveau_channel *chan = drm->ttm.chan;
@@ -1102,7 +1498,11 @@ nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict, bool intr,
 
 	/* create temporary vmas for the transfer and attach them to the
 	 * old nvkm_mem node, these will get cleaned up after ttm has
+<<<<<<< HEAD
 	 * destroyed the ttm_mem_reg
+=======
+	 * destroyed the ttm_resource
+>>>>>>> upstream/android-13
 	 */
 	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA) {
 		ret = nouveau_bo_move_prep(drm, bo, new_reg);
@@ -1110,16 +1510,30 @@ nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict, bool intr,
 			return ret;
 	}
 
+<<<<<<< HEAD
 	mutex_lock_nested(&cli->mutex, SINGLE_DEPTH_NESTING);
 	ret = nouveau_fence_sync(nouveau_bo(bo), chan, true, intr);
 	if (ret == 0) {
 		ret = drm->ttm.move(chan, bo, &bo->mem, new_reg);
+=======
+	if (drm_drv_uses_atomic_modeset(drm->dev))
+		mutex_lock(&cli->mutex);
+	else
+		mutex_lock_nested(&cli->mutex, SINGLE_DEPTH_NESTING);
+	ret = nouveau_fence_sync(nouveau_bo(bo), chan, true, ctx->interruptible);
+	if (ret == 0) {
+		ret = drm->ttm.move(chan, bo, bo->resource, new_reg);
+>>>>>>> upstream/android-13
 		if (ret == 0) {
 			ret = nouveau_fence_new(chan, false, &fence);
 			if (ret == 0) {
 				ret = ttm_bo_move_accel_cleanup(bo,
 								&fence->base,
+<<<<<<< HEAD
 								evict,
+=======
+								evict, false,
+>>>>>>> upstream/android-13
 								new_reg);
 				nouveau_fence_unref(&fence);
 			}
@@ -1132,15 +1546,28 @@ nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict, bool intr,
 void
 nouveau_bo_move_init(struct nouveau_drm *drm)
 {
+<<<<<<< HEAD
 	static const struct {
+=======
+	static const struct _method_table {
+>>>>>>> upstream/android-13
 		const char *name;
 		int engine;
 		s32 oclass;
 		int (*exec)(struct nouveau_channel *,
 			    struct ttm_buffer_object *,
+<<<<<<< HEAD
 			    struct ttm_mem_reg *, struct ttm_mem_reg *);
 		int (*init)(struct nouveau_channel *, u32 handle);
 	} _methods[] = {
+=======
+			    struct ttm_resource *, struct ttm_resource *);
+		int (*init)(struct nouveau_channel *, u32 handle);
+	} _methods[] = {
+		{  "COPY", 4, 0xc7b5, nve0_bo_move_copy, nve0_bo_move_init },
+		{  "COPY", 4, 0xc5b5, nve0_bo_move_copy, nve0_bo_move_init },
+		{  "GRCE", 0, 0xc5b5, nve0_bo_move_copy, nvc0_bo_move_init },
+>>>>>>> upstream/android-13
 		{  "COPY", 4, 0xc3b5, nve0_bo_move_copy, nve0_bo_move_init },
 		{  "GRCE", 0, 0xc3b5, nve0_bo_move_copy, nvc0_bo_move_init },
 		{  "COPY", 4, 0xc1b5, nve0_bo_move_copy, nve0_bo_move_init },
@@ -1159,8 +1586,13 @@ nouveau_bo_move_init(struct nouveau_drm *drm)
 		{  "M2MF", 0, 0x5039, nv50_bo_move_m2mf, nv50_bo_move_init },
 		{  "M2MF", 0, 0x0039, nv04_bo_move_m2mf, nv04_bo_move_init },
 		{},
+<<<<<<< HEAD
 		{ "CRYPT", 0, 0x88b4, nv98_bo_move_exec, nv50_bo_move_init },
 	}, *mthd = _methods;
+=======
+	};
+	const struct _method_table *mthd = _methods;
+>>>>>>> upstream/android-13
 	const char *name = "CPU";
 	int ret;
 
@@ -1174,14 +1606,22 @@ nouveau_bo_move_init(struct nouveau_drm *drm)
 		if (chan == NULL)
 			continue;
 
+<<<<<<< HEAD
 		ret = nvif_object_init(&chan->user,
+=======
+		ret = nvif_object_ctor(&chan->user, "ttmBoMove",
+>>>>>>> upstream/android-13
 				       mthd->oclass | (mthd->engine << 16),
 				       mthd->oclass, NULL, 0,
 				       &drm->ttm.copy);
 		if (ret == 0) {
 			ret = mthd->init(chan, drm->ttm.copy.handle);
 			if (ret) {
+<<<<<<< HEAD
 				nvif_object_fini(&drm->ttm.copy);
+=======
+				nvif_object_dtor(&drm->ttm.copy);
+>>>>>>> upstream/android-13
 				continue;
 			}
 
@@ -1195,6 +1635,7 @@ nouveau_bo_move_init(struct nouveau_drm *drm)
 	NV_INFO(drm, "MM: using %s for buffer copies\n", name);
 }
 
+<<<<<<< HEAD
 static int
 nouveau_bo_move_flipd(struct ttm_buffer_object *bo, bool evict, bool intr,
 		      bool no_wait_gpu, struct ttm_mem_reg *new_reg)
@@ -1271,6 +1712,10 @@ out:
 static void
 nouveau_bo_move_ntfy(struct ttm_buffer_object *bo, bool evict,
 		     struct ttm_mem_reg *new_reg)
+=======
+static void nouveau_bo_move_ntfy(struct ttm_buffer_object *bo,
+				 struct ttm_resource *new_reg)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_mem *mem = new_reg ? nouveau_mem(new_reg) : NULL;
 	struct nouveau_bo *nvbo = nouveau_bo(bo);
@@ -1280,6 +1725,11 @@ nouveau_bo_move_ntfy(struct ttm_buffer_object *bo, bool evict,
 	if (bo->destroy != nouveau_bo_del_ttm)
 		return;
 
+<<<<<<< HEAD
+=======
+	nouveau_bo_del_io_reserve_lru(bo);
+
+>>>>>>> upstream/android-13
 	if (mem && new_reg->mem_type != TTM_PL_SYSTEM &&
 	    mem->mem.page == nvbo->page) {
 		list_for_each_entry(vma, &nvbo->vma_list, head) {
@@ -1291,10 +1741,21 @@ nouveau_bo_move_ntfy(struct ttm_buffer_object *bo, bool evict,
 			nouveau_vma_unmap(vma);
 		}
 	}
+<<<<<<< HEAD
 }
 
 static int
 nouveau_bo_vm_bind(struct ttm_buffer_object *bo, struct ttm_mem_reg *new_reg,
+=======
+
+	if (new_reg)
+		nvbo->offset = (new_reg->start << PAGE_SHIFT);
+
+}
+
+static int
+nouveau_bo_vm_bind(struct ttm_buffer_object *bo, struct ttm_resource *new_reg,
+>>>>>>> upstream/android-13
 		   struct nouveau_drm_tile **new_tile)
 {
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
@@ -1307,7 +1768,11 @@ nouveau_bo_vm_bind(struct ttm_buffer_object *bo, struct ttm_mem_reg *new_reg,
 		return 0;
 
 	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_CELSIUS) {
+<<<<<<< HEAD
 		*new_tile = nv10_bo_set_tiling(dev, offset, new_reg->size,
+=======
+		*new_tile = nv10_bo_set_tiling(dev, offset, bo->base.size,
+>>>>>>> upstream/android-13
 					       nvbo->mode, nvbo->zeta);
 	}
 
@@ -1321,7 +1786,11 @@ nouveau_bo_vm_cleanup(struct ttm_buffer_object *bo,
 {
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
 	struct drm_device *dev = drm->dev;
+<<<<<<< HEAD
 	struct dma_fence *fence = reservation_object_get_excl(bo->resv);
+=======
+	struct dma_fence *fence = dma_resv_excl_fence(bo->base.resv);
+>>>>>>> upstream/android-13
 
 	nv10_bo_put_tile_region(dev, *old_tile, fence);
 	*old_tile = new_tile;
@@ -1330,6 +1799,7 @@ nouveau_bo_vm_cleanup(struct ttm_buffer_object *bo,
 static int
 nouveau_bo_move(struct ttm_buffer_object *bo, bool evict,
 		struct ttm_operation_ctx *ctx,
+<<<<<<< HEAD
 		struct ttm_mem_reg *new_reg)
 {
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
@@ -1343,24 +1813,71 @@ nouveau_bo_move(struct ttm_buffer_object *bo, bool evict,
 		return ret;
 
 	if (nvbo->pin_refcnt)
+=======
+		struct ttm_resource *new_reg,
+		struct ttm_place *hop)
+{
+	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
+	struct nouveau_bo *nvbo = nouveau_bo(bo);
+	struct ttm_resource *old_reg = bo->resource;
+	struct nouveau_drm_tile *new_tile = NULL;
+	int ret = 0;
+
+
+	if (new_reg->mem_type == TTM_PL_TT) {
+		ret = nouveau_ttm_tt_bind(bo->bdev, bo->ttm, new_reg);
+		if (ret)
+			return ret;
+	}
+
+	nouveau_bo_move_ntfy(bo, new_reg);
+	ret = ttm_bo_wait_ctx(bo, ctx);
+	if (ret)
+		goto out_ntfy;
+
+	if (nvbo->bo.pin_count)
+>>>>>>> upstream/android-13
 		NV_WARN(drm, "Moving pinned object %p!\n", nvbo);
 
 	if (drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA) {
 		ret = nouveau_bo_vm_bind(bo, new_reg, &new_tile);
 		if (ret)
+<<<<<<< HEAD
 			return ret;
+=======
+			goto out_ntfy;
+>>>>>>> upstream/android-13
 	}
 
 	/* Fake bo copy. */
 	if (old_reg->mem_type == TTM_PL_SYSTEM && !bo->ttm) {
+<<<<<<< HEAD
 		BUG_ON(bo->mem.mm_node != NULL);
 		bo->mem = *new_reg;
 		new_reg->mm_node = NULL;
+=======
+		ttm_bo_move_null(bo, new_reg);
+		goto out;
+	}
+
+	if (old_reg->mem_type == TTM_PL_SYSTEM &&
+	    new_reg->mem_type == TTM_PL_TT) {
+		ttm_bo_move_null(bo, new_reg);
+		goto out;
+	}
+
+	if (old_reg->mem_type == TTM_PL_TT &&
+	    new_reg->mem_type == TTM_PL_SYSTEM) {
+		nouveau_ttm_tt_unbind(bo->bdev, bo->ttm);
+		ttm_resource_free(bo, &bo->resource);
+		ttm_bo_assign_mem(bo, new_reg);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	/* Hardware assisted copy. */
 	if (drm->ttm.move) {
+<<<<<<< HEAD
 		if (new_reg->mem_type == TTM_PL_SYSTEM)
 			ret = nouveau_bo_move_flipd(bo, evict,
 						    ctx->interruptible,
@@ -1381,6 +1898,27 @@ nouveau_bo_move(struct ttm_buffer_object *bo, bool evict,
 	ret = ttm_bo_wait(bo, ctx->interruptible, ctx->no_wait_gpu);
 	if (ret == 0)
 		ret = ttm_bo_move_memcpy(bo, ctx, new_reg);
+=======
+		if ((old_reg->mem_type == TTM_PL_SYSTEM &&
+		     new_reg->mem_type == TTM_PL_VRAM) ||
+		    (old_reg->mem_type == TTM_PL_VRAM &&
+		     new_reg->mem_type == TTM_PL_SYSTEM)) {
+			hop->fpfn = 0;
+			hop->lpfn = 0;
+			hop->mem_type = TTM_PL_TT;
+			hop->flags = 0;
+			return -EMULTIHOP;
+		}
+		ret = nouveau_bo_move_m2mf(bo, evict, ctx,
+					   new_reg);
+	} else
+		ret = -ENODEV;
+
+	if (ret) {
+		/* Fallback to software copy. */
+		ret = ttm_bo_move_memcpy(bo, ctx, new_reg);
+	}
+>>>>>>> upstream/android-13
 
 out:
 	if (drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA) {
@@ -1389,6 +1927,7 @@ out:
 		else
 			nouveau_bo_vm_cleanup(bo, new_tile, &nvbo->tile);
 	}
+<<<<<<< HEAD
 
 	return ret;
 }
@@ -1437,6 +1976,80 @@ nouveau_ttm_io_mem_reserve(struct ttm_bo_device *bdev, struct ttm_mem_reg *reg)
 		reg->bus.offset = reg->start << PAGE_SHIFT;
 		reg->bus.base = device->func->resource_addr(device, 1);
 		reg->bus.is_iomem = true;
+=======
+out_ntfy:
+	if (ret) {
+		nouveau_bo_move_ntfy(bo, bo->resource);
+	}
+	return ret;
+}
+
+static void
+nouveau_ttm_io_mem_free_locked(struct nouveau_drm *drm,
+			       struct ttm_resource *reg)
+{
+	struct nouveau_mem *mem = nouveau_mem(reg);
+
+	if (drm->client.mem->oclass >= NVIF_CLASS_MEM_NV50) {
+		switch (reg->mem_type) {
+		case TTM_PL_TT:
+			if (mem->kind)
+				nvif_object_unmap_handle(&mem->mem.object);
+			break;
+		case TTM_PL_VRAM:
+			nvif_object_unmap_handle(&mem->mem.object);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+static int
+nouveau_ttm_io_mem_reserve(struct ttm_device *bdev, struct ttm_resource *reg)
+{
+	struct nouveau_drm *drm = nouveau_bdev(bdev);
+	struct nvkm_device *device = nvxx_device(&drm->client.device);
+	struct nouveau_mem *mem = nouveau_mem(reg);
+	struct nvif_mmu *mmu = &drm->client.mmu;
+	int ret;
+
+	mutex_lock(&drm->ttm.io_reserve_mutex);
+retry:
+	switch (reg->mem_type) {
+	case TTM_PL_SYSTEM:
+		/* System memory */
+		ret = 0;
+		goto out;
+	case TTM_PL_TT:
+#if IS_ENABLED(CONFIG_AGP)
+		if (drm->agp.bridge) {
+			reg->bus.offset = (reg->start << PAGE_SHIFT) +
+				drm->agp.base;
+			reg->bus.is_iomem = !drm->agp.cma;
+			reg->bus.caching = ttm_write_combined;
+		}
+#endif
+		if (drm->client.mem->oclass < NVIF_CLASS_MEM_NV50 ||
+		    !mem->kind) {
+			/* untiled */
+			ret = 0;
+			break;
+		}
+		fallthrough;	/* tiled memory */
+	case TTM_PL_VRAM:
+		reg->bus.offset = (reg->start << PAGE_SHIFT) +
+			device->func->resource_addr(device, 1);
+		reg->bus.is_iomem = true;
+
+		/* Some BARs do not support being ioremapped WC */
+		if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA &&
+		    mmu->type[drm->ttm.type_vram].type & NVIF_MEM_UNCACHED)
+			reg->bus.caching = ttm_uncached;
+		else
+			reg->bus.caching = ttm_write_combined;
+
+>>>>>>> upstream/android-13
 		if (drm->client.mem->oclass >= NVIF_CLASS_MEM_NV50) {
 			union {
 				struct nv50_mem_map_v0 nv50;
@@ -1444,7 +2057,10 @@ nouveau_ttm_io_mem_reserve(struct ttm_bo_device *bdev, struct ttm_mem_reg *reg)
 			} args;
 			u64 handle, length;
 			u32 argc = 0;
+<<<<<<< HEAD
 			int ret;
+=======
+>>>>>>> upstream/android-13
 
 			switch (mem->mem.object.oclass) {
 			case NVIF_CLASS_MEM_NV50:
@@ -1468,6 +2084,7 @@ nouveau_ttm_io_mem_reserve(struct ttm_bo_device *bdev, struct ttm_mem_reg *reg)
 			ret = nvif_object_map_handle(&mem->mem.object,
 						     &args, argc,
 						     &handle, &length);
+<<<<<<< HEAD
 			if (ret != 1)
 				return ret ? ret : -EINVAL;
 
@@ -1504,6 +2121,53 @@ nouveau_ttm_io_mem_free(struct ttm_bo_device *bdev, struct ttm_mem_reg *reg)
 
 static int
 nouveau_ttm_fault_reserve_notify(struct ttm_buffer_object *bo)
+=======
+			if (ret != 1) {
+				if (WARN_ON(ret == 0))
+					ret = -EINVAL;
+				goto out;
+			}
+
+			reg->bus.offset = handle;
+		}
+		ret = 0;
+		break;
+	default:
+		ret = -EINVAL;
+	}
+
+out:
+	if (ret == -ENOSPC) {
+		struct nouveau_bo *nvbo;
+
+		nvbo = list_first_entry_or_null(&drm->ttm.io_reserve_lru,
+						typeof(*nvbo),
+						io_reserve_lru);
+		if (nvbo) {
+			list_del_init(&nvbo->io_reserve_lru);
+			drm_vma_node_unmap(&nvbo->bo.base.vma_node,
+					   bdev->dev_mapping);
+			nouveau_ttm_io_mem_free_locked(drm, nvbo->bo.resource);
+			goto retry;
+		}
+
+	}
+	mutex_unlock(&drm->ttm.io_reserve_mutex);
+	return ret;
+}
+
+static void
+nouveau_ttm_io_mem_free(struct ttm_device *bdev, struct ttm_resource *reg)
+{
+	struct nouveau_drm *drm = nouveau_bdev(bdev);
+
+	mutex_lock(&drm->ttm.io_reserve_mutex);
+	nouveau_ttm_io_mem_free_locked(drm, reg);
+	mutex_unlock(&drm->ttm.io_reserve_mutex);
+}
+
+vm_fault_t nouveau_ttm_fault_reserve_notify(struct ttm_buffer_object *bo)
+>>>>>>> upstream/android-13
 {
 	struct nouveau_drm *drm = nouveau_bdev(bo->bdev);
 	struct nouveau_bo *nvbo = nouveau_bo(bo);
@@ -1514,11 +2178,16 @@ nouveau_ttm_fault_reserve_notify(struct ttm_buffer_object *bo)
 	/* as long as the bo isn't in vram, and isn't tiled, we've got
 	 * nothing to do here.
 	 */
+<<<<<<< HEAD
 	if (bo->mem.mem_type != TTM_PL_VRAM) {
+=======
+	if (bo->resource->mem_type != TTM_PL_VRAM) {
+>>>>>>> upstream/android-13
 		if (drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA ||
 		    !nvbo->kind)
 			return 0;
 
+<<<<<<< HEAD
 		if (bo->mem.mem_type == TTM_PL_SYSTEM) {
 			nouveau_bo_placement_set(nvbo, TTM_PL_TT, 0);
 
@@ -1617,11 +2286,78 @@ nouveau_ttm_tt_unpopulate(struct ttm_tt *ttm)
 	struct nouveau_drm *drm;
 	struct device *dev;
 	unsigned i;
+=======
+		if (bo->resource->mem_type != TTM_PL_SYSTEM)
+			return 0;
+
+		nouveau_bo_placement_set(nvbo, NOUVEAU_GEM_DOMAIN_GART, 0);
+
+	} else {
+		/* make sure bo is in mappable vram */
+		if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA ||
+		    bo->resource->start + bo->resource->num_pages < mappable)
+			return 0;
+
+		for (i = 0; i < nvbo->placement.num_placement; ++i) {
+			nvbo->placements[i].fpfn = 0;
+			nvbo->placements[i].lpfn = mappable;
+		}
+
+		for (i = 0; i < nvbo->placement.num_busy_placement; ++i) {
+			nvbo->busy_placements[i].fpfn = 0;
+			nvbo->busy_placements[i].lpfn = mappable;
+		}
+
+		nouveau_bo_placement_set(nvbo, NOUVEAU_GEM_DOMAIN_VRAM, 0);
+	}
+
+	ret = nouveau_bo_validate(nvbo, false, false);
+	if (unlikely(ret == -EBUSY || ret == -ERESTARTSYS))
+		return VM_FAULT_NOPAGE;
+	else if (unlikely(ret))
+		return VM_FAULT_SIGBUS;
+
+	ttm_bo_move_to_lru_tail_unlocked(bo);
+	return 0;
+}
+
+static int
+nouveau_ttm_tt_populate(struct ttm_device *bdev,
+			struct ttm_tt *ttm, struct ttm_operation_ctx *ctx)
+{
+	struct ttm_tt *ttm_dma = (void *)ttm;
+	struct nouveau_drm *drm;
+	struct device *dev;
+	bool slave = !!(ttm->page_flags & TTM_PAGE_FLAG_SG);
+
+	if (ttm_tt_is_populated(ttm))
+		return 0;
+
+	if (slave && ttm->sg) {
+		drm_prime_sg_to_dma_addr_array(ttm->sg, ttm_dma->dma_address,
+					       ttm->num_pages);
+		return 0;
+	}
+
+	drm = nouveau_bdev(bdev);
+	dev = drm->dev->dev;
+
+	return ttm_pool_alloc(&drm->ttm.bdev.pool, ttm, ctx);
+}
+
+static void
+nouveau_ttm_tt_unpopulate(struct ttm_device *bdev,
+			  struct ttm_tt *ttm)
+{
+	struct nouveau_drm *drm;
+	struct device *dev;
+>>>>>>> upstream/android-13
 	bool slave = !!(ttm->page_flags & TTM_PAGE_FLAG_SG);
 
 	if (slave)
 		return;
 
+<<<<<<< HEAD
 	drm = nouveau_bdev(ttm->bdev);
 	dev = drm->dev->dev;
 
@@ -1647,11 +2383,34 @@ nouveau_ttm_tt_unpopulate(struct ttm_tt *ttm)
 	}
 
 	ttm_pool_unpopulate(ttm);
+=======
+	drm = nouveau_bdev(bdev);
+	dev = drm->dev->dev;
+
+	return ttm_pool_free(&drm->ttm.bdev.pool, ttm);
+}
+
+static void
+nouveau_ttm_tt_destroy(struct ttm_device *bdev,
+		       struct ttm_tt *ttm)
+{
+#if IS_ENABLED(CONFIG_AGP)
+	struct nouveau_drm *drm = nouveau_bdev(bdev);
+	if (drm->agp.bridge) {
+		ttm_agp_unbind(ttm);
+		ttm_tt_destroy_common(bdev, ttm);
+		ttm_agp_destroy(ttm);
+		return;
+	}
+#endif
+	nouveau_sgdma_destroy(bdev, ttm);
+>>>>>>> upstream/android-13
 }
 
 void
 nouveau_bo_fence(struct nouveau_bo *nvbo, struct nouveau_fence *fence, bool exclusive)
 {
+<<<<<<< HEAD
 	struct reservation_object *resv = nvbo->bo.resv;
 
 	if (exclusive)
@@ -1672,6 +2431,31 @@ struct ttm_bo_driver nouveau_bo_driver = {
 	.move = nouveau_bo_move,
 	.verify_access = nouveau_bo_verify_access,
 	.fault_reserve_notify = &nouveau_ttm_fault_reserve_notify,
+=======
+	struct dma_resv *resv = nvbo->bo.base.resv;
+
+	if (exclusive)
+		dma_resv_add_excl_fence(resv, &fence->base);
+	else if (fence)
+		dma_resv_add_shared_fence(resv, &fence->base);
+}
+
+static void
+nouveau_bo_delete_mem_notify(struct ttm_buffer_object *bo)
+{
+	nouveau_bo_move_ntfy(bo, NULL);
+}
+
+struct ttm_device_funcs nouveau_bo_driver = {
+	.ttm_tt_create = &nouveau_ttm_tt_create,
+	.ttm_tt_populate = &nouveau_ttm_tt_populate,
+	.ttm_tt_unpopulate = &nouveau_ttm_tt_unpopulate,
+	.ttm_tt_destroy = &nouveau_ttm_tt_destroy,
+	.eviction_valuable = ttm_bo_eviction_valuable,
+	.evict_flags = nouveau_bo_evict_flags,
+	.delete_mem_notify = nouveau_bo_delete_mem_notify,
+	.move = nouveau_bo_move,
+>>>>>>> upstream/android-13
 	.io_mem_reserve = &nouveau_ttm_io_mem_reserve,
 	.io_mem_free = &nouveau_ttm_io_mem_free,
 };

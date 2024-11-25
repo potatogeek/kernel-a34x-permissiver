@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TI Palmas MFD Driver
  *
  * Copyright 2011-2012 Texas Instruments Inc.
  *
  * Author: Graeme Gregory <gg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under  the terms of the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -554,12 +561,21 @@ static int palmas_i2c_probe(struct i2c_client *i2c,
 			palmas->i2c_clients[i] = i2c;
 		else {
 			palmas->i2c_clients[i] =
+<<<<<<< HEAD
 					i2c_new_dummy(i2c->adapter,
 							i2c->addr + i);
 			if (!palmas->i2c_clients[i]) {
 				dev_err(palmas->dev,
 					"can't attach client %d\n", i);
 				ret = -ENOMEM;
+=======
+					i2c_new_dummy_device(i2c->adapter,
+							i2c->addr + i);
+			if (IS_ERR(palmas->i2c_clients[i])) {
+				dev_err(palmas->dev,
+					"can't attach client %d\n", i);
+				ret = PTR_ERR(palmas->i2c_clients[i]);
+>>>>>>> upstream/android-13
 				goto err_i2c;
 			}
 			palmas->i2c_clients[i]->dev.of_node = of_node_get(node);

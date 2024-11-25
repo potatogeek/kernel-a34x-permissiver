@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 Zhang, Keguang <keguang.zhang@gmail.com>
  *
  * Modified from arch/mips/pnx833x/common/prom.c.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute	it and/or modify it
  * under  the terms of	the GNU General	 Public License as published by the
@@ -54,10 +59,24 @@ void __init prom_init_cmdline(void)
 	}
 	*c = 0;
 }
+=======
+ */
+
+#include <linux/io.h>
+#include <linux/init.h>
+#include <linux/memblock.h>
+#include <linux/serial_reg.h>
+#include <asm/fw/fw.h>
+
+#include <loongson1.h>
+
+unsigned long memsize;
+>>>>>>> upstream/android-13
 
 void __init prom_init(void)
 {
 	void __iomem *uart_base;
+<<<<<<< HEAD
 	prom_argc = fw_arg0;
 	prom_argv = (char **)fw_arg1;
 	prom_envp = (char **)fw_arg2;
@@ -80,4 +99,27 @@ void __init prom_init(void)
 
 void __init prom_free_prom_memory(void)
 {
+=======
+
+	fw_init_cmdline();
+
+	memsize = fw_getenvl("memsize");
+	if(!memsize)
+		memsize = DEFAULT_MEMSIZE;
+
+	if (strstr(arcs_cmdline, "console=ttyS3"))
+		uart_base = ioremap(LS1X_UART3_BASE, 0x0f);
+	else if (strstr(arcs_cmdline, "console=ttyS2"))
+		uart_base = ioremap(LS1X_UART2_BASE, 0x0f);
+	else if (strstr(arcs_cmdline, "console=ttyS1"))
+		uart_base = ioremap(LS1X_UART1_BASE, 0x0f);
+	else
+		uart_base = ioremap(LS1X_UART0_BASE, 0x0f);
+	setup_8250_early_printk_port((unsigned long)uart_base, 0, 0);
+}
+
+void __init plat_mem_setup(void)
+{
+	memblock_add(0x0, (memsize << 20));
+>>>>>>> upstream/android-13
 }

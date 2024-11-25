@@ -64,17 +64,29 @@
 	leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		blue {
+=======
+		led-0 {
+>>>>>>> upstream/android-13
 			label = "bpi-m2m:blue:usr";
 			gpios = <&pio 2 7 GPIO_ACTIVE_LOW>;
 		};
 
+<<<<<<< HEAD
 		green {
+=======
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "bpi-m2m:green:usr";
 			gpios = <&r_pio 0 2 GPIO_ACTIVE_LOW>;
 		};
 
+<<<<<<< HEAD
 		red {
+=======
+		led-2 {
+>>>>>>> upstream/android-13
 			label = "bpi-m2m:red:power";
 			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>;
 			default-state = "on";
@@ -91,6 +103,11 @@
 	wifi_pwrseq: wifi_pwrseq {
 		compatible = "mmc-pwrseq-simple";
 		reset-gpios = <&r_pio 0 6 GPIO_ACTIVE_LOW>; /* PL06 */
+<<<<<<< HEAD
+=======
+		clocks = <&rtc 1>;
+		clock-names = "ext_clock";
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -124,6 +141,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 /* This is the i2c bus exposed on the DSI connector for the touch panel */
 &i2c0 {
 	pinctrl-names = "default";
@@ -148,6 +166,9 @@
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>;
+=======
+&mmc0 {
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_dcdc1>;
 	bus-width = <4>;
 	cd-gpios = <&pio 1 4 GPIO_ACTIVE_LOW>; /* PB4 */
@@ -156,7 +177,11 @@
 
 &mmc1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&mmc1_pins_a>;
+=======
+	pinctrl-0 = <&mmc1_pg_pins>;
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_aldo1>;
 	mmc-pwrseq = <&wifi_pwrseq>;
 	bus-width = <4>;
@@ -184,8 +209,13 @@
 	axp22x: pmic@3a3 {
 		compatible = "x-powers,axp223";
 		reg = <0x3a3>;
+<<<<<<< HEAD
 		interrupt-parent = <&nmi_intc>;
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+=======
+		interrupt-parent = <&r_intc>;
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;
+>>>>>>> upstream/android-13
 		eldoin-supply = <&reg_dcdc1>;
 		x-powers,drive-vbus-en;
 	};
@@ -292,14 +322,35 @@
 
 &uart0 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart0_pins_b>;
+=======
+	pinctrl-0 = <&uart0_pb_pins>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &uart1 {
 	pinctrl-names = "default";
+<<<<<<< HEAD
 	pinctrl-0 = <&uart1_pins_a>, <&uart1_pins_cts_rts_a>;
 	status = "okay";
+=======
+	pinctrl-0 = <&uart1_pg_pins>, <&uart1_cts_rts_pg_pins>;
+	uart-has-rtscts;
+	status = "okay";
+
+	bluetooth {
+		compatible = "brcm,bcm43438-bt";
+		clocks = <&rtc 1>;
+		clock-names = "lpo";
+		vbat-supply = <&reg_dldo1>;
+		vddio-supply = <&reg_aldo3>;
+		device-wakeup-gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
+		host-wakeup-gpios = <&r_pio 0 9 GPIO_ACTIVE_HIGH>; /* PL9 */
+		shutdown-gpios = <&r_pio 0 8 GPIO_ACTIVE_HIGH>; /* PL8 */
+	};
+>>>>>>> upstream/android-13
 };
 
 &usb_otg {

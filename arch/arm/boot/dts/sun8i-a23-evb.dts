@@ -65,14 +65,20 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
 &i2c1 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
+=======
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -80,21 +86,33 @@
 	vref-supply = <&reg_vcc3v0>;
 	status = "okay";
 
+<<<<<<< HEAD
 	button@190 {
+=======
+	button-190 {
+>>>>>>> upstream/android-13
 		label = "Volume Up";
 		linux,code = <KEY_VOLUMEUP>;
 		channel = <0>;
 		voltage = <190000>;
 	};
 
+<<<<<<< HEAD
 	button@390 {
+=======
+	button-390 {
+>>>>>>> upstream/android-13
 		label = "Volume Down";
 		linux,code = <KEY_VOLUMEDOWN>;
 		channel = <0>;
 		voltage = <390000>;
 	};
 
+<<<<<<< HEAD
 	button@600 {
+=======
+	button-600 {
+>>>>>>> upstream/android-13
 		label = "Home";
 		linux,code = <KEY_HOME>;
 		channel = <0>;
@@ -103,14 +121,18 @@
 };
 
 &mmc0 {
+<<<<<<< HEAD
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_evb>;
+=======
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v0>;
 	bus-width = <4>;
 	cd-gpios = <&pio 1 4 GPIO_ACTIVE_LOW>; /* PB4 */
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &pio {
 	mmc0_cd_pin_evb: mmc0_cd_pin@0 {
 		pins = "PB4";
@@ -119,6 +141,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * The RX line has a non-populated resistance. In order to use it, you
  * need to solder R207 on the back of the board in order to close the

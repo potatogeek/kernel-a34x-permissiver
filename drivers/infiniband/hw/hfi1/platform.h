@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015, 2016 Intel Corporation.
  *
@@ -44,6 +45,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2015, 2016 Intel Corporation.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef __PLATFORM_H
 #define __PLATFORM_H
 

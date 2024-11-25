@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  *  (C) 2004-2009  Dominik Brodowski <linux@dominikbrodowski.de>
  *  (C) 2011       Thomas Renninger <trenn@novell.com> Novell Inc.
  *
  *  Licensed under the terms of the GNU GPL License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2004-2009  Dominik Brodowski <linux@dominikbrodowski.de>
+ *  (C) 2011       Thomas Renninger <trenn@novell.com> Novell Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>

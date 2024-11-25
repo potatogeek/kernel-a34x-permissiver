@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/acorn/net/etherh.c
  *
  *  Copyright (C) 2000-2002 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * NS8390 I-cubed EtherH and ANT EtherM specific driver
  * Thanks to I-Cubed for information on their cards.
  * EtherM conversion (C) 1999 Chris Kemp and Tim Watterton
@@ -564,6 +571,7 @@ static void etherh_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *i
 		sizeof(info->bus_info));
 }
 
+<<<<<<< HEAD
 static int etherh_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
 	cmd->supported	= etherh_priv(dev)->supported;
@@ -578,12 +586,35 @@ static int etherh_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 static int etherh_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
 	switch (cmd->autoneg) {
+=======
+static int etherh_get_link_ksettings(struct net_device *dev,
+				     struct ethtool_link_ksettings *cmd)
+{
+	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
+						etherh_priv(dev)->supported);
+	cmd->base.speed = SPEED_10;
+	cmd->base.duplex = DUPLEX_HALF;
+	cmd->base.port = dev->if_port == IF_PORT_10BASET ? PORT_TP : PORT_BNC;
+	cmd->base.autoneg = (dev->flags & IFF_AUTOMEDIA ? AUTONEG_ENABLE :
+							  AUTONEG_DISABLE);
+	return 0;
+}
+
+static int etherh_set_link_ksettings(struct net_device *dev,
+				     const struct ethtool_link_ksettings *cmd)
+{
+	switch (cmd->base.autoneg) {
+>>>>>>> upstream/android-13
 	case AUTONEG_ENABLE:
 		dev->flags |= IFF_AUTOMEDIA;
 		break;
 
 	case AUTONEG_DISABLE:
+<<<<<<< HEAD
 		switch (cmd->port) {
+=======
+		switch (cmd->base.port) {
+>>>>>>> upstream/android-13
 		case PORT_TP:
 			dev->if_port = IF_PORT_10BASET;
 			break;
@@ -622,12 +653,21 @@ static void etherh_set_msglevel(struct net_device *dev, u32 v)
 }
 
 static const struct ethtool_ops etherh_ethtool_ops = {
+<<<<<<< HEAD
 	.get_settings	= etherh_get_settings,
 	.set_settings	= etherh_set_settings,
 	.get_drvinfo	= etherh_get_drvinfo,
 	.get_ts_info	= ethtool_op_get_ts_info,
 	.get_msglevel	= etherh_get_msglevel,
 	.set_msglevel	= etherh_set_msglevel,
+=======
+	.get_drvinfo		= etherh_get_drvinfo,
+	.get_ts_info		= ethtool_op_get_ts_info,
+	.get_msglevel		= etherh_get_msglevel,
+	.set_msglevel		= etherh_set_msglevel,
+	.get_link_ksettings	= etherh_get_link_ksettings,
+	.set_link_ksettings	= etherh_set_link_ksettings,
+>>>>>>> upstream/android-13
 };
 
 static const struct net_device_ops etherh_netdev_ops = {

@@ -26,6 +26,7 @@ static char cpcmd_buf[241];
 
 static int diag8_noresponse(int cmdlen)
 {
+<<<<<<< HEAD
 	register unsigned long reg2 asm ("2") = (addr_t) cpcmd_buf;
 	register unsigned long reg3 asm ("3") = cmdlen;
 
@@ -33,10 +34,19 @@ static int diag8_noresponse(int cmdlen)
 		"	diag	%1,%0,0x8\n"
 		: "+d" (reg3) : "d" (reg2) : "cc");
 	return reg3;
+=======
+	asm volatile(
+		"	diag	%[rx],%[ry],0x8\n"
+		: [ry] "+&d" (cmdlen)
+		: [rx] "d" ((addr_t) cpcmd_buf)
+		: "cc");
+	return cmdlen;
+>>>>>>> upstream/android-13
 }
 
 static int diag8_response(int cmdlen, char *response, int *rlen)
 {
+<<<<<<< HEAD
 	unsigned long _cmdlen = cmdlen | 0x40000000L;
 	unsigned long _rlen = *rlen;
 	register unsigned long reg2 asm ("2") = (addr_t) cpcmd_buf;
@@ -53,6 +63,27 @@ static int diag8_response(int cmdlen, char *response, int *rlen)
 		: "d" (reg2), "d" (reg3), "d" (*rlen) : "cc");
 	*rlen = reg5;
 	return reg4;
+=======
+	union register_pair rx, ry;
+	int cc;
+
+	rx.even = (addr_t) cpcmd_buf;
+	rx.odd	= (addr_t) response;
+	ry.even = cmdlen | 0x40000000L;
+	ry.odd	= *rlen;
+	asm volatile(
+		"	diag	%[rx],%[ry],0x8\n"
+		"	ipm	%[cc]\n"
+		"	srl	%[cc],28\n"
+		: [cc] "=&d" (cc), [ry] "+&d" (ry.pair)
+		: [rx] "d" (rx.pair)
+		: "cc");
+	if (cc)
+		*rlen += ry.odd;
+	else
+		*rlen = ry.odd;
+	return ry.even;
+>>>>>>> upstream/android-13
 }
 
 /*

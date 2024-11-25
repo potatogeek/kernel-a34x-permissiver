@@ -3,16 +3,28 @@
 # Makefile for the linux kernel.
 #
 
+<<<<<<< HEAD
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 obj-y     = fork.o exec_domain.o panic.o \
 	    cpu.o exit.o softirq.o resource.o \
 	    sysctl.o sysctl_binary.o capability.o ptrace.o user.o \
+=======
+obj-y     = fork.o exec_domain.o panic.o \
+	    cpu.o exit.o softirq.o resource.o \
+	    sysctl.o capability.o ptrace.o user.o \
+>>>>>>> upstream/android-13
 	    signal.o sys.o umh.o workqueue.o pid.o task_work.o \
 	    extable.o params.o \
 	    kthread.o sys_ni.o nsproxy.o \
 	    notifier.o ksysfs.o cred.o reboot.o \
+<<<<<<< HEAD
 	    async.o range.o smpboot.o ucount.o
 
+=======
+	    async.o range.o smpboot.o ucount.o regset.o
+
+obj-$(CONFIG_USERMODE_DRIVER) += usermode_driver.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_MODULES) += kmod.o
 obj-$(CONFIG_MULTIUSER) += groups.o
 
@@ -24,10 +36,17 @@ endif
 # Prevents flicker of uninteresting __do_softirq()/__local_bh_disable_ip()
 # in coverage traces.
 KCOV_INSTRUMENT_softirq.o := n
+<<<<<<< HEAD
+=======
+# Avoid KCSAN instrumentation in softirq ("No shared variables, all the data
+# are CPU local" => assume no data races), to reduce overhead in interrupts.
+KCSAN_SANITIZE_softirq.o = n
+>>>>>>> upstream/android-13
 # These are called from save_stack_trace() on slub debug path,
 # and produce insane amounts of uninteresting coverage.
 KCOV_INSTRUMENT_module.o := n
 KCOV_INSTRUMENT_extable.o := n
+<<<<<<< HEAD
 # Don't self-instrument.
 KCOV_INSTRUMENT_kcov.o := n
 KASAN_SANITIZE_kcov.o := n
@@ -40,6 +59,20 @@ endif
 
 # Don't instrument error handlers
 CFLAGS_cfi.o = $(DISABLE_CFI_CLANG)
+=======
+KCOV_INSTRUMENT_stacktrace.o := n
+# Don't self-instrument.
+KCOV_INSTRUMENT_kcov.o := n
+# If sanitizers detect any issues in kcov, it may lead to recursion
+# via printk, etc.
+KASAN_SANITIZE_kcov.o := n
+KCSAN_SANITIZE_kcov.o := n
+UBSAN_SANITIZE_kcov.o := n
+CFLAGS_kcov.o := $(call cc-option, -fno-conserve-stack) -fno-stack-protector
+
+# Don't instrument error handlers
+CFLAGS_REMOVE_cfi.o := $(CC_FLAGS_CFI)
+>>>>>>> upstream/android-13
 
 obj-y += sched/
 obj-y += locking/
@@ -49,8 +82,14 @@ obj-y += irq/
 obj-y += rcu/
 obj-y += livepatch/
 obj-y += dma/
+<<<<<<< HEAD
 
 obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
+=======
+obj-y += entry/
+
+obj-$(CONFIG_KCMP) += kcmp.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_FREEZER) += freezer.o
 obj-$(CONFIG_PROFILING) += profile.o
 obj-$(CONFIG_STACKTRACE) += stacktrace.o
@@ -64,12 +103,21 @@ endif
 obj-$(CONFIG_UID16) += uid16.o
 obj-$(CONFIG_MODULES) += module.o
 obj-$(CONFIG_MODULE_SIG) += module_signing.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_MODULE_SIG_FORMAT) += module_signature.o
+obj-$(CONFIG_MODULE_SIG_PROTECT) += gki_module.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_KALLSYMS) += kallsyms.o
 obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
 obj-$(CONFIG_CRASH_CORE) += crash_core.o
 obj-$(CONFIG_KEXEC_CORE) += kexec_core.o
 obj-$(CONFIG_KEXEC) += kexec.o
 obj-$(CONFIG_KEXEC_FILE) += kexec_file.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_KEXEC_ELF) += kexec_elf.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_BACKTRACE_SELF_TEST) += backtracetest.o
 obj-$(CONFIG_COMPAT) += compat.o
 obj-$(CONFIG_CGROUPS) += cgroup/
@@ -81,9 +129,13 @@ obj-$(CONFIG_IKHEADERS) += kheaders.o
 obj-$(CONFIG_SMP) += stop_machine.o
 obj-$(CONFIG_KPROBES_SANITY_TEST) += test_kprobes.o
 obj-$(CONFIG_AUDIT) += audit.o auditfilter.o
+<<<<<<< HEAD
 obj-$(CONFIG_AUDITSYSCALL) += auditsc.o
 obj-$(CONFIG_AUDIT_WATCH) += audit_watch.o audit_fsnotify.o
 obj-$(CONFIG_AUDIT_TREE) += audit_tree.o
+=======
+obj-$(CONFIG_AUDITSYSCALL) += auditsc.o audit_watch.o audit_fsnotify.o audit_tree.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_GCOV_KERNEL) += gcov/
 obj-$(CONFIG_KCOV) += kcov.o
 obj-$(CONFIG_KPROBES) += kprobes.o
@@ -107,8 +159,16 @@ obj-$(CONFIG_TRACEPOINTS) += trace/
 obj-$(CONFIG_IRQ_WORK) += irq_work.o
 obj-$(CONFIG_CPU_PM) += cpu_pm.o
 obj-$(CONFIG_BPF) += bpf/
+<<<<<<< HEAD
 obj-$(CONFIG_CFI_CLANG) += cfi.o
 obj-$(CONFIG_SHADOW_CALL_STACK) += scs.o
+=======
+obj-$(CONFIG_KCSAN) += kcsan/
+obj-$(CONFIG_SHADOW_CALL_STACK) += scs.o
+obj-$(CONFIG_HAVE_STATIC_CALL) += static_call.o
+obj-$(CONFIG_HAVE_STATIC_CALL_INLINE) += static_call_inline.o
+obj-$(CONFIG_CFI_CLANG) += cfi.o
+>>>>>>> upstream/android-13
 
 obj-$(CONFIG_PERF_EVENTS) += events/
 
@@ -120,6 +180,7 @@ obj-$(CONFIG_CONTEXT_TRACKING) += context_tracking.o
 obj-$(CONFIG_TORTURE_TEST) += torture.o
 
 obj-$(CONFIG_HAS_IOMEM) += iomem.o
+<<<<<<< HEAD
 obj-$(CONFIG_ZONE_DEVICE) += memremap.o
 obj-$(CONFIG_RSEQ) += rseq.o
 
@@ -133,12 +194,61 @@ $(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
 targets += config_data.h
 $(obj)/config_data.h: $(obj)/config_data.gz FORCE
 	$(call filechk,ikconfiggz)
+=======
+obj-$(CONFIG_RSEQ) += rseq.o
+obj-$(CONFIG_WATCH_QUEUE) += watch_queue.o
+
+obj-$(CONFIG_RESOURCE_KUNIT_TEST) += resource_kunit.o
+obj-$(CONFIG_SYSCTL_KUNIT_TEST) += sysctl-test.o
+
+CFLAGS_stackleak.o += $(DISABLE_STACKLEAK_PLUGIN)
+obj-$(CONFIG_GCC_PLUGIN_STACKLEAK) += stackleak.o
+KASAN_SANITIZE_stackleak.o := n
+KCSAN_SANITIZE_stackleak.o := n
+KCOV_INSTRUMENT_stackleak.o := n
+
+obj-$(CONFIG_SCF_TORTURE_TEST) += scftorture.o
+
+$(obj)/configs.o: $(obj)/config_data.gz
+
+targets += config_data config_data.gz
+$(obj)/config_data.gz: $(obj)/config_data FORCE
+	$(call if_changed,gzip)
+
+filechk_cat = cat $<
+
+$(obj)/config_data: arch/arm64/configs/s5e8535-a14xxx_defconfig FORCE
+	$(call filechk,cat)
+>>>>>>> upstream/android-13
 
 $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
 
 quiet_cmd_genikh = CHK     $(obj)/kheaders_data.tar.xz
+<<<<<<< HEAD
 cmd_genikh = $(CONFIG_SHELL) $(srctree)/kernel/gen_kheaders.sh $@
+=======
+      cmd_genikh = $(CONFIG_SHELL) $(srctree)/kernel/gen_kheaders.sh $@
+>>>>>>> upstream/android-13
 $(obj)/kheaders_data.tar.xz: FORCE
 	$(call cmd,genikh)
 
 clean-files := kheaders_data.tar.xz kheaders.md5
+<<<<<<< HEAD
+=======
+
+#
+# ANDROID: GKI: Generate headerfiles required for gki_module.o
+#
+# Dependencies on generated files need to be listed explicitly
+$(obj)/gki_module.o: $(obj)/gki_module_protected.h $(obj)/gki_module_exported.h
+
+$(obj)/gki_module_protected.h: $(srctree)/android/abi_gki_modules_protected \
+				$(srctree)/scripts/gen_gki_modules_headers.sh
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/gen_gki_modules_headers.sh $@ \
+	"$(srctree)"
+
+$(obj)/gki_module_exported.h: $(srctree)/android/abi_gki_modules_exports \
+				$(srctree)/scripts/gen_gki_modules_headers.sh
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/gen_gki_modules_headers.sh $@ \
+	"$(srctree)"
+>>>>>>> upstream/android-13

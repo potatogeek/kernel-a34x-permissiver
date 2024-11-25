@@ -11,6 +11,7 @@
 #ifndef _UAPI_ASM_MICROBLAZE_UNISTD_H
 #define _UAPI_ASM_MICROBLAZE_UNISTD_H
 
+<<<<<<< HEAD
 #define __NR_restart_syscall	0 /* ok */
 #define __NR_exit		1 /* ok */
 #define __NR_fork		2 /* not for no MMU - weird */
@@ -417,5 +418,8 @@
 #define __NR_statx		398
 #define __NR_io_pgetevents	399
 #define __NR_rseq		400
+=======
+#include <asm/unistd_32.h>
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_ASM_MICROBLAZE_UNISTD_H */

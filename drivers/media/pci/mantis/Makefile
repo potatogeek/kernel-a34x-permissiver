@@ -26,4 +26,8 @@ obj-$(CONFIG_MANTIS_CORE)	+= mantis_core.o
 obj-$(CONFIG_DVB_MANTIS)	+= mantis.o
 obj-$(CONFIG_DVB_HOPPER)	+= hopper.o
 
+<<<<<<< HEAD
 ccflags-y += -Idrivers/media/dvb-frontends/
+=======
+ccflags-y += -I $(srctree)/drivers/media/dvb-frontends/
+>>>>>>> upstream/android-13

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/common/locomo.c
  *
  * Sharp LoCoMo support
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * This file contains all generic LoCoMo support.
  *
  * All initialization functions provided here are intended to be called
@@ -837,6 +844,7 @@ static int locomo_bus_probe(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int locomo_bus_remove(struct device *dev)
 {
 	struct locomo_dev *ldev = LOCOMO_DEV(dev);
@@ -846,6 +854,15 @@ static int locomo_bus_remove(struct device *dev)
 	if (drv->remove)
 		ret = drv->remove(ldev);
 	return ret;
+=======
+static void locomo_bus_remove(struct device *dev)
+{
+	struct locomo_dev *ldev = LOCOMO_DEV(dev);
+	struct locomo_driver *drv = LOCOMO_DRV(dev->driver);
+
+	if (drv->remove)
+		drv->remove(ldev);
+>>>>>>> upstream/android-13
 }
 
 struct bus_type locomo_bus_type = {

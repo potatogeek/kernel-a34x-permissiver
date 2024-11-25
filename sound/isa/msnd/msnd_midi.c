@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Copyright (c) 2009 by Krzysztof Helt
@@ -6,6 +10,7 @@
  *  MPU-401 supports UART mode which is not capable generate transmit
  *  interrupts thus output is done via polling. Also, if irq < 0, then
  *  input is done also via polling. Do not expect good performance.
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -22,6 +27,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>

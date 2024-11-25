@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Hibernation support specific for ARM
  *
@@ -11,8 +15,11 @@
  *  https://patchwork.kernel.org/patch/96442/
  *
  * Copyright (C) 2006 Rafael J. Wysocki <rjw@sisk.pl>
+<<<<<<< HEAD
  *
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>

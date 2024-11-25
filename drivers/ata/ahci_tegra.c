@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/ata/ahci_tegra.c
  *
@@ -5,6 +9,7 @@
  *
  * Author:
  *	Mikko Perttunen <mperttunen@nvidia.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,6 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ahci_platform.h>
@@ -68,8 +75,11 @@
 #define T_SATA0_CFG_PHY_1_PAD_PLL_IDDQ_EN		BIT(22)
 
 #define T_SATA0_NVOOB                                   0x114
+<<<<<<< HEAD
 #define T_SATA0_NVOOB_COMMA_CNT_MASK                    (0xff << 16)
 #define T_SATA0_NVOOB_COMMA_CNT                         (0x07 << 16)
+=======
+>>>>>>> upstream/android-13
 #define T_SATA0_NVOOB_SQUELCH_FILTER_MODE_MASK          (0x3 << 24)
 #define T_SATA0_NVOOB_SQUELCH_FILTER_MODE               (0x1 << 24)
 #define T_SATA0_NVOOB_SQUELCH_FILTER_LENGTH_MASK        (0x3 << 26)
@@ -163,11 +173,25 @@ struct tegra_ahci_ops {
 	int (*init)(struct ahci_host_priv *hpriv);
 };
 
+<<<<<<< HEAD
+=======
+struct tegra_ahci_regs {
+	unsigned int nvoob_comma_cnt_mask;
+	unsigned int nvoob_comma_cnt_val;
+};
+
+>>>>>>> upstream/android-13
 struct tegra_ahci_soc {
 	const char *const		*supply_names;
 	u32				num_supplies;
 	bool				supports_devslp;
+<<<<<<< HEAD
 	const struct tegra_ahci_ops	*ops;
+=======
+	bool				has_sata_oob_rst;
+	const struct tegra_ahci_ops	*ops;
+	const struct tegra_ahci_regs	*regs;
+>>>>>>> upstream/android-13
 };
 
 struct tegra_ahci_priv {
@@ -249,11 +273,21 @@ static int tegra_ahci_power_on(struct ahci_host_priv *hpriv)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = tegra_powergate_sequence_power_up(TEGRA_POWERGATE_SATA,
 						tegra->sata_clk,
 						tegra->sata_rst);
 	if (ret)
 		goto disable_regulators;
+=======
+	if (!tegra->pdev->dev.pm_domain) {
+		ret = tegra_powergate_sequence_power_up(TEGRA_POWERGATE_SATA,
+							tegra->sata_clk,
+							tegra->sata_rst);
+		if (ret)
+			goto disable_regulators;
+	}
+>>>>>>> upstream/android-13
 
 	reset_control_assert(tegra->sata_oob_rst);
 	reset_control_assert(tegra->sata_cold_rst);
@@ -270,7 +304,12 @@ static int tegra_ahci_power_on(struct ahci_host_priv *hpriv)
 disable_power:
 	clk_disable_unprepare(tegra->sata_clk);
 
+<<<<<<< HEAD
 	tegra_powergate_power_off(TEGRA_POWERGATE_SATA);
+=======
+	if (!tegra->pdev->dev.pm_domain)
+		tegra_powergate_power_off(TEGRA_POWERGATE_SATA);
+>>>>>>> upstream/android-13
 
 disable_regulators:
 	regulator_bulk_disable(tegra->soc->num_supplies, tegra->supplies);
@@ -289,7 +328,12 @@ static void tegra_ahci_power_off(struct ahci_host_priv *hpriv)
 	reset_control_assert(tegra->sata_cold_rst);
 
 	clk_disable_unprepare(tegra->sata_clk);
+<<<<<<< HEAD
 	tegra_powergate_power_off(TEGRA_POWERGATE_SATA);
+=======
+	if (!tegra->pdev->dev.pm_domain)
+		tegra_powergate_power_off(TEGRA_POWERGATE_SATA);
+>>>>>>> upstream/android-13
 
 	regulator_bulk_disable(tegra->soc->num_supplies, tegra->supplies);
 }
@@ -339,10 +383,17 @@ static int tegra_ahci_controller_init(struct ahci_host_priv *hpriv)
 	writel(val, tegra->sata_regs + SCFG_OFFSET + T_SATA_CFG_PHY_0);
 
 	val = readl(tegra->sata_regs + SCFG_OFFSET + T_SATA0_NVOOB);
+<<<<<<< HEAD
 	val &= ~(T_SATA0_NVOOB_COMMA_CNT_MASK |
 		 T_SATA0_NVOOB_SQUELCH_FILTER_LENGTH_MASK |
 		 T_SATA0_NVOOB_SQUELCH_FILTER_MODE_MASK);
 	val |= (T_SATA0_NVOOB_COMMA_CNT |
+=======
+	val &= ~(tegra->soc->regs->nvoob_comma_cnt_mask |
+		 T_SATA0_NVOOB_SQUELCH_FILTER_LENGTH_MASK |
+		 T_SATA0_NVOOB_SQUELCH_FILTER_MODE_MASK);
+	val |= (tegra->soc->regs->nvoob_comma_cnt_val |
+>>>>>>> upstream/android-13
 		T_SATA0_NVOOB_SQUELCH_FILTER_LENGTH |
 		T_SATA0_NVOOB_SQUELCH_FILTER_MODE);
 	writel(val, tegra->sata_regs + SCFG_OFFSET + T_SATA0_NVOOB);
@@ -458,15 +509,45 @@ static const struct tegra_ahci_ops tegra124_ahci_ops = {
 	.init = tegra124_ahci_init,
 };
 
+<<<<<<< HEAD
+=======
+static const struct tegra_ahci_regs tegra124_ahci_regs = {
+	.nvoob_comma_cnt_mask = GENMASK(30, 28),
+	.nvoob_comma_cnt_val = (7 << 28),
+};
+
+>>>>>>> upstream/android-13
 static const struct tegra_ahci_soc tegra124_ahci_soc = {
 	.supply_names = tegra124_supply_names,
 	.num_supplies = ARRAY_SIZE(tegra124_supply_names),
 	.supports_devslp = false,
+<<<<<<< HEAD
 	.ops = &tegra124_ahci_ops,
+=======
+	.has_sata_oob_rst = true,
+	.ops = &tegra124_ahci_ops,
+	.regs = &tegra124_ahci_regs,
+>>>>>>> upstream/android-13
 };
 
 static const struct tegra_ahci_soc tegra210_ahci_soc = {
 	.supports_devslp = false,
+<<<<<<< HEAD
+=======
+	.has_sata_oob_rst = true,
+	.regs = &tegra124_ahci_regs,
+};
+
+static const struct tegra_ahci_regs tegra186_ahci_regs = {
+	.nvoob_comma_cnt_mask = GENMASK(23, 16),
+	.nvoob_comma_cnt_val = (7 << 16),
+};
+
+static const struct tegra_ahci_soc tegra186_ahci_soc = {
+	.supports_devslp = false,
+	.has_sata_oob_rst = false,
+	.regs = &tegra186_ahci_regs,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id tegra_ahci_of_match[] = {
@@ -478,6 +559,13 @@ static const struct of_device_id tegra_ahci_of_match[] = {
 		.compatible = "nvidia,tegra210-ahci",
 		.data = &tegra210_ahci_soc
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible = "nvidia,tegra186-ahci",
+		.data = &tegra186_ahci_soc
+	},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, tegra_ahci_of_match);
@@ -492,7 +580,10 @@ static int tegra_ahci_probe(struct platform_device *pdev)
 	struct tegra_ahci_priv *tegra;
 	struct resource *res;
 	int ret;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 
 	hpriv = ahci_platform_get_resources(pdev, 0);
 	if (IS_ERR(hpriv))
@@ -528,10 +619,20 @@ static int tegra_ahci_probe(struct platform_device *pdev)
 		return PTR_ERR(tegra->sata_rst);
 	}
 
+<<<<<<< HEAD
 	tegra->sata_oob_rst = devm_reset_control_get(&pdev->dev, "sata-oob");
 	if (IS_ERR(tegra->sata_oob_rst)) {
 		dev_err(&pdev->dev, "Failed to get sata-oob reset\n");
 		return PTR_ERR(tegra->sata_oob_rst);
+=======
+	if (tegra->soc->has_sata_oob_rst) {
+		tegra->sata_oob_rst = devm_reset_control_get(&pdev->dev,
+							     "sata-oob");
+		if (IS_ERR(tegra->sata_oob_rst)) {
+			dev_err(&pdev->dev, "Failed to get sata-oob reset\n");
+			return PTR_ERR(tegra->sata_oob_rst);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	tegra->sata_cold_rst = devm_reset_control_get(&pdev->dev, "sata-cold");
@@ -552,8 +653,14 @@ static int tegra_ahci_probe(struct platform_device *pdev)
 	if (!tegra->supplies)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	for (i = 0; i < tegra->soc->num_supplies; i++)
 		tegra->supplies[i].supply = tegra->soc->supply_names[i];
+=======
+	regulator_bulk_set_supply_names(tegra->supplies,
+					tegra->soc->supply_names,
+					tegra->soc->num_supplies);
+>>>>>>> upstream/android-13
 
 	ret = devm_regulator_bulk_get(&pdev->dev,
 				      tegra->soc->num_supplies,

@@ -20,7 +20,11 @@ DECLARE_RWSEM(trace_event_sem);
 
 static struct hlist_head event_hash[EVENT_HASHSIZE] __read_mostly;
 
+<<<<<<< HEAD
 static int next_event_type = __TRACE_LAST_TYPE + 1;
+=======
+static int next_event_type = __TRACE_LAST_TYPE;
+>>>>>>> upstream/android-13
 
 enum print_line_t trace_print_bputs_msg_only(struct trace_iterator *iter)
 {
@@ -219,10 +223,17 @@ trace_print_hex_seq(struct trace_seq *p, const unsigned char *buf, int buf_len,
 {
 	int i;
 	const char *ret = trace_seq_buffer_ptr(p);
+<<<<<<< HEAD
 
 	for (i = 0; i < buf_len; i++)
 		trace_seq_printf(p, "%s%2.2x", concatenate || i == 0 ? "" : " ",
 				 buf[i]);
+=======
+	const char *fmt = concatenate ? "%*phN" : "%*ph";
+
+	for (i = 0; i < buf_len; i += 16)
+		trace_seq_printf(p, fmt, min(buf_len - i, 16), &buf[i]);
+>>>>>>> upstream/android-13
 	trace_seq_putc(p, 0);
 
 	return ret;
@@ -274,6 +285,24 @@ trace_print_array_seq(struct trace_seq *p, const void *buf, int count,
 }
 EXPORT_SYMBOL(trace_print_array_seq);
 
+<<<<<<< HEAD
+=======
+const char *
+trace_print_hex_dump_seq(struct trace_seq *p, const char *prefix_str,
+			 int prefix_type, int rowsize, int groupsize,
+			 const void *buf, size_t len, bool ascii)
+{
+	const char *ret = trace_seq_buffer_ptr(p);
+
+	trace_seq_putc(p, '\n');
+	trace_seq_hex_dump(p, prefix_str, prefix_type,
+			   rowsize, groupsize, buf, len, ascii);
+	trace_seq_putc(p, 0);
+	return ret;
+}
+EXPORT_SYMBOL(trace_print_hex_dump_seq);
+
+>>>>>>> upstream/android-13
 int trace_raw_output_prep(struct trace_iterator *iter,
 			  struct trace_event *trace_event)
 {
@@ -297,13 +326,30 @@ int trace_raw_output_prep(struct trace_iterator *iter,
 }
 EXPORT_SYMBOL(trace_raw_output_prep);
 
+<<<<<<< HEAD
+=======
+void trace_event_printf(struct trace_iterator *iter, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	trace_check_vprintf(iter, trace_event_format(iter, fmt), ap);
+	va_end(ap);
+}
+EXPORT_SYMBOL(trace_event_printf);
+
+>>>>>>> upstream/android-13
 static int trace_output_raw(struct trace_iterator *iter, char *name,
 			    char *fmt, va_list ap)
 {
 	struct trace_seq *s = &iter->seq;
 
 	trace_seq_printf(s, "%s: ", name);
+<<<<<<< HEAD
 	trace_seq_vprintf(s, fmt, ap);
+=======
+	trace_seq_vprintf(s, trace_event_format(iter, fmt), ap);
+>>>>>>> upstream/android-13
 
 	return trace_handle_return(s);
 }
@@ -338,6 +384,7 @@ static inline const char *kretprobed(const char *name)
 }
 #endif /* CONFIG_KRETPROBES */
 
+<<<<<<< HEAD
 static void
 seq_print_sym_short(struct trace_seq *s, const char *fmt, unsigned long address)
 {
@@ -376,6 +423,27 @@ seq_print_sym_offset(struct trace_seq *s, const char *fmt,
 #endif
 	snprintf(str, KSYM_SYMBOL_LEN, "0x%08lx", address);
 	trace_seq_printf(s, fmt, str);
+=======
+void
+trace_seq_print_sym(struct trace_seq *s, unsigned long address, bool offset)
+{
+#ifdef CONFIG_KALLSYMS
+	char str[KSYM_SYMBOL_LEN];
+	const char *name;
+
+	if (offset)
+		sprint_symbol(str, address);
+	else
+		kallsyms_lookup(address, NULL, NULL, NULL, str);
+	name = kretprobed(str);
+
+	if (name && strlen(name)) {
+		trace_seq_puts(s, name);
+		return;
+	}
+#endif
+	trace_seq_printf(s, "0x%08lx", address);
+>>>>>>> upstream/android-13
 }
 
 #ifndef CONFIG_64BIT
@@ -397,7 +465,11 @@ static int seq_print_user_ip(struct trace_seq *s, struct mm_struct *mm,
 	if (mm) {
 		const struct vm_area_struct *vma;
 
+<<<<<<< HEAD
 		down_read(&mm->mmap_sem);
+=======
+		mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 		vma = find_vma(mm, ip);
 		if (vma) {
 			file = vma->vm_file;
@@ -409,7 +481,11 @@ static int seq_print_user_ip(struct trace_seq *s, struct mm_struct *mm,
 				trace_seq_printf(s, "[+0x%lx]",
 						 ip - vmstart);
 		}
+<<<<<<< HEAD
 		up_read(&mm->mmap_sem);
+=======
+		mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	}
 	if (ret && ((sym_flags & TRACE_ITER_SYM_ADDR) || !file))
 		trace_seq_printf(s, " <" IP_FMT ">", ip);
@@ -424,10 +500,14 @@ seq_print_ip_sym(struct trace_seq *s, unsigned long ip, unsigned long sym_flags)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (sym_flags & TRACE_ITER_SYM_OFFSET)
 		seq_print_sym_offset(s, "%s", ip);
 	else
 		seq_print_sym_short(s, "%s", ip);
+=======
+	trace_seq_print_sym(s, ip, sym_flags & TRACE_ITER_SYM_OFFSET);
+>>>>>>> upstream/android-13
 
 	if (sym_flags & TRACE_ITER_SYM_ADDR)
 		trace_seq_printf(s, " <" IP_FMT ">", ip);
@@ -489,8 +569,18 @@ int trace_print_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
 	trace_seq_printf(s, "%c%c%c",
 			 irqs_off, need_resched, hardsoft_irq);
 
+<<<<<<< HEAD
 	if (entry->preempt_count)
 		trace_seq_printf(s, "%x", entry->preempt_count);
+=======
+	if (entry->preempt_count & 0xf)
+		trace_seq_printf(s, "%x", entry->preempt_count & 0xf);
+	else
+		trace_seq_putc(s, '.');
+
+	if (entry->preempt_count & 0xf0)
+		trace_seq_printf(s, "%x", entry->preempt_count >> 4);
+>>>>>>> upstream/android-13
 	else
 		trace_seq_putc(s, '.');
 
@@ -504,7 +594,11 @@ lat_print_generic(struct trace_seq *s, struct trace_entry *entry, int cpu)
 
 	trace_find_cmdline(entry->pid, comm);
 
+<<<<<<< HEAD
 	trace_seq_printf(s, "%8.8s-%-5d %3d",
+=======
+	trace_seq_printf(s, "%8.8s-%-7d %3d",
+>>>>>>> upstream/android-13
 			 comm, entry->pid, cpu);
 
 	return trace_print_lat_fmt(s, entry);
@@ -545,7 +639,11 @@ lat_print_timestamp(struct trace_iterator *iter, u64 next_ts)
 	struct trace_array *tr = iter->tr;
 	unsigned long verbose = tr->trace_flags & TRACE_ITER_VERBOSE;
 	unsigned long in_ns = iter->iter_flags & TRACE_FILE_TIME_IN_NS;
+<<<<<<< HEAD
 	unsigned long long abs_ts = iter->ts - iter->trace_buffer->time_start;
+=======
+	unsigned long long abs_ts = iter->ts - iter->array_buffer->time_start;
+>>>>>>> upstream/android-13
 	unsigned long long rel_ts = next_ts - iter->ts;
 	struct trace_seq *s = &iter->seq;
 
@@ -584,26 +682,57 @@ lat_print_timestamp(struct trace_iterator *iter, u64 next_ts)
 	return !trace_seq_has_overflowed(s);
 }
 
+<<<<<<< HEAD
+=======
+static void trace_print_time(struct trace_seq *s, struct trace_iterator *iter,
+			     unsigned long long ts)
+{
+	unsigned long secs, usec_rem;
+	unsigned long long t;
+
+	if (iter->iter_flags & TRACE_FILE_TIME_IN_NS) {
+		t = ns2usecs(ts);
+		usec_rem = do_div(t, USEC_PER_SEC);
+		secs = (unsigned long)t;
+		trace_seq_printf(s, " %5lu.%06lu", secs, usec_rem);
+	} else
+		trace_seq_printf(s, " %12llu", ts);
+}
+
+>>>>>>> upstream/android-13
 int trace_print_context(struct trace_iterator *iter)
 {
 	struct trace_array *tr = iter->tr;
 	struct trace_seq *s = &iter->seq;
 	struct trace_entry *entry = iter->ent;
+<<<<<<< HEAD
 	unsigned long long t;
 	unsigned long secs, usec_rem;
+=======
+>>>>>>> upstream/android-13
 	char comm[TASK_COMM_LEN];
 
 	trace_find_cmdline(entry->pid, comm);
 
+<<<<<<< HEAD
 	trace_seq_printf(s, "%16s-%-5d ", comm, entry->pid);
+=======
+	trace_seq_printf(s, "%16s-%-7d ", comm, entry->pid);
+>>>>>>> upstream/android-13
 
 	if (tr->trace_flags & TRACE_ITER_RECORD_TGID) {
 		unsigned int tgid = trace_find_tgid(entry->pid);
 
 		if (!tgid)
+<<<<<<< HEAD
 			trace_seq_printf(s, "(-----) ");
 		else
 			trace_seq_printf(s, "(%5d) ", tgid);
+=======
+			trace_seq_printf(s, "(-------) ");
+		else
+			trace_seq_printf(s, "(%7d) ", tgid);
+>>>>>>> upstream/android-13
 	}
 
 	trace_seq_printf(s, "[%03d] ", iter->cpu);
@@ -611,6 +740,7 @@ int trace_print_context(struct trace_iterator *iter)
 	if (tr->trace_flags & TRACE_ITER_IRQ_INFO)
 		trace_print_lat_fmt(s, entry);
 
+<<<<<<< HEAD
 	if (iter->iter_flags & TRACE_FILE_TIME_IN_NS) {
 		t = ns2usecs(iter->ts);
 		usec_rem = do_div(t, USEC_PER_SEC);
@@ -618,6 +748,10 @@ int trace_print_context(struct trace_iterator *iter)
 		trace_seq_printf(s, " %5lu.%06lu: ", secs, usec_rem);
 	} else
 		trace_seq_printf(s, " %12llu: ", iter->ts);
+=======
+	trace_print_time(s, iter, iter->ts);
+	trace_seq_puts(s, ": ");
+>>>>>>> upstream/android-13
 
 	return !trace_seq_has_overflowed(s);
 }
@@ -643,9 +777,15 @@ int trace_print_lat_context(struct trace_iterator *iter)
 		trace_find_cmdline(entry->pid, comm);
 
 		trace_seq_printf(
+<<<<<<< HEAD
 			s, "%16s %5d %3d %d %08x %08lx ",
 			comm, entry->pid, iter->cpu, entry->flags,
 			entry->preempt_count, iter->idx);
+=======
+			s, "%16s %7d %3d %d %08x %08lx ",
+			comm, entry->pid, iter->cpu, entry->flags,
+			entry->preempt_count & 0xf, iter->idx);
+>>>>>>> upstream/android-13
 	} else {
 		lat_print_generic(s, entry, iter->cpu);
 	}
@@ -682,11 +822,19 @@ static LIST_HEAD(ftrace_event_list);
 static int trace_search_list(struct list_head **list)
 {
 	struct trace_event *e;
+<<<<<<< HEAD
 	int last = __TRACE_LAST_TYPE;
 
 	if (list_empty(&ftrace_event_list)) {
 		*list = &ftrace_event_list;
 		return last + 1;
+=======
+	int next = __TRACE_LAST_TYPE;
+
+	if (list_empty(&ftrace_event_list)) {
+		*list = &ftrace_event_list;
+		return next;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -694,6 +842,7 @@ static int trace_search_list(struct list_head **list)
 	 * lets see if somebody freed one.
 	 */
 	list_for_each_entry(e, &ftrace_event_list, list) {
+<<<<<<< HEAD
 		if (e->type != last + 1)
 			break;
 		last++;
@@ -705,6 +854,19 @@ static int trace_search_list(struct list_head **list)
 
 	*list = &e->list;
 	return last + 1;
+=======
+		if (e->type != next)
+			break;
+		next++;
+	}
+
+	/* Did we used up all 65 thousand events??? */
+	if (next > TRACE_EVENT_TYPE_MAX)
+		return 0;
+
+	*list = &e->list;
+	return next;
+>>>>>>> upstream/android-13
 }
 
 void trace_event_read_lock(void)
@@ -834,6 +996,20 @@ enum print_line_t trace_nop_print(struct trace_iterator *iter, int flags,
 	return trace_handle_return(&iter->seq);
 }
 
+<<<<<<< HEAD
+=======
+static void print_fn_trace(struct trace_seq *s, unsigned long ip,
+			   unsigned long parent_ip, int flags)
+{
+	seq_print_ip_sym(s, ip, flags);
+
+	if ((flags & TRACE_ITER_PRINT_PARENT) && parent_ip) {
+		trace_seq_puts(s, " <-");
+		seq_print_ip_sym(s, parent_ip, flags);
+	}
+}
+
+>>>>>>> upstream/android-13
 /* TRACE_FN */
 static enum print_line_t trace_fn_trace(struct trace_iterator *iter, int flags,
 					struct trace_event *event)
@@ -843,6 +1019,7 @@ static enum print_line_t trace_fn_trace(struct trace_iterator *iter, int flags,
 
 	trace_assign_type(field, iter->ent);
 
+<<<<<<< HEAD
 	seq_print_ip_sym(s, field->ip, flags);
 
 	if ((flags & TRACE_ITER_PRINT_PARENT) && field->parent_ip) {
@@ -850,6 +1027,9 @@ static enum print_line_t trace_fn_trace(struct trace_iterator *iter, int flags,
 		seq_print_ip_sym(s, field->parent_ip, flags);
 	}
 
+=======
+	print_fn_trace(s, field->ip, field->parent_ip, flags);
+>>>>>>> upstream/android-13
 	trace_seq_putc(s, '\n');
 
 	return trace_handle_return(s);
@@ -924,7 +1104,11 @@ static enum print_line_t trace_ctxwake_print(struct trace_iterator *iter,
 	S = task_index_to_char(field->prev_state);
 	trace_find_cmdline(field->next_pid, comm);
 	trace_seq_printf(&iter->seq,
+<<<<<<< HEAD
 			 " %5d:%3d:%c %s [%03d] %5d:%3d:%c %s\n",
+=======
+			 " %7d:%3d:%c %s [%03d] %7d:%3d:%c %s\n",
+>>>>>>> upstream/android-13
 			 field->prev_pid,
 			 field->prev_prio,
 			 S, delim,
@@ -1128,6 +1312,7 @@ static enum print_line_t trace_user_stack_print(struct trace_iterator *iter,
 	for (i = 0; i < FTRACE_STACK_ENTRIES; i++) {
 		unsigned long ip = field->caller[i];
 
+<<<<<<< HEAD
 		if (ip == ULONG_MAX || trace_seq_has_overflowed(s))
 			break;
 
@@ -1139,6 +1324,12 @@ static enum print_line_t trace_user_stack_print(struct trace_iterator *iter,
 			continue;
 		}
 
+=======
+		if (!ip || trace_seq_has_overflowed(s))
+			break;
+
+		trace_seq_puts(s, " => ");
+>>>>>>> upstream/android-13
 		seq_print_user_ip(s, mm, ip, flags);
 		trace_seq_putc(s, '\n');
 	}
@@ -1169,12 +1360,20 @@ trace_hwlat_print(struct trace_iterator *iter, int flags,
 
 	trace_assign_type(field, entry);
 
+<<<<<<< HEAD
 	trace_seq_printf(s, "#%-5u inner/outer(us): %4llu/%-5llu ts:%lld.%09ld",
+=======
+	trace_seq_printf(s, "#%-5u inner/outer(us): %4llu/%-5llu ts:%lld.%09ld count:%d",
+>>>>>>> upstream/android-13
 			 field->seqnum,
 			 field->duration,
 			 field->outer_duration,
 			 (long long)field->timestamp.tv_sec,
+<<<<<<< HEAD
 			 field->timestamp.tv_nsec);
+=======
+			 field->timestamp.tv_nsec, field->count);
+>>>>>>> upstream/android-13
 
 	if (field->nmi_count) {
 		/*
@@ -1193,7 +1392,10 @@ trace_hwlat_print(struct trace_iterator *iter, int flags,
 	return trace_handle_return(s);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static enum print_line_t
 trace_hwlat_raw(struct trace_iterator *iter, int flags,
 		struct trace_event *event)
@@ -1223,6 +1425,125 @@ static struct trace_event trace_hwlat_event = {
 	.funcs		= &trace_hwlat_funcs,
 };
 
+<<<<<<< HEAD
+=======
+/* TRACE_OSNOISE */
+static enum print_line_t
+trace_osnoise_print(struct trace_iterator *iter, int flags,
+		    struct trace_event *event)
+{
+	struct trace_entry *entry = iter->ent;
+	struct trace_seq *s = &iter->seq;
+	struct osnoise_entry *field;
+	u64 ratio, ratio_dec;
+	u64 net_runtime;
+
+	trace_assign_type(field, entry);
+
+	/*
+	 * compute the available % of cpu time.
+	 */
+	net_runtime = field->runtime - field->noise;
+	ratio = net_runtime * 10000000;
+	do_div(ratio, field->runtime);
+	ratio_dec = do_div(ratio, 100000);
+
+	trace_seq_printf(s, "%llu %10llu %3llu.%05llu %7llu",
+			 field->runtime,
+			 field->noise,
+			 ratio, ratio_dec,
+			 field->max_sample);
+
+	trace_seq_printf(s, " %6u", field->hw_count);
+	trace_seq_printf(s, " %6u", field->nmi_count);
+	trace_seq_printf(s, " %6u", field->irq_count);
+	trace_seq_printf(s, " %6u", field->softirq_count);
+	trace_seq_printf(s, " %6u", field->thread_count);
+
+	trace_seq_putc(s, '\n');
+
+	return trace_handle_return(s);
+}
+
+static enum print_line_t
+trace_osnoise_raw(struct trace_iterator *iter, int flags,
+		  struct trace_event *event)
+{
+	struct osnoise_entry *field;
+	struct trace_seq *s = &iter->seq;
+
+	trace_assign_type(field, iter->ent);
+
+	trace_seq_printf(s, "%lld %llu %llu %u %u %u %u %u\n",
+			 field->runtime,
+			 field->noise,
+			 field->max_sample,
+			 field->hw_count,
+			 field->nmi_count,
+			 field->irq_count,
+			 field->softirq_count,
+			 field->thread_count);
+
+	return trace_handle_return(s);
+}
+
+static struct trace_event_functions trace_osnoise_funcs = {
+	.trace		= trace_osnoise_print,
+	.raw		= trace_osnoise_raw,
+};
+
+static struct trace_event trace_osnoise_event = {
+	.type		= TRACE_OSNOISE,
+	.funcs		= &trace_osnoise_funcs,
+};
+
+/* TRACE_TIMERLAT */
+static enum print_line_t
+trace_timerlat_print(struct trace_iterator *iter, int flags,
+		     struct trace_event *event)
+{
+	struct trace_entry *entry = iter->ent;
+	struct trace_seq *s = &iter->seq;
+	struct timerlat_entry *field;
+
+	trace_assign_type(field, entry);
+
+	trace_seq_printf(s, "#%-5u context %6s timer_latency %9llu ns\n",
+			 field->seqnum,
+			 field->context ? "thread" : "irq",
+			 field->timer_latency);
+
+	return trace_handle_return(s);
+}
+
+static enum print_line_t
+trace_timerlat_raw(struct trace_iterator *iter, int flags,
+		   struct trace_event *event)
+{
+	struct timerlat_entry *field;
+	struct trace_seq *s = &iter->seq;
+
+	trace_assign_type(field, iter->ent);
+
+	trace_seq_printf(s, "%u %d %llu\n",
+			 field->seqnum,
+			 field->context,
+			 field->timer_latency);
+
+	return trace_handle_return(s);
+}
+
+static struct trace_event_functions trace_timerlat_funcs = {
+	.trace		= trace_timerlat_print,
+	.raw		= trace_timerlat_raw,
+};
+
+static struct trace_event trace_timerlat_event = {
+	.type		= TRACE_TIMERLAT,
+	.funcs		= &trace_timerlat_funcs,
+};
+
+>>>>>>> upstream/android-13
 /* TRACE_BPUTS */
 static enum print_line_t
 trace_bputs_print(struct trace_iterator *iter, int flags,
@@ -1377,6 +1698,54 @@ static struct trace_event trace_raw_data_event = {
 	.funcs		= &trace_raw_data_funcs,
 };
 
+<<<<<<< HEAD
+=======
+static enum print_line_t
+trace_func_repeats_raw(struct trace_iterator *iter, int flags,
+			 struct trace_event *event)
+{
+	struct func_repeats_entry *field;
+	struct trace_seq *s = &iter->seq;
+
+	trace_assign_type(field, iter->ent);
+
+	trace_seq_printf(s, "%lu %lu %u %llu\n",
+			 field->ip,
+			 field->parent_ip,
+			 field->count,
+			 FUNC_REPEATS_GET_DELTA_TS(field));
+
+	return trace_handle_return(s);
+}
+
+static enum print_line_t
+trace_func_repeats_print(struct trace_iterator *iter, int flags,
+			 struct trace_event *event)
+{
+	struct func_repeats_entry *field;
+	struct trace_seq *s = &iter->seq;
+
+	trace_assign_type(field, iter->ent);
+
+	print_fn_trace(s, field->ip, field->parent_ip, flags);
+	trace_seq_printf(s, " (repeats: %u, last_ts:", field->count);
+	trace_print_time(s, iter,
+			 iter->ts - FUNC_REPEATS_GET_DELTA_TS(field));
+	trace_seq_puts(s, ")\n");
+
+	return trace_handle_return(s);
+}
+
+static struct trace_event_functions trace_func_repeats_funcs = {
+	.trace		= trace_func_repeats_print,
+	.raw		= trace_func_repeats_raw,
+};
+
+static struct trace_event trace_func_repeats_event = {
+	.type	 	= TRACE_FUNC_REPEATS,
+	.funcs		= &trace_func_repeats_funcs,
+};
+>>>>>>> upstream/android-13
 
 static struct trace_event *events[] __initdata = {
 	&trace_fn_event,
@@ -1388,7 +1757,14 @@ static struct trace_event *events[] __initdata = {
 	&trace_bprint_event,
 	&trace_print_event,
 	&trace_hwlat_event,
+<<<<<<< HEAD
 	&trace_raw_data_event,
+=======
+	&trace_osnoise_event,
+	&trace_timerlat_event,
+	&trace_raw_data_event,
+	&trace_func_repeats_event,
+>>>>>>> upstream/android-13
 	NULL
 };
 

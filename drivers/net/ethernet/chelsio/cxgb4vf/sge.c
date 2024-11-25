@@ -478,7 +478,11 @@ static void free_rx_bufs(struct adapter *adapter, struct sge_fl *fl, int n)
 		if (is_buf_mapped(sdesc))
 			dma_unmap_page(adapter->pdev_dev, get_buf_addr(sdesc),
 				       get_buf_size(adapter, sdesc),
+<<<<<<< HEAD
 				       PCI_DMA_FROMDEVICE);
+=======
+				       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		put_page(sdesc->page);
 		sdesc->page = NULL;
 		if (++fl->cidx == fl->size)
@@ -507,7 +511,11 @@ static void unmap_rx_buf(struct adapter *adapter, struct sge_fl *fl)
 	if (is_buf_mapped(sdesc))
 		dma_unmap_page(adapter->pdev_dev, get_buf_addr(sdesc),
 			       get_buf_size(adapter, sdesc),
+<<<<<<< HEAD
 			       PCI_DMA_FROMDEVICE);
+=======
+			       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	sdesc->page = NULL;
 	if (++fl->cidx == fl->size)
 		fl->cidx = 0;
@@ -644,7 +652,11 @@ static unsigned int refill_fl(struct adapter *adapter, struct sge_fl *fl,
 
 		dma_addr = dma_map_page(adapter->pdev_dev, page, 0,
 					PAGE_SIZE << s->fl_pg_order,
+<<<<<<< HEAD
 					PCI_DMA_FROMDEVICE);
+=======
+					DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		if (unlikely(dma_mapping_error(adapter->pdev_dev, dma_addr))) {
 			/*
 			 * We've run out of DMA mapping space.  Free up the
@@ -682,7 +694,11 @@ alloc_small_pages:
 		poison_buf(page, PAGE_SIZE);
 
 		dma_addr = dma_map_page(adapter->pdev_dev, page, 0, PAGE_SIZE,
+<<<<<<< HEAD
 				       PCI_DMA_FROMDEVICE);
+=======
+				       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		if (unlikely(dma_mapping_error(adapter->pdev_dev, dma_addr))) {
 			put_page(page);
 			break;
@@ -756,7 +772,11 @@ static void *alloc_ring(struct device *dev, size_t nelem, size_t hwsize,
 	 * Allocate the hardware ring and PCI DMA bus address space for said.
 	 */
 	size_t hwlen = nelem * hwsize + stat_size;
+<<<<<<< HEAD
 	void *hwring = dma_zalloc_coherent(dev, hwlen, busaddrp, GFP_KERNEL);
+=======
+	void *hwring = dma_alloc_coherent(dev, hwlen, busaddrp, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!hwring)
 		return NULL;
@@ -954,7 +974,11 @@ static void write_sgl(const struct sk_buff *skb, struct sge_txq *tq,
 }
 
 /**
+<<<<<<< HEAD
  *	check_ring_tx_db - check and potentially ring a TX queue's doorbell
+=======
+ *	ring_tx_db - check and potentially ring a TX queue's doorbell
+>>>>>>> upstream/android-13
  *	@adapter: the adapter
  *	@tq: the TX queue
  *	@n: number of new descriptors to give to HW
@@ -1154,7 +1178,11 @@ static inline void txq_advance(struct sge_txq *tq, unsigned int n)
  *
  *	Add a packet to an SGE Ethernet TX queue.  Runs with softirqs disabled.
  */
+<<<<<<< HEAD
 int t4vf_eth_xmit(struct sk_buff *skb, struct net_device *dev)
+=======
+netdev_tx_t t4vf_eth_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	u32 wr_mid;
 	u64 cntrl, *end;
@@ -1692,7 +1720,11 @@ static inline bool is_new_response(const struct rsp_ctrl *rc,
  *	restore_rx_bufs - put back a packet's RX buffers
  *	@gl: the packet gather list
  *	@fl: the SGE Free List
+<<<<<<< HEAD
  *	@nfrags: how many fragments in @si
+=======
+ *	@frags: how many fragments in @si
+>>>>>>> upstream/android-13
  *
  *	Called when we find out that the current packet, @si, can't be
  *	processed right away for some reason.  This is a very rare event and
@@ -2044,8 +2076,14 @@ static irqreturn_t t4vf_intr_msi(int irq, void *cookie)
  */
 irq_handler_t t4vf_intr_handler(struct adapter *adapter)
 {
+<<<<<<< HEAD
 	BUG_ON((adapter->flags & (USING_MSIX|USING_MSI)) == 0);
 	if (adapter->flags & USING_MSIX)
+=======
+	BUG_ON((adapter->flags &
+	       (CXGB4VF_USING_MSIX | CXGB4VF_USING_MSI)) == 0);
+	if (adapter->flags & CXGB4VF_USING_MSIX)
+>>>>>>> upstream/android-13
 		return t4vf_sge_intr_msix;
 	else
 		return t4vf_intr_msi;
@@ -2053,7 +2091,11 @@ irq_handler_t t4vf_intr_handler(struct adapter *adapter)
 
 /**
  *	sge_rx_timer_cb - perform periodic maintenance of SGE RX queues
+<<<<<<< HEAD
  *	@data: the adapter
+=======
+ *	@t: Rx timer
+>>>>>>> upstream/android-13
  *
  *	Runs periodically from a timer to perform maintenance of SGE RX queues.
  *
@@ -2112,7 +2154,11 @@ static void sge_rx_timer_cb(struct timer_list *t)
 
 /**
  *	sge_tx_timer_cb - perform periodic maintenance of SGE Tx queues
+<<<<<<< HEAD
  *	@data: the adapter
+=======
+ *	@t: Tx timer
+>>>>>>> upstream/android-13
  *
  *	Runs periodically from a timer to perform maintenance of SGE TX queues.
  *
@@ -2209,7 +2255,11 @@ int t4vf_sge_alloc_rxq(struct adapter *adapter, struct sge_rspq *rspq,
 	struct port_info *pi = netdev_priv(dev);
 	struct fw_iq_cmd cmd, rpl;
 	int ret, iqandst, flsz = 0;
+<<<<<<< HEAD
 	int relaxed = !(adapter->flags & ROOT_NO_RELAXED_ORDERING);
+=======
+	int relaxed = !(adapter->flags & CXGB4VF_ROOT_NO_RELAXED_ORDERING);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we're using MSI interrupts and we're not initializing the
@@ -2218,7 +2268,12 @@ int t4vf_sge_alloc_rxq(struct adapter *adapter, struct sge_rspq *rspq,
 	 * the Forwarded Interrupt Queue must be set up before any other
 	 * ingress queue ...
 	 */
+<<<<<<< HEAD
 	if ((adapter->flags & USING_MSI) && rspq != &adapter->sge.intrq) {
+=======
+	if ((adapter->flags & CXGB4VF_USING_MSI) &&
+	    rspq != &adapter->sge.intrq) {
+>>>>>>> upstream/android-13
 		iqandst = SGE_INTRDST_IQ;
 		intr_dest = adapter->sge.intrq.abs_id;
 	} else
@@ -2268,7 +2323,11 @@ int t4vf_sge_alloc_rxq(struct adapter *adapter, struct sge_rspq *rspq,
 	cmd.iqaddr = cpu_to_be64(rspq->phys_addr);
 
 	if (fl) {
+<<<<<<< HEAD
 		enum chip_type chip =
+=======
+		unsigned int chip_ver =
+>>>>>>> upstream/android-13
 			CHELSIO_CHIP_VERSION(adapter->params.chip);
 		/*
 		 * Allocate the ring for the hardware free list (with space
@@ -2319,10 +2378,17 @@ int t4vf_sge_alloc_rxq(struct adapter *adapter, struct sge_rspq *rspq,
 		 */
 		cmd.fl0dcaen_to_fl0cidxfthresh =
 			cpu_to_be16(
+<<<<<<< HEAD
 				FW_IQ_CMD_FL0FBMIN_V(chip <= CHELSIO_T5 ?
 						     FETCHBURSTMIN_128B_X :
 						     FETCHBURSTMIN_64B_X) |
 				FW_IQ_CMD_FL0FBMAX_V((chip <= CHELSIO_T5) ?
+=======
+				FW_IQ_CMD_FL0FBMIN_V(chip_ver <= CHELSIO_T5
+						     ? FETCHBURSTMIN_128B_X
+						     : FETCHBURSTMIN_64B_T6_X) |
+				FW_IQ_CMD_FL0FBMAX_V((chip_ver <= CHELSIO_T5) ?
+>>>>>>> upstream/android-13
 						     FETCHBURSTMAX_512B_X :
 						     FETCHBURSTMAX_256B_X));
 		cmd.fl0size = cpu_to_be16(flsz);
@@ -2403,6 +2469,10 @@ err:
  *	t4vf_sge_alloc_eth_txq - allocate an SGE Ethernet TX Queue
  *	@adapter: the adapter
  *	@txq: pointer to the new txq to be filled in
+<<<<<<< HEAD
+=======
+ *	@dev: the network device
+>>>>>>> upstream/android-13
  *	@devq: the network TX queue associated with the new txq
  *	@iqid: the relative ingress queue ID to which events relating to
  *		the new txq should be directed
@@ -2411,10 +2481,18 @@ int t4vf_sge_alloc_eth_txq(struct adapter *adapter, struct sge_eth_txq *txq,
 			   struct net_device *dev, struct netdev_queue *devq,
 			   unsigned int iqid)
 {
+<<<<<<< HEAD
 	struct sge *s = &adapter->sge;
 	int ret, nentries;
 	struct fw_eq_eth_cmd cmd, rpl;
 	struct port_info *pi = netdev_priv(dev);
+=======
+	unsigned int chip_ver = CHELSIO_CHIP_VERSION(adapter->params.chip);
+	struct port_info *pi = netdev_priv(dev);
+	struct fw_eq_eth_cmd cmd, rpl;
+	struct sge *s = &adapter->sge;
+	int ret, nentries;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Calculate the size of the hardware TX Queue (including the Status
@@ -2448,17 +2526,31 @@ int t4vf_sge_alloc_eth_txq(struct adapter *adapter, struct sge_eth_txq *txq,
 	cmd.alloc_to_len16 = cpu_to_be32(FW_EQ_ETH_CMD_ALLOC_F |
 					 FW_EQ_ETH_CMD_EQSTART_F |
 					 FW_LEN16(cmd));
+<<<<<<< HEAD
 	cmd.viid_pkd = cpu_to_be32(FW_EQ_ETH_CMD_AUTOEQUEQE_F |
 				   FW_EQ_ETH_CMD_VIID_V(pi->viid));
+=======
+	cmd.autoequiqe_to_viid = cpu_to_be32(FW_EQ_ETH_CMD_AUTOEQUEQE_F |
+					     FW_EQ_ETH_CMD_VIID_V(pi->viid));
+>>>>>>> upstream/android-13
 	cmd.fetchszm_to_iqid =
 		cpu_to_be32(FW_EQ_ETH_CMD_HOSTFCMODE_V(SGE_HOSTFCMODE_STPG) |
 			    FW_EQ_ETH_CMD_PCIECHN_V(pi->port_id) |
 			    FW_EQ_ETH_CMD_IQID_V(iqid));
 	cmd.dcaen_to_eqsize =
+<<<<<<< HEAD
 		cpu_to_be32(FW_EQ_ETH_CMD_FBMIN_V(SGE_FETCHBURSTMIN_64B) |
 			    FW_EQ_ETH_CMD_FBMAX_V(SGE_FETCHBURSTMAX_512B) |
 			    FW_EQ_ETH_CMD_CIDXFTHRESH_V(
 						SGE_CIDXFLUSHTHRESH_32) |
+=======
+		cpu_to_be32(FW_EQ_ETH_CMD_FBMIN_V(chip_ver <= CHELSIO_T5
+						  ? FETCHBURSTMIN_64B_X
+						  : FETCHBURSTMIN_64B_T6_X) |
+			    FW_EQ_ETH_CMD_FBMAX_V(FETCHBURSTMAX_512B_X) |
+			    FW_EQ_ETH_CMD_CIDXFTHRESH_V(
+						CIDXFLUSHTHRESH_32_X) |
+>>>>>>> upstream/android-13
 			    FW_EQ_ETH_CMD_EQSIZE_V(nentries));
 	cmd.eqaddr = cpu_to_be64(txq->q.phys_addr);
 

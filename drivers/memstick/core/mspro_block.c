@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Sony MemoryStick Pro storage support
  *
  *  Copyright (C) 2007 Alex Dubov <oakad@yahoo.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -13,6 +18,13 @@
  */
 
 #include <linux/blkdev.h>
+=======
+ * Special thanks to Carlos Corbacho for providing various MemoryStick cards
+ * that made this driver possible.
+ */
+
+#include <linux/blk-mq.h>
+>>>>>>> upstream/android-13
 #include <linux/idr.h>
 #include <linux/hdreg.h>
 #include <linux/kthread.h>
@@ -142,6 +154,10 @@ struct mspro_block_data {
 	struct gendisk        *disk;
 	struct request_queue  *queue;
 	struct request        *block_req;
+<<<<<<< HEAD
+=======
+	struct blk_mq_tag_set tag_set;
+>>>>>>> upstream/android-13
 	spinlock_t            q_lock;
 
 	unsigned short        page_size;
@@ -152,7 +168,10 @@ struct mspro_block_data {
 	unsigned char         system;
 	unsigned char         read_only:1,
 			      eject:1,
+<<<<<<< HEAD
 			      has_request:1,
+=======
+>>>>>>> upstream/android-13
 			      data_dir:1,
 			      active:1;
 	unsigned char         transfer_cmd;
@@ -280,7 +299,11 @@ static const char *mspro_block_attr_name(unsigned char tag)
 		return "attr_devinfo";
 	default:
 		return NULL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 typedef ssize_t (*sysfs_show_t)(struct device *dev,
@@ -694,14 +717,22 @@ static void h_mspro_block_setup_cmd(struct memstick_dev *card, u64 offset,
 
 /*** Data transfer ***/
 
+<<<<<<< HEAD
 static int mspro_block_issue_req(struct memstick_dev *card, int chunk)
+=======
+static int mspro_block_issue_req(struct memstick_dev *card)
+>>>>>>> upstream/android-13
 {
 	struct mspro_block_data *msb = memstick_get_drvdata(card);
 	u64 t_off;
 	unsigned int count;
 
+<<<<<<< HEAD
 try_again:
 	while (chunk) {
+=======
+	while (true) {
+>>>>>>> upstream/android-13
 		msb->current_page = 0;
 		msb->current_seg = 0;
 		msb->seg_count = blk_rq_map_sg(msb->block_req->q,
@@ -709,9 +740,24 @@ try_again:
 					       msb->req_sg);
 
 		if (!msb->seg_count) {
+<<<<<<< HEAD
 			chunk = __blk_end_request_cur(msb->block_req,
 					BLK_STS_RESOURCE);
 			continue;
+=======
+			unsigned int bytes = blk_rq_cur_bytes(msb->block_req);
+			bool chunk;
+
+			chunk = blk_update_request(msb->block_req,
+							BLK_STS_RESOURCE,
+							bytes);
+			if (chunk)
+				continue;
+			__blk_mq_end_request(msb->block_req,
+						BLK_STS_RESOURCE);
+			msb->block_req = NULL;
+			return -EAGAIN;
+>>>>>>> upstream/android-13
 		}
 
 		t_off = blk_rq_pos(msb->block_req);
@@ -728,6 +774,7 @@ try_again:
 		memstick_new_req(card->host);
 		return 0;
 	}
+<<<<<<< HEAD
 
 	dev_dbg(&card->dev, "blk_fetch\n");
 	msb->block_req = blk_fetch_request(msb->queue);
@@ -739,20 +786,34 @@ try_again:
 	dev_dbg(&card->dev, "trying again\n");
 	chunk = 1;
 	goto try_again;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int mspro_block_complete_req(struct memstick_dev *card, int error)
 {
 	struct mspro_block_data *msb = memstick_get_drvdata(card);
+<<<<<<< HEAD
 	int chunk, cnt;
+=======
+	int cnt;
+	bool chunk;
+>>>>>>> upstream/android-13
 	unsigned int t_len = 0;
 	unsigned long flags;
 
 	spin_lock_irqsave(&msb->q_lock, flags);
+<<<<<<< HEAD
 	dev_dbg(&card->dev, "complete %d, %d\n", msb->has_request ? 1 : 0,
 		error);
 
 	if (msb->has_request) {
+=======
+	dev_dbg(&card->dev, "complete %d, %d\n", msb->block_req ? 1 : 0,
+		error);
+
+	if (msb->block_req) {
+>>>>>>> upstream/android-13
 		/* Nothing to do - not really an error */
 		if (error == -EAGAIN)
 			error = 0;
@@ -777,6 +838,7 @@ static int mspro_block_complete_req(struct memstick_dev *card, int error)
 		if (error && !t_len)
 			t_len = blk_rq_cur_bytes(msb->block_req);
 
+<<<<<<< HEAD
 		chunk = __blk_end_request(msb->block_req,
 				errno_to_blk_status(error), t_len);
 
@@ -786,6 +848,19 @@ static int mspro_block_complete_req(struct memstick_dev *card, int error)
 			goto out;
 		else
 			msb->has_request = 0;
+=======
+		chunk = blk_update_request(msb->block_req,
+				errno_to_blk_status(error), t_len);
+		if (chunk) {
+			error = mspro_block_issue_req(card);
+			if (!error)
+				goto out;
+		} else {
+			__blk_mq_end_request(msb->block_req,
+						errno_to_blk_status(error));
+			msb->block_req = NULL;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		if (!error)
 			error = -EAGAIN;
@@ -806,8 +881,13 @@ static void mspro_block_stop(struct memstick_dev *card)
 
 	while (1) {
 		spin_lock_irqsave(&msb->q_lock, flags);
+<<<<<<< HEAD
 		if (!msb->has_request) {
 			blk_stop_queue(msb->queue);
+=======
+		if (!msb->block_req) {
+			blk_mq_stop_hw_queues(msb->queue);
+>>>>>>> upstream/android-13
 			rc = 1;
 		}
 		spin_unlock_irqrestore(&msb->q_lock, flags);
@@ -822,6 +902,7 @@ static void mspro_block_stop(struct memstick_dev *card)
 static void mspro_block_start(struct memstick_dev *card)
 {
 	struct mspro_block_data *msb = memstick_get_drvdata(card);
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&msb->q_lock, flags);
@@ -848,6 +929,39 @@ static void mspro_block_submit_req(struct request_queue *q)
 	msb->has_request = 1;
 	if (mspro_block_issue_req(card, 0))
 		msb->has_request = 0;
+=======
+
+	blk_mq_start_hw_queues(msb->queue);
+}
+
+static blk_status_t mspro_queue_rq(struct blk_mq_hw_ctx *hctx,
+				   const struct blk_mq_queue_data *bd)
+{
+	struct memstick_dev *card = hctx->queue->queuedata;
+	struct mspro_block_data *msb = memstick_get_drvdata(card);
+
+	spin_lock_irq(&msb->q_lock);
+
+	if (msb->block_req) {
+		spin_unlock_irq(&msb->q_lock);
+		return BLK_STS_DEV_RESOURCE;
+	}
+
+	if (msb->eject) {
+		spin_unlock_irq(&msb->q_lock);
+		blk_mq_start_request(bd->rq);
+		return BLK_STS_IOERR;
+	}
+
+	msb->block_req = bd->rq;
+	blk_mq_start_request(bd->rq);
+
+	if (mspro_block_issue_req(card))
+		msb->block_req = NULL;
+
+	spin_unlock_irq(&msb->q_lock);
+	return BLK_STS_OK;
+>>>>>>> upstream/android-13
 }
 
 /*** Initialization ***/
@@ -1167,6 +1281,13 @@ static int mspro_block_init_card(struct memstick_dev *card)
 
 }
 
+<<<<<<< HEAD
+=======
+static const struct blk_mq_ops mspro_mq_ops = {
+	.queue_rq	= mspro_queue_rq,
+};
+
+>>>>>>> upstream/android-13
 static int mspro_block_init_disk(struct memstick_dev *card)
 {
 	struct mspro_block_data *msb = memstick_get_drvdata(card);
@@ -1200,6 +1321,7 @@ static int mspro_block_init_disk(struct memstick_dev *card)
 	if (disk_id < 0)
 		return disk_id;
 
+<<<<<<< HEAD
 	msb->disk = alloc_disk(1 << MSPRO_BLOCK_PART_SHIFT);
 	if (!msb->disk) {
 		rc = -ENOMEM;
@@ -1213,6 +1335,19 @@ static int mspro_block_init_disk(struct memstick_dev *card)
 	}
 
 	msb->queue->queuedata = card;
+=======
+	rc = blk_mq_alloc_sq_tag_set(&msb->tag_set, &mspro_mq_ops, 2,
+				     BLK_MQ_F_SHOULD_MERGE);
+	if (rc)
+		goto out_release_id;
+
+	msb->disk = blk_mq_alloc_disk(&msb->tag_set, card);
+	if (IS_ERR(msb->disk)) {
+		rc = PTR_ERR(msb->disk);
+		goto out_free_tag_set;
+	}
+	msb->queue = msb->disk->queue;
+>>>>>>> upstream/android-13
 
 	blk_queue_max_hw_sectors(msb->queue, MSPRO_BLOCK_MAX_PAGES);
 	blk_queue_max_segments(msb->queue, MSPRO_BLOCK_MAX_SEGS);
@@ -1221,10 +1356,17 @@ static int mspro_block_init_disk(struct memstick_dev *card)
 
 	msb->disk->major = major;
 	msb->disk->first_minor = disk_id << MSPRO_BLOCK_PART_SHIFT;
+<<<<<<< HEAD
 	msb->disk->fops = &ms_block_bdops;
 	msb->usage_count = 1;
 	msb->disk->private_data = msb;
 	msb->disk->queue = msb->queue;
+=======
+	msb->disk->minors = 1 << MSPRO_BLOCK_PART_SHIFT;
+	msb->disk->fops = &ms_block_bdops;
+	msb->usage_count = 1;
+	msb->disk->private_data = msb;
+>>>>>>> upstream/android-13
 
 	sprintf(msb->disk->disk_name, "mspblk%d", disk_id);
 
@@ -1236,12 +1378,21 @@ static int mspro_block_init_disk(struct memstick_dev *card)
 	set_capacity(msb->disk, capacity);
 	dev_dbg(&card->dev, "capacity set %ld\n", capacity);
 
+<<<<<<< HEAD
 	device_add_disk(&card->dev, msb->disk);
 	msb->active = 1;
 	return 0;
 
 out_put_disk:
 	put_disk(msb->disk);
+=======
+	device_add_disk(&card->dev, msb->disk, NULL);
+	msb->active = 1;
+	return 0;
+
+out_free_tag_set:
+	blk_mq_free_tag_set(&msb->tag_set);
+>>>>>>> upstream/android-13
 out_release_id:
 	mutex_lock(&mspro_block_disk_lock);
 	idr_remove(&mspro_block_disk_idr, disk_id);
@@ -1318,13 +1469,22 @@ static void mspro_block_remove(struct memstick_dev *card)
 
 	spin_lock_irqsave(&msb->q_lock, flags);
 	msb->eject = 1;
+<<<<<<< HEAD
 	blk_start_queue(msb->queue);
 	spin_unlock_irqrestore(&msb->q_lock, flags);
+=======
+	spin_unlock_irqrestore(&msb->q_lock, flags);
+	blk_mq_start_hw_queues(msb->queue);
+>>>>>>> upstream/android-13
 
 	del_gendisk(msb->disk);
 	dev_dbg(&card->dev, "mspro block remove\n");
 
 	blk_cleanup_queue(msb->queue);
+<<<<<<< HEAD
+=======
+	blk_mq_free_tag_set(&msb->tag_set);
+>>>>>>> upstream/android-13
 	msb->queue = NULL;
 
 	sysfs_remove_group(&card->dev.kobj, &msb->attr_group);
@@ -1344,8 +1504,14 @@ static int mspro_block_suspend(struct memstick_dev *card, pm_message_t state)
 	struct mspro_block_data *msb = memstick_get_drvdata(card);
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&msb->q_lock, flags);
 	blk_stop_queue(msb->queue);
+=======
+	blk_mq_stop_hw_queues(msb->queue);
+
+	spin_lock_irqsave(&msb->q_lock, flags);
+>>>>>>> upstream/android-13
 	msb->active = 0;
 	spin_unlock_irqrestore(&msb->q_lock, flags);
 
@@ -1355,7 +1521,10 @@ static int mspro_block_suspend(struct memstick_dev *card, pm_message_t state)
 static int mspro_block_resume(struct memstick_dev *card)
 {
 	struct mspro_block_data *msb = memstick_get_drvdata(card);
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 #ifdef CONFIG_MEMSTICK_UNSAFE_RESUME
@@ -1374,7 +1543,12 @@ static int mspro_block_resume(struct memstick_dev *card)
 
 	new_msb->card = card;
 	memstick_set_drvdata(card, new_msb);
+<<<<<<< HEAD
 	if (mspro_block_init_card(card))
+=======
+	rc = mspro_block_init_card(card);
+	if (rc)
+>>>>>>> upstream/android-13
 		goto out_free;
 
 	for (cnt = 0; new_msb->attr_group.attrs[cnt]
@@ -1401,9 +1575,13 @@ out_unlock:
 
 #endif /* CONFIG_MEMSTICK_UNSAFE_RESUME */
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&msb->q_lock, flags);
 	blk_start_queue(msb->queue);
 	spin_unlock_irqrestore(&msb->q_lock, flags);
+=======
+	blk_mq_start_hw_queues(msb->queue);
+>>>>>>> upstream/android-13
 	return rc;
 }
 

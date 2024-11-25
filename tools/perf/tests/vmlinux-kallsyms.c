@@ -3,9 +3,17 @@
 #include <linux/rbtree.h>
 #include <inttypes.h>
 #include <string.h>
+<<<<<<< HEAD
 #include "map.h"
 #include "symbol.h"
 #include "util.h"
+=======
+#include <stdlib.h>
+#include "dso.h"
+#include "map.h"
+#include "symbol.h"
+#include <internal/lib.h> // page_size
+>>>>>>> upstream/android-13
 #include "tests.h"
 #include "debug.h"
 #include "machine.h"
@@ -161,9 +169,22 @@ next_pair:
 
 				continue;
 			}
+<<<<<<< HEAD
 		} else
 			pr_debug("ERR : %#" PRIx64 ": %s not on kallsyms\n",
 				 mem_start, sym->name);
+=======
+		} else if (mem_start == kallsyms.vmlinux_map->end) {
+			/*
+			 * Ignore aliases to _etext, i.e. to the end of the kernel text area,
+			 * such as __indirect_thunk_end.
+			 */
+			continue;
+		} else {
+			pr_debug("ERR : %#" PRIx64 ": %s not on kallsyms\n",
+				 mem_start, sym->name);
+		}
+>>>>>>> upstream/android-13
 
 		err = -1;
 	}
@@ -173,7 +194,11 @@ next_pair:
 
 	header_printed = false;
 
+<<<<<<< HEAD
 	for (map = maps__first(maps); map; map = map__next(map)) {
+=======
+	maps__for_each_entry(maps, map) {
+>>>>>>> upstream/android-13
 		struct map *
 		/*
 		 * If it is the kernel, kallsyms is always "[kernel.kallsyms]", while
@@ -181,10 +206,16 @@ next_pair:
 		 * so use the short name, less descriptive but the same ("[kernel]" in
 		 * both cases.
 		 */
+<<<<<<< HEAD
 		pair = map_groups__find_by_name(&kallsyms.kmaps,
 						(map->dso->kernel ?
 							map->dso->short_name :
 							map->dso->name));
+=======
+		pair = maps__find_by_name(&kallsyms.kmaps, (map->dso->kernel ?
+								map->dso->short_name :
+								map->dso->name));
+>>>>>>> upstream/android-13
 		if (pair) {
 			pair->priv = 1;
 		} else {
@@ -198,13 +229,21 @@ next_pair:
 
 	header_printed = false;
 
+<<<<<<< HEAD
 	for (map = maps__first(maps); map; map = map__next(map)) {
+=======
+	maps__for_each_entry(maps, map) {
+>>>>>>> upstream/android-13
 		struct map *pair;
 
 		mem_start = vmlinux_map->unmap_ip(vmlinux_map, map->start);
 		mem_end = vmlinux_map->unmap_ip(vmlinux_map, map->end);
 
+<<<<<<< HEAD
 		pair = map_groups__find(&kallsyms.kmaps, mem_start);
+=======
+		pair = maps__find(&kallsyms.kmaps, mem_start);
+>>>>>>> upstream/android-13
 		if (pair == NULL || pair->priv)
 			continue;
 
@@ -228,7 +267,11 @@ next_pair:
 
 	maps = machine__kernel_maps(&kallsyms);
 
+<<<<<<< HEAD
 	for (map = maps__first(maps); map; map = map__next(map)) {
+=======
+	maps__for_each_entry(maps, map) {
+>>>>>>> upstream/android-13
 		if (!map->priv) {
 			if (!header_printed) {
 				pr_info("WARN: Maps only in kallsyms:\n");

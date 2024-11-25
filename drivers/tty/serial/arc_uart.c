@@ -21,10 +21,13 @@
  *  -check if sysreq works
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_ARC_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/serial.h>
 #include <linux/console.h>
@@ -153,7 +156,11 @@ static unsigned int arc_serial_tx_empty(struct uart_port *port)
 /*
  * Driver internal routine, used by both tty(serial core) as well as tx-isr
  *  -Called under spinlock in either cases
+<<<<<<< HEAD
  *  -also tty->stopped has already been checked
+=======
+ *  -also tty->flow.stopped has already been checked
+>>>>>>> upstream/android-13
  *     = by uart_start( ) before calling us
  *     = tx_ist checks that too before calling
  */
@@ -240,9 +247,13 @@ static void arc_serial_rx_chars(struct uart_port *port, unsigned int status)
 		if (!(uart_handle_sysrq_char(port, ch)))
 			uart_insert_char(port, status, RXOERR, ch, flg);
 
+<<<<<<< HEAD
 		spin_unlock(&port->lock);
 		tty_flip_buffer_push(&port->state->port);
 		spin_lock(&port->lock);
+=======
+		tty_flip_buffer_push(&port->state->port);
+>>>>>>> upstream/android-13
 	} while (!((status = UART_GET_STATUS(port)) & RXEMPTY));
 }
 
@@ -625,6 +636,10 @@ static int arc_serial_probe(struct platform_device *pdev)
 	port->flags = UPF_BOOT_AUTOCONF;
 	port->line = dev_id;
 	port->ops = &arc_serial_pops;
+<<<<<<< HEAD
+=======
+	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_ARC_CONSOLE);
+>>>>>>> upstream/android-13
 
 	port->fifosize = ARC_UART_TX_FIFO_SIZE;
 

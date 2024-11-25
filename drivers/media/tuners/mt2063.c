@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for mt2063 Micronas tuner
  *
@@ -7,6 +11,7 @@
  *		Henry Wang <Henry.wang@AzureWave.com>
  * Made publicly available by Terratec, at:
  *	http://linux.terratec.de/files/TERRATEC_H7/20110323_TERRATEC_H7_Linux.tar.gz
+<<<<<<< HEAD
  * The original driver's license is GPL, as declared with MODULE_LICENSE()
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -1392,7 +1399,11 @@ static u32 MT2063_Round_fLO(u32 f_LO, u32 f_LO_Step, u32 f_ref)
 }
 
 /**
+<<<<<<< HEAD
  * fLO_FractionalTerm() - Calculates the portion contributed by FracN / denom.
+=======
+ * MT2063_fLO_FractionalTerm - Calculates the portion contributed by FracN / denom.
+>>>>>>> upstream/android-13
  *                        This function preserves maximum precision without
  *                        risk of overflow.  It accurately calculates
  *                        f_ref * num / denom to within 1 HZ with fixed math.
@@ -1420,7 +1431,11 @@ static u32 MT2063_fLO_FractionalTerm(u32 f_ref, u32 num, u32 denom)
 }
 
 /*
+<<<<<<< HEAD
  * CalcLO1Mult()- Calculates Integer divider value and the numerator
+=======
+ * MT2063_CalcLO1Mult - Calculates Integer divider value and the numerator
+>>>>>>> upstream/android-13
  *                value for a FracN PLL.
  *
  *                This function assumes that the f_LO and f_Ref are
@@ -1453,7 +1468,11 @@ static u32 MT2063_CalcLO1Mult(u32 *Div,
 }
 
 /**
+<<<<<<< HEAD
  * CalcLO2Mult() - Calculates Integer divider value and the numerator
+=======
+ * MT2063_CalcLO2Mult - Calculates Integer divider value and the numerator
+>>>>>>> upstream/android-13
  *                 value for a FracN PLL.
  *
  *                  This function assumes that the f_LO and f_Ref are
@@ -1858,7 +1877,10 @@ static int mt2063_init(struct dvb_frontend *fe)
 
 	default:
 		return -ENODEV;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	while (status >= 0 && *def) {

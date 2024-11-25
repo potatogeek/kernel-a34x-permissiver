@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * CAN driver for "8 devices" USB2CAN converter
  *
  * Copyright (C) 2012 Bernd Krumboeck (krumboeck@universalnet.at)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
  * by the Free Software Foundation; version 2 of the License.
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.
  *
+=======
+>>>>>>> upstream/android-13
  * This driver is inspired by the 3.2.0 version of drivers/net/can/usb/ems_usb.c
  * and drivers/net/can/usb/esd_usb2.c
  *
@@ -99,7 +106,11 @@ enum usb_8dev_cmd {
 
 /* status */
 #define USB_8DEV_STATUSMSG_OK		0x00  /* Normal condition. */
+<<<<<<< HEAD
 #define USB_8DEV_STATUSMSG_OVERRUN	0x01  /* Overrun occured when sending */
+=======
+#define USB_8DEV_STATUSMSG_OVERRUN	0x01  /* Overrun occurred when sending */
+>>>>>>> upstream/android-13
 #define USB_8DEV_STATUSMSG_BUSLIGHT	0x02  /* Error counter has reached 96 */
 #define USB_8DEV_STATUSMSG_BUSHEAVY	0x03  /* Error count. has reached 128 */
 #define USB_8DEV_STATUSMSG_BUSOFF	0x04  /* Device is in BUSOFF */
@@ -148,7 +159,12 @@ struct usb_8dev_priv {
 	u8 *cmd_msg_buffer;
 
 	struct mutex usb_8dev_cmd_lock;
+<<<<<<< HEAD
 
+=======
+	void *rxbuf[MAX_RX_URBS];
+	dma_addr_t rxbuf_dma[MAX_RX_URBS];
+>>>>>>> upstream/android-13
 };
 
 /* tx frame */
@@ -176,7 +192,11 @@ struct __packed usb_8dev_rx_msg {
 /* command frame */
 struct __packed usb_8dev_cmd_msg {
 	u8 begin;
+<<<<<<< HEAD
 	u8 channel;	/* unkown - always 0 */
+=======
+	u8 channel;	/* unknown - always 0 */
+>>>>>>> upstream/android-13
 	u8 command;	/* command to execute */
 	u8 opt1;	/* optional parameter / return value */
 	u8 opt2;	/* optional parameter 2 */
@@ -460,7 +480,11 @@ static void usb_8dev_rx_err_msg(struct usb_8dev_priv *priv,
 	priv->bec.rxerr = rxerr;
 
 	stats->rx_packets++;
+<<<<<<< HEAD
 	stats->rx_bytes += cf->can_dlc;
+=======
+	stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 	netif_rx(skb);
 }
 
@@ -481,7 +505,11 @@ static void usb_8dev_rx_can_msg(struct usb_8dev_priv *priv,
 			return;
 
 		cf->can_id = be32_to_cpu(msg->id);
+<<<<<<< HEAD
 		cf->can_dlc = get_can_dlc(msg->dlc & 0xF);
+=======
+		can_frame_set_cc_len(cf, msg->dlc & 0xF, priv->can.ctrlmode);
+>>>>>>> upstream/android-13
 
 		if (msg->flags & USB_8DEV_EXTID)
 			cf->can_id |= CAN_EFF_FLAG;
@@ -489,10 +517,17 @@ static void usb_8dev_rx_can_msg(struct usb_8dev_priv *priv,
 		if (msg->flags & USB_8DEV_RTR)
 			cf->can_id |= CAN_RTR_FLAG;
 		else
+<<<<<<< HEAD
 			memcpy(cf->data, msg->data, cf->can_dlc);
 
 		stats->rx_packets++;
 		stats->rx_bytes += cf->can_dlc;
+=======
+			memcpy(cf->data, msg->data, cf->len);
+
+		stats->rx_packets++;
+		stats->rx_bytes += cf->len;
+>>>>>>> upstream/android-13
 		netif_rx(skb);
 
 		can_led_event(priv->netdev, CAN_LED_EVENT_RX);
@@ -596,7 +631,11 @@ static void usb_8dev_write_bulk_callback(struct urb *urb)
 	netdev->stats.tx_packets++;
 	netdev->stats.tx_bytes += context->dlc;
 
+<<<<<<< HEAD
 	can_get_echo_skb(netdev, context->echo_index);
+=======
+	can_get_echo_skb(netdev, context->echo_index, NULL);
+>>>>>>> upstream/android-13
 
 	can_led_event(netdev, CAN_LED_EVENT_TX);
 
@@ -648,8 +687,13 @@ static netdev_tx_t usb_8dev_start_xmit(struct sk_buff *skb,
 		msg->flags |= USB_8DEV_EXTID;
 
 	msg->id = cpu_to_be32(cf->can_id & CAN_ERR_MASK);
+<<<<<<< HEAD
 	msg->dlc = cf->can_dlc;
 	memcpy(msg->data, cf->data, cf->can_dlc);
+=======
+	msg->dlc = can_get_cc_dlc(cf, priv->can.ctrlmode);
+	memcpy(msg->data, cf->data, cf->len);
+>>>>>>> upstream/android-13
 	msg->end = USB_8DEV_DATA_END;
 
 	for (i = 0; i < MAX_TX_URBS; i++) {
@@ -667,7 +711,11 @@ static netdev_tx_t usb_8dev_start_xmit(struct sk_buff *skb,
 
 	context->priv = priv;
 	context->echo_index = i;
+<<<<<<< HEAD
 	context->dlc = cf->can_dlc;
+=======
+	context->dlc = cf->len;
+>>>>>>> upstream/android-13
 
 	usb_fill_bulk_urb(urb, priv->udev,
 			  usb_sndbulkpipe(priv->udev, USB_8DEV_ENDP_DATA_TX),
@@ -675,14 +723,35 @@ static netdev_tx_t usb_8dev_start_xmit(struct sk_buff *skb,
 	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 	usb_anchor_urb(urb, &priv->tx_submitted);
 
+<<<<<<< HEAD
 	can_put_echo_skb(skb, netdev, context->echo_index);
+=======
+	can_put_echo_skb(skb, netdev, context->echo_index, 0);
+>>>>>>> upstream/android-13
 
 	atomic_inc(&priv->active_tx_urbs);
 
 	err = usb_submit_urb(urb, GFP_ATOMIC);
+<<<<<<< HEAD
 	if (unlikely(err))
 		goto failed;
 	else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
+=======
+	if (unlikely(err)) {
+		can_free_echo_skb(netdev, context->echo_index, NULL);
+
+		usb_unanchor_urb(urb);
+		usb_free_coherent(priv->udev, size, buf, urb->transfer_dma);
+
+		atomic_dec(&priv->active_tx_urbs);
+
+		if (err == -ENODEV)
+			netif_device_detach(netdev);
+		else
+			netdev_warn(netdev, "failed tx_urb %d\n", err);
+		stats->tx_dropped++;
+	} else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
+>>>>>>> upstream/android-13
 		/* Slow down tx path */
 		netif_stop_queue(netdev);
 
@@ -701,6 +770,7 @@ nofreecontext:
 
 	return NETDEV_TX_BUSY;
 
+<<<<<<< HEAD
 failed:
 	can_free_echo_skb(netdev, context->echo_index);
 
@@ -714,6 +784,8 @@ failed:
 	else
 		netdev_warn(netdev, "failed tx_urb %d\n", err);
 
+=======
+>>>>>>> upstream/android-13
 nomembuf:
 	usb_free_urb(urb);
 
@@ -744,6 +816,10 @@ static int usb_8dev_start(struct usb_8dev_priv *priv)
 	for (i = 0; i < MAX_RX_URBS; i++) {
 		struct urb *urb = NULL;
 		u8 *buf;
+<<<<<<< HEAD
+=======
+		dma_addr_t buf_dma;
+>>>>>>> upstream/android-13
 
 		/* create a URB, and a buffer for it */
 		urb = usb_alloc_urb(0, GFP_KERNEL);
@@ -753,7 +829,11 @@ static int usb_8dev_start(struct usb_8dev_priv *priv)
 		}
 
 		buf = usb_alloc_coherent(priv->udev, RX_BUFFER_SIZE, GFP_KERNEL,
+<<<<<<< HEAD
 					 &urb->transfer_dma);
+=======
+					 &buf_dma);
+>>>>>>> upstream/android-13
 		if (!buf) {
 			netdev_err(netdev, "No memory left for USB buffer\n");
 			usb_free_urb(urb);
@@ -761,6 +841,11 @@ static int usb_8dev_start(struct usb_8dev_priv *priv)
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		urb->transfer_dma = buf_dma;
+
+>>>>>>> upstream/android-13
 		usb_fill_bulk_urb(urb, priv->udev,
 				  usb_rcvbulkpipe(priv->udev,
 						  USB_8DEV_ENDP_DATA_RX),
@@ -778,6 +863,12 @@ static int usb_8dev_start(struct usb_8dev_priv *priv)
 			break;
 		}
 
+<<<<<<< HEAD
+=======
+		priv->rxbuf[i] = buf;
+		priv->rxbuf_dma[i] = buf_dma;
+
+>>>>>>> upstream/android-13
 		/* Drop reference, USB core will take care of freeing it */
 		usb_free_urb(urb);
 	}
@@ -847,6 +938,13 @@ static void unlink_all_urbs(struct usb_8dev_priv *priv)
 
 	usb_kill_anchored_urbs(&priv->rx_submitted);
 
+<<<<<<< HEAD
+=======
+	for (i = 0; i < MAX_RX_URBS; ++i)
+		usb_free_coherent(priv->udev, RX_BUFFER_SIZE,
+				  priv->rxbuf[i], priv->rxbuf_dma[i]);
+
+>>>>>>> upstream/android-13
 	usb_kill_anchored_urbs(&priv->tx_submitted);
 	atomic_set(&priv->active_tx_urbs, 0);
 
@@ -939,7 +1037,12 @@ static int usb_8dev_probe(struct usb_interface *intf,
 	priv->can.do_get_berr_counter = usb_8dev_get_berr_counter;
 	priv->can.ctrlmode_supported = CAN_CTRLMODE_LOOPBACK |
 				      CAN_CTRLMODE_LISTENONLY |
+<<<<<<< HEAD
 				      CAN_CTRLMODE_ONE_SHOT;
+=======
+				      CAN_CTRLMODE_ONE_SHOT |
+				      CAN_CTRLMODE_CC_LEN8_DLC;
+>>>>>>> upstream/android-13
 
 	netdev->netdev_ops = &usb_8dev_netdev_ops;
 

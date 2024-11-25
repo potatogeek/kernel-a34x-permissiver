@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
  *
  * Copyright (c) 2010 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -82,11 +89,17 @@ int s5p_mfc_power_on(void)
 {
 	int i, ret = 0;
 
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(pm->device);
 	if (ret < 0) {
 		pm_runtime_put_noidle(pm->device);
 		return ret;
 	}
+=======
+	ret = pm_runtime_resume_and_get(pm->device);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* clock control */
 	for (i = 0; i < pm->num_clocks; i++) {

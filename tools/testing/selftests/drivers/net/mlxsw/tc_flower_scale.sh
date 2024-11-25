@@ -2,9 +2,15 @@
 # SPDX-License-Identifier: GPL-2.0
 
 # Test for resource limit of offloaded flower rules. The test adds a given
+<<<<<<< HEAD
 # number of flower matches for different IPv6 addresses, then generates traffic,
 # and ensures each was hit exactly once. This file contains functions to set up
 # a testing topology and run the test, and is meant to be sourced from a test
+=======
+# number of flower matches for different IPv6 addresses, then check the offload
+# indication for all of the tc flower rules. This file contains functions to set
+# up a testing topology and run the test, and is meant to be sourced from a test
+>>>>>>> upstream/android-13
 # script that calls the testing routine with a given number of rules.
 
 TC_FLOWER_NUM_NETIFS=2
@@ -94,6 +100,7 @@ __tc_flower_test()
 
 	tc_flower_rules_create $count $should_fail
 
+<<<<<<< HEAD
 	for ((i = 0; i < count; ++i)); do
 		$MZ $h1 -q -c 1 -t ip -p 20 -b bc -6 \
 			-A 2001:db8:2::1 \
@@ -110,6 +117,13 @@ __tc_flower_test()
 
 	test -z "$MISMATCHES"
 	check_err $? "Expected to capture 1 packet for each IP, but got $MISMATCHES"
+=======
+	offload_count=$(tc -j -s filter show dev $h2 ingress    |
+			jq -r '[ .[] | select(.kind == "flower") |
+			.options | .in_hw ]' | jq .[] | wc -l)
+	[[ $((offload_count - 1)) -eq $count ]]
+	check_err_fail $should_fail $? "Attempt to offload $count rules (actual result $((offload_count - 1)))"
+>>>>>>> upstream/android-13
 }
 
 tc_flower_test()

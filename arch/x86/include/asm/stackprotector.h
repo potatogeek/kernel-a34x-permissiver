@@ -5,6 +5,7 @@
  * Stack protector works by putting predefined pattern at the start of
  * the stack frame and verifying that it hasn't been overwritten when
  * returning from the function.  The pattern is called stack canary
+<<<<<<< HEAD
  * and unfortunately gcc requires it to be at a fixed offset from %gs.
  * On x86_64, the offset is 40 bytes and on x86_32 20 bytes.  x86_64
  * and x86_32 use segment registers differently and thus handles this
@@ -29,6 +30,25 @@
  * restores userland %gs on kernel entry and exit.  This behavior is
  * controlled by CONFIG_X86_32_LAZY_GS and accessors are defined in
  * system.h to hide the details.
+=======
+ * and unfortunately gcc historically required it to be at a fixed offset
+ * from the percpu segment base.  On x86_64, the offset is 40 bytes.
+ *
+ * The same segment is shared by percpu area and stack canary.  On
+ * x86_64, percpu symbols are zero based and %gs (64-bit) points to the
+ * base of percpu area.  The first occupant of the percpu area is always
+ * fixed_percpu_data which contains stack_canary at the appropriate
+ * offset.  On x86_32, the stack canary is just a regular percpu
+ * variable.
+ *
+ * Putting percpu data in %fs on 32-bit is a minor optimization compared to
+ * using %gs.  Since 32-bit userspace normally has %fs == 0, we are likely
+ * to load 0 into %fs on exit to usermode, whereas with percpu data in
+ * %gs, we are likely to load a non-null %gs on return to user mode.
+ *
+ * Once we are willing to require GCC 8.1 or better for 64-bit stackprotector
+ * support, we can remove some of this complexity.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_STACKPROTECTOR_H
@@ -45,6 +65,7 @@
 #include <linux/sched.h>
 
 /*
+<<<<<<< HEAD
  * 24 byte read-only segment initializer for stack canary.  Linker
  * can't handle the address bit shifting.  Address will be set in
  * head_32 for boot CPU and setup_per_cpu_areas() for others.
@@ -53,6 +74,8 @@
 	[GDT_ENTRY_STACK_CANARY] = GDT_ENTRY_INIT(0x4090, 0, 0x18),
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Initialize the stackprotector canary value.
  *
  * NOTE: this must only be called from functions that never return
@@ -69,7 +92,11 @@ static __always_inline void boot_init_stack_canary(void)
 	u64 tsc;
 
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 	BUILD_BUG_ON(offsetof(union irq_stack_union, stack_canary) != 40);
+=======
+	BUILD_BUG_ON(offsetof(struct fixed_percpu_data, stack_canary) != 40);
+>>>>>>> upstream/android-13
 #endif
 	/*
 	 * We both use the random pool and the current TSC as a source
@@ -84,6 +111,7 @@ static __always_inline void boot_init_stack_canary(void)
 
 	current->stack_canary = canary;
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 	this_cpu_write(irq_stack_union.stack_canary, canary);
 #else
 	this_cpu_write(stack_canary.canary, canary);
@@ -107,11 +135,26 @@ static inline void load_stack_canary_segment(void)
 {
 #ifdef CONFIG_X86_32
 	asm("mov %0, %%gs" : : "r" (__KERNEL_STACK_CANARY) : "memory");
+=======
+	this_cpu_write(fixed_percpu_data.stack_canary, canary);
+#else
+	this_cpu_write(__stack_chk_guard, canary);
+#endif
+}
+
+static inline void cpu_init_stack_canary(int cpu, struct task_struct *idle)
+{
+#ifdef CONFIG_X86_64
+	per_cpu(fixed_percpu_data.stack_canary, cpu) = idle->stack_canary;
+#else
+	per_cpu(__stack_chk_guard, cpu) = idle->stack_canary;
+>>>>>>> upstream/android-13
 #endif
 }
 
 #else	/* STACKPROTECTOR */
 
+<<<<<<< HEAD
 #define GDT_STACK_CANARY_INIT
 
 /* dummy boot_init_stack_canary() is defined in linux/stackprotector.h */
@@ -126,5 +169,12 @@ static inline void load_stack_canary_segment(void)
 #endif
 }
 
+=======
+/* dummy boot_init_stack_canary() is defined in linux/stackprotector.h */
+
+static inline void cpu_init_stack_canary(int cpu, struct task_struct *idle)
+{ }
+
+>>>>>>> upstream/android-13
 #endif	/* STACKPROTECTOR */
 #endif	/* _ASM_STACKPROTECTOR_H */

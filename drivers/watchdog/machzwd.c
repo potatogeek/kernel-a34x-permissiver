@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  MachZ ZF-Logic Watchdog Timer driver for Linux
  *
@@ -7,6 +8,12 @@
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  MachZ ZF-Logic Watchdog Timer driver for Linux
+ *
+>>>>>>> upstream/android-13
  *  The author does NOT admit liability nor provide warranty for
  *  any of this software. This material is provided "AS-IS" in
  *  the hope that it may be useful for others.
@@ -15,7 +22,10 @@
  *
  *  Based on sbc60xxwdt.c by Jakob Oestergaard
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  We have two timers (wd#1, wd#2) driven by a 32 KHz clock with the
  *  following periods:
  *      wd#1 - 2 seconds;
@@ -177,8 +187,15 @@ static inline void zf_set_timer(unsigned short new, unsigned char n)
 	switch (n) {
 	case WD1:
 		zf_writew(COUNTER_1, new);
+<<<<<<< HEAD
 	case WD2:
 		zf_writeb(COUNTER_2, new > 0xff ? 0xff : new);
+=======
+		fallthrough;
+	case WD2:
+		zf_writeb(COUNTER_2, new > 0xff ? 0xff : new);
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return;
 	}
@@ -318,7 +335,11 @@ static long zf_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	case WDIOC_GETBOOTSTATUS:
 		return put_user(0, p);
 	case WDIOC_KEEPALIVE:
+<<<<<<< HEAD
 		zf_ping(0);
+=======
+		zf_ping(NULL);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -ENOTTY;
@@ -333,7 +354,11 @@ static int zf_open(struct inode *inode, struct file *file)
 	if (nowayout)
 		__module_get(THIS_MODULE);
 	zf_timer_on();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int zf_close(struct inode *inode, struct file *file)
@@ -366,6 +391,10 @@ static const struct file_operations zf_fops = {
 	.llseek		= no_llseek,
 	.write		= zf_write,
 	.unlocked_ioctl = zf_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= zf_open,
 	.release	= zf_close,
 };

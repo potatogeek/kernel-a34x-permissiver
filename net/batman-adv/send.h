@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2007-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_SEND_H_
@@ -22,12 +28,19 @@
 #include "main.h"
 
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/skbuff.h>
+>>>>>>> upstream/android-13
 #include <linux/spinlock.h>
 #include <linux/types.h>
 #include <uapi/linux/batadv_packet.h>
 
+<<<<<<< HEAD
 struct sk_buff;
 
+=======
+>>>>>>> upstream/android-13
 void batadv_forw_packet_free(struct batadv_forw_packet *forw_packet,
 			     bool dropped);
 struct batadv_forw_packet *
@@ -52,10 +65,21 @@ int batadv_send_broadcast_skb(struct sk_buff *skb,
 			      struct batadv_hard_iface *hard_iface);
 int batadv_send_unicast_skb(struct sk_buff *skb,
 			    struct batadv_neigh_node *neigh_node);
+<<<<<<< HEAD
 int batadv_add_bcast_packet_to_list(struct batadv_priv *bat_priv,
 				    const struct sk_buff *skb,
 				    unsigned long delay,
 				    bool own_packet);
+=======
+int batadv_forw_bcast_packet(struct batadv_priv *bat_priv,
+			     struct sk_buff *skb,
+			     unsigned long delay,
+			     bool own_packet);
+void batadv_send_bcast_packet(struct batadv_priv *bat_priv,
+			      struct sk_buff *skb,
+			      unsigned long delay,
+			      bool own_packet);
+>>>>>>> upstream/android-13
 void
 batadv_purge_outstanding_packets(struct batadv_priv *bat_priv,
 				 const struct batadv_hard_iface *hard_iface);

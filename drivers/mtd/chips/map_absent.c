@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Common code to handle absent "placeholder" devices
  * Copyright 2001 Resilience Corporation <ebrower@resilience.com>

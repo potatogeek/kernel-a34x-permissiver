@@ -9,12 +9,20 @@
 #include <net/netns/ipv4.h>
 #include <net/ip_fib.h>
 
+<<<<<<< HEAD
 int call_fib4_notifier(struct notifier_block *nb, struct net *net,
+=======
+int call_fib4_notifier(struct notifier_block *nb,
+>>>>>>> upstream/android-13
 		       enum fib_event_type event_type,
 		       struct fib_notifier_info *info)
 {
 	info->family = AF_INET;
+<<<<<<< HEAD
 	return call_fib_notifier(nb, net, event_type, info);
+=======
+	return call_fib_notifier(nb, event_type, info);
+>>>>>>> upstream/android-13
 }
 
 int call_fib4_notifiers(struct net *net, enum fib_event_type event_type,
@@ -34,6 +42,7 @@ static unsigned int fib4_seq_read(struct net *net)
 	return net->ipv4.fib_seq + fib4_rules_seq_read(net);
 }
 
+<<<<<<< HEAD
 static int fib4_dump(struct net *net, struct notifier_block *nb)
 {
 	int err;
@@ -45,6 +54,18 @@ static int fib4_dump(struct net *net, struct notifier_block *nb)
 	fib_notify(net, nb);
 
 	return 0;
+=======
+static int fib4_dump(struct net *net, struct notifier_block *nb,
+		     struct netlink_ext_ack *extack)
+{
+	int err;
+
+	err = fib4_rules_dump(net, nb, extack);
+	if (err)
+		return err;
+
+	return fib_notify(net, nb, extack);
+>>>>>>> upstream/android-13
 }
 
 static const struct fib_notifier_ops fib4_notifier_ops_template = {

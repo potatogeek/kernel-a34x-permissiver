@@ -8,7 +8,10 @@ omapdss-y := core.o dss.o dss_features.o dispc.o dispc_coefs.o display.o \
 omapdss-y += manager.o manager-sysfs.o overlay.o overlay-sysfs.o apply.o \
 	dispc-compat.o display-sysfs.o
 omapdss-$(CONFIG_FB_OMAP2_DSS_DPI) += dpi.o
+<<<<<<< HEAD
 omapdss-$(CONFIG_FB_OMAP2_DSS_RFBI) += rfbi.o
+=======
+>>>>>>> upstream/android-13
 omapdss-$(CONFIG_FB_OMAP2_DSS_VENC) += venc.o
 omapdss-$(CONFIG_FB_OMAP2_DSS_SDI) += sdi.o
 omapdss-$(CONFIG_FB_OMAP2_DSS_DSI) += dsi.o

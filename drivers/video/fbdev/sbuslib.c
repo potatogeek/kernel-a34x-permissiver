@@ -192,6 +192,7 @@ int sbusfb_ioctl_helper(unsigned long cmd, unsigned long arg,
 EXPORT_SYMBOL(sbusfb_ioctl_helper);
 
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
 static int fbiogetputcmap(struct fb_info *info, unsigned int cmd, unsigned long arg)
 {
 	struct fbcmap32 __user *argp = (void __user *)arg;
@@ -240,6 +241,8 @@ static int fbiogscursor(struct fb_info *info, unsigned long arg)
 	return info->fbops->fb_ioctl(info, FBIOSCURSOR, (unsigned long)p);
 }
 
+=======
+>>>>>>> upstream/android-13
 int sbusfb_compat_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg)
 {
 	switch (cmd) {
@@ -248,6 +251,10 @@ int sbusfb_compat_ioctl(struct fb_info *info, unsigned int cmd, unsigned long ar
 	case FBIOGATTR:
 	case FBIOSVIDEO:
 	case FBIOGVIDEO:
+<<<<<<< HEAD
+=======
+	case FBIOSCURSOR32:
+>>>>>>> upstream/android-13
 	case FBIOGCURSOR32:	/* This is not implemented yet.
 				   Later it should be converted... */
 	case FBIOSCURPOS:
@@ -255,11 +262,84 @@ int sbusfb_compat_ioctl(struct fb_info *info, unsigned int cmd, unsigned long ar
 	case FBIOGCURMAX:
 		return info->fbops->fb_ioctl(info, cmd, arg);
 	case FBIOPUTCMAP32:
+<<<<<<< HEAD
 		return fbiogetputcmap(info, cmd, arg);
 	case FBIOGETCMAP32:
 		return fbiogetputcmap(info, cmd, arg);
 	case FBIOSCURSOR32:
 		return fbiogscursor(info, arg);
+=======
+	case FBIOPUTCMAP_SPARC: {
+		struct fbcmap32 c;
+		struct fb_cmap cmap;
+		u16 red, green, blue;
+		u8 red8, green8, blue8;
+		unsigned char __user *ured;
+		unsigned char __user *ugreen;
+		unsigned char __user *ublue;
+		unsigned int i;
+
+		if (copy_from_user(&c, compat_ptr(arg), sizeof(c)))
+			return -EFAULT;
+		ured = compat_ptr(c.red);
+		ugreen = compat_ptr(c.green);
+		ublue = compat_ptr(c.blue);
+
+		cmap.len = 1;
+		cmap.red = &red;
+		cmap.green = &green;
+		cmap.blue = &blue;
+		cmap.transp = NULL;
+		for (i = 0; i < c.count; i++) {
+			int err;
+
+			if (get_user(red8, &ured[i]) ||
+			    get_user(green8, &ugreen[i]) ||
+			    get_user(blue8, &ublue[i]))
+				return -EFAULT;
+
+			red = red8 << 8;
+			green = green8 << 8;
+			blue = blue8 << 8;
+
+			cmap.start = c.index + i;
+			err = fb_set_cmap(&cmap, info);
+			if (err)
+				return err;
+		}
+		return 0;
+	}
+	case FBIOGETCMAP32: {
+		struct fbcmap32 c;
+		unsigned char __user *ured;
+		unsigned char __user *ugreen;
+		unsigned char __user *ublue;
+		struct fb_cmap *cmap = &info->cmap;
+		unsigned int index, i;
+		u8 red, green, blue;
+
+		if (copy_from_user(&c, compat_ptr(arg), sizeof(c)))
+			return -EFAULT;
+		index = c.index;
+		ured = compat_ptr(c.red);
+		ugreen = compat_ptr(c.green);
+		ublue = compat_ptr(c.blue);
+
+		if (index > cmap->len || c.count > cmap->len - index)
+			return -EINVAL;
+
+		for (i = 0; i < c.count; i++) {
+			red = cmap->red[index + i] >> 8;
+			green = cmap->green[index + i] >> 8;
+			blue = cmap->blue[index + i] >> 8;
+			if (put_user(red, &ured[i]) ||
+			    put_user(green, &ugreen[i]) ||
+			    put_user(blue, &ublue[i]))
+				return -EFAULT;
+		}
+		return 0;
+	}
+>>>>>>> upstream/android-13
 	default:
 		return -ENOIOCTLCMD;
 	}

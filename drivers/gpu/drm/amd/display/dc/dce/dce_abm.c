@@ -23,6 +23,11 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 #include "dce_abm.h"
 #include "dm_services.h"
 #include "reg_helper.h"
@@ -53,6 +58,7 @@
 
 #define MCP_DISABLE_ABM_IMMEDIATELY 255
 
+<<<<<<< HEAD
 
 static unsigned int get_current_backlight_16_bit(struct dce_abm *abm_dce)
 {
@@ -203,6 +209,18 @@ static void dmcu_set_backlight_level(
 				(((backlight_16_bit & 0x80) >> 7) & 1);
 	uint32_t rampingBoundary = 0xFFFF;
 	uint32_t s2;
+=======
+static bool dce_abm_set_pipe(struct abm *abm, uint32_t controller_id, uint32_t panel_inst)
+{
+	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
+	uint32_t rampingBoundary = 0xFFFF;
+
+	if (abm->dmcu_is_running == false)
+		return true;
+
+	REG_WAIT(MASTER_COMM_CNTL_REG, MASTER_COMM_INTERRUPT, 0,
+			1, 80000);
+>>>>>>> upstream/android-13
 
 	/* set ramping boundary */
 	REG_WRITE(MASTER_COMM_DATA_REG1, rampingBoundary);
@@ -215,12 +233,44 @@ static void dmcu_set_backlight_level(
 	/* notifyDMCUMsg */
 	REG_UPDATE(MASTER_COMM_CNTL_REG, MASTER_COMM_INTERRUPT, 1);
 
+<<<<<<< HEAD
+=======
+	REG_WAIT(MASTER_COMM_CNTL_REG, MASTER_COMM_INTERRUPT, 0,
+			1, 80000);
+
+	return true;
+}
+
+static void dmcu_set_backlight_level(
+	struct dce_abm *abm_dce,
+	uint32_t backlight_pwm_u16_16,
+	uint32_t frame_ramp,
+	uint32_t controller_id,
+	uint32_t panel_id)
+{
+	unsigned int backlight_8_bit = 0;
+	uint32_t s2;
+
+	if (backlight_pwm_u16_16 & 0x10000)
+		// Check for max backlight condition
+		backlight_8_bit = 0xFF;
+	else
+		// Take MSB of fractional part since backlight is not max
+		backlight_8_bit = (backlight_pwm_u16_16 >> 8) & 0xFF;
+
+	dce_abm_set_pipe(&abm_dce->base, controller_id, panel_id);
+
+>>>>>>> upstream/android-13
 	/* waitDMCUReadyForCmd */
 	REG_WAIT(MASTER_COMM_CNTL_REG, MASTER_COMM_INTERRUPT,
 			0, 1, 80000);
 
 	/* setDMCUParam_BL */
+<<<<<<< HEAD
 	REG_UPDATE(BL1_PWM_USER_LEVEL, BL1_PWM_USER_LEVEL, backlight_17_bit);
+=======
+	REG_UPDATE(BL1_PWM_USER_LEVEL, BL1_PWM_USER_LEVEL, backlight_pwm_u16_16);
+>>>>>>> upstream/android-13
 
 	/* write ramp */
 	if (controller_id == 0)
@@ -237,9 +287,15 @@ static void dmcu_set_backlight_level(
 	s2 = REG_READ(BIOS_SCRATCH_2);
 
 	s2 &= ~ATOM_S2_CURRENT_BL_LEVEL_MASK;
+<<<<<<< HEAD
 	level &= (ATOM_S2_CURRENT_BL_LEVEL_MASK >>
 				ATOM_S2_CURRENT_BL_LEVEL_SHIFT);
 	s2 |= (level << ATOM_S2_CURRENT_BL_LEVEL_SHIFT);
+=======
+	backlight_8_bit &= (ATOM_S2_CURRENT_BL_LEVEL_MASK >>
+				ATOM_S2_CURRENT_BL_LEVEL_SHIFT);
+	s2 |= (backlight_8_bit << ATOM_S2_CURRENT_BL_LEVEL_SHIFT);
+>>>>>>> upstream/android-13
 
 	REG_WRITE(BIOS_SCRATCH_2, s2);
 
@@ -248,10 +304,16 @@ static void dmcu_set_backlight_level(
 			0, 1, 80000);
 }
 
+<<<<<<< HEAD
 static void dce_abm_init(struct abm *abm)
 {
 	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
 	unsigned int backlight = get_current_backlight_16_bit(abm_dce);
+=======
+static void dce_abm_init(struct abm *abm, uint32_t backlight)
+{
+	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
+>>>>>>> upstream/android-13
 
 	REG_WRITE(DC_ABM1_HG_SAMPLE_RATE, 0x103);
 	REG_WRITE(DC_ABM1_HG_SAMPLE_RATE, 0x101);
@@ -288,18 +350,46 @@ static void dce_abm_init(struct abm *abm)
 			ABM1_BL_REG_READ_MISSED_FRAME_CLEAR, 1);
 }
 
+<<<<<<< HEAD
 static unsigned int dce_abm_get_current_backlight_8_bit(struct abm *abm)
+=======
+static unsigned int dce_abm_get_current_backlight(struct abm *abm)
+>>>>>>> upstream/android-13
 {
 	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
 	unsigned int backlight = REG_READ(BL1_PWM_CURRENT_ABM_LEVEL);
 
+<<<<<<< HEAD
 	return (backlight >> 8);
+=======
+	/* return backlight in hardware format which is unsigned 17 bits, with
+	 * 1 bit integer and 16 bit fractional
+	 */
+	return backlight;
+}
+
+static unsigned int dce_abm_get_target_backlight(struct abm *abm)
+{
+	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
+	unsigned int backlight = REG_READ(BL1_PWM_TARGET_ABM_LEVEL);
+
+	/* return backlight in hardware format which is unsigned 17 bits, with
+	 * 1 bit integer and 16 bit fractional
+	 */
+	return backlight;
+>>>>>>> upstream/android-13
 }
 
 static bool dce_abm_set_level(struct abm *abm, uint32_t level)
 {
 	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
 
+<<<<<<< HEAD
+=======
+	if (abm->dmcu_is_running == false)
+		return true;
+
+>>>>>>> upstream/android-13
 	REG_WAIT(MASTER_COMM_CNTL_REG, MASTER_COMM_INTERRUPT, 0,
 			1, 80000);
 
@@ -314,6 +404,7 @@ static bool dce_abm_set_level(struct abm *abm, uint32_t level)
 	return true;
 }
 
+<<<<<<< HEAD
 static bool dce_abm_immediate_disable(struct abm *abm)
 {
 	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
@@ -396,20 +487,38 @@ static bool dce_abm_init_backlight(struct abm *abm)
 	/* Unlock group 2 backlight registers */
 	REG_UPDATE(BL_PWM_GRP1_REG_LOCK,
 			BL_PWM_GRP1_REG_LOCK, 0);
+=======
+static bool dce_abm_immediate_disable(struct abm *abm, uint32_t panel_inst)
+{
+	if (abm->dmcu_is_running == false)
+		return true;
+
+	dce_abm_set_pipe(abm, MCP_DISABLE_ABM_IMMEDIATELY, panel_inst);
+>>>>>>> upstream/android-13
 
 	return true;
 }
 
+<<<<<<< HEAD
 static bool dce_abm_set_backlight_level(
 		struct abm *abm,
 		unsigned int backlight_level,
 		unsigned int frame_ramp,
 		unsigned int controller_id,
 		bool use_smooth_brightness)
+=======
+static bool dce_abm_set_backlight_level_pwm(
+		struct abm *abm,
+		unsigned int backlight_pwm_u16_16,
+		unsigned int frame_ramp,
+		unsigned int controller_id,
+		unsigned int panel_inst)
+>>>>>>> upstream/android-13
 {
 	struct dce_abm *abm_dce = TO_DCE_ABM(abm);
 
 	DC_LOG_BACKLIGHT("New Backlight level: %d (0x%X)\n",
+<<<<<<< HEAD
 			backlight_level, backlight_level);
 
 	/* If DMCU is in reset state, DMCU is uninitialized */
@@ -420,6 +529,15 @@ static bool dce_abm_set_backlight_level(
 				controller_id);
 	else
 		driver_set_backlight_level(abm_dce, backlight_level);
+=======
+			backlight_pwm_u16_16, backlight_pwm_u16_16);
+
+	dmcu_set_backlight_level(abm_dce,
+			backlight_pwm_u16_16,
+			frame_ramp,
+			controller_id,
+			panel_inst);
+>>>>>>> upstream/android-13
 
 	return true;
 }
@@ -427,10 +545,19 @@ static bool dce_abm_set_backlight_level(
 static const struct abm_funcs dce_funcs = {
 	.abm_init = dce_abm_init,
 	.set_abm_level = dce_abm_set_level,
+<<<<<<< HEAD
 	.init_backlight = dce_abm_init_backlight,
 	.set_backlight_level = dce_abm_set_backlight_level,
 	.get_current_backlight_8_bit = dce_abm_get_current_backlight_8_bit,
 	.set_abm_immediate_disable = dce_abm_immediate_disable
+=======
+	.set_pipe = dce_abm_set_pipe,
+	.set_backlight_level_pwm = dce_abm_set_backlight_level_pwm,
+	.get_current_backlight = dce_abm_get_current_backlight,
+	.get_target_backlight = dce_abm_get_target_backlight,
+	.init_abm_config = NULL,
+	.set_abm_immediate_disable = dce_abm_immediate_disable,
+>>>>>>> upstream/android-13
 };
 
 static void dce_abm_construct(
@@ -444,10 +571,14 @@ static void dce_abm_construct(
 
 	base->ctx = ctx;
 	base->funcs = &dce_funcs;
+<<<<<<< HEAD
 	base->stored_backlight_registers.BL_PWM_CNTL = 0;
 	base->stored_backlight_registers.BL_PWM_CNTL2 = 0;
 	base->stored_backlight_registers.BL_PWM_PERIOD_CNTL = 0;
 	base->stored_backlight_registers.LVTMA_PWRSEQ_REF_DIV_BL_PWM_REF_DIV = 0;
+=======
+	base->dmcu_is_running = false;
+>>>>>>> upstream/android-13
 
 	abm_dce->regs = regs;
 	abm_dce->abm_shift = abm_shift;
@@ -460,7 +591,11 @@ struct abm *dce_abm_create(
 	const struct dce_abm_shift *abm_shift,
 	const struct dce_abm_mask *abm_mask)
 {
+<<<<<<< HEAD
 	struct dce_abm *abm_dce = kzalloc(sizeof(*abm_dce), GFP_KERNEL);
+=======
+	struct dce_abm *abm_dce = kzalloc(sizeof(*abm_dce), GFP_ATOMIC);
+>>>>>>> upstream/android-13
 
 	if (abm_dce == NULL) {
 		BREAK_TO_DEBUGGER();
@@ -478,8 +613,11 @@ void dce_abm_destroy(struct abm **abm)
 {
 	struct dce_abm *abm_dce = TO_DCE_ABM(*abm);
 
+<<<<<<< HEAD
 	abm_dce->base.funcs->set_abm_immediate_disable(*abm);
 
+=======
+>>>>>>> upstream/android-13
 	kfree(abm_dce);
 	*abm = NULL;
 }

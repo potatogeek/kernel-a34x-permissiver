@@ -1,6 +1,10 @@
 * Implementing 64bit stat counter in software
 * All memory allocation should be changed to DMA allocations
+<<<<<<< HEAD
 * Changing comments in to linux standred format
+=======
+* Changing comments into linux standard format
+>>>>>>> upstream/android-13
 
 Please send patches
 To:

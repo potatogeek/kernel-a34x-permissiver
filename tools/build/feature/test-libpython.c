@@ -7,3 +7,7 @@ int main(void)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+#undef _GNU_SOURCE
+>>>>>>> upstream/android-13

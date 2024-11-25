@@ -35,12 +35,15 @@
 #define   LIO_IFSTATE_RX_TIMESTAMP_ENABLED 0x08
 #define   LIO_IFSTATE_RESETTING		   0x10
 
+<<<<<<< HEAD
 struct liquidio_if_cfg_context {
 	u32 octeon_id;
 	wait_queue_head_t wc;
 	int cond;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct liquidio_if_cfg_resp {
 	u64 rh;
 	struct liquidio_if_cfg_info cfg_info;
@@ -48,6 +51,10 @@ struct liquidio_if_cfg_resp {
 };
 
 #define LIO_IFCFG_WAIT_TIME    3000 /* In milli seconds */
+<<<<<<< HEAD
+=======
+#define LIQUIDIO_NDEV_STATS_POLL_TIME_MS 200
+>>>>>>> upstream/android-13
 
 /* Structure of a node in list of gather components maintained by
  * NIC driver for each network device.
@@ -76,6 +83,15 @@ struct oct_nic_stats_resp {
 	u64     status;
 };
 
+<<<<<<< HEAD
+=======
+struct oct_nic_vf_stats_resp {
+	u64     rh;
+	u64	spoofmac_cnt;
+	u64     status;
+};
+
+>>>>>>> upstream/android-13
 struct oct_nic_stats_ctrl {
 	struct completion complete;
 	struct net_device *netdev;
@@ -83,6 +99,7 @@ struct oct_nic_stats_ctrl {
 
 struct oct_nic_seapi_resp {
 	u64 rh;
+<<<<<<< HEAD
 	u32 speed;
 	u64 status;
 };
@@ -93,6 +110,15 @@ struct liquidio_nic_seapi_ctl_context {
 	struct completion complete;
 };
 
+=======
+	union {
+		u32 fec_setting;
+		u32 speed;
+	};
+	u64 status;
+};
+
+>>>>>>> upstream/android-13
 /** LiquidIO per-interface network private data */
 struct lio {
 	/** State of the interface. Rx/Tx happens only in the RUNNING state.  */
@@ -178,7 +204,11 @@ struct lio {
 	struct cavium_wq	txq_status_wq;
 
 	/* work queue for  rxq oom status */
+<<<<<<< HEAD
 	struct cavium_wq	rxq_status_wq;
+=======
+	struct cavium_wq rxq_status_wq[MAX_POSSIBLE_OCTEON_OUTPUT_QUEUES];
+>>>>>>> upstream/android-13
 
 	/* work queue for  link status */
 	struct cavium_wq	link_status_wq;
@@ -187,6 +217,10 @@ struct lio {
 	struct cavium_wq	sync_octeon_time_wq;
 
 	int netdev_uc_count;
+<<<<<<< HEAD
+=======
+	struct cavium_wk stats_wk;
+>>>>>>> upstream/android-13
 };
 
 #define LIO_SIZE         (sizeof(struct lio))
@@ -225,7 +259,11 @@ irqreturn_t liquidio_msix_intr_handler(int irq __attribute__((unused)),
 
 int octeon_setup_interrupt(struct octeon_device *oct, u32 num_ioqs);
 
+<<<<<<< HEAD
 int octnet_get_link_stats(struct net_device *netdev);
+=======
+void lio_fetch_stats(struct work_struct *work);
+>>>>>>> upstream/android-13
 
 int lio_wait_for_clean_oq(struct octeon_device *oct);
 /**
@@ -234,16 +272,24 @@ int lio_wait_for_clean_oq(struct octeon_device *oct);
  */
 void liquidio_set_ethtool_ops(struct net_device *netdev);
 
+<<<<<<< HEAD
 void lio_if_cfg_callback(struct octeon_device *oct,
 			 u32 status __attribute__((unused)),
 			 void *buf);
 
+=======
+>>>>>>> upstream/android-13
 void lio_delete_glists(struct lio *lio);
 
 int lio_setup_glists(struct octeon_device *oct, struct lio *lio, int num_qs);
 
 int liquidio_get_speed(struct lio *lio);
 int liquidio_set_speed(struct lio *lio, int speed);
+<<<<<<< HEAD
+=======
+int liquidio_get_fec(struct lio *lio);
+int liquidio_set_fec(struct lio *lio, int on_off);
+>>>>>>> upstream/android-13
 
 /**
  * \brief Net device change_mtu
@@ -615,7 +661,11 @@ static inline struct list_head *lio_list_delete_head(struct list_head *root)
 {
 	struct list_head *node;
 
+<<<<<<< HEAD
 	if (root->prev == root && root->next == root)
+=======
+	if (list_empty_careful(root))
+>>>>>>> upstream/android-13
 		node = NULL;
 	else
 		node = root->next;

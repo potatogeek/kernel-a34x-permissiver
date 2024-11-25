@@ -1,25 +1,39 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * driver/mfd/asic3.c
  *
  * Compaq ASIC3 support.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright 2001 Compaq Computer Corporation.
  * Copyright 2004-2005 Phil Blundell
  * Copyright 2007-2008 OpenedHand Ltd.
  *
  * Authors: Phil Blundell <pb@handhelds.org>,
  *	    Samuel Ortiz <sameo@openedhand.com>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
 #include <linux/delay.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/export.h>
 #include <linux/io.h>
 #include <linux/slab.h>
@@ -727,6 +741,7 @@ static struct tmio_mmc_data asic3_mmc_data = {
 };
 
 static struct resource asic3_mmc_resources[] = {
+<<<<<<< HEAD
 	{
 		.start = ASIC3_SD_CTRL_BASE,
 		.end   = ASIC3_SD_CTRL_BASE + 0x3ff,
@@ -737,6 +752,10 @@ static struct resource asic3_mmc_resources[] = {
 		.end   = 0,
 		.flags = IORESOURCE_IRQ,
 	},
+=======
+	DEFINE_RES_MEM(ASIC3_SD_CTRL_BASE, 0x400),
+	DEFINE_RES_IRQ(0)
+>>>>>>> upstream/android-13
 };
 
 static int asic3_mmc_enable(struct platform_device *pdev)
@@ -918,14 +937,22 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
 		ret = mfd_add_devices(&pdev->dev, pdev->id,
 			&asic3_cell_ds1wm, 1, mem, asic->irq_base, NULL);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto out;
+=======
+			goto out_unmap;
+>>>>>>> upstream/android-13
 	}
 
 	if (mem_sdio && (irq >= 0)) {
 		ret = mfd_add_devices(&pdev->dev, pdev->id,
 			&asic3_cell_mmc, 1, mem_sdio, irq, NULL);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto out;
+=======
+			goto out_unmap;
+>>>>>>> upstream/android-13
 	}
 
 	ret = 0;
@@ -939,8 +966,17 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
 		ret = mfd_add_devices(&pdev->dev, 0,
 			asic3_cell_leds, ASIC3_NUM_LEDS, NULL, 0, NULL);
 	}
+<<<<<<< HEAD
 
  out:
+=======
+	return ret;
+
+out_unmap:
+	if (asic->tmio_cnf)
+		iounmap(asic->tmio_cnf);
+out:
+>>>>>>> upstream/android-13
 	return ret;
 }
 

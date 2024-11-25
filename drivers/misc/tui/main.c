@@ -19,13 +19,20 @@
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/workqueue.h>
 #include <linux/platform_device.h>
 #include "linux/of.h"
 #include "linux/miscdevice.h"
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+=======
+#if defined(CONFIG_SOC_S5E9925) || defined(CONFIG_SOC_S5E8825)
+>>>>>>> upstream/android-13
 #include <linux/dma-map-ops.h>
 #endif
 
@@ -104,6 +111,7 @@ static long stui_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int teegris_tui_probe(struct platform_device *pdev)
 {
 	(void)pdev;
@@ -111,15 +119,25 @@ static int teegris_tui_probe(struct platform_device *pdev)
 #ifdef CONFIG_ARCH_EXYNOS
 	dev_tui = &pdev->dev;
 #if !defined(CONFIG_SOC_S5E9925) && !defined(CONFIG_SOC_S5E8825)
+=======
+static int exynos_teegris_tui_probe(struct platform_device *pdev)
+{
+	dev_tui = &pdev->dev;
+#if !defined(CONFIG_SOC_S5E9925) && !defined(CONFIG_SOC_S5E8825) && !defined(CONFIG_SOC_S5E8535)
+>>>>>>> upstream/android-13
 	arch_setup_dma_ops(&pdev->dev, 0x0ULL, 1ULL << 36, NULL, false);
 #endif
 	pdev->dev.dma_mask = &pdev->dev.coherent_dma_mask;
 	dma_set_mask(&pdev->dev, DMA_BIT_MASK(36));
+<<<<<<< HEAD
 #endif /* CONFIG_ARCH_EXYNOS */
+=======
+>>>>>>> upstream/android-13
 	pr_debug(TUIHW_LOG_TAG " TUI probe done.\n");
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARCH_EXYNOS
 static const struct of_device_id teegris_tui_of_match_table[] = {
 	{ .compatible = "samsung,exynos-tui", },
@@ -135,6 +153,19 @@ static struct platform_driver teegris_tui_driver = {
 #ifdef CONFIG_ARCH_EXYNOS
 		.of_match_table = teegris_tui_of_match_table,
 #endif /* CONFIG_ARCH_EXYNOS */
+=======
+static const struct of_device_id exynos_teegris_tui_of_match_table[] = {
+	{ .compatible = "samsung,exynos-tui", },
+	{ },
+};
+
+static struct platform_driver exynos_teegris_tui_driver = {
+	.probe = exynos_teegris_tui_probe,
+	.driver = {
+		.name = "exynos-tui",
+		.owner = THIS_MODULE,
+		.of_match_table = exynos_teegris_tui_of_match_table,
+>>>>>>> upstream/android-13
 	}
 };
 
@@ -156,7 +187,11 @@ static int __init teegris_tui_init(void)
 	init_iwd_agent();
 #endif /* CONFIG_SAMSUNG_TUI_LOWLEVEL */
 
+<<<<<<< HEAD
 	return platform_driver_register(&teegris_tui_driver);
+=======
+	return platform_driver_register(&exynos_teegris_tui_driver);
+>>>>>>> upstream/android-13
 }
 
 static void __exit teegris_tui_exit(void)
@@ -167,7 +202,11 @@ static void __exit teegris_tui_exit(void)
 	__uninit_iwd_agent();
 #endif /* CONFIG_SAMSUNG_TUI_LOWLEVEL */
 	misc_deregister(&tui);
+<<<<<<< HEAD
 	platform_driver_unregister(&teegris_tui_driver);
+=======
+	platform_driver_unregister(&exynos_teegris_tui_driver);
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations tui_fops = {

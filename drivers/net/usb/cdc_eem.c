@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * USB CDC EEM network interface driver
  * Copyright (C) 2009 Oberthur Technologies
  * by Omar Laazimani, Olivier Condemine
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -38,7 +45,11 @@
  * for transport over USB using a simpler USB device model than the
  * previous CDC "Ethernet Control Model" (ECM, or "CDC Ethernet").
  *
+<<<<<<< HEAD
  * For details, see www.usb.org/developers/devclass_docs/CDC_EEM10.pdf
+=======
+ * For details, see https://usb.org/sites/default/files/CDC_EEM10.pdf
+>>>>>>> upstream/android-13
  *
  * This version has been tested with GIGAntIC WuaoW SIM Smart Card on 2.6.24,
  * 2.6.27 and 2.6.30rc2 kernel.
@@ -135,10 +146,17 @@ static struct sk_buff *eem_tx_fixup(struct usbnet *dev, struct sk_buff *skb,
 	}
 
 	skb2 = skb_copy_expand(skb, EEM_HEAD, ETH_FCS_LEN + padlen, flags);
+<<<<<<< HEAD
 	if (!skb2)
 		return NULL;
 
 	dev_kfree_skb_any(skb);
+=======
+	dev_kfree_skb_any(skb);
+	if (!skb2)
+		return NULL;
+
+>>>>>>> upstream/android-13
 	skb = skb2;
 
 done:

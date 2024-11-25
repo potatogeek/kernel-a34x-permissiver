@@ -57,7 +57,11 @@ static int get_attention_status(struct hotplug_slot *slot, u8 *value);
 static int get_adapter_status(struct hotplug_slot *slot, u8 *value);
 static int get_latch_status(struct hotplug_slot *slot, u8 *value);
 
+<<<<<<< HEAD
 static struct hotplug_slot_ops cpci_hotplug_slot_ops = {
+=======
+static const struct hotplug_slot_ops cpci_hotplug_slot_ops = {
+>>>>>>> upstream/android-13
 	.enable_slot = enable_slot,
 	.disable_slot = disable_slot,
 	.set_attention_status = set_attention_status,
@@ -68,6 +72,7 @@ static struct hotplug_slot_ops cpci_hotplug_slot_ops = {
 };
 
 static int
+<<<<<<< HEAD
 update_latch_status(struct hotplug_slot *hotplug_slot, u8 value)
 {
 	struct hotplug_slot_info info;
@@ -91,6 +96,11 @@ static int
 enable_slot(struct hotplug_slot *hotplug_slot)
 {
 	struct slot *slot = hotplug_slot->private;
+=======
+enable_slot(struct hotplug_slot *hotplug_slot)
+{
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	int retval = 0;
 
 	dbg("%s - physical_slot = %s", __func__, slot_name(slot));
@@ -103,7 +113,11 @@ enable_slot(struct hotplug_slot *hotplug_slot)
 static int
 disable_slot(struct hotplug_slot *hotplug_slot)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 	int retval = 0;
 
 	dbg("%s - physical_slot = %s", __func__, slot_name(slot));
@@ -135,8 +149,12 @@ disable_slot(struct hotplug_slot *hotplug_slot)
 			goto disable_error;
 	}
 
+<<<<<<< HEAD
 	if (update_adapter_status(slot->hotplug_slot, 0))
 		warn("failure to update adapter file");
+=======
+	slot->adapter_status = 0;
+>>>>>>> upstream/android-13
 
 	if (slot->extracting) {
 		slot->extracting = 0;
@@ -160,7 +178,11 @@ cpci_get_power_status(struct slot *slot)
 static int
 get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 
 	*value = cpci_get_power_status(slot);
 	return 0;
@@ -169,7 +191,11 @@ get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
 static int
 get_attention_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	struct slot *slot = hotplug_slot->private;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+>>>>>>> upstream/android-13
 
 	*value = cpci_get_attention_status(slot);
 	return 0;
@@ -178,27 +204,46 @@ get_attention_status(struct hotplug_slot *hotplug_slot, u8 *value)
 static int
 set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
 {
+<<<<<<< HEAD
 	return cpci_set_attention_status(hotplug_slot->private, status);
+=======
+	return cpci_set_attention_status(to_slot(hotplug_slot), status);
+>>>>>>> upstream/android-13
 }
 
 static int
 get_adapter_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	*value = hotplug_slot->info->adapter_status;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+
+	*value = slot->adapter_status;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int
 get_latch_status(struct hotplug_slot *hotplug_slot, u8 *value)
 {
+<<<<<<< HEAD
 	*value = hotplug_slot->info->latch_status;
+=======
+	struct slot *slot = to_slot(hotplug_slot);
+
+	*value = slot->latch_status;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void release_slot(struct slot *slot)
 {
+<<<<<<< HEAD
 	kfree(slot->hotplug_slot->info);
 	kfree(slot->hotplug_slot);
+=======
+>>>>>>> upstream/android-13
 	pci_dev_put(slot->dev);
 	kfree(slot);
 }
@@ -209,8 +254,11 @@ int
 cpci_hp_register_bus(struct pci_bus *bus, u8 first, u8 last)
 {
 	struct slot *slot;
+<<<<<<< HEAD
 	struct hotplug_slot *hotplug_slot;
 	struct hotplug_slot_info *info;
+=======
+>>>>>>> upstream/android-13
 	char name[SLOT_NAME_SIZE];
 	int status;
 	int i;
@@ -229,6 +277,7 @@ cpci_hp_register_bus(struct pci_bus *bus, u8 first, u8 last)
 			goto error;
 		}
 
+<<<<<<< HEAD
 		hotplug_slot =
 			kzalloc(sizeof(struct hotplug_slot), GFP_KERNEL);
 		if (!hotplug_slot) {
@@ -244,12 +293,15 @@ cpci_hp_register_bus(struct pci_bus *bus, u8 first, u8 last)
 		}
 		hotplug_slot->info = info;
 
+=======
+>>>>>>> upstream/android-13
 		slot->bus = bus;
 		slot->number = i;
 		slot->devfn = PCI_DEVFN(i, 0);
 
 		snprintf(name, SLOT_NAME_SIZE, "%02x:%02x", bus->number, i);
 
+<<<<<<< HEAD
 		hotplug_slot->private = slot;
 		hotplug_slot->ops = &cpci_hotplug_slot_ops;
 
@@ -266,6 +318,15 @@ cpci_hp_register_bus(struct pci_bus *bus, u8 first, u8 last)
 		if (status) {
 			err("pci_hp_register failed with error %d", status);
 			goto error_info;
+=======
+		slot->hotplug_slot.ops = &cpci_hotplug_slot_ops;
+
+		dbg("registering slot %s", name);
+		status = pci_hp_register(&slot->hotplug_slot, bus, i, name);
+		if (status) {
+			err("pci_hp_register failed with error %d", status);
+			goto error_slot;
+>>>>>>> upstream/android-13
 		}
 		dbg("slot registered with name: %s", slot_name(slot));
 
@@ -276,10 +337,13 @@ cpci_hp_register_bus(struct pci_bus *bus, u8 first, u8 last)
 		up_write(&list_rwsem);
 	}
 	return 0;
+<<<<<<< HEAD
 error_info:
 	kfree(info);
 error_hpslot:
 	kfree(hotplug_slot);
+=======
+>>>>>>> upstream/android-13
 error_slot:
 	kfree(slot);
 error:
@@ -305,7 +369,11 @@ cpci_hp_unregister_bus(struct pci_bus *bus)
 			slots--;
 
 			dbg("deregistering slot %s", slot_name(slot));
+<<<<<<< HEAD
 			pci_hp_deregister(slot->hotplug_slot);
+=======
+			pci_hp_deregister(&slot->hotplug_slot);
+>>>>>>> upstream/android-13
 			release_slot(slot);
 		}
 	}
@@ -359,10 +427,15 @@ init_slots(int clear_ins)
 			    __func__, slot_name(slot));
 		dev = pci_get_slot(slot->bus, PCI_DEVFN(slot->number, 0));
 		if (dev) {
+<<<<<<< HEAD
 			if (update_adapter_status(slot->hotplug_slot, 1))
 				warn("failure to update adapter file");
 			if (update_latch_status(slot->hotplug_slot, 1))
 				warn("failure to update latch file");
+=======
+			slot->adapter_status = 1;
+			slot->latch_status = 1;
+>>>>>>> upstream/android-13
 			slot->dev = dev;
 		}
 	}
@@ -424,11 +497,16 @@ check_slots(void)
 			dbg("%s - slot %s HS_CSR (2) = %04x",
 			    __func__, slot_name(slot), hs_csr);
 
+<<<<<<< HEAD
 			if (update_latch_status(slot->hotplug_slot, 1))
 				warn("failure to update latch file");
 
 			if (update_adapter_status(slot->hotplug_slot, 1))
 				warn("failure to update adapter file");
+=======
+			slot->latch_status = 1;
+			slot->adapter_status = 1;
+>>>>>>> upstream/android-13
 
 			cpci_led_off(slot);
 
@@ -449,9 +527,13 @@ check_slots(void)
 			    __func__, slot_name(slot), hs_csr);
 
 			if (!slot->extracting) {
+<<<<<<< HEAD
 				if (update_latch_status(slot->hotplug_slot, 0))
 					warn("failure to update latch file");
 
+=======
+				slot->latch_status = 0;
+>>>>>>> upstream/android-13
 				slot->extracting = 1;
 				atomic_inc(&extracting);
 			}
@@ -465,8 +547,12 @@ check_slots(void)
 				 */
 				err("card in slot %s was improperly removed",
 				    slot_name(slot));
+<<<<<<< HEAD
 				if (update_adapter_status(slot->hotplug_slot, 0))
 					warn("failure to update adapter file");
+=======
+				slot->adapter_status = 0;
+>>>>>>> upstream/android-13
 				slot->extracting = 0;
 				atomic_dec(&extracting);
 			}
@@ -615,12 +701,19 @@ cleanup_slots(void)
 		goto cleanup_null;
 	list_for_each_entry_safe(slot, tmp, &slot_list, slot_list) {
 		list_del(&slot->slot_list);
+<<<<<<< HEAD
 		pci_hp_deregister(slot->hotplug_slot);
+=======
+		pci_hp_deregister(&slot->hotplug_slot);
+>>>>>>> upstream/android-13
 		release_slot(slot);
 	}
 cleanup_null:
 	up_write(&list_rwsem);
+<<<<<<< HEAD
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 int

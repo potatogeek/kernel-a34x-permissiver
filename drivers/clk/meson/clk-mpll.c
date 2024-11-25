@@ -12,7 +12,15 @@
  */
 
 #include <linux/clk-provider.h>
+<<<<<<< HEAD
 #include "clkc.h"
+=======
+#include <linux/module.h>
+#include <linux/spinlock.h>
+
+#include "clk-regmap.h"
+#include "clk-mpll.h"
+>>>>>>> upstream/android-13
 
 #define SDM_DEN 16384
 #define N2_MIN	4
@@ -111,6 +119,7 @@ static int mpll_set_rate(struct clk_hw *hw,
 	else
 		__acquire(mpll->lock);
 
+<<<<<<< HEAD
 	/* Enable and set the fractional part */
 	meson_parm_write(clk->map, &mpll->sdm, sdm);
 	meson_parm_write(clk->map, &mpll->sdm_en, 1);
@@ -118,14 +127,21 @@ static int mpll_set_rate(struct clk_hw *hw,
 	/* Set additional fractional part enable if required */
 	if (MESON_PARM_APPLICABLE(&mpll->ssen))
 		meson_parm_write(clk->map, &mpll->ssen, 1);
+=======
+	/* Set the fractional part */
+	meson_parm_write(clk->map, &mpll->sdm, sdm);
+>>>>>>> upstream/android-13
 
 	/* Set the integer divider part */
 	meson_parm_write(clk->map, &mpll->n2, n2);
 
+<<<<<<< HEAD
 	/* Set the magic misc bit if required */
 	if (MESON_PARM_APPLICABLE(&mpll->misc))
 		meson_parm_write(clk->map, &mpll->misc, 1);
 
+=======
+>>>>>>> upstream/android-13
 	if (mpll->lock)
 		spin_unlock_irqrestore(mpll->lock, flags);
 	else
@@ -134,13 +150,56 @@ static int mpll_set_rate(struct clk_hw *hw,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int mpll_init(struct clk_hw *hw)
+{
+	struct clk_regmap *clk = to_clk_regmap(hw);
+	struct meson_clk_mpll_data *mpll = meson_clk_mpll_data(clk);
+
+	if (mpll->init_count)
+		regmap_multi_reg_write(clk->map, mpll->init_regs,
+				       mpll->init_count);
+
+	/* Enable the fractional part */
+	meson_parm_write(clk->map, &mpll->sdm_en, 1);
+
+	/* Set spread spectrum if possible */
+	if (MESON_PARM_APPLICABLE(&mpll->ssen)) {
+		unsigned int ss =
+			mpll->flags & CLK_MESON_MPLL_SPREAD_SPECTRUM ? 1 : 0;
+		meson_parm_write(clk->map, &mpll->ssen, ss);
+	}
+
+	/* Set the magic misc bit if required */
+	if (MESON_PARM_APPLICABLE(&mpll->misc))
+		meson_parm_write(clk->map, &mpll->misc, 1);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 const struct clk_ops meson_clk_mpll_ro_ops = {
 	.recalc_rate	= mpll_recalc_rate,
 	.round_rate	= mpll_round_rate,
 };
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(meson_clk_mpll_ro_ops);
+>>>>>>> upstream/android-13
 
 const struct clk_ops meson_clk_mpll_ops = {
 	.recalc_rate	= mpll_recalc_rate,
 	.round_rate	= mpll_round_rate,
 	.set_rate	= mpll_set_rate,
+<<<<<<< HEAD
 };
+=======
+	.init		= mpll_init,
+};
+EXPORT_SYMBOL_GPL(meson_clk_mpll_ops);
+
+MODULE_DESCRIPTION("Amlogic MPLL driver");
+MODULE_AUTHOR("Michael Turquette <mturquette@baylibre.com>");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * driver/media/radio/radio-tea5764.c
  *
@@ -9,6 +13,7 @@
  *
  *  Copyright (c) 2008 Fabio Belavenuto <belavenuto@gmail.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * History:
  * 2008-12-06   Fabio Belavenuto <belavenuto@gmail.com>
  *              initial code
@@ -287,12 +294,19 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	struct tea5764_device *radio = video_drvdata(file);
 	struct video_device *dev = &radio->vdev;
 
+<<<<<<< HEAD
 	strlcpy(v->driver, dev->dev.driver->name, sizeof(v->driver));
 	strlcpy(v->card, dev->name, sizeof(v->card));
 	snprintf(v->bus_info, sizeof(v->bus_info),
 		 "I2C:%s", dev_name(&dev->dev));
 	v->device_caps = V4L2_CAP_TUNER | V4L2_CAP_RADIO;
 	v->capabilities = v->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(v->driver, dev->dev.driver->name, sizeof(v->driver));
+	strscpy(v->card, dev->name, sizeof(v->card));
+	snprintf(v->bus_info, sizeof(v->bus_info),
+		 "I2C:%s", dev_name(&dev->dev));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -305,7 +319,11 @@ static int vidioc_g_tuner(struct file *file, void *priv,
 	if (v->index > 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(v->name, "FM", sizeof(v->name));
+=======
+	strscpy(v->name, "FM", sizeof(v->name));
+>>>>>>> upstream/android-13
 	v->type = V4L2_TUNER_RADIO;
 	tea5764_i2c_read(radio);
 	v->rangelow   = FREQ_MIN * FREQ_MUL;
@@ -474,6 +492,10 @@ static int tea5764_i2c_probe(struct i2c_client *client,
 	video_set_drvdata(&radio->vdev, radio);
 	radio->vdev.lock = &radio->mutex;
 	radio->vdev.v4l2_dev = v4l2_dev;
+<<<<<<< HEAD
+=======
+	radio->vdev.device_caps = V4L2_CAP_TUNER | V4L2_CAP_RADIO;
+>>>>>>> upstream/android-13
 
 	/* initialize and power off the chip */
 	tea5764_i2c_read(radio);

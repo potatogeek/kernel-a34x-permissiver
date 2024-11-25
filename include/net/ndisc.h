@@ -2,6 +2,11 @@
 #ifndef _NDISC_H
 #define _NDISC_H
 
+<<<<<<< HEAD
+=======
+#include <net/ipv6_stubs.h>
+
+>>>>>>> upstream/android-13
 /*
  *	ICMP codes for neighbour discovery messages
  */
@@ -79,12 +84,20 @@ extern struct neigh_table nd_tbl;
 struct nd_msg {
         struct icmp6hdr	icmph;
         struct in6_addr	target;
+<<<<<<< HEAD
 	__u8		opt[0];
+=======
+	__u8		opt[];
+>>>>>>> upstream/android-13
 };
 
 struct rs_msg {
 	struct icmp6hdr	icmph;
+<<<<<<< HEAD
 	__u8		opt[0];
+=======
+	__u8		opt[];
+>>>>>>> upstream/android-13
 };
 
 struct ra_msg {
@@ -97,7 +110,11 @@ struct rd_msg {
 	struct icmp6hdr icmph;
 	struct in6_addr	target;
 	struct in6_addr	dest;
+<<<<<<< HEAD
 	__u8		opt[0];
+=======
+	__u8		opt[];
+>>>>>>> upstream/android-13
 };
 
 struct nd_opt_hdr {
@@ -381,6 +398,17 @@ static inline struct neighbour *__ipv6_neigh_lookup_noref(struct net_device *dev
 	return ___neigh_lookup_noref(&nd_tbl, neigh_key_eq128, ndisc_hashfn, pkey, dev);
 }
 
+<<<<<<< HEAD
+=======
+static inline
+struct neighbour *__ipv6_neigh_lookup_noref_stub(struct net_device *dev,
+						 const void *pkey)
+{
+	return ___neigh_lookup_noref(ipv6_stub->nd_tbl, neigh_key_eq128,
+				     ndisc_hashfn, pkey, dev);
+}
+
+>>>>>>> upstream/android-13
 static inline struct neighbour *__ipv6_neigh_lookup(struct net_device *dev, const void *pkey)
 {
 	struct neighbour *n;
@@ -405,12 +433,50 @@ static inline void __ipv6_confirm_neigh(struct net_device *dev,
 		unsigned long now = jiffies;
 
 		/* avoid dirtying neighbour */
+<<<<<<< HEAD
 		if (n->confirmed != now)
 			n->confirmed = now;
+=======
+		if (READ_ONCE(n->confirmed) != now)
+			WRITE_ONCE(n->confirmed, now);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock_bh();
 }
 
+<<<<<<< HEAD
+=======
+static inline void __ipv6_confirm_neigh_stub(struct net_device *dev,
+					     const void *pkey)
+{
+	struct neighbour *n;
+
+	rcu_read_lock_bh();
+	n = __ipv6_neigh_lookup_noref_stub(dev, pkey);
+	if (n) {
+		unsigned long now = jiffies;
+
+		/* avoid dirtying neighbour */
+		if (READ_ONCE(n->confirmed) != now)
+			WRITE_ONCE(n->confirmed, now);
+	}
+	rcu_read_unlock_bh();
+}
+
+/* uses ipv6_stub and is meant for use outside of IPv6 core */
+static inline struct neighbour *ip_neigh_gw6(struct net_device *dev,
+					     const void *addr)
+{
+	struct neighbour *neigh;
+
+	neigh = __ipv6_neigh_lookup_noref_stub(dev, addr);
+	if (unlikely(!neigh))
+		neigh = __neigh_create(ipv6_stub->nd_tbl, addr, dev, false);
+
+	return neigh;
+}
+
+>>>>>>> upstream/android-13
 int ndisc_init(void);
 int ndisc_late_init(void);
 
@@ -447,14 +513,24 @@ int igmp6_late_init(void);
 void igmp6_cleanup(void);
 void igmp6_late_cleanup(void);
 
+<<<<<<< HEAD
 int igmp6_event_query(struct sk_buff *skb);
 
 int igmp6_event_report(struct sk_buff *skb);
+=======
+void igmp6_event_query(struct sk_buff *skb);
+
+void igmp6_event_report(struct sk_buff *skb);
+>>>>>>> upstream/android-13
 
 
 #ifdef CONFIG_SYSCTL
 int ndisc_ifinfo_sysctl_change(struct ctl_table *ctl, int write,
+<<<<<<< HEAD
 			       void __user *buffer, size_t *lenp, loff_t *ppos);
+=======
+			       void *buffer, size_t *lenp, loff_t *ppos);
+>>>>>>> upstream/android-13
 int ndisc_ifinfo_sysctl_strategy(struct ctl_table *ctl,
 				 void __user *oldval, size_t __user *oldlenp,
 				 void __user *newval, size_t newlen);

@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config DRM_QXL
 	tristate "QXL virtual GPU"
 	depends on DRM && PCI && MMU
 	select DRM_KMS_HELPER
 	select DRM_TTM
+<<<<<<< HEAD
+=======
+	select DRM_TTM_HELPER
+>>>>>>> upstream/android-13
 	select CRC32
 	help
 	  QXL virtual GPU for Spice virtualization desktop integration.

@@ -1367,8 +1367,13 @@
 #define MISC_STRAPBUS_6328_REG		0x240
 #define STRAPBUS_6328_FCVO_SHIFT	7
 #define STRAPBUS_6328_FCVO_MASK		(0x1f << STRAPBUS_6328_FCVO_SHIFT)
+<<<<<<< HEAD
 #define STRAPBUS_6328_BOOT_SEL_SERIAL	(1 << 28)
 #define STRAPBUS_6328_BOOT_SEL_NAND	(0 << 28)
+=======
+#define STRAPBUS_6328_BOOT_SEL_SERIAL	(1 << 18)
+#define STRAPBUS_6328_BOOT_SEL_NAND	(0 << 18)
+>>>>>>> upstream/android-13
 
 /*************************************************************************
  * _REG relative to RSET_PCIE

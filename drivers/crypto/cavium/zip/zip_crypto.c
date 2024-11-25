@@ -69,7 +69,11 @@ static void zip_static_init_zip_ops(struct zip_operation *zip_ops,
 	zip_ops->csum	      = 1; /* Adler checksum desired */
 }
 
+<<<<<<< HEAD
 int zip_ctx_init(struct zip_kernel_ctx *zip_ctx, int lzs_flag)
+=======
+static int zip_ctx_init(struct zip_kernel_ctx *zip_ctx, int lzs_flag)
+>>>>>>> upstream/android-13
 {
 	struct zip_operation  *comp_ctx   = &zip_ctx->zip_comp;
 	struct zip_operation  *decomp_ctx = &zip_ctx->zip_decomp;
@@ -107,7 +111,11 @@ err_comp_input:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 void zip_ctx_exit(struct zip_kernel_ctx *zip_ctx)
+=======
+static void zip_ctx_exit(struct zip_kernel_ctx *zip_ctx)
+>>>>>>> upstream/android-13
 {
 	struct zip_operation  *comp_ctx   = &zip_ctx->zip_comp;
 	struct zip_operation  *dec_ctx = &zip_ctx->zip_decomp;
@@ -119,7 +127,11 @@ void zip_ctx_exit(struct zip_kernel_ctx *zip_ctx)
 	zip_data_buf_free(dec_ctx->output, MAX_OUTPUT_BUFFER_SIZE);
 }
 
+<<<<<<< HEAD
 int zip_compress(const u8 *src, unsigned int slen,
+=======
+static int zip_compress(const u8 *src, unsigned int slen,
+>>>>>>> upstream/android-13
 		 u8 *dst, unsigned int *dlen,
 		 struct zip_kernel_ctx *zip_ctx)
 {
@@ -155,7 +167,11 @@ int zip_compress(const u8 *src, unsigned int slen,
 	return ret;
 }
 
+<<<<<<< HEAD
 int zip_decompress(const u8 *src, unsigned int slen,
+=======
+static int zip_decompress(const u8 *src, unsigned int slen,
+>>>>>>> upstream/android-13
 		   u8 *dst, unsigned int *dlen,
 		   struct zip_kernel_ctx *zip_ctx)
 {
@@ -260,7 +276,11 @@ void *zip_alloc_scomp_ctx_deflate(struct crypto_scomp *tfm)
 	ret = zip_ctx_init(zip_ctx, 0);
 
 	if (ret) {
+<<<<<<< HEAD
 		kzfree(zip_ctx);
+=======
+		kfree_sensitive(zip_ctx);
+>>>>>>> upstream/android-13
 		return ERR_PTR(ret);
 	}
 
@@ -279,7 +299,11 @@ void *zip_alloc_scomp_ctx_lzs(struct crypto_scomp *tfm)
 	ret = zip_ctx_init(zip_ctx, 1);
 
 	if (ret) {
+<<<<<<< HEAD
 		kzfree(zip_ctx);
+=======
+		kfree_sensitive(zip_ctx);
+>>>>>>> upstream/android-13
 		return ERR_PTR(ret);
 	}
 
@@ -291,7 +315,11 @@ void zip_free_scomp_ctx(struct crypto_scomp *tfm, void *ctx)
 	struct zip_kernel_ctx *zip_ctx = ctx;
 
 	zip_ctx_exit(zip_ctx);
+<<<<<<< HEAD
 	kzfree(zip_ctx);
+=======
+	kfree_sensitive(zip_ctx);
+>>>>>>> upstream/android-13
 }
 
 int zip_scomp_compress(struct crypto_scomp *tfm,

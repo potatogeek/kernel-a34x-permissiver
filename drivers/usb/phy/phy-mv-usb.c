@@ -8,6 +8,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/device.h>
 #include <linux/proc_fs.h>
@@ -135,8 +139,13 @@ static int mv_otg_set_timer(struct mv_otg *mvotg, unsigned int id,
 
 static int mv_otg_reset(struct mv_otg *mvotg)
 {
+<<<<<<< HEAD
 	unsigned int loops;
 	u32 tmp;
+=======
+	u32 tmp;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Stop the controller */
 	tmp = readl(&mvotg->op_regs->usbcmd);
@@ -146,6 +155,7 @@ static int mv_otg_reset(struct mv_otg *mvotg)
 	/* Reset the controller to get default values */
 	writel(USBCMD_CTRL_RESET, &mvotg->op_regs->usbcmd);
 
+<<<<<<< HEAD
 	loops = 500;
 	while (readl(&mvotg->op_regs->usbcmd) & USBCMD_CTRL_RESET) {
 		if (loops == 0) {
@@ -155,6 +165,14 @@ static int mv_otg_reset(struct mv_otg *mvotg)
 		}
 		loops--;
 		udelay(20);
+=======
+	ret = readl_poll_timeout_atomic(&mvotg->op_regs->usbcmd, tmp,
+				(tmp & USBCMD_CTRL_RESET), 10, 10000);
+	if (ret < 0) {
+		dev_err(&mvotg->pdev->dev,
+			"Wait for RESET completed TIMEOUT\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	writel(0x0, &mvotg->op_regs->usbintr);
@@ -334,7 +352,11 @@ static void mv_otg_update_state(struct mv_otg *mvotg)
 	switch (old_state) {
 	case OTG_STATE_UNDEFINED:
 		mvotg->phy.otg->state = OTG_STATE_B_IDLE;
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OTG_STATE_B_IDLE:
 		if (otg_ctrl->id == 0)
 			mvotg->phy.otg->state = OTG_STATE_A_IDLE;
@@ -401,7 +423,10 @@ static void mv_otg_update_state(struct mv_otg *mvotg)
 static void mv_otg_work(struct work_struct *work)
 {
 	struct mv_otg *mvotg;
+<<<<<<< HEAD
 	struct usb_phy *phy;
+=======
+>>>>>>> upstream/android-13
 	struct usb_otg *otg;
 	int old_state;
 
@@ -409,7 +434,10 @@ static void mv_otg_work(struct work_struct *work)
 
 run:
 	/* work queue is single thread, or we need spin_lock to protect */
+<<<<<<< HEAD
 	phy = &mvotg->phy;
+=======
+>>>>>>> upstream/android-13
 	otg = mvotg->phy.otg;
 	old_state = otg->state;
 
@@ -643,12 +671,23 @@ static const struct attribute_group inputs_attr_group = {
 	.attrs = inputs_attrs,
 };
 
+<<<<<<< HEAD
+=======
+static const struct attribute_group *mv_otg_groups[] = {
+	&inputs_attr_group,
+	NULL,
+};
+
+>>>>>>> upstream/android-13
 static int mv_otg_remove(struct platform_device *pdev)
 {
 	struct mv_otg *mvotg = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	sysfs_remove_group(&mvotg->pdev->dev.kobj, &inputs_attr_group);
 
+=======
+>>>>>>> upstream/android-13
 	if (mvotg->qwork) {
 		flush_workqueue(mvotg->qwork);
 		destroy_workqueue(mvotg->qwork);
@@ -811,6 +850,7 @@ static int mv_otg_probe(struct platform_device *pdev)
 		goto err_disable_clk;
 	}
 
+<<<<<<< HEAD
 	retval = sysfs_create_group(&pdev->dev.kobj, &inputs_attr_group);
 	if (retval < 0) {
 		dev_dbg(&pdev->dev,
@@ -818,6 +858,8 @@ static int mv_otg_probe(struct platform_device *pdev)
 		goto err_remove_phy;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_init(&mvotg->wq_lock);
 	if (spin_trylock(&mvotg->wq_lock)) {
 		mv_otg_run_state_machine(mvotg, 2 * HZ);
@@ -830,8 +872,11 @@ static int mv_otg_probe(struct platform_device *pdev)
 
 	return 0;
 
+<<<<<<< HEAD
 err_remove_phy:
 	usb_remove_phy(&mvotg->phy);
+=======
+>>>>>>> upstream/android-13
 err_disable_clk:
 	mv_otg_disable_internal(mvotg);
 err_destroy_workqueue:
@@ -885,6 +930,10 @@ static struct platform_driver mv_otg_driver = {
 	.remove = mv_otg_remove,
 	.driver = {
 		   .name = driver_name,
+<<<<<<< HEAD
+=======
+		   .dev_groups = mv_otg_groups,
+>>>>>>> upstream/android-13
 		   },
 #ifdef CONFIG_PM
 	.suspend = mv_otg_suspend,

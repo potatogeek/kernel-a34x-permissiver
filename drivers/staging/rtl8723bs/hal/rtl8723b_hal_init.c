@@ -4,7 +4,10 @@
  * Copyright(c) 2007 - 2013 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _HAL_INIT_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/firmware.h>
 #include <linux/slab.h>
@@ -33,9 +36,12 @@ static void _FWDownloadEnable(struct adapter *padapter, bool enable)
 			msleep(1);
 		} while (count++ < 100);
 
+<<<<<<< HEAD
 		if (count > 0)
 			DBG_871X("%s: !!!!!!!!Write 0x80 Fail!: count = %d\n", __func__, count);
 
+=======
+>>>>>>> upstream/android-13
 		/*  8051 reset */
 		tmp = rtw_read8(padapter, REG_MCUFWDL+2);
 		rtw_write8(padapter, REG_MCUFWDL+2, tmp&0xf7);
@@ -64,6 +70,7 @@ static int _BlockWrite(struct adapter *padapter, void *buffer, u32 buffSize)
 	blockCount_p1 = buffSize / blockSize_p1;
 	remainSize_p1 = buffSize % blockSize_p1;
 
+<<<<<<< HEAD
 	if (blockCount_p1) {
 		RT_TRACE(
 			_module_hal_init_c_,
@@ -78,6 +85,8 @@ static int _BlockWrite(struct adapter *padapter, void *buffer, u32 buffSize)
 		);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < blockCount_p1; i++) {
 		ret = rtw_write32(padapter, (FW_8723B_START_ADDRESS + i * blockSize_p1), *((u32 *)(bufferPtr + i * blockSize_p1)));
 		if (ret == _FAIL) {
@@ -92,6 +101,7 @@ static int _BlockWrite(struct adapter *padapter, void *buffer, u32 buffSize)
 
 		blockCount_p2 = remainSize_p1/blockSize_p2;
 		remainSize_p2 = remainSize_p1%blockSize_p2;
+<<<<<<< HEAD
 
 		if (blockCount_p2) {
 				RT_TRACE(
@@ -107,6 +117,8 @@ static int _BlockWrite(struct adapter *padapter, void *buffer, u32 buffSize)
 				);
 		}
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* 3 Phase #3 */
@@ -115,10 +127,13 @@ static int _BlockWrite(struct adapter *padapter, void *buffer, u32 buffSize)
 
 		blockCount_p3 = remainSize_p2 / blockSize_p3;
 
+<<<<<<< HEAD
 		RT_TRACE(_module_hal_init_c_, _drv_notice_,
 				("_BlockWrite: [P3] buffSize_p3(%d) blockSize_p3(%d) blockCount_p3(%d)\n",
 				(buffSize-offset), blockSize_p3, blockCount_p3));
 
+=======
+>>>>>>> upstream/android-13
 		for (i = 0; i < blockCount_p3; i++) {
 			ret = rtw_write8(padapter, (FW_8723B_START_ADDRESS + offset + i), *(bufferPtr + offset + i));
 
@@ -158,7 +173,10 @@ static int _WriteFW(struct adapter *padapter, void *buffer, u32 size)
 	u8 *bufferPtr = buffer;
 
 	pageNums = size / MAX_DLFW_PAGE_SIZE;
+<<<<<<< HEAD
 	/* RT_ASSERT((pageNums <= 4), ("Page numbers should not greater then 4\n")); */
+=======
+>>>>>>> upstream/android-13
 	remainSize = size % MAX_DLFW_PAGE_SIZE;
 
 	for (page = 0; page < pageNums; page++) {
@@ -181,7 +199,10 @@ static int _WriteFW(struct adapter *padapter, void *buffer, u32 size)
 			goto exit;
 		}
 	}
+<<<<<<< HEAD
 	RT_TRACE(_module_hal_init_c_, _drv_info_, ("_WriteFW Done- for Normal chip.\n"));
+=======
+>>>>>>> upstream/android-13
 
 exit:
 	return ret;
@@ -213,11 +234,17 @@ void _8051Reset8723(struct adapter *padapter)
 	cpu_rst = rtw_read8(padapter, REG_SYS_FUNC_EN+1);
 	cpu_rst |= BIT(2);
 	rtw_write8(padapter, REG_SYS_FUNC_EN+1, cpu_rst);
+<<<<<<< HEAD
 
 	DBG_8192C("%s: Finish\n", __func__);
 }
 
 u8 g_fwdl_chksum_fail = 0;
+=======
+}
+
+u8 g_fwdl_chksum_fail;
+>>>>>>> upstream/android-13
 
 static s32 polling_fwdl_chksum(
 	struct adapter *adapter, u32 min_cnt, u32 timeout_ms
@@ -242,7 +269,10 @@ static s32 polling_fwdl_chksum(
 	}
 
 	if (g_fwdl_chksum_fail) {
+<<<<<<< HEAD
 		DBG_871X("%s: fwdl test case: fwdl_chksum_fail\n", __func__);
+=======
+>>>>>>> upstream/android-13
 		g_fwdl_chksum_fail--;
 		goto exit;
 	}
@@ -250,6 +280,7 @@ static s32 polling_fwdl_chksum(
 	ret = _SUCCESS;
 
 exit:
+<<<<<<< HEAD
 	DBG_871X(
 		"%s: Checksum report %s! (%u, %dms), REG_MCUFWDL:0x%08x\n",
 		__func__,
@@ -258,11 +289,17 @@ exit:
 		jiffies_to_msecs(jiffies-start),
 		value32
 	);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 u8 g_fwdl_wintint_rdy_fail = 0;
+=======
+u8 g_fwdl_wintint_rdy_fail;
+>>>>>>> upstream/android-13
 
 static s32 _FWFreeToGo(struct adapter *adapter, u32 min_cnt, u32 timeout_ms)
 {
@@ -292,7 +329,10 @@ static s32 _FWFreeToGo(struct adapter *adapter, u32 min_cnt, u32 timeout_ms)
 	}
 
 	if (g_fwdl_wintint_rdy_fail) {
+<<<<<<< HEAD
 		DBG_871X("%s: fwdl test case: wintint_rdy_fail\n", __func__);
+=======
+>>>>>>> upstream/android-13
 		g_fwdl_wintint_rdy_fail--;
 		goto exit;
 	}
@@ -300,6 +340,7 @@ static s32 _FWFreeToGo(struct adapter *adapter, u32 min_cnt, u32 timeout_ms)
 	ret = _SUCCESS;
 
 exit:
+<<<<<<< HEAD
 	DBG_871X(
 		"%s: Polling FW ready %s! (%u, %dms), REG_MCUFWDL:0x%08x\n",
 		__func__,
@@ -308,6 +349,8 @@ exit:
 		jiffies_to_msecs(jiffies-start),
 		value32
 	);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -334,10 +377,15 @@ void rtl8723b_FirmwareSelfReset(struct adapter *padapter)
 			udelay(50);
 			u1bTmp = rtw_read8(padapter, REG_SYS_FUNC_EN+1);
 		}
+<<<<<<< HEAD
 		RT_TRACE(_module_hal_init_c_, _drv_notice_, ("-%s: 8051 reset success (%d)\n", __func__, Delay));
 
 		if (Delay == 0) {
 			RT_TRACE(_module_hal_init_c_, _drv_notice_, ("%s: Force 8051 reset!!!\n", __func__));
+=======
+
+		if (Delay == 0) {
+>>>>>>> upstream/android-13
 			/* force firmware reset */
 			u1bTmp = rtw_read8(padapter, REG_SYS_FUNC_EN+1);
 			rtw_write8(padapter, REG_SYS_FUNC_EN+1, u1bTmp&(~BIT2));
@@ -368,10 +416,13 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
 	u8 tmp_ps;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_hal_init_c_, _drv_info_, ("+%s\n", __func__));
 #ifdef CONFIG_WOWLAN
 	RT_TRACE(_module_hal_init_c_, _drv_notice_, ("+%s, bUsedWoWLANFw:%d\n", __func__, bUsedWoWLANFw));
 #endif
+=======
+>>>>>>> upstream/android-13
 	pFirmware = kzalloc(sizeof(struct rt_firmware), GFP_KERNEL);
 	if (!pFirmware)
 		return _FAIL;
@@ -388,6 +439,7 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 	/* 2. read power_state = 0xA0[1:0] */
 	tmp_ps = rtw_read8(padapter, 0xa0);
 	tmp_ps &= 0x03;
+<<<<<<< HEAD
 	if (tmp_ps != 0x01) {
 		DBG_871X(FUNC_ADPT_FMT" tmp_ps =%x\n", FUNC_ADPT_ARG(padapter), tmp_ps);
 		pdbgpriv->dbg_downloadfw_pwr_state_cnt++;
@@ -399,6 +451,12 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 	else
 #endif /*  CONFIG_WOWLAN */
 		fwfilepath = "rtlwifi/rtl8723bs_nic.bin";
+=======
+	if (tmp_ps != 0x01)
+		pdbgpriv->dbg_downloadfw_pwr_state_cnt++;
+
+	fwfilepath = "rtlwifi/rtl8723bs_nic.bin";
+>>>>>>> upstream/android-13
 
 	pr_info("rtl8723bs: acquire FW from file:%s\n", fwfilepath);
 
@@ -417,11 +475,14 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 
 	if (fw->size > FW_8723B_SIZE) {
 		rtStatus = _FAIL;
+<<<<<<< HEAD
 		RT_TRACE(
 			_module_hal_init_c_,
 			_drv_err_,
 			("Firmware size exceed 0x%X. Check it.\n", FW_8188E_SIZE)
 		);
+=======
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
@@ -435,7 +496,13 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 	release_firmware(fw);
 	if (pFirmware->fw_length > FW_8723B_SIZE) {
 		rtStatus = _FAIL;
+<<<<<<< HEAD
 		DBG_871X_LEVEL(_drv_emerg_, "Firmware size:%u exceed %u\n", pFirmware->fw_length, FW_8723B_SIZE);
+=======
+		netdev_emerg(padapter->pnetdev,
+			     "Firmware size:%u exceed %u\n",
+			     pFirmware->fw_length, FW_8723B_SIZE);
+>>>>>>> upstream/android-13
 		goto release_fw1;
 	}
 
@@ -449,6 +516,7 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 	pHalData->FirmwareSubVersion = le16_to_cpu(pFwHdr->subversion);
 	pHalData->FirmwareSignature = le16_to_cpu(pFwHdr->signature);
 
+<<<<<<< HEAD
 	DBG_871X(
 		"%s: fw_ver =%x fw_subver =%04x sig = 0x%x, Month =%02x, Date =%02x, Hour =%02x, Minute =%02x\n",
 		__func__,
@@ -463,6 +531,9 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 
 	if (IS_FW_HEADER_EXIST_8723B(pFwHdr)) {
 		DBG_871X("%s(): Shift for fw header!\n", __func__);
+=======
+	if (IS_FW_HEADER_EXIST_8723B(pFwHdr)) {
+>>>>>>> upstream/android-13
 		/*  Shift 32 bytes for FW header */
 		pFirmwareBuf = pFirmwareBuf + 32;
 		FirmwareLen = FirmwareLen - 32;
@@ -502,19 +573,25 @@ s32 rtl8723b_FirmwareDownload(struct adapter *padapter, bool  bUsedWoWLANFw)
 		goto fwdl_stat;
 
 fwdl_stat:
+<<<<<<< HEAD
 	DBG_871X(
 		"FWDL %s. write_fw:%u, %dms\n",
 		(rtStatus == _SUCCESS)?"success":"fail",
 		write_fw,
 		jiffies_to_msecs(jiffies - fwdl_start_time)
 	);
+=======
+>>>>>>> upstream/android-13
 
 exit:
 	kfree(pFirmware->fw_buffer_sz);
 	kfree(pFirmware);
 release_fw1:
 	kfree(pBTFirmware);
+<<<<<<< HEAD
 	DBG_871X(" <=== rtl8723b_FirmwareDownload()\n");
+=======
+>>>>>>> upstream/android-13
 	return rtStatus;
 }
 
@@ -523,7 +600,11 @@ void rtl8723b_InitializeFirmwareVars(struct adapter *padapter)
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
 
 	/*  Init Fw LPS related. */
+<<<<<<< HEAD
 	adapter_to_pwrctl(padapter)->bFwCurrentInPSMode = false;
+=======
+	adapter_to_pwrctl(padapter)->fw_current_in_ps_mode = false;
+>>>>>>> upstream/android-13
 
 	/* Init H2C cmd. */
 	rtw_write8(padapter, REG_HMETFR, 0x0f);
@@ -535,6 +616,7 @@ void rtl8723b_InitializeFirmwareVars(struct adapter *padapter)
 /* pHalData->H2CStopInsertQueue = false; */
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 /*  */
 
@@ -568,6 +650,8 @@ void SetFwRelatedForWoWLAN8723b(
 }
 #endif /* CONFIG_WOWLAN */
 
+=======
+>>>>>>> upstream/android-13
 static void rtl8723b_free_hal_data(struct adapter *padapter)
 {
 }
@@ -583,11 +667,18 @@ static u8 hal_EfuseSwitchToBank(
 	u32 value32 = 0;
 #ifdef HAL_EFUSE_MEMORY
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PEFUSE_HAL pEfuseHal = &pHalData->EfuseHal;
 #endif
 
 
 	DBG_8192C("%s: Efuse switch bank to %d\n", __func__, bank);
+=======
+	struct efuse_hal *pEfuseHal = &pHalData->EfuseHal;
+#endif
+
+
+>>>>>>> upstream/android-13
 	if (bPseudoTest) {
 #ifdef HAL_EFUSE_MEMORY
 		pEfuseHal->fakeEfuseBank = bank;
@@ -726,14 +817,20 @@ static void Hal_GetEfuseDefinition(
 }
 
 #define VOLTAGE_V25		0x03
+<<<<<<< HEAD
 #define LDOE25_SHIFT	28
+=======
+>>>>>>> upstream/android-13
 
 /*  */
 /* 	The following is for compile ok */
 /* 	That should be merged with the original in the future */
 /*  */
 #define EFUSE_ACCESS_ON_8723			0x69	/*  For RTL8723 only. */
+<<<<<<< HEAD
 #define EFUSE_ACCESS_OFF_8723			0x00	/*  For RTL8723 only. */
+=======
+>>>>>>> upstream/android-13
 #define REG_EFUSE_ACCESS_8723			0x00CF	/*  Efuse access protection for RTL8723 */
 
 /*  */
@@ -742,7 +839,11 @@ static void Hal_BT_EfusePowerSwitch(
 )
 {
 	u8 tempval;
+<<<<<<< HEAD
 	if (PwrState == true) {
+=======
+	if (PwrState) {
+>>>>>>> upstream/android-13
 		/*  enable BT power cut */
 		/*  0x6A[14] = 1 */
 		tempval = rtw_read8(padapter, 0x6B);
@@ -750,7 +851,11 @@ static void Hal_BT_EfusePowerSwitch(
 		rtw_write8(padapter, 0x6B, tempval);
 
 		/*  Attention!! Between 0x6A[14] and 0x6A[15] setting need 100us delay */
+<<<<<<< HEAD
 		/*  So don't wirte 0x6A[14]= 1 and 0x6A[15]= 0 together! */
+=======
+		/*  So don't write 0x6A[14]= 1 and 0x6A[15]= 0 together! */
+>>>>>>> upstream/android-13
 		msleep(1);
 		/*  disable BT output isolation */
 		/*  0x6A[15] = 0 */
@@ -765,7 +870,11 @@ static void Hal_BT_EfusePowerSwitch(
 		rtw_write8(padapter, 0x6B, tempval);
 
 		/*  Attention!! Between 0x6A[14] and 0x6A[15] setting need 100us delay */
+<<<<<<< HEAD
 		/*  So don't wirte 0x6A[14]= 1 and 0x6A[15]= 0 together! */
+=======
+		/*  So don't write 0x6A[14]= 1 and 0x6A[15]= 0 together! */
+>>>>>>> upstream/android-13
 
 		/*  disable BT power cut */
 		/*  0x6A[14] = 1 */
@@ -783,7 +892,11 @@ static void Hal_EfusePowerSwitch(
 	u16 tmpV16;
 
 
+<<<<<<< HEAD
 	if (PwrState == true) {
+=======
+	if (PwrState) {
+>>>>>>> upstream/android-13
 		/*  To avoid cannot access efuse regsiters after disable/enable several times during DTM test. */
 		/*  Suggested by SD1 IsaacHsu. 2013.07.08, added by tynli. */
 		tempval = rtw_read8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HSUS_CTRL);
@@ -807,6 +920,7 @@ static void Hal_EfusePowerSwitch(
 
 				mdelay(10);
 			} while (1);
+<<<<<<< HEAD
 
 			if (count >= 100) {
 				DBG_8192C(FUNC_ADPT_FMT ": Leave SDIO local register suspend fail! Local 0x86 =%#X\n",
@@ -815,6 +929,8 @@ static void Hal_EfusePowerSwitch(
 				DBG_8192C(FUNC_ADPT_FMT ": Leave SDIO local register suspend OK! Local 0x86 =%#X\n",
 					FUNC_ADPT_ARG(padapter), tempval);
 			}
+=======
+>>>>>>> upstream/android-13
 		}
 
 		rtw_write8(padapter, REG_EFUSE_ACCESS_8723, EFUSE_ACCESS_ON_8723);
@@ -833,7 +949,11 @@ static void Hal_EfusePowerSwitch(
 			rtw_write16(padapter, REG_SYS_CLKR, tmpV16);
 		}
 
+<<<<<<< HEAD
 		if (bWrite == true) {
+=======
+		if (bWrite) {
+>>>>>>> upstream/android-13
 			/*  Enable LDO 2.5V before read/write action */
 			tempval = rtw_read8(padapter, EFUSE_TEST+3);
 			tempval &= 0x0F;
@@ -845,7 +965,11 @@ static void Hal_EfusePowerSwitch(
 	} else {
 		rtw_write8(padapter, REG_EFUSE_ACCESS, EFUSE_ACCESS_OFF);
 
+<<<<<<< HEAD
 		if (bWrite == true) {
+=======
+		if (bWrite) {
+>>>>>>> upstream/android-13
 			/*  Disable LDO 2.5V after read/write action */
 			tempval = rtw_read8(padapter, EFUSE_TEST+3);
 			rtw_write8(padapter, EFUSE_TEST+3, (tempval & 0x7F));
@@ -864,7 +988,11 @@ static void hal_ReadEFuse_WiFi(
 {
 #ifdef HAL_EFUSE_MEMORY
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PEFUSE_HAL pEfuseHal = &pHalData->EfuseHal;
+=======
+	struct efuse_hal *pEfuseHal = &pHalData->EfuseHal;
+>>>>>>> upstream/android-13
 #endif
 	u8 *efuseTbl = NULL;
 	u16 eFuse_Addr = 0;
@@ -873,6 +1001,7 @@ static void hal_ReadEFuse_WiFi(
 	u16 i, total, used;
 	u8 efuse_usage = 0;
 
+<<<<<<< HEAD
 	/* DBG_871X("YJ: ====>%s():_offset =%d _size_byte =%d bPseudoTest =%d\n", __func__, _offset, _size_byte, bPseudoTest); */
 	/*  */
 	/*  Do NOT excess total size of EFuse table. Added by Roger, 2008.11.10. */
@@ -906,24 +1035,49 @@ if (0) {
 #endif
 
 
+=======
+	/*  */
+	/*  Do NOT excess total size of EFuse table. Added by Roger, 2008.11.10. */
+	/*  */
+	if ((_offset + _size_byte) > EFUSE_MAX_MAP_LEN)
+		return;
+
+	efuseTbl = rtw_malloc(EFUSE_MAX_MAP_LEN);
+	if (!efuseTbl)
+		return;
+
+	/*  0xff will be efuse default value instead of 0x00. */
+	memset(efuseTbl, 0xFF, EFUSE_MAX_MAP_LEN);
+
+>>>>>>> upstream/android-13
 	/*  switch bank back to bank 0 for later BT and wifi use. */
 	hal_EfuseSwitchToBank(padapter, 0, bPseudoTest);
 
 	while (AVAILABLE_EFUSE_ADDR(eFuse_Addr)) {
 		efuse_OneByteRead(padapter, eFuse_Addr++, &efuseHeader, bPseudoTest);
+<<<<<<< HEAD
 		if (efuseHeader == 0xFF) {
 			DBG_8192C("%s: data end at address =%#x\n", __func__, eFuse_Addr-1);
 			break;
 		}
 		/* DBG_8192C("%s: efuse[0x%X]= 0x%02X\n", __func__, eFuse_Addr-1, efuseHeader); */
+=======
+		if (efuseHeader == 0xFF)
+			break;
+>>>>>>> upstream/android-13
 
 		/*  Check PG header for section num. */
 		if (EXT_HEADER(efuseHeader)) { /* extended header */
 			offset = GET_HDR_OFFSET_2_0(efuseHeader);
+<<<<<<< HEAD
 			/* DBG_8192C("%s: extended header offset = 0x%X\n", __func__, offset); */
 
 			efuse_OneByteRead(padapter, eFuse_Addr++, &efuseExtHdr, bPseudoTest);
 			/* DBG_8192C("%s: efuse[0x%X]= 0x%02X\n", __func__, eFuse_Addr-1, efuseExtHdr); */
+=======
+
+			efuse_OneByteRead(padapter, eFuse_Addr++, &efuseExtHdr, bPseudoTest);
+>>>>>>> upstream/android-13
 			if (ALL_WORDS_DISABLED(efuseExtHdr))
 				continue;
 
@@ -933,29 +1087,44 @@ if (0) {
 			offset = ((efuseHeader >> 4) & 0x0f);
 			wden = (efuseHeader & 0x0f);
 		}
+<<<<<<< HEAD
 		/* DBG_8192C("%s: Offset =%d Worden = 0x%X\n", __func__, offset, wden); */
+=======
+>>>>>>> upstream/android-13
 
 		if (offset < EFUSE_MAX_SECTION_8723B) {
 			u16 addr;
 			/*  Get word enable value from PG header */
+<<<<<<< HEAD
 /* 			DBG_8192C("%s: Offset =%d Worden = 0x%X\n", __func__, offset, wden); */
+=======
+>>>>>>> upstream/android-13
 
 			addr = offset * PGPKT_DATA_SIZE;
 			for (i = 0; i < EFUSE_MAX_WORD_UNIT; i++) {
 				/*  Check word enable condition in the section */
 				if (!(wden & (0x01<<i))) {
 					efuse_OneByteRead(padapter, eFuse_Addr++, &efuseData, bPseudoTest);
+<<<<<<< HEAD
 /* 					DBG_8192C("%s: efuse[%#X]= 0x%02X\n", __func__, eFuse_Addr-1, efuseData); */
 					efuseTbl[addr] = efuseData;
 
 					efuse_OneByteRead(padapter, eFuse_Addr++, &efuseData, bPseudoTest);
 /* 					DBG_8192C("%s: efuse[%#X]= 0x%02X\n", __func__, eFuse_Addr-1, efuseData); */
+=======
+					efuseTbl[addr] = efuseData;
+
+					efuse_OneByteRead(padapter, eFuse_Addr++, &efuseData, bPseudoTest);
+>>>>>>> upstream/android-13
 					efuseTbl[addr+1] = efuseData;
 				}
 				addr += 2;
 			}
 		} else {
+<<<<<<< HEAD
 			DBG_8192C(KERN_ERR "%s: offset(%d) is illegal!!\n", __func__, offset);
+=======
+>>>>>>> upstream/android-13
 			eFuse_Addr += Efuse_CalculateWordCnts(wden)*2;
 		}
 	}
@@ -964,6 +1133,7 @@ if (0) {
 	for (i = 0; i < _size_byte; i++)
 		pbuf[i] = efuseTbl[_offset+i];
 
+<<<<<<< HEAD
 #ifdef DEBUG
 if (1) {
 	DBG_871X("Efuse Realmap:\n");
@@ -975,6 +1145,8 @@ if (1) {
 	printk("\n");
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 	/*  Calculate Efuse utilization */
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, &total, bPseudoTest);
 	used = eFuse_Addr - 1;
@@ -1003,7 +1175,11 @@ static void hal_ReadEFuse_BT(
 {
 #ifdef HAL_EFUSE_MEMORY
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PEFUSE_HAL pEfuseHal = &pHalData->EfuseHal;
+=======
+	struct efuse_hal *pEfuseHal = &pHalData->EfuseHal;
+>>>>>>> upstream/android-13
 #endif
 	u8 *efuseTbl;
 	u8 bank;
@@ -1017,6 +1193,7 @@ static void hal_ReadEFuse_BT(
 	/*  */
 	/*  Do NOT excess total size of EFuse table. Added by Roger, 2008.11.10. */
 	/*  */
+<<<<<<< HEAD
 	if ((_offset+_size_byte) > EFUSE_BT_MAP_LEN) {
 		DBG_8192C("%s: Invalid offset(%#x) with read bytes(%#x)!!\n", __func__, _offset, _size_byte);
 		return;
@@ -1027,16 +1204,30 @@ static void hal_ReadEFuse_BT(
 		DBG_8192C("%s: efuseTbl malloc fail!\n", __func__);
 		return;
 	}
+=======
+	if ((_offset + _size_byte) > EFUSE_BT_MAP_LEN)
+		return;
+
+	efuseTbl = rtw_malloc(EFUSE_BT_MAP_LEN);
+	if (!efuseTbl)
+		return;
+
+>>>>>>> upstream/android-13
 	/*  0xff will be efuse default value instead of 0x00. */
 	memset(efuseTbl, 0xFF, EFUSE_BT_MAP_LEN);
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_AVAILABLE_EFUSE_BYTES_BANK, &total, bPseudoTest);
 
 	for (bank = 1; bank < 3; bank++) { /*  8723b Max bake 0~2 */
+<<<<<<< HEAD
 		if (hal_EfuseSwitchToBank(padapter, bank, bPseudoTest) == false) {
 			DBG_8192C("%s: hal_EfuseSwitchToBank Fail!!\n", __func__);
 			goto exit;
 		}
+=======
+		if (hal_EfuseSwitchToBank(padapter, bank, bPseudoTest) == false)
+			goto exit;
+>>>>>>> upstream/android-13
 
 		eFuse_Addr = 0;
 
@@ -1044,15 +1235,23 @@ static void hal_ReadEFuse_BT(
 			efuse_OneByteRead(padapter, eFuse_Addr++, &efuseHeader, bPseudoTest);
 			if (efuseHeader == 0xFF)
 				break;
+<<<<<<< HEAD
 			DBG_8192C("%s: efuse[%#X]= 0x%02x (header)\n", __func__, (((bank-1)*EFUSE_REAL_CONTENT_LEN_8723B)+eFuse_Addr-1), efuseHeader);
+=======
+>>>>>>> upstream/android-13
 
 			/*  Check PG header for section num. */
 			if (EXT_HEADER(efuseHeader)) { /* extended header */
 				offset = GET_HDR_OFFSET_2_0(efuseHeader);
+<<<<<<< HEAD
 				DBG_8192C("%s: extended header offset_2_0 = 0x%X\n", __func__, offset);
 
 				efuse_OneByteRead(padapter, eFuse_Addr++, &efuseExtHdr, bPseudoTest);
 				DBG_8192C("%s: efuse[%#X]= 0x%02x (ext header)\n", __func__, (((bank-1)*EFUSE_REAL_CONTENT_LEN_8723B)+eFuse_Addr-1), efuseExtHdr);
+=======
+
+				efuse_OneByteRead(padapter, eFuse_Addr++, &efuseExtHdr, bPseudoTest);
+>>>>>>> upstream/android-13
 				if (ALL_WORDS_DISABLED(efuseExtHdr))
 					continue;
 
@@ -1067,33 +1266,51 @@ static void hal_ReadEFuse_BT(
 			if (offset < EFUSE_BT_MAX_SECTION) {
 				u16 addr;
 
+<<<<<<< HEAD
 				/*  Get word enable value from PG header */
 				DBG_8192C("%s: Offset =%d Worden =%#X\n", __func__, offset, wden);
 
+=======
+>>>>>>> upstream/android-13
 				addr = offset * PGPKT_DATA_SIZE;
 				for (i = 0; i < EFUSE_MAX_WORD_UNIT; i++) {
 					/*  Check word enable condition in the section */
 					if (!(wden & (0x01<<i))) {
 						efuse_OneByteRead(padapter, eFuse_Addr++, &efuseData, bPseudoTest);
+<<<<<<< HEAD
 						DBG_8192C("%s: efuse[%#X]= 0x%02X\n", __func__, eFuse_Addr-1, efuseData);
 						efuseTbl[addr] = efuseData;
 
 						efuse_OneByteRead(padapter, eFuse_Addr++, &efuseData, bPseudoTest);
 						DBG_8192C("%s: efuse[%#X]= 0x%02X\n", __func__, eFuse_Addr-1, efuseData);
+=======
+						efuseTbl[addr] = efuseData;
+
+						efuse_OneByteRead(padapter, eFuse_Addr++, &efuseData, bPseudoTest);
+>>>>>>> upstream/android-13
 						efuseTbl[addr+1] = efuseData;
 					}
 					addr += 2;
 				}
 			} else {
+<<<<<<< HEAD
 				DBG_8192C("%s: offset(%d) is illegal!!\n", __func__, offset);
+=======
+>>>>>>> upstream/android-13
 				eFuse_Addr += Efuse_CalculateWordCnts(wden)*2;
 			}
 		}
 
+<<<<<<< HEAD
 		if ((eFuse_Addr-1) < total) {
 			DBG_8192C("%s: bank(%d) data end at %#x\n", __func__, bank, eFuse_Addr-1);
 			break;
 		}
+=======
+		if ((eFuse_Addr - 1) < total)
+			break;
+
+>>>>>>> upstream/android-13
 	}
 
 	/*  switch bank back to bank 0 for later BT and wifi use. */
@@ -1108,7 +1325,10 @@ static void hal_ReadEFuse_BT(
 	/*  */
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, &total, bPseudoTest);
 	used = (EFUSE_BT_REAL_BANK_CONTENT_LEN*(bank-1)) + eFuse_Addr - 1;
+<<<<<<< HEAD
 	DBG_8192C("%s: bank(%d) data end at %#x , used =%d\n", __func__, bank, eFuse_Addr-1, used);
+=======
+>>>>>>> upstream/android-13
 	efuse_usage = (u8)((used*100)/total);
 	if (bPseudoTest) {
 #ifdef HAL_EFUSE_MEMORY
@@ -1146,7 +1366,11 @@ static u16 hal_EfuseGetCurrentSize_WiFi(
 {
 #ifdef HAL_EFUSE_MEMORY
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PEFUSE_HAL		pEfuseHal = &pHalData->EfuseHal;
+=======
+	struct efuse_hal *pEfuseHal = &pHalData->EfuseHal;
+>>>>>>> upstream/android-13
 #endif
 	u16 efuse_addr = 0;
 	u16 start_addr = 0; /*  for debug */
@@ -1165,25 +1389,36 @@ static u16 hal_EfuseGetCurrentSize_WiFi(
 		rtw_hal_get_hwreg(padapter, HW_VAR_EFUSE_BYTES, (u8 *)&efuse_addr);
 
 	start_addr = efuse_addr;
+<<<<<<< HEAD
 	DBG_8192C("%s: start_efuse_addr = 0x%X\n", __func__, efuse_addr);
+=======
+>>>>>>> upstream/android-13
 
 	/*  switch bank back to bank 0 for later BT and wifi use. */
 	hal_EfuseSwitchToBank(padapter, 0, bPseudoTest);
 
 	count = 0;
 	while (AVAILABLE_EFUSE_ADDR(efuse_addr)) {
+<<<<<<< HEAD
 		if (efuse_OneByteRead(padapter, efuse_addr, &efuse_data, bPseudoTest) == false) {
 			DBG_8192C(KERN_ERR "%s: efuse_OneByteRead Fail! addr = 0x%X !!\n", __func__, efuse_addr);
 			goto error;
 		}
+=======
+		if (efuse_OneByteRead(padapter, efuse_addr, &efuse_data, bPseudoTest) == false)
+			goto error;
+>>>>>>> upstream/android-13
 
 		if (efuse_data == 0xFF)
 			break;
 
 		if ((start_addr != 0) && (efuse_addr == start_addr)) {
 			count++;
+<<<<<<< HEAD
 			DBG_8192C(FUNC_ADPT_FMT ": [WARNING] efuse raw 0x%X = 0x%02X not 0xFF!!(%d times)\n",
 				FUNC_ADPT_ARG(padapter), efuse_addr, efuse_data, count);
+=======
+>>>>>>> upstream/android-13
 
 			efuse_data = 0xFF;
 			if (count < 4) {
@@ -1231,11 +1466,18 @@ static u16 hal_EfuseGetCurrentSize_WiFi(
 	goto exit;
 
 error:
+<<<<<<< HEAD
 	/*  report max size to prevent wirte efuse */
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, &efuse_addr, bPseudoTest);
 
 exit:
 	DBG_8192C("%s: CurrentSize =%d\n", __func__, efuse_addr);
+=======
+	/*  report max size to prevent write efuse */
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, &efuse_addr, bPseudoTest);
+
+exit:
+>>>>>>> upstream/android-13
 
 	return efuse_addr;
 }
@@ -1244,7 +1486,11 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 {
 #ifdef HAL_EFUSE_MEMORY
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PEFUSE_HAL pEfuseHal = &pHalData->EfuseHal;
+=======
+	struct efuse_hal *pEfuseHal = &pHalData->EfuseHal;
+>>>>>>> upstream/android-13
 #endif
 	u16 btusedbytes;
 	u16 efuse_addr;
@@ -1265,6 +1511,7 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 	efuse_addr = (u16)((btusedbytes%EFUSE_BT_REAL_BANK_CONTENT_LEN));
 	startBank = (u8)(1+(btusedbytes/EFUSE_BT_REAL_BANK_CONTENT_LEN));
 
+<<<<<<< HEAD
 	DBG_8192C("%s: start from bank =%d addr = 0x%X\n", __func__, startBank, efuse_addr);
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_AVAILABLE_EFUSE_BYTES_BANK, &retU2, bPseudoTest);
@@ -1275,6 +1522,14 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 			/* bank = EFUSE_MAX_BANK; */
 			break;
 		}
+=======
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_BT, TYPE_AVAILABLE_EFUSE_BYTES_BANK, &retU2, bPseudoTest);
+
+	for (bank = startBank; bank < 3; bank++) {
+		if (hal_EfuseSwitchToBank(padapter, bank, bPseudoTest) == false)
+			/* bank = EFUSE_MAX_BANK; */
+			break;
+>>>>>>> upstream/android-13
 
 		/*  only when bank is switched we have to reset the efuse_addr. */
 		if (bank != startBank)
@@ -1282,12 +1537,19 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 #if 1
 
 		while (AVAILABLE_EFUSE_ADDR(efuse_addr)) {
+<<<<<<< HEAD
 			if (efuse_OneByteRead(padapter, efuse_addr, &efuse_data, bPseudoTest) == false) {
 				DBG_8192C(KERN_ERR "%s: efuse_OneByteRead Fail! addr = 0x%X !!\n", __func__, efuse_addr);
 				/* bank = EFUSE_MAX_BANK; */
 				break;
 			}
 			DBG_8192C("%s: efuse_OneByteRead ! addr = 0x%X !efuse_data = 0x%X! bank =%d\n", __func__, efuse_addr, efuse_data, bank);
+=======
+			if (efuse_OneByteRead(padapter, efuse_addr,
+					      &efuse_data, bPseudoTest) == false)
+				/* bank = EFUSE_MAX_BANK; */
+				break;
+>>>>>>> upstream/android-13
 
 			if (efuse_data == 0xFF)
 				break;
@@ -1296,7 +1558,10 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 				hoffset = GET_HDR_OFFSET_2_0(efuse_data);
 				efuse_addr++;
 				efuse_OneByteRead(padapter, efuse_addr, &efuse_data, bPseudoTest);
+<<<<<<< HEAD
 				DBG_8192C("%s: efuse_OneByteRead EXT_HEADER ! addr = 0x%X !efuse_data = 0x%X! bank =%d\n", __func__, efuse_addr, efuse_data, bank);
+=======
+>>>>>>> upstream/android-13
 
 				if (ALL_WORDS_DISABLED(efuse_data)) {
 					efuse_addr++;
@@ -1311,9 +1576,12 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 				hworden =  efuse_data & 0x0F;
 			}
 
+<<<<<<< HEAD
 			DBG_8192C(FUNC_ADPT_FMT": Offset =%d Worden =%#X\n",
 				FUNC_ADPT_ARG(padapter), hoffset, hworden);
 
+=======
+>>>>>>> upstream/android-13
 			word_cnts = Efuse_CalculateWordCnts(hworden);
 			/* read next header */
 			efuse_addr += (word_cnts*2)+1;
@@ -1357,6 +1625,7 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 	retU2 = ((bank-1)*EFUSE_BT_REAL_BANK_CONTENT_LEN)+efuse_addr;
 	if (bPseudoTest) {
 		pEfuseHal->fakeBTEfuseUsedBytes = retU2;
+<<<<<<< HEAD
 		/* RT_DISP(FEEPROM, EFUSE_PG, ("Hal_EfuseGetCurrentSize_BT92C(), already use %u bytes\n", pEfuseHal->fakeBTEfuseUsedBytes)); */
 	} else {
 		pEfuseHal->BTEfuseUsedBytes = retU2;
@@ -1364,6 +1633,12 @@ static u16 hal_EfuseGetCurrentSize_BT(struct adapter *padapter, u8 bPseudoTest)
 	}
 
 	DBG_8192C("%s: CurrentSize =%d\n", __func__, retU2);
+=======
+	} else {
+		pEfuseHal->BTEfuseUsedBytes = retU2;
+	}
+
+>>>>>>> upstream/android-13
 	return retU2;
 }
 
@@ -1394,8 +1669,11 @@ static u8 Hal_EfuseWordEnableDataWrite(
 	u8 badworden = 0x0F;
 	u8 tmpdata[PGPKT_DATA_SIZE];
 
+<<<<<<< HEAD
 
 /* 	DBG_8192C("%s: efuse_addr =%#x word_en =%#x\n", __func__, efuse_addr, word_en); */
+=======
+>>>>>>> upstream/android-13
 	memset(tmpdata, 0xFF, PGPKT_DATA_SIZE);
 
 	if (!(word_en & BIT(0))) {
@@ -1463,6 +1741,7 @@ static s32 Hal_EfusePgPacketRead(
 	s32	ret;
 
 
+<<<<<<< HEAD
 	if (data == NULL)
 		return false;
 
@@ -1471,6 +1750,14 @@ static s32 Hal_EfusePgPacketRead(
 		DBG_8192C("%s: Packet offset(%d) is illegal(>%d)!\n", __func__, offset, max_section);
 		return false;
 	}
+=======
+	if (!data)
+		return false;
+
+	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAX_SECTION, &max_section, bPseudoTest);
+	if (offset > max_section)
+		return false;
+>>>>>>> upstream/android-13
 
 	memset(data, 0xFF, PGPKT_DATA_SIZE);
 	ret = true;
@@ -1492,10 +1779,15 @@ static s32 Hal_EfusePgPacketRead(
 		if (EXT_HEADER(efuse_data)) {
 			hoffset = GET_HDR_OFFSET_2_0(efuse_data);
 			efuse_OneByteRead(padapter, efuse_addr++, &efuse_data, bPseudoTest);
+<<<<<<< HEAD
 			if (ALL_WORDS_DISABLED(efuse_data)) {
 				DBG_8192C("%s: Error!! All words disabled!\n", __func__);
 				continue;
 			}
+=======
+			if (ALL_WORDS_DISABLED(efuse_data))
+				continue;
+>>>>>>> upstream/android-13
 
 			hoffset |= ((efuse_data & 0xF0) >> 1);
 			hworden = efuse_data & 0x0F;
@@ -1509,11 +1801,17 @@ static s32 Hal_EfusePgPacketRead(
 				/*  Check word enable condition in the section */
 				if (!(hworden & (0x01<<i))) {
 					efuse_OneByteRead(padapter, efuse_addr++, &efuse_data, bPseudoTest);
+<<<<<<< HEAD
 /* 					DBG_8192C("%s: efuse[%#X]= 0x%02X\n", __func__, efuse_addr+tmpidx, efuse_data); */
 					data[i*2] = efuse_data;
 
 					efuse_OneByteRead(padapter, efuse_addr++, &efuse_data, bPseudoTest);
 /* 					DBG_8192C("%s: efuse[%#X]= 0x%02X\n", __func__, efuse_addr+tmpidx, efuse_data); */
+=======
+					data[i*2] = efuse_data;
+
+					efuse_OneByteRead(padapter, efuse_addr++, &efuse_data, bPseudoTest);
+>>>>>>> upstream/android-13
 					data[(i*2)+1] = efuse_data;
 				}
 			}
@@ -1535,6 +1833,7 @@ static u8 hal_EfusePgCheckAvailableAddr(
 
 
 	EFUSE_GetEfuseDefinition(padapter, efuseType, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, &max_available, bPseudoTest);
+<<<<<<< HEAD
 /* 	DBG_8192C("%s: max_available =%d\n", __func__, max_available); */
 
 	current_size = Efuse_GetCurrentSize(padapter, efuseType, bPseudoTest);
@@ -1542,6 +1841,13 @@ static u8 hal_EfusePgCheckAvailableAddr(
 		DBG_8192C("%s: Error!! current_size(%d)>max_available(%d)\n", __func__, current_size, max_available);
 		return false;
 	}
+=======
+
+	current_size = Efuse_GetCurrentSize(padapter, efuseType, bPseudoTest);
+	if (current_size >= max_available)
+		return false;
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -1549,7 +1855,11 @@ static void hal_EfuseConstructPGPkt(
 	u8 offset,
 	u8 word_en,
 	u8 *pData,
+<<<<<<< HEAD
 	PPGPKT_STRUCT pTargetPkt
+=======
+	struct pgpkt_struct *pTargetPkt
+>>>>>>> upstream/android-13
 )
 {
 	memset(pTargetPkt->data, 0xFF, PGPKT_DATA_SIZE);
@@ -1563,12 +1873,20 @@ static u8 hal_EfusePartialWriteCheck(
 	struct adapter *padapter,
 	u8 efuseType,
 	u16 *pAddr,
+<<<<<<< HEAD
 	PPGPKT_STRUCT pTargetPkt,
+=======
+	struct pgpkt_struct *pTargetPkt,
+>>>>>>> upstream/android-13
 	u8 bPseudoTest
 )
 {
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	PEFUSE_HAL pEfuseHal = &pHalData->EfuseHal;
+=======
+	struct efuse_hal *pEfuseHal = &pHalData->EfuseHal;
+>>>>>>> upstream/android-13
 	u8 bRet = false;
 	u16 startAddr = 0, efuse_max_available_len = 0, efuse_max = 0;
 	u8 efuse_data = 0;
@@ -1596,20 +1914,29 @@ static u8 hal_EfusePartialWriteCheck(
 			rtw_hal_get_hwreg(padapter, HW_VAR_EFUSE_BT_BYTES, (u8 *)&startAddr);
 	}
 	startAddr %= efuse_max;
+<<<<<<< HEAD
 	DBG_8192C("%s: startAddr =%#X\n", __func__, startAddr);
+=======
+>>>>>>> upstream/android-13
 
 	while (1) {
 		if (startAddr >= efuse_max_available_len) {
 			bRet = false;
+<<<<<<< HEAD
 			DBG_8192C("%s: startAddr(%d) >= efuse_max_available_len(%d)\n", __func__, startAddr, efuse_max_available_len);
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 
 		if (efuse_OneByteRead(padapter, startAddr, &efuse_data, bPseudoTest) && (efuse_data != 0xFF)) {
 #if 1
 			bRet = false;
+<<<<<<< HEAD
 			DBG_8192C("%s: Something Wrong! last bytes(%#X = 0x%02X) is not 0xFF\n",
 				__func__, startAddr, efuse_data);
+=======
+>>>>>>> upstream/android-13
 			break;
 #else
 			if (EXT_HEADER(efuse_data)) {
@@ -1617,7 +1944,10 @@ static u8 hal_EfusePartialWriteCheck(
 				startAddr++;
 				efuse_OneByteRead(padapter, startAddr, &efuse_data, bPseudoTest);
 				if (ALL_WORDS_DISABLED(efuse_data)) {
+<<<<<<< HEAD
 					DBG_8192C("%s: Error condition, all words disabled!", __func__);
+=======
+>>>>>>> upstream/android-13
 					bRet = false;
 					break;
 				} else {
@@ -1638,7 +1968,10 @@ static u8 hal_EfusePartialWriteCheck(
 				(hal_EfuseCheckIfDatafollowed(padapter, curPkt.word_cnts, startAddr+1, bPseudoTest) == false) &&
 				wordEnMatched(pTargetPkt, &curPkt, &matched_wden) == true
 			) {
+<<<<<<< HEAD
 				DBG_8192C("%s: Need to partial write data by the previous wrote header\n", __func__);
+=======
+>>>>>>> upstream/android-13
 				/*  Here to write partial data */
 				badworden = Efuse_WordEnableDataWrite(padapter, startAddr+1, matched_wden, pTargetPkt->data, bPseudoTest);
 				if (badworden != 0x0F) {
@@ -1668,7 +2001,10 @@ static u8 hal_EfusePartialWriteCheck(
 		} else {
 			/*  not used header, 0xff */
 			*pAddr = startAddr;
+<<<<<<< HEAD
 /* 			DBG_8192C("%s: Started from unused header offset =%d\n", __func__, startAddr)); */
+=======
+>>>>>>> upstream/android-13
 			bRet = true;
 			break;
 		}
@@ -1681,7 +2017,11 @@ static u8 hal_EfusePgPacketWrite1ByteHeader(
 	struct adapter *padapter,
 	u8 efuseType,
 	u16 *pAddr,
+<<<<<<< HEAD
 	PPGPKT_STRUCT pTargetPkt,
+=======
+	struct pgpkt_struct *pTargetPkt,
+>>>>>>> upstream/android-13
 	u8 bPseudoTest
 )
 {
@@ -1689,8 +2029,11 @@ static u8 hal_EfusePgPacketWrite1ByteHeader(
 	u16 efuse_addr = *pAddr;
 	u8 repeatcnt = 0;
 
+<<<<<<< HEAD
 
 /* 	DBG_8192C("%s\n", __func__); */
+=======
+>>>>>>> upstream/android-13
 	pg_header = ((pTargetPkt->offset << 4) & 0xf0) | pTargetPkt->word_en;
 
 	do {
@@ -1698,6 +2041,7 @@ static u8 hal_EfusePgPacketWrite1ByteHeader(
 		efuse_OneByteRead(padapter, efuse_addr, &tmp_header, bPseudoTest);
 		if (tmp_header != 0xFF)
 			break;
+<<<<<<< HEAD
 		if (repeatcnt++ > EFUSE_REPEAT_THRESHOLD_) {
 			DBG_8192C("%s: Repeat over limit for pg_header!!\n", __func__);
 			return false;
@@ -1708,6 +2052,15 @@ static u8 hal_EfusePgPacketWrite1ByteHeader(
 		DBG_8192C(KERN_ERR "%s: PG Header Fail!!(pg = 0x%02X read = 0x%02X)\n", __func__, pg_header, tmp_header);
 		return false;
 	}
+=======
+		if (repeatcnt++ > EFUSE_REPEAT_THRESHOLD_)
+			return false;
+
+	} while (1);
+
+	if (tmp_header != pg_header)
+		return false;
+>>>>>>> upstream/android-13
 
 	*pAddr = efuse_addr;
 
@@ -1718,7 +2071,11 @@ static u8 hal_EfusePgPacketWrite2ByteHeader(
 	struct adapter *padapter,
 	u8 efuseType,
 	u16 *pAddr,
+<<<<<<< HEAD
 	PPGPKT_STRUCT pTargetPkt,
+=======
+	struct pgpkt_struct *pTargetPkt,
+>>>>>>> upstream/android-13
 	u8 bPseudoTest
 )
 {
@@ -1726,6 +2083,7 @@ static u8 hal_EfusePgPacketWrite2ByteHeader(
 	u8 pg_header = 0, tmp_header = 0;
 	u8 repeatcnt = 0;
 
+<<<<<<< HEAD
 
 /* 	DBG_8192C("%s\n", __func__); */
 	EFUSE_GetEfuseDefinition(padapter, efuseType, TYPE_AVAILABLE_EFUSE_BYTES_BANK, &efuse_max_available_len, bPseudoTest);
@@ -1739,12 +2097,22 @@ static u8 hal_EfusePgPacketWrite2ByteHeader(
 
 	pg_header = ((pTargetPkt->offset & 0x07) << 5) | 0x0F;
 /* 	DBG_8192C("%s: pg_header = 0x%x\n", __func__, pg_header); */
+=======
+	EFUSE_GetEfuseDefinition(padapter, efuseType, TYPE_AVAILABLE_EFUSE_BYTES_BANK, &efuse_max_available_len, bPseudoTest);
+
+	efuse_addr = *pAddr;
+	if (efuse_addr >= efuse_max_available_len)
+		return false;
+
+	pg_header = ((pTargetPkt->offset & 0x07) << 5) | 0x0F;
+>>>>>>> upstream/android-13
 
 	do {
 		efuse_OneByteWrite(padapter, efuse_addr, pg_header, bPseudoTest);
 		efuse_OneByteRead(padapter, efuse_addr, &tmp_header, bPseudoTest);
 		if (tmp_header != 0xFF)
 			break;
+<<<<<<< HEAD
 		if (repeatcnt++ > EFUSE_REPEAT_THRESHOLD_) {
 			DBG_8192C("%s: Repeat over limit for pg_header!!\n", __func__);
 			return false;
@@ -1755,6 +2123,15 @@ static u8 hal_EfusePgPacketWrite2ByteHeader(
 		DBG_8192C(KERN_ERR "%s: PG Header Fail!!(pg = 0x%02X read = 0x%02X)\n", __func__, pg_header, tmp_header);
 		return false;
 	}
+=======
+		if (repeatcnt++ > EFUSE_REPEAT_THRESHOLD_)
+			return false;
+
+	} while (1);
+
+	if (tmp_header != pg_header)
+		return false;
+>>>>>>> upstream/android-13
 
 	/*  to write ext_header */
 	efuse_addr++;
@@ -1765,6 +2142,7 @@ static u8 hal_EfusePgPacketWrite2ByteHeader(
 		efuse_OneByteRead(padapter, efuse_addr, &tmp_header, bPseudoTest);
 		if (tmp_header != 0xFF)
 			break;
+<<<<<<< HEAD
 		if (repeatcnt++ > EFUSE_REPEAT_THRESHOLD_) {
 			DBG_8192C("%s: Repeat over limit for ext_header!!\n", __func__);
 			return false;
@@ -1775,6 +2153,15 @@ static u8 hal_EfusePgPacketWrite2ByteHeader(
 		DBG_8192C(KERN_ERR "%s: PG EXT Header Fail!!(pg = 0x%02X read = 0x%02X)\n", __func__, pg_header, tmp_header);
 		return false;
 	}
+=======
+		if (repeatcnt++ > EFUSE_REPEAT_THRESHOLD_)
+			return false;
+
+	} while (1);
+
+	if (tmp_header != pg_header) /* offset PG fail */
+		return false;
+>>>>>>> upstream/android-13
 
 	*pAddr = efuse_addr;
 
@@ -1785,7 +2172,11 @@ static u8 hal_EfusePgPacketWriteHeader(
 	struct adapter *padapter,
 	u8 efuseType,
 	u16 *pAddr,
+<<<<<<< HEAD
 	PPGPKT_STRUCT pTargetPkt,
+=======
+	struct pgpkt_struct *pTargetPkt,
+>>>>>>> upstream/android-13
 	u8 bPseudoTest
 )
 {
@@ -1803,7 +2194,11 @@ static u8 hal_EfusePgPacketWriteData(
 	struct adapter *padapter,
 	u8 efuseType,
 	u16 *pAddr,
+<<<<<<< HEAD
 	PPGPKT_STRUCT pTargetPkt,
+=======
+	struct pgpkt_struct *pTargetPkt,
+>>>>>>> upstream/android-13
 	u8 bPseudoTest
 )
 {
@@ -1813,12 +2208,18 @@ static u8 hal_EfusePgPacketWriteData(
 
 	efuse_addr = *pAddr;
 	badworden = Efuse_WordEnableDataWrite(padapter, efuse_addr+1, pTargetPkt->word_en, pTargetPkt->data, bPseudoTest);
+<<<<<<< HEAD
 	if (badworden != 0x0F) {
 		DBG_8192C("%s: Fail!!\n", __func__);
 		return false;
 	}
 
 /* 	DBG_8192C("%s: ok\n", __func__); */
+=======
+	if (badworden != 0x0F)
+		return false;
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -1830,7 +2231,11 @@ static s32 Hal_EfusePgPacketWrite(
 	bool bPseudoTest
 )
 {
+<<<<<<< HEAD
 	PGPKT_STRUCT targetPkt;
+=======
+	struct pgpkt_struct targetPkt;
+>>>>>>> upstream/android-13
 	u16 startAddr = 0;
 	u8 efuseType = EFUSE_WIFI;
 
@@ -1859,7 +2264,11 @@ static bool Hal_EfusePgPacketWrite_BT(
 	bool bPseudoTest
 )
 {
+<<<<<<< HEAD
 	PGPKT_STRUCT targetPkt;
+=======
+	struct pgpkt_struct targetPkt;
+>>>>>>> upstream/android-13
 	u16 startAddr = 0;
 	u8 efuseType = EFUSE_BT;
 
@@ -1880,10 +2289,17 @@ static bool Hal_EfusePgPacketWrite_BT(
 	return true;
 }
 
+<<<<<<< HEAD
 static HAL_VERSION ReadChipVersion8723B(struct adapter *padapter)
 {
 	u32 value32;
 	HAL_VERSION ChipVersion;
+=======
+static struct hal_version ReadChipVersion8723B(struct adapter *padapter)
+{
+	u32 value32;
+	struct hal_version ChipVersion;
+>>>>>>> upstream/android-13
 	struct hal_com_data *pHalData;
 
 /* YJ, TODO, move read chip type here */
@@ -1892,7 +2308,10 @@ static HAL_VERSION ReadChipVersion8723B(struct adapter *padapter)
 	value32 = rtw_read32(padapter, REG_SYS_CFG);
 	ChipVersion.ICType = CHIP_8723B;
 	ChipVersion.ChipType = ((value32 & RTL_ID) ? TEST_CHIP : NORMAL_CHIP);
+<<<<<<< HEAD
 	ChipVersion.RFType = RF_TYPE_1T1R;
+=======
+>>>>>>> upstream/android-13
 	ChipVersion.VendorType = ((value32 & VENDOR_ID) ? CHIP_VENDOR_UMC : CHIP_VENDOR_TSMC);
 	ChipVersion.CUTVersion = (value32 & CHIP_VER_RTL_MASK)>>CHIP_VER_RTL_SHIFT; /*  IC version (CUT) */
 
@@ -1913,6 +2332,7 @@ static HAL_VERSION ReadChipVersion8723B(struct adapter *padapter)
 	dump_chip_info(ChipVersion);
 #endif
 	pHalData->VersionID = ChipVersion;
+<<<<<<< HEAD
 	if (IS_1T2R(ChipVersion))
 		pHalData->rf_type = RF_1T2R;
 	else if (IS_2T2R(ChipVersion))
@@ -1921,6 +2341,8 @@ static HAL_VERSION ReadChipVersion8723B(struct adapter *padapter)
 		pHalData->rf_type = RF_1T1R;
 
 	MSG_8192C("RF_Type is %x!!\n", pHalData->rf_type);
+=======
+>>>>>>> upstream/android-13
 
 	return ChipVersion;
 }
@@ -1993,12 +2415,15 @@ static void ResumeTxBeacon(struct adapter *padapter)
 {
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
 
+<<<<<<< HEAD
 
 	/*  2010.03.01. Marked by tynli. No need to call workitem beacause we record the value */
 	/*  which should be read from register to a global variable. */
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("+ResumeTxBeacon\n"));
 
+=======
+>>>>>>> upstream/android-13
 	pHalData->RegFwHwTxQCtrl |= BIT(6);
 	rtw_write8(padapter, REG_FWHW_TXQ_CTRL+2, pHalData->RegFwHwTxQCtrl);
 	rtw_write8(padapter, REG_TBTT_PROHIBIT+1, 0xff);
@@ -2010,12 +2435,15 @@ static void StopTxBeacon(struct adapter *padapter)
 {
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
 
+<<<<<<< HEAD
 
 	/*  2010.03.01. Marked by tynli. No need to call workitem beacause we record the value */
 	/*  which should be read from register to a global variable. */
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("+StopTxBeacon\n"));
 
+=======
+>>>>>>> upstream/android-13
 	pHalData->RegFwHwTxQCtrl &= ~BIT(6);
 	rtw_write8(padapter, REG_FWHW_TXQ_CTRL+2, pHalData->RegFwHwTxQCtrl);
 	rtw_write8(padapter, REG_TBTT_PROHIBIT+1, 0x64);
@@ -2094,7 +2522,11 @@ static void rtl8723b_SetBeaconRelatedRegisters(struct adapter *padapter)
 
 static void rtl8723b_GetHalODMVar(
 	struct adapter *Adapter,
+<<<<<<< HEAD
 	enum HAL_ODM_VARIABLE eVariable,
+=======
+	enum hal_odm_variable eVariable,
+>>>>>>> upstream/android-13
 	void *pValue1,
 	void *pValue2
 )
@@ -2104,7 +2536,11 @@ static void rtl8723b_GetHalODMVar(
 
 static void rtl8723b_SetHalODMVar(
 	struct adapter *Adapter,
+<<<<<<< HEAD
 	enum HAL_ODM_VARIABLE eVariable,
+=======
+	enum hal_odm_variable eVariable,
+>>>>>>> upstream/android-13
 	void *pValue1,
 	bool bSet
 )
@@ -2114,6 +2550,7 @@ static void rtl8723b_SetHalODMVar(
 
 static void hal_notch_filter_8723b(struct adapter *adapter, bool enable)
 {
+<<<<<<< HEAD
 	if (enable) {
 		DBG_871X("Enable notch filter\n");
 		rtw_write8(adapter, rOFDM0_RxDSP+1, rtw_read8(adapter, rOFDM0_RxDSP+1) | BIT1);
@@ -2121,6 +2558,12 @@ static void hal_notch_filter_8723b(struct adapter *adapter, bool enable)
 		DBG_871X("Disable notch filter\n");
 		rtw_write8(adapter, rOFDM0_RxDSP+1, rtw_read8(adapter, rOFDM0_RxDSP+1) & ~BIT1);
 	}
+=======
+	if (enable)
+		rtw_write8(adapter, rOFDM0_RxDSP+1, rtw_read8(adapter, rOFDM0_RxDSP+1) | BIT1);
+	else
+		rtw_write8(adapter, rOFDM0_RxDSP+1, rtw_read8(adapter, rOFDM0_RxDSP+1) & ~BIT1);
+>>>>>>> upstream/android-13
 }
 
 static void UpdateHalRAMask8723B(struct adapter *padapter, u32 mac_id, u8 rssi_level)
@@ -2133,13 +2576,20 @@ static void UpdateHalRAMask8723B(struct adapter *padapter, u32 mac_id, u8 rssi_l
 	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
 
+<<<<<<< HEAD
 	DBG_871X("%s(): mac_id =%d rssi_level =%d\n", __func__, mac_id, rssi_level);
 
+=======
+>>>>>>> upstream/android-13
 	if (mac_id >= NUM_STA) /* CAM_SIZE */
 		return;
 
 	psta = pmlmeinfo->FW_sta_info[mac_id].psta;
+<<<<<<< HEAD
 	if (psta == NULL)
+=======
+	if (!psta)
+>>>>>>> upstream/android-13
 		return;
 
 	shortGIrate = query_ra_short_GI(psta);
@@ -2148,6 +2598,7 @@ static void UpdateHalRAMask8723B(struct adapter *padapter, u32 mac_id, u8 rssi_l
 
 	rate_bitmap = 0xffffffff;
 	rate_bitmap = ODM_Get_Rate_Bitmap(&pHalData->odmpriv, mac_id, mask, rssi_level);
+<<<<<<< HEAD
 	DBG_871X("%s => mac_id:%d, networkType:0x%02x, mask:0x%08x\n\t ==> rssi_level:%d, rate_bitmap:0x%08x\n",
 			__func__, mac_id, psta->wireless_mode, mask, rssi_level, rate_bitmap);
 
@@ -2167,12 +2618,24 @@ static void UpdateHalRAMask8723B(struct adapter *padapter, u32 mac_id, u8 rssi_l
 #endif
 
 	if (pHalData->fw_ractrl == true) {
+=======
+
+	mask &= rate_bitmap;
+
+	rate_bitmap = hal_btcoex_GetRaMask(padapter);
+	mask &= ~rate_bitmap;
+
+	if (pHalData->fw_ractrl) {
+>>>>>>> upstream/android-13
 		rtl8723b_set_FwMacIdConfig_cmd(padapter, mac_id, psta->raid, psta->bw_mode, shortGIrate, mask);
 	}
 
 	/* set correct initial date rate for each mac_id */
 	pdmpriv->INIDATA_RATE[mac_id] = psta->init_rate;
+<<<<<<< HEAD
 	DBG_871X("%s(): mac_id =%d raid = 0x%x bw =%d mask = 0x%x init_rate = 0x%x\n", __func__, mac_id, psta->raid, psta->bw_mode, mask, psta->init_rate);
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -2234,6 +2697,7 @@ void rtl8723b_set_hal_ops(struct hal_ops *pHalFunc)
 
 void rtl8723b_InitAntenna_Selection(struct adapter *padapter)
 {
+<<<<<<< HEAD
 	struct hal_com_data *pHalData;
 	u8 val;
 
@@ -2242,6 +2706,12 @@ void rtl8723b_InitAntenna_Selection(struct adapter *padapter)
 
 	val = rtw_read8(padapter, REG_LEDCFG2);
 	/*  Let 8051 take control antenna settting */
+=======
+	u8 val;
+
+	val = rtw_read8(padapter, REG_LEDCFG2);
+	/*  Let 8051 take control antenna setting */
+>>>>>>> upstream/android-13
 	val |= BIT(7); /*  DPDT_SEL_EN, 0x4C[23] */
 	rtw_write8(padapter, REG_LEDCFG2, val);
 }
@@ -2306,8 +2776,11 @@ u8 GetEEPROMSize8723B(struct adapter *padapter)
 	/*  6: EEPROM used is 93C46, 4: boot from E-Fuse. */
 	size = (cr & BOOT_FROM_EEPROM) ? 6 : 4;
 
+<<<<<<< HEAD
 	MSG_8192C("EEPROM type is %s\n", size == 4 ? "E-FUSE" : "93C46");
 
+=======
+>>>>>>> upstream/android-13
 	return size;
 }
 
@@ -2339,6 +2812,7 @@ s32 rtl8723b_InitLLTTable(struct adapter *padapter)
 		}
 
 		passing_time = jiffies_to_msecs(jiffies - start);
+<<<<<<< HEAD
 		if (passing_time > 1000) {
 			DBG_8192C(
 				"%s: FAIL!! REG_AUTO_LLT(0x%X) =%08x\n",
@@ -2348,6 +2822,10 @@ s32 rtl8723b_InitLLTTable(struct adapter *padapter)
 			);
 			break;
 		}
+=======
+		if (passing_time > 1000)
+			break;
+>>>>>>> upstream/android-13
 
 		msleep(1);
 	} while (1);
@@ -2355,6 +2833,7 @@ s32 rtl8723b_InitLLTTable(struct adapter *padapter)
 	return ret;
 }
 
+<<<<<<< HEAD
 static bool Hal_GetChnlGroup8723B(u8 Channel, u8 *pGroup)
 {
 	bool bIn24G = true;
@@ -2422,21 +2901,43 @@ static bool Hal_GetChnlGroup8723B(u8 Channel, u8 *pGroup)
 		)
 	);
 	return bIn24G;
+=======
+static void hal_get_chnl_group_8723b(u8 channel, u8 *group)
+{
+	if (1  <= channel && channel <= 2)
+		*group = 0;
+	else if (3  <= channel && channel <= 5)
+		*group = 1;
+	else if (6  <= channel && channel <= 8)
+		*group = 2;
+	else if (9  <= channel && channel <= 11)
+		*group = 3;
+	else if (12 <= channel && channel <= 14)
+		*group = 4;
+>>>>>>> upstream/android-13
 }
 
 void Hal_InitPGData(struct adapter *padapter, u8 *PROMContent)
 {
 	struct eeprom_priv *pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 
+<<<<<<< HEAD
 	if (false == pEEPROM->bautoload_fail_flag) { /*  autoload OK. */
+=======
+	if (!pEEPROM->bautoload_fail_flag) { /*  autoload OK. */
+>>>>>>> upstream/android-13
 		if (!pEEPROM->EepromOrEfuse) {
 			/*  Read EFUSE real map to shadow. */
 			EFUSE_ShadowMapUpdate(padapter, EFUSE_WIFI, false);
 			memcpy((void *)PROMContent, (void *)pEEPROM->efuse_eeprom_data, HWSET_MAX_SIZE_8723B);
 		}
 	} else {/* autoload fail */
+<<<<<<< HEAD
 		RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("AutoLoad Fail reported from CR9346!!\n"));
 		if (false == pEEPROM->EepromOrEfuse)
+=======
+		if (!pEEPROM->EepromOrEfuse)
+>>>>>>> upstream/android-13
 			EFUSE_ShadowMapUpdate(padapter, EFUSE_WIFI, false);
 		memcpy((void *)PROMContent, (void *)pEEPROM->efuse_eeprom_data, HWSET_MAX_SIZE_8723B);
 	}
@@ -2452,12 +2953,18 @@ void Hal_EfuseParseIDCode(struct adapter *padapter, u8 *hwinfo)
 	/*  Checl 0x8129 again for making sure autoload status!! */
 	EEPROMId = le16_to_cpu(*((__le16 *)hwinfo));
 	if (EEPROMId != RTL_EEPROM_ID) {
+<<<<<<< HEAD
 		DBG_8192C("EEPROM ID(%#x) is invalid!!\n", EEPROMId);
 		pEEPROM->bautoload_fail_flag = true;
 	} else
 		pEEPROM->bautoload_fail_flag = false;
 
 	RT_TRACE(_module_hal_init_c_, _drv_notice_, ("EEPROM ID = 0x%04x\n", EEPROMId));
+=======
+		pEEPROM->bautoload_fail_flag = true;
+	} else
+		pEEPROM->bautoload_fail_flag = false;
+>>>>>>> upstream/android-13
 }
 
 static void Hal_ReadPowerValueFromPROM_8723B(
@@ -2476,7 +2983,10 @@ static void Hal_ReadPowerValueFromPROM_8723B(
 		AutoLoadFail = true;
 
 	if (AutoLoadFail) {
+<<<<<<< HEAD
 		DBG_871X("%s(): Use Default value!\n", __func__);
+=======
+>>>>>>> upstream/android-13
 		for (rfPath = 0; rfPath < MAX_RF_PATH; rfPath++) {
 			/* 2.4G default value */
 			for (group = 0; group < MAX_CHNL_GROUP_24G; group++) {
@@ -2589,7 +3099,11 @@ void Hal_EfuseParseTxPowerInfo_8723B(
 		for (ch = 0 ; ch < CHANNEL_MAX_NUMBER; ch++) {
 			u8 group = 0;
 
+<<<<<<< HEAD
 			Hal_GetChnlGroup8723B(ch+1, &group);
+=======
+			hal_get_chnl_group_8723b(ch + 1, &group);
+>>>>>>> upstream/android-13
 
 			if (ch == 14-1) {
 				pHalData->Index24G_CCK_Base[rfPath][ch] = pwrInfo24G.IndexCCK_Base[rfPath][5];
@@ -2598,11 +3112,14 @@ void Hal_EfuseParseTxPowerInfo_8723B(
 				pHalData->Index24G_CCK_Base[rfPath][ch] = pwrInfo24G.IndexCCK_Base[rfPath][group];
 				pHalData->Index24G_BW40_Base[rfPath][ch] = pwrInfo24G.IndexBW40_Base[rfPath][group];
 			}
+<<<<<<< HEAD
 #ifdef DEBUG
 			RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("======= Path %d, ChannelIndex %d, Group %d =======\n", rfPath, ch, group));
 			RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("Index24G_CCK_Base[%d][%d] = 0x%x\n", rfPath, ch, pHalData->Index24G_CCK_Base[rfPath][ch]));
 			RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("Index24G_BW40_Base[%d][%d] = 0x%x\n", rfPath, ch, pHalData->Index24G_BW40_Base[rfPath][ch]));
 #endif
+=======
+>>>>>>> upstream/android-13
 		}
 
 		for (TxCount = 0; TxCount < MAX_TX_COUNT; TxCount++) {
@@ -2610,6 +3127,7 @@ void Hal_EfuseParseTxPowerInfo_8723B(
 			pHalData->OFDM_24G_Diff[rfPath][TxCount] = pwrInfo24G.OFDM_Diff[rfPath][TxCount];
 			pHalData->BW20_24G_Diff[rfPath][TxCount] = pwrInfo24G.BW20_Diff[rfPath][TxCount];
 			pHalData->BW40_24G_Diff[rfPath][TxCount] = pwrInfo24G.BW40_Diff[rfPath][TxCount];
+<<<<<<< HEAD
 
 #ifdef DEBUG
 			RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("--------------------------------------- 2.4G ---------------------------------------\n"));
@@ -2618,6 +3136,8 @@ void Hal_EfuseParseTxPowerInfo_8723B(
 			RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("BW20_24G_Diff[%d][%d]= %d\n", rfPath, TxCount, pHalData->BW20_24G_Diff[rfPath][TxCount]));
 			RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("BW40_24G_Diff[%d][%d]= %d\n", rfPath, TxCount, pHalData->BW40_24G_Diff[rfPath][TxCount]));
 #endif
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2628,8 +3148,11 @@ void Hal_EfuseParseTxPowerInfo_8723B(
 			pHalData->EEPROMRegulatory = (EEPROM_DEFAULT_BOARD_OPTION&0x7);	/* bit0~2 */
 	} else
 		pHalData->EEPROMRegulatory = 0;
+<<<<<<< HEAD
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("EEPROMRegulatory = 0x%x\n", pHalData->EEPROMRegulatory));
+=======
+>>>>>>> upstream/android-13
 }
 
 void Hal_EfuseParseBTCoexistInfo_8723B(
@@ -2652,6 +3175,7 @@ void Hal_EfuseParseBTCoexistInfo_8723B(
 		tempval = hwinfo[EEPROM_RF_BT_SETTING_8723B];
 		if (tempval != 0xFF) {
 			pHalData->EEPROMBluetoothAntNum = tempval & BIT(0);
+<<<<<<< HEAD
 			/*  EFUSE_0xC3[6] == 0, S1(Main)-ODM_RF_PATH_A; */
 			/*  EFUSE_0xC3[6] == 1, S0(Aux)-ODM_RF_PATH_B */
 			pHalData->ant_path = (tempval & BIT(6))?ODM_RF_PATH_B:ODM_RF_PATH_A;
@@ -2661,11 +3185,23 @@ void Hal_EfuseParseBTCoexistInfo_8723B(
 				pHalData->ant_path = ODM_RF_PATH_B;
 			else
 				pHalData->ant_path = ODM_RF_PATH_A;
+=======
+			/*  EFUSE_0xC3[6] == 0, S1(Main)-RF_PATH_A; */
+			/*  EFUSE_0xC3[6] == 1, S0(Aux)-RF_PATH_B */
+			pHalData->ant_path = (tempval & BIT(6))? RF_PATH_B : RF_PATH_A;
+		} else {
+			pHalData->EEPROMBluetoothAntNum = Ant_x1;
+			if (pHalData->PackageType == PACKAGE_QFN68)
+				pHalData->ant_path = RF_PATH_B;
+			else
+				pHalData->ant_path = RF_PATH_A;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		pHalData->EEPROMBluetoothCoexist = false;
 		pHalData->EEPROMBluetoothType = BT_RTL8723B;
 		pHalData->EEPROMBluetoothAntNum = Ant_x1;
+<<<<<<< HEAD
 		pHalData->ant_path = ODM_RF_PATH_A;
 	}
 
@@ -2677,6 +3213,12 @@ void Hal_EfuseParseBTCoexistInfo_8723B(
 			pHalData->EEPROMBluetoothAntNum == Ant_x2 ? 2 : 1
 		);
 
+=======
+		pHalData->ant_path = RF_PATH_A;
+	}
+
+	if (padapter->registrypriv.ant_num > 0) {
+>>>>>>> upstream/android-13
 		switch (padapter->registrypriv.ant_num) {
 		case 1:
 			pHalData->EEPROMBluetoothAntNum = Ant_x1;
@@ -2685,15 +3227,19 @@ void Hal_EfuseParseBTCoexistInfo_8723B(
 			pHalData->EEPROMBluetoothAntNum = Ant_x2;
 			break;
 		default:
+<<<<<<< HEAD
 			DBG_8192C(
 				"%s: Discard invalid driver defined antenna number(%d)!\n",
 				__func__,
 				padapter->registrypriv.ant_num
 			);
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
 
+<<<<<<< HEAD
 	rtw_btcoex_SetBTCoexist(padapter, pHalData->EEPROMBluetoothCoexist);
 	rtw_btcoex_SetChipType(padapter, pHalData->EEPROMBluetoothType);
 	rtw_btcoex_SetPGAntNum(padapter, pHalData->EEPROMBluetoothAntNum == Ant_x2 ? 2 : 1);
@@ -2706,6 +3252,13 @@ void Hal_EfuseParseBTCoexistInfo_8723B(
 		pHalData->EEPROMBluetoothCoexist == true ? "Enable" : "Disable",
 		pHalData->EEPROMBluetoothAntNum == Ant_x2 ? 2 : 1
 	);
+=======
+	hal_btcoex_SetBTCoexist(padapter, pHalData->EEPROMBluetoothCoexist);
+	hal_btcoex_SetChipType(padapter, pHalData->EEPROMBluetoothType);
+	hal_btcoex_SetPgAntNum(padapter, pHalData->EEPROMBluetoothAntNum == Ant_x2 ? 2 : 1);
+	if (pHalData->EEPROMBluetoothAntNum == Ant_x1)
+		hal_btcoex_SetSingleAntPath(padapter, pHalData->ant_path);
+>>>>>>> upstream/android-13
 }
 
 void Hal_EfuseParseEEPROMVer_8723B(
@@ -2714,13 +3267,19 @@ void Hal_EfuseParseEEPROMVer_8723B(
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
 
+<<<<<<< HEAD
 /* 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("%s(): AutoLoadFail = %d\n", __func__, AutoLoadFail)); */
+=======
+>>>>>>> upstream/android-13
 	if (!AutoLoadFail)
 		pHalData->EEPROMVersion = hwinfo[EEPROM_VERSION_8723B];
 	else
 		pHalData->EEPROMVersion = 1;
+<<<<<<< HEAD
 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("Hal_EfuseParseEEPROMVer(), EEVer = %d\n",
 		pHalData->EEPROMVersion));
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -2735,7 +3294,10 @@ void Hal_EfuseParsePackageType_8723B(
 
 	Efuse_PowerSwitch(padapter, false, true);
 	efuse_OneByteRead(padapter, 0x1FB, &efuseContent, false);
+<<<<<<< HEAD
 	DBG_871X("%s phy efuse read 0x1FB =%x\n", __func__, efuseContent);
+=======
+>>>>>>> upstream/android-13
 	Efuse_PowerSwitch(padapter, false, false);
 
 	package = efuseContent & 0x7;
@@ -2757,8 +3319,11 @@ void Hal_EfuseParsePackageType_8723B(
 		pHalData->PackageType = PACKAGE_DEFAULT;
 		break;
 	}
+<<<<<<< HEAD
 
 	DBG_871X("PackageType = 0x%X\n", pHalData->PackageType);
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -2769,9 +3334,13 @@ void Hal_EfuseParseVoltage_8723B(
 	struct eeprom_priv *pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 
 	/* memcpy(pEEPROM->adjuseVoltageVal, &hwinfo[EEPROM_Voltage_ADDR_8723B], 1); */
+<<<<<<< HEAD
 	DBG_871X("%s hwinfo[EEPROM_Voltage_ADDR_8723B] =%02x\n", __func__, hwinfo[EEPROM_Voltage_ADDR_8723B]);
 	pEEPROM->adjuseVoltageVal = (hwinfo[EEPROM_Voltage_ADDR_8723B] & 0xf0) >> 4;
 	DBG_871X("%s pEEPROM->adjuseVoltageVal =%x\n", __func__, pEEPROM->adjuseVoltageVal);
+=======
+	pEEPROM->adjuseVoltageVal = (hwinfo[EEPROM_Voltage_ADDR_8723B] & 0xf0) >> 4;
+>>>>>>> upstream/android-13
 }
 
 void Hal_EfuseParseChnlPlan_8723B(
@@ -2787,8 +3356,11 @@ void Hal_EfuseParseChnlPlan_8723B(
 	);
 
 	Hal_ChannelPlanToRegulation(padapter, padapter->mlmepriv.ChannelPlan);
+<<<<<<< HEAD
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("EEPROM ChannelPlan = 0x%02x\n", padapter->mlmepriv.ChannelPlan));
+=======
+>>>>>>> upstream/android-13
 }
 
 void Hal_EfuseParseCustomerID_8723B(
@@ -2797,13 +3369,19 @@ void Hal_EfuseParseCustomerID_8723B(
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
 
+<<<<<<< HEAD
 /* 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("%s(): AutoLoadFail = %d\n", __func__, AutoLoadFail)); */
+=======
+>>>>>>> upstream/android-13
 	if (!AutoLoadFail)
 		pHalData->EEPROMCustomerID = hwinfo[EEPROM_CustomID_8723B];
 	else
 		pHalData->EEPROMCustomerID = 0;
+<<<<<<< HEAD
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("EEPROM Customer ID: 0x%2x\n", pHalData->EEPROMCustomerID));
+=======
+>>>>>>> upstream/android-13
 }
 
 void Hal_EfuseParseAntennaDiversity_8723B(
@@ -2820,15 +3398,21 @@ void Hal_EfuseParseXtal_8723B(
 {
 	struct hal_com_data	*pHalData = GET_HAL_DATA(padapter);
 
+<<<<<<< HEAD
 /* 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("%s(): AutoLoadFail = %d\n", __func__, AutoLoadFail)); */
+=======
+>>>>>>> upstream/android-13
 	if (!AutoLoadFail) {
 		pHalData->CrystalCap = hwinfo[EEPROM_XTAL_8723B];
 		if (pHalData->CrystalCap == 0xFF)
 			pHalData->CrystalCap = EEPROM_Default_CrystalCap_8723B;	   /* what value should 8812 set? */
 	} else
 		pHalData->CrystalCap = EEPROM_Default_CrystalCap_8723B;
+<<<<<<< HEAD
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("EEPROM CrystalCap: 0x%2x\n", pHalData->CrystalCap));
+=======
+>>>>>>> upstream/android-13
 }
 
 
@@ -2838,21 +3422,35 @@ void Hal_EfuseParseThermalMeter_8723B(
 {
 	struct hal_com_data *pHalData = GET_HAL_DATA(padapter);
 
+<<<<<<< HEAD
 /* 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("%s(): AutoLoadFail = %d\n", __func__, AutoLoadFail)); */
 	/*  */
 	/*  ThermalMeter from EEPROM */
 	/*  */
 	if (false == AutoLoadFail)
+=======
+	/*  */
+	/*  ThermalMeter from EEPROM */
+	/*  */
+	if (!AutoLoadFail)
+>>>>>>> upstream/android-13
 		pHalData->EEPROMThermalMeter = PROMContent[EEPROM_THERMAL_METER_8723B];
 	else
 		pHalData->EEPROMThermalMeter = EEPROM_Default_ThermalMeter_8723B;
 
+<<<<<<< HEAD
 	if ((pHalData->EEPROMThermalMeter == 0xff) || (true == AutoLoadFail)) {
 		pHalData->bAPKThermalMeterIgnore = true;
 		pHalData->EEPROMThermalMeter = EEPROM_Default_ThermalMeter_8723B;
 	}
 
 	RT_TRACE(_module_hci_hal_init_c_, _drv_notice_, ("EEPROM ThermalMeter = 0x%x\n", pHalData->EEPROMThermalMeter));
+=======
+	if ((pHalData->EEPROMThermalMeter == 0xff) || AutoLoadFail) {
+		pHalData->bAPKThermalMeterIgnore = true;
+		pHalData->EEPROMThermalMeter = EEPROM_Default_ThermalMeter_8723B;
+	}
+>>>>>>> upstream/android-13
 }
 
 
@@ -2866,6 +3464,7 @@ void Hal_ReadRFGainOffset(
 
 	if (!AutoloadFail) {
 		Adapter->eeprompriv.EEPROMRFGainOffset = PROMContent[EEPROM_RF_GAIN_OFFSET];
+<<<<<<< HEAD
 		DBG_871X("AutoloadFail =%x,\n", AutoloadFail);
 		Adapter->eeprompriv.EEPROMRFGainVal = EFUSE_Read1Byte(Adapter, EEPROM_RF_GAIN_VAL);
 		DBG_871X("Adapter->eeprompriv.EEPROMRFGainVal =%x\n", Adapter->eeprompriv.EEPROMRFGainVal);
@@ -2875,6 +3474,13 @@ void Hal_ReadRFGainOffset(
 		DBG_871X("else AutoloadFail =%x,\n", AutoloadFail);
 	}
 	DBG_871X("EEPRORFGainOffset = 0x%02x\n", Adapter->eeprompriv.EEPROMRFGainOffset);
+=======
+		Adapter->eeprompriv.EEPROMRFGainVal = EFUSE_Read1Byte(Adapter, EEPROM_RF_GAIN_VAL);
+	} else {
+		Adapter->eeprompriv.EEPROMRFGainOffset = 0;
+		Adapter->eeprompriv.EEPROMRFGainVal = 0xFF;
+	}
+>>>>>>> upstream/android-13
 }
 
 u8 BWMapping_8723B(struct adapter *Adapter, struct pkt_attrib *pattrib)
@@ -2882,6 +3488,7 @@ u8 BWMapping_8723B(struct adapter *Adapter, struct pkt_attrib *pattrib)
 	u8 BWSettingOfDesc = 0;
 	struct hal_com_data *pHalData = GET_HAL_DATA(Adapter);
 
+<<<<<<< HEAD
 	/* DBG_871X("BWMapping pHalData->CurrentChannelBW %d, pattrib->bwmode %d\n", pHalData->CurrentChannelBW, pattrib->bwmode); */
 
 	if (pHalData->CurrentChannelBW == CHANNEL_WIDTH_80) {
@@ -2893,6 +3500,10 @@ u8 BWMapping_8723B(struct adapter *Adapter, struct pkt_attrib *pattrib)
 			BWSettingOfDesc = 0;
 	} else if (pHalData->CurrentChannelBW == CHANNEL_WIDTH_40) {
 		if ((pattrib->bwmode == CHANNEL_WIDTH_40) || (pattrib->bwmode == CHANNEL_WIDTH_80))
+=======
+	if (pHalData->CurrentChannelBW == CHANNEL_WIDTH_40) {
+		if (pattrib->bwmode == CHANNEL_WIDTH_40)
+>>>>>>> upstream/android-13
 			BWSettingOfDesc = 1;
 		else
 			BWSettingOfDesc = 0;
@@ -2910,6 +3521,7 @@ u8 SCMapping_8723B(struct adapter *Adapter, struct pkt_attrib *pattrib)
 	u8 SCSettingOfDesc = 0;
 	struct hal_com_data *pHalData = GET_HAL_DATA(Adapter);
 
+<<<<<<< HEAD
 	/* DBG_871X("SCMapping: pHalData->CurrentChannelBW %d, pHalData->nCur80MhzPrimeSC %d, pHalData->nCur40MhzPrimeSC %d\n", pHalData->CurrentChannelBW, pHalData->nCur80MhzPrimeSC, pHalData->nCur40MhzPrimeSC); */
 
 	if (pHalData->CurrentChannelBW == CHANNEL_WIDTH_80) {
@@ -2950,6 +3562,22 @@ u8 SCMapping_8723B(struct adapter *Adapter, struct pkt_attrib *pattrib)
 		}
 	} else {
 		SCSettingOfDesc = VHT_DATA_SC_DONOT_CARE;
+=======
+	if (pHalData->CurrentChannelBW == CHANNEL_WIDTH_40) {
+		if (pattrib->bwmode == CHANNEL_WIDTH_40) {
+			SCSettingOfDesc = HT_DATA_SC_DONOT_CARE;
+		} else if (pattrib->bwmode == CHANNEL_WIDTH_20) {
+			if (pHalData->nCur40MhzPrimeSC == HAL_PRIME_CHNL_OFFSET_UPPER) {
+				SCSettingOfDesc = HT_DATA_SC_20_UPPER_OF_40MHZ;
+			} else if (pHalData->nCur40MhzPrimeSC == HAL_PRIME_CHNL_OFFSET_LOWER) {
+				SCSettingOfDesc = HT_DATA_SC_20_LOWER_OF_40MHZ;
+			} else {
+				SCSettingOfDesc = HT_DATA_SC_DONOT_CARE;
+			}
+		}
+	} else {
+		SCSettingOfDesc = HT_DATA_SC_DONOT_CARE;
+>>>>>>> upstream/android-13
 	}
 
 	return SCSettingOfDesc;
@@ -3003,10 +3631,15 @@ static u8 fill_txdesc_sectype(struct pkt_attrib *pattrib)
 	return sectype;
 }
 
+<<<<<<< HEAD
 static void fill_txdesc_vcs_8723b(struct adapter *padapter, struct pkt_attrib *pattrib, PTXDESC_8723B ptxdesc)
 {
 	/* DBG_8192C("cvs_mode =%d\n", pattrib->vcs_mode); */
 
+=======
+static void fill_txdesc_vcs_8723b(struct adapter *padapter, struct pkt_attrib *pattrib, struct txdesc_8723b *ptxdesc)
+{
+>>>>>>> upstream/android-13
 	if (pattrib->vcs_mode) {
 		switch (pattrib->vcs_mode) {
 		case RTS_CTS:
@@ -3036,10 +3669,15 @@ static void fill_txdesc_vcs_8723b(struct adapter *padapter, struct pkt_attrib *p
 	}
 }
 
+<<<<<<< HEAD
 static void fill_txdesc_phy_8723b(struct adapter *padapter, struct pkt_attrib *pattrib, PTXDESC_8723B ptxdesc)
 {
 	/* DBG_8192C("bwmode =%d, ch_off =%d\n", pattrib->bwmode, pattrib->ch_offset); */
 
+=======
+static void fill_txdesc_phy_8723b(struct adapter *padapter, struct pkt_attrib *pattrib, struct txdesc_8723b *ptxdesc)
+{
+>>>>>>> upstream/android-13
 	if (pattrib->ht_en) {
 		ptxdesc->data_bw = BWMapping_8723B(padapter, pattrib);
 
@@ -3053,25 +3691,39 @@ static void rtl8723b_fill_default_txdesc(
 {
 	struct adapter *padapter;
 	struct hal_com_data *pHalData;
+<<<<<<< HEAD
 	struct dm_priv *pdmpriv;
 	struct mlme_ext_priv *pmlmeext;
 	struct mlme_ext_info *pmlmeinfo;
 	struct pkt_attrib *pattrib;
 	PTXDESC_8723B ptxdesc;
+=======
+	struct mlme_ext_priv *pmlmeext;
+	struct mlme_ext_info *pmlmeinfo;
+	struct pkt_attrib *pattrib;
+	struct txdesc_8723b *ptxdesc;
+>>>>>>> upstream/android-13
 	s32 bmcst;
 
 	memset(pbuf, 0, TXDESC_SIZE);
 
 	padapter = pxmitframe->padapter;
 	pHalData = GET_HAL_DATA(padapter);
+<<<<<<< HEAD
 	pdmpriv = &pHalData->dmpriv;
+=======
+>>>>>>> upstream/android-13
 	pmlmeext = &padapter->mlmeextpriv;
 	pmlmeinfo = &(pmlmeext->mlmext_info);
 
 	pattrib = &pxmitframe->attrib;
 	bmcst = IS_MCAST(pattrib->ra);
 
+<<<<<<< HEAD
 	ptxdesc = (PTXDESC_8723B)pbuf;
+=======
+	ptxdesc = (struct txdesc_8723b *)pbuf;
+>>>>>>> upstream/android-13
 
 	if (pxmitframe->frame_tag == DATA_FRAMETAG) {
 		u8 drv_userate = 0;
@@ -3093,6 +3745,7 @@ static void rtl8723b_fill_default_txdesc(
 			(pattrib->ether_type != 0x88B4) &&
 			(pattrib->dhcp_pkt != 1) &&
 			(drv_userate != 1)
+<<<<<<< HEAD
 #ifdef CONFIG_AUTO_AP_MODE
 			&& (pattrib->pctrl != true)
 #endif
@@ -3100,6 +3753,12 @@ static void rtl8723b_fill_default_txdesc(
 			/*  Non EAP & ARP & DHCP type data packet */
 
 			if (pattrib->ampdu_en == true) {
+=======
+		) {
+			/*  Non EAP & ARP & DHCP type data packet */
+
+			if (pattrib->ampdu_en) {
+>>>>>>> upstream/android-13
 				ptxdesc->agg_en = 1; /*  AGG EN */
 				ptxdesc->max_agg_num = 0x1f;
 				ptxdesc->ampdu_density = pattrib->ampdu_spacing;
@@ -3110,7 +3769,11 @@ static void rtl8723b_fill_default_txdesc(
 
 			ptxdesc->data_ratefb_lmt = 0x1F;
 
+<<<<<<< HEAD
 			if (pHalData->fw_ractrl == false) {
+=======
+			if (!pHalData->fw_ractrl) {
+>>>>>>> upstream/android-13
 				ptxdesc->userate = 1;
 
 				if (pHalData->dmpriv.INIDATA_RATE[pattrib->mac_id] & BIT(7))
@@ -3132,10 +3795,13 @@ static void rtl8723b_fill_default_txdesc(
 				ptxdesc->data_ldpc = 1;
 			if (pattrib->stbc)
 				ptxdesc->data_stbc = 1;
+<<<<<<< HEAD
 
 #ifdef CONFIG_CMCC_TEST
 			ptxdesc->data_short = 1; /* use cck short premble */
 #endif
+=======
+>>>>>>> upstream/android-13
 		} else {
 			/*  EAP data packet and ARP packet. */
 			/*  Use the 1M data rate to send the EAP/ARP packet. */
@@ -3146,13 +3812,19 @@ static void rtl8723b_fill_default_txdesc(
 			if (pmlmeinfo->preamble_mode == PREAMBLE_SHORT)
 				ptxdesc->data_short = 1;/*  DATA_SHORT */
 			ptxdesc->datarate = MRateToHwRate(pmlmeext->tx_rate);
+<<<<<<< HEAD
 			DBG_871X("YJ: %s(): ARP Data: userate =%d, datarate = 0x%x\n", __func__, ptxdesc->userate, ptxdesc->datarate);
+=======
+>>>>>>> upstream/android-13
 		}
 
 		ptxdesc->usb_txagg_num = pxmitframe->agg_num;
 	} else if (pxmitframe->frame_tag == MGNT_FRAMETAG) {
+<<<<<<< HEAD
 /* 		RT_TRACE(_module_hal_xmit_c_, _drv_notice_, ("%s: MGNT_FRAMETAG\n", __func__)); */
 
+=======
+>>>>>>> upstream/android-13
 		ptxdesc->macid = pattrib->mac_id; /*  CAM_ID(MAC_ID) */
 		ptxdesc->qsel = pattrib->qsel;
 		ptxdesc->rate_id = pattrib->raid; /*  Rate ID */
@@ -3162,7 +3834,11 @@ static void rtl8723b_fill_default_txdesc(
 		ptxdesc->mbssid = pattrib->mbssid & 0xF;
 
 		ptxdesc->rty_lmt_en = 1; /*  retry limit enable */
+<<<<<<< HEAD
 		if (pattrib->retry_ctrl == true) {
+=======
+		if (pattrib->retry_ctrl) {
+>>>>>>> upstream/android-13
 			ptxdesc->data_rt_lmt = 6;
 		} else {
 			ptxdesc->data_rt_lmt = 12;
@@ -3172,6 +3848,7 @@ static void rtl8723b_fill_default_txdesc(
 
 		/*  CCX-TXRPT ack for xmit mgmt frames. */
 		if (pxmitframe->ack_report) {
+<<<<<<< HEAD
 			#ifdef DBG_CCX
 			DBG_8192C("%s set spe_rpt\n", __func__);
 			#endif
@@ -3183,6 +3860,12 @@ static void rtl8723b_fill_default_txdesc(
 	} else {
 		RT_TRACE(_module_hal_xmit_c_, _drv_warning_, ("%s: frame_tag = 0x%x\n", __func__, pxmitframe->frame_tag));
 
+=======
+			ptxdesc->spe_rpt = 1;
+			ptxdesc->sw_define = (u8)(GET_PRIMARY_ADAPTER(padapter)->xmitpriv.seq_no);
+		}
+	} else {
+>>>>>>> upstream/android-13
 		ptxdesc->macid = pattrib->mac_id; /*  CAM_ID(MAC_ID) */
 		ptxdesc->rate_id = pattrib->raid; /*  Rate ID */
 		ptxdesc->qsel = pattrib->qsel;
@@ -3197,6 +3880,7 @@ static void rtl8723b_fill_default_txdesc(
 	if (bmcst)
 		ptxdesc->bmc = 1;
 
+<<<<<<< HEAD
 	/*  2009.11.05. tynli_test. Suggested by SD4 Filen for FW LPS. */
 	/*  (1) The sequence number of each non-Qos frame / broadcast / multicast / */
 	/*  mgnt frame should be controled by Hw because Fw will also send null data */
@@ -3205,14 +3889,35 @@ static void rtl8723b_fill_default_txdesc(
 	/*  (2) Enable HW SEQ control for beacon packet, because we use Hw beacon. */
 	/*  (3) Use HW Qos SEQ to control the seq num of Ext port non-Qos packets. */
 	/*  2010.06.23. Added by tynli. */
+=======
+	/* 2009.11.05. tynli_test. Suggested by SD4 Filen for FW LPS.
+	 * (1) The sequence number of each non-Qos frame / broadcast /
+	 * multicast / mgnt frame should be controlled by Hw because Fw
+	 * will also send null data which we cannot control when Fw LPS
+	 * enable.
+	 * --> default enable non-Qos data sequense number. 2010.06.23.
+	 * by tynli.
+	 * (2) Enable HW SEQ control for beacon packet, because we use
+	 * Hw beacon.
+	 * (3) Use HW Qos SEQ to control the seq num of Ext port non-Qos
+	 * packets.
+	 * 2010.06.23. Added by tynli.
+	 */
+>>>>>>> upstream/android-13
 	if (!pattrib->qos_en) /*  Hw set sequence number */
 		ptxdesc->en_hwseq = 1; /*  HWSEQ_EN */
 }
 
+<<<<<<< HEAD
 /*
  *Description:
  *
  *Parameters:
+=======
+/* Description:
+ *
+ * Parameters:
+>>>>>>> upstream/android-13
  *	pxmitframe	xmitframe
  *	pbuf		where to fill tx desc
  */
@@ -3265,14 +3970,22 @@ void rtl8723b_fill_fake_txdesc(
 	SET_TX_DESC_QUEUE_SEL_8723B(pDesc, QSLT_MGNT); /*  Fixed queue of Mgnt queue */
 
 	/*  Set NAVUSEHDR to prevent Ps-poll AId filed to be changed to error vlaue by Hw. */
+<<<<<<< HEAD
 	if (true == IsPsPoll) {
+=======
+	if (IsPsPoll) {
+>>>>>>> upstream/android-13
 		SET_TX_DESC_NAV_USE_HDR_8723B(pDesc, 1);
 	} else {
 		SET_TX_DESC_HWSEQ_EN_8723B(pDesc, 1); /*  Hw set sequence number */
 		SET_TX_DESC_HWSEQ_SEL_8723B(pDesc, 0);
 	}
 
+<<<<<<< HEAD
 	if (true == IsBTQosNull) {
+=======
+	if (IsBTQosNull) {
+>>>>>>> upstream/android-13
 		SET_TX_DESC_BT_INT_8723B(pDesc, 1);
 	}
 
@@ -3284,7 +3997,11 @@ void rtl8723b_fill_fake_txdesc(
 	/*  */
 	/*  Encrypt the data frame if under security mode excepct null data. Suggested by CCW. */
 	/*  */
+<<<<<<< HEAD
 	if (true == bDataFrame) {
+=======
+	if (bDataFrame) {
+>>>>>>> upstream/android-13
 		u32 EncAlg;
 
 		EncAlg = padapter->securitypriv.dot11PrivacyAlgrthm;
@@ -3327,11 +4044,15 @@ static void hw_var_set_opmode(struct adapter *padapter, u8 variable, u8 *val)
 
 		/*  set net_type */
 		Set_MSR(padapter, mode);
+<<<<<<< HEAD
 		DBG_871X("#### %s() -%d iface_type(0) mode = %d ####\n", __func__, __LINE__, mode);
+=======
+>>>>>>> upstream/android-13
 
 		if ((mode == _HW_STATE_STATION_) || (mode == _HW_STATE_NOLINK_)) {
 			{
 				StopTxBeacon(padapter);
+<<<<<<< HEAD
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN
 #ifdef CONFIG_INTERRUPT_BASED_TXBCN_EARLY_INT
 				rtw_write8(padapter, REG_DRVERLYINT, 0x05); /*  restore early int time to 5ms */
@@ -3343,11 +4064,14 @@ static void hw_var_set_opmode(struct adapter *padapter, u8 variable, u8 *val)
 #endif /*  CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR */
 
 #endif /*  CONFIG_INTERRUPT_BASED_TXBCN */
+=======
+>>>>>>> upstream/android-13
 			}
 
 			/*  disable atim wnd */
 			rtw_write8(padapter, REG_BCN_CTRL, DIS_TSF_UDT|EN_BCN_FUNCTION|DIS_ATIM);
 			/* rtw_write8(padapter, REG_BCN_CTRL, 0x18); */
+<<<<<<< HEAD
 		} else if ((mode == _HW_STATE_ADHOC_) /*|| (mode == _HW_STATE_AP_)*/) {
 			ResumeTxBeacon(padapter);
 			rtw_write8(padapter, REG_BCN_CTRL, DIS_TSF_UDT|EN_BCN_FUNCTION|DIS_BCNQ_SUB);
@@ -3362,6 +4086,12 @@ static void hw_var_set_opmode(struct adapter *padapter, u8 variable, u8 *val)
 #endif /*  CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR */
 
 #endif /*  CONFIG_INTERRUPT_BASED_TXBCN */
+=======
+		} else if (mode == _HW_STATE_ADHOC_) {
+			ResumeTxBeacon(padapter);
+			rtw_write8(padapter, REG_BCN_CTRL, DIS_TSF_UDT|EN_BCN_FUNCTION|DIS_BCNQ_SUB);
+		} else if (mode == _HW_STATE_AP_) {
+>>>>>>> upstream/android-13
 
 			ResumeTxBeacon(padapter);
 
@@ -3463,7 +4193,11 @@ static void hw_var_set_correct_tsf(struct adapter *padapter, u8 variable, u8 *va
 	pmlmeext = &padapter->mlmeextpriv;
 	pmlmeinfo = &pmlmeext->mlmext_info;
 
+<<<<<<< HEAD
 	tsf = pmlmeext->TSFValue-rtw_modular64(pmlmeext->TSFValue, (pmlmeinfo->bcn_interval*1024))-1024; /* us */
+=======
+	tsf = pmlmeext->TSFValue-do_div(pmlmeext->TSFValue, (pmlmeinfo->bcn_interval*1024))-1024; /* us */
+>>>>>>> upstream/android-13
 
 	if (
 		((pmlmeinfo->state&0x03) == WIFI_FW_ADHOC_STATE) ||
@@ -3549,7 +4283,11 @@ static void hw_var_set_mlme_sitesurvey(struct adapter *padapter, u8 variable, u8
 			rtw_write8(padapter, reg_bcn_ctl, val8);
 		}
 
+<<<<<<< HEAD
 		/*  Save orignal RRSR setting. */
+=======
+		/*  Save original RRSR setting. */
+>>>>>>> upstream/android-13
 		pHalData->RegRRSR = rtw_read16(padapter, REG_RRSR);
 	} else {
 		/*  sitesurvey done */
@@ -3567,7 +4305,11 @@ static void hw_var_set_mlme_sitesurvey(struct adapter *padapter, u8 variable, u8
 		value_rcr |= rcr_clear_bit;
 		rtw_write32(padapter, REG_RCR, value_rcr);
 
+<<<<<<< HEAD
 		/*  Restore orignal RRSR setting. */
+=======
+		/*  Restore original RRSR setting. */
+>>>>>>> upstream/android-13
 		rtw_write16(padapter, REG_RRSR, pHalData->RegRRSR);
 	}
 }
@@ -3579,14 +4321,20 @@ static void hw_var_set_mlme_join(struct adapter *padapter, u8 variable, u8 *val)
 	u32 val32;
 	u8 RetryLimit;
 	u8 type;
+<<<<<<< HEAD
 	struct hal_com_data *pHalData;
+=======
+>>>>>>> upstream/android-13
 	struct mlme_priv *pmlmepriv;
 	struct eeprom_priv *pEEPROM;
 
 
 	RetryLimit = 0x30;
 	type = *(u8 *)val;
+<<<<<<< HEAD
 	pHalData = GET_HAL_DATA(padapter);
+=======
+>>>>>>> upstream/android-13
 	pmlmepriv = &padapter->mlmepriv;
 	pEEPROM = GET_EEPROM_EFUSE_PRIV(padapter);
 
@@ -3624,22 +4372,31 @@ static void hw_var_set_mlme_join(struct adapter *padapter, u8 variable, u8 *val)
 
 void CCX_FwC2HTxRpt_8723b(struct adapter *padapter, u8 *pdata, u8 len)
 {
+<<<<<<< HEAD
 	u8 seq_no;
+=======
+>>>>>>> upstream/android-13
 
 #define	GET_8723B_C2H_TX_RPT_LIFE_TIME_OVER(_Header)	LE_BITS_TO_1BYTE((_Header + 0), 6, 1)
 #define	GET_8723B_C2H_TX_RPT_RETRY_OVER(_Header)	LE_BITS_TO_1BYTE((_Header + 0), 7, 1)
 
+<<<<<<< HEAD
 	/* DBG_871X("%s, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", __func__, */
 	/* 		*pdata, *(pdata+1), *(pdata+2), *(pdata+3), *(pdata+4), *(pdata+5), *(pdata+6), *(pdata+7)); */
 
 	seq_no = *(pdata+6);
 
+=======
+>>>>>>> upstream/android-13
 	if (GET_8723B_C2H_TX_RPT_RETRY_OVER(pdata) | GET_8723B_C2H_TX_RPT_LIFE_TIME_OVER(pdata)) {
 		rtw_ack_tx_done(&padapter->xmitpriv, RTW_SCTX_DONE_CCX_PKT_FAIL);
 	}
 /*
 	else if (seq_no != padapter->xmitpriv.seq_no) {
+<<<<<<< HEAD
 		DBG_871X("tx_seq_no =%d, rpt_seq_no =%d\n", padapter->xmitpriv.seq_no, seq_no);
+=======
+>>>>>>> upstream/android-13
 		rtw_ack_tx_done(&padapter->xmitpriv, RTW_SCTX_DONE_CCX_PKT_FAIL);
 	}
 */
@@ -3662,10 +4419,15 @@ s32 c2h_handler_8723b(struct adapter *padapter, u8 *buf)
 {
 	struct c2h_evt_hdr_88xx *pC2hEvent = (struct c2h_evt_hdr_88xx *)buf;
 	s32 ret = _SUCCESS;
+<<<<<<< HEAD
 	u8 index = 0;
 
 	if (pC2hEvent == NULL) {
 		DBG_8192C("%s(): pC2hEventis NULL\n", __func__);
+=======
+
+	if (!pC2hEvent) {
+>>>>>>> upstream/android-13
 		ret = _FAIL;
 		goto exit;
 	}
@@ -3675,7 +4437,10 @@ s32 c2h_handler_8723b(struct adapter *padapter, u8 *buf)
 		break;
 	case C2H_DBG:
 		{
+<<<<<<< HEAD
 			RT_TRACE(_module_hal_init_c_, _drv_info_, ("c2h_handler_8723b: %s\n", pC2hEvent->payload));
+=======
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -3688,6 +4453,7 @@ s32 c2h_handler_8723b(struct adapter *padapter, u8 *buf)
 		break;
 
 	case C2H_HW_INFO_EXCH:
+<<<<<<< HEAD
 		RT_TRACE(_module_hal_init_c_, _drv_info_, ("[BT], C2H_HW_INFO_EXCH\n"));
 		for (index = 0; index < pC2hEvent->plen; index++) {
 			RT_TRACE(_module_hal_init_c_, _drv_info_, ("[BT], tmpBuf[%d]= 0x%x\n", index, pC2hEvent->payload[index]));
@@ -3696,6 +4462,12 @@ s32 c2h_handler_8723b(struct adapter *padapter, u8 *buf)
 
 	case C2H_8723B_BT_INFO:
 		rtw_btcoex_BtInfoNotify(padapter, pC2hEvent->plen, pC2hEvent->payload);
+=======
+		break;
+
+	case C2H_8723B_BT_INFO:
+		hal_btcoex_BtInfoNotify(padapter, pC2hEvent->plen, pC2hEvent->payload);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -3710,6 +4482,7 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void process_c2h_event(struct adapter *padapter, PC2H_EVT_HDR pC2hEvent, u8 *c2hBuf)
 {
 	u8 index = 0;
@@ -3718,13 +4491,22 @@ static void process_c2h_event(struct adapter *padapter, PC2H_EVT_HDR pC2hEvent, 
 		DBG_8192C("%s c2hbuff is NULL\n", __func__);
 		return;
 	}
+=======
+static void process_c2h_event(struct adapter *padapter, struct c2h_evt_hdr_t *pC2hEvent, u8 *c2hBuf)
+{
+	if (!c2hBuf)
+		return;
+>>>>>>> upstream/android-13
 
 	switch (pC2hEvent->CmdID) {
 	case C2H_AP_RPT_RSP:
 		break;
 	case C2H_DBG:
 		{
+<<<<<<< HEAD
 			RT_TRACE(_module_hal_init_c_, _drv_info_, ("C2HCommandHandler: %s\n", c2hBuf));
+=======
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -3737,6 +4519,7 @@ static void process_c2h_event(struct adapter *padapter, PC2H_EVT_HDR pC2hEvent, 
 		break;
 
 	case C2H_HW_INFO_EXCH:
+<<<<<<< HEAD
 		RT_TRACE(_module_hal_init_c_, _drv_info_, ("[BT], C2H_HW_INFO_EXCH\n"));
 		for (index = 0; index < pC2hEvent->CmdLen; index++) {
 			RT_TRACE(_module_hal_init_c_, _drv_info_, ("[BT], tmpBuf[%d]= 0x%x\n", index, c2hBuf[index]));
@@ -3745,6 +4528,12 @@ static void process_c2h_event(struct adapter *padapter, PC2H_EVT_HDR pC2hEvent, 
 
 	case C2H_8723B_BT_INFO:
 		rtw_btcoex_BtInfoNotify(padapter, pC2hEvent->CmdLen, c2hBuf);
+=======
+		break;
+
+	case C2H_8723B_BT_INFO:
+		hal_btcoex_BtInfoNotify(padapter, pC2hEvent->CmdLen, c2hBuf);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -3754,6 +4543,7 @@ static void process_c2h_event(struct adapter *padapter, PC2H_EVT_HDR pC2hEvent, 
 
 void C2HPacketHandler_8723B(struct adapter *padapter, u8 *pbuffer, u16 length)
 {
+<<<<<<< HEAD
 	C2H_EVT_HDR	C2hEvent;
 	u8 *tmpBuf = NULL;
 #ifdef CONFIG_WOWLAN
@@ -3764,11 +4554,16 @@ void C2HPacketHandler_8723B(struct adapter *padapter, u8 *pbuffer, u16 length)
 		return;
 	}
 #endif
+=======
+	struct c2h_evt_hdr_t	C2hEvent;
+	u8 *tmpBuf = NULL;
+>>>>>>> upstream/android-13
 	C2hEvent.CmdID = pbuffer[0];
 	C2hEvent.CmdSeq = pbuffer[1];
 	C2hEvent.CmdLen = length-2;
 	tmpBuf = pbuffer+2;
 
+<<<<<<< HEAD
 	/* DBG_871X("%s C2hEvent.CmdID:%x C2hEvent.CmdLen:%x C2hEvent.CmdSeq:%x\n", */
 	/* 		__func__, C2hEvent.CmdID, C2hEvent.CmdLen, C2hEvent.CmdSeq); */
 	RT_PRINT_DATA(_module_hal_init_c_, _drv_notice_, "C2HPacketHandler_8723B(): Command Content:\n", tmpBuf, C2hEvent.CmdLen);
@@ -3776,6 +4571,10 @@ void C2HPacketHandler_8723B(struct adapter *padapter, u8 *pbuffer, u16 length)
 	process_c2h_event(padapter, &C2hEvent, tmpBuf);
 	/* c2h_handler_8723b(padapter,&C2hEvent); */
 	return;
+=======
+	process_c2h_event(padapter, &C2hEvent, tmpBuf);
+	/* c2h_handler_8723b(padapter,&C2hEvent); */
+>>>>>>> upstream/android-13
 }
 
 void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
@@ -3812,22 +4611,32 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 	case HW_VAR_BASIC_RATE:
 	{
 		struct mlme_ext_info *mlmext_info = &padapter->mlmeextpriv.mlmext_info;
+<<<<<<< HEAD
 		u16 input_b = 0, masked = 0, ioted = 0, BrateCfg = 0;
+=======
+		u16 BrateCfg = 0;
+>>>>>>> upstream/android-13
 		u16 rrsr_2g_force_mask = (RRSR_11M|RRSR_5_5M|RRSR_1M);
 		u16 rrsr_2g_allow_mask = (RRSR_24M|RRSR_12M|RRSR_6M|RRSR_CCK_RATES);
 
 		HalSetBrateCfg(padapter, val, &BrateCfg);
+<<<<<<< HEAD
 		input_b = BrateCfg;
+=======
+>>>>>>> upstream/android-13
 
 		/* apply force and allow mask */
 		BrateCfg |= rrsr_2g_force_mask;
 		BrateCfg &= rrsr_2g_allow_mask;
+<<<<<<< HEAD
 		masked = BrateCfg;
 
 		#ifdef CONFIG_CMCC_TEST
 		BrateCfg |= (RRSR_11M|RRSR_5_5M|RRSR_1M); /* use 11M to send ACK */
 		BrateCfg |= (RRSR_24M|RRSR_18M|RRSR_12M); /* CMCC_OFDM_ACK 12/18/24M */
 		#endif
+=======
+>>>>>>> upstream/android-13
 
 		/* IOT consideration */
 		if (mlmext_info->assoc_AP_vendor == HT_IOT_PEER_CISCO) {
@@ -3835,12 +4644,18 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 			if ((BrateCfg & (RRSR_24M|RRSR_12M|RRSR_6M)) == 0)
 				BrateCfg |= RRSR_6M;
 		}
+<<<<<<< HEAD
 		ioted = BrateCfg;
 
 		pHalData->BasicRateSet = BrateCfg;
 
 		DBG_8192C("HW_VAR_BASIC_RATE: %#x -> %#x -> %#x\n", input_b, masked, ioted);
 
+=======
+
+		pHalData->BasicRateSet = BrateCfg;
+
+>>>>>>> upstream/android-13
 		/*  Set RRSR rate table. */
 		rtw_write16(padapter, REG_RRSR, BrateCfg);
 		rtw_write8(padapter, REG_RRSR+2, rtw_read8(padapter, REG_RRSR+2)&0xf0);
@@ -3878,7 +4693,11 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 	case HW_VAR_MLME_SITESURVEY:
 		hw_var_set_mlme_sitesurvey(padapter, variable,  val);
 
+<<<<<<< HEAD
 		rtw_btcoex_ScanNotify(padapter, *val?true:false);
+=======
+		hal_btcoex_ScanNotify(padapter, *val?true:false);
+>>>>>>> upstream/android-13
 		break;
 
 	case HW_VAR_MLME_JOIN:
@@ -3887,11 +4706,19 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 		switch (*val) {
 		case 0:
 			/*  prepare to join */
+<<<<<<< HEAD
 			rtw_btcoex_ConnectNotify(padapter, true);
 			break;
 		case 1:
 			/*  joinbss_event callback when join res < 0 */
 			rtw_btcoex_ConnectNotify(padapter, false);
+=======
+			hal_btcoex_ConnectNotify(padapter, true);
+			break;
+		case 1:
+			/*  joinbss_event callback when join res < 0 */
+			hal_btcoex_ConnectNotify(padapter, false);
+>>>>>>> upstream/android-13
 			break;
 		case 2:
 			/*  sta add event callback */
@@ -3904,14 +4731,20 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 		val32 = rtw_read32(padapter, REG_RCR);
 		val32 |= RCR_AM;
 		rtw_write32(padapter, REG_RCR, val32);
+<<<<<<< HEAD
 		DBG_8192C("%s, %d, RCR = %x\n", __func__, __LINE__, rtw_read32(padapter, REG_RCR));
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case HW_VAR_OFF_RCR_AM:
 		val32 = rtw_read32(padapter, REG_RCR);
 		val32 &= ~RCR_AM;
 		rtw_write32(padapter, REG_RCR, val32);
+<<<<<<< HEAD
 		DBG_8192C("%s, %d, RCR = %x\n", __func__, __LINE__, rtw_read32(padapter, REG_RCR));
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case HW_VAR_BEACON_INTERVAL:
@@ -3967,9 +4800,13 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 				ulCommand = ulCommand | CAM_POLLINIG | CAM_WRITE;
 				/*  write content 0 is equall to mark invalid */
 				rtw_write32(padapter, WCAMI, ulContent);  /* mdelay(40); */
+<<<<<<< HEAD
 				/* RT_TRACE(COMP_SEC, DBG_LOUD, ("CAM_empty_entry(): WRITE A4: %lx\n", ulContent)); */
 				rtw_write32(padapter, RWCAM, ulCommand);  /* mdelay(40); */
 				/* RT_TRACE(COMP_SEC, DBG_LOUD, ("CAM_empty_entry(): WRITE A0: %lx\n", ulCommand)); */
+=======
+				rtw_write32(padapter, RWCAM, ulCommand);  /* mdelay(40); */
+>>>>>>> upstream/android-13
 			}
 		}
 		break;
@@ -4025,7 +4862,10 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 					hwctrl |= AcmHw_VoqEn;
 			}
 
+<<<<<<< HEAD
 			DBG_8192C("[HW_VAR_ACM_CTRL] Write 0x%02X\n", hwctrl);
+=======
+>>>>>>> upstream/android-13
 			rtw_write8(padapter, REG_ACMHWCTRL, hwctrl);
 		}
 		break;
@@ -4071,7 +4911,11 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 
 	case HW_VAR_INITIAL_GAIN:
 		{
+<<<<<<< HEAD
 			DIG_T *pDigTable = &pHalData->odmpriv.DM_DigTable;
+=======
+			struct dig_t *pDigTable = &pHalData->odmpriv.DM_DigTable;
+>>>>>>> upstream/android-13
 			u32 rx_gain = *(u32 *)val;
 
 			if (rx_gain == 0xff) {/* restore rx gain */
@@ -4119,7 +4963,11 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 			/*  keep sn */
 			padapter->xmitpriv.nqos_ssn = rtw_read16(padapter, REG_NQOS_SEQ);
 
+<<<<<<< HEAD
 			if (pwrpriv->bkeepfwalive != true) {
+=======
+			if (!pwrpriv->bkeepfwalive) {
+>>>>>>> upstream/android-13
 				/* RX DMA stop */
 				val32 = rtw_read32(padapter, REG_RXPKT_NUM);
 				val32 |= RW_RELEASE_EN;
@@ -4129,6 +4977,7 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 					val32 &= RXDMA_IDLE;
 					if (val32)
 						break;
+<<<<<<< HEAD
 
 					DBG_871X("%s: [HW_VAR_FIFO_CLEARN_UP] val =%x times:%d\n", __func__, val32, trycnt);
 				} while (--trycnt);
@@ -4137,6 +4986,10 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 					DBG_8192C("[HW_VAR_FIFO_CLEARN_UP] Stop RX DMA failed......\n");
 				}
 
+=======
+				} while (--trycnt);
+
+>>>>>>> upstream/android-13
 				/*  RQPN Load 0 */
 				rtw_write16(padapter, REG_RQPN_NPQ, 0);
 				rtw_write32(padapter, REG_RQPN, 0x80000000);
@@ -4147,13 +5000,17 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 
 	case HW_VAR_APFM_ON_MAC:
 		pHalData->bMacPwrCtrlOn = *val;
+<<<<<<< HEAD
 		DBG_8192C("%s: bMacPwrCtrlOn =%d\n", __func__, pHalData->bMacPwrCtrlOn);
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case HW_VAR_NAV_UPPER:
 		{
 			u32 usNavUpper = *((u32 *)val);
 
+<<<<<<< HEAD
 			if (usNavUpper > HAL_NAV_UPPER_UNIT_8723B * 0xFF) {
 				RT_TRACE(_module_hal_init_c_, _drv_notice_, ("The setting value (0x%08X us) of NAV_UPPER is larger than (%d * 0xFF)!!!\n", usNavUpper, HAL_NAV_UPPER_UNIT_8723B));
 				break;
@@ -4162,6 +5019,13 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 			/*  The value of ((usNavUpper + HAL_NAV_UPPER_UNIT_8723B - 1) / HAL_NAV_UPPER_UNIT_8723B) */
 			/*  is getting the upper integer. */
 			usNavUpper = (usNavUpper + HAL_NAV_UPPER_UNIT_8723B - 1) / HAL_NAV_UPPER_UNIT_8723B;
+=======
+			if (usNavUpper > HAL_NAV_UPPER_UNIT_8723B * 0xFF)
+				break;
+
+			usNavUpper = DIV_ROUND_UP(usNavUpper,
+						  HAL_NAV_UPPER_UNIT_8723B);
+>>>>>>> upstream/android-13
 			rtw_write8(padapter, REG_NAV_UPPER, (u8)usNavUpper);
 		}
 		break;
@@ -4208,6 +5072,7 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 	case HW_VAR_MACID_SLEEP:
 		/*  Input is MACID */
 		val32 = *(u32 *)val;
+<<<<<<< HEAD
 		if (val32 > 31) {
 			DBG_8192C(FUNC_ADPT_FMT ": [HW_VAR_MACID_SLEEP] Invalid macid(%d)\n",
 				FUNC_ADPT_ARG(padapter), val32);
@@ -4218,6 +5083,14 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 		val32 = rtw_read32(padapter, REG_MACID_SLEEP);
 		DBG_8192C(FUNC_ADPT_FMT ": [HW_VAR_MACID_SLEEP] macid =%d, org MACID_SLEEP = 0x%08X\n",
 			FUNC_ADPT_ARG(padapter), val8, val32);
+=======
+		if (val32 > 31)
+			break;
+
+		val8 = (u8)val32; /*  macid is between 0~31 */
+
+		val32 = rtw_read32(padapter, REG_MACID_SLEEP);
+>>>>>>> upstream/android-13
 		if (val32 & BIT(val8))
 			break;
 		val32 |= BIT(val8);
@@ -4227,6 +5100,7 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 	case HW_VAR_MACID_WAKEUP:
 		/*  Input is MACID */
 		val32 = *(u32 *)val;
+<<<<<<< HEAD
 		if (val32 > 31) {
 			DBG_8192C(FUNC_ADPT_FMT ": [HW_VAR_MACID_WAKEUP] Invalid macid(%d)\n",
 				FUNC_ADPT_ARG(padapter), val32);
@@ -4237,6 +5111,14 @@ void SetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 		val32 = rtw_read32(padapter, REG_MACID_SLEEP);
 		DBG_8192C(FUNC_ADPT_FMT ": [HW_VAR_MACID_WAKEUP] macid =%d, org MACID_SLEEP = 0x%08X\n",
 			FUNC_ADPT_ARG(padapter), val8, val32);
+=======
+		if (val32 > 31)
+			break;
+
+		val8 = (u8)val32; /*  macid is between 0~31 */
+
+		val32 = rtw_read32(padapter, REG_MACID_SLEEP);
+>>>>>>> upstream/android-13
 		if (!(val32 & BIT(val8)))
 			break;
 		val32 &= ~BIT(val8);
@@ -4274,7 +5156,11 @@ void GetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 			u32 valRCR;
 
 			if (
+<<<<<<< HEAD
 				(padapter->bSurpriseRemoved == true) ||
+=======
+				padapter->bSurpriseRemoved  ||
+>>>>>>> upstream/android-13
 				(adapter_to_pwrctl(padapter)->rf_pwrstate == rf_off)
 			) {
 				/*  If it is in HW/SW Radio OFF or IPS state, we do not check Fw LPS Leave, */
@@ -4320,6 +5206,7 @@ void GetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 		val16 = rtw_read16(padapter, REG_TXPKT_EMPTY);
 		*val = (val16 & BIT(10)) ? true:false;
 		break;
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 	case HW_VAR_RPWM_TOG:
 		*val = rtw_read8(padapter, SDIO_LOCAL_BASE|SDIO_REG_HRPWM1) & BIT7;
@@ -4333,12 +5220,15 @@ void GetHwReg8723B(struct adapter *padapter, u8 variable, u8 *val)
 		*val = rtw_read8(padapter, REG_SYS_CLKR);
 		break;
 #endif
+=======
+>>>>>>> upstream/android-13
 	default:
 		GetHwReg(padapter, variable, val);
 		break;
 	}
 }
 
+<<<<<<< HEAD
 /*
  *Description:
  *	Change default setting of specified variable.
@@ -4350,6 +5240,15 @@ u8 SetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 
 
 	pHalData = GET_HAL_DATA(padapter);
+=======
+/* Description:
+ *	Change default setting of specified variable.
+ */
+u8 SetHalDefVar8723B(struct adapter *padapter, enum hal_def_variable variable, void *pval)
+{
+	u8 bResult;
+
+>>>>>>> upstream/android-13
 	bResult = _SUCCESS;
 
 	switch (variable) {
@@ -4361,6 +5260,7 @@ u8 SetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 	return bResult;
 }
 
+<<<<<<< HEAD
 /*
  *Description:
  *	Query setting of specified variable.
@@ -4372,6 +5272,15 @@ u8 GetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 
 
 	pHalData = GET_HAL_DATA(padapter);
+=======
+/* Description:
+ *	Query setting of specified variable.
+ */
+u8 GetHalDefVar8723B(struct adapter *padapter, enum hal_def_variable variable, void *pval)
+{
+	u8 bResult;
+
+>>>>>>> upstream/android-13
 	bResult = _SUCCESS;
 
 	switch (variable) {
@@ -4387,7 +5296,11 @@ u8 GetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 		/*  Stanley@BB.SD3 suggests 16K can get stable performance */
 		/*  The experiment was done on SDIO interface */
 		/*  coding by Lucas@20130730 */
+<<<<<<< HEAD
 		*(u32 *)pval = MAX_AMPDU_FACTOR_16K;
+=======
+		*(u32 *)pval = IEEE80211_HT_MAX_AMPDU_16K;
+>>>>>>> upstream/android-13
 		break;
 	case HAL_DEF_TX_LDPC:
 	case HAL_DEF_RX_LDPC:
@@ -4408,15 +5321,19 @@ u8 GetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 		{
 			u8 mac_id = *(u8 *)pval;
 			u32 cmd;
+<<<<<<< HEAD
 			u32 ra_info1, ra_info2;
 			u32 rate_mask1, rate_mask2;
 			u8 curr_tx_rate, curr_tx_sgi, hight_rate, lowest_rate;
 
 			DBG_8192C("============ RA status check  Mac_id:%d ===================\n", mac_id);
+=======
+>>>>>>> upstream/android-13
 
 			cmd = 0x40000100 | mac_id;
 			rtw_write32(padapter, REG_HMEBOX_DBG_2_8723B, cmd);
 			msleep(10);
+<<<<<<< HEAD
 			ra_info1 = rtw_read32(padapter, 0x2F0);
 			curr_tx_rate = ra_info1&0x7F;
 			curr_tx_sgi = (ra_info1>>7)&0x01;
@@ -4425,10 +5342,14 @@ u8 GetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 				HDATA_RATE(curr_tx_rate),
 				curr_tx_sgi,
 				(ra_info1>>8)  & 0x07);
+=======
+			rtw_read32(padapter, 0x2F0);	// info 1
+>>>>>>> upstream/android-13
 
 			cmd = 0x40000400 | mac_id;
 			rtw_write32(padapter, REG_HMEBOX_DBG_2_8723B, cmd);
 			msleep(10);
+<<<<<<< HEAD
 			ra_info1 = rtw_read32(padapter, 0x2F0);
 			ra_info2 = rtw_read32(padapter, 0x2F4);
 			rate_mask1 = rtw_read32(padapter, 0x2F8);
@@ -4452,6 +5373,12 @@ u8 GetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 
 			DBG_8192C("rate_mask2 = 0x%08x, rate_mask1 = 0x%08x\n", rate_mask2, rate_mask1);
 
+=======
+			rtw_read32(padapter, 0x2F0);	// info 1
+			rtw_read32(padapter, 0x2F4);	// info 2
+			rtw_read32(padapter, 0x2F8);	// rate mask 1
+			rtw_read32(padapter, 0x2FC);	// rate mask 2
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -4475,6 +5402,7 @@ u8 GetHalDefVar8723B(struct adapter *padapter, enum HAL_DEF_VARIABLE variable, v
 	return bResult;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 void Hal_DetectWoWMode(struct adapter *padapter)
 {
@@ -4493,15 +5421,26 @@ void rtl8723b_start_thread(struct adapter *padapter)
 		RT_TRACE(_module_hal_xmit_c_, _drv_err_, ("%s: start rtl8723bs_xmit_thread FAIL!!\n", __func__));
 	}
 #endif
+=======
+void rtl8723b_start_thread(struct adapter *padapter)
+{
+	struct xmit_priv *xmitpriv = &padapter->xmitpriv;
+
+	xmitpriv->SdioXmitThread = kthread_run(rtl8723bs_xmit_thread, padapter, "RTWHALXT");
+>>>>>>> upstream/android-13
 }
 
 void rtl8723b_stop_thread(struct adapter *padapter)
 {
+<<<<<<< HEAD
 #ifndef CONFIG_SDIO_TX_TASKLET
+=======
+>>>>>>> upstream/android-13
 	struct xmit_priv *xmitpriv = &padapter->xmitpriv;
 
 	/*  stop xmit_buf_thread */
 	if (xmitpriv->SdioXmitThread) {
+<<<<<<< HEAD
 		up(&xmitpriv->SdioXmitSema);
 		down(&xmitpriv->SdioXmitTerminateSema);
 		xmitpriv->SdioXmitThread = NULL;
@@ -4539,3 +5478,10 @@ void rtl8723bs_hal_check_bt_hang(struct adapter *adapter)
 		queue_delayed_work(adapter->priv_checkbt_wq, &(adapter->checkbt_work), 0);
 }
 #endif
+=======
+		complete(&xmitpriv->SdioXmitStart);
+		wait_for_completion(&xmitpriv->SdioXmitTerminate);
+		xmitpriv->SdioXmitThread = NULL;
+	}
+}
+>>>>>>> upstream/android-13

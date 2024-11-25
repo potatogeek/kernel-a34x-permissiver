@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control.
  * Control loops for machines with SMU and PPC970MP processors.
  *
  * Copyright (C) 2005 Paul Mackerras, IBM Corp. <paulus@samba.org>
  * Copyright (C) 2006 Benjamin Herrenschmidt, IBM Corp.
+<<<<<<< HEAD
  *
  * Use and redistribute under the terms of the GNU GPL v2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/types.h>
 #include <linux/errno.h>

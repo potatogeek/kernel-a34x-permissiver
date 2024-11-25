@@ -1,7 +1,16 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /*
  * Copyright (C) 2019 MediaTek Inc.
  * Author Chunfeng Yun <chunfeng.yun@mediatek.com>
+=======
+/**
+ * mtu3_trace.h - trace support
+ *
+ * Copyright (C) 2019 MediaTek Inc.
+ *
+ * Author: Chunfeng Yun <chunfeng.yun@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #undef TRACE_SYSTEM

@@ -37,7 +37,10 @@ else
 endif
 
 ifeq ($(CONFIG_ARCH_RPC),y)
+<<<<<<< HEAD
   lib-y				+= ecard.o io-acorn.o floppydma.o
+=======
+>>>>>>> upstream/android-13
   AFLAGS_delay-loop.o		+= -march=armv4
 endif
 

@@ -4,24 +4,36 @@
  * Author: Owen Chen <owen.chen@mediatek.com>
  */
 
+<<<<<<< HEAD
 #include <linux/mfd/syscon.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/slab.h>
+=======
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/slab.h>
+#include <linux/mfd/syscon.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 
 #include "clk-mtk.h"
 #include "clk-mux.h"
 
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_MT6768)
 void mm_polling(struct clk_hw *hw);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static inline struct mtk_clk_mux *to_mtk_clk_mux(struct clk_hw *hw)
 {
 	return container_of(hw, struct mtk_clk_mux, hw);
 }
 
+<<<<<<< HEAD
 static int mtk_clk_mux_enable(struct clk_hw *hw)
 {
 	struct mtk_clk_mux *mux = to_mtk_clk_mux(hw);
@@ -157,6 +169,11 @@ static int mtk_clk_mux_set_parent_lock(struct clk_hw *hw, u8 index)
 {
 	struct mtk_clk_mux *mux = to_mtk_clk_mux(hw);
 	u32 mask = GENMASK(mux->data->mux_width - 1, 0);
+=======
+static int mtk_clk_mux_enable_setclr(struct clk_hw *hw)
+{
+	struct mtk_clk_mux *mux = to_mtk_clk_mux(hw);
+>>>>>>> upstream/android-13
 	unsigned long flags = 0;
 
 	if (mux->lock)
@@ -164,8 +181,24 @@ static int mtk_clk_mux_set_parent_lock(struct clk_hw *hw, u8 index)
 	else
 		__acquire(mux->lock);
 
+<<<<<<< HEAD
 	regmap_update_bits(mux->regmap, mux->data->mux_ofs, mask,
 		index << mux->data->mux_shift);
+=======
+	regmap_write(mux->regmap, mux->data->clr_ofs,
+		     BIT(mux->data->gate_shift));
+
+	/*
+	 * If the parent has been changed when the clock was disabled, it will
+	 * not be effective yet. Set the update bit to ensure the mux gets
+	 * updated.
+	 */
+	if (mux->reparent && mux->data->upd_shift >= 0) {
+		regmap_write(mux->regmap, mux->data->upd_ofs,
+			     BIT(mux->data->upd_shift));
+		mux->reparent = false;
+	}
+>>>>>>> upstream/android-13
 
 	if (mux->lock)
 		spin_unlock_irqrestore(mux->lock, flags);
@@ -175,13 +208,51 @@ static int mtk_clk_mux_set_parent_lock(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void mtk_clk_mux_disable_setclr(struct clk_hw *hw)
+{
+	struct mtk_clk_mux *mux = to_mtk_clk_mux(hw);
+
+	regmap_write(mux->regmap, mux->data->set_ofs,
+			BIT(mux->data->gate_shift));
+}
+
+static int mtk_clk_mux_is_enabled(struct clk_hw *hw)
+{
+	struct mtk_clk_mux *mux = to_mtk_clk_mux(hw);
+	u32 val;
+
+	regmap_read(mux->regmap, mux->data->mux_ofs, &val);
+
+	return (val & BIT(mux->data->gate_shift)) == 0;
+}
+
+static u8 mtk_clk_mux_get_parent(struct clk_hw *hw)
+{
+	struct mtk_clk_mux *mux = to_mtk_clk_mux(hw);
+	u32 mask = GENMASK(mux->data->mux_width - 1, 0);
+	u32 val;
+
+	regmap_read(mux->regmap, mux->data->mux_ofs, &val);
+	val = (val >> mux->data->mux_shift) & mask;
+
+	return val;
+}
+
+>>>>>>> upstream/android-13
 static int mtk_clk_mux_set_parent_setclr_lock(struct clk_hw *hw, u8 index)
 {
 	struct mtk_clk_mux *mux = to_mtk_clk_mux(hw);
 	u32 mask = GENMASK(mux->data->mux_width - 1, 0);
+<<<<<<< HEAD
 	u32 val = 0, orig = 0;
 	unsigned long flags = 0;
 	const char *name;
+=======
+	u32 val, orig;
+	unsigned long flags = 0;
+>>>>>>> upstream/android-13
 
 	if (mux->lock)
 		spin_lock_irqsave(mux->lock, flags);
@@ -198,6 +269,7 @@ static int mtk_clk_mux_set_parent_setclr_lock(struct clk_hw *hw, u8 index)
 		regmap_write(mux->regmap, mux->data->set_ofs,
 				index << mux->data->mux_shift);
 
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_MT6768)
 		/*
 		 * Workaround for mm dvfs. Poll mm rdma reg before
@@ -213,6 +285,13 @@ static int mtk_clk_mux_set_parent_setclr_lock(struct clk_hw *hw, u8 index)
 		if (mux->data->upd_shift >= 0)
 			regmap_write(mux->regmap, mux->data->upd_ofs,
 					BIT(mux->data->upd_shift));
+=======
+		if (mux->data->upd_shift >= 0) {
+			regmap_write(mux->regmap, mux->data->upd_ofs,
+					BIT(mux->data->upd_shift));
+			mux->reparent = true;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (mux->lock)
@@ -223,16 +302,20 @@ static int mtk_clk_mux_set_parent_setclr_lock(struct clk_hw *hw, u8 index)
 	return 0;
 }
 
+<<<<<<< HEAD
 const struct clk_ops mtk_mux_ops = {
 	.get_parent = mtk_clk_mux_get_parent,
 	.set_parent = mtk_clk_mux_set_parent_lock,
 };
 EXPORT_SYMBOL(mtk_mux_ops);
 
+=======
+>>>>>>> upstream/android-13
 const struct clk_ops mtk_mux_clr_set_upd_ops = {
 	.get_parent = mtk_clk_mux_get_parent,
 	.set_parent = mtk_clk_mux_set_parent_setclr_lock,
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL(mtk_mux_clr_set_upd_ops);
 
 const struct clk_ops mtk_mux_gate_ops = {
@@ -246,14 +329,24 @@ const struct clk_ops mtk_mux_gate_ops = {
 EXPORT_SYMBOL(mtk_mux_gate_ops);
 
 const struct clk_ops mtk_mux_gate_clr_set_upd_ops = {
+=======
+EXPORT_SYMBOL_GPL(mtk_mux_clr_set_upd_ops);
+
+const struct clk_ops mtk_mux_gate_clr_set_upd_ops  = {
+>>>>>>> upstream/android-13
 	.enable = mtk_clk_mux_enable_setclr,
 	.disable = mtk_clk_mux_disable_setclr,
 	.is_enabled = mtk_clk_mux_is_enabled,
 	.get_parent = mtk_clk_mux_get_parent,
 	.set_parent = mtk_clk_mux_set_parent_setclr_lock,
+<<<<<<< HEAD
 	.disable_unused = mtk_clk_mux_disable_setclr_unused,
 };
 EXPORT_SYMBOL(mtk_mux_gate_clr_set_upd_ops);
+=======
+};
+EXPORT_SYMBOL_GPL(mtk_mux_gate_clr_set_upd_ops);
+>>>>>>> upstream/android-13
 
 static struct clk *mtk_clk_register_mux(const struct mtk_mux *mux,
 				 struct regmap *regmap,
@@ -296,7 +389,11 @@ int mtk_clk_register_muxes(const struct mtk_mux *muxes,
 	struct clk *clk;
 	int i;
 
+<<<<<<< HEAD
 	regmap = syscon_node_to_regmap(node);
+=======
+	regmap = device_node_to_regmap(node);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regmap)) {
 		pr_err("Cannot find regmap for %pOF: %ld\n", node,
 		       PTR_ERR(regmap));
@@ -321,8 +418,14 @@ int mtk_clk_register_muxes(const struct mtk_mux *muxes,
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mtk_clk_register_muxes);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("MediaTek MUX");
 MODULE_AUTHOR("MediaTek Inc.");
+=======
+EXPORT_SYMBOL_GPL(mtk_clk_register_muxes);
+
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

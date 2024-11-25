@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Cavium, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License
  * as published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 Cavium, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef NIC_H
@@ -271,7 +277,11 @@ struct xcast_addr_list {
 };
 
 struct nicvf_work {
+<<<<<<< HEAD
 	struct delayed_work    work;
+=======
+	struct work_struct     work;
+>>>>>>> upstream/android-13
 	u8                     mode;
 	struct xcast_addr_list *mc;
 };
@@ -327,7 +337,15 @@ struct nicvf {
 	struct nicvf_work       rx_mode_work;
 	/* spinlock to protect workqueue arguments from concurrent access */
 	spinlock_t              rx_mode_wq_lock;
+<<<<<<< HEAD
 
+=======
+	/* workqueue for handling kernel ndo_set_rx_mode() calls */
+	struct workqueue_struct *nicvf_rx_mode_wq;
+	/* mutex to protect VF's mailbox contents from concurrent access */
+	struct mutex            rx_mode_mtx;
+	struct delayed_work	link_change_work;
+>>>>>>> upstream/android-13
 	/* PTP timestamp */
 	struct cavium_ptp	*ptp_clock;
 	/* Inbound timestamping is on */
@@ -575,10 +593,15 @@ struct set_ptp {
 
 struct xcast {
 	u8    msg;
+<<<<<<< HEAD
 	union {
 		u8    mode;
 		u64   mac;
 	} data;
+=======
+	u8    mode;
+	u64   mac:48;
+>>>>>>> upstream/android-13
 };
 
 /* 128 bit shared memory between PF and each VF */

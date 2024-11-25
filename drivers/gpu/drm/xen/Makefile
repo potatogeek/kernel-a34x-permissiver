@@ -4,7 +4,10 @@ drm_xen_front-objs := xen_drm_front.o \
 		      xen_drm_front_kms.o \
 		      xen_drm_front_conn.o \
 		      xen_drm_front_evtchnl.o \
+<<<<<<< HEAD
 		      xen_drm_front_shbuf.o \
+=======
+>>>>>>> upstream/android-13
 		      xen_drm_front_cfg.o \
 		      xen_drm_front_gem.o
 

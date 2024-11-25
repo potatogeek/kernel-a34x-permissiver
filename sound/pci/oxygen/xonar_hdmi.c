@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * helper functions for HDMI models (Xonar HDAV1.3/HDAV1.3 Slim)
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  *
  *
  *  This driver is free software; you can redistribute it and/or modify
@@ -14,6 +19,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this driver; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>

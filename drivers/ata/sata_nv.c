@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  sata_nv.c - NVIDIA nForce SATA
  *
  *  Copyright 2004 NVIDIA Corp.  All rights reserved.
  *  Copyright 2004 Andrew Chew
  *
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *
+=======
+>>>>>>> upstream/android-13
  *  libata documentation is available via 'make {ps|pdf}docs',
  *  as Documentation/driver-api/libata.rst
  *
@@ -33,7 +40,10 @@
  *  similar to the ADMA specification (with some modifications).
  *  This allows the use of NCQ. Non-DMA-mapped ATA commands are still
  *  sent through the legacy interface.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -391,19 +401,39 @@ static struct scsi_host_template nv_sht = {
 };
 
 static struct scsi_host_template nv_adma_sht = {
+<<<<<<< HEAD
 	ATA_NCQ_SHT(DRV_NAME),
+=======
+	__ATA_BASE_SHT(DRV_NAME),
+>>>>>>> upstream/android-13
 	.can_queue		= NV_ADMA_MAX_CPBS,
 	.sg_tablesize		= NV_ADMA_SGTBL_TOTAL_LEN,
 	.dma_boundary		= NV_ADMA_DMA_BOUNDARY,
 	.slave_configure	= nv_adma_slave_config,
+<<<<<<< HEAD
 };
 
 static struct scsi_host_template nv_swncq_sht = {
 	ATA_NCQ_SHT(DRV_NAME),
+=======
+	.sdev_attrs             = ata_ncq_sdev_attrs,
+	.change_queue_depth     = ata_scsi_change_queue_depth,
+	.tag_alloc_policy	= BLK_TAG_ALLOC_RR,
+};
+
+static struct scsi_host_template nv_swncq_sht = {
+	__ATA_BASE_SHT(DRV_NAME),
+>>>>>>> upstream/android-13
 	.can_queue		= ATA_MAX_QUEUE - 1,
 	.sg_tablesize		= LIBATA_MAX_PRD,
 	.dma_boundary		= ATA_DMA_BOUNDARY,
 	.slave_configure	= nv_swncq_slave_config,
+<<<<<<< HEAD
+=======
+	.sdev_attrs             = ata_ncq_sdev_attrs,
+	.change_queue_depth     = ata_scsi_change_queue_depth,
+	.tag_alloc_policy	= BLK_TAG_ALLOC_RR,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1138,6 +1168,7 @@ static int nv_adma_port_start(struct ata_port *ap)
 
 	/*
 	 * Now that the legacy PRD and padding buffer are allocated we can
+<<<<<<< HEAD
 	 * try to raise the DMA mask to allocate the CPB/APRD table.
 	 */
 	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
@@ -1146,13 +1177,22 @@ static int nv_adma_port_start(struct ata_port *ap)
 		if (rc)
 			return rc;
 	}
+=======
+	 * raise the DMA mask to allocate the CPB/APRD table.
+	 */
+	dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+
+>>>>>>> upstream/android-13
 	pp->adma_dma_mask = *dev->dma_mask;
 
 	mem = dmam_alloc_coherent(dev, NV_ADMA_PORT_PRIV_DMA_SZ,
 				  &mem_dma, GFP_KERNEL);
 	if (!mem)
 		return -ENOMEM;
+<<<<<<< HEAD
 	memset(mem, 0, NV_ADMA_PORT_PRIV_DMA_SZ);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * First item in chunk of DMA memory:
@@ -1964,7 +2004,10 @@ static int nv_swncq_port_start(struct ata_port *ap)
 				      &pp->prd_dma, GFP_KERNEL);
 	if (!pp->prd)
 		return -ENOMEM;
+<<<<<<< HEAD
 	memset(pp->prd, 0, ATA_PRD_TBL_SZ * ATA_MAX_QUEUE);
+=======
+>>>>>>> upstream/android-13
 
 	ap->private_data = pp;
 	pp->sactive_block = ap->ioaddr.scr_addr + 4 * SCR_ACTIVE;
@@ -2140,7 +2183,11 @@ static int nv_swncq_sdbfis(struct ata_port *ap)
 		 */
 		lack_dhfis = 1;
 
+<<<<<<< HEAD
 	DPRINTK("id 0x%x QC: qc_active 0x%x,"
+=======
+	DPRINTK("id 0x%x QC: qc_active 0x%llx,"
+>>>>>>> upstream/android-13
 		"SWNCQ:qc_active 0x%X defer_bits %X "
 		"dhfis 0x%X dmafis 0x%X last_issue_tag %x\n",
 		ap->print_id, ap->qc_active, pp->qc_active,
@@ -2351,7 +2398,11 @@ static int nv_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
         // Make sure this is a SATA controller by counting the number of bars
         // (NVIDIA SATA controllers will always have six bars).  Otherwise,
         // it's an IDE controller and we ignore it.
+<<<<<<< HEAD
 	for (bar = 0; bar < 6; bar++)
+=======
+	for (bar = 0; bar < PCI_STD_NUM_BARS; bar++)
+>>>>>>> upstream/android-13
 		if (pci_resource_start(pdev, bar) == 0)
 			return -ENODEV;
 

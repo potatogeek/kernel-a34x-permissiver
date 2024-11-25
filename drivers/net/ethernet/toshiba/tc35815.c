@@ -367,7 +367,11 @@ struct TxFD {
 
 struct RxFD {
 	struct FDesc fd;
+<<<<<<< HEAD
 	struct BDesc bd[0];	/* variable length */
+=======
+	struct BDesc bd[];	/* variable length */
+>>>>>>> upstream/android-13
 };
 
 struct FrFD {
@@ -454,9 +458,15 @@ static struct sk_buff *alloc_rxbuf_skb(struct net_device *dev,
 	skb = netdev_alloc_skb(dev, RX_BUF_SIZE);
 	if (!skb)
 		return NULL;
+<<<<<<< HEAD
 	*dma_handle = pci_map_single(hwdev, skb->data, RX_BUF_SIZE,
 				     PCI_DMA_FROMDEVICE);
 	if (pci_dma_mapping_error(hwdev, *dma_handle)) {
+=======
+	*dma_handle = dma_map_single(&hwdev->dev, skb->data, RX_BUF_SIZE,
+				     DMA_FROM_DEVICE);
+	if (dma_mapping_error(&hwdev->dev, *dma_handle)) {
+>>>>>>> upstream/android-13
 		dev_kfree_skb_any(skb);
 		return NULL;
 	}
@@ -466,8 +476,13 @@ static struct sk_buff *alloc_rxbuf_skb(struct net_device *dev,
 
 static void free_rxbuf_skb(struct pci_dev *hwdev, struct sk_buff *skb, dma_addr_t dma_handle)
 {
+<<<<<<< HEAD
 	pci_unmap_single(hwdev, dma_handle, RX_BUF_SIZE,
 			 PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&hwdev->dev, dma_handle, RX_BUF_SIZE,
+			 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	dev_kfree_skb_any(skb);
 }
 
@@ -483,8 +498,12 @@ static void	tc35815_txdone(struct net_device *dev);
 static int	tc35815_close(struct net_device *dev);
 static struct	net_device_stats *tc35815_get_stats(struct net_device *dev);
 static void	tc35815_set_multicast_list(struct net_device *dev);
+<<<<<<< HEAD
 static void	tc35815_tx_timeout(struct net_device *dev);
 static int	tc35815_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+=======
+static void	tc35815_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 static void	tc35815_poll_controller(struct net_device *dev);
 #endif
@@ -607,9 +626,15 @@ static void tc_handle_link_change(struct net_device *dev)
 
 static int tc_mii_probe(struct net_device *dev)
 {
+<<<<<<< HEAD
 	struct tc35815_local *lp = netdev_priv(dev);
 	struct phy_device *phydev;
 	u32 dropmask;
+=======
+	__ETHTOOL_DECLARE_LINK_MODE_MASK(mask) = { 0, };
+	struct tc35815_local *lp = netdev_priv(dev);
+	struct phy_device *phydev;
+>>>>>>> upstream/android-13
 
 	phydev = phy_find_first(lp->mii_bus);
 	if (!phydev) {
@@ -629,6 +654,7 @@ static int tc_mii_probe(struct net_device *dev)
 	phy_attached_info(phydev);
 
 	/* mask with MAC supported features */
+<<<<<<< HEAD
 	phydev->supported &= PHY_BASIC_FEATURES;
 	dropmask = 0;
 	if (options.speed == 10)
@@ -641,6 +667,25 @@ static int tc_mii_probe(struct net_device *dev)
 		dropmask |= SUPPORTED_10baseT_Half | SUPPORTED_100baseT_Half;
 	phydev->supported &= ~dropmask;
 	phydev->advertising = phydev->supported;
+=======
+	phy_set_max_speed(phydev, SPEED_100);
+	if (options.speed == 10) {
+		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Half_BIT, mask);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT, mask);
+	} else if (options.speed == 100) {
+		linkmode_set_bit(ETHTOOL_LINK_MODE_10baseT_Half_BIT, mask);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_10baseT_Full_BIT, mask);
+	}
+	if (options.duplex == 1) {
+		linkmode_set_bit(ETHTOOL_LINK_MODE_10baseT_Full_BIT, mask);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT, mask);
+	} else if (options.duplex == 2) {
+		linkmode_set_bit(ETHTOOL_LINK_MODE_10baseT_Half_BIT, mask);
+		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Half_BIT, mask);
+	}
+	linkmode_andnot(phydev->supported, phydev->supported, mask);
+	linkmode_copy(phydev->advertising, phydev->supported);
+>>>>>>> upstream/android-13
 
 	lp->link = 0;
 	lp->speed = 0;
@@ -689,10 +734,17 @@ err_out:
  * should provide a "tc35815-mac" device with a MAC address in its
  * platform_data.
  */
+<<<<<<< HEAD
 static int tc35815_mac_match(struct device *dev, void *data)
 {
 	struct platform_device *plat_dev = to_platform_device(dev);
 	struct pci_dev *pci_dev = data;
+=======
+static int tc35815_mac_match(struct device *dev, const void *data)
+{
+	struct platform_device *plat_dev = to_platform_device(dev);
+	const struct pci_dev *pci_dev = data;
+>>>>>>> upstream/android-13
 	unsigned int id = pci_dev->irq;
 	return !strcmp(plat_dev->name, "tc35815-mac") && plat_dev->id == id;
 }
@@ -746,7 +798,11 @@ static const struct net_device_ops tc35815_netdev_ops = {
 	.ndo_get_stats		= tc35815_get_stats,
 	.ndo_set_rx_mode	= tc35815_set_multicast_list,
 	.ndo_tx_timeout		= tc35815_tx_timeout,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= tc35815_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -872,9 +928,15 @@ tc35815_init_queues(struct net_device *dev)
 		       sizeof(struct TxFD) * TX_FD_NUM >
 		       PAGE_SIZE * FD_PAGE_NUM);
 
+<<<<<<< HEAD
 		lp->fd_buf = pci_alloc_consistent(lp->pci_dev,
 						  PAGE_SIZE * FD_PAGE_NUM,
 						  &lp->fd_buf_dma);
+=======
+		lp->fd_buf = dma_alloc_coherent(&lp->pci_dev->dev,
+						PAGE_SIZE * FD_PAGE_NUM,
+						&lp->fd_buf_dma, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 		if (!lp->fd_buf)
 			return -ENOMEM;
 		for (i = 0; i < RX_BUF_NUM; i++) {
@@ -888,10 +950,16 @@ tc35815_init_queues(struct net_device *dev)
 						       lp->rx_skbs[i].skb_dma);
 					lp->rx_skbs[i].skb = NULL;
 				}
+<<<<<<< HEAD
 				pci_free_consistent(lp->pci_dev,
 						    PAGE_SIZE * FD_PAGE_NUM,
 						    lp->fd_buf,
 						    lp->fd_buf_dma);
+=======
+				dma_free_coherent(&lp->pci_dev->dev,
+						  PAGE_SIZE * FD_PAGE_NUM,
+						  lp->fd_buf, lp->fd_buf_dma);
+>>>>>>> upstream/android-13
 				lp->fd_buf = NULL;
 				return -ENOMEM;
 			}
@@ -986,7 +1054,13 @@ tc35815_clear_queues(struct net_device *dev)
 		BUG_ON(lp->tx_skbs[i].skb != skb);
 #endif
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(lp->pci_dev, lp->tx_skbs[i].skb_dma, skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&lp->pci_dev->dev,
+					 lp->tx_skbs[i].skb_dma, skb->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			lp->tx_skbs[i].skb = NULL;
 			lp->tx_skbs[i].skb_dma = 0;
 			dev_kfree_skb_any(skb);
@@ -1018,7 +1092,13 @@ tc35815_free_queues(struct net_device *dev)
 			BUG_ON(lp->tx_skbs[i].skb != skb);
 #endif
 			if (skb) {
+<<<<<<< HEAD
 				pci_unmap_single(lp->pci_dev, lp->tx_skbs[i].skb_dma, skb->len, PCI_DMA_TODEVICE);
+=======
+				dma_unmap_single(&lp->pci_dev->dev,
+						 lp->tx_skbs[i].skb_dma,
+						 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 				dev_kfree_skb(skb);
 				lp->tx_skbs[i].skb = NULL;
 				lp->tx_skbs[i].skb_dma = 0;
@@ -1040,8 +1120,13 @@ tc35815_free_queues(struct net_device *dev)
 		}
 	}
 	if (lp->fd_buf) {
+<<<<<<< HEAD
 		pci_free_consistent(lp->pci_dev, PAGE_SIZE * FD_PAGE_NUM,
 				    lp->fd_buf, lp->fd_buf_dma);
+=======
+		dma_free_coherent(&lp->pci_dev->dev, PAGE_SIZE * FD_PAGE_NUM,
+				  lp->fd_buf, lp->fd_buf_dma);
+>>>>>>> upstream/android-13
 		lp->fd_buf = NULL;
 	}
 }
@@ -1184,7 +1269,11 @@ static void tc35815_schedule_restart(struct net_device *dev)
 	spin_unlock_irqrestore(&lp->lock, flags);
 }
 
+<<<<<<< HEAD
 static void tc35815_tx_timeout(struct net_device *dev)
+=======
+static void tc35815_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct tc35815_regs __iomem *tr =
 		(struct tc35815_regs __iomem *)dev->base_addr;
@@ -1288,7 +1377,14 @@ tc35815_send_packet(struct sk_buff *skb, struct net_device *dev)
 	BUG_ON(lp->tx_skbs[lp->tfd_start].skb);
 #endif
 	lp->tx_skbs[lp->tfd_start].skb = skb;
+<<<<<<< HEAD
 	lp->tx_skbs[lp->tfd_start].skb_dma = pci_map_single(lp->pci_dev, skb->data, skb->len, PCI_DMA_TODEVICE);
+=======
+	lp->tx_skbs[lp->tfd_start].skb_dma = dma_map_single(&lp->pci_dev->dev,
+							    skb->data,
+							    skb->len,
+							    DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	/*add to ring */
 	txfd = &lp->tfd_base[lp->tfd_start];
@@ -1496,9 +1592,15 @@ tc35815_rx(struct net_device *dev, int limit)
 			skb = lp->rx_skbs[cur_bd].skb;
 			prefetch(skb->data);
 			lp->rx_skbs[cur_bd].skb = NULL;
+<<<<<<< HEAD
 			pci_unmap_single(lp->pci_dev,
 					 lp->rx_skbs[cur_bd].skb_dma,
 					 RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&lp->pci_dev->dev,
+					 lp->rx_skbs[cur_bd].skb_dma,
+					 RX_BUF_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			if (!HAVE_DMA_RXALIGN(lp) && NET_IP_ALIGN != 0)
 				memmove(skb->data, skb->data - NET_IP_ALIGN,
 					pkt_len);
@@ -1752,7 +1854,13 @@ tc35815_txdone(struct net_device *dev)
 #endif
 		if (skb) {
 			dev->stats.tx_bytes += skb->len;
+<<<<<<< HEAD
 			pci_unmap_single(lp->pci_dev, lp->tx_skbs[lp->tfd_end].skb_dma, skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&lp->pci_dev->dev,
+					 lp->tx_skbs[lp->tfd_end].skb_dma,
+					 skb->len, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			lp->tx_skbs[lp->tfd_end].skb = NULL;
 			lp->tx_skbs[lp->tfd_end].skb_dma = 0;
 			dev_kfree_skb_any(skb);
@@ -1902,7 +2010,12 @@ tc35815_set_multicast_list(struct net_device *dev)
 
 	if (dev->flags & IFF_PROMISC) {
 		/* With some (all?) 100MHalf HUB, controller will hang
+<<<<<<< HEAD
 		 * if we enabled promiscuous mode before linkup... */
+=======
+		 * if we enabled promiscuous mode before linkup...
+		 */
+>>>>>>> upstream/android-13
 		struct tc35815_local *lp = netdev_priv(dev);
 
 		if (!lp->link)
@@ -2004,6 +2117,7 @@ static const struct ethtool_ops tc35815_ethtool_ops = {
 	.set_link_ksettings = phy_ethtool_set_link_ksettings,
 };
 
+<<<<<<< HEAD
 static int tc35815_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	if (!netif_running(dev))
@@ -2013,6 +2127,8 @@ static int tc35815_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	return phy_mii_ioctl(dev->phydev, rq, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void tc35815_chip_reset(struct net_device *dev)
 {
 	struct tc35815_regs __iomem *tr =

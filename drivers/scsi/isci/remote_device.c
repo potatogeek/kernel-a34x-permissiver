@@ -288,8 +288,14 @@ enum sci_status isci_remote_device_terminate_requests(
 * isci_remote_device_not_ready() - This function is called by the ihost when
 *    the remote device is not ready. We mark the isci device as ready (not
 *    "ready_for_io") and signal the waiting proccess.
+<<<<<<< HEAD
 * @isci_host: This parameter specifies the isci host object.
 * @isci_device: This parameter specifies the remote device
+=======
+* @ihost: This parameter specifies the isci host object.
+* @idev: This parameter specifies the remote device
+* @reason: Reason to switch on
+>>>>>>> upstream/android-13
 *
 * sci_lock is held on entrance to this function.
 */
@@ -310,7 +316,11 @@ static void isci_remote_device_not_ready(struct isci_host *ihost,
 		/* Kill all outstanding requests for the device. */
 		sci_remote_device_terminate_requests(idev);
 
+<<<<<<< HEAD
 		/* Fall through into the default case... */
+=======
+		fallthrough;	/* into the default case */
+>>>>>>> upstream/android-13
 	default:
 		clear_bit(IDEV_IO_READY, &idev->flags);
 		break;
@@ -593,7 +603,11 @@ enum sci_status sci_remote_device_event_handler(struct isci_remote_device *idev,
 
 			break;
 		}
+<<<<<<< HEAD
 	/* Else, fall through and treat as unhandled... */
+=======
+		fallthrough;	/* and treat as unhandled */
+>>>>>>> upstream/android-13
 	default:
 		dev_dbg(scirdev_to_dev(idev),
 			"%s: device: %p event code: %x: %s\n",
@@ -1000,7 +1014,11 @@ static void sci_remote_device_initial_state_enter(struct sci_base_state_machine 
 
 /**
  * sci_remote_device_destruct() - free remote node context and destruct
+<<<<<<< HEAD
  * @remote_device: This parameter specifies the remote device to be destructed.
+=======
+ * @idev: This parameter specifies the remote device to be destructed.
+>>>>>>> upstream/android-13
  *
  * Remote device objects are a limited resource.  As such, they must be
  * protected.  Thus calls to construct and destruct are mutually exclusive and
@@ -1087,7 +1105,11 @@ static void sci_remote_device_ready_state_enter(struct sci_base_state_machine *s
 
 	if (dev->dev_type == SAS_SATA_DEV || (dev->tproto & SAS_PROTOCOL_SATA)) {
 		sci_change_state(&idev->sm, SCI_STP_DEV_IDLE);
+<<<<<<< HEAD
 	} else if (dev_is_expander(dev)) {
+=======
+	} else if (dev_is_expander(dev->dev_type)) {
+>>>>>>> upstream/android-13
 		sci_change_state(&idev->sm, SCI_SMP_DEV_IDLE);
 	} else
 		isci_remote_device_ready(ihost, idev);
@@ -1236,8 +1258,13 @@ static const struct sci_base_state sci_remote_device_state_table[] = {
 
 /**
  * sci_remote_device_construct() - common construction
+<<<<<<< HEAD
  * @sci_port: SAS/SATA port through which this device is accessed.
  * @sci_dev: remote device to construct
+=======
+ * @iport: SAS/SATA port through which this device is accessed.
+ * @idev: remote device to construct
+>>>>>>> upstream/android-13
  *
  * This routine just performs benign initialization and does not
  * allocate the remote_node_context which is left to
@@ -1256,7 +1283,11 @@ static void sci_remote_device_construct(struct isci_port *iport,
 					       SCIC_SDS_REMOTE_NODE_CONTEXT_INVALID_INDEX);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sci_remote_device_da_construct() - construct direct attached device.
  *
  * The information (e.g. IAF, Signature FIS, etc.) necessary to build
@@ -1294,7 +1325,11 @@ static enum sci_status sci_remote_device_da_construct(struct isci_port *iport,
 	return SCI_SUCCESS;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sci_remote_device_ea_construct() - construct expander attached device
  *
  * Remote node context(s) is/are a global resource allocated by this
@@ -1384,7 +1419,11 @@ static bool isci_remote_device_test_resume_done(
 	return done;
 }
 
+<<<<<<< HEAD
 void isci_remote_device_wait_for_resume_from_abort(
+=======
+static void isci_remote_device_wait_for_resume_from_abort(
+>>>>>>> upstream/android-13
 	struct isci_host *ihost,
 	struct isci_remote_device *idev)
 {
@@ -1439,7 +1478,11 @@ enum sci_status isci_remote_device_resume_from_abort(
  * sci_remote_device_start() - This method will start the supplied remote
  *    device.  This method enables normal IO requests to flow through to the
  *    remote device.
+<<<<<<< HEAD
  * @remote_device: This parameter specifies the device to be started.
+=======
+ * @idev: This parameter specifies the device to be started.
+>>>>>>> upstream/android-13
  * @timeout: This parameter specifies the number of milliseconds in which the
  *    start operation should complete.
  *
@@ -1478,7 +1521,11 @@ static enum sci_status isci_remote_device_construct(struct isci_port *iport,
 	struct domain_device *dev = idev->domain_dev;
 	enum sci_status status;
 
+<<<<<<< HEAD
 	if (dev->parent && dev_is_expander(dev->parent))
+=======
+	if (dev->parent && dev_is_expander(dev->parent->dev_type))
+>>>>>>> upstream/android-13
 		status = sci_remote_device_ea_construct(iport, idev);
 	else
 		status = sci_remote_device_da_construct(iport, idev);
@@ -1501,10 +1548,18 @@ static enum sci_status isci_remote_device_construct(struct isci_port *iport,
 }
 
 /**
+<<<<<<< HEAD
  * This function builds the isci_remote_device when a libsas dev_found message
  *    is received.
  * @isci_host: This parameter specifies the isci host object.
  * @port: This parameter specifies the isci_port conected to this device.
+=======
+ * isci_remote_device_alloc()
+ * This function builds the isci_remote_device when a libsas dev_found message
+ *    is received.
+ * @ihost: This parameter specifies the isci host object.
+ * @iport: This parameter specifies the isci_port connected to this device.
+>>>>>>> upstream/android-13
  *
  * pointer to new isci_remote_device.
  */
@@ -1549,8 +1604,13 @@ void isci_remote_device_release(struct kref *kref)
 /**
  * isci_remote_device_stop() - This function is called internally to stop the
  *    remote device.
+<<<<<<< HEAD
  * @isci_host: This parameter specifies the isci host object.
  * @isci_device: This parameter specifies the remote device.
+=======
+ * @ihost: This parameter specifies the isci host object.
+ * @idev: This parameter specifies the remote device.
+>>>>>>> upstream/android-13
  *
  * The status of the ihost request to stop.
  */
@@ -1585,8 +1645,12 @@ enum sci_status isci_remote_device_stop(struct isci_host *ihost, struct isci_rem
 /**
  * isci_remote_device_gone() - This function is called by libsas when a domain
  *    device is removed.
+<<<<<<< HEAD
  * @domain_device: This parameter specifies the libsas domain device.
  *
+=======
+ * @dev: This parameter specifies the libsas domain device.
+>>>>>>> upstream/android-13
  */
 void isci_remote_device_gone(struct domain_device *dev)
 {
@@ -1606,7 +1670,11 @@ void isci_remote_device_gone(struct domain_device *dev)
  *    device is discovered. A remote device object is created and started. the
  *    function then sleeps until the sci core device started message is
  *    received.
+<<<<<<< HEAD
  * @domain_device: This parameter specifies the libsas domain device.
+=======
+ * @dev: This parameter specifies the libsas domain device.
+>>>>>>> upstream/android-13
  *
  * status, zero indicates success.
  */

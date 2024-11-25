@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_X86_INSN_H
 #define _ASM_X86_INSN_H
 /*
  * x86 instruction analysis
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,16 @@
 
 /* insn_attr_t is defined in inat.h */
 #include <asm/inat.h>
+=======
+ * Copyright (C) IBM Corporation, 2009
+ */
+
+#include <asm/byteorder.h>
+/* insn_attr_t is defined in inat.h */
+#include <asm/inat.h> /* __ignore_sync_check__ */
+
+#if defined(__BYTE_ORDER) ? __BYTE_ORDER == __LITTLE_ENDIAN : defined(__LITTLE_ENDIAN)
+>>>>>>> upstream/android-13
 
 struct insn_field {
 	union {
@@ -33,6 +48,51 @@ struct insn_field {
 	unsigned char nbytes;
 };
 
+<<<<<<< HEAD
+=======
+static inline void insn_field_set(struct insn_field *p, insn_value_t v,
+				  unsigned char n)
+{
+	p->value = v;
+	p->nbytes = n;
+}
+
+static inline void insn_set_byte(struct insn_field *p, unsigned char n,
+				 insn_byte_t v)
+{
+	p->bytes[n] = v;
+}
+
+#else
+
+struct insn_field {
+	insn_value_t value;
+	union {
+		insn_value_t little;
+		insn_byte_t bytes[4];
+	};
+	/* !0 if we've run insn_get_xxx() for this field */
+	unsigned char got;
+	unsigned char nbytes;
+};
+
+static inline void insn_field_set(struct insn_field *p, insn_value_t v,
+				  unsigned char n)
+{
+	p->value = v;
+	p->little = __cpu_to_le32(v);
+	p->nbytes = n;
+}
+
+static inline void insn_set_byte(struct insn_field *p, unsigned char n,
+				 insn_byte_t v)
+{
+	p->bytes[n] = v;
+	p->value = __le32_to_cpu(p->little);
+}
+#endif
+
+>>>>>>> upstream/android-13
 struct insn {
 	struct insn_field prefixes;	/*
 					 * Prefixes
@@ -58,6 +118,10 @@ struct insn {
 		struct insn_field immediate2;	/* for 64bit imm or seg16 */
 	};
 
+<<<<<<< HEAD
+=======
+	int	emulate_prefix_size;
+>>>>>>> upstream/android-13
 	insn_attr_t attr;
 	unsigned char opnd_bytes;
 	unsigned char addr_bytes;
@@ -99,6 +163,7 @@ struct insn {
 #define X86_VEX_M_MAX	0x1f			/* VEX3.M Maximum value */
 
 extern void insn_init(struct insn *insn, const void *kaddr, int buf_len, int x86_64);
+<<<<<<< HEAD
 extern void insn_get_prefixes(struct insn *insn);
 extern void insn_get_opcode(struct insn *insn);
 extern void insn_get_modrm(struct insn *insn);
@@ -106,6 +171,27 @@ extern void insn_get_sib(struct insn *insn);
 extern void insn_get_displacement(struct insn *insn);
 extern void insn_get_immediate(struct insn *insn);
 extern void insn_get_length(struct insn *insn);
+=======
+extern int insn_get_prefixes(struct insn *insn);
+extern int insn_get_opcode(struct insn *insn);
+extern int insn_get_modrm(struct insn *insn);
+extern int insn_get_sib(struct insn *insn);
+extern int insn_get_displacement(struct insn *insn);
+extern int insn_get_immediate(struct insn *insn);
+extern int insn_get_length(struct insn *insn);
+
+enum insn_mode {
+	INSN_MODE_32,
+	INSN_MODE_64,
+	/* Mode is determined by the current kernel build. */
+	INSN_MODE_KERN,
+	INSN_NUM_MODES,
+};
+
+extern int insn_decode(struct insn *insn, const void *kaddr, int buf_len, enum insn_mode m);
+
+#define insn_decode_kernel(_insn, _ptr) insn_decode((_insn), (_ptr), MAX_INSN_SIZE, INSN_MODE_KERN)
+>>>>>>> upstream/android-13
 
 /* Attribute will be determined after getting ModRM (for opcode groups) */
 static inline void insn_get_attribute(struct insn *insn)
@@ -116,6 +202,7 @@ static inline void insn_get_attribute(struct insn *insn)
 /* Instruction uses RIP-relative addressing */
 extern int insn_rip_relative(struct insn *insn);
 
+<<<<<<< HEAD
 /* Init insn for kernel text */
 static inline void kernel_insn_init(struct insn *insn,
 				    const void *kaddr, int buf_len)
@@ -127,6 +214,8 @@ static inline void kernel_insn_init(struct insn *insn,
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int insn_is_avx(struct insn *insn)
 {
 	if (!insn->prefixes.got)
@@ -141,11 +230,17 @@ static inline int insn_is_evex(struct insn *insn)
 	return (insn->vex_prefix.nbytes == 4);
 }
 
+<<<<<<< HEAD
 /* Ensure this instruction is decoded completely */
 static inline int insn_complete(struct insn *insn)
 {
 	return insn->opcode.got && insn->modrm.got && insn->sib.got &&
 		insn->displacement.got && insn->immediate.got;
+=======
+static inline int insn_has_emulate_prefix(struct insn *insn)
+{
+	return !!insn->emulate_prefix_size;
+>>>>>>> upstream/android-13
 }
 
 static inline insn_byte_t insn_vex_m_bits(struct insn *insn)

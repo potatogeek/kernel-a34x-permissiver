@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Qualcomm Atheros, Inc.
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2014-2015 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -140,6 +146,12 @@ void ath10k_thermal_set_throttling(struct ath10k *ar)
 
 	lockdep_assert_held(&ar->conf_mutex);
 
+<<<<<<< HEAD
+=======
+	if (!test_bit(WMI_SERVICE_THERM_THROT, ar->wmi.svc_map))
+		return;
+
+>>>>>>> upstream/android-13
 	if (!ar->wmi.ops->gen_pdev_set_quiet_mode)
 		return;
 
@@ -165,6 +177,12 @@ int ath10k_thermal_register(struct ath10k *ar)
 	struct device *hwmon_dev;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (!test_bit(WMI_SERVICE_THERM_THROT, ar->wmi.svc_map))
+		return 0;
+
+>>>>>>> upstream/android-13
 	cdev = thermal_cooling_device_register("ath10k_thermal", ar,
 					       &ath10k_thermal_ops);
 
@@ -216,6 +234,12 @@ err_cooling_destroy:
 
 void ath10k_thermal_unregister(struct ath10k *ar)
 {
+<<<<<<< HEAD
+=======
+	if (!test_bit(WMI_SERVICE_THERM_THROT, ar->wmi.svc_map))
+		return;
+
+>>>>>>> upstream/android-13
 	sysfs_remove_link(&ar->dev->kobj, "cooling_device");
 	thermal_cooling_device_unregister(ar->thermal.cdev);
 }

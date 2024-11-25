@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2014 MundoReader S.L.
+ * Author: Heiko Stuebner <heiko@sntech.de>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3188_COMMON_H
@@ -139,8 +146,14 @@
 #define HCLK_CIF1		470
 #define HCLK_VEPU		471
 #define HCLK_VDPU		472
+<<<<<<< HEAD
 
 #define CLK_NR_CLKS		(HCLK_VDPU + 1)
+=======
+#define HCLK_HDMI		473
+
+#define CLK_NR_CLKS		(HCLK_HDMI + 1)
+>>>>>>> upstream/android-13
 
 /* soft-reset indices */
 #define SRST_MCORE		2

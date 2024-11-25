@@ -235,7 +235,11 @@ davinci_lpsc_clk_register(struct device *dev, const char *name,
 			  const char *parent_name, struct regmap *regmap,
 			  u32 md, u32 pd, u32 flags)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	struct davinci_lpsc_clk *lpsc;
 	int ret;
 	bool is_on;
@@ -303,6 +307,7 @@ static int davinci_lpsc_clk_reset(struct clk *clk, bool reset)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * REVISIT: These exported functions can be removed after a non-DT lookup is
  * added to the reset controller framework and the davinci-rproc driver is
@@ -321,6 +326,8 @@ int davinci_clk_reset_deassert(struct clk *clk)
 }
 EXPORT_SYMBOL(davinci_clk_reset_deassert);
 
+=======
+>>>>>>> upstream/android-13
 static int davinci_psc_reset_assert(struct reset_controller_dev *rcdev,
 				    unsigned long id)
 {
@@ -549,7 +556,10 @@ static int davinci_psc_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	const struct of_device_id *of_id;
 	const struct davinci_psc_init_data *init_data = NULL;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *base;
 	int ret;
 
@@ -564,8 +574,12 @@ static int davinci_psc_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(dev, res);
+=======
+	base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 

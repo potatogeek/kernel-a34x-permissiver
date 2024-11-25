@@ -7,7 +7,11 @@
 #ifndef _RTL871X_BYTEORDER_H_
 #define _RTL871X_BYTEORDER_H_
 
+<<<<<<< HEAD
 #if defined (__LITTLE_ENDIAN)
+=======
+#if defined(__LITTLE_ENDIAN)
+>>>>>>> upstream/android-13
 #include <linux/byteorder/little_endian.h>
 #else
 #  include <linux/byteorder/big_endian.h>

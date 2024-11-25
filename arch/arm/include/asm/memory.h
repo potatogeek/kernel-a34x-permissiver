@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/include/asm/memory.h
  *
  *  Copyright (C) 2000-2002 Russell King
  *  modification for nommu, Hyok S. Choi, 2004
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Note: this file should not be included by non-asm/.h files
  */
 #ifndef __ASM_ARM_MEMORY_H
@@ -21,9 +28,22 @@
 #ifdef CONFIG_NEED_MACH_MEMORY_H
 #include <mach/memory.h>
 #endif
+<<<<<<< HEAD
 
 /* PAGE_OFFSET - the virtual address of the start of the kernel image */
 #define PAGE_OFFSET		UL(CONFIG_PAGE_OFFSET)
+=======
+#include <asm/kasan_def.h>
+
+/*
+ * PAGE_OFFSET: the virtual address of the start of lowmem, memory above
+ *   the virtual address range for userspace.
+ * KERNEL_OFFSET: the virtual address of the start of the kernel image.
+ *   we may further offset this with TEXT_OFFSET in practice.
+ */
+#define PAGE_OFFSET		UL(CONFIG_PAGE_OFFSET)
+#define KERNEL_OFFSET		(PAGE_OFFSET)
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_MMU
 
@@ -31,7 +51,15 @@
  * TASK_SIZE - the maximum size of a user space task.
  * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area
  */
+<<<<<<< HEAD
 #define TASK_SIZE		(UL(CONFIG_PAGE_OFFSET) - UL(SZ_16M))
+=======
+#ifndef CONFIG_KASAN
+#define TASK_SIZE		(UL(CONFIG_PAGE_OFFSET) - UL(SZ_16M))
+#else
+#define TASK_SIZE		(KASAN_SHADOW_START)
+#endif
+>>>>>>> upstream/android-13
 #define TASK_UNMAPPED_BASE	ALIGN(TASK_SIZE / 3, SZ_16M)
 
 /*
@@ -70,6 +98,13 @@
  */
 #define XIP_VIRT_ADDR(physaddr)  (MODULES_VADDR + ((physaddr) & 0x000fffff))
 
+<<<<<<< HEAD
+=======
+#define FDT_FIXED_BASE		UL(0xff800000)
+#define FDT_FIXED_SIZE		(2 * SECTION_SIZE)
+#define FDT_VIRT_BASE(physbase)	((void *)(FDT_FIXED_BASE | (physbase) % SECTION_SIZE))
+
+>>>>>>> upstream/android-13
 #if !defined(CONFIG_SMP) && !defined(CONFIG_ARM_LPAE)
 /*
  * Allow 16MB-aligned ioremap pages
@@ -110,6 +145,10 @@ extern unsigned long vectors_base;
 #define MODULES_VADDR		PAGE_OFFSET
 
 #define XIP_VIRT_ADDR(physaddr)  (physaddr)
+<<<<<<< HEAD
+=======
+#define FDT_VIRT_BASE(physbase)  ((void *)(physbase))
+>>>>>>> upstream/android-13
 
 #endif /* !CONFIG_MMU */
 
@@ -143,6 +182,7 @@ extern unsigned long vectors_base;
  */
 #define PLAT_PHYS_OFFSET	UL(CONFIG_PHYS_OFFSET)
 
+<<<<<<< HEAD
 #ifdef CONFIG_XIP_KERNEL
 /*
  * When referencing data in RAM from the XIP region in a relative manner
@@ -161,6 +201,19 @@ extern unsigned long vectors_base;
 #ifndef __ASSEMBLY__
 
 /*
+=======
+#ifndef __ASSEMBLY__
+
+/*
+ * Physical start and end address of the kernel sections. These addresses are
+ * 2MB-aligned to match the section mappings placed over the kernel. We use
+ * u64 so that LPAE mappings beyond the 32bit limit will work out as well.
+ */
+extern u64 kernel_sec_start;
+extern u64 kernel_sec_end;
+
+/*
+>>>>>>> upstream/android-13
  * Physical vs virtual RAM address space conversion.  These are
  * private definitions which should NOT be used outside memory.h
  * files.  Use virt_to_phys/phys_to_virt/__pa/__va instead.
@@ -176,6 +229,10 @@ extern unsigned long vectors_base;
  * so that all we need to do is modify the 8-bit constant field.
  */
 #define __PV_BITS_31_24	0x81000000
+<<<<<<< HEAD
+=======
+#define __PV_BITS_23_16	0x810000
+>>>>>>> upstream/android-13
 #define __PV_BITS_7_0	0x81
 
 extern unsigned long __pv_phys_pfn_offset;
@@ -186,6 +243,7 @@ extern const void *__pv_table_begin, *__pv_table_end;
 #define PHYS_OFFSET	((phys_addr_t)__pv_phys_pfn_offset << PAGE_SHIFT)
 #define PHYS_PFN_OFFSET	(__pv_phys_pfn_offset)
 
+<<<<<<< HEAD
 #define __pv_stub(from,to,instr,type)			\
 	__asm__("@ __pv_stub\n"				\
 	"1:	" instr "	%0, %1, %2\n"		\
@@ -215,14 +273,73 @@ extern const void *__pv_table_begin, *__pv_table_end;
 	: "r" (x), "I" (__PV_BITS_31_24)		\
 	: "cc")
 
+=======
+#ifndef CONFIG_THUMB2_KERNEL
+#define __pv_stub(from,to,instr)			\
+	__asm__("@ __pv_stub\n"				\
+	"1:	" instr "	%0, %1, %2\n"		\
+	"2:	" instr "	%0, %0, %3\n"		\
+	"	.pushsection .pv_table,\"a\"\n"		\
+	"	.long	1b - ., 2b - .\n"		\
+	"	.popsection\n"				\
+	: "=r" (to)					\
+	: "r" (from), "I" (__PV_BITS_31_24),		\
+	  "I"(__PV_BITS_23_16))
+
+#define __pv_add_carry_stub(x, y)			\
+	__asm__("@ __pv_add_carry_stub\n"		\
+	"0:	movw	%R0, #0\n"			\
+	"	adds	%Q0, %1, %R0, lsl #20\n"	\
+	"1:	mov	%R0, %2\n"			\
+	"	adc	%R0, %R0, #0\n"			\
+	"	.pushsection .pv_table,\"a\"\n"		\
+	"	.long	0b - ., 1b - .\n"		\
+	"	.popsection\n"				\
+	: "=&r" (y)					\
+	: "r" (x), "I" (__PV_BITS_7_0)			\
+	: "cc")
+
+#else
+#define __pv_stub(from,to,instr)			\
+	__asm__("@ __pv_stub\n"				\
+	"0:	movw	%0, #0\n"			\
+	"	lsl	%0, #21\n"			\
+	"	" instr " %0, %1, %0\n"			\
+	"	.pushsection .pv_table,\"a\"\n"		\
+	"	.long	0b - .\n"			\
+	"	.popsection\n"				\
+	: "=&r" (to)					\
+	: "r" (from))
+
+#define __pv_add_carry_stub(x, y)			\
+	__asm__("@ __pv_add_carry_stub\n"		\
+	"0:	movw	%R0, #0\n"			\
+	"	lsls	%R0, #21\n"			\
+	"	adds	%Q0, %1, %R0\n"			\
+	"1:	mvn	%R0, #0\n"			\
+	"	adc	%R0, %R0, #0\n"			\
+	"	.pushsection .pv_table,\"a\"\n"		\
+	"	.long	0b - ., 1b - .\n"		\
+	"	.popsection\n"				\
+	: "=&r" (y)					\
+	: "r" (x)					\
+	: "cc")
+#endif
+
+>>>>>>> upstream/android-13
 static inline phys_addr_t __virt_to_phys_nodebug(unsigned long x)
 {
 	phys_addr_t t;
 
 	if (sizeof(phys_addr_t) == 4) {
+<<<<<<< HEAD
 		__pv_stub(x, t, "add", __PV_BITS_31_24);
 	} else {
 		__pv_stub_mov_hi(t);
+=======
+		__pv_stub(x, t, "add");
+	} else {
+>>>>>>> upstream/android-13
 		__pv_add_carry_stub(x, t);
 	}
 	return t;
@@ -238,7 +355,11 @@ static inline unsigned long __phys_to_virt(phys_addr_t x)
 	 * assembler expression receives 32 bit argument
 	 * in place where 'r' 32 bit operand is expected.
 	 */
+<<<<<<< HEAD
 	__pv_stub((unsigned long) x, t, "sub", __PV_BITS_31_24);
+=======
+	__pv_stub((unsigned long) x, t, "sub");
+>>>>>>> upstream/android-13
 	return t;
 }
 

@@ -56,7 +56,11 @@
  *	u8 *iv = data;
  *	u8 *pt = data + crypto_skcipher_ivsize(tfm);
  *		<ensure that pt contains the plaintext of size ptlen>
+<<<<<<< HEAD
  *	sg_init_one(&sg, ptdata, ptlen);
+=======
+ *	sg_init_one(&sg, pt, ptlen);
+>>>>>>> upstream/android-13
  *	skcipher_request_set_crypt(req, &sg, &sg, ptlen, iv);
  *
  *	==> After encryption, data now contains full KW result as per SP800-38F.
@@ -70,8 +74,13 @@
  *	u8 *iv = data;
  *	u8 *ct = data + crypto_skcipher_ivsize(tfm);
  *	unsigned int ctlen = datalen - crypto_skcipher_ivsize(tfm);
+<<<<<<< HEAD
  *	sg_init_one(&sg, ctdata, ctlen);
  *	skcipher_request_set_crypt(req, &sg, &sg, ptlen, iv);
+=======
+ *	sg_init_one(&sg, ct, ctlen);
+ *	skcipher_request_set_crypt(req, &sg, &sg, ctlen, iv);
+>>>>>>> upstream/android-13
  *
  *	==> After decryption (which hopefully does not return EBADMSG), the ct
  *	pointer now points to the plaintext of size ctlen.
@@ -85,12 +94,18 @@
 #include <linux/crypto.h>
 #include <linux/scatterlist.h>
 #include <crypto/scatterwalk.h>
+<<<<<<< HEAD
 #include <crypto/internal/skcipher.h>
 
 struct crypto_kw_ctx {
 	struct crypto_cipher *child;
 };
 
+=======
+#include <crypto/internal/cipher.h>
+#include <crypto/internal/skcipher.h>
+
+>>>>>>> upstream/android-13
 struct crypto_kw_block {
 #define SEMIBSIZE 8
 	__be64 A;
@@ -117,13 +132,20 @@ static void crypto_kw_scatterlist_ff(struct scatter_walk *walk,
 			scatterwalk_start(walk, sg);
 			scatterwalk_advance(walk, skip);
 			break;
+<<<<<<< HEAD
 		} else
 			skip -= sg->length;
 
+=======
+		}
+
+		skip -= sg->length;
+>>>>>>> upstream/android-13
 		sg = sg_next(sg);
 	}
 }
 
+<<<<<<< HEAD
 static int crypto_kw_decrypt(struct blkcipher_desc *desc,
 			     struct scatterlist *dst, struct scatterlist *src,
 			     unsigned int nbytes)
@@ -134,6 +156,15 @@ static int crypto_kw_decrypt(struct blkcipher_desc *desc,
 	struct crypto_kw_block block;
 	struct scatterlist *lsrc, *ldst;
 	u64 t = 6 * ((nbytes) >> 3);
+=======
+static int crypto_kw_decrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+	struct crypto_kw_block block;
+	struct scatterlist *src, *dst;
+	u64 t = 6 * ((req->cryptlen) >> 3);
+>>>>>>> upstream/android-13
 	unsigned int i;
 	int ret = 0;
 
@@ -141,6 +172,7 @@ static int crypto_kw_decrypt(struct blkcipher_desc *desc,
 	 * Require at least 2 semiblocks (note, the 3rd semiblock that is
 	 * required by SP800-38F is the IV.
 	 */
+<<<<<<< HEAD
 	if (nbytes < (2 * SEMIBSIZE) || nbytes % SEMIBSIZE)
 		return -EINVAL;
 
@@ -162,6 +194,29 @@ static int crypto_kw_decrypt(struct blkcipher_desc *desc,
 		while (tmp_nbytes) {
 			/* move pointer by tmp_nbytes in the SGL */
 			crypto_kw_scatterlist_ff(&src_walk, lsrc, tmp_nbytes);
+=======
+	if (req->cryptlen < (2 * SEMIBSIZE) || req->cryptlen % SEMIBSIZE)
+		return -EINVAL;
+
+	/* Place the IV into block A */
+	memcpy(&block.A, req->iv, SEMIBSIZE);
+
+	/*
+	 * src scatterlist is read-only. dst scatterlist is r/w. During the
+	 * first loop, src points to req->src and dst to req->dst. For any
+	 * subsequent round, the code operates on req->dst only.
+	 */
+	src = req->src;
+	dst = req->dst;
+
+	for (i = 0; i < 6; i++) {
+		struct scatter_walk src_walk, dst_walk;
+		unsigned int nbytes = req->cryptlen;
+
+		while (nbytes) {
+			/* move pointer by nbytes in the SGL */
+			crypto_kw_scatterlist_ff(&src_walk, src, nbytes);
+>>>>>>> upstream/android-13
 			/* get the source block */
 			scatterwalk_copychunks(&block.R, &src_walk, SEMIBSIZE,
 					       false);
@@ -170,21 +225,38 @@ static int crypto_kw_decrypt(struct blkcipher_desc *desc,
 			block.A ^= cpu_to_be64(t);
 			t--;
 			/* perform KW operation: decrypt block */
+<<<<<<< HEAD
 			crypto_cipher_decrypt_one(child, (u8*)&block,
 						  (u8*)&block);
 
 			/* move pointer by tmp_nbytes in the SGL */
 			crypto_kw_scatterlist_ff(&dst_walk, ldst, tmp_nbytes);
+=======
+			crypto_cipher_decrypt_one(cipher, (u8 *)&block,
+						  (u8 *)&block);
+
+			/* move pointer by nbytes in the SGL */
+			crypto_kw_scatterlist_ff(&dst_walk, dst, nbytes);
+>>>>>>> upstream/android-13
 			/* Copy block->R into place */
 			scatterwalk_copychunks(&block.R, &dst_walk, SEMIBSIZE,
 					       true);
 
+<<<<<<< HEAD
 			tmp_nbytes -= SEMIBSIZE;
 		}
 
 		/* we now start to operate on the dst SGL only */
 		lsrc = dst;
 		ldst = dst;
+=======
+			nbytes -= SEMIBSIZE;
+		}
+
+		/* we now start to operate on the dst SGL only */
+		src = req->dst;
+		dst = req->dst;
+>>>>>>> upstream/android-13
 	}
 
 	/* Perform authentication check */
@@ -196,6 +268,7 @@ static int crypto_kw_decrypt(struct blkcipher_desc *desc,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int crypto_kw_encrypt(struct blkcipher_desc *desc,
 			     struct scatterlist *dst, struct scatterlist *src,
 			     unsigned int nbytes)
@@ -205,6 +278,14 @@ static int crypto_kw_encrypt(struct blkcipher_desc *desc,
 	struct crypto_cipher *child = ctx->child;
 	struct crypto_kw_block block;
 	struct scatterlist *lsrc, *ldst;
+=======
+static int crypto_kw_encrypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+	struct crypto_kw_block block;
+	struct scatterlist *src, *dst;
+>>>>>>> upstream/android-13
 	u64 t = 1;
 	unsigned int i;
 
@@ -214,7 +295,11 @@ static int crypto_kw_encrypt(struct blkcipher_desc *desc,
 	 * This means that the dst memory must be one semiblock larger than src.
 	 * Also ensure that the given data is aligned to semiblock.
 	 */
+<<<<<<< HEAD
 	if (nbytes < (2 * SEMIBSIZE) || nbytes % SEMIBSIZE)
+=======
+	if (req->cryptlen < (2 * SEMIBSIZE) || req->cryptlen % SEMIBSIZE)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -225,6 +310,7 @@ static int crypto_kw_encrypt(struct blkcipher_desc *desc,
 
 	/*
 	 * src scatterlist is read-only. dst scatterlist is r/w. During the
+<<<<<<< HEAD
 	 * first loop, lsrc points to src and ldst to dst. For any
 	 * subsequent round, the code operates on dst only.
 	 */
@@ -239,12 +325,32 @@ static int crypto_kw_encrypt(struct blkcipher_desc *desc,
 		scatterwalk_start(&dst_walk, ldst);
 
 		while (tmp_nbytes) {
+=======
+	 * first loop, src points to req->src and dst to req->dst. For any
+	 * subsequent round, the code operates on req->dst only.
+	 */
+	src = req->src;
+	dst = req->dst;
+
+	for (i = 0; i < 6; i++) {
+		struct scatter_walk src_walk, dst_walk;
+		unsigned int nbytes = req->cryptlen;
+
+		scatterwalk_start(&src_walk, src);
+		scatterwalk_start(&dst_walk, dst);
+
+		while (nbytes) {
+>>>>>>> upstream/android-13
 			/* get the source block */
 			scatterwalk_copychunks(&block.R, &src_walk, SEMIBSIZE,
 					       false);
 
 			/* perform KW operation: encrypt block */
+<<<<<<< HEAD
 			crypto_cipher_encrypt_one(child, (u8 *)&block,
+=======
+			crypto_cipher_encrypt_one(cipher, (u8 *)&block,
+>>>>>>> upstream/android-13
 						  (u8 *)&block);
 			/* perform KW operation: modify IV with counter */
 			block.A ^= cpu_to_be64(t);
@@ -254,6 +360,7 @@ static int crypto_kw_encrypt(struct blkcipher_desc *desc,
 			scatterwalk_copychunks(&block.R, &dst_walk, SEMIBSIZE,
 					       true);
 
+<<<<<<< HEAD
 			tmp_nbytes -= SEMIBSIZE;
 		}
 
@@ -264,12 +371,25 @@ static int crypto_kw_encrypt(struct blkcipher_desc *desc,
 
 	/* establish the IV for the caller to pick up */
 	memcpy(desc->info, &block.A, SEMIBSIZE);
+=======
+			nbytes -= SEMIBSIZE;
+		}
+
+		/* we now start to operate on the dst SGL only */
+		src = req->dst;
+		dst = req->dst;
+	}
+
+	/* establish the IV for the caller to pick up */
+	memcpy(req->iv, &block.A, SEMIBSIZE);
+>>>>>>> upstream/android-13
 
 	memzero_explicit(&block, sizeof(struct crypto_kw_block));
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int crypto_kw_setkey(struct crypto_tfm *parent, const u8 *key,
 			    unsigned int keylen)
 {
@@ -359,12 +479,49 @@ static void crypto_kw_free(struct crypto_instance *inst)
 {
 	crypto_drop_spawn(crypto_instance_ctx(inst));
 	kfree(inst);
+=======
+static int crypto_kw_create(struct crypto_template *tmpl, struct rtattr **tb)
+{
+	struct skcipher_instance *inst;
+	struct crypto_alg *alg;
+	int err;
+
+	inst = skcipher_alloc_instance_simple(tmpl, tb);
+	if (IS_ERR(inst))
+		return PTR_ERR(inst);
+
+	alg = skcipher_ialg_simple(inst);
+
+	err = -EINVAL;
+	/* Section 5.1 requirement for KW */
+	if (alg->cra_blocksize != sizeof(struct crypto_kw_block))
+		goto out_free_inst;
+
+	inst->alg.base.cra_blocksize = SEMIBSIZE;
+	inst->alg.base.cra_alignmask = 0;
+	inst->alg.ivsize = SEMIBSIZE;
+
+	inst->alg.encrypt = crypto_kw_encrypt;
+	inst->alg.decrypt = crypto_kw_decrypt;
+
+	err = skcipher_register_instance(tmpl, inst);
+	if (err) {
+out_free_inst:
+		inst->free(inst);
+	}
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template crypto_kw_tmpl = {
 	.name = "kw",
+<<<<<<< HEAD
 	.alloc = crypto_kw_alloc,
 	.free = crypto_kw_free,
+=======
+	.create = crypto_kw_create,
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 };
 
@@ -378,10 +535,18 @@ static void __exit crypto_kw_exit(void)
 	crypto_unregister_template(&crypto_kw_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_kw_init);
+=======
+subsys_initcall(crypto_kw_init);
+>>>>>>> upstream/android-13
 module_exit(crypto_kw_exit);
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Stephan Mueller <smueller@chronox.de>");
 MODULE_DESCRIPTION("Key Wrapping (RFC3394 / NIST SP800-38F)");
 MODULE_ALIAS_CRYPTO("kw");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

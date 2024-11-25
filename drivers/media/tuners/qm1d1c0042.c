@@ -206,7 +206,11 @@ static int qm1d1c0042_set_params(struct dvb_frontend *fe)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	a = (freq + state->cfg.xtal_freq / 2) / state->cfg.xtal_freq;
+=======
+	a = DIV_ROUND_CLOSEST(freq, state->cfg.xtal_freq);
+>>>>>>> upstream/android-13
 
 	state->regs[0x06] &= 0x40;
 	state->regs[0x06] |= (a - 12) / 4;

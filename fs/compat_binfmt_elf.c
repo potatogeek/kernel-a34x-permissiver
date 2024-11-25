@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 32-bit compatibility support for ELF format executables and core dumps.
  *
  * Copyright (C) 2007 Red Hat, Inc.  All rights reserved.
  *
+<<<<<<< HEAD
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2.
  *
+=======
+>>>>>>> upstream/android-13
  * Red Hat Author: Roland McGrath.
  *
  * This file is used in a 64-bit kernel that wants to support 32-bit ELF.
@@ -20,6 +27,11 @@
 #include <linux/elfcore-compat.h>
 #include <linux/time.h>
 
+<<<<<<< HEAD
+=======
+#define ELF_COMPAT	1
+
+>>>>>>> upstream/android-13
 /*
  * Rename the basic ELF layout types to refer to the 32-bit class of files.
  */
@@ -31,28 +43,48 @@
 #undef	elf_shdr
 #undef	elf_note
 #undef	elf_addr_t
+<<<<<<< HEAD
+=======
+#undef	ELF_GNU_PROPERTY_ALIGN
+>>>>>>> upstream/android-13
 #define elfhdr		elf32_hdr
 #define elf_phdr	elf32_phdr
 #define elf_shdr	elf32_shdr
 #define elf_note	elf32_note
 #define elf_addr_t	Elf32_Addr
+<<<<<<< HEAD
+=======
+#define ELF_GNU_PROPERTY_ALIGN	ELF32_GNU_PROPERTY_ALIGN
+>>>>>>> upstream/android-13
 
 /*
  * Some data types as stored in coredump.
  */
 #define user_long_t		compat_long_t
 #define user_siginfo_t		compat_siginfo_t
+<<<<<<< HEAD
 #define copy_siginfo_to_user	copy_siginfo_to_user32
+=======
+#define copy_siginfo_to_external	copy_siginfo_to_external32
+>>>>>>> upstream/android-13
 
 /*
  * The machine-dependent core note format types are defined in elfcore-compat.h,
  * which requires asm/elf.h to define compat_elf_gregset_t et al.
  */
 #define elf_prstatus	compat_elf_prstatus
+<<<<<<< HEAD
 #define elf_prpsinfo	compat_elf_prpsinfo
 
 #undef ns_to_timeval
 #define ns_to_timeval ns_to_compat_timeval
+=======
+#define elf_prstatus_common	compat_elf_prstatus_common
+#define elf_prpsinfo	compat_elf_prpsinfo
+
+#undef ns_to_kernel_old_timeval
+#define ns_to_kernel_old_timeval ns_to_old_timeval32
+>>>>>>> upstream/android-13
 
 /*
  * To use this file, asm/elf.h must define compat_elf_check_arch.
@@ -60,7 +92,10 @@
  * differ from the native ones, or omitted when they match.
  */
 
+<<<<<<< HEAD
 #undef	ELF_ARCH
+=======
+>>>>>>> upstream/android-13
 #undef	elf_check_arch
 #define	elf_check_arch	compat_elf_check_arch
 
@@ -89,11 +124,14 @@
 #define	ELF_ET_DYN_BASE		COMPAT_ELF_ET_DYN_BASE
 #endif
 
+<<<<<<< HEAD
 #ifdef COMPAT_ELF_EXEC_PAGESIZE
 #undef	ELF_EXEC_PAGESIZE
 #define	ELF_EXEC_PAGESIZE	COMPAT_ELF_EXEC_PAGESIZE
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef	COMPAT_ELF_PLAT_INIT
 #undef	ELF_PLAT_INIT
 #define	ELF_PLAT_INIT		COMPAT_ELF_PLAT_INIT
@@ -105,6 +143,7 @@
 #endif
 
 #ifdef	compat_start_thread
+<<<<<<< HEAD
 #undef	start_thread
 #define	start_thread		compat_start_thread
 #endif
@@ -114,6 +153,32 @@
 #define ARCH_HAS_SETUP_ADDITIONAL_PAGES 1
 #undef	arch_setup_additional_pages
 #define	arch_setup_additional_pages compat_arch_setup_additional_pages
+=======
+#define COMPAT_START_THREAD(ex, regs, new_ip, new_sp)	\
+	compat_start_thread(regs, new_ip, new_sp)
+#endif
+
+#ifdef	COMPAT_START_THREAD
+#undef	START_THREAD
+#define START_THREAD		COMPAT_START_THREAD
+#endif
+
+#ifdef compat_arch_setup_additional_pages
+#define COMPAT_ARCH_SETUP_ADDITIONAL_PAGES(bprm, ex, interpreter) \
+	compat_arch_setup_additional_pages(bprm, interpreter)
+#endif
+
+#ifdef	COMPAT_ARCH_SETUP_ADDITIONAL_PAGES
+#undef	ARCH_HAS_SETUP_ADDITIONAL_PAGES
+#define ARCH_HAS_SETUP_ADDITIONAL_PAGES 1
+#undef	ARCH_SETUP_ADDITIONAL_PAGES
+#define	ARCH_SETUP_ADDITIONAL_PAGES COMPAT_ARCH_SETUP_ADDITIONAL_PAGES
+#endif
+
+#ifdef	compat_elf_read_implies_exec
+#undef	elf_read_implies_exec
+#define	elf_read_implies_exec compat_elf_read_implies_exec
+>>>>>>> upstream/android-13
 #endif
 
 /*

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram miXart soundcards
  *
  * mixer callbacks
  *
  * Copyright (c) 2003 by Digigram <alsa@digigram.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/time.h>
@@ -33,7 +40,11 @@
 #include <sound/tlv.h>
 #include "mixart_mixer.h"
 
+<<<<<<< HEAD
 static u32 mixart_analog_level[256] = {
+=======
+static const u32 mixart_analog_level[256] = {
+>>>>>>> upstream/android-13
 	0xc2c00000,		/* [000] -96.0 dB */
 	0xc2bf0000,		/* [001] -95.5 dB */
 	0xc2be0000,		/* [002] -95.0 dB */
@@ -456,7 +467,11 @@ static const struct snd_kcontrol_new mixart_control_output_switch = {
 	.put =          mixart_audio_sw_put
 };
 
+<<<<<<< HEAD
 static u32 mixart_digital_level[256] = {
+=======
+static const u32 mixart_digital_level[256] = {
+>>>>>>> upstream/android-13
 	0x00000000,		/* [000] = 0.00e+000 = mute if <= -109.5dB */
 	0x366e1c7a,		/* [001] = 3.55e-006 = pow(10.0, 0.05 * -109.0dB) */
 	0x367c3860,		/* [002] = 3.76e-006 = pow(10.0, 0.05 * -108.5dB) */
@@ -1127,10 +1142,19 @@ int snd_mixart_create_mixer(struct mixart_mgr *mgr)
 		temp = mixart_control_analog_level;
 		temp.name = "Master Playback Volume";
 		temp.private_value = 0; /* playback */
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
 			return err;
 		/* output mute controls */
 		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&mixart_control_output_switch, chip))) < 0)
+=======
+		err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+		if (err < 0)
+			return err;
+		/* output mute controls */
+		err = snd_ctl_add(chip->card, snd_ctl_new1(&mixart_control_output_switch, chip));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 
 		/* analog input level control only on first two chips !*/
@@ -1138,7 +1162,12 @@ int snd_mixart_create_mixer(struct mixart_mgr *mgr)
 			temp = mixart_control_analog_level;
 			temp.name = "Master Capture Volume";
 			temp.private_value = 1; /* capture */
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
+=======
+			err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 		}
 
@@ -1146,45 +1175,83 @@ int snd_mixart_create_mixer(struct mixart_mgr *mgr)
 		temp.name = "PCM Playback Volume";
 		temp.count = MIXART_PLAYBACK_STREAMS;
 		temp.private_value = 0; /* playback analog */
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
+=======
+		err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 
 		temp.name = "PCM Capture Volume";
 		temp.count = 1;
 		temp.private_value = MIXART_VOL_REC_MASK; /* capture analog */
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
+=======
+		err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 
 		if(mgr->board_type == MIXART_DAUGHTER_TYPE_AES) {
 			temp.name = "AES Playback Volume";
 			temp.count = MIXART_PLAYBACK_STREAMS;
 			temp.private_value = MIXART_VOL_AES_MASK; /* playback AES/EBU */
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
+=======
+			err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 
 			temp.name = "AES Capture Volume";
 			temp.count = 0;
 			temp.private_value = MIXART_VOL_REC_MASK | MIXART_VOL_AES_MASK; /* capture AES/EBU */
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
+=======
+			err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 		}
 		temp = mixart_control_pcm_switch;
 		temp.name = "PCM Playback Switch";
 		temp.private_value = 0; /* playback analog */
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
+=======
+		err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 
 		if(mgr->board_type == MIXART_DAUGHTER_TYPE_AES) {
 			temp.name = "AES Playback Switch";
 			temp.private_value = MIXART_VOL_AES_MASK; /* playback AES/EBU */
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip))) < 0)
+=======
+			err = snd_ctl_add(chip->card, snd_ctl_new1(&temp, chip));
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 		}
 
 		/* monitoring */
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&mixart_control_monitor_vol, chip))) < 0)
 			return err;
 		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&mixart_control_monitor_sw, chip))) < 0)
+=======
+		err = snd_ctl_add(chip->card, snd_ctl_new1(&mixart_control_monitor_vol, chip));
+		if (err < 0)
+			return err;
+		err = snd_ctl_add(chip->card, snd_ctl_new1(&mixart_control_monitor_sw, chip));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 
 		/* init all mixer data and program the master volumes/switches */

@@ -30,10 +30,13 @@ struct mod_arch_specific {
 	unsigned long opd_size;
 };
 
+<<<<<<< HEAD
 #define MODULE_PROC_FAMILY	"ia64"
 #define MODULE_ARCH_VERMAGIC	MODULE_PROC_FAMILY \
 	"gcc-" __stringify(__GNUC__) "." __stringify(__GNUC_MINOR__)
 
+=======
+>>>>>>> upstream/android-13
 #define ARCH_SHF_SMALL	SHF_IA_64_SHORT
 
 #endif /* _ASM_IA64_MODULE_H */

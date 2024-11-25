@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * tps65010 - driver for tps6501x power management chips
  *
  * Copyright (C) 2004 Texas Instruments
  * Copyright (C) 2004-2005 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -417,7 +424,10 @@ static void tps65010_work(struct work_struct *work)
 	tps65010_interrupt(tps);
 
 	if (test_and_clear_bit(FLAG_VBUS_CHANGED, &tps->flags)) {
+<<<<<<< HEAD
 		int	status;
+=======
+>>>>>>> upstream/android-13
 		u8	chgconfig, tmp;
 
 		chgconfig = i2c_smbus_read_byte_data(tps->client,
@@ -428,8 +438,13 @@ static void tps65010_work(struct work_struct *work)
 		else if (tps->vbus >= 100)
 			chgconfig |= TPS_VBUS_CHARGING;
 
+<<<<<<< HEAD
 		status = i2c_smbus_write_byte_data(tps->client,
 				TPS_CHGCONFIG, chgconfig);
+=======
+		i2c_smbus_write_byte_data(tps->client,
+					  TPS_CHGCONFIG, chgconfig);
+>>>>>>> upstream/android-13
 
 		/* vbus update fails unless VBUS is connected! */
 		tmp = i2c_smbus_read_byte_data(tps->client, TPS_CHGCONFIG);

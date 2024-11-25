@@ -78,7 +78,11 @@ static int ndev_mw_to_bar(struct amd_ntb_dev *ndev, int idx)
 	if (idx < 0 || idx > ndev->mw_count)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return 1 << idx;
+=======
+	return ndev->dev_data->mw_idx << idx;
+>>>>>>> upstream/android-13
 }
 
 static int amd_ntb_mw_count(struct ntb_dev *ntb, int pidx)
@@ -160,8 +164,13 @@ static int amd_ntb_mw_set_trans(struct ntb_dev *ntb, int pidx, int idx,
 		}
 
 		/* set and verify setting the limit */
+<<<<<<< HEAD
 		write64(limit, mmio + limit_reg);
 		reg_val = read64(mmio + limit_reg);
+=======
+		write64(limit, peer_mmio + limit_reg);
+		reg_val = read64(peer_mmio + limit_reg);
+>>>>>>> upstream/android-13
 		if (reg_val != limit) {
 			write64(base_addr, mmio + limit_reg);
 			write64(0, peer_mmio + xlat_reg);
@@ -183,8 +192,13 @@ static int amd_ntb_mw_set_trans(struct ntb_dev *ntb, int pidx, int idx,
 		}
 
 		/* set and verify setting the limit */
+<<<<<<< HEAD
 		writel(limit, mmio + limit_reg);
 		reg_val = readl(mmio + limit_reg);
+=======
+		writel(limit, peer_mmio + limit_reg);
+		reg_val = readl(peer_mmio + limit_reg);
+>>>>>>> upstream/android-13
 		if (reg_val != limit) {
 			writel(base_addr, mmio + limit_reg);
 			writel(0, peer_mmio + xlat_reg);
@@ -195,6 +209,7 @@ static int amd_ntb_mw_set_trans(struct ntb_dev *ntb, int pidx, int idx,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int amd_link_is_up(struct amd_ntb_dev *ndev)
 {
 	if (!ndev->peer_sta)
@@ -215,6 +230,119 @@ static int amd_link_is_up(struct amd_ntb_dev *ndev)
 		ndev->peer_sta &= ~AMD_PEER_RESET_EVENT;
 	else if (ndev->peer_sta & (AMD_PEER_D0_EVENT | AMD_LINK_DOWN_EVENT))
 		ndev->peer_sta = 0;
+=======
+static int amd_ntb_get_link_status(struct amd_ntb_dev *ndev)
+{
+	struct pci_dev *pdev = NULL;
+	struct pci_dev *pci_swds = NULL;
+	struct pci_dev *pci_swus = NULL;
+	u32 stat;
+	int rc;
+
+	if (ndev->ntb.topo == NTB_TOPO_SEC) {
+		/* Locate the pointer to Downstream Switch for this device */
+		pci_swds = pci_upstream_bridge(ndev->ntb.pdev);
+		if (pci_swds) {
+			/*
+			 * Locate the pointer to Upstream Switch for
+			 * the Downstream Switch.
+			 */
+			pci_swus = pci_upstream_bridge(pci_swds);
+			if (pci_swus) {
+				rc = pcie_capability_read_dword(pci_swus,
+								PCI_EXP_LNKCTL,
+								&stat);
+				if (rc)
+					return 0;
+			} else {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
+	} else if (ndev->ntb.topo == NTB_TOPO_PRI) {
+		/*
+		 * For NTB primary, we simply read the Link Status and control
+		 * register of the NTB device itself.
+		 */
+		pdev = ndev->ntb.pdev;
+		rc = pcie_capability_read_dword(pdev, PCI_EXP_LNKCTL, &stat);
+		if (rc)
+			return 0;
+	} else {
+		/* Catch all for everything else */
+		return 0;
+	}
+
+	ndev->lnk_sta = stat;
+
+	return 1;
+}
+
+static int amd_link_is_up(struct amd_ntb_dev *ndev)
+{
+	int ret;
+
+	/*
+	 * We consider the link to be up under two conditions:
+	 *
+	 *   - When a link-up event is received. This is indicated by
+	 *     AMD_LINK_UP_EVENT set in peer_sta.
+	 *   - When driver on both sides of the link have been loaded.
+	 *     This is indicated by bit 1 being set in the peer
+	 *     SIDEINFO register.
+	 *
+	 * This function should return 1 when the latter of the above
+	 * two conditions is true.
+	 *
+	 * Now consider the sequence of events - Link-Up event occurs,
+	 * then the peer side driver loads. In this case, we would have
+	 * received LINK_UP event and bit 1 of peer SIDEINFO is also
+	 * set. What happens now if the link goes down? Bit 1 of
+	 * peer SIDEINFO remains set, but LINK_DOWN bit is set in
+	 * peer_sta. So we should return 0 from this function. Not only
+	 * that, we clear bit 1 of peer SIDEINFO to 0, since the peer
+	 * side driver did not even get a chance to clear it before
+	 * the link went down. This can be the case of surprise link
+	 * removal.
+	 *
+	 * LINK_UP event will always occur before the peer side driver
+	 * gets loaded the very first time. So there can be a case when
+	 * the LINK_UP event has occurred, but the peer side driver hasn't
+	 * yet loaded. We return 0 in that case.
+	 *
+	 * There is also a special case when the primary side driver is
+	 * unloaded and then loaded again. Since there is no change in
+	 * the status of NTB secondary in this case, there is no Link-Up
+	 * or Link-Down notification received. We recognize this condition
+	 * with peer_sta being set to 0.
+	 *
+	 * If bit 1 of peer SIDEINFO register is not set, then we
+	 * simply return 0 irrespective of the link up or down status
+	 * set in peer_sta.
+	 */
+	ret = amd_poll_link(ndev);
+	if (ret) {
+		/*
+		 * We need to check the below only for NTB primary. For NTB
+		 * secondary, simply checking the result of PSIDE_INFO
+		 * register will suffice.
+		 */
+		if (ndev->ntb.topo == NTB_TOPO_PRI) {
+			if ((ndev->peer_sta & AMD_LINK_UP_EVENT) ||
+			    (ndev->peer_sta == 0))
+				return ret;
+			else if (ndev->peer_sta & AMD_LINK_DOWN_EVENT) {
+				/* Clear peer sideinfo register */
+				amd_clear_side_info_reg(ndev, true);
+
+				return 0;
+			}
+		} else { /* NTB_TOPO_SEC */
+			return ret;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -253,7 +381,10 @@ static int amd_ntb_link_enable(struct ntb_dev *ntb,
 {
 	struct amd_ntb_dev *ndev = ntb_ndev(ntb);
 	void __iomem *mmio = ndev->self_mmio;
+<<<<<<< HEAD
 	u32 ntb_ctl;
+=======
+>>>>>>> upstream/android-13
 
 	/* Enable event interrupt */
 	ndev->int_mask &= ~AMD_EVENT_INTMASK;
@@ -263,10 +394,13 @@ static int amd_ntb_link_enable(struct ntb_dev *ntb,
 		return -EINVAL;
 	dev_dbg(&ntb->pdev->dev, "Enabling Link.\n");
 
+<<<<<<< HEAD
 	ntb_ctl = readl(mmio + AMD_CNTL_OFFSET);
 	ntb_ctl |= (PMM_REG_CTL | SMM_REG_CTL);
 	writel(ntb_ctl, mmio + AMD_CNTL_OFFSET);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -274,7 +408,10 @@ static int amd_ntb_link_disable(struct ntb_dev *ntb)
 {
 	struct amd_ntb_dev *ndev = ntb_ndev(ntb);
 	void __iomem *mmio = ndev->self_mmio;
+<<<<<<< HEAD
 	u32 ntb_ctl;
+=======
+>>>>>>> upstream/android-13
 
 	/* Disable event interrupt */
 	ndev->int_mask |= AMD_EVENT_INTMASK;
@@ -284,10 +421,13 @@ static int amd_ntb_link_disable(struct ntb_dev *ntb)
 		return -EINVAL;
 	dev_dbg(&ntb->pdev->dev, "Enabling Link.\n");
 
+<<<<<<< HEAD
 	ntb_ctl = readl(mmio + AMD_CNTL_OFFSET);
 	ntb_ctl &= ~(PMM_REG_CTL | SMM_REG_CTL);
 	writel(ntb_ctl, mmio + AMD_CNTL_OFFSET);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -333,7 +473,11 @@ static u64 amd_ntb_db_vector_mask(struct ntb_dev *ntb, int db_vector)
 	if (db_vector < 0 || db_vector > ndev->db_count)
 		return 0;
 
+<<<<<<< HEAD
 	return ntb_ndev(ntb)->db_valid_mask & (1 << db_vector);
+=======
+	return ntb_ndev(ntb)->db_valid_mask & (1ULL << db_vector);
+>>>>>>> upstream/android-13
 }
 
 static u64 amd_ntb_db_read(struct ntb_dev *ntb)
@@ -493,8 +637,11 @@ static void amd_ack_smu(struct amd_ntb_dev *ndev, u32 bit)
 	reg = readl(mmio + AMD_SMUACK_OFFSET);
 	reg |= bit;
 	writel(reg, mmio + AMD_SMUACK_OFFSET);
+<<<<<<< HEAD
 
 	ndev->peer_sta |= bit;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
@@ -512,10 +659,23 @@ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
 	status &= AMD_EVENT_INTMASK;
 	switch (status) {
 	case AMD_PEER_FLUSH_EVENT:
+<<<<<<< HEAD
 		dev_info(dev, "Flush is done.\n");
 		break;
 	case AMD_PEER_RESET_EVENT:
 		amd_ack_smu(ndev, AMD_PEER_RESET_EVENT);
+=======
+		ndev->peer_sta |= AMD_PEER_FLUSH_EVENT;
+		dev_info(dev, "Flush is done.\n");
+		break;
+	case AMD_PEER_RESET_EVENT:
+	case AMD_LINK_DOWN_EVENT:
+		ndev->peer_sta |= status;
+		if (status == AMD_LINK_DOWN_EVENT)
+			ndev->peer_sta &= ~AMD_LINK_UP_EVENT;
+
+		amd_ack_smu(ndev, status);
+>>>>>>> upstream/android-13
 
 		/* link down first */
 		ntb_link_event(&ndev->ntb);
@@ -526,7 +686,16 @@ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
 	case AMD_PEER_D3_EVENT:
 	case AMD_PEER_PMETO_EVENT:
 	case AMD_LINK_UP_EVENT:
+<<<<<<< HEAD
 	case AMD_LINK_DOWN_EVENT:
+=======
+		ndev->peer_sta |= status;
+		if (status == AMD_LINK_UP_EVENT)
+			ndev->peer_sta &= ~AMD_LINK_DOWN_EVENT;
+		else if (status == AMD_PEER_D3_EVENT)
+			ndev->peer_sta &= ~AMD_PEER_D0_EVENT;
+
+>>>>>>> upstream/android-13
 		amd_ack_smu(ndev, status);
 
 		/* link down */
@@ -540,6 +709,11 @@ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
 		if (status & 0x1)
 			dev_info(dev, "Wakeup is done.\n");
 
+<<<<<<< HEAD
+=======
+		ndev->peer_sta |= AMD_PEER_D0_EVENT;
+		ndev->peer_sta &= ~AMD_PEER_D3_EVENT;
+>>>>>>> upstream/android-13
 		amd_ack_smu(ndev, AMD_PEER_D0_EVENT);
 
 		/* start a timer to poll link status */
@@ -550,6 +724,42 @@ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
 		dev_info(dev, "event status = 0x%x.\n", status);
 		break;
 	}
+<<<<<<< HEAD
+=======
+
+	/* Clear the interrupt status */
+	writel(status, mmio + AMD_INTSTAT_OFFSET);
+}
+
+static void amd_handle_db_event(struct amd_ntb_dev *ndev, int vec)
+{
+	struct device *dev = &ndev->ntb.pdev->dev;
+	u64 status;
+
+	status = amd_ntb_db_read(&ndev->ntb);
+
+	dev_dbg(dev, "status = 0x%llx and vec = %d\n", status, vec);
+
+	/*
+	 * Since we had reserved highest order bit of DB for signaling peer of
+	 * a special event, this is the only status bit we should be concerned
+	 * here now.
+	 */
+	if (status & BIT(ndev->db_last_bit)) {
+		ntb_db_clear(&ndev->ntb, BIT(ndev->db_last_bit));
+		/* send link down event notification */
+		ntb_link_event(&ndev->ntb);
+
+		/*
+		 * If we are here, that means the peer has signalled a special
+		 * event which notifies that the peer driver has been
+		 * un-loaded for some reason. Since there is a chance that the
+		 * peer will load its driver again sometime, we schedule link
+		 * polling routine.
+		 */
+		schedule_delayed_work(&ndev->hb_timer, AMD_LINK_HB_TIMEOUT);
+	}
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t ndev_interrupt(struct amd_ntb_dev *ndev, int vec)
@@ -559,8 +769,15 @@ static irqreturn_t ndev_interrupt(struct amd_ntb_dev *ndev, int vec)
 	if (vec > (AMD_DB_CNT - 1) || (ndev->msix_vec_count == 1))
 		amd_handle_event(ndev, vec);
 
+<<<<<<< HEAD
 	if (vec < AMD_DB_CNT)
 		ntb_db_event(&ndev->ntb, vec);
+=======
+	if (vec < AMD_DB_CNT) {
+		amd_handle_db_event(ndev, vec);
+		ntb_db_event(&ndev->ntb, vec);
+	}
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -842,6 +1059,7 @@ static inline void ndev_init_struct(struct amd_ntb_dev *ndev,
 static int amd_poll_link(struct amd_ntb_dev *ndev)
 {
 	void __iomem *mmio = ndev->peer_mmio;
+<<<<<<< HEAD
 	u32 reg, stat;
 	int rc;
 
@@ -862,6 +1080,20 @@ static int amd_poll_link(struct amd_ntb_dev *ndev)
 	ndev->lnk_sta = stat;
 
 	return 1;
+=======
+	u32 reg;
+
+	reg = readl(mmio + AMD_SIDEINFO_OFFSET);
+	reg &= AMD_SIDE_READY;
+
+	dev_dbg(&ndev->ntb.pdev->dev, "%s: reg_val = 0x%x.\n", __func__, reg);
+
+	ndev->cntl_sta = reg;
+
+	amd_ntb_get_link_status(ndev);
+
+	return ndev->cntl_sta;
+>>>>>>> upstream/android-13
 }
 
 static void amd_link_hb(struct work_struct *work)
@@ -880,11 +1112,24 @@ static int amd_init_isr(struct amd_ntb_dev *ndev)
 	return ndev_init_isr(ndev, AMD_DB_CNT, AMD_MSIX_VECTOR_CNT);
 }
 
+<<<<<<< HEAD
 static void amd_init_side_info(struct amd_ntb_dev *ndev)
 {
 	void __iomem *mmio = ndev->self_mmio;
 	unsigned int reg;
 
+=======
+static void amd_set_side_info_reg(struct amd_ntb_dev *ndev, bool peer)
+{
+	void __iomem *mmio = NULL;
+	unsigned int reg;
+
+	if (peer)
+		mmio = ndev->peer_mmio;
+	else
+		mmio = ndev->self_mmio;
+
+>>>>>>> upstream/android-13
 	reg = readl(mmio + AMD_SIDEINFO_OFFSET);
 	if (!(reg & AMD_SIDE_READY)) {
 		reg |= AMD_SIDE_READY;
@@ -892,11 +1137,24 @@ static void amd_init_side_info(struct amd_ntb_dev *ndev)
 	}
 }
 
+<<<<<<< HEAD
 static void amd_deinit_side_info(struct amd_ntb_dev *ndev)
 {
 	void __iomem *mmio = ndev->self_mmio;
 	unsigned int reg;
 
+=======
+static void amd_clear_side_info_reg(struct amd_ntb_dev *ndev, bool peer)
+{
+	void __iomem *mmio = NULL;
+	unsigned int reg;
+
+	if (peer)
+		mmio = ndev->peer_mmio;
+	else
+		mmio = ndev->self_mmio;
+
+>>>>>>> upstream/android-13
 	reg = readl(mmio + AMD_SIDEINFO_OFFSET);
 	if (reg & AMD_SIDE_READY) {
 		reg &= ~AMD_SIDE_READY;
@@ -905,11 +1163,42 @@ static void amd_deinit_side_info(struct amd_ntb_dev *ndev)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void amd_init_side_info(struct amd_ntb_dev *ndev)
+{
+	void __iomem *mmio = ndev->self_mmio;
+	u32 ntb_ctl;
+
+	amd_set_side_info_reg(ndev, false);
+
+	ntb_ctl = readl(mmio + AMD_CNTL_OFFSET);
+	ntb_ctl |= (PMM_REG_CTL | SMM_REG_CTL);
+	writel(ntb_ctl, mmio + AMD_CNTL_OFFSET);
+}
+
+static void amd_deinit_side_info(struct amd_ntb_dev *ndev)
+{
+	void __iomem *mmio = ndev->self_mmio;
+	u32 ntb_ctl;
+
+	amd_clear_side_info_reg(ndev, false);
+
+	ntb_ctl = readl(mmio + AMD_CNTL_OFFSET);
+	ntb_ctl &= ~(PMM_REG_CTL | SMM_REG_CTL);
+	writel(ntb_ctl, mmio + AMD_CNTL_OFFSET);
+}
+
+>>>>>>> upstream/android-13
 static int amd_init_ntb(struct amd_ntb_dev *ndev)
 {
 	void __iomem *mmio = ndev->self_mmio;
 
+<<<<<<< HEAD
 	ndev->mw_count = AMD_MW_CNT;
+=======
+	ndev->mw_count = ndev->dev_data->mw_count;
+>>>>>>> upstream/android-13
 	ndev->spad_count = AMD_SPADS_CNT;
 	ndev->db_count = AMD_DB_CNT;
 
@@ -935,8 +1224,11 @@ static int amd_init_ntb(struct amd_ntb_dev *ndev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ndev->db_valid_mask = BIT_ULL(ndev->db_count) - 1;
 
+=======
+>>>>>>> upstream/android-13
 	/* Mask event interrupts */
 	writel(ndev->int_mask, mmio + AMD_INTMASK_OFFSET);
 
@@ -957,6 +1249,10 @@ static enum ntb_topo amd_get_topo(struct amd_ntb_dev *ndev)
 
 static int amd_init_dev(struct amd_ntb_dev *ndev)
 {
+<<<<<<< HEAD
+=======
+	void __iomem *mmio = ndev->self_mmio;
+>>>>>>> upstream/android-13
 	struct pci_dev *pdev;
 	int rc = 0;
 
@@ -977,6 +1273,28 @@ static int amd_init_dev(struct amd_ntb_dev *ndev)
 	}
 
 	ndev->db_valid_mask = BIT_ULL(ndev->db_count) - 1;
+<<<<<<< HEAD
+=======
+	/*
+	 * We reserve the highest order bit of the DB register which will
+	 * be used to notify peer when the driver on this side is being
+	 * un-loaded.
+	 */
+	ndev->db_last_bit =
+			find_last_bit((unsigned long *)&ndev->db_valid_mask,
+				      hweight64(ndev->db_valid_mask));
+	writew((u16)~BIT(ndev->db_last_bit), mmio + AMD_DBMASK_OFFSET);
+	/*
+	 * Since now there is one less bit to account for, the DB count
+	 * and DB mask should be adjusted accordingly.
+	 */
+	ndev->db_count -= 1;
+	ndev->db_valid_mask = BIT_ULL(ndev->db_count) - 1;
+
+	/* Enable Link-Up and Link-Down event interrupts */
+	ndev->int_mask &= ~(AMD_LINK_UP_EVENT | AMD_LINK_DOWN_EVENT);
+	writel(ndev->int_mask, mmio + AMD_INTMASK_OFFSET);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1005,14 +1323,21 @@ static int amd_ntb_init_pci(struct amd_ntb_dev *ndev,
 
 	pci_set_master(pdev);
 
+<<<<<<< HEAD
 	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (rc) {
 		rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (rc) {
+		rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (rc)
 			goto err_dma_mask;
 		dev_warn(&pdev->dev, "Cannot DMA highmem\n");
 	}
 
+<<<<<<< HEAD
 	rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (rc) {
 		rc = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
@@ -1025,6 +1350,8 @@ static int amd_ntb_init_pci(struct amd_ntb_dev *ndev,
 	if (rc)
 		goto err_dma_mask;
 
+=======
+>>>>>>> upstream/android-13
 	ndev->self_mmio = pci_iomap(pdev, 0, 0);
 	if (!ndev->self_mmio) {
 		rc = -EIO;
@@ -1070,6 +1397,11 @@ static int amd_ntb_pci_probe(struct pci_dev *pdev,
 		goto err_ndev;
 	}
 
+<<<<<<< HEAD
+=======
+	ndev->dev_data = (struct ntb_dev_data *)id->driver_data;
+
+>>>>>>> upstream/android-13
 	ndev_init_struct(ndev, pdev);
 
 	rc = amd_ntb_init_pci(ndev, pdev);
@@ -1110,9 +1442,37 @@ static void amd_ntb_pci_remove(struct pci_dev *pdev)
 {
 	struct amd_ntb_dev *ndev = pci_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	ntb_unregister_device(&ndev->ntb);
 	ndev_deinit_debugfs(ndev);
 	amd_deinit_side_info(ndev);
+=======
+	/*
+	 * Clear the READY bit in SIDEINFO register before sending DB event
+	 * to the peer. This will make sure that when the peer handles the
+	 * DB event, it correctly reads this bit as being 0.
+	 */
+	amd_deinit_side_info(ndev);
+	ntb_peer_db_set(&ndev->ntb, BIT_ULL(ndev->db_last_bit));
+	ntb_unregister_device(&ndev->ntb);
+	ndev_deinit_debugfs(ndev);
+	amd_deinit_dev(ndev);
+	amd_ntb_deinit_pci(ndev);
+	kfree(ndev);
+}
+
+static void amd_ntb_pci_shutdown(struct pci_dev *pdev)
+{
+	struct amd_ntb_dev *ndev = pci_get_drvdata(pdev);
+
+	/* Send link down notification */
+	ntb_link_event(&ndev->ntb);
+
+	amd_deinit_side_info(ndev);
+	ntb_peer_db_set(&ndev->ntb, BIT_ULL(ndev->db_last_bit));
+	ntb_unregister_device(&ndev->ntb);
+	ndev_deinit_debugfs(ndev);
+>>>>>>> upstream/android-13
 	amd_deinit_dev(ndev);
 	amd_ntb_deinit_pci(ndev);
 	kfree(ndev);
@@ -1124,9 +1484,28 @@ static const struct file_operations amd_ntb_debugfs_info = {
 	.read = ndev_debugfs_read,
 };
 
+<<<<<<< HEAD
 static const struct pci_device_id amd_ntb_pci_tbl[] = {
 	{PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_NTB)},
 	{0}
+=======
+static const struct ntb_dev_data dev_data[] = {
+	{ /* for device 145b */
+		.mw_count = 3,
+		.mw_idx = 1,
+	},
+	{ /* for device 148b */
+		.mw_count = 2,
+		.mw_idx = 2,
+	},
+};
+
+static const struct pci_device_id amd_ntb_pci_tbl[] = {
+	{ PCI_VDEVICE(AMD, 0x145b), (kernel_ulong_t)&dev_data[0] },
+	{ PCI_VDEVICE(AMD, 0x148b), (kernel_ulong_t)&dev_data[1] },
+	{ PCI_VDEVICE(HYGON, 0x145b), (kernel_ulong_t)&dev_data[0] },
+	{ 0, }
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(pci, amd_ntb_pci_tbl);
 
@@ -1135,6 +1514,10 @@ static struct pci_driver amd_ntb_pci_driver = {
 	.id_table	= amd_ntb_pci_tbl,
 	.probe		= amd_ntb_pci_probe,
 	.remove		= amd_ntb_pci_remove,
+<<<<<<< HEAD
+=======
+	.shutdown	= amd_ntb_pci_shutdown,
+>>>>>>> upstream/android-13
 };
 
 static int __init amd_ntb_pci_driver_init(void)

@@ -11,9 +11,14 @@
 
 #include <linux/kernel.h>
 #include <linux/input.h>
+<<<<<<< HEAD
 #include <linux/gpio_keys.h>
 #include <linux/sec_debug.h>
 
+=======
+#include <linux/sec_debug.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include "sec_key_notifier.h"
 
 /* Input sequence 9530 */
@@ -191,11 +196,18 @@ static void reset_count(void)
 	SEC_LOG("");
 }
 
+<<<<<<< HEAD
 int check_crash_keys_in_user(struct notifier_block *this,
 				unsigned long type, void *data)
 {
 	struct sec_key_notifier_param *param = data;
 
+=======
+static int check_crash_keys_in_user(struct notifier_block *nb,
+				unsigned long type, void *data)
+{
+	struct sec_key_notifier_param *param = data;
+>>>>>>> upstream/android-13
 	unsigned int code = param->keycode;
 	int state = param->down;
 
@@ -216,7 +228,11 @@ int check_crash_keys_in_user(struct notifier_block *this,
 			if (is_key_matched_for_current_step(code)) {
 				increase_count();
 			} else {
+<<<<<<< HEAD
 				pr_info("%s: crash key reset\n", "sec_upload");
+=======
+				pr_info("%s: crash key count reset\n", "sec_upload");
+>>>>>>> upstream/android-13
 				reset_count();
 				reset_step();
 			}
@@ -227,7 +243,11 @@ int check_crash_keys_in_user(struct notifier_block *this,
 	} else {
 		set_key_state_up(code);
 		if (is_hold_key(code)) {
+<<<<<<< HEAD
 			pr_info("%s: crash key reset\n", "sec_upload");
+=======
+			pr_info("%s: crash key count reset\n", "sec_upload");
+>>>>>>> upstream/android-13
 			set_hold_key_hold(KEY_STATE_UP);
 			reset_step();
 			reset_count();
@@ -236,6 +256,7 @@ int check_crash_keys_in_user(struct notifier_block *this,
 	return NOTIFY_OK;
 }
 
+<<<<<<< HEAD
 static struct notifier_block sec_user_debug_keyboard_notifier = {
 	.notifier_call = check_crash_keys_in_user,
 };
@@ -255,3 +276,30 @@ static int __init sec_debug_init_crash_key_user(void)
 	return 0;
 }
 fs_initcall_sync(sec_debug_init_crash_key_user);
+=======
+static struct notifier_block seccmn_user_crash_key_notifier = {
+	.notifier_call = check_crash_keys_in_user
+};
+
+static int __init sec_crash_key_user_init(void)
+{
+	int ret = 0;
+
+	/* only work for debug level is low */
+	if (!secdbg_mode_enter_upload())
+		ret = sec_kn_register_notifier(&seccmn_user_crash_key_notifier);
+
+	return ret;
+}
+
+static void sec_crash_key_user_exit(void)
+{
+	sec_kn_unregister_notifier(&seccmn_user_crash_key_notifier);
+}
+
+module_init(sec_crash_key_user_init);
+module_exit(sec_crash_key_user_exit);
+
+MODULE_DESCRIPTION("Samsung Crash-key-user driver");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

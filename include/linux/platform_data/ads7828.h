@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * TI ADS7828 A/D Converter platform data definition
  *
  * Copyright (c) 2012 Savoir-faire Linux Inc.
  *          Vivien Didelot <vivien.didelot@savoirfairelinux.com>
  *
+<<<<<<< HEAD
  * For further information, see the Documentation/hwmon/ads7828 file.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * For further information, see the Documentation/hwmon/ads7828.rst file.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PDATA_ADS7828_H

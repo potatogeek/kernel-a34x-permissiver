@@ -33,7 +33,11 @@
  *	-- Nick Holloway <alfie@dcs.warwick.ac.uk>, 27th May 1993.
  *
  * Rewrote canonical mode and added more termios flags.
+<<<<<<< HEAD
  * 	-- julian@uhunix.uhcc.hawaii.edu (J. Cowley), 13Jan94
+=======
+ *	-- julian@uhunix.uhcc.hawaii.edu (J. Cowley), 13Jan94
+>>>>>>> upstream/android-13
  *
  * Reorganized FASYNC support so mouse code can share it.
  *	-- ctm@ardi.com, 9Sep95
@@ -87,6 +91,10 @@
 #include <linux/string.h>
 #include <linux/slab.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
+=======
+#include <linux/ppp-ioctl.h>
+>>>>>>> upstream/android-13
 #include <linux/proc_fs.h>
 #include <linux/init.h>
 #include <linux/module.h>
@@ -97,6 +105,10 @@
 #include <linux/seq_file.h>
 #include <linux/serial.h>
 #include <linux/ratelimit.h>
+<<<<<<< HEAD
+=======
+#include <linux/compat.h>
+>>>>>>> upstream/android-13
 
 #include <linux/uaccess.h>
 
@@ -106,6 +118,10 @@
 
 #include <linux/kmod.h>
 #include <linux/nsproxy.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 #undef TTY_DEBUG_HANGUP
 #ifdef TTY_DEBUG_HANGUP
@@ -128,18 +144,28 @@ struct ktermios tty_std_termios = {	/* for the benefit of tty drivers  */
 	.c_ospeed = 38400,
 	/* .c_line = N_TTY, */
 };
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(tty_std_termios);
 
 /* This list gets poked at by procfs and various bits of boot up code. This
    could do with some rationalisation such as pulling the tty proc function
    into this file */
+=======
+EXPORT_SYMBOL(tty_std_termios);
+
+/* This list gets poked at by procfs and various bits of boot up code. This
+ * could do with some rationalisation such as pulling the tty proc function
+ * into this file.
+ */
+>>>>>>> upstream/android-13
 
 LIST_HEAD(tty_drivers);			/* linked list of tty drivers */
 
 /* Mutex to protect creating and releasing a tty */
 DEFINE_MUTEX(tty_mutex);
 
+<<<<<<< HEAD
 static ssize_t tty_read(struct file *, char __user *, size_t, loff_t *);
 static ssize_t tty_write(struct file *, const char __user *, size_t, loff_t *);
 ssize_t redirected_tty_write(struct file *, const char __user *,
@@ -147,6 +173,12 @@ ssize_t redirected_tty_write(struct file *, const char __user *,
 static __poll_t tty_poll(struct file *, poll_table *);
 static int tty_open(struct inode *, struct file *);
 long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+=======
+static ssize_t tty_read(struct kiocb *, struct iov_iter *);
+static ssize_t tty_write(struct kiocb *, struct iov_iter *);
+static __poll_t tty_poll(struct file *, poll_table *);
+static int tty_open(struct inode *, struct file *);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT
 static long tty_compat_ioctl(struct file *file, unsigned int cmd,
 				unsigned long arg);
@@ -206,7 +238,11 @@ void tty_add_file(struct tty_struct *tty, struct file *file)
 	spin_unlock(&tty->files_lock);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * tty_free_file - free file->private_data
  *
  * This shall be used only for fail path handling when tty_add_file was not
@@ -248,7 +284,10 @@ const char *tty_name(const struct tty_struct *tty)
 		return "NULL tty";
 	return tty->name;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(tty_name);
 
 const char *tty_driver_name(const struct tty_struct *tty)
@@ -305,7 +344,11 @@ static int check_tty_count(struct tty_struct *tty, const char *routine)
 
 /**
  *	get_tty_driver		-	find device of a tty
+<<<<<<< HEAD
  *	@dev_t: device identifier
+=======
+ *	@device: device identifier
+>>>>>>> upstream/android-13
  *	@index: returns the index of the tty
  *
  *	This routine returns a tty driver structure, given a device number
@@ -320,6 +363,10 @@ static struct tty_driver *get_tty_driver(dev_t device, int *index)
 
 	list_for_each_entry(p, &tty_drivers, tty_drivers) {
 		dev_t base = MKDEV(p->major, p->minor_start);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (device < base || device >= base + p->num)
 			continue;
 		*index = device - base;
@@ -430,14 +477,22 @@ struct tty_driver *tty_find_polling_driver(char *name, int *line)
 EXPORT_SYMBOL_GPL(tty_find_polling_driver);
 #endif
 
+<<<<<<< HEAD
 static ssize_t hung_up_tty_read(struct file *file, char __user *buf,
 				size_t count, loff_t *ppos)
+=======
+static ssize_t hung_up_tty_read(struct kiocb *iocb, struct iov_iter *to)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t hung_up_tty_write(struct file *file, const char __user *buf,
 				 size_t count, loff_t *ppos)
+=======
+static ssize_t hung_up_tty_write(struct kiocb *iocb, struct iov_iter *from)
+>>>>>>> upstream/android-13
 {
 	return -EIO;
 }
@@ -475,8 +530,15 @@ static void tty_show_fdinfo(struct seq_file *m, struct file *file)
 
 static const struct file_operations tty_fops = {
 	.llseek		= no_llseek,
+<<<<<<< HEAD
 	.read		= tty_read,
 	.write		= tty_write,
+=======
+	.read_iter	= tty_read,
+	.write_iter	= tty_write,
+	.splice_read	= generic_file_splice_read,
+	.splice_write	= iter_file_splice_write,
+>>>>>>> upstream/android-13
 	.poll		= tty_poll,
 	.unlocked_ioctl	= tty_ioctl,
 	.compat_ioctl	= tty_compat_ioctl,
@@ -488,8 +550,15 @@ static const struct file_operations tty_fops = {
 
 static const struct file_operations console_fops = {
 	.llseek		= no_llseek,
+<<<<<<< HEAD
 	.read		= tty_read,
 	.write		= redirected_tty_write,
+=======
+	.read_iter	= tty_read,
+	.write_iter	= redirected_tty_write,
+	.splice_read	= generic_file_splice_read,
+	.splice_write	= iter_file_splice_write,
+>>>>>>> upstream/android-13
 	.poll		= tty_poll,
 	.unlocked_ioctl	= tty_ioctl,
 	.compat_ioctl	= tty_compat_ioctl,
@@ -500,8 +569,13 @@ static const struct file_operations console_fops = {
 
 static const struct file_operations hung_up_tty_fops = {
 	.llseek		= no_llseek,
+<<<<<<< HEAD
 	.read		= hung_up_tty_read,
 	.write		= hung_up_tty_write,
+=======
+	.read_iter	= hung_up_tty_read,
+	.write_iter	= hung_up_tty_write,
+>>>>>>> upstream/android-13
 	.poll		= hung_up_tty_poll,
 	.unlocked_ioctl	= hung_up_tty_ioctl,
 	.compat_ioctl	= hung_up_tty_compat_ioctl,
@@ -512,8 +586,11 @@ static const struct file_operations hung_up_tty_fops = {
 static DEFINE_SPINLOCK(redirect_lock);
 static struct file *redirect;
 
+<<<<<<< HEAD
 extern void tty_sysctl_init(void);
 
+=======
+>>>>>>> upstream/android-13
 /**
  *	tty_wakeup	-	request more data
  *	@tty: terminal
@@ -537,12 +614,42 @@ void tty_wakeup(struct tty_struct *tty)
 	}
 	wake_up_interruptible_poll(&tty->write_wait, EPOLLOUT);
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL_GPL(tty_wakeup);
 
 /**
  *	__tty_hangup		-	actual handler for hangup events
  *	@work: tty device
+=======
+EXPORT_SYMBOL_GPL(tty_wakeup);
+
+/**
+ *	tty_release_redirect	-	Release a redirect on a pty if present
+ *	@tty: tty device
+ *
+ *	This is available to the pty code so if the master closes, if the
+ *	slave is a redirect it can release the redirect.
+ */
+static struct file *tty_release_redirect(struct tty_struct *tty)
+{
+	struct file *f = NULL;
+
+	spin_lock(&redirect_lock);
+	if (redirect && file_tty(redirect) == tty) {
+		f = redirect;
+		redirect = NULL;
+	}
+	spin_unlock(&redirect_lock);
+
+	return f;
+}
+
+/**
+ *	__tty_hangup		-	actual handler for hangup events
+ *	@tty: tty device
+ *	@exit_session: if non-zero, signal all foreground group processes
+>>>>>>> upstream/android-13
  *
  *	This can be called by a "kworker" kernel thread.  That is process
  *	synchronous but doesn't hold any locks, so we need to make sure we
@@ -565,7 +672,11 @@ EXPORT_SYMBOL_GPL(tty_wakeup);
 static void __tty_hangup(struct tty_struct *tty, int exit_session)
 {
 	struct file *cons_filp = NULL;
+<<<<<<< HEAD
 	struct file *filp, *f = NULL;
+=======
+	struct file *filp, *f;
+>>>>>>> upstream/android-13
 	struct tty_file_private *priv;
 	int    closecount = 0, n;
 	int refs;
@@ -573,6 +684,7 @@ static void __tty_hangup(struct tty_struct *tty, int exit_session)
 	if (!tty)
 		return;
 
+<<<<<<< HEAD
 
 	spin_lock(&redirect_lock);
 	if (redirect && file_tty(redirect) == tty) {
@@ -580,6 +692,9 @@ static void __tty_hangup(struct tty_struct *tty, int exit_session)
 		redirect = NULL;
 	}
 	spin_unlock(&redirect_lock);
+=======
+	f = tty_release_redirect(tty);
+>>>>>>> upstream/android-13
 
 	tty_lock(tty);
 
@@ -597,17 +712,29 @@ static void __tty_hangup(struct tty_struct *tty, int exit_session)
 	set_bit(TTY_HUPPING, &tty->flags);
 
 	/* inuse_filps is protected by the single tty lock,
+<<<<<<< HEAD
 	   this really needs to change if we want to flush the
 	   workqueue with the lock held */
+=======
+	 * this really needs to change if we want to flush the
+	 * workqueue with the lock held.
+	 */
+>>>>>>> upstream/android-13
 	check_tty_count(tty, "tty_hangup");
 
 	spin_lock(&tty->files_lock);
 	/* This breaks for file handles being sent over AF_UNIX sockets ? */
 	list_for_each_entry(priv, &tty->tty_files, list) {
 		filp = priv->file;
+<<<<<<< HEAD
 		if (filp->f_op->write == redirected_tty_write)
 			cons_filp = filp;
 		if (filp->f_op->write != tty_write)
+=======
+		if (filp->f_op->write_iter == redirected_tty_write)
+			cons_filp = filp;
+		if (filp->f_op->write_iter != tty_write)
+>>>>>>> upstream/android-13
 			continue;
 		closecount++;
 		__tty_fasync(-1, filp, 0);	/* can't block */
@@ -622,6 +749,7 @@ static void __tty_hangup(struct tty_struct *tty, int exit_session)
 
 	tty_ldisc_hangup(tty, cons_filp != NULL);
 
+<<<<<<< HEAD
 	spin_lock_irq(&tty->ctrl_lock);
 	clear_bit(TTY_THROTTLED, &tty->flags);
 	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
@@ -631,6 +759,17 @@ static void __tty_hangup(struct tty_struct *tty, int exit_session)
 	tty->pgrp = NULL;
 	tty->ctrl_status = 0;
 	spin_unlock_irq(&tty->ctrl_lock);
+=======
+	spin_lock_irq(&tty->ctrl.lock);
+	clear_bit(TTY_THROTTLED, &tty->flags);
+	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+	put_pid(tty->ctrl.session);
+	put_pid(tty->ctrl.pgrp);
+	tty->ctrl.session = NULL;
+	tty->ctrl.pgrp = NULL;
+	tty->ctrl.pktstatus = 0;
+	spin_unlock_irq(&tty->ctrl.lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If one of the devices matches a console pointer, we
@@ -678,7 +817,10 @@ void tty_hangup(struct tty_struct *tty)
 	tty_debug_hangup(tty, "hangup\n");
 	schedule_work(&tty->hangup_work);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(tty_hangup);
 
 /**
@@ -695,7 +837,10 @@ void tty_vhangup(struct tty_struct *tty)
 	tty_debug_hangup(tty, "vhangup\n");
 	__tty_hangup(tty, 0);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(tty_vhangup);
 
 
@@ -745,9 +890,23 @@ int tty_hung_up_p(struct file *filp)
 {
 	return (filp && filp->f_op == &hung_up_tty_fops);
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(tty_hung_up_p);
 
+=======
+EXPORT_SYMBOL(tty_hung_up_p);
+
+void __stop_tty(struct tty_struct *tty)
+{
+	if (tty->flow.stopped)
+		return;
+	tty->flow.stopped = true;
+	if (tty->ops->stop)
+		tty->ops->stop(tty);
+}
+
+>>>>>>> upstream/android-13
 /**
  *	stop_tty	-	propagate flow control
  *	@tty: tty to stop
@@ -762,6 +921,7 @@ EXPORT_SYMBOL(tty_hung_up_p);
  *	but not always.
  *
  *	Locking:
+<<<<<<< HEAD
  *		flow_lock
  */
 
@@ -774,16 +934,39 @@ void __stop_tty(struct tty_struct *tty)
 		tty->ops->stop(tty);
 }
 
+=======
+ *		flow.lock
+ */
+>>>>>>> upstream/android-13
 void stop_tty(struct tty_struct *tty)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&tty->flow_lock, flags);
 	__stop_tty(tty);
 	spin_unlock_irqrestore(&tty->flow_lock, flags);
 }
 EXPORT_SYMBOL(stop_tty);
 
+=======
+	spin_lock_irqsave(&tty->flow.lock, flags);
+	__stop_tty(tty);
+	spin_unlock_irqrestore(&tty->flow.lock, flags);
+}
+EXPORT_SYMBOL(stop_tty);
+
+void __start_tty(struct tty_struct *tty)
+{
+	if (!tty->flow.stopped || tty->flow.tco_stopped)
+		return;
+	tty->flow.stopped = false;
+	if (tty->ops->start)
+		tty->ops->start(tty);
+	tty_wakeup(tty);
+}
+
+>>>>>>> upstream/android-13
 /**
  *	start_tty	-	propagate flow control
  *	@tty: tty to start
@@ -793,6 +976,7 @@ EXPORT_SYMBOL(stop_tty);
  *	start method is invoked and the line discipline woken.
  *
  *	Locking:
+<<<<<<< HEAD
  *		flow_lock
  */
 
@@ -806,13 +990,23 @@ void __start_tty(struct tty_struct *tty)
 	tty_wakeup(tty);
 }
 
+=======
+ *		flow.lock
+ */
+>>>>>>> upstream/android-13
 void start_tty(struct tty_struct *tty)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&tty->flow_lock, flags);
 	__start_tty(tty);
 	spin_unlock_irqrestore(&tty->flow_lock, flags);
+=======
+	spin_lock_irqsave(&tty->flow.lock, flags);
+	__start_tty(tty);
+	spin_unlock_irqrestore(&tty->flow.lock, flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(start_tty);
 
@@ -830,12 +1024,85 @@ static void tty_update_time(struct timespec64 *time)
 		time->tv_sec = sec;
 }
 
+<<<<<<< HEAD
 /**
  *	tty_read	-	read method for tty device files
  *	@file: pointer to tty file
  *	@buf: user buffer
  *	@count: size of user buffer
  *	@ppos: unused
+=======
+/*
+ * Iterate on the ldisc ->read() function until we've gotten all
+ * the data the ldisc has for us.
+ *
+ * The "cookie" is something that the ldisc read function can fill
+ * in to let us know that there is more data to be had.
+ *
+ * We promise to continue to call the ldisc until it stops returning
+ * data or clears the cookie. The cookie may be something that the
+ * ldisc maintains state for and needs to free.
+ */
+static int iterate_tty_read(struct tty_ldisc *ld, struct tty_struct *tty,
+		struct file *file, struct iov_iter *to)
+{
+	int retval = 0;
+	void *cookie = NULL;
+	unsigned long offset = 0;
+	char kernel_buf[64];
+	size_t count = iov_iter_count(to);
+
+	do {
+		int size, copied;
+
+		size = count > sizeof(kernel_buf) ? sizeof(kernel_buf) : count;
+		size = ld->ops->read(tty, file, kernel_buf, size, &cookie, offset);
+		if (!size)
+			break;
+
+		if (size < 0) {
+			/* Did we have an earlier error (ie -EFAULT)? */
+			if (retval)
+				break;
+			retval = size;
+
+			/*
+			 * -EOVERFLOW means we didn't have enough space
+			 * for a whole packet, and we shouldn't return
+			 * a partial result.
+			 */
+			if (retval == -EOVERFLOW)
+				offset = 0;
+			break;
+		}
+
+		copied = copy_to_iter(kernel_buf, size, to);
+		offset += copied;
+		count -= copied;
+
+		/*
+		 * If the user copy failed, we still need to do another ->read()
+		 * call if we had a cookie to let the ldisc clear up.
+		 *
+		 * But make sure size is zeroed.
+		 */
+		if (unlikely(copied != size)) {
+			count = 0;
+			retval = -EFAULT;
+		}
+	} while (cookie);
+
+	/* We always clear tty buffer in case they contained passwords */
+	memzero_explicit(kernel_buf, sizeof(kernel_buf));
+	return offset ? offset : retval;
+}
+
+
+/**
+ *	tty_read	-	read method for tty device files
+ *	@iocb: kernel I/O control block
+ *	@to: destination for the data read
+>>>>>>> upstream/android-13
  *
  *	Perform the read system call function on this terminal device. Checks
  *	for hung up devices before calling the line discipline method.
@@ -845,10 +1112,17 @@ static void tty_update_time(struct timespec64 *time)
  *	read calls may be outstanding in parallel.
  */
 
+<<<<<<< HEAD
 static ssize_t tty_read(struct file *file, char __user *buf, size_t count,
 			loff_t *ppos)
 {
 	int i;
+=======
+static ssize_t tty_read(struct kiocb *iocb, struct iov_iter *to)
+{
+	int i;
+	struct file *file = iocb->ki_filp;
+>>>>>>> upstream/android-13
 	struct inode *inode = file_inode(file);
 	struct tty_struct *tty = file_tty(file);
 	struct tty_ldisc *ld;
@@ -859,6 +1133,7 @@ static ssize_t tty_read(struct file *file, char __user *buf, size_t count,
 		return -EIO;
 
 	/* We want to wait for the line discipline to sort out in this
+<<<<<<< HEAD
 	   situation */
 	ld = tty_ldisc_ref_wait(tty);
 	if (!ld)
@@ -867,6 +1142,16 @@ static ssize_t tty_read(struct file *file, char __user *buf, size_t count,
 		i = ld->ops->read(tty, file, buf, count);
 	else
 		i = -EIO;
+=======
+	 * situation.
+	 */
+	ld = tty_ldisc_ref_wait(tty);
+	if (!ld)
+		return hung_up_tty_read(iocb, to);
+	i = -EIO;
+	if (ld->ops->read)
+		i = iterate_tty_read(ld, tty, file, to);
+>>>>>>> upstream/android-13
 	tty_ldisc_deref(ld);
 
 	if (i > 0)
@@ -900,9 +1185,15 @@ static inline ssize_t do_tty_write(
 	ssize_t (*write)(struct tty_struct *, struct file *, const unsigned char *, size_t),
 	struct tty_struct *tty,
 	struct file *file,
+<<<<<<< HEAD
 	const char __user *buf,
 	size_t count)
 {
+=======
+	struct iov_iter *from)
+{
+	size_t count = iov_iter_count(from);
+>>>>>>> upstream/android-13
 	ssize_t ret, written = 0;
 	unsigned int chunk;
 
@@ -952,6 +1243,7 @@ static inline ssize_t do_tty_write(
 	/* Do the write .. */
 	for (;;) {
 		size_t size = count;
+<<<<<<< HEAD
 		if (size > chunk)
 			size = chunk;
 		ret = -EFAULT;
@@ -962,6 +1254,28 @@ static inline ssize_t do_tty_write(
 			break;
 		written += ret;
 		buf += ret;
+=======
+
+		if (size > chunk)
+			size = chunk;
+
+		ret = -EFAULT;
+		if (copy_from_iter(tty->write_buf, size, from) != size)
+			break;
+
+		ret = write(tty, file, tty->write_buf, size);
+		if (ret <= 0)
+			break;
+
+		written += ret;
+		if (ret > size)
+			break;
+
+		/* FIXME! Have Al check this! */
+		if (ret != size)
+			iov_iter_revert(from, size-ret);
+
+>>>>>>> upstream/android-13
 		count -= ret;
 		if (!count)
 			break;
@@ -1001,6 +1315,7 @@ void tty_write_message(struct tty_struct *tty, char *msg)
 		tty_unlock(tty);
 		tty_write_unlock(tty);
 	}
+<<<<<<< HEAD
 	return;
 }
 
@@ -1011,12 +1326,45 @@ void tty_write_message(struct tty_struct *tty, char *msg)
  *	@buf: user data to write
  *	@count: bytes to write
  *	@ppos: unused
+=======
+}
+
+static ssize_t file_tty_write(struct file *file, struct kiocb *iocb, struct iov_iter *from)
+{
+	struct tty_struct *tty = file_tty(file);
+	struct tty_ldisc *ld;
+	ssize_t ret;
+
+	if (tty_paranoia_check(tty, file_inode(file), "tty_write"))
+		return -EIO;
+	if (!tty || !tty->ops->write ||	tty_io_error(tty))
+		return -EIO;
+	/* Short term debug to catch buggy drivers */
+	if (tty->ops->write_room == NULL)
+		tty_err(tty, "missing write_room method\n");
+	ld = tty_ldisc_ref_wait(tty);
+	if (!ld)
+		return hung_up_tty_write(iocb, from);
+	if (!ld->ops->write)
+		ret = -EIO;
+	else
+		ret = do_tty_write(ld->ops->write, tty, file, from);
+	tty_ldisc_deref(ld);
+	return ret;
+}
+
+/**
+ *	tty_write		-	write method for tty device file
+ *	@iocb: kernel I/O control block
+ *	@from: iov_iter with data to write
+>>>>>>> upstream/android-13
  *
  *	Write data to a tty device via the line discipline.
  *
  *	Locking:
  *		Locks the line discipline as required
  *		Writes to the tty driver are serialized by the atomic_write_lock
+<<<<<<< HEAD
  *	and are then processed in chunks to the device. The line discipline
  *	write method will not be invoked in parallel for each device.
  */
@@ -1048,6 +1396,18 @@ static ssize_t tty_write(struct file *file, const char __user *buf,
 
 ssize_t redirected_tty_write(struct file *file, const char __user *buf,
 						size_t count, loff_t *ppos)
+=======
+ *		and are then processed in chunks to the device. The line
+ *		discipline write method will not be invoked in parallel for
+ *		each device.
+ */
+static ssize_t tty_write(struct kiocb *iocb, struct iov_iter *from)
+{
+	return file_tty_write(iocb->ki_filp, iocb, from);
+}
+
+ssize_t redirected_tty_write(struct kiocb *iocb, struct iov_iter *iter)
+>>>>>>> upstream/android-13
 {
 	struct file *p = NULL;
 
@@ -1056,6 +1416,7 @@ ssize_t redirected_tty_write(struct file *file, const char __user *buf,
 		p = get_file(redirect);
 	spin_unlock(&redirect_lock);
 
+<<<<<<< HEAD
 	if (p) {
 		ssize_t res;
 		res = vfs_write(p, buf, count, &p->f_pos);
@@ -1066,6 +1427,23 @@ ssize_t redirected_tty_write(struct file *file, const char __user *buf,
 }
 
 /**
+=======
+	/*
+	 * We know the redirected tty is just another tty, we can
+	 * call file_tty_write() directly with that file pointer.
+	 */
+	if (p) {
+		ssize_t res;
+
+		res = file_tty_write(p, iocb, iter);
+		fput(p);
+		return res;
+	}
+	return tty_write(iocb, iter);
+}
+
+/*
+>>>>>>> upstream/android-13
  *	tty_send_xchar	-	send priority character
  *
  *	Send a high priority character to the tty even if stopped
@@ -1075,7 +1453,11 @@ ssize_t redirected_tty_write(struct file *file, const char __user *buf,
 
 int tty_send_xchar(struct tty_struct *tty, char ch)
 {
+<<<<<<< HEAD
 	int	was_stopped = tty->stopped;
+=======
+	bool was_stopped = tty->flow.stopped;
+>>>>>>> upstream/android-13
 
 	if (tty->ops->send_xchar) {
 		down_read(&tty->termios_rwsem);
@@ -1098,8 +1480,11 @@ int tty_send_xchar(struct tty_struct *tty, char ch)
 	return 0;
 }
 
+<<<<<<< HEAD
 static char ptychar[] = "pqrstuvwxyzabcde";
 
+=======
+>>>>>>> upstream/android-13
 /**
  *	pty_line_name	-	generate name for a pty
  *	@driver: the tty driver in use
@@ -1113,6 +1498,10 @@ static char ptychar[] = "pqrstuvwxyzabcde";
  */
 static void pty_line_name(struct tty_driver *driver, int index, char *p)
 {
+<<<<<<< HEAD
+=======
+	static const char ptychar[] = "pqrstuvwxyzabcde";
+>>>>>>> upstream/android-13
 	int i = index + driver->name_base;
 	/* ->name is initialized to "ttyp", but "tty" is expected */
 	sprintf(p, "%s%c%x",
@@ -1143,6 +1532,10 @@ static ssize_t tty_line_name(struct tty_driver *driver, int index, char *p)
 /**
  *	tty_driver_lookup_tty() - find an existing tty, if any
  *	@driver: the driver for the tty
+<<<<<<< HEAD
+=======
+ *	@file:   file object
+>>>>>>> upstream/android-13
  *	@idx:	 the minor number
  *
  *	Return the tty, if found. If not found, return NULL or ERR_PTR() if the
@@ -1172,7 +1565,11 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
  *	tty_init_termios	-  helper for termios setup
  *	@tty: the tty to set up
  *
+<<<<<<< HEAD
  *	Initialise the termios structures for this tty. Thus runs under
+=======
+ *	Initialise the termios structure for this tty. This runs under
+>>>>>>> upstream/android-13
  *	the tty_mutex currently so we can be relaxed about ordering.
  */
 
@@ -1230,7 +1627,11 @@ static int tty_driver_install_tty(struct tty_driver *driver,
 /**
  *	tty_driver_remove_tty() - remove a tty from the driver tables
  *	@driver: the driver for the tty
+<<<<<<< HEAD
  *	@idx:	 the minor number
+=======
+ *	@tty: tty to remove
+>>>>>>> upstream/android-13
  *
  *	Remvoe a tty object from the driver tables. The tty->index field
  *	will be set by the time this is called.
@@ -1245,9 +1646,15 @@ static void tty_driver_remove_tty(struct tty_driver *driver, struct tty_struct *
 		driver->ttys[tty->index] = NULL;
 }
 
+<<<<<<< HEAD
 /*
  * 	tty_reopen()	- fast re-open of an open tty
  * 	@tty	- the tty to open
+=======
+/**
+ *	tty_reopen()	- fast re-open of an open tty
+ *	@tty: the tty to open
+>>>>>>> upstream/android-13
  *
  *	Return 0 on success, -errno on error.
  *	Re-opens on master ptys are not allowed and return -EIO.
@@ -1293,7 +1700,10 @@ static int tty_reopen(struct tty_struct *tty)
  *	tty_init_dev		-	initialise a tty device
  *	@driver: tty driver we are opening a device on
  *	@idx: device index
+<<<<<<< HEAD
  *	@ret_tty: returned tty structure
+=======
+>>>>>>> upstream/android-13
  *
  *	Prepare a tty device. This may not be a "new" clean device but
  *	could also be an active device. The pty drivers require special
@@ -1311,6 +1721,11 @@ static int tty_reopen(struct tty_struct *tty)
  * failed open.  The new code protects the open with a mutex, so it's
  * really quite straightforward.  The mutex locking can probably be
  * relaxed for the (most common) case of reopening a tty.
+<<<<<<< HEAD
+=======
+ *
+ *	Return: returned tty structure
+>>>>>>> upstream/android-13
  */
 
 struct tty_struct *tty_init_dev(struct tty_driver *driver, int idx)
@@ -1343,9 +1758,18 @@ struct tty_struct *tty_init_dev(struct tty_driver *driver, int idx)
 	if (!tty->port)
 		tty->port = driver->ports[idx];
 
+<<<<<<< HEAD
 	WARN_RATELIMIT(!tty->port,
 			"%s: %s driver does not set tty->port. This will crash the kernel later. Fix the driver!\n",
 			__func__, tty->driver->name);
+=======
+	if (WARN_RATELIMIT(!tty->port,
+			"%s: %s driver does not set tty->port. This would crash the kernel. Fix the driver!\n",
+			__func__, tty->driver->name)) {
+		retval = -EINVAL;
+		goto err_release_lock;
+	}
+>>>>>>> upstream/android-13
 
 	retval = tty_ldisc_lock(tty, 5 * HZ);
 	if (retval)
@@ -1400,7 +1824,11 @@ void tty_save_termios(struct tty_struct *tty)
 	/* Stash the termios data */
 	tp = tty->driver->termios[idx];
 	if (tp == NULL) {
+<<<<<<< HEAD
 		tp = kmalloc(sizeof(struct ktermios), GFP_KERNEL);
+=======
+		tp = kmalloc(sizeof(*tp), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (tp == NULL)
 			return;
 		tty->driver->termios[idx] = tp;
@@ -1427,7 +1855,11 @@ static void tty_flush_works(struct tty_struct *tty)
 
 /**
  *	release_one_tty		-	release tty structure memory
+<<<<<<< HEAD
  *	@kref: kref of tty we are obliterating
+=======
+ *	@work: work of tty we are obliterating
+>>>>>>> upstream/android-13
  *
  *	Releases memory associated with a tty structure, and clears out the
  *	driver table slots. This function is called when a device is no longer
@@ -1458,8 +1890,13 @@ static void release_one_tty(struct work_struct *work)
 	list_del_init(&tty->tty_files);
 	spin_unlock(&tty->files_lock);
 
+<<<<<<< HEAD
 	put_pid(tty->pgrp);
 	put_pid(tty->session);
+=======
+	put_pid(tty->ctrl.pgrp);
+	put_pid(tty->ctrl.session);
+>>>>>>> upstream/android-13
 	free_tty_struct(tty);
 }
 
@@ -1468,7 +1905,12 @@ static void queue_release_one_tty(struct kref *kref)
 	struct tty_struct *tty = container_of(kref, struct tty_struct, kref);
 
 	/* The hangup queue is now free so we can reuse it rather than
+<<<<<<< HEAD
 	   waste a chunk of memory for each port */
+=======
+	 *  waste a chunk of memory for each port.
+	 */
+>>>>>>> upstream/android-13
 	INIT_WORK(&tty->hangup_work, release_one_tty);
 	schedule_work(&tty->hangup_work);
 }
@@ -1490,6 +1932,11 @@ EXPORT_SYMBOL(tty_kref_put);
 
 /**
  *	release_tty		-	release tty structure memory
+<<<<<<< HEAD
+=======
+ *	@tty: tty device release
+ *	@idx: index of the tty device release
+>>>>>>> upstream/android-13
  *
  *	Release both @tty and a possible linked partner (think pty pair),
  *	and decrement the refcount of the backing module.
@@ -1509,10 +1956,19 @@ static void release_tty(struct tty_struct *tty, int idx)
 		tty->ops->shutdown(tty);
 	tty_save_termios(tty);
 	tty_driver_remove_tty(tty->driver, tty);
+<<<<<<< HEAD
 	tty->port->itty = NULL;
 	if (tty->link)
 		tty->link->port->itty = NULL;
 	tty_buffer_cancel_work(tty->port);
+=======
+	if (tty->port)
+		tty->port->itty = NULL;
+	if (tty->link)
+		tty->link->port->itty = NULL;
+	if (tty->port)
+		tty_buffer_cancel_work(tty->port);
+>>>>>>> upstream/android-13
 	if (tty->link)
 		tty_buffer_cancel_work(tty->link->port);
 
@@ -1523,7 +1979,10 @@ static void release_tty(struct tty_struct *tty, int idx)
 /**
  *	tty_release_checks - check a tty before real release
  *	@tty: tty to check
+<<<<<<< HEAD
  *	@o_tty: link of @tty (if any)
+=======
+>>>>>>> upstream/android-13
  *	@idx: index of the tty
  *
  *	Performs some paranoid checking before true release of the @tty.
@@ -1584,9 +2043,13 @@ void tty_kclose(struct tty_struct *tty)
 	tty_debug_hangup(tty, "freeing structure\n");
 	/*
 	 * The release_tty function takes care of the details of clearing
+<<<<<<< HEAD
 	 * the slots and preserving the termios structure. The tty_unlock_pair
 	 * should be safe as we keep a kref while the tty is locked (so the
 	 * unlock never unlocks a freed tty).
+=======
+	 * the slots and preserving the termios structure.
+>>>>>>> upstream/android-13
 	 */
 	mutex_lock(&tty_mutex);
 	tty_port_set_kopened(tty->port, 0);
@@ -1616,9 +2079,13 @@ void tty_release_struct(struct tty_struct *tty, int idx)
 	tty_debug_hangup(tty, "freeing structure\n");
 	/*
 	 * The release_tty function takes care of the details of clearing
+<<<<<<< HEAD
 	 * the slots and preserving the termios structure. The tty_unlock_pair
 	 * should be safe as we keep a kref while the tty is locked (so the
 	 * unlock never unlocks a freed tty).
+=======
+	 * the slots and preserving the termios structure.
+>>>>>>> upstream/android-13
 	 */
 	mutex_lock(&tty_mutex);
 	release_tty(tty, idx);
@@ -1761,9 +2228,15 @@ int tty_release(struct inode *inode, struct file *filp)
 	 */
 	if (!tty->count) {
 		read_lock(&tasklist_lock);
+<<<<<<< HEAD
 		session_clear_tty(tty->session);
 		if (o_tty)
 			session_clear_tty(o_tty->session);
+=======
+		session_clear_tty(tty->ctrl.session);
+		if (o_tty)
+			session_clear_tty(o_tty->ctrl.session);
+>>>>>>> upstream/android-13
 		read_unlock(&tasklist_lock);
 	}
 
@@ -1774,7 +2247,12 @@ int tty_release(struct inode *inode, struct file *filp)
 	tty_unlock(tty);
 
 	/* At this point, the tty->count == 0 should ensure a dead tty
+<<<<<<< HEAD
 	   cannot be re-opened by a racing opener */
+=======
+	 * cannot be re-opened by a racing opener.
+	 */
+>>>>>>> upstream/android-13
 
 	if (!final)
 		return 0;
@@ -1828,20 +2306,33 @@ static struct tty_struct *tty_open_current_tty(dev_t device, struct file *filp)
  *	@index: index for the device in the @return driver
  *	@return: driver for this inode (with increased refcount)
  *
+<<<<<<< HEAD
  * 	If @return is not erroneous, the caller is responsible to decrement the
  * 	refcount by tty_driver_kref_put.
+=======
+ *	If @return is not erroneous, the caller is responsible to decrement the
+ *	refcount by tty_driver_kref_put.
+>>>>>>> upstream/android-13
  *
  *	Locking: tty_mutex protects get_tty_driver
  */
 static struct tty_driver *tty_lookup_driver(dev_t device, struct file *filp,
 		int *index)
 {
+<<<<<<< HEAD
 	struct tty_driver *driver;
+=======
+	struct tty_driver *driver = NULL;
+>>>>>>> upstream/android-13
 
 	switch (device) {
 #ifdef CONFIG_VT
 	case MKDEV(TTY_MAJOR, 0): {
 		extern struct tty_driver *console_driver;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		driver = tty_driver_kref_get(console_driver);
 		*index = fg_console;
 		break;
@@ -1849,6 +2340,10 @@ static struct tty_driver *tty_lookup_driver(dev_t device, struct file *filp,
 #endif
 	case MKDEV(TTYAUX_MAJOR, 1): {
 		struct tty_driver *console_driver = console_device(index);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (console_driver) {
 			driver = tty_driver_kref_get(console_driver);
 			if (driver && filp) {
@@ -1857,6 +2352,11 @@ static struct tty_driver *tty_lookup_driver(dev_t device, struct file *filp,
 				break;
 			}
 		}
+<<<<<<< HEAD
+=======
+		if (driver)
+			tty_driver_kref_put(driver);
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENODEV);
 	}
 	default:
@@ -1868,6 +2368,7 @@ static struct tty_driver *tty_lookup_driver(dev_t device, struct file *filp,
 	return driver;
 }
 
+<<<<<<< HEAD
 /**
  *	tty_kopen	-	open a tty device for kernel
  *	@device: dev_t of device to open
@@ -1887,6 +2388,12 @@ struct tty_struct *tty_kopen(dev_t device)
 {
 	struct tty_struct *tty;
 	struct tty_driver *driver = NULL;
+=======
+static struct tty_struct *tty_kopen(dev_t device, int shared)
+{
+	struct tty_struct *tty;
+	struct tty_driver *driver;
+>>>>>>> upstream/android-13
 	int index = -1;
 
 	mutex_lock(&tty_mutex);
@@ -1898,7 +2405,11 @@ struct tty_struct *tty_kopen(dev_t device)
 
 	/* check whether we're reopening an existing tty */
 	tty = tty_driver_lookup_tty(driver, NULL, index);
+<<<<<<< HEAD
 	if (IS_ERR(tty))
+=======
+	if (IS_ERR(tty) || shared)
+>>>>>>> upstream/android-13
 		goto out;
 
 	if (tty) {
@@ -1916,12 +2427,54 @@ out:
 	tty_driver_kref_put(driver);
 	return tty;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(tty_kopen);
+=======
+
+/**
+ *	tty_kopen_exclusive	-	open a tty device for kernel
+ *	@device: dev_t of device to open
+ *
+ *	Opens tty exclusively for kernel. Performs the driver lookup,
+ *	makes sure it's not already opened and performs the first-time
+ *	tty initialization.
+ *
+ *	Returns the locked initialized &tty_struct
+ *
+ *	Claims the global tty_mutex to serialize:
+ *	  - concurrent first-time tty initialization
+ *	  - concurrent tty driver removal w/ lookup
+ *	  - concurrent tty removal from driver table
+ */
+struct tty_struct *tty_kopen_exclusive(dev_t device)
+{
+	return tty_kopen(device, 0);
+}
+EXPORT_SYMBOL_GPL(tty_kopen_exclusive);
+
+/**
+ *	tty_kopen_shared	-	open a tty device for shared in-kernel use
+ *	@device: dev_t of device to open
+ *
+ *	Opens an already existing tty for in-kernel use. Compared to
+ *	tty_kopen_exclusive() above it doesn't ensure to be the only user.
+ *
+ *	Locking is identical to tty_kopen() above.
+ */
+struct tty_struct *tty_kopen_shared(dev_t device)
+{
+	return tty_kopen(device, 1);
+}
+EXPORT_SYMBOL_GPL(tty_kopen_shared);
+>>>>>>> upstream/android-13
 
 /**
  *	tty_open_by_driver	-	open a tty device
  *	@device: dev_t of device to open
+<<<<<<< HEAD
  *	@inode: inode of device file
+=======
+>>>>>>> upstream/android-13
  *	@filp: file pointer to tty
  *
  *	Performs the driver lookup, checks for a reopen, or otherwise
@@ -1934,7 +2487,11 @@ EXPORT_SYMBOL_GPL(tty_kopen);
  *	  - concurrent tty driver removal w/ lookup
  *	  - concurrent tty removal from driver table
  */
+<<<<<<< HEAD
 static struct tty_struct *tty_open_by_driver(dev_t device, struct inode *inode,
+=======
+static struct tty_struct *tty_open_by_driver(dev_t device,
+>>>>>>> upstream/android-13
 					     struct file *filp)
 {
 	struct tty_struct *tty;
@@ -2026,7 +2583,11 @@ retry_open:
 
 	tty = tty_open_current_tty(device, filp);
 	if (!tty)
+<<<<<<< HEAD
 		tty = tty_open_by_driver(device, inode, filp);
+=======
+		tty = tty_open_by_driver(device, filp);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(tty)) {
 		tty_free_file(filp);
@@ -2129,16 +2690,26 @@ static int __tty_fasync(int fd, struct file *filp, int on)
 		enum pid_type type;
 		struct pid *pid;
 
+<<<<<<< HEAD
 		spin_lock_irqsave(&tty->ctrl_lock, flags);
 		if (tty->pgrp) {
 			pid = tty->pgrp;
+=======
+		spin_lock_irqsave(&tty->ctrl.lock, flags);
+		if (tty->ctrl.pgrp) {
+			pid = tty->ctrl.pgrp;
+>>>>>>> upstream/android-13
 			type = PIDTYPE_PGID;
 		} else {
 			pid = task_pid(current);
 			type = PIDTYPE_TGID;
 		}
 		get_pid(pid);
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+		spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 		__f_setown(filp, pid, type, 0);
 		put_pid(pid);
 		retval = 0;
@@ -2173,8 +2744,11 @@ static int tty_fasync(int fd, struct file *filp, int on)
  *	Locking:
  *		Called functions take tty_ldiscs_lock
  *		current->signal->tty check is safe without locks
+<<<<<<< HEAD
  *
  *	FIXME: may race normal receive processing
+=======
+>>>>>>> upstream/android-13
  */
 
 static int tiocsti(struct tty_struct *tty, char __user *p)
@@ -2190,15 +2764,26 @@ static int tiocsti(struct tty_struct *tty, char __user *p)
 	ld = tty_ldisc_ref_wait(tty);
 	if (!ld)
 		return -EIO;
+<<<<<<< HEAD
 	if (ld->ops->receive_buf)
 		ld->ops->receive_buf(tty, &ch, &mbz, 1);
+=======
+	tty_buffer_lock_exclusive(tty->port);
+	if (ld->ops->receive_buf)
+		ld->ops->receive_buf(tty, &ch, &mbz, 1);
+	tty_buffer_unlock_exclusive(tty->port);
+>>>>>>> upstream/android-13
 	tty_ldisc_deref(ld);
 	return 0;
 }
 
 /**
  *	tiocgwinsz		-	implement window query ioctl
+<<<<<<< HEAD
  *	@tty; tty
+=======
+ *	@tty: tty
+>>>>>>> upstream/android-13
  *	@arg: user buffer for result
  *
  *	Copies the kernel idea of the window size into the user buffer.
@@ -2215,14 +2800,22 @@ static int tiocgwinsz(struct tty_struct *tty, struct winsize __user *arg)
 	err = copy_to_user(arg, &tty->winsize, sizeof(*arg));
 	mutex_unlock(&tty->winsize_mutex);
 
+<<<<<<< HEAD
 	return err ? -EFAULT: 0;
+=======
+	return err ? -EFAULT : 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  *	tty_do_resize		-	resize event
  *	@tty: tty being resized
+<<<<<<< HEAD
  *	@rows: rows (character)
  *	@cols: cols (character)
+=======
+ *	@ws: new dimensions
+>>>>>>> upstream/android-13
  *
  *	Update the termios variables and send the necessary signals to
  *	peform a terminal resize correctly
@@ -2252,7 +2845,11 @@ EXPORT_SYMBOL(tty_do_resize);
 
 /**
  *	tiocswinsz		-	implement window size set ioctl
+<<<<<<< HEAD
  *	@tty; tty side of tty
+=======
+ *	@tty: tty side of tty
+>>>>>>> upstream/android-13
  *	@arg: user buffer for result
  *
  *	Copies the user idea of the window size to the kernel. Traditionally
@@ -2261,13 +2858,21 @@ EXPORT_SYMBOL(tty_do_resize);
  *
  *	Locking:
  *		Driver dependent. The default do_resize method takes the
+<<<<<<< HEAD
  *	tty termios mutex and ctrl_lock. The console takes its own lock
+=======
+ *	tty termios mutex and ctrl.lock. The console takes its own lock
+>>>>>>> upstream/android-13
  *	then calls into the default method.
  */
 
 static int tiocswinsz(struct tty_struct *tty, struct winsize __user *arg)
 {
 	struct winsize tmp_ws;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (copy_from_user(&tmp_ws, arg, sizeof(*arg)))
 		return -EFAULT;
 
@@ -2290,8 +2895,14 @@ static int tioccons(struct file *file)
 {
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
+<<<<<<< HEAD
 	if (file->f_op->write == redirected_tty_write) {
 		struct file *f;
+=======
+	if (file->f_op->write_iter == redirected_tty_write) {
+		struct file *f;
+
+>>>>>>> upstream/android-13
 		spin_lock(&redirect_lock);
 		f = redirect;
 		redirect = NULL;
@@ -2300,6 +2911,15 @@ static int tioccons(struct file *file)
 			fput(f);
 		return 0;
 	}
+<<<<<<< HEAD
+=======
+	if (file->f_op->write_iter != tty_write)
+		return -ENOTTY;
+	if (!(file->f_mode & FMODE_WRITE))
+		return -EBADF;
+	if (!(file->f_mode & FMODE_CAN_WRITE))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	spin_lock(&redirect_lock);
 	if (redirect) {
 		spin_unlock(&redirect_lock);
@@ -2311,6 +2931,7 @@ static int tioccons(struct file *file)
 }
 
 /**
+<<<<<<< HEAD
  *	fionbio		-	non blocking ioctl
  *	@file: file to set blocking value
  *	@p: user parameter
@@ -2339,6 +2960,8 @@ static int fionbio(struct file *file, int __user *p)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *	tiocsetd	-	set line discipline
  *	@tty: tty device
  *	@p: pointer to user data
@@ -2428,7 +3051,10 @@ out:
 /**
  *	tty_tiocmget		-	get modem status
  *	@tty: tty device
+<<<<<<< HEAD
  *	@file: user file pointer
+=======
+>>>>>>> upstream/android-13
  *	@p: pointer to result
  *
  *	Obtain the modem status bits from the tty driver if the feature
@@ -2492,6 +3118,7 @@ static int tty_tiocmset(struct tty_struct *tty, unsigned int cmd,
 	return tty->ops->tiocmset(tty, set, clear);
 }
 
+<<<<<<< HEAD
 static int tty_tiocgicount(struct tty_struct *tty, void __user *arg)
 {
 	int retval = -EINVAL;
@@ -2501,11 +3128,44 @@ static int tty_tiocgicount(struct tty_struct *tty, void __user *arg)
 		retval = tty->ops->get_icount(tty, &icount);
 	if (retval != 0)
 		return retval;
+=======
+/**
+ *	tty_get_icount		-	get tty statistics
+ *	@tty: tty device
+ *	@icount: output parameter
+ *
+ *	Gets a copy of the tty's icount statistics.
+ *
+ *	Locking: none (up to the driver)
+ */
+int tty_get_icount(struct tty_struct *tty,
+		   struct serial_icounter_struct *icount)
+{
+	memset(icount, 0, sizeof(*icount));
+
+	if (tty->ops->get_icount)
+		return tty->ops->get_icount(tty, icount);
+	else
+		return -ENOTTY;
+}
+EXPORT_SYMBOL_GPL(tty_get_icount);
+
+static int tty_tiocgicount(struct tty_struct *tty, void __user *arg)
+{
+	struct serial_icounter_struct icount;
+	int retval;
+
+	retval = tty_get_icount(tty, &icount);
+	if (retval != 0)
+		return retval;
+
+>>>>>>> upstream/android-13
 	if (copy_to_user(arg, &icount, sizeof(icount)))
 		return -EFAULT;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void tty_warn_deprecated_flags(struct serial_struct __user *ss)
 {
 	static DEFINE_RATELIMIT_STATE(depr_flags,
@@ -2522,6 +3182,47 @@ static void tty_warn_deprecated_flags(struct serial_struct __user *ss)
 	if (flags && __ratelimit(&depr_flags))
 		pr_warn("%s: '%s' is using deprecated serial flags (with no effect): %.8x\n",
 			__func__, get_task_comm(comm, current), flags);
+=======
+static int tty_set_serial(struct tty_struct *tty, struct serial_struct *ss)
+{
+	char comm[TASK_COMM_LEN];
+	int flags;
+
+	flags = ss->flags & ASYNC_DEPRECATED;
+
+	if (flags)
+		pr_warn_ratelimited("%s: '%s' is using deprecated serial flags (with no effect): %.8x\n",
+				__func__, get_task_comm(comm, current), flags);
+
+	if (!tty->ops->set_serial)
+		return -ENOTTY;
+
+	return tty->ops->set_serial(tty, ss);
+}
+
+static int tty_tiocsserial(struct tty_struct *tty, struct serial_struct __user *ss)
+{
+	struct serial_struct v;
+
+	if (copy_from_user(&v, ss, sizeof(*ss)))
+		return -EFAULT;
+
+	return tty_set_serial(tty, &v);
+}
+
+static int tty_tiocgserial(struct tty_struct *tty, struct serial_struct __user *ss)
+{
+	struct serial_struct v;
+	int err;
+
+	memset(&v, 0, sizeof(v));
+	if (!tty->ops->get_serial)
+		return -ENOTTY;
+	err = tty->ops->get_serial(tty, &v);
+	if (!err && copy_to_user(ss, &v, sizeof(v)))
+		err = -EFAULT;
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2584,8 +3285,11 @@ long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		return tiocswinsz(real_tty, p);
 	case TIOCCONS:
 		return real_tty != tty ? -EINVAL : tioccons(file);
+<<<<<<< HEAD
 	case FIONBIO:
 		return fionbio(file, p);
+=======
+>>>>>>> upstream/android-13
 	case TIOCEXCL:
 		set_bit(TTY_EXCLUSIVE, &tty->flags);
 		return 0;
@@ -2595,6 +3299,10 @@ long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	case TIOCGEXCL:
 	{
 		int excl = test_bit(TTY_EXCLUSIVE, &tty->flags);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		return put_user(excl, (int __user *)p);
 	}
 	case TIOCGETD:
@@ -2609,6 +3317,10 @@ long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	case TIOCGDEV:
 	{
 		unsigned int ret = new_encode_dev(tty_devnum(real_tty));
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		return put_user(ret, (unsigned int __user *)p);
 	}
 	/*
@@ -2640,11 +3352,15 @@ long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	case TIOCMBIS:
 		return tty_tiocmset(tty, cmd, p);
 	case TIOCGICOUNT:
+<<<<<<< HEAD
 		retval = tty_tiocgicount(tty, p);
 		/* For the moment allow fall through to the old method */
         	if (retval != -EINVAL)
 			return retval;
 		break;
+=======
+		return tty_tiocgicount(tty, p);
+>>>>>>> upstream/android-13
 	case TCFLSH:
 		switch (arg) {
 		case TCIFLUSH:
@@ -2655,8 +3371,14 @@ long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		}
 		break;
 	case TIOCSSERIAL:
+<<<<<<< HEAD
 		tty_warn_deprecated_flags(p);
 		break;
+=======
+		return tty_tiocsserial(tty, p);
+	case TIOCGSERIAL:
+		return tty_tiocgserial(tty, p);
+>>>>>>> upstream/android-13
 	case TIOCGPTPEER:
 		/* Special because the struct file is needed */
 		return ptm_open_peer(file, tty, (int)arg);
@@ -2684,6 +3406,74 @@ long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 }
 
 #ifdef CONFIG_COMPAT
+<<<<<<< HEAD
+=======
+
+struct serial_struct32 {
+	compat_int_t    type;
+	compat_int_t    line;
+	compat_uint_t   port;
+	compat_int_t    irq;
+	compat_int_t    flags;
+	compat_int_t    xmit_fifo_size;
+	compat_int_t    custom_divisor;
+	compat_int_t    baud_base;
+	unsigned short  close_delay;
+	char    io_type;
+	char    reserved_char;
+	compat_int_t    hub6;
+	unsigned short  closing_wait; /* time to wait before closing */
+	unsigned short  closing_wait2; /* no longer used... */
+	compat_uint_t   iomem_base;
+	unsigned short  iomem_reg_shift;
+	unsigned int    port_high;
+	/* compat_ulong_t  iomap_base FIXME */
+	compat_int_t    reserved;
+};
+
+static int compat_tty_tiocsserial(struct tty_struct *tty,
+		struct serial_struct32 __user *ss)
+{
+	struct serial_struct32 v32;
+	struct serial_struct v;
+
+	if (copy_from_user(&v32, ss, sizeof(*ss)))
+		return -EFAULT;
+
+	memcpy(&v, &v32, offsetof(struct serial_struct32, iomem_base));
+	v.iomem_base = compat_ptr(v32.iomem_base);
+	v.iomem_reg_shift = v32.iomem_reg_shift;
+	v.port_high = v32.port_high;
+	v.iomap_base = 0;
+
+	return tty_set_serial(tty, &v);
+}
+
+static int compat_tty_tiocgserial(struct tty_struct *tty,
+			struct serial_struct32 __user *ss)
+{
+	struct serial_struct32 v32;
+	struct serial_struct v;
+	int err;
+
+	memset(&v, 0, sizeof(v));
+	memset(&v32, 0, sizeof(v32));
+
+	if (!tty->ops->get_serial)
+		return -ENOTTY;
+	err = tty->ops->get_serial(tty, &v);
+	if (!err) {
+		memcpy(&v32, &v, offsetof(struct serial_struct32, iomem_base));
+		v32.iomem_base = (unsigned long)v.iomem_base >> 32 ?
+			0xfffffff : ptr_to_compat(v.iomem_base);
+		v32.iomem_reg_shift = v.iomem_reg_shift;
+		v32.port_high = v.port_high;
+		if (copy_to_user(ss, &v32, sizeof(v32)))
+			err = -EFAULT;
+	}
+	return err;
+}
+>>>>>>> upstream/android-13
 static long tty_compat_ioctl(struct file *file, unsigned int cmd,
 				unsigned long arg)
 {
@@ -2691,9 +3481,100 @@ static long tty_compat_ioctl(struct file *file, unsigned int cmd,
 	struct tty_ldisc *ld;
 	int retval = -ENOIOCTLCMD;
 
+<<<<<<< HEAD
 	if (tty_paranoia_check(tty, file_inode(file), "tty_ioctl"))
 		return -EINVAL;
 
+=======
+	switch (cmd) {
+	case TIOCOUTQ:
+	case TIOCSTI:
+	case TIOCGWINSZ:
+	case TIOCSWINSZ:
+	case TIOCGEXCL:
+	case TIOCGETD:
+	case TIOCSETD:
+	case TIOCGDEV:
+	case TIOCMGET:
+	case TIOCMSET:
+	case TIOCMBIC:
+	case TIOCMBIS:
+	case TIOCGICOUNT:
+	case TIOCGPGRP:
+	case TIOCSPGRP:
+	case TIOCGSID:
+	case TIOCSERGETLSR:
+	case TIOCGRS485:
+	case TIOCSRS485:
+#ifdef TIOCGETP
+	case TIOCGETP:
+	case TIOCSETP:
+	case TIOCSETN:
+#endif
+#ifdef TIOCGETC
+	case TIOCGETC:
+	case TIOCSETC:
+#endif
+#ifdef TIOCGLTC
+	case TIOCGLTC:
+	case TIOCSLTC:
+#endif
+	case TCSETSF:
+	case TCSETSW:
+	case TCSETS:
+	case TCGETS:
+#ifdef TCGETS2
+	case TCGETS2:
+	case TCSETSF2:
+	case TCSETSW2:
+	case TCSETS2:
+#endif
+	case TCGETA:
+	case TCSETAF:
+	case TCSETAW:
+	case TCSETA:
+	case TIOCGLCKTRMIOS:
+	case TIOCSLCKTRMIOS:
+#ifdef TCGETX
+	case TCGETX:
+	case TCSETX:
+	case TCSETXW:
+	case TCSETXF:
+#endif
+	case TIOCGSOFTCAR:
+	case TIOCSSOFTCAR:
+
+	case PPPIOCGCHAN:
+	case PPPIOCGUNIT:
+		return tty_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+	case TIOCCONS:
+	case TIOCEXCL:
+	case TIOCNXCL:
+	case TIOCVHANGUP:
+	case TIOCSBRK:
+	case TIOCCBRK:
+	case TCSBRK:
+	case TCSBRKP:
+	case TCFLSH:
+	case TIOCGPTPEER:
+	case TIOCNOTTY:
+	case TIOCSCTTY:
+	case TCXONC:
+	case TIOCMIWAIT:
+	case TIOCSERCONFIG:
+		return tty_ioctl(file, cmd, arg);
+	}
+
+	if (tty_paranoia_check(tty, file_inode(file), "tty_ioctl"))
+		return -EINVAL;
+
+	switch (cmd) {
+	case TIOCSSERIAL:
+		return compat_tty_tiocsserial(tty, compat_ptr(arg));
+	case TIOCGSERIAL:
+		return compat_tty_tiocgserial(tty, compat_ptr(arg));
+	}
+>>>>>>> upstream/android-13
 	if (tty->ops->compat_ioctl) {
 		retval = tty->ops->compat_ioctl(tty, cmd, arg);
 		if (retval != -ENOIOCTLCMD)
@@ -2705,8 +3586,14 @@ static long tty_compat_ioctl(struct file *file, unsigned int cmd,
 		return hung_up_tty_compat_ioctl(file, cmd, arg);
 	if (ld->ops->compat_ioctl)
 		retval = ld->ops->compat_ioctl(tty, file, cmd, arg);
+<<<<<<< HEAD
 	else
 		retval = n_tty_compat_ioctl_helper(tty, file, cmd, arg);
+=======
+	if (retval == -ENOIOCTLCMD && ld->ops->ioctl)
+		retval = ld->ops->ioctl(tty, file,
+				(unsigned long)compat_ptr(cmd), arg);
+>>>>>>> upstream/android-13
 	tty_ldisc_deref(ld);
 
 	return retval;
@@ -2715,11 +3602,19 @@ static long tty_compat_ioctl(struct file *file, unsigned int cmd,
 
 static int this_tty(const void *t, struct file *file, unsigned fd)
 {
+<<<<<<< HEAD
 	if (likely(file->f_op->read != tty_read))
 		return 0;
 	return file_tty(file) != t ? 0 : fd + 1;
 }
 	
+=======
+	if (likely(file->f_op->read_iter != tty_read))
+		return 0;
+	return file_tty(file) != t ? 0 : fd + 1;
+}
+
+>>>>>>> upstream/android-13
 /*
  * This implements the "Secure Attention Key" ---  the idea is to
  * prevent trojan horses by killing all processes associated with this
@@ -2752,9 +3647,15 @@ void __do_SAK(struct tty_struct *tty)
 	if (!tty)
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&tty->ctrl_lock, flags);
 	session = get_pid(tty->session);
 	spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+	spin_lock_irqsave(&tty->ctrl.lock, flags);
+	session = get_pid(tty->ctrl.session);
+	spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 
 	tty_ldisc_flush(tty);
 
@@ -2765,7 +3666,11 @@ void __do_SAK(struct tty_struct *tty)
 	do_each_pid_task(session, PIDTYPE_SID, p) {
 		tty_notice(tty, "SAK: killed process %d (%s): by session\n",
 			   task_pid_nr(p), p->comm);
+<<<<<<< HEAD
 		send_sig(SIGKILL, p, 1);
+=======
+		group_send_sig_info(SIGKILL, SEND_SIG_PRIV, p, PIDTYPE_SID);
+>>>>>>> upstream/android-13
 	} while_each_pid_task(session, PIDTYPE_SID, p);
 
 	/* Now kill any processes that happen to have the tty open */
@@ -2773,7 +3678,11 @@ void __do_SAK(struct tty_struct *tty)
 		if (p->signal->tty == tty) {
 			tty_notice(tty, "SAK: killed process %d (%s): by controlling tty\n",
 				   task_pid_nr(p), p->comm);
+<<<<<<< HEAD
 			send_sig(SIGKILL, p, 1);
+=======
+			group_send_sig_info(SIGKILL, SEND_SIG_PRIV, p, PIDTYPE_SID);
+>>>>>>> upstream/android-13
 			continue;
 		}
 		task_lock(p);
@@ -2781,7 +3690,11 @@ void __do_SAK(struct tty_struct *tty)
 		if (i != 0) {
 			tty_notice(tty, "SAK: killed process %d (%s): by fd#%d\n",
 				   task_pid_nr(p), p->comm, i - 1);
+<<<<<<< HEAD
 			force_sig(SIGKILL, p);
+=======
+			group_send_sig_info(SIGKILL, SEND_SIG_PRIV, p, PIDTYPE_SID);
+>>>>>>> upstream/android-13
 		}
 		task_unlock(p);
 	} while_each_thread(g, p);
@@ -2809,6 +3722,7 @@ void do_SAK(struct tty_struct *tty)
 		return;
 	schedule_work(&tty->SAK_work);
 }
+<<<<<<< HEAD
 
 EXPORT_SYMBOL(do_SAK);
 
@@ -2818,15 +3732,28 @@ static int dev_match_devt(struct device *dev, const void *data)
 	return dev->devt == *devt;
 }
 
+=======
+EXPORT_SYMBOL(do_SAK);
+
+>>>>>>> upstream/android-13
 /* Must put_device() after it's unused! */
 static struct device *tty_get_device(struct tty_struct *tty)
 {
 	dev_t devt = tty_devnum(tty);
+<<<<<<< HEAD
 	return class_find_device(tty_class, NULL, &devt, dev_match_devt);
 }
 
 
 /**
+=======
+
+	return class_find_device_by_devt(tty_class, devt);
+}
+
+
+/*
+>>>>>>> upstream/android-13
  *	alloc_tty_struct
  *
  *	This subroutine allocates and initializes a tty structure.
@@ -2848,8 +3775,13 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 		kfree(tty);
 		return NULL;
 	}
+<<<<<<< HEAD
 	tty->session = NULL;
 	tty->pgrp = NULL;
+=======
+	tty->ctrl.session = NULL;
+	tty->ctrl.pgrp = NULL;
+>>>>>>> upstream/android-13
 	mutex_init(&tty->legacy_mutex);
 	mutex_init(&tty->throttle_mutex);
 	init_rwsem(&tty->termios_rwsem);
@@ -2859,8 +3791,13 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	init_waitqueue_head(&tty->read_wait);
 	INIT_WORK(&tty->hangup_work, do_tty_hangup);
 	mutex_init(&tty->atomic_write_lock);
+<<<<<<< HEAD
 	spin_lock_init(&tty->ctrl_lock);
 	spin_lock_init(&tty->flow_lock);
+=======
+	spin_lock_init(&tty->ctrl.lock);
+	spin_lock_init(&tty->flow.lock);
+>>>>>>> upstream/android-13
 	spin_lock_init(&tty->files_lock);
 	INIT_LIST_HEAD(&tty->tty_files);
 	INIT_WORK(&tty->SAK_work, do_SAK_work);
@@ -3036,11 +3973,19 @@ err_put:
 EXPORT_SYMBOL_GPL(tty_register_device_attr);
 
 /**
+<<<<<<< HEAD
  * 	tty_unregister_device - unregister a tty device
  * 	@driver: the tty driver that describes the tty device
  * 	@index: the index in the tty driver for this tty device
  *
  * 	If a tty device is registered with a call to tty_register_device() then
+=======
+ *	tty_unregister_device - unregister a tty device
+ *	@driver: the tty driver that describes the tty device
+ *	@index: the index in the tty driver for this tty device
+ *
+ *	If a tty device is registered with a call to tty_register_device() then
+>>>>>>> upstream/android-13
  *	this function must be called when the tty device is gone.
  *
  *	Locking: ??
@@ -3076,7 +4021,11 @@ struct tty_driver *__tty_alloc_driver(unsigned int lines, struct module *owner,
 	if (!lines || (flags & TTY_DRIVER_UNNUMBERED_NODE && lines > 1))
 		return ERR_PTR(-EINVAL);
 
+<<<<<<< HEAD
 	driver = kzalloc(sizeof(struct tty_driver), GFP_KERNEL);
+=======
+	driver = kzalloc(sizeof(*driver), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!driver)
 		return ERR_PTR(-ENOMEM);
 
@@ -3157,6 +4106,7 @@ void tty_driver_kref_put(struct tty_driver *driver)
 }
 EXPORT_SYMBOL(tty_driver_kref_put);
 
+<<<<<<< HEAD
 void tty_set_operations(struct tty_driver *driver,
 			const struct tty_operations *op)
 {
@@ -3170,6 +4120,8 @@ void put_tty_driver(struct tty_driver *d)
 }
 EXPORT_SYMBOL(put_tty_driver);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Called by a tty driver to register itself.
  */
@@ -3235,6 +4187,7 @@ EXPORT_SYMBOL(tty_register_driver);
 /*
  * Called by a tty driver to unregister itself.
  */
+<<<<<<< HEAD
 int tty_unregister_driver(struct tty_driver *driver)
 {
 #if 0
@@ -3242,14 +4195,22 @@ int tty_unregister_driver(struct tty_driver *driver)
 	if (driver->refcount)
 		return -EBUSY;
 #endif
+=======
+void tty_unregister_driver(struct tty_driver *driver)
+{
+>>>>>>> upstream/android-13
 	unregister_chrdev_region(MKDEV(driver->major, driver->minor_start),
 				driver->num);
 	mutex_lock(&tty_mutex);
 	list_del(&driver->tty_drivers);
 	mutex_unlock(&tty_mutex);
+<<<<<<< HEAD
 	return 0;
 }
 
+=======
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(tty_unregister_driver);
 
 dev_t tty_devnum(struct tty_struct *tty)

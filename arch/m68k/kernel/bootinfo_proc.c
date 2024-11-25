@@ -26,9 +26,15 @@ static ssize_t bootinfo_read(struct file *file, char __user *buf,
 				       bootinfo_size);
 }
 
+<<<<<<< HEAD
 static const struct file_operations bootinfo_fops = {
 	.read = bootinfo_read,
 	.llseek = default_llseek,
+=======
+static const struct proc_ops bootinfo_proc_ops = {
+	.proc_read	= bootinfo_read,
+	.proc_lseek	= default_llseek,
+>>>>>>> upstream/android-13
 };
 
 void __init save_bootinfo(const struct bi_record *bi)
@@ -67,7 +73,11 @@ static int __init init_bootinfo_procfs(void)
 	if (!bootinfo_copy)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	pde = proc_create_data("bootinfo", 0400, NULL, &bootinfo_fops, NULL);
+=======
+	pde = proc_create_data("bootinfo", 0400, NULL, &bootinfo_proc_ops, NULL);
+>>>>>>> upstream/android-13
 	if (!pde) {
 		kfree(bootinfo_copy);
 		return -ENOMEM;

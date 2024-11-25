@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	linux/drivers/net/wireless/libertas/if_spi.c
  *
@@ -10,11 +14,14 @@
  *	Colin McCabe <colin@cozybit.com>
  *
  *	Inspired by if_sdio.c, Copyright 2007-2008 Pierre Ossman
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -39,7 +46,11 @@
 struct if_spi_packet {
 	struct list_head		list;
 	u16				blen;
+<<<<<<< HEAD
 	u8				buffer[0] __attribute__((aligned(4)));
+=======
+	u8				buffer[] __aligned(4);
+>>>>>>> upstream/android-13
 };
 
 struct if_spi_card {
@@ -239,8 +250,14 @@ static int spu_read(struct if_spi_card *card, u16 reg, u8 *buf, int len)
 		spi_message_add_tail(&dummy_trans, &m);
 	} else {
 		/* Busy-wait while the SPU fills the FIFO */
+<<<<<<< HEAD
 		reg_trans.delay_usecs =
 			DIV_ROUND_UP((100 + (delay * 10)), 1000);
+=======
+		reg_trans.delay.value =
+			DIV_ROUND_UP((100 + (delay * 10)), 1000);
+		reg_trans.delay.unit = SPI_DELAY_UNIT_USECS;
+>>>>>>> upstream/android-13
 	}
 
 	/* read in data */
@@ -770,6 +787,7 @@ static int if_spi_c2h_data(struct if_spi_card *card)
 
 	/* Read the data from the WLAN module into our skb... */
 	err = spu_read(card, IF_SPI_DATA_RDWRPORT_REG, data, ALIGN(len, 4));
+<<<<<<< HEAD
 	if (err)
 		goto free_skb;
 
@@ -783,6 +801,17 @@ static int if_spi_c2h_data(struct if_spi_card *card)
 
 free_skb:
 	dev_kfree_skb(skb);
+=======
+	if (err) {
+		dev_kfree_skb(skb);
+		goto out;
+	}
+
+	/* pass the SKB to libertas */
+	err = lbs_process_rxed_packet(card->priv, skb);
+	/* lbs_process_rxed_packet() consumes the skb */
+
+>>>>>>> upstream/android-13
 out:
 	if (err)
 		netdev_err(priv->dev, "%s: err=%d\n", __func__, err);
@@ -796,6 +825,7 @@ static void if_spi_h2c(struct if_spi_card *card,
 {
 	struct lbs_private *priv = card->priv;
 	int err = 0;
+<<<<<<< HEAD
 	u16 int_type, port_reg;
 
 	switch (type) {
@@ -805,6 +835,15 @@ static void if_spi_h2c(struct if_spi_card *card,
 		break;
 	case MVMS_CMD:
 		int_type = IF_SPI_CIC_CMD_DOWNLOAD_OVER;
+=======
+	u16 port_reg;
+
+	switch (type) {
+	case MVMS_DAT:
+		port_reg = IF_SPI_DATA_RDWRPORT_REG;
+		break;
+	case MVMS_CMD:
+>>>>>>> upstream/android-13
 		port_reg = IF_SPI_CMD_RDWRPORT_REG;
 		break;
 	default:
@@ -1146,8 +1185,13 @@ static int if_spi_probe(struct spi_device *spi)
 	 * This will call alloc_etherdev.
 	 */
 	priv = lbs_add_card(card, &spi->dev);
+<<<<<<< HEAD
 	if (!priv) {
 		err = -ENOMEM;
+=======
+	if (IS_ERR(priv)) {
+		err = PTR_ERR(priv);
+>>>>>>> upstream/android-13
 		goto free_card;
 	}
 	card->priv = priv;

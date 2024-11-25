@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2015 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_C3XXXVF_HW_DATA_H_
 #define ADF_C3XXXVF_HW_DATA_H_
 
@@ -57,7 +62,10 @@
 #define ADF_C3XXXIOV_ETR_BAR 0
 #define ADF_C3XXXIOV_ETR_MAX_BANKS 1
 #define ADF_C3XXXIOV_PF2VF_OFFSET	0x200
+<<<<<<< HEAD
 #define ADF_C3XXXIOV_VINTMSK_OFFSET	0x208
+=======
+>>>>>>> upstream/android-13
 
 void adf_init_hw_data_c3xxxiov(struct adf_hw_device_data *hw_data);
 void adf_clean_hw_data_c3xxxiov(struct adf_hw_device_data *hw_data);

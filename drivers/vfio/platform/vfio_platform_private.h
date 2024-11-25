@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 - Virtual Open Systems
  * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 - Virtual Open Systems
+ * Author: Antonios Motakis <a.motakis@virtualopensystems.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef VFIO_PLATFORM_PRIVATE_H
@@ -17,6 +24,10 @@
 
 #include <linux/types.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/vfio.h>
+>>>>>>> upstream/android-13
 
 #define VFIO_PLATFORM_OFFSET_SHIFT   40
 #define VFIO_PLATFORM_OFFSET_MASK (((u64)(1) << VFIO_PLATFORM_OFFSET_SHIFT) - 1)
@@ -50,13 +61,21 @@ struct vfio_platform_region {
 };
 
 struct vfio_platform_device {
+<<<<<<< HEAD
+=======
+	struct vfio_device		vdev;
+>>>>>>> upstream/android-13
 	struct vfio_platform_region	*regions;
 	u32				num_regions;
 	struct vfio_platform_irq	*irqs;
 	u32				num_irqs;
+<<<<<<< HEAD
 	int				refcnt;
 	struct mutex			igate;
 	struct module			*parent_module;
+=======
+	struct mutex			igate;
+>>>>>>> upstream/android-13
 	const char			*compat;
 	const char			*acpihid;
 	struct module			*reset_module;
@@ -88,8 +107,12 @@ struct vfio_platform_reset_node {
 
 extern int vfio_platform_probe_common(struct vfio_platform_device *vdev,
 				      struct device *dev);
+<<<<<<< HEAD
 extern struct vfio_platform_device *vfio_platform_remove_common
 				     (struct device *dev);
+=======
+void vfio_platform_remove_common(struct vfio_platform_device *vdev);
+>>>>>>> upstream/android-13
 
 extern int vfio_platform_irq_init(struct vfio_platform_device *vdev);
 extern void vfio_platform_irq_cleanup(struct vfio_platform_device *vdev);

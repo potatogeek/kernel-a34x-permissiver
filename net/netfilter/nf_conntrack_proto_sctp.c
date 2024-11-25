@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Connection tracking protocol helper module for SCTP.
  *
@@ -6,10 +10,13 @@
  *
  * SCTP is defined in RFC 2960. References to various sections in this code
  * are to this RFC.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -119,7 +126,11 @@ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
 	{
 /*	ORIGINAL	*/
 /*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+<<<<<<< HEAD
 /* init         */ {sCW, sCW, sCW, sCE, sES, sSS, sSR, sSA, sCW, sHA},
+=======
+/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW, sHA},
+>>>>>>> upstream/android-13
 /* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},
 /* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
 /* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL, sSS},
@@ -135,7 +146,11 @@ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
 /*	REPLY	*/
 /*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
 /* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* INIT in sCL Big TODO */
+<<<<<<< HEAD
 /* init_ack     */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},
+=======
+/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},
+>>>>>>> upstream/android-13
 /* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV, sCL},
 /* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV, sSR},
 /* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV, sHA},
@@ -148,11 +163,14 @@ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
 	}
 };
 
+<<<<<<< HEAD
 static inline struct nf_sctp_net *sctp_pernet(struct net *net)
 {
 	return &net->ct.nf_ct_proto.sctp;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NF_CONNTRACK_PROCFS
 /* Print out the private part of the conntrack. */
 static void sctp_print_conntrack(struct seq_file *s, struct nf_conn *ct)
@@ -275,11 +293,108 @@ static int sctp_new_state(enum ip_conntrack_dir dir,
 	return sctp_conntracks[dir][i][cur_state];
 }
 
+<<<<<<< HEAD
 /* Returns verdict for packet, or -NF_ACCEPT for invalid. */
 static int sctp_packet(struct nf_conn *ct,
 		       const struct sk_buff *skb,
 		       unsigned int dataoff,
 		       enum ip_conntrack_info ctinfo)
+=======
+/* Don't need lock here: this conntrack not in circulation yet */
+static noinline bool
+sctp_new(struct nf_conn *ct, const struct sk_buff *skb,
+	 const struct sctphdr *sh, unsigned int dataoff)
+{
+	enum sctp_conntrack new_state;
+	const struct sctp_chunkhdr *sch;
+	struct sctp_chunkhdr _sch;
+	u32 offset, count;
+
+	memset(&ct->proto.sctp, 0, sizeof(ct->proto.sctp));
+	new_state = SCTP_CONNTRACK_MAX;
+	for_each_sctp_chunk(skb, sch, _sch, offset, dataoff, count) {
+		new_state = sctp_new_state(IP_CT_DIR_ORIGINAL,
+					   SCTP_CONNTRACK_NONE, sch->type);
+
+		/* Invalid: delete conntrack */
+		if (new_state == SCTP_CONNTRACK_NONE ||
+		    new_state == SCTP_CONNTRACK_MAX) {
+			pr_debug("nf_conntrack_sctp: invalid new deleting.\n");
+			return false;
+		}
+
+		/* Copy the vtag into the state info */
+		if (sch->type == SCTP_CID_INIT) {
+			struct sctp_inithdr _inithdr, *ih;
+			/* Sec 8.5.1 (A) */
+			if (sh->vtag)
+				return false;
+
+			ih = skb_header_pointer(skb, offset + sizeof(_sch),
+						sizeof(_inithdr), &_inithdr);
+			if (!ih)
+				return false;
+
+			pr_debug("Setting vtag %x for new conn\n",
+				 ih->init_tag);
+
+			ct->proto.sctp.vtag[IP_CT_DIR_REPLY] = ih->init_tag;
+		} else if (sch->type == SCTP_CID_HEARTBEAT) {
+			pr_debug("Setting vtag %x for secondary conntrack\n",
+				 sh->vtag);
+			ct->proto.sctp.vtag[IP_CT_DIR_ORIGINAL] = sh->vtag;
+		} else {
+		/* If it is a shutdown ack OOTB packet, we expect a return
+		   shutdown complete, otherwise an ABORT Sec 8.4 (5) and (8) */
+			pr_debug("Setting vtag %x for new conn OOTB\n",
+				 sh->vtag);
+			ct->proto.sctp.vtag[IP_CT_DIR_REPLY] = sh->vtag;
+		}
+
+		ct->proto.sctp.state = SCTP_CONNTRACK_NONE;
+	}
+
+	return true;
+}
+
+static bool sctp_error(struct sk_buff *skb,
+		       unsigned int dataoff,
+		       const struct nf_hook_state *state)
+{
+	const struct sctphdr *sh;
+	const char *logmsg;
+
+	if (skb->len < dataoff + sizeof(struct sctphdr)) {
+		logmsg = "nf_ct_sctp: short packet ";
+		goto out_invalid;
+	}
+	if (state->hook == NF_INET_PRE_ROUTING &&
+	    state->net->ct.sysctl_checksum &&
+	    skb->ip_summed == CHECKSUM_NONE) {
+		if (skb_ensure_writable(skb, dataoff + sizeof(*sh))) {
+			logmsg = "nf_ct_sctp: failed to read header ";
+			goto out_invalid;
+		}
+		sh = (const struct sctphdr *)(skb->data + dataoff);
+		if (sh->checksum != sctp_compute_cksum(skb, dataoff)) {
+			logmsg = "nf_ct_sctp: bad CRC ";
+			goto out_invalid;
+		}
+		skb->ip_summed = CHECKSUM_UNNECESSARY;
+	}
+	return false;
+out_invalid:
+	nf_l4proto_log_invalid(skb, state, IPPROTO_SCTP, "%s", logmsg);
+	return true;
+}
+
+/* Returns verdict for packet, or -NF_ACCEPT for invalid. */
+int nf_conntrack_sctp_packet(struct nf_conn *ct,
+			     struct sk_buff *skb,
+			     unsigned int dataoff,
+			     enum ip_conntrack_info ctinfo,
+			     const struct nf_hook_state *state)
+>>>>>>> upstream/android-13
 {
 	enum sctp_conntrack new_state, old_state;
 	enum ip_conntrack_dir dir = CTINFO2DIR(ctinfo);
@@ -292,6 +407,12 @@ static int sctp_packet(struct nf_conn *ct,
 	unsigned long map[256 / sizeof(unsigned long)] = { 0 };
 	bool ignore = false;
 
+<<<<<<< HEAD
+=======
+	if (sctp_error(skb, dataoff, state))
+		return -NF_ACCEPT;
+
+>>>>>>> upstream/android-13
 	sh = skb_header_pointer(skb, dataoff, sizeof(_sctph), &_sctph);
 	if (sh == NULL)
 		goto out;
@@ -299,6 +420,20 @@ static int sctp_packet(struct nf_conn *ct,
 	if (do_basic_checks(ct, skb, dataoff, map) != 0)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	if (!nf_ct_is_confirmed(ct)) {
+		/* If an OOTB packet has any of these chunks discard (Sec 8.4) */
+		if (test_bit(SCTP_CID_ABORT, map) ||
+		    test_bit(SCTP_CID_SHUTDOWN_COMPLETE, map) ||
+		    test_bit(SCTP_CID_COOKIE_ACK, map))
+			return -NF_ACCEPT;
+
+		if (!sctp_new(ct, skb, sh, dataoff))
+			return -NF_ACCEPT;
+	}
+
+>>>>>>> upstream/android-13
 	/* Check the verification tag (Sec 8.5) */
 	if (!test_bit(SCTP_CID_INIT, map) &&
 	    !test_bit(SCTP_CID_SHUTDOWN_COMPLETE, map) &&
@@ -394,6 +529,18 @@ static int sctp_packet(struct nf_conn *ct,
 			pr_debug("Setting vtag %x for dir %d\n",
 				 ih->init_tag, !dir);
 			ct->proto.sctp.vtag[!dir] = ih->init_tag;
+<<<<<<< HEAD
+=======
+
+			/* don't renew timeout on init retransmit so
+			 * port reuse by client or NAT middlebox cannot
+			 * keep entry alive indefinitely (incl. nat info).
+			 */
+			if (new_state == SCTP_CONNTRACK_CLOSED &&
+			    old_state == SCTP_CONNTRACK_CLOSED &&
+			    nf_ct_is_confirmed(ct))
+				ignore = true;
+>>>>>>> upstream/android-13
 		}
 
 		ct->proto.sctp.state = new_state;
@@ -408,7 +555,11 @@ static int sctp_packet(struct nf_conn *ct,
 
 	timeouts = nf_ct_timeout_lookup(ct);
 	if (!timeouts)
+<<<<<<< HEAD
 		timeouts = sctp_pernet(nf_ct_net(ct))->timeouts;
+=======
+		timeouts = nf_sctp_pernet(nf_ct_net(ct))->timeouts;
+>>>>>>> upstream/android-13
 
 	nf_ct_refresh_acct(ct, ctinfo, skb, timeouts[new_state]);
 
@@ -428,6 +579,7 @@ out:
 	return -NF_ACCEPT;
 }
 
+<<<<<<< HEAD
 /* Called when a new connection for this protocol found. */
 static bool sctp_new(struct nf_conn *ct, const struct sk_buff *skb,
 		     unsigned int dataoff)
@@ -532,6 +684,8 @@ out_invalid:
 	return -NF_ACCEPT;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool sctp_can_early_drop(const struct nf_conn *ct)
 {
 	switch (ct->proto.sctp.state) {
@@ -552,24 +706,47 @@ static bool sctp_can_early_drop(const struct nf_conn *ct)
 #include <linux/netfilter/nfnetlink_conntrack.h>
 
 static int sctp_to_nlattr(struct sk_buff *skb, struct nlattr *nla,
+<<<<<<< HEAD
 			  struct nf_conn *ct)
+=======
+			  struct nf_conn *ct, bool destroy)
+>>>>>>> upstream/android-13
 {
 	struct nlattr *nest_parms;
 
 	spin_lock_bh(&ct->lock);
+<<<<<<< HEAD
 	nest_parms = nla_nest_start(skb, CTA_PROTOINFO_SCTP | NLA_F_NESTED);
 	if (!nest_parms)
 		goto nla_put_failure;
 
 	if (nla_put_u8(skb, CTA_PROTOINFO_SCTP_STATE, ct->proto.sctp.state) ||
 	    nla_put_be32(skb, CTA_PROTOINFO_SCTP_VTAG_ORIGINAL,
+=======
+	nest_parms = nla_nest_start(skb, CTA_PROTOINFO_SCTP);
+	if (!nest_parms)
+		goto nla_put_failure;
+
+	if (nla_put_u8(skb, CTA_PROTOINFO_SCTP_STATE, ct->proto.sctp.state))
+		goto nla_put_failure;
+
+	if (destroy)
+		goto skip_state;
+
+	if (nla_put_be32(skb, CTA_PROTOINFO_SCTP_VTAG_ORIGINAL,
+>>>>>>> upstream/android-13
 			 ct->proto.sctp.vtag[IP_CT_DIR_ORIGINAL]) ||
 	    nla_put_be32(skb, CTA_PROTOINFO_SCTP_VTAG_REPLY,
 			 ct->proto.sctp.vtag[IP_CT_DIR_REPLY]))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	spin_unlock_bh(&ct->lock);
 
+=======
+skip_state:
+	spin_unlock_bh(&ct->lock);
+>>>>>>> upstream/android-13
 	nla_nest_end(skb, nest_parms);
 
 	return 0;
@@ -600,8 +777,13 @@ static int nlattr_to_sctp(struct nlattr *cda[], struct nf_conn *ct)
 	if (!attr)
 		return 0;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, CTA_PROTOINFO_SCTP_MAX, attr,
 			       sctp_nla_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, CTA_PROTOINFO_SCTP_MAX, attr,
+					  sctp_nla_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -631,7 +813,11 @@ static int sctp_timeout_nlattr_to_obj(struct nlattr *tb[],
 				      struct net *net, void *data)
 {
 	unsigned int *timeouts = data;
+<<<<<<< HEAD
 	struct nf_sctp_net *sn = sctp_pernet(net);
+=======
+	struct nf_sctp_net *sn = nf_sctp_pernet(net);
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!timeouts)
@@ -682,6 +868,7 @@ sctp_timeout_nla_policy[CTA_TIMEOUT_SCTP_MAX+1] = {
 };
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_SYSCTL
 static struct ctl_table sctp_sysctl_table[] = {
@@ -796,15 +983,36 @@ static struct nf_proto_net *sctp_get_net_proto(struct net *net)
 
 const struct nf_conntrack_l4proto nf_conntrack_l4proto_sctp4 = {
 	.l3proto		= PF_INET,
+=======
+void nf_conntrack_sctp_init_net(struct net *net)
+{
+	struct nf_sctp_net *sn = nf_sctp_pernet(net);
+	int i;
+
+	for (i = 0; i < SCTP_CONNTRACK_MAX; i++)
+		sn->timeouts[i] = sctp_timeouts[i];
+
+	/* timeouts[0] is unused, init it so ->timeouts[0] contains
+	 * 'new' timeout, like udp or icmp.
+	 */
+	sn->timeouts[0] = sctp_timeouts[SCTP_CONNTRACK_CLOSED];
+}
+
+const struct nf_conntrack_l4proto nf_conntrack_l4proto_sctp = {
+>>>>>>> upstream/android-13
 	.l4proto 		= IPPROTO_SCTP,
 #ifdef CONFIG_NF_CONNTRACK_PROCFS
 	.print_conntrack	= sctp_print_conntrack,
 #endif
+<<<<<<< HEAD
 	.packet 		= sctp_packet,
 	.new 			= sctp_new,
 	.error			= sctp_error,
 	.can_early_drop		= sctp_can_early_drop,
 	.me 			= THIS_MODULE,
+=======
+	.can_early_drop		= sctp_can_early_drop,
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_NF_CT_NETLINK)
 	.nlattr_size		= SCTP_NLATTR_SIZE,
 	.to_nlattr		= sctp_to_nlattr,
@@ -823,6 +1031,7 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_sctp4 = {
 		.nla_policy	= sctp_timeout_nla_policy,
 	},
 #endif /* CONFIG_NF_CONNTRACK_TIMEOUT */
+<<<<<<< HEAD
 	.init_net		= sctp_init_net,
 	.get_net_proto		= sctp_get_net_proto,
 };
@@ -861,3 +1070,6 @@ const struct nf_conntrack_l4proto nf_conntrack_l4proto_sctp6 = {
 	.get_net_proto		= sctp_get_net_proto,
 };
 EXPORT_SYMBOL_GPL(nf_conntrack_l4proto_sctp6);
+=======
+};
+>>>>>>> upstream/android-13

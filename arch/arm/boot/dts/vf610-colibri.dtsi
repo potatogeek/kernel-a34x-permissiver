@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 Toradex AG
  *
@@ -37,6 +38,11 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Copyright 2014-2020 Toradex
+>>>>>>> upstream/android-13
  */
 
 #include "vf610.dtsi"
@@ -47,6 +53,10 @@
 	compatible = "toradex,vf610-colibri_vf61", "fsl,vf610";
 
 	memory@80000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x80000000 0x10000000>;
 	};
 };

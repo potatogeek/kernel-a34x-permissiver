@@ -1,12 +1,24 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /* Copyright 2002 Andi Kleen */
 
 #include <linux/linkage.h>
 #include <asm/errno.h>
 #include <asm/cpufeatures.h>
+<<<<<<< HEAD
 #include <asm/mcsafe_test.h>
 #include <asm/alternative-asm.h>
 #include <asm/export.h>
 
+=======
+#include <asm/alternative.h>
+#include <asm/export.h>
+
+.pushsection .noinstr.text, "ax"
+
+>>>>>>> upstream/android-13
 /*
  * We build a jump to memcpy_orig by default which gets NOPped out on
  * the majority of x86 CPUs which set REP_GOOD. In addition, CPUs which
@@ -14,8 +26,11 @@
  * to a jmp to memcpy_erms which does the REP; MOVSB mem copy.
  */
 
+<<<<<<< HEAD
 .weak memcpy
 
+=======
+>>>>>>> upstream/android-13
 /*
  * memcpy - Copy a memory block.
  *
@@ -27,8 +42,13 @@
  * Output:
  * rax original destination
  */
+<<<<<<< HEAD
 ENTRY(__memcpy)
 ENTRY(memcpy)
+=======
+SYM_FUNC_START_ALIAS(__memcpy)
+SYM_FUNC_START_WEAK(memcpy)
+>>>>>>> upstream/android-13
 	ALTERNATIVE_2 "jmp memcpy_orig", "", X86_FEATURE_REP_GOOD, \
 		      "jmp memcpy_erms", X86_FEATURE_ERMS
 
@@ -39,9 +59,15 @@ ENTRY(memcpy)
 	rep movsq
 	movl %edx, %ecx
 	rep movsb
+<<<<<<< HEAD
 	ret
 ENDPROC(memcpy)
 ENDPROC(__memcpy)
+=======
+	RET
+SYM_FUNC_END(memcpy)
+SYM_FUNC_END_ALIAS(__memcpy)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(memcpy)
 EXPORT_SYMBOL(__memcpy)
 
@@ -49,6 +75,7 @@ EXPORT_SYMBOL(__memcpy)
  * memcpy_erms() - enhanced fast string memcpy. This is faster and
  * simpler than memcpy. Use memcpy_erms when possible.
  */
+<<<<<<< HEAD
 ENTRY(memcpy_erms)
 	movq %rdi, %rax
 	movq %rdx, %rcx
@@ -57,6 +84,16 @@ ENTRY(memcpy_erms)
 ENDPROC(memcpy_erms)
 
 ENTRY(memcpy_orig)
+=======
+SYM_FUNC_START_LOCAL(memcpy_erms)
+	movq %rdi, %rax
+	movq %rdx, %rcx
+	rep movsb
+	RET
+SYM_FUNC_END(memcpy_erms)
+
+SYM_FUNC_START_LOCAL(memcpy_orig)
+>>>>>>> upstream/android-13
 	movq %rdi, %rax
 
 	cmpq $0x20, %rdx
@@ -137,7 +174,11 @@ ENTRY(memcpy_orig)
 	movq %r9,	1*8(%rdi)
 	movq %r10,	-2*8(%rdi, %rdx)
 	movq %r11,	-1*8(%rdi, %rdx)
+<<<<<<< HEAD
 	retq
+=======
+	RET
+>>>>>>> upstream/android-13
 	.p2align 4
 .Lless_16bytes:
 	cmpl $8,	%edx
@@ -149,7 +190,11 @@ ENTRY(memcpy_orig)
 	movq -1*8(%rsi, %rdx),	%r9
 	movq %r8,	0*8(%rdi)
 	movq %r9,	-1*8(%rdi, %rdx)
+<<<<<<< HEAD
 	retq
+=======
+	RET
+>>>>>>> upstream/android-13
 	.p2align 4
 .Lless_8bytes:
 	cmpl $4,	%edx
@@ -162,7 +207,11 @@ ENTRY(memcpy_orig)
 	movl -4(%rsi, %rdx), %r8d
 	movl %ecx, (%rdi)
 	movl %r8d, -4(%rdi, %rdx)
+<<<<<<< HEAD
 	retq
+=======
+	RET
+>>>>>>> upstream/android-13
 	.p2align 4
 .Lless_3bytes:
 	subl $1, %edx
@@ -180,6 +229,7 @@ ENTRY(memcpy_orig)
 	movb %cl, (%rdi)
 
 .Lend:
+<<<<<<< HEAD
 	retq
 ENDPROC(memcpy_orig)
 
@@ -295,3 +345,9 @@ EXPORT_SYMBOL_GPL(__memcpy_mcsafe)
 	_ASM_EXTABLE(.L_write_words, .E_write_words)
 	_ASM_EXTABLE(.L_write_trailing_bytes, .E_trailing_bytes)
 #endif
+=======
+	RET
+SYM_FUNC_END(memcpy_orig)
+
+.popsection
+>>>>>>> upstream/android-13

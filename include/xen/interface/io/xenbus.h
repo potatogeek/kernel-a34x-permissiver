@@ -39,6 +39,7 @@ enum xenbus_state
 };
 
 #endif /* _XEN_PUBLIC_IO_XENBUS_H */
+<<<<<<< HEAD
 
 /*
  * Local variables:
@@ -49,3 +50,5 @@ enum xenbus_state
  *  tab-width: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

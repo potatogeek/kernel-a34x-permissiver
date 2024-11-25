@@ -297,7 +297,11 @@ struct vxge_hw_fifo_config {
  * @greedy_return: If Set it forces the device to return absolutely all RxD
  *             that are consumed and still on board when a timer interrupt
  *             triggers. If Clear, then if the device has already returned
+<<<<<<< HEAD
  *             RxD before current timer interrupt trigerred and after the
+=======
+ *             RxD before current timer interrupt triggered and after the
+>>>>>>> upstream/android-13
  *             previous timer interrupt triggered, then the device is not
  *             forced to returned the rest of the consumed RxD that it has
  *             on board which account for a byte count less than the one
@@ -1899,18 +1903,26 @@ static inline void *vxge_os_dma_malloc(struct pci_dev *pdev,
 			struct pci_dev **p_dmah,
 			struct pci_dev **p_dma_acch)
 {
+<<<<<<< HEAD
 	gfp_t flags;
+=======
+>>>>>>> upstream/android-13
 	void *vaddr;
 	unsigned long misaligned = 0;
 	int realloc_flag = 0;
 	*p_dma_acch = *p_dmah = NULL;
 
+<<<<<<< HEAD
 	if (in_interrupt())
 		flags = GFP_ATOMIC | GFP_DMA;
 	else
 		flags = GFP_KERNEL | GFP_DMA;
 realloc:
 	vaddr = kmalloc((size), flags);
+=======
+realloc:
+	vaddr = kmalloc(size, GFP_KERNEL | GFP_DMA);
+>>>>>>> upstream/android-13
 	if (vaddr == NULL)
 		return vaddr;
 	misaligned = (unsigned long)VXGE_ALIGN((unsigned long)vaddr,
@@ -2011,6 +2023,7 @@ enum vxge_hw_status vxge_hw_vpath_mtu_set(
 void
 vxge_hw_vpath_rx_doorbell_init(struct __vxge_hw_vpath_handle *vp);
 
+<<<<<<< HEAD
 #ifndef readq
 static inline u64 readq(void __iomem *addr)
 {
@@ -2031,6 +2044,8 @@ static inline void writeq(u64 val, void __iomem *addr)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static inline void __vxge_hw_pio_mem_write32_upper(u32 val, void __iomem *addr)
 {
 	writel(val, addr + 4);

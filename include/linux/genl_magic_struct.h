@@ -89,7 +89,11 @@ static inline int nla_put_u64_0pad(struct sk_buff *skb, int attrtype, u64 value)
 			nla_get_u64, nla_put_u64_0pad, false)
 #define __str_field(attr_nr, attr_flag, name, maxlen) \
 	__array(attr_nr, attr_flag, name, NLA_NUL_STRING, char, maxlen, \
+<<<<<<< HEAD
 			nla_strlcpy, nla_put, false)
+=======
+			nla_strscpy, nla_put, false)
+>>>>>>> upstream/android-13
 #define __bin_field(attr_nr, attr_flag, name, maxlen) \
 	__array(attr_nr, attr_flag, name, NLA_BINARY, char, maxlen, \
 			nla_memcpy, nla_put, false)
@@ -283,4 +287,7 @@ enum {									\
 
 /* }}}1 */
 #endif /* GENL_MAGIC_STRUCT_H */
+<<<<<<< HEAD
 /* vim: set foldmethod=marker nofoldenable : */
+=======
+>>>>>>> upstream/android-13

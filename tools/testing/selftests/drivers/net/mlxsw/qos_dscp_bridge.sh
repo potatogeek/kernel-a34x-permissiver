@@ -36,8 +36,11 @@ source $lib_dir/lib.sh
 
 h1_create()
 {
+<<<<<<< HEAD
 	local dscp;
 
+=======
+>>>>>>> upstream/android-13
 	simple_if_init $h1 192.0.2.1/28
 	tc qdisc add dev $h1 clsact
 	dscp_capture_install $h1 10
@@ -67,6 +70,10 @@ h2_destroy()
 dscp_map()
 {
 	local base=$1; shift
+<<<<<<< HEAD
+=======
+	local prio
+>>>>>>> upstream/android-13
 
 	for prio in {0..7}; do
 		echo app=$prio,5,$((base + prio))
@@ -94,7 +101,13 @@ switch_destroy()
 	lldptool -T -i $swp1 -V APP -d $(dscp_map 10) >/dev/null
 	lldpad_app_wait_del
 
+<<<<<<< HEAD
 	ip link set dev $swp2 nomaster
+=======
+	ip link set dev $swp2 down
+	ip link set dev $swp2 nomaster
+	ip link set dev $swp1 down
+>>>>>>> upstream/android-13
 	ip link set dev $swp1 nomaster
 	ip link del dev br1
 }
@@ -138,6 +151,10 @@ dscp_ping_test()
 	local prio=$1; shift
 	local dev_10=$1; shift
 	local dev_20=$1; shift
+<<<<<<< HEAD
+=======
+	local key
+>>>>>>> upstream/android-13
 
 	local dscp_10=$(((prio + 10) << 2))
 	local dscp_20=$(((prio + 20) << 2))
@@ -148,9 +165,16 @@ dscp_ping_test()
 	eval "t0s=($(dscp_fetch_stats $dev_10 10)
 		   $(dscp_fetch_stats $dev_20 20))"
 
+<<<<<<< HEAD
 	ip vrf exec $vrf_name \
 	   ${PING} -Q $dscp_10 ${sip:+-I $sip} $dip \
 		   -c 10 -i 0.1 -w 2 &> /dev/null
+=======
+	local ping_timeout=$((PING_TIMEOUT * 5))
+	ip vrf exec $vrf_name \
+	   ${PING} -Q $dscp_10 ${sip:+-I $sip} $dip \
+		   -c 10 -i 0.5 -w $ping_timeout &> /dev/null
+>>>>>>> upstream/android-13
 
 	local -A t1s
 	eval "t1s=($(dscp_fetch_stats $dev_10 10)
@@ -174,6 +198,11 @@ dscp_ping_test()
 
 test_dscp()
 {
+<<<<<<< HEAD
+=======
+	local prio
+
+>>>>>>> upstream/android-13
 	for prio in {0..7}; do
 		dscp_ping_test v$h1 192.0.2.1 192.0.2.2 $prio $h1 $h2
 	done

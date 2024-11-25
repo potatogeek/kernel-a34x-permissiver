@@ -11,7 +11,13 @@ Description:
   Kernel code may export it for complete or partial access.
 
   GPIOs are identified as they are inside the kernel, using integers in
+<<<<<<< HEAD
   the range 0..INT_MAX.  See Documentation/gpio for more information.
+=======
+  the range 0..INT_MAX.  See Documentation/admin-guide/gpio for more information.
+
+  ::
+>>>>>>> upstream/android-13
 
     /sys/class/gpio
 	/export ... asks the kernel to export a GPIO to userspace

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVBIOS_PCIR_H__
 #define __NVBIOS_PCIR_H__
 struct nvbios_pcirT {

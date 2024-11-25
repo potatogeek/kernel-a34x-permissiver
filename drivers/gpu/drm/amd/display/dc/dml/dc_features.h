@@ -29,7 +29,11 @@
 #define DC__PRESENT 1
 #define DC__PRESENT__1 1
 #define DC__NUM_DPP 4
+<<<<<<< HEAD
 #define DC__VOLTAGE_STATES 7
+=======
+#define DC__VOLTAGE_STATES 9
+>>>>>>> upstream/android-13
 #define DC__NUM_DPP__4 1
 #define DC__NUM_DPP__0_PRESENT 1
 #define DC__NUM_DPP__1_PRESENT 1

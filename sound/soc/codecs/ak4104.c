@@ -1,19 +1,30 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AK4104 ALSA SoC (ASoC) driver
  *
  * Copyright (c) 2009 Daniel Mack <daniel@caiaq.de>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/spi/spi.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <sound/asoundef.h>
 #include <sound/core.h>
@@ -268,8 +279,13 @@ static const struct regmap_config ak4104_regmap = {
 
 static int ak4104_spi_probe(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct device_node *np = spi->dev.of_node;
 	struct ak4104_private *ak4104;
+=======
+	struct ak4104_private *ak4104;
+	struct gpio_desc *reset_gpiod;
+>>>>>>> upstream/android-13
 	unsigned int val;
 	int ret;
 
@@ -297,6 +313,7 @@ static int ak4104_spi_probe(struct spi_device *spi)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (np) {
 		enum of_gpio_flags flags;
 		int gpio = of_get_named_gpio_flags(np, "reset-gpio", 0, &flags);
@@ -310,6 +327,12 @@ static int ak4104_spi_probe(struct spi_device *spi)
 				return ret;
 		}
 	}
+=======
+	reset_gpiod = devm_gpiod_get_optional(&spi->dev, "reset",
+					      GPIOD_OUT_HIGH);
+	if (PTR_ERR(reset_gpiod) == -EPROBE_DEFER)
+		return -EPROBE_DEFER;
+>>>>>>> upstream/android-13
 
 	/* read the 'reserved' register - according to the datasheet, it
 	 * should contain 0x5b. Not a good way to verify the presence of

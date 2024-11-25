@@ -87,6 +87,10 @@ struct zram_stats {
 	atomic64_t notify_free;	/* no. of swap slot free notifications */
 	atomic64_t same_pages;		/* no. of same element filled pages */
 	atomic64_t huge_pages;		/* no. of huge pages */
+<<<<<<< HEAD
+=======
+	atomic64_t huge_pages_since;	/* no. of huge pages since zram set up */
+>>>>>>> upstream/android-13
 	atomic64_t pages_stored;	/* no. of pages currently stored */
 	atomic_long_t max_used_pages;	/* no. of maximum pages stored */
 	atomic64_t writestall;		/* no. of write slow paths */
@@ -117,7 +121,11 @@ struct zram_stats {
 
 #ifdef CONFIG_ZRAM_LRU_WRITEBACK
 #define ZRAM_WB_THRESHOLD 32
+<<<<<<< HEAD
 #define NR_ZWBS 64
+=======
+#define NR_ZWBS 16
+>>>>>>> upstream/android-13
 #define NR_FALLOC_PAGES 512
 #define FALLOC_ALIGN_MASK (~(NR_FALLOC_PAGES - 1))
 struct zram_wb_header {
@@ -131,11 +139,17 @@ struct zram_wb_work {
 	struct page *dst_page;
 	struct bio *bio;
 	struct bio *bio_chain;
+<<<<<<< HEAD
 	struct zram_writeback_buffer *buf;
 	struct zram *zram;
 	unsigned long handle;
 	int nr_pages;
 	bool ppr;
+=======
+	struct zram *zram;
+	unsigned long handle;
+	int nr_pages;
+>>>>>>> upstream/android-13
 };
 
 struct zram_wb_entry {
@@ -155,6 +169,7 @@ struct zram_writeback_buffer {
 	struct zwbs *zwbs[NR_ZWBS];
 	int idx;
 };
+<<<<<<< HEAD
 
 enum zram_entry_type {
 	ZRAM_WB_TYPE = 1,
@@ -169,6 +184,8 @@ int zram_writeback_list(struct list_head *list);
 void flush_writeback_buffer(struct list_head *list);
 int zram_get_entry_type(unsigned long index);
 int zram_prefetch_entry(unsigned long index);
+=======
+>>>>>>> upstream/android-13
 #endif
 
 struct zram {
@@ -193,14 +210,23 @@ struct zram {
 	/*
 	 * zram is claimed so open request will be failed
 	 */
+<<<<<<< HEAD
 	bool claim; /* Protected by bdev->bd_mutex */
 	struct file *backing_dev;
 #ifdef CONFIG_ZRAM_WRITEBACK
+=======
+	bool claim; /* Protected by disk->open_mutex */
+#ifdef CONFIG_ZRAM_WRITEBACK
+	struct file *backing_dev;
+>>>>>>> upstream/android-13
 	spinlock_t wb_limit_lock;
 	bool wb_limit_enable;
 	u64 bd_wb_limit;
 	struct block_device *bdev;
+<<<<<<< HEAD
 	unsigned int old_block_size;
+=======
+>>>>>>> upstream/android-13
 	unsigned long *bitmap;
 	unsigned long nr_pages;
 #endif
@@ -220,8 +246,11 @@ struct zram {
 	spinlock_t bitmap_lock;
 	unsigned long *blk_bitmap;
 	struct mutex blk_bitmap_lock;
+<<<<<<< HEAD
 	unsigned long *read_req_bitmap;
 	struct zram_writeback_buffer *buf;
+=======
+>>>>>>> upstream/android-13
 #endif
 };
 #endif

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config BEFS_FS
 	tristate "BeOS file system (BeFS) support (read only)"
 	depends on BLOCK

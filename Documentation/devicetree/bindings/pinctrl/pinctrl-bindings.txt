@@ -77,13 +77,21 @@ For example:
 	device {
 		pinctrl-names = "active", "idle";
 		pinctrl-0 = <&state_0_node_a>;
+<<<<<<< HEAD
 		pinctrl-1 = <&state_1_node_a &state_1_node_b>;
+=======
+		pinctrl-1 = <&state_1_node_a>, <&state_1_node_b>;
+>>>>>>> upstream/android-13
 	};
 
 	/* For the same device if using state IDs */
 	device {
 		pinctrl-0 = <&state_0_node_a>;
+<<<<<<< HEAD
 		pinctrl-1 = <&state_1_node_a &state_1_node_b>;
+=======
+		pinctrl-1 = <&state_1_node_a>, <&state_1_node_b>;
+>>>>>>> upstream/android-13
 	};
 
 	/*
@@ -141,6 +149,7 @@ controller device.
 
 == Generic pin multiplexing node content ==
 
+<<<<<<< HEAD
 pin multiplexing nodes:
 
 function		- the mux function to select
@@ -331,3 +340,10 @@ arguments are described below.
 
 More in-depth documentation on these parameters can be found in
 <include/linux/pinctrl/pinconf-generic.h>
+=======
+See pinmux-node.yaml
+
+== Generic pin configuration node content ==
+
+See pincfg-node.yaml
+>>>>>>> upstream/android-13

@@ -24,6 +24,10 @@
 	};
 
 	memory@80000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x80000000 0x20000000>;
 	};
 
@@ -36,7 +40,10 @@
 			label = "zii:green:debug1";
 			gpios = <&gpio2 18 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
+<<<<<<< HEAD
 			max-brightness = <1>;
+=======
+>>>>>>> upstream/android-13
 		};
 	};
 
@@ -46,6 +53,17 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 	};
+<<<<<<< HEAD
+=======
+
+	supply-voltage-monitor {
+		compatible = "iio-hwmon";
+		io-channels = <&adc0 8>, /* 12V_MAIN */
+			      <&adc0 9>, /* +3.3V    */
+			      <&adc1 8>, /* VCC_1V5  */
+			      <&adc1 9>; /* VCC_1V2  */
+	};
+>>>>>>> upstream/android-13
 };
 
 &adc0 {
@@ -69,7 +87,11 @@
 	 */
 	status = "disabled";
 
+<<<<<<< HEAD
 	m25p128@0 {
+=======
+	flash@0 {
+>>>>>>> upstream/android-13
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "m25p128", "jedec,spi-nor";
@@ -98,6 +120,11 @@
 	non-removable;
 	no-1-8-v;
 	keep-power-in-suspend;
+<<<<<<< HEAD
+=======
+	no-sdio;
+	no-sd;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -105,6 +132,10 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_esdhc1>;
 	bus-width = <4>;
+<<<<<<< HEAD
+=======
+	no-sdio;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 
@@ -122,6 +153,11 @@
 	mdio1: mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
+<<<<<<< HEAD
+=======
+		clock-frequency = <12500000>;
+		suppress-preamble;
+>>>>>>> upstream/android-13
 		status = "okay";
 
 		switch0: switch0@0 {
@@ -130,7 +166,10 @@
 			pinctrl-names = "default";
 			reg = <0>;
 			eeprom-length = <65536>;
+<<<<<<< HEAD
 			reset-gpios = <&gpio3 11 GPIO_ACTIVE_LOW>;
+=======
+>>>>>>> upstream/android-13
 			interrupt-parent = <&gpio3>;
 			interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
 			interrupt-controller;
@@ -191,7 +230,11 @@
 	pinctrl-0 = <&pinctrl_i2c0>;
 	status = "okay";
 
+<<<<<<< HEAD
 	gpio6: pca9505@22 {
+=======
+	gpio6: io-expander@22 {
+>>>>>>> upstream/android-13
 		compatible = "nxp,pca9554";
 		reg = <0x22>;
 		gpio-controller;
@@ -203,18 +246,45 @@
 		reg = <0x48>;
 	};
 
+<<<<<<< HEAD
 	at24c04@50 {
+=======
+	eeprom@50 {
+>>>>>>> upstream/android-13
 		compatible = "atmel,24c04";
 		reg = <0x50>;
 		label = "nameplate";
 	};
 
+<<<<<<< HEAD
 	at24c04@52 {
+=======
+	eeprom@52 {
+>>>>>>> upstream/android-13
 		compatible = "atmel,24c04";
 		reg = <0x52>;
 	};
 };
 
+<<<<<<< HEAD
+=======
+&i2c1 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c1>;
+	status = "okay";
+
+	watchdog@38 {
+		compatible = "zii,rave-wdt";
+		reg = <0x38>;
+	};
+};
+
+&snvsrtc {
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart0>;
@@ -246,6 +316,13 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&wdoga5 {
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &iomuxc {
 	pinctrl_dspi1: dspi1grp {
 		fsl,pins = <
@@ -300,7 +377,10 @@
 
 	pinctrl_gpio_switch0: pinctrl-gpio-switch0 {
 		fsl,pins = <
+<<<<<<< HEAD
 			VF610_PAD_PTE2__GPIO_107		0x31c2
+=======
+>>>>>>> upstream/android-13
 			VF610_PAD_PTB28__GPIO_98		0x219d
 		>;
 	};

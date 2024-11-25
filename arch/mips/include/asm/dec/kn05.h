@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *	include/asm-mips/dec/kn05.h
  *
@@ -8,11 +12,14 @@
  *
  *	Copyright (C) 2002, 2003, 2005, 2008  Maciej W. Rozycki
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	WARNING!  All this information is pure guesswork based on the
  *	ROM.  It is provided here in hope it will give someone some
  *	food for thought.  No documentation for the KN05 nor the KN04

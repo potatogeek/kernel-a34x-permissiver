@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Applied Micro X-Gene SoC DMA engine Driver
  *
@@ -5,6 +9,7 @@
  * Authors: Rameshwar Prasad Sahu <rsahu@apm.com>
  *	    Loc Ho <lho@apm.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * NOTE: PM support is currently not available.
  */
 
@@ -299,6 +306,11 @@ struct xgene_dma_chan {
 
 /**
  * struct xgene_dma - internal representation of an X-Gene DMA device
+<<<<<<< HEAD
+=======
+ * @dev: reference to this device's struct device
+ * @clk: reference to this device's clock
+>>>>>>> upstream/android-13
  * @err_irq: DMA error irq number
  * @ring_num: start id number for DMA ring
  * @csr_dma: base for DMA register access
@@ -703,7 +715,11 @@ static void xgene_dma_cleanup_descriptors(struct xgene_dma_chan *chan)
 
 	INIT_LIST_HEAD(&ld_completed);
 
+<<<<<<< HEAD
 	spin_lock_bh(&chan->lock);
+=======
+	spin_lock(&chan->lock);
+>>>>>>> upstream/android-13
 
 	/* Clean already completed and acked descriptors */
 	xgene_dma_clean_completed_descriptor(chan);
@@ -772,7 +788,11 @@ static void xgene_dma_cleanup_descriptors(struct xgene_dma_chan *chan)
 	 */
 	xgene_chan_xfer_ld_pending(chan);
 
+<<<<<<< HEAD
 	spin_unlock_bh(&chan->lock);
+=======
+	spin_unlock(&chan->lock);
+>>>>>>> upstream/android-13
 
 	/* Run the callback for each descriptor, in order */
 	list_for_each_entry_safe(desc_sw, _desc_sw, &ld_completed, node) {
@@ -797,7 +817,11 @@ static int xgene_dma_alloc_chan_resources(struct dma_chan *dchan)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	chan_dbg(chan, "Allocate descripto pool\n");
+=======
+	chan_dbg(chan, "Allocate descriptor pool\n");
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -985,9 +1009,15 @@ static enum dma_status xgene_dma_tx_status(struct dma_chan *dchan,
 	return dma_cookie_status(dchan, cookie, txstate);
 }
 
+<<<<<<< HEAD
 static void xgene_dma_tasklet_cb(unsigned long data)
 {
 	struct xgene_dma_chan *chan = (struct xgene_dma_chan *)data;
+=======
+static void xgene_dma_tasklet_cb(struct tasklet_struct *t)
+{
+	struct xgene_dma_chan *chan = from_tasklet(chan, t, tasklet);
+>>>>>>> upstream/android-13
 
 	/* Run all cleanup for descriptors which have been completed */
 	xgene_dma_cleanup_descriptors(chan);
@@ -1208,8 +1238,13 @@ static int xgene_dma_create_ring_one(struct xgene_dma_chan *chan,
 	ring->size = ret;
 
 	/* Allocate memory for DMA ring descriptor */
+<<<<<<< HEAD
 	ring->desc_vaddr = dma_zalloc_coherent(chan->dev, ring->size,
 					       &ring->desc_paddr, GFP_KERNEL);
+=======
+	ring->desc_vaddr = dma_alloc_coherent(chan->dev, ring->size,
+					      &ring->desc_paddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring->desc_vaddr) {
 		chan_err(chan, "Failed to allocate ring desc\n");
 		return -ENOMEM;
@@ -1549,8 +1584,12 @@ static int xgene_dma_async_register(struct xgene_dma *pdma, int id)
 	INIT_LIST_HEAD(&chan->ld_pending);
 	INIT_LIST_HEAD(&chan->ld_running);
 	INIT_LIST_HEAD(&chan->ld_completed);
+<<<<<<< HEAD
 	tasklet_init(&chan->tasklet, xgene_dma_tasklet_cb,
 		     (unsigned long)chan);
+=======
+	tasklet_setup(&chan->tasklet, xgene_dma_tasklet_cb);
+>>>>>>> upstream/android-13
 
 	chan->pending = 0;
 	chan->desc_pool = NULL;
@@ -1690,20 +1729,30 @@ static int xgene_dma_get_resources(struct platform_device *pdev,
 
 	/* Get DMA error interrupt */
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq <= 0) {
 		dev_err(&pdev->dev, "Failed to get Error IRQ\n");
 		return -ENXIO;
 	}
+=======
+	if (irq <= 0)
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	pdma->err_irq = irq;
 
 	/* Get DMA Rx ring descriptor interrupts for all DMA channels */
 	for (i = 1; i <= XGENE_DMA_MAX_CHANNEL; i++) {
 		irq = platform_get_irq(pdev, i);
+<<<<<<< HEAD
 		if (irq <= 0) {
 			dev_err(&pdev->dev, "Failed to get Rx IRQ\n");
 			return -ENXIO;
 		}
+=======
+		if (irq <= 0)
+			return -ENXIO;
+>>>>>>> upstream/android-13
 
 		pdma->chan[i - 1].rx_irq = irq;
 	}

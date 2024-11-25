@@ -54,15 +54,19 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 /* Maximum PCM channels */
 #define MAX_PCM_DECODE_CHANNELS 32
 
+=======
+>>>>>>> upstream/android-13
 /* AUDIO CODECS SUPPORTED */
 #define MAX_NUM_CODECS 32
 #define MAX_NUM_CODEC_DESCRIPTORS 32
 #define MAX_NUM_BITRATES 32
 #define MAX_NUM_SAMPLE_RATES 32
 
+<<<<<<< HEAD
 /* compressed TX */
 #define MAX_NUM_FRAMES_PER_BUFFER 1
 #define COMPRESSED_META_DATA_MODE 0x10
@@ -82,6 +86,8 @@
 /* Bit-1 - 0 : Disable perf mode */
 #define COMPRESSED_PERF_MODE_FLAG 0x0002
 
+=======
+>>>>>>> upstream/android-13
 /* Codecs are listed linearly to allow for extensibility */
 #define SND_AUDIOCODEC_PCM                   ((__u32) 0x00000001)
 #define SND_AUDIOCODEC_MP3                   ((__u32) 0x00000002)
@@ -97,6 +103,7 @@
 #define SND_AUDIOCODEC_G723_1                ((__u32) 0x0000000C)
 #define SND_AUDIOCODEC_G729                  ((__u32) 0x0000000D)
 #define SND_AUDIOCODEC_BESPOKE               ((__u32) 0x0000000E)
+<<<<<<< HEAD
 #define SND_AUDIOCODEC_DTS_PASS_THROUGH      ((__u32) 0x0000000F)
 #define SND_AUDIOCODEC_DTS_LBR               ((__u32) 0x00000010)
 #define SND_AUDIOCODEC_DTS_TRANSCODE_LOOPBACK ((__u32) 0x00000011)
@@ -116,6 +123,11 @@
 #define SND_AUDIOCODEC_MAT                   ((__u32) 0x00000025)
 #define SND_AUDIOCODEC_THD                   ((__u32) 0x00000026)
 #define SND_AUDIOCODEC_MAX                   SND_AUDIOCODEC_THD
+=======
+#define SND_AUDIOCODEC_ALAC                  ((__u32) 0x0000000F)
+#define SND_AUDIOCODEC_APE                   ((__u32) 0x00000010)
+#define SND_AUDIOCODEC_MAX                   SND_AUDIOCODEC_APE
+>>>>>>> upstream/android-13
 
 /*
  * Profile and modes are listed with bit masks. This allows for a
@@ -182,6 +194,12 @@
 #define SND_AUDIOPROFILE_WMA8                ((__u32) 0x00000002)
 #define SND_AUDIOPROFILE_WMA9                ((__u32) 0x00000004)
 #define SND_AUDIOPROFILE_WMA10               ((__u32) 0x00000008)
+<<<<<<< HEAD
+=======
+#define SND_AUDIOPROFILE_WMA9_PRO            ((__u32) 0x00000010)
+#define SND_AUDIOPROFILE_WMA9_LOSSLESS       ((__u32) 0x00000020)
+#define SND_AUDIOPROFILE_WMA10_LOSSLESS      ((__u32) 0x00000040)
+>>>>>>> upstream/android-13
 
 #define SND_AUDIOMODE_WMA_LEVEL1             ((__u32) 0x00000001)
 #define SND_AUDIOMODE_WMA_LEVEL2             ((__u32) 0x00000002)
@@ -281,6 +299,7 @@
 
 struct snd_enc_wma {
 	__u32 super_block_align; /* WMA Type-specific data */
+<<<<<<< HEAD
 	__u32 bits_per_sample;
 	__u32 channelmask;
 	__u32 encodeopt;
@@ -290,6 +309,10 @@ struct snd_enc_wma {
 };
 
 #define SND_ENC_WMA_EXTENTED_SUPPORT
+=======
+};
+
+>>>>>>> upstream/android-13
 
 /**
  * struct snd_enc_vorbis
@@ -364,6 +387,7 @@ struct snd_enc_generic {
 	__s32 reserved[15];	/* Can be used for SND_AUDIOCODEC_BESPOKE */
 } __attribute__((packed, aligned(4)));
 
+<<<<<<< HEAD
 #define SND_DEC_THD_MAX_PARAMS 8
 struct snd_dec_thd {
 	__u32 params_length;
@@ -371,12 +395,15 @@ struct snd_dec_thd {
 	__u32 params_value[SND_DEC_THD_MAX_PARAMS];
 } __attribute__((packed, aligned(4)));
 
+=======
+>>>>>>> upstream/android-13
 struct snd_dec_flac {
 	__u16 sample_size;
 	__u16 min_blk_size;
 	__u16 max_blk_size;
 	__u16 min_frame_size;
 	__u16 max_frame_size;
+<<<<<<< HEAD
 } __attribute__((packed, aligned(4)));
 
 #define SND_DEC_FLAC_SUPPORTED
@@ -384,10 +411,22 @@ struct snd_dec_flac {
 struct snd_dec_vorbis {
 	__u32 bit_stream_fmt;
 };
+=======
+	__u16 reserved;
+} __attribute__((packed, aligned(4)));
+
+struct snd_dec_wma {
+	__u32 encoder_option;
+	__u32 adv_encoder_option;
+	__u32 adv_encoder_option2;
+	__u32 reserved;
+} __attribute__((packed, aligned(4)));
+>>>>>>> upstream/android-13
 
 struct snd_dec_alac {
 	__u32 frame_length;
 	__u8 compatible_version;
+<<<<<<< HEAD
 	__u8 bit_depth;
 	__u8 pb;
 	__u8 mb;
@@ -399,6 +438,14 @@ struct snd_dec_alac {
 	__u32 sample_rate;
 	__u32 channel_layout_tag;
 };
+=======
+	__u8 pb;
+	__u8 mb;
+	__u8 kb;
+	__u32 max_run;
+	__u32 max_frame_bytes;
+} __attribute__((packed, aligned(4)));
+>>>>>>> upstream/android-13
 
 struct snd_dec_ape {
 	__u16 compatible_version;
@@ -407,6 +454,7 @@ struct snd_dec_ape {
 	__u32 blocks_per_frame;
 	__u32 final_frame_blocks;
 	__u32 total_frames;
+<<<<<<< HEAD
 	__u16 bits_per_sample;
 	__u16 num_channels;
 	__u32 sample_rate;
@@ -438,12 +486,18 @@ struct snd_dec_pcm {
 struct snd_dec_amrwb_plus {
 	__u32 bit_stream_fmt;
 };
+=======
+	__u32 seek_table_present;
+} __attribute__((packed, aligned(4)));
+
+>>>>>>> upstream/android-13
 union snd_codec_options {
 	struct snd_enc_wma wma;
 	struct snd_enc_vorbis vorbis;
 	struct snd_enc_real real;
 	struct snd_enc_flac flac;
 	struct snd_enc_generic generic;
+<<<<<<< HEAD
 	struct snd_dec_flac flac_dec;
 	struct snd_dec_vorbis vorbis_dec;
 	struct snd_dec_alac alac;
@@ -454,6 +508,13 @@ union snd_codec_options {
 	struct snd_dec_amrwb_plus amrwbplus;
 	struct snd_dec_dsd dsd_dec;
 };
+=======
+	struct snd_dec_flac flac_d;
+	struct snd_dec_wma wma_d;
+	struct snd_dec_alac alac_d;
+	struct snd_dec_ape ape_d;
+} __attribute__((packed, aligned(4)));
+>>>>>>> upstream/android-13
 
 /** struct snd_codec_desc - description of codec capabilities
  * @max_ch: Maximum number of audio channels
@@ -514,7 +575,10 @@ struct snd_codec_desc {
  * @align: Block alignment in bytes of an audio sample.
  *		Only required for PCM or IEC formats.
  * @options: encoder-specific settings
+<<<<<<< HEAD
  * @compr_passthr: compressed bitstream passthrough
+=======
+>>>>>>> upstream/android-13
  * @reserved: reserved for future use
  */
 
@@ -531,6 +595,7 @@ struct snd_codec {
 	__u32 format;
 	__u32 align;
 	union snd_codec_options options;
+<<<<<<< HEAD
 	__u32 compr_passthr;
 	__u32 flags;
 	__u32 reserved[1];
@@ -553,4 +618,9 @@ struct snd_codec_metadata {
 	__u32 reserved[4];
 };
 
+=======
+	__u32 reserved[3];
+} __attribute__((packed, aligned(4)));
+
+>>>>>>> upstream/android-13
 #endif

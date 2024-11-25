@@ -9,7 +9,12 @@
 #include <linux/iio/iio.h>
 #include <linux/iio/triggered_buffer.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of_device.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 
 static const struct iio_info iio_sd_mod_iio_info;
 
@@ -32,8 +37,11 @@ static int iio_sd_mod_probe(struct platform_device *pdev)
 	if (!iio)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	iio->dev.parent = dev;
 	iio->dev.of_node = dev->of_node;
+=======
+>>>>>>> upstream/android-13
 	iio->name = dev_name(dev);
 	iio->info = &iio_sd_mod_iio_info;
 	iio->modes = INDIO_BUFFER_HARDWARE;
@@ -56,7 +64,11 @@ MODULE_DEVICE_TABLE(of, sd_adc_of_match);
 static struct platform_driver iio_sd_mod_adc = {
 	.driver = {
 		.name = "iio_sd_adc_mod",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(sd_adc_of_match),
+=======
+		.of_match_table = sd_adc_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = iio_sd_mod_probe,
 };

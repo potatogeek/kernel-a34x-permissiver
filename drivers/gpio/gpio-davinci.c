@@ -1,14 +1,23 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * TI DaVinci GPIO Support
  *
  * Copyright (c) 2006-2007 David Brownell
  * Copyright (c) 2007, MontaVista Software, Inc. <source@mvista.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  */
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/gpio/driver.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
@@ -24,6 +33,15 @@
 #include <linux/platform_device.h>
 #include <linux/platform_data/gpio-davinci.h>
 #include <linux/irqchip/chained_irq.h>
+<<<<<<< HEAD
+=======
+#include <linux/spinlock.h>
+
+#include <asm-generic/gpio.h>
+
+#define MAX_REGS_BANKS 5
+#define MAX_INT_PER_BANK 32
+>>>>>>> upstream/android-13
 
 struct davinci_gpio_regs {
 	u32	dir;
@@ -41,11 +59,38 @@ struct davinci_gpio_regs {
 typedef struct irq_chip *(*gpio_get_irq_chip_cb_t)(unsigned int irq);
 
 #define BINTEN	0x8 /* GPIO Interrupt Per-Bank Enable Register */
+<<<<<<< HEAD
 #define MAX_LABEL_SIZE 20
+=======
+>>>>>>> upstream/android-13
 
 static void __iomem *gpio_base;
 static unsigned int offset_array[5] = {0x10, 0x38, 0x60, 0x88, 0xb0};
 
+<<<<<<< HEAD
+=======
+struct davinci_gpio_irq_data {
+	void __iomem			*regs;
+	struct davinci_gpio_controller	*chip;
+	int				bank_num;
+};
+
+struct davinci_gpio_controller {
+	struct gpio_chip	chip;
+	struct irq_domain	*irq_domain;
+	/* Serialize access to GPIO registers */
+	spinlock_t		lock;
+	void __iomem		*regs[MAX_REGS_BANKS];
+	int			gpio_unbanked;
+	int			irqs[MAX_INT_PER_BANK];
+};
+
+static inline u32 __gpio_mask(unsigned gpio)
+{
+	return 1 << (gpio % 32);
+}
+
+>>>>>>> upstream/android-13
 static inline struct davinci_gpio_regs __iomem *irq2regs(struct irq_data *d)
 {
 	struct davinci_gpio_regs __iomem *g;
@@ -166,14 +211,21 @@ of_err:
 
 static int davinci_gpio_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	static int ctrl_num, bank_base;
 	int gpio, bank, i, ret = 0;
+=======
+	int bank, i, ret = 0;
+>>>>>>> upstream/android-13
 	unsigned int ngpio, nbank, nirq;
 	struct davinci_gpio_controller *chips;
 	struct davinci_gpio_platform_data *pdata;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
 	char label[MAX_LABEL_SIZE];
+=======
+>>>>>>> upstream/android-13
 
 	pdata = davinci_gpio_get_pdata(pdev);
 	if (!pdata) {
@@ -207,6 +259,7 @@ static int davinci_gpio_probe(struct platform_device *pdev)
 	else
 		nirq = DIV_ROUND_UP(ngpio, 16);
 
+<<<<<<< HEAD
 	nbank = DIV_ROUND_UP(ngpio, 32);
 	chips = devm_kcalloc(dev,
 			     nbank, sizeof(struct davinci_gpio_controller),
@@ -216,11 +269,19 @@ static int davinci_gpio_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	gpio_base = devm_ioremap_resource(dev, res);
+=======
+	chips = devm_kzalloc(dev, sizeof(*chips), GFP_KERNEL);
+	if (!chips)
+		return -ENOMEM;
+
+	gpio_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(gpio_base))
 		return PTR_ERR(gpio_base);
 
 	for (i = 0; i < nirq; i++) {
 		chips->irqs[i] = platform_get_irq(pdev, i);
+<<<<<<< HEAD
 		if (chips->irqs[i] < 0) {
 			if (chips->irqs[i] != -EPROBE_DEFER)
 				dev_info(dev, "IRQ not populated, err = %d\n",
@@ -233,6 +294,13 @@ static int davinci_gpio_probe(struct platform_device *pdev)
 	chips->chip.label = devm_kstrdup(dev, label, GFP_KERNEL);
 		if (!chips->chip.label)
 			return -ENOMEM;
+=======
+		if (chips->irqs[i] < 0)
+			return dev_err_probe(dev, chips->irqs[i], "IRQ not populated\n");
+	}
+
+	chips->chip.label = dev_name(dev);
+>>>>>>> upstream/android-13
 
 	chips->chip.direction_input = davinci_direction_in;
 	chips->chip.get = davinci_gpio_get;
@@ -240,12 +308,17 @@ static int davinci_gpio_probe(struct platform_device *pdev)
 	chips->chip.set = davinci_gpio_set;
 
 	chips->chip.ngpio = ngpio;
+<<<<<<< HEAD
 	chips->chip.base = bank_base;
+=======
+	chips->chip.base = pdata->no_auto_base ? pdata->base : -1;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_OF_GPIO
 	chips->chip.of_gpio_n_cells = 2;
 	chips->chip.parent = dev;
 	chips->chip.of_node = dev->of_node;
+<<<<<<< HEAD
 
 	if (of_property_read_bool(dev->of_node, "gpio-ranges")) {
 		chips->chip.request = gpiochip_generic_request;
@@ -256,15 +329,29 @@ static int davinci_gpio_probe(struct platform_device *pdev)
 	bank_base += ngpio;
 
 	for (gpio = 0, bank = 0; gpio < ngpio; gpio += 32, bank++)
+=======
+	chips->chip.request = gpiochip_generic_request;
+	chips->chip.free = gpiochip_generic_free;
+#endif
+	spin_lock_init(&chips->lock);
+
+	nbank = DIV_ROUND_UP(ngpio, 32);
+	for (bank = 0; bank < nbank; bank++)
+>>>>>>> upstream/android-13
 		chips->regs[bank] = gpio_base + offset_array[bank];
 
 	ret = devm_gpiochip_add_data(dev, &chips->chip, chips);
 	if (ret)
+<<<<<<< HEAD
 		goto err;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, chips);
 	ret = davinci_gpio_irq_setup(pdev);
 	if (ret)
+<<<<<<< HEAD
 		goto err;
 
 	return 0;
@@ -275,6 +362,11 @@ err:
 	bank_base -= ngpio;
 
 	return ret;
+=======
+		return ret;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*--------------------------------------------------------------------------*/
@@ -292,7 +384,11 @@ err:
 static void gpio_irq_disable(struct irq_data *d)
 {
 	struct davinci_gpio_regs __iomem *g = irq2regs(d);
+<<<<<<< HEAD
 	u32 mask = (u32) irq_data_get_irq_handler_data(d);
+=======
+	uintptr_t mask = (uintptr_t)irq_data_get_irq_handler_data(d);
+>>>>>>> upstream/android-13
 
 	writel_relaxed(mask, &g->clr_falling);
 	writel_relaxed(mask, &g->clr_rising);
@@ -301,7 +397,11 @@ static void gpio_irq_disable(struct irq_data *d)
 static void gpio_irq_enable(struct irq_data *d)
 {
 	struct davinci_gpio_regs __iomem *g = irq2regs(d);
+<<<<<<< HEAD
 	u32 mask = (u32) irq_data_get_irq_handler_data(d);
+=======
+	uintptr_t mask = (uintptr_t)irq_data_get_irq_handler_data(d);
+>>>>>>> upstream/android-13
 	unsigned status = irqd_get_trigger_type(d);
 
 	status &= IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_EDGE_RISING;
@@ -370,8 +470,12 @@ static void gpio_irq_handler(struct irq_desc *desc)
 			 */
 			hw_irq = (bank_num / 2) * 32 + bit;
 
+<<<<<<< HEAD
 			generic_handle_irq(
 				irq_find_mapping(d->irq_domain, hw_irq));
+=======
+			generic_handle_domain_irq(d->irq_domain, hw_irq);
+>>>>>>> upstream/android-13
 		}
 	}
 	chained_irq_exit(irq_desc_get_chip(desc), desc);
@@ -442,7 +546,11 @@ davinci_gpio_irq_map(struct irq_domain *d, unsigned int irq,
 				"davinci_gpio");
 	irq_set_irq_type(irq, IRQ_TYPE_NONE);
 	irq_set_chip_data(irq, (__force void *)g);
+<<<<<<< HEAD
 	irq_set_handler_data(irq, (void *)__gpio_mask(hw));
+=======
+	irq_set_handler_data(irq, (void *)(uintptr_t)__gpio_mask(hw));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -627,6 +735,10 @@ done:
 
 static const struct of_device_id davinci_gpio_ids[] = {
 	{ .compatible = "ti,keystone-gpio", keystone_gpio_get_irq_chip},
+<<<<<<< HEAD
+=======
+	{ .compatible = "ti,am654-gpio", keystone_gpio_get_irq_chip},
+>>>>>>> upstream/android-13
 	{ .compatible = "ti,dm6441-gpio", davinci_gpio_get_irq_chip},
 	{ /* sentinel */ },
 };

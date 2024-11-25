@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  ALSA interface to cx18 PCM capture streams
  *
@@ -5,6 +9,7 @@
  *  Copyright (C) 2009  Devin Heitmueller <dheitmueller@kernellabs.com>
  *
  *  Portions of this work were sponsored by ONELAN Limited.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -50,7 +57,10 @@ MODULE_PARM_DESC(debug,
 
 MODULE_AUTHOR("Andy Walls");
 MODULE_DESCRIPTION("CX23418 ALSA Interface");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("CX23418 MPEG2 encoder");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 MODULE_VERSION(CX18_VERSION);
@@ -112,7 +122,11 @@ static int snd_cx18_card_set_names(struct snd_cx18_card *cxsc)
 	struct snd_card *sc = cxsc->sc;
 
 	/* sc->driver is used by alsa-lib's configurator: simple, unique */
+<<<<<<< HEAD
 	strlcpy(sc->driver, "CX23418", sizeof(sc->driver));
+=======
+	strscpy(sc->driver, "CX23418", sizeof(sc->driver));
+>>>>>>> upstream/android-13
 
 	/* sc->shortname is a symlink in /proc/asound: CX18-M -> cardN */
 	snprintf(sc->shortname,  sizeof(sc->shortname), "CX18-%d",

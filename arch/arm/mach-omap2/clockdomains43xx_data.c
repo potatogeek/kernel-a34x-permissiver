@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AM43xx Clock domains framework
  *
  * Copyright (C) 2013 Texas Instruments, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -87,6 +94,18 @@ static struct clockdomain l3s_tsc_43xx_clkdm = {
 	.flags		  = CLKDM_CAN_SWSUP,
 };
 
+<<<<<<< HEAD
+=======
+static struct clockdomain lcdc_43xx_clkdm = {
+	.name		  = "lcdc_clkdm",
+	.pwrdm		  = { .name = "per_pwrdm" },
+	.prcm_partition	  = AM43XX_CM_PARTITION,
+	.cm_inst	  = AM43XX_CM_PER_INST,
+	.clkdm_offs	  = AM43XX_CM_PER_LCDC_CDOFFS,
+	.flags		  = CLKDM_CAN_SWSUP,
+};
+
+>>>>>>> upstream/android-13
 static struct clockdomain dss_43xx_clkdm = {
 	.name		  = "dss_clkdm",
 	.pwrdm		  = { .name = "per_pwrdm" },
@@ -176,6 +195,10 @@ static struct clockdomain *clockdomains_am43xx[] __initdata = {
 	&pruss_ocp_43xx_clkdm,
 	&ocpwp_l3_43xx_clkdm,
 	&l3s_tsc_43xx_clkdm,
+<<<<<<< HEAD
+=======
+	&lcdc_43xx_clkdm,
+>>>>>>> upstream/android-13
 	&dss_43xx_clkdm,
 	&l3_aon_43xx_clkdm,
 	&emif_43xx_clkdm,

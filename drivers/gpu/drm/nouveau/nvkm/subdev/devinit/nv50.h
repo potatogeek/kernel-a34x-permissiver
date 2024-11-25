@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NV50_DEVINIT_H__
 #define __NV50_DEVINIT_H__
 #define nv50_devinit(p) container_of((p), struct nv50_devinit, base)
@@ -9,7 +13,11 @@ struct nv50_devinit {
 	u32 r001540;
 };
 
+<<<<<<< HEAD
 int nv50_devinit_new_(const struct nvkm_devinit_func *, struct nvkm_device *,
+=======
+int nv50_devinit_new_(const struct nvkm_devinit_func *, struct nvkm_device *, enum nvkm_subdev_type,
+>>>>>>> upstream/android-13
 		      int, struct nvkm_devinit **);
 void nv50_devinit_preinit(struct nvkm_devinit *);
 void nv50_devinit_init(struct nvkm_devinit *);
@@ -26,4 +34,8 @@ void gf100_devinit_preinit(struct nvkm_devinit *);
 u64  gm107_devinit_disable(struct nvkm_devinit *);
 
 int gm200_devinit_post(struct nvkm_devinit *, bool);
+<<<<<<< HEAD
+=======
+void gm200_devinit_preos(struct nv50_devinit *, bool);
+>>>>>>> upstream/android-13
 #endif

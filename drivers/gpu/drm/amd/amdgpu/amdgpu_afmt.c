@@ -25,7 +25,11 @@
  */
 #include <linux/hdmi.h>
 #include <linux/gcd.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
 

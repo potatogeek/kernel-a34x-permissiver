@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/memmove.S
  *
  *  Author:	Nicolas Pitre
  *  Created:	Sep 28, 2005
  *  Copyright:	(C) MontaVista Software Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -27,12 +34,21 @@
  * occurring in the opposite direction.
  */
 
+<<<<<<< HEAD
 ENTRY(memmove)
+=======
+ENTRY(__memmove)
+WEAK(memmove)
+>>>>>>> upstream/android-13
 	UNWIND(	.fnstart			)
 
 		subs	ip, r0, r1
 		cmphi	r2, ip
+<<<<<<< HEAD
 		bls	memcpy
+=======
+		bls	__memcpy
+>>>>>>> upstream/android-13
 
 		stmfd	sp!, {r0, r4, lr}
 	UNWIND(	.fnend				)
@@ -59,7 +75,11 @@ ENTRY(memmove)
 		blt	5f
 
 	CALGN(	ands	ip, r0, #31		)
+<<<<<<< HEAD
 	CALGN(	sbcnes	r4, ip, r2		)  @ C is always set here
+=======
+	CALGN(	sbcsne	r4, ip, r2		)  @ C is always set here
+>>>>>>> upstream/android-13
 	CALGN(	bcs	2f			)
 	CALGN(	adr	r4, 6f			)
 	CALGN(	subs	r2, r2, ip		)  @ C is set here
@@ -114,6 +134,7 @@ ENTRY(memmove)
 	UNWIND(	.save	{r0, r4, lr}		) @ still in first stmfd block
 
 8:		movs	r2, r2, lsl #31
+<<<<<<< HEAD
 		ldrneb	r3, [r1, #-1]!
 		ldrcsb	r4, [r1, #-1]!
 		ldrcsb	ip, [r1, #-1]
@@ -128,6 +149,22 @@ ENTRY(memmove)
 		ldrb	lr, [r1, #-1]!
 		strgtb	r3, [r0, #-1]!
 		strgeb	r4, [r0, #-1]!
+=======
+		ldrbne	r3, [r1, #-1]!
+		ldrbcs	r4, [r1, #-1]!
+		ldrbcs	ip, [r1, #-1]
+		strbne	r3, [r0, #-1]!
+		strbcs	r4, [r0, #-1]!
+		strbcs	ip, [r0, #-1]
+		ldmfd	sp!, {r0, r4, pc}
+
+9:		cmp	ip, #2
+		ldrbgt	r3, [r1, #-1]!
+		ldrbge	r4, [r1, #-1]!
+		ldrb	lr, [r1, #-1]!
+		strbgt	r3, [r0, #-1]!
+		strbge	r4, [r0, #-1]!
+>>>>>>> upstream/android-13
 		subs	r2, r2, ip
 		strb	lr, [r0, #-1]!
 		blt	8b
@@ -150,7 +187,11 @@ ENTRY(memmove)
 		blt	14f
 
 	CALGN(	ands	ip, r0, #31		)
+<<<<<<< HEAD
 	CALGN(	sbcnes	r4, ip, r2		)  @ C is always set here
+=======
+	CALGN(	sbcsne	r4, ip, r2		)  @ C is always set here
+>>>>>>> upstream/android-13
 	CALGN(	subcc	r2, r2, ip		)
 	CALGN(	bcc	15f			)
 
@@ -225,3 +266,7 @@ ENTRY(memmove)
 18:		backward_copy_shift	push=24	pull=8
 
 ENDPROC(memmove)
+<<<<<<< HEAD
+=======
+ENDPROC(__memmove)
+>>>>>>> upstream/android-13

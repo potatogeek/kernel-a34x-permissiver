@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  compress_core.c - compress offload core
  *
@@ -6,6 +10,7 @@
  *		Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -21,6 +26,9 @@
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+=======
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>>>>>> upstream/android-13
  */
 #define FORMAT(fmt) "%s: %d: " fmt, __func__, __LINE__
 #define pr_fmt(fmt) KBUILD_MODNAME ": " FORMAT(fmt)
@@ -60,8 +68,11 @@
  *	driver should be able to register multiple nodes
  */
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(device_mutex);
 
+=======
+>>>>>>> upstream/android-13
 struct snd_compr_file {
 	unsigned long caps;
 	struct snd_compr_stream stream;
@@ -171,7 +182,12 @@ static int snd_compr_free(struct inode *inode, struct file *f)
 	}
 
 	data->stream.ops->free(&data->stream);
+<<<<<<< HEAD
 	kfree(data->stream.runtime->buffer);
+=======
+	if (!data->stream.runtime->dma_buffer_p)
+		kfree(data->stream.runtime->buffer);
+>>>>>>> upstream/android-13
 	kfree(data->stream.runtime);
 	kfree(data);
 	return 0;
@@ -183,7 +199,11 @@ static int snd_compr_update_tstamp(struct snd_compr_stream *stream,
 	if (!stream->ops->pointer)
 		return -ENOTSUPP;
 	stream->ops->pointer(stream, tstamp);
+<<<<<<< HEAD
 	pr_debug("dsp consumed till %d total %llu bytes\n",
+=======
+	pr_debug("dsp consumed till %d total %d bytes\n",
+>>>>>>> upstream/android-13
 		tstamp->byte_offset, tstamp->copied_total);
 	if (stream->direction == SND_COMPRESS_PLAYBACK)
 		stream->runtime->total_bytes_transferred = tstamp->copied_total;
@@ -500,12 +520,62 @@ out:
 }
 #endif /* !COMPR_CODEC_CAPS_OVERFLOW */
 
+<<<<<<< HEAD
+=======
+int snd_compr_malloc_pages(struct snd_compr_stream *stream, size_t size)
+{
+	struct snd_dma_buffer *dmab;
+	int ret;
+
+	if (snd_BUG_ON(!(stream) || !(stream)->runtime))
+		return -EINVAL;
+	dmab = kzalloc(sizeof(*dmab), GFP_KERNEL);
+	if (!dmab)
+		return -ENOMEM;
+	dmab->dev = stream->dma_buffer.dev;
+	ret = snd_dma_alloc_pages(dmab->dev.type, dmab->dev.dev, size, dmab);
+	if (ret < 0) {
+		kfree(dmab);
+		return ret;
+	}
+
+	snd_compr_set_runtime_buffer(stream, dmab);
+	stream->runtime->dma_bytes = size;
+	return 1;
+}
+EXPORT_SYMBOL(snd_compr_malloc_pages);
+
+int snd_compr_free_pages(struct snd_compr_stream *stream)
+{
+	struct snd_compr_runtime *runtime;
+
+	if (snd_BUG_ON(!(stream) || !(stream)->runtime))
+		return -EINVAL;
+	runtime = stream->runtime;
+	if (runtime->dma_area == NULL)
+		return 0;
+	if (runtime->dma_buffer_p != &stream->dma_buffer) {
+		/* It's a newly allocated buffer. Release it now. */
+		snd_dma_free_pages(runtime->dma_buffer_p);
+		kfree(runtime->dma_buffer_p);
+	}
+
+	snd_compr_set_runtime_buffer(stream, NULL);
+	return 0;
+}
+EXPORT_SYMBOL(snd_compr_free_pages);
+
+>>>>>>> upstream/android-13
 /* revisit this with snd_pcm_preallocate_xxx */
 static int snd_compr_allocate_buffer(struct snd_compr_stream *stream,
 		struct snd_compr_params *params)
 {
 	unsigned int buffer_size;
+<<<<<<< HEAD
 	void *buffer;
+=======
+	void *buffer = NULL;
+>>>>>>> upstream/android-13
 
 	buffer_size = params->buffer.fragment_size * params->buffer.fragments;
 	if (stream->ops->copy) {
@@ -514,7 +584,22 @@ static int snd_compr_allocate_buffer(struct snd_compr_stream *stream,
 		 * the data from core
 		 */
 	} else {
+<<<<<<< HEAD
 		buffer = kmalloc(buffer_size, GFP_KERNEL);
+=======
+		if (stream->runtime->dma_buffer_p) {
+
+			if (buffer_size > stream->runtime->dma_buffer_p->bytes)
+				dev_err(&stream->device->dev,
+						"Not enough DMA buffer");
+			else
+				buffer = stream->runtime->dma_buffer_p->area;
+
+		} else {
+			buffer = kmalloc(buffer_size, GFP_KERNEL);
+		}
+
+>>>>>>> upstream/android-13
 		if (!buffer)
 			return -ENOMEM;
 	}
@@ -667,6 +752,7 @@ static int snd_compr_pause(struct snd_compr_stream *stream)
 {
 	int retval;
 
+<<<<<<< HEAD
 	if (stream->runtime->state == SNDRV_PCM_STATE_DRAINING) {
 		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_PUSH);
 		if (!retval) {
@@ -681,6 +767,24 @@ static int snd_compr_pause(struct snd_compr_stream *stream)
 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_PUSH);
 	if (!retval)
 		stream->runtime->state = SNDRV_PCM_STATE_PAUSED;
+=======
+	switch (stream->runtime->state) {
+	case SNDRV_PCM_STATE_RUNNING:
+		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_PUSH);
+		if (!retval)
+			stream->runtime->state = SNDRV_PCM_STATE_PAUSED;
+		break;
+	case SNDRV_PCM_STATE_DRAINING:
+		if (!stream->device->use_pause_in_draining)
+			return -EPERM;
+		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_PUSH);
+		if (!retval)
+			stream->pause_in_draining = true;
+		break;
+	default:
+		return -EPERM;
+	}
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -688,6 +792,7 @@ static int snd_compr_resume(struct snd_compr_stream *stream)
 {
 	int retval;
 
+<<<<<<< HEAD
 	if (stream->runtime->state == SNDRV_PCM_STATE_DRAINING)
 		return stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
 
@@ -696,6 +801,24 @@ static int snd_compr_resume(struct snd_compr_stream *stream)
 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
 	if (!retval)
 		stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
+=======
+	switch (stream->runtime->state) {
+	case SNDRV_PCM_STATE_PAUSED:
+		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
+		if (!retval)
+			stream->runtime->state = SNDRV_PCM_STATE_RUNNING;
+		break;
+	case SNDRV_PCM_STATE_DRAINING:
+		if (!stream->pause_in_draining)
+			return -EPERM;
+		retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_PAUSE_RELEASE);
+		if (!retval)
+			stream->pause_in_draining = false;
+		break;
+	default:
+		return -EPERM;
+	}
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -735,8 +858,16 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
 
 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
 	if (!retval) {
+<<<<<<< HEAD
 		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
 		wake_up(&stream->runtime->sleep);
+=======
+		/* clear flags and stop any drain wait */
+		stream->partial_drain = false;
+		stream->metadata_set = false;
+		stream->pause_in_draining = false;
+		snd_compr_drain_notify(stream);
+>>>>>>> upstream/android-13
 		stream->runtime->total_bytes_available = 0;
 		stream->runtime->total_bytes_transferred = 0;
 	}
@@ -782,6 +913,44 @@ int snd_compr_stop_error(struct snd_compr_stream *stream,
 }
 EXPORT_SYMBOL_GPL(snd_compr_stop_error);
 
+<<<<<<< HEAD
+=======
+static int snd_compress_wait_for_drain(struct snd_compr_stream *stream)
+{
+	int ret;
+
+	/*
+	 * We are called with lock held. So drop the lock while we wait for
+	 * drain complete notification from the driver
+	 *
+	 * It is expected that driver will notify the drain completion and then
+	 * stream will be moved to SETUP state, even if draining resulted in an
+	 * error. We can trigger next track after this.
+	 */
+	stream->runtime->state = SNDRV_PCM_STATE_DRAINING;
+	mutex_unlock(&stream->device->lock);
+
+	/* we wait for drain to complete here, drain can return when
+	 * interruption occurred, wait returned error or success.
+	 * For the first two cases we don't do anything different here and
+	 * return after waking up
+	 */
+
+	ret = wait_event_interruptible(stream->runtime->sleep,
+			(stream->runtime->state != SNDRV_PCM_STATE_DRAINING));
+	if (ret == -ERESTARTSYS)
+		pr_debug("wait aborted by a signal\n");
+	else if (ret)
+		pr_debug("wait for drain failed with %d\n", ret);
+
+
+	wake_up(&stream->runtime->sleep);
+	mutex_lock(&stream->device->lock);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int snd_compr_drain(struct snd_compr_stream *stream)
 {
 	int retval;
@@ -799,13 +968,22 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
 	}
 
 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_DRAIN);
+<<<<<<< HEAD
 	if (!retval) {
 		stream->runtime->state = SNDRV_PCM_STATE_DRAINING;
+=======
+	if (retval) {
+		pr_debug("SND_COMPR_TRIGGER_DRAIN failed %d\n", retval);
+>>>>>>> upstream/android-13
 		wake_up(&stream->runtime->sleep);
 		return retval;
 	}
 
+<<<<<<< HEAD
 	return retval;
+=======
+	return snd_compress_wait_for_drain(stream);
+>>>>>>> upstream/android-13
 }
 
 static int snd_compr_next_track(struct snd_compr_stream *stream)
@@ -858,6 +1036,7 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
 	if (stream->next_track == false)
 		return -EPERM;
 
+<<<<<<< HEAD
 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_PARTIAL_DRAIN);
 
 	stream->next_track = false;
@@ -923,6 +1102,18 @@ static int snd_compress_simple_ioctls(struct file *file,
 	}
 
 	return retval;
+=======
+	stream->partial_drain = true;
+	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_PARTIAL_DRAIN);
+	if (retval) {
+		pr_debug("Partial drain returned failure\n");
+		wake_up(&stream->runtime->sleep);
+		return retval;
+	}
+
+	stream->next_track = false;
+	return snd_compress_wait_for_drain(stream);
+>>>>>>> upstream/android-13
 }
 
 static long snd_compr_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
@@ -938,6 +1129,7 @@ static long snd_compr_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 
 	mutex_lock(&stream->device->lock);
 	switch (_IOC_NR(cmd)) {
+<<<<<<< HEAD
 	case _IOC_NR(SNDRV_COMPRESS_SET_PARAMS):
 		retval = snd_compr_set_params(stream, arg);
 		break;
@@ -970,10 +1162,61 @@ static long snd_compr_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		retval = snd_compr_stop(stream);
 		break;
 
+=======
+	case _IOC_NR(SNDRV_COMPRESS_IOCTL_VERSION):
+		retval = put_user(SNDRV_COMPRESS_VERSION,
+				(int __user *)arg) ? -EFAULT : 0;
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_GET_CAPS):
+		retval = snd_compr_get_caps(stream, arg);
+		break;
+#ifndef COMPR_CODEC_CAPS_OVERFLOW
+	case _IOC_NR(SNDRV_COMPRESS_GET_CODEC_CAPS):
+		retval = snd_compr_get_codec_caps(stream, arg);
+		break;
+#endif
+	case _IOC_NR(SNDRV_COMPRESS_SET_PARAMS):
+		retval = snd_compr_set_params(stream, arg);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_GET_PARAMS):
+		retval = snd_compr_get_params(stream, arg);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_SET_METADATA):
+		retval = snd_compr_set_metadata(stream, arg);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_GET_METADATA):
+		retval = snd_compr_get_metadata(stream, arg);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_TSTAMP):
+		retval = snd_compr_tstamp(stream, arg);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_AVAIL):
+		retval = snd_compr_ioctl_avail(stream, arg);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_PAUSE):
+		retval = snd_compr_pause(stream);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_RESUME):
+		retval = snd_compr_resume(stream);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_START):
+		retval = snd_compr_start(stream);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_STOP):
+		retval = snd_compr_stop(stream);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_DRAIN):
+		retval = snd_compr_drain(stream);
+		break;
+	case _IOC_NR(SNDRV_COMPRESS_PARTIAL_DRAIN):
+		retval = snd_compr_partial_drain(stream);
+		break;
+>>>>>>> upstream/android-13
 	case _IOC_NR(SNDRV_COMPRESS_NEXT_TRACK):
 		retval = snd_compr_next_track(stream);
 		break;
 
+<<<<<<< HEAD
 	case _IOC_NR(SNDRV_COMPRESS_SET_NEXT_TRACK_PARAM):
 		retval = snd_compr_set_next_track_param(stream, arg);
 		break;
@@ -982,6 +1225,8 @@ static long snd_compr_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		mutex_unlock(&stream->device->lock);
 		return snd_compress_simple_ioctls(f, stream, cmd, arg);
 
+=======
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&stream->device->lock);
 	return retval;
@@ -1012,7 +1257,11 @@ static const struct file_operations snd_compr_file_ops = {
 
 static int snd_compress_dev_register(struct snd_device *device)
 {
+<<<<<<< HEAD
 	int ret = -EINVAL;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct snd_compr *compr;
 
 	if (snd_BUG_ON(!device || !device->device_data))
@@ -1067,14 +1316,18 @@ static int snd_compress_proc_init(struct snd_compr *compr)
 	if (!entry)
 		return -ENOMEM;
 	entry->mode = S_IFDIR | 0555;
+<<<<<<< HEAD
 	if (snd_info_register(entry) < 0) {
 		snd_info_free_entry(entry);
 		return -ENOMEM;
 	}
+=======
+>>>>>>> upstream/android-13
 	compr->proc_root = entry;
 
 	entry = snd_info_create_card_entry(compr->card, "info",
 					   compr->proc_root);
+<<<<<<< HEAD
 	if (entry) {
 		snd_info_set_text_ops(entry, compr,
 				      snd_compress_proc_info_read);
@@ -1083,6 +1336,11 @@ static int snd_compress_proc_init(struct snd_compr *compr)
 			entry = NULL;
 		}
 	}
+=======
+	if (entry)
+		snd_info_set_text_ops(entry, compr,
+				      snd_compress_proc_info_read);
+>>>>>>> upstream/android-13
 	compr->proc_info_entry = entry;
 
 	return 0;
@@ -1098,7 +1356,11 @@ static void snd_compress_proc_done(struct snd_compr *compr)
 
 static inline void snd_compress_set_id(struct snd_compr *compr, const char *id)
 {
+<<<<<<< HEAD
 	strlcpy(compr->id, id, sizeof(compr->id));
+=======
+	strscpy(compr->id, id, sizeof(compr->id));
+>>>>>>> upstream/android-13
 }
 #else
 static inline int snd_compress_proc_init(struct snd_compr *compr)
@@ -1135,7 +1397,11 @@ static int snd_compress_dev_free(struct snd_device *device)
 int snd_compress_new(struct snd_card *card, int device,
 			int dirn, const char *id, struct snd_compr *compr)
 {
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_free = snd_compress_dev_free,
 		.dev_register = snd_compress_dev_register,
 		.dev_disconnect = snd_compress_dev_disconnect,
@@ -1145,6 +1411,10 @@ int snd_compress_new(struct snd_card *card, int device,
 	compr->card = card;
 	compr->device = device;
 	compr->direction = dirn;
+<<<<<<< HEAD
+=======
+	mutex_init(&compr->lock);
+>>>>>>> upstream/android-13
 
 	snd_compress_set_id(compr, id);
 
@@ -1159,6 +1429,7 @@ int snd_compress_new(struct snd_card *card, int device,
 }
 EXPORT_SYMBOL_GPL(snd_compress_new);
 
+<<<<<<< HEAD
 static int snd_compress_add_device(struct snd_compr *device)
 {
 	int ret;
@@ -1225,6 +1496,8 @@ int snd_compress_deregister(struct snd_compr *device)
 }
 EXPORT_SYMBOL_GPL(snd_compress_deregister);
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("ALSA Compressed offload framework");
 MODULE_AUTHOR("Vinod Koul <vinod.koul@linux.intel.com>");
 MODULE_LICENSE("GPL v2");

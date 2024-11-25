@@ -33,7 +33,11 @@ kernel_setjmp:
 	movq %r14,40(%rdi)
 	movq %r15,48(%rdi)
 	movq %rsi,56(%rdi)		# Return address
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 	.size kernel_setjmp,.-kernel_setjmp
 

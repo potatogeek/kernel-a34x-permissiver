@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*    Architecture specific parts of the Floppy driver
  *
  *    Linux/PA-RISC Project (http://www.parisc-linux.org/)
  *    Copyright (C) 2000 Matthew Wilcox (willy a debian . org)
  *    Copyright (C) 2000 Dave Kennedy
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_PARISC_FLOPPY_H
 #define __ASM_PARISC_FLOPPY_H
@@ -42,8 +49,13 @@
 #define CSW fd_routine[can_use_virtual_dma & 1]
 
 
+<<<<<<< HEAD
 #define fd_inb(port)			readb(port)
 #define fd_outb(value, port)		writeb(value, port)
+=======
+#define fd_inb(base, reg)		readb((base) + (reg))
+#define fd_outb(value, base, reg)	writeb(value, (base) + (reg))
+>>>>>>> upstream/android-13
 
 #define fd_request_dma()        CSW._request_dma(FLOPPY_DMA,"floppy")
 #define fd_free_dma()           CSW._free_dma(FLOPPY_DMA)
@@ -88,6 +100,7 @@ static void floppy_hardint(int irq, void *dev_id, struct pt_regs * regs)
 		register char *lptr = virtual_dma_addr;
 
 		for (lcount = virtual_dma_count; lcount; lcount--) {
+<<<<<<< HEAD
 			st = fd_inb(virtual_dma_port+4) & 0xa0 ;
 			if (st != 0xa0) 
 				break;
@@ -95,20 +108,40 @@ static void floppy_hardint(int irq, void *dev_id, struct pt_regs * regs)
 				fd_outb(*lptr, virtual_dma_port+5);
 			} else {
 				*lptr = fd_inb(virtual_dma_port+5);
+=======
+			st = fd_inb(virtual_dma_port, FD_STATUS);
+			st &= STATUS_DMA | STATUS_READY;
+			if (st != (STATUS_DMA | STATUS_READY))
+				break;
+			if (virtual_dma_mode) {
+				fd_outb(*lptr, virtual_dma_port, FD_DATA);
+			} else {
+				*lptr = fd_inb(virtual_dma_port, FD_DATA);
+>>>>>>> upstream/android-13
 			}
 			lptr++;
 		}
 		virtual_dma_count = lcount;
 		virtual_dma_addr = lptr;
+<<<<<<< HEAD
 		st = fd_inb(virtual_dma_port+4);
+=======
+		st = fd_inb(virtual_dma_port, FD_STATUS);
+>>>>>>> upstream/android-13
 	}
 
 #ifdef TRACE_FLPY_INT
 	calls++;
 #endif
+<<<<<<< HEAD
 	if (st == 0x20)
 		return;
 	if (!(st & 0x20)) {
+=======
+	if (st == STATUS_DMA)
+		return;
+	if (!(st & STATUS_DMA)) {
+>>>>>>> upstream/android-13
 		virtual_dma_residue += virtual_dma_count;
 		virtual_dma_count = 0;
 #ifdef TRACE_FLPY_INT

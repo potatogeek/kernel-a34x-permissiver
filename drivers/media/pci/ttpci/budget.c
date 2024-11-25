@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * budget.c: driver for the SAA7146 based Budget DVB cards
  *
@@ -13,6 +17,7 @@
  *           Oliver Endriss <o.endriss@gmx.de> and
  *           Andreas 'randy' Weinberger
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -28,6 +33,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 
@@ -627,7 +634,11 @@ static void frontend_init(struct budget *budget)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0x1018: // TT Budget-S-1401 (philips tda10086/philips tda8262)
 	{
 		struct dvb_frontend *fe;
@@ -652,7 +663,11 @@ static void frontend_init(struct budget *budget)
 			break;
 		}
 	}
+<<<<<<< HEAD
 	/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case 0x101c: { /* TT S2-1600 */
 			const struct stv6110x_devctl *ctl;

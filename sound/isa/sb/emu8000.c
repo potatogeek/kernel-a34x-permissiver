@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *     and (c) 1999 Steve Ratcliffe <steve@parabola.demon.co.uk>
  *  Copyright (C) 1999-2000 Takashi Iwai <tiwai@suse.de>
  *
  *  Routines for control of EMU8000 chip
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/wait.h>
@@ -235,7 +242,11 @@ init_dma(struct snd_emu8000 *emu)
 /*
  * initialization arrays; from ADIP
  */
+<<<<<<< HEAD
 static unsigned short init1[128] = {
+=======
+static const unsigned short init1[128] = {
+>>>>>>> upstream/android-13
 	0x03ff, 0x0030,  0x07ff, 0x0130, 0x0bff, 0x0230,  0x0fff, 0x0330,
 	0x13ff, 0x0430,  0x17ff, 0x0530, 0x1bff, 0x0630,  0x1fff, 0x0730,
 	0x23ff, 0x0830,  0x27ff, 0x0930, 0x2bff, 0x0a30,  0x2fff, 0x0b30,
@@ -257,7 +268,11 @@ static unsigned short init1[128] = {
 	0xf3ff, 0x0c30,  0xf7ff, 0x0d30, 0xfbff, 0x0e30,  0xffff, 0x0f30,
 };
 
+<<<<<<< HEAD
 static unsigned short init2[128] = {
+=======
+static const unsigned short init2[128] = {
+>>>>>>> upstream/android-13
 	0x03ff, 0x8030, 0x07ff, 0x8130, 0x0bff, 0x8230, 0x0fff, 0x8330,
 	0x13ff, 0x8430, 0x17ff, 0x8530, 0x1bff, 0x8630, 0x1fff, 0x8730,
 	0x23ff, 0x8830, 0x27ff, 0x8930, 0x2bff, 0x8a30, 0x2fff, 0x8b30,
@@ -279,7 +294,11 @@ static unsigned short init2[128] = {
 	0xf3ff, 0x8c30, 0xf7ff, 0x8d30, 0xfbff, 0x8e30, 0xffff, 0x8f30,
 };
 
+<<<<<<< HEAD
 static unsigned short init3[128] = {
+=======
+static const unsigned short init3[128] = {
+>>>>>>> upstream/android-13
 	0x0C10, 0x8470, 0x14FE, 0xB488, 0x167F, 0xA470, 0x18E7, 0x84B5,
 	0x1B6E, 0x842A, 0x1F1D, 0x852A, 0x0DA3, 0x8F7C, 0x167E, 0xF254,
 	0x0000, 0x842A, 0x0001, 0x852A, 0x18E6, 0x8BAA, 0x1B6D, 0xF234,
@@ -301,7 +320,11 @@ static unsigned short init3[128] = {
 	0x1342, 0xD36E, 0x3EC7, 0xB3FF, 0x0000, 0x8365, 0x1420, 0x9570,
 };
 
+<<<<<<< HEAD
 static unsigned short init4[128] = {
+=======
+static const unsigned short init4[128] = {
+>>>>>>> upstream/android-13
 	0x0C10, 0x8470, 0x14FE, 0xB488, 0x167F, 0xA470, 0x18E7, 0x84B5,
 	0x1B6E, 0x842A, 0x1F1D, 0x852A, 0x0DA3, 0x0F7C, 0x167E, 0x7254,
 	0x0000, 0x842A, 0x0001, 0x852A, 0x18E6, 0x0BAA, 0x1B6D, 0x7234,
@@ -328,10 +351,17 @@ static unsigned short init4[128] = {
  * is meant to work
  */
 static void
+<<<<<<< HEAD
 send_array(struct snd_emu8000 *emu, unsigned short *data, int size)
 {
 	int i;
 	unsigned short *p;
+=======
+send_array(struct snd_emu8000 *emu, const unsigned short *data, int size)
+{
+	int i;
+	const unsigned short *p;
+>>>>>>> upstream/android-13
 
 	p = data;
 	for (i = 0; i < size; i++, p++)
@@ -561,7 +591,11 @@ snd_emu8000_init_hw(struct snd_emu8000 *emu)
  * Bass/Treble Equalizer
  *----------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static unsigned short bass_parm[12][3] = {
+=======
+static const unsigned short bass_parm[12][3] = {
+>>>>>>> upstream/android-13
 	{0xD26A, 0xD36A, 0x0000}, /* -12 dB */
 	{0xD25B, 0xD35B, 0x0000}, /*  -8 */
 	{0xD24C, 0xD34C, 0x0000}, /*  -6 */
@@ -576,7 +610,11 @@ static unsigned short bass_parm[12][3] = {
 	{0xC26A, 0xC36A, 0x0002}, /* +12 dB */
 };
 
+<<<<<<< HEAD
 static unsigned short treble_parm[12][9] = {
+=======
+static const unsigned short treble_parm[12][9] = {
+>>>>>>> upstream/android-13
 	{0x821E, 0xC26A, 0x031E, 0xC36A, 0x021E, 0xD208, 0x831E, 0xD308, 0x0001}, /* -12 dB */
 	{0x821E, 0xC25B, 0x031E, 0xC35B, 0x021E, 0xD208, 0x831E, 0xD308, 0x0001},
 	{0x821E, 0xC24C, 0x031E, 0xC34C, 0x021E, 0xD208, 0x831E, 0xD308, 0x0001},
@@ -868,7 +906,11 @@ static int mixer_bass_treble_put(struct snd_kcontrol *kcontrol, struct snd_ctl_e
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mixer_bass_control =
+=======
+static const struct snd_kcontrol_new mixer_bass_control =
+>>>>>>> upstream/android-13
 {
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.name = "Synth Tone Control - Bass",
@@ -878,7 +920,11 @@ static struct snd_kcontrol_new mixer_bass_control =
 	.private_value = 0,
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mixer_treble_control =
+=======
+static const struct snd_kcontrol_new mixer_treble_control =
+>>>>>>> upstream/android-13
 {
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.name = "Synth Tone Control - Treble",
@@ -935,7 +981,11 @@ static int mixer_chorus_reverb_put(struct snd_kcontrol *kcontrol, struct snd_ctl
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mixer_chorus_mode_control =
+=======
+static const struct snd_kcontrol_new mixer_chorus_mode_control =
+>>>>>>> upstream/android-13
 {
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.name = "Chorus Mode",
@@ -945,7 +995,11 @@ static struct snd_kcontrol_new mixer_chorus_mode_control =
 	.private_value = 1,
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mixer_reverb_mode_control =
+=======
+static const struct snd_kcontrol_new mixer_reverb_mode_control =
+>>>>>>> upstream/android-13
 {
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.name = "Reverb Mode",
@@ -997,7 +1051,11 @@ static int mixer_fm_depth_put(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
 	return change;
 }
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mixer_fm_chorus_depth_control =
+=======
+static const struct snd_kcontrol_new mixer_fm_chorus_depth_control =
+>>>>>>> upstream/android-13
 {
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.name = "FM Chorus Depth",
@@ -1007,7 +1065,11 @@ static struct snd_kcontrol_new mixer_fm_chorus_depth_control =
 	.private_value = 1,
 };
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new mixer_fm_reverb_depth_control =
+=======
+static const struct snd_kcontrol_new mixer_fm_reverb_depth_control =
+>>>>>>> upstream/android-13
 {
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.name = "FM Reverb Depth",
@@ -1018,7 +1080,11 @@ static struct snd_kcontrol_new mixer_fm_reverb_depth_control =
 };
 
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new *mixer_defs[EMU8000_NUM_CONTROLS] = {
+=======
+static const struct snd_kcontrol_new *mixer_defs[EMU8000_NUM_CONTROLS] = {
+>>>>>>> upstream/android-13
 	&mixer_bass_control,
 	&mixer_treble_control,
 	&mixer_chorus_mode_control,
@@ -1033,6 +1099,10 @@ static struct snd_kcontrol_new *mixer_defs[EMU8000_NUM_CONTROLS] = {
 static int
 snd_emu8000_create_mixer(struct snd_card *card, struct snd_emu8000 *emu)
 {
+<<<<<<< HEAD
+=======
+	struct snd_kcontrol *kctl;
+>>>>>>> upstream/android-13
 	int i, err = 0;
 
 	if (snd_BUG_ON(!emu || !card))
@@ -1042,10 +1112,18 @@ snd_emu8000_create_mixer(struct snd_card *card, struct snd_emu8000 *emu)
 
 	memset(emu->controls, 0, sizeof(emu->controls));
 	for (i = 0; i < EMU8000_NUM_CONTROLS; i++) {
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(card, emu->controls[i] = snd_ctl_new1(mixer_defs[i], emu))) < 0) {
 			emu->controls[i] = NULL;
 			goto __error;
 		}
+=======
+		kctl = snd_ctl_new1(mixer_defs[i], emu);
+		err = snd_ctl_add(card, kctl);
+		if (err < 0)
+			goto __error;
+		emu->controls[i] = kctl;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 
@@ -1059,6 +1137,7 @@ __error:
 	return err;
 }
 
+<<<<<<< HEAD
 
 /*
  * free resources
@@ -1080,6 +1159,8 @@ static int snd_emu8000_dev_free(struct snd_device *device)
 	return snd_emu8000_free(hw);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * initialize and register emu8000 synth device.
  */
@@ -1090,9 +1171,12 @@ snd_emu8000_new(struct snd_card *card, int index, long port, int seq_ports,
 	struct snd_seq_device *awe;
 	struct snd_emu8000 *hw;
 	int err;
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
 		.dev_free = snd_emu8000_dev_free,
 	};
+=======
+>>>>>>> upstream/android-13
 
 	if (awe_ret)
 		*awe_ret = NULL;
@@ -1100,7 +1184,11 @@ snd_emu8000_new(struct snd_card *card, int index, long port, int seq_ports,
 	if (seq_ports <= 0)
 		return 0;
 
+<<<<<<< HEAD
 	hw = kzalloc(sizeof(*hw), GFP_KERNEL);
+=======
+	hw = devm_kzalloc(card->dev, sizeof(*hw), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (hw == NULL)
 		return -ENOMEM;
 	spin_lock_init(&hw->reg_lock);
@@ -1108,11 +1196,18 @@ snd_emu8000_new(struct snd_card *card, int index, long port, int seq_ports,
 	hw->port1 = port;
 	hw->port2 = port + 0x400;
 	hw->port3 = port + 0x800;
+<<<<<<< HEAD
 	if (!(hw->res_port1 = request_region(hw->port1, 4, "Emu8000-1")) ||
 	    !(hw->res_port2 = request_region(hw->port2, 4, "Emu8000-2")) ||
 	    !(hw->res_port3 = request_region(hw->port3, 4, "Emu8000-3"))) {
 		snd_printk(KERN_ERR "sbawe: can't grab ports 0x%lx, 0x%lx, 0x%lx\n", hw->port1, hw->port2, hw->port3);
 		snd_emu8000_free(hw);
+=======
+	if (!devm_request_region(card->dev, hw->port1, 4, "Emu8000-1") ||
+	    !devm_request_region(card->dev, hw->port2, 4, "Emu8000-2") ||
+	    !devm_request_region(card->dev, hw->port3, 4, "Emu8000-3")) {
+		snd_printk(KERN_ERR "sbawe: can't grab ports 0x%lx, 0x%lx, 0x%lx\n", hw->port1, hw->port2, hw->port3);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 	hw->mem_size = 0;
@@ -1125,6 +1220,7 @@ snd_emu8000_new(struct snd_card *card, int index, long port, int seq_ports,
 	hw->fm_chorus_depth = 0;
 	hw->fm_reverb_depth = 0;
 
+<<<<<<< HEAD
 	if (snd_emu8000_detect(hw) < 0) {
 		snd_emu8000_free(hw);
 		return -ENODEV;
@@ -1140,6 +1236,15 @@ snd_emu8000_new(struct snd_card *card, int index, long port, int seq_ports,
 		snd_emu8000_free(hw);
 		return err;
 	}
+=======
+	if (snd_emu8000_detect(hw) < 0)
+		return -ENODEV;
+
+	snd_emu8000_init_hw(hw);
+	err = snd_emu8000_create_mixer(card, hw);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_SND_SEQUENCER)
 	if (snd_seq_device_new(card, index, SNDRV_SEQ_DEV_ID_EMU8000,
 			       sizeof(struct snd_emu8000*), &awe) >= 0) {

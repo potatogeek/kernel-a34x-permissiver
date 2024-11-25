@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 1998-2008 VIA Technologies, Inc. All Rights Reserved.
  * Copyright 2001-2008 S3 Graphics, Inc. All Rights Reserved.
 
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation;
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/via-core.h>
 #include <linux/via_i2c.h>
@@ -551,11 +558,17 @@ void viafb_lcd_set_mode(const struct fb_var_screeninfo *var, u16 cxres,
 	u32 clock;
 	struct via_display_timing timing;
 	struct fb_var_screeninfo panel_var;
+<<<<<<< HEAD
 	const struct fb_videomode *mode_crt_table, *panel_crt_table;
 
 	DEBUG_MSG(KERN_INFO "viafb_lcd_set_mode!!\n");
 	/* Get mode table */
 	mode_crt_table = viafb_get_best_mode(set_hres, set_vres, 60);
+=======
+	const struct fb_videomode *panel_crt_table;
+
+	DEBUG_MSG(KERN_INFO "viafb_lcd_set_mode!!\n");
+>>>>>>> upstream/android-13
 	/* Get panel table Pointer */
 	panel_crt_table = viafb_get_best_mode(panel_hres, panel_vres, 60);
 	viafb_fill_var_timing_info(&panel_var, panel_crt_table);
@@ -758,7 +771,11 @@ static void set_lcd_output_path(int set_iga, int output_interface)
 		    viaparinfo->chip_info->gfx_chip_name))
 			viafb_write_reg_mask(CR97, VIACR, 0x84,
 				       BIT7 + BIT2 + BIT1 + BIT0);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case INTERFACE_DVP0:
 	case INTERFACE_DVP1:
 	case INTERFACE_DFP_HIGH:

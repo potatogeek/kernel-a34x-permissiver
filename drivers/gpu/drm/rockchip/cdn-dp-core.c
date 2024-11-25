@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author: Chris Zhong <zyw@rock-chips.com>
@@ -19,10 +20,19 @@
 #include <drm/drm_edid.h>
 #include <drm/drm_of.h>
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
+ * Author: Chris Zhong <zyw@rock-chips.com>
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/extcon.h>
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <linux/regmap.h>
 #include <linux/reset.h>
 #include <linux/mfd/syscon.h>
@@ -30,6 +40,22 @@
 
 #include <sound/hdmi-codec.h>
 
+=======
+#include <linux/mfd/syscon.h>
+#include <linux/phy/phy.h>
+#include <linux/regmap.h>
+#include <linux/reset.h>
+
+#include <sound/hdmi-codec.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_dp_helper.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_of.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+
+>>>>>>> upstream/android-13
 #include "cdn-dp-core.h"
 #include "cdn-dp-reg.h"
 #include "rockchip_drm_vop.h"
@@ -50,6 +76,10 @@
 #define CDN_FW_TIMEOUT_MS	(64 * 1000)
 #define CDN_DPCD_TIMEOUT_MS	5000
 #define CDN_DP_FIRMWARE		"rockchip/dptx.bin"
+<<<<<<< HEAD
+=======
+MODULE_FIRMWARE(CDN_DP_FIRMWARE);
+>>>>>>> upstream/android-13
 
 struct cdn_dp_data {
 	u8 max_phy;
@@ -81,6 +111,10 @@ static int cdn_dp_grf_write(struct cdn_dp_device *dp,
 	ret = regmap_write(dp->grf, reg, val);
 	if (ret) {
 		DRM_DEV_ERROR(dp->dev, "Could not write to GRF: %d\n", ret);
+<<<<<<< HEAD
+=======
+		clk_disable_unprepare(dp->grf_clk);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -486,8 +520,13 @@ static int cdn_dp_disable(struct cdn_dp_device *dp)
 	cdn_dp_set_firmware_active(dp, false);
 	cdn_dp_clk_disable(dp);
 	dp->active = false;
+<<<<<<< HEAD
 	dp->link.rate = 0;
 	dp->link.num_lanes = 0;
+=======
+	dp->max_lanes = 0;
+	dp->max_rate = 0;
+>>>>>>> upstream/android-13
 	if (!dp->connected) {
 		kfree(dp->edid);
 		dp->edid = NULL;
@@ -579,7 +618,11 @@ static bool cdn_dp_check_link_status(struct cdn_dp_device *dp)
 	struct cdn_dp_port *port = cdn_dp_connected_port(dp);
 	u8 sink_lanes = drm_dp_max_lane_count(dp->dpcd);
 
+<<<<<<< HEAD
 	if (!port || !dp->link.rate || !dp->link.num_lanes)
+=======
+	if (!port || !dp->max_rate || !dp->max_lanes)
+>>>>>>> upstream/android-13
 		return false;
 
 	if (cdn_dp_dpcd_read(dp, DP_LANE0_1_STATUS, link_status,
@@ -698,10 +741,13 @@ static const struct drm_encoder_helper_funcs cdn_dp_encoder_helper_funcs = {
 	.atomic_check = cdn_dp_encoder_atomic_check,
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs cdn_dp_encoder_funcs = {
 	.destroy = drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int cdn_dp_parse_dt(struct cdn_dp_device *dp)
 {
 	struct device *dev = dp->dev;
@@ -829,8 +875,13 @@ out:
 	mutex_unlock(&dp->lock);
 }
 
+<<<<<<< HEAD
 static int cdn_dp_audio_digital_mute(struct device *dev, void *data,
 				     bool enable)
+=======
+static int cdn_dp_audio_mute_stream(struct device *dev, void *data,
+				    bool enable, int direction)
+>>>>>>> upstream/android-13
 {
 	struct cdn_dp_device *dp = dev_get_drvdata(dev);
 	int ret;
@@ -861,8 +912,14 @@ static int cdn_dp_audio_get_eld(struct device *dev, void *data,
 static const struct hdmi_codec_ops audio_codec_ops = {
 	.hw_params = cdn_dp_audio_hw_params,
 	.audio_shutdown = cdn_dp_audio_shutdown,
+<<<<<<< HEAD
 	.digital_mute = cdn_dp_audio_digital_mute,
 	.get_eld = cdn_dp_audio_get_eld,
+=======
+	.mute_stream = cdn_dp_audio_mute_stream,
+	.get_eld = cdn_dp_audio_get_eld,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static int cdn_dp_audio_codec_init(struct cdn_dp_device *dp,
@@ -961,8 +1018,13 @@ static void cdn_dp_pd_event_work(struct work_struct *work)
 
 	/* Enabled and connected with a sink, re-train if requested */
 	} else if (!cdn_dp_check_link_status(dp)) {
+<<<<<<< HEAD
 		unsigned int rate = dp->link.rate;
 		unsigned int lanes = dp->link.num_lanes;
+=======
+		unsigned int rate = dp->max_rate;
+		unsigned int lanes = dp->max_lanes;
+>>>>>>> upstream/android-13
 		struct drm_display_mode *mode = &dp->mode;
 
 		DRM_DEV_INFO(dp->dev, "Connected with sink. Re-train link\n");
@@ -975,7 +1037,11 @@ static void cdn_dp_pd_event_work(struct work_struct *work)
 
 		/* If training result is changed, update the video config */
 		if (mode->clock &&
+<<<<<<< HEAD
 		    (rate != dp->link.rate || lanes != dp->link.num_lanes)) {
+=======
+		    (rate != dp->max_rate || lanes != dp->max_lanes)) {
+>>>>>>> upstream/android-13
 			ret = cdn_dp_config_video(dp);
 			if (ret) {
 				dp->connected = false;
@@ -1039,8 +1105,13 @@ static int cdn_dp_bind(struct device *dev, struct device *master, void *data)
 							     dev->of_node);
 	DRM_DEBUG_KMS("possible_crtcs = 0x%x\n", encoder->possible_crtcs);
 
+<<<<<<< HEAD
 	ret = drm_encoder_init(drm_dev, encoder, &cdn_dp_encoder_funcs,
 			       DRM_MODE_ENCODER_TMDS, NULL);
+=======
+	ret = drm_simple_encoder_init(drm_dev, encoder,
+				      DRM_MODE_ENCODER_TMDS);
+>>>>>>> upstream/android-13
 	if (ret) {
 		DRM_ERROR("failed to initialize encoder with drm\n");
 		return ret;
@@ -1118,7 +1189,11 @@ static const struct component_ops cdn_dp_component_ops = {
 	.unbind = cdn_dp_unbind,
 };
 
+<<<<<<< HEAD
 int cdn_dp_suspend(struct device *dev)
+=======
+static int cdn_dp_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct cdn_dp_device *dp = dev_get_drvdata(dev);
 	int ret = 0;
@@ -1132,7 +1207,11 @@ int cdn_dp_suspend(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 int cdn_dp_resume(struct device *dev)
+=======
+static __maybe_unused int cdn_dp_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct cdn_dp_device *dp = dev_get_drvdata(dev);
 

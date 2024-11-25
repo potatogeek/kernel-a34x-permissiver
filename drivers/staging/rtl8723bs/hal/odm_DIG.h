@@ -8,7 +8,11 @@
 #ifndef __ODMDIG_H__
 #define __ODMDIG_H__
 
+<<<<<<< HEAD
 typedef struct _Dynamic_Initial_Gain_Threshold_ {
+=======
+struct dig_t { /* _Dynamic_Initial_Gain_Threshold_ */
+>>>>>>> upstream/android-13
 	bool bStopDIG;
 	bool bPSDInProgress;
 
@@ -57,9 +61,15 @@ typedef struct _Dynamic_Initial_Gain_Threshold_ {
 	u32 RSSI_max;
 
 	u8 *pbP2pLinkInProgress;
+<<<<<<< HEAD
 } DIG_T, *pDIG_T;
 
 typedef struct false_ALARM_STATISTICS {
+=======
+};
+
+struct  false_ALARM_STATISTICS {
+>>>>>>> upstream/android-13
 	u32 Cnt_Parity_Fail;
 	u32 Cnt_Rate_Illegal;
 	u32 Cnt_Crc8_fail;
@@ -75,6 +85,7 @@ typedef struct false_ALARM_STATISTICS {
 	u32 Cnt_CCA_all;
 	u32 Cnt_BW_USC; /* Gary */
 	u32 Cnt_BW_LSC; /* Gary */
+<<<<<<< HEAD
 } false_ALARM_STATISTICS, *Pfalse_ALARM_STATISTICS;
 
 typedef enum tag_Dynamic_Init_Gain_Operation_Type_Definition {
@@ -97,6 +108,14 @@ typedef enum tag_ODM_PauseCCKPD_Type {
 	ODM_PAUSE_CCKPD = BIT0,
 	ODM_RESUME_CCKPD = BIT1
 } ODM_Pause_CCKPD_TYPE;
+=======
+};
+
+enum ODM_Pause_DIG_TYPE {
+	ODM_PAUSE_DIG = BIT0,
+	ODM_RESUME_DIG = BIT1
+};
+>>>>>>> upstream/android-13
 
 #define		DM_DIG_THRESH_HIGH			40
 #define		DM_DIG_THRESH_LOW			35
@@ -157,7 +176,11 @@ void odm_Adaptivity(void *pDM_VOID, u8 IGI);
 
 void ODM_Write_DIG(void *pDM_VOID, u8 CurrentIGI);
 
+<<<<<<< HEAD
 void odm_PauseDIG(void *pDM_VOID, ODM_Pause_DIG_TYPE PauseType, u8 IGIValue);
+=======
+void odm_PauseDIG(void *pDM_VOID, enum ODM_Pause_DIG_TYPE PauseType, u8 IGIValue);
+>>>>>>> upstream/android-13
 
 void odm_DIGInit(void *pDM_VOID);
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Driver for
  *    Samsung S5H1420 and
@@ -5,6 +9,7 @@
  *
  * Copyright (C) 2005 Andrew de Quincey <adq_dvb@lidskialf.net>
  * Copyright (C) 2005 Patrick Boettcher <pb@linuxtv.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 675 Mass
  * Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef S5H1420_PRIV
 #define S5H1420_PRIV

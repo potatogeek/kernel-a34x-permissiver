@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Serial Attached SCSI (SAS) class internal header file
  *
  * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
  * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
  *
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SAS_INTERNAL_H_
@@ -32,9 +39,19 @@
 #include <scsi/libsas.h>
 #include <scsi/sas_ata.h>
 
+<<<<<<< HEAD
 #define sas_printk(fmt, ...) printk(KERN_NOTICE "sas: " fmt, ## __VA_ARGS__)
 
 #define SAS_DPRINTK(fmt, ...) printk(KERN_DEBUG "sas: " fmt, ## __VA_ARGS__)
+=======
+#ifdef pr_fmt
+#undef pr_fmt
+#endif
+
+#define SAS_FMT "sas: "
+
+#define pr_fmt(fmt) SAS_FMT fmt
+>>>>>>> upstream/android-13
 
 #define TO_SAS_TASK(_scsi_cmd)  ((void *)(_scsi_cmd)->host_scribble)
 #define ASSIGN_SAS_TASK(_sc, _t) do { (_sc)->host_scribble = (void *) _t; } while (0)
@@ -61,13 +78,20 @@ int sas_show_oob_mode(enum sas_oob_mode oob_mode, char *buf);
 int  sas_register_phys(struct sas_ha_struct *sas_ha);
 void sas_unregister_phys(struct sas_ha_struct *sas_ha);
 
+<<<<<<< HEAD
 struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy);
+=======
+struct asd_sas_event *sas_alloc_event(struct asd_sas_phy *phy, gfp_t gfp_flags);
+>>>>>>> upstream/android-13
 void sas_free_event(struct asd_sas_event *event);
 
 int  sas_register_ports(struct sas_ha_struct *sas_ha);
 void sas_unregister_ports(struct sas_ha_struct *sas_ha);
 
+<<<<<<< HEAD
 int  sas_init_events(struct sas_ha_struct *sas_ha);
+=======
+>>>>>>> upstream/android-13
 void sas_disable_revalidation(struct sas_ha_struct *ha);
 void sas_enable_revalidation(struct sas_ha_struct *ha);
 void __sas_drain_work(struct sas_ha_struct *ha);
@@ -90,7 +114,12 @@ int sas_smp_phy_control(struct domain_device *dev, int phy_id,
 			enum phy_func phy_func, struct sas_phy_linkrates *);
 int sas_smp_get_phy_events(struct sas_phy *phy);
 
+<<<<<<< HEAD
 int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event);
+=======
+int sas_notify_phy_event(struct asd_sas_phy *phy, enum phy_event event,
+			 gfp_t flags);
+>>>>>>> upstream/android-13
 void sas_device_set_phy(struct domain_device *dev, struct sas_port *port);
 struct domain_device *sas_find_dev_by_rphy(struct sas_rphy *rphy);
 struct domain_device *sas_ex_to_ata(struct domain_device *ex_dev, int phy_id);
@@ -120,10 +149,17 @@ static inline void sas_smp_host_handler(struct bsg_job *job,
 
 static inline void sas_fail_probe(struct domain_device *dev, const char *func, int err)
 {
+<<<<<<< HEAD
 	SAS_DPRINTK("%s: for %s device %16llx returned %d\n",
 		    func, dev->parent ? "exp-attached" :
 					    "direct-attached",
 		    SAS_ADDR(dev->sas_addr), err);
+=======
+	pr_warn("%s: for %s device %016llx returned %d\n",
+		func, dev->parent ? "exp-attached" :
+		"direct-attached",
+		SAS_ADDR(dev->sas_addr), err);
+>>>>>>> upstream/android-13
 	sas_unregister_dev(dev->port, dev);
 }
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -12,6 +13,14 @@
  * Contact Information:
  * wlanfae <wlanfae@realtek.com>
  ******************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include "rtllib.h"
 #include "rtl819x_HT.h"
 u8 MCS_FILTER_ALL[16] = {
@@ -146,7 +155,11 @@ u16  TxCountToDataRate(struct rtllib_device *ieee, u8 nDataRate)
 		is40MHz = 1;
 		isShortGI = 1;
 	}
+<<<<<<< HEAD
 	return MCS_DATA_RATE[is40MHz][isShortGI][nDataRate&0xf];
+=======
+	return MCS_DATA_RATE[is40MHz][isShortGI][nDataRate & 0xf];
+>>>>>>> upstream/android-13
 }
 
 bool IsHTHalfNmodeAPs(struct rtllib_device *ieee)
@@ -166,7 +179,11 @@ bool IsHTHalfNmodeAPs(struct rtllib_device *ieee)
 		!memcmp(net->bssid, LINKSYSWRT350_LINKSYSWRT150_BROADCOM, 3) ||
 		(net->broadcom_cap_exist))
 		retValue = true;
+<<<<<<< HEAD
 	else if (net->bssht.bdRT2RTAggregation)
+=======
+	else if (net->bssht.bd_rt2rt_aggregation)
+>>>>>>> upstream/android-13
 		retValue = true;
 	else
 		retValue = false;
@@ -179,6 +196,7 @@ static void HTIOTPeerDetermine(struct rtllib_device *ieee)
 	struct rt_hi_throughput *pHTInfo = ieee->pHTInfo;
 	struct rtllib_network *net = &ieee->current_network;
 
+<<<<<<< HEAD
 	if (net->bssht.bdRT2RTAggregation) {
 		pHTInfo->IOTPeer = HT_IOT_PEER_REALTEK;
 		if (net->bssht.RT2RT_HT_Mode & RT_HT_CAP_USE_92SE)
@@ -192,10 +210,26 @@ static void HTIOTPeerDetermine(struct rtllib_device *ieee)
 		 !memcmp(net->bssid, LINKSYSWRT350_LINKSYSWRT150_BROADCOM, 3))
 		pHTInfo->IOTPeer = HT_IOT_PEER_BROADCOM;
 	else if ((memcmp(net->bssid, BELKINF5D8233V1_RALINK, 3) == 0) ||
+=======
+	if (net->bssht.bd_rt2rt_aggregation) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_REALTEK;
+		if (net->bssht.rt2rt_ht_mode & RT_HT_CAP_USE_92SE)
+			pHTInfo->IOTPeer = HT_IOT_PEER_REALTEK_92SE;
+		if (net->bssht.rt2rt_ht_mode & RT_HT_CAP_USE_SOFTAP)
+			pHTInfo->IOTPeer = HT_IOT_PEER_92U_SOFTAP;
+	} else if (net->broadcom_cap_exist) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_BROADCOM;
+	} else if (!memcmp(net->bssid, UNKNOWN_BORADCOM, 3) ||
+		 !memcmp(net->bssid, LINKSYSWRT330_LINKSYSWRT300_BROADCOM, 3) ||
+		 !memcmp(net->bssid, LINKSYSWRT350_LINKSYSWRT150_BROADCOM, 3)) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_BROADCOM;
+	} else if ((memcmp(net->bssid, BELKINF5D8233V1_RALINK, 3) == 0) ||
+>>>>>>> upstream/android-13
 		 (memcmp(net->bssid, BELKINF5D82334V3_RALINK, 3) == 0) ||
 		 (memcmp(net->bssid, PCI_RALINK, 3) == 0) ||
 		 (memcmp(net->bssid, EDIMAX_RALINK, 3) == 0) ||
 		 (memcmp(net->bssid, AIRLINK_RALINK, 3) == 0) ||
+<<<<<<< HEAD
 		  net->ralink_cap_exist)
 		pHTInfo->IOTPeer = HT_IOT_PEER_RALINK;
 	else if ((net->atheros_cap_exist) ||
@@ -212,6 +246,25 @@ static void HTIOTPeerDetermine(struct rtllib_device *ieee)
 		pHTInfo->IOTPeer = HT_IOT_PEER_AIRGO;
 	else
 		pHTInfo->IOTPeer = HT_IOT_PEER_UNKNOWN;
+=======
+		  net->ralink_cap_exist) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_RALINK;
+	} else if ((net->atheros_cap_exist) ||
+		(memcmp(net->bssid, DLINK_ATHEROS_1, 3) == 0) ||
+		(memcmp(net->bssid, DLINK_ATHEROS_2, 3) == 0)) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_ATHEROS;
+	} else if ((memcmp(net->bssid, CISCO_BROADCOM, 3) == 0) ||
+		  net->cisco_cap_exist) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_CISCO;
+	} else if ((memcmp(net->bssid, LINKSYS_MARVELL_4400N, 3) == 0) ||
+		  net->marvell_cap_exist) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_MARVELL;
+	} else if (net->airgo_cap_exist) {
+		pHTInfo->IOTPeer = HT_IOT_PEER_AIRGO;
+	} else {
+		pHTInfo->IOTPeer = HT_IOT_PEER_UNKNOWN;
+	}
+>>>>>>> upstream/android-13
 
 	netdev_dbg(ieee->dev, "IOTPEER: %x\n", pHTInfo->IOTPeer);
 }
@@ -221,7 +274,10 @@ static u8 HTIOTActIsDisableMCS14(struct rtllib_device *ieee, u8 *PeerMacAddr)
 	return 0;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static bool HTIOTActIsDisableMCS15(struct rtllib_device *ieee)
 {
 	return false;
@@ -243,7 +299,10 @@ static u8 HTIOTActIsMgntUseCCK6M(struct rtllib_device *ieee,
 {
 	u8	retValue = 0;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (ieee->pHTInfo->IOTPeer == HT_IOT_PEER_BROADCOM)
 		retValue = 1;
 
@@ -270,7 +329,10 @@ static void HTIOTActDetermineRaFunc(struct rtllib_device *ieee, bool bPeerRx2ss)
 
 	if (pHTInfo->IOTAction & HT_IOT_ACT_AMSDU_ENABLE)
 		pHTInfo->IOTRaFunc |= HT_IOT_RAFUNC_TX_AMSDU;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 void HTResetIOTSetting(struct rt_hi_throughput *pHTInfo)
@@ -286,7 +348,11 @@ void HTConstructCapabilityElement(struct rtllib_device *ieee, u8 *posHTCap,
 	struct rt_hi_throughput *pHT = ieee->pHTInfo;
 	struct ht_capab_ele *pCapELE = NULL;
 
+<<<<<<< HEAD
 	if ((posHTCap == NULL) || (pHT == NULL)) {
+=======
+	if (!posHTCap || !pHT) {
+>>>>>>> upstream/android-13
 		netdev_warn(ieee->dev,
 			    "%s(): posHTCap and pHTInfo are null\n", __func__);
 		return;
@@ -323,7 +389,10 @@ void HTConstructCapabilityElement(struct rtllib_device *ieee, u8 *posHTCap,
 	pCapELE->PSMP = 0;
 	pCapELE->LSigTxopProtect = 0;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	netdev_dbg(ieee->dev,
 		   "TX HT cap/info ele BW=%d MaxAMSDUSize:%d DssCCk:%d\n",
 		   pCapELE->ChlWidth, pCapELE->MaxAMSDUSize, pCapELE->DssCCk);
@@ -368,7 +437,11 @@ void HTConstructInfoElement(struct rtllib_device *ieee, u8 *posHTInfo,
 	struct rt_hi_throughput *pHT = ieee->pHTInfo;
 	struct ht_info_ele *pHTInfoEle = (struct ht_info_ele *)posHTInfo;
 
+<<<<<<< HEAD
 	if ((posHTInfo == NULL) || (pHTInfoEle == NULL)) {
+=======
+	if (!posHTInfo || !pHTInfoEle) {
+>>>>>>> upstream/android-13
 		netdev_warn(ieee->dev,
 			    "%s(): posHTInfo and pHTInfoEle are null\n",
 			    __func__);
@@ -379,7 +452,11 @@ void HTConstructInfoElement(struct rtllib_device *ieee, u8 *posHTInfo,
 	if ((ieee->iw_mode == IW_MODE_ADHOC) ||
 	    (ieee->iw_mode == IW_MODE_MASTER)) {
 		pHTInfoEle->ControlChl	= ieee->current_network.channel;
+<<<<<<< HEAD
 		pHTInfoEle->ExtChlOffset = ((pHT->bRegBW40MHz == false) ?
+=======
+		pHTInfoEle->ExtChlOffset = ((!pHT->bRegBW40MHz) ?
+>>>>>>> upstream/android-13
 					    HT_EXTCHNL_OFFSET_NO_EXT :
 					    (ieee->current_network.channel <= 6)
 					    ? HT_EXTCHNL_OFFSET_UPPER :
@@ -398,7 +475,10 @@ void HTConstructInfoElement(struct rtllib_device *ieee, u8 *posHTInfo,
 
 		memset(pHTInfoEle->BasicMSC, 0, 16);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		*len = 22 + 2;
 
 	} else {
@@ -409,7 +489,11 @@ void HTConstructInfoElement(struct rtllib_device *ieee, u8 *posHTInfo,
 void HTConstructRT2RTAggElement(struct rtllib_device *ieee, u8 *posRT2RTAgg,
 				u8 *len)
 {
+<<<<<<< HEAD
 	if (posRT2RTAgg == NULL) {
+=======
+	if (!posRT2RTAgg) {
+>>>>>>> upstream/android-13
 		netdev_warn(ieee->dev, "%s(): posRT2RTAgg is null\n", __func__);
 		return;
 	}
@@ -432,7 +516,11 @@ static u8 HT_PickMCSRate(struct rtllib_device *ieee, u8 *pOperateMCS)
 {
 	u8 i;
 
+<<<<<<< HEAD
 	if (pOperateMCS == NULL) {
+=======
+	if (!pOperateMCS) {
+>>>>>>> upstream/android-13
 		netdev_warn(ieee->dev, "%s(): pOperateMCS is null\n", __func__);
 		return false;
 	}
@@ -452,7 +540,10 @@ static u8 HT_PickMCSRate(struct rtllib_device *ieee, u8 *pOperateMCS)
 		break;
 	default:
 		break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return true;
@@ -466,7 +557,11 @@ u8 HTGetHighestMCSRate(struct rtllib_device *ieee, u8 *pMCSRateSet,
 	u8		mcsRate = 0;
 	u8		availableMcsRate[16];
 
+<<<<<<< HEAD
 	if (pMCSRateSet == NULL || pMCSFilter == NULL) {
+=======
+	if (!pMCSRateSet || !pMCSFilter) {
+>>>>>>> upstream/android-13
 		netdev_warn(ieee->dev,
 			    "%s(): pMCSRateSet and pMCSFilter are null\n",
 			    __func__);
@@ -486,8 +581,13 @@ u8 HTGetHighestMCSRate(struct rtllib_device *ieee, u8 *pMCSRateSet,
 		if (availableMcsRate[i] != 0) {
 			bitMap = availableMcsRate[i];
 			for (j = 0; j < 8; j++) {
+<<<<<<< HEAD
 				if ((bitMap%2) != 0) {
 					if (HTMcsToDataRate(ieee, (8*i+j)) >
+=======
+				if ((bitMap % 2) != 0) {
+					if (HTMcsToDataRate(ieee, (8 * i + j)) >
+>>>>>>> upstream/android-13
 					    HTMcsToDataRate(ieee, mcsRate))
 						mcsRate = 8 * i + j;
 				}
@@ -501,7 +601,10 @@ u8 HTGetHighestMCSRate(struct rtllib_device *ieee, u8 *pMCSRateSet,
 static u8 HTFilterMCSRate(struct rtllib_device *ieee, u8 *pSupportMCS,
 			  u8 *pOperateMCS)
 {
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	u8 i;
 
 	for (i = 0; i <= 15; i++)
@@ -534,7 +637,11 @@ void HTOnAssocRsp(struct rtllib_device *ieee)
 	static u8 EWC11NHTCap[] = {0x00, 0x90, 0x4c, 0x33};
 	static u8 EWC11NHTInfo[] = {0x00, 0x90, 0x4c, 0x34};
 
+<<<<<<< HEAD
 	if (pHTInfo->bCurrentHTSupport == false) {
+=======
+	if (!pHTInfo->bCurrentHTSupport) {
+>>>>>>> upstream/android-13
 		netdev_warn(ieee->dev, "%s(): HT_DISABLE\n", __func__);
 		return;
 	}
@@ -551,9 +658,14 @@ void HTOnAssocRsp(struct rtllib_device *ieee)
 	else
 		pPeerHTInfo = (struct ht_info_ele *)(pHTInfo->PeerHTInfoBuf);
 
+<<<<<<< HEAD
 
 #ifdef VERBOSE_DEBUG
 	print_hex_dump_bytes("HTOnAssocRsp(): ", DUMP_PREFIX_NONE,
+=======
+#ifdef VERBOSE_DEBUG
+	print_hex_dump_bytes("%s: ", __func__, DUMP_PREFIX_NONE,
+>>>>>>> upstream/android-13
 			     pPeerHTCap, sizeof(struct ht_capab_ele));
 #endif
 	HTSetConnectBwMode(ieee, (enum ht_channel_width)(pPeerHTCap->ChlWidth),
@@ -572,7 +684,10 @@ void HTOnAssocRsp(struct rtllib_device *ieee)
 			       ((pPeerHTCap->DssCCk == 1) ? true :
 			       false) : false);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	pHTInfo->bCurrent_AMSDU_Support = pHTInfo->bAMSDU_Support;
 
 	nMaxAMSDUSize = (pPeerHTCap->MaxAMSDUSize == 0) ? 3839 : 7935;
@@ -584,7 +699,11 @@ void HTOnAssocRsp(struct rtllib_device *ieee)
 
 	pHTInfo->bCurrentAMPDUEnable = pHTInfo->bAMPDUEnable;
 	if (ieee->rtllib_ap_sec_type &&
+<<<<<<< HEAD
 	   (ieee->rtllib_ap_sec_type(ieee)&(SEC_ALG_WEP|SEC_ALG_TKIP))) {
+=======
+	   (ieee->rtllib_ap_sec_type(ieee) & (SEC_ALG_WEP | SEC_ALG_TKIP))) {
+>>>>>>> upstream/android-13
 		if ((pHTInfo->IOTPeer == HT_IOT_PEER_ATHEROS) ||
 				(pHTInfo->IOTPeer == HT_IOT_PEER_UNKNOWN))
 			pHTInfo->bCurrentAMPDUEnable = false;
@@ -598,7 +717,11 @@ void HTOnAssocRsp(struct rtllib_device *ieee)
 			pHTInfo->CurrentAMPDUFactor = pHTInfo->AMPDU_Factor;
 
 	} else {
+<<<<<<< HEAD
 		if (ieee->current_network.bssht.bdRT2RTAggregation) {
+=======
+		if (ieee->current_network.bssht.bd_rt2rt_aggregation) {
+>>>>>>> upstream/android-13
 			if (ieee->pairwise_key_type != KEY_TYPE_NA)
 				pHTInfo->CurrentAMPDUFactor =
 						 pPeerHTCap->MaxRxAMPDUFactor;
@@ -646,7 +769,10 @@ void HTInitializeHTInfo(struct rtllib_device *ieee)
 {
 	struct rt_hi_throughput *pHTInfo = ieee->pHTInfo;
 
+<<<<<<< HEAD
 	netdev_vdbg(ieee->dev, "%s()\n", __func__);
+=======
+>>>>>>> upstream/android-13
 	pHTInfo->bCurrentHTSupport = false;
 
 	pHTInfo->bCurBW40MHz = false;
@@ -695,6 +821,7 @@ void HTInitializeHTInfo(struct rtllib_device *ieee)
 
 void HTInitializeBssDesc(struct bss_ht *pBssHT)
 {
+<<<<<<< HEAD
 
 	pBssHT->bdSupportHT = false;
 	memset(pBssHT->bdHTCapBuf, 0, sizeof(pBssHT->bdHTCapBuf));
@@ -707,6 +834,19 @@ void HTInitializeBssDesc(struct bss_ht *pBssHT)
 	pBssHT->bdRT2RTAggregation = false;
 	pBssHT->bdRT2RTLongSlotTime = false;
 	pBssHT->RT2RT_HT_Mode = (enum rt_ht_capability)0;
+=======
+	pBssHT->bd_support_ht = false;
+	memset(pBssHT->bd_ht_cap_buf, 0, sizeof(pBssHT->bd_ht_cap_buf));
+	pBssHT->bd_ht_cap_len = 0;
+	memset(pBssHT->bd_ht_info_buf, 0, sizeof(pBssHT->bd_ht_info_buf));
+	pBssHT->bd_ht_info_len = 0;
+
+	pBssHT->bd_ht_spec_ver = HT_SPEC_VER_IEEE;
+
+	pBssHT->bd_rt2rt_aggregation = false;
+	pBssHT->bd_rt2rt_long_slot_time = false;
+	pBssHT->rt2rt_ht_mode = (enum rt_ht_capability)0;
+>>>>>>> upstream/android-13
 }
 
 void HTResetSelfAndSavePeerSetting(struct rtllib_device *ieee,
@@ -715,6 +855,7 @@ void HTResetSelfAndSavePeerSetting(struct rtllib_device *ieee,
 	struct rt_hi_throughput *pHTInfo = ieee->pHTInfo;
 	u8	bIOTAction = 0;
 
+<<<<<<< HEAD
 	netdev_vdbg(ieee->dev, "%s()\n", __func__);
 	/* unmark bEnableHT flag here is the same reason why unmarked in
 	 * function rtllib_softmac_new_net. WB 2008.09.10
@@ -742,6 +883,34 @@ void HTResetSelfAndSavePeerSetting(struct rtllib_device *ieee,
 			pHTInfo->bCurrentRT2RTLongSlotTime =
 				 pNetwork->bssht.bdRT2RTLongSlotTime;
 			pHTInfo->RT2RT_HT_Mode = pNetwork->bssht.RT2RT_HT_Mode;
+=======
+	/* unmark bEnableHT flag here is the same reason why unmarked in
+	 * function rtllib_softmac_new_net. WB 2008.09.10
+	 */
+	if (pNetwork->bssht.bd_support_ht) {
+		pHTInfo->bCurrentHTSupport = true;
+		pHTInfo->ePeerHTSpecVer = pNetwork->bssht.bd_ht_spec_ver;
+
+		if (pNetwork->bssht.bd_ht_cap_len > 0 &&
+		    pNetwork->bssht.bd_ht_cap_len <= sizeof(pHTInfo->PeerHTCapBuf))
+			memcpy(pHTInfo->PeerHTCapBuf,
+			       pNetwork->bssht.bd_ht_cap_buf,
+			       pNetwork->bssht.bd_ht_cap_len);
+
+		if (pNetwork->bssht.bd_ht_info_len > 0 &&
+		    pNetwork->bssht.bd_ht_info_len <=
+		    sizeof(pHTInfo->PeerHTInfoBuf))
+			memcpy(pHTInfo->PeerHTInfoBuf,
+			       pNetwork->bssht.bd_ht_info_buf,
+			       pNetwork->bssht.bd_ht_info_len);
+
+		if (pHTInfo->bRegRT2RTAggregation) {
+			pHTInfo->bCurrentRT2RTAggregation =
+				 pNetwork->bssht.bd_rt2rt_aggregation;
+			pHTInfo->bCurrentRT2RTLongSlotTime =
+				 pNetwork->bssht.bd_rt2rt_long_slot_time;
+			pHTInfo->RT2RT_HT_Mode = pNetwork->bssht.rt2rt_ht_mode;
+>>>>>>> upstream/android-13
 		} else {
 			pHTInfo->bCurrentRT2RTAggregation = false;
 			pHTInfo->bCurrentRT2RTLongSlotTime = false;
@@ -763,7 +932,10 @@ void HTResetSelfAndSavePeerSetting(struct rtllib_device *ieee,
 		if (bIOTAction)
 			pHTInfo->IOTAction |= HT_IOT_ACT_DISABLE_ALL_2SS;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 		bIOTAction = HTIOTActIsDisableEDCATurbo(ieee, pNetwork->bssid);
 		if (bIOTAction)
 			pHTInfo->IOTAction |= HT_IOT_ACT_DISABLE_EDCA_TURBO;
@@ -790,10 +962,17 @@ void HT_update_self_and_peer_setting(struct rtllib_device *ieee,
 {
 	struct rt_hi_throughput *pHTInfo = ieee->pHTInfo;
 	struct ht_info_ele *pPeerHTInfo =
+<<<<<<< HEAD
 		 (struct ht_info_ele *)pNetwork->bssht.bdHTInfoBuf;
 
 	if (pHTInfo->bCurrentHTSupport) {
 		if (pNetwork->bssht.bdHTInfoLen != 0)
+=======
+		 (struct ht_info_ele *)pNetwork->bssht.bd_ht_info_buf;
+
+	if (pHTInfo->bCurrentHTSupport) {
+		if (pNetwork->bssht.bd_ht_info_len != 0)
+>>>>>>> upstream/android-13
 			pHTInfo->CurrentOpMode = pPeerHTInfo->OptMode;
 	}
 }
@@ -850,8 +1029,11 @@ static void HTSetConnectBwModeCallback(struct rtllib_device *ieee)
 {
 	struct rt_hi_throughput *pHTInfo = ieee->pHTInfo;
 
+<<<<<<< HEAD
 	netdev_vdbg(ieee->dev, "%s()\n", __func__);
 
+=======
+>>>>>>> upstream/android-13
 	if (pHTInfo->bCurBW40MHz) {
 		if (pHTInfo->CurSTAExtChnlOffset == HT_EXTCHNL_OFFSET_UPPER)
 			ieee->set_chan(ieee->dev,
@@ -881,7 +1063,11 @@ void HTSetConnectBwMode(struct rtllib_device *ieee,
 {
 	struct rt_hi_throughput *pHTInfo = ieee->pHTInfo;
 
+<<<<<<< HEAD
 	if (pHTInfo->bRegBW40MHz == false)
+=======
+	if (!pHTInfo->bRegBW40MHz)
+>>>>>>> upstream/android-13
 		return;
 
 	if (ieee->GetHalfNmodeSupportByAPsHandler(ieee->dev))

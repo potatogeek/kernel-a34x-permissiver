@@ -1,24 +1,51 @@
+<<<<<<< HEAD
 .text
 #include <linux/linkage.h>
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+.text
+#include <linux/linkage.h>
+#include <linux/objtool.h>
+>>>>>>> upstream/android-13
 #include <asm/segment.h>
 #include <asm/pgtable_types.h>
 #include <asm/page_types.h>
 #include <asm/msr.h>
 #include <asm/asm-offsets.h>
 #include <asm/frame.h>
+<<<<<<< HEAD
 
 # Copyright 2003 Pavel Machek <pavel@suse.cz>, distribute under GPLv2
+=======
+#include <asm/nospec-branch.h>
+
+# Copyright 2003 Pavel Machek <pavel@suse.cz
+>>>>>>> upstream/android-13
 
 .code64
 	/*
 	 * Hooray, we are in Long 64-bit mode (but still running in low memory)
 	 */
+<<<<<<< HEAD
 ENTRY(wakeup_long64)
 	movq	saved_magic, %rax
 	movq	$0x123456789abcdef0, %rdx
 	cmpq	%rdx, %rax
 	jne	bogus_64_magic
 
+=======
+SYM_FUNC_START(wakeup_long64)
+	movq	saved_magic, %rax
+	movq	$0x123456789abcdef0, %rdx
+	cmpq	%rdx, %rax
+	je	2f
+
+	/* stop here on a saved_magic mismatch */
+	movq $0xbad6d61676963, %rcx
+1:
+	jmp 1b
+2:
+>>>>>>> upstream/android-13
 	movw	$__KERNEL_DS, %ax
 	movw	%ax, %ss	
 	movw	%ax, %ds
@@ -33,6 +60,7 @@ ENTRY(wakeup_long64)
 	movq	saved_rbp, %rbp
 
 	movq	saved_rip, %rax
+<<<<<<< HEAD
 	jmp	*%rax
 ENDPROC(wakeup_long64)
 
@@ -40,6 +68,13 @@ bogus_64_magic:
 	jmp	bogus_64_magic
 
 ENTRY(do_suspend_lowlevel)
+=======
+	ANNOTATE_RETPOLINE_SAFE
+	jmp	*%rax
+SYM_FUNC_END(wakeup_long64)
+
+SYM_FUNC_START(do_suspend_lowlevel)
+>>>>>>> upstream/android-13
 	FRAME_BEGIN
 	subq	$8, %rsp
 	xorl	%eax, %eax
@@ -109,7 +144,11 @@ ENTRY(do_suspend_lowlevel)
 	movq	pt_regs_r14(%rax), %r14
 	movq	pt_regs_r15(%rax), %r15
 
+<<<<<<< HEAD
 #ifdef CONFIG_KASAN
+=======
+#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
+>>>>>>> upstream/android-13
 	/*
 	 * The suspend path may have poisoned some areas deeper in the stack,
 	 * which we now need to unpoison.
@@ -122,6 +161,7 @@ ENTRY(do_suspend_lowlevel)
 	addq	$8, %rsp
 	FRAME_END
 	jmp	restore_processor_state
+<<<<<<< HEAD
 ENDPROC(do_suspend_lowlevel)
 
 .data
@@ -134,3 +174,18 @@ ENTRY(saved_rip)	.quad	0
 ENTRY(saved_rsp)	.quad	0
 
 ENTRY(saved_magic)	.quad	0
+=======
+SYM_FUNC_END(do_suspend_lowlevel)
+STACK_FRAME_NON_STANDARD do_suspend_lowlevel
+
+.data
+saved_rbp:		.quad	0
+saved_rsi:		.quad	0
+saved_rdi:		.quad	0
+saved_rbx:		.quad	0
+
+saved_rip:		.quad	0
+saved_rsp:		.quad	0
+
+SYM_DATA(saved_magic,	.quad	0)
+>>>>>>> upstream/android-13

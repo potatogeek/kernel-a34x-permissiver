@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * lib_sw_fence.h - library routines for testing N:M synchronisation points
  *
  * Copyright (C) 2017 Intel Corporation
+<<<<<<< HEAD
  *
  * This file is released under the GPLv2.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LIB_SW_FENCE_H_
@@ -39,4 +46,10 @@ struct timed_fence {
 void timed_fence_init(struct timed_fence *tf, unsigned long expires);
 void timed_fence_fini(struct timed_fence *tf);
 
+<<<<<<< HEAD
+=======
+struct i915_sw_fence *heap_fence_create(gfp_t gfp);
+void heap_fence_put(struct i915_sw_fence *fence);
+
+>>>>>>> upstream/android-13
 #endif /* _LIB_SW_FENCE_H_ */

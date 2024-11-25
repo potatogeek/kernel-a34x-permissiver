@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015-2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015-2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/net.h>
@@ -108,7 +114,11 @@ static u16 hfi1_lookup_pkey_value(struct hfi1_ibport *ibp, int pkey_idx)
 	return 0;
 }
 
+<<<<<<< HEAD
 void hfi1_event_pkey_change(struct hfi1_devdata *dd, u8 port)
+=======
+void hfi1_event_pkey_change(struct hfi1_devdata *dd, u32 port)
+>>>>>>> upstream/android-13
 {
 	struct ib_event event;
 
@@ -297,7 +307,11 @@ static struct ib_ah *hfi1_create_qp0_ah(struct hfi1_ibport *ibp, u32 dlid)
 	struct rvt_qp *qp0;
 	struct hfi1_pportdata *ppd = ppd_from_ibp(ibp);
 	struct hfi1_devdata *dd = dd_from_ppd(ppd);
+<<<<<<< HEAD
 	u8 port_num = ppd->port;
+=======
+	u32 port_num = ppd->port;
+>>>>>>> upstream/android-13
 
 	memset(&attr, 0, sizeof(attr));
 	attr.type = rdma_ah_find_type(&dd->verbs_dev.rdi.ibdev, port_num);
@@ -305,7 +319,11 @@ static struct ib_ah *hfi1_create_qp0_ah(struct hfi1_ibport *ibp, u32 dlid)
 	rcu_read_lock();
 	qp0 = rcu_dereference(ibp->rvp.qp[0]);
 	if (qp0)
+<<<<<<< HEAD
 		ah = rdma_create_ah(qp0->ibqp.pd, &attr);
+=======
+		ah = rdma_create_ah(qp0->ibqp.pd, &attr, 0);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return ah;
 }
@@ -515,7 +533,11 @@ static void bad_mkey(struct hfi1_ibport *ibp, struct ib_mad_hdr *mad,
 /*
  * Send a Port Capability Mask Changed trap (ch. 14.3.11).
  */
+<<<<<<< HEAD
 void hfi1_cap_mask_chg(struct rvt_dev_info *rdi, u8 port_num)
+=======
+void hfi1_cap_mask_chg(struct rvt_dev_info *rdi, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct trap_node *trap;
 	struct hfi1_ibdev *verbs_dev = dev_from_rdi(rdi);
@@ -581,7 +603,11 @@ void hfi1_node_desc_chg(struct hfi1_ibport *ibp)
 
 static int __subn_get_opa_nodedesc(struct opa_smp *smp, u32 am,
 				   u8 *data, struct ib_device *ibdev,
+<<<<<<< HEAD
 				   u8 port, u32 *resp_len, u32 max_len)
+=======
+				   u32 port, u32 *resp_len, u32 max_len)
+>>>>>>> upstream/android-13
 {
 	struct opa_node_description *nd;
 
@@ -601,12 +627,20 @@ static int __subn_get_opa_nodedesc(struct opa_smp *smp, u32 am,
 }
 
 static int __subn_get_opa_nodeinfo(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct opa_node_info *ni;
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
+<<<<<<< HEAD
 	unsigned pidx = port - 1; /* IB number port from 1, hw from 0 */
+=======
+	u32 pidx = port - 1; /* IB number port from 1, hw from 0 */
+>>>>>>> upstream/android-13
 
 	ni = (struct opa_node_info *)data;
 
@@ -641,11 +675,19 @@ static int __subn_get_opa_nodeinfo(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int subn_get_nodeinfo(struct ib_smp *smp, struct ib_device *ibdev,
+<<<<<<< HEAD
 			     u8 port)
 {
 	struct ib_node_info *nip = (struct ib_node_info *)&smp->data;
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
 	unsigned pidx = port - 1; /* IB number port from 1, hw from 0 */
+=======
+			     u32 port)
+{
+	struct ib_node_info *nip = (struct ib_node_info *)&smp->data;
+	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
+	u32 pidx = port - 1; /* IB number port from 1, hw from 0 */
+>>>>>>> upstream/android-13
 
 	/* GUID 0 is illegal */
 	if (smp->attr_mod || pidx >= dd->num_pports ||
@@ -721,7 +763,11 @@ static int check_mkey(struct hfi1_ibport *ibp, struct ib_mad_hdr *mad,
 			/* Bad mkey not a violation below level 2 */
 			if (ibp->rvp.mkeyprot < 2)
 				break;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case IB_MGMT_METHOD_SET:
 		case IB_MGMT_METHOD_TRAP_REPRESS:
 			if (ibp->rvp.mkey_violations != 0xFFFF)
@@ -794,7 +840,11 @@ void read_ltp_rtt(struct hfi1_devdata *dd)
 }
 
 static int __subn_get_opa_portinfo(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	int i;
@@ -1009,7 +1059,11 @@ static int __subn_get_opa_portinfo(struct opa_smp *smp, u32 am, u8 *data,
  * @port: the IB port number
  * @pkeys: the pkey table is placed here
  */
+<<<<<<< HEAD
 static int get_pkeys(struct hfi1_devdata *dd, u8 port, u16 *pkeys)
+=======
+static int get_pkeys(struct hfi1_devdata *dd, u32 port, u16 *pkeys)
+>>>>>>> upstream/android-13
 {
 	struct hfi1_pportdata *ppd = dd->pport + port - 1;
 
@@ -1019,7 +1073,11 @@ static int get_pkeys(struct hfi1_devdata *dd, u8 port, u16 *pkeys)
 }
 
 static int __subn_get_opa_pkeytable(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				    struct ib_device *ibdev, u8 port,
+=======
+				    struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				    u32 *resp_len, u32 max_len)
 {
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
@@ -1272,7 +1330,11 @@ static int set_port_states(struct hfi1_pportdata *ppd, struct opa_smp *smp,
 	case IB_PORT_NOP:
 		if (phys_state == IB_PORTPHYSSTATE_NOP)
 			break;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IB_PORT_DOWN:
 		if (phys_state == IB_PORTPHYSSTATE_NOP) {
 			link_state = HLS_DN_DOWNDEF;
@@ -1341,7 +1403,11 @@ static int set_port_states(struct hfi1_pportdata *ppd, struct opa_smp *smp,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * subn_set_opa_portinfo - set port information
  * @smp: the incoming SM packet
  * @ibdev: the infiniband device
@@ -1349,7 +1415,11 @@ static int set_port_states(struct hfi1_pportdata *ppd, struct opa_smp *smp,
  *
  */
 static int __subn_set_opa_portinfo(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len, int local_mad)
 {
 	struct opa_port_info *pi = (struct opa_port_info *)data;
@@ -1667,7 +1737,11 @@ get_only:
  * @port: the IB port number
  * @pkeys: the PKEY table
  */
+<<<<<<< HEAD
 static int set_pkeys(struct hfi1_devdata *dd, u8 port, u16 *pkeys)
+=======
+static int set_pkeys(struct hfi1_devdata *dd, u32 port, u16 *pkeys)
+>>>>>>> upstream/android-13
 {
 	struct hfi1_pportdata *ppd;
 	int i;
@@ -1718,7 +1792,11 @@ static int set_pkeys(struct hfi1_devdata *dd, u8 port, u16 *pkeys)
 }
 
 static int __subn_set_opa_pkeytable(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				    struct ib_device *ibdev, u8 port,
+=======
+				    struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				    u32 *resp_len, u32 max_len)
 {
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
@@ -1732,7 +1810,11 @@ static int __subn_set_opa_pkeytable(struct opa_smp *smp, u32 am, u8 *data,
 	u32 size = 0;
 
 	if (n_blocks_sent == 0) {
+<<<<<<< HEAD
 		pr_warn("OPA Get PKey AM Invalid : P = %d; B = 0x%x; N = 0x%x\n",
+=======
+		pr_warn("OPA Get PKey AM Invalid : P = %u; B = 0x%x; N = 0x%x\n",
+>>>>>>> upstream/android-13
 			port, start_block, n_blocks_sent);
 		smp->status |= IB_SMP_INVALID_FIELD;
 		return reply((struct ib_mad_hdr *)smp);
@@ -1825,7 +1907,11 @@ static int get_sc2vlt_tables(struct hfi1_devdata *dd, void *data)
 }
 
 static int __subn_get_opa_sl_to_sc(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct hfi1_ibport *ibp = to_iport(ibdev, port);
@@ -1848,7 +1934,11 @@ static int __subn_get_opa_sl_to_sc(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_sl_to_sc(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct hfi1_ibport *ibp = to_iport(ibdev, port);
@@ -1877,7 +1967,11 @@ static int __subn_set_opa_sl_to_sc(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_get_opa_sc_to_sl(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct hfi1_ibport *ibp = to_iport(ibdev, port);
@@ -1900,7 +1994,11 @@ static int __subn_get_opa_sc_to_sl(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_sc_to_sl(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct hfi1_ibport *ibp = to_iport(ibdev, port);
@@ -1921,7 +2019,11 @@ static int __subn_set_opa_sc_to_sl(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_get_opa_sc_to_vlt(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				    struct ib_device *ibdev, u8 port,
+=======
+				    struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				    u32 *resp_len, u32 max_len)
 {
 	u32 n_blocks = OPA_AM_NBLK(am);
@@ -1943,7 +2045,11 @@ static int __subn_get_opa_sc_to_vlt(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_sc_to_vlt(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				    struct ib_device *ibdev, u8 port,
+=======
+				    struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				    u32 *resp_len, u32 max_len)
 {
 	u32 n_blocks = OPA_AM_NBLK(am);
@@ -1985,7 +2091,11 @@ static int __subn_set_opa_sc_to_vlt(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_get_opa_sc_to_vlnt(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				     struct ib_device *ibdev, u8 port,
+=======
+				     struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				     u32 *resp_len, u32 max_len)
 {
 	u32 n_blocks = OPA_AM_NPORT(am);
@@ -2010,7 +2120,11 @@ static int __subn_get_opa_sc_to_vlnt(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_sc_to_vlnt(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				     struct ib_device *ibdev, u8 port,
+=======
+				     struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				     u32 *resp_len, u32 max_len)
 {
 	u32 n_blocks = OPA_AM_NPORT(am);
@@ -2042,7 +2156,11 @@ static int __subn_set_opa_sc_to_vlnt(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_get_opa_psi(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 			      struct ib_device *ibdev, u8 port,
+=======
+			      struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			      u32 *resp_len, u32 max_len)
 {
 	u32 nports = OPA_AM_NPORT(am);
@@ -2084,7 +2202,11 @@ static int __subn_get_opa_psi(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_psi(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 			      struct ib_device *ibdev, u8 port,
+=======
+			      struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			      u32 *resp_len, u32 max_len, int local_mad)
 {
 	u32 nports = OPA_AM_NPORT(am);
@@ -2132,7 +2254,11 @@ static int __subn_set_opa_psi(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_get_opa_cable_info(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				     struct ib_device *ibdev, u8 port,
+=======
+				     struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				     u32 *resp_len, u32 max_len)
 {
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
@@ -2184,7 +2310,11 @@ static int __subn_get_opa_cable_info(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_get_opa_bct(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 			      struct ib_device *ibdev, u8 port, u32 *resp_len,
+=======
+			      struct ib_device *ibdev, u32 port, u32 *resp_len,
+>>>>>>> upstream/android-13
 			      u32 max_len)
 {
 	u32 num_ports = OPA_AM_NPORT(am);
@@ -2208,7 +2338,11 @@ static int __subn_get_opa_bct(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_bct(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 			      struct ib_device *ibdev, u8 port, u32 *resp_len,
+=======
+			      struct ib_device *ibdev, u32 port, u32 *resp_len,
+>>>>>>> upstream/android-13
 			      u32 max_len)
 {
 	u32 num_ports = OPA_AM_NPORT(am);
@@ -2232,7 +2366,11 @@ static int __subn_set_opa_bct(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_get_opa_vl_arb(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				 struct ib_device *ibdev, u8 port,
+=======
+				 struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				 u32 *resp_len, u32 max_len)
 {
 	struct hfi1_pportdata *ppd = ppd_from_ibp(to_iport(ibdev, port));
@@ -2274,7 +2412,11 @@ static int __subn_get_opa_vl_arb(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_vl_arb(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				 struct ib_device *ibdev, u8 port,
+=======
+				 struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				 u32 *resp_len, u32 max_len)
 {
 	struct hfi1_pportdata *ppd = ppd_from_ibp(to_iport(ibdev, port));
@@ -2300,7 +2442,10 @@ static int __subn_set_opa_vl_arb(struct opa_smp *smp, u32 am, u8 *data,
 	 * can be changed from the default values
 	 */
 	case OPA_VLARB_PREEMPT_ELEMENTS:
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+>>>>>>> upstream/android-13
 	case OPA_VLARB_PREEMPT_MATRIX:
 		smp->status |= IB_SMP_UNSUP_METH_ATTR;
 		break;
@@ -2381,7 +2526,11 @@ struct opa_port_status_rsp {
 		__be64 port_vl_rcv_bubble;
 		__be64 port_vl_mark_fecn;
 		__be64 port_vl_xmit_discards;
+<<<<<<< HEAD
 	} vls[0]; /* real array size defined by # bits set in vl_select_mask */
+=======
+	} vls[]; /* real array size defined by # bits set in vl_select_mask */
+>>>>>>> upstream/android-13
 };
 
 enum counter_selects {
@@ -2423,7 +2572,11 @@ struct opa_aggregate {
 	__be16 attr_id;
 	__be16 err_reqlength;	/* 1 bit, 8 res, 7 bit */
 	__be32 attr_mod;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 };
 
 #define MSK_LLI 0x000000f0
@@ -2723,7 +2876,11 @@ u64 get_xmit_wait_counters(struct hfi1_pportdata *ppd,
 
 static int pma_get_opa_portstatus(struct opa_pma_mad *pmp,
 				  struct ib_device *ibdev,
+<<<<<<< HEAD
 				  u8 port, u32 *resp_len)
+=======
+				  u32 port, u32 *resp_len)
+>>>>>>> upstream/android-13
 {
 	struct opa_port_status_req *req =
 		(struct opa_port_status_req *)pmp->data;
@@ -2733,7 +2890,11 @@ static int pma_get_opa_portstatus(struct opa_pma_mad *pmp,
 	unsigned long vl;
 	size_t response_data_size;
 	u32 nports = be32_to_cpu(pmp->mad_hdr.attr_mod) >> 24;
+<<<<<<< HEAD
 	u8 port_num = req->port_num;
+=======
+	u32 port_num = req->port_num;
+>>>>>>> upstream/android-13
 	u8 num_vls = hweight64(vl_select_mask);
 	struct _vls_pctrs *vlinfo;
 	struct hfi1_ibport *ibp = to_iport(ibdev, port);
@@ -2743,8 +2904,12 @@ static int pma_get_opa_portstatus(struct opa_pma_mad *pmp,
 	u16 link_width;
 	u16 link_speed;
 
+<<<<<<< HEAD
 	response_data_size = sizeof(struct opa_port_status_rsp) +
 				num_vls * sizeof(struct _vls_pctrs);
+=======
+	response_data_size = struct_size(rsp, vls, num_vls);
+>>>>>>> upstream/android-13
 	if (response_data_size > sizeof(pmp->data)) {
 		pmp->mad_hdr.status |= OPA_PM_STATUS_REQUEST_TOO_LARGE;
 		return reply((struct ib_mad_hdr *)pmp);
@@ -2890,7 +3055,11 @@ static int pma_get_opa_portstatus(struct opa_pma_mad *pmp,
 	return reply((struct ib_mad_hdr *)pmp);
 }
 
+<<<<<<< HEAD
 static u64 get_error_counter_summary(struct ib_device *ibdev, u8 port,
+=======
+static u64 get_error_counter_summary(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				     u8 res_lli, u8 res_ler)
 {
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
@@ -2975,7 +3144,11 @@ static void pma_get_opa_port_dctrs(struct ib_device *ibdev,
 
 static int pma_get_opa_datacounters(struct opa_pma_mad *pmp,
 				    struct ib_device *ibdev,
+<<<<<<< HEAD
 				    u8 port, u32 *resp_len)
+=======
+				    u32 port, u32 *resp_len)
+>>>>>>> upstream/android-13
 {
 	struct opa_port_data_counters_msg *req =
 		(struct opa_port_data_counters_msg *)pmp->data;
@@ -2989,7 +3162,11 @@ static int pma_get_opa_datacounters(struct opa_pma_mad *pmp,
 	u8 lq, num_vls;
 	u8 res_lli, res_ler;
 	u64 port_mask;
+<<<<<<< HEAD
 	u8 port_num;
+=======
+	u32 port_num;
+>>>>>>> upstream/android-13
 	unsigned long vl;
 	unsigned long vl_select_mask;
 	int vfi;
@@ -3010,8 +3187,12 @@ static int pma_get_opa_datacounters(struct opa_pma_mad *pmp,
 	}
 
 	/* Sanity check */
+<<<<<<< HEAD
 	response_data_size = sizeof(struct opa_port_data_counters_msg) +
 				num_vls * sizeof(struct _vls_dctrs);
+=======
+	response_data_size = struct_size(req, port[0].vls, num_vls);
+>>>>>>> upstream/android-13
 
 	if (response_data_size > sizeof(pmp->data)) {
 		pmp->mad_hdr.status |= IB_SMP_INVALID_FIELD;
@@ -3126,7 +3307,11 @@ static int pma_get_opa_datacounters(struct opa_pma_mad *pmp,
 }
 
 static int pma_get_ib_portcounters_ext(struct ib_pma_mad *pmp,
+<<<<<<< HEAD
 				       struct ib_device *ibdev, u8 port)
+=======
+				       struct ib_device *ibdev, u32 port)
+>>>>>>> upstream/android-13
 {
 	struct ib_pma_portcounters_ext *p = (struct ib_pma_portcounters_ext *)
 						pmp->data;
@@ -3154,7 +3339,11 @@ bail:
 }
 
 static void pma_get_opa_port_ectrs(struct ib_device *ibdev,
+<<<<<<< HEAD
 				   struct _port_ectrs *rsp, u8 port)
+=======
+				   struct _port_ectrs *rsp, u32 port)
+>>>>>>> upstream/android-13
 {
 	u64 tmp, tmp2;
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
@@ -3197,11 +3386,19 @@ static void pma_get_opa_port_ectrs(struct ib_device *ibdev,
 
 static int pma_get_opa_porterrors(struct opa_pma_mad *pmp,
 				  struct ib_device *ibdev,
+<<<<<<< HEAD
 				  u8 port, u32 *resp_len)
 {
 	size_t response_data_size;
 	struct _port_ectrs *rsp;
 	u8 port_num;
+=======
+				  u32 port, u32 *resp_len)
+{
+	size_t response_data_size;
+	struct _port_ectrs *rsp;
+	u32 port_num;
+>>>>>>> upstream/android-13
 	struct opa_port_error_counters64_msg *req;
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
 	u32 num_ports;
@@ -3227,8 +3424,12 @@ static int pma_get_opa_porterrors(struct opa_pma_mad *pmp,
 		return reply((struct ib_mad_hdr *)pmp);
 	}
 
+<<<<<<< HEAD
 	response_data_size = sizeof(struct opa_port_error_counters64_msg) +
 				num_vls * sizeof(struct _vls_ectrs);
+=======
+	response_data_size = struct_size(req, port[0].vls, num_vls);
+>>>>>>> upstream/android-13
 
 	if (response_data_size > sizeof(pmp->data)) {
 		pmp->mad_hdr.status |= IB_SMP_INVALID_FIELD;
@@ -3287,7 +3488,11 @@ static int pma_get_opa_porterrors(struct opa_pma_mad *pmp,
 }
 
 static int pma_get_ib_portcounters(struct ib_pma_mad *pmp,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port)
+=======
+				   struct ib_device *ibdev, u32 port)
+>>>>>>> upstream/android-13
 {
 	struct ib_pma_portcounters *p = (struct ib_pma_portcounters *)
 		pmp->data;
@@ -3373,7 +3578,11 @@ bail:
 
 static int pma_get_opa_errorinfo(struct opa_pma_mad *pmp,
 				 struct ib_device *ibdev,
+<<<<<<< HEAD
 				 u8 port, u32 *resp_len)
+=======
+				 u32 port, u32 *resp_len)
+>>>>>>> upstream/android-13
 {
 	size_t response_data_size;
 	struct _port_ei *rsp;
@@ -3381,7 +3590,11 @@ static int pma_get_opa_errorinfo(struct opa_pma_mad *pmp,
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
 	u64 port_mask;
 	u32 num_ports;
+<<<<<<< HEAD
 	u8 port_num;
+=======
+	u32 port_num;
+>>>>>>> upstream/android-13
 	u8 num_pslm;
 	u64 reg;
 
@@ -3472,7 +3685,11 @@ static int pma_get_opa_errorinfo(struct opa_pma_mad *pmp,
 
 static int pma_set_opa_portstatus(struct opa_pma_mad *pmp,
 				  struct ib_device *ibdev,
+<<<<<<< HEAD
 				  u8 port, u32 *resp_len)
+=======
+				  u32 port, u32 *resp_len)
+>>>>>>> upstream/android-13
 {
 	struct opa_clear_port_status *req =
 		(struct opa_clear_port_status *)pmp->data;
@@ -3624,14 +3841,22 @@ static int pma_set_opa_portstatus(struct opa_pma_mad *pmp,
 
 static int pma_set_opa_errorinfo(struct opa_pma_mad *pmp,
 				 struct ib_device *ibdev,
+<<<<<<< HEAD
 				 u8 port, u32 *resp_len)
+=======
+				 u32 port, u32 *resp_len)
+>>>>>>> upstream/android-13
 {
 	struct _port_ei *rsp;
 	struct opa_port_error_info_msg *req;
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
 	u64 port_mask;
 	u32 num_ports;
+<<<<<<< HEAD
 	u8 port_num;
+=======
+	u32 port_num;
+>>>>>>> upstream/android-13
 	u8 num_pslm;
 	u32 error_info_select;
 
@@ -3706,7 +3931,11 @@ struct opa_congestion_info_attr {
 } __packed;
 
 static int __subn_get_opa_cong_info(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				    struct ib_device *ibdev, u8 port,
+=======
+				    struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				    u32 *resp_len, u32 max_len)
 {
 	struct opa_congestion_info_attr *p =
@@ -3731,7 +3960,11 @@ static int __subn_get_opa_cong_info(struct opa_smp *smp, u32 am, u8 *data,
 
 static int __subn_get_opa_cong_setting(struct opa_smp *smp, u32 am,
 				       u8 *data, struct ib_device *ibdev,
+<<<<<<< HEAD
 				       u8 port, u32 *resp_len, u32 max_len)
+=======
+				       u32 port, u32 *resp_len, u32 max_len)
+>>>>>>> upstream/android-13
 {
 	int i;
 	struct opa_congestion_setting_attr *p =
@@ -3823,7 +4056,11 @@ static void apply_cc_state(struct hfi1_pportdata *ppd)
 }
 
 static int __subn_set_opa_cong_setting(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				       struct ib_device *ibdev, u8 port,
+=======
+				       struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				       u32 *resp_len, u32 max_len)
 {
 	struct opa_congestion_setting_attr *p =
@@ -3864,7 +4101,11 @@ static int __subn_set_opa_cong_setting(struct opa_smp *smp, u32 am, u8 *data,
 
 static int __subn_get_opa_hfi1_cong_log(struct opa_smp *smp, u32 am,
 					u8 *data, struct ib_device *ibdev,
+<<<<<<< HEAD
 					u8 port, u32 *resp_len, u32 max_len)
+=======
+					u32 port, u32 *resp_len, u32 max_len)
+>>>>>>> upstream/android-13
 {
 	struct hfi1_ibport *ibp = to_iport(ibdev, port);
 	struct hfi1_pportdata *ppd = ppd_from_ibp(ibp);
@@ -3929,7 +4170,11 @@ static int __subn_get_opa_hfi1_cong_log(struct opa_smp *smp, u32 am,
 }
 
 static int __subn_get_opa_cc_table(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct ib_cc_table_attr *cc_table_attr =
@@ -3981,7 +4226,11 @@ static int __subn_get_opa_cc_table(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_cc_table(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct ib_cc_table_attr *p = (struct ib_cc_table_attr *)data;
@@ -4040,7 +4289,11 @@ struct opa_led_info {
 #define OPA_LED_MASK	BIT(OPA_LED_SHIFT)
 
 static int __subn_get_opa_led_info(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
@@ -4070,7 +4323,11 @@ static int __subn_get_opa_led_info(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int __subn_set_opa_led_info(struct opa_smp *smp, u32 am, u8 *data,
+<<<<<<< HEAD
 				   struct ib_device *ibdev, u8 port,
+=======
+				   struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				   u32 *resp_len, u32 max_len)
 {
 	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
@@ -4093,7 +4350,11 @@ static int __subn_set_opa_led_info(struct opa_smp *smp, u32 am, u8 *data,
 }
 
 static int subn_get_opa_sma(__be16 attr_id, struct opa_smp *smp, u32 am,
+<<<<<<< HEAD
 			    u8 *data, struct ib_device *ibdev, u8 port,
+=======
+			    u8 *data, struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			    u32 *resp_len, u32 max_len)
 {
 	int ret;
@@ -4173,7 +4434,11 @@ static int subn_get_opa_sma(__be16 attr_id, struct opa_smp *smp, u32 am,
 			return IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_CONSUMED;
 		if (ibp->rvp.port_cap_flags & IB_PORT_SM)
 			return IB_MAD_RESULT_SUCCESS;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		smp->status |= IB_SMP_UNSUP_METH_ATTR;
 		ret = reply((struct ib_mad_hdr *)smp);
@@ -4183,7 +4448,11 @@ static int subn_get_opa_sma(__be16 attr_id, struct opa_smp *smp, u32 am,
 }
 
 static int subn_set_opa_sma(__be16 attr_id, struct opa_smp *smp, u32 am,
+<<<<<<< HEAD
 			    u8 *data, struct ib_device *ibdev, u8 port,
+=======
+			    u8 *data, struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			    u32 *resp_len, u32 max_len, int local_mad)
 {
 	int ret;
@@ -4243,7 +4512,11 @@ static int subn_set_opa_sma(__be16 attr_id, struct opa_smp *smp, u32 am,
 			return IB_MAD_RESULT_SUCCESS | IB_MAD_RESULT_CONSUMED;
 		if (ibp->rvp.port_cap_flags & IB_PORT_SM)
 			return IB_MAD_RESULT_SUCCESS;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		smp->status |= IB_SMP_UNSUP_METH_ATTR;
 		ret = reply((struct ib_mad_hdr *)smp);
@@ -4258,7 +4531,11 @@ static inline void set_aggr_error(struct opa_aggregate *ag)
 }
 
 static int subn_get_opa_aggregate(struct opa_smp *smp,
+<<<<<<< HEAD
 				  struct ib_device *ibdev, u8 port,
+=======
+				  struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				  u32 *resp_len)
 {
 	int i;
@@ -4307,7 +4584,11 @@ static int subn_get_opa_aggregate(struct opa_smp *smp,
 }
 
 static int subn_set_opa_aggregate(struct opa_smp *smp,
+<<<<<<< HEAD
 				  struct ib_device *ibdev, u8 port,
+=======
+				  struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 				  u32 *resp_len, int local_mad)
 {
 	int i;
@@ -4513,7 +4794,11 @@ static int hfi1_pkey_validation_pma(struct hfi1_ibport *ibp,
 }
 
 static int process_subn_opa(struct ib_device *ibdev, int mad_flags,
+<<<<<<< HEAD
 			    u8 port, const struct opa_mad *in_mad,
+=======
+			    u32 port, const struct opa_mad *in_mad,
+>>>>>>> upstream/android-13
 			    struct opa_mad *out_mad,
 			    u32 *resp_len, int local_mad)
 {
@@ -4618,7 +4903,11 @@ static int process_subn_opa(struct ib_device *ibdev, int mad_flags,
 }
 
 static int process_subn(struct ib_device *ibdev, int mad_flags,
+<<<<<<< HEAD
 			u8 port, const struct ib_mad *in_mad,
+=======
+			u32 port, const struct ib_mad *in_mad,
+>>>>>>> upstream/android-13
 			struct ib_mad *out_mad)
 {
 	struct ib_smp *smp = (struct ib_smp *)out_mad;
@@ -4676,7 +4965,11 @@ static int process_subn(struct ib_device *ibdev, int mad_flags,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int process_perf(struct ib_device *ibdev, u8 port,
+=======
+static int process_perf(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			const struct ib_mad *in_mad,
 			struct ib_mad *out_mad)
 {
@@ -4738,7 +5031,11 @@ static int process_perf(struct ib_device *ibdev, u8 port,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int process_perf_opa(struct ib_device *ibdev, u8 port,
+=======
+static int process_perf_opa(struct ib_device *ibdev, u32 port,
+>>>>>>> upstream/android-13
 			    const struct opa_mad *in_mad,
 			    struct opa_mad *out_mad, u32 *resp_len)
 {
@@ -4820,7 +5117,11 @@ static int process_perf_opa(struct ib_device *ibdev, u8 port,
 }
 
 static int hfi1_process_opa_mad(struct ib_device *ibdev, int mad_flags,
+<<<<<<< HEAD
 				u8 port, const struct ib_wc *in_wc,
+=======
+				u32 port, const struct ib_wc *in_wc,
+>>>>>>> upstream/android-13
 				const struct ib_grh *in_grh,
 				const struct opa_mad *in_mad,
 				struct opa_mad *out_mad, size_t *out_mad_size,
@@ -4873,7 +5174,11 @@ bail:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int hfi1_process_ib_mad(struct ib_device *ibdev, int mad_flags, u8 port,
+=======
+static int hfi1_process_ib_mad(struct ib_device *ibdev, int mad_flags, u32 port,
+>>>>>>> upstream/android-13
 			       const struct ib_wc *in_wc,
 			       const struct ib_grh *in_grh,
 			       const struct ib_mad *in_mad,
@@ -4906,6 +5211,11 @@ static int hfi1_process_ib_mad(struct ib_device *ibdev, int mad_flags, u8 port,
  * @in_grh: the global route header for this packet
  * @in_mad: the incoming MAD
  * @out_mad: any outgoing MAD reply
+<<<<<<< HEAD
+=======
+ * @out_mad_size: size of the outgoing MAD reply
+ * @out_mad_pkey_index: used to apss back the packet key index
+>>>>>>> upstream/android-13
  *
  * Returns IB_MAD_RESULT_SUCCESS if this is a MAD that we are not
  * interested in processing.
@@ -4916,6 +5226,7 @@ static int hfi1_process_ib_mad(struct ib_device *ibdev, int mad_flags, u8 port,
  *
  * This is called by the ib_mad module.
  */
+<<<<<<< HEAD
 int hfi1_process_mad(struct ib_device *ibdev, int mad_flags, u8 port,
 		     const struct ib_wc *in_wc, const struct ib_grh *in_grh,
 		     const struct ib_mad_hdr *in_mad, size_t in_mad_size,
@@ -4928,6 +5239,15 @@ int hfi1_process_mad(struct ib_device *ibdev, int mad_flags, u8 port,
 			dev_err(ibdev->dev.parent, "invalid in_mad_size\n");
 			return IB_MAD_RESULT_FAILURE;
 		}
+=======
+int hfi1_process_mad(struct ib_device *ibdev, int mad_flags, u32 port,
+		     const struct ib_wc *in_wc, const struct ib_grh *in_grh,
+		     const struct ib_mad *in_mad, struct ib_mad *out_mad,
+		     size_t *out_mad_size, u16 *out_mad_pkey_index)
+{
+	switch (in_mad->mad_hdr.base_version) {
+	case OPA_MGMT_BASE_VERSION:
+>>>>>>> upstream/android-13
 		return hfi1_process_opa_mad(ibdev, mad_flags, port,
 					    in_wc, in_grh,
 					    (struct opa_mad *)in_mad,
@@ -4935,10 +5255,15 @@ int hfi1_process_mad(struct ib_device *ibdev, int mad_flags, u8 port,
 					    out_mad_size,
 					    out_mad_pkey_index);
 	case IB_MGMT_BASE_VERSION:
+<<<<<<< HEAD
 		return hfi1_process_ib_mad(ibdev, mad_flags, port,
 					  in_wc, in_grh,
 					  (const struct ib_mad *)in_mad,
 					  (struct ib_mad *)out_mad);
+=======
+		return hfi1_process_ib_mad(ibdev, mad_flags, port, in_wc,
+					   in_grh, in_mad, out_mad);
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PIC32 RNG driver
  *
  * Joshua Henderson <joshua.henderson@microchip.com>
  * Copyright (C) 2016 Microchip Technology Inc.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can distribute it and/or modify it
  * under the terms of the GNU General Public License (Version 2) as
@@ -12,6 +17,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -78,7 +85,10 @@ static int pic32_rng_read(struct hwrng *rng, void *buf, size_t max,
 static int pic32_rng_probe(struct platform_device *pdev)
 {
 	struct pic32_rng *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	u32 v;
 	int ret;
 
@@ -86,8 +96,12 @@ static int pic32_rng_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
@@ -106,7 +120,11 @@ static int pic32_rng_probe(struct platform_device *pdev)
 	priv->rng.name = pdev->name;
 	priv->rng.read = pic32_rng_read;
 
+<<<<<<< HEAD
 	ret = hwrng_register(&priv->rng);
+=======
+	ret = devm_hwrng_register(&pdev->dev, &priv->rng);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_register;
 
@@ -123,13 +141,20 @@ static int pic32_rng_remove(struct platform_device *pdev)
 {
 	struct pic32_rng *rng = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	hwrng_unregister(&rng->rng);
+=======
+>>>>>>> upstream/android-13
 	writel(0, rng->base + RNGCON);
 	clk_disable_unprepare(rng->clk);
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id pic32_rng_of_match[] = {
+=======
+static const struct of_device_id pic32_rng_of_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible	= "microchip,pic32mzda-rng", },
 	{ /* sentinel */ }
 };

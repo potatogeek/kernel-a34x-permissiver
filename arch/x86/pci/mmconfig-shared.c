@@ -11,9 +11,15 @@
  * themselves.
  */
 
+<<<<<<< HEAD
 #include <linux/pci.h>
 #include <linux/init.h>
 #include <linux/sfi_acpi.h>
+=======
+#include <linux/acpi.h>
+#include <linux/pci.h>
+#include <linux/init.h>
+>>>>>>> upstream/android-13
 #include <linux/bitmap.h>
 #include <linux/dmi.h>
 #include <linux/slab.h>
@@ -29,6 +35,10 @@
 static bool pci_mmcfg_running_state;
 static bool pci_mmcfg_arch_init_failed;
 static DEFINE_MUTEX(pci_mmcfg_lock);
+<<<<<<< HEAD
+=======
+#define pci_mmcfg_lock_held() lock_is_held(&(pci_mmcfg_lock).dep_map)
+>>>>>>> upstream/android-13
 
 LIST_HEAD(pci_mmcfg_list);
 
@@ -54,7 +64,11 @@ static void list_add_sorted(struct pci_mmcfg_region *new)
 	struct pci_mmcfg_region *cfg;
 
 	/* keep list sorted by segment and starting bus number */
+<<<<<<< HEAD
 	list_for_each_entry_rcu(cfg, &pci_mmcfg_list, list) {
+=======
+	list_for_each_entry_rcu(cfg, &pci_mmcfg_list, list, pci_mmcfg_lock_held()) {
+>>>>>>> upstream/android-13
 		if (cfg->segment > new->segment ||
 		    (cfg->segment == new->segment &&
 		     cfg->start_bus >= new->start_bus)) {
@@ -118,7 +132,11 @@ struct pci_mmcfg_region *pci_mmconfig_lookup(int segment, int bus)
 {
 	struct pci_mmcfg_region *cfg;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(cfg, &pci_mmcfg_list, list)
+=======
+	list_for_each_entry_rcu(cfg, &pci_mmcfg_list, list, pci_mmcfg_lock_held())
+>>>>>>> upstream/android-13
 		if (cfg->segment == segment &&
 		    cfg->start_bus <= bus && bus <= cfg->end_bus)
 			return cfg;
@@ -424,7 +442,11 @@ static acpi_status find_mboard_resource(acpi_handle handle, u32 lvl,
 	return AE_OK;
 }
 
+<<<<<<< HEAD
 static bool is_acpi_reserved(u64 start, u64 end, unsigned not_used)
+=======
+static bool is_acpi_reserved(u64 start, u64 end, enum e820_type not_used)
+>>>>>>> upstream/android-13
 {
 	struct resource mcfg_res;
 
@@ -441,7 +463,11 @@ static bool is_acpi_reserved(u64 start, u64 end, unsigned not_used)
 	return mcfg_res.flags;
 }
 
+<<<<<<< HEAD
 typedef bool (*check_reserved_t)(u64 start, u64 end, unsigned type);
+=======
+typedef bool (*check_reserved_t)(u64 start, u64 end, enum e820_type type);
+>>>>>>> upstream/android-13
 
 static bool __ref is_mmconf_reserved(check_reserved_t is_reserved,
 				     struct pci_mmcfg_region *cfg,
@@ -460,7 +486,11 @@ static bool __ref is_mmconf_reserved(check_reserved_t is_reserved,
 	}
 
 	if (size < (16UL<<20) && size != old_size)
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	if (dev)
 		dev_info(dev, "MMCONFIG at %pR reserved in %s\n",
@@ -492,7 +522,11 @@ static bool __ref is_mmconf_reserved(check_reserved_t is_reserved,
 				&cfg->res, (unsigned long) cfg->address);
 	}
 
+<<<<<<< HEAD
 	return 1;
+=======
+	return true;
+>>>>>>> upstream/android-13
 }
 
 static bool __ref
@@ -500,7 +534,11 @@ pci_mmcfg_check_reserved(struct device *dev, struct pci_mmcfg_region *cfg, int e
 {
 	if (!early && !acpi_disabled) {
 		if (is_mmconf_reserved(is_acpi_reserved, cfg, dev, 0))
+<<<<<<< HEAD
 			return 1;
+=======
+			return true;
+>>>>>>> upstream/android-13
 
 		if (dev)
 			dev_info(dev, FW_INFO
@@ -521,14 +559,22 @@ pci_mmcfg_check_reserved(struct device *dev, struct pci_mmcfg_region *cfg, int e
 	 * _CBA method, just assume it's reserved.
 	 */
 	if (pci_mmcfg_running_state)
+<<<<<<< HEAD
 		return 1;
+=======
+		return true;
+>>>>>>> upstream/android-13
 
 	/* Don't try to do this check unless configuration
 	   type 1 is available. how about type 2 ?*/
 	if (raw_pci_ops)
 		return is_mmconf_reserved(e820__mapped_all, cfg, dev, 1);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return false;
+>>>>>>> upstream/android-13
 }
 
 static void __init pci_mmcfg_reject_broken(int early)
@@ -664,7 +710,11 @@ void __init pci_mmcfg_early_init(void)
 		if (pci_mmcfg_check_hostbridge())
 			known_bridge = 1;
 		else
+<<<<<<< HEAD
 			acpi_sfi_table_parse(ACPI_SIG_MCFG, pci_parse_mcfg);
+=======
+			acpi_table_parse(ACPI_SIG_MCFG, pci_parse_mcfg);
+>>>>>>> upstream/android-13
 		__pci_mmcfg_init(1);
 
 		set_apei_filter();
@@ -682,7 +732,11 @@ void __init pci_mmcfg_late_init(void)
 
 	/* MMCONFIG hasn't been enabled yet, try again */
 	if (pci_probe & PCI_PROBE_MASK & ~PCI_PROBE_MMCONF) {
+<<<<<<< HEAD
 		acpi_sfi_table_parse(ACPI_SIG_MCFG, pci_parse_mcfg);
+=======
+		acpi_table_parse(ACPI_SIG_MCFG, pci_parse_mcfg);
+>>>>>>> upstream/android-13
 		__pci_mmcfg_init(0);
 	}
 }

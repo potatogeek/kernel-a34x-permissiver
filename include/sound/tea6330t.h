@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_TEA6330T_H
 #define __SOUND_TEA6330T_H
 
 /*
  *  Routines for control of TEA6330T circuit.
  *  Sound fader control circuit for car radios.
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/i2c.h>		/* generic i2c support */

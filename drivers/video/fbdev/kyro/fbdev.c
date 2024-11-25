@@ -372,6 +372,14 @@ static int kyro_dev_overlay_viewport_set(u32 x, u32 y, u32 ulWidth, u32 ulHeight
 		/* probably haven't called CreateOverlay yet */
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (ulWidth == 0 || ulWidth == 0xffffffff ||
+	    ulHeight == 0 || ulHeight == 0xffffffff ||
+	    (x < 2 && ulWidth + 2 == 0))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* Stop Ramdac Output */
 	DisableRamdacOutput(deviceInfo.pSTGReg);
 
@@ -394,6 +402,12 @@ static int kyrofb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 {
 	struct kyrofb_info *par = info->par;
 
+<<<<<<< HEAD
+=======
+	if (!var->pixclock)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (var->bits_per_pixel != 16 && var->bits_per_pixel != 32) {
 		printk(KERN_WARNING "kyrofb: depth not supported: %u\n", var->bits_per_pixel);
 		return -EINVAL;
@@ -648,7 +662,11 @@ static struct pci_driver kyrofb_pci_driver = {
 	.remove		= kyrofb_remove,
 };
 
+<<<<<<< HEAD
 static struct fb_ops kyrofb_ops = {
+=======
+static const struct fb_ops kyrofb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_check_var	= kyrofb_check_var,
 	.fb_set_par	= kyrofb_set_par,
@@ -683,7 +701,11 @@ static int kyrofb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	kyro_fix.mmio_len   = pci_resource_len(pdev, 1);
 
 	currentpar->regbase = deviceInfo.pSTGReg =
+<<<<<<< HEAD
 		ioremap_nocache(kyro_fix.mmio_start, kyro_fix.mmio_len);
+=======
+		ioremap(kyro_fix.mmio_start, kyro_fix.mmio_len);
+>>>>>>> upstream/android-13
 	if (!currentpar->regbase)
 		goto out_free_fb;
 

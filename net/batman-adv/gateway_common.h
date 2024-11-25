@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2009-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_GATEWAY_COMMON_H_
@@ -21,6 +27,7 @@
 
 #include "main.h"
 
+<<<<<<< HEAD
 #include <linux/types.h>
 
 struct net_device;
@@ -31,6 +38,11 @@ enum batadv_gw_modes {
 	BATADV_GW_MODE_SERVER,
 };
 
+=======
+#include <linux/netdevice.h>
+#include <linux/types.h>
+
+>>>>>>> upstream/android-13
 /**
  * enum batadv_bandwidth_units - bandwidth unit types
  */

@@ -7,6 +7,7 @@
 #ifndef __COMMON_H2C_H__
 #define __COMMON_H2C_H__
 
+<<<<<<< HEAD
 /*  */
 /*     H2C CMD DEFINITION    ------------------------------------------------ */
 /*  */
@@ -72,6 +73,8 @@ enum h2c_cmd{
 	H2C_MAXID,
 };
 
+=======
+>>>>>>> upstream/android-13
 #define H2C_RSVDPAGE_LOC_LEN		5
 #define H2C_MEDIA_STATUS_RPT_LEN		3
 #define H2C_KEEP_ALIVE_CTRL_LEN	2
@@ -95,6 +98,7 @@ enum h2c_cmd{
 #define H2C_BCN_RSVDPAGE_LEN		5
 #define H2C_PROBERSP_RSVDPAGE_LEN	5
 
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 #define eqMacAddr(a, b)		(((a)[0]==(b)[0] && (a)[1]==(b)[1] && (a)[2]==(b)[2] && (a)[3]==(b)[3] && (a)[4]==(b)[4] && (a)[5]==(b)[5]) ? 1:0)
 #define cpMacAddr(des, src)	((des)[0]=(src)[0], (des)[1]=(src)[1], (des)[2]=(src)[2], (des)[3]=(src)[3], (des)[4]=(src)[4], (des)[5]=(src)[5])
@@ -149,6 +153,8 @@ enum h2c_cmd{
 
 #endif /* CONFIG_WOWLAN */
 
+=======
+>>>>>>> upstream/android-13
 /* _RSVDPAGE_LOC_CMD_0x00 */
 #define SET_H2CCMD_RSVDPAGE_LOC_PROBE_RSP(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE_8BIT(__pH2CCmd, 0, 8, __Value)
 #define SET_H2CCMD_RSVDPAGE_LOC_PSPOLL(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+1, 0, 8, __Value)
@@ -174,6 +180,7 @@ enum h2c_cmd{
 #define SET_H2CCMD_DISCONDECISION_PARM_CHECK_PERIOD(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE_8BIT(__pH2CCmd+1, 0, 8, __Value)
 #define SET_H2CCMD_DISCONDECISION_PARM_TRY_PKT_NUM(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE_8BIT(__pH2CCmd+2, 0, 8, __Value)
 
+<<<<<<< HEAD
 #ifdef CONFIG_AP_WOWLAN
 /* _AP_Offload 0x08 */
 #define SET_H2CCMD_AP_WOWLAN_EN(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE_8BIT(__pH2CCmd, 0, 8, __Value)
@@ -196,6 +203,8 @@ enum h2c_cmd{
 #define SET_H2CCMD_AP_WOW_PS_DURATION(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+1, 0, 8, __Value)
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*  _WoWLAN PARAM_CMD_0x80 */
 #define SET_H2CCMD_WOWLAN_FUNC_ENABLE(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE(__pH2CCmd, 0, 1, __Value)
 #define SET_H2CCMD_WOWLAN_PATTERN_MATCH_ENABLE(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE(__pH2CCmd, 1, 1, __Value)
@@ -230,6 +239,7 @@ enum h2c_cmd{
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_NEIGHBOR_ADV(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+2, 0, 8, __Value)
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_RSP(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+3, 0, 8, __Value)
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_INFO(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+4, 0, 8, __Value)
+<<<<<<< HEAD
 #ifdef CONFIG_GTK_OL
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_GTK_EXT_MEM(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+5, 0, 8, __Value)
 #endif /* CONFIG_GTK_OL */
@@ -244,16 +254,23 @@ enum h2c_cmd{
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_SCAN_INFO(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+2, 0, 8, __Value)
 #define SET_H2CCMD_AOAC_RSVDPAGE_LOC_SSID_INFO(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE_8BIT((__pH2CCmd)+3, 0, 8, __Value)
 #endif /* CONFIG_PNO_SUPPORT */
+=======
+>>>>>>> upstream/android-13
 
 /*  */
 /*     Structure    -------------------------------------------------- */
 /*  */
+<<<<<<< HEAD
 typedef struct _RSVDPAGE_LOC {
+=======
+struct rsvdpage_loc {
+>>>>>>> upstream/android-13
 	u8 LocProbeRsp;
 	u8 LocPsPoll;
 	u8 LocNullData;
 	u8 LocQosNull;
 	u8 LocBTQosNull;
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 	u8 LocRemoteCtrlInfo;
 	u8 LocArpRsp;
@@ -283,3 +300,8 @@ void rtw_get_current_ip_address(struct adapter *padapter, u8 *pcurrentip);
 void rtw_get_sec_iv(struct adapter *padapter, u8*pcur_dot11txpn, u8 *StaAddr);
 void rtw_set_sec_pn(struct adapter *padapter);
 #endif
+=======
+};
+
+#endif
+>>>>>>> upstream/android-13

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *  Copyright © 2015 Broadcom
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ *  Copyright © 2015 Broadcom
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DT_BINDINGS_ARM_BCM2835_RPI_POWER_H

@@ -69,7 +69,13 @@ MODULE_AUTHOR("Maintainer: Samuel Chessman <chessman@tux.org>");
 MODULE_DESCRIPTION("Driver for TI ThunderLAN based ethernet PCI adapters");
 MODULE_LICENSE("GPL");
 
+<<<<<<< HEAD
 /* Turn on debugging. See Documentation/networking/tlan.txt for details */
+=======
+/* Turn on debugging.
+ * See Documentation/networking/device_drivers/ethernet/ti/tlan.rst for details
+ */
+>>>>>>> upstream/android-13
 static  int		debug;
 module_param(debug, int, 0);
 MODULE_PARM_DESC(debug, "ThunderLAN debug mask");
@@ -159,7 +165,11 @@ static void	tlan_set_multicast_list(struct net_device *);
 static int	tlan_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
 static int      tlan_probe1(struct pci_dev *pdev, long ioaddr,
 			    int irq, int rev, const struct pci_device_id *ent);
+<<<<<<< HEAD
 static void	tlan_tx_timeout(struct net_device *dev);
+=======
+static void	tlan_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void	tlan_tx_timeout_work(struct work_struct *work);
 static int	tlan_init_one(struct pci_dev *pdev,
 			      const struct pci_device_id *ent);
@@ -184,6 +194,10 @@ static void	tlan_reset_adapter(struct net_device *);
 static void	tlan_finish_reset(struct net_device *);
 static void	tlan_set_mac(struct net_device *, int areg, char *mac);
 
+<<<<<<< HEAD
+=======
+static void	__tlan_phy_print(struct net_device *);
+>>>>>>> upstream/android-13
 static void	tlan_phy_print(struct net_device *);
 static void	tlan_phy_detect(struct net_device *);
 static void	tlan_phy_power_down(struct net_device *);
@@ -199,9 +213,17 @@ static void	tlan_phy_finish_auto_neg(struct net_device *);
   static int	tlan_phy_dp83840a_check(struct net_device *);
 */
 
+<<<<<<< HEAD
 static bool	tlan_mii_read_reg(struct net_device *, u16, u16, u16 *);
 static void	tlan_mii_send_data(u16, u32, unsigned);
 static void	tlan_mii_sync(u16);
+=======
+static bool	__tlan_mii_read_reg(struct net_device *, u16, u16, u16 *);
+static void	tlan_mii_read_reg(struct net_device *, u16, u16, u16 *);
+static void	tlan_mii_send_data(u16, u32, unsigned);
+static void	tlan_mii_sync(u16);
+static void	__tlan_mii_write_reg(struct net_device *, u16, u16, u16);
+>>>>>>> upstream/android-13
 static void	tlan_mii_write_reg(struct net_device *, u16, u16, u16);
 
 static void	tlan_ee_send_start(u16);
@@ -240,12 +262,17 @@ static u32
 	tlan_handle_rx_eoc
 };
 
+<<<<<<< HEAD
 static inline void
+=======
+static void
+>>>>>>> upstream/android-13
 tlan_set_timer(struct net_device *dev, u32 ticks, u32 type)
 {
 	struct tlan_priv *priv = netdev_priv(dev);
 	unsigned long flags = 0;
 
+<<<<<<< HEAD
 	if (!in_irq())
 		spin_lock_irqsave(&priv->lock, flags);
 	if (priv->timer.function != NULL &&
@@ -257,6 +284,16 @@ tlan_set_timer(struct net_device *dev, u32 ticks, u32 type)
 	priv->timer.function = tlan_timer;
 	if (!in_irq())
 		spin_unlock_irqrestore(&priv->lock, flags);
+=======
+	spin_lock_irqsave(&priv->lock, flags);
+	if (priv->timer.function != NULL &&
+	    priv->timer_type != TLAN_TIMER_ACTIVITY) {
+		spin_unlock_irqrestore(&priv->lock, flags);
+		return;
+	}
+	priv->timer.function = tlan_timer;
+	spin_unlock_irqrestore(&priv->lock, flags);
+>>>>>>> upstream/android-13
 
 	priv->timer_set_at = jiffies;
 	priv->timer_type = type;
@@ -303,18 +340,28 @@ static void tlan_remove_one(struct pci_dev *pdev)
 	unregister_netdev(dev);
 
 	if (priv->dma_storage) {
+<<<<<<< HEAD
 		pci_free_consistent(priv->pci_dev,
 				    priv->dma_size, priv->dma_storage,
 				    priv->dma_storage_dma);
+=======
+		dma_free_coherent(&priv->pci_dev->dev, priv->dma_size,
+				  priv->dma_storage, priv->dma_storage_dma);
+>>>>>>> upstream/android-13
 	}
 
 #ifdef CONFIG_PCI
 	pci_release_regions(pdev);
 #endif
 
+<<<<<<< HEAD
 	free_netdev(dev);
 
 	cancel_work_sync(&priv->tlan_tqueue);
+=======
+	cancel_work_sync(&priv->tlan_tqueue);
+	free_netdev(dev);
+>>>>>>> upstream/android-13
 }
 
 static void tlan_start(struct net_device *dev)
@@ -343,24 +390,34 @@ static void tlan_stop(struct net_device *dev)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 static int tlan_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused tlan_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 
 	if (netif_running(dev))
 		tlan_stop(dev);
 
 	netif_device_detach(dev);
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_wake_from_d3(pdev, false);
 	pci_set_power_state(pdev, PCI_D3hot);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tlan_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -370,6 +427,11 @@ static int tlan_resume(struct pci_dev *pdev)
 		return rc;
 	pci_restore_state(pdev);
 	pci_enable_wake(pdev, PCI_D0, 0);
+=======
+static int __maybe_unused tlan_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	netif_device_attach(dev);
 
 	if (netif_running(dev))
@@ -378,6 +440,7 @@ static int tlan_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #else /* CONFIG_PM */
 
 #define tlan_suspend   NULL
@@ -385,14 +448,21 @@ static int tlan_resume(struct pci_dev *pdev)
 
 #endif /* CONFIG_PM */
 
+=======
+static SIMPLE_DEV_PM_OPS(tlan_pm_ops, tlan_suspend, tlan_resume);
+>>>>>>> upstream/android-13
 
 static struct pci_driver tlan_driver = {
 	.name		= "tlan",
 	.id_table	= tlan_pci_tbl,
 	.probe		= tlan_init_one,
 	.remove		= tlan_remove_one,
+<<<<<<< HEAD
 	.suspend	= tlan_suspend,
 	.resume		= tlan_resume,
+=======
+	.driver.pm	= &tlan_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init tlan_probe(void)
@@ -499,7 +569,11 @@ static int tlan_probe1(struct pci_dev *pdev, long ioaddr, int irq, int rev,
 
 		priv->adapter = &board_info[ent->driver_data];
 
+<<<<<<< HEAD
 		rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+		rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (rc) {
 			pr_err("No suitable PCI mapping available\n");
 			goto err_out_free_dev;
@@ -601,8 +675,13 @@ static int tlan_probe1(struct pci_dev *pdev, long ioaddr, int irq, int rev,
 	return 0;
 
 err_out_uninit:
+<<<<<<< HEAD
 	pci_free_consistent(priv->pci_dev, priv->dma_size, priv->dma_storage,
 			    priv->dma_storage_dma);
+=======
+	dma_free_coherent(&priv->pci_dev->dev, priv->dma_size,
+			  priv->dma_storage, priv->dma_storage_dma);
+>>>>>>> upstream/android-13
 err_out_free_dev:
 	free_netdev(dev);
 err_out_regions:
@@ -626,9 +705,15 @@ static void tlan_eisa_cleanup(void)
 		dev = tlan_eisa_devices;
 		priv = netdev_priv(dev);
 		if (priv->dma_storage) {
+<<<<<<< HEAD
 			pci_free_consistent(priv->pci_dev, priv->dma_size,
 					    priv->dma_storage,
 					    priv->dma_storage_dma);
+=======
+			dma_free_coherent(&priv->pci_dev->dev, priv->dma_size,
+					  priv->dma_storage,
+					  priv->dma_storage_dma);
+>>>>>>> upstream/android-13
 		}
 		release_region(dev->base_addr, 0x10);
 		unregister_netdev(dev);
@@ -671,7 +756,10 @@ module_exit(tlan_exit);
 static void  __init tlan_eisa_probe(void)
 {
 	long	ioaddr;
+<<<<<<< HEAD
 	int	rc = -ENODEV;
+=======
+>>>>>>> upstream/android-13
 	int	irq;
 	u16	device_id;
 
@@ -736,8 +824,12 @@ static void  __init tlan_eisa_probe(void)
 
 
 		/* Setup the newly found eisa adapter */
+<<<<<<< HEAD
 		rc = tlan_probe1(NULL, ioaddr, irq,
 				 12, NULL);
+=======
+		tlan_probe1(NULL, ioaddr, irq, 12, NULL);
+>>>>>>> upstream/android-13
 		continue;
 
 out:
@@ -770,7 +862,11 @@ static const struct net_device_ops tlan_netdev_ops = {
 	.ndo_tx_timeout		= tlan_tx_timeout,
 	.ndo_get_stats		= tlan_get_stats,
 	.ndo_set_rx_mode	= tlan_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= tlan_ioctl,
+=======
+	.ndo_eth_ioctl		= tlan_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -843,9 +939,14 @@ static int tlan_init(struct net_device *dev)
 
 	dma_size = (TLAN_NUM_RX_LISTS + TLAN_NUM_TX_LISTS)
 		* (sizeof(struct tlan_list));
+<<<<<<< HEAD
 	priv->dma_storage = pci_alloc_consistent(priv->pci_dev,
 						 dma_size,
 						 &priv->dma_storage_dma);
+=======
+	priv->dma_storage = dma_alloc_coherent(&priv->pci_dev->dev, dma_size,
+					       &priv->dma_storage_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	priv->dma_size = dma_size;
 
 	if (priv->dma_storage == NULL) {
@@ -853,7 +954,10 @@ static int tlan_init(struct net_device *dev)
 		       dev->name);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	memset(priv->dma_storage, 0, dma_size);
+=======
+>>>>>>> upstream/android-13
 	priv->rx_list = (struct tlan_list *)
 		ALIGN((unsigned long)priv->dma_storage, 8);
 	priv->rx_list_dma = ALIGN(priv->dma_storage_dma, 8);
@@ -966,7 +1070,11 @@ static int tlan_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	switch (cmd) {
 	case SIOCGMIIPHY:		/* get address of MII PHY in use. */
 		data->phy_id = phy;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 
 	case SIOCGMIIREG:		/* read MII PHY register. */
@@ -996,7 +1104,11 @@ static int tlan_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
  *
  **************************************************************/
 
+<<<<<<< HEAD
 static void tlan_tx_timeout(struct net_device *dev)
+=======
+static void tlan_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 
 	TLAN_DBG(TLAN_DEBUG_GNRL, "%s: Transmit timed out.\n", dev->name);
@@ -1027,7 +1139,11 @@ static void tlan_tx_timeout_work(struct work_struct *work)
 	struct tlan_priv	*priv =
 		container_of(work, struct tlan_priv, tlan_tqueue);
 
+<<<<<<< HEAD
 	tlan_tx_timeout(priv->dev);
+=======
+	tlan_tx_timeout(priv->dev, UINT_MAX);
+>>>>>>> upstream/android-13
 }
 
 
@@ -1087,9 +1203,15 @@ static netdev_tx_t tlan_start_tx(struct sk_buff *skb, struct net_device *dev)
 
 	tail_list->forward = 0;
 
+<<<<<<< HEAD
 	tail_list->buffer[0].address = pci_map_single(priv->pci_dev,
 						      skb->data, txlen,
 						      PCI_DMA_TODEVICE);
+=======
+	tail_list->buffer[0].address = dma_map_single(&priv->pci_dev->dev,
+						      skb->data, txlen,
+						      DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	tlan_store_skb(tail_list, skb);
 
 	tail_list->frame_size = (u16) txlen;
@@ -1383,10 +1505,17 @@ static u32 tlan_handle_tx_eof(struct net_device *dev, u16 host_int)
 		struct sk_buff *skb = tlan_get_skb(head_list);
 
 		ack++;
+<<<<<<< HEAD
 		pci_unmap_single(priv->pci_dev, head_list->buffer[0].address,
 				 max(skb->len,
 				     (unsigned int)TLAN_MIN_FRAME_SIZE),
 				 PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&priv->pci_dev->dev,
+				 head_list->buffer[0].address,
+				 max(skb->len, (unsigned int)TLAN_MIN_FRAME_SIZE),
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		dev_kfree_skb_any(skb);
 		head_list->buffer[8].address = 0;
 		head_list->buffer[9].address = 0;
@@ -1529,8 +1658,13 @@ static u32 tlan_handle_rx_eof(struct net_device *dev, u16 host_int)
 			goto drop_and_reuse;
 
 		skb = tlan_get_skb(head_list);
+<<<<<<< HEAD
 		pci_unmap_single(priv->pci_dev, frame_dma,
 				 TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
+=======
+		dma_unmap_single(&priv->pci_dev->dev, frame_dma,
+				 TLAN_MAX_FRAME_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		skb_put(skb, frame_size);
 
 		dev->stats.rx_bytes += frame_size;
@@ -1539,8 +1673,13 @@ static u32 tlan_handle_rx_eof(struct net_device *dev, u16 host_int)
 		netif_rx(skb);
 
 		head_list->buffer[0].address =
+<<<<<<< HEAD
 			pci_map_single(priv->pci_dev, new_skb->data,
 				       TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
+=======
+			dma_map_single(&priv->pci_dev->dev, new_skb->data,
+				       TLAN_MAX_FRAME_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		tlan_store_skb(head_list, new_skb);
 drop_and_reuse:
@@ -1725,6 +1864,7 @@ static u32 tlan_handle_status_check(struct net_device *dev, u16 host_int)
 				 dev->name, (unsigned) net_sts);
 		}
 		if ((net_sts & TLAN_NET_STS_MIRQ) &&  (priv->phy_num == 0)) {
+<<<<<<< HEAD
 			tlan_mii_read_reg(dev, phy, TLAN_TLPHY_STS, &tlphy_sts);
 			tlan_mii_read_reg(dev, phy, TLAN_TLPHY_CTL, &tlphy_ctl);
 			if (!(tlphy_sts & TLAN_TS_POLOK) &&
@@ -1741,6 +1881,24 @@ static u32 tlan_handle_status_check(struct net_device *dev, u16 host_int)
 
 			if (debug)
 				tlan_phy_print(dev);
+=======
+			__tlan_mii_read_reg(dev, phy, TLAN_TLPHY_STS, &tlphy_sts);
+			__tlan_mii_read_reg(dev, phy, TLAN_TLPHY_CTL, &tlphy_ctl);
+			if (!(tlphy_sts & TLAN_TS_POLOK) &&
+			    !(tlphy_ctl & TLAN_TC_SWAPOL)) {
+				tlphy_ctl |= TLAN_TC_SWAPOL;
+				__tlan_mii_write_reg(dev, phy, TLAN_TLPHY_CTL,
+						     tlphy_ctl);
+			} else if ((tlphy_sts & TLAN_TS_POLOK) &&
+				   (tlphy_ctl & TLAN_TC_SWAPOL)) {
+				tlphy_ctl &= ~TLAN_TC_SWAPOL;
+				__tlan_mii_write_reg(dev, phy, TLAN_TLPHY_CTL,
+						     tlphy_ctl);
+			}
+
+			if (debug)
+				__tlan_phy_print(dev);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1941,10 +2099,17 @@ static void tlan_reset_lists(struct net_device *dev)
 		if (!skb)
 			break;
 
+<<<<<<< HEAD
 		list->buffer[0].address = pci_map_single(priv->pci_dev,
 							 skb->data,
 							 TLAN_MAX_FRAME_SIZE,
 							 PCI_DMA_FROMDEVICE);
+=======
+		list->buffer[0].address = dma_map_single(&priv->pci_dev->dev,
+							 skb->data,
+							 TLAN_MAX_FRAME_SIZE,
+							 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		tlan_store_skb(list, skb);
 		list->buffer[1].count = 0;
 		list->buffer[1].address = 0;
@@ -1972,12 +2137,19 @@ static void tlan_free_lists(struct net_device *dev)
 		list = priv->tx_list + i;
 		skb = tlan_get_skb(list);
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(
 				priv->pci_dev,
 				list->buffer[0].address,
 				max(skb->len,
 				    (unsigned int)TLAN_MIN_FRAME_SIZE),
 				PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&priv->pci_dev->dev,
+					 list->buffer[0].address,
+					 max(skb->len, (unsigned int)TLAN_MIN_FRAME_SIZE),
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(skb);
 			list->buffer[8].address = 0;
 			list->buffer[9].address = 0;
@@ -1988,10 +2160,16 @@ static void tlan_free_lists(struct net_device *dev)
 		list = priv->rx_list + i;
 		skb = tlan_get_skb(list);
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(priv->pci_dev,
 					 list->buffer[0].address,
 					 TLAN_MAX_FRAME_SIZE,
 					 PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&priv->pci_dev->dev,
+					 list->buffer[0].address,
+					 TLAN_MAX_FRAME_SIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(skb);
 			list->buffer[8].address = 0;
 			list->buffer[9].address = 0;
@@ -2404,7 +2582,11 @@ ThunderLAN driver PHY layer routines
 
 
 /*********************************************************************
+<<<<<<< HEAD
  *	tlan_phy_print
+=======
+ *	__tlan_phy_print
+>>>>>>> upstream/android-13
  *
  *	Returns:
  *		Nothing
@@ -2416,11 +2598,20 @@ ThunderLAN driver PHY layer routines
  *
  ********************************************************************/
 
+<<<<<<< HEAD
 static void tlan_phy_print(struct net_device *dev)
+=======
+static void __tlan_phy_print(struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tlan_priv *priv = netdev_priv(dev);
 	u16 i, data0, data1, data2, data3, phy;
 
+<<<<<<< HEAD
+=======
+	lockdep_assert_held(&priv->lock);
+
+>>>>>>> upstream/android-13
 	phy = priv->phy[priv->phy_num];
 
 	if (priv->adapter->flags & TLAN_ADAPTER_UNMANAGED_PHY) {
@@ -2429,10 +2620,17 @@ static void tlan_phy_print(struct net_device *dev)
 		netdev_info(dev, "PHY 0x%02x\n", phy);
 		pr_info("   Off.  +0     +1     +2     +3\n");
 		for (i = 0; i < 0x20; i += 4) {
+<<<<<<< HEAD
 			tlan_mii_read_reg(dev, phy, i, &data0);
 			tlan_mii_read_reg(dev, phy, i + 1, &data1);
 			tlan_mii_read_reg(dev, phy, i + 2, &data2);
 			tlan_mii_read_reg(dev, phy, i + 3, &data3);
+=======
+			__tlan_mii_read_reg(dev, phy, i, &data0);
+			__tlan_mii_read_reg(dev, phy, i + 1, &data1);
+			__tlan_mii_read_reg(dev, phy, i + 2, &data2);
+			__tlan_mii_read_reg(dev, phy, i + 3, &data3);
+>>>>>>> upstream/android-13
 			pr_info("   0x%02x 0x%04hx 0x%04hx 0x%04hx 0x%04hx\n",
 				i, data0, data1, data2, data3);
 		}
@@ -2442,7 +2640,19 @@ static void tlan_phy_print(struct net_device *dev)
 
 }
 
+<<<<<<< HEAD
 
+=======
+static void tlan_phy_print(struct net_device *dev)
+{
+	struct tlan_priv *priv = netdev_priv(dev);
+	unsigned long flags;
+
+	spin_lock_irqsave(&priv->lock, flags);
+	__tlan_phy_print(dev);
+	spin_unlock_irqrestore(&priv->lock, flags);
+}
+>>>>>>> upstream/android-13
 
 
 /*********************************************************************
@@ -2529,7 +2739,11 @@ static void tlan_phy_power_down(struct net_device *dev)
 	}
 
 	/* Wait for 50 ms and powerup
+<<<<<<< HEAD
 	 * This is abitrary.  It is intended to make sure the
+=======
+	 * This is arbitrary.  It is intended to make sure the
+>>>>>>> upstream/android-13
 	 * transceiver settles.
 	 */
 	tlan_set_timer(dev, msecs_to_jiffies(50), TLAN_TIMER_PHY_PUP);
@@ -2820,7 +3034,11 @@ these routines are based on the information in chap. 2 of the
 
 
 /***************************************************************
+<<<<<<< HEAD
  *	tlan_mii_read_reg
+=======
+ *	__tlan_mii_read_reg
+>>>>>>> upstream/android-13
  *
  *	Returns:
  *		false	if ack received ok
@@ -2844,7 +3062,11 @@ these routines are based on the information in chap. 2 of the
  **************************************************************/
 
 static bool
+<<<<<<< HEAD
 tlan_mii_read_reg(struct net_device *dev, u16 phy, u16 reg, u16 *val)
+=======
+__tlan_mii_read_reg(struct net_device *dev, u16 phy, u16 reg, u16 *val)
+>>>>>>> upstream/android-13
 {
 	u8	nack;
 	u16	sio, tmp;
@@ -2852,15 +3074,23 @@ tlan_mii_read_reg(struct net_device *dev, u16 phy, u16 reg, u16 *val)
 	bool	err;
 	int	minten;
 	struct tlan_priv *priv = netdev_priv(dev);
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+
+	lockdep_assert_held(&priv->lock);
+>>>>>>> upstream/android-13
 
 	err = false;
 	outw(TLAN_NET_SIO, dev->base_addr + TLAN_DIO_ADR);
 	sio = dev->base_addr + TLAN_DIO_DATA + TLAN_NET_SIO;
 
+<<<<<<< HEAD
 	if (!in_irq())
 		spin_lock_irqsave(&priv->lock, flags);
 
+=======
+>>>>>>> upstream/android-13
 	tlan_mii_sync(dev->base_addr);
 
 	minten = tlan_get_bit(TLAN_NET_SIO_MINTEN, sio);
@@ -2906,6 +3136,7 @@ tlan_mii_read_reg(struct net_device *dev, u16 phy, u16 reg, u16 *val)
 
 	*val = tmp;
 
+<<<<<<< HEAD
 	if (!in_irq())
 		spin_unlock_irqrestore(&priv->lock, flags);
 
@@ -2915,6 +3146,21 @@ tlan_mii_read_reg(struct net_device *dev, u16 phy, u16 reg, u16 *val)
 
 
 
+=======
+	return err;
+}
+
+static void tlan_mii_read_reg(struct net_device *dev, u16 phy, u16 reg,
+			      u16 *val)
+{
+	struct tlan_priv *priv = netdev_priv(dev);
+	unsigned long flags;
+
+	spin_lock_irqsave(&priv->lock, flags);
+	__tlan_mii_read_reg(dev, phy, reg, val);
+	spin_unlock_irqrestore(&priv->lock, flags);
+}
+>>>>>>> upstream/android-13
 
 /***************************************************************
  *	tlan_mii_send_data
@@ -2996,7 +3242,11 @@ static void tlan_mii_sync(u16 base_port)
 
 
 /***************************************************************
+<<<<<<< HEAD
  *	tlan_mii_write_reg
+=======
+ *	__tlan_mii_write_reg
+>>>>>>> upstream/android-13
  *
  *	Returns:
  *		Nothing
@@ -3016,6 +3266,7 @@ static void tlan_mii_sync(u16 base_port)
  **************************************************************/
 
 static void
+<<<<<<< HEAD
 tlan_mii_write_reg(struct net_device *dev, u16 phy, u16 reg, u16 val)
 {
 	u16	sio;
@@ -3029,6 +3280,19 @@ tlan_mii_write_reg(struct net_device *dev, u16 phy, u16 reg, u16 val)
 	if (!in_irq())
 		spin_lock_irqsave(&priv->lock, flags);
 
+=======
+__tlan_mii_write_reg(struct net_device *dev, u16 phy, u16 reg, u16 val)
+{
+	u16	sio;
+	int	minten;
+	struct tlan_priv *priv = netdev_priv(dev);
+
+	lockdep_assert_held(&priv->lock);
+
+	outw(TLAN_NET_SIO, dev->base_addr + TLAN_DIO_ADR);
+	sio = dev->base_addr + TLAN_DIO_DATA + TLAN_NET_SIO;
+
+>>>>>>> upstream/android-13
 	tlan_mii_sync(dev->base_addr);
 
 	minten = tlan_get_bit(TLAN_NET_SIO_MINTEN, sio);
@@ -3049,12 +3313,27 @@ tlan_mii_write_reg(struct net_device *dev, u16 phy, u16 reg, u16 val)
 	if (minten)
 		tlan_set_bit(TLAN_NET_SIO_MINTEN, sio);
 
+<<<<<<< HEAD
 	if (!in_irq())
 		spin_unlock_irqrestore(&priv->lock, flags);
 
 }
 
 
+=======
+}
+
+static void
+tlan_mii_write_reg(struct net_device *dev, u16 phy, u16 reg, u16 val)
+{
+	struct tlan_priv *priv = netdev_priv(dev);
+	unsigned long flags;
+
+	spin_lock_irqsave(&priv->lock, flags);
+	__tlan_mii_write_reg(dev, phy, reg, val);
+	spin_unlock_irqrestore(&priv->lock, flags);
+}
+>>>>>>> upstream/android-13
 
 
 /*****************************************************************************

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config SCSI_BNX2_ISCSI
 	tristate "QLogic NetXtreme II iSCSI support"
 	depends on NET
@@ -9,6 +13,10 @@ config SCSI_BNX2_ISCSI
 	select ETHERNET
 	select NET_VENDOR_BROADCOM
 	select CNIC
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	This driver supports iSCSI offload for the QLogic NetXtreme II
 	devices.

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Linaro Ltd <ard.biesheuvel@linaro.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2015 Linaro Ltd <ard.biesheuvel@linaro.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/efi.h>
@@ -11,8 +17,12 @@
 #include <asm/mach/map.h>
 #include <asm/mmu_context.h>
 
+<<<<<<< HEAD
 static int __init set_permissions(pte_t *ptep, pgtable_t token,
 				  unsigned long addr, void *data)
+=======
+static int __init set_permissions(pte_t *ptep, unsigned long addr, void *data)
+>>>>>>> upstream/android-13
 {
 	efi_memory_desc_t *md = data;
 	pte_t pte = *ptep;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Marvell Armada XP pinctrl driver based on mvebu pinctrl core
  *
@@ -5,11 +9,14 @@
  *
  * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This file supports the three variants of Armada XP SoCs that are
  * available: mv78230, mv78260 and mv78460. From a pin muxing
  * perspective, the mv78230 has 49 MPP pins. The mv78260 and mv78460

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/lib/memset.S
  *
  *  Copyright (C) 1995-2000 Russell King
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  ASM optimised string functions
  */
 #include <linux/linkage.h>
@@ -16,8 +23,14 @@
 	.text
 	.align	5
 
+<<<<<<< HEAD
 ENTRY(mmioset)
 ENTRY(memset)
+=======
+ENTRY(__memset)
+ENTRY(mmioset)
+WEAK(memset)
+>>>>>>> upstream/android-13
 UNWIND( .fnstart         )
 	ands	r3, r0, #3		@ 1 unaligned?
 	mov	ip, r0			@ preserve r0 as return value
@@ -44,20 +57,36 @@ UNWIND( .save {r8, lr}      )
 	mov	lr, r3
 
 2:	subs	r2, r2, #64
+<<<<<<< HEAD
 	stmgeia	ip!, {r1, r3, r8, lr}	@ 64 bytes at a time.
 	stmgeia	ip!, {r1, r3, r8, lr}
 	stmgeia	ip!, {r1, r3, r8, lr}
 	stmgeia	ip!, {r1, r3, r8, lr}
 	bgt	2b
 	ldmeqfd	sp!, {r8, pc}		@ Now <64 bytes to go.
+=======
+	stmiage	ip!, {r1, r3, r8, lr}	@ 64 bytes at a time.
+	stmiage	ip!, {r1, r3, r8, lr}
+	stmiage	ip!, {r1, r3, r8, lr}
+	stmiage	ip!, {r1, r3, r8, lr}
+	bgt	2b
+	ldmfdeq	sp!, {r8, pc}		@ Now <64 bytes to go.
+>>>>>>> upstream/android-13
 /*
  * No need to correct the count; we're only testing bits from now on
  */
 	tst	r2, #32
+<<<<<<< HEAD
 	stmneia	ip!, {r1, r3, r8, lr}
 	stmneia	ip!, {r1, r3, r8, lr}
 	tst	r2, #16
 	stmneia	ip!, {r1, r3, r8, lr}
+=======
+	stmiane	ip!, {r1, r3, r8, lr}
+	stmiane	ip!, {r1, r3, r8, lr}
+	tst	r2, #16
+	stmiane	ip!, {r1, r3, r8, lr}
+>>>>>>> upstream/android-13
 	ldmfd	sp!, {r8, lr}
 UNWIND( .fnend              )
 
@@ -87,13 +116,19 @@ UNWIND( .save {r4-r8, lr}      )
 	rsb	r8, r8, #32
 	sub	r2, r2, r8
 	movs	r8, r8, lsl #(32 - 4)
+<<<<<<< HEAD
 	stmcsia	ip!, {r4, r5, r6, r7}
 	stmmiia	ip!, {r4, r5}
+=======
+	stmiacs	ip!, {r4, r5, r6, r7}
+	stmiami	ip!, {r4, r5}
+>>>>>>> upstream/android-13
 	tst	r8, #(1 << 30)
 	mov	r8, r1
 	strne	r1, [ip], #4
 
 3:	subs	r2, r2, #64
+<<<<<<< HEAD
 	stmgeia	ip!, {r1, r3-r8, lr}
 	stmgeia	ip!, {r1, r3-r8, lr}
 	bgt	3b
@@ -103,6 +138,17 @@ UNWIND( .save {r4-r8, lr}      )
 	stmneia	ip!, {r1, r3-r8, lr}
 	tst	r2, #16
 	stmneia	ip!, {r4-r7}
+=======
+	stmiage	ip!, {r1, r3-r8, lr}
+	stmiage	ip!, {r1, r3-r8, lr}
+	bgt	3b
+	ldmfdeq	sp!, {r4-r8, pc}
+
+	tst	r2, #32
+	stmiane	ip!, {r1, r3-r8, lr}
+	tst	r2, #16
+	stmiane	ip!, {r4-r7}
+>>>>>>> upstream/android-13
 	ldmfd	sp!, {r4-r8, lr}
 UNWIND( .fnend                 )
 
@@ -110,7 +156,11 @@ UNWIND( .fnend                 )
 
 UNWIND( .fnstart            )
 4:	tst	r2, #8
+<<<<<<< HEAD
 	stmneia	ip!, {r1, r3}
+=======
+	stmiane	ip!, {r1, r3}
+>>>>>>> upstream/android-13
 	tst	r2, #4
 	strne	r1, [ip], #4
 /*
@@ -118,23 +168,39 @@ UNWIND( .fnstart            )
  * may have an unaligned pointer as well.
  */
 5:	tst	r2, #2
+<<<<<<< HEAD
 	strneb	r1, [ip], #1
 	strneb	r1, [ip], #1
 	tst	r2, #1
 	strneb	r1, [ip], #1
+=======
+	strbne	r1, [ip], #1
+	strbne	r1, [ip], #1
+	tst	r2, #1
+	strbne	r1, [ip], #1
+>>>>>>> upstream/android-13
 	ret	lr
 
 6:	subs	r2, r2, #4		@ 1 do we have enough
 	blt	5b			@ 1 bytes to align with?
 	cmp	r3, #2			@ 1
+<<<<<<< HEAD
 	strltb	r1, [ip], #1		@ 1
 	strleb	r1, [ip], #1		@ 1
+=======
+	strblt	r1, [ip], #1		@ 1
+	strble	r1, [ip], #1		@ 1
+>>>>>>> upstream/android-13
 	strb	r1, [ip], #1		@ 1
 	add	r2, r2, r3		@ 1 (r2 = r2 - (4 - r3))
 	b	1b
 UNWIND( .fnend   )
 ENDPROC(memset)
 ENDPROC(mmioset)
+<<<<<<< HEAD
+=======
+ENDPROC(__memset)
+>>>>>>> upstream/android-13
 
 ENTRY(__memset32)
 UNWIND( .fnstart         )

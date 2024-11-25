@@ -174,7 +174,11 @@ put:
 }
 
 static struct usb_composite_driver midi_driver = {
+<<<<<<< HEAD
 	.name		= (char *) longname,
+=======
+	.name		= longname,
+>>>>>>> upstream/android-13
 	.dev		= &device_desc,
 	.strings	= dev_strings,
 	.max_speed	= USB_SPEED_HIGH,

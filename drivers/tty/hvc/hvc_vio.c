@@ -178,7 +178,11 @@ static void hvterm_hvsi_close(struct hvc_struct *hp, int data)
 	notifier_del_irq(hp, data);
 }
 
+<<<<<<< HEAD
 void hvterm_hvsi_hangup(struct hvc_struct *hp, int data)
+=======
+static void hvterm_hvsi_hangup(struct hvc_struct *hp, int data)
+>>>>>>> upstream/android-13
 {
 	struct hvterm_priv *pv = hvterm_privs[hp->vtermno];
 
@@ -249,7 +253,11 @@ static void udbg_hvc_putc(char c)
 			count = hvterm_hvsi_put_chars(0, &c, 1);
 			break;
 		}
+<<<<<<< HEAD
 	} while(count == 0);
+=======
+	} while (count == 0 || count == -EAGAIN);
+>>>>>>> upstream/android-13
 }
 
 static int udbg_hvc_getc_poll(void)
@@ -385,6 +393,7 @@ device_initcall(hvc_vio_init); /* after drivers/tty/hvc/hvc_console.c */
 void __init hvc_vio_init_early(void)
 {
 	const __be32 *termno;
+<<<<<<< HEAD
 	const char *name;
 	const struct hv_ops *ops;
 
@@ -399,6 +408,13 @@ void __init hvc_vio_init_early(void)
 
 	/* Check if it's a virtual terminal */
 	if (strncmp(name, "vty", 3) != 0)
+=======
+	const struct hv_ops *ops;
+
+	/* find the boot console from /chosen/stdout */
+	/* Check if it's a virtual terminal */
+	if (!of_node_name_prefix(of_stdout, "vty"))
+>>>>>>> upstream/android-13
 		return;
 	termno = of_get_property(of_stdout, "reg", NULL);
 	if (termno == NULL)

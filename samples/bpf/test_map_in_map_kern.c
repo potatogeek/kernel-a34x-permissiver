@@ -10,11 +10,19 @@
 #include <linux/version.h>
 #include <uapi/linux/bpf.h>
 #include <uapi/linux/in6.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
+=======
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+#include <bpf/bpf_core_read.h>
+#include "trace_common.h"
+>>>>>>> upstream/android-13
 
 #define MAX_NR_PORTS 65536
 
 /* map #0 */
+<<<<<<< HEAD
 struct bpf_map_def SEC("maps") port_a = {
 	.type = BPF_MAP_TYPE_ARRAY,
 	.key_size = sizeof(u32),
@@ -69,6 +77,62 @@ struct bpf_map_def SEC("maps") h_of_port_h = {
 	.inner_map_idx = 1, /* map_fd[1] is port_h */
 	.max_entries = 1,
 };
+=======
+struct inner_a {
+	__uint(type, BPF_MAP_TYPE_ARRAY);
+	__type(key, u32);
+	__type(value, int);
+	__uint(max_entries, MAX_NR_PORTS);
+} port_a SEC(".maps");
+
+/* map #1 */
+struct inner_h {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, u32);
+	__type(value, int);
+	__uint(max_entries, 1);
+} port_h SEC(".maps");
+
+/* map #2 */
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, u32);
+	__type(value, int);
+	__uint(max_entries, 1);
+} reg_result_h SEC(".maps");
+
+/* map #3 */
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, u32);
+	__type(value, int);
+	__uint(max_entries, 1);
+} inline_result_h SEC(".maps");
+
+/* map #4 */ /* Test case #0 */
+struct {
+	__uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);
+	__uint(max_entries, MAX_NR_PORTS);
+	__uint(key_size, sizeof(u32));
+	__array(values, struct inner_a); /* use inner_a as inner map */
+} a_of_port_a SEC(".maps");
+
+/* map #5 */ /* Test case #1 */
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH_OF_MAPS);
+	__uint(max_entries, 1);
+	__uint(key_size, sizeof(u32));
+	__array(values, struct inner_a); /* use inner_a as inner map */
+} h_of_port_a SEC(".maps");
+
+/* map #6 */ /* Test case #2 */
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH_OF_MAPS);
+	__uint(max_entries, 1);
+	__uint(key_size, sizeof(u32));
+	__array(values, struct inner_h); /* use inner_h as inner map */
+} h_of_port_h SEC(".maps");
+>>>>>>> upstream/android-13
 
 static __always_inline int do_reg_lookup(void *inner_map, u32 port)
 {
@@ -100,7 +164,11 @@ static __always_inline int do_inline_hash_lookup(void *inner_map, u32 port)
 	return result ? *result : -ENOENT;
 }
 
+<<<<<<< HEAD
 SEC("kprobe/sys_connect")
+=======
+SEC("kprobe/__sys_connect")
+>>>>>>> upstream/android-13
 int trace_sys_connect(struct pt_regs *ctx)
 {
 	struct sockaddr_in6 *in6;
@@ -110,13 +178,22 @@ int trace_sys_connect(struct pt_regs *ctx)
 	void *outer_map, *inner_map;
 	bool inline_hash = false;
 
+<<<<<<< HEAD
 	in6 = (struct sockaddr_in6 *)PT_REGS_PARM2(ctx);
 	addrlen = (int)PT_REGS_PARM3(ctx);
+=======
+	in6 = (struct sockaddr_in6 *)PT_REGS_PARM2_CORE(ctx);
+	addrlen = (int)PT_REGS_PARM3_CORE(ctx);
+>>>>>>> upstream/android-13
 
 	if (addrlen != sizeof(*in6))
 		return 0;
 
+<<<<<<< HEAD
 	ret = bpf_probe_read(dst6, sizeof(dst6), &in6->sin6_addr);
+=======
+	ret = bpf_probe_read_user(dst6, sizeof(dst6), &in6->sin6_addr);
+>>>>>>> upstream/android-13
 	if (ret) {
 		inline_ret = ret;
 		goto done;
@@ -127,7 +204,11 @@ int trace_sys_connect(struct pt_regs *ctx)
 
 	test_case = dst6[7];
 
+<<<<<<< HEAD
 	ret = bpf_probe_read(&port, sizeof(port), &in6->sin6_port);
+=======
+	ret = bpf_probe_read_user(&port, sizeof(port), &in6->sin6_port);
+>>>>>>> upstream/android-13
 	if (ret) {
 		inline_ret = ret;
 		goto done;

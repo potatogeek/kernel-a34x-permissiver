@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * davinci_mmc.c - TI DaVinci MMC/SD/SDIO driver
  *
  * Copyright (C) 2006 Texas Instruments.
  *       Original author: Purushotam Kumar
  * Copyright (C) 2009 David Brownell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -303,7 +310,11 @@ static void mmc_davinci_start_command(struct mmc_davinci_host *host,
 		default:
 			s = ", (R? response)";
 			break;
+<<<<<<< HEAD
 		}; s; }));
+=======
+		} s; }));
+>>>>>>> upstream/android-13
 	host->cmd = cmd;
 
 	switch (mmc_resp_type(cmd)) {
@@ -313,7 +324,11 @@ static void mmc_davinci_start_command(struct mmc_davinci_host *host,
 		 * then it's harmless for us to allow it.
 		 */
 		cmd_reg |= MMCCMD_BSYEXP;
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case MMC_RSP_R1:		/* 48 bits, CRC */
 		cmd_reg |= MMCCMD_RSPFMT_R1456;
 		break;
@@ -1009,7 +1024,11 @@ static irqreturn_t mmc_davinci_irq(int irq, void *dev_id)
 
 	if (qstatus & MMCST0_RSPDNE) {
 		/* End of command phase */
+<<<<<<< HEAD
 		end_command = (int) host->cmd;
+=======
+		end_command = host->cmd ? 1 : 0;
+>>>>>>> upstream/android-13
 	}
 
 	if (end_command)
@@ -1187,13 +1206,21 @@ static int mmc_davinci_parse_pdata(struct mmc_host *mmc)
 		mmc->caps |= pdata->caps;
 
 	/* Register a cd gpio, if there is not one, enable polling */
+<<<<<<< HEAD
 	ret = mmc_gpiod_request_cd(mmc, "cd", 0, false, 0, NULL);
+=======
+	ret = mmc_gpiod_request_cd(mmc, "cd", 0, false, 0);
+>>>>>>> upstream/android-13
 	if (ret == -EPROBE_DEFER)
 		return ret;
 	else if (ret)
 		mmc->caps |= MMC_CAP_NEEDS_POLL;
 
+<<<<<<< HEAD
 	ret = mmc_gpiod_request_ro(mmc, "wp", 0, false, 0, NULL);
+=======
+	ret = mmc_gpiod_request_ro(mmc, "wp", 0, 0);
+>>>>>>> upstream/android-13
 	if (ret == -EPROBE_DEFER)
 		return ret;
 
@@ -1253,9 +1280,14 @@ static int davinci_mmcsd_probe(struct platform_device *pdev)
 		pdev->id_entry = match->data;
 		ret = mmc_of_parse(mmc);
 		if (ret) {
+<<<<<<< HEAD
 			if (ret != -EPROBE_DEFER)
 				dev_err(&pdev->dev,
 					"could not parse of data: %d\n", ret);
+=======
+			dev_err_probe(&pdev->dev, ret,
+				      "could not parse of data\n");
+>>>>>>> upstream/android-13
 			goto parse_fail;
 		}
 	} else {
@@ -1389,8 +1421,17 @@ static int davinci_mmcsd_suspend(struct device *dev)
 static int davinci_mmcsd_resume(struct device *dev)
 {
 	struct mmc_davinci_host *host = dev_get_drvdata(dev);
+<<<<<<< HEAD
 
 	clk_enable(host->clk);
+=======
+	int ret;
+
+	ret = clk_enable(host->clk);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	mmc_davinci_reset_ctrl(host, 0);
 
 	return 0;
@@ -1409,6 +1450,10 @@ static const struct dev_pm_ops davinci_mmcsd_pm = {
 static struct platform_driver davinci_mmcsd_driver = {
 	.driver		= {
 		.name	= "davinci_mmc",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.pm	= davinci_mmcsd_pm_ops,
 		.of_match_table = davinci_mmc_dt_ids,
 	},

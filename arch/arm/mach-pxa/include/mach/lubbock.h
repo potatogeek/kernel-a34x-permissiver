@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/mach-pxa/include/mach/lubbock.h
  *
  *  Author:	Nicolas Pitre
  *  Created:	Jun 15, 2001
  *  Copyright:	MontaVista Software Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <mach/irqs.h>
@@ -50,7 +57,10 @@
 #define LUBBOCK_LAST_IRQ	LUBBOCK_IRQ(6)
 
 #define LUBBOCK_SA1111_IRQ_BASE	(LUBBOCK_NR_IRQS + 32)
+<<<<<<< HEAD
 
 #ifndef __ASSEMBLY__
 extern void lubbock_set_misc_wr(unsigned int mask, unsigned int set);
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -2,6 +2,10 @@
 #ifndef _XT_POLICY_H
 #define _XT_POLICY_H
 
+<<<<<<< HEAD
+=======
+#include <linux/netfilter.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/in.h>
 #include <linux/in6.h>

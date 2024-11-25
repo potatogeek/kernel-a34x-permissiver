@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * HDMI header definition for OMAP4 HDMI core IP
  *
@@ -14,6 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * HDMI header definition for OMAP4 HDMI core IP
+ *
+ * Copyright (C) 2010-2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 #ifndef _HDMI4_CORE_H_
@@ -260,7 +268,13 @@ struct hdmi_core_packet_enable_repeat {
 	u32	generic_pkt_repeat;
 };
 
+<<<<<<< HEAD
 int hdmi4_read_edid(struct hdmi_core_data *core, u8 *edid, int len);
+=======
+int hdmi4_core_ddc_init(struct hdmi_core_data *core);
+int hdmi4_core_ddc_read(void *data, u8 *buf, unsigned int block, size_t len);
+
+>>>>>>> upstream/android-13
 void hdmi4_configure(struct hdmi_core_data *core, struct hdmi_wp_data *wp,
 		struct hdmi_config *cfg);
 void hdmi4_core_dump(struct hdmi_core_data *core, struct seq_file *s);

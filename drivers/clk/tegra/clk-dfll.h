@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * clk-dfll.h - prototypes and macros for the Tegra DFLL clocksource driver
  * Copyright (C) 2013 NVIDIA Corporation.  All rights reserved.
@@ -13,6 +14,15 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * clk-dfll.h - prototypes and macros for the Tegra DFLL clocksource driver
+ * Copyright (C) 2013-2019 NVIDIA Corporation.  All rights reserved.
+ *
+ * Aleksandr Frid <afrid@nvidia.com>
+ * Paul Walmsley <pwalmsley@nvidia.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DRIVERS_CLK_TEGRA_CLK_DFLL_H
@@ -22,11 +32,20 @@
 #include <linux/reset.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#include "cvb.h"
+
+>>>>>>> upstream/android-13
 /**
  * struct tegra_dfll_soc_data - SoC-specific hooks/integration for the DFLL driver
  * @dev: struct device * that holds the OPP table for the DFLL
  * @max_freq: maximum frequency supported on this SoC
  * @cvb: CPU frequency table for this SoC
+<<<<<<< HEAD
+=======
+ * @alignment: parameters of the regulator step and offset
+>>>>>>> upstream/android-13
  * @init_clock_trimmers: callback to initialize clock trimmers
  * @set_clock_trimmers_high: callback to tune clock trimmers for high voltage
  * @set_clock_trimmers_low: callback to tune clock trimmers for low voltage
@@ -35,6 +54,10 @@ struct tegra_dfll_soc_data {
 	struct device *dev;
 	unsigned long max_freq;
 	const struct cvb_table *cvb;
+<<<<<<< HEAD
+=======
+	struct rail_alignment alignment;
+>>>>>>> upstream/android-13
 
 	void (*init_clock_trimmers)(void);
 	void (*set_clock_trimmers_high)(void);
@@ -46,5 +69,10 @@ int tegra_dfll_register(struct platform_device *pdev,
 struct tegra_dfll_soc_data *tegra_dfll_unregister(struct platform_device *pdev);
 int tegra_dfll_runtime_suspend(struct device *dev);
 int tegra_dfll_runtime_resume(struct device *dev);
+<<<<<<< HEAD
+=======
+int tegra_dfll_suspend(struct device *dev);
+int tegra_dfll_resume(struct device *dev);
+>>>>>>> upstream/android-13
 
 #endif /* __DRIVERS_CLK_TEGRA_CLK_DFLL_H */

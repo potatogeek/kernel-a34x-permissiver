@@ -29,6 +29,19 @@ void *module_alloc(unsigned long size);
 /* Free memory returned from module_alloc. */
 void module_memfree(void *module_region);
 
+<<<<<<< HEAD
+=======
+/* Determines if the section name is an init section (that is only used during
+ * module loading).
+ */
+bool module_init_section(const char *name);
+
+/* Determines if the section name is an exit section (that is only used during
+ * module unloading)
+ */
+bool module_exit_section(const char *name);
+
+>>>>>>> upstream/android-13
 /*
  * Apply the given relocation to the (simplified) ELF.  Return -error
  * or 0.
@@ -86,7 +99,12 @@ void module_arch_cleanup(struct module *mod);
 /* Any cleanup before freeing mod->module_init */
 void module_arch_freeing_init(struct module *mod);
 
+<<<<<<< HEAD
 #ifdef CONFIG_KASAN
+=======
+#if (defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)) && \
+		!defined(CONFIG_KASAN_VMALLOC)
+>>>>>>> upstream/android-13
 #include <linux/kasan.h>
 #define MODULE_ALIGN (PAGE_SIZE << KASAN_SHADOW_SCALE_SHIFT)
 #else

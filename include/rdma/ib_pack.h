@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
  *
@@ -28,6 +29,11 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef IB_PACK_H

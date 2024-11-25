@@ -96,7 +96,10 @@ int ccw_device_online(struct ccw_device *);
 int ccw_device_offline(struct ccw_device *);
 void ccw_device_update_sense_data(struct ccw_device *);
 int ccw_device_test_sense_data(struct ccw_device *);
+<<<<<<< HEAD
 void ccw_device_schedule_sch_unregister(struct ccw_device *);
+=======
+>>>>>>> upstream/android-13
 int ccw_purge_blacklisted(void);
 void ccw_device_sched_todo(struct ccw_device *cdev, enum cdev_todo todo);
 struct ccw_device *get_ccwdev_by_dev_id(struct ccw_dev_id *dev_id);
@@ -144,6 +147,9 @@ void retry_set_schib(struct ccw_device *cdev);
 void cmf_retry_copy_block(struct ccw_device *);
 int cmf_reenable(struct ccw_device *);
 void cmf_reactivate(void);
+<<<<<<< HEAD
 int ccw_set_cmf(struct ccw_device *cdev, int enable);
+=======
+>>>>>>> upstream/android-13
 extern struct device_attribute dev_attr_cmb_enable;
 #endif

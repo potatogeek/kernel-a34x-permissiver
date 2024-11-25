@@ -1,4 +1,8 @@
 #!/usr/bin/env perl
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 use File::Basename;
 use Math::BigInt;
@@ -8,10 +12,13 @@ use Getopt::Long;
 #
 # This file is part of the Linux kernel
 #
+<<<<<<< HEAD
 # This program file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; version 2 of the License.
 #
+=======
+>>>>>>> upstream/android-13
 # Authors:
 # 	Arjan van de Ven <arjan@linux.intel.com>
 

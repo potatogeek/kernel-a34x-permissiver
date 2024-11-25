@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Linux NET3: IP/IP protocol decoder modified to support
  *		    virtual tunnel interface
  *
  *	Authors:
  *		Saurabh Mohan (saurabh.mohan@vyatta.com) 05/07/2012
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -96,6 +103,7 @@ static int vti_rcv_proto(struct sk_buff *skb)
 	return vti_rcv(skb, 0, false);
 }
 
+<<<<<<< HEAD
 static int vti_rcv_tunnel(struct sk_buff *skb)
 {
 	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
@@ -122,13 +130,20 @@ drop:
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int vti_rcv_cb(struct sk_buff *skb, int err)
 {
 	unsigned short family;
 	struct net_device *dev;
+<<<<<<< HEAD
 	struct pcpu_sw_netstats *tstats;
 	struct xfrm_state *x;
 	struct xfrm_mode *inner_mode;
+=======
+	struct xfrm_state *x;
+	const struct xfrm_mode *inner_mode;
+>>>>>>> upstream/android-13
 	struct ip_tunnel *tunnel = XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip4;
 	u32 orig_mark = skb->mark;
 	int ret;
@@ -147,7 +162,11 @@ static int vti_rcv_cb(struct sk_buff *skb, int err)
 
 	x = xfrm_input_state(skb);
 
+<<<<<<< HEAD
 	inner_mode = x->inner_mode;
+=======
+	inner_mode = &x->inner_mode;
+>>>>>>> upstream/android-13
 
 	if (x->sel.family == AF_UNSPEC) {
 		inner_mode = xfrm_ip2inner_mode(x, XFRM_MODE_SKB_CB(skb)->protocol);
@@ -158,7 +177,11 @@ static int vti_rcv_cb(struct sk_buff *skb, int err)
 		}
 	}
 
+<<<<<<< HEAD
 	family = inner_mode->afinfo->family;
+=======
+	family = inner_mode->family;
+>>>>>>> upstream/android-13
 
 	skb->mark = be32_to_cpu(tunnel->parms.i_key);
 	ret = xfrm_policy_check(NULL, XFRM_POLICY_IN, skb, family);
@@ -169,6 +192,7 @@ static int vti_rcv_cb(struct sk_buff *skb, int err)
 
 	skb_scrub_packet(skb, !net_eq(tunnel->net, dev_net(skb->dev)));
 	skb->dev = dev;
+<<<<<<< HEAD
 
 	tstats = this_cpu_ptr(dev->tstats);
 
@@ -176,6 +200,9 @@ static int vti_rcv_cb(struct sk_buff *skb, int err)
 	tstats->rx_packets++;
 	tstats->rx_bytes += skb->len;
 	u64_stats_update_end(&tstats->syncp);
+=======
+	dev_sw_netstats_rx_add(dev, skb->len);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -249,12 +276,22 @@ static netdev_tx_t vti_xmit(struct sk_buff *skb, struct net_device *dev,
 	}
 
 	dst_hold(dst);
+<<<<<<< HEAD
 	dst = xfrm_lookup(tunnel->net, dst, fl, NULL, 0);
+=======
+	dst = xfrm_lookup_route(tunnel->net, dst, fl, NULL, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dst)) {
 		dev->stats.tx_carrier_errors++;
 		goto tx_error_icmp;
 	}
 
+<<<<<<< HEAD
+=======
+	if (dst->flags & DST_XFRM_QUEUE)
+		goto xmit;
+
+>>>>>>> upstream/android-13
 	if (!vti_state_check(dst->xfrm, parms->iph.daddr, parms->iph.saddr)) {
 		dev->stats.tx_carrier_errors++;
 		dst_release(dst);
@@ -273,19 +310,34 @@ static netdev_tx_t vti_xmit(struct sk_buff *skb, struct net_device *dev,
 	if (skb->len > mtu) {
 		skb_dst_update_pmtu_no_confirm(skb, mtu);
 		if (skb->protocol == htons(ETH_P_IP)) {
+<<<<<<< HEAD
 			icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
 				  htonl(mtu));
+=======
+			if (!(ip_hdr(skb)->frag_off & htons(IP_DF)))
+				goto xmit;
+			icmp_ndo_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
+				      htonl(mtu));
+>>>>>>> upstream/android-13
 		} else {
 			if (mtu < IPV6_MIN_MTU)
 				mtu = IPV6_MIN_MTU;
 
+<<<<<<< HEAD
 			icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+=======
+			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+>>>>>>> upstream/android-13
 		}
 
 		dst_release(dst);
 		goto tx_error;
 	}
 
+<<<<<<< HEAD
+=======
+xmit:
+>>>>>>> upstream/android-13
 	skb_scrub_packet(skb, !net_eq(tunnel->net, dev_net(dev)));
 	skb_dst_set(skb, dst);
 	skb->dev = skb_dst(skb)->dev;
@@ -383,6 +435,10 @@ static int vti4_err(struct sk_buff *skb, u32 info)
 	case ICMP_DEST_UNREACH:
 		if (icmp_hdr(skb)->code != ICMP_FRAG_NEEDED)
 			return 0;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case ICMP_REDIRECT:
 		break;
 	default:
@@ -395,15 +451,22 @@ static int vti4_err(struct sk_buff *skb, u32 info)
 		return 0;
 
 	if (icmp_hdr(skb)->type == ICMP_DEST_UNREACH)
+<<<<<<< HEAD
 		ipv4_update_pmtu(skb, net, info, 0, 0, protocol, 0);
 	else
 		ipv4_redirect(skb, net, 0, 0, protocol, 0);
+=======
+		ipv4_update_pmtu(skb, net, info, 0, protocol);
+	else
+		ipv4_redirect(skb, net, 0, protocol);
+>>>>>>> upstream/android-13
 	xfrm_state_put(x);
 
 	return 0;
 }
 
 static int
+<<<<<<< HEAD
 vti_tunnel_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	int err = 0;
@@ -426,16 +489,42 @@ vti_tunnel_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	p.i_flags = VTI_ISVTI;
 
 	err = ip_tunnel_ioctl(dev, &p, cmd);
+=======
+vti_tunnel_ctl(struct net_device *dev, struct ip_tunnel_parm *p, int cmd)
+{
+	int err = 0;
+
+	if (cmd == SIOCADDTUNNEL || cmd == SIOCCHGTUNNEL) {
+		if (p->iph.version != 4 || p->iph.protocol != IPPROTO_IPIP ||
+		    p->iph.ihl != 5)
+			return -EINVAL;
+	}
+
+	if (!(p->i_flags & GRE_KEY))
+		p->i_key = 0;
+	if (!(p->o_flags & GRE_KEY))
+		p->o_key = 0;
+
+	p->i_flags = VTI_ISVTI;
+
+	err = ip_tunnel_ctl(dev, p, cmd);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	if (cmd != SIOCDELTUNNEL) {
+<<<<<<< HEAD
 		p.i_flags |= GRE_KEY;
 		p.o_flags |= GRE_KEY;
 	}
 
 	if (copy_to_user(ifr->ifr_ifru.ifru_data, &p, sizeof(p)))
 		return -EFAULT;
+=======
+		p->i_flags |= GRE_KEY;
+		p->o_flags |= GRE_KEY;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -443,15 +532,27 @@ static const struct net_device_ops vti_netdev_ops = {
 	.ndo_init	= vti_tunnel_init,
 	.ndo_uninit	= ip_tunnel_uninit,
 	.ndo_start_xmit	= vti_tunnel_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl	= vti_tunnel_ioctl,
 	.ndo_change_mtu	= ip_tunnel_change_mtu,
 	.ndo_get_stats64 = ip_tunnel_get_stats64,
 	.ndo_get_iflink = ip_tunnel_get_iflink,
+=======
+	.ndo_siocdevprivate = ip_tunnel_siocdevprivate,
+	.ndo_change_mtu	= ip_tunnel_change_mtu,
+	.ndo_get_stats64 = dev_get_tstats64,
+	.ndo_get_iflink = ip_tunnel_get_iflink,
+	.ndo_tunnel_ctl	= vti_tunnel_ctl,
+>>>>>>> upstream/android-13
 };
 
 static void vti_tunnel_setup(struct net_device *dev)
 {
 	dev->netdev_ops		= &vti_netdev_ops;
+<<<<<<< HEAD
+=======
+	dev->header_ops		= &ip_tunnel_header_ops;
+>>>>>>> upstream/android-13
 	dev->type		= ARPHRD_TUNNEL;
 	ip_tunnel_setup(dev, vti_net_id);
 }
@@ -506,12 +607,40 @@ static struct xfrm4_protocol vti_ipcomp4_protocol __read_mostly = {
 	.priority	=	100,
 };
 
+<<<<<<< HEAD
 static struct xfrm_tunnel ipip_handler __read_mostly = {
 	.handler	=	vti_rcv_tunnel,
+=======
+#if IS_ENABLED(CONFIG_INET_XFRM_TUNNEL)
+static int vti_rcv_tunnel(struct sk_buff *skb)
+{
+	XFRM_SPI_SKB_CB(skb)->family = AF_INET;
+	XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct iphdr, daddr);
+
+	return vti_input(skb, IPPROTO_IPIP, ip_hdr(skb)->saddr, 0, false);
+}
+
+static struct xfrm_tunnel vti_ipip_handler __read_mostly = {
+	.handler	=	vti_rcv_tunnel,
+	.cb_handler	=	vti_rcv_cb,
+>>>>>>> upstream/android-13
 	.err_handler	=	vti4_err,
 	.priority	=	0,
 };
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_IPV6)
+static struct xfrm_tunnel vti_ipip6_handler __read_mostly = {
+	.handler	=	vti_rcv_tunnel,
+	.cb_handler	=	vti_rcv_cb,
+	.err_handler	=	vti4_err,
+	.priority	=	0,
+};
+#endif
+#endif
+
+>>>>>>> upstream/android-13
 static int __net_init vti_init_net(struct net *net)
 {
 	int err;
@@ -637,8 +766,13 @@ static const struct nla_policy vti_policy[IFLA_VTI_MAX + 1] = {
 	[IFLA_VTI_LINK]		= { .type = NLA_U32 },
 	[IFLA_VTI_IKEY]		= { .type = NLA_U32 },
 	[IFLA_VTI_OKEY]		= { .type = NLA_U32 },
+<<<<<<< HEAD
 	[IFLA_VTI_LOCAL]	= { .len = FIELD_SIZEOF(struct iphdr, saddr) },
 	[IFLA_VTI_REMOTE]	= { .len = FIELD_SIZEOF(struct iphdr, daddr) },
+=======
+	[IFLA_VTI_LOCAL]	= { .len = sizeof_field(struct iphdr, saddr) },
+	[IFLA_VTI_REMOTE]	= { .len = sizeof_field(struct iphdr, daddr) },
+>>>>>>> upstream/android-13
 	[IFLA_VTI_FWMARK]	= { .type = NLA_U32 },
 };
 
@@ -680,10 +814,24 @@ static int __init vti_init(void)
 	if (err < 0)
 		goto xfrm_proto_comp_failed;
 
+<<<<<<< HEAD
 	msg = "ipip tunnel";
 	err = xfrm4_tunnel_register(&ipip_handler, AF_INET);
 	if (err < 0)
 		goto xfrm_tunnel_failed;
+=======
+#if IS_ENABLED(CONFIG_INET_XFRM_TUNNEL)
+	msg = "ipip tunnel";
+	err = xfrm4_tunnel_register(&vti_ipip_handler, AF_INET);
+	if (err < 0)
+		goto xfrm_tunnel_ipip_failed;
+#if IS_ENABLED(CONFIG_IPV6)
+	err = xfrm4_tunnel_register(&vti_ipip6_handler, AF_INET6);
+	if (err < 0)
+		goto xfrm_tunnel_ipip6_failed;
+#endif
+#endif
+>>>>>>> upstream/android-13
 
 	msg = "netlink interface";
 	err = rtnl_link_register(&vti_link_ops);
@@ -693,8 +841,19 @@ static int __init vti_init(void)
 	return err;
 
 rtnl_link_failed:
+<<<<<<< HEAD
 	xfrm4_tunnel_deregister(&ipip_handler, AF_INET);
 xfrm_tunnel_failed:
+=======
+#if IS_ENABLED(CONFIG_INET_XFRM_TUNNEL)
+#if IS_ENABLED(CONFIG_IPV6)
+	xfrm4_tunnel_deregister(&vti_ipip6_handler, AF_INET6);
+xfrm_tunnel_ipip6_failed:
+#endif
+	xfrm4_tunnel_deregister(&vti_ipip_handler, AF_INET);
+xfrm_tunnel_ipip_failed:
+#endif
+>>>>>>> upstream/android-13
 	xfrm4_protocol_deregister(&vti_ipcomp4_protocol, IPPROTO_COMP);
 xfrm_proto_comp_failed:
 	xfrm4_protocol_deregister(&vti_ah4_protocol, IPPROTO_AH);
@@ -710,7 +869,16 @@ pernet_dev_failed:
 static void __exit vti_fini(void)
 {
 	rtnl_link_unregister(&vti_link_ops);
+<<<<<<< HEAD
 	xfrm4_tunnel_deregister(&ipip_handler, AF_INET);
+=======
+#if IS_ENABLED(CONFIG_INET_XFRM_TUNNEL)
+#if IS_ENABLED(CONFIG_IPV6)
+	xfrm4_tunnel_deregister(&vti_ipip6_handler, AF_INET6);
+#endif
+	xfrm4_tunnel_deregister(&vti_ipip_handler, AF_INET);
+#endif
+>>>>>>> upstream/android-13
 	xfrm4_protocol_deregister(&vti_ipcomp4_protocol, IPPROTO_COMP);
 	xfrm4_protocol_deregister(&vti_ah4_protocol, IPPROTO_AH);
 	xfrm4_protocol_deregister(&vti_esp4_protocol, IPPROTO_ESP);

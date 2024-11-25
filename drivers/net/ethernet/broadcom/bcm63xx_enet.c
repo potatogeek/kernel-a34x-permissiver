@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for BCM963xx builtin Ethernet mac
  *
  * Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -35,7 +42,10 @@
 #include "bcm63xx_enet.h"
 
 static char bcm_enet_driver_name[] = "bcm63xx_enet";
+<<<<<<< HEAD
 static char bcm_enet_driver_version[] = "1.0";
+=======
+>>>>>>> upstream/android-13
 
 static int copybreak __read_mostly = 128;
 module_param(copybreak, int, 0);
@@ -234,7 +244,11 @@ static void bcm_enet_mdio_write_mii(struct net_device *dev, int mii_id,
 /*
  * refill rx queue
  */
+<<<<<<< HEAD
 static int bcm_enet_refill_rx(struct net_device *dev)
+=======
+static int bcm_enet_refill_rx(struct net_device *dev, bool napi_mode)
+>>>>>>> upstream/android-13
 {
 	struct bcm_enet_priv *priv;
 
@@ -242,14 +256,18 @@ static int bcm_enet_refill_rx(struct net_device *dev)
 
 	while (priv->rx_desc_count < priv->rx_ring_size) {
 		struct bcm_enet_desc *desc;
+<<<<<<< HEAD
 		struct sk_buff *skb;
 		dma_addr_t p;
+=======
+>>>>>>> upstream/android-13
 		int desc_idx;
 		u32 len_stat;
 
 		desc_idx = priv->rx_dirty_desc;
 		desc = &priv->rx_desc_cpu[desc_idx];
 
+<<<<<<< HEAD
 		if (!priv->rx_skb[desc_idx]) {
 			skb = netdev_alloc_skb(dev, priv->rx_skb_size);
 			if (!skb)
@@ -262,6 +280,25 @@ static int bcm_enet_refill_rx(struct net_device *dev)
 		}
 
 		len_stat = priv->rx_skb_size << DMADESC_LENGTH_SHIFT;
+=======
+		if (!priv->rx_buf[desc_idx]) {
+			void *buf;
+
+			if (likely(napi_mode))
+				buf = napi_alloc_frag(priv->rx_frag_size);
+			else
+				buf = netdev_alloc_frag(priv->rx_frag_size);
+			if (unlikely(!buf))
+				break;
+			priv->rx_buf[desc_idx] = buf;
+			desc->address = dma_map_single(&priv->pdev->dev,
+						       buf + priv->rx_buf_offset,
+						       priv->rx_buf_size,
+						       DMA_FROM_DEVICE);
+		}
+
+		len_stat = priv->rx_buf_size << DMADESC_LENGTH_SHIFT;
+>>>>>>> upstream/android-13
 		len_stat |= DMADESC_OWNER_MASK;
 		if (priv->rx_dirty_desc == priv->rx_ring_size - 1) {
 			len_stat |= (DMADESC_WRAP_MASK >> priv->dma_desc_shift);
@@ -301,7 +338,11 @@ static void bcm_enet_refill_rx_timer(struct timer_list *t)
 	struct net_device *dev = priv->net_dev;
 
 	spin_lock(&priv->rx_lock);
+<<<<<<< HEAD
 	bcm_enet_refill_rx(dev);
+=======
+	bcm_enet_refill_rx(dev, false);
+>>>>>>> upstream/android-13
 	spin_unlock(&priv->rx_lock);
 }
 
@@ -311,10 +352,18 @@ static void bcm_enet_refill_rx_timer(struct timer_list *t)
 static int bcm_enet_receive_queue(struct net_device *dev, int budget)
 {
 	struct bcm_enet_priv *priv;
+<<<<<<< HEAD
+=======
+	struct list_head rx_list;
+>>>>>>> upstream/android-13
 	struct device *kdev;
 	int processed;
 
 	priv = netdev_priv(dev);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&rx_list);
+>>>>>>> upstream/android-13
 	kdev = &priv->pdev->dev;
 	processed = 0;
 
@@ -329,6 +378,10 @@ static int bcm_enet_receive_queue(struct net_device *dev, int budget)
 		int desc_idx;
 		u32 len_stat;
 		unsigned int len;
+<<<<<<< HEAD
+=======
+		void *buf;
+>>>>>>> upstream/android-13
 
 		desc_idx = priv->rx_curr_desc;
 		desc = &priv->rx_desc_cpu[desc_idx];
@@ -347,7 +400,10 @@ static int bcm_enet_receive_queue(struct net_device *dev, int budget)
 		priv->rx_curr_desc++;
 		if (priv->rx_curr_desc == priv->rx_ring_size)
 			priv->rx_curr_desc = 0;
+<<<<<<< HEAD
 		priv->rx_desc_count--;
+=======
+>>>>>>> upstream/android-13
 
 		/* if the packet does not have start of packet _and_
 		 * end of packet flag set, then just recycle it */
@@ -374,16 +430,25 @@ static int bcm_enet_receive_queue(struct net_device *dev, int budget)
 		}
 
 		/* valid packet */
+<<<<<<< HEAD
 		skb = priv->rx_skb[desc_idx];
+=======
+		buf = priv->rx_buf[desc_idx];
+>>>>>>> upstream/android-13
 		len = (len_stat & DMADESC_LENGTH_MASK) >> DMADESC_LENGTH_SHIFT;
 		/* don't include FCS */
 		len -= 4;
 
 		if (len < copybreak) {
+<<<<<<< HEAD
 			struct sk_buff *nskb;
 
 			nskb = napi_alloc_skb(&priv->napi, len);
 			if (!nskb) {
+=======
+			skb = napi_alloc_skb(&priv->napi, len);
+			if (unlikely(!skb)) {
+>>>>>>> upstream/android-13
 				/* forget packet, just rearm desc */
 				dev->stats.rx_dropped++;
 				continue;
@@ -391,6 +456,7 @@ static int bcm_enet_receive_queue(struct net_device *dev, int budget)
 
 			dma_sync_single_for_cpu(kdev, desc->address,
 						len, DMA_FROM_DEVICE);
+<<<<<<< HEAD
 			memcpy(nskb->data, skb->data, len);
 			dma_sync_single_for_device(kdev, desc->address,
 						   len, DMA_FROM_DEVICE);
@@ -399,18 +465,47 @@ static int bcm_enet_receive_queue(struct net_device *dev, int budget)
 			dma_unmap_single(&priv->pdev->dev, desc->address,
 					 priv->rx_skb_size, DMA_FROM_DEVICE);
 			priv->rx_skb[desc_idx] = NULL;
+=======
+			memcpy(skb->data, buf + priv->rx_buf_offset, len);
+			dma_sync_single_for_device(kdev, desc->address,
+						   len, DMA_FROM_DEVICE);
+		} else {
+			dma_unmap_single(kdev, desc->address,
+					 priv->rx_buf_size, DMA_FROM_DEVICE);
+			priv->rx_buf[desc_idx] = NULL;
+
+			skb = build_skb(buf, priv->rx_frag_size);
+			if (unlikely(!skb)) {
+				skb_free_frag(buf);
+				dev->stats.rx_dropped++;
+				continue;
+			}
+			skb_reserve(skb, priv->rx_buf_offset);
+>>>>>>> upstream/android-13
 		}
 
 		skb_put(skb, len);
 		skb->protocol = eth_type_trans(skb, dev);
 		dev->stats.rx_packets++;
 		dev->stats.rx_bytes += len;
+<<<<<<< HEAD
 		netif_receive_skb(skb);
 
 	} while (--budget > 0);
 
 	if (processed || !priv->rx_desc_count) {
 		bcm_enet_refill_rx(dev);
+=======
+		list_add_tail(&skb->list, &rx_list);
+
+	} while (processed < budget);
+
+	netif_receive_skb_list(&rx_list);
+	priv->rx_desc_count -= processed;
+
+	if (processed || !priv->rx_desc_count) {
+		bcm_enet_refill_rx(dev, true);
+>>>>>>> upstream/android-13
 
 		/* kick rx dma */
 		enet_dmac_writel(priv, priv->dma_chan_en_mask,
@@ -427,9 +522,17 @@ static int bcm_enet_receive_queue(struct net_device *dev, int budget)
 static int bcm_enet_tx_reclaim(struct net_device *dev, int force)
 {
 	struct bcm_enet_priv *priv;
+<<<<<<< HEAD
 	int released;
 
 	priv = netdev_priv(dev);
+=======
+	unsigned int bytes;
+	int released;
+
+	priv = netdev_priv(dev);
+	bytes = 0;
+>>>>>>> upstream/android-13
 	released = 0;
 
 	while (priv->tx_desc_count < priv->tx_ring_size) {
@@ -466,10 +569,19 @@ static int bcm_enet_tx_reclaim(struct net_device *dev, int force)
 		if (desc->len_stat & DMADESC_UNDER_MASK)
 			dev->stats.tx_errors++;
 
+<<<<<<< HEAD
+=======
+		bytes += skb->len;
+>>>>>>> upstream/android-13
 		dev_kfree_skb(skb);
 		released++;
 	}
 
+<<<<<<< HEAD
+=======
+	netdev_completed_queue(dev, released, bytes);
+
+>>>>>>> upstream/android-13
 	if (netif_queue_stopped(dev) && released)
 		netif_wake_queue(dev);
 
@@ -636,8 +748,16 @@ bcm_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	desc->len_stat = len_stat;
 	wmb();
 
+<<<<<<< HEAD
 	/* kick tx dma */
 	enet_dmac_writel(priv, priv->dma_chan_en_mask,
+=======
+	netdev_sent_queue(dev, skb->len);
+
+	/* kick tx dma */
+	if (!netdev_xmit_more() || !priv->tx_desc_count)
+		enet_dmac_writel(priv, priv->dma_chan_en_mask,
+>>>>>>> upstream/android-13
 				 ENETDMAC_CHANCFG, priv->tx_chan);
 
 	/* stop queue if no more desc available */
@@ -859,6 +979,27 @@ static void bcm_enet_adjust_link(struct net_device *dev)
 		priv->pause_tx ? "tx" : "off");
 }
 
+<<<<<<< HEAD
+=======
+static void bcm_enet_free_rx_buf_ring(struct device *kdev, struct bcm_enet_priv *priv)
+{
+	int i;
+
+	for (i = 0; i < priv->rx_ring_size; i++) {
+		struct bcm_enet_desc *desc;
+
+		if (!priv->rx_buf[i])
+			continue;
+
+		desc = &priv->rx_desc_cpu[i];
+		dma_unmap_single(kdev, desc->address, priv->rx_buf_size,
+				 DMA_FROM_DEVICE);
+		skb_free_frag(priv->rx_buf[i]);
+	}
+	kfree(priv->rx_buf);
+}
+
+>>>>>>> upstream/android-13
 /*
  * open callback, allocate dma rings & buffers and start rx operation
  */
@@ -891,6 +1032,7 @@ static int bcm_enet_open(struct net_device *dev)
 		}
 
 		/* mask with MAC supported features */
+<<<<<<< HEAD
 		phydev->supported &= (SUPPORTED_10baseT_Half |
 				      SUPPORTED_10baseT_Full |
 				      SUPPORTED_100baseT_Half |
@@ -904,6 +1046,12 @@ static int bcm_enet_open(struct net_device *dev)
 			phydev->advertising |= SUPPORTED_Pause;
 		else
 			phydev->advertising &= ~SUPPORTED_Pause;
+=======
+		phy_support_sym_pause(phydev);
+		phy_set_max_speed(phydev, SPEED_100);
+		phy_set_sym_pause(phydev, priv->pause_rx, priv->pause_rx,
+				  priv->pause_auto);
+>>>>>>> upstream/android-13
 
 		phy_attached_info(phydev);
 
@@ -945,7 +1093,11 @@ static int bcm_enet_open(struct net_device *dev)
 
 	/* allocate rx dma ring */
 	size = priv->rx_ring_size * sizeof(struct bcm_enet_desc);
+<<<<<<< HEAD
 	p = dma_zalloc_coherent(kdev, size, &priv->rx_desc_dma, GFP_KERNEL);
+=======
+	p = dma_alloc_coherent(kdev, size, &priv->rx_desc_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!p) {
 		ret = -ENOMEM;
 		goto out_freeirq_tx;
@@ -956,7 +1108,11 @@ static int bcm_enet_open(struct net_device *dev)
 
 	/* allocate tx dma ring */
 	size = priv->tx_ring_size * sizeof(struct bcm_enet_desc);
+<<<<<<< HEAD
 	p = dma_zalloc_coherent(kdev, size, &priv->tx_desc_dma, GFP_KERNEL);
+=======
+	p = dma_alloc_coherent(kdev, size, &priv->tx_desc_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!p) {
 		ret = -ENOMEM;
 		goto out_free_rx_ring;
@@ -977,10 +1133,17 @@ static int bcm_enet_open(struct net_device *dev)
 	priv->tx_curr_desc = 0;
 	spin_lock_init(&priv->tx_lock);
 
+<<<<<<< HEAD
 	/* init & fill rx ring with skbs */
 	priv->rx_skb = kcalloc(priv->rx_ring_size, sizeof(struct sk_buff *),
 			       GFP_KERNEL);
 	if (!priv->rx_skb) {
+=======
+	/* init & fill rx ring with buffers */
+	priv->rx_buf = kcalloc(priv->rx_ring_size, sizeof(void *),
+			       GFP_KERNEL);
+	if (!priv->rx_buf) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_free_tx_skb;
 	}
@@ -997,8 +1160,13 @@ static int bcm_enet_open(struct net_device *dev)
 		enet_dmac_writel(priv, ENETDMA_BUFALLOC_FORCE_MASK | 0,
 				ENETDMAC_BUFALLOC, priv->rx_chan);
 
+<<<<<<< HEAD
 	if (bcm_enet_refill_rx(dev)) {
 		dev_err(kdev, "cannot allocate rx skb queue\n");
+=======
+	if (bcm_enet_refill_rx(dev, false)) {
+		dev_err(kdev, "cannot allocate rx buffer queue\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
@@ -1092,6 +1260,7 @@ static int bcm_enet_open(struct net_device *dev)
 	return 0;
 
 out:
+<<<<<<< HEAD
 	for (i = 0; i < priv->rx_ring_size; i++) {
 		struct bcm_enet_desc *desc;
 
@@ -1104,6 +1273,9 @@ out:
 		kfree_skb(priv->rx_skb[i]);
 	}
 	kfree(priv->rx_skb);
+=======
+	bcm_enet_free_rx_buf_ring(kdev, priv);
+>>>>>>> upstream/android-13
 
 out_free_tx_skb:
 	kfree(priv->tx_skb);
@@ -1182,7 +1354,10 @@ static int bcm_enet_stop(struct net_device *dev)
 {
 	struct bcm_enet_priv *priv;
 	struct device *kdev;
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	priv = netdev_priv(dev);
 	kdev = &priv->pdev->dev;
@@ -1209,6 +1384,7 @@ static int bcm_enet_stop(struct net_device *dev)
 	/* force reclaim of all tx buffers */
 	bcm_enet_tx_reclaim(dev, 1);
 
+<<<<<<< HEAD
 	/* free the rx skb ring */
 	for (i = 0; i < priv->rx_ring_size; i++) {
 		struct bcm_enet_desc *desc;
@@ -1224,6 +1400,12 @@ static int bcm_enet_stop(struct net_device *dev)
 
 	/* free remaining allocated memory */
 	kfree(priv->rx_skb);
+=======
+	/* free the rx buffer ring */
+	bcm_enet_free_rx_buf_ring(kdev, priv);
+
+	/* free remaining allocated memory */
+>>>>>>> upstream/android-13
 	kfree(priv->tx_skb);
 	dma_free_coherent(kdev, priv->rx_desc_alloc_size,
 			  priv->rx_desc_cpu, priv->rx_desc_dma);
@@ -1237,6 +1419,12 @@ static int bcm_enet_stop(struct net_device *dev)
 	if (priv->has_phy)
 		phy_disconnect(dev->phydev);
 
+<<<<<<< HEAD
+=======
+	/* reset BQL after forced tx reclaim to prevent kernel panic */
+	netdev_reset_queue(dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1326,9 +1514,12 @@ static void bcm_enet_get_drvinfo(struct net_device *netdev,
 				 struct ethtool_drvinfo *drvinfo)
 {
 	strlcpy(drvinfo->driver, bcm_enet_driver_name, sizeof(drvinfo->driver));
+<<<<<<< HEAD
 	strlcpy(drvinfo->version, bcm_enet_driver_version,
 		sizeof(drvinfo->version));
 	strlcpy(drvinfo->fw_version, "N/A", sizeof(drvinfo->fw_version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(drvinfo->bus_info, "bcm63xx", sizeof(drvinfo->bus_info));
 }
 
@@ -1648,9 +1839,18 @@ static int bcm_enet_change_mtu(struct net_device *dev, int new_mtu)
 	 * align rx buffer size to dma burst len, account FCS since
 	 * it's appended
 	 */
+<<<<<<< HEAD
 	priv->rx_skb_size = ALIGN(actual_mtu + ETH_FCS_LEN,
 				  priv->dma_maxburst * 4);
 
+=======
+	priv->rx_buf_size = ALIGN(actual_mtu + ETH_FCS_LEN,
+				  priv->dma_maxburst * 4);
+
+	priv->rx_frag_size = SKB_DATA_ALIGN(priv->rx_buf_offset + priv->rx_buf_size) +
+					    SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+
+>>>>>>> upstream/android-13
 	dev->mtu = new_mtu;
 	return 0;
 }
@@ -1703,7 +1903,11 @@ static const struct net_device_ops bcm_enet_ops = {
 	.ndo_start_xmit		= bcm_enet_start_xmit,
 	.ndo_set_mac_address	= bcm_enet_set_mac_address,
 	.ndo_set_rx_mode	= bcm_enet_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= bcm_enet_ioctl,
+=======
+	.ndo_eth_ioctl		= bcm_enet_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= bcm_enet_change_mtu,
 };
 
@@ -1715,7 +1919,11 @@ static int bcm_enet_probe(struct platform_device *pdev)
 	struct bcm_enet_priv *priv;
 	struct net_device *dev;
 	struct bcm63xx_enet_platform_data *pd;
+<<<<<<< HEAD
 	struct resource *res_mem, *res_irq, *res_irq_rx, *res_irq_tx;
+=======
+	struct resource *res_irq, *res_irq_rx, *res_irq_tx;
+>>>>>>> upstream/android-13
 	struct mii_bus *bus;
 	int i, ret;
 
@@ -1728,7 +1936,10 @@ static int bcm_enet_probe(struct platform_device *pdev)
 	if (!res_irq || !res_irq_rx || !res_irq_tx)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	ret = 0;
+=======
+>>>>>>> upstream/android-13
 	dev = alloc_etherdev(sizeof(*priv));
 	if (!dev)
 		return -ENOMEM;
@@ -1736,13 +1947,21 @@ static int bcm_enet_probe(struct platform_device *pdev)
 
 	priv->enet_is_sw = false;
 	priv->dma_maxburst = BCMENET_DMA_MAXBURST;
+<<<<<<< HEAD
+=======
+	priv->rx_buf_offset = NET_SKB_PAD;
+>>>>>>> upstream/android-13
 
 	ret = bcm_enet_change_mtu(dev, dev->mtu);
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(&pdev->dev, res_mem);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base)) {
 		ret = PTR_ERR(priv->base);
 		goto out;
@@ -2129,7 +2348,11 @@ static int bcm_enetsw_open(struct net_device *dev)
 
 	/* allocate rx dma ring */
 	size = priv->rx_ring_size * sizeof(struct bcm_enet_desc);
+<<<<<<< HEAD
 	p = dma_zalloc_coherent(kdev, size, &priv->rx_desc_dma, GFP_KERNEL);
+=======
+	p = dma_alloc_coherent(kdev, size, &priv->rx_desc_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!p) {
 		dev_err(kdev, "cannot allocate rx ring %u\n", size);
 		ret = -ENOMEM;
@@ -2141,7 +2364,11 @@ static int bcm_enetsw_open(struct net_device *dev)
 
 	/* allocate tx dma ring */
 	size = priv->tx_ring_size * sizeof(struct bcm_enet_desc);
+<<<<<<< HEAD
 	p = dma_zalloc_coherent(kdev, size, &priv->tx_desc_dma, GFP_KERNEL);
+=======
+	p = dma_alloc_coherent(kdev, size, &priv->tx_desc_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!p) {
 		dev_err(kdev, "cannot allocate tx ring\n");
 		ret = -ENOMEM;
@@ -2154,7 +2381,11 @@ static int bcm_enetsw_open(struct net_device *dev)
 	priv->tx_skb = kcalloc(priv->tx_ring_size, sizeof(struct sk_buff *),
 			       GFP_KERNEL);
 	if (!priv->tx_skb) {
+<<<<<<< HEAD
 		dev_err(kdev, "cannot allocate rx skb queue\n");
+=======
+		dev_err(kdev, "cannot allocate tx skb queue\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_free_tx_ring;
 	}
@@ -2164,11 +2395,19 @@ static int bcm_enetsw_open(struct net_device *dev)
 	priv->tx_curr_desc = 0;
 	spin_lock_init(&priv->tx_lock);
 
+<<<<<<< HEAD
 	/* init & fill rx ring with skbs */
 	priv->rx_skb = kcalloc(priv->rx_ring_size, sizeof(struct sk_buff *),
 			       GFP_KERNEL);
 	if (!priv->rx_skb) {
 		dev_err(kdev, "cannot allocate rx skb queue\n");
+=======
+	/* init & fill rx ring with buffers */
+	priv->rx_buf = kcalloc(priv->rx_ring_size, sizeof(void *),
+			       GFP_KERNEL);
+	if (!priv->rx_buf) {
+		dev_err(kdev, "cannot allocate rx buffer queue\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_free_tx_skb;
 	}
@@ -2215,8 +2454,13 @@ static int bcm_enetsw_open(struct net_device *dev)
 	enet_dma_writel(priv, ENETDMA_BUFALLOC_FORCE_MASK | 0,
 			ENETDMA_BUFALLOC_REG(priv->rx_chan));
 
+<<<<<<< HEAD
 	if (bcm_enet_refill_rx(dev)) {
 		dev_err(kdev, "cannot allocate rx skb queue\n");
+=======
+	if (bcm_enet_refill_rx(dev, false)) {
+		dev_err(kdev, "cannot allocate rx buffer queue\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out;
 	}
@@ -2315,6 +2559,7 @@ static int bcm_enetsw_open(struct net_device *dev)
 	return 0;
 
 out:
+<<<<<<< HEAD
 	for (i = 0; i < priv->rx_ring_size; i++) {
 		struct bcm_enet_desc *desc;
 
@@ -2327,6 +2572,9 @@ out:
 		kfree_skb(priv->rx_skb[i]);
 	}
 	kfree(priv->rx_skb);
+=======
+	bcm_enet_free_rx_buf_ring(kdev, priv);
+>>>>>>> upstream/android-13
 
 out_free_tx_skb:
 	kfree(priv->tx_skb);
@@ -2355,7 +2603,10 @@ static int bcm_enetsw_stop(struct net_device *dev)
 {
 	struct bcm_enet_priv *priv;
 	struct device *kdev;
+<<<<<<< HEAD
 	int i;
+=======
+>>>>>>> upstream/android-13
 
 	priv = netdev_priv(dev);
 	kdev = &priv->pdev->dev;
@@ -2376,6 +2627,7 @@ static int bcm_enetsw_stop(struct net_device *dev)
 	/* force reclaim of all tx buffers */
 	bcm_enet_tx_reclaim(dev, 1);
 
+<<<<<<< HEAD
 	/* free the rx skb ring */
 	for (i = 0; i < priv->rx_ring_size; i++) {
 		struct bcm_enet_desc *desc;
@@ -2391,6 +2643,12 @@ static int bcm_enetsw_stop(struct net_device *dev)
 
 	/* free remaining allocated memory */
 	kfree(priv->rx_skb);
+=======
+	/* free the rx buffer ring */
+	bcm_enet_free_rx_buf_ring(kdev, priv);
+
+	/* free remaining allocated memory */
+>>>>>>> upstream/android-13
 	kfree(priv->tx_skb);
 	dma_free_coherent(kdev, priv->rx_desc_alloc_size,
 			  priv->rx_desc_cpu, priv->rx_desc_dma);
@@ -2400,6 +2658,12 @@ static int bcm_enetsw_stop(struct net_device *dev)
 		free_irq(priv->irq_tx, dev);
 	free_irq(priv->irq_rx, dev);
 
+<<<<<<< HEAD
+=======
+	/* reset BQL after forced tx reclaim to prevent kernel panic */
+	netdev_reset_queue(dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2471,7 +2735,11 @@ static const struct net_device_ops bcm_enetsw_ops = {
 	.ndo_stop		= bcm_enetsw_stop,
 	.ndo_start_xmit		= bcm_enet_start_xmit,
 	.ndo_change_mtu		= bcm_enet_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= bcm_enetsw_ioctl,
+=======
+	.ndo_eth_ioctl		= bcm_enetsw_ioctl,
+>>>>>>> upstream/android-13
 };
 
 
@@ -2552,10 +2820,15 @@ static int bcm_enetsw_get_sset_count(struct net_device *netdev,
 static void bcm_enetsw_get_drvinfo(struct net_device *netdev,
 				   struct ethtool_drvinfo *drvinfo)
 {
+<<<<<<< HEAD
 	strncpy(drvinfo->driver, bcm_enet_driver_name, 32);
 	strncpy(drvinfo->version, bcm_enet_driver_version, 32);
 	strncpy(drvinfo->fw_version, "N/A", 32);
 	strncpy(drvinfo->bus_info, "bcm63xx", 32);
+=======
+	strncpy(drvinfo->driver, bcm_enet_driver_name, sizeof(drvinfo->driver));
+	strncpy(drvinfo->bus_info, "bcm63xx", sizeof(drvinfo->bus_info));
+>>>>>>> upstream/android-13
 }
 
 static void bcm_enetsw_get_ethtool_stats(struct net_device *netdev,
@@ -2676,12 +2949,18 @@ static int bcm_enetsw_probe(struct platform_device *pdev)
 	if (!res_mem || irq_rx < 0)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	ret = 0;
+=======
+>>>>>>> upstream/android-13
 	dev = alloc_etherdev(sizeof(*priv));
 	if (!dev)
 		return -ENOMEM;
 	priv = netdev_priv(dev);
+<<<<<<< HEAD
 	memset(priv, 0, sizeof(*priv));
+=======
+>>>>>>> upstream/android-13
 
 	/* initialize default and fetch platform data */
 	priv->enet_is_sw = true;
@@ -2690,6 +2969,10 @@ static int bcm_enetsw_probe(struct platform_device *pdev)
 	priv->rx_ring_size = BCMENET_DEF_RX_DESC;
 	priv->tx_ring_size = BCMENET_DEF_TX_DESC;
 	priv->dma_maxburst = BCMENETSW_DMA_MAXBURST;
+<<<<<<< HEAD
+=======
+	priv->rx_buf_offset = NET_SKB_PAD + NET_IP_ALIGN;
+>>>>>>> upstream/android-13
 
 	pd = dev_get_platdata(&pdev->dev);
 	if (pd) {
@@ -2785,15 +3068,22 @@ struct platform_driver bcm63xx_enetsw_driver = {
 /* reserve & remap memory space shared between all macs */
 static int bcm_enet_shared_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *p[3];
 	unsigned int i;
 
 	memset(bcm_enet_shared_base, 0, sizeof(bcm_enet_shared_base));
 
 	for (i = 0; i < 3; i++) {
+<<<<<<< HEAD
 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
 		p[i] = devm_ioremap_resource(&pdev->dev, res);
+=======
+		p[i] = devm_platform_ioremap_resource(pdev, i);
+>>>>>>> upstream/android-13
 		if (IS_ERR(p[i]))
 			return PTR_ERR(p[i]);
 	}

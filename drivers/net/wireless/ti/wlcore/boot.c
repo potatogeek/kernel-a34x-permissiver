@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2008-2010 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -86,6 +93,10 @@ static int wlcore_validate_fw_ver(struct wl1271 *wl)
 	unsigned int *min_ver = (wl->fw_type == WL12XX_FW_TYPE_MULTI) ?
 		wl->min_mr_fw_ver : wl->min_sr_fw_ver;
 	char min_fw_str[32] = "";
+<<<<<<< HEAD
+=======
+	int off = 0;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* the chip must be exactly equal */
@@ -119,6 +130,7 @@ static int wlcore_validate_fw_ver(struct wl1271 *wl)
 	return 0;
 
 fail:
+<<<<<<< HEAD
 	for (i = 0; i < NUM_FW_VER; i++)
 		if (min_ver[i] == WLCORE_FW_VER_IGNORE)
 			snprintf(min_fw_str, sizeof(min_fw_str),
@@ -126,6 +138,17 @@ fail:
 		else
 			snprintf(min_fw_str, sizeof(min_fw_str),
 				  "%s%u.", min_fw_str, min_ver[i]);
+=======
+	for (i = 0; i < NUM_FW_VER && off < sizeof(min_fw_str); i++)
+		if (min_ver[i] == WLCORE_FW_VER_IGNORE)
+			off += snprintf(min_fw_str + off,
+					sizeof(min_fw_str) - off,
+					"*.");
+		else
+			off += snprintf(min_fw_str + off,
+					sizeof(min_fw_str) - off,
+					"%u.", min_ver[i]);
+>>>>>>> upstream/android-13
 
 	wl1271_error("Your WiFi FW version (%u.%u.%u.%u.%u) is invalid.\n"
 		     "Please use at least FW %s\n"

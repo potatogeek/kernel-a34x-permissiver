@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  cx18 I2C functions
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2007  Hans Verkuil <hverkuil@xs4all.nl>
  *  Copyright (C) 2008  Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx18-driver.h"
@@ -83,7 +90,11 @@ static int cx18_i2c_new_ir(struct cx18 *cx, struct i2c_adapter *adap, u32 hw,
 	unsigned short addr_list[2] = { addr, I2C_CLIENT_END };
 
 	memset(&info, 0, sizeof(struct i2c_board_info));
+<<<<<<< HEAD
 	strlcpy(info.type, type, I2C_NAME_SIZE);
+=======
+	strscpy(info.type, type, I2C_NAME_SIZE);
+>>>>>>> upstream/android-13
 
 	/* Our default information for ir-kbd-i2c.c to use */
 	switch (hw) {
@@ -97,7 +108,11 @@ static int cx18_i2c_new_ir(struct cx18 *cx, struct i2c_adapter *adap, u32 hw,
 		break;
 	}
 
+<<<<<<< HEAD
 	return i2c_new_probed_device(adap, &info, addr_list, NULL) == NULL ?
+=======
+	return IS_ERR(i2c_new_scanned_device(adap, &info, addr_list, NULL)) ?
+>>>>>>> upstream/android-13
 	       -1 : 0;
 }
 

@@ -7,6 +7,10 @@ Required Properties:
 
 - compatible: Should be:
 	- "mediatek,mt7622-sgmiisys", "syscon"
+<<<<<<< HEAD
+=======
+	- "mediatek,mt7629-sgmiisys", "syscon"
+>>>>>>> upstream/android-13
 - #clock-cells: Must be 1
 
 The SGMIISYS controller uses the common clk binding from

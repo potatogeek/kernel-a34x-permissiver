@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Keystone2 based boards and SOC related code.
  *
  * Copyright 2013 Texas Instruments, Inc.
  *	Cyril Chemparathy <cyril@ti.com>
  *	Santosh Shilimkar <santosh.shillimkar@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,6 +16,12 @@
  */
 #include <linux/io.h>
 #include <linux/of.h>
+=======
+ */
+#include <linux/io.h>
+#include <linux/of.h>
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/of_platform.h>
 #include <linux/of_address.h>
@@ -27,8 +38,12 @@
 
 #include "keystone.h"
 
+<<<<<<< HEAD
 static unsigned long keystone_dma_pfn_offset __read_mostly;
 
+=======
+#ifdef CONFIG_ARM_LPAE
+>>>>>>> upstream/android-13
 static int keystone_platform_notifier(struct notifier_block *nb,
 				      unsigned long event, void *data)
 {
@@ -41,9 +56,18 @@ static int keystone_platform_notifier(struct notifier_block *nb,
 		return NOTIFY_BAD;
 
 	if (!dev->of_node) {
+<<<<<<< HEAD
 		dev->dma_pfn_offset = keystone_dma_pfn_offset;
 		dev_err(dev, "set dma_pfn_offset%08lx\n",
 			dev->dma_pfn_offset);
+=======
+		int ret = dma_direct_set_offset(dev, KEYSTONE_HIGH_PHYS_START,
+						KEYSTONE_LOW_PHYS_START,
+						KEYSTONE_HIGH_PHYS_SIZE);
+		dev_err(dev, "set dma_offset%08llx%s\n",
+			KEYSTONE_HIGH_PHYS_START - KEYSTONE_LOW_PHYS_START,
+			ret ? " failed" : "");
+>>>>>>> upstream/android-13
 	}
 	return NOTIFY_OK;
 }
@@ -51,6 +75,7 @@ static int keystone_platform_notifier(struct notifier_block *nb,
 static struct notifier_block platform_nb = {
 	.notifier_call = keystone_platform_notifier,
 };
+<<<<<<< HEAD
 
 static void __init keystone_init(void)
 {
@@ -59,6 +84,16 @@ static void __init keystone_init(void)
 						   KEYSTONE_LOW_PHYS_START);
 		bus_register_notifier(&platform_bus_type, &platform_nb);
 	}
+=======
+#endif /* CONFIG_ARM_LPAE */
+
+static void __init keystone_init(void)
+{
+#ifdef CONFIG_ARM_LPAE
+	if (PHYS_OFFSET >= KEYSTONE_HIGH_PHYS_START)
+		bus_register_notifier(&platform_bus_type, &platform_nb);
+#endif
+>>>>>>> upstream/android-13
 	keystone_pm_runtime_init();
 }
 

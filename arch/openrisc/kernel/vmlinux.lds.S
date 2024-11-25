@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OpenRISC vmlinux.lds.S
  *
@@ -9,11 +13,14 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * ld script for OpenRISC architecture
  */
 
@@ -71,19 +78,31 @@ SECTIONS
 
 	_sdata = .;
 
+<<<<<<< HEAD
 	/* Page alignment required for RO_DATA_SECTION */
 	RO_DATA_SECTION(PAGE_SIZE)
+=======
+	/* Page alignment required for RO_DATA */
+	RO_DATA(PAGE_SIZE)
+>>>>>>> upstream/android-13
 	_e_kernel_ro = .;
 
 	/* Whatever comes after _e_kernel_ro had better be page-aligend, too */
 
 	/* 32 here is cacheline size... recheck this */
+<<<<<<< HEAD
 	RW_DATA_SECTION(32, PAGE_SIZE, PAGE_SIZE)
+=======
+	RW_DATA(32, PAGE_SIZE, PAGE_SIZE)
+>>>>>>> upstream/android-13
 
         _edata  =  .;
 
 	EXCEPTION_TABLE(4)
+<<<<<<< HEAD
 	NOTES
+=======
+>>>>>>> upstream/android-13
 
 	/* Init code and data */
 	. = ALIGN(PAGE_SIZE);
@@ -101,6 +120,7 @@ SECTIONS
 
         __init_end = .;
 
+<<<<<<< HEAD
 	. = ALIGN(PAGE_SIZE);
 	.initrd			: AT(ADDR(.initrd) - LOAD_OFFSET)
 	{
@@ -113,6 +133,8 @@ SECTIONS
 
         __vmlinux_end = .;            /* last address of the physical file */
 
+=======
+>>>>>>> upstream/android-13
 	BSS_SECTION(0, 0, 0x20)
 
         _end = .;
@@ -120,6 +142,10 @@ SECTIONS
 	/* Throw in the debugging sections */
 	STABS_DEBUG
 	DWARF_DEBUG
+<<<<<<< HEAD
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
         /* Sections to be discarded -- must be last */
 	DISCARDS

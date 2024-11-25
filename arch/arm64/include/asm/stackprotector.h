@@ -15,6 +15,10 @@
 
 #include <linux/random.h>
 #include <linux/version.h>
+<<<<<<< HEAD
+=======
+#include <asm/pointer_auth.h>
+>>>>>>> upstream/android-13
 
 extern unsigned long __stack_chk_guard;
 
@@ -26,6 +30,10 @@ extern unsigned long __stack_chk_guard;
  */
 static __always_inline void boot_init_stack_canary(void)
 {
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_STACKPROTECTOR)
+>>>>>>> upstream/android-13
 	unsigned long canary;
 
 	/* Try to get a semi random initial value. */
@@ -34,7 +42,16 @@ static __always_inline void boot_init_stack_canary(void)
 	canary &= CANARY_MASK;
 
 	current->stack_canary = canary;
+<<<<<<< HEAD
 	__stack_chk_guard = current->stack_canary;
+=======
+	if (!IS_ENABLED(CONFIG_STACKPROTECTOR_PER_TASK))
+		__stack_chk_guard = current->stack_canary;
+#endif
+	ptrauth_thread_init_kernel(current);
+	ptrauth_thread_switch_kernel(current);
+	ptrauth_enable();
+>>>>>>> upstream/android-13
 }
 
 #endif	/* _ASM_STACKPROTECTOR_H */

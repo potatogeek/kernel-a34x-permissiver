@@ -51,6 +51,10 @@ const struct cpu_ver_key cpu_ver_lookup[] = {
 	{"9.5", 0x22},
 	{"9.6", 0x23},
 	{"10.0", 0x24},
+<<<<<<< HEAD
+=======
+	{"11.0", 0x25},
+>>>>>>> upstream/android-13
 	{NULL, 0},
 };
 
@@ -89,9 +93,15 @@ static struct device_node *cpu;
 
 void __init setup_cpuinfo(void)
 {
+<<<<<<< HEAD
 	cpu = (struct device_node *) of_find_node_by_type(NULL, "cpu");
 	if (!cpu)
 		pr_err("You don't have cpu!!!\n");
+=======
+	cpu = of_get_cpu_node(0, NULL);
+	if (!cpu)
+		pr_err("You don't have cpu or are missing cpu reg property!!!\n");
+>>>>>>> upstream/android-13
 
 	pr_info("%s: initialising\n", __func__);
 
@@ -117,6 +127,11 @@ void __init setup_cpuinfo(void)
 	if (cpuinfo.mmu_privins)
 		pr_warn("%s: Stream instructions enabled"
 			" - USERSPACE CAN LOCK THIS KERNEL!\n", __func__);
+<<<<<<< HEAD
+=======
+
+	of_node_put(cpu);
+>>>>>>> upstream/android-13
 }
 
 void __init setup_cpuinfo_clk(void)

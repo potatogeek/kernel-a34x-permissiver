@@ -1,19 +1,29 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * rt5645.h  --  RT5645 ALSA SoC audio driver
  *
  * Copyright 2013 Realtek Microelectronics
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __RT5645_H__
 #define __RT5645_H__
 
+<<<<<<< HEAD
 #include <sound/rt5645.h>
 
+=======
+>>>>>>> upstream/android-13
 /* Info */
 #define RT5645_RESET				0x00
 #define RT5645_VENDOR_ID			0xfd

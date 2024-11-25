@@ -215,14 +215,22 @@ static int set_tls_entry(struct task_struct* task, struct user_desc *info,
 	return 0;
 }
 
+<<<<<<< HEAD
 int arch_copy_tls(struct task_struct *new)
+=======
+int arch_set_tls(struct task_struct *new, unsigned long tls)
+>>>>>>> upstream/android-13
 {
 	struct user_desc info;
 	int idx, ret = -EFAULT;
 
+<<<<<<< HEAD
 	if (copy_from_user(&info,
 			   (void __user *) UPT_SI(&new->thread.regs.regs),
 			   sizeof(info)))
+=======
+	if (copy_from_user(&info, (void __user *) tls, sizeof(info)))
+>>>>>>> upstream/android-13
 		goto out;
 
 	ret = -EINVAL;

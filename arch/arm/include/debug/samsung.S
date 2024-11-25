@@ -69,7 +69,14 @@ ARM_BE8(rev \rd, \rd)
 1002:		@ exit busyuart
 	.endm
 
+<<<<<<< HEAD
 	.macro	waituart,rd,rx
+=======
+	.macro	waituartcts,rd,rx
+	.endm
+
+	.macro	waituarttxrdy,rd,rx
+>>>>>>> upstream/android-13
 		ldr	\rd, [\rx, # S3C2410_UFCON]
 ARM_BE8(rev \rd, \rd)
 		tst	\rd, #S3C2410_UFCON_FIFOMODE	@ fifo enabled?

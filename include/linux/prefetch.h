@@ -15,6 +15,10 @@
 #include <asm/processor.h>
 #include <asm/cache.h>
 
+<<<<<<< HEAD
+=======
+struct page;
+>>>>>>> upstream/android-13
 /*
 	prefetch(x) attempts to pre-emptively get the memory pointed to
 	by address "x" into the CPU L1 cache. 
@@ -62,4 +66,14 @@ static inline void prefetch_range(void *addr, size_t len)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static inline void prefetch_page_address(struct page *page)
+{
+#if defined(WANT_PAGE_VIRTUAL) || defined(HASHED_PAGE_VIRTUAL)
+	prefetch(page);
+#endif
+}
+
+>>>>>>> upstream/android-13
 #endif

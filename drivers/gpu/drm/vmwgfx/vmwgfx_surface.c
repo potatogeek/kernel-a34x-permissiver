@@ -31,6 +31,10 @@
 #include "vmwgfx_resource_priv.h"
 #include "vmwgfx_so.h"
 #include "vmwgfx_binding.h"
+<<<<<<< HEAD
+=======
+#include "vmw_surface_cache.h"
+>>>>>>> upstream/android-13
 #include "device_include/svga3d_surfacedefs.h"
 
 #define SVGA3D_FLAGS_64(upper32, lower32) (((uint64_t)upper32 << 32) | lower32)
@@ -41,10 +45,19 @@
 /**
  * struct vmw_user_surface - User-space visible surface resource
  *
+<<<<<<< HEAD
  * @base:           The TTM base object handling user-space visibility.
  * @srf:            The surface metadata.
  * @size:           TTM accounting size for the surface.
  * @master: master of the creating client. Used for security check.
+=======
+ * @prime:          The TTM prime object.
+ * @base:           The TTM base object handling user-space visibility.
+ * @srf:            The surface metadata.
+ * @size:           TTM accounting size for the surface.
+ * @master:         Master of the creating client. Used for security check.
+ * @backup_base:    The TTM base object of the backup buffer.
+>>>>>>> upstream/android-13
  */
 struct vmw_user_surface {
 	struct ttm_prime_object prime;
@@ -68,6 +81,23 @@ struct vmw_surface_offset {
 	uint32_t bo_offset;
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * struct vmw_surface_dirty - Surface dirty-tracker
+ * @cache: Cached layout information of the surface.
+ * @size: Accounting size for the struct vmw_surface_dirty.
+ * @num_subres: Number of subresources.
+ * @boxes: Array of SVGA3dBoxes indicating dirty regions. One per subresource.
+ */
+struct vmw_surface_dirty {
+	struct vmw_surface_cache cache;
+	size_t size;
+	u32 num_subres;
+	SVGA3dBox boxes[];
+};
+
+>>>>>>> upstream/android-13
 static void vmw_user_surface_free(struct vmw_resource *res);
 static struct vmw_resource *
 vmw_user_surface_base_to_res(struct ttm_base_object *base);
@@ -96,6 +126,16 @@ vmw_gb_surface_reference_internal(struct drm_device *dev,
 				  struct drm_vmw_gb_surface_ref_ext_rep *rep,
 				  struct drm_file *file_priv);
 
+<<<<<<< HEAD
+=======
+static void vmw_surface_dirty_free(struct vmw_resource *res);
+static int vmw_surface_dirty_alloc(struct vmw_resource *res);
+static int vmw_surface_dirty_sync(struct vmw_resource *res);
+static void vmw_surface_dirty_range_add(struct vmw_resource *res, size_t start,
+					size_t end);
+static int vmw_surface_clean(struct vmw_resource *res);
+
+>>>>>>> upstream/android-13
 static const struct vmw_user_resource_conv user_surface_conv = {
 	.object_type = VMW_RES_SURFACE,
 	.base_obj_to_res = vmw_user_surface_base_to_res,
@@ -112,6 +152,11 @@ static const struct vmw_res_func vmw_legacy_surface_func = {
 	.res_type = vmw_res_surface,
 	.needs_backup = false,
 	.may_evict = true,
+<<<<<<< HEAD
+=======
+	.prio = 1,
+	.dirty_prio = 1,
+>>>>>>> upstream/android-13
 	.type_name = "legacy surfaces",
 	.backup_placement = &vmw_srf_placement,
 	.create = &vmw_legacy_srf_create,
@@ -124,15 +169,32 @@ static const struct vmw_res_func vmw_gb_surface_func = {
 	.res_type = vmw_res_surface,
 	.needs_backup = true,
 	.may_evict = true,
+<<<<<<< HEAD
+=======
+	.prio = 1,
+	.dirty_prio = 2,
+>>>>>>> upstream/android-13
 	.type_name = "guest backed surfaces",
 	.backup_placement = &vmw_mob_placement,
 	.create = vmw_gb_surface_create,
 	.destroy = vmw_gb_surface_destroy,
 	.bind = vmw_gb_surface_bind,
+<<<<<<< HEAD
 	.unbind = vmw_gb_surface_unbind
 };
 
 /**
+=======
+	.unbind = vmw_gb_surface_unbind,
+	.dirty_alloc = vmw_surface_dirty_alloc,
+	.dirty_free = vmw_surface_dirty_free,
+	.dirty_sync = vmw_surface_dirty_sync,
+	.dirty_range_add = vmw_surface_dirty_range_add,
+	.clean = vmw_surface_clean,
+};
+
+/*
+>>>>>>> upstream/android-13
  * struct vmw_surface_dma - SVGA3D DMA command
  */
 struct vmw_surface_dma {
@@ -142,7 +204,11 @@ struct vmw_surface_dma {
 	SVGA3dCmdSurfaceDMASuffix suffix;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct vmw_surface_define - SVGA3D Surface Define command
  */
 struct vmw_surface_define {
@@ -150,7 +216,11 @@ struct vmw_surface_define {
 	SVGA3dCmdDefineSurface body;
 };
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct vmw_surface_destroy - SVGA3D Surface Destroy command
  */
 struct vmw_surface_destroy {
@@ -169,7 +239,11 @@ struct vmw_surface_destroy {
  */
 static inline uint32_t vmw_surface_dma_size(const struct vmw_surface *srf)
 {
+<<<<<<< HEAD
 	return srf->num_sizes * sizeof(struct vmw_surface_dma);
+=======
+	return srf->metadata.num_sizes * sizeof(struct vmw_surface_dma);
+>>>>>>> upstream/android-13
 }
 
 
@@ -183,7 +257,11 @@ static inline uint32_t vmw_surface_dma_size(const struct vmw_surface *srf)
  */
 static inline uint32_t vmw_surface_define_size(const struct vmw_surface *srf)
 {
+<<<<<<< HEAD
 	return sizeof(struct vmw_surface_define) + srf->num_sizes *
+=======
+	return sizeof(struct vmw_surface_define) + srf->metadata.num_sizes *
+>>>>>>> upstream/android-13
 		sizeof(SVGA3dSize);
 }
 
@@ -232,7 +310,12 @@ static void vmw_surface_define_encode(const struct vmw_surface *srf,
 	uint32_t cmd_len;
 	int i;
 
+<<<<<<< HEAD
 	cmd_len = sizeof(cmd->body) + srf->num_sizes * sizeof(SVGA3dSize);
+=======
+	cmd_len = sizeof(cmd->body) + srf->metadata.num_sizes *
+		sizeof(SVGA3dSize);
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_SURFACE_DEFINE;
 	cmd->header.size = cmd_len;
@@ -242,6 +325,7 @@ static void vmw_surface_define_encode(const struct vmw_surface *srf,
 	 * since driver internally stores as 64 bit.
 	 * For legacy surface define only 32 bit flag is supported.
 	 */
+<<<<<<< HEAD
 	cmd->body.surfaceFlags = (SVGA3dSurface1Flags)srf->flags;
 	cmd->body.format = srf->format;
 	for (i = 0; i < DRM_VMW_MAX_SURFACE_FACES; ++i)
@@ -252,6 +336,18 @@ static void vmw_surface_define_encode(const struct vmw_surface *srf,
 	src_size = srf->sizes;
 
 	for (i = 0; i < srf->num_sizes; ++i, cmd_size++, src_size++) {
+=======
+	cmd->body.surfaceFlags = (SVGA3dSurface1Flags)srf->metadata.flags;
+	cmd->body.format = srf->metadata.format;
+	for (i = 0; i < DRM_VMW_MAX_SURFACE_FACES; ++i)
+		cmd->body.face[i].numMipLevels = srf->metadata.mip_levels[i];
+
+	cmd += 1;
+	cmd_size = (SVGA3dSize *) cmd;
+	src_size = srf->metadata.sizes;
+
+	for (i = 0; i < srf->metadata.num_sizes; ++i, cmd_size++, src_size++) {
+>>>>>>> upstream/android-13
 		cmd_size->width = src_size->width;
 		cmd_size->height = src_size->height;
 		cmd_size->depth = src_size->depth;
@@ -274,24 +370,39 @@ static void vmw_surface_dma_encode(struct vmw_surface *srf,
 {
 	uint32_t i;
 	struct vmw_surface_dma *cmd = (struct vmw_surface_dma *)cmd_space;
+<<<<<<< HEAD
 	const struct svga3d_surface_desc *desc =
 		svga3dsurface_get_desc(srf->format);
 
 	for (i = 0; i < srf->num_sizes; ++i) {
+=======
+	const struct SVGA3dSurfaceDesc *desc =
+		vmw_surface_get_desc(srf->metadata.format);
+
+	for (i = 0; i < srf->metadata.num_sizes; ++i) {
+>>>>>>> upstream/android-13
 		SVGA3dCmdHeader *header = &cmd->header;
 		SVGA3dCmdSurfaceDMA *body = &cmd->body;
 		SVGA3dCopyBox *cb = &cmd->cb;
 		SVGA3dCmdSurfaceDMASuffix *suffix = &cmd->suffix;
 		const struct vmw_surface_offset *cur_offset = &srf->offsets[i];
+<<<<<<< HEAD
 		const struct drm_vmw_size *cur_size = &srf->sizes[i];
+=======
+		const struct drm_vmw_size *cur_size = &srf->metadata.sizes[i];
+>>>>>>> upstream/android-13
 
 		header->id = SVGA_3D_CMD_SURFACE_DMA;
 		header->size = sizeof(*body) + sizeof(*cb) + sizeof(*suffix);
 
 		body->guest.ptr = *ptr;
 		body->guest.ptr.offset += cur_offset->bo_offset;
+<<<<<<< HEAD
 		body->guest.pitch = svga3dsurface_calculate_pitch(desc,
 								  cur_size);
+=======
+		body->guest.pitch = vmw_surface_calculate_pitch(desc, cur_size);
+>>>>>>> upstream/android-13
 		body->host.sid = srf->res.id;
 		body->host.face = cur_offset->face;
 		body->host.mipmap = cur_offset->mip;
@@ -309,7 +420,11 @@ static void vmw_surface_dma_encode(struct vmw_surface *srf,
 
 		suffix->suffixSize = sizeof(*suffix);
 		suffix->maximumOffset =
+<<<<<<< HEAD
 			svga3dsurface_get_image_buffer_size(desc, cur_size,
+=======
+			vmw_surface_get_image_buffer_size(desc, cur_size,
+>>>>>>> upstream/android-13
 							    body->guest.pitch);
 		suffix->flags.discard = 0;
 		suffix->flags.unsynchronized = 0;
@@ -332,7 +447,10 @@ static void vmw_hw_surface_destroy(struct vmw_resource *res)
 {
 
 	struct vmw_private *dev_priv = res->dev_priv;
+<<<<<<< HEAD
 	struct vmw_surface *srf;
+=======
+>>>>>>> upstream/android-13
 	void *cmd;
 
 	if (res->func->destroy == vmw_gb_surface_destroy) {
@@ -342,6 +460,7 @@ static void vmw_hw_surface_destroy(struct vmw_resource *res)
 
 	if (res->id != -1) {
 
+<<<<<<< HEAD
 		cmd = vmw_fifo_reserve(dev_priv, vmw_surface_destroy_size());
 		if (unlikely(!cmd)) {
 			DRM_ERROR("Failed reserving FIFO space for surface "
@@ -351,6 +470,14 @@ static void vmw_hw_surface_destroy(struct vmw_resource *res)
 
 		vmw_surface_destroy_encode(res->id, cmd);
 		vmw_fifo_commit(dev_priv, vmw_surface_destroy_size());
+=======
+		cmd = VMW_CMD_RESERVE(dev_priv, vmw_surface_destroy_size());
+		if (unlikely(!cmd))
+			return;
+
+		vmw_surface_destroy_encode(res->id, cmd);
+		vmw_cmd_commit(dev_priv, vmw_surface_destroy_size());
+>>>>>>> upstream/android-13
 
 		/*
 		 * used_memory_size_atomic, or separate lock
@@ -359,7 +486,10 @@ static void vmw_hw_surface_destroy(struct vmw_resource *res)
 		 */
 
 		mutex_lock(&dev_priv->cmdbuf_mutex);
+<<<<<<< HEAD
 		srf = vmw_res_to_srf(res);
+=======
+>>>>>>> upstream/android-13
 		dev_priv->used_memory_size -= res->backup_size;
 		mutex_unlock(&dev_priv->cmdbuf_mutex);
 	}
@@ -404,7 +534,11 @@ static int vmw_legacy_srf_create(struct vmw_resource *res)
 		goto out_no_id;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(res->id >= SVGA3D_MAX_SURFACE_IDS)) {
+=======
+	if (unlikely(res->id >= SVGA3D_HB_MAX_SURFACE_IDS)) {
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 		goto out_no_fifo;
 	}
@@ -414,16 +548,25 @@ static int vmw_legacy_srf_create(struct vmw_resource *res)
 	 */
 
 	submit_size = vmw_surface_define_size(srf);
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, submit_size);
 	if (unlikely(!cmd)) {
 		DRM_ERROR("Failed reserving FIFO space for surface "
 			  "creation.\n");
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, submit_size);
+	if (unlikely(!cmd)) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_no_fifo;
 	}
 
 	vmw_surface_define_encode(srf, cmd);
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, submit_size);
+=======
+	vmw_cmd_commit(dev_priv, submit_size);
+>>>>>>> upstream/android-13
 	vmw_fifo_resource_inc(dev_priv);
 
 	/*
@@ -468,6 +611,7 @@ static int vmw_legacy_srf_dma(struct vmw_resource *res,
 
 	BUG_ON(!val_buf->bo);
 	submit_size = vmw_surface_dma_size(srf);
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, submit_size);
 	if (unlikely(!cmd)) {
 		DRM_ERROR("Failed reserving FIFO space for surface "
@@ -478,6 +622,16 @@ static int vmw_legacy_srf_dma(struct vmw_resource *res,
 	vmw_surface_dma_encode(srf, cmd, &ptr, bind);
 
 	vmw_fifo_commit(dev_priv, submit_size);
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, submit_size);
+	if (unlikely(!cmd))
+		return -ENOMEM;
+
+	vmw_bo_get_guest_ptr(val_buf->bo, &ptr);
+	vmw_surface_dma_encode(srf, cmd, &ptr, bind);
+
+	vmw_cmd_commit(dev_priv, submit_size);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Create a fence object and fence the backup buffer.
@@ -522,6 +676,10 @@ static int vmw_legacy_srf_bind(struct vmw_resource *res,
  *
  * @res:            Pointer to a struct vmw_res embedded in a struct
  *                  vmw_surface.
+<<<<<<< HEAD
+=======
+ * @readback:       Readback - only true if dirty
+>>>>>>> upstream/android-13
  * @val_buf:        Pointer to a struct ttm_validate_buffer containing
  *                  information about the backup buffer.
  *
@@ -556,6 +714,7 @@ static int vmw_legacy_srf_destroy(struct vmw_resource *res)
 	 */
 
 	submit_size = vmw_surface_destroy_size();
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, submit_size);
 	if (unlikely(!cmd)) {
 		DRM_ERROR("Failed reserving FIFO space for surface "
@@ -565,6 +724,14 @@ static int vmw_legacy_srf_destroy(struct vmw_resource *res)
 
 	vmw_surface_destroy_encode(res->id, cmd);
 	vmw_fifo_commit(dev_priv, submit_size);
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, submit_size);
+	if (unlikely(!cmd))
+		return -ENOMEM;
+
+	vmw_surface_destroy_encode(res->id, cmd);
+	vmw_cmd_commit(dev_priv, submit_size);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Surface memory usage accounting.
@@ -614,7 +781,11 @@ static int vmw_surface_init(struct vmw_private *dev_priv,
 	 */
 
 	INIT_LIST_HEAD(&srf->view_list);
+<<<<<<< HEAD
 	vmw_resource_activate(res, vmw_hw_surface_destroy);
+=======
+	res->hw_destroy = vmw_hw_surface_destroy;
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -647,17 +818,29 @@ static void vmw_user_surface_free(struct vmw_resource *res)
 	struct vmw_private *dev_priv = srf->res.dev_priv;
 	uint32_t size = user_srf->size;
 
+<<<<<<< HEAD
 	if (user_srf->master)
 		drm_master_put(&user_srf->master);
 	kfree(srf->offsets);
 	kfree(srf->sizes);
+=======
+	WARN_ON_ONCE(res->dirty);
+	if (user_srf->master)
+		drm_master_put(&user_srf->master);
+	kfree(srf->offsets);
+	kfree(srf->metadata.sizes);
+>>>>>>> upstream/android-13
 	kfree(srf->snooper.image);
 	ttm_prime_object_kfree(user_srf, prime);
 	ttm_mem_global_free(vmw_mem_glob(dev_priv), size);
 }
 
 /**
+<<<<<<< HEAD
  * vmw_user_surface_free - User visible surface TTM base object destructor
+=======
+ * vmw_user_surface_base_release - User visible surface TTM base object destructor
+>>>>>>> upstream/android-13
  *
  * @p_base:         Pointer to a pointer to a TTM base object
  *                  embedded in a struct vmw_user_surface.
@@ -679,7 +862,11 @@ static void vmw_user_surface_base_release(struct ttm_base_object **p_base)
 }
 
 /**
+<<<<<<< HEAD
  * vmw_user_surface_destroy_ioctl - Ioctl function implementing
+=======
+ * vmw_surface_destroy_ioctl - Ioctl function implementing
+>>>>>>> upstream/android-13
  *                                  the user surface destroy functionality.
  *
  * @dev:            Pointer to a struct drm_device.
@@ -696,7 +883,11 @@ int vmw_surface_destroy_ioctl(struct drm_device *dev, void *data,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_user_surface_define_ioctl - Ioctl function implementing
+=======
+ * vmw_surface_define_ioctl - Ioctl function implementing
+>>>>>>> upstream/android-13
  *                                  the user surface define functionality.
  *
  * @dev:            Pointer to a struct drm_device.
@@ -709,6 +900,10 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	struct vmw_private *dev_priv = vmw_priv(dev);
 	struct vmw_user_surface *user_srf;
 	struct vmw_surface *srf;
+<<<<<<< HEAD
+=======
+	struct vmw_surface_metadata *metadata;
+>>>>>>> upstream/android-13
 	struct vmw_resource *res;
 	struct vmw_resource *tmp;
 	union drm_vmw_surface_create_arg *arg =
@@ -727,11 +922,19 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	struct vmw_surface_offset *cur_offset;
 	uint32_t num_sizes;
 	uint32_t size;
+<<<<<<< HEAD
 	const struct svga3d_surface_desc *desc;
 
 	if (unlikely(vmw_user_surface_size == 0))
 		vmw_user_surface_size = ttm_round_pot(sizeof(*user_srf)) +
 			128;
+=======
+	const SVGA3dSurfaceDesc *desc;
+
+	if (unlikely(vmw_user_surface_size == 0))
+		vmw_user_surface_size = ttm_round_pot(sizeof(*user_srf)) +
+			VMW_IDA_ACC_SIZE + TTM_OBJ_EXTRA_SIZE;
+>>>>>>> upstream/android-13
 
 	num_sizes = 0;
 	for (i = 0; i < DRM_VMW_MAX_SURFACE_FACES; ++i) {
@@ -744,6 +947,7 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	    num_sizes == 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	size = vmw_user_surface_size + 128 +
 		ttm_round_pot(num_sizes * sizeof(struct drm_vmw_size)) +
 		ttm_round_pot(num_sizes * sizeof(struct vmw_surface_offset));
@@ -760,12 +964,29 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	if (unlikely(ret != 0))
 		return ret;
 
+=======
+	size = vmw_user_surface_size +
+		ttm_round_pot(num_sizes * sizeof(struct drm_vmw_size)) +
+		ttm_round_pot(num_sizes * sizeof(struct vmw_surface_offset));
+
+	desc = vmw_surface_get_desc(req->format);
+	if (unlikely(desc->blockDesc == SVGA3DBLOCKDESC_NONE)) {
+		VMW_DEBUG_USER("Invalid format %d for surface creation.\n",
+			       req->format);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv),
 				   size, &ctx);
 	if (unlikely(ret != 0)) {
 		if (ret != -ERESTARTSYS)
+<<<<<<< HEAD
 			DRM_ERROR("Out of graphics memory for surface"
 				  " creation.\n");
+=======
+			DRM_ERROR("Out of graphics memory for surface.\n");
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	}
 
@@ -776,6 +997,7 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	}
 
 	srf = &user_srf->srf;
+<<<<<<< HEAD
 	res = &srf->res;
 
 	/* Driver internally stores as 64-bit flags */
@@ -795,12 +1017,36 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	}
 	srf->offsets = kmalloc_array(srf->num_sizes,
 				     sizeof(*srf->offsets),
+=======
+	metadata = &srf->metadata;
+	res = &srf->res;
+
+	/* Driver internally stores as 64-bit flags */
+	metadata->flags = (SVGA3dSurfaceAllFlags)req->flags;
+	metadata->format = req->format;
+	metadata->scanout = req->scanout;
+
+	memcpy(metadata->mip_levels, req->mip_levels,
+	       sizeof(metadata->mip_levels));
+	metadata->num_sizes = num_sizes;
+	user_srf->size = size;
+	metadata->sizes =
+		memdup_user((struct drm_vmw_size __user *)(unsigned long)
+			    req->size_addr,
+			    sizeof(*metadata->sizes) * metadata->num_sizes);
+	if (IS_ERR(metadata->sizes)) {
+		ret = PTR_ERR(metadata->sizes);
+		goto out_no_sizes;
+	}
+	srf->offsets = kmalloc_array(metadata->num_sizes, sizeof(*srf->offsets),
+>>>>>>> upstream/android-13
 				     GFP_KERNEL);
 	if (unlikely(!srf->offsets)) {
 		ret = -ENOMEM;
 		goto out_no_offsets;
 	}
 
+<<<<<<< HEAD
 	srf->base_size = *srf->sizes;
 	srf->autogen_filter = SVGA3D_TEX_FILTER_NONE;
 	srf->multisample_count = 0;
@@ -815,22 +1061,50 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 		for (j = 0; j < srf->mip_levels[i]; ++j) {
 			uint32_t stride = svga3dsurface_calculate_pitch
 				(desc, cur_size);
+=======
+	metadata->base_size = *srf->metadata.sizes;
+	metadata->autogen_filter = SVGA3D_TEX_FILTER_NONE;
+	metadata->multisample_count = 0;
+	metadata->multisample_pattern = SVGA3D_MS_PATTERN_NONE;
+	metadata->quality_level = SVGA3D_MS_QUALITY_NONE;
+
+	cur_bo_offset = 0;
+	cur_offset = srf->offsets;
+	cur_size = metadata->sizes;
+
+	for (i = 0; i < DRM_VMW_MAX_SURFACE_FACES; ++i) {
+		for (j = 0; j < metadata->mip_levels[i]; ++j) {
+			uint32_t stride = vmw_surface_calculate_pitch(
+						  desc, cur_size);
+>>>>>>> upstream/android-13
 
 			cur_offset->face = i;
 			cur_offset->mip = j;
 			cur_offset->bo_offset = cur_bo_offset;
+<<<<<<< HEAD
 			cur_bo_offset += svga3dsurface_get_image_buffer_size
+=======
+			cur_bo_offset += vmw_surface_get_image_buffer_size
+>>>>>>> upstream/android-13
 				(desc, cur_size, stride);
 			++cur_offset;
 			++cur_size;
 		}
 	}
 	res->backup_size = cur_bo_offset;
+<<<<<<< HEAD
 	if (srf->scanout &&
 	    srf->num_sizes == 1 &&
 	    srf->sizes[0].width == 64 &&
 	    srf->sizes[0].height == 64 &&
 	    srf->format == SVGA3D_A8R8G8B8) {
+=======
+	if (metadata->scanout &&
+	    metadata->num_sizes == 1 &&
+	    metadata->sizes[0].width == 64 &&
+	    metadata->sizes[0].height == 64 &&
+	    metadata->format == SVGA3D_A8R8G8B8) {
+>>>>>>> upstream/android-13
 
 		srf->snooper.image = kzalloc(64 * 64 * 4, GFP_KERNEL);
 		if (!srf->snooper.image) {
@@ -845,7 +1119,11 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 	user_srf->prime.base.shareable = false;
 	user_srf->prime.base.tfile = NULL;
 	if (drm_is_primary_client(file_priv))
+<<<<<<< HEAD
 		user_srf->master = drm_master_get(file_priv->master);
+=======
+		user_srf->master = drm_file_get_master(file_priv);
+>>>>>>> upstream/android-13
 
 	/**
 	 * From this point, the generic resource management functions
@@ -886,21 +1164,34 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	rep->sid = user_srf->prime.base.hash.key;
 	vmw_resource_unreference(&res);
 
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+	rep->sid = user_srf->prime.base.handle;
+	vmw_resource_unreference(&res);
+
+>>>>>>> upstream/android-13
 	return 0;
 out_no_copy:
 	kfree(srf->offsets);
 out_no_offsets:
+<<<<<<< HEAD
 	kfree(srf->sizes);
+=======
+	kfree(metadata->sizes);
+>>>>>>> upstream/android-13
 out_no_sizes:
 	ttm_prime_object_kfree(user_srf, prime);
 out_no_user_srf:
 	ttm_mem_global_free(vmw_mem_glob(dev_priv), size);
 out_unlock:
+<<<<<<< HEAD
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -917,13 +1208,17 @@ vmw_surface_handle_reference(struct vmw_private *dev_priv,
 	uint32_t handle;
 	struct ttm_base_object *base;
 	int ret;
+<<<<<<< HEAD
 	bool require_exist = false;
+=======
+>>>>>>> upstream/android-13
 
 	if (handle_type == DRM_VMW_HANDLE_PRIME) {
 		ret = ttm_prime_fd_to_handle(tfile, u_handle, &handle);
 		if (unlikely(ret != 0))
 			return ret;
 	} else {
+<<<<<<< HEAD
 		if (unlikely(drm_is_render_client(file_priv)))
 			require_exist = true;
 
@@ -933,25 +1228,50 @@ vmw_surface_handle_reference(struct vmw_private *dev_priv,
 			return -EACCES;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		handle = u_handle;
 	}
 
 	ret = -EINVAL;
 	base = ttm_base_object_lookup_for_ref(dev_priv->tdev, handle);
 	if (unlikely(!base)) {
+<<<<<<< HEAD
 		DRM_ERROR("Could not find surface to reference.\n");
+=======
+		VMW_DEBUG_USER("Could not find surface to reference.\n");
+>>>>>>> upstream/android-13
 		goto out_no_lookup;
 	}
 
 	if (unlikely(ttm_base_object_type(base) != VMW_RES_SURFACE)) {
+<<<<<<< HEAD
 		DRM_ERROR("Referenced object is not a surface.\n");
+=======
+		VMW_DEBUG_USER("Referenced object is not a surface.\n");
+>>>>>>> upstream/android-13
 		goto out_bad_resource;
 	}
 
 	if (handle_type != DRM_VMW_HANDLE_PRIME) {
+<<<<<<< HEAD
 		user_srf = container_of(base, struct vmw_user_surface,
 					prime.base);
 
+=======
+		bool require_exist = false;
+
+		user_srf = container_of(base, struct vmw_user_surface,
+					prime.base);
+
+		/* Error out if we are unauthenticated primary */
+		if (drm_is_primary_client(file_priv) &&
+		    !file_priv->authenticated) {
+			ret = -EACCES;
+			goto out_bad_resource;
+		}
+
+>>>>>>> upstream/android-13
 		/*
 		 * Make sure the surface creator has the same
 		 * authenticating master, or is already registered with us.
@@ -960,6 +1280,12 @@ vmw_surface_handle_reference(struct vmw_private *dev_priv,
 		    user_srf->master != file_priv->master)
 			require_exist = true;
 
+<<<<<<< HEAD
+=======
+		if (unlikely(drm_is_render_client(file_priv)))
+			require_exist = true;
+
+>>>>>>> upstream/android-13
 		ret = ttm_ref_object_add(tfile, base, TTM_REF_USAGE, NULL,
 					 require_exist);
 		if (unlikely(ret != 0)) {
@@ -981,7 +1307,11 @@ out_no_lookup:
 }
 
 /**
+<<<<<<< HEAD
  * vmw_user_surface_define_ioctl - Ioctl function implementing
+=======
+ * vmw_surface_reference_ioctl - Ioctl function implementing
+>>>>>>> upstream/android-13
  *                                  the user surface reference functionality.
  *
  * @dev:            Pointer to a struct drm_device.
@@ -1012,19 +1342,35 @@ int vmw_surface_reference_ioctl(struct drm_device *dev, void *data,
 	srf = &user_srf->srf;
 
 	/* Downcast of flags when sending back to user space */
+<<<<<<< HEAD
 	rep->flags = (uint32_t)srf->flags;
 	rep->format = srf->format;
 	memcpy(rep->mip_levels, srf->mip_levels, sizeof(srf->mip_levels));
+=======
+	rep->flags = (uint32_t)srf->metadata.flags;
+	rep->format = srf->metadata.format;
+	memcpy(rep->mip_levels, srf->metadata.mip_levels,
+	       sizeof(srf->metadata.mip_levels));
+>>>>>>> upstream/android-13
 	user_sizes = (struct drm_vmw_size __user *)(unsigned long)
 	    rep->size_addr;
 
 	if (user_sizes)
+<<<<<<< HEAD
 		ret = copy_to_user(user_sizes, &srf->base_size,
 				   sizeof(srf->base_size));
 	if (unlikely(ret != 0)) {
 		DRM_ERROR("copy_to_user failed %p %u\n",
 			  user_sizes, srf->num_sizes);
 		ttm_ref_object_base_unref(tfile, base->hash.key, TTM_REF_USAGE);
+=======
+		ret = copy_to_user(user_sizes, &srf->metadata.base_size,
+				   sizeof(srf->metadata.base_size));
+	if (unlikely(ret != 0)) {
+		VMW_DEBUG_USER("copy_to_user failed %p %u\n", user_sizes,
+			       srf->metadata.num_sizes);
+		ttm_ref_object_base_unref(tfile, base->handle, TTM_REF_USAGE);
+>>>>>>> upstream/android-13
 		ret = -EFAULT;
 	}
 
@@ -1034,15 +1380,26 @@ int vmw_surface_reference_ioctl(struct drm_device *dev, void *data,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_surface_define_encode - Encode a surface_define command.
  *
  * @srf: Pointer to a struct vmw_surface object.
  * @cmd_space: Pointer to memory area in which the commands should be encoded.
+=======
+ * vmw_gb_surface_create - Encode a surface_define command.
+ *
+ * @res:        Pointer to a struct vmw_resource embedded in a struct
+ *              vmw_surface.
+>>>>>>> upstream/android-13
  */
 static int vmw_gb_surface_create(struct vmw_resource *res)
 {
 	struct vmw_private *dev_priv = res->dev_priv;
 	struct vmw_surface *srf = vmw_res_to_srf(res);
+<<<<<<< HEAD
+=======
+	struct vmw_surface_metadata *metadata = &srf->metadata;
+>>>>>>> upstream/android-13
 	uint32_t cmd_len, cmd_id, submit_len;
 	int ret;
 	struct {
@@ -1057,6 +1414,13 @@ static int vmw_gb_surface_create(struct vmw_resource *res)
 		SVGA3dCmdHeader header;
 		SVGA3dCmdDefineGBSurface_v3 body;
 	} *cmd3;
+<<<<<<< HEAD
+=======
+	struct {
+		SVGA3dCmdHeader header;
+		SVGA3dCmdDefineGBSurface_v4 body;
+	} *cmd4;
+>>>>>>> upstream/android-13
 
 	if (likely(res->id != -1))
 		return 0;
@@ -1073,12 +1437,25 @@ static int vmw_gb_surface_create(struct vmw_resource *res)
 		goto out_no_fifo;
 	}
 
+<<<<<<< HEAD
 	if (dev_priv->has_sm4_1 && srf->array_size > 0) {
 		cmd_id = SVGA_3D_CMD_DEFINE_GB_SURFACE_V3;
 		cmd_len = sizeof(cmd3->body);
 		submit_len = sizeof(*cmd3);
 	} else if (srf->array_size > 0) {
 		/* has_dx checked on creation time. */
+=======
+	if (has_sm5_context(dev_priv) && metadata->array_size > 0) {
+		cmd_id = SVGA_3D_CMD_DEFINE_GB_SURFACE_V4;
+		cmd_len = sizeof(cmd4->body);
+		submit_len = sizeof(*cmd4);
+	} else if (has_sm4_1_context(dev_priv) && metadata->array_size > 0) {
+		cmd_id = SVGA_3D_CMD_DEFINE_GB_SURFACE_V3;
+		cmd_len = sizeof(cmd3->body);
+		submit_len = sizeof(*cmd3);
+	} else if (metadata->array_size > 0) {
+		/* VMW_SM_4 support verified at creation time. */
+>>>>>>> upstream/android-13
 		cmd_id = SVGA_3D_CMD_DEFINE_GB_SURFACE_V2;
 		cmd_len = sizeof(cmd2->body);
 		submit_len = sizeof(*cmd2);
@@ -1088,16 +1465,25 @@ static int vmw_gb_surface_create(struct vmw_resource *res)
 		submit_len = sizeof(*cmd);
 	}
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, submit_len);
 	cmd2 = (typeof(cmd2))cmd;
 	cmd3 = (typeof(cmd3))cmd;
 	if (unlikely(!cmd)) {
 		DRM_ERROR("Failed reserving FIFO space for surface "
 			  "creation.\n");
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, submit_len);
+	cmd2 = (typeof(cmd2))cmd;
+	cmd3 = (typeof(cmd3))cmd;
+	cmd4 = (typeof(cmd4))cmd;
+	if (unlikely(!cmd)) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto out_no_fifo;
 	}
 
+<<<<<<< HEAD
 	if (dev_priv->has_sm4_1 && srf->array_size > 0) {
 		cmd3->header.id = cmd_id;
 		cmd3->header.size = cmd_len;
@@ -1126,10 +1512,57 @@ static int vmw_gb_surface_create(struct vmw_resource *res)
 		cmd2->body.size.height = srf->base_size.height;
 		cmd2->body.size.depth = srf->base_size.depth;
 		cmd2->body.arraySize = srf->array_size;
+=======
+	if (has_sm5_context(dev_priv) && metadata->array_size > 0) {
+		cmd4->header.id = cmd_id;
+		cmd4->header.size = cmd_len;
+		cmd4->body.sid = srf->res.id;
+		cmd4->body.surfaceFlags = metadata->flags;
+		cmd4->body.format = metadata->format;
+		cmd4->body.numMipLevels = metadata->mip_levels[0];
+		cmd4->body.multisampleCount = metadata->multisample_count;
+		cmd4->body.multisamplePattern = metadata->multisample_pattern;
+		cmd4->body.qualityLevel = metadata->quality_level;
+		cmd4->body.autogenFilter = metadata->autogen_filter;
+		cmd4->body.size.width = metadata->base_size.width;
+		cmd4->body.size.height = metadata->base_size.height;
+		cmd4->body.size.depth = metadata->base_size.depth;
+		cmd4->body.arraySize = metadata->array_size;
+		cmd4->body.bufferByteStride = metadata->buffer_byte_stride;
+	} else if (has_sm4_1_context(dev_priv) && metadata->array_size > 0) {
+		cmd3->header.id = cmd_id;
+		cmd3->header.size = cmd_len;
+		cmd3->body.sid = srf->res.id;
+		cmd3->body.surfaceFlags = metadata->flags;
+		cmd3->body.format = metadata->format;
+		cmd3->body.numMipLevels = metadata->mip_levels[0];
+		cmd3->body.multisampleCount = metadata->multisample_count;
+		cmd3->body.multisamplePattern = metadata->multisample_pattern;
+		cmd3->body.qualityLevel = metadata->quality_level;
+		cmd3->body.autogenFilter = metadata->autogen_filter;
+		cmd3->body.size.width = metadata->base_size.width;
+		cmd3->body.size.height = metadata->base_size.height;
+		cmd3->body.size.depth = metadata->base_size.depth;
+		cmd3->body.arraySize = metadata->array_size;
+	} else if (metadata->array_size > 0) {
+		cmd2->header.id = cmd_id;
+		cmd2->header.size = cmd_len;
+		cmd2->body.sid = srf->res.id;
+		cmd2->body.surfaceFlags = metadata->flags;
+		cmd2->body.format = metadata->format;
+		cmd2->body.numMipLevels = metadata->mip_levels[0];
+		cmd2->body.multisampleCount = metadata->multisample_count;
+		cmd2->body.autogenFilter = metadata->autogen_filter;
+		cmd2->body.size.width = metadata->base_size.width;
+		cmd2->body.size.height = metadata->base_size.height;
+		cmd2->body.size.depth = metadata->base_size.depth;
+		cmd2->body.arraySize = metadata->array_size;
+>>>>>>> upstream/android-13
 	} else {
 		cmd->header.id = cmd_id;
 		cmd->header.size = cmd_len;
 		cmd->body.sid = srf->res.id;
+<<<<<<< HEAD
 		cmd->body.surfaceFlags = srf->flags;
 		cmd->body.format = srf->format;
 		cmd->body.numMipLevels = srf->mip_levels[0];
@@ -1141,6 +1574,19 @@ static int vmw_gb_surface_create(struct vmw_resource *res)
 	}
 
 	vmw_fifo_commit(dev_priv, submit_len);
+=======
+		cmd->body.surfaceFlags = metadata->flags;
+		cmd->body.format = metadata->format;
+		cmd->body.numMipLevels = metadata->mip_levels[0];
+		cmd->body.multisampleCount = metadata->multisample_count;
+		cmd->body.autogenFilter = metadata->autogen_filter;
+		cmd->body.size.width = metadata->base_size.width;
+		cmd->body.size.height = metadata->base_size.height;
+		cmd->body.size.depth = metadata->base_size.depth;
+	}
+
+	vmw_cmd_commit(dev_priv, submit_len);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1167,6 +1613,7 @@ static int vmw_gb_surface_bind(struct vmw_resource *res,
 	uint32_t submit_size;
 	struct ttm_buffer_object *bo = val_buf->bo;
 
+<<<<<<< HEAD
 	BUG_ON(bo->mem.mem_type != VMW_PL_MOB);
 
 	submit_size = sizeof(*cmd1) + (res->backup_dirty ? sizeof(*cmd2) : 0);
@@ -1177,19 +1624,44 @@ static int vmw_gb_surface_bind(struct vmw_resource *res,
 			  "binding.\n");
 		return -ENOMEM;
 	}
+=======
+	BUG_ON(bo->resource->mem_type != VMW_PL_MOB);
+
+	submit_size = sizeof(*cmd1) + (res->backup_dirty ? sizeof(*cmd2) : 0);
+
+	cmd1 = VMW_CMD_RESERVE(dev_priv, submit_size);
+	if (unlikely(!cmd1))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd1->header.id = SVGA_3D_CMD_BIND_GB_SURFACE;
 	cmd1->header.size = sizeof(cmd1->body);
 	cmd1->body.sid = res->id;
+<<<<<<< HEAD
 	cmd1->body.mobid = bo->mem.start;
+=======
+	cmd1->body.mobid = bo->resource->start;
+>>>>>>> upstream/android-13
 	if (res->backup_dirty) {
 		cmd2 = (void *) &cmd1[1];
 		cmd2->header.id = SVGA_3D_CMD_UPDATE_GB_SURFACE;
 		cmd2->header.size = sizeof(cmd2->body);
 		cmd2->body.sid = res->id;
+<<<<<<< HEAD
 		res->backup_dirty = false;
 	}
 	vmw_fifo_commit(dev_priv, submit_size);
+=======
+	}
+	vmw_cmd_commit(dev_priv, submit_size);
+
+	if (res->backup->dirty && res->backup_dirty) {
+		/* We've just made a full upload. Cear dirty regions. */
+		vmw_bo_dirty_clear_res(res);
+	}
+
+	res->backup_dirty = false;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1218,6 +1690,7 @@ static int vmw_gb_surface_unbind(struct vmw_resource *res,
 	uint8_t *cmd;
 
 
+<<<<<<< HEAD
 	BUG_ON(bo->mem.mem_type != VMW_PL_MOB);
 
 	submit_size = sizeof(*cmd3) + (readback ? sizeof(*cmd1) : sizeof(*cmd2));
@@ -1227,6 +1700,14 @@ static int vmw_gb_surface_unbind(struct vmw_resource *res,
 			  "unbinding.\n");
 		return -ENOMEM;
 	}
+=======
+	BUG_ON(bo->resource->mem_type != VMW_PL_MOB);
+
+	submit_size = sizeof(*cmd3) + (readback ? sizeof(*cmd1) : sizeof(*cmd2));
+	cmd = VMW_CMD_RESERVE(dev_priv, submit_size);
+	if (unlikely(!cmd))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	if (readback) {
 		cmd1 = (void *) cmd;
@@ -1247,7 +1728,11 @@ static int vmw_gb_surface_unbind(struct vmw_resource *res,
 	cmd3->body.sid = res->id;
 	cmd3->body.mobid = SVGA3D_INVALID_ID;
 
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, submit_size);
+=======
+	vmw_cmd_commit(dev_priv, submit_size);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Create a fence object and fence the backup buffer.
@@ -1280,10 +1765,15 @@ static int vmw_gb_surface_destroy(struct vmw_resource *res)
 	vmw_view_surface_list_destroy(dev_priv, &srf->view_list);
 	vmw_binding_res_list_scrub(&res->binding_head);
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, sizeof(*cmd));
 	if (unlikely(!cmd)) {
 		DRM_ERROR("Failed reserving FIFO space for surface "
 			  "destruction.\n");
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, sizeof(*cmd));
+	if (unlikely(!cmd)) {
+>>>>>>> upstream/android-13
 		mutex_unlock(&dev_priv->binding_mutex);
 		return -ENOMEM;
 	}
@@ -1291,7 +1781,11 @@ static int vmw_gb_surface_destroy(struct vmw_resource *res)
 	cmd->header.id = SVGA_3D_CMD_DESTROY_GB_SURFACE;
 	cmd->header.size = sizeof(cmd->body);
 	cmd->body.sid = res->id;
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmd));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+>>>>>>> upstream/android-13
 	mutex_unlock(&dev_priv->binding_mutex);
 	vmw_resource_release_id(res);
 	vmw_fifo_resource_dec(dev_priv);
@@ -1299,7 +1793,10 @@ static int vmw_gb_surface_destroy(struct vmw_resource *res)
 	return 0;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /**
  * vmw_gb_surface_define_ioctl - Ioctl function implementing
  * the user surface define functionality.
@@ -1321,6 +1818,10 @@ int vmw_gb_surface_define_ioctl(struct drm_device *dev, void *data,
 	req_ext.svga3d_flags_upper_32_bits = 0;
 	req_ext.multisample_pattern = SVGA3D_MS_PATTERN_NONE;
 	req_ext.quality_level = SVGA3D_MS_QUALITY_NONE;
+<<<<<<< HEAD
+=======
+	req_ext.buffer_byte_stride = 0;
+>>>>>>> upstream/android-13
 	req_ext.must_be_zero = 0;
 
 	return vmw_gb_surface_define_internal(dev, &req_ext, rep, file_priv);
@@ -1356,6 +1857,7 @@ int vmw_gb_surface_reference_ioctl(struct drm_device *dev, void *data,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_surface_gb_priv_define - Define a private GB surface
  *
  * @dev:  Pointer to a struct drm_device
@@ -1521,6 +2023,8 @@ out_unlock:
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * vmw_gb_surface_define_ext_ioctl - Ioctl function implementing
  * the user surface define functionality.
  *
@@ -1573,6 +2077,7 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 			       struct drm_vmw_gb_surface_create_rep *rep,
 			       struct drm_file *file_priv)
 {
+<<<<<<< HEAD
 	struct vmw_private *dev_priv = vmw_priv(dev);
 	struct vmw_user_surface *user_srf;
 	struct vmw_surface *srf;
@@ -1580,12 +2085,23 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 	struct vmw_resource *tmp;
 	struct ttm_object_file *tfile = vmw_fpriv(file_priv)->tfile;
 	int ret;
+=======
+	struct ttm_object_file *tfile = vmw_fpriv(file_priv)->tfile;
+	struct vmw_private *dev_priv = vmw_priv(dev);
+	struct vmw_user_surface *user_srf;
+	struct vmw_surface_metadata metadata = {0};
+	struct vmw_surface *srf;
+	struct vmw_resource *res;
+	struct vmw_resource *tmp;
+	int ret = 0;
+>>>>>>> upstream/android-13
 	uint32_t size;
 	uint32_t backup_handle = 0;
 	SVGA3dSurfaceAllFlags svga3d_flags_64 =
 		SVGA3D_FLAGS_64(req->svga3d_flags_upper_32_bits,
 				req->base.svga3d_flags);
 
+<<<<<<< HEAD
 	if (!dev_priv->has_sm4_1) {
 		/*
 		 * If SM4_1 is not support then cannot send 64-bit flag to
@@ -1641,6 +2157,78 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
 	if (unlikely(ret != 0))
 		return ret;
+=======
+	/* array_size must be null for non-GL3 host. */
+	if (req->base.array_size > 0 && !has_sm4_context(dev_priv)) {
+		VMW_DEBUG_USER("SM4 surface not supported.\n");
+		return -EINVAL;
+	}
+
+	if (!has_sm4_1_context(dev_priv)) {
+		if (req->svga3d_flags_upper_32_bits != 0)
+			ret = -EINVAL;
+
+		if (req->base.multisample_count != 0)
+			ret = -EINVAL;
+
+		if (req->multisample_pattern != SVGA3D_MS_PATTERN_NONE)
+			ret = -EINVAL;
+
+		if (req->quality_level != SVGA3D_MS_QUALITY_NONE)
+			ret = -EINVAL;
+
+		if (ret) {
+			VMW_DEBUG_USER("SM4.1 surface not supported.\n");
+			return ret;
+		}
+	}
+
+	if (req->buffer_byte_stride > 0 && !has_sm5_context(dev_priv)) {
+		VMW_DEBUG_USER("SM5 surface not supported.\n");
+		return -EINVAL;
+	}
+
+	if ((svga3d_flags_64 & SVGA3D_SURFACE_MULTISAMPLE) &&
+	    req->base.multisample_count == 0) {
+		VMW_DEBUG_USER("Invalid sample count.\n");
+		return -EINVAL;
+	}
+
+	if (req->base.mip_levels > DRM_VMW_MAX_MIP_LEVELS) {
+		VMW_DEBUG_USER("Invalid mip level.\n");
+		return -EINVAL;
+	}
+
+	if (unlikely(vmw_user_surface_size == 0))
+		vmw_user_surface_size = ttm_round_pot(sizeof(*user_srf)) +
+			VMW_IDA_ACC_SIZE + TTM_OBJ_EXTRA_SIZE;
+
+	size = vmw_user_surface_size;
+
+	metadata.flags = svga3d_flags_64;
+	metadata.format = req->base.format;
+	metadata.mip_levels[0] = req->base.mip_levels;
+	metadata.multisample_count = req->base.multisample_count;
+	metadata.multisample_pattern = req->multisample_pattern;
+	metadata.quality_level = req->quality_level;
+	metadata.array_size = req->base.array_size;
+	metadata.buffer_byte_stride = req->buffer_byte_stride;
+	metadata.num_sizes = 1;
+	metadata.base_size = req->base.base_size;
+	metadata.scanout = req->base.drm_surface_flags &
+		drm_vmw_surface_flag_scanout;
+
+	/* Define a surface based on the parameters. */
+	ret = vmw_gb_surface_define(dev_priv, size, &metadata, &srf);
+	if (ret != 0) {
+		VMW_DEBUG_USER("Failed to define surface.\n");
+		return ret;
+	}
+
+	user_srf = container_of(srf, struct vmw_user_surface, srf);
+	if (drm_is_primary_client(file_priv))
+		user_srf->master = drm_file_get_master(file_priv);
+>>>>>>> upstream/android-13
 
 	res = &user_srf->srf.res;
 
@@ -1649,9 +2237,14 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 					 &res->backup,
 					 &user_srf->backup_base);
 		if (ret == 0) {
+<<<<<<< HEAD
 			if (res->backup->base.num_pages * PAGE_SIZE <
 			    res->backup_size) {
 				DRM_ERROR("Surface backup buffer too small.\n");
+=======
+			if (res->backup->base.base.size < res->backup_size) {
+				VMW_DEBUG_USER("Surface backup buffer too small.\n");
+>>>>>>> upstream/android-13
 				vmw_bo_unreference(&res->backup);
 				ret = -EINVAL;
 				goto out_unlock;
@@ -1660,7 +2253,12 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 			}
 		}
 	} else if (req->base.drm_surface_flags &
+<<<<<<< HEAD
 		   drm_vmw_surface_flag_create_buffer)
+=======
+		   (drm_vmw_surface_flag_create_buffer |
+		    drm_vmw_surface_flag_coherent))
+>>>>>>> upstream/android-13
 		ret = vmw_user_bo_alloc(dev_priv, tfile,
 					res->backup_size,
 					req->base.drm_surface_flags &
@@ -1674,6 +2272,29 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
+=======
+	if (req->base.drm_surface_flags & drm_vmw_surface_flag_coherent) {
+		struct vmw_buffer_object *backup = res->backup;
+
+		ttm_bo_reserve(&backup->base, false, false, NULL);
+		if (!res->func->dirty_alloc)
+			ret = -EINVAL;
+		if (!ret)
+			ret = vmw_bo_dirty_add(backup);
+		if (!ret) {
+			res->coherent = true;
+			ret = res->func->dirty_alloc(res);
+		}
+		ttm_bo_unreserve(&backup->base);
+		if (ret) {
+			vmw_resource_unreference(&res);
+			goto out_unlock;
+		}
+
+	}
+
+>>>>>>> upstream/android-13
 	tmp = vmw_resource_reference(res);
 	ret = ttm_prime_object_init(tfile, res->backup_size, &user_srf->prime,
 				    req->base.drm_surface_flags &
@@ -1687,12 +2308,21 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	rep->handle      = user_srf->prime.base.hash.key;
 	rep->backup_size = res->backup_size;
 	if (res->backup) {
 		rep->buffer_map_handle =
 			drm_vma_node_offset_addr(&res->backup->base.vma_node);
 		rep->buffer_size = res->backup->base.num_pages * PAGE_SIZE;
+=======
+	rep->handle      = user_srf->prime.base.handle;
+	rep->backup_size = res->backup_size;
+	if (res->backup) {
+		rep->buffer_map_handle =
+			drm_vma_node_offset_addr(&res->backup->base.base.vma_node);
+		rep->buffer_size = res->backup->base.base.size;
+>>>>>>> upstream/android-13
 		rep->buffer_handle = backup_handle;
 	} else {
 		rep->buffer_map_handle = 0;
@@ -1703,7 +2333,10 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
 	vmw_resource_unreference(&res);
 
 out_unlock:
+<<<<<<< HEAD
 	ttm_read_unlock(&dev_priv->reservation_sem);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1726,9 +2359,16 @@ vmw_gb_surface_reference_internal(struct drm_device *dev,
 	struct ttm_object_file *tfile = vmw_fpriv(file_priv)->tfile;
 	struct vmw_surface *srf;
 	struct vmw_user_surface *user_srf;
+<<<<<<< HEAD
 	struct ttm_base_object *base;
 	uint32_t backup_handle;
 	int ret = -EINVAL;
+=======
+	struct vmw_surface_metadata *metadata;
+	struct ttm_base_object *base;
+	uint32_t backup_handle;
+	int ret;
+>>>>>>> upstream/android-13
 
 	ret = vmw_surface_handle_reference(dev_priv, file_priv, req->sid,
 					   req->handle_type, &base);
@@ -1741,6 +2381,10 @@ vmw_gb_surface_reference_internal(struct drm_device *dev,
 		DRM_ERROR("Shared GB surface is missing a backup buffer.\n");
 		goto out_bad_resource;
 	}
+<<<<<<< HEAD
+=======
+	metadata = &srf->metadata;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dev_priv->cmdbuf_mutex); /* Protect res->backup */
 	ret = vmw_user_bo_reference(tfile, srf->res.backup, &backup_handle);
@@ -1749,11 +2393,16 @@ vmw_gb_surface_reference_internal(struct drm_device *dev,
 	if (unlikely(ret != 0)) {
 		DRM_ERROR("Could not add a reference to a GB surface "
 			  "backup buffer.\n");
+<<<<<<< HEAD
 		(void) ttm_ref_object_base_unref(tfile, base->hash.key,
+=======
+		(void) ttm_ref_object_base_unref(tfile, base->handle,
+>>>>>>> upstream/android-13
 						 TTM_REF_USAGE);
 		goto out_bad_resource;
 	}
 
+<<<<<<< HEAD
 	rep->creq.base.svga3d_flags = SVGA3D_FLAGS_LOWER_32(srf->flags);
 	rep->creq.base.format = srf->format;
 	rep->creq.base.mip_levels = srf->mip_levels[0];
@@ -1775,6 +2424,29 @@ vmw_gb_surface_reference_internal(struct drm_device *dev,
 		SVGA3D_FLAGS_UPPER_32(srf->flags);
 	rep->creq.multisample_pattern = srf->multisample_pattern;
 	rep->creq.quality_level = srf->quality_level;
+=======
+	rep->creq.base.svga3d_flags = SVGA3D_FLAGS_LOWER_32(metadata->flags);
+	rep->creq.base.format = metadata->format;
+	rep->creq.base.mip_levels = metadata->mip_levels[0];
+	rep->creq.base.drm_surface_flags = 0;
+	rep->creq.base.multisample_count = metadata->multisample_count;
+	rep->creq.base.autogen_filter = metadata->autogen_filter;
+	rep->creq.base.array_size = metadata->array_size;
+	rep->creq.base.buffer_handle = backup_handle;
+	rep->creq.base.base_size = metadata->base_size;
+	rep->crep.handle = user_srf->prime.base.handle;
+	rep->crep.backup_size = srf->res.backup_size;
+	rep->crep.buffer_handle = backup_handle;
+	rep->crep.buffer_map_handle =
+		drm_vma_node_offset_addr(&srf->res.backup->base.base.vma_node);
+	rep->crep.buffer_size = srf->res.backup->base.base.size;
+
+	rep->creq.version = drm_vmw_gb_surface_v1;
+	rep->creq.svga3d_flags_upper_32_bits =
+		SVGA3D_FLAGS_UPPER_32(metadata->flags);
+	rep->creq.multisample_pattern = metadata->multisample_pattern;
+	rep->creq.quality_level = metadata->quality_level;
+>>>>>>> upstream/android-13
 	rep->creq.must_be_zero = 0;
 
 out_bad_resource:
@@ -1782,3 +2454,494 @@ out_bad_resource:
 
 	return ret;
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * vmw_subres_dirty_add - Add a dirty region to a subresource
+ * @dirty: The surfaces's dirty tracker.
+ * @loc_start: The location corresponding to the start of the region.
+ * @loc_end: The location corresponding to the end of the region.
+ *
+ * As we are assuming that @loc_start and @loc_end represent a sequential
+ * range of backing store memory, if the region spans multiple lines then
+ * regardless of the x coordinate, the full lines are dirtied.
+ * Correspondingly if the region spans multiple z slices, then full rather
+ * than partial z slices are dirtied.
+ */
+static void vmw_subres_dirty_add(struct vmw_surface_dirty *dirty,
+				 const struct vmw_surface_loc *loc_start,
+				 const struct vmw_surface_loc *loc_end)
+{
+	const struct vmw_surface_cache *cache = &dirty->cache;
+	SVGA3dBox *box = &dirty->boxes[loc_start->sub_resource];
+	u32 mip = loc_start->sub_resource % cache->num_mip_levels;
+	const struct drm_vmw_size *size = &cache->mip[mip].size;
+	u32 box_c2 = box->z + box->d;
+
+	if (WARN_ON(loc_start->sub_resource >= dirty->num_subres))
+		return;
+
+	if (box->d == 0 || box->z > loc_start->z)
+		box->z = loc_start->z;
+	if (box_c2 < loc_end->z)
+		box->d = loc_end->z - box->z;
+
+	if (loc_start->z + 1 == loc_end->z) {
+		box_c2 = box->y + box->h;
+		if (box->h == 0 || box->y > loc_start->y)
+			box->y = loc_start->y;
+		if (box_c2 < loc_end->y)
+			box->h = loc_end->y - box->y;
+
+		if (loc_start->y + 1 == loc_end->y) {
+			box_c2 = box->x + box->w;
+			if (box->w == 0 || box->x > loc_start->x)
+				box->x = loc_start->x;
+			if (box_c2 < loc_end->x)
+				box->w = loc_end->x - box->x;
+		} else {
+			box->x = 0;
+			box->w = size->width;
+		}
+	} else {
+		box->y = 0;
+		box->h = size->height;
+		box->x = 0;
+		box->w = size->width;
+	}
+}
+
+/**
+ * vmw_subres_dirty_full - Mark a full subresource as dirty
+ * @dirty: The surface's dirty tracker.
+ * @subres: The subresource
+ */
+static void vmw_subres_dirty_full(struct vmw_surface_dirty *dirty, u32 subres)
+{
+	const struct vmw_surface_cache *cache = &dirty->cache;
+	u32 mip = subres % cache->num_mip_levels;
+	const struct drm_vmw_size *size = &cache->mip[mip].size;
+	SVGA3dBox *box = &dirty->boxes[subres];
+
+	box->x = 0;
+	box->y = 0;
+	box->z = 0;
+	box->w = size->width;
+	box->h = size->height;
+	box->d = size->depth;
+}
+
+/*
+ * vmw_surface_tex_dirty_add_range - The dirty_add_range callback for texture
+ * surfaces.
+ */
+static void vmw_surface_tex_dirty_range_add(struct vmw_resource *res,
+					    size_t start, size_t end)
+{
+	struct vmw_surface_dirty *dirty =
+		(struct vmw_surface_dirty *) res->dirty;
+	size_t backup_end = res->backup_offset + res->backup_size;
+	struct vmw_surface_loc loc1, loc2;
+	const struct vmw_surface_cache *cache;
+
+	start = max_t(size_t, start, res->backup_offset) - res->backup_offset;
+	end = min(end, backup_end) - res->backup_offset;
+	cache = &dirty->cache;
+	vmw_surface_get_loc(cache, &loc1, start);
+	vmw_surface_get_loc(cache, &loc2, end - 1);
+	vmw_surface_inc_loc(cache, &loc2);
+
+	if (loc1.sheet != loc2.sheet) {
+		u32 sub_res;
+
+		/*
+		 * Multiple multisample sheets. To do this in an optimized
+		 * fashion, compute the dirty region for each sheet and the
+		 * resulting union. Since this is not a common case, just dirty
+		 * the whole surface.
+		 */
+		for (sub_res = 0; sub_res < dirty->num_subres; ++sub_res)
+			vmw_subres_dirty_full(dirty, sub_res);
+		return;
+	}
+	if (loc1.sub_resource + 1 == loc2.sub_resource) {
+		/* Dirty range covers a single sub-resource */
+		vmw_subres_dirty_add(dirty, &loc1, &loc2);
+	} else {
+		/* Dirty range covers multiple sub-resources */
+		struct vmw_surface_loc loc_min, loc_max;
+		u32 sub_res;
+
+		vmw_surface_max_loc(cache, loc1.sub_resource, &loc_max);
+		vmw_subres_dirty_add(dirty, &loc1, &loc_max);
+		vmw_surface_min_loc(cache, loc2.sub_resource - 1, &loc_min);
+		vmw_subres_dirty_add(dirty, &loc_min, &loc2);
+		for (sub_res = loc1.sub_resource + 1;
+		     sub_res < loc2.sub_resource - 1; ++sub_res)
+			vmw_subres_dirty_full(dirty, sub_res);
+	}
+}
+
+/*
+ * vmw_surface_tex_dirty_add_range - The dirty_add_range callback for buffer
+ * surfaces.
+ */
+static void vmw_surface_buf_dirty_range_add(struct vmw_resource *res,
+					    size_t start, size_t end)
+{
+	struct vmw_surface_dirty *dirty =
+		(struct vmw_surface_dirty *) res->dirty;
+	const struct vmw_surface_cache *cache = &dirty->cache;
+	size_t backup_end = res->backup_offset + cache->mip_chain_bytes;
+	SVGA3dBox *box = &dirty->boxes[0];
+	u32 box_c2;
+
+	box->h = box->d = 1;
+	start = max_t(size_t, start, res->backup_offset) - res->backup_offset;
+	end = min(end, backup_end) - res->backup_offset;
+	box_c2 = box->x + box->w;
+	if (box->w == 0 || box->x > start)
+		box->x = start;
+	if (box_c2 < end)
+		box->w = end - box->x;
+}
+
+/*
+ * vmw_surface_tex_dirty_add_range - The dirty_add_range callback for surfaces
+ */
+static void vmw_surface_dirty_range_add(struct vmw_resource *res, size_t start,
+					size_t end)
+{
+	struct vmw_surface *srf = vmw_res_to_srf(res);
+
+	if (WARN_ON(end <= res->backup_offset ||
+		    start >= res->backup_offset + res->backup_size))
+		return;
+
+	if (srf->metadata.format == SVGA3D_BUFFER)
+		vmw_surface_buf_dirty_range_add(res, start, end);
+	else
+		vmw_surface_tex_dirty_range_add(res, start, end);
+}
+
+/*
+ * vmw_surface_dirty_sync - The surface's dirty_sync callback.
+ */
+static int vmw_surface_dirty_sync(struct vmw_resource *res)
+{
+	struct vmw_private *dev_priv = res->dev_priv;
+	u32 i, num_dirty;
+	struct vmw_surface_dirty *dirty =
+		(struct vmw_surface_dirty *) res->dirty;
+	size_t alloc_size;
+	const struct vmw_surface_cache *cache = &dirty->cache;
+	struct {
+		SVGA3dCmdHeader header;
+		SVGA3dCmdDXUpdateSubResource body;
+	} *cmd1;
+	struct {
+		SVGA3dCmdHeader header;
+		SVGA3dCmdUpdateGBImage body;
+	} *cmd2;
+	void *cmd;
+
+	num_dirty = 0;
+	for (i = 0; i < dirty->num_subres; ++i) {
+		const SVGA3dBox *box = &dirty->boxes[i];
+
+		if (box->d)
+			num_dirty++;
+	}
+
+	if (!num_dirty)
+		goto out;
+
+	alloc_size = num_dirty * ((has_sm4_context(dev_priv)) ? sizeof(*cmd1) : sizeof(*cmd2));
+	cmd = VMW_CMD_RESERVE(dev_priv, alloc_size);
+	if (!cmd)
+		return -ENOMEM;
+
+	cmd1 = cmd;
+	cmd2 = cmd;
+
+	for (i = 0; i < dirty->num_subres; ++i) {
+		const SVGA3dBox *box = &dirty->boxes[i];
+
+		if (!box->d)
+			continue;
+
+		/*
+		 * DX_UPDATE_SUBRESOURCE is aware of array surfaces.
+		 * UPDATE_GB_IMAGE is not.
+		 */
+		if (has_sm4_context(dev_priv)) {
+			cmd1->header.id = SVGA_3D_CMD_DX_UPDATE_SUBRESOURCE;
+			cmd1->header.size = sizeof(cmd1->body);
+			cmd1->body.sid = res->id;
+			cmd1->body.subResource = i;
+			cmd1->body.box = *box;
+			cmd1++;
+		} else {
+			cmd2->header.id = SVGA_3D_CMD_UPDATE_GB_IMAGE;
+			cmd2->header.size = sizeof(cmd2->body);
+			cmd2->body.image.sid = res->id;
+			cmd2->body.image.face = i / cache->num_mip_levels;
+			cmd2->body.image.mipmap = i -
+				(cache->num_mip_levels * cmd2->body.image.face);
+			cmd2->body.box = *box;
+			cmd2++;
+		}
+
+	}
+	vmw_cmd_commit(dev_priv, alloc_size);
+ out:
+	memset(&dirty->boxes[0], 0, sizeof(dirty->boxes[0]) *
+	       dirty->num_subres);
+
+	return 0;
+}
+
+/*
+ * vmw_surface_dirty_alloc - The surface's dirty_alloc callback.
+ */
+static int vmw_surface_dirty_alloc(struct vmw_resource *res)
+{
+	struct vmw_surface *srf = vmw_res_to_srf(res);
+	const struct vmw_surface_metadata *metadata = &srf->metadata;
+	struct vmw_surface_dirty *dirty;
+	u32 num_layers = 1;
+	u32 num_mip;
+	u32 num_subres;
+	u32 num_samples;
+	size_t dirty_size, acc_size;
+	static struct ttm_operation_ctx ctx = {
+		.interruptible = false,
+		.no_wait_gpu = false
+	};
+	int ret;
+
+	if (metadata->array_size)
+		num_layers = metadata->array_size;
+	else if (metadata->flags & SVGA3D_SURFACE_CUBEMAP)
+		num_layers *= SVGA3D_MAX_SURFACE_FACES;
+
+	num_mip = metadata->mip_levels[0];
+	if (!num_mip)
+		num_mip = 1;
+
+	num_subres = num_layers * num_mip;
+	dirty_size = struct_size(dirty, boxes, num_subres);
+	acc_size = ttm_round_pot(dirty_size);
+	ret = ttm_mem_global_alloc(vmw_mem_glob(res->dev_priv),
+				   acc_size, &ctx);
+	if (ret) {
+		VMW_DEBUG_USER("Out of graphics memory for surface "
+			       "dirty tracker.\n");
+		return ret;
+	}
+
+	dirty = kvzalloc(dirty_size, GFP_KERNEL);
+	if (!dirty) {
+		ret = -ENOMEM;
+		goto out_no_dirty;
+	}
+
+	num_samples = max_t(u32, 1, metadata->multisample_count);
+	ret = vmw_surface_setup_cache(&metadata->base_size, metadata->format,
+					num_mip, num_layers, num_samples,
+					&dirty->cache);
+	if (ret)
+		goto out_no_cache;
+
+	dirty->num_subres = num_subres;
+	dirty->size = acc_size;
+	res->dirty = (struct vmw_resource_dirty *) dirty;
+
+	return 0;
+
+out_no_cache:
+	kvfree(dirty);
+out_no_dirty:
+	ttm_mem_global_free(vmw_mem_glob(res->dev_priv), acc_size);
+	return ret;
+}
+
+/*
+ * vmw_surface_dirty_free - The surface's dirty_free callback
+ */
+static void vmw_surface_dirty_free(struct vmw_resource *res)
+{
+	struct vmw_surface_dirty *dirty =
+		(struct vmw_surface_dirty *) res->dirty;
+	size_t acc_size = dirty->size;
+
+	kvfree(dirty);
+	ttm_mem_global_free(vmw_mem_glob(res->dev_priv), acc_size);
+	res->dirty = NULL;
+}
+
+/*
+ * vmw_surface_clean - The surface's clean callback
+ */
+static int vmw_surface_clean(struct vmw_resource *res)
+{
+	struct vmw_private *dev_priv = res->dev_priv;
+	size_t alloc_size;
+	struct {
+		SVGA3dCmdHeader header;
+		SVGA3dCmdReadbackGBSurface body;
+	} *cmd;
+
+	alloc_size = sizeof(*cmd);
+	cmd = VMW_CMD_RESERVE(dev_priv, alloc_size);
+	if (!cmd)
+		return -ENOMEM;
+
+	cmd->header.id = SVGA_3D_CMD_READBACK_GB_SURFACE;
+	cmd->header.size = sizeof(cmd->body);
+	cmd->body.sid = res->id;
+	vmw_cmd_commit(dev_priv, alloc_size);
+
+	return 0;
+}
+
+/*
+ * vmw_gb_surface_define - Define a private GB surface
+ *
+ * @dev_priv: Pointer to a device private.
+ * @user_accounting_size:  Used to track user-space memory usage, set
+ *                         to 0 for kernel mode only memory
+ * @metadata: Metadata representing the surface to create.
+ * @user_srf_out: allocated user_srf. Set to NULL on failure.
+ *
+ * GB surfaces allocated by this function will not have a user mode handle, and
+ * thus will only be visible to vmwgfx.  For optimization reasons the
+ * surface may later be given a user mode handle by another function to make
+ * it available to user mode drivers.
+ */
+int vmw_gb_surface_define(struct vmw_private *dev_priv,
+			  uint32_t user_accounting_size,
+			  const struct vmw_surface_metadata *req,
+			  struct vmw_surface **srf_out)
+{
+	struct vmw_surface_metadata *metadata;
+	struct vmw_user_surface *user_srf;
+	struct vmw_surface *srf;
+	struct ttm_operation_ctx ctx = {
+		.interruptible = true,
+		.no_wait_gpu = false
+	};
+	u32 sample_count = 1;
+	u32 num_layers = 1;
+	int ret;
+
+	*srf_out = NULL;
+
+	if (req->scanout) {
+		if (!vmw_surface_is_screen_target_format(req->format)) {
+			VMW_DEBUG_USER("Invalid Screen Target surface format.");
+			return -EINVAL;
+		}
+
+		if (req->base_size.width > dev_priv->texture_max_width ||
+		    req->base_size.height > dev_priv->texture_max_height) {
+			VMW_DEBUG_USER("%ux%u\n, exceed max surface size %ux%u",
+				       req->base_size.width,
+				       req->base_size.height,
+				       dev_priv->texture_max_width,
+				       dev_priv->texture_max_height);
+			return -EINVAL;
+		}
+	} else {
+		const SVGA3dSurfaceDesc *desc =
+			vmw_surface_get_desc(req->format);
+
+		if (desc->blockDesc == SVGA3DBLOCKDESC_NONE) {
+			VMW_DEBUG_USER("Invalid surface format.\n");
+			return -EINVAL;
+		}
+	}
+
+	if (req->autogen_filter != SVGA3D_TEX_FILTER_NONE)
+		return -EINVAL;
+
+	if (req->num_sizes != 1)
+		return -EINVAL;
+
+	if (req->sizes != NULL)
+		return -EINVAL;
+
+	ret = ttm_mem_global_alloc(vmw_mem_glob(dev_priv),
+				   user_accounting_size, &ctx);
+	if (ret != 0) {
+		if (ret != -ERESTARTSYS)
+			DRM_ERROR("Out of graphics memory for surface.\n");
+		goto out_unlock;
+	}
+
+	user_srf = kzalloc(sizeof(*user_srf), GFP_KERNEL);
+	if (unlikely(!user_srf)) {
+		ret = -ENOMEM;
+		goto out_no_user_srf;
+	}
+
+	*srf_out  = &user_srf->srf;
+	user_srf->size = user_accounting_size;
+	user_srf->prime.base.shareable = false;
+	user_srf->prime.base.tfile = NULL;
+
+	srf = &user_srf->srf;
+	srf->metadata = *req;
+	srf->offsets = NULL;
+
+	metadata = &srf->metadata;
+
+	if (metadata->array_size)
+		num_layers = req->array_size;
+	else if (metadata->flags & SVGA3D_SURFACE_CUBEMAP)
+		num_layers = SVGA3D_MAX_SURFACE_FACES;
+
+	if (metadata->flags & SVGA3D_SURFACE_MULTISAMPLE)
+		sample_count = metadata->multisample_count;
+
+	srf->res.backup_size =
+		vmw_surface_get_serialized_size_extended(
+				metadata->format,
+				metadata->base_size,
+				metadata->mip_levels[0],
+				num_layers,
+				sample_count);
+
+	if (metadata->flags & SVGA3D_SURFACE_BIND_STREAM_OUTPUT)
+		srf->res.backup_size += sizeof(SVGA3dDXSOState);
+
+	/*
+	 * Don't set SVGA3D_SURFACE_SCREENTARGET flag for a scanout surface with
+	 * size greater than STDU max width/height. This is really a workaround
+	 * to support creation of big framebuffer requested by some user-space
+	 * for whole topology. That big framebuffer won't really be used for
+	 * binding with screen target as during prepare_fb a separate surface is
+	 * created so it's safe to ignore SVGA3D_SURFACE_SCREENTARGET flag.
+	 */
+	if (dev_priv->active_display_unit == vmw_du_screen_target &&
+	    metadata->scanout &&
+	    metadata->base_size.width <= dev_priv->stdu_max_width &&
+	    metadata->base_size.height <= dev_priv->stdu_max_height)
+		metadata->flags |= SVGA3D_SURFACE_SCREENTARGET;
+
+	/*
+	 * From this point, the generic resource management functions
+	 * destroy the object on failure.
+	 */
+	ret = vmw_surface_init(dev_priv, srf, vmw_user_surface_free);
+
+	return ret;
+
+out_no_user_srf:
+	ttm_mem_global_free(vmw_mem_glob(dev_priv), user_accounting_size);
+
+out_unlock:
+	return ret;
+}
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Texas Instruments
+ * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -60,7 +67,11 @@ omapdss_of_get_next_port(const struct device_node *parent,
 				return NULL;
 			}
 			prev = port;
+<<<<<<< HEAD
 		} while (of_node_cmp(port->name, "port") != 0);
+=======
+		} while (!of_node_name_eq(port, "port"));
+>>>>>>> upstream/android-13
 
 		of_node_put(ports);
 	}
@@ -83,7 +94,11 @@ omapdss_of_get_next_endpoint(const struct device_node *parent,
 		if (!ep)
 			return NULL;
 		prev = ep;
+<<<<<<< HEAD
 	} while (of_node_cmp(ep->name, "endpoint") != 0);
+=======
+	} while (!of_node_name_eq(ep, "endpoint"));
+>>>>>>> upstream/android-13
 
 	return ep;
 }

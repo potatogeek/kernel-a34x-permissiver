@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: station command handling
  *
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: station command handling
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -840,6 +849,7 @@ mwifiex_cmd_802_11_key_material_v1(struct mwifiex_private *priv,
 	}
 
 	if (!enc_key) {
+<<<<<<< HEAD
 		memset(&key_material->key_param_set, 0,
 		       (NUM_WEP_KEYS *
 			sizeof(struct mwifiex_ie_type_key_param_set)));
@@ -848,11 +858,23 @@ mwifiex_cmd_802_11_key_material_v1(struct mwifiex_private *priv,
 						  &key_param_len);
 		cmd->size = cpu_to_le16(key_param_len +
 				    sizeof(key_material->action) + S_DS_GEN);
+=======
+		struct host_cmd_ds_802_11_key_material_wep *key_material_wep =
+			(struct host_cmd_ds_802_11_key_material_wep *)key_material;
+		memset(key_material_wep->key_param_set, 0,
+		       sizeof(key_material_wep->key_param_set));
+		ret = mwifiex_set_keyparamset_wep(priv,
+						  &key_material_wep->key_param_set[0],
+						  &key_param_len);
+		cmd->size = cpu_to_le16(key_param_len +
+				    sizeof(key_material_wep->action) + S_DS_GEN);
+>>>>>>> upstream/android-13
 		return ret;
 	} else
 		memset(&key_material->key_param_set, 0,
 		       sizeof(struct mwifiex_ie_type_key_param_set));
 	if (enc_key->is_wapi_key) {
+<<<<<<< HEAD
 		mwifiex_dbg(priv->adapter, INFO, "info: Set WAPI Key\n");
 		key_material->key_param_set.key_type_id =
 						cpu_to_le16(KEY_TYPE_ID_WAPI);
@@ -890,6 +912,38 @@ mwifiex_cmd_802_11_key_material_v1(struct mwifiex_private *priv,
 		       enc_key->pn, PN_LEN);
 		key_material->key_param_set.length =
 			cpu_to_le16(WAPI_KEY_LEN + KEYPARAMSET_FIXED_LEN);
+=======
+		struct mwifiex_ie_type_key_param_set *set;
+
+		mwifiex_dbg(priv->adapter, INFO, "info: Set WAPI Key\n");
+		set = &key_material->key_param_set;
+		set->key_type_id = cpu_to_le16(KEY_TYPE_ID_WAPI);
+		if (cmd_oid == KEY_INFO_ENABLED)
+			set->key_info = cpu_to_le16(KEY_ENABLED);
+		else
+			set->key_info = cpu_to_le16(!KEY_ENABLED);
+
+		set->key[0] = enc_key->key_index;
+		if (!priv->sec_info.wapi_key_on)
+			set->key[1] = 1;
+		else
+			/* set 0 when re-key */
+			set->key[1] = 0;
+
+		if (!is_broadcast_ether_addr(enc_key->mac_addr)) {
+			/* WAPI pairwise key: unicast */
+			set->key_info |= cpu_to_le16(KEY_UNICAST);
+		} else {	/* WAPI group key: multicast */
+			set->key_info |= cpu_to_le16(KEY_MCAST);
+			priv->sec_info.wapi_key_on = true;
+		}
+
+		set->type = cpu_to_le16(TLV_TYPE_KEY_MATERIAL);
+		set->key_len = cpu_to_le16(WAPI_KEY_LEN);
+		memcpy(&set->key[2], enc_key->key_material, enc_key->key_len);
+		memcpy(&set->key[2 + enc_key->key_len], enc_key->pn, PN_LEN);
+		set->length = cpu_to_le16(WAPI_KEY_LEN + KEYPARAMSET_FIXED_LEN);
+>>>>>>> upstream/android-13
 
 		key_param_len = (WAPI_KEY_LEN + KEYPARAMSET_FIXED_LEN) +
 				 sizeof(struct mwifiex_ie_types_header);
@@ -1730,7 +1784,11 @@ mwifiex_cmd_tdls_config(struct mwifiex_private *priv,
 	default:
 		mwifiex_dbg(priv->adapter, ERROR,
 			    "Unknown TDLS configuration\n");
+<<<<<<< HEAD
 		return -ENOTSUPP;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	le16_unaligned_add_cpu(&cmd->size, len);
@@ -1856,7 +1914,11 @@ mwifiex_cmd_tdls_oper(struct mwifiex_private *priv,
 		break;
 	default:
 		mwifiex_dbg(priv->adapter, ERROR, "Unknown TDLS operation\n");
+<<<<<<< HEAD
 		return -ENOTSUPP;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	le16_unaligned_add_cpu(&cmd->size, config_len);

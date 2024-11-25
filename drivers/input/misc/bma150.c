@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 Bosch Sensortec GmbH
  * Copyright (c) 2011 Unixphere
@@ -8,6 +12,7 @@
  *
  * The datasheet for the BMA150 chip can be found here:
  * http://www.bosch-sensortec.com/content/language1/downloads/BST-BMA150-DS000-07.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +27,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/input.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/delay.h>
 #include <linux/slab.h>
@@ -136,7 +146,10 @@
 
 struct bma150_data {
 	struct i2c_client *client;
+<<<<<<< HEAD
 	struct input_polled_dev *input_polled;
+=======
+>>>>>>> upstream/android-13
 	struct input_dev *input;
 	u8 mode;
 };
@@ -349,6 +362,7 @@ static irqreturn_t bma150_irq_thread(int irq, void *dev)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void bma150_poll(struct input_polled_dev *dev)
 {
 	bma150_report_xyz(dev->private);
@@ -356,6 +370,18 @@ static void bma150_poll(struct input_polled_dev *dev)
 
 static int bma150_open(struct bma150_data *bma150)
 {
+=======
+static void bma150_poll(struct input_dev *input)
+{
+	struct bma150_data *bma150 = input_get_drvdata(input);
+
+	bma150_report_xyz(bma150);
+}
+
+static int bma150_open(struct input_dev *input)
+{
+	struct bma150_data *bma150 = input_get_drvdata(input);
+>>>>>>> upstream/android-13
 	int error;
 
 	error = pm_runtime_get_sync(&bma150->client->dev);
@@ -375,14 +401,22 @@ static int bma150_open(struct bma150_data *bma150)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void bma150_close(struct bma150_data *bma150)
 {
+=======
+static void bma150_close(struct input_dev *input)
+{
+	struct bma150_data *bma150 = input_get_drvdata(input);
+
+>>>>>>> upstream/android-13
 	pm_runtime_put_sync(&bma150->client->dev);
 
 	if (bma150->mode != BMA150_MODE_SLEEP)
 		bma150_set_mode(bma150, BMA150_MODE_SLEEP);
 }
 
+<<<<<<< HEAD
 static int bma150_irq_open(struct input_dev *input)
 {
 	struct bma150_data *bma150 = input_get_drvdata(input);
@@ -413,6 +447,10 @@ static void bma150_poll_close(struct input_polled_dev *ipoll_dev)
 
 static int bma150_initialize(struct bma150_data *bma150,
 				       const struct bma150_cfg *cfg)
+=======
+static int bma150_initialize(struct bma150_data *bma150,
+			     const struct bma150_cfg *cfg)
+>>>>>>> upstream/android-13
 {
 	int error;
 
@@ -452,6 +490,7 @@ static int bma150_initialize(struct bma150_data *bma150,
 	return bma150_set_mode(bma150, BMA150_MODE_SLEEP);
 }
 
+<<<<<<< HEAD
 static void bma150_init_input_device(struct bma150_data *bma150,
 						struct input_dev *idev)
 {
@@ -525,11 +564,19 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
 
 static int bma150_probe(struct i2c_client *client,
 				  const struct i2c_device_id *id)
+=======
+static int bma150_probe(struct i2c_client *client,
+			const struct i2c_device_id *id)
+>>>>>>> upstream/android-13
 {
 	const struct bma150_platform_data *pdata =
 			dev_get_platdata(&client->dev);
 	const struct bma150_cfg *cfg;
 	struct bma150_data *bma150;
+<<<<<<< HEAD
+=======
+	struct input_dev *idev;
+>>>>>>> upstream/android-13
 	int chip_id;
 	int error;
 
@@ -544,7 +591,11 @@ static int bma150_probe(struct i2c_client *client,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	bma150 = kzalloc(sizeof(struct bma150_data), GFP_KERNEL);
+=======
+	bma150 = devm_kzalloc(&client->dev, sizeof(*bma150), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!bma150)
 		return -ENOMEM;
 
@@ -557,7 +608,11 @@ static int bma150_probe(struct i2c_client *client,
 				dev_err(&client->dev,
 					"IRQ GPIO conf. error %d, error %d\n",
 					client->irq, error);
+<<<<<<< HEAD
 				goto err_free_mem;
+=======
+				return error;
+>>>>>>> upstream/android-13
 			}
 		}
 		cfg = &pdata->cfg;
@@ -567,6 +622,7 @@ static int bma150_probe(struct i2c_client *client,
 
 	error = bma150_initialize(bma150, cfg);
 	if (error)
+<<<<<<< HEAD
 		goto err_free_mem;
 
 	if (client->irq > 0) {
@@ -575,6 +631,44 @@ static int bma150_probe(struct i2c_client *client,
 			goto err_free_mem;
 
 		error = request_threaded_irq(client->irq,
+=======
+		return error;
+
+	idev = devm_input_allocate_device(&bma150->client->dev);
+	if (!idev)
+		return -ENOMEM;
+
+	input_set_drvdata(idev, bma150);
+	bma150->input = idev;
+
+	idev->name = BMA150_DRIVER;
+	idev->phys = BMA150_DRIVER "/input0";
+	idev->id.bustype = BUS_I2C;
+
+	idev->open = bma150_open;
+	idev->close = bma150_close;
+
+	input_set_abs_params(idev, ABS_X, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
+	input_set_abs_params(idev, ABS_Y, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
+	input_set_abs_params(idev, ABS_Z, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
+
+	if (client->irq <= 0) {
+		error = input_setup_polling(idev, bma150_poll);
+		if (error)
+			return error;
+
+		input_set_poll_interval(idev, BMA150_POLL_INTERVAL);
+		input_set_min_poll_interval(idev, BMA150_POLL_MIN);
+		input_set_max_poll_interval(idev, BMA150_POLL_MAX);
+	}
+
+	error = input_register_device(idev);
+	if (error)
+		return error;
+
+	if (client->irq > 0) {
+		error = devm_request_threaded_irq(&client->dev, client->irq,
+>>>>>>> upstream/android-13
 					NULL, bma150_irq_thread,
 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
 					BMA150_DRIVER, bma150);
@@ -582,6 +676,7 @@ static int bma150_probe(struct i2c_client *client,
 			dev_err(&client->dev,
 				"irq request failed %d, error %d\n",
 				client->irq, error);
+<<<<<<< HEAD
 			input_unregister_device(bma150->input);
 			goto err_free_mem;
 		}
@@ -589,6 +684,10 @@ static int bma150_probe(struct i2c_client *client,
 		error = bma150_register_polled_device(bma150);
 		if (error)
 			goto err_free_mem;
+=======
+			return error;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	i2c_set_clientdata(client, bma150);
@@ -596,14 +695,18 @@ static int bma150_probe(struct i2c_client *client,
 	pm_runtime_enable(&client->dev);
 
 	return 0;
+<<<<<<< HEAD
 
 err_free_mem:
 	kfree(bma150);
 	return error;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int bma150_remove(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	struct bma150_data *bma150 = i2c_get_clientdata(client);
 
 	pm_runtime_disable(&client->dev);
@@ -623,6 +726,14 @@ static int bma150_remove(struct i2c_client *client)
 
 #ifdef CONFIG_PM
 static int bma150_suspend(struct device *dev)
+=======
+	pm_runtime_disable(&client->dev);
+
+	return 0;
+}
+
+static int __maybe_unused bma150_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct bma150_data *bma150 = i2c_get_clientdata(client);
@@ -630,14 +741,21 @@ static int bma150_suspend(struct device *dev)
 	return bma150_set_mode(bma150, BMA150_MODE_SLEEP);
 }
 
+<<<<<<< HEAD
 static int bma150_resume(struct device *dev)
+=======
+static int __maybe_unused bma150_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct bma150_data *bma150 = i2c_get_clientdata(client);
 
 	return bma150_set_mode(bma150, BMA150_MODE_NORMAL);
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
 

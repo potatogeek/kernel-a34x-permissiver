@@ -23,7 +23,11 @@
 
 	memory@40000000 {
 		device_type = "memory";
+<<<<<<< HEAD
 		reg = <0x40000000 0x1ff00000>;
+=======
+		reg = <0x40000000 0x1f800000>;
+>>>>>>> upstream/android-13
 	};
 
 	firmware@205f000 {
@@ -36,11 +40,21 @@
 			cooling-maps {
 				map0 {
 					/* Corresponds to 500MHz */
+<<<<<<< HEAD
 					cooling-device = <&cpu0 5 5>;
 				};
 				map1 {
 					/* Corresponds to 200MHz */
 					cooling-device = <&cpu0 8 8>;
+=======
+					cooling-device = <&cpu0 5 5>,
+							 <&cpu1 5 5>;
+				};
+				map1 {
+					/* Corresponds to 200MHz */
+					cooling-device = <&cpu0 8 8>,
+							 <&cpu1 8 8>;
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -53,10 +67,25 @@
 	assigned-clock-rates = <6000000>;
 };
 
+<<<<<<< HEAD
+=======
+&cmu {
+	clocks = <&xusbxti>;
+};
+
+>>>>>>> upstream/android-13
 &cpu0 {
 	cpu0-supply = <&buck2_reg>;
 };
 
+<<<<<<< HEAD
+=======
+&gpu {
+	mali-supply = <&buck3_reg>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &i2c_0 {
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -65,7 +94,11 @@
 	samsung,i2c-max-bus-freq = <100000>;
 	status = "okay";
 
+<<<<<<< HEAD
 	s2mps14_pmic@66 {
+=======
+	pmic@66 {
+>>>>>>> upstream/android-13
 		compatible = "samsung,s2mps14-pmic";
 		interrupt-parent = <&gpx3>;
 		interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
@@ -345,6 +378,17 @@
 };
 
 &pinctrl_1 {
+<<<<<<< HEAD
+=======
+	bten: bten {
+		samsung,pins ="gpx1-7";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_OUTPUT>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
+		samsung,pin-con-pdn = <EXYNOS_PIN_PDN_PREV>;
+		samsung,pin-pud-pdn = <EXYNOS_PIN_PULL_DOWN>;
+	};
+
+>>>>>>> upstream/android-13
 	wlanen: wlanen {
 		samsung,pins = "gpx2-3";
 		samsung,pin-function = <EXYNOS_PIN_FUNC_OUTPUT>;
@@ -357,6 +401,25 @@
 		samsung,pins = "gpx3-5";
 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
 	};
+<<<<<<< HEAD
+=======
+
+	bthostwake: bthostwake {
+		samsung,pins = "gpx3-6";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_INPUT>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
+		samsung,pin-con-pdn = <EXYNOS_PIN_PDN_INPUT>;
+		samsung,pin-pud-pdn = <EXYNOS_PIN_PULL_NONE>;
+	};
+
+	btwake: btwake {
+		samsung,pins = "gpx3-7";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_OUTPUT>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
+		samsung,pin-con-pdn = <EXYNOS_PIN_PDN_OUT0>;
+		samsung,pin-pud-pdn = <EXYNOS_PIN_PULL_DOWN>;
+	};
+>>>>>>> upstream/android-13
 };
 
 &rtc {
@@ -365,6 +428,26 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&serial_0 {
+	assigned-clocks = <&cmu CLK_SCLK_UART0>;
+	assigned-clock-rates = <100000000>;
+	status = "okay";
+
+	bluetooth {
+		compatible = "brcm,bcm4330-bt";
+		pinctrl-names = "default";
+		pinctrl-0 = <&bten &btwake &bthostwake>;
+		max-speed = <3000000>;
+		shutdown-gpios = <&gpx1 7 GPIO_ACTIVE_HIGH>;
+		device-wakeup-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
+		host-wakeup-gpios = <&gpx3 6 GPIO_ACTIVE_HIGH>;
+		clocks = <&s2mps14_osc S2MPS11_CLK_BT>;
+	};
+};
+
+>>>>>>> upstream/android-13
 &tmu {
 	status = "okay";
 };

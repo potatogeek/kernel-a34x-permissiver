@@ -6,7 +6,10 @@
  */
 
 #include "check.h"
+<<<<<<< HEAD
 #include "sysv68.h"
+=======
+>>>>>>> upstream/android-13
 
 /*
  *	Volume ID structure: on first 256-bytes sector of disk

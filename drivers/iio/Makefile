@@ -18,9 +18,15 @@ obj-y += adc/
 obj-y += afe/
 obj-y += amplifiers/
 obj-y += buffer/
+<<<<<<< HEAD
 obj-y += chemical/
 obj-y += common/
 obj-y += counter/
+=======
+obj-y += cdc/
+obj-y += chemical/
+obj-y += common/
+>>>>>>> upstream/android-13
 obj-y += dac/
 obj-y += dummy/
 obj-y += gyro/
@@ -32,10 +38,18 @@ obj-y += light/
 obj-y += magnetometer/
 obj-y += multiplexer/
 obj-y += orientation/
+<<<<<<< HEAD
+=======
+obj-y += position/
+>>>>>>> upstream/android-13
 obj-y += potentiometer/
 obj-y += potentiostat/
 obj-y += pressure/
 obj-y += proximity/
 obj-y += resolver/
 obj-y += temperature/
+<<<<<<< HEAD
+=======
+obj-y += test/
+>>>>>>> upstream/android-13
 obj-y += trigger/

@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * at91sam9261ek.dts - Device Tree file for Atmel at91sam9261 reference board
  *
  *  Copyright (C) 2013 Jean-Jacques Hiblot <jjhiblot@traphandler.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 only.
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "at91sam9261.dtsi"
@@ -15,6 +22,7 @@
 	chosen {
 		bootargs = "rootfstype=ubifs ubi.mtd=5 root=ubi0:rootfs rw";
 		stdout-path = "serial0:115200n8";
+<<<<<<< HEAD
 
 		clocksource {
 			timer = <&timer0>;
@@ -26,6 +34,11 @@
 	};
 
 	memory {
+=======
+	};
+
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x4000000>;
 	};
 
@@ -49,7 +62,11 @@
 			atmel,power-control-gpio = <&pioA 12 GPIO_ACTIVE_LOW>;
 			status = "okay";
 
+<<<<<<< HEAD
 			display0: display {
+=======
+			display0: panel {
+>>>>>>> upstream/android-13
 				bits-per-pixel = <16>;
 				atmel,lcdcon-backlight;
 				atmel,dmacon = <0x1>;

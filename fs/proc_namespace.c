@@ -37,23 +37,37 @@ static __poll_t mounts_poll(struct file *file, poll_table *wait)
 	return res;
 }
 
+<<<<<<< HEAD
 struct proc_fs_info {
+=======
+struct proc_fs_opts {
+>>>>>>> upstream/android-13
 	int flag;
 	const char *str;
 };
 
 static int show_sb_opts(struct seq_file *m, struct super_block *sb)
 {
+<<<<<<< HEAD
 	static const struct proc_fs_info fs_info[] = {
+=======
+	static const struct proc_fs_opts fs_opts[] = {
+>>>>>>> upstream/android-13
 		{ SB_SYNCHRONOUS, ",sync" },
 		{ SB_DIRSYNC, ",dirsync" },
 		{ SB_MANDLOCK, ",mand" },
 		{ SB_LAZYTIME, ",lazytime" },
 		{ 0, NULL }
 	};
+<<<<<<< HEAD
 	const struct proc_fs_info *fs_infop;
 
 	for (fs_infop = fs_info; fs_infop->flag; fs_infop++) {
+=======
+	const struct proc_fs_opts *fs_infop;
+
+	for (fs_infop = fs_opts; fs_infop->flag; fs_infop++) {
+>>>>>>> upstream/android-13
 		if (sb->s_flags & fs_infop->flag)
 			seq_puts(m, fs_infop->str);
 	}
@@ -63,13 +77,18 @@ static int show_sb_opts(struct seq_file *m, struct super_block *sb)
 
 static void show_mnt_opts(struct seq_file *m, struct vfsmount *mnt)
 {
+<<<<<<< HEAD
 	static const struct proc_fs_info mnt_info[] = {
+=======
+	static const struct proc_fs_opts mnt_opts[] = {
+>>>>>>> upstream/android-13
 		{ MNT_NOSUID, ",nosuid" },
 		{ MNT_NODEV, ",nodev" },
 		{ MNT_NOEXEC, ",noexec" },
 		{ MNT_NOATIME, ",noatime" },
 		{ MNT_NODIRATIME, ",nodiratime" },
 		{ MNT_RELATIME, ",relatime" },
+<<<<<<< HEAD
 		{ 0, NULL }
 	};
 	const struct proc_fs_info *fs_infop;
@@ -78,6 +97,20 @@ static void show_mnt_opts(struct seq_file *m, struct vfsmount *mnt)
 		if (mnt->mnt_flags & fs_infop->flag)
 			seq_puts(m, fs_infop->str);
 	}
+=======
+		{ MNT_NOSYMFOLLOW, ",nosymfollow" },
+		{ 0, NULL }
+	};
+	const struct proc_fs_opts *fs_infop;
+
+	for (fs_infop = mnt_opts; fs_infop->flag; fs_infop++) {
+		if (mnt->mnt_flags & fs_infop->flag)
+			seq_puts(m, fs_infop->str);
+	}
+
+	if (mnt_user_ns(mnt) != &init_user_ns)
+		seq_puts(m, ",idmapped");
+>>>>>>> upstream/android-13
 }
 
 static inline void mangle(struct seq_file *m, const char *s)
@@ -88,7 +121,11 @@ static inline void mangle(struct seq_file *m, const char *s)
 static void show_type(struct seq_file *m, struct super_block *sb)
 {
 	mangle(m, sb->s_type->name);
+<<<<<<< HEAD
 	if (sb->s_subtype && sb->s_subtype[0]) {
+=======
+	if (sb->s_subtype) {
+>>>>>>> upstream/android-13
 		seq_putc(m, '.');
 		mangle(m, sb->s_subtype);
 	}
@@ -121,9 +158,13 @@ static int show_vfsmnt(struct seq_file *m, struct vfsmount *mnt)
 	if (err)
 		goto out;
 	show_mnt_opts(m, mnt);
+<<<<<<< HEAD
 	if (sb->s_op->show_options2)
 			err = sb->s_op->show_options2(mnt, m, mnt_path.dentry);
 	else if (sb->s_op->show_options)
+=======
+	if (sb->s_op->show_options)
+>>>>>>> upstream/android-13
 		err = sb->s_op->show_options(m, mnt_path.dentry);
 	seq_puts(m, " 0 0\n");
 out:
@@ -185,9 +226,13 @@ static int show_mountinfo(struct seq_file *m, struct vfsmount *mnt)
 	err = show_sb_opts(m, sb);
 	if (err)
 		goto out;
+<<<<<<< HEAD
 	if (sb->s_op->show_options2) {
 		err = sb->s_op->show_options2(mnt, m, mnt->mnt_root);
 	} else if (sb->s_op->show_options)
+=======
+	if (sb->s_op->show_options)
+>>>>>>> upstream/android-13
 		err = sb->s_op->show_options(m, mnt->mnt_root);
 	seq_putc(m, '\n');
 out:
@@ -283,7 +328,12 @@ static int mounts_open_common(struct inode *inode, struct file *file,
 	p->ns = ns;
 	p->root = root;
 	p->show = show;
+<<<<<<< HEAD
 	p->cached_event = ~0ULL;
+=======
+	INIT_LIST_HEAD(&p->cursor.mnt_list);
+	p->cursor.mnt.mnt_flags = MNT_CURSOR;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -300,6 +350,10 @@ static int mounts_release(struct inode *inode, struct file *file)
 	struct seq_file *m = file->private_data;
 	struct proc_mounts *p = m->private;
 	path_put(&p->root);
+<<<<<<< HEAD
+=======
+	mnt_cursor_del(p->ns, &p->cursor);
+>>>>>>> upstream/android-13
 	put_mnt_ns(p->ns);
 	return seq_release_private(inode, file);
 }
@@ -321,7 +375,12 @@ static int mountstats_open(struct inode *inode, struct file *file)
 
 const struct file_operations proc_mounts_operations = {
 	.open		= mounts_open,
+<<<<<<< HEAD
 	.read		= seq_read,
+=======
+	.read_iter	= seq_read_iter,
+	.splice_read	= generic_file_splice_read,
+>>>>>>> upstream/android-13
 	.llseek		= seq_lseek,
 	.release	= mounts_release,
 	.poll		= mounts_poll,
@@ -329,7 +388,12 @@ const struct file_operations proc_mounts_operations = {
 
 const struct file_operations proc_mountinfo_operations = {
 	.open		= mountinfo_open,
+<<<<<<< HEAD
 	.read		= seq_read,
+=======
+	.read_iter	= seq_read_iter,
+	.splice_read	= generic_file_splice_read,
+>>>>>>> upstream/android-13
 	.llseek		= seq_lseek,
 	.release	= mounts_release,
 	.poll		= mounts_poll,
@@ -337,7 +401,12 @@ const struct file_operations proc_mountinfo_operations = {
 
 const struct file_operations proc_mountstats_operations = {
 	.open		= mountstats_open,
+<<<<<<< HEAD
 	.read		= seq_read,
+=======
+	.read_iter	= seq_read_iter,
+	.splice_read	= generic_file_splice_read,
+>>>>>>> upstream/android-13
 	.llseek		= seq_lseek,
 	.release	= mounts_release,
 };

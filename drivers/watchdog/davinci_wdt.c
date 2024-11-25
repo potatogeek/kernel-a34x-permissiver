@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * drivers/char/watchdog/davinci_wdt.c
  *
@@ -5,10 +9,14 @@
  *
  * Copyright (C) 2006-2013 Texas Instruments.
  *
+<<<<<<< HEAD
  * 2007 (c) MontaVista Software, Inc. This file is licensed under
  * the terms of the GNU General Public License version 2. This program
  * is licensed "as is" without any warranty of any kind, whether express
  * or implied.
+=======
+ * 2007 (c) MontaVista Software, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -191,11 +199,22 @@ static const struct watchdog_ops davinci_wdt_ops = {
 	.restart	= davinci_wdt_restart,
 };
 
+<<<<<<< HEAD
+=======
+static void davinci_clk_disable_unprepare(void *data)
+{
+	clk_disable_unprepare(data);
+}
+
+>>>>>>> upstream/android-13
 static int davinci_wdt_probe(struct platform_device *pdev)
 {
 	int ret = 0;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource  *wdt_mem;
+=======
+>>>>>>> upstream/android-13
 	struct watchdog_device *wdd;
 	struct davinci_wdt_device *davinci_wdt;
 
@@ -204,6 +223,7 @@ static int davinci_wdt_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	davinci_wdt->clk = devm_clk_get(dev, NULL);
+<<<<<<< HEAD
 
 	if (IS_ERR(davinci_wdt->clk)) {
 		if (PTR_ERR(davinci_wdt->clk) != -EPROBE_DEFER)
@@ -216,6 +236,21 @@ static int davinci_wdt_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed to prepare clock\n");
 		return ret;
 	}
+=======
+	if (IS_ERR(davinci_wdt->clk))
+		return dev_err_probe(dev, PTR_ERR(davinci_wdt->clk),
+				     "failed to get clock node\n");
+
+	ret = clk_prepare_enable(davinci_wdt->clk);
+	if (ret) {
+		dev_err(dev, "failed to prepare clock\n");
+		return ret;
+	}
+	ret = devm_add_action_or_reset(dev, davinci_clk_disable_unprepare,
+				       davinci_wdt->clk);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, davinci_wdt);
 
@@ -225,7 +260,11 @@ static int davinci_wdt_probe(struct platform_device *pdev)
 	wdd->min_timeout	= 1;
 	wdd->max_timeout	= MAX_HEARTBEAT;
 	wdd->timeout		= DEFAULT_HEARTBEAT;
+<<<<<<< HEAD
 	wdd->parent		= &pdev->dev;
+=======
+	wdd->parent		= dev;
+>>>>>>> upstream/android-13
 
 	watchdog_init_timeout(wdd, heartbeat, dev);
 
@@ -235,6 +274,7 @@ static int davinci_wdt_probe(struct platform_device *pdev)
 	watchdog_set_nowayout(wdd, 1);
 	watchdog_set_restart_priority(wdd, 128);
 
+<<<<<<< HEAD
 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	davinci_wdt->base = devm_ioremap_resource(dev, wdt_mem);
 	if (IS_ERR(davinci_wdt->base)) {
@@ -264,6 +304,13 @@ static int davinci_wdt_remove(struct platform_device *pdev)
 	clk_disable_unprepare(davinci_wdt->clk);
 
 	return 0;
+=======
+	davinci_wdt->base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(davinci_wdt->base))
+		return PTR_ERR(davinci_wdt->base);
+
+	return devm_watchdog_register_device(dev, wdd);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id davinci_wdt_of_match[] = {
@@ -278,7 +325,10 @@ static struct platform_driver platform_wdt_driver = {
 		.of_match_table = davinci_wdt_of_match,
 	},
 	.probe = davinci_wdt_probe,
+<<<<<<< HEAD
 	.remove = davinci_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(platform_wdt_driver);

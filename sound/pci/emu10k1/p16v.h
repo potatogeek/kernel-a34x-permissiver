@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by James Courtier-Dutton <James@superbug.demon.co.uk>
  *  Driver p16v chips
@@ -40,7 +44,10 @@
  *  0.21
  *    Split from p16v.c
  *
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  *  BUGS:
  *    Some stability problems when unloading the snd-p16v kernel module.
  *    --
@@ -61,6 +68,7 @@
  *
  *  This code was initially based on code from ALSA's emu10k1x.c which is:
  *  Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -76,6 +84,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /********************************************************************************************************/

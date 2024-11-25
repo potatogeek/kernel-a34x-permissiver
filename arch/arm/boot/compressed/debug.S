@@ -8,7 +8,14 @@
 
 ENTRY(putc)
 	addruart r1, r2, r3
+<<<<<<< HEAD
 	waituart r3, r1
+=======
+#ifdef CONFIG_DEBUG_UART_FLOW_CONTROL
+	waituartcts r3, r1
+#endif
+	waituarttxrdy r3, r1
+>>>>>>> upstream/android-13
 	senduart r0, r1
 	busyuart r3, r1
 	mov	 pc, lr

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * 6pack.c	This module implements the 6pack protocol for kernel-based
  *		devices like TTY. It interfaces between a raw TTY and the
@@ -34,7 +38,10 @@
 #include <linux/ip.h>
 #include <linux/tcp.h>
 #include <linux/semaphore.h>
+<<<<<<< HEAD
 #include <linux/compat.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/refcount.h>
 
 #define SIXPACK_VERSION    "Revision: 0.3.0"
@@ -68,9 +75,15 @@
 #define SIXP_DAMA_OFF		0
 
 /* default level 2 parameters */
+<<<<<<< HEAD
 #define SIXP_TXDELAY			(HZ/4)	/* in 1 s */
 #define SIXP_PERSIST			50	/* in 256ths */
 #define SIXP_SLOTTIME			(HZ/10)	/* in 1 s */
+=======
+#define SIXP_TXDELAY			25	/* 250 ms */
+#define SIXP_PERSIST			50	/* in 256ths */
+#define SIXP_SLOTTIME			10	/* 100 ms */
+>>>>>>> upstream/android-13
 #define SIXP_INIT_RESYNC_TIMEOUT	(3*HZ/2) /* in 1 s */
 #define SIXP_RESYNC_TIMEOUT		5*HZ	/* in 1 s */
 
@@ -121,7 +134,11 @@ struct sixpack {
 	struct timer_list	tx_t;
 	struct timer_list	resync_t;
 	refcount_t		refcnt;
+<<<<<<< HEAD
 	struct semaphore	dead_sem;
+=======
+	struct completion	dead;
+>>>>>>> upstream/android-13
 	spinlock_t		lock;
 };
 
@@ -171,11 +188,14 @@ static void sp_encaps(struct sixpack *sp, unsigned char *icp, int len)
 		goto out_drop;
 	}
 
+<<<<<<< HEAD
 	if (len > sp->mtu) {	/* sp->mtu = AX25_MTU = max. PACLEN = 256 */
 		msg = "oversized transmit packet!";
 		goto out_drop;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (p[0] > 5) {
 		msg = "invalid KISS command";
 		goto out_drop;
@@ -311,7 +331,10 @@ static void sp_setup(struct net_device *dev)
 {
 	/* Finish setting up the DEVICE info. */
 	dev->netdev_ops		= &sp_netdev_ops;
+<<<<<<< HEAD
 	dev->needs_free_netdev	= true;
+=======
+>>>>>>> upstream/android-13
 	dev->mtu		= SIXP_MTU;
 	dev->hard_header_len	= AX25_MAX_HEADER_LEN;
 	dev->header_ops 	= &ax25_header_ops;
@@ -344,10 +367,17 @@ static void sp_bump(struct sixpack *sp, char cmd)
 
 	sp->dev->stats.rx_bytes += count;
 
+<<<<<<< HEAD
 	if ((skb = dev_alloc_skb(count)) == NULL)
 		goto out_mem;
 
 	ptr = skb_put(skb, count);
+=======
+	if ((skb = dev_alloc_skb(count + 1)) == NULL)
+		goto out_mem;
+
+	ptr = skb_put(skb, count + 1);
+>>>>>>> upstream/android-13
 	*ptr++ = cmd;	/* KISS command */
 
 	memcpy(ptr, sp->cooked_buf + 1, count);
@@ -390,7 +420,11 @@ static struct sixpack *sp_get(struct tty_struct *tty)
 static void sp_put(struct sixpack *sp)
 {
 	if (refcount_dec_and_test(&sp->refcnt))
+<<<<<<< HEAD
 		up(&sp->dead_sem);
+=======
+		complete(&sp->dead);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -433,7 +467,11 @@ out:
  * and sent on to some IP layer for further processing.
  */
 static void sixpack_receive_buf(struct tty_struct *tty,
+<<<<<<< HEAD
 	const unsigned char *cp, char *fp, int count)
+=======
+	const unsigned char *cp, const char *fp, int count)
+>>>>>>> upstream/android-13
 {
 	struct sixpack *sp;
 	int count1;
@@ -572,7 +610,11 @@ static int sixpack_open(struct tty_struct *tty)
 
 	spin_lock_init(&sp->lock);
 	refcount_set(&sp->refcnt, 1);
+<<<<<<< HEAD
 	sema_init(&sp->dead_sem, 0);
+=======
+	init_completion(&sp->dead);
+>>>>>>> upstream/android-13
 
 	/* !!! length of the buffers. MTU is IP MTU, not PACLEN!  */
 
@@ -666,14 +708,22 @@ static void sixpack_close(struct tty_struct *tty)
 	 * we have to wait for all existing users to finish.
 	 */
 	if (!refcount_dec_and_test(&sp->refcnt))
+<<<<<<< HEAD
 		down(&sp->dead_sem);
 
 	/* We must stop the queue to avoid potentially scribbling
 	 * on the free buffers. The sp->dead_sem is not sufficient
+=======
+		wait_for_completion(&sp->dead);
+
+	/* We must stop the queue to avoid potentially scribbling
+	 * on the free buffers. The sp->dead completion is not sufficient
+>>>>>>> upstream/android-13
 	 * to protect us from sp->xbuff access.
 	 */
 	netif_stop_queue(sp->dev);
 
+<<<<<<< HEAD
 	del_timer_sync(&sp->tx_t);
 	del_timer_sync(&sp->resync_t);
 
@@ -682,6 +732,18 @@ static void sixpack_close(struct tty_struct *tty)
 	kfree(sp->xbuff);
 
 	unregister_netdev(sp->dev);
+=======
+	unregister_netdev(sp->dev);
+
+	del_timer_sync(&sp->tx_t);
+	del_timer_sync(&sp->resync_t);
+
+	/* Free all 6pack frame buffers after unreg. */
+	kfree(sp->rbuff);
+	kfree(sp->xbuff);
+
+	free_netdev(sp->dev);
+>>>>>>> upstream/android-13
 }
 
 /* Perform I/O control on an active 6pack channel. */
@@ -721,11 +783,19 @@ static int sixpack_ioctl(struct tty_struct *tty, struct file *file,
 		err = 0;
 		break;
 
+<<<<<<< HEAD
 	 case SIOCSIFHWADDR: {
 		char addr[AX25_ADDR_LEN];
 
 		if (copy_from_user(&addr,
 		                   (void __user *) arg, AX25_ADDR_LEN)) {
+=======
+	case SIOCSIFHWADDR: {
+			char addr[AX25_ADDR_LEN];
+
+			if (copy_from_user(&addr,
+					   (void __user *)arg, AX25_ADDR_LEN)) {
+>>>>>>> upstream/android-13
 				err = -EFAULT;
 				break;
 			}
@@ -733,11 +803,17 @@ static int sixpack_ioctl(struct tty_struct *tty, struct file *file,
 			netif_tx_lock_bh(dev);
 			memcpy(dev->dev_addr, &addr, AX25_ADDR_LEN);
 			netif_tx_unlock_bh(dev);
+<<<<<<< HEAD
 
 			err = 0;
 			break;
 		}
 
+=======
+			err = 0;
+			break;
+		}
+>>>>>>> upstream/android-13
 	default:
 		err = tty_mode_ioctl(tty, file, cmd, arg);
 	}
@@ -747,6 +823,7 @@ static int sixpack_ioctl(struct tty_struct *tty, struct file *file,
 	return err;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long sixpack_compat_ioctl(struct tty_struct * tty, struct file * file,
 				unsigned int cmd, unsigned long arg)
@@ -767,13 +844,21 @@ static long sixpack_compat_ioctl(struct tty_struct * tty, struct file * file,
 static struct tty_ldisc_ops sp_ldisc = {
 	.owner		= THIS_MODULE,
 	.magic		= TTY_LDISC_MAGIC,
+=======
+static struct tty_ldisc_ops sp_ldisc = {
+	.owner		= THIS_MODULE,
+	.num		= N_6PACK,
+>>>>>>> upstream/android-13
 	.name		= "6pack",
 	.open		= sixpack_open,
 	.close		= sixpack_close,
 	.ioctl		= sixpack_ioctl,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_ioctl	= sixpack_compat_ioctl,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.receive_buf	= sixpack_receive_buf,
 	.write_wakeup	= sixpack_write_wakeup,
 };
@@ -792,12 +877,18 @@ static int __init sixpack_init_driver(void)
 	printk(msg_banner);
 
 	/* Register the provided line protocol discipline */
+<<<<<<< HEAD
 	if ((status = tty_register_ldisc(N_6PACK, &sp_ldisc)) != 0)
+=======
+	status = tty_register_ldisc(&sp_ldisc);
+	if (status)
+>>>>>>> upstream/android-13
 		printk(msg_regfail, status);
 
 	return status;
 }
 
+<<<<<<< HEAD
 static const char msg_unregfail[] = KERN_ERR \
 	"6pack: can't unregister line discipline (err = %d)\n";
 
@@ -807,6 +898,11 @@ static void __exit sixpack_exit_driver(void)
 
 	if ((ret = tty_unregister_ldisc(N_6PACK)))
 		printk(msg_unregfail, ret);
+=======
+static void __exit sixpack_exit_driver(void)
+{
+	tty_unregister_ldisc(&sp_ldisc);
+>>>>>>> upstream/android-13
 }
 
 /* encode an AX.25 packet into 6pack */
@@ -859,6 +955,15 @@ static void decode_data(struct sixpack *sp, unsigned char inbyte)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if (sp->rx_count_cooked + 2 >= sizeof(sp->cooked_buf)) {
+		pr_err("6pack: cooked buffer overrun, data loss\n");
+		sp->rx_count = 0;
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	buf = sp->raw_buf;
 	sp->cooked_buf[sp->rx_count_cooked++] =
 		buf[0] | ((buf[1] << 2) & 0xc0);

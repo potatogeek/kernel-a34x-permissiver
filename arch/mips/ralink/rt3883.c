@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Parts of this file are based on Ralink's 2.6.21 BSP
  *
@@ -16,6 +21,7 @@
 #include <asm/mipsregs.h>
 #include <asm/mach-ralink/ralink_regs.h>
 #include <asm/mach-ralink/rt3883.h>
+<<<<<<< HEAD
 #include <asm/mach-ralink/pinmux.h>
 
 #include "common.h"
@@ -62,6 +68,11 @@ static struct rt2880_pmx_group rt3883_pinmux_data[] = {
 	{ 0 }
 };
 
+=======
+
+#include "common.h"
+
+>>>>>>> upstream/android-13
 void __init ralink_clk_init(void)
 {
 	unsigned long cpu_rate, sys_rate;
@@ -115,7 +126,11 @@ void __init ralink_of_remap(void)
 		panic("Failed to remap core resources");
 }
 
+<<<<<<< HEAD
 void prom_soc_init(struct ralink_soc_info *soc_info)
+=======
+void __init prom_soc_init(struct ralink_soc_info *soc_info)
+>>>>>>> upstream/android-13
 {
 	void __iomem *sysc = (void __iomem *) KSEG1ADDR(RT3883_SYSC_BASE);
 	const char *name;
@@ -144,7 +159,10 @@ void prom_soc_init(struct ralink_soc_info *soc_info)
 	soc_info->mem_size_min = RT3883_MEM_SIZE_MIN;
 	soc_info->mem_size_max = RT3883_MEM_SIZE_MAX;
 
+<<<<<<< HEAD
 	rt2880_pinmux_data = rt3883_pinmux_data;
 
+=======
+>>>>>>> upstream/android-13
 	ralink_soc = RT3883_SOC;
 }

@@ -20,11 +20,15 @@
 
 extern int spin_retry;
 
+<<<<<<< HEAD
 #ifndef CONFIG_SMP
 static inline bool arch_vcpu_is_preempted(int cpu) { return false; }
 #else
 bool arch_vcpu_is_preempted(int cpu);
 #endif
+=======
+bool arch_vcpu_is_preempted(int cpu);
+>>>>>>> upstream/android-13
 
 #define vcpu_is_preempted arch_vcpu_is_preempted
 
@@ -89,10 +93,17 @@ static inline int arch_spin_trylock(arch_spinlock_t *lp)
 static inline void arch_spin_unlock(arch_spinlock_t *lp)
 {
 	typecheck(int, lp->lock);
+<<<<<<< HEAD
 	asm volatile(
 		ALTERNATIVE("", ".long 0xb2fa0070", 49)	/* NIAI 7 */
 		"	sth	%1,%0\n"
 		: "=Q" (((unsigned short *) &lp->lock)[1])
+=======
+	asm_inline volatile(
+		ALTERNATIVE("", ".long 0xb2fa0070", 49)	/* NIAI 7 */
+		"	sth	%1,%0\n"
+		: "=R" (((unsigned short *) &lp->lock)[1])
+>>>>>>> upstream/android-13
 		: "d" (0) : "cc", "memory");
 }
 

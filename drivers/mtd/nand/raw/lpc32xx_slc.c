@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NXP LPC32XX NAND SLC driver
  *
@@ -7,6 +11,7 @@
  *
  * Copyright © 2011 NXP Semiconductors
  * Copyright © 2012 Roland Stigge
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -32,11 +39,18 @@
 #include <linux/mm.h>
 #include <linux/dma-mapping.h>
 #include <linux/dmaengine.h>
+<<<<<<< HEAD
 #include <linux/mtd/nand_ecc.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/gpio.h>
 #include <linux/of.h>
 #include <linux/of_gpio.h>
 #include <linux/mtd/lpc32xx_slc.h>
+<<<<<<< HEAD
+=======
+#include <linux/mtd/nand-ecc-sw-hamming.h>
+>>>>>>> upstream/android-13
 
 #define LPC32XX_MODNAME		"lpc32xx-nand"
 
@@ -278,11 +292,18 @@ static void lpc32xx_nand_setup(struct lpc32xx_nand_host *host)
 /*
  * Hardware specific access to control lines
  */
+<<<<<<< HEAD
 static void lpc32xx_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 	unsigned int ctrl)
 {
 	uint32_t tmp;
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void lpc32xx_nand_cmd_ctrl(struct nand_chip *chip, int cmd,
+				  unsigned int ctrl)
+{
+	uint32_t tmp;
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
 	/* Does CE state need to be changed? */
@@ -304,9 +325,14 @@ static void lpc32xx_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 /*
  * Read the Device Ready pin
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_device_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int lpc32xx_nand_device_ready(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 	int rdy = 0;
 
@@ -337,7 +363,11 @@ static void lpc32xx_wp_disable(struct lpc32xx_nand_host *host)
 /*
  * Prepares SLC for transfers with H/W ECC enabled
  */
+<<<<<<< HEAD
 static void lpc32xx_nand_ecc_enable(struct mtd_info *mtd, int mode)
+=======
+static void lpc32xx_nand_ecc_enable(struct nand_chip *chip, int mode)
+>>>>>>> upstream/android-13
 {
 	/* Hardware ECC is enabled automatically in hardware as needed */
 }
@@ -345,7 +375,11 @@ static void lpc32xx_nand_ecc_enable(struct mtd_info *mtd, int mode)
 /*
  * Calculates the ECC for the data
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_ecc_calculate(struct mtd_info *mtd,
+=======
+static int lpc32xx_nand_ecc_calculate(struct nand_chip *chip,
+>>>>>>> upstream/android-13
 				      const unsigned char *buf,
 				      unsigned char *code)
 {
@@ -357,11 +391,30 @@ static int lpc32xx_nand_ecc_calculate(struct mtd_info *mtd,
 }
 
 /*
+<<<<<<< HEAD
  * Read a single byte from NAND device
  */
 static uint8_t lpc32xx_nand_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+ * Corrects the data
+ */
+static int lpc32xx_nand_ecc_correct(struct nand_chip *chip,
+				    unsigned char *buf,
+				    unsigned char *read_ecc,
+				    unsigned char *calc_ecc)
+{
+	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
+				      chip->ecc.size, false);
+}
+
+/*
+ * Read a single byte from NAND device
+ */
+static uint8_t lpc32xx_nand_read_byte(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
 	return (uint8_t)readl(SLC_DATA(host->io_base));
@@ -370,9 +423,14 @@ static uint8_t lpc32xx_nand_read_byte(struct mtd_info *mtd)
 /*
  * Simple device read without ECC
  */
+<<<<<<< HEAD
 static void lpc32xx_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void lpc32xx_nand_read_buf(struct nand_chip *chip, u_char *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
 	/* Direct device read with no ECC */
@@ -383,9 +441,15 @@ static void lpc32xx_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 /*
  * Simple device write without ECC
  */
+<<<<<<< HEAD
 static void lpc32xx_nand_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void lpc32xx_nand_write_buf(struct nand_chip *chip, const uint8_t *buf,
+				   int len)
+{
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
 	/* Direct device write with no ECC */
@@ -396,18 +460,32 @@ static void lpc32xx_nand_write_buf(struct mtd_info *mtd, const uint8_t *buf, int
 /*
  * Read the OOB data from the device without ECC using FIFO method
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_read_oob_syndrome(struct mtd_info *mtd,
 					  struct nand_chip *chip, int page)
 {
+=======
+static int lpc32xx_nand_read_oob_syndrome(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	return nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
 }
 
 /*
  * Write the OOB data to the device without ECC using FIFO method
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_write_oob_syndrome(struct mtd_info *mtd,
 	struct nand_chip *chip, int page)
 {
+=======
+static int lpc32xx_nand_write_oob_syndrome(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	return nand_prog_page_op(chip, page, mtd->writesize, chip->oob_poi,
 				 mtd->oobsize);
 }
@@ -610,10 +688,17 @@ static int lpc32xx_xfer(struct mtd_info *mtd, uint8_t *buf, int eccsubpages,
  * Read the data and OOB data from the device, use ECC correction with the
  * data, disable ECC for the OOB data
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_read_page_syndrome(struct mtd_info *mtd,
 					   struct nand_chip *chip, uint8_t *buf,
 					   int oob_required, int page)
 {
+=======
+static int lpc32xx_nand_read_page_syndrome(struct nand_chip *chip, uint8_t *buf,
+					   int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 	struct mtd_oob_region oobregion = { };
 	int stat, i, status, error;
@@ -626,7 +711,11 @@ static int lpc32xx_nand_read_page_syndrome(struct mtd_info *mtd,
 	status = lpc32xx_xfer(mtd, buf, chip->ecc.steps, 1);
 
 	/* Get OOB data */
+<<<<<<< HEAD
 	chip->read_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+	chip->legacy.read_buf(chip, chip->oob_poi, mtd->oobsize);
+>>>>>>> upstream/android-13
 
 	/* Convert to stored ECC format */
 	lpc32xx_slc_ecc_copy(tmpecc, (uint32_t *) host->ecc_buf, chip->ecc.steps);
@@ -639,7 +728,11 @@ static int lpc32xx_nand_read_page_syndrome(struct mtd_info *mtd,
 	oobecc = chip->oob_poi + oobregion.offset;
 
 	for (i = 0; i < chip->ecc.steps; i++) {
+<<<<<<< HEAD
 		stat = chip->ecc.correct(mtd, buf, oobecc,
+=======
+		stat = chip->ecc.correct(chip, buf, oobecc,
+>>>>>>> upstream/android-13
 					 &tmpecc[i * chip->ecc.bytes]);
 		if (stat < 0)
 			mtd->ecc_stats.failed++;
@@ -657,17 +750,31 @@ static int lpc32xx_nand_read_page_syndrome(struct mtd_info *mtd,
  * Read the data and OOB data from the device, no ECC correction with the
  * data or OOB data
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_read_page_raw_syndrome(struct mtd_info *mtd,
 					       struct nand_chip *chip,
 					       uint8_t *buf, int oob_required,
 					       int page)
 {
+=======
+static int lpc32xx_nand_read_page_raw_syndrome(struct nand_chip *chip,
+					       uint8_t *buf, int oob_required,
+					       int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+>>>>>>> upstream/android-13
 	/* Issue read command */
 	nand_read_page_op(chip, page, 0, NULL, 0);
 
 	/* Raw reads can just use the FIFO interface */
+<<<<<<< HEAD
 	chip->read_buf(mtd, buf, chip->ecc.size * chip->ecc.steps);
 	chip->read_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+	chip->legacy.read_buf(chip, buf, chip->ecc.size * chip->ecc.steps);
+	chip->legacy.read_buf(chip, chip->oob_poi, mtd->oobsize);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -676,11 +783,19 @@ static int lpc32xx_nand_read_page_raw_syndrome(struct mtd_info *mtd,
  * Write the data and OOB data to the device, use ECC with the data,
  * disable ECC for the OOB data
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_write_page_syndrome(struct mtd_info *mtd,
 					    struct nand_chip *chip,
 					    const uint8_t *buf,
 					    int oob_required, int page)
 {
+=======
+static int lpc32xx_nand_write_page_syndrome(struct nand_chip *chip,
+					    const uint8_t *buf,
+					    int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 	struct mtd_oob_region oobregion = { };
 	uint8_t *pb;
@@ -705,7 +820,11 @@ static int lpc32xx_nand_write_page_syndrome(struct mtd_info *mtd,
 	lpc32xx_slc_ecc_copy(pb, (uint32_t *)host->ecc_buf, chip->ecc.steps);
 
 	/* Write ECC data to device */
+<<<<<<< HEAD
 	chip->write_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+	chip->legacy.write_buf(chip, chip->oob_poi, mtd->oobsize);
+>>>>>>> upstream/android-13
 
 	return nand_prog_page_end_op(chip);
 }
@@ -714,6 +833,7 @@ static int lpc32xx_nand_write_page_syndrome(struct mtd_info *mtd,
  * Write the data and OOB data to the device, no ECC correction with the
  * data or OOB data
  */
+<<<<<<< HEAD
 static int lpc32xx_nand_write_page_raw_syndrome(struct mtd_info *mtd,
 						struct nand_chip *chip,
 						const uint8_t *buf,
@@ -723,6 +843,18 @@ static int lpc32xx_nand_write_page_raw_syndrome(struct mtd_info *mtd,
 	nand_prog_page_begin_op(chip, page, 0, buf,
 				chip->ecc.size * chip->ecc.steps);
 	chip->write_buf(mtd, chip->oob_poi, mtd->oobsize);
+=======
+static int lpc32xx_nand_write_page_raw_syndrome(struct nand_chip *chip,
+						const uint8_t *buf,
+						int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+
+	/* Raw writes can just use the FIFO interface */
+	nand_prog_page_begin_op(chip, page, 0, buf,
+				chip->ecc.size * chip->ecc.steps);
+	chip->legacy.write_buf(chip, chip->oob_poi, mtd->oobsize);
+>>>>>>> upstream/android-13
 
 	return nand_prog_page_end_op(chip);
 }
@@ -784,6 +916,12 @@ static int lpc32xx_nand_attach_chip(struct nand_chip *chip)
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct lpc32xx_nand_host *host = nand_get_controller_data(chip);
 
+<<<<<<< HEAD
+=======
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST)
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* OOB and ECC CPU and DMA work areas */
 	host->ecc_buf = (uint32_t *)(host->data_buf + LPC32XX_DMA_DATA_SIZE);
 
@@ -795,11 +933,30 @@ static int lpc32xx_nand_attach_chip(struct nand_chip *chip)
 	if (mtd->writesize <= 512)
 		mtd_set_ooblayout(mtd, &lpc32xx_ooblayout_ops);
 
+<<<<<<< HEAD
 	/* These sizes remain the same regardless of page size */
 	chip->ecc.size = 256;
 	chip->ecc.bytes = LPC32XX_SLC_DEV_ECC_BYTES;
 	chip->ecc.prepad = 0;
 	chip->ecc.postpad = 0;
+=======
+	chip->ecc.placement = NAND_ECC_PLACEMENT_INTERLEAVED;
+	/* These sizes remain the same regardless of page size */
+	chip->ecc.size = 256;
+	chip->ecc.strength = 1;
+	chip->ecc.bytes = LPC32XX_SLC_DEV_ECC_BYTES;
+	chip->ecc.prepad = 0;
+	chip->ecc.postpad = 0;
+	chip->ecc.read_page_raw = lpc32xx_nand_read_page_raw_syndrome;
+	chip->ecc.read_page = lpc32xx_nand_read_page_syndrome;
+	chip->ecc.write_page_raw = lpc32xx_nand_write_page_raw_syndrome;
+	chip->ecc.write_page = lpc32xx_nand_write_page_syndrome;
+	chip->ecc.write_oob = lpc32xx_nand_write_oob_syndrome;
+	chip->ecc.read_oob = lpc32xx_nand_read_oob_syndrome;
+	chip->ecc.calculate = lpc32xx_nand_ecc_calculate;
+	chip->ecc.correct = lpc32xx_nand_ecc_correct;
+	chip->ecc.hwctl = lpc32xx_nand_ecc_enable;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Use a custom BBT marker setup for small page FLASH that
@@ -878,11 +1035,19 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 		goto enable_wp;
 
 	/* Set NAND IO addresses and command/ready functions */
+<<<<<<< HEAD
 	chip->IO_ADDR_R = SLC_DATA(host->io_base);
 	chip->IO_ADDR_W = SLC_DATA(host->io_base);
 	chip->cmd_ctrl = lpc32xx_nand_cmd_ctrl;
 	chip->dev_ready = lpc32xx_nand_device_ready;
 	chip->chip_delay = 20; /* 20us command delay time */
+=======
+	chip->legacy.IO_ADDR_R = SLC_DATA(host->io_base);
+	chip->legacy.IO_ADDR_W = SLC_DATA(host->io_base);
+	chip->legacy.cmd_ctrl = lpc32xx_nand_cmd_ctrl;
+	chip->legacy.dev_ready = lpc32xx_nand_device_ready;
+	chip->legacy.chip_delay = 20; /* 20us command delay time */
+>>>>>>> upstream/android-13
 
 	/* Init NAND controller */
 	lpc32xx_nand_setup(host);
@@ -890,6 +1055,7 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, host);
 
 	/* NAND callbacks for LPC32xx SLC hardware */
+<<<<<<< HEAD
 	chip->ecc.mode = NAND_ECC_HW_SYNDROME;
 	chip->read_byte = lpc32xx_nand_read_byte;
 	chip->read_buf = lpc32xx_nand_read_buf;
@@ -904,6 +1070,11 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 	chip->ecc.correct = nand_correct_data;
 	chip->ecc.strength = 1;
 	chip->ecc.hwctl = lpc32xx_nand_ecc_enable;
+=======
+	chip->legacy.read_byte = lpc32xx_nand_read_byte;
+	chip->legacy.read_buf = lpc32xx_nand_read_buf;
+	chip->legacy.write_buf = lpc32xx_nand_write_buf;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Allocate a large enough buffer for a single huge page plus
@@ -924,7 +1095,11 @@ static int lpc32xx_nand_probe(struct platform_device *pdev)
 	}
 
 	/* Find NAND device */
+<<<<<<< HEAD
 	chip->dummy_controller.ops = &lpc32xx_nand_controller_ops;
+=======
+	chip->legacy.dummy_controller.ops = &lpc32xx_nand_controller_ops;
+>>>>>>> upstream/android-13
 	res = nand_scan(chip, 1);
 	if (res)
 		goto release_dma;
@@ -956,8 +1131,17 @@ static int lpc32xx_nand_remove(struct platform_device *pdev)
 {
 	uint32_t tmp;
 	struct lpc32xx_nand_host *host = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 
 	nand_release(&host->nand_chip);
+=======
+	struct nand_chip *chip = &host->nand_chip;
+	int ret;
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 	dma_release_channel(host->dma_chan);
 
 	/* Force CE high */

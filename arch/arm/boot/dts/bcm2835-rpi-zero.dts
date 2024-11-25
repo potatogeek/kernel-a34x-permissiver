@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Stefan Wahren <stefan.wahren@i2se.com>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2016 Stefan Wahren <stefan.wahren@i2se.com>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -18,8 +24,18 @@
 	compatible = "raspberrypi,model-zero", "brcm,bcm2835";
 	model = "Raspberry Pi Zero";
 
+<<<<<<< HEAD
 	leds {
 		act {
+=======
+	memory@0 {
+		device_type = "memory";
+		reg = <0 0x20000000>;
+	};
+
+	leds {
+		led-act {
+>>>>>>> upstream/android-13
 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
 		};
 	};
@@ -34,8 +50,13 @@
 	 * "FOO" = GPIO line named "FOO" on the schematic
 	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
 	 */
+<<<<<<< HEAD
 	gpio-line-names = "SDA0",
 			  "SCL0",
+=======
+	gpio-line-names = "ID_SDA",
+			  "ID_SCL",
+>>>>>>> upstream/android-13
 			  "SDA1",
 			  "SCL1",
 			  "GPIO_GCLK",
@@ -102,6 +123,18 @@
 
 &hdmi {
 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
+<<<<<<< HEAD
+=======
+	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
+	status = "okay";
+};
+
+&sdhost {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdhost_gpio48>;
+	bus-width = <4>;
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &uart0 {

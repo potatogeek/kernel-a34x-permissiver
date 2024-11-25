@@ -6,8 +6,12 @@
  * Copyright 2016 Linaro Ltd.
  */
 
+<<<<<<< HEAD
 #include "greybus.h"
 
+=======
+#include <linux/greybus.h>
+>>>>>>> upstream/android-13
 #include <linux/cdev.h>
 #include <linux/fs.h>
 #include <linux/ioctl.h>

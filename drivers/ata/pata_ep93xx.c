@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * EP93XX PATA controller driver.
  *
@@ -44,7 +48,11 @@
 #include <linux/ktime.h>
 
 #include <linux/platform_data/dma-ep93xx.h>
+<<<<<<< HEAD
 #include <mach/platform.h>
+=======
+#include <linux/soc/cirrus/ep93xx.h>
+>>>>>>> upstream/android-13
 
 #define DRV_NAME	"ep93xx-ide"
 #define DRV_VERSION	"1.0"
@@ -927,7 +935,11 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
+<<<<<<< HEAD
 		err = -ENXIO;
+=======
+		err = irq;
+>>>>>>> upstream/android-13
 		goto err_rel_gpio;
 	}
 

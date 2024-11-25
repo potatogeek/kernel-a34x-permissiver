@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * timb_dma.c timberdale FPGA DMA driver
  * Copyright (c) 2010 Intel Corporation
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * timb_dma.c timberdale FPGA DMA driver
+ * Copyright (c) 2010 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 /* Supports:
@@ -96,7 +103,11 @@ struct timb_dma {
 	struct dma_device	dma;
 	void __iomem		*membase;
 	struct tasklet_struct	tasklet;
+<<<<<<< HEAD
 	struct timb_dma_chan	channels[0];
+=======
+	struct timb_dma_chan	channels[];
+>>>>>>> upstream/android-13
 };
 
 static struct device *chan2dev(struct dma_chan *chan)
@@ -571,9 +582,15 @@ static int td_terminate_all(struct dma_chan *chan)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void td_tasklet(unsigned long data)
 {
 	struct timb_dma *td = (struct timb_dma *)data;
+=======
+static void td_tasklet(struct tasklet_struct *t)
+{
+	struct timb_dma *td = from_tasklet(td, t, tasklet);
+>>>>>>> upstream/android-13
 	u32 isr;
 	u32 ipr;
 	u32 ier;
@@ -643,8 +660,13 @@ static int td_probe(struct platform_device *pdev)
 		DRIVER_NAME))
 		return -EBUSY;
 
+<<<<<<< HEAD
 	td  = kzalloc(sizeof(struct timb_dma) +
 		sizeof(struct timb_dma_chan) * pdata->nr_channels, GFP_KERNEL);
+=======
+	td  = kzalloc(struct_size(td, channels, pdata->nr_channels),
+		      GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!td) {
 		err = -ENOMEM;
 		goto err_release_region;
@@ -666,7 +688,11 @@ static int td_probe(struct platform_device *pdev)
 	iowrite32(0x0, td->membase + TIMBDMA_IER);
 	iowrite32(0xFFFFFFFF, td->membase + TIMBDMA_ISR);
 
+<<<<<<< HEAD
 	tasklet_init(&td->tasklet, td_tasklet, (unsigned long)td);
+=======
+	tasklet_setup(&td->tasklet, td_tasklet);
+>>>>>>> upstream/android-13
 
 	err = request_irq(irq, td_irq, IRQF_SHARED, DRIVER_NAME, td);
 	if (err) {

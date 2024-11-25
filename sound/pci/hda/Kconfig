@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menu "HD-Audio"
 
 config SND_HDA
@@ -7,10 +11,20 @@ config SND_HDA
 	select SND_JACK
 	select SND_HDA_CORE
 
+<<<<<<< HEAD
+=======
+config SND_HDA_GENERIC_LEDS
+       bool
+
+>>>>>>> upstream/android-13
 config SND_HDA_INTEL
 	tristate "HD Audio PCI"
 	depends on SND_PCI
 	select SND_HDA
+<<<<<<< HEAD
+=======
+	select SND_INTEL_DSP_CONFIG
+>>>>>>> upstream/android-13
 	help
 	  Say Y here to include support for Intel "High Definition
 	  Audio" (Azalia) and its compatible devices.
@@ -25,6 +39,10 @@ config SND_HDA_TEGRA
 	tristate "NVIDIA Tegra HD Audio"
 	depends on ARCH_TEGRA
 	select SND_HDA
+<<<<<<< HEAD
+=======
+	select SND_HDA_ALIGNED_MMIO
+>>>>>>> upstream/android-13
 	help
 	  Say Y here to support the HDA controller present in NVIDIA
 	  Tegra SoCs
@@ -88,6 +106,10 @@ config SND_HDA_PATCH_LOADER
 config SND_HDA_CODEC_REALTEK
 	tristate "Build Realtek HD-audio codec support"
 	select SND_HDA_GENERIC
+<<<<<<< HEAD
+=======
+	select SND_HDA_GENERIC_LEDS
+>>>>>>> upstream/android-13
 	help
 	  Say Y or M here to include Realtek HD-audio codec support in
 	  snd-hda-intel driver, such as ALC880.
@@ -96,10 +118,17 @@ comment "Set to Y if you want auto-loading the codec driver"
 	depends on SND_HDA=y && SND_HDA_CODEC_REALTEK=m
 
 config SND_HDA_CODEC_ANALOG
+<<<<<<< HEAD
 	tristate "Build Analog Device HD-audio codec support"
 	select SND_HDA_GENERIC
 	help
 	  Say Y or M here to include Analog Device HD-audio codec support in
+=======
+	tristate "Build Analog Devices HD-audio codec support"
+	select SND_HDA_GENERIC
+	help
+	  Say Y or M here to include Analog Devices HD-audio codec support in
+>>>>>>> upstream/android-13
 	  snd-hda-intel driver, such as AD1986A.
 
 comment "Set to Y if you want auto-loading the codec driver"
@@ -108,6 +137,10 @@ comment "Set to Y if you want auto-loading the codec driver"
 config SND_HDA_CODEC_SIGMATEL
 	tristate "Build IDT/Sigmatel HD-audio codec support"
 	select SND_HDA_GENERIC
+<<<<<<< HEAD
+=======
+	select SND_HDA_GENERIC_LEDS
+>>>>>>> upstream/android-13
 	help
 	  Say Y or M here to include IDT (Sigmatel) HD-audio codec support in
 	  snd-hda-intel driver, such as STAC9200.
@@ -149,9 +182,26 @@ config SND_HDA_CODEC_CIRRUS
 comment "Set to Y if you want auto-loading the codec driver"
 	depends on SND_HDA=y && SND_HDA_CODEC_CIRRUS=m
 
+<<<<<<< HEAD
 config SND_HDA_CODEC_CONEXANT
 	tristate "Build Conexant HD-audio codec support"
 	select SND_HDA_GENERIC
+=======
+config SND_HDA_CODEC_CS8409
+	tristate "Build Cirrus Logic HDA bridge support"
+	select SND_HDA_GENERIC
+	help
+	  Say Y or M here to include Cirrus Logic HDA bridge support in
+	  snd-hda-intel driver, such as CS8409.
+
+comment "Set to Y if you want auto-loading the codec driver"
+	depends on SND_HDA=y && SND_HDA_CODEC_CS8409=m
+
+config SND_HDA_CODEC_CONEXANT
+	tristate "Build Conexant HD-audio codec support"
+	select SND_HDA_GENERIC
+	select SND_HDA_GENERIC_LEDS
+>>>>>>> upstream/android-13
 	help
 	  Say Y or M here to include Conexant HD-audio codec support in
 	  snd-hda-intel driver, such as CX20549.
@@ -181,6 +231,10 @@ comment "Set to Y if you want auto-loading the codec driver"
 config SND_HDA_CODEC_CA0132_DSP
 	bool "Support new DSP code for CA0132 codec"
 	depends on SND_HDA_CODEC_CA0132
+<<<<<<< HEAD
+=======
+	default y
+>>>>>>> upstream/android-13
 	select SND_HDA_DSP_LOADER
 	select FW_LOADER
 	help
@@ -211,6 +265,11 @@ comment "Set to Y if you want auto-loading the codec driver"
 
 config SND_HDA_GENERIC
 	tristate "Enable generic HD-audio codec parser"
+<<<<<<< HEAD
+=======
+	select SND_CTL_LED if SND_HDA_GENERIC_LEDS
+	select LEDS_CLASS if SND_HDA_GENERIC_LEDS
+>>>>>>> upstream/android-13
 	help
 	  Say Y or M here to enable the generic HD-audio codec parser
 	  in snd-hda-intel driver.
@@ -226,6 +285,23 @@ config SND_HDA_POWER_SAVE_DEFAULT
 	  The default time-out value in seconds for HD-audio automatic
 	  power-save mode.  0 means to disable the power-save mode.
 
+<<<<<<< HEAD
+=======
+config SND_HDA_INTEL_HDMI_SILENT_STREAM
+	bool "Enable Silent Stream always for HDMI"
+	depends on SND_HDA_INTEL
+	help
+	  Intel hardware has a feature called 'silent stream', that
+	  keeps external HDMI receiver's analog circuitry powered on
+	  avoiding 2-3 sec silence during playback start. This mechanism
+	  relies on setting channel_id as 0xf, sending info packet and
+	  preventing codec D3 entry (increasing  platform static power
+	  consumption when HDMI receiver is plugged-in). 2-3 sec silence
+	  at the playback start is expected whenever there is format change.
+	  (default is 2 channel format).
+	  Say Y to enable Silent Stream feature.
+
+>>>>>>> upstream/android-13
 endif
 
 endmenu

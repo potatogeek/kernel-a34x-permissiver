@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /****************************************************************************
  * Driver for Solarflare network controllers and boards
  * Copyright 2005-2006 Fen Systems Ltd.
  * Copyright 2005-2013 Solarflare Communications Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -26,17 +33,30 @@
 #include <net/gre.h>
 #include <net/udp_tunnel.h>
 #include "efx.h"
+<<<<<<< HEAD
+=======
+#include "efx_common.h"
+#include "efx_channels.h"
+#include "ef100.h"
+#include "rx_common.h"
+#include "tx_common.h"
+>>>>>>> upstream/android-13
 #include "nic.h"
 #include "io.h"
 #include "selftest.h"
 #include "sriov.h"
 
+<<<<<<< HEAD
 #include "mcdi.h"
+=======
+#include "mcdi_port_common.h"
+>>>>>>> upstream/android-13
 #include "mcdi_pcol.h"
 #include "workarounds.h"
 
 /**************************************************************************
  *
+<<<<<<< HEAD
  * Type name strings
  *
  **************************************************************************
@@ -121,10 +141,22 @@ static struct workqueue_struct *reset_workqueue;
 
 /**************************************************************************
  *
+=======
+>>>>>>> upstream/android-13
  * Configurable values
  *
  *************************************************************************/
 
+<<<<<<< HEAD
+=======
+module_param_named(interrupt_mode, efx_interrupt_mode, uint, 0444);
+MODULE_PARM_DESC(interrupt_mode,
+		 "Interrupt mode (0=>MSIX 1=>MSI 2=>legacy)");
+
+module_param(rss_cpus, uint, 0444);
+MODULE_PARM_DESC(rss_cpus, "Number of CPUs to use for Receive-Side Scaling");
+
+>>>>>>> upstream/android-13
 /*
  * Use separate channels for TX and RX events
  *
@@ -138,6 +170,7 @@ module_param(efx_separate_tx_channels, bool, 0444);
 MODULE_PARM_DESC(efx_separate_tx_channels,
 		 "Use separate channels for TX and RX");
 
+<<<<<<< HEAD
 /* This is the weight assigned to each of the (per-channel) virtual
  * NAPI devices.
  */
@@ -153,6 +186,8 @@ static int napi_weight = 64;
  */
 static unsigned int efx_monitor_interval = 1 * HZ;
 
+=======
+>>>>>>> upstream/android-13
 /* Initial interrupt moderation settings.  They can be modified after
  * module load with ethtool.
  *
@@ -172,6 +207,7 @@ static unsigned int rx_irq_mod_usec = 60;
  */
 static unsigned int tx_irq_mod_usec = 150;
 
+<<<<<<< HEAD
 /* This is the first interrupt mode to try out of:
  * 0 => MSI-X
  * 1 => MSI
@@ -190,10 +226,13 @@ static unsigned int rss_cpus;
 module_param(rss_cpus, uint, 0444);
 MODULE_PARM_DESC(rss_cpus, "Number of CPUs to use for Receive-Side Scaling");
 
+=======
+>>>>>>> upstream/android-13
 static bool phy_flash_cfg;
 module_param(phy_flash_cfg, bool, 0644);
 MODULE_PARM_DESC(phy_flash_cfg, "Set PHYs into reflash mode initially");
 
+<<<<<<< HEAD
 static unsigned irq_adapt_low_thresh = 8000;
 module_param(irq_adapt_low_thresh, uint, 0644);
 MODULE_PARM_DESC(irq_adapt_low_thresh,
@@ -204,6 +243,8 @@ module_param(irq_adapt_high_thresh, uint, 0644);
 MODULE_PARM_DESC(irq_adapt_high_thresh,
 		 "Threshold score for increasing IRQ moderation");
 
+=======
+>>>>>>> upstream/android-13
 static unsigned debug = (NETIF_MSG_DRV | NETIF_MSG_PROBE |
 			 NETIF_MSG_LINK | NETIF_MSG_IFDOWN |
 			 NETIF_MSG_IFUP | NETIF_MSG_RX_ERR |
@@ -217,6 +258,7 @@ MODULE_PARM_DESC(debug, "Bitmapped debugging message enable value");
  *
  *************************************************************************/
 
+<<<<<<< HEAD
 static int efx_soft_enable_interrupts(struct efx_nic *efx);
 static void efx_soft_disable_interrupts(struct efx_nic *efx);
 static void efx_remove_channel(struct efx_channel *channel);
@@ -229,6 +271,13 @@ static void efx_fini_napi_channel(struct efx_channel *channel);
 static void efx_fini_struct(struct efx_nic *efx);
 static void efx_start_all(struct efx_nic *efx);
 static void efx_stop_all(struct efx_nic *efx);
+=======
+static void efx_remove_port(struct efx_nic *efx);
+static int efx_xdp_setup_prog(struct efx_nic *efx, struct bpf_prog *prog);
+static int efx_xdp(struct net_device *dev, struct netdev_bpf *xdp);
+static int efx_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **xdpfs,
+			u32 flags);
+>>>>>>> upstream/android-13
 
 #define EFX_ASSERT_RESET_SERIALISED(efx)		\
 	do {						\
@@ -238,6 +287,7 @@ static void efx_stop_all(struct efx_nic *efx);
 			ASSERT_RTNL();			\
 	} while (0)
 
+<<<<<<< HEAD
 static int efx_check_disabled(struct efx_nic *efx)
 {
 	if (efx->state == STATE_DISABLED || efx->state == STATE_RECOVERY) {
@@ -944,12 +994,15 @@ void efx_channel_dummy_op_void(struct efx_channel *channel)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 /**************************************************************************
  *
  * Port handling
  *
  **************************************************************************/
 
+<<<<<<< HEAD
 /* This ensures that the kernel is kept informed (via
  * netif_carrier_on/off) of the link status, and also maintains the
  * link status's stop on the port's TX queue.
@@ -1092,6 +1145,10 @@ static void efx_mac_work(struct work_struct *data)
 	mutex_unlock(&efx->mac_lock);
 }
 
+=======
+static void efx_fini_port(struct efx_nic *efx);
+
+>>>>>>> upstream/android-13
 static int efx_probe_port(struct efx_nic *efx)
 {
 	int rc;
@@ -1120,6 +1177,7 @@ static int efx_init_port(struct efx_nic *efx)
 
 	mutex_lock(&efx->mac_lock);
 
+<<<<<<< HEAD
 	rc = efx->phy_op->init(efx);
 	if (rc)
 		goto fail1;
@@ -1134,17 +1192,30 @@ static int efx_init_port(struct efx_nic *efx)
 	rc = efx->phy_op->reconfigure(efx);
 	if (rc && rc != -EPERM)
 		goto fail2;
+=======
+	efx->port_initialized = true;
+
+	/* Ensure the PHY advertises the correct flow control settings */
+	rc = efx_mcdi_port_reconfigure(efx);
+	if (rc && rc != -EPERM)
+		goto fail;
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&efx->mac_lock);
 	return 0;
 
+<<<<<<< HEAD
 fail2:
 	efx->phy_op->fini(efx);
 fail1:
+=======
+fail:
+>>>>>>> upstream/android-13
 	mutex_unlock(&efx->mac_lock);
 	return rc;
 }
 
+<<<<<<< HEAD
 static void efx_start_port(struct efx_nic *efx)
 {
 	netif_dbg(efx, ifup, efx->net_dev, "start port\n");
@@ -1183,6 +1254,8 @@ static void efx_stop_port(struct efx_nic *efx)
 	cancel_work_sync(&efx->mac_work);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void efx_fini_port(struct efx_nic *efx)
 {
 	netif_dbg(efx, drv, efx->net_dev, "shut down port\n");
@@ -1190,7 +1263,10 @@ static void efx_fini_port(struct efx_nic *efx)
 	if (!efx->port_initialized)
 		return;
 
+<<<<<<< HEAD
 	efx->phy_op->fini(efx);
+=======
+>>>>>>> upstream/android-13
 	efx->port_initialized = false;
 
 	efx->link_state.up = false;
@@ -1281,6 +1357,7 @@ static void efx_dissociate(struct efx_nic *efx)
 	}
 }
 
+<<<<<<< HEAD
 /* This configures the PCI device to enable I/O and DMA. */
 static int efx_init_io(struct efx_nic *efx)
 {
@@ -1753,6 +1830,8 @@ static void efx_set_channels(struct efx_nic *efx)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int efx_probe_nic(struct efx_nic *efx)
 {
 	int rc;
@@ -1780,7 +1859,13 @@ static int efx_probe_nic(struct efx_nic *efx)
 		if (rc)
 			goto fail1;
 
+<<<<<<< HEAD
 		efx_set_channels(efx);
+=======
+		rc = efx_set_channels(efx);
+		if (rc)
+			goto fail1;
+>>>>>>> upstream/android-13
 
 		/* dimension_resources can fail with EAGAIN */
 		rc = efx->type->dimension_resources(efx);
@@ -1798,9 +1883,12 @@ static int efx_probe_nic(struct efx_nic *efx)
 				    sizeof(efx->rss_context.rx_hash_key));
 	efx_set_default_rx_indir_table(efx, &efx->rss_context);
 
+<<<<<<< HEAD
 	netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
 	netif_set_real_num_rx_queues(efx->net_dev, efx->n_rx_channels);
 
+=======
+>>>>>>> upstream/android-13
 	/* Initialise the interrupt moderation settings */
 	efx->irq_mod_step_us = DIV_ROUND_UP(efx->timer_quantum_ns, 1000);
 	efx_init_irq_moderation(efx, tx_irq_mod_usec, rx_irq_mod_usec, true,
@@ -1823,6 +1911,7 @@ static void efx_remove_nic(struct efx_nic *efx)
 	efx->type->remove(efx);
 }
 
+<<<<<<< HEAD
 static int efx_probe_filters(struct efx_nic *efx)
 {
 	int rc;
@@ -1885,6 +1974,8 @@ static void efx_remove_filters(struct efx_nic *efx)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /**************************************************************************
  *
  * NIC startup/shutdown
@@ -1912,7 +2003,10 @@ static int efx_probe_all(struct efx_nic *efx)
 		rc = -EINVAL;
 		goto fail3;
 	}
+<<<<<<< HEAD
 	efx->rxq_entries = efx->txq_entries = EFX_DEFAULT_DMAQ_SIZE;
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SFC_SRIOV
 	rc = efx->type->vswitching_probe(efx);
@@ -1949,6 +2043,7 @@ static int efx_probe_all(struct efx_nic *efx)
 	return rc;
 }
 
+<<<<<<< HEAD
 /* If the interface is supposed to be running but is not, start
  * the hardware and software data path, regular activity for the port
  * (MAC statistics, link polling, etc.) and schedule the port to be
@@ -2026,6 +2121,14 @@ static void efx_stop_all(struct efx_nic *efx)
 
 static void efx_remove_all(struct efx_nic *efx)
 {
+=======
+static void efx_remove_all(struct efx_nic *efx)
+{
+	rtnl_lock();
+	efx_xdp_setup_prog(efx, NULL);
+	rtnl_unlock();
+
+>>>>>>> upstream/android-13
 	efx_remove_channels(efx);
 	efx_remove_filters(efx);
 #ifdef CONFIG_SFC_SRIOV
@@ -2086,6 +2189,11 @@ int efx_init_irq_moderation(struct efx_nic *efx, unsigned int tx_usecs,
 			channel->irq_moderation_us = rx_usecs;
 		else if (efx_channel_has_tx_queues(channel))
 			channel->irq_moderation_us = tx_usecs;
+<<<<<<< HEAD
+=======
+		else if (efx_channel_is_xdp_tx(channel))
+			channel->irq_moderation_us = tx_usecs;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2113,6 +2221,7 @@ void efx_get_irq_moderation(struct efx_nic *efx, unsigned int *tx_usecs,
 
 /**************************************************************************
  *
+<<<<<<< HEAD
  * Hardware monitor
  *
  **************************************************************************/
@@ -2143,6 +2252,8 @@ static void efx_monitor(struct work_struct *data)
 
 /**************************************************************************
  *
+=======
+>>>>>>> upstream/android-13
  * ioctls
  *
  *************************************************************************/
@@ -2170,6 +2281,7 @@ static int efx_ioctl(struct net_device *net_dev, struct ifreq *ifr, int cmd)
 
 /**************************************************************************
  *
+<<<<<<< HEAD
  * NAPI interface
  *
  **************************************************************************/
@@ -2209,6 +2321,8 @@ static void efx_fini_napi(struct efx_nic *efx)
 
 /**************************************************************************
  *
+=======
+>>>>>>> upstream/android-13
  * Kernel net device interface
  *
  *************************************************************************/
@@ -2258,6 +2372,7 @@ int efx_net_stop(struct net_device *net_dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Context: process, dev_base_lock or RTNL held, non-blocking. */
 static void efx_net_stats(struct net_device *net_dev,
 			  struct rtnl_link_stats64 *stats)
@@ -2398,6 +2513,8 @@ static int efx_get_phys_port_name(struct net_device *net_dev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int efx_vlan_rx_add_vid(struct net_device *net_dev, __be16 proto, u16 vid)
 {
 	struct efx_nic *efx = netdev_priv(net_dev);
@@ -2418,6 +2535,7 @@ static int efx_vlan_rx_kill_vid(struct net_device *net_dev, __be16 proto, u16 vi
 		return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
 static int efx_udp_tunnel_type_map(enum udp_parsable_tunnel_type in)
 {
 	switch (in) {
@@ -2464,6 +2582,8 @@ static void efx_udp_tunnel_del(struct net_device *dev, struct udp_tunnel_info *t
 		(void)efx->type->udp_tnl_del_port(efx, tnl);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const struct net_device_ops efx_netdev_ops = {
 	.ndo_open		= efx_net_open,
 	.ndo_stop		= efx_net_stop,
@@ -2471,11 +2591,19 @@ static const struct net_device_ops efx_netdev_ops = {
 	.ndo_tx_timeout		= efx_watchdog,
 	.ndo_start_xmit		= efx_hard_start_xmit,
 	.ndo_validate_addr	= eth_validate_addr,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= efx_ioctl,
+=======
+	.ndo_eth_ioctl		= efx_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_change_mtu		= efx_change_mtu,
 	.ndo_set_mac_address	= efx_set_mac_address,
 	.ndo_set_rx_mode	= efx_set_rx_mode,
 	.ndo_set_features	= efx_set_features,
+<<<<<<< HEAD
+=======
+	.ndo_features_check	= efx_features_check,
+>>>>>>> upstream/android-13
 	.ndo_vlan_rx_add_vid	= efx_vlan_rx_add_vid,
 	.ndo_vlan_rx_kill_vid	= efx_vlan_rx_kill_vid,
 #ifdef CONFIG_SFC_SRIOV
@@ -2491,10 +2619,67 @@ static const struct net_device_ops efx_netdev_ops = {
 #ifdef CONFIG_RFS_ACCEL
 	.ndo_rx_flow_steer	= efx_filter_rfs,
 #endif
+<<<<<<< HEAD
 	.ndo_udp_tunnel_add	= efx_udp_tunnel_add,
 	.ndo_udp_tunnel_del	= efx_udp_tunnel_del,
 };
 
+=======
+	.ndo_xdp_xmit		= efx_xdp_xmit,
+	.ndo_bpf		= efx_xdp
+};
+
+static int efx_xdp_setup_prog(struct efx_nic *efx, struct bpf_prog *prog)
+{
+	struct bpf_prog *old_prog;
+
+	if (efx->xdp_rxq_info_failed) {
+		netif_err(efx, drv, efx->net_dev,
+			  "Unable to bind XDP program due to previous failure of rxq_info\n");
+		return -EINVAL;
+	}
+
+	if (prog && efx->net_dev->mtu > efx_xdp_max_mtu(efx)) {
+		netif_err(efx, drv, efx->net_dev,
+			  "Unable to configure XDP with MTU of %d (max: %d)\n",
+			  efx->net_dev->mtu, efx_xdp_max_mtu(efx));
+		return -EINVAL;
+	}
+
+	old_prog = rtnl_dereference(efx->xdp_prog);
+	rcu_assign_pointer(efx->xdp_prog, prog);
+	/* Release the reference that was originally passed by the caller. */
+	if (old_prog)
+		bpf_prog_put(old_prog);
+
+	return 0;
+}
+
+/* Context: process, rtnl_lock() held. */
+static int efx_xdp(struct net_device *dev, struct netdev_bpf *xdp)
+{
+	struct efx_nic *efx = netdev_priv(dev);
+
+	switch (xdp->command) {
+	case XDP_SETUP_PROG:
+		return efx_xdp_setup_prog(efx, xdp->prog);
+	default:
+		return -EINVAL;
+	}
+}
+
+static int efx_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **xdpfs,
+			u32 flags)
+{
+	struct efx_nic *efx = netdev_priv(dev);
+
+	if (!netif_running(dev))
+		return -EINVAL;
+
+	return efx_xdp_tx_buffers(efx, n, xdpfs, flags & XDP_XMIT_FLUSH);
+}
+
+>>>>>>> upstream/android-13
 static void efx_update_name(struct efx_nic *efx)
 {
 	strcpy(efx->name, efx->net_dev->name);
@@ -2518,6 +2703,7 @@ static struct notifier_block efx_netdev_notifier = {
 	.notifier_call = efx_netdev_event,
 };
 
+<<<<<<< HEAD
 static ssize_t
 show_phy_type(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -2547,6 +2733,15 @@ static ssize_t set_mcdi_log(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR(mcdi_logging, 0644, show_mcdi_log, set_mcdi_log);
 #endif
+=======
+static ssize_t phy_type_show(struct device *dev,
+			     struct device_attribute *attr, char *buf)
+{
+	struct efx_nic *efx = dev_get_drvdata(dev);
+	return sprintf(buf, "%d\n", efx->phy_type);
+}
+static DEVICE_ATTR_RO(phy_type);
+>>>>>>> upstream/android-13
 
 static int efx_register_netdev(struct efx_nic *efx)
 {
@@ -2573,8 +2768,12 @@ static int efx_register_netdev(struct efx_nic *efx)
 	efx->state = STATE_READY;
 	smp_mb(); /* ensure we change state before checking reset_pending */
 	if (efx->reset_pending) {
+<<<<<<< HEAD
 		netif_err(efx, probe, efx->net_dev,
 			  "aborting probe due to scheduled reset\n");
+=======
+		pci_err(efx->pci_dev, "aborting probe due to scheduled reset\n");
+>>>>>>> upstream/android-13
 		rc = -EIO;
 		goto fail_locked;
 	}
@@ -2607,6 +2806,7 @@ static int efx_register_netdev(struct efx_nic *efx)
 			  "failed to init net dev attributes\n");
 		goto fail_registered;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_SFC_MCDI_LOGGING
 	rc = device_create_file(&efx->pci_dev->dev, &dev_attr_mcdi_logging);
 	if (rc) {
@@ -2622,6 +2822,13 @@ static int efx_register_netdev(struct efx_nic *efx)
 fail_attr_mcdi_logging:
 	device_remove_file(&efx->pci_dev->dev, &dev_attr_phy_type);
 #endif
+=======
+
+	efx_init_mcdi_logging(efx);
+
+	return 0;
+
+>>>>>>> upstream/android-13
 fail_registered:
 	rtnl_lock();
 	efx_dissociate(efx);
@@ -2642,9 +2849,13 @@ static void efx_unregister_netdev(struct efx_nic *efx)
 
 	if (efx_dev_registered(efx)) {
 		strlcpy(efx->name, pci_name(efx->pci_dev), sizeof(efx->name));
+<<<<<<< HEAD
 #ifdef CONFIG_SFC_MCDI_LOGGING
 		device_remove_file(&efx->pci_dev->dev, &dev_attr_mcdi_logging);
 #endif
+=======
+		efx_fini_mcdi_logging(efx);
+>>>>>>> upstream/android-13
 		device_remove_file(&efx->pci_dev->dev, &dev_attr_phy_type);
 		unregister_netdev(efx->net_dev);
 	}
@@ -2652,6 +2863,7 @@ static void efx_unregister_netdev(struct efx_nic *efx)
 
 /**************************************************************************
  *
+<<<<<<< HEAD
  * Device reset and suspend
  *
  **************************************************************************/
@@ -2938,6 +3150,8 @@ void efx_schedule_reset(struct efx_nic *efx, enum reset_type type)
 
 /**************************************************************************
  *
+=======
+>>>>>>> upstream/android-13
  * List of NICs we support
  *
  **************************************************************************/
@@ -2969,6 +3183,7 @@ static const struct pci_device_id efx_pci_table[] = {
 
 /**************************************************************************
  *
+<<<<<<< HEAD
  * Dummy PHY/MAC operations
  *
  * Can be used for some unimplemented operations
@@ -2996,10 +3211,13 @@ static const struct efx_phy_operations efx_dummy_phy_operations = {
 
 /**************************************************************************
  *
+=======
+>>>>>>> upstream/android-13
  * Data housekeeping
  *
  **************************************************************************/
 
+<<<<<<< HEAD
 /* This zeroes out and then fills in the invariants in a struct
  * efx_nic (including all sub-structures).
  */
@@ -3102,6 +3320,8 @@ static void efx_fini_struct(struct efx_nic *efx)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 void efx_update_sw_stats(struct efx_nic *efx, u64 *stats)
 {
 	u64 n_rx_nodesc_trunc = 0;
@@ -3113,6 +3333,7 @@ void efx_update_sw_stats(struct efx_nic *efx, u64 *stats)
 	stats[GENERIC_STAT_rx_noskb_drops] = atomic_read(&efx->n_rx_noskb_drops);
 }
 
+<<<<<<< HEAD
 bool efx_filter_spec_equal(const struct efx_filter_spec *left,
 			   const struct efx_filter_spec *right)
 {
@@ -3304,6 +3525,8 @@ void efx_free_rss_context_entry(struct efx_rss_context *ctx)
 	kfree(ctx);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**************************************************************************
  *
  * PCI interface
@@ -3319,7 +3542,11 @@ static void efx_pci_remove_main(struct efx_nic *efx)
 	 * are not READY.
 	 */
 	BUG_ON(efx->state == STATE_READY);
+<<<<<<< HEAD
 	cancel_work_sync(&efx->reset_work);
+=======
+	efx_flush_reset_workqueue(efx);
+>>>>>>> upstream/android-13
 
 	efx_disable_interrupts(efx);
 	efx_clear_interrupt_affinity(efx);
@@ -3370,6 +3597,7 @@ static void efx_pci_remove(struct pci_dev *pci_dev)
 
 /* NIC VPD information
  * Called during probe to display the part number of the
+<<<<<<< HEAD
  * installed NIC.  VPD is potentially very large but this should
  * always appear within the first 512 bytes.
  */
@@ -3438,6 +3666,38 @@ static void efx_probe_vpd_strings(struct efx_nic *efx)
 		return;
 
 	snprintf(efx->vpd_sn, j + 1, "%s", &vpd_data[i]);
+=======
+ * installed NIC.
+ */
+static void efx_probe_vpd_strings(struct efx_nic *efx)
+{
+	struct pci_dev *dev = efx->pci_dev;
+	unsigned int vpd_size, kw_len;
+	u8 *vpd_data;
+	int start;
+
+	vpd_data = pci_vpd_alloc(dev, &vpd_size);
+	if (IS_ERR(vpd_data)) {
+		pci_warn(dev, "Unable to read VPD\n");
+		return;
+	}
+
+	start = pci_vpd_find_ro_info_keyword(vpd_data, vpd_size,
+					     PCI_VPD_RO_KEYWORD_PARTNO, &kw_len);
+	if (start < 0)
+		pci_err(dev, "Part number not found or incomplete\n");
+	else
+		pci_info(dev, "Part Number : %.*s\n", kw_len, vpd_data + start);
+
+	start = pci_vpd_find_ro_info_keyword(vpd_data, vpd_size,
+					     PCI_VPD_RO_KEYWORD_SERIALNO, &kw_len);
+	if (start < 0)
+		pci_err(dev, "Serial number not found or incomplete\n");
+	else
+		efx->vpd_sn = kmemdup_nul(vpd_data + start, kw_len, GFP_KERNEL);
+
+	kfree(vpd_data);
+>>>>>>> upstream/android-13
 }
 
 
@@ -3459,8 +3719,12 @@ static int efx_pci_probe_main(struct efx_nic *efx)
 	rc = efx->type->init(efx);
 	up_write(&efx->filter_sem);
 	if (rc) {
+<<<<<<< HEAD
 		netif_err(efx, probe, efx->net_dev,
 			  "failed to initialise NIC\n");
+=======
+		pci_err(efx->pci_dev, "failed to initialise NIC\n");
+>>>>>>> upstream/android-13
 		goto fail3;
 	}
 
@@ -3507,8 +3771,13 @@ static int efx_pci_probe_post_io(struct efx_nic *efx)
 	if (efx->type->sriov_init) {
 		rc = efx->type->sriov_init(efx);
 		if (rc)
+<<<<<<< HEAD
 			netif_err(efx, probe, efx->net_dev,
 				  "SR-IOV can't be enabled rc %d\n", rc);
+=======
+			pci_err(efx->pci_dev, "SR-IOV can't be enabled rc %d\n",
+				rc);
+>>>>>>> upstream/android-13
 	}
 
 	/* Determine netdevice features */
@@ -3575,14 +3844,23 @@ static int efx_pci_probe(struct pci_dev *pci_dev,
 	if (rc)
 		goto fail1;
 
+<<<<<<< HEAD
 	netif_info(efx, probe, efx->net_dev,
 		   "Solarflare NIC detected\n");
+=======
+	pci_info(pci_dev, "Solarflare NIC detected\n");
+>>>>>>> upstream/android-13
 
 	if (!efx->type->is_vf)
 		efx_probe_vpd_strings(efx);
 
 	/* Set up basic I/O (BAR mappings etc) */
+<<<<<<< HEAD
 	rc = efx_init_io(efx);
+=======
+	rc = efx_init_io(efx, efx->type->mem_bar(efx), efx->type->max_dma_mask,
+			 efx->type->mem_map_size(efx));
+>>>>>>> upstream/android-13
 	if (rc)
 		goto fail2;
 
@@ -3618,11 +3896,15 @@ static int efx_pci_probe(struct pci_dev *pci_dev,
 		netif_warn(efx, probe, efx->net_dev,
 			   "failed to create MTDs (%d)\n", rc);
 
+<<<<<<< HEAD
 	rc = pci_enable_pcie_error_reporting(pci_dev);
 	if (rc && rc != -EINVAL)
 		netif_notice(efx, probe, efx->net_dev,
 			     "PCIE error reporting unavailable (%d).\n",
 			     rc);
+=======
+	(void)pci_enable_pcie_error_reporting(pci_dev);
+>>>>>>> upstream/android-13
 
 	if (efx->type->udp_tnl_push_ports)
 		efx->type->udp_tnl_push_ports(efx);
@@ -3662,7 +3944,11 @@ static int efx_pci_sriov_configure(struct pci_dev *dev, int num_vfs)
 
 static int efx_pm_freeze(struct device *dev)
 {
+<<<<<<< HEAD
 	struct efx_nic *efx = pci_get_drvdata(to_pci_dev(dev));
+=======
+	struct efx_nic *efx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	rtnl_lock();
 
@@ -3683,7 +3969,11 @@ static int efx_pm_freeze(struct device *dev)
 static int efx_pm_thaw(struct device *dev)
 {
 	int rc;
+<<<<<<< HEAD
 	struct efx_nic *efx = pci_get_drvdata(to_pci_dev(dev));
+=======
+	struct efx_nic *efx = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	rtnl_lock();
 
@@ -3693,7 +3983,11 @@ static int efx_pm_thaw(struct device *dev)
 			goto fail;
 
 		mutex_lock(&efx->mac_lock);
+<<<<<<< HEAD
 		efx->phy_op->reconfigure(efx);
+=======
+		efx_mcdi_port_reconfigure(efx);
+>>>>>>> upstream/android-13
 		mutex_unlock(&efx->mac_lock);
 
 		efx_start_all(efx);
@@ -3708,7 +4002,11 @@ static int efx_pm_thaw(struct device *dev)
 	rtnl_unlock();
 
 	/* Reschedule any quenched resets scheduled during efx_pm_freeze() */
+<<<<<<< HEAD
 	queue_work(reset_workqueue, &efx->reset_work);
+=======
+	efx_queue_reset_work(efx);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -3778,6 +4076,7 @@ static const struct dev_pm_ops efx_pm_ops = {
 	.restore	= efx_pm_resume,
 };
 
+<<<<<<< HEAD
 /* A PCI error affecting this device was detected.
  * At this point MMIO and DMA may be disabled.
  * Stop the software path and request a slot reset.
@@ -3877,6 +4176,8 @@ static const struct pci_error_handlers efx_err_handlers = {
 	.resume		= efx_io_resume,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct pci_driver efx_pci_driver = {
 	.name		= KBUILD_MODNAME,
 	.id_table	= efx_pci_table,
@@ -3895,15 +4196,22 @@ static struct pci_driver efx_pci_driver = {
  *
  *************************************************************************/
 
+<<<<<<< HEAD
 module_param(interrupt_mode, uint, 0444);
 MODULE_PARM_DESC(interrupt_mode,
 		 "Interrupt mode (0=>MSIX 1=>MSI 2=>legacy)");
 
+=======
+>>>>>>> upstream/android-13
 static int __init efx_init_module(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	printk(KERN_INFO "Solarflare NET driver v" EFX_DRIVER_VERSION "\n");
+=======
+	printk(KERN_INFO "Solarflare NET driver\n");
+>>>>>>> upstream/android-13
 
 	rc = register_netdevice_notifier(&efx_netdev_notifier);
 	if (rc)
@@ -3915,20 +4223,39 @@ static int __init efx_init_module(void)
 		goto err_sriov;
 #endif
 
+<<<<<<< HEAD
 	reset_workqueue = create_singlethread_workqueue("sfc_reset");
 	if (!reset_workqueue) {
 		rc = -ENOMEM;
 		goto err_reset;
 	}
+=======
+	rc = efx_create_reset_workqueue();
+	if (rc)
+		goto err_reset;
+>>>>>>> upstream/android-13
 
 	rc = pci_register_driver(&efx_pci_driver);
 	if (rc < 0)
 		goto err_pci;
 
+<<<<<<< HEAD
 	return 0;
 
  err_pci:
 	destroy_workqueue(reset_workqueue);
+=======
+	rc = pci_register_driver(&ef100_pci_driver);
+	if (rc < 0)
+		goto err_pci_ef100;
+
+	return 0;
+
+ err_pci_ef100:
+	pci_unregister_driver(&efx_pci_driver);
+ err_pci:
+	efx_destroy_reset_workqueue();
+>>>>>>> upstream/android-13
  err_reset:
 #ifdef CONFIG_SFC_SRIOV
 	efx_fini_sriov();
@@ -3943,8 +4270,14 @@ static void __exit efx_exit_module(void)
 {
 	printk(KERN_INFO "Solarflare NET driver unloading\n");
 
+<<<<<<< HEAD
 	pci_unregister_driver(&efx_pci_driver);
 	destroy_workqueue(reset_workqueue);
+=======
+	pci_unregister_driver(&ef100_pci_driver);
+	pci_unregister_driver(&efx_pci_driver);
+	efx_destroy_reset_workqueue();
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SFC_SRIOV
 	efx_fini_sriov();
 #endif
@@ -3960,4 +4293,7 @@ MODULE_AUTHOR("Solarflare Communications and "
 MODULE_DESCRIPTION("Solarflare network driver");
 MODULE_LICENSE("GPL");
 MODULE_DEVICE_TABLE(pci, efx_pci_table);
+<<<<<<< HEAD
 MODULE_VERSION(EFX_DRIVER_VERSION);
+=======
+>>>>>>> upstream/android-13

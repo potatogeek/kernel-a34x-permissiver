@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MEN Chameleon Bus.
  *
  * Copyright (C) 2013 MEN Mikroelektronik GmbH (www.men.de)
  * Author: Johannes Thumshirn <johannes.thumshirn@men.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -80,7 +87,11 @@ static int mcb_probe(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mcb_remove(struct device *dev)
+=======
+static void mcb_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct mcb_driver *mdrv = to_mcb_driver(dev->driver);
 	struct mcb_device *mdev = to_mcb_device(dev);
@@ -92,8 +103,11 @@ static int mcb_remove(struct device *dev)
 	module_put(carrier_mod);
 
 	put_device(&mdev->dev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void mcb_shutdown(struct device *dev)
@@ -194,7 +208,11 @@ int __mcb_register_driver(struct mcb_driver *drv, struct module *owner,
 
 	return driver_register(&drv->driver);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(__mcb_register_driver);
+=======
+EXPORT_SYMBOL_NS_GPL(__mcb_register_driver, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_unregister_driver() - Unregister a @mcb_driver from the system
@@ -206,7 +224,11 @@ void mcb_unregister_driver(struct mcb_driver *drv)
 {
 	driver_unregister(&drv->driver);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_unregister_driver);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_unregister_driver, MCB);
+>>>>>>> upstream/android-13
 
 static void mcb_release_dev(struct device *dev)
 {
@@ -252,7 +274,11 @@ out:
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_device_register);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_device_register, MCB);
+>>>>>>> upstream/android-13
 
 static void mcb_free_bus(struct device *dev)
 {
@@ -280,8 +306,13 @@ struct mcb_bus *mcb_alloc_bus(struct device *carrier)
 
 	bus_nr = ida_simple_get(&mcb_ida, 0, 0, GFP_KERNEL);
 	if (bus_nr < 0) {
+<<<<<<< HEAD
 		rc = bus_nr;
 		goto err_free;
+=======
+		kfree(bus);
+		return ERR_PTR(bus_nr);
+>>>>>>> upstream/android-13
 	}
 
 	bus->bus_nr = bus_nr;
@@ -296,6 +327,7 @@ struct mcb_bus *mcb_alloc_bus(struct device *carrier)
 	dev_set_name(&bus->dev, "mcb:%d", bus_nr);
 	rc = device_add(&bus->dev);
 	if (rc)
+<<<<<<< HEAD
 		goto err_free;
 
 	return bus;
@@ -305,6 +337,17 @@ err_free:
 	return ERR_PTR(rc);
 }
 EXPORT_SYMBOL_GPL(mcb_alloc_bus);
+=======
+		goto err_put;
+
+	return bus;
+
+err_put:
+	put_device(&bus->dev);
+	return ERR_PTR(rc);
+}
+EXPORT_SYMBOL_NS_GPL(mcb_alloc_bus, MCB);
+>>>>>>> upstream/android-13
 
 static int __mcb_devices_unregister(struct device *dev, void *data)
 {
@@ -326,7 +369,11 @@ void mcb_release_bus(struct mcb_bus *bus)
 {
 	mcb_devices_unregister(bus);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_release_bus);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_release_bus, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_bus_put() - Increment refcnt
@@ -341,7 +388,11 @@ struct mcb_bus *mcb_bus_get(struct mcb_bus *bus)
 
 	return bus;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_bus_get);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_bus_get, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_bus_put() - Decrement refcnt
@@ -354,7 +405,11 @@ void mcb_bus_put(struct mcb_bus *bus)
 	if (bus)
 		put_device(&bus->dev);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_bus_put);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_bus_put, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_alloc_dev() - Allocate a device
@@ -374,7 +429,11 @@ struct mcb_device *mcb_alloc_dev(struct mcb_bus *bus)
 
 	return dev;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_alloc_dev);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_alloc_dev, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_free_dev() - Free @mcb_device
@@ -386,7 +445,11 @@ void mcb_free_dev(struct mcb_device *dev)
 {
 	kfree(dev);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_free_dev);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_free_dev, MCB);
+>>>>>>> upstream/android-13
 
 static int __mcb_bus_add_devices(struct device *dev, void *data)
 {
@@ -415,7 +478,11 @@ void mcb_bus_add_devices(const struct mcb_bus *bus)
 {
 	bus_for_each_dev(&mcb_bus_type, NULL, NULL, __mcb_bus_add_devices);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_bus_add_devices);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_bus_add_devices, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_get_resource() - get a resource for a mcb device
@@ -431,7 +498,11 @@ struct resource *mcb_get_resource(struct mcb_device *dev, unsigned int type)
 	else
 		return NULL;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_get_resource);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_get_resource, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_request_mem() - Request memory
@@ -457,7 +528,11 @@ struct resource *mcb_request_mem(struct mcb_device *dev, const char *name)
 
 	return mem;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_request_mem);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_request_mem, MCB);
+>>>>>>> upstream/android-13
 
 /**
  * mcb_release_mem() - Release memory requested by device
@@ -472,7 +547,11 @@ void mcb_release_mem(struct resource *mem)
 	size = resource_size(mem);
 	release_mem_region(mem->start, size);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_release_mem);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_release_mem, MCB);
+>>>>>>> upstream/android-13
 
 static int __mcb_get_irq(struct mcb_device *dev)
 {
@@ -498,7 +577,11 @@ int mcb_get_irq(struct mcb_device *dev)
 
 	return __mcb_get_irq(dev);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mcb_get_irq);
+=======
+EXPORT_SYMBOL_NS_GPL(mcb_get_irq, MCB);
+>>>>>>> upstream/android-13
 
 static int mcb_init(void)
 {

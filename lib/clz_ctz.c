@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lib/clz_ctz.c
  *
  * Copyright (C) 2013 Chanho Min <chanho.min@lge.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  * The functions in this file aren't called directly, but are required by
  * GCC builtins such as __builtin_ctz, and therefore they can't be removed
  * despite appearing unreferenced in kernel source.

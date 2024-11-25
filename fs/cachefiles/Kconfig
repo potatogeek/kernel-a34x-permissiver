@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 config CACHEFILES
 	tristate "Filesystem caching on files"
@@ -7,7 +11,11 @@ config CACHEFILES
 	  filesystems - primarily networking filesystems - thus allowing fast
 	  local disk to enhance the speed of slower devices.
 
+<<<<<<< HEAD
 	  See Documentation/filesystems/caching/cachefiles.txt for more
+=======
+	  See Documentation/filesystems/caching/cachefiles.rst for more
+>>>>>>> upstream/android-13
 	  information.
 
 config CACHEFILES_DEBUG
@@ -18,6 +26,7 @@ config CACHEFILES_DEBUG
 	  caching on files module.  If this is set, the debugging output may be
 	  enabled by setting bits in /sys/modules/cachefiles/parameter/debug or
 	  by including a debugging specifier in /etc/cachefilesd.conf.
+<<<<<<< HEAD
 
 config CACHEFILES_HISTOGRAM
 	bool "Gather latency information on CacheFiles"
@@ -37,3 +46,5 @@ config CACHEFILES_HISTOGRAM
 
 	  See Documentation/filesystems/caching/cachefiles.txt for more
 	  information.
+=======
+>>>>>>> upstream/android-13

@@ -75,8 +75,12 @@ octeon_alloc_soft_command_resp(struct octeon_device    *oct,
 	else
 		sc->cmd.cmd2.rptr =  sc->dmarptr;
 
+<<<<<<< HEAD
 	sc->wait_time = 1000;
 	sc->timeout = jiffies + sc->wait_time;
+=======
+	sc->expiry_time = jiffies + msecs_to_jiffies(LIO_SC_MAX_TMO_MS);
+>>>>>>> upstream/android-13
 
 	return sc;
 }
@@ -92,6 +96,7 @@ int octnet_send_nic_data_pkt(struct octeon_device *oct,
 				   ndata->reqtype);
 }
 
+<<<<<<< HEAD
 static void octnet_link_ctrl_callback(struct octeon_device *oct,
 				      u32 status,
 				      void *sc_ptr)
@@ -115,6 +120,8 @@ static void octnet_link_ctrl_callback(struct octeon_device *oct,
 	octeon_free_soft_command(oct, sc);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct octeon_soft_command
 *octnic_alloc_ctrl_pkt_sc(struct octeon_device *oct,
 			  struct octnic_ctrl_pkt *nctrl)
@@ -127,17 +134,27 @@ static inline struct octeon_soft_command
 	uddsize = (u32)(nctrl->ncmd.s.more * 8);
 
 	datasize = OCTNET_CMD_SIZE + uddsize;
+<<<<<<< HEAD
 	rdatasize = (nctrl->wait_time) ? 16 : 0;
 
 	sc = (struct octeon_soft_command *)
 		octeon_alloc_soft_command(oct, datasize, rdatasize,
 					  sizeof(struct octnic_ctrl_pkt));
+=======
+	rdatasize = 16;
+
+	sc = (struct octeon_soft_command *)
+		octeon_alloc_soft_command(oct, datasize, rdatasize, 0);
+>>>>>>> upstream/android-13
 
 	if (!sc)
 		return NULL;
 
+<<<<<<< HEAD
 	memcpy(sc->ctxptr, nctrl, sizeof(struct octnic_ctrl_pkt));
 
+=======
+>>>>>>> upstream/android-13
 	data = (u8 *)sc->virtdptr;
 
 	memcpy(data, &nctrl->ncmd, OCTNET_CMD_SIZE);
@@ -154,9 +171,14 @@ static inline struct octeon_soft_command
 	octeon_prepare_soft_command(oct, sc, OPCODE_NIC, OPCODE_NIC_CMD,
 				    0, 0, 0);
 
+<<<<<<< HEAD
 	sc->callback = octnet_link_ctrl_callback;
 	sc->callback_arg = sc;
 	sc->wait_time = nctrl->wait_time;
+=======
+	init_completion(&sc->complete);
+	sc->sc_status = OCTEON_REQUEST_PENDING;
+>>>>>>> upstream/android-13
 
 	return sc;
 }
@@ -199,5 +221,31 @@ octnet_send_nic_ctrl_pkt(struct octeon_device *oct,
 	}
 
 	spin_unlock_bh(&oct->cmd_resp_wqlock);
+<<<<<<< HEAD
+=======
+
+	if (nctrl->ncmd.s.cmdgroup == 0) {
+		switch (nctrl->ncmd.s.cmd) {
+			/* caller holds lock, can not sleep */
+		case OCTNET_CMD_CHANGE_DEVFLAGS:
+		case OCTNET_CMD_SET_MULTI_LIST:
+		case OCTNET_CMD_SET_UC_LIST:
+			WRITE_ONCE(sc->caller_is_done, true);
+			return retval;
+		}
+	}
+
+	retval = wait_for_sc_completion_timeout(oct, sc, 0);
+	if (retval)
+		return (retval);
+
+	nctrl->sc_status = sc->sc_status;
+	retval = nctrl->sc_status;
+	if (nctrl->cb_fn)
+		nctrl->cb_fn(nctrl);
+
+	WRITE_ONCE(sc->caller_is_done, true);
+
+>>>>>>> upstream/android-13
 	return retval;
 }

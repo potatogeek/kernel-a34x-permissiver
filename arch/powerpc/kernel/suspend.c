@@ -1,13 +1,24 @@
+<<<<<<< HEAD
 /*
  * Suspend support specific for power.
  *
  * Distribute under GPLv2
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Suspend support specific for power.
+ *
+>>>>>>> upstream/android-13
  * Copyright (c) 2002 Pavel Machek <pavel@ucw.cz>
  * Copyright (c) 2001 Patrick Mochel <mochel@osdl.org>
  */
 
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/suspend.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/sections.h>
 

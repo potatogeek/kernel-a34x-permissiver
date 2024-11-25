@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qede NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qede NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/skbuff.h>
@@ -327,6 +336,7 @@ static inline void qede_update_tx_producer(struct qede_tx_queue *txq)
 	wmb();
 }
 
+<<<<<<< HEAD
 static int qede_xdp_xmit(struct qede_dev *edev, struct qede_fastpath *fp,
 			 struct sw_rx_data *metadata, u16 padding, u16 length)
 {
@@ -336,10 +346,22 @@ static int qede_xdp_xmit(struct qede_dev *edev, struct qede_fastpath *fp,
 	u16 val;
 
 	if (!qed_chain_get_elem_left(&txq->tx_pbl)) {
+=======
+static int qede_xdp_xmit(struct qede_tx_queue *txq, dma_addr_t dma, u16 pad,
+			 u16 len, struct page *page, struct xdp_frame *xdpf)
+{
+	struct eth_tx_1st_bd *bd;
+	struct sw_tx_xdp *xdp;
+	u16 val;
+
+	if (unlikely(qed_chain_get_elem_used(&txq->tx_pbl) >=
+		     txq->num_tx_buffers)) {
+>>>>>>> upstream/android-13
 		txq->stopped_cnt++;
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	first_bd = (struct eth_tx_1st_bd *)qed_chain_produce(&txq->tx_pbl);
 
 	memset(first_bd, 0, sizeof(*first_bd));
@@ -372,6 +394,78 @@ static int qede_xdp_xmit(struct qede_dev *edev, struct qede_fastpath *fp,
 	return 0;
 }
 
+=======
+	bd = qed_chain_produce(&txq->tx_pbl);
+	bd->data.nbds = 1;
+	bd->data.bd_flags.bitfields = BIT(ETH_TX_1ST_BD_FLAGS_START_BD_SHIFT);
+
+	val = (len & ETH_TX_DATA_1ST_BD_PKT_LEN_MASK) <<
+	       ETH_TX_DATA_1ST_BD_PKT_LEN_SHIFT;
+
+	bd->data.bitfields = cpu_to_le16(val);
+
+	/* We can safely ignore the offset, as it's 0 for XDP */
+	BD_SET_UNMAP_ADDR_LEN(bd, dma + pad, len);
+
+	xdp = txq->sw_tx_ring.xdp + txq->sw_tx_prod;
+	xdp->mapping = dma;
+	xdp->page = page;
+	xdp->xdpf = xdpf;
+
+	txq->sw_tx_prod = (txq->sw_tx_prod + 1) % txq->num_tx_buffers;
+
+	return 0;
+}
+
+int qede_xdp_transmit(struct net_device *dev, int n_frames,
+		      struct xdp_frame **frames, u32 flags)
+{
+	struct qede_dev *edev = netdev_priv(dev);
+	struct device *dmadev = &edev->pdev->dev;
+	struct qede_tx_queue *xdp_tx;
+	struct xdp_frame *xdpf;
+	dma_addr_t mapping;
+	int i, nxmit = 0;
+	u16 xdp_prod;
+
+	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK))
+		return -EINVAL;
+
+	if (unlikely(!netif_running(dev)))
+		return -ENETDOWN;
+
+	i = smp_processor_id() % edev->total_xdp_queues;
+	xdp_tx = edev->fp_array[i].xdp_tx;
+
+	spin_lock(&xdp_tx->xdp_tx_lock);
+
+	for (i = 0; i < n_frames; i++) {
+		xdpf = frames[i];
+
+		mapping = dma_map_single(dmadev, xdpf->data, xdpf->len,
+					 DMA_TO_DEVICE);
+		if (unlikely(dma_mapping_error(dmadev, mapping)))
+			break;
+
+		if (unlikely(qede_xdp_xmit(xdp_tx, mapping, 0, xdpf->len,
+					   NULL, xdpf)))
+			break;
+		nxmit++;
+	}
+
+	if (flags & XDP_XMIT_FLUSH) {
+		xdp_prod = qed_chain_get_prod_idx(&xdp_tx->tx_pbl);
+
+		xdp_tx->tx_db.data.bd_prod = cpu_to_le16(xdp_prod);
+		qede_update_tx_producer(xdp_tx);
+	}
+
+	spin_unlock(&xdp_tx->xdp_tx_lock);
+
+	return nxmit;
+}
+
+>>>>>>> upstream/android-13
 int qede_txq_has_work(struct qede_tx_queue *txq)
 {
 	u16 hw_bd_cons;
@@ -387,12 +481,20 @@ int qede_txq_has_work(struct qede_tx_queue *txq)
 
 static void qede_xdp_tx_int(struct qede_dev *edev, struct qede_tx_queue *txq)
 {
+<<<<<<< HEAD
 	u16 hw_bd_cons, idx;
+=======
+	struct sw_tx_xdp *xdp_info, *xdp_arr = txq->sw_tx_ring.xdp;
+	struct device *dev = &edev->pdev->dev;
+	struct xdp_frame *xdpf;
+	u16 hw_bd_cons;
+>>>>>>> upstream/android-13
 
 	hw_bd_cons = le16_to_cpu(*txq->hw_cons_ptr);
 	barrier();
 
 	while (hw_bd_cons != qed_chain_get_cons_idx(&txq->tx_pbl)) {
+<<<<<<< HEAD
 		qed_chain_consume(&txq->tx_pbl);
 		idx = txq->sw_tx_cons;
 
@@ -401,6 +503,24 @@ static void qede_xdp_tx_int(struct qede_dev *edev, struct qede_tx_queue *txq)
 			       PAGE_SIZE, DMA_BIDIRECTIONAL);
 		__free_page(txq->sw_tx_ring.xdp[idx].page);
 
+=======
+		xdp_info = xdp_arr + txq->sw_tx_cons;
+		xdpf = xdp_info->xdpf;
+
+		if (xdpf) {
+			dma_unmap_single(dev, xdp_info->mapping, xdpf->len,
+					 DMA_TO_DEVICE);
+			xdp_return_frame(xdpf);
+
+			xdp_info->xdpf = NULL;
+		} else {
+			dma_unmap_page(dev, xdp_info->mapping, PAGE_SIZE,
+				       DMA_BIDIRECTIONAL);
+			__free_page(xdp_info->page);
+		}
+
+		qed_chain_consume(&txq->tx_pbl);
+>>>>>>> upstream/android-13
 		txq->sw_tx_cons = (txq->sw_tx_cons + 1) % txq->num_tx_buffers;
 		txq->xmit_pkts++;
 	}
@@ -580,6 +700,7 @@ void qede_update_rx_prod(struct qede_dev *edev, struct qede_rx_queue *rxq)
 
 	internal_ram_wr(rxq->hw_rxq_prod_addr, sizeof(rx_prods),
 			(u32 *)&rx_prods);
+<<<<<<< HEAD
 
 	/* mmiowb is needed to synchronize doorbell writes from more than one
 	 * processor. It guarantees that the write arrives to the device before
@@ -588,6 +709,8 @@ void qede_update_rx_prod(struct qede_dev *edev, struct qede_rx_queue *rxq)
 	 * this doorbell. This is applicable to IA64/Altix systems.
 	 */
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static void qede_get_rxhash(struct sk_buff *skb, u8 bitfields, __le32 rss_hash)
@@ -731,6 +854,12 @@ qede_build_skb(struct qede_rx_queue *rxq,
 	buf = page_address(bd->data) + bd->page_offset;
 	skb = build_skb(buf, rxq->rx_buf_seg_size);
 
+<<<<<<< HEAD
+=======
+	if (unlikely(!skb))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	skb_reserve(skb, pad);
 	skb_put(skb, len);
 
@@ -787,8 +916,12 @@ qede_rx_build_skb(struct qede_dev *edev,
 			return NULL;
 
 		skb_reserve(skb, pad);
+<<<<<<< HEAD
 		memcpy(skb_put(skb, len),
 		       page_address(bd->data) + offset, len);
+=======
+		skb_put_data(skb, page_address(bd->data) + offset, len);
+>>>>>>> upstream/android-13
 		qede_reuse_page(rxq, bd);
 		goto out;
 	}
@@ -857,6 +990,7 @@ static void qede_tpa_start(struct qede_dev *edev,
 	qede_set_gro_params(edev, tpa_info->skb, cqe);
 
 cons_buf: /* We still need to handle bd_len_list to consume buffers */
+<<<<<<< HEAD
 	if (likely(cqe->ext_bd_len_list[0]))
 		qede_fill_frag_skb(edev, rxq, cqe->tpa_agg_index,
 				   le16_to_cpu(cqe->ext_bd_len_list[0]));
@@ -864,6 +998,15 @@ cons_buf: /* We still need to handle bd_len_list to consume buffers */
 	if (unlikely(cqe->ext_bd_len_list[1])) {
 		DP_ERR(edev,
 		       "Unlikely - got a TPA aggregation with more than one ext_bd_len_list entry in the TPA start\n");
+=======
+	if (likely(cqe->bw_ext_bd_len_list[0]))
+		qede_fill_frag_skb(edev, rxq, cqe->tpa_agg_index,
+				   le16_to_cpu(cqe->bw_ext_bd_len_list[0]));
+
+	if (unlikely(cqe->bw_ext_bd_len_list[1])) {
+		DP_ERR(edev,
+		       "Unlikely - got a TPA aggregation with more than one bw_ext_bd_len_list entry in the TPA start\n");
+>>>>>>> upstream/android-13
 		tpa_info->state = QEDE_AGG_STATE_ERROR;
 	}
 }
@@ -1070,6 +1213,7 @@ static bool qede_rx_xdp(struct qede_dev *edev,
 	struct xdp_buff xdp;
 	enum xdp_action act;
 
+<<<<<<< HEAD
 	xdp.data_hard_start = page_address(bd->data);
 	xdp.data = xdp.data_hard_start + *data_offset;
 	xdp_set_data_meta_invalid(&xdp);
@@ -1083,6 +1227,13 @@ static bool qede_rx_xdp(struct qede_dev *edev,
 	rcu_read_lock();
 	act = bpf_prog_run_xdp(prog, &xdp);
 	rcu_read_unlock();
+=======
+	xdp_init_buff(&xdp, rxq->rx_buf_seg_size, &rxq->xdp_rxq);
+	xdp_prepare_buff(&xdp, page_address(bd->data), *data_offset,
+			 *len, false);
+
+	act = bpf_prog_run_xdp(prog, &xdp);
+>>>>>>> upstream/android-13
 
 	/* Recalculate, as XDP might have changed the headers */
 	*data_offset = xdp.data - xdp.data_hard_start;
@@ -1097,24 +1248,49 @@ static bool qede_rx_xdp(struct qede_dev *edev,
 	switch (act) {
 	case XDP_TX:
 		/* We need the replacement buffer before transmit. */
+<<<<<<< HEAD
 		if (qede_alloc_rx_buffer(rxq, true)) {
 			qede_recycle_rx_bd_ring(rxq, 1);
 			trace_xdp_exception(edev->ndev, prog, act);
 			return false;
+=======
+		if (unlikely(qede_alloc_rx_buffer(rxq, true))) {
+			qede_recycle_rx_bd_ring(rxq, 1);
+
+			trace_xdp_exception(edev->ndev, prog, act);
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		/* Now if there's a transmission problem, we'd still have to
 		 * throw current buffer, as replacement was already allocated.
 		 */
+<<<<<<< HEAD
 		if (qede_xdp_xmit(edev, fp, bd, *data_offset, *len)) {
 			dma_unmap_page(rxq->dev, bd->mapping,
 				       PAGE_SIZE, DMA_BIDIRECTIONAL);
 			__free_page(bd->data);
 			trace_xdp_exception(edev->ndev, prog, act);
+=======
+		if (unlikely(qede_xdp_xmit(fp->xdp_tx, bd->mapping,
+					   *data_offset, *len, bd->data,
+					   NULL))) {
+			dma_unmap_page(rxq->dev, bd->mapping, PAGE_SIZE,
+				       rxq->data_direction);
+			__free_page(bd->data);
+
+			trace_xdp_exception(edev->ndev, prog, act);
+		} else {
+			dma_sync_single_for_device(rxq->dev,
+						   bd->mapping + *data_offset,
+						   *len, rxq->data_direction);
+			fp->xdp_xmit |= QEDE_XDP_TX;
+>>>>>>> upstream/android-13
 		}
 
 		/* Regardless, we've consumed an Rx BD */
 		qede_rx_bd_ring_consume(rxq);
+<<<<<<< HEAD
 		return false;
 
 	default:
@@ -1123,6 +1299,34 @@ static bool qede_rx_xdp(struct qede_dev *edev,
 	case XDP_ABORTED:
 		trace_xdp_exception(edev->ndev, prog, act);
 		/* Fall through */
+=======
+		break;
+	case XDP_REDIRECT:
+		/* We need the replacement buffer before transmit. */
+		if (unlikely(qede_alloc_rx_buffer(rxq, true))) {
+			qede_recycle_rx_bd_ring(rxq, 1);
+
+			trace_xdp_exception(edev->ndev, prog, act);
+			break;
+		}
+
+		dma_unmap_page(rxq->dev, bd->mapping, PAGE_SIZE,
+			       rxq->data_direction);
+
+		if (unlikely(xdp_do_redirect(edev->ndev, &xdp, prog)))
+			DP_NOTICE(edev, "Failed to redirect the packet\n");
+		else
+			fp->xdp_xmit |= QEDE_XDP_REDIRECT;
+
+		qede_rx_bd_ring_consume(rxq);
+		break;
+	default:
+		bpf_warn_invalid_xdp_action(act);
+		fallthrough;
+	case XDP_ABORTED:
+		trace_xdp_exception(edev->ndev, prog, act);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case XDP_DROP:
 		qede_recycle_rx_bd_ring(rxq, cqe->bd_num);
 	}
@@ -1169,12 +1373,18 @@ static int qede_rx_build_jumbo(struct qede_dev *edev,
 		dma_unmap_page(rxq->dev, bd->mapping,
 			       PAGE_SIZE, DMA_FROM_DEVICE);
 
+<<<<<<< HEAD
 		skb_fill_page_desc(skb, skb_shinfo(skb)->nr_frags++,
 				   bd->data, rxq->rx_headroom, cur_size);
 
 		skb->truesize += PAGE_SIZE;
 		skb->data_len += cur_size;
 		skb->len += cur_size;
+=======
+		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, bd->data,
+				rxq->rx_headroom, cur_size, PAGE_SIZE);
+
+>>>>>>> upstream/android-13
 		pkt_len -= cur_size;
 	}
 
@@ -1386,6 +1596,12 @@ int qede_poll(struct napi_struct *napi, int budget)
 						napi);
 	struct qede_dev *edev = fp->edev;
 	int rx_work_done = 0;
+<<<<<<< HEAD
+=======
+	u16 xdp_prod;
+
+	fp->xdp_xmit = 0;
+>>>>>>> upstream/android-13
 
 	if (likely(fp->type & QEDE_FASTPATH_TX)) {
 		int cos;
@@ -1402,7 +1618,12 @@ int qede_poll(struct napi_struct *napi, int budget)
 	rx_work_done = (likely(fp->type & QEDE_FASTPATH_RX) &&
 			qede_has_rx_work(fp->rxq)) ?
 			qede_rx_int(fp, budget) : 0;
+<<<<<<< HEAD
 	if (rx_work_done < budget) {
+=======
+	/* Handle case where we are called by netpoll with a budget of 0 */
+	if (rx_work_done < budget || !budget) {
+>>>>>>> upstream/android-13
 		if (!qede_poll_is_more_work(fp)) {
 			napi_complete_done(napi, rx_work_done);
 
@@ -1413,14 +1634,26 @@ int qede_poll(struct napi_struct *napi, int budget)
 		}
 	}
 
+<<<<<<< HEAD
 	if (fp->xdp_xmit) {
 		u16 xdp_prod = qed_chain_get_prod_idx(&fp->xdp_tx->tx_pbl);
 
 		fp->xdp_xmit = 0;
+=======
+	if (fp->xdp_xmit & QEDE_XDP_TX) {
+		xdp_prod = qed_chain_get_prod_idx(&fp->xdp_tx->tx_pbl);
+
+>>>>>>> upstream/android-13
 		fp->xdp_tx->tx_db.data.bd_prod = cpu_to_le16(xdp_prod);
 		qede_update_tx_producer(fp->xdp_tx);
 	}
 
+<<<<<<< HEAD
+=======
+	if (fp->xdp_xmit & QEDE_XDP_REDIRECT)
+		xdp_do_flush_map();
+
+>>>>>>> upstream/android-13
 	return rx_work_done;
 }
 
@@ -1466,8 +1699,13 @@ netdev_tx_t qede_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 #if ((MAX_SKB_FRAGS + 2) > ETH_TX_MAX_BDS_PER_NON_LSO_PACKET)
 	if (qede_pkt_req_lin(skb, xmit_type)) {
 		if (skb_linearize(skb)) {
+<<<<<<< HEAD
 			DP_NOTICE(edev,
 				  "SKB linearization failed - silently dropping this SKB\n");
+=======
+			txq->tx_mem_alloc_err++;
+
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(skb);
 			return NETDEV_TX_OK;
 		}
@@ -1606,6 +1844,16 @@ netdev_tx_t qede_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 			data_split = true;
 		}
 	} else {
+<<<<<<< HEAD
+=======
+		if (unlikely(skb->len > ETH_TX_MAX_NON_LSO_PKT_LEN)) {
+			DP_ERR(edev, "Unexpected non LSO skb length = 0x%x\n", skb->len);
+			qede_free_failed_tx_pkt(txq, first_bd, 0, false);
+			qede_update_tx_producer(txq);
+			return NETDEV_TX_OK;
+		}
+
+>>>>>>> upstream/android-13
 		val |= ((skb->len & ETH_TX_DATA_1ST_BD_PKT_LEN_MASK) <<
 			 ETH_TX_DATA_1ST_BD_PKT_LEN_SHIFT);
 	}
@@ -1665,12 +1913,20 @@ netdev_tx_t qede_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	txq->tx_db.data.bd_prod =
 		cpu_to_le16(qed_chain_get_prod_idx(&txq->tx_pbl));
 
+<<<<<<< HEAD
 	if (!skb->xmit_more || netif_xmit_stopped(netdev_txq))
+=======
+	if (!netdev_xmit_more() || netif_xmit_stopped(netdev_txq))
+>>>>>>> upstream/android-13
 		qede_update_tx_producer(txq);
 
 	if (unlikely(qed_chain_get_elem_left(&txq->tx_pbl)
 		      < (MAX_SKB_FRAGS + 1))) {
+<<<<<<< HEAD
 		if (skb->xmit_more)
+=======
+		if (netdev_xmit_more())
+>>>>>>> upstream/android-13
 			qede_update_tx_producer(txq);
 
 		netif_tx_stop_queue(netdev_txq);
@@ -1696,8 +1952,12 @@ netdev_tx_t qede_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 }
 
 u16 qede_select_queue(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 		      struct net_device *sb_dev,
 		      select_queue_fallback_t fallback)
+=======
+		      struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	struct qede_dev *edev = netdev_priv(dev);
 	int total_txq;
@@ -1705,7 +1965,11 @@ u16 qede_select_queue(struct net_device *dev, struct sk_buff *skb,
 	total_txq = QEDE_TSS_COUNT(edev) * edev->dev_info.num_tc;
 
 	return QEDE_TSS_COUNT(edev) ?
+<<<<<<< HEAD
 		fallback(dev, skb, NULL) % total_txq :  0;
+=======
+		netdev_pick_tx(dev, skb, NULL) % total_txq :  0;
+>>>>>>> upstream/android-13
 }
 
 /* 8B udp header + 8B base tunnel header + 32B option length */

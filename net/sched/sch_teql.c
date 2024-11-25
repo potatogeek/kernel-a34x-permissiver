@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* net/sched/sch_teql.c	"True" (or "trivial") link equalizer.
  *
  *		This program is free software; you can redistribute it and/or
@@ -5,6 +6,11 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* net/sched/sch_teql.c	"True" (or "trivial") link equalizer.
+ *
+>>>>>>> upstream/android-13
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  */
 

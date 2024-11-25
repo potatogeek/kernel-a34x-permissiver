@@ -1,22 +1,34 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * CTR: Counter mode
  *
  * (C) Copyright IBM Corp. 2007 - Joy Latten <latten@us.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/algapi.h>
 #include <crypto/ctr.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/random.h>
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
@@ -25,6 +37,10 @@ struct crypto_ctr_ctx {
 	struct crypto_cipher *child;
 };
 
+=======
+#include <linux/slab.h>
+
+>>>>>>> upstream/android-13
 struct crypto_rfc3686_ctx {
 	struct crypto_skcipher *child;
 	u8 nonce[CTR_RFC3686_NONCE_SIZE];
@@ -35,6 +51,7 @@ struct crypto_rfc3686_req_ctx {
 	struct skcipher_request subreq CRYPTO_MINALIGN_ATTR;
 };
 
+<<<<<<< HEAD
 static int crypto_ctr_setkey(struct crypto_tfm *parent, const u8 *key,
 			     unsigned int keylen)
 {
@@ -53,6 +70,9 @@ static int crypto_ctr_setkey(struct crypto_tfm *parent, const u8 *key,
 }
 
 static void crypto_ctr_crypt_final(struct blkcipher_walk *walk,
+=======
+static void crypto_ctr_crypt_final(struct skcipher_walk *walk,
+>>>>>>> upstream/android-13
 				   struct crypto_cipher *tfm)
 {
 	unsigned int bsize = crypto_cipher_blocksize(tfm);
@@ -70,7 +90,11 @@ static void crypto_ctr_crypt_final(struct blkcipher_walk *walk,
 	crypto_inc(ctrblk, bsize);
 }
 
+<<<<<<< HEAD
 static int crypto_ctr_crypt_segment(struct blkcipher_walk *walk,
+=======
+static int crypto_ctr_crypt_segment(struct skcipher_walk *walk,
+>>>>>>> upstream/android-13
 				    struct crypto_cipher *tfm)
 {
 	void (*fn)(struct crypto_tfm *, u8 *, const u8 *) =
@@ -96,7 +120,11 @@ static int crypto_ctr_crypt_segment(struct blkcipher_walk *walk,
 	return nbytes;
 }
 
+<<<<<<< HEAD
 static int crypto_ctr_crypt_inplace(struct blkcipher_walk *walk,
+=======
+static int crypto_ctr_crypt_inplace(struct skcipher_walk *walk,
+>>>>>>> upstream/android-13
 				    struct crypto_cipher *tfm)
 {
 	void (*fn)(struct crypto_tfm *, u8 *, const u8 *) =
@@ -123,6 +151,7 @@ static int crypto_ctr_crypt_inplace(struct blkcipher_walk *walk,
 	return nbytes;
 }
 
+<<<<<<< HEAD
 static int crypto_ctr_crypt(struct blkcipher_desc *desc,
 			      struct scatterlist *dst, struct scatterlist *src,
 			      unsigned int nbytes)
@@ -149,11 +178,37 @@ static int crypto_ctr_crypt(struct blkcipher_desc *desc,
 	if (walk.nbytes) {
 		crypto_ctr_crypt_final(&walk, child);
 		err = blkcipher_walk_done(desc, &walk, 0);
+=======
+static int crypto_ctr_crypt(struct skcipher_request *req)
+{
+	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+	const unsigned int bsize = crypto_cipher_blocksize(cipher);
+	struct skcipher_walk walk;
+	unsigned int nbytes;
+	int err;
+
+	err = skcipher_walk_virt(&walk, req, false);
+
+	while (walk.nbytes >= bsize) {
+		if (walk.src.virt.addr == walk.dst.virt.addr)
+			nbytes = crypto_ctr_crypt_inplace(&walk, cipher);
+		else
+			nbytes = crypto_ctr_crypt_segment(&walk, cipher);
+
+		err = skcipher_walk_done(&walk, nbytes);
+	}
+
+	if (walk.nbytes) {
+		crypto_ctr_crypt_final(&walk, cipher);
+		err = skcipher_walk_done(&walk, 0);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static int crypto_ctr_init_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_instance *inst = (void *)tfm->__crt_alg;
@@ -200,10 +255,24 @@ static struct crypto_instance *crypto_ctr_alloc(struct rtattr **tb)
 	alg = crypto_attr_alg(tb[1], CRYPTO_ALG_TYPE_CIPHER, mask);
 	if (IS_ERR(alg))
 		return ERR_CAST(alg);
+=======
+static int crypto_ctr_create(struct crypto_template *tmpl, struct rtattr **tb)
+{
+	struct skcipher_instance *inst;
+	struct crypto_alg *alg;
+	int err;
+
+	inst = skcipher_alloc_instance_simple(tmpl, tb);
+	if (IS_ERR(inst))
+		return PTR_ERR(inst);
+
+	alg = skcipher_ialg_simple(inst);
+>>>>>>> upstream/android-13
 
 	/* Block size must be >= 4 bytes. */
 	err = -EINVAL;
 	if (alg->cra_blocksize < 4)
+<<<<<<< HEAD
 		goto out_put_alg;
 
 	/* If this is false we'd fail the alignment of crypto_inc. */
@@ -257,12 +326,44 @@ static struct crypto_template crypto_ctr_tmpl = {
 	.module = THIS_MODULE,
 };
 
+=======
+		goto out_free_inst;
+
+	/* If this is false we'd fail the alignment of crypto_inc. */
+	if (alg->cra_blocksize % 4)
+		goto out_free_inst;
+
+	/* CTR mode is a stream cipher. */
+	inst->alg.base.cra_blocksize = 1;
+
+	/*
+	 * To simplify the implementation, configure the skcipher walk to only
+	 * give a partial block at the very end, never earlier.
+	 */
+	inst->alg.chunksize = alg->cra_blocksize;
+
+	inst->alg.encrypt = crypto_ctr_crypt;
+	inst->alg.decrypt = crypto_ctr_crypt;
+
+	err = skcipher_register_instance(tmpl, inst);
+	if (err) {
+out_free_inst:
+		inst->free(inst);
+	}
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int crypto_rfc3686_setkey(struct crypto_skcipher *parent,
 				 const u8 *key, unsigned int keylen)
 {
 	struct crypto_rfc3686_ctx *ctx = crypto_skcipher_ctx(parent);
 	struct crypto_skcipher *child = ctx->child;
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 
 	/* the nonce is stored in bytes at end of key */
 	if (keylen < CTR_RFC3686_NONCE_SIZE)
@@ -276,11 +377,15 @@ static int crypto_rfc3686_setkey(struct crypto_skcipher *parent,
 	crypto_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
 	crypto_skcipher_set_flags(child, crypto_skcipher_get_flags(parent) &
 					 CRYPTO_TFM_REQ_MASK);
+<<<<<<< HEAD
 	err = crypto_skcipher_setkey(child, key, keylen);
 	crypto_skcipher_set_flags(parent, crypto_skcipher_get_flags(child) &
 					  CRYPTO_TFM_RES_MASK);
 
 	return err;
+=======
+	return crypto_skcipher_setkey(child, key, keylen);
+>>>>>>> upstream/android-13
 }
 
 static int crypto_rfc3686_crypt(struct skcipher_request *req)
@@ -353,6 +458,7 @@ static void crypto_rfc3686_free(struct skcipher_instance *inst)
 static int crypto_rfc3686_create(struct crypto_template *tmpl,
 				 struct rtattr **tb)
 {
+<<<<<<< HEAD
 	struct crypto_attr_type *algt;
 	struct skcipher_instance *inst;
 	struct skcipher_alg *alg;
@@ -372,11 +478,23 @@ static int crypto_rfc3686_create(struct crypto_template *tmpl,
 	cipher_name = crypto_attr_alg_name(tb[1]);
 	if (IS_ERR(cipher_name))
 		return PTR_ERR(cipher_name);
+=======
+	struct skcipher_instance *inst;
+	struct skcipher_alg *alg;
+	struct crypto_skcipher_spawn *spawn;
+	u32 mask;
+	int err;
+
+	err = crypto_check_attr_type(tb, CRYPTO_ALG_TYPE_SKCIPHER, &mask);
+	if (err)
+		return err;
+>>>>>>> upstream/android-13
 
 	inst = kzalloc(sizeof(*inst) + sizeof(*spawn), GFP_KERNEL);
 	if (!inst)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mask = crypto_requires_sync(algt->type, algt->mask) |
 		crypto_requires_off(algt->type, algt->mask,
 				    CRYPTO_ALG_NEED_FALLBACK);
@@ -385,6 +503,12 @@ static int crypto_rfc3686_create(struct crypto_template *tmpl,
 
 	crypto_set_skcipher_spawn(spawn, skcipher_crypto_instance(inst));
 	err = crypto_grab_skcipher(spawn, cipher_name, 0, mask);
+=======
+	spawn = skcipher_instance_ctx(inst);
+
+	err = crypto_grab_skcipher(spawn, skcipher_crypto_instance(inst),
+				   crypto_attr_alg_name(tb[1]), 0, mask);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_free_inst;
 
@@ -393,27 +517,46 @@ static int crypto_rfc3686_create(struct crypto_template *tmpl,
 	/* We only support 16-byte blocks. */
 	err = -EINVAL;
 	if (crypto_skcipher_alg_ivsize(alg) != CTR_RFC3686_BLOCK_SIZE)
+<<<<<<< HEAD
 		goto err_drop_spawn;
 
 	/* Not a stream cipher? */
 	if (alg->base.cra_blocksize != 1)
 		goto err_drop_spawn;
+=======
+		goto err_free_inst;
+
+	/* Not a stream cipher? */
+	if (alg->base.cra_blocksize != 1)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	err = -ENAMETOOLONG;
 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
 		     "rfc3686(%s)", alg->base.cra_name) >= CRYPTO_MAX_ALG_NAME)
+<<<<<<< HEAD
 		goto err_drop_spawn;
 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
 		     "rfc3686(%s)", alg->base.cra_driver_name) >=
 	    CRYPTO_MAX_ALG_NAME)
 		goto err_drop_spawn;
+=======
+		goto err_free_inst;
+	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
+		     "rfc3686(%s)", alg->base.cra_driver_name) >=
+	    CRYPTO_MAX_ALG_NAME)
+		goto err_free_inst;
+>>>>>>> upstream/android-13
 
 	inst->alg.base.cra_priority = alg->base.cra_priority;
 	inst->alg.base.cra_blocksize = 1;
 	inst->alg.base.cra_alignmask = alg->base.cra_alignmask;
 
+<<<<<<< HEAD
 	inst->alg.base.cra_flags = alg->base.cra_flags & CRYPTO_ALG_ASYNC;
 
+=======
+>>>>>>> upstream/android-13
 	inst->alg.ivsize = CTR_RFC3686_IV_SIZE;
 	inst->alg.chunksize = crypto_skcipher_alg_chunksize(alg);
 	inst->alg.min_keysize = crypto_skcipher_alg_min_keysize(alg) +
@@ -433,6 +576,7 @@ static int crypto_rfc3686_create(struct crypto_template *tmpl,
 	inst->free = crypto_rfc3686_free;
 
 	err = skcipher_register_instance(tmpl, inst);
+<<<<<<< HEAD
 	if (err)
 		goto err_drop_spawn;
 
@@ -450,10 +594,30 @@ static struct crypto_template crypto_rfc3686_tmpl = {
 	.name = "rfc3686",
 	.create = crypto_rfc3686_create,
 	.module = THIS_MODULE,
+=======
+	if (err) {
+err_free_inst:
+		crypto_rfc3686_free(inst);
+	}
+	return err;
+}
+
+static struct crypto_template crypto_ctr_tmpls[] = {
+	{
+		.name = "ctr",
+		.create = crypto_ctr_create,
+		.module = THIS_MODULE,
+	}, {
+		.name = "rfc3686",
+		.create = crypto_rfc3686_create,
+		.module = THIS_MODULE,
+	},
+>>>>>>> upstream/android-13
 };
 
 static int __init crypto_ctr_module_init(void)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = crypto_register_template(&crypto_ctr_tmpl);
@@ -470,10 +634,15 @@ out:
 out_drop_ctr:
 	crypto_unregister_template(&crypto_ctr_tmpl);
 	goto out;
+=======
+	return crypto_register_templates(crypto_ctr_tmpls,
+					 ARRAY_SIZE(crypto_ctr_tmpls));
+>>>>>>> upstream/android-13
 }
 
 static void __exit crypto_ctr_module_exit(void)
 {
+<<<<<<< HEAD
 	crypto_unregister_template(&crypto_rfc3686_tmpl);
 	crypto_unregister_template(&crypto_ctr_tmpl);
 }
@@ -485,3 +654,17 @@ MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("CTR Counter block mode");
 MODULE_ALIAS_CRYPTO("rfc3686");
 MODULE_ALIAS_CRYPTO("ctr");
+=======
+	crypto_unregister_templates(crypto_ctr_tmpls,
+				    ARRAY_SIZE(crypto_ctr_tmpls));
+}
+
+subsys_initcall(crypto_ctr_module_init);
+module_exit(crypto_ctr_module_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("CTR block cipher mode of operation");
+MODULE_ALIAS_CRYPTO("rfc3686");
+MODULE_ALIAS_CRYPTO("ctr");
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

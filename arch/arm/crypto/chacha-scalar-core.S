@@ -41,6 +41,7 @@
 	X14	.req	r12
 	X15	.req	r14
 
+<<<<<<< HEAD
 .macro __rev		out, in,  t0, t1, t2
 .if __LINUX_ARM_ARCH__ >= 6
 	rev		\out, \in
@@ -67,6 +68,17 @@
 	_le32_bswap	\d,  \t0, \t1, \t2
 .endm
 
+=======
+.macro _le32_bswap_4x	a, b, c, d,  tmp
+#ifdef __ARMEB__
+	rev_l		\a,  \tmp
+	rev_l		\b,  \tmp
+	rev_l		\c,  \tmp
+	rev_l		\d,  \tmp
+#endif
+.endm
+
+>>>>>>> upstream/android-13
 .macro __ldrd		a, b, src, offset
 #if __LINUX_ARM_ARCH__ >= 6
 	ldrd		\a, \b, [\src, #\offset]
@@ -200,7 +212,11 @@
 	add		X1, X1, r9
 	add		X2, X2, r10
 	add		X3, X3, r11
+<<<<<<< HEAD
 	_le32_bswap_4x	X0, X1, X2, X3,  r8, r9, r10
+=======
+	_le32_bswap_4x	X0, X1, X2, X3,  r8
+>>>>>>> upstream/android-13
 	ldmia		r12!, {r8-r11}
 	eor		X0, X0, r8
 	eor		X1, X1, r9
@@ -216,7 +232,11 @@
 	ldmia		r12!, {X0-X3}
 	add		X6, r10, X6, ror #brot
 	add		X7, r11, X7, ror #brot
+<<<<<<< HEAD
 	_le32_bswap_4x	X4, X5, X6, X7,  r8, r9, r10
+=======
+	_le32_bswap_4x	X4, X5, X6, X7,  r8
+>>>>>>> upstream/android-13
 	eor		X4, X4, X0
 	eor		X5, X5, X1
 	eor		X6, X6, X2
@@ -231,7 +251,11 @@
 	add		r1, r1, r9		// x9
 	add		r6, r6, r10		// x10
 	add		r7, r7, r11		// x11
+<<<<<<< HEAD
 	_le32_bswap_4x	r0, r1, r6, r7,  r8, r9, r10
+=======
+	_le32_bswap_4x	r0, r1, r6, r7,  r8
+>>>>>>> upstream/android-13
 	ldmia		r12!, {r8-r11}
 	eor		r0, r0, r8		// x8
 	eor		r1, r1, r9		// x9
@@ -245,7 +269,11 @@
 	add		r3, r9, r3, ror #drot	// x13
 	add		r4, r10, r4, ror #drot	// x14
 	add		r5, r11, r5, ror #drot	// x15
+<<<<<<< HEAD
 	_le32_bswap_4x	r2, r3, r4, r5,  r9, r10, r11
+=======
+	_le32_bswap_4x	r2, r3, r4, r5,  r9
+>>>>>>> upstream/android-13
 	  ldr		r9, [sp, #72]		// load LEN
 	eor		r2, r2, r0		// x12
 	eor		r3, r3, r1		// x13
@@ -301,7 +329,11 @@
 	add		X1, X1, r9
 	add		X2, X2, r10
 	add		X3, X3, r11
+<<<<<<< HEAD
 	_le32_bswap_4x	X0, X1, X2, X3,  r8, r9, r10
+=======
+	_le32_bswap_4x	X0, X1, X2, X3,  r8
+>>>>>>> upstream/android-13
 	stmia		r14!, {X0-X3}
 
 	// Save keystream for x4-x7
@@ -311,7 +343,11 @@
 	add		X5, r9, X5, ror #brot
 	add		X6, r10, X6, ror #brot
 	add		X7, r11, X7, ror #brot
+<<<<<<< HEAD
 	_le32_bswap_4x	X4, X5, X6, X7,  r8, r9, r10
+=======
+	_le32_bswap_4x	X4, X5, X6, X7,  r8
+>>>>>>> upstream/android-13
 	  add		r8, sp, #64
 	stmia		r14!, {X4-X7}
 
@@ -323,7 +359,11 @@
 	add		r1, r1, r9		// x9
 	add		r6, r6, r10		// x10
 	add		r7, r7, r11		// x11
+<<<<<<< HEAD
 	_le32_bswap_4x	r0, r1, r6, r7,  r8, r9, r10
+=======
+	_le32_bswap_4x	r0, r1, r6, r7,  r8
+>>>>>>> upstream/android-13
 	stmia		r14!, {r0,r1,r6,r7}
 	__ldrd		r8, r9, sp, 144
 	__ldrd		r10, r11, sp, 152
@@ -331,7 +371,11 @@
 	add		r3, r9, r3, ror #drot	// x13
 	add		r4, r10, r4, ror #drot	// x14
 	add		r5, r11, r5, ror #drot	// x15
+<<<<<<< HEAD
 	_le32_bswap_4x	r2, r3, r4, r5,  r9, r10, r11
+=======
+	_le32_bswap_4x	r2, r3, r4, r5,  r9
+>>>>>>> upstream/android-13
 	stmia		r14, {r2-r5}
 
 	// Stack: ks0-ks15 unused0-unused7 x0-x15 OUT IN LEN

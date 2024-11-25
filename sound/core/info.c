@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Information interface for ALSA driver
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Information interface for ALSA driver
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -31,11 +38,18 @@
 #include <linux/utsname.h>
 #include <linux/proc_fs.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <stdarg.h>
 
 int snd_info_check_reserved_words(const char *str)
 {
 	static char *reserved[] =
+=======
+
+int snd_info_check_reserved_words(const char *str)
+{
+	static const char * const reserved[] =
+>>>>>>> upstream/android-13
 	{
 		"version",
 		"meminfo",
@@ -50,7 +64,11 @@ int snd_info_check_reserved_words(const char *str)
 		"seq",
 		NULL
 	};
+<<<<<<< HEAD
 	char **xstr = reserved;
+=======
+	const char * const *xstr = reserved;
+>>>>>>> upstream/android-13
 
 	while (*xstr) {
 		if (!strcmp(*xstr, str))
@@ -297,6 +315,7 @@ static int snd_info_entry_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations snd_info_entry_operations =
 {
 	.owner =		THIS_MODULE,
@@ -308,6 +327,18 @@ static const struct file_operations snd_info_entry_operations =
 	.mmap =			snd_info_entry_mmap,
 	.open =			snd_info_entry_open,
 	.release =		snd_info_entry_release,
+=======
+static const struct proc_ops snd_info_entry_operations =
+{
+	.proc_lseek	= snd_info_entry_llseek,
+	.proc_read	= snd_info_entry_read,
+	.proc_write	= snd_info_entry_write,
+	.proc_poll	= snd_info_entry_poll,
+	.proc_ioctl	= snd_info_entry_ioctl,
+	.proc_mmap	= snd_info_entry_mmap,
+	.proc_open	= snd_info_entry_open,
+	.proc_release	= snd_info_entry_release,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -436,6 +467,7 @@ static int snd_info_text_entry_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations snd_info_text_entry_ops =
 {
 	.owner =		THIS_MODULE,
@@ -463,6 +495,23 @@ struct snd_info_entry *snd_info_create_subdir(struct module *mod,
 	struct snd_info_entry *entry;
 
 	entry = snd_info_create_module_entry(mod, name, parent);
+=======
+static const struct proc_ops snd_info_text_entry_ops =
+{
+	.proc_open	= snd_info_text_entry_open,
+	.proc_release	= snd_info_text_entry_release,
+	.proc_write	= snd_info_text_entry_write,
+	.proc_lseek	= seq_lseek,
+	.proc_read	= seq_read,
+};
+
+static struct snd_info_entry *create_subdir(struct module *mod,
+					    const char *name)
+{
+	struct snd_info_entry *entry;
+
+	entry = snd_info_create_module_entry(mod, name, NULL);
+>>>>>>> upstream/android-13
 	if (!entry)
 		return NULL;
 	entry->mode = S_IFDIR | 0555;
@@ -472,6 +521,7 @@ struct snd_info_entry *snd_info_create_subdir(struct module *mod,
 	}
 	return entry;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(snd_info_create_subdir);
 
 static struct snd_info_entry *
@@ -480,6 +530,16 @@ snd_info_create_entry(const char *name, struct snd_info_entry *parent);
 int __init snd_info_init(void)
 {
 	snd_proc_root = snd_info_create_entry("asound", NULL);
+=======
+
+static struct snd_info_entry *
+snd_info_create_entry(const char *name, struct snd_info_entry *parent,
+		      struct module *module);
+
+int __init snd_info_init(void)
+{
+	snd_proc_root = snd_info_create_entry("asound", NULL, THIS_MODULE);
+>>>>>>> upstream/android-13
 	if (!snd_proc_root)
 		return -ENOMEM;
 	snd_proc_root->mode = S_IFDIR | 0555;
@@ -487,12 +547,20 @@ int __init snd_info_init(void)
 	if (!snd_proc_root->p)
 		goto error;
 #ifdef CONFIG_SND_OSSEMUL
+<<<<<<< HEAD
 	snd_oss_root = snd_info_create_subdir(THIS_MODULE, "oss", NULL);
+=======
+	snd_oss_root = create_subdir(THIS_MODULE, "oss");
+>>>>>>> upstream/android-13
 	if (!snd_oss_root)
 		goto error;
 #endif
 #if IS_ENABLED(CONFIG_SND_SEQUENCER)
+<<<<<<< HEAD
 	snd_seq_root = snd_info_create_subdir(THIS_MODULE, "seq", NULL);
+=======
+	snd_seq_root = create_subdir(THIS_MODULE, "seq");
+>>>>>>> upstream/android-13
 	if (!snd_seq_root)
 		goto error;
 #endif
@@ -515,6 +583,17 @@ int __exit snd_info_done(void)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void snd_card_id_read(struct snd_info_entry *entry,
+			     struct snd_info_buffer *buffer)
+{
+	struct snd_card *card = entry->private_data;
+
+	snd_iprintf(buffer, "%s\n", card->id);
+}
+
+>>>>>>> upstream/android-13
 /*
  * create a card proc file
  * called from init.c
@@ -528,6 +607,7 @@ int snd_info_card_create(struct snd_card *card)
 		return -ENXIO;
 
 	sprintf(str, "card%i", card->number);
+<<<<<<< HEAD
 	entry = snd_info_create_subdir(card->module, str, NULL);
 	if (!entry)
 		return -ENOMEM;
@@ -554,6 +634,14 @@ static int snd_info_register_recursive(struct snd_info_entry *entry)
 	}
 
 	return 0;
+=======
+	entry = create_subdir(card->module, str);
+	if (!entry)
+		return -ENOMEM;
+	card->proc_root = entry;
+
+	return snd_card_ro_proc_new(card, "id", card, snd_card_id_read);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -569,7 +657,11 @@ int snd_info_card_register(struct snd_card *card)
 	if (snd_BUG_ON(!card))
 		return -ENXIO;
 
+<<<<<<< HEAD
 	err = snd_info_register_recursive(card->proc_root);
+=======
+	err = snd_info_register(card->proc_root);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -631,6 +723,10 @@ int snd_info_card_free(struct snd_card *card)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 /**
  * snd_info_get_line - read one line from the procfs buffer
  * @buffer: the procfs buffer
@@ -643,7 +739,11 @@ int snd_info_card_free(struct snd_card *card)
  */
 int snd_info_get_line(struct snd_info_buffer *buffer, char *line, int len)
 {
+<<<<<<< HEAD
 	int c = -1;
+=======
+	int c;
+>>>>>>> upstream/android-13
 
 	if (snd_BUG_ON(!buffer))
 		return 1;
@@ -718,7 +818,12 @@ EXPORT_SYMBOL(snd_info_get_str);
  * Return: The pointer of the new instance, or %NULL on failure.
  */
 static struct snd_info_entry *
+<<<<<<< HEAD
 snd_info_create_entry(const char *name, struct snd_info_entry *parent)
+=======
+snd_info_create_entry(const char *name, struct snd_info_entry *parent,
+		      struct module *module)
+>>>>>>> upstream/android-13
 {
 	struct snd_info_entry *entry;
 	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
@@ -735,6 +840,10 @@ snd_info_create_entry(const char *name, struct snd_info_entry *parent)
 	INIT_LIST_HEAD(&entry->children);
 	INIT_LIST_HEAD(&entry->list);
 	entry->parent = parent;
+<<<<<<< HEAD
+=======
+	entry->module = module;
+>>>>>>> upstream/android-13
 	if (parent) {
 		mutex_lock(&parent->access);
 		list_add_tail(&entry->list, &parent->children);
@@ -757,10 +866,16 @@ struct snd_info_entry *snd_info_create_module_entry(struct module * module,
 					       const char *name,
 					       struct snd_info_entry *parent)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry = snd_info_create_entry(name, parent);
 	if (entry)
 		entry->module = module;
 	return entry;
+=======
+	if (!parent)
+		parent = snd_proc_root;
+	return snd_info_create_entry(name, parent, module);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(snd_info_create_module_entry);
 
@@ -778,12 +893,18 @@ struct snd_info_entry *snd_info_create_card_entry(struct snd_card *card,
 					     const char *name,
 					     struct snd_info_entry * parent)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry = snd_info_create_entry(name, parent);
 	if (entry) {
 		entry->module = card->module;
 		entry->card = card;
 	}
 	return entry;
+=======
+	if (!parent)
+		parent = card->proc_root;
+	return snd_info_create_entry(name, parent, card->module);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(snd_info_create_card_entry);
 
@@ -834,6 +955,7 @@ void snd_info_free_entry(struct snd_info_entry * entry)
 }
 EXPORT_SYMBOL(snd_info_free_entry);
 
+<<<<<<< HEAD
 /**
  * snd_info_register - register the info entry
  * @entry: the info entry
@@ -843,6 +965,9 @@ EXPORT_SYMBOL(snd_info_free_entry);
  * Return: Zero if successful, or a negative error code on failure.
  */
 int snd_info_register(struct snd_info_entry * entry)
+=======
+static int __snd_info_register(struct snd_info_entry *entry)
+>>>>>>> upstream/android-13
 {
 	struct proc_dir_entry *root, *p = NULL;
 
@@ -850,6 +975,11 @@ int snd_info_register(struct snd_info_entry * entry)
 		return -ENXIO;
 	root = entry->parent == NULL ? snd_proc_root->p : entry->parent->p;
 	mutex_lock(&info_mutex);
+<<<<<<< HEAD
+=======
+	if (entry->p || !root)
+		goto unlock;
+>>>>>>> upstream/android-13
 	if (S_ISDIR(entry->mode)) {
 		p = proc_mkdir_mode(entry->name, entry->mode, root);
 		if (!p) {
@@ -857,7 +987,11 @@ int snd_info_register(struct snd_info_entry * entry)
 			return -ENOMEM;
 		}
 	} else {
+<<<<<<< HEAD
 		const struct file_operations *ops;
+=======
+		const struct proc_ops *ops;
+>>>>>>> upstream/android-13
 		if (entry->content == SNDRV_INFO_CONTENT_DATA)
 			ops = &snd_info_entry_operations;
 		else
@@ -871,11 +1005,81 @@ int snd_info_register(struct snd_info_entry * entry)
 		proc_set_size(p, entry->size);
 	}
 	entry->p = p;
+<<<<<<< HEAD
 	mutex_unlock(&info_mutex);
 	return 0;
 }
 EXPORT_SYMBOL(snd_info_register);
 
+=======
+ unlock:
+	mutex_unlock(&info_mutex);
+	return 0;
+}
+
+/**
+ * snd_info_register - register the info entry
+ * @entry: the info entry
+ *
+ * Registers the proc info entry.
+ * The all children entries are registered recursively.
+ *
+ * Return: Zero if successful, or a negative error code on failure.
+ */
+int snd_info_register(struct snd_info_entry *entry)
+{
+	struct snd_info_entry *p;
+	int err;
+
+	if (!entry->p) {
+		err = __snd_info_register(entry);
+		if (err < 0)
+			return err;
+	}
+
+	list_for_each_entry(p, &entry->children, list) {
+		err = snd_info_register(p);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL(snd_info_register);
+
+/**
+ * snd_card_rw_proc_new - Create a read/write text proc file entry for the card
+ * @card: the card instance
+ * @name: the file name
+ * @private_data: the arbitrary private data
+ * @read: the read callback
+ * @write: the write callback, NULL for read-only
+ *
+ * This proc file entry will be registered via snd_card_register() call, and
+ * it will be removed automatically at the card removal, too.
+ */
+int snd_card_rw_proc_new(struct snd_card *card, const char *name,
+			 void *private_data,
+			 void (*read)(struct snd_info_entry *,
+				      struct snd_info_buffer *),
+			 void (*write)(struct snd_info_entry *entry,
+				       struct snd_info_buffer *buffer))
+{
+	struct snd_info_entry *entry;
+
+	entry = snd_info_create_card_entry(card, name, card->proc_root);
+	if (!entry)
+		return -ENOMEM;
+	snd_info_set_text_ops(entry, private_data, read);
+	if (write) {
+		entry->mode |= 0200;
+		entry->c.text.write = write;
+	}
+	return 0;
+}
+EXPORT_SYMBOL_GPL(snd_card_rw_proc_new);
+
+>>>>>>> upstream/android-13
 /*
 
  */

@@ -29,6 +29,10 @@
 #include <linux/bitops.h>
 #include <linux/ioport.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 
 #include <asm/coldfire.h>
 #include <asm/m54xxsim.h>
@@ -85,7 +89,11 @@ static int m54xx_wdt_open(struct inode *inode, struct file *file)
 
 	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
 	wdt_enable();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t m54xx_wdt_write(struct file *file, const char *data,
@@ -154,7 +162,11 @@ static long m54xx_wdt_ioctl(struct file *file, unsigned int cmd,
 
 		heartbeat = time;
 		wdt_enable();
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case WDIOC_GETTIMEOUT:
 		ret = put_user(heartbeat, (int *)arg);
@@ -183,6 +195,10 @@ static const struct file_operations m54xx_wdt_fops = {
 	.llseek		= no_llseek,
 	.write		= m54xx_wdt_write,
 	.unlocked_ioctl	= m54xx_wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= m54xx_wdt_open,
 	.release	= m54xx_wdt_release,
 };

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics hts221 sensor driver
  *
  * Copyright 2016 STMicroelectronics Inc.
  *
  * Lorenzo Bianconi <lorenzo.bianconi@st.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -25,6 +32,7 @@
 #define HTS221_REG_CNTRL1_ADDR		0x20
 #define HTS221_REG_CNTRL2_ADDR		0x21
 
+<<<<<<< HEAD
 #define HTS221_REG_AVG_ADDR		0x10
 #define HTS221_REG_H_OUT_L		0x28
 #define HTS221_REG_T_OUT_L		0x2a
@@ -32,6 +40,8 @@
 #define HTS221_HUMIDITY_AVG_MASK	0x07
 #define HTS221_TEMP_AVG_MASK		0x38
 
+=======
+>>>>>>> upstream/android-13
 #define HTS221_ODR_MASK			0x03
 #define HTS221_BDU_MASK			BIT(2)
 #define HTS221_ENABLE_MASK		BIT(7)
@@ -67,8 +77,13 @@ static const struct hts221_odr hts221_odr_table[] = {
 
 static const struct hts221_avg hts221_avg_list[] = {
 	{
+<<<<<<< HEAD
 		.addr = HTS221_REG_AVG_ADDR,
 		.mask = HTS221_HUMIDITY_AVG_MASK,
+=======
+		.addr = 0x10,
+		.mask = 0x07,
+>>>>>>> upstream/android-13
 		.avg_avl = {
 			4, /* 0.4 %RH */
 			8, /* 0.3 %RH */
@@ -81,8 +96,13 @@ static const struct hts221_avg hts221_avg_list[] = {
 		},
 	},
 	{
+<<<<<<< HEAD
 		.addr = HTS221_REG_AVG_ADDR,
 		.mask = HTS221_TEMP_AVG_MASK,
+=======
+		.addr = 0x10,
+		.mask = 0x38,
+>>>>>>> upstream/android-13
 		.avg_avl = {
 			2, /* 0.08 degC */
 			4, /* 0.05 degC */
@@ -99,7 +119,11 @@ static const struct hts221_avg hts221_avg_list[] = {
 static const struct iio_chan_spec hts221_channels[] = {
 	{
 		.type = IIO_HUMIDITYRELATIVE,
+<<<<<<< HEAD
 		.address = HTS221_REG_H_OUT_L,
+=======
+		.address = 0x28,
+>>>>>>> upstream/android-13
 		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
 				      BIT(IIO_CHAN_INFO_OFFSET) |
 				      BIT(IIO_CHAN_INFO_SCALE) |
@@ -115,7 +139,11 @@ static const struct iio_chan_spec hts221_channels[] = {
 	},
 	{
 		.type = IIO_TEMP,
+<<<<<<< HEAD
 		.address = HTS221_REG_T_OUT_L,
+=======
+		.address = 0x2a,
+>>>>>>> upstream/android-13
 		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
 				      BIT(IIO_CHAN_INFO_OFFSET) |
 				      BIT(IIO_CHAN_INFO_SCALE) |
@@ -555,6 +583,38 @@ static const struct iio_info hts221_info = {
 
 static const unsigned long hts221_scan_masks[] = {0x3, 0x0};
 
+<<<<<<< HEAD
+=======
+static int hts221_init_regulators(struct device *dev)
+{
+	struct iio_dev *iio_dev = dev_get_drvdata(dev);
+	struct hts221_hw *hw = iio_priv(iio_dev);
+	int err;
+
+	hw->vdd = devm_regulator_get(dev, "vdd");
+	if (IS_ERR(hw->vdd))
+		return dev_err_probe(dev, PTR_ERR(hw->vdd),
+				     "failed to get vdd regulator\n");
+
+	err = regulator_enable(hw->vdd);
+	if (err) {
+		dev_err(dev, "failed to enable vdd regulator: %d\n", err);
+		return err;
+	}
+
+	msleep(50);
+
+	return 0;
+}
+
+static void hts221_chip_uninit(void *data)
+{
+	struct hts221_hw *hw = data;
+
+	regulator_disable(hw->vdd);
+}
+
+>>>>>>> upstream/android-13
 int hts221_probe(struct device *dev, int irq, const char *name,
 		 struct regmap *regmap)
 {
@@ -575,12 +635,26 @@ int hts221_probe(struct device *dev, int irq, const char *name,
 	hw->irq = irq;
 	hw->regmap = regmap;
 
+<<<<<<< HEAD
+=======
+	err = hts221_init_regulators(dev);
+	if (err)
+		return err;
+
+	err = devm_add_action_or_reset(dev, hts221_chip_uninit, hw);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	err = hts221_check_whoami(hw);
 	if (err < 0)
 		return err;
 
 	iio_dev->modes = INDIO_DIRECT_MODE;
+<<<<<<< HEAD
 	iio_dev->dev.parent = hw->dev;
+=======
+>>>>>>> upstream/android-13
 	iio_dev->available_scan_masks = hts221_scan_masks;
 	iio_dev->channels = hts221_channels;
 	iio_dev->num_channels = ARRAY_SIZE(hts221_channels);
@@ -629,11 +703,19 @@ int hts221_probe(struct device *dev, int irq, const char *name,
 	}
 
 	if (hw->irq > 0) {
+<<<<<<< HEAD
 		err = hts221_allocate_buffers(hw);
 		if (err < 0)
 			return err;
 
 		err = hts221_allocate_trigger(hw);
+=======
+		err = hts221_allocate_buffers(iio_dev);
+		if (err < 0)
+			return err;
+
+		err = hts221_allocate_trigger(iio_dev);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}

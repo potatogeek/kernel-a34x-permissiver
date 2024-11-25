@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/net/ethernet/ibm/ehea/ehea_qmr.c
  *
@@ -9,6 +13,7 @@
  *       Christoph Raisch <raisch@de.ibm.com>
  *       Jan-Bernd Themann <themann@de.ibm.com>
  *       Thomas Klein <tklein@de.ibm.com>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +29,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -123,9 +130,14 @@ struct ehea_cq *ehea_create_cq(struct ehea_adapter *adapter,
 			       int nr_of_cqe, u64 eq_handle, u32 cq_token)
 {
 	struct ehea_cq *cq;
+<<<<<<< HEAD
 	struct h_epa epa;
 	u64 *cq_handle_ref, hret, rpage;
 	u32 act_nr_of_entries, act_pages, counter;
+=======
+	u64 hret, rpage;
+	u32 counter;
+>>>>>>> upstream/android-13
 	int ret;
 	void *vpage;
 
@@ -139,10 +151,13 @@ struct ehea_cq *ehea_create_cq(struct ehea_adapter *adapter,
 
 	cq->adapter = adapter;
 
+<<<<<<< HEAD
 	cq_handle_ref = &cq->fw_handle;
 	act_nr_of_entries = 0;
 	act_pages = 0;
 
+=======
+>>>>>>> upstream/android-13
 	hret = ehea_h_alloc_resource_cq(adapter->handle, &cq->attr,
 					&cq->fw_handle, &cq->epas);
 	if (hret != H_SUCCESS) {
@@ -190,7 +205,10 @@ struct ehea_cq *ehea_create_cq(struct ehea_adapter *adapter,
 	}
 
 	hw_qeit_reset(&cq->hw_queue);
+<<<<<<< HEAD
 	epa = cq->epas.kernel;
+=======
+>>>>>>> upstream/android-13
 	ehea_reset_cq_ep(cq);
 	ehea_reset_cq_n1(cq);
 
@@ -690,6 +708,7 @@ int ehea_rem_sect_bmap(unsigned long pfn, unsigned long nr_pages)
 
 static int ehea_is_hugepage(unsigned long pfn)
 {
+<<<<<<< HEAD
 	int page_order;
 
 	if (pfn & EHEA_HUGEPAGE_PFN_MASK)
@@ -697,6 +716,12 @@ static int ehea_is_hugepage(unsigned long pfn)
 
 	page_order = compound_order(pfn_to_page(pfn));
 	if (page_order + PAGE_SHIFT != EHEA_HUGEPAGESHIFT)
+=======
+	if (pfn & EHEA_HUGEPAGE_PFN_MASK)
+		return 0;
+
+	if (page_shift(pfn_to_page(pfn)) != EHEA_HUGEPAGESHIFT)
+>>>>>>> upstream/android-13
 		return 0;
 
 	return 1;

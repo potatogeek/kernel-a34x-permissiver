@@ -37,6 +37,10 @@
 #include <net/ip.h>
 #include <net/ipv6.h>
 #include <net/ip6_route.h>
+<<<<<<< HEAD
+=======
+#include <net/ip_tunnels.h>
+>>>>>>> upstream/android-13
 #include <net/addrconf.h>
 #include <net/xfrm.h>
 #include <net/net_namespace.h>
@@ -47,21 +51,44 @@ static int xfrmi_dev_init(struct net_device *dev);
 static void xfrmi_dev_setup(struct net_device *dev);
 static struct rtnl_link_ops xfrmi_link_ops __read_mostly;
 static unsigned int xfrmi_net_id __read_mostly;
+<<<<<<< HEAD
 
 struct xfrmi_net {
 	/* lists for storing interfaces in use */
 	struct xfrm_if __rcu *xfrmi[1];
+=======
+static const struct net_device_ops xfrmi_netdev_ops;
+
+#define XFRMI_HASH_BITS	8
+#define XFRMI_HASH_SIZE	BIT(XFRMI_HASH_BITS)
+
+struct xfrmi_net {
+	/* lists for storing interfaces in use */
+	struct xfrm_if __rcu *xfrmi[XFRMI_HASH_SIZE];
+>>>>>>> upstream/android-13
 };
 
 #define for_each_xfrmi_rcu(start, xi) \
 	for (xi = rcu_dereference(start); xi; xi = rcu_dereference(xi->next))
 
+<<<<<<< HEAD
+=======
+static u32 xfrmi_hash(u32 if_id)
+{
+	return hash_32(if_id, XFRMI_HASH_BITS);
+}
+
+>>>>>>> upstream/android-13
 static struct xfrm_if *xfrmi_lookup(struct net *net, struct xfrm_state *x)
 {
 	struct xfrmi_net *xfrmn = net_generic(net, xfrmi_net_id);
 	struct xfrm_if *xi;
 
+<<<<<<< HEAD
 	for_each_xfrmi_rcu(xfrmn->xfrmi[0], xi) {
+=======
+	for_each_xfrmi_rcu(xfrmn->xfrmi[xfrmi_hash(x->if_id)], xi) {
+>>>>>>> upstream/android-13
 		if (x->if_id == xi->p.if_id &&
 		    (xi->dev->flags & IFF_UP))
 			return xi;
@@ -73,8 +100,12 @@ static struct xfrm_if *xfrmi_lookup(struct net *net, struct xfrm_state *x)
 static struct xfrm_if *xfrmi_decode_session(struct sk_buff *skb,
 					    unsigned short family)
 {
+<<<<<<< HEAD
 	struct xfrmi_net *xfrmn;
 	struct xfrm_if *xi;
+=======
+	struct net_device *dev;
+>>>>>>> upstream/android-13
 	int ifindex = 0;
 
 	if (!secpath_exists(skb) || !skb->dev)
@@ -88,6 +119,7 @@ static struct xfrm_if *xfrmi_decode_session(struct sk_buff *skb,
 		ifindex = inet_sdif(skb);
 		break;
 	}
+<<<<<<< HEAD
 	if (!ifindex)
 		ifindex = skb->dev->ifindex;
 
@@ -100,11 +132,32 @@ static struct xfrm_if *xfrmi_decode_session(struct sk_buff *skb,
 	}
 
 	return NULL;
+=======
+
+	if (ifindex) {
+		struct net *net = xs_net(xfrm_input_state(skb));
+
+		dev = dev_get_by_index_rcu(net, ifindex);
+	} else {
+		dev = skb->dev;
+	}
+
+	if (!dev || !(dev->flags & IFF_UP))
+		return NULL;
+	if (dev->netdev_ops != &xfrmi_netdev_ops)
+		return NULL;
+
+	return netdev_priv(dev);
+>>>>>>> upstream/android-13
 }
 
 static void xfrmi_link(struct xfrmi_net *xfrmn, struct xfrm_if *xi)
 {
+<<<<<<< HEAD
 	struct xfrm_if __rcu **xip = &xfrmn->xfrmi[0];
+=======
+	struct xfrm_if __rcu **xip = &xfrmn->xfrmi[xfrmi_hash(xi->p.if_id)];
+>>>>>>> upstream/android-13
 
 	rcu_assign_pointer(xi->next , rtnl_dereference(*xip));
 	rcu_assign_pointer(*xip, xi);
@@ -115,7 +168,11 @@ static void xfrmi_unlink(struct xfrmi_net *xfrmn, struct xfrm_if *xi)
 	struct xfrm_if __rcu **xip;
 	struct xfrm_if *iter;
 
+<<<<<<< HEAD
 	for (xip = &xfrmn->xfrmi[0];
+=======
+	for (xip = &xfrmn->xfrmi[xfrmi_hash(xi->p.if_id)];
+>>>>>>> upstream/android-13
 	     (iter = rtnl_dereference(*xip)) != NULL;
 	     xip = &iter->next) {
 		if (xi == iter) {
@@ -145,7 +202,10 @@ static int xfrmi_create(struct net_device *dev)
 	if (err < 0)
 		goto out;
 
+<<<<<<< HEAD
 	dev_hold(dev);
+=======
+>>>>>>> upstream/android-13
 	xfrmi_link(xfrmn, xi);
 
 	return 0;
@@ -160,7 +220,11 @@ static struct xfrm_if *xfrmi_locate(struct net *net, struct xfrm_if_parms *p)
 	struct xfrm_if *xi;
 	struct xfrmi_net *xfrmn = net_generic(net, xfrmi_net_id);
 
+<<<<<<< HEAD
 	for (xip = &xfrmn->xfrmi[0];
+=======
+	for (xip = &xfrmn->xfrmi[xfrmi_hash(p->if_id)];
+>>>>>>> upstream/android-13
 	     (xi = rtnl_dereference(*xip)) != NULL;
 	     xip = &xi->next)
 		if (xi->p.if_id == p->if_id)
@@ -175,7 +239,10 @@ static void xfrmi_dev_uninit(struct net_device *dev)
 	struct xfrmi_net *xfrmn = net_generic(xi->net, xfrmi_net_id);
 
 	xfrmi_unlink(xfrmn, xi);
+<<<<<<< HEAD
 	dev_put(dev);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void xfrmi_scrub_packet(struct sk_buff *skb, bool xnet)
@@ -185,7 +252,11 @@ static void xfrmi_scrub_packet(struct sk_buff *skb, bool xnet)
 	skb->skb_iif = 0;
 	skb->ignore_df = 0;
 	skb_dst_drop(skb);
+<<<<<<< HEAD
 	nf_reset(skb);
+=======
+	nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 	nf_reset_trace(skb);
 
 	if (!xnet)
@@ -199,14 +270,22 @@ static void xfrmi_scrub_packet(struct sk_buff *skb, bool xnet)
 
 static int xfrmi_rcv_cb(struct sk_buff *skb, int err)
 {
+<<<<<<< HEAD
 	struct pcpu_sw_netstats *tstats;
 	struct xfrm_mode *inner_mode;
+=======
+	const struct xfrm_mode *inner_mode;
+>>>>>>> upstream/android-13
 	struct net_device *dev;
 	struct xfrm_state *x;
 	struct xfrm_if *xi;
 	bool xnet;
 
+<<<<<<< HEAD
 	if (err && !skb->sp)
+=======
+	if (err && !secpath_exists(skb))
+>>>>>>> upstream/android-13
 		return 0;
 
 	x = xfrm_input_state(skb);
@@ -228,7 +307,11 @@ static int xfrmi_rcv_cb(struct sk_buff *skb, int err)
 	xnet = !net_eq(xi->net, dev_net(skb->dev));
 
 	if (xnet) {
+<<<<<<< HEAD
 		inner_mode = x->inner_mode;
+=======
+		inner_mode = &x->inner_mode;
+>>>>>>> upstream/android-13
 
 		if (x->sel.family == AF_UNSPEC) {
 			inner_mode = xfrm_ip2inner_mode(x, XFRM_MODE_SKB_CB(skb)->protocol);
@@ -240,11 +323,16 @@ static int xfrmi_rcv_cb(struct sk_buff *skb, int err)
 		}
 
 		if (!xfrm_policy_check(NULL, XFRM_POLICY_IN, skb,
+<<<<<<< HEAD
 				       inner_mode->afinfo->family))
+=======
+				       inner_mode->family))
+>>>>>>> upstream/android-13
 			return -EPERM;
 	}
 
 	xfrmi_scrub_packet(skb, xnet);
+<<<<<<< HEAD
 
 	tstats = this_cpu_ptr(dev->tstats);
 
@@ -252,6 +340,9 @@ static int xfrmi_rcv_cb(struct sk_buff *skb, int err)
 	tstats->rx_packets++;
 	tstats->rx_bytes += skb->len;
 	u64_stats_update_end(&tstats->syncp);
+=======
+	dev_sw_netstats_rx_add(dev, skb->len);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -293,14 +384,26 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
 	}
 
 	mtu = dst_mtu(dst);
+<<<<<<< HEAD
 	if (skb->len > mtu) {
+=======
+	if ((!skb_is_gso(skb) && skb->len > mtu) ||
+	    (skb_is_gso(skb) && !skb_gso_validate_network_len(skb, mtu))) {
+>>>>>>> upstream/android-13
 		skb_dst_update_pmtu_no_confirm(skb, mtu);
 
 		if (skb->protocol == htons(ETH_P_IPV6)) {
 			if (mtu < IPV6_MIN_MTU)
 				mtu = IPV6_MIN_MTU;
 
+<<<<<<< HEAD
 			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+=======
+			if (skb->len > 1280)
+				icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+			else
+				goto xmit;
+>>>>>>> upstream/android-13
 		} else {
 			if (!(ip_hdr(skb)->frag_off & htons(IP_DF)))
 				goto xmit;
@@ -319,12 +422,16 @@ xmit:
 
 	err = dst_output(xi->net, skb->sk, skb);
 	if (net_xmit_eval(err) == 0) {
+<<<<<<< HEAD
 		struct pcpu_sw_netstats *tstats = this_cpu_ptr(dev->tstats);
 
 		u64_stats_update_begin(&tstats->syncp);
 		tstats->tx_bytes += length;
 		tstats->tx_packets++;
 		u64_stats_update_end(&tstats->syncp);
+=======
+		dev_sw_netstats_tx_add(dev, 1, length);
+>>>>>>> upstream/android-13
 	} else {
 		stats->tx_errors++;
 		stats->tx_aborted_errors++;
@@ -433,6 +540,10 @@ static int xfrmi4_err(struct sk_buff *skb, u32 info)
 	case ICMP_DEST_UNREACH:
 		if (icmp_hdr(skb)->code != ICMP_FRAG_NEEDED)
 			return 0;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case ICMP_REDIRECT:
 		break;
 	default:
@@ -451,9 +562,15 @@ static int xfrmi4_err(struct sk_buff *skb, u32 info)
 	}
 
 	if (icmp_hdr(skb)->type == ICMP_DEST_UNREACH)
+<<<<<<< HEAD
 		ipv4_update_pmtu(skb, net, info, 0, 0, protocol, 0);
 	else
 		ipv4_redirect(skb, net, 0, 0, protocol, 0);
+=======
+		ipv4_update_pmtu(skb, net, info, 0, protocol);
+	else
+		ipv4_redirect(skb, net, 0, protocol);
+>>>>>>> upstream/android-13
 	xfrm_state_put(x);
 
 	return 0;
@@ -538,6 +655,7 @@ static int xfrmi_update(struct xfrm_if *xi, struct xfrm_if_parms *p)
 	return err;
 }
 
+<<<<<<< HEAD
 static void xfrmi_get_stats64(struct net_device *dev,
 			       struct rtnl_link_stats64 *s)
 {
@@ -570,6 +688,8 @@ static void xfrmi_get_stats64(struct net_device *dev,
 	s->tx_dropped = dev->stats.tx_dropped;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int xfrmi_get_iflink(const struct net_device *dev)
 {
 	struct xfrm_if *xi = netdev_priv(dev);
@@ -577,18 +697,29 @@ static int xfrmi_get_iflink(const struct net_device *dev)
 	return xi->p.link;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static const struct net_device_ops xfrmi_netdev_ops = {
 	.ndo_init	= xfrmi_dev_init,
 	.ndo_uninit	= xfrmi_dev_uninit,
 	.ndo_start_xmit = xfrmi_xmit,
+<<<<<<< HEAD
 	.ndo_get_stats64 = xfrmi_get_stats64,
+=======
+	.ndo_get_stats64 = dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_get_iflink = xfrmi_get_iflink,
 };
 
 static void xfrmi_dev_setup(struct net_device *dev)
 {
 	dev->netdev_ops 	= &xfrmi_netdev_ops;
+<<<<<<< HEAD
+=======
+	dev->header_ops		= &ip_tunnel_header_ops;
+>>>>>>> upstream/android-13
 	dev->type		= ARPHRD_NONE;
 	dev->mtu		= ETH_DATA_LEN;
 	dev->min_mtu		= ETH_MIN_MTU;
@@ -601,6 +732,14 @@ static void xfrmi_dev_setup(struct net_device *dev)
 	eth_broadcast_addr(dev->broadcast);
 }
 
+<<<<<<< HEAD
+=======
+#define XFRMI_FEATURES (NETIF_F_SG |		\
+			NETIF_F_FRAGLIST |	\
+			NETIF_F_GSO_SOFTWARE |	\
+			NETIF_F_HW_CSUM)
+
+>>>>>>> upstream/android-13
 static int xfrmi_dev_init(struct net_device *dev)
 {
 	struct xfrm_if *xi = netdev_priv(dev);
@@ -618,6 +757,11 @@ static int xfrmi_dev_init(struct net_device *dev)
 	}
 
 	dev->features |= NETIF_F_LLTX;
+<<<<<<< HEAD
+=======
+	dev->features |= XFRMI_FEATURES;
+	dev->hw_features |= XFRMI_FEATURES;
+>>>>>>> upstream/android-13
 
 	if (phydev) {
 		dev->needed_headroom = phydev->needed_headroom;
@@ -662,11 +806,23 @@ static int xfrmi_newlink(struct net *src_net, struct net_device *dev,
 			struct netlink_ext_ack *extack)
 {
 	struct net *net = dev_net(dev);
+<<<<<<< HEAD
 	struct xfrm_if_parms p;
+=======
+	struct xfrm_if_parms p = {};
+>>>>>>> upstream/android-13
 	struct xfrm_if *xi;
 	int err;
 
 	xfrmi_netlink_parms(data, &p);
+<<<<<<< HEAD
+=======
+	if (!p.if_id) {
+		NL_SET_ERR_MSG(extack, "if_id must be non zero");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	xi = xfrmi_locate(net, &p);
 	if (xi)
 		return -EEXIST;
@@ -691,9 +847,20 @@ static int xfrmi_changelink(struct net_device *dev, struct nlattr *tb[],
 {
 	struct xfrm_if *xi = netdev_priv(dev);
 	struct net *net = xi->net;
+<<<<<<< HEAD
 	struct xfrm_if_parms p;
 
 	xfrmi_netlink_parms(data, &p);
+=======
+	struct xfrm_if_parms p = {};
+
+	xfrmi_netlink_parms(data, &p);
+	if (!p.if_id) {
+		NL_SET_ERR_MSG(extack, "if_id must be non zero");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	xi = xfrmi_locate(net, &p);
 	if (!xi) {
 		xi = netdev_priv(dev);
@@ -729,7 +896,11 @@ nla_put_failure:
 	return -EMSGSIZE;
 }
 
+<<<<<<< HEAD
 struct net *xfrmi_get_link_net(const struct net_device *dev)
+=======
+static struct net *xfrmi_get_link_net(const struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct xfrm_if *xi = netdev_priv(dev);
 
@@ -756,6 +927,7 @@ static struct rtnl_link_ops xfrmi_link_ops __read_mostly = {
 	.get_link_net	= xfrmi_get_link_net,
 };
 
+<<<<<<< HEAD
 static void __net_exit xfrmi_destroy_interfaces(struct xfrmi_net *xfrmn)
 {
 	struct xfrm_if *xi;
@@ -783,6 +955,8 @@ static void __net_exit xfrmi_exit_net(struct net *net)
 	rtnl_unlock();
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __net_exit xfrmi_exit_batch_net(struct list_head *net_exit_list)
 {
 	struct net *net;
@@ -793,11 +967,22 @@ static void __net_exit xfrmi_exit_batch_net(struct list_head *net_exit_list)
 		struct xfrmi_net *xfrmn = net_generic(net, xfrmi_net_id);
 		struct xfrm_if __rcu **xip;
 		struct xfrm_if *xi;
+<<<<<<< HEAD
 
 		for (xip = &xfrmn->xfrmi[0];
 		     (xi = rtnl_dereference(*xip)) != NULL;
 		     xip = &xi->next)
 			unregister_netdevice_queue(xi->dev, &list);
+=======
+		int i;
+
+		for (i = 0; i < XFRMI_HASH_SIZE; i++) {
+			for (xip = &xfrmn->xfrmi[i];
+			     (xi = rtnl_dereference(*xip)) != NULL;
+			     xip = &xi->next)
+				unregister_netdevice_queue(xi->dev, &list);
+		}
+>>>>>>> upstream/android-13
 	}
 	unregister_netdevice_many(&list);
 	rtnl_unlock();
@@ -805,14 +990,21 @@ static void __net_exit xfrmi_exit_batch_net(struct list_head *net_exit_list)
 
 static struct pernet_operations xfrmi_net_ops = {
 	.exit_batch = xfrmi_exit_batch_net,
+<<<<<<< HEAD
 	.init = xfrmi_init_net,
 	.exit = xfrmi_exit_net,
+=======
+>>>>>>> upstream/android-13
 	.id   = &xfrmi_net_id,
 	.size = sizeof(struct xfrmi_net),
 };
 
 static struct xfrm6_protocol xfrmi_esp6_protocol __read_mostly = {
 	.handler	=	xfrm6_rcv,
+<<<<<<< HEAD
+=======
+	.input_handler	=	xfrm_input,
+>>>>>>> upstream/android-13
 	.cb_handler	=	xfrmi_rcv_cb,
 	.err_handler	=	xfrmi6_err,
 	.priority	=	10,
@@ -820,6 +1012,10 @@ static struct xfrm6_protocol xfrmi_esp6_protocol __read_mostly = {
 
 static struct xfrm6_protocol xfrmi_ah6_protocol __read_mostly = {
 	.handler	=	xfrm6_rcv,
+<<<<<<< HEAD
+=======
+	.input_handler	=	xfrm_input,
+>>>>>>> upstream/android-13
 	.cb_handler	=	xfrmi_rcv_cb,
 	.err_handler	=	xfrmi6_err,
 	.priority	=	10,
@@ -827,11 +1023,45 @@ static struct xfrm6_protocol xfrmi_ah6_protocol __read_mostly = {
 
 static struct xfrm6_protocol xfrmi_ipcomp6_protocol __read_mostly = {
 	.handler	=	xfrm6_rcv,
+<<<<<<< HEAD
+=======
+	.input_handler	=	xfrm_input,
+>>>>>>> upstream/android-13
 	.cb_handler	=	xfrmi_rcv_cb,
 	.err_handler	=	xfrmi6_err,
 	.priority	=	10,
 };
 
+<<<<<<< HEAD
+=======
+#if IS_REACHABLE(CONFIG_INET6_XFRM_TUNNEL)
+static int xfrmi6_rcv_tunnel(struct sk_buff *skb)
+{
+	const xfrm_address_t *saddr;
+	__be32 spi;
+
+	saddr = (const xfrm_address_t *)&ipv6_hdr(skb)->saddr;
+	spi = xfrm6_tunnel_spi_lookup(dev_net(skb->dev), saddr);
+
+	return xfrm6_rcv_spi(skb, IPPROTO_IPV6, spi, NULL);
+}
+
+static struct xfrm6_tunnel xfrmi_ipv6_handler __read_mostly = {
+	.handler	=	xfrmi6_rcv_tunnel,
+	.cb_handler	=	xfrmi_rcv_cb,
+	.err_handler	=	xfrmi6_err,
+	.priority	=	2,
+};
+
+static struct xfrm6_tunnel xfrmi_ip6ip_handler __read_mostly = {
+	.handler	=	xfrmi6_rcv_tunnel,
+	.cb_handler	=	xfrmi_rcv_cb,
+	.err_handler	=	xfrmi6_err,
+	.priority	=	2,
+};
+#endif
+
+>>>>>>> upstream/android-13
 static struct xfrm4_protocol xfrmi_esp4_protocol __read_mostly = {
 	.handler	=	xfrm4_rcv,
 	.input_handler	=	xfrm_input,
@@ -856,6 +1086,30 @@ static struct xfrm4_protocol xfrmi_ipcomp4_protocol __read_mostly = {
 	.priority	=	10,
 };
 
+<<<<<<< HEAD
+=======
+#if IS_REACHABLE(CONFIG_INET_XFRM_TUNNEL)
+static int xfrmi4_rcv_tunnel(struct sk_buff *skb)
+{
+	return xfrm4_rcv_spi(skb, IPPROTO_IPIP, ip_hdr(skb)->saddr);
+}
+
+static struct xfrm_tunnel xfrmi_ipip_handler __read_mostly = {
+	.handler	=	xfrmi4_rcv_tunnel,
+	.cb_handler	=	xfrmi_rcv_cb,
+	.err_handler	=	xfrmi4_err,
+	.priority	=	3,
+};
+
+static struct xfrm_tunnel xfrmi_ipip6_handler __read_mostly = {
+	.handler	=	xfrmi4_rcv_tunnel,
+	.cb_handler	=	xfrmi_rcv_cb,
+	.err_handler	=	xfrmi4_err,
+	.priority	=	2,
+};
+#endif
+
+>>>>>>> upstream/android-13
 static int __init xfrmi4_init(void)
 {
 	int err;
@@ -869,9 +1123,29 @@ static int __init xfrmi4_init(void)
 	err = xfrm4_protocol_register(&xfrmi_ipcomp4_protocol, IPPROTO_COMP);
 	if (err < 0)
 		goto xfrm_proto_comp_failed;
+<<<<<<< HEAD
 
 	return 0;
 
+=======
+#if IS_REACHABLE(CONFIG_INET_XFRM_TUNNEL)
+	err = xfrm4_tunnel_register(&xfrmi_ipip_handler, AF_INET);
+	if (err < 0)
+		goto xfrm_tunnel_ipip_failed;
+	err = xfrm4_tunnel_register(&xfrmi_ipip6_handler, AF_INET6);
+	if (err < 0)
+		goto xfrm_tunnel_ipip6_failed;
+#endif
+
+	return 0;
+
+#if IS_REACHABLE(CONFIG_INET_XFRM_TUNNEL)
+xfrm_tunnel_ipip6_failed:
+	xfrm4_tunnel_deregister(&xfrmi_ipip_handler, AF_INET);
+xfrm_tunnel_ipip_failed:
+	xfrm4_protocol_deregister(&xfrmi_ipcomp4_protocol, IPPROTO_COMP);
+#endif
+>>>>>>> upstream/android-13
 xfrm_proto_comp_failed:
 	xfrm4_protocol_deregister(&xfrmi_ah4_protocol, IPPROTO_AH);
 xfrm_proto_ah_failed:
@@ -882,6 +1156,13 @@ xfrm_proto_esp_failed:
 
 static void xfrmi4_fini(void)
 {
+<<<<<<< HEAD
+=======
+#if IS_REACHABLE(CONFIG_INET_XFRM_TUNNEL)
+	xfrm4_tunnel_deregister(&xfrmi_ipip6_handler, AF_INET6);
+	xfrm4_tunnel_deregister(&xfrmi_ipip_handler, AF_INET);
+#endif
+>>>>>>> upstream/android-13
 	xfrm4_protocol_deregister(&xfrmi_ipcomp4_protocol, IPPROTO_COMP);
 	xfrm4_protocol_deregister(&xfrmi_ah4_protocol, IPPROTO_AH);
 	xfrm4_protocol_deregister(&xfrmi_esp4_protocol, IPPROTO_ESP);
@@ -900,9 +1181,29 @@ static int __init xfrmi6_init(void)
 	err = xfrm6_protocol_register(&xfrmi_ipcomp6_protocol, IPPROTO_COMP);
 	if (err < 0)
 		goto xfrm_proto_comp_failed;
+<<<<<<< HEAD
 
 	return 0;
 
+=======
+#if IS_REACHABLE(CONFIG_INET6_XFRM_TUNNEL)
+	err = xfrm6_tunnel_register(&xfrmi_ipv6_handler, AF_INET6);
+	if (err < 0)
+		goto xfrm_tunnel_ipv6_failed;
+	err = xfrm6_tunnel_register(&xfrmi_ip6ip_handler, AF_INET);
+	if (err < 0)
+		goto xfrm_tunnel_ip6ip_failed;
+#endif
+
+	return 0;
+
+#if IS_REACHABLE(CONFIG_INET6_XFRM_TUNNEL)
+xfrm_tunnel_ip6ip_failed:
+	xfrm6_tunnel_deregister(&xfrmi_ipv6_handler, AF_INET6);
+xfrm_tunnel_ipv6_failed:
+	xfrm6_protocol_deregister(&xfrmi_ipcomp6_protocol, IPPROTO_COMP);
+#endif
+>>>>>>> upstream/android-13
 xfrm_proto_comp_failed:
 	xfrm6_protocol_deregister(&xfrmi_ah6_protocol, IPPROTO_AH);
 xfrm_proto_ah_failed:
@@ -913,6 +1214,13 @@ xfrm_proto_esp_failed:
 
 static void xfrmi6_fini(void)
 {
+<<<<<<< HEAD
+=======
+#if IS_REACHABLE(CONFIG_INET6_XFRM_TUNNEL)
+	xfrm6_tunnel_deregister(&xfrmi_ip6ip_handler, AF_INET);
+	xfrm6_tunnel_deregister(&xfrmi_ipv6_handler, AF_INET6);
+#endif
+>>>>>>> upstream/android-13
 	xfrm6_protocol_deregister(&xfrmi_ipcomp6_protocol, IPPROTO_COMP);
 	xfrm6_protocol_deregister(&xfrmi_ah6_protocol, IPPROTO_AH);
 	xfrm6_protocol_deregister(&xfrmi_esp6_protocol, IPPROTO_ESP);

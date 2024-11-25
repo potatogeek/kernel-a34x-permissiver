@@ -2,7 +2,12 @@
 /*
  * lib/bust_spinlocks.c
  *
+<<<<<<< HEAD
  * Provides a minimal bust_spinlocks for architectures which don't have one of their own.
+=======
+ * Provides a minimal bust_spinlocks for architectures which don't
+ * have one of their own.
+>>>>>>> upstream/android-13
  *
  * bust_spinlocks() clears any spinlocks which would prevent oops, die(), BUG()
  * and panic() information from reaching the user.
@@ -16,8 +21,12 @@
 #include <linux/vt_kern.h>
 #include <linux/console.h>
 
+<<<<<<< HEAD
 
 void __attribute__((weak)) bust_spinlocks(int yes)
+=======
+void bust_spinlocks(int yes)
+>>>>>>> upstream/android-13
 {
 	if (yes) {
 		++oops_in_progress;

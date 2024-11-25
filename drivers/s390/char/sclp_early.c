@@ -9,6 +9,7 @@
 #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
 
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <asm/ctl_reg.h>
 #include <asm/sclp.h>
 #include <asm/ipl.h>
@@ -57,11 +58,23 @@ struct read_info_sccb {
 	u8	_pad_128[4096 - 128];	/* 128-4095 */
 } __packed __aligned(PAGE_SIZE);
 
+=======
+#include <linux/memblock.h>
+#include <asm/ctl_reg.h>
+#include <asm/sclp.h>
+#include <asm/ipl.h>
+#include <asm/setup.h>
+#include <asm/facility.h>
+#include "sclp_sdias.h"
+#include "sclp.h"
+
+>>>>>>> upstream/android-13
 static struct sclp_ipl_info sclp_ipl_info;
 
 struct sclp_info sclp;
 EXPORT_SYMBOL(sclp);
 
+<<<<<<< HEAD
 static int __init sclp_early_read_info(struct read_info_sccb *sccb)
 {
 	int i;
@@ -89,6 +102,16 @@ static void __init sclp_early_facilities_detect(struct read_info_sccb *sccb)
 	u16 boot_cpu_address, cpu;
 
 	if (sclp_early_read_info(sccb))
+=======
+static void __init sclp_early_facilities_detect(void)
+{
+	struct sclp_core_entry *cpue;
+	struct read_info_sccb *sccb;
+	u16 boot_cpu_address, cpu;
+
+	sccb = sclp_early_get_info();
+	if (!sccb)
+>>>>>>> upstream/android-13
 		return;
 
 	sclp.facilities = sccb->facilities;
@@ -107,6 +130,13 @@ static void __init sclp_early_facilities_detect(struct read_info_sccb *sccb)
 		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
 	if (sccb->fac91 & 0x40)
 		S390_lowcore.machine_flags |= MACHINE_FLAG_TLB_GUEST;
+<<<<<<< HEAD
+=======
+	if (sccb->cpuoff > 134)
+		sclp.has_diag318 = !!(sccb->byte_134 & 0x80);
+	if (sccb->cpuoff > 137)
+		sclp.has_sipl = !!(sccb->cbl & 0x4000);
+>>>>>>> upstream/android-13
 	sclp.rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
 	sclp.rzm = sccb->rnsize ? sccb->rnsize : sccb->rnsize2;
 	sclp.rzm <<= 20;
@@ -147,11 +177,20 @@ static void __init sclp_early_facilities_detect(struct read_info_sccb *sccb)
 		sclp_ipl_info.has_dump = 1;
 	memcpy(&sclp_ipl_info.loadparm, &sccb->loadparm, LOADPARM_LEN);
 
+<<<<<<< HEAD
+=======
+	if (sccb->hsa_size)
+		sclp.hsa_size = (sccb->hsa_size - 1) * PAGE_SIZE;
+>>>>>>> upstream/android-13
 	sclp.mtid = (sccb->fac42 & 0x80) ? (sccb->fac42 & 31) : 0;
 	sclp.mtid_cp = (sccb->fac42 & 0x80) ? (sccb->fac43 & 31) : 0;
 	sclp.mtid_prev = (sccb->fac42 & 0x80) ? (sccb->fac66 & 31) : 0;
 
 	sclp.hmfai = sccb->hmfai;
+<<<<<<< HEAD
+=======
+	sclp.has_dirq = !!(sccb->cpudirq & 0x80);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -164,6 +203,7 @@ void __init sclp_early_get_ipl_info(struct sclp_ipl_info *info)
 	*info = sclp_ipl_info;
 }
 
+<<<<<<< HEAD
 static struct sclp_core_info sclp_early_core_info __initdata;
 static int sclp_early_core_info_valid __initdata;
 
@@ -242,6 +282,36 @@ out:
 	raw_local_irq_restore(flags);
 	if (size > 0)
 		sclp.hsa_size = size;
+=======
+int __init sclp_early_get_core_info(struct sclp_core_info *info)
+{
+	struct read_cpu_info_sccb *sccb;
+	int length = test_facility(140) ? EXT_SCCB_READ_CPU : PAGE_SIZE;
+	int rc = 0;
+
+	if (!SCLP_HAS_CPU_INFO)
+		return -EOPNOTSUPP;
+
+	sccb = memblock_alloc_low(length, PAGE_SIZE);
+	if (!sccb)
+		return -ENOMEM;
+
+	memset(sccb, 0, length);
+	sccb->header.length = length;
+	sccb->header.control_mask[2] = 0x80;
+	if (sclp_early_cmd(SCLP_CMDW_READ_CPU_INFO, sccb)) {
+		rc = -EIO;
+		goto out;
+	}
+	if (sccb->header.response_code != 0x0010) {
+		rc = -EIO;
+		goto out;
+	}
+	sclp_fill_core_info(info, sccb);
+out:
+	memblock_free_early((unsigned long)sccb, length);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static void __init sclp_early_console_detect(struct init_sccb *sccb)
@@ -258,11 +328,17 @@ static void __init sclp_early_console_detect(struct init_sccb *sccb)
 
 void __init sclp_early_detect(void)
 {
+<<<<<<< HEAD
 	void *sccb = &sclp_early_sccb;
 
 	sclp_early_facilities_detect(sccb);
 	sclp_early_init_core_info(sccb);
 	sclp_early_hsa_size_detect(sccb);
+=======
+	void *sccb = sclp_early_sccb;
+
+	sclp_early_facilities_detect();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Turn off SCLP event notifications.  Also save remote masks in the

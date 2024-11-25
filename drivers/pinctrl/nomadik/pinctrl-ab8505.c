@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2012
  *
  * Author: Patrice Chotard <patrice.chotard@stericsson.com> for ST-Ericsson.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,6 +15,12 @@
 
 #include <linux/kernel.h>
 #include <linux/gpio.h>
+=======
+ */
+
+#include <linux/kernel.h>
+#include <linux/gpio/driver.h>
+>>>>>>> upstream/android-13
 #include <linux/pinctrl/pinctrl.h>
 #include <linux/mfd/abx500/ab8500.h>
 #include "pinctrl-abx500.h"
@@ -181,6 +192,10 @@ static const struct abx500_pingroup ab8505_groups[] = {
 	AB8505_PIN_GROUP(gpio40_a_1, ABX500_ALT_A),
 	AB8505_PIN_GROUP(gpio41_a_1, ABX500_ALT_A),
 	AB8505_PIN_GROUP(uartrxdata_a_1, ABX500_ALT_A),
+<<<<<<< HEAD
+=======
+	AB8505_PIN_GROUP(gpio50_a_1, ABX500_ALT_A),
+>>>>>>> upstream/android-13
 	AB8505_PIN_GROUP(gpio52_a_1, ABX500_ALT_A),
 	AB8505_PIN_GROUP(gpio53_a_1, ABX500_ALT_A),
 	AB8505_PIN_GROUP(pdmdata_b_1, ABX500_ALT_B),

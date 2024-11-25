@@ -1,3 +1,7 @@
 #!/bin/sh
 # description: produce callgraphs in short form for scripting use
+<<<<<<< HEAD
 perf script -s "$PERF_EXEC_PATH"/scripts/python/stackcollapse.py -- "$@"
+=======
+perf script -s "$PERF_EXEC_PATH"/scripts/python/stackcollapse.py "$@"
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
@@ -15,6 +16,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -507,9 +516,14 @@ static int inquiry(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	buf = vmalloc(scsi_bufflen(srb));
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 #ifdef SUPPORT_MAGIC_GATE
 	if ((chip->mspro_formatter_enable) &&
@@ -637,9 +651,14 @@ static int request_sense(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	buf = vmalloc(scsi_bufflen(srb));
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	tmp = (unsigned char *)sense;
 	memcpy(buf, tmp, scsi_bufflen(srb));
@@ -783,9 +802,14 @@ static int mode_sense(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 #endif
 
 	buf = kmalloc(data_size, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	page_code = srb->cmnd[2] & 0x3f;
 
@@ -999,9 +1023,14 @@ static int read_format_capacity(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	buf_len = (scsi_bufflen(srb) > 12) ? 0x14 : 12;
 
 	buf = kmalloc(buf_len, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	buf[i++] = 0;
 	buf[i++] = 0;
@@ -1076,9 +1105,14 @@ static int read_capacity(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	buf = kmalloc(8, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	card_size = get_card_size(chip, lun);
 	buf[0] = (unsigned char)((card_size - 1) >> 24);
@@ -1116,9 +1150,14 @@ static int read_eeprom(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	len = ((u16)srb->cmnd[4] << 8) | srb->cmnd[5];
 
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	retval = rtsx_force_power_on(chip, SSC_PDCTL);
 	if (retval != STATUS_SUCCESS) {
@@ -1180,9 +1219,14 @@ static int write_eeprom(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		len = (unsigned short)min_t(unsigned int, scsi_bufflen(srb),
 					len);
 		buf = vmalloc(len);
+<<<<<<< HEAD
 		if (!buf) {
 			return TRANSPORT_ERROR;
 		}
+=======
+		if (!buf)
+			return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 		rtsx_stor_get_xfer_buf(buf, len, srb);
 		scsi_set_resid(srb, scsi_bufflen(srb) - len);
@@ -1227,9 +1271,14 @@ static int read_mem(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	retval = rtsx_force_power_on(chip, SSC_PDCTL);
 	if (retval != STATUS_SUCCESS) {
@@ -1282,9 +1331,14 @@ static int write_mem(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	len = (unsigned short)min_t(unsigned int, scsi_bufflen(srb), len);
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	rtsx_stor_get_xfer_buf(buf, len, srb);
 	scsi_set_resid(srb, scsi_bufflen(srb) - len);
@@ -1702,13 +1756,19 @@ static int set_chip_mode(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	if (phy_debug_mode) {
 		chip->phy_debug_mode = 1;
 		retval = rtsx_write_register(chip, CDRESUMECTL, 0x77, 0);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_FAILED;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		rtsx_disable_bus_int(chip);
 
 		retval = rtsx_read_phy_register(chip, 0x1C, &reg);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_FAILED;
 		}
@@ -1724,10 +1784,25 @@ static int set_chip_mode(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_FAILED;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_FAILED;
+
+		reg |= 0x0001;
+		retval = rtsx_write_phy_register(chip, 0x1C, reg);
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_FAILED;
+	} else {
+		chip->phy_debug_mode = 0;
+		retval = rtsx_write_register(chip, CDRESUMECTL, 0x77, 0x77);
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		rtsx_enable_bus_int(chip);
 
 		retval = rtsx_read_phy_register(chip, 0x1C, &reg);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_FAILED;
 		}
@@ -1737,6 +1812,15 @@ static int set_chip_mode(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_FAILED;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_FAILED;
+
+		reg &= 0xFFFE;
+		retval = rtsx_write_phy_register(chip, 0x1C, reg);
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 	}
 
 	return TRANSPORT_GOOD;
@@ -1840,9 +1924,14 @@ static int read_phy_register(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	if (len) {
 		buf = vmalloc(len);
+<<<<<<< HEAD
 		if (!buf) {
 			return TRANSPORT_ERROR;
 		}
+=======
+		if (!buf)
+			return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 		retval = rtsx_force_power_on(chip, SSC_PDCTL);
 		if (retval != STATUS_SUCCESS) {
@@ -1903,9 +1992,14 @@ static int write_phy_register(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 					len);
 
 		buf = vmalloc(len);
+<<<<<<< HEAD
 		if (!buf) {
 			return TRANSPORT_ERROR;
 		}
+=======
+		if (!buf)
+			return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 		rtsx_stor_get_xfer_buf(buf, len, srb);
 		scsi_set_resid(srb, scsi_bufflen(srb) - len);
@@ -1999,9 +2093,14 @@ static int read_eeprom2(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	len = ((u16)srb->cmnd[6] << 8) | srb->cmnd[7];
 
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	retval = rtsx_force_power_on(chip, SSC_PDCTL);
 	if (retval != STATUS_SUCCESS) {
@@ -2049,9 +2148,14 @@ static int write_eeprom2(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	len = (unsigned short)min_t(unsigned int, scsi_bufflen(srb), len);
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	rtsx_stor_get_xfer_buf(buf, len, srb);
 	scsi_set_resid(srb, scsi_bufflen(srb) - len);
@@ -2096,9 +2200,14 @@ static int read_efuse(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	len = srb->cmnd[5];
 
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	retval = rtsx_force_power_on(chip, SSC_PDCTL);
 	if (retval != STATUS_SUCCESS) {
@@ -2147,9 +2256,14 @@ static int write_efuse(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	len = (u8)min_t(unsigned int, scsi_bufflen(srb), len);
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	rtsx_stor_get_xfer_buf(buf, len, srb);
 	scsi_set_resid(srb, scsi_bufflen(srb) - len);
@@ -2215,20 +2329,31 @@ exit:
 	vfree(buf);
 
 	retval = card_power_off(chip, SPI_CARD);
+<<<<<<< HEAD
 	if (retval != STATUS_SUCCESS) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (retval != STATUS_SUCCESS)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	if (chip->asic_code) {
 		retval = rtsx_write_register(chip, PWR_GATE_CTRL,
 					     LDO3318_PWR_MASK, LDO_OFF);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_ERROR;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 		wait_timeout(600);
 
 		retval = rtsx_write_phy_register(chip, 0x08, val);
+<<<<<<< HEAD
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_ERROR;
 		}
@@ -2238,6 +2363,15 @@ exit:
 		if (retval != STATUS_SUCCESS) {
 			return TRANSPORT_ERROR;
 		}
+=======
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_ERROR;
+
+		retval = rtsx_write_register(chip, PWR_GATE_CTRL,
+					     LDO3318_PWR_MASK, LDO_ON);
+		if (retval != STATUS_SUCCESS)
+			return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 	}
 
 	return result;
@@ -2278,9 +2412,14 @@ static int read_cfg_byte(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	retval = rtsx_read_cfg_seq(chip, func, addr, buf, len);
 	if (retval != STATUS_SUCCESS) {
@@ -2335,9 +2474,14 @@ static int write_cfg_byte(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	len = (unsigned short)min_t(unsigned int, scsi_bufflen(srb), len);
 	buf = vmalloc(len);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	rtsx_stor_get_xfer_buf(buf, len, srb);
 	scsi_set_resid(srb, scsi_bufflen(srb) - len);
@@ -2657,9 +2801,14 @@ static int spi_vendor_cmd(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 
 	rtsx_write_register(chip, CARD_GPIO_DIR, 0x07, gpio_dir);
 
+<<<<<<< HEAD
 	if (result != STATUS_SUCCESS) {
 		return TRANSPORT_FAILED;
 	}
+=======
+	if (result != STATUS_SUCCESS)
+		return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 	return TRANSPORT_GOOD;
 }
@@ -2841,17 +2990,29 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	if (dev_info_id == 0x15) {
+<<<<<<< HEAD
 		buf_len = 0x3A;
 		data_len = 0x3A;
 	} else {
 		buf_len = 0x6A;
+=======
+		buf_len = 0x3C;
+		data_len = 0x3A;
+	} else {
+		buf_len = 0x6C;
+>>>>>>> upstream/android-13
 		data_len = 0x6A;
 	}
 
 	buf = kmalloc(buf_len, GFP_KERNEL);
+<<<<<<< HEAD
 	if (!buf) {
 		return TRANSPORT_ERROR;
 	}
+=======
+	if (!buf)
+		return TRANSPORT_ERROR;
+>>>>>>> upstream/android-13
 
 	i = 0;
 	/*  GET Memory Stick Media Information Response Header */
@@ -2895,11 +3056,15 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 	}
 
 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
+<<<<<<< HEAD
 
 	if (dev_info_id == 0x15)
 		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
 	else
 		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
+=======
+	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
+>>>>>>> upstream/android-13
 
 	kfree(buf);
 	return STATUS_SUCCESS;
@@ -3025,9 +3190,14 @@ static int mg_report_key(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		    (srb->cmnd[8] == 0x04) &&
 		    (srb->cmnd[9] == 0x1C)) {
 			retval = mg_get_local_EKB(srb, chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else {
 			set_sense_type(chip, lun,
@@ -3041,9 +3211,14 @@ static int mg_report_key(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		    (srb->cmnd[8] == 0x00) &&
 		    (srb->cmnd[9] == 0x24)) {
 			retval = mg_get_rsp_chg(srb, chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else {
 			set_sense_type(chip, lun,
@@ -3062,9 +3237,14 @@ static int mg_report_key(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		    (srb->cmnd[4] == 0x00) &&
 		    (srb->cmnd[5] < 32)) {
 			retval = mg_get_ICV(srb, chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else {
 			set_sense_type(chip, lun,
@@ -3131,9 +3311,14 @@ static int mg_send_key(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		    (srb->cmnd[8] == 0x00) &&
 		    (srb->cmnd[9] == 0x0C)) {
 			retval = mg_set_leaf_id(srb, chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else {
 			set_sense_type(chip, lun,
@@ -3147,9 +3332,14 @@ static int mg_send_key(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		    (srb->cmnd[8] == 0x00) &&
 		    (srb->cmnd[9] == 0x0C)) {
 			retval = mg_chg(srb, chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else {
 			set_sense_type(chip, lun,
@@ -3163,9 +3353,14 @@ static int mg_send_key(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		    (srb->cmnd[8] == 0x00) &&
 		    (srb->cmnd[9] == 0x0C)) {
 			retval = mg_rsp(srb, chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else {
 			set_sense_type(chip, lun,
@@ -3184,9 +3379,14 @@ static int mg_send_key(struct scsi_cmnd *srb, struct rtsx_chip *chip)
 		    (srb->cmnd[4] == 0x00) &&
 		    (srb->cmnd[5] < 32)) {
 			retval = mg_set_ICV(srb, chip);
+<<<<<<< HEAD
 			if (retval != STATUS_SUCCESS) {
 				return TRANSPORT_FAILED;
 			}
+=======
+			if (retval != STATUS_SUCCESS)
+				return TRANSPORT_FAILED;
+>>>>>>> upstream/android-13
 
 		} else {
 			set_sense_type(chip, lun,

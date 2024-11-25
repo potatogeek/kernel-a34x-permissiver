@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/bitmap.h>
 #include <linux/bug.h>
 #include <linux/export.h>
@@ -6,8 +10,11 @@
 #include <linux/spinlock.h>
 #include <linux/xarray.h>
 
+<<<<<<< HEAD
 DEFINE_PER_CPU(struct ida_bitmap *, ida_bitmap);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * idr_alloc_u32() - Allocate an ID.
  * @idr: IDR handle.
@@ -39,10 +46,15 @@ int idr_alloc_u32(struct idr *idr, void *ptr, u32 *nextid,
 	unsigned int base = idr->idr_base;
 	unsigned int id = *nextid;
 
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(radix_tree_is_internal_node(ptr)))
 		return -EINVAL;
 	if (WARN_ON_ONCE(!(idr->idr_rt.gfp_mask & ROOT_IS_IDR)))
 		idr->idr_rt.gfp_mask |= IDR_RT_MARKER;
+=======
+	if (WARN_ON_ONCE(!(idr->idr_rt.xa_flags & ROOT_IS_IDR)))
+		idr->idr_rt.xa_flags |= IDR_RT_MARKER;
+>>>>>>> upstream/android-13
 
 	id = (id < base) ? 0 : id - base;
 	radix_tree_iter_init(&iter, id);
@@ -240,10 +252,16 @@ void *idr_get_next_ul(struct idr *idr, unsigned long *nextid)
 		entry = rcu_dereference_raw(*slot);
 		if (!entry)
 			continue;
+<<<<<<< HEAD
 		if (!radix_tree_deref_retry(entry))
 			break;
 		if (slot != (void *)&idr->idr_rt.rnode &&
 				entry != (void *)RADIX_TREE_INTERNAL_NODE)
+=======
+		if (!xa_is_internal(entry))
+			break;
+		if (slot != &idr->idr_rt.xa_head && !xa_is_retry(entry))
+>>>>>>> upstream/android-13
 			break;
 		slot = radix_tree_iter_retry(&iter);
 	}
@@ -297,15 +315,22 @@ void *idr_replace(struct idr *idr, void *ptr, unsigned long id)
 	void __rcu **slot = NULL;
 	void *entry;
 
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(radix_tree_is_internal_node(ptr)))
 		return ERR_PTR(-EINVAL);
+=======
+>>>>>>> upstream/android-13
 	id -= idr->idr_base;
 
 	entry = __radix_tree_lookup(&idr->idr_rt, id, &node, &slot);
 	if (!slot || radix_tree_tag_get(&idr->idr_rt, id, IDR_FREE))
 		return ERR_PTR(-ENOENT);
 
+<<<<<<< HEAD
 	__radix_tree_replace(&idr->idr_rt, node, slot, ptr, NULL);
+=======
+	__radix_tree_replace(&idr->idr_rt, node, slot, ptr);
+>>>>>>> upstream/android-13
 
 	return entry;
 }
@@ -326,6 +351,12 @@ EXPORT_SYMBOL(idr_replace);
  * free the individual IDs in it.  You can use ida_is_empty() to find
  * out whether the IDA has any IDs currently allocated.
  *
+<<<<<<< HEAD
+=======
+ * The IDA handles its own locking.  It is safe to call any of the IDA
+ * functions without synchronisation in your code.
+ *
+>>>>>>> upstream/android-13
  * IDs are currently limited to the range [0-INT_MAX].  If this is an awkward
  * limitation, it should be quite straightforward to raise the maximum.
  */
@@ -333,6 +364,7 @@ EXPORT_SYMBOL(idr_replace);
 /*
  * Developer's notes:
  *
+<<<<<<< HEAD
  * The IDA uses the functionality provided by the IDR & radix tree to store
  * bitmaps in each entry.  The IDR_FREE tag means there is at least one bit
  * free, unlike the IDR where it means at least one entry is free.
@@ -357,12 +389,41 @@ EXPORT_SYMBOL(idr_replace);
  * count.
  *
  * The IDA always requires a lock to alloc/free.  If we add a 'test_bit'
+=======
+ * The IDA uses the functionality provided by the XArray to store bitmaps in
+ * each entry.  The XA_FREE_MARK is only cleared when all bits in the bitmap
+ * have been set.
+ *
+ * I considered telling the XArray that each slot is an order-10 node
+ * and indexing by bit number, but the XArray can't allow a single multi-index
+ * entry in the head, which would significantly increase memory consumption
+ * for the IDA.  So instead we divide the index by the number of bits in the
+ * leaf bitmap before doing a radix tree lookup.
+ *
+ * As an optimisation, if there are only a few low bits set in any given
+ * leaf, instead of allocating a 128-byte bitmap, we store the bits
+ * as a value entry.  Value entries never have the XA_FREE_MARK cleared
+ * because we can always convert them into a bitmap entry.
+ *
+ * It would be possible to optimise further; once we've run out of a
+ * single 128-byte bitmap, we currently switch to a 576-byte node, put
+ * the 128-byte bitmap in the first entry and then start allocating extra
+ * 128-byte entries.  We could instead use the 512 bytes of the node's
+ * data as a bitmap before moving to that scheme.  I do not believe this
+ * is a worthwhile optimisation; Rasmus Villemoes surveyed the current
+ * users of the IDA and almost none of them use more than 1024 entries.
+ * Those that do use more than the 8192 IDs that the 512 bytes would
+ * provide.
+ *
+ * The IDA always uses a lock to alloc/free.  If we add a 'test_bit'
+>>>>>>> upstream/android-13
  * equivalent, it will still need locking.  Going to RCU lookup would require
  * using RCU to free bitmaps, and that's not trivial without embedding an
  * RCU head in the bitmap, which adds a 2-pointer overhead to each 128-byte
  * bitmap, which is excessive.
  */
 
+<<<<<<< HEAD
 #define IDA_MAX (0x80000000U / IDA_BITMAP_BITS - 1)
 
 static int ida_get_new_above(struct ida *ida, int start)
@@ -517,6 +578,8 @@ void ida_destroy(struct ida *ida)
 }
 EXPORT_SYMBOL(ida_destroy);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * ida_alloc_range() - Allocate an unused ID.
  * @ida: IDA handle.
@@ -527,15 +590,27 @@ EXPORT_SYMBOL(ida_destroy);
  * Allocate an ID between @min and @max, inclusive.  The allocated ID will
  * not exceed %INT_MAX, even if @max is larger.
  *
+<<<<<<< HEAD
  * Context: Any context.
+=======
+ * Context: Any context. It is safe to call this function without
+ * locking in your code.
+>>>>>>> upstream/android-13
  * Return: The allocated ID, or %-ENOMEM if memory could not be allocated,
  * or %-ENOSPC if there are no free IDs.
  */
 int ida_alloc_range(struct ida *ida, unsigned int min, unsigned int max,
 			gfp_t gfp)
 {
+<<<<<<< HEAD
 	int id = 0;
 	unsigned long flags;
+=======
+	XA_STATE(xas, &ida->xa, min / IDA_BITMAP_BITS);
+	unsigned bit = min % IDA_BITMAP_BITS;
+	unsigned long flags;
+	struct ida_bitmap *bitmap, *alloc = NULL;
+>>>>>>> upstream/android-13
 
 	if ((int)min < 0)
 		return -ENOSPC;
@@ -543,6 +618,7 @@ int ida_alloc_range(struct ida *ida, unsigned int min, unsigned int max,
 	if ((int)max < 0)
 		max = INT_MAX;
 
+<<<<<<< HEAD
 again:
 	xa_lock_irqsave(&ida->ida_rt, flags);
 	id = ida_get_new_above(ida, min);
@@ -559,6 +635,90 @@ again:
 	}
 
 	return id;
+=======
+retry:
+	xas_lock_irqsave(&xas, flags);
+next:
+	bitmap = xas_find_marked(&xas, max / IDA_BITMAP_BITS, XA_FREE_MARK);
+	if (xas.xa_index > min / IDA_BITMAP_BITS)
+		bit = 0;
+	if (xas.xa_index * IDA_BITMAP_BITS + bit > max)
+		goto nospc;
+
+	if (xa_is_value(bitmap)) {
+		unsigned long tmp = xa_to_value(bitmap);
+
+		if (bit < BITS_PER_XA_VALUE) {
+			bit = find_next_zero_bit(&tmp, BITS_PER_XA_VALUE, bit);
+			if (xas.xa_index * IDA_BITMAP_BITS + bit > max)
+				goto nospc;
+			if (bit < BITS_PER_XA_VALUE) {
+				tmp |= 1UL << bit;
+				xas_store(&xas, xa_mk_value(tmp));
+				goto out;
+			}
+		}
+		bitmap = alloc;
+		if (!bitmap)
+			bitmap = kzalloc(sizeof(*bitmap), GFP_NOWAIT);
+		if (!bitmap)
+			goto alloc;
+		bitmap->bitmap[0] = tmp;
+		xas_store(&xas, bitmap);
+		if (xas_error(&xas)) {
+			bitmap->bitmap[0] = 0;
+			goto out;
+		}
+	}
+
+	if (bitmap) {
+		bit = find_next_zero_bit(bitmap->bitmap, IDA_BITMAP_BITS, bit);
+		if (xas.xa_index * IDA_BITMAP_BITS + bit > max)
+			goto nospc;
+		if (bit == IDA_BITMAP_BITS)
+			goto next;
+
+		__set_bit(bit, bitmap->bitmap);
+		if (bitmap_full(bitmap->bitmap, IDA_BITMAP_BITS))
+			xas_clear_mark(&xas, XA_FREE_MARK);
+	} else {
+		if (bit < BITS_PER_XA_VALUE) {
+			bitmap = xa_mk_value(1UL << bit);
+		} else {
+			bitmap = alloc;
+			if (!bitmap)
+				bitmap = kzalloc(sizeof(*bitmap), GFP_NOWAIT);
+			if (!bitmap)
+				goto alloc;
+			__set_bit(bit, bitmap->bitmap);
+		}
+		xas_store(&xas, bitmap);
+	}
+out:
+	xas_unlock_irqrestore(&xas, flags);
+	if (xas_nomem(&xas, gfp)) {
+		xas.xa_index = min / IDA_BITMAP_BITS;
+		bit = min % IDA_BITMAP_BITS;
+		goto retry;
+	}
+	if (bitmap != alloc)
+		kfree(alloc);
+	if (xas_error(&xas))
+		return xas_error(&xas);
+	return xas.xa_index * IDA_BITMAP_BITS + bit;
+alloc:
+	xas_unlock_irqrestore(&xas, flags);
+	alloc = kzalloc(sizeof(*bitmap), gfp);
+	if (!alloc)
+		return -ENOMEM;
+	xas_set(&xas, min / IDA_BITMAP_BITS);
+	bit = min % IDA_BITMAP_BITS;
+	goto retry;
+nospc:
+	xas_unlock_irqrestore(&xas, flags);
+	kfree(alloc);
+	return -ENOSPC;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ida_alloc_range);
 
@@ -567,6 +727,7 @@ EXPORT_SYMBOL(ida_alloc_range);
  * @ida: IDA handle.
  * @id: Previously allocated ID.
  *
+<<<<<<< HEAD
  * Context: Any context.
  */
 void ida_free(struct ida *ida, unsigned int id)
@@ -579,3 +740,120 @@ void ida_free(struct ida *ida, unsigned int id)
 	xa_unlock_irqrestore(&ida->ida_rt, flags);
 }
 EXPORT_SYMBOL(ida_free);
+=======
+ * Context: Any context. It is safe to call this function without
+ * locking in your code.
+ */
+void ida_free(struct ida *ida, unsigned int id)
+{
+	XA_STATE(xas, &ida->xa, id / IDA_BITMAP_BITS);
+	unsigned bit = id % IDA_BITMAP_BITS;
+	struct ida_bitmap *bitmap;
+	unsigned long flags;
+
+	BUG_ON((int)id < 0);
+
+	xas_lock_irqsave(&xas, flags);
+	bitmap = xas_load(&xas);
+
+	if (xa_is_value(bitmap)) {
+		unsigned long v = xa_to_value(bitmap);
+		if (bit >= BITS_PER_XA_VALUE)
+			goto err;
+		if (!(v & (1UL << bit)))
+			goto err;
+		v &= ~(1UL << bit);
+		if (!v)
+			goto delete;
+		xas_store(&xas, xa_mk_value(v));
+	} else {
+		if (!test_bit(bit, bitmap->bitmap))
+			goto err;
+		__clear_bit(bit, bitmap->bitmap);
+		xas_set_mark(&xas, XA_FREE_MARK);
+		if (bitmap_empty(bitmap->bitmap, IDA_BITMAP_BITS)) {
+			kfree(bitmap);
+delete:
+			xas_store(&xas, NULL);
+		}
+	}
+	xas_unlock_irqrestore(&xas, flags);
+	return;
+ err:
+	xas_unlock_irqrestore(&xas, flags);
+	WARN(1, "ida_free called for id=%d which is not allocated.\n", id);
+}
+EXPORT_SYMBOL(ida_free);
+
+/**
+ * ida_destroy() - Free all IDs.
+ * @ida: IDA handle.
+ *
+ * Calling this function frees all IDs and releases all resources used
+ * by an IDA.  When this call returns, the IDA is empty and can be reused
+ * or freed.  If the IDA is already empty, there is no need to call this
+ * function.
+ *
+ * Context: Any context. It is safe to call this function without
+ * locking in your code.
+ */
+void ida_destroy(struct ida *ida)
+{
+	XA_STATE(xas, &ida->xa, 0);
+	struct ida_bitmap *bitmap;
+	unsigned long flags;
+
+	xas_lock_irqsave(&xas, flags);
+	xas_for_each(&xas, bitmap, ULONG_MAX) {
+		if (!xa_is_value(bitmap))
+			kfree(bitmap);
+		xas_store(&xas, NULL);
+	}
+	xas_unlock_irqrestore(&xas, flags);
+}
+EXPORT_SYMBOL(ida_destroy);
+
+#ifndef __KERNEL__
+extern void xa_dump_index(unsigned long index, unsigned int shift);
+#define IDA_CHUNK_SHIFT		ilog2(IDA_BITMAP_BITS)
+
+static void ida_dump_entry(void *entry, unsigned long index)
+{
+	unsigned long i;
+
+	if (!entry)
+		return;
+
+	if (xa_is_node(entry)) {
+		struct xa_node *node = xa_to_node(entry);
+		unsigned int shift = node->shift + IDA_CHUNK_SHIFT +
+			XA_CHUNK_SHIFT;
+
+		xa_dump_index(index * IDA_BITMAP_BITS, shift);
+		xa_dump_node(node);
+		for (i = 0; i < XA_CHUNK_SIZE; i++)
+			ida_dump_entry(node->slots[i],
+					index | (i << node->shift));
+	} else if (xa_is_value(entry)) {
+		xa_dump_index(index * IDA_BITMAP_BITS, ilog2(BITS_PER_LONG));
+		pr_cont("value: data %lx [%px]\n", xa_to_value(entry), entry);
+	} else {
+		struct ida_bitmap *bitmap = entry;
+
+		xa_dump_index(index * IDA_BITMAP_BITS, IDA_CHUNK_SHIFT);
+		pr_cont("bitmap: %p data", bitmap);
+		for (i = 0; i < IDA_BITMAP_LONGS; i++)
+			pr_cont(" %lx", bitmap->bitmap[i]);
+		pr_cont("\n");
+	}
+}
+
+static void ida_dump(struct ida *ida)
+{
+	struct xarray *xa = &ida->xa;
+	pr_debug("ida: %p node %p free %d\n", ida, xa->xa_head,
+				xa->xa_flags >> ROOT_TAG_SHIFT);
+	ida_dump_entry(xa->xa_head, 0);
+}
+#endif
+>>>>>>> upstream/android-13

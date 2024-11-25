@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * isac.c   ISAC specific routines
  *
  * Author       Karsten Keil <keil@isdn4linux.de>
  *
  * Copyright 2009  by Karsten Keil <keil@isdn4linux.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irqreturn.h>
@@ -203,8 +210,12 @@ isac_rme_irq(struct isac_hw *isac)
 #endif
 		}
 		WriteISAC(isac, ISAC_CMDR, 0x80);
+<<<<<<< HEAD
 		if (isac->dch.rx_skb)
 			dev_kfree_skb(isac->dch.rx_skb);
+=======
+		dev_kfree_skb(isac->dch.rx_skb);
+>>>>>>> upstream/android-13
 		isac->dch.rx_skb = NULL;
 	} else {
 		count = ReadISAC(isac, ISAC_RBCL) & 0x1f;
@@ -223,8 +234,12 @@ isac_xpr_irq(struct isac_hw *isac)
 	if (isac->dch.tx_skb && isac->dch.tx_idx < isac->dch.tx_skb->len) {
 		isac_fill_fifo(isac);
 	} else {
+<<<<<<< HEAD
 		if (isac->dch.tx_skb)
 			dev_kfree_skb(isac->dch.tx_skb);
+=======
+		dev_kfree_skb(isac->dch.tx_skb);
+>>>>>>> upstream/android-13
 		if (get_next_dframe(&isac->dch))
 			isac_fill_fifo(isac);
 	}
@@ -477,8 +492,12 @@ isacsx_rme_irq(struct isac_hw *isac)
 			isac->dch.err_crc++;
 #endif
 		WriteISAC(isac, ISACX_CMDRD, ISACX_CMDRD_RMC);
+<<<<<<< HEAD
 		if (isac->dch.rx_skb)
 			dev_kfree_skb(isac->dch.rx_skb);
+=======
+		dev_kfree_skb(isac->dch.rx_skb);
+>>>>>>> upstream/android-13
 		isac->dch.rx_skb = NULL;
 	} else {
 		count = ReadISAC(isac, ISACX_RBCLD) & 0x1f;
@@ -952,8 +971,13 @@ hscx_empty_fifo(struct hscx_hw *hscx, u8 count)
 		hscx_cmdr(hscx, 0x80); /* RMC */
 		if (hscx->bch.rx_skb)
 			skb_trim(hscx->bch.rx_skb, 0);
+<<<<<<< HEAD
 		pr_warning("%s.B%d: No bufferspace for %d bytes\n",
 			   hscx->ip->name, hscx->bch.nr, count);
+=======
+		pr_warn("%s.B%d: No bufferspace for %d bytes\n",
+			hscx->ip->name, hscx->bch.nr, count);
+>>>>>>> upstream/android-13
 		return;
 	}
 	p = skb_put(hscx->bch.rx_skb, count);
@@ -1025,8 +1049,12 @@ hscx_xpr(struct hscx_hw *hx)
 	if (hx->bch.tx_skb && hx->bch.tx_idx < hx->bch.tx_skb->len) {
 		hscx_fill_fifo(hx);
 	} else {
+<<<<<<< HEAD
 		if (hx->bch.tx_skb)
 			dev_kfree_skb(hx->bch.tx_skb);
+=======
+		dev_kfree_skb(hx->bch.tx_skb);
+>>>>>>> upstream/android-13
 		if (get_next_bframe(&hx->bch)) {
 			hscx_fill_fifo(hx);
 			test_and_clear_bit(FLG_TX_EMPTY, &hx->bch.Flags);

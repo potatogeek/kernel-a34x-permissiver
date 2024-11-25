@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * asb100.c - Part of lm_sensors, Linux kernel modules for hardware
  *	      monitoring
@@ -9,6 +13,7 @@
  * Copyright (C) 1998 - 2003  Frodo Looijaard <frodol@dds.nl>,
  *			      Philip Edelbrock <phil@netroedge.com>, and
  *			      Mark Studebaker <mdsxyz123@yahoo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -218,8 +225,12 @@ struct asb100_data {
 static int asb100_read_value(struct i2c_client *client, u16 reg);
 static void asb100_write_value(struct i2c_client *client, u16 reg, u16 val);
 
+<<<<<<< HEAD
 static int asb100_probe(struct i2c_client *client,
 			const struct i2c_device_id *id);
+=======
+static int asb100_probe(struct i2c_client *client);
+>>>>>>> upstream/android-13
 static int asb100_detect(struct i2c_client *client,
 			 struct i2c_board_info *info);
 static int asb100_remove(struct i2c_client *client);
@@ -237,7 +248,11 @@ static struct i2c_driver asb100_driver = {
 	.driver = {
 		.name	= "asb100",
 	},
+<<<<<<< HEAD
 	.probe		= asb100_probe,
+=======
+	.probe_new	= asb100_probe,
+>>>>>>> upstream/android-13
 	.remove		= asb100_remove,
 	.id_table	= asb100_id,
 	.detect		= asb100_detect,
@@ -719,6 +734,7 @@ static int asb100_detect_subclients(struct i2c_client *client)
 		goto ERROR_SC_2;
 	}
 
+<<<<<<< HEAD
 	data->lm75[0] = i2c_new_dummy(adapter, sc_addr[0]);
 	if (!data->lm75[0]) {
 		dev_err(&client->dev,
@@ -734,6 +750,23 @@ static int asb100_detect_subclients(struct i2c_client *client)
 			"subclient %d registration at address 0x%x failed.\n",
 			2, sc_addr[1]);
 		err = -ENOMEM;
+=======
+	data->lm75[0] = i2c_new_dummy_device(adapter, sc_addr[0]);
+	if (IS_ERR(data->lm75[0])) {
+		dev_err(&client->dev,
+			"subclient %d registration at address 0x%x failed.\n",
+			1, sc_addr[0]);
+		err = PTR_ERR(data->lm75[0]);
+		goto ERROR_SC_2;
+	}
+
+	data->lm75[1] = i2c_new_dummy_device(adapter, sc_addr[1]);
+	if (IS_ERR(data->lm75[1])) {
+		dev_err(&client->dev,
+			"subclient %d registration at address 0x%x failed.\n",
+			2, sc_addr[1]);
+		err = PTR_ERR(data->lm75[1]);
+>>>>>>> upstream/android-13
 		goto ERROR_SC_3;
 	}
 
@@ -788,8 +821,12 @@ static int asb100_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int asb100_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int asb100_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct asb100_data *data;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Linux driver for Disk-On-Chip devices
  *
@@ -5,6 +9,7 @@
  * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
  * Copyright © 2002-2003 Greg Ungerer <gerg@snapgear.com>
  * Copyright © 2002-2003 SnapGear Inc
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MTD_DOC2000_H__

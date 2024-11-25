@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * nomadik.h
  *
  * Copyright (C) ST-Ericsson SA 2013
  * Author: Gabriel Fernandez <gabriel.fernandez@st.com> for ST-Ericsson.
+<<<<<<< HEAD
  * License terms:  GNU General Public License (GPL), version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #define INPUT_NOPULL		0

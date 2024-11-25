@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
  * Copyright Darryl Miles G7LED (dlm@g7led.demon.co.uk)
@@ -125,7 +130,11 @@ static int nr_state2_machine(struct sock *sk, struct sk_buff *skb,
 
 	case NR_DISCREQ:
 		nr_write_internal(sk, NR_DISCACK);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NR_DISCACK:
 		nr_disconnect(sk, 0);
 		break;
@@ -156,7 +165,10 @@ static int nr_state3_machine(struct sock *sk, struct sk_buff *skb, int frametype
 	int queued = 0;
 
 	nr = skb->data[18];
+<<<<<<< HEAD
 	ns = skb->data[17];
+=======
+>>>>>>> upstream/android-13
 
 	switch (frametype) {
 	case NR_CONNREQ:

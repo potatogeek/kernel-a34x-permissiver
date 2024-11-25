@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Rockchip machine ASoC driver for boards using MAX98357A/RT5514/DA7219
  *
  * Copyright (c) 2016, ROCKCHIP CORPORATION.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -43,6 +50,22 @@ static unsigned int dmic_wakeup_delay;
 
 static struct snd_soc_jack rockchip_sound_jack;
 
+<<<<<<< HEAD
+=======
+/* Headset jack detection DAPM pins */
+static struct snd_soc_jack_pin rockchip_sound_jack_pins[] = {
+	{
+		.pin = "Headphones",
+		.mask = SND_JACK_HEADPHONE,
+	},
+	{
+		.pin = "Headset Mic",
+		.mask = SND_JACK_MICROPHONE,
+	},
+
+};
+
+>>>>>>> upstream/android-13
 static const struct snd_soc_dapm_widget rockchip_dapm_widgets[] = {
 	SND_SOC_DAPM_HP("Headphones", NULL),
 	SND_SOC_DAPM_SPK("Speakers", NULL),
@@ -62,6 +85,7 @@ static const struct snd_kcontrol_new rockchip_controls[] = {
 static int rockchip_sound_max98357a_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	unsigned int mclk;
 	int ret;
@@ -81,6 +105,15 @@ static int rockchip_sound_max98357a_hw_params(struct snd_pcm_substream *substrea
 	}
 
 	ret = snd_soc_dai_set_sysclk(rtd->cpu_dai, 0, mclk, 0);
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	unsigned int mclk;
+	int ret;
+
+	mclk = params_rate(params) * SOUND_FS;
+
+	ret = snd_soc_dai_set_sysclk(asoc_rtd_to_cpu(rtd, 0), 0, mclk, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(rtd->card->dev, "%s() error setting sysclk to %u: %d\n",
 				__func__, mclk, ret);
@@ -93,9 +126,15 @@ static int rockchip_sound_max98357a_hw_params(struct snd_pcm_substream *substrea
 static int rockchip_sound_rt5514_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	unsigned int mclk;
 	int ret;
 
@@ -125,9 +164,15 @@ static int rockchip_sound_rt5514_hw_params(struct snd_pcm_substream *substream,
 static int rockchip_sound_da7219_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	int mclk, ret;
 
 	/* in bypass mode, the mclk has to be one of the frequencies below */
@@ -176,8 +221,13 @@ static int rockchip_sound_da7219_hw_params(struct snd_pcm_substream *substream,
 
 static int rockchip_sound_da7219_init(struct snd_soc_pcm_runtime *rtd)
 {
+<<<<<<< HEAD
 	struct snd_soc_component *component = rtd->codec_dais[0]->component;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_component *component = asoc_rtd_to_codec(rtd, 0)->component;
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* We need default MCLK and PLL settings for the accessory detection */
@@ -199,7 +249,13 @@ static int rockchip_sound_da7219_init(struct snd_soc_pcm_runtime *rtd)
 				    SND_JACK_HEADSET | SND_JACK_LINEOUT |
 				    SND_JACK_BTN_0 | SND_JACK_BTN_1 |
 				    SND_JACK_BTN_2 | SND_JACK_BTN_3,
+<<<<<<< HEAD
 				    &rockchip_sound_jack, NULL, 0);
+=======
+				    &rockchip_sound_jack,
+				    rockchip_sound_jack_pins,
+				    ARRAY_SIZE(rockchip_sound_jack_pins));
+>>>>>>> upstream/android-13
 
 	if (ret) {
 		dev_err(rtd->card->dev, "New Headset Jack failed! (%d)\n", ret);
@@ -223,13 +279,21 @@ static int rockchip_sound_da7219_init(struct snd_soc_pcm_runtime *rtd)
 static int rockchip_sound_dmic_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+>>>>>>> upstream/android-13
 	unsigned int mclk;
 	int ret;
 
 	mclk = params_rate(params) * SOUND_FS;
 
+<<<<<<< HEAD
 	ret = snd_soc_dai_set_sysclk(rtd->cpu_dai, 0, mclk, 0);
+=======
+	ret = snd_soc_dai_set_sysclk(asoc_rtd_to_cpu(rtd, 0), 0, mclk, 0);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(rtd->card->dev, "%s() error setting sysclk to %u: %d\n",
 				__func__, mclk, ret);
@@ -242,19 +306,45 @@ static int rockchip_sound_dmic_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_soc_ops rockchip_sound_max98357a_ops = {
+=======
+static int rockchip_sound_startup(struct snd_pcm_substream *substream)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+
+	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
+	return snd_pcm_hw_constraint_minmax(runtime, SNDRV_PCM_HW_PARAM_RATE,
+			8000, 96000);
+}
+
+static const struct snd_soc_ops rockchip_sound_max98357a_ops = {
+	.startup = rockchip_sound_startup,
+>>>>>>> upstream/android-13
 	.hw_params = rockchip_sound_max98357a_hw_params,
 };
 
 static const struct snd_soc_ops rockchip_sound_rt5514_ops = {
+<<<<<<< HEAD
+=======
+	.startup = rockchip_sound_startup,
+>>>>>>> upstream/android-13
 	.hw_params = rockchip_sound_rt5514_hw_params,
 };
 
 static const struct snd_soc_ops rockchip_sound_da7219_ops = {
+<<<<<<< HEAD
+=======
+	.startup = rockchip_sound_startup,
+>>>>>>> upstream/android-13
 	.hw_params = rockchip_sound_da7219_hw_params,
 };
 
 static const struct snd_soc_ops rockchip_sound_dmic_ops = {
+<<<<<<< HEAD
+=======
+	.startup = rockchip_sound_startup,
+>>>>>>> upstream/android-13
 	.hw_params = rockchip_sound_dmic_hw_params,
 };
 
@@ -276,56 +366,127 @@ enum {
 	DAILINK_RT5514_DSP,
 };
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(cdndp,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "spdif-hifi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(da7219,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "da7219-hifi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(dmic,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "dmic-hifi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(max98357a,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "HiFi")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(rt5514,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_CODEC(NULL, "rt5514-aif1")),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+SND_SOC_DAILINK_DEFS(rt5514_dsp,
+	DAILINK_COMP_ARRAY(COMP_EMPTY()),
+	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+
+>>>>>>> upstream/android-13
 static const struct snd_soc_dai_link rockchip_dais[] = {
 	[DAILINK_CDNDP] = {
 		.name = "DP",
 		.stream_name = "DP PCM",
+<<<<<<< HEAD
 		.codec_dai_name = "spdif-hifi",
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
+=======
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+			SND_SOC_DAIFMT_CBS_CFS,
+		SND_SOC_DAILINK_REG(cdndp),
+>>>>>>> upstream/android-13
 	},
 	[DAILINK_DA7219] = {
 		.name = "DA7219",
 		.stream_name = "DA7219 PCM",
+<<<<<<< HEAD
 		.codec_dai_name = "da7219-hifi",
+=======
+>>>>>>> upstream/android-13
 		.init = rockchip_sound_da7219_init,
 		.ops = &rockchip_sound_da7219_ops,
 		/* set da7219 as slave */
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(da7219),
+>>>>>>> upstream/android-13
 	},
 	[DAILINK_DMIC] = {
 		.name = "DMIC",
 		.stream_name = "DMIC PCM",
+<<<<<<< HEAD
 		.codec_dai_name = "dmic-hifi",
 		.ops = &rockchip_sound_dmic_ops,
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
+=======
+		.ops = &rockchip_sound_dmic_ops,
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+			SND_SOC_DAIFMT_CBS_CFS,
+		SND_SOC_DAILINK_REG(dmic),
+>>>>>>> upstream/android-13
 	},
 	[DAILINK_MAX98357A] = {
 		.name = "MAX98357A",
 		.stream_name = "MAX98357A PCM",
+<<<<<<< HEAD
 		.codec_dai_name = "HiFi",
+=======
+>>>>>>> upstream/android-13
 		.ops = &rockchip_sound_max98357a_ops,
 		/* set max98357a as slave */
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(max98357a),
+>>>>>>> upstream/android-13
 	},
 	[DAILINK_RT5514] = {
 		.name = "RT5514",
 		.stream_name = "RT5514 PCM",
+<<<<<<< HEAD
 		.codec_dai_name = "rt5514-aif1",
+=======
+>>>>>>> upstream/android-13
 		.ops = &rockchip_sound_rt5514_ops,
 		/* set rt5514 as slave */
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(rt5514),
+>>>>>>> upstream/android-13
 	},
 	/* RT5514 DSP for voice wakeup via spi bus */
 	[DAILINK_RT5514_DSP] = {
 		.name = "RT5514 DSP",
 		.stream_name = "Wake on Voice",
+<<<<<<< HEAD
 		.codec_name = "snd-soc-dummy",
 		.codec_dai_name = "snd-soc-dummy-dai",
+=======
+		SND_SOC_DAILINK_REG(rt5514_dsp),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -416,11 +577,14 @@ static const struct dailink_match_data dailink_match[] = {
 	},
 };
 
+<<<<<<< HEAD
 static int of_dev_node_match(struct device *dev, void *data)
 {
 	return dev->of_node == data;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int rockchip_sound_codec_node_match(struct device_node *np_codec)
 {
 	struct device *dev;
@@ -432,8 +596,13 @@ static int rockchip_sound_codec_node_match(struct device_node *np_codec)
 			continue;
 
 		if (dailink_match[i].bus_type) {
+<<<<<<< HEAD
 			dev = bus_find_device(dailink_match[i].bus_type, NULL,
 					      np_codec, of_dev_node_match);
+=======
+			dev = bus_find_device_by_of_node(dailink_match[i].bus_type,
+							 np_codec);
+>>>>>>> upstream/android-13
 			if (!dev)
 				continue;
 			put_device(dev);
@@ -507,10 +676,17 @@ static int rockchip_sound_of_parse_dais(struct device *dev,
 		dai = &card->dai_link[card->num_links++];
 		*dai = rockchip_dais[index];
 
+<<<<<<< HEAD
 		if (!dai->codec_name)
 			dai->codec_of_node = np_codec;
 		dai->platform_of_node = np_cpu;
 		dai->cpu_of_node = np_cpu;
+=======
+		if (!dai->codecs->name)
+			dai->codecs->of_node = np_codec;
+		dai->platforms->of_node = np_cpu;
+		dai->cpus->of_node = np_cpu;
+>>>>>>> upstream/android-13
 
 		if (card->num_dapm_routes + rockchip_routes[index].num_routes >
 		    num_routes) {

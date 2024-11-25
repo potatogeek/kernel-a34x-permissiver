@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/netdevice.h>
 
@@ -34,6 +40,10 @@
  * @ifidx: interface index related to this event.
  * @ifaddr: ethernet address for interface.
  * @emsg: common parameters of the firmware event message.
+<<<<<<< HEAD
+=======
+ * @datalen: length of the data array
+>>>>>>> upstream/android-13
  * @data: event specific data part of the firmware event.
  */
 struct brcmf_fweh_queue_item {
@@ -43,10 +53,17 @@ struct brcmf_fweh_queue_item {
 	u8 ifaddr[ETH_ALEN];
 	struct brcmf_event_msg_be emsg;
 	u32 datalen;
+<<<<<<< HEAD
 	u8 data[0];
 };
 
 /**
+=======
+	u8 data[];
+};
+
+/*
+>>>>>>> upstream/android-13
  * struct brcmf_fweh_event_name - code, name mapping entry.
  */
 struct brcmf_fweh_event_name {
@@ -102,7 +119,12 @@ static void brcmf_fweh_queue_event(struct brcmf_fweh_info *fweh,
 	schedule_work(&fweh->event_work);
 }
 
+<<<<<<< HEAD
 static int brcmf_fweh_call_event_handler(struct brcmf_if *ifp,
+=======
+static int brcmf_fweh_call_event_handler(struct brcmf_pub *drvr,
+					 struct brcmf_if *ifp,
+>>>>>>> upstream/android-13
 					 enum brcmf_fweh_event_code code,
 					 struct brcmf_event_msg *emsg,
 					 void *data)
@@ -117,9 +139,15 @@ static int brcmf_fweh_call_event_handler(struct brcmf_if *ifp,
 		if (fweh->evt_handler[code])
 			err = fweh->evt_handler[code](ifp, emsg, data);
 		else
+<<<<<<< HEAD
 			brcmf_err("unhandled event %d ignored\n", code);
 	} else {
 		brcmf_err("no interface object\n");
+=======
+			bphy_err(drvr, "unhandled event %d ignored\n", code);
+	} else {
+		bphy_err(drvr, "no interface object\n");
+>>>>>>> upstream/android-13
 	}
 	return err;
 }
@@ -128,8 +156,13 @@ static int brcmf_fweh_call_event_handler(struct brcmf_if *ifp,
  * brcmf_fweh_handle_if_event() - handle IF event.
  *
  * @drvr: driver information object.
+<<<<<<< HEAD
  * @item: queue entry.
  * @ifpp: interface object (may change upon ADD action).
+=======
+ * @emsg: event message object.
+ * @data: event object.
+>>>>>>> upstream/android-13
  */
 static void brcmf_fweh_handle_if_event(struct brcmf_pub *drvr,
 				       struct brcmf_event_msg *emsg,
@@ -138,7 +171,10 @@ static void brcmf_fweh_handle_if_event(struct brcmf_pub *drvr,
 	struct brcmf_if_event *ifevent = data;
 	struct brcmf_if *ifp;
 	bool is_p2pdev;
+<<<<<<< HEAD
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 
 	brcmf_dbg(EVENT, "action: %u ifidx: %u bsscfgidx: %u flags: %u role: %u\n",
 		  ifevent->action, ifevent->ifidx, ifevent->bsscfgidx,
@@ -158,7 +194,11 @@ static void brcmf_fweh_handle_if_event(struct brcmf_pub *drvr,
 		return;
 	}
 	if (ifevent->ifidx >= BRCMF_MAX_IFS) {
+<<<<<<< HEAD
 		brcmf_err("invalid interface index: %u\n", ifevent->ifidx);
+=======
+		bphy_err(drvr, "invalid interface index: %u\n", ifevent->ifidx);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -181,7 +221,12 @@ static void brcmf_fweh_handle_if_event(struct brcmf_pub *drvr,
 	if (ifp && ifevent->action == BRCMF_E_IF_CHANGE)
 		brcmf_proto_reset_if(drvr, ifp);
 
+<<<<<<< HEAD
 	err = brcmf_fweh_call_event_handler(ifp, emsg->event_code, emsg, data);
+=======
+	brcmf_fweh_call_event_handler(drvr, ifp, emsg->event_code, emsg,
+				      data);
+>>>>>>> upstream/android-13
 
 	if (ifp && ifevent->action == BRCMF_E_IF_DEL) {
 		bool armed = brcmf_cfg80211_vif_event_armed(drvr->config);
@@ -268,11 +313,19 @@ static void brcmf_fweh_event_worker(struct work_struct *work)
 			ifp = drvr->iflist[0];
 		else
 			ifp = drvr->iflist[emsg.bsscfgidx];
+<<<<<<< HEAD
 		err = brcmf_fweh_call_event_handler(ifp, event->code, &emsg,
 						    event->data);
 		if (err) {
 			brcmf_err("event handler failed (%d)\n",
 				  event->code);
+=======
+		err = brcmf_fweh_call_event_handler(drvr, ifp, event->code,
+						    &emsg, event->data);
+		if (err) {
+			bphy_err(drvr, "event handler failed (%d)\n",
+				 event->code);
+>>>>>>> upstream/android-13
 			err = 0;
 		}
 event_free:
@@ -312,6 +365,7 @@ void brcmf_fweh_attach(struct brcmf_pub *drvr)
 void brcmf_fweh_detach(struct brcmf_pub *drvr)
 {
 	struct brcmf_fweh_info *fweh = &drvr->fweh;
+<<<<<<< HEAD
 	struct brcmf_if *ifp = brcmf_get_ifp(drvr, 0);
 	s8 eventmask[BRCMF_EVENTING_MASK_LEN];
 
@@ -326,6 +380,15 @@ void brcmf_fweh_detach(struct brcmf_pub *drvr)
 	cancel_work_sync(&fweh->event_work);
 	WARN_ON(!list_empty(&fweh->event_q));
 	memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
+=======
+
+	/* cancel the worker if initialized */
+	if (fweh->event_work.func) {
+		cancel_work_sync(&fweh->event_work);
+		WARN_ON(!list_empty(&fweh->event_q));
+		memset(fweh->evt_handler, 0, sizeof(fweh->evt_handler));
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -339,7 +402,11 @@ int brcmf_fweh_register(struct brcmf_pub *drvr, enum brcmf_fweh_event_code code,
 			brcmf_fweh_handler_t handler)
 {
 	if (drvr->fweh.evt_handler[code]) {
+<<<<<<< HEAD
 		brcmf_err("event code %d already registered\n", code);
+=======
+		bphy_err(drvr, "event code %d already registered\n", code);
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 	}
 	drvr->fweh.evt_handler[code] = handler;
@@ -369,6 +436,10 @@ void brcmf_fweh_unregister(struct brcmf_pub *drvr,
  */
 int brcmf_fweh_activate_events(struct brcmf_if *ifp)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = ifp->drvr;
+>>>>>>> upstream/android-13
 	int i, err;
 	s8 eventmask[BRCMF_EVENTING_MASK_LEN];
 
@@ -388,7 +459,11 @@ int brcmf_fweh_activate_events(struct brcmf_if *ifp)
 	err = brcmf_fil_iovar_data_set(ifp, "event_msgs",
 				       eventmask, BRCMF_EVENTING_MASK_LEN);
 	if (err)
+<<<<<<< HEAD
 		brcmf_err("Set event_msgs error (%d)\n", err);
+=======
+		bphy_err(drvr, "Set event_msgs error (%d)\n", err);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -398,18 +473,30 @@ int brcmf_fweh_activate_events(struct brcmf_if *ifp)
  *
  * @drvr: driver information object.
  * @event_packet: event packet to process.
+<<<<<<< HEAD
+=======
+ * @packet_len: length of the packet
+ * @gfp: memory allocation flags.
+>>>>>>> upstream/android-13
  *
  * If the packet buffer contains a firmware event message it will
  * dispatch the event to a registered handler (using worker).
  */
 void brcmf_fweh_process_event(struct brcmf_pub *drvr,
 			      struct brcmf_event *event_packet,
+<<<<<<< HEAD
 			      u32 packet_len)
+=======
+			      u32 packet_len, gfp_t gfp)
+>>>>>>> upstream/android-13
 {
 	enum brcmf_fweh_event_code code;
 	struct brcmf_fweh_info *fweh = &drvr->fweh;
 	struct brcmf_fweh_queue_item *event;
+<<<<<<< HEAD
 	gfp_t alloc_flag = GFP_KERNEL;
+=======
+>>>>>>> upstream/android-13
 	void *data;
 	u32 datalen;
 
@@ -428,10 +515,14 @@ void brcmf_fweh_process_event(struct brcmf_pub *drvr,
 	    datalen + sizeof(*event_packet) > packet_len)
 		return;
 
+<<<<<<< HEAD
 	if (in_interrupt())
 		alloc_flag = GFP_ATOMIC;
 
 	event = kzalloc(sizeof(*event) + datalen, alloc_flag);
+=======
+	event = kzalloc(sizeof(*event) + datalen, gfp);
+>>>>>>> upstream/android-13
 	if (!event)
 		return;
 

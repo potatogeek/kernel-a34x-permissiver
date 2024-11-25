@@ -9,8 +9,13 @@
 #include <linux/vmalloc.h>
 #include <linux/mm_types.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+>>>>>>> upstream/android-13
 #include <asm/gmap.h>
 #include "kvm-s390.h"
 #include "gaccess.h"
@@ -505,7 +510,11 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
 		switch (prot) {
 		case PROT_TYPE_IEP:
 			tec->b61 = 1;
+<<<<<<< HEAD
 			/* FALL THROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case PROT_TYPE_LA:
 			tec->b56 = 1;
 			break;
@@ -514,12 +523,20 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
 			break;
 		case PROT_TYPE_ALC:
 			tec->b60 = 1;
+<<<<<<< HEAD
 			/* FALL THROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case PROT_TYPE_DAT:
 			tec->b61 = 1;
 			break;
 		}
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PGM_ASCE_TYPE:
 	case PGM_PAGE_TRANSLATION:
 	case PGM_REGION_FIRST_TRANS:
@@ -534,7 +551,11 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
 		tec->addr = gva >> PAGE_SHIFT;
 		tec->fsi = mode == GACC_STORE ? FSI_STORE : FSI_FETCH;
 		tec->as = psw_bits(vcpu->arch.sie_block->gpsw).as;
+<<<<<<< HEAD
 		/* FALL THROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case PGM_ALEN_TRANSLATION:
 	case PGM_ALE_SEQUENCE:
 	case PGM_ASTE_VALIDITY:
@@ -677,7 +698,11 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
 			dat_protection |= rfte.p;
 		ptr = rfte.rto * PAGE_SIZE + vaddr.rsx * 8;
 	}
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASCE_TYPE_REGION2: {
 		union region2_table_entry rste;
 
@@ -695,7 +720,11 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
 			dat_protection |= rste.p;
 		ptr = rste.rto * PAGE_SIZE + vaddr.rtx * 8;
 	}
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASCE_TYPE_REGION3: {
 		union region3_table_entry rtte;
 
@@ -723,7 +752,11 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
 			dat_protection |= rtte.fc0.p;
 		ptr = rtte.fc0.sto * PAGE_SIZE + vaddr.sx * 8;
 	}
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASCE_TYPE_SEGMENT: {
 		union segment_table_entry ste;
 
@@ -894,6 +927,14 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
 
 /**
  * guest_translate_address - translate guest logical into guest absolute address
+<<<<<<< HEAD
+=======
+ * @vcpu: virtual cpu
+ * @gva: Guest virtual address
+ * @ar: Access register
+ * @gpa: Guest physical address
+ * @mode: Translation access mode
+>>>>>>> upstream/android-13
  *
  * Parameter semantics are the same as the ones from guest_translate.
  * The memory contents at the guest address are not changed.
@@ -934,6 +975,14 @@ int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
 
 /**
  * check_gva_range - test a range of guest virtual addresses for accessibility
+<<<<<<< HEAD
+=======
+ * @vcpu: virtual cpu
+ * @gva: Guest virtual address
+ * @ar: Access register
+ * @length: Length of test range
+ * @mode: Translation access mode
+>>>>>>> upstream/android-13
  */
 int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
 		    unsigned long length, enum gacc_mode mode)
@@ -956,6 +1005,10 @@ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
 
 /**
  * kvm_s390_check_low_addr_prot_real - check for low-address protection
+<<<<<<< HEAD
+=======
+ * @vcpu: virtual cpu
+>>>>>>> upstream/android-13
  * @gra: Guest real address
  *
  * Checks whether an address is subject to low-address protection and set
@@ -976,7 +1029,14 @@ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra)
  * kvm_s390_shadow_tables - walk the guest page table and create shadow tables
  * @sg: pointer to the shadow guest address space structure
  * @saddr: faulting address in the shadow gmap
+<<<<<<< HEAD
  * @pgt: pointer to the page table address result
+=======
+ * @pgt: pointer to the beginning of the page table for the given address if
+ *	 successful (return value 0), or to the first invalid DAT entry in
+ *	 case of exceptions (return value > 0)
+ * @dat_protection: referenced memory is write protected
+>>>>>>> upstream/android-13
  * @fake: pgt references contiguous guest memory block, not a pgtable
  */
 static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
@@ -1034,6 +1094,10 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
 			rfte.val = ptr;
 			goto shadow_r2t;
 		}
+<<<<<<< HEAD
+=======
+		*pgt = ptr + vaddr.rfx * 8;
+>>>>>>> upstream/android-13
 		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
 		if (rc)
 			return rc;
@@ -1050,7 +1114,12 @@ shadow_r2t:
 		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
 		if (rc)
 			return rc;
+<<<<<<< HEAD
 	} /* fallthrough */
+=======
+	}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASCE_TYPE_REGION2: {
 		union region2_table_entry rste;
 
@@ -1059,6 +1128,10 @@ shadow_r2t:
 			rste.val = ptr;
 			goto shadow_r3t;
 		}
+<<<<<<< HEAD
+=======
+		*pgt = ptr + vaddr.rsx * 8;
+>>>>>>> upstream/android-13
 		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
 		if (rc)
 			return rc;
@@ -1076,7 +1149,12 @@ shadow_r3t:
 		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
 		if (rc)
 			return rc;
+<<<<<<< HEAD
 	} /* fallthrough */
+=======
+	}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASCE_TYPE_REGION3: {
 		union region3_table_entry rtte;
 
@@ -1085,6 +1163,10 @@ shadow_r3t:
 			rtte.val = ptr;
 			goto shadow_sgt;
 		}
+<<<<<<< HEAD
+=======
+		*pgt = ptr + vaddr.rtx * 8;
+>>>>>>> upstream/android-13
 		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
 		if (rc)
 			return rc;
@@ -1111,7 +1193,12 @@ shadow_sgt:
 		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
 		if (rc)
 			return rc;
+<<<<<<< HEAD
 	} /* fallthrough */
+=======
+	}
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASCE_TYPE_SEGMENT: {
 		union segment_table_entry ste;
 
@@ -1120,6 +1207,10 @@ shadow_sgt:
 			ste.val = ptr;
 			goto shadow_pgt;
 		}
+<<<<<<< HEAD
+=======
+		*pgt = ptr + vaddr.sx * 8;
+>>>>>>> upstream/android-13
 		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
 		if (rc)
 			return rc;
@@ -1154,6 +1245,11 @@ shadow_pgt:
  * @vcpu: virtual cpu
  * @sg: pointer to the shadow guest address space structure
  * @saddr: faulting address in the shadow gmap
+<<<<<<< HEAD
+=======
+ * @datptr: will contain the address of the faulting DAT table entry, or of
+ *	    the valid leaf, plus some flags
+>>>>>>> upstream/android-13
  *
  * Returns: - 0 if the shadow fault was successfully resolved
  *	    - > 0 (pgm exception code) on exceptions while faulting
@@ -1162,6 +1258,7 @@ shadow_pgt:
  *	    - -ENOMEM if out of memory
  */
 int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+<<<<<<< HEAD
 			  unsigned long saddr)
 {
 	union vaddress vaddr;
@@ -1171,6 +1268,17 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
 	int rc;
 
 	down_read(&sg->mm->mmap_sem);
+=======
+			  unsigned long saddr, unsigned long *datptr)
+{
+	union vaddress vaddr;
+	union page_table_entry pte;
+	unsigned long pgt = 0;
+	int dat_protection, fake;
+	int rc;
+
+	mmap_read_lock(sg->mm);
+>>>>>>> upstream/android-13
 	/*
 	 * We don't want any guest-2 tables to change - so the parent
 	 * tables/pointers we read stay valid - unshadowing is however
@@ -1188,8 +1296,25 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
 		pte.val = pgt + vaddr.px * PAGE_SIZE;
 		goto shadow_page;
 	}
+<<<<<<< HEAD
 	if (!rc)
 		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
+=======
+
+	switch (rc) {
+	case PGM_SEGMENT_TRANSLATION:
+	case PGM_REGION_THIRD_TRANS:
+	case PGM_REGION_SECOND_TRANS:
+	case PGM_REGION_FIRST_TRANS:
+		pgt |= PEI_NOT_PTE;
+		break;
+	case 0:
+		pgt += vaddr.px * 8;
+		rc = gmap_read_table(sg->parent, pgt, &pte.val);
+	}
+	if (datptr)
+		*datptr = pgt | dat_protection * PEI_DAT_PROT;
+>>>>>>> upstream/android-13
 	if (!rc && pte.i)
 		rc = PGM_PAGE_TRANSLATION;
 	if (!rc && pte.z)
@@ -1199,6 +1324,10 @@ shadow_page:
 	if (!rc)
 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
 	ipte_unlock(vcpu);
+<<<<<<< HEAD
 	up_read(&sg->mm->mmap_sem);
+=======
+	mmap_read_unlock(sg->mm);
+>>>>>>> upstream/android-13
 	return rc;
 }

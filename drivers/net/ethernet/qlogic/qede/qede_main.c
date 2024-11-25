@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qede NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -33,6 +34,17 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/version.h>
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qede NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+#include <linux/crash_dump.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
@@ -61,6 +73,7 @@
 #include <net/ip6_checksum.h>
 #include <linux/bitops.h>
 #include <linux/vmalloc.h>
+<<<<<<< HEAD
 #include "qede.h"
 #include "qede_ptp.h"
 
@@ -70,6 +83,14 @@ static char version[] =
 MODULE_DESCRIPTION("QLogic FastLinQ 4xxxx Ethernet Driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_MODULE_VERSION);
+=======
+#include <linux/aer.h>
+#include "qede.h"
+#include "qede_ptp.h"
+
+MODULE_DESCRIPTION("QLogic FastLinQ 4xxxx Ethernet Driver");
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13
 
 static uint debug;
 module_param(debug, uint, 0);
@@ -125,6 +146,11 @@ static const struct pci_device_id qede_pci_tbl[] = {
 MODULE_DEVICE_TABLE(pci, qede_pci_tbl);
 
 static int qede_probe(struct pci_dev *pdev, const struct pci_device_id *id);
+<<<<<<< HEAD
+=======
+static pci_ers_result_t
+qede_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state);
+>>>>>>> upstream/android-13
 
 #define TX_TIMEOUT		(5 * HZ)
 
@@ -134,6 +160,7 @@ static int qede_probe(struct pci_dev *pdev, const struct pci_device_id *id);
 static void qede_remove(struct pci_dev *pdev);
 static void qede_shutdown(struct pci_dev *pdev);
 static void qede_link_update(void *dev, struct qed_link_output *link);
+<<<<<<< HEAD
 static void qede_get_eth_tlv_data(void *edev, void *data);
 static void qede_get_generic_tlv_data(void *edev,
 				      struct qed_generic_tlvs *data);
@@ -151,6 +178,16 @@ void __qede_unlock(struct qede_dev *edev)
 	mutex_unlock(&edev->qede_lock);
 }
 
+=======
+static void qede_schedule_recovery_handler(void *dev);
+static void qede_recovery_handler(struct qede_dev *edev);
+static void qede_schedule_hw_err_handler(void *dev,
+					 enum qed_hw_err_type err_type);
+static void qede_get_eth_tlv_data(void *edev, void *data);
+static void qede_get_generic_tlv_data(void *edev,
+				      struct qed_generic_tlvs *data);
+static void qede_generic_hw_err_handler(struct qede_dev *edev);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_QED_SRIOV
 static int qede_set_vf_vlan(struct net_device *ndev, int vf, u16 vlan, u8 qos,
 			    __be16 vlan_proto)
@@ -175,9 +212,13 @@ static int qede_set_vf_mac(struct net_device *ndev, int vfidx, u8 *mac)
 {
 	struct qede_dev *edev = netdev_priv(ndev);
 
+<<<<<<< HEAD
 	DP_VERBOSE(edev, QED_MSG_IOV,
 		   "Setting MAC %02x:%02x:%02x:%02x:%02x:%02x to VF [%d]\n",
 		   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], vfidx);
+=======
+	DP_VERBOSE(edev, QED_MSG_IOV, "Setting MAC %pM to VF [%d]\n", mac, vfidx);
+>>>>>>> upstream/android-13
 
 	if (!is_valid_ether_addr(mac)) {
 		DP_VERBOSE(edev, QED_MSG_IOV, "MAC address isn't valid\n");
@@ -215,6 +256,13 @@ static int qede_sriov_configure(struct pci_dev *pdev, int num_vfs_param)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static const struct pci_error_handlers qede_err_handler = {
+	.error_detected = qede_io_error_detected,
+};
+
+>>>>>>> upstream/android-13
 static struct pci_driver qede_pci_driver = {
 	.name = "qede",
 	.id_table = qede_pci_tbl,
@@ -224,6 +272,10 @@ static struct pci_driver qede_pci_driver = {
 #ifdef CONFIG_QED_SRIOV
 	.sriov_configure = qede_sriov_configure,
 #endif
+<<<<<<< HEAD
+=======
+	.err_handler = &qede_err_handler,
+>>>>>>> upstream/android-13
 };
 
 static struct qed_eth_cb_ops qede_ll_ops = {
@@ -232,6 +284,11 @@ static struct qed_eth_cb_ops qede_ll_ops = {
 		.arfs_filter_op = qede_arfs_filter_op,
 #endif
 		.link_update = qede_link_update,
+<<<<<<< HEAD
+=======
+		.schedule_recovery_handler = qede_schedule_recovery_handler,
+		.schedule_hw_err_handler = qede_schedule_hw_err_handler,
+>>>>>>> upstream/android-13
 		.get_generic_tlv_data = qede_get_generic_tlv_data,
 		.get_protocol_tlv_data = qede_get_eth_tlv_data,
 	},
@@ -285,7 +342,13 @@ int __init qede_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	pr_info("qede_init: %s\n", version);
+=======
+	pr_info("qede init: QLogic FastLinQ 4xxxx Ethernet Driver qede\n");
+
+	qede_forced_speed_maps_init();
+>>>>>>> upstream/android-13
 
 	qed_ops = qed_get_eth_ops();
 	if (!qed_ops) {
@@ -401,6 +464,10 @@ void qede_fill_by_demand_stats(struct qede_dev *edev)
 	p_common->brb_discards = stats.common.brb_discards;
 	p_common->tx_mac_ctrl_frames = stats.common.tx_mac_ctrl_frames;
 	p_common->link_change_count = stats.common.link_change_count;
+<<<<<<< HEAD
+=======
+	p_common->ptp_skip_txts = edev->ptp_skip_txts;
+>>>>>>> upstream/android-13
 
 	if (QEDE_IS_BB(edev)) {
 		struct qede_stats_bb *p_bb = &edev->stats.bb;
@@ -537,6 +604,54 @@ static int qede_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void qede_tx_log_print(struct qede_dev *edev, struct qede_tx_queue *txq)
+{
+	DP_NOTICE(edev,
+		  "Txq[%d]: FW cons [host] %04x, SW cons %04x, SW prod %04x [Jiffies %lu]\n",
+		  txq->index, le16_to_cpu(*txq->hw_cons_ptr),
+		  qed_chain_get_cons_idx(&txq->tx_pbl),
+		  qed_chain_get_prod_idx(&txq->tx_pbl),
+		  jiffies);
+}
+
+static void qede_tx_timeout(struct net_device *dev, unsigned int txqueue)
+{
+	struct qede_dev *edev = netdev_priv(dev);
+	struct qede_tx_queue *txq;
+	int cos;
+
+	netif_carrier_off(dev);
+	DP_NOTICE(edev, "TX timeout on queue %u!\n", txqueue);
+
+	if (!(edev->fp_array[txqueue].type & QEDE_FASTPATH_TX))
+		return;
+
+	for_each_cos_in_txq(edev, cos) {
+		txq = &edev->fp_array[txqueue].txq[cos];
+
+		if (qed_chain_get_cons_idx(&txq->tx_pbl) !=
+		    qed_chain_get_prod_idx(&txq->tx_pbl))
+			qede_tx_log_print(edev, txq);
+	}
+
+	if (IS_VF(edev))
+		return;
+
+	if (test_and_set_bit(QEDE_ERR_IS_HANDLED, &edev->err_flags) ||
+	    edev->state == QEDE_STATE_RECOVERY) {
+		DP_INFO(edev,
+			"Avoid handling a Tx timeout while another HW error is being handled\n");
+		return;
+	}
+
+	set_bit(QEDE_ERR_GET_DBG_INFO, &edev->err_flags);
+	set_bit(QEDE_SP_HW_ERR, &edev->sp_flags);
+	schedule_delayed_work(&edev->sp_task, 0);
+}
+
+>>>>>>> upstream/android-13
 static int qede_setup_tc(struct net_device *ndev, u8 num_tc)
 {
 	struct qede_dev *edev = netdev_priv(ndev);
@@ -558,6 +673,7 @@ static int qede_setup_tc(struct net_device *ndev, u8 num_tc)
 }
 
 static int
+<<<<<<< HEAD
 qede_set_flower(struct qede_dev *edev, struct tc_cls_flower_offload *f,
 		__be16 proto)
 {
@@ -565,6 +681,15 @@ qede_set_flower(struct qede_dev *edev, struct tc_cls_flower_offload *f,
 	case TC_CLSFLOWER_REPLACE:
 		return qede_add_tc_flower_fltr(edev, proto, f);
 	case TC_CLSFLOWER_DESTROY:
+=======
+qede_set_flower(struct qede_dev *edev, struct flow_cls_offload *f,
+		__be16 proto)
+{
+	switch (f->command) {
+	case FLOW_CLS_REPLACE:
+		return qede_add_tc_flower_fltr(edev, proto, f);
+	case FLOW_CLS_DESTROY:
+>>>>>>> upstream/android-13
 		return qede_delete_flow_filter(edev, f->cookie);
 	default:
 		return -EOPNOTSUPP;
@@ -574,7 +699,11 @@ qede_set_flower(struct qede_dev *edev, struct tc_cls_flower_offload *f,
 static int qede_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
 				  void *cb_priv)
 {
+<<<<<<< HEAD
 	struct tc_cls_flower_offload *f;
+=======
+	struct flow_cls_offload *f;
+>>>>>>> upstream/android-13
 	struct qede_dev *edev = cb_priv;
 
 	if (!tc_cls_can_offload_and_chain0(edev->ndev, type_data))
@@ -589,6 +718,7 @@ static int qede_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
 	}
 }
 
+<<<<<<< HEAD
 static int qede_setup_tc_block(struct qede_dev *edev,
 			       struct tc_block_offload *f)
 {
@@ -607,6 +737,9 @@ static int qede_setup_tc_block(struct qede_dev *edev,
 		return -EOPNOTSUPP;
 	}
 }
+=======
+static LIST_HEAD(qede_block_cb_list);
+>>>>>>> upstream/android-13
 
 static int
 qede_setup_tc_offload(struct net_device *dev, enum tc_setup_type type,
@@ -617,7 +750,14 @@ qede_setup_tc_offload(struct net_device *dev, enum tc_setup_type type,
 
 	switch (type) {
 	case TC_SETUP_BLOCK:
+<<<<<<< HEAD
 		return qede_setup_tc_block(edev, type_data);
+=======
+		return flow_block_cb_setup_simple(type_data,
+						  &qede_block_cb_list,
+						  qede_setup_tc_block_cb,
+						  edev, edev, true);
+>>>>>>> upstream/android-13
 	case TC_SETUP_QDISC_MQPRIO:
 		mqprio = type_data;
 
@@ -629,6 +769,7 @@ qede_setup_tc_offload(struct net_device *dev, enum tc_setup_type type,
 }
 
 static const struct net_device_ops qede_netdev_ops = {
+<<<<<<< HEAD
 	.ndo_open = qede_open,
 	.ndo_stop = qede_close,
 	.ndo_start_xmit = qede_start_xmit,
@@ -701,6 +842,77 @@ static const struct net_device_ops qede_netdev_vf_xdp_ops = {
 	.ndo_udp_tunnel_del = qede_udp_tunnel_del,
 	.ndo_features_check = qede_features_check,
 	.ndo_bpf = qede_xdp,
+=======
+	.ndo_open		= qede_open,
+	.ndo_stop		= qede_close,
+	.ndo_start_xmit		= qede_start_xmit,
+	.ndo_select_queue	= qede_select_queue,
+	.ndo_set_rx_mode	= qede_set_rx_mode,
+	.ndo_set_mac_address	= qede_set_mac_addr,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_change_mtu		= qede_change_mtu,
+	.ndo_eth_ioctl		= qede_ioctl,
+	.ndo_tx_timeout		= qede_tx_timeout,
+#ifdef CONFIG_QED_SRIOV
+	.ndo_set_vf_mac		= qede_set_vf_mac,
+	.ndo_set_vf_vlan	= qede_set_vf_vlan,
+	.ndo_set_vf_trust	= qede_set_vf_trust,
+#endif
+	.ndo_vlan_rx_add_vid	= qede_vlan_rx_add_vid,
+	.ndo_vlan_rx_kill_vid	= qede_vlan_rx_kill_vid,
+	.ndo_fix_features	= qede_fix_features,
+	.ndo_set_features	= qede_set_features,
+	.ndo_get_stats64	= qede_get_stats64,
+#ifdef CONFIG_QED_SRIOV
+	.ndo_set_vf_link_state	= qede_set_vf_link_state,
+	.ndo_set_vf_spoofchk	= qede_set_vf_spoofchk,
+	.ndo_get_vf_config	= qede_get_vf_config,
+	.ndo_set_vf_rate	= qede_set_vf_rate,
+#endif
+	.ndo_features_check	= qede_features_check,
+	.ndo_bpf		= qede_xdp,
+#ifdef CONFIG_RFS_ACCEL
+	.ndo_rx_flow_steer	= qede_rx_flow_steer,
+#endif
+	.ndo_xdp_xmit		= qede_xdp_transmit,
+	.ndo_setup_tc		= qede_setup_tc_offload,
+};
+
+static const struct net_device_ops qede_netdev_vf_ops = {
+	.ndo_open		= qede_open,
+	.ndo_stop		= qede_close,
+	.ndo_start_xmit		= qede_start_xmit,
+	.ndo_select_queue	= qede_select_queue,
+	.ndo_set_rx_mode	= qede_set_rx_mode,
+	.ndo_set_mac_address	= qede_set_mac_addr,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_change_mtu		= qede_change_mtu,
+	.ndo_vlan_rx_add_vid	= qede_vlan_rx_add_vid,
+	.ndo_vlan_rx_kill_vid	= qede_vlan_rx_kill_vid,
+	.ndo_fix_features	= qede_fix_features,
+	.ndo_set_features	= qede_set_features,
+	.ndo_get_stats64	= qede_get_stats64,
+	.ndo_features_check	= qede_features_check,
+};
+
+static const struct net_device_ops qede_netdev_vf_xdp_ops = {
+	.ndo_open		= qede_open,
+	.ndo_stop		= qede_close,
+	.ndo_start_xmit		= qede_start_xmit,
+	.ndo_select_queue	= qede_select_queue,
+	.ndo_set_rx_mode	= qede_set_rx_mode,
+	.ndo_set_mac_address	= qede_set_mac_addr,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_change_mtu		= qede_change_mtu,
+	.ndo_vlan_rx_add_vid	= qede_vlan_rx_add_vid,
+	.ndo_vlan_rx_kill_vid	= qede_vlan_rx_kill_vid,
+	.ndo_fix_features	= qede_fix_features,
+	.ndo_set_features	= qede_set_features,
+	.ndo_get_stats64	= qede_get_stats64,
+	.ndo_features_check	= qede_features_check,
+	.ndo_bpf		= qede_xdp,
+	.ndo_xdp_xmit		= qede_xdp_transmit,
+>>>>>>> upstream/android-13
 };
 
 /* -------------------------------------------------------------------------
@@ -793,7 +1005,11 @@ static void qede_init_ndev(struct qede_dev *edev)
 		      NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
 		      NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_HW_TC;
 
+<<<<<<< HEAD
 	if (!IS_VF(edev) && edev->dev_info.common.num_hwfns == 1)
+=======
+	if (edev->dev_info.common.b_arfs_capable)
+>>>>>>> upstream/android-13
 		hw_features |= NETIF_F_NTUPLE;
 
 	if (edev->dev_info.common.vxlan_enable ||
@@ -813,6 +1029,11 @@ static void qede_init_ndev(struct qede_dev *edev)
 				NETIF_F_GSO_UDP_TUNNEL_CSUM);
 		ndev->hw_enc_features |= (NETIF_F_GSO_UDP_TUNNEL |
 					  NETIF_F_GSO_UDP_TUNNEL_CSUM);
+<<<<<<< HEAD
+=======
+
+		qede_set_udp_tunnels(edev);
+>>>>>>> upstream/android-13
 	}
 
 	if (edev->dev_info.common.gre_enable) {
@@ -897,6 +1118,10 @@ static int qede_alloc_fp_array(struct qede_dev *edev)
 {
 	u8 fp_combined, fp_rx = edev->fp_num_rx;
 	struct qede_fastpath *fp;
+<<<<<<< HEAD
+=======
+	void *mem;
+>>>>>>> upstream/android-13
 	int i;
 
 	edev->fp_array = kcalloc(QEDE_QUEUE_CNT(edev),
@@ -906,6 +1131,18 @@ static int qede_alloc_fp_array(struct qede_dev *edev)
 		goto err;
 	}
 
+<<<<<<< HEAD
+=======
+	mem = krealloc(edev->coal_entry, QEDE_QUEUE_CNT(edev) *
+		       sizeof(*edev->coal_entry), GFP_KERNEL);
+	if (!mem) {
+		DP_ERR(edev, "coalesce entry allocation failed\n");
+		kfree(edev->coal_entry);
+		goto err;
+	}
+	edev->coal_entry = mem;
+
+>>>>>>> upstream/android-13
 	fp_combined = QEDE_QUEUE_CNT(edev) - fp_rx - edev->fp_num_tx;
 
 	/* Allocate the FP elements for Rx queues followed by combined and then
@@ -960,11 +1197,71 @@ err:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
+=======
+/* The qede lock is used to protect driver state change and driver flows that
+ * are not reentrant.
+ */
+void __qede_lock(struct qede_dev *edev)
+{
+	mutex_lock(&edev->qede_lock);
+}
+
+void __qede_unlock(struct qede_dev *edev)
+{
+	mutex_unlock(&edev->qede_lock);
+}
+
+/* This version of the lock should be used when acquiring the RTNL lock is also
+ * needed in addition to the internal qede lock.
+ */
+static void qede_lock(struct qede_dev *edev)
+{
+	rtnl_lock();
+	__qede_lock(edev);
+}
+
+static void qede_unlock(struct qede_dev *edev)
+{
+	__qede_unlock(edev);
+	rtnl_unlock();
+}
+
+>>>>>>> upstream/android-13
 static void qede_sp_task(struct work_struct *work)
 {
 	struct qede_dev *edev = container_of(work, struct qede_dev,
 					     sp_task.work);
 
+<<<<<<< HEAD
+=======
+	/* Disable execution of this deferred work once
+	 * qede removal is in progress, this stop any future
+	 * scheduling of sp_task.
+	 */
+	if (test_bit(QEDE_SP_DISABLE, &edev->sp_flags))
+		return;
+
+	/* The locking scheme depends on the specific flag:
+	 * In case of QEDE_SP_RECOVERY, acquiring the RTNL lock is required to
+	 * ensure that ongoing flows are ended and new ones are not started.
+	 * In other cases - only the internal qede lock should be acquired.
+	 */
+
+	if (test_and_clear_bit(QEDE_SP_RECOVERY, &edev->sp_flags)) {
+#ifdef CONFIG_QED_SRIOV
+		/* SRIOV must be disabled outside the lock to avoid a deadlock.
+		 * The recovery of the active VFs is currently not supported.
+		 */
+		if (pci_num_vf(edev->pdev))
+			qede_sriov_configure(edev->pdev, 0);
+#endif
+		qede_lock(edev);
+		qede_recovery_handler(edev);
+		qede_unlock(edev);
+	}
+
+>>>>>>> upstream/android-13
 	__qede_lock(edev);
 
 	if (test_and_clear_bit(QEDE_SP_RX_MODE, &edev->sp_flags))
@@ -977,7 +1274,24 @@ static void qede_sp_task(struct work_struct *work)
 			qede_process_arfs_filters(edev, false);
 	}
 #endif
+<<<<<<< HEAD
 	__qede_unlock(edev);
+=======
+	if (test_and_clear_bit(QEDE_SP_HW_ERR, &edev->sp_flags))
+		qede_generic_hw_err_handler(edev);
+	__qede_unlock(edev);
+
+	if (test_and_clear_bit(QEDE_SP_AER, &edev->sp_flags)) {
+#ifdef CONFIG_QED_SRIOV
+		/* SRIOV must be disabled outside the lock to avoid a deadlock.
+		 * The recovery of the active VFs is currently not supported.
+		 */
+		if (pci_num_vf(edev->pdev))
+			qede_sriov_configure(edev->pdev, 0);
+#endif
+		edev->ops->common->recovery_process(edev->cdev);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void qede_update_pf_params(struct qed_dev *cdev)
@@ -1041,6 +1355,10 @@ static void qede_log_probe(struct qede_dev *edev)
 
 enum qede_probe_mode {
 	QEDE_PROBE_NORMAL,
+<<<<<<< HEAD
+=======
+	QEDE_PROBE_RECOVERY,
+>>>>>>> upstream/android-13
 };
 
 static int __qede_probe(struct pci_dev *pdev, u32 dp_module, u8 dp_level,
@@ -1061,6 +1379,10 @@ static int __qede_probe(struct pci_dev *pdev, u32 dp_module, u8 dp_level,
 	probe_params.dp_module = dp_module;
 	probe_params.dp_level = dp_level;
 	probe_params.is_vf = is_vf;
+<<<<<<< HEAD
+=======
+	probe_params.recov_in_prog = (mode == QEDE_PROBE_RECOVERY);
+>>>>>>> upstream/android-13
 	cdev = qed_ops->common->probe(pdev, &probe_params);
 	if (!cdev) {
 		rc = -ENODEV;
@@ -1072,10 +1394,13 @@ static int __qede_probe(struct pci_dev *pdev, u32 dp_module, u8 dp_level,
 	/* Start the Slowpath-process */
 	memset(&sp_params, 0, sizeof(sp_params));
 	sp_params.int_mode = QED_INT_MODE_MSIX;
+<<<<<<< HEAD
 	sp_params.drv_major = QEDE_MAJOR_VERSION;
 	sp_params.drv_minor = QEDE_MINOR_VERSION;
 	sp_params.drv_rev = QEDE_REVISION_VERSION;
 	sp_params.drv_eng = QEDE_ENGINEERING_VERSION;
+=======
+>>>>>>> upstream/android-13
 	strlcpy(sp_params.name, "qede LAN", QED_DRV_VER_STR_SIZE);
 	rc = qed_ops->common->slowpath_start(cdev, &sp_params);
 	if (rc) {
@@ -1088,6 +1413,7 @@ static int __qede_probe(struct pci_dev *pdev, u32 dp_module, u8 dp_level,
 	if (rc)
 		goto err2;
 
+<<<<<<< HEAD
 	edev = qede_alloc_etherdev(cdev, pdev, &dev_info, dp_module,
 				   dp_level);
 	if (!edev) {
@@ -1115,13 +1441,69 @@ static int __qede_probe(struct pci_dev *pdev, u32 dp_module, u8 dp_level,
 	if (rc) {
 		DP_NOTICE(edev, "Cannot register net-device\n");
 		goto err4;
+=======
+	if (mode != QEDE_PROBE_RECOVERY) {
+		edev = qede_alloc_etherdev(cdev, pdev, &dev_info, dp_module,
+					   dp_level);
+		if (!edev) {
+			rc = -ENOMEM;
+			goto err2;
+		}
+
+		edev->devlink = qed_ops->common->devlink_register(cdev);
+		if (IS_ERR(edev->devlink)) {
+			DP_NOTICE(edev, "Cannot register devlink\n");
+			rc = PTR_ERR(edev->devlink);
+			edev->devlink = NULL;
+			goto err3;
+		}
+	} else {
+		struct net_device *ndev = pci_get_drvdata(pdev);
+		struct qed_devlink *qdl;
+
+		edev = netdev_priv(ndev);
+		qdl = devlink_priv(edev->devlink);
+		qdl->cdev = cdev;
+		edev->cdev = cdev;
+		memset(&edev->stats, 0, sizeof(edev->stats));
+		memcpy(&edev->dev_info, &dev_info, sizeof(dev_info));
+	}
+
+	if (is_vf)
+		set_bit(QEDE_FLAGS_IS_VF, &edev->flags);
+
+	qede_init_ndev(edev);
+
+	rc = qede_rdma_dev_add(edev, (mode == QEDE_PROBE_RECOVERY));
+	if (rc)
+		goto err3;
+
+	if (mode != QEDE_PROBE_RECOVERY) {
+		/* Prepare the lock prior to the registration of the netdev,
+		 * as once it's registered we might reach flows requiring it
+		 * [it's even possible to reach a flow needing it directly
+		 * from there, although it's unlikely].
+		 */
+		INIT_DELAYED_WORK(&edev->sp_task, qede_sp_task);
+		mutex_init(&edev->qede_lock);
+
+		rc = register_netdev(edev->ndev);
+		if (rc) {
+			DP_NOTICE(edev, "Cannot register net-device\n");
+			goto err4;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	edev->ops->common->set_name(cdev, edev->ndev->name);
 
 	/* PTP not supported on VFs */
 	if (!is_vf)
+<<<<<<< HEAD
 		qede_ptp_enable(edev, true);
+=======
+		qede_ptp_enable(edev);
+>>>>>>> upstream/android-13
 
 	edev->ops->register_ops(cdev, &qede_ll_ops, edev);
 
@@ -1136,9 +1518,18 @@ static int __qede_probe(struct pci_dev *pdev, u32 dp_module, u8 dp_level,
 	return 0;
 
 err4:
+<<<<<<< HEAD
 	qede_rdma_dev_remove(edev);
 err3:
 	free_netdev(edev->ndev);
+=======
+	qede_rdma_dev_remove(edev, (mode == QEDE_PROBE_RECOVERY));
+err3:
+	if (mode != QEDE_PROBE_RECOVERY)
+		free_netdev(edev->ndev);
+	else
+		edev->cdev = NULL;
+>>>>>>> upstream/android-13
 err2:
 	qed_ops->common->slowpath_stop(cdev);
 err1:
@@ -1172,6 +1563,10 @@ static int qede_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
 enum qede_remove_mode {
 	QEDE_REMOVE_NORMAL,
+<<<<<<< HEAD
+=======
+	QEDE_REMOVE_RECOVERY,
+>>>>>>> upstream/android-13
 };
 
 static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
@@ -1190,6 +1585,7 @@ static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
 
 	DP_INFO(edev, "Starting qede_remove\n");
 
+<<<<<<< HEAD
 	qede_rdma_dev_remove(edev);
 	unregister_netdev(ndev);
 	cancel_delayed_work_sync(&edev->sp_task);
@@ -1200,11 +1596,38 @@ static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
 
 	pci_set_drvdata(pdev, NULL);
 
+=======
+	qede_rdma_dev_remove(edev, (mode == QEDE_REMOVE_RECOVERY));
+
+	if (mode != QEDE_REMOVE_RECOVERY) {
+		set_bit(QEDE_SP_DISABLE, &edev->sp_flags);
+		unregister_netdev(ndev);
+
+		cancel_delayed_work_sync(&edev->sp_task);
+
+		edev->ops->common->set_power_state(cdev, PCI_D0);
+
+		pci_set_drvdata(pdev, NULL);
+	}
+
+	qede_ptp_disable(edev);
+
+>>>>>>> upstream/android-13
 	/* Use global ops since we've freed edev */
 	qed_ops->common->slowpath_stop(cdev);
 	if (system_state == SYSTEM_POWER_OFF)
 		return;
+<<<<<<< HEAD
 	qed_ops->common->remove(cdev);
+=======
+
+	if (mode != QEDE_REMOVE_RECOVERY && edev->devlink) {
+		qed_ops->common->devlink_unregister(edev->devlink);
+		edev->devlink = NULL;
+	}
+	qed_ops->common->remove(cdev);
+	edev->cdev = NULL;
+>>>>>>> upstream/android-13
 
 	/* Since this can happen out-of-sync with other flows,
 	 * don't release the netdevice until after slowpath stop
@@ -1212,7 +1635,14 @@ static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
 	 * [e.g., QED register callbacks] won't break anything when
 	 * accessing the netdevice.
 	 */
+<<<<<<< HEAD
 	 free_netdev(ndev);
+=======
+	if (mode != QEDE_REMOVE_RECOVERY) {
+		kfree(edev->coal_entry);
+		free_netdev(ndev);
+	}
+>>>>>>> upstream/android-13
 
 	dev_info(&pdev->dev, "Ending qede_remove successfully\n");
 }
@@ -1265,7 +1695,12 @@ static void qede_free_mem_sb(struct qede_dev *edev, struct qed_sb_info *sb_info,
 			     u16 sb_id)
 {
 	if (sb_info->sb_virt) {
+<<<<<<< HEAD
 		edev->ops->common->sb_release(edev->cdev, sb_info, sb_id);
+=======
+		edev->ops->common->sb_release(edev->cdev, sb_info, sb_id,
+					      QED_SB_TYPE_L2_QUEUE);
+>>>>>>> upstream/android-13
 		dma_free_coherent(&edev->pdev->dev, sizeof(*sb_info->sb_virt),
 				  (void *)sb_info->sb_virt, sb_info->sb_phys);
 		memset(sb_info, 0, sizeof(*sb_info));
@@ -1347,6 +1782,14 @@ static void qede_set_tpa_param(struct qede_rx_queue *rxq)
 /* This function allocates all memory needed per Rx queue */
 static int qede_alloc_mem_rxq(struct qede_dev *edev, struct qede_rx_queue *rxq)
 {
+<<<<<<< HEAD
+=======
+	struct qed_chain_init_params params = {
+		.cnt_type	= QED_CHAIN_CNT_TYPE_U16,
+		.num_elems	= RX_RING_SIZE,
+	};
+	struct qed_dev *cdev = edev->cdev;
+>>>>>>> upstream/android-13
 	int i, rc, size;
 
 	rxq->num_rx_buffers = edev->q_num_rx_buffers;
@@ -1361,7 +1804,11 @@ static int qede_alloc_mem_rxq(struct qede_dev *edev, struct qede_rx_queue *rxq)
 	if (rxq->rx_buf_size + size > PAGE_SIZE)
 		rxq->rx_buf_size = PAGE_SIZE - size;
 
+<<<<<<< HEAD
 	/* Segment size to spilt a page in multiple equal parts ,
+=======
+	/* Segment size to split a page in multiple equal parts,
+>>>>>>> upstream/android-13
 	 * unless XDP is used in which case we'd use the entire page.
 	 */
 	if (!edev->xdp_prog) {
@@ -1382,6 +1829,7 @@ static int qede_alloc_mem_rxq(struct qede_dev *edev, struct qede_rx_queue *rxq)
 	}
 
 	/* Allocate FW Rx ring  */
+<<<<<<< HEAD
 	rc = edev->ops->common->chain_alloc(edev->cdev,
 					    QED_CHAIN_USE_TO_CONSUME_PRODUCE,
 					    QED_CHAIN_MODE_NEXT_PTR,
@@ -1389,10 +1837,18 @@ static int qede_alloc_mem_rxq(struct qede_dev *edev, struct qede_rx_queue *rxq)
 					    RX_RING_SIZE,
 					    sizeof(struct eth_rx_bd),
 					    &rxq->rx_bd_ring, NULL);
+=======
+	params.mode = QED_CHAIN_MODE_NEXT_PTR;
+	params.intended_use = QED_CHAIN_USE_TO_CONSUME_PRODUCE;
+	params.elem_size = sizeof(struct eth_rx_bd);
+
+	rc = edev->ops->common->chain_alloc(cdev, &rxq->rx_bd_ring, &params);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto err;
 
 	/* Allocate FW completion ring */
+<<<<<<< HEAD
 	rc = edev->ops->common->chain_alloc(edev->cdev,
 					    QED_CHAIN_USE_TO_CONSUME,
 					    QED_CHAIN_MODE_PBL,
@@ -1400,6 +1856,13 @@ static int qede_alloc_mem_rxq(struct qede_dev *edev, struct qede_rx_queue *rxq)
 					    RX_RING_SIZE,
 					    sizeof(union eth_rx_cqe),
 					    &rxq->rx_comp_ring, NULL);
+=======
+	params.mode = QED_CHAIN_MODE_PBL;
+	params.intended_use = QED_CHAIN_USE_TO_CONSUME;
+	params.elem_size = sizeof(union eth_rx_cqe);
+
+	rc = edev->ops->common->chain_alloc(cdev, &rxq->rx_comp_ring, &params);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto err;
 
@@ -1436,7 +1899,17 @@ static void qede_free_mem_txq(struct qede_dev *edev, struct qede_tx_queue *txq)
 /* This function allocates all memory needed per Tx queue */
 static int qede_alloc_mem_txq(struct qede_dev *edev, struct qede_tx_queue *txq)
 {
+<<<<<<< HEAD
 	union eth_tx_bd_types *p_virt;
+=======
+	struct qed_chain_init_params params = {
+		.mode		= QED_CHAIN_MODE_PBL,
+		.intended_use	= QED_CHAIN_USE_TO_CONSUME_PRODUCE,
+		.cnt_type	= QED_CHAIN_CNT_TYPE_U16,
+		.num_elems	= edev->q_num_tx_buffers,
+		.elem_size	= sizeof(union eth_tx_bd_types),
+	};
+>>>>>>> upstream/android-13
 	int size, rc;
 
 	txq->num_tx_buffers = edev->q_num_tx_buffers;
@@ -1454,6 +1927,7 @@ static int qede_alloc_mem_txq(struct qede_dev *edev, struct qede_tx_queue *txq)
 			goto err;
 	}
 
+<<<<<<< HEAD
 	rc = edev->ops->common->chain_alloc(edev->cdev,
 					    QED_CHAIN_USE_TO_CONSUME_PRODUCE,
 					    QED_CHAIN_MODE_PBL,
@@ -1461,6 +1935,9 @@ static int qede_alloc_mem_txq(struct qede_dev *edev, struct qede_tx_queue *txq)
 					    txq->num_tx_buffers,
 					    sizeof(*p_virt),
 					    &txq->tx_pbl, NULL);
+=======
+	rc = edev->ops->common->chain_alloc(edev->cdev, &txq->tx_pbl, &params);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto err;
 
@@ -1559,11 +2036,70 @@ static int qede_alloc_mem_load(struct qede_dev *edev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void qede_empty_tx_queue(struct qede_dev *edev,
+				struct qede_tx_queue *txq)
+{
+	unsigned int pkts_compl = 0, bytes_compl = 0;
+	struct netdev_queue *netdev_txq;
+	int rc, len = 0;
+
+	netdev_txq = netdev_get_tx_queue(edev->ndev, txq->ndev_txq_id);
+
+	while (qed_chain_get_cons_idx(&txq->tx_pbl) !=
+	       qed_chain_get_prod_idx(&txq->tx_pbl)) {
+		DP_VERBOSE(edev, NETIF_MSG_IFDOWN,
+			   "Freeing a packet on tx queue[%d]: chain_cons 0x%x, chain_prod 0x%x\n",
+			   txq->index, qed_chain_get_cons_idx(&txq->tx_pbl),
+			   qed_chain_get_prod_idx(&txq->tx_pbl));
+
+		rc = qede_free_tx_pkt(edev, txq, &len);
+		if (rc) {
+			DP_NOTICE(edev,
+				  "Failed to free a packet on tx queue[%d]: chain_cons 0x%x, chain_prod 0x%x\n",
+				  txq->index,
+				  qed_chain_get_cons_idx(&txq->tx_pbl),
+				  qed_chain_get_prod_idx(&txq->tx_pbl));
+			break;
+		}
+
+		bytes_compl += len;
+		pkts_compl++;
+		txq->sw_tx_cons++;
+	}
+
+	netdev_tx_completed_queue(netdev_txq, pkts_compl, bytes_compl);
+}
+
+static void qede_empty_tx_queues(struct qede_dev *edev)
+{
+	int i;
+
+	for_each_queue(i)
+		if (edev->fp_array[i].type & QEDE_FASTPATH_TX) {
+			int cos;
+
+			for_each_cos_in_txq(edev, cos) {
+				struct qede_fastpath *fp;
+
+				fp = &edev->fp_array[i];
+				qede_empty_tx_queue(edev,
+						    &fp->txq[cos]);
+			}
+		}
+}
+
+>>>>>>> upstream/android-13
 /* This function inits fp content and resets the SB, RXQ and TXQ structures */
 static void qede_init_fp(struct qede_dev *edev)
 {
 	int queue_id, rxq_index = 0, txq_index = 0;
 	struct qede_fastpath *fp;
+<<<<<<< HEAD
+=======
+	bool init_xdp = false;
+>>>>>>> upstream/android-13
 
 	for_each_queue(queue_id) {
 		fp = &edev->fp_array[queue_id];
@@ -1575,6 +2111,12 @@ static void qede_init_fp(struct qede_dev *edev)
 			fp->xdp_tx->index = QEDE_TXQ_IDX_TO_XDP(edev,
 								rxq_index);
 			fp->xdp_tx->is_xdp = 1;
+<<<<<<< HEAD
+=======
+
+			spin_lock_init(&fp->xdp_tx->xdp_tx_lock);
+			init_xdp = true;
+>>>>>>> upstream/android-13
 		}
 
 		if (fp->type & QEDE_FASTPATH_RX) {
@@ -1589,7 +2131,18 @@ static void qede_init_fp(struct qede_dev *edev)
 
 			/* Driver have no error path from here */
 			WARN_ON(xdp_rxq_info_reg(&fp->rxq->xdp_rxq, edev->ndev,
+<<<<<<< HEAD
 						 fp->rxq->rxq_id) < 0);
+=======
+						 fp->rxq->rxq_id, 0) < 0);
+
+			if (xdp_rxq_info_reg_mem_model(&fp->rxq->xdp_rxq,
+						       MEM_TYPE_PAGE_ORDER0,
+						       NULL)) {
+				DP_NOTICE(edev,
+					  "Failed to register XDP memory model\n");
+			}
+>>>>>>> upstream/android-13
 		}
 
 		if (fp->type & QEDE_FASTPATH_TX) {
@@ -1605,7 +2158,11 @@ static void qede_init_fp(struct qede_dev *edev)
 				txq->ndev_txq_id = ndev_tx_id;
 
 				if (edev->dev_info.is_legacy)
+<<<<<<< HEAD
 					txq->is_legacy = 1;
+=======
+					txq->is_legacy = true;
+>>>>>>> upstream/android-13
 				txq->dev = &edev->pdev->dev;
 			}
 
@@ -1615,6 +2172,14 @@ static void qede_init_fp(struct qede_dev *edev)
 		snprintf(fp->name, sizeof(fp->name), "%s-fp-%d",
 			 edev->ndev->name, queue_id);
 	}
+<<<<<<< HEAD
+=======
+
+	if (init_xdp) {
+		edev->total_xdp_queues = QEDE_RSS_COUNT(edev);
+		DP_INFO(edev, "Total XDP queues: %u\n", edev->total_xdp_queues);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int qede_set_real_num_queues(struct qede_dev *edev)
@@ -1676,6 +2241,10 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
 	}
 
 	edev->int_info.used_cnt = 0;
+<<<<<<< HEAD
+=======
+	edev->int_info.msix_cnt = 0;
+>>>>>>> upstream/android-13
 }
 
 static int qede_req_msix_irqs(struct qede_dev *edev)
@@ -1708,6 +2277,15 @@ static int qede_req_msix_irqs(struct qede_dev *edev)
 				 &edev->fp_array[i]);
 		if (rc) {
 			DP_ERR(edev, "Request fp %d irq failed\n", i);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_RFS_ACCEL
+			if (edev->ndev->rx_cpu_rmap)
+				free_irq_cpu_rmap(edev->ndev->rx_cpu_rmap);
+
+			edev->ndev->rx_cpu_rmap = NULL;
+#endif
+>>>>>>> upstream/android-13
 			qede_sync_free_irqs(edev);
 			return rc;
 		}
@@ -1792,6 +2370,13 @@ static int qede_drain_txq(struct qede_dev *edev,
 static int qede_stop_txq(struct qede_dev *edev,
 			 struct qede_tx_queue *txq, int rss_id)
 {
+<<<<<<< HEAD
+=======
+	/* delete doorbell from doorbell recovery mechanism */
+	edev->ops->common->db_recovery_del(edev->cdev, txq->doorbell_addr,
+					   &txq->tx_db);
+
+>>>>>>> upstream/android-13
 	return edev->ops->q_tx_stop(edev->cdev, rss_id, txq->handle);
 }
 
@@ -1928,6 +2513,14 @@ static int qede_start_txq(struct qede_dev *edev,
 		  DQ_XCM_ETH_TX_BD_PROD_CMD);
 	txq->tx_db.data.agg_flags = DQ_XCM_ETH_DQ_CF_CMD;
 
+<<<<<<< HEAD
+=======
+	/* register doorbell with doorbell recovery mechanism */
+	rc = edev->ops->common->db_recovery_add(edev->cdev, txq->doorbell_addr,
+						&txq->tx_db, DB_REC_WIDTH_32B,
+						DB_REC_KERNEL);
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2017,12 +2610,17 @@ static int qede_start_queues(struct qede_dev *edev, bool clear_stats)
 			if (rc)
 				goto out;
 
+<<<<<<< HEAD
 			fp->rxq->xdp_prog = bpf_prog_add(edev->xdp_prog, 1);
 			if (IS_ERR(fp->rxq->xdp_prog)) {
 				rc = PTR_ERR(fp->rxq->xdp_prog);
 				fp->rxq->xdp_prog = NULL;
 				goto out;
 			}
+=======
+			bpf_prog_add(edev->xdp_prog, 1);
+			fp->rxq->xdp_prog = edev->xdp_prog;
+>>>>>>> upstream/android-13
 		}
 
 		if (fp->type & QEDE_FASTPATH_TX) {
@@ -2062,6 +2660,10 @@ out:
 
 enum qede_unload_mode {
 	QEDE_UNLOAD_NORMAL,
+<<<<<<< HEAD
+=======
+	QEDE_UNLOAD_RECOVERY,
+>>>>>>> upstream/android-13
 };
 
 static void qede_unload(struct qede_dev *edev, enum qede_unload_mode mode,
@@ -2075,7 +2677,14 @@ static void qede_unload(struct qede_dev *edev, enum qede_unload_mode mode,
 	if (!is_locked)
 		__qede_lock(edev);
 
+<<<<<<< HEAD
 	edev->state = QEDE_STATE_CLOSED;
+=======
+	clear_bit(QEDE_FLAGS_LINK_REQUESTED, &edev->flags);
+
+	if (mode != QEDE_UNLOAD_RECOVERY)
+		edev->state = QEDE_STATE_CLOSED;
+>>>>>>> upstream/android-13
 
 	qede_rdma_dev_event_close(edev);
 
@@ -2083,6 +2692,7 @@ static void qede_unload(struct qede_dev *edev, enum qede_unload_mode mode,
 	netif_tx_disable(edev->ndev);
 	netif_carrier_off(edev->ndev);
 
+<<<<<<< HEAD
 	/* Reset the link */
 	memset(&link_params, 0, sizeof(link_params));
 	link_params.link_up = false;
@@ -2094,11 +2704,40 @@ static void qede_unload(struct qede_dev *edev, enum qede_unload_mode mode,
 	}
 
 	DP_INFO(edev, "Stopped Queues\n");
+=======
+	if (mode != QEDE_UNLOAD_RECOVERY) {
+		/* Reset the link */
+		memset(&link_params, 0, sizeof(link_params));
+		link_params.link_up = false;
+		edev->ops->common->set_link(edev->cdev, &link_params);
+
+		rc = qede_stop_queues(edev);
+		if (rc) {
+#ifdef CONFIG_RFS_ACCEL
+			if (edev->dev_info.common.b_arfs_capable) {
+				qede_poll_for_freeing_arfs_filters(edev);
+				if (edev->ndev->rx_cpu_rmap)
+					free_irq_cpu_rmap(edev->ndev->rx_cpu_rmap);
+
+				edev->ndev->rx_cpu_rmap = NULL;
+			}
+#endif
+			qede_sync_free_irqs(edev);
+			goto out;
+		}
+
+		DP_INFO(edev, "Stopped Queues\n");
+	}
+>>>>>>> upstream/android-13
 
 	qede_vlan_mark_nonconfigured(edev);
 	edev->ops->fastpath_stop(edev->cdev);
 
+<<<<<<< HEAD
 	if (!IS_VF(edev) && edev->dev_info.common.num_hwfns == 1) {
+=======
+	if (edev->dev_info.common.b_arfs_capable) {
+>>>>>>> upstream/android-13
 		qede_poll_for_freeing_arfs_filters(edev);
 		qede_free_arfs(edev);
 	}
@@ -2109,26 +2748,51 @@ static void qede_unload(struct qede_dev *edev, enum qede_unload_mode mode,
 
 	qede_napi_disable_remove(edev);
 
+<<<<<<< HEAD
+=======
+	if (mode == QEDE_UNLOAD_RECOVERY)
+		qede_empty_tx_queues(edev);
+
+>>>>>>> upstream/android-13
 	qede_free_mem_load(edev);
 	qede_free_fp_array(edev);
 
 out:
 	if (!is_locked)
 		__qede_unlock(edev);
+<<<<<<< HEAD
+=======
+
+	if (mode != QEDE_UNLOAD_RECOVERY)
+		DP_NOTICE(edev, "Link is down\n");
+
+	edev->ptp_skip_txts = 0;
+
+>>>>>>> upstream/android-13
 	DP_INFO(edev, "Ending qede unload\n");
 }
 
 enum qede_load_mode {
 	QEDE_LOAD_NORMAL,
 	QEDE_LOAD_RELOAD,
+<<<<<<< HEAD
+=======
+	QEDE_LOAD_RECOVERY,
+>>>>>>> upstream/android-13
 };
 
 static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
 		     bool is_locked)
 {
 	struct qed_link_params link_params;
+<<<<<<< HEAD
 	u8 num_tc;
 	int rc;
+=======
+	struct ethtool_coalesce coal = {};
+	u8 num_tc;
+	int rc, i;
+>>>>>>> upstream/android-13
 
 	DP_INFO(edev, "Starting qede load\n");
 
@@ -2155,10 +2819,16 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
 	if (rc)
 		goto err2;
 
+<<<<<<< HEAD
 	if (!IS_VF(edev) && edev->dev_info.common.num_hwfns == 1) {
 		rc = qede_alloc_arfs(edev);
 		if (rc)
 			DP_NOTICE(edev, "aRFS memory allocation failed\n");
+=======
+	if (qede_alloc_arfs(edev)) {
+		edev->ndev->features &= ~NETIF_F_NTUPLE;
+		edev->dev_info.common.b_arfs_capable = false;
+>>>>>>> upstream/android-13
 	}
 
 	qede_napi_add_enable(edev);
@@ -2181,6 +2851,11 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
 	/* Program un-configured VLANs */
 	qede_configure_vlan_filters(edev);
 
+<<<<<<< HEAD
+=======
+	set_bit(QEDE_FLAGS_LINK_REQUESTED, &edev->flags);
+
+>>>>>>> upstream/android-13
 	/* Ask for link-up using current configuration */
 	memset(&link_params, 0, sizeof(link_params));
 	link_params.link_up = true;
@@ -2188,12 +2863,30 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
 
 	edev->state = QEDE_STATE_OPEN;
 
+<<<<<<< HEAD
+=======
+	coal.rx_coalesce_usecs = QED_DEFAULT_RX_USECS;
+	coal.tx_coalesce_usecs = QED_DEFAULT_TX_USECS;
+
+	for_each_queue(i) {
+		if (edev->coal_entry[i].isvalid) {
+			coal.rx_coalesce_usecs = edev->coal_entry[i].rxc;
+			coal.tx_coalesce_usecs = edev->coal_entry[i].txc;
+		}
+		__qede_unlock(edev);
+		qede_set_per_coalesce(edev->ndev, i, &coal);
+		__qede_lock(edev);
+	}
+>>>>>>> upstream/android-13
 	DP_INFO(edev, "Ending successfully qede load\n");
 
 	goto out;
 err4:
 	qede_sync_free_irqs(edev);
+<<<<<<< HEAD
 	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
+=======
+>>>>>>> upstream/android-13
 err3:
 	qede_napi_disable_remove(edev);
 err2:
@@ -2254,7 +2947,11 @@ static int qede_open(struct net_device *ndev)
 	if (rc)
 		return rc;
 
+<<<<<<< HEAD
 	udp_tunnel_get_rx_info(ndev);
+=======
+	udp_tunnel_nic_reset_ntf(ndev);
+>>>>>>> upstream/android-13
 
 	edev->ops->common->update_drv_state(edev->cdev, true);
 
@@ -2267,7 +2964,12 @@ static int qede_close(struct net_device *ndev)
 
 	qede_unload(edev, QEDE_UNLOAD_NORMAL, false);
 
+<<<<<<< HEAD
 	edev->ops->common->update_drv_state(edev->cdev, false);
+=======
+	if (edev->cdev)
+		edev->ops->common->update_drv_state(edev->cdev, false);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -2276,8 +2978,13 @@ static void qede_link_update(void *dev, struct qed_link_output *link)
 {
 	struct qede_dev *edev = dev;
 
+<<<<<<< HEAD
 	if (!netif_running(edev->ndev)) {
 		DP_VERBOSE(edev, NETIF_MSG_LINK, "Interface is not running\n");
+=======
+	if (!test_bit(QEDE_FLAGS_LINK_REQUESTED, &edev->flags)) {
+		DP_VERBOSE(edev, NETIF_MSG_LINK, "Interface is not ready\n");
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2298,6 +3005,172 @@ static void qede_link_update(void *dev, struct qed_link_output *link)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void qede_schedule_recovery_handler(void *dev)
+{
+	struct qede_dev *edev = dev;
+
+	if (edev->state == QEDE_STATE_RECOVERY) {
+		DP_NOTICE(edev,
+			  "Avoid scheduling a recovery handling since already in recovery state\n");
+		return;
+	}
+
+	set_bit(QEDE_SP_RECOVERY, &edev->sp_flags);
+	schedule_delayed_work(&edev->sp_task, 0);
+
+	DP_INFO(edev, "Scheduled a recovery handler\n");
+}
+
+static void qede_recovery_failed(struct qede_dev *edev)
+{
+	netdev_err(edev->ndev, "Recovery handling has failed. Power cycle is needed.\n");
+
+	netif_device_detach(edev->ndev);
+
+	if (edev->cdev)
+		edev->ops->common->set_power_state(edev->cdev, PCI_D3hot);
+}
+
+static void qede_recovery_handler(struct qede_dev *edev)
+{
+	u32 curr_state = edev->state;
+	int rc;
+
+	DP_NOTICE(edev, "Starting a recovery process\n");
+
+	/* No need to acquire first the qede_lock since is done by qede_sp_task
+	 * before calling this function.
+	 */
+	edev->state = QEDE_STATE_RECOVERY;
+
+	edev->ops->common->recovery_prolog(edev->cdev);
+
+	if (curr_state == QEDE_STATE_OPEN)
+		qede_unload(edev, QEDE_UNLOAD_RECOVERY, true);
+
+	__qede_remove(edev->pdev, QEDE_REMOVE_RECOVERY);
+
+	rc = __qede_probe(edev->pdev, edev->dp_module, edev->dp_level,
+			  IS_VF(edev), QEDE_PROBE_RECOVERY);
+	if (rc) {
+		edev->cdev = NULL;
+		goto err;
+	}
+
+	if (curr_state == QEDE_STATE_OPEN) {
+		rc = qede_load(edev, QEDE_LOAD_RECOVERY, true);
+		if (rc)
+			goto err;
+
+		qede_config_rx_mode(edev->ndev);
+		udp_tunnel_nic_reset_ntf(edev->ndev);
+	}
+
+	edev->state = curr_state;
+
+	DP_NOTICE(edev, "Recovery handling is done\n");
+
+	return;
+
+err:
+	qede_recovery_failed(edev);
+}
+
+static void qede_atomic_hw_err_handler(struct qede_dev *edev)
+{
+	struct qed_dev *cdev = edev->cdev;
+
+	DP_NOTICE(edev,
+		  "Generic non-sleepable HW error handling started - err_flags 0x%lx\n",
+		  edev->err_flags);
+
+	/* Get a call trace of the flow that led to the error */
+	WARN_ON(test_bit(QEDE_ERR_WARN, &edev->err_flags));
+
+	/* Prevent HW attentions from being reasserted */
+	if (test_bit(QEDE_ERR_ATTN_CLR_EN, &edev->err_flags))
+		edev->ops->common->attn_clr_enable(cdev, true);
+
+	DP_NOTICE(edev, "Generic non-sleepable HW error handling is done\n");
+}
+
+static void qede_generic_hw_err_handler(struct qede_dev *edev)
+{
+	DP_NOTICE(edev,
+		  "Generic sleepable HW error handling started - err_flags 0x%lx\n",
+		  edev->err_flags);
+
+	if (edev->devlink) {
+		DP_NOTICE(edev, "Reporting fatal error to devlink\n");
+		edev->ops->common->report_fatal_error(edev->devlink, edev->last_err_type);
+	}
+
+	clear_bit(QEDE_ERR_IS_HANDLED, &edev->err_flags);
+
+	DP_NOTICE(edev, "Generic sleepable HW error handling is done\n");
+}
+
+static void qede_set_hw_err_flags(struct qede_dev *edev,
+				  enum qed_hw_err_type err_type)
+{
+	unsigned long err_flags = 0;
+
+	switch (err_type) {
+	case QED_HW_ERR_DMAE_FAIL:
+		set_bit(QEDE_ERR_WARN, &err_flags);
+		fallthrough;
+	case QED_HW_ERR_MFW_RESP_FAIL:
+	case QED_HW_ERR_HW_ATTN:
+	case QED_HW_ERR_RAMROD_FAIL:
+	case QED_HW_ERR_FW_ASSERT:
+		set_bit(QEDE_ERR_ATTN_CLR_EN, &err_flags);
+		set_bit(QEDE_ERR_GET_DBG_INFO, &err_flags);
+		/* make this error as recoverable and start recovery*/
+		set_bit(QEDE_ERR_IS_RECOVERABLE, &err_flags);
+		break;
+
+	default:
+		DP_NOTICE(edev, "Unexpected HW error [%d]\n", err_type);
+		break;
+	}
+
+	edev->err_flags |= err_flags;
+}
+
+static void qede_schedule_hw_err_handler(void *dev,
+					 enum qed_hw_err_type err_type)
+{
+	struct qede_dev *edev = dev;
+
+	/* Fan failure cannot be masked by handling of another HW error or by a
+	 * concurrent recovery process.
+	 */
+	if ((test_and_set_bit(QEDE_ERR_IS_HANDLED, &edev->err_flags) ||
+	     edev->state == QEDE_STATE_RECOVERY) &&
+	     err_type != QED_HW_ERR_FAN_FAIL) {
+		DP_INFO(edev,
+			"Avoid scheduling an error handling while another HW error is being handled\n");
+		return;
+	}
+
+	if (err_type >= QED_HW_ERR_LAST) {
+		DP_NOTICE(edev, "Unknown HW error [%d]\n", err_type);
+		clear_bit(QEDE_ERR_IS_HANDLED, &edev->err_flags);
+		return;
+	}
+
+	edev->last_err_type = err_type;
+	qede_set_hw_err_flags(edev, err_type);
+	qede_atomic_hw_err_handler(edev);
+	set_bit(QEDE_SP_HW_ERR, &edev->sp_flags);
+	schedule_delayed_work(&edev->sp_task, 0);
+
+	DP_INFO(edev, "Scheduled a error handler [err_type %d]\n", err_type);
+}
+
+>>>>>>> upstream/android-13
 static bool qede_is_txq_full(struct qede_dev *edev, struct qede_tx_queue *txq)
 {
 	struct netdev_queue *netdev_txq;
@@ -2321,8 +3194,13 @@ static void qede_get_generic_tlv_data(void *dev, struct qed_generic_tlvs *data)
 		data->feat_flags |= QED_TLV_LSO;
 
 	ether_addr_copy(data->mac[0], edev->ndev->dev_addr);
+<<<<<<< HEAD
 	memset(data->mac[1], 0, ETH_ALEN);
 	memset(data->mac[2], 0, ETH_ALEN);
+=======
+	eth_zero_addr(data->mac[1]);
+	eth_zero_addr(data->mac[2]);
+>>>>>>> upstream/android-13
 	/* Copy the first two UC macs */
 	netif_addr_lock_bh(edev->ndev);
 	i = 1;
@@ -2395,3 +3273,52 @@ static void qede_get_eth_tlv_data(void *dev, void *data)
 	etlv->num_txqs_full_set = true;
 	etlv->num_rxqs_full_set = true;
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * qede_io_error_detected - called when PCI error is detected
+ * @pdev: Pointer to PCI device
+ * @state: The current pci connection state
+ *
+ * This function is called after a PCI bus error affecting
+ * this device has been detected.
+ */
+static pci_ers_result_t
+qede_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
+{
+	struct net_device *dev = pci_get_drvdata(pdev);
+	struct qede_dev *edev = netdev_priv(dev);
+
+	if (!edev)
+		return PCI_ERS_RESULT_NONE;
+
+	DP_NOTICE(edev, "IO error detected [%d]\n", state);
+
+	__qede_lock(edev);
+	if (edev->state == QEDE_STATE_RECOVERY) {
+		DP_NOTICE(edev, "Device already in the recovery state\n");
+		__qede_unlock(edev);
+		return PCI_ERS_RESULT_NONE;
+	}
+
+	/* PF handles the recovery of its VFs */
+	if (IS_VF(edev)) {
+		DP_VERBOSE(edev, QED_MSG_IOV,
+			   "VF recovery is handled by its PF\n");
+		__qede_unlock(edev);
+		return PCI_ERS_RESULT_RECOVERED;
+	}
+
+	/* Close OS Tx */
+	netif_tx_disable(edev->ndev);
+	netif_carrier_off(edev->ndev);
+
+	set_bit(QEDE_SP_AER, &edev->sp_flags);
+	schedule_delayed_work(&edev->sp_task, 0);
+
+	__qede_unlock(edev);
+
+	return PCI_ERS_RESULT_CAN_RECOVER;
+}
+>>>>>>> upstream/android-13

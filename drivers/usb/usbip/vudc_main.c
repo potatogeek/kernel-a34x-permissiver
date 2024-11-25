@@ -22,6 +22,10 @@ static struct platform_driver vudc_driver = {
 	.remove		= vudc_remove,
 	.driver		= {
 		.name	= GADGET_NAME,
+<<<<<<< HEAD
+=======
+		.dev_groups = vudc_groups,
+>>>>>>> upstream/android-13
 	},
 };
 

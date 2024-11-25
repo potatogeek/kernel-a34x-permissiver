@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018 ARM Limited or its affiliates. */
+=======
+/* Copyright (C) 2012-2019 ARM Limited (or its affiliates). */
+>>>>>>> upstream/android-13
 
 /* \file cc_hash.h
  * ARM CryptoCell Hash Crypto API
@@ -80,6 +84,7 @@ int cc_hash_alloc(struct cc_drvdata *drvdata);
 int cc_init_hash_sram(struct cc_drvdata *drvdata);
 int cc_hash_free(struct cc_drvdata *drvdata);
 
+<<<<<<< HEAD
 /*!
  * Gets the initial digest length
  *
@@ -105,5 +110,29 @@ cc_digest_len_addr(void *drvdata, u32 mode);
 cc_sram_addr_t cc_larval_digest_addr(void *drvdata, u32 mode);
 
 void cc_hash_global_init(void);
+=======
+/**
+ * cc_digest_len_addr() - Gets the initial digest length
+ *
+ * @drvdata: Associated device driver context
+ * @mode: The Hash mode. Supported modes: MD5/SHA1/SHA224/SHA256/SHA384/SHA512
+ *
+ * Return:
+ * Returns the address of the initial digest length in SRAM
+ */
+u32 cc_digest_len_addr(void *drvdata, u32 mode);
+
+/**
+ * cc_larval_digest_addr() - Gets the address of the initial digest in SRAM
+ * according to the given hash mode
+ *
+ * @drvdata: Associated device driver context
+ * @mode: The Hash mode. Supported modes: MD5/SHA1/SHA224/SHA256/SHA384/SHA512
+ *
+ * Return:
+ * The address of the initial digest in SRAM
+ */
+u32 cc_larval_digest_addr(void *drvdata, u32 mode);
+>>>>>>> upstream/android-13
 
 #endif /*__CC_HASH_H__*/

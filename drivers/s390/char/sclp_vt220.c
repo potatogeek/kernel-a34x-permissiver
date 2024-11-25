@@ -9,6 +9,10 @@
 
 #include <linux/module.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/wait.h>
 #include <linux/timer.h>
@@ -35,8 +39,13 @@
 #define SCLP_VT220_MINOR		65
 #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
 #define SCLP_VT220_DEVICE_NAME		"ttysclp"
+<<<<<<< HEAD
 #define SCLP_VT220_CONSOLE_NAME		"ttyS"
 #define SCLP_VT220_CONSOLE_INDEX	1	/* console=ttyS1 */
+=======
+#define SCLP_VT220_CONSOLE_NAME		"ttysclp"
+#define SCLP_VT220_CONSOLE_INDEX	0	/* console=ttysclp0 */
+>>>>>>> upstream/android-13
 
 /* Representation of a single write request */
 struct sclp_vt220_request {
@@ -61,6 +70,7 @@ static struct tty_driver *sclp_vt220_driver;
 static struct tty_port sclp_vt220_port;
 
 /* Lock to protect internal data from concurrent access */
+<<<<<<< HEAD
 static spinlock_t sclp_vt220_lock;
 
 /* List of empty pages to be used as write request buffers */
@@ -71,6 +81,15 @@ static struct list_head sclp_vt220_outqueue;
 
 /* Suspend mode flag */
 static int sclp_vt220_suspended;
+=======
+static DEFINE_SPINLOCK(sclp_vt220_lock);
+
+/* List of empty pages to be used as write request buffers */
+static LIST_HEAD(sclp_vt220_empty);
+
+/* List of pending requests */
+static LIST_HEAD(sclp_vt220_outqueue);
+>>>>>>> upstream/android-13
 
 /* Flag that output queue is currently running */
 static int sclp_vt220_queue_running;
@@ -95,15 +114,21 @@ static int __initdata sclp_vt220_init_count;
 static int sclp_vt220_flush_later;
 
 static void sclp_vt220_receiver_fn(struct evbuf_header *evbuf);
+<<<<<<< HEAD
 static void sclp_vt220_pm_event_fn(struct sclp_register *reg,
 				   enum sclp_pm_event sclp_pm_event);
+=======
+>>>>>>> upstream/android-13
 static int __sclp_vt220_emit(struct sclp_vt220_request *request);
 static void sclp_vt220_emit_current(void);
 
 /* Registration structure for SCLP output event buffers */
 static struct sclp_register sclp_vt220_register = {
 	.send_mask		= EVTYP_VT220MSG_MASK,
+<<<<<<< HEAD
 	.pm_event_fn		= sclp_vt220_pm_event_fn,
+=======
+>>>>>>> upstream/android-13
 };
 
 /* Registration structure for SCLP input event buffers */
@@ -135,7 +160,11 @@ sclp_vt220_process_queue(struct sclp_vt220_request *request)
 		if (!list_empty(&sclp_vt220_outqueue))
 			request = list_entry(sclp_vt220_outqueue.next,
 					     struct sclp_vt220_request, list);
+<<<<<<< HEAD
 		if (!request || sclp_vt220_suspended) {
+=======
+		if (!request) {
+>>>>>>> upstream/android-13
 			sclp_vt220_queue_running = 0;
 			spin_unlock_irqrestore(&sclp_vt220_lock, flags);
 			break;
@@ -241,7 +270,11 @@ sclp_vt220_emit_current(void)
 		}
 		sclp_vt220_flush_later = 0;
 	}
+<<<<<<< HEAD
 	if (sclp_vt220_queue_running || sclp_vt220_suspended)
+=======
+	if (sclp_vt220_queue_running)
+>>>>>>> upstream/android-13
 		goto out_unlock;
 	if (list_empty(&sclp_vt220_outqueue))
 		goto out_unlock;
@@ -420,7 +453,11 @@ __sclp_vt220_write(const unsigned char *buf, int count, int do_schedule,
 			if (list_empty(&sclp_vt220_empty))
 				sclp_console_full++;
 			while (list_empty(&sclp_vt220_empty)) {
+<<<<<<< HEAD
 				if (may_fail || sclp_vt220_suspended)
+=======
+				if (may_fail)
+>>>>>>> upstream/android-13
 					goto out;
 				if (sclp_vt220_drop_buffer())
 					break;
@@ -560,7 +597,10 @@ sclp_vt220_open(struct tty_struct *tty, struct file *filp)
 {
 	if (tty->count == 1) {
 		tty_port_tty_set(&sclp_vt220_port, tty);
+<<<<<<< HEAD
 		sclp_vt220_port.low_latency = 0;
+=======
+>>>>>>> upstream/android-13
 		if (!tty->winsize.ws_row && !tty->winsize.ws_col) {
 			tty->winsize.ws_row = 24;
 			tty->winsize.ws_col = 80;
@@ -610,12 +650,20 @@ sclp_vt220_flush_chars(struct tty_struct *tty)
  * to change as output buffers get emptied, or if the output flow
  * control is acted.
  */
+<<<<<<< HEAD
 static int
+=======
+static unsigned int
+>>>>>>> upstream/android-13
 sclp_vt220_write_room(struct tty_struct *tty)
 {
 	unsigned long flags;
 	struct list_head *l;
+<<<<<<< HEAD
 	int count;
+=======
+	unsigned int count;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&sclp_vt220_lock, flags);
 	count = 0;
@@ -630,16 +678,26 @@ sclp_vt220_write_room(struct tty_struct *tty)
 /*
  * Return number of buffered chars.
  */
+<<<<<<< HEAD
 static int
+=======
+static unsigned int
+>>>>>>> upstream/android-13
 sclp_vt220_chars_in_buffer(struct tty_struct *tty)
 {
 	unsigned long flags;
 	struct list_head *l;
 	struct sclp_vt220_request *r;
+<<<<<<< HEAD
 	int count;
 
 	spin_lock_irqsave(&sclp_vt220_lock, flags);
 	count = 0;
+=======
+	unsigned int count = 0;
+
+	spin_lock_irqsave(&sclp_vt220_lock, flags);
+>>>>>>> upstream/android-13
 	if (sclp_vt220_current_request != NULL)
 		count = sclp_vt220_chars_stored(sclp_vt220_current_request);
 	list_for_each(l, &sclp_vt220_outqueue) {
@@ -694,9 +752,12 @@ static int __init __sclp_vt220_init(int num_pages)
 	sclp_vt220_init_count++;
 	if (sclp_vt220_init_count != 1)
 		return 0;
+<<<<<<< HEAD
 	spin_lock_init(&sclp_vt220_lock);
 	INIT_LIST_HEAD(&sclp_vt220_empty);
 	INIT_LIST_HEAD(&sclp_vt220_outqueue);
+=======
+>>>>>>> upstream/android-13
 	timer_setup(&sclp_vt220_timer, sclp_vt220_timeout, 0);
 	tty_port_init(&sclp_vt220_port);
 	sclp_vt220_current_request = NULL;
@@ -742,9 +803,15 @@ static int __init sclp_vt220_tty_init(void)
 
 	/* Note: we're not testing for CONSOLE_IS_SCLP here to preserve
 	 * symmetry between VM and LPAR systems regarding ttyS1. */
+<<<<<<< HEAD
 	driver = alloc_tty_driver(1);
 	if (!driver)
 		return -ENOMEM;
+=======
+	driver = tty_alloc_driver(1, TTY_DRIVER_REAL_RAW);
+	if (IS_ERR(driver))
+		return PTR_ERR(driver);
+>>>>>>> upstream/android-13
 	rc = __sclp_vt220_init(MAX_KMEM_PAGES);
 	if (rc)
 		goto out_driver;
@@ -756,7 +823,10 @@ static int __init sclp_vt220_tty_init(void)
 	driver->type = TTY_DRIVER_TYPE_SYSTEM;
 	driver->subtype = SYSTEM_TYPE_TTY;
 	driver->init_termios = tty_std_termios;
+<<<<<<< HEAD
 	driver->flags = TTY_DRIVER_REAL_RAW;
+=======
+>>>>>>> upstream/android-13
 	tty_set_operations(driver, &sclp_vt220_ops);
 	tty_port_link_device(&sclp_vt220_port, driver, 0);
 
@@ -774,7 +844,11 @@ out_reg:
 out_init:
 	__sclp_vt220_cleanup();
 out_driver:
+<<<<<<< HEAD
 	put_tty_driver(driver);
+=======
+	tty_driver_kref_put(driver);
+>>>>>>> upstream/android-13
 	return rc;
 }
 __initcall(sclp_vt220_tty_init);
@@ -795,6 +869,7 @@ static void __sclp_vt220_flush_buffer(void)
 	spin_unlock_irqrestore(&sclp_vt220_lock, flags);
 }
 
+<<<<<<< HEAD
 /*
  * Resume console: If there are cached messages, emit them.
  */
@@ -835,6 +910,8 @@ static void sclp_vt220_pm_event_fn(struct sclp_register *reg,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SCLP_VT220_CONSOLE
 
 static void

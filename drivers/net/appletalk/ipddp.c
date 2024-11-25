@@ -54,11 +54,20 @@ static netdev_tx_t ipddp_xmit(struct sk_buff *skb,
 static int ipddp_create(struct ipddp_route *new_rt);
 static int ipddp_delete(struct ipddp_route *rt);
 static struct ipddp_route* __ipddp_find_route(struct ipddp_route *rt);
+<<<<<<< HEAD
 static int ipddp_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd);
 
 static const struct net_device_ops ipddp_netdev_ops = {
 	.ndo_start_xmit		= ipddp_xmit,
 	.ndo_do_ioctl   	= ipddp_ioctl,
+=======
+static int ipddp_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+				void __user *data, int cmd);
+
+static const struct net_device_ops ipddp_netdev_ops = {
+	.ndo_start_xmit		= ipddp_xmit,
+	.ndo_siocdevprivate	= ipddp_siocdevprivate,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address 	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
 };
@@ -116,11 +125,22 @@ static struct net_device * __init ipddp_init(void)
  */
 static netdev_tx_t ipddp_xmit(struct sk_buff *skb, struct net_device *dev)
 {
+<<<<<<< HEAD
 	__be32 paddr = skb_rtable(skb)->rt_gateway;
+=======
+        struct rtable *rtable = skb_rtable(skb);
+        __be32 paddr = 0;
+>>>>>>> upstream/android-13
         struct ddpehdr *ddp;
         struct ipddp_route *rt;
         struct atalk_addr *our_addr;
 
+<<<<<<< HEAD
+=======
+	if (rtable->rt_gw_family == AF_INET)
+		paddr = rtable->rt_gw4;
+
+>>>>>>> upstream/android-13
 	spin_lock(&ipddp_route_lock);
 
 	/*
@@ -264,6 +284,7 @@ static struct ipddp_route* __ipddp_find_route(struct ipddp_route *rt)
         return NULL;
 }
 
+<<<<<<< HEAD
 static int ipddp_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
         struct ipddp_route __user *rt = ifr->ifr_data;
@@ -273,6 +294,20 @@ static int ipddp_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
                 return -EPERM;
 
 	if(copy_from_user(&rcp, rt, sizeof(rcp)))
+=======
+static int ipddp_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+				void __user *data, int cmd)
+{
+        struct ipddp_route rcp, rcp2, *rp;
+
+	if (in_compat_syscall())
+		return -EOPNOTSUPP;
+
+        if(!capable(CAP_NET_ADMIN))
+                return -EPERM;
+
+	if (copy_from_user(&rcp, data, sizeof(rcp)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
         switch(cmd)
@@ -292,7 +327,11 @@ static int ipddp_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 			spin_unlock_bh(&ipddp_route_lock);
 
 			if (rp) {
+<<<<<<< HEAD
 				if (copy_to_user(rt, &rcp2,
+=======
+				if (copy_to_user(data, &rcp2,
+>>>>>>> upstream/android-13
 						 sizeof(struct ipddp_route)))
 					return -EFAULT;
 				return 0;

@@ -19,6 +19,7 @@
 /* /sys/fs/<nilfs>/ */
 static struct kset *nilfs_kset;
 
+<<<<<<< HEAD
 #define NILFS_SHOW_TIME(time_t_val, buf) ({ \
 		struct tm res; \
 		int count = 0; \
@@ -32,6 +33,8 @@ static struct kset *nilfs_kset;
 		count; \
 })
 
+=======
+>>>>>>> upstream/android-13
 #define NILFS_DEV_INT_GROUP_OPS(name, parent_name) \
 static ssize_t nilfs_##name##_attr_show(struct kobject *kobj, \
 					struct attribute *attr, char *buf) \
@@ -64,11 +67,17 @@ static const struct sysfs_ops nilfs_##name##_attr_ops = { \
 #define NILFS_DEV_INT_GROUP_TYPE(name, parent_name) \
 static void nilfs_##name##_attr_release(struct kobject *kobj) \
 { \
+<<<<<<< HEAD
 	struct nilfs_sysfs_##parent_name##_subgroups *subgroups; \
 	struct the_nilfs *nilfs = container_of(kobj->parent, \
 						struct the_nilfs, \
 						ns_##parent_name##_kobj); \
 	subgroups = nilfs->ns_##parent_name##_subgroups; \
+=======
+	struct nilfs_sysfs_##parent_name##_subgroups *subgroups = container_of(kobj, \
+						struct nilfs_sysfs_##parent_name##_subgroups, \
+						sg_##name##_kobj); \
+>>>>>>> upstream/android-13
 	complete(&subgroups->sg_##name##_kobj_unregister); \
 } \
 static struct kobj_type nilfs_##name##_ktype = { \
@@ -94,12 +103,21 @@ static int nilfs_sysfs_create_##name##_group(struct the_nilfs *nilfs) \
 	err = kobject_init_and_add(kobj, &nilfs_##name##_ktype, parent, \
 				    #name); \
 	if (err) \
+<<<<<<< HEAD
 		return err; \
 	return 0; \
 } \
 static void nilfs_sysfs_delete_##name##_group(struct the_nilfs *nilfs) \
 { \
 	kobject_del(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
+=======
+		kobject_put(kobj); \
+	return err; \
+} \
+static void nilfs_sysfs_delete_##name##_group(struct the_nilfs *nilfs) \
+{ \
+	kobject_put(&nilfs->ns_##parent_name##_subgroups->sg_##name##_kobj); \
+>>>>>>> upstream/android-13
 }
 
 /************************************************************************
@@ -210,14 +228,24 @@ int nilfs_sysfs_create_snapshot_group(struct nilfs_root *root)
 	}
 
 	if (err)
+<<<<<<< HEAD
 		return err;
 
 	return 0;
+=======
+		kobject_put(&root->snapshot_kobj);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 void nilfs_sysfs_delete_snapshot_group(struct nilfs_root *root)
 {
+<<<<<<< HEAD
 	kobject_del(&root->snapshot_kobj);
+=======
+	kobject_put(&root->snapshot_kobj);
+>>>>>>> upstream/android-13
 }
 
 /************************************************************************
@@ -263,8 +291,13 @@ nilfs_checkpoints_checkpoints_number_show(struct nilfs_checkpoints_attr *attr,
 	err = nilfs_cpfile_get_stat(nilfs->ns_cpfile, &cpstat);
 	up_read(&nilfs->ns_segctor_sem);
 	if (err < 0) {
+<<<<<<< HEAD
 		nilfs_msg(nilfs->ns_sb, KERN_ERR,
 			  "unable to get checkpoint stat: err=%d", err);
+=======
+		nilfs_err(nilfs->ns_sb, "unable to get checkpoint stat: err=%d",
+			  err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -286,8 +319,13 @@ nilfs_checkpoints_snapshots_number_show(struct nilfs_checkpoints_attr *attr,
 	err = nilfs_cpfile_get_stat(nilfs->ns_cpfile, &cpstat);
 	up_read(&nilfs->ns_segctor_sem);
 	if (err < 0) {
+<<<<<<< HEAD
 		nilfs_msg(nilfs->ns_sb, KERN_ERR,
 			  "unable to get checkpoint stat: err=%d", err);
+=======
+		nilfs_err(nilfs->ns_sb, "unable to get checkpoint stat: err=%d",
+			  err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -405,8 +443,13 @@ nilfs_segments_dirty_segments_show(struct nilfs_segments_attr *attr,
 	err = nilfs_sufile_get_stat(nilfs->ns_sufile, &sustat);
 	up_read(&nilfs->ns_segctor_sem);
 	if (err < 0) {
+<<<<<<< HEAD
 		nilfs_msg(nilfs->ns_sb, KERN_ERR,
 			  "unable to get segment stat: err=%d", err);
+=======
+		nilfs_err(nilfs->ns_sb, "unable to get segment stat: err=%d",
+			  err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -576,7 +619,11 @@ nilfs_segctor_last_seg_write_time_show(struct nilfs_segctor_attr *attr,
 	ctime = nilfs->ns_ctime;
 	up_read(&nilfs->ns_segctor_sem);
 
+<<<<<<< HEAD
 	return NILFS_SHOW_TIME(ctime, buf);
+=======
+	return sysfs_emit(buf, "%ptTs\n", &ctime);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -604,7 +651,11 @@ nilfs_segctor_last_nongc_write_time_show(struct nilfs_segctor_attr *attr,
 	nongc_ctime = nilfs->ns_nongc_ctime;
 	up_read(&nilfs->ns_segctor_sem);
 
+<<<<<<< HEAD
 	return NILFS_SHOW_TIME(nongc_ctime, buf);
+=======
+	return sysfs_emit(buf, "%ptTs\n", &nongc_ctime);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -724,7 +775,11 @@ nilfs_superblock_sb_write_time_show(struct nilfs_superblock_attr *attr,
 	sbwtime = nilfs->ns_sbwtime;
 	up_read(&nilfs->ns_sem);
 
+<<<<<<< HEAD
 	return NILFS_SHOW_TIME(sbwtime, buf);
+=======
+	return sysfs_emit(buf, "%ptTs\n", &sbwtime);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t
@@ -779,15 +834,25 @@ nilfs_superblock_sb_update_frequency_store(struct nilfs_superblock_attr *attr,
 
 	err = kstrtouint(skip_spaces(buf), 0, &val);
 	if (err) {
+<<<<<<< HEAD
 		nilfs_msg(nilfs->ns_sb, KERN_ERR,
 			  "unable to convert string: err=%d", err);
+=======
+		nilfs_err(nilfs->ns_sb, "unable to convert string: err=%d",
+			  err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
 	if (val < NILFS_SB_FREQ) {
 		val = NILFS_SB_FREQ;
+<<<<<<< HEAD
 		nilfs_msg(nilfs->ns_sb, KERN_WARNING,
 			  "superblock update frequency cannot be lesser than 10 seconds");
+=======
+		nilfs_warn(nilfs->ns_sb,
+			   "superblock update frequency cannot be lesser than 10 seconds");
+>>>>>>> upstream/android-13
 	}
 
 	down_write(&nilfs->ns_sem);
@@ -990,8 +1055,12 @@ int nilfs_sysfs_create_device_group(struct super_block *sb)
 	nilfs->ns_dev_subgroups = kzalloc(devgrp_size, GFP_KERNEL);
 	if (unlikely(!nilfs->ns_dev_subgroups)) {
 		err = -ENOMEM;
+<<<<<<< HEAD
 		nilfs_msg(sb, KERN_ERR,
 			  "unable to allocate memory for device group");
+=======
+		nilfs_err(sb, "unable to allocate memory for device group");
+>>>>>>> upstream/android-13
 		goto failed_create_device_group;
 	}
 
@@ -1000,7 +1069,11 @@ int nilfs_sysfs_create_device_group(struct super_block *sb)
 	err = kobject_init_and_add(&nilfs->ns_dev_kobj, &nilfs_dev_ktype, NULL,
 				    "%s", sb->s_id);
 	if (err)
+<<<<<<< HEAD
 		goto free_dev_subgroups;
+=======
+		goto cleanup_dev_kobject;
+>>>>>>> upstream/android-13
 
 	err = nilfs_sysfs_create_mounted_snapshots_group(nilfs);
 	if (err)
@@ -1037,9 +1110,13 @@ delete_mounted_snapshots_group:
 	nilfs_sysfs_delete_mounted_snapshots_group(nilfs);
 
 cleanup_dev_kobject:
+<<<<<<< HEAD
 	kobject_del(&nilfs->ns_dev_kobj);
 
 free_dev_subgroups:
+=======
+	kobject_put(&nilfs->ns_dev_kobj);
+>>>>>>> upstream/android-13
 	kfree(nilfs->ns_dev_subgroups);
 
 failed_create_device_group:
@@ -1054,6 +1131,10 @@ void nilfs_sysfs_delete_device_group(struct the_nilfs *nilfs)
 	nilfs_sysfs_delete_superblock_group(nilfs);
 	nilfs_sysfs_delete_segctor_group(nilfs);
 	kobject_del(&nilfs->ns_dev_kobj);
+<<<<<<< HEAD
+=======
+	kobject_put(&nilfs->ns_dev_kobj);
+>>>>>>> upstream/android-13
 	kfree(nilfs->ns_dev_subgroups);
 }
 
@@ -1101,15 +1182,23 @@ int __init nilfs_sysfs_init(void)
 	nilfs_kset = kset_create_and_add(NILFS_ROOT_GROUP_NAME, NULL, fs_kobj);
 	if (!nilfs_kset) {
 		err = -ENOMEM;
+<<<<<<< HEAD
 		nilfs_msg(NULL, KERN_ERR,
 			  "unable to create sysfs entry: err=%d", err);
+=======
+		nilfs_err(NULL, "unable to create sysfs entry: err=%d", err);
+>>>>>>> upstream/android-13
 		goto failed_sysfs_init;
 	}
 
 	err = sysfs_create_group(&nilfs_kset->kobj, &nilfs_feature_attr_group);
 	if (unlikely(err)) {
+<<<<<<< HEAD
 		nilfs_msg(NULL, KERN_ERR,
 			  "unable to create feature group: err=%d", err);
+=======
+		nilfs_err(NULL, "unable to create feature group: err=%d", err);
+>>>>>>> upstream/android-13
 		goto cleanup_sysfs_init;
 	}
 

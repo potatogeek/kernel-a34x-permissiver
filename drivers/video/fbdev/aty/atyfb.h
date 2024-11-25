@@ -147,6 +147,10 @@ struct atyfb_par {
 	u16 pci_id;
 	u32 accel_flags;
 	int blitter_may_be_busy;
+<<<<<<< HEAD
+=======
+	unsigned fifo_space;
+>>>>>>> upstream/android-13
 	int asleep;
 	int lock_blank;
 	unsigned long res_start;
@@ -286,11 +290,16 @@ static inline void aty_st_8(int regindex, u8 val, const struct atyfb_par *par)
 #endif
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_PM) || defined(CONFIG_PMAC_BACKLIGHT) || \
 defined (CONFIG_FB_ATY_GENERIC_LCD) || defined (CONFIG_FB_ATY_BACKLIGHT)
 extern void aty_st_lcd(int index, u32 val, const struct atyfb_par *par);
 extern u32 aty_ld_lcd(int index, const struct atyfb_par *par);
 #endif
+=======
+extern void aty_st_lcd(int index, u32 val, const struct atyfb_par *par);
+extern u32 aty_ld_lcd(int index, const struct atyfb_par *par);
+>>>>>>> upstream/android-13
 
     /*
      *  DAC operations
@@ -340,16 +349,30 @@ extern const u8 aty_postdividers[8];
      *  Hardware cursor support
      */
 
+<<<<<<< HEAD
 extern int aty_init_cursor(struct fb_info *info);
+=======
+extern int aty_init_cursor(struct fb_info *info, struct fb_ops *atyfb_ops);
+>>>>>>> upstream/android-13
 
     /*
      *  Hardware acceleration
      */
 
+<<<<<<< HEAD
 static inline void wait_for_fifo(u16 entries, const struct atyfb_par *par)
 {
 	while ((aty_ld_le32(FIFO_STAT, par) & 0xffff) >
 	       ((u32) (0x8000 >> entries)));
+=======
+static inline void wait_for_fifo(u16 entries, struct atyfb_par *par)
+{
+	unsigned fifo_space = par->fifo_space;
+	while (entries > fifo_space) {
+		fifo_space = 16 - fls(aty_ld_le32(FIFO_STAT, par) & 0xffff);
+	}
+	par->fifo_space = fifo_space - entries;
+>>>>>>> upstream/android-13
 }
 
 static inline void wait_for_idle(struct atyfb_par *par)
@@ -359,7 +382,11 @@ static inline void wait_for_idle(struct atyfb_par *par)
 	par->blitter_may_be_busy = 0;
 }
 
+<<<<<<< HEAD
 extern void aty_reset_engine(const struct atyfb_par *par);
+=======
+extern void aty_reset_engine(struct atyfb_par *par);
+>>>>>>> upstream/android-13
 extern void aty_init_engine(struct atyfb_par *par, struct fb_info *info);
 
 void atyfb_copyarea(struct fb_info *info, const struct fb_copyarea *area);

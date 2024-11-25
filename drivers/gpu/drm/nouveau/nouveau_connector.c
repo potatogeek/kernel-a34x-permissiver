@@ -29,15 +29,26 @@
 #include <linux/pm_runtime.h>
 #include <linux/vga_switcheroo.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_edid.h>
 #include <drm/drm_crtc_helper.h>
+=======
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_crtc_helper.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_atomic.h>
 
 #include "nouveau_reg.h"
 #include "nouveau_drv.h"
 #include "dispnv04/hw.h"
+<<<<<<< HEAD
+=======
+#include "dispnv50/disp.h"
+>>>>>>> upstream/android-13
 #include "nouveau_acpi.h"
 
 #include "nouveau_display.h"
@@ -59,7 +70,10 @@ nouveau_conn_native_mode(struct drm_connector *connector)
 	int high_w = 0, high_h = 0, high_v = 0;
 
 	list_for_each_entry(mode, &connector->probed_modes, head) {
+<<<<<<< HEAD
 		mode->vrefresh = drm_mode_vrefresh(mode);
+=======
+>>>>>>> upstream/android-13
 		if (helper->mode_valid(connector, mode) != MODE_OK ||
 		    (mode->flags & DRM_MODE_FLAG_INTERLACE))
 			continue;
@@ -80,12 +94,20 @@ nouveau_conn_native_mode(struct drm_connector *connector)
 			continue;
 
 		if (mode->hdisplay == high_w && mode->vdisplay == high_h &&
+<<<<<<< HEAD
 		    mode->vrefresh < high_v)
+=======
+		    drm_mode_vrefresh(mode) < high_v)
+>>>>>>> upstream/android-13
 			continue;
 
 		high_w = mode->hdisplay;
 		high_h = mode->vdisplay;
+<<<<<<< HEAD
 		high_v = mode->vrefresh;
+=======
+		high_v = drm_mode_vrefresh(mode);
+>>>>>>> upstream/android-13
 		largest = mode;
 	}
 
@@ -157,6 +179,10 @@ nouveau_conn_atomic_set_property(struct drm_connector *connector,
 			default:
 				break;
 			}
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		case DRM_MODE_SCALE_FULLSCREEN:
 		case DRM_MODE_SCALE_CENTER:
 		case DRM_MODE_SCALE_ASPECT:
@@ -245,6 +271,7 @@ nouveau_conn_atomic_duplicate_state(struct drm_connector *connector)
 void
 nouveau_conn_reset(struct drm_connector *connector)
 {
+<<<<<<< HEAD
 	struct nouveau_conn_atom *asyc;
 
 	if (WARN_ON(!(asyc = kzalloc(sizeof(*asyc), GFP_KERNEL))))
@@ -253,6 +280,24 @@ nouveau_conn_reset(struct drm_connector *connector)
 	if (connector->state)
 		nouveau_conn_atomic_destroy_state(connector, connector->state);
 	__drm_atomic_helper_connector_reset(connector, &asyc->state);
+=======
+	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+	struct nouveau_conn_atom *asyc;
+
+	if (drm_drv_uses_atomic_modeset(connector->dev)) {
+		if (WARN_ON(!(asyc = kzalloc(sizeof(*asyc), GFP_KERNEL))))
+			return;
+
+		if (connector->state)
+			nouveau_conn_atomic_destroy_state(connector,
+							  connector->state);
+
+		__drm_atomic_helper_connector_reset(connector, &asyc->state);
+	} else {
+		asyc = &nv_connector->properties_state;
+	}
+
+>>>>>>> upstream/android-13
 	asyc->dither.mode = DITHERING_MODE_AUTO;
 	asyc->dither.depth = DITHERING_DEPTH_AUTO;
 	asyc->scaler.mode = DRM_MODE_SCALE_NONE;
@@ -276,8 +321,19 @@ void
 nouveau_conn_attach_properties(struct drm_connector *connector)
 {
 	struct drm_device *dev = connector->dev;
+<<<<<<< HEAD
 	struct nouveau_conn_atom *armc = nouveau_conn_atom(connector->state);
 	struct nouveau_display *disp = nouveau_display(dev);
+=======
+	struct nouveau_display *disp = nouveau_display(dev);
+	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+	struct nouveau_conn_atom *armc;
+
+	if (drm_drv_uses_atomic_modeset(connector->dev))
+		armc = nouveau_conn_atom(connector->state);
+	else
+		armc = &nv_connector->properties_state;
+>>>>>>> upstream/android-13
 
 	/* Init DVI-I specific properties. */
 	if (connector->connector_type == DRM_MODE_CONNECTOR_DVII)
@@ -316,7 +372,11 @@ nouveau_conn_attach_properties(struct drm_connector *connector)
 	case DRM_MODE_CONNECTOR_VGA:
 		if (disp->disp.object.oclass < NV50_DISP)
 			break; /* Can only scale on DFPs. */
+<<<<<<< HEAD
 		/* Fall-through. */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		drm_object_attach_property(&connector->base, dev->mode_config.
 					   scaling_mode_property,
@@ -365,9 +425,14 @@ find_encoder(struct drm_connector *connector, int type)
 {
 	struct nouveau_encoder *nv_encoder;
 	struct drm_encoder *enc;
+<<<<<<< HEAD
 	int i;
 
 	drm_connector_for_each_possible_encoder(connector, enc, i) {
+=======
+
+	drm_connector_for_each_possible_encoder(connector, enc) {
+>>>>>>> upstream/android-13
 		nv_encoder = nouveau_encoder(enc);
 
 		if (type == DCB_OUTPUT_ANY ||
@@ -378,6 +443,7 @@ find_encoder(struct drm_connector *connector, int type)
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct nouveau_connector *
 nouveau_encoder_connector_get(struct nouveau_encoder *encoder)
 {
@@ -392,16 +458,29 @@ nouveau_encoder_connector_get(struct nouveau_encoder *encoder)
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 nouveau_connector_destroy(struct drm_connector *connector)
 {
 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+<<<<<<< HEAD
 	nvif_notify_fini(&nv_connector->hpd);
 	kfree(nv_connector->edid);
 	drm_connector_unregister(connector);
 	drm_connector_cleanup(connector);
 	if (nv_connector->aux.transfer)
 		drm_dp_aux_unregister(&nv_connector->aux);
+=======
+	nvif_notify_dtor(&nv_connector->hpd);
+	kfree(nv_connector->edid);
+	drm_connector_unregister(connector);
+	drm_connector_cleanup(connector);
+	if (nv_connector->aux.transfer) {
+		drm_dp_cec_unregister_connector(&nv_connector->aux);
+		kfree(nv_connector->aux.name);
+	}
+>>>>>>> upstream/android-13
 	kfree(connector);
 }
 
@@ -409,17 +488,32 @@ static struct nouveau_encoder *
 nouveau_connector_ddc_detect(struct drm_connector *connector)
 {
 	struct drm_device *dev = connector->dev;
+<<<<<<< HEAD
 	struct nouveau_encoder *nv_encoder = NULL, *found = NULL;
 	struct drm_encoder *encoder;
 	int i, ret;
 	bool switcheroo_ddc = false;
 
 	drm_connector_for_each_possible_encoder(connector, encoder, i) {
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct nouveau_encoder *nv_encoder = NULL, *found = NULL;
+	struct drm_encoder *encoder;
+	int ret;
+	bool switcheroo_ddc = false;
+
+	drm_connector_for_each_possible_encoder(connector, encoder) {
+>>>>>>> upstream/android-13
 		nv_encoder = nouveau_encoder(encoder);
 
 		switch (nv_encoder->dcb->type) {
 		case DCB_OUTPUT_DP:
+<<<<<<< HEAD
 			ret = nouveau_dp_detect(nv_encoder);
+=======
+			ret = nouveau_dp_detect(nouveau_connector(connector),
+						nv_encoder);
+>>>>>>> upstream/android-13
 			if (ret == NOUVEAU_DP_MST)
 				return NULL;
 			else if (ret == NOUVEAU_DP_SST)
@@ -429,17 +523,29 @@ nouveau_connector_ddc_detect(struct drm_connector *connector)
 		case DCB_OUTPUT_LVDS:
 			switcheroo_ddc = !!(vga_switcheroo_handler_flags() &
 					    VGA_SWITCHEROO_CAN_SWITCH_DDC);
+<<<<<<< HEAD
 		/* fall-through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			if (!nv_encoder->i2c)
 				break;
 
 			if (switcheroo_ddc)
+<<<<<<< HEAD
 				vga_switcheroo_lock_ddc(dev->pdev);
 			if (nvkm_probe_i2c(nv_encoder->i2c, 0x50))
 				found = nv_encoder;
 			if (switcheroo_ddc)
 				vga_switcheroo_unlock_ddc(dev->pdev);
+=======
+				vga_switcheroo_lock_ddc(pdev);
+			if (nvkm_probe_i2c(nv_encoder->i2c, 0x50))
+				found = nv_encoder;
+			if (switcheroo_ddc)
+				vga_switcheroo_unlock_ddc(pdev);
+>>>>>>> upstream/android-13
 
 			break;
 		}
@@ -457,7 +563,12 @@ nouveau_connector_of_detect(struct drm_connector *connector)
 	struct drm_device *dev = connector->dev;
 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
 	struct nouveau_encoder *nv_encoder;
+<<<<<<< HEAD
 	struct device_node *cn, *dn = pci_device_to_OF_node(dev->pdev);
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct device_node *cn, *dn = pci_device_to_OF_node(pdev);
+>>>>>>> upstream/android-13
 
 	if (!dn ||
 	    !((nv_encoder = find_encoder(connector, DCB_OUTPUT_TMDS)) ||
@@ -487,13 +598,25 @@ nouveau_connector_set_encoder(struct drm_connector *connector,
 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
 	struct nouveau_drm *drm = nouveau_drm(connector->dev);
 	struct drm_device *dev = connector->dev;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 
 	if (nv_connector->detected_encoder == nv_encoder)
 		return;
 	nv_connector->detected_encoder = nv_encoder;
 
 	if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_TESLA) {
+<<<<<<< HEAD
 		connector->interlace_allowed = true;
+=======
+		if (nv_encoder->dcb->type == DCB_OUTPUT_DP)
+			connector->interlace_allowed =
+				nv_encoder->caps.dp_interlace;
+		else
+			connector->interlace_allowed = true;
+>>>>>>> upstream/android-13
 		connector->doublescan_allowed = true;
 	} else
 	if (nv_encoder->dcb->type == DCB_OUTPUT_LVDS ||
@@ -504,8 +627,13 @@ nouveau_connector_set_encoder(struct drm_connector *connector,
 		connector->doublescan_allowed = true;
 		if (drm->client.device.info.family == NV_DEVICE_INFO_V0_KELVIN ||
 		    (drm->client.device.info.family == NV_DEVICE_INFO_V0_CELSIUS &&
+<<<<<<< HEAD
 		     (dev->pdev->device & 0x0ff0) != 0x0100 &&
 		     (dev->pdev->device & 0x0ff0) != 0x0150))
+=======
+		     (pdev->device & 0x0ff0) != 0x0100 &&
+		     (pdev->device & 0x0ff0) != 0x0150))
+>>>>>>> upstream/android-13
 			/* HW is broken */
 			connector->interlace_allowed = false;
 		else
@@ -521,6 +649,22 @@ nouveau_connector_set_encoder(struct drm_connector *connector,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void
+nouveau_connector_set_edid(struct nouveau_connector *nv_connector,
+			   struct edid *edid)
+{
+	if (nv_connector->edid != edid) {
+		struct edid *old_edid = nv_connector->edid;
+
+		drm_connector_update_edid_property(&nv_connector->base, edid);
+		kfree(old_edid);
+		nv_connector->edid = edid;
+	}
+}
+
+>>>>>>> upstream/android-13
 static enum drm_connector_status
 nouveau_connector_detect(struct drm_connector *connector, bool force)
 {
@@ -534,6 +678,7 @@ nouveau_connector_detect(struct drm_connector *connector, bool force)
 	int ret;
 	enum drm_connector_status conn_status = connector_status_disconnected;
 
+<<<<<<< HEAD
 	/* Cleanup the previous EDID block. */
 	if (nv_connector->edid) {
 		drm_connector_update_edid_property(connector, NULL);
@@ -541,6 +686,8 @@ nouveau_connector_detect(struct drm_connector *connector, bool force)
 		nv_connector->edid = NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* Outputs are only polled while runtime active, so resuming the
 	 * device here is unnecessary (and would deadlock upon runtime suspend
 	 * because it waits for polling to finish). We do however, want to
@@ -553,12 +700,17 @@ nouveau_connector_detect(struct drm_connector *connector, bool force)
 		ret = pm_runtime_get_sync(dev->dev);
 		if (ret < 0 && ret != -EACCES) {
 			pm_runtime_put_autosuspend(dev->dev);
+<<<<<<< HEAD
+=======
+			nouveau_connector_set_edid(nv_connector, NULL);
+>>>>>>> upstream/android-13
 			return conn_status;
 		}
 	}
 
 	nv_encoder = nouveau_connector_ddc_detect(connector);
 	if (nv_encoder && (i2c = nv_encoder->i2c) != NULL) {
+<<<<<<< HEAD
 		if ((vga_switcheroo_handler_flags() &
 		     VGA_SWITCHEROO_CAN_SWITCH_DDC) &&
 		    nv_connector->type == DCB_CONNECTOR_LVDS)
@@ -569,6 +721,18 @@ nouveau_connector_detect(struct drm_connector *connector, bool force)
 
 		drm_connector_update_edid_property(connector,
 							nv_connector->edid);
+=======
+		struct edid *new_edid;
+
+		if ((vga_switcheroo_handler_flags() &
+		     VGA_SWITCHEROO_CAN_SWITCH_DDC) &&
+		    nv_connector->type == DCB_CONNECTOR_LVDS)
+			new_edid = drm_get_edid_switcheroo(connector, i2c);
+		else
+			new_edid = drm_get_edid(connector, i2c);
+
+		nouveau_connector_set_edid(nv_connector, new_edid);
+>>>>>>> upstream/android-13
 		if (!nv_connector->edid) {
 			NV_ERROR(drm, "DDC responded, but no EDID for %s\n",
 				 connector->name);
@@ -600,7 +764,14 @@ nouveau_connector_detect(struct drm_connector *connector, bool force)
 
 		nouveau_connector_set_encoder(connector, nv_encoder);
 		conn_status = connector_status_connected;
+<<<<<<< HEAD
 		goto out;
+=======
+		drm_dp_cec_set_edid(&nv_connector->aux, nv_connector->edid);
+		goto out;
+	} else {
+		nouveau_connector_set_edid(nv_connector, NULL);
+>>>>>>> upstream/android-13
 	}
 
 	nv_encoder = nouveau_connector_of_detect(connector);
@@ -625,10 +796,18 @@ detect_analog:
 			conn_status = connector_status_connected;
 			goto out;
 		}
+<<<<<<< HEAD
 
 	}
 
  out:
+=======
+	}
+
+ out:
+	if (!nv_connector->edid)
+		drm_dp_cec_unset_edid(&nv_connector->aux);
+>>>>>>> upstream/android-13
 
 	pm_runtime_mark_last_busy(dev->dev);
 	pm_runtime_put_autosuspend(dev->dev);
@@ -643,6 +822,7 @@ nouveau_connector_detect_lvds(struct drm_connector *connector, bool force)
 	struct nouveau_drm *drm = nouveau_drm(dev);
 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
 	struct nouveau_encoder *nv_encoder = NULL;
+<<<<<<< HEAD
 	enum drm_connector_status status = connector_status_disconnected;
 
 	/* Cleanup the previous EDID block. */
@@ -655,12 +835,27 @@ nouveau_connector_detect_lvds(struct drm_connector *connector, bool force)
 	nv_encoder = find_encoder(connector, DCB_OUTPUT_LVDS);
 	if (!nv_encoder)
 		return connector_status_disconnected;
+=======
+	struct edid *edid = NULL;
+	enum drm_connector_status status = connector_status_disconnected;
+
+	nv_encoder = find_encoder(connector, DCB_OUTPUT_LVDS);
+	if (!nv_encoder)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/* Try retrieving EDID via DDC */
 	if (!drm->vbios.fp_no_ddc) {
 		status = nouveau_connector_detect(connector, force);
+<<<<<<< HEAD
 		if (status == connector_status_connected)
 			goto out;
+=======
+		if (status == connector_status_connected) {
+			edid = nv_connector->edid;
+			goto out;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* On some laptops (Sony, i'm looking at you) there appears to
@@ -673,7 +868,12 @@ nouveau_connector_detect_lvds(struct drm_connector *connector, bool force)
 	 * valid - it's not (rh#613284)
 	 */
 	if (nv_encoder->dcb->lvdsconf.use_acpi_for_edid) {
+<<<<<<< HEAD
 		if ((nv_connector->edid = nouveau_acpi_edid(dev, connector))) {
+=======
+		edid = nouveau_acpi_edid(dev, connector);
+		if (edid) {
+>>>>>>> upstream/android-13
 			status = connector_status_connected;
 			goto out;
 		}
@@ -693,12 +893,19 @@ nouveau_connector_detect_lvds(struct drm_connector *connector, bool force)
 	 * stored for the panel stored in them.
 	 */
 	if (!drm->vbios.fp_no_ddc) {
+<<<<<<< HEAD
 		struct edid *edid =
 			(struct edid *)nouveau_bios_embedded_edid(dev);
 		if (edid) {
 			nv_connector->edid =
 					kmemdup(edid, EDID_LENGTH, GFP_KERNEL);
 			if (nv_connector->edid)
+=======
+		edid = (struct edid *)nouveau_bios_embedded_edid(dev);
+		if (edid) {
+			edid = kmemdup(edid, EDID_LENGTH, GFP_KERNEL);
+			if (edid)
+>>>>>>> upstream/android-13
 				status = connector_status_connected;
 		}
 	}
@@ -711,7 +918,11 @@ out:
 		status = connector_status_unknown;
 #endif
 
+<<<<<<< HEAD
 	drm_connector_update_edid_property(connector, nv_connector->edid);
+=======
+	nouveau_connector_set_edid(nv_connector, edid);
+>>>>>>> upstream/android-13
 	nouveau_connector_set_encoder(connector, nv_encoder);
 	return status;
 }
@@ -747,9 +958,15 @@ static int
 nouveau_connector_set_property(struct drm_connector *connector,
 			       struct drm_property *property, uint64_t value)
 {
+<<<<<<< HEAD
 	struct nouveau_conn_atom *asyc = nouveau_conn_atom(connector->state);
 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
 	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
+=======
+	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
+	struct nouveau_conn_atom *asyc = &nv_connector->properties_state;
+>>>>>>> upstream/android-13
 	struct drm_encoder *encoder = to_drm_encoder(nv_encoder);
 	int ret;
 
@@ -885,6 +1102,41 @@ nouveau_connector_detect_depth(struct drm_connector *connector)
 }
 
 static int
+<<<<<<< HEAD
+=======
+nouveau_connector_late_register(struct drm_connector *connector)
+{
+	int ret;
+
+	ret = nouveau_backlight_init(connector);
+	if (ret)
+		return ret;
+
+	if (connector->connector_type == DRM_MODE_CONNECTOR_eDP ||
+	    connector->connector_type == DRM_MODE_CONNECTOR_DisplayPort) {
+		ret = drm_dp_aux_register(&nouveau_connector(connector)->aux);
+		if (ret)
+			goto backlight_fini;
+	}
+
+	return 0;
+backlight_fini:
+	nouveau_backlight_fini(connector);
+	return ret;
+}
+
+static void
+nouveau_connector_early_unregister(struct drm_connector *connector)
+{
+	if (connector->connector_type == DRM_MODE_CONNECTOR_eDP ||
+	    connector->connector_type == DRM_MODE_CONNECTOR_DisplayPort)
+		drm_dp_aux_unregister(&nouveau_connector(connector)->aux);
+
+	nouveau_backlight_fini(connector);
+}
+
+static int
+>>>>>>> upstream/android-13
 nouveau_connector_get_modes(struct drm_connector *connector)
 {
 	struct drm_device *dev = connector->dev;
@@ -952,6 +1204,7 @@ nouveau_connector_get_modes(struct drm_connector *connector)
 }
 
 static unsigned
+<<<<<<< HEAD
 get_tmds_link_bandwidth(struct drm_connector *connector, bool hdmi)
 {
 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
@@ -959,16 +1212,46 @@ get_tmds_link_bandwidth(struct drm_connector *connector, bool hdmi)
 	struct dcb_output *dcb = nv_connector->detected_encoder->dcb;
 
 	if (hdmi) {
+=======
+get_tmds_link_bandwidth(struct drm_connector *connector)
+{
+	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
+	struct nouveau_drm *drm = nouveau_drm(connector->dev);
+	struct dcb_output *dcb = nv_connector->detected_encoder->dcb;
+	struct drm_display_info *info = NULL;
+	unsigned duallink_scale =
+		nouveau_duallink && nv_encoder->dcb->duallink_possible ? 2 : 1;
+
+	if (drm_detect_hdmi_monitor(nv_connector->edid)) {
+		info = &nv_connector->base.display_info;
+		duallink_scale = 1;
+	}
+
+	if (info) {
+>>>>>>> upstream/android-13
 		if (nouveau_hdmimhz > 0)
 			return nouveau_hdmimhz * 1000;
 		/* Note: these limits are conservative, some Fermi's
 		 * can do 297 MHz. Unclear how this can be determined.
 		 */
+<<<<<<< HEAD
+=======
+		if (drm->client.device.info.chipset >= 0x120) {
+			const int max_tmds_clock =
+				info->hdmi.scdc.scrambling.supported ?
+				594000 : 340000;
+			return info->max_tmds_clock ?
+				min(info->max_tmds_clock, max_tmds_clock) :
+				max_tmds_clock;
+		}
+>>>>>>> upstream/android-13
 		if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_KEPLER)
 			return 297000;
 		if (drm->client.device.info.family >= NV_DEVICE_INFO_V0_FERMI)
 			return 225000;
 	}
+<<<<<<< HEAD
 	if (dcb->location != DCB_LOC_ON_CHIP ||
 	    drm->client.device.info.chipset >= 0x46)
 		return 165000;
@@ -978,6 +1261,18 @@ get_tmds_link_bandwidth(struct drm_connector *connector, bool hdmi)
 		return 135000;
 	else
 		return 112000;
+=======
+
+	if (dcb->location != DCB_LOC_ON_CHIP ||
+	    drm->client.device.info.chipset >= 0x46)
+		return 165000 * duallink_scale;
+	else if (drm->client.device.info.chipset >= 0x40)
+		return 155000 * duallink_scale;
+	else if (drm->client.device.info.chipset >= 0x18)
+		return 135000 * duallink_scale;
+	else
+		return 112000 * duallink_scale;
+>>>>>>> upstream/android-13
 }
 
 static enum drm_mode_status
@@ -987,9 +1282,13 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
 	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
 	struct drm_encoder *encoder = to_drm_encoder(nv_encoder);
+<<<<<<< HEAD
 	unsigned min_clock = 25000, max_clock = min_clock;
 	unsigned clock = mode->clock;
 	bool hdmi;
+=======
+	unsigned int min_clock = 25000, max_clock = min_clock, clock = mode->clock;
+>>>>>>> upstream/android-13
 
 	switch (nv_encoder->dcb->type) {
 	case DCB_OUTPUT_LVDS:
@@ -1002,11 +1301,15 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
 		max_clock = 400000;
 		break;
 	case DCB_OUTPUT_TMDS:
+<<<<<<< HEAD
 		hdmi = drm_detect_hdmi_monitor(nv_connector->edid);
 		max_clock = get_tmds_link_bandwidth(connector, hdmi);
 		if (!hdmi && nouveau_duallink &&
 		    nv_encoder->dcb->duallink_possible)
 			max_clock *= 2;
+=======
+		max_clock = get_tmds_link_bandwidth(connector);
+>>>>>>> upstream/android-13
 		break;
 	case DCB_OUTPUT_ANALOG:
 		max_clock = nv_encoder->dcb->crtconf.maxfreq;
@@ -1016,10 +1319,14 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
 	case DCB_OUTPUT_TV:
 		return get_slave_funcs(encoder)->mode_valid(encoder, mode);
 	case DCB_OUTPUT_DP:
+<<<<<<< HEAD
 		max_clock  = nv_encoder->dp.link_nr;
 		max_clock *= nv_encoder->dp.link_bw;
 		clock = clock * (connector->display_info.bpc * 3) / 10;
 		break;
+=======
+		return nv50_dp_mode_valid(connector, nv_encoder, mode, NULL);
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 		return MODE_BAD;
@@ -1030,7 +1337,10 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
 
 	if (clock < min_clock)
 		return MODE_CLOCK_LOW;
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (clock > max_clock)
 		return MODE_CLOCK_HIGH;
 
@@ -1068,6 +1378,11 @@ nouveau_connector_funcs = {
 	.atomic_destroy_state = nouveau_conn_atomic_destroy_state,
 	.atomic_set_property = nouveau_conn_atomic_set_property,
 	.atomic_get_property = nouveau_conn_atomic_get_property,
+<<<<<<< HEAD
+=======
+	.late_register = nouveau_connector_late_register,
+	.early_unregister = nouveau_connector_early_unregister,
+>>>>>>> upstream/android-13
 };
 
 static const struct drm_connector_funcs
@@ -1083,14 +1398,36 @@ nouveau_connector_funcs_lvds = {
 	.atomic_destroy_state = nouveau_conn_atomic_destroy_state,
 	.atomic_set_property = nouveau_conn_atomic_set_property,
 	.atomic_get_property = nouveau_conn_atomic_get_property,
+<<<<<<< HEAD
 };
 
+=======
+	.late_register = nouveau_connector_late_register,
+	.early_unregister = nouveau_connector_early_unregister,
+};
+
+void
+nouveau_connector_hpd(struct drm_connector *connector)
+{
+	struct nouveau_drm *drm = nouveau_drm(connector->dev);
+	u32 mask = drm_connector_mask(connector);
+
+	mutex_lock(&drm->hpd_lock);
+	if (!(drm->hpd_pending & mask)) {
+		drm->hpd_pending |= mask;
+		schedule_work(&drm->hpd_work);
+	}
+	mutex_unlock(&drm->hpd_lock);
+}
+
+>>>>>>> upstream/android-13
 static int
 nouveau_connector_hotplug(struct nvif_notify *notify)
 {
 	struct nouveau_connector *nv_connector =
 		container_of(notify, typeof(*nv_connector), hpd);
 	struct drm_connector *connector = &nv_connector->base;
+<<<<<<< HEAD
 	struct nouveau_drm *drm = nouveau_drm(connector->dev);
 	const struct nvif_notify_conn_rep_v0 *rep = notify->data;
 	const char *name = connector->name;
@@ -1134,6 +1471,21 @@ nouveau_connector_hotplug(struct nvif_notify *notify)
 
 	pm_runtime_mark_last_busy(drm->dev->dev);
 	pm_runtime_put_autosuspend(drm->dev->dev);
+=======
+	struct drm_device *dev = connector->dev;
+	struct nouveau_drm *drm = nouveau_drm(dev);
+	const struct nvif_notify_conn_rep_v0 *rep = notify->data;
+	bool plugged = (rep->mask != NVIF_NOTIFY_CONN_V0_UNPLUG);
+
+	if (rep->mask & NVIF_NOTIFY_CONN_V0_IRQ) {
+		nouveau_dp_irq(drm, nv_connector);
+		return NVIF_NOTIFY_KEEP;
+	}
+
+	NV_DEBUG(drm, "%splugged %s\n", plugged ? "" : "un", connector->name);
+	nouveau_connector_hpd(connector);
+
+>>>>>>> upstream/android-13
 	return NVIF_NOTIFY_KEEP;
 }
 
@@ -1184,7 +1536,13 @@ drm_conntype_from_dcb(enum dcb_connector_type dcb)
 	case DCB_CONNECTOR_LVDS_SPWG: return DRM_MODE_CONNECTOR_LVDS;
 	case DCB_CONNECTOR_DMS59_DP0:
 	case DCB_CONNECTOR_DMS59_DP1:
+<<<<<<< HEAD
 	case DCB_CONNECTOR_DP       : return DRM_MODE_CONNECTOR_DisplayPort;
+=======
+	case DCB_CONNECTOR_DP       :
+	case DCB_CONNECTOR_mDP      :
+	case DCB_CONNECTOR_USB_C    : return DRM_MODE_CONNECTOR_DisplayPort;
+>>>>>>> upstream/android-13
 	case DCB_CONNECTOR_eDP      : return DRM_MODE_CONNECTOR_eDP;
 	case DCB_CONNECTOR_HDMI_0   :
 	case DCB_CONNECTOR_HDMI_1   :
@@ -1198,7 +1556,12 @@ drm_conntype_from_dcb(enum dcb_connector_type dcb)
 }
 
 struct drm_connector *
+<<<<<<< HEAD
 nouveau_connector_create(struct drm_device *dev, int index)
+=======
+nouveau_connector_create(struct drm_device *dev,
+			 const struct dcb_output *dcbe)
+>>>>>>> upstream/android-13
 {
 	const struct drm_connector_funcs *funcs = &nouveau_connector_funcs;
 	struct nouveau_drm *drm = nouveau_drm(dev);
@@ -1206,6 +1569,11 @@ nouveau_connector_create(struct drm_device *dev, int index)
 	struct nouveau_connector *nv_connector = NULL;
 	struct drm_connector *connector;
 	struct drm_connector_list_iter conn_iter;
+<<<<<<< HEAD
+=======
+	char aux_name[48] = {0};
+	int index = dcbe->connector;
+>>>>>>> upstream/android-13
 	int type, ret = 0;
 	bool dummy;
 
@@ -1306,6 +1674,7 @@ nouveau_connector_create(struct drm_device *dev, int index)
 		break;
 	case DRM_MODE_CONNECTOR_DisplayPort:
 	case DRM_MODE_CONNECTOR_eDP:
+<<<<<<< HEAD
 		nv_connector->aux.dev = dev->dev;
 		nv_connector->aux.transfer = nouveau_connector_aux_xfer;
 		ret = drm_dp_aux_register(&nv_connector->aux);
@@ -1317,6 +1686,22 @@ nouveau_connector_create(struct drm_device *dev, int index)
 
 		funcs = &nouveau_connector_funcs;
 		break;
+=======
+		nv_connector->aux.dev = connector->kdev;
+		nv_connector->aux.drm_dev = dev;
+		nv_connector->aux.transfer = nouveau_connector_aux_xfer;
+		snprintf(aux_name, sizeof(aux_name), "sor-%04x-%04x",
+			 dcbe->hasht, dcbe->hashm);
+		nv_connector->aux.name = kstrdup(aux_name, GFP_KERNEL);
+		drm_dp_aux_init(&nv_connector->aux);
+		if (ret) {
+			NV_ERROR(drm, "Failed to init AUX adapter for sor-%04x-%04x: %d\n",
+				 dcbe->hasht, dcbe->hashm, ret);
+			kfree(nv_connector);
+			return ERR_PTR(ret);
+		}
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		funcs = &nouveau_connector_funcs;
 		break;
@@ -1368,7 +1753,19 @@ nouveau_connector_create(struct drm_device *dev, int index)
 		break;
 	}
 
+<<<<<<< HEAD
 	ret = nvif_notify_init(&disp->disp.object, nouveau_connector_hotplug,
+=======
+	switch (type) {
+	case DRM_MODE_CONNECTOR_DisplayPort:
+	case DRM_MODE_CONNECTOR_eDP:
+		drm_dp_cec_register_connector(&nv_connector->aux, connector);
+		break;
+	}
+
+	ret = nvif_notify_ctor(&disp->disp.object, "kmsHotplug",
+			       nouveau_connector_hotplug,
+>>>>>>> upstream/android-13
 			       true, NV04_DISP_NTFY_CONN,
 			       &(struct nvif_notify_conn_req_v0) {
 				.mask = NVIF_NOTIFY_CONN_V0_ANY,

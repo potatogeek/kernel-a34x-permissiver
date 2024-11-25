@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /**************************************************************************
  * Copyright (c) 2011, Intel Corporation.
  * All Rights Reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -15,6 +20,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  **************************************************************************/
 
 /* TODO
@@ -23,17 +30,30 @@
  * - Check ioremap failures
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm.h>
 #include <drm/gma_drm.h>
 #include "psb_drv.h"
 #include "mid_bios.h"
+=======
+#include <drm/drm.h>
+
+#include "mid_bios.h"
+#include "psb_drv.h"
+>>>>>>> upstream/android-13
 
 static void mid_get_fuse_settings(struct drm_device *dev)
 {
 	struct drm_psb_private *dev_priv = dev->dev_private;
+<<<<<<< HEAD
 	struct pci_dev *pci_root =
 		pci_get_domain_bus_and_slot(pci_domain_nr(dev->pdev->bus),
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct pci_dev *pci_root =
+		pci_get_domain_bus_and_slot(pci_domain_nr(pdev->bus),
+>>>>>>> upstream/android-13
 					    0, 0);
 	uint32_t fuse_value = 0;
 	uint32_t fuse_value_tmp = 0;
@@ -106,7 +126,12 @@ static void mid_get_fuse_settings(struct drm_device *dev)
 static void mid_get_pci_revID(struct drm_psb_private *dev_priv)
 {
 	uint32_t platform_rev_id = 0;
+<<<<<<< HEAD
 	int domain = pci_domain_nr(dev_priv->dev->pdev->bus);
+=======
+	struct pci_dev *pdev = to_pci_dev(dev_priv->dev->dev);
+	int domain = pci_domain_nr(pdev->bus);
+>>>>>>> upstream/android-13
 	struct pci_dev *pci_gfx_root =
 		pci_get_domain_bus_and_slot(domain, 0, PCI_DEVFN(2, 0));
 
@@ -282,11 +307,19 @@ out:
 static void mid_get_vbt_data(struct drm_psb_private *dev_priv)
 {
 	struct drm_device *dev = dev_priv->dev;
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	u32 addr;
 	u8 __iomem *vbt_virtual;
 	struct mid_vbt_header vbt_header;
 	struct pci_dev *pci_gfx_root =
+<<<<<<< HEAD
 		pci_get_domain_bus_and_slot(pci_domain_nr(dev->pdev->bus),
+=======
+		pci_get_domain_bus_and_slot(pci_domain_nr(pdev->bus),
+>>>>>>> upstream/android-13
 					    0, PCI_DEVFN(2, 0));
 	int ret = -1;
 

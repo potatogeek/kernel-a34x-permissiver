@@ -56,7 +56,10 @@
 #include <linux/seq_file.h>
 #include <linux/string.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/version.h>
+=======
+>>>>>>> upstream/android-13
 
 /* Device specific zlib function definitions */
 #include "zip_device.h"

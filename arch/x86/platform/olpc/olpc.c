@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support for the OLPC DCON and OLPC EC access
  *
  * Copyright © 2006  Advanced Micro Devices, Inc.
  * Copyright © 2007-2008  Andres Salomon <dilinger@debian.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -30,9 +37,12 @@
 struct olpc_platform_t olpc_platform_info;
 EXPORT_SYMBOL_GPL(olpc_platform_info);
 
+<<<<<<< HEAD
 /* EC event mask to be applied during suspend (defining wakeup sources). */
 static u16 ec_wakeup_mask;
 
+=======
+>>>>>>> upstream/android-13
 /* what the timeout *should* be (in ms) */
 #define EC_BASE_TIMEOUT 20
 
@@ -186,6 +196,7 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
 void olpc_ec_wakeup_set(u16 value)
 {
 	ec_wakeup_mask |= value;
@@ -263,6 +274,8 @@ int olpc_ec_sci_query(u16 *sci_value)
 }
 EXPORT_SYMBOL_GPL(olpc_ec_sci_query);
 
+=======
+>>>>>>> upstream/android-13
 static bool __init check_ofw_architecture(struct device_node *root)
 {
 	const char *olpc_arch;
@@ -296,6 +309,13 @@ static bool __init platform_detect(void)
 	if (success) {
 		olpc_platform_info.boardrev = get_board_revision(root);
 		olpc_platform_info.flags |= OLPC_F_PRESENT;
+<<<<<<< HEAD
+=======
+
+		pr_info("OLPC board revision %s%X\n",
+			((olpc_platform_info.boardrev & 0xf) < 8) ? "pre" : "",
+			olpc_platform_info.boardrev >> 4);
+>>>>>>> upstream/android-13
 	}
 
 	of_node_put(root);
@@ -315,6 +335,7 @@ static int __init add_xo1_platform_devices(void)
 	return PTR_ERR_OR_ZERO(pdev);
 }
 
+<<<<<<< HEAD
 static int olpc_xo1_ec_probe(struct platform_device *pdev)
 {
 	/* get the EC revision */
@@ -336,6 +357,10 @@ static int olpc_xo1_ec_suspend(struct platform_device *pdev)
 {
 	olpc_ec_mask_write(ec_wakeup_mask);
 
+=======
+static int olpc_xo1_ec_suspend(struct platform_device *pdev)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Squelch SCIs while suspended.  This is a fix for
 	 * <http://dev.laptop.org/ticket/1835>.
@@ -359,6 +384,7 @@ static int olpc_xo1_ec_resume(struct platform_device *pdev)
 }
 
 static struct olpc_ec_driver ec_xo1_driver = {
+<<<<<<< HEAD
 	.probe = olpc_xo1_ec_probe,
 	.suspend = olpc_xo1_ec_suspend,
 	.resume = olpc_xo1_ec_resume,
@@ -368,6 +394,29 @@ static struct olpc_ec_driver ec_xo1_driver = {
 static struct olpc_ec_driver ec_xo1_5_driver = {
 	.probe = olpc_xo1_ec_probe,
 	.ec_cmd = olpc_xo1_ec_cmd,
+=======
+	.suspend = olpc_xo1_ec_suspend,
+	.resume = olpc_xo1_ec_resume,
+	.ec_cmd = olpc_xo1_ec_cmd,
+#ifdef CONFIG_OLPC_XO1_SCI
+	/*
+	 * XO-1 EC wakeups are available when olpc-xo1-sci driver is
+	 * compiled in
+	 */
+	.wakeup_available = true,
+#endif
+};
+
+static struct olpc_ec_driver ec_xo1_5_driver = {
+	.ec_cmd = olpc_xo1_ec_cmd,
+#ifdef CONFIG_OLPC_XO15_SCI
+	/*
+	 * XO-1.5 EC wakeups are available when olpc-xo15-sci driver is
+	 * compiled in
+	 */
+	.wakeup_available = true,
+#endif
+>>>>>>> upstream/android-13
 };
 
 static int __init olpc_init(void)

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  *      NS pc87413-wdt Watchdog Timer driver for Linux 2.6.x.x
  *
@@ -6,11 +10,14 @@
  *      (C) Copyright 2006 Sven Anders, <anders@anduras.de>
  *                     and Marcus Junker, <junker@anduras.de>
  *
+<<<<<<< HEAD
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *      Neither Sven Anders, Marcus Junker nor ANDURAS AG
  *      admit liability nor provide warranty for any of this software.
  *      This material is provided "AS-IS" and at no charge.
@@ -286,7 +293,11 @@ static int pc87413_open(struct inode *inode, struct file *file)
 
 	pr_info("Watchdog enabled. Timeout set to %d minute(s).\n", timeout);
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -437,7 +448,11 @@ static long pc87413_ioctl(struct file *file, unsigned int cmd,
 			return -EINVAL;
 		timeout = new_timeout;
 		pc87413_refresh();
+<<<<<<< HEAD
 		/* fall through and return the new timeout... */
+=======
+		fallthrough;	/* and return the new timeout */
+>>>>>>> upstream/android-13
 	case WDIOC_GETTIMEOUT:
 		new_timeout = timeout * 60;
 		return put_user(new_timeout, uarg.i);
@@ -449,7 +464,11 @@ static long pc87413_ioctl(struct file *file, unsigned int cmd,
 /* -- Notifier funtions -----------------------------------------*/
 
 /**
+<<<<<<< HEAD
  *	notify_sys:
+=======
+ *	pc87413_notify_sys:
+>>>>>>> upstream/android-13
  *	@this: our notifier block
  *	@code: the event being reported
  *	@unused: unused
@@ -477,6 +496,10 @@ static const struct file_operations pc87413_fops = {
 	.llseek		= no_llseek,
 	.write		= pc87413_write,
 	.unlocked_ioctl	= pc87413_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= pc87413_open,
 	.release	= pc87413_release,
 };

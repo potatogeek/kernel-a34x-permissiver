@@ -25,7 +25,11 @@
 	gpio-leds {
 		compatible = "gpio-leds";
 
+<<<<<<< HEAD
 		ld4 {
+=======
+		led-ld4 {
+>>>>>>> upstream/android-13
 			label = "zynq-zybo-z7:green:ld4";
 			gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
 		};

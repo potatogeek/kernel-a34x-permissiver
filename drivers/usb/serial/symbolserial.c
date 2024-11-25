@@ -160,13 +160,20 @@ static int symbol_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int symbol_port_remove(struct usb_serial_port *port)
+=======
+static void symbol_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct symbol_private *priv = usb_get_serial_port_data(port);
 
 	kfree(priv);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct usb_serial_driver symbol_device = {

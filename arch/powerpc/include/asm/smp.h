@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* 
  * smp.h: PowerPC-specific SMP code.
  *
@@ -6,11 +10,14 @@
  *
  * Copyright (C) 1996 David S. Miller (davem@caip.rutgers.edu)
  * Copyright (C) 1996-2001 Cort Dougan <cort@fsmlabs.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_POWERPC_SMP_H
@@ -32,9 +39,20 @@
 extern int boot_cpuid;
 extern int spinning_secondaries;
 extern u32 *cpu_to_phys_id;
+<<<<<<< HEAD
 
 extern void cpu_die(void);
 extern int cpu_to_chip_id(int cpu);
+=======
+extern bool coregroup_enabled;
+
+extern int cpu_to_chip_id(int cpu);
+extern int *chip_id_lookup_table;
+
+DECLARE_PER_CPU(cpumask_var_t, thread_group_l1_cache_map);
+DECLARE_PER_CPU(cpumask_var_t, thread_group_l2_cache_map);
+DECLARE_PER_CPU(cpumask_var_t, thread_group_l3_cache_map);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 
@@ -54,6 +72,12 @@ struct smp_ops_t {
 	int   (*cpu_disable)(void);
 	void  (*cpu_die)(unsigned int nr);
 	int   (*cpu_bootable)(unsigned int nr);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_HOTPLUG_CPU
+	void  (*cpu_offline_self)(void);
+#endif
+>>>>>>> upstream/android-13
 };
 
 extern int smp_send_nmi_ipi(int cpu, void (*fn)(struct pt_regs *), u64 delay_us);
@@ -83,7 +107,26 @@ int is_cpu_dead(unsigned int cpu);
 /* 32-bit */
 extern int smp_hw_index[];
 
+<<<<<<< HEAD
 #define raw_smp_processor_id()	(current_thread_info()->cpu)
+=======
+/*
+ * This is particularly ugly: it appears we can't actually get the definition
+ * of task_struct here, but we need access to the CPU this task is running on.
+ * Instead of using task_struct we're using _TASK_CPU which is extracted from
+ * asm-offsets.h by kbuild to get the current processor ID.
+ *
+ * This also needs to be safeguarded when building asm-offsets.s because at
+ * that time _TASK_CPU is not defined yet. It could have been guarded by
+ * _TASK_CPU itself, but we want the build to fail if _TASK_CPU is missing
+ * when building something else than asm-offsets.s
+ */
+#ifdef GENERATING_ASM_OFFSETS
+#define raw_smp_processor_id()		(0)
+#else
+#define raw_smp_processor_id()		(*(unsigned int *)((void *)current + _TASK_CPU))
+#endif
+>>>>>>> upstream/android-13
 #define hard_smp_processor_id() 	(smp_hw_index[smp_processor_id()])
 
 static inline int get_hard_smp_processor_id(int cpu)
@@ -100,6 +143,10 @@ static inline void set_hard_smp_processor_id(int cpu, int phys)
 DECLARE_PER_CPU(cpumask_var_t, cpu_sibling_map);
 DECLARE_PER_CPU(cpumask_var_t, cpu_l2_cache_map);
 DECLARE_PER_CPU(cpumask_var_t, cpu_core_map);
+<<<<<<< HEAD
+=======
+DECLARE_PER_CPU(cpumask_var_t, cpu_smallcore_map);
+>>>>>>> upstream/android-13
 
 static inline struct cpumask *cpu_sibling_mask(int cpu)
 {
@@ -116,8 +163,33 @@ static inline struct cpumask *cpu_l2_cache_mask(int cpu)
 	return per_cpu(cpu_l2_cache_map, cpu);
 }
 
+<<<<<<< HEAD
 extern int cpu_to_core_id(int cpu);
 
+=======
+static inline struct cpumask *cpu_smallcore_mask(int cpu)
+{
+	return per_cpu(cpu_smallcore_map, cpu);
+}
+
+extern int cpu_to_core_id(int cpu);
+
+extern bool has_big_cores;
+extern bool thread_group_shares_l2;
+extern bool thread_group_shares_l3;
+
+#define cpu_smt_mask cpu_smt_mask
+#ifdef CONFIG_SCHED_SMT
+static inline const struct cpumask *cpu_smt_mask(int cpu)
+{
+	if (has_big_cores)
+		return per_cpu(cpu_smallcore_map, cpu);
+
+	return per_cpu(cpu_sibling_map, cpu);
+}
+#endif /* CONFIG_SCHED_SMT */
+
+>>>>>>> upstream/android-13
 /* Since OpenPIC has only 4 IPIs, we use slightly different message numbers.
  *
  * Make sure this matches openpic_request_IPIs in open_pic.c, or what shows up
@@ -159,6 +231,11 @@ extern void __cpu_die(unsigned int cpu);
 /* for UP */
 #define hard_smp_processor_id()		get_hard_smp_processor_id(0)
 #define smp_setup_cpu_maps()
+<<<<<<< HEAD
+=======
+#define thread_group_shares_l2  0
+#define thread_group_shares_l3	0
+>>>>>>> upstream/android-13
 static inline void inhibit_secondary_onlining(void) {}
 static inline void uninhibit_secondary_onlining(void) {}
 static inline const struct cpumask *cpu_sibling_mask(int cpu)
@@ -166,6 +243,18 @@ static inline const struct cpumask *cpu_sibling_mask(int cpu)
 	return cpumask_of(cpu);
 }
 
+<<<<<<< HEAD
+=======
+static inline const struct cpumask *cpu_smallcore_mask(int cpu)
+{
+	return cpumask_of(cpu);
+}
+
+static inline const struct cpumask *cpu_l2_cache_mask(int cpu)
+{
+	return cpumask_of(cpu);
+}
+>>>>>>> upstream/android-13
 #endif /* CONFIG_SMP */
 
 #ifdef CONFIG_PPC64
@@ -197,7 +286,11 @@ static inline void set_hard_smp_processor_id(int cpu, int phys)
 #if defined(CONFIG_PPC64) && (defined(CONFIG_SMP) || defined(CONFIG_KEXEC_CORE))
 extern void smp_release_cpus(void);
 #else
+<<<<<<< HEAD
 static inline void smp_release_cpus(void) { };
+=======
+static inline void smp_release_cpus(void) { }
+>>>>>>> upstream/android-13
 #endif
 
 extern int smt_enabled_at_boot;
@@ -221,7 +314,10 @@ extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
  * 64-bit but defining them all here doesn't harm
  */
 extern void generic_secondary_smp_init(void);
+<<<<<<< HEAD
 extern void generic_secondary_thread_init(void);
+=======
+>>>>>>> upstream/android-13
 extern unsigned long __secondary_hold_spinloop;
 extern unsigned long __secondary_hold_acknowledge;
 extern char __secondary_hold;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HDMI_CONNECTOR_H__
@@ -22,8 +29,16 @@
 #include <linux/clk.h>
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
+<<<<<<< HEAD
 #include <linux/hdmi.h>
 
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/hdmi.h>
+
+#include <drm/drm_bridge.h>
+
+>>>>>>> upstream/android-13
 #include "msm_drv.h"
 #include "hdmi.xml.h"
 
@@ -33,10 +48,16 @@ struct hdmi_phy;
 struct hdmi_platform_config;
 
 struct hdmi_gpio_data {
+<<<<<<< HEAD
 	int num;
 	bool output;
 	int value;
 	const char *label;
+=======
+	struct gpio_desc *gpiod;
+	bool output;
+	int value;
+>>>>>>> upstream/android-13
 };
 
 struct hdmi_audio {

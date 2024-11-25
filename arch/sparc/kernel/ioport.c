@@ -38,7 +38,11 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/scatterlist.h>
+<<<<<<< HEAD
 #include <linux/dma-noncoherent.h>
+=======
+#include <linux/dma-map-ops.h>
+>>>>>>> upstream/android-13
 #include <linux/of_device.h>
 
 #include <asm/io.h>
@@ -52,8 +56,11 @@
 #include <asm/io-unit.h>
 #include <asm/leon.h>
 
+<<<<<<< HEAD
 const struct sparc32_dma_ops *sparc32_dma_ops;
 
+=======
+>>>>>>> upstream/android-13
 /* This function must make sure that caches and memory are coherent after DMA
  * On LEON systems without cache snooping it flushes the entire D-CACHE.
  */
@@ -247,6 +254,56 @@ static void _sparc_free_io(struct resource *res)
 	release_resource(res);
 }
 
+<<<<<<< HEAD
+=======
+unsigned long sparc_dma_alloc_resource(struct device *dev, size_t len)
+{
+	struct resource *res;
+
+	res = kzalloc(sizeof(*res), GFP_KERNEL);
+	if (!res)
+		return 0;
+	res->name = dev->of_node->full_name;
+
+	if (allocate_resource(&_sparc_dvma, res, len, _sparc_dvma.start,
+			      _sparc_dvma.end, PAGE_SIZE, NULL, NULL) != 0) {
+		printk("%s: cannot occupy 0x%zx", __func__, len);
+		kfree(res);
+		return 0;
+	}
+
+	return res->start;
+}
+
+bool sparc_dma_free_resource(void *cpu_addr, size_t size)
+{
+	unsigned long addr = (unsigned long)cpu_addr;
+	struct resource *res;
+
+	res = lookup_resource(&_sparc_dvma, addr);
+	if (!res) {
+		printk("%s: cannot free %p\n", __func__, cpu_addr);
+		return false;
+	}
+
+	if ((addr & (PAGE_SIZE - 1)) != 0) {
+		printk("%s: unaligned va %p\n", __func__, cpu_addr);
+		return false;
+	}
+
+	size = PAGE_ALIGN(size);
+	if (resource_size(res) != size) {
+		printk("%s: region 0x%lx asked 0x%zx\n",
+			__func__, (long)resource_size(res), size);
+		return false;
+	}
+
+	release_resource(res);
+	kfree(res);
+	return true;
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SBUS
 
 void sbus_set_sbus64(struct device *dev, int x)
@@ -255,6 +312,7 @@ void sbus_set_sbus64(struct device *dev, int x)
 }
 EXPORT_SYMBOL(sbus_set_sbus64);
 
+<<<<<<< HEAD
 /*
  * Allocate a chunk of memory suitable for DMA.
  * Typically devices use them for control blocks.
@@ -420,6 +478,8 @@ static const struct dma_map_ops sbus_dma_ops = {
 	.dma_supported		= sbus_dma_supported,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int __init sparc_register_ioport(void)
 {
 	register_proc_sparc_ioport();
@@ -438,6 +498,7 @@ arch_initcall(sparc_register_ioport);
 void *arch_dma_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
 		gfp_t gfp, unsigned long attrs)
 {
+<<<<<<< HEAD
 	unsigned long len_total = PAGE_ALIGN(size);
 	void *va;
 	struct resource *res;
@@ -477,6 +538,32 @@ err_nova:
 err_nomem:
 	free_pages((unsigned long)va, order);
 err_nopages:
+=======
+	unsigned long addr;
+	void *va;
+
+	if (!size || size > 256 * 1024)	/* __get_free_pages() limit */
+		return NULL;
+
+	size = PAGE_ALIGN(size);
+	va = (void *) __get_free_pages(gfp | __GFP_ZERO, get_order(size));
+	if (!va) {
+		printk("%s: no %zd pages\n", __func__, size >> PAGE_SHIFT);
+		return NULL;
+	}
+
+	addr = sparc_dma_alloc_resource(dev, size);
+	if (!addr)
+		goto err_nomem;
+
+	srmmu_mapiorange(0, virt_to_phys(va), addr, size);
+
+	*dma_handle = virt_to_phys(va);
+	return (void *)addr;
+
+err_nomem:
+	free_pages((unsigned long)va, get_order(size));
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -491,6 +578,7 @@ err_nopages:
 void arch_dma_free(struct device *dev, size_t size, void *cpu_addr,
 		dma_addr_t dma_addr, unsigned long attrs)
 {
+<<<<<<< HEAD
 	struct resource *res;
 
 	if ((res = lookup_resource(&_sparc_dvma,
@@ -516,21 +604,38 @@ void arch_dma_free(struct device *dev, size_t size, void *cpu_addr,
 
 	release_resource(res);
 	kfree(res);
+=======
+	size = PAGE_ALIGN(size);
+
+	if (!sparc_dma_free_resource(cpu_addr, size))
+		return;
+
+	dma_make_coherent(dma_addr, size);
+	srmmu_unmapiorange((unsigned long)cpu_addr, size);
+>>>>>>> upstream/android-13
 	free_pages((unsigned long)phys_to_virt(dma_addr), get_order(size));
 }
 
 /* IIep is write-through, not flushing on cpu to device transfer. */
 
+<<<<<<< HEAD
 void arch_sync_dma_for_cpu(struct device *dev, phys_addr_t paddr,
 		size_t size, enum dma_data_direction dir)
+=======
+void arch_sync_dma_for_cpu(phys_addr_t paddr, size_t size,
+		enum dma_data_direction dir)
+>>>>>>> upstream/android-13
 {
 	if (dir != PCI_DMA_TODEVICE)
 		dma_make_coherent(paddr, PAGE_ALIGN(size));
 }
 
+<<<<<<< HEAD
 const struct dma_map_ops *dma_ops = &sbus_dma_ops;
 EXPORT_SYMBOL(dma_ops);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROC_FS
 
 static int sparc_io_proc_show(struct seq_file *m, void *v)

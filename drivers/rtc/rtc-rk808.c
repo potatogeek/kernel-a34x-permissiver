@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * RTC driver for Rockchip RK808
  *
@@ -5,6 +9,7 @@
  *
  * Author: Chris Zhong <zyw@rock-chips.com>
  * Author: Zhang Qing <zhangqing@rock-chips.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -50,9 +57,24 @@
 #define NUM_TIME_REGS	(RK808_WEEKS_REG - RK808_SECONDS_REG + 1)
 #define NUM_ALARM_REGS	(RK808_ALARM_YEARS_REG - RK808_ALARM_SECONDS_REG + 1)
 
+<<<<<<< HEAD
 struct rk808_rtc {
 	struct rk808 *rk808;
 	struct rtc_device *rtc;
+=======
+struct rk_rtc_compat_reg {
+	unsigned int ctrl_reg;
+	unsigned int status_reg;
+	unsigned int alarm_seconds_reg;
+	unsigned int int_reg;
+	unsigned int seconds_reg;
+};
+
+struct rk808_rtc {
+	struct rk808 *rk808;
+	struct rtc_device *rtc;
+	struct rk_rtc_compat_reg *creg;
+>>>>>>> upstream/android-13
 	int irq;
 };
 
@@ -101,7 +123,11 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
 	int ret;
 
 	/* Force an update of the shadowed registers right now */
+<<<<<<< HEAD
 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
+=======
+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+>>>>>>> upstream/android-13
 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
 				 BIT_RTC_CTRL_REG_RTC_GET_TIME);
 	if (ret) {
@@ -115,7 +141,11 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
 	 * 32khz. If we clear the GET_TIME bit here, the time of i2c transfer
 	 * certainly more than 31.25us: 16 * 2.5us at 400kHz bus frequency.
 	 */
+<<<<<<< HEAD
 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
+=======
+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+>>>>>>> upstream/android-13
 				 BIT_RTC_CTRL_REG_RTC_GET_TIME,
 				 0);
 	if (ret) {
@@ -123,7 +153,11 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(rk808->regmap, RK808_SECONDS_REG,
+=======
+	ret = regmap_bulk_read(rk808->regmap, rk808_rtc->creg->seconds_reg,
+>>>>>>> upstream/android-13
 			       rtc_data, NUM_TIME_REGS);
 	if (ret) {
 		dev_err(dev, "Failed to bulk read rtc_data: %d\n", ret);
@@ -138,9 +172,13 @@ static int rk808_rtc_readtime(struct device *dev, struct rtc_time *tm)
 	tm->tm_year = (bcd2bin(rtc_data[5] & YEARS_REG_MSK)) + 100;
 	tm->tm_wday = bcd2bin(rtc_data[6] & WEEKS_REG_MSK);
 	rockchip_to_gregorian(tm);
+<<<<<<< HEAD
 	dev_dbg(dev, "RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
 		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
 		tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "RTC date/time %ptRd(%d) %ptRt\n", tm, tm->tm_wday, tm);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -153,9 +191,13 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	u8 rtc_data[NUM_TIME_REGS];
 	int ret;
 
+<<<<<<< HEAD
 	dev_dbg(dev, "set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
 		1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
 		tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "set RTC date/time %ptRd(%d) %ptRt\n", tm, tm->tm_wday, tm);
+>>>>>>> upstream/android-13
 	gregorian_to_rockchip(tm);
 	rtc_data[0] = bin2bcd(tm->tm_sec);
 	rtc_data[1] = bin2bcd(tm->tm_min);
@@ -166,7 +208,11 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
 	rtc_data[6] = bin2bcd(tm->tm_wday);
 
 	/* Stop RTC while updating the RTC registers */
+<<<<<<< HEAD
 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
+=======
+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+>>>>>>> upstream/android-13
 				 BIT_RTC_CTRL_REG_STOP_RTC_M,
 				 BIT_RTC_CTRL_REG_STOP_RTC_M);
 	if (ret) {
@@ -174,14 +220,22 @@ static int rk808_rtc_set_time(struct device *dev, struct rtc_time *tm)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = regmap_bulk_write(rk808->regmap, RK808_SECONDS_REG,
+=======
+	ret = regmap_bulk_write(rk808->regmap, rk808_rtc->creg->seconds_reg,
+>>>>>>> upstream/android-13
 				rtc_data, NUM_TIME_REGS);
 	if (ret) {
 		dev_err(dev, "Failed to bull write rtc_data: %d\n", ret);
 		return ret;
 	}
 	/* Start RTC again */
+<<<<<<< HEAD
 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
+=======
+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+>>>>>>> upstream/android-13
 				 BIT_RTC_CTRL_REG_STOP_RTC_M, 0);
 	if (ret) {
 		dev_err(dev, "Failed to update RTC control: %d\n", ret);
@@ -199,8 +253,18 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
 	uint32_t int_reg;
 	int ret;
 
+<<<<<<< HEAD
 	ret = regmap_bulk_read(rk808->regmap, RK808_ALARM_SECONDS_REG,
 			       alrm_data, NUM_ALARM_REGS);
+=======
+	ret = regmap_bulk_read(rk808->regmap,
+			       rk808_rtc->creg->alarm_seconds_reg,
+			       alrm_data, NUM_ALARM_REGS);
+	if (ret) {
+		dev_err(dev, "Failed to read RTC alarm date REG: %d\n", ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	alrm->time.tm_sec = bcd2bin(alrm_data[0] & SECONDS_REG_MSK);
 	alrm->time.tm_min = bcd2bin(alrm_data[1] & MINUTES_REG_MAK);
@@ -210,16 +274,25 @@ static int rk808_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
 	alrm->time.tm_year = (bcd2bin(alrm_data[5] & YEARS_REG_MSK)) + 100;
 	rockchip_to_gregorian(&alrm->time);
 
+<<<<<<< HEAD
 	ret = regmap_read(rk808->regmap, RK808_RTC_INT_REG, &int_reg);
+=======
+	ret = regmap_read(rk808->regmap, rk808_rtc->creg->int_reg, &int_reg);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "Failed to read RTC INT REG: %d\n", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	dev_dbg(dev, "alrm read RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
 		1900 + alrm->time.tm_year, alrm->time.tm_mon + 1,
 		alrm->time.tm_mday, alrm->time.tm_wday, alrm->time.tm_hour,
 		alrm->time.tm_min, alrm->time.tm_sec);
+=======
+	dev_dbg(dev, "alrm read RTC date/time %ptRd(%d) %ptRt\n",
+		&alrm->time, alrm->time.tm_wday, &alrm->time);
+>>>>>>> upstream/android-13
 
 	alrm->enabled = (int_reg & BIT_RTC_INTERRUPTS_REG_IT_ALARM_M) ? 1 : 0;
 
@@ -231,7 +304,11 @@ static int rk808_rtc_stop_alarm(struct rk808_rtc *rk808_rtc)
 	struct rk808 *rk808 = rk808_rtc->rk808;
 	int ret;
 
+<<<<<<< HEAD
 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
+=======
+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->int_reg,
+>>>>>>> upstream/android-13
 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M, 0);
 
 	return ret;
@@ -242,7 +319,11 @@ static int rk808_rtc_start_alarm(struct rk808_rtc *rk808_rtc)
 	struct rk808 *rk808 = rk808_rtc->rk808;
 	int ret;
 
+<<<<<<< HEAD
 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_INT_REG,
+=======
+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->int_reg,
+>>>>>>> upstream/android-13
 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M,
 				 BIT_RTC_INTERRUPTS_REG_IT_ALARM_M);
 
@@ -261,10 +342,15 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
 		dev_err(dev, "Failed to stop alarm: %d\n", ret);
 		return ret;
 	}
+<<<<<<< HEAD
 	dev_dbg(dev, "alrm set RTC date/time %4d-%02d-%02d(%d) %02d:%02d:%02d\n",
 		1900 + alrm->time.tm_year, alrm->time.tm_mon + 1,
 		alrm->time.tm_mday, alrm->time.tm_wday, alrm->time.tm_hour,
 		alrm->time.tm_min, alrm->time.tm_sec);
+=======
+	dev_dbg(dev, "alrm set RTC date/time %ptRd(%d) %ptRt\n",
+		&alrm->time, alrm->time.tm_wday, &alrm->time);
+>>>>>>> upstream/android-13
 
 	gregorian_to_rockchip(&alrm->time);
 	alrm_data[0] = bin2bcd(alrm->time.tm_sec);
@@ -274,7 +360,12 @@ static int rk808_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
 	alrm_data[4] = bin2bcd(alrm->time.tm_mon + 1);
 	alrm_data[5] = bin2bcd(alrm->time.tm_year - 100);
 
+<<<<<<< HEAD
 	ret = regmap_bulk_write(rk808->regmap, RK808_ALARM_SECONDS_REG,
+=======
+	ret = regmap_bulk_write(rk808->regmap,
+				rk808_rtc->creg->alarm_seconds_reg,
+>>>>>>> upstream/android-13
 				alrm_data, NUM_ALARM_REGS);
 	if (ret) {
 		dev_err(dev, "Failed to bulk write: %d\n", ret);
@@ -318,7 +409,11 @@ static irqreturn_t rk808_alarm_irq(int irq, void *data)
 	struct i2c_client *client = rk808->i2c;
 	int ret;
 
+<<<<<<< HEAD
 	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
+=======
+	ret = regmap_write(rk808->regmap, rk808_rtc->creg->status_reg,
+>>>>>>> upstream/android-13
 			   RTC_STATUS_MASK);
 	if (ret) {
 		dev_err(&client->dev,
@@ -344,8 +439,12 @@ static const struct rtc_class_ops rk808_rtc_ops = {
 /* Turn off the alarm if it should not be a wake source. */
 static int rk808_rtc_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct rk808_rtc *rk808_rtc = dev_get_drvdata(&pdev->dev);
+=======
+	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (device_may_wakeup(dev))
 		enable_irq_wake(rk808_rtc->irq);
@@ -358,8 +457,12 @@ static int rk808_rtc_suspend(struct device *dev)
  */
 static int rk808_rtc_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct rk808_rtc *rk808_rtc = dev_get_drvdata(&pdev->dev);
+=======
+	struct rk808_rtc *rk808_rtc = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (device_may_wakeup(dev))
 		disable_irq_wake(rk808_rtc->irq);
@@ -371,6 +474,25 @@ static int rk808_rtc_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(rk808_rtc_pm_ops,
 	rk808_rtc_suspend, rk808_rtc_resume);
 
+<<<<<<< HEAD
+=======
+static struct rk_rtc_compat_reg rk808_creg = {
+	.ctrl_reg = RK808_RTC_CTRL_REG,
+	.status_reg = RK808_RTC_STATUS_REG,
+	.alarm_seconds_reg = RK808_ALARM_SECONDS_REG,
+	.int_reg = RK808_RTC_INT_REG,
+	.seconds_reg = RK808_SECONDS_REG,
+};
+
+static struct rk_rtc_compat_reg rk817_creg = {
+	.ctrl_reg = RK817_RTC_CTRL_REG,
+	.status_reg = RK817_RTC_STATUS_REG,
+	.alarm_seconds_reg = RK817_ALARM_SECONDS_REG,
+	.int_reg = RK817_RTC_INT_REG,
+	.seconds_reg = RK817_SECONDS_REG,
+};
+
+>>>>>>> upstream/android-13
 static int rk808_rtc_probe(struct platform_device *pdev)
 {
 	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
@@ -381,11 +503,27 @@ static int rk808_rtc_probe(struct platform_device *pdev)
 	if (rk808_rtc == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	switch (rk808->variant) {
+	case RK809_ID:
+	case RK817_ID:
+		rk808_rtc->creg = &rk817_creg;
+		break;
+	default:
+		rk808_rtc->creg = &rk808_creg;
+		break;
+	}
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, rk808_rtc);
 	rk808_rtc->rk808 = rk808;
 
 	/* start rtc running by default, and use shadowed timer. */
+<<<<<<< HEAD
 	ret = regmap_update_bits(rk808->regmap, RK808_RTC_CTRL_REG,
+=======
+	ret = regmap_update_bits(rk808->regmap, rk808_rtc->creg->ctrl_reg,
+>>>>>>> upstream/android-13
 				 BIT_RTC_CTRL_REG_STOP_RTC_M |
 				 BIT_RTC_CTRL_REG_RTC_READSEL_M,
 				 BIT_RTC_CTRL_REG_RTC_READSEL_M);
@@ -395,12 +533,20 @@ static int rk808_rtc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = regmap_write(rk808->regmap, RK808_RTC_STATUS_REG,
+=======
+	ret = regmap_write(rk808->regmap, rk808_rtc->creg->status_reg,
+>>>>>>> upstream/android-13
 			   RTC_STATUS_MASK);
 	if (ret) {
 		dev_err(&pdev->dev,
 			"Failed to write RTC status: %d\n", ret);
+<<<<<<< HEAD
 			return ret;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	device_init_wakeup(&pdev->dev, 1);
@@ -412,12 +558,17 @@ static int rk808_rtc_probe(struct platform_device *pdev)
 	rk808_rtc->rtc->ops = &rk808_rtc_ops;
 
 	rk808_rtc->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (rk808_rtc->irq < 0) {
 		if (rk808_rtc->irq != -EPROBE_DEFER)
 			dev_err(&pdev->dev, "Wake up is not possible as irq = %d\n",
 				rk808_rtc->irq);
 		return rk808_rtc->irq;
 	}
+=======
+	if (rk808_rtc->irq < 0)
+		return rk808_rtc->irq;
+>>>>>>> upstream/android-13
 
 	/* request alarm irq of rk808 */
 	ret = devm_request_threaded_irq(&pdev->dev, rk808_rtc->irq, NULL,
@@ -429,7 +580,11 @@ static int rk808_rtc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	return rtc_register_device(rk808_rtc->rtc);
+=======
+	return devm_rtc_register_device(rk808_rtc->rtc);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver rk808_rtc_driver = {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
@@ -5,13 +6,21 @@
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _EXYNOS_DRM_IPP_H_
 #define _EXYNOS_DRM_IPP_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 
+=======
+>>>>>>> upstream/android-13
 struct exynos_drm_ipp;
 struct exynos_drm_ipp_task;
 
@@ -54,7 +63,12 @@ struct exynos_drm_ipp_funcs {
  * struct exynos_drm_ipp - central picture processor module structure
  */
 struct exynos_drm_ipp {
+<<<<<<< HEAD
 	struct drm_device *dev;
+=======
+	struct drm_device *drm_dev;
+	struct device *dev;
+>>>>>>> upstream/android-13
 	struct list_head head;
 	unsigned int id;
 
@@ -85,7 +99,11 @@ struct exynos_drm_ipp_buffer {
  * has to be performed by the picture processor hardware module
  */
 struct exynos_drm_ipp_task {
+<<<<<<< HEAD
 	struct drm_device *dev;
+=======
+	struct device *dev;
+>>>>>>> upstream/android-13
 	struct exynos_drm_ipp *ipp;
 	struct list_head head;
 
@@ -129,11 +147,19 @@ struct exynos_drm_ipp_formats {
 #define IPP_SCALE_LIMIT(val...)		\
 	.type = (DRM_EXYNOS_IPP_LIMIT_TYPE_SCALE), val
 
+<<<<<<< HEAD
 int exynos_drm_ipp_register(struct drm_device *dev, struct exynos_drm_ipp *ipp,
 		const struct exynos_drm_ipp_funcs *funcs, unsigned int caps,
 		const struct exynos_drm_ipp_formats *formats,
 		unsigned int num_formats, const char *name);
 void exynos_drm_ipp_unregister(struct drm_device *dev,
+=======
+int exynos_drm_ipp_register(struct device *dev, struct exynos_drm_ipp *ipp,
+		const struct exynos_drm_ipp_funcs *funcs, unsigned int caps,
+		const struct exynos_drm_ipp_formats *formats,
+		unsigned int num_formats, const char *name);
+void exynos_drm_ipp_unregister(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct exynos_drm_ipp *ipp);
 
 void exynos_drm_ipp_task_done(struct exynos_drm_ipp_task *task, int ret);

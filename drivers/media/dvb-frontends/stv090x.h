@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	STV0900/0903 Multistandard Broadcast Frontend driver
 	Copyright (C) Manu Abraham <abraham.manu@gmail.com>
 
 	Copyright (C) ST Microelectronics
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef __STV090x_H
@@ -69,6 +76,10 @@ struct stv090x_config {
 	enum stv090x_device	device;
 	enum stv090x_mode	demod_mode;
 	enum stv090x_clkmode	clk_mode;
+<<<<<<< HEAD
+=======
+	enum stv090x_demodulator demod;
+>>>>>>> upstream/android-13
 
 	u32 xtal; /* default: 8000000 */
 	u8 address; /* default: 0x68 */
@@ -105,6 +116,11 @@ struct stv090x_config {
 	/* dir = 0 -> output, dir = 1 -> input/open-drain */
 	int (*set_gpio)(struct dvb_frontend *fe, u8 gpio, u8 dir, u8 value,
 			u8 xor_value);
+<<<<<<< HEAD
+=======
+
+	struct dvb_frontend* (*get_dvb_frontend)(struct i2c_client *i2c);
+>>>>>>> upstream/android-13
 };
 
 #if IS_REACHABLE(CONFIG_DVB_STV090x)

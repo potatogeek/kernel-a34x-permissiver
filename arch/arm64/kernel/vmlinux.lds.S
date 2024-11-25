@@ -5,6 +5,7 @@
  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
  */
 
+<<<<<<< HEAD
 #include <asm-generic/vmlinux.lds.h>
 #include <asm/cache.h>
 #include <asm/kernel-pgtable.h>
@@ -25,12 +26,17 @@ ENTRY(_text)
 jiffies = jiffies_64;
 
 
+=======
+#include <asm/hyp_image.h>
+#ifdef CONFIG_KVM
+>>>>>>> upstream/android-13
 #define HYPERVISOR_EXTABLE					\
 	. = ALIGN(SZ_8);					\
 	__start___kvm_ex_table = .;				\
 	*(__kvm_ex_table)					\
 	__stop___kvm_ex_table = .;
 
+<<<<<<< HEAD
 #define HYPERVISOR_TEXT					\
 	/*						\
 	 * Align to 4 KB so that			\
@@ -41,12 +47,90 @@ jiffies = jiffies_64;
 	 *    4 KB (see related ASSERT() below)		\
 	 */						\
 	. = ALIGN(SZ_4K);				\
+=======
+#define HYPERVISOR_RODATA_SECTIONS				\
+	HYP_SECTION_NAME(.rodata) : {				\
+		. = ALIGN(PAGE_SIZE);				\
+		__hyp_rodata_start = .;				\
+		*(HYP_SECTION_NAME(.data..ro_after_init))	\
+		*(HYP_SECTION_NAME(.rodata))			\
+		. = ALIGN(PAGE_SIZE);				\
+		__hyp_rodata_end = .;				\
+	}
+
+#define HYPERVISOR_DATA_SECTION					\
+	HYP_SECTION_NAME(.data) : {				\
+		. = ALIGN(PAGE_SIZE);				\
+		__hyp_data_start = .;				\
+		*(HYP_SECTION_NAME(.data))			\
+		. = ALIGN(PAGE_SIZE);				\
+		__hyp_data_end = .;				\
+	}
+
+#define HYPERVISOR_PERCPU_SECTION				\
+	. = ALIGN(PAGE_SIZE);					\
+	HYP_SECTION_NAME(.data..percpu) : {			\
+		*(HYP_SECTION_NAME(.data..percpu))		\
+	}
+
+#define HYPERVISOR_RELOC_SECTION				\
+	.hyp.reloc : ALIGN(4) {					\
+		__hyp_reloc_begin = .;				\
+		*(.hyp.reloc)					\
+		__hyp_reloc_end = .;				\
+	}
+
+#define BSS_FIRST_SECTIONS					\
+	__hyp_bss_start = .;					\
+	*(HYP_SECTION_NAME(.bss))				\
+	. = ALIGN(PAGE_SIZE);					\
+	__hyp_bss_end = .;
+
+/*
+ * We require that __hyp_bss_start and __bss_start are aligned, and enforce it
+ * with an assertion. But the BSS_SECTION macro places an empty .sbss section
+ * between them, which can in some cases cause the linker to misalign them. To
+ * work around the issue, force a page alignment for __bss_start.
+ */
+#define SBSS_ALIGN			PAGE_SIZE
+#else /* CONFIG_KVM */
+#define HYPERVISOR_EXTABLE
+#define HYPERVISOR_RODATA_SECTIONS
+#define HYPERVISOR_DATA_SECTION
+#define HYPERVISOR_PERCPU_SECTION
+#define HYPERVISOR_RELOC_SECTION
+#define SBSS_ALIGN			0
+#endif
+
+#define RO_EXCEPTION_TABLE_ALIGN	8
+#define RUNTIME_DISCARD_EXIT
+
+#include <asm-generic/vmlinux.lds.h>
+#include <asm/cache.h>
+#include <asm/kernel-pgtable.h>
+#include <asm/memory.h>
+#include <asm/page.h>
+
+#include "image.h"
+
+OUTPUT_ARCH(aarch64)
+ENTRY(_text)
+
+jiffies = jiffies_64;
+
+#define HYPERVISOR_TEXT					\
+	. = ALIGN(PAGE_SIZE);				\
+>>>>>>> upstream/android-13
 	__hyp_idmap_text_start = .;			\
 	*(.hyp.idmap.text)				\
 	__hyp_idmap_text_end = .;			\
 	__hyp_text_start = .;				\
 	*(.hyp.text)					\
 	HYPERVISOR_EXTABLE				\
+<<<<<<< HEAD
+=======
+	. = ALIGN(PAGE_SIZE);				\
+>>>>>>> upstream/android-13
 	__hyp_text_end = .;
 
 #define IDMAP_TEXT					\
@@ -78,8 +162,13 @@ jiffies = jiffies_64;
 
 /*
  * The size of the PE/COFF section that covers the kernel image, which
+<<<<<<< HEAD
  * runs from stext to _edata, must be a round multiple of the PE/COFF
  * FileAlignment, which we set to its minimum value of 0x200. 'stext'
+=======
+ * runs from _stext to _edata, must be a round multiple of the PE/COFF
+ * FileAlignment, which we set to its minimum value of 0x200. '_stext'
+>>>>>>> upstream/android-13
  * itself is 4 KB aligned, so padding out _edata to a 0x200 aligned
  * boundary should be sufficient.
  */
@@ -100,6 +189,7 @@ SECTIONS
 	 * matching the same input section name.  There is no documented
 	 * order of matching.
 	 */
+<<<<<<< HEAD
 	/DISCARD/ : {
 		ARM_EXIT_DISCARD(EXIT_TEXT)
 		ARM_EXIT_DISCARD(EXIT_DATA)
@@ -112,16 +202,30 @@ SECTIONS
 	}
 
 	. = KIMAGE_VADDR + TEXT_OFFSET;
+=======
+	DISCARDS
+	/DISCARD/ : {
+		*(.interp .dynamic)
+		*(.dynsym .dynstr .hash .gnu.hash)
+	}
+
+	. = KIMAGE_VADDR;
+>>>>>>> upstream/android-13
 
 	.head.text : {
 		_text = .;
 		HEAD_TEXT
 	}
+<<<<<<< HEAD
 	.text : {			/* Real text segment		*/
 		_stext = .;		/* Text and read-only data	*/
 			__exception_text_start = .;
 			*(.exception.text)
 			__exception_text_end = .;
+=======
+	.text : ALIGN(SEGMENT_ALIGN) {	/* Real text segment		*/
+		_stext = .;		/* Text and read-only data	*/
+>>>>>>> upstream/android-13
 			IRQENTRY_TEXT
 			SOFTIRQENTRY_TEXT
 			ENTRY_TEXT
@@ -140,21 +244,63 @@ SECTIONS
 		*(.got)			/* Global offset table		*/
 	}
 
+<<<<<<< HEAD
 	. = ALIGN(SEGMENT_ALIGN);
 	_etext = .;			/* End of text section */
 
 	RO_DATA(PAGE_SIZE)		/* everything from this point to     */
 	EXCEPTION_TABLE(8)		/* __init_begin will be marked RO NX */
 	NOTES
+=======
+	/*
+	 * Make sure that the .got.plt is either completely empty or it
+	 * contains only the lazy dispatch entries.
+	 */
+	.got.plt : { *(.got.plt) }
+	ASSERT(SIZEOF(.got.plt) == 0 || SIZEOF(.got.plt) == 0x18,
+	       "Unexpected GOT/PLT entries detected!")
+
+	. = ALIGN(SEGMENT_ALIGN);
+	_etext = .;			/* End of text section */
+
+	/* everything from this point to __init_begin will be marked RO NX */
+	RO_DATA(PAGE_SIZE)
+
+	HYPERVISOR_RODATA_SECTIONS
+
+	idmap_pg_dir = .;
+	. += IDMAP_DIR_SIZE;
+	idmap_pg_end = .;
+
+#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+	tramp_pg_dir = .;
+	. += PAGE_SIZE;
+#endif
+
+	reserved_pg_dir = .;
+	. += PAGE_SIZE;
+
+	swapper_pg_dir = .;
+	. += PAGE_SIZE;
+>>>>>>> upstream/android-13
 
 	. = ALIGN(SEGMENT_ALIGN);
 	__init_begin = .;
 	__inittext_begin = .;
 
 	INIT_TEXT_SECTION(8)
+<<<<<<< HEAD
 	.exit.text : {
 		ARM_EXIT_KEEP(EXIT_TEXT)
 	}
+=======
+
+	__exittext_begin = .;
+	.exit.text : {
+		EXIT_TEXT
+	}
+	__exittext_end = .;
+>>>>>>> upstream/android-13
 
 	. = ALIGN(4);
 	.altinstructions : {
@@ -162,11 +308,16 @@ SECTIONS
 		*(.altinstructions)
 		__alt_instructions_end = .;
 	}
+<<<<<<< HEAD
 	.altinstr_replacement : {
 		*(.altinstr_replacement)
 	}
 
 	. = ALIGN(PAGE_SIZE);
+=======
+
+	. = ALIGN(SEGMENT_ALIGN);
+>>>>>>> upstream/android-13
 	__inittext_end = .;
 	__initdata_begin = .;
 
@@ -175,6 +326,7 @@ SECTIONS
 		INIT_SETUP(16)
 		INIT_CALLS
 		CON_INITCALL
+<<<<<<< HEAD
 		SECURITY_INITCALL
 		INIT_RAM_FS
 		*(.init.rodata.* .init.bss)	/* from the EFI stub */
@@ -184,6 +336,19 @@ SECTIONS
 	}
 
 	PERCPU_SECTION(L1_CACHE_BYTES)
+=======
+		INIT_RAM_FS
+		*(.init.altinstructions .init.bss)	/* from the EFI stub */
+	}
+	.exit.data : {
+		EXIT_DATA
+	}
+
+	PERCPU_SECTION(L1_CACHE_BYTES)
+	HYPERVISOR_PERCPU_SECTION
+
+	HYPERVISOR_RELOC_SECTION
+>>>>>>> upstream/android-13
 
 	.rela.dyn : ALIGN(8) {
 		*(.rela .rela*)
@@ -207,7 +372,13 @@ SECTIONS
 
 	_data = .;
 	_sdata = .;
+<<<<<<< HEAD
 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_ALIGN)
+=======
+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_ALIGN)
+
+	HYPERVISOR_DATA_SECTION
+>>>>>>> upstream/android-13
 
 	/*
 	 * Data written with the MMU off but read with the MMU on requires
@@ -231,6 +402,7 @@ SECTIONS
 	__pecoff_data_rawsize = ABSOLUTE(. - __initdata_begin);
 	_edata = .;
 
+<<<<<<< HEAD
 	BSS_SECTION(0, 0, 0)
 
 	. = ALIGN(PAGE_SIZE);
@@ -250,10 +422,21 @@ SECTIONS
 	. += SWAPPER_DIR_SIZE;
 	swapper_pg_end = .;
 
+=======
+	BSS_SECTION(SBSS_ALIGN, 0, 0)
+
+	. = ALIGN(PAGE_SIZE);
+	init_pg_dir = .;
+	. += INIT_DIR_SIZE;
+	init_pg_end = .;
+
+	. = ALIGN(SEGMENT_ALIGN);
+>>>>>>> upstream/android-13
 	__pecoff_data_size = ABSOLUTE(. - __initdata_begin);
 	_end = .;
 
 	STABS_DEBUG
+<<<<<<< HEAD
 
 	HEAD_SYMBOLS
 }
@@ -264,6 +447,35 @@ SECTIONS
  */
 ASSERT(__hyp_idmap_text_end - (__hyp_idmap_text_start & ~(SZ_4K - 1)) <= SZ_4K,
 	"HYP init code too big or misaligned")
+=======
+	DWARF_DEBUG
+	ELF_DETAILS
+
+	HEAD_SYMBOLS
+
+	/*
+	 * Sections that should stay zero sized, which is safer to
+	 * explicitly check instead of blindly discarding.
+	 */
+	.plt : {
+		*(.plt) *(.plt.*) *(.iplt) *(.igot .igot.plt)
+	}
+	ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
+
+	.data.rel.ro : { *(.data.rel.ro) }
+	ASSERT(SIZEOF(.data.rel.ro) == 0, "Unexpected RELRO detected!")
+}
+
+#include "image-vars.h"
+
+/*
+ * The HYP init code and ID map text can't be longer than a page each. The
+ * former is page-aligned, but the latter may not be with 16K or 64K pages, so
+ * it should also not cross a page boundary.
+ */
+ASSERT(__hyp_idmap_text_end - __hyp_idmap_text_start <= PAGE_SIZE,
+	"HYP init code too big")
+>>>>>>> upstream/android-13
 ASSERT(__idmap_text_end - (__idmap_text_start & ~(SZ_4K - 1)) <= SZ_4K,
 	"ID map text too big or misaligned")
 #ifdef CONFIG_HIBERNATION
@@ -274,7 +486,25 @@ ASSERT(__hibernate_exit_text_end - (__hibernate_exit_text_start & ~(SZ_4K - 1))
 ASSERT((__entry_tramp_text_end - __entry_tramp_text_start) <= 3*PAGE_SIZE,
 	"Entry trampoline text too big")
 #endif
+<<<<<<< HEAD
 /*
  * If padding is applied before .head.text, virt<->phys conversions will fail.
  */
 ASSERT(_text == (KIMAGE_VADDR + TEXT_OFFSET), "HEAD is misaligned")
+=======
+#ifdef CONFIG_KVM
+ASSERT(__hyp_bss_start == __bss_start, "HYP and Host BSS are misaligned")
+#endif
+/*
+ * If padding is applied before .head.text, virt<->phys conversions will fail.
+ */
+ASSERT(_text == KIMAGE_VADDR, "HEAD is misaligned")
+
+ASSERT(swapper_pg_dir - reserved_pg_dir == RESERVED_SWAPPER_OFFSET,
+       "RESERVED_SWAPPER_OFFSET is wrong!")
+
+#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ASSERT(swapper_pg_dir - tramp_pg_dir == TRAMP_SWAPPER_OFFSET,
+       "TRAMP_SWAPPER_OFFSET is wrong!")
+#endif
+>>>>>>> upstream/android-13

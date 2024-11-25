@@ -48,12 +48,20 @@
 
 /* Function prototypes */
 static int kobil_port_probe(struct usb_serial_port *probe);
+<<<<<<< HEAD
 static int kobil_port_remove(struct usb_serial_port *probe);
+=======
+static void kobil_port_remove(struct usb_serial_port *probe);
+>>>>>>> upstream/android-13
 static int  kobil_open(struct tty_struct *tty, struct usb_serial_port *port);
 static void kobil_close(struct usb_serial_port *port);
 static int  kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 			 const unsigned char *buf, int count);
+<<<<<<< HEAD
 static int  kobil_write_room(struct tty_struct *tty);
+=======
+static unsigned int kobil_write_room(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 static int  kobil_ioctl(struct tty_struct *tty,
 			unsigned int cmd, unsigned long arg);
 static int  kobil_tiocmget(struct tty_struct *tty);
@@ -143,14 +151,21 @@ static int kobil_port_probe(struct usb_serial_port *port)
 }
 
 
+<<<<<<< HEAD
 static int kobil_port_remove(struct usb_serial_port *port)
+=======
+static void kobil_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct kobil_private *priv;
 
 	priv = usb_get_serial_port_data(port);
 	kfree(priv);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void kobil_init_termios(struct tty_struct *tty)
@@ -360,7 +375,11 @@ static int kobil_write(struct tty_struct *tty, struct usb_serial_port *port,
 }
 
 
+<<<<<<< HEAD
 static int kobil_write_room(struct tty_struct *tty)
+=======
+static unsigned int kobil_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	/* FIXME */
 	return 8;
@@ -499,7 +518,11 @@ static void kobil_set_termios(struct tty_struct *tty,
 		break;
 	default:
 		speed = 9600;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 9600:
 		urb_val = SUSBCR_SBR_9600;
 		break;
@@ -526,6 +549,13 @@ static void kobil_set_termios(struct tty_struct *tty,
 		  0,
 		  KOBIL_TIMEOUT
 		);
+<<<<<<< HEAD
+=======
+	if (result) {
+		dev_err(&port->dev, "failed to update line settings: %d\n",
+				result);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int kobil_ioctl(struct tty_struct *tty,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Agere device configuration
 #
@@ -6,7 +10,11 @@ config NET_VENDOR_AGERE
 	bool "Agere devices"
 	default y
 	depends on PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) card belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -20,7 +28,12 @@ config ET131X
 	tristate "Agere ET-1310 Gigabit Ethernet support"
 	depends on PCI
 	select PHYLIB
+<<<<<<< HEAD
 	---help---
+=======
+	select CRC32
+	help
+>>>>>>> upstream/android-13
 	  This driver supports Agere ET-1310 ethernet adapters.
 
 	  To compile this driver as a module, choose M here. The module

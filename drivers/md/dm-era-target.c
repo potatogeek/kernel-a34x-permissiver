@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include "dm.h"
 #include "persistent-data/dm-transaction-manager.h"
 #include "persistent-data/dm-bitset.h"
@@ -362,11 +366,16 @@ static void ws_unpack(const struct writeset_disk *disk, struct writeset_metadata
 	core->root = le64_to_cpu(disk->root);
 }
 
+<<<<<<< HEAD
 static void ws_inc(void *context, const void *value)
+=======
+static void ws_inc(void *context, const void *value, unsigned count)
+>>>>>>> upstream/android-13
 {
 	struct era_metadata *md = context;
 	struct writeset_disk ws_d;
 	dm_block_t b;
+<<<<<<< HEAD
 
 	memcpy(&ws_d, value, sizeof(ws_d));
 	b = le64_to_cpu(ws_d.root);
@@ -375,15 +384,37 @@ static void ws_inc(void *context, const void *value)
 }
 
 static void ws_dec(void *context, const void *value)
+=======
+	unsigned i;
+
+	for (i = 0; i < count; i++) {
+		memcpy(&ws_d, value + (i * sizeof(ws_d)), sizeof(ws_d));
+		b = le64_to_cpu(ws_d.root);
+		dm_tm_inc(md->tm, b);
+	}
+}
+
+static void ws_dec(void *context, const void *value, unsigned count)
+>>>>>>> upstream/android-13
 {
 	struct era_metadata *md = context;
 	struct writeset_disk ws_d;
 	dm_block_t b;
+<<<<<<< HEAD
 
 	memcpy(&ws_d, value, sizeof(ws_d));
 	b = le64_to_cpu(ws_d.root);
 
 	dm_bitset_del(&md->bitset_info, b);
+=======
+	unsigned i;
+
+	for (i = 0; i < count; i++) {
+		memcpy(&ws_d, value + (i * sizeof(ws_d)), sizeof(ws_d));
+		b = le64_to_cpu(ws_d.root);
+		dm_bitset_del(&md->bitset_info, b);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int ws_eq(void *context, const void *value1, const void *value2)
@@ -1151,7 +1182,10 @@ static int metadata_get_stats(struct era_metadata *md, void *ptr)
 
 struct era {
 	struct dm_target *ti;
+<<<<<<< HEAD
 	struct dm_target_callbacks callbacks;
+=======
+>>>>>>> upstream/android-13
 
 	struct dm_dev *metadata_dev;
 	struct dm_dev *origin_dev;
@@ -1289,7 +1323,11 @@ static void process_deferred_bios(struct era *era)
 			 */
 			if (commit_needed)
 				set_bit(get_block(era, bio), ws->bits);
+<<<<<<< HEAD
 			generic_make_request(bio);
+=======
+			submit_bio_noacct(bio);
+>>>>>>> upstream/android-13
 		}
 		blk_finish_plug(&plug);
 	}
@@ -1402,6 +1440,7 @@ static void stop_worker(struct era *era)
 /*----------------------------------------------------------------
  * Target methods
  *--------------------------------------------------------------*/
+<<<<<<< HEAD
 static int dev_is_congested(struct dm_dev *dev, int bdi_bits)
 {
 	struct request_queue *q = bdev_get_queue(dev->bdev);
@@ -1414,6 +1453,8 @@ static int era_is_congested(struct dm_target_callbacks *cb, int bdi_bits)
 	return dev_is_congested(era->origin_dev, bdi_bits);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void era_destroy(struct era *era)
 {
 	if (era->md)
@@ -1532,8 +1573,11 @@ static int era_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	ti->flush_supported = true;
 
 	ti->num_discard_bios = 1;
+<<<<<<< HEAD
 	era->callbacks.congested_fn = era_is_congested;
 	dm_table_add_target_callbacks(ti->table, &era->callbacks);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1654,6 +1698,13 @@ static void era_status(struct dm_target *ti, status_type_t type,
 		format_dev_t(buf, era->origin_dev->bdev->bd_dev);
 		DMEMIT("%s %u", buf, era->sectors_per_block);
 		break;
+<<<<<<< HEAD
+=======
+
+	case STATUSTYPE_IMA:
+		*result = '\0';
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return;

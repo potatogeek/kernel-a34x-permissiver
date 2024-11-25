@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-omap2/clock.c
  *
@@ -7,10 +11,13 @@
  *  Contacts:
  *  Richard Woodruff <r-woodruff2@ti.com>
  *  Paul Walmsley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #undef DEBUG
 
@@ -119,6 +126,12 @@ void __init ti_clk_init_features(void)
 	if (cpu_is_omap343x())
 		features.flags |= TI_CLK_DPLL_HAS_FREQSEL;
 
+<<<<<<< HEAD
+=======
+	if (omap_type() == OMAP2_DEVICE_TYPE_GP)
+		features.flags |= TI_CLK_DEVICE_TYPE_GP;
+
+>>>>>>> upstream/android-13
 	/* Idlest value for interface clocks.
 	 * 24xx uses 0 to indicate not ready, and 1 to indicate ready.
 	 * 34xx reverses this, just to keep us on our toes

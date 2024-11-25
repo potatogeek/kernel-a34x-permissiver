@@ -12,7 +12,10 @@
 #include <linux/gpio.h>
 #include <linux/init.h>
 #include <linux/mbus.h>
+<<<<<<< HEAD
 #include <linux/msi.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
@@ -22,6 +25,10 @@
 #include <linux/of_platform.h>
 
 #include "../pci.h"
+<<<<<<< HEAD
+=======
+#include "../pci-bridge-emul.h"
+>>>>>>> upstream/android-13
 
 /*
  * PCIe unit register offsets.
@@ -51,10 +58,20 @@
 	 PCIE_CONF_FUNC(PCI_FUNC(devfn)) | PCIE_CONF_REG(where) | \
 	 PCIE_CONF_ADDR_EN)
 #define PCIE_CONF_DATA_OFF	0x18fc
+<<<<<<< HEAD
+=======
+#define PCIE_INT_CAUSE_OFF	0x1900
+#define  PCIE_INT_PM_PME		BIT(28)
+>>>>>>> upstream/android-13
 #define PCIE_MASK_OFF		0x1910
 #define  PCIE_MASK_ENABLE_INTS          0x0f000000
 #define PCIE_CTRL_OFF		0x1a00
 #define  PCIE_CTRL_X1_MODE		0x0001
+<<<<<<< HEAD
+=======
+#define  PCIE_CTRL_RC_MODE		BIT(1)
+#define  PCIE_CTRL_MASTER_HOT_RESET	BIT(24)
+>>>>>>> upstream/android-13
 #define PCIE_STAT_OFF		0x1a04
 #define  PCIE_STAT_BUS                  0xff00
 #define  PCIE_STAT_DEV                  0x1f0000
@@ -63,6 +80,7 @@
 #define PCIE_DEBUG_CTRL         0x1a60
 #define  PCIE_DEBUG_SOFT_RESET		BIT(20)
 
+<<<<<<< HEAD
 enum {
 	PCISWCAP = PCI_BRIDGE_CONTROL + 2,
 	PCISWCAP_EXP_LIST_ID	= PCISWCAP + PCI_CAP_LIST_ID,
@@ -118,14 +136,19 @@ struct mvebu_sw_pci_bridge {
 	u16 pcie_rtctl;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct mvebu_pcie_port;
 
 /* Structure representing all PCIe interfaces */
 struct mvebu_pcie {
 	struct platform_device *pdev;
 	struct mvebu_pcie_port *ports;
+<<<<<<< HEAD
 	struct msi_controller *msi;
 	struct list_head resources;
+=======
+>>>>>>> upstream/android-13
 	struct resource io;
 	struct resource realio;
 	struct resource mem;
@@ -153,12 +176,20 @@ struct mvebu_pcie_port {
 	struct clk *clk;
 	struct gpio_desc *reset_gpio;
 	char *reset_name;
+<<<<<<< HEAD
 	struct mvebu_sw_pci_bridge bridge;
+=======
+	struct pci_bridge_emul bridge;
+>>>>>>> upstream/android-13
 	struct device_node *dn;
 	struct mvebu_pcie *pcie;
 	struct mvebu_pcie_window memwin;
 	struct mvebu_pcie_window iowin;
 	u32 saved_pcie_stat;
+<<<<<<< HEAD
+=======
+	struct resource regs;
+>>>>>>> upstream/android-13
 };
 
 static inline void mvebu_writel(struct mvebu_pcie_port *port, u32 val, u32 reg)
@@ -181,6 +212,14 @@ static bool mvebu_pcie_link_up(struct mvebu_pcie_port *port)
 	return !(mvebu_readl(port, PCIE_STAT_OFF) & PCIE_STAT_LINK_DOWN);
 }
 
+<<<<<<< HEAD
+=======
+static u8 mvebu_pcie_get_local_bus_nr(struct mvebu_pcie_port *port)
+{
+	return (mvebu_readl(port, PCIE_STAT_OFF) & PCIE_STAT_BUS) >> 8;
+}
+
+>>>>>>> upstream/android-13
 static void mvebu_pcie_set_local_bus_nr(struct mvebu_pcie_port *port, int nr)
 {
 	u32 stat;
@@ -203,7 +242,13 @@ static void mvebu_pcie_set_local_dev_nr(struct mvebu_pcie_port *port, int nr)
 
 /*
  * Setup PCIE BARs and Address Decode Wins:
+<<<<<<< HEAD
  * BAR[0,2] -> disabled, BAR[1] -> covers all DRAM banks
+=======
+ * BAR[0] -> internal registers (needed for MSI)
+ * BAR[1] -> covers all DRAM banks
+ * BAR[2] -> Disabled
+>>>>>>> upstream/android-13
  * WIN[0-3] -> DRAM bank[0-3]
  */
 static void mvebu_pcie_setup_wins(struct mvebu_pcie_port *port)
@@ -257,15 +302,39 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie_port *port)
 	mvebu_writel(port, 0, PCIE_BAR_HI_OFF(1));
 	mvebu_writel(port, ((size - 1) & 0xffff0000) | 1,
 		     PCIE_BAR_CTRL_OFF(1));
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Point BAR[0] to the device's internal registers.
+	 */
+	mvebu_writel(port, round_down(port->regs.start, SZ_1M), PCIE_BAR_LO_OFF(0));
+	mvebu_writel(port, 0, PCIE_BAR_HI_OFF(0));
+>>>>>>> upstream/android-13
 }
 
 static void mvebu_pcie_setup_hw(struct mvebu_pcie_port *port)
 {
+<<<<<<< HEAD
 	u32 cmd, mask;
+=======
+	u32 ctrl, cmd, mask;
+
+	/* Setup PCIe controller to Root Complex mode. */
+	ctrl = mvebu_readl(port, PCIE_CTRL_OFF);
+	ctrl |= PCIE_CTRL_RC_MODE;
+	mvebu_writel(port, ctrl, PCIE_CTRL_OFF);
+
+	/* Disable Root Bridge I/O space, memory space and bus mastering. */
+	cmd = mvebu_readl(port, PCIE_CMD_OFF);
+	cmd &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+	mvebu_writel(port, cmd, PCIE_CMD_OFF);
+>>>>>>> upstream/android-13
 
 	/* Point PCIe unit MBUS decode windows to DRAM space. */
 	mvebu_pcie_setup_wins(port);
 
+<<<<<<< HEAD
 	/* Master + slave enable. */
 	cmd = mvebu_readl(port, PCIE_CMD_OFF);
 	cmd |= PCI_COMMAND_IO;
@@ -273,6 +342,8 @@ static void mvebu_pcie_setup_hw(struct mvebu_pcie_port *port)
 	cmd |= PCI_COMMAND_MASTER;
 	mvebu_writel(port, cmd, PCIE_CMD_OFF);
 
+=======
+>>>>>>> upstream/android-13
 	/* Enable interrupt lines A-D. */
 	mask = mvebu_readl(port, PCIE_MASK_OFF);
 	mask |= PCIE_MASK_ENABLE_INTS;
@@ -415,11 +486,19 @@ static void mvebu_pcie_set_window(struct mvebu_pcie_port *port,
 static void mvebu_pcie_handle_iobase_change(struct mvebu_pcie_port *port)
 {
 	struct mvebu_pcie_window desired = {};
+<<<<<<< HEAD
 
 	/* Are the new iobase/iolimit values invalid? */
 	if (port->bridge.iolimit < port->bridge.iobase ||
 	    port->bridge.iolimitupper < port->bridge.iobaseupper ||
 	    !(port->bridge.command & PCI_COMMAND_IO)) {
+=======
+	struct pci_bridge_emul_conf *conf = &port->bridge.conf;
+
+	/* Are the new iobase/iolimit values invalid? */
+	if (conf->iolimit < conf->iobase ||
+	    conf->iolimitupper < conf->iobaseupper) {
+>>>>>>> upstream/android-13
 		mvebu_pcie_set_window(port, port->io_target, port->io_attr,
 				      &desired, &port->iowin);
 		return;
@@ -438,11 +517,19 @@ static void mvebu_pcie_handle_iobase_change(struct mvebu_pcie_port *port)
 	 * specifications. iobase is the bus address, port->iowin_base
 	 * is the CPU address.
 	 */
+<<<<<<< HEAD
 	desired.remap = ((port->bridge.iobase & 0xF0) << 8) |
 			(port->bridge.iobaseupper << 16);
 	desired.base = port->pcie->io.start + desired.remap;
 	desired.size = ((0xFFF | ((port->bridge.iolimit & 0xF0) << 8) |
 			 (port->bridge.iolimitupper << 16)) -
+=======
+	desired.remap = ((conf->iobase & 0xF0) << 8) |
+			(conf->iobaseupper << 16);
+	desired.base = port->pcie->io.start + desired.remap;
+	desired.size = ((0xFFF | ((conf->iolimit & 0xF0) << 8) |
+			 (conf->iolimitupper << 16)) -
+>>>>>>> upstream/android-13
 			desired.remap) +
 		       1;
 
@@ -453,10 +540,17 @@ static void mvebu_pcie_handle_iobase_change(struct mvebu_pcie_port *port)
 static void mvebu_pcie_handle_membase_change(struct mvebu_pcie_port *port)
 {
 	struct mvebu_pcie_window desired = {.remap = MVEBU_MBUS_NO_REMAP};
+<<<<<<< HEAD
 
 	/* Are the new membase/memlimit values invalid? */
 	if (port->bridge.memlimit < port->bridge.membase ||
 	    !(port->bridge.command & PCI_COMMAND_MEMORY)) {
+=======
+	struct pci_bridge_emul_conf *conf = &port->bridge.conf;
+
+	/* Are the new membase/memlimit values invalid? */
+	if (conf->memlimit < conf->membase) {
+>>>>>>> upstream/android-13
 		mvebu_pcie_set_window(port, port->mem_target, port->mem_attr,
 				      &desired, &port->memwin);
 		return;
@@ -468,14 +562,20 @@ static void mvebu_pcie_handle_membase_change(struct mvebu_pcie_port *port)
 	 * window to setup, according to the PCI-to-PCI bridge
 	 * specifications.
 	 */
+<<<<<<< HEAD
 	desired.base = ((port->bridge.membase & 0xFFF0) << 16);
 	desired.size = (((port->bridge.memlimit & 0xFFF0) << 16) | 0xFFFFF) -
+=======
+	desired.base = ((conf->membase & 0xFFF0) << 16);
+	desired.size = (((conf->memlimit & 0xFFF0) << 16) | 0xFFFFF) -
+>>>>>>> upstream/android-13
 		       desired.base + 1;
 
 	mvebu_pcie_set_window(port, port->mem_target, port->mem_attr, &desired,
 			      &port->memwin);
 }
 
+<<<<<<< HEAD
 /*
  * Initialize the configuration space of the PCI-to-PCI bridge
  * associated with the given PCIe interface.
@@ -592,6 +692,72 @@ static int mvebu_sw_pci_bridge_read(struct mvebu_pcie_port *port,
 		break;
 
 	case PCISWCAP_EXP_LNKCAP:
+=======
+static pci_bridge_emul_read_status_t
+mvebu_pci_bridge_emul_base_conf_read(struct pci_bridge_emul *bridge,
+				     int reg, u32 *value)
+{
+	struct mvebu_pcie_port *port = bridge->data;
+
+	switch (reg) {
+	case PCI_COMMAND:
+		*value = mvebu_readl(port, PCIE_CMD_OFF);
+		break;
+
+	case PCI_PRIMARY_BUS: {
+		/*
+		 * From the whole 32bit register we support reading from HW only
+		 * secondary bus number which is mvebu local bus number.
+		 * Other bits are retrieved only from emulated config buffer.
+		 */
+		__le32 *cfgspace = (__le32 *)&bridge->conf;
+		u32 val = le32_to_cpu(cfgspace[PCI_PRIMARY_BUS / 4]);
+		val &= ~0xff00;
+		val |= mvebu_pcie_get_local_bus_nr(port) << 8;
+		*value = val;
+		break;
+	}
+
+	case PCI_INTERRUPT_LINE: {
+		/*
+		 * From the whole 32bit register we support reading from HW only
+		 * one bit: PCI_BRIDGE_CTL_BUS_RESET.
+		 * Other bits are retrieved only from emulated config buffer.
+		 */
+		__le32 *cfgspace = (__le32 *)&bridge->conf;
+		u32 val = le32_to_cpu(cfgspace[PCI_INTERRUPT_LINE / 4]);
+		if (mvebu_readl(port, PCIE_CTRL_OFF) & PCIE_CTRL_MASTER_HOT_RESET)
+			val |= PCI_BRIDGE_CTL_BUS_RESET << 16;
+		else
+			val &= ~(PCI_BRIDGE_CTL_BUS_RESET << 16);
+		*value = val;
+		break;
+	}
+
+	default:
+		return PCI_BRIDGE_EMUL_NOT_HANDLED;
+	}
+
+	return PCI_BRIDGE_EMUL_HANDLED;
+}
+
+static pci_bridge_emul_read_status_t
+mvebu_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
+				     int reg, u32 *value)
+{
+	struct mvebu_pcie_port *port = bridge->data;
+
+	switch (reg) {
+	case PCI_EXP_DEVCAP:
+		*value = mvebu_readl(port, PCIE_CAP_PCIEXP + PCI_EXP_DEVCAP);
+		break;
+
+	case PCI_EXP_DEVCTL:
+		*value = mvebu_readl(port, PCIE_CAP_PCIEXP + PCI_EXP_DEVCTL);
+		break;
+
+	case PCI_EXP_LNKCAP:
+>>>>>>> upstream/android-13
 		/*
 		 * PCIe requires the clock power management capability to be
 		 * hard-wired to zero for downstream ports
@@ -600,6 +766,7 @@ static int mvebu_sw_pci_bridge_read(struct mvebu_pcie_port *port,
 			 ~PCI_EXP_LNKCAP_CLKPM;
 		break;
 
+<<<<<<< HEAD
 	case PCISWCAP_EXP_LNKCTL:
 		*value = mvebu_readl(port, PCIE_CAP_PCIEXP + PCI_EXP_LNKCTL);
 		break;
@@ -696,22 +863,81 @@ static int mvebu_sw_pci_bridge_write(struct mvebu_pcie_port *port,
 		 */
 		bridge->iobase = (value & 0xff) | PCI_IO_RANGE_TYPE_32;
 		bridge->iolimit = ((value >> 8) & 0xff) | PCI_IO_RANGE_TYPE_32;
+=======
+	case PCI_EXP_LNKCTL:
+		*value = mvebu_readl(port, PCIE_CAP_PCIEXP + PCI_EXP_LNKCTL);
+		break;
+
+	case PCI_EXP_SLTCTL:
+		*value = PCI_EXP_SLTSTA_PDS << 16;
+		break;
+
+	case PCI_EXP_RTSTA:
+		*value = mvebu_readl(port, PCIE_RC_RTSTA);
+		break;
+
+	case PCI_EXP_DEVCAP2:
+		*value = mvebu_readl(port, PCIE_CAP_PCIEXP + PCI_EXP_DEVCAP2);
+		break;
+
+	case PCI_EXP_DEVCTL2:
+		*value = mvebu_readl(port, PCIE_CAP_PCIEXP + PCI_EXP_DEVCTL2);
+		break;
+
+	case PCI_EXP_LNKCTL2:
+		*value = mvebu_readl(port, PCIE_CAP_PCIEXP + PCI_EXP_LNKCTL2);
+		break;
+
+	default:
+		return PCI_BRIDGE_EMUL_NOT_HANDLED;
+	}
+
+	return PCI_BRIDGE_EMUL_HANDLED;
+}
+
+static void
+mvebu_pci_bridge_emul_base_conf_write(struct pci_bridge_emul *bridge,
+				      int reg, u32 old, u32 new, u32 mask)
+{
+	struct mvebu_pcie_port *port = bridge->data;
+	struct pci_bridge_emul_conf *conf = &bridge->conf;
+
+	switch (reg) {
+	case PCI_COMMAND:
+		if (!mvebu_has_ioport(port)) {
+			conf->command = cpu_to_le16(
+				le16_to_cpu(conf->command) & ~PCI_COMMAND_IO);
+			new &= ~PCI_COMMAND_IO;
+		}
+
+		mvebu_writel(port, new, PCIE_CMD_OFF);
+		break;
+
+	case PCI_IO_BASE:
+>>>>>>> upstream/android-13
 		mvebu_pcie_handle_iobase_change(port);
 		break;
 
 	case PCI_MEMORY_BASE:
+<<<<<<< HEAD
 		bridge->membase = value & 0xffff;
 		bridge->memlimit = value >> 16;
+=======
+>>>>>>> upstream/android-13
 		mvebu_pcie_handle_membase_change(port);
 		break;
 
 	case PCI_IO_BASE_UPPER16:
+<<<<<<< HEAD
 		bridge->iobaseupper = value & 0xffff;
 		bridge->iolimitupper = value >> 16;
+=======
+>>>>>>> upstream/android-13
 		mvebu_pcie_handle_iobase_change(port);
 		break;
 
 	case PCI_PRIMARY_BUS:
+<<<<<<< HEAD
 		bridge->primary_bus             = value & 0xff;
 		bridge->secondary_bus           = (value >> 8) & 0xff;
 		bridge->subordinate_bus         = (value >> 16) & 0xff;
@@ -740,12 +966,47 @@ static int mvebu_sw_pci_bridge_write(struct mvebu_pcie_port *port,
 		break;
 
 	case PCISWCAP_EXP_LNKCTL:
+=======
+		if (mask & 0xff00)
+			mvebu_pcie_set_local_bus_nr(port, conf->secondary_bus);
+		break;
+
+	case PCI_INTERRUPT_LINE:
+		if (mask & (PCI_BRIDGE_CTL_BUS_RESET << 16)) {
+			u32 ctrl = mvebu_readl(port, PCIE_CTRL_OFF);
+			if (new & (PCI_BRIDGE_CTL_BUS_RESET << 16))
+				ctrl |= PCIE_CTRL_MASTER_HOT_RESET;
+			else
+				ctrl &= ~PCIE_CTRL_MASTER_HOT_RESET;
+			mvebu_writel(port, ctrl, PCIE_CTRL_OFF);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+static void
+mvebu_pci_bridge_emul_pcie_conf_write(struct pci_bridge_emul *bridge,
+				      int reg, u32 old, u32 new, u32 mask)
+{
+	struct mvebu_pcie_port *port = bridge->data;
+
+	switch (reg) {
+	case PCI_EXP_DEVCTL:
+		mvebu_writel(port, new, PCIE_CAP_PCIEXP + PCI_EXP_DEVCTL);
+		break;
+
+	case PCI_EXP_LNKCTL:
+>>>>>>> upstream/android-13
 		/*
 		 * If we don't support CLKREQ, we must ensure that the
 		 * CLKREQ enable bit always reads zero.  Since we haven't
 		 * had this capability, and it's dependent on board wiring,
 		 * disable it for the time being.
 		 */
+<<<<<<< HEAD
 		value &= ~PCI_EXP_LNKCTL_CLKREQ_EN;
 
 		/*
@@ -763,13 +1024,81 @@ static int mvebu_sw_pci_bridge_write(struct mvebu_pcie_port *port,
 
 	case PCISWCAP_EXP_RTSTA:
 		mvebu_writel(port, value, PCIE_RC_RTSTA);
+=======
+		new &= ~PCI_EXP_LNKCTL_CLKREQ_EN;
+
+		mvebu_writel(port, new, PCIE_CAP_PCIEXP + PCI_EXP_LNKCTL);
+		break;
+
+	case PCI_EXP_RTSTA:
+		/*
+		 * PME Status bit in Root Status Register (PCIE_RC_RTSTA)
+		 * is read-only and can be cleared only by writing 0b to the
+		 * Interrupt Cause RW0C register (PCIE_INT_CAUSE_OFF). So
+		 * clear PME via Interrupt Cause.
+		 */
+		if (new & PCI_EXP_RTSTA_PME)
+			mvebu_writel(port, ~PCIE_INT_PM_PME, PCIE_INT_CAUSE_OFF);
+		break;
+
+	case PCI_EXP_DEVCTL2:
+		mvebu_writel(port, new, PCIE_CAP_PCIEXP + PCI_EXP_DEVCTL2);
+		break;
+
+	case PCI_EXP_LNKCTL2:
+		mvebu_writel(port, new, PCIE_CAP_PCIEXP + PCI_EXP_LNKCTL2);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
 		break;
 	}
+<<<<<<< HEAD
 
 	return PCIBIOS_SUCCESSFUL;
+=======
+}
+
+static struct pci_bridge_emul_ops mvebu_pci_bridge_emul_ops = {
+	.read_base = mvebu_pci_bridge_emul_base_conf_read,
+	.write_base = mvebu_pci_bridge_emul_base_conf_write,
+	.read_pcie = mvebu_pci_bridge_emul_pcie_conf_read,
+	.write_pcie = mvebu_pci_bridge_emul_pcie_conf_write,
+};
+
+/*
+ * Initialize the configuration space of the PCI-to-PCI bridge
+ * associated with the given PCIe interface.
+ */
+static int mvebu_pci_bridge_emul_init(struct mvebu_pcie_port *port)
+{
+	struct pci_bridge_emul *bridge = &port->bridge;
+	u32 pcie_cap = mvebu_readl(port, PCIE_CAP_PCIEXP);
+	u8 pcie_cap_ver = ((pcie_cap >> 16) & PCI_EXP_FLAGS_VERS);
+
+	bridge->conf.vendor = PCI_VENDOR_ID_MARVELL;
+	bridge->conf.device = mvebu_readl(port, PCIE_DEV_ID_OFF) >> 16;
+	bridge->conf.class_revision =
+		mvebu_readl(port, PCIE_DEV_REV_OFF) & 0xff;
+
+	if (mvebu_has_ioport(port)) {
+		/* We support 32 bits I/O addressing */
+		bridge->conf.iobase = PCI_IO_RANGE_TYPE_32;
+		bridge->conf.iolimit = PCI_IO_RANGE_TYPE_32;
+	}
+
+	/*
+	 * Older mvebu hardware provides PCIe Capability structure only in
+	 * version 1. New hardware provides it in version 2.
+	 */
+	bridge->pcie_conf.cap = cpu_to_le16(pcie_cap_ver);
+
+	bridge->has_pcie = true;
+	bridge->data = port;
+	bridge->ops = &mvebu_pci_bridge_emul_ops;
+
+	return pci_bridge_emul_init(bridge, PCI_BRIDGE_EMUL_NO_PREFETCHABLE_BAR);
+>>>>>>> upstream/android-13
 }
 
 static inline struct mvebu_pcie *sys_to_pcie(struct pci_sys_data *sys)
@@ -789,8 +1118,13 @@ static struct mvebu_pcie_port *mvebu_pcie_find_port(struct mvebu_pcie *pcie,
 		if (bus->number == 0 && port->devfn == devfn)
 			return port;
 		if (bus->number != 0 &&
+<<<<<<< HEAD
 		    bus->number >= port->bridge.secondary_bus &&
 		    bus->number <= port->bridge.subordinate_bus)
+=======
+		    bus->number >= port->bridge.conf.secondary_bus &&
+		    bus->number <= port->bridge.conf.subordinate_bus)
+>>>>>>> upstream/android-13
 			return port;
 	}
 
@@ -811,7 +1145,12 @@ static int mvebu_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
 
 	/* Access the emulated PCI-to-PCI bridge */
 	if (bus->number == 0)
+<<<<<<< HEAD
 		return mvebu_sw_pci_bridge_write(port, where, size, val);
+=======
+		return pci_bridge_emul_conf_write(&port->bridge, where,
+						  size, val);
+>>>>>>> upstream/android-13
 
 	if (!mvebu_pcie_link_up(port))
 		return PCIBIOS_DEVICE_NOT_FOUND;
@@ -839,7 +1178,12 @@ static int mvebu_pcie_rd_conf(struct pci_bus *bus, u32 devfn, int where,
 
 	/* Access the emulated PCI-to-PCI bridge */
 	if (bus->number == 0)
+<<<<<<< HEAD
 		return mvebu_sw_pci_bridge_read(port, where, size, val);
+=======
+		return pci_bridge_emul_conf_read(&port->bridge, where,
+						 size, val);
+>>>>>>> upstream/android-13
 
 	if (!mvebu_pcie_link_up(port)) {
 		*val = 0xffffffff;
@@ -892,6 +1236,7 @@ static void __iomem *mvebu_pcie_map_registers(struct platform_device *pdev,
 					      struct device_node *np,
 					      struct mvebu_pcie_port *port)
 {
+<<<<<<< HEAD
 	struct resource regs;
 	int ret = 0;
 
@@ -900,6 +1245,15 @@ static void __iomem *mvebu_pcie_map_registers(struct platform_device *pdev,
 		return ERR_PTR(ret);
 
 	return devm_ioremap_resource(&pdev->dev, &regs);
+=======
+	int ret = 0;
+
+	ret = of_address_to_resource(np, 0, &port->regs);
+	if (ret)
+		return (void __iomem *)ERR_PTR(ret);
+
+	return devm_ioremap_resource(&pdev->dev, &port->regs);
+>>>>>>> upstream/android-13
 }
 
 #define DT_FLAGS_TO_TYPE(flags)       (((flags) >> 24) & 0x03)
@@ -1137,13 +1491,20 @@ static void mvebu_pcie_powerdown(struct mvebu_pcie_port *port)
 }
 
 /*
+<<<<<<< HEAD
  * We can't use devm_of_pci_get_host_bridge_resources() because we
  * need to parse our special DT properties encoding the MEM and IO
  * apertures.
+=======
+ * devm_of_pci_get_host_bridge_resources() only sets up translateable resources,
+ * so we need extra resource setup parsing our special DT properties encoding
+ * the MEM and IO apertures.
+>>>>>>> upstream/android-13
  */
 static int mvebu_pcie_parse_request_resources(struct mvebu_pcie *pcie)
 {
 	struct device *dev = &pcie->pdev->dev;
+<<<<<<< HEAD
 	struct device_node *np = dev->of_node;
 	int ret;
 
@@ -1157,6 +1518,11 @@ static int mvebu_pcie_parse_request_resources(struct mvebu_pcie *pcie)
 	}
 	pci_add_resource(&pcie->resources, &pcie->busn);
 
+=======
+	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
+	int ret;
+
+>>>>>>> upstream/android-13
 	/* Get the PCIe memory aperture */
 	mvebu_mbus_get_pcie_mem_aperture(&pcie->mem);
 	if (resource_size(&pcie->mem) == 0) {
@@ -1165,7 +1531,14 @@ static int mvebu_pcie_parse_request_resources(struct mvebu_pcie *pcie)
 	}
 
 	pcie->mem.name = "PCI MEM";
+<<<<<<< HEAD
 	pci_add_resource(&pcie->resources, &pcie->mem);
+=======
+	pci_add_resource(&bridge->windows, &pcie->mem);
+	ret = devm_request_resource(dev, &iomem_resource, &pcie->mem);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Get the PCIe IO aperture */
 	mvebu_mbus_get_pcie_io_aperture(&pcie->io);
@@ -1178,10 +1551,20 @@ static int mvebu_pcie_parse_request_resources(struct mvebu_pcie *pcie)
 					 resource_size(&pcie->io) - 1);
 		pcie->realio.name = "PCI I/O";
 
+<<<<<<< HEAD
 		pci_add_resource(&pcie->resources, &pcie->realio);
 	}
 
 	return devm_request_pci_bus_resources(dev, &pcie->resources);
+=======
+		pci_add_resource(&bridge->windows, &pcie->realio);
+		ret = devm_request_resource(dev, &ioport_resource, &pcie->realio);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1295,13 +1678,105 @@ static int mvebu_pcie_probe(struct platform_device *pdev)
 			continue;
 		}
 
+<<<<<<< HEAD
 		mvebu_pcie_setup_hw(port);
 		mvebu_pcie_set_local_dev_nr(port, 1);
 		mvebu_sw_pci_bridge_init(port);
+=======
+		ret = mvebu_pci_bridge_emul_init(port);
+		if (ret < 0) {
+			dev_err(dev, "%s: cannot init emulated bridge\n",
+				port->name);
+			devm_iounmap(dev, port->base);
+			port->base = NULL;
+			mvebu_pcie_powerdown(port);
+			continue;
+		}
+
+		/*
+		 * PCIe topology exported by mvebu hw is quite complicated. In
+		 * reality has something like N fully independent host bridges
+		 * where each host bridge has one PCIe Root Port (which acts as
+		 * PCI Bridge device). Each host bridge has its own independent
+		 * internal registers, independent access to PCI config space,
+		 * independent interrupt lines, independent window and memory
+		 * access configuration. But additionally there is some kind of
+		 * peer-to-peer support between PCIe devices behind different
+		 * host bridges limited just to forwarding of memory and I/O
+		 * transactions (forwarding of error messages and config cycles
+		 * is not supported). So we could say there are N independent
+		 * PCIe Root Complexes.
+		 *
+		 * For this kind of setup DT should have been structured into
+		 * N independent PCIe controllers / host bridges. But instead
+		 * structure in past was defined to put PCIe Root Ports of all
+		 * host bridges into one bus zero, like in classic multi-port
+		 * Root Complex setup with just one host bridge.
+		 *
+		 * This means that pci-mvebu.c driver provides "virtual" bus 0
+		 * on which registers all PCIe Root Ports (PCI Bridge devices)
+		 * specified in DT by their BDF addresses and virtually routes
+		 * PCI config access of each PCI bridge device to specific PCIe
+		 * host bridge.
+		 *
+		 * Normally PCI Bridge should choose between Type 0 and Type 1
+		 * config requests based on primary and secondary bus numbers
+		 * configured on the bridge itself. But because mvebu PCI Bridge
+		 * does not have registers for primary and secondary bus numbers
+		 * in its config space, it determinates type of config requests
+		 * via its own custom way.
+		 *
+		 * There are two options how mvebu determinate type of config
+		 * request.
+		 *
+		 * 1. If Secondary Bus Number Enable bit is not set or is not
+		 * available (applies for pre-XP PCIe controllers) then Type 0
+		 * is used if target bus number equals Local Bus Number (bits
+		 * [15:8] in register 0x1a04) and target device number differs
+		 * from Local Device Number (bits [20:16] in register 0x1a04).
+		 * Type 1 is used if target bus number differs from Local Bus
+		 * Number. And when target bus number equals Local Bus Number
+		 * and target device equals Local Device Number then request is
+		 * routed to Local PCI Bridge (PCIe Root Port).
+		 *
+		 * 2. If Secondary Bus Number Enable bit is set (bit 7 in
+		 * register 0x1a2c) then mvebu hw determinate type of config
+		 * request like compliant PCI Bridge based on primary bus number
+		 * which is configured via Local Bus Number (bits [15:8] in
+		 * register 0x1a04) and secondary bus number which is configured
+		 * via Secondary Bus Number (bits [7:0] in register 0x1a2c).
+		 * Local PCI Bridge (PCIe Root Port) is available on primary bus
+		 * as device with Local Device Number (bits [20:16] in register
+		 * 0x1a04).
+		 *
+		 * Secondary Bus Number Enable bit is disabled by default and
+		 * option 2. is not available on pre-XP PCIe controllers. Hence
+		 * this driver always use option 1.
+		 *
+		 * Basically it means that primary and secondary buses shares
+		 * one virtual number configured via Local Bus Number bits and
+		 * Local Device Number bits determinates if accessing primary
+		 * or secondary bus. Set Local Device Number to 1 and redirect
+		 * all writes of PCI Bridge Secondary Bus Number register to
+		 * Local Bus Number (bits [15:8] in register 0x1a04).
+		 *
+		 * So when accessing devices on buses behind secondary bus
+		 * number it would work correctly. And also when accessing
+		 * device 0 at secondary bus number via config space would be
+		 * correctly routed to secondary bus. Due to issues described
+		 * in mvebu_pcie_setup_hw(), PCI Bridges at primary bus (zero)
+		 * are not accessed directly via PCI config space but rarher
+		 * indirectly via kernel emulated PCI bridge driver.
+		 */
+		mvebu_pcie_setup_hw(port);
+		mvebu_pcie_set_local_dev_nr(port, 1);
+		mvebu_pcie_set_local_bus_nr(port, 0);
+>>>>>>> upstream/android-13
 	}
 
 	pcie->nports = i;
 
+<<<<<<< HEAD
 	list_splice_init(&pcie->resources, &bridge->windows);
 	bridge->dev.parent = dev;
 	bridge->sysdata = pcie;
@@ -1311,6 +1786,11 @@ static int mvebu_pcie_probe(struct platform_device *pdev)
 	bridge->swizzle_irq = pci_common_swizzle;
 	bridge->align_resource = mvebu_pcie_align_resource;
 	bridge->msi = pcie->msi;
+=======
+	bridge->sysdata = pcie;
+	bridge->ops = &mvebu_pcie_ops;
+	bridge->align_resource = mvebu_pcie_align_resource;
+>>>>>>> upstream/android-13
 
 	return mvebu_pci_host_probe(bridge);
 }

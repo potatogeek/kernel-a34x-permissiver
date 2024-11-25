@@ -8,6 +8,7 @@
 
 #include "../perf_event.h"
 
+<<<<<<< HEAD
 enum {
 	LBR_FORMAT_32		= 0x00,
 	LBR_FORMAT_LIP		= 0x01,
@@ -19,6 +20,8 @@ enum {
 	LBR_FORMAT_MAX_KNOWN    = LBR_FORMAT_TIME,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const enum {
 	LBR_EIP_FLAGS		= 1,
 	LBR_TSX			= 2,
@@ -143,8 +146,59 @@ enum {
 	 X86_BR_IRQ		|\
 	 X86_BR_INT)
 
+<<<<<<< HEAD
 static void intel_pmu_lbr_filter(struct cpu_hw_events *cpuc);
 
+=======
+/*
+ * Intel LBR_CTL bits
+ *
+ * Hardware branch filter for Arch LBR
+ */
+#define ARCH_LBR_KERNEL_BIT		1  /* capture at ring0 */
+#define ARCH_LBR_USER_BIT		2  /* capture at ring > 0 */
+#define ARCH_LBR_CALL_STACK_BIT		3  /* enable call stack */
+#define ARCH_LBR_JCC_BIT		16 /* capture conditional branches */
+#define ARCH_LBR_REL_JMP_BIT		17 /* capture relative jumps */
+#define ARCH_LBR_IND_JMP_BIT		18 /* capture indirect jumps */
+#define ARCH_LBR_REL_CALL_BIT		19 /* capture relative calls */
+#define ARCH_LBR_IND_CALL_BIT		20 /* capture indirect calls */
+#define ARCH_LBR_RETURN_BIT		21 /* capture near returns */
+#define ARCH_LBR_OTHER_BRANCH_BIT	22 /* capture other branches */
+
+#define ARCH_LBR_KERNEL			(1ULL << ARCH_LBR_KERNEL_BIT)
+#define ARCH_LBR_USER			(1ULL << ARCH_LBR_USER_BIT)
+#define ARCH_LBR_CALL_STACK		(1ULL << ARCH_LBR_CALL_STACK_BIT)
+#define ARCH_LBR_JCC			(1ULL << ARCH_LBR_JCC_BIT)
+#define ARCH_LBR_REL_JMP		(1ULL << ARCH_LBR_REL_JMP_BIT)
+#define ARCH_LBR_IND_JMP		(1ULL << ARCH_LBR_IND_JMP_BIT)
+#define ARCH_LBR_REL_CALL		(1ULL << ARCH_LBR_REL_CALL_BIT)
+#define ARCH_LBR_IND_CALL		(1ULL << ARCH_LBR_IND_CALL_BIT)
+#define ARCH_LBR_RETURN			(1ULL << ARCH_LBR_RETURN_BIT)
+#define ARCH_LBR_OTHER_BRANCH		(1ULL << ARCH_LBR_OTHER_BRANCH_BIT)
+
+#define ARCH_LBR_ANY			 \
+	(ARCH_LBR_JCC			|\
+	 ARCH_LBR_REL_JMP		|\
+	 ARCH_LBR_IND_JMP		|\
+	 ARCH_LBR_REL_CALL		|\
+	 ARCH_LBR_IND_CALL		|\
+	 ARCH_LBR_RETURN		|\
+	 ARCH_LBR_OTHER_BRANCH)
+
+#define ARCH_LBR_CTL_MASK			0x7f000e
+
+static void intel_pmu_lbr_filter(struct cpu_hw_events *cpuc);
+
+static __always_inline bool is_lbr_call_stack_bit_set(u64 config)
+{
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR))
+		return !!(config & ARCH_LBR_CALL_STACK);
+
+	return !!(config & LBR_CALL_STACK);
+}
+
+>>>>>>> upstream/android-13
 /*
  * We only support LBR implementations that have FREEZE_LBRS_ON_PMI
  * otherwise it becomes near impossible to get a reliable stack.
@@ -168,33 +222,68 @@ static void __intel_pmu_lbr_enable(bool pmi)
 	 */
 	if (cpuc->lbr_sel)
 		lbr_select = cpuc->lbr_sel->config & x86_pmu.lbr_sel_mask;
+<<<<<<< HEAD
 	if (!pmi && cpuc->lbr_sel)
+=======
+	if (!static_cpu_has(X86_FEATURE_ARCH_LBR) && !pmi && cpuc->lbr_sel)
+>>>>>>> upstream/android-13
 		wrmsrl(MSR_LBR_SELECT, lbr_select);
 
 	rdmsrl(MSR_IA32_DEBUGCTLMSR, debugctl);
 	orig_debugctl = debugctl;
+<<<<<<< HEAD
 	debugctl |= DEBUGCTLMSR_LBR;
+=======
+
+	if (!static_cpu_has(X86_FEATURE_ARCH_LBR))
+		debugctl |= DEBUGCTLMSR_LBR;
+>>>>>>> upstream/android-13
 	/*
 	 * LBR callstack does not work well with FREEZE_LBRS_ON_PMI.
 	 * If FREEZE_LBRS_ON_PMI is set, PMI near call/return instructions
 	 * may cause superfluous increase/decrease of LBR_TOS.
 	 */
+<<<<<<< HEAD
 	if (!(lbr_select & LBR_CALL_STACK))
 		debugctl |= DEBUGCTLMSR_FREEZE_LBRS_ON_PMI;
 	if (orig_debugctl != debugctl)
 		wrmsrl(MSR_IA32_DEBUGCTLMSR, debugctl);
+=======
+	if (is_lbr_call_stack_bit_set(lbr_select))
+		debugctl &= ~DEBUGCTLMSR_FREEZE_LBRS_ON_PMI;
+	else
+		debugctl |= DEBUGCTLMSR_FREEZE_LBRS_ON_PMI;
+
+	if (orig_debugctl != debugctl)
+		wrmsrl(MSR_IA32_DEBUGCTLMSR, debugctl);
+
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR))
+		wrmsrl(MSR_ARCH_LBR_CTL, lbr_select | ARCH_LBR_CTL_LBREN);
+>>>>>>> upstream/android-13
 }
 
 static void __intel_pmu_lbr_disable(void)
 {
 	u64 debugctl;
 
+<<<<<<< HEAD
+=======
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR)) {
+		wrmsrl(MSR_ARCH_LBR_CTL, 0);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	rdmsrl(MSR_IA32_DEBUGCTLMSR, debugctl);
 	debugctl &= ~(DEBUGCTLMSR_LBR | DEBUGCTLMSR_FREEZE_LBRS_ON_PMI);
 	wrmsrl(MSR_IA32_DEBUGCTLMSR, debugctl);
 }
 
+<<<<<<< HEAD
 static void intel_pmu_lbr_reset_32(void)
+=======
+void intel_pmu_lbr_reset_32(void)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -202,7 +291,11 @@ static void intel_pmu_lbr_reset_32(void)
 		wrmsrl(x86_pmu.lbr_from + i, 0);
 }
 
+<<<<<<< HEAD
 static void intel_pmu_lbr_reset_64(void)
+=======
+void intel_pmu_lbr_reset_64(void)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -210,10 +303,23 @@ static void intel_pmu_lbr_reset_64(void)
 		wrmsrl(x86_pmu.lbr_from + i, 0);
 		wrmsrl(x86_pmu.lbr_to   + i, 0);
 		if (x86_pmu.intel_cap.lbr_format == LBR_FORMAT_INFO)
+<<<<<<< HEAD
 			wrmsrl(MSR_LBR_INFO_0 + i, 0);
 	}
 }
 
+=======
+			wrmsrl(x86_pmu.lbr_info + i, 0);
+	}
+}
+
+static void intel_pmu_arch_lbr_reset(void)
+{
+	/* Write to ARCH_LBR_DEPTH MSR, all LBR entries are reset to 0 */
+	wrmsrl(MSR_ARCH_LBR_DEPTH, x86_pmu.lbr_nr);
+}
+
+>>>>>>> upstream/android-13
 void intel_pmu_lbr_reset(void)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
@@ -221,10 +327,14 @@ void intel_pmu_lbr_reset(void)
 	if (!x86_pmu.lbr_nr)
 		return;
 
+<<<<<<< HEAD
 	if (x86_pmu.intel_cap.lbr_format == LBR_FORMAT_32)
 		intel_pmu_lbr_reset_32();
 	else
 		intel_pmu_lbr_reset_64();
+=======
+	x86_pmu.lbr_reset();
+>>>>>>> upstream/android-13
 
 	cpuc->last_task_ctx = NULL;
 	cpuc->last_log_id = 0;
@@ -273,7 +383,11 @@ static inline bool lbr_from_signext_quirk_needed(void)
 	return !tsx_support && (lbr_desc[lbr_format] & LBR_TSX);
 }
 
+<<<<<<< HEAD
 DEFINE_STATIC_KEY_FALSE(lbr_from_quirk_key);
+=======
+static DEFINE_STATIC_KEY_FALSE(lbr_from_quirk_key);
+>>>>>>> upstream/android-13
 
 /* If quirk is enabled, ensure sign extension is 63 bits: */
 inline u64 lbr_from_signext_quirk_wr(u64 val)
@@ -308,35 +422,69 @@ static u64 lbr_from_signext_quirk_rd(u64 val)
 	return val;
 }
 
+<<<<<<< HEAD
 static inline void wrlbr_from(unsigned int idx, u64 val)
+=======
+static __always_inline void wrlbr_from(unsigned int idx, u64 val)
+>>>>>>> upstream/android-13
 {
 	val = lbr_from_signext_quirk_wr(val);
 	wrmsrl(x86_pmu.lbr_from + idx, val);
 }
 
+<<<<<<< HEAD
 static inline void wrlbr_to(unsigned int idx, u64 val)
+=======
+static __always_inline void wrlbr_to(unsigned int idx, u64 val)
+>>>>>>> upstream/android-13
 {
 	wrmsrl(x86_pmu.lbr_to + idx, val);
 }
 
+<<<<<<< HEAD
 static inline u64 rdlbr_from(unsigned int idx)
 {
 	u64 val;
 
+=======
+static __always_inline void wrlbr_info(unsigned int idx, u64 val)
+{
+	wrmsrl(x86_pmu.lbr_info + idx, val);
+}
+
+static __always_inline u64 rdlbr_from(unsigned int idx, struct lbr_entry *lbr)
+{
+	u64 val;
+
+	if (lbr)
+		return lbr->from;
+
+>>>>>>> upstream/android-13
 	rdmsrl(x86_pmu.lbr_from + idx, val);
 
 	return lbr_from_signext_quirk_rd(val);
 }
 
+<<<<<<< HEAD
 static inline u64 rdlbr_to(unsigned int idx)
 {
 	u64 val;
 
+=======
+static __always_inline u64 rdlbr_to(unsigned int idx, struct lbr_entry *lbr)
+{
+	u64 val;
+
+	if (lbr)
+		return lbr->to;
+
+>>>>>>> upstream/android-13
 	rdmsrl(x86_pmu.lbr_to + idx, val);
 
 	return val;
 }
 
+<<<<<<< HEAD
 static void __intel_pmu_lbr_restore(struct x86_perf_task_context *task_ctx)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
@@ -362,15 +510,67 @@ static void __intel_pmu_lbr_restore(struct x86_perf_task_context *task_ctx)
 		task_ctx->lbr_stack_state = LBR_NONE;
 		return;
 	}
+=======
+static __always_inline u64 rdlbr_info(unsigned int idx, struct lbr_entry *lbr)
+{
+	u64 val;
+
+	if (lbr)
+		return lbr->info;
+
+	rdmsrl(x86_pmu.lbr_info + idx, val);
+
+	return val;
+}
+
+static inline void
+wrlbr_all(struct lbr_entry *lbr, unsigned int idx, bool need_info)
+{
+	wrlbr_from(idx, lbr->from);
+	wrlbr_to(idx, lbr->to);
+	if (need_info)
+		wrlbr_info(idx, lbr->info);
+}
+
+static inline bool
+rdlbr_all(struct lbr_entry *lbr, unsigned int idx, bool need_info)
+{
+	u64 from = rdlbr_from(idx, NULL);
+
+	/* Don't read invalid entry */
+	if (!from)
+		return false;
+
+	lbr->from = from;
+	lbr->to = rdlbr_to(idx, NULL);
+	if (need_info)
+		lbr->info = rdlbr_info(idx, NULL);
+
+	return true;
+}
+
+void intel_pmu_lbr_restore(void *ctx)
+{
+	bool need_info = x86_pmu.intel_cap.lbr_format == LBR_FORMAT_INFO;
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+	struct x86_perf_task_context *task_ctx = ctx;
+	int i;
+	unsigned lbr_idx, mask;
+	u64 tos = task_ctx->tos;
+>>>>>>> upstream/android-13
 
 	mask = x86_pmu.lbr_nr - 1;
 	for (i = 0; i < task_ctx->valid_lbrs; i++) {
 		lbr_idx = (tos - i) & mask;
+<<<<<<< HEAD
 		wrlbr_from(lbr_idx, task_ctx->lbr_from[i]);
 		wrlbr_to  (lbr_idx, task_ctx->lbr_to[i]);
 
 		if (x86_pmu.intel_cap.lbr_format == LBR_FORMAT_INFO)
 			wrmsrl(MSR_LBR_INFO_0 + lbr_idx, task_ctx->lbr_info[i]);
+=======
+		wrlbr_all(&task_ctx->lbr[i], lbr_idx, need_info);
+>>>>>>> upstream/android-13
 	}
 
 	for (; i < x86_pmu.lbr_nr; i++) {
@@ -378,6 +578,7 @@ static void __intel_pmu_lbr_restore(struct x86_perf_task_context *task_ctx)
 		wrlbr_from(lbr_idx, 0);
 		wrlbr_to(lbr_idx, 0);
 		if (x86_pmu.intel_cap.lbr_format == LBR_FORMAT_INFO)
+<<<<<<< HEAD
 			wrmsrl(MSR_LBR_INFO_0 + lbr_idx, 0);
 	}
 
@@ -397,10 +598,94 @@ static void __intel_pmu_lbr_save(struct x86_perf_task_context *task_ctx)
 		return;
 	}
 
+=======
+			wrlbr_info(lbr_idx, 0);
+	}
+
+	wrmsrl(x86_pmu.lbr_tos, tos);
+
+	if (cpuc->lbr_select)
+		wrmsrl(MSR_LBR_SELECT, task_ctx->lbr_sel);
+}
+
+static void intel_pmu_arch_lbr_restore(void *ctx)
+{
+	struct x86_perf_task_context_arch_lbr *task_ctx = ctx;
+	struct lbr_entry *entries = task_ctx->entries;
+	int i;
+
+	/* Fast reset the LBRs before restore if the call stack is not full. */
+	if (!entries[x86_pmu.lbr_nr - 1].from)
+		intel_pmu_arch_lbr_reset();
+
+	for (i = 0; i < x86_pmu.lbr_nr; i++) {
+		if (!entries[i].from)
+			break;
+		wrlbr_all(&entries[i], i, true);
+	}
+}
+
+/*
+ * Restore the Architecture LBR state from the xsave area in the perf
+ * context data for the task via the XRSTORS instruction.
+ */
+static void intel_pmu_arch_lbr_xrstors(void *ctx)
+{
+	struct x86_perf_task_context_arch_lbr_xsave *task_ctx = ctx;
+
+	xrstors(&task_ctx->xsave, XFEATURE_MASK_LBR);
+}
+
+static __always_inline bool lbr_is_reset_in_cstate(void *ctx)
+{
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR))
+		return x86_pmu.lbr_deep_c_reset && !rdlbr_from(0, NULL);
+
+	return !rdlbr_from(((struct x86_perf_task_context *)ctx)->tos, NULL);
+}
+
+static void __intel_pmu_lbr_restore(void *ctx)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+
+	if (task_context_opt(ctx)->lbr_callstack_users == 0 ||
+	    task_context_opt(ctx)->lbr_stack_state == LBR_NONE) {
+		intel_pmu_lbr_reset();
+		return;
+	}
+
+	/*
+	 * Does not restore the LBR registers, if
+	 * - No one else touched them, and
+	 * - Was not cleared in Cstate
+	 */
+	if ((ctx == cpuc->last_task_ctx) &&
+	    (task_context_opt(ctx)->log_id == cpuc->last_log_id) &&
+	    !lbr_is_reset_in_cstate(ctx)) {
+		task_context_opt(ctx)->lbr_stack_state = LBR_NONE;
+		return;
+	}
+
+	x86_pmu.lbr_restore(ctx);
+
+	task_context_opt(ctx)->lbr_stack_state = LBR_NONE;
+}
+
+void intel_pmu_lbr_save(void *ctx)
+{
+	bool need_info = x86_pmu.intel_cap.lbr_format == LBR_FORMAT_INFO;
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+	struct x86_perf_task_context *task_ctx = ctx;
+	unsigned lbr_idx, mask;
+	u64 tos;
+	int i;
+
+>>>>>>> upstream/android-13
 	mask = x86_pmu.lbr_nr - 1;
 	tos = intel_pmu_lbr_tos();
 	for (i = 0; i < x86_pmu.lbr_nr; i++) {
 		lbr_idx = (tos - i) & mask;
+<<<<<<< HEAD
 		from = rdlbr_from(lbr_idx);
 		if (!from)
 			break;
@@ -415,12 +700,93 @@ static void __intel_pmu_lbr_save(struct x86_perf_task_context *task_ctx)
 
 	cpuc->last_task_ctx = task_ctx;
 	cpuc->last_log_id = ++task_ctx->log_id;
+=======
+		if (!rdlbr_all(&task_ctx->lbr[i], lbr_idx, need_info))
+			break;
+	}
+	task_ctx->valid_lbrs = i;
+	task_ctx->tos = tos;
+
+	if (cpuc->lbr_select)
+		rdmsrl(MSR_LBR_SELECT, task_ctx->lbr_sel);
+}
+
+static void intel_pmu_arch_lbr_save(void *ctx)
+{
+	struct x86_perf_task_context_arch_lbr *task_ctx = ctx;
+	struct lbr_entry *entries = task_ctx->entries;
+	int i;
+
+	for (i = 0; i < x86_pmu.lbr_nr; i++) {
+		if (!rdlbr_all(&entries[i], i, true))
+			break;
+	}
+
+	/* LBR call stack is not full. Reset is required in restore. */
+	if (i < x86_pmu.lbr_nr)
+		entries[x86_pmu.lbr_nr - 1].from = 0;
+}
+
+/*
+ * Save the Architecture LBR state to the xsave area in the perf
+ * context data for the task via the XSAVES instruction.
+ */
+static void intel_pmu_arch_lbr_xsaves(void *ctx)
+{
+	struct x86_perf_task_context_arch_lbr_xsave *task_ctx = ctx;
+
+	xsaves(&task_ctx->xsave, XFEATURE_MASK_LBR);
+}
+
+static void __intel_pmu_lbr_save(void *ctx)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+
+	if (task_context_opt(ctx)->lbr_callstack_users == 0) {
+		task_context_opt(ctx)->lbr_stack_state = LBR_NONE;
+		return;
+	}
+
+	x86_pmu.lbr_save(ctx);
+
+	task_context_opt(ctx)->lbr_stack_state = LBR_VALID;
+
+	cpuc->last_task_ctx = ctx;
+	cpuc->last_log_id = ++task_context_opt(ctx)->log_id;
+}
+
+void intel_pmu_lbr_swap_task_ctx(struct perf_event_context *prev,
+				 struct perf_event_context *next)
+{
+	void *prev_ctx_data, *next_ctx_data;
+
+	swap(prev->task_ctx_data, next->task_ctx_data);
+
+	/*
+	 * Architecture specific synchronization makes sense in
+	 * case both prev->task_ctx_data and next->task_ctx_data
+	 * pointers are allocated.
+	 */
+
+	prev_ctx_data = next->task_ctx_data;
+	next_ctx_data = prev->task_ctx_data;
+
+	if (!prev_ctx_data || !next_ctx_data)
+		return;
+
+	swap(task_context_opt(prev_ctx_data)->lbr_callstack_users,
+	     task_context_opt(next_ctx_data)->lbr_callstack_users);
+>>>>>>> upstream/android-13
 }
 
 void intel_pmu_lbr_sched_task(struct perf_event_context *ctx, bool sched_in)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+<<<<<<< HEAD
 	struct x86_perf_task_context *task_ctx;
+=======
+	void *task_ctx;
+>>>>>>> upstream/android-13
 
 	if (!cpuc->lbr_users)
 		return;
@@ -457,17 +823,30 @@ static inline bool branch_user_callstack(unsigned br_sel)
 void intel_pmu_lbr_add(struct perf_event *event)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+<<<<<<< HEAD
 	struct x86_perf_task_context *task_ctx;
+=======
+>>>>>>> upstream/android-13
 
 	if (!x86_pmu.lbr_nr)
 		return;
 
+<<<<<<< HEAD
 	cpuc->br_sel = event->hw.branch_reg.reg;
 
 	if (branch_user_callstack(cpuc->br_sel) && event->ctx->task_ctx_data) {
 		task_ctx = event->ctx->task_ctx_data;
 		task_ctx->lbr_callstack_users++;
 	}
+=======
+	if (event->hw.flags & PERF_X86_EVENT_LBR_SELECT)
+		cpuc->lbr_select = 1;
+
+	cpuc->br_sel = event->hw.branch_reg.reg;
+
+	if (branch_user_callstack(cpuc->br_sel) && event->ctx->task_ctx_data)
+		task_context_opt(event->ctx->task_ctx_data)->lbr_callstack_users++;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Request pmu::sched_task() callback, which will fire inside the
@@ -488,20 +867,72 @@ void intel_pmu_lbr_add(struct perf_event *event)
 	 * be 'new'. Conversely, a new event can get installed through the
 	 * context switch path for the first time.
 	 */
+<<<<<<< HEAD
+=======
+	if (x86_pmu.intel_cap.pebs_baseline && event->attr.precise_ip > 0)
+		cpuc->lbr_pebs_users++;
+>>>>>>> upstream/android-13
 	perf_sched_cb_inc(event->ctx->pmu);
 	if (!cpuc->lbr_users++ && !event->total_time_running)
 		intel_pmu_lbr_reset();
 }
 
+<<<<<<< HEAD
 void intel_pmu_lbr_del(struct perf_event *event)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 	struct x86_perf_task_context *task_ctx;
+=======
+void release_lbr_buffers(void)
+{
+	struct kmem_cache *kmem_cache;
+	struct cpu_hw_events *cpuc;
+	int cpu;
+
+	if (!static_cpu_has(X86_FEATURE_ARCH_LBR))
+		return;
+
+	for_each_possible_cpu(cpu) {
+		cpuc = per_cpu_ptr(&cpu_hw_events, cpu);
+		kmem_cache = x86_get_pmu(cpu)->task_ctx_cache;
+		if (kmem_cache && cpuc->lbr_xsave) {
+			kmem_cache_free(kmem_cache, cpuc->lbr_xsave);
+			cpuc->lbr_xsave = NULL;
+		}
+	}
+}
+
+void reserve_lbr_buffers(void)
+{
+	struct kmem_cache *kmem_cache;
+	struct cpu_hw_events *cpuc;
+	int cpu;
+
+	if (!static_cpu_has(X86_FEATURE_ARCH_LBR))
+		return;
+
+	for_each_possible_cpu(cpu) {
+		cpuc = per_cpu_ptr(&cpu_hw_events, cpu);
+		kmem_cache = x86_get_pmu(cpu)->task_ctx_cache;
+		if (!kmem_cache || cpuc->lbr_xsave)
+			continue;
+
+		cpuc->lbr_xsave = kmem_cache_alloc_node(kmem_cache,
+							GFP_KERNEL | __GFP_ZERO,
+							cpu_to_node(cpu));
+	}
+}
+
+void intel_pmu_lbr_del(struct perf_event *event)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+>>>>>>> upstream/android-13
 
 	if (!x86_pmu.lbr_nr)
 		return;
 
 	if (branch_user_callstack(cpuc->br_sel) &&
+<<<<<<< HEAD
 	    event->ctx->task_ctx_data) {
 		task_ctx = event->ctx->task_ctx_data;
 		task_ctx->lbr_callstack_users--;
@@ -512,11 +943,39 @@ void intel_pmu_lbr_del(struct perf_event *event)
 	perf_sched_cb_dec(event->ctx->pmu);
 }
 
+=======
+	    event->ctx->task_ctx_data)
+		task_context_opt(event->ctx->task_ctx_data)->lbr_callstack_users--;
+
+	if (event->hw.flags & PERF_X86_EVENT_LBR_SELECT)
+		cpuc->lbr_select = 0;
+
+	if (x86_pmu.intel_cap.pebs_baseline && event->attr.precise_ip > 0)
+		cpuc->lbr_pebs_users--;
+	cpuc->lbr_users--;
+	WARN_ON_ONCE(cpuc->lbr_users < 0);
+	WARN_ON_ONCE(cpuc->lbr_pebs_users < 0);
+	perf_sched_cb_dec(event->ctx->pmu);
+}
+
+static inline bool vlbr_exclude_host(void)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+
+	return test_bit(INTEL_PMC_IDX_FIXED_VLBR,
+		(unsigned long *)&cpuc->intel_ctrl_guest_mask);
+}
+
+>>>>>>> upstream/android-13
 void intel_pmu_lbr_enable_all(bool pmi)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 
+<<<<<<< HEAD
 	if (cpuc->lbr_users)
+=======
+	if (cpuc->lbr_users && !vlbr_exclude_host())
+>>>>>>> upstream/android-13
 		__intel_pmu_lbr_enable(pmi);
 }
 
@@ -524,11 +983,19 @@ void intel_pmu_lbr_disable_all(void)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 
+<<<<<<< HEAD
 	if (cpuc->lbr_users)
 		__intel_pmu_lbr_disable();
 }
 
 static void intel_pmu_lbr_read_32(struct cpu_hw_events *cpuc)
+=======
+	if (cpuc->lbr_users && !vlbr_exclude_host())
+		__intel_pmu_lbr_disable();
+}
+
+void intel_pmu_lbr_read_32(struct cpu_hw_events *cpuc)
+>>>>>>> upstream/android-13
 {
 	unsigned long mask = x86_pmu.lbr_nr - 1;
 	u64 tos = intel_pmu_lbr_tos();
@@ -557,6 +1024,10 @@ static void intel_pmu_lbr_read_32(struct cpu_hw_events *cpuc)
 		cpuc->lbr_entries[i].reserved	= 0;
 	}
 	cpuc->lbr_stack.nr = i;
+<<<<<<< HEAD
+=======
+	cpuc->lbr_stack.hw_idx = tos;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -564,7 +1035,11 @@ static void intel_pmu_lbr_read_32(struct cpu_hw_events *cpuc)
  * is the same as the linear address, allowing us to merge the LIP and EIP
  * LBR formats.
  */
+<<<<<<< HEAD
 static void intel_pmu_lbr_read_64(struct cpu_hw_events *cpuc)
+=======
+void intel_pmu_lbr_read_64(struct cpu_hw_events *cpuc)
+>>>>>>> upstream/android-13
 {
 	bool need_info = false, call_stack = false;
 	unsigned long mask = x86_pmu.lbr_nr - 1;
@@ -587,8 +1062,13 @@ static void intel_pmu_lbr_read_64(struct cpu_hw_events *cpuc)
 		u16 cycles = 0;
 		int lbr_flags = lbr_desc[lbr_format];
 
+<<<<<<< HEAD
 		from = rdlbr_from(lbr_idx);
 		to   = rdlbr_to(lbr_idx);
+=======
+		from = rdlbr_from(lbr_idx, NULL);
+		to   = rdlbr_to(lbr_idx, NULL);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Read LBR call stack entries
@@ -600,7 +1080,11 @@ static void intel_pmu_lbr_read_64(struct cpu_hw_events *cpuc)
 		if (lbr_format == LBR_FORMAT_INFO && need_info) {
 			u64 info;
 
+<<<<<<< HEAD
 			rdmsrl(MSR_LBR_INFO_0 + lbr_idx, info);
+=======
+			info = rdlbr_info(lbr_idx, NULL);
+>>>>>>> upstream/android-13
 			mis = !!(info & LBR_INFO_MISPRED);
 			pred = !mis;
 			in_tx = !!(info & LBR_INFO_IN_TX);
@@ -652,12 +1136,104 @@ static void intel_pmu_lbr_read_64(struct cpu_hw_events *cpuc)
 		out++;
 	}
 	cpuc->lbr_stack.nr = out;
+<<<<<<< HEAD
+=======
+	cpuc->lbr_stack.hw_idx = tos;
+}
+
+static __always_inline int get_lbr_br_type(u64 info)
+{
+	if (!static_cpu_has(X86_FEATURE_ARCH_LBR) || !x86_pmu.lbr_br_type)
+		return 0;
+
+	return (info & LBR_INFO_BR_TYPE) >> LBR_INFO_BR_TYPE_OFFSET;
+}
+
+static __always_inline bool get_lbr_mispred(u64 info)
+{
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR) && !x86_pmu.lbr_mispred)
+		return 0;
+
+	return !!(info & LBR_INFO_MISPRED);
+}
+
+static __always_inline bool get_lbr_predicted(u64 info)
+{
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR) && !x86_pmu.lbr_mispred)
+		return 0;
+
+	return !(info & LBR_INFO_MISPRED);
+}
+
+static __always_inline u16 get_lbr_cycles(u64 info)
+{
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR) &&
+	    !(x86_pmu.lbr_timed_lbr && info & LBR_INFO_CYC_CNT_VALID))
+		return 0;
+
+	return info & LBR_INFO_CYCLES;
+}
+
+static void intel_pmu_store_lbr(struct cpu_hw_events *cpuc,
+				struct lbr_entry *entries)
+{
+	struct perf_branch_entry *e;
+	struct lbr_entry *lbr;
+	u64 from, to, info;
+	int i;
+
+	for (i = 0; i < x86_pmu.lbr_nr; i++) {
+		lbr = entries ? &entries[i] : NULL;
+		e = &cpuc->lbr_entries[i];
+
+		from = rdlbr_from(i, lbr);
+		/*
+		 * Read LBR entries until invalid entry (0s) is detected.
+		 */
+		if (!from)
+			break;
+
+		to = rdlbr_to(i, lbr);
+		info = rdlbr_info(i, lbr);
+
+		e->from		= from;
+		e->to		= to;
+		e->mispred	= get_lbr_mispred(info);
+		e->predicted	= get_lbr_predicted(info);
+		e->in_tx	= !!(info & LBR_INFO_IN_TX);
+		e->abort	= !!(info & LBR_INFO_ABORT);
+		e->cycles	= get_lbr_cycles(info);
+		e->type		= get_lbr_br_type(info);
+		e->reserved	= 0;
+	}
+
+	cpuc->lbr_stack.nr = i;
+}
+
+static void intel_pmu_arch_lbr_read(struct cpu_hw_events *cpuc)
+{
+	intel_pmu_store_lbr(cpuc, NULL);
+}
+
+static void intel_pmu_arch_lbr_read_xsave(struct cpu_hw_events *cpuc)
+{
+	struct x86_perf_task_context_arch_lbr_xsave *xsave = cpuc->lbr_xsave;
+
+	if (!xsave) {
+		intel_pmu_store_lbr(cpuc, NULL);
+		return;
+	}
+	xsaves(&xsave->xsave, XFEATURE_MASK_LBR);
+
+	intel_pmu_store_lbr(cpuc, xsave->lbr.entries);
+>>>>>>> upstream/android-13
 }
 
 void intel_pmu_lbr_read(void)
 {
 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
 
+<<<<<<< HEAD
 	if (!cpuc->lbr_users)
 		return;
 
@@ -665,6 +1241,19 @@ void intel_pmu_lbr_read(void)
 		intel_pmu_lbr_read_32(cpuc);
 	else
 		intel_pmu_lbr_read_64(cpuc);
+=======
+	/*
+	 * Don't read when all LBRs users are using adaptive PEBS.
+	 *
+	 * This could be smarter and actually check the event,
+	 * but this simple approach seems to work for now.
+	 */
+	if (!cpuc->lbr_users || vlbr_exclude_host() ||
+	    cpuc->lbr_users == cpuc->lbr_pebs_users)
+		return;
+
+	x86_pmu.lbr_read(cpuc);
+>>>>>>> upstream/android-13
 
 	intel_pmu_lbr_filter(cpuc);
 }
@@ -764,6 +1353,14 @@ static int intel_pmu_setup_hw_lbr_filter(struct perf_event *event)
 	reg = &event->hw.branch_reg;
 	reg->idx = EXTRA_REG_LBR;
 
+<<<<<<< HEAD
+=======
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR)) {
+		reg->config = mask;
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * The first 9 bits (LBR_SEL_MASK) in LBR_SELECT operate
 	 * in suppress mode. So LBR_SELECT should be set to
@@ -861,7 +1458,11 @@ static int branch_type(unsigned long from, unsigned long to, int abort)
 		/*
 		 * The LBR logs any address in the IP, even if the IP just
 		 * faulted. This means userspace can control the from address.
+<<<<<<< HEAD
 		 * Ensure we don't blindy read any address by validating it is
+=======
+		 * Ensure we don't blindly read any address by validating it is
+>>>>>>> upstream/android-13
 		 * a known text address.
 		 */
 		if (kernel_text_address(from)) {
@@ -884,11 +1485,18 @@ static int branch_type(unsigned long from, unsigned long to, int abort)
 	 * on 64-bit systems running 32-bit apps
 	 */
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 	is64 = kernel_ip((unsigned long)addr) || !test_thread_flag(TIF_IA32);
 #endif
 	insn_init(&insn, addr, bytes_read, is64);
 	insn_get_opcode(&insn);
 	if (!insn.opcode.got)
+=======
+	is64 = kernel_ip((unsigned long)addr) || any_64bit_mode(current_pt_regs());
+#endif
+	insn_init(&insn, addr, bytes_read, is64);
+	if (insn_get_opcode(&insn))
+>>>>>>> upstream/android-13
 		return X86_BR_ABORT;
 
 	switch (insn.opcode.bytes[0]) {
@@ -925,12 +1533,20 @@ static int branch_type(unsigned long from, unsigned long to, int abort)
 		ret = X86_BR_INT;
 		break;
 	case 0xe8: /* call near rel */
+<<<<<<< HEAD
 		insn_get_immediate(&insn);
 		if (insn.immediate1.value == 0) {
+=======
+		if (insn_get_immediate(&insn) || insn.immediate1.value == 0) {
+>>>>>>> upstream/android-13
 			/* zero length call */
 			ret = X86_BR_ZERO_CALL;
 			break;
 		}
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0x9a: /* call far absolute */
 		ret = X86_BR_CALL;
 		break;
@@ -941,7 +1557,13 @@ static int branch_type(unsigned long from, unsigned long to, int abort)
 		ret = X86_BR_JMP;
 		break;
 	case 0xff: /* call near absolute, call far absolute ind */
+<<<<<<< HEAD
 		insn_get_modrm(&insn);
+=======
+		if (insn_get_modrm(&insn))
+			return X86_BR_ABORT;
+
+>>>>>>> upstream/android-13
 		ext = (insn.modrm.bytes[0] >> 3) & 0x7;
 		switch (ext) {
 		case 2: /* near ind call */
@@ -1019,6 +1641,30 @@ common_branch_type(int type)
 	return PERF_BR_UNKNOWN;
 }
 
+<<<<<<< HEAD
+=======
+enum {
+	ARCH_LBR_BR_TYPE_JCC			= 0,
+	ARCH_LBR_BR_TYPE_NEAR_IND_JMP		= 1,
+	ARCH_LBR_BR_TYPE_NEAR_REL_JMP		= 2,
+	ARCH_LBR_BR_TYPE_NEAR_IND_CALL		= 3,
+	ARCH_LBR_BR_TYPE_NEAR_REL_CALL		= 4,
+	ARCH_LBR_BR_TYPE_NEAR_RET		= 5,
+	ARCH_LBR_BR_TYPE_KNOWN_MAX		= ARCH_LBR_BR_TYPE_NEAR_RET,
+
+	ARCH_LBR_BR_TYPE_MAP_MAX		= 16,
+};
+
+static const int arch_lbr_br_type_map[ARCH_LBR_BR_TYPE_MAP_MAX] = {
+	[ARCH_LBR_BR_TYPE_JCC]			= X86_BR_JCC,
+	[ARCH_LBR_BR_TYPE_NEAR_IND_JMP]		= X86_BR_IND_JMP,
+	[ARCH_LBR_BR_TYPE_NEAR_REL_JMP]		= X86_BR_JMP,
+	[ARCH_LBR_BR_TYPE_NEAR_IND_CALL]	= X86_BR_IND_CALL,
+	[ARCH_LBR_BR_TYPE_NEAR_REL_CALL]	= X86_BR_CALL,
+	[ARCH_LBR_BR_TYPE_NEAR_RET]		= X86_BR_RET,
+};
+
+>>>>>>> upstream/android-13
 /*
  * implement actual branch filter based on user demand.
  * Hardware may not exactly satisfy that request, thus
@@ -1031,7 +1677,11 @@ intel_pmu_lbr_filter(struct cpu_hw_events *cpuc)
 {
 	u64 from, to;
 	int br_sel = cpuc->br_sel;
+<<<<<<< HEAD
 	int i, j, type;
+=======
+	int i, j, type, to_plm;
+>>>>>>> upstream/android-13
 	bool compress = false;
 
 	/* if sampling all branches, then nothing to filter */
@@ -1043,8 +1693,24 @@ intel_pmu_lbr_filter(struct cpu_hw_events *cpuc)
 
 		from = cpuc->lbr_entries[i].from;
 		to = cpuc->lbr_entries[i].to;
+<<<<<<< HEAD
 
 		type = branch_type(from, to, cpuc->lbr_entries[i].abort);
+=======
+		type = cpuc->lbr_entries[i].type;
+
+		/*
+		 * Parse the branch type recorded in LBR_x_INFO MSR.
+		 * Doesn't support OTHER_BRANCH decoding for now.
+		 * OTHER_BRANCH branch type still rely on software decoding.
+		 */
+		if (static_cpu_has(X86_FEATURE_ARCH_LBR) &&
+		    type <= ARCH_LBR_BR_TYPE_KNOWN_MAX) {
+			to_plm = kernel_ip(to) ? X86_BR_KERNEL : X86_BR_USER;
+			type = arch_lbr_br_type_map[type] | to_plm;
+		} else
+			type = branch_type(from, to, cpuc->lbr_entries[i].abort);
+>>>>>>> upstream/android-13
 		if (type != X86_BR_NONE && (br_sel & X86_BR_ANYTX)) {
 			if (cpuc->lbr_entries[i].in_tx)
 				type |= X86_BR_IN_TX;
@@ -1079,6 +1745,24 @@ intel_pmu_lbr_filter(struct cpu_hw_events *cpuc)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void intel_pmu_store_pebs_lbrs(struct lbr_entry *lbr)
+{
+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+
+	/* Cannot get TOS for large PEBS and Arch LBR */
+	if (static_cpu_has(X86_FEATURE_ARCH_LBR) ||
+	    (cpuc->n_pebs == cpuc->n_large_pebs))
+		cpuc->lbr_stack.hw_idx = -1ULL;
+	else
+		cpuc->lbr_stack.hw_idx = intel_pmu_lbr_tos();
+
+	intel_pmu_store_lbr(cpuc, lbr);
+	intel_pmu_lbr_filter(cpuc);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Map interface branch filters onto LBR filters
  */
@@ -1132,6 +1816,29 @@ static const int hsw_lbr_sel_map[PERF_SAMPLE_BRANCH_MAX_SHIFT] = {
 	[PERF_SAMPLE_BRANCH_CALL_SHIFT]		= LBR_REL_CALL,
 };
 
+<<<<<<< HEAD
+=======
+static int arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_MAX_SHIFT] = {
+	[PERF_SAMPLE_BRANCH_ANY_SHIFT]		= ARCH_LBR_ANY,
+	[PERF_SAMPLE_BRANCH_USER_SHIFT]		= ARCH_LBR_USER,
+	[PERF_SAMPLE_BRANCH_KERNEL_SHIFT]	= ARCH_LBR_KERNEL,
+	[PERF_SAMPLE_BRANCH_HV_SHIFT]		= LBR_IGN,
+	[PERF_SAMPLE_BRANCH_ANY_RETURN_SHIFT]	= ARCH_LBR_RETURN |
+						  ARCH_LBR_OTHER_BRANCH,
+	[PERF_SAMPLE_BRANCH_ANY_CALL_SHIFT]     = ARCH_LBR_REL_CALL |
+						  ARCH_LBR_IND_CALL |
+						  ARCH_LBR_OTHER_BRANCH,
+	[PERF_SAMPLE_BRANCH_IND_CALL_SHIFT]     = ARCH_LBR_IND_CALL,
+	[PERF_SAMPLE_BRANCH_COND_SHIFT]         = ARCH_LBR_JCC,
+	[PERF_SAMPLE_BRANCH_CALL_STACK_SHIFT]   = ARCH_LBR_REL_CALL |
+						  ARCH_LBR_IND_CALL |
+						  ARCH_LBR_RETURN |
+						  ARCH_LBR_CALL_STACK,
+	[PERF_SAMPLE_BRANCH_IND_JUMP_SHIFT]	= ARCH_LBR_IND_JMP,
+	[PERF_SAMPLE_BRANCH_CALL_SHIFT]		= ARCH_LBR_REL_CALL,
+};
+
+>>>>>>> upstream/android-13
 /* core */
 void __init intel_pmu_lbr_init_core(void)
 {
@@ -1185,9 +1892,23 @@ void __init intel_pmu_lbr_init_snb(void)
 	 */
 }
 
+<<<<<<< HEAD
 /* haswell */
 void intel_pmu_lbr_init_hsw(void)
 {
+=======
+static inline struct kmem_cache *
+create_lbr_kmem_cache(size_t size, size_t align)
+{
+	return kmem_cache_create("x86_lbr", size, align, 0, NULL);
+}
+
+/* haswell */
+void intel_pmu_lbr_init_hsw(void)
+{
+	size_t size = sizeof(struct x86_perf_task_context);
+
+>>>>>>> upstream/android-13
 	x86_pmu.lbr_nr	 = 16;
 	x86_pmu.lbr_tos	 = MSR_LBR_TOS;
 	x86_pmu.lbr_from = MSR_LBR_NHM_FROM;
@@ -1196,6 +1917,11 @@ void intel_pmu_lbr_init_hsw(void)
 	x86_pmu.lbr_sel_mask = LBR_SEL_MASK;
 	x86_pmu.lbr_sel_map  = hsw_lbr_sel_map;
 
+<<<<<<< HEAD
+=======
+	x86_get_pmu(smp_processor_id())->task_ctx_cache = create_lbr_kmem_cache(size, 0);
+
+>>>>>>> upstream/android-13
 	if (lbr_from_signext_quirk_needed())
 		static_branch_enable(&lbr_from_quirk_key);
 }
@@ -1203,14 +1929,28 @@ void intel_pmu_lbr_init_hsw(void)
 /* skylake */
 __init void intel_pmu_lbr_init_skl(void)
 {
+<<<<<<< HEAD
+=======
+	size_t size = sizeof(struct x86_perf_task_context);
+
+>>>>>>> upstream/android-13
 	x86_pmu.lbr_nr	 = 32;
 	x86_pmu.lbr_tos	 = MSR_LBR_TOS;
 	x86_pmu.lbr_from = MSR_LBR_NHM_FROM;
 	x86_pmu.lbr_to   = MSR_LBR_NHM_TO;
+<<<<<<< HEAD
+=======
+	x86_pmu.lbr_info = MSR_LBR_INFO_0;
+>>>>>>> upstream/android-13
 
 	x86_pmu.lbr_sel_mask = LBR_SEL_MASK;
 	x86_pmu.lbr_sel_map  = hsw_lbr_sel_map;
 
+<<<<<<< HEAD
+=======
+	x86_get_pmu(smp_processor_id())->task_ctx_cache = create_lbr_kmem_cache(size, 0);
+
+>>>>>>> upstream/android-13
 	/*
 	 * SW branch filter usage:
 	 * - support syscall, sysret capture.
@@ -1277,3 +2017,158 @@ void intel_pmu_lbr_init_knl(void)
 	if (x86_pmu.intel_cap.lbr_format == LBR_FORMAT_LIP)
 		x86_pmu.intel_cap.lbr_format = LBR_FORMAT_EIP_FLAGS;
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * LBR state size is variable based on the max number of registers.
+ * This calculates the expected state size, which should match
+ * what the hardware enumerates for the size of XFEATURE_LBR.
+ */
+static inline unsigned int get_lbr_state_size(void)
+{
+	return sizeof(struct arch_lbr_state) +
+	       x86_pmu.lbr_nr * sizeof(struct lbr_entry);
+}
+
+static bool is_arch_lbr_xsave_available(void)
+{
+	if (!boot_cpu_has(X86_FEATURE_XSAVES))
+		return false;
+
+	/*
+	 * Check the LBR state with the corresponding software structure.
+	 * Disable LBR XSAVES support if the size doesn't match.
+	 */
+	if (xfeature_size(XFEATURE_LBR) == 0)
+		return false;
+
+	if (WARN_ON(xfeature_size(XFEATURE_LBR) != get_lbr_state_size()))
+		return false;
+
+	return true;
+}
+
+void __init intel_pmu_arch_lbr_init(void)
+{
+	struct pmu *pmu = x86_get_pmu(smp_processor_id());
+	union cpuid28_eax eax;
+	union cpuid28_ebx ebx;
+	union cpuid28_ecx ecx;
+	unsigned int unused_edx;
+	bool arch_lbr_xsave;
+	size_t size;
+	u64 lbr_nr;
+
+	/* Arch LBR Capabilities */
+	cpuid(28, &eax.full, &ebx.full, &ecx.full, &unused_edx);
+
+	lbr_nr = fls(eax.split.lbr_depth_mask) * 8;
+	if (!lbr_nr)
+		goto clear_arch_lbr;
+
+	/* Apply the max depth of Arch LBR */
+	if (wrmsrl_safe(MSR_ARCH_LBR_DEPTH, lbr_nr))
+		goto clear_arch_lbr;
+
+	x86_pmu.lbr_depth_mask = eax.split.lbr_depth_mask;
+	x86_pmu.lbr_deep_c_reset = eax.split.lbr_deep_c_reset;
+	x86_pmu.lbr_lip = eax.split.lbr_lip;
+	x86_pmu.lbr_cpl = ebx.split.lbr_cpl;
+	x86_pmu.lbr_filter = ebx.split.lbr_filter;
+	x86_pmu.lbr_call_stack = ebx.split.lbr_call_stack;
+	x86_pmu.lbr_mispred = ecx.split.lbr_mispred;
+	x86_pmu.lbr_timed_lbr = ecx.split.lbr_timed_lbr;
+	x86_pmu.lbr_br_type = ecx.split.lbr_br_type;
+	x86_pmu.lbr_nr = lbr_nr;
+
+
+	arch_lbr_xsave = is_arch_lbr_xsave_available();
+	if (arch_lbr_xsave) {
+		size = sizeof(struct x86_perf_task_context_arch_lbr_xsave) +
+		       get_lbr_state_size();
+		pmu->task_ctx_cache = create_lbr_kmem_cache(size,
+							    XSAVE_ALIGNMENT);
+	}
+
+	if (!pmu->task_ctx_cache) {
+		arch_lbr_xsave = false;
+
+		size = sizeof(struct x86_perf_task_context_arch_lbr) +
+		       lbr_nr * sizeof(struct lbr_entry);
+		pmu->task_ctx_cache = create_lbr_kmem_cache(size, 0);
+	}
+
+	x86_pmu.lbr_from = MSR_ARCH_LBR_FROM_0;
+	x86_pmu.lbr_to = MSR_ARCH_LBR_TO_0;
+	x86_pmu.lbr_info = MSR_ARCH_LBR_INFO_0;
+
+	/* LBR callstack requires both CPL and Branch Filtering support */
+	if (!x86_pmu.lbr_cpl ||
+	    !x86_pmu.lbr_filter ||
+	    !x86_pmu.lbr_call_stack)
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_CALL_STACK_SHIFT] = LBR_NOT_SUPP;
+
+	if (!x86_pmu.lbr_cpl) {
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_USER_SHIFT] = LBR_NOT_SUPP;
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_KERNEL_SHIFT] = LBR_NOT_SUPP;
+	} else if (!x86_pmu.lbr_filter) {
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_ANY_SHIFT] = LBR_NOT_SUPP;
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_ANY_RETURN_SHIFT] = LBR_NOT_SUPP;
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_ANY_CALL_SHIFT] = LBR_NOT_SUPP;
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_IND_CALL_SHIFT] = LBR_NOT_SUPP;
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_COND_SHIFT] = LBR_NOT_SUPP;
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_IND_JUMP_SHIFT] = LBR_NOT_SUPP;
+		arch_lbr_ctl_map[PERF_SAMPLE_BRANCH_CALL_SHIFT] = LBR_NOT_SUPP;
+	}
+
+	x86_pmu.lbr_ctl_mask = ARCH_LBR_CTL_MASK;
+	x86_pmu.lbr_ctl_map  = arch_lbr_ctl_map;
+
+	if (!x86_pmu.lbr_cpl && !x86_pmu.lbr_filter)
+		x86_pmu.lbr_ctl_map = NULL;
+
+	x86_pmu.lbr_reset = intel_pmu_arch_lbr_reset;
+	if (arch_lbr_xsave) {
+		x86_pmu.lbr_save = intel_pmu_arch_lbr_xsaves;
+		x86_pmu.lbr_restore = intel_pmu_arch_lbr_xrstors;
+		x86_pmu.lbr_read = intel_pmu_arch_lbr_read_xsave;
+		pr_cont("XSAVE ");
+	} else {
+		x86_pmu.lbr_save = intel_pmu_arch_lbr_save;
+		x86_pmu.lbr_restore = intel_pmu_arch_lbr_restore;
+		x86_pmu.lbr_read = intel_pmu_arch_lbr_read;
+	}
+
+	pr_cont("Architectural LBR, ");
+
+	return;
+
+clear_arch_lbr:
+	clear_cpu_cap(&boot_cpu_data, X86_FEATURE_ARCH_LBR);
+}
+
+/**
+ * x86_perf_get_lbr - get the LBR records information
+ *
+ * @lbr: the caller's memory to store the LBR records information
+ *
+ * Returns: 0 indicates the LBR info has been successfully obtained
+ */
+int x86_perf_get_lbr(struct x86_pmu_lbr *lbr)
+{
+	int lbr_fmt = x86_pmu.intel_cap.lbr_format;
+
+	lbr->nr = x86_pmu.lbr_nr;
+	lbr->from = x86_pmu.lbr_from;
+	lbr->to = x86_pmu.lbr_to;
+	lbr->info = (lbr_fmt == LBR_FORMAT_INFO) ? x86_pmu.lbr_info : 0;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(x86_perf_get_lbr);
+
+struct event_constraint vlbr_constraint =
+	__EVENT_CONSTRAINT(INTEL_FIXED_VLBR_EVENT, (1ULL << INTEL_PMC_IDX_FIXED_VLBR),
+			  FIXED_EVENT_FLAGS, 1, 0, PERF_X86_EVENT_LBR_SELECT);
+>>>>>>> upstream/android-13

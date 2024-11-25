@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  longhaul.h
  *  (C) 2003 Dave Jones.
  *
+<<<<<<< HEAD
  *  Licensed under the terms of the GNU GPL License version 2.
  *
+=======
+>>>>>>> upstream/android-13
  *  VIA-specific information
  */
 

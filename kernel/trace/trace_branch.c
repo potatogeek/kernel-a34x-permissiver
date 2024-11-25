@@ -32,12 +32,21 @@ probe_likely_condition(struct ftrace_likely_data *f, int val, int expect)
 {
 	struct trace_event_call *call = &event_branch;
 	struct trace_array *tr = branch_tracer;
+<<<<<<< HEAD
 	struct trace_array_cpu *data;
 	struct ring_buffer_event *event;
 	struct trace_branch *entry;
 	struct ring_buffer *buffer;
 	unsigned long flags;
 	int pc;
+=======
+	struct trace_buffer *buffer;
+	struct trace_array_cpu *data;
+	struct ring_buffer_event *event;
+	struct trace_branch *entry;
+	unsigned long flags;
+	unsigned int trace_ctx;
+>>>>>>> upstream/android-13
 	const char *p;
 
 	if (current->trace_recursion & TRACE_BRANCH_BIT)
@@ -55,6 +64,7 @@ probe_likely_condition(struct ftrace_likely_data *f, int val, int expect)
 
 	raw_local_irq_save(flags);
 	current->trace_recursion |= TRACE_BRANCH_BIT;
+<<<<<<< HEAD
 	data = this_cpu_ptr(tr->trace_buffer.data);
 	if (atomic_read(&data->disabled))
 		goto out;
@@ -63,6 +73,16 @@ probe_likely_condition(struct ftrace_likely_data *f, int val, int expect)
 	buffer = tr->trace_buffer.buffer;
 	event = trace_buffer_lock_reserve(buffer, TRACE_BRANCH,
 					  sizeof(*entry), flags, pc);
+=======
+	data = this_cpu_ptr(tr->array_buffer.data);
+	if (atomic_read(&data->disabled))
+		goto out;
+
+	trace_ctx = tracing_gen_ctx_flags(flags);
+	buffer = tr->array_buffer.buffer;
+	event = trace_buffer_lock_reserve(buffer, TRACE_BRANCH,
+					  sizeof(*entry), trace_ctx);
+>>>>>>> upstream/android-13
 	if (!event)
 		goto out;
 
@@ -205,6 +225,11 @@ void trace_likely_condition(struct ftrace_likely_data *f, int val, int expect)
 void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 			  int expect, int is_constant)
 {
+<<<<<<< HEAD
+=======
+	unsigned long flags = user_access_save();
+
+>>>>>>> upstream/android-13
 	/* A constant is always correct */
 	if (is_constant) {
 		f->constant++;
@@ -223,6 +248,11 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 		f->data.correct++;
 	else
 		f->data.incorrect++;
+<<<<<<< HEAD
+=======
+
+	user_access_restore(flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(ftrace_likely_update);
 
@@ -240,7 +270,11 @@ static int annotated_branch_stat_headers(struct seq_file *m)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline long get_incorrect_percent(struct ftrace_branch_data *p)
+=======
+static inline long get_incorrect_percent(const struct ftrace_branch_data *p)
+>>>>>>> upstream/android-13
 {
 	long percent;
 
@@ -328,10 +362,17 @@ annotated_branch_stat_next(void *v, int idx)
 	return p;
 }
 
+<<<<<<< HEAD
 static int annotated_branch_stat_cmp(void *p1, void *p2)
 {
 	struct ftrace_branch_data *a = p1;
 	struct ftrace_branch_data *b = p2;
+=======
+static int annotated_branch_stat_cmp(const void *p1, const void *p2)
+{
+	const struct ftrace_branch_data *a = p1;
+	const struct ftrace_branch_data *b = p2;
+>>>>>>> upstream/android-13
 
 	long percent_a, percent_b;
 

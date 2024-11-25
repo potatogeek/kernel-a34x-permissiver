@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define PRISM2_PCI
 
 /* Host AP driver's support for Intersil Prism2.5 PCI cards is based on
@@ -26,7 +30,10 @@ static char *dev_info = "hostap_pci";
 MODULE_AUTHOR("Jouni Malinen");
 MODULE_DESCRIPTION("Support for Intersil Prism2.5-based 802.11 wireless LAN "
 		   "PCI cards.");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Intersil Prism2.5-based WLAN PCI cards");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 
@@ -402,24 +409,34 @@ static void prism2_pci_remove(struct pci_dev *pdev)
 	pci_disable_device(pdev);
 }
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_PM
 static int prism2_pci_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused prism2_pci_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 
 	if (netif_running(dev)) {
 		netif_stop_queue(dev);
 		netif_device_detach(dev);
 	}
 	prism2_suspend(dev);
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, PCI_D3hot);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int prism2_pci_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -432,6 +449,12 @@ static int prism2_pci_resume(struct pci_dev *pdev)
 		return err;
 	}
 	pci_restore_state(pdev);
+=======
+static int __maybe_unused prism2_pci_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+
+>>>>>>> upstream/android-13
 	prism2_hw_config(dev, 0);
 	if (netif_running(dev)) {
 		netif_device_attach(dev);
@@ -440,20 +463,34 @@ static int prism2_pci_resume(struct pci_dev *pdev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
 
 
 MODULE_DEVICE_TABLE(pci, prism2_pci_id_table);
 
+=======
+
+MODULE_DEVICE_TABLE(pci, prism2_pci_id_table);
+
+static SIMPLE_DEV_PM_OPS(prism2_pci_pm_ops,
+			 prism2_pci_suspend,
+			 prism2_pci_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver prism2_pci_driver = {
 	.name		= "hostap_pci",
 	.id_table	= prism2_pci_id_table,
 	.probe		= prism2_pci_probe,
 	.remove		= prism2_pci_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= prism2_pci_suspend,
 	.resume		= prism2_pci_resume,
 #endif /* CONFIG_PM */
+=======
+	.driver.pm	= &prism2_pci_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(prism2_pci_driver);

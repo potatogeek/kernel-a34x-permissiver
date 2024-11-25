@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2008-2011, Intel Corporation
  *
@@ -17,11 +18,20 @@
  * Authors:
  *      Eric Anholt <eric@anholt.net>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2008-2011, Intel Corporation
+ *
+ * Authors:
+ *      Eric Anholt <eric@anholt.net>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _FRAMEBUFFER_H_
 #define _FRAMEBUFFER_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_fb_helper.h>
 
@@ -40,6 +50,10 @@ struct psb_fbdev {
 
 #define to_psb_fb(x) container_of(x, struct psb_framebuffer, base)
 
+=======
+#include "psb_drv.h"
+
+>>>>>>> upstream/android-13
 extern int gma_connector_clones(struct drm_device *dev, int type_mask);
 
 #endif

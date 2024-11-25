@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Copyright (c) 2009, Microsoft Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -19,6 +24,11 @@
  *   Haiyang Zhang <haiyangz@microsoft.com>
  *   Hank Janssen  <hjanssen@microsoft.com>
  *
+=======
+ * Authors:
+ *   Haiyang Zhang <haiyangz@microsoft.com>
+ *   Hank Janssen  <hjanssen@microsoft.com>
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -27,6 +37,10 @@
 #include <linux/wait.h>
 #include <linux/delay.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/hyperv.h>
@@ -38,7 +52,18 @@
 
 struct vmbus_connection vmbus_connection = {
 	.conn_state		= DISCONNECTED,
+<<<<<<< HEAD
 	.next_gpadl_handle	= ATOMIC_INIT(0xE1E10),
+=======
+	.unload_event		= COMPLETION_INITIALIZER(
+				  vmbus_connection.unload_event),
+	.next_gpadl_handle	= ATOMIC_INIT(0xE1E10),
+
+	.ready_for_suspend_event = COMPLETION_INITIALIZER(
+				  vmbus_connection.ready_for_suspend_event),
+	.ready_for_resume_event	= COMPLETION_INITIALIZER(
+				  vmbus_connection.ready_for_resume_event),
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(vmbus_connection);
 
@@ -48,6 +73,7 @@ EXPORT_SYMBOL_GPL(vmbus_connection);
 __u32 vmbus_proto_version;
 EXPORT_SYMBOL_GPL(vmbus_proto_version);
 
+<<<<<<< HEAD
 static __u32 vmbus_get_next_version(__u32 current_version)
 {
 	switch (current_version) {
@@ -77,6 +103,37 @@ static int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo,
 {
 	int ret = 0;
 	unsigned int cur_cpu;
+=======
+/*
+ * Table of VMBus versions listed from newest to oldest.
+ */
+static __u32 vmbus_versions[] = {
+	VERSION_WIN10_V5_3,
+	VERSION_WIN10_V5_2,
+	VERSION_WIN10_V5_1,
+	VERSION_WIN10_V5,
+	VERSION_WIN10_V4_1,
+	VERSION_WIN10,
+	VERSION_WIN8_1,
+	VERSION_WIN8,
+	VERSION_WIN7,
+	VERSION_WS2008
+};
+
+/*
+ * Maximal VMBus protocol version guests can negotiate.  Useful to cap the
+ * VMBus version for testing and debugging purpose.
+ */
+static uint max_version = VERSION_WIN10_V5_3;
+
+module_param(max_version, uint, S_IRUGO);
+MODULE_PARM_DESC(max_version,
+		 "Maximal VMBus protocol version which can be negotiated");
+
+int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo, u32 version)
+{
+	int ret = 0;
+>>>>>>> upstream/android-13
 	struct vmbus_channel_initiate_contact *msg;
 	unsigned long flags;
 
@@ -89,12 +146,21 @@ static int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo,
 	msg->vmbus_version_requested = version;
 
 	/*
+<<<<<<< HEAD
 	 * VMBus protocol 5.0 (VERSION_WIN10_V5) requires that we must use
 	 * VMBUS_MESSAGE_CONNECTION_ID_4 for the Initiate Contact Message,
 	 * and for subsequent messages, we must use the Message Connection ID
 	 * field in the host-returned Version Response Message. And, with
 	 * VERSION_WIN10_V5, we don't use msg->interrupt_page, but we tell
 	 * the host explicitly that we still use VMBUS_MESSAGE_SINT(2) for
+=======
+	 * VMBus protocol 5.0 (VERSION_WIN10_V5) and higher require that we must
+	 * use VMBUS_MESSAGE_CONNECTION_ID_4 for the Initiate Contact Message,
+	 * and for subsequent messages, we must use the Message Connection ID
+	 * field in the host-returned Version Response Message. And, with
+	 * VERSION_WIN10_V5 and higher, we don't use msg->interrupt_page, but we
+	 * tell the host explicitly that we still use VMBUS_MESSAGE_SINT(2) for
+>>>>>>> upstream/android-13
 	 * compatibility.
 	 *
 	 * On old hosts, we should always use VMBUS_MESSAGE_CONNECTION_ID (1).
@@ -109,6 +175,7 @@ static int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo,
 
 	msg->monitor_page1 = virt_to_phys(vmbus_connection.monitor_pages[0]);
 	msg->monitor_page2 = virt_to_phys(vmbus_connection.monitor_pages[1]);
+<<<<<<< HEAD
 	/*
 	 * We want all channel messages to be delivered on CPU 0.
 	 * This has been the behavior pre-win8. This is not
@@ -127,6 +194,9 @@ static int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo,
 		msg->target_vcpu = 0;
 		vmbus_connection.connect_cpu = 0;
 	}
+=======
+	msg->target_vcpu = hv_cpu_number_to_vp_number(VMBUS_CONNECT_CPU);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Add to list before we send the request since we may
@@ -178,8 +248,13 @@ static int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo,
  */
 int vmbus_connect(void)
 {
+<<<<<<< HEAD
 	int ret = 0;
 	struct vmbus_channel_msginfo *msginfo = NULL;
+=======
+	struct vmbus_channel_msginfo *msginfo = NULL;
+	int i, ret = 0;
+>>>>>>> upstream/android-13
 	__u32 version;
 
 	/* Initialize the vmbus connection */
@@ -215,7 +290,11 @@ int vmbus_connect(void)
 	 * abstraction stuff
 	 */
 	vmbus_connection.int_page =
+<<<<<<< HEAD
 	(void *)__get_free_pages(GFP_KERNEL|__GFP_ZERO, 0);
+=======
+	(void *)hv_alloc_hyperv_zeroed_page();
+>>>>>>> upstream/android-13
 	if (vmbus_connection.int_page == NULL) {
 		ret = -ENOMEM;
 		goto cleanup;
@@ -224,14 +303,23 @@ int vmbus_connect(void)
 	vmbus_connection.recv_int_page = vmbus_connection.int_page;
 	vmbus_connection.send_int_page =
 		(void *)((unsigned long)vmbus_connection.int_page +
+<<<<<<< HEAD
 			(PAGE_SIZE >> 1));
+=======
+			(HV_HYP_PAGE_SIZE >> 1));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Setup the monitor notification facility. The 1st page for
 	 * parent->child and the 2nd page for child->parent
 	 */
+<<<<<<< HEAD
 	vmbus_connection.monitor_pages[0] = (void *)__get_free_pages((GFP_KERNEL|__GFP_ZERO), 0);
 	vmbus_connection.monitor_pages[1] = (void *)__get_free_pages((GFP_KERNEL|__GFP_ZERO), 0);
+=======
+	vmbus_connection.monitor_pages[0] = (void *)hv_alloc_hyperv_zeroed_page();
+	vmbus_connection.monitor_pages[1] = (void *)hv_alloc_hyperv_zeroed_page();
+>>>>>>> upstream/android-13
 	if ((vmbus_connection.monitor_pages[0] == NULL) ||
 	    (vmbus_connection.monitor_pages[1] == NULL)) {
 		ret = -ENOMEM;
@@ -253,26 +341,61 @@ int vmbus_connect(void)
 	 * version.
 	 */
 
+<<<<<<< HEAD
 	version = VERSION_CURRENT;
 
 	do {
+=======
+	for (i = 0; ; i++) {
+		if (i == ARRAY_SIZE(vmbus_versions)) {
+			ret = -EDOM;
+			goto cleanup;
+		}
+
+		version = vmbus_versions[i];
+		if (version > max_version)
+			continue;
+
+>>>>>>> upstream/android-13
 		ret = vmbus_negotiate_version(msginfo, version);
 		if (ret == -ETIMEDOUT)
 			goto cleanup;
 
 		if (vmbus_connection.conn_state == CONNECTED)
 			break;
+<<<<<<< HEAD
 
 		version = vmbus_get_next_version(version);
 	} while (version != VERSION_INVAL);
 
 	if (version == VERSION_INVAL)
 		goto cleanup;
+=======
+	}
+
+	if (hv_is_isolation_supported() && version < VERSION_WIN10_V5_2) {
+		pr_err("Invalid VMBus version %d.%d (expected >= %d.%d) from the host supporting isolation\n",
+		       version >> 16, version & 0xFFFF, VERSION_WIN10_V5_2 >> 16, VERSION_WIN10_V5_2 & 0xFFFF);
+		ret = -EINVAL;
+		goto cleanup;
+	}
+>>>>>>> upstream/android-13
 
 	vmbus_proto_version = version;
 	pr_info("Vmbus version:%d.%d\n",
 		version >> 16, version & 0xFFFF);
 
+<<<<<<< HEAD
+=======
+	vmbus_connection.channels = kcalloc(MAX_CHANNEL_RELIDS,
+					    sizeof(struct vmbus_channel *),
+					    GFP_KERNEL);
+	if (vmbus_connection.channels == NULL) {
+		ret = -ENOMEM;
+		goto cleanup;
+	}
+
+>>>>>>> upstream/android-13
 	kfree(msginfo);
 	return 0;
 
@@ -304,12 +427,21 @@ void vmbus_disconnect(void)
 		destroy_workqueue(vmbus_connection.work_queue);
 
 	if (vmbus_connection.int_page) {
+<<<<<<< HEAD
 		free_pages((unsigned long)vmbus_connection.int_page, 0);
 		vmbus_connection.int_page = NULL;
 	}
 
 	free_pages((unsigned long)vmbus_connection.monitor_pages[0], 0);
 	free_pages((unsigned long)vmbus_connection.monitor_pages[1], 0);
+=======
+		hv_free_hyperv_page((unsigned long)vmbus_connection.int_page);
+		vmbus_connection.int_page = NULL;
+	}
+
+	hv_free_hyperv_page((unsigned long)vmbus_connection.monitor_pages[0]);
+	hv_free_hyperv_page((unsigned long)vmbus_connection.monitor_pages[1]);
+>>>>>>> upstream/android-13
 	vmbus_connection.monitor_pages[0] = NULL;
 	vmbus_connection.monitor_pages[1] = NULL;
 }
@@ -320,6 +452,7 @@ void vmbus_disconnect(void)
  */
 struct vmbus_channel *relid2channel(u32 relid)
 {
+<<<<<<< HEAD
 	struct vmbus_channel *channel;
 	struct vmbus_channel *found_channel  = NULL;
 	struct list_head *cur, *tmp;
@@ -347,6 +480,11 @@ struct vmbus_channel *relid2channel(u32 relid)
 	}
 
 	return found_channel;
+=======
+	if (WARN_ON(relid >= MAX_CHANNEL_RELIDS))
+		return NULL;
+	return READ_ONCE(vmbus_connection.channels[relid]);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -370,6 +508,10 @@ void vmbus_on_event(unsigned long data)
 
 	trace_vmbus_on_event(channel);
 
+<<<<<<< HEAD
+=======
+	hv_debug_delay_test(channel, INTERRUPT_DELAY);
+>>>>>>> upstream/android-13
 	do {
 		void (*callback_fn)(void *);
 
@@ -422,7 +564,11 @@ int vmbus_post_msg(void *buffer, size_t buflen, bool can_sleep)
 		case HV_STATUS_INVALID_CONNECTION_ID:
 			/*
 			 * See vmbus_negotiate_version(): VMBus protocol 5.0
+<<<<<<< HEAD
 			 * requires that we must use
+=======
+			 * and higher require that we must use
+>>>>>>> upstream/android-13
 			 * VMBUS_MESSAGE_CONNECTION_ID_4 for the Initiate
 			 * Contact message, but on old hosts that only
 			 * support VMBus protocol 4.0 or lower, here we get

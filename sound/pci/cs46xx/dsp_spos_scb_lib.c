@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -14,6 +15,10 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -254,8 +259,14 @@ void cs46xx_dsp_proc_register_scb_desc (struct snd_cs46xx *chip,
 	if (ins->snd_card != NULL && ins->proc_dsp_dir != NULL &&
 	    scb->proc_info == NULL) {
   
+<<<<<<< HEAD
 		if ((entry = snd_info_create_card_entry(ins->snd_card, scb->scb_name, 
 							ins->proc_dsp_dir)) != NULL) {
+=======
+		entry = snd_info_create_card_entry(ins->snd_card, scb->scb_name,
+						   ins->proc_dsp_dir);
+		if (entry) {
+>>>>>>> upstream/android-13
 			scb_info = kmalloc(sizeof(struct proc_scb_info), GFP_KERNEL);
 			if (!scb_info) {
 				snd_info_free_entry(entry);
@@ -265,6 +276,7 @@ void cs46xx_dsp_proc_register_scb_desc (struct snd_cs46xx *chip,
 
 			scb_info->chip = chip;
 			scb_info->scb_desc = scb;
+<<<<<<< HEAD
       
 			entry->content = SNDRV_INFO_CONTENT_TEXT;
 			entry->private_data = scb_info;
@@ -277,6 +289,10 @@ void cs46xx_dsp_proc_register_scb_desc (struct snd_cs46xx *chip,
 				kfree (scb_info);
 				entry = NULL;
 			}
+=======
+			snd_info_set_text_ops(entry, scb_info,
+					      cs46xx_dsp_proc_scb_info_read);
+>>>>>>> upstream/android-13
 		}
 out:
 		scb->proc_info = entry;
@@ -1168,7 +1184,11 @@ find_next_free_scb (struct snd_cs46xx * chip, struct dsp_scb_descriptor * from)
 	return scb;
 }
 
+<<<<<<< HEAD
 static u32 pcm_reader_buffer_addr[DSP_MAX_PCM_CHANNELS] = {
+=======
+static const u32 pcm_reader_buffer_addr[DSP_MAX_PCM_CHANNELS] = {
+>>>>>>> upstream/android-13
 	0x0600, /* 1 */
 	0x1500, /* 2 */
 	0x1580, /* 3 */
@@ -1203,7 +1223,11 @@ static u32 pcm_reader_buffer_addr[DSP_MAX_PCM_CHANNELS] = {
 	0x2400, /* 32 */
 };
 
+<<<<<<< HEAD
 static u32 src_output_buffer_addr[DSP_MAX_SRC_NR] = {
+=======
+static const u32 src_output_buffer_addr[DSP_MAX_SRC_NR] = {
+>>>>>>> upstream/android-13
 	0x2B80,
 	0x2BA0,
 	0x2BC0,
@@ -1220,7 +1244,11 @@ static u32 src_output_buffer_addr[DSP_MAX_SRC_NR] = {
 	0x2E20
 };
 
+<<<<<<< HEAD
 static u32 src_delay_buffer_addr[DSP_MAX_SRC_NR] = {
+=======
+static const u32 src_delay_buffer_addr[DSP_MAX_SRC_NR] = {
+>>>>>>> upstream/android-13
 	0x2480,
 	0x2500,
 	0x2580,
@@ -1316,7 +1344,11 @@ cs46xx_dsp_create_pcm_channel (struct snd_cs46xx * chip,
 	if (src_scb == NULL) {
 		if (ins->nsrc_scb >= DSP_MAX_SRC_NR) {
 			dev_err(chip->card->dev,
+<<<<<<< HEAD
 				"dsp_spos: to many SRC instances\n!");
+=======
+				"dsp_spos: too many SRC instances\n!");
+>>>>>>> upstream/android-13
 			return NULL;
 		}
 

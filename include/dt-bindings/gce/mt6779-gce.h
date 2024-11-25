@@ -7,11 +7,17 @@
 #ifndef _DT_BINDINGS_GCE_MT6779_H
 #define _DT_BINDINGS_GCE_MT6779_H
 
+<<<<<<< HEAD
 /* assign timeout 0 also means default */
 #define CMDQ_NO_TIMEOUT		0xffffffff
 #define CMDQ_TIMEOUT_DEFAULT	1000
 
 /* GCE thread priority */
+=======
+#define CMDQ_NO_TIMEOUT		0xffffffff
+
+/* GCE HW thread priority */
+>>>>>>> upstream/android-13
 #define CMDQ_THR_PRIO_LOWEST	0
 #define CMDQ_THR_PRIO_1		1
 #define CMDQ_THR_PRIO_2		2
@@ -21,9 +27,12 @@
 #define CMDQ_THR_PRIO_6		6
 #define CMDQ_THR_PRIO_HIGHEST	7
 
+<<<<<<< HEAD
 /* CPR count in 32bit register */
 #define GCE_CPR_COUNT		1312
 
+=======
+>>>>>>> upstream/android-13
 /* GCE subsys table */
 #define SUBSYS_1300XXXX		0
 #define SUBSYS_1400XXXX		1
@@ -224,6 +233,7 @@
 #define CMDQ_EVENT_DVP_DONE_ASYNC_SHOT		453
 #define CMDQ_EVENT_DSI0_TE_INFRA		898
 
+<<<<<<< HEAD
 /* CMDQ sw tokens
  * Following definitions are gce sw token which may use by clients
  * event operation API.
@@ -294,4 +304,6 @@
 #define CMDQ_EVENT_MAX					0x3FF
 /* CMDQ sw tokens END */
 
+=======
+>>>>>>> upstream/android-13
 #endif

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm_adsp.c  --  Wolfson ADSP support
  *
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/ctype.h>
@@ -17,7 +24,10 @@
 #include <linux/delay.h>
 #include <linux/firmware.h>
 #include <linux/list.h>
+<<<<<<< HEAD
 #include <linux/of.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <linux/regmap.h>
@@ -203,7 +213,11 @@
 #define ADSP2_PMEM_ERR_ADDR_XMEM_ERR_ADDR    0x7C
 
 #define ADSP2_REGION_LOCK_ERR_MASK           0x8000
+<<<<<<< HEAD
 #define ADSP2_SLAVE_ERR_MASK                 0x4000
+=======
+#define ADSP2_ADDR_ERR_MASK                  0x4000
+>>>>>>> upstream/android-13
 #define ADSP2_WDT_TIMEOUT_STS_MASK           0x2000
 #define ADSP2_CTRL_ERR_PAUSE_ENA             0x0002
 #define ADSP2_CTRL_ERR_EINT                  0x0001
@@ -237,8 +251,11 @@
 /*
  * HALO core
  */
+<<<<<<< HEAD
 #define HALO_SAMPLE_RATE_RX1                 0x00080
 #define HALO_SAMPLE_RATE_TX1                 0x00280
+=======
+>>>>>>> upstream/android-13
 #define HALO_SCRATCH1                        0x005c0
 #define HALO_SCRATCH2                        0x005c8
 #define HALO_SCRATCH3                        0x005d0
@@ -286,6 +303,7 @@
 #define HALO_AHBM_FLAGS_ERR_MASK             0x000000ff
 
 /*
+<<<<<<< HEAD
  * HALO_SAMPLE_RATE_[RX|TX]n
  */
 #define HALO_DSP_RATE_SHIFT                  0
@@ -294,6 +312,11 @@
 /*
  * HALO_CCM_CORE_CONTROL
  */
+=======
+ * HALO_CCM_CORE_CONTROL
+ */
+#define HALO_CORE_RESET                     0x00000200
+>>>>>>> upstream/android-13
 #define HALO_CORE_EN                        0x00000001
 
 /*
@@ -315,6 +338,7 @@
 #define HALO_MPU_VIO_ERR_SRC_MASK           0x00007fff
 #define HALO_MPU_VIO_ERR_SRC_SHIFT                   0
 
+<<<<<<< HEAD
 #define HALO_MPU_VIO_SRAM                   0x01
 #define HALO_MPU_VIO_REG                    0x02
 #define HALO_MPU_VIO_AHB                    0x04
@@ -328,6 +352,11 @@ static struct wm_adsp_ops wm_adsp1_ops;
 static struct wm_adsp_ops wm_adsp2_ops[];
 static struct wm_adsp_ops wm_halo_ops;
 static struct wm_adsp_ops wm_vpu_ops;
+=======
+static const struct wm_adsp_ops wm_adsp1_ops;
+static const struct wm_adsp_ops wm_adsp2_ops[];
+static const struct wm_adsp_ops wm_halo_ops;
+>>>>>>> upstream/android-13
 
 struct wm_adsp_buf {
 	struct list_head list;
@@ -342,11 +371,19 @@ static struct wm_adsp_buf *wm_adsp_buf_alloc(const void *src, size_t len,
 	if (buf == NULL)
 		return NULL;
 
+<<<<<<< HEAD
 	buf->buf = kmemdup(src, len, GFP_KERNEL | GFP_DMA);
+=======
+	buf->buf = vmalloc(len);
+>>>>>>> upstream/android-13
 	if (!buf->buf) {
 		kfree(buf);
 		return NULL;
 	}
+<<<<<<< HEAD
+=======
+	memcpy(buf->buf, src, len);
+>>>>>>> upstream/android-13
 
 	if (list)
 		list_add_tail(&buf->list, list);
@@ -361,7 +398,11 @@ static void wm_adsp_buf_free(struct list_head *list)
 							   struct wm_adsp_buf,
 							   list);
 		list_del(&buf->list);
+<<<<<<< HEAD
 		kfree(buf->buf);
+=======
+		vfree(buf->buf);
+>>>>>>> upstream/android-13
 		kfree(buf);
 	}
 }
@@ -376,9 +417,17 @@ static void wm_adsp_buf_free(struct list_head *list)
 #define WM_ADSP_FW_ASR      7
 #define WM_ADSP_FW_TRACE    8
 #define WM_ADSP_FW_SPK_PROT 9
+<<<<<<< HEAD
 #define WM_ADSP_FW_MISC     10
 
 #define WM_ADSP_NUM_FW      11
+=======
+#define WM_ADSP_FW_SPK_CALI 10
+#define WM_ADSP_FW_SPK_DIAG 11
+#define WM_ADSP_FW_MISC     12
+
+#define WM_ADSP_NUM_FW      13
+>>>>>>> upstream/android-13
 
 static const char *wm_adsp_fw_text[WM_ADSP_NUM_FW] = {
 	[WM_ADSP_FW_MBC_VSS] =  "MBC/VSS",
@@ -391,6 +440,11 @@ static const char *wm_adsp_fw_text[WM_ADSP_NUM_FW] = {
 	[WM_ADSP_FW_ASR] =      "ASR Assist",
 	[WM_ADSP_FW_TRACE] =    "Dbg Trace",
 	[WM_ADSP_FW_SPK_PROT] = "Protection",
+<<<<<<< HEAD
+=======
+	[WM_ADSP_FW_SPK_CALI] = "Calibration",
+	[WM_ADSP_FW_SPK_DIAG] = "Diagnostic",
+>>>>>>> upstream/android-13
 	[WM_ADSP_FW_MISC] =     "Misc",
 };
 
@@ -466,12 +520,17 @@ struct wm_adsp_compr_buf {
 	int read_index;
 	int avail;
 	int host_buf_mem_type;
+<<<<<<< HEAD
 	int num_regions;
 	const struct wm_adsp_buffer_region_def *region_def;
 
 	char *name;
 
 	struct wakeup_source *ws;
+=======
+
+	char *name;
+>>>>>>> upstream/android-13
 };
 
 struct wm_adsp_compr {
@@ -490,6 +549,7 @@ struct wm_adsp_compr {
 	const char *name;
 };
 
+<<<<<<< HEAD
 #define WM_ADSP_DATA_WORD_SIZE_DEFAULT	3
 #define WM_ADSP_DATA_WORD_SIZE_VPU	4
 
@@ -500,6 +560,14 @@ struct wm_adsp_compr {
 #define WM_ADSP_MAX_FRAGMENTS		256
 #define WM_ADSP_MIN_FRAGMENT_SIZE_WORDS	64
 #define WM_ADSP_MAX_FRAGMENT_SIZE_WORDS	4096
+=======
+#define WM_ADSP_DATA_WORD_SIZE         3
+
+#define WM_ADSP_MIN_FRAGMENTS          1
+#define WM_ADSP_MAX_FRAGMENTS          256
+#define WM_ADSP_MIN_FRAGMENT_SIZE      (64 * WM_ADSP_DATA_WORD_SIZE)
+#define WM_ADSP_MAX_FRAGMENT_SIZE      (4096 * WM_ADSP_DATA_WORD_SIZE)
+>>>>>>> upstream/android-13
 
 #define WM_ADSP_ALG_XM_STRUCT_MAGIC    0x49aec7
 
@@ -548,6 +616,7 @@ static const struct wm_adsp_buffer_region_def default_regions[] = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct wm_adsp_buffer_region_def vpu_regions[] = {
 	{
 		.mem_type = WMFW_VPU_DM,
@@ -564,6 +633,13 @@ static const struct wm_adsp_buffer_region_def vpu_regions[] = {
 		.base_offset = HOST_BUFFER_FIELD(buf3_base),
 		.size_offset = HOST_BUFFER_FIELD(buf_total_size),
 	},
+=======
+struct wm_adsp_fw_caps {
+	u32 id;
+	struct snd_codec_desc desc;
+	int num_regions;
+	const struct wm_adsp_buffer_region_def *region_defs;
+>>>>>>> upstream/android-13
 };
 
 static const struct wm_adsp_fw_caps ctrl_caps[] = {
@@ -575,6 +651,11 @@ static const struct wm_adsp_fw_caps ctrl_caps[] = {
 			.num_sample_rates = 1,
 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
 		},
+<<<<<<< HEAD
+=======
+		.num_regions = ARRAY_SIZE(default_regions),
+		.region_defs = default_regions,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -591,10 +672,25 @@ static const struct wm_adsp_fw_caps trace_caps[] = {
 			.num_sample_rates = 15,
 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
 		},
+<<<<<<< HEAD
 	},
 };
 
 static struct wm_adsp_fw_defs wm_adsp_fw[WM_ADSP_NUM_FW] = {
+=======
+		.num_regions = ARRAY_SIZE(default_regions),
+		.region_defs = default_regions,
+	},
+};
+
+static const struct {
+	const char *file;
+	int compr_direction;
+	int num_caps;
+	const struct wm_adsp_fw_caps *caps;
+	bool voice_trigger;
+} wm_adsp_fw[WM_ADSP_NUM_FW] = {
+>>>>>>> upstream/android-13
 	[WM_ADSP_FW_MBC_VSS] =  { .file = "mbc-vss" },
 	[WM_ADSP_FW_HIFI] =     { .file = "hifi" },
 	[WM_ADSP_FW_TX] =       { .file = "tx" },
@@ -616,6 +712,7 @@ static struct wm_adsp_fw_defs wm_adsp_fw[WM_ADSP_NUM_FW] = {
 		.caps = trace_caps,
 	},
 	[WM_ADSP_FW_SPK_PROT] = { .file = "spk-prot" },
+<<<<<<< HEAD
 	[WM_ADSP_FW_MISC] =     { .file = "misc" },
 };
 
@@ -626,6 +723,13 @@ struct wm_coeff_ctl_ops {
 		    struct snd_ctl_elem_value *ucontrol);
 };
 
+=======
+	[WM_ADSP_FW_SPK_CALI] = { .file = "spk-cali" },
+	[WM_ADSP_FW_SPK_DIAG] = { .file = "spk-diag" },
+	[WM_ADSP_FW_MISC] =     { .file = "misc" },
+};
+
+>>>>>>> upstream/android-13
 struct wm_coeff_ctl {
 	const char *name;
 	const char *fw_name;
@@ -633,7 +737,10 @@ struct wm_coeff_ctl {
 	const char *subname;
 	unsigned int subname_len;
 	struct wm_adsp_alg_region alg_region;
+<<<<<<< HEAD
 	struct wm_coeff_ctl_ops ops;
+=======
+>>>>>>> upstream/android-13
 	struct wm_adsp *dsp;
 	unsigned int enabled:1;
 	struct list_head list;
@@ -643,7 +750,11 @@ struct wm_coeff_ctl {
 	unsigned int set:1;
 	struct soc_bytes_ext bytes_ext;
 	unsigned int flags;
+<<<<<<< HEAD
 	unsigned int type;
+=======
+	snd_ctl_elem_type_t type;
+>>>>>>> upstream/android-13
 };
 
 static const char *wm_adsp_mem_region_name(unsigned int type)
@@ -665,8 +776,11 @@ static const char *wm_adsp_mem_region_name(unsigned int type)
 		return "YM_PACKED";
 	case WMFW_ADSP1_ZM:
 		return "ZM";
+<<<<<<< HEAD
 	case WMFW_VPU_DM:
 		return "DM";
+=======
+>>>>>>> upstream/android-13
 	default:
 		return NULL;
 	}
@@ -763,6 +877,7 @@ static void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
 	struct dentry *root = NULL;
 	int i;
 
+<<<<<<< HEAD
 	if (!component->debugfs_root) {
 		adsp_err(dsp, "No codec debugfs root\n");
 		goto err;
@@ -798,12 +913,30 @@ static void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
 err:
 	debugfs_remove_recursive(root);
 	adsp_err(dsp, "Failed to create debugfs\n");
+=======
+	root = debugfs_create_dir(dsp->name, component->debugfs_root);
+
+	debugfs_create_bool("booted", 0444, root, &dsp->booted);
+	debugfs_create_bool("running", 0444, root, &dsp->running);
+	debugfs_create_x32("fw_id", 0444, root, &dsp->fw_id);
+	debugfs_create_x32("fw_version", 0444, root, &dsp->fw_id_version);
+
+	for (i = 0; i < ARRAY_SIZE(wm_adsp_debugfs_fops); ++i)
+		debugfs_create_file(wm_adsp_debugfs_fops[i].name, 0444, root,
+				    dsp, &wm_adsp_debugfs_fops[i].fops);
+
+	dsp->debugfs_root = root;
+>>>>>>> upstream/android-13
 }
 
 static void wm_adsp2_cleanup_debugfs(struct wm_adsp *dsp)
 {
 	wm_adsp_debugfs_clear(dsp);
 	debugfs_remove_recursive(dsp->debugfs_root);
+<<<<<<< HEAD
+=======
+	dsp->debugfs_root = NULL;
+>>>>>>> upstream/android-13
 }
 #else
 static inline void wm_adsp2_init_debugfs(struct wm_adsp *dsp,
@@ -854,7 +987,11 @@ int wm_adsp_fw_put(struct snd_kcontrol *kcontrol,
 	if (ucontrol->value.enumerated.item[0] == dsp[e->shift_l].fw)
 		return 0;
 
+<<<<<<< HEAD
 	if (ucontrol->value.enumerated.item[0] >= dsp->num_firmwares)
+=======
+	if (ucontrol->value.enumerated.item[0] >= WM_ADSP_NUM_FW)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	mutex_lock(&dsp[e->shift_l].pwr_lock);
@@ -881,7 +1018,11 @@ const struct soc_enum wm_adsp_fw_enum[] = {
 };
 EXPORT_SYMBOL_GPL(wm_adsp_fw_enum);
 
+<<<<<<< HEAD
 static struct wm_adsp_region const *wm_adsp_find_region(struct wm_adsp *dsp,
+=======
+static const struct wm_adsp_region *wm_adsp_find_region(struct wm_adsp *dsp,
+>>>>>>> upstream/android-13
 							int type)
 {
 	int i;
@@ -928,6 +1069,7 @@ static unsigned int wm_halo_region_to_reg(struct wm_adsp_region const *mem,
 	}
 }
 
+<<<<<<< HEAD
 static unsigned int wm_vpu_region_to_reg(struct wm_adsp_region const *mem,
 					 unsigned int offset)
 {
@@ -963,6 +1105,21 @@ static void wm_adsp_read_fw_status(struct wm_adsp *dsp,
 
 out:
 	kfree(scratch);
+=======
+static void wm_adsp_read_fw_status(struct wm_adsp *dsp,
+				   int noffs, unsigned int *offs)
+{
+	unsigned int i;
+	int ret;
+
+	for (i = 0; i < noffs; ++i) {
+		ret = regmap_read(dsp->regmap, dsp->base + offs[i], &offs[i]);
+		if (ret) {
+			adsp_err(dsp, "Failed to read SCRATCH%u: %d\n", i, ret);
+			return;
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 static void wm_adsp2_show_fw_status(struct wm_adsp *dsp)
@@ -1051,7 +1208,11 @@ static int wm_coeff_write_acked_control(struct wm_coeff_ctl *ctl,
 					unsigned int event_id)
 {
 	struct wm_adsp *dsp = ctl->dsp;
+<<<<<<< HEAD
 	u32 val = cpu_to_be32(event_id);
+=======
+	__be32 val = cpu_to_be32(event_id);
+>>>>>>> upstream/android-13
 	unsigned int reg;
 	int i, ret;
 
@@ -1111,16 +1272,23 @@ static int wm_coeff_write_ctrl_raw(struct wm_coeff_ctl *ctl,
 				   const void *buf, size_t len)
 {
 	struct wm_adsp *dsp = ctl->dsp;
+<<<<<<< HEAD
 	void *scratch, *temp;
 	size_t to_write = PAGE_SIZE;
 	int ret;
 	unsigned int reg;
 	unsigned int addr_div;
+=======
+	void *scratch;
+	int ret;
+	unsigned int reg;
+>>>>>>> upstream/android-13
 
 	ret = wm_coeff_base_reg(ctl, &reg);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	scratch = kmalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
 	if (!scratch)
 		return -ENOMEM;
@@ -1156,6 +1324,21 @@ static int wm_coeff_write_ctrl_raw(struct wm_coeff_ctl *ctl,
 		reg += to_write / addr_div;
 		len -= to_write;
 	}
+=======
+	scratch = kmemdup(buf, len, GFP_KERNEL | GFP_DMA);
+	if (!scratch)
+		return -ENOMEM;
+
+	ret = regmap_raw_write(dsp->regmap, reg, scratch,
+			       len);
+	if (ret) {
+		adsp_err(dsp, "Failed to write %zu bytes to %x: %d\n",
+			 len, reg, ret);
+		kfree(scratch);
+		return ret;
+	}
+	adsp_dbg(dsp, "Wrote %zu bytes to %x\n", len, reg);
+>>>>>>> upstream/android-13
 
 	kfree(scratch);
 
@@ -1243,11 +1426,17 @@ static int wm_coeff_read_ctrl_raw(struct wm_coeff_ctl *ctl,
 				  void *buf, size_t len)
 {
 	struct wm_adsp *dsp = ctl->dsp;
+<<<<<<< HEAD
 	void *scratch, *temp;
 	size_t to_read = PAGE_SIZE, remain = len;
 	int ret;
 	unsigned int reg;
 	unsigned int addr_div;
+=======
+	void *scratch;
+	int ret;
+	unsigned int reg;
+>>>>>>> upstream/android-13
 
 	ret = wm_coeff_base_reg(ctl, &reg);
 	if (ret)
@@ -1257,6 +1446,7 @@ static int wm_coeff_read_ctrl_raw(struct wm_coeff_ctl *ctl,
 	if (!scratch)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	switch (dsp->type) {
 	case WMFW_ADSP1:
 	case WMFW_ADSP2:
@@ -1287,6 +1477,16 @@ static int wm_coeff_read_ctrl_raw(struct wm_coeff_ctl *ctl,
 		reg += to_read / addr_div;
 		remain -= to_read;
 	}
+=======
+	ret = regmap_raw_read(dsp->regmap, reg, scratch, len);
+	if (ret) {
+		adsp_err(dsp, "Failed to read %zu bytes from %x: %d\n",
+			 len, reg, ret);
+		kfree(scratch);
+		return ret;
+	}
+	adsp_dbg(dsp, "Read %zu bytes from %x\n", len, reg);
+>>>>>>> upstream/android-13
 
 	memcpy(buf, scratch, len);
 	kfree(scratch);
@@ -1340,7 +1540,11 @@ static int wm_coeff_tlv_get(struct snd_kcontrol *kctl,
 
 	mutex_lock(&ctl->dsp->pwr_lock);
 
+<<<<<<< HEAD
 	ret = wm_coeff_read_ctrl_raw(ctl, ctl->cache, size);
+=======
+	ret = wm_coeff_read_ctrl(ctl, ctl->cache, size);
+>>>>>>> upstream/android-13
 
 	if (!ret && copy_to_user(bytes, ctl->cache, size))
 		ret = -EFAULT;
@@ -1390,8 +1594,12 @@ static unsigned int wmfw_convert_flags(unsigned int in, unsigned int len)
 	}
 
 	if (in) {
+<<<<<<< HEAD
 		if (in & WMFW_CTL_FLAG_READABLE)
 			out |= rd;
+=======
+		out |= rd;
+>>>>>>> upstream/android-13
 		if (in & WMFW_CTL_FLAG_WRITEABLE)
 			out |= wr;
 		if (in & WMFW_CTL_FLAG_VOLATILE)
@@ -1540,13 +1748,20 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 				  const struct wm_adsp_alg_region *alg_region,
 				  unsigned int offset, unsigned int len,
 				  const char *subname, unsigned int subname_len,
+<<<<<<< HEAD
 				  unsigned int flags, unsigned int type)
+=======
+				  unsigned int flags, snd_ctl_elem_type_t type)
+>>>>>>> upstream/android-13
 {
 	struct wm_coeff_ctl *ctl;
 	struct wmfw_ctl_work *ctl_work;
 	char name[SNDRV_CTL_ELEM_ID_NAME_MAXLEN];
 	const char *region_name;
+<<<<<<< HEAD
 	const char *fw_txt;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	region_name = wm_adsp_mem_region_name(alg_region->type);
@@ -1555,8 +1770,11 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	fw_txt = dsp->fw_enum.texts[dsp->fw];
 
+=======
+>>>>>>> upstream/android-13
 	switch (dsp->fw_ver) {
 	case 0:
 	case 1:
@@ -1565,6 +1783,7 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 		subname = NULL; /* don't append subname */
 		break;
 	case 2:
+<<<<<<< HEAD
 		ret = snprintf(name, SNDRV_CTL_ELEM_ID_NAME_MAXLEN,
 				"%s%c %.12s %x", dsp->name, *region_name,
 				fw_txt, alg_region->alg);
@@ -1573,6 +1792,16 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 		ret = snprintf(name, SNDRV_CTL_ELEM_ID_NAME_MAXLEN,
 				"%s %.12s %x", dsp->name,
 				fw_txt, alg_region->alg);
+=======
+		ret = scnprintf(name, SNDRV_CTL_ELEM_ID_NAME_MAXLEN,
+				"%s%c %.12s %x", dsp->name, *region_name,
+				wm_adsp_fw_text[dsp->fw], alg_region->alg);
+		break;
+	default:
+		ret = scnprintf(name, SNDRV_CTL_ELEM_ID_NAME_MAXLEN,
+				"%s %.12s %x", dsp->name,
+				wm_adsp_fw_text[dsp->fw], alg_region->alg);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -1587,9 +1816,14 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 		if (subname_len > avail)
 			skip = subname_len - avail;
 
+<<<<<<< HEAD
 		snprintf(name + ret,
 			 SNDRV_CTL_ELEM_ID_NAME_MAXLEN - ret, " %.*s",
 			 subname_len - skip, subname + skip);
+=======
+		snprintf(name + ret, SNDRV_CTL_ELEM_ID_NAME_MAXLEN - ret,
+			 " %.*s", subname_len - skip, subname + skip);
+>>>>>>> upstream/android-13
 	}
 
 	list_for_each_entry(ctl, &dsp->ctl_list, list) {
@@ -1603,7 +1837,11 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 	ctl = kzalloc(sizeof(*ctl), GFP_KERNEL);
 	if (!ctl)
 		return -ENOMEM;
+<<<<<<< HEAD
 	ctl->fw_name = fw_txt;
+=======
+	ctl->fw_name = wm_adsp_fw_text[dsp->fw];
+>>>>>>> upstream/android-13
 	ctl->alg_region = *alg_region;
 	ctl->name = kmemdup(name, strlen(name) + 1, GFP_KERNEL);
 	if (!ctl->name) {
@@ -1621,8 +1859,11 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 	}
 	ctl->enabled = 1;
 	ctl->set = 0;
+<<<<<<< HEAD
 	ctl->ops.xget = wm_coeff_get;
 	ctl->ops.xput = wm_coeff_put;
+=======
+>>>>>>> upstream/android-13
 	ctl->dsp = dsp;
 
 	ctl->flags = flags;
@@ -1643,7 +1884,11 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 	ctl_work = kzalloc(sizeof(*ctl_work), GFP_KERNEL);
 	if (!ctl_work) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto err_ctl_cache;
+=======
+		goto err_list_del;
+>>>>>>> upstream/android-13
 	}
 
 	ctl_work->dsp = dsp;
@@ -1653,7 +1898,12 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
 
 	return 0;
 
+<<<<<<< HEAD
 err_ctl_cache:
+=======
+err_list_del:
+	list_del(&ctl->list);
+>>>>>>> upstream/android-13
 	kfree(ctl->cache);
 err_ctl_subname:
 	kfree(ctl->subname);
@@ -1677,7 +1927,11 @@ struct wm_coeff_parsed_coeff {
 	int mem_type;
 	const u8 *name;
 	int name_len;
+<<<<<<< HEAD
 	int ctl_type;
+=======
+	snd_ctl_elem_type_t ctl_type;
+>>>>>>> upstream/android-13
 	int flags;
 	int len;
 };
@@ -1772,7 +2026,11 @@ static inline void wm_coeff_parse_coeff(struct wm_adsp *dsp, const u8 **data,
 		blk->mem_type = le16_to_cpu(raw->hdr.type);
 		blk->name = raw->name;
 		blk->name_len = strlen(raw->name);
+<<<<<<< HEAD
 		blk->ctl_type = le16_to_cpu(raw->ctl_type);
+=======
+		blk->ctl_type = (__force snd_ctl_elem_type_t)le16_to_cpu(raw->ctl_type);
+>>>>>>> upstream/android-13
 		blk->flags = le16_to_cpu(raw->flags);
 		blk->len = le32_to_cpu(raw->len);
 		break;
@@ -1785,7 +2043,13 @@ static inline void wm_coeff_parse_coeff(struct wm_adsp *dsp, const u8 **data,
 						      &blk->name);
 		wm_coeff_parse_string(sizeof(u8), &tmp, NULL);
 		wm_coeff_parse_string(sizeof(u16), &tmp, NULL);
+<<<<<<< HEAD
 		blk->ctl_type = wm_coeff_parse_int(sizeof(raw->ctl_type), &tmp);
+=======
+		blk->ctl_type =
+			(__force snd_ctl_elem_type_t)wm_coeff_parse_int(sizeof(raw->ctl_type),
+									&tmp);
+>>>>>>> upstream/android-13
 		blk->flags = wm_coeff_parse_int(sizeof(raw->flags), &tmp);
 		blk->len = wm_coeff_parse_int(sizeof(raw->len), &tmp);
 
@@ -1919,6 +2183,7 @@ static unsigned int wm_adsp2_parse_sizes(struct wm_adsp *dsp,
 	return pos + sizeof(*adsp2_sizes);
 }
 
+<<<<<<< HEAD
 static unsigned int wm_vpu_parse_sizes(struct wm_adsp *dsp,
 				       const char * const file,
 				       unsigned int pos,
@@ -1931,6 +2196,8 @@ static unsigned int wm_vpu_parse_sizes(struct wm_adsp *dsp,
 	return pos + sizeof(*vpu_sizes);
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool wm_adsp_validate_version(struct wm_adsp *dsp, unsigned int version)
 {
 	switch (version) {
@@ -1955,6 +2222,7 @@ static bool wm_halo_validate_version(struct wm_adsp *dsp, unsigned int version)
 	}
 }
 
+<<<<<<< HEAD
 static int wm_adsp_write_blocks(struct wm_adsp *dsp, const u8 *data, size_t len,
 				unsigned int reg, struct list_head *list,
 				size_t burst_multiple)
@@ -2004,6 +2272,8 @@ static int wm_adsp_write_blocks(struct wm_adsp *dsp, const u8 *data, size_t len,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int wm_adsp_load(struct wm_adsp *dsp)
 {
 	LIST_HEAD(buf_list);
@@ -2017,20 +2287,32 @@ static int wm_adsp_load(struct wm_adsp *dsp)
 	const struct wm_adsp_region *mem;
 	const char *region_name;
 	char *file, *text = NULL;
+<<<<<<< HEAD
 	unsigned int reg;
 	int regions = 0;
 	int ret, offset, type;
 	unsigned int burst_multiple;
+=======
+	struct wm_adsp_buf *buf;
+	unsigned int reg;
+	int regions = 0;
+	int ret, offset, type;
+>>>>>>> upstream/android-13
 
 	file = kzalloc(PAGE_SIZE, GFP_KERNEL);
 	if (file == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (dsp->firmwares[dsp->fw].fullname)
 		snprintf(file, PAGE_SIZE, "%s", dsp->firmwares[dsp->fw].file);
 	else
 		snprintf(file, PAGE_SIZE, "%s-%s-%s.wmfw", dsp->part,
 			 dsp->fwf_name, dsp->firmwares[dsp->fw].file);
+=======
+	snprintf(file, PAGE_SIZE, "%s-%s-%s.wmfw", dsp->part, dsp->fwf_name,
+		 wm_adsp_fw[dsp->fw].file);
+>>>>>>> upstream/android-13
 	file[PAGE_SIZE - 1] = '\0';
 
 	ret = request_firmware(&firmware, file, dsp->dev);
@@ -2089,7 +2371,10 @@ static int wm_adsp_load(struct wm_adsp *dsp)
 		region = (void *)&(firmware->data[pos]);
 		region_name = "Unknown";
 		reg = 0;
+<<<<<<< HEAD
 		burst_multiple = 0;
+=======
+>>>>>>> upstream/android-13
 		text = NULL;
 		offset = le32_to_cpu(region->offset) & 0xffffff;
 		type = be32_to_cpu(region->type) & 0xff;
@@ -2120,6 +2405,7 @@ static int wm_adsp_load(struct wm_adsp *dsp)
 		case WMFW_ADSP2_XM:
 		case WMFW_ADSP2_YM:
 		case WMFW_ADSP1_ZM:
+<<<<<<< HEAD
 			region_name = wm_adsp_mem_region_name(type);
 			burst_multiple = 4;
 			break;
@@ -2131,6 +2417,20 @@ static int wm_adsp_load(struct wm_adsp *dsp)
 		case WMFW_HALO_YM_PACKED:
 			region_name = wm_adsp_mem_region_name(type);
 			burst_multiple = 12;
+=======
+		case WMFW_HALO_PM_PACKED:
+		case WMFW_HALO_XM_PACKED:
+		case WMFW_HALO_YM_PACKED:
+			mem = wm_adsp_find_region(dsp, type);
+			if (!mem) {
+				adsp_err(dsp, "No region of type: %x\n", type);
+				ret = -EINVAL;
+				goto out_fw;
+			}
+
+			region_name = wm_adsp_mem_region_name(type);
+			reg = dsp->ops->region_to_reg(mem, offset);
+>>>>>>> upstream/android-13
 			break;
 		default:
 			adsp_warn(dsp,
@@ -2160,6 +2460,7 @@ static int wm_adsp_load(struct wm_adsp *dsp)
 			text = NULL;
 		}
 
+<<<<<<< HEAD
 		if (burst_multiple) {
 			mem = wm_adsp_find_region(dsp, type);
 			if (!mem) {
@@ -2178,6 +2479,26 @@ static int wm_adsp_load(struct wm_adsp *dsp)
 					"%s.%d: Failed writing data at %d in %s: %d\n",
 					file, regions,
 					offset, region_name, ret);
+=======
+		if (reg) {
+			buf = wm_adsp_buf_alloc(region->data,
+						le32_to_cpu(region->len),
+						&buf_list);
+			if (!buf) {
+				adsp_err(dsp, "Out of memory\n");
+				ret = -ENOMEM;
+				goto out_fw;
+			}
+
+			ret = regmap_raw_write_async(regmap, reg, buf->buf,
+						     le32_to_cpu(region->len));
+			if (ret != 0) {
+				adsp_err(dsp,
+					"%s.%d: Failed to write %d bytes at %d in %s: %d\n",
+					file, regions,
+					le32_to_cpu(region->len), offset,
+					region_name, ret);
+>>>>>>> upstream/android-13
 				goto out_fw;
 			}
 		}
@@ -2218,13 +2539,23 @@ static struct wm_coeff_ctl *wm_adsp_get_ctl(struct wm_adsp *dsp,
 					     unsigned int alg)
 {
 	struct wm_coeff_ctl *pos, *rslt = NULL;
+<<<<<<< HEAD
+=======
+	const char *fw_txt = wm_adsp_fw_text[dsp->fw];
+>>>>>>> upstream/android-13
 
 	list_for_each_entry(pos, &dsp->ctl_list, list) {
 		if (!pos->subname)
 			continue;
 		if (strncmp(pos->subname, name, pos->subname_len) == 0 &&
+<<<<<<< HEAD
 				pos->alg_region.alg == alg &&
 				pos->alg_region.type == type) {
+=======
+		    pos->fw_name == fw_txt &&
+		    pos->alg_region.alg == alg &&
+		    pos->alg_region.type == type) {
+>>>>>>> upstream/android-13
 			rslt = pos;
 			break;
 		}
@@ -2264,14 +2595,22 @@ int wm_adsp_write_ctl(struct wm_adsp *dsp, const char *name, int type,
 
 	kcontrol = snd_soc_card_get_kcontrol(dsp->component->card, ctl_name);
 	if (!kcontrol) {
+<<<<<<< HEAD
 		adsp_dbg(dsp, "Can't find kcontrol %s\n", ctl_name);
+=======
+		adsp_err(dsp, "Can't find kcontrol %s\n", ctl_name);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	snd_ctl_notify(dsp->component->card->snd_card,
 		       SNDRV_CTL_EVENT_MASK_VALUE, &kcontrol->id);
 
+<<<<<<< HEAD
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(wm_adsp_write_ctl);
 
@@ -2297,7 +2636,11 @@ static void wm_adsp_ctl_fixup_base(struct wm_adsp *dsp,
 	struct wm_coeff_ctl *ctl;
 
 	list_for_each_entry(ctl, &dsp->ctl_list, list) {
+<<<<<<< HEAD
 		if (ctl->fw_name == dsp->fw_enum.texts[dsp->fw] &&
+=======
+		if (ctl->fw_name == wm_adsp_fw_text[dsp->fw] &&
+>>>>>>> upstream/android-13
 		    alg_region->alg == ctl->alg_region.alg &&
 		    alg_region->type == ctl->alg_region.type) {
 			ctl->alg_region.base = alg_region->base;
@@ -2432,7 +2775,11 @@ static void wmfw_v3_parse_id_header(struct wm_adsp *dsp,
 }
 
 static int wm_adsp_create_regions(struct wm_adsp *dsp, __be32 id, int nregions,
+<<<<<<< HEAD
 				int *type, __be32 *base)
+=======
+				const int *type, __be32 *base)
+>>>>>>> upstream/android-13
 {
 	struct wm_adsp_alg_region *alg_region;
 	int i;
@@ -2448,7 +2795,11 @@ static int wm_adsp_create_regions(struct wm_adsp *dsp, __be32 id, int nregions,
 
 static int wm_adsp1_setup_algs(struct wm_adsp *dsp)
 {
+<<<<<<< HEAD
 	struct wmfw_adsp1_id_hdr *adsp1_id;
+=======
+	struct wmfw_adsp1_id_hdr adsp1_id;
+>>>>>>> upstream/android-13
 	struct wmfw_adsp1_alg_hdr *adsp1_alg;
 	struct wm_adsp_alg_region *alg_region;
 	const struct wm_adsp_region *mem;
@@ -2460,6 +2811,7 @@ static int wm_adsp1_setup_algs(struct wm_adsp *dsp)
 	if (WARN_ON(!mem))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	adsp1_id = kmalloc(sizeof(*adsp1_id), GFP_KERNEL | GFP_DMA);
 	if (!adsp1_id)
 		return -ENOMEM;
@@ -2499,6 +2851,37 @@ static int wm_adsp1_setup_algs(struct wm_adsp *dsp)
 		ret = PTR_ERR(adsp1_alg);
 		goto out_adsp1_id;
 	}
+=======
+	ret = regmap_raw_read(dsp->regmap, mem->base, &adsp1_id,
+			      sizeof(adsp1_id));
+	if (ret != 0) {
+		adsp_err(dsp, "Failed to read algorithm info: %d\n",
+			 ret);
+		return ret;
+	}
+
+	n_algs = be32_to_cpu(adsp1_id.n_algs);
+
+	wmfw_parse_id_header(dsp, &adsp1_id.fw, n_algs);
+
+	alg_region = wm_adsp_create_region(dsp, WMFW_ADSP1_ZM,
+					   adsp1_id.fw.id, adsp1_id.zm);
+	if (IS_ERR(alg_region))
+		return PTR_ERR(alg_region);
+
+	alg_region = wm_adsp_create_region(dsp, WMFW_ADSP1_DM,
+					   adsp1_id.fw.id, adsp1_id.dm);
+	if (IS_ERR(alg_region))
+		return PTR_ERR(alg_region);
+
+	/* Calculate offset and length in DSP words */
+	pos = sizeof(adsp1_id) / sizeof(u32);
+	len = (sizeof(*adsp1_alg) * n_algs) / sizeof(u32);
+
+	adsp1_alg = wm_adsp_read_algs(dsp, n_algs, mem, pos, len);
+	if (IS_ERR(adsp1_alg))
+		return PTR_ERR(adsp1_alg);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < n_algs; i++) {
 		adsp_info(dsp, "%d: ID %x v%d.%d.%d DM@%x ZM@%x\n",
@@ -2554,14 +2937,21 @@ static int wm_adsp1_setup_algs(struct wm_adsp *dsp)
 
 out:
 	kfree(adsp1_alg);
+<<<<<<< HEAD
 out_adsp1_id:
 	kfree(adsp1_id);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int wm_adsp2_setup_algs(struct wm_adsp *dsp)
 {
+<<<<<<< HEAD
 	struct wmfw_adsp2_id_hdr *adsp2_id;
+=======
+	struct wmfw_adsp2_id_hdr adsp2_id;
+>>>>>>> upstream/android-13
 	struct wmfw_adsp2_alg_hdr *adsp2_alg;
 	struct wm_adsp_alg_region *alg_region;
 	const struct wm_adsp_region *mem;
@@ -2573,6 +2963,7 @@ static int wm_adsp2_setup_algs(struct wm_adsp *dsp)
 	if (WARN_ON(!mem))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	adsp2_id = kmalloc(sizeof(*adsp2_id), GFP_KERNEL | GFP_DMA);
 	if (!adsp2_id)
 		return -ENOMEM;
@@ -2605,10 +2996,37 @@ static int wm_adsp2_setup_algs(struct wm_adsp *dsp)
 
 	alg_region = wm_adsp_create_region(dsp, WMFW_ADSP2_ZM,
 					   adsp2_id->fw.id, adsp2_id->zm);
+=======
+	ret = regmap_raw_read(dsp->regmap, mem->base, &adsp2_id,
+			      sizeof(adsp2_id));
+	if (ret != 0) {
+		adsp_err(dsp, "Failed to read algorithm info: %d\n",
+			 ret);
+		return ret;
+	}
+
+	n_algs = be32_to_cpu(adsp2_id.n_algs);
+
+	wmfw_parse_id_header(dsp, &adsp2_id.fw, n_algs);
+
+	alg_region = wm_adsp_create_region(dsp, WMFW_ADSP2_XM,
+					   adsp2_id.fw.id, adsp2_id.xm);
+	if (IS_ERR(alg_region))
+		return PTR_ERR(alg_region);
+
+	alg_region = wm_adsp_create_region(dsp, WMFW_ADSP2_YM,
+					   adsp2_id.fw.id, adsp2_id.ym);
+	if (IS_ERR(alg_region))
+		return PTR_ERR(alg_region);
+
+	alg_region = wm_adsp_create_region(dsp, WMFW_ADSP2_ZM,
+					   adsp2_id.fw.id, adsp2_id.zm);
+>>>>>>> upstream/android-13
 	if (IS_ERR(alg_region))
 		return PTR_ERR(alg_region);
 
 	/* Calculate offset and length in DSP words */
+<<<<<<< HEAD
 	pos = sizeof(*adsp2_id) / sizeof(u32);
 	len = (sizeof(*adsp2_alg) * n_algs) / sizeof(u32);
 
@@ -2617,6 +3035,14 @@ static int wm_adsp2_setup_algs(struct wm_adsp *dsp)
 		ret = PTR_ERR(adsp2_alg);
 		goto out_adsp2_id;
 	}
+=======
+	pos = sizeof(adsp2_id) / sizeof(u32);
+	len = (sizeof(*adsp2_alg) * n_algs) / sizeof(u32);
+
+	adsp2_alg = wm_adsp_read_algs(dsp, n_algs, mem, pos, len);
+	if (IS_ERR(adsp2_alg))
+		return PTR_ERR(adsp2_alg);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < n_algs; i++) {
 		adsp_info(dsp,
@@ -2695,15 +3121,22 @@ static int wm_adsp2_setup_algs(struct wm_adsp *dsp)
 
 out:
 	kfree(adsp2_alg);
+<<<<<<< HEAD
 out_adsp2_id:
 	kfree(adsp2_id);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static int wm_halo_create_regions(struct wm_adsp *dsp, __be32 id,
 				  __be32 xm_base, __be32 ym_base)
 {
+<<<<<<< HEAD
 	int types[] = {
+=======
+	static const int types[] = {
+>>>>>>> upstream/android-13
 		WMFW_ADSP2_XM, WMFW_HALO_XM_PACKED,
 		WMFW_ADSP2_YM, WMFW_HALO_YM_PACKED
 	};
@@ -2714,10 +3147,17 @@ static int wm_halo_create_regions(struct wm_adsp *dsp, __be32 id,
 
 static int wm_halo_setup_algs(struct wm_adsp *dsp)
 {
+<<<<<<< HEAD
 	struct wmfw_halo_id_hdr *halo_id;
 	struct wmfw_halo_alg_hdr *halo_alg;
 	const struct wm_adsp_region *mem;
 	unsigned int pos, len, block_rev;
+=======
+	struct wmfw_halo_id_hdr halo_id;
+	struct wmfw_halo_alg_hdr *halo_alg;
+	const struct wm_adsp_region *mem;
+	unsigned int pos, len;
+>>>>>>> upstream/android-13
 	size_t n_algs;
 	int i, ret;
 
@@ -2725,6 +3165,7 @@ static int wm_halo_setup_algs(struct wm_adsp *dsp)
 	if (WARN_ON(!mem))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	halo_id = kmalloc(sizeof(*halo_id), GFP_KERNEL | GFP_DMA);
 	if (!halo_id)
 		return -ENOMEM;
@@ -2754,10 +3195,27 @@ static int wm_halo_setup_algs(struct wm_adsp *dsp)
 
 	ret = wm_halo_create_regions(dsp, halo_id->fw.id,
 				     halo_id->xm_base, halo_id->ym_base);
+=======
+	ret = regmap_raw_read(dsp->regmap, mem->base, &halo_id,
+			      sizeof(halo_id));
+	if (ret != 0) {
+		adsp_err(dsp, "Failed to read algorithm info: %d\n",
+			 ret);
+		return ret;
+	}
+
+	n_algs = be32_to_cpu(halo_id.n_algs);
+
+	wmfw_v3_parse_id_header(dsp, &halo_id.fw, n_algs);
+
+	ret = wm_halo_create_regions(dsp, halo_id.fw.id,
+				     halo_id.xm_base, halo_id.ym_base);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* Calculate offset and length in DSP words */
+<<<<<<< HEAD
 	pos = sizeof(*halo_id) / sizeof(u32);
 	len = (sizeof(*halo_alg) * n_algs) / sizeof(u32);
 
@@ -2766,6 +3224,14 @@ static int wm_halo_setup_algs(struct wm_adsp *dsp)
 		ret = PTR_ERR(halo_alg);
 		goto out_halo_id;
 	}
+=======
+	pos = sizeof(halo_id) / sizeof(u32);
+	len = (sizeof(*halo_alg) * n_algs) / sizeof(u32);
+
+	halo_alg = wm_adsp_read_algs(dsp, n_algs, mem, pos, len);
+	if (IS_ERR(halo_alg))
+		return PTR_ERR(halo_alg);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < n_algs; i++) {
 		adsp_info(dsp,
@@ -2786,6 +3252,7 @@ static int wm_halo_setup_algs(struct wm_adsp *dsp)
 
 out:
 	kfree(halo_alg);
+<<<<<<< HEAD
 out_halo_id:
 	kfree(halo_id);
 	return ret;
@@ -2871,6 +3338,12 @@ out_vpu_id:
 }
 
 int wm_adsp_load_coeff(struct wm_adsp *dsp)
+=======
+	return ret;
+}
+
+static int wm_adsp_load_coeff(struct wm_adsp *dsp)
+>>>>>>> upstream/android-13
 {
 	LIST_HEAD(buf_list);
 	struct regmap *regmap = dsp->regmap;
@@ -2882,15 +3355,20 @@ int wm_adsp_load_coeff(struct wm_adsp *dsp)
 	const char *region_name;
 	int ret, pos, blocks, type, offset, reg;
 	char *file;
+<<<<<<< HEAD
 	unsigned int burst_multiple;
 
 	if (dsp->firmwares[dsp->fw].binfile &&
 	    !strcmp(dsp->firmwares[dsp->fw].binfile, "None"))
 		return 0;
+=======
+	struct wm_adsp_buf *buf;
+>>>>>>> upstream/android-13
 
 	file = kzalloc(PAGE_SIZE, GFP_KERNEL);
 	if (file == NULL)
 		return -ENOMEM;
+<<<<<<< HEAD
 
 	if (dsp->firmwares[dsp->fw].fullname && dsp->firmwares[dsp->fw].binfile)
 		snprintf(file, PAGE_SIZE, "%s",
@@ -2901,6 +3379,15 @@ int wm_adsp_load_coeff(struct wm_adsp *dsp)
 	else
 		snprintf(file, PAGE_SIZE, "%s-%s-%s.bin", dsp->part,
 			 dsp->fwf_name, dsp->firmwares[dsp->fw].file);
+=======
+	if (dsp->component->name_prefix)
+		snprintf(file, PAGE_SIZE, "%s-%s-%s-%s.bin", dsp->part, dsp->fwf_name,
+			wm_adsp_fw[dsp->fw].file, dsp->component->name_prefix);
+	else
+		snprintf(file, PAGE_SIZE, "%s-%s-%s.bin", dsp->part, dsp->fwf_name,
+			wm_adsp_fw[dsp->fw].file);
+
+>>>>>>> upstream/android-13
 	file[PAGE_SIZE - 1] = '\0';
 
 	ret = request_firmware(&firmware, file, dsp->dev);
@@ -2957,7 +3444,10 @@ int wm_adsp_load_coeff(struct wm_adsp *dsp)
 			 file, blocks, le32_to_cpu(blk->len), offset, type);
 
 		reg = 0;
+<<<<<<< HEAD
 		burst_multiple = 4;
+=======
+>>>>>>> upstream/android-13
 		region_name = "Unknown";
 		switch (type) {
 		case (WMFW_NAME_TEXT << 8):
@@ -2985,6 +3475,7 @@ int wm_adsp_load_coeff(struct wm_adsp *dsp)
 			}
 			break;
 
+<<<<<<< HEAD
 		case WMFW_HALO_PM_PACKED:
 			burst_multiple += 8; /* plus the 8 below yields 20 */
 			/* fall through */
@@ -2992,11 +3483,19 @@ int wm_adsp_load_coeff(struct wm_adsp *dsp)
 		case WMFW_HALO_YM_PACKED:
 			burst_multiple += 8; /* yields 12 */
 			/* fall through */
+=======
+>>>>>>> upstream/android-13
 		case WMFW_ADSP1_DM:
 		case WMFW_ADSP1_ZM:
 		case WMFW_ADSP2_XM:
 		case WMFW_ADSP2_YM:
+<<<<<<< HEAD
 		case WMFW_VPU_DM:
+=======
+		case WMFW_HALO_XM_PACKED:
+		case WMFW_HALO_YM_PACKED:
+		case WMFW_HALO_PM_PACKED:
+>>>>>>> upstream/android-13
 			adsp_dbg(dsp, "%s.%d: %d bytes in %x for %x\n",
 				 file, blocks, le32_to_cpu(blk->len),
 				 type, le32_to_cpu(blk->id));
@@ -3037,6 +3536,7 @@ int wm_adsp_load_coeff(struct wm_adsp *dsp)
 				goto out_fw;
 			}
 
+<<<<<<< HEAD
 			adsp_dbg(dsp, "%s.%d: Writing %d bytes at %x\n",
 				 file, blocks, le32_to_cpu(blk->len),
 				 reg);
@@ -3045,6 +3545,22 @@ int wm_adsp_load_coeff(struct wm_adsp *dsp)
 						   le32_to_cpu(blk->len),
 						   reg, &buf_list,
 						   burst_multiple);
+=======
+			buf = wm_adsp_buf_alloc(blk->data,
+						le32_to_cpu(blk->len),
+						&buf_list);
+			if (!buf) {
+				adsp_err(dsp, "Out of memory\n");
+				ret = -ENOMEM;
+				goto out_fw;
+			}
+
+			adsp_dbg(dsp, "%s.%d: Writing %d bytes at %x\n",
+				 file, blocks, le32_to_cpu(blk->len),
+				 reg);
+			ret = regmap_raw_write_async(regmap, reg, buf->buf,
+						     le32_to_cpu(blk->len));
+>>>>>>> upstream/android-13
 			if (ret != 0) {
 				adsp_err(dsp,
 					"%s.%d: Failed to write to %x in %s: %d\n",
@@ -3074,7 +3590,10 @@ out:
 	kfree(file);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(wm_adsp_load_coeff);
+=======
+>>>>>>> upstream/android-13
 
 static int wm_adsp_create_name(struct wm_adsp *dsp)
 {
@@ -3100,6 +3619,7 @@ static int wm_adsp_create_name(struct wm_adsp *dsp)
 	return 0;
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_OF)
 static int wm_adsp_of_parse_caps(struct wm_adsp *dsp,
 				 struct device_node *np,
@@ -3251,6 +3771,8 @@ static inline int wm_adsp_of_parse_adsp(struct wm_adsp *dsp)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int wm_adsp_common_init(struct wm_adsp *dsp)
 {
 	int ret;
@@ -3266,6 +3788,7 @@ static int wm_adsp_common_init(struct wm_adsp *dsp)
 
 	mutex_init(&dsp->pwr_lock);
 
+<<<<<<< HEAD
 	if (!dsp->dev->of_node || wm_adsp_of_parse_adsp(dsp) <= 0) {
 		dsp->num_firmwares = ARRAY_SIZE(wm_adsp_fw);
 		dsp->firmwares = wm_adsp_fw;
@@ -3281,6 +3804,8 @@ static int wm_adsp_common_init(struct wm_adsp *dsp)
 	dsp->fw_ctrl.put = wm_adsp_fw_put;
 	dsp->fw_ctrl.private_value = (unsigned long)&dsp->fw_enum;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3562,6 +4087,7 @@ err_mutex:
 	mutex_unlock(&dsp->pwr_lock);
 }
 
+<<<<<<< HEAD
 static int wm_halo_set_rate_block(struct wm_adsp *dsp,
 				  unsigned int rate_base,
 				  unsigned int n_rates,
@@ -3595,6 +4121,8 @@ static int wm_halo_set_rate_block(struct wm_adsp *dsp,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int wm_halo_configure_mpu(struct wm_adsp *dsp, unsigned int lock_regions)
 {
 	struct reg_sequence config[] = {
@@ -3669,11 +4197,19 @@ int wm_adsp2_preloader_put(struct snd_kcontrol *kcontrol,
 	struct wm_adsp *dsp = &dsps[mc->shift - 1];
 	char preload[32];
 
+<<<<<<< HEAD
 	if (dsp->preloaded == ucontrol->value.integer.value[0])
 		return 0;
 	snprintf(preload, ARRAY_SIZE(preload), "%s Preload", dsp->name);
 
 	if (ucontrol->value.integer.value[0] || dsp->toggle_preload)
+=======
+	snprintf(preload, ARRAY_SIZE(preload), "%s Preload", dsp->name);
+
+	dsp->preloaded = ucontrol->value.integer.value[0];
+
+	if (ucontrol->value.integer.value[0])
+>>>>>>> upstream/android-13
 		snd_soc_component_force_enable_pin(component, preload);
 	else
 		snd_soc_component_disable_pin(component, preload);
@@ -3682,6 +4218,7 @@ int wm_adsp2_preloader_put(struct snd_kcontrol *kcontrol,
 
 	flush_work(&dsp->boot_work);
 
+<<<<<<< HEAD
 	dsp->preloaded = ucontrol->value.integer.value[0];
 
 	if (dsp->toggle_preload) {
@@ -3689,6 +4226,8 @@ int wm_adsp2_preloader_put(struct snd_kcontrol *kcontrol,
 		snd_soc_dapm_sync(dapm);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(wm_adsp2_preloader_put);
@@ -3805,7 +4344,11 @@ int wm_adsp_event(struct snd_soc_dapm_widget *w,
 				goto err;
 		}
 
+<<<<<<< HEAD
 		if (dsp->firmwares[dsp->fw].num_caps != 0) {
+=======
+		if (wm_adsp_fw[dsp->fw].num_caps != 0) {
+>>>>>>> upstream/android-13
 			ret = wm_adsp_buffer_init(dsp);
 			if (ret < 0)
 				goto err;
@@ -3814,8 +4357,11 @@ int wm_adsp_event(struct snd_soc_dapm_widget *w,
 		dsp->running = true;
 
 		mutex_unlock(&dsp->pwr_lock);
+<<<<<<< HEAD
 
 		adsp_info(dsp, "Execution started\n");
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	case SND_SOC_DAPM_PRE_PMD:
@@ -3838,14 +4384,22 @@ int wm_adsp_event(struct snd_soc_dapm_widget *w,
 		if (dsp->ops->disable_core)
 			dsp->ops->disable_core(dsp);
 
+<<<<<<< HEAD
 		if (dsp->firmwares[dsp->fw].num_caps != 0)
+=======
+		if (wm_adsp_fw[dsp->fw].num_caps != 0)
+>>>>>>> upstream/android-13
 			wm_adsp_buffer_free(dsp);
 
 		dsp->fatal_error = false;
 
 		mutex_unlock(&dsp->pwr_lock);
 
+<<<<<<< HEAD
 		adsp_info(dsp, "Execution stopped\n");
+=======
+		adsp_dbg(dsp, "Execution stopped\n");
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -3865,6 +4419,7 @@ EXPORT_SYMBOL_GPL(wm_adsp_event);
 
 static int wm_halo_start_core(struct wm_adsp *dsp)
 {
+<<<<<<< HEAD
 	int ret;
 
 	adsp_dbg(dsp, "Setting RX rates.\n");
@@ -3888,6 +4443,12 @@ static int wm_halo_start_core(struct wm_adsp *dsp)
 	return regmap_update_bits(dsp->regmap,
 				  dsp->base + HALO_CCM_CORE_CONTROL,
 				  HALO_CORE_EN, HALO_CORE_EN);
+=======
+	return regmap_update_bits(dsp->regmap,
+				  dsp->base + HALO_CCM_CORE_CONTROL,
+				  HALO_CORE_RESET | HALO_CORE_EN,
+				  HALO_CORE_RESET | HALO_CORE_EN);
+>>>>>>> upstream/android-13
 }
 
 static void wm_halo_stop_core(struct wm_adsp *dsp)
@@ -3904,10 +4465,15 @@ int wm_adsp2_component_probe(struct wm_adsp *dsp, struct snd_soc_component *comp
 {
 	char preload[32];
 
+<<<<<<< HEAD
 	if (!dsp->no_preloader) {
 		snprintf(preload, ARRAY_SIZE(preload), "%s Preload", dsp->name);
 		snd_soc_component_disable_pin(component, preload);
 	}
+=======
+	snprintf(preload, ARRAY_SIZE(preload), "%s Preload", dsp->name);
+	snd_soc_component_disable_pin(component, preload);
+>>>>>>> upstream/android-13
 
 	wm_adsp2_init_debugfs(dsp, component);
 
@@ -3959,14 +4525,21 @@ int wm_adsp2_init(struct wm_adsp *dsp)
 
 	INIT_WORK(&dsp->boot_work, wm_adsp_boot_work);
 
+<<<<<<< HEAD
 	dsp->data_word_size = WM_ADSP_DATA_WORD_SIZE_DEFAULT;
 	dsp->data_word_mask = WM_ADSP_DATA_WORD_MASK_DEFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(wm_adsp2_init);
 
+<<<<<<< HEAD
 int wm_halo_init(struct wm_adsp *dsp, struct mutex *rate_lock)
+=======
+int wm_halo_init(struct wm_adsp *dsp)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -3978,6 +4551,7 @@ int wm_halo_init(struct wm_adsp *dsp, struct mutex *rate_lock)
 
 	INIT_WORK(&dsp->boot_work, wm_adsp_boot_work);
 
+<<<<<<< HEAD
 	dsp->rate_lock = rate_lock;
 	dsp->rx_rate_cache = kcalloc(dsp->n_rx_channels, sizeof(u8),
 				     GFP_KERNEL);
@@ -3987,10 +4561,13 @@ int wm_halo_init(struct wm_adsp *dsp, struct mutex *rate_lock)
 	dsp->data_word_size = WM_ADSP_DATA_WORD_SIZE_DEFAULT;
 	dsp->data_word_mask = WM_ADSP_DATA_WORD_MASK_DEFAULT;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(wm_halo_init);
 
+<<<<<<< HEAD
 int wm_vpu_init(struct wm_adsp *vpu)
 {
 	int ret;
@@ -4010,6 +4587,8 @@ int wm_vpu_init(struct wm_adsp *vpu)
 }
 EXPORT_SYMBOL_GPL(wm_vpu_init);
 
+=======
+>>>>>>> upstream/android-13
 void wm_adsp2_remove(struct wm_adsp *dsp)
 {
 	struct wm_coeff_ctl *ctl;
@@ -4020,9 +4599,12 @@ void wm_adsp2_remove(struct wm_adsp *dsp)
 		list_del(&ctl->list);
 		wm_adsp_free_ctl_blk(ctl);
 	}
+<<<<<<< HEAD
 
 	kfree(dsp->rx_rate_cache);
 	kfree(dsp->tx_rate_cache);
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(wm_adsp2_remove);
 
@@ -4077,24 +4659,42 @@ int wm_adsp_compr_open(struct wm_adsp *dsp, struct snd_compr_stream *stream)
 
 	mutex_lock(&dsp->pwr_lock);
 
+<<<<<<< HEAD
 	if (dsp->firmwares[dsp->fw].num_caps == 0) {
 		adsp_err(dsp, "%s: Firmware does not support compressed API\n",
 			 rtd->codec_dai->name);
+=======
+	if (wm_adsp_fw[dsp->fw].num_caps == 0) {
+		adsp_err(dsp, "%s: Firmware does not support compressed API\n",
+			 asoc_rtd_to_codec(rtd, 0)->name);
+>>>>>>> upstream/android-13
 		ret = -ENXIO;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (dsp->firmwares[dsp->fw].compr_direction != stream->direction) {
 		adsp_err(dsp, "%s: Firmware does not support stream direction\n",
 			 rtd->codec_dai->name);
+=======
+	if (wm_adsp_fw[dsp->fw].compr_direction != stream->direction) {
+		adsp_err(dsp, "%s: Firmware does not support stream direction\n",
+			 asoc_rtd_to_codec(rtd, 0)->name);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 		goto out;
 	}
 
 	list_for_each_entry(tmp, &dsp->compr_list, list) {
+<<<<<<< HEAD
 		if (!strcmp(tmp->name, rtd->codec_dai->name)) {
 			adsp_err(dsp, "%s: Only a single stream supported per dai\n",
 				 rtd->codec_dai->name);
+=======
+		if (!strcmp(tmp->name, asoc_rtd_to_codec(rtd, 0)->name)) {
+			adsp_err(dsp, "%s: Only a single stream supported per dai\n",
+				 asoc_rtd_to_codec(rtd, 0)->name);
+>>>>>>> upstream/android-13
 			ret = -EBUSY;
 			goto out;
 		}
@@ -4108,7 +4708,11 @@ int wm_adsp_compr_open(struct wm_adsp *dsp, struct snd_compr_stream *stream)
 
 	compr->dsp = dsp;
 	compr->stream = stream;
+<<<<<<< HEAD
 	compr->name = rtd->codec_dai->name;
+=======
+	compr->name = asoc_rtd_to_codec(rtd, 0)->name;
+>>>>>>> upstream/android-13
 
 	list_add_tail(&compr->list, &dsp->compr_list);
 
@@ -4121,7 +4725,12 @@ out:
 }
 EXPORT_SYMBOL_GPL(wm_adsp_compr_open);
 
+<<<<<<< HEAD
 int wm_adsp_compr_free(struct snd_compr_stream *stream)
+=======
+int wm_adsp_compr_free(struct snd_soc_component *component,
+		       struct snd_compr_stream *stream)
+>>>>>>> upstream/android-13
 {
 	struct wm_adsp_compr *compr = stream->runtime->private_data;
 	struct wm_adsp *dsp = compr->dsp;
@@ -4149,6 +4758,7 @@ static int wm_adsp_compr_check_params(struct snd_compr_stream *stream,
 	const struct snd_codec_desc *desc;
 	int i, j;
 
+<<<<<<< HEAD
 	if (params->buffer.fragment_size < (WM_ADSP_MIN_FRAGMENT_SIZE_WORDS
 					    * dsp->data_word_size) ||
 	    params->buffer.fragment_size > (WM_ADSP_MAX_FRAGMENT_SIZE_WORDS
@@ -4156,6 +4766,13 @@ static int wm_adsp_compr_check_params(struct snd_compr_stream *stream,
 	    params->buffer.fragments < WM_ADSP_MIN_FRAGMENTS ||
 	    params->buffer.fragments > WM_ADSP_MAX_FRAGMENTS ||
 	    params->buffer.fragment_size % dsp->data_word_size) {
+=======
+	if (params->buffer.fragment_size < WM_ADSP_MIN_FRAGMENT_SIZE ||
+	    params->buffer.fragment_size > WM_ADSP_MAX_FRAGMENT_SIZE ||
+	    params->buffer.fragments < WM_ADSP_MIN_FRAGMENTS ||
+	    params->buffer.fragments > WM_ADSP_MAX_FRAGMENTS ||
+	    params->buffer.fragment_size % WM_ADSP_DATA_WORD_SIZE) {
+>>>>>>> upstream/android-13
 		compr_err(compr, "Invalid buffer fragsize=%d fragments=%d\n",
 			  params->buffer.fragment_size,
 			  params->buffer.fragments);
@@ -4163,8 +4780,13 @@ static int wm_adsp_compr_check_params(struct snd_compr_stream *stream,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	for (i = 0; i < dsp->firmwares[dsp->fw].num_caps; i++) {
 		caps = &dsp->firmwares[dsp->fw].caps[i];
+=======
+	for (i = 0; i < wm_adsp_fw[dsp->fw].num_caps; i++) {
+		caps = &wm_adsp_fw[dsp->fw].caps[i];
+>>>>>>> upstream/android-13
 		desc = &caps->desc;
 
 		if (caps->id != params->codec.id)
@@ -4194,10 +4816,18 @@ static int wm_adsp_compr_check_params(struct snd_compr_stream *stream,
 
 static inline unsigned int wm_adsp_compr_frag_words(struct wm_adsp_compr *compr)
 {
+<<<<<<< HEAD
 	return compr->size.fragment_size / compr->dsp->data_word_size;
 }
 
 int wm_adsp_compr_set_params(struct snd_compr_stream *stream,
+=======
+	return compr->size.fragment_size / WM_ADSP_DATA_WORD_SIZE;
+}
+
+int wm_adsp_compr_set_params(struct snd_soc_component *component,
+			     struct snd_compr_stream *stream,
+>>>>>>> upstream/android-13
 			     struct snd_compr_params *params)
 {
 	struct wm_adsp_compr *compr = stream->runtime->private_data;
@@ -4224,6 +4854,7 @@ int wm_adsp_compr_set_params(struct snd_compr_stream *stream,
 }
 EXPORT_SYMBOL_GPL(wm_adsp_compr_set_params);
 
+<<<<<<< HEAD
 int wm_adsp_compr_get_caps(struct snd_compr_stream *stream,
 			   struct snd_compr_caps *caps)
 {
@@ -4243,6 +4874,25 @@ int wm_adsp_compr_get_caps(struct snd_compr_stream *stream,
 						* dsp->data_word_size;
 		caps->max_fragment_size = WM_ADSP_MAX_FRAGMENT_SIZE_WORDS
 						* dsp->data_word_size;
+=======
+int wm_adsp_compr_get_caps(struct snd_soc_component *component,
+			   struct snd_compr_stream *stream,
+			   struct snd_compr_caps *caps)
+{
+	struct wm_adsp_compr *compr = stream->runtime->private_data;
+	int fw = compr->dsp->fw;
+	int i;
+
+	if (wm_adsp_fw[fw].caps) {
+		for (i = 0; i < wm_adsp_fw[fw].num_caps; i++)
+			caps->codecs[i] = wm_adsp_fw[fw].caps[i].id;
+
+		caps->num_codecs = i;
+		caps->direction = wm_adsp_fw[fw].compr_direction;
+
+		caps->min_fragment_size = WM_ADSP_MIN_FRAGMENT_SIZE;
+		caps->max_fragment_size = WM_ADSP_MAX_FRAGMENT_SIZE;
+>>>>>>> upstream/android-13
 		caps->min_fragments = WM_ADSP_MIN_FRAGMENTS;
 		caps->max_fragments = WM_ADSP_MAX_FRAGMENTS;
 	}
@@ -4251,6 +4901,7 @@ int wm_adsp_compr_get_caps(struct snd_compr_stream *stream,
 }
 EXPORT_SYMBOL_GPL(wm_adsp_compr_get_caps);
 
+<<<<<<< HEAD
 static int wm_adsp_read_data_block(struct wm_adsp *dsp, int mem_type,
 				   unsigned int mem_addr,
 				   unsigned int num_words, u32 *data)
@@ -4258,6 +4909,14 @@ static int wm_adsp_read_data_block(struct wm_adsp *dsp, int mem_type,
 	struct wm_adsp_region const *mem = wm_adsp_find_region(dsp, mem_type);
 	unsigned int i, reg;
 	unsigned int data_word_mask = dsp->data_word_mask;
+=======
+static int wm_adsp_read_raw_data_block(struct wm_adsp *dsp, int mem_type,
+				       unsigned int mem_addr,
+				       unsigned int num_words, __be32 *data)
+{
+	struct wm_adsp_region const *mem = wm_adsp_find_region(dsp, mem_type);
+	unsigned int reg;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!mem)
@@ -4270,22 +4929,42 @@ static int wm_adsp_read_data_block(struct wm_adsp *dsp, int mem_type,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	for (i = 0; i < num_words; ++i)
 		data[i] = be32_to_cpu(data[i]) & data_word_mask;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static inline int wm_adsp_read_data_word(struct wm_adsp *dsp, int mem_type,
 					 unsigned int mem_addr, u32 *data)
 {
+<<<<<<< HEAD
 	return wm_adsp_read_data_block(dsp, mem_type, mem_addr, 1, data);
+=======
+	__be32 raw;
+	int ret;
+
+	ret = wm_adsp_read_raw_data_block(dsp, mem_type, mem_addr, 1, &raw);
+	if (ret < 0)
+		return ret;
+
+	*data = be32_to_cpu(raw) & 0x00ffffffu;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int wm_adsp_write_data_word(struct wm_adsp *dsp, int mem_type,
 				   unsigned int mem_addr, u32 data)
 {
 	struct wm_adsp_region const *mem = wm_adsp_find_region(dsp, mem_type);
+<<<<<<< HEAD
+=======
+	__be32 val = cpu_to_be32(data & 0x00ffffffu);
+>>>>>>> upstream/android-13
 	unsigned int reg;
 
 	if (!mem)
@@ -4293,9 +4972,13 @@ static int wm_adsp_write_data_word(struct wm_adsp *dsp, int mem_type,
 
 	reg = dsp->ops->region_to_reg(mem, mem_addr);
 
+<<<<<<< HEAD
 	data = cpu_to_be32(data & dsp->data_word_mask);
 
 	return regmap_raw_write(dsp->regmap, reg, &data, sizeof(data));
+=======
+	return regmap_raw_write(dsp->regmap, reg, &val, sizeof(val));
+>>>>>>> upstream/android-13
 }
 
 static inline int wm_adsp_buffer_read(struct wm_adsp_compr_buf *buf,
@@ -4312,6 +4995,7 @@ static inline int wm_adsp_buffer_write(struct wm_adsp_compr_buf *buf,
 				       buf->host_buf_ptr + field_offset, data);
 }
 
+<<<<<<< HEAD
 static void wm_adsp_remove_padding(u32 *buf, int nwords, int data_word_size)
 {
 	u8 *pack_in = (u8 *)buf;
@@ -4324,15 +5008,38 @@ static void wm_adsp_remove_padding(u32 *buf, int nwords, int data_word_size)
 			*pack_out++ = *pack_in++;
 
 		pack_in += sizeof(*buf) - data_word_size;
+=======
+static void wm_adsp_remove_padding(u32 *buf, int nwords)
+{
+	const __be32 *pack_in = (__be32 *)buf;
+	u8 *pack_out = (u8 *)buf;
+	int i;
+
+	/*
+	 * DSP words from the register map have pad bytes and the data bytes
+	 * are in swapped order. This swaps back to the original little-endian
+	 * order and strips the pad bytes.
+	 */
+	for (i = 0; i < nwords; i++) {
+		u32 word = be32_to_cpu(*pack_in++);
+		*pack_out++ = (u8)word;
+		*pack_out++ = (u8)(word >> 8);
+		*pack_out++ = (u8)(word >> 16);
+>>>>>>> upstream/android-13
 	}
 }
 
 static int wm_adsp_buffer_populate(struct wm_adsp_compr_buf *buf)
 {
+<<<<<<< HEAD
+=======
+	const struct wm_adsp_fw_caps *caps = wm_adsp_fw[buf->dsp->fw].caps;
+>>>>>>> upstream/android-13
 	struct wm_adsp_buffer_region *region;
 	u32 offset = 0;
 	int i, ret;
 
+<<<<<<< HEAD
 	switch (buf->dsp->type) {
 	case WMFW_ADSP1:
 	case WMFW_ADSP2:
@@ -4349,10 +5056,14 @@ static int wm_adsp_buffer_populate(struct wm_adsp_compr_buf *buf)
 	}
 
 	buf->regions = kcalloc(buf->num_regions, sizeof(*buf->regions),
+=======
+	buf->regions = kcalloc(caps->num_regions, sizeof(*buf->regions),
+>>>>>>> upstream/android-13
 			       GFP_KERNEL);
 	if (!buf->regions)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	for (i = 0; i < buf->num_regions; ++i) {
 		region = &buf->regions[i];
 
@@ -4360,11 +5071,24 @@ static int wm_adsp_buffer_populate(struct wm_adsp_compr_buf *buf)
 		region->mem_type = buf->region_def[i].mem_type;
 
 		ret = wm_adsp_buffer_read(buf, buf->region_def[i].base_offset,
+=======
+	for (i = 0; i < caps->num_regions; ++i) {
+		region = &buf->regions[i];
+
+		region->offset = offset;
+		region->mem_type = caps->region_defs[i].mem_type;
+
+		ret = wm_adsp_buffer_read(buf, caps->region_defs[i].base_offset,
+>>>>>>> upstream/android-13
 					  &region->base_addr);
 		if (ret < 0)
 			return ret;
 
+<<<<<<< HEAD
 		ret = wm_adsp_buffer_read(buf, buf->region_def[i].size_offset,
+=======
+		ret = wm_adsp_buffer_read(buf, caps->region_defs[i].size_offset,
+>>>>>>> upstream/android-13
 					  &offset);
 		if (ret < 0)
 			return ret;
@@ -4411,11 +5135,23 @@ static int wm_adsp_buffer_parse_legacy(struct wm_adsp *dsp)
 	u32 xmalg, addr, magic;
 	int i, ret;
 
+<<<<<<< HEAD
+=======
+	alg_region = wm_adsp_find_alg_region(dsp, WMFW_ADSP2_XM, dsp->fw_id);
+	if (!alg_region) {
+		adsp_err(dsp, "No algorithm region found\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	buf = wm_adsp_buffer_alloc(dsp);
 	if (!buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	alg_region = wm_adsp_find_alg_region(dsp, WMFW_ADSP2_XM, dsp->fw_id);
+=======
+>>>>>>> upstream/android-13
 	xmalg = dsp->ops->sys_config_size / sizeof(__be32);
 
 	addr = alg_region->base + xmalg + ALG_XM_FIELD(magic);
@@ -4448,12 +5184,15 @@ static int wm_adsp_buffer_parse_legacy(struct wm_adsp *dsp)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SND_SOC_WM_ADSP_ANDROID_R)
 	buf->ws = wakeup_source_register(dsp->dev, "legacy-buffer");
 #else
 	buf->ws = wakeup_source_register("legacy-buffer");
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	compr_dbg(buf, "legacy host_buf_ptr=%x\n", buf->host_buf_ptr);
 
 	return 0;
@@ -4461,27 +5200,47 @@ static int wm_adsp_buffer_parse_legacy(struct wm_adsp *dsp)
 
 static int wm_adsp_buffer_parse_coeff(struct wm_coeff_ctl *ctl)
 {
+<<<<<<< HEAD
 	int ret, i;
 	unsigned int val, reg;
 	struct wm_adsp_host_buf_coeff_v1 coeff_v1;
 	struct wm_adsp_compr_buf *buf;
+=======
+	struct wm_adsp_host_buf_coeff_v1 coeff_v1;
+	struct wm_adsp_compr_buf *buf;
+	unsigned int reg, version;
+	__be32 bufp;
+	int ret, i;
+>>>>>>> upstream/android-13
 
 	ret = wm_coeff_base_reg(ctl, &reg);
 	if (ret)
 		return ret;
 
 	for (i = 0; i < 5; ++i) {
+<<<<<<< HEAD
 		ret = regmap_raw_read(ctl->dsp->regmap, reg, &val, sizeof(val));
 		if (ret < 0)
 			return ret;
 
 		if (val)
+=======
+		ret = regmap_raw_read(ctl->dsp->regmap, reg, &bufp, sizeof(bufp));
+		if (ret < 0)
+			return ret;
+
+		if (bufp)
+>>>>>>> upstream/android-13
 			break;
 
 		usleep_range(1000, 2000);
 	}
 
+<<<<<<< HEAD
 	if (!val) {
+=======
+	if (!bufp) {
+>>>>>>> upstream/android-13
 		adsp_err(ctl->dsp, "Failed to acquire host buffer\n");
 		return -EIO;
 	}
@@ -4491,7 +5250,11 @@ static int wm_adsp_buffer_parse_coeff(struct wm_coeff_ctl *ctl)
 		return -ENOMEM;
 
 	buf->host_buf_mem_type = ctl->alg_region.type;
+<<<<<<< HEAD
 	buf->host_buf_ptr = be32_to_cpu(val);
+=======
+	buf->host_buf_ptr = be32_to_cpu(bufp);
+>>>>>>> upstream/android-13
 
 	ret = wm_adsp_buffer_populate(buf);
 	if (ret < 0)
@@ -4511,6 +5274,7 @@ static int wm_adsp_buffer_parse_coeff(struct wm_coeff_ctl *ctl)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	coeff_v1.versions = be32_to_cpu(coeff_v1.versions);
 	val = coeff_v1.versions & HOST_BUF_COEFF_COMPAT_VER_MASK;
 	val >>= HOST_BUF_COEFF_COMPAT_VER_SHIFT;
@@ -4528,10 +5292,24 @@ static int wm_adsp_buffer_parse_coeff(struct wm_coeff_ctl *ctl)
 	wm_adsp_remove_padding((u32 *)&coeff_v1.name,
 			       ARRAY_SIZE(coeff_v1.name),
 			       ctl->dsp->data_word_size);
+=======
+	version = be32_to_cpu(coeff_v1.versions) & HOST_BUF_COEFF_COMPAT_VER_MASK;
+	version >>= HOST_BUF_COEFF_COMPAT_VER_SHIFT;
+
+	if (version > HOST_BUF_COEFF_SUPPORTED_COMPAT_VER) {
+		adsp_err(ctl->dsp,
+			 "Host buffer coeff ver %u > supported version %u\n",
+			 version, HOST_BUF_COEFF_SUPPORTED_COMPAT_VER);
+		return -EINVAL;
+	}
+
+	wm_adsp_remove_padding((u32 *)&coeff_v1.name, ARRAY_SIZE(coeff_v1.name));
+>>>>>>> upstream/android-13
 
 	buf->name = kasprintf(GFP_KERNEL, "%s-dsp-%s", ctl->dsp->part,
 			      (char *)&coeff_v1.name);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_SND_SOC_WM_ADSP_ANDROID_R)
 	buf->ws = wakeup_source_register(ctl->dsp->dev, buf->name);
 #else
@@ -4542,6 +5320,12 @@ static int wm_adsp_buffer_parse_coeff(struct wm_coeff_ctl *ctl)
 		  buf->host_buf_ptr, val);
 
 	return val;
+=======
+	compr_dbg(buf, "host_buf_ptr=%x coeff version %u\n",
+		  buf->host_buf_ptr, version);
+
+	return version;
+>>>>>>> upstream/android-13
 }
 
 static int wm_adsp_buffer_init(struct wm_adsp *dsp)
@@ -4591,9 +5375,12 @@ static int wm_adsp_buffer_free(struct wm_adsp *dsp)
 
 		kfree(buf->name);
 		kfree(buf->regions);
+<<<<<<< HEAD
 		pm_wakeup_ws_event(buf->ws, 0, false);
 		wakeup_source_unregister(buf->ws);
 
+=======
+>>>>>>> upstream/android-13
 		list_del(&buf->list);
 		kfree(buf);
 	}
@@ -4618,7 +5405,12 @@ static int wm_adsp_buffer_get_error(struct wm_adsp_compr_buf *buf)
 	return 0;
 }
 
+<<<<<<< HEAD
 int wm_adsp_compr_trigger(struct snd_compr_stream *stream, int cmd)
+=======
+int wm_adsp_compr_trigger(struct snd_soc_component *component,
+			  struct snd_compr_stream *stream, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct wm_adsp_compr *compr = stream->runtime->private_data;
 	struct wm_adsp *dsp = compr->dsp;
@@ -4670,7 +5462,11 @@ EXPORT_SYMBOL_GPL(wm_adsp_compr_trigger);
 
 static inline int wm_adsp_buffer_size(struct wm_adsp_compr_buf *buf)
 {
+<<<<<<< HEAD
 	int last_region = buf->num_regions - 1;
+=======
+	int last_region = wm_adsp_fw[buf->dsp->fw].caps->num_regions - 1;
+>>>>>>> upstream/android-13
 
 	return buf->regions[last_region].cumulative_size;
 }
@@ -4711,6 +5507,7 @@ static int wm_adsp_buffer_update_avail(struct wm_adsp_compr_buf *buf)
 		avail += wm_adsp_buffer_size(buf);
 
 	compr_dbg(buf, "readindex=0x%x, writeindex=0x%x, avail=%d\n",
+<<<<<<< HEAD
 		 buf->read_index, write_index, avail * buf->dsp->data_word_size);
 
 	buf->avail = avail;
@@ -4718,6 +5515,12 @@ static int wm_adsp_buffer_update_avail(struct wm_adsp_compr_buf *buf)
 	if (avail)
 		pm_wakeup_ws_event(buf->ws, ADSP_COMPR_WAKEUP_TIMEOUT, false);
 
+=======
+		  buf->read_index, write_index, avail * WM_ADSP_DATA_WORD_SIZE);
+
+	buf->avail = avail;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -4756,12 +5559,17 @@ int wm_adsp_compr_handle_irq(struct wm_adsp *dsp)
 			goto out;
 		}
 
+<<<<<<< HEAD
 		if (dsp->firmwares[dsp->fw].voice_trigger &&
 		    buf->irq_count == 2) {
 			compr_err(buf, "Voice trigger on %sattached buffer\n",
 				  compr ? "" : "un");
 			ret = WM_ADSP_COMPR_VOICE_TRIGGER;
 		}
+=======
+		if (wm_adsp_fw[dsp->fw].voice_trigger && buf->irq_count == 2)
+			ret = WM_ADSP_COMPR_VOICE_TRIGGER;
+>>>>>>> upstream/android-13
 
 out_notify:
 		if (compr && compr->stream)
@@ -4784,13 +5592,21 @@ static int wm_adsp_buffer_reenable_irq(struct wm_adsp_compr_buf *buf)
 
 	buf->irq_count |= 0x01;
 
+<<<<<<< HEAD
 	pm_wakeup_ws_event(buf->ws, 0, false);
 
+=======
+>>>>>>> upstream/android-13
 	return wm_adsp_buffer_write(buf, HOST_BUFFER_FIELD(irq_ack),
 				    buf->irq_count);
 }
 
+<<<<<<< HEAD
 int wm_adsp_compr_pointer(struct snd_compr_stream *stream,
+=======
+int wm_adsp_compr_pointer(struct snd_soc_component *component,
+			  struct snd_compr_stream *stream,
+>>>>>>> upstream/android-13
 			  struct snd_compr_tstamp *tstamp)
 {
 	struct wm_adsp_compr *compr = stream->runtime->private_data;
@@ -4840,7 +5656,11 @@ int wm_adsp_compr_pointer(struct snd_compr_stream *stream,
 	}
 
 	tstamp->copied_total = compr->copied_total;
+<<<<<<< HEAD
 	tstamp->copied_total += buf->avail * dsp->data_word_size;
+=======
+	tstamp->copied_total += buf->avail * WM_ADSP_DATA_WORD_SIZE;
+>>>>>>> upstream/android-13
 	tstamp->sampling_rate = compr->sample_rate;
 
 out:
@@ -4856,6 +5676,7 @@ static int wm_adsp_buffer_capture_block(struct wm_adsp_compr *compr, int target)
 	unsigned int adsp_addr;
 	int mem_type, nwords, max_read;
 	int i, ret;
+<<<<<<< HEAD
 	int data_word_size = buf->dsp->data_word_size;
 
 	/* Calculate read parameters */
@@ -4864,6 +5685,15 @@ static int wm_adsp_buffer_capture_block(struct wm_adsp_compr *compr, int target)
 			break;
 
 	if (i == buf->num_regions)
+=======
+
+	/* Calculate read parameters */
+	for (i = 0; i < wm_adsp_fw[buf->dsp->fw].caps->num_regions; ++i)
+		if (buf->read_index < buf->regions[i].cumulative_size)
+			break;
+
+	if (i == wm_adsp_fw[buf->dsp->fw].caps->num_regions)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	mem_type = buf->regions[i].mem_type;
@@ -4883,12 +5713,21 @@ static int wm_adsp_buffer_capture_block(struct wm_adsp_compr *compr, int target)
 		return 0;
 
 	/* Read data from DSP */
+<<<<<<< HEAD
 	ret = wm_adsp_read_data_block(buf->dsp, mem_type, adsp_addr,
 				      nwords, compr->raw_buf);
 	if (ret < 0)
 		return ret;
 
 	wm_adsp_remove_padding(compr->raw_buf, nwords, data_word_size);
+=======
+	ret = wm_adsp_read_raw_data_block(buf->dsp, mem_type, adsp_addr,
+					  nwords, (__be32 *)compr->raw_buf);
+	if (ret < 0)
+		return ret;
+
+	wm_adsp_remove_padding(compr->raw_buf, nwords);
+>>>>>>> upstream/android-13
 
 	/* update read index to account for words read */
 	buf->read_index += nwords;
@@ -4920,7 +5759,11 @@ static int wm_adsp_compr_read(struct wm_adsp_compr *compr,
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	count /= dsp->data_word_size;
+=======
+	count /= WM_ADSP_DATA_WORD_SIZE;
+>>>>>>> upstream/android-13
 
 	do {
 		nwords = wm_adsp_buffer_capture_block(compr, count);
@@ -4930,7 +5773,11 @@ static int wm_adsp_compr_read(struct wm_adsp_compr *compr,
 			return nwords;
 		}
 
+<<<<<<< HEAD
 		nbytes = nwords * dsp->data_word_size;
+=======
+		nbytes = nwords * WM_ADSP_DATA_WORD_SIZE;
+>>>>>>> upstream/android-13
 
 		compr_dbg(compr, "Read %d bytes\n", nbytes);
 
@@ -4949,7 +5796,12 @@ static int wm_adsp_compr_read(struct wm_adsp_compr *compr,
 	return ntotal;
 }
 
+<<<<<<< HEAD
 int wm_adsp_compr_copy(struct snd_compr_stream *stream, char __user *buf,
+=======
+int wm_adsp_compr_copy(struct snd_soc_component *component,
+		       struct snd_compr_stream *stream, char __user *buf,
+>>>>>>> upstream/android-13
 		       size_t count)
 {
 	struct wm_adsp_compr *compr = stream->runtime->private_data;
@@ -4981,8 +5833,14 @@ static void wm_adsp_fatal_error(struct wm_adsp *dsp)
 	}
 }
 
+<<<<<<< HEAD
 irqreturn_t wm_adsp2_bus_error(struct wm_adsp *dsp)
 {
+=======
+irqreturn_t wm_adsp2_bus_error(int irq, void *data)
+{
+	struct wm_adsp *dsp = (struct wm_adsp *)data;
+>>>>>>> upstream/android-13
 	unsigned int val;
 	struct regmap *regmap = dsp->regmap;
 	int ret = 0;
@@ -5002,9 +5860,15 @@ irqreturn_t wm_adsp2_bus_error(struct wm_adsp *dsp)
 		wm_adsp_fatal_error(dsp);
 	}
 
+<<<<<<< HEAD
 	if (val & (ADSP2_SLAVE_ERR_MASK | ADSP2_REGION_LOCK_ERR_MASK)) {
 		if (val & ADSP2_SLAVE_ERR_MASK)
 			adsp_err(dsp, "bus error: slave error\n");
+=======
+	if (val & (ADSP2_ADDR_ERR_MASK | ADSP2_REGION_LOCK_ERR_MASK)) {
+		if (val & ADSP2_ADDR_ERR_MASK)
+			adsp_err(dsp, "bus error: address error\n");
+>>>>>>> upstream/android-13
 		else
 			adsp_err(dsp, "bus error: region lock error\n");
 
@@ -5046,10 +5910,18 @@ error:
 }
 EXPORT_SYMBOL_GPL(wm_adsp2_bus_error);
 
+<<<<<<< HEAD
 irqreturn_t wm_halo_bus_error(struct wm_adsp *dsp)
 {
 	struct regmap *regmap = dsp->regmap;
 	unsigned int *fault;
+=======
+irqreturn_t wm_halo_bus_error(int irq, void *data)
+{
+	struct wm_adsp *dsp = (struct wm_adsp *)data;
+	struct regmap *regmap = dsp->regmap;
+	unsigned int fault[6];
+>>>>>>> upstream/android-13
 	struct reg_sequence clear[] = {
 		{ dsp->base + HALO_MPU_XM_VIO_STATUS,     0x0 },
 		{ dsp->base + HALO_MPU_YM_VIO_STATUS,     0x0 },
@@ -5057,10 +5929,13 @@ irqreturn_t wm_halo_bus_error(struct wm_adsp *dsp)
 	};
 	int ret;
 
+<<<<<<< HEAD
 	fault = kcalloc(6, sizeof(*fault), GFP_KERNEL | GFP_DMA);
 	if (!fault)
 		return IRQ_NONE;
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&dsp->pwr_lock);
 
 	ret = regmap_read(regmap, dsp->base_sysinfo + HALO_AHBM_WINDOW_DEBUG_1,
@@ -5085,7 +5960,11 @@ irqreturn_t wm_halo_bus_error(struct wm_adsp *dsp)
 	adsp_warn(dsp, "AHB: SYS_ADDR: 0x%x\n", *fault);
 
 	ret = regmap_bulk_read(regmap, dsp->base + HALO_MPU_XM_VIO_ADDR,
+<<<<<<< HEAD
 			       fault, 6);
+=======
+			       fault, ARRAY_SIZE(fault));
+>>>>>>> upstream/android-13
 	if (ret) {
 		adsp_warn(dsp, "Failed to read MPU fault info: %d\n", ret);
 		goto exit_unlock;
@@ -5101,7 +5980,10 @@ irqreturn_t wm_halo_bus_error(struct wm_adsp *dsp)
 
 exit_unlock:
 	mutex_unlock(&dsp->pwr_lock);
+<<<<<<< HEAD
 	kfree(fault);
+=======
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -5123,13 +6005,21 @@ irqreturn_t wm_halo_wdt_expire(int irq, void *data)
 }
 EXPORT_SYMBOL_GPL(wm_halo_wdt_expire);
 
+<<<<<<< HEAD
 static struct wm_adsp_ops wm_adsp1_ops = {
+=======
+static const struct wm_adsp_ops wm_adsp1_ops = {
+>>>>>>> upstream/android-13
 	.validate_version = wm_adsp_validate_version,
 	.parse_sizes = wm_adsp1_parse_sizes,
 	.region_to_reg = wm_adsp_region_to_reg,
 };
 
+<<<<<<< HEAD
 static struct wm_adsp_ops wm_adsp2_ops[] = {
+=======
+static const struct wm_adsp_ops wm_adsp2_ops[] = {
+>>>>>>> upstream/android-13
 	{
 		.sys_config_size = sizeof(struct wm_adsp_system_config_xm_hdr),
 		.parse_sizes = wm_adsp2_parse_sizes,
@@ -5190,7 +6080,11 @@ static struct wm_adsp_ops wm_adsp2_ops[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct wm_adsp_ops wm_halo_ops = {
+=======
+static const struct wm_adsp_ops wm_halo_ops = {
+>>>>>>> upstream/android-13
 	.sys_config_size = sizeof(struct wm_halo_system_config_xm_hdr),
 	.parse_sizes = wm_adsp2_parse_sizes,
 	.validate_version = wm_halo_validate_version,
@@ -5206,6 +6100,7 @@ static struct wm_adsp_ops wm_halo_ops = {
 	.stop_core = wm_halo_stop_core,
 };
 
+<<<<<<< HEAD
 static struct wm_adsp_ops wm_vpu_ops = {
 	.parse_sizes = wm_vpu_parse_sizes,
 	.validate_version = wm_halo_validate_version,
@@ -5213,4 +6108,6 @@ static struct wm_adsp_ops wm_vpu_ops = {
 	.region_to_reg = wm_vpu_region_to_reg,
 };
 
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");

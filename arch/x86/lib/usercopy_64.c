@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* 
  * User address space access functions.
  *
@@ -38,8 +42,13 @@ unsigned long __clear_user(void __user *addr, unsigned long size)
 		"3:	lea 0(%[size1],%[size8],8),%[size8]\n"
 		"	jmp 2b\n"
 		".previous\n"
+<<<<<<< HEAD
 		_ASM_EXTABLE(0b,3b)
 		_ASM_EXTABLE(1b,2b)
+=======
+		_ASM_EXTABLE_UA(0b, 3b)
+		_ASM_EXTABLE_UA(1b, 2b)
+>>>>>>> upstream/android-13
 		: [size8] "=&c"(size), [dst] "=&D" (__d0)
 		: [size1] "r"(size & 7), "[size8]" (size / 8), "[dst]"(addr));
 	clac();
@@ -49,12 +58,17 @@ EXPORT_SYMBOL(__clear_user);
 
 unsigned long clear_user(void __user *to, unsigned long n)
 {
+<<<<<<< HEAD
 	if (access_ok(VERIFY_WRITE, to, n))
+=======
+	if (access_ok(to, n))
+>>>>>>> upstream/android-13
 		return __clear_user(to, n);
 	return n;
 }
 EXPORT_SYMBOL(clear_user);
 
+<<<<<<< HEAD
 /*
  * Try to copy last bytes and clear the rest if needed.
  * Since protection fault in copy_from/to_user is not a normal situation,
@@ -96,6 +110,8 @@ mcsafe_handle_tail(char *to, char *from, unsigned len)
 	return len;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE
 /**
  * clean_cache_range - write back a cache range with CLWB
@@ -154,14 +170,22 @@ long __copy_user_flushcache(void *dst, const void __user *src, unsigned size)
 	return rc;
 }
 
+<<<<<<< HEAD
 void memcpy_flushcache(void *_dst, const void *_src, size_t size)
+=======
+void __memcpy_flushcache(void *_dst, const void *_src, size_t size)
+>>>>>>> upstream/android-13
 {
 	unsigned long dest = (unsigned long) _dst;
 	unsigned long source = (unsigned long) _src;
 
 	/* cache copy and flush to align dest */
 	if (!IS_ALIGNED(dest, 8)) {
+<<<<<<< HEAD
 		unsigned len = min_t(unsigned, size, ALIGN(dest, 8) - dest);
+=======
+		size_t len = min_t(size_t, size, ALIGN(dest, 8) - dest);
+>>>>>>> upstream/android-13
 
 		memcpy((void *) dest, (void *) source, len);
 		clean_cache_range((void *) dest, len);
@@ -217,7 +241,11 @@ void memcpy_flushcache(void *_dst, const void *_src, size_t size)
 		clean_cache_range((void *) dest, size);
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(memcpy_flushcache);
+=======
+EXPORT_SYMBOL_GPL(__memcpy_flushcache);
+>>>>>>> upstream/android-13
 
 void memcpy_page_flushcache(char *to, struct page *page, size_t offset,
 		size_t len)

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Backlight driver for Maxim MAX8925
  *
  * Copyright (C) 2009 Marvell International Ltd.
  *      Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -67,6 +74,7 @@ out:
 
 static int max8925_backlight_update_status(struct backlight_device *bl)
 {
+<<<<<<< HEAD
 	int brightness = bl->props.brightness;
 
 	if (bl->props.power != FB_BLANK_UNBLANK)
@@ -79,6 +87,9 @@ static int max8925_backlight_update_status(struct backlight_device *bl)
 		brightness = 0;
 
 	return max8925_backlight_set(bl, brightness);
+=======
+	return max8925_backlight_set(bl, backlight_get_brightness(bl));
+>>>>>>> upstream/android-13
 }
 
 static int max8925_backlight_get_brightness(struct backlight_device *bl)

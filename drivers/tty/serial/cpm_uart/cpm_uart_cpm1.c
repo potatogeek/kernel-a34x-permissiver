@@ -19,7 +19,11 @@
 #include <linux/console.h>
 #include <linux/sysrq.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-mapping.h>
 
 #include <asm/io.h>

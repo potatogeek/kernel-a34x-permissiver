@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/nfs/write.c
  *
@@ -26,6 +30,10 @@
 #include <linux/iversion.h>
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/mm.h>
+>>>>>>> upstream/android-13
 
 #include "delegation.h"
 #include "internal.h"
@@ -55,6 +63,10 @@ static const struct rpc_call_ops nfs_commit_ops;
 static const struct nfs_pgio_completion_ops nfs_async_write_completion_ops;
 static const struct nfs_commit_completion_ops nfs_commit_completion_ops;
 static const struct nfs_rw_ops nfs_rw_write_ops;
+<<<<<<< HEAD
+=======
+static void nfs_inode_remove_request(struct nfs_page *req);
+>>>>>>> upstream/android-13
 static void nfs_clear_request_commit(struct nfs_page *req);
 static void nfs_init_cinfo_from_inode(struct nfs_commit_info *cinfo,
 				      struct inode *inode);
@@ -67,6 +79,7 @@ static mempool_t *nfs_wdata_mempool;
 static struct kmem_cache *nfs_cdata_cachep;
 static mempool_t *nfs_commit_mempool;
 
+<<<<<<< HEAD
 struct nfs_commit_data *nfs_commitdata_alloc(bool never_fail)
 {
 	struct nfs_commit_data *p;
@@ -88,6 +101,19 @@ struct nfs_commit_data *nfs_commitdata_alloc(bool never_fail)
 	}
 
 	memset(p, 0, sizeof(*p));
+=======
+struct nfs_commit_data *nfs_commitdata_alloc(void)
+{
+	struct nfs_commit_data *p;
+
+	p = kmem_cache_zalloc(nfs_cdata_cachep, nfs_io_gfp_mask());
+	if (!p) {
+		p = mempool_alloc(nfs_commit_mempool, GFP_NOWAIT);
+		if (!p)
+			return NULL;
+		memset(p, 0, sizeof(*p));
+	}
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&p->pages);
 	return p;
 }
@@ -101,9 +127,21 @@ EXPORT_SYMBOL_GPL(nfs_commit_free);
 
 static struct nfs_pgio_header *nfs_writehdr_alloc(void)
 {
+<<<<<<< HEAD
 	struct nfs_pgio_header *p = mempool_alloc(nfs_wdata_mempool, GFP_NOIO);
 
 	memset(p, 0, sizeof(*p));
+=======
+	struct nfs_pgio_header *p;
+
+	p = kmem_cache_zalloc(nfs_wdata_cachep, nfs_io_gfp_mask());
+	if (!p) {
+		p = mempool_alloc(nfs_wdata_mempool, GFP_NOWAIT);
+		if (!p)
+			return NULL;
+		memset(p, 0, sizeof(*p));
+	}
+>>>>>>> upstream/android-13
 	p->rw_mode = FMODE_WRITE;
 	return p;
 }
@@ -146,6 +184,34 @@ static void nfs_io_completion_put(struct nfs_io_completion *ioc)
 		kref_put(&ioc->refcount, nfs_io_completion_release);
 }
 
+<<<<<<< HEAD
+=======
+static void
+nfs_page_set_inode_ref(struct nfs_page *req, struct inode *inode)
+{
+	if (!test_and_set_bit(PG_INODE_REF, &req->wb_flags)) {
+		kref_get(&req->wb_kref);
+		atomic_long_inc(&NFS_I(inode)->nrequests);
+	}
+}
+
+static int
+nfs_cancel_remove_inode(struct nfs_page *req, struct inode *inode)
+{
+	int ret;
+
+	if (!test_bit(PG_REMOVE, &req->wb_flags))
+		return 0;
+	ret = nfs_page_group_lock(req);
+	if (ret)
+		return ret;
+	if (test_and_clear_bit(PG_REMOVE, &req->wb_flags))
+		nfs_page_set_inode_ref(req, inode);
+	nfs_page_group_unlock(req);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static struct nfs_page *
 nfs_page_private_request(struct page *page)
 {
@@ -215,6 +281,39 @@ static struct nfs_page *nfs_page_find_head_request(struct page *page)
 	return req;
 }
 
+<<<<<<< HEAD
+=======
+static struct nfs_page *nfs_find_and_lock_page_request(struct page *page)
+{
+	struct inode *inode = page_file_mapping(page)->host;
+	struct nfs_page *req, *head;
+	int ret;
+
+	for (;;) {
+		req = nfs_page_find_head_request(page);
+		if (!req)
+			return req;
+		head = nfs_page_group_lock_head(req);
+		if (head != req)
+			nfs_release_request(req);
+		if (IS_ERR(head))
+			return head;
+		ret = nfs_cancel_remove_inode(head, inode);
+		if (ret < 0) {
+			nfs_unlock_and_release_request(head);
+			return ERR_PTR(ret);
+		}
+		/* Ensure that nobody removed the request before we locked it */
+		if (head == nfs_page_private_request(page))
+			break;
+		if (PageSwapCache(page))
+			break;
+		nfs_unlock_and_release_request(head);
+	}
+	return head;
+}
+
+>>>>>>> upstream/android-13
 /* Adjust the file length if we're writing beyond the end */
 static void nfs_grow_file(struct page *page, unsigned int offset, unsigned int count)
 {
@@ -245,12 +344,33 @@ static void nfs_set_pageerror(struct address_space *mapping)
 	nfs_zap_mapping(mapping->host, mapping);
 	/* Force file size revalidation */
 	spin_lock(&inode->i_lock);
+<<<<<<< HEAD
 	NFS_I(inode)->cache_validity |= NFS_INO_REVAL_FORCED |
 					NFS_INO_REVAL_PAGECACHE |
 					NFS_INO_INVALID_SIZE;
 	spin_unlock(&inode->i_lock);
 }
 
+=======
+	nfs_set_cache_invalid(inode, NFS_INO_REVAL_FORCED |
+					     NFS_INO_REVAL_PAGECACHE |
+					     NFS_INO_INVALID_SIZE);
+	spin_unlock(&inode->i_lock);
+}
+
+static void nfs_mapping_set_error(struct page *page, int error)
+{
+	struct address_space *mapping = page_file_mapping(page);
+
+	SetPageError(page);
+	filemap_set_wb_err(mapping, error);
+	if (mapping->host)
+		errseq_set(&mapping->host->i_sb->s_wb_err,
+			   error == -ENOSPC ? -ENOSPC : -EIO);
+	nfs_set_pageerror(mapping);
+}
+
+>>>>>>> upstream/android-13
 /*
  * nfs_page_group_search_locked
  * @head - head request of page group
@@ -368,6 +488,7 @@ static void nfs_end_page_writeback(struct nfs_page *req)
 }
 
 /*
+<<<<<<< HEAD
  * nfs_unroll_locks_and_wait -  unlock all newly locked reqs and wait on @req
  *
  * this is a helper function for nfs_lock_and_join_requests
@@ -396,6 +517,8 @@ nfs_unroll_locks(struct inode *inode, struct nfs_page *head,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * nfs_destroy_unlinked_subrequests - destroy recently unlinked subrequests
  *
  * @destroy_list - request list (using wb_this_page) terminated by @old_head
@@ -452,11 +575,72 @@ nfs_destroy_unlinked_subrequests(struct nfs_page *destroy_list,
 }
 
 /*
+<<<<<<< HEAD
  * nfs_lock_and_join_requests - join all subreqs to the head req and return
  *                              a locked reference, cancelling any pending
  *                              operations for this page.
  *
  * @page - the page used to lookup the "page group" of nfs_page structures
+=======
+ * nfs_join_page_group - destroy subrequests of the head req
+ * @head: the page used to lookup the "page group" of nfs_page structures
+ * @inode: Inode to which the request belongs.
+ *
+ * This function joins all sub requests to the head request by first
+ * locking all requests in the group, cancelling any pending operations
+ * and finally updating the head request to cover the whole range covered by
+ * the (former) group.  All subrequests are removed from any write or commit
+ * lists, unlinked from the group and destroyed.
+ */
+void
+nfs_join_page_group(struct nfs_page *head, struct inode *inode)
+{
+	struct nfs_page *subreq;
+	struct nfs_page *destroy_list = NULL;
+	unsigned int pgbase, off, bytes;
+
+	pgbase = head->wb_pgbase;
+	bytes = head->wb_bytes;
+	off = head->wb_offset;
+	for (subreq = head->wb_this_page; subreq != head;
+			subreq = subreq->wb_this_page) {
+		/* Subrequests should always form a contiguous range */
+		if (pgbase > subreq->wb_pgbase) {
+			off -= pgbase - subreq->wb_pgbase;
+			bytes += pgbase - subreq->wb_pgbase;
+			pgbase = subreq->wb_pgbase;
+		}
+		bytes = max(subreq->wb_pgbase + subreq->wb_bytes
+				- pgbase, bytes);
+	}
+
+	/* Set the head request's range to cover the former page group */
+	head->wb_pgbase = pgbase;
+	head->wb_bytes = bytes;
+	head->wb_offset = off;
+
+	/* Now that all requests are locked, make sure they aren't on any list.
+	 * Commit list removal accounting is done after locks are dropped */
+	subreq = head;
+	do {
+		nfs_clear_request_commit(subreq);
+		subreq = subreq->wb_this_page;
+	} while (subreq != head);
+
+	/* unlink subrequests from head, destroy them later */
+	if (head->wb_this_page != head) {
+		/* destroy list will be terminated by head */
+		destroy_list = head->wb_this_page;
+		head->wb_this_page = head;
+	}
+
+	nfs_destroy_unlinked_subrequests(destroy_list, head, inode);
+}
+
+/*
+ * nfs_lock_and_join_requests - join all subreqs to the head req
+ * @page: the page used to lookup the "page group" of nfs_page structures
+>>>>>>> upstream/android-13
  *
  * This function joins all sub requests to the head request by first
  * locking all requests in the group, cancelling any pending operations
@@ -473,17 +657,24 @@ static struct nfs_page *
 nfs_lock_and_join_requests(struct page *page)
 {
 	struct inode *inode = page_file_mapping(page)->host;
+<<<<<<< HEAD
 	struct nfs_page *head, *subreq;
 	struct nfs_page *destroy_list = NULL;
 	unsigned int total_bytes;
 	int ret;
 
 try_again:
+=======
+	struct nfs_page *head;
+	int ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * A reference is taken only on the head request which acts as a
 	 * reference to the whole page group - the group will not be destroyed
 	 * until the head reference is released.
 	 */
+<<<<<<< HEAD
 	head = nfs_page_find_head_request(page);
 	if (!head)
 		return NULL;
@@ -616,6 +807,33 @@ nfs_error_is_fatal_on_server(int err)
 	return nfs_error_is_fatal(err);
 }
 
+=======
+	head = nfs_find_and_lock_page_request(page);
+	if (IS_ERR_OR_NULL(head))
+		return head;
+
+	/* lock each request in the page group */
+	ret = nfs_page_group_lock_subrequests(head);
+	if (ret < 0) {
+		nfs_unlock_and_release_request(head);
+		return ERR_PTR(ret);
+	}
+
+	nfs_join_page_group(head, inode);
+
+	return head;
+}
+
+static void nfs_write_error(struct nfs_page *req, int error)
+{
+	trace_nfs_write_error(req, error);
+	nfs_mapping_set_error(req->wb_page, error);
+	nfs_inode_remove_request(req);
+	nfs_end_page_writeback(req);
+	nfs_release_request(req);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Find an associated nfs write request, and prepare to flush it out
  * May return an error if the user signalled nfs_wait_on_request().
@@ -636,8 +854,13 @@ static int nfs_page_async_flush(struct nfs_pageio_descriptor *pgio,
 	nfs_set_page_writeback(page);
 	WARN_ON_ONCE(test_bit(PG_CLEAN, &req->wb_flags));
 
+<<<<<<< HEAD
 	ret = req->wb_context->error;
 	/* If there is a fatal error that covers this write, just exit */
+=======
+	/* If there is a fatal error that covers this write, just exit */
+	ret = pgio->pg_error;
+>>>>>>> upstream/android-13
 	if (nfs_error_is_fatal_on_server(ret))
 		goto out_launder;
 
@@ -648,19 +871,30 @@ static int nfs_page_async_flush(struct nfs_pageio_descriptor *pgio,
 		 * Remove the problematic req upon fatal errors on the server
 		 */
 		if (nfs_error_is_fatal(ret)) {
+<<<<<<< HEAD
 			nfs_context_set_write_error(req->wb_context, ret);
+=======
+>>>>>>> upstream/android-13
 			if (nfs_error_is_fatal_on_server(ret))
 				goto out_launder;
 		} else
 			ret = -EAGAIN;
 		nfs_redirty_request(req);
+<<<<<<< HEAD
+=======
+		pgio->pg_error = 0;
+>>>>>>> upstream/android-13
 	} else
 		nfs_add_stats(page_file_mapping(page)->host,
 				NFSIOS_WRITEPAGES, 1);
 out:
 	return ret;
 out_launder:
+<<<<<<< HEAD
 	nfs_write_error_remove_page(req);
+=======
+	nfs_write_error(req, ret);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -673,7 +907,11 @@ static int nfs_do_writepage(struct page *page, struct writeback_control *wbc,
 	ret = nfs_page_async_flush(pgio, page);
 	if (ret == -EAGAIN) {
 		redirty_page_for_writepage(wbc, page);
+<<<<<<< HEAD
 		ret = 0;
+=======
+		ret = AOP_WRITEPAGE_ACTIVATE;
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -692,10 +930,18 @@ static int nfs_writepage_locked(struct page *page,
 	nfs_pageio_init_write(&pgio, inode, 0,
 				false, &nfs_async_write_completion_ops);
 	err = nfs_do_writepage(page, wbc, &pgio);
+<<<<<<< HEAD
 	nfs_pageio_complete(&pgio);
 	if (err < 0)
 		return err;
 	if (pgio.pg_error < 0)
+=======
+	pgio.pg_error = 0;
+	nfs_pageio_complete(&pgio);
+	if (err < 0)
+		return err;
+	if (nfs_error_is_fatal(pgio.pg_error))
+>>>>>>> upstream/android-13
 		return pgio.pg_error;
 	return 0;
 }
@@ -705,7 +951,12 @@ int nfs_writepage(struct page *page, struct writeback_control *wbc)
 	int ret;
 
 	ret = nfs_writepage_locked(page, wbc);
+<<<<<<< HEAD
 	unlock_page(page);
+=======
+	if (ret != AOP_WRITEPAGE_ACTIVATE)
+		unlock_page(page);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -714,7 +965,12 @@ static int nfs_writepages_callback(struct page *page, struct writeback_control *
 	int ret;
 
 	ret = nfs_do_writepage(page, wbc, data);
+<<<<<<< HEAD
 	unlock_page(page);
+=======
+	if (ret != AOP_WRITEPAGE_ACTIVATE)
+		unlock_page(page);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -727,11 +983,18 @@ int nfs_writepages(struct address_space *mapping, struct writeback_control *wbc)
 {
 	struct inode *inode = mapping->host;
 	struct nfs_pageio_descriptor pgio;
+<<<<<<< HEAD
 	struct nfs_io_completion *ioc = nfs_io_completion_alloc(GFP_NOFS);
+=======
+	struct nfs_io_completion *ioc = NULL;
+	unsigned int mntflags = NFS_SERVER(inode)->flags;
+	int priority = 0;
+>>>>>>> upstream/android-13
 	int err;
 
 	nfs_inc_stats(inode, NFSIOS_VFSWRITEPAGES);
 
+<<<<<<< HEAD
 	if (ioc)
 		nfs_io_completion_init(ioc, nfs_io_completion_commit, inode);
 
@@ -739,13 +1002,33 @@ int nfs_writepages(struct address_space *mapping, struct writeback_control *wbc)
 				&nfs_async_write_completion_ops);
 	pgio.pg_io_completion = ioc;
 	err = write_cache_pages(mapping, wbc, nfs_writepages_callback, &pgio);
+=======
+	if (!(mntflags & NFS_MOUNT_WRITE_EAGER) || wbc->for_kupdate ||
+	    wbc->for_background || wbc->for_sync || wbc->for_reclaim) {
+		ioc = nfs_io_completion_alloc(GFP_KERNEL);
+		if (ioc)
+			nfs_io_completion_init(ioc, nfs_io_completion_commit,
+					       inode);
+		priority = wb_priority(wbc);
+	}
+
+	nfs_pageio_init_write(&pgio, inode, priority, false,
+				&nfs_async_write_completion_ops);
+	pgio.pg_io_completion = ioc;
+	err = write_cache_pages(mapping, wbc, nfs_writepages_callback, &pgio);
+	pgio.pg_error = 0;
+>>>>>>> upstream/android-13
 	nfs_pageio_complete(&pgio);
 	nfs_io_completion_put(ioc);
 
 	if (err < 0)
 		goto out_err;
 	err = pgio.pg_error;
+<<<<<<< HEAD
 	if (err < 0)
+=======
+	if (nfs_error_is_fatal(err))
+>>>>>>> upstream/android-13
 		goto out_err;
 	return 0;
 out_err:
@@ -770,9 +1053,12 @@ static void nfs_inode_add_request(struct inode *inode, struct nfs_page *req)
 	 * with invalidate/truncate.
 	 */
 	spin_lock(&mapping->private_lock);
+<<<<<<< HEAD
 	if (!nfs_have_writebacks(inode) &&
 	    NFS_PROTO(inode)->have_delegation(inode, FMODE_WRITE))
 		inode_inc_iversion_raw(inode);
+=======
+>>>>>>> upstream/android-13
 	if (likely(!PageSwapCache(req->wb_page))) {
 		set_bit(PG_MAPPED, &req->wb_flags);
 		SetPagePrivate(req->wb_page);
@@ -881,7 +1167,10 @@ EXPORT_SYMBOL_GPL(nfs_request_add_commit_list_locked);
 /**
  * nfs_request_add_commit_list - add request to a commit list
  * @req: pointer to a struct nfs_page
+<<<<<<< HEAD
  * @dst: commit list head
+=======
+>>>>>>> upstream/android-13
  * @cinfo: holds list lock and accounting info
  *
  * This sets the PG_CLEAN bit, updates the cinfo count of
@@ -960,9 +1249,15 @@ nfs_mark_request_commit(struct nfs_page *req, struct pnfs_layout_segment *lseg,
 static void
 nfs_clear_page_commit(struct page *page)
 {
+<<<<<<< HEAD
 	dec_node_page_state(page, NR_UNSTABLE_NFS);
 	dec_wb_stat(&inode_to_bdi(page_file_mapping(page)->host)->wb,
 		    WB_RECLAIMABLE);
+=======
+	dec_node_page_state(page, NR_WRITEBACK);
+	dec_wb_stat(&inode_to_bdi(page_file_mapping(page)->host)->wb,
+		    WB_WRITEBACK);
+>>>>>>> upstream/android-13
 }
 
 /* Called holding the request lock on @req */
@@ -970,7 +1265,12 @@ static void
 nfs_clear_request_commit(struct nfs_page *req)
 {
 	if (test_bit(PG_CLEAN, &req->wb_flags)) {
+<<<<<<< HEAD
 		struct inode *inode = d_inode(req->wb_context->dentry);
+=======
+		struct nfs_open_context *ctx = nfs_req_openctx(req);
+		struct inode *inode = d_inode(ctx->dentry);
+>>>>>>> upstream/android-13
 		struct nfs_commit_info cinfo;
 
 		nfs_init_cinfo_from_inode(&cinfo, inode);
@@ -1010,11 +1310,21 @@ static void nfs_write_completion(struct nfs_pgio_header *hdr)
 		nfs_list_remove_request(req);
 		if (test_bit(NFS_IOHDR_ERROR, &hdr->flags) &&
 		    (hdr->good_bytes < bytes)) {
+<<<<<<< HEAD
 			nfs_set_pageerror(page_file_mapping(req->wb_page));
 			nfs_context_set_write_error(req->wb_context, hdr->error);
 			goto remove_req;
 		}
 		if (nfs_write_need_commit(hdr)) {
+=======
+			trace_nfs_comp_error(req, hdr->error);
+			nfs_mapping_set_error(req->wb_page, hdr->error);
+			goto remove_req;
+		}
+		if (nfs_write_need_commit(hdr)) {
+			/* Reset wb_nio, since the write was successful. */
+			req->wb_nio = 0;
+>>>>>>> upstream/android-13
 			memcpy(&req->wb_verf, &hdr->verf.verifier, sizeof(req->wb_verf));
 			nfs_mark_request_commit(req, hdr->lseg, &cinfo,
 				hdr->pgio_mirror_idx);
@@ -1045,6 +1355,7 @@ nfs_scan_commit_list(struct list_head *src, struct list_head *dst,
 	struct nfs_page *req, *tmp;
 	int ret = 0;
 
+<<<<<<< HEAD
 restart:
 	list_for_each_entry_safe(req, tmp, src, wb_list) {
 		kref_get(&req->wb_kref);
@@ -1064,6 +1375,13 @@ restart:
 			if (status < 0)
 				break;
 			goto restart;
+=======
+	list_for_each_entry_safe(req, tmp, src, wb_list) {
+		kref_get(&req->wb_kref);
+		if (!nfs_lock_request(req)) {
+			nfs_release_request(req);
+			continue;
+>>>>>>> upstream/android-13
 		}
 		nfs_request_remove_commit_list(req, cinfo);
 		clear_bit(PG_COMMIT_TO_DS, &req->wb_flags);
@@ -1148,6 +1466,10 @@ static struct nfs_page *nfs_try_to_update_request(struct inode *inode,
 		req->wb_bytes = end - req->wb_offset;
 	else
 		req->wb_bytes = rqend - req->wb_offset;
+<<<<<<< HEAD
+=======
+	req->wb_nio = 0;
+>>>>>>> upstream/android-13
 	return req;
 out_flushme:
 	/*
@@ -1177,7 +1499,11 @@ static struct nfs_page * nfs_setup_write_request(struct nfs_open_context* ctx,
 	req = nfs_try_to_update_request(inode, page, offset, bytes);
 	if (req != NULL)
 		goto out;
+<<<<<<< HEAD
 	req = nfs_create_request(ctx, page, NULL, offset, bytes);
+=======
+	req = nfs_create_request(ctx, page, offset, bytes);
+>>>>>>> upstream/android-13
 	if (IS_ERR(req))
 		goto out;
 	nfs_inode_add_request(inode, req);
@@ -1222,7 +1548,11 @@ int nfs_flush_incompatible(struct file *file, struct page *page)
 			return 0;
 		l_ctx = req->wb_lock_context;
 		do_flush = req->wb_page != page ||
+<<<<<<< HEAD
 			!nfs_match_open_context(req->wb_context, ctx);
+=======
+			!nfs_match_open_context(nfs_req_openctx(req), ctx);
+>>>>>>> upstream/android-13
 		if (l_ctx && flctx &&
 		    !(list_empty_careful(&flctx->flc_posix) &&
 		      list_empty_careful(&flctx->flc_flock))) {
@@ -1250,9 +1580,18 @@ int
 nfs_key_timeout_notify(struct file *filp, struct inode *inode)
 {
 	struct nfs_open_context *ctx = nfs_file_open_context(filp);
+<<<<<<< HEAD
 	struct rpc_auth *auth = NFS_SERVER(inode)->client->cl_auth;
 
 	return rpcauth_key_timeout_notify(auth, ctx->cred);
+=======
+
+	if (nfs_ctx_key_to_expire(ctx, inode) &&
+	    !ctx->ll_cred)
+		/* Already expired! */
+		return -EACCES;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1261,8 +1600,28 @@ nfs_key_timeout_notify(struct file *filp, struct inode *inode)
 bool nfs_ctx_key_to_expire(struct nfs_open_context *ctx, struct inode *inode)
 {
 	struct rpc_auth *auth = NFS_SERVER(inode)->client->cl_auth;
+<<<<<<< HEAD
 
 	return rpcauth_cred_key_to_expire(auth, ctx->cred);
+=======
+	struct rpc_cred *cred = ctx->ll_cred;
+	struct auth_cred acred = {
+		.cred = ctx->cred,
+	};
+
+	if (cred && !cred->cr_ops->crmatch(&acred, cred, 0)) {
+		put_rpccred(cred);
+		ctx->ll_cred = NULL;
+		cred = NULL;
+	}
+	if (!cred)
+		cred = auth->au_ops->lookup_cred(auth, &acred, 0);
+	if (!cred || IS_ERR(cred))
+		return true;
+	ctx->ll_cred = cred;
+	return !!(cred->cr_ops->crkey_timeout &&
+		  cred->cr_ops->crkey_timeout(cred));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1270,12 +1629,18 @@ bool nfs_ctx_key_to_expire(struct nfs_open_context *ctx, struct inode *inode)
  * the PageUptodate() flag. In this case, we will need to turn off
  * write optimisations that depend on the page contents being correct.
  */
+<<<<<<< HEAD
 static bool nfs_write_pageuptodate(struct page *page, struct inode *inode)
+=======
+static bool nfs_write_pageuptodate(struct page *page, struct inode *inode,
+				   unsigned int pagelen)
+>>>>>>> upstream/android-13
 {
 	struct nfs_inode *nfsi = NFS_I(inode);
 
 	if (nfs_have_delegated_attributes(inode))
 		goto out;
+<<<<<<< HEAD
 	if (nfsi->cache_validity & NFS_INO_REVAL_PAGECACHE)
 		return false;
 	smp_rmb();
@@ -1283,6 +1648,16 @@ static bool nfs_write_pageuptodate(struct page *page, struct inode *inode)
 		return false;
 out:
 	if (nfsi->cache_validity & NFS_INO_INVALID_DATA)
+=======
+	if (nfsi->cache_validity &
+	    (NFS_INO_INVALID_CHANGE | NFS_INO_INVALID_SIZE))
+		return false;
+	smp_rmb();
+	if (test_bit(NFS_INO_INVALIDATING, &nfsi->flags) && pagelen != 0)
+		return false;
+out:
+	if (nfsi->cache_validity & NFS_INO_INVALID_DATA && pagelen != 0)
+>>>>>>> upstream/android-13
 		return false;
 	return PageUptodate(page) != 0;
 }
@@ -1302,7 +1677,12 @@ is_whole_file_wrlock(struct file_lock *fl)
  * If the file is opened for synchronous writes then we can just skip the rest
  * of the checks.
  */
+<<<<<<< HEAD
 static int nfs_can_extend_write(struct file *file, struct page *page, struct inode *inode)
+=======
+static int nfs_can_extend_write(struct file *file, struct page *page,
+				struct inode *inode, unsigned int pagelen)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct file_lock_context *flctx = inode->i_flctx;
@@ -1310,7 +1690,11 @@ static int nfs_can_extend_write(struct file *file, struct page *page, struct ino
 
 	if (file->f_flags & O_DSYNC)
 		return 0;
+<<<<<<< HEAD
 	if (!nfs_write_pageuptodate(page, inode))
+=======
+	if (!nfs_write_pageuptodate(page, inode, pagelen))
+>>>>>>> upstream/android-13
 		return 0;
 	if (NFS_PROTO(inode)->have_delegation(inode, FMODE_WRITE))
 		return 1;
@@ -1348,6 +1732,10 @@ int nfs_updatepage(struct file *file, struct page *page,
 	struct nfs_open_context *ctx = nfs_file_open_context(file);
 	struct address_space *mapping = page_file_mapping(page);
 	struct inode	*inode = mapping->host;
+<<<<<<< HEAD
+=======
+	unsigned int	pagelen = nfs_page_length(page);
+>>>>>>> upstream/android-13
 	int		status = 0;
 
 	nfs_inc_stats(inode, NFSIOS_VFSUPDATEPAGE);
@@ -1358,8 +1746,13 @@ int nfs_updatepage(struct file *file, struct page *page,
 	if (!count)
 		goto out;
 
+<<<<<<< HEAD
 	if (nfs_can_extend_write(file, page, inode)) {
 		count = max(count + offset, nfs_page_length(page));
+=======
+	if (nfs_can_extend_write(file, page, inode, pagelen)) {
+		count = max(count + offset, pagelen);
+>>>>>>> upstream/android-13
 		offset = 0;
 	}
 
@@ -1394,8 +1787,12 @@ static void nfs_initiate_write(struct nfs_pgio_header *hdr,
 
 	task_setup_data->priority = priority;
 	rpc_ops->write_setup(hdr, msg, &task_setup_data->rpc_client);
+<<<<<<< HEAD
 	trace_nfs_initiate_write(hdr->inode, hdr->io_start, hdr->good_bytes,
 				 hdr->args.stable);
+=======
+	trace_nfs_initiate_write(hdr);
+>>>>>>> upstream/android-13
 }
 
 /* If a nfs_flush_* function fails, it should remove reqs from @head and
@@ -1404,8 +1801,15 @@ static void nfs_initiate_write(struct nfs_pgio_header *hdr,
  */
 static void nfs_redirty_request(struct nfs_page *req)
 {
+<<<<<<< HEAD
 	nfs_mark_request_dirty(req);
 	set_bit(NFS_CONTEXT_RESEND_WRITES, &req->wb_context->flags);
+=======
+	/* Bump the transmission count */
+	req->wb_nio++;
+	nfs_mark_request_dirty(req);
+	set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
+>>>>>>> upstream/android-13
 	nfs_end_page_writeback(req);
 	nfs_release_request(req);
 }
@@ -1417,6 +1821,7 @@ static void nfs_async_write_error(struct list_head *head, int error)
 	while (!list_empty(head)) {
 		req = nfs_list_entry(head->next);
 		nfs_list_remove_request(req);
+<<<<<<< HEAD
 		if (nfs_error_is_fatal(error)) {
 			nfs_context_set_write_error(req->wb_context, error);
 			if (nfs_error_is_fatal_on_server(error)) {
@@ -1425,6 +1830,12 @@ static void nfs_async_write_error(struct list_head *head, int error)
 			}
 		}
 		nfs_redirty_request(req);
+=======
+		if (nfs_error_is_fatal(error))
+			nfs_write_error(req, error);
+		else
+			nfs_redirty_request(req);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1561,8 +1972,12 @@ static int nfs_writeback_done(struct rpc_task *task,
 		return status;
 
 	nfs_add_stats(inode, NFSIOS_SERVERWRITTENBYTES, hdr->res.count);
+<<<<<<< HEAD
 	trace_nfs_writeback_done(inode, task->tk_status,
 				 hdr->args.offset, hdr->res.verf);
+=======
+	trace_nfs_writeback_done(task, hdr);
+>>>>>>> upstream/android-13
 
 	if (hdr->res.verf->committed < hdr->args.stable &&
 	    task->tk_status >= 0) {
@@ -1589,7 +2004,11 @@ static int nfs_writeback_done(struct rpc_task *task,
 	/* Deal with the suid/sgid bit corner case */
 	if (nfs_should_remove_suid(inode)) {
 		spin_lock(&inode->i_lock);
+<<<<<<< HEAD
 		NFS_I(inode)->cache_validity |= NFS_INO_INVALID_OTHER;
+=======
+		nfs_set_cache_invalid(inode, NFS_INO_INVALID_MODE);
+>>>>>>> upstream/android-13
 		spin_unlock(&inode->i_lock);
 	}
 	return 0;
@@ -1642,6 +2061,11 @@ static void nfs_writeback_result(struct rpc_task *task,
 			 */
 			argp->stable = NFS_FILE_SYNC;
 		}
+<<<<<<< HEAD
+=======
+		resp->count = 0;
+		resp->verf->committed = 0;
+>>>>>>> upstream/android-13
 		rpc_restart_call_prepare(task);
 	}
 }
@@ -1657,10 +2081,20 @@ static void nfs_commit_begin(struct nfs_mds_commit_info *cinfo)
 	atomic_inc(&cinfo->rpcs_out);
 }
 
+<<<<<<< HEAD
 static void nfs_commit_end(struct nfs_mds_commit_info *cinfo)
 {
 	if (atomic_dec_and_test(&cinfo->rpcs_out))
 		wake_up_var(&cinfo->rpcs_out);
+=======
+bool nfs_commit_end(struct nfs_mds_commit_info *cinfo)
+{
+	if (atomic_dec_and_test(&cinfo->rpcs_out)) {
+		wake_up_var(&cinfo->rpcs_out);
+		return true;
+	}
+	return false;
+>>>>>>> upstream/android-13
 }
 
 void nfs_commitdata_release(struct nfs_commit_data *data)
@@ -1728,16 +2162,34 @@ void nfs_init_commit(struct nfs_commit_data *data,
 		     struct pnfs_layout_segment *lseg,
 		     struct nfs_commit_info *cinfo)
 {
+<<<<<<< HEAD
 	struct nfs_page *first = nfs_list_entry(head->next);
 	struct inode *inode = d_inode(first->wb_context->dentry);
+=======
+	struct nfs_page *first;
+	struct nfs_open_context *ctx;
+	struct inode *inode;
+>>>>>>> upstream/android-13
 
 	/* Set up the RPC argument and reply structs
 	 * NB: take care not to mess about with data->commit et al. */
 
+<<<<<<< HEAD
 	list_splice_init(head, &data->pages);
 
 	data->inode	  = inode;
 	data->cred	  = first->wb_context->cred;
+=======
+	if (head)
+		list_splice_init(head, &data->pages);
+
+	first = nfs_list_entry(data->pages.next);
+	ctx = nfs_req_openctx(first);
+	inode = d_inode(ctx->dentry);
+
+	data->inode	  = inode;
+	data->cred	  = ctx->cred;
+>>>>>>> upstream/android-13
 	data->lseg	  = lseg; /* reference transferred */
 	/* only set lwb for pnfs commit */
 	if (lseg)
@@ -1750,10 +2202,18 @@ void nfs_init_commit(struct nfs_commit_data *data,
 	/* Note: we always request a commit of the entire inode */
 	data->args.offset = 0;
 	data->args.count  = 0;
+<<<<<<< HEAD
 	data->context     = get_nfs_open_context(first->wb_context);
 	data->res.fattr   = &data->fattr;
 	data->res.verf    = &data->verf;
 	nfs_fattr_init(&data->fattr);
+=======
+	data->context     = get_nfs_open_context(ctx);
+	data->res.fattr   = &data->fattr;
+	data->res.verf    = &data->verf;
+	nfs_fattr_init(&data->fattr);
+	nfs_commit_begin(cinfo->mds);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nfs_init_commit);
 
@@ -1790,11 +2250,16 @@ nfs_commit_list(struct inode *inode, struct list_head *head, int how,
 		struct nfs_commit_info *cinfo)
 {
 	struct nfs_commit_data	*data;
+<<<<<<< HEAD
+=======
+	unsigned short task_flags = 0;
+>>>>>>> upstream/android-13
 
 	/* another commit raced with us */
 	if (list_empty(head))
 		return 0;
 
+<<<<<<< HEAD
 	data = nfs_commitdata_alloc(true);
 
 	/* Set up the argument struct */
@@ -1802,6 +2267,21 @@ nfs_commit_list(struct inode *inode, struct list_head *head, int how,
 	atomic_inc(&cinfo->mds->rpcs_out);
 	return nfs_initiate_commit(NFS_CLIENT(inode), data, NFS_PROTO(inode),
 				   data->mds_ops, how, 0);
+=======
+	data = nfs_commitdata_alloc();
+	if (!data) {
+		nfs_retry_commit(head, NULL, cinfo, -1);
+		return -ENOMEM;
+	}
+
+	/* Set up the argument struct */
+	nfs_init_commit(data, head, NULL, cinfo);
+	if (NFS_SERVER(inode)->nfs_client->cl_minorversion)
+		task_flags = RPC_TASK_MOVEABLE;
+	return nfs_initiate_commit(NFS_CLIENT(inode), data, NFS_PROTO(inode),
+				   data->mds_ops, how,
+				   RPC_TASK_CRED_NOREF | task_flags);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1816,7 +2296,11 @@ static void nfs_commit_done(struct rpc_task *task, void *calldata)
 
 	/* Call the NFS version-specific code */
 	NFS_PROTO(data->inode)->commit_done(task, data);
+<<<<<<< HEAD
 	trace_nfs_commit_done(data);
+=======
+	trace_nfs_commit_done(task, data);
+>>>>>>> upstream/android-13
 }
 
 static void nfs_commit_release_pages(struct nfs_commit_data *data)
@@ -1834,6 +2318,7 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
 			nfs_clear_page_commit(req->wb_page);
 
 		dprintk("NFS:       commit (%s/%llu %d@%lld)",
+<<<<<<< HEAD
 			req->wb_context->dentry->d_sb->s_id,
 			(unsigned long long)NFS_FILEID(d_inode(req->wb_context->dentry)),
 			req->wb_bytes,
@@ -1842,14 +2327,30 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
 			nfs_context_set_write_error(req->wb_context, status);
 			if (req->wb_page)
 				nfs_inode_remove_request(req);
+=======
+			nfs_req_openctx(req)->dentry->d_sb->s_id,
+			(unsigned long long)NFS_FILEID(d_inode(nfs_req_openctx(req)->dentry)),
+			req->wb_bytes,
+			(long long)req_offset(req));
+		if (status < 0) {
+			if (req->wb_page) {
+				trace_nfs_commit_error(req, status);
+				nfs_mapping_set_error(req->wb_page, status);
+				nfs_inode_remove_request(req);
+			}
+>>>>>>> upstream/android-13
 			dprintk_cont(", error = %d\n", status);
 			goto next;
 		}
 
 		/* Okay, COMMIT succeeded, apparently. Check the verifier
 		 * returned by the server against all stored verfs. */
+<<<<<<< HEAD
 		if (verf->committed > NFS_UNSTABLE &&
 		    !nfs_write_verifier_cmp(&req->wb_verf, &verf->verifier)) {
+=======
+		if (nfs_write_match_verf(verf, req)) {
+>>>>>>> upstream/android-13
 			/* We have a match */
 			if (req->wb_page)
 				nfs_inode_remove_request(req);
@@ -1859,7 +2360,11 @@ static void nfs_commit_release_pages(struct nfs_commit_data *data)
 		/* We have a mismatch. Write the page again */
 		dprintk_cont(" mismatch\n");
 		nfs_mark_request_dirty(req);
+<<<<<<< HEAD
 		set_bit(NFS_CONTEXT_RESEND_WRITES, &req->wb_context->flags);
+=======
+		set_bit(NFS_CONTEXT_RESEND_WRITES, &nfs_req_openctx(req)->flags);
+>>>>>>> upstream/android-13
 	next:
 		nfs_unlock_and_release_request(req);
 		/* Latency breaker */
@@ -1911,6 +2416,10 @@ static int __nfs_commit_inode(struct inode *inode, int how,
 	int may_wait = how & FLUSH_SYNC;
 	int ret, nscan;
 
+<<<<<<< HEAD
+=======
+	how &= ~FLUSH_SYNC;
+>>>>>>> upstream/android-13
 	nfs_init_cinfo_from_inode(&cinfo, inode);
 	nfs_commit_begin(cinfo.mds);
 	for (;;) {
@@ -2148,7 +2657,11 @@ int __init nfs_init_writepagecache(void)
 	 * This allows larger machines to have larger/more transfers.
 	 * Limit the default to 256M
 	 */
+<<<<<<< HEAD
 	nfs_congestion_kb = (16*int_sqrt(totalram_pages)) << (PAGE_SHIFT-10);
+=======
+	nfs_congestion_kb = (16*int_sqrt(totalram_pages())) << (PAGE_SHIFT-10);
+>>>>>>> upstream/android-13
 	if (nfs_congestion_kb > 256*1024)
 		nfs_congestion_kb = 256*1024;
 

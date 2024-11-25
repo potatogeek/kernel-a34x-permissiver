@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43legacy wireless driver
@@ -10,6 +14,7 @@
   Copyright (C) 2002 David S. Miller
   Copyright (C) Pekka Pietikainen
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -202,7 +209,11 @@ return dev->dma.tx_ring1;
 	switch (queue_priority) {
 	default:
 		B43legacy_WARN_ON(1);
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		ring = dev->dma.tx_ring3;
 		break;
@@ -226,6 +237,7 @@ return dev->dma.tx_ring1;
 	return ring;
 }
 
+<<<<<<< HEAD
 /* Bcm4301-ring to mac80211-queue mapping */
 static inline int txring_to_priority(struct b43legacy_dmaring *ring)
 {
@@ -239,6 +251,8 @@ return 0;
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static u16 b43legacy_dmacontroller_base(enum b43legacy_dmatype type,
 					int controller_idx)
 {
@@ -331,9 +345,15 @@ void free_descriptor_buffer(struct b43legacy_dmaring *ring,
 static int alloc_ringmemory(struct b43legacy_dmaring *ring)
 {
 	/* GFP flags must match the flags in free_ringmemory()! */
+<<<<<<< HEAD
 	ring->descbase = dma_zalloc_coherent(ring->dev->dev->dma_dev,
 					     B43legacy_DMA_RINGMEMSIZE,
 					     &(ring->dmabase), GFP_KERNEL);
+=======
+	ring->descbase = dma_alloc_coherent(ring->dev->dev->dma_dev,
+					    B43legacy_DMA_RINGMEMSIZE,
+					    &(ring->dmabase), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring->descbase)
 		return -ENOMEM;
 
@@ -616,7 +636,11 @@ static void free_all_descbuffers(struct b43legacy_dmaring *ring)
 	}
 }
 
+<<<<<<< HEAD
 static u64 supported_dma_mask(struct b43legacy_wldev *dev)
+=======
+static enum b43legacy_dmatype b43legacy_engine_type(struct b43legacy_wldev *dev)
+>>>>>>> upstream/android-13
 {
 	u32 tmp;
 	u16 mmio_base;
@@ -628,6 +652,7 @@ static u64 supported_dma_mask(struct b43legacy_wldev *dev)
 	tmp = b43legacy_read32(dev, mmio_base +
 			       B43legacy_DMA32_TXCTL);
 	if (tmp & B43legacy_DMA32_TXADDREXT_MASK)
+<<<<<<< HEAD
 		return DMA_BIT_MASK(32);
 
 	return DMA_BIT_MASK(30);
@@ -640,6 +665,9 @@ static enum b43legacy_dmatype dma_mask_to_engine_type(u64 dmamask)
 	if (dmamask == DMA_BIT_MASK(32))
 		return B43legacy_DMA_32BIT;
 	B43legacy_WARN_ON(1);
+=======
+		return B43legacy_DMA_32BIT;
+>>>>>>> upstream/android-13
 	return B43legacy_DMA_30BIT;
 }
 
@@ -797,6 +825,7 @@ void b43legacy_dma_free(struct b43legacy_wldev *dev)
 	dma->tx_ring0 = NULL;
 }
 
+<<<<<<< HEAD
 static int b43legacy_dma_set_mask(struct b43legacy_wldev *dev, u64 mask)
 {
 	u64 orig_mask = mask;
@@ -834,10 +863,13 @@ static int b43legacy_dma_set_mask(struct b43legacy_wldev *dev, u64 mask)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 int b43legacy_dma_init(struct b43legacy_wldev *dev)
 {
 	struct b43legacy_dma *dma = &dev->dma;
 	struct b43legacy_dmaring *ring;
+<<<<<<< HEAD
 	int err;
 	u64 dmamask;
 	enum b43legacy_dmatype type;
@@ -845,6 +877,12 @@ int b43legacy_dma_init(struct b43legacy_wldev *dev)
 	dmamask = supported_dma_mask(dev);
 	type = dma_mask_to_engine_type(dmamask);
 	err = b43legacy_dma_set_mask(dev, dmamask);
+=======
+	enum b43legacy_dmatype type = b43legacy_engine_type(dev);
+	int err;
+
+	err = dma_set_mask_and_coherent(dev->dev->dma_dev, DMA_BIT_MASK(type));
+>>>>>>> upstream/android-13
 	if (err) {
 #ifdef CONFIG_B43LEGACY_PIO
 		b43legacywarn(dev->wl, "DMA for this device not supported. "
@@ -1149,7 +1187,11 @@ int b43legacy_dma_tx(struct b43legacy_wldev *dev,
 		return -ENOSPC;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(WARN_ON(free_slots(ring) < SLOTS_PER_PACKET))) {
+=======
+	if (WARN_ON(free_slots(ring) < SLOTS_PER_PACKET)) {
+>>>>>>> upstream/android-13
 		/* If we get here, we have a real error with the queue
 		 * full, but queues not stopped. */
 		b43legacyerr(dev->wl, "DMA queue overflow\n");

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014-2015, Qualcomm Atheros, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2014-2015, Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef AES_GCM_H

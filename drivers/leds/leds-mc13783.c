@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * LEDs driver for Freescale MC13783/MC13892/MC34708
  *
@@ -9,10 +13,13 @@
  *
  * Copyright (C) 2006-2008 Marvell International Ltd.
  *      Eric Miao <eric.miao@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -124,7 +131,11 @@ static struct mc13xxx_leds_platform_data __init *mc13xxx_led_probe_dt(
 	if (!pdata)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	parent = of_get_child_by_name(dev->parent->of_node, "leds");
+=======
+	parent = of_get_child_by_name(dev_of_node(dev->parent), "leds");
+>>>>>>> upstream/android-13
 	if (!parent)
 		goto out_node_put;
 
@@ -134,7 +145,11 @@ static struct mc13xxx_leds_platform_data __init *mc13xxx_led_probe_dt(
 	if (ret)
 		goto out_node_put;
 
+<<<<<<< HEAD
 	pdata->num_leds = of_get_child_count(parent);
+=======
+	pdata->num_leds = of_get_available_child_count(parent);
+>>>>>>> upstream/android-13
 
 	pdata->led = devm_kcalloc(dev, pdata->num_leds, sizeof(*pdata->led),
 				  GFP_KERNEL);
@@ -143,7 +158,11 @@ static struct mc13xxx_leds_platform_data __init *mc13xxx_led_probe_dt(
 		goto out_node_put;
 	}
 
+<<<<<<< HEAD
 	for_each_child_of_node(parent, child) {
+=======
+	for_each_available_child_of_node(parent, child) {
+>>>>>>> upstream/android-13
 		const char *str;
 		u32 tmp;
 
@@ -195,7 +214,11 @@ static int __init mc13xxx_led_probe(struct platform_device *pdev)
 	leds->master = mcdev;
 	platform_set_drvdata(pdev, leds);
 
+<<<<<<< HEAD
 	if (dev->parent->of_node) {
+=======
+	if (dev_of_node(dev->parent)) {
+>>>>>>> upstream/android-13
 		pdata = mc13xxx_led_probe_dt(pdev);
 		if (IS_ERR(pdata))
 			return PTR_ERR(pdata);

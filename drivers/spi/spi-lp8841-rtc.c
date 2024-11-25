@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SPI master driver for ICP DAS LP-8841 RTC
  *
@@ -8,6 +12,7 @@
  * Dallas DS1302 RTC Support
  * Copyright (C) 2002 David McCullough
  * Copyright (C) 2003 - 2007 Paul Mundt
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/kernel.h>
@@ -194,7 +201,10 @@ spi_lp8841_rtc_probe(struct platform_device *pdev)
 	int				ret;
 	struct spi_master		*master;
 	struct spi_lp8841_rtc		*data;
+<<<<<<< HEAD
 	void				*iomem;
+=======
+>>>>>>> upstream/android-13
 
 	master = spi_alloc_master(&pdev->dev, sizeof(*data));
 	if (!master)
@@ -216,8 +226,12 @@ spi_lp8841_rtc_probe(struct platform_device *pdev)
 
 	data = spi_master_get_devdata(master);
 
+<<<<<<< HEAD
 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	data->iomem = devm_ioremap_resource(&pdev->dev, iomem);
+=======
+	data->iomem = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	ret = PTR_ERR_OR_ZERO(data->iomem);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to get IO address\n");

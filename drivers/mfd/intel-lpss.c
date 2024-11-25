@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel Sunrisepoint LPSS core support.
  *
@@ -7,10 +11,13 @@
  *          Mika Westerberg <mika.westerberg@linux.intel.com>
  *          Heikki Krogerus <heikki.krogerus@linux.intel.com>
  *          Jarkko Nikula <jarkko.nikula@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -18,6 +25,10 @@
 #include <linux/clk-provider.h>
 #include <linux/debugfs.h>
 #include <linux/idr.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -28,6 +39,11 @@
 #include <linux/seq_file.h>
 #include <linux/io-64-nonatomic-lo-hi.h>
 
+<<<<<<< HEAD
+=======
+#include <linux/dma/idma64.h>
+
+>>>>>>> upstream/android-13
 #include "intel-lpss.h"
 
 #define LPSS_DEV_OFFSET		0x000
@@ -47,10 +63,17 @@
 #define LPSS_PRIV_IDLELTR		0x14
 
 #define LPSS_PRIV_LTR_REQ		BIT(15)
+<<<<<<< HEAD
 #define LPSS_PRIV_LTR_SCALE_MASK	0xc00
 #define LPSS_PRIV_LTR_SCALE_1US		0x800
 #define LPSS_PRIV_LTR_SCALE_32US	0xc00
 #define LPSS_PRIV_LTR_VALUE_MASK	0x3ff
+=======
+#define LPSS_PRIV_LTR_SCALE_MASK	GENMASK(11, 10)
+#define LPSS_PRIV_LTR_SCALE_1US		(2 << 10)
+#define LPSS_PRIV_LTR_SCALE_32US	(3 << 10)
+#define LPSS_PRIV_LTR_VALUE_MASK	GENMASK(9, 0)
+>>>>>>> upstream/android-13
 
 #define LPSS_PRIV_SSP_REG		0x20
 #define LPSS_PRIV_SSP_REG_DIS_DMA_FIN	BIT(0)
@@ -59,8 +82,13 @@
 
 #define LPSS_PRIV_CAPS			0xfc
 #define LPSS_PRIV_CAPS_NO_IDMA		BIT(8)
+<<<<<<< HEAD
 #define LPSS_PRIV_CAPS_TYPE_SHIFT	4
 #define LPSS_PRIV_CAPS_TYPE_MASK	(0xf << LPSS_PRIV_CAPS_TYPE_SHIFT)
+=======
+#define LPSS_PRIV_CAPS_TYPE_MASK	GENMASK(7, 4)
+#define LPSS_PRIV_CAPS_TYPE_SHIFT	4
+>>>>>>> upstream/android-13
 
 /* This matches the type field in CAPS register */
 enum intel_lpss_dev_type {
@@ -96,8 +124,11 @@ static const struct resource intel_lpss_idma64_resources[] = {
 	DEFINE_RES_IRQ(0),
 };
 
+<<<<<<< HEAD
 #define LPSS_IDMA64_DRIVER_NAME		"idma64"
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Cells needs to be ordered so that the iDMA is created first. This is
  * because we need to be sure the DMA is available when the host controller
@@ -130,6 +161,7 @@ static const struct mfd_cell intel_lpss_spi_cell = {
 static DEFINE_IDA(intel_lpss_devid_ida);
 static struct dentry *intel_lpss_debugfs;
 
+<<<<<<< HEAD
 static int intel_lpss_request_dma_module(const char *name)
 {
 	static bool intel_lpss_dma_requested;
@@ -141,6 +173,8 @@ static int intel_lpss_request_dma_module(const char *name)
 	return request_module("%s", name);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void intel_lpss_cache_ltr(struct intel_lpss *lpss)
 {
 	lpss->active_ltr = readl(lpss->priv + LPSS_PRIV_ACTIVELTR);
@@ -314,7 +348,12 @@ static int intel_lpss_register_clock_divider(struct intel_lpss *lpss,
 
 	snprintf(name, sizeof(name), "%s-div", devname);
 	tmp = clk_register_fractional_divider(NULL, name, __clk_get_name(tmp),
+<<<<<<< HEAD
 					      0, lpss->priv, 1, 15, 16, 15, 0,
+=======
+					      CLK_FRAC_DIVIDER_POWER_OF_TWO_PS,
+					      lpss->priv, 1, 15, 16, 15, 0,
+>>>>>>> upstream/android-13
 					      NULL);
 	if (IS_ERR(tmp))
 		return PTR_ERR(tmp);
@@ -412,7 +451,11 @@ int intel_lpss_probe(struct device *dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	lpss->cell->properties = info->properties;
+=======
+	lpss->cell->swnode = info->swnode;
+>>>>>>> upstream/android-13
 
 	intel_lpss_init_dev(lpss);
 
@@ -431,6 +474,7 @@ int intel_lpss_probe(struct device *dev,
 		dev_warn(dev, "Failed to create debugfs entries\n");
 
 	if (intel_lpss_has_idma(lpss)) {
+<<<<<<< HEAD
 		/*
 		 * Ensure the DMA driver is loaded before the host
 		 * controller device appears, so that the host controller
@@ -441,6 +485,8 @@ int intel_lpss_probe(struct device *dev,
 		 */
 		intel_lpss_request_dma_module(LPSS_IDMA64_DRIVER_NAME);
 
+=======
+>>>>>>> upstream/android-13
 		ret = mfd_add_devices(dev, lpss->devid, &intel_lpss_idma64_cell,
 				      1, info->mem, info->irq, NULL);
 		if (ret)
@@ -556,3 +602,14 @@ MODULE_AUTHOR("Heikki Krogerus <heikki.krogerus@linux.intel.com>");
 MODULE_AUTHOR("Jarkko Nikula <jarkko.nikula@linux.intel.com>");
 MODULE_DESCRIPTION("Intel LPSS core driver");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
+=======
+/*
+ * Ensure the DMA driver is loaded before the host controller device appears,
+ * so that the host controller driver can request its DMA channels as early
+ * as possible.
+ *
+ * If the DMA module is not there that's OK as well.
+ */
+MODULE_SOFTDEP("pre: platform:" LPSS_IDMA64_DRIVER_NAME);
+>>>>>>> upstream/android-13

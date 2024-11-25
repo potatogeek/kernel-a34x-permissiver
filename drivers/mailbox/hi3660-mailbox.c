@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 // Copyright (c) 2017-2018 Hisilicon Limited.
+=======
+// Copyright (c) 2017-2018 HiSilicon Limited.
+>>>>>>> upstream/android-13
 // Copyright (c) 2017-2018 Linaro Limited.
 
 #include <linux/bitops.h>
@@ -38,6 +42,10 @@
 #define MBOX_AUTOMATIC_ACK		1
 
 #define MBOX_STATE_IDLE			BIT(4)
+<<<<<<< HEAD
+=======
+#define MBOX_STATE_READY		BIT(5)
+>>>>>>> upstream/android-13
 #define MBOX_STATE_ACK			BIT(7)
 
 #define MBOX_MSG_LEN			8
@@ -91,8 +99,13 @@ static int hi3660_mbox_check_state(struct mbox_chan *chan)
 	unsigned long val;
 	unsigned int ret;
 
+<<<<<<< HEAD
 	/* Mailbox is idle so directly bail out */
 	if (readl(base + MBOX_MODE_REG) & MBOX_STATE_IDLE)
+=======
+	/* Mailbox is ready to use */
+	if (readl(base + MBOX_MODE_REG) & MBOX_STATE_READY)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/* Wait for acknowledge from remote */
@@ -103,9 +116,15 @@ static int hi3660_mbox_check_state(struct mbox_chan *chan)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* Ensure channel is released */
 	writel(0xffffffff, base + MBOX_IMASK_REG);
 	writel(BIT(mchan->ack_irq), base + MBOX_SRC_REG);
+=======
+	/* clear ack state, mailbox will get back to ready state */
+	writel(BIT(mchan->ack_irq), base + MBOX_ICLR_REG);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -160,10 +179,13 @@ static int hi3660_mbox_startup(struct mbox_chan *chan)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = hi3660_mbox_check_state(chan);
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	ret = hi3660_mbox_unlock(chan);
 	if (ret)
 		return ret;
@@ -183,10 +205,18 @@ static int hi3660_mbox_send_data(struct mbox_chan *chan, void *msg)
 	void __iomem *base = MBOX_BASE(mbox, ch);
 	u32 *buf = msg;
 	unsigned int i;
+<<<<<<< HEAD
 
 	/* Ensure channel is released */
 	writel_relaxed(0xffffffff, base + MBOX_IMASK_REG);
 	writel_relaxed(BIT(mchan->ack_irq), base + MBOX_SRC_REG);
+=======
+	int ret;
+
+	ret = hi3660_mbox_check_state(chan);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Clear mask for destination interrupt */
 	writel_relaxed(~BIT(mchan->dst_irq), base + MBOX_IMASK_REG);
@@ -206,7 +236,11 @@ static int hi3660_mbox_send_data(struct mbox_chan *chan, void *msg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct mbox_chan_ops hi3660_mbox_ops = {
+=======
+static const struct mbox_chan_ops hi3660_mbox_ops = {
+>>>>>>> upstream/android-13
 	.startup	= hi3660_mbox_startup,
 	.send_data	= hi3660_mbox_send_data,
 };
@@ -267,7 +301,11 @@ static int hi3660_mbox_probe(struct platform_device *pdev)
 	for (ch = 0; ch < MBOX_CHAN_MAX; ch++)
 		chan[ch].con_priv = (void *)ch;
 
+<<<<<<< HEAD
 	err = mbox_controller_register(&mbox->controller);
+=======
+	err = devm_mbox_controller_register(dev, &mbox->controller);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(dev, "Failed to register mailbox %d\n", err);
 		return err;
@@ -278,6 +316,7 @@ static int hi3660_mbox_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hi3660_mbox_remove(struct platform_device *pdev)
 {
 	struct hi3660_mbox *mbox = platform_get_drvdata(pdev);
@@ -289,6 +328,10 @@ static int hi3660_mbox_remove(struct platform_device *pdev)
 static struct platform_driver hi3660_mbox_driver = {
 	.probe  = hi3660_mbox_probe,
 	.remove = hi3660_mbox_remove,
+=======
+static struct platform_driver hi3660_mbox_driver = {
+	.probe  = hi3660_mbox_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "hi3660-mbox",
 		.of_match_table = hi3660_mbox_of_match,

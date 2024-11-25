@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -59,6 +60,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2013-2014, 2018-2019 Intel Corporation
+ * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+ * Copyright (C) 2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_coex_h__
 #define __iwl_fw_api_coex_h__
 
@@ -197,12 +206,20 @@ enum iwl_bt_mxbox_dw3 {
 					 "\t%s: %d%s",			    \
 					 #_field,			    \
 					 BT_MBOX_MSG(notif, _num, _field),  \
+<<<<<<< HEAD
 					 true ? "\n" : ", ");
+=======
+					 true ? "\n" : ", ")
+>>>>>>> upstream/android-13
 enum iwl_bt_activity_grading {
 	BT_OFF			= 0,
 	BT_ON_NO_CONNECTION	= 1,
 	BT_LOW_TRAFFIC		= 2,
 	BT_HIGH_TRAFFIC		= 3,
+<<<<<<< HEAD
+=======
+	BT_VERY_HIGH_TRAFFIC	= 4,
+>>>>>>> upstream/android-13
 
 	BT_MAX_AG,
 }; /* BT_COEX_BT_ACTIVITY_GRADING_API_E_VER_1 */

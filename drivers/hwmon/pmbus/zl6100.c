@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hardware monitoring driver for ZL6100 and compatibles
  *
  * Copyright (c) 2011 Ericsson AB.
  * Copyright (c) 2012 Guenter Roeck
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -31,7 +38,11 @@
 #include "pmbus.h"
 
 enum chips { zl2004, zl2005, zl2006, zl2008, zl2105, zl2106, zl6100, zl6105,
+<<<<<<< HEAD
 	     zl9101, zl9117 };
+=======
+	     zl8802, zl9101, zl9117, zls1003, zls4009 };
+>>>>>>> upstream/android-13
 
 struct zl6100_data {
 	int id;
@@ -47,6 +58,16 @@ struct zl6100_data {
 
 #define ZL6100_MFR_XTEMP_ENABLE		BIT(7)
 
+<<<<<<< HEAD
+=======
+#define ZL8802_MFR_USER_GLOBAL_CONFIG	0xe9
+#define ZL8802_MFR_TMON_ENABLE		BIT(12)
+#define ZL8802_MFR_USER_CONFIG		0xd1
+#define ZL8802_MFR_XTEMP_ENABLE_2	BIT(1)
+#define ZL8802_MFR_DDC_CONFIG		0xd3
+#define ZL8802_MFR_PHASES_MASK		0x0007
+
+>>>>>>> upstream/android-13
 #define MFR_VMON_OV_FAULT_LIMIT		0xf5
 #define MFR_VMON_UV_FAULT_LIMIT		0xf6
 #define MFR_READ_VMON			0xf7
@@ -138,13 +159,22 @@ static inline void zl6100_wait(const struct zl6100_data *data)
 	}
 }
 
+<<<<<<< HEAD
 static int zl6100_read_word_data(struct i2c_client *client, int page, int reg)
+=======
+static int zl6100_read_word_data(struct i2c_client *client, int page,
+				 int phase, int reg)
+>>>>>>> upstream/android-13
 {
 	const struct pmbus_driver_info *info = pmbus_get_driver_info(client);
 	struct zl6100_data *data = to_zl6100_data(info);
 	int ret, vreg;
 
+<<<<<<< HEAD
 	if (page > 0)
+=======
+	if (page >= info->pages)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	if (data->id == zl2005) {
@@ -180,7 +210,11 @@ static int zl6100_read_word_data(struct i2c_client *client, int page, int reg)
 	}
 
 	zl6100_wait(data);
+<<<<<<< HEAD
 	ret = pmbus_read_word_data(client, page, vreg);
+=======
+	ret = pmbus_read_word_data(client, page, phase, vreg);
+>>>>>>> upstream/android-13
 	data->access = ktime_get();
 	if (ret < 0)
 		return ret;
@@ -203,7 +237,11 @@ static int zl6100_read_byte_data(struct i2c_client *client, int page, int reg)
 	struct zl6100_data *data = to_zl6100_data(info);
 	int ret, status;
 
+<<<<<<< HEAD
 	if (page > 0)
+=======
+	if (page >= info->pages)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	zl6100_wait(data);
@@ -242,7 +280,11 @@ static int zl6100_write_word_data(struct i2c_client *client, int page, int reg,
 	struct zl6100_data *data = to_zl6100_data(info);
 	int ret, vreg;
 
+<<<<<<< HEAD
 	if (page > 0)
+=======
+	if (page >= info->pages)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	switch (reg) {
@@ -283,7 +325,11 @@ static int zl6100_write_byte(struct i2c_client *client, int page, u8 value)
 	struct zl6100_data *data = to_zl6100_data(info);
 	int ret;
 
+<<<<<<< HEAD
 	if (page > 0)
+=======
+	if (page >= info->pages)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	zl6100_wait(data);
@@ -299,6 +345,13 @@ static const struct i2c_device_id zl6100_id[] = {
 	{"bmr462", zl2008},
 	{"bmr463", zl2008},
 	{"bmr464", zl2008},
+<<<<<<< HEAD
+=======
+	{"bmr465", zls4009},
+	{"bmr466", zls1003},
+	{"bmr467", zls4009},
+	{"bmr469", zl8802},
+>>>>>>> upstream/android-13
 	{"zl2004", zl2004},
 	{"zl2005", zl2005},
 	{"zl2006", zl2006},
@@ -307,16 +360,30 @@ static const struct i2c_device_id zl6100_id[] = {
 	{"zl2106", zl2106},
 	{"zl6100", zl6100},
 	{"zl6105", zl6105},
+<<<<<<< HEAD
 	{"zl9101", zl9101},
 	{"zl9117", zl9117},
+=======
+	{"zl8802", zl8802},
+	{"zl9101", zl9101},
+	{"zl9117", zl9117},
+	{"zls1003", zls1003},
+	{"zls4009", zls4009},
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(i2c, zl6100_id);
 
+<<<<<<< HEAD
 static int zl6100_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
 	int ret;
+=======
+static int zl6100_probe(struct i2c_client *client)
+{
+	int ret, i;
+>>>>>>> upstream/android-13
 	struct zl6100_data *data;
 	struct pmbus_driver_info *info;
 	u8 device_id[I2C_SMBUS_BLOCK_MAX + 1];
@@ -345,10 +412,17 @@ static int zl6100_probe(struct i2c_client *client,
 		dev_err(&client->dev, "Unsupported device\n");
 		return -ENODEV;
 	}
+<<<<<<< HEAD
 	if (id->driver_data != mid->driver_data)
 		dev_notice(&client->dev,
 			   "Device mismatch: Configured %s, detected %s\n",
 			   id->name, mid->name);
+=======
+	if (strcmp(client->name, mid->name) != 0)
+		dev_notice(&client->dev,
+			   "Device mismatch: Configured %s, detected %s\n",
+			   client->name, mid->name);
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(&client->dev, sizeof(struct zl6100_data),
 			    GFP_KERNEL);
@@ -380,6 +454,7 @@ static int zl6100_probe(struct i2c_client *client,
 	  | PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP;
 
 	/*
+<<<<<<< HEAD
 	 * ZL2004, ZL9101M, and ZL9117M support monitoring an extra voltage
 	 * (VMON for ZL2004, VDRV for ZL9101M and ZL9117M). Report it as vmon.
 	 */
@@ -392,6 +467,72 @@ static int zl6100_probe(struct i2c_client *client,
 
 	if (ret & ZL6100_MFR_XTEMP_ENABLE)
 		info->func[0] |= PMBUS_HAVE_TEMP2;
+=======
+	 * ZL2004, ZL8802, ZL9101M, ZL9117M and ZLS4009 support monitoring
+	 * an extra voltage (VMON for ZL2004, ZL8802 and ZLS4009,
+	 * VDRV for ZL9101M and ZL9117M). Report it as vmon.
+	 */
+	if (data->id == zl2004 || data->id == zl8802 || data->id == zl9101 ||
+	    data->id == zl9117 || data->id == zls4009)
+		info->func[0] |= PMBUS_HAVE_VMON | PMBUS_HAVE_STATUS_VMON;
+
+	/*
+	 * ZL8802 has two outputs that can be used either independently or in
+	 * a current sharing configuration. The driver uses the DDC_CONFIG
+	 * register to check if the module is running with independent or
+	 * shared outputs. If the module is in shared output mode, only one
+	 * output voltage will be reported.
+	 */
+	if (data->id == zl8802) {
+		info->pages = 2;
+		info->func[0] |= PMBUS_HAVE_IIN;
+
+		ret = i2c_smbus_read_word_data(client, ZL8802_MFR_DDC_CONFIG);
+		if (ret < 0)
+			return ret;
+
+		data->access = ktime_get();
+		zl6100_wait(data);
+
+		if (ret & ZL8802_MFR_PHASES_MASK)
+			info->func[1] |= PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT;
+		else
+			info->func[1] = PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT
+				| PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT;
+
+		for (i = 0; i < 2; i++) {
+			ret = i2c_smbus_write_byte_data(client, PMBUS_PAGE, i);
+			if (ret < 0)
+				return ret;
+
+			data->access = ktime_get();
+			zl6100_wait(data);
+
+			ret = i2c_smbus_read_word_data(client, ZL8802_MFR_USER_CONFIG);
+			if (ret < 0)
+				return ret;
+
+			if (ret & ZL8802_MFR_XTEMP_ENABLE_2)
+				info->func[i] |= PMBUS_HAVE_TEMP2;
+
+			data->access = ktime_get();
+			zl6100_wait(data);
+		}
+		ret = i2c_smbus_read_word_data(client, ZL8802_MFR_USER_GLOBAL_CONFIG);
+		if (ret < 0)
+			return ret;
+
+		if (ret & ZL8802_MFR_TMON_ENABLE)
+			info->func[0] |= PMBUS_HAVE_TEMP3;
+	} else {
+		ret = i2c_smbus_read_word_data(client, ZL6100_MFR_CONFIG);
+		if (ret < 0)
+			return ret;
+
+		if (ret & ZL6100_MFR_XTEMP_ENABLE)
+			info->func[0] |= PMBUS_HAVE_TEMP2;
+	}
+>>>>>>> upstream/android-13
 
 	data->access = ktime_get();
 	zl6100_wait(data);
@@ -401,15 +542,23 @@ static int zl6100_probe(struct i2c_client *client,
 	info->write_word_data = zl6100_write_word_data;
 	info->write_byte = zl6100_write_byte;
 
+<<<<<<< HEAD
 	return pmbus_do_probe(client, mid, info);
+=======
+	return pmbus_do_probe(client, info);
+>>>>>>> upstream/android-13
 }
 
 static struct i2c_driver zl6100_driver = {
 	.driver = {
 		   .name = "zl6100",
 		   },
+<<<<<<< HEAD
 	.probe = zl6100_probe,
 	.remove = pmbus_do_remove,
+=======
+	.probe_new = zl6100_probe,
+>>>>>>> upstream/android-13
 	.id_table = zl6100_id,
 };
 
@@ -418,3 +567,7 @@ module_i2c_driver(zl6100_driver);
 MODULE_AUTHOR("Guenter Roeck");
 MODULE_DESCRIPTION("PMBus driver for ZL6100 and compatibles");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(PMBUS);
+>>>>>>> upstream/android-13

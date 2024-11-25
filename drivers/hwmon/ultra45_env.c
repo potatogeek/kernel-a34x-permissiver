@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ultra45_env.c: Driver for Ultra45 PIC16F747 environmental monitor.
  *

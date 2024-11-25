@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2007
  *
@@ -42,6 +47,10 @@
 #include <asm/hvcall.h>
 #include <asm/plpar_wrappers.h>
 #endif
+<<<<<<< HEAD
+=======
+#include <asm/ultravisor.h>
+>>>>>>> upstream/android-13
 
 #include "timing.h"
 #include "irq.h"
@@ -289,7 +298,11 @@ out:
 }
 EXPORT_SYMBOL_GPL(kvmppc_sanity_check);
 
+<<<<<<< HEAD
 int kvmppc_emulate_mmio(struct kvm_run *run, struct kvm_vcpu *vcpu)
+=======
+int kvmppc_emulate_mmio(struct kvm_vcpu *vcpu)
+>>>>>>> upstream/android-13
 {
 	enum emulation_result er;
 	int r;
@@ -305,7 +318,11 @@ int kvmppc_emulate_mmio(struct kvm_run *run, struct kvm_vcpu *vcpu)
 		r = RESUME_GUEST;
 		break;
 	case EMULATE_DO_MMIO:
+<<<<<<< HEAD
 		run->exit_reason = KVM_EXIT_MMIO;
+=======
+		vcpu->run->exit_reason = KVM_EXIT_MMIO;
+>>>>>>> upstream/android-13
 		/* We must reload nonvolatiles because "update" load/store
 		 * instructions modify register state. */
 		/* Future optimization: only reload non-volatiles if they were
@@ -336,10 +353,24 @@ int kvmppc_st(struct kvm_vcpu *vcpu, ulong *eaddr, int size, void *ptr,
 {
 	ulong mp_pa = vcpu->arch.magic_page_pa & KVM_PAM & PAGE_MASK;
 	struct kvmppc_pte pte;
+<<<<<<< HEAD
 	int r;
 
 	vcpu->stat.st++;
 
+=======
+	int r = -EINVAL;
+
+	vcpu->stat.st++;
+
+	if (vcpu->kvm->arch.kvm_ops && vcpu->kvm->arch.kvm_ops->store_to_eaddr)
+		r = vcpu->kvm->arch.kvm_ops->store_to_eaddr(vcpu, eaddr, ptr,
+							    size);
+
+	if ((!r) || (r == -EAGAIN))
+		return r;
+
+>>>>>>> upstream/android-13
 	r = kvmppc_xlate(vcpu, *eaddr, data ? XLATE_DATA : XLATE_INST,
 			 XLATE_WRITE, &pte);
 	if (r < 0)
@@ -372,10 +403,24 @@ int kvmppc_ld(struct kvm_vcpu *vcpu, ulong *eaddr, int size, void *ptr,
 {
 	ulong mp_pa = vcpu->arch.magic_page_pa & KVM_PAM & PAGE_MASK;
 	struct kvmppc_pte pte;
+<<<<<<< HEAD
 	int rc;
 
 	vcpu->stat.ld++;
 
+=======
+	int rc = -EINVAL;
+
+	vcpu->stat.ld++;
+
+	if (vcpu->kvm->arch.kvm_ops && vcpu->kvm->arch.kvm_ops->load_from_eaddr)
+		rc = vcpu->kvm->arch.kvm_ops->load_from_eaddr(vcpu, eaddr, ptr,
+							      size);
+
+	if ((!rc) || (rc == -EAGAIN))
+		return rc;
+
+>>>>>>> upstream/android-13
 	rc = kvmppc_xlate(vcpu, *eaddr, data ? XLATE_DATA : XLATE_INST,
 			  XLATE_READ, &pte);
 	if (rc)
@@ -399,7 +444,14 @@ int kvmppc_ld(struct kvm_vcpu *vcpu, ulong *eaddr, int size, void *ptr,
 		return EMULATE_DONE;
 	}
 
+<<<<<<< HEAD
 	if (kvm_read_guest(vcpu->kvm, pte.raddr, ptr, size))
+=======
+	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
+	rc = kvm_read_guest(vcpu->kvm, pte.raddr, ptr, size);
+	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
+	if (rc)
+>>>>>>> upstream/android-13
 		return EMULATE_DO_MMIO;
 
 	return EMULATE_DONE;
@@ -411,14 +463,24 @@ int kvm_arch_hardware_enable(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 int kvm_arch_hardware_setup(void)
+=======
+int kvm_arch_hardware_setup(void *opaque)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 void kvm_arch_check_processor_compat(void *rtn)
 {
 	*(int *)rtn = kvmppc_core_check_processor_compat();
+=======
+int kvm_arch_check_processor_compat(void *opaque)
+{
+	return kvmppc_core_check_processor_compat();
+>>>>>>> upstream/android-13
 }
 
 int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
@@ -454,6 +516,7 @@ err_out:
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 bool kvm_arch_has_vcpu_debugfs(void)
 {
 	return false;
@@ -464,6 +527,8 @@ int kvm_arch_create_vcpu_debugfs(struct kvm_vcpu *vcpu)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 void kvm_arch_destroy_vm(struct kvm *kvm)
 {
 	unsigned int i;
@@ -480,7 +545,11 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
 #endif
 
 	kvm_for_each_vcpu(i, vcpu, kvm)
+<<<<<<< HEAD
 		kvm_arch_vcpu_free(vcpu);
+=======
+		kvm_vcpu_destroy(vcpu);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&kvm->lock);
 	for (i = 0; i < atomic_read(&kvm->online_vcpus); i++)
@@ -523,13 +592,23 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
 	case KVM_CAP_PPC_UNSET_IRQ:
 	case KVM_CAP_PPC_IRQ_LEVEL:
 	case KVM_CAP_ENABLE_CAP:
+<<<<<<< HEAD
 	case KVM_CAP_ENABLE_CAP_VM:
+=======
+>>>>>>> upstream/android-13
 	case KVM_CAP_ONE_REG:
 	case KVM_CAP_IOEVENTFD:
 	case KVM_CAP_DEVICE_CTRL:
 	case KVM_CAP_IMMEDIATE_EXIT:
+<<<<<<< HEAD
 		r = 1;
 		break;
+=======
+	case KVM_CAP_SET_GUEST_DEBUG:
+		r = 1;
+		break;
+	case KVM_CAP_PPC_GUEST_DEBUG_SSTEP:
+>>>>>>> upstream/android-13
 	case KVM_CAP_PPC_PAIRED_SINGLES:
 	case KVM_CAP_PPC_OSI:
 	case KVM_CAP_PPC_GET_PVINFO:
@@ -562,6 +641,20 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
 	case KVM_CAP_PPC_GET_CPU_CHAR:
 		r = 1;
 		break;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KVM_XIVE
+	case KVM_CAP_PPC_IRQ_XIVE:
+		/*
+		 * We need XIVE to be enabled on the platform (implies
+		 * a POWER9 processor) and the PowerNV platform, as
+		 * nested is not yet supported.
+		 */
+		r = xive_enabled() && !!cpu_has_feature(CPU_FTR_HVMODE) &&
+			kvmppc_xive_native_supported();
+		break;
+#endif
+>>>>>>> upstream/android-13
 
 	case KVM_CAP_PPC_ALLOC_HTAB:
 		r = hv_enabled;
@@ -602,7 +695,16 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
 		r = !!(hv_enabled && radix_enabled());
 		break;
 	case KVM_CAP_PPC_MMU_HASH_V3:
+<<<<<<< HEAD
 		r = !!(hv_enabled && cpu_has_feature(CPU_FTR_ARCH_300));
+=======
+		r = !!(hv_enabled && kvmppc_hv_ops->hash_v3_possible &&
+		       kvmppc_hv_ops->hash_v3_possible());
+		break;
+	case KVM_CAP_PPC_NESTED_HV:
+		r = !!(hv_enabled && kvmppc_hv_ops->enable_nested &&
+		       !kvmppc_hv_ops->enable_nested(NULL));
+>>>>>>> upstream/android-13
 		break;
 #endif
 	case KVM_CAP_SYNC_MMU:
@@ -631,9 +733,12 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
 		else
 			r = num_online_cpus();
 		break;
+<<<<<<< HEAD
 	case KVM_CAP_NR_MEMSLOTS:
 		r = KVM_USER_MEM_SLOTS;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case KVM_CAP_MAX_VCPUS:
 		r = KVM_MAX_VCPUS;
 		break;
@@ -662,6 +767,22 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
 		     (hv_enabled && cpu_has_feature(CPU_FTR_P9_TM_HV_ASSIST));
 		break;
 #endif
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_KVM_BOOK3S_HV_POSSIBLE)
+	case KVM_CAP_PPC_SECURE_GUEST:
+		r = hv_enabled && kvmppc_hv_ops->enable_svm &&
+			!kvmppc_hv_ops->enable_svm(NULL);
+		break;
+	case KVM_CAP_PPC_DAWR1:
+		r = !!(hv_enabled && kvmppc_hv_ops->enable_dawr1 &&
+		       !kvmppc_hv_ops->enable_dawr1(NULL));
+		break;
+	case KVM_CAP_PPC_RPT_INVALIDATE:
+		r = 1;
+		break;
+#endif
+>>>>>>> upstream/android-13
 	default:
 		r = 0;
 		break;
@@ -676,6 +797,7 @@ long kvm_arch_dev_ioctl(struct file *filp,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 void kvm_arch_free_memslot(struct kvm *kvm, struct kvm_memory_slot *free,
 			   struct kvm_memory_slot *dont)
 {
@@ -686,6 +808,11 @@ int kvm_arch_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
 			    unsigned long npages)
 {
 	return kvmppc_core_create_memslot(kvm, slot, npages);
+=======
+void kvm_arch_free_memslot(struct kvm *kvm, struct kvm_memory_slot *slot)
+{
+	kvmppc_core_free_memslot(kvm, slot);
+>>>>>>> upstream/android-13
 }
 
 int kvm_arch_prepare_memory_region(struct kvm *kvm,
@@ -693,16 +820,28 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
 				   const struct kvm_userspace_memory_region *mem,
 				   enum kvm_mr_change change)
 {
+<<<<<<< HEAD
 	return kvmppc_core_prepare_memory_region(kvm, memslot, mem);
+=======
+	return kvmppc_core_prepare_memory_region(kvm, memslot, mem, change);
+>>>>>>> upstream/android-13
 }
 
 void kvm_arch_commit_memory_region(struct kvm *kvm,
 				   const struct kvm_userspace_memory_region *mem,
+<<<<<<< HEAD
 				   const struct kvm_memory_slot *old,
 				   const struct kvm_memory_slot *new,
 				   enum kvm_mr_change change)
 {
 	kvmppc_core_commit_memory_region(kvm, mem, old, new);
+=======
+				   struct kvm_memory_slot *old,
+				   const struct kvm_memory_slot *new,
+				   enum kvm_mr_change change)
+{
+	kvmppc_core_commit_memory_region(kvm, mem, old, new, change);
+>>>>>>> upstream/android-13
 }
 
 void kvm_arch_flush_shadow_memslot(struct kvm *kvm,
@@ -711,6 +850,7 @@ void kvm_arch_flush_shadow_memslot(struct kvm *kvm,
 	kvmppc_core_flush_memslot(kvm, slot);
 }
 
+<<<<<<< HEAD
 struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm, unsigned int id)
 {
 	struct kvm_vcpu *vcpu;
@@ -756,6 +896,11 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
 int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
 {
 	return kvmppc_core_pending_dec(vcpu);
+=======
+int kvm_arch_vcpu_precreate(struct kvm *kvm, unsigned int id)
+{
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static enum hrtimer_restart kvmppc_decrementer_wakeup(struct hrtimer *timer)
@@ -768,9 +913,15 @@ static enum hrtimer_restart kvmppc_decrementer_wakeup(struct hrtimer *timer)
 	return HRTIMER_NORESTART;
 }
 
+<<<<<<< HEAD
 int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
 {
 	int ret;
+=======
+int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+{
+	int err;
+>>>>>>> upstream/android-13
 
 	hrtimer_init(&vcpu->arch.dec_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
 	vcpu->arch.dec_timer.function = kvmppc_decrementer_wakeup;
@@ -779,6 +930,7 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
 #ifdef CONFIG_KVM_EXIT_TIMING
 	mutex_init(&vcpu->arch.exit_timing_lock);
 #endif
+<<<<<<< HEAD
 	ret = kvmppc_subarch_vcpu_init(vcpu);
 	return ret;
 }
@@ -789,6 +941,61 @@ void kvm_arch_vcpu_uninit(struct kvm_vcpu *vcpu)
 	kvmppc_subarch_vcpu_uninit(vcpu);
 }
 
+=======
+	err = kvmppc_subarch_vcpu_init(vcpu);
+	if (err)
+		return err;
+
+	err = kvmppc_core_vcpu_create(vcpu);
+	if (err)
+		goto out_vcpu_uninit;
+
+	vcpu->arch.waitp = &vcpu->wait;
+	kvmppc_create_vcpu_debugfs(vcpu, vcpu->vcpu_id);
+	return 0;
+
+out_vcpu_uninit:
+	kvmppc_subarch_vcpu_uninit(vcpu);
+	return err;
+}
+
+void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
+{
+}
+
+void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
+{
+	/* Make sure we're not using the vcpu anymore */
+	hrtimer_cancel(&vcpu->arch.dec_timer);
+
+	kvmppc_remove_vcpu_debugfs(vcpu);
+
+	switch (vcpu->arch.irq_type) {
+	case KVMPPC_IRQ_MPIC:
+		kvmppc_mpic_disconnect_vcpu(vcpu->arch.mpic, vcpu);
+		break;
+	case KVMPPC_IRQ_XICS:
+		if (xics_on_xive())
+			kvmppc_xive_cleanup_vcpu(vcpu);
+		else
+			kvmppc_xics_free_icp(vcpu);
+		break;
+	case KVMPPC_IRQ_XIVE:
+		kvmppc_xive_native_cleanup_vcpu(vcpu);
+		break;
+	}
+
+	kvmppc_core_vcpu_free(vcpu);
+
+	kvmppc_subarch_vcpu_uninit(vcpu);
+}
+
+int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu)
+{
+	return kvmppc_core_pending_dec(vcpu);
+}
+
+>>>>>>> upstream/android-13
 void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
 {
 #ifdef CONFIG_BOOKE
@@ -1076,7 +1283,11 @@ static inline u64 sp_to_dp(u32 fprs)
 
 	preempt_disable();
 	enable_kernel_fp();
+<<<<<<< HEAD
 	asm ("lfs%U1%X1 0,%1; stfd%U0%X0 0,%0" : "=m" (fprd) : "m" (fprs)
+=======
+	asm ("lfs%U1%X1 0,%1; stfd%U0%X0 0,%0" : "=m"UPD_CONSTR (fprd) : "m"UPD_CONSTR (fprs)
+>>>>>>> upstream/android-13
 	     : "fr0");
 	preempt_enable();
 	return fprd;
@@ -1088,7 +1299,11 @@ static inline u32 dp_to_sp(u64 fprd)
 
 	preempt_disable();
 	enable_kernel_fp();
+<<<<<<< HEAD
 	asm ("lfd%U1%X1 0,%1; stfs%U0%X0 0,%0" : "=m" (fprs) : "m" (fprd)
+=======
+	asm ("lfd%U1%X1 0,%1; stfs%U0%X0 0,%0" : "=m"UPD_CONSTR (fprs) : "m"UPD_CONSTR (fprd)
+>>>>>>> upstream/android-13
 	     : "fr0");
 	preempt_enable();
 	return fprs;
@@ -1099,10 +1314,17 @@ static inline u32 dp_to_sp(u64 fprd)
 #define dp_to_sp(x)	(x)
 #endif /* CONFIG_PPC_FPU */
 
+<<<<<<< HEAD
 static void kvmppc_complete_mmio_load(struct kvm_vcpu *vcpu,
                                       struct kvm_run *run)
 {
 	u64 uninitialized_var(gpr);
+=======
+static void kvmppc_complete_mmio_load(struct kvm_vcpu *vcpu)
+{
+	struct kvm_run *run = vcpu->run;
+	u64 gpr;
+>>>>>>> upstream/android-13
 
 	if (run->mmio.len > sizeof(gpr)) {
 		printk(KERN_ERR "bad MMIO length: %d\n", run->mmio.len);
@@ -1198,15 +1420,34 @@ static void kvmppc_complete_mmio_load(struct kvm_vcpu *vcpu,
 			kvmppc_set_vmx_byte(vcpu, gpr);
 		break;
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
+	case KVM_MMIO_REG_NESTED_GPR:
+		if (kvmppc_need_byteswap(vcpu))
+			gpr = swab64(gpr);
+		kvm_vcpu_write_guest(vcpu, vcpu->arch.nested_io_gpr, &gpr,
+				     sizeof(gpr));
+		break;
+#endif
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 	}
 }
 
+<<<<<<< HEAD
 static int __kvmppc_handle_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
 				unsigned int rt, unsigned int bytes,
 				int is_default_endian, int sign_extend)
 {
+=======
+static int __kvmppc_handle_load(struct kvm_vcpu *vcpu,
+				unsigned int rt, unsigned int bytes,
+				int is_default_endian, int sign_extend)
+{
+	struct kvm_run *run = vcpu->run;
+>>>>>>> upstream/android-13
 	int idx, ret;
 	bool host_swabbed;
 
@@ -1240,7 +1481,11 @@ static int __kvmppc_handle_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	srcu_read_unlock(&vcpu->kvm->srcu, idx);
 
 	if (!ret) {
+<<<<<<< HEAD
 		kvmppc_complete_mmio_load(vcpu, run);
+=======
+		kvmppc_complete_mmio_load(vcpu);
+>>>>>>> upstream/android-13
 		vcpu->mmio_needed = 0;
 		return EMULATE_DONE;
 	}
@@ -1248,15 +1493,24 @@ static int __kvmppc_handle_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	return EMULATE_DO_MMIO;
 }
 
+<<<<<<< HEAD
 int kvmppc_handle_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		       unsigned int rt, unsigned int bytes,
 		       int is_default_endian)
 {
 	return __kvmppc_handle_load(run, vcpu, rt, bytes, is_default_endian, 0);
+=======
+int kvmppc_handle_load(struct kvm_vcpu *vcpu,
+		       unsigned int rt, unsigned int bytes,
+		       int is_default_endian)
+{
+	return __kvmppc_handle_load(vcpu, rt, bytes, is_default_endian, 0);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(kvmppc_handle_load);
 
 /* Same as above, but sign extends */
+<<<<<<< HEAD
 int kvmppc_handle_loads(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			unsigned int rt, unsigned int bytes,
 			int is_default_endian)
@@ -1266,6 +1520,17 @@ int kvmppc_handle_loads(struct kvm_run *run, struct kvm_vcpu *vcpu,
 
 #ifdef CONFIG_VSX
 int kvmppc_handle_vsx_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_handle_loads(struct kvm_vcpu *vcpu,
+			unsigned int rt, unsigned int bytes,
+			int is_default_endian)
+{
+	return __kvmppc_handle_load(vcpu, rt, bytes, is_default_endian, 1);
+}
+
+#ifdef CONFIG_VSX
+int kvmppc_handle_vsx_load(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 			unsigned int rt, unsigned int bytes,
 			int is_default_endian, int mmio_sign_extend)
 {
@@ -1276,13 +1541,21 @@ int kvmppc_handle_vsx_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		return EMULATE_FAIL;
 
 	while (vcpu->arch.mmio_vsx_copy_nums) {
+<<<<<<< HEAD
 		emulated = __kvmppc_handle_load(run, vcpu, rt, bytes,
+=======
+		emulated = __kvmppc_handle_load(vcpu, rt, bytes,
+>>>>>>> upstream/android-13
 			is_default_endian, mmio_sign_extend);
 
 		if (emulated != EMULATE_DONE)
 			break;
 
+<<<<<<< HEAD
 		vcpu->arch.paddr_accessed += run->mmio.len;
+=======
+		vcpu->arch.paddr_accessed += vcpu->run->mmio.len;
+>>>>>>> upstream/android-13
 
 		vcpu->arch.mmio_vsx_copy_nums--;
 		vcpu->arch.mmio_vsx_offset++;
@@ -1291,9 +1564,16 @@ int kvmppc_handle_vsx_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
 }
 #endif /* CONFIG_VSX */
 
+<<<<<<< HEAD
 int kvmppc_handle_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			u64 val, unsigned int bytes, int is_default_endian)
 {
+=======
+int kvmppc_handle_store(struct kvm_vcpu *vcpu,
+			u64 val, unsigned int bytes, int is_default_endian)
+{
+	struct kvm_run *run = vcpu->run;
+>>>>>>> upstream/android-13
 	void *data = run->mmio.data;
 	int idx, ret;
 	bool host_swabbed;
@@ -1407,7 +1687,11 @@ static inline int kvmppc_get_vsr_data(struct kvm_vcpu *vcpu, int rs, u64 *val)
 	return result;
 }
 
+<<<<<<< HEAD
 int kvmppc_handle_vsx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_handle_vsx_store(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 			int rs, unsigned int bytes, int is_default_endian)
 {
 	u64 val;
@@ -1423,13 +1707,21 @@ int kvmppc_handle_vsx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
 		if (kvmppc_get_vsr_data(vcpu, rs, &val) == -1)
 			return EMULATE_FAIL;
 
+<<<<<<< HEAD
 		emulated = kvmppc_handle_store(run, vcpu,
+=======
+		emulated = kvmppc_handle_store(vcpu,
+>>>>>>> upstream/android-13
 			 val, bytes, is_default_endian);
 
 		if (emulated != EMULATE_DONE)
 			break;
 
+<<<<<<< HEAD
 		vcpu->arch.paddr_accessed += run->mmio.len;
+=======
+		vcpu->arch.paddr_accessed += vcpu->run->mmio.len;
+>>>>>>> upstream/android-13
 
 		vcpu->arch.mmio_vsx_copy_nums--;
 		vcpu->arch.mmio_vsx_offset++;
@@ -1438,19 +1730,32 @@ int kvmppc_handle_vsx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	return emulated;
 }
 
+<<<<<<< HEAD
 static int kvmppc_emulate_mmio_vsx_loadstore(struct kvm_vcpu *vcpu,
 			struct kvm_run *run)
 {
+=======
+static int kvmppc_emulate_mmio_vsx_loadstore(struct kvm_vcpu *vcpu)
+{
+	struct kvm_run *run = vcpu->run;
+>>>>>>> upstream/android-13
 	enum emulation_result emulated = EMULATE_FAIL;
 	int r;
 
 	vcpu->arch.paddr_accessed += run->mmio.len;
 
 	if (!vcpu->mmio_is_write) {
+<<<<<<< HEAD
 		emulated = kvmppc_handle_vsx_load(run, vcpu, vcpu->arch.io_gpr,
 			 run->mmio.len, 1, vcpu->arch.mmio_sign_extend);
 	} else {
 		emulated = kvmppc_handle_vsx_store(run, vcpu,
+=======
+		emulated = kvmppc_handle_vsx_load(vcpu, vcpu->arch.io_gpr,
+			 run->mmio.len, 1, vcpu->arch.mmio_sign_extend);
+	} else {
+		emulated = kvmppc_handle_vsx_store(vcpu,
+>>>>>>> upstream/android-13
 			 vcpu->arch.io_gpr, run->mmio.len, 1);
 	}
 
@@ -1474,22 +1779,38 @@ static int kvmppc_emulate_mmio_vsx_loadstore(struct kvm_vcpu *vcpu,
 #endif /* CONFIG_VSX */
 
 #ifdef CONFIG_ALTIVEC
+<<<<<<< HEAD
 int kvmppc_handle_vmx_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_handle_vmx_load(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 		unsigned int rt, unsigned int bytes, int is_default_endian)
 {
 	enum emulation_result emulated = EMULATE_DONE;
 
+<<<<<<< HEAD
 	if (vcpu->arch.mmio_vsx_copy_nums > 2)
 		return EMULATE_FAIL;
 
 	while (vcpu->arch.mmio_vmx_copy_nums) {
 		emulated = __kvmppc_handle_load(run, vcpu, rt, bytes,
+=======
+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
+		return EMULATE_FAIL;
+
+	while (vcpu->arch.mmio_vmx_copy_nums) {
+		emulated = __kvmppc_handle_load(vcpu, rt, bytes,
+>>>>>>> upstream/android-13
 				is_default_endian, 0);
 
 		if (emulated != EMULATE_DONE)
 			break;
 
+<<<<<<< HEAD
 		vcpu->arch.paddr_accessed += run->mmio.len;
+=======
+		vcpu->arch.paddr_accessed += vcpu->run->mmio.len;
+>>>>>>> upstream/android-13
 		vcpu->arch.mmio_vmx_copy_nums--;
 		vcpu->arch.mmio_vmx_offset++;
 	}
@@ -1569,14 +1890,22 @@ static int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
 	return result;
 }
 
+<<<<<<< HEAD
 int kvmppc_handle_vmx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_handle_vmx_store(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 		unsigned int rs, unsigned int bytes, int is_default_endian)
 {
 	u64 val = 0;
 	unsigned int index = rs & KVM_MMIO_REG_MASK;
 	enum emulation_result emulated = EMULATE_DONE;
 
+<<<<<<< HEAD
 	if (vcpu->arch.mmio_vsx_copy_nums > 2)
+=======
+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
+>>>>>>> upstream/android-13
 		return EMULATE_FAIL;
 
 	vcpu->arch.io_gpr = rs;
@@ -1604,12 +1933,20 @@ int kvmppc_handle_vmx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			return EMULATE_FAIL;
 		}
 
+<<<<<<< HEAD
 		emulated = kvmppc_handle_store(run, vcpu, val, bytes,
+=======
+		emulated = kvmppc_handle_store(vcpu, val, bytes,
+>>>>>>> upstream/android-13
 				is_default_endian);
 		if (emulated != EMULATE_DONE)
 			break;
 
+<<<<<<< HEAD
 		vcpu->arch.paddr_accessed += run->mmio.len;
+=======
+		vcpu->arch.paddr_accessed += vcpu->run->mmio.len;
+>>>>>>> upstream/android-13
 		vcpu->arch.mmio_vmx_copy_nums--;
 		vcpu->arch.mmio_vmx_offset++;
 	}
@@ -1617,19 +1954,32 @@ int kvmppc_handle_vmx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	return emulated;
 }
 
+<<<<<<< HEAD
 static int kvmppc_emulate_mmio_vmx_loadstore(struct kvm_vcpu *vcpu,
 		struct kvm_run *run)
 {
+=======
+static int kvmppc_emulate_mmio_vmx_loadstore(struct kvm_vcpu *vcpu)
+{
+	struct kvm_run *run = vcpu->run;
+>>>>>>> upstream/android-13
 	enum emulation_result emulated = EMULATE_FAIL;
 	int r;
 
 	vcpu->arch.paddr_accessed += run->mmio.len;
 
 	if (!vcpu->mmio_is_write) {
+<<<<<<< HEAD
 		emulated = kvmppc_handle_vmx_load(run, vcpu,
 				vcpu->arch.io_gpr, run->mmio.len, 1);
 	} else {
 		emulated = kvmppc_handle_vmx_store(run, vcpu,
+=======
+		emulated = kvmppc_handle_vmx_load(vcpu,
+				vcpu->arch.io_gpr, run->mmio.len, 1);
+	} else {
+		emulated = kvmppc_handle_vmx_store(vcpu,
+>>>>>>> upstream/android-13
 				vcpu->arch.io_gpr, run->mmio.len, 1);
 	}
 
@@ -1749,8 +2099,14 @@ int kvm_vcpu_ioctl_set_one_reg(struct kvm_vcpu *vcpu, struct kvm_one_reg *reg)
 	return r;
 }
 
+<<<<<<< HEAD
 int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
 {
+=======
+int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+{
+	struct kvm_run *run = vcpu->run;
+>>>>>>> upstream/android-13
 	int r;
 
 	vcpu_load(vcpu);
@@ -1758,7 +2114,11 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
 	if (vcpu->mmio_needed) {
 		vcpu->mmio_needed = 0;
 		if (!vcpu->mmio_is_write)
+<<<<<<< HEAD
 			kvmppc_complete_mmio_load(vcpu, run);
+=======
+			kvmppc_complete_mmio_load(vcpu);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_VSX
 		if (vcpu->arch.mmio_vsx_copy_nums > 0) {
 			vcpu->arch.mmio_vsx_copy_nums--;
@@ -1766,7 +2126,11 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
 		}
 
 		if (vcpu->arch.mmio_vsx_copy_nums > 0) {
+<<<<<<< HEAD
 			r = kvmppc_emulate_mmio_vsx_loadstore(vcpu, run);
+=======
+			r = kvmppc_emulate_mmio_vsx_loadstore(vcpu);
+>>>>>>> upstream/android-13
 			if (r == RESUME_HOST) {
 				vcpu->mmio_needed = 1;
 				goto out;
@@ -1780,7 +2144,11 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
 		}
 
 		if (vcpu->arch.mmio_vmx_copy_nums > 0) {
+<<<<<<< HEAD
 			r = kvmppc_emulate_mmio_vmx_loadstore(vcpu, run);
+=======
+			r = kvmppc_emulate_mmio_vmx_loadstore(vcpu);
+>>>>>>> upstream/android-13
 			if (r == RESUME_HOST) {
 				vcpu->mmio_needed = 1;
 				goto out;
@@ -1813,7 +2181,11 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
 	if (run->immediate_exit)
 		r = -EINTR;
 	else
+<<<<<<< HEAD
 		r = kvmppc_vcpu_run(run, vcpu);
+=======
+		r = kvmppc_vcpu_run(vcpu);
+>>>>>>> upstream/android-13
 
 	kvm_sigset_deactivate(vcpu);
 
@@ -1913,7 +2285,11 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
 		r = -EPERM;
 		dev = kvm_device_from_filp(f.file);
 		if (dev) {
+<<<<<<< HEAD
 			if (xive_enabled())
+=======
+			if (xics_on_xive())
+>>>>>>> upstream/android-13
 				r = kvmppc_xive_connect_vcpu(dev, vcpu, cap->args[1]);
 			else
 				r = kvmppc_xics_connect_vcpu(dev, vcpu, cap->args[1]);
@@ -1923,6 +2299,33 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
 		break;
 	}
 #endif /* CONFIG_KVM_XICS */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KVM_XIVE
+	case KVM_CAP_PPC_IRQ_XIVE: {
+		struct fd f;
+		struct kvm_device *dev;
+
+		r = -EBADF;
+		f = fdget(cap->args[0]);
+		if (!f.file)
+			break;
+
+		r = -ENXIO;
+		if (!xive_enabled())
+			break;
+
+		r = -EPERM;
+		dev = kvm_device_from_filp(f.file);
+		if (dev)
+			r = kvmppc_xive_native_connect_vcpu(dev, vcpu,
+							    cap->args[1]);
+
+		fdput(f);
+		break;
+	}
+#endif /* CONFIG_KVM_XIVE */
+>>>>>>> upstream/android-13
 #ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
 	case KVM_CAP_PPC_FWNMI:
 		r = -EINVAL;
@@ -1995,9 +2398,15 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
 	{
 		struct kvm_enable_cap cap;
 		r = -EFAULT;
+<<<<<<< HEAD
 		vcpu_load(vcpu);
 		if (copy_from_user(&cap, argp, sizeof(cap)))
 			goto out;
+=======
+		if (copy_from_user(&cap, argp, sizeof(cap)))
+			goto out;
+		vcpu_load(vcpu);
+>>>>>>> upstream/android-13
 		r = kvm_vcpu_ioctl_enable_cap(vcpu, &cap);
 		vcpu_put(vcpu);
 		break;
@@ -2021,9 +2430,15 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
 	case KVM_DIRTY_TLB: {
 		struct kvm_dirty_tlb dirty;
 		r = -EFAULT;
+<<<<<<< HEAD
 		vcpu_load(vcpu);
 		if (copy_from_user(&dirty, argp, sizeof(dirty)))
 			goto out;
+=======
+		if (copy_from_user(&dirty, argp, sizeof(dirty)))
+			goto out;
+		vcpu_load(vcpu);
+>>>>>>> upstream/android-13
 		r = kvm_vcpu_ioctl_dirty_tlb(vcpu, &dirty);
 		vcpu_put(vcpu);
 		break;
@@ -2090,8 +2505,13 @@ int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_event,
 }
 
 
+<<<<<<< HEAD
 static int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
 				   struct kvm_enable_cap *cap)
+=======
+int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
+			    struct kvm_enable_cap *cap)
+>>>>>>> upstream/android-13
 {
 	int r;
 
@@ -2125,6 +2545,31 @@ static int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
 			r = kvm->arch.kvm_ops->set_smt_mode(kvm, mode, flags);
 		break;
 	}
+<<<<<<< HEAD
+=======
+
+	case KVM_CAP_PPC_NESTED_HV:
+		r = -EINVAL;
+		if (!is_kvmppc_hv_enabled(kvm) ||
+		    !kvm->arch.kvm_ops->enable_nested)
+			break;
+		r = kvm->arch.kvm_ops->enable_nested(kvm);
+		break;
+#endif
+#if defined(CONFIG_KVM_BOOK3S_HV_POSSIBLE)
+	case KVM_CAP_PPC_SECURE_GUEST:
+		r = -EINVAL;
+		if (!is_kvmppc_hv_enabled(kvm) || !kvm->arch.kvm_ops->enable_svm)
+			break;
+		r = kvm->arch.kvm_ops->enable_svm(kvm);
+		break;
+	case KVM_CAP_PPC_DAWR1:
+		r = -EINVAL;
+		if (!is_kvmppc_hv_enabled(kvm) || !kvm->arch.kvm_ops->enable_dawr1)
+			break;
+		r = kvm->arch.kvm_ops->enable_dawr1(kvm);
+		break;
+>>>>>>> upstream/android-13
 #endif
 	default:
 		r = -EINVAL;
@@ -2163,10 +2608,19 @@ static int pseries_get_cpu_char(struct kvm_ppc_cpu_char *cp)
 			KVM_PPC_CPU_CHAR_L1D_THREAD_PRIV |
 			KVM_PPC_CPU_CHAR_BR_HINT_HONOURED |
 			KVM_PPC_CPU_CHAR_MTTRIG_THR_RECONF |
+<<<<<<< HEAD
 			KVM_PPC_CPU_CHAR_COUNT_CACHE_DIS;
 		cp->behaviour_mask = KVM_PPC_CPU_BEHAV_FAVOUR_SECURITY |
 			KVM_PPC_CPU_BEHAV_L1D_FLUSH_PR |
 			KVM_PPC_CPU_BEHAV_BNDS_CHK_SPEC_BAR;
+=======
+			KVM_PPC_CPU_CHAR_COUNT_CACHE_DIS |
+			KVM_PPC_CPU_CHAR_BCCTR_FLUSH_ASSIST;
+		cp->behaviour_mask = KVM_PPC_CPU_BEHAV_FAVOUR_SECURITY |
+			KVM_PPC_CPU_BEHAV_L1D_FLUSH_PR |
+			KVM_PPC_CPU_BEHAV_BNDS_CHK_SPEC_BAR |
+			KVM_PPC_CPU_BEHAV_FLUSH_COUNT_CACHE;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -2225,12 +2679,23 @@ static int kvmppc_get_cpu_char(struct kvm_ppc_cpu_char *cp)
 		if (have_fw_feat(fw_features, "enabled",
 				 "fw-count-cache-disabled"))
 			cp->character |= KVM_PPC_CPU_CHAR_COUNT_CACHE_DIS;
+<<<<<<< HEAD
+=======
+		if (have_fw_feat(fw_features, "enabled",
+				 "fw-count-cache-flush-bcctr2,0,0"))
+			cp->character |= KVM_PPC_CPU_CHAR_BCCTR_FLUSH_ASSIST;
+>>>>>>> upstream/android-13
 		cp->character_mask = KVM_PPC_CPU_CHAR_SPEC_BAR_ORI31 |
 			KVM_PPC_CPU_CHAR_BCCTRL_SERIALISED |
 			KVM_PPC_CPU_CHAR_L1D_FLUSH_ORI30 |
 			KVM_PPC_CPU_CHAR_L1D_FLUSH_TRIG2 |
 			KVM_PPC_CPU_CHAR_L1D_THREAD_PRIV |
+<<<<<<< HEAD
 			KVM_PPC_CPU_CHAR_COUNT_CACHE_DIS;
+=======
+			KVM_PPC_CPU_CHAR_COUNT_CACHE_DIS |
+			KVM_PPC_CPU_CHAR_BCCTR_FLUSH_ASSIST;
+>>>>>>> upstream/android-13
 
 		if (have_fw_feat(fw_features, "enabled",
 				 "speculation-policy-favor-security"))
@@ -2241,9 +2706,19 @@ static int kvmppc_get_cpu_char(struct kvm_ppc_cpu_char *cp)
 		if (!have_fw_feat(fw_features, "disabled",
 				  "needs-spec-barrier-for-bound-checks"))
 			cp->behaviour |= KVM_PPC_CPU_BEHAV_BNDS_CHK_SPEC_BAR;
+<<<<<<< HEAD
 		cp->behaviour_mask = KVM_PPC_CPU_BEHAV_FAVOUR_SECURITY |
 			KVM_PPC_CPU_BEHAV_L1D_FLUSH_PR |
 			KVM_PPC_CPU_BEHAV_BNDS_CHK_SPEC_BAR;
+=======
+		if (have_fw_feat(fw_features, "enabled",
+				 "needs-count-cache-flush-on-context-switch"))
+			cp->behaviour |= KVM_PPC_CPU_BEHAV_FLUSH_COUNT_CACHE;
+		cp->behaviour_mask = KVM_PPC_CPU_BEHAV_FAVOUR_SECURITY |
+			KVM_PPC_CPU_BEHAV_L1D_FLUSH_PR |
+			KVM_PPC_CPU_BEHAV_BNDS_CHK_SPEC_BAR |
+			KVM_PPC_CPU_BEHAV_FLUSH_COUNT_CACHE;
+>>>>>>> upstream/android-13
 
 		of_node_put(fw_features);
 	}
@@ -2271,6 +2746,7 @@ long kvm_arch_vm_ioctl(struct file *filp,
 
 		break;
 	}
+<<<<<<< HEAD
 	case KVM_ENABLE_CAP:
 	{
 		struct kvm_enable_cap cap;
@@ -2280,6 +2756,8 @@ long kvm_arch_vm_ioctl(struct file *filp,
 		r = kvm_vm_ioctl_enable_cap(kvm, &cap);
 		break;
 	}
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SPAPR_TCE_IOMMU
 	case KVM_CREATE_SPAPR_TCE_64: {
 		struct kvm_create_spapr_tce_64 create_tce_64;
@@ -2362,6 +2840,19 @@ long kvm_arch_vm_ioctl(struct file *filp,
 			r = -EFAULT;
 		break;
 	}
+<<<<<<< HEAD
+=======
+	case KVM_PPC_SVM_OFF: {
+		struct kvm *kvm = filp->private_data;
+
+		r = 0;
+		if (!kvm->arch.kvm_ops->svm_off)
+			goto out;
+
+		r = kvm->arch.kvm_ops->svm_off(kvm);
+		break;
+	}
+>>>>>>> upstream/android-13
 	default: {
 		struct kvm *kvm = filp->private_data;
 		r = kvm->arch.kvm_ops->arch_vm_ioctl(filp, ioctl, arg);

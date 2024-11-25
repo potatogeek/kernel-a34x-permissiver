@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-pxa/mp900.c
  *
@@ -7,10 +11,13 @@
  *
  *  2007, 2008 Kristoffer Ericson <kristoffer.ericson@gmail.com>
  *  2007, 2008 Michael Petchkovsky <mkpetch@internode.on.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

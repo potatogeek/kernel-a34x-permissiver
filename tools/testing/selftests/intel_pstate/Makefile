@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0
 CFLAGS := $(CFLAGS) -Wall -D_GNU_SOURCE
+<<<<<<< HEAD
 LDLIBS := $(LDLIBS) -lm
+=======
+LDLIBS += -lm
+>>>>>>> upstream/android-13
 
 uname_M := $(shell uname -m 2>/dev/null || echo not)
 ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)

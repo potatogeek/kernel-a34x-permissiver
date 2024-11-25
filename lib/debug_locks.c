@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * lib/debug_locks.c
  *
@@ -14,11 +18,14 @@
 #include <linux/spinlock.h>
 #include <linux/debug_locks.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_LOCKDEP
 #include <linux/sched/clock.h>
 unsigned long long debug_locks_off_ts;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * We want to turn all lock-debugging facilities on/off at once,
  * via a global flag. The reason is that once a single bug has been
@@ -26,7 +33,11 @@ unsigned long long debug_locks_off_ts;
  * that would just muddy the log. So we report the first one and
  * shut up after that.
  */
+<<<<<<< HEAD
 int debug_locks = 1;
+=======
+int debug_locks __read_mostly = 1;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(debug_locks);
 
 /*
@@ -34,7 +45,11 @@ EXPORT_SYMBOL_GPL(debug_locks);
  * 'silent failure': nothing is printed to the console when
  * a locking bug is detected.
  */
+<<<<<<< HEAD
 int debug_locks_silent;
+=======
+int debug_locks_silent __read_mostly;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(debug_locks_silent);
 
 /*
@@ -43,9 +58,12 @@ EXPORT_SYMBOL_GPL(debug_locks_silent);
 int debug_locks_off(void)
 {
 	if (debug_locks && __debug_locks_off()) {
+<<<<<<< HEAD
 #ifdef CONFIG_LOCKDEP
 		debug_locks_off_ts = sched_clock();
 #endif
+=======
+>>>>>>> upstream/android-13
 		if (!debug_locks_silent) {
 			console_verbose();
 			return 1;

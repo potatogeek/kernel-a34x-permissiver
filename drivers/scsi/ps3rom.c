@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * PS3 BD/DVD/CD-ROM Storage Driver
  *
  * Copyright (C) 2007 Sony Computer Entertainment Inc.
  * Copyright 2007 Sony Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cdrom.h>
@@ -246,10 +253,15 @@ static int ps3rom_queuecommand_lck(struct scsi_cmnd *cmd,
 	}
 
 	if (res) {
+<<<<<<< HEAD
 		memset(cmd->sense_buffer, 0, SCSI_SENSE_BUFFERSIZE);
 		cmd->result = res;
 		cmd->sense_buffer[0] = 0x70;
 		cmd->sense_buffer[2] = ILLEGAL_REQUEST;
+=======
+		scsi_build_sense(cmd, 0, ILLEGAL_REQUEST, 0, 0);
+		cmd->result = res;
+>>>>>>> upstream/android-13
 		priv->curr_cmd = NULL;
 		cmd->scsi_done(cmd);
 	}
@@ -331,8 +343,12 @@ static irqreturn_t ps3rom_interrupt(int irq, void *data)
 		goto done;
 	}
 
+<<<<<<< HEAD
 	scsi_build_sense_buffer(0, cmd->sense_buffer, sense_key, asc, ascq);
 	cmd->result = SAM_STAT_CHECK_CONDITION;
+=======
+	scsi_build_sense(cmd, 0, sense_key, asc, ascq);
+>>>>>>> upstream/android-13
 
 done:
 	priv->curr_cmd = NULL;
@@ -349,7 +365,10 @@ static struct scsi_host_template ps3rom_host_template = {
 	.sg_tablesize =		SG_ALL,
 	.emulated =             1,		/* only sg driver uses this */
 	.max_sectors =		PS3ROM_MAX_SECTORS,
+<<<<<<< HEAD
 	.use_clustering =	ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.module =		THIS_MODULE,
 };
 
@@ -415,7 +434,11 @@ fail_free_bounce:
 	return error;
 }
 
+<<<<<<< HEAD
 static int ps3rom_remove(struct ps3_system_bus_device *_dev)
+=======
+static void ps3rom_remove(struct ps3_system_bus_device *_dev)
+>>>>>>> upstream/android-13
 {
 	struct ps3_storage_device *dev = to_ps3_storage_device(&_dev->core);
 	struct Scsi_Host *host = ps3_system_bus_get_drvdata(&dev->sbd);
@@ -425,7 +448,10 @@ static int ps3rom_remove(struct ps3_system_bus_device *_dev)
 	scsi_host_put(host);
 	ps3_system_bus_set_drvdata(&dev->sbd, NULL);
 	kfree(dev->bounce_buf);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct ps3_system_bus_driver ps3rom = {

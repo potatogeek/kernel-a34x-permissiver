@@ -22,19 +22,30 @@
  * Authors: Alex Deucher
  */
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "radeon.h"
 #include "radeon_ucode.h"
 #include "radeon_asic.h"
 #include "radeon_trace.h"
+<<<<<<< HEAD
+=======
+#include "cik.h"
+>>>>>>> upstream/android-13
 #include "cikd.h"
 
 /* sdma */
 #define CIK_SDMA_UCODE_SIZE 1050
 #define CIK_SDMA_UCODE_VERSION 64
 
+<<<<<<< HEAD
 u32 cik_gpu_check_soft_reset(struct radeon_device *rdev);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * sDMA - System DMA
  * Starting with CIK, the GPU has new asynchronous
@@ -333,7 +344,11 @@ void cik_sdma_enable(struct radeon_device *rdev, bool enable)
 	u32 me_cntl, reg_offset;
 	int i;
 
+<<<<<<< HEAD
 	if (enable == false) {
+=======
+	if (!enable) {
+>>>>>>> upstream/android-13
 		cik_sdma_gfx_stop(rdev);
 		cik_sdma_rlc_stop(rdev);
 	}
@@ -579,7 +594,11 @@ void cik_sdma_fini(struct radeon_device *rdev)
 struct radeon_fence *cik_copy_dma(struct radeon_device *rdev,
 				  uint64_t src_offset, uint64_t dst_offset,
 				  unsigned num_gpu_pages,
+<<<<<<< HEAD
 				  struct reservation_object *resv)
+=======
+				  struct dma_resv *resv)
+>>>>>>> upstream/android-13
 {
 	struct radeon_fence *fence;
 	struct radeon_sync sync;
@@ -677,7 +696,11 @@ int cik_sdma_ring_test(struct radeon_device *rdev,
 		tmp = le32_to_cpu(rdev->wb.wb[index/4]);
 		if (tmp == 0xDEADBEEF)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 
 	if (i < rdev->usec_timeout) {
@@ -751,7 +774,11 @@ int cik_sdma_ib_test(struct radeon_device *rdev, struct radeon_ring *ring)
 		tmp = le32_to_cpu(rdev->wb.wb[index/4]);
 		if (tmp == 0xDEADBEEF)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
+=======
+		udelay(1);
+>>>>>>> upstream/android-13
 	}
 	if (i < rdev->usec_timeout) {
 		DRM_INFO("ib test on ring %d succeeded in %u usecs\n", ib.fence->ring, i);
@@ -936,11 +963,17 @@ void cik_sdma_vm_pad_ib(struct radeon_ib *ib)
 		ib->ptr[ib->length_dw++] = SDMA_PACKET(SDMA_OPCODE_NOP, 0, 0);
 }
 
+<<<<<<< HEAD
 /**
  * cik_dma_vm_flush - cik vm flush using sDMA
  *
  * @rdev: radeon_device pointer
  *
+=======
+/*
+ * cik_dma_vm_flush - cik vm flush using sDMA
+ *
+>>>>>>> upstream/android-13
  * Update the page table base and flush the VM TLB
  * using sDMA (CIK).
  */

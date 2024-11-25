@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007 Aurelien Jarno <aurelien@aurel32.net>
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2007 Aurelien Jarno <aurelien@aurel32.net>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_BCM47XX_H
@@ -23,6 +29,10 @@
 #include <linux/bcma/bcma.h>
 #include <linux/bcma/bcma_soc.h>
 #include <linux/bcm47xx_nvram.h>
+<<<<<<< HEAD
+=======
+#include <linux/bcm47xx_sprom.h>
+>>>>>>> upstream/android-13
 
 enum bcm47xx_bus_type {
 #ifdef CONFIG_BCM47XX_SSB
@@ -45,9 +55,12 @@ union bcm47xx_bus {
 extern union bcm47xx_bus bcm47xx_bus;
 extern enum bcm47xx_bus_type bcm47xx_bus_type;
 
+<<<<<<< HEAD
 void bcm47xx_fill_sprom(struct ssb_sprom *sprom, const char *prefix,
 			bool fallback);
 
+=======
+>>>>>>> upstream/android-13
 void bcm47xx_set_system_type(u16 chip_id);
 
 #endif /* __ASM_BCM47XX_H */

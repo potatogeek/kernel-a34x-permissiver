@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Low Level Transport (NDLC) Driver for STMicroelectronics NFC Chip
  *
  * Copyright (C) 2014-2015  STMicroelectronics SAS. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -264,9 +271,15 @@ static void ndlc_t2_timeout(struct timer_list *t)
 	schedule_work(&ndlc->sm_work);
 }
 
+<<<<<<< HEAD
 int ndlc_probe(void *phy_id, struct nfc_phy_ops *phy_ops, struct device *dev,
 	       int phy_headroom, int phy_tailroom, struct llt_ndlc **ndlc_id,
 	       struct st_nci_se_status *se_status)
+=======
+int ndlc_probe(void *phy_id, const struct nfc_phy_ops *phy_ops,
+	       struct device *dev, int phy_headroom, int phy_tailroom,
+	       struct llt_ndlc **ndlc_id, struct st_nci_se_status *se_status)
+>>>>>>> upstream/android-13
 {
 	struct llt_ndlc *ndlc;
 

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/mfd/lpc_ich.h
  *
  *  Copyright (c) 2012 Extreme Engineering Solution, Inc.
  *  Author: Aaron Sierra <asierra@xes-inc.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License 2 as published
@@ -16,11 +21,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; see the file COPYING.  If not, write to
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef LPC_ICH_H
 #define LPC_ICH_H
 
+<<<<<<< HEAD
 #include <linux/platform_data/intel-spi.h>
+=======
+#include <linux/platform_data/x86/intel-spi.h>
+>>>>>>> upstream/android-13
 
 /* GPIO resources */
 #define ICH_RES_GPIO	0

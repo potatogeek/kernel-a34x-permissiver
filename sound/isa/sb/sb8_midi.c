@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  Routines for control of SoundBlaster cards - MIDI interface
  *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  * --
  *
  * Sun May  9 22:54:38 BST 1999 George David Morrison <gdm@gedamo.demon.co.uk>
@@ -264,7 +271,12 @@ int snd_sb8dsp_midi(struct snd_sb *chip, int device)
 	struct snd_rawmidi *rmidi;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_rawmidi_new(chip->card, "SB8 MIDI", device, 1, 1, &rmidi)) < 0)
+=======
+	err = snd_rawmidi_new(chip->card, "SB8 MIDI", device, 1, 1, &rmidi);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 	strcpy(rmidi->name, "SB8 MIDI");
 	snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_OUTPUT, &snd_sb8dsp_midi_output);

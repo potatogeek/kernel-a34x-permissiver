@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STMicroelectronics sensors core library driver
  *
  * Copyright 2012-2013 STMicroelectronics Inc.
  *
  * Denis Ciocca <denis.ciocca@st.com>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -13,14 +20,22 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/iio/iio.h>
+<<<<<<< HEAD
 #include <linux/regulator/consumer.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+=======
+#include <linux/mutex.h>
+#include <linux/property.h>
+#include <linux/regulator/consumer.h>
+#include <linux/regmap.h>
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 #include <linux/iio/common/st_sensors.h>
 
 #include "st_sensors_core.h"
 
+<<<<<<< HEAD
 static inline u32 st_sensors_get_unaligned_le24(const u8 *p)
 {
 	return (s32)((p[0] | p[1] << 8 | p[2] << 16) << 8) >> 8;
@@ -42,6 +57,15 @@ int st_sensors_write_data_with_mask(struct iio_dev *indio_dev,
 
 st_sensors_write_data_with_mask_error:
 	return err;
+=======
+int st_sensors_write_data_with_mask(struct iio_dev *indio_dev,
+				    u8 reg_addr, u8 mask, u8 data)
+{
+	struct st_sensor_data *sdata = iio_priv(indio_dev);
+
+	return regmap_update_bits(sdata->regmap,
+				  reg_addr, mask, data << __ffs(mask));
+>>>>>>> upstream/android-13
 }
 
 int st_sensors_debugfs_reg_access(struct iio_dev *indio_dev,
@@ -49,6 +73,7 @@ int st_sensors_debugfs_reg_access(struct iio_dev *indio_dev,
 				  unsigned *readval)
 {
 	struct st_sensor_data *sdata = iio_priv(indio_dev);
+<<<<<<< HEAD
 	u8 readdata;
 	int err;
 
@@ -62,6 +87,17 @@ int st_sensors_debugfs_reg_access(struct iio_dev *indio_dev,
 
 	*readval = (unsigned)readdata;
 
+=======
+	int err;
+
+	if (!readval)
+		return regmap_write(sdata->regmap, reg, writeval);
+
+	err = regmap_read(sdata->regmap, reg, readval);
+	if (err < 0)
+		return err;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL(st_sensors_debugfs_reg_access);
@@ -133,7 +169,11 @@ static int st_sensors_match_fs(struct st_sensor_settings *sensor_settings,
 
 	for (i = 0; i < ST_SENSORS_FULLSCALE_AVL_MAX; i++) {
 		if (sensor_settings->fs.fs_avl[i].num == 0)
+<<<<<<< HEAD
 			goto st_sensors_match_odr_error;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 
 		if (sensor_settings->fs.fs_avl[i].num == fs) {
 			*index_fs_avl = i;
@@ -142,7 +182,10 @@ static int st_sensors_match_fs(struct st_sensor_settings *sensor_settings,
 		}
 	}
 
+<<<<<<< HEAD
 st_sensors_match_odr_error:
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -165,8 +208,12 @@ static int st_sensors_set_fullscale(struct iio_dev *indio_dev, unsigned int fs)
 	if (err < 0)
 		goto st_accel_set_fullscale_error;
 
+<<<<<<< HEAD
 	sdata->current_fullscale = (struct st_sensor_fullscale_avl *)
 					&sdata->sensor_settings->fs.fs_avl[i];
+=======
+	sdata->current_fullscale = &sdata->sensor_settings->fs.fs_avl[i];
+>>>>>>> upstream/android-13
 	return err;
 
 st_accel_set_fullscale_error:
@@ -293,8 +340,12 @@ static int st_sensors_set_drdy_int_pin(struct iio_dev *indio_dev,
 	    !sdata->sensor_settings->drdy_irq.int2.addr) {
 		if (pdata->drdy_int_pin)
 			dev_info(&indio_dev->dev,
+<<<<<<< HEAD
 				 "DRDY on pin INT%d specified, but sensor "
 				 "does not support interrupts\n",
+=======
+				 "DRDY on pin INT%d specified, but sensor does not support interrupts\n",
+>>>>>>> upstream/android-13
 				 pdata->drdy_int_pin);
 		return 0;
 	}
@@ -333,6 +384,7 @@ static int st_sensors_set_drdy_int_pin(struct iio_dev *indio_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static struct st_sensors_platform_data *st_sensors_of_probe(struct device *dev,
 		struct st_sensors_platform_data *defdata)
@@ -346,16 +398,36 @@ static struct st_sensors_platform_data *st_sensors_of_probe(struct device *dev,
 
 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
 	if (!of_property_read_u32(np, "st,drdy-int-pin", &val) && (val <= 2))
+=======
+static struct st_sensors_platform_data *st_sensors_dev_probe(struct device *dev,
+		struct st_sensors_platform_data *defdata)
+{
+	struct st_sensors_platform_data *pdata;
+	u32 val;
+
+	if (!dev_fwnode(dev))
+		return NULL;
+
+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+	if (!pdata)
+		return ERR_PTR(-ENOMEM);
+	if (!device_property_read_u32(dev, "st,drdy-int-pin", &val) && (val <= 2))
+>>>>>>> upstream/android-13
 		pdata->drdy_int_pin = (u8) val;
 	else
 		pdata->drdy_int_pin = defdata ? defdata->drdy_int_pin : 0;
 
+<<<<<<< HEAD
 	pdata->open_drain = of_property_read_bool(np, "drive-open-drain");
+=======
+	pdata->open_drain = device_property_read_bool(dev, "drive-open-drain");
+>>>>>>> upstream/android-13
 
 	return pdata;
 }
 
 /**
+<<<<<<< HEAD
  * st_sensors_of_name_probe() - device tree probe for ST sensor name
  * @dev: driver model representation of the device.
  * @match: the OF match table for the device, containing compatible strings
@@ -365,10 +437,19 @@ static struct st_sensors_platform_data *st_sensors_of_probe(struct device *dev,
  * @len: device name buffer length.
  *
  * In effect this function matches a compatible string to an internal kernel
+=======
+ * st_sensors_dev_name_probe() - device probe for ST sensor name
+ * @dev: driver model representation of the device.
+ * @name: device name buffer reference.
+ * @len: device name buffer length.
+ *
+ * In effect this function matches an ID to an internal kernel
+>>>>>>> upstream/android-13
  * name for a certain sensor device, so that the rest of the autodetection can
  * rely on that name from this point on. I2C/SPI devices will be renamed
  * to match the internal kernel convention.
  */
+<<<<<<< HEAD
 void st_sensors_of_name_probe(struct device *dev,
 			      const struct of_device_id *match,
 			      char *name, int len)
@@ -390,6 +471,20 @@ static struct st_sensors_platform_data *st_sensors_of_probe(struct device *dev,
 	return NULL;
 }
 #endif
+=======
+void st_sensors_dev_name_probe(struct device *dev, char *name, int len)
+{
+	const void *match;
+
+	match = device_get_match_data(dev);
+	if (!match)
+		return;
+
+	/* The name from the match takes precedence if present */
+	strlcpy(name, match, len);
+}
+EXPORT_SYMBOL(st_sensors_dev_name_probe);
+>>>>>>> upstream/android-13
 
 int st_sensors_init_sensor(struct iio_dev *indio_dev,
 					struct st_sensors_platform_data *pdata)
@@ -399,7 +494,13 @@ int st_sensors_init_sensor(struct iio_dev *indio_dev,
 	int err = 0;
 
 	/* If OF/DT pdata exists, it will take precedence of anything else */
+<<<<<<< HEAD
 	of_pdata = st_sensors_of_probe(indio_dev->dev.parent, pdata);
+=======
+	of_pdata = st_sensors_dev_probe(indio_dev->dev.parent, pdata);
+	if (IS_ERR(of_pdata))
+		return PTR_ERR(of_pdata);
+>>>>>>> upstream/android-13
 	if (of_pdata)
 		pdata = of_pdata;
 
@@ -547,7 +648,11 @@ st_sensors_match_scale_error:
 EXPORT_SYMBOL(st_sensors_set_fullscale_by_gain);
 
 static int st_sensors_read_axis_data(struct iio_dev *indio_dev,
+<<<<<<< HEAD
 				struct iio_chan_spec const *ch, int *data)
+=======
+				     struct iio_chan_spec const *ch, int *data)
+>>>>>>> upstream/android-13
 {
 	int err;
 	u8 *outdata;
@@ -556,6 +661,7 @@ static int st_sensors_read_axis_data(struct iio_dev *indio_dev,
 
 	byte_for_channel = DIV_ROUND_UP(ch->scan_type.realbits +
 					ch->scan_type.shift, 8);
+<<<<<<< HEAD
 	outdata = kmalloc(byte_for_channel, GFP_KERNEL);
 	if (!outdata)
 		return -ENOMEM;
@@ -563,6 +669,14 @@ static int st_sensors_read_axis_data(struct iio_dev *indio_dev,
 	err = sdata->tf->read_multiple_byte(&sdata->tb, sdata->dev,
 				ch->address, byte_for_channel,
 				outdata, sdata->multiread_bit);
+=======
+	outdata = kmalloc(byte_for_channel, GFP_DMA | GFP_KERNEL);
+	if (!outdata)
+		return -ENOMEM;
+
+	err = regmap_bulk_read(sdata->regmap, ch->address,
+			       outdata, byte_for_channel);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto st_sensors_free_memory;
 
@@ -571,7 +685,11 @@ static int st_sensors_read_axis_data(struct iio_dev *indio_dev,
 	else if (byte_for_channel == 2)
 		*data = (s16)get_unaligned_le16(outdata);
 	else if (byte_for_channel == 3)
+<<<<<<< HEAD
 		*data = (s32)st_sensors_get_unaligned_le24(outdata);
+=======
+		*data = (s32)sign_extend32(get_unaligned_le24(outdata), 23);
+>>>>>>> upstream/android-13
 
 st_sensors_free_memory:
 	kfree(outdata);
@@ -610,6 +728,7 @@ out:
 }
 EXPORT_SYMBOL(st_sensors_read_info_raw);
 
+<<<<<<< HEAD
 static int st_sensors_init_interface_mode(struct iio_dev *indio_dev,
 			const struct st_sensor_settings *sensor_settings)
 {
@@ -666,13 +785,61 @@ int st_sensors_check_device_support(struct iio_dev *indio_dev,
 	if (sensor_settings[i].wai_addr) {
 		err = sdata->tf->read_byte(&sdata->tb, sdata->dev,
 					   sensor_settings[i].wai_addr, &wai);
+=======
+/*
+ * st_sensors_get_settings_index() - get index of the sensor settings for a
+ *				     specific device from list of settings
+ * @name: device name buffer reference.
+ * @list: sensor settings list.
+ * @list_length: length of sensor settings list.
+ *
+ * Return: non negative number on success (valid index),
+ *	   negative error code otherwise.
+ */
+int st_sensors_get_settings_index(const char *name,
+				  const struct st_sensor_settings *list,
+				  const int list_length)
+{
+	int i, n;
+
+	for (i = 0; i < list_length; i++) {
+		for (n = 0; n < ST_SENSORS_MAX_4WAI; n++) {
+			if (strcmp(name, list[i].sensors_supported[n]) == 0)
+				return i;
+		}
+	}
+
+	return -ENODEV;
+}
+EXPORT_SYMBOL(st_sensors_get_settings_index);
+
+/*
+ * st_sensors_verify_id() - verify sensor ID (WhoAmI) is matching with the
+ *			    expected value
+ * @indio_dev: IIO device reference.
+ *
+ * Return: 0 on success (valid sensor ID), else a negative error code.
+ */
+int st_sensors_verify_id(struct iio_dev *indio_dev)
+{
+	struct st_sensor_data *sdata = iio_priv(indio_dev);
+	int wai, err;
+
+	if (sdata->sensor_settings->wai_addr) {
+		err = regmap_read(sdata->regmap,
+				  sdata->sensor_settings->wai_addr, &wai);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			dev_err(&indio_dev->dev,
 				"failed to read Who-Am-I register.\n");
 			return err;
 		}
 
+<<<<<<< HEAD
 		if (sensor_settings[i].wai != wai) {
+=======
+		if (sdata->sensor_settings->wai != wai) {
+>>>>>>> upstream/android-13
 			dev_err(&indio_dev->dev,
 				"%s: WhoAmI mismatch (0x%x).\n",
 				indio_dev->name, wai);
@@ -680,12 +847,18 @@ int st_sensors_check_device_support(struct iio_dev *indio_dev,
 		}
 	}
 
+<<<<<<< HEAD
 	sdata->sensor_settings =
 			(struct st_sensor_settings *)&sensor_settings[i];
 
 	return i;
 }
 EXPORT_SYMBOL(st_sensors_check_device_support);
+=======
+	return 0;
+}
+EXPORT_SYMBOL(st_sensors_verify_id);
+>>>>>>> upstream/android-13
 
 ssize_t st_sensors_sysfs_sampling_frequency_avail(struct device *dev,
 				struct device_attribute *attr, char *buf)

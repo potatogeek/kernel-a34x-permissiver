@@ -54,7 +54,10 @@ static int llc_station_ac_send_xid_r(struct sk_buff *skb)
 
 	if (!nskb)
 		goto out;
+<<<<<<< HEAD
 	rc = 0;
+=======
+>>>>>>> upstream/android-13
 	llc_pdu_decode_sa(skb, mac_da);
 	llc_pdu_decode_ssap(skb, &dsap);
 	llc_pdu_header_init(nskb, LLC_PDU_TYPE_U, 0, dsap, LLC_PDU_RSP);
@@ -83,7 +86,10 @@ static int llc_station_ac_send_test_r(struct sk_buff *skb)
 
 	if (!nskb)
 		goto out;
+<<<<<<< HEAD
 	rc = 0;
+=======
+>>>>>>> upstream/android-13
 	llc_pdu_decode_sa(skb, mac_da);
 	llc_pdu_decode_ssap(skb, &dsap);
 	llc_pdu_header_init(nskb, LLC_PDU_TYPE_U, 0, dsap, LLC_PDU_RSP);

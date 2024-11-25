@@ -1,15 +1,23 @@
 #!/bin/sh
+<<<<<<< HEAD
 #
 # Run a herd test and check the result against a "Result:" comment within
 # the litmus test.  If the verification result does not match that specified
 # in the litmus test, this script prints an error message prefixed with
 # "^^^" and exits with a non-zero status.  It also outputs verification
+=======
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Run a herd7 test and invokes judgelitmus.sh to check the result against
+# a "Result:" comment within the litmus test.  It also outputs verification
+>>>>>>> upstream/android-13
 # results to a file whose name is that of the specified litmus test, but
 # with ".out" appended.
 #
 # Usage:
 #	checklitmus.sh file.litmus
 #
+<<<<<<< HEAD
 # The LINUX_HERD_OPTIONS environment variable may be used to specify
 # arguments to herd, which default to "-conf linux-kernel.cfg".  Thus,
 # one would normally run this in the directory containing the memory model,
@@ -28,13 +36,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, you can access it online at
 # http://www.gnu.org/licenses/gpl-2.0.html.
+=======
+# Run this in the directory containing the memory model, specifying the
+# pathname of the litmus test to check.  The caller is expected to have
+# properly set up the LKMM environment variables.
+>>>>>>> upstream/android-13
 #
 # Copyright IBM Corporation, 2018
 #
 # Author: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
 
 litmus=$1
+<<<<<<< HEAD
 herdoptions=${LINUX_HERD_OPTIONS--conf linux-kernel.cfg}
+=======
+herdoptions=${LKMM_HERD_OPTIONS--conf linux-kernel.cfg}
+>>>>>>> upstream/android-13
 
 if test -f "$litmus" -a -r "$litmus"
 then
@@ -43,6 +60,7 @@ else
 	echo ' --- ' error: \"$litmus\" is not a readable file
 	exit 255
 fi
+<<<<<<< HEAD
 if grep -q '^ \* Result: ' $litmus
 then
 	outcome=`grep -m 1 '^ \* Result: ' $litmus | awk '{ print $3 }'`
@@ -84,3 +102,10 @@ else
 fi
 tail -2 $litmus.out | head -1
 exit $ret
+=======
+
+echo Herd options: $herdoptions > $LKMM_DESTDIR/$litmus.out
+/usr/bin/time $LKMM_TIMEOUT_CMD herd7 $herdoptions $litmus >> $LKMM_DESTDIR/$litmus.out 2>&1
+
+scripts/judgelitmus.sh $litmus
+>>>>>>> upstream/android-13

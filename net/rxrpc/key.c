@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* RxRPC key management
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
@@ -10,6 +15,10 @@
  *
  * RxRPC keys should have a description of describing their purpose:
  *	"afs@CAMBRIDGE.REDHAT.COM>
+=======
+ * RxRPC keys should have a description of describing their purpose:
+ *	"afs@example.com"
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -27,6 +36,7 @@
 #include <keys/user-type.h>
 #include "ar-internal.h"
 
+<<<<<<< HEAD
 static int rxrpc_vet_description_s(const char *);
 static int rxrpc_preparse(struct key_preparsed_payload *);
 static int rxrpc_preparse_s(struct key_preparsed_payload *);
@@ -34,6 +44,11 @@ static void rxrpc_free_preparse(struct key_preparsed_payload *);
 static void rxrpc_free_preparse_s(struct key_preparsed_payload *);
 static void rxrpc_destroy(struct key *);
 static void rxrpc_destroy_s(struct key *);
+=======
+static int rxrpc_preparse(struct key_preparsed_payload *);
+static void rxrpc_free_preparse(struct key_preparsed_payload *);
+static void rxrpc_destroy(struct key *);
+>>>>>>> upstream/android-13
 static void rxrpc_describe(const struct key *, struct seq_file *);
 static long rxrpc_read(const struct key *, char *, size_t);
 
@@ -43,6 +58,10 @@ static long rxrpc_read(const struct key *, char *, size_t);
  */
 struct key_type key_type_rxrpc = {
 	.name		= "rxrpc",
+<<<<<<< HEAD
+=======
+	.flags		= KEY_TYPE_NET_DOMAIN,
+>>>>>>> upstream/android-13
 	.preparse	= rxrpc_preparse,
 	.free_preparse	= rxrpc_free_preparse,
 	.instantiate	= generic_key_instantiate,
@@ -53,6 +72,7 @@ struct key_type key_type_rxrpc = {
 EXPORT_SYMBOL(key_type_rxrpc);
 
 /*
+<<<<<<< HEAD
  * rxrpc server defined keys take "<serviceId>:<securityIndex>" as the
  * description and an 8-byte decryption key as the payload
  */
@@ -84,6 +104,8 @@ static int rxrpc_vet_description_s(const char *desc)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * parse an RxKAD type XDR format token
  * - the caller guarantees we have at least 4 words
  */
@@ -167,6 +189,7 @@ static int rxrpc_preparse_xdr_rxkad(struct key_preparsed_payload *prep,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void rxrpc_free_krb5_principal(struct krb5_principal *princ)
 {
 	int loop;
@@ -552,17 +575,27 @@ error:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * attempt to parse the data as the XDR format
  * - the caller guarantees we have more than 7 words
  */
 static int rxrpc_preparse_xdr(struct key_preparsed_payload *prep)
 {
+<<<<<<< HEAD
 	const __be32 *xdr = prep->data, *token;
 	const char *cp;
 	unsigned int len, paddedlen, loop, ntoken, toklen, sec_ix;
 	size_t datalen = prep->datalen;
 	int ret;
+=======
+	const __be32 *xdr = prep->data, *token, *p;
+	const char *cp;
+	unsigned int len, paddedlen, loop, ntoken, toklen, sec_ix;
+	size_t datalen = prep->datalen;
+	int ret, ret2;
+>>>>>>> upstream/android-13
 
 	_enter(",{%x,%x,%x,%x},%zu",
 	       ntohl(xdr[0]), ntohl(xdr[1]), ntohl(xdr[2]), ntohl(xdr[3]),
@@ -612,20 +645,33 @@ static int rxrpc_preparse_xdr(struct key_preparsed_payload *prep)
 		goto not_xdr;
 
 	/* check each token wrapper */
+<<<<<<< HEAD
 	token = xdr;
+=======
+	p = xdr;
+>>>>>>> upstream/android-13
 	loop = ntoken;
 	do {
 		if (datalen < 8)
 			goto not_xdr;
+<<<<<<< HEAD
 		toklen = ntohl(*xdr++);
 		sec_ix = ntohl(*xdr);
+=======
+		toklen = ntohl(*p++);
+		sec_ix = ntohl(*p);
+>>>>>>> upstream/android-13
 		datalen -= 4;
 		_debug("token: [%x/%zx] %x", toklen, datalen, sec_ix);
 		paddedlen = (toklen + 3) & ~3;
 		if (toklen < 20 || toklen > datalen || paddedlen > datalen)
 			goto not_xdr;
 		datalen -= paddedlen;
+<<<<<<< HEAD
 		xdr += paddedlen >> 2;
+=======
+		p += paddedlen >> 2;
+>>>>>>> upstream/android-13
 
 	} while (--loop > 0);
 
@@ -636,6 +682,7 @@ static int rxrpc_preparse_xdr(struct key_preparsed_payload *prep)
 	/* okay: we're going to assume it's valid XDR format
 	 * - we ignore the cellname, relying on the key to be correctly named
 	 */
+<<<<<<< HEAD
 	do {
 		xdr = token;
 		toklen = ntohl(*xdr++);
@@ -660,20 +707,63 @@ static int rxrpc_preparse_xdr(struct key_preparsed_payload *prep)
 
 		default:
 			ret = -EPROTONOSUPPORT;
+=======
+	ret = -EPROTONOSUPPORT;
+	do {
+		toklen = ntohl(*xdr++);
+		token = xdr;
+		xdr += (toklen + 3) / 4;
+
+		sec_ix = ntohl(*token++);
+		toklen -= 4;
+
+		_debug("TOKEN type=%x len=%x", sec_ix, toklen);
+
+		switch (sec_ix) {
+		case RXRPC_SECURITY_RXKAD:
+			ret2 = rxrpc_preparse_xdr_rxkad(prep, datalen, token, toklen);
+			break;
+		default:
+			ret2 = -EPROTONOSUPPORT;
+			break;
+		}
+
+		switch (ret2) {
+		case 0:
+			ret = 0;
+			break;
+		case -EPROTONOSUPPORT:
+			break;
+		case -ENOPKG:
+			if (ret != 0)
+				ret = -ENOPKG;
+			break;
+		default:
+			ret = ret2;
+>>>>>>> upstream/android-13
 			goto error;
 		}
 
 	} while (--ntoken > 0);
 
+<<<<<<< HEAD
 	_leave(" = 0");
 	return 0;
+=======
+error:
+	_leave(" = %d", ret);
+	return ret;
+>>>>>>> upstream/android-13
 
 not_xdr:
 	_leave(" = -EPROTO");
 	return -EPROTO;
+<<<<<<< HEAD
 error:
 	_leave(" = %d", ret);
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -807,10 +897,13 @@ static void rxrpc_free_token_list(struct rxrpc_key_token *token)
 		case RXRPC_SECURITY_RXKAD:
 			kfree(token->kad);
 			break;
+<<<<<<< HEAD
 		case RXRPC_SECURITY_RXK5:
 			if (token->k5)
 				rxrpc_rxk5_free(token->k5);
 			break;
+=======
+>>>>>>> upstream/android-13
 		default:
 			pr_err("Unknown token type %x on rxrpc key\n",
 			       token->security_index);
@@ -830,6 +923,7 @@ static void rxrpc_free_preparse(struct key_preparsed_payload *prep)
 }
 
 /*
+<<<<<<< HEAD
  * Preparse a server secret key.
  *
  * The data should be the 8-byte secret key.
@@ -869,6 +963,8 @@ static void rxrpc_free_preparse_s(struct key_preparsed_payload *prep)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * dispose of the data dangling from the corpse of a rxrpc key
  */
 static void rxrpc_destroy(struct key *key)
@@ -877,6 +973,7 @@ static void rxrpc_destroy(struct key *key)
 }
 
 /*
+<<<<<<< HEAD
  * dispose of the data dangling from the corpse of a rxrpc key
  */
 static void rxrpc_destroy_s(struct key *key)
@@ -888,17 +985,45 @@ static void rxrpc_destroy_s(struct key *key)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * describe the rxrpc key
  */
 static void rxrpc_describe(const struct key *key, struct seq_file *m)
 {
+<<<<<<< HEAD
 	seq_puts(m, key->description);
+=======
+	const struct rxrpc_key_token *token;
+	const char *sep = ": ";
+
+	seq_puts(m, key->description);
+
+	for (token = key->payload.data[0]; token; token = token->next) {
+		seq_puts(m, sep);
+
+		switch (token->security_index) {
+		case RXRPC_SECURITY_RXKAD:
+			seq_puts(m, "ka");
+			break;
+		default: /* we have a ticket we can't encode */
+			seq_printf(m, "%u", token->security_index);
+			break;
+		}
+
+		sep = " ";
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
  * grab the security key for a socket
  */
+<<<<<<< HEAD
 int rxrpc_request_key(struct rxrpc_sock *rx, char __user *optval, int optlen)
+=======
+int rxrpc_request_key(struct rxrpc_sock *rx, sockptr_t optval, int optlen)
+>>>>>>> upstream/android-13
 {
 	struct key *key;
 	char *description;
@@ -908,11 +1033,19 @@ int rxrpc_request_key(struct rxrpc_sock *rx, char __user *optval, int optlen)
 	if (optlen <= 0 || optlen > PAGE_SIZE - 1 || rx->securities)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	description = memdup_user_nul(optval, optlen);
 	if (IS_ERR(description))
 		return PTR_ERR(description);
 
 	key = request_key(&key_type_rxrpc, description, NULL);
+=======
+	description = memdup_sockptr_nul(optval, optlen);
+	if (IS_ERR(description))
+		return PTR_ERR(description);
+
+	key = request_key_net(&key_type_rxrpc, description, sock_net(&rx->sk), NULL);
+>>>>>>> upstream/android-13
 	if (IS_ERR(key)) {
 		kfree(description);
 		_leave(" = %ld", PTR_ERR(key));
@@ -926,6 +1059,7 @@ int rxrpc_request_key(struct rxrpc_sock *rx, char __user *optval, int optlen)
 }
 
 /*
+<<<<<<< HEAD
  * grab the security keyring for a server socket
  */
 int rxrpc_server_keyring(struct rxrpc_sock *rx, char __user *optval,
@@ -957,6 +1091,8 @@ int rxrpc_server_keyring(struct rxrpc_sock *rx, char __user *optval,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * generate a server data key
  */
 int rxrpc_get_server_data_key(struct rxrpc_connection *conn,
@@ -1047,12 +1183,18 @@ static long rxrpc_read(const struct key *key,
 		       char *buffer, size_t buflen)
 {
 	const struct rxrpc_key_token *token;
+<<<<<<< HEAD
 	const struct krb5_principal *princ;
+=======
+>>>>>>> upstream/android-13
 	size_t size;
 	__be32 *xdr, *oldxdr;
 	u32 cnlen, toksize, ntoks, tok, zero;
 	u16 toksizes[AFSTOKEN_MAX];
+<<<<<<< HEAD
 	int loop;
+=======
+>>>>>>> upstream/android-13
 
 	_enter("");
 
@@ -1077,6 +1219,7 @@ static long rxrpc_read(const struct key *key,
 		case RXRPC_SECURITY_RXKAD:
 			toksize += 8 * 4;	/* viceid, kvno, key*2, begin,
 						 * end, primary, tktlen */
+<<<<<<< HEAD
 			toksize += RND(token->kad->ticket_len);
 			break;
 
@@ -1107,6 +1250,10 @@ static long rxrpc_read(const struct key *key,
 			toksize += 4 + token->k5->n_authdata * 8;
 			for (loop = 0; loop < token->k5->n_authdata; loop++)
 				toksize += RND(token->k5->authdata[loop].data_len);
+=======
+			if (!token->no_leak_key)
+				toksize += RND(token->kad->ticket_len);
+>>>>>>> upstream/android-13
 			break;
 
 		default: /* we have a ticket we can't encode */
@@ -1181,6 +1328,7 @@ static long rxrpc_read(const struct key *key,
 			ENCODE(token->kad->start);
 			ENCODE(token->kad->expiry);
 			ENCODE(token->kad->primary_flag);
+<<<<<<< HEAD
 			ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
 			break;
 
@@ -1224,6 +1372,12 @@ static long rxrpc_read(const struct key *key,
 				ENCODE_DATA(token->k5->authdata[loop].data_len,
 					    token->k5->authdata[loop].data);
 			}
+=======
+			if (token->no_leak_key)
+				ENCODE(0);
+			else
+				ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
+>>>>>>> upstream/android-13
 			break;
 
 		default:

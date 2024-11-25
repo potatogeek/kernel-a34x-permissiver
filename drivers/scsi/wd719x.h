@@ -74,7 +74,10 @@ struct wd719x {
 	void *hash_virt;	/* hash table CPU address */
 	dma_addr_t hash_phys;	/* hash table bus address */
 	struct list_head active_scbs;
+<<<<<<< HEAD
 	struct list_head free_scbs;
+=======
+>>>>>>> upstream/android-13
 };
 
 /* timeout delays in microsecs */

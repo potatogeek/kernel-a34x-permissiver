@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /* Types and definitions for AF_RXRPC.
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _UAPI_LINUX_RXRPC_H
@@ -55,11 +62,18 @@ enum rxrpc_cmsg_type {
 	RXRPC_BUSY		= 6,	/* -r: server busy received [terminal] */
 	RXRPC_LOCAL_ERROR	= 7,	/* -r: local error generated [terminal] */
 	RXRPC_NEW_CALL		= 8,	/* -r: [Service] new incoming call notification */
+<<<<<<< HEAD
 	RXRPC_ACCEPT		= 9,	/* s-: [Service] accept request */
+=======
+>>>>>>> upstream/android-13
 	RXRPC_EXCLUSIVE_CALL	= 10,	/* s-: Call should be on exclusive connection */
 	RXRPC_UPGRADE_SERVICE	= 11,	/* s-: Request service upgrade for client call */
 	RXRPC_TX_LENGTH		= 12,	/* s-: Total length of Tx data */
 	RXRPC_SET_CALL_TIMEOUT	= 13,	/* s-: Set one or more call timeouts */
+<<<<<<< HEAD
+=======
+	RXRPC_CHARGE_ACCEPT	= 14,	/* s-: Charge the accept pool with a user call ID */
+>>>>>>> upstream/android-13
 	RXRPC__SUPPORTED
 };
 

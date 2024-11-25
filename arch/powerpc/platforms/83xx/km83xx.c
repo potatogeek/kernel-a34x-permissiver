@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2008-2011 DENX Software Engineering GmbH
  * Author: Heiko Schocher <hs@denx.de>
  *
  * Description:
  * Keymile 83xx platform specific routines.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -38,7 +45,10 @@
 #include <sysdev/fsl_soc.h>
 #include <sysdev/fsl_pci.h>
 #include <soc/fsl/qe/qe.h>
+<<<<<<< HEAD
 #include <soc/fsl/qe/qe_ic.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "mpc83xx.h"
 
@@ -58,17 +68,31 @@ static void quirk_mpc8360e_qe_enet10(void)
 
 	np_par = of_find_node_by_name(NULL, "par_io");
 	if (np_par == NULL) {
+<<<<<<< HEAD
 		pr_warn("%s couldn;t find par_io node\n", __func__);
+=======
+		pr_warn("%s couldn't find par_io node\n", __func__);
+>>>>>>> upstream/android-13
 		return;
 	}
 	/* Map Parallel I/O ports registers */
 	ret = of_address_to_resource(np_par, 0, &res);
 	if (ret) {
+<<<<<<< HEAD
 		pr_warn("%s couldn;t map par_io registers\n", __func__);
 		return;
 	}
 
 	base = ioremap(res.start, res.end - res.start + 1);
+=======
+		pr_warn("%s couldn't map par_io registers\n", __func__);
+		goto out;
+	}
+
+	base = ioremap(res.start, resource_size(&res));
+	if (!base)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * set output delay adjustments to default values according
@@ -116,6 +140,10 @@ static void quirk_mpc8360e_qe_enet10(void)
 		setbits32((base + 0xac), 0x0000c000);
 	}
 	iounmap(base);
+<<<<<<< HEAD
+=======
+out:
+>>>>>>> upstream/android-13
 	of_node_put(np_par);
 }
 
@@ -182,7 +210,12 @@ define_machine(mpc83xx_km) {
 	.name		= "mpc83xx-km-platform",
 	.probe		= mpc83xx_km_probe,
 	.setup_arch	= mpc83xx_km_setup_arch,
+<<<<<<< HEAD
 	.init_IRQ	= mpc83xx_ipic_and_qe_init_IRQ,
+=======
+	.discover_phbs	= mpc83xx_setup_pci,
+	.init_IRQ	= mpc83xx_ipic_init_IRQ,
+>>>>>>> upstream/android-13
 	.get_irq	= ipic_get_irq,
 	.restart	= mpc83xx_restart,
 	.time_init	= mpc83xx_time_init,

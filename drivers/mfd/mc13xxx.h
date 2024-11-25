@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Creative Product Design
  * Marc Reilly <marc@cpdesign.com.au>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the
  * Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2012 Creative Product Design
+ * Marc Reilly <marc@cpdesign.com.au>
+>>>>>>> upstream/android-13
  */
 #ifndef __DRIVERS_MFD_MC13XXX_H
 #define __DRIVERS_MFD_MC13XXX_H

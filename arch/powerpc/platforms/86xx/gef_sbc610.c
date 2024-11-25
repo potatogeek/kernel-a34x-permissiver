@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * GE SBC610 board support
  *
@@ -5,11 +9,14 @@
  *
  * Copyright 2008 GE Intelligent Platforms Embedded Systems, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on: mpc86xx_hpcn.c (MPC86xx HPCN board specific routines)
  * Copyright 2006 Freescale Semiconductor Inc.
  *

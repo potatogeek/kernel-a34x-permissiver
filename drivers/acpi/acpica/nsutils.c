@@ -4,7 +4,11 @@
  * Module Name: nsutils - Utilities for accessing ACPI namespace, accessing
  *                        parents and siblings and Scope manipulation
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -178,7 +182,11 @@ void acpi_ns_get_internal_name_length(struct acpi_namestring_info *info)
 		}
 	}
 
+<<<<<<< HEAD
 	info->length = (ACPI_NAME_SIZE * info->num_segments) +
+=======
+	info->length = (ACPI_NAMESEG_SIZE * info->num_segments) +
+>>>>>>> upstream/android-13
 	    4 + info->num_carats;
 
 	info->next_external_char = next_external_char;
@@ -249,7 +257,11 @@ acpi_status acpi_ns_build_internal_name(struct acpi_namestring_info *info)
 	/* Build the name (minus path separators) */
 
 	for (; num_segments; num_segments--) {
+<<<<<<< HEAD
 		for (i = 0; i < ACPI_NAME_SIZE; i++) {
+=======
+		for (i = 0; i < ACPI_NAMESEG_SIZE; i++) {
+>>>>>>> upstream/android-13
 			if (ACPI_IS_PATH_SEPARATOR(*external_name) ||
 			    (*external_name == 0)) {
 
@@ -274,7 +286,11 @@ acpi_status acpi_ns_build_internal_name(struct acpi_namestring_info *info)
 		/* Move on the next segment */
 
 		external_name++;
+<<<<<<< HEAD
 		result += ACPI_NAME_SIZE;
+=======
+		result += ACPI_NAMESEG_SIZE;
+>>>>>>> upstream/android-13
 	}
 
 	/* Terminate the string */
@@ -350,7 +366,11 @@ acpi_ns_internalize_name(const char *external_name, char **converted_name)
  *
  * FUNCTION:    acpi_ns_externalize_name
  *
+<<<<<<< HEAD
  * PARAMETERS:  internal_name_length - Lenth of the internal name below
+=======
+ * PARAMETERS:  internal_name_length - Length of the internal name below
+>>>>>>> upstream/android-13
  *              internal_name       - Internal representation of name
  *              converted_name_length - Where the length is returned
  *              converted_name      - Where the resulting external name
@@ -489,12 +509,21 @@ acpi_ns_externalize_name(u32 internal_name_length,
 
 			/* Copy and validate the 4-char name segment */
 
+<<<<<<< HEAD
 			ACPI_MOVE_NAME(&(*converted_name)[j],
 				       &internal_name[names_index]);
 			acpi_ut_repair_name(&(*converted_name)[j]);
 
 			j += ACPI_NAME_SIZE;
 			names_index += ACPI_NAME_SIZE;
+=======
+			ACPI_COPY_NAMESEG(&(*converted_name)[j],
+					  &internal_name[names_index]);
+			acpi_ut_repair_name(&(*converted_name)[j]);
+
+			j += ACPI_NAMESEG_SIZE;
+			names_index += ACPI_NAMESEG_SIZE;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -560,6 +589,7 @@ struct acpi_namespace_node *acpi_ns_validate_handle(acpi_handle handle)
 void acpi_ns_terminate(void)
 {
 	acpi_status status;
+<<<<<<< HEAD
 	union acpi_operand_object *prev;
 	union acpi_operand_object *next;
 
@@ -575,6 +605,11 @@ void acpi_ns_terminate(void)
 		acpi_ut_remove_reference(prev);
 	}
 
+=======
+
+	ACPI_FUNCTION_TRACE(ns_terminate);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Free the entire namespace -- all nodes and all objects
 	 * attached to the nodes

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0+
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+>>>>>>> upstream/android-13
  * register description for HopeRf rf69 radio module
  *
  * Copyright (C) 2016 Wolf-Entwicklungen
  *	Marcus Wolf <linux@wolf-entwicklungen.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*******************************************/
@@ -405,7 +413,11 @@
 #define  MASK_SYNC_CONFIG_SYNC_TOLERANCE	0x07
 
 /* RegPacketConfig1 */
+<<<<<<< HEAD
 #define  MASK_PACKETCONFIG1_PAKET_FORMAT_VARIABLE	0x80
+=======
+#define  MASK_PACKETCONFIG1_PACKET_FORMAT_VARIABLE	0x80
+>>>>>>> upstream/android-13
 #define  MASK_PACKETCONFIG1_DCFREE			0x60
 #define  MASK_PACKETCONFIG1_CRC_ON			0x10 /* default */
 #define  MASK_PACKETCONFIG1_CRCAUTOCLEAR_OFF		0x08

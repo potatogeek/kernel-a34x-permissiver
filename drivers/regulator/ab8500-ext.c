@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License Terms: GNU General Public License v2
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+ *
+>>>>>>> upstream/android-13
  * Authors: Bengt Jonsson <bengt.g.jonsson@stericsson.com>
  *
  * This file is based on drivers/regulator/ab8500.c
@@ -23,6 +30,7 @@
 #include <linux/regulator/of_regulator.h>
 #include <linux/mfd/abx500.h>
 #include <linux/mfd/abx500/ab8500.h>
+<<<<<<< HEAD
 #include <linux/regulator/ab8500.h>
 
 static struct regulator_consumer_supply ab8500_vaux1_consumers[] = {
@@ -420,6 +428,19 @@ static struct regulator_init_data ab8500_regulators[AB8500_NUM_REGULATORS] = {
 		.num_consumer_supplies = ARRAY_SIZE(ab8500_vana_consumers),
 		.consumer_supplies = ab8500_vana_consumers,
 	},
+=======
+
+/* AB8500 external regulators */
+enum ab8500_ext_regulator_id {
+	AB8500_EXT_SUPPLY1,
+	AB8500_EXT_SUPPLY2,
+	AB8500_EXT_SUPPLY3,
+	AB8500_NUM_EXT_REGULATORS,
+};
+
+struct ab8500_ext_regulator_cfg {
+	bool hwreq; /* requires hw mode or high power mode */
+>>>>>>> upstream/android-13
 };
 
 /* supply for VextSupply3 */
@@ -466,6 +487,7 @@ static struct regulator_init_data ab8500_ext_regulators[] = {
 	},
 };
 
+<<<<<<< HEAD
 static struct ab8500_regulator_platform_data ab8500_regulator_plat_data = {
 	.reg_init               = ab8500_reg_init,
 	.num_reg_init           = ARRAY_SIZE(ab8500_reg_init),
@@ -475,11 +497,16 @@ static struct ab8500_regulator_platform_data ab8500_regulator_plat_data = {
 	.num_ext_regulator      = ARRAY_SIZE(ab8500_ext_regulators),
 };
 
+=======
+>>>>>>> upstream/android-13
 /**
  * struct ab8500_ext_regulator_info - ab8500 regulator information
  * @dev: device pointer
  * @desc: regulator description
+<<<<<<< HEAD
  * @rdev: regulator device
+=======
+>>>>>>> upstream/android-13
  * @cfg: regulator configuration (extension of regulator FW configuration)
  * @update_bank: bank to control on/off
  * @update_reg: register to control on/off
@@ -495,7 +522,10 @@ static struct ab8500_regulator_platform_data ab8500_regulator_plat_data = {
 struct ab8500_ext_regulator_info {
 	struct device *dev;
 	struct regulator_desc desc;
+<<<<<<< HEAD
 	struct regulator_dev *rdev;
+=======
+>>>>>>> upstream/android-13
 	struct ab8500_ext_regulator_cfg *cfg;
 	u8 update_bank;
 	u8 update_reg;
@@ -530,7 +560,11 @@ static int ab8500_ext_regulator_enable(struct regulator_dev *rdev)
 		info->update_bank, info->update_reg,
 		info->update_mask, regval);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(rdev_get_dev(info->rdev),
+=======
+		dev_err(rdev_get_dev(rdev),
+>>>>>>> upstream/android-13
 			"couldn't set enable bits for regulator\n");
 		return ret;
 	}
@@ -566,7 +600,11 @@ static int ab8500_ext_regulator_disable(struct regulator_dev *rdev)
 		info->update_bank, info->update_reg,
 		info->update_mask, regval);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(rdev_get_dev(info->rdev),
+=======
+		dev_err(rdev_get_dev(rdev),
+>>>>>>> upstream/android-13
 			"couldn't set disable bits for regulator\n");
 		return ret;
 	}
@@ -720,7 +758,11 @@ static int ab8500_ext_list_voltage(struct regulator_dev *rdev,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops ab8500_ext_regulator_ops = {
+=======
+static const struct regulator_ops ab8500_ext_regulator_ops = {
+>>>>>>> upstream/android-13
 	.enable			= ab8500_ext_regulator_enable,
 	.disable		= ab8500_ext_regulator_disable,
 	.is_enabled		= ab8500_ext_regulator_is_enabled,
@@ -735,6 +777,10 @@ static struct ab8500_ext_regulator_info
 	[AB8500_EXT_SUPPLY1] = {
 		.desc = {
 			.name		= "VEXTSUPPLY1",
+<<<<<<< HEAD
+=======
+			.of_match	= of_match_ptr("ab8500_ext1"),
+>>>>>>> upstream/android-13
 			.ops		= &ab8500_ext_regulator_ops,
 			.type		= REGULATOR_VOLTAGE,
 			.id		= AB8500_EXT_SUPPLY1,
@@ -752,6 +798,10 @@ static struct ab8500_ext_regulator_info
 	[AB8500_EXT_SUPPLY2] = {
 		.desc = {
 			.name		= "VEXTSUPPLY2",
+<<<<<<< HEAD
+=======
+			.of_match	= of_match_ptr("ab8500_ext2"),
+>>>>>>> upstream/android-13
 			.ops		= &ab8500_ext_regulator_ops,
 			.type		= REGULATOR_VOLTAGE,
 			.id		= AB8500_EXT_SUPPLY2,
@@ -769,6 +819,10 @@ static struct ab8500_ext_regulator_info
 	[AB8500_EXT_SUPPLY3] = {
 		.desc = {
 			.name		= "VEXTSUPPLY3",
+<<<<<<< HEAD
+=======
+			.of_match	= of_match_ptr("ab8500_ext3"),
+>>>>>>> upstream/android-13
 			.ops		= &ab8500_ext_regulator_ops,
 			.type		= REGULATOR_VOLTAGE,
 			.id		= AB8500_EXT_SUPPLY3,
@@ -785,6 +839,7 @@ static struct ab8500_ext_regulator_info
 	},
 };
 
+<<<<<<< HEAD
 static struct of_regulator_match ab8500_ext_regulator_match[] = {
 	{ .name = "ab8500_ext1", .driver_data = (void *) AB8500_EXT_SUPPLY1, },
 	{ .name = "ab8500_ext2", .driver_data = (void *) AB8500_EXT_SUPPLY2, },
@@ -809,18 +864,29 @@ static int ab8500_ext_regulator_probe(struct platform_device *pdev)
 			return err;
 		}
 	}
+=======
+static int ab8500_ext_regulator_probe(struct platform_device *pdev)
+{
+	struct ab8500 *ab8500 = dev_get_drvdata(pdev->dev.parent);
+	struct regulator_config config = { };
+	struct regulator_dev *rdev;
+	int i;
+>>>>>>> upstream/android-13
 
 	if (!ab8500) {
 		dev_err(&pdev->dev, "null mfd parent\n");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* make sure the platform data has the correct size */
 	if (pdata->num_ext_regulator != ARRAY_SIZE(ab8500_ext_regulator_info)) {
 		dev_err(&pdev->dev, "Configuration error: size mismatch.\n");
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* check for AB8500 2.x */
 	if (is_ab8500_2p0_or_earlier(ab8500)) {
 		struct ab8500_ext_regulator_info *info;
@@ -840,6 +906,7 @@ static int ab8500_ext_regulator_probe(struct platform_device *pdev)
 		info = &ab8500_ext_regulator_info[i];
 		info->dev = &pdev->dev;
 		info->cfg = (struct ab8500_ext_regulator_cfg *)
+<<<<<<< HEAD
 			pdata->ext_regulator[i].driver_data;
 
 		config.dev = &pdev->dev;
@@ -861,6 +928,24 @@ static int ab8500_ext_regulator_probe(struct platform_device *pdev)
 
 		dev_dbg(rdev_get_dev(info->rdev),
 			"%s-probed\n", info->desc.name);
+=======
+			ab8500_ext_regulators[i].driver_data;
+
+		config.dev = &pdev->dev;
+		config.driver_data = info;
+		config.init_data = &ab8500_ext_regulators[i];
+
+		/* register regulator with framework */
+		rdev = devm_regulator_register(&pdev->dev, &info->desc,
+					       &config);
+		if (IS_ERR(rdev)) {
+			dev_err(&pdev->dev, "failed to register regulator %s\n",
+					info->desc.name);
+			return PTR_ERR(rdev);
+		}
+
+		dev_dbg(&pdev->dev, "%s-probed\n", info->desc.name);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

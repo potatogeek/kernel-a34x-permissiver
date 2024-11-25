@@ -7,6 +7,10 @@
 
 #include <linux/export.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm_inline.h>
+>>>>>>> upstream/android-13
 #include <linux/utsname.h>
 #include <linux/mman.h>
 #include <linux/reboot.h>
@@ -24,7 +28,10 @@
 #include <linux/times.h>
 #include <linux/posix-timers.h>
 #include <linux/security.h>
+<<<<<<< HEAD
 #include <linux/dcookies.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/suspend.h>
 #include <linux/tty.h>
 #include <linux/signal.h>
@@ -42,13 +49,21 @@
 #include <linux/syscore_ops.h>
 #include <linux/version.h>
 #include <linux/ctype.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
 #include <linux/mempolicy.h>
+=======
+#include <linux/syscall_user_dispatch.h>
+>>>>>>> upstream/android-13
 
 #include <linux/compat.h>
 #include <linux/syscalls.h>
 #include <linux/kprobes.h>
 #include <linux/user_namespace.h>
+<<<<<<< HEAD
+=======
+#include <linux/time_namespace.h>
+>>>>>>> upstream/android-13
 #include <linux/binfmts.h>
 
 #include <linux/sched.h>
@@ -72,6 +87,7 @@
 #include <linux/uaccess.h>
 #include <asm/io.h>
 #include <asm/unistd.h>
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 #include <mt-plat/turbo_common.h>
 #endif
@@ -82,6 +98,13 @@
 
 #include "uid16.h"
 
+=======
+
+#include "uid16.h"
+
+#include <trace/hooks/sys.h>
+
+>>>>>>> upstream/android-13
 #ifndef SET_UNALIGN_CTL
 # define SET_UNALIGN_CTL(a, b)	(-EINVAL)
 #endif
@@ -112,12 +135,15 @@
 #ifndef SET_TSC_CTL
 # define SET_TSC_CTL(a)		(-EINVAL)
 #endif
+<<<<<<< HEAD
 #ifndef MPX_ENABLE_MANAGEMENT
 # define MPX_ENABLE_MANAGEMENT()	(-EINVAL)
 #endif
 #ifndef MPX_DISABLE_MANAGEMENT
 # define MPX_DISABLE_MANAGEMENT()	(-EINVAL)
 #endif
+=======
+>>>>>>> upstream/android-13
 #ifndef GET_FP_MODE
 # define GET_FP_MODE(a)		(-EINVAL)
 #endif
@@ -130,6 +156,18 @@
 #ifndef SVE_GET_VL
 # define SVE_GET_VL()		(-EINVAL)
 #endif
+<<<<<<< HEAD
+=======
+#ifndef PAC_RESET_KEYS
+# define PAC_RESET_KEYS(a, b)	(-EINVAL)
+#endif
+#ifndef PAC_SET_ENABLED_KEYS
+# define PAC_SET_ENABLED_KEYS(a, b, c)	(-EINVAL)
+#endif
+#ifndef PAC_GET_ENABLED_KEYS
+# define PAC_GET_ENABLED_KEYS(a)	(-EINVAL)
+#endif
+>>>>>>> upstream/android-13
 #ifndef SET_TAGGED_ADDR_CTRL
 # define SET_TAGGED_ADDR_CTRL(a)	(-EINVAL)
 #endif
@@ -300,6 +338,7 @@ SYSCALL_DEFINE2(getpriority, int, which, int, who)
 			if (niceval > retval)
 				retval = niceval;
 		}
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_ENG_BUILD
 		if (retval == -ESRCH && current->pid == who) {
 			pr_warn("getpriority return unexpected value who:%d "
@@ -308,6 +347,8 @@ SYSCALL_DEFINE2(getpriority, int, which, int, who)
 			BUG();
 		}
 #endif
+=======
+>>>>>>> upstream/android-13
 		break;
 	case PRIO_PGRP:
 		if (who)
@@ -392,7 +433,11 @@ long __sys_setregid(gid_t rgid, gid_t egid)
 	if (rgid != (gid_t) -1) {
 		if (gid_eq(old->gid, krgid) ||
 		    gid_eq(old->egid, krgid) ||
+<<<<<<< HEAD
 		    ns_capable(old->user_ns, CAP_SETGID))
+=======
+		    ns_capable_setid(old->user_ns, CAP_SETGID))
+>>>>>>> upstream/android-13
 			new->gid = krgid;
 		else
 			goto error;
@@ -401,7 +446,11 @@ long __sys_setregid(gid_t rgid, gid_t egid)
 		if (gid_eq(old->gid, kegid) ||
 		    gid_eq(old->egid, kegid) ||
 		    gid_eq(old->sgid, kegid) ||
+<<<<<<< HEAD
 		    ns_capable(old->user_ns, CAP_SETGID))
+=======
+		    ns_capable_setid(old->user_ns, CAP_SETGID))
+>>>>>>> upstream/android-13
 			new->egid = kegid;
 		else
 			goto error;
@@ -412,6 +461,13 @@ long __sys_setregid(gid_t rgid, gid_t egid)
 		new->sgid = new->egid;
 	new->fsgid = new->egid;
 
+<<<<<<< HEAD
+=======
+	retval = security_task_fix_setgid(new, old, LSM_SETID_RE);
+	if (retval < 0)
+		goto error;
+
+>>>>>>> upstream/android-13
 	return commit_creds(new);
 
 error:
@@ -447,13 +503,24 @@ long __sys_setgid(gid_t gid)
 	old = current_cred();
 
 	retval = -EPERM;
+<<<<<<< HEAD
 	if (ns_capable(old->user_ns, CAP_SETGID))
+=======
+	if (ns_capable_setid(old->user_ns, CAP_SETGID))
+>>>>>>> upstream/android-13
 		new->gid = new->egid = new->sgid = new->fsgid = kgid;
 	else if (gid_eq(kgid, old->gid) || gid_eq(kgid, old->sgid))
 		new->egid = new->fsgid = kgid;
 	else
 		goto error;
 
+<<<<<<< HEAD
+=======
+	retval = security_task_fix_setgid(new, old, LSM_SETID_ID);
+	if (retval < 0)
+		goto error;
+
+>>>>>>> upstream/android-13
 	return commit_creds(new);
 
 error:
@@ -477,6 +544,19 @@ static int set_user(struct cred *new)
 	if (!new_user)
 		return -EAGAIN;
 
+<<<<<<< HEAD
+=======
+	free_uid(new->user);
+	new->user = new_user;
+	return 0;
+}
+
+static void flag_nproc_exceeded(struct cred *new)
+{
+	if (new->ucounts == current_ucounts())
+		return;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We don't fail in case of NPROC limit excess here because too many
 	 * poorly written programs don't check set*uid() return code, assuming
@@ -484,6 +564,7 @@ static int set_user(struct cred *new)
 	 * for programs doing set*uid()+execve() by harmlessly deferring the
 	 * failure to the execve() stage.
 	 */
+<<<<<<< HEAD
 	if (atomic_read(&new_user->processes) >= rlimit(RLIMIT_NPROC) &&
 			new_user != INIT_USER)
 		current->flags |= PF_NPROC_EXCEEDED;
@@ -493,6 +574,13 @@ static int set_user(struct cred *new)
 	free_uid(new->user);
 	new->user = new_user;
 	return 0;
+=======
+	if (is_ucounts_overlimit(new->ucounts, UCOUNT_RLIMIT_NPROC, rlimit(RLIMIT_NPROC)) &&
+			new->user != INIT_USER)
+		current->flags |= PF_NPROC_EXCEEDED;
+	else
+		current->flags &= ~PF_NPROC_EXCEEDED;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -536,7 +624,11 @@ long __sys_setreuid(uid_t ruid, uid_t euid)
 		new->uid = kruid;
 		if (!uid_eq(old->uid, kruid) &&
 		    !uid_eq(old->euid, kruid) &&
+<<<<<<< HEAD
 		    !ns_capable(old->user_ns, CAP_SETUID))
+=======
+		    !ns_capable_setid(old->user_ns, CAP_SETUID))
+>>>>>>> upstream/android-13
 			goto error;
 	}
 
@@ -545,7 +637,11 @@ long __sys_setreuid(uid_t ruid, uid_t euid)
 		if (!uid_eq(old->uid, keuid) &&
 		    !uid_eq(old->euid, keuid) &&
 		    !uid_eq(old->suid, keuid) &&
+<<<<<<< HEAD
 		    !ns_capable(old->user_ns, CAP_SETUID))
+=======
+		    !ns_capable_setid(old->user_ns, CAP_SETUID))
+>>>>>>> upstream/android-13
 			goto error;
 	}
 
@@ -563,6 +659,14 @@ long __sys_setreuid(uid_t ruid, uid_t euid)
 	if (retval < 0)
 		goto error;
 
+<<<<<<< HEAD
+=======
+	retval = set_cred_ucounts(new);
+	if (retval < 0)
+		goto error;
+
+	flag_nproc_exceeded(new);
+>>>>>>> upstream/android-13
 	return commit_creds(new);
 
 error:
@@ -604,7 +708,11 @@ long __sys_setuid(uid_t uid)
 	old = current_cred();
 
 	retval = -EPERM;
+<<<<<<< HEAD
 	if (ns_capable(old->user_ns, CAP_SETUID)) {
+=======
+	if (ns_capable_setid(old->user_ns, CAP_SETUID)) {
+>>>>>>> upstream/android-13
 		new->suid = new->uid = kuid;
 		if (!uid_eq(kuid, old->uid)) {
 			retval = set_user(new);
@@ -621,6 +729,14 @@ long __sys_setuid(uid_t uid)
 	if (retval < 0)
 		goto error;
 
+<<<<<<< HEAD
+=======
+	retval = set_cred_ucounts(new);
+	if (retval < 0)
+		goto error;
+
+	flag_nproc_exceeded(new);
+>>>>>>> upstream/android-13
 	return commit_creds(new);
 
 error:
@@ -666,7 +782,11 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
 	old = current_cred();
 
 	retval = -EPERM;
+<<<<<<< HEAD
 	if (!ns_capable(old->user_ns, CAP_SETUID)) {
+=======
+	if (!ns_capable_setid(old->user_ns, CAP_SETUID)) {
+>>>>>>> upstream/android-13
 		if (ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
 		    !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid))
 			goto error;
@@ -696,6 +816,14 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
 	if (retval < 0)
 		goto error;
 
+<<<<<<< HEAD
+=======
+	retval = set_cred_ucounts(new);
+	if (retval < 0)
+		goto error;
+
+	flag_nproc_exceeded(new);
+>>>>>>> upstream/android-13
 	return commit_creds(new);
 
 error:
@@ -755,7 +883,11 @@ long __sys_setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 	old = current_cred();
 
 	retval = -EPERM;
+<<<<<<< HEAD
 	if (!ns_capable(old->user_ns, CAP_SETGID)) {
+=======
+	if (!ns_capable_setid(old->user_ns, CAP_SETGID)) {
+>>>>>>> upstream/android-13
 		if (rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
 		    !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid))
 			goto error;
@@ -775,6 +907,13 @@ long __sys_setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 		new->sgid = ksgid;
 	new->fsgid = new->egid;
 
+<<<<<<< HEAD
+=======
+	retval = security_task_fix_setgid(new, old, LSM_SETID_RES);
+	if (retval < 0)
+		goto error;
+
+>>>>>>> upstream/android-13
 	return commit_creds(new);
 
 error:
@@ -828,18 +967,25 @@ long __sys_setfsuid(uid_t uid)
 	if (!uid_valid(kuid))
 		return old_fsuid;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY_DEFEX
 	if (task_defex_enforce(current, NULL, -__NR_setfsuid))
 		return old_fsuid;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	new = prepare_creds();
 	if (!new)
 		return old_fsuid;
 
 	if (uid_eq(kuid, old->uid)  || uid_eq(kuid, old->euid)  ||
 	    uid_eq(kuid, old->suid) || uid_eq(kuid, old->fsuid) ||
+<<<<<<< HEAD
 	    ns_capable(old->user_ns, CAP_SETUID)) {
+=======
+	    ns_capable_setid(old->user_ns, CAP_SETUID)) {
+>>>>>>> upstream/android-13
 		if (!uid_eq(kuid, old->fsuid)) {
 			new->fsuid = kuid;
 			if (security_task_fix_setuid(new, old, LSM_SETID_FS) == 0)
@@ -877,21 +1023,32 @@ long __sys_setfsgid(gid_t gid)
 	if (!gid_valid(kgid))
 		return old_fsgid;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SECURITY_DEFEX
 	if (task_defex_enforce(current, NULL, -__NR_setfsgid))
 		return old_fsgid;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	new = prepare_creds();
 	if (!new)
 		return old_fsgid;
 
 	if (gid_eq(kgid, old->gid)  || gid_eq(kgid, old->egid)  ||
 	    gid_eq(kgid, old->sgid) || gid_eq(kgid, old->fsgid) ||
+<<<<<<< HEAD
 	    ns_capable(old->user_ns, CAP_SETGID)) {
 		if (!gid_eq(kgid, old->fsgid)) {
 			new->fsgid = kgid;
 			goto change_okay;
+=======
+	    ns_capable_setid(old->user_ns, CAP_SETGID)) {
+		if (!gid_eq(kgid, old->fsgid)) {
+			new->fsgid = kgid;
+			if (security_task_fix_setgid(new,old,LSM_SETID_FS) == 0)
+				goto change_okay;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1237,7 +1394,12 @@ DECLARE_RWSEM(uts_sem);
 /*
  * Work around broken programs that cannot handle "Linux 3.0".
  * Instead we map 3.x to 2.6.40+x, so e.g. 3.0 would be 2.6.40
+<<<<<<< HEAD
  * And we map 4.x to 2.6.60+x, so 4.0 would be 2.6.60.
+=======
+ * And we map 4.x and later versions to 2.6.60+x, so 4.0/5.0/6.0/... would be
+ * 2.6.60.
+>>>>>>> upstream/android-13
  */
 static int override_release(char __user *release, size_t len)
 {
@@ -1257,7 +1419,11 @@ static int override_release(char __user *release, size_t len)
 				break;
 			rest++;
 		}
+<<<<<<< HEAD
 		v = ((LINUX_VERSION_CODE >> 8) & 0xff) + 60;
+=======
+		v = LINUX_VERSION_PATCHLEVEL + 60;
+>>>>>>> upstream/android-13
 		copy = clamp_t(size_t, len, 1, sizeof(buf));
 		copy = scnprintf(buf, copy, "2.6.%u%s", v, rest);
 		ret = copy_to_user(release, buf, copy + 1);
@@ -1588,6 +1754,7 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
 			retval = -EPERM;
 		if (!retval)
 			retval = security_task_setrlimit(tsk, resource, new_rlim);
+<<<<<<< HEAD
 		if (resource == RLIMIT_CPU && new_rlim->rlim_cur == 0) {
 			/*
 			 * The caller is asking for an immediate RLIMIT_CPU
@@ -1597,6 +1764,8 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
 			 */
 			new_rlim->rlim_cur = 1;
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 	if (!retval) {
 		if (old_rlim)
@@ -1607,10 +1776,16 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
 	task_unlock(tsk->group_leader);
 
 	/*
+<<<<<<< HEAD
 	 * RLIMIT_CPU handling.   Note that the kernel fails to return an error
 	 * code if it rejected the user's attempt to set RLIMIT_CPU.  This is a
 	 * very long-standing error, and fixing it now risks breakage of
 	 * applications, so we live with it
+=======
+	 * RLIMIT_CPU handling. Arm the posix CPU timer if the limit is not
+	 * infinite. In case of RLIM_INFINITY the posix CPU timer code
+	 * ignores the rlimit.
+>>>>>>> upstream/android-13
 	 */
 	 if (!retval && new_rlim && resource == RLIMIT_CPU &&
 	     new_rlim->rlim_cur != RLIM_INFINITY &&
@@ -1778,6 +1953,10 @@ void getrusage(struct task_struct *p, int who, struct rusage *r)
 
 		if (who == RUSAGE_CHILDREN)
 			break;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case RUSAGE_SELF:
 		thread_group_cputime_adjusted(p, &tgutime, &tgstime);
@@ -1803,8 +1982,13 @@ void getrusage(struct task_struct *p, int who, struct rusage *r)
 	unlock_task_sighand(p, &flags);
 
 out:
+<<<<<<< HEAD
 	r->ru_utime = ns_to_timeval(utime);
 	r->ru_stime = ns_to_timeval(stime);
+=======
+	r->ru_utime = ns_to_kernel_old_timeval(utime);
+	r->ru_stime = ns_to_kernel_old_timeval(stime);
+>>>>>>> upstream/android-13
 
 	if (who != RUSAGE_CHILDREN) {
 		struct mm_struct *mm = get_task_mm(p);
@@ -1852,7 +2036,10 @@ SYSCALL_DEFINE1(umask, int, mask)
 static int prctl_set_mm_exe_file(struct mm_struct *mm, unsigned int fd)
 {
 	struct fd exe;
+<<<<<<< HEAD
 	struct file *old_exe, *exe_file;
+=======
+>>>>>>> upstream/android-13
 	struct inode *inode;
 	int err;
 
@@ -1871,6 +2058,7 @@ static int prctl_set_mm_exe_file(struct mm_struct *mm, unsigned int fd)
 	if (!S_ISREG(inode->i_mode) || path_noexec(&exe.file->f_path))
 		goto exit;
 
+<<<<<<< HEAD
 	err = inode_permission(inode, MAY_EXEC);
 	if (err)
 		goto exit;
@@ -1919,6 +2107,27 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
 {
 	unsigned long mmap_max_addr = TASK_SIZE;
 	struct mm_struct *mm = current->mm;
+=======
+	err = file_permission(exe.file, MAY_EXEC);
+	if (err)
+		goto exit;
+
+	err = replace_mm_exe_file(mm, exe.file);
+exit:
+	fdput(exe);
+	return err;
+}
+
+/*
+ * Check arithmetic relations of passed addresses.
+ *
+ * WARNING: we don't require any capability here so be very careful
+ * in what is allowed for modification from userspace.
+ */
+static int validate_prctl_map_addr(struct prctl_mm_map *prctl_map)
+{
+	unsigned long mmap_max_addr = TASK_SIZE;
+>>>>>>> upstream/android-13
 	int error = -EINVAL, i;
 
 	static const unsigned char offsets[] = {
@@ -1965,6 +2174,7 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
 	error = -EINVAL;
 
 	/*
+<<<<<<< HEAD
 	 * @brk should be after @end_data in traditional maps.
 	 */
 	if (prctl_map->start_brk <= prctl_map->end_data ||
@@ -1972,6 +2182,8 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
 		goto out;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Neither we should allow to override limits if they set.
 	 */
 	if (check_data_rlimit(rlimit(RLIMIT_DATA), prctl_map->brk,
@@ -1979,6 +2191,7 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
 			      prctl_map->start_data))
 			goto out;
 
+<<<<<<< HEAD
 	/*
 	 * Someone is trying to cheat the auxv vector.
 	 */
@@ -1997,6 +2210,8 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
 			goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	error = 0;
 out:
 	return error;
@@ -2023,11 +2238,25 @@ static int prctl_set_mm_map(int opt, const void __user *addr, unsigned long data
 	if (copy_from_user(&prctl_map, addr, sizeof(prctl_map)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	error = validate_prctl_map(&prctl_map);
+=======
+	error = validate_prctl_map_addr(&prctl_map);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
 	if (prctl_map.auxv_size) {
+<<<<<<< HEAD
+=======
+		/*
+		 * Someone is trying to cheat the auxv vector.
+		 */
+		if (!prctl_map.auxv ||
+				prctl_map.auxv_size > sizeof(mm->saved_auxv))
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 		memset(user_auxv, 0, sizeof(user_auxv));
 		if (copy_from_user(user_auxv,
 				   (const void __user *)prctl_map.auxv,
@@ -2040,16 +2269,37 @@ static int prctl_set_mm_map(int opt, const void __user *addr, unsigned long data
 	}
 
 	if (prctl_map.exe_fd != (u32)-1) {
+<<<<<<< HEAD
+=======
+		/*
+		 * Check if the current user is checkpoint/restore capable.
+		 * At the time of this writing, it checks for CAP_SYS_ADMIN
+		 * or CAP_CHECKPOINT_RESTORE.
+		 * Note that a user with access to ptrace can masquerade an
+		 * arbitrary program as any executable, even setuid ones.
+		 * This may have implications in the tomoyo subsystem.
+		 */
+		if (!checkpoint_restore_ns_capable(current_user_ns()))
+			return -EPERM;
+
+>>>>>>> upstream/android-13
 		error = prctl_set_mm_exe_file(mm, prctl_map.exe_fd);
 		if (error)
 			return error;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * arg_lock protects concurent updates but we still need mmap_sem for
 	 * read to exclude races with sys_brk.
 	 */
 	down_read(&mm->mmap_sem);
+=======
+	 * arg_lock protects concurrent updates but we still need mmap_lock for
+	 * read to exclude races with sys_brk.
+	 */
+	mmap_read_lock(mm);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We don't validate if these members are pointing to
@@ -2057,8 +2307,13 @@ static int prctl_set_mm_map(int opt, const void __user *addr, unsigned long data
 	 * VMAs already unmapped and kernel uses these members for statistics
 	 * output in procfs mostly, except
 	 *
+<<<<<<< HEAD
 	 *  - @start_brk/@brk which are used in do_brk but kernel lookups
 	 *    for VMAs when updating these memvers so anything wrong written
+=======
+	 *  - @start_brk/@brk which are used in do_brk_flags but kernel lookups
+	 *    for VMAs when updating these members so anything wrong written
+>>>>>>> upstream/android-13
 	 *    here cause kernel to swear at userspace program but won't lead
 	 *    to any problem in kernel itself
 	 */
@@ -2088,7 +2343,11 @@ static int prctl_set_mm_map(int opt, const void __user *addr, unsigned long data
 	if (prctl_map.auxv_size)
 		memcpy(mm->saved_auxv, user_auxv, sizeof(user_auxv));
 
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
+=======
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif /* CONFIG_CHECKPOINT_RESTORE */
@@ -2102,7 +2361,11 @@ static int prctl_set_auxv(struct mm_struct *mm, unsigned long addr,
 	 * up to the caller to provide sane values here, otherwise userspace
 	 * tools which use this vector might be unhappy.
 	 */
+<<<<<<< HEAD
 	unsigned long user_auxv[AT_VECTOR_SIZE];
+=======
+	unsigned long user_auxv[AT_VECTOR_SIZE] = {};
+>>>>>>> upstream/android-13
 
 	if (len > sizeof(user_auxv))
 		return -EINVAL;
@@ -2127,7 +2390,15 @@ static int prctl_set_mm(int opt, unsigned long addr,
 			unsigned long arg4, unsigned long arg5)
 {
 	struct mm_struct *mm = current->mm;
+<<<<<<< HEAD
 	struct prctl_mm_map prctl_map;
+=======
+	struct prctl_mm_map prctl_map = {
+		.auxv = NULL,
+		.auxv_size = 0,
+		.exe_fd = -1,
+	};
+>>>>>>> upstream/android-13
 	struct vm_area_struct *vma;
 	int error;
 
@@ -2155,9 +2426,21 @@ static int prctl_set_mm(int opt, unsigned long addr,
 
 	error = -EINVAL;
 
+<<<<<<< HEAD
 	down_write(&mm->mmap_sem);
 	vma = find_vma(mm, addr);
 
+=======
+	/*
+	 * arg_lock protects concurrent updates of arg boundaries, we need
+	 * mmap_lock for a) concurrent sys_brk, b) finding VMA for addr
+	 * validation.
+	 */
+	mmap_read_lock(mm);
+	vma = find_vma(mm, addr);
+
+	spin_lock(&mm->arg_lock);
+>>>>>>> upstream/android-13
 	prctl_map.start_code	= mm->start_code;
 	prctl_map.end_code	= mm->end_code;
 	prctl_map.start_data	= mm->start_data;
@@ -2169,9 +2452,12 @@ static int prctl_set_mm(int opt, unsigned long addr,
 	prctl_map.arg_end	= mm->arg_end;
 	prctl_map.env_start	= mm->env_start;
 	prctl_map.env_end	= mm->env_end;
+<<<<<<< HEAD
 	prctl_map.auxv		= NULL;
 	prctl_map.auxv_size	= 0;
 	prctl_map.exe_fd	= -1;
+=======
+>>>>>>> upstream/android-13
 
 	switch (opt) {
 	case PR_SET_MM_START_CODE:
@@ -2211,7 +2497,11 @@ static int prctl_set_mm(int opt, unsigned long addr,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	error = validate_prctl_map(&prctl_map);
+=======
+	error = validate_prctl_map_addr(&prctl_map);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out;
 
@@ -2220,7 +2510,11 @@ static int prctl_set_mm(int opt, unsigned long addr,
 	 * If command line arguments and environment
 	 * are placed somewhere else on stack, we can
 	 * set them up here, ARG_START/END to setup
+<<<<<<< HEAD
 	 * command line argumets and ENV_START/END
+=======
+	 * command line arguments and ENV_START/END
+>>>>>>> upstream/android-13
 	 * for environment.
 	 */
 	case PR_SET_MM_START_STACK:
@@ -2248,17 +2542,30 @@ static int prctl_set_mm(int opt, unsigned long addr,
 
 	error = 0;
 out:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	spin_unlock(&mm->arg_lock);
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	return error;
 }
 
 #ifdef CONFIG_CHECKPOINT_RESTORE
+<<<<<<< HEAD
 static int prctl_get_tid_address(struct task_struct *me, int __user **tid_addr)
+=======
+static int prctl_get_tid_address(struct task_struct *me, int __user * __user *tid_addr)
+>>>>>>> upstream/android-13
 {
 	return put_user(me->clear_child_tid, tid_addr);
 }
 #else
+<<<<<<< HEAD
 static int prctl_get_tid_address(struct task_struct *me, int __user **tid_addr)
+=======
+static int prctl_get_tid_address(struct task_struct *me, int __user * __user *tid_addr)
+>>>>>>> upstream/android-13
 {
 	return -EINVAL;
 }
@@ -2267,8 +2574,13 @@ static int prctl_get_tid_address(struct task_struct *me, int __user **tid_addr)
 static int propagate_has_child_subreaper(struct task_struct *p, void *data)
 {
 	/*
+<<<<<<< HEAD
 	 * If task has has_child_subreaper - all its decendants
 	 * already have these flag too and new decendants will
+=======
+	 * If task has has_child_subreaper - all its descendants
+	 * already have these flag too and new descendants will
+>>>>>>> upstream/android-13
 	 * inherit it on fork, skip them.
 	 *
 	 * If we've found child_reaper - skip descendants in
@@ -2293,6 +2605,7 @@ int __weak arch_prctl_spec_ctrl_set(struct task_struct *t, unsigned long which,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_MMU
 static int prctl_update_vma_anon_name(struct vm_area_struct *vma,
 		struct vm_area_struct **prev,
@@ -2423,11 +2736,64 @@ static int prctl_set_vma(unsigned long opt, unsigned long start,
 	switch (opt) {
 	case PR_SET_VMA_ANON_NAME:
 		error = prctl_set_vma_anon_name(start, end, arg);
+=======
+#define PR_IO_FLUSHER (PF_MEMALLOC_NOIO | PF_LOCAL_THROTTLE)
+
+#ifdef CONFIG_ANON_VMA_NAME
+
+#define ANON_VMA_NAME_MAX_LEN		256
+#define ANON_VMA_NAME_INVALID_CHARS	"\\`$[]"
+
+static inline bool is_valid_name_char(char ch)
+{
+	/* printable ascii characters, excluding ANON_VMA_NAME_INVALID_CHARS */
+	return ch > 0x1f && ch < 0x7f &&
+		!strchr(ANON_VMA_NAME_INVALID_CHARS, ch);
+}
+
+static int prctl_set_vma(unsigned long opt, unsigned long addr,
+			 unsigned long size, unsigned long arg)
+{
+	struct mm_struct *mm = current->mm;
+	const char __user *uname;
+	struct anon_vma_name *anon_name = NULL;
+	int error;
+
+	switch (opt) {
+	case PR_SET_VMA_ANON_NAME:
+		uname = (const char __user *)arg;
+		if (uname) {
+			char *name, *pch;
+
+			name = strndup_user(uname, ANON_VMA_NAME_MAX_LEN);
+			if (IS_ERR(name))
+				return PTR_ERR(name);
+
+			for (pch = name; *pch != '\0'; pch++) {
+				if (!is_valid_name_char(*pch)) {
+					kfree(name);
+					return -EINVAL;
+				}
+			}
+			/* anon_vma has its own copy */
+			anon_name = anon_vma_name_alloc(name);
+			kfree(name);
+			if (!anon_name)
+				return -ENOMEM;
+
+		}
+
+		mmap_write_lock(mm);
+		error = madvise_set_anon_name(mm, addr, size, anon_name);
+		mmap_write_unlock(mm);
+		anon_vma_name_put(anon_name);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		error = -EINVAL;
 	}
 
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
 
 	return error;
@@ -2439,6 +2805,18 @@ static int prctl_set_vma(unsigned long opt, unsigned long start,
 	return -EINVAL;
 }
 #endif
+=======
+	return error;
+}
+
+#else /* CONFIG_ANON_VMA_NAME */
+static int prctl_set_vma(unsigned long opt, unsigned long start,
+			 unsigned long size, unsigned long arg)
+{
+	return -EINVAL;
+}
+#endif /* CONFIG_ANON_VMA_NAME */
+>>>>>>> upstream/android-13
 
 SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
 		unsigned long, arg4, unsigned long, arg5)
@@ -2506,9 +2884,12 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
 			return -EFAULT;
 		set_task_comm(me, comm);
 		proc_comm_connector(me);
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_TASK_TURBO
 		sys_set_turbo_task(me);
 #endif
+=======
+>>>>>>> upstream/android-13
 		break;
 	case PR_GET_NAME:
 		get_task_comm(comm, me);
@@ -2590,7 +2971,11 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
 		error = prctl_set_mm(arg2, arg3, arg4, arg5);
 		break;
 	case PR_GET_TID_ADDRESS:
+<<<<<<< HEAD
 		error = prctl_get_tid_address(me, (int __user **)arg2);
+=======
+		error = prctl_get_tid_address(me, (int __user * __user *)arg2);
+>>>>>>> upstream/android-13
 		break;
 	case PR_SET_CHILD_SUBREAPER:
 		me->signal->is_child_subreaper = !!arg2;
@@ -2621,12 +3006,17 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
 	case PR_SET_THP_DISABLE:
 		if (arg3 || arg4 || arg5)
 			return -EINVAL;
+<<<<<<< HEAD
 		if (down_write_killable(&me->mm->mmap_sem))
+=======
+		if (mmap_write_lock_killable(me->mm))
+>>>>>>> upstream/android-13
 			return -EINTR;
 		if (arg2)
 			set_bit(MMF_DISABLE_THP, &me->mm->flags);
 		else
 			clear_bit(MMF_DISABLE_THP, &me->mm->flags);
+<<<<<<< HEAD
 		up_write(&me->mm->mmap_sem);
 		break;
 	case PR_MPX_ENABLE_MANAGEMENT:
@@ -2639,6 +3029,14 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
 			return -EINVAL;
 		error = MPX_DISABLE_MANAGEMENT();
 		break;
+=======
+		mmap_write_unlock(me->mm);
+		break;
+	case PR_MPX_ENABLE_MANAGEMENT:
+	case PR_MPX_DISABLE_MANAGEMENT:
+		/* No longer implemented: */
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	case PR_SET_FP_MODE:
 		error = SET_FP_MODE(me, arg2);
 		break;
@@ -2661,8 +3059,25 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
 			return -EINVAL;
 		error = arch_prctl_spec_ctrl_set(me, arg2, arg3);
 		break;
+<<<<<<< HEAD
 	case PR_SET_VMA:
 		error = prctl_set_vma(arg2, arg3, arg4, arg5);
+=======
+	case PR_PAC_RESET_KEYS:
+		if (arg3 || arg4 || arg5)
+			return -EINVAL;
+		error = PAC_RESET_KEYS(me, arg2);
+		break;
+	case PR_PAC_SET_ENABLED_KEYS:
+		if (arg4 || arg5)
+			return -EINVAL;
+		error = PAC_SET_ENABLED_KEYS(me, arg2, arg3);
+		break;
+	case PR_PAC_GET_ENABLED_KEYS:
+		if (arg2 || arg3 || arg4 || arg5)
+			return -EINVAL;
+		error = PAC_GET_ENABLED_KEYS(me);
+>>>>>>> upstream/android-13
 		break;
 	case PR_SET_TAGGED_ADDR_CTRL:
 		if (arg3 || arg4 || arg5)
@@ -2674,10 +3089,52 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
 			return -EINVAL;
 		error = GET_TAGGED_ADDR_CTRL();
 		break;
+<<<<<<< HEAD
+=======
+	case PR_SET_IO_FLUSHER:
+		if (!capable(CAP_SYS_RESOURCE))
+			return -EPERM;
+
+		if (arg3 || arg4 || arg5)
+			return -EINVAL;
+
+		if (arg2 == 1)
+			current->flags |= PR_IO_FLUSHER;
+		else if (!arg2)
+			current->flags &= ~PR_IO_FLUSHER;
+		else
+			return -EINVAL;
+		break;
+	case PR_GET_IO_FLUSHER:
+		if (!capable(CAP_SYS_RESOURCE))
+			return -EPERM;
+
+		if (arg2 || arg3 || arg4 || arg5)
+			return -EINVAL;
+
+		error = (current->flags & PR_IO_FLUSHER) == PR_IO_FLUSHER;
+		break;
+	case PR_SET_SYSCALL_USER_DISPATCH:
+		error = set_syscall_user_dispatch(arg2, arg3, arg4,
+						  (char __user *) arg5);
+		break;
+#ifdef CONFIG_SCHED_CORE
+	case PR_SCHED_CORE:
+		error = sched_core_share_pid(arg2, arg3, arg4, arg5);
+		break;
+#endif
+	case PR_SET_VMA:
+		error = prctl_set_vma(arg2, arg3, arg4, arg5);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		error = -EINVAL;
 		break;
 	}
+<<<<<<< HEAD
+=======
+	trace_android_vh_syscall_prctl_finished(option, me);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -2707,6 +3164,10 @@ static int do_sysinfo(struct sysinfo *info)
 	memset(info, 0, sizeof(struct sysinfo));
 
 	ktime_get_boottime_ts64(&tp);
+<<<<<<< HEAD
+=======
+	timens_add_boottime(&tp);
+>>>>>>> upstream/android-13
 	info->uptime = tp.tv_sec + (tp.tv_nsec ? 1 : 0);
 
 	get_avenrun(info->loads, 0, SI_LOAD_SHIFT - FSHIFT);
@@ -2793,6 +3254,10 @@ struct compat_sysinfo {
 COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
 {
 	struct sysinfo s;
+<<<<<<< HEAD
+=======
+	struct compat_sysinfo s_32;
+>>>>>>> upstream/android-13
 
 	do_sysinfo(&s);
 
@@ -2817,6 +3282,7 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
 		s.freehigh >>= bitcount;
 	}
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, info, sizeof(struct compat_sysinfo)) ||
 	    __put_user(s.uptime, &info->uptime) ||
 	    __put_user(s.loads[0], &info->loads[0]) ||
@@ -2834,6 +3300,25 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
 	    __put_user(s.mem_unit, &info->mem_unit))
 		return -EFAULT;
 
+=======
+	memset(&s_32, 0, sizeof(s_32));
+	s_32.uptime = s.uptime;
+	s_32.loads[0] = s.loads[0];
+	s_32.loads[1] = s.loads[1];
+	s_32.loads[2] = s.loads[2];
+	s_32.totalram = s.totalram;
+	s_32.freeram = s.freeram;
+	s_32.sharedram = s.sharedram;
+	s_32.bufferram = s.bufferram;
+	s_32.totalswap = s.totalswap;
+	s_32.freeswap = s.freeswap;
+	s_32.procs = s.procs;
+	s_32.totalhigh = s.totalhigh;
+	s_32.freehigh = s.freehigh;
+	s_32.mem_unit = s.mem_unit;
+	if (copy_to_user(info, &s_32, sizeof(s_32)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif /* CONFIG_COMPAT */

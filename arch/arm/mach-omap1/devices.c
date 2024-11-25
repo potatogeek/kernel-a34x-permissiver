@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-omap1/devices.c
  *
  * OMAP1 platform device setup/initialization
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dma-mapping.h>
@@ -25,7 +32,10 @@
 #include <mach/mux.h>
 
 #include <mach/omap7xx.h>
+<<<<<<< HEAD
 #include "camera.h"
+=======
+>>>>>>> upstream/android-13
 #include <mach/hardware.h>
 
 #include "common.h"
@@ -244,6 +254,12 @@ struct platform_device omap_spi2 = {
 
 static void omap_init_spi100k(void)
 {
+<<<<<<< HEAD
+=======
+	if (!cpu_is_omap7xx())
+		return;
+
+>>>>>>> upstream/android-13
 	omap_spi1.dev.platform_data = ioremap(OMAP7XX_SPI1_BASE, 0x7ff);
 	if (omap_spi1.dev.platform_data)
 		platform_device_register(&omap_spi1);
@@ -259,6 +275,7 @@ static inline void omap_init_spi100k(void)
 }
 #endif
 
+<<<<<<< HEAD
 
 #define OMAP1_CAMERA_BASE	0xfffb6800
 #define OMAP1_CAMERA_IOSIZE	0x1c
@@ -301,6 +318,8 @@ void __init omap1_camera_init(void *info)
 }
 
 
+=======
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 static inline void omap_init_sti(void) {}

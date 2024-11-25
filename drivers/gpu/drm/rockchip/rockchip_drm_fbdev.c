@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
  * Author:Mark Yao <mark.yao@rock-chips.com>
@@ -16,6 +17,18 @@
 #include <drm/drmP.h>
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_crtc_helper.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Fuzhou Rockchip Electronics Co.Ltd
+ * Author:Mark Yao <mark.yao@rock-chips.com>
+ */
+
+#include <drm/drm.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "rockchip_drm_drv.h"
 #include "rockchip_drm_gem.h"
@@ -35,7 +48,11 @@ static int rockchip_fbdev_mmap(struct fb_info *info,
 	return rockchip_gem_mmap_buf(private->fbdev_bo, vma);
 }
 
+<<<<<<< HEAD
 static struct fb_ops rockchip_drm_fbdev_ops = {
+=======
+static const struct fb_ops rockchip_drm_fbdev_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 	.fb_mmap	= rockchip_fbdev_mmap,
@@ -90,6 +107,7 @@ static int rockchip_drm_fbdev_create(struct drm_fb_helper *helper,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	fbi->par = helper;
 	fbi->flags = FBINFO_FLAG_DEFAULT;
 	fbi->fbops = &rockchip_drm_fbdev_ops;
@@ -97,6 +115,12 @@ static int rockchip_drm_fbdev_create(struct drm_fb_helper *helper,
 	fb = helper->fb;
 	drm_fb_helper_fill_fix(fbi, fb->pitches[0], fb->format->depth);
 	drm_fb_helper_fill_var(fbi, helper, sizes->fb_width, sizes->fb_height);
+=======
+	fbi->fbops = &rockchip_drm_fbdev_ops;
+
+	fb = helper->fb;
+	drm_fb_helper_fill_info(fbi, helper, sizes);
+>>>>>>> upstream/android-13
 
 	offset = fbi->var.xoffset * bytes_per_pixel;
 	offset += fbi->var.yoffset * fb->pitches[0];
@@ -111,8 +135,11 @@ static int rockchip_drm_fbdev_create(struct drm_fb_helper *helper,
 		      rk_obj->kvaddr,
 		      offset, size);
 
+<<<<<<< HEAD
 	fbi->skip_vt_switch = true;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 out:
@@ -137,7 +164,11 @@ int rockchip_drm_fbdev_init(struct drm_device *dev)
 
 	drm_fb_helper_prepare(dev, helper, &rockchip_drm_fb_helper_funcs);
 
+<<<<<<< HEAD
 	ret = drm_fb_helper_init(dev, helper, ROCKCHIP_MAX_CONNECTOR);
+=======
+	ret = drm_fb_helper_init(dev, helper);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		DRM_DEV_ERROR(dev->dev,
 			      "Failed to initialize drm fb helper - %d.\n",
@@ -145,6 +176,7 @@ int rockchip_drm_fbdev_init(struct drm_device *dev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = drm_fb_helper_single_add_all_connectors(helper);
 	if (ret < 0) {
 		DRM_DEV_ERROR(dev->dev,
@@ -152,6 +184,8 @@ int rockchip_drm_fbdev_init(struct drm_device *dev)
 		goto err_drm_fb_helper_fini;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = drm_fb_helper_initial_config(helper, PREFERRED_BPP);
 	if (ret < 0) {
 		DRM_DEV_ERROR(dev->dev,

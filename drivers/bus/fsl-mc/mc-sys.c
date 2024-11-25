@@ -16,7 +16,11 @@
 
 #include "fsl-mc-private.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Timeout in milliseconds to wait for the completion of an MC command
  */
 #define MC_CMD_COMPLETION_TIMEOUT_MS	500
@@ -35,7 +39,11 @@ static enum mc_cmd_status mc_cmd_hdr_read_status(struct fsl_mc_command *cmd)
 	return (enum mc_cmd_status)hdr->status;
 }
 
+<<<<<<< HEAD
 static u16 mc_cmd_hdr_read_cmdid(struct fsl_mc_command *cmd)
+=======
+u16 mc_cmd_hdr_read_cmdid(struct fsl_mc_command *cmd)
+>>>>>>> upstream/android-13
 {
 	struct mc_cmd_header *hdr = (struct mc_cmd_header *)&cmd->header;
 	u16 cmd_id = le16_to_cpu(hdr->cmd_id);
@@ -148,9 +156,16 @@ static inline enum mc_cmd_status mc_read_response(struct fsl_mc_command __iomem
 }
 
 /**
+<<<<<<< HEAD
  * Waits for the completion of an MC command doing preemptible polling.
  * uslepp_range() is called between polling iterations.
  *
+=======
+ * mc_polling_wait_preemptible() - Waits for the completion of an MC
+ *                                 command doing preemptible polling.
+ *                                 uslepp_range() is called between
+ *                                 polling iterations.
+>>>>>>> upstream/android-13
  * @mc_io: MC I/O object to be used
  * @cmd: command buffer to receive MC response
  * @mc_status: MC command completion status
@@ -194,9 +209,15 @@ static int mc_polling_wait_preemptible(struct fsl_mc_io *mc_io,
 }
 
 /**
+<<<<<<< HEAD
  * Waits for the completion of an MC command doing atomic polling.
  * udelay() is called between polling iterations.
  *
+=======
+ * mc_polling_wait_atomic() - Waits for the completion of an MC command
+ *                            doing atomic polling. udelay() is called
+ *                            between polling iterations.
+>>>>>>> upstream/android-13
  * @mc_io: MC I/O object to be used
  * @cmd: command buffer to receive MC response
  * @mc_status: MC command completion status
@@ -234,8 +255,13 @@ static int mc_polling_wait_atomic(struct fsl_mc_io *mc_io,
 }
 
 /**
+<<<<<<< HEAD
  * Sends a command to the MC device using the given MC I/O object
  *
+=======
+ * mc_send_command() - Sends a command to the MC device using the given
+ *                     MC I/O object
+>>>>>>> upstream/android-13
  * @mc_io: MC I/O object to be used
  * @cmd: command to be sent
  *
@@ -251,7 +277,11 @@ int mc_send_command(struct fsl_mc_io *mc_io, struct fsl_mc_command *cmd)
 		return -EINVAL;
 
 	if (mc_io->flags & FSL_MC_IO_ATOMIC_CONTEXT_PORTAL)
+<<<<<<< HEAD
 		spin_lock_irqsave(&mc_io->spinlock, irq_flags);
+=======
+		raw_spin_lock_irqsave(&mc_io->spinlock, irq_flags);
+>>>>>>> upstream/android-13
 	else
 		mutex_lock(&mc_io->mutex);
 
@@ -287,7 +317,11 @@ int mc_send_command(struct fsl_mc_io *mc_io, struct fsl_mc_command *cmd)
 	error = 0;
 common_exit:
 	if (mc_io->flags & FSL_MC_IO_ATOMIC_CONTEXT_PORTAL)
+<<<<<<< HEAD
 		spin_unlock_irqrestore(&mc_io->spinlock, irq_flags);
+=======
+		raw_spin_unlock_irqrestore(&mc_io->spinlock, irq_flags);
+>>>>>>> upstream/android-13
 	else
 		mutex_unlock(&mc_io->mutex);
 

@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Author: Anil Kumar <anilk4.v@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Author: Anil Kumar <anilk4.v@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <dt-bindings/input/input.h>
@@ -161,6 +167,27 @@
 	status = "disabled";
 };
 
+<<<<<<< HEAD
+=======
+/* Unusable as clockevent because if unreliable oscillator, allow to idle */
+&timer1_target {
+	/delete-property/ti,no-reset-on-init;
+	/delete-property/ti,no-idle;
+	timer@0 {
+		/delete-property/ti,timer-alwon;
+	};
+};
+
+/* Preferred timer for clockevent */
+&timer12_target {
+	ti,no-reset-on-init;
+	ti,no-idle;
+	timer@0 {
+		/* Always clocked by secure_32k_fck */
+	};
+};
+
+>>>>>>> upstream/android-13
 &twl_gpio {
 	ti,use-leds;
 	/*
@@ -340,7 +367,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&dss_dpi_pins>;
@@ -364,7 +395,11 @@
 };
 
 &venc {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	vdda-supply = <&vdac>;
 

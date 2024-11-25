@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ACPI Sony Notebook Control Driver (SNC and SPIC)
  *
@@ -25,6 +29,7 @@
  * Copyright (C) 2000 Andrew Tridgell <tridge@valinux.com>
  *
  * Earlier work by Werner Almesberger, Paul `Rusty' Russell and Paul Mackerras.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +45,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -771,6 +778,7 @@ static union acpi_object *__call_snc_method(acpi_handle handle, char *method,
 	return result;
 }
 
+<<<<<<< HEAD
 static int sony_nc_int_call(acpi_handle handle, char *name, int *value,
 		int *result)
 {
@@ -798,6 +806,8 @@ static int sony_nc_int_call(acpi_handle handle, char *name, int *value,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define MIN(a, b)	(a > b ? b : a)
 static int sony_nc_buffer_call(acpi_handle handle, char *name, u64 *value,
 		void *buffer, size_t buflen)
@@ -809,17 +819,33 @@ static int sony_nc_buffer_call(acpi_handle handle, char *name, u64 *value,
 	if (!object)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (object->type == ACPI_TYPE_BUFFER) {
 		len = MIN(buflen, object->buffer.length);
+=======
+	if (!buffer) {
+		/* do nothing */
+	} else if (object->type == ACPI_TYPE_BUFFER) {
+		len = MIN(buflen, object->buffer.length);
+		memset(buffer, 0, buflen);
+>>>>>>> upstream/android-13
 		memcpy(buffer, object->buffer.pointer, len);
 
 	} else if (object->type == ACPI_TYPE_INTEGER) {
 		len = MIN(buflen, sizeof(object->integer.value));
+<<<<<<< HEAD
 		memcpy(buffer, &object->integer.value, len);
 
 	} else {
 		pr_warn("Invalid acpi_object: expected 0x%x got 0x%x\n",
 				ACPI_TYPE_BUFFER, object->type);
+=======
+		memset(buffer, 0, buflen);
+		memcpy(buffer, &object->integer.value, len);
+
+	} else {
+		pr_warn("Unexpected acpi_object: 0x%x\n", object->type);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 	}
 
@@ -827,6 +853,26 @@ static int sony_nc_buffer_call(acpi_handle handle, char *name, u64 *value,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int sony_nc_int_call(acpi_handle handle, char *name, int *value, int
+		*result)
+{
+	int ret;
+
+	if (value) {
+		u64 v = *value;
+
+		ret = sony_nc_buffer_call(handle, name, &v, result,
+				sizeof(*result));
+	} else {
+		ret =  sony_nc_buffer_call(handle, name, NULL, result,
+				sizeof(*result));
+	}
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 struct sony_nc_handles {
 	u16 cap[0x10];
 	struct device_attribute devattr;
@@ -841,10 +887,17 @@ static ssize_t sony_nc_handles_show(struct device *dev,
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(handles->cap); i++) {
+<<<<<<< HEAD
 		len += snprintf(buffer + len, PAGE_SIZE - len, "0x%.4x ",
 				handles->cap[i]);
 	}
 	len += snprintf(buffer + len, PAGE_SIZE - len, "\n");
+=======
+		len += scnprintf(buffer + len, PAGE_SIZE - len, "0x%.4x ",
+				handles->cap[i]);
+	}
+	len += scnprintf(buffer + len, PAGE_SIZE - len, "\n");
+>>>>>>> upstream/android-13
 
 	return len;
 }
@@ -2201,10 +2254,17 @@ static ssize_t sony_nc_thermal_profiles_show(struct device *dev,
 
 	for (cnt = 0; cnt < THM_PROFILE_MAX; cnt++) {
 		if (!cnt || (th_handle->profiles & cnt))
+<<<<<<< HEAD
 			idx += snprintf(buffer + idx, PAGE_SIZE - idx, "%s ",
 					snc_thermal_profiles[cnt]);
 	}
 	idx += snprintf(buffer + idx, PAGE_SIZE - idx, "\n");
+=======
+			idx += scnprintf(buffer + idx, PAGE_SIZE - idx, "%s ",
+					snc_thermal_profiles[cnt]);
+	}
+	idx += scnprintf(buffer + idx, PAGE_SIZE - idx, "\n");
+>>>>>>> upstream/android-13
 
 	return idx;
 }
@@ -2309,7 +2369,16 @@ static void sony_nc_thermal_cleanup(struct platform_device *pd)
 #ifdef CONFIG_PM_SLEEP
 static void sony_nc_thermal_resume(void)
 {
+<<<<<<< HEAD
 	unsigned int status = sony_nc_thermal_mode_get();
+=======
+	int status;
+
+	if (!th_handle)
+		return;
+
+	status = sony_nc_thermal_mode_get();
+>>>>>>> upstream/android-13
 
 	if (status != th_handle->mode)
 		sony_nc_thermal_mode_set(th_handle->mode);
@@ -2483,13 +2552,19 @@ static int __sony_nc_gfx_switch_status_get(void)
 		 * 0: integrated GFX (stamina)
 		 */
 		return result & 0x1 ? SPEED : STAMINA;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case 0x015B:
 		/* 0: discrete GFX (speed)
 		 * 1: integrated GFX (stamina)
 		 */
 		return result & 0x1 ? STAMINA : SPEED;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	case 0x0128:
 		/* it's a more elaborated bitmask, for now:
 		 * 2: integrated GFX (stamina)
@@ -2498,7 +2573,10 @@ static int __sony_nc_gfx_switch_status_get(void)
 		dprintk("GFX Status: 0x%x\n", result);
 		return result & 0x80 ? AUTO :
 			result & 0x02 ? STAMINA : SPEED;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 	return -EINVAL;
 }
@@ -4392,7 +4470,11 @@ sony_pic_read_possible_resource(struct acpi_resource *resource, void *context)
 				list_add(&interrupt->list, &dev->interrupts);
 				interrupt->irq.triggering = p->triggering;
 				interrupt->irq.polarity = p->polarity;
+<<<<<<< HEAD
 				interrupt->irq.sharable = p->sharable;
+=======
+				interrupt->irq.shareable = p->shareable;
+>>>>>>> upstream/android-13
 				interrupt->irq.interrupt_count = 1;
 				interrupt->irq.interrupts[0] = p->interrupts[i];
 			}
@@ -4548,7 +4630,11 @@ static int sony_pic_enable(struct acpi_device *device,
 		memcpy(&resource->res3.data.irq, &irq->irq,
 				sizeof(struct acpi_resource_irq));
 		/* we requested a shared irq */
+<<<<<<< HEAD
 		resource->res3.data.irq.sharable = ACPI_SHARED;
+=======
+		resource->res3.data.irq.shareable = ACPI_SHARED;
+>>>>>>> upstream/android-13
 
 		resource->res4.type = ACPI_RESOURCE_TYPE_END_TAG;
 		resource->res4.length = sizeof(struct acpi_resource);
@@ -4567,7 +4653,11 @@ static int sony_pic_enable(struct acpi_device *device,
 		memcpy(&resource->res2.data.irq, &irq->irq,
 				sizeof(struct acpi_resource_irq));
 		/* we requested a shared irq */
+<<<<<<< HEAD
 		resource->res2.data.irq.sharable = ACPI_SHARED;
+=======
+		resource->res2.data.irq.shareable = ACPI_SHARED;
+>>>>>>> upstream/android-13
 
 		resource->res3.type = ACPI_RESOURCE_TYPE_END_TAG;
 		resource->res3.length = sizeof(struct acpi_resource);
@@ -4781,7 +4871,11 @@ static int sony_pic_add(struct acpi_device *device)
 					irq->irq.interrupts[0],
 					irq->irq.triggering,
 					irq->irq.polarity,
+<<<<<<< HEAD
 					irq->irq.sharable);
+=======
+					irq->irq.shareable);
+>>>>>>> upstream/android-13
 			spic_dev.cur_irq = irq;
 			break;
 		}

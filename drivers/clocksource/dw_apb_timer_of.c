@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Altera Corporation
  * Copyright (c) 2011 Picochip Ltd., Jamie Iles
  *
  * Modified from mach-picoxcell/time.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/dw_apb_timer.h>
@@ -22,26 +29,56 @@
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/clk.h>
+<<<<<<< HEAD
 #include <linux/sched_clock.h>
 
 static void __init timer_get_base_and_rate(struct device_node *np,
+=======
+#include <linux/reset.h>
+#include <linux/sched_clock.h>
+
+static int __init timer_get_base_and_rate(struct device_node *np,
+>>>>>>> upstream/android-13
 				    void __iomem **base, u32 *rate)
 {
 	struct clk *timer_clk;
 	struct clk *pclk;
+<<<<<<< HEAD
+=======
+	struct reset_control *rstc;
+	int ret;
+>>>>>>> upstream/android-13
 
 	*base = of_iomap(np, 0);
 
 	if (!*base)
+<<<<<<< HEAD
 		panic("Unable to map regs for %s", np->name);
 
 	/*
 	 * Not all implementations use a periphal clock, so don't panic
+=======
+		panic("Unable to map regs for %pOFn", np);
+
+	/*
+	 * Reset the timer if the reset control is available, wiping
+	 * out the state the firmware may have left it
+	 */
+	rstc = of_reset_control_get(np, NULL);
+	if (!IS_ERR(rstc)) {
+		reset_control_assert(rstc);
+		reset_control_deassert(rstc);
+	}
+
+	/*
+	 * Not all implementations use a peripheral clock, so don't panic
+>>>>>>> upstream/android-13
 	 * if it's not present
 	 */
 	pclk = of_clk_get_by_name(np, "pclk");
 	if (!IS_ERR(pclk))
 		if (clk_prepare_enable(pclk))
+<<<<<<< HEAD
 			pr_warn("pclk for %s is present, but could not be activated\n",
 				np->name);
 
@@ -61,15 +98,61 @@ try_clock_freq:
 }
 
 static void __init add_clockevent(struct device_node *event_timer)
+=======
+			pr_warn("pclk for %pOFn is present, but could not be activated\n",
+				np);
+
+	if (!of_property_read_u32(np, "clock-freq", rate) ||
+	    !of_property_read_u32(np, "clock-frequency", rate))
+		return 0;
+
+	timer_clk = of_clk_get_by_name(np, "timer");
+	if (IS_ERR(timer_clk)) {
+		ret = PTR_ERR(timer_clk);
+		goto out_pclk_disable;
+	}
+
+	ret = clk_prepare_enable(timer_clk);
+	if (ret)
+		goto out_timer_clk_put;
+
+	*rate = clk_get_rate(timer_clk);
+	if (!(*rate)) {
+		ret = -EINVAL;
+		goto out_timer_clk_disable;
+	}
+
+	return 0;
+
+out_timer_clk_disable:
+	clk_disable_unprepare(timer_clk);
+out_timer_clk_put:
+	clk_put(timer_clk);
+out_pclk_disable:
+	if (!IS_ERR(pclk)) {
+		clk_disable_unprepare(pclk);
+		clk_put(pclk);
+	}
+	iounmap(*base);
+	return ret;
+}
+
+static int __init add_clockevent(struct device_node *event_timer)
+>>>>>>> upstream/android-13
 {
 	void __iomem *iobase;
 	struct dw_apb_clock_event_device *ced;
 	u32 irq, rate;
+<<<<<<< HEAD
+=======
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	irq = irq_of_parse_and_map(event_timer, 0);
 	if (irq == 0)
 		panic("No IRQ for clock event timer");
 
+<<<<<<< HEAD
 	timer_get_base_and_rate(event_timer, &iobase, &rate);
 
 	ced = dw_apb_clockevent_init(0, event_timer->name, 300, iobase, irq,
@@ -78,22 +161,52 @@ static void __init add_clockevent(struct device_node *event_timer)
 		panic("Unable to initialise clockevent device");
 
 	dw_apb_clockevent_register(ced);
+=======
+	ret = timer_get_base_and_rate(event_timer, &iobase, &rate);
+	if (ret)
+		return ret;
+
+	ced = dw_apb_clockevent_init(-1, event_timer->name, 300, iobase, irq,
+				     rate);
+	if (!ced)
+		return -EINVAL;
+
+	dw_apb_clockevent_register(ced);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void __iomem *sched_io_base;
 static u32 sched_rate;
 
+<<<<<<< HEAD
 static void __init add_clocksource(struct device_node *source_timer)
+=======
+static int __init add_clocksource(struct device_node *source_timer)
+>>>>>>> upstream/android-13
 {
 	void __iomem *iobase;
 	struct dw_apb_clocksource *cs;
 	u32 rate;
+<<<<<<< HEAD
 
 	timer_get_base_and_rate(source_timer, &iobase, &rate);
 
 	cs = dw_apb_clocksource_init(300, source_timer->name, iobase, rate);
 	if (!cs)
 		panic("Unable to initialise clocksource device");
+=======
+	int ret;
+
+	ret = timer_get_base_and_rate(source_timer, &iobase, &rate);
+	if (ret)
+		return ret;
+
+	cs = dw_apb_clocksource_init(300, source_timer->name, iobase, rate);
+	if (!cs)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	dw_apb_clocksource_start(cs);
 	dw_apb_clocksource_register(cs);
@@ -105,6 +218,11 @@ static void __init add_clocksource(struct device_node *source_timer)
 	 */
 	sched_io_base = iobase + 0x04;
 	sched_rate = rate;
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static u64 notrace read_sched_clock(void)
@@ -145,10 +263,21 @@ static struct delay_timer dw_apb_delay_timer = {
 static int num_called;
 static int __init dw_apb_timer_init(struct device_node *timer)
 {
+<<<<<<< HEAD
 	switch (num_called) {
 	case 1:
 		pr_debug("%s: found clocksource timer\n", __func__);
 		add_clocksource(timer);
+=======
+	int ret = 0;
+
+	switch (num_called) {
+	case 1:
+		pr_debug("%s: found clocksource timer\n", __func__);
+		ret = add_clocksource(timer);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 		init_sched_clock();
 #ifdef CONFIG_ARM
 		dw_apb_delay_timer.freq = sched_rate;
@@ -157,7 +286,13 @@ static int __init dw_apb_timer_init(struct device_node *timer)
 		break;
 	default:
 		pr_debug("%s: found clockevent timer\n", __func__);
+<<<<<<< HEAD
 		add_clockevent(timer);
+=======
+		ret = add_clockevent(timer);
+		if (ret)
+			return ret;
+>>>>>>> upstream/android-13
 		break;
 	}
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * drivers/net/ethernet/ibm/emac/emac.h
  *
@@ -15,12 +19,15 @@
  *      Matt Porter <mporter@kernel.crashing.org>
  *      Armin Kuster <akuster@mvista.com>
  * 	Copyright 2002-2004 MontaVista Software Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __IBM_NEWEMAC_H
 #define __IBM_NEWEMAC_H
@@ -82,7 +89,11 @@ struct emac_regs {
 		struct {
 			u32 rsvd1;
 			u32 revid;
+<<<<<<< HEAD
  			u32 rsvd2[2];
+=======
+			u32 rsvd2[2];
+>>>>>>> upstream/android-13
 			u32 iaht1;	/* Reset, R     */
 			u32 iaht2;	/* Reset, R     */
 			u32 iaht3;	/* Reset, R     */

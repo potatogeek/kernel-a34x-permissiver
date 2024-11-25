@@ -77,6 +77,7 @@ struct psb_info {
 	uint64_t avail_mem_map;
 };
 
+<<<<<<< HEAD
 enum {
 	NETLOGIC_IO_SPACE = 0x10,
 	PCIX_IO_SPACE,
@@ -92,6 +93,8 @@ enum {
 #define NLM_MAX_ARGS	64
 #define NLM_MAX_ENVS	32
 
+=======
+>>>>>>> upstream/android-13
 /* This is what netlboot passes and linux boot_mem_map is subtly different */
 #define NLM_BOOT_MEM_MAP_MAX	32
 struct nlm_boot_mem_map {
@@ -102,6 +105,10 @@ struct nlm_boot_mem_map {
 		uint32_t type;		/* type of memory segment */
 	} map[NLM_BOOT_MEM_MAP_MAX];
 };
+<<<<<<< HEAD
+=======
+#define NLM_BOOT_MEM_RAM	1
+>>>>>>> upstream/android-13
 
 /* Pointer to saved boot loader info */
 extern struct psb_info nlm_prom_info;

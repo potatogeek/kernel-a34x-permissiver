@@ -23,8 +23,16 @@
  *
  */
 
+<<<<<<< HEAD
 #include "dm_services.h"
 
+=======
+#include <linux/slab.h>
+
+#include "dm_services.h"
+
+#include "include/gpio_interface.h"
+>>>>>>> upstream/android-13
 #include "include/gpio_types.h"
 #include "hw_gpio.h"
 #include "hw_hpd.h"
@@ -41,6 +49,7 @@
 #define REG(reg)\
 	(hpd->regs->reg)
 
+<<<<<<< HEAD
 static void dal_hw_hpd_construct(
 	struct hw_hpd *pin,
 	enum gpio_id id,
@@ -49,6 +58,9 @@ static void dal_hw_hpd_construct(
 {
 	dal_hw_gpio_construct(&pin->base, id, en, ctx);
 }
+=======
+struct gpio;
+>>>>>>> upstream/android-13
 
 static void dal_hw_hpd_destruct(
 	struct hw_hpd *pin)
@@ -56,6 +68,7 @@ static void dal_hw_hpd_destruct(
 	dal_hw_gpio_destruct(&pin->base);
 }
 
+<<<<<<< HEAD
 
 static void destruct(
 	struct hw_hpd *hpd)
@@ -64,11 +77,18 @@ static void destruct(
 }
 
 static void destroy(
+=======
+static void dal_hw_hpd_destroy(
+>>>>>>> upstream/android-13
 	struct hw_gpio_pin **ptr)
 {
 	struct hw_hpd *hpd = HW_HPD_FROM_BASE(*ptr);
 
+<<<<<<< HEAD
 	destruct(hpd);
+=======
+	dal_hw_hpd_destruct(hpd);
+>>>>>>> upstream/android-13
 
 	kfree(hpd);
 
@@ -115,7 +135,11 @@ static enum gpio_result set_config(
 }
 
 static const struct hw_gpio_pin_funcs funcs = {
+<<<<<<< HEAD
 	.destroy = destroy,
+=======
+	.destroy = dal_hw_hpd_destroy,
+>>>>>>> upstream/android-13
 	.open = dal_hw_gpio_open,
 	.get_value = get_value,
 	.set_value = dal_hw_gpio_set_value,
@@ -124,21 +148,36 @@ static const struct hw_gpio_pin_funcs funcs = {
 	.close = dal_hw_gpio_close,
 };
 
+<<<<<<< HEAD
 static void construct(
 	struct hw_hpd *hpd,
+=======
+static void dal_hw_hpd_construct(
+	struct hw_hpd *pin,
+>>>>>>> upstream/android-13
 	enum gpio_id id,
 	uint32_t en,
 	struct dc_context *ctx)
 {
+<<<<<<< HEAD
 	dal_hw_hpd_construct(hpd, id, en, ctx);
 	hpd->base.base.funcs = &funcs;
 }
 
 struct hw_gpio_pin *dal_hw_hpd_create(
+=======
+	dal_hw_gpio_construct(&pin->base, id, en, ctx);
+	pin->base.base.funcs = &funcs;
+}
+
+void dal_hw_hpd_init(
+	struct hw_hpd **hw_hpd,
+>>>>>>> upstream/android-13
 	struct dc_context *ctx,
 	enum gpio_id id,
 	uint32_t en)
 {
+<<<<<<< HEAD
 	struct hw_hpd *hpd;
 
 	if (id != GPIO_ID_HPD) {
@@ -159,4 +198,25 @@ struct hw_gpio_pin *dal_hw_hpd_create(
 
 	construct(hpd, id, en, ctx);
 	return &hpd->base.base;
+=======
+	if ((en < GPIO_DDC_LINE_MIN) || (en > GPIO_DDC_LINE_MAX)) {
+		ASSERT_CRITICAL(false);
+		*hw_hpd = NULL;
+	}
+
+	*hw_hpd = kzalloc(sizeof(struct hw_hpd), GFP_KERNEL);
+	if (!*hw_hpd) {
+		ASSERT_CRITICAL(false);
+		return;
+	}
+
+	dal_hw_hpd_construct(*hw_hpd, id, en, ctx);
+}
+
+struct hw_gpio_pin *dal_hw_hpd_get_pin(struct gpio *gpio)
+{
+	struct hw_hpd *hw_hpd = dal_gpio_get_hpd(gpio);
+
+	return &hw_hpd->base.base;
+>>>>>>> upstream/android-13
 }

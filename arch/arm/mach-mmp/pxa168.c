@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-mmp/pxa168.c
  *
  *  Code specific to PXA168
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -22,9 +29,14 @@
 #include <asm/system_misc.h>
 
 #include "addr-map.h"
+<<<<<<< HEAD
 #include "clock.h"
 #include "common.h"
 #include "cputype.h"
+=======
+#include "common.h"
+#include <linux/soc/mmp/cputype.h>
+>>>>>>> upstream/android-13
 #include "devices.h"
 #include "irqs.h"
 #include "mfp.h"
@@ -79,7 +91,11 @@ void __init pxa168_timer_init(void)
 	/* 3.25MHz, bus/functional clock enabled, release reset */
 	__raw_writel(TIMER_CLK_RST, APBC_TIMERS);
 
+<<<<<<< HEAD
 	timer_init(IRQ_PXA168_TIMER1);
+=======
+	mmp_timer_init(IRQ_PXA168_TIMER1, 3250000);
+>>>>>>> upstream/android-13
 }
 
 void pxa168_clear_keypad_wakeup(void)

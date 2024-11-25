@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # HIPPI network device configuration
 #
@@ -5,7 +9,11 @@
 config HIPPI
 	bool "HIPPI driver support"
 	depends on INET && PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  HIgh Performance Parallel Interface (HIPPI) is a 800Mbit/sec and
 	  1600Mbit/sec dual-simplex switched or point-to-point network. HIPPI
 	  can run over copper (25m) or fiber (300m on multi-mode or 10km on
@@ -20,7 +28,11 @@ if HIPPI
 config ROADRUNNER
 	tristate "Essential RoadRunner HIPPI PCI adapter support"
 	depends on PCI
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if this is your PCI HIPPI network card.
 
 	  To compile this driver as a module, choose M here: the module
@@ -29,7 +41,11 @@ config ROADRUNNER
 config ROADRUNNER_LARGE_RINGS
 	bool "Use large TX/RX rings"
 	depends on ROADRUNNER
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, the RoadRunner driver will preallocate up to 2 MB
 	  of additional memory to allow for fastest operation, both for
 	  transmitting and receiving. This memory cannot be used by any other

@@ -35,8 +35,12 @@ typedef struct xfs_param {
 	xfs_sysctl_val_t rotorstep;	/* inode32 AG rotoring control knob */
 	xfs_sysctl_val_t inherit_nodfrg;/* Inherit the "nodefrag" inode flag. */
 	xfs_sysctl_val_t fstrm_timer;	/* Filestream dir-AG assoc'n timeout. */
+<<<<<<< HEAD
 	xfs_sysctl_val_t eofb_timer;	/* Interval between eofb scan wakeups */
 	xfs_sysctl_val_t cowb_timer;	/* Interval between cowb scan wakeups */
+=======
+	xfs_sysctl_val_t blockgc_timer;	/* Interval between blockgc scans */
+>>>>>>> upstream/android-13
 } xfs_param_t;
 
 /*
@@ -82,9 +86,19 @@ enum {
 extern xfs_param_t	xfs_params;
 
 struct xfs_globals {
+<<<<<<< HEAD
 	int	log_recovery_delay;	/* log recovery delay (secs) */
 	int	mount_delay;		/* mount setup delay (secs) */
 	bool	bug_on_assert;		/* BUG() the kernel on assert failure */
+=======
+#ifdef DEBUG
+	int	pwork_threads;		/* parallel workqueue threads */
+#endif
+	int	log_recovery_delay;	/* log recovery delay (secs) */
+	int	mount_delay;		/* mount setup delay (secs) */
+	bool	bug_on_assert;		/* BUG() the kernel on assert failure */
+	bool	always_cow;		/* use COW fork for all overwrites */
+>>>>>>> upstream/android-13
 };
 extern struct xfs_globals	xfs_globals;
 

@@ -63,6 +63,7 @@ source "drivers/zorro/Kconfig"
 
 endif
 
+<<<<<<< HEAD
 config PCI
 	bool "PCI support"
 	depends on M54xx
@@ -80,5 +81,11 @@ config ISA_DMA_API
         def_bool !M5272
 
 source "drivers/pcmcia/Kconfig"
+=======
+if COLDFIRE
+
+config ISA_DMA_API
+	def_bool !M5272
+>>>>>>> upstream/android-13
 
 endif

@@ -48,6 +48,14 @@
 	interrupt-controller;
 	#interrupt-cells = <1>;
 
+<<<<<<< HEAD
+=======
+	ac_power_supply: ac-power-supply {
+		compatible = "x-powers,axp813-ac-power-supply";
+		status = "disabled";
+	};
+
+>>>>>>> upstream/android-13
 	axp_adc: adc {
 		compatible = "x-powers,axp813-adc";
 		#io-channel-cells = <1>;
@@ -166,4 +174,11 @@
 			status = "disabled";
 		};
 	};
+<<<<<<< HEAD
+=======
+
+	usb_power_supply: usb-power-supply {
+		compatible = "x-powers,axp813-usb-power-supply";
+	};
+>>>>>>> upstream/android-13
 };

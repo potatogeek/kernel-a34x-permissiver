@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/common/bL_switcher.c -- big.LITTLE cluster switcher core driver
  *
  * Created by:	Nicolas Pitre, March 2012
  * Copyright:	(C) 2012-2013  Linaro Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -273,12 +280,19 @@ static struct bL_thread bL_threads[NR_CPUS];
 static int bL_switcher_thread(void *arg)
 {
 	struct bL_thread *t = arg;
+<<<<<<< HEAD
 	struct sched_param param = { .sched_priority = 1 };
+=======
+>>>>>>> upstream/android-13
 	int cluster;
 	bL_switch_completion_handler completer;
 	void *completer_cookie;
 
+<<<<<<< HEAD
 	sched_setscheduler_nocheck(current, SCHED_FIFO, &param);
+=======
+	sched_set_fifo_low(current);
+>>>>>>> upstream/android-13
 	complete(&t->started);
 
 	do {
@@ -542,6 +556,7 @@ static void bL_switcher_trace_trigger_cpu(void *__always_unused info)
 
 int bL_switcher_trace_trigger(void)
 {
+<<<<<<< HEAD
 	int ret;
 
 	preempt_disable();
@@ -552,6 +567,16 @@ int bL_switcher_trace_trigger(void)
 	preempt_enable();
 
 	return ret;
+=======
+	preempt_disable();
+
+	bL_switcher_trace_trigger_cpu(NULL);
+	smp_call_function(bL_switcher_trace_trigger_cpu, NULL, true);
+
+	preempt_enable();
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(bL_switcher_trace_trigger);
 

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015 Altera Corporation
  * Copyright (C) 2011 Tobias Klauser <tklauser@distanz.ch>
  *
  * Based on the code posted by Kazuyasu on the Altera Forum at:
  * http://www.alteraforum.com/forum/showpost.php?p=77003&postcount=20
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_NIOS2_KGDB_H

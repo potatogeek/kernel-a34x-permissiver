@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #ifndef HINIC_HW_QP_CTXT_H
@@ -201,6 +208,14 @@ struct hinic_rq_ctxt {
 	u32     wq_block_lo_pfn;
 };
 
+<<<<<<< HEAD
+=======
+struct hinic_clean_queue_ctxt {
+	struct hinic_qp_ctxt_header	cmdq_hdr;
+	u32				ctxt_size;
+};
+
+>>>>>>> upstream/android-13
 struct hinic_sq_ctxt_block {
 	struct hinic_qp_ctxt_header hdr;
 	struct hinic_sq_ctxt sq_ctxt[HINIC_Q_CTXT_MAX];

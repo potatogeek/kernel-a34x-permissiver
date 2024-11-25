@@ -13,6 +13,10 @@
  ******************************************************************************/
 #include <linux/vmalloc.h>
 #include <linux/etherdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/io-64-nonatomic-lo-hi.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/slab.h>
 
@@ -870,11 +874,19 @@ static enum vxge_hw_status
 __vxge_hw_vpath_card_info_get(struct __vxge_hw_virtualpath *vpath,
 			      struct vxge_hw_device_hw_info *hw_info)
 {
+<<<<<<< HEAD
 	enum vxge_hw_status status;
 	u64 data0, data1 = 0, steer_ctrl = 0;
 	u8 *serial_number = hw_info->serial_number;
 	u8 *part_number = hw_info->part_number;
 	u8 *product_desc = hw_info->product_desc;
+=======
+	__be64 *serial_number = (void *)hw_info->serial_number;
+	__be64 *product_desc = (void *)hw_info->product_desc;
+	__be64 *part_number = (void *)hw_info->part_number;
+	enum vxge_hw_status status;
+	u64 data0, data1 = 0, steer_ctrl = 0;
+>>>>>>> upstream/android-13
 	u32 i, j = 0;
 
 	data0 = VXGE_HW_RTS_ACCESS_STEER_DATA0_MEMO_ITEM_SERIAL_NUMBER;
@@ -886,8 +898,13 @@ __vxge_hw_vpath_card_info_get(struct __vxge_hw_virtualpath *vpath,
 	if (status != VXGE_HW_OK)
 		return status;
 
+<<<<<<< HEAD
 	((u64 *)serial_number)[0] = be64_to_cpu(data0);
 	((u64 *)serial_number)[1] = be64_to_cpu(data1);
+=======
+	serial_number[0] = cpu_to_be64(data0);
+	serial_number[1] = cpu_to_be64(data1);
+>>>>>>> upstream/android-13
 
 	data0 = VXGE_HW_RTS_ACCESS_STEER_DATA0_MEMO_ITEM_PART_NUMBER;
 	data1 = steer_ctrl = 0;
@@ -899,8 +916,13 @@ __vxge_hw_vpath_card_info_get(struct __vxge_hw_virtualpath *vpath,
 	if (status != VXGE_HW_OK)
 		return status;
 
+<<<<<<< HEAD
 	((u64 *)part_number)[0] = be64_to_cpu(data0);
 	((u64 *)part_number)[1] = be64_to_cpu(data1);
+=======
+	part_number[0] = cpu_to_be64(data0);
+	part_number[1] = cpu_to_be64(data1);
+>>>>>>> upstream/android-13
 
 	for (i = VXGE_HW_RTS_ACCESS_STEER_DATA0_MEMO_ITEM_DESC_0;
 	     i <= VXGE_HW_RTS_ACCESS_STEER_DATA0_MEMO_ITEM_DESC_3; i++) {
@@ -914,8 +936,13 @@ __vxge_hw_vpath_card_info_get(struct __vxge_hw_virtualpath *vpath,
 		if (status != VXGE_HW_OK)
 			return status;
 
+<<<<<<< HEAD
 		((u64 *)product_desc)[j++] = be64_to_cpu(data0);
 		((u64 *)product_desc)[j++] = be64_to_cpu(data1);
+=======
+		product_desc[j++] = cpu_to_be64(data0);
+		product_desc[j++] = cpu_to_be64(data1);
+>>>>>>> upstream/android-13
 	}
 
 	return status;
@@ -987,6 +1014,12 @@ exit:
 
 /**
  * vxge_hw_device_hw_info_get - Get the hw information
+<<<<<<< HEAD
+=======
+ * @bar0: the bar
+ * @hw_info: the hw_info struct
+ *
+>>>>>>> upstream/android-13
  * Returns the vpath mask that has the bits set for each vpath allocated
  * for the driver, FW version information, and the first mac address for
  * each vpath
@@ -1101,10 +1134,17 @@ static void __vxge_hw_blockpool_destroy(struct __vxge_hw_blockpool *blockpool)
 	hldev = blockpool->hldev;
 
 	list_for_each_safe(p, n, &blockpool->free_block_list) {
+<<<<<<< HEAD
 		pci_unmap_single(hldev->pdev,
 			((struct __vxge_hw_blockpool_entry *)p)->dma_addr,
 			((struct __vxge_hw_blockpool_entry *)p)->length,
 			PCI_DMA_BIDIRECTIONAL);
+=======
+		dma_unmap_single(&hldev->pdev->dev,
+				 ((struct __vxge_hw_blockpool_entry *)p)->dma_addr,
+				 ((struct __vxge_hw_blockpool_entry *)p)->length,
+				 DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 		vxge_os_dma_free(hldev->pdev,
 			((struct __vxge_hw_blockpool_entry *)p)->memblock,
@@ -1117,7 +1157,11 @@ static void __vxge_hw_blockpool_destroy(struct __vxge_hw_blockpool *blockpool)
 
 	list_for_each_safe(p, n, &blockpool->free_entry_list) {
 		list_del(&((struct __vxge_hw_blockpool_entry *)p)->item);
+<<<<<<< HEAD
 		kfree((void *)p);
+=======
+		kfree(p);
+>>>>>>> upstream/android-13
 	}
 
 	return;
@@ -1177,10 +1221,17 @@ __vxge_hw_blockpool_create(struct __vxge_hw_device *hldev,
 			goto blockpool_create_exit;
 		}
 
+<<<<<<< HEAD
 		dma_addr = pci_map_single(hldev->pdev, memblock,
 				VXGE_HW_BLOCK_SIZE, PCI_DMA_BIDIRECTIONAL);
 		if (unlikely(pci_dma_mapping_error(hldev->pdev,
 				dma_addr))) {
+=======
+		dma_addr = dma_map_single(&hldev->pdev->dev, memblock,
+					  VXGE_HW_BLOCK_SIZE,
+					  DMA_BIDIRECTIONAL);
+		if (unlikely(dma_mapping_error(&hldev->pdev->dev, dma_addr))) {
+>>>>>>> upstream/android-13
 			vxge_os_dma_free(hldev->pdev, memblock, &acc_handle);
 			__vxge_hw_blockpool_destroy(blockpool);
 			status = VXGE_HW_ERR_OUT_OF_MEMORY;
@@ -2263,10 +2314,17 @@ static void vxge_hw_blockpool_block_add(struct __vxge_hw_device *devh,
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	dma_addr = pci_map_single(devh->pdev, block_addr, length,
 				PCI_DMA_BIDIRECTIONAL);
 
 	if (unlikely(pci_dma_mapping_error(devh->pdev, dma_addr))) {
+=======
+	dma_addr = dma_map_single(&devh->pdev->dev, block_addr, length,
+				  DMA_BIDIRECTIONAL);
+
+	if (unlikely(dma_mapping_error(&devh->pdev->dev, dma_addr))) {
+>>>>>>> upstream/android-13
 		vxge_os_dma_free(devh->pdev, block_addr, &acc_handle);
 		blockpool->req_out--;
 		goto exit;
@@ -2302,6 +2360,7 @@ exit:
 static inline void
 vxge_os_dma_malloc_async(struct pci_dev *pdev, void *devh, unsigned long size)
 {
+<<<<<<< HEAD
 	gfp_t flags;
 	void *vaddr;
 
@@ -2312,6 +2371,11 @@ vxge_os_dma_malloc_async(struct pci_dev *pdev, void *devh, unsigned long size)
 
 	vaddr = kmalloc((size), flags);
 
+=======
+	void *vaddr;
+
+	vaddr = kmalloc(size, GFP_KERNEL | GFP_DMA);
+>>>>>>> upstream/android-13
 	vxge_hw_blockpool_block_add(devh, vaddr, size, pdev, pdev);
 }
 
@@ -2358,11 +2422,18 @@ static void *__vxge_hw_blockpool_malloc(struct __vxge_hw_device *devh, u32 size,
 		if (!memblock)
 			goto exit;
 
+<<<<<<< HEAD
 		dma_object->addr = pci_map_single(devh->pdev, memblock, size,
 					PCI_DMA_BIDIRECTIONAL);
 
 		if (unlikely(pci_dma_mapping_error(devh->pdev,
 				dma_object->addr))) {
+=======
+		dma_object->addr = dma_map_single(&devh->pdev->dev, memblock,
+						  size, DMA_BIDIRECTIONAL);
+
+		if (unlikely(dma_mapping_error(&devh->pdev->dev, dma_object->addr))) {
+>>>>>>> upstream/android-13
 			vxge_os_dma_free(devh->pdev, memblock,
 				&dma_object->acc_handle);
 			memblock = NULL;
@@ -2409,11 +2480,18 @@ __vxge_hw_blockpool_blocks_remove(struct __vxge_hw_blockpool *blockpool)
 		if (blockpool->pool_size < blockpool->pool_max)
 			break;
 
+<<<<<<< HEAD
 		pci_unmap_single(
 			(blockpool->hldev)->pdev,
 			((struct __vxge_hw_blockpool_entry *)p)->dma_addr,
 			((struct __vxge_hw_blockpool_entry *)p)->length,
 			PCI_DMA_BIDIRECTIONAL);
+=======
+		dma_unmap_single(&(blockpool->hldev)->pdev->dev,
+				 ((struct __vxge_hw_blockpool_entry *)p)->dma_addr,
+				 ((struct __vxge_hw_blockpool_entry *)p)->length,
+				 DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 
 		vxge_os_dma_free(
 			(blockpool->hldev)->pdev,
@@ -2444,8 +2522,13 @@ static void __vxge_hw_blockpool_free(struct __vxge_hw_device *devh,
 	blockpool = &devh->block_pool;
 
 	if (size != blockpool->block_size) {
+<<<<<<< HEAD
 		pci_unmap_single(devh->pdev, dma_object->addr, size,
 			PCI_DMA_BIDIRECTIONAL);
+=======
+		dma_unmap_single(&devh->pdev->dev, dma_object->addr, size,
+				 DMA_BIDIRECTIONAL);
+>>>>>>> upstream/android-13
 		vxge_os_dma_free(devh->pdev, memblock, &dma_object->acc_handle);
 	} else {
 
@@ -3769,26 +3852,42 @@ vxge_hw_rts_rth_data0_data1_get(u32 j, u64 *data0, u64 *data1,
 			VXGE_HW_RTS_ACCESS_STEER_DATA0_RTH_ITEM0_ENTRY_EN |
 			VXGE_HW_RTS_ACCESS_STEER_DATA0_RTH_ITEM0_BUCKET_DATA(
 			itable[j]);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		*data0 |=
 			VXGE_HW_RTS_ACCESS_STEER_DATA0_RTH_ITEM1_BUCKET_NUM(j)|
 			VXGE_HW_RTS_ACCESS_STEER_DATA0_RTH_ITEM1_ENTRY_EN |
 			VXGE_HW_RTS_ACCESS_STEER_DATA0_RTH_ITEM1_BUCKET_DATA(
 			itable[j]);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 3:
 		*data1 = VXGE_HW_RTS_ACCESS_STEER_DATA1_RTH_ITEM0_BUCKET_NUM(j)|
 			VXGE_HW_RTS_ACCESS_STEER_DATA1_RTH_ITEM0_ENTRY_EN |
 			VXGE_HW_RTS_ACCESS_STEER_DATA1_RTH_ITEM0_BUCKET_DATA(
 			itable[j]);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 4:
 		*data1 |=
 			VXGE_HW_RTS_ACCESS_STEER_DATA1_RTH_ITEM1_BUCKET_NUM(j)|
 			VXGE_HW_RTS_ACCESS_STEER_DATA1_RTH_ITEM1_ENTRY_EN |
 			VXGE_HW_RTS_ACCESS_STEER_DATA1_RTH_ITEM1_BUCKET_DATA(
 			itable[j]);
+<<<<<<< HEAD
+=======
+		return;
+>>>>>>> upstream/android-13
 	default:
 		return;
 	}
@@ -3927,7 +4026,11 @@ exit:
 
 /**
  * vxge_hw_vpath_check_leak - Check for memory leak
+<<<<<<< HEAD
  * @ringh: Handle to the ring object used for receive
+=======
+ * @ring: Handle to the ring object used for receive
+>>>>>>> upstream/android-13
  *
  * If PRC_RXD_DOORBELL_VPn.NEW_QW_CNT is larger or equal to
  * PRC_CFG6_VPn.RXD_SPAT then a leak has occurred.
@@ -4889,7 +4992,11 @@ vpath_open_exit1:
 }
 
 /**
+<<<<<<< HEAD
  * vxge_hw_vpath_rx_doorbell_post - Close the handle got from previous vpath
+=======
+ * vxge_hw_vpath_rx_doorbell_init - Close the handle got from previous vpath
+>>>>>>> upstream/android-13
  * (vpath) open
  * @vp: Handle got from previous vpath open
  *

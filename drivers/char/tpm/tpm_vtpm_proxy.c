@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2015, 2016 IBM Corporation
  * Copyright (C) 2016 Intel Corporation
@@ -7,12 +11,15 @@
  * Maintained by: <tpmdd-devel@lists.sourceforge.net>
  *
  * Device driver for vTPM (vTPM proxy driver)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -303,9 +310,15 @@ out:
 static int vtpm_proxy_is_driver_command(struct tpm_chip *chip,
 					u8 *buf, size_t count)
 {
+<<<<<<< HEAD
 	struct tpm_input_header *hdr = (struct tpm_input_header *)buf;
 
 	if (count < sizeof(struct tpm_input_header))
+=======
+	struct tpm_header *hdr = (struct tpm_header *)buf;
+
+	if (count < sizeof(struct tpm_header))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
@@ -401,7 +414,11 @@ static int vtpm_proxy_request_locality(struct tpm_chip *chip, int locality)
 {
 	struct tpm_buf buf;
 	int rc;
+<<<<<<< HEAD
 	const struct tpm_output_header *header;
+=======
+	const struct tpm_header *header;
+>>>>>>> upstream/android-13
 	struct proxy_dev *proxy_dev = dev_get_drvdata(&chip->dev);
 
 	if (chip->flags & TPM_CHIP_FLAG_TPM2)
@@ -416,9 +433,13 @@ static int vtpm_proxy_request_locality(struct tpm_chip *chip, int locality)
 
 	proxy_dev->state |= STATE_DRIVER_COMMAND;
 
+<<<<<<< HEAD
 	rc = tpm_transmit_cmd(chip, NULL, buf.data, tpm_buf_length(&buf), 0,
 			      TPM_TRANSMIT_NESTED,
 			      "attempting to set locality");
+=======
+	rc = tpm_transmit_cmd(chip, &buf, 0, "attempting to set locality");
+>>>>>>> upstream/android-13
 
 	proxy_dev->state &= ~STATE_DRIVER_COMMAND;
 
@@ -427,7 +448,11 @@ static int vtpm_proxy_request_locality(struct tpm_chip *chip, int locality)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	header = (const struct tpm_output_header *)buf.data;
+=======
+	header = (const struct tpm_header *)buf.data;
+>>>>>>> upstream/android-13
 	rc = be32_to_cpu(header->return_code);
 	if (rc)
 		locality = -1;
@@ -677,6 +702,7 @@ static long vtpmx_fops_ioctl(struct file *f, unsigned int ioctl,
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static long vtpmx_fops_compat_ioctl(struct file *f, unsigned int ioctl,
 					  unsigned long arg)
@@ -691,6 +717,12 @@ static const struct file_operations vtpmx_fops = {
 #ifdef CONFIG_COMPAT
 	.compat_ioctl = vtpmx_fops_compat_ioctl,
 #endif
+=======
+static const struct file_operations vtpmx_fops = {
+	.owner = THIS_MODULE,
+	.unlocked_ioctl = vtpmx_fops_ioctl,
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.llseek = noop_llseek,
 };
 

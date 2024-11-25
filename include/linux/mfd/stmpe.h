@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * License Terms: GNU General Public License, version 2
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+ *
+>>>>>>> upstream/android-13
  * Author: Rabin Vincent <rabin.vincent@stericsson.com> for ST-Ericsson
  */
 
@@ -10,6 +17,23 @@
 
 #include <linux/mutex.h>
 
+<<<<<<< HEAD
+=======
+#define STMPE_SAMPLE_TIME(x)	((x & 0xf) << 4)
+#define STMPE_MOD_12B(x)	((x & 0x1) << 3)
+#define STMPE_REF_SEL(x)	((x & 0x1) << 1)
+#define STMPE_ADC_FREQ(x)	(x & 0x3)
+#define STMPE_AVE_CTRL(x)	((x & 0x3) << 6)
+#define STMPE_DET_DELAY(x)	((x & 0x7) << 3)
+#define STMPE_SETTLING(x)	(x & 0x7)
+#define STMPE_FRACTION_Z(x)	(x & 0x7)
+#define STMPE_I_DRIVE(x)	(x & 0x1)
+#define STMPE_OP_MODE(x)	((x & 0x7) << 1)
+
+#define STMPE811_REG_ADC_CTRL1	0x20
+#define STMPE811_REG_ADC_CTRL2	0x21
+
+>>>>>>> upstream/android-13
 struct device;
 struct regulator;
 
@@ -123,6 +147,15 @@ struct stmpe {
 	u8 ier[2];
 	u8 oldier[2];
 	struct stmpe_platform_data *pdata;
+<<<<<<< HEAD
+=======
+
+	/* For devices that use an ADC */
+	u8 sample_time;
+	u8 mod_12b;
+	u8 ref_sel;
+	u8 adc_freq;
+>>>>>>> upstream/android-13
 };
 
 extern int stmpe_reg_write(struct stmpe *stmpe, u8 reg, u8 data);
@@ -136,6 +169,10 @@ extern int stmpe_set_altfunc(struct stmpe *stmpe, u32 pins,
 			     enum stmpe_block block);
 extern int stmpe_enable(struct stmpe *stmpe, unsigned int blocks);
 extern int stmpe_disable(struct stmpe *stmpe, unsigned int blocks);
+<<<<<<< HEAD
+=======
+extern int stmpe811_adc_common_init(struct stmpe *stmpe);
+>>>>>>> upstream/android-13
 
 #define STMPE_GPIO_NOREQ_811_TOUCH	(0xf0)
 

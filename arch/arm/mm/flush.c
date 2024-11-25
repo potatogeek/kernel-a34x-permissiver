@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/flush.c
  *
  *  Copyright (C) 1995-2002 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/mm.h>
@@ -207,18 +214,30 @@ void __flush_dcache_page(struct address_space *mapping, struct page *page)
 	 * coherent with the kernels mapping.
 	 */
 	if (!PageHighMem(page)) {
+<<<<<<< HEAD
 		size_t page_size = PAGE_SIZE << compound_order(page);
 		__cpuc_flush_dcache_area(page_address(page), page_size);
 	} else {
 		unsigned long i;
 		if (cache_is_vipt_nonaliasing()) {
 			for (i = 0; i < (1 << compound_order(page)); i++) {
+=======
+		__cpuc_flush_dcache_area(page_address(page), page_size(page));
+	} else {
+		unsigned long i;
+		if (cache_is_vipt_nonaliasing()) {
+			for (i = 0; i < compound_nr(page); i++) {
+>>>>>>> upstream/android-13
 				void *addr = kmap_atomic(page + i);
 				__cpuc_flush_dcache_area(addr, PAGE_SIZE);
 				kunmap_atomic(addr);
 			}
 		} else {
+<<<<<<< HEAD
 			for (i = 0; i < (1 << compound_order(page)); i++) {
+=======
+			for (i = 0; i < compound_nr(page); i++) {
+>>>>>>> upstream/android-13
 				void *addr = kmap_high_get(page + i);
 				if (addr) {
 					__cpuc_flush_dcache_area(addr, PAGE_SIZE);
@@ -350,6 +369,7 @@ void flush_dcache_page(struct page *page)
 EXPORT_SYMBOL(flush_dcache_page);
 
 /*
+<<<<<<< HEAD
  * Ensure cache coherency for the kernel mapping of this page. We can
  * assume that the page is pinned via kmap.
  *
@@ -383,6 +403,8 @@ void flush_kernel_dcache_page(struct page *page)
 EXPORT_SYMBOL(flush_kernel_dcache_page);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Flush an anonymous page so that users of get_user_pages()
  * can safely access the data.  The expected sequence is:
  *

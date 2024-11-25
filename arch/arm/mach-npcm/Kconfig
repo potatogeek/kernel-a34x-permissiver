@@ -1,10 +1,31 @@
+<<<<<<< HEAD
 menuconfig ARCH_NPCM
 	bool "Nuvoton NPCM Architecture"
 	depends on ARCH_MULTI_V7
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+menuconfig ARCH_NPCM
+	bool "Nuvoton NPCM Architecture"
+	depends on ARCH_MULTI_V5 || ARCH_MULTI_V7
+>>>>>>> upstream/android-13
 	select PINCTRL
 
 if ARCH_NPCM
 
+<<<<<<< HEAD
+=======
+config ARCH_WPCM450
+	bool "Support for WPCM450 BMC (Hermon)"
+	depends on ARCH_MULTI_V5
+	select CPU_ARM926T
+	select WPCM450_AIC
+	select NPCM7XX_TIMER
+	help
+	  General support for WPCM450 BMC (Hermon).
+
+	  Winbond/Nuvoton WPCM450 BMC based on the ARM926EJ-S.
+
+>>>>>>> upstream/android-13
 config ARCH_NPCM7XX
 	bool "Support for NPCM7xx BMC (Poleg)"
 	depends on ARCH_MULTI_V7

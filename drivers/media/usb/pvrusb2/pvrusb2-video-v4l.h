@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -13,6 +14,13 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+ *  Copyright (C) 2004 Aurelien Alleaume <slts@free.fr>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PVRUSB2_VIDEO_V4L_H

@@ -1,6 +1,12 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0
 
+<<<<<<< HEAD
+=======
+BPFFS=/sys/fs/bpf
+LINK_PIN=$BPFFS/test_cgrp2_sock2
+
+>>>>>>> upstream/android-13
 function config_device {
 	ip netns add at_ns0
 	ip link add veth0 type veth peer name veth0b
@@ -21,16 +27,34 @@ function config_cgroup {
 	echo $$ >> /tmp/cgroupv2/foo/cgroup.procs
 }
 
+<<<<<<< HEAD
 
 function attach_bpf {
 	test_cgrp2_sock2 /tmp/cgroupv2/foo sock_flags_kern.o $1
+=======
+function config_bpffs {
+	if mount | grep $BPFFS > /dev/null; then
+		echo "bpffs already mounted"
+	else
+		echo "bpffs not mounted. Mounting..."
+		mount -t bpf none $BPFFS
+	fi
+}
+
+function attach_bpf {
+	./test_cgrp2_sock2 /tmp/cgroupv2/foo sock_flags_kern.o $1
+>>>>>>> upstream/android-13
 	[ $? -ne 0 ] && exit 1
 }
 
 function cleanup {
+<<<<<<< HEAD
 	if [ -d /tmp/cgroupv2/foo ]; then
 		test_cgrp2_sock -d /tmp/cgroupv2/foo
 	fi
+=======
+	rm -rf $LINK_PIN
+>>>>>>> upstream/android-13
 	ip link del veth0b
 	ip netns delete at_ns0
 	umount /tmp/cgroupv2
@@ -42,6 +66,10 @@ cleanup 2>/dev/null
 set -e
 config_device
 config_cgroup
+<<<<<<< HEAD
+=======
+config_bpffs
+>>>>>>> upstream/android-13
 set +e
 
 #
@@ -62,6 +90,12 @@ if [ $? -eq 0 ]; then
 	exit 1
 fi
 
+<<<<<<< HEAD
+=======
+rm -rf $LINK_PIN
+sleep 1                 # Wait for link detach
+
+>>>>>>> upstream/android-13
 #
 # Test 2 - fail ping
 #

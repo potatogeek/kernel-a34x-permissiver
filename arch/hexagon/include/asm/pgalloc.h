@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Page table support for the Hexagon architecture
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_PGALLOC_H
@@ -24,7 +31,11 @@
 #include <asm/mem-layout.h>
 #include <asm/atomic.h>
 
+<<<<<<< HEAD
 #define check_pgt_cache() do {} while (0)
+=======
+#include <asm-generic/pgalloc.h>
+>>>>>>> upstream/android-13
 
 extern unsigned long long kmap_generation;
 
@@ -54,6 +65,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
 	return pgd;
 }
 
+<<<<<<< HEAD
 static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 {
 	free_page((unsigned long) pgd);
@@ -93,6 +105,8 @@ static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
 	free_page((unsigned long)pte);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
 				pgtable_t pte)
 {
@@ -141,7 +155,11 @@ static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
 
 #define __pte_free_tlb(tlb, pte, addr)		\
 do {						\
+<<<<<<< HEAD
 	pgtable_page_dtor((pte));		\
+=======
+	pgtable_pte_page_dtor((pte));		\
+>>>>>>> upstream/android-13
 	tlb_remove_page((tlb), (pte));		\
 } while (0)
 

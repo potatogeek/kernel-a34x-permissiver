@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 / {
 	gpio_keys {
@@ -83,7 +87,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 	vdds_dsi-supply = <&vpll2>;
 	vdda_video-supply = <&video_reg>;
 	pinctrl-names = "default";
@@ -108,6 +116,7 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
+<<<<<<< HEAD
 	lcd0: display@0 {
 		compatible = "panel-dpi";
 		label = "28";
@@ -116,11 +125,21 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&lcd_enable_pin>;
 		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;	/* gpio155, lcd INI */
+=======
+	lcd0: display {
+		/* This isn't the exact LCD, but the timings meet spec */
+		compatible = "logicpd,type28";
+		pinctrl-names = "default";
+		pinctrl-0 = <&lcd_enable_pin>;
+		backlight = <&bl>;
+		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;
+>>>>>>> upstream/android-13
 		port {
 			lcd_in: endpoint {
 				remote-endpoint = <&dpi_out>;
 			};
 		};
+<<<<<<< HEAD
 
 		panel-timing {
 			clock-frequency = <9000000>;
@@ -137,6 +156,8 @@
 			de-active = <1>;
 			pixelclk-active = <0>;
 		};
+=======
+>>>>>>> upstream/android-13
 	};
 
 	bl: backlight {

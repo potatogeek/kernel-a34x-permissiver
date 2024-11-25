@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Driver for Realtek PCI-Express card reader
  * Header file
  *
@@ -16,6 +17,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * Driver for Realtek PCI-Express card reader
+ *
+ * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG (wei_wang@realsil.com.cn)
  *   Micky Ching (micky_ching@realsil.com.cn)
@@ -104,6 +113,7 @@
 #define PRO_FORMAT		0x10
 #define PRO_SLEEP		0x11
 
+<<<<<<< HEAD
 #define	IntReg			0x01
 #define StatusReg0		0x02
 #define StatusReg1		0x03
@@ -135,6 +145,39 @@
 
 #define Pro_TPCParm		0x17
 #define Pro_CMDParm		0x18
+=======
+#define INT_REG			0x01
+#define STATUS_REG0		0x02
+#define STATUS_REG1		0x03
+
+#define SYSTEM_PARAM		0x10
+#define BLOCK_ADRS		0x11
+#define CMD_PARM		0x14
+#define PAGE_ADRS		0x15
+
+#define OVERWRITE_FLAG		0x16
+#define MANAGEMEN_FLAG		0x17
+#define LOGICAL_ADRS		0x18
+#define RESERVE_AREA		0x1A
+
+#define PRO_INT_REG		0x01
+#define PRO_STATUS_REG		0x02
+#define PRO_TYPE_REG		0x04
+#define PRO_IF_mode_REG		0x05
+#define PRO_CATEGORY_REG	0x06
+#define PRO_CLASS_REG		0x07
+
+#define PRO_SYSTEM_PARAM		0x10
+#define PRO_DATA_COUNT1		0x11
+#define PRO_DATA_COUNT0		0x12
+#define PRO_DATA_ADDR3		0x13
+#define PRO_DATA_ADDR2		0x14
+#define PRO_DATA_ADDR1		0x15
+#define PRO_DATA_ADDR0		0x16
+
+#define PRO_TPC_PARM		0x17
+#define PRO_CMD_PARM		0x18
+>>>>>>> upstream/android-13
 
 #define	INT_REG_CED		0x80
 #define	INT_REG_ERR		0x40
@@ -164,12 +207,21 @@
 #define	PAGE_SIZE_0		(PPBUF_BASE2 + 0x1a0 + 8)
 #define	PAGE_SIZE_1		(PPBUF_BASE2 + 0x1a0 + 9)
 
+<<<<<<< HEAD
 #define MS_Device_Type		(PPBUF_BASE2 + 0x1D8)
 
 #define	MS_4bit_Support		(PPBUF_BASE2 + 0x1D3)
 
 #define setPS_NG	1
 #define setPS_Error	0
+=======
+#define MS_device_type		(PPBUF_BASE2 + 0x1D8)
+
+#define MS_4bit_support		(PPBUF_BASE2 + 0x1D3)
+
+#define set_PS_NG	1
+#define set_PS_error	0
+>>>>>>> upstream/android-13
 
 #define	PARALLEL_8BIT_IF	0x40
 #define	PARALLEL_4BIT_IF	0x00

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * htu21.c - Support for Measurement-Specialties
  *           htu21 temperature & humidity sensor
@@ -5,8 +9,11 @@
  *
  * Copyright (c) 2014 Measurement-Specialties
  *
+<<<<<<< HEAD
  * Licensed under the GPL-2.
  *
+=======
+>>>>>>> upstream/android-13
  * (7-bit I2C slave address 0x40)
  *
  * Datasheet:
@@ -20,6 +27,10 @@
 #include <linux/kernel.h>
 #include <linux/stat.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 
@@ -205,7 +216,10 @@ static int htu21_probe(struct i2c_client *client,
 
 	indio_dev->info = &htu21_info;
 	indio_dev->name = id->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 
 	if (id->driver_data == MS8607) {
@@ -249,7 +263,11 @@ static struct i2c_driver htu21_driver = {
 	.id_table = htu21_id,
 	.driver = {
 		   .name = "htu21",
+<<<<<<< HEAD
 		   .of_match_table = of_match_ptr(htu21_of_match),
+=======
+		   .of_match_table = htu21_of_match,
+>>>>>>> upstream/android-13
 		   },
 };
 

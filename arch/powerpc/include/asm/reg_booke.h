@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Contains register definitions common to the Book E PowerPC
  * specification.  Notice that while the IBM-40x series of CPUs
@@ -5,10 +9,13 @@
  * before Book E was finalized, and are included here as well.  Unfortunately,
  * they sometimes used different locations than true Book E CPUs did.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Copyright 2009-2010 Freescale Semiconductor, Inc.
  */
 #ifdef __KERNEL__
@@ -177,7 +184,10 @@
 #define SPRN_L1CSR1	0x3F3	/* L1 Cache Control and Status Register 1 */
 #define SPRN_MMUCSR0	0x3F4	/* MMU Control and Status Register 0 */
 #define SPRN_MMUCFG	0x3F7	/* MMU Configuration Register */
+<<<<<<< HEAD
 #define SPRN_PIT	0x3DB	/* Programmable Interval Timer */
+=======
+>>>>>>> upstream/android-13
 #define SPRN_BUCSR	0x3F5	/* Branch Unit Control and Status */
 #define SPRN_L2CSR0	0x3F9	/* L2 Data Cache Control and Status Register 0 */
 #define SPRN_L2CSR1	0x3FA	/* L2 Data Cache Control and Status Register 1 */
@@ -285,6 +295,7 @@
 #define MSRP_PMMP	0x00000004 /* Protect MSR[PMM] */
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_E200
 #define MCSR_MCP 	0x80000000UL /* Machine Check Input Pin */
 #define MCSR_CP_PERR 	0x20000000UL /* Cache Push Parity Error */
@@ -297,6 +308,8 @@
 					store or cache line push */
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* Bit definitions for the HID1 */
 #ifdef CONFIG_E500
 /* e500v1/v2 */
@@ -666,6 +679,7 @@
 #define EPC_EPID	0x00003fff
 #define EPC_EPID_SHIFT	0
 
+<<<<<<< HEAD
 /*
  * The IBM-403 is an even more odd special case, as it is much
  * older than the IBM-405 series.  We put these down here incase someone
@@ -720,6 +734,8 @@
 #define DBCR_JII	0x00000001	/* JTAG Serial Inbound Int. Enable */
 #endif /* 403GCX */
 
+=======
+>>>>>>> upstream/android-13
 /* Some 476 specific registers */
 #define SPRN_SSPCR		830
 #define SPRN_USPCR		831
@@ -761,6 +777,12 @@
 #define mttmr(rn, v)	asm volatile(MTTMR(rn, %0) : \
 				     : "r" ((unsigned long)(v)) \
 				     : "memory")
+<<<<<<< HEAD
+=======
+
+extern unsigned long global_dbcr0[];
+
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 #endif /* __ASM_POWERPC_REG_BOOKE_H__ */

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	Copyright (C) 2009 Mattias Nissler <mattias.nissler@gmx.de>
@@ -6,6 +10,7 @@
 	Copyright (C) 2009 Axel Kollhofer <rain_maker@root-forum.org>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*

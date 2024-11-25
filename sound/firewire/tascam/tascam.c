@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tascam.c - a part of driver for TASCAM FireWire series
  *
  * Copyright (c) 2015 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "tascam.h"
@@ -85,6 +92,7 @@ static int identify_model(struct snd_tscm *tscm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void tscm_free(struct snd_tscm *tscm)
 {
 	snd_tscm_transaction_unregister(tscm);
@@ -110,6 +118,39 @@ static void do_registration(struct work_struct *work)
 			   &tscm->card);
 	if (err < 0)
 		return;
+=======
+static void tscm_card_free(struct snd_card *card)
+{
+	struct snd_tscm *tscm = card->private_data;
+
+	snd_tscm_transaction_unregister(tscm);
+	snd_tscm_stream_destroy_duplex(tscm);
+
+	mutex_destroy(&tscm->mutex);
+	fw_unit_put(tscm->unit);
+}
+
+static int snd_tscm_probe(struct fw_unit *unit,
+			   const struct ieee1394_device_id *entry)
+{
+	struct snd_card *card;
+	struct snd_tscm *tscm;
+	int err;
+
+	err = snd_card_new(&unit->device, -1, NULL, THIS_MODULE, sizeof(*tscm), &card);
+	if (err < 0)
+		return err;
+	card->private_free = tscm_card_free;
+
+	tscm = card->private_data;
+	tscm->unit = fw_unit_get(unit);
+	dev_set_drvdata(&unit->device, tscm);
+	tscm->card = card;
+
+	mutex_init(&tscm->mutex);
+	spin_lock_init(&tscm->lock);
+	init_waitqueue_head(&tscm->hwdep_wait);
+>>>>>>> upstream/android-13
 
 	err = identify_model(tscm);
 	if (err < 0)
@@ -137,6 +178,7 @@ static void do_registration(struct work_struct *work)
 	if (err < 0)
 		goto error;
 
+<<<<<<< HEAD
 	err = snd_card_register(tscm->card);
 	if (err < 0)
 		goto error;
@@ -181,12 +223,23 @@ static int snd_tscm_probe(struct fw_unit *unit,
 	snd_fw_schedule_registration(unit, &tscm->dwork);
 
 	return 0;
+=======
+	err = snd_card_register(card);
+	if (err < 0)
+		goto error;
+
+	return 0;
+error:
+	snd_card_free(card);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void snd_tscm_update(struct fw_unit *unit)
 {
 	struct snd_tscm *tscm = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/* Postpone a workqueue for deferred registration. */
 	if (!tscm->registered)
 		snd_fw_schedule_registration(unit, &tscm->dwork);
@@ -202,12 +255,20 @@ static void snd_tscm_update(struct fw_unit *unit)
 		snd_tscm_stream_update_duplex(tscm);
 		mutex_unlock(&tscm->mutex);
 	}
+=======
+	snd_tscm_transaction_reregister(tscm);
+
+	mutex_lock(&tscm->mutex);
+	snd_tscm_stream_update_duplex(tscm);
+	mutex_unlock(&tscm->mutex);
+>>>>>>> upstream/android-13
 }
 
 static void snd_tscm_remove(struct fw_unit *unit)
 {
 	struct snd_tscm *tscm = dev_get_drvdata(&unit->device);
 
+<<<<<<< HEAD
 	/*
 	 * Confirm to stop the work for registration before the sound card is
 	 * going to be released. The work is not scheduled again because bus
@@ -222,6 +283,10 @@ static void snd_tscm_remove(struct fw_unit *unit)
 		/* Don't forget this case. */
 		tscm_free(tscm);
 	}
+=======
+	// Block till all of ALSA character devices are released.
+	snd_card_free(tscm->card);
+>>>>>>> upstream/android-13
 }
 
 static const struct ieee1394_device_id snd_tscm_id_table[] = {
@@ -259,7 +324,10 @@ static const struct ieee1394_device_id snd_tscm_id_table[] = {
 		.specifier_id = 0x00022e,
 		.version = 0x800004,
 	},
+<<<<<<< HEAD
 	/* FE-08 requires reverse-engineering because it just has faders. */
+=======
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(ieee1394, snd_tscm_id_table);
@@ -267,7 +335,11 @@ MODULE_DEVICE_TABLE(ieee1394, snd_tscm_id_table);
 static struct fw_driver tscm_driver = {
 	.driver = {
 		.owner = THIS_MODULE,
+<<<<<<< HEAD
 		.name = "snd-firewire-tascam",
+=======
+		.name = KBUILD_MODNAME,
+>>>>>>> upstream/android-13
 		.bus = &fw_bus_type,
 	},
 	.probe    = snd_tscm_probe,

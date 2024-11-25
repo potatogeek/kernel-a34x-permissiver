@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ds.c -- 16-bit PCMCIA core support
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * ds.c -- 16-bit PCMCIA core support
+ *
+>>>>>>> upstream/android-13
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
@@ -67,7 +74,11 @@ static void pcmcia_check_driver(struct pcmcia_driver *p_drv)
 			       "be 0x%x\n", p_drv->name, did->prod_id[i],
 			       did->prod_id_hash[i], hash);
 			printk(KERN_DEBUG "pcmcia: see "
+<<<<<<< HEAD
 				"Documentation/pcmcia/devicetable.txt for "
+=======
+				"Documentation/pcmcia/devicetable.rst for "
+>>>>>>> upstream/android-13
 				"details\n");
 		}
 		did++;
@@ -86,7 +97,11 @@ struct pcmcia_dynid {
 };
 
 /**
+<<<<<<< HEAD
  * pcmcia_store_new_id - add a new PCMCIA device ID to this driver and re-probe devices
+=======
+ * new_id_store() - add a new PCMCIA device ID to this driver and re-probe devices
+>>>>>>> upstream/android-13
  * @driver: target device driver
  * @buf: buffer for scanning device ID data
  * @count: input size
@@ -353,7 +368,11 @@ static void pcmcia_card_remove(struct pcmcia_socket *s, struct pcmcia_device *le
 	return;
 }
 
+<<<<<<< HEAD
 static int pcmcia_device_remove(struct device *dev)
+=======
+static void pcmcia_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct pcmcia_device *p_dev;
 	struct pcmcia_driver *p_drv;
@@ -374,9 +393,12 @@ static int pcmcia_device_remove(struct device *dev)
 		pcmcia_card_remove(p_dev->socket, p_dev);
 
 	/* detach the "instance" */
+<<<<<<< HEAD
 	if (!p_drv)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	if (p_drv->remove)
 		p_drv->remove(p_dev);
 
@@ -392,11 +414,17 @@ static int pcmcia_device_remove(struct device *dev)
 				 "pcmcia: driver %s did not release window properly\n",
 				 p_drv->name);
 
+<<<<<<< HEAD
 	/* references from pcmcia_probe_device */
 	pcmcia_put_dev(p_dev);
 	module_put(p_drv->owner);
 
 	return 0;
+=======
+	/* references from pcmcia_device_probe */
+	pcmcia_put_dev(p_dev);
+	module_put(p_drv->owner);
+>>>>>>> upstream/android-13
 }
 
 
@@ -519,7 +547,11 @@ static struct pcmcia_device *pcmcia_device_add(struct pcmcia_socket *s,
 	p_dev->dev.parent = s->dev.parent;
 	p_dev->dev.release = pcmcia_release_dev;
 	/* by default don't allow DMA */
+<<<<<<< HEAD
 	p_dev->dma_mask = DMA_MASK_NONE;
+=======
+	p_dev->dma_mask = 0;
+>>>>>>> upstream/android-13
 	p_dev->dev.dma_mask = &p_dev->dma_mask;
 	dev_set_name(&p_dev->dev, "%d.%d", p_dev->socket->sock, p_dev->device_no);
 	if (!dev_name(&p_dev->dev))

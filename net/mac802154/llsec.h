@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Fraunhofer ITWM
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2014 Fraunhofer ITWM
+ *
+>>>>>>> upstream/android-13
  * Written by:
  * Phoebe Buckheister <phoebe.buckheister@itwm.fraunhofer.de>
  */
@@ -29,7 +36,11 @@ struct mac802154_llsec_key {
 
 	/* one tfm for each authsize (4/8/16) */
 	struct crypto_aead *tfm[3];
+<<<<<<< HEAD
 	struct crypto_skcipher *tfm0;
+=======
+	struct crypto_sync_skcipher *tfm0;
+>>>>>>> upstream/android-13
 
 	struct kref ref;
 };

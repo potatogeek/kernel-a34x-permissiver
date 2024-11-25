@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * O(1) TX queue with built-in allocator for ST-Ericsson CW1200 drivers
  *
  * Copyright (c) 2010, ST-Ericsson
  * Author: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <net/mac80211.h>
@@ -82,10 +89,16 @@ static void cw1200_queue_register_post_gc(struct list_head *gc_list,
 					  struct cw1200_queue_item *item)
 {
 	struct cw1200_queue_item *gc_item;
+<<<<<<< HEAD
 	gc_item = kmalloc(sizeof(struct cw1200_queue_item),
 			GFP_ATOMIC);
 	BUG_ON(!gc_item);
 	memcpy(gc_item, item, sizeof(struct cw1200_queue_item));
+=======
+	gc_item = kmemdup(item, sizeof(struct cw1200_queue_item),
+			GFP_ATOMIC);
+	BUG_ON(!gc_item);
+>>>>>>> upstream/android-13
 	list_add_tail(&gc_item->head, gc_list);
 }
 
@@ -283,7 +296,10 @@ int cw1200_queue_put(struct cw1200_queue *queue,
 		     struct cw1200_txpriv *txpriv)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	LIST_HEAD(gc_list);
+=======
+>>>>>>> upstream/android-13
 	struct cw1200_queue_stats *stats = queue->stats;
 
 	if (txpriv->link_id >= queue->stats->map_capacity)

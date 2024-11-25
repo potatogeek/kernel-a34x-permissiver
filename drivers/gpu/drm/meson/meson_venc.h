@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 BayLibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2016 BayLibre, SAS
+ * Author: Neil Armstrong <narmstrong@baylibre.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -26,6 +33,11 @@
 #ifndef __MESON_VENC_H
 #define __MESON_VENC_H
 
+<<<<<<< HEAD
+=======
+struct drm_display_mode;
+
+>>>>>>> upstream/android-13
 enum {
 	MESON_VENC_MODE_NONE = 0,
 	MESON_VENC_MODE_CVBS_PAL,
@@ -70,7 +82,13 @@ extern struct meson_cvbs_enci_mode meson_cvbs_enci_ntsc;
 void meson_venci_cvbs_mode_set(struct meson_drm *priv,
 			       struct meson_cvbs_enci_mode *mode);
 void meson_venc_hdmi_mode_set(struct meson_drm *priv, int vic,
+<<<<<<< HEAD
 			      struct drm_display_mode *mode);
+=======
+			      unsigned int ycrcb_map,
+			      bool yuv420_mode,
+			      const struct drm_display_mode *mode);
+>>>>>>> upstream/android-13
 unsigned int meson_venci_get_field(struct meson_drm *priv);
 
 void meson_venc_enable_vsync(struct meson_drm *priv);

@@ -16,6 +16,10 @@
  * (C) 2015-2016 Chunyan Zhang <zhang.chunyan@linaro.org>
  */
 #include <asm/local.h>
+<<<<<<< HEAD
+=======
+#include <linux/acpi.h>
+>>>>>>> upstream/android-13
 #include <linux/amba/bus.h>
 #include <linux/bitmap.h>
 #include <linux/clk.h>
@@ -95,7 +99,11 @@ module_param_named(
 	boot_nr_channel, boot_nr_channel, int, S_IRUGO
 );
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * struct channel_space - central management entity for extended ports
  * @base:		memory mapped base address where channels start.
  * @phys:		physical base address of channel region.
@@ -107,10 +115,18 @@ struct channel_space {
 	unsigned long		*guaranteed;
 };
 
+<<<<<<< HEAD
 /**
  * struct stm_drvdata - specifics associated to an STM component
  * @base:		memory mapped base address for this component.
  * @dev:		the device entity associated to this component.
+=======
+DEFINE_CORESIGHT_DEVLIST(stm_devs, "stm");
+
+/**
+ * struct stm_drvdata - specifics associated to an STM component
+ * @base:		memory mapped base address for this component.
+>>>>>>> upstream/android-13
  * @atclk:		optional clock for the core parts of the STM.
  * @csdev:		component vitals needed by the framework.
  * @spinlock:		only one at a time pls.
@@ -128,7 +144,10 @@ struct channel_space {
  */
 struct stm_drvdata {
 	void __iomem		*base;
+<<<<<<< HEAD
 	struct device		*dev;
+=======
+>>>>>>> upstream/android-13
 	struct clk		*atclk;
 	struct coresight_device	*csdev;
 	spinlock_t		spinlock;
@@ -205,13 +224,21 @@ static int stm_enable(struct coresight_device *csdev,
 	if (val)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(drvdata->dev);
+=======
+	pm_runtime_get_sync(csdev->dev.parent);
+>>>>>>> upstream/android-13
 
 	spin_lock(&drvdata->spinlock);
 	stm_enable_hw(drvdata);
 	spin_unlock(&drvdata->spinlock);
 
+<<<<<<< HEAD
 	dev_dbg(drvdata->dev, "STM tracing enabled\n");
+=======
+	dev_dbg(&csdev->dev, "STM tracing enabled\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -257,6 +284,10 @@ static void stm_disable(struct coresight_device *csdev,
 			struct perf_event *event)
 {
 	struct stm_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
+<<<<<<< HEAD
+=======
+	struct csdev_access *csa = &csdev->access;
+>>>>>>> upstream/android-13
 
 	/*
 	 * For as long as the tracer isn't disabled another entity can't
@@ -269,12 +300,21 @@ static void stm_disable(struct coresight_device *csdev,
 		spin_unlock(&drvdata->spinlock);
 
 		/* Wait until the engine has completely stopped */
+<<<<<<< HEAD
 		coresight_timeout(drvdata->base, STMTCSR, STMTCSR_BUSY_BIT, 0);
 
 		pm_runtime_put(drvdata->dev);
 
 		local_set(&drvdata->mode, CS_MODE_DISABLED);
 		dev_dbg(drvdata->dev, "STM tracing disabled\n");
+=======
+		coresight_timeout(csa, STMTCSR, STMTCSR_BUSY_BIT, 0);
+
+		pm_runtime_put(csdev->dev.parent);
+
+		local_set(&drvdata->mode, CS_MODE_DISABLED);
+		dev_dbg(&csdev->dev, "STM tracing disabled\n");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -411,6 +451,10 @@ static ssize_t notrace stm_generic_packet(struct stm_data *stm_data,
 	void __iomem *ch_addr;
 	struct stm_drvdata *drvdata = container_of(stm_data,
 						   struct stm_drvdata, stm);
+<<<<<<< HEAD
+=======
+	unsigned int stm_flags;
+>>>>>>> upstream/android-13
 
 	if (!(drvdata && local_read(&drvdata->mode)))
 		return -EACCES;
@@ -420,8 +464,14 @@ static ssize_t notrace stm_generic_packet(struct stm_data *stm_data,
 
 	ch_addr = stm_channel_addr(drvdata, channel);
 
+<<<<<<< HEAD
 	flags = (flags == STP_PACKET_TIMESTAMPED) ? STM_FLAG_TIMESTAMPED : 0;
 	flags |= test_bit(channel, drvdata->chs.guaranteed) ?
+=======
+	stm_flags = (flags & STP_PACKET_TIMESTAMPED) ?
+			STM_FLAG_TIMESTAMPED : 0;
+	stm_flags |= test_bit(channel, drvdata->chs.guaranteed) ?
+>>>>>>> upstream/android-13
 			   STM_FLAG_GUARANTEED : 0;
 
 	if (size > drvdata->write_bytes)
@@ -431,7 +481,11 @@ static ssize_t notrace stm_generic_packet(struct stm_data *stm_data,
 
 	switch (packet) {
 	case STP_PACKET_FLAG:
+<<<<<<< HEAD
 		ch_addr += stm_channel_off(STM_PKT_TYPE_FLAG, flags);
+=======
+		ch_addr += stm_channel_off(STM_PKT_TYPE_FLAG, stm_flags);
+>>>>>>> upstream/android-13
 
 		/*
 		 * The generic STM core sets a size of '0' on flag packets.
@@ -443,7 +497,12 @@ static ssize_t notrace stm_generic_packet(struct stm_data *stm_data,
 		break;
 
 	case STP_PACKET_DATA:
+<<<<<<< HEAD
 		ch_addr += stm_channel_off(STM_PKT_TYPE_DATA, flags);
+=======
+		stm_flags |= (flags & STP_PACKET_MARKED) ? STM_FLAG_MARKED : 0;
+		ch_addr += stm_channel_off(STM_PKT_TYPE_DATA, stm_flags);
+>>>>>>> upstream/android-13
 		stm_send(ch_addr, payload, size,
 				drvdata->write_bytes);
 		break;
@@ -685,6 +744,7 @@ static const struct attribute_group *coresight_stm_groups[] = {
 	NULL,
 };
 
+<<<<<<< HEAD
 static int stm_get_resource_byname(struct device_node *np,
 				   char *ch_base, struct resource *res)
 {
@@ -693,6 +753,17 @@ static int stm_get_resource_byname(struct device_node *np,
 
 	while (!of_property_read_string_index(np, "reg-names", index, &name)) {
 		if (strcmp(ch_base, name)) {
+=======
+#ifdef CONFIG_OF
+static int of_stm_get_stimulus_area(struct device *dev, struct resource *res)
+{
+	const char *name = NULL;
+	int index = 0, found = 0;
+	struct device_node *np = dev->of_node;
+
+	while (!of_property_read_string_index(np, "reg-names", index, &name)) {
+		if (strcmp("stm-stimulus-base", name)) {
+>>>>>>> upstream/android-13
 			index++;
 			continue;
 		}
@@ -707,6 +778,71 @@ static int stm_get_resource_byname(struct device_node *np,
 
 	return of_address_to_resource(np, index, res);
 }
+<<<<<<< HEAD
+=======
+#else
+static inline int of_stm_get_stimulus_area(struct device *dev,
+					   struct resource *res)
+{
+	return -ENOENT;
+}
+#endif
+
+#ifdef CONFIG_ACPI
+static int acpi_stm_get_stimulus_area(struct device *dev, struct resource *res)
+{
+	int rc;
+	bool found_base = false;
+	struct resource_entry *rent;
+	LIST_HEAD(res_list);
+
+	struct acpi_device *adev = ACPI_COMPANION(dev);
+
+	rc = acpi_dev_get_resources(adev, &res_list, NULL, NULL);
+	if (rc < 0)
+		return rc;
+
+	/*
+	 * The stimulus base for STM device must be listed as the second memory
+	 * resource, followed by the programming base address as described in
+	 * "Section 2.3 Resources" in ACPI for CoreSightTM 1.0 Platform Design
+	 * document (DEN0067).
+	 */
+	rc = -ENOENT;
+	list_for_each_entry(rent, &res_list, node) {
+		if (resource_type(rent->res) != IORESOURCE_MEM)
+			continue;
+		if (found_base) {
+			*res = *rent->res;
+			rc = 0;
+			break;
+		}
+
+		found_base = true;
+	}
+
+	acpi_dev_free_resource_list(&res_list);
+	return rc;
+}
+#else
+static inline int acpi_stm_get_stimulus_area(struct device *dev,
+					     struct resource *res)
+{
+	return -ENOENT;
+}
+#endif
+
+static int stm_get_stimulus_area(struct device *dev, struct resource *res)
+{
+	struct fwnode_handle *fwnode = dev_fwnode(dev);
+
+	if (is_of_node(fwnode))
+		return of_stm_get_stimulus_area(dev, res);
+	else if (is_acpi_node(fwnode))
+		return acpi_stm_get_stimulus_area(dev, res);
+	return -ENOENT;
+}
+>>>>>>> upstream/android-13
 
 static u32 stm_fundamental_data_size(struct stm_drvdata *drvdata)
 {
@@ -763,9 +899,16 @@ static void stm_init_default_data(struct stm_drvdata *drvdata)
 	bitmap_clear(drvdata->chs.guaranteed, 0, drvdata->numsp);
 }
 
+<<<<<<< HEAD
 static void stm_init_generic_data(struct stm_drvdata *drvdata)
 {
 	drvdata->stm.name = dev_name(drvdata->dev);
+=======
+static void stm_init_generic_data(struct stm_drvdata *drvdata,
+				  const char *name)
+{
+	drvdata->stm.name = name;
+>>>>>>> upstream/android-13
 
 	/*
 	 * MasterIDs are assigned at HW design phase. As such the core is
@@ -793,6 +936,7 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 	struct stm_drvdata *drvdata;
 	struct resource *res = &adev->res;
 	struct resource ch_res;
+<<<<<<< HEAD
 	size_t res_size, bitmap_size;
 	struct coresight_desc desc = { 0 };
 	struct device_node *np = adev->dev.of_node;
@@ -803,11 +947,23 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 			return PTR_ERR(pdata);
 		adev->dev.platform_data = pdata;
 	}
+=======
+	size_t bitmap_size;
+	struct coresight_desc desc = { 0 };
+
+	desc.name = coresight_alloc_device_name(&stm_devs, dev);
+	if (!desc.name)
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
 	if (!drvdata)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	drvdata->dev = &adev->dev;
+=======
+>>>>>>> upstream/android-13
 	drvdata->atclk = devm_clk_get(&adev->dev, "atclk"); /* optional */
 	if (!IS_ERR(drvdata->atclk)) {
 		ret = clk_prepare_enable(drvdata->atclk);
@@ -820,8 +976,14 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 	drvdata->base = base;
+<<<<<<< HEAD
 
 	ret = stm_get_resource_byname(np, "stm-stimulus-base", &ch_res);
+=======
+	desc.access = CSDEV_ACCESS_IOMEM(base);
+
+	ret = stm_get_stimulus_area(dev, &ch_res);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 	drvdata->chs.phys = ch_res.start;
@@ -833,6 +995,7 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 
 	drvdata->write_bytes = stm_fundamental_data_size(drvdata);
 
+<<<<<<< HEAD
 	if (boot_nr_channel) {
 		drvdata->numsp = boot_nr_channel;
 		res_size = min((resource_size_t)(boot_nr_channel *
@@ -842,6 +1005,13 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 		res_size = min((resource_size_t)(drvdata->numsp *
 				 BYTES_PER_CHANNEL), resource_size(res));
 	}
+=======
+	if (boot_nr_channel)
+		drvdata->numsp = boot_nr_channel;
+	else
+		drvdata->numsp = stm_num_stimulus_port(drvdata);
+
+>>>>>>> upstream/android-13
 	bitmap_size = BITS_TO_LONGS(drvdata->numsp) * sizeof(long);
 
 	guaranteed = devm_kzalloc(dev, bitmap_size, GFP_KERNEL);
@@ -852,6 +1022,7 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 	spin_lock_init(&drvdata->spinlock);
 
 	stm_init_default_data(drvdata);
+<<<<<<< HEAD
 	stm_init_generic_data(drvdata);
 
 	if (stm_register_device(dev, &drvdata->stm, THIS_MODULE)) {
@@ -860,6 +1031,24 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 		return -EPROBE_DEFER;
 	}
 
+=======
+	stm_init_generic_data(drvdata, desc.name);
+
+	if (stm_register_device(dev, &drvdata->stm, THIS_MODULE)) {
+		dev_info(dev,
+			 "%s : stm_register_device failed, probing deferred\n",
+			 desc.name);
+		return -EPROBE_DEFER;
+	}
+
+	pdata = coresight_get_platform_data(dev);
+	if (IS_ERR(pdata)) {
+		ret = PTR_ERR(pdata);
+		goto stm_unregister;
+	}
+	adev->dev.platform_data = pdata;
+
+>>>>>>> upstream/android-13
 	desc.type = CORESIGHT_DEV_TYPE_SOURCE;
 	desc.subtype.source_subtype = CORESIGHT_DEV_SUBTYPE_SOURCE_SOFTWARE;
 	desc.ops = &stm_cs_ops;
@@ -874,7 +1063,12 @@ static int stm_probe(struct amba_device *adev, const struct amba_id *id)
 
 	pm_runtime_put(&adev->dev);
 
+<<<<<<< HEAD
 	dev_info(dev, "%s initialized\n", (char *)id->data);
+=======
+	dev_info(&drvdata->csdev->dev, "%s initialized\n",
+		 (char *)coresight_get_uci_data(id));
+>>>>>>> upstream/android-13
 	return 0;
 
 stm_unregister:
@@ -882,6 +1076,18 @@ stm_unregister:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void stm_remove(struct amba_device *adev)
+{
+	struct stm_drvdata *drvdata = dev_get_drvdata(&adev->dev);
+
+	coresight_unregister(drvdata->csdev);
+
+	stm_unregister_device(&drvdata->stm);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int stm_runtime_suspend(struct device *dev)
 {
@@ -909,6 +1115,7 @@ static const struct dev_pm_ops stm_dev_pm_ops = {
 };
 
 static const struct amba_id stm_ids[] = {
+<<<<<<< HEAD
 	{
 		.id     = 0x000bb962,
 		.mask   = 0x000fffff,
@@ -922,6 +1129,15 @@ static const struct amba_id stm_ids[] = {
 	{ 0, 0},
 };
 
+=======
+	CS_AMBA_ID_DATA(0x000bb962, "STM32"),
+	CS_AMBA_ID_DATA(0x000bb963, "STM500"),
+	{ 0, 0},
+};
+
+MODULE_DEVICE_TABLE(amba, stm_ids);
+
+>>>>>>> upstream/android-13
 static struct amba_driver stm_driver = {
 	.drv = {
 		.name   = "coresight-stm",
@@ -930,7 +1146,19 @@ static struct amba_driver stm_driver = {
 		.suppress_bind_attrs = true,
 	},
 	.probe          = stm_probe,
+<<<<<<< HEAD
 	.id_table	= stm_ids,
 };
 
 builtin_amba_driver(stm_driver);
+=======
+	.remove         = stm_remove,
+	.id_table	= stm_ids,
+};
+
+module_amba_driver(stm_driver);
+
+MODULE_AUTHOR("Pratik Patel <pratikp@codeaurora.org>");
+MODULE_DESCRIPTION("Arm CoreSight System Trace Macrocell driver");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

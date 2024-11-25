@@ -87,6 +87,7 @@ int h8300_put_reg(struct task_struct *task, int regno, unsigned long data)
 
 static int regs_get(struct task_struct *target,
 		    const struct user_regset *regset,
+<<<<<<< HEAD
 		    unsigned int pos, unsigned int count,
 		    void *kbuf, void __user *ubuf)
 {
@@ -101,6 +102,17 @@ static int regs_get(struct task_struct *target,
 
 	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
 				   &regs, 0, sizeof(regs));
+=======
+		    struct membuf to)
+{
+	int r;
+
+	BUILD_BUG_ON(sizeof(struct user_regs_struct) % sizeof(long) != 0);
+	for (r = 0; r < ELF_NGREG; r++)
+		membuf_store(&to, h8300_get_reg(target, r));
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int regs_set(struct task_struct *target,
@@ -139,7 +151,11 @@ static const struct user_regset h8300_regsets[] = {
 		.n		= ELF_NGREG,
 		.size		= sizeof(long),
 		.align		= sizeof(long),
+<<<<<<< HEAD
 		.get		= regs_get,
+=======
+		.regset_get		= regs_get,
+>>>>>>> upstream/android-13
 		.set		= regs_set,
 	},
 };

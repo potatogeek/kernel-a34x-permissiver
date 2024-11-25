@@ -12,11 +12,18 @@
 
 #include <linux/slab.h>
 #include <linux/sched/debug.h>
+<<<<<<< HEAD
 
 #include <asm/timer.h>
 #include <asm/traps.h>
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <asm/timer.h>
+#include <asm/traps.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <asm/io.h>
 #include <asm/cacheflush.h>

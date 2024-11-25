@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * omap_hwmod_2xxx_3xxx_ipblock_data.c - common IP block data for OMAP2/3
  *
  * Copyright (C) 2011 Nokia Corporation
  * Copyright (C) 2012 Texas Instruments, Inc.
  * Paul Walmsley
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dmaengine.h>

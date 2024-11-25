@@ -1,7 +1,10 @@
 #
 # Cavium Octeon
 #
+<<<<<<< HEAD
 platform-$(CONFIG_CAVIUM_OCTEON_SOC)	+= cavium-octeon/
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_CAVIUM_OCTEON_SOC)	+=				\
 		-I$(srctree)/arch/mips/include/asm/mach-cavium-octeon
 load-$(CONFIG_CAVIUM_OCTEON_SOC)	+= 0xffffffff81100000

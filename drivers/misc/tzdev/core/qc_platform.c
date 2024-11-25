@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -40,6 +44,11 @@
 #include "core/log.h"
 #include "core/platform.h"
 #include "core/qc_clocks.h"
+<<<<<<< HEAD
+=======
+#include "core/ree_time.h"
+#include "core/sysdep.h"
+>>>>>>> upstream/android-13
 
 #define SECUREOS_SMC_SUCCESS		0
 #define SECUREOS_SMC_INTERRUPTED	1
@@ -229,7 +238,11 @@ static int tzdev_scm_call(struct tzdev_smc_data *data)
 	};
 	struct tzdev_qc_ret_msg ret_msg = {0, 0, 0, 0, 0};
 	struct scm_desc desc = {0};
+<<<<<<< HEAD
 	struct timespec ts;
+=======
+	struct tz_ree_time ree_ts;
+>>>>>>> upstream/android-13
 	void *scm_buf;
 	int ret;
 
@@ -239,9 +252,15 @@ static int tzdev_scm_call(struct tzdev_smc_data *data)
 	if (!scm_buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	getnstimeofday(&ts);
 	qc_msg.tv_sec = ts.tv_sec;
 	qc_msg.tv_nsec = ts.tv_nsec;
+=======
+	sysdep_get_ts(&ree_ts);
+	qc_msg.tv_sec = (__s64)ree_ts.sec;
+	qc_msg.tv_nsec = (__s32)ree_ts.nsec;
+>>>>>>> upstream/android-13
 	memcpy(scm_buf, &qc_msg, sizeof(qc_msg));
 	dmac_flush_range(scm_buf, (unsigned char *)scm_buf + sizeof(qc_msg));
 

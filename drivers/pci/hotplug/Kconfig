@@ -6,7 +6,11 @@
 menuconfig HOTPLUG_PCI
 	bool "Support for PCI Hotplug"
 	depends on PCI && SYSFS
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you have a motherboard with a PCI Hotplug controller.
 	  This allows you to add and remove PCI cards while the machine is
 	  powered up and running.
@@ -83,7 +87,11 @@ config HOTPLUG_PCI_CPCI_ZT5550
 	depends on HOTPLUG_PCI_CPCI && X86
 	help
 	  Say Y here if you have an Performance Technologies (formerly Intel,
+<<<<<<< HEAD
           formerly just Ziatech) Ziatech ZT5550 CompactPCI system card.
+=======
+	  formerly just Ziatech) Ziatech ZT5550 CompactPCI system card.
+>>>>>>> upstream/android-13
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called cpcihp_zt5550.
@@ -147,6 +155,7 @@ config HOTPLUG_PCI_RPA_DLPAR
 
 	  When in doubt, say N.
 
+<<<<<<< HEAD
 config HOTPLUG_PCI_SGI
 	tristate "SGI PCI Hotplug Support"
 	depends on IA64_SGI_SN2 || IA64_GENERIC
@@ -156,6 +165,8 @@ config HOTPLUG_PCI_SGI
 
 	  When in doubt, say N.
 
+=======
+>>>>>>> upstream/android-13
 config HOTPLUG_PCI_S390
 	bool "System z PCI Hotplug Support"
 	depends on S390 && 64BIT

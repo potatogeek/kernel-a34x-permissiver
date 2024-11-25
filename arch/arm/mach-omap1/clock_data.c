@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-omap1/clock_data.c
  *
@@ -5,10 +9,13 @@
  *  Written by Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>
  *  Based on clocks.h by Tony Lindgren, Gordon McNutt and RidgeRun, Inc
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * To do:
  * - Clocks that are only available on some chips should be marked with the
  *   chips that they are present on.

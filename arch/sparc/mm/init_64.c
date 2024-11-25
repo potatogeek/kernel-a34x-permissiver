@@ -11,7 +11,11 @@
 #include <linux/sched.h>
 #include <linux/string.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/hugetlb.h>
 #include <linux/initrd.h>
@@ -25,14 +29,23 @@
 #include <linux/sort.h>
 #include <linux/ioport.h>
 #include <linux/percpu.h>
+<<<<<<< HEAD
 #include <linux/memblock.h>
 #include <linux/mmzone.h>
 #include <linux/gfp.h>
+=======
+#include <linux/mmzone.h>
+#include <linux/gfp.h>
+#include <linux/bootmem_info.h>
+>>>>>>> upstream/android-13
 
 #include <asm/head.h>
 #include <asm/page.h>
 #include <asm/pgalloc.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/oplib.h>
 #include <asm/iommu.h>
 #include <asm/io.h>
@@ -326,6 +339,7 @@ static void __update_mmu_tsb_insert(struct mm_struct *mm, unsigned long tsb_inde
 }
 
 #ifdef CONFIG_HUGETLB_PAGE
+<<<<<<< HEAD
 static void __init add_huge_page_size(unsigned long size)
 {
 	unsigned int order;
@@ -343,6 +357,14 @@ static int __init hugetlbpage_init(void)
 	add_huge_page_size(1UL << HPAGE_SHIFT);
 	add_huge_page_size(1UL << HPAGE_256MB_SHIFT);
 	add_huge_page_size(1UL << HPAGE_2GB_SHIFT);
+=======
+static int __init hugetlbpage_init(void)
+{
+	hugetlb_add_hstate(HPAGE_64K_SHIFT - PAGE_SHIFT);
+	hugetlb_add_hstate(HPAGE_SHIFT - PAGE_SHIFT);
+	hugetlb_add_hstate(HPAGE_256MB_SHIFT - PAGE_SHIFT);
+	hugetlb_add_hstate(HPAGE_2GB_SHIFT - PAGE_SHIFT);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -361,6 +383,7 @@ static void __init pud_huge_patch(void)
 	__asm__ __volatile__("flush %0" : : "r" (addr));
 }
 
+<<<<<<< HEAD
 static int __init setup_hugepagesz(char *string)
 {
 	unsigned long long hugepage_size;
@@ -371,6 +394,13 @@ static int __init setup_hugepagesz(char *string)
 
 	hugepage_size = memparse(string, &string);
 	hugepage_shift = ilog2(hugepage_size);
+=======
+bool __init arch_hugetlb_valid_size(unsigned long size)
+{
+	unsigned int hugepage_shift = ilog2(size);
+	unsigned short hv_pgsz_idx;
+	unsigned int hv_pgsz_mask;
+>>>>>>> upstream/android-13
 
 	switch (hugepage_shift) {
 	case HPAGE_16GB_SHIFT:
@@ -398,6 +428,7 @@ static int __init setup_hugepagesz(char *string)
 		hv_pgsz_mask = 0;
 	}
 
+<<<<<<< HEAD
 	if ((hv_pgsz_mask & cpu_pgsz_mask) == 0U) {
 		hugetlb_bad_size();
 		pr_err("hugepagesz=%llu not supported by MMU.\n",
@@ -412,6 +443,13 @@ out:
 	return rc;
 }
 __setup("hugepagesz=", setup_hugepagesz);
+=======
+	if ((hv_pgsz_mask & cpu_pgsz_mask) == 0U)
+		return false;
+
+	return true;
+}
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_HUGETLB_PAGE */
 
 void update_mmu_cache(struct vm_area_struct *vma, unsigned long address, pte_t *ptep)
@@ -530,10 +568,14 @@ void __kprobes flush_icache_range(unsigned long start, unsigned long end)
 			if (kaddr >= PAGE_OFFSET)
 				paddr = kaddr & mask;
 			else {
+<<<<<<< HEAD
 				pgd_t *pgdp = pgd_offset_k(kaddr);
 				pud_t *pudp = pud_offset(pgdp, kaddr);
 				pmd_t *pmdp = pmd_offset(pudp, kaddr);
 				pte_t *ptep = pte_offset_kernel(pmdp, kaddr);
+=======
+				pte_t *ptep = virt_to_kpte(kaddr);
+>>>>>>> upstream/android-13
 
 				paddr = pte_val(*ptep) & mask;
 			}
@@ -933,7 +975,11 @@ struct node_mem_mask {
 static struct node_mem_mask node_masks[MAX_NUMNODES];
 static int num_node_masks;
 
+<<<<<<< HEAD
 #ifdef CONFIG_NEED_MULTIPLE_NODES
+=======
+#ifdef CONFIG_NUMA
+>>>>>>> upstream/android-13
 
 struct mdesc_mlgroup {
 	u64	node;
@@ -977,13 +1023,21 @@ static u64 __init memblock_nid_range_sun4u(u64 start, u64 end, int *nid)
 {
 	int prev_nid, new_nid;
 
+<<<<<<< HEAD
 	prev_nid = -1;
+=======
+	prev_nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 	for ( ; start < end; start += PAGE_SIZE) {
 		for (new_nid = 0; new_nid < num_node_masks; new_nid++) {
 			struct node_mem_mask *p = &node_masks[new_nid];
 
 			if ((start & p->mask) == p->match) {
+<<<<<<< HEAD
 				if (prev_nid == -1)
+=======
+				if (prev_nid == NUMA_NO_NODE)
+>>>>>>> upstream/android-13
 					prev_nid = new_nid;
 				break;
 			}
@@ -1089,6 +1143,7 @@ static void __init allocate_node_data(int nid)
 {
 	struct pglist_data *p;
 	unsigned long start_pfn, end_pfn;
+<<<<<<< HEAD
 #ifdef CONFIG_NEED_MULTIPLE_NODES
 	unsigned long paddr;
 
@@ -1099,6 +1154,16 @@ static void __init allocate_node_data(int nid)
 	}
 	NODE_DATA(nid) = __va(paddr);
 	memset(NODE_DATA(nid), 0, sizeof(struct pglist_data));
+=======
+#ifdef CONFIG_NUMA
+
+	NODE_DATA(nid) = memblock_alloc_node(sizeof(struct pglist_data),
+					     SMP_CACHE_BYTES, nid);
+	if (!NODE_DATA(nid)) {
+		prom_printf("Cannot allocate pglist_data for nid[%d]\n", nid);
+		prom_halt();
+	}
+>>>>>>> upstream/android-13
 
 	NODE_DATA(nid)->node_id = nid;
 #endif
@@ -1112,7 +1177,11 @@ static void __init allocate_node_data(int nid)
 
 static void init_node_masks_nonnuma(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NEED_MULTIPLE_NODES
+=======
+#ifdef CONFIG_NUMA
+>>>>>>> upstream/android-13
 	int i;
 #endif
 
@@ -1122,7 +1191,11 @@ static void init_node_masks_nonnuma(void)
 	node_masks[0].match = 0;
 	num_node_masks = 1;
 
+<<<<<<< HEAD
 #ifdef CONFIG_NEED_MULTIPLE_NODES
+=======
+#ifdef CONFIG_NUMA
+>>>>>>> upstream/android-13
 	for (i = 0; i < NR_CPUS; i++)
 		numa_cpu_lookup_table[i] = 0;
 
@@ -1130,7 +1203,11 @@ static void init_node_masks_nonnuma(void)
 #endif
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_NEED_MULTIPLE_NODES
+=======
+#ifdef CONFIG_NUMA
+>>>>>>> upstream/android-13
 struct pglist_data *node_data[MAX_NUMNODES];
 
 EXPORT_SYMBOL(numa_cpu_lookup_table);
@@ -1208,7 +1285,11 @@ int of_node_to_nid(struct device_node *dp)
 	md = mdesc_grab();
 
 	count = 0;
+<<<<<<< HEAD
 	nid = -1;
+=======
+	nid = NUMA_NO_NODE;
+>>>>>>> upstream/android-13
 	mdesc_for_each_node_by_name(md, grp, "group") {
 		if (!scan_arcs_for_cfg_handle(md, grp, cfg_handle)) {
 			nid = count;
@@ -1224,18 +1305,28 @@ int of_node_to_nid(struct device_node *dp)
 
 static void __init add_node_ranges(void)
 {
+<<<<<<< HEAD
 	struct memblock_region *reg;
 	unsigned long prev_max;
+=======
+	phys_addr_t start, end;
+	unsigned long prev_max;
+	u64 i;
+>>>>>>> upstream/android-13
 
 memblock_resized:
 	prev_max = memblock.memory.max;
 
+<<<<<<< HEAD
 	for_each_memblock(memory, reg) {
 		unsigned long size = reg->size;
 		unsigned long start, end;
 
 		start = reg->base;
 		end = start + size;
+=======
+	for_each_mem_range(i, &start, &end) {
+>>>>>>> upstream/android-13
 		while (start < end) {
 			unsigned long this_end;
 			int nid;
@@ -1243,7 +1334,11 @@ memblock_resized:
 			this_end = memblock_nid_range(start, end, &nid);
 
 			numadbg("Setting memblock NUMA node nid[%d] "
+<<<<<<< HEAD
 				"start[%lx] end[%lx]\n",
+=======
+				"start[%llx] end[%lx]\n",
+>>>>>>> upstream/android-13
 				nid, start, this_end);
 
 			memblock_set_node(start, this_end - start,
@@ -1266,8 +1361,13 @@ static int __init grab_mlgroups(struct mdesc_handle *md)
 	if (!count)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	paddr = memblock_alloc(count * sizeof(struct mdesc_mlgroup),
 			  SMP_CACHE_BYTES);
+=======
+	paddr = memblock_phys_alloc(count * sizeof(struct mdesc_mlgroup),
+				    SMP_CACHE_BYTES);
+>>>>>>> upstream/android-13
 	if (!paddr)
 		return -ENOMEM;
 
@@ -1307,8 +1407,13 @@ static int __init grab_mblocks(struct mdesc_handle *md)
 	if (!count)
 		return -ENOENT;
 
+<<<<<<< HEAD
 	paddr = memblock_alloc(count * sizeof(struct mdesc_mblock),
 			  SMP_CACHE_BYTES);
+=======
+	paddr = memblock_phys_alloc(count * sizeof(struct mdesc_mblock),
+				    SMP_CACHE_BYTES);
+>>>>>>> upstream/android-13
 	if (!paddr)
 		return -ENOMEM;
 
@@ -1642,7 +1747,10 @@ static unsigned long __init bootmem_init(unsigned long phys_base)
 
 	/* XXX cpu notifier XXX */
 
+<<<<<<< HEAD
 	sparse_memory_present_with_active_regions(MAX_NUMNODES);
+=======
+>>>>>>> upstream/android-13
 	sparse_init();
 
 	return end_pfn;
@@ -1656,6 +1764,10 @@ static unsigned long max_phys_bits = 40;
 bool kern_addr_valid(unsigned long addr)
 {
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
@@ -1675,25 +1787,45 @@ bool kern_addr_valid(unsigned long addr)
 
 	pgd = pgd_offset_k(addr);
 	if (pgd_none(*pgd))
+<<<<<<< HEAD
 		return 0;
 
 	pud = pud_offset(pgd, addr);
 	if (pud_none(*pud))
 		return 0;
+=======
+		return false;
+
+	p4d = p4d_offset(pgd, addr);
+	if (p4d_none(*p4d))
+		return false;
+
+	pud = pud_offset(p4d, addr);
+	if (pud_none(*pud))
+		return false;
+>>>>>>> upstream/android-13
 
 	if (pud_large(*pud))
 		return pfn_valid(pud_pfn(*pud));
 
 	pmd = pmd_offset(pud, addr);
 	if (pmd_none(*pmd))
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	if (pmd_large(*pmd))
 		return pfn_valid(pmd_pfn(*pmd));
 
 	pte = pte_offset_kernel(pmd, addr);
 	if (pte_none(*pte))
+<<<<<<< HEAD
 		return 0;
+=======
+		return false;
+>>>>>>> upstream/android-13
 
 	return pfn_valid(pte_pfn(*pte));
 }
@@ -1803,6 +1935,10 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
 	while (vstart < vend) {
 		unsigned long this_end, paddr = __pa(vstart);
 		pgd_t *pgd = pgd_offset_k(vstart);
+<<<<<<< HEAD
+=======
+		p4d_t *p4d;
+>>>>>>> upstream/android-13
 		pud_t *pud;
 		pmd_t *pmd;
 		pte_t *pte;
@@ -1810,11 +1946,35 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
 		if (pgd_none(*pgd)) {
 			pud_t *new;
 
+<<<<<<< HEAD
 			new = __alloc_bootmem(PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
 			alloc_bytes += PAGE_SIZE;
 			pgd_populate(&init_mm, pgd, new);
 		}
 		pud = pud_offset(pgd, vstart);
+=======
+			new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE,
+						  PAGE_SIZE);
+			if (!new)
+				goto err_alloc;
+			alloc_bytes += PAGE_SIZE;
+			pgd_populate(&init_mm, pgd, new);
+		}
+
+		p4d = p4d_offset(pgd, vstart);
+		if (p4d_none(*p4d)) {
+			pud_t *new;
+
+			new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE,
+						  PAGE_SIZE);
+			if (!new)
+				goto err_alloc;
+			alloc_bytes += PAGE_SIZE;
+			p4d_populate(&init_mm, p4d, new);
+		}
+
+		pud = pud_offset(p4d, vstart);
+>>>>>>> upstream/android-13
 		if (pud_none(*pud)) {
 			pmd_t *new;
 
@@ -1822,7 +1982,14 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
 				vstart = kernel_map_hugepud(vstart, vend, pud);
 				continue;
 			}
+<<<<<<< HEAD
 			new = __alloc_bootmem(PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
+=======
+			new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE,
+						  PAGE_SIZE);
+			if (!new)
+				goto err_alloc;
+>>>>>>> upstream/android-13
 			alloc_bytes += PAGE_SIZE;
 			pud_populate(&init_mm, pud, new);
 		}
@@ -1835,7 +2002,14 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
 				vstart = kernel_map_hugepmd(vstart, vend, pmd);
 				continue;
 			}
+<<<<<<< HEAD
 			new = __alloc_bootmem(PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
+=======
+			new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE,
+						  PAGE_SIZE);
+			if (!new)
+				goto err_alloc;
+>>>>>>> upstream/android-13
 			alloc_bytes += PAGE_SIZE;
 			pmd_populate_kernel(&init_mm, pmd, new);
 		}
@@ -1855,6 +2029,14 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
 	}
 
 	return alloc_bytes;
+<<<<<<< HEAD
+=======
+
+err_alloc:
+	panic("%s: Failed to allocate %lu bytes align=%lx from=%lx\n",
+	      __func__, PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static void __init flush_all_kernel_tsbs(void)
@@ -2258,6 +2440,7 @@ static unsigned long last_valid_pfn;
 static void sun4u_pgprot_init(void);
 static void sun4v_pgprot_init(void);
 
+<<<<<<< HEAD
 static phys_addr_t __init available_memory(void)
 {
 	phys_addr_t available = 0ULL;
@@ -2271,6 +2454,8 @@ static phys_addr_t __init available_memory(void)
 	return available;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define _PAGE_CACHE_4U	(_PAGE_CP_4U | _PAGE_CV_4U)
 #define _PAGE_CACHE_4V	(_PAGE_CP_4V | _PAGE_CV_4V)
 #define __DIRTY_BITS_4U	 (_PAGE_MODIFIED_4U | _PAGE_WRITE_4U | _PAGE_W_4U)
@@ -2284,6 +2469,7 @@ static phys_addr_t __init available_memory(void)
  */
 static void __init reduce_memory(phys_addr_t limit_ram)
 {
+<<<<<<< HEAD
 	phys_addr_t avail_ram = available_memory();
 	phys_addr_t pa_start, pa_end;
 	u64 i;
@@ -2311,6 +2497,10 @@ static void __init reduce_memory(phys_addr_t limit_ram)
 			break;
 		i = 0UL;
 	}
+=======
+	limit_ram += memblock_reserved_size();
+	memblock_enforce_memory_limit(limit_ram);
+>>>>>>> upstream/android-13
 }
 
 void __init paging_init(void)
@@ -2495,7 +2685,11 @@ void __init paging_init(void)
 
 		max_zone_pfns[ZONE_NORMAL] = end_pfn;
 
+<<<<<<< HEAD
 		free_area_init_nodes(max_zone_pfns);
+=======
+		free_area_init(max_zone_pfns);
+>>>>>>> upstream/android-13
 	}
 
 	printk("Booting Linux...\n");
@@ -2529,7 +2723,11 @@ int page_in_phys_avail(unsigned long paddr)
 
 static void __init register_page_bootmem_info(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_NEED_MULTIPLE_NODES
+=======
+#ifdef CONFIG_NUMA
+>>>>>>> upstream/android-13
 	int i;
 
 	for_each_online_node(i)
@@ -2541,12 +2739,20 @@ void __init mem_init(void)
 {
 	high_memory = __va(last_valid_pfn << PAGE_SHIFT);
 
+<<<<<<< HEAD
 	free_all_bootmem();
+=======
+	memblock_free_all();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Must be done after boot memory is put on freelist, because here we
 	 * might set fields in deferred struct pages that have not yet been
+<<<<<<< HEAD
 	 * initialized, and free_all_bootmem() initializes all the reserved
+=======
+	 * initialized, and memblock_free_all() initializes all the reserved
+>>>>>>> upstream/android-13
 	 * deferred pages for us.
 	 */
 	register_page_bootmem_info();
@@ -2562,7 +2768,10 @@ void __init mem_init(void)
 	}
 	mark_page_reserved(mem_map_zero);
 
+<<<<<<< HEAD
 	mem_init_print_info(NULL);
+=======
+>>>>>>> upstream/android-13
 
 	if (tlb_type == cheetah || tlb_type == cheetah_plus)
 		cheetah_ecache_flush_init();
@@ -2599,6 +2808,7 @@ void free_initmem(void)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_INITRD
 void free_initrd_mem(unsigned long start, unsigned long end)
 {
@@ -2607,6 +2817,8 @@ void free_initrd_mem(unsigned long start, unsigned long end)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 pgprot_t PAGE_KERNEL __read_mostly;
 EXPORT_SYMBOL(PAGE_KERNEL);
 
@@ -2647,13 +2859,25 @@ int __meminit vmemmap_populate(unsigned long vstart, unsigned long vend,
 	for (; vstart < vend; vstart += PMD_SIZE) {
 		pgd_t *pgd = vmemmap_pgd_populate(vstart, node);
 		unsigned long pte;
+<<<<<<< HEAD
+=======
+		p4d_t *p4d;
+>>>>>>> upstream/android-13
 		pud_t *pud;
 		pmd_t *pmd;
 
 		if (!pgd)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		pud = vmemmap_pud_populate(pgd, vstart, node);
+=======
+		p4d = vmemmap_p4d_populate(pgd, vstart, node);
+		if (!p4d)
+			return -ENOMEM;
+
+		pud = vmemmap_pud_populate(p4d, vstart, node);
+>>>>>>> upstream/android-13
 		if (!pud)
 			return -ENOMEM;
 
@@ -2922,8 +3146,12 @@ void __flush_tlb_all(void)
 			     : : "r" (pstate));
 }
 
+<<<<<<< HEAD
 pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
 			    unsigned long address)
+=======
+pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+>>>>>>> upstream/android-13
 {
 	struct page *page = alloc_page(GFP_KERNEL | __GFP_ZERO);
 	pte_t *pte = NULL;
@@ -2934,14 +3162,23 @@ pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
 	return pte;
 }
 
+<<<<<<< HEAD
 pgtable_t pte_alloc_one(struct mm_struct *mm,
 			unsigned long address)
+=======
+pgtable_t pte_alloc_one(struct mm_struct *mm)
+>>>>>>> upstream/android-13
 {
 	struct page *page = alloc_page(GFP_KERNEL | __GFP_ZERO);
 	if (!page)
 		return NULL;
+<<<<<<< HEAD
 	if (!pgtable_page_ctor(page)) {
 		free_unref_page(page);
+=======
+	if (!pgtable_pte_page_ctor(page)) {
+		__free_page(page);
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 	return (pte_t *) page_address(page);
@@ -2956,7 +3193,11 @@ static void __pte_free(pgtable_t pte)
 {
 	struct page *page = virt_to_page(pte);
 
+<<<<<<< HEAD
 	pgtable_page_dtor(page);
+=======
+	pgtable_pte_page_dtor(page);
+>>>>>>> upstream/android-13
 	__free_page(page);
 }
 

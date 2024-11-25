@@ -11,7 +11,11 @@
 
 #define USE_32BIT		0
 
+<<<<<<< HEAD
 /* These options are mutually eclusive */
+=======
+/* These options are mutually exclusive */
+>>>>>>> upstream/android-13
 #define USE_PLATFORM_DELAY	0
 #define USE_NDELAY		0
 
@@ -56,7 +60,11 @@ typedef const unsigned char isp1362_reg_t;
 #define ISP1362_REG_NO(r)		(r)
 
 #define ISP1362_REG(name, addr, width, rw) \
+<<<<<<< HEAD
 static isp1362_reg_t ISP1362_REG_##name = addr
+=======
+static isp1362_reg_t __maybe_unused ISP1362_REG_##name = addr
+>>>>>>> upstream/android-13
 
 #define REG_ACCESS_TEST(r)		do {} while (0)
 #define REG_WIDTH_TEST(r, w)		do {} while (0)
@@ -435,7 +443,10 @@ struct isp1362_hcd {
 
 	struct isp1362_platform_data *board;
 
+<<<<<<< HEAD
 	struct dentry		*debug_file;
+=======
+>>>>>>> upstream/android-13
 	unsigned long		stat1, stat2, stat4, stat8, stat16;
 
 	/* HC registers */
@@ -793,6 +804,7 @@ static void isp1362_write_fifo(struct isp1362_hcd *isp1362_hcd, void *buf, u16 l
 			ISP1362_REG_NO(ISP1362_REG_##r), isp1362_read_reg16(d, r));	\
 }
 
+<<<<<<< HEAD
 static void __attribute__((__unused__)) isp1362_show_regs(struct isp1362_hcd *isp1362_hcd)
 {
 	isp1362_show_reg(isp1362_hcd, HCREVISION);
@@ -847,6 +859,8 @@ static void __attribute__((__unused__)) isp1362_show_regs(struct isp1362_hcd *is
 	isp1362_show_reg(isp1362_hcd, HCATLDTCTO);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void isp1362_write_diraddr(struct isp1362_hcd *isp1362_hcd, u16 offset, u16 len)
 {
 	len = (len + 1) & ~1;

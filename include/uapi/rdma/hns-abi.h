@@ -39,6 +39,15 @@
 struct hns_roce_ib_create_cq {
 	__aligned_u64 buf_addr;
 	__aligned_u64 db_addr;
+<<<<<<< HEAD
+=======
+	__u32 cqe_size;
+	__u32 reserved;
+};
+
+enum hns_roce_cq_cap_flags {
+	HNS_ROCE_CQ_FLAG_RECORD_DB = 1 << 0,
+>>>>>>> upstream/android-13
 };
 
 struct hns_roce_ib_create_cq_resp {
@@ -46,6 +55,20 @@ struct hns_roce_ib_create_cq_resp {
 	__aligned_u64 cap_flags;
 };
 
+<<<<<<< HEAD
+=======
+struct hns_roce_ib_create_srq {
+	__aligned_u64 buf_addr;
+	__aligned_u64 db_addr;
+	__aligned_u64 que_addr;
+};
+
+struct hns_roce_ib_create_srq_resp {
+	__u32	srqn;
+	__u32	reserved;
+};
+
+>>>>>>> upstream/android-13
 struct hns_roce_ib_create_qp {
 	__aligned_u64 buf_addr;
 	__aligned_u64 db_addr;
@@ -56,12 +79,26 @@ struct hns_roce_ib_create_qp {
 	__aligned_u64 sdb_addr;
 };
 
+<<<<<<< HEAD
+=======
+enum hns_roce_qp_cap_flags {
+	HNS_ROCE_QP_CAP_RQ_RECORD_DB = 1 << 0,
+	HNS_ROCE_QP_CAP_SQ_RECORD_DB = 1 << 1,
+	HNS_ROCE_QP_CAP_OWNER_DB = 1 << 2,
+};
+
+>>>>>>> upstream/android-13
 struct hns_roce_ib_create_qp_resp {
 	__aligned_u64 cap_flags;
 };
 
 struct hns_roce_ib_alloc_ucontext_resp {
 	__u32	qp_tab_size;
+<<<<<<< HEAD
+=======
+	__u32	cqe_size;
+	__u32	srq_tab_size;
+>>>>>>> upstream/android-13
 	__u32	reserved;
 };
 

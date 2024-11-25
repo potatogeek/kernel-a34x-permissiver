@@ -204,7 +204,11 @@ struct p80211pstr {
 
 struct p80211pstrd {
 	u8 len;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* Maximum pascal string */
@@ -249,7 +253,11 @@ struct p80211itemd {
 	u32 did;
 	u16 status;
 	u16 len;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* message data item for int, BOUNDEDINT, ENUMINT */

@@ -26,7 +26,11 @@
 &iomuxc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gpio1 &pinctrl_gpio2 &pinctrl_gpio3
+<<<<<<< HEAD
 		&pinctrl_gpio4 &pinctrl_gpio5>;
+=======
+		&pinctrl_gpio4 &pinctrl_gpio5 &pinctrl_gpio7>;
+>>>>>>> upstream/android-13
 
 };
 
@@ -43,6 +47,10 @@
 	assigned-clock-rates = <0>, <198000000>;
 	cap-power-off-card;
 	keep-power-in-suspend;
+<<<<<<< HEAD
+=======
+	max-frequency = <25000000>;
+>>>>>>> upstream/android-13
 	mmc-pwrseq = <&wifi_pwrseq>;
 	no-1-8-v;
 	non-removable;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2008-2010 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +25,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ACX_H__
@@ -952,7 +959,11 @@ struct acx_rx_filter_cfg {
 	u8 action;
 
 	u8 num_fields;
+<<<<<<< HEAD
 	u8 fields[0];
+=======
+	u8 fields[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct acx_roaming_stats {

@@ -32,7 +32,11 @@ static inline int user_termio_to_kernel_termios(struct ktermios *termios,
 	unsigned short iflag, oflag, cflag, lflag;
 	unsigned int err;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, termio, sizeof(struct termio)))
+=======
+	if (!access_ok(termio, sizeof(struct termio)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	err = __get_user(iflag, &termio->c_iflag);
@@ -61,7 +65,11 @@ static inline int kernel_termios_to_user_termio(struct termio __user *termio,
 {
 	int err;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, termio, sizeof(struct termio)))
+=======
+	if (!access_ok(termio, sizeof(struct termio)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	err = __put_user(termios->c_iflag, &termio->c_iflag);

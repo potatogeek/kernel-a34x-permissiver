@@ -15,6 +15,7 @@
 #include <linux/linkage.h>
 
 #ifndef CONFIG_MMU
+<<<<<<< HEAD
 #define sys_mmap2		sys_mmap_pgoff
 #endif
 
@@ -401,3 +402,13 @@ ENTRY(sys_call_table)
 	.long sys_preadv2
 	.long sys_pwritev2
 	.long sys_statx
+=======
+#define sys_mmap2	sys_mmap_pgoff
+#endif
+
+#define __SYSCALL(nr, entry) .long entry
+	.section .rodata
+ALIGN
+ENTRY(sys_call_table)
+#include <asm/syscall_table.h>
+>>>>>>> upstream/android-13

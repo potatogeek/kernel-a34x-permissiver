@@ -60,6 +60,7 @@ typedef unsigned long sigset_t;
 #define SIGSWI		32
 
 /*
+<<<<<<< HEAD
  * SA_FLAGS values:
  *
  * SA_NOCLDSTOP		flag to turn off SIGCHLD when children stop.
@@ -87,6 +88,14 @@ typedef unsigned long sigset_t;
 
 #define SA_NOMASK	SA_NODEFER
 #define SA_ONESHOT	SA_RESETHAND
+=======
+ * SA_THIRTYTWO historically meant deliver the signal in 32-bit mode, even if
+ * the task is running in 26-bit. But since the kernel no longer supports
+ * 26-bit mode, the flag has no effect.
+ */
+#define SA_THIRTYTWO	0x02000000
+#define SA_RESTORER	0x04000000
+>>>>>>> upstream/android-13
 
 #define MINSIGSTKSZ	2048
 #define SIGSTKSZ	8192

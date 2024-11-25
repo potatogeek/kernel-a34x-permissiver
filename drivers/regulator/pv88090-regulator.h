@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * pv88090-regulator.h - Regulator definitions for PV88090
  * Copyright (C) 2015 Powerventure Semiconductor Ltd.
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * pv88090-regulator.h - Regulator definitions for PV88090
+ * Copyright (C) 2015 Powerventure Semiconductor Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PV88090_REGISTERS_H__

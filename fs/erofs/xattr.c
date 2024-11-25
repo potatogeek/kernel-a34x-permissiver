@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) 2017-2018 HUAWEI, Inc.
+<<<<<<< HEAD
  *             http://www.huawei.com/
  * Created by Gao Xiang <gaoxiang25@huawei.com>
+=======
+ *             https://www.huawei.com/
+>>>>>>> upstream/android-13
  */
 #include <linux/security.h>
 #include "xattr.h"
@@ -48,8 +52,19 @@ static int init_inode_xattrs(struct inode *inode)
 	int ret = 0;
 
 	/* the most case is that xattrs of this inode are initialized. */
+<<<<<<< HEAD
 	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags))
 		return 0;
+=======
+	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags)) {
+		/*
+		 * paired with smp_mb() at the end of the function to ensure
+		 * fields will only be observed after the bit is set.
+		 */
+		smp_mb();
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_XATTR_BIT, TASK_KILLABLE))
 		return -ERESTARTSYS;
@@ -137,6 +152,11 @@ static int init_inode_xattrs(struct inode *inode)
 	}
 	xattr_iter_end(&it, atomic_map);
 
+<<<<<<< HEAD
+=======
+	/* paired with smp_mb() at the beginning of the function. */
+	smp_mb();
+>>>>>>> upstream/android-13
 	set_bit(EROFS_I_EA_INITED_BIT, &vi->flags);
 
 out_unlock:
@@ -422,7 +442,11 @@ static int shared_getxattr(struct inode *inode, struct getxattr_iter *it)
 
 static bool erofs_xattr_user_list(struct dentry *dentry)
 {
+<<<<<<< HEAD
 	return test_opt(EROFS_SB(dentry->d_sb), XATTR_USER);
+=======
+	return test_opt(&EROFS_SB(dentry->d_sb)->opt, XATTR_USER);
+>>>>>>> upstream/android-13
 }
 
 static bool erofs_xattr_trusted_list(struct dentry *dentry)
@@ -469,7 +493,11 @@ static int erofs_xattr_generic_get(const struct xattr_handler *handler,
 
 	switch (handler->flags) {
 	case EROFS_XATTR_INDEX_USER:
+<<<<<<< HEAD
 		if (!test_opt(sbi, XATTR_USER))
+=======
+		if (!test_opt(&sbi->opt, XATTR_USER))
+>>>>>>> upstream/android-13
 			return -EOPNOTSUPP;
 		break;
 	case EROFS_XATTR_INDEX_TRUSTED:
@@ -647,6 +675,11 @@ ssize_t erofs_listxattr(struct dentry *dentry,
 	struct listxattr_iter it;
 
 	ret = init_inode_xattrs(d_inode(dentry));
+<<<<<<< HEAD
+=======
+	if (ret == -ENOATTR)
+		return 0;
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -664,12 +697,22 @@ ssize_t erofs_listxattr(struct dentry *dentry,
 }
 
 #ifdef CONFIG_EROFS_FS_POSIX_ACL
+<<<<<<< HEAD
 struct posix_acl *erofs_get_acl(struct inode *inode, int type)
+=======
+struct posix_acl *erofs_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	struct posix_acl *acl;
 	int prefix, rc;
 	char *value = NULL;
 
+<<<<<<< HEAD
+=======
+	if (rcu)
+		return ERR_PTR(-ECHILD);
+
+>>>>>>> upstream/android-13
 	switch (type) {
 	case ACL_TYPE_ACCESS:
 		prefix = EROFS_XATTR_INDEX_POSIX_ACL_ACCESS;
@@ -699,4 +742,7 @@ struct posix_acl *erofs_get_acl(struct inode *inode, int type)
 	return acl;
 }
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

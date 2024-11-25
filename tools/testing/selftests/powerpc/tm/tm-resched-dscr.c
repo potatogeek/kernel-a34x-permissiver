@@ -40,6 +40,10 @@ int test_body(void)
 	uint64_t rv, dscr1 = 1, dscr2, texasr;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 
 	printf("Check DSCR TM context switch: ");
 	fflush(stdout);

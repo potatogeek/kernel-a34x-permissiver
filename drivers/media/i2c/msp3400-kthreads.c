@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Programming the mspx4xx sound processor family
  *
  * (c) 1997-2001 Gerd Knorr <kraxel@bytesex.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -558,8 +565,15 @@ restart:
 			val = msp_read_dsp(client, 0x1b);
 			if (val > 32767)
 				val -= 65536;
+<<<<<<< HEAD
 			if (val1 < val)
 				val1 = val, max1 = i;
+=======
+			if (val1 < val) {
+				val1 = val;
+				max1 = i;
+			}
+>>>>>>> upstream/android-13
 			dev_dbg_lvl(&client->dev, 1, msp_debug,
 				"carrier1 val: %5d / %s\n", val, cd[i].name);
 		}
@@ -595,8 +609,15 @@ restart:
 			val = msp_read_dsp(client, 0x1b);
 			if (val > 32767)
 				val -= 65536;
+<<<<<<< HEAD
 			if (val2 < val)
 				val2 = val, max2 = i;
+=======
+			if (val2 < val) {
+				val2 = val;
+				max2 = i;
+			}
+>>>>>>> upstream/android-13
 			dev_dbg_lvl(&client->dev, 1, msp_debug,
 				"carrier2 val: %5d / %s\n", val, cd[i].name);
 		}
@@ -655,7 +676,11 @@ restart:
 			break;
 		case 0: /* 4.5 */
 			state->detected_std = V4L2_STD_MN;
+<<<<<<< HEAD
 			/* fall-through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 no_second:
 			state->second = msp3400c_carrier_detect_main[max1].cdo;

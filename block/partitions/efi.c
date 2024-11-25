@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /************************************************************
  * EFI GUID Partition Table handling
  *
@@ -7,6 +11,7 @@
  * efi.[ch] by Matt Domsch <Matt_Domsch@dell.com>
  *   Copyright 2000,2001,2002,2004 Dell Inc.
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  *
  * Changelog:
@@ -138,19 +145,30 @@ efi_crc32(const void *buf, unsigned long len)
 
 /**
  * last_lba(): return number of last logical block of device
+<<<<<<< HEAD
  * @bdev: block device
+=======
+ * @disk: block device
+>>>>>>> upstream/android-13
  * 
  * Description: Returns last LBA value on success, 0 on error.
  * This is stored (by sd and ide-geometry) in
  *  the part[0] entry for this disk, and is the number of
  *  physical sectors available on the disk.
  */
+<<<<<<< HEAD
 static u64 last_lba(struct block_device *bdev)
 {
 	if (!bdev || !bdev->bd_inode)
 		return 0;
 	return div_u64(bdev->bd_inode->i_size,
 		       bdev_logical_block_size(bdev)) - 1ULL;
+=======
+static u64 last_lba(struct gendisk *disk)
+{
+	return div_u64(disk->part0->bd_inode->i_size,
+		       queue_logical_block_size(disk->queue)) - 1ULL;
+>>>>>>> upstream/android-13
 }
 
 static inline int pmbr_part_valid(gpt_mbr_record *part)
@@ -245,17 +263,28 @@ done:
  * @buffer: destination buffer
  * @count: bytes to read
  *
+<<<<<<< HEAD
  * Description: Reads @count bytes from @state->bdev into @buffer.
+=======
+ * Description: Reads @count bytes from @state->disk into @buffer.
+>>>>>>> upstream/android-13
  * Returns number of bytes read on success, 0 on error.
  */
 static size_t read_lba(struct parsed_partitions *state,
 		       u64 lba, u8 *buffer, size_t count)
 {
 	size_t totalreadcount = 0;
+<<<<<<< HEAD
 	struct block_device *bdev = state->bdev;
 	sector_t n = lba * (bdev_logical_block_size(bdev) / 512);
 
 	if (!buffer || lba > last_lba(bdev))
+=======
+	sector_t n = lba *
+		(queue_logical_block_size(state->disk->queue) / 512);
+
+	if (!buffer || lba > last_lba(state->disk))
+>>>>>>> upstream/android-13
                 return 0;
 
 	while (count) {
@@ -316,14 +345,22 @@ static gpt_entry *alloc_read_gpt_entries(struct parsed_partitions *state,
  * @lba: the Logical Block Address of the partition table
  * 
  * Description: returns GPT header on success, NULL on error.   Allocates
+<<<<<<< HEAD
  * and fills a GPT header starting at @ from @state->bdev.
+=======
+ * and fills a GPT header starting at @ from @state->disk.
+>>>>>>> upstream/android-13
  * Note: remember to free gpt when finished with it.
  */
 static gpt_header *alloc_read_gpt_header(struct parsed_partitions *state,
 					 u64 lba)
 {
 	gpt_header *gpt;
+<<<<<<< HEAD
 	unsigned ssz = bdev_logical_block_size(state->bdev);
+=======
+	unsigned ssz = queue_logical_block_size(state->disk->queue);
+>>>>>>> upstream/android-13
 
 	gpt = kmalloc(ssz, GFP_KERNEL);
 	if (!gpt)
@@ -370,10 +407,17 @@ static int is_gpt_valid(struct parsed_partitions *state, u64 lba,
 
 	/* Check the GUID Partition Table header size is too big */
 	if (le32_to_cpu((*gpt)->header_size) >
+<<<<<<< HEAD
 			bdev_logical_block_size(state->bdev)) {
 		pr_debug("GUID Partition Table Header size is too large: %u > %u\n",
 			le32_to_cpu((*gpt)->header_size),
 			bdev_logical_block_size(state->bdev));
+=======
+			queue_logical_block_size(state->disk->queue)) {
+		pr_debug("GUID Partition Table Header size is too large: %u > %u\n",
+			le32_to_cpu((*gpt)->header_size),
+			queue_logical_block_size(state->disk->queue));
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -409,7 +453,11 @@ static int is_gpt_valid(struct parsed_partitions *state, u64 lba,
 	/* Check the first_usable_lba and last_usable_lba are
 	 * within the disk.
 	 */
+<<<<<<< HEAD
 	lastlba = last_lba(state->bdev);
+=======
+	lastlba = last_lba(state->disk);
+>>>>>>> upstream/android-13
 	if (le64_to_cpu((*gpt)->first_usable_lba) > lastlba) {
 		pr_debug("GPT: first_usable_lba incorrect: %lld > %lld\n",
 			 (unsigned long long)le64_to_cpu((*gpt)->first_usable_lba),
@@ -601,13 +649,23 @@ static int find_valid_gpt(struct parsed_partitions *state, gpt_header **gpt,
 	gpt_header *pgpt = NULL, *agpt = NULL;
 	gpt_entry *pptes = NULL, *aptes = NULL;
 	legacy_mbr *legacymbr;
+<<<<<<< HEAD
 	sector_t total_sectors = i_size_read(state->bdev->bd_inode) >> 9;
+=======
+	struct gendisk *disk = state->disk;
+	const struct block_device_operations *fops = disk->fops;
+	sector_t total_sectors = get_capacity(state->disk);
+>>>>>>> upstream/android-13
 	u64 lastlba;
 
 	if (!ptes)
 		return 0;
 
+<<<<<<< HEAD
 	lastlba = last_lba(state->bdev);
+=======
+	lastlba = last_lba(state->disk);
+>>>>>>> upstream/android-13
         if (!force_gpt) {
 		/* This will be added to the EFI Spec. per Intel after v1.02. */
 		legacymbr = kzalloc(sizeof(*legacymbr), GFP_KERNEL);
@@ -635,6 +693,19 @@ static int find_valid_gpt(struct parsed_partitions *state, gpt_header **gpt,
         if (!good_agpt && force_gpt)
                 good_agpt = is_gpt_valid(state, lastlba, &agpt, &aptes);
 
+<<<<<<< HEAD
+=======
+	if (!good_agpt && force_gpt && fops->alternative_gpt_sector) {
+		sector_t agpt_sector;
+		int err;
+
+		err = fops->alternative_gpt_sector(disk, &agpt_sector);
+		if (!err)
+			good_agpt = is_gpt_valid(state, agpt_sector,
+						 &agpt, &aptes);
+	}
+
+>>>>>>> upstream/android-13
         /* The obviously unsuccessful case */
         if (!good_pgpt && !good_agpt)
                 goto fail;
@@ -671,7 +742,36 @@ static int find_valid_gpt(struct parsed_partitions *state, gpt_header **gpt,
 }
 
 /**
+<<<<<<< HEAD
  * efi_partition(struct parsed_partitions *state)
+=======
+ * utf16_le_to_7bit(): Naively converts a UTF-16LE string to 7-bit ASCII characters
+ * @in: input UTF-16LE string
+ * @size: size of the input string
+ * @out: output string ptr, should be capable to store @size+1 characters
+ *
+ * Description: Converts @size UTF16-LE symbols from @in string to 7-bit
+ * ASCII characters and stores them to @out. Adds trailing zero to @out array.
+ */
+static void utf16_le_to_7bit(const __le16 *in, unsigned int size, u8 *out)
+{
+	unsigned int i = 0;
+
+	out[size] = 0;
+
+	while (i < size) {
+		u8 c = le16_to_cpu(in[i]) & 0xff;
+
+		if (c && !isprint(c))
+			c = '!';
+		out[i] = c;
+		i++;
+	}
+}
+
+/**
+ * efi_partition - scan for GPT partitions
+>>>>>>> upstream/android-13
  * @state: disk parsed partitions
  *
  * Description: called from check.c, if the disk contains GPT
@@ -694,7 +794,11 @@ int efi_partition(struct parsed_partitions *state)
 	gpt_header *gpt = NULL;
 	gpt_entry *ptes = NULL;
 	u32 i;
+<<<<<<< HEAD
 	unsigned ssz = bdev_logical_block_size(state->bdev) / 512;
+=======
+	unsigned ssz = queue_logical_block_size(state->disk->queue) / 512;
+>>>>>>> upstream/android-13
 
 	if (!find_valid_gpt(state, &gpt, &ptes) || !gpt || !ptes) {
 		kfree(gpt);
@@ -706,13 +810,20 @@ int efi_partition(struct parsed_partitions *state)
 
 	for (i = 0; i < le32_to_cpu(gpt->num_partition_entries) && i < state->limit-1; i++) {
 		struct partition_meta_info *info;
+<<<<<<< HEAD
 		unsigned label_count = 0;
+=======
+>>>>>>> upstream/android-13
 		unsigned label_max;
 		u64 start = le64_to_cpu(ptes[i].starting_lba);
 		u64 size = le64_to_cpu(ptes[i].ending_lba) -
 			   le64_to_cpu(ptes[i].starting_lba) + 1ULL;
 
+<<<<<<< HEAD
 		if (!is_pte_valid(&ptes[i], last_lba(state->bdev)))
+=======
+		if (!is_pte_valid(&ptes[i], last_lba(state->disk)))
+>>>>>>> upstream/android-13
 			continue;
 
 		put_partition(state, i+1, start * ssz, size * ssz);
@@ -727,6 +838,7 @@ int efi_partition(struct parsed_partitions *state)
 		/* Naively convert UTF16-LE to 7 bits. */
 		label_max = min(ARRAY_SIZE(info->volname) - 1,
 				ARRAY_SIZE(ptes[i].partition_name));
+<<<<<<< HEAD
 		info->volname[label_max] = 0;
 		while (label_count < label_max) {
 			u8 c = ptes[i].partition_name[label_count] & 0xff;
@@ -735,6 +847,9 @@ int efi_partition(struct parsed_partitions *state)
 			info->volname[label_count] = c;
 			label_count++;
 		}
+=======
+		utf16_le_to_7bit(ptes[i].partition_name, label_max, info->volname);
+>>>>>>> upstream/android-13
 		state->parts[i + 1].has_info = true;
 	}
 	kfree(ptes);

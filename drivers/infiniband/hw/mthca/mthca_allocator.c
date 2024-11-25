@@ -214,8 +214,11 @@ int mthca_buf_alloc(struct mthca_dev *dev, int size, int max_direct,
 
 		dma_unmap_addr_set(&buf->direct, mapping, t);
 
+<<<<<<< HEAD
 		memset(buf->direct.buf, 0, size);
 
+=======
+>>>>>>> upstream/android-13
 		while (t & ((1 << shift) - 1)) {
 			--shift;
 			npages *= 2;

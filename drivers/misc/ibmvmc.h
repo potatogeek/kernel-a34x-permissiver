@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0+
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+>>>>>>> upstream/android-13
  * linux/drivers/misc/ibmvmc.h
  *
  * IBM Power Systems Virtual Management Channel Support.

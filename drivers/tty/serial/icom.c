@@ -37,7 +37,11 @@
 #include <linux/firmware.h>
 #include <linux/bitops.h>
 
+<<<<<<< HEAD
 #include <asm/io.h>
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <asm/irq.h>
 #include <linux/uaccess.h>
 
@@ -118,7 +122,11 @@ MODULE_DEVICE_TABLE(pci, icom_pci_table);
 static LIST_HEAD(icom_adapter_head);
 
 /* spinlock for adapter initialization and changing adapter operations */
+<<<<<<< HEAD
 static spinlock_t icom_lock;
+=======
+static DEFINE_SPINLOCK(icom_lock);
+>>>>>>> upstream/android-13
 
 #ifdef ICOM_TRACE
 static inline void trace(struct icom_port *icom_port, char *trace_pt,
@@ -138,6 +146,7 @@ static void free_port_memory(struct icom_port *icom_port)
 
 	trace(icom_port, "RET_PORT_MEM", 0);
 	if (icom_port->recv_buf) {
+<<<<<<< HEAD
 		pci_free_consistent(dev, 4096, icom_port->recv_buf,
 				    icom_port->recv_buf_pci);
 		icom_port->recv_buf = NULL;
@@ -150,12 +159,31 @@ static void free_port_memory(struct icom_port *icom_port)
 	if (icom_port->statStg) {
 		pci_free_consistent(dev, 4096, icom_port->statStg,
 				    icom_port->statStg_pci);
+=======
+		dma_free_coherent(&dev->dev, 4096, icom_port->recv_buf,
+				  icom_port->recv_buf_pci);
+		icom_port->recv_buf = NULL;
+	}
+	if (icom_port->xmit_buf) {
+		dma_free_coherent(&dev->dev, 4096, icom_port->xmit_buf,
+				  icom_port->xmit_buf_pci);
+		icom_port->xmit_buf = NULL;
+	}
+	if (icom_port->statStg) {
+		dma_free_coherent(&dev->dev, 4096, icom_port->statStg,
+				  icom_port->statStg_pci);
+>>>>>>> upstream/android-13
 		icom_port->statStg = NULL;
 	}
 
 	if (icom_port->xmitRestart) {
+<<<<<<< HEAD
 		pci_free_consistent(dev, 4096, icom_port->xmitRestart,
 				    icom_port->xmitRestart_pci);
+=======
+		dma_free_coherent(&dev->dev, 4096, icom_port->xmitRestart,
+				  icom_port->xmitRestart_pci);
+>>>>>>> upstream/android-13
 		icom_port->xmitRestart = NULL;
 	}
 }
@@ -169,7 +197,12 @@ static int get_port_memory(struct icom_port *icom_port)
 	struct pci_dev *dev = icom_port->adapter->pci_dev;
 
 	icom_port->xmit_buf =
+<<<<<<< HEAD
 	    pci_alloc_consistent(dev, 4096, &icom_port->xmit_buf_pci);
+=======
+	    dma_alloc_coherent(&dev->dev, 4096, &icom_port->xmit_buf_pci,
+			       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!icom_port->xmit_buf) {
 		dev_err(&dev->dev, "Can not allocate Transmit buffer\n");
 		return -ENOMEM;
@@ -179,7 +212,12 @@ static int get_port_memory(struct icom_port *icom_port)
 	      (unsigned long) icom_port->xmit_buf);
 
 	icom_port->recv_buf =
+<<<<<<< HEAD
 	    pci_alloc_consistent(dev, 4096, &icom_port->recv_buf_pci);
+=======
+	    dma_alloc_coherent(&dev->dev, 4096, &icom_port->recv_buf_pci,
+			       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!icom_port->recv_buf) {
 		dev_err(&dev->dev, "Can not allocate Receive buffer\n");
 		free_port_memory(icom_port);
@@ -189,7 +227,12 @@ static int get_port_memory(struct icom_port *icom_port)
 	      (unsigned long) icom_port->recv_buf);
 
 	icom_port->statStg =
+<<<<<<< HEAD
 	    pci_alloc_consistent(dev, 4096, &icom_port->statStg_pci);
+=======
+	    dma_alloc_coherent(&dev->dev, 4096, &icom_port->statStg_pci,
+			       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!icom_port->statStg) {
 		dev_err(&dev->dev, "Can not allocate Status buffer\n");
 		free_port_memory(icom_port);
@@ -199,7 +242,12 @@ static int get_port_memory(struct icom_port *icom_port)
 	      (unsigned long) icom_port->statStg);
 
 	icom_port->xmitRestart =
+<<<<<<< HEAD
 	    pci_alloc_consistent(dev, 4096, &icom_port->xmitRestart_pci);
+=======
+	    dma_alloc_coherent(&dev->dev, 4096, &icom_port->xmitRestart_pci,
+			       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!icom_port->xmitRestart) {
 		dev_err(&dev->dev,
 			"Can not allocate xmit Restart buffer\n");
@@ -207,8 +255,11 @@ static int get_port_memory(struct icom_port *icom_port)
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	memset(icom_port->statStg, 0, 4096);
 
+=======
+>>>>>>> upstream/android-13
 	/* FODs: Frame Out Descriptor Queue, this is a FIFO queue that
            indicates that frames are to be transmitted
 	*/
@@ -416,7 +467,11 @@ static void load_code(struct icom_port *icom_port)
 	/*Set up data in icom DRAM to indicate where personality
 	 *code is located and its length.
 	 */
+<<<<<<< HEAD
 	new_page = pci_alloc_consistent(dev, 4096, &temp_pci);
+=======
+	new_page = dma_alloc_coherent(&dev->dev, 4096, &temp_pci, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!new_page) {
 		dev_err(&dev->dev, "Can not allocate DMA buffer\n");
@@ -496,7 +551,11 @@ static void load_code(struct icom_port *icom_port)
 	}
 
 	if (new_page != NULL)
+<<<<<<< HEAD
 		pci_free_consistent(dev, 4096, new_page, temp_pci);
+=======
+		dma_free_coherent(&dev->dev, 4096, new_page, temp_pci);
+>>>>>>> upstream/android-13
 }
 
 static int startup(struct icom_port *icom_port)
@@ -827,9 +886,13 @@ ignore_char:
 	}
 	icom_port->next_rcv = rcv_buff;
 
+<<<<<<< HEAD
 	spin_unlock(&icom_port->uart_port.lock);
 	tty_flip_buffer_push(port);
 	spin_lock(&icom_port->uart_port.lock);
+=======
+	tty_flip_buffer_push(port);
+>>>>>>> upstream/android-13
 }
 
 static void process_interrupt(u16 port_int_reg,
@@ -1614,8 +1677,11 @@ static int __init icom_init(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	spin_lock_init(&icom_lock);
 
+=======
+>>>>>>> upstream/android-13
 	ret = uart_register_driver(&icom_uart_driver);
 	if (ret)
 		return ret;
@@ -1639,8 +1705,11 @@ module_exit(icom_exit);
 
 MODULE_AUTHOR("Michael Anderson <mjanders@us.ibm.com>");
 MODULE_DESCRIPTION("IBM iSeries Serial IOA driver");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE
     ("IBM iSeries 2745, 2771, 2772, 2742, 2793 and 2805 Communications adapters");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 MODULE_FIRMWARE("icom_call_setup.bin");
 MODULE_FIRMWARE("icom_res_dce.bin");

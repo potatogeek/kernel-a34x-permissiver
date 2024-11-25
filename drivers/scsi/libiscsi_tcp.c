@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * iSCSI over TCP/IP Data-Path lib
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2006 Red Hat, Inc.  All rights reserved.
  * maintained by open-iscsi@googlegroups.com
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  *
  * See the file COPYING included with this distribution for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Credits:
  *	Christoph Hellwig
  *	FUJITA Tomonori
@@ -43,6 +50,10 @@
 #include <scsi/scsi_host.h>
 #include <scsi/scsi.h>
 #include <scsi/scsi_transport_iscsi.h>
+<<<<<<< HEAD
+=======
+#include <trace/events/iscsi.h>
+>>>>>>> upstream/android-13
 
 #include "iscsi_tcp.h"
 
@@ -65,6 +76,12 @@ MODULE_PARM_DESC(debug_libiscsi_tcp, "Turn on debugging for libiscsi_tcp "
 			iscsi_conn_printk(KERN_INFO, _conn,	\
 					     "%s " dbg_fmt,	\
 					     __func__, ##arg);	\
+<<<<<<< HEAD
+=======
+		iscsi_dbg_trace(trace_iscsi_dbg_tcp,		\
+				&(_conn)->cls_conn->dev,	\
+				"%s " dbg_fmt, __func__, ##arg);\
+>>>>>>> upstream/android-13
 	} while (0);
 
 static int iscsi_tcp_hdr_recv_done(struct iscsi_tcp_conn *tcp_conn,
@@ -125,12 +142,26 @@ static void iscsi_tcp_segment_map(struct iscsi_segment *segment, int recv)
 	BUG_ON(sg->length == 0);
 
 	/*
+<<<<<<< HEAD
 	 * If the page count is greater than one it is ok to send
 	 * to the network layer's zero copy send path. If not we
 	 * have to go the slow sendmsg path. We always map for the
 	 * recv path.
 	 */
 	if (page_count(sg_page(sg)) >= 1 && !recv)
+=======
+	 * We always map for the recv path.
+	 *
+	 * If the page count is greater than one it is ok to send
+	 * to the network layer's zero copy send path. If not we
+	 * have to go the slow sendmsg path.
+	 *
+	 * Same goes for slab pages: skb_can_coalesce() allows
+	 * coalescing neighboring slab objects into a single frag which
+	 * triggers one of hardened usercopy checks.
+	 */
+	if (!recv && sendpage_ok(sg_page(sg)))
+>>>>>>> upstream/android-13
 		return;
 
 	if (recv) {
@@ -491,7 +522,11 @@ static int iscsi_tcp_data_in(struct iscsi_conn *conn, struct iscsi_task *task)
 	struct iscsi_tcp_task *tcp_task = task->dd_data;
 	struct iscsi_data_rsp *rhdr = (struct iscsi_data_rsp *)tcp_conn->in.hdr;
 	int datasn = be32_to_cpu(rhdr->datasn);
+<<<<<<< HEAD
 	unsigned total_in_length = scsi_in(task->sc)->length;
+=======
+	unsigned total_in_length = task->sc->sdb.length;
+>>>>>>> upstream/android-13
 
 	/*
 	 * lib iscsi will update this in the completion handling if there
@@ -526,6 +561,7 @@ static int iscsi_tcp_data_in(struct iscsi_conn *conn, struct iscsi_task *task)
 /**
  * iscsi_tcp_r2t_rsp - iSCSI R2T Response processing
  * @conn: iscsi connection
+<<<<<<< HEAD
  * @task: scsi command task
  */
 static int iscsi_tcp_r2t_rsp(struct iscsi_conn *conn, struct iscsi_task *task)
@@ -540,10 +576,55 @@ static int iscsi_tcp_r2t_rsp(struct iscsi_conn *conn, struct iscsi_task *task)
 	u32 data_offset;
 	int rc;
 
+=======
+ * @hdr: PDU header
+ */
+static int iscsi_tcp_r2t_rsp(struct iscsi_conn *conn, struct iscsi_hdr *hdr)
+{
+	struct iscsi_session *session = conn->session;
+	struct iscsi_tcp_task *tcp_task;
+	struct iscsi_tcp_conn *tcp_conn;
+	struct iscsi_r2t_rsp *rhdr;
+	struct iscsi_r2t_info *r2t;
+	struct iscsi_task *task;
+	u32 data_length;
+	u32 data_offset;
+	int r2tsn;
+	int rc;
+
+	spin_lock(&session->back_lock);
+	task = iscsi_itt_to_ctask(conn, hdr->itt);
+	if (!task) {
+		spin_unlock(&session->back_lock);
+		return ISCSI_ERR_BAD_ITT;
+	} else if (task->sc->sc_data_direction != DMA_TO_DEVICE) {
+		spin_unlock(&session->back_lock);
+		return ISCSI_ERR_PROTO;
+	}
+	/*
+	 * A bad target might complete the cmd before we have handled R2Ts
+	 * so get a ref to the task that will be dropped in the xmit path.
+	 */
+	if (task->state != ISCSI_TASK_RUNNING) {
+		spin_unlock(&session->back_lock);
+		/* Let the path that got the early rsp complete it */
+		return 0;
+	}
+	task->last_xfer = jiffies;
+	__iscsi_get_task(task);
+
+	tcp_conn = conn->dd_data;
+	rhdr = (struct iscsi_r2t_rsp *)tcp_conn->in.hdr;
+	/* fill-in new R2T associated with the task */
+	iscsi_update_cmdsn(session, (struct iscsi_nopin *)rhdr);
+	spin_unlock(&session->back_lock);
+
+>>>>>>> upstream/android-13
 	if (tcp_conn->in.datalen) {
 		iscsi_conn_printk(KERN_ERR, conn,
 				  "invalid R2t with datalen %d\n",
 				  tcp_conn->in.datalen);
+<<<<<<< HEAD
 		return ISCSI_ERR_DATALEN;
 	}
 
@@ -561,13 +642,39 @@ static int iscsi_tcp_r2t_rsp(struct iscsi_conn *conn, struct iscsi_task *task)
 				  "dropping R2T itt %d in recovery.\n",
 				  task->itt);
 		return 0;
+=======
+		rc = ISCSI_ERR_DATALEN;
+		goto put_task;
+	}
+
+	tcp_task = task->dd_data;
+	r2tsn = be32_to_cpu(rhdr->r2tsn);
+	if (tcp_task->exp_datasn != r2tsn){
+		ISCSI_DBG_TCP(conn, "task->exp_datasn(%d) != rhdr->r2tsn(%d)\n",
+			      tcp_task->exp_datasn, r2tsn);
+		rc = ISCSI_ERR_R2TSN;
+		goto put_task;
+	}
+
+	if (session->state != ISCSI_STATE_LOGGED_IN) {
+		iscsi_conn_printk(KERN_INFO, conn,
+				  "dropping R2T itt %d in recovery.\n",
+				  task->itt);
+		rc = 0;
+		goto put_task;
+>>>>>>> upstream/android-13
 	}
 
 	data_length = be32_to_cpu(rhdr->data_length);
 	if (data_length == 0) {
 		iscsi_conn_printk(KERN_ERR, conn,
 				  "invalid R2T with zero data len\n");
+<<<<<<< HEAD
 		return ISCSI_ERR_DATALEN;
+=======
+		rc = ISCSI_ERR_DATALEN;
+		goto put_task;
+>>>>>>> upstream/android-13
 	}
 
 	if (data_length > session->max_burst)
@@ -576,12 +683,22 @@ static int iscsi_tcp_r2t_rsp(struct iscsi_conn *conn, struct iscsi_task *task)
 			      data_length, session->max_burst);
 
 	data_offset = be32_to_cpu(rhdr->data_offset);
+<<<<<<< HEAD
 	if (data_offset + data_length > scsi_out(task->sc)->length) {
 		iscsi_conn_printk(KERN_ERR, conn,
 				  "invalid R2T with data len %u at offset %u "
 				  "and total length %d\n", data_length,
 				  data_offset, scsi_out(task->sc)->length);
 		return ISCSI_ERR_DATALEN;
+=======
+	if (data_offset + data_length > task->sc->sdb.length) {
+		iscsi_conn_printk(KERN_ERR, conn,
+				  "invalid R2T with data len %u at offset %u "
+				  "and total length %d\n", data_length,
+				  data_offset, task->sc->sdb.length);
+		rc = ISCSI_ERR_DATALEN;
+		goto put_task;
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock(&tcp_task->pool2queue);
@@ -591,7 +708,12 @@ static int iscsi_tcp_r2t_rsp(struct iscsi_conn *conn, struct iscsi_task *task)
 				  "Target has sent more R2Ts than it "
 				  "negotiated for or driver has leaked.\n");
 		spin_unlock(&tcp_task->pool2queue);
+<<<<<<< HEAD
 		return ISCSI_ERR_PROTO;
+=======
+		rc = ISCSI_ERR_PROTO;
+		goto put_task;
+>>>>>>> upstream/android-13
 	}
 
 	r2t->exp_statsn = rhdr->statsn;
@@ -609,6 +731,13 @@ static int iscsi_tcp_r2t_rsp(struct iscsi_conn *conn, struct iscsi_task *task)
 
 	iscsi_requeue_task(task);
 	return 0;
+<<<<<<< HEAD
+=======
+
+put_task:
+	iscsi_put_task(task);
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -692,7 +821,11 @@ iscsi_tcp_hdr_dissect(struct iscsi_conn *conn, struct iscsi_hdr *hdr)
 		if (tcp_conn->in.datalen) {
 			struct iscsi_tcp_task *tcp_task = task->dd_data;
 			struct ahash_request *rx_hash = NULL;
+<<<<<<< HEAD
 			struct scsi_data_buffer *sdb = scsi_in(task->sc);
+=======
+			struct scsi_data_buffer *sdb = &task->sc->sdb;
+>>>>>>> upstream/android-13
 
 			/*
 			 * Setup copy of Data-In into the struct scsi_cmnd
@@ -732,6 +865,7 @@ iscsi_tcp_hdr_dissect(struct iscsi_conn *conn, struct iscsi_hdr *hdr)
 		rc = iscsi_complete_pdu(conn, hdr, NULL, 0);
 		break;
 	case ISCSI_OP_R2T:
+<<<<<<< HEAD
 		spin_lock(&conn->session->back_lock);
 		task = iscsi_itt_to_ctask(conn, hdr->itt);
 		spin_unlock(&conn->session->back_lock);
@@ -746,6 +880,13 @@ iscsi_tcp_hdr_dissect(struct iscsi_conn *conn, struct iscsi_hdr *hdr)
 			spin_unlock(&conn->session->frwd_lock);
 		} else
 			rc = ISCSI_ERR_PROTO;
+=======
+		if (ahslen) {
+			rc = ISCSI_ERR_AHSLEN;
+			break;
+		}
+		rc = iscsi_tcp_r2t_rsp(conn, hdr);
+>>>>>>> upstream/android-13
 		break;
 	case ISCSI_OP_LOGIN_RSP:
 	case ISCSI_OP_TEXT_RSP:
@@ -774,7 +915,11 @@ iscsi_tcp_hdr_dissect(struct iscsi_conn *conn, struct iscsi_hdr *hdr)
 			iscsi_tcp_data_recv_prep(tcp_conn);
 			return 0;
 		}
+<<<<<<< HEAD
 	/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ISCSI_OP_LOGOUT_RSP:
 	case ISCSI_OP_NOOP_IN:
 	case ISCSI_OP_SCSI_TMFUNC_RSP:
@@ -901,7 +1046,11 @@ int iscsi_tcp_recv_skb(struct iscsi_conn *conn, struct sk_buff *skb,
 	 */
 	conn->last_recv = jiffies;
 
+<<<<<<< HEAD
 	if (unlikely(conn->suspend_rx)) {
+=======
+	if (unlikely(test_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags))) {
+>>>>>>> upstream/android-13
 		ISCSI_DBG_TCP(conn, "Rx suspended!\n");
 		*status = ISCSI_TCP_SUSPENDED;
 		return 0;

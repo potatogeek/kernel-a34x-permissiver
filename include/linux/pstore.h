@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Persistent Storage - pstore.h
  *
@@ -5,6 +9,7 @@
  *
  * This code is the generic layer to export data records from platform
  * level persistent storage via a file system.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -18,6 +23,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_PSTORE_H
 #define _LINUX_PSTORE_H
@@ -26,27 +33,57 @@
 #include <linux/errno.h>
 #include <linux/kmsg_dump.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
 #include <linux/semaphore.h>
+=======
+#include <linux/spinlock.h>
+>>>>>>> upstream/android-13
 #include <linux/time.h>
 #include <linux/types.h>
 
 struct module;
 
+<<<<<<< HEAD
 /* pstore record types (see fs/pstore/inode.c for filename templates) */
 enum pstore_type_id {
+=======
+/*
+ * pstore record types (see fs/pstore/platform.c for pstore_type_names[])
+ * These values may be written to storage (see EFI vars backend), so
+ * they are kind of an ABI. Be careful changing the mappings.
+ */
+enum pstore_type_id {
+	/* Frontend storage types */
+>>>>>>> upstream/android-13
 	PSTORE_TYPE_DMESG	= 0,
 	PSTORE_TYPE_MCE		= 1,
 	PSTORE_TYPE_CONSOLE	= 2,
 	PSTORE_TYPE_FTRACE	= 3,
+<<<<<<< HEAD
 	/* PPC64 partition types */
+=======
+
+	/* PPC64-specific partition types */
+>>>>>>> upstream/android-13
 	PSTORE_TYPE_PPC_RTAS	= 4,
 	PSTORE_TYPE_PPC_OF	= 5,
 	PSTORE_TYPE_PPC_COMMON	= 6,
 	PSTORE_TYPE_PMSG	= 7,
 	PSTORE_TYPE_PPC_OPAL	= 8,
+<<<<<<< HEAD
 	PSTORE_TYPE_UNKNOWN	= 255
 };
 
+=======
+
+	/* End of the list */
+	PSTORE_TYPE_MAX
+};
+
+const char *pstore_type_to_name(enum pstore_type_id type);
+enum pstore_type_id pstore_name_to_type(const char *name);
+
+>>>>>>> upstream/android-13
 struct pstore_info;
 /**
  * struct pstore_record - details of a pstore record entry
@@ -85,10 +122,17 @@ struct pstore_record {
 /**
  * struct pstore_info - backend pstore driver structure
  *
+<<<<<<< HEAD
  * @owner:	module which is repsonsible for this backend driver
  * @name:	name of the backend driver
  *
  * @buf_lock:	semaphore to serialize access to @buf
+=======
+ * @owner:	module which is responsible for this backend driver
+ * @name:	name of the backend driver
+ *
+ * @buf_lock:	spinlock to serialize access to @buf
+>>>>>>> upstream/android-13
  * @buf:	preallocated crash dump buffer
  * @bufsize:	size of @buf available for crash dump bytes (must match
  *		smallest number of bytes available for writing to a
@@ -97,6 +141,15 @@ struct pstore_record {
  *
  * @read_mutex:	serializes @open, @read, @close, and @erase callbacks
  * @flags:	bitfield of frontends the backend can accept writes for
+<<<<<<< HEAD
+=======
+ * @max_reason:	Used when PSTORE_FLAGS_DMESG is set. Contains the
+ *		kmsg_dump_reason enum value. KMSG_DUMP_UNDEF means
+ *		"use existing kmsg_dump() filtering, based on the
+ *		printk.always_kmsg_dump boot param" (which is either
+ *		KMSG_DUMP_OOPS when false, or KMSG_DUMP_MAX when
+ *		true); see printk.always_kmsg_dump for more details.
+>>>>>>> upstream/android-13
  * @data:	backend-private pointer passed back during callbacks
  *
  * Callbacks:
@@ -171,15 +224,25 @@ struct pstore_record {
  */
 struct pstore_info {
 	struct module	*owner;
+<<<<<<< HEAD
 	char		*name;
 
 	struct semaphore buf_lock;
+=======
+	const char	*name;
+
+	spinlock_t	buf_lock;
+>>>>>>> upstream/android-13
 	char		*buf;
 	size_t		bufsize;
 
 	struct mutex	read_mutex;
 
 	int		flags;
+<<<<<<< HEAD
+=======
+	int		max_reason;
+>>>>>>> upstream/android-13
 	void		*data;
 
 	int		(*open)(struct pstore_info *psi);
@@ -192,10 +255,17 @@ struct pstore_info {
 };
 
 /* Supported frontends */
+<<<<<<< HEAD
 #define PSTORE_FLAGS_DMESG	(1 << 0)
 #define PSTORE_FLAGS_CONSOLE	(1 << 1)
 #define PSTORE_FLAGS_FTRACE	(1 << 2)
 #define PSTORE_FLAGS_PMSG	(1 << 3)
+=======
+#define PSTORE_FLAGS_DMESG	BIT(0)
+#define PSTORE_FLAGS_CONSOLE	BIT(1)
+#define PSTORE_FLAGS_FTRACE	BIT(2)
+#define PSTORE_FLAGS_PMSG	BIT(3)
+>>>>>>> upstream/android-13
 
 extern int pstore_register(struct pstore_info *);
 extern void pstore_unregister(struct pstore_info *);

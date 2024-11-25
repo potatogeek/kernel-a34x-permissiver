@@ -2,6 +2,10 @@
  * net/tipc/group.c: TIPC group messaging code
  *
  * Copyright (c) 2017, Ericsson AB
+<<<<<<< HEAD
+=======
+ * Copyright (c) 2020, Red Hat Inc
+>>>>>>> upstream/android-13
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -359,7 +363,11 @@ struct tipc_nlist *tipc_group_dests(struct tipc_group *grp)
 	return &grp->dests;
 }
 
+<<<<<<< HEAD
 void tipc_group_self(struct tipc_group *grp, struct tipc_name_seq *seq,
+=======
+void tipc_group_self(struct tipc_group *grp, struct tipc_service_range *seq,
+>>>>>>> upstream/android-13
 		     int *scope)
 {
 	seq->type = grp->type;
@@ -542,7 +550,11 @@ void tipc_group_filter_msg(struct tipc_group *grp, struct sk_buff_head *inputq,
 				update = true;
 				deliver = false;
 			}
+<<<<<<< HEAD
 			/* Fall thru */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TIPC_GRP_BCAST_MSG:
 			m->bc_rcv_nxt++;
 			ack = msg_grp_bc_ack_req(hdr);
@@ -924,7 +936,14 @@ void tipc_group_member_evt(struct tipc_group *grp,
 
 int tipc_group_fill_sock_diag(struct tipc_group *grp, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct nlattr *group = nla_nest_start(skb, TIPC_NLA_SOCK_GROUP);
+=======
+	struct nlattr *group = nla_nest_start_noflag(skb, TIPC_NLA_SOCK_GROUP);
+
+	if (!group)
+		return -EMSGSIZE;
+>>>>>>> upstream/android-13
 
 	if (nla_put_u32(skb, TIPC_NLA_SOCK_GROUP_ID,
 			grp->type) ||

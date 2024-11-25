@@ -36,16 +36,24 @@ void flush_cache_all_local(void);
 void flush_cache_all(void);
 void flush_cache_mm(struct mm_struct *mm);
 
+<<<<<<< HEAD
 #define ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
 void flush_kernel_dcache_page_addr(void *addr);
 static inline void flush_kernel_dcache_page(struct page *page)
 {
 	flush_kernel_dcache_page_addr(page_address(page));
 }
+=======
+void flush_kernel_dcache_page_addr(void *addr);
+>>>>>>> upstream/android-13
 
 #define flush_kernel_dcache_range(start,size) \
 	flush_kernel_dcache_range_asm((start), (start)+(size));
 
+<<<<<<< HEAD
+=======
+#define ARCH_IMPLEMENTS_FLUSH_KERNEL_VMAP_RANGE 1
+>>>>>>> upstream/android-13
 void flush_kernel_vmap_range(void *vaddr, int size);
 void invalidate_kernel_vmap_range(void *vaddr, int size);
 
@@ -59,7 +67,11 @@ extern void flush_dcache_page(struct page *page);
 #define flush_dcache_mmap_unlock(mapping)	xa_unlock_irq(&mapping->i_pages)
 
 #define flush_icache_page(vma,page)	do { 		\
+<<<<<<< HEAD
 	flush_kernel_dcache_page(page);			\
+=======
+	flush_kernel_dcache_page_addr(page_address(page)); \
+>>>>>>> upstream/android-13
 	flush_kernel_icache_page(page_address(page)); 	\
 } while (0)
 
@@ -100,6 +112,7 @@ flush_anon_page(struct vm_area_struct *vma, struct page *page, unsigned long vma
 	}
 }
 
+<<<<<<< HEAD
 #include <asm/kmap_types.h>
 
 #define ARCH_HAS_KMAP
@@ -132,5 +145,13 @@ static inline void __kunmap_atomic(void *addr)
 #define kmap_atomic_prot(page, prot)	kmap_atomic(page)
 #define kmap_atomic_pfn(pfn)	kmap_atomic(pfn_to_page(pfn))
 
+=======
+#define ARCH_HAS_FLUSH_ON_KUNMAP
+static inline void kunmap_flush_on_unmap(void *addr)
+{
+	flush_kernel_dcache_page_addr(addr);
+}
+
+>>>>>>> upstream/android-13
 #endif /* _PARISC_CACHEFLUSH_H */
 

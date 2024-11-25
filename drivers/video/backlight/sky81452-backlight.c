@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sky81452-backlight.c	SKY81452 backlight driver
  *
  * Copyright 2014 Skyworks Solutions Inc.
  * Author : Gyungoh Yoo <jack.yoo@skyworksinc.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2
@@ -15,19 +20,30 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/backlight.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 #include <linux/platform_data/sky81452-backlight.h>
+=======
+#include <linux/platform_device.h>
+#include <linux/regmap.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 
 /* registers */
@@ -53,6 +69,32 @@
 #define SKY81452_DEFAULT_NAME "lcd-backlight"
 #define SKY81452_MAX_BRIGHTNESS	(SKY81452_CS + 1)
 
+<<<<<<< HEAD
+=======
+/**
+ * struct sky81452_platform_data
+ * @name:	backlight driver name.
+ *		If it is not defined, default name is lcd-backlight.
+ * @gpiod_enable:GPIO descriptor which control EN pin
+ * @enable:	Enable mask for current sink channel 1, 2, 3, 4, 5 and 6.
+ * @ignore_pwm:	true if DPWMI should be ignored.
+ * @dpwm_mode:	true is DPWM dimming mode, otherwise Analog dimming mode.
+ * @phase_shift:true is phase shift mode.
+ * @short_detection_threshold:	It should be one of 4, 5, 6 and 7V.
+ * @boost_current_limit:	It should be one of 2300, 2750mA.
+ */
+struct sky81452_bl_platform_data {
+	const char *name;
+	struct gpio_desc *gpiod_enable;
+	unsigned int enable;
+	bool ignore_pwm;
+	bool dpwm_mode;
+	bool phase_shift;
+	unsigned int short_detection_threshold;
+	unsigned int boost_current_limit;
+};
+
+>>>>>>> upstream/android-13
 #define CTZ(b) __builtin_ctz(b)
 
 static int sky81452_bl_update_status(struct backlight_device *bd)
@@ -193,7 +235,11 @@ static struct sky81452_bl_platform_data *sky81452_bl_parse_dt(
 	pdata->ignore_pwm = of_property_read_bool(np, "skyworks,ignore-pwm");
 	pdata->dpwm_mode = of_property_read_bool(np, "skyworks,dpwm-mode");
 	pdata->phase_shift = of_property_read_bool(np, "skyworks,phase-shift");
+<<<<<<< HEAD
 	pdata->gpio_enable = of_get_gpio(np, 0);
+=======
+	pdata->gpiod_enable = devm_gpiod_get_optional(dev, NULL, GPIOD_OUT_HIGH);
+>>>>>>> upstream/android-13
 
 	ret = of_property_count_u32_elems(np, "led-sources");
 	if (ret < 0) {
@@ -264,12 +310,17 @@ static int sky81452_bl_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct regmap *regmap = dev_get_drvdata(dev->parent);
+<<<<<<< HEAD
 	struct sky81452_bl_platform_data *pdata = dev_get_platdata(dev);
+=======
+	struct sky81452_bl_platform_data *pdata;
+>>>>>>> upstream/android-13
 	struct backlight_device *bd;
 	struct backlight_properties props;
 	const char *name;
 	int ret;
 
+<<<<<<< HEAD
 	if (!pdata) {
 		pdata = sky81452_bl_parse_dt(dev);
 		if (IS_ERR(pdata))
@@ -284,6 +335,11 @@ static int sky81452_bl_probe(struct platform_device *pdev)
 			return ret;
 		}
 	}
+=======
+	pdata = sky81452_bl_parse_dt(dev);
+	if (IS_ERR(pdata))
+		return PTR_ERR(pdata);
+>>>>>>> upstream/android-13
 
 	ret = sky81452_bl_init_device(regmap, pdata);
 	if (ret < 0) {
@@ -292,7 +348,11 @@ static int sky81452_bl_probe(struct platform_device *pdev)
 	}
 
 	memset(&props, 0, sizeof(props));
+<<<<<<< HEAD
 	props.max_brightness = SKY81452_MAX_BRIGHTNESS,
+=======
+	props.max_brightness = SKY81452_MAX_BRIGHTNESS;
+>>>>>>> upstream/android-13
 	name = pdata->name ? pdata->name : SKY81452_DEFAULT_NAME;
 	bd = devm_backlight_device_register(dev, name, dev, regmap,
 						&sky81452_bl_ops, &props);
@@ -324,8 +384,13 @@ static int sky81452_bl_remove(struct platform_device *pdev)
 	bd->props.brightness = 0;
 	backlight_update_status(bd);
 
+<<<<<<< HEAD
 	if (gpio_is_valid(pdata->gpio_enable))
 		gpio_set_value_cansleep(pdata->gpio_enable, 0);
+=======
+	if (pdata->gpiod_enable)
+		gpiod_set_value_cansleep(pdata->gpiod_enable, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

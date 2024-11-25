@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2007, 2008 Karsten Wiese <fzu@wemgehoertderstaat.de>
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2007, 2008 Karsten Wiese <fzu@wemgehoertderstaat.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/usb.h>
@@ -21,12 +27,21 @@
 
 #include "usb_stream.h"
 
+<<<<<<< HEAD
 
 /*                             setup                                  */
 
 static unsigned usb_stream_next_packet_size(struct usb_stream_kernel *sk)
 {
 	struct usb_stream *s = sk->s;
+=======
+/*                             setup                                  */
+
+static unsigned int usb_stream_next_packet_size(struct usb_stream_kernel *sk)
+{
+	struct usb_stream *s = sk->s;
+
+>>>>>>> upstream/android-13
 	sk->out_phase_peeked = (sk->out_phase & 0xffff) + sk->freqn;
 	return (sk->out_phase_peeked >> 16) * s->cfg.frame_size;
 }
@@ -38,6 +53,10 @@ static void playback_prep_freqn(struct usb_stream_kernel *sk, struct urb *urb)
 
 	for (pack = 0; pack < sk->n_o_ps; pack++) {
 		int l = usb_stream_next_packet_size(sk);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (s->idle_outsize + lb + l > s->period_size)
 			goto check;
 
@@ -56,9 +75,16 @@ check:
 		    lb, s->period_size);
 }
 
+<<<<<<< HEAD
 static int init_pipe_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
 			   struct urb **urbs, char *transfer,
 			   struct usb_device *dev, int pipe)
+=======
+static int init_pipe_urbs(struct usb_stream_kernel *sk,
+			  unsigned int use_packsize,
+			  struct urb **urbs, char *transfer,
+			  struct usb_device *dev, int pipe)
+>>>>>>> upstream/android-13
 {
 	int u, p;
 	int maxpacket = use_packsize ?
@@ -69,6 +95,10 @@ static int init_pipe_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
 	     ++u, transfer += transfer_length) {
 		struct urb *urb = urbs[u];
 		struct usb_iso_packet_descriptor *desc;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		urb->transfer_buffer = transfer;
 		urb->dev = dev;
 		urb->pipe = pipe;
@@ -93,6 +123,7 @@ static int init_pipe_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int init_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
 		      struct usb_device *dev, int in_pipe, int out_pipe)
 {
@@ -100,11 +131,28 @@ static int init_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
 	char			*indata = (char *)s + sizeof(*s) +
 					sizeof(struct usb_stream_packet) *
 					s->inpackets;
+=======
+static int init_urbs(struct usb_stream_kernel *sk, unsigned int use_packsize,
+		     struct usb_device *dev, int in_pipe, int out_pipe)
+{
+	struct usb_stream	*s = sk->s;
+	char			*indata =
+		(char *)s + sizeof(*s) + sizeof(struct usb_stream_packet) * s->inpackets;
+>>>>>>> upstream/android-13
 	int			u;
 
 	for (u = 0; u < USB_STREAM_NURBS; ++u) {
 		sk->inurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
+<<<<<<< HEAD
 		sk->outurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
+=======
+		if (!sk->inurb[u])
+			return -ENOMEM;
+
+		sk->outurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
+		if (!sk->outurb[u])
+			return -ENOMEM;
+>>>>>>> upstream/android-13
 	}
 
 	if (init_pipe_urbs(sk, use_packsize, sk->inurb, indata, dev, in_pipe) ||
@@ -115,12 +163,19 @@ static int init_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
 	return 0;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * convert a sampling rate into our full speed format (fs/1000 in Q16.16)
  * this will overflow at approx 524 kHz
  */
+<<<<<<< HEAD
 static inline unsigned get_usb_full_speed_rate(unsigned rate)
+=======
+static inline unsigned int get_usb_full_speed_rate(unsigned int rate)
+>>>>>>> upstream/android-13
 {
 	return ((rate << 13) + 62) / 125;
 }
@@ -129,7 +184,11 @@ static inline unsigned get_usb_full_speed_rate(unsigned rate)
  * convert a sampling rate into USB high speed format (fs/8000 in Q16.16)
  * this will overflow at approx 4 MHz
  */
+<<<<<<< HEAD
 static inline unsigned get_usb_high_speed_rate(unsigned rate)
+=======
+static inline unsigned int get_usb_high_speed_rate(unsigned int rate)
+>>>>>>> upstream/android-13
 {
 	return ((rate << 10) + 62) / 125;
 }
@@ -137,7 +196,11 @@ static inline unsigned get_usb_high_speed_rate(unsigned rate)
 void usb_stream_free(struct usb_stream_kernel *sk)
 {
 	struct usb_stream *s;
+<<<<<<< HEAD
 	unsigned u;
+=======
+	unsigned int u;
+>>>>>>> upstream/android-13
 
 	for (u = 0; u < USB_STREAM_NURBS; ++u) {
 		usb_free_urb(sk->inurb[u]);
@@ -150,24 +213,45 @@ void usb_stream_free(struct usb_stream_kernel *sk)
 	if (!s)
 		return;
 
+<<<<<<< HEAD
 	free_pages((unsigned long)sk->write_page, get_order(s->write_size));
 	sk->write_page = NULL;
 	free_pages((unsigned long)s, get_order(s->read_size));
+=======
+	if (sk->write_page) {
+		free_pages_exact(sk->write_page, s->write_size);
+		sk->write_page = NULL;
+	}
+
+	free_pages_exact(s, s->read_size);
+>>>>>>> upstream/android-13
 	sk->s = NULL;
 }
 
 struct usb_stream *usb_stream_new(struct usb_stream_kernel *sk,
 				  struct usb_device *dev,
+<<<<<<< HEAD
 				  unsigned in_endpoint, unsigned out_endpoint,
 				  unsigned sample_rate, unsigned use_packsize,
 				  unsigned period_frames, unsigned frame_size)
+=======
+				  unsigned int in_endpoint,
+				  unsigned int out_endpoint,
+				  unsigned int sample_rate,
+				  unsigned int use_packsize,
+				  unsigned int period_frames,
+				  unsigned int frame_size)
+>>>>>>> upstream/android-13
 {
 	int packets, max_packsize;
 	int in_pipe, out_pipe;
 	int read_size = sizeof(struct usb_stream);
 	int write_size;
 	int usb_frames = dev->speed == USB_SPEED_HIGH ? 8000 : 1000;
+<<<<<<< HEAD
 	int pg;
+=======
+>>>>>>> upstream/android-13
 
 	in_pipe = usb_rcvisocpipe(dev, in_endpoint);
 	out_pipe = usb_sndisocpipe(dev, out_endpoint);
@@ -197,11 +281,18 @@ struct usb_stream *usb_stream_new(struct usb_stream_kernel *sk,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	pg = get_order(read_size);
 	sk->s = (void *) __get_free_pages(GFP_KERNEL|__GFP_COMP|__GFP_ZERO|
 					  __GFP_NOWARN, pg);
 	if (!sk->s) {
 		snd_printk(KERN_WARNING "couldn't __get_free_pages()\n");
+=======
+	sk->s = alloc_pages_exact(read_size,
+				  GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN);
+	if (!sk->s) {
+		pr_warn("us122l: couldn't allocate read buffer\n");
+>>>>>>> upstream/android-13
 		goto out;
 	}
 	sk->s->cfg.version = USB_STREAM_INTERFACE_VERSION;
@@ -216,6 +307,7 @@ struct usb_stream *usb_stream_new(struct usb_stream_kernel *sk,
 	sk->s->period_size = frame_size * period_frames;
 
 	sk->s->write_size = write_size;
+<<<<<<< HEAD
 	pg = get_order(write_size);
 
 	sk->write_page =
@@ -223,6 +315,13 @@ struct usb_stream *usb_stream_new(struct usb_stream_kernel *sk,
 					 __GFP_NOWARN, pg);
 	if (!sk->write_page) {
 		snd_printk(KERN_WARNING "couldn't __get_free_pages()\n");
+=======
+
+	sk->write_page = alloc_pages_exact(write_size,
+					   GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN);
+	if (!sk->write_page) {
+		pr_warn("us122l: couldn't allocate write buffer\n");
+>>>>>>> upstream/android-13
 		usb_stream_free(sk);
 		return NULL;
 	}
@@ -243,12 +342,19 @@ out:
 	return sk->s;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*                             start                                  */
 
 static bool balance_check(struct usb_stream_kernel *sk, struct urb *urb)
 {
 	bool r;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (unlikely(urb->status)) {
 		if (urb->status != -ESHUTDOWN && urb->status != -ENOENT)
 			snd_printk(KERN_WARNING "status=%i\n", urb->status);
@@ -279,6 +385,10 @@ static void subs_set_complete(struct urb **urbs, void (*complete)(struct urb *))
 
 	for (u = 0; u < USB_STREAM_NURBS; u++) {
 		struct urb *urb = urbs[u];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		urb->complete = complete;
 	}
 }
@@ -296,6 +406,10 @@ static int usb_stream_prepare_playback(struct usb_stream_kernel *sk,
 
 	for (; s->sync_packet < 0; ++p, ++s->sync_packet) {
 		struct urb *ii = sk->completed_inurb;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		id = ii->iso_frame_desc +
 			ii->number_of_packets + s->sync_packet;
 		l = id->actual_length;
@@ -363,6 +477,10 @@ static int submit_urbs(struct usb_stream_kernel *sk,
 		       struct urb *inurb, struct urb *outurb)
 {
 	int err;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	prepare_inurb(sk->idle_outurb->number_of_packets, sk->idle_inurb);
 	err = usb_submit_urb(sk->idle_inurb, GFP_ATOMIC);
 	if (err < 0)
@@ -459,6 +577,10 @@ static void stream_idle(struct usb_stream_kernel *sk,
 
 	for (p = 0; p < inurb->number_of_packets; ++p) {
 		struct usb_iso_packet_descriptor *id = inurb->iso_frame_desc;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		l = id[p].actual_length;
 		if (unlikely(l == 0 || id[p].status)) {
 			snd_printk(KERN_WARNING "underrun, status=%u\n",
@@ -515,6 +637,10 @@ err_out:
 static void i_capture_idle(struct urb *urb)
 {
 	struct usb_stream_kernel *sk = urb->context;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (balance_capture(sk, urb))
 		stream_idle(sk, urb, sk->i_urb);
 }
@@ -522,6 +648,10 @@ static void i_capture_idle(struct urb *urb)
 static void i_playback_idle(struct urb *urb)
 {
 	struct usb_stream_kernel *sk = urb->context;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (balance_playback(sk, urb))
 		stream_idle(sk, sk->i_urb, urb);
 }
@@ -530,10 +660,19 @@ static void stream_start(struct usb_stream_kernel *sk,
 			 struct urb *inurb, struct urb *outurb)
 {
 	struct usb_stream *s = sk->s;
+<<<<<<< HEAD
 	if (s->state >= usb_stream_sync1) {
 		int l, p, max_diff, max_diff_0;
 		int urb_size = 0;
 		unsigned frames_per_packet, min_frames = 0;
+=======
+
+	if (s->state >= usb_stream_sync1) {
+		int l, p, max_diff, max_diff_0;
+		int urb_size = 0;
+		unsigned int frames_per_packet, min_frames = 0;
+
+>>>>>>> upstream/android-13
 		frames_per_packet = (s->period_size - s->idle_insize);
 		frames_per_packet <<= 8;
 		frames_per_packet /=
@@ -548,6 +687,10 @@ static void stream_start(struct usb_stream_kernel *sk,
 		max_diff = max_diff_0;
 		for (p = 0; p < inurb->number_of_packets; ++p) {
 			int diff;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			l = inurb->iso_frame_desc[p].actual_length;
 			urb_size += l;
 
@@ -573,7 +716,12 @@ static void stream_start(struct usb_stream_kernel *sk,
 				(s->inpacket_head + 1) % s->inpackets;
 			s->next_inpacket_split_at = 0;
 		} else {
+<<<<<<< HEAD
 			unsigned split = s->inpacket_head;
+=======
+			unsigned int split = s->inpacket_head;
+
+>>>>>>> upstream/android-13
 			l = s->idle_insize;
 			while (l > s->inpacket[split].length) {
 				l -= s->inpacket[split].length;
@@ -621,6 +769,10 @@ static void i_capture_start(struct urb *urb)
 
 	for (p = 0; p < urb->number_of_packets; ++p) {
 		int l = id[p].actual_length;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (l < s->cfg.frame_size) {
 			++empty;
 			if (s->state >= usb_stream_sync0) {
@@ -640,6 +792,10 @@ static void i_capture_start(struct urb *urb)
 		       urb->iso_frame_desc[0].actual_length);
 		for (pack = 1; pack < urb->number_of_packets; ++pack) {
 			int l = urb->iso_frame_desc[pack].actual_length;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			printk(KERN_CONT " %i", l);
 		}
 		printk(KERN_CONT "\n");
@@ -655,6 +811,10 @@ static void i_capture_start(struct urb *urb)
 static void i_playback_start(struct urb *urb)
 {
 	struct usb_stream_kernel *sk = urb->context;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (balance_playback(sk, urb))
 		stream_start(sk, sk->i_urb, urb);
 }
@@ -683,6 +843,10 @@ dotry:
 	for (u = 0; u < 2; u++) {
 		struct urb *inurb = sk->inurb[u];
 		struct urb *outurb = sk->outurb[u];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		playback_prep_freqn(sk, outurb);
 		inurb->number_of_packets = outurb->number_of_packets;
 		inurb->transfer_buffer_length =
@@ -692,6 +856,10 @@ dotry:
 		if (u == 0) {
 			int now;
 			struct usb_device *dev = inurb->dev;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			frame = usb_get_current_frame_number(dev);
 			do {
 				now = usb_get_current_frame_number(dev);
@@ -700,14 +868,26 @@ dotry:
 		}
 		err = usb_submit_urb(inurb, GFP_ATOMIC);
 		if (err < 0) {
+<<<<<<< HEAD
 			snd_printk(KERN_ERR"usb_submit_urb(sk->inurb[%i])"
 				   " returned %i\n", u, err);
+=======
+			snd_printk(KERN_ERR
+				   "usb_submit_urb(sk->inurb[%i]) returned %i\n",
+				   u, err);
+>>>>>>> upstream/android-13
 			return err;
 		}
 		err = usb_submit_urb(outurb, GFP_ATOMIC);
 		if (err < 0) {
+<<<<<<< HEAD
 			snd_printk(KERN_ERR"usb_submit_urb(sk->outurb[%i])"
 				   " returned %i\n", u, err);
+=======
+			snd_printk(KERN_ERR
+				   "usb_submit_urb(sk->outurb[%i]) returned %i\n",
+				   u, err);
+>>>>>>> upstream/android-13
 			return err;
 		}
 
@@ -728,8 +908,13 @@ check_retry:
 			snd_printd(KERN_DEBUG "goto dotry;\n");
 			goto dotry;
 		}
+<<<<<<< HEAD
 		snd_printk(KERN_WARNING"couldn't start"
 			   " all urbs on the same start_frame.\n");
+=======
+		snd_printk(KERN_WARNING
+			   "couldn't start all urbs on the same start_frame.\n");
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -741,6 +926,10 @@ check_retry:
 /* wait, check */
 	{
 		int wait_ms = 3000;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		while (s->state != usb_stream_ready && wait_ms > 0) {
 			snd_printdd(KERN_DEBUG "%i\n", s->state);
 			msleep(200);
@@ -757,6 +946,10 @@ check_retry:
 void usb_stream_stop(struct usb_stream_kernel *sk)
 {
 	int u;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!sk->s)
 		return;
 	for (u = 0; u < USB_STREAM_NURBS; ++u) {

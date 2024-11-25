@@ -20,6 +20,7 @@
 /*
  * Lock ordering in mm:
  *
+<<<<<<< HEAD
  * inode->i_mutex	(while writing or truncating, not reading or faulting)
  *   mm->mmap_sem
  *     page->flags PG_locked (lock_page)
@@ -43,6 +44,38 @@
  * anon_vma->rwsem,mapping->i_mutex      (memory_failure, collect_procs_anon)
  *   ->tasklist_lock
  *     pte map lock
+=======
+ * inode->i_rwsem	(while writing or truncating, not reading or faulting)
+ *   mm->mmap_lock
+ *     mapping->invalidate_lock (in filemap_fault)
+ *       page->flags PG_locked (lock_page)   * (see hugetlbfs below)
+ *         hugetlbfs_i_mmap_rwsem_key (in huge_pmd_share)
+ *           mapping->i_mmap_rwsem
+ *             hugetlb_fault_mutex (hugetlbfs specific page fault mutex)
+ *             anon_vma->rwsem
+ *               mm->page_table_lock or pte_lock
+ *                 swap_lock (in swap_duplicate, swap_info_get)
+ *                   mmlist_lock (in mmput, drain_mmlist and others)
+ *                   mapping->private_lock (in __set_page_dirty_buffers)
+ *                     lock_page_memcg move_lock (in __set_page_dirty_buffers)
+ *                       i_pages lock (widely used)
+ *                         lruvec->lru_lock (in lock_page_lruvec_irq)
+ *                   inode->i_lock (in set_page_dirty's __mark_inode_dirty)
+ *                   bdi.wb->list_lock (in set_page_dirty's __mark_inode_dirty)
+ *                     sb_lock (within inode_lock in fs/fs-writeback.c)
+ *                     i_pages lock (widely used, in set_page_dirty,
+ *                               in arch-dependent flush_dcache_mmap_lock,
+ *                               within bdi.wb->list_lock in __sync_single_inode)
+ *
+ * anon_vma->rwsem,mapping->i_mmap_rwsem   (memory_failure, collect_procs_anon)
+ *   ->tasklist_lock
+ *     pte map lock
+ *
+ * * hugetlbfs PageHuge() pages take locks in this order:
+ *         mapping->i_mmap_rwsem
+ *           hugetlb_fault_mutex (hugetlbfs specific page fault mutex)
+ *             page->flags PG_locked (lock_page)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mm.h>
@@ -61,21 +94,35 @@
 #include <linux/mmu_notifier.h>
 #include <linux/migrate.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
+=======
+#include <linux/huge_mm.h>
+>>>>>>> upstream/android-13
 #include <linux/backing-dev.h>
 #include <linux/page_idle.h>
 #include <linux/memremap.h>
 #include <linux/userfaultfd_k.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm_inline.h>
+>>>>>>> upstream/android-13
 
 #include <asm/tlbflush.h>
 
 #include <trace/events/tlb.h>
+<<<<<<< HEAD
 #include <linux/kasan.h>
+=======
+
+#include <trace/hooks/mm.h>
+>>>>>>> upstream/android-13
 
 #include "internal.h"
 
 static struct kmem_cache *anon_vma_cachep;
 static struct kmem_cache *anon_vma_chain_cachep;
 
+<<<<<<< HEAD
 /*
  * is_anon_vma_type:
  * tell if a anon_vma object is the anon_vma type.
@@ -105,6 +152,8 @@ static bool is_anon_vma_type(struct anon_vma *anon_vma)
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct anon_vma *anon_vma_alloc(void)
 {
 	struct anon_vma *anon_vma;
@@ -112,16 +161,23 @@ static inline struct anon_vma *anon_vma_alloc(void)
 	anon_vma = kmem_cache_alloc(anon_vma_cachep, GFP_KERNEL);
 	if (anon_vma) {
 		atomic_set(&anon_vma->refcount, 1);
+<<<<<<< HEAD
 		anon_vma->num_children = 0;
 		anon_vma->num_active_vmas = 0;
+=======
+		anon_vma->degree = 1;	/* Reference for first vma */
+>>>>>>> upstream/android-13
 		anon_vma->parent = anon_vma;
 		/*
 		 * Initialise the anon_vma root to point to itself. If called
 		 * from fork, the root will be reset to the parents anon_vma.
 		 */
 		anon_vma->root = anon_vma;
+<<<<<<< HEAD
 		/* set key */
 		anon_vma->private = (unsigned long)anon_vma_cachep;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return anon_vma;
@@ -154,6 +210,7 @@ static inline void anon_vma_free(struct anon_vma *anon_vma)
 		anon_vma_unlock_write(anon_vma);
 	}
 
+<<<<<<< HEAD
 	/*
 	 * unset key, if the anon_vma is freed and re-used as
 	 * another type of object outside the grace period, we
@@ -161,6 +218,8 @@ static inline void anon_vma_free(struct anon_vma *anon_vma)
 	 */
 	anon_vma->private = 0;
 
+=======
+>>>>>>> upstream/android-13
 	kmem_cache_free(anon_vma_cachep, anon_vma);
 }
 
@@ -201,7 +260,11 @@ static void anon_vma_chain_link(struct vm_area_struct *vma,
  *
  * Anon-vma allocations are very subtle, because we may have
  * optimistically looked up an anon_vma in page_lock_anon_vma_read()
+<<<<<<< HEAD
  * and that may actually touch the spinlock even in the newly
+=======
+ * and that may actually touch the rwsem even in the newly
+>>>>>>> upstream/android-13
  * allocated vma (it depends on RCU to make sure that the
  * anon_vma isn't actually destroyed).
  *
@@ -210,7 +273,11 @@ static void anon_vma_chain_link(struct vm_area_struct *vma,
  * to do any locking for the common case of already having
  * an anon_vma.
  *
+<<<<<<< HEAD
  * This must be called with the mmap_sem held for reading.
+=======
+ * This must be called with the mmap_lock held for reading.
+>>>>>>> upstream/android-13
  */
 int __anon_vma_prepare(struct vm_area_struct *vma)
 {
@@ -230,7 +297,10 @@ int __anon_vma_prepare(struct vm_area_struct *vma)
 		anon_vma = anon_vma_alloc();
 		if (unlikely(!anon_vma))
 			goto out_enomem_free_avc;
+<<<<<<< HEAD
 		anon_vma->num_children++; /* self-parent link for new root */
+=======
+>>>>>>> upstream/android-13
 		allocated = anon_vma;
 	}
 
@@ -240,7 +310,12 @@ int __anon_vma_prepare(struct vm_area_struct *vma)
 	if (likely(!vma->anon_vma)) {
 		vma->anon_vma = anon_vma;
 		anon_vma_chain_link(vma, avc, anon_vma);
+<<<<<<< HEAD
 		anon_vma->num_active_vmas++;
+=======
+		/* vma reference or self-parent link for new root */
+		anon_vma->degree++;
+>>>>>>> upstream/android-13
 		allocated = NULL;
 		avc = NULL;
 	}
@@ -290,6 +365,7 @@ static inline void unlock_anon_vma_root(struct anon_vma *root)
  * Attach the anon_vmas from src to dst.
  * Returns 0 on success, -ENOMEM on failure.
  *
+<<<<<<< HEAD
  * If dst->anon_vma is NULL this function tries to find and reuse existing
  * anon_vma which has no vmas and only one child anon_vma. This prevents
  * degradation of anon_vma hierarchy to endless linear chain in case of
@@ -297,6 +373,21 @@ static inline void unlock_anon_vma_root(struct anon_vma *root)
  * child isn't reused even if there was no alive vma, thus rmap walker has a
  * good chance of avoiding scanning the whole hierarchy when it searches where
  * page is mapped.
+=======
+ * anon_vma_clone() is called by __vma_adjust(), __split_vma(), copy_vma() and
+ * anon_vma_fork(). The first three want an exact copy of src, while the last
+ * one, anon_vma_fork(), may try to reuse an existing anon_vma to prevent
+ * endless growth of anon_vma. Since dst->anon_vma is set to NULL before call,
+ * we can identify this case by checking (!dst->anon_vma && src->anon_vma).
+ *
+ * If (!dst->anon_vma && src->anon_vma) is true, this function tries to find
+ * and reuse existing anon_vma which has no vmas and only one child anon_vma.
+ * This prevents degradation of anon_vma hierarchy to endless linear chain in
+ * case of constantly forking task. On the other hand, an anon_vma with more
+ * than one child isn't reused even if there was no alive vma, thus rmap
+ * walker has a good chance of avoiding scanning the whole hierarchy when it
+ * searches where page is mapped.
+>>>>>>> upstream/android-13
  */
 int anon_vma_clone(struct vm_area_struct *dst, struct vm_area_struct *src)
 {
@@ -319,6 +410,7 @@ int anon_vma_clone(struct vm_area_struct *dst, struct vm_area_struct *src)
 		anon_vma_chain_link(dst, avc, anon_vma);
 
 		/*
+<<<<<<< HEAD
 		 * Reuse existing anon_vma if it has no vma and only one
 		 * anon_vma child.
 		 *
@@ -332,6 +424,21 @@ int anon_vma_clone(struct vm_area_struct *dst, struct vm_area_struct *src)
 	}
 	if (dst->anon_vma)
 		dst->anon_vma->num_active_vmas++;
+=======
+		 * Reuse existing anon_vma if its degree lower than two,
+		 * that means it has no vma and only one anon_vma child.
+		 *
+		 * Do not chose parent anon_vma, otherwise first child
+		 * will always reuse it. Root anon_vma is never reused:
+		 * it has self-parent reference and at least one child.
+		 */
+		if (!dst->anon_vma && src->anon_vma &&
+		    anon_vma != src->anon_vma && anon_vma->degree < 2)
+			dst->anon_vma = anon_vma;
+	}
+	if (dst->anon_vma)
+		dst->anon_vma->degree++;
+>>>>>>> upstream/android-13
 	unlock_anon_vma_root(root);
 	return 0;
 
@@ -381,13 +488,20 @@ int anon_vma_fork(struct vm_area_struct *vma, struct vm_area_struct *pvma)
 	anon_vma = anon_vma_alloc();
 	if (!anon_vma)
 		goto out_error;
+<<<<<<< HEAD
 	anon_vma->num_active_vmas++;
+=======
+>>>>>>> upstream/android-13
 	avc = anon_vma_chain_alloc(GFP_KERNEL);
 	if (!avc)
 		goto out_error_free_anon_vma;
 
 	/*
+<<<<<<< HEAD
 	 * The root anon_vma's spinlock is the lock actually used when we
+=======
+	 * The root anon_vma's rwsem is the lock actually used when we
+>>>>>>> upstream/android-13
 	 * lock any of the anon_vmas in this anon_vma tree.
 	 */
 	anon_vma->root = pvma->anon_vma->root;
@@ -402,7 +516,11 @@ int anon_vma_fork(struct vm_area_struct *vma, struct vm_area_struct *pvma)
 	vma->anon_vma = anon_vma;
 	anon_vma_lock_write(anon_vma);
 	anon_vma_chain_link(vma, avc, anon_vma);
+<<<<<<< HEAD
 	anon_vma->parent->num_children++;
+=======
+	anon_vma->parent->degree++;
+>>>>>>> upstream/android-13
 	anon_vma_unlock_write(anon_vma);
 
 	return 0;
@@ -434,16 +552,34 @@ void unlink_anon_vmas(struct vm_area_struct *vma)
 		 * to free them outside the lock.
 		 */
 		if (RB_EMPTY_ROOT(&anon_vma->rb_root.rb_root)) {
+<<<<<<< HEAD
 			anon_vma->parent->num_children--;
+=======
+			anon_vma->parent->degree--;
+>>>>>>> upstream/android-13
 			continue;
 		}
 
 		list_del(&avc->same_vma);
 		anon_vma_chain_free(avc);
 	}
+<<<<<<< HEAD
 	if (vma->anon_vma)
 		vma->anon_vma->num_active_vmas--;
 
+=======
+	if (vma->anon_vma) {
+		vma->anon_vma->degree--;
+
+#ifndef CONFIG_SPECULATIVE_PAGE_FAULT
+		/*
+		 * vma would still be needed after unlink, and anon_vma will be prepared
+		 * when handle fault.
+		 */
+		vma->anon_vma = NULL;
+#endif
+	}
+>>>>>>> upstream/android-13
 	unlock_anon_vma_root(root);
 
 	/*
@@ -454,8 +590,12 @@ void unlink_anon_vmas(struct vm_area_struct *vma)
 	list_for_each_entry_safe(avc, next, &vma->anon_vma_chain, same_vma) {
 		struct anon_vma *anon_vma = avc->anon_vma;
 
+<<<<<<< HEAD
 		VM_WARN_ON(anon_vma->num_children);
 		VM_WARN_ON(anon_vma->num_active_vmas);
+=======
+		VM_WARN_ON(anon_vma->degree);
+>>>>>>> upstream/android-13
 		put_anon_vma(anon_vma);
 
 		list_del(&avc->same_vma);
@@ -485,8 +625,13 @@ void __init anon_vma_init(void)
  * Getting a lock on a stable anon_vma from a page off the LRU is tricky!
  *
  * Since there is no serialization what so ever against page_remove_rmap()
+<<<<<<< HEAD
  * the best this function can do is return a locked anon_vma that might
  * have been relevant to this page.
+=======
+ * the best this function can do is return a refcount increased anon_vma
+ * that might have been relevant to this page.
+>>>>>>> upstream/android-13
  *
  * The page might have been remapped to a different anon_vma or the anon_vma
  * returned may already be freed (and even reused).
@@ -500,9 +645,16 @@ void __init anon_vma_init(void)
  * chain and verify that the page in question is indeed mapped in it
  * [ something equivalent to page_mapped_in_vma() ].
  *
+<<<<<<< HEAD
  * Since anon_vma's slab is DESTROY_BY_RCU and we know from page_remove_rmap()
  * that the anon_vma pointer from page->mapping is valid if there is a
  * mapcount, we can dereference the anon_vma after observing those.
+=======
+ * Since anon_vma's slab is SLAB_TYPESAFE_BY_RCU and we know from
+ * page_remove_rmap() that the anon_vma pointer from page->mapping is valid
+ * if there is a mapcount, we can dereference the anon_vma after observing
+ * those.
+>>>>>>> upstream/android-13
  */
 struct anon_vma *page_get_anon_vma(struct page *page)
 {
@@ -517,12 +669,15 @@ struct anon_vma *page_get_anon_vma(struct page *page)
 		goto out;
 
 	anon_vma = (struct anon_vma *) (anon_mapping - PAGE_MAPPING_ANON);
+<<<<<<< HEAD
 
 	if (!is_anon_vma_type(anon_vma)) {
 		anon_vma = NULL;
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (!atomic_inc_not_zero(&anon_vma->refcount)) {
 		anon_vma = NULL;
 		goto out;
@@ -551,15 +706,25 @@ out:
  *
  * Its a little more complex as it tries to keep the fast path to a single
  * atomic op -- the trylock. If we fail the trylock, we fall back to getting a
+<<<<<<< HEAD
  * reference like with page_get_anon_vma() and then block on the mutex
  * on !rwc->try_lock case.
  */
 struct anon_vma *page_lock_anon_vma_read(struct page *page,
 					struct rmap_walk_control *rwc)
+=======
+ * reference like with page_get_anon_vma() and then block on the mutex.
+ */
+struct anon_vma *page_lock_anon_vma_read(struct page *page)
+>>>>>>> upstream/android-13
 {
 	struct anon_vma *anon_vma = NULL;
 	struct anon_vma *root_anon_vma;
 	unsigned long anon_mapping;
+<<<<<<< HEAD
+=======
+	bool success = false;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	anon_mapping = (unsigned long)READ_ONCE(page->mapping);
@@ -569,6 +734,7 @@ struct anon_vma *page_lock_anon_vma_read(struct page *page,
 		goto out;
 
 	anon_vma = (struct anon_vma *) (anon_mapping - PAGE_MAPPING_ANON);
+<<<<<<< HEAD
 
 	if (!is_anon_vma_type(anon_vma)) {
 		anon_vma = NULL;
@@ -582,6 +748,9 @@ struct anon_vma *page_lock_anon_vma_read(struct page *page,
 		goto out;
 	}
 
+=======
+	root_anon_vma = READ_ONCE(anon_vma->root);
+>>>>>>> upstream/android-13
 	if (down_read_trylock(&root_anon_vma->rwsem)) {
 		/*
 		 * If the page is still mapped, then this anon_vma is still
@@ -594,6 +763,7 @@ struct anon_vma *page_lock_anon_vma_read(struct page *page,
 		}
 		goto out;
 	}
+<<<<<<< HEAD
 
 	if (rwc && rwc->try_lock) {
 		anon_vma = NULL;
@@ -601,6 +771,13 @@ struct anon_vma *page_lock_anon_vma_read(struct page *page,
 		goto out;
 	}
 
+=======
+	trace_android_vh_do_page_trylock(page, NULL, NULL, &success);
+	if (success) {
+		anon_vma = NULL;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 	/* trylock failed, we got to sleep */
 	if (!atomic_inc_not_zero(&anon_vma->refcount)) {
 		anon_vma = NULL;
@@ -727,7 +904,11 @@ static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
  */
 void flush_tlb_batched_pending(struct mm_struct *mm)
 {
+<<<<<<< HEAD
 	if (mm->tlb_flush_batched) {
+=======
+	if (data_race(mm->tlb_flush_batched)) {
+>>>>>>> upstream/android-13
 		flush_tlb_mm(mm);
 
 		/*
@@ -755,7 +936,10 @@ static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
  */
 unsigned long page_address_in_vma(struct page *page, struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	unsigned long address;
+=======
+>>>>>>> upstream/android-13
 	if (PageAnon(page)) {
 		struct anon_vma *page__anon_vma = page_anon_vma(page);
 		/*
@@ -765,6 +949,7 @@ unsigned long page_address_in_vma(struct page *page, struct vm_area_struct *vma)
 		if (!vma->anon_vma || !page__anon_vma ||
 		    vma->anon_vma->root != page__anon_vma->root)
 			return -EFAULT;
+<<<<<<< HEAD
 	} else if (page->mapping) {
 		if (!vma->vm_file || vma->vm_file->f_mapping != page->mapping)
 			return -EFAULT;
@@ -774,6 +959,15 @@ unsigned long page_address_in_vma(struct page *page, struct vm_area_struct *vma)
 	if (unlikely(address < vma->vm_start || address >= vma->vm_end))
 		return -EFAULT;
 	return address;
+=======
+	} else if (!vma->vm_file) {
+		return -EFAULT;
+	} else if (vma->vm_file->f_mapping != compound_head(page)->mapping) {
+		return -EFAULT;
+	}
+
+	return vma_address(page, vma);
+>>>>>>> upstream/android-13
 }
 
 pmd_t *mm_find_pmd(struct mm_struct *mm, unsigned long address)
@@ -840,6 +1034,15 @@ static bool page_referenced_one(struct page *page, struct vm_area_struct *vma,
 		}
 
 		if (pvmw.pte) {
+<<<<<<< HEAD
+=======
+			if (lru_gen_enabled() && pte_young(*pvmw.pte) &&
+			    !(vma->vm_flags & (VM_SEQ_READ | VM_RAND_READ))) {
+				lru_gen_look_around(&pvmw);
+				referenced++;
+			}
+
+>>>>>>> upstream/android-13
 			if (ptep_clear_flush_young_notify(vma, address,
 						pvmw.pte)) {
 				/*
@@ -900,8 +1103,12 @@ static bool invalid_page_referenced_vma(struct vm_area_struct *vma, void *arg)
  * @vm_flags: collect encountered vma->vm_flags who actually referenced the page
  *
  * Quick test_and_clear_referenced for all mappings to a page,
+<<<<<<< HEAD
  * returns the number of ptes which referenced the page. Return -1 if
  * the function bailed out to rmap lock contention.
+=======
+ * returns the number of ptes which referenced the page.
+>>>>>>> upstream/android-13
  */
 int page_referenced(struct page *page,
 		    int is_locked,
@@ -917,11 +1124,18 @@ int page_referenced(struct page *page,
 		.rmap_one = page_referenced_one,
 		.arg = (void *)&pra,
 		.anon_lock = page_lock_anon_vma_read,
+<<<<<<< HEAD
 		.try_lock = true,
 	};
 
 	*vm_flags = 0;
 	if (!page_mapped(page))
+=======
+	};
+
+	*vm_flags = 0;
+	if (!pra.mapcount)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (!page_rmapping(page))
@@ -948,7 +1162,11 @@ int page_referenced(struct page *page,
 	if (we_locked)
 		unlock_page(page);
 
+<<<<<<< HEAD
 	return rwc.contended ? -1 : pra.referenced;
+=======
+	return pra.referenced;
+>>>>>>> upstream/android-13
 }
 
 static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
@@ -960,13 +1178,18 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
 		.address = address,
 		.flags = PVMW_SYNC,
 	};
+<<<<<<< HEAD
 	unsigned long start = address, end;
+=======
+	struct mmu_notifier_range range;
+>>>>>>> upstream/android-13
 	int *cleaned = arg;
 
 	/*
 	 * We have to assume the worse case ie pmd for invalidation. Note that
 	 * the page can not be free from this function.
 	 */
+<<<<<<< HEAD
 	end = min(vma->vm_end, start + (PAGE_SIZE << compound_order(page)));
 	mmu_notifier_invalidate_range_start(vma->vm_mm, start, end);
 
@@ -975,6 +1198,17 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
 		int ret = 0;
 
 		cstart = address = pvmw.address;
+=======
+	mmu_notifier_range_init(&range, MMU_NOTIFY_PROTECTION_PAGE,
+				0, vma, vma->vm_mm, address,
+				vma_address_end(page, vma));
+	mmu_notifier_invalidate_range_start(&range);
+
+	while (page_vma_mapped_walk(&pvmw)) {
+		int ret = 0;
+
+		address = pvmw.address;
+>>>>>>> upstream/android-13
 		if (pvmw.pte) {
 			pte_t entry;
 			pte_t *pte = pvmw.pte;
@@ -989,7 +1223,11 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
 			set_pte_at(vma->vm_mm, address, pte, entry);
 			ret = 1;
 		} else {
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGE_PAGECACHE
+=======
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>>>>>>> upstream/android-13
 			pmd_t *pmd = pvmw.pmd;
 			pmd_t entry;
 
@@ -1001,7 +1239,10 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
 			entry = pmd_wrprotect(entry);
 			entry = pmd_mkclean(entry);
 			set_pmd_at(vma->vm_mm, address, pmd, entry);
+<<<<<<< HEAD
 			cstart &= PMD_MASK;
+=======
+>>>>>>> upstream/android-13
 			ret = 1;
 #else
 			/* unexpected pmd-mapped page? */
@@ -1020,7 +1261,11 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
 			(*cleaned)++;
 	}
 
+<<<<<<< HEAD
 	mmu_notifier_invalidate_range_end(vma->vm_mm, start, end);
+=======
+	mmu_notifier_invalidate_range_end(&range);
+>>>>>>> upstream/android-13
 
 	return true;
 }
@@ -1088,7 +1333,11 @@ void page_move_anon_rmap(struct page *page, struct vm_area_struct *vma)
 
 /**
  * __page_set_anon_rmap - set up new anonymous rmap
+<<<<<<< HEAD
  * @page:	Page to add to rmap	
+=======
+ * @page:	Page or Hugepage to add to rmap
+>>>>>>> upstream/android-13
  * @vma:	VM area to add page to.
  * @address:	User virtual address of the mapping	
  * @exclusive:	the page is exclusively owned by the current process
@@ -1111,8 +1360,19 @@ static void __page_set_anon_rmap(struct page *page,
 	if (!exclusive)
 		anon_vma = anon_vma->root;
 
+<<<<<<< HEAD
 	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
 	page->mapping = (struct address_space *) anon_vma;
+=======
+	/*
+	 * page_idle does a lockless/optimistic rmap scan on page->mapping.
+	 * Make sure the compiler doesn't split the stores of anon_vma and
+	 * the PAGE_MAPPING_ANON type identifier, otherwise the rmap code
+	 * could mistake the mapping for a struct address_space and crash.
+	 */
+	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
+	WRITE_ONCE(page->mapping, (struct address_space *) anon_vma);
+>>>>>>> upstream/android-13
 	page->index = linear_page_index(vma, address);
 }
 
@@ -1125,22 +1385,35 @@ static void __page_set_anon_rmap(struct page *page,
 static void __page_check_anon_rmap(struct page *page,
 	struct vm_area_struct *vma, unsigned long address)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_VM
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The page's anon-rmap details (mapping and index) are guaranteed to
 	 * be set up correctly at this point.
 	 *
 	 * We have exclusion against page_add_anon_rmap because the caller
+<<<<<<< HEAD
 	 * always holds the page locked, except if called from page_dup_rmap,
 	 * in which case the page is already known to be setup.
+=======
+	 * always holds the page locked.
+>>>>>>> upstream/android-13
 	 *
 	 * We have exclusion against page_add_new_anon_rmap because those pages
 	 * are initially only visible via the pagetables, and the pte is locked
 	 * over the call to page_add_new_anon_rmap.
 	 */
+<<<<<<< HEAD
 	BUG_ON(page_anon_vma(page)->root != vma->anon_vma->root);
 	BUG_ON(page_to_pgoff(page) != linear_page_index(vma, address));
 #endif
+=======
+	VM_BUG_ON_PAGE(page_anon_vma(page)->root != vma->anon_vma->root, page);
+	VM_BUG_ON_PAGE(page_to_pgoff(page) != linear_page_index(vma, address),
+		       page);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1171,6 +1444,15 @@ void do_page_add_anon_rmap(struct page *page,
 {
 	bool compound = flags & RMAP_COMPOUND;
 	bool first;
+<<<<<<< HEAD
+=======
+	bool success = false;
+
+	if (unlikely(PageKsm(page)))
+		lock_page_memcg(page);
+	else
+		VM_BUG_ON_PAGE(!PageLocked(page), page);
+>>>>>>> upstream/android-13
 
 	if (compound) {
 		atomic_t *mapcount;
@@ -1179,11 +1461,22 @@ void do_page_add_anon_rmap(struct page *page,
 		mapcount = compound_mapcount_ptr(page);
 		first = atomic_inc_and_test(mapcount);
 	} else {
+<<<<<<< HEAD
 		first = atomic_inc_and_test(&page->_mapcount);
 	}
 
 	if (first) {
 		int nr = compound ? hpage_nr_pages(page) : 1;
+=======
+		trace_android_vh_update_page_mapcount(page, true, compound,
+							&first, &success);
+		if (!success)
+			first = atomic_inc_and_test(&page->_mapcount);
+	}
+
+	if (first) {
+		int nr = compound ? thp_nr_pages(page) : 1;
+>>>>>>> upstream/android-13
 		/*
 		 * We use the irq-unsafe __{inc|mod}_zone_page_stat because
 		 * these counters are not modified in interrupt context, and
@@ -1191,6 +1484,7 @@ void do_page_add_anon_rmap(struct page *page,
 		 * disabled.
 		 */
 		if (compound)
+<<<<<<< HEAD
 			__inc_node_page_state(page, NR_ANON_THPS);
 		__mod_node_page_state(page_pgdat(page), NR_ANON_MAPPED, nr);
 	}
@@ -1198,6 +1492,16 @@ void do_page_add_anon_rmap(struct page *page,
 		return;
 
 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+=======
+			__mod_lruvec_page_state(page, NR_ANON_THPS, nr);
+		__mod_lruvec_page_state(page, NR_ANON_MAPPED, nr);
+	}
+
+	if (unlikely(PageKsm(page))) {
+		unlock_page_memcg(page);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	/* address might be in next vma when migration races vma_adjust */
 	if (first)
@@ -1208,7 +1512,11 @@ void do_page_add_anon_rmap(struct page *page,
 }
 
 /**
+<<<<<<< HEAD
  * __page_add_new_anon_rmap - add pte mapping to a new anonymous page
+=======
+ * page_add_new_anon_rmap - add pte mapping to a new anonymous page
+>>>>>>> upstream/android-13
  * @page:	the page to add the mapping to
  * @vma:	the vm area in which the mapping is added
  * @address:	the user virtual address mapped
@@ -1218,24 +1526,44 @@ void do_page_add_anon_rmap(struct page *page,
  * This means the inc-and-test can be bypassed.
  * Page does not have to be locked.
  */
+<<<<<<< HEAD
 void __page_add_new_anon_rmap(struct page *page,
 	struct vm_area_struct *vma, unsigned long address, bool compound)
 {
 	int nr = compound ? hpage_nr_pages(page) : 1;
 
+=======
+void page_add_new_anon_rmap(struct page *page,
+	struct vm_area_struct *vma, unsigned long address, bool compound)
+{
+	int nr = compound ? thp_nr_pages(page) : 1;
+
+	VM_BUG_ON_VMA(address < vma->vm_start || address >= vma->vm_end, vma);
+>>>>>>> upstream/android-13
 	__SetPageSwapBacked(page);
 	if (compound) {
 		VM_BUG_ON_PAGE(!PageTransHuge(page), page);
 		/* increment count (starts at -1) */
 		atomic_set(compound_mapcount_ptr(page), 0);
+<<<<<<< HEAD
 		__inc_node_page_state(page, NR_ANON_THPS);
+=======
+		if (hpage_pincount_available(page))
+			atomic_set(compound_pincount_ptr(page), 0);
+
+		__mod_lruvec_page_state(page, NR_ANON_THPS, nr);
+>>>>>>> upstream/android-13
 	} else {
 		/* Anon THP always mapped first with PMD */
 		VM_BUG_ON_PAGE(PageTransCompound(page), page);
 		/* increment count (starts at -1) */
 		atomic_set(&page->_mapcount, 0);
 	}
+<<<<<<< HEAD
 	__mod_node_page_state(page_pgdat(page), NR_ANON_MAPPED, nr);
+=======
+	__mod_lruvec_page_state(page, NR_ANON_MAPPED, nr);
+>>>>>>> upstream/android-13
 	__page_set_anon_rmap(page, vma, address, 1);
 }
 
@@ -1249,10 +1577,16 @@ void __page_add_new_anon_rmap(struct page *page,
 void page_add_file_rmap(struct page *page, bool compound)
 {
 	int i, nr = 1;
+<<<<<<< HEAD
+=======
+	bool first_mapping;
+	bool success = false;
+>>>>>>> upstream/android-13
 
 	VM_BUG_ON_PAGE(compound && !PageTransHuge(page), page);
 	lock_page_memcg(page);
 	if (compound && PageTransHuge(page)) {
+<<<<<<< HEAD
 		for (i = 0, nr = 0; i < HPAGE_PMD_NR; i++) {
 			if (atomic_inc_and_test(&page[i]._mapcount))
 				nr++;
@@ -1271,6 +1605,48 @@ void page_add_file_rmap(struct page *page, bool compound)
 		}
 		if (!atomic_inc_and_test(&page->_mapcount))
 			goto out;
+=======
+		int nr_pages = thp_nr_pages(page);
+
+		for (i = 0, nr = 0; i < nr_pages; i++) {
+			trace_android_vh_update_page_mapcount(&page[i], true,
+					compound, &first_mapping, &success);
+			if ((success)) {
+				if (first_mapping)
+					nr++;
+			} else {
+				if (atomic_inc_and_test(&page[i]._mapcount))
+					nr++;
+			}
+		}
+		if (!atomic_inc_and_test(compound_mapcount_ptr(page)))
+			goto out;
+		if (PageSwapBacked(page))
+			__mod_lruvec_page_state(page, NR_SHMEM_PMDMAPPED,
+						nr_pages);
+		else
+			__mod_lruvec_page_state(page, NR_FILE_PMDMAPPED,
+						nr_pages);
+	} else {
+		if (PageTransCompound(page) && page_mapping(page)) {
+			struct page *head = compound_head(page);
+
+			VM_WARN_ON_ONCE(!PageLocked(page));
+
+			SetPageDoubleMap(head);
+			if (PageMlocked(page))
+				clear_page_mlock(head);
+		}
+		trace_android_vh_update_page_mapcount(page, true,
+					compound, &first_mapping, &success);
+		if (success) {
+			if (!first_mapping)
+				goto out;
+		} else {
+			if (!atomic_inc_and_test(&page->_mapcount))
+				goto out;
+		}
+>>>>>>> upstream/android-13
 	}
 	__mod_lruvec_page_state(page, NR_FILE_MAPPED, nr);
 out:
@@ -1280,19 +1656,31 @@ out:
 static void page_remove_file_rmap(struct page *page, bool compound)
 {
 	int i, nr = 1;
+<<<<<<< HEAD
 
 	VM_BUG_ON_PAGE(compound && !PageHead(page), page);
 	lock_page_memcg(page);
+=======
+	bool first_mapping;
+	bool success = false;
+
+	VM_BUG_ON_PAGE(compound && !PageHead(page), page);
+>>>>>>> upstream/android-13
 
 	/* Hugepages are not counted in NR_FILE_MAPPED for now. */
 	if (unlikely(PageHuge(page))) {
 		/* hugetlb pages are always mapped with pmds */
 		atomic_dec(compound_mapcount_ptr(page));
+<<<<<<< HEAD
 		goto out;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	/* page still mapped by someone else? */
 	if (compound && PageTransHuge(page)) {
+<<<<<<< HEAD
 		for (i = 0, nr = 0; i < HPAGE_PMD_NR; i++) {
 			if (atomic_add_negative(-1, &page[i]._mapcount))
 				nr++;
@@ -1304,6 +1692,39 @@ static void page_remove_file_rmap(struct page *page, bool compound)
 	} else {
 		if (!atomic_add_negative(-1, &page->_mapcount))
 			goto out;
+=======
+		int nr_pages = thp_nr_pages(page);
+
+		for (i = 0, nr = 0; i < nr_pages; i++) {
+			trace_android_vh_update_page_mapcount(&page[i], false,
+						compound, &first_mapping, &success);
+			if (success) {
+				if (first_mapping)
+					nr++;
+			} else {
+				if (atomic_add_negative(-1, &page[i]._mapcount))
+					nr++;
+			}
+		}
+		if (!atomic_add_negative(-1, compound_mapcount_ptr(page)))
+			return;
+		if (PageSwapBacked(page))
+			__mod_lruvec_page_state(page, NR_SHMEM_PMDMAPPED,
+						-nr_pages);
+		else
+			__mod_lruvec_page_state(page, NR_FILE_PMDMAPPED,
+						-nr_pages);
+	} else {
+		trace_android_vh_update_page_mapcount(page, false,
+					compound, &first_mapping, &success);
+		if (success) {
+			if (!first_mapping)
+				return;
+		} else {
+			if (!atomic_add_negative(-1, &page->_mapcount))
+				return;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1315,13 +1736,21 @@ static void page_remove_file_rmap(struct page *page, bool compound)
 
 	if (unlikely(PageMlocked(page)))
 		clear_page_mlock(page);
+<<<<<<< HEAD
 out:
 	unlock_page_memcg(page);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void page_remove_anon_compound_rmap(struct page *page)
 {
 	int i, nr;
+<<<<<<< HEAD
+=======
+	bool first_mapping;
+	bool success = false;
+>>>>>>> upstream/android-13
 
 	if (!atomic_add_negative(-1, compound_mapcount_ptr(page)))
 		return;
@@ -1333,11 +1762,16 @@ static void page_remove_anon_compound_rmap(struct page *page)
 	if (!IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE))
 		return;
 
+<<<<<<< HEAD
 	__dec_node_page_state(page, NR_ANON_THPS);
+=======
+	__mod_lruvec_page_state(page, NR_ANON_THPS, -thp_nr_pages(page));
+>>>>>>> upstream/android-13
 
 	if (TestClearPageDoubleMap(page)) {
 		/*
 		 * Subpages can be mapped with PTEs too. Check how many of
+<<<<<<< HEAD
 		 * themi are still mapped.
 		 */
 		for (i = 0, nr = 0; i < HPAGE_PMD_NR; i++) {
@@ -1346,15 +1780,45 @@ static void page_remove_anon_compound_rmap(struct page *page)
 		}
 	} else {
 		nr = HPAGE_PMD_NR;
+=======
+		 * them are still mapped.
+		 */
+		for (i = 0, nr = 0; i < thp_nr_pages(page); i++) {
+			trace_android_vh_update_page_mapcount(&page[i], false,
+					false, &first_mapping, &success);
+			if (success) {
+				if (first_mapping)
+					nr++;
+			} else {
+				if (atomic_add_negative(-1, &page[i]._mapcount))
+					nr++;
+			}
+		}
+
+		/*
+		 * Queue the page for deferred split if at least one small
+		 * page of the compound page is unmapped, but at least one
+		 * small page is still mapped.
+		 */
+		if (nr && nr < thp_nr_pages(page))
+			deferred_split_huge_page(page);
+	} else {
+		nr = thp_nr_pages(page);
+>>>>>>> upstream/android-13
 	}
 
 	if (unlikely(PageMlocked(page)))
 		clear_page_mlock(page);
 
+<<<<<<< HEAD
 	if (nr) {
 		__mod_node_page_state(page_pgdat(page), NR_ANON_MAPPED, -nr);
 		deferred_split_huge_page(page);
 	}
+=======
+	if (nr)
+		__mod_lruvec_page_state(page, NR_ANON_MAPPED, -nr);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1366,6 +1830,7 @@ static void page_remove_anon_compound_rmap(struct page *page)
  */
 void page_remove_rmap(struct page *page, bool compound)
 {
+<<<<<<< HEAD
 	if (!PageAnon(page))
 		return page_remove_file_rmap(page, compound);
 
@@ -1376,12 +1841,42 @@ void page_remove_rmap(struct page *page, bool compound)
 	if (!atomic_add_negative(-1, &page->_mapcount))
 		return;
 
+=======
+	bool first_mapping;
+	bool success = false;
+	lock_page_memcg(page);
+
+	if (!PageAnon(page)) {
+		page_remove_file_rmap(page, compound);
+		goto out;
+	}
+
+	if (compound) {
+		page_remove_anon_compound_rmap(page);
+		goto out;
+	}
+
+	trace_android_vh_update_page_mapcount(page, false,
+					compound, &first_mapping, &success);
+	if (success) {
+		if (!first_mapping)
+			goto out;
+	} else {
+		/* page still mapped by someone else? */
+		if (!atomic_add_negative(-1, &page->_mapcount))
+			goto out;
+	}
+>>>>>>> upstream/android-13
 	/*
 	 * We use the irq-unsafe __{inc|mod}_zone_page_stat because
 	 * these counters are not modified in interrupt context, and
 	 * pte lock(a spinlock) is held, which implies preemption disabled.
 	 */
+<<<<<<< HEAD
 	__dec_node_page_state(page, NR_ANON_MAPPED);
+=======
+	__dec_lruvec_page_state(page, NR_ANON_MAPPED);
+>>>>>>> upstream/android-13
 
 	if (unlikely(PageMlocked(page)))
 		clear_page_mlock(page);
@@ -1398,6 +1893,11 @@ void page_remove_rmap(struct page *page, bool compound)
 	 * Leaving it set also helps swapoff to reinstate ptes
 	 * faster for those pages still in swapcache.
 	 */
+<<<<<<< HEAD
+=======
+out:
+	unlock_page_memcg(page);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1415,6 +1915,7 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 	pte_t pteval;
 	struct page *subpage;
 	bool ret = true;
+<<<<<<< HEAD
 	unsigned long start = address, end;
 	enum ttu_flags flags = (enum ttu_flags)arg;
 
@@ -1430,6 +1931,22 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 		split_huge_pmd_address(vma, address,
 				flags & TTU_SPLIT_FREEZE, page);
 	}
+=======
+	struct mmu_notifier_range range;
+	enum ttu_flags flags = (enum ttu_flags)(long)arg;
+
+	/*
+	 * When racing against e.g. zap_pte_range() on another cpu,
+	 * in between its ptep_get_and_clear_full() and page_remove_rmap(),
+	 * try_to_unmap() may return before page_mapped() has become false,
+	 * if page table locking is skipped: use TTU_SYNC to wait for that.
+	 */
+	if (flags & TTU_SYNC)
+		pvmw.flags = PVMW_SYNC;
+
+	if (flags & TTU_SPLIT_HUGE_PMD)
+		split_huge_pmd_address(vma, address, false, page);
+>>>>>>> upstream/android-13
 
 	/*
 	 * For THP, we have to assume the worse case ie pmd for invalidation.
@@ -1439,12 +1956,20 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 	 * Note that the page can not be free in this function as call of
 	 * try_to_unmap() must hold a reference on the page.
 	 */
+<<<<<<< HEAD
 	end = min(vma->vm_end, start + (PAGE_SIZE << compound_order(page)));
+=======
+	range.end = PageKsm(page) ?
+			address + PAGE_SIZE : vma_address_end(page, vma);
+	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+				address, range.end);
+>>>>>>> upstream/android-13
 	if (PageHuge(page)) {
 		/*
 		 * If sharing is possible, start and end will be adjusted
 		 * accordingly.
 		 */
+<<<<<<< HEAD
 		adjust_range_if_pmd_sharing_possible(vma, &start, &end);
 	}
 	mmu_notifier_invalidate_range_start(vma->vm_mm, start, end);
@@ -1481,6 +2006,31 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 			}
 			if (flags & TTU_MUNLOCK)
 				continue;
+=======
+		adjust_range_if_pmd_sharing_possible(vma, &range.start,
+						     &range.end);
+	}
+	mmu_notifier_invalidate_range_start(&range);
+
+	while (page_vma_mapped_walk(&pvmw)) {
+		/*
+		 * If the page is mlock()d, we cannot swap it out.
+		 */
+		if (!(flags & TTU_IGNORE_MLOCK) &&
+		    (vma->vm_flags & VM_LOCKED)) {
+			/*
+			 * PTE-mapped THP are never marked as mlocked: so do
+			 * not set it on a DoubleMap THP, nor on an Anon THP
+			 * (which may still be PTE-mapped after DoubleMap was
+			 * cleared).  But stop unmapping even in those cases.
+			 */
+			if (!PageTransCompound(page) || (PageHead(page) &&
+			     !PageDoubleMap(page) && !PageAnon(page)))
+				mlock_vma_page(page);
+			page_vma_mapped_walk_done(&pvmw);
+			ret = false;
+			break;
+>>>>>>> upstream/android-13
 		}
 
 		/* Unexpected PMD-mapped THP? */
@@ -1489,8 +2039,19 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 		subpage = page - page_to_pfn(page) + pte_pfn(*pvmw.pte);
 		address = pvmw.address;
 
+<<<<<<< HEAD
 		if (PageHuge(page)) {
 			if (huge_pmd_unshare(mm, &address, pvmw.pte)) {
+=======
+		if (PageHuge(page) && !PageAnon(page)) {
+			/*
+			 * To call huge_pmd_unshare, i_mmap_rwsem must be
+			 * held in write mode.  Caller needs to explicitly
+			 * do this outside rmap routines.
+			 */
+			VM_BUG_ON(!(flags & TTU_RMAP_LOCKED));
+			if (huge_pmd_unshare(mm, vma, &address, pvmw.pte)) {
+>>>>>>> upstream/android-13
 				/*
 				 * huge_pmd_unshare unmapped an entire PMD
 				 * page.  There is no way of knowing exactly
@@ -1498,9 +2059,16 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 				 * we must flush them all.  start/end were
 				 * already adjusted above to cover this range.
 				 */
+<<<<<<< HEAD
 				flush_cache_range(vma, start, end);
 				flush_tlb_range(vma, start, end);
 				mmu_notifier_invalidate_range(mm, start, end);
+=======
+				flush_cache_range(vma, range.start, range.end);
+				flush_tlb_range(vma, range.start, range.end);
+				mmu_notifier_invalidate_range(mm, range.start,
+							      range.end);
+>>>>>>> upstream/android-13
 
 				/*
 				 * The ref count of the PMD page was dropped
@@ -1516,6 +2084,7 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 			}
 		}
 
+<<<<<<< HEAD
 		if (IS_ENABLED(CONFIG_MIGRATION) &&
 		    (flags & TTU_MIGRATION) &&
 		    is_zone_device_page(page)) {
@@ -1558,6 +2127,8 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 			}
 		}
 
+=======
+>>>>>>> upstream/android-13
 		/* Nuke the page table entry. */
 		flush_cache_page(vma, address, pte_pfn(*pvmw.pte));
 		if (should_defer_flush(mm, flags)) {
@@ -1586,8 +2157,12 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 		if (PageHWPoison(page) && !(flags & TTU_IGNORE_HWPOISON)) {
 			pteval = swp_entry_to_pte(make_hwpoison_entry(subpage));
 			if (PageHuge(page)) {
+<<<<<<< HEAD
 				int nr = 1 << compound_order(page);
 				hugetlb_count_sub(nr, mm);
+=======
+				hugetlb_count_sub(compound_nr(page), mm);
+>>>>>>> upstream/android-13
 				set_huge_swap_pte_at(mm, address,
 						     pvmw.pte, pteval,
 						     vma_mmu_pagesize(vma));
@@ -1611,6 +2186,7 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 			/* We have to invalidate as we cleared the pte */
 			mmu_notifier_invalidate_range(mm, address,
 						      address + PAGE_SIZE);
+<<<<<<< HEAD
 		} else if (IS_ENABLED(CONFIG_MIGRATION) &&
 				(flags & (TTU_MIGRATION|TTU_SPLIT_FREEZE))) {
 			swp_entry_t entry;
@@ -1638,6 +2214,8 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 			 * No need to invalidate here it will synchronize on
 			 * against the special swap migration pte.
 			 */
+=======
+>>>>>>> upstream/android-13
 		} else if (PageAnon(page)) {
 			swp_entry_t entry = { .val = page_private(subpage) };
 			pte_t swp_pte;
@@ -1657,7 +2235,34 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 
 			/* MADV_FREE page check */
 			if (!PageSwapBacked(page)) {
+<<<<<<< HEAD
 				if (!PageDirty(page)) {
+=======
+				int ref_count, map_count;
+
+				/*
+				 * Synchronize with gup_pte_range():
+				 * - clear PTE; barrier; read refcount
+				 * - inc refcount; barrier; read PTE
+				 */
+				smp_mb();
+
+				ref_count = page_ref_count(page);
+				map_count = page_mapcount(page);
+
+				/*
+				 * Order reads for page refcount and dirty flag
+				 * (see comments in __remove_mapping()).
+				 */
+				smp_rmb();
+
+				/*
+				 * The only page refs must be one from isolation
+				 * plus the rmap(s) (dropped by discard:).
+				 */
+				if (ref_count == 1 + map_count &&
+				    !PageDirty(page)) {
+>>>>>>> upstream/android-13
 					/* Invalidate as we cleared the pte */
 					mmu_notifier_invalidate_range(mm,
 						address, address + PAGE_SIZE);
@@ -1699,6 +2304,11 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
 			swp_pte = swp_entry_to_pte(entry);
 			if (pte_soft_dirty(pteval))
 				swp_pte = pte_swp_mksoft_dirty(swp_pte);
+<<<<<<< HEAD
+=======
+			if (pte_uffd_wp(pteval))
+				swp_pte = pte_swp_mkuffd_wp(swp_pte);
+>>>>>>> upstream/android-13
 			set_pte_at(mm, address, pvmw.pte, swp_pte);
 			/* Invalidate as we cleared the pte */
 			mmu_notifier_invalidate_range(mm, address,
@@ -1728,11 +2338,17 @@ discard:
 		put_page(page);
 	}
 
+<<<<<<< HEAD
 	mmu_notifier_invalidate_range_end(vma->vm_mm, start, end);
+=======
+	mmu_notifier_invalidate_range_end(&range);
+	trace_android_vh_try_to_unmap_one(vma, page, address, ret);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 bool is_vma_temporary_stack(struct vm_area_struct *vma)
 {
 	int maybe_stack = vma->vm_flags & (VM_GROWSDOWN | VM_GROWSUP);
@@ -1755,12 +2371,23 @@ static bool invalid_migration_vma(struct vm_area_struct *vma, void *arg)
 static int page_mapcount_is_zero(struct page *page)
 {
 	return !total_mapcount(page);
+=======
+static bool invalid_migration_vma(struct vm_area_struct *vma, void *arg)
+{
+	return vma_is_temporary_stack(vma);
+}
+
+static int page_not_mapped(struct page *page)
+{
+	return !page_mapped(page);
+>>>>>>> upstream/android-13
 }
 
 /**
  * try_to_unmap - try to remove all page table mappings to a page
  * @page: the page to get unmapped
  * @flags: action and flags
+<<<<<<< HEAD
  * @vma : target vma for reclaim
  *
  * Tries to remove all the page table entries which are mapping this
@@ -1772,15 +2399,300 @@ static int page_mapcount_is_zero(struct page *page)
  */
 bool try_to_unmap(struct page *page, enum ttu_flags flags,
 				struct vm_area_struct *vma)
+=======
+ *
+ * Tries to remove all the page table entries which are mapping this
+ * page, used in the pageout path.  Caller must hold the page lock.
+ *
+ * It is the caller's responsibility to check if the page is still
+ * mapped when needed (use TTU_SYNC to prevent accounting races).
+ */
+void try_to_unmap(struct page *page, enum ttu_flags flags)
+>>>>>>> upstream/android-13
 {
 	struct rmap_walk_control rwc = {
 		.rmap_one = try_to_unmap_one,
 		.arg = (void *)flags,
+<<<<<<< HEAD
 		.done = page_mapcount_is_zero,
 		.anon_lock = page_lock_anon_vma_read,
 		.target_vma = vma,
 	};
 
+=======
+		.done = page_not_mapped,
+		.anon_lock = page_lock_anon_vma_read,
+	};
+
+	if (flags & TTU_RMAP_LOCKED)
+		rmap_walk_locked(page, &rwc);
+	else
+		rmap_walk(page, &rwc);
+}
+
+/*
+ * @arg: enum ttu_flags will be passed to this argument.
+ *
+ * If TTU_SPLIT_HUGE_PMD is specified any PMD mappings will be split into PTEs
+ * containing migration entries.
+ */
+static bool try_to_migrate_one(struct page *page, struct vm_area_struct *vma,
+		     unsigned long address, void *arg)
+{
+	struct mm_struct *mm = vma->vm_mm;
+	struct page_vma_mapped_walk pvmw = {
+		.page = page,
+		.vma = vma,
+		.address = address,
+	};
+	pte_t pteval;
+	struct page *subpage;
+	bool ret = true;
+	struct mmu_notifier_range range;
+	enum ttu_flags flags = (enum ttu_flags)(long)arg;
+
+	/*
+	 * When racing against e.g. zap_pte_range() on another cpu,
+	 * in between its ptep_get_and_clear_full() and page_remove_rmap(),
+	 * try_to_migrate() may return before page_mapped() has become false,
+	 * if page table locking is skipped: use TTU_SYNC to wait for that.
+	 */
+	if (flags & TTU_SYNC)
+		pvmw.flags = PVMW_SYNC;
+
+	/*
+	 * unmap_page() in mm/huge_memory.c is the only user of migration with
+	 * TTU_SPLIT_HUGE_PMD and it wants to freeze.
+	 */
+	if (flags & TTU_SPLIT_HUGE_PMD)
+		split_huge_pmd_address(vma, address, true, page);
+
+	/*
+	 * For THP, we have to assume the worse case ie pmd for invalidation.
+	 * For hugetlb, it could be much worse if we need to do pud
+	 * invalidation in the case of pmd sharing.
+	 *
+	 * Note that the page can not be free in this function as call of
+	 * try_to_unmap() must hold a reference on the page.
+	 */
+	range.end = PageKsm(page) ?
+			address + PAGE_SIZE : vma_address_end(page, vma);
+	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+				address, range.end);
+	if (PageHuge(page)) {
+		/*
+		 * If sharing is possible, start and end will be adjusted
+		 * accordingly.
+		 */
+		adjust_range_if_pmd_sharing_possible(vma, &range.start,
+						     &range.end);
+	}
+	mmu_notifier_invalidate_range_start(&range);
+
+	while (page_vma_mapped_walk(&pvmw)) {
+#ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
+		/* PMD-mapped THP migration entry */
+		if (!pvmw.pte) {
+			VM_BUG_ON_PAGE(PageHuge(page) ||
+				       !PageTransCompound(page), page);
+
+			set_pmd_migration_entry(&pvmw, page);
+			continue;
+		}
+#endif
+
+		/* Unexpected PMD-mapped THP? */
+		VM_BUG_ON_PAGE(!pvmw.pte, page);
+
+		subpage = page - page_to_pfn(page) + pte_pfn(*pvmw.pte);
+		address = pvmw.address;
+
+		if (PageHuge(page) && !PageAnon(page)) {
+			/*
+			 * To call huge_pmd_unshare, i_mmap_rwsem must be
+			 * held in write mode.  Caller needs to explicitly
+			 * do this outside rmap routines.
+			 */
+			VM_BUG_ON(!(flags & TTU_RMAP_LOCKED));
+			if (huge_pmd_unshare(mm, vma, &address, pvmw.pte)) {
+				/*
+				 * huge_pmd_unshare unmapped an entire PMD
+				 * page.  There is no way of knowing exactly
+				 * which PMDs may be cached for this mm, so
+				 * we must flush them all.  start/end were
+				 * already adjusted above to cover this range.
+				 */
+				flush_cache_range(vma, range.start, range.end);
+				flush_tlb_range(vma, range.start, range.end);
+				mmu_notifier_invalidate_range(mm, range.start,
+							      range.end);
+
+				/*
+				 * The ref count of the PMD page was dropped
+				 * which is part of the way map counting
+				 * is done for shared PMDs.  Return 'true'
+				 * here.  When there is no other sharing,
+				 * huge_pmd_unshare returns false and we will
+				 * unmap the actual page and drop map count
+				 * to zero.
+				 */
+				page_vma_mapped_walk_done(&pvmw);
+				break;
+			}
+		}
+
+		/* Nuke the page table entry. */
+		flush_cache_page(vma, address, pte_pfn(*pvmw.pte));
+		pteval = ptep_clear_flush(vma, address, pvmw.pte);
+
+		/* Move the dirty bit to the page. Now the pte is gone. */
+		if (pte_dirty(pteval))
+			set_page_dirty(page);
+
+		/* Update high watermark before we lower rss */
+		update_hiwater_rss(mm);
+
+		if (is_zone_device_page(page)) {
+			swp_entry_t entry;
+			pte_t swp_pte;
+
+			/*
+			 * Store the pfn of the page in a special migration
+			 * pte. do_swap_page() will wait until the migration
+			 * pte is removed and then restart fault handling.
+			 */
+			entry = make_readable_migration_entry(
+							page_to_pfn(page));
+			swp_pte = swp_entry_to_pte(entry);
+
+			/*
+			 * pteval maps a zone device page and is therefore
+			 * a swap pte.
+			 */
+			if (pte_swp_soft_dirty(pteval))
+				swp_pte = pte_swp_mksoft_dirty(swp_pte);
+			if (pte_swp_uffd_wp(pteval))
+				swp_pte = pte_swp_mkuffd_wp(swp_pte);
+			set_pte_at(mm, pvmw.address, pvmw.pte, swp_pte);
+			/*
+			 * No need to invalidate here it will synchronize on
+			 * against the special swap migration pte.
+			 *
+			 * The assignment to subpage above was computed from a
+			 * swap PTE which results in an invalid pointer.
+			 * Since only PAGE_SIZE pages can currently be
+			 * migrated, just set it to page. This will need to be
+			 * changed when hugepage migrations to device private
+			 * memory are supported.
+			 */
+			subpage = page;
+		} else if (PageHWPoison(page)) {
+			pteval = swp_entry_to_pte(make_hwpoison_entry(subpage));
+			if (PageHuge(page)) {
+				hugetlb_count_sub(compound_nr(page), mm);
+				set_huge_swap_pte_at(mm, address,
+						     pvmw.pte, pteval,
+						     vma_mmu_pagesize(vma));
+			} else {
+				dec_mm_counter(mm, mm_counter(page));
+				set_pte_at(mm, address, pvmw.pte, pteval);
+			}
+
+		} else if (pte_unused(pteval) && !userfaultfd_armed(vma)) {
+			/*
+			 * The guest indicated that the page content is of no
+			 * interest anymore. Simply discard the pte, vmscan
+			 * will take care of the rest.
+			 * A future reference will then fault in a new zero
+			 * page. When userfaultfd is active, we must not drop
+			 * this page though, as its main user (postcopy
+			 * migration) will not expect userfaults on already
+			 * copied pages.
+			 */
+			dec_mm_counter(mm, mm_counter(page));
+			/* We have to invalidate as we cleared the pte */
+			mmu_notifier_invalidate_range(mm, address,
+						      address + PAGE_SIZE);
+		} else {
+			swp_entry_t entry;
+			pte_t swp_pte;
+
+			if (arch_unmap_one(mm, vma, address, pteval) < 0) {
+				set_pte_at(mm, address, pvmw.pte, pteval);
+				ret = false;
+				page_vma_mapped_walk_done(&pvmw);
+				break;
+			}
+
+			/*
+			 * Store the pfn of the page in a special migration
+			 * pte. do_swap_page() will wait until the migration
+			 * pte is removed and then restart fault handling.
+			 */
+			if (pte_write(pteval))
+				entry = make_writable_migration_entry(
+							page_to_pfn(subpage));
+			else
+				entry = make_readable_migration_entry(
+							page_to_pfn(subpage));
+
+			swp_pte = swp_entry_to_pte(entry);
+			if (pte_soft_dirty(pteval))
+				swp_pte = pte_swp_mksoft_dirty(swp_pte);
+			if (pte_uffd_wp(pteval))
+				swp_pte = pte_swp_mkuffd_wp(swp_pte);
+			set_pte_at(mm, address, pvmw.pte, swp_pte);
+			/*
+			 * No need to invalidate here it will synchronize on
+			 * against the special swap migration pte.
+			 */
+		}
+
+		/*
+		 * No need to call mmu_notifier_invalidate_range() it has be
+		 * done above for all cases requiring it to happen under page
+		 * table lock before mmu_notifier_invalidate_range_end()
+		 *
+		 * See Documentation/vm/mmu_notifier.rst
+		 */
+		page_remove_rmap(subpage, PageHuge(page));
+		put_page(page);
+	}
+
+	mmu_notifier_invalidate_range_end(&range);
+
+	return ret;
+}
+
+/**
+ * try_to_migrate - try to replace all page table mappings with swap entries
+ * @page: the page to replace page table entries for
+ * @flags: action and flags
+ *
+ * Tries to remove all the page table entries which are mapping this page and
+ * replace them with special swap entries. Caller must hold the page lock.
+ */
+void try_to_migrate(struct page *page, enum ttu_flags flags)
+{
+	struct rmap_walk_control rwc = {
+		.rmap_one = try_to_migrate_one,
+		.arg = (void *)flags,
+		.done = page_not_mapped,
+		.anon_lock = page_lock_anon_vma_read,
+	};
+
+	/*
+	 * Migration always ignores mlock and only supports TTU_RMAP_LOCKED and
+	 * TTU_SPLIT_HUGE_PMD and TTU_SYNC flags.
+	 */
+	if (WARN_ON_ONCE(flags & ~(TTU_RMAP_LOCKED | TTU_SPLIT_HUGE_PMD |
+					TTU_SYNC)))
+		return;
+
+	if (is_zone_device_page(page) && !is_device_private_page(page))
+		return;
+
+>>>>>>> upstream/android-13
 	/*
 	 * During exec, a temporary VMA is setup and later moved.
 	 * The VMA is moved under the anon_vma lock but not the
@@ -1789,14 +2701,19 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags,
 	 * locking requirements of exec(), migration skips
 	 * temporary VMAs until after exec() completes.
 	 */
+<<<<<<< HEAD
 	if ((flags & (TTU_MIGRATION|TTU_SPLIT_FREEZE))
 	    && !PageKsm(page) && PageAnon(page))
+=======
+	if (!PageKsm(page) && PageAnon(page))
+>>>>>>> upstream/android-13
 		rwc.invalid_vma = invalid_migration_vma;
 
 	if (flags & TTU_RMAP_LOCKED)
 		rmap_walk_locked(page, &rwc);
 	else
 		rmap_walk(page, &rwc);
+<<<<<<< HEAD
 
 	return !page_mapcount(page) ? true : false;
 }
@@ -1823,15 +2740,272 @@ void try_to_munlock(struct page *page)
 		.done = page_not_mapped,
 		.anon_lock = page_lock_anon_vma_read,
 		.target_vma = NULL,
+=======
+}
+
+/*
+ * Walks the vma's mapping a page and mlocks the page if any locked vma's are
+ * found. Once one is found the page is locked and the scan can be terminated.
+ */
+static bool page_mlock_one(struct page *page, struct vm_area_struct *vma,
+				 unsigned long address, void *unused)
+{
+	struct page_vma_mapped_walk pvmw = {
+		.page = page,
+		.vma = vma,
+		.address = address,
+	};
+
+	/* An un-locked vma doesn't have any pages to lock, continue the scan */
+	if (!(vma->vm_flags & VM_LOCKED))
+		return true;
+
+	while (page_vma_mapped_walk(&pvmw)) {
+		/*
+		 * Need to recheck under the ptl to serialise with
+		 * __munlock_pagevec_fill() after VM_LOCKED is cleared in
+		 * munlock_vma_pages_range().
+		 */
+		if (vma->vm_flags & VM_LOCKED) {
+			/*
+			 * PTE-mapped THP are never marked as mlocked; but
+			 * this function is never called on a DoubleMap THP,
+			 * nor on an Anon THP (which may still be PTE-mapped
+			 * after DoubleMap was cleared).
+			 */
+			mlock_vma_page(page);
+			/*
+			 * No need to scan further once the page is marked
+			 * as mlocked.
+			 */
+			page_vma_mapped_walk_done(&pvmw);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * page_mlock - try to mlock a page
+ * @page: the page to be mlocked
+ *
+ * Called from munlock code. Checks all of the VMAs mapping the page and mlocks
+ * the page if any are found. The page will be returned with PG_mlocked cleared
+ * if it is not mapped by any locked vmas.
+ */
+void page_mlock(struct page *page)
+{
+	struct rmap_walk_control rwc = {
+		.rmap_one = page_mlock_one,
+		.done = page_not_mapped,
+		.anon_lock = page_lock_anon_vma_read,
+>>>>>>> upstream/android-13
 
 	};
 
 	VM_BUG_ON_PAGE(!PageLocked(page) || PageLRU(page), page);
 	VM_BUG_ON_PAGE(PageCompound(page) && PageDoubleMap(page), page);
 
+<<<<<<< HEAD
 	rmap_walk(page, &rwc);
 }
 
+=======
+	/* Anon THP are only marked as mlocked when singly mapped */
+	if (PageTransCompound(page) && PageAnon(page))
+		return;
+
+	rmap_walk(page, &rwc);
+}
+
+#ifdef CONFIG_DEVICE_PRIVATE
+struct make_exclusive_args {
+	struct mm_struct *mm;
+	unsigned long address;
+	void *owner;
+	bool valid;
+};
+
+static bool page_make_device_exclusive_one(struct page *page,
+		struct vm_area_struct *vma, unsigned long address, void *priv)
+{
+	struct mm_struct *mm = vma->vm_mm;
+	struct page_vma_mapped_walk pvmw = {
+		.page = page,
+		.vma = vma,
+		.address = address,
+	};
+	struct make_exclusive_args *args = priv;
+	pte_t pteval;
+	struct page *subpage;
+	bool ret = true;
+	struct mmu_notifier_range range;
+	swp_entry_t entry;
+	pte_t swp_pte;
+
+	mmu_notifier_range_init_owner(&range, MMU_NOTIFY_EXCLUSIVE, 0, vma,
+				      vma->vm_mm, address, min(vma->vm_end,
+				      address + page_size(page)), args->owner);
+	mmu_notifier_invalidate_range_start(&range);
+
+	while (page_vma_mapped_walk(&pvmw)) {
+		/* Unexpected PMD-mapped THP? */
+		VM_BUG_ON_PAGE(!pvmw.pte, page);
+
+		if (!pte_present(*pvmw.pte)) {
+			ret = false;
+			page_vma_mapped_walk_done(&pvmw);
+			break;
+		}
+
+		subpage = page - page_to_pfn(page) + pte_pfn(*pvmw.pte);
+		address = pvmw.address;
+
+		/* Nuke the page table entry. */
+		flush_cache_page(vma, address, pte_pfn(*pvmw.pte));
+		pteval = ptep_clear_flush(vma, address, pvmw.pte);
+
+		/* Move the dirty bit to the page. Now the pte is gone. */
+		if (pte_dirty(pteval))
+			set_page_dirty(page);
+
+		/*
+		 * Check that our target page is still mapped at the expected
+		 * address.
+		 */
+		if (args->mm == mm && args->address == address &&
+		    pte_write(pteval))
+			args->valid = true;
+
+		/*
+		 * Store the pfn of the page in a special migration
+		 * pte. do_swap_page() will wait until the migration
+		 * pte is removed and then restart fault handling.
+		 */
+		if (pte_write(pteval))
+			entry = make_writable_device_exclusive_entry(
+							page_to_pfn(subpage));
+		else
+			entry = make_readable_device_exclusive_entry(
+							page_to_pfn(subpage));
+		swp_pte = swp_entry_to_pte(entry);
+		if (pte_soft_dirty(pteval))
+			swp_pte = pte_swp_mksoft_dirty(swp_pte);
+		if (pte_uffd_wp(pteval))
+			swp_pte = pte_swp_mkuffd_wp(swp_pte);
+
+		set_pte_at(mm, address, pvmw.pte, swp_pte);
+
+		/*
+		 * There is a reference on the page for the swap entry which has
+		 * been removed, so shouldn't take another.
+		 */
+		page_remove_rmap(subpage, false);
+	}
+
+	mmu_notifier_invalidate_range_end(&range);
+
+	return ret;
+}
+
+/**
+ * page_make_device_exclusive - mark the page exclusively owned by a device
+ * @page: the page to replace page table entries for
+ * @mm: the mm_struct where the page is expected to be mapped
+ * @address: address where the page is expected to be mapped
+ * @owner: passed to MMU_NOTIFY_EXCLUSIVE range notifier callbacks
+ *
+ * Tries to remove all the page table entries which are mapping this page and
+ * replace them with special device exclusive swap entries to grant a device
+ * exclusive access to the page. Caller must hold the page lock.
+ *
+ * Returns false if the page is still mapped, or if it could not be unmapped
+ * from the expected address. Otherwise returns true (success).
+ */
+static bool page_make_device_exclusive(struct page *page, struct mm_struct *mm,
+				unsigned long address, void *owner)
+{
+	struct make_exclusive_args args = {
+		.mm = mm,
+		.address = address,
+		.owner = owner,
+		.valid = false,
+	};
+	struct rmap_walk_control rwc = {
+		.rmap_one = page_make_device_exclusive_one,
+		.done = page_not_mapped,
+		.anon_lock = page_lock_anon_vma_read,
+		.arg = &args,
+	};
+
+	/*
+	 * Restrict to anonymous pages for now to avoid potential writeback
+	 * issues. Also tail pages shouldn't be passed to rmap_walk so skip
+	 * those.
+	 */
+	if (!PageAnon(page) || PageTail(page))
+		return false;
+
+	rmap_walk(page, &rwc);
+
+	return args.valid && !page_mapcount(page);
+}
+
+/**
+ * make_device_exclusive_range() - Mark a range for exclusive use by a device
+ * @mm: mm_struct of assoicated target process
+ * @start: start of the region to mark for exclusive device access
+ * @end: end address of region
+ * @pages: returns the pages which were successfully marked for exclusive access
+ * @owner: passed to MMU_NOTIFY_EXCLUSIVE range notifier to allow filtering
+ *
+ * Returns: number of pages found in the range by GUP. A page is marked for
+ * exclusive access only if the page pointer is non-NULL.
+ *
+ * This function finds ptes mapping page(s) to the given address range, locks
+ * them and replaces mappings with special swap entries preventing userspace CPU
+ * access. On fault these entries are replaced with the original mapping after
+ * calling MMU notifiers.
+ *
+ * A driver using this to program access from a device must use a mmu notifier
+ * critical section to hold a device specific lock during programming. Once
+ * programming is complete it should drop the page lock and reference after
+ * which point CPU access to the page will revoke the exclusive access.
+ */
+int make_device_exclusive_range(struct mm_struct *mm, unsigned long start,
+				unsigned long end, struct page **pages,
+				void *owner)
+{
+	long npages = (end - start) >> PAGE_SHIFT;
+	long i;
+
+	npages = get_user_pages_remote(mm, start, npages,
+				       FOLL_GET | FOLL_WRITE | FOLL_SPLIT_PMD,
+				       pages, NULL, NULL);
+	if (npages < 0)
+		return npages;
+
+	for (i = 0; i < npages; i++, start += PAGE_SIZE) {
+		if (!trylock_page(pages[i])) {
+			put_page(pages[i]);
+			pages[i] = NULL;
+			continue;
+		}
+
+		if (!page_make_device_exclusive(pages[i], mm, start, owner)) {
+			unlock_page(pages[i]);
+			put_page(pages[i]);
+			pages[i] = NULL;
+		}
+	}
+
+	return npages;
+}
+EXPORT_SYMBOL_GPL(make_device_exclusive_range);
+#endif
+
+>>>>>>> upstream/android-13
 void __put_anon_vma(struct anon_vma *anon_vma)
 {
 	struct anon_vma *root = anon_vma->root;
@@ -1847,18 +3021,27 @@ static struct anon_vma *rmap_walk_anon_lock(struct page *page,
 	struct anon_vma *anon_vma;
 
 	if (rwc->anon_lock)
+<<<<<<< HEAD
 		return rwc->anon_lock(page, rwc);
+=======
+		return rwc->anon_lock(page);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note: remove_migration_ptes() cannot use page_lock_anon_vma_read()
 	 * because that depends on page_mapped(); but not all its usages
+<<<<<<< HEAD
 	 * are holding mmap_sem. Users without mmap_sem are required to
+=======
+	 * are holding mmap_lock. Users without mmap_lock are required to
+>>>>>>> upstream/android-13
 	 * take a reference count to prevent the anon_vma disappearing
 	 */
 	anon_vma = page_anon_vma(page);
 	if (!anon_vma)
 		return NULL;
 
+<<<<<<< HEAD
 	if (anon_vma_trylock_read(anon_vma))
 		goto out;
 
@@ -1870,6 +3053,9 @@ static struct anon_vma *rmap_walk_anon_lock(struct page *page,
 
 	anon_vma_lock_read(anon_vma);
 out:
+=======
+	anon_vma_lock_read(anon_vma);
+>>>>>>> upstream/android-13
 	return anon_vma;
 }
 
@@ -1882,7 +3068,11 @@ out:
  * Find all the mappings of a page using the mapping pointer and the vma chains
  * contained in the anon_vma struct it points to.
  *
+<<<<<<< HEAD
  * When called from try_to_munlock(), the mmap_sem of the mm containing the vma
+=======
+ * When called from page_mlock(), the mmap_lock of the mm containing the vma
+>>>>>>> upstream/android-13
  * where the page was found will be held for write.  So, we won't recheck
  * vm_flags for that VMA.  That should be OK, because that vma shouldn't be
  * LOCKED.
@@ -1894,6 +3084,7 @@ static void rmap_walk_anon(struct page *page, struct rmap_walk_control *rwc,
 	pgoff_t pgoff_start, pgoff_end;
 	struct anon_vma_chain *avc;
 
+<<<<<<< HEAD
 	if (rwc->target_vma) {
 		unsigned long address = vma_address(page, rwc->target_vma);
 
@@ -1901,6 +3092,8 @@ static void rmap_walk_anon(struct page *page, struct rmap_walk_control *rwc,
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (locked) {
 		anon_vma = page_anon_vma(page);
 		/* anon_vma disappear under us? */
@@ -1908,17 +3101,28 @@ static void rmap_walk_anon(struct page *page, struct rmap_walk_control *rwc,
 	} else {
 		anon_vma = rmap_walk_anon_lock(page, rwc);
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	if (!anon_vma)
 		return;
 
 	pgoff_start = page_to_pgoff(page);
+<<<<<<< HEAD
 	pgoff_end = pgoff_start + hpage_nr_pages(page) - 1;
+=======
+	pgoff_end = pgoff_start + thp_nr_pages(page) - 1;
+>>>>>>> upstream/android-13
 	anon_vma_interval_tree_foreach(avc, &anon_vma->rb_root,
 			pgoff_start, pgoff_end) {
 		struct vm_area_struct *vma = avc->vma;
 		unsigned long address = vma_address(page, vma);
 
+<<<<<<< HEAD
+=======
+		VM_BUG_ON_VMA(address == -EFAULT, vma);
+>>>>>>> upstream/android-13
 		cond_resched();
 
 		if (rwc->invalid_vma && rwc->invalid_vma(vma, rwc->arg))
@@ -1942,7 +3146,11 @@ static void rmap_walk_anon(struct page *page, struct rmap_walk_control *rwc,
  * Find all the mappings of a page using the mapping pointer and the vma chains
  * contained in the address_space struct it points to.
  *
+<<<<<<< HEAD
  * When called from try_to_munlock(), the mmap_sem of the mm containing the vma
+=======
+ * When called from page_mlock(), the mmap_lock of the mm containing the vma
+>>>>>>> upstream/android-13
  * where the page was found will be held for write.  So, we won't recheck
  * vm_flags for that VMA.  That should be OK, because that vma shouldn't be
  * LOCKED.
@@ -1953,7 +3161,11 @@ static void rmap_walk_file(struct page *page, struct rmap_walk_control *rwc,
 	struct address_space *mapping = page_mapping(page);
 	pgoff_t pgoff_start, pgoff_end;
 	struct vm_area_struct *vma;
+<<<<<<< HEAD
 	unsigned long address;
+=======
+	bool got_lock = false, success = false;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The page lock not only makes sure that page->mapping cannot
@@ -1967,6 +3179,7 @@ static void rmap_walk_file(struct page *page, struct rmap_walk_control *rwc,
 		return;
 
 	pgoff_start = page_to_pgoff(page);
+<<<<<<< HEAD
 	pgoff_end = pgoff_start + hpage_nr_pages(page) - 1;
 	if (!locked) {
 		if (i_mmap_trylock_read(mapping))
@@ -1985,10 +3198,27 @@ lookup:
 		goto done;
 	}
 
+=======
+	pgoff_end = pgoff_start + thp_nr_pages(page) - 1;
+	if (!locked) {
+		trace_android_vh_do_page_trylock(page,
+					&mapping->i_mmap_rwsem, &got_lock, &success);
+		if (success) {
+			if (!got_lock)
+				return;
+		} else {
+			i_mmap_lock_read(mapping);
+		}
+	}
+>>>>>>> upstream/android-13
 	vma_interval_tree_foreach(vma, &mapping->i_mmap,
 			pgoff_start, pgoff_end) {
 		unsigned long address = vma_address(page, vma);
 
+<<<<<<< HEAD
+=======
+		VM_BUG_ON_VMA(address == -EFAULT, vma);
+>>>>>>> upstream/android-13
 		cond_resched();
 
 		if (rwc->invalid_vma && rwc->invalid_vma(vma, rwc->arg))
@@ -2028,6 +3258,7 @@ void rmap_walk_locked(struct page *page, struct rmap_walk_control *rwc)
 
 #ifdef CONFIG_HUGETLB_PAGE
 /*
+<<<<<<< HEAD
  * The following three functions are for anonymous (private mapped) hugepages.
  * Unlike common anonymous pages, anonymous hugepages have no accounting code
  * and no lru code, because we handle hugepages differently from common pages.
@@ -2049,6 +3280,12 @@ static void __hugepage_set_anon_rmap(struct page *page,
 	page->index = linear_page_index(vma, address);
 }
 
+=======
+ * The following two functions are for anonymous (private mapped) hugepages.
+ * Unlike common anonymous pages, anonymous hugepages have no accounting code
+ * and no lru code, because we handle hugepages differently from common pages.
+ */
+>>>>>>> upstream/android-13
 void hugepage_add_anon_rmap(struct page *page,
 			    struct vm_area_struct *vma, unsigned long address)
 {
@@ -2060,7 +3297,11 @@ void hugepage_add_anon_rmap(struct page *page,
 	/* address might be in next vma when migration races vma_adjust */
 	first = atomic_inc_and_test(compound_mapcount_ptr(page));
 	if (first)
+<<<<<<< HEAD
 		__hugepage_set_anon_rmap(page, vma, address, 0);
+=======
+		__page_set_anon_rmap(page, vma, address, 0);
+>>>>>>> upstream/android-13
 }
 
 void hugepage_add_new_anon_rmap(struct page *page,
@@ -2068,6 +3309,13 @@ void hugepage_add_new_anon_rmap(struct page *page,
 {
 	BUG_ON(address < vma->vm_start || address >= vma->vm_end);
 	atomic_set(compound_mapcount_ptr(page), 0);
+<<<<<<< HEAD
 	__hugepage_set_anon_rmap(page, vma, address, 1);
+=======
+	if (hpage_pincount_available(page))
+		atomic_set(compound_pincount_ptr(page), 0);
+
+	__page_set_anon_rmap(page, vma, address, 1);
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_HUGETLB_PAGE */

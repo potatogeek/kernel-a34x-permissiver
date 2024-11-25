@@ -243,6 +243,10 @@ done:
 		/* Fall back to a 3 byte encoding */
 		word.bytes = 3;
 		word.word &= 0x00ffffff;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 3:
 		/* 3 byte encoding */
 		word.word |= 0x82000000;
@@ -839,11 +843,19 @@ static int mips_ejtag_fdc_tty_write(struct tty_struct *tty,
 	return total;
 }
 
+<<<<<<< HEAD
 static int mips_ejtag_fdc_tty_write_room(struct tty_struct *tty)
 {
 	struct mips_ejtag_fdc_tty_port *dport = tty->driver_data;
 	struct mips_ejtag_fdc_tty *priv = dport->driver;
 	int room;
+=======
+static unsigned int mips_ejtag_fdc_tty_write_room(struct tty_struct *tty)
+{
+	struct mips_ejtag_fdc_tty_port *dport = tty->driver_data;
+	struct mips_ejtag_fdc_tty *priv = dport->driver;
+	unsigned int room;
+>>>>>>> upstream/android-13
 
 	/* Report the space in the xmit buffer */
 	spin_lock(&dport->xmit_lock);
@@ -853,10 +865,17 @@ static int mips_ejtag_fdc_tty_write_room(struct tty_struct *tty)
 	return room;
 }
 
+<<<<<<< HEAD
 static int mips_ejtag_fdc_tty_chars_in_buffer(struct tty_struct *tty)
 {
 	struct mips_ejtag_fdc_tty_port *dport = tty->driver_data;
 	int chars;
+=======
+static unsigned int mips_ejtag_fdc_tty_chars_in_buffer(struct tty_struct *tty)
+{
+	struct mips_ejtag_fdc_tty_port *dport = tty->driver_data;
+	unsigned int chars;
+>>>>>>> upstream/android-13
 
 	/* Report the number of bytes in the xmit buffer */
 	spin_lock(&dport->xmit_lock);
@@ -898,7 +917,11 @@ static int mips_ejtag_fdc_tty_probe(struct mips_cdmm_device *dev)
 	atomic_set(&priv->xmit_total, 0);
 	raw_spin_lock_init(&priv->lock);
 
+<<<<<<< HEAD
 	priv->reg = devm_ioremap_nocache(priv->dev, dev->res.start,
+=======
+	priv->reg = devm_ioremap(priv->dev, dev->res.start,
+>>>>>>> upstream/android-13
 					 resource_size(&dev->res));
 	if (!priv->reg) {
 		dev_err(priv->dev, "ioremap failed for resource %pR\n",
@@ -1041,7 +1064,11 @@ err_destroy_ports:
 		dport = &priv->ports[nport];
 		tty_port_destroy(&dport->port);
 	}
+<<<<<<< HEAD
 	put_tty_driver(priv->driver);
+=======
+	tty_driver_kref_put(priv->driver);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

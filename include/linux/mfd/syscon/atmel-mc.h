@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) SAN People
@@ -5,11 +9,14 @@
  * Memory Controllers (MC, EBI, SMC, SDRAMC, BFC) - System peripherals
  * registers.
  * Based on AT91RM9200 datasheet revision E.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_MFD_SYSCON_ATMEL_MC_H_

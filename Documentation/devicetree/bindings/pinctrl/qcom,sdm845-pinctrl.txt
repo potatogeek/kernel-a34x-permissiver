@@ -79,7 +79,11 @@ to specify in a pin configuration subnode:
 		      gpio0-gpio149
 		        Supports mux, bias and drive-strength
 
+<<<<<<< HEAD
 		      sdc2_clk, sdc2_cmd, sdc2_data
+=======
+		      sdc2_clk, sdc2_cmd, sdc2_data, ufs_reset
+>>>>>>> upstream/android-13
 		        Supports bias and drive-strength
 
 - function:
@@ -118,17 +122,29 @@ to specify in a pin configuration subnode:
 - bias-disable:
 	Usage: optional
 	Value type: <none>
+<<<<<<< HEAD
 	Definition: The specified pins should be configued as no pull.
+=======
+	Definition: The specified pins should be configured as no pull.
+>>>>>>> upstream/android-13
 
 - bias-pull-down:
 	Usage: optional
 	Value type: <none>
+<<<<<<< HEAD
 	Definition: The specified pins should be configued as pull down.
+=======
+	Definition: The specified pins should be configured as pull down.
+>>>>>>> upstream/android-13
 
 - bias-pull-up:
 	Usage: optional
 	Value type: <none>
+<<<<<<< HEAD
 	Definition: The specified pins should be configued as pull up.
+=======
+	Definition: The specified pins should be configured as pull up.
+>>>>>>> upstream/android-13
 
 - output-high:
 	Usage: optional

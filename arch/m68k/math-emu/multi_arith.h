@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* multi_arith.h: multi-precision integer arithmetic functions, needed
    to do extended-precision floating point.
 
@@ -6,9 +10,13 @@
    Somewhat based on arch/alpha/math-emu/ieee-math.c, which is (c)
    David Mosberger-Tang.
 
+<<<<<<< HEAD
    You may copy, modify, and redistribute this file under the terms of
    the GNU General Public License, version 2, or any later version, at
    your convenience. */
+=======
+ */
+>>>>>>> upstream/android-13
 
 /* Note:
 

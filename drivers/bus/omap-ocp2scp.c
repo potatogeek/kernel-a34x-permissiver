@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * omap-ocp2scp.c - transform ocp interface protocol to scp protocol
  *
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+ * Author: Kishon Vijay Abraham I <kishon@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>

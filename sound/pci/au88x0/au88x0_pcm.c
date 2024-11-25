@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  */
  
 /*
@@ -142,6 +147,7 @@ static int snd_vortex_pcm_open(struct snd_pcm_substream *substream)
 	int err;
 	
 	/* Force equal size periods */
+<<<<<<< HEAD
 	if ((err =
 	     snd_pcm_hw_constraint_integer(runtime,
 					   SNDRV_PCM_HW_PARAM_PERIODS)) < 0)
@@ -150,6 +156,16 @@ static int snd_vortex_pcm_open(struct snd_pcm_substream *substream)
 	if ((err =
 	     snd_pcm_hw_constraint_pow2(runtime, 0,
 					SNDRV_PCM_HW_PARAM_PERIOD_BYTES)) < 0)
+=======
+	err = snd_pcm_hw_constraint_integer(runtime,
+					    SNDRV_PCM_HW_PARAM_PERIODS);
+	if (err < 0)
+		return err;
+	/* Avoid PAGE_SIZE boundary to fall inside of a period. */
+	err = snd_pcm_hw_constraint_pow2(runtime, 0,
+					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	snd_pcm_hw_constraint_step(runtime, 0,
@@ -221,6 +237,7 @@ snd_vortex_pcm_hw_params(struct snd_pcm_substream *substream,
 {
 	vortex_t *chip = snd_pcm_substream_chip(substream);
 	stream_t *stream = (stream_t *) (substream->runtime->private_data);
+<<<<<<< HEAD
 	int err;
 
 	// Alloc buffer memory.
@@ -230,6 +247,9 @@ snd_vortex_pcm_hw_params(struct snd_pcm_substream *substream,
 		dev_err(chip->card->dev, "Vortex: pcm page alloc failed!\n");
 		return err;
 	}
+=======
+
+>>>>>>> upstream/android-13
 	/*
 	   pr_info( "Vortex: periods %d, period_bytes %d, channels = %d\n", params_periods(hw_params),
 	   params_period_bytes(hw_params), params_channels(hw_params));
@@ -316,7 +336,11 @@ static int snd_vortex_pcm_hw_free(struct snd_pcm_substream *substream)
 	substream->runtime->private_data = NULL;
 	spin_unlock_irq(&chip->lock);
 
+<<<<<<< HEAD
 	return snd_pcm_lib_free_pages(substream);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* prepare callback */
@@ -442,27 +466,41 @@ static snd_pcm_uframes_t snd_vortex_pcm_pointer(struct snd_pcm_substream *substr
 static const struct snd_pcm_ops snd_vortex_playback_ops = {
 	.open = snd_vortex_pcm_open,
 	.close = snd_vortex_pcm_close,
+<<<<<<< HEAD
 	.ioctl = snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.hw_params = snd_vortex_pcm_hw_params,
 	.hw_free = snd_vortex_pcm_hw_free,
 	.prepare = snd_vortex_pcm_prepare,
 	.trigger = snd_vortex_pcm_trigger,
 	.pointer = snd_vortex_pcm_pointer,
+<<<<<<< HEAD
 	.page = snd_pcm_sgbuf_ops_page,
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
 *  definitions of capture are omitted here...
 */
 
+<<<<<<< HEAD
 static char *vortex_pcm_prettyname[VORTEX_PCM_LAST] = {
+=======
+static const char * const vortex_pcm_prettyname[VORTEX_PCM_LAST] = {
+>>>>>>> upstream/android-13
 	CARD_NAME " ADB",
 	CARD_NAME " SPDIF",
 	CARD_NAME " A3D",
 	CARD_NAME " WT",
 	CARD_NAME " I2S",
 };
+<<<<<<< HEAD
 static char *vortex_pcm_name[VORTEX_PCM_LAST] = {
+=======
+static const char * const vortex_pcm_name[VORTEX_PCM_LAST] = {
+>>>>>>> upstream/android-13
 	"adb",
 	"spdif",
 	"a3d",
@@ -519,7 +557,11 @@ static int snd_vortex_spdif_put(struct snd_kcontrol *kcontrol, struct snd_ctl_el
 }
 
 /* spdif controls */
+<<<<<<< HEAD
 static struct snd_kcontrol_new snd_vortex_mixer_spdif[] = {
+=======
+static const struct snd_kcontrol_new snd_vortex_mixer_spdif[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface =	SNDRV_CTL_ELEM_IFACE_PCM,
 		.name =		SNDRV_CTL_NAME_IEC958("",PLAYBACK,DEFAULT),
@@ -649,9 +691,14 @@ static int snd_vortex_new_pcm(vortex_t *chip, int idx, int nr)
 	
 	/* pre-allocation of Scatter-Gather buffers */
 	
+<<<<<<< HEAD
 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
 					      snd_dma_pci_data(chip->pci_dev),
 					      0x10000, 0x10000);
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV_SG,
+				       &chip->pci_dev->dev, 0x10000, 0x10000);
+>>>>>>> upstream/android-13
 
 	switch (VORTEX_PCM_TYPE(pcm)) {
 	case VORTEX_PCM_ADB:
@@ -681,7 +728,12 @@ static int snd_vortex_new_pcm(vortex_t *chip, int idx, int nr)
 			kctl = snd_ctl_new1(&snd_vortex_mixer_spdif[i], chip);
 			if (!kctl)
 				return -ENOMEM;
+<<<<<<< HEAD
 			if ((err = snd_ctl_add(chip->card, kctl)) < 0)
+=======
+			err = snd_ctl_add(chip->card, kctl);
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 		}
 	}

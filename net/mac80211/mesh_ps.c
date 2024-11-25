@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012-2013, Marco Porsch <marco.porsch@s2005.tu-chemnitz.de>
  * Copyright 2012-2013, cozybit Inc.
@@ -5,6 +6,13 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2012-2013, Marco Porsch <marco.porsch@s2005.tu-chemnitz.de>
+ * Copyright 2012-2013, cozybit Inc.
+ * Copyright (C) 2021 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 #include "mesh.h"
@@ -15,6 +23,10 @@
 
 /**
  * mps_qos_null_get - create pre-addressed QoS Null frame for mesh powersave
+<<<<<<< HEAD
+=======
+ * @sta: the station to get the frame for
+>>>>>>> upstream/android-13
  */
 static struct sk_buff *mps_qos_null_get(struct sta_info *sta)
 {
@@ -47,6 +59,10 @@ static struct sk_buff *mps_qos_null_get(struct sta_info *sta)
 
 /**
  * mps_qos_null_tx - send a QoS Null to indicate link-specific power mode
+<<<<<<< HEAD
+=======
+ * @sta: the station to send to
+>>>>>>> upstream/android-13
  */
 static void mps_qos_null_tx(struct sta_info *sta)
 {
@@ -403,6 +419,11 @@ static void mpsp_trigger_send(struct sta_info *sta, bool rspi, bool eosp)
 
 /**
  * mpsp_qos_null_append - append QoS Null frame to MPSP skb queue if needed
+<<<<<<< HEAD
+=======
+ * @sta: the station to handle
+ * @frames: the frame list to append to
+>>>>>>> upstream/android-13
  *
  * To properly end a mesh MPSP the last transmitted frame has to set the EOSP
  * flag in the QoS Control field. In case the current tailing frame is not a
@@ -435,7 +456,11 @@ static void mpsp_qos_null_append(struct sta_info *sta,
 
 	info = IEEE80211_SKB_CB(new_skb);
 	info->control.vif = &sdata->vif;
+<<<<<<< HEAD
 	info->flags |= IEEE80211_TX_INTFL_NEED_TXPROCESSING;
+=======
+	info->control.flags |= IEEE80211_TX_INTCFL_NEED_TXPROCESSING;
+>>>>>>> upstream/android-13
 
 	__skb_queue_tail(frames, new_skb);
 }
@@ -587,7 +612,11 @@ void ieee80211_mps_frame_release(struct sta_info *sta,
 
 	/* only transmit to PS STA with announced, non-zero awake window */
 	if (test_sta_flag(sta, WLAN_STA_PS_STA) &&
+<<<<<<< HEAD
 	    (!elems->awake_window || !le16_to_cpu(*elems->awake_window)))
+=======
+	    (!elems->awake_window || !get_unaligned_le16(elems->awake_window)))
+>>>>>>> upstream/android-13
 		return;
 
 	if (!test_sta_flag(sta, WLAN_STA_MPSP_OWNER))

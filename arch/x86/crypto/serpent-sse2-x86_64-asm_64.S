@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Serpent Cipher 8-way parallel algorithm (x86_64/SSE2)
  *
@@ -6,6 +10,7 @@
  * Based on crypto/serpent.c by
  *  Copyright (C) 2002 Dag Arne Osvik <osvik@ii.uib.no>
  *                2003 Herbert Valerio Riedel <hvr@gnu.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
  * USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -634,7 +641,11 @@
 	pxor t0,		x3; \
 	movdqu x3,		(3*4*4)(out);
 
+<<<<<<< HEAD
 ENTRY(__serpent_enc_blk_8way)
+=======
+SYM_FUNC_START(__serpent_enc_blk_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -690,16 +701,27 @@ ENTRY(__serpent_enc_blk_8way)
 	write_blocks(%rsi, RA1, RB1, RC1, RD1, RK0, RK1, RK2);
 	write_blocks(%rax, RA2, RB2, RC2, RD2, RK0, RK1, RK2);
 
+<<<<<<< HEAD
 	ret;
+=======
+	RET;
+>>>>>>> upstream/android-13
 
 .L__enc_xor8:
 	xor_blocks(%rsi, RA1, RB1, RC1, RD1, RK0, RK1, RK2);
 	xor_blocks(%rax, RA2, RB2, RC2, RD2, RK0, RK1, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(__serpent_enc_blk_8way)
 
 ENTRY(serpent_dec_blk_8way)
+=======
+	RET;
+SYM_FUNC_END(__serpent_enc_blk_8way)
+
+SYM_FUNC_START(serpent_dec_blk_8way)
+>>>>>>> upstream/android-13
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rsi: dst
@@ -750,5 +772,10 @@ ENTRY(serpent_dec_blk_8way)
 	write_blocks(%rsi, RC1, RD1, RB1, RE1, RK0, RK1, RK2);
 	write_blocks(%rax, RC2, RD2, RB2, RE2, RK0, RK1, RK2);
 
+<<<<<<< HEAD
 	ret;
 ENDPROC(serpent_dec_blk_8way)
+=======
+	RET;
+SYM_FUNC_END(serpent_dec_blk_8way)
+>>>>>>> upstream/android-13

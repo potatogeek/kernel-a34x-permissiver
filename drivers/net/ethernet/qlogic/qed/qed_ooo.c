@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -42,7 +49,11 @@
 #include "qed_ll2.h"
 #include "qed_ooo.h"
 #include "qed_cxt.h"
+<<<<<<< HEAD
 
+=======
+#include "qed_nvmetcp.h"
+>>>>>>> upstream/android-13
 static struct qed_ooo_archipelago
 *qed_ooo_seek_archipelago(struct qed_hwfn *p_hwfn,
 			  struct qed_ooo_info
@@ -109,7 +120,12 @@ int qed_ooo_alloc(struct qed_hwfn *p_hwfn)
 
 	switch (p_hwfn->hw_info.personality) {
 	case QED_PCI_ISCSI:
+<<<<<<< HEAD
 		proto = PROTOCOLID_ISCSI;
+=======
+	case QED_PCI_NVMETCP:
+		proto = PROTOCOLID_TCP_ULP;
+>>>>>>> upstream/android-13
 		break;
 	case QED_PCI_ETH_RDMA:
 	case QED_PCI_ETH_IWARP:
@@ -211,9 +227,14 @@ void qed_ooo_release_connection_isles(struct qed_hwfn *p_hwfn,
 			if (!p_buffer)
 				break;
 
+<<<<<<< HEAD
 			list_del(&p_buffer->list_entry);
 			list_add_tail(&p_buffer->list_entry,
 				      &p_ooo_info->free_buffers_list);
+=======
+			list_move_tail(&p_buffer->list_entry,
+				       &p_ooo_info->free_buffers_list);
+>>>>>>> upstream/android-13
 		}
 		list_add_tail(&p_isle->list_entry,
 			      &p_ooo_info->free_isles_list);
@@ -247,9 +268,14 @@ void qed_ooo_release_all_isles(struct qed_hwfn *p_hwfn,
 				if (!p_buffer)
 					break;
 
+<<<<<<< HEAD
 			list_del(&p_buffer->list_entry);
 				list_add_tail(&p_buffer->list_entry,
 					      &p_ooo_info->free_buffers_list);
+=======
+				list_move_tail(&p_buffer->list_entry,
+					       &p_ooo_info->free_buffers_list);
+>>>>>>> upstream/android-13
 			}
 			list_add_tail(&p_isle->list_entry,
 				      &p_ooo_info->free_isles_list);
@@ -353,11 +379,17 @@ void qed_ooo_delete_isles(struct qed_hwfn *p_hwfn,
 			  struct qed_ooo_info *p_ooo_info,
 			  u32 cid, u8 drop_isle, u8 drop_size)
 {
+<<<<<<< HEAD
 	struct qed_ooo_archipelago *p_archipelago = NULL;
 	struct qed_ooo_isle *p_isle = NULL;
 	u8 isle_idx;
 
 	p_archipelago = qed_ooo_seek_archipelago(p_hwfn, p_ooo_info, cid);
+=======
+	struct qed_ooo_isle *p_isle = NULL;
+	u8 isle_idx;
+
+>>>>>>> upstream/android-13
 	for (isle_idx = 0; isle_idx < drop_size; isle_idx++) {
 		p_isle = qed_ooo_seek_isle(p_hwfn, p_ooo_info, cid, drop_isle);
 		if (!p_isle) {
@@ -462,7 +494,10 @@ void qed_ooo_add_new_buffer(struct qed_hwfn *p_hwfn,
 void qed_ooo_join_isles(struct qed_hwfn *p_hwfn,
 			struct qed_ooo_info *p_ooo_info, u32 cid, u8 left_isle)
 {
+<<<<<<< HEAD
 	struct qed_ooo_archipelago *p_archipelago = NULL;
+=======
+>>>>>>> upstream/android-13
 	struct qed_ooo_isle *p_right_isle = NULL;
 	struct qed_ooo_isle *p_left_isle = NULL;
 
@@ -475,7 +510,10 @@ void qed_ooo_join_isles(struct qed_hwfn *p_hwfn,
 		return;
 	}
 
+<<<<<<< HEAD
 	p_archipelago = qed_ooo_seek_archipelago(p_hwfn, p_ooo_info, cid);
+=======
+>>>>>>> upstream/android-13
 	list_del(&p_right_isle->list_entry);
 	p_ooo_info->cur_isles_number--;
 	if (left_isle) {

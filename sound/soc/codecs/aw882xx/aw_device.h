@@ -10,7 +10,10 @@
 #define AW_NAME_MAX		(50)
 #define ALGO_VERSION_MAX	(80)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 enum {
 	AW_1000_US = 1000,
 	AW_2000_US = 2000,
@@ -51,6 +54,14 @@ enum AW_DEV_FW_STATUS {
 	AW_DEV_FW_OK,
 };
 
+<<<<<<< HEAD
+=======
+enum {
+	AW_CTRL_DISABLE = 0,
+	AW_CTRL_ENABLE,
+};
+
+>>>>>>> upstream/android-13
 struct aw_device_ops {
 	int (*aw_i2c_write)(struct aw_device *aw_dev, unsigned char reg_addr, unsigned int reg_data);
 	int (*aw_i2c_read)(struct aw_device *aw_dev, unsigned char reg_addr, unsigned int *reg_data);
@@ -177,6 +188,10 @@ struct aw_volume_desc {
 	unsigned int shift;
 	int init_volume;
 	int mute_volume;
+<<<<<<< HEAD
+=======
+	int ctl_volume;
+>>>>>>> upstream/android-13
 };
 
 struct aw_voltage_desc {
@@ -210,6 +225,11 @@ struct aw_device {
 	unsigned int mute_st;
 	unsigned int amppd_st;
 
+<<<<<<< HEAD
+=======
+	unsigned int sys_check_en;
+
+>>>>>>> upstream/android-13
 	unsigned char cur_prof;  /*current profile index*/
 	unsigned char set_prof;  /*set profile index*/
 	unsigned int channel;    /*pa channel select*/
@@ -222,6 +242,12 @@ struct aw_device {
 	char acf_name[AW_NAME_MAX];
 	char monitor_name[AW_NAME_MAX];
 	void *private_data;
+<<<<<<< HEAD
+=======
+	int pre_temp;
+	int pre_temp_check;
+	int ctrl_en;
+>>>>>>> upstream/android-13
 
 	struct aw_int_desc int_desc;
 	struct aw_pwd_desc pwd_desc;

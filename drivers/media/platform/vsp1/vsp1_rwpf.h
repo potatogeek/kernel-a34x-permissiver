@@ -61,6 +61,10 @@ struct vsp1_rwpf {
 	} flip;
 
 	struct vsp1_rwpf_memory mem;
+<<<<<<< HEAD
+=======
+	bool writeback;
+>>>>>>> upstream/android-13
 
 	struct vsp1_dl_manager *dlm;
 };
@@ -83,6 +87,10 @@ int vsp1_rwpf_init_ctrls(struct vsp1_rwpf *rwpf, unsigned int ncontrols);
 extern const struct v4l2_subdev_pad_ops vsp1_rwpf_pad_ops;
 
 struct v4l2_rect *vsp1_rwpf_get_crop(struct vsp1_rwpf *rwpf,
+<<<<<<< HEAD
 				     struct v4l2_subdev_pad_config *config);
+=======
+				     struct v4l2_subdev_state *sd_state);
+>>>>>>> upstream/android-13
 
 #endif /* __VSP1_RWPF_H__ */

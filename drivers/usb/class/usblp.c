@@ -1116,6 +1116,15 @@ static ssize_t ieee1284_id_show(struct device *dev, struct device_attribute *att
 
 static DEVICE_ATTR_RO(ieee1284_id);
 
+<<<<<<< HEAD
+=======
+static struct attribute *usblp_attrs[] = {
+	&dev_attr_ieee1284_id.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(usblp);
+
+>>>>>>> upstream/android-13
 static int usblp_probe(struct usb_interface *intf,
 		       const struct usb_device_id *id)
 {
@@ -1190,9 +1199,12 @@ static int usblp_probe(struct usb_interface *intf,
 
 	/* Retrieve and store the device ID string. */
 	usblp_cache_device_id_string(usblp);
+<<<<<<< HEAD
 	retval = device_create_file(&intf->dev, &dev_attr_ieee1284_id);
 	if (retval)
 		goto abort_intfdata;
+=======
+>>>>>>> upstream/android-13
 
 #ifdef DEBUG
 	usblp_check_status(usblp, 0);
@@ -1223,7 +1235,10 @@ static int usblp_probe(struct usb_interface *intf,
 
 abort_intfdata:
 	usb_set_intfdata(intf, NULL);
+<<<<<<< HEAD
 	device_remove_file(&intf->dev, &dev_attr_ieee1284_id);
+=======
+>>>>>>> upstream/android-13
 abort:
 	kfree(usblp->readbuf);
 	kfree(usblp->statusbuf);
@@ -1398,8 +1413,11 @@ static void usblp_disconnect(struct usb_interface *intf)
 		BUG();
 	}
 
+<<<<<<< HEAD
 	device_remove_file(&intf->dev, &dev_attr_ieee1284_id);
 
+=======
+>>>>>>> upstream/android-13
 	mutex_lock(&usblp_mutex);
 	mutex_lock(&usblp->mut);
 	usblp->present = 0;
@@ -1461,6 +1479,10 @@ static struct usb_driver usblp_driver = {
 	.suspend =	usblp_suspend,
 	.resume =	usblp_resume,
 	.id_table =	usblp_ids,
+<<<<<<< HEAD
+=======
+	.dev_groups =	usblp_groups,
+>>>>>>> upstream/android-13
 	.supports_autosuspend =	1,
 };
 

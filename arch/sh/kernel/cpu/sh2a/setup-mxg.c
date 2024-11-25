@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Renesas MX-G (R8A03022BG) Setup
  *
  *  Copyright (C) 2008, 2009  Paul Mundt
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/init.h>
 #include <linux/serial.h>
 #include <linux/serial_sci.h>
 #include <linux/sh_timer.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 
 enum {
 	UNUSED = 0,
@@ -172,6 +183,10 @@ static struct platform_device *mxg_early_devices[] __initdata = {
 
 void __init plat_early_device_setup(void)
 {
+<<<<<<< HEAD
 	early_platform_add_devices(mxg_early_devices,
+=======
+	sh_early_platform_add_devices(mxg_early_devices,
+>>>>>>> upstream/android-13
 				   ARRAY_SIZE(mxg_early_devices));
 }

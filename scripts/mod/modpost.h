@@ -109,6 +109,7 @@ buf_printf(struct buffer *buf, const char *fmt, ...);
 void
 buf_write(struct buffer *buf, const char *s, int len);
 
+<<<<<<< HEAD
 struct module {
 	struct module *next;
 	const char *name;
@@ -116,24 +117,54 @@ struct module {
 	struct symbol *unres;
 	int seen;
 	int skip;
+=======
+struct namespace_list {
+	struct namespace_list *next;
+	char namespace[];
+};
+
+struct module {
+	struct module *next;
+	int gpl_compatible;
+	struct symbol *unres;
+	int from_dump;  /* 1 if module was loaded from *.symvers */
+	int is_vmlinux;
+	int seen;
+>>>>>>> upstream/android-13
 	int has_init;
 	int has_cleanup;
 	struct buffer dev_table_buf;
 	char	     srcversion[25];
+<<<<<<< HEAD
 	int is_dot_o;
 };
 
 struct elf_info {
 	unsigned long size;
+=======
+	// Missing namespace dependencies
+	struct namespace_list *missing_namespaces;
+	// Actual imported namespaces
+	struct namespace_list *imported_namespaces;
+	char name[];
+};
+
+struct elf_info {
+	size_t size;
+>>>>>>> upstream/android-13
 	Elf_Ehdr     *hdr;
 	Elf_Shdr     *sechdrs;
 	Elf_Sym      *symtab_start;
 	Elf_Sym      *symtab_stop;
 	Elf_Section  export_sec;
+<<<<<<< HEAD
 	Elf_Section  export_unused_sec;
 	Elf_Section  export_gpl_sec;
 	Elf_Section  export_unused_gpl_sec;
 	Elf_Section  export_gpl_future_sec;
+=======
+	Elf_Section  export_gpl_sec;
+>>>>>>> upstream/android-13
 	char         *strtab;
 	char	     *modinfo;
 	unsigned int modinfo_len;
@@ -178,6 +209,7 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
 void add_moddevtable(struct buffer *buf, struct module *mod);
 
 /* sumversion.c */
+<<<<<<< HEAD
 void maybe_frob_rcs_version(const char *modfilename,
 			    char *version,
 			    void *modinfo,
@@ -192,3 +224,35 @@ void release_file(void *file, unsigned long size);
 void fatal(const char *fmt, ...);
 void warn(const char *fmt, ...);
 void merror(const char *fmt, ...);
+=======
+void get_src_version(const char *modname, char sum[], unsigned sumlen);
+
+/* from modpost.c */
+char *read_text_file(const char *filename);
+char *get_line(char **stringp);
+
+enum loglevel {
+	LOG_WARN,
+	LOG_ERROR,
+	LOG_FATAL
+};
+
+void modpost_log(enum loglevel loglevel, const char *fmt, ...);
+
+/*
+ * warn - show the given message, then let modpost continue running, still
+ *        allowing modpost to exit successfully. This should be used when
+ *        we still allow to generate vmlinux and modules.
+ *
+ * error - show the given message, then let modpost continue running, but fail
+ *         in the end. This should be used when we should stop building vmlinux
+ *         or modules, but we can continue running modpost to catch as many
+ *         issues as possible.
+ *
+ * fatal - show the given message, and bail out immediately. This should be
+ *         used when there is no point to continue running modpost.
+ */
+#define warn(fmt, args...)	modpost_log(LOG_WARN, fmt, ##args)
+#define error(fmt, args...)	modpost_log(LOG_ERROR, fmt, ##args)
+#define fatal(fmt, args...)	modpost_log(LOG_FATAL, fmt, ##args)
+>>>>>>> upstream/android-13

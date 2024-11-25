@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * BCM2835 DMA engine support
  *
  * This driver only supports cyclic DMA transfers
  * as needed for the I2S module.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * BCM2835 DMA engine support
+ *
+>>>>>>> upstream/android-13
  * Author:      Florian Meier <florian.meier@koalo.de>
  *              Copyright 2013
  *
@@ -18,6 +25,7 @@
  *
  *	MARVELL MMP Peripheral DMA Driver
  *	Copyright 2012 Marvell International Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +36,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/dmaengine.h>
 #include <linux/dma-mapping.h>
@@ -49,11 +59,25 @@
 #define BCM2835_DMA_MAX_DMA_CHAN_SUPPORTED 14
 #define BCM2835_DMA_CHAN_NAME_SIZE 8
 
+<<<<<<< HEAD
 struct bcm2835_dmadev {
 	struct dma_device ddev;
 	spinlock_t lock;
 	void __iomem *base;
 	struct device_dma_parameters dma_parms;
+=======
+/**
+ * struct bcm2835_dmadev - BCM2835 DMA controller
+ * @ddev: DMA device
+ * @base: base address of register map
+ * @zero_page: bus address of zero page (to detect transactions copying from
+ *	zero page and avoid accessing memory if so)
+ */
+struct bcm2835_dmadev {
+	struct dma_device ddev;
+	void __iomem *base;
+	dma_addr_t zero_page;
+>>>>>>> upstream/android-13
 };
 
 struct bcm2835_dma_cb {
@@ -73,7 +97,10 @@ struct bcm2835_cb_entry {
 
 struct bcm2835_chan {
 	struct virt_dma_chan vc;
+<<<<<<< HEAD
 	struct list_head node;
+=======
+>>>>>>> upstream/android-13
 
 	struct dma_slave_config	cfg;
 	unsigned int dreq;
@@ -321,8 +348,12 @@ static struct bcm2835_desc *bcm2835_dma_create_cb_chain(
 		return NULL;
 
 	/* allocate and setup the descriptor. */
+<<<<<<< HEAD
 	d = kzalloc(sizeof(*d) + frames * sizeof(struct bcm2835_cb_entry),
 		    gfp);
+=======
+	d = kzalloc(struct_size(d, cb_list, frames), gfp);
+>>>>>>> upstream/android-13
 	if (!d)
 		return NULL;
 
@@ -415,7 +446,11 @@ static void bcm2835_dma_fill_cb_chain_with_sg(
 	}
 }
 
+<<<<<<< HEAD
 static int bcm2835_dma_abort(struct bcm2835_chan *c)
+=======
+static void bcm2835_dma_abort(struct bcm2835_chan *c)
+>>>>>>> upstream/android-13
 {
 	void __iomem *chan_base = c->chan_base;
 	long int timeout = 10000;
@@ -425,7 +460,11 @@ static int bcm2835_dma_abort(struct bcm2835_chan *c)
 	 * (The ACTIVE flag in the CS register is not a reliable indicator.)
 	 */
 	if (!readl(chan_base + BCM2835_DMA_ADDR))
+<<<<<<< HEAD
 		return 0;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	/* Write 0 to the active bit - Pause the DMA */
 	writel(0, chan_base + BCM2835_DMA_CS);
@@ -441,7 +480,10 @@ static int bcm2835_dma_abort(struct bcm2835_chan *c)
 			"failed to complete outstanding writes\n");
 
 	writel(BCM2835_DMA_RESET, chan_base + BCM2835_DMA_CS);
+<<<<<<< HEAD
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void bcm2835_dma_start_desc(struct bcm2835_chan *c)
@@ -513,8 +555,17 @@ static int bcm2835_dma_alloc_chan_resources(struct dma_chan *chan)
 
 	dev_dbg(dev, "Allocating DMA channel %d\n", c->ch);
 
+<<<<<<< HEAD
 	c->cb_pool = dma_pool_create(dev_name(dev), dev,
 				     sizeof(struct bcm2835_dma_cb), 0, 0);
+=======
+	/*
+	 * Control blocks are 256 bit in length and must start at a 256 bit
+	 * (32 byte) aligned address (BCM2835 ARM Peripherals, sec. 4.2.1.1).
+	 */
+	c->cb_pool = dma_pool_create(dev_name(dev), dev,
+				     sizeof(struct bcm2835_dma_cb), 32, 0);
+>>>>>>> upstream/android-13
 	if (!c->cb_pool) {
 		dev_err(dev, "unable to allocate descriptor pool\n");
 		return -ENOMEM;
@@ -683,7 +734,11 @@ static struct dma_async_tx_descriptor *bcm2835_dma_prep_slave_sg(
 	d = bcm2835_dma_create_cb_chain(chan, direction, false,
 					info, extra,
 					frames, src, dst, 0, 0,
+<<<<<<< HEAD
 					GFP_KERNEL);
+=======
+					GFP_NOWAIT);
+>>>>>>> upstream/android-13
 	if (!d)
 		return NULL;
 
@@ -699,11 +754,19 @@ static struct dma_async_tx_descriptor *bcm2835_dma_prep_dma_cyclic(
 	size_t period_len, enum dma_transfer_direction direction,
 	unsigned long flags)
 {
+<<<<<<< HEAD
+=======
+	struct bcm2835_dmadev *od = to_bcm2835_dma_dev(chan->device);
+>>>>>>> upstream/android-13
 	struct bcm2835_chan *c = to_bcm2835_dma_chan(chan);
 	struct bcm2835_desc *d;
 	dma_addr_t src, dst;
 	u32 info = BCM2835_DMA_WAIT_RESP;
+<<<<<<< HEAD
 	u32 extra = BCM2835_DMA_INT_EN;
+=======
+	u32 extra = 0;
+>>>>>>> upstream/android-13
 	size_t max_len = bcm2835_dma_max_frame_length(c);
 	size_t frames;
 
@@ -719,6 +782,14 @@ static struct dma_async_tx_descriptor *bcm2835_dma_prep_dma_cyclic(
 		return NULL;
 	}
 
+<<<<<<< HEAD
+=======
+	if (flags & DMA_PREP_INTERRUPT)
+		extra |= BCM2835_DMA_INT_EN;
+	else
+		period_len = buf_len;
+
+>>>>>>> upstream/android-13
 	/*
 	 * warn if buf_len is not a multiple of period_len - this may leed
 	 * to unexpected latencies for interrupts and thus audiable clicks
@@ -744,6 +815,13 @@ static struct dma_async_tx_descriptor *bcm2835_dma_prep_dma_cyclic(
 		dst = c->cfg.dst_addr;
 		src = buf_addr;
 		info |= BCM2835_DMA_D_DREQ | BCM2835_DMA_S_INC;
+<<<<<<< HEAD
+=======
+
+		/* non-lite channels can write zeroes w/o accessing memory */
+		if (buf_addr == od->zero_page && !c->is_lite_channel)
+			info |= BCM2835_DMA_S_IGNORE;
+>>>>>>> upstream/android-13
 	}
 
 	/* calculate number of frames */
@@ -775,6 +853,7 @@ static int bcm2835_dma_slave_config(struct dma_chan *chan,
 {
 	struct bcm2835_chan *c = to_bcm2835_dma_chan(chan);
 
+<<<<<<< HEAD
 	if ((cfg->direction == DMA_DEV_TO_MEM &&
 	     cfg->src_addr_width != DMA_SLAVE_BUSWIDTH_4_BYTES) ||
 	    (cfg->direction == DMA_MEM_TO_DEV &&
@@ -783,6 +862,8 @@ static int bcm2835_dma_slave_config(struct dma_chan *chan,
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	c->cfg = *cfg;
 
 	return 0;
@@ -791,17 +872,23 @@ static int bcm2835_dma_slave_config(struct dma_chan *chan,
 static int bcm2835_dma_terminate_all(struct dma_chan *chan)
 {
 	struct bcm2835_chan *c = to_bcm2835_dma_chan(chan);
+<<<<<<< HEAD
 	struct bcm2835_dmadev *d = to_bcm2835_dma_dev(c->vc.chan.device);
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	LIST_HEAD(head);
 
 	spin_lock_irqsave(&c->vc.lock, flags);
 
+<<<<<<< HEAD
 	/* Prevent this channel being scheduled */
 	spin_lock(&d->lock);
 	list_del_init(&c->node);
 	spin_unlock(&d->lock);
 
+=======
+>>>>>>> upstream/android-13
 	/* stop DMA activity */
 	if (c->desc) {
 		vchan_terminate_vdesc(&c->desc->vd);
@@ -834,7 +921,10 @@ static int bcm2835_dma_chan_init(struct bcm2835_dmadev *d, int chan_id,
 
 	c->vc.desc_free = bcm2835_dma_desc_free;
 	vchan_init(&c->vc, &d->ddev);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&c->node);
+=======
+>>>>>>> upstream/android-13
 
 	c->chan_base = BCM2835_DMA_CHANIO(d->base, chan_id);
 	c->ch = chan_id;
@@ -858,6 +948,12 @@ static void bcm2835_dma_free(struct bcm2835_dmadev *od)
 		list_del(&c->vc.chan.device_node);
 		tasklet_kill(&c->vc.task);
 	}
+<<<<<<< HEAD
+=======
+
+	dma_unmap_page_attrs(od->ddev.dev, od->zero_page, PAGE_SIZE,
+			     DMA_TO_DEVICE, DMA_ATTR_SKIP_CPU_SYNC);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id bcm2835_dma_of_match[] = {
@@ -907,7 +1003,10 @@ static int bcm2835_dma_probe(struct platform_device *pdev)
 	if (!od)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	pdev->dev.dma_parms = &od->dma_parms;
+=======
+>>>>>>> upstream/android-13
 	dma_set_max_seg_size(&pdev->dev, 0x3FFFFFFF);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -920,7 +1019,10 @@ static int bcm2835_dma_probe(struct platform_device *pdev)
 	dma_cap_set(DMA_SLAVE, od->ddev.cap_mask);
 	dma_cap_set(DMA_PRIVATE, od->ddev.cap_mask);
 	dma_cap_set(DMA_CYCLIC, od->ddev.cap_mask);
+<<<<<<< HEAD
 	dma_cap_set(DMA_SLAVE, od->ddev.cap_mask);
+=======
+>>>>>>> upstream/android-13
 	dma_cap_set(DMA_MEMCPY, od->ddev.cap_mask);
 	od->ddev.device_alloc_chan_resources = bcm2835_dma_alloc_chan_resources;
 	od->ddev.device_free_chan_resources = bcm2835_dma_free_chan_resources;
@@ -937,12 +1039,29 @@ static int bcm2835_dma_probe(struct platform_device *pdev)
 	od->ddev.directions = BIT(DMA_DEV_TO_MEM) | BIT(DMA_MEM_TO_DEV) |
 			      BIT(DMA_MEM_TO_MEM);
 	od->ddev.residue_granularity = DMA_RESIDUE_GRANULARITY_BURST;
+<<<<<<< HEAD
 	od->ddev.dev = &pdev->dev;
 	INIT_LIST_HEAD(&od->ddev.channels);
 	spin_lock_init(&od->lock);
 
 	platform_set_drvdata(pdev, od);
 
+=======
+	od->ddev.descriptor_reuse = true;
+	od->ddev.dev = &pdev->dev;
+	INIT_LIST_HEAD(&od->ddev.channels);
+
+	platform_set_drvdata(pdev, od);
+
+	od->zero_page = dma_map_page_attrs(od->ddev.dev, ZERO_PAGE(0), 0,
+					   PAGE_SIZE, DMA_TO_DEVICE,
+					   DMA_ATTR_SKIP_CPU_SYNC);
+	if (dma_mapping_error(od->ddev.dev, od->zero_page)) {
+		dev_err(&pdev->dev, "Failed to map zero page\n");
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	/* Request DMA channel mask from device tree */
 	if (of_property_read_u32(pdev->dev.of_node,
 			"brcm,dma-channel-mask",
@@ -1046,4 +1165,8 @@ module_platform_driver(bcm2835_dma_driver);
 MODULE_ALIAS("platform:bcm2835-dma");
 MODULE_DESCRIPTION("BCM2835 DMA engine driver");
 MODULE_AUTHOR("Florian Meier <florian.meier@koalo.de>");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL v2");
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

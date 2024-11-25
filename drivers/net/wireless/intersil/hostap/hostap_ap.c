@@ -1504,7 +1504,11 @@ static void handle_assoc(local_info_t *local, struct sk_buff *skb,
 	u16 resp = WLAN_STATUS_SUCCESS;
 	struct sta_info *sta = NULL;
 	int send_deauth = 0;
+<<<<<<< HEAD
 	char *txt = "";
+=======
+	char __always_unused *txt = "";
+>>>>>>> upstream/android-13
 	u8 prev_ap[ETH_ALEN];
 
 	left = len = skb->len - IEEE80211_MGMT_HDR_LEN;

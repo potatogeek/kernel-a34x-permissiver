@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2003-2005	Devicescape Software, Inc.
  * Copyright (c) 2006	Jiri Benc <jbenc@suse.cz>
  * Copyright 2007	Johannes Berg <johannes@sipsolutions.net>
  * Copyright (C) 2015	Intel Deutschland GmbH
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kobject.h>
@@ -322,7 +329,11 @@ KEY_OPS(key);
 
 #define DEBUGFS_ADD(name) \
 	debugfs_create_file(#name, 0400, key->debugfs.dir, \
+<<<<<<< HEAD
 			    key, &key_##name##_ops);
+=======
+			    key, &key_##name##_ops)
+>>>>>>> upstream/android-13
 #define DEBUGFS_ADD_W(name) \
 	debugfs_create_file(#name, 0600, key->debugfs.dir, \
 			    key, &key_##name##_ops);
@@ -342,9 +353,12 @@ void ieee80211_debugfs_key_add(struct ieee80211_key *key)
 	key->debugfs.dir = debugfs_create_dir(buf,
 					key->local->debugfs.keys);
 
+<<<<<<< HEAD
 	if (!key->debugfs.dir)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	sta = key->sta;
 	if (sta) {
 		sprintf(buf, "../../netdev:%s/stations/%pM",
@@ -439,6 +453,40 @@ void ieee80211_debugfs_key_remove_mgmt_default(struct ieee80211_sub_if_data *sda
 	sdata->debugfs.default_mgmt_key = NULL;
 }
 
+<<<<<<< HEAD
+=======
+void
+ieee80211_debugfs_key_add_beacon_default(struct ieee80211_sub_if_data *sdata)
+{
+	char buf[50];
+	struct ieee80211_key *key;
+
+	if (!sdata->vif.debugfs_dir)
+		return;
+
+	key = key_mtx_dereference(sdata->local,
+				  sdata->default_beacon_key);
+	if (key) {
+		sprintf(buf, "../keys/%d", key->debugfs.cnt);
+		sdata->debugfs.default_beacon_key =
+			debugfs_create_symlink("default_beacon_key",
+					       sdata->vif.debugfs_dir, buf);
+	} else {
+		ieee80211_debugfs_key_remove_beacon_default(sdata);
+	}
+}
+
+void
+ieee80211_debugfs_key_remove_beacon_default(struct ieee80211_sub_if_data *sdata)
+{
+	if (!sdata)
+		return;
+
+	debugfs_remove(sdata->debugfs.default_beacon_key);
+	sdata->debugfs.default_beacon_key = NULL;
+}
+
+>>>>>>> upstream/android-13
 void ieee80211_debugfs_key_sta_del(struct ieee80211_key *key,
 				   struct sta_info *sta)
 {

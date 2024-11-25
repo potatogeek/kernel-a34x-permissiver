@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DT_BINDINGS_CLOCK_IMX6UL_H
@@ -259,7 +265,13 @@
 #define IMX6UL_CLK_GPIO3		246
 #define IMX6UL_CLK_GPIO4		247
 #define IMX6UL_CLK_GPIO5		248
+<<<<<<< HEAD
 
 #define IMX6UL_CLK_END			249
+=======
+#define IMX6UL_CLK_MMDC_P1_IPG		249
+
+#define IMX6UL_CLK_END			250
+>>>>>>> upstream/android-13
 
 #endif /* __DT_BINDINGS_CLOCK_IMX6UL_H */

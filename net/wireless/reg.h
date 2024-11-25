@@ -5,6 +5,10 @@
 
 /*
  * Copyright 2008-2011	Luis R. Rodriguez <mcgrof@qca.qualcomm.com>
+<<<<<<< HEAD
+=======
+ * Copyright (C) 2019 Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,6 +26,10 @@
 enum ieee80211_regd_source {
 	REGD_SOURCE_INTERNAL_DB,
 	REGD_SOURCE_CRDA,
+<<<<<<< HEAD
+=======
+	REGD_SOURCE_CACHED,
+>>>>>>> upstream/android-13
 };
 
 extern const struct ieee80211_regdomain __rcu *cfg80211_regdomain;
@@ -61,7 +69,10 @@ unsigned int reg_get_max_bandwidth(const struct ieee80211_regdomain *rd,
 				   const struct ieee80211_reg_rule *rule);
 
 bool reg_last_request_cell_base(void);
+<<<<<<< HEAD
 const struct ieee80211_regdomain *get_wiphy_regdom(struct wiphy *wiphy);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * regulatory_hint_found_beacon - hints a beacon was found on a channel
@@ -112,7 +123,11 @@ void regulatory_hint_country_ie(struct wiphy *wiphy,
 			 u8 country_ie_len);
 
 /**
+<<<<<<< HEAD
  * regulatory_hint_disconnect - informs all devices have been disconneted
+=======
+ * regulatory_hint_disconnect - informs all devices have been disconnected
+>>>>>>> upstream/android-13
  *
  * Regulotory rules can be enhanced further upon scanning and upon
  * connection to an AP. These rules become stale if we disconnect
@@ -154,6 +169,7 @@ bool regulatory_indoor_allowed(void);
 #define REG_PRE_CAC_EXPIRY_GRACE_MS 2000
 
 /**
+<<<<<<< HEAD
  * regulatory_pre_cac_allowed - if pre-CAC allowed in the current dfs domain
  * @wiphy: wiphy for which pre-CAC capability is checked.
 
@@ -162,6 +178,8 @@ bool regulatory_indoor_allowed(void);
 bool regulatory_pre_cac_allowed(struct wiphy *wiphy);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * regulatory_propagate_dfs_state - Propagate DFS channel state to other wiphys
  * @wiphy - wiphy on which radar is detected and the event will be propagated
  *	to other available wiphys having the same DFS domain

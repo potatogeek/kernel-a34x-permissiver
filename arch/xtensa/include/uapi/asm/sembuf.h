@@ -22,6 +22,10 @@
 #define _XTENSA_SEMBUF_H
 
 #include <asm/byteorder.h>
+<<<<<<< HEAD
+=======
+#include <asm/ipcbuf.h>
+>>>>>>> upstream/android-13
 
 struct semid64_ds {
 	struct ipc64_perm sem_perm;		/* permissions .. see ipc.h */

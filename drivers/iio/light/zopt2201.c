@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * zopt2201.c - Support for IDT ZOPT2201 ambient light and UV B sensor
  *
  * Copyright 2017 Peter Meerwald-Stadler <pmeerw@pmeerw.net>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License.  See the file COPYING in the main
  * directory of this archive for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Datasheet: https://www.idt.com/document/dst/zopt2201-datasheet
  * 7-bit I2C slave addresses 0x53 (default) or 0x52 (programmed)
  *
@@ -22,6 +29,11 @@
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+
+>>>>>>> upstream/android-13
 #define ZOPT2201_DRV_NAME "zopt2201"
 
 /* Registers */
@@ -222,7 +234,11 @@ static int zopt2201_read(struct zopt2201_data *data, u8 reg)
 		goto fail;
 	mutex_unlock(&data->lock);
 
+<<<<<<< HEAD
 	return (buf[2] << 16) | (buf[1] << 8) | buf[0];
+=======
+	return get_unaligned_le24(&buf[0]);
+>>>>>>> upstream/android-13
 
 fail:
 	mutex_unlock(&data->lock);
@@ -528,7 +544,10 @@ static int zopt2201_probe(struct i2c_client *client,
 	data->client = client;
 	mutex_init(&data->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &zopt2201_info;
 	indio_dev->channels = zopt2201_channels;
 	indio_dev->num_channels = ARRAY_SIZE(zopt2201_channels);

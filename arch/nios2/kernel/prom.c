@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Device tree support
  *
@@ -7,6 +11,7 @@
  * Based on MIPS support for CONFIG_OF device tree support
  *
  * Copyright (C) 2010 Cisco Systems Inc. <dediao@cisco.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,17 +26,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_fdt.h>
 #include <linux/io.h>
 
 #include <asm/sections.h>
 
+<<<<<<< HEAD
 void __init early_init_dt_add_memory_arch(u64 base, u64 size)
 {
 	u64 kernel_start = (u64)virt_to_phys(_text);
@@ -49,6 +61,8 @@ int __init early_init_dt_reserve_memory_arch(phys_addr_t base, phys_addr_t size,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 void __init early_init_devtree(void *params)
 {
 	__be32 *dtb = (u32 *)__dtb_start;

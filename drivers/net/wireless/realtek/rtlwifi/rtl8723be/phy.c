@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2014  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2014  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../pci.h"
@@ -55,6 +60,7 @@ u32 rtl8723be_phy_query_rf_reg(struct ieee80211_hw *hw, enum radio_path rfpath,
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u32 original_value, readback_value, bitshift;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
@@ -62,16 +68,32 @@ u32 rtl8723be_phy_query_rf_reg(struct ieee80211_hw *hw, enum radio_path rfpath,
 		  regaddr, rfpath, bitmask);
 
 	spin_lock_irqsave(&rtlpriv->locks.rf_lock, flags);
+=======
+
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), rfpath(%#x), bitmask(%#x)\n",
+		regaddr, rfpath, bitmask);
+
+	spin_lock(&rtlpriv->locks.rf_lock);
+>>>>>>> upstream/android-13
 
 	original_value = rtl8723_phy_rf_serial_read(hw, rfpath, regaddr);
 	bitshift = rtl8723_phy_calculate_bit_shift(bitmask);
 	readback_value = (original_value & bitmask) >> bitshift;
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rtlpriv->locks.rf_lock, flags);
 
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), rfpath(%#x), bitmask(%#x), original_value(%#x)\n",
 		 regaddr, rfpath, bitmask, original_value);
+=======
+	spin_unlock(&rtlpriv->locks.rf_lock);
+
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), rfpath(%#x), bitmask(%#x), original_value(%#x)\n",
+		regaddr, rfpath, bitmask, original_value);
+>>>>>>> upstream/android-13
 
 	return readback_value;
 }
@@ -81,6 +103,7 @@ void rtl8723be_phy_set_rf_reg(struct ieee80211_hw *hw, enum radio_path path,
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 	u32 original_value, bitshift;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
@@ -88,6 +111,14 @@ void rtl8723be_phy_set_rf_reg(struct ieee80211_hw *hw, enum radio_path path,
 		  regaddr, bitmask, data, path);
 
 	spin_lock_irqsave(&rtlpriv->locks.rf_lock, flags);
+=======
+
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x), rfpath(%#x)\n",
+		regaddr, bitmask, data, path);
+
+	spin_lock(&rtlpriv->locks.rf_lock);
+>>>>>>> upstream/android-13
 
 	if (bitmask != RFREG_OFFSET_MASK) {
 			original_value = rtl8723_phy_rf_serial_read(hw, path,
@@ -99,11 +130,19 @@ void rtl8723be_phy_set_rf_reg(struct ieee80211_hw *hw, enum radio_path path,
 
 	rtl8723_phy_rf_serial_write(hw, path, regaddr, data);
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rtlpriv->locks.rf_lock, flags);
 
 	RT_TRACE(rtlpriv, COMP_RF, DBG_TRACE,
 		 "regaddr(%#x), bitmask(%#x), data(%#x), rfpath(%#x)\n",
 		  regaddr, bitmask, data, path);
+=======
+	spin_unlock(&rtlpriv->locks.rf_lock);
+
+	rtl_dbg(rtlpriv, COMP_RF, DBG_TRACE,
+		"regaddr(%#x), bitmask(%#x), data(%#x), rfpath(%#x)\n",
+		regaddr, bitmask, data, path);
+>>>>>>> upstream/android-13
 
 }
 
@@ -182,6 +221,7 @@ static bool _rtl8723be_check_positive(struct ieee80211_hw *hw,
 		      rtlhal->type_alna << 16 |
 		      rtlhal->type_apa  << 24;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "===> [8812A] CheckPositive (cond1, cond2) = (0x%X 0x%X)\n",
 		 cond1, cond2);
@@ -194,6 +234,20 @@ static bool _rtl8723be_check_positive(struct ieee80211_hw *hw,
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "	(Board, Package) = (0x%X, 0x%X)\n",
 		 rtlhal->board_type, rtlhal->package_type);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"===> [8812A] CheckPositive (cond1, cond2) = (0x%X 0x%X)\n",
+		cond1, cond2);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"===> [8812A] CheckPositive (driver1, driver2) = (0x%X 0x%X)\n",
+		driver1, driver2);
+
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"(Platform, Interface) = (0x%X, 0x%X)\n", 0x04, intf);
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"(Board, Package) = (0x%X, 0x%X)\n",
+		rtlhal->board_type, rtlhal->package_type);
+>>>>>>> upstream/android-13
 
 	/*============== Value Defined Check ===============*/
 	/*QFN Type [15:12] and Cut Version [27:24] need to do value check*/
@@ -307,9 +361,15 @@ static void _rtl8723be_phy_set_txpower_by_rate_base(struct ieee80211_hw *hw,
 	struct rtl_phy *rtlphy = &rtlpriv->phy;
 
 	if (path > RF90_PATH_D) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "Invalid Rf Path %d in phy_SetTxPowerByRatBase()\n",
 			  path);
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"Invalid Rf Path %d in phy_SetTxPowerByRatBase()\n",
+			path);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -328,6 +388,7 @@ static void _rtl8723be_phy_set_txpower_by_rate_base(struct ieee80211_hw *hw,
 			rtlphy->txpwr_by_rate_base_24g[path][txnum][3] = value;
 			break;
 		default:
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "Invalid RateSection %d in Band 2.4G, Rf Path %d, %dTx in PHY_SetTxPowerByRateBase()\n",
 				 rate_section, path, txnum);
@@ -337,6 +398,17 @@ static void _rtl8723be_phy_set_txpower_by_rate_base(struct ieee80211_hw *hw,
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "Invalid Band %d in PHY_SetTxPowerByRateBase()\n",
 			 band);
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"Invalid RateSection %d in Band 2.4G, Rf Path %d, %dTx in PHY_SetTxPowerByRateBase()\n",
+				rate_section, path, txnum);
+			break;
+		}
+	} else {
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"Invalid Band %d in PHY_SetTxPowerByRateBase()\n",
+			band);
+>>>>>>> upstream/android-13
 	}
 
 }
@@ -349,9 +421,15 @@ static u8 _rtl8723be_phy_get_txpower_by_rate_base(struct ieee80211_hw *hw,
 	struct rtl_phy *rtlphy = &rtlpriv->phy;
 	u8 value = 0;
 	if (path > RF90_PATH_D) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "Invalid Rf Path %d in PHY_GetTxPowerByRateBase()\n",
 			  path);
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"Invalid Rf Path %d in PHY_GetTxPowerByRateBase()\n",
+			path);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -370,6 +448,7 @@ static u8 _rtl8723be_phy_get_txpower_by_rate_base(struct ieee80211_hw *hw,
 			value = rtlphy->txpwr_by_rate_base_24g[path][txnum][3];
 			break;
 		default:
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "Invalid RateSection %d in Band 2.4G, Rf Path %d, %dTx in PHY_GetTxPowerByRateBase()\n",
 				 rate_section, path, txnum);
@@ -379,6 +458,17 @@ static u8 _rtl8723be_phy_get_txpower_by_rate_base(struct ieee80211_hw *hw,
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "Invalid Band %d in PHY_GetTxPowerByRateBase()\n",
 			 band);
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"Invalid RateSection %d in Band 2.4G, Rf Path %d, %dTx in PHY_GetTxPowerByRateBase()\n",
+				rate_section, path, txnum);
+			break;
+		}
+	} else {
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"Invalid Band %d in PHY_GetTxPowerByRateBase()\n",
+			band);
+>>>>>>> upstream/android-13
 	}
 
 	return value;
@@ -501,8 +591,13 @@ static void _rtl8723be_phy_convert_txpower_dbm_to_relative_value(
 	    &rtlphy->tx_power_by_rate_offset[BAND_ON_2_4G][rfpath][RF_2TX][7],
 	    0, 3, base);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_POWER, DBG_TRACE,
 	    "<===_rtl8723be_phy_convert_txpower_dbm_to_relative_value()\n");
+=======
+	rtl_dbg(rtlpriv, COMP_POWER, DBG_TRACE,
+		"<===%s\n", __func__);
+>>>>>>> upstream/android-13
 }
 
 static void phy_txpower_by_rate_config(struct ieee80211_hw *hw)
@@ -612,7 +707,11 @@ static bool _rtl8723be_phy_config_mac_with_headerfile(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE, "Read rtl8723beMACPHY_Array\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "Read rtl8723beMACPHY_Array\n");
+>>>>>>> upstream/android-13
 
 	return rtl8723be_phy_config_with_headerfile(hw,
 			RTL8723BEMAC_1T_ARRAY, RTL8723BEMAC_1T_ARRAYLEN,
@@ -694,7 +793,11 @@ static u8 _rtl8723be_get_rate_section_index(u32 regaddr)
 		else if (regaddr >= 0xE20 && regaddr <= 0xE4C)
 			index = (u8)((regaddr - 0xE20) / 4);
 		break;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	return index;
 }
 
@@ -708,6 +811,7 @@ static void _rtl8723be_store_tx_power_by_rate(struct ieee80211_hw *hw,
 	u8 rate_section = _rtl8723be_get_rate_section_index(regaddr);
 
 	if (band != BAND_ON_2_4G && band != BAND_ON_5G) {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, FPHY, PHY_TXPWR, "Invalid Band %d\n", band);
 		return;
 	}
@@ -718,6 +822,18 @@ static void _rtl8723be_store_tx_power_by_rate(struct ieee80211_hw *hw,
 	}
 	if (txnum > MAX_RF_PATH - 1) {
 		RT_TRACE(rtlpriv, FPHY, PHY_TXPWR, "Invalid TxNum %d\n", txnum);
+=======
+		rtl_dbg(rtlpriv, FPHY, PHY_TXPWR, "Invalid Band %d\n", band);
+		return;
+	}
+	if (rfpath > MAX_RF_PATH - 1) {
+		rtl_dbg(rtlpriv, FPHY, PHY_TXPWR,
+			"Invalid RfPath %d\n", rfpath);
+		return;
+	}
+	if (txnum > MAX_RF_PATH - 1) {
+		rtl_dbg(rtlpriv, FPHY, PHY_TXPWR, "Invalid TxNum %d\n", txnum);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -758,8 +874,13 @@ static bool _rtl8723be_phy_config_bb_with_pgheaderfile(struct ieee80211_hw *hw,
 			}
 		}
 	} else {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_SEND, DBG_TRACE,
 			 "configtype != BaseBand_Config_PHY_REG\n");
+=======
+		rtl_dbg(rtlpriv, COMP_SEND, DBG_TRACE,
+			"configtype != BaseBand_Config_PHY_REG\n");
+>>>>>>> upstream/android-13
 	}
 	return true;
 }
@@ -771,7 +892,11 @@ bool rtl8723be_phy_config_rf_with_headerfile(struct ieee80211_hw *hw,
 	struct rtl_hal *rtlhal = rtl_hal(rtl_priv(hw));
 	bool ret = true;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "Radio No %x\n", rfpath);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "Radio No %x\n", rfpath);
+>>>>>>> upstream/android-13
 	switch (rfpath) {
 	case RF90_PATH_A:
 		ret =  rtl8723be_phy_config_with_headerfile(hw,
@@ -786,8 +911,13 @@ bool rtl8723be_phy_config_rf_with_headerfile(struct ieee80211_hw *hw,
 	case RF90_PATH_C:
 		break;
 	case RF90_PATH_D:
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 			 "switch case %#x not processed\n", rfpath);
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+			"switch case %#x not processed\n", rfpath);
+>>>>>>> upstream/android-13
 		break;
 	}
 	return ret;
@@ -807,21 +937,36 @@ void rtl8723be_phy_get_hw_reg_originalvalue(struct ieee80211_hw *hw)
 	rtlphy->default_initialgain[3] =
 	    (u8)rtl_get_bbreg(hw, ROFDM0_XDAGCCORE1, MASKBYTE0);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "Default initial gain (c50=0x%x, c58=0x%x, c60=0x%x, c68=0x%x\n",
 		 rtlphy->default_initialgain[0],
 		 rtlphy->default_initialgain[1],
 		 rtlphy->default_initialgain[2],
 		 rtlphy->default_initialgain[3]);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"Default initial gain (c50=0x%x, c58=0x%x, c60=0x%x, c68=0x%x\n",
+		rtlphy->default_initialgain[0],
+		rtlphy->default_initialgain[1],
+		rtlphy->default_initialgain[2],
+		rtlphy->default_initialgain[3]);
+>>>>>>> upstream/android-13
 
 	rtlphy->framesync = (u8)rtl_get_bbreg(hw, ROFDM0_RXDETECTOR3,
 					       MASKBYTE0);
 	rtlphy->framesync_c34 = rtl_get_bbreg(hw, ROFDM0_RXDETECTOR2,
 					      MASKDWORD);
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_TRACE,
 		 "Default framesync (0x%x) = 0x%x\n",
 		  ROFDM0_RXDETECTOR3, rtlphy->framesync);
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
+		"Default framesync (0x%x) = 0x%x\n",
+		ROFDM0_RXDETECTOR3, rtlphy->framesync);
+>>>>>>> upstream/android-13
 }
 
 static u8 _rtl8723be_phy_get_ratesection_intxpower_byrate(enum radio_path path,
@@ -974,16 +1119,26 @@ static u8 _rtl8723be_get_txpower_index(struct ieee80211_hw *hw, u8 path,
 
 	if (channel > 14 || channel < 1) {
 		index = 0;
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 			 "Illegal channel!\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+			"Illegal channel!\n");
+>>>>>>> upstream/android-13
 	}
 	if (RX_HAL_IS_CCK_RATE(rate))
 		txpower = rtlefuse->txpwrlevel_cck[path][index];
 	else if (DESC92C_RATE6M <= rate)
 		txpower = rtlefuse->txpwrlevel_ht40_1s[path][index];
 	else
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
 			 "invalid rate\n");
+=======
+		rtl_dbg(rtlpriv, COMP_POWER_TRACKING, DBG_LOUD,
+			"invalid rate\n");
+>>>>>>> upstream/android-13
 
 	if (DESC92C_RATE6M <= rate && rate <= DESC92C_RATE54M &&
 	    !RX_HAL_IS_CCK_RATE(rate))
@@ -1123,11 +1278,19 @@ static void _rtl8723be_phy_set_txpower_index(struct ieee80211_hw *hw,
 			break;
 
 		default:
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD, "Invalid Rate!!\n");
 			break;
 		}
 	} else {
 		RT_TRACE(rtlpriv, COMP_POWER, DBG_LOUD, "Invalid RFPath!!\n");
+=======
+			rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD, "Invalid Rate!!\n");
+			break;
+		}
+	} else {
+		rtl_dbg(rtlpriv, COMP_POWER, DBG_LOUD, "Invalid RFPath!!\n");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1211,10 +1374,17 @@ void rtl8723be_phy_set_bw_mode_callback(struct ieee80211_hw *hw)
 	u8 reg_bw_opmode;
 	u8 reg_prsr_rsc;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_TRACE,
 		 "Switch to %s bandwidth\n",
 		  rtlphy->current_chan_bw == HT_CHANNEL_WIDTH_20 ?
 		  "20MHz" : "40MHz");
+=======
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_TRACE,
+		"Switch to %s bandwidth\n",
+		rtlphy->current_chan_bw == HT_CHANNEL_WIDTH_20 ?
+		"20MHz" : "40MHz");
+>>>>>>> upstream/android-13
 
 	if (is_hal_stop(rtlhal)) {
 		rtlphy->set_bwmode_inprogress = false;
@@ -1268,7 +1438,11 @@ void rtl8723be_phy_set_bw_mode_callback(struct ieee80211_hw *hw)
 	}
 	rtl8723be_phy_rf6052_set_bandwidth(hw, rtlphy->current_chan_bw);
 	rtlphy->set_bwmode_inprogress = false;
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_LOUD, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_LOUD, "\n");
+>>>>>>> upstream/android-13
 }
 
 void rtl8723be_phy_set_bw_mode(struct ieee80211_hw *hw,
@@ -1285,8 +1459,13 @@ void rtl8723be_phy_set_bw_mode(struct ieee80211_hw *hw,
 	if ((!is_hal_stop(rtlhal)) && !(RT_CANNOT_IO(hw))) {
 		rtl8723be_phy_set_bw_mode_callback(hw);
 	} else {
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 			 "false driver sleep or unload\n");
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+			"false driver sleep or unload\n");
+>>>>>>> upstream/android-13
 		rtlphy->set_bwmode_inprogress = false;
 		rtlphy->current_chan_bw = tmp_bw;
 	}
@@ -1299,8 +1478,13 @@ void rtl8723be_phy_sw_chnl_callback(struct ieee80211_hw *hw)
 	struct rtl_phy *rtlphy = &rtlpriv->phy;
 	u32 delay = 0;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_TRACE,
 		 "switch to channel%d\n", rtlphy->current_channel);
+=======
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_TRACE,
+		"switch to channel%d\n", rtlphy->current_channel);
+>>>>>>> upstream/android-13
 	if (is_hal_stop(rtlhal))
 		return;
 	do {
@@ -1320,7 +1504,11 @@ void rtl8723be_phy_sw_chnl_callback(struct ieee80211_hw *hw)
 		}
 		break;
 	} while (true);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_SCAN, DBG_TRACE, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_SCAN, DBG_TRACE, "\n");
+>>>>>>> upstream/android-13
 }
 
 u8 rtl8723be_phy_sw_chnl(struct ieee80211_hw *hw)
@@ -1340,6 +1528,7 @@ u8 rtl8723be_phy_sw_chnl(struct ieee80211_hw *hw)
 	rtlphy->sw_chnl_step = 0;
 	if (!(is_hal_stop(rtlhal)) && !(RT_CANNOT_IO(hw))) {
 		rtl8723be_phy_sw_chnl_callback(hw);
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_CHAN, DBG_LOUD,
 			 "sw_chnl_inprogress false schedule workitem current channel %d\n",
 			 rtlphy->current_channel);
@@ -1347,6 +1536,15 @@ u8 rtl8723be_phy_sw_chnl(struct ieee80211_hw *hw)
 	} else {
 		RT_TRACE(rtlpriv, COMP_CHAN, DBG_LOUD,
 			 "sw_chnl_inprogress false driver sleep or unload\n");
+=======
+		rtl_dbg(rtlpriv, COMP_CHAN, DBG_LOUD,
+			"sw_chnl_inprogress false schedule workitem current channel %d\n",
+			rtlphy->current_channel);
+		rtlphy->sw_chnl_inprogress = false;
+	} else {
+		rtl_dbg(rtlpriv, COMP_CHAN, DBG_LOUD,
+			"sw_chnl_inprogress false driver sleep or unload\n");
+>>>>>>> upstream/android-13
 		rtlphy->sw_chnl_inprogress = false;
 	}
 	return 1;
@@ -1452,9 +1650,15 @@ static bool _rtl8723be_phy_sw_chnl_step_by_step(struct ieee80211_hw *hw,
 			}
 			break;
 		default:
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 				 "switch case %#x not processed\n",
 				 currentcmd->cmdid);
+=======
+			rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+				"switch case %#x not processed\n",
+				currentcmd->cmdid);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -2082,7 +2286,11 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 	for (i = 0; i < retrycount; i++) {
 		patha_ok = _rtl8723be_phy_path_a_iqk(hw);
 		if (patha_ok == 0x01) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+>>>>>>> upstream/android-13
 				"Path A Tx IQK Success!!\n");
 			result[t][0] = (rtl_get_bbreg(hw, 0xe94, MASKDWORD) &
 					0x3FF0000) >> 16;
@@ -2090,36 +2298,60 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 					0x3FF0000) >> 16;
 			break;
 		} else {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "Path A Tx IQK Fail!!\n");
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"Path A Tx IQK Fail!!\n");
+>>>>>>> upstream/android-13
 		}
 	}
 	/* path A RX IQK */
 	for (i = 0; i < retrycount; i++) {
 		patha_ok = _rtl8723be_phy_path_a_rx_iqk(hw);
 		if (patha_ok == 0x03) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "Path A Rx IQK Success!!\n");
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"Path A Rx IQK Success!!\n");
+>>>>>>> upstream/android-13
 			result[t][2] = (rtl_get_bbreg(hw, 0xea4, MASKDWORD) &
 					0x3FF0000) >> 16;
 			result[t][3] = (rtl_get_bbreg(hw, 0xeac, MASKDWORD) &
 					0x3FF0000) >> 16;
 			break;
 		}
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 			 "Path A Rx IQK Fail!!\n");
 	}
 
 	if (0x00 == patha_ok)
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "Path A IQK Fail!!\n");
+=======
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+			"Path A Rx IQK Fail!!\n");
+	}
+
+	if (0x00 == patha_ok)
+		rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "Path A IQK Fail!!\n");
+>>>>>>> upstream/android-13
 
 	if (is2t) {
 		/* path B TX IQK */
 		for (i = 0; i < retrycount; i++) {
 			pathb_ok = _rtl8723be_phy_path_b_iqk(hw);
 			if (pathb_ok == 0x01) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 					 "Path B Tx IQK Success!!\n");
+=======
+				rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+					"Path B Tx IQK Success!!\n");
+>>>>>>> upstream/android-13
 				result[t][4] = (rtl_get_bbreg(hw, 0xe94,
 							      MASKDWORD) &
 							      0x3FF0000) >> 16;
@@ -2128,15 +2360,25 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 							      0x3FF0000) >> 16;
 				break;
 			}
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "Path B Tx IQK Fail!!\n");
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"Path B Tx IQK Fail!!\n");
+>>>>>>> upstream/android-13
 		}
 		/* path B RX IQK */
 		for (i = 0; i < retrycount; i++) {
 			pathb_ok = _rtl8723be_phy_path_b_rx_iqk(hw);
 			if (pathb_ok == 0x03) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 					 "Path B Rx IQK Success!!\n");
+=======
+				rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+					"Path B Rx IQK Success!!\n");
+>>>>>>> upstream/android-13
 				result[t][6] = (rtl_get_bbreg(hw, 0xea4,
 							      MASKDWORD) &
 							      0x3FF0000) >> 16;
@@ -2145,8 +2387,13 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 							      0x3FF0000) >> 16;
 				break;
 			}
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD,
 				 "Path B Rx IQK Fail!!\n");
+=======
+			rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD,
+				"Path B Rx IQK Fail!!\n");
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2174,7 +2421,11 @@ static void _rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw,
 		rtl_set_bbreg(hw, 0xe30, MASKDWORD, 0x01008c00);
 		rtl_set_bbreg(hw, 0xe34, MASKDWORD, 0x01008c00);
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "8723be IQK Finish!!\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "8723be IQK Finish!!\n");
+>>>>>>> upstream/android-13
 }
 
 static u8 _get_right_chnl_place_for_iqk(u8 chnl)
@@ -2202,7 +2453,11 @@ static u8 _get_right_chnl_place_for_iqk(u8 chnl)
 static void _rtl8723be_phy_lc_calibrate(struct ieee80211_hw *hw, bool is2t)
 {
 	u8 tmpreg;
+<<<<<<< HEAD
 	u32 rf_a_mode = 0, rf_b_mode = 0, lc_cal;
+=======
+	u32 rf_a_mode = 0, rf_b_mode = 0;
+>>>>>>> upstream/android-13
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
 	tmpreg = rtl_read_byte(rtlpriv, 0xd03);
@@ -2226,7 +2481,11 @@ static void _rtl8723be_phy_lc_calibrate(struct ieee80211_hw *hw, bool is2t)
 			rtl_set_rfreg(hw, RF90_PATH_B, 0x00, MASK12BITS,
 				      (rf_b_mode & 0x8FFFF) | 0x10000);
 	}
+<<<<<<< HEAD
 	lc_cal = rtl_get_rfreg(hw, RF90_PATH_A, 0x18, MASK12BITS);
+=======
+	rtl_get_rfreg(hw, RF90_PATH_A, 0x18, MASK12BITS);
+>>>>>>> upstream/android-13
 
 	rtl_set_rfreg(hw, RF90_PATH_A, 0xb0, RFREG_OFFSET_MASK, 0xdfbe0);
 	rtl_set_rfreg(hw, RF90_PATH_A, 0x18, MASK12BITS, 0x8c0a);
@@ -2248,14 +2507,22 @@ static void _rtl8723be_phy_lc_calibrate(struct ieee80211_hw *hw, bool is2t)
 	} else {
 		rtl_write_byte(rtlpriv, REG_TXPAUSE, 0x00);
 	}
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "\n");
+>>>>>>> upstream/android-13
 }
 
 static void _rtl8723be_phy_set_rfpath_switch(struct ieee80211_hw *hw,
 					     bool bmain, bool is2t)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_INIT, DBG_LOUD, "\n");
+=======
+	rtl_dbg(rtlpriv, COMP_INIT, DBG_LOUD, "\n");
+>>>>>>> upstream/android-13
 
 	if (bmain) /* left antenna */
 		rtl_set_bbreg(hw, 0x92C, MASKDWORD, 0x1);
@@ -2273,8 +2540,13 @@ void rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 	long result[4][8];
 	u8 i, final_candidate, idx;
 	bool b_patha_ok, b_pathb_ok;
+<<<<<<< HEAD
 	long reg_e94, reg_e9c, reg_ea4, reg_eac, reg_eb4, reg_ebc, reg_ec4;
 	long reg_ecc, reg_tmp = 0;
+=======
+	long reg_e94, reg_e9c, reg_ea4, reg_eb4, reg_ebc, reg_ec4;
+	long reg_tmp = 0;
+>>>>>>> upstream/android-13
 	bool is12simular, is13simular, is23simular;
 	u32 iqk_bb_reg[9] = {
 		ROFDM0_XARXIQIMBALANCE,
@@ -2356,11 +2628,17 @@ void rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 		reg_e94 = result[i][0];
 		reg_e9c = result[i][1];
 		reg_ea4 = result[i][2];
+<<<<<<< HEAD
 		reg_eac = result[i][3];
 		reg_eb4 = result[i][4];
 		reg_ebc = result[i][5];
 		reg_ec4 = result[i][6];
 		reg_ecc = result[i][7];
+=======
+		reg_eb4 = result[i][4];
+		reg_ebc = result[i][5];
+		reg_ec4 = result[i][6];
+>>>>>>> upstream/android-13
 	}
 	if (final_candidate != 0xff) {
 		reg_e94 = result[final_candidate][0];
@@ -2368,13 +2646,19 @@ void rtl8723be_phy_iq_calibrate(struct ieee80211_hw *hw, bool b_recovery)
 		reg_e9c = result[final_candidate][1];
 		rtlphy->reg_e9c = reg_e9c;
 		reg_ea4 = result[final_candidate][2];
+<<<<<<< HEAD
 		reg_eac = result[final_candidate][3];
+=======
+>>>>>>> upstream/android-13
 		reg_eb4 = result[final_candidate][4];
 		rtlphy->reg_eb4 = reg_eb4;
 		reg_ebc = result[final_candidate][5];
 		rtlphy->reg_ebc = reg_ebc;
 		reg_ec4 = result[final_candidate][6];
+<<<<<<< HEAD
 		reg_ecc = result[final_candidate][7];
+=======
+>>>>>>> upstream/android-13
 		b_patha_ok = true;
 		b_pathb_ok = true;
 	} else {
@@ -2446,6 +2730,7 @@ bool rtl8723be_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype)
 	struct rtl_phy *rtlphy = &rtlpriv->phy;
 	bool b_postprocessing = false;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE,
 		 "-->IO Cmd(%#x), set_io_inprogress(%d)\n",
 		  iotype, rtlphy->set_io_inprogress);
@@ -2464,6 +2749,26 @@ bool rtl8723be_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype)
 		default:
 			RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 				 "switch case %#x not processed\n", iotype);
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+		"-->IO Cmd(%#x), set_io_inprogress(%d)\n",
+		iotype, rtlphy->set_io_inprogress);
+	do {
+		switch (iotype) {
+		case IO_CMD_RESUME_DM_BY_SCAN:
+			rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+				"[IO CMD] Resume DM after scan.\n");
+			b_postprocessing = true;
+			break;
+		case IO_CMD_PAUSE_BAND0_DM_BY_SCAN:
+			rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+				"[IO CMD] Pause DM before scan.\n");
+			b_postprocessing = true;
+			break;
+		default:
+			rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+				"switch case %#x not processed\n", iotype);
+>>>>>>> upstream/android-13
 			break;
 		}
 	} while (false);
@@ -2474,7 +2779,11 @@ bool rtl8723be_phy_set_io_cmd(struct ieee80211_hw *hw, enum io_type iotype)
 		return false;
 	}
 	rtl8723be_phy_set_io(hw);
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE, "IO Type(%#x)\n", iotype);
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE, "IO Type(%#x)\n", iotype);
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -2484,9 +2793,15 @@ static void rtl8723be_phy_set_io(struct ieee80211_hw *hw)
 	struct dig_t *dm_digtable = &rtlpriv->dm_digtable;
 	struct rtl_phy *rtlphy = &rtlpriv->phy;
 
+<<<<<<< HEAD
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE,
 		 "--->Cmd(%#x), set_io_inprogress(%d)\n",
 		  rtlphy->current_io_type, rtlphy->set_io_inprogress);
+=======
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+		"--->Cmd(%#x), set_io_inprogress(%d)\n",
+		rtlphy->current_io_type, rtlphy->set_io_inprogress);
+>>>>>>> upstream/android-13
 	switch (rtlphy->current_io_type) {
 	case IO_CMD_RESUME_DM_BY_SCAN:
 		dm_digtable->cur_igvalue = rtlphy->initgain_backup.xaagccore1;
@@ -2500,6 +2815,7 @@ static void rtl8723be_phy_set_io(struct ieee80211_hw *hw)
 		rtl_set_bbreg(hw, RCCK0_CCA, 0xff0000, 0x40);
 		break;
 	default:
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 			 "switch case %#x not processed\n",
 			 rtlphy->current_io_type);
@@ -2508,6 +2824,16 @@ static void rtl8723be_phy_set_io(struct ieee80211_hw *hw)
 	rtlphy->set_io_inprogress = false;
 	RT_TRACE(rtlpriv, COMP_CMD, DBG_TRACE,
 		 "(%#x)\n", rtlphy->current_io_type);
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+			"switch case %#x not processed\n",
+			rtlphy->current_io_type);
+		break;
+	}
+	rtlphy->set_io_inprogress = false;
+	rtl_dbg(rtlpriv, COMP_CMD, DBG_TRACE,
+		"(%#x)\n", rtlphy->current_io_type);
+>>>>>>> upstream/android-13
 }
 
 static void rtl8723be_phy_set_rf_on(struct ieee80211_hw *hw)
@@ -2550,16 +2876,28 @@ static bool _rtl8723be_phy_set_rf_power_state(struct ieee80211_hw *hw,
 			u32 initializecount = 0;
 			do {
 				initializecount++;
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 					 "IPS Set eRf nic enable\n");
+=======
+				rtl_dbg(rtlpriv, COMP_RF, DBG_DMESG,
+					"IPS Set eRf nic enable\n");
+>>>>>>> upstream/android-13
 				rtstatus = rtl_ps_enable_nic(hw);
 			} while (!rtstatus && (initializecount < 10));
 			RT_CLEAR_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "Set ERFON sleeped:%d ms\n",
 				  jiffies_to_msecs(jiffies -
 						   ppsc->last_sleep_jiffies));
+=======
+			rtl_dbg(rtlpriv, COMP_RF, DBG_DMESG,
+				"Set ERFON slept:%d ms\n",
+				jiffies_to_msecs(jiffies -
+						 ppsc->last_sleep_jiffies));
+>>>>>>> upstream/android-13
 			ppsc->last_awake_jiffies = jiffies;
 			rtl8723be_phy_set_rf_on(hw);
 		}
@@ -2583,27 +2921,47 @@ static bool _rtl8723be_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				queue_id++;
 				continue;
 			} else {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 					 "eRf Off/Sleep: %d times TcbBusyQueue[%d] =%d before doze!\n",
 					 (i + 1), queue_id,
 					 skb_queue_len(&ring->queue));
+=======
+				rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+					"eRf Off/Sleep: %d times TcbBusyQueue[%d] =%d before doze!\n",
+					(i + 1), queue_id,
+					skb_queue_len(&ring->queue));
+>>>>>>> upstream/android-13
 
 				udelay(10);
 				i++;
 			}
 			if (i >= MAX_DOZE_WAITING_TIMES_9x) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 					 "ERFSLEEP: %d times TcbBusyQueue[%d] = %d !\n",
 					  MAX_DOZE_WAITING_TIMES_9x,
 					  queue_id,
 					  skb_queue_len(&ring->queue));
+=======
+				rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+					"ERFSLEEP: %d times TcbBusyQueue[%d] = %d !\n",
+					MAX_DOZE_WAITING_TIMES_9x,
+					queue_id,
+					skb_queue_len(&ring->queue));
+>>>>>>> upstream/android-13
 				break;
 			}
 		}
 
 		if (ppsc->reg_rfps_level & RT_RF_OFF_LEVL_HALT_NIC) {
+<<<<<<< HEAD
 			RT_TRACE(rtlpriv, COMP_RF, DBG_DMESG,
 				 "IPS Set eRf nic disable\n");
+=======
+			rtl_dbg(rtlpriv, COMP_RF, DBG_DMESG,
+				"IPS Set eRf nic disable\n");
+>>>>>>> upstream/android-13
 			rtl_ps_disable_nic(hw);
 			RT_SET_PS_LEVEL(ppsc, RT_RF_OFF_LEVL_HALT_NIC);
 		} else {
@@ -2627,15 +2985,23 @@ static bool _rtl8723be_phy_set_rf_power_state(struct ieee80211_hw *hw,
 				queue_id++;
 				continue;
 			} else {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 					 "eRf Off/Sleep: %d times TcbBusyQueue[%d] =%d before doze!\n",
 					 (i + 1), queue_id,
 					 skb_queue_len(&ring->queue));
+=======
+				rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+					"eRf Off/Sleep: %d times TcbBusyQueue[%d] =%d before doze!\n",
+					(i + 1), queue_id,
+					skb_queue_len(&ring->queue));
+>>>>>>> upstream/android-13
 
 				udelay(10);
 				i++;
 			}
 			if (i >= MAX_DOZE_WAITING_TIMES_9x) {
+<<<<<<< HEAD
 				RT_TRACE(rtlpriv, COMP_ERR, DBG_WARNING,
 					 "ERFSLEEP: %d times TcbBusyQueue[%d] = %d !\n",
 					 MAX_DOZE_WAITING_TIMES_9x,
@@ -2648,13 +3014,32 @@ static bool _rtl8723be_phy_set_rf_power_state(struct ieee80211_hw *hw,
 			 "Set ERFSLEEP awaked:%d ms\n",
 			  jiffies_to_msecs(jiffies -
 					   ppsc->last_awake_jiffies));
+=======
+				rtl_dbg(rtlpriv, COMP_ERR, DBG_WARNING,
+					"ERFSLEEP: %d times TcbBusyQueue[%d] = %d !\n",
+					MAX_DOZE_WAITING_TIMES_9x,
+					queue_id,
+					skb_queue_len(&ring->queue));
+				break;
+			}
+		}
+		rtl_dbg(rtlpriv, COMP_RF, DBG_DMESG,
+			"Set ERFSLEEP awaked:%d ms\n",
+			jiffies_to_msecs(jiffies -
+					 ppsc->last_awake_jiffies));
+>>>>>>> upstream/android-13
 		ppsc->last_sleep_jiffies = jiffies;
 		_rtl8723be_phy_set_rf_sleep(hw);
 		break;
 
 	default:
+<<<<<<< HEAD
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_LOUD,
 			 "switch case %#x not processed\n", rfpwr_state);
+=======
+		rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
+			"switch case %#x not processed\n", rfpwr_state);
+>>>>>>> upstream/android-13
 		bresult = false;
 		break;
 	}

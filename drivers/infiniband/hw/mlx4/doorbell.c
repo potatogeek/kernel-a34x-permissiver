@@ -31,6 +31,10 @@
  */
 
 #include <linux/slab.h>
+<<<<<<< HEAD
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 
 #include "mlx4_ib.h"
 
@@ -41,11 +45,20 @@ struct mlx4_ib_user_db_page {
 	int			refcnt;
 };
 
+<<<<<<< HEAD
 int mlx4_ib_db_map_user(struct mlx4_ib_ucontext *context, unsigned long virt,
+=======
+int mlx4_ib_db_map_user(struct ib_udata *udata, unsigned long virt,
+>>>>>>> upstream/android-13
 			struct mlx4_db *db)
 {
 	struct mlx4_ib_user_db_page *page;
 	int err = 0;
+<<<<<<< HEAD
+=======
+	struct mlx4_ib_ucontext *context = rdma_udata_to_drv_context(
+		udata, struct mlx4_ib_ucontext, ibucontext);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&context->db_page_mutex);
 
@@ -61,8 +74,13 @@ int mlx4_ib_db_map_user(struct mlx4_ib_ucontext *context, unsigned long virt,
 
 	page->user_virt = (virt & PAGE_MASK);
 	page->refcnt    = 0;
+<<<<<<< HEAD
 	page->umem      = ib_umem_get(&context->ibucontext, virt & PAGE_MASK,
 				      PAGE_SIZE, 0, 0);
+=======
+	page->umem = ib_umem_get(context->ibucontext.device, virt & PAGE_MASK,
+				 PAGE_SIZE, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(page->umem)) {
 		err = PTR_ERR(page->umem);
 		kfree(page);
@@ -72,7 +90,12 @@ int mlx4_ib_db_map_user(struct mlx4_ib_ucontext *context, unsigned long virt,
 	list_add(&page->list, &context->db_page_list);
 
 found:
+<<<<<<< HEAD
 	db->dma = sg_dma_address(page->umem->sg_head.sgl) + (virt & ~PAGE_MASK);
+=======
+	db->dma = sg_dma_address(page->umem->sgt_append.sgt.sgl) +
+		  (virt & ~PAGE_MASK);
+>>>>>>> upstream/android-13
 	db->u.user_page = page;
 	++page->refcnt;
 

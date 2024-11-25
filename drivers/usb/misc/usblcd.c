@@ -30,16 +30,22 @@
 #define IOCTL_GET_DRV_VERSION	2
 
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(lcd_mutex);
+=======
+>>>>>>> upstream/android-13
 static const struct usb_device_id id_table[] = {
 	{ .idVendor = 0x10D2, .match_flags = USB_DEVICE_ID_MATCH_VENDOR, },
 	{ },
 };
 MODULE_DEVICE_TABLE(usb, id_table);
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(open_disc_mutex);
 
 
+=======
+>>>>>>> upstream/android-13
 struct usb_lcd {
 	struct usb_device	*udev;			/* init: probe_lcd */
 	struct usb_interface	*interface;		/* the interface for
@@ -84,17 +90,25 @@ static int lcd_open(struct inode *inode, struct file *file)
 	struct usb_interface *interface;
 	int subminor, r;
 
+<<<<<<< HEAD
 	mutex_lock(&lcd_mutex);
+=======
+>>>>>>> upstream/android-13
 	subminor = iminor(inode);
 
 	interface = usb_find_interface(&lcd_driver, subminor);
 	if (!interface) {
+<<<<<<< HEAD
 		mutex_unlock(&lcd_mutex);
 		printk(KERN_ERR "USBLCD: %s - error, can't find device for minor %d\n",
+=======
+		pr_err("USBLCD: %s - error, can't find device for minor %d\n",
+>>>>>>> upstream/android-13
 		       __func__, subminor);
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&open_disc_mutex);
 	dev = usb_get_intfdata(interface);
 	if (!dev) {
@@ -106,18 +120,30 @@ static int lcd_open(struct inode *inode, struct file *file)
 	/* increment our usage count for the device */
 	kref_get(&dev->kref);
 	mutex_unlock(&open_disc_mutex);
+=======
+	dev = usb_get_intfdata(interface);
+
+	/* increment our usage count for the device */
+	kref_get(&dev->kref);
+>>>>>>> upstream/android-13
 
 	/* grab a power reference */
 	r = usb_autopm_get_interface(interface);
 	if (r < 0) {
 		kref_put(&dev->kref, lcd_delete);
+<<<<<<< HEAD
 		mutex_unlock(&lcd_mutex);
+=======
+>>>>>>> upstream/android-13
 		return r;
 	}
 
 	/* save our object in the file's private structure */
 	file->private_data = dev;
+<<<<<<< HEAD
 	mutex_unlock(&lcd_mutex);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -186,14 +212,20 @@ static long lcd_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 	switch (cmd) {
 	case IOCTL_GET_HARD_VERSION:
+<<<<<<< HEAD
 		mutex_lock(&lcd_mutex);
+=======
+>>>>>>> upstream/android-13
 		bcdDevice = le16_to_cpu((dev->udev)->descriptor.bcdDevice);
 		sprintf(buf, "%1d%1d.%1d%1d",
 			(bcdDevice & 0xF000)>>12,
 			(bcdDevice & 0xF00)>>8,
 			(bcdDevice & 0xF0)>>4,
 			(bcdDevice & 0xF));
+<<<<<<< HEAD
 		mutex_unlock(&lcd_mutex);
+=======
+>>>>>>> upstream/android-13
 		if (copy_to_user((void __user *)arg, buf, strlen(buf)) != 0)
 			return -EFAULT;
 		break;
@@ -204,7 +236,10 @@ static long lcd_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		break;
 	default:
 		return -ENOTTY;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -388,7 +423,10 @@ static int lcd_probe(struct usb_interface *interface,
 		/* something prevented us from registering this driver */
 		dev_err(&interface->dev,
 			"Not able to get a minor for this device.\n");
+<<<<<<< HEAD
 		usb_set_intfdata(interface, NULL);
+=======
+>>>>>>> upstream/android-13
 		goto error;
 	}
 
@@ -434,6 +472,7 @@ static int lcd_resume(struct usb_interface *intf)
 
 static void lcd_disconnect(struct usb_interface *interface)
 {
+<<<<<<< HEAD
 	struct usb_lcd *dev;
 	int minor = interface->minor;
 
@@ -442,6 +481,11 @@ static void lcd_disconnect(struct usb_interface *interface)
 	usb_set_intfdata(interface, NULL);
 	mutex_unlock(&open_disc_mutex);
 
+=======
+	struct usb_lcd *dev = usb_get_intfdata(interface);
+	int minor = interface->minor;
+
+>>>>>>> upstream/android-13
 	/* give back our minor */
 	usb_deregister_dev(interface, &lcd_class);
 

@@ -74,7 +74,11 @@ void opa_vnic_vema_report_event(struct opa_vnic_adapter *adapter, u8 event)
 }
 
 /**
+<<<<<<< HEAD
  * opa_vnic_get_error_counters - get summary counters
+=======
+ * opa_vnic_get_summary_counters - get summary counters
+>>>>>>> upstream/android-13
  * @adapter: vnic port adapter
  * @cntrs: pointer to destination summary counters structure
  *

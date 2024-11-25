@@ -38,6 +38,7 @@ main()
 	esac
 	fi
 
+<<<<<<< HEAD
 	install_dir=./kselftest
 
 # Run install using INSTALL_KSFT_PATH override to generate install
@@ -48,6 +49,28 @@ echo "Kselftest archive kselftest${ext} created!"
 
 # clean up install directory
 rm -rf kselftest
+=======
+	# Create working directory.
+	dest=`pwd`
+	install_work="$dest"/kselftest_install
+	install_name=kselftest
+	install_dir="$install_work"/"$install_name"
+	mkdir -p "$install_dir"
+
+	# Run install using INSTALL_KSFT_PATH override to generate install
+	# directory
+	./kselftest_install.sh "$install_dir"
+	(cd "$install_work"; tar $copts "$dest"/kselftest${ext} $install_name)
+
+	# Don't put the message at the actual end as people may be parsing the
+	# "archive created" line in their scripts.
+	echo -e "\nConsider using 'make gen_tar' instead of this script\n"
+
+	echo "Kselftest archive kselftest${ext} created!"
+
+	# clean up top-level install work directory
+	rm -rf "$install_work"
+>>>>>>> upstream/android-13
 }
 
 main "$@"

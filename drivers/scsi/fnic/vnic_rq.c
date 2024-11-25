@@ -27,12 +27,18 @@
 static int vnic_rq_alloc_bufs(struct vnic_rq *rq)
 {
 	struct vnic_rq_buf *buf;
+<<<<<<< HEAD
 	struct vnic_dev *vdev;
 	unsigned int i, j, count = rq->ring.desc_count;
 	unsigned int blks = VNIC_RQ_BUF_BLKS_NEEDED(count);
 
 	vdev = rq->vdev;
 
+=======
+	unsigned int i, j, count = rq->ring.desc_count;
+	unsigned int blks = VNIC_RQ_BUF_BLKS_NEEDED(count);
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < blks; i++) {
 		rq->bufs[i] = kzalloc(VNIC_RQ_BUF_BLK_SZ, GFP_ATOMIC);
 		if (!rq->bufs[i]) {
@@ -171,7 +177,11 @@ void vnic_rq_clean(struct vnic_rq *rq,
 	struct vnic_rq_buf *buf;
 	u32 fetch_index;
 
+<<<<<<< HEAD
 	BUG_ON(ioread32(&rq->ctrl->enable));
+=======
+	WARN_ON(ioread32(&rq->ctrl->enable));
+>>>>>>> upstream/android-13
 
 	buf = rq->to_clean;
 

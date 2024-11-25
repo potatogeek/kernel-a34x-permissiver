@@ -6,6 +6,10 @@ Linux Firmware API
 
    introduction
    core
+<<<<<<< HEAD
+=======
+   efi/index
+>>>>>>> upstream/android-13
    request_firmware
    other_interfaces
 

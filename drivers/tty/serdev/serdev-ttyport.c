@@ -7,6 +7,7 @@
 #include <linux/tty.h>
 #include <linux/tty_driver.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
 #include <linux/module.h>
 
@@ -16,6 +17,11 @@ static char *pdev_tty_port;
 module_param(pdev_tty_port, charp, 0644);
 MODULE_PARM_DESC(pdev_tty_port, "platform device tty port to claim");
 
+=======
+
+#define SERPORT_ACTIVE		1
+
+>>>>>>> upstream/android-13
 struct serport {
 	struct tty_port *port;
 	struct tty_struct *tty;
@@ -239,7 +245,11 @@ static int ttyport_get_tiocm(struct serdev_controller *ctrl)
 	if (!tty->ops->tiocmget)
 		return -ENOTSUPP;
 
+<<<<<<< HEAD
 	return tty->driver->ops->tiocmget(tty);
+=======
+	return tty->ops->tiocmget(tty);
+>>>>>>> upstream/android-13
 }
 
 static int ttyport_set_tiocm(struct serdev_controller *ctrl, unsigned int set, unsigned int clear)
@@ -250,7 +260,11 @@ static int ttyport_set_tiocm(struct serdev_controller *ctrl, unsigned int set, u
 	if (!tty->ops->tiocmset)
 		return -ENOTSUPP;
 
+<<<<<<< HEAD
 	return tty->driver->ops->tiocmset(tty, set, clear);
+=======
+	return tty->ops->tiocmset(tty, set, clear);
+>>>>>>> upstream/android-13
 }
 
 static const struct serdev_controller_ops ctrl_ops = {
@@ -273,7 +287,10 @@ struct device *serdev_tty_port_register(struct tty_port *port,
 {
 	struct serdev_controller *ctrl;
 	struct serport *serport;
+<<<<<<< HEAD
 	bool platform = false;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!port || !drv || !parent)
@@ -293,6 +310,7 @@ struct device *serdev_tty_port_register(struct tty_port *port,
 	port->client_ops = &client_ops;
 	port->client_data = ctrl;
 
+<<<<<<< HEAD
 	/* There is not always a way to bind specific platform devices because
 	 * they may be defined on platforms without DT or ACPI. When dealing
 	 * with a platform devices, do not allow direct binding unless it is
@@ -315,6 +333,9 @@ struct device *serdev_tty_port_register(struct tty_port *port,
 	}
 
 	ret = serdev_controller_add_platform(ctrl, platform);
+=======
+	ret = serdev_controller_add(ctrl);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_reset_data;
 

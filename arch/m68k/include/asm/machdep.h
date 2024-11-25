@@ -12,7 +12,11 @@ struct rtc_time;
 struct rtc_pll_info;
 struct buffer_head;
 
+<<<<<<< HEAD
 extern void (*mach_sched_init) (irq_handler_t handler);
+=======
+extern void (*mach_sched_init) (void);
+>>>>>>> upstream/android-13
 /* machine dependent irq functions */
 extern void (*mach_init_IRQ) (void);
 extern void (*mach_get_model) (char *model);
@@ -27,14 +31,28 @@ extern void (*mach_halt)( void );
 extern void (*mach_power_off)( void );
 extern unsigned long (*mach_hd_init) (unsigned long, unsigned long);
 extern void (*mach_hd_setup)(char *, int *);
+<<<<<<< HEAD
 extern long mach_max_dma_address;
+=======
+>>>>>>> upstream/android-13
 extern void (*mach_heartbeat) (int);
 extern void (*mach_l2_flush) (int);
 extern void (*mach_beep) (unsigned int, unsigned int);
 
 /* Hardware clock functions */
+<<<<<<< HEAD
 extern void hw_timer_init(irq_handler_t handler);
 extern unsigned long hw_timer_offset(void);
+=======
+extern void hw_timer_init(void);
+#ifdef CONFIG_HEARTBEAT
+extern void timer_heartbeat(void);
+#else
+static inline void timer_heartbeat(void)
+{
+}
+#endif
+>>>>>>> upstream/android-13
 
 extern void config_BSP(char *command, int len);
 

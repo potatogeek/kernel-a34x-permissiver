@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SBP2 target driver (SCSI over IEEE1394 in target mode)
  *
  * Copyright (C) 2011  Chris Boot <bootc@bootc.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "sbp_target"
@@ -1019,7 +1026,11 @@ static void tgt_agent_fetch_work(struct work_struct *work)
 			agent->state = AGENT_STATE_SUSPENDED;
 
 		spin_unlock_bh(&agent->lock);
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static struct sbp_target_agent *sbp_target_agent_register(
@@ -1231,11 +1242,17 @@ static void sbp_handle_command(struct sbp_target_request *req)
 
 	/* only used for printk until we do TMRs */
 	req->se_cmd.tag = req->orb_pointer;
+<<<<<<< HEAD
 	if (target_submit_cmd(&req->se_cmd, sess->se_sess, req->cmd_buf,
 			      req->sense_buf, unpacked_lun, data_length,
 			      TCM_SIMPLE_TAG, data_dir, TARGET_SCF_ACK_KREF))
 		goto err;
 
+=======
+	target_submit_cmd(&req->se_cmd, sess->se_sess, req->cmd_buf,
+			  req->sense_buf, unpacked_lun, data_length,
+			  TCM_SIMPLE_TAG, data_dir, TARGET_SCF_ACK_KREF);
+>>>>>>> upstream/android-13
 	return;
 
 err:
@@ -1276,7 +1293,10 @@ static int sbp_rw_data(struct sbp_target_request *req)
 	pg_size = CMDBLK_ORB_PG_SIZE(be32_to_cpu(req->orb.misc));
 	if (pg_size) {
 		pr_err("sbp_run_transaction: page size ignored\n");
+<<<<<<< HEAD
 		pg_size = 0x100 << pg_size;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock_bh(&sess->lock);
@@ -1405,8 +1425,13 @@ static void sbp_sense_mangle(struct sbp_target_request *req)
 		(sense[0] & 0x80) |		/* valid */
 		((sense[2] & 0xe0) >> 1) |	/* mark, eom, ili */
 		(sense[2] & 0x0f);		/* sense_key */
+<<<<<<< HEAD
 	status[2] = se_cmd->scsi_asc;		/* sense_code */
 	status[3] = se_cmd->scsi_ascq;		/* sense_qualifier */
+=======
+	status[2] = 0;				/* XXX sense_code */
+	status[3] = 0;				/* XXX sense_qualifier */
+>>>>>>> upstream/android-13
 
 	/* information */
 	status[4] = sense[3];
@@ -1694,11 +1719,14 @@ static int sbp_check_false(struct se_portal_group *se_tpg)
 	return 0;
 }
 
+<<<<<<< HEAD
 static char *sbp_get_fabric_name(void)
 {
 	return "sbp";
 }
 
+=======
+>>>>>>> upstream/android-13
 static char *sbp_get_fabric_wwn(struct se_portal_group *se_tpg)
 {
 	struct sbp_tpg *tpg = container_of(se_tpg, struct sbp_tpg, se_tpg);
@@ -1754,11 +1782,14 @@ static int sbp_write_pending(struct se_cmd *se_cmd)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sbp_write_pending_status(struct se_cmd *se_cmd)
 {
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void sbp_set_default_node_attrs(struct se_node_acl *nacl)
 {
 	return;
@@ -2323,8 +2354,12 @@ static struct configfs_attribute *sbp_tpg_attrib_attrs[] = {
 
 static const struct target_core_fabric_ops sbp_ops = {
 	.module				= THIS_MODULE,
+<<<<<<< HEAD
 	.name				= "sbp",
 	.get_fabric_name		= sbp_get_fabric_name,
+=======
+	.fabric_name			= "sbp",
+>>>>>>> upstream/android-13
 	.tpg_get_wwn			= sbp_get_fabric_wwn,
 	.tpg_get_tag			= sbp_get_tag,
 	.tpg_check_demo_mode		= sbp_check_true,
@@ -2335,7 +2370,10 @@ static const struct target_core_fabric_ops sbp_ops = {
 	.release_cmd			= sbp_release_cmd,
 	.sess_get_index			= sbp_sess_get_index,
 	.write_pending			= sbp_write_pending,
+<<<<<<< HEAD
 	.write_pending_status		= sbp_write_pending_status,
+=======
+>>>>>>> upstream/android-13
 	.set_default_node_attributes	= sbp_set_default_node_attrs,
 	.get_cmd_state			= sbp_get_cmd_state,
 	.queue_data_in			= sbp_queue_data_in,

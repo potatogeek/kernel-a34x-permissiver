@@ -15,6 +15,10 @@
 #include <linux/blkdev.h>
 #include <asm/current.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/fileattr.h>
+>>>>>>> upstream/android-13
 
 #include "jfs_filsys.h"
 #include "jfs_debug.h"
@@ -56,10 +60,58 @@ static long jfs_map_ext2(unsigned long flags, int from)
 	return mapped;
 }
 
+<<<<<<< HEAD
+=======
+int jfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+{
+	struct jfs_inode_info *jfs_inode = JFS_IP(d_inode(dentry));
+	unsigned int flags = jfs_inode->mode2 & JFS_FL_USER_VISIBLE;
+
+	if (d_is_special(dentry))
+		return -ENOTTY;
+
+	fileattr_fill_flags(fa, jfs_map_ext2(flags, 0));
+
+	return 0;
+}
+
+int jfs_fileattr_set(struct user_namespace *mnt_userns,
+		     struct dentry *dentry, struct fileattr *fa)
+{
+	struct inode *inode = d_inode(dentry);
+	struct jfs_inode_info *jfs_inode = JFS_IP(inode);
+	unsigned int flags;
+
+	if (d_is_special(dentry))
+		return -ENOTTY;
+
+	if (fileattr_has_fsx(fa))
+		return -EOPNOTSUPP;
+
+	flags = jfs_map_ext2(fa->flags, 1);
+	if (!S_ISDIR(inode->i_mode))
+		flags &= ~JFS_DIRSYNC_FL;
+
+	/* Is it quota file? Do not allow user to mess with it */
+	if (IS_NOQUOTA(inode))
+		return -EPERM;
+
+	flags = flags & JFS_FL_USER_MODIFIABLE;
+	flags |= jfs_inode->mode2 & ~JFS_FL_USER_MODIFIABLE;
+	jfs_inode->mode2 = flags;
+
+	jfs_set_inode_flags(inode);
+	inode->i_ctime = current_time(inode);
+	mark_inode_dirty(inode);
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 long jfs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	struct inode *inode = file_inode(filp);
+<<<<<<< HEAD
 	struct jfs_inode_info *jfs_inode = JFS_IP(inode);
 	unsigned int flags;
 
@@ -127,6 +179,10 @@ setflags_out:
 		return err;
 	}
 
+=======
+
+	switch (cmd) {
+>>>>>>> upstream/android-13
 	case FITRIM:
 	{
 		struct super_block *sb = inode->i_sb;
@@ -164,6 +220,7 @@ setflags_out:
 		return -ENOTTY;
 	}
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_COMPAT
 long jfs_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
@@ -183,3 +240,5 @@ long jfs_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	return jfs_ioctl(filp, cmd, arg);
 }
 #endif
+=======
+>>>>>>> upstream/android-13

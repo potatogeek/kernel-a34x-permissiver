@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2015 Chen-Yu Tsai
  *
  * Chen-Yu Tsai <wens@csie.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,12 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/reset-controller.h>
@@ -28,7 +39,11 @@ static DEFINE_SPINLOCK(ve_lock);
 #define SUN4I_VE_DIVIDER_WIDTH	3
 #define SUN4I_VE_RESET		0
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * sunxi_ve_reset... - reset bit in ve clk registers handling
  */
 

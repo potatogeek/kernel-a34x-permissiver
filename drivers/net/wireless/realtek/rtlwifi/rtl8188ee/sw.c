@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2013  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2013  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../core.h"
@@ -31,7 +36,10 @@
 #include "phy.h"
 #include "dm.h"
 #include "hw.h"
+<<<<<<< HEAD
 #include "sw.h"
+=======
+>>>>>>> upstream/android-13
 #include "trx.h"
 #include "led.h"
 #include "table.h"
@@ -81,7 +89,11 @@ static void rtl88e_init_aspm_vars(struct ieee80211_hw *hw)
 	rtlpci->const_support_pciaspm = rtlpriv->cfg->mod_params->aspm_support;
 }
 
+<<<<<<< HEAD
 int rtl88e_init_sw_vars(struct ieee80211_hw *hw)
+=======
+static int rtl88e_init_sw_vars(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	int err = 0;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -90,9 +102,15 @@ int rtl88e_init_sw_vars(struct ieee80211_hw *hw)
 	char *fw_name;
 
 	rtl8188ee_bt_reg_init(hw);
+<<<<<<< HEAD
 	rtlpriv->dm.dm_initialgain_enable = 1;
 	rtlpriv->dm.dm_flag = 0;
 	rtlpriv->dm.disable_framebursting = 0;
+=======
+	rtlpriv->dm.dm_initialgain_enable = true;
+	rtlpriv->dm.dm_flag = 0;
+	rtlpriv->dm.disable_framebursting = false;
+>>>>>>> upstream/android-13
 	rtlpriv->dm.thermalvalue = 0;
 	rtlpci->transmit_config = CFENDFORM | BIT(15);
 
@@ -137,10 +155,13 @@ int rtl88e_init_sw_vars(struct ieee80211_hw *hw)
 	rtlpriv->psc.swctrl_lps = rtlpriv->cfg->mod_params->swctrl_lps;
 	rtlpriv->psc.fwctrl_lps = rtlpriv->cfg->mod_params->fwctrl_lps;
 	rtlpci->msi_support = rtlpriv->cfg->mod_params->msi_support;
+<<<<<<< HEAD
 	rtlpriv->cfg->mod_params->sw_crypto =
 		rtlpriv->cfg->mod_params->sw_crypto;
 	rtlpriv->cfg->mod_params->disable_watchdog =
 		rtlpriv->cfg->mod_params->disable_watchdog;
+=======
+>>>>>>> upstream/android-13
 	if (rtlpriv->cfg->mod_params->disable_watchdog)
 		pr_info("watchdog disabled\n");
 	if (!rtlpriv->psc.inactiveps)
@@ -199,7 +220,11 @@ int rtl88e_init_sw_vars(struct ieee80211_hw *hw)
 	return err;
 }
 
+<<<<<<< HEAD
 void rtl88e_deinit_sw_vars(struct ieee80211_hw *hw)
+=======
+static void rtl88e_deinit_sw_vars(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 
@@ -215,7 +240,11 @@ void rtl88e_deinit_sw_vars(struct ieee80211_hw *hw)
 }
 
 /* get bt coexist status */
+<<<<<<< HEAD
 bool rtl88e_get_btc_status(void)
+=======
+static bool rtl88e_get_btc_status(void)
+>>>>>>> upstream/android-13
 {
 	return false;
 }

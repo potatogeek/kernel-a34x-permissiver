@@ -1,20 +1,34 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
  * This file contains AppArmor task related definitions and mediation
  *
  * Copyright 2017 Canonical Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AA_TASK_H
 #define __AA_TASK_H
 
+<<<<<<< HEAD
 #define task_ctx(X) ((X)->security)
+=======
+static inline struct aa_task_ctx *task_ctx(struct task_struct *task)
+{
+	return task->security + apparmor_blob_sizes.lbs_task;
+}
+>>>>>>> upstream/android-13
 
 /*
  * struct aa_task_ctx - information for current task label change
@@ -37,6 +51,7 @@ int aa_restore_previous_label(u64 cookie);
 struct aa_label *aa_get_task_label(struct task_struct *task);
 
 /**
+<<<<<<< HEAD
  * aa_alloc_task_ctx - allocate a new task_ctx
  * @flags: gfp flags for allocation
  *
@@ -48,6 +63,8 @@ static inline struct aa_task_ctx *aa_alloc_task_ctx(gfp_t flags)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * aa_free_task_ctx - free a task_ctx
  * @ctx: task_ctx to free (MAYBE NULL)
  */
@@ -57,8 +74,11 @@ static inline void aa_free_task_ctx(struct aa_task_ctx *ctx)
 		aa_put_label(ctx->nnp);
 		aa_put_label(ctx->previous);
 		aa_put_label(ctx->onexec);
+<<<<<<< HEAD
 
 		kzfree(ctx);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 

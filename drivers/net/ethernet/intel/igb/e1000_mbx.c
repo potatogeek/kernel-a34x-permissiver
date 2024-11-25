@@ -9,6 +9,10 @@
  *  @msg: The message buffer
  *  @size: Length of buffer
  *  @mbx_id: id of mailbox to read
+<<<<<<< HEAD
+=======
+ *  @unlock: skip locking or not
+>>>>>>> upstream/android-13
  *
  *  returns SUCCESS if it successfully read message from buffer
  **/
@@ -440,7 +444,11 @@ out_no_read:
 }
 
 /**
+<<<<<<< HEAD
  *  e1000_init_mbx_params_pf - set initial values for pf mailbox
+=======
+ *  igb_init_mbx_params_pf - set initial values for pf mailbox
+>>>>>>> upstream/android-13
  *  @hw: pointer to the HW structure
  *
  *  Initializes the hw->mbx struct to correct values for pf mailbox

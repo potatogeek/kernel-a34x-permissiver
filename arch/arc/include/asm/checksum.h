@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+ *
+>>>>>>> upstream/android-13
  * Joern Rennecke  <joern.rennecke@embecosm.com>: Jan 2012
  *  -Insn Scheduling improvements to csum core routines.
  *      = csum_fold( ) largely derived from ARM version.
@@ -27,7 +34,11 @@
  */
 static inline __sum16 csum_fold(__wsum s)
 {
+<<<<<<< HEAD
 	unsigned r = s << 16 | s >> 16;	/* ror */
+=======
+	unsigned int r = s << 16 | s >> 16;	/* ror */
+>>>>>>> upstream/android-13
 	s = ~s;
 	s -= r;
 	return s >> 16;

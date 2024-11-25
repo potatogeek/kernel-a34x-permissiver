@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
@@ -6,6 +7,12 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2015 Imagination Technologies
+ * Author: Paul Burton <paul.burton@mips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <asm/bcache.h>
@@ -55,6 +62,7 @@ static const struct file_operations sc_prefetch_fops = {
 
 static int __init sc_debugfs_init(void)
 {
+<<<<<<< HEAD
 	struct dentry *dir, *file;
 
 	if (!mips_debugfs_dir)
@@ -69,6 +77,13 @@ static int __init sc_debugfs_init(void)
 	if (!file)
 		return -ENOMEM;
 
+=======
+	struct dentry *dir;
+
+	dir = debugfs_create_dir("l2cache", mips_debugfs_dir);
+	debugfs_create_file("prefetch", S_IRUGO | S_IWUSR, dir, NULL,
+			    &sc_prefetch_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 late_initcall(sc_debugfs_init);

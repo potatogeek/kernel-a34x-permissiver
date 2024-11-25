@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * card driver for the Xonar DG/DGX
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
  * Copyright (c) Roman Volkov <v1ron@mail.ru>
+<<<<<<< HEAD
  *
  *  This driver is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License, version 2.
@@ -14,6 +19,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this driver; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*

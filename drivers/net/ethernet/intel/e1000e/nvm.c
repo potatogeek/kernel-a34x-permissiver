@@ -392,7 +392,11 @@ s32 e1000e_write_nvm_spi(struct e1000_hw *hw, u16 offset, u16 words, u16 *data)
 				break;
 			}
 		}
+<<<<<<< HEAD
 		usleep_range(10000, 20000);
+=======
+		usleep_range(10000, 11000);
+>>>>>>> upstream/android-13
 		nvm->ops.release(hw);
 	}
 

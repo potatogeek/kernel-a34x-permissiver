@@ -82,7 +82,11 @@ int open_proximity_setting_mode(void)
 		if (buf[0] == 1 || buf[0] == 2)
 			data->setting_mode = buf[0];
 		else
+<<<<<<< HEAD
 			sscanf(buf, "%hhu", &data->setting_mode);
+=======
+			sscanf(buf, "%d", &data->setting_mode);
+>>>>>>> upstream/android-13
 
 		shub_infof("prox_settings %d", data->setting_mode);
 		if (data->setting_mode != 1 && data->setting_mode != 2) {

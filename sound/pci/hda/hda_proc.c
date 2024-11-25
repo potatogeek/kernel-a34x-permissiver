@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Universal Interface for Intel High Definition Audio Codec
  * 
  * Generic proc interface
  *
  * Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *
  *  This driver is free software; you can redistribute it and/or modify
@@ -19,13 +24,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <sound/core.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 
 static int dump_coef = -1;
@@ -174,7 +185,11 @@ static void print_amp_vals(struct snd_info_buffer *buffer,
 
 static void print_pcm_rates(struct snd_info_buffer *buffer, unsigned int pcm)
 {
+<<<<<<< HEAD
 	static unsigned int rates[] = {
+=======
+	static const unsigned int rates[] = {
+>>>>>>> upstream/android-13
 		8000, 11025, 16000, 22050, 32000, 44100, 48000, 88200,
 		96000, 176400, 192000, 384000
 	};
@@ -693,6 +708,41 @@ static void print_gpio(struct snd_info_buffer *buffer,
 	print_nid_array(buffer, codec, nid, &codec->nids);
 }
 
+<<<<<<< HEAD
+=======
+static void print_dpmst_connections(struct snd_info_buffer *buffer, struct hda_codec *codec,
+				    hda_nid_t nid, int dev_num)
+{
+	int c, conn_len, curr, dev_id_saved;
+	hda_nid_t *conn;
+
+	conn_len = snd_hda_get_num_raw_conns(codec, nid);
+	if (conn_len <= 0)
+		return;
+
+	conn = kmalloc_array(conn_len, sizeof(hda_nid_t), GFP_KERNEL);
+	if (!conn)
+		return;
+
+	dev_id_saved = snd_hda_get_dev_select(codec, nid);
+
+	snd_hda_set_dev_select(codec, nid, dev_num);
+	curr = snd_hda_codec_read(codec, nid, 0, AC_VERB_GET_CONNECT_SEL, 0);
+	if (snd_hda_get_raw_connections(codec, nid, conn, conn_len) < 0)
+		goto out;
+
+	for (c = 0; c < conn_len; c++) {
+		snd_iprintf(buffer, " 0x%02x", conn[c]);
+		if (c == curr)
+			snd_iprintf(buffer, "*");
+	}
+
+out:
+	kfree(conn);
+	snd_hda_set_dev_select(codec, nid, dev_id_saved);
+}
+
+>>>>>>> upstream/android-13
 static void print_device_list(struct snd_info_buffer *buffer,
 			    struct hda_codec *codec, hda_nid_t nid)
 {
@@ -716,10 +766,21 @@ static void print_device_list(struct snd_info_buffer *buffer,
 			snd_iprintf(buffer, "     ");
 
 		snd_iprintf(buffer,
+<<<<<<< HEAD
 			"Dev %02d: PD = %d, ELDV = %d, IA = %d\n", i,
 			!!(dev_list[i] & AC_DE_PD),
 			!!(dev_list[i] & AC_DE_ELDV),
 			!!(dev_list[i] & AC_DE_IA));
+=======
+			"Dev %02d: PD = %d, ELDV = %d, IA = %d, Connections [", i,
+			!!(dev_list[i] & AC_DE_PD),
+			!!(dev_list[i] & AC_DE_ELDV),
+			!!(dev_list[i] & AC_DE_IA));
+
+		print_dpmst_connections(buffer, codec, nid, i);
+
+		snd_iprintf(buffer, " ]\n");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -919,6 +980,7 @@ static void print_codec_info(struct snd_info_entry *entry,
 int snd_hda_codec_proc_new(struct hda_codec *codec)
 {
 	char name[32];
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	int err;
 
@@ -929,5 +991,10 @@ int snd_hda_codec_proc_new(struct hda_codec *codec)
 
 	snd_info_set_text_ops(entry, codec, print_codec_info);
 	return 0;
+=======
+
+	snprintf(name, sizeof(name), "codec#%d", codec->core.addr);
+	return snd_card_ro_proc_new(codec->card, name, codec, print_codec_info);
+>>>>>>> upstream/android-13
 }
 

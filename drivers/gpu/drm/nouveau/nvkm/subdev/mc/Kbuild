@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 nvkm-y += nvkm/subdev/mc/base.o
 nvkm-y += nvkm/subdev/mc/nv04.o
 nvkm-y += nvkm/subdev/mc/nv11.o
@@ -12,3 +16,8 @@ nvkm-y += nvkm/subdev/mc/gk104.o
 nvkm-y += nvkm/subdev/mc/gk20a.o
 nvkm-y += nvkm/subdev/mc/gp100.o
 nvkm-y += nvkm/subdev/mc/gp10b.o
+<<<<<<< HEAD
+=======
+nvkm-y += nvkm/subdev/mc/tu102.o
+nvkm-y += nvkm/subdev/mc/ga100.o
+>>>>>>> upstream/android-13

@@ -8,7 +8,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 
 #include "fbtft.h"
@@ -90,6 +93,7 @@ static int write_vmem(struct fbtft_par *par, size_t offset, size_t len)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define RGB565toRGB323(c) ((((c) & 0xE000) >> 8) |\
 			   (((c) & 000600) >> 6) |\
 			   (((c) & 0x001C) >> 2))
@@ -99,6 +103,12 @@ static int write_vmem(struct fbtft_par *par, size_t offset, size_t len)
 #define RGB565toRGB233(c) ((((c) & 0xC000) >> 8) |\
 			   (((c) & 000700) >> 5) |\
 			   (((c) & 0x001C) >> 2))
+=======
+static inline int rgb565_to_rgb332(u16 c)
+{
+	return ((c & 0xE000) >> 8) | ((c & 000700) >> 6) | ((c & 0x0018) >> 3);
+}
+>>>>>>> upstream/android-13
 
 static int write_vmem_8bit(struct fbtft_par *par, size_t offset, size_t len)
 {
@@ -122,7 +132,11 @@ static int write_vmem_8bit(struct fbtft_par *par, size_t offset, size_t len)
 	for (i = start_line; i <= end_line; i++) {
 		pos[1] = cpu_to_be16(i);
 		for (j = 0; j < par->info->var.xres; j++) {
+<<<<<<< HEAD
 			buf8[j] = RGB565toRGB332(*vmem16);
+=======
+			buf8[j] = rgb565_to_rgb332(*vmem16);
+>>>>>>> upstream/android-13
 			vmem16++;
 		}
 		ret = par->fbtftops.write(par,
@@ -155,10 +169,24 @@ static int init_display(struct fbtft_par *par)
 
 	/* enable SPI interface by having CS and MOSI low during reset */
 	save_mode = par->spi->mode;
+<<<<<<< HEAD
 	par->spi->mode |= SPI_CS_HIGH;
 	ret = spi_setup(par->spi); /* set CS inactive low */
 	if (ret) {
 		dev_err(par->info->device, "Could not set SPI_CS_HIGH\n");
+=======
+	/*
+	 * Set CS active inverse polarity: just setting SPI_CS_HIGH does not
+	 * work with GPIO based chip selects that are logically active high
+	 * but inverted inside the GPIO library, so enforce inverted
+	 * semantics.
+	 */
+	par->spi->mode ^= SPI_CS_HIGH;
+	ret = spi_setup(par->spi);
+	if (ret) {
+		dev_err(par->info->device,
+			"Could not set inverse CS polarity\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	write_reg(par, 0x00); /* make sure mode is set */
@@ -213,7 +241,11 @@ static int set_var(struct fbtft_par *par)
 
 static int verify_gpios(struct fbtft_par *par)
 {
+<<<<<<< HEAD
 	if (par->gpio.reset < 0) {
+=======
+	if (!par->gpio.reset) {
+>>>>>>> upstream/android-13
 		dev_err(par->info->device, "Missing 'reset' gpio. Aborting.\n");
 		return -EINVAL;
 	}

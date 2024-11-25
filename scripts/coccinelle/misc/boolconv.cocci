@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Remove unneeded conversion to bool
 ///
 //# Relational and logical operators evaluate to bool,
 //# explicit conversion is overly verbose and unneeded.
 //
+<<<<<<< HEAD
 // Copyright: (C) 2016 Andrew F. Davis <afd@ti.com> GPLv2.
+=======
+// Copyright: (C) 2016 Andrew F. Davis <afd@ti.com>
+>>>>>>> upstream/android-13
 
 virtual patch
 virtual context

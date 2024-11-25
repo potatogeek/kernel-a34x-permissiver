@@ -24,18 +24,35 @@
 
 static int jffs2_readdir (struct file *, struct dir_context *);
 
+<<<<<<< HEAD
 static int jffs2_create (struct inode *,struct dentry *,umode_t,
 			 bool);
+=======
+static int jffs2_create (struct user_namespace *, struct inode *,
+		         struct dentry *, umode_t, bool);
+>>>>>>> upstream/android-13
 static struct dentry *jffs2_lookup (struct inode *,struct dentry *,
 				    unsigned int);
 static int jffs2_link (struct dentry *,struct inode *,struct dentry *);
 static int jffs2_unlink (struct inode *,struct dentry *);
+<<<<<<< HEAD
 static int jffs2_symlink (struct inode *,struct dentry *,const char *);
 static int jffs2_mkdir (struct inode *,struct dentry *,umode_t);
 static int jffs2_rmdir (struct inode *,struct dentry *);
 static int jffs2_mknod (struct inode *,struct dentry *,umode_t,dev_t);
 static int jffs2_rename (struct inode *, struct dentry *,
 			 struct inode *, struct dentry *,
+=======
+static int jffs2_symlink (struct user_namespace *, struct inode *,
+			  struct dentry *, const char *);
+static int jffs2_mkdir (struct user_namespace *, struct inode *,struct dentry *,
+			umode_t);
+static int jffs2_rmdir (struct inode *,struct dentry *);
+static int jffs2_mknod (struct user_namespace *, struct inode *,struct dentry *,
+			umode_t,dev_t);
+static int jffs2_rename (struct user_namespace *, struct inode *,
+			 struct dentry *, struct inode *, struct dentry *,
+>>>>>>> upstream/android-13
 			 unsigned int);
 
 const struct file_operations jffs2_dir_operations =
@@ -157,8 +174,13 @@ static int jffs2_readdir(struct file *file, struct dir_context *ctx)
 /***********************************************************************/
 
 
+<<<<<<< HEAD
 static int jffs2_create(struct inode *dir_i, struct dentry *dentry,
 			umode_t mode, bool excl)
+=======
+static int jffs2_create(struct user_namespace *mnt_userns, struct inode *dir_i,
+			struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct jffs2_raw_inode *ri;
 	struct jffs2_inode_info *f, *dir_f;
@@ -276,7 +298,12 @@ static int jffs2_link (struct dentry *old_dentry, struct inode *dir_i, struct de
 
 /***********************************************************************/
 
+<<<<<<< HEAD
 static int jffs2_symlink (struct inode *dir_i, struct dentry *dentry, const char *target)
+=======
+static int jffs2_symlink (struct user_namespace *mnt_userns, struct inode *dir_i,
+			  struct dentry *dentry, const char *target)
+>>>>>>> upstream/android-13
 {
 	struct jffs2_inode_info *f, *dir_f;
 	struct jffs2_sb_info *c;
@@ -438,7 +465,12 @@ static int jffs2_symlink (struct inode *dir_i, struct dentry *dentry, const char
 }
 
 
+<<<<<<< HEAD
 static int jffs2_mkdir (struct inode *dir_i, struct dentry *dentry, umode_t mode)
+=======
+static int jffs2_mkdir (struct user_namespace *mnt_userns, struct inode *dir_i,
+		        struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct jffs2_inode_info *f, *dir_f;
 	struct jffs2_sb_info *c;
@@ -609,7 +641,12 @@ static int jffs2_rmdir (struct inode *dir_i, struct dentry *dentry)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int jffs2_mknod (struct inode *dir_i, struct dentry *dentry, umode_t mode, dev_t rdev)
+=======
+static int jffs2_mknod (struct user_namespace *mnt_userns, struct inode *dir_i,
+		        struct dentry *dentry, umode_t mode, dev_t rdev)
+>>>>>>> upstream/android-13
 {
 	struct jffs2_inode_info *f, *dir_f;
 	struct jffs2_sb_info *c;
@@ -756,7 +793,12 @@ static int jffs2_mknod (struct inode *dir_i, struct dentry *dentry, umode_t mode
 	return ret;
 }
 
+<<<<<<< HEAD
 static int jffs2_rename (struct inode *old_dir_i, struct dentry *old_dentry,
+=======
+static int jffs2_rename (struct user_namespace *mnt_userns,
+			 struct inode *old_dir_i, struct dentry *old_dentry,
+>>>>>>> upstream/android-13
 			 struct inode *new_dir_i, struct dentry *new_dentry,
 			 unsigned int flags)
 {

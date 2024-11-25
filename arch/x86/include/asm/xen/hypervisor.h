@@ -44,14 +44,24 @@ static inline uint32_t xen_cpuid_base(void)
 }
 
 #ifdef CONFIG_XEN
+<<<<<<< HEAD
 extern bool xen_hvm_need_lapic(void);
 
 static inline bool xen_x2apic_para_available(void)
+=======
+extern bool __init xen_hvm_need_lapic(void);
+
+static inline bool __init xen_x2apic_para_available(void)
+>>>>>>> upstream/android-13
 {
 	return xen_hvm_need_lapic();
 }
 #else
+<<<<<<< HEAD
 static inline bool xen_x2apic_para_available(void)
+=======
+static inline bool __init xen_x2apic_para_available(void)
+>>>>>>> upstream/android-13
 {
 	return (xen_cpuid_base() != 0);
 }
@@ -62,6 +72,13 @@ void xen_arch_register_cpu(int num);
 void xen_arch_unregister_cpu(int num);
 #endif
 
+<<<<<<< HEAD
 extern void xen_set_iopl_mask(unsigned mask);
+=======
+#ifdef CONFIG_PVH
+void __init xen_pvh_init(struct boot_params *boot_params);
+void __init mem_map_via_hcall(struct boot_params *boot_params_p);
+#endif
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_X86_XEN_HYPERVISOR_H */

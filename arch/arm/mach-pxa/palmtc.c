@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-pxa/palmtc.c
  *
@@ -8,10 +12,13 @@
  * Based on work of:
  *		Petr Blaha <p3t3@centrum.cz>
  *		Chetan S. Kumar <shivakumar.chetan@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -20,13 +27,20 @@
 #include <linux/input.h>
 #include <linux/pwm.h>
 #include <linux/pwm_backlight.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/input/matrix_keypad.h>
 #include <linux/ucb1400.h>
 #include <linux/power_supply.h>
 #include <linux/gpio_keys.h>
 #include <linux/mtd/physmap.h>
+<<<<<<< HEAD
 #include <linux/usb/gpio_vbus.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -120,6 +134,7 @@ static unsigned long palmtc_pin_config[] __initdata = {
 #if defined(CONFIG_MMC_PXA) || defined(CONFIG_MMC_PXA_MODULE)
 static struct pxamci_platform_data palmtc_mci_platform_data = {
 	.ocr_mask		= MMC_VDD_32_33 | MMC_VDD_33_34,
+<<<<<<< HEAD
 	.gpio_power		= GPIO_NR_PALMTC_SD_POWER,
 	.gpio_card_ro		= GPIO_NR_PALMTC_SD_READONLY,
 	.gpio_card_detect	= GPIO_NR_PALMTC_SD_DETECT_N,
@@ -128,6 +143,27 @@ static struct pxamci_platform_data palmtc_mci_platform_data = {
 
 static void __init palmtc_mmc_init(void)
 {
+=======
+	.detect_delay_ms	= 200,
+};
+
+static struct gpiod_lookup_table palmtc_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMTC_SD_DETECT_N,
+			    "cd", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMTC_SD_READONLY,
+			    "wp", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMTC_SD_POWER,
+			    "power", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+};
+
+static void __init palmtc_mmc_init(void)
+{
+	gpiod_add_lookup_table(&palmtc_mci_gpio_table);
+>>>>>>> upstream/android-13
 	pxa_set_mci_info(&palmtc_mci_platform_data);
 }
 #else
@@ -167,6 +203,18 @@ static inline void palmtc_keys_init(void) {}
  * Backlight
  ******************************************************************************/
 #if defined(CONFIG_BACKLIGHT_PWM) || defined(CONFIG_BACKLIGHT_PWM_MODULE)
+<<<<<<< HEAD
+=======
+
+static struct gpiod_lookup_table palmtc_pwm_bl_gpio_table = {
+	.dev_id = "pwm-backlight.0",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMTC_BL_POWER,
+			    "enable", GPIO_ACTIVE_HIGH),
+	},
+};
+
+>>>>>>> upstream/android-13
 static struct pwm_lookup palmtc_pwm_lookup[] = {
 	PWM_LOOKUP("pxa25x-pwm.1", 0, "pwm-backlight.0", NULL, PALMTC_PERIOD_NS,
 		   PWM_POLARITY_NORMAL),
@@ -175,7 +223,10 @@ static struct pwm_lookup palmtc_pwm_lookup[] = {
 static struct platform_pwm_backlight_data palmtc_backlight_data = {
 	.max_brightness	= PALMTC_MAX_INTENSITY,
 	.dft_brightness	= PALMTC_MAX_INTENSITY,
+<<<<<<< HEAD
 	.enable_gpio	= GPIO_NR_PALMTC_BL_POWER,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device palmtc_backlight = {
@@ -188,6 +239,10 @@ static struct platform_device palmtc_backlight = {
 
 static void __init palmtc_pwm_init(void)
 {
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&palmtc_pwm_bl_gpio_table);
+>>>>>>> upstream/android-13
 	pwm_add_table(palmtc_pwm_lookup, ARRAY_SIZE(palmtc_pwm_lookup));
 	platform_device_register(&palmtc_backlight);
 }
@@ -311,22 +366,41 @@ static inline void palmtc_mkp_init(void) {}
  * UDC
  ******************************************************************************/
 #if defined(CONFIG_USB_PXA25X)||defined(CONFIG_USB_PXA25X_MODULE)
+<<<<<<< HEAD
 static struct gpio_vbus_mach_info palmtc_udc_info = {
 	.gpio_vbus		= GPIO_NR_PALMTC_USB_DETECT_N,
 	.gpio_vbus_inverted	= 1,
 	.gpio_pullup		= GPIO_NR_PALMTC_USB_POWER,
+=======
+static struct gpiod_lookup_table palmtc_udc_gpiod_table = {
+	.dev_id = "gpio-vbus",
+	.table = {
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMTC_USB_DETECT_N,
+			    "vbus", GPIO_ACTIVE_LOW),
+		GPIO_LOOKUP("gpio-pxa", GPIO_NR_PALMTC_USB_POWER,
+			    "pullup", GPIO_ACTIVE_HIGH),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device palmtc_gpio_vbus = {
 	.name	= "gpio-vbus",
 	.id	= -1,
+<<<<<<< HEAD
 	.dev	= {
 		.platform_data	= &palmtc_udc_info,
 	},
+=======
+>>>>>>> upstream/android-13
 };
 
 static void __init palmtc_udc_init(void)
 {
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&palmtc_udc_gpiod_table);
+>>>>>>> upstream/android-13
 	platform_device_register(&palmtc_gpio_vbus);
 };
 #else

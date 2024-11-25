@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * include/net/9p/9p.h
  *
@@ -6,6 +10,7 @@
  *  Copyright (C) 2005 by Latchesar Ionkov <lucho@ionkov.net>
  *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -22,6 +27,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef NET_9P_H
@@ -565,6 +572,7 @@ struct p9_fcall {
 	u8 *sdata;
 };
 
+<<<<<<< HEAD
 struct p9_idpool;
 
 int p9_errstr2errno(char *errstr, int len);
@@ -575,6 +583,10 @@ int p9_idpool_get(struct p9_idpool *p);
 void p9_idpool_put(int id, struct p9_idpool *p);
 int p9_idpool_check(int id, struct p9_idpool *p);
 
+=======
+int p9_errstr2errno(char *errstr, int len);
+
+>>>>>>> upstream/android-13
 int p9_error_init(void);
 int p9_trans_fd_init(void);
 void p9_trans_fd_exit(void);

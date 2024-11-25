@@ -31,18 +31,65 @@
 #include "acl.h"
 
 static struct kmem_cache *io_end_cachep;
+<<<<<<< HEAD
+=======
+static struct kmem_cache *io_end_vec_cachep;
+>>>>>>> upstream/android-13
 
 int __init ext4_init_pageio(void)
 {
 	io_end_cachep = KMEM_CACHE(ext4_io_end, SLAB_RECLAIM_ACCOUNT);
 	if (io_end_cachep == NULL)
 		return -ENOMEM;
+<<<<<<< HEAD
+=======
+
+	io_end_vec_cachep = KMEM_CACHE(ext4_io_end_vec, 0);
+	if (io_end_vec_cachep == NULL) {
+		kmem_cache_destroy(io_end_cachep);
+		return -ENOMEM;
+	}
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 void ext4_exit_pageio(void)
 {
 	kmem_cache_destroy(io_end_cachep);
+<<<<<<< HEAD
+=======
+	kmem_cache_destroy(io_end_vec_cachep);
+}
+
+struct ext4_io_end_vec *ext4_alloc_io_end_vec(ext4_io_end_t *io_end)
+{
+	struct ext4_io_end_vec *io_end_vec;
+
+	io_end_vec = kmem_cache_zalloc(io_end_vec_cachep, GFP_NOFS);
+	if (!io_end_vec)
+		return ERR_PTR(-ENOMEM);
+	INIT_LIST_HEAD(&io_end_vec->list);
+	list_add_tail(&io_end_vec->list, &io_end->list_vec);
+	return io_end_vec;
+}
+
+static void ext4_free_io_end_vec(ext4_io_end_t *io_end)
+{
+	struct ext4_io_end_vec *io_end_vec, *tmp;
+
+	if (list_empty(&io_end->list_vec))
+		return;
+	list_for_each_entry_safe(io_end_vec, tmp, &io_end->list_vec, list) {
+		list_del(&io_end_vec->list);
+		kmem_cache_free(io_end_vec_cachep, io_end_vec);
+	}
+}
+
+struct ext4_io_end_vec *ext4_last_io_end_vec(ext4_io_end_t *io_end)
+{
+	BUG_ON(list_empty(&io_end->list_vec));
+	return list_last_entry(&io_end->list_vec, struct ext4_io_end_vec, list);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -61,10 +108,17 @@ static void buffer_io_error(struct buffer_head *bh)
 
 static void ext4_finish_bio(struct bio *bio)
 {
+<<<<<<< HEAD
 	int i;
 	struct bio_vec *bvec;
 
 	bio_for_each_segment_all(bvec, bio, i) {
+=======
+	struct bio_vec *bvec;
+	struct bvec_iter_all iter_all;
+
+	bio_for_each_segment_all(bvec, bio, iter_all) {
+>>>>>>> upstream/android-13
 		struct page *page = bvec->bv_page;
 		struct page *bounce_page = NULL;
 		struct buffer_head *bh, *head;
@@ -73,9 +127,12 @@ static void ext4_finish_bio(struct bio *bio)
 		unsigned under_io = 0;
 		unsigned long flags;
 
+<<<<<<< HEAD
 		if (!page)
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		if (fscrypt_is_bounce_page(page)) {
 			bounce_page = page;
 			page = fscrypt_pagecache_page(bounce_page);
@@ -87,11 +144,18 @@ static void ext4_finish_bio(struct bio *bio)
 		}
 		bh = head = page_buffers(page);
 		/*
+<<<<<<< HEAD
 		 * We check all buffers in the page under BH_Uptodate_Lock
 		 * to avoid races with other end io clearing async_write flags
 		 */
 		local_irq_save(flags);
 		bit_spin_lock(BH_Uptodate_Lock, &head->b_state);
+=======
+		 * We check all buffers in the page under b_uptodate_lock
+		 * to avoid races with other end io clearing async_write flags
+		 */
+		spin_lock_irqsave(&head->b_uptodate_lock, flags);
+>>>>>>> upstream/android-13
 		do {
 			if (bh_offset(bh) < bio_start ||
 			    bh_offset(bh) + bh->b_size > bio_end) {
@@ -100,11 +164,20 @@ static void ext4_finish_bio(struct bio *bio)
 				continue;
 			}
 			clear_buffer_async_write(bh);
+<<<<<<< HEAD
 			if (bio->bi_status)
 				buffer_io_error(bh);
 		} while ((bh = bh->b_this_page) != head);
 		bit_spin_unlock(BH_Uptodate_Lock, &head->b_state);
 		local_irq_restore(flags);
+=======
+			if (bio->bi_status) {
+				set_buffer_write_io_error(bh);
+				buffer_io_error(bh);
+			}
+		} while ((bh = bh->b_this_page) != head);
+		spin_unlock_irqrestore(&head->b_uptodate_lock, flags);
+>>>>>>> upstream/android-13
 		if (!under_io) {
 			fscrypt_free_bounce_page(bounce_page);
 			end_page_writeback(page);
@@ -125,6 +198,10 @@ static void ext4_release_io_end(ext4_io_end_t *io_end)
 		ext4_finish_bio(bio);
 		bio_put(bio);
 	}
+<<<<<<< HEAD
+=======
+	ext4_free_io_end_vec(io_end);
+>>>>>>> upstream/android-13
 	kmem_cache_free(io_end_cachep, io_end);
 }
 
@@ -136,6 +213,7 @@ static void ext4_release_io_end(ext4_io_end_t *io_end)
  * cannot get to ext4_ext_truncate() before all IOs overlapping that range are
  * completed (happens from ext4_free_ioend()).
  */
+<<<<<<< HEAD
 static int ext4_end_io(ext4_io_end_t *io)
 {
 	struct inode *inode = io->inode;
@@ -150,15 +228,36 @@ static int ext4_end_io(ext4_io_end_t *io)
 
 	io->handle = NULL;	/* Following call will use up the handle */
 	ret = ext4_convert_unwritten_extents(handle, inode, offset, size);
+=======
+static int ext4_end_io_end(ext4_io_end_t *io_end)
+{
+	struct inode *inode = io_end->inode;
+	handle_t *handle = io_end->handle;
+	int ret = 0;
+
+	ext4_debug("ext4_end_io_nolock: io_end 0x%p from inode %lu,list->next 0x%p,"
+		   "list->prev 0x%p\n",
+		   io_end, inode->i_ino, io_end->list.next, io_end->list.prev);
+
+	io_end->handle = NULL;	/* Following call will use up the handle */
+	ret = ext4_convert_unwritten_io_end_vec(handle, io_end);
+>>>>>>> upstream/android-13
 	if (ret < 0 && !ext4_forced_shutdown(EXT4_SB(inode->i_sb))) {
 		ext4_msg(inode->i_sb, KERN_EMERG,
 			 "failed to convert unwritten extents to written "
 			 "extents -- potential data loss!  "
+<<<<<<< HEAD
 			 "(inode %lu, offset %llu, size %zd, error %d)",
 			 inode->i_ino, offset, size, ret);
 	}
 	ext4_clear_io_unwritten_flag(io);
 	ext4_release_io_end(io);
+=======
+			 "(inode %lu, error %d)", inode->i_ino, ret);
+	}
+	ext4_clear_io_unwritten_flag(io_end);
+	ext4_release_io_end(io_end);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -166,12 +265,17 @@ static void dump_completed_IO(struct inode *inode, struct list_head *head)
 {
 #ifdef	EXT4FS_DEBUG
 	struct list_head *cur, *before, *after;
+<<<<<<< HEAD
 	ext4_io_end_t *io, *io0, *io1;
+=======
+	ext4_io_end_t *io_end, *io_end0, *io_end1;
+>>>>>>> upstream/android-13
 
 	if (list_empty(head))
 		return;
 
 	ext4_debug("Dump inode %lu completed io list\n", inode->i_ino);
+<<<<<<< HEAD
 	list_for_each_entry(io, head, list) {
 		cur = &io->list;
 		before = cur->prev;
@@ -181,6 +285,17 @@ static void dump_completed_IO(struct inode *inode, struct list_head *head)
 
 		ext4_debug("io 0x%p from inode %lu,prev 0x%p,next 0x%p\n",
 			    io, inode->i_ino, io0, io1);
+=======
+	list_for_each_entry(io_end, head, list) {
+		cur = &io_end->list;
+		before = cur->prev;
+		io_end0 = container_of(before, ext4_io_end_t, list);
+		after = cur->next;
+		io_end1 = container_of(after, ext4_io_end_t, list);
+
+		ext4_debug("io 0x%p from inode %lu,prev 0x%p,next 0x%p\n",
+			    io_end, inode->i_ino, io_end0, io_end1);
+>>>>>>> upstream/android-13
 	}
 #endif
 }
@@ -207,7 +322,11 @@ static void ext4_add_complete_io(ext4_io_end_t *io_end)
 static int ext4_do_flush_completed_IO(struct inode *inode,
 				      struct list_head *head)
 {
+<<<<<<< HEAD
 	ext4_io_end_t *io;
+=======
+	ext4_io_end_t *io_end;
+>>>>>>> upstream/android-13
 	struct list_head unwritten;
 	unsigned long flags;
 	struct ext4_inode_info *ei = EXT4_I(inode);
@@ -219,11 +338,19 @@ static int ext4_do_flush_completed_IO(struct inode *inode,
 	spin_unlock_irqrestore(&ei->i_completed_io_lock, flags);
 
 	while (!list_empty(&unwritten)) {
+<<<<<<< HEAD
 		io = list_entry(unwritten.next, ext4_io_end_t, list);
 		BUG_ON(!(io->flag & EXT4_IO_END_UNWRITTEN));
 		list_del_init(&io->list);
 
 		err = ext4_end_io(io);
+=======
+		io_end = list_entry(unwritten.next, ext4_io_end_t, list);
+		BUG_ON(!(io_end->flag & EXT4_IO_END_UNWRITTEN));
+		list_del_init(&io_end->list);
+
+		err = ext4_end_io_end(io_end);
+>>>>>>> upstream/android-13
 		if (unlikely(!ret && err))
 			ret = err;
 	}
@@ -242,6 +369,7 @@ void ext4_end_io_rsv_work(struct work_struct *work)
 
 ext4_io_end_t *ext4_init_io_end(struct inode *inode, gfp_t flags)
 {
+<<<<<<< HEAD
 	ext4_io_end_t *io = kmem_cache_zalloc(io_end_cachep, flags);
 	if (io) {
 		io->inode = inode;
@@ -249,12 +377,28 @@ ext4_io_end_t *ext4_init_io_end(struct inode *inode, gfp_t flags)
 		atomic_set(&io->count, 1);
 	}
 	return io;
+=======
+	ext4_io_end_t *io_end = kmem_cache_zalloc(io_end_cachep, flags);
+
+	if (io_end) {
+		io_end->inode = inode;
+		INIT_LIST_HEAD(&io_end->list);
+		INIT_LIST_HEAD(&io_end->list_vec);
+		atomic_set(&io_end->count, 1);
+	}
+	return io_end;
+>>>>>>> upstream/android-13
 }
 
 void ext4_put_io_end_defer(ext4_io_end_t *io_end)
 {
 	if (atomic_dec_and_test(&io_end->count)) {
+<<<<<<< HEAD
 		if (!(io_end->flag & EXT4_IO_END_UNWRITTEN) || !io_end->size) {
+=======
+		if (!(io_end->flag & EXT4_IO_END_UNWRITTEN) ||
+				list_empty(&io_end->list_vec)) {
+>>>>>>> upstream/android-13
 			ext4_release_io_end(io_end);
 			return;
 		}
@@ -268,9 +412,14 @@ int ext4_put_io_end(ext4_io_end_t *io_end)
 
 	if (atomic_dec_and_test(&io_end->count)) {
 		if (io_end->flag & EXT4_IO_END_UNWRITTEN) {
+<<<<<<< HEAD
 			err = ext4_convert_unwritten_extents(io_end->handle,
 						io_end->inode, io_end->offset,
 						io_end->size);
+=======
+			err = ext4_convert_unwritten_io_end_vec(io_end->handle,
+								io_end);
+>>>>>>> upstream/android-13
 			io_end->handle = NULL;
 			ext4_clear_io_unwritten_flag(io_end);
 		}
@@ -307,10 +456,15 @@ static void ext4_end_bio(struct bio *bio)
 		struct inode *inode = io_end->inode;
 
 		ext4_warning(inode->i_sb, "I/O error %d writing to inode %lu "
+<<<<<<< HEAD
 			     "(offset %llu size %ld starting block %llu)",
 			     bio->bi_status, inode->i_ino,
 			     (unsigned long long) io_end->offset,
 			     (long) io_end->size,
+=======
+			     "starting block %llu)",
+			     bio->bi_status, inode->i_ino,
+>>>>>>> upstream/android-13
 			     (unsigned long long)
 			     bi_sector >> (inode->i_blkbits - 9));
 		mapping_set_error(inode->i_mapping,
@@ -358,6 +512,7 @@ void ext4_io_submit_init(struct ext4_io_submit *io,
 	io->io_end = NULL;
 }
 
+<<<<<<< HEAD
 static int io_submit_init_bio(struct ext4_io_submit *io,
 			      struct buffer_head *bh)
 {
@@ -368,12 +523,26 @@ static int io_submit_init_bio(struct ext4_io_submit *io,
 		return -ENOMEM;
 	fscrypt_set_bio_crypt_ctx_bh(bio, bh, GFP_NOIO);
 	wbc_init_bio(io->io_wbc, bio);
+=======
+static void io_submit_init_bio(struct ext4_io_submit *io,
+			       struct buffer_head *bh)
+{
+	struct bio *bio;
+
+	/*
+	 * bio_alloc will _always_ be able to allocate a bio if
+	 * __GFP_DIRECT_RECLAIM is set, see comments for bio_alloc_bioset().
+	 */
+	bio = bio_alloc(GFP_NOIO, BIO_MAX_VECS);
+	fscrypt_set_bio_crypt_ctx_bh(bio, bh, GFP_NOIO);
+>>>>>>> upstream/android-13
 	bio->bi_iter.bi_sector = bh->b_blocknr * (bh->b_size >> 9);
 	bio_set_dev(bio, bh->b_bdev);
 	bio->bi_end_io = ext4_end_bio;
 	bio->bi_private = ext4_get_io_end(io->io_end);
 	io->io_bio = bio;
 	io->io_next_block = bh->b_blocknr;
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -381,6 +550,15 @@ static int io_submit_add_bh(struct ext4_io_submit *io,
 			    struct inode *inode,
 			    struct page *page,
 			    struct buffer_head *bh)
+=======
+	wbc_init_bio(io->io_wbc, bio);
+}
+
+static void io_submit_add_bh(struct ext4_io_submit *io,
+			     struct inode *inode,
+			     struct page *page,
+			     struct buffer_head *bh)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -390,23 +568,35 @@ submit_and_retry:
 		ext4_io_submit(io);
 	}
 	if (io->io_bio == NULL) {
+<<<<<<< HEAD
 		ret = io_submit_init_bio(io, bh);
 		if (ret)
 			return ret;
+=======
+		io_submit_init_bio(io, bh);
+>>>>>>> upstream/android-13
 		io->io_bio->bi_write_hint = inode->i_write_hint;
 	}
 	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
 	if (ret != bh->b_size)
 		goto submit_and_retry;
+<<<<<<< HEAD
 	wbc_account_io(io->io_wbc, page, bh->b_size);
 	io->io_next_block++;
 	return 0;
+=======
+	wbc_account_cgroup_owner(io->io_wbc, page, bh->b_size);
+	io->io_next_block++;
+>>>>>>> upstream/android-13
 }
 
 int ext4_bio_write_page(struct ext4_io_submit *io,
 			struct page *page,
 			int len,
+<<<<<<< HEAD
 			struct writeback_control *wbc,
+=======
+>>>>>>> upstream/android-13
 			bool keep_towrite)
 {
 	struct page *bounce_page = NULL;
@@ -416,6 +606,10 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 	int ret = 0;
 	int nr_submitted = 0;
 	int nr_to_submit = 0;
+<<<<<<< HEAD
+=======
+	struct writeback_control *wbc = io->io_wbc;
+>>>>>>> upstream/android-13
 
 	BUG_ON(!PageLocked(page));
 	BUG_ON(PageWriteback(page));
@@ -461,18 +655,36 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 				ext4_io_submit(io);
 			continue;
 		}
+<<<<<<< HEAD
 		if (buffer_new(bh)) {
 			clear_buffer_new(bh);
 			clean_bdev_bh_alias(bh);
 		}
+=======
+		if (buffer_new(bh))
+			clear_buffer_new(bh);
+>>>>>>> upstream/android-13
 		set_buffer_async_write(bh);
 		nr_to_submit++;
 	} while ((bh = bh->b_this_page) != head);
 
 	bh = head = page_buffers(page);
 
+<<<<<<< HEAD
 	if (fscrypt_inode_uses_fs_layer_crypto(inode) && nr_to_submit) {
 		gfp_t gfp_flags = GFP_NOFS;
+=======
+	/*
+	 * If any blocks are being written to an encrypted file, encrypt them
+	 * into a bounce page.  For simplicity, just encrypt until the last
+	 * block which might be needed.  This may cause some unneeded blocks
+	 * (e.g. holes) to be unnecessarily encrypted, but this is rare and
+	 * can't happen in the common case of blocksize == PAGE_SIZE.
+	 */
+	if (fscrypt_inode_uses_fs_layer_crypto(inode) && nr_to_submit) {
+		gfp_t gfp_flags = GFP_NOFS;
+		unsigned int enc_bytes = round_up(len, i_blocksize(inode));
+>>>>>>> upstream/android-13
 
 		/*
 		 * Since bounce page allocation uses a mempool, we can only use
@@ -482,7 +694,11 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 		if (io->io_bio)
 			gfp_flags = GFP_NOWAIT | __GFP_NOWARN;
 	retry_encrypt:
+<<<<<<< HEAD
 		bounce_page = fscrypt_encrypt_pagecache_blocks(page, PAGE_SIZE,
+=======
+		bounce_page = fscrypt_encrypt_pagecache_blocks(page, enc_bytes,
+>>>>>>> upstream/android-13
 							       0, gfp_flags);
 		if (IS_ERR(bounce_page)) {
 			ret = PTR_ERR(bounce_page);
@@ -496,8 +712,19 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 				congestion_wait(BLK_RW_ASYNC, HZ/50);
 				goto retry_encrypt;
 			}
+<<<<<<< HEAD
 			bounce_page = NULL;
 			goto out;
+=======
+
+			printk_ratelimited(KERN_ERR "%s: ret = %d\n", __func__, ret);
+			redirty_page_for_writepage(wbc, page);
+			do {
+				clear_buffer_async_write(bh);
+				bh = bh->b_this_page;
+			} while (bh != head);
+			goto unlock;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -505,6 +732,7 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 	do {
 		if (!buffer_async_write(bh))
 			continue;
+<<<<<<< HEAD
 		ret = io_submit_add_bh(io, inode, bounce_page ?: page, bh);
 		if (ret) {
 			/*
@@ -514,10 +742,15 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 			 */
 			break;
 		}
+=======
+		io_submit_add_bh(io, inode,
+				 bounce_page ? bounce_page : page, bh);
+>>>>>>> upstream/android-13
 		nr_submitted++;
 		clear_buffer_dirty(bh);
 	} while ((bh = bh->b_this_page) != head);
 
+<<<<<<< HEAD
 	/* Error stopped previous loop? Clean up buffers... */
 	if (ret) {
 	out:
@@ -529,6 +762,9 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
 			bh = bh->b_this_page;
 		} while (bh != head);
 	}
+=======
+unlock:
+>>>>>>> upstream/android-13
 	unlock_page(page);
 	/* Nothing submitted - we have to end page writeback */
 	if (!nr_submitted)

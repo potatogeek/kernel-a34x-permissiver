@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Windfarm PowerMac thermal control
  *
  * Copyright 2012 Benjamin Herrenschmidt, IBM Corp.
+<<<<<<< HEAD
  *
  * Released under the term of the GNU GPL v2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __WINDFARM_MPU_H

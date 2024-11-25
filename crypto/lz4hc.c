@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Cryptographic API.
  *
  * Copyright (c) 2013 Chanho Min <chanho.min@lge.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -120,10 +127,17 @@ static int lz4hc_decompress_crypto(struct crypto_tfm *tfm, const u8 *src,
 
 static struct crypto_alg alg_lz4hc = {
 	.cra_name		= "lz4hc",
+<<<<<<< HEAD
 	.cra_flags		= CRYPTO_ALG_TYPE_COMPRESS,
 	.cra_ctxsize		= sizeof(struct lz4hc_ctx),
 	.cra_module		= THIS_MODULE,
 	.cra_list		= LIST_HEAD_INIT(alg_lz4hc.cra_list),
+=======
+	.cra_driver_name	= "lz4hc-generic",
+	.cra_flags		= CRYPTO_ALG_TYPE_COMPRESS,
+	.cra_ctxsize		= sizeof(struct lz4hc_ctx),
+	.cra_module		= THIS_MODULE,
+>>>>>>> upstream/android-13
 	.cra_init		= lz4hc_init,
 	.cra_exit		= lz4hc_exit,
 	.cra_u			= { .compress = {
@@ -166,7 +180,11 @@ static void __exit lz4hc_mod_fini(void)
 	crypto_unregister_scomp(&scomp);
 }
 
+<<<<<<< HEAD
 module_init(lz4hc_mod_init);
+=======
+subsys_initcall(lz4hc_mod_init);
+>>>>>>> upstream/android-13
 module_exit(lz4hc_mod_fini);
 
 MODULE_LICENSE("GPL");

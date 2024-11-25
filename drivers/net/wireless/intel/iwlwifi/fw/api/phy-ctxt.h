@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -60,12 +61,24 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018, 2020 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_phy_ctxt_h__
 #define __iwl_fw_api_phy_ctxt_h__
 
 /* Supported bands */
 #define PHY_BAND_5  (0)
 #define PHY_BAND_24 (1)
+<<<<<<< HEAD
+=======
+#define PHY_BAND_6 (2)
+>>>>>>> upstream/android-13
 
 /* Supported channel width, vary if there is VHT support */
 #define PHY_VHT_CHANNEL_MODE20	(0x0)
@@ -95,17 +108,47 @@
 #define PHY_VHT_CTRL_POS_4_ABOVE  (0x7)
 
 /*
+<<<<<<< HEAD
+=======
+ * struct iwl_fw_channel_info_v1 - channel information
+ *
+>>>>>>> upstream/android-13
  * @band: PHY_BAND_*
  * @channel: channel number
  * @width: PHY_[VHT|LEGACY]_CHANNEL_*
  * @ctrl channel: PHY_[VHT|LEGACY]_CTRL_*
  */
+<<<<<<< HEAD
 struct iwl_fw_channel_info {
+=======
+struct iwl_fw_channel_info_v1 {
+>>>>>>> upstream/android-13
 	u8 band;
 	u8 channel;
 	u8 width;
 	u8 ctrl_pos;
+<<<<<<< HEAD
 } __packed;
+=======
+} __packed; /* CHANNEL_CONFIG_API_S_VER_1 */
+
+/*
+ * struct iwl_fw_channel_info - channel information
+ *
+ * @channel: channel number
+ * @band: PHY_BAND_*
+ * @width: PHY_[VHT|LEGACY]_CHANNEL_*
+ * @ctrl channel: PHY_[VHT|LEGACY]_CTRL_*
+ * @reserved: for future use and alignment
+ */
+struct iwl_fw_channel_info {
+	__le32 channel;
+	u8 band;
+	u8 width;
+	u8 ctrl_pos;
+	u8 reserved;
+} __packed; /*CHANNEL_CONFIG_API_S_VER_2 */
+>>>>>>> upstream/android-13
 
 #define PHY_RX_CHAIN_DRIVER_FORCE_POS	(0)
 #define PHY_RX_CHAIN_DRIVER_FORCE_MSK \
@@ -134,6 +177,25 @@ struct iwl_fw_channel_info {
 
 /* TODO: complete missing documentation */
 /**
+<<<<<<< HEAD
+=======
+ * struct iwl_phy_context_cmd_tail - tail of iwl_phy_ctx_cmd for alignment with
+ *	various channel structures.
+ *
+ * @txchain_info: ???
+ * @rxchain_info: ???
+ * @acquisition_data: ???
+ * @dsp_cfg_flags: set to 0
+ */
+struct iwl_phy_context_cmd_tail {
+	__le32 txchain_info;
+	__le32 rxchain_info;
+	__le32 acquisition_data;
+	__le32 dsp_cfg_flags;
+} __packed;
+
+/**
+>>>>>>> upstream/android-13
  * struct iwl_phy_context_cmd - config of the PHY context
  * ( PHY_CONTEXT_CMD = 0x8 )
  * @id_and_color: ID and color of the relevant Binding
@@ -142,15 +204,42 @@ struct iwl_fw_channel_info {
  *	other value means apply new params after X usecs
  * @tx_param_color: ???
  * @ci: channel info
+<<<<<<< HEAD
  * @txchain_info: ???
  * @rxchain_info: ???
  * @acquisition_data: ???
  * @dsp_cfg_flags: set to 0
+=======
+ * @tail: command tail
+ */
+struct iwl_phy_context_cmd_v1 {
+	/* COMMON_INDEX_HDR_API_S_VER_1 */
+	__le32 id_and_color;
+	__le32 action;
+	/* PHY_CONTEXT_DATA_API_S_VER_3 */
+	__le32 apply_time;
+	__le32 tx_param_color;
+	struct iwl_fw_channel_info ci;
+	struct iwl_phy_context_cmd_tail tail;
+} __packed; /* PHY_CONTEXT_CMD_API_VER_1 */
+
+/**
+ * struct iwl_phy_context_cmd - config of the PHY context
+ * ( PHY_CONTEXT_CMD = 0x8 )
+ * @id_and_color: ID and color of the relevant Binding
+ * @action: action to perform, one of FW_CTXT_ACTION_*
+ * @lmac_id: the lmac id the phy context belongs to
+ * @ci: channel info
+ * @rxchain_info: ???
+ * @dsp_cfg_flags: set to 0
+ * @reserved: reserved to align to 64 bit
+>>>>>>> upstream/android-13
  */
 struct iwl_phy_context_cmd {
 	/* COMMON_INDEX_HDR_API_S_VER_1 */
 	__le32 id_and_color;
 	__le32 action;
+<<<<<<< HEAD
 	/* PHY_CONTEXT_DATA_API_S_VER_1 */
 	__le32 apply_time;
 	__le32 tx_param_color;
@@ -161,4 +250,13 @@ struct iwl_phy_context_cmd {
 	__le32 dsp_cfg_flags;
 } __packed; /* PHY_CONTEXT_CMD_API_VER_1 */
 
+=======
+	/* PHY_CONTEXT_DATA_API_S_VER_3 */
+	struct iwl_fw_channel_info ci;
+	__le32 lmac_id;
+	__le32 rxchain_info;
+	__le32 dsp_cfg_flags;
+	__le32 reserved;
+} __packed; /* PHY_CONTEXT_CMD_API_VER_3 */
+>>>>>>> upstream/android-13
 #endif /* __iwl_fw_api_phy_ctxt_h__ */

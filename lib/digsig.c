@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2011 Nokia Corporation
  * Copyright (C) 2011 Intel Corporation
@@ -6,10 +10,13 @@
  * Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
  *                 <dmitry.kasatkin@intel.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * File: sign.c
  *	implements signature (RSA) verification
  *	pkcs decoding is based on LibTomCrypt code
@@ -23,7 +30,11 @@
 #include <linux/key.h>
 #include <linux/crypto.h>
 #include <crypto/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha1.h>
+>>>>>>> upstream/android-13
 #include <keys/user-type.h>
 #include <linux/mpi.h>
 #include <linux/digsig.h>
@@ -221,7 +232,11 @@ int digsig_verify(struct key *keyring, const char *sig, int siglen,
 		/* search in specific keyring */
 		key_ref_t kref;
 		kref = keyring_search(make_key_ref(keyring, 1UL),
+<<<<<<< HEAD
 						&key_type_user, name);
+=======
+				      &key_type_user, name, true);
+>>>>>>> upstream/android-13
 		if (IS_ERR(kref))
 			key = ERR_CAST(kref);
 		else
@@ -240,7 +255,10 @@ int digsig_verify(struct key *keyring, const char *sig, int siglen,
 		goto err;
 
 	desc->tfm = shash;
+<<<<<<< HEAD
 	desc->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	crypto_shash_init(desc);
 	crypto_shash_update(desc, data, datalen);

@@ -17,6 +17,10 @@
 #include <linux/wait.h>
 
 #include <media/v4l2-common.h>
+<<<<<<< HEAD
+=======
+#include <media/videobuf2-dma-sg.h>
+>>>>>>> upstream/android-13
 #include <media/videobuf2-vmalloc.h>
 
 #include "uvc.h"
@@ -43,6 +47,11 @@ static int uvc_queue_setup(struct vb2_queue *vq,
 {
 	struct uvc_video_queue *queue = vb2_get_drv_priv(vq);
 	struct uvc_video *video = container_of(queue, struct uvc_video, queue);
+<<<<<<< HEAD
+=======
+	unsigned int req_size;
+	unsigned int nreq;
+>>>>>>> upstream/android-13
 
 	if (*nbuffers > UVC_MAX_VIDEO_BUFFERS)
 		*nbuffers = UVC_MAX_VIDEO_BUFFERS;
@@ -51,6 +60,20 @@ static int uvc_queue_setup(struct vb2_queue *vq,
 
 	sizes[0] = video->imagesize;
 
+<<<<<<< HEAD
+=======
+	req_size = video->ep->maxpacket
+		 * max_t(unsigned int, video->ep->maxburst, 1)
+		 * (video->ep->mult);
+
+	/* We divide by two, to increase the chance to run
+	 * into fewer requests for smaller framesizes.
+	 */
+	nreq = DIV_ROUND_UP(DIV_ROUND_UP(sizes[0], 2), req_size);
+	nreq = clamp(nreq, 4U, 64U);
+	video->uvc_num_requests = nreq;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -70,7 +93,16 @@ static int uvc_buffer_prepare(struct vb2_buffer *vb)
 		return -ENODEV;
 
 	buf->state = UVC_BUF_STATE_QUEUED;
+<<<<<<< HEAD
 	buf->mem = vb2_plane_vaddr(vb, 0);
+=======
+	if (queue->use_sg) {
+		buf->sgt = vb2_dma_sg_plane_desc(vb, 0);
+		buf->sg = buf->sgt->sgl;
+	} else {
+		buf->mem = vb2_plane_vaddr(vb, 0);
+	}
+>>>>>>> upstream/android-13
 	buf->length = vb2_plane_size(vb, 0);
 	if (vb->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
 		buf->bytesused = 0;
@@ -102,7 +134,11 @@ static void uvc_buffer_queue(struct vb2_buffer *vb)
 	spin_unlock_irqrestore(&queue->irqlock, flags);
 }
 
+<<<<<<< HEAD
 static struct vb2_ops uvc_queue_qops = {
+=======
+static const struct vb2_ops uvc_queue_qops = {
+>>>>>>> upstream/android-13
 	.queue_setup = uvc_queue_setup,
 	.buf_prepare = uvc_buffer_prepare,
 	.buf_queue = uvc_buffer_queue,
@@ -110,9 +146,17 @@ static struct vb2_ops uvc_queue_qops = {
 	.wait_finish = vb2_ops_wait_finish,
 };
 
+<<<<<<< HEAD
 int uvcg_queue_init(struct uvc_video_queue *queue, enum v4l2_buf_type type,
 		    struct mutex *lock)
 {
+=======
+int uvcg_queue_init(struct uvc_video_queue *queue, struct device *dev, enum v4l2_buf_type type,
+		    struct mutex *lock)
+{
+	struct uvc_video *video = container_of(queue, struct uvc_video, queue);
+	struct usb_composite_dev *cdev = video->uvc->func.config->cdev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	queue->queue.type = type;
@@ -121,9 +165,23 @@ int uvcg_queue_init(struct uvc_video_queue *queue, enum v4l2_buf_type type,
 	queue->queue.buf_struct_size = sizeof(struct uvc_buffer);
 	queue->queue.ops = &uvc_queue_qops;
 	queue->queue.lock = lock;
+<<<<<<< HEAD
 	queue->queue.mem_ops = &vb2_vmalloc_memops;
 	queue->queue.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC
 				     | V4L2_BUF_FLAG_TSTAMP_SRC_EOF;
+=======
+	if (cdev->gadget->sg_supported) {
+		queue->queue.mem_ops = &vb2_dma_sg_memops;
+		queue->use_sg = 1;
+	} else {
+		queue->queue.mem_ops = &vb2_vmalloc_memops;
+	}
+
+	queue->queue.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC
+				     | V4L2_BUF_FLAG_TSTAMP_SRC_EOF;
+	queue->queue.dev = dev;
+
+>>>>>>> upstream/android-13
 	ret = vb2_queue_init(&queue->queue);
 	if (ret)
 		return ret;
@@ -163,6 +221,7 @@ int uvcg_query_buffer(struct uvc_video_queue *queue, struct v4l2_buffer *buf)
 
 int uvcg_queue_buffer(struct uvc_video_queue *queue, struct v4l2_buffer *buf)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	int ret;
 
@@ -175,6 +234,9 @@ int uvcg_queue_buffer(struct uvc_video_queue *queue, struct v4l2_buffer *buf)
 	queue->flags &= ~UVC_QUEUE_PAUSED;
 	spin_unlock_irqrestore(&queue->irqlock, flags);
 	return ret;
+=======
+	return vb2_qbuf(&queue->queue, NULL, buf);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -242,6 +304,11 @@ void uvcg_queue_cancel(struct uvc_video_queue *queue, int disconnect)
 		buf->state = UVC_BUF_STATE_ERROR;
 		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
 	}
+<<<<<<< HEAD
+=======
+	queue->buf_used = 0;
+
+>>>>>>> upstream/android-13
 	/* This must be protected by the irqlock spinlock to avoid race
 	 * conditions between uvc_queue_buffer and the disconnection event that
 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
@@ -340,8 +407,11 @@ struct uvc_buffer *uvcg_queue_head(struct uvc_video_queue *queue)
 	if (!list_empty(&queue->irqqueue))
 		buf = list_first_entry(&queue->irqqueue, struct uvc_buffer,
 				       queue);
+<<<<<<< HEAD
 	else
 		queue->flags |= UVC_QUEUE_PAUSED;
+=======
+>>>>>>> upstream/android-13
 
 	return buf;
 }

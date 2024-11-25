@@ -44,31 +44,53 @@
 #define BTC_ANT_WIFI_AT_CPL_MAIN	0
 #define BTC_ANT_WIFI_AT_CPL_AUX		1
 
+<<<<<<< HEAD
 typedef enum _BTC_POWERSAVE_TYPE{
+=======
+enum {
+>>>>>>> upstream/android-13
 	BTC_PS_WIFI_NATIVE	= 0,	/*  wifi original power save behavior */
 	BTC_PS_LPS_ON		= 1,
 	BTC_PS_LPS_OFF		= 2,
 	BTC_PS_MAX
+<<<<<<< HEAD
 } BTC_POWERSAVE_TYPE, *PBTC_POWERSAVE_TYPE;
 
 typedef enum _BTC_BT_REG_TYPE{
+=======
+};
+
+enum {
+>>>>>>> upstream/android-13
 	BTC_BT_REG_RF		= 0,
 	BTC_BT_REG_MODEM	= 1,
 	BTC_BT_REG_BLUEWIZE	= 2,
 	BTC_BT_REG_VENDOR	= 3,
 	BTC_BT_REG_LE		= 4,
 	BTC_BT_REG_MAX
+<<<<<<< HEAD
 } BTC_BT_REG_TYPE, *PBTC_BT_REG_TYPE;
 
 typedef enum _BTC_CHIP_INTERFACE{
+=======
+};
+
+enum btc_chip_interface {
+>>>>>>> upstream/android-13
 	BTC_INTF_UNKNOWN	= 0,
 	BTC_INTF_PCI		= 1,
 	BTC_INTF_USB		= 2,
 	BTC_INTF_SDIO		= 3,
 	BTC_INTF_MAX
+<<<<<<< HEAD
 } BTC_CHIP_INTERFACE, *PBTC_CHIP_INTERFACE;
 
 typedef enum _BTC_CHIP_TYPE {
+=======
+};
+
+enum {
+>>>>>>> upstream/android-13
 	BTC_CHIP_UNDEF		= 0,
 	BTC_CHIP_CSR_BC4	= 1,
 	BTC_CHIP_CSR_BC8	= 2,
@@ -76,6 +98,7 @@ typedef enum _BTC_CHIP_TYPE {
 	BTC_CHIP_RTL8821	= 4,
 	BTC_CHIP_RTL8723B	= 5,
 	BTC_CHIP_MAX
+<<<<<<< HEAD
 } BTC_CHIP_TYPE, *PBTC_CHIP_TYPE;
 
 typedef enum _BTC_MSG_TYPE {
@@ -100,6 +123,9 @@ extern u32 		GLBtcDbgType[];
 #define ALGO_TRACE_SW					BIT7
 #define ALGO_TRACE_SW_DETAIL			BIT8
 #define ALGO_TRACE_SW_EXEC				BIT9
+=======
+};
+>>>>>>> upstream/android-13
 
 /*  following is for wifi link status */
 #define WIFI_STA_CONNECTED				BIT0
@@ -108,6 +134,7 @@ extern u32 		GLBtcDbgType[];
 #define WIFI_P2P_GO_CONNECTED			BIT3
 #define WIFI_P2P_GC_CONNECTED			BIT4
 
+<<<<<<< HEAD
 /*  following is for command line utility */
 #define CL_SPRINTF	snprintf
 #define CL_PRINTF	DCMD_Printf
@@ -165,6 +192,9 @@ extern u32 		GLBtcDbgType[];
 #endif
 
 typedef struct _BTC_BOARD_INFO {
+=======
+struct btc_board_info {
+>>>>>>> upstream/android-13
 	/*  The following is some board information */
 	u8 btChipType;
 	u8 pgAntNum;	/*  pg ant number */
@@ -172,6 +202,7 @@ typedef struct _BTC_BOARD_INFO {
 	u8 btdmAntPos;		/* Bryant Add to indicate Antenna Position for (pgAntNum = 2) && (btdmAntNum = 1)  (DPDT+1Ant case) */
 	u8 singleAntPath;	/*  current used for 8723b only, 1 =>s0,  0 =>s1 */
 	/* bool				bBtExist; */
+<<<<<<< HEAD
 } BTC_BOARD_INFO, *PBTC_BOARD_INFO;
 
 typedef enum _BTC_DBG_OPCODE {
@@ -185,6 +216,11 @@ typedef enum _BTC_DBG_OPCODE {
 } BTC_DBG_OPCODE, *PBTC_DBG_OPCODE;
 
 typedef enum _BTC_RSSI_STATE {
+=======
+};
+
+enum {
+>>>>>>> upstream/android-13
 	BTC_RSSI_STATE_HIGH			    = 0x0,
 	BTC_RSSI_STATE_MEDIUM			= 0x1,
 	BTC_RSSI_STATE_LOW			    = 0x2,
@@ -192,11 +228,16 @@ typedef enum _BTC_RSSI_STATE {
 	BTC_RSSI_STATE_STAY_MEDIUM		= 0x4,
 	BTC_RSSI_STATE_STAY_LOW			= 0x5,
 	BTC_RSSI_MAX
+<<<<<<< HEAD
 } BTC_RSSI_STATE, *PBTC_RSSI_STATE;
+=======
+};
+>>>>>>> upstream/android-13
 #define BTC_RSSI_HIGH(_rssi_)	((_rssi_ == BTC_RSSI_STATE_HIGH || _rssi_ == BTC_RSSI_STATE_STAY_HIGH) ? true : false)
 #define BTC_RSSI_MEDIUM(_rssi_)	((_rssi_ == BTC_RSSI_STATE_MEDIUM || _rssi_ == BTC_RSSI_STATE_STAY_MEDIUM) ? true : false)
 #define BTC_RSSI_LOW(_rssi_)	((_rssi_ == BTC_RSSI_STATE_LOW || _rssi_ == BTC_RSSI_STATE_STAY_LOW) ? true : false)
 
+<<<<<<< HEAD
 typedef enum _BTC_WIFI_ROLE {
 	BTC_ROLE_STATION			= 0x0,
 	BTC_ROLE_AP					= 0x1,
@@ -206,10 +247,14 @@ typedef enum _BTC_WIFI_ROLE {
 } BTC_WIFI_ROLE, *PBTC_WIFI_ROLE;
 
 typedef enum _BTC_WIFI_BW_MODE {
+=======
+enum {
+>>>>>>> upstream/android-13
 	BTC_WIFI_BW_LEGACY			= 0x0,
 	BTC_WIFI_BW_HT20			= 0x1,
 	BTC_WIFI_BW_HT40			= 0x2,
 	BTC_WIFI_BW_MAX
+<<<<<<< HEAD
 } BTC_WIFI_BW_MODE, *PBTC_WIFI_BW_MODE;
 
 typedef enum _BTC_WIFI_TRAFFIC_DIR {
@@ -237,6 +282,24 @@ typedef enum _BT_WIFI_COEX_STATE {
 
 /*  defined for BFP_BTC_GET */
 typedef enum _BTC_GET_TYPE {
+=======
+};
+
+enum {
+	BTC_WIFI_TRAFFIC_TX			= 0x0,
+	BTC_WIFI_TRAFFIC_RX			= 0x1,
+	BTC_WIFI_TRAFFIC_MAX
+};
+
+enum {
+	BTC_WIFI_PNP_WAKE_UP		= 0x0,
+	BTC_WIFI_PNP_SLEEP			= 0x1,
+	BTC_WIFI_PNP_MAX
+};
+
+/*  defined for BFP_BTC_GET */
+enum {
+>>>>>>> upstream/android-13
 	/*  type bool */
 	BTC_GET_BL_HS_OPERATION,
 	BTC_GET_BL_HS_CONNECTING,
@@ -246,7 +309,10 @@ typedef enum _BTC_GET_TYPE {
 	BTC_GET_BL_WIFI_LINK,
 	BTC_GET_BL_WIFI_ROAM,
 	BTC_GET_BL_WIFI_4_WAY_PROGRESS,
+<<<<<<< HEAD
 	BTC_GET_BL_WIFI_UNDER_5G,
+=======
+>>>>>>> upstream/android-13
 	BTC_GET_BL_WIFI_AP_MODE_ENABLE,
 	BTC_GET_BL_WIFI_ENABLE_ENCRYPTION,
 	BTC_GET_BL_WIFI_UNDER_B_MODE,
@@ -275,10 +341,17 @@ typedef enum _BTC_GET_TYPE {
 	BTC_GET_U1_LPS_MODE,
 
 	BTC_GET_MAX
+<<<<<<< HEAD
 } BTC_GET_TYPE, *PBTC_GET_TYPE;
 
 /*  defined for BFP_BTC_SET */
 typedef enum _BTC_SET_TYPE {
+=======
+};
+
+/*  defined for BFP_BTC_SET */
+enum {
+>>>>>>> upstream/android-13
 	/*  type bool */
 	BTC_SET_BL_BT_DISABLE,
 	BTC_SET_BL_BT_TRAFFIC_BUSY,
@@ -316,13 +389,20 @@ typedef enum _BTC_SET_TYPE {
 	BTC_SET_ACT_CTRL_8723B_ANT,
 	/*  */
 	BTC_SET_MAX
+<<<<<<< HEAD
 } BTC_SET_TYPE, *PBTC_SET_TYPE;
 
 typedef enum _BTC_DBG_DISP_TYPE {
+=======
+};
+
+enum {
+>>>>>>> upstream/android-13
 	BTC_DBG_DISP_COEX_STATISTICS		= 0x0,
 	BTC_DBG_DISP_BT_LINK_INFO			= 0x1,
 	BTC_DBG_DISP_FW_PWR_MODE_CMD		= 0x2,
 	BTC_DBG_DISP_MAX
+<<<<<<< HEAD
 } BTC_DBG_DISP_TYPE, *PBTC_DBG_DISP_TYPE;
 
 typedef enum _BTC_NOTIFY_TYPE_IPS {
@@ -356,11 +436,47 @@ typedef enum _BTC_NOTIFY_TYPE_MEDIA_STATUS {
 } BTC_NOTIFY_TYPE_MEDIA_STATUS, *PBTC_NOTIFY_TYPE_MEDIA_STATUS;
 
 typedef enum _BTC_NOTIFY_TYPE_SPECIAL_PACKET {
+=======
+};
+
+enum {
+	BTC_IPS_LEAVE						= 0x0,
+	BTC_IPS_ENTER						= 0x1,
+	BTC_IPS_MAX
+};
+
+enum {
+	BTC_LPS_DISABLE						= 0x0,
+	BTC_LPS_ENABLE						= 0x1,
+	BTC_LPS_MAX
+};
+
+enum {
+	BTC_SCAN_FINISH						= 0x0,
+	BTC_SCAN_START						= 0x1,
+	BTC_SCAN_MAX
+};
+
+enum {
+	BTC_ASSOCIATE_FINISH				= 0x0,
+	BTC_ASSOCIATE_START					= 0x1,
+	BTC_ASSOCIATE_MAX
+};
+
+enum {
+	BTC_MEDIA_DISCONNECT				= 0x0,
+	BTC_MEDIA_CONNECT					= 0x1,
+	BTC_MEDIA_MAX
+};
+
+enum {
+>>>>>>> upstream/android-13
 	BTC_PACKET_UNKNOWN					= 0x0,
 	BTC_PACKET_DHCP						= 0x1,
 	BTC_PACKET_ARP						= 0x2,
 	BTC_PACKET_EAPOL					= 0x3,
 	BTC_PACKET_MAX
+<<<<<<< HEAD
 } BTC_NOTIFY_TYPE_SPECIAL_PACKET, *PBTC_NOTIFY_TYPE_SPECIAL_PACKET;
 
 typedef enum _BTC_NOTIFY_TYPE_STACK_OPERATION {
@@ -375,6 +491,15 @@ typedef enum _BTC_ANTENNA_POS {
 	BTC_ANTENNA_AT_MAIN_PORT = 0x1,
 	BTC_ANTENNA_AT_AUX_PORT  = 0x2,
 } BTC_ANTENNA_POS, *PBTC_ANTENNA_POS;
+=======
+};
+
+/* Bryant Add */
+enum {
+	BTC_ANTENNA_AT_MAIN_PORT = 0x1,
+	BTC_ANTENNA_AT_AUX_PORT  = 0x2,
+};
+>>>>>>> upstream/android-13
 
 typedef u8 (*BFP_BTC_R1)(void *pBtcContext, u32 RegAddr);
 typedef u16(*BFP_BTC_R2)(void *pBtcContext, u32 RegAddr);
@@ -409,7 +534,11 @@ typedef void (*BFP_BTC_SET_BT_REG)(
 typedef u32 (*BFP_BTC_GET_BT_REG)(void *pBtcContext, u8 regType, u32 offset);
 typedef void (*BFP_BTC_DISP_DBG_MSG)(void *pBtCoexist, u8 dispType);
 
+<<<<<<< HEAD
 typedef struct _BTC_BT_INFO {
+=======
+struct btc_bt_info {
+>>>>>>> upstream/android-13
 	bool bBtDisabled;
 	u8 rssiAdjustForAgcTableOn;
 	u8 rssiAdjustFor1AntCoexType;
@@ -435,9 +564,15 @@ typedef struct _BTC_BT_INFO {
 	u8 lpsVal;
 	u8 rpwmVal;
 	u32 raMask;
+<<<<<<< HEAD
 } BTC_BT_INFO, *PBTC_BT_INFO;
 
 typedef struct _BTC_STACK_INFO {
+=======
+};
+
+struct btc_stack_info {
+>>>>>>> upstream/android-13
 	bool bProfileNotified;
 	u16 hciVersion;	/*  stack hci version */
 	u8 numOfLink;
@@ -450,9 +585,15 @@ typedef struct _BTC_STACK_INFO {
 	bool bPanExist;
 	bool bUnknownAclExist;
 	s8 minBtRssi;
+<<<<<<< HEAD
 } BTC_STACK_INFO, *PBTC_STACK_INFO;
 
 typedef struct _BTC_BT_LINK_INFO {
+=======
+};
+
+struct btc_bt_link_info {
+>>>>>>> upstream/android-13
 	bool bBtLinkExist;
 	bool bScoExist;
 	bool bScoOnly;
@@ -463,9 +604,15 @@ typedef struct _BTC_BT_LINK_INFO {
 	bool bPanExist;
 	bool bPanOnly;
 	bool bSlaveRole;
+<<<<<<< HEAD
 } BTC_BT_LINK_INFO, *PBTC_BT_LINK_INFO;
 
 typedef struct _BTC_STATISTICS {
+=======
+};
+
+struct btc_statistics {
+>>>>>>> upstream/android-13
 	u32 cntBind;
 	u32 cntPowerOn;
 	u32 cntInitHwConfig;
@@ -482,6 +629,7 @@ typedef struct _BTC_STATISTICS {
 	u32 cntCoexDmSwitch;
 	u32 cntStackOperationNotify;
 	u32 cntDbgCtrl;
+<<<<<<< HEAD
 } BTC_STATISTICS, *PBTC_STATISTICS;
 
 typedef struct _BTC_COEXIST {
@@ -492,12 +640,28 @@ typedef struct _BTC_COEXIST {
 	BTC_STACK_INFO stackInfo;
 	BTC_BT_LINK_INFO btLinkInfo;
 	BTC_CHIP_INTERFACE chipInterface;
+=======
+};
+
+struct btc_coexist {
+	bool bBinded;		/*  make sure only one adapter can bind the data context */
+	void *Adapter;		/*  default adapter */
+	struct btc_board_info boardInfo;
+	struct btc_bt_info btInfo;		/*  some bt info referenced by non-bt module */
+	struct btc_stack_info stackInfo;
+	struct btc_bt_link_info btLinkInfo;
+	enum btc_chip_interface chipInterface;
+>>>>>>> upstream/android-13
 
 	bool bInitilized;
 	bool bStopCoexDm;
 	bool bManualControl;
+<<<<<<< HEAD
 	u8 *cliBuf;
 	BTC_STATISTICS statistics;
+=======
+	struct btc_statistics statistics;
+>>>>>>> upstream/android-13
 	u8 pwrModeVal[10];
 
 	/*  function pointers */
@@ -520,14 +684,18 @@ typedef struct _BTC_COEXIST {
 
 	/*  fill h2c related */
 	BFP_BTC_FILL_H2C fBtcFillH2c;
+<<<<<<< HEAD
 	/*  other */
 	BFP_BTC_DISP_DBG_MSG fBtcDispDbgMsg;
+=======
+>>>>>>> upstream/android-13
 	/*  normal get/set related */
 	BFP_BTC_GET fBtcGet;
 	BFP_BTC_SET fBtcSet;
 
 	BFP_BTC_GET_BT_REG fBtcGetBtReg;
 	BFP_BTC_SET_BT_REG fBtcSetBtReg;
+<<<<<<< HEAD
 } BTC_COEXIST, *PBTC_COEXIST;
 
 extern BTC_COEXIST GLBtCoexist;
@@ -554,5 +722,31 @@ void EXhalbtcoutsrc_SetChipType(u8 chipType);
 void EXhalbtcoutsrc_SetAntNum(u8 type, u8 antNum);
 void EXhalbtcoutsrc_SetSingleAntPath(u8 singleAntPath);
 void EXhalbtcoutsrc_DisplayBtCoexInfo(PBTC_COEXIST pBtCoexist);
+=======
+};
+
+extern struct btc_coexist GLBtCoexist;
+
+void EXhalbtcoutsrc_PowerOnSetting(struct btc_coexist *pBtCoexist);
+void EXhalbtcoutsrc_InitHwConfig(struct btc_coexist *pBtCoexist, u8 bWifiOnly);
+void EXhalbtcoutsrc_InitCoexDm(struct btc_coexist *pBtCoexist);
+void EXhalbtcoutsrc_IpsNotify(struct btc_coexist *pBtCoexist, u8 type);
+void EXhalbtcoutsrc_LpsNotify(struct btc_coexist *pBtCoexist, u8 type);
+void EXhalbtcoutsrc_ScanNotify(struct btc_coexist *pBtCoexist, u8 type);
+void EXhalbtcoutsrc_ConnectNotify(struct btc_coexist *pBtCoexist, u8 action);
+void EXhalbtcoutsrc_MediaStatusNotify(
+	struct btc_coexist *pBtCoexist, enum rt_media_status mediaStatus
+);
+void EXhalbtcoutsrc_SpecialPacketNotify(struct btc_coexist *pBtCoexist, u8 pktType);
+void EXhalbtcoutsrc_BtInfoNotify(
+	struct btc_coexist *pBtCoexist, u8 *tmpBuf, u8 length
+);
+void EXhalbtcoutsrc_HaltNotify(struct btc_coexist *pBtCoexist);
+void EXhalbtcoutsrc_PnpNotify(struct btc_coexist *pBtCoexist, u8 pnpState);
+void EXhalbtcoutsrc_Periodical(struct btc_coexist *pBtCoexist);
+void EXhalbtcoutsrc_SetChipType(u8 chipType);
+void EXhalbtcoutsrc_SetAntNum(u8 type, u8 antNum);
+void EXhalbtcoutsrc_SetSingleAntPath(u8 singleAntPath);
+>>>>>>> upstream/android-13
 
 #endif

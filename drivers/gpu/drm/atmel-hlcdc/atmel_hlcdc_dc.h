@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2014 Traphandler
  * Copyright (C) 2014 Free Electrons
@@ -5,6 +9,7 @@
  *
  * Author: Jean-Jacques Hiblot <jjhiblot@traphandler.com>
  * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -17,11 +22,14 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef DRM_ATMEL_HLCDC_H
 #define DRM_ATMEL_HLCDC_H
 
+<<<<<<< HEAD
 #include <linux/clk.h>
 #include <linux/dmapool.h>
 #include <linux/irqdomain.h>
@@ -39,6 +47,11 @@
 #include <drm/drm_panel.h>
 #include <drm/drm_plane_helper.h>
 #include <drm/drmP.h>
+=======
+#include <linux/regmap.h>
+
+#include <drm/drm_plane.h>
+>>>>>>> upstream/android-13
 
 #define ATMEL_HLCDC_LAYER_CHER			0x0
 #define ATMEL_HLCDC_LAYER_CHDR			0x4
@@ -328,6 +341,10 @@ atmel_hlcdc_layer_to_plane(struct atmel_hlcdc_layer *layer)
  * @max_hpw: maximum horizontal back/front porch width
  * @conflicting_output_formats: true if RGBXXX output formats conflict with
  *				each other.
+<<<<<<< HEAD
+=======
+ * @fixed_clksrc: true if clock source is fixed
+>>>>>>> upstream/android-13
  * @layers: a layer description table describing available layers
  * @nlayers: layer description table size
  */
@@ -340,6 +357,10 @@ struct atmel_hlcdc_dc_desc {
 	int max_vpw;
 	int max_hpw;
 	bool conflicting_output_formats;
+<<<<<<< HEAD
+=======
+	bool fixed_clksrc;
+>>>>>>> upstream/android-13
 	const struct atmel_hlcdc_layer_desc *layers;
 	int nlayers;
 };
@@ -354,9 +375,13 @@ struct atmel_hlcdc_dc_desc {
  * @crtc: CRTC provided by the display controller
  * @planes: instantiated planes
  * @layers: active HLCDC layers
+<<<<<<< HEAD
  * @wq: display controller workqueue
  * @suspend: used to store the HLCDC state when entering suspend
  * @commit: used for async commit handling
+=======
+ * @suspend: used to store the HLCDC state when entering suspend
+>>>>>>> upstream/android-13
  */
 struct atmel_hlcdc_dc {
 	const struct atmel_hlcdc_dc_desc *desc;
@@ -364,15 +389,21 @@ struct atmel_hlcdc_dc {
 	struct atmel_hlcdc *hlcdc;
 	struct drm_crtc *crtc;
 	struct atmel_hlcdc_layer *layers[ATMEL_HLCDC_MAX_LAYERS];
+<<<<<<< HEAD
 	struct workqueue_struct *wq;
+=======
+>>>>>>> upstream/android-13
 	struct {
 		u32 imr;
 		struct drm_atomic_state *state;
 	} suspend;
+<<<<<<< HEAD
 	struct {
 		wait_queue_head_t wait;
 		bool pending;
 	} commit;
+=======
+>>>>>>> upstream/android-13
 };
 
 extern struct atmel_hlcdc_formats atmel_hlcdc_plane_rgb_formats;
@@ -441,5 +472,9 @@ void atmel_hlcdc_crtc_irq(struct drm_crtc *c);
 int atmel_hlcdc_crtc_create(struct drm_device *dev);
 
 int atmel_hlcdc_create_outputs(struct drm_device *dev);
+<<<<<<< HEAD
+=======
+int atmel_hlcdc_encoder_get_bus_fmt(struct drm_encoder *encoder);
+>>>>>>> upstream/android-13
 
 #endif /* DRM_ATMEL_HLCDC_H */

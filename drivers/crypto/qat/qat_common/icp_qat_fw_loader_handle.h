@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef __ICP_QAT_FW_LOADER_HANDLE_H__
 #define __ICP_QAT_FW_LOADER_HANDLE_H__
 #include "icp_qat_uclo.h"
@@ -59,6 +64,10 @@ struct icp_qat_fw_loader_ae_data {
 struct icp_qat_fw_loader_hal_handle {
 	struct icp_qat_fw_loader_ae_data aes[ICP_QAT_UCLO_MAX_AE];
 	unsigned int ae_mask;
+<<<<<<< HEAD
+=======
+	unsigned int admin_ae_mask;
+>>>>>>> upstream/android-13
 	unsigned int slice_mask;
 	unsigned int revision_id;
 	unsigned int ae_max_num;
@@ -66,12 +75,44 @@ struct icp_qat_fw_loader_hal_handle {
 	unsigned int max_ustore;
 };
 
+<<<<<<< HEAD
 struct icp_qat_fw_loader_handle {
 	struct icp_qat_fw_loader_hal_handle *hal_handle;
 	struct pci_dev *pci_dev;
 	void *obj_handle;
 	void *sobj_handle;
 	bool fw_auth;
+=======
+struct icp_qat_fw_loader_chip_info {
+	int mmp_sram_size;
+	bool nn;
+	bool lm2lm3;
+	u32 lm_size;
+	u32 icp_rst_csr;
+	u32 icp_rst_mask;
+	u32 glb_clk_enable_csr;
+	u32 misc_ctl_csr;
+	u32 wakeup_event_val;
+	bool fw_auth;
+	bool css_3k;
+	bool tgroup_share_ustore;
+	u32 fcu_ctl_csr;
+	u32 fcu_sts_csr;
+	u32 fcu_dram_addr_hi;
+	u32 fcu_dram_addr_lo;
+	u32 fcu_loaded_ae_csr;
+	u8 fcu_loaded_ae_pos;
+};
+
+struct icp_qat_fw_loader_handle {
+	struct icp_qat_fw_loader_hal_handle *hal_handle;
+	struct icp_qat_fw_loader_chip_info *chip_info;
+	struct pci_dev *pci_dev;
+	void *obj_handle;
+	void *sobj_handle;
+	void *mobj_handle;
+	unsigned int cfg_ae_mask;
+>>>>>>> upstream/android-13
 	void __iomem *hal_sram_addr_v;
 	void __iomem *hal_cap_g_ctl_csr_addr_v;
 	void __iomem *hal_cap_ae_xfer_csr_addr_v;

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_MACHDEP_H
 #define _ASM_POWERPC_MACHDEP_H
 #ifdef __KERNEL__
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,6 +14,8 @@
  * 2 of the License, or (at your option) any later version.
  */
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <linux/init.h>
 #include <linux/dma-mapping.h>
@@ -34,10 +41,13 @@ struct pci_host_bridge;
 struct machdep_calls {
 	char		*name;
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 	void __iomem *	(*ioremap)(phys_addr_t addr, unsigned long size,
 				   unsigned long flags, void *caller);
 	void		(*iounmap)(volatile void __iomem *token);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	void		(*iommu_save)(void);
 	void		(*iommu_restore)(void);
@@ -47,9 +57,13 @@ struct machdep_calls {
 #endif
 #endif /* CONFIG_PPC64 */
 
+<<<<<<< HEAD
 	/* Platform set_dma_mask and dma_get_required_mask overrides */
 	int		(*dma_set_mask)(struct device *dev, u64 dma_mask);
 	u64		(*dma_get_required_mask)(struct device *dev);
+=======
+	void		(*dma_set_mask)(struct device *dev, u64 dma_mask);
+>>>>>>> upstream/android-13
 
 	int		(*probe)(void);
 	void		(*setup_arch)(void); /* Optional, may be NULL */
@@ -80,7 +94,10 @@ struct machdep_calls {
 	void __noreturn	(*restart)(char *cmd);
 	void __noreturn (*halt)(void);
 	void		(*panic)(char *str);
+<<<<<<< HEAD
 	void		(*cpu_die)(void);
+=======
+>>>>>>> upstream/android-13
 
 	long		(*time_init)(void); /* Optional, may be NULL */
 
@@ -111,6 +128,10 @@ struct machdep_calls {
 
 	/* Early exception handlers called in realmode */
 	int		(*hmi_exception_early)(struct pt_regs *regs);
+<<<<<<< HEAD
+=======
+	long		(*machine_check_early)(struct pt_regs *regs);
+>>>>>>> upstream/android-13
 
 	/* Called during machine check exception to retrive fixup address. */
 	bool		(*mce_check_early_recovery)(struct pt_regs *regs);
@@ -145,7 +166,11 @@ struct machdep_calls {
 				    unsigned long dabrx);
 
 	/* Set DAWR for this platform, leave empty for default implementation */
+<<<<<<< HEAD
 	int		(*set_dawr)(unsigned long dawr,
+=======
+	int		(*set_dawr)(int nr, unsigned long dawr,
+>>>>>>> upstream/android-13
 				    unsigned long dawrx);
 
 #ifdef CONFIG_PPC32	/* XXX for now */
@@ -222,7 +247,10 @@ struct machdep_calls {
 	void (*suspend_disable_irqs)(void);
 	void (*suspend_enable_irqs)(void);
 #endif
+<<<<<<< HEAD
 	int (*suspend_disable_cpu)(void);
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ARCH_CPU_PROBE_RELEASE
 	ssize_t (*cpu_probe)(const char *, size_t);
@@ -236,8 +264,11 @@ struct machdep_calls {
 
 extern void e500_idle(void);
 extern void power4_idle(void);
+<<<<<<< HEAD
 extern void power7_idle(void);
 extern void power9_idle(void);
+=======
+>>>>>>> upstream/android-13
 extern void ppc6xx_idle(void);
 extern void book3e_idle(void);
 
@@ -249,7 +280,11 @@ extern void book3e_idle(void);
 extern struct machdep_calls ppc_md;
 extern struct machdep_calls *machine_id;
 
+<<<<<<< HEAD
 #define __machine_desc __attribute__ ((__section__ (".machine.desc")))
+=======
+#define __machine_desc __section(".machine.desc")
+>>>>>>> upstream/android-13
 
 #define define_machine(name)					\
 	extern struct machdep_calls mach_##name;		\

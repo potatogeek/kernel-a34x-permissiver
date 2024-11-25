@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * max8997-irq.c - Interrupt controller support for MAX8997
  *
@@ -20,6 +21,16 @@
  *
  * This driver is based on max8998-irq.c
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// max8997-irq.c - Interrupt controller support for MAX8997
+//
+// Copyright (C) 2011 Samsung Electronics Co.Ltd
+// MyungJoo Ham <myungjoo.ham@samsung.com>
+//
+// This driver is based on max8998-irq.c
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 #include <linux/irq.h>

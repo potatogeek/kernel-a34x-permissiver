@@ -1,4 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
+=======
+#include <linux/bitops.h>
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <scsi/scsi_cmnd.h>
 #include <scsi/scsi_dbg.h>
@@ -7,8 +11,13 @@
 #define SCSI_CMD_FLAG_NAME(name)[const_ilog2(SCMD_##name)] = #name
 static const char *const scsi_cmd_flags[] = {
 	SCSI_CMD_FLAG_NAME(TAGGED),
+<<<<<<< HEAD
 	SCSI_CMD_FLAG_NAME(UNCHECKED_ISA_DMA),
 	SCSI_CMD_FLAG_NAME(INITIALIZED),
+=======
+	SCSI_CMD_FLAG_NAME(INITIALIZED),
+	SCSI_CMD_FLAG_NAME(LAST),
+>>>>>>> upstream/android-13
 };
 #undef SCSI_CMD_FLAG_NAME
 
@@ -18,9 +27,13 @@ static int scsi_flags_show(struct seq_file *m, const unsigned long flags,
 	bool sep = false;
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < sizeof(flags) * BITS_PER_BYTE; i++) {
 		if (!(flags & BIT(i)))
 			continue;
+=======
+	for_each_set_bit(i, &flags, BITS_PER_LONG) {
+>>>>>>> upstream/android-13
 		if (sep)
 			seq_puts(m, "|");
 		sep = true;

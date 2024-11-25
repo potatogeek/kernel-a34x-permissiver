@@ -1,9 +1,19 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Amlogic Secure Monitor driver
 #
 config MESON_SM
+<<<<<<< HEAD
 	bool
 	default ARCH_MESON
+=======
+	tristate "Amlogic Secure Monitor driver"
+	depends on ARCH_MESON || COMPILE_TEST
+	default y
+>>>>>>> upstream/android-13
 	depends on ARM64_4K_PAGES
 	help
 	  Say y here to enable the Amlogic secure monitor driver

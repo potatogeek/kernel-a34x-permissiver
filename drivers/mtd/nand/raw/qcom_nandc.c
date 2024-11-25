@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016, The Linux Foundation. All rights reserved.
  *
@@ -11,6 +12,12 @@
  * GNU General Public License for more details.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ */
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/slab.h>
 #include <linux/bitops.h>
@@ -35,7 +42,11 @@
 #define	NAND_DEV0_CFG0			0x20
 #define	NAND_DEV0_CFG1			0x24
 #define	NAND_DEV0_ECC_CFG		0x28
+<<<<<<< HEAD
 #define	NAND_DEV1_ECC_CFG		0x2c
+=======
+#define	NAND_AUTO_STATUS_EN		0x2c
+>>>>>>> upstream/android-13
 #define	NAND_DEV1_CFG0			0x30
 #define	NAND_DEV1_CFG1			0x34
 #define	NAND_READ_ID			0x40
@@ -56,6 +67,13 @@
 #define	NAND_READ_LOCATION_1		0xf24
 #define	NAND_READ_LOCATION_2		0xf28
 #define	NAND_READ_LOCATION_3		0xf2c
+<<<<<<< HEAD
+=======
+#define	NAND_READ_LOCATION_LAST_CW_0	0xf40
+#define	NAND_READ_LOCATION_LAST_CW_1	0xf44
+#define	NAND_READ_LOCATION_LAST_CW_2	0xf48
+#define	NAND_READ_LOCATION_LAST_CW_3	0xf4c
+>>>>>>> upstream/android-13
 
 /* dummy register offsets, used by write_reg_dma */
 #define	NAND_DEV_CMD1_RESTORE		0xdead
@@ -153,6 +171,10 @@
 #define	OP_PAGE_READ			0x2
 #define	OP_PAGE_READ_WITH_ECC		0x3
 #define	OP_PAGE_READ_WITH_ECC_SPARE	0x4
+<<<<<<< HEAD
+=======
+#define	OP_PAGE_READ_ONFI_READ		0x5
+>>>>>>> upstream/android-13
 #define	OP_PROGRAM_PAGE			0x6
 #define	OP_PAGE_PROGRAM_WITH_ECC	0x7
 #define	OP_PROGRAM_PAGE_SPARE		0x9
@@ -188,12 +210,26 @@
 #define	ECC_BCH_4BIT	BIT(2)
 #define	ECC_BCH_8BIT	BIT(3)
 
+<<<<<<< HEAD
 #define nandc_set_read_loc(nandc, reg, offset, size, is_last)	\
 nandc_set_reg(nandc, NAND_READ_LOCATION_##reg,			\
 	      ((offset) << READ_LOCATION_OFFSET) |		\
 	      ((size) << READ_LOCATION_SIZE) |			\
 	      ((is_last) << READ_LOCATION_LAST))
 
+=======
+#define nandc_set_read_loc_first(chip, reg, cw_offset, read_size, is_last_read_loc)	\
+nandc_set_reg(chip, reg,			\
+	      ((cw_offset) << READ_LOCATION_OFFSET) |		\
+	      ((read_size) << READ_LOCATION_SIZE) |			\
+	      ((is_last_read_loc) << READ_LOCATION_LAST))
+
+#define nandc_set_read_loc_last(chip, reg, cw_offset, read_size, is_last_read_loc)	\
+nandc_set_reg(chip, reg,			\
+	      ((cw_offset) << READ_LOCATION_OFFSET) |		\
+	      ((read_size) << READ_LOCATION_SIZE) |			\
+	      ((is_last_read_loc) << READ_LOCATION_LAST))
+>>>>>>> upstream/android-13
 /*
  * Returns the actual register address for all NAND_DEV_ registers
  * (i.e. NAND_DEV_CMD0, NAND_DEV_CMD1, NAND_DEV_CMD2 and NAND_DEV_CMD_VLD)
@@ -323,6 +359,13 @@ struct nandc_regs {
 	__le32 read_location1;
 	__le32 read_location2;
 	__le32 read_location3;
+<<<<<<< HEAD
+=======
+	__le32 read_location_last0;
+	__le32 read_location_last1;
+	__le32 read_location_last2;
+	__le32 read_location_last3;
+>>>>>>> upstream/android-13
 
 	__le32 erased_cw_detect_cfg_clr;
 	__le32 erased_cw_detect_cfg_set;
@@ -349,7 +392,12 @@ struct nandc_regs {
  * @data_buffer:		our local DMA buffer for page read/writes,
  *				used when we can't use the buffer provided
  *				by upper layers directly
+<<<<<<< HEAD
  * @buf_size/count/start:	markers for chip->read_buf/write_buf functions
+=======
+ * @buf_size/count/start:	markers for chip->legacy.read_buf/write_buf
+ *				functions
+>>>>>>> upstream/android-13
  * @reg_read_buf:		local buffer for reading back registers via DMA
  * @reg_read_dma:		contains dma address for register read buffer
  * @reg_read_pos:		marker for data read in reg_read_buf
@@ -467,12 +515,20 @@ struct qcom_nand_host {
  * @ecc_modes - ecc mode for NAND
  * @is_bam - whether NAND controller is using BAM
  * @is_qpic - whether NAND CTRL is part of qpic IP
+<<<<<<< HEAD
+=======
+ * @qpic_v2 - flag to indicate QPIC IP version 2
+>>>>>>> upstream/android-13
  * @dev_cmd_reg_start - NAND_DEV_CMD_* registers starting offset
  */
 struct qcom_nandc_props {
 	u32 ecc_modes;
 	bool is_bam;
 	bool is_qpic;
+<<<<<<< HEAD
+=======
+	bool qpic_v2;
+>>>>>>> upstream/android-13
 	u32 dev_cmd_reg_start;
 };
 
@@ -648,14 +704,32 @@ static __le32 *offset_to_nandc_reg(struct nandc_regs *regs, int offset)
 		return &regs->read_location2;
 	case NAND_READ_LOCATION_3:
 		return &regs->read_location3;
+<<<<<<< HEAD
+=======
+	case NAND_READ_LOCATION_LAST_CW_0:
+		return &regs->read_location_last0;
+	case NAND_READ_LOCATION_LAST_CW_1:
+		return &regs->read_location_last1;
+	case NAND_READ_LOCATION_LAST_CW_2:
+		return &regs->read_location_last2;
+	case NAND_READ_LOCATION_LAST_CW_3:
+		return &regs->read_location_last3;
+>>>>>>> upstream/android-13
 	default:
 		return NULL;
 	}
 }
 
+<<<<<<< HEAD
 static void nandc_set_reg(struct qcom_nand_controller *nandc, int offset,
 			  u32 val)
 {
+=======
+static void nandc_set_reg(struct nand_chip *chip, int offset,
+			  u32 val)
+{
+	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+>>>>>>> upstream/android-13
 	struct nandc_regs *regs = nandc->regs;
 	__le32 *reg;
 
@@ -665,17 +739,55 @@ static void nandc_set_reg(struct qcom_nand_controller *nandc, int offset,
 		*reg = cpu_to_le32(val);
 }
 
+<<<<<<< HEAD
+=======
+/* Helper to check the code word, whether it is last cw or not */
+static bool qcom_nandc_is_last_cw(struct nand_ecc_ctrl *ecc, int cw)
+{
+	return cw == (ecc->steps - 1);
+}
+
+/* helper to configure location register values */
+static void nandc_set_read_loc(struct nand_chip *chip, int cw, int reg,
+			       int cw_offset, int read_size, int is_last_read_loc)
+{
+	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+	struct nand_ecc_ctrl *ecc = &chip->ecc;
+	int reg_base = NAND_READ_LOCATION_0;
+
+	if (nandc->props->qpic_v2 && qcom_nandc_is_last_cw(ecc, cw))
+		reg_base = NAND_READ_LOCATION_LAST_CW_0;
+
+	reg_base += reg * 4;
+
+	if (nandc->props->qpic_v2 && qcom_nandc_is_last_cw(ecc, cw))
+		return nandc_set_read_loc_last(chip, reg_base, cw_offset,
+				read_size, is_last_read_loc);
+	else
+		return nandc_set_read_loc_first(chip, reg_base, cw_offset,
+				read_size, is_last_read_loc);
+}
+
+>>>>>>> upstream/android-13
 /* helper to configure address register values */
 static void set_address(struct qcom_nand_host *host, u16 column, int page)
 {
 	struct nand_chip *chip = &host->chip;
+<<<<<<< HEAD
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+=======
+>>>>>>> upstream/android-13
 
 	if (chip->options & NAND_BUSWIDTH_16)
 		column >>= 1;
 
+<<<<<<< HEAD
 	nandc_set_reg(nandc, NAND_ADDR0, page << 16 | column);
 	nandc_set_reg(nandc, NAND_ADDR1, page >> 16 & 0xff);
+=======
+	nandc_set_reg(chip, NAND_ADDR0, page << 16 | column);
+	nandc_set_reg(chip, NAND_ADDR1, page >> 16 & 0xff);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -684,12 +796,22 @@ static void set_address(struct qcom_nand_host *host, u16 column, int page)
  *
  * @num_cw:		number of steps for the read/write operation
  * @read:		read or write operation
+<<<<<<< HEAD
  */
 static void update_rw_regs(struct qcom_nand_host *host, int num_cw, bool read)
 {
 	struct nand_chip *chip = &host->chip;
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	u32 cmd, cfg0, cfg1, ecc_bch_cfg;
+=======
+ * @cw	:		which code word
+ */
+static void update_rw_regs(struct qcom_nand_host *host, int num_cw, bool read, int cw)
+{
+	struct nand_chip *chip = &host->chip;
+	u32 cmd, cfg0, cfg1, ecc_bch_cfg;
+	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+>>>>>>> upstream/android-13
 
 	if (read) {
 		if (host->use_ecc)
@@ -714,6 +836,7 @@ static void update_rw_regs(struct qcom_nand_host *host, int num_cw, bool read)
 		ecc_bch_cfg = 1 << ECC_CFG_ECC_DISABLE;
 	}
 
+<<<<<<< HEAD
 	nandc_set_reg(nandc, NAND_FLASH_CMD, cmd);
 	nandc_set_reg(nandc, NAND_DEV0_CFG0, cfg0);
 	nandc_set_reg(nandc, NAND_DEV0_CFG1, cfg1);
@@ -725,6 +848,20 @@ static void update_rw_regs(struct qcom_nand_host *host, int num_cw, bool read)
 
 	if (read)
 		nandc_set_read_loc(nandc, 0, 0, host->use_ecc ?
+=======
+	nandc_set_reg(chip, NAND_FLASH_CMD, cmd);
+	nandc_set_reg(chip, NAND_DEV0_CFG0, cfg0);
+	nandc_set_reg(chip, NAND_DEV0_CFG1, cfg1);
+	nandc_set_reg(chip, NAND_DEV0_ECC_CFG, ecc_bch_cfg);
+	if (!nandc->props->qpic_v2)
+		nandc_set_reg(chip, NAND_EBI2_ECC_BUF_CFG, host->ecc_buf_cfg);
+	nandc_set_reg(chip, NAND_FLASH_STATUS, host->clrflashstatus);
+	nandc_set_reg(chip, NAND_READ_STATUS, host->clrreadstatus);
+	nandc_set_reg(chip, NAND_EXEC_CMD, 1);
+
+	if (read)
+		nandc_set_read_loc(chip, cw, 0, 0, host->use_ecc ?
+>>>>>>> upstream/android-13
 				   host->cw_data : host->cw_size, 1);
 }
 
@@ -1083,11 +1220,22 @@ static int write_data_dma(struct qcom_nand_controller *nandc, int reg_off,
  * Helper to prepare DMA descriptors for configuring registers
  * before reading a NAND page.
  */
+<<<<<<< HEAD
 static void config_nand_page_read(struct qcom_nand_controller *nandc)
 {
 	write_reg_dma(nandc, NAND_ADDR0, 2, 0);
 	write_reg_dma(nandc, NAND_DEV0_CFG0, 3, 0);
 	write_reg_dma(nandc, NAND_EBI2_ECC_BUF_CFG, 1, 0);
+=======
+static void config_nand_page_read(struct nand_chip *chip)
+{
+	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+
+	write_reg_dma(nandc, NAND_ADDR0, 2, 0);
+	write_reg_dma(nandc, NAND_DEV0_CFG0, 3, 0);
+	if (!nandc->props->qpic_v2)
+		write_reg_dma(nandc, NAND_EBI2_ECC_BUF_CFG, 1, 0);
+>>>>>>> upstream/android-13
 	write_reg_dma(nandc, NAND_ERASED_CW_DETECT_CFG, 1, 0);
 	write_reg_dma(nandc, NAND_ERASED_CW_DETECT_CFG, 1,
 		      NAND_ERASED_CW_SET | NAND_BAM_NEXT_SGL);
@@ -1098,11 +1246,26 @@ static void config_nand_page_read(struct qcom_nand_controller *nandc)
  * before reading each codeword in NAND page.
  */
 static void
+<<<<<<< HEAD
 config_nand_cw_read(struct qcom_nand_controller *nandc, bool use_ecc)
 {
 	if (nandc->props->is_bam)
 		write_reg_dma(nandc, NAND_READ_LOCATION_0, 4,
 			      NAND_BAM_NEXT_SGL);
+=======
+config_nand_cw_read(struct nand_chip *chip, bool use_ecc, int cw)
+{
+	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+	struct nand_ecc_ctrl *ecc = &chip->ecc;
+
+	int reg = NAND_READ_LOCATION_0;
+
+	if (nandc->props->qpic_v2 && qcom_nandc_is_last_cw(ecc, cw))
+		reg = NAND_READ_LOCATION_LAST_CW_0;
+
+	if (nandc->props->is_bam)
+		write_reg_dma(nandc, reg, 4, NAND_BAM_NEXT_SGL);
+>>>>>>> upstream/android-13
 
 	write_reg_dma(nandc, NAND_FLASH_CMD, 1, NAND_BAM_NEXT_SGL);
 	write_reg_dma(nandc, NAND_EXEC_CMD, 1, NAND_BAM_NEXT_SGL);
@@ -1121,31 +1284,58 @@ config_nand_cw_read(struct qcom_nand_controller *nandc, bool use_ecc)
  * single codeword in page
  */
 static void
+<<<<<<< HEAD
 config_nand_single_cw_page_read(struct qcom_nand_controller *nandc,
 				bool use_ecc)
 {
 	config_nand_page_read(nandc);
 	config_nand_cw_read(nandc, use_ecc);
+=======
+config_nand_single_cw_page_read(struct nand_chip *chip,
+				bool use_ecc, int cw)
+{
+	config_nand_page_read(chip);
+	config_nand_cw_read(chip, use_ecc, cw);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Helper to prepare DMA descriptors used to configure registers needed for
  * before writing a NAND page.
  */
+<<<<<<< HEAD
 static void config_nand_page_write(struct qcom_nand_controller *nandc)
 {
 	write_reg_dma(nandc, NAND_ADDR0, 2, 0);
 	write_reg_dma(nandc, NAND_DEV0_CFG0, 3, 0);
 	write_reg_dma(nandc, NAND_EBI2_ECC_BUF_CFG, 1,
 		      NAND_BAM_NEXT_SGL);
+=======
+static void config_nand_page_write(struct nand_chip *chip)
+{
+	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+
+	write_reg_dma(nandc, NAND_ADDR0, 2, 0);
+	write_reg_dma(nandc, NAND_DEV0_CFG0, 3, 0);
+	if (!nandc->props->qpic_v2)
+		write_reg_dma(nandc, NAND_EBI2_ECC_BUF_CFG, 1,
+			      NAND_BAM_NEXT_SGL);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Helper to prepare DMA descriptors for configuring registers
  * before writing each codeword in NAND page.
  */
+<<<<<<< HEAD
 static void config_nand_cw_write(struct qcom_nand_controller *nandc)
 {
+=======
+static void config_nand_cw_write(struct nand_chip *chip)
+{
+	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+
+>>>>>>> upstream/android-13
 	write_reg_dma(nandc, NAND_FLASH_CMD, 1, NAND_BAM_NEXT_SGL);
 	write_reg_dma(nandc, NAND_EXEC_CMD, 1, NAND_BAM_NEXT_SGL);
 
@@ -1156,8 +1346,13 @@ static void config_nand_cw_write(struct qcom_nand_controller *nandc)
 }
 
 /*
+<<<<<<< HEAD
  * the following functions are used within chip->cmdfunc() to perform different
  * NAND_CMD_* commands
+=======
+ * the following functions are used within chip->legacy.cmdfunc() to
+ * perform different NAND_CMD_* commands
+>>>>>>> upstream/android-13
  */
 
 /* sets up descriptors for NAND_CMD_PARAM */
@@ -1171,6 +1366,7 @@ static int nandc_param(struct qcom_nand_host *host)
 	 * in use. we configure the controller to perform a raw read of 512
 	 * bytes to read onfi params
 	 */
+<<<<<<< HEAD
 	nandc_set_reg(nandc, NAND_FLASH_CMD, OP_PAGE_READ | PAGE_ACC | LAST_PAGE);
 	nandc_set_reg(nandc, NAND_ADDR0, 0);
 	nandc_set_reg(nandc, NAND_ADDR1, 0);
@@ -1179,12 +1375,29 @@ static int nandc_param(struct qcom_nand_host *host)
 					| 5 << NUM_ADDR_CYCLES
 					| 0 << SPARE_SIZE_BYTES);
 	nandc_set_reg(nandc, NAND_DEV0_CFG1, 7 << NAND_RECOVERY_CYCLES
+=======
+	if (nandc->props->qpic_v2)
+		nandc_set_reg(chip, NAND_FLASH_CMD, OP_PAGE_READ_ONFI_READ |
+			      PAGE_ACC | LAST_PAGE);
+	else
+		nandc_set_reg(chip, NAND_FLASH_CMD, OP_PAGE_READ |
+			      PAGE_ACC | LAST_PAGE);
+
+	nandc_set_reg(chip, NAND_ADDR0, 0);
+	nandc_set_reg(chip, NAND_ADDR1, 0);
+	nandc_set_reg(chip, NAND_DEV0_CFG0, 0 << CW_PER_PAGE
+					| 512 << UD_SIZE_BYTES
+					| 5 << NUM_ADDR_CYCLES
+					| 0 << SPARE_SIZE_BYTES);
+	nandc_set_reg(chip, NAND_DEV0_CFG1, 7 << NAND_RECOVERY_CYCLES
+>>>>>>> upstream/android-13
 					| 0 << CS_ACTIVE_BSY
 					| 17 << BAD_BLOCK_BYTE_NUM
 					| 1 << BAD_BLOCK_IN_SPARE_AREA
 					| 2 << WR_RD_BSY_GAP
 					| 0 << WIDE_FLASH
 					| 1 << DEV0_CFG1_ECC_DISABLE);
+<<<<<<< HEAD
 	nandc_set_reg(nandc, NAND_EBI2_ECC_BUF_CFG, 1 << ECC_CFG_ECC_DISABLE);
 
 	/* configure CMD1 and VLD for ONFI param probing */
@@ -1202,18 +1415,56 @@ static int nandc_param(struct qcom_nand_host *host)
 
 	write_reg_dma(nandc, NAND_DEV_CMD_VLD, 1, 0);
 	write_reg_dma(nandc, NAND_DEV_CMD1, 1, NAND_BAM_NEXT_SGL);
+=======
+	if (!nandc->props->qpic_v2)
+		nandc_set_reg(chip, NAND_EBI2_ECC_BUF_CFG, 1 << ECC_CFG_ECC_DISABLE);
+
+	/* configure CMD1 and VLD for ONFI param probing in QPIC v1 */
+	if (!nandc->props->qpic_v2) {
+		nandc_set_reg(chip, NAND_DEV_CMD_VLD,
+			      (nandc->vld & ~READ_START_VLD));
+		nandc_set_reg(chip, NAND_DEV_CMD1,
+			      (nandc->cmd1 & ~(0xFF << READ_ADDR))
+			      | NAND_CMD_PARAM << READ_ADDR);
+	}
+
+	nandc_set_reg(chip, NAND_EXEC_CMD, 1);
+
+	if (!nandc->props->qpic_v2) {
+		nandc_set_reg(chip, NAND_DEV_CMD1_RESTORE, nandc->cmd1);
+		nandc_set_reg(chip, NAND_DEV_CMD_VLD_RESTORE, nandc->vld);
+	}
+
+	nandc_set_read_loc(chip, 0, 0, 0, 512, 1);
+
+	if (!nandc->props->qpic_v2) {
+		write_reg_dma(nandc, NAND_DEV_CMD_VLD, 1, 0);
+		write_reg_dma(nandc, NAND_DEV_CMD1, 1, NAND_BAM_NEXT_SGL);
+	}
+>>>>>>> upstream/android-13
 
 	nandc->buf_count = 512;
 	memset(nandc->data_buffer, 0xff, nandc->buf_count);
 
+<<<<<<< HEAD
 	config_nand_single_cw_page_read(nandc, false);
+=======
+	config_nand_single_cw_page_read(chip, false, 0);
+>>>>>>> upstream/android-13
 
 	read_data_dma(nandc, FLASH_BUF_ACC, nandc->data_buffer,
 		      nandc->buf_count, 0);
 
 	/* restore CMD1 and VLD regs */
+<<<<<<< HEAD
 	write_reg_dma(nandc, NAND_DEV_CMD1_RESTORE, 1, 0);
 	write_reg_dma(nandc, NAND_DEV_CMD_VLD_RESTORE, 1, NAND_BAM_NEXT_SGL);
+=======
+	if (!nandc->props->qpic_v2) {
+		write_reg_dma(nandc, NAND_DEV_CMD1_RESTORE, 1, 0);
+		write_reg_dma(nandc, NAND_DEV_CMD_VLD_RESTORE, 1, NAND_BAM_NEXT_SGL);
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1224,6 +1475,7 @@ static int erase_block(struct qcom_nand_host *host, int page_addr)
 	struct nand_chip *chip = &host->chip;
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 
+<<<<<<< HEAD
 	nandc_set_reg(nandc, NAND_FLASH_CMD,
 		      OP_BLOCK_ERASE | PAGE_ACC | LAST_PAGE);
 	nandc_set_reg(nandc, NAND_ADDR0, page_addr);
@@ -1234,6 +1486,18 @@ static int erase_block(struct qcom_nand_host *host, int page_addr)
 	nandc_set_reg(nandc, NAND_EXEC_CMD, 1);
 	nandc_set_reg(nandc, NAND_FLASH_STATUS, host->clrflashstatus);
 	nandc_set_reg(nandc, NAND_READ_STATUS, host->clrreadstatus);
+=======
+	nandc_set_reg(chip, NAND_FLASH_CMD,
+		      OP_BLOCK_ERASE | PAGE_ACC | LAST_PAGE);
+	nandc_set_reg(chip, NAND_ADDR0, page_addr);
+	nandc_set_reg(chip, NAND_ADDR1, 0);
+	nandc_set_reg(chip, NAND_DEV0_CFG0,
+		      host->cfg0_raw & ~(7 << CW_PER_PAGE));
+	nandc_set_reg(chip, NAND_DEV0_CFG1, host->cfg1_raw);
+	nandc_set_reg(chip, NAND_EXEC_CMD, 1);
+	nandc_set_reg(chip, NAND_FLASH_STATUS, host->clrflashstatus);
+	nandc_set_reg(chip, NAND_READ_STATUS, host->clrreadstatus);
+>>>>>>> upstream/android-13
 
 	write_reg_dma(nandc, NAND_FLASH_CMD, 3, NAND_BAM_NEXT_SGL);
 	write_reg_dma(nandc, NAND_DEV0_CFG0, 2, NAND_BAM_NEXT_SGL);
@@ -1256,12 +1520,21 @@ static int read_id(struct qcom_nand_host *host, int column)
 	if (column == -1)
 		return 0;
 
+<<<<<<< HEAD
 	nandc_set_reg(nandc, NAND_FLASH_CMD, OP_FETCH_ID);
 	nandc_set_reg(nandc, NAND_ADDR0, column);
 	nandc_set_reg(nandc, NAND_ADDR1, 0);
 	nandc_set_reg(nandc, NAND_FLASH_CHIP_SELECT,
 		      nandc->props->is_bam ? 0 : DM_EN);
 	nandc_set_reg(nandc, NAND_EXEC_CMD, 1);
+=======
+	nandc_set_reg(chip, NAND_FLASH_CMD, OP_FETCH_ID);
+	nandc_set_reg(chip, NAND_ADDR0, column);
+	nandc_set_reg(chip, NAND_ADDR1, 0);
+	nandc_set_reg(chip, NAND_FLASH_CHIP_SELECT,
+		      nandc->props->is_bam ? 0 : DM_EN);
+	nandc_set_reg(chip, NAND_EXEC_CMD, 1);
+>>>>>>> upstream/android-13
 
 	write_reg_dma(nandc, NAND_FLASH_CMD, 4, NAND_BAM_NEXT_SGL);
 	write_reg_dma(nandc, NAND_EXEC_CMD, 1, NAND_BAM_NEXT_SGL);
@@ -1277,8 +1550,13 @@ static int reset(struct qcom_nand_host *host)
 	struct nand_chip *chip = &host->chip;
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 
+<<<<<<< HEAD
 	nandc_set_reg(nandc, NAND_FLASH_CMD, OP_RESET_DEVICE);
 	nandc_set_reg(nandc, NAND_EXEC_CMD, 1);
+=======
+	nandc_set_reg(chip, NAND_FLASH_CMD, OP_RESET_DEVICE);
+	nandc_set_reg(chip, NAND_EXEC_CMD, 1);
+>>>>>>> upstream/android-13
 
 	write_reg_dma(nandc, NAND_FLASH_CMD, 1, NAND_BAM_NEXT_SGL);
 	write_reg_dma(nandc, NAND_EXEC_CMD, 1, NAND_BAM_NEXT_SGL);
@@ -1437,6 +1715,7 @@ static void post_command(struct qcom_nand_host *host, int command)
 }
 
 /*
+<<<<<<< HEAD
  * Implements chip->cmdfunc. It's  only used for a limited set of commands.
  * The rest of the commands wouldn't be called by upper layers. For example,
  * NAND_CMD_READOOB would never be called because we have our own versions
@@ -1446,6 +1725,16 @@ static void qcom_nandc_command(struct mtd_info *mtd, unsigned int command,
 			       int column, int page_addr)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+ * Implements chip->legacy.cmdfunc. It's  only used for a limited set of
+ * commands. The rest of the commands wouldn't be called by upper layers.
+ * For example, NAND_CMD_READOOB would never be called because we have our own
+ * versions of read_oob ops for nand_ecc_ctrl.
+ */
+static void qcom_nandc_command(struct nand_chip *chip, unsigned int command,
+			       int column, int page_addr)
+{
+>>>>>>> upstream/android-13
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
@@ -1482,7 +1771,11 @@ static void qcom_nandc_command(struct mtd_info *mtd, unsigned int command,
 
 		host->use_ecc = true;
 		set_address(host, 0, page_addr);
+<<<<<<< HEAD
 		update_rw_regs(host, ecc->steps, true);
+=======
+		update_rw_regs(host, ecc->steps, true, 0);
+>>>>>>> upstream/android-13
 		break;
 
 	case NAND_CMD_SEQIN:
@@ -1600,19 +1893,37 @@ qcom_nandc_read_cw_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
 	int data_size1, data_size2, oob_size1, oob_size2;
 	int ret, reg_off = FLASH_BUF_ACC, read_loc = 0;
+<<<<<<< HEAD
+=======
+	int raw_cw = cw;
+>>>>>>> upstream/android-13
 
 	nand_read_page_op(chip, page, 0, NULL, 0);
 	host->use_ecc = false;
 
+<<<<<<< HEAD
 	clear_bam_transaction(nandc);
 	set_address(host, host->cw_size * cw, page);
 	update_rw_regs(host, 1, true);
 	config_nand_page_read(nandc);
+=======
+	if (nandc->props->qpic_v2)
+		raw_cw = ecc->steps - 1;
+
+	clear_bam_transaction(nandc);
+	set_address(host, host->cw_size * cw, page);
+	update_rw_regs(host, 1, true, raw_cw);
+	config_nand_page_read(chip);
+>>>>>>> upstream/android-13
 
 	data_size1 = mtd->writesize - host->cw_size * (ecc->steps - 1);
 	oob_size1 = host->bbm_size;
 
+<<<<<<< HEAD
 	if (cw == (ecc->steps - 1)) {
+=======
+	if (qcom_nandc_is_last_cw(ecc, cw)) {
+>>>>>>> upstream/android-13
 		data_size2 = ecc->size - data_size1 -
 			     ((ecc->steps - 1) * 4);
 		oob_size2 = (ecc->steps * 4) + host->ecc_bytes_hw +
@@ -1623,6 +1934,7 @@ qcom_nandc_read_cw_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	}
 
 	if (nandc->props->is_bam) {
+<<<<<<< HEAD
 		nandc_set_read_loc(nandc, 0, read_loc, data_size1, 0);
 		read_loc += data_size1;
 
@@ -1636,6 +1948,21 @@ qcom_nandc_read_cw_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	}
 
 	config_nand_cw_read(nandc, false);
+=======
+		nandc_set_read_loc(chip, cw, 0, read_loc, data_size1, 0);
+		read_loc += data_size1;
+
+		nandc_set_read_loc(chip, cw, 1, read_loc, oob_size1, 0);
+		read_loc += oob_size1;
+
+		nandc_set_read_loc(chip, cw, 2, read_loc, data_size2, 0);
+		read_loc += data_size2;
+
+		nandc_set_read_loc(chip, cw, 3, read_loc, oob_size2, 1);
+	}
+
+	config_nand_cw_read(chip, false, raw_cw);
+>>>>>>> upstream/android-13
 
 	read_data_dma(nandc, reg_off, data_buf, data_size1, 0);
 	reg_off += data_size1;
@@ -1684,6 +2011,7 @@ check_for_erased_page(struct qcom_nand_host *host, u8 *data_buf,
 	u8 *cw_data_buf, *cw_oob_buf;
 	int cw, data_size, oob_size, ret = 0;
 
+<<<<<<< HEAD
 	if (!data_buf) {
 		data_buf = chip->data_buf;
 		chip->pagebuf = -1;
@@ -1696,6 +2024,18 @@ check_for_erased_page(struct qcom_nand_host *host, u8 *data_buf,
 
 	for_each_set_bit(cw, &uncorrectable_cws, ecc->steps) {
 		if (cw == (ecc->steps - 1)) {
+=======
+	if (!data_buf)
+		data_buf = nand_get_data_buf(chip);
+
+	if (!oob_buf) {
+		nand_get_data_buf(chip);
+		oob_buf = chip->oob_poi;
+	}
+
+	for_each_set_bit(cw, &uncorrectable_cws, ecc->steps) {
+		if (qcom_nandc_is_last_cw(ecc, cw)) {
+>>>>>>> upstream/android-13
 			data_size = ecc->size - ((ecc->steps - 1) * 4);
 			oob_size = (ecc->steps * 4) + host->ecc_bytes_hw;
 		} else {
@@ -1755,7 +2095,11 @@ static int parse_read_errors(struct qcom_nand_host *host, u8 *data_buf,
 		u32 flash, buffer, erased_cw;
 		int data_len, oob_len;
 
+<<<<<<< HEAD
 		if (i == (ecc->steps - 1)) {
+=======
+		if (qcom_nandc_is_last_cw(ecc, i)) {
+>>>>>>> upstream/android-13
 			data_len = ecc->size - ((ecc->steps - 1) << 2);
 			oob_len = ecc->steps << 2;
 		} else {
@@ -1781,8 +2125,12 @@ static int parse_read_errors(struct qcom_nand_host *host, u8 *data_buf,
 			 * ERASED_CW bits are set.
 			 */
 			if (host->bch_enabled) {
+<<<<<<< HEAD
 				erased = (erased_cw & ERASED_CW) == ERASED_CW ?
 					 true : false;
+=======
+				erased = (erased_cw & ERASED_CW) == ERASED_CW;
+>>>>>>> upstream/android-13
 			/*
 			 * For RS ECC, HW reports the erased CW by placing
 			 * special characters at certain offsets in the buffer.
@@ -1848,13 +2196,21 @@ static int read_page_ecc(struct qcom_nand_host *host, u8 *data_buf,
 	u8 *data_buf_start = data_buf, *oob_buf_start = oob_buf;
 	int i, ret;
 
+<<<<<<< HEAD
 	config_nand_page_read(nandc);
+=======
+	config_nand_page_read(chip);
+>>>>>>> upstream/android-13
 
 	/* queue cmd descs for each codeword */
 	for (i = 0; i < ecc->steps; i++) {
 		int data_size, oob_size;
 
+<<<<<<< HEAD
 		if (i == (ecc->steps - 1)) {
+=======
+		if (qcom_nandc_is_last_cw(ecc, i)) {
+>>>>>>> upstream/android-13
 			data_size = ecc->size - ((ecc->steps - 1) << 2);
 			oob_size = (ecc->steps << 2) + host->ecc_bytes_hw +
 				   host->spare_bytes;
@@ -1865,6 +2221,7 @@ static int read_page_ecc(struct qcom_nand_host *host, u8 *data_buf,
 
 		if (nandc->props->is_bam) {
 			if (data_buf && oob_buf) {
+<<<<<<< HEAD
 				nandc_set_read_loc(nandc, 0, 0, data_size, 0);
 				nandc_set_read_loc(nandc, 1, data_size,
 						   oob_size, 1);
@@ -1872,11 +2229,24 @@ static int read_page_ecc(struct qcom_nand_host *host, u8 *data_buf,
 				nandc_set_read_loc(nandc, 0, 0, data_size, 1);
 			} else {
 				nandc_set_read_loc(nandc, 0, data_size,
+=======
+				nandc_set_read_loc(chip, i, 0, 0, data_size, 0);
+				nandc_set_read_loc(chip, i, 1, data_size,
+						   oob_size, 1);
+			} else if (data_buf) {
+				nandc_set_read_loc(chip, i, 0, 0, data_size, 1);
+			} else {
+				nandc_set_read_loc(chip, i, 0, data_size,
+>>>>>>> upstream/android-13
 						   oob_size, 1);
 			}
 		}
 
+<<<<<<< HEAD
 		config_nand_cw_read(nandc, true);
+=======
+		config_nand_cw_read(chip, true, i);
+>>>>>>> upstream/android-13
 
 		if (data_buf)
 			read_data_dma(nandc, FLASH_BUF_ACC, data_buf,
@@ -1936,9 +2306,15 @@ static int copy_last_cw(struct qcom_nand_host *host, int page)
 	memset(nandc->data_buffer, 0xff, size);
 
 	set_address(host, host->cw_size * (ecc->steps - 1), page);
+<<<<<<< HEAD
 	update_rw_regs(host, 1, true);
 
 	config_nand_single_cw_page_read(nandc, host->use_ecc);
+=======
+	update_rw_regs(host, 1, true, ecc->steps - 1);
+
+	config_nand_single_cw_page_read(chip, host->use_ecc, ecc->steps - 1);
+>>>>>>> upstream/android-13
 
 	read_data_dma(nandc, FLASH_BUF_ACC, nandc->data_buffer, size, 0);
 
@@ -1952,8 +2328,13 @@ static int copy_last_cw(struct qcom_nand_host *host, int page)
 }
 
 /* implements ecc->read_page() */
+<<<<<<< HEAD
 static int qcom_nandc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 				uint8_t *buf, int oob_required, int page)
+=======
+static int qcom_nandc_read_page(struct nand_chip *chip, uint8_t *buf,
+				int oob_required, int page)
+>>>>>>> upstream/android-13
 {
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
@@ -1969,10 +2350,17 @@ static int qcom_nandc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 }
 
 /* implements ecc->read_page_raw() */
+<<<<<<< HEAD
 static int qcom_nandc_read_page_raw(struct mtd_info *mtd,
 				    struct nand_chip *chip, uint8_t *buf,
 				    int oob_required, int page)
 {
+=======
+static int qcom_nandc_read_page_raw(struct nand_chip *chip, uint8_t *buf,
+				    int oob_required, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
 	int cw, ret;
@@ -1992,8 +2380,12 @@ static int qcom_nandc_read_page_raw(struct mtd_info *mtd,
 }
 
 /* implements ecc->read_oob() */
+<<<<<<< HEAD
 static int qcom_nandc_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			       int page)
+=======
+static int qcom_nandc_read_oob(struct nand_chip *chip, int page)
+>>>>>>> upstream/android-13
 {
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
@@ -2004,14 +2396,23 @@ static int qcom_nandc_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 
 	host->use_ecc = true;
 	set_address(host, 0, page);
+<<<<<<< HEAD
 	update_rw_regs(host, ecc->steps, true);
+=======
+	update_rw_regs(host, ecc->steps, true, 0);
+>>>>>>> upstream/android-13
 
 	return read_page_ecc(host, NULL, chip->oob_poi, page);
 }
 
 /* implements ecc->write_page() */
+<<<<<<< HEAD
 static int qcom_nandc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 				 const uint8_t *buf, int oob_required, int page)
+=======
+static int qcom_nandc_write_page(struct nand_chip *chip, const uint8_t *buf,
+				 int oob_required, int page)
+>>>>>>> upstream/android-13
 {
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
@@ -2028,13 +2429,22 @@ static int qcom_nandc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	oob_buf = chip->oob_poi;
 
 	host->use_ecc = true;
+<<<<<<< HEAD
 	update_rw_regs(host, ecc->steps, false);
 	config_nand_page_write(nandc);
+=======
+	update_rw_regs(host, ecc->steps, false, 0);
+	config_nand_page_write(chip);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ecc->steps; i++) {
 		int data_size, oob_size;
 
+<<<<<<< HEAD
 		if (i == (ecc->steps - 1)) {
+=======
+		if (qcom_nandc_is_last_cw(ecc, i)) {
+>>>>>>> upstream/android-13
 			data_size = ecc->size - ((ecc->steps - 1) << 2);
 			oob_size = (ecc->steps << 2) + host->ecc_bytes_hw +
 				   host->spare_bytes;
@@ -2054,14 +2464,22 @@ static int qcom_nandc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 		 * itself. For the last codeword, we skip the bbm positions and
 		 * write to the free oob area.
 		 */
+<<<<<<< HEAD
 		if (i == (ecc->steps - 1)) {
+=======
+		if (qcom_nandc_is_last_cw(ecc, i)) {
+>>>>>>> upstream/android-13
 			oob_buf += host->bbm_size;
 
 			write_data_dma(nandc, FLASH_BUF_ACC + data_size,
 				       oob_buf, oob_size, 0);
 		}
 
+<<<<<<< HEAD
 		config_nand_cw_write(nandc);
+=======
+		config_nand_cw_write(chip);
+>>>>>>> upstream/android-13
 
 		data_buf += data_size;
 		oob_buf += oob_size;
@@ -2080,10 +2498,18 @@ static int qcom_nandc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 }
 
 /* implements ecc->write_page_raw() */
+<<<<<<< HEAD
 static int qcom_nandc_write_page_raw(struct mtd_info *mtd,
 				     struct nand_chip *chip, const uint8_t *buf,
 				     int oob_required, int page)
 {
+=======
+static int qcom_nandc_write_page_raw(struct nand_chip *chip,
+				     const uint8_t *buf, int oob_required,
+				     int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
@@ -2098,8 +2524,13 @@ static int qcom_nandc_write_page_raw(struct mtd_info *mtd,
 	oob_buf = chip->oob_poi;
 
 	host->use_ecc = false;
+<<<<<<< HEAD
 	update_rw_regs(host, ecc->steps, false);
 	config_nand_page_write(nandc);
+=======
+	update_rw_regs(host, ecc->steps, false, 0);
+	config_nand_page_write(chip);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ecc->steps; i++) {
 		int data_size1, data_size2, oob_size1, oob_size2;
@@ -2108,7 +2539,11 @@ static int qcom_nandc_write_page_raw(struct mtd_info *mtd,
 		data_size1 = mtd->writesize - host->cw_size * (ecc->steps - 1);
 		oob_size1 = host->bbm_size;
 
+<<<<<<< HEAD
 		if (i == (ecc->steps - 1)) {
+=======
+		if (qcom_nandc_is_last_cw(ecc, i)) {
+>>>>>>> upstream/android-13
 			data_size2 = ecc->size - data_size1 -
 				     ((ecc->steps - 1) << 2);
 			oob_size2 = (ecc->steps << 2) + host->ecc_bytes_hw +
@@ -2136,7 +2571,11 @@ static int qcom_nandc_write_page_raw(struct mtd_info *mtd,
 		write_data_dma(nandc, reg_off, oob_buf, oob_size2, 0);
 		oob_buf += oob_size2;
 
+<<<<<<< HEAD
 		config_nand_cw_write(nandc);
+=======
+		config_nand_cw_write(chip);
+>>>>>>> upstream/android-13
 	}
 
 	ret = submit_descs(nandc);
@@ -2158,9 +2597,15 @@ static int qcom_nandc_write_page_raw(struct mtd_info *mtd,
  * since ECC is calculated for the combined codeword. So update the OOB from
  * chip->oob_poi, and pad the data area with OxFF before writing.
  */
+<<<<<<< HEAD
 static int qcom_nandc_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 				int page)
 {
+=======
+static int qcom_nandc_write_oob(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
@@ -2181,12 +2626,21 @@ static int qcom_nandc_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 				    0, mtd->oobavail);
 
 	set_address(host, host->cw_size * (ecc->steps - 1), page);
+<<<<<<< HEAD
 	update_rw_regs(host, 1, false);
 
 	config_nand_page_write(nandc);
 	write_data_dma(nandc, FLASH_BUF_ACC,
 		       nandc->data_buffer, data_size + oob_size, 0);
 	config_nand_cw_write(nandc);
+=======
+	update_rw_regs(host, 1, false, 0);
+
+	config_nand_page_write(chip);
+	write_data_dma(nandc, FLASH_BUF_ACC,
+		       nandc->data_buffer, data_size + oob_size, 0);
+	config_nand_cw_write(chip);
+>>>>>>> upstream/android-13
 
 	ret = submit_descs(nandc);
 
@@ -2200,9 +2654,15 @@ static int qcom_nandc_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int qcom_nandc_block_bad(struct mtd_info *mtd, loff_t ofs)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int qcom_nandc_block_bad(struct nand_chip *chip, loff_t ofs)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
@@ -2238,9 +2698,14 @@ err:
 	return bad;
 }
 
+<<<<<<< HEAD
 static int qcom_nandc_block_markbad(struct mtd_info *mtd, loff_t ofs)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static int qcom_nandc_block_markbad(struct nand_chip *chip, loff_t ofs)
+{
+>>>>>>> upstream/android-13
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
@@ -2261,12 +2726,21 @@ static int qcom_nandc_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	/* prepare write */
 	host->use_ecc = false;
 	set_address(host, host->cw_size * (ecc->steps - 1), page);
+<<<<<<< HEAD
 	update_rw_regs(host, 1, false);
 
 	config_nand_page_write(nandc);
 	write_data_dma(nandc, FLASH_BUF_ACC,
 		       nandc->data_buffer, host->cw_size, 0);
 	config_nand_cw_write(nandc);
+=======
+	update_rw_regs(host, 1, false, ecc->steps - 1);
+
+	config_nand_page_write(chip);
+	write_data_dma(nandc, FLASH_BUF_ACC,
+		       nandc->data_buffer, host->cw_size, 0);
+	config_nand_cw_write(chip);
+>>>>>>> upstream/android-13
 
 	ret = submit_descs(nandc);
 
@@ -2281,6 +2755,7 @@ static int qcom_nandc_block_markbad(struct mtd_info *mtd, loff_t ofs)
 }
 
 /*
+<<<<<<< HEAD
  * the three functions below implement chip->read_byte(), chip->read_buf()
  * and chip->write_buf() respectively. these aren't used for
  * reading/writing page data, they are used for smaller data like reading
@@ -2289,6 +2764,15 @@ static int qcom_nandc_block_markbad(struct mtd_info *mtd, loff_t ofs)
 static uint8_t qcom_nandc_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+ * the three functions below implement chip->legacy.read_byte(),
+ * chip->legacy.read_buf() and chip->legacy.write_buf() respectively. these
+ * aren't used for reading/writing page data, they are used for smaller data
+ * like reading	id, status etc
+ */
+static uint8_t qcom_nandc_read_byte(struct nand_chip *chip)
+{
+>>>>>>> upstream/android-13
 	struct qcom_nand_host *host = to_qcom_nand_host(chip);
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	u8 *buf = nandc->data_buffer;
@@ -2308,9 +2792,14 @@ static uint8_t qcom_nandc_read_byte(struct mtd_info *mtd)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void qcom_nandc_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void qcom_nandc_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+{
+>>>>>>> upstream/android-13
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	int real_len = min_t(size_t, len, nandc->buf_count - nandc->buf_start);
 
@@ -2318,10 +2807,16 @@ static void qcom_nandc_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 	nandc->buf_start += real_len;
 }
 
+<<<<<<< HEAD
 static void qcom_nandc_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 				 int len)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void qcom_nandc_write_buf(struct nand_chip *chip, const uint8_t *buf,
+				 int len)
+{
+>>>>>>> upstream/android-13
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 	int real_len = min_t(size_t, len, nandc->buf_count - nandc->buf_start);
 
@@ -2331,9 +2826,14 @@ static void qcom_nandc_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 }
 
 /* we support only one external chip for now */
+<<<<<<< HEAD
 static void qcom_nandc_select_chip(struct mtd_info *mtd, int chipnr)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void qcom_nandc_select_chip(struct nand_chip *chip, int chipnr)
+{
+>>>>>>> upstream/android-13
 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
 
 	if (chipnr <= 0)
@@ -2567,13 +3067,35 @@ static int qcom_nand_attach_chip(struct nand_chip *chip)
 	ecc->write_page_raw	= qcom_nandc_write_page_raw;
 	ecc->write_oob		= qcom_nandc_write_oob;
 
+<<<<<<< HEAD
 	ecc->mode = NAND_ECC_HW;
 
 	mtd_set_ooblayout(mtd, &qcom_nand_ooblayout_ops);
+=======
+	ecc->engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
+
+	mtd_set_ooblayout(mtd, &qcom_nand_ooblayout_ops);
+	/* Free the initially allocated BAM transaction for reading the ONFI params */
+	if (nandc->props->is_bam)
+		free_bam_transaction(nandc);
+>>>>>>> upstream/android-13
 
 	nandc->max_cwperpage = max_t(unsigned int, nandc->max_cwperpage,
 				     cwperpage);
 
+<<<<<<< HEAD
+=======
+	/* Now allocate the BAM transaction based on updated max_cwperpage */
+	if (nandc->props->is_bam) {
+		nandc->bam_txn = alloc_bam_transaction(nandc);
+		if (!nandc->bam_txn) {
+			dev_err(nandc->dev,
+				"failed to allocate bam transaction\n");
+			return -ENOMEM;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * DATA_UD_BYTES varies based on whether the read/write command protects
 	 * spare data with ECC too. We protect spare data by default, so we set
@@ -2625,7 +3147,12 @@ static int qcom_nand_attach_chip(struct nand_chip *chip)
 				| ecc_mode << ECC_MODE
 				| host->ecc_bytes_hw << ECC_PARITY_SIZE_BYTES_BCH;
 
+<<<<<<< HEAD
 	host->ecc_buf_cfg = 0x203 << NUM_STEPS;
+=======
+	if (!nandc->props->qpic_v2)
+		host->ecc_buf_cfg = 0x203 << NUM_STEPS;
+>>>>>>> upstream/android-13
 
 	host->clrflashstatus = FS_READY_BSY_N;
 	host->clrreadstatus = 0xc0;
@@ -2647,6 +3174,32 @@ static const struct nand_controller_ops qcom_nandc_ops = {
 	.attach_chip = qcom_nand_attach_chip,
 };
 
+<<<<<<< HEAD
+=======
+static void qcom_nandc_unalloc(struct qcom_nand_controller *nandc)
+{
+	if (nandc->props->is_bam) {
+		if (!dma_mapping_error(nandc->dev, nandc->reg_read_dma))
+			dma_unmap_single(nandc->dev, nandc->reg_read_dma,
+					 MAX_REG_RD *
+					 sizeof(*nandc->reg_read_buf),
+					 DMA_FROM_DEVICE);
+
+		if (nandc->tx_chan)
+			dma_release_channel(nandc->tx_chan);
+
+		if (nandc->rx_chan)
+			dma_release_channel(nandc->rx_chan);
+
+		if (nandc->cmd_chan)
+			dma_release_channel(nandc->cmd_chan);
+	} else {
+		if (nandc->chan)
+			dma_release_channel(nandc->chan);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int qcom_nandc_alloc(struct qcom_nand_controller *nandc)
 {
 	int ret;
@@ -2692,6 +3245,7 @@ static int qcom_nandc_alloc(struct qcom_nand_controller *nandc)
 			return -EIO;
 		}
 
+<<<<<<< HEAD
 		nandc->tx_chan = dma_request_slave_channel(nandc->dev, "tx");
 		if (!nandc->tx_chan) {
 			dev_err(nandc->dev, "failed to request tx channel\n");
@@ -2708,6 +3262,33 @@ static int qcom_nandc_alloc(struct qcom_nand_controller *nandc)
 		if (!nandc->cmd_chan) {
 			dev_err(nandc->dev, "failed to request cmd channel\n");
 			return -ENODEV;
+=======
+		nandc->tx_chan = dma_request_chan(nandc->dev, "tx");
+		if (IS_ERR(nandc->tx_chan)) {
+			ret = PTR_ERR(nandc->tx_chan);
+			nandc->tx_chan = NULL;
+			dev_err_probe(nandc->dev, ret,
+				      "tx DMA channel request failed\n");
+			goto unalloc;
+		}
+
+		nandc->rx_chan = dma_request_chan(nandc->dev, "rx");
+		if (IS_ERR(nandc->rx_chan)) {
+			ret = PTR_ERR(nandc->rx_chan);
+			nandc->rx_chan = NULL;
+			dev_err_probe(nandc->dev, ret,
+				      "rx DMA channel request failed\n");
+			goto unalloc;
+		}
+
+		nandc->cmd_chan = dma_request_chan(nandc->dev, "cmd");
+		if (IS_ERR(nandc->cmd_chan)) {
+			ret = PTR_ERR(nandc->cmd_chan);
+			nandc->cmd_chan = NULL;
+			dev_err_probe(nandc->dev, ret,
+				      "cmd DMA channel request failed\n");
+			goto unalloc;
+>>>>>>> upstream/android-13
 		}
 
 		/*
@@ -2721,6 +3302,7 @@ static int qcom_nandc_alloc(struct qcom_nand_controller *nandc)
 		if (!nandc->bam_txn) {
 			dev_err(nandc->dev,
 				"failed to allocate bam transaction\n");
+<<<<<<< HEAD
 			return -ENOMEM;
 		}
 	} else {
@@ -2729,6 +3311,19 @@ static int qcom_nandc_alloc(struct qcom_nand_controller *nandc)
 			dev_err(nandc->dev,
 				"failed to request slave channel\n");
 			return -ENODEV;
+=======
+			ret = -ENOMEM;
+			goto unalloc;
+		}
+	} else {
+		nandc->chan = dma_request_chan(nandc->dev, "rxtx");
+		if (IS_ERR(nandc->chan)) {
+			ret = PTR_ERR(nandc->chan);
+			nandc->chan = NULL;
+			dev_err_probe(nandc->dev, ret,
+				      "rxtx DMA channel request failed\n");
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2739,6 +3334,7 @@ static int qcom_nandc_alloc(struct qcom_nand_controller *nandc)
 	nandc->controller.ops = &qcom_nandc_ops;
 
 	return 0;
+<<<<<<< HEAD
 }
 
 static void qcom_nandc_unalloc(struct qcom_nand_controller *nandc)
@@ -2762,6 +3358,11 @@ static void qcom_nandc_unalloc(struct qcom_nand_controller *nandc)
 		if (nandc->chan)
 			dma_release_channel(nandc->chan);
 	}
+=======
+unalloc:
+	qcom_nandc_unalloc(nandc);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* one time setup of a few nand controller registers */
@@ -2772,24 +3373,56 @@ static int qcom_nandc_setup(struct qcom_nand_controller *nandc)
 	/* kill onenand */
 	if (!nandc->props->is_qpic)
 		nandc_write(nandc, SFLASHC_BURST_CFG, 0);
+<<<<<<< HEAD
 	nandc_write(nandc, dev_cmd_reg_addr(nandc, NAND_DEV_CMD_VLD),
 		    NAND_DEV_CMD_VLD_VAL);
+=======
+
+	if (!nandc->props->qpic_v2)
+		nandc_write(nandc, dev_cmd_reg_addr(nandc, NAND_DEV_CMD_VLD),
+			    NAND_DEV_CMD_VLD_VAL);
+>>>>>>> upstream/android-13
 
 	/* enable ADM or BAM DMA */
 	if (nandc->props->is_bam) {
 		nand_ctrl = nandc_read(nandc, NAND_CTRL);
+<<<<<<< HEAD
 		nandc_write(nandc, NAND_CTRL, nand_ctrl | BAM_MODE_EN);
+=======
+
+		/*
+		 *NAND_CTRL is an operational registers, and CPU
+		 * access to operational registers are read only
+		 * in BAM mode. So update the NAND_CTRL register
+		 * only if it is not in BAM mode. In most cases BAM
+		 * mode will be enabled in bootloader
+		 */
+		if (!(nand_ctrl & BAM_MODE_EN))
+			nandc_write(nandc, NAND_CTRL, nand_ctrl | BAM_MODE_EN);
+>>>>>>> upstream/android-13
 	} else {
 		nandc_write(nandc, NAND_FLASH_CHIP_SELECT, DM_EN);
 	}
 
 	/* save the original values of these registers */
+<<<<<<< HEAD
 	nandc->cmd1 = nandc_read(nandc, dev_cmd_reg_addr(nandc, NAND_DEV_CMD1));
 	nandc->vld = NAND_DEV_CMD_VLD_VAL;
+=======
+	if (!nandc->props->qpic_v2) {
+		nandc->cmd1 = nandc_read(nandc, dev_cmd_reg_addr(nandc, NAND_DEV_CMD1));
+		nandc->vld = NAND_DEV_CMD_VLD_VAL;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const char * const probes[] = { "cmdlinepart", "ofpart", "qcomsmem", NULL };
+
+>>>>>>> upstream/android-13
 static int qcom_nand_host_init_and_register(struct qcom_nand_controller *nandc,
 					    struct qcom_nand_host *host,
 					    struct device_node *dn)
@@ -2813,6 +3446,7 @@ static int qcom_nand_host_init_and_register(struct qcom_nand_controller *nandc,
 	mtd->owner = THIS_MODULE;
 	mtd->dev.parent = dev;
 
+<<<<<<< HEAD
 	chip->cmdfunc		= qcom_nandc_command;
 	chip->select_chip	= qcom_nandc_select_chip;
 	chip->read_byte		= qcom_nandc_read_byte;
@@ -2820,6 +3454,15 @@ static int qcom_nand_host_init_and_register(struct qcom_nand_controller *nandc,
 	chip->write_buf		= qcom_nandc_write_buf;
 	chip->set_features	= nand_get_set_features_notsupp;
 	chip->get_features	= nand_get_set_features_notsupp;
+=======
+	chip->legacy.cmdfunc	= qcom_nandc_command;
+	chip->legacy.select_chip	= qcom_nandc_select_chip;
+	chip->legacy.read_byte	= qcom_nandc_read_byte;
+	chip->legacy.read_buf	= qcom_nandc_read_buf;
+	chip->legacy.write_buf	= qcom_nandc_write_buf;
+	chip->legacy.set_features	= nand_get_set_features_notsupp;
+	chip->legacy.get_features	= nand_get_set_features_notsupp;
+>>>>>>> upstream/android-13
 
 	/*
 	 * the bad block marker is readable only when we read the last codeword
@@ -2829,11 +3472,19 @@ static int qcom_nand_host_init_and_register(struct qcom_nand_controller *nandc,
 	 * and block_markbad helpers until we permanently switch to using
 	 * MTD_OPS_RAW for all drivers (with the help of badblockbits)
 	 */
+<<<<<<< HEAD
 	chip->block_bad		= qcom_nandc_block_bad;
 	chip->block_markbad	= qcom_nandc_block_markbad;
 
 	chip->controller = &nandc->controller;
 	chip->options |= NAND_NO_SUBPAGE_WRITE | NAND_USE_BOUNCE_BUFFER |
+=======
+	chip->legacy.block_bad		= qcom_nandc_block_bad;
+	chip->legacy.block_markbad	= qcom_nandc_block_markbad;
+
+	chip->controller = &nandc->controller;
+	chip->options |= NAND_NO_SUBPAGE_WRITE | NAND_USES_DMA |
+>>>>>>> upstream/android-13
 			 NAND_SKIP_BBTSCAN;
 
 	/* set up initial status value */
@@ -2843,6 +3494,7 @@ static int qcom_nand_host_init_and_register(struct qcom_nand_controller *nandc,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (nandc->props->is_bam) {
 		free_bam_transaction(nandc);
 		nandc->bam_txn = alloc_bam_transaction(nandc);
@@ -2854,6 +3506,9 @@ static int qcom_nand_host_init_and_register(struct qcom_nand_controller *nandc,
 	}
 
 	ret = mtd_device_register(mtd, NULL, 0);
+=======
+	ret = mtd_device_parse_register(mtd, probes, NULL, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret)
 		nand_cleanup(chip);
 
@@ -2956,6 +3611,7 @@ static int qcom_nandc_probe(struct platform_device *pdev)
 	nandc->base_dma = dma_map_resource(dev, res->start,
 					   resource_size(res),
 					   DMA_BIDIRECTIONAL, 0);
+<<<<<<< HEAD
 	if (!nandc->base_dma)
 		return -ENXIO;
 
@@ -2963,6 +3619,11 @@ static int qcom_nandc_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_nandc_alloc;
 
+=======
+	if (dma_mapping_error(dev, nandc->base_dma))
+		return -ENXIO;
+
+>>>>>>> upstream/android-13
 	ret = clk_prepare_enable(nandc->core_clk);
 	if (ret)
 		goto err_core_clk;
@@ -2971,6 +3632,13 @@ static int qcom_nandc_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_aon_clk;
 
+<<<<<<< HEAD
+=======
+	ret = qcom_nandc_alloc(nandc);
+	if (ret)
+		goto err_nandc_alloc;
+
+>>>>>>> upstream/android-13
 	ret = qcom_nandc_setup(nandc);
 	if (ret)
 		goto err_setup;
@@ -2982,15 +3650,25 @@ static int qcom_nandc_probe(struct platform_device *pdev)
 	return 0;
 
 err_setup:
+<<<<<<< HEAD
+=======
+	qcom_nandc_unalloc(nandc);
+err_nandc_alloc:
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(nandc->aon_clk);
 err_aon_clk:
 	clk_disable_unprepare(nandc->core_clk);
 err_core_clk:
+<<<<<<< HEAD
 	qcom_nandc_unalloc(nandc);
 err_nandc_alloc:
 	dma_unmap_resource(dev, res->start, resource_size(res),
 			   DMA_BIDIRECTIONAL, 0);
 
+=======
+	dma_unmap_resource(dev, res->start, resource_size(res),
+			   DMA_BIDIRECTIONAL, 0);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2999,10 +3677,22 @@ static int qcom_nandc_remove(struct platform_device *pdev)
 	struct qcom_nand_controller *nandc = platform_get_drvdata(pdev);
 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	struct qcom_nand_host *host;
+<<<<<<< HEAD
 
 	list_for_each_entry(host, &nandc->host_list, node)
 		nand_release(&host->chip);
 
+=======
+	struct nand_chip *chip;
+	int ret;
+
+	list_for_each_entry(host, &nandc->host_list, node) {
+		chip = &host->chip;
+		ret = mtd_device_unregister(nand_to_mtd(chip));
+		WARN_ON(ret);
+		nand_cleanup(chip);
+	}
+>>>>>>> upstream/android-13
 
 	qcom_nandc_unalloc(nandc);
 
@@ -3035,6 +3725,17 @@ static const struct qcom_nandc_props ipq8074_nandc_props = {
 	.dev_cmd_reg_start = 0x7000,
 };
 
+<<<<<<< HEAD
+=======
+static const struct qcom_nandc_props sdx55_nandc_props = {
+	.ecc_modes = (ECC_BCH_4BIT | ECC_BCH_8BIT),
+	.is_bam = true,
+	.is_qpic = true,
+	.qpic_v2 = true,
+	.dev_cmd_reg_start = 0x7000,
+};
+
+>>>>>>> upstream/android-13
 /*
  * data will hold a struct pointer containing more differences once we support
  * more controller variants
@@ -3049,9 +3750,23 @@ static const struct of_device_id qcom_nandc_of_match[] = {
 		.data = &ipq4019_nandc_props,
 	},
 	{
+<<<<<<< HEAD
 		.compatible = "qcom,ipq8074-nand",
 		.data = &ipq8074_nandc_props,
 	},
+=======
+		.compatible = "qcom,ipq6018-nand",
+		.data = &ipq8074_nandc_props,
+	},
+	{
+		.compatible = "qcom,ipq8074-nand",
+		.data = &ipq8074_nandc_props,
+	},
+	{
+		.compatible = "qcom,sdx55-nand",
+		.data = &sdx55_nandc_props,
+	},
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, qcom_nandc_of_match);

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 STMicroelectronics
  *
  * I2C master mode controller driver, used in STMicroelectronics devices.
  *
  * Author: Maxime Coquelin <maxime.coquelin@st.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2, as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -216,7 +223,11 @@ static inline void st_i2c_clr_bits(void __iomem *reg, u32 mask)
  */
 static struct st_i2c_timings i2c_timings[] = {
 	[I2C_MODE_STANDARD] = {
+<<<<<<< HEAD
 		.rate			= 100000,
+=======
+		.rate			= I2C_MAX_STANDARD_MODE_FREQ,
+>>>>>>> upstream/android-13
 		.rep_start_hold		= 4400,
 		.rep_start_setup	= 5170,
 		.start_hold		= 4400,
@@ -225,7 +236,11 @@ static struct st_i2c_timings i2c_timings[] = {
 		.bus_free_time		= 5170,
 	},
 	[I2C_MODE_FAST] = {
+<<<<<<< HEAD
 		.rate			= 400000,
+=======
+		.rate			= I2C_MAX_FAST_MODE_FREQ,
+>>>>>>> upstream/android-13
 		.rep_start_hold		= 660,
 		.rep_start_setup	= 660,
 		.start_hold		= 660,
@@ -527,7 +542,11 @@ static void st_i2c_handle_write(struct st_i2c_dev *i2c_dev)
 }
 
 /**
+<<<<<<< HEAD
  * st_i2c_handle_write() - Handle FIFO enmpty interrupt in case of read
+=======
+ * st_i2c_handle_read() - Handle FIFO empty interrupt in case of read
+>>>>>>> upstream/android-13
  * @i2c_dev: Controller's private data
  */
 static void st_i2c_handle_read(struct st_i2c_dev *i2c_dev)
@@ -561,7 +580,11 @@ static void st_i2c_handle_read(struct st_i2c_dev *i2c_dev)
 }
 
 /**
+<<<<<<< HEAD
  * st_i2c_isr() - Interrupt routine
+=======
+ * st_i2c_isr_thread() - Interrupt routine
+>>>>>>> upstream/android-13
  * @irq: interrupt number
  * @data: Controller's private data
  */
@@ -839,7 +862,11 @@ static int st_i2c_probe(struct platform_device *pdev)
 
 	i2c_dev->mode = I2C_MODE_STANDARD;
 	ret = of_property_read_u32(np, "clock-frequency", &clk_rate);
+<<<<<<< HEAD
 	if ((!ret) && (clk_rate == 400000))
+=======
+	if (!ret && (clk_rate == I2C_MAX_FAST_MODE_FREQ))
+>>>>>>> upstream/android-13
 		i2c_dev->mode = I2C_MODE_FAST;
 
 	i2c_dev->dev = &pdev->dev;

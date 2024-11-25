@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * RCU node combining tree definitions.  These are used to compute
  * global attributes while avoiding common-case global contention.  A key
@@ -11,6 +15,7 @@
  * because the size of the TREE SRCU srcu_struct structure depends
  * on these definitions.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -28,11 +33,21 @@
  * Copyright IBM Corporation, 2017
  *
  * Author: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+ * Copyright IBM Corporation, 2017
+ *
+ * Author: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_RCU_NODE_TREE_H
 #define __LINUX_RCU_NODE_TREE_H
 
+<<<<<<< HEAD
+=======
+#include <linux/math.h>
+
+>>>>>>> upstream/android-13
 /*
  * Define shape of hierarchy based on NR_CPUS, CONFIG_RCU_FANOUT, and
  * CONFIG_RCU_FANOUT_LEAF.

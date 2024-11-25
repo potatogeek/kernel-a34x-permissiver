@@ -8,6 +8,14 @@ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
 #
 # ACPI Boot-Time Table Parsing
 #
+<<<<<<< HEAD
+=======
+ifeq ($(CONFIG_ACPI_CUSTOM_DSDT),y)
+tables.o: $(src)/../../include/$(subst $\",,$(CONFIG_ACPI_CUSTOM_DSDT_FILE)) ;
+
+endif
+
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ACPI)		+= tables.o
 obj-$(CONFIG_X86)		+= blacklist.o
 
@@ -39,20 +47,32 @@ acpi-y				+= processor_core.o
 acpi-$(CONFIG_ARCH_MIGHT_HAVE_ACPI_PDC) += processor_pdc.o
 acpi-y				+= ec.o
 acpi-$(CONFIG_ACPI_DOCK)	+= dock.o
+<<<<<<< HEAD
 acpi-y				+= pci_root.o pci_link.o pci_irq.o
 obj-$(CONFIG_ACPI_MCFG)		+= pci_mcfg.o
 acpi-y				+= acpi_lpss.o acpi_apd.o
+=======
+acpi-$(CONFIG_PCI)		+= pci_root.o pci_link.o pci_irq.o
+obj-$(CONFIG_ACPI_MCFG)		+= pci_mcfg.o
+acpi-$(CONFIG_PCI)		+= acpi_lpss.o
+acpi-y				+= acpi_apd.o
+>>>>>>> upstream/android-13
 acpi-y				+= acpi_platform.o
 acpi-y				+= acpi_pnp.o
 acpi-$(CONFIG_ARM_AMBA)	+= acpi_amba.o
 acpi-y				+= power.o
 acpi-y				+= event.o
+<<<<<<< HEAD
 acpi-$(CONFIG_ACPI_REDUCED_HARDWARE_ONLY) += evged.o
+=======
+acpi-y				+= evged.o
+>>>>>>> upstream/android-13
 acpi-y				+= sysfs.o
 acpi-y				+= property.o
 acpi-$(CONFIG_X86)		+= acpi_cmos_rtc.o
 acpi-$(CONFIG_X86)		+= x86/apple.o
 acpi-$(CONFIG_X86)		+= x86/utils.o
+<<<<<<< HEAD
 acpi-$(CONFIG_DEBUG_FS)		+= debugfs.o
 acpi-$(CONFIG_ACPI_NUMA)	+= numa.o
 acpi-$(CONFIG_ACPI_PROCFS_POWER) += cm_sbs.o
@@ -60,6 +80,19 @@ acpi-y				+= acpi_lpat.o
 acpi-$(CONFIG_ACPI_LPIT)	+= acpi_lpit.o
 acpi-$(CONFIG_ACPI_GENERIC_GSI) += irq.o
 acpi-$(CONFIG_ACPI_WATCHDOG)	+= acpi_watchdog.o
+=======
+acpi-$(CONFIG_X86)		+= x86/s2idle.o
+acpi-$(CONFIG_DEBUG_FS)		+= debugfs.o
+acpi-y				+= acpi_lpat.o
+acpi-$(CONFIG_ACPI_FPDT)	+= acpi_fpdt.o
+acpi-$(CONFIG_ACPI_LPIT)	+= acpi_lpit.o
+acpi-$(CONFIG_ACPI_GENERIC_GSI) += irq.o
+acpi-$(CONFIG_ACPI_WATCHDOG)	+= acpi_watchdog.o
+acpi-$(CONFIG_ACPI_PRMT)	+= prmt.o
+
+# Address translation
+acpi-$(CONFIG_ACPI_ADXL)	+= acpi_adxl.o
+>>>>>>> upstream/android-13
 
 # These are (potentially) separate modules
 
@@ -68,6 +101,10 @@ obj-$(CONFIG_ACPI_IPMI)		+= acpi_ipmi.o
 
 obj-$(CONFIG_ACPI_AC) 		+= ac.o
 obj-$(CONFIG_ACPI_BUTTON)	+= button.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_ACPI_TINY_POWER_BUTTON)	+= tiny-power-button.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ACPI_FAN)		+= fan.o
 obj-$(CONFIG_ACPI_VIDEO)	+= video.o
 obj-$(CONFIG_ACPI_TAD)		+= acpi_tad.o
@@ -75,7 +112,13 @@ obj-$(CONFIG_ACPI_PCI_SLOT)	+= pci_slot.o
 obj-$(CONFIG_ACPI_PROCESSOR)	+= processor.o
 obj-$(CONFIG_ACPI)		+= container.o
 obj-$(CONFIG_ACPI_THERMAL)	+= thermal.o
+<<<<<<< HEAD
 obj-$(CONFIG_ACPI_NFIT)		+= nfit/
+=======
+obj-$(CONFIG_ACPI_PLATFORM_PROFILE) 	+= platform_profile.o
+obj-$(CONFIG_ACPI_NFIT)		+= nfit/
+obj-$(CONFIG_ACPI_NUMA)		+= numa/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_ACPI)		+= acpi_memhotplug.o
 obj-$(CONFIG_ACPI_HOTPLUG_IOAPIC) += ioapic.o
 obj-$(CONFIG_ACPI_BATTERY)	+= battery.o
@@ -103,6 +146,7 @@ obj-$(CONFIG_ACPI_APEI)		+= apei/
 
 obj-$(CONFIG_ACPI_EXTLOG)	+= acpi_extlog.o
 
+<<<<<<< HEAD
 obj-$(CONFIG_PMIC_OPREGION)	+= pmic/intel_pmic.o
 obj-$(CONFIG_CRC_PMIC_OPREGION) += pmic/intel_pmic_crc.o
 obj-$(CONFIG_XPOWER_PMIC_OPREGION) += pmic/intel_pmic_xpower.o
@@ -113,8 +157,18 @@ obj-$(CONFIG_CHT_DC_TI_PMIC_OPREGION) += pmic/intel_pmic_chtdc_ti.o
 obj-$(CONFIG_ACPI_CONFIGFS)	+= acpi_configfs.o
 
 obj-$(CONFIG_TPS68470_PMIC_OPREGION)	+= pmic/tps68470_pmic.o
+=======
+obj-$(CONFIG_ACPI_CONFIGFS)	+= acpi_configfs.o
+
+obj-y				+= pmic/
+>>>>>>> upstream/android-13
 
 video-objs			+= acpi_video.o video_detect.o
 obj-y				+= dptf/
 
 obj-$(CONFIG_ARM64)		+= arm64/
+<<<<<<< HEAD
+=======
+
+obj-$(CONFIG_ACPI_VIOT)		+= viot.o
+>>>>>>> upstream/android-13

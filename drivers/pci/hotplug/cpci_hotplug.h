@@ -32,8 +32,15 @@ struct slot {
 	unsigned int devfn;
 	struct pci_bus *bus;
 	struct pci_dev *dev;
+<<<<<<< HEAD
 	unsigned int extracting;
 	struct hotplug_slot *hotplug_slot;
+=======
+	unsigned int latch_status:1;
+	unsigned int adapter_status:1;
+	unsigned int extracting;
+	struct hotplug_slot hotplug_slot;
+>>>>>>> upstream/android-13
 	struct list_head slot_list;
 };
 
@@ -58,7 +65,16 @@ struct cpci_hp_controller {
 
 static inline const char *slot_name(struct slot *slot)
 {
+<<<<<<< HEAD
 	return hotplug_slot_name(slot->hotplug_slot);
+=======
+	return hotplug_slot_name(&slot->hotplug_slot);
+}
+
+static inline struct slot *to_slot(struct hotplug_slot *hotplug_slot)
+{
+	return container_of(hotplug_slot, struct slot, hotplug_slot);
+>>>>>>> upstream/android-13
 }
 
 int cpci_hp_register_controller(struct cpci_hp_controller *controller);
@@ -68,6 +84,12 @@ int cpci_hp_unregister_bus(struct pci_bus *bus);
 int cpci_hp_start(void);
 int cpci_hp_stop(void);
 
+<<<<<<< HEAD
+=======
+/* Global variables */
+extern int cpci_debug;
+
+>>>>>>> upstream/android-13
 /*
  * Internal function prototypes, these functions should not be used by
  * board/chassis drivers.

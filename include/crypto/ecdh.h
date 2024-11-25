@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * ECDH params to be used with kpp API
  *
  * Copyright (c) 2016, Intel Corporation
  * Authors: Salvatore Benedetto <salvatore.benedetto@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CRYPTO_ECDH_
 #define _CRYPTO_ECDH_
@@ -30,16 +37,26 @@
 /* Curves IDs */
 #define ECC_CURVE_NIST_P192	0x0001
 #define ECC_CURVE_NIST_P256	0x0002
+<<<<<<< HEAD
+=======
+#define ECC_CURVE_NIST_P384	0x0003
+>>>>>>> upstream/android-13
 
 /**
  * struct ecdh - define an ECDH private key
  *
+<<<<<<< HEAD
  * @curve_id:	ECC curve the key is based on.
+=======
+>>>>>>> upstream/android-13
  * @key:	Private ECDH key
  * @key_size:	Size of the private ECDH key
  */
 struct ecdh {
+<<<<<<< HEAD
 	unsigned short curve_id;
+=======
+>>>>>>> upstream/android-13
 	char *key;
 	unsigned short key_size;
 };

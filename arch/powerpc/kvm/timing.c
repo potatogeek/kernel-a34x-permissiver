@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2008
  *
@@ -222,6 +227,7 @@ void kvmppc_create_vcpu_debugfs(struct kvm_vcpu *vcpu, unsigned int id)
 
 	snprintf(dbg_fname, sizeof(dbg_fname), "vm%u_vcpu%u_timing",
 		 current->pid, id);
+<<<<<<< HEAD
 	debugfs_file = debugfs_create_file(dbg_fname, 0666,
 					kvm_debugfs_dir, vcpu,
 					&kvmppc_exit_timing_fops);
@@ -231,14 +237,23 @@ void kvmppc_create_vcpu_debugfs(struct kvm_vcpu *vcpu, unsigned int id)
 			__func__, dbg_fname);
 		return;
 	}
+=======
+	debugfs_file = debugfs_create_file(dbg_fname, 0666, kvm_debugfs_dir,
+						vcpu, &kvmppc_exit_timing_fops);
+>>>>>>> upstream/android-13
 
 	vcpu->arch.debugfs_exit_timing = debugfs_file;
 }
 
 void kvmppc_remove_vcpu_debugfs(struct kvm_vcpu *vcpu)
 {
+<<<<<<< HEAD
 	if (vcpu->arch.debugfs_exit_timing) {
 		debugfs_remove(vcpu->arch.debugfs_exit_timing);
 		vcpu->arch.debugfs_exit_timing = NULL;
 	}
+=======
+	debugfs_remove(vcpu->arch.debugfs_exit_timing);
+	vcpu->arch.debugfs_exit_timing = NULL;
+>>>>>>> upstream/android-13
 }

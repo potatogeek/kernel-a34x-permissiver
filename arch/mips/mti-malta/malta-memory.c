@@ -12,7 +12,11 @@
  *          Steven J. Hill <sjhill@mips.com>
  */
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 
 #include <asm/bootinfo.h>
@@ -37,6 +41,7 @@ void __init fw_meminit(void)
 	free_init_pages_eva = eva ? free_init_pages_eva_malta : NULL;
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 	unsigned long addr;
@@ -52,6 +57,8 @@ void __init prom_free_prom_memory(void)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 phys_addr_t mips_cdmm_phys_base(void)
 {
 	/* This address is "typically unused" */

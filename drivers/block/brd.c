@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Ram backed block device driver.
  *
@@ -17,16 +21,27 @@
 #include <linux/bio.h>
 #include <linux/highmem.h>
 #include <linux/mutex.h>
+<<<<<<< HEAD
+=======
+#include <linux/pagemap.h>
+>>>>>>> upstream/android-13
 #include <linux/radix-tree.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
 #include <linux/backing-dev.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
 
 #define PAGE_SECTORS_SHIFT	(PAGE_SHIFT - SECTOR_SHIFT)
 #define PAGE_SECTORS		(1 << PAGE_SECTORS_SHIFT)
 
+=======
+#include <linux/debugfs.h>
+
+#include <linux/uaccess.h>
+
+>>>>>>> upstream/android-13
 /*
  * Each block ramdisk device has a radix_tree brd_pages of pages that stores
  * the pages containing the block device's contents. A brd page's ->index is
@@ -35,9 +50,13 @@
  * device).
  */
 struct brd_device {
+<<<<<<< HEAD
 	int		brd_number;
 
 	struct request_queue	*brd_queue;
+=======
+	int			brd_number;
+>>>>>>> upstream/android-13
 	struct gendisk		*brd_disk;
 	struct list_head	brd_list;
 
@@ -47,6 +66,10 @@ struct brd_device {
 	 */
 	spinlock_t		brd_lock;
 	struct radix_tree_root	brd_pages;
+<<<<<<< HEAD
+=======
+	u64			brd_nr_pages;
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -115,6 +138,11 @@ static struct page *brd_insert_page(struct brd_device *brd, sector_t sector)
 		page = radix_tree_lookup(&brd->brd_pages, idx);
 		BUG_ON(!page);
 		BUG_ON(page->index != idx);
+<<<<<<< HEAD
+=======
+	} else {
+		brd->brd_nr_pages++;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&brd->brd_lock);
 
@@ -153,6 +181,15 @@ static void brd_free_pages(struct brd_device *brd)
 		pos++;
 
 		/*
+<<<<<<< HEAD
+=======
+		 * It takes 3.4 seconds to remove 80GiB ramdisk.
+		 * So, we need cond_resched to avoid stalling the CPU.
+		 */
+		cond_resched();
+
+		/*
+>>>>>>> upstream/android-13
 		 * This assumes radix_tree_gang_lookup always returns as
 		 * many pages as possible. If the radix-tree code changes,
 		 * so will this have to.
@@ -275,6 +312,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static blk_qc_t brd_make_request(struct request_queue *q, struct bio *bio)
 {
 	struct brd_device *brd = bio->bi_disk->private_data;
@@ -286,10 +324,26 @@ static blk_qc_t brd_make_request(struct request_queue *q, struct bio *bio)
 	if (bio_end_sector(bio) > get_capacity(bio->bi_disk))
 		goto io_error;
 
+=======
+static blk_qc_t brd_submit_bio(struct bio *bio)
+{
+	struct brd_device *brd = bio->bi_bdev->bd_disk->private_data;
+	sector_t sector = bio->bi_iter.bi_sector;
+	struct bio_vec bvec;
+	struct bvec_iter iter;
+
+>>>>>>> upstream/android-13
 	bio_for_each_segment(bvec, bio, iter) {
 		unsigned int len = bvec.bv_len;
 		int err;
 
+<<<<<<< HEAD
+=======
+		/* Don't support un-aligned buffer */
+		WARN_ON_ONCE((bvec.bv_offset & (SECTOR_SIZE - 1)) ||
+				(len & (SECTOR_SIZE - 1)));
+
+>>>>>>> upstream/android-13
 		err = brd_do_bvec(brd, bvec.bv_page, len, bvec.bv_offset,
 				  bio_op(bio), sector);
 		if (err)
@@ -319,6 +373,10 @@ static int brd_rw_page(struct block_device *bdev, sector_t sector,
 
 static const struct block_device_operations brd_fops = {
 	.owner =		THIS_MODULE,
+<<<<<<< HEAD
+=======
+	.submit_bio =		brd_submit_bio,
+>>>>>>> upstream/android-13
 	.rw_page =		brd_rw_page,
 };
 
@@ -357,6 +415,7 @@ __setup("ramdisk_size=", ramdisk_size);
  */
 static LIST_HEAD(brd_devices);
 static DEFINE_MUTEX(brd_devices_mutex);
+<<<<<<< HEAD
 
 static struct brd_device *brd_alloc(int i)
 {
@@ -378,11 +437,61 @@ static struct brd_device *brd_alloc(int i)
 	blk_queue_max_hw_sectors(brd->brd_queue, 1024);
 
 	/* This is so fdisk will align partitions on 4k, because of
+=======
+static struct dentry *brd_debugfs_dir;
+
+static int brd_alloc(int i)
+{
+	struct brd_device *brd;
+	struct gendisk *disk;
+	char buf[DISK_NAME_LEN];
+
+	mutex_lock(&brd_devices_mutex);
+	list_for_each_entry(brd, &brd_devices, brd_list) {
+		if (brd->brd_number == i) {
+			mutex_unlock(&brd_devices_mutex);
+			return -EEXIST;
+		}
+	}
+	brd = kzalloc(sizeof(*brd), GFP_KERNEL);
+	if (!brd) {
+		mutex_unlock(&brd_devices_mutex);
+		return -ENOMEM;
+	}
+	brd->brd_number		= i;
+	list_add_tail(&brd->brd_list, &brd_devices);
+	mutex_unlock(&brd_devices_mutex);
+
+	spin_lock_init(&brd->brd_lock);
+	INIT_RADIX_TREE(&brd->brd_pages, GFP_ATOMIC);
+
+	snprintf(buf, DISK_NAME_LEN, "ram%d", i);
+	if (!IS_ERR_OR_NULL(brd_debugfs_dir))
+		debugfs_create_u64(buf, 0444, brd_debugfs_dir,
+				&brd->brd_nr_pages);
+
+	disk = brd->brd_disk = blk_alloc_disk(NUMA_NO_NODE);
+	if (!disk)
+		goto out_free_dev;
+
+	disk->major		= RAMDISK_MAJOR;
+	disk->first_minor	= i * max_part;
+	disk->minors		= max_part;
+	disk->fops		= &brd_fops;
+	disk->private_data	= brd;
+	disk->flags		= GENHD_FL_EXT_DEVT;
+	strlcpy(disk->disk_name, buf, DISK_NAME_LEN);
+	set_capacity(disk, rd_size * 2);
+	
+	/*
+	 * This is so fdisk will align partitions on 4k, because of
+>>>>>>> upstream/android-13
 	 * direct_access API needing 4k alignment, returning a PFN
 	 * (This is only a problem on very small devices <= 4M,
 	 *  otherwise fdisk will align on 1M. Regardless this call
 	 *  is harmless)
 	 */
+<<<<<<< HEAD
 	blk_queue_physical_block_size(brd->brd_queue, PAGE_SIZE);
 	disk = brd->brd_disk = alloc_disk(max_part);
 	if (!disk)
@@ -437,10 +546,33 @@ static struct brd_device *brd_init_one(int i, bool *new)
 	*new = true;
 out:
 	return brd;
+=======
+	blk_queue_physical_block_size(disk->queue, PAGE_SIZE);
+
+	/* Tell the block layer that this is not a rotational device */
+	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
+	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
+	add_disk(disk);
+
+	return 0;
+
+out_free_dev:
+	mutex_lock(&brd_devices_mutex);
+	list_del(&brd->brd_list);
+	mutex_unlock(&brd_devices_mutex);
+	kfree(brd);
+	return -ENOMEM;
+}
+
+static void brd_probe(dev_t dev)
+{
+	brd_alloc(MINOR(dev) / max_part);
+>>>>>>> upstream/android-13
 }
 
 static void brd_del_one(struct brd_device *brd)
 {
+<<<<<<< HEAD
 	list_del(&brd->brd_list);
 	del_gendisk(brd->brd_disk);
 	brd_free(brd);
@@ -461,6 +593,15 @@ static struct kobject *brd_probe(dev_t dev, int *part, void *data)
 		*part = 0;
 
 	return kobj;
+=======
+	del_gendisk(brd->brd_disk);
+	blk_cleanup_disk(brd->brd_disk);
+	brd_free_pages(brd);
+	mutex_lock(&brd_devices_mutex);
+	list_del(&brd->brd_list);
+	mutex_unlock(&brd_devices_mutex);
+	kfree(brd);
+>>>>>>> upstream/android-13
 }
 
 static inline void brd_check_and_reset_par(void)
@@ -485,7 +626,11 @@ static inline void brd_check_and_reset_par(void)
 static int __init brd_init(void)
 {
 	struct brd_device *brd, *next;
+<<<<<<< HEAD
 	int i;
+=======
+	int err, i;
+>>>>>>> upstream/android-13
 
 	/*
 	 * brd module now has a feature to instantiate underlying device
@@ -502,11 +647,16 @@ static int __init brd_init(void)
 	 *	dynamically.
 	 */
 
+<<<<<<< HEAD
 	if (register_blkdev(RAMDISK_MAJOR, "ramdisk"))
+=======
+	if (__register_blkdev(RAMDISK_MAJOR, "ramdisk", brd_probe))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	brd_check_and_reset_par();
 
+<<<<<<< HEAD
 	for (i = 0; i < rd_nr; i++) {
 		brd = brd_alloc(i);
 		if (!brd)
@@ -528,10 +678,21 @@ static int __init brd_init(void)
 	blk_register_region(MKDEV(RAMDISK_MAJOR, 0), 1UL << MINORBITS,
 				  THIS_MODULE, brd_probe, NULL, NULL);
 
+=======
+	brd_debugfs_dir = debugfs_create_dir("ramdisk_pages", NULL);
+
+	for (i = 0; i < rd_nr; i++) {
+		err = brd_alloc(i);
+		if (err)
+			goto out_free;
+	}
+
+>>>>>>> upstream/android-13
 	pr_info("brd: module loaded\n");
 	return 0;
 
 out_free:
+<<<<<<< HEAD
 	list_for_each_entry_safe(brd, next, &brd_devices, brd_list) {
 		list_del(&brd->brd_list);
 		brd_free(brd);
@@ -540,18 +701,37 @@ out_free:
 
 	pr_info("brd: module NOT loaded !!!\n");
 	return -ENOMEM;
+=======
+	unregister_blkdev(RAMDISK_MAJOR, "ramdisk");
+	debugfs_remove_recursive(brd_debugfs_dir);
+
+	list_for_each_entry_safe(brd, next, &brd_devices, brd_list)
+		brd_del_one(brd);
+
+	pr_info("brd: module NOT loaded !!!\n");
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static void __exit brd_exit(void)
 {
 	struct brd_device *brd, *next;
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(brd, next, &brd_devices, brd_list)
 		brd_del_one(brd);
 
 	blk_unregister_region(MKDEV(RAMDISK_MAJOR, 0), 1UL << MINORBITS);
 	unregister_blkdev(RAMDISK_MAJOR, "ramdisk");
 
+=======
+	unregister_blkdev(RAMDISK_MAJOR, "ramdisk");
+	debugfs_remove_recursive(brd_debugfs_dir);
+
+	list_for_each_entry_safe(brd, next, &brd_devices, brd_list)
+		brd_del_one(brd);
+
+>>>>>>> upstream/android-13
 	pr_info("brd: module unloaded\n");
 }
 

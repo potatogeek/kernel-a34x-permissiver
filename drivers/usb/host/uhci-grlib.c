@@ -63,7 +63,11 @@ static const struct hc_driver uhci_grlib_hc_driver = {
 
 	/* Generic hardware linkage */
 	.irq =			uhci_irq,
+<<<<<<< HEAD
 	.flags =		HCD_MEMORY | HCD_USB11,
+=======
+	.flags =		HCD_MEMORY | HCD_DMA | HCD_USB11,
+>>>>>>> upstream/android-13
 
 	/* Basic lifecycle operations */
 	.reset =		uhci_grlib_init,

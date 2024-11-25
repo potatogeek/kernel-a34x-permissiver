@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * drivers/extcon/extcon-usb-gpio.c - USB GPIO extcon driver
  *
@@ -12,6 +13,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/**
+ * drivers/extcon/extcon-usb-gpio.c - USB GPIO extcon driver
+ *
+ * Copyright (C) 2015 Texas Instruments Incorporated - https://www.ti.com
+ * Author: Roger Quadros <rogerq@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/extcon-provider.h>

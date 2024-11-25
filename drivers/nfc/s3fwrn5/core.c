@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * NCI based driver for Samsung S3FWRN5 NFC chip
  *
  * Copyright (C) 2015 Samsung Electrnoics
  * Robert Baldyga <r.baldyga@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -31,13 +38,34 @@
 				NFC_PROTO_ISO14443_B_MASK | \
 				NFC_PROTO_ISO15693_MASK)
 
+<<<<<<< HEAD
+=======
+static int s3fwrn5_firmware_init(struct s3fwrn5_info *info)
+{
+	struct s3fwrn5_fw_info *fw_info = &info->fw_info;
+	int ret;
+
+	s3fwrn5_fw_init(fw_info, "sec_s3fwrn5_firmware.bin");
+
+	/* Get firmware data */
+	ret = s3fwrn5_fw_request_firmware(fw_info);
+	if (ret < 0)
+		dev_err(&fw_info->ndev->nfc_dev->dev,
+			"Failed to get fw file, ret=%02x\n", ret);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int s3fwrn5_firmware_update(struct s3fwrn5_info *info)
 {
 	bool need_update;
 	int ret;
 
+<<<<<<< HEAD
 	s3fwrn5_fw_init(&info->fw_info, "sec_s3fwrn5_firmware.bin");
 
+=======
+>>>>>>> upstream/android-13
 	/* Update firmware */
 
 	s3fwrn5_set_wake(info, false);
@@ -120,9 +148,20 @@ static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
 	struct s3fwrn5_info *info = nci_get_drvdata(ndev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = s3fwrn5_firmware_update(info);
 	if (ret < 0)
 		goto out;
+=======
+	if (s3fwrn5_firmware_init(info)) {
+		//skip bootloader mode
+		return 0;
+	}
+
+	ret = s3fwrn5_firmware_update(info);
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* NCI core reset */
 
@@ -131,6 +170,7 @@ static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
 
 	ret = nci_core_reset(info->ndev);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto out;
 
 	ret = nci_core_init(info->ndev);
@@ -140,14 +180,31 @@ out:
 }
 
 static struct nci_ops s3fwrn5_nci_ops = {
+=======
+		return ret;
+
+	return nci_core_init(info->ndev);
+}
+
+static const struct nci_ops s3fwrn5_nci_ops = {
+>>>>>>> upstream/android-13
 	.open = s3fwrn5_nci_open,
 	.close = s3fwrn5_nci_close,
 	.send = s3fwrn5_nci_send,
 	.post_setup = s3fwrn5_nci_post_setup,
+<<<<<<< HEAD
 };
 
 int s3fwrn5_probe(struct nci_dev **ndev, void *phy_id, struct device *pdev,
 	const struct s3fwrn5_phy_ops *phy_ops, unsigned int max_payload)
+=======
+	.prop_ops = s3fwrn5_nci_prop_ops,
+	.n_prop_ops = ARRAY_SIZE(s3fwrn5_nci_prop_ops),
+};
+
+int s3fwrn5_probe(struct nci_dev **ndev, void *phy_id, struct device *pdev,
+	const struct s3fwrn5_phy_ops *phy_ops)
+>>>>>>> upstream/android-13
 {
 	struct s3fwrn5_info *info;
 	int ret;
@@ -159,14 +216,20 @@ int s3fwrn5_probe(struct nci_dev **ndev, void *phy_id, struct device *pdev,
 	info->phy_id = phy_id;
 	info->pdev = pdev;
 	info->phy_ops = phy_ops;
+<<<<<<< HEAD
 	info->max_payload = max_payload;
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&info->mutex);
 
 	s3fwrn5_set_mode(info, S3FWRN5_MODE_COLD);
 
+<<<<<<< HEAD
 	s3fwrn5_nci_get_prop_ops(&s3fwrn5_nci_ops.prop_ops,
 		&s3fwrn5_nci_ops.n_prop_ops);
 
+=======
+>>>>>>> upstream/android-13
 	info->ndev = nci_allocate_device(&s3fwrn5_nci_ops,
 		S3FWRN5_NFC_PROTOCOLS, 0, 0);
 	if (!info->ndev)

@@ -90,24 +90,39 @@ static void __init console_config(void)
 static void __init mips_nmi_setup(void)
 {
 	void *base;
+<<<<<<< HEAD
 	extern char except_vec_nmi;
+=======
+>>>>>>> upstream/android-13
 
 	base = cpu_has_veic ?
 		(void *)(CAC_BASE + 0xa80) :
 		(void *)(CAC_BASE + 0x380);
+<<<<<<< HEAD
 	memcpy(base, &except_vec_nmi, 0x80);
+=======
+	memcpy(base, except_vec_nmi, 0x80);
+>>>>>>> upstream/android-13
 	flush_icache_range((unsigned long)base, (unsigned long)base + 0x80);
 }
 
 static void __init mips_ejtag_setup(void)
 {
 	void *base;
+<<<<<<< HEAD
 	extern char except_vec_ejtag_debug;
+=======
+	extern char except_vec_ejtag_debug[];
+>>>>>>> upstream/android-13
 
 	base = cpu_has_veic ?
 		(void *)(CAC_BASE + 0xa00) :
 		(void *)(CAC_BASE + 0x300);
+<<<<<<< HEAD
 	memcpy(base, &except_vec_ejtag_debug, 0x80);
+=======
+	memcpy(base, except_vec_ejtag_debug, 0x80);
+>>>>>>> upstream/android-13
 	flush_icache_range((unsigned long)base, (unsigned long)base + 0x80);
 }
 
@@ -118,8 +133,11 @@ phys_addr_t mips_cpc_default_phys_base(void)
 
 void __init prom_init(void)
 {
+<<<<<<< HEAD
 	mips_display_message("LINUX");
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * early setup of _pcictrl_bonito so that we can determine
 	 * the system controller on a CORE_EMUL board
@@ -277,7 +295,10 @@ mips_pci_controller:
 
 	default:
 		/* Unknown system controller */
+<<<<<<< HEAD
 		mips_display_message("SC Error");
+=======
+>>>>>>> upstream/android-13
 		while (1);	/* We die here... */
 	}
 	board_nmi_handler_setup = mips_nmi_setup;

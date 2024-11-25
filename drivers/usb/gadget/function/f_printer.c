@@ -51,6 +51,11 @@
 #define GET_PORT_STATUS		1
 #define SOFT_RESET		2
 
+<<<<<<< HEAD
+=======
+#define DEFAULT_Q_LEN		10 /* same as legacy g_printer gadget */
+
+>>>>>>> upstream/android-13
 static int major, minors;
 static struct class *usb_gadget_class;
 static DEFINE_IDA(printer_ida);
@@ -293,7 +298,11 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 
 	/* data overrun */
 	case -EOVERFLOW:
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	default:
 		DBG(dev, "rx status %d\n", status);
@@ -312,7 +321,11 @@ static void tx_complete(struct usb_ep *ep, struct usb_request *req)
 	switch (req->status) {
 	default:
 		VDBG(dev, "tx err %d\n", req->status);
+<<<<<<< HEAD
 		/* FALLTHROUGH */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case -ECONNRESET:		/* unlink */
 	case -ESHUTDOWN:		/* disconnect etc */
 		break;
@@ -346,6 +359,14 @@ printer_open(struct inode *inode, struct file *fd)
 
 	spin_lock_irqsave(&dev->lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (dev->interface < 0) {
+		spin_unlock_irqrestore(&dev->lock, flags);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	if (!dev->printer_cdev_open) {
 		dev->printer_cdev_open = 1;
 		fd->private_data = dev;
@@ -440,6 +461,15 @@ printer_read(struct file *fd, char __user *buf, size_t len, loff_t *ptr)
 	mutex_lock(&dev->lock_printer_io);
 	spin_lock_irqsave(&dev->lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (dev->interface < 0) {
+		spin_unlock_irqrestore(&dev->lock, flags);
+		mutex_unlock(&dev->lock_printer_io);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	/* We will use this flag later to check if a printer reset happened
 	 * after we turn interrupts back on.
 	 */
@@ -571,6 +601,15 @@ printer_write(struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
 	mutex_lock(&dev->lock_printer_io);
 	spin_lock_irqsave(&dev->lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (dev->interface < 0) {
+		spin_unlock_irqrestore(&dev->lock, flags);
+		mutex_unlock(&dev->lock_printer_io);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	/* Check if a printer reset happens while we have interrupts on */
 	dev->reset_printer = 0;
 
@@ -648,8 +687,12 @@ printer_write(struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
 		value = usb_ep_queue(dev->in_ep, req, GFP_ATOMIC);
 		spin_lock(&dev->lock);
 		if (value) {
+<<<<<<< HEAD
 			list_del(&req->list);
 			list_add(&req->list, &dev->tx_reqs);
+=======
+			list_move(&req->list, &dev->tx_reqs);
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&dev->lock, flags);
 			mutex_unlock(&dev->lock_printer_io);
 			return -EAGAIN;
@@ -677,6 +720,16 @@ printer_fsync(struct file *fd, loff_t start, loff_t end, int datasync)
 
 	inode_lock(inode);
 	spin_lock_irqsave(&dev->lock, flags);
+<<<<<<< HEAD
+=======
+
+	if (dev->interface < 0) {
+		spin_unlock_irqrestore(&dev->lock, flags);
+		inode_unlock(inode);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	tx_list_empty = (likely(list_empty(&dev->tx_reqs)));
 	spin_unlock_irqrestore(&dev->lock, flags);
 
@@ -699,6 +752,16 @@ printer_poll(struct file *fd, poll_table *wait)
 
 	mutex_lock(&dev->lock_printer_io);
 	spin_lock_irqsave(&dev->lock, flags);
+<<<<<<< HEAD
+=======
+
+	if (dev->interface < 0) {
+		spin_unlock_irqrestore(&dev->lock, flags);
+		mutex_unlock(&dev->lock_printer_io);
+		return EPOLLERR | EPOLLHUP;
+	}
+
+>>>>>>> upstream/android-13
 	setup_rx_reqs(dev);
 	spin_unlock_irqrestore(&dev->lock, flags);
 	mutex_unlock(&dev->lock_printer_io);
@@ -732,6 +795,14 @@ printer_ioctl(struct file *fd, unsigned int code, unsigned long arg)
 
 	spin_lock_irqsave(&dev->lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (dev->interface < 0) {
+		spin_unlock_irqrestore(&dev->lock, flags);
+		return -ENODEV;
+	}
+
+>>>>>>> upstream/android-13
 	switch (code) {
 	case GADGET_GET_PRINTER_STATUS:
 		status = (int)dev->printer_status;
@@ -787,7 +858,11 @@ set_printer_interface(struct printer_dev *dev)
 
 	result = usb_ep_enable(dev->out_ep);
 	if (result != 0) {
+<<<<<<< HEAD
 		DBG(dev, "enable %s --> %d\n", dev->in_ep->name, result);
+=======
+		DBG(dev, "enable %s --> %d\n", dev->out_ep->name, result);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -929,7 +1004,11 @@ static bool gprinter_req_match(struct usb_function *f,
 		if (!w_value && !w_length &&
 		   !(USB_DIR_IN & ctrl->bRequestType))
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return false;
 	}
@@ -1063,7 +1142,12 @@ autoconf_fail:
 	ss_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
 
 	ret = usb_assign_descriptors(f, fs_printer_function,
+<<<<<<< HEAD
 			hs_printer_function, ss_printer_function, NULL);
+=======
+			hs_printer_function, ss_printer_function,
+			ss_printer_function);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1328,6 +1412,12 @@ static struct usb_function_instance *gprinter_alloc_inst(void)
 	opts->func_inst.free_func_inst = gprinter_free_inst;
 	ret = &opts->func_inst;
 
+<<<<<<< HEAD
+=======
+	/* Make sure q_len is initialized, otherwise the bound device can't support read/write! */
+	opts->q_len = DEFAULT_Q_LEN;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&printer_ida_lock);
 
 	if (ida_is_empty(&printer_ida)) {

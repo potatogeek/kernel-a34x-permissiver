@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-omap1/board-fsample.c
  *
@@ -5,10 +9,13 @@
  *
  * Original OMAP730 support by Jean Pihet <j-pihet@ti.com>
  * Updated for 2.6 by Kevin Hilman <kjh@hilman.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/gpio.h>
 #include <linux/kernel.h>
@@ -16,8 +23,12 @@
 #include <linux/platform_device.h>
 #include <linux/delay.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/partitions.h>
+=======
+#include <linux/mtd/platnand.h>
+>>>>>>> upstream/android-13
 #include <linux/mtd/physmap.h>
 #include <linux/input.h>
 #include <linux/smc91x.h>
@@ -186,7 +197,11 @@ static struct platform_device nor_device = {
 
 #define FSAMPLE_NAND_RB_GPIO_PIN	62
 
+<<<<<<< HEAD
 static int nand_dev_ready(struct mtd_info *mtd)
+=======
+static int nand_dev_ready(struct nand_chip *chip)
+>>>>>>> upstream/android-13
 {
 	return gpio_get_value(FSAMPLE_NAND_RB_GPIO_PIN);
 }

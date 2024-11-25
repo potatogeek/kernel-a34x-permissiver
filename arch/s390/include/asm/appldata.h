@@ -40,26 +40,48 @@ struct appldata_product_id {
 	u16  mod_lvl;		/* modification level */
 } __attribute__ ((packed));
 
+<<<<<<< HEAD
 static inline int appldata_asm(struct appldata_product_id *id,
 			       unsigned short fn, void *buffer,
 			       unsigned short length)
 {
 	struct appldata_parameter_list parm_list;
+=======
+
+static inline int appldata_asm(struct appldata_parameter_list *parm_list,
+			       struct appldata_product_id *id,
+			       unsigned short fn, void *buffer,
+			       unsigned short length)
+{
+>>>>>>> upstream/android-13
 	int ry;
 
 	if (!MACHINE_IS_VM)
 		return -EOPNOTSUPP;
+<<<<<<< HEAD
 	parm_list.diag = 0xdc;
 	parm_list.function = fn;
 	parm_list.parlist_length = sizeof(parm_list);
 	parm_list.buffer_length = length;
 	parm_list.product_id_addr = (unsigned long) id;
 	parm_list.buffer_addr = virt_to_phys(buffer);
+=======
+	parm_list->diag = 0xdc;
+	parm_list->function = fn;
+	parm_list->parlist_length = sizeof(*parm_list);
+	parm_list->buffer_length = length;
+	parm_list->product_id_addr = (unsigned long) id;
+	parm_list->buffer_addr = virt_to_phys(buffer);
+>>>>>>> upstream/android-13
 	diag_stat_inc(DIAG_STAT_X0DC);
 	asm volatile(
 		"	diag	%1,%0,0xdc"
 		: "=d" (ry)
+<<<<<<< HEAD
 		: "d" (&parm_list), "m" (parm_list), "m" (*id)
+=======
+		: "d" (parm_list), "m" (*parm_list), "m" (*id)
+>>>>>>> upstream/android-13
 		: "cc");
 	return ry;
 }

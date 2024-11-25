@@ -250,7 +250,13 @@ asmlinkage void trace_trap(unsigned long bp)
 {
 	if ((unsigned long)current->thread.breakinfo.addr == bp) {
 		user_disable_single_step(current);
+<<<<<<< HEAD
 		force_sig(SIGTRAP, current);
 	} else
 		force_sig(SIGILL, current);
+=======
+		force_sig(SIGTRAP);
+	} else
+		force_sig(SIGILL);
+>>>>>>> upstream/android-13
 }

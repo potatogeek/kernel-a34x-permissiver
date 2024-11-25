@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * fan53555.h - Fairchild Regulator FAN53555 Driver
  *
  * Copyright (C) 2012 Marvell Technology Ltd.
  * Yunfan Zhang <yfzhang@marvell.com>
+<<<<<<< HEAD
  *
  * This package is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __FAN53555_H__

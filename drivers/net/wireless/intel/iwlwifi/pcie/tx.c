@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
@@ -29,11 +30,22 @@
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2003-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include <linux/ieee80211.h>
 #include <linux/slab.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <linux/pm_runtime.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/ip6_checksum.h>
 #include <net/tso.h>
 
@@ -46,9 +58,12 @@
 #include "internal.h"
 #include "fw/api/tx.h"
 
+<<<<<<< HEAD
 #define IWL_TX_CRC_SIZE 4
 #define IWL_TX_DELIMITER_SIZE 4
 
+=======
+>>>>>>> upstream/android-13
 /*************** DMA-QUEUE-GENERAL-FUNCTIONS  *****
  * DMA services
  *
@@ -71,6 +86,7 @@
  *
  ***************************************************/
 
+<<<<<<< HEAD
 int iwl_queue_space(struct iwl_trans *trans, const struct iwl_txq *q)
 {
 	unsigned int max;
@@ -125,6 +141,8 @@ static int iwl_queue_init(struct iwl_txq *q, int slots_num)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 int iwl_pcie_alloc_dma_ptr(struct iwl_trans *trans,
 			   struct iwl_dma_ptr *ptr, size_t size)
@@ -149,6 +167,7 @@ void iwl_pcie_free_dma_ptr(struct iwl_trans *trans, struct iwl_dma_ptr *ptr)
 	memset(ptr, 0, sizeof(*ptr));
 }
 
+<<<<<<< HEAD
 static void iwl_pcie_txq_stuck_timer(struct timer_list *t)
 {
 	struct iwl_txq *txq = from_timer(txq, t, stuck_timer);
@@ -243,13 +262,18 @@ static void iwl_pcie_txq_inval_byte_cnt_tbl(struct iwl_trans *trans,
 			tfd_offset[TFD_QUEUE_SIZE_MAX + read_ptr] = bc_ent;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * iwl_pcie_txq_inc_wr_ptr - Send new write index to hardware
  */
 static void iwl_pcie_txq_inc_wr_ptr(struct iwl_trans *trans,
 				    struct iwl_txq *txq)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+=======
+>>>>>>> upstream/android-13
 	u32 reg = 0;
 	int txq_id = txq->id;
 
@@ -261,8 +285,13 @@ static void iwl_pcie_txq_inc_wr_ptr(struct iwl_trans *trans,
 	 * 2. NIC is woken up for CMD regardless of shadow outside this function
 	 * 3. there is a chance that the NIC is asleep
 	 */
+<<<<<<< HEAD
 	if (!trans->cfg->base_params->shadow_reg_enable &&
 	    txq_id != trans_pcie->cmd_queue &&
+=======
+	if (!trans->trans_cfg->base_params->shadow_reg_enable &&
+	    txq_id != trans->txqs.cmd.q_id &&
+>>>>>>> upstream/android-13
 	    test_bit(STATUS_TPOWER_PMI, &trans->status)) {
 		/*
 		 * wake up nic if it's powered down ...
@@ -275,7 +304,11 @@ static void iwl_pcie_txq_inc_wr_ptr(struct iwl_trans *trans,
 			IWL_DEBUG_INFO(trans, "Tx queue %d requesting wakeup, GP1 = 0x%x\n",
 				       txq_id, reg);
 			iwl_set_bit(trans, CSR_GP_CNTRL,
+<<<<<<< HEAD
 				    BIT(trans->cfg->csr->flag_mac_access_req));
+=======
+				    CSR_GP_CNTRL_REG_FLAG_MAC_ACCESS_REQ);
+>>>>>>> upstream/android-13
 			txq->need_update = true;
 			return;
 		}
@@ -293,6 +326,7 @@ static void iwl_pcie_txq_inc_wr_ptr(struct iwl_trans *trans,
 
 void iwl_pcie_txq_check_wrptrs(struct iwl_trans *trans)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	int i;
 
@@ -300,6 +334,14 @@ void iwl_pcie_txq_check_wrptrs(struct iwl_trans *trans)
 		struct iwl_txq *txq = trans_pcie->txq[i];
 
 		if (!test_bit(i, trans_pcie->queue_used))
+=======
+	int i;
+
+	for (i = 0; i < trans->trans_cfg->base_params->num_of_queues; i++) {
+		struct iwl_txq *txq = trans->txqs.txq[i];
+
+		if (!test_bit(i, trans->txqs.queue_used))
+>>>>>>> upstream/android-13
 			continue;
 
 		spin_lock_bh(&txq->lock);
@@ -311,6 +353,7 @@ void iwl_pcie_txq_check_wrptrs(struct iwl_trans *trans)
 	}
 }
 
+<<<<<<< HEAD
 static inline dma_addr_t iwl_pcie_tfd_tb_get_addr(struct iwl_trans *trans,
 						  void *_tfd, u8 idx)
 {
@@ -340,6 +383,8 @@ static inline dma_addr_t iwl_pcie_tfd_tb_get_addr(struct iwl_trans *trans,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void iwl_pcie_tfd_set_tb(struct iwl_trans *trans, void *tfd,
 				       u8 idx, dma_addr_t addr, u16 len)
 {
@@ -356,6 +401,7 @@ static inline void iwl_pcie_tfd_set_tb(struct iwl_trans *trans, void *tfd,
 	tfd_fh->num_tbs = idx + 1;
 }
 
+<<<<<<< HEAD
 static inline u8 iwl_pcie_tfd_get_num_tbs(struct iwl_trans *trans, void *_tfd)
 {
 	if (trans->cfg->use_tfh) {
@@ -476,6 +522,25 @@ static int iwl_pcie_txq_build_tfd(struct iwl_trans *trans, struct iwl_txq *txq,
 	if (num_tbs >= trans_pcie->max_tbs) {
 		IWL_ERR(trans, "Error can not send more than %d chunks\n",
 			trans_pcie->max_tbs);
+=======
+static int iwl_pcie_txq_build_tfd(struct iwl_trans *trans, struct iwl_txq *txq,
+				  dma_addr_t addr, u16 len, bool reset)
+{
+	void *tfd;
+	u32 num_tbs;
+
+	tfd = txq->tfds + trans->txqs.tfd.size * txq->write_ptr;
+
+	if (reset)
+		memset(tfd, 0, trans->txqs.tfd.size);
+
+	num_tbs = iwl_txq_gen1_tfd_get_num_tbs(trans, tfd);
+
+	/* Each TFD can point to a maximum max_tbs Tx buffers */
+	if (num_tbs >= trans->txqs.tfd.max_tbs) {
+		IWL_ERR(trans, "Error can not send more than %d chunks\n",
+			trans->txqs.tfd.max_tbs);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -488,6 +553,7 @@ static int iwl_pcie_txq_build_tfd(struct iwl_trans *trans, struct iwl_txq *txq,
 	return num_tbs;
 }
 
+<<<<<<< HEAD
 int iwl_pcie_txq_alloc(struct iwl_trans *trans, struct iwl_txq *txq,
 		       int slots_num, bool cmd_queue)
 {
@@ -601,10 +667,13 @@ void iwl_pcie_free_tso_page(struct iwl_trans_pcie *trans_pcie,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void iwl_pcie_clear_cmd_in_flight(struct iwl_trans *trans)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 
+<<<<<<< HEAD
 	lockdep_assert_held(&trans_pcie->reg_lock);
 
 	if (trans_pcie->ref_cmd_in_flight) {
@@ -621,6 +690,22 @@ static void iwl_pcie_clear_cmd_in_flight(struct iwl_trans *trans)
 	trans_pcie->cmd_hold_nic_awake = false;
 	__iwl_trans_pcie_clear_bit(trans, CSR_GP_CNTRL,
 				   BIT(trans->cfg->csr->flag_mac_access_req));
+=======
+	if (!trans->trans_cfg->base_params->apmg_wake_up_wa)
+		return;
+
+	spin_lock(&trans_pcie->reg_lock);
+
+	if (WARN_ON(!trans_pcie->cmd_hold_nic_awake)) {
+		spin_unlock(&trans_pcie->reg_lock);
+		return;
+	}
+
+	trans_pcie->cmd_hold_nic_awake = false;
+	__iwl_trans_pcie_clear_bit(trans, CSR_GP_CNTRL,
+				   CSR_GP_CNTRL_REG_FLAG_MAC_ACCESS_REQ);
+	spin_unlock(&trans_pcie->reg_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -628,8 +713,12 @@ static void iwl_pcie_clear_cmd_in_flight(struct iwl_trans *trans)
  */
 static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_txq *txq = trans_pcie->txq[txq_id];
+=======
+	struct iwl_txq *txq = trans->txqs.txq[txq_id];
+>>>>>>> upstream/android-13
 
 	if (!txq) {
 		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
@@ -641,12 +730,17 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
 		IWL_DEBUG_TX_REPLY(trans, "Q %d Free %d\n",
 				   txq_id, txq->read_ptr);
 
+<<<<<<< HEAD
 		if (txq_id != trans_pcie->cmd_queue) {
+=======
+		if (txq_id != trans->txqs.cmd.q_id) {
+>>>>>>> upstream/android-13
 			struct sk_buff *skb = txq->entries[txq->read_ptr].skb;
 
 			if (WARN_ON_ONCE(!skb))
 				continue;
 
+<<<<<<< HEAD
 			iwl_pcie_free_tso_page(trans_pcie, skb);
 		}
 		iwl_pcie_txq_free_tfd(trans, txq);
@@ -665,6 +759,16 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
 			}
 			spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
 		}
+=======
+			iwl_txq_free_tso_page(trans, skb);
+		}
+		iwl_txq_free_tfd(trans, txq);
+		txq->read_ptr = iwl_txq_inc_wrap(trans, txq->read_ptr);
+
+		if (txq->read_ptr == txq->write_ptr &&
+		    txq_id == trans->txqs.cmd.q_id)
+			iwl_pcie_clear_cmd_in_flight(trans);
+>>>>>>> upstream/android-13
 	}
 
 	while (!skb_queue_empty(&txq->overflow_q)) {
@@ -689,8 +793,12 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
  */
 static void iwl_pcie_txq_free(struct iwl_trans *trans, int txq_id)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_txq *txq = trans_pcie->txq[txq_id];
+=======
+	struct iwl_txq *txq = trans->txqs.txq[txq_id];
+>>>>>>> upstream/android-13
 	struct device *dev = trans->dev;
 	int i;
 
@@ -700,17 +808,29 @@ static void iwl_pcie_txq_free(struct iwl_trans *trans, int txq_id)
 	iwl_pcie_txq_unmap(trans, txq_id);
 
 	/* De-alloc array of command/tx buffers */
+<<<<<<< HEAD
 	if (txq_id == trans_pcie->cmd_queue)
 		for (i = 0; i < txq->n_window; i++) {
 			kzfree(txq->entries[i].cmd);
 			kzfree(txq->entries[i].free_buf);
+=======
+	if (txq_id == trans->txqs.cmd.q_id)
+		for (i = 0; i < txq->n_window; i++) {
+			kfree_sensitive(txq->entries[i].cmd);
+			kfree_sensitive(txq->entries[i].free_buf);
+>>>>>>> upstream/android-13
 		}
 
 	/* De-alloc circular buffer of TFDs */
 	if (txq->tfds) {
 		dma_free_coherent(dev,
+<<<<<<< HEAD
 				  trans_pcie->tfd_size *
 				  trans->cfg->base_params->max_tfd_queue_size,
+=======
+				  trans->txqs.tfd.size *
+				  trans->trans_cfg->base_params->max_tfd_queue_size,
+>>>>>>> upstream/android-13
 				  txq->tfds, txq->dma_addr);
 		txq->dma_addr = 0;
 		txq->tfds = NULL;
@@ -732,15 +852,25 @@ static void iwl_pcie_txq_free(struct iwl_trans *trans, int txq_id)
 void iwl_pcie_tx_start(struct iwl_trans *trans, u32 scd_base_addr)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+<<<<<<< HEAD
 	int nq = trans->cfg->base_params->num_of_queues;
+=======
+	int nq = trans->trans_cfg->base_params->num_of_queues;
+>>>>>>> upstream/android-13
 	int chan;
 	u32 reg_val;
 	int clear_dwords = (SCD_TRANS_TBL_OFFSET_QUEUE(nq) -
 				SCD_CONTEXT_MEM_LOWER_BOUND) / sizeof(u32);
 
 	/* make sure all queue are not stopped/used */
+<<<<<<< HEAD
 	memset(trans_pcie->queue_stopped, 0, sizeof(trans_pcie->queue_stopped));
 	memset(trans_pcie->queue_used, 0, sizeof(trans_pcie->queue_used));
+=======
+	memset(trans->txqs.queue_stopped, 0,
+	       sizeof(trans->txqs.queue_stopped));
+	memset(trans->txqs.queue_used, 0, sizeof(trans->txqs.queue_used));
+>>>>>>> upstream/android-13
 
 	trans_pcie->scd_base_addr =
 		iwl_read_prph(trans, SCD_SRAM_BASE_ADDR);
@@ -754,17 +884,30 @@ void iwl_pcie_tx_start(struct iwl_trans *trans, u32 scd_base_addr)
 			    NULL, clear_dwords);
 
 	iwl_write_prph(trans, SCD_DRAM_BASE_ADDR,
+<<<<<<< HEAD
 		       trans_pcie->scd_bc_tbls.dma >> 10);
+=======
+		       trans->txqs.scd_bc_tbls.dma >> 10);
+>>>>>>> upstream/android-13
 
 	/* The chain extension of the SCD doesn't work well. This feature is
 	 * enabled by default by the HW, so we need to disable it manually.
 	 */
+<<<<<<< HEAD
 	if (trans->cfg->base_params->scd_chain_ext_wa)
 		iwl_write_prph(trans, SCD_CHAINEXT_EN, 0);
 
 	iwl_trans_ac_txq_enable(trans, trans_pcie->cmd_queue,
 				trans_pcie->cmd_fifo,
 				trans_pcie->cmd_q_wdg_timeout);
+=======
+	if (trans->trans_cfg->base_params->scd_chain_ext_wa)
+		iwl_write_prph(trans, SCD_CHAINEXT_EN, 0);
+
+	iwl_trans_ac_txq_enable(trans, trans->txqs.cmd.q_id,
+				trans->txqs.cmd.fifo,
+				trans->txqs.cmd.wdg_timeout);
+>>>>>>> upstream/android-13
 
 	/* Activate all Tx DMA/FIFO channels */
 	iwl_scd_activate_fifos(trans);
@@ -781,7 +924,11 @@ void iwl_pcie_tx_start(struct iwl_trans *trans, u32 scd_base_addr)
 			   reg_val | FH_TX_CHICKEN_BITS_SCD_AUTO_RETRY_EN);
 
 	/* Enable L1-Active */
+<<<<<<< HEAD
 	if (trans->cfg->device_family < IWL_DEVICE_FAMILY_8000)
+=======
+	if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_8000)
+>>>>>>> upstream/android-13
 		iwl_clear_bits_prph(trans, APMG_PCIDEV_STT_REG,
 				    APMG_PCIDEV_STT_VAL_L1_ACT_DIS);
 }
@@ -795,6 +942,7 @@ void iwl_trans_pcie_tx_reset(struct iwl_trans *trans)
 	 * we should never get here in gen2 trans mode return early to avoid
 	 * having invalid accesses
 	 */
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(trans->cfg->gen2))
 		return;
 
@@ -802,6 +950,15 @@ void iwl_trans_pcie_tx_reset(struct iwl_trans *trans)
 	     txq_id++) {
 		struct iwl_txq *txq = trans_pcie->txq[txq_id];
 		if (trans->cfg->use_tfh)
+=======
+	if (WARN_ON_ONCE(trans->trans_cfg->gen2))
+		return;
+
+	for (txq_id = 0; txq_id < trans->trans_cfg->base_params->num_of_queues;
+	     txq_id++) {
+		struct iwl_txq *txq = trans->txqs.txq[txq_id];
+		if (trans->trans_cfg->use_tfh)
+>>>>>>> upstream/android-13
 			iwl_write_direct64(trans,
 					   FH_MEM_CBBC_QUEUE(trans, txq_id),
 					   txq->dma_addr);
@@ -829,6 +986,7 @@ void iwl_trans_pcie_tx_reset(struct iwl_trans *trans)
 static void iwl_pcie_tx_stop_fh(struct iwl_trans *trans)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+<<<<<<< HEAD
 	unsigned long flags;
 	int ch, ret;
 	u32 mask = 0;
@@ -836,6 +994,14 @@ static void iwl_pcie_tx_stop_fh(struct iwl_trans *trans)
 	spin_lock(&trans_pcie->irq_lock);
 
 	if (!iwl_trans_grab_nic_access(trans, &flags))
+=======
+	int ch, ret;
+	u32 mask = 0;
+
+	spin_lock_bh(&trans_pcie->irq_lock);
+
+	if (!iwl_trans_grab_nic_access(trans))
+>>>>>>> upstream/android-13
 		goto out;
 
 	/* Stop each Tx DMA channel */
@@ -851,10 +1017,17 @@ static void iwl_pcie_tx_stop_fh(struct iwl_trans *trans)
 			"Failing on timeout while stopping DMA channel %d [0x%08x]\n",
 			ch, iwl_read32(trans, FH_TSSR_TX_STATUS_REG));
 
+<<<<<<< HEAD
 	iwl_trans_release_nic_access(trans, &flags);
 
 out:
 	spin_unlock(&trans_pcie->irq_lock);
+=======
+	iwl_trans_release_nic_access(trans);
+
+out:
+	spin_unlock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -876,15 +1049,25 @@ int iwl_pcie_tx_stop(struct iwl_trans *trans)
 	 * queues. This happens when we have an rfkill interrupt.
 	 * Since we stop Tx altogether - mark the queues as stopped.
 	 */
+<<<<<<< HEAD
 	memset(trans_pcie->queue_stopped, 0, sizeof(trans_pcie->queue_stopped));
 	memset(trans_pcie->queue_used, 0, sizeof(trans_pcie->queue_used));
+=======
+	memset(trans->txqs.queue_stopped, 0,
+	       sizeof(trans->txqs.queue_stopped));
+	memset(trans->txqs.queue_used, 0, sizeof(trans->txqs.queue_used));
+>>>>>>> upstream/android-13
 
 	/* This can happen: start_hw, stop_device */
 	if (!trans_pcie->txq_memory)
 		return 0;
 
 	/* Unmap DMA from host system and free skb's */
+<<<<<<< HEAD
 	for (txq_id = 0; txq_id < trans->cfg->base_params->num_of_queues;
+=======
+	for (txq_id = 0; txq_id < trans->trans_cfg->base_params->num_of_queues;
+>>>>>>> upstream/android-13
 	     txq_id++)
 		iwl_pcie_txq_unmap(trans, txq_id);
 
@@ -901,15 +1084,26 @@ void iwl_pcie_tx_free(struct iwl_trans *trans)
 	int txq_id;
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 
+<<<<<<< HEAD
 	memset(trans_pcie->queue_used, 0, sizeof(trans_pcie->queue_used));
+=======
+	memset(trans->txqs.queue_used, 0, sizeof(trans->txqs.queue_used));
+>>>>>>> upstream/android-13
 
 	/* Tx queues */
 	if (trans_pcie->txq_memory) {
 		for (txq_id = 0;
+<<<<<<< HEAD
 		     txq_id < trans->cfg->base_params->num_of_queues;
 		     txq_id++) {
 			iwl_pcie_txq_free(trans, txq_id);
 			trans_pcie->txq[txq_id] = NULL;
+=======
+		     txq_id < trans->trans_cfg->base_params->num_of_queues;
+		     txq_id++) {
+			iwl_pcie_txq_free(trans, txq_id);
+			trans->txqs.txq[txq_id] = NULL;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -918,7 +1112,11 @@ void iwl_pcie_tx_free(struct iwl_trans *trans)
 
 	iwl_pcie_free_dma_ptr(trans, &trans_pcie->kw);
 
+<<<<<<< HEAD
 	iwl_pcie_free_dma_ptr(trans, &trans_pcie->scd_bc_tbls);
+=======
+	iwl_pcie_free_dma_ptr(trans, &trans->txqs.scd_bc_tbls);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -930,11 +1128,20 @@ static int iwl_pcie_tx_alloc(struct iwl_trans *trans)
 	int ret;
 	int txq_id, slots_num;
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+<<<<<<< HEAD
 	u16 bc_tbls_size = trans->cfg->base_params->num_of_queues;
 
 	bc_tbls_size *= (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560) ?
 		sizeof(struct iwl_gen3_bc_tbl) :
 		sizeof(struct iwlagn_scd_bc_tbl);
+=======
+	u16 bc_tbls_size = trans->trans_cfg->base_params->num_of_queues;
+
+	if (WARN_ON(trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210))
+		return -EINVAL;
+
+	bc_tbls_size *= sizeof(struct iwlagn_scd_bc_tbl);
+>>>>>>> upstream/android-13
 
 	/*It is not allowed to alloc twice, so warn when this happens.
 	 * We cannot rely on the previous allocation, so free and fail */
@@ -943,7 +1150,11 @@ static int iwl_pcie_tx_alloc(struct iwl_trans *trans)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	ret = iwl_pcie_alloc_dma_ptr(trans, &trans_pcie->scd_bc_tbls,
+=======
+	ret = iwl_pcie_alloc_dma_ptr(trans, &trans->txqs.scd_bc_tbls,
+>>>>>>> upstream/android-13
 				     bc_tbls_size);
 	if (ret) {
 		IWL_ERR(trans, "Scheduler BC Table allocation failed\n");
@@ -957,8 +1168,14 @@ static int iwl_pcie_tx_alloc(struct iwl_trans *trans)
 		goto error;
 	}
 
+<<<<<<< HEAD
 	trans_pcie->txq_memory = kcalloc(trans->cfg->base_params->num_of_queues,
 					 sizeof(struct iwl_txq), GFP_KERNEL);
+=======
+	trans_pcie->txq_memory =
+		kcalloc(trans->trans_cfg->base_params->num_of_queues,
+			sizeof(struct iwl_txq), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!trans_pcie->txq_memory) {
 		IWL_ERR(trans, "Not enough memory for txq\n");
 		ret = -ENOMEM;
@@ -966,6 +1183,7 @@ static int iwl_pcie_tx_alloc(struct iwl_trans *trans)
 	}
 
 	/* Alloc and init all Tx queues, including the command queue (#4/#9) */
+<<<<<<< HEAD
 	for (txq_id = 0; txq_id < trans->cfg->base_params->num_of_queues;
 	     txq_id++) {
 		bool cmd_queue = (txq_id == trans_pcie->cmd_queue);
@@ -974,11 +1192,30 @@ static int iwl_pcie_tx_alloc(struct iwl_trans *trans)
 		trans_pcie->txq[txq_id] = &trans_pcie->txq_memory[txq_id];
 		ret = iwl_pcie_txq_alloc(trans, trans_pcie->txq[txq_id],
 					 slots_num, cmd_queue);
+=======
+	for (txq_id = 0; txq_id < trans->trans_cfg->base_params->num_of_queues;
+	     txq_id++) {
+		bool cmd_queue = (txq_id == trans->txqs.cmd.q_id);
+
+		if (cmd_queue)
+			slots_num = max_t(u32, IWL_CMD_QUEUE_SIZE,
+					  trans->cfg->min_txq_size);
+		else
+			slots_num = max_t(u32, IWL_DEFAULT_QUEUE_SIZE,
+					  trans->cfg->min_256_ba_txq_size);
+		trans->txqs.txq[txq_id] = &trans_pcie->txq_memory[txq_id];
+		ret = iwl_txq_alloc(trans, trans->txqs.txq[txq_id], slots_num,
+				    cmd_queue);
+>>>>>>> upstream/android-13
 		if (ret) {
 			IWL_ERR(trans, "Tx %d queue alloc failed\n", txq_id);
 			goto error;
 		}
+<<<<<<< HEAD
 		trans_pcie->txq[txq_id]->id = txq_id;
+=======
+		trans->txqs.txq[txq_id]->id = txq_id;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -1003,7 +1240,11 @@ int iwl_pcie_tx_init(struct iwl_trans *trans)
 		alloc = true;
 	}
 
+<<<<<<< HEAD
 	spin_lock(&trans_pcie->irq_lock);
+=======
+	spin_lock_bh(&trans_pcie->irq_lock);
+>>>>>>> upstream/android-13
 
 	/* Turn off all Tx DMA fifos */
 	iwl_scd_deactivate_fifos(trans);
@@ -1012,6 +1253,7 @@ int iwl_pcie_tx_init(struct iwl_trans *trans)
 	iwl_write_direct32(trans, FH_KW_MEM_ADDR_REG,
 			   trans_pcie->kw.dma >> 4);
 
+<<<<<<< HEAD
 	spin_unlock(&trans_pcie->irq_lock);
 
 	/* Alloc and init all Tx queues, including the command queue (#4/#9) */
@@ -1022,6 +1264,23 @@ int iwl_pcie_tx_init(struct iwl_trans *trans)
 		slots_num = cmd_queue ? TFD_CMD_SLOTS : TFD_TX_CMD_SLOTS;
 		ret = iwl_pcie_txq_init(trans, trans_pcie->txq[txq_id],
 					slots_num, cmd_queue);
+=======
+	spin_unlock_bh(&trans_pcie->irq_lock);
+
+	/* Alloc and init all Tx queues, including the command queue (#4/#9) */
+	for (txq_id = 0; txq_id < trans->trans_cfg->base_params->num_of_queues;
+	     txq_id++) {
+		bool cmd_queue = (txq_id == trans->txqs.cmd.q_id);
+
+		if (cmd_queue)
+			slots_num = max_t(u32, IWL_CMD_QUEUE_SIZE,
+					  trans->cfg->min_txq_size);
+		else
+			slots_num = max_t(u32, IWL_DEFAULT_QUEUE_SIZE,
+					  trans->cfg->min_256_ba_txq_size);
+		ret = iwl_txq_init(trans, trans->txqs.txq[txq_id], slots_num,
+				   cmd_queue);
+>>>>>>> upstream/android-13
 		if (ret) {
 			IWL_ERR(trans, "Tx %d queue init failed\n", txq_id);
 			goto error;
@@ -1034,11 +1293,19 @@ int iwl_pcie_tx_init(struct iwl_trans *trans)
 		 * Circular buffer (TFD queue in DRAM) physical base address
 		 */
 		iwl_write_direct32(trans, FH_MEM_CBBC_QUEUE(trans, txq_id),
+<<<<<<< HEAD
 				   trans_pcie->txq[txq_id]->dma_addr >> 8);
 	}
 
 	iwl_set_bits_prph(trans, SCD_GP_CTRL, SCD_GP_CTRL_AUTO_ACTIVE_MODE);
 	if (trans->cfg->base_params->num_of_queues > 20)
+=======
+				   trans->txqs.txq[txq_id]->dma_addr >> 8);
+	}
+
+	iwl_set_bits_prph(trans, SCD_GP_CTRL, SCD_GP_CTRL_AUTO_ACTIVE_MODE);
+	if (trans->trans_cfg->base_params->num_of_queues > 20)
+>>>>>>> upstream/android-13
 		iwl_set_bits_prph(trans, SCD_GP_CTRL,
 				  SCD_GP_CTRL_ENABLE_31_QUEUES);
 
@@ -1050,6 +1317,7 @@ error:
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline void iwl_pcie_txq_progress(struct iwl_txq *txq)
 {
 	lockdep_assert_held(&txq->lock);
@@ -1186,10 +1454,13 @@ out:
 	spin_unlock_bh(&txq->lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int iwl_pcie_set_cmd_in_flight(struct iwl_trans *trans,
 				      const struct iwl_host_cmd *cmd)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+<<<<<<< HEAD
 	const struct iwl_cfg *cfg = trans->cfg;
 	int ret;
 
@@ -1201,11 +1472,21 @@ static int iwl_pcie_set_cmd_in_flight(struct iwl_trans *trans,
 		IWL_DEBUG_RPM(trans, "set ref_cmd_in_flight - ref\n");
 		iwl_trans_ref(trans);
 	}
+=======
+
+	/* Make sure the NIC is still alive in the bus */
+	if (test_bit(STATUS_TRANS_DEAD, &trans->status))
+		return -ENODEV;
+
+	if (!trans->trans_cfg->base_params->apmg_wake_up_wa)
+		return 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * wake up the NIC to make sure that the firmware will see the host
 	 * command - we will let the NIC sleep once all the host commands
 	 * returned. This needs to be done only on NICs that have
+<<<<<<< HEAD
 	 * apmg_wake_up_wa set.
 	 */
 	if (cfg->base_params->apmg_wake_up_wa &&
@@ -1226,6 +1507,20 @@ static int iwl_pcie_set_cmd_in_flight(struct iwl_trans *trans,
 		}
 		trans_pcie->cmd_hold_nic_awake = true;
 	}
+=======
+	 * apmg_wake_up_wa set (see above.)
+	 */
+	if (!_iwl_trans_pcie_grab_nic_access(trans))
+		return -EIO;
+
+	/*
+	 * In iwl_trans_grab_nic_access(), we've acquired the reg_lock.
+	 * There, we also returned immediately if cmd_hold_nic_awake is
+	 * already true, so it's OK to unconditionally set it to true.
+	 */
+	trans_pcie->cmd_hold_nic_awake = true;
+	spin_unlock(&trans_pcie->reg_lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1239,14 +1534,19 @@ static int iwl_pcie_set_cmd_in_flight(struct iwl_trans *trans,
  */
 static void iwl_pcie_cmdq_reclaim(struct iwl_trans *trans, int txq_id, int idx)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_txq *txq = trans_pcie->txq[txq_id];
 	unsigned long flags;
+=======
+	struct iwl_txq *txq = trans->txqs.txq[txq_id];
+>>>>>>> upstream/android-13
 	int nfreed = 0;
 	u16 r;
 
 	lockdep_assert_held(&txq->lock);
 
+<<<<<<< HEAD
 	idx = iwl_pcie_get_cmd_index(txq, idx);
 	r = iwl_pcie_get_cmd_index(txq, txq->read_ptr);
 
@@ -1256,13 +1556,30 @@ static void iwl_pcie_cmdq_reclaim(struct iwl_trans *trans, int txq_id, int idx)
 			  "%s: Read index for DMA queue txq id (%d), index %d is out of range [0-%d] %d %d.\n",
 			  __func__, txq_id, idx,
 			  trans->cfg->base_params->max_tfd_queue_size,
+=======
+	idx = iwl_txq_get_cmd_index(txq, idx);
+	r = iwl_txq_get_cmd_index(txq, txq->read_ptr);
+
+	if (idx >= trans->trans_cfg->base_params->max_tfd_queue_size ||
+	    (!iwl_txq_used(txq, idx))) {
+		WARN_ONCE(test_bit(txq_id, trans->txqs.queue_used),
+			  "%s: Read index for DMA queue txq id (%d), index %d is out of range [0-%d] %d %d.\n",
+			  __func__, txq_id, idx,
+			  trans->trans_cfg->base_params->max_tfd_queue_size,
+>>>>>>> upstream/android-13
 			  txq->write_ptr, txq->read_ptr);
 		return;
 	}
 
+<<<<<<< HEAD
 	for (idx = iwl_queue_inc_wrap(trans, idx); r != idx;
 	     r = iwl_queue_inc_wrap(trans, r)) {
 		txq->read_ptr = iwl_queue_inc_wrap(trans, txq->read_ptr);
+=======
+	for (idx = iwl_txq_inc_wrap(trans, idx); r != idx;
+	     r = iwl_txq_inc_wrap(trans, r)) {
+		txq->read_ptr = iwl_txq_inc_wrap(trans, txq->read_ptr);
+>>>>>>> upstream/android-13
 
 		if (nfreed++ > 0) {
 			IWL_ERR(trans, "HCMD skipped: index (%d) %d %d\n",
@@ -1271,6 +1588,7 @@ static void iwl_pcie_cmdq_reclaim(struct iwl_trans *trans, int txq_id, int idx)
 		}
 	}
 
+<<<<<<< HEAD
 	if (txq->read_ptr == txq->write_ptr) {
 		spin_lock_irqsave(&trans_pcie->reg_lock, flags);
 		iwl_pcie_clear_cmd_in_flight(trans);
@@ -1278,6 +1596,12 @@ static void iwl_pcie_cmdq_reclaim(struct iwl_trans *trans, int txq_id, int idx)
 	}
 
 	iwl_pcie_txq_progress(txq);
+=======
+	if (txq->read_ptr == txq->write_ptr)
+		iwl_pcie_clear_cmd_in_flight(trans);
+
+	iwl_txq_progress(txq);
+>>>>>>> upstream/android-13
 }
 
 static int iwl_pcie_txq_set_ratid_map(struct iwl_trans *trans, u16 ra_tid,
@@ -1314,11 +1638,19 @@ bool iwl_trans_pcie_txq_enable(struct iwl_trans *trans, int txq_id, u16 ssn,
 			       unsigned int wdg_timeout)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+<<<<<<< HEAD
 	struct iwl_txq *txq = trans_pcie->txq[txq_id];
 	int fifo = -1;
 	bool scd_bug = false;
 
 	if (test_and_set_bit(txq_id, trans_pcie->queue_used))
+=======
+	struct iwl_txq *txq = trans->txqs.txq[txq_id];
+	int fifo = -1;
+	bool scd_bug = false;
+
+	if (test_and_set_bit(txq_id, trans->txqs.queue_used))
+>>>>>>> upstream/android-13
 		WARN_ONCE(1, "queue %d already used - expect issues", txq_id);
 
 	txq->wd_timeout = msecs_to_jiffies(wdg_timeout);
@@ -1327,7 +1659,11 @@ bool iwl_trans_pcie_txq_enable(struct iwl_trans *trans, int txq_id, u16 ssn,
 		fifo = cfg->fifo;
 
 		/* Disable the scheduler prior configuring the cmd queue */
+<<<<<<< HEAD
 		if (txq_id == trans_pcie->cmd_queue &&
+=======
+		if (txq_id == trans->txqs.cmd.q_id &&
+>>>>>>> upstream/android-13
 		    trans_pcie->scd_set_active)
 			iwl_scd_enable_set_active(trans, 0);
 
@@ -1335,7 +1671,11 @@ bool iwl_trans_pcie_txq_enable(struct iwl_trans *trans, int txq_id, u16 ssn,
 		iwl_scd_txq_set_inactive(trans, txq_id);
 
 		/* Set this queue as a chain-building queue unless it is CMD */
+<<<<<<< HEAD
 		if (txq_id != trans_pcie->cmd_queue)
+=======
+		if (txq_id != trans->txqs.cmd.q_id)
+>>>>>>> upstream/android-13
 			iwl_scd_txq_set_chain(trans, txq_id);
 
 		if (cfg->aggregate) {
@@ -1369,7 +1709,11 @@ bool iwl_trans_pcie_txq_enable(struct iwl_trans *trans, int txq_id, u16 ssn,
 		 * this sad hardware issue.
 		 * This bug has been fixed on devices 9000 and up.
 		 */
+<<<<<<< HEAD
 		scd_bug = !trans->cfg->mq_rx_supported &&
+=======
+		scd_bug = !trans->trans_cfg->mq_rx_supported &&
+>>>>>>> upstream/android-13
 			!((ssn - txq->write_ptr) & 0x3f) &&
 			(ssn != txq->write_ptr);
 		if (scd_bug)
@@ -1405,7 +1749,11 @@ bool iwl_trans_pcie_txq_enable(struct iwl_trans *trans, int txq_id, u16 ssn,
 			       SCD_QUEUE_STTS_REG_MSK);
 
 		/* enable the scheduler for this queue (only) */
+<<<<<<< HEAD
 		if (txq_id == trans_pcie->cmd_queue &&
+=======
+		if (txq_id == trans->txqs.cmd.q_id &&
+>>>>>>> upstream/android-13
 		    trans_pcie->scd_set_active)
 			iwl_scd_enable_set_active(trans, BIT(txq_id));
 
@@ -1424,8 +1772,12 @@ bool iwl_trans_pcie_txq_enable(struct iwl_trans *trans, int txq_id, u16 ssn,
 void iwl_trans_pcie_txq_set_shared_mode(struct iwl_trans *trans, u32 txq_id,
 					bool shared_mode)
 {
+<<<<<<< HEAD
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct iwl_txq *txq = trans_pcie->txq[txq_id];
+=======
+	struct iwl_txq *txq = trans->txqs.txq[txq_id];
+>>>>>>> upstream/android-13
 
 	txq->ampdu = !shared_mode;
 }
@@ -1438,8 +1790,13 @@ void iwl_trans_pcie_txq_disable(struct iwl_trans *trans, int txq_id,
 			SCD_TX_STTS_QUEUE_OFFSET(txq_id);
 	static const u32 zero_val[4] = {};
 
+<<<<<<< HEAD
 	trans_pcie->txq[txq_id]->frozen_expiry_remainder = 0;
 	trans_pcie->txq[txq_id]->frozen = false;
+=======
+	trans->txqs.txq[txq_id]->frozen_expiry_remainder = 0;
+	trans->txqs.txq[txq_id]->frozen = false;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Upon HW Rfkill - we stop the device, and then stop the queues
@@ -1447,7 +1804,11 @@ void iwl_trans_pcie_txq_disable(struct iwl_trans *trans, int txq_id,
 	 * allow the op_mode to call txq_disable after it already called
 	 * stop_device.
 	 */
+<<<<<<< HEAD
 	if (!test_and_clear_bit(txq_id, trans_pcie->queue_used)) {
+=======
+	if (!test_and_clear_bit(txq_id, trans->txqs.queue_used)) {
+>>>>>>> upstream/android-13
 		WARN_ONCE(test_bit(STATUS_DEVICE_ENABLED, &trans->status),
 			  "queue %d not used", txq_id);
 		return;
@@ -1461,7 +1822,11 @@ void iwl_trans_pcie_txq_disable(struct iwl_trans *trans, int txq_id,
 	}
 
 	iwl_pcie_txq_unmap(trans, txq_id);
+<<<<<<< HEAD
 	trans_pcie->txq[txq_id]->ampdu = false;
+=======
+	trans->txqs.txq[txq_id]->ampdu = false;
+>>>>>>> upstream/android-13
 
 	IWL_DEBUG_TX_QUEUES(trans, "Deactivate queue %d\n", txq_id);
 }
@@ -1477,6 +1842,7 @@ void iwl_trans_pcie_txq_disable(struct iwl_trans *trans, int txq_id,
  * failed. On success, it returns the index (>= 0) of command in the
  * command queue.
  */
+<<<<<<< HEAD
 static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 				 struct iwl_host_cmd *cmd)
 {
@@ -1485,6 +1851,14 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 	struct iwl_device_cmd *out_cmd;
 	struct iwl_cmd_meta *out_meta;
 	unsigned long flags;
+=======
+int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
+			  struct iwl_host_cmd *cmd)
+{
+	struct iwl_txq *txq = trans->txqs.txq[trans->txqs.cmd.q_id];
+	struct iwl_device_cmd *out_cmd;
+	struct iwl_cmd_meta *out_meta;
+>>>>>>> upstream/android-13
 	void *dup_buf = NULL;
 	dma_addr_t phys_addr;
 	int idx;
@@ -1495,7 +1869,11 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 	u32 cmd_pos;
 	const u8 *cmddata[IWL_MAX_CMD_TBS_PER_TFD];
 	u16 cmdlen[IWL_MAX_CMD_TBS_PER_TFD];
+<<<<<<< HEAD
 	unsigned long flags2;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	if (WARN(!trans->wide_cmd_header &&
 		 group_id > IWL_ALWAYS_LONG_GROUP,
@@ -1579,10 +1957,17 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 		goto free_dup_buf;
 	}
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&txq->lock, flags2);
 
 	if (iwl_queue_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
 		spin_unlock_irqrestore(&txq->lock, flags2);
+=======
+	spin_lock_irqsave(&txq->lock, flags);
+
+	if (iwl_txq_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
+		spin_unlock_irqrestore(&txq->lock, flags);
+>>>>>>> upstream/android-13
 
 		IWL_ERR(trans, "No space in command queue\n");
 		iwl_op_mode_cmd_queue_full(trans->op_mode);
@@ -1590,7 +1975,11 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 		goto free_dup_buf;
 	}
 
+<<<<<<< HEAD
 	idx = iwl_pcie_get_cmd_index(txq, txq->write_ptr);
+=======
+	idx = iwl_txq_get_cmd_index(txq, txq->write_ptr);
+>>>>>>> upstream/android-13
 	out_cmd = txq->entries[idx].cmd;
 	out_meta = &txq->entries[idx].meta;
 
@@ -1608,7 +1997,11 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 				    sizeof(struct iwl_cmd_header_wide));
 		out_cmd->hdr_wide.reserved = 0;
 		out_cmd->hdr_wide.sequence =
+<<<<<<< HEAD
 			cpu_to_le16(QUEUE_TO_SEQ(trans_pcie->cmd_queue) |
+=======
+			cpu_to_le16(QUEUE_TO_SEQ(trans->txqs.cmd.q_id) |
+>>>>>>> upstream/android-13
 						 INDEX_TO_SEQ(txq->write_ptr));
 
 		cmd_pos = sizeof(struct iwl_cmd_header_wide);
@@ -1616,7 +2009,11 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 	} else {
 		out_cmd->hdr.cmd = iwl_cmd_opcode(cmd->id);
 		out_cmd->hdr.sequence =
+<<<<<<< HEAD
 			cpu_to_le16(QUEUE_TO_SEQ(trans_pcie->cmd_queue) |
+=======
+			cpu_to_le16(QUEUE_TO_SEQ(trans->txqs.cmd.q_id) |
+>>>>>>> upstream/android-13
 						 INDEX_TO_SEQ(txq->write_ptr));
 		out_cmd->hdr.group_id = 0;
 
@@ -1667,13 +2064,21 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 		     iwl_get_cmd_string(trans, cmd->id),
 		     group_id, out_cmd->hdr.cmd,
 		     le16_to_cpu(out_cmd->hdr.sequence),
+<<<<<<< HEAD
 		     cmd_size, txq->write_ptr, idx, trans_pcie->cmd_queue);
+=======
+		     cmd_size, txq->write_ptr, idx, trans->txqs.cmd.q_id);
+>>>>>>> upstream/android-13
 
 	/* start the TFD with the minimum copy bytes */
 	tb0_size = min_t(int, copy_size, IWL_FIRST_TB_SIZE);
 	memcpy(&txq->first_tb_bufs[idx], &out_cmd->hdr, tb0_size);
 	iwl_pcie_txq_build_tfd(trans, txq,
+<<<<<<< HEAD
 			       iwl_pcie_get_first_tb_dma(txq, idx),
+=======
+			       iwl_txq_get_first_tb_dma(txq, idx),
+>>>>>>> upstream/android-13
 			       tb0_size, true);
 
 	/* map first command fragment, if any remains */
@@ -1683,8 +2088,13 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 					   copy_size - tb0_size,
 					   DMA_TO_DEVICE);
 		if (dma_mapping_error(trans->dev, phys_addr)) {
+<<<<<<< HEAD
 			iwl_pcie_tfd_unmap(trans, out_meta, txq,
 					   txq->write_ptr);
+=======
+			iwl_txq_gen1_tfd_unmap(trans, out_meta, txq,
+					       txq->write_ptr);
+>>>>>>> upstream/android-13
 			idx = -ENOMEM;
 			goto out;
 		}
@@ -1707,8 +2117,13 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 		phys_addr = dma_map_single(trans->dev, (void *)data,
 					   cmdlen[i], DMA_TO_DEVICE);
 		if (dma_mapping_error(trans->dev, phys_addr)) {
+<<<<<<< HEAD
 			iwl_pcie_tfd_unmap(trans, out_meta, txq,
 					   txq->write_ptr);
+=======
+			iwl_txq_gen1_tfd_unmap(trans, out_meta, txq,
+					       txq->write_ptr);
+>>>>>>> upstream/android-13
 			idx = -ENOMEM;
 			goto out;
 		}
@@ -1719,7 +2134,11 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 	BUILD_BUG_ON(IWL_TFH_NUM_TBS > sizeof(out_meta->tbs) * BITS_PER_BYTE);
 	out_meta->flags = cmd->flags;
 	if (WARN_ON_ONCE(txq->entries[idx].free_buf))
+<<<<<<< HEAD
 		kzfree(txq->entries[idx].free_buf);
+=======
+		kfree_sensitive(txq->entries[idx].free_buf);
+>>>>>>> upstream/android-13
 	txq->entries[idx].free_buf = dup_buf;
 
 	trace_iwlwifi_dev_hcmd(trans->dev, cmd, cmd_size, &out_cmd->hdr_wide);
@@ -1728,15 +2147,22 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 	if (txq->read_ptr == txq->write_ptr && txq->wd_timeout)
 		mod_timer(&txq->stuck_timer, jiffies + txq->wd_timeout);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&trans_pcie->reg_lock, flags);
 	ret = iwl_pcie_set_cmd_in_flight(trans, cmd);
 	if (ret < 0) {
 		idx = ret;
 		spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
+=======
+	ret = iwl_pcie_set_cmd_in_flight(trans, cmd);
+	if (ret < 0) {
+		idx = ret;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	/* Increment and update queue's write index */
+<<<<<<< HEAD
 	txq->write_ptr = iwl_queue_inc_wrap(trans, txq->write_ptr);
 	iwl_pcie_txq_inc_wr_ptr(trans, txq);
 
@@ -1744,6 +2170,13 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
 
  out:
 	spin_unlock_irqrestore(&txq->lock, flags2);
+=======
+	txq->write_ptr = iwl_txq_inc_wrap(trans, txq->write_ptr);
+	iwl_pcie_txq_inc_wr_ptr(trans, txq);
+
+ out:
+	spin_unlock_irqrestore(&txq->lock, flags);
+>>>>>>> upstream/android-13
  free_dup_buf:
 	if (idx < 0)
 		kfree(dup_buf);
@@ -1767,14 +2200,24 @@ void iwl_pcie_hcmd_complete(struct iwl_trans *trans,
 	struct iwl_device_cmd *cmd;
 	struct iwl_cmd_meta *meta;
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+<<<<<<< HEAD
 	struct iwl_txq *txq = trans_pcie->txq[trans_pcie->cmd_queue];
+=======
+	struct iwl_txq *txq = trans->txqs.txq[trans->txqs.cmd.q_id];
+>>>>>>> upstream/android-13
 
 	/* If a Tx command is being handled and it isn't in the actual
 	 * command queue then there a command routing bug has been introduced
 	 * in the queue management code. */
+<<<<<<< HEAD
 	if (WARN(txq_id != trans_pcie->cmd_queue,
 		 "wrong command queue %d (should be %d), sequence 0x%X readp=%d writep=%d\n",
 		 txq_id, trans_pcie->cmd_queue, sequence, txq->read_ptr,
+=======
+	if (WARN(txq_id != trans->txqs.cmd.q_id,
+		 "wrong command queue %d (should be %d), sequence 0x%X readp=%d writep=%d\n",
+		 txq_id, trans->txqs.cmd.q_id, sequence, txq->read_ptr,
+>>>>>>> upstream/android-13
 		 txq->write_ptr)) {
 		iwl_print_hex_error(trans, pkt, 32);
 		return;
@@ -1782,13 +2225,21 @@ void iwl_pcie_hcmd_complete(struct iwl_trans *trans,
 
 	spin_lock_bh(&txq->lock);
 
+<<<<<<< HEAD
 	cmd_index = iwl_pcie_get_cmd_index(txq, index);
+=======
+	cmd_index = iwl_txq_get_cmd_index(txq, index);
+>>>>>>> upstream/android-13
 	cmd = txq->entries[cmd_index].cmd;
 	meta = &txq->entries[cmd_index].meta;
 	group_id = cmd->hdr.group_id;
 	cmd_id = iwl_cmd_id(cmd->hdr.cmd, group_id, 0);
 
+<<<<<<< HEAD
 	iwl_pcie_tfd_unmap(trans, meta, txq, index);
+=======
+	iwl_txq_gen1_tfd_unmap(trans, meta, txq, index);
+>>>>>>> upstream/android-13
 
 	/* Input error checking is done when commands are added to queue. */
 	if (meta->flags & CMD_WANT_SKB) {
@@ -1813,6 +2264,7 @@ void iwl_pcie_hcmd_complete(struct iwl_trans *trans,
 		clear_bit(STATUS_SYNC_HCMD_ACTIVE, &trans->status);
 		IWL_DEBUG_INFO(trans, "Clearing HCMD_ACTIVE for command %s\n",
 			       iwl_get_cmd_string(trans, cmd_id));
+<<<<<<< HEAD
 		wake_up(&trans_pcie->wait_command_queue);
 	}
 
@@ -1828,6 +2280,9 @@ void iwl_pcie_hcmd_complete(struct iwl_trans *trans,
 			       iwl_get_cmd_string(trans, cmd->hdr.cmd));
 		clear_bit(STATUS_TRANS_IDLE, &trans->status);
 		wake_up(&trans_pcie->d0i3_waitq);
+=======
+		wake_up(&trans->wait_command_queue);
+>>>>>>> upstream/android-13
 	}
 
 	meta->flags = 0;
@@ -1835,6 +2290,7 @@ void iwl_pcie_hcmd_complete(struct iwl_trans *trans,
 	spin_unlock_bh(&txq->lock);
 }
 
+<<<<<<< HEAD
 #define HOST_COMPLETE_TIMEOUT	(2 * HZ)
 
 static int iwl_pcie_send_hcmd_async(struct iwl_trans *trans,
@@ -1986,12 +2442,20 @@ static int iwl_fill_data_tbs(struct iwl_trans *trans, struct sk_buff *skb,
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	u16 tb2_len;
+=======
+static int iwl_fill_data_tbs(struct iwl_trans *trans, struct sk_buff *skb,
+			     struct iwl_txq *txq, u8 hdr_len,
+			     struct iwl_cmd_meta *out_meta)
+{
+	u16 head_tb_len;
+>>>>>>> upstream/android-13
 	int i;
 
 	/*
 	 * Set up TFD's third entry to point directly to remainder
 	 * of skb's head, if any
 	 */
+<<<<<<< HEAD
 	tb2_len = skb_headlen(skb) - hdr_len;
 
 	if (tb2_len > 0) {
@@ -2004,6 +2468,19 @@ static int iwl_fill_data_tbs(struct iwl_trans *trans, struct sk_buff *skb,
 			return -EINVAL;
 		}
 		iwl_pcie_txq_build_tfd(trans, txq, tb2_phys, tb2_len, false);
+=======
+	head_tb_len = skb_headlen(skb) - hdr_len;
+
+	if (head_tb_len > 0) {
+		dma_addr_t tb_phys = dma_map_single(trans->dev,
+						    skb->data + hdr_len,
+						    head_tb_len, DMA_TO_DEVICE);
+		if (unlikely(dma_mapping_error(trans->dev, tb_phys)))
+			return -EINVAL;
+		trace_iwlwifi_dev_tx_tb(trans->dev, skb, skb->data + hdr_len,
+					tb_phys, head_tb_len);
+		iwl_pcie_txq_build_tfd(trans, txq, tb_phys, head_tb_len, false);
+>>>>>>> upstream/android-13
 	}
 
 	/* set up the remaining entries to point to the data */
@@ -2018,6 +2495,7 @@ static int iwl_fill_data_tbs(struct iwl_trans *trans, struct sk_buff *skb,
 		tb_phys = skb_frag_dma_map(trans->dev, frag, 0,
 					   skb_frag_size(frag), DMA_TO_DEVICE);
 
+<<<<<<< HEAD
 		if (unlikely(dma_mapping_error(trans->dev, tb_phys))) {
 			iwl_pcie_tfd_unmap(trans, out_meta, txq,
 					   txq->write_ptr);
@@ -2025,20 +2503,34 @@ static int iwl_fill_data_tbs(struct iwl_trans *trans, struct sk_buff *skb,
 		}
 		tb_idx = iwl_pcie_txq_build_tfd(trans, txq, tb_phys,
 						skb_frag_size(frag), false);
+=======
+		if (unlikely(dma_mapping_error(trans->dev, tb_phys)))
+			return -EINVAL;
+		trace_iwlwifi_dev_tx_tb(trans->dev, skb, skb_frag_address(frag),
+					tb_phys, skb_frag_size(frag));
+		tb_idx = iwl_pcie_txq_build_tfd(trans, txq, tb_phys,
+						skb_frag_size(frag), false);
+		if (tb_idx < 0)
+			return tb_idx;
+>>>>>>> upstream/android-13
 
 		out_meta->tbs |= BIT(tb_idx);
 	}
 
+<<<<<<< HEAD
 	trace_iwlwifi_dev_tx(trans->dev, skb,
 			     iwl_pcie_get_tfd(trans, txq, txq->write_ptr),
 			     trans_pcie->tfd_size,
 			     &dev_cmd->hdr, IWL_FIRST_TB_SIZE + tb1_len,
 			     hdr_len);
 	trace_iwlwifi_dev_tx_data(trans->dev, skb, hdr_len);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 #ifdef CONFIG_INET
+<<<<<<< HEAD
 struct iwl_tso_hdr_page *get_page_hdr(struct iwl_trans *trans, size_t len)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
@@ -2088,14 +2580,26 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 {
 	struct iwl_tx_cmd *tx_cmd = (void *)dev_cmd->payload;
 	struct iwl_trans_pcie *trans_pcie = txq->trans_pcie;
+=======
+static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
+				   struct iwl_txq *txq, u8 hdr_len,
+				   struct iwl_cmd_meta *out_meta,
+				   struct iwl_device_tx_cmd *dev_cmd,
+				   u16 tb1_len)
+{
+	struct iwl_tx_cmd *tx_cmd = (void *)dev_cmd->payload;
+>>>>>>> upstream/android-13
 	struct ieee80211_hdr *hdr = (void *)skb->data;
 	unsigned int snap_ip_tcp_hdrlen, ip_hdrlen, total_len, hdr_room;
 	unsigned int mss = skb_shinfo(skb)->gso_size;
 	u16 length, iv_len, amsdu_pad;
 	u8 *start_hdr;
 	struct iwl_tso_hdr_page *hdr_page;
+<<<<<<< HEAD
 	struct page **page_ptr;
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	struct tso_t tso;
 
 	/* if the packet is protected, then it must be CCMP or GCMP */
@@ -2104,8 +2608,13 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 		IEEE80211_CCMP_HDR_LEN : 0;
 
 	trace_iwlwifi_dev_tx(trans->dev, skb,
+<<<<<<< HEAD
 			     iwl_pcie_get_tfd(trans, txq, txq->write_ptr),
 			     trans_pcie->tfd_size,
+=======
+			     iwl_txq_get_tfd(trans, txq, txq->write_ptr),
+			     trans->txqs.tfd.size,
+>>>>>>> upstream/android-13
 			     &dev_cmd->hdr, IWL_FIRST_TB_SIZE + tb1_len, 0);
 
 	ip_hdrlen = skb_transport_header(skb) - skb_network_header(skb);
@@ -2118,6 +2627,7 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 		(3 + snap_ip_tcp_hdrlen + sizeof(struct ethhdr)) + iv_len;
 
 	/* Our device supports 9 segments at most, it will fit in 1 page */
+<<<<<<< HEAD
 	hdr_page = get_page_hdr(trans, hdr_room);
 	if (!hdr_page)
 		return -ENOMEM;
@@ -2126,6 +2636,13 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 	start_hdr = hdr_page->pos;
 	page_ptr = (void *)((u8 *)skb->cb + trans_pcie->page_offs);
 	*page_ptr = hdr_page->page;
+=======
+	hdr_page = get_page_hdr(trans, hdr_room, skb);
+	if (!hdr_page)
+		return -ENOMEM;
+
+	start_hdr = hdr_page->pos;
+>>>>>>> upstream/android-13
 	memcpy(hdr_page->pos, skb->data + hdr_len, iv_len);
 	hdr_page->pos += iv_len;
 
@@ -2148,11 +2665,17 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 		/* this is the data left for this subframe */
 		unsigned int data_left =
 			min_t(unsigned int, mss, total_len);
+<<<<<<< HEAD
 		struct sk_buff *csum_skb = NULL;
 		unsigned int hdr_tb_len;
 		dma_addr_t hdr_tb_phys;
 		struct tcphdr *tcph;
 		u8 *iph, *subf_hdrs_start = hdr_page->pos;
+=======
+		unsigned int hdr_tb_len;
+		dma_addr_t hdr_tb_phys;
+		u8 *subf_hdrs_start = hdr_page->pos;
+>>>>>>> upstream/android-13
 
 		total_len -= data_left;
 
@@ -2174,6 +2697,7 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 		 * as MAC header.
 		 */
 		tso_build_hdr(skb, hdr_page->pos, &tso, data_left, !total_len);
+<<<<<<< HEAD
 		iph = hdr_page->pos + 8;
 		tcph = (void *)(iph + ip_hdrlen);
 
@@ -2197,12 +2721,15 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 				(unsigned char *)tcp_hdr(csum_skb) -
 						 csum_skb->head;
 		}
+=======
+>>>>>>> upstream/android-13
 
 		hdr_page->pos += snap_ip_tcp_hdrlen;
 
 		hdr_tb_len = hdr_page->pos - start_hdr;
 		hdr_tb_phys = dma_map_single(trans->dev, start_hdr,
 					     hdr_tb_len, DMA_TO_DEVICE);
+<<<<<<< HEAD
 		if (unlikely(dma_mapping_error(trans->dev, hdr_tb_phys))) {
 			dev_kfree_skb(csum_skb);
 			ret = -EINVAL;
@@ -2212,6 +2739,14 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 				       hdr_tb_len, false);
 		trace_iwlwifi_dev_tx_tso_chunk(trans->dev, start_hdr,
 					       hdr_tb_len);
+=======
+		if (unlikely(dma_mapping_error(trans->dev, hdr_tb_phys)))
+			return -EINVAL;
+		iwl_pcie_txq_build_tfd(trans, txq, hdr_tb_phys,
+				       hdr_tb_len, false);
+		trace_iwlwifi_dev_tx_tb(trans->dev, skb, start_hdr,
+					hdr_tb_phys, hdr_tb_len);
+>>>>>>> upstream/android-13
 		/* add this subframe's headers' length to the tx_cmd */
 		le16_add_cpu(&tx_cmd->len, hdr_page->pos - subf_hdrs_start);
 
@@ -2224,6 +2759,7 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 						  data_left);
 			dma_addr_t tb_phys;
 
+<<<<<<< HEAD
 			if (trans_pcie->sw_csum_tx)
 				skb_put_data(csum_skb, tso.data, size);
 
@@ -2239,10 +2775,22 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 					       size, false);
 			trace_iwlwifi_dev_tx_tso_chunk(trans->dev, tso.data,
 						       size);
+=======
+			tb_phys = dma_map_single(trans->dev, tso.data,
+						 size, DMA_TO_DEVICE);
+			if (unlikely(dma_mapping_error(trans->dev, tb_phys)))
+				return -EINVAL;
+
+			iwl_pcie_txq_build_tfd(trans, txq, tb_phys,
+					       size, false);
+			trace_iwlwifi_dev_tx_tb(trans->dev, skb, tso.data,
+						tb_phys, size);
+>>>>>>> upstream/android-13
 
 			data_left -= size;
 			tso_build_data(skb, &tso, size);
 		}
+<<<<<<< HEAD
 
 		/* For testing on early hardware only */
 		if (trans_pcie->sw_csum_tx) {
@@ -2260,22 +2808,32 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 			dma_sync_single_for_device(trans->dev, hdr_tb_phys,
 						   hdr_tb_len, DMA_TO_DEVICE);
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* re -add the WiFi header and IV */
 	skb_push(skb, hdr_len + iv_len);
 
 	return 0;
+<<<<<<< HEAD
 
 out_unmap:
 	iwl_pcie_tfd_unmap(trans, out_meta, txq, txq->write_ptr);
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 #else /* CONFIG_INET */
 static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 				   struct iwl_txq *txq, u8 hdr_len,
 				   struct iwl_cmd_meta *out_meta,
+<<<<<<< HEAD
 				   struct iwl_device_cmd *dev_cmd, u16 tb1_len)
+=======
+				   struct iwl_device_tx_cmd *dev_cmd,
+				   u16 tb1_len)
+>>>>>>> upstream/android-13
 {
 	/* No A-MSDU without CONFIG_INET */
 	WARN_ON(1);
@@ -2285,9 +2843,14 @@ static int iwl_fill_data_tbs_amsdu(struct iwl_trans *trans, struct sk_buff *skb,
 #endif /* CONFIG_INET */
 
 int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
+<<<<<<< HEAD
 		      struct iwl_device_cmd *dev_cmd, int txq_id)
 {
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+=======
+		      struct iwl_device_tx_cmd *dev_cmd, int txq_id)
+{
+>>>>>>> upstream/android-13
 	struct ieee80211_hdr *hdr;
 	struct iwl_tx_cmd *tx_cmd = (struct iwl_tx_cmd *)dev_cmd->payload;
 	struct iwl_cmd_meta *out_meta;
@@ -2302,6 +2865,7 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 	u16 wifi_seq;
 	bool amsdu;
 
+<<<<<<< HEAD
 	txq = trans_pcie->txq[txq_id];
 
 	if (WARN_ONCE(!test_bit(txq_id, trans_pcie->queue_used),
@@ -2325,6 +2889,16 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 
 	if (skb_is_nonlinear(skb) &&
 	    skb_shinfo(skb)->nr_frags > IWL_PCIE_MAX_FRAGS(trans_pcie) &&
+=======
+	txq = trans->txqs.txq[txq_id];
+
+	if (WARN_ONCE(!test_bit(txq_id, trans->txqs.queue_used),
+		      "TX on unused queue %d\n", txq_id))
+		return -EINVAL;
+
+	if (skb_is_nonlinear(skb) &&
+	    skb_shinfo(skb)->nr_frags > IWL_TRANS_MAX_FRAGS(trans) &&
+>>>>>>> upstream/android-13
 	    __skb_linearize(skb))
 		return -ENOMEM;
 
@@ -2337,6 +2911,7 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 
 	spin_lock(&txq->lock);
 
+<<<<<<< HEAD
 	if (iwl_queue_space(trans, txq) < txq->high_mark) {
 		iwl_stop_queue(trans, txq);
 
@@ -2346,6 +2921,17 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 
 			dev_cmd_ptr = (void *)((u8 *)skb->cb +
 					       trans_pcie->dev_cmd_offs);
+=======
+	if (iwl_txq_space(trans, txq) < txq->high_mark) {
+		iwl_txq_stop(trans, txq);
+
+		/* don't put the packet on the ring, if there is no room */
+		if (unlikely(iwl_txq_space(trans, txq) < 3)) {
+			struct iwl_device_tx_cmd **dev_cmd_ptr;
+
+			dev_cmd_ptr = (void *)((u8 *)skb->cb +
+					       trans->txqs.dev_cmd_offs);
+>>>>>>> upstream/android-13
 
 			*dev_cmd_ptr = dev_cmd;
 			__skb_queue_tail(&txq->overflow_q, skb);
@@ -2374,7 +2960,11 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 		cpu_to_le16((u16)(QUEUE_TO_SEQ(txq_id) |
 			    INDEX_TO_SEQ(txq->write_ptr)));
 
+<<<<<<< HEAD
 	tb0_phys = iwl_pcie_get_first_tb_dma(txq, txq->write_ptr);
+=======
+	tb0_phys = iwl_txq_get_first_tb_dma(txq, txq->write_ptr);
+>>>>>>> upstream/android-13
 	scratch_phys = tb0_phys + sizeof(struct iwl_cmd_header) +
 		       offsetof(struct iwl_tx_cmd, scratch);
 
@@ -2397,7 +2987,11 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 	amsdu = ieee80211_is_data_qos(fc) &&
 		(*ieee80211_get_qos_ctl(hdr) &
 		 IEEE80211_QOS_CTL_A_MSDU_PRESENT);
+<<<<<<< HEAD
 	if (trans_pcie->sw_csum_tx || !amsdu) {
+=======
+	if (!amsdu) {
+>>>>>>> upstream/android-13
 		tb1_len = ALIGN(len, 4);
 		/* Tell NIC about any 2-byte padding after MAC header */
 		if (tb1_len != len)
@@ -2423,6 +3017,15 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 		goto out_err;
 	iwl_pcie_txq_build_tfd(trans, txq, tb1_phys, tb1_len, false);
 
+<<<<<<< HEAD
+=======
+	trace_iwlwifi_dev_tx(trans->dev, skb,
+			     iwl_txq_get_tfd(trans, txq, txq->write_ptr),
+			     trans->txqs.tfd.size,
+			     &dev_cmd->hdr, IWL_FIRST_TB_SIZE + tb1_len,
+			     hdr_len);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If gso_size wasn't set, don't give the frame "amsdu treatment"
 	 * (adding subframes, etc.).
@@ -2434,6 +3037,7 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 						     out_meta, dev_cmd,
 						     tb1_len)))
 			goto out_err;
+<<<<<<< HEAD
 	} else if (unlikely(iwl_fill_data_tbs(trans, skb, txq, hdr_len,
 				       out_meta, dev_cmd, tb1_len))) {
 		goto out_err;
@@ -2447,10 +3051,35 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 	/* Set up entry for this TFD in Tx byte-count array */
 	iwl_pcie_txq_update_byte_cnt_tbl(trans, txq, le16_to_cpu(tx_cmd->len),
 					 iwl_pcie_tfd_get_num_tbs(trans, tfd));
+=======
+	} else {
+		struct sk_buff *frag;
+
+		if (unlikely(iwl_fill_data_tbs(trans, skb, txq, hdr_len,
+					       out_meta)))
+			goto out_err;
+
+		skb_walk_frags(skb, frag) {
+			if (unlikely(iwl_fill_data_tbs(trans, frag, txq, 0,
+						       out_meta)))
+				goto out_err;
+		}
+	}
+
+	/* building the A-MSDU might have changed this data, so memcpy it now */
+	memcpy(&txq->first_tb_bufs[txq->write_ptr], dev_cmd, IWL_FIRST_TB_SIZE);
+
+	tfd = iwl_txq_get_tfd(trans, txq, txq->write_ptr);
+	/* Set up entry for this TFD in Tx byte-count array */
+	iwl_txq_gen1_update_byte_cnt_tbl(trans, txq, le16_to_cpu(tx_cmd->len),
+					 iwl_txq_gen1_tfd_get_num_tbs(trans,
+								      tfd));
+>>>>>>> upstream/android-13
 
 	wait_write_ptr = ieee80211_has_morefrags(fc);
 
 	/* start timer if queue currently empty */
+<<<<<<< HEAD
 	if (txq->read_ptr == txq->write_ptr) {
 		if (txq->wd_timeout) {
 			/*
@@ -2471,6 +3100,24 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 
 	/* Tell device the write index *just past* this latest filled TFD */
 	txq->write_ptr = iwl_queue_inc_wrap(trans, txq->write_ptr);
+=======
+	if (txq->read_ptr == txq->write_ptr && txq->wd_timeout) {
+		/*
+		 * If the TXQ is active, then set the timer, if not,
+		 * set the timer in remainder so that the timer will
+		 * be armed with the right value when the station will
+		 * wake up.
+		 */
+		if (!txq->frozen)
+			mod_timer(&txq->stuck_timer,
+				  jiffies + txq->wd_timeout);
+		else
+			txq->frozen_expiry_remainder = txq->wd_timeout;
+	}
+
+	/* Tell device the write index *just past* this latest filled TFD */
+	txq->write_ptr = iwl_txq_inc_wrap(trans, txq->write_ptr);
+>>>>>>> upstream/android-13
 	if (!wait_write_ptr)
 		iwl_pcie_txq_inc_wr_ptr(trans, txq);
 
@@ -2481,6 +3128,10 @@ int iwl_trans_pcie_tx(struct iwl_trans *trans, struct sk_buff *skb,
 	spin_unlock(&txq->lock);
 	return 0;
 out_err:
+<<<<<<< HEAD
+=======
+	iwl_txq_gen1_tfd_unmap(trans, out_meta, txq, txq->write_ptr);
+>>>>>>> upstream/android-13
 	spin_unlock(&txq->lock);
 	return -1;
 }

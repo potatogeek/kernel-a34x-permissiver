@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Unaligned memory access handler
  *
  *    Copyright (C) 2001 Randolph Chung <tausq@debian.org>
  *    Significantly tweaked by LaMont Jones <lamont@debian.org>
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/jiffies.h>
@@ -354,7 +361,11 @@ static int emulate_stw(struct pt_regs *regs, int frreg, int flop)
 	: "r" (val), "r" (regs->ior), "r" (regs->isr)
 	: "r19", "r20", "r21", "r22", "r1", FIXUP_BRANCH_CLOBBER );
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 static int emulate_std(struct pt_regs *regs, int frreg, int flop)
 {
@@ -411,7 +422,11 @@ static int emulate_std(struct pt_regs *regs, int frreg, int flop)
 	__asm__ __volatile__ (
 "	mtsp	%4, %%sr1\n"
 "	zdep	%2, 29, 2, %%r19\n"
+<<<<<<< HEAD
 "	dep	%%r0, 31, 2, %2\n"
+=======
+"	dep	%%r0, 31, 2, %3\n"
+>>>>>>> upstream/android-13
 "	mtsar	%%r19\n"
 "	zvdepi	-2, 32, %%r19\n"
 "1:	ldw	0(%%sr1,%3),%%r20\n"
@@ -423,7 +438,11 @@ static int emulate_std(struct pt_regs *regs, int frreg, int flop)
 "	andcm	%%r21, %%r19, %%r21\n"
 "	or	%1, %%r20, %1\n"
 "	or	%2, %%r21, %2\n"
+<<<<<<< HEAD
 "3:	stw	%1,0(%%sr1,%1)\n"
+=======
+"3:	stw	%1,0(%%sr1,%3)\n"
+>>>>>>> upstream/android-13
 "4:	stw	%%r1,4(%%sr1,%3)\n"
 "5:	stw	%2,8(%%sr1,%3)\n"
 "	copy	%%r0, %0\n"
@@ -610,7 +629,10 @@ void handle_unaligned(struct pt_regs *regs)
 		ret = ERR_NOTHANDLED;	/* "undefined", but lets kill them. */
 		break;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_PA20
+=======
+>>>>>>> upstream/android-13
 	switch (regs->iir & OPCODE2_MASK)
 	{
 	case OPCODE_FLDD_L:
@@ -621,22 +643,38 @@ void handle_unaligned(struct pt_regs *regs)
 		flop=1;
 		ret = emulate_std(regs, R2(regs->iir),1);
 		break;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PA20
+>>>>>>> upstream/android-13
 	case OPCODE_LDD_L:
 		ret = emulate_ldd(regs, R2(regs->iir),0);
 		break;
 	case OPCODE_STD_L:
 		ret = emulate_std(regs, R2(regs->iir),0);
 		break;
+<<<<<<< HEAD
 	}
 #endif
+=======
+#endif
+	}
+>>>>>>> upstream/android-13
 	switch (regs->iir & OPCODE3_MASK)
 	{
 	case OPCODE_FLDW_L:
 		flop=1;
+<<<<<<< HEAD
 		ret = emulate_ldw(regs, R2(regs->iir),0);
 		break;
 	case OPCODE_LDW_M:
 		ret = emulate_ldw(regs, R2(regs->iir),1);
+=======
+		ret = emulate_ldw(regs, R2(regs->iir), 1);
+		break;
+	case OPCODE_LDW_M:
+		ret = emulate_ldw(regs, R2(regs->iir), 0);
+>>>>>>> upstream/android-13
 		break;
 
 	case OPCODE_FSTW_L:
@@ -690,14 +728,22 @@ void handle_unaligned(struct pt_regs *regs)
 		if (ret == ERR_PAGEFAULT)
 		{
 			force_sig_fault(SIGSEGV, SEGV_MAPERR,
+<<<<<<< HEAD
 					(void __user *)regs->ior, current);
+=======
+					(void __user *)regs->ior);
+>>>>>>> upstream/android-13
 		}
 		else
 		{
 force_sigbus:
 			/* couldn't handle it ... */
 			force_sig_fault(SIGBUS, BUS_ADRALN,
+<<<<<<< HEAD
 					(void __user *)regs->ior, current);
+=======
+					(void __user *)regs->ior);
+>>>>>>> upstream/android-13
 		}
 		
 		return;

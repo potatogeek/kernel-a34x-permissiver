@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -281,7 +288,11 @@ void ubifs_add_to_cat(struct ubifs_info *c, struct ubifs_lprops *lprops,
 			break;
 		/* No more room on heap so make it un-categorized */
 		cat = LPROPS_UNCAT;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case LPROPS_UNCAT:
 		list_add(&lprops->list, &c->uncat_list);
 		break;
@@ -325,7 +336,11 @@ static void ubifs_remove_from_cat(struct ubifs_info *c,
 	case LPROPS_FREEABLE:
 		c->freeable_cnt -= 1;
 		ubifs_assert(c, c->freeable_cnt >= 0);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case LPROPS_UNCAT:
 	case LPROPS_EMPTY:
 	case LPROPS_FRDI_IDX:
@@ -1107,7 +1122,11 @@ static int scan_check_cb(struct ubifs_info *c,
 		return LPT_SCAN_CONTINUE;
 	}
 
+<<<<<<< HEAD
 	buf = __vmalloc(c->leb_size, GFP_NOFS, PAGE_KERNEL);
+=======
+	buf = __vmalloc(c->leb_size, GFP_NOFS);
+>>>>>>> upstream/android-13
 	if (!buf)
 		return -ENOMEM;
 

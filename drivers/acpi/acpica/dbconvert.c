@@ -106,6 +106,13 @@ acpi_db_convert_to_buffer(char *string, union acpi_object *object)
 	u8 *buffer;
 	acpi_status status;
 
+<<<<<<< HEAD
+=======
+	/* Skip all preceding white space */
+
+	acpi_ut_remove_whitespace(&string);
+
+>>>>>>> upstream/android-13
 	/* Generate the final buffer length */
 
 	for (i = 0, length = 0; string[i];) {

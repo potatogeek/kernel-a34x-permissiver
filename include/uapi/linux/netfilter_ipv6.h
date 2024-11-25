@@ -16,6 +16,7 @@
 
 #include <limits.h> /* for INT_MIN, INT_MAX */
 
+<<<<<<< HEAD
 /* IP Cache bits. */
 /* Src IP address. */
 #define NFC_IP6_SRC              0x0001
@@ -45,6 +46,8 @@
 /* Something else about the proto */
 #define NFC_IP6_PROTO_UNKNOWN    0x2000
 
+=======
+>>>>>>> upstream/android-13
 /* IP6 Hooks */
 /* After promisc drops, checksum checks. */
 #define NF_IP6_PRE_ROUTING	0

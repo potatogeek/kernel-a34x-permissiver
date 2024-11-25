@@ -3,7 +3,11 @@
  *
  * Module Name: utinit - Common ACPI subsystem initialization
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -180,7 +184,10 @@ acpi_status acpi_ut_init_globals(void)
 
 	/* Namespace */
 
+<<<<<<< HEAD
 	acpi_gbl_module_code_list = NULL;
+=======
+>>>>>>> upstream/android-13
 	acpi_gbl_root_node = NULL;
 	acpi_gbl_root_node_struct.name.integer = ACPI_ROOT_NAME;
 	acpi_gbl_root_node_struct.descriptor_type = ACPI_DESC_TYPE_NAMED;

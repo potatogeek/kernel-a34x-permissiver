@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * custom_method.c - debugfs interface for customizing ACPI control method
  */
@@ -8,18 +12,29 @@
 #include <linux/uaccess.h>
 #include <linux/debugfs.h>
 #include <linux/acpi.h>
+<<<<<<< HEAD
 
 #include "internal.h"
 
 #define _COMPONENT		ACPI_SYSTEM_COMPONENT
 ACPI_MODULE_NAME("custom_method");
+=======
+#include <linux/security.h>
+
+#include "internal.h"
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 static struct dentry *cm_dentry;
 
 /* /sys/kernel/debug/acpi/custom_method */
 
+<<<<<<< HEAD
 static ssize_t cm_write(struct file *file, const char __user * user_buf,
+=======
+static ssize_t cm_write(struct file *file, const char __user *user_buf,
+>>>>>>> upstream/android-13
 			size_t count, loff_t *ppos)
 {
 	static char *buf;
@@ -28,6 +43,14 @@ static ssize_t cm_write(struct file *file, const char __user * user_buf,
 
 	struct acpi_table_header table;
 	acpi_status status;
+<<<<<<< HEAD
+=======
+	int ret;
+
+	ret = security_locked_down(LOCKDOWN_ACPI_TABLES);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	if (!(*ppos)) {
 		/* parse the table header to get the table length */
@@ -84,6 +107,7 @@ static const struct file_operations cm_fops = {
 
 static int __init acpi_custom_method_init(void)
 {
+<<<<<<< HEAD
 	if (acpi_debugfs_dir == NULL)
 		return -ENOENT;
 
@@ -92,13 +116,21 @@ static int __init acpi_custom_method_init(void)
 	if (cm_dentry == NULL)
 		return -ENODEV;
 
+=======
+	cm_dentry = debugfs_create_file("custom_method", S_IWUSR,
+					acpi_debugfs_dir, NULL, &cm_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void __exit acpi_custom_method_exit(void)
 {
+<<<<<<< HEAD
 	if (cm_dentry)
 		debugfs_remove(cm_dentry);
+=======
+	debugfs_remove(cm_dentry);
+>>>>>>> upstream/android-13
 }
 
 module_init(acpi_custom_method_init);

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Use ARRAY_SIZE instead of dividing sizeof array with sizeof an element
 ///
 //# This makes an effort to find cases where ARRAY_SIZE can be used such as
@@ -6,7 +10,11 @@
 //# division of the two sizeofs by ARRAY_SIZE.
 //
 // Confidence: High
+<<<<<<< HEAD
 // Copyright: (C) 2014 Himangi Saraogi.  GPLv2.
+=======
+// Copyright: (C) 2014 Himangi Saraogi.
+>>>>>>> upstream/android-13
 // Comments:
 // Options: --no-includes --include-headers
 

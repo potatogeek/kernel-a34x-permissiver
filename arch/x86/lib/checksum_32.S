@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -18,11 +22,14 @@
  *			     handling.
  *		Andi Kleen,  add zeroing on error
  *                   converted to pure assembler
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -50,7 +57,11 @@ unsigned int csum_partial(const unsigned char * buff, int len, unsigned int sum)
 	   * Fortunately, it is easy to convert 2-byte alignment to 4-byte
 	   * alignment for the unrolled loop.
 	   */		
+<<<<<<< HEAD
 ENTRY(csum_partial)
+=======
+SYM_FUNC_START(csum_partial)
+>>>>>>> upstream/android-13
 	pushl %esi
 	pushl %ebx
 	movl 20(%esp),%eax	# Function arg: unsigned int sum
@@ -131,14 +142,23 @@ ENTRY(csum_partial)
 8:
 	popl %ebx
 	popl %esi
+<<<<<<< HEAD
 	ret
 ENDPROC(csum_partial)
+=======
+	RET
+SYM_FUNC_END(csum_partial)
+>>>>>>> upstream/android-13
 
 #else
 
 /* Version for PentiumII/PPro */
 
+<<<<<<< HEAD
 ENTRY(csum_partial)
+=======
+SYM_FUNC_START(csum_partial)
+>>>>>>> upstream/android-13
 	pushl %esi
 	pushl %ebx
 	movl 20(%esp),%eax	# Function arg: unsigned int sum
@@ -157,7 +177,11 @@ ENTRY(csum_partial)
 	negl %ebx
 	lea 45f(%ebx,%ebx,2), %ebx
 	testl %esi, %esi
+<<<<<<< HEAD
 	JMP_NOSPEC %ebx
+=======
+	JMP_NOSPEC ebx
+>>>>>>> upstream/android-13
 
 	# Handle 2-byte-aligned regions
 20:	addw (%esi), %ax
@@ -249,19 +273,29 @@ ENTRY(csum_partial)
 90: 
 	popl %ebx
 	popl %esi
+<<<<<<< HEAD
 	ret
 ENDPROC(csum_partial)
+=======
+	RET
+SYM_FUNC_END(csum_partial)
+>>>>>>> upstream/android-13
 				
 #endif
 EXPORT_SYMBOL(csum_partial)
 
 /*
 unsigned int csum_partial_copy_generic (const char *src, char *dst,
+<<<<<<< HEAD
 				  int len, int sum, int *src_err_ptr, int *dst_err_ptr)
+=======
+				  int len)
+>>>>>>> upstream/android-13
  */ 
 
 /*
  * Copy from ds while checksumming, otherwise like csum_partial
+<<<<<<< HEAD
  *
  * The macros SRC and DST specify the type of access for the instruction.
  * thus we can call a custom exception handler for all access types.
@@ -278,31 +312,55 @@ unsigned int csum_partial_copy_generic (const char *src, char *dst,
 #define DST(y...)			\
 	9999: y;			\
 	_ASM_EXTABLE(9999b, 6002f)
+=======
+ */
+
+#define EXC(y...)			\
+	9999: y;			\
+	_ASM_EXTABLE_UA(9999b, 6001f)
+>>>>>>> upstream/android-13
 
 #ifndef CONFIG_X86_USE_PPRO_CHECKSUM
 
 #define ARGBASE 16		
 #define FP		12
 		
+<<<<<<< HEAD
 ENTRY(csum_partial_copy_generic)
+=======
+SYM_FUNC_START(csum_partial_copy_generic)
+>>>>>>> upstream/android-13
 	subl  $4,%esp	
 	pushl %edi
 	pushl %esi
 	pushl %ebx
+<<<<<<< HEAD
 	movl ARGBASE+16(%esp),%eax	# sum
+=======
+>>>>>>> upstream/android-13
 	movl ARGBASE+12(%esp),%ecx	# len
 	movl ARGBASE+4(%esp),%esi	# src
 	movl ARGBASE+8(%esp),%edi	# dst
 
+<<<<<<< HEAD
+=======
+	movl $-1, %eax			# sum
+>>>>>>> upstream/android-13
 	testl $2, %edi			# Check alignment. 
 	jz 2f				# Jump if alignment is ok.
 	subl $2, %ecx			# Alignment uses up two bytes.
 	jae 1f				# Jump if we had at least two bytes.
 	addl $2, %ecx			# ecx was < 2.  Deal with it.
 	jmp 4f
+<<<<<<< HEAD
 SRC(1:	movw (%esi), %bx	)
 	addl $2, %esi
 DST(	movw %bx, (%edi)	)
+=======
+EXC(1:	movw (%esi), %bx	)
+	addl $2, %esi
+EXC(	movw %bx, (%edi)	)
+>>>>>>> upstream/android-13
 	addl $2, %edi
 	addw %bx, %ax	
 	adcl $0, %eax
@@ -310,6 +368,7 @@ DST(	movw %bx, (%edi)	)
 	movl %ecx, FP(%esp)
 	shrl $5, %ecx
 	jz 2f
+<<<<<<< HEAD
 	testl %esi, %esi
 SRC(1:	movl (%esi), %ebx	)
 SRC(	movl 4(%esi), %edx	)
@@ -338,6 +397,36 @@ SRC(	movl 28(%esi), %edx	)
 DST(	movl %ebx, 24(%edi)	)
 	adcl %edx, %eax
 DST(	movl %edx, 28(%edi)	)
+=======
+	testl %esi, %esi		# what's wrong with clc?
+EXC(1:	movl (%esi), %ebx	)
+EXC(	movl 4(%esi), %edx	)
+	adcl %ebx, %eax
+EXC(	movl %ebx, (%edi)	)
+	adcl %edx, %eax
+EXC(	movl %edx, 4(%edi)	)
+
+EXC(	movl 8(%esi), %ebx	)
+EXC(	movl 12(%esi), %edx	)
+	adcl %ebx, %eax
+EXC(	movl %ebx, 8(%edi)	)
+	adcl %edx, %eax
+EXC(	movl %edx, 12(%edi)	)
+
+EXC(	movl 16(%esi), %ebx 	)
+EXC(	movl 20(%esi), %edx	)
+	adcl %ebx, %eax
+EXC(	movl %ebx, 16(%edi)	)
+	adcl %edx, %eax
+EXC(	movl %edx, 20(%edi)	)
+
+EXC(	movl 24(%esi), %ebx	)
+EXC(	movl 28(%esi), %edx	)
+	adcl %ebx, %eax
+EXC(	movl %ebx, 24(%edi)	)
+	adcl %edx, %eax
+EXC(	movl %edx, 28(%edi)	)
+>>>>>>> upstream/android-13
 
 	lea 32(%esi), %esi
 	lea 32(%edi), %edi
@@ -349,9 +438,15 @@ DST(	movl %edx, 28(%edi)	)
 	andl $0x1c, %edx
 	je 4f
 	shrl $2, %edx			# This clears CF
+<<<<<<< HEAD
 SRC(3:	movl (%esi), %ebx	)
 	adcl %ebx, %eax
 DST(	movl %ebx, (%edi)	)
+=======
+EXC(3:	movl (%esi), %ebx	)
+	adcl %ebx, %eax
+EXC(	movl %ebx, (%edi)	)
+>>>>>>> upstream/android-13
 	lea 4(%esi), %esi
 	lea 4(%edi), %edi
 	dec %edx
@@ -361,6 +456,7 @@ DST(	movl %ebx, (%edi)	)
 	jz 7f
 	cmpl $2, %ecx
 	jb 5f
+<<<<<<< HEAD
 SRC(	movw (%esi), %cx	)
 	leal 2(%esi), %esi
 DST(	movw %cx, (%edi)	)
@@ -373,11 +469,25 @@ DST(	movb %cl, (%edi)	)
 	adcl $0, %eax
 7:
 5000:
+=======
+EXC(	movw (%esi), %cx	)
+	leal 2(%esi), %esi
+EXC(	movw %cx, (%edi)	)
+	leal 2(%edi), %edi
+	je 6f
+	shll $16,%ecx
+EXC(5:	movb (%esi), %cl	)
+EXC(	movb %cl, (%edi)	)
+6:	addl %ecx, %eax
+	adcl $0, %eax
+7:
+>>>>>>> upstream/android-13
 
 # Exception handler:
 .section .fixup, "ax"							
 
 6001:
+<<<<<<< HEAD
 	movl ARGBASE+20(%esp), %ebx	# src_err_ptr
 	movl $-EFAULT, (%ebx)
 
@@ -394,6 +504,10 @@ DST(	movb %cl, (%edi)	)
 	movl ARGBASE+24(%esp), %ebx	# dst_err_ptr
 	movl $-EFAULT,(%ebx)
 	jmp 5000b
+=======
+	xorl %eax, %eax
+	jmp 7b
+>>>>>>> upstream/android-13
 
 .previous
 
@@ -401,14 +515,20 @@ DST(	movb %cl, (%edi)	)
 	popl %esi
 	popl %edi
 	popl %ecx			# equivalent to addl $4,%esp
+<<<<<<< HEAD
 	ret	
 ENDPROC(csum_partial_copy_generic)
+=======
+	RET
+SYM_FUNC_END(csum_partial_copy_generic)
+>>>>>>> upstream/android-13
 
 #else
 
 /* Version for PentiumII/PPro */
 
 #define ROUND1(x) \
+<<<<<<< HEAD
 	SRC(movl x(%esi), %ebx	)	;	\
 	addl %ebx, %eax			;	\
 	DST(movl %ebx, x(%edi)	)	; 
@@ -421,13 +541,31 @@ ENDPROC(csum_partial_copy_generic)
 #define ARGBASE 12
 		
 ENTRY(csum_partial_copy_generic)
+=======
+	EXC(movl x(%esi), %ebx	)	;	\
+	addl %ebx, %eax			;	\
+	EXC(movl %ebx, x(%edi)	)	;
+
+#define ROUND(x) \
+	EXC(movl x(%esi), %ebx	)	;	\
+	adcl %ebx, %eax			;	\
+	EXC(movl %ebx, x(%edi)	)	;
+
+#define ARGBASE 12
+		
+SYM_FUNC_START(csum_partial_copy_generic)
+>>>>>>> upstream/android-13
 	pushl %ebx
 	pushl %edi
 	pushl %esi
 	movl ARGBASE+4(%esp),%esi	#src
 	movl ARGBASE+8(%esp),%edi	#dst	
 	movl ARGBASE+12(%esp),%ecx	#len
+<<<<<<< HEAD
 	movl ARGBASE+16(%esp),%eax	#sum
+=======
+	movl $-1, %eax			#sum
+>>>>>>> upstream/android-13
 #	movl %ecx, %edx  
 	movl %ecx, %ebx  
 	movl %esi, %edx
@@ -440,10 +578,17 @@ ENTRY(csum_partial_copy_generic)
 	andl $-32,%edx
 	lea 3f(%ebx,%ebx), %ebx
 	testl %esi, %esi 
+<<<<<<< HEAD
 	JMP_NOSPEC %ebx
 1:	addl $64,%esi
 	addl $64,%edi 
 	SRC(movb -32(%edx),%bl)	; SRC(movb (%edx),%bl)
+=======
+	JMP_NOSPEC ebx
+1:	addl $64,%esi
+	addl $64,%edi 
+	EXC(movb -32(%edx),%bl)	; EXC(movb (%edx),%bl)
+>>>>>>> upstream/android-13
 	ROUND1(-64) ROUND(-60) ROUND(-56) ROUND(-52)	
 	ROUND (-48) ROUND(-44) ROUND(-40) ROUND(-36)	
 	ROUND (-32) ROUND(-28) ROUND(-24) ROUND(-20)	
@@ -457,19 +602,31 @@ ENTRY(csum_partial_copy_generic)
 	jz 7f
 	cmpl $2, %edx
 	jb 5f
+<<<<<<< HEAD
 SRC(	movw (%esi), %dx         )
 	leal 2(%esi), %esi
 DST(	movw %dx, (%edi)         )
+=======
+EXC(	movw (%esi), %dx         )
+	leal 2(%esi), %esi
+EXC(	movw %dx, (%edi)         )
+>>>>>>> upstream/android-13
 	leal 2(%edi), %edi
 	je 6f
 	shll $16,%edx
 5:
+<<<<<<< HEAD
 SRC(	movb (%esi), %dl         )
 DST(	movb %dl, (%edi)         )
+=======
+EXC(	movb (%esi), %dl         )
+EXC(	movb %dl, (%edi)         )
+>>>>>>> upstream/android-13
 6:	addl %edx, %eax
 	adcl $0, %eax
 7:
 .section .fixup, "ax"
+<<<<<<< HEAD
 6001:	movl	ARGBASE+20(%esp), %ebx	# src_err_ptr	
 	movl $-EFAULT, (%ebx)
 	# zero the complete destination (computing the rest is too much work)
@@ -480,14 +637,22 @@ DST(	movb %dl, (%edi)         )
 	jmp 7b
 6002:	movl ARGBASE+24(%esp), %ebx	# dst_err_ptr
 	movl $-EFAULT, (%ebx)
+=======
+6001:	xorl %eax, %eax
+>>>>>>> upstream/android-13
 	jmp  7b			
 .previous				
 
 	popl %esi
 	popl %edi
 	popl %ebx
+<<<<<<< HEAD
 	ret
 ENDPROC(csum_partial_copy_generic)
+=======
+	RET
+SYM_FUNC_END(csum_partial_copy_generic)
+>>>>>>> upstream/android-13
 				
 #undef ROUND
 #undef ROUND1		

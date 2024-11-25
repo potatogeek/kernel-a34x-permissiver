@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2000      Red Hat UK Limited
  * Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org>
@@ -16,6 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright © 2000      Red Hat UK Limited
+ * Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MTD_FLASHCHIP_H__
@@ -54,7 +61,11 @@ typedef enum {
 	FL_READING,
 	FL_CACHEDPRG,
 	/* These 4 come from onenand_state_t, which has been unified here */
+<<<<<<< HEAD
 	FL_RESETING,
+=======
+	FL_RESETTING,
+>>>>>>> upstream/android-13
 	FL_OTPING,
 	FL_PREPARING_ERASE,
 	FL_VERIFYING_ERASE,

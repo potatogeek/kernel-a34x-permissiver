@@ -12,12 +12,18 @@ static inline void __invpcid(unsigned long pcid, unsigned long addr,
 	 * stale TLB entries and, especially if we're flushing global
 	 * mappings, we don't want the compiler to reorder any subsequent
 	 * memory accesses before the TLB flush.
+<<<<<<< HEAD
 	 *
 	 * The hex opcode is invpcid (%ecx), %eax in 32-bit mode and
 	 * invpcid (%rcx), %rax in long mode.
 	 */
 	asm volatile (".byte 0x66, 0x0f, 0x38, 0x82, 0x01"
 		      : : "m" (desc), "a" (type), "c" (&desc) : "memory");
+=======
+	 */
+	asm volatile("invpcid %[desc], %[type]"
+		     :: [desc] "m" (desc), [type] "r" (type) : "memory");
+>>>>>>> upstream/android-13
 }
 
 #define INVPCID_TYPE_INDIV_ADDR		0

@@ -178,6 +178,7 @@ gf100_vmm_desc_16_16[] = {
 };
 
 void
+<<<<<<< HEAD
 gf100_vmm_flush_(struct nvkm_vmm *vmm, int depth)
 {
 	struct nvkm_subdev *subdev = &vmm->mmu->subdev;
@@ -189,6 +190,22 @@ gf100_vmm_flush_(struct nvkm_vmm *vmm, int depth)
 		type |= 0x00000004; /* HUB_ONLY */
 
 	mutex_lock(&subdev->mutex);
+=======
+gf100_vmm_invalidate_pdb(struct nvkm_vmm *vmm, u64 addr)
+{
+	struct nvkm_device *device = vmm->mmu->subdev.device;
+	nvkm_wr32(device, 0x100cb8, addr);
+}
+
+void
+gf100_vmm_invalidate(struct nvkm_vmm *vmm, u32 type)
+{
+	struct nvkm_device *device = vmm->mmu->subdev.device;
+	struct nvkm_mmu_pt *pd = vmm->pd->pt[0];
+	u64 addr = 0;
+
+	mutex_lock(&vmm->mmu->mutex);
+>>>>>>> upstream/android-13
 	/* Looks like maybe a "free flush slots" counter, the
 	 * faster you write to 0x100cbc to more it decreases.
 	 */
@@ -197,7 +214,24 @@ gf100_vmm_flush_(struct nvkm_vmm *vmm, int depth)
 			break;
 	);
 
+<<<<<<< HEAD
 	nvkm_wr32(device, 0x100cb8, vmm->pd->pt[0]->addr >> 8);
+=======
+	if (!(type & 0x00000002) /* ALL_PDB. */) {
+		switch (nvkm_memory_target(pd->memory)) {
+		case NVKM_MEM_TARGET_VRAM: addr |= 0x00000000; break;
+		case NVKM_MEM_TARGET_HOST: addr |= 0x00000002; break;
+		case NVKM_MEM_TARGET_NCOH: addr |= 0x00000003; break;
+		default:
+			WARN_ON(1);
+			break;
+		}
+		addr |= (vmm->pd->pt[0]->addr >> 12) << 4;
+
+		vmm->func->invalidate_pdb(vmm, addr);
+	}
+
+>>>>>>> upstream/android-13
 	nvkm_wr32(device, 0x100cbc, 0x80000000 | type);
 
 	/* Wait for flush to be queued? */
@@ -205,13 +239,24 @@ gf100_vmm_flush_(struct nvkm_vmm *vmm, int depth)
 		if (nvkm_rd32(device, 0x100c80) & 0x00008000)
 			break;
 	);
+<<<<<<< HEAD
 	mutex_unlock(&subdev->mutex);
+=======
+	mutex_unlock(&vmm->mmu->mutex);
+>>>>>>> upstream/android-13
 }
 
 void
 gf100_vmm_flush(struct nvkm_vmm *vmm, int depth)
 {
+<<<<<<< HEAD
 	gf100_vmm_flush_(vmm, 0);
+=======
+	u32 type = 0x00000001; /* PAGE_ALL */
+	if (atomic_read(&vmm->engref[NVKM_SUBDEV_BAR]))
+		type |= 0x00000004; /* HUB_ONLY */
+	gf100_vmm_invalidate(vmm, type);
+>>>>>>> upstream/android-13
 }
 
 int
@@ -227,7 +272,11 @@ gf100_vmm_valid(struct nvkm_vmm *vmm, void *argv, u32 argc,
 	} *args = argv;
 	struct nvkm_device *device = vmm->mmu->subdev.device;
 	struct nvkm_memory *memory = map->memory;
+<<<<<<< HEAD
 	u8  kind, priv, ro, vol;
+=======
+	u8  kind, kind_inv, priv, ro, vol;
+>>>>>>> upstream/android-13
 	int kindn, aper, ret = -ENOSYS;
 	const u8 *kindm;
 
@@ -254,8 +303,13 @@ gf100_vmm_valid(struct nvkm_vmm *vmm, void *argv, u32 argc,
 	if (WARN_ON(aper < 0))
 		return aper;
 
+<<<<<<< HEAD
 	kindm = vmm->mmu->func->kind(vmm->mmu, &kindn);
 	if (kind >= kindn || kindm[kind] == 0xff) {
+=======
+	kindm = vmm->mmu->func->kind(vmm->mmu, &kindn, &kind_inv);
+	if (kind >= kindn || kindm[kind] == kind_inv) {
+>>>>>>> upstream/android-13
 		VMM_DEBUG(vmm, "kind %02x", kind);
 		return -EINVAL;
 	}
@@ -354,6 +408,10 @@ gf100_vmm_17 = {
 	.aper = gf100_vmm_aper,
 	.valid = gf100_vmm_valid,
 	.flush = gf100_vmm_flush,
+<<<<<<< HEAD
+=======
+	.invalidate_pdb = gf100_vmm_invalidate_pdb,
+>>>>>>> upstream/android-13
 	.page = {
 		{ 17, &gf100_vmm_desc_17_17[0], NVKM_VMM_PAGE_xVxC },
 		{ 12, &gf100_vmm_desc_17_12[0], NVKM_VMM_PAGE_xVHx },
@@ -368,6 +426,10 @@ gf100_vmm_16 = {
 	.aper = gf100_vmm_aper,
 	.valid = gf100_vmm_valid,
 	.flush = gf100_vmm_flush,
+<<<<<<< HEAD
+=======
+	.invalidate_pdb = gf100_vmm_invalidate_pdb,
+>>>>>>> upstream/android-13
 	.page = {
 		{ 16, &gf100_vmm_desc_16_16[0], NVKM_VMM_PAGE_xVxC },
 		{ 12, &gf100_vmm_desc_16_12[0], NVKM_VMM_PAGE_xVHx },
@@ -378,6 +440,7 @@ gf100_vmm_16 = {
 int
 gf100_vmm_new_(const struct nvkm_vmm_func *func_16,
 	       const struct nvkm_vmm_func *func_17,
+<<<<<<< HEAD
 	       struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	       struct lock_class_key *key, const char *name,
 	       struct nvkm_vmm **pvmm)
@@ -386,6 +449,16 @@ gf100_vmm_new_(const struct nvkm_vmm_func *func_16,
 	case 16: return nv04_vmm_new_(func_16, mmu, 0, addr, size,
 				      argv, argc, key, name, pvmm);
 	case 17: return nv04_vmm_new_(func_17, mmu, 0, addr, size,
+=======
+	       struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	       void *argv, u32 argc, struct lock_class_key *key,
+	       const char *name, struct nvkm_vmm **pvmm)
+{
+	switch (mmu->subdev.device->fb->page) {
+	case 16: return nv04_vmm_new_(func_16, mmu, 0, managed, addr, size,
+				      argv, argc, key, name, pvmm);
+	case 17: return nv04_vmm_new_(func_17, mmu, 0, managed, addr, size,
+>>>>>>> upstream/android-13
 				      argv, argc, key, name, pvmm);
 	default:
 		WARN_ON(1);
@@ -394,10 +467,18 @@ gf100_vmm_new_(const struct nvkm_vmm_func *func_16,
 }
 
 int
+<<<<<<< HEAD
 gf100_vmm_new(struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	      struct lock_class_key *key, const char *name,
 	      struct nvkm_vmm **pvmm)
 {
 	return gf100_vmm_new_(&gf100_vmm_16, &gf100_vmm_17, mmu, addr,
+=======
+gf100_vmm_new(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	      void *argv, u32 argc, struct lock_class_key *key,
+	      const char *name, struct nvkm_vmm **pvmm)
+{
+	return gf100_vmm_new_(&gf100_vmm_16, &gf100_vmm_17, mmu, managed, addr,
+>>>>>>> upstream/android-13
 			      size, argv, argc, key, name, pvmm);
 }

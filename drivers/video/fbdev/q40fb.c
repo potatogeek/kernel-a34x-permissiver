@@ -23,7 +23,10 @@
 #include <asm/q40_master.h>
 #include <linux/fb.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #define Q40_PHYS_SCREEN_ADDR 0xFE800000
 
@@ -75,7 +78,11 @@ static int q40fb_setcolreg(unsigned regno, unsigned red, unsigned green,
     return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops q40fb_ops = {
+=======
+static const struct fb_ops q40fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_setcolreg	= q40fb_setcolreg,
 	.fb_fillrect	= cfb_fillrect,

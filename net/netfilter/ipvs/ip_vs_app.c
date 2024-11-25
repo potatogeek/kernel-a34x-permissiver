@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ip_vs_app.c: Application module support for IPVS
  *
  * Authors:     Wensong Zhang <wensong@linuxvirtualserver.org>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
  *              2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Most code here is taken from ip_masq_app.c in kernel 2.2. The difference
  * is that ip_vs_app module handles the reverse direction (incoming requests
  * and outgoing responses).
@@ -15,7 +22,10 @@
  *		IP_MASQ_APP application masquerading module
  *
  * Author:	Juan Jose Ciarlante, <jjciarla@raiz.uncu.edu.ar>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"
@@ -371,7 +381,11 @@ static inline int app_tcp_pkt_out(struct ip_vs_conn *cp, struct sk_buff *skb,
 	struct tcphdr *th;
 	__u32 seq;
 
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, tcp_offset + sizeof(*th)))
+=======
+	if (skb_ensure_writable(skb, tcp_offset + sizeof(*th)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	th = (struct tcphdr *)(skb_network_header(skb) + tcp_offset);
@@ -448,7 +462,11 @@ static inline int app_tcp_pkt_in(struct ip_vs_conn *cp, struct sk_buff *skb,
 	struct tcphdr *th;
 	__u32 seq;
 
+<<<<<<< HEAD
 	if (!skb_make_writable(skb, tcp_offset + sizeof(*th)))
+=======
+	if (skb_ensure_writable(skb, tcp_offset + sizeof(*th)))
+>>>>>>> upstream/android-13
 		return 0;
 
 	th = (struct tcphdr *)(skb_network_header(skb) + tcp_offset);

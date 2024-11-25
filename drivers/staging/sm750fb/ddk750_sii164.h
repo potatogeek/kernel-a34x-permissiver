@@ -6,10 +6,20 @@
 
 /* Hot Plug detection mode structure */
 enum sii164_hot_plug_mode {
+<<<<<<< HEAD
 	SII164_HOTPLUG_DISABLE = 0,         /* Disable Hot Plug output bit (always high). */
 	SII164_HOTPLUG_USE_MDI,             /* Use Monitor Detect Interrupt bit. */
 	SII164_HOTPLUG_USE_RSEN,            /* Use Receiver Sense detect bit. */
 	SII164_HOTPLUG_USE_HTPLG            /* Use Hot Plug detect bit. */
+=======
+	SII164_HOTPLUG_DISABLE = 0,	/* Disable Hot Plug output bit
+					 * (always high).
+					 */
+
+	SII164_HOTPLUG_USE_MDI,         /* Use Monitor Detect Interrupt bit. */
+	SII164_HOTPLUG_USE_RSEN,        /* Use Receiver Sense detect bit. */
+	SII164_HOTPLUG_USE_HTPLG        /* Use Hot Plug detect bit. */
+>>>>>>> upstream/android-13
 };
 
 /* Silicon Image SiI164 chip prototype */

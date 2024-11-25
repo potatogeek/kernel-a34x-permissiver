@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sim710.c - Copyright (C) 1999 Richard Hirst <richard@sleepie.demon.co.uk>
  *
  *----------------------------------------------------------------------------
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by 
  *  the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +20,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  *----------------------------------------------------------------------------
  *
  * MCA card detection code by Trent McNair. (now deleted)
@@ -23,7 +30,10 @@
  * Auto probing of EISA config space from Trevor Hemsley.
  *
  * Rewritten to use 53c700.c by James.Bottomley@SteelEye.com
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -226,14 +236,18 @@ static struct eisa_driver sim710_eisa_driver = {
 
 static int __init sim710_init(void)
 {
+<<<<<<< HEAD
 	int err = -ENODEV;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef MODULE
 	if (sim710)
 		param_setup(sim710);
 #endif
 
 #ifdef CONFIG_EISA
+<<<<<<< HEAD
 	err = eisa_driver_register(&sim710_eisa_driver);
 #endif
 	/* FIXME: what we'd really like to return here is -ENODEV if
@@ -241,6 +255,15 @@ static int __init sim710_init(void)
 	 * above actually only reports problems with kobject_register,
 	 * so for the moment return success */
 
+=======
+	/*
+	 * FIXME: We'd really like to return -ENODEV if no devices have actually
+	 * been found.  However eisa_driver_register() only reports problems
+	 * with kobject_register() so simply return success for now.
+	 */
+	eisa_driver_register(&sim710_eisa_driver);
+#endif
+>>>>>>> upstream/android-13
 	return 0;
 }
 

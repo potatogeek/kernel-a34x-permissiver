@@ -225,8 +225,11 @@ qib_user_sdma_queue_create(struct device *dev, int unit, int ctxt, int sctxt)
 	if (sdma_rb_node) {
 		sdma_rb_node->refcount++;
 	} else {
+<<<<<<< HEAD
 		int ret;
 
+=======
+>>>>>>> upstream/android-13
 		sdma_rb_node = kmalloc(sizeof(
 			struct qib_user_sdma_rb_node), GFP_KERNEL);
 		if (!sdma_rb_node)
@@ -235,9 +238,13 @@ qib_user_sdma_queue_create(struct device *dev, int unit, int ctxt, int sctxt)
 		sdma_rb_node->refcount = 1;
 		sdma_rb_node->pid = current->pid;
 
+<<<<<<< HEAD
 		ret = qib_user_sdma_rb_insert(&qib_user_sdma_rb_root,
 					sdma_rb_node);
 		BUG_ON(ret == 0);
+=======
+		qib_user_sdma_rb_insert(&qib_user_sdma_rb_root, sdma_rb_node);
+>>>>>>> upstream/android-13
 	}
 	pq->sdma_rb_node = sdma_rb_node;
 
@@ -321,7 +328,11 @@ static int qib_user_sdma_page_to_frags(const struct qib_devdata *dd,
 		 * the caller can ignore this page.
 		 */
 		if (put) {
+<<<<<<< HEAD
 			put_page(page);
+=======
+			unpin_user_page(page);
+>>>>>>> upstream/android-13
 		} else {
 			/* coalesce case */
 			kunmap(page);
@@ -606,7 +617,11 @@ done:
 /*
  * How many pages in this iovec element?
  */
+<<<<<<< HEAD
 static int qib_user_sdma_num_pages(const struct iovec *iov)
+=======
+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
+>>>>>>> upstream/android-13
 {
 	const unsigned long addr  = (unsigned long) iov->iov_base;
 	const unsigned long  len  = iov->iov_len;
@@ -635,7 +650,11 @@ static void qib_user_sdma_free_pkt_frag(struct device *dev,
 			kunmap(pkt->addr[i].page);
 
 		if (pkt->addr[i].put_page)
+<<<<<<< HEAD
 			put_page(pkt->addr[i].page);
+=======
+			unpin_user_page(pkt->addr[i].page);
+>>>>>>> upstream/android-13
 		else
 			__free_page(pkt->addr[i].page);
 	} else if (pkt->addr[i].kvaddr) {
@@ -662,7 +681,11 @@ static void qib_user_sdma_free_pkt_frag(struct device *dev,
 static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
 				   struct qib_user_sdma_queue *pq,
 				   struct qib_user_sdma_pkt *pkt,
+<<<<<<< HEAD
 				   unsigned long addr, int tlen, int npages)
+=======
+				   unsigned long addr, int tlen, size_t npages)
+>>>>>>> upstream/android-13
 {
 	struct page *pages[8];
 	int i, j;
@@ -674,7 +697,11 @@ static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
 		else
 			j = npages;
 
+<<<<<<< HEAD
 		ret = get_user_pages_fast(addr, j, 0, pages);
+=======
+		ret = pin_user_pages_fast(addr, j, FOLL_LONGTERM, pages);
+>>>>>>> upstream/android-13
 		if (ret != j) {
 			i = 0;
 			j = ret;
@@ -710,7 +737,11 @@ static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
 	/* if error, return all pages not managed by pkt */
 free_pages:
 	while (i < j)
+<<<<<<< HEAD
 		put_page(pages[i++]);
+=======
+		unpin_user_page(pages[i++]);
+>>>>>>> upstream/android-13
 
 done:
 	return ret;
@@ -726,7 +757,11 @@ static int qib_user_sdma_pin_pkt(const struct qib_devdata *dd,
 	unsigned long idx;
 
 	for (idx = 0; idx < niov; idx++) {
+<<<<<<< HEAD
 		const int npages = qib_user_sdma_num_pages(iov + idx);
+=======
+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
+>>>>>>> upstream/android-13
 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
 
 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
@@ -828,8 +863,13 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
 		unsigned pktnw;
 		unsigned pktnwc;
 		int nfrags = 0;
+<<<<<<< HEAD
 		int npages = 0;
 		int bytes_togo = 0;
+=======
+		size_t npages = 0;
+		size_t bytes_togo = 0;
+>>>>>>> upstream/android-13
 		int tiddma = 0;
 		int cfur;
 
@@ -889,7 +929,15 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
 
 			npages += qib_user_sdma_num_pages(&iov[idx]);
 
+<<<<<<< HEAD
 			bytes_togo += slen;
+=======
+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
+				ret = -EINVAL;
+				goto free_pbc;
+			}
+>>>>>>> upstream/android-13
 			pktnwc += slen >> 2;
 			idx++;
 			nfrags++;
@@ -908,10 +956,17 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
 		}
 
 		if (frag_size) {
+<<<<<<< HEAD
 			int pktsize, tidsmsize, n;
 
 			n = npages*((2*PAGE_SIZE/frag_size)+1);
 			pktsize = sizeof(*pkt) + sizeof(pkt->addr[0])*n;
+=======
+			size_t tidsmsize, n, pktsize, sz, addrlimit;
+
+			n = npages*((2*PAGE_SIZE/frag_size)+1);
+			pktsize = struct_size(pkt, addr, n);
+>>>>>>> upstream/android-13
 
 			/*
 			 * Determine if this is tid-sdma or just sdma.
@@ -926,14 +981,32 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
 			else
 				tidsmsize = 0;
 
+<<<<<<< HEAD
 			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
+=======
+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
+				ret = -EINVAL;
+				goto free_pbc;
+			}
+			pkt = kmalloc(sz, GFP_KERNEL);
+>>>>>>> upstream/android-13
 			if (!pkt) {
 				ret = -ENOMEM;
 				goto free_pbc;
 			}
 			pkt->largepkt = 1;
 			pkt->frag_size = frag_size;
+<<<<<<< HEAD
 			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
+=======
+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
+					       &addrlimit) ||
+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
+				ret = -EINVAL;
+				goto free_pkt;
+			}
+			pkt->addrlimit = addrlimit;
+>>>>>>> upstream/android-13
 
 			if (tiddma) {
 				char *tidsm = (char *)pkt + pktsize;

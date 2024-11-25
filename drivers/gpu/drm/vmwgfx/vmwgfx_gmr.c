@@ -25,10 +25,17 @@
  *
  **************************************************************************/
 
+<<<<<<< HEAD
 #include "vmwgfx_drv.h"
 #include <drm/drmP.h>
 #include <drm/ttm/ttm_bo_driver.h>
 
+=======
+#include <drm/ttm/ttm_bo_driver.h>
+
+#include "vmwgfx_drv.h"
+
+>>>>>>> upstream/android-13
 #define VMW_PPN_SIZE (sizeof(unsigned long))
 /* A future safe maximum remap size. */
 #define VMW_PPN_PER_REMAP ((31 * 1024) / VMW_PPN_SIZE)
@@ -51,7 +58,11 @@ static int vmw_gmr2_bind(struct vmw_private *dev_priv,
 	uint32_t cmd_size = define_size + remap_size;
 	uint32_t i;
 
+<<<<<<< HEAD
 	cmd_orig = cmd = vmw_fifo_reserve(dev_priv, cmd_size);
+=======
+	cmd_orig = cmd = VMW_CMD_RESERVE(dev_priv, cmd_size);
+>>>>>>> upstream/android-13
 	if (unlikely(cmd == NULL))
 		return -ENOMEM;
 
@@ -72,7 +83,11 @@ static int vmw_gmr2_bind(struct vmw_private *dev_priv,
 		SVGA_REMAP_GMR2_PPN64 : SVGA_REMAP_GMR2_PPN32;
 
 	while (num_pages > 0) {
+<<<<<<< HEAD
 		unsigned long nr = min(num_pages, (unsigned long)VMW_PPN_PER_REMAP);
+=======
+		unsigned long nr = min_t(unsigned long, num_pages, VMW_PPN_PER_REMAP);
+>>>>>>> upstream/android-13
 
 		remap_cmd.offsetPages = remap_pos;
 		remap_cmd.numPages = nr;
@@ -98,7 +113,11 @@ static int vmw_gmr2_bind(struct vmw_private *dev_priv,
 
 	BUG_ON(cmd != cmd_orig + cmd_size / sizeof(*cmd));
 
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, cmd_size);
+=======
+	vmw_cmd_commit(dev_priv, cmd_size);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -110,18 +129,29 @@ static void vmw_gmr2_unbind(struct vmw_private *dev_priv,
 	uint32_t define_size = sizeof(define_cmd) + 4;
 	uint32_t *cmd;
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, define_size);
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("GMR2 unbind failed.\n");
 		return;
 	}
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, define_size);
+	if (unlikely(cmd == NULL))
+		return;
+
+>>>>>>> upstream/android-13
 	define_cmd.gmrId = gmr_id;
 	define_cmd.numPages = 0;
 
 	*cmd++ = SVGA_CMD_DEFINE_GMR2;
 	memcpy(cmd, &define_cmd, sizeof(define_cmd));
 
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, define_size);
+=======
+	vmw_cmd_commit(dev_priv, define_size);
+>>>>>>> upstream/android-13
 }
 
 

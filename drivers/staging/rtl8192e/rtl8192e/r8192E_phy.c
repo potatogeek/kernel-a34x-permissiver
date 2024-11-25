@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
  *
@@ -13,6 +14,14 @@
  * wlanfae <wlanfae@realtek.com>
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright(c) 2008 - 2010 Realtek Corporation. All rights reserved.
+ *
+ * Contact Information: wlanfae <wlanfae@realtek.com>
+ */
+>>>>>>> upstream/android-13
 #include <linux/bitops.h>
 #include "rtl_core.h"
 #include "r8192E_hw.h"
@@ -81,8 +90,12 @@ void rtl92e_set_bb_reg(struct net_device *dev, u32 dwRegAddr, u32 dwBitMask,
 	if (dwBitMask != bMaskDWord) {
 		OriginalValue = rtl92e_readl(dev, dwRegAddr);
 		BitShift = _rtl92e_calculate_bit_shift(dwBitMask);
+<<<<<<< HEAD
 		NewValue = (((OriginalValue) & (~dwBitMask)) |
 			    (dwData << BitShift));
+=======
+		NewValue = (OriginalValue & ~dwBitMask) | (dwData << BitShift);
+>>>>>>> upstream/android-13
 		rtl92e_writel(dev, dwRegAddr, NewValue);
 	} else
 		rtl92e_writel(dev, dwRegAddr, dwData);
@@ -188,7 +201,11 @@ static void _rtl92e_phy_rf_write(struct net_device *dev,
 		NewOffset = Offset;
 	}
 
+<<<<<<< HEAD
 	DataAndAddr = (Data<<16) | (NewOffset&0x3f);
+=======
+	DataAndAddr = (NewOffset & 0x3f) | (Data << 16);
+>>>>>>> upstream/android-13
 
 	rtl92e_set_bb_reg(dev, pPhyReg->rf3wireOffset, bMaskDWord, DataAndAddr);
 
@@ -223,8 +240,12 @@ void rtl92e_set_rf_reg(struct net_device *dev, enum rf90_radio_path eRFPath,
 			Original_Value = _rtl92e_phy_rf_fw_read(dev, eRFPath,
 								RegAddr);
 			BitShift =  _rtl92e_calculate_bit_shift(BitMask);
+<<<<<<< HEAD
 			New_Value = (((Original_Value) & (~BitMask)) |
 				    (Data << BitShift));
+=======
+			New_Value = (Original_Value & ~BitMask) | (Data << BitShift);
+>>>>>>> upstream/android-13
 
 			_rtl92e_phy_rf_fw_write(dev, eRFPath, RegAddr,
 						New_Value);
@@ -237,8 +258,12 @@ void rtl92e_set_rf_reg(struct net_device *dev, enum rf90_radio_path eRFPath,
 			Original_Value = _rtl92e_phy_rf_read(dev, eRFPath,
 							     RegAddr);
 			BitShift =  _rtl92e_calculate_bit_shift(BitMask);
+<<<<<<< HEAD
 			New_Value = (((Original_Value) & (~BitMask)) |
 				     (Data << BitShift));
+=======
+			New_Value = (Original_Value & ~BitMask) | (Data << BitShift);
+>>>>>>> upstream/android-13
 
 			_rtl92e_phy_rf_write(dev, eRFPath, RegAddr, New_Value);
 		} else
@@ -571,9 +596,15 @@ static bool _rtl92e_bb_config_para_file(struct net_device *dev)
 
 	if (priv->IC_Cut  > VERSION_8190_BD) {
 		if (priv->rf_type == RF_2T4R)
+<<<<<<< HEAD
 			dwRegValue = (priv->AntennaTxPwDiff[2]<<8 |
 				      priv->AntennaTxPwDiff[1]<<4 |
 				      priv->AntennaTxPwDiff[0]);
+=======
+			dwRegValue = priv->AntennaTxPwDiff[2]<<8 |
+				      priv->AntennaTxPwDiff[1]<<4 |
+				      priv->AntennaTxPwDiff[0];
+>>>>>>> upstream/android-13
 		else
 			dwRegValue = 0x0;
 		rtl92e_set_bb_reg(dev, rFPGA0_TxGainStage,
@@ -655,9 +686,15 @@ void rtl92e_set_tx_power(struct net_device *dev, u8 channel)
 			priv->AntennaTxPwDiff[1] = (u8)(ant_pwr_diff);
 			priv->AntennaTxPwDiff[0] = 0;
 
+<<<<<<< HEAD
 			u4RegValue = (priv->AntennaTxPwDiff[2]<<8 |
 				      priv->AntennaTxPwDiff[1]<<4 |
 				      priv->AntennaTxPwDiff[0]);
+=======
+			u4RegValue = priv->AntennaTxPwDiff[2]<<8 |
+				      priv->AntennaTxPwDiff[1]<<4 |
+				      priv->AntennaTxPwDiff[0];
+>>>>>>> upstream/android-13
 
 			rtl92e_set_bb_reg(dev, rFPGA0_TxGainStage,
 					  (bXBTxAGC|bXCTxAGC|bXDTxAGC),
@@ -1136,14 +1173,22 @@ static void _rtl92e_cck_tx_power_track_bw_switch_thermal(struct net_device *dev)
 			priv->Record_CCK_20Mindex = 6;
 		priv->CCK_index = priv->Record_CCK_20Mindex;
 		RT_TRACE(COMP_POWER_TRACKING,
+<<<<<<< HEAD
 			 "20MHz, _rtl92e_cck_tx_power_track_bw_switch_thermal(),CCK_index = %d\n",
+=======
+			 "20MHz, %s,CCK_index = %d\n", __func__,
+>>>>>>> upstream/android-13
 			 priv->CCK_index);
 	break;
 
 	case HT_CHANNEL_WIDTH_20_40:
 		priv->CCK_index = priv->Record_CCK_40Mindex;
 		RT_TRACE(COMP_POWER_TRACKING,
+<<<<<<< HEAD
 			 "40MHz, _rtl92e_cck_tx_power_track_bw_switch_thermal(), CCK_index = %d\n",
+=======
+			 "40MHz, %s, CCK_index = %d\n", __func__,
+>>>>>>> upstream/android-13
 			 priv->CCK_index);
 	break;
 	}
@@ -1167,7 +1212,11 @@ static void _rtl92e_set_bw_mode_work_item(struct net_device *dev)
 	u8 regBwOpMode;
 
 	RT_TRACE(COMP_SWBW,
+<<<<<<< HEAD
 		 "==>_rtl92e_set_bw_mode_work_item()  Switch to %s bandwidth\n",
+=======
+		 "==>%s Switch to %s bandwidth\n", __func__,
+>>>>>>> upstream/android-13
 		 priv->CurrentChannelBW == HT_CHANNEL_WIDTH_20 ?
 			 "20MHz" : "40MHz");
 
@@ -1428,18 +1477,29 @@ static bool _rtl92e_set_rf_power_state(struct net_device *dev,
 
 	if (priv->SetRFPowerStateInProgress)
 		return false;
+<<<<<<< HEAD
 	RT_TRACE(COMP_PS, "===========> _rtl92e_set_rf_power_state()!\n");
+=======
+	RT_TRACE(COMP_PS, "===========> %s!\n", __func__);
+>>>>>>> upstream/android-13
 	priv->SetRFPowerStateInProgress = true;
 
 	switch (priv->rf_chip) {
 	case RF_8256:
 		switch (eRFPowerState) {
 		case eRfOn:
+<<<<<<< HEAD
 			RT_TRACE(COMP_PS,
 				 "_rtl92e_set_rf_power_state() eRfOn!\n");
 			if ((priv->rtllib->eRFPowerState == eRfOff) &&
 			     RT_IN_PS_LEVEL(pPSC, RT_RF_OFF_LEVL_HALT_NIC)) {
 				bool rtstatus = true;
+=======
+			RT_TRACE(COMP_PS, "%s eRfOn!\n", __func__);
+			if ((priv->rtllib->eRFPowerState == eRfOff) &&
+			     RT_IN_PS_LEVEL(pPSC, RT_RF_OFF_LEVL_HALT_NIC)) {
+				bool rtstatus;
+>>>>>>> upstream/android-13
 				u32 InitilizeCount = 3;
 
 				do {
@@ -1502,10 +1562,15 @@ static bool _rtl92e_set_rf_power_state(struct net_device *dev,
 				}
 
 				if (i >= MAX_DOZE_WAITING_TIMES_9x) {
+<<<<<<< HEAD
 					RT_TRACE(COMP_POWER,
 						 "\n\n\n TimeOut!! _rtl92e_set_rf_power_state(): eRfOff: %d times TcbBusyQueue[%d] != 0 !!!\n",
 						 MAX_DOZE_WAITING_TIMES_9x,
 						 QueueID);
+=======
+					RT_TRACE(COMP_POWER, "\n\n\n TimeOut!! %s: eRfOff: %d times TcbBusyQueue[%d] != 0 !!!\n",
+						 __func__, MAX_DOZE_WAITING_TIMES_9x, QueueID);
+>>>>>>> upstream/android-13
 					break;
 				}
 			}
@@ -1513,8 +1578,12 @@ static bool _rtl92e_set_rf_power_state(struct net_device *dev,
 			break;
 
 		case eRfOff:
+<<<<<<< HEAD
 			RT_TRACE(COMP_PS,
 				 "_rtl92e_set_rf_power_state() eRfOff/Sleep !\n");
+=======
+			RT_TRACE(COMP_PS, "%s eRfOff/Sleep !\n", __func__);
+>>>>>>> upstream/android-13
 
 			for (QueueID = 0, i = 0; QueueID < MAX_TX_QUEUE; ) {
 				ring = &priv->tx_ring[QueueID];
@@ -1579,9 +1648,13 @@ static bool _rtl92e_set_rf_power_state(struct net_device *dev,
 	}
 
 	priv->SetRFPowerStateInProgress = false;
+<<<<<<< HEAD
 	RT_TRACE(COMP_PS,
 		 "<=========== _rtl92e_set_rf_power_state() bResult = %d!\n",
 		 bResult);
+=======
+	RT_TRACE(COMP_PS, "<=========== %s bResult = %d!\n", __func__, bResult);
+>>>>>>> upstream/android-13
 	return bResult;
 }
 
@@ -1593,6 +1666,7 @@ bool rtl92e_set_rf_power_state(struct net_device *dev,
 	bool bResult = false;
 
 	RT_TRACE(COMP_PS,
+<<<<<<< HEAD
 		 "---------> rtl92e_set_rf_power_state(): eRFPowerState(%d)\n",
 		 eRFPowerState);
 	if (eRFPowerState == priv->rtllib->eRFPowerState &&
@@ -1600,14 +1674,25 @@ bool rtl92e_set_rf_power_state(struct net_device *dev,
 		RT_TRACE(COMP_PS,
 			 "<--------- rtl92e_set_rf_power_state(): discard the request for eRFPowerState(%d) is the same.\n",
 			 eRFPowerState);
+=======
+		 "---------> %s: eRFPowerState(%d)\n", __func__, eRFPowerState);
+	if (eRFPowerState == priv->rtllib->eRFPowerState &&
+	    priv->bHwRfOffAction == 0) {
+		RT_TRACE(COMP_PS, "<--------- %s: discard the request for eRFPowerState(%d) is the same.\n",
+			 __func__, eRFPowerState);
+>>>>>>> upstream/android-13
 		return bResult;
 	}
 
 	bResult = _rtl92e_set_rf_power_state(dev, eRFPowerState);
 
+<<<<<<< HEAD
 	RT_TRACE(COMP_PS,
 		 "<--------- rtl92e_set_rf_power_state(): bResult(%d)\n",
 		 bResult);
+=======
+	RT_TRACE(COMP_PS, "<--------- %s: bResult(%d)\n", __func__, bResult);
+>>>>>>> upstream/android-13
 
 	return bResult;
 }
@@ -1631,5 +1716,8 @@ void rtl92e_scan_op_backup(struct net_device *dev, u8 Operation)
 			break;
 		}
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }

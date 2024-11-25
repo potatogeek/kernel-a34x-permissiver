@@ -1,18 +1,32 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * at91sam9263.dtsi - Device Tree Include file for AT91SAM9263 family SoC
  *
  *  Copyright (C) 2012 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 only.
  */
 
 #include "skeleton.dtsi"
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <dt-bindings/pinctrl/at91.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/clock/at91.h>
 
 / {
+<<<<<<< HEAD
+=======
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "Atmel AT91SAM9263 family SoC";
 	compatible = "atmel,at91sam9263";
 	interrupt-parent = <&aic>;
@@ -35,6 +49,7 @@
 	};
 
 	cpus {
+<<<<<<< HEAD
 		#address-cells = <0>;
 		#size-cells = <0>;
 
@@ -45,6 +60,20 @@
 	};
 
 	memory {
+=======
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			compatible = "arm,arm926ej-s";
+			device_type = "cpu";
+			reg = <0>;
+		};
+	};
+
+	memory@20000000 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x08000000>;
 	};
 
@@ -65,11 +94,23 @@
 	sram0: sram@300000 {
 		compatible = "mmio-sram";
 		reg = <0x00300000 0x14000>;
+<<<<<<< HEAD
+=======
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x00300000 0x14000>;
+>>>>>>> upstream/android-13
 	};
 
 	sram1: sram@500000 {
 		compatible = "mmio-sram";
 		reg = <0x00500000 0x4000>;
+<<<<<<< HEAD
+=======
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x00500000 0x4000>;
+>>>>>>> upstream/android-13
 	};
 
 	ahb {
@@ -96,6 +137,7 @@
 				compatible = "atmel,at91sam9263-pmc", "syscon";
 				reg = <0xfffffc00 0x100>;
 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+<<<<<<< HEAD
 				interrupt-controller;
 				#address-cells = <1>;
 				#size-cells = <0>;
@@ -354,6 +396,11 @@
 						reg = <29>;
 					};
 				};
+=======
+				#clock-cells = <2>;
+				clocks = <&slow_xtal>, <&main_xtal>;
+				clock-names = "slow_xtal", "main_xtal";
+>>>>>>> upstream/android-13
 			};
 
 			ramc0: ramc@ffffe200 {
@@ -385,7 +432,11 @@
 				compatible = "atmel,at91sam9260-pit";
 				reg = <0xfffffd30 0xf>;
 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+<<<<<<< HEAD
 				clocks = <&mck>;
+=======
+				clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
+>>>>>>> upstream/android-13
 			};
 
 			tcb0: timer@fff7c000 {
@@ -394,7 +445,11 @@
 				#size-cells = <0>;
 				reg = <0xfff7c000 0x100>;
 				interrupts = <19 IRQ_TYPE_LEVEL_HIGH 0>;
+<<<<<<< HEAD
 				clocks = <&tcb_clk>, <&slow_xtal>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 19>, <&slow_xtal>;
+>>>>>>> upstream/android-13
 				clock-names = "t0_clk", "slow_clk";
 			};
 
@@ -736,7 +791,11 @@
 					gpio-controller;
 					interrupt-controller;
 					#interrupt-cells = <2>;
+<<<<<<< HEAD
 					clocks = <&pioA_clk>;
+=======
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 2>;
+>>>>>>> upstream/android-13
 				};
 
 				pioB: gpio@fffff400 {
@@ -747,7 +806,11 @@
 					gpio-controller;
 					interrupt-controller;
 					#interrupt-cells = <2>;
+<<<<<<< HEAD
 					clocks = <&pioB_clk>;
+=======
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 3>;
+>>>>>>> upstream/android-13
 				};
 
 				pioC: gpio@fffff600 {
@@ -758,7 +821,11 @@
 					gpio-controller;
 					interrupt-controller;
 					#interrupt-cells = <2>;
+<<<<<<< HEAD
 					clocks = <&pioCDE_clk>;
+=======
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 4>;
+>>>>>>> upstream/android-13
 				};
 
 				pioD: gpio@fffff800 {
@@ -769,7 +836,11 @@
 					gpio-controller;
 					interrupt-controller;
 					#interrupt-cells = <2>;
+<<<<<<< HEAD
 					clocks = <&pioCDE_clk>;
+=======
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 4>;
+>>>>>>> upstream/android-13
 				};
 
 				pioE: gpio@fffffa00 {
@@ -780,7 +851,11 @@
 					gpio-controller;
 					interrupt-controller;
 					#interrupt-cells = <2>;
+<<<<<<< HEAD
 					clocks = <&pioCDE_clk>;
+=======
+					clocks = <&pmc PMC_TYPE_PERIPHERAL 4>;
+>>>>>>> upstream/android-13
 				};
 			};
 
@@ -790,7 +865,11 @@
 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_dbgu>;
+<<<<<<< HEAD
 				clocks = <&mck>;
+=======
+				clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
+>>>>>>> upstream/android-13
 				clock-names = "usart";
 				status = "disabled";
 			};
@@ -803,7 +882,11 @@
 				atmel,use-dma-tx;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_usart0>;
+<<<<<<< HEAD
 				clocks = <&usart0_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 7>;
+>>>>>>> upstream/android-13
 				clock-names = "usart";
 				status = "disabled";
 			};
@@ -816,7 +899,11 @@
 				atmel,use-dma-tx;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_usart1>;
+<<<<<<< HEAD
 				clocks = <&usart1_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 8>;
+>>>>>>> upstream/android-13
 				clock-names = "usart";
 				status = "disabled";
 			};
@@ -829,7 +916,11 @@
 				atmel,use-dma-tx;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_usart2>;
+<<<<<<< HEAD
 				clocks = <&usart2_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 9>;
+>>>>>>> upstream/android-13
 				clock-names = "usart";
 				status = "disabled";
 			};
@@ -840,7 +931,11 @@
 				interrupts = <16 IRQ_TYPE_LEVEL_HIGH 5>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_ssc0_tx &pinctrl_ssc0_rx>;
+<<<<<<< HEAD
 				clocks = <&ssc0_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 16>;
+>>>>>>> upstream/android-13
 				clock-names = "pclk";
 				status = "disabled";
 			};
@@ -851,7 +946,11 @@
 				interrupts = <17 IRQ_TYPE_LEVEL_HIGH 5>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_ssc1_tx &pinctrl_ssc1_rx>;
+<<<<<<< HEAD
 				clocks = <&ssc1_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 17>;
+>>>>>>> upstream/android-13
 				clock-names = "pclk";
 				status = "disabled";
 			};
@@ -862,7 +961,11 @@
 				interrupts = <18 IRQ_TYPE_LEVEL_HIGH 5>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_ac97>;
+<<<<<<< HEAD
 				clocks = <&ac97_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 18>;
+>>>>>>> upstream/android-13
 				clock-names = "ac97_clk";
 				status = "disabled";
 			};
@@ -873,7 +976,11 @@
 				interrupts = <21 IRQ_TYPE_LEVEL_HIGH 3>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_macb_rmii>;
+<<<<<<< HEAD
 				clocks = <&macb0_clk>, <&macb0_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 21>, <&pmc PMC_TYPE_PERIPHERAL 21>;
+>>>>>>> upstream/android-13
 				clock-names = "hclk", "pclk";
 				status = "disabled";
 			};
@@ -882,7 +989,11 @@
 				compatible = "atmel,at91sam9263-udc";
 				reg = <0xfff78000 0x4000>;
 				interrupts = <24 IRQ_TYPE_LEVEL_HIGH 2>;
+<<<<<<< HEAD
 				clocks = <&udc_clk>, <&udpck>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 24>, <&pmc PMC_TYPE_SYSTEM 7>;
+>>>>>>> upstream/android-13
 				clock-names = "pclk", "hclk";
 				status = "disabled";
 			};
@@ -893,7 +1004,11 @@
 				interrupts = <13 IRQ_TYPE_LEVEL_HIGH 6>;
 				#address-cells = <1>;
 				#size-cells = <0>;
+<<<<<<< HEAD
 				clocks = <&twi0_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 13>;
+>>>>>>> upstream/android-13
 				status = "disabled";
 			};
 
@@ -901,10 +1016,16 @@
 				compatible = "atmel,hsmci";
 				reg = <0xfff80000 0x600>;
 				interrupts = <10 IRQ_TYPE_LEVEL_HIGH 0>;
+<<<<<<< HEAD
 				pinctrl-names = "default";
 				#address-cells = <1>;
 				#size-cells = <0>;
 				clocks = <&mci0_clk>;
+=======
+				#address-cells = <1>;
+				#size-cells = <0>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 10>;
+>>>>>>> upstream/android-13
 				clock-names = "mci_clk";
 				status = "disabled";
 			};
@@ -913,10 +1034,16 @@
 				compatible = "atmel,hsmci";
 				reg = <0xfff84000 0x600>;
 				interrupts = <11 IRQ_TYPE_LEVEL_HIGH 0>;
+<<<<<<< HEAD
 				pinctrl-names = "default";
 				#address-cells = <1>;
 				#size-cells = <0>;
 				clocks = <&mci1_clk>;
+=======
+				#address-cells = <1>;
+				#size-cells = <0>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>;
+>>>>>>> upstream/android-13
 				clock-names = "mci_clk";
 				status = "disabled";
 			};
@@ -940,7 +1067,11 @@
 				interrupts = <14 IRQ_TYPE_LEVEL_HIGH 3>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_spi0>;
+<<<<<<< HEAD
 				clocks = <&spi0_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 14>;
+>>>>>>> upstream/android-13
 				clock-names = "spi_clk";
 				status = "disabled";
 			};
@@ -953,7 +1084,11 @@
 				interrupts = <15 IRQ_TYPE_LEVEL_HIGH 3>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_spi1>;
+<<<<<<< HEAD
 				clocks = <&spi1_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 15>;
+>>>>>>> upstream/android-13
 				clock-names = "spi_clk";
 				status = "disabled";
 			};
@@ -963,7 +1098,11 @@
 				reg = <0xfffb8000 0x300>;
 				interrupts = <20 IRQ_TYPE_LEVEL_HIGH 4>;
 				#pwm-cells = <3>;
+<<<<<<< HEAD
 				clocks = <&pwm_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 20>;
+>>>>>>> upstream/android-13
 				clock-names = "pwm_clk";
 				status = "disabled";
 			};
@@ -974,7 +1113,11 @@
 				interrupts = <12 IRQ_TYPE_LEVEL_HIGH 3>;
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_can_rx_tx>;
+<<<<<<< HEAD
 				clocks = <&can_clk>;
+=======
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 12>;
+>>>>>>> upstream/android-13
 				clock-names = "can_clk";
 			};
 
@@ -1007,7 +1150,11 @@
 			interrupts = <26 IRQ_TYPE_LEVEL_HIGH 3>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_fb>;
+<<<<<<< HEAD
 			clocks = <&lcd_clk>, <&lcd_clk>;
+=======
+			clocks = <&pmc PMC_TYPE_PERIPHERAL 26>, <&pmc PMC_TYPE_PERIPHERAL 26>;
+>>>>>>> upstream/android-13
 			clock-names = "lcdc_clk", "hclk";
 			status = "disabled";
 		};
@@ -1016,7 +1163,11 @@
 			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
 			reg = <0x00a00000 0x100000>;
 			interrupts = <29 IRQ_TYPE_LEVEL_HIGH 2>;
+<<<<<<< HEAD
 			clocks = <&ohci_clk>, <&ohci_clk>, <&uhpck>;
+=======
+			clocks = <&pmc PMC_TYPE_PERIPHERAL 29>, <&pmc PMC_TYPE_PERIPHERAL 29>, <&pmc PMC_TYPE_SYSTEM 6>;
+>>>>>>> upstream/android-13
 			clock-names = "ohci_clk", "hclk", "uhpck";
 			status = "disabled";
 		};
@@ -1034,7 +1185,11 @@
 				  0x3 0x0 0x40000000 0x10000000
 				  0x4 0x0 0x50000000 0x10000000
 				  0x5 0x0 0x60000000 0x10000000>;
+<<<<<<< HEAD
 			clocks = <&mck>;
+=======
+			clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
+>>>>>>> upstream/android-13
 			status = "disabled";
 
 			nand_controller0: nand-controller {
@@ -1055,7 +1210,11 @@
 			reg = <0x80000000 0x20000000>;
 			ranges = <0x0 0x0 0x80000000 0x10000000
 				  0x1 0x0 0x90000000 0x10000000>;
+<<<<<<< HEAD
 			clocks = <&mck>;
+=======
+			clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
+>>>>>>> upstream/android-13
 			status = "disabled";
 
 			nand_controller1: nand-controller {

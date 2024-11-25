@@ -27,7 +27,10 @@
 #include <linux/console.h>
 #include <linux/errno.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 #include <linux/seq_file.h>
 #include <linux/init.h>
@@ -39,7 +42,10 @@
 #include <asm/bootinfo.h>
 #include <asm/irq.h>
 #include <asm/machdep.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 
 unsigned long memory_start;
@@ -51,7 +57,11 @@ EXPORT_SYMBOL(memory_end);
 char __initdata command_line[COMMAND_LINE_SIZE];
 
 /* machine dependent timer functions */
+<<<<<<< HEAD
 void (*mach_sched_init)(irq_handler_t handler) __initdata = NULL;
+=======
+void (*mach_sched_init)(void) __initdata = NULL;
+>>>>>>> upstream/android-13
 int (*mach_hwclk) (int, struct rtc_time*);
 
 /* machine dependent reboot functions */
@@ -89,10 +99,14 @@ void __init setup_arch(char **cmdline_p)
 	memory_start = PAGE_ALIGN(_ramstart);
 	memory_end = _ramend;
 
+<<<<<<< HEAD
 	init_mm.start_code = (unsigned long) &_stext;
 	init_mm.end_code = (unsigned long) &_etext;
 	init_mm.end_data = (unsigned long) &_edata;
 	init_mm.brk = (unsigned long) 0;
+=======
+	setup_initial_init_mm(_stext, _etext, _edata, NULL);
+>>>>>>> upstream/android-13
 
 	config_BSP(&command_line[0], sizeof(command_line));
 
@@ -108,8 +122,21 @@ void __init setup_arch(char **cmdline_p)
 #ifdef CONFIG_UCDIMM
 	pr_info("uCdimm by Lineo, Inc. <www.lineo.com>\n");
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_M68VZ328
 	pr_info("M68VZ328 support by Evan Stawnyczy <e@lineo.ca>\n");
+=======
+#ifdef CONFIG_M68328
+	pr_info("68328 support D. Jeff Dionne <jeff@uclinux.org>\n");
+	pr_info("68328 support Kenneth Albanowski <kjahds@kjshds.com>\n");
+#endif
+#ifdef CONFIG_M68EZ328
+	pr_info("68EZ328 DragonBallEZ support (C) 1999 Rt-Control, Inc\n");
+#endif
+#ifdef CONFIG_M68VZ328
+	pr_info("M68VZ328 support by Evan Stawnyczy <e@lineo.ca>\n");
+	pr_info("68VZ328 DragonBallVZ support (c) 2001 Lineo, Inc.\n");
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_COLDFIRE
 	pr_info("COLDFIRE port done by Greg Ungerer, gerg@snapgear.com\n");
@@ -123,6 +150,10 @@ void __init setup_arch(char **cmdline_p)
 	pr_info("Flat model support (C) 1998,1999 Kenneth Albanowski, D. Jeff Dionne\n");
 
 #if defined( CONFIG_PILOT ) && defined( CONFIG_M68328 )
+<<<<<<< HEAD
+=======
+	pr_info("68328/Pilot support Bernhard Kuhn <kuhn@lpr.e-technik.tu-muenchen.de>\n");
+>>>>>>> upstream/android-13
 	pr_info("TRG SuperPilot FLASH card support <info@trgnet.com>\n");
 #endif
 #if defined( CONFIG_PILOT ) && defined( CONFIG_M68EZ328 )
@@ -148,10 +179,13 @@ void __init setup_arch(char **cmdline_p)
 	memcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
 	boot_command_line[COMMAND_LINE_SIZE-1] = 0;
 
+<<<<<<< HEAD
 #if defined(CONFIG_FRAMEBUFFER_CONSOLE) && defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Give all the memory to the bootmap allocator, tell it to put the
 	 * boot mem_map at the start of memory.

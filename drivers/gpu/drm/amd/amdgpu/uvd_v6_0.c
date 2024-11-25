@@ -23,7 +23,11 @@
  */
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "amdgpu.h"
 #include "amdgpu_uvd.h"
 #include "vid.h"
@@ -175,11 +179,16 @@ static int uvd_v6_0_enc_ring_test_ring(struct amdgpu_ring *ring)
 	int r;
 
 	r = amdgpu_ring_alloc(ring, 16);
+<<<<<<< HEAD
 	if (r) {
 		DRM_ERROR("amdgpu: uvd enc failed to lock ring %d (%d).\n",
 			  ring->idx, r);
 		return r;
 	}
+=======
+	if (r)
+		return r;
+>>>>>>> upstream/android-13
 
 	rptr = amdgpu_ring_get_rptr(ring);
 
@@ -189,6 +198,7 @@ static int uvd_v6_0_enc_ring_test_ring(struct amdgpu_ring *ring)
 	for (i = 0; i < adev->usec_timeout; i++) {
 		if (amdgpu_ring_get_rptr(ring) != rptr)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
 	}
 
@@ -200,6 +210,13 @@ static int uvd_v6_0_enc_ring_test_ring(struct amdgpu_ring *ring)
 			  ring->idx);
 		r = -ETIMEDOUT;
 	}
+=======
+		udelay(1);
+	}
+
+	if (i >= adev->usec_timeout)
+		r = -ETIMEDOUT;
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -207,37 +224,64 @@ static int uvd_v6_0_enc_ring_test_ring(struct amdgpu_ring *ring)
 /**
  * uvd_v6_0_enc_get_create_msg - generate a UVD ENC create msg
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
  * @ring: ring we should submit the msg to
  * @handle: session handle to use
+=======
+ * @ring: ring we should submit the msg to
+ * @handle: session handle to use
+ * @bo: amdgpu object for which we query the offset
+>>>>>>> upstream/android-13
  * @fence: optional fence to return
  *
  * Open up a stream for HW test
  */
 static int uvd_v6_0_enc_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
+<<<<<<< HEAD
+=======
+				       struct amdgpu_bo *bo,
+>>>>>>> upstream/android-13
 				       struct dma_fence **fence)
 {
 	const unsigned ib_size_dw = 16;
 	struct amdgpu_job *job;
 	struct amdgpu_ib *ib;
 	struct dma_fence *f = NULL;
+<<<<<<< HEAD
 	uint64_t dummy;
 	int i, r;
 
 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
+=======
+	uint64_t addr;
+	int i, r;
+
+	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4,
+					AMDGPU_IB_POOL_DIRECT, &job);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
 	ib = &job->ibs[0];
+<<<<<<< HEAD
 	dummy = ib->gpu_addr + 1024;
+=======
+	addr = amdgpu_bo_gpu_offset(bo);
+>>>>>>> upstream/android-13
 
 	ib->length_dw = 0;
 	ib->ptr[ib->length_dw++] = 0x00000018;
 	ib->ptr[ib->length_dw++] = 0x00000001; /* session info */
 	ib->ptr[ib->length_dw++] = handle;
 	ib->ptr[ib->length_dw++] = 0x00010000;
+<<<<<<< HEAD
 	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
 	ib->ptr[ib->length_dw++] = dummy;
+=======
+	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
+	ib->ptr[ib->length_dw++] = addr;
+>>>>>>> upstream/android-13
 
 	ib->ptr[ib->length_dw++] = 0x00000014;
 	ib->ptr[ib->length_dw++] = 0x00000002; /* task info */
@@ -268,38 +312,66 @@ err:
 /**
  * uvd_v6_0_enc_get_destroy_msg - generate a UVD ENC destroy msg
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
  * @ring: ring we should submit the msg to
  * @handle: session handle to use
+=======
+ * @ring: ring we should submit the msg to
+ * @handle: session handle to use
+ * @bo: amdgpu object for which we query the offset
+>>>>>>> upstream/android-13
  * @fence: optional fence to return
  *
  * Close up a stream for HW test or if userspace failed to do so
  */
 static int uvd_v6_0_enc_get_destroy_msg(struct amdgpu_ring *ring,
 					uint32_t handle,
+<<<<<<< HEAD
 					bool direct, struct dma_fence **fence)
+=======
+					struct amdgpu_bo *bo,
+					struct dma_fence **fence)
+>>>>>>> upstream/android-13
 {
 	const unsigned ib_size_dw = 16;
 	struct amdgpu_job *job;
 	struct amdgpu_ib *ib;
 	struct dma_fence *f = NULL;
+<<<<<<< HEAD
 	uint64_t dummy;
 	int i, r;
 
 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
+=======
+	uint64_t addr;
+	int i, r;
+
+	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4,
+					AMDGPU_IB_POOL_DIRECT, &job);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
 	ib = &job->ibs[0];
+<<<<<<< HEAD
 	dummy = ib->gpu_addr + 1024;
+=======
+	addr = amdgpu_bo_gpu_offset(bo);
+>>>>>>> upstream/android-13
 
 	ib->length_dw = 0;
 	ib->ptr[ib->length_dw++] = 0x00000018;
 	ib->ptr[ib->length_dw++] = 0x00000001; /* session info */
 	ib->ptr[ib->length_dw++] = handle;
 	ib->ptr[ib->length_dw++] = 0x00010000;
+<<<<<<< HEAD
 	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
 	ib->ptr[ib->length_dw++] = dummy;
+=======
+	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
+	ib->ptr[ib->length_dw++] = addr;
+>>>>>>> upstream/android-13
 
 	ib->ptr[ib->length_dw++] = 0x00000014;
 	ib->ptr[ib->length_dw++] = 0x00000002; /* task info */
@@ -313,11 +385,15 @@ static int uvd_v6_0_enc_get_destroy_msg(struct amdgpu_ring *ring,
 	for (i = ib->length_dw; i < ib_size_dw; ++i)
 		ib->ptr[i] = 0x0;
 
+<<<<<<< HEAD
 	if (direct)
 		r = amdgpu_job_submit_direct(job, ring, &f);
 	else
 		r = amdgpu_job_submit(job, &ring->adev->vce.entity,
 				      AMDGPU_FENCE_OWNER_UNDEFINED, &f);
+=======
+	r = amdgpu_job_submit_direct(job, ring, &f);
+>>>>>>> upstream/android-13
 	if (r)
 		goto err;
 
@@ -335,11 +411,16 @@ err:
  * uvd_v6_0_enc_ring_test_ib - test if UVD ENC IBs are working
  *
  * @ring: the engine to test on
+<<<<<<< HEAD
+=======
+ * @timeout: timeout value in jiffies, or MAX_SCHEDULE_TIMEOUT
+>>>>>>> upstream/android-13
  *
  */
 static int uvd_v6_0_enc_ring_test_ib(struct amdgpu_ring *ring, long timeout)
 {
 	struct dma_fence *fence = NULL;
+<<<<<<< HEAD
 	long r;
 
 	r = uvd_v6_0_enc_get_create_msg(ring, 1, NULL);
@@ -368,6 +449,39 @@ error:
 	dma_fence_put(fence);
 	return r;
 }
+=======
+	struct amdgpu_bo *bo = NULL;
+	long r;
+
+	r = amdgpu_bo_create_reserved(ring->adev, 128 * 1024, PAGE_SIZE,
+				      AMDGPU_GEM_DOMAIN_VRAM,
+				      &bo, NULL, NULL);
+	if (r)
+		return r;
+
+	r = uvd_v6_0_enc_get_create_msg(ring, 1, bo, NULL);
+	if (r)
+		goto error;
+
+	r = uvd_v6_0_enc_get_destroy_msg(ring, 1, bo, &fence);
+	if (r)
+		goto error;
+
+	r = dma_fence_wait_timeout(fence, false, timeout);
+	if (r == 0)
+		r = -ETIMEDOUT;
+	else if (r > 0)
+		r = 0;
+
+error:
+	dma_fence_put(fence);
+	amdgpu_bo_unpin(bo);
+	amdgpu_bo_unreserve(bo);
+	amdgpu_bo_unref(&bo);
+	return r;
+}
+
+>>>>>>> upstream/android-13
 static int uvd_v6_0_early_init(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
@@ -396,14 +510,22 @@ static int uvd_v6_0_sw_init(void *handle)
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
 	/* UVD TRAP */
+<<<<<<< HEAD
 	r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_UVD_SYSTEM_MESSAGE, &adev->uvd.inst->irq);
+=======
+	r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, VISLANDS30_IV_SRCID_UVD_SYSTEM_MESSAGE, &adev->uvd.inst->irq);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
 	/* UVD ENC TRAP */
 	if (uvd_v6_0_enc_support(adev)) {
 		for (i = 0; i < adev->uvd.num_enc_rings; ++i) {
+<<<<<<< HEAD
 			r = amdgpu_irq_add_id(adev, AMDGPU_IH_CLIENTID_LEGACY, i + VISLANDS30_IV_SRCID_UVD_ENC_GEN_PURP, &adev->uvd.inst->irq);
+=======
+			r = amdgpu_irq_add_id(adev, AMDGPU_IRQ_CLIENTID_LEGACY, i + VISLANDS30_IV_SRCID_UVD_ENC_GEN_PURP, &adev->uvd.inst->irq);
+>>>>>>> upstream/android-13
 			if (r)
 				return r;
 		}
@@ -425,7 +547,12 @@ static int uvd_v6_0_sw_init(void *handle)
 
 	ring = &adev->uvd.inst->ring;
 	sprintf(ring->name, "uvd");
+<<<<<<< HEAD
 	r = amdgpu_ring_init(adev, ring, 512, &adev->uvd.inst->irq, 0);
+=======
+	r = amdgpu_ring_init(adev, ring, 512, &adev->uvd.inst->irq, 0,
+			     AMDGPU_RING_PRIO_DEFAULT, NULL);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -437,7 +564,13 @@ static int uvd_v6_0_sw_init(void *handle)
 		for (i = 0; i < adev->uvd.num_enc_rings; ++i) {
 			ring = &adev->uvd.inst->ring_enc[i];
 			sprintf(ring->name, "uvd_enc%d", i);
+<<<<<<< HEAD
 			r = amdgpu_ring_init(adev, ring, 512, &adev->uvd.inst->irq, 0);
+=======
+			r = amdgpu_ring_init(adev, ring, 512,
+					     &adev->uvd.inst->irq, 0,
+					     AMDGPU_RING_PRIO_DEFAULT, NULL);
+>>>>>>> upstream/android-13
 			if (r)
 				return r;
 		}
@@ -468,7 +601,11 @@ static int uvd_v6_0_sw_fini(void *handle)
 /**
  * uvd_v6_0_hw_init - start and test UVD block
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
+=======
+ * @handle: handle used to pass amdgpu_device pointer
+>>>>>>> upstream/android-13
  *
  * Initialize the hardware, boot up the VCPU and do some testing
  */
@@ -483,12 +620,18 @@ static int uvd_v6_0_hw_init(void *handle)
 	uvd_v6_0_set_clockgating_state(adev, AMD_CG_STATE_UNGATE);
 	uvd_v6_0_enable_mgcg(adev, true);
 
+<<<<<<< HEAD
 	ring->ready = true;
 	r = amdgpu_ring_test_ring(ring);
 	if (r) {
 		ring->ready = false;
 		goto done;
 	}
+=======
+	r = amdgpu_ring_test_helper(ring);
+	if (r)
+		goto done;
+>>>>>>> upstream/android-13
 
 	r = amdgpu_ring_alloc(ring, 10);
 	if (r) {
@@ -520,12 +663,18 @@ static int uvd_v6_0_hw_init(void *handle)
 	if (uvd_v6_0_enc_support(adev)) {
 		for (i = 0; i < adev->uvd.num_enc_rings; ++i) {
 			ring = &adev->uvd.inst->ring_enc[i];
+<<<<<<< HEAD
 			ring->ready = true;
 			r = amdgpu_ring_test_ring(ring);
 			if (r) {
 				ring->ready = false;
 				goto done;
 			}
+=======
+			r = amdgpu_ring_test_helper(ring);
+			if (r)
+				goto done;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -543,20 +692,32 @@ done:
 /**
  * uvd_v6_0_hw_fini - stop the hardware block
  *
+<<<<<<< HEAD
  * @adev: amdgpu_device pointer
+=======
+ * @handle: handle used to pass amdgpu_device pointer
+>>>>>>> upstream/android-13
  *
  * Stop the UVD block, mark ring as not ready any more
  */
 static int uvd_v6_0_hw_fini(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+<<<<<<< HEAD
 	struct amdgpu_ring *ring = &adev->uvd.inst->ring;
+=======
+
+	cancel_delayed_work_sync(&adev->uvd.idle_work);
+>>>>>>> upstream/android-13
 
 	if (RREG32(mmUVD_STATUS) != 0)
 		uvd_v6_0_stop(adev);
 
+<<<<<<< HEAD
 	ring->ready = false;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -565,6 +726,33 @@ static int uvd_v6_0_suspend(void *handle)
 	int r;
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Proper cleanups before halting the HW engine:
+	 *   - cancel the delayed idle work
+	 *   - enable powergating
+	 *   - enable clockgating
+	 *   - disable dpm
+	 *
+	 * TODO: to align with the VCN implementation, move the
+	 * jobs for clockgating/powergating/dpm setting to
+	 * ->set_powergating_state().
+	 */
+	cancel_delayed_work_sync(&adev->uvd.idle_work);
+
+	if (adev->pm.dpm_enabled) {
+		amdgpu_dpm_enable_uvd(adev, false);
+	} else {
+		amdgpu_asic_set_uvd_clocks(adev, 0, 0);
+		/* shutdown the UVD block */
+		amdgpu_device_ip_set_powergating_state(adev, AMD_IP_BLOCK_TYPE_UVD,
+						       AMD_PG_STATE_GATE);
+		amdgpu_device_ip_set_clockgating_state(adev, AMD_IP_BLOCK_TYPE_UVD,
+						       AMD_CG_STATE_GATE);
+	}
+
+>>>>>>> upstream/android-13
 	r = uvd_v6_0_hw_fini(adev);
 	if (r)
 		return r;
@@ -596,7 +784,11 @@ static void uvd_v6_0_mc_resume(struct amdgpu_device *adev)
 	uint64_t offset;
 	uint32_t size;
 
+<<<<<<< HEAD
 	/* programm memory controller bits 0-27 */
+=======
+	/* program memory controller bits 0-27 */
+>>>>>>> upstream/android-13
 	WREG32(mmUVD_LMI_VCPU_CACHE_64BIT_BAR_LOW,
 			lower_32_bits(adev->uvd.inst->gpu_addr));
 	WREG32(mmUVD_LMI_VCPU_CACHE_64BIT_BAR_HIGH,
@@ -838,7 +1030,11 @@ static int uvd_v6_0_start(struct amdgpu_device *adev)
 	/* set the wb address */
 	WREG32(mmUVD_RBC_RB_RPTR_ADDR, (upper_32_bits(ring->gpu_addr) >> 2));
 
+<<<<<<< HEAD
 	/* programm the RB_BASE for ring buffer */
+=======
+	/* program the RB_BASE for ring buffer */
+>>>>>>> upstream/android-13
 	WREG32(mmUVD_LMI_RBC_RB_64BIT_BAR_LOW,
 			lower_32_bits(ring->gpu_addr));
 	WREG32(mmUVD_LMI_RBC_RB_64BIT_BAR_HIGH,
@@ -904,7 +1100,13 @@ static void uvd_v6_0_stop(struct amdgpu_device *adev)
  * uvd_v6_0_ring_emit_fence - emit an fence & trap command
  *
  * @ring: amdgpu_ring pointer
+<<<<<<< HEAD
  * @fence: fence to emit
+=======
+ * @addr: address
+ * @seq: sequence number
+ * @flags: fence related flags
+>>>>>>> upstream/android-13
  *
  * Write a fence and a trap command to the ring.
  */
@@ -934,7 +1136,13 @@ static void uvd_v6_0_ring_emit_fence(struct amdgpu_ring *ring, u64 addr, u64 seq
  * uvd_v6_0_enc_ring_emit_fence - emit an enc fence & trap command
  *
  * @ring: amdgpu_ring pointer
+<<<<<<< HEAD
  * @fence: fence to emit
+=======
+ * @addr: address
+ * @seq: sequence number
+ * @flags: fence related flags
+>>>>>>> upstream/android-13
  *
  * Write enc a fence and a trap command to the ring.
  */
@@ -976,11 +1184,17 @@ static int uvd_v6_0_ring_test_ring(struct amdgpu_ring *ring)
 
 	WREG32(mmUVD_CONTEXT_ID, 0xCAFEDEAD);
 	r = amdgpu_ring_alloc(ring, 3);
+<<<<<<< HEAD
 	if (r) {
 		DRM_ERROR("amdgpu: cp failed to lock ring %d (%d).\n",
 			  ring->idx, r);
 		return r;
 	}
+=======
+	if (r)
+		return r;
+
+>>>>>>> upstream/android-13
 	amdgpu_ring_write(ring, PACKET0(mmUVD_CONTEXT_ID, 0));
 	amdgpu_ring_write(ring, 0xDEADBEEF);
 	amdgpu_ring_commit(ring);
@@ -988,6 +1202,7 @@ static int uvd_v6_0_ring_test_ring(struct amdgpu_ring *ring)
 		tmp = RREG32(mmUVD_CONTEXT_ID);
 		if (tmp == 0xDEADBEEF)
 			break;
+<<<<<<< HEAD
 		DRM_UDELAY(1);
 	}
 
@@ -999,6 +1214,14 @@ static int uvd_v6_0_ring_test_ring(struct amdgpu_ring *ring)
 			  ring->idx, tmp);
 		r = -EINVAL;
 	}
+=======
+		udelay(1);
+	}
+
+	if (i >= adev->usec_timeout)
+		r = -ETIMEDOUT;
+
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -1006,14 +1229,29 @@ static int uvd_v6_0_ring_test_ring(struct amdgpu_ring *ring)
  * uvd_v6_0_ring_emit_ib - execute indirect buffer
  *
  * @ring: amdgpu_ring pointer
+<<<<<<< HEAD
  * @ib: indirect buffer to execute
+=======
+ * @job: job to retrieve vmid from
+ * @ib: indirect buffer to execute
+ * @flags: unused
+>>>>>>> upstream/android-13
  *
  * Write ring commands to execute the indirect buffer
  */
 static void uvd_v6_0_ring_emit_ib(struct amdgpu_ring *ring,
+<<<<<<< HEAD
 				  struct amdgpu_ib *ib,
 				  unsigned vmid, bool ctx_switch)
 {
+=======
+				  struct amdgpu_job *job,
+				  struct amdgpu_ib *ib,
+				  uint32_t flags)
+{
+	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
+
+>>>>>>> upstream/android-13
 	amdgpu_ring_write(ring, PACKET0(mmUVD_LMI_RBC_IB_VMID, 0));
 	amdgpu_ring_write(ring, vmid);
 
@@ -1029,13 +1267,28 @@ static void uvd_v6_0_ring_emit_ib(struct amdgpu_ring *ring,
  * uvd_v6_0_enc_ring_emit_ib - enc execute indirect buffer
  *
  * @ring: amdgpu_ring pointer
+<<<<<<< HEAD
  * @ib: indirect buffer to execute
+=======
+ * @job: job to retrive vmid from
+ * @ib: indirect buffer to execute
+ * @flags: unused
+>>>>>>> upstream/android-13
  *
  * Write enc ring commands to execute the indirect buffer
  */
 static void uvd_v6_0_enc_ring_emit_ib(struct amdgpu_ring *ring,
+<<<<<<< HEAD
 		struct amdgpu_ib *ib, unsigned int vmid, bool ctx_switch)
 {
+=======
+					struct amdgpu_job *job,
+					struct amdgpu_ib *ib,
+					uint32_t flags)
+{
+	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
+
+>>>>>>> upstream/android-13
 	amdgpu_ring_write(ring, HEVC_ENC_CMD_IB_VM);
 	amdgpu_ring_write(ring, vmid);
 	amdgpu_ring_write(ring, lower_32_bits(ib->gpu_addr));
@@ -1253,8 +1506,13 @@ static int uvd_v6_0_process_interrupt(struct amdgpu_device *adev,
 		break;
 	}
 
+<<<<<<< HEAD
 	if (false == int_handled)
 			DRM_ERROR("Unhandled interrupt: %d %d\n",
+=======
+	if (!int_handled)
+		DRM_ERROR("Unhandled interrupt: %d %d\n",
+>>>>>>> upstream/android-13
 			  entry->src_id, entry->src_data[0]);
 
 	return 0;
@@ -1436,7 +1694,11 @@ static int uvd_v6_0_set_clockgating_state(void *handle,
 					  enum amd_clockgating_state state)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+<<<<<<< HEAD
 	bool enable = (state == AMD_CG_STATE_GATE) ? true : false;
+=======
+	bool enable = (state == AMD_CG_STATE_GATE);
+>>>>>>> upstream/android-13
 
 	if (enable) {
 		/* wait for STATUS to clear */
@@ -1531,6 +1793,10 @@ static const struct amdgpu_ring_funcs uvd_v6_0_ring_phys_funcs = {
 	.type = AMDGPU_RING_TYPE_UVD,
 	.align_mask = 0xf,
 	.support_64bit_ptrs = false,
+<<<<<<< HEAD
+=======
+	.no_user_fence = true,
+>>>>>>> upstream/android-13
 	.get_rptr = uvd_v6_0_ring_get_rptr,
 	.get_wptr = uvd_v6_0_ring_get_wptr,
 	.set_wptr = uvd_v6_0_ring_set_wptr,
@@ -1556,6 +1822,10 @@ static const struct amdgpu_ring_funcs uvd_v6_0_ring_vm_funcs = {
 	.type = AMDGPU_RING_TYPE_UVD,
 	.align_mask = 0xf,
 	.support_64bit_ptrs = false,
+<<<<<<< HEAD
+=======
+	.no_user_fence = true,
+>>>>>>> upstream/android-13
 	.get_rptr = uvd_v6_0_ring_get_rptr,
 	.get_wptr = uvd_v6_0_ring_get_wptr,
 	.set_wptr = uvd_v6_0_ring_set_wptr,
@@ -1584,6 +1854,10 @@ static const struct amdgpu_ring_funcs uvd_v6_0_enc_ring_vm_funcs = {
 	.align_mask = 0x3f,
 	.nop = HEVC_ENC_CMD_NO_OP,
 	.support_64bit_ptrs = false,
+<<<<<<< HEAD
+=======
+	.no_user_fence = true,
+>>>>>>> upstream/android-13
 	.get_rptr = uvd_v6_0_enc_ring_get_rptr,
 	.get_wptr = uvd_v6_0_enc_ring_get_wptr,
 	.set_wptr = uvd_v6_0_enc_ring_set_wptr,

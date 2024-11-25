@@ -4,7 +4,11 @@
  *
  *   GPL LICENSE SUMMARY
  *
+<<<<<<< HEAD
  *   Copyright (C) 2016 T-Platforms All Rights Reserved.
+=======
+ *   Copyright (C) 2016-2018 T-Platforms JSC All Rights Reserved.
+>>>>>>> upstream/android-13
  *
  *   This program is free software; you can redistribute it and/or modify it
  *   under the terms and conditions of the GNU General Public License,
@@ -49,11 +53,20 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 #include <linux/pci.h>
 #include <linux/aer.h>
 #include <linux/slab.h>
 #include <linux/list.h>
 #include <linux/debugfs.h>
+<<<<<<< HEAD
+=======
+#include <linux/hwmon.h>
+#include <linux/hwmon-sysfs.h>
+>>>>>>> upstream/android-13
 #include <linux/ntb.h>
 
 #include "ntb_hw_idt.h"
@@ -355,8 +368,11 @@ static void idt_sw_write(struct idt_ntb_dev *ndev,
 	iowrite32((u32)reg, ndev->cfgspc + (ptrdiff_t)IDT_NT_GASAADDR);
 	/* Put the new value of the register */
 	iowrite32(data, ndev->cfgspc + (ptrdiff_t)IDT_NT_GASADATA);
+<<<<<<< HEAD
 	/* Make sure the PCIe transactions are executed */
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	/* Unlock GASA registers operations */
 	spin_unlock_irqrestore(&ndev->gasa_lock, irqflags);
 }
@@ -747,7 +763,10 @@ static void idt_ntb_local_link_enable(struct idt_ntb_dev *ndev)
 	spin_lock_irqsave(&ndev->mtbl_lock, irqflags);
 	idt_nt_write(ndev, IDT_NT_NTMTBLADDR, ndev->part);
 	idt_nt_write(ndev, IDT_NT_NTMTBLDATA, mtbldata);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ndev->mtbl_lock, irqflags);
 
 	/* Notify the peers by setting and clearing the global signal bit */
@@ -775,7 +794,10 @@ static void idt_ntb_local_link_disable(struct idt_ntb_dev *ndev)
 	spin_lock_irqsave(&ndev->mtbl_lock, irqflags);
 	idt_nt_write(ndev, IDT_NT_NTMTBLADDR, ndev->part);
 	idt_nt_write(ndev, IDT_NT_NTMTBLDATA, 0);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ndev->mtbl_lock, irqflags);
 
 	/* Notify the peers by setting and clearing the global signal bit */
@@ -1320,7 +1342,11 @@ static int idt_ntb_peer_mw_set_trans(struct ntb_dev *ntb, int pidx, int widx,
 		idt_nt_write(ndev, bar->ltbase, (u32)addr);
 		idt_nt_write(ndev, bar->utbase, (u32)(addr >> 32));
 		/* Set the custom BAR aperture limit */
+<<<<<<< HEAD
 		limit = pci_resource_start(ntb->pdev, mw_cfg->bar) + size;
+=======
+		limit = pci_bus_address(ntb->pdev, mw_cfg->bar) + size;
+>>>>>>> upstream/android-13
 		idt_nt_write(ndev, bar->limit, (u32)limit);
 		if (IS_FLD_SET(BARSETUP_TYPE, data, 64))
 			idt_nt_write(ndev, (bar + 1)->limit, (limit >> 32));
@@ -1336,7 +1362,10 @@ static int idt_ntb_peer_mw_set_trans(struct ntb_dev *ntb, int pidx, int widx,
 		idt_nt_write(ndev, IDT_NT_LUTLDATA, (u32)addr);
 		idt_nt_write(ndev, IDT_NT_LUTMDATA, (u32)(addr >> 32));
 		idt_nt_write(ndev, IDT_NT_LUTUDATA, data);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&ndev->lut_lock, irqflags);
 		/* Limit address isn't specified since size is fixed for LUT */
 	}
@@ -1390,7 +1419,10 @@ static int idt_ntb_peer_mw_clear_trans(struct ntb_dev *ntb, int pidx,
 		idt_nt_write(ndev, IDT_NT_LUTLDATA, 0);
 		idt_nt_write(ndev, IDT_NT_LUTMDATA, 0);
 		idt_nt_write(ndev, IDT_NT_LUTUDATA, 0);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&ndev->lut_lock, irqflags);
 	}
 
@@ -1809,7 +1841,10 @@ static int idt_ntb_peer_msg_write(struct ntb_dev *ntb, int pidx, int midx,
 	/* Set the route and send the data */
 	idt_sw_write(ndev, partdata_tbl[ndev->part].msgctl[midx], swpmsgctl);
 	idt_nt_write(ndev, ntdata_tbl.msgs[midx].out, msg);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	/* Unlock the messages routing table */
 	spin_unlock_irqrestore(&ndev->msg_locks[midx], irqflags);
 
@@ -1821,14 +1856,23 @@ static int idt_ntb_peer_msg_write(struct ntb_dev *ntb, int pidx, int midx,
  *                      7. Temperature sensor operations
  *
  *    IDT PCIe-switch has an embedded temperature sensor, which can be used to
+<<<<<<< HEAD
  * warn a user-space of possible chip overheating. Since workload temperature
  * can be different on different platforms, temperature thresholds as well as
  * general sensor settings must be setup in the framework of BIOS/EEPROM
  * initializations. It includes the actual sensor enabling as well.
+=======
+ * check current chip core temperature. Since a workload environment can be
+ * different on different platforms, an offset and ADC/filter settings can be
+ * specified. Although the offset configuration is only exposed to the sysfs
+ * hwmon interface at the moment. The rest of the settings can be adjusted
+ * for instance by the BIOS/EEPROM firmware.
+>>>>>>> upstream/android-13
  *=============================================================================
  */
 
 /*
+<<<<<<< HEAD
  * idt_read_temp() - read temperature from chip sensor
  * @ntb:	NTB device context.
  * @val:	OUT - integer value of temperature
@@ -1876,6 +1920,277 @@ static void idt_temp_isr(struct idt_ntb_dev *ndev, u32 ntint_sts)
 
 	/* Print temperature value to log */
 	dev_warn(&ndev->ntb.pdev->dev, "Temperature %hhu.%hhu", val, frac);
+=======
+ * idt_get_deg() - convert millidegree Celsius value to just degree
+ * @mdegC:	IN - millidegree Celsius value
+ *
+ * Return: Degree corresponding to the passed millidegree value
+ */
+static inline s8 idt_get_deg(long mdegC)
+{
+	return mdegC / 1000;
+}
+
+/*
+ * idt_get_frac() - retrieve 0/0.5 fraction of the millidegree Celsius value
+ * @mdegC:	IN - millidegree Celsius value
+ *
+ * Return: 0/0.5 degree fraction of the passed millidegree value
+ */
+static inline u8 idt_get_deg_frac(long mdegC)
+{
+	return (mdegC % 1000) >= 500 ? 5 : 0;
+}
+
+/*
+ * idt_get_temp_fmt() - convert millidegree Celsius value to 0:7:1 format
+ * @mdegC:	IN - millidegree Celsius value
+ *
+ * Return: 0:7:1 format acceptable by the IDT temperature sensor
+ */
+static inline u8 idt_temp_get_fmt(long mdegC)
+{
+	return (idt_get_deg(mdegC) << 1) | (idt_get_deg_frac(mdegC) ? 1 : 0);
+}
+
+/*
+ * idt_get_temp_sval() - convert temp sample to signed millidegree Celsius
+ * @data:	IN - shifted to LSB 8-bits temperature sample
+ *
+ * Return: signed millidegree Celsius
+ */
+static inline long idt_get_temp_sval(u32 data)
+{
+	return ((s8)data / 2) * 1000 + (data & 0x1 ? 500 : 0);
+}
+
+/*
+ * idt_get_temp_sval() - convert temp sample to unsigned millidegree Celsius
+ * @data:	IN - shifted to LSB 8-bits temperature sample
+ *
+ * Return: unsigned millidegree Celsius
+ */
+static inline long idt_get_temp_uval(u32 data)
+{
+	return (data / 2) * 1000 + (data & 0x1 ? 500 : 0);
+}
+
+/*
+ * idt_read_temp() - read temperature from chip sensor
+ * @ntb:	NTB device context.
+ * @type:	IN - type of the temperature value to read
+ * @val:	OUT - integer value of temperature in millidegree Celsius
+ */
+static void idt_read_temp(struct idt_ntb_dev *ndev,
+			  const enum idt_temp_val type, long *val)
+{
+	u32 data;
+
+	/* Alter the temperature field in accordance with the passed type */
+	switch (type) {
+	case IDT_TEMP_CUR:
+		data = GET_FIELD(TMPSTS_TEMP,
+				 idt_sw_read(ndev, IDT_SW_TMPSTS));
+		break;
+	case IDT_TEMP_LOW:
+		data = GET_FIELD(TMPSTS_LTEMP,
+				 idt_sw_read(ndev, IDT_SW_TMPSTS));
+		break;
+	case IDT_TEMP_HIGH:
+		data = GET_FIELD(TMPSTS_HTEMP,
+				 idt_sw_read(ndev, IDT_SW_TMPSTS));
+		break;
+	case IDT_TEMP_OFFSET:
+		/* This is the only field with signed 0:7:1 format */
+		data = GET_FIELD(TMPADJ_OFFSET,
+				 idt_sw_read(ndev, IDT_SW_TMPADJ));
+		*val = idt_get_temp_sval(data);
+		return;
+	default:
+		data = GET_FIELD(TMPSTS_TEMP,
+				 idt_sw_read(ndev, IDT_SW_TMPSTS));
+		break;
+	}
+
+	/* The rest of the fields accept unsigned 0:7:1 format */
+	*val = idt_get_temp_uval(data);
+}
+
+/*
+ * idt_write_temp() - write temperature to the chip sensor register
+ * @ntb:	NTB device context.
+ * @type:	IN - type of the temperature value to change
+ * @val:	IN - integer value of temperature in millidegree Celsius
+ */
+static void idt_write_temp(struct idt_ntb_dev *ndev,
+			   const enum idt_temp_val type, const long val)
+{
+	unsigned int reg;
+	u32 data;
+	u8 fmt;
+
+	/* Retrieve the properly formatted temperature value */
+	fmt = idt_temp_get_fmt(val);
+
+	mutex_lock(&ndev->hwmon_mtx);
+	switch (type) {
+	case IDT_TEMP_LOW:
+		reg = IDT_SW_TMPALARM;
+		data = SET_FIELD(TMPALARM_LTEMP, idt_sw_read(ndev, reg), fmt) &
+			~IDT_TMPALARM_IRQ_MASK;
+		break;
+	case IDT_TEMP_HIGH:
+		reg = IDT_SW_TMPALARM;
+		data = SET_FIELD(TMPALARM_HTEMP, idt_sw_read(ndev, reg), fmt) &
+			~IDT_TMPALARM_IRQ_MASK;
+		break;
+	case IDT_TEMP_OFFSET:
+		reg = IDT_SW_TMPADJ;
+		data = SET_FIELD(TMPADJ_OFFSET, idt_sw_read(ndev, reg), fmt);
+		break;
+	default:
+		goto inval_spin_unlock;
+	}
+
+	idt_sw_write(ndev, reg, data);
+
+inval_spin_unlock:
+	mutex_unlock(&ndev->hwmon_mtx);
+}
+
+/*
+ * idt_sysfs_show_temp() - printout corresponding temperature value
+ * @dev:	Pointer to the NTB device structure
+ * @da:		Sensor device attribute structure
+ * @buf:	Buffer to print temperature out
+ *
+ * Return: Number of written symbols or negative error
+ */
+static ssize_t idt_sysfs_show_temp(struct device *dev,
+				   struct device_attribute *da, char *buf)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+	struct idt_ntb_dev *ndev = dev_get_drvdata(dev);
+	enum idt_temp_val type = attr->index;
+	long mdeg;
+
+	idt_read_temp(ndev, type, &mdeg);
+	return sprintf(buf, "%ld\n", mdeg);
+}
+
+/*
+ * idt_sysfs_set_temp() - set corresponding temperature value
+ * @dev:	Pointer to the NTB device structure
+ * @da:		Sensor device attribute structure
+ * @buf:	Buffer to print temperature out
+ * @count:	Size of the passed buffer
+ *
+ * Return: Number of written symbols or negative error
+ */
+static ssize_t idt_sysfs_set_temp(struct device *dev,
+				  struct device_attribute *da, const char *buf,
+				  size_t count)
+{
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+	struct idt_ntb_dev *ndev = dev_get_drvdata(dev);
+	enum idt_temp_val type = attr->index;
+	long mdeg;
+	int ret;
+
+	ret = kstrtol(buf, 10, &mdeg);
+	if (ret)
+		return ret;
+
+	/* Clamp the passed value in accordance with the type */
+	if (type == IDT_TEMP_OFFSET)
+		mdeg = clamp_val(mdeg, IDT_TEMP_MIN_OFFSET,
+				 IDT_TEMP_MAX_OFFSET);
+	else
+		mdeg = clamp_val(mdeg, IDT_TEMP_MIN_MDEG, IDT_TEMP_MAX_MDEG);
+
+	idt_write_temp(ndev, type, mdeg);
+
+	return count;
+}
+
+/*
+ * idt_sysfs_reset_hist() - reset temperature history
+ * @dev:	Pointer to the NTB device structure
+ * @da:		Sensor device attribute structure
+ * @buf:	Buffer to print temperature out
+ * @count:	Size of the passed buffer
+ *
+ * Return: Number of written symbols or negative error
+ */
+static ssize_t idt_sysfs_reset_hist(struct device *dev,
+				    struct device_attribute *da,
+				    const char *buf, size_t count)
+{
+	struct idt_ntb_dev *ndev = dev_get_drvdata(dev);
+
+	/* Just set the maximal value to the lowest temperature field and
+	 * minimal value to the highest temperature field
+	 */
+	idt_write_temp(ndev, IDT_TEMP_LOW, IDT_TEMP_MAX_MDEG);
+	idt_write_temp(ndev, IDT_TEMP_HIGH, IDT_TEMP_MIN_MDEG);
+
+	return count;
+}
+
+/*
+ * Hwmon IDT sysfs attributes
+ */
+static SENSOR_DEVICE_ATTR(temp1_input, 0444, idt_sysfs_show_temp, NULL,
+			  IDT_TEMP_CUR);
+static SENSOR_DEVICE_ATTR(temp1_lowest, 0444, idt_sysfs_show_temp, NULL,
+			  IDT_TEMP_LOW);
+static SENSOR_DEVICE_ATTR(temp1_highest, 0444, idt_sysfs_show_temp, NULL,
+			  IDT_TEMP_HIGH);
+static SENSOR_DEVICE_ATTR(temp1_offset, 0644, idt_sysfs_show_temp,
+			  idt_sysfs_set_temp, IDT_TEMP_OFFSET);
+static DEVICE_ATTR(temp1_reset_history, 0200, NULL, idt_sysfs_reset_hist);
+
+/*
+ * Hwmon IDT sysfs attributes group
+ */
+static struct attribute *idt_temp_attrs[] = {
+	&sensor_dev_attr_temp1_input.dev_attr.attr,
+	&sensor_dev_attr_temp1_lowest.dev_attr.attr,
+	&sensor_dev_attr_temp1_highest.dev_attr.attr,
+	&sensor_dev_attr_temp1_offset.dev_attr.attr,
+	&dev_attr_temp1_reset_history.attr,
+	NULL
+};
+ATTRIBUTE_GROUPS(idt_temp);
+
+/*
+ * idt_init_temp() - initialize temperature sensor interface
+ * @ndev:	IDT NTB hardware driver descriptor
+ *
+ * Simple sensor initializarion method is responsible for device switching
+ * on and resource management based hwmon interface registration. Note, that
+ * since the device is shared we won't disable it on remove, but leave it
+ * working until the system is powered off.
+ */
+static void idt_init_temp(struct idt_ntb_dev *ndev)
+{
+	struct device *hwmon;
+
+	/* Enable sensor if it hasn't been already */
+	idt_sw_write(ndev, IDT_SW_TMPCTL, 0x0);
+
+	/* Initialize hwmon interface fields */
+	mutex_init(&ndev->hwmon_mtx);
+
+	hwmon = devm_hwmon_device_register_with_groups(&ndev->ntb.pdev->dev,
+		ndev->swcfg->name, ndev, idt_temp_groups);
+	if (IS_ERR(hwmon)) {
+		dev_err(&ndev->ntb.pdev->dev, "Couldn't create hwmon device");
+		return;
+	}
+
+	dev_dbg(&ndev->ntb.pdev->dev, "Temperature HWmon interface registered");
+>>>>>>> upstream/android-13
 }
 
 /*=============================================================================
@@ -1931,7 +2246,11 @@ static int idt_init_isr(struct idt_ntb_dev *ndev)
 		goto err_free_vectors;
 	}
 
+<<<<<<< HEAD
 	/* Unmask Message/Doorbell/SE/Temperature interrupts */
+=======
+	/* Unmask Message/Doorbell/SE interrupts */
+>>>>>>> upstream/android-13
 	ntint_mask = idt_nt_read(ndev, IDT_NT_NTINTMSK) & ~IDT_NTINTMSK_ALL;
 	idt_nt_write(ndev, IDT_NT_NTINTMSK, ntint_mask);
 
@@ -1946,7 +2265,10 @@ err_free_vectors:
 	return ret;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  * idt_deinit_ist() - deinitialize PCIe interrupt handler
  * @ndev:	IDT NTB hardware driver descriptor
@@ -2007,12 +2329,15 @@ static irqreturn_t idt_thread_isr(int irq, void *devid)
 		handled = true;
 	}
 
+<<<<<<< HEAD
 	/* Handle temperature sensor interrupt */
 	if (ntint_sts & IDT_NTINTSTS_TMPSENSOR) {
 		idt_temp_isr(ndev, ntint_sts);
 		handled = true;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(&ndev->ntb.pdev->dev, "IDT IRQs 0x%08x handled", ntint_sts);
 
 	return handled ? IRQ_HANDLED : IRQ_NONE;
@@ -2123,9 +2448,15 @@ static ssize_t idt_dbgfs_info_read(struct file *filp, char __user *ubuf,
 				   size_t count, loff_t *offp)
 {
 	struct idt_ntb_dev *ndev = filp->private_data;
+<<<<<<< HEAD
 	unsigned char temp, frac, idx, pidx, cnt;
 	ssize_t ret = 0, off = 0;
 	unsigned long irqflags;
+=======
+	unsigned char idx, pidx, cnt;
+	unsigned long irqflags, mdeg;
+	ssize_t ret = 0, off = 0;
+>>>>>>> upstream/android-13
 	enum ntb_speed speed;
 	enum ntb_width width;
 	char *strbuf;
@@ -2274,9 +2605,16 @@ static ssize_t idt_dbgfs_info_read(struct file *filp, char __user *ubuf,
 	off += scnprintf(strbuf + off, size - off, "\n");
 
 	/* Current temperature */
+<<<<<<< HEAD
 	idt_read_temp(ndev, &temp, &frac);
 	off += scnprintf(strbuf + off, size - off,
 		"Switch temperature\t\t- %hhu.%hhuC\n", temp, frac);
+=======
+	idt_read_temp(ndev, IDT_TEMP_CUR, &mdeg);
+	off += scnprintf(strbuf + off, size - off,
+		"Switch temperature\t\t- %hhd.%hhuC\n",
+		idt_get_deg(mdeg), idt_get_deg_frac(mdeg));
+>>>>>>> upstream/android-13
 
 	/* Copy the buffer to the User Space */
 	ret = simple_read_from_buffer(ubuf, count, offp, strbuf, off);
@@ -2298,7 +2636,11 @@ static int idt_init_dbgfs(struct idt_ntb_dev *ndev)
 	/* If the top directory is not created then do nothing */
 	if (IS_ERR_OR_NULL(dbgfs_topdir)) {
 		dev_info(&ndev->ntb.pdev->dev, "Top DebugFS directory absent");
+<<<<<<< HEAD
 		return PTR_ERR(dbgfs_topdir);
+=======
+		return PTR_ERR_OR_ZERO(dbgfs_topdir);
+>>>>>>> upstream/android-13
 	}
 
 	/* Create the info file node */
@@ -2427,15 +2769,22 @@ static int idt_init_pci(struct idt_ntb_dev *ndev)
 	int ret;
 
 	/* Initialize the bit mask of PCI/NTB DMA */
+<<<<<<< HEAD
 	ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (ret != 0) {
 		ret = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+=======
+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	if (ret != 0) {
+		ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (ret != 0) {
 			dev_err(&pdev->dev, "Failed to set DMA bit mask\n");
 			return ret;
 		}
 		dev_warn(&pdev->dev, "Cannot set DMA highmem bit mask\n");
 	}
+<<<<<<< HEAD
 	ret = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
 	if (ret != 0) {
 		ret = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
@@ -2453,6 +2802,8 @@ static int idt_init_pci(struct idt_ntb_dev *ndev)
 		dev_err(&pdev->dev, "Failed to set NTB device DMA bit mask\n");
 		return ret;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * Enable the device advanced error reporting. It's not critical to
@@ -2461,8 +2812,13 @@ static int idt_init_pci(struct idt_ntb_dev *ndev)
 	ret = pci_enable_pcie_error_reporting(pdev);
 	if (ret != 0)
 		dev_warn(&pdev->dev, "PCIe AER capability disabled\n");
+<<<<<<< HEAD
 	else /* Cleanup uncorrectable error status before getting to init */
 		pci_cleanup_aer_uncorrect_error_status(pdev);
+=======
+	else /* Cleanup nonfatal error status before getting to init */
+		pci_aer_clear_nonfatal_status(pdev);
+>>>>>>> upstream/android-13
 
 	/* First enable the PCI device */
 	ret = pcim_enable_device(pdev);
@@ -2549,7 +2905,11 @@ static int idt_pci_probe(struct pci_dev *pdev,
 
 	/* Allocate the memory for IDT NTB device data */
 	ndev = idt_create_dev(pdev, id);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(ndev))
+=======
+	if (IS_ERR(ndev))
+>>>>>>> upstream/android-13
 		return PTR_ERR(ndev);
 
 	/* Initialize the basic PCI subsystem of the device */
@@ -2571,6 +2931,12 @@ static int idt_pci_probe(struct pci_dev *pdev,
 	/* Initialize Messaging subsystem */
 	idt_init_msg(ndev);
 
+<<<<<<< HEAD
+=======
+	/* Initialize hwmon interface */
+	idt_init_temp(ndev);
+
+>>>>>>> upstream/android-13
 	/* Initialize IDT interrupts handler */
 	ret = idt_init_isr(ndev);
 	if (ret != 0)

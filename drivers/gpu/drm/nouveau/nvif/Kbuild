@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: MIT
+>>>>>>> upstream/android-13
 nvif-y := nvif/object.o
 nvif-y += nvif/client.o
 nvif-y += nvif/device.o
@@ -7,6 +11,10 @@ nvif-y += nvif/fifo.o
 nvif-y += nvif/mem.o
 nvif-y += nvif/mmu.o
 nvif-y += nvif/notify.o
+<<<<<<< HEAD
+=======
+nvif-y += nvif/timer.o
+>>>>>>> upstream/android-13
 nvif-y += nvif/vmm.o
 
 # Usermode classes

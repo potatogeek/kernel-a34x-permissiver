@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2003-2012 Broadcom Corporation
  * All Rights Reserved
@@ -31,6 +32,14 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause) */
+/*
+ * Copyright (c) 2003-2012 Broadcom Corporation
+ * All Rights Reserved
+ */
+
+>>>>>>> upstream/android-13
 /* #define MAC_SPLIT_MODE */
 
 #define MAC_SPACING                 0x400

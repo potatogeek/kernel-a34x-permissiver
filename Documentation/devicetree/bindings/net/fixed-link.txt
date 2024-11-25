@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Fixed link Device Tree binding
 ------------------------------
 
@@ -52,3 +53,6 @@ ethernet@1 {
 	};
 	...
 };
+=======
+This file has moved to ethernet-controller.yaml.
+>>>>>>> upstream/android-13

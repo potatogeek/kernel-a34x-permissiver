@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (C) 1998-2008 Novell/SUSE
  * Copyright 2009-2010 Canonical Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AA_FILE_H
@@ -32,7 +39,14 @@ struct path;
 				 AA_MAY_CHMOD | AA_MAY_CHOWN | AA_MAY_LOCK | \
 				 AA_EXEC_MMAP | AA_MAY_LINK)
 
+<<<<<<< HEAD
 #define file_ctx(X) ((struct aa_file_ctx *)(X)->f_security)
+=======
+static inline struct aa_file_ctx *file_ctx(struct file *file)
+{
+	return file->f_security + apparmor_blob_sizes.lbs_file;
+}
+>>>>>>> upstream/android-13
 
 /* struct aa_file_ctx - the AppArmor context the file was opened in
  * @lock: lock to update the ctx
@@ -73,7 +87,11 @@ static inline void aa_free_file_ctx(struct aa_file_ctx *ctx)
 {
 	if (ctx) {
 		aa_put_label(rcu_access_pointer(ctx->label));
+<<<<<<< HEAD
 		kzfree(ctx);
+=======
+		kfree_sensitive(ctx);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -198,7 +216,11 @@ int aa_path_link(struct aa_label *label, struct dentry *old_dentry,
 		 const struct path *new_dir, struct dentry *new_dentry);
 
 int aa_file_perm(const char *op, struct aa_label *label, struct file *file,
+<<<<<<< HEAD
 		 u32 request);
+=======
+		 u32 request, bool in_atomic);
+>>>>>>> upstream/android-13
 
 void aa_inherit_files(const struct cred *cred, struct files_struct *files);
 

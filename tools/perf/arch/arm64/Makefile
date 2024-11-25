@@ -4,6 +4,10 @@ PERF_HAVE_DWARF_REGS := 1
 endif
 PERF_HAVE_JITDUMP := 1
 PERF_HAVE_ARCH_REGS_QUERY_REGISTER_OFFSET := 1
+<<<<<<< HEAD
+=======
+HAVE_KVM_STAT_SUPPORT := 1
+>>>>>>> upstream/android-13
 
 #
 # Syscall table generation for perf

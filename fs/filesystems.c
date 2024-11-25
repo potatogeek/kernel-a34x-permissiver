@@ -16,6 +16,10 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_parser.h>
+>>>>>>> upstream/android-13
 
 /*
  * Handling of filesystem drivers list.
@@ -73,6 +77,13 @@ int register_filesystem(struct file_system_type * fs)
 	int res = 0;
 	struct file_system_type ** p;
 
+<<<<<<< HEAD
+=======
+	if (fs->parameters &&
+	    !fs_validate_description(fs->name, fs->parameters))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	BUG_ON(strchr(fs->name, '.'));
 	if (fs->next)
 		return -EBUSY;
@@ -204,6 +215,7 @@ SYSCALL_DEFINE3(sysfs, int, option, unsigned long, arg1, unsigned long, arg2)
 }
 #endif
 
+<<<<<<< HEAD
 int __init get_filesystem_list(char *buf)
 {
 	int len = 0;
@@ -219,6 +231,30 @@ int __init get_filesystem_list(char *buf)
 	}
 	read_unlock(&file_systems_lock);
 	return len;
+=======
+int __init list_bdev_fs_names(char *buf, size_t size)
+{
+	struct file_system_type *p;
+	size_t len;
+	int count = 0;
+
+	read_lock(&file_systems_lock);
+	for (p = file_systems; p; p = p->next) {
+		if (!(p->fs_flags & FS_REQUIRES_DEV))
+			continue;
+		len = strlen(p->name) + 1;
+		if (len > size) {
+			pr_warn("%s: truncating file system list\n", __func__);
+			break;
+		}
+		memcpy(buf, p->name, len);
+		buf += len;
+		size -= len;
+		count++;
+	}
+	read_unlock(&file_systems_lock);
+	return count;
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PROC_FS

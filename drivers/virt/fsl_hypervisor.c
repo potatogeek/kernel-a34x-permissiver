@@ -247,7 +247,11 @@ static long ioctl_memcpy(struct fsl_hv_ioctl_memcpy __user *p)
 
 	/* Get the physical addresses of the source buffer */
 	num_pinned = get_user_pages_fast(param.local_vaddr - lb_offset,
+<<<<<<< HEAD
 		num_pages, param.source != -1, pages);
+=======
+		num_pages, param.source != -1 ? FOLL_WRITE : 0, pages);
+>>>>>>> upstream/android-13
 
 	if (num_pinned != num_pages) {
 		pr_debug("fsl-hv: could not lock source buffer\n");
@@ -705,7 +709,11 @@ static const struct file_operations fsl_hv_fops = {
 	.poll = fsl_hv_poll,
 	.read = fsl_hv_read,
 	.unlocked_ioctl = fsl_hv_ioctl,
+<<<<<<< HEAD
 	.compat_ioctl = fsl_hv_ioctl,
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 static struct miscdevice fsl_hv_misc_dev = {

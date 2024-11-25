@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2009, Jiejing Zhang <kzjeef@gmail.com>
  *
@@ -10,6 +11,11 @@
  *  with this program; if not, write  to the Free Software Foundation, Inc.,
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  Copyright (C) 2009, Jiejing Zhang <kzjeef@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __JZ4740_BATTERY_H

@@ -29,7 +29,12 @@
 # include "asm-offsets_64.c"
 #endif
 
+<<<<<<< HEAD
 void common(void) {
+=======
+static void __used common(void)
+{
+>>>>>>> upstream/android-13
 	BLANK();
 	OFFSET(TASK_threadsp, task_struct, thread.sp);
 #ifdef CONFIG_STACKPROTECTOR
@@ -37,10 +42,13 @@ void common(void) {
 #endif
 
 	BLANK();
+<<<<<<< HEAD
 	OFFSET(TASK_TI_flags, task_struct, thread_info.flags);
 	OFFSET(TASK_addr_limit, task_struct, thread.addr_limit);
 
 	BLANK();
+=======
+>>>>>>> upstream/android-13
 	OFFSET(crypto_tfm_ctx_offset, crypto_tfm, __crt_ctx);
 
 	BLANK();
@@ -64,6 +72,7 @@ void common(void) {
 	OFFSET(IA32_RT_SIGFRAME_sigcontext, rt_sigframe_ia32, uc.uc_mcontext);
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PARAVIRT
 	BLANK();
 	OFFSET(PARAVIRT_PATCH_pv_cpu_ops, paravirt_patch_template, pv_cpu_ops);
@@ -75,10 +84,16 @@ void common(void) {
 	OFFSET(PV_MMU_read_cr2, pv_mmu_ops, read_cr2);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_XEN
 	BLANK();
 	OFFSET(XEN_vcpu_info_mask, vcpu_info, evtchn_upcall_mask);
 	OFFSET(XEN_vcpu_info_pending, vcpu_info, evtchn_upcall_pending);
+<<<<<<< HEAD
+=======
+	OFFSET(XEN_vcpu_info_arch_cr2, vcpu_info, arch.cr2);
+>>>>>>> upstream/android-13
 #endif
 
 	BLANK();
@@ -90,7 +105,10 @@ void common(void) {
 	OFFSET(BP_kernel_alignment, boot_params, hdr.kernel_alignment);
 	OFFSET(BP_init_size, boot_params, hdr.init_size);
 	OFFSET(BP_pref_address, boot_params, hdr.pref_address);
+<<<<<<< HEAD
 	OFFSET(BP_code32_start, boot_params, hdr.code32_start);
+=======
+>>>>>>> upstream/android-13
 
 	BLANK();
 	DEFINE(PTREGS_SIZE, sizeof(struct pt_regs));
@@ -99,13 +117,23 @@ void common(void) {
 	OFFSET(TLB_STATE_user_pcid_flush_mask, tlb_state, user_pcid_flush_mask);
 
 	/* Layout info for cpu_entry_area */
+<<<<<<< HEAD
 	OFFSET(CPU_ENTRY_AREA_tss, cpu_entry_area, tss);
 	OFFSET(CPU_ENTRY_AREA_entry_trampoline, cpu_entry_area, entry_trampoline);
+=======
+>>>>>>> upstream/android-13
 	OFFSET(CPU_ENTRY_AREA_entry_stack, cpu_entry_area, entry_stack_page);
 	DEFINE(SIZEOF_entry_stack, sizeof(struct entry_stack));
 	DEFINE(MASK_entry_stack, (~(sizeof(struct entry_stack) - 1)));
 
+<<<<<<< HEAD
 	/* Offset for sp0 and sp1 into the tss_struct */
 	OFFSET(TSS_sp0, tss_struct, x86_tss.sp0);
 	OFFSET(TSS_sp1, tss_struct, x86_tss.sp1);
+=======
+	/* Offset for fields in tss_struct */
+	OFFSET(TSS_sp0, tss_struct, x86_tss.sp0);
+	OFFSET(TSS_sp1, tss_struct, x86_tss.sp1);
+	OFFSET(TSS_sp2, tss_struct, x86_tss.sp2);
+>>>>>>> upstream/android-13
 }

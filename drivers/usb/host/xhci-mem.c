@@ -13,11 +13,23 @@
 #include <linux/slab.h>
 #include <linux/dmapool.h>
 #include <linux/dma-mapping.h>
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_HOST_CERTIFICATION)
+#define MAX_HC_SLOT_LIMIT 15
+#endif
+>>>>>>> upstream/android-13
 
 #include "xhci.h"
 #include "xhci-trace.h"
 #include "xhci-debugfs.h"
+<<<<<<< HEAD
 
+=======
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+#include "xhci-exynos-audio.h"
+#endif
+>>>>>>> upstream/android-13
 /*
  * Allocates a generic ring segment from the ring pool, sets the dma address,
  * initializes the segment to zero, and sets the private next pointer to NULL.
@@ -65,7 +77,11 @@ static struct xhci_segment *xhci_segment_alloc(struct xhci_hcd *xhci,
 	return seg;
 }
 
+<<<<<<< HEAD
 static void xhci_segment_free(struct xhci_hcd *xhci, struct xhci_segment *seg)
+=======
+void xhci_segment_free(struct xhci_hcd *xhci, struct xhci_segment *seg)
+>>>>>>> upstream/android-13
 {
 	if (seg->trbs) {
 		dma_pool_free(xhci->segment_pool, seg->trbs, seg->dma);
@@ -74,6 +90,10 @@ static void xhci_segment_free(struct xhci_hcd *xhci, struct xhci_segment *seg)
 	kfree(seg->bounce_buf);
 	kfree(seg);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_segment_free);
+>>>>>>> upstream/android-13
 
 static void xhci_free_segments_for_ring(struct xhci_hcd *xhci,
 				struct xhci_segment *first)
@@ -96,6 +116,7 @@ static void xhci_free_segments_for_ring(struct xhci_hcd *xhci,
  * DMA address of the next segment.  The caller needs to set any Link TRB
  * related flags, such as End TRB, Toggle Cycle, and no snoop.
  */
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 void xhci_link_segments(struct xhci_hcd *xhci, struct xhci_segment *prev,
 		struct xhci_segment *next, enum xhci_ring_type type)
@@ -103,6 +124,11 @@ void xhci_link_segments(struct xhci_hcd *xhci, struct xhci_segment *prev,
 static void xhci_link_segments(struct xhci_hcd *xhci, struct xhci_segment *prev,
 		struct xhci_segment *next, enum xhci_ring_type type)
 #endif
+=======
+void xhci_link_segments(struct xhci_segment *prev,
+			       struct xhci_segment *next,
+			       enum xhci_ring_type type, bool chain_links)
+>>>>>>> upstream/android-13
 {
 	u32 val;
 
@@ -117,15 +143,23 @@ static void xhci_link_segments(struct xhci_hcd *xhci, struct xhci_segment *prev,
 		val = le32_to_cpu(prev->trbs[TRBS_PER_SEGMENT-1].link.control);
 		val &= ~TRB_TYPE_BITMASK;
 		val |= TRB_TYPE(TRB_LINK);
+<<<<<<< HEAD
 		/* Always set the chain bit with 0.95 hardware */
 		/* Set chain bit for isoc rings on AMD 0.96 host */
 		if (xhci_link_trb_quirk(xhci) ||
 				(type == TYPE_ISOC &&
 				 (xhci->quirks & XHCI_AMD_0x96_HOST)))
+=======
+		if (chain_links)
+>>>>>>> upstream/android-13
 			val |= TRB_CHAIN;
 		prev->trbs[TRBS_PER_SEGMENT-1].link.control = cpu_to_le32(val);
 	}
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_link_segments);
+>>>>>>> upstream/android-13
 
 /*
  * Link the ring to the new segments.
@@ -136,13 +170,28 @@ static void xhci_link_rings(struct xhci_hcd *xhci, struct xhci_ring *ring,
 		unsigned int num_segs)
 {
 	struct xhci_segment *next;
+<<<<<<< HEAD
+=======
+	bool chain_links;
+>>>>>>> upstream/android-13
 
 	if (!ring || !first || !last)
 		return;
 
+<<<<<<< HEAD
 	next = ring->enq_seg->next;
 	xhci_link_segments(xhci, ring->enq_seg, first, ring->type);
 	xhci_link_segments(xhci, last, next, ring->type);
+=======
+	/* Set chain bit for 0.95 hosts, and for isoc rings on AMD 0.96 host */
+	chain_links = !!(xhci_link_trb_quirk(xhci) ||
+			 (ring->type == TYPE_ISOC &&
+			  (xhci->quirks & XHCI_AMD_0x96_HOST)));
+
+	next = ring->enq_seg->next;
+	xhci_link_segments(ring->enq_seg, first, ring->type, chain_links);
+	xhci_link_segments(last, next, ring->type, chain_links);
+>>>>>>> upstream/android-13
 	ring->num_segs += num_segs;
 	ring->num_trbs_free += (TRBS_PER_SEGMENT - 1) * num_segs;
 
@@ -258,7 +307,11 @@ remove_streams:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void xhci_remove_stream_mapping(struct xhci_ring *ring)
+=======
+void xhci_remove_stream_mapping(struct xhci_ring *ring)
+>>>>>>> upstream/android-13
 {
 	struct xhci_segment *seg;
 
@@ -271,6 +324,10 @@ static void xhci_remove_stream_mapping(struct xhci_ring *ring)
 		seg = seg->next;
 	} while (seg != ring->first_seg);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_remove_stream_mapping);
+>>>>>>> upstream/android-13
 
 static int xhci_update_stream_mapping(struct xhci_ring *ring, gfp_t mem_flags)
 {
@@ -294,6 +351,7 @@ void xhci_ring_free(struct xhci_hcd *xhci, struct xhci_ring *ring)
 
 	kfree(ring);
 }
+<<<<<<< HEAD
 
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 void xhci_initialize_ring_info(struct xhci_ring *ring,
@@ -302,6 +360,12 @@ void xhci_initialize_ring_info(struct xhci_ring *ring,
 static void xhci_initialize_ring_info(struct xhci_ring *ring,
 					unsigned int cycle_state)
 #endif
+=======
+EXPORT_SYMBOL_GPL(xhci_ring_free);
+
+void xhci_initialize_ring_info(struct xhci_ring *ring,
+			       unsigned int cycle_state)
+>>>>>>> upstream/android-13
 {
 	/* The ring is empty, so the enqueue pointer == dequeue pointer */
 	ring->enqueue = ring->first_seg->trbs;
@@ -331,6 +395,15 @@ static int xhci_alloc_segments_for_ring(struct xhci_hcd *xhci,
 		enum xhci_ring_type type, unsigned int max_packet, gfp_t flags)
 {
 	struct xhci_segment *prev;
+<<<<<<< HEAD
+=======
+	bool chain_links;
+
+	/* Set chain bit for 0.95 hosts, and for isoc rings on AMD 0.96 host */
+	chain_links = !!(xhci_link_trb_quirk(xhci) ||
+			 (type == TYPE_ISOC &&
+			  (xhci->quirks & XHCI_AMD_0x96_HOST)));
+>>>>>>> upstream/android-13
 
 	prev = xhci_segment_alloc(xhci, cycle_state, max_packet, flags);
 	if (!prev)
@@ -351,17 +424,26 @@ static int xhci_alloc_segments_for_ring(struct xhci_hcd *xhci,
 			}
 			return -ENOMEM;
 		}
+<<<<<<< HEAD
 		xhci_link_segments(xhci, prev, next, type);
+=======
+		xhci_link_segments(prev, next, type, chain_links);
+>>>>>>> upstream/android-13
 
 		prev = next;
 		num_segs--;
 	}
+<<<<<<< HEAD
 	xhci_link_segments(xhci, prev, *first, type);
+=======
+	xhci_link_segments(prev, *first, type, chain_links);
+>>>>>>> upstream/android-13
 	*last = prev;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 static void xhci_vendor_free_container_ctx(struct xhci_hcd *xhci, struct xhci_container_ctx *ctx)
 {
@@ -380,30 +462,47 @@ static void xhci_vendor_alloc_container_ctx(struct xhci_hcd *xhci, struct xhci_c
 		ops->alloc_container_ctx(xhci, ctx, type, flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct xhci_ring *xhci_vendor_alloc_transfer_ring(struct xhci_hcd *xhci,
 		u32 endpoint_type, enum xhci_ring_type ring_type,
 		unsigned int max_packet, gfp_t mem_flags)
 {
+<<<<<<< HEAD
 	struct xhci_vendor_ops *ops = xhci_vendor_get_ops(xhci);
 
 	if (ops && ops->alloc_transfer_ring)
 		return ops->alloc_transfer_ring(xhci, endpoint_type, ring_type,
 				max_packet, mem_flags);
 	return 0;
+=======
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	return xhci_exynos_alloc_transfer_ring(xhci, endpoint_type, ring_type, max_packet, mem_flags);
+#else
+	return 0;
+#endif
+>>>>>>> upstream/android-13
 }
 
 void xhci_vendor_free_transfer_ring(struct xhci_hcd *xhci,
 		struct xhci_virt_device *virt_dev, unsigned int ep_index)
 {
+<<<<<<< HEAD
 	struct xhci_vendor_ops *ops = xhci_vendor_get_ops(xhci);
 
 	if (ops && ops->free_transfer_ring)
 		ops->free_transfer_ring(xhci, virt_dev, ep_index);
+=======
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	xhci_exynos_free_transfer_ring(xhci, virt_dev, ep_index);
+#endif
+>>>>>>> upstream/android-13
 }
 
 bool xhci_vendor_is_usb_offload_enabled(struct xhci_hcd *xhci,
 		struct xhci_virt_device *virt_dev, unsigned int ep_index)
 {
+<<<<<<< HEAD
 	struct xhci_vendor_ops *ops = xhci_vendor_get_ops(xhci);
 
 	if (ops && ops->is_usb_offload_enabled)
@@ -413,6 +512,16 @@ bool xhci_vendor_is_usb_offload_enabled(struct xhci_hcd *xhci,
 #endif
 
 /**
+=======
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	return xhci_exynos_is_usb_offload_enabled(xhci, virt_dev, ep_index);
+#else
+	return false;
+#endif
+}
+
+/*
+>>>>>>> upstream/android-13
  * Create a new ring with zero or more segments.
  *
  * Link each segment together into a ring.
@@ -458,11 +567,16 @@ fail:
 	kfree(ring);
 	return NULL;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_ring_alloc);
+>>>>>>> upstream/android-13
 
 void xhci_free_endpoint_ring(struct xhci_hcd *xhci,
 		struct xhci_virt_device *virt_dev,
 		unsigned int ep_index)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	if (xhci_vendor_is_usb_offload_enabled(xhci, virt_dev, ep_index))
 		xhci_vendor_free_transfer_ring(xhci, virt_dev, ep_index);
@@ -471,6 +585,13 @@ void xhci_free_endpoint_ring(struct xhci_hcd *xhci,
 #else
 	xhci_ring_free(xhci, virt_dev->eps[ep_index].ring);
 #endif
+=======
+	if (xhci_vendor_is_usb_offload_enabled(xhci, virt_dev, ep_index))
+		xhci_vendor_free_transfer_ring(xhci, virt_dev, ep_index);
+	else
+	xhci_ring_free(xhci, virt_dev->eps[ep_index].ring);
+
+>>>>>>> upstream/android-13
 	virt_dev->eps[ep_index].ring = NULL;
 }
 
@@ -529,9 +650,12 @@ struct xhci_container_ctx *xhci_alloc_container_ctx(struct xhci_hcd *xhci,
 {
 	struct xhci_container_ctx *ctx;
 	struct device *dev = xhci_to_hcd(xhci)->self.sysdev;
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	struct xhci_vendor_ops *ops = xhci_vendor_get_ops(xhci);
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	if ((type != XHCI_CTX_TYPE_DEVICE) && (type != XHCI_CTX_TYPE_INPUT))
 		return NULL;
@@ -545,12 +669,17 @@ struct xhci_container_ctx *xhci_alloc_container_ctx(struct xhci_hcd *xhci,
 	if (type == XHCI_CTX_TYPE_INPUT)
 		ctx->size += CTX_SIZE(xhci->hcc_params);
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	if (xhci_vendor_is_usb_offload_enabled(xhci, NULL, 0) &&
 	    (ops && ops->alloc_container_ctx))
 		xhci_vendor_alloc_container_ctx(xhci, ctx, type, flags);
 	else
 		ctx->bytes = dma_pool_zalloc(xhci->device_pool, flags, &ctx->dma);
+=======
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	xhci_exynos_alloc_container_ctx(xhci, ctx, type, flags);
+>>>>>>> upstream/android-13
 #else
 	ctx->bytes = dma_pool_zalloc(xhci->device_pool, flags, &ctx->dma);
 #endif
@@ -564,6 +693,7 @@ struct xhci_container_ctx *xhci_alloc_container_ctx(struct xhci_hcd *xhci,
 void xhci_free_container_ctx(struct xhci_hcd *xhci,
 			     struct xhci_container_ctx *ctx)
 {
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	struct xhci_vendor_ops *ops = xhci_vendor_get_ops(xhci);
 #endif
@@ -578,6 +708,17 @@ void xhci_free_container_ctx(struct xhci_hcd *xhci,
 #else
 	dma_pool_free(xhci->device_pool, ctx->bytes, ctx->dma);
 #endif
+=======
+	if (!ctx)
+		return;
+
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	xhci_exynos_free_container_ctx(xhci, ctx);
+#else
+	dma_pool_free(xhci->device_pool, ctx->bytes, ctx->dma);
+#endif
+
+>>>>>>> upstream/android-13
 	kfree(ctx);
 }
 
@@ -612,7 +753,11 @@ struct xhci_ep_ctx *xhci_get_ep_ctx(struct xhci_hcd *xhci,
 	return (struct xhci_ep_ctx *)
 		(ctx->bytes + (ep_index * CTX_SIZE(xhci->hcc_params)));
 }
+<<<<<<< HEAD
 
+=======
+EXPORT_SYMBOL_GPL(xhci_get_ep_ctx);
+>>>>>>> upstream/android-13
 
 /***************** Streams structures manipulation *************************/
 
@@ -672,6 +817,7 @@ struct xhci_ring *xhci_dma_to_transfer_ring(
 	return ep->ring;
 }
 
+<<<<<<< HEAD
 struct xhci_ring *xhci_stream_id_to_ring(
 		struct xhci_virt_device *dev,
 		unsigned int ep_index,
@@ -689,6 +835,8 @@ struct xhci_ring *xhci_stream_id_to_ring(
 	return ep->stream_info->stream_rings[stream_id];
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Change an endpoint's internal structure so it supports stream IDs.  The
  * number of requested streams includes stream 0, which cannot be used by device
@@ -986,11 +1134,15 @@ void xhci_free_virt_device(struct xhci_hcd *xhci, int slot_id)
 
 	for (i = 0; i < 31; i++) {
 		if (dev->eps[i].ring)
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 			xhci_free_endpoint_ring(xhci, dev, i);
 #else
 			xhci_ring_free(xhci, dev->eps[i].ring);
 #endif
+=======
+			xhci_ring_free(xhci, dev->eps[i].ring);
+>>>>>>> upstream/android-13
 		if (dev->eps[i].stream_info)
 			xhci_free_stream_info(xhci,
 					dev->eps[i].stream_info);
@@ -1026,7 +1178,11 @@ void xhci_free_virt_device(struct xhci_hcd *xhci, int slot_id)
  * that tt_info, then free the child first. Recursive.
  * We can't rely on udev at this point to find child-parent relationships.
  */
+<<<<<<< HEAD
 void xhci_free_virt_devices_depth_first(struct xhci_hcd *xhci, int slot_id)
+=======
+static void xhci_free_virt_devices_depth_first(struct xhci_hcd *xhci, int slot_id)
+>>>>>>> upstream/android-13
 {
 	struct xhci_virt_device *vdev;
 	struct list_head *tt_list_head;
@@ -1067,6 +1223,12 @@ int xhci_alloc_virt_device(struct xhci_hcd *xhci, int slot_id,
 {
 	struct xhci_virt_device *dev;
 	int i;
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_HOST_CERTIFICATION)
+	int count = 0;
+#endif
+>>>>>>> upstream/android-13
 
 	/* Slot ID 0 is reserved */
 	if (slot_id == 0 || xhci->devs[slot_id]) {
@@ -1074,10 +1236,26 @@ int xhci_alloc_virt_device(struct xhci_hcd *xhci, int slot_id,
 		return 0;
 	}
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_HOST_CERTIFICATION)
+	for (i = 0; i < MAX_HC_SLOTS; i++) {
+		if (xhci->devs[i] && xhci->devs[i]->udev)
+			count++;
+	}
+	if (count >= MAX_HC_SLOT_LIMIT)
+		goto fail2;
+#endif
+>>>>>>> upstream/android-13
 	dev = kzalloc(sizeof(*dev), flags);
 	if (!dev)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	dev->slot_id = slot_id;
+
+>>>>>>> upstream/android-13
 	/* Allocate the (output) device context that will be used in the HC. */
 	dev->out_ctx = xhci_alloc_container_ctx(xhci, XHCI_CTX_TYPE_DEVICE, flags);
 	if (!dev->out_ctx)
@@ -1096,6 +1274,11 @@ int xhci_alloc_virt_device(struct xhci_hcd *xhci, int slot_id,
 
 	/* Initialize the cancellation list and watchdog timers for each ep */
 	for (i = 0; i < 31; i++) {
+<<<<<<< HEAD
+=======
+		dev->eps[i].ep_index = i;
+		dev->eps[i].vdev = dev;
+>>>>>>> upstream/android-13
 		xhci_init_endpoint_timer(xhci, &dev->eps[i]);
 		INIT_LIST_HEAD(&dev->eps[i].cancelled_td_list);
 		INIT_LIST_HEAD(&dev->eps[i].bw_endpoint_list);
@@ -1128,6 +1311,12 @@ fail:
 		xhci_free_container_ctx(xhci, dev->out_ctx);
 	kfree(dev);
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_HOST_CERTIFICATION)
+fail2:
+#endif
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1228,7 +1417,10 @@ int xhci_setup_addressable_virt_dev(struct xhci_hcd *xhci, struct usb_device *ud
 	case USB_SPEED_WIRELESS:
 		xhci_dbg(xhci, "FIXME xHCI doesn't support wireless speeds\n");
 		return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		/* Speed was set earlier, this shouldn't happen. */
 		return -EINVAL;
@@ -1395,7 +1587,11 @@ static unsigned int xhci_get_endpoint_interval(struct usb_device *udev,
 			interval = xhci_parse_microframe_interval(udev, ep);
 			break;
 		}
+<<<<<<< HEAD
 		/* Fall through - SS and HS isoc/int have same decoding */
+=======
+		fallthrough;	/* SS and HS isoc/int have same decoding */
+>>>>>>> upstream/android-13
 
 	case USB_SPEED_SUPER_PLUS:
 	case USB_SPEED_SUPER:
@@ -1415,7 +1611,11 @@ static unsigned int xhci_get_endpoint_interval(struct usb_device *udev,
 		 * since it uses the same rules as low speed interrupt
 		 * endpoints.
 		 */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case USB_SPEED_LOW:
 		if (usb_endpoint_xfer_int(&ep->desc) ||
@@ -1585,20 +1785,32 @@ int xhci_endpoint_init(struct xhci_hcd *xhci,
 		mult = 0;
 
 	/* Set up the endpoint ring */
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	if (xhci_vendor_is_usb_offload_enabled(xhci, virt_dev, ep_index) &&
 	    usb_endpoint_xfer_isoc(&ep->desc)) {
 		virt_dev->eps[ep_index].new_ring =
+=======
+	if (xhci_vendor_is_usb_offload_enabled(xhci, virt_dev, ep_index) &&
+	    usb_endpoint_xfer_isoc(&ep->desc)) {
+	virt_dev->eps[ep_index].new_ring =
+>>>>>>> upstream/android-13
 			xhci_vendor_alloc_transfer_ring(xhci, endpoint_type, ring_type,
 							max_packet, mem_flags);
 	} else {
 		virt_dev->eps[ep_index].new_ring =
+<<<<<<< HEAD
 			xhci_ring_alloc(xhci, 2, 1, ring_type, max_packet, mem_flags);
 	}
 #else
 	virt_dev->eps[ep_index].new_ring =
 		xhci_ring_alloc(xhci, 2, 1, ring_type, max_packet, mem_flags);
 #endif
+=======
+		xhci_ring_alloc(xhci, 2, 1, ring_type, max_packet, mem_flags);
+	}
+
+>>>>>>> upstream/android-13
 	if (!virt_dev->eps[ep_index].new_ring)
 		return -ENOMEM;
 
@@ -1783,8 +1995,13 @@ static int scratchpad_alloc(struct xhci_hcd *xhci, gfp_t flags)
 	xhci->dcbaa->dev_context_ptrs[0] = cpu_to_le64(xhci->scratchpad->sp_dma);
 	for (i = 0; i < num_sp; i++) {
 		dma_addr_t dma;
+<<<<<<< HEAD
 		void *buf = dma_zalloc_coherent(dev, xhci->page_size, &dma,
 				flags);
+=======
+		void *buf = dma_alloc_coherent(dev, xhci->page_size, &dma,
+					       flags);
+>>>>>>> upstream/android-13
 		if (!buf)
 			goto fail_sp4;
 
@@ -1865,6 +2082,10 @@ struct xhci_command *xhci_alloc_command(struct xhci_hcd *xhci,
 	INIT_LIST_HEAD(&command->cmd_list);
 	return command;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_alloc_command);
+>>>>>>> upstream/android-13
 
 struct xhci_command *xhci_alloc_command_with_ctx(struct xhci_hcd *xhci,
 		bool allocate_completion, gfp_t mem_flags)
@@ -1898,6 +2119,10 @@ void xhci_free_command(struct xhci_hcd *xhci,
 	kfree(command->completion);
 	kfree(command);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_free_command);
+>>>>>>> upstream/android-13
 
 int xhci_alloc_erst(struct xhci_hcd *xhci,
 		    struct xhci_ring *evt_ring,
@@ -1910,8 +2135,13 @@ int xhci_alloc_erst(struct xhci_hcd *xhci,
 	struct xhci_erst_entry *entry;
 
 	size = sizeof(struct xhci_erst_entry) * evt_ring->num_segs;
+<<<<<<< HEAD
 	erst->entries = dma_zalloc_coherent(xhci_to_hcd(xhci)->self.sysdev,
 					    size, &erst->erst_dma_addr, flags);
+=======
+	erst->entries = dma_alloc_coherent(xhci_to_hcd(xhci)->self.sysdev,
+					   size, &erst->erst_dma_addr, flags);
+>>>>>>> upstream/android-13
 	if (!erst->entries)
 		return -ENOMEM;
 
@@ -1928,6 +2158,10 @@ int xhci_alloc_erst(struct xhci_hcd *xhci,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_alloc_erst);
+>>>>>>> upstream/android-13
 
 void xhci_free_erst(struct xhci_hcd *xhci, struct xhci_erst *erst)
 {
@@ -1941,6 +2175,7 @@ void xhci_free_erst(struct xhci_hcd *xhci, struct xhci_erst *erst)
 				erst->erst_dma_addr);
 	erst->entries = NULL;
 }
+<<<<<<< HEAD
 
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 static struct xhci_device_context_array *xhci_vendor_alloc_dcbaa(
@@ -1951,10 +2186,23 @@ static struct xhci_device_context_array *xhci_vendor_alloc_dcbaa(
 	if (ops && ops->alloc_dcbaa)
 		return ops->alloc_dcbaa(xhci, flags);
 	return 0;
+=======
+EXPORT_SYMBOL_GPL(xhci_free_erst);
+
+static struct xhci_device_context_array *xhci_vendor_alloc_dcbaa(
+		struct xhci_hcd *xhci, gfp_t flags)
+{
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	return xhci_exynos_alloc_dcbaa(xhci, flags);
+#else
+	return 0;
+#endif
+>>>>>>> upstream/android-13
 }
 
 static void xhci_vendor_free_dcbaa(struct xhci_hcd *xhci)
 {
+<<<<<<< HEAD
 	struct xhci_vendor_ops *ops = xhci_vendor_get_ops(xhci);
 
 	if (ops && ops->free_dcbaa)
@@ -2091,6 +2339,11 @@ void xhci_event_ring_cleanup(struct xhci_hcd *xhci)
 		xhci_ring_free(xhci, xhci->event_ring);
 	xhci->event_ring = NULL;
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "Freed priamry event ring");
+=======
+#ifdef CONFIG_SND_EXYNOS_USB_AUDIO_GIC
+	xhci_exynos_free_dcbaa(xhci);
+#endif
+>>>>>>> upstream/android-13
 }
 
 void xhci_mem_cleanup(struct xhci_hcd *xhci)
@@ -2100,7 +2353,16 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
 
 	cancel_delayed_work_sync(&xhci->cmd_timer);
 
+<<<<<<< HEAD
 	xhci_event_ring_cleanup(xhci);
+=======
+	xhci_free_erst(xhci, &xhci->erst);
+
+	if (xhci->event_ring)
+		xhci_ring_free(xhci, xhci->event_ring);
+	xhci->event_ring = NULL;
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "Freed event ring");
+>>>>>>> upstream/android-13
 
 	if (xhci->lpm_command)
 		xhci_free_command(xhci, xhci->lpm_command);
@@ -2142,6 +2404,7 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
 			"Freed medium stream array pool");
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	if (xhci_vendor_is_usb_offload_enabled(xhci, NULL, 0)) {
 		xhci_vendor_free_dcbaa(xhci);
@@ -2155,6 +2418,15 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
 		dma_free_coherent(dev, sizeof(*xhci->dcbaa),
 				xhci->dcbaa, xhci->dcbaa->dma);
 #endif
+=======
+	if (xhci_vendor_is_usb_offload_enabled(xhci, NULL, 0)) {
+		xhci_vendor_free_dcbaa(xhci);
+	} else {
+	if (xhci->dcbaa)
+		dma_free_coherent(dev, sizeof(*xhci->dcbaa),
+				xhci->dcbaa, xhci->dcbaa->dma);
+	}
+>>>>>>> upstream/android-13
 	xhci->dcbaa = NULL;
 
 	scratchpad_free(xhci);
@@ -2190,11 +2462,20 @@ no_bw:
 	xhci->hw_ports = NULL;
 	xhci->rh_bw = NULL;
 	xhci->ext_caps = NULL;
+<<<<<<< HEAD
 
 	xhci->page_size = 0;
 	xhci->page_shift = 0;
 	xhci->bus_state[0].bus_suspended = 0;
 	xhci->bus_state[1].bus_suspended = 0;
+=======
+	xhci->port_caps = NULL;
+
+	xhci->page_size = 0;
+	xhci->page_shift = 0;
+	xhci->usb2_rhub.bus_state.bus_suspended = 0;
+	xhci->usb3_rhub.bus_state.bus_suspended = 0;
+>>>>>>> upstream/android-13
 }
 
 static int xhci_test_trb_in_td(struct xhci_hcd *xhci,
@@ -2234,7 +2515,11 @@ static int xhci_test_trb_in_td(struct xhci_hcd *xhci,
 }
 
 /* TRB math checks for xhci_trb_in_td(), using the command and event rings. */
+<<<<<<< HEAD
 static int xhci_check_trb_in_td_math(struct xhci_hcd *xhci)
+=======
+int xhci_check_trb_in_td_math(struct xhci_hcd *xhci)
+>>>>>>> upstream/android-13
 {
 	struct {
 		dma_addr_t		input_dma;
@@ -2354,6 +2639,34 @@ static int xhci_check_trb_in_td_math(struct xhci_hcd *xhci)
 	xhci_dbg(xhci, "TRB math tests passed.\n");
 	return 0;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_check_trb_in_td_math);
+
+static void xhci_set_hc_event_deq(struct xhci_hcd *xhci)
+{
+	u64 temp;
+	dma_addr_t deq;
+
+	deq = xhci_trb_virt_to_dma(xhci->event_ring->deq_seg,
+			xhci->event_ring->dequeue);
+	if (!deq)
+		xhci_warn(xhci, "WARN something wrong with SW event ring "
+				"dequeue ptr.\n");
+	/* Update HC event ring dequeue pointer */
+	temp = xhci_read_64(xhci, &xhci->ir_set->erst_dequeue);
+	temp &= ERST_PTR_MASK;
+	/* Don't clear the EHB bit (which is RW1C) because
+	 * there might be more events to service.
+	 */
+	temp &= ~ERST_EHB;
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+			"// Write event ring dequeue pointer, "
+			"preserving EHB bit");
+	xhci_write_64(xhci, ((u64) deq & (u64) ~ERST_PTR_MASK) | temp,
+			&xhci->ir_set->erst_dequeue);
+}
+>>>>>>> upstream/android-13
 
 static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
 		__le32 __iomem *addr, int max_caps)
@@ -2446,6 +2759,7 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
 	if (major_revision < 0x03 && xhci->num_ext_caps < max_caps)
 		xhci->ext_caps[xhci->num_ext_caps++] = temp;
 
+<<<<<<< HEAD
 	/* Check the host's USB2 LPM capability */
 	if ((xhci->hci_version == 0x96) && (major_revision != 0x03) &&
 			(temp & XHCI_L1C)) {
@@ -2463,6 +2777,13 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
 					"xHCI 1.0: support USB2 hardware lpm");
 			xhci->hw_lpm_support = 1;
 		}
+=======
+	if ((xhci->hci_version >= 0x100) && (major_revision != 0x03) &&
+		 (temp & XHCI_HLC)) {
+		xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+			       "xHCI 1.0: support USB2 hardware lpm");
+		xhci->hw_lpm_support = 1;
+>>>>>>> upstream/android-13
 	}
 
 	port_offset--;
@@ -2501,8 +2822,16 @@ static void xhci_create_rhub_port_array(struct xhci_hcd *xhci,
 
 	if (!rhub->num_ports)
 		return;
+<<<<<<< HEAD
 	rhub->ports = kcalloc_node(rhub->num_ports, sizeof(rhub->ports), flags,
 			dev_to_node(dev));
+=======
+	rhub->ports = kcalloc_node(rhub->num_ports, sizeof(*rhub->ports),
+			flags, dev_to_node(dev));
+	if (!rhub->ports)
+		return;
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < HCS_MAX_PORTS(xhci->hcs_params1); i++) {
 		if (xhci->hw_ports[i].rhub != rhub ||
 		    xhci->hw_ports[i].hcd_portnum == DUPLICATE_ENTRY)
@@ -2627,6 +2956,7 @@ static int xhci_setup_port_arrays(struct xhci_hcd *xhci, gfp_t flags)
 	return 0;
 }
 
+<<<<<<< HEAD
 int xhci_event_ring_setup(struct xhci_hcd *xhci, struct xhci_ring **er,
 	struct xhci_intr_reg __iomem *ir_set, struct xhci_erst *erst,
 	unsigned int intr_num, gfp_t flags)
@@ -2775,6 +3105,8 @@ fail:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 {
 	dma_addr_t	dma;
@@ -2782,9 +3114,17 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 	unsigned int	val, val2;
 	u64		val_64;
 	u32		page_size, temp;
+<<<<<<< HEAD
 	int		i;
 
 	INIT_LIST_HEAD(&xhci->cmd_list);
+=======
+	int		i, ret;
+
+	INIT_LIST_HEAD(&xhci->cmd_list);
+	pr_info("%s: set uram!\n", __func__);
+	xhci->quirks |= XHCI_USE_URAM_FOR_EXYNOS_AUDIO;
+>>>>>>> upstream/android-13
 
 	/* init command timeout work */
 	INIT_DELAYED_WORK(&xhci->cmd_timer, xhci_handle_command_timeout);
@@ -2826,12 +3166,16 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 	 * xHCI section 5.4.6 - doorbell array must be
 	 * "physically contiguous and 64-byte (cache line) aligned".
 	 */
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
+=======
+>>>>>>> upstream/android-13
 	if (xhci_vendor_is_usb_offload_enabled(xhci, NULL, 0)) {
 		xhci->dcbaa = xhci_vendor_alloc_dcbaa(xhci, flags);
 		if (!xhci->dcbaa)
 			goto fail;
 	} else {
+<<<<<<< HEAD
 		xhci->dcbaa = dma_alloc_coherent(dev, sizeof(*xhci->dcbaa), &dma,
 				flags);
 		if (!xhci->dcbaa)
@@ -2840,10 +3184,13 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 		xhci->dcbaa->dma = dma;
 	}
 #else
+=======
+>>>>>>> upstream/android-13
 	xhci->dcbaa = dma_alloc_coherent(dev, sizeof(*xhci->dcbaa), &dma,
 			flags);
 	if (!xhci->dcbaa)
 		goto fail;
+<<<<<<< HEAD
 	memset(xhci->dcbaa, 0, sizeof *(xhci->dcbaa));
 	xhci->dcbaa->dma = dma;
 #endif
@@ -2855,6 +3202,15 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 #else
 	xhci_write_64(xhci, dma, &xhci->op_regs->dcbaa_ptr);
 #endif
+=======
+	xhci->dcbaa->dma = dma;
+	}
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+			"// Device context base array address = 0x%llx (DMA), %p (virt)",
+			(unsigned long long)xhci->dcbaa->dma, xhci->dcbaa);
+	xhci_write_64(xhci, xhci->dcbaa->dma, &xhci->op_regs->dcbaa_ptr);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Initialize the ring segment pool.  The ring must be a contiguous
 	 * structure comprised of TRBs.  The TRBs must be 16 byte aligned,
@@ -2921,17 +3277,64 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 			"// Doorbell array is located at offset 0x%x"
 			" from cap regs base addr", val);
 	xhci->dba = (void __iomem *) xhci->cap_regs + val;
+<<<<<<< HEAD
+=======
+	/* Set ir_set to interrupt register set 0 */
+	xhci->ir_set = &xhci->run_regs->ir_set[0];
+>>>>>>> upstream/android-13
 
 	/*
 	 * Event ring setup: Allocate a normal ring, but also setup
 	 * the event ring segment table (ERST).  Section 4.9.3.
 	 */
+<<<<<<< HEAD
 	if (xhci_event_ring_init(xhci, GFP_KERNEL))
 		goto fail;
 
 	if (xhci_check_trb_in_td_math(xhci) < 0)
 		goto fail;
 
+=======
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init, "// Allocating event ring");
+	xhci->event_ring = xhci_ring_alloc(xhci, ERST_NUM_SEGS, 1, TYPE_EVENT,
+					0, flags);
+	if (!xhci->event_ring)
+		goto fail;
+	if (xhci_check_trb_in_td_math(xhci) < 0)
+		goto fail;
+
+	ret = xhci_alloc_erst(xhci, xhci->event_ring, &xhci->erst, flags);
+	if (ret)
+		goto fail;
+
+	/* set ERST count with the number of entries in the segment table */
+	val = readl(&xhci->ir_set->erst_size);
+	val &= ERST_SIZE_MASK;
+	val |= ERST_NUM_SEGS;
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+			"// Write ERST size = %i to ir_set 0 (some bits preserved)",
+			val);
+	writel(val, &xhci->ir_set->erst_size);
+
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+			"// Set ERST entries to point to event ring.");
+	/* set the segment table base address */
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+			"// Set ERST base address for ir_set 0 = 0x%llx",
+			(unsigned long long)xhci->erst.erst_dma_addr);
+	val_64 = xhci_read_64(xhci, &xhci->ir_set->erst_base);
+	val_64 &= ERST_PTR_MASK;
+	val_64 |= (xhci->erst.erst_dma_addr & (u64) ~ERST_PTR_MASK);
+	xhci_write_64(xhci, val_64, &xhci->ir_set->erst_base);
+
+	/* Set the event ring dequeue address */
+	xhci_set_hc_event_deq(xhci);
+	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+			"Wrote ERST address to ir_set 0.");
+
+	xhci->isoc_bei_interval = AVOID_BEI_INTERVAL_MAX;
+
+>>>>>>> upstream/android-13
 	/*
 	 * XXX: Might need to set the Interrupter Moderation Register to
 	 * something other than the default (~1ms minimum between interrupts).
@@ -2940,10 +3343,18 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 	for (i = 0; i < MAX_HC_SLOTS; i++)
 		xhci->devs[i] = NULL;
 	for (i = 0; i < USB_MAXCHILDREN; i++) {
+<<<<<<< HEAD
 		xhci->bus_state[0].resume_done[i] = 0;
 		xhci->bus_state[1].resume_done[i] = 0;
 		/* Only the USB 2.0 completions will ever be used. */
 		init_completion(&xhci->bus_state[1].rexit_done[i]);
+=======
+		xhci->usb2_rhub.bus_state.resume_done[i] = 0;
+		xhci->usb3_rhub.bus_state.resume_done[i] = 0;
+		/* Only the USB 2.0 completions will ever be used. */
+		init_completion(&xhci->usb2_rhub.bus_state.rexit_done[i]);
+		init_completion(&xhci->usb3_rhub.bus_state.u3exit_done[i]);
+>>>>>>> upstream/android-13
 	}
 
 	if (scratchpad_alloc(xhci, flags))
@@ -2960,11 +3371,22 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
 	temp |= DEV_NOTE_FWAKE;
 	writel(temp, &xhci->op_regs->dev_notification);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_USB_XHCI_EXYNOS_AUDIO
+	xhci_exynos_alloc_event_ring(xhci, GFP_KERNEL);
+	xhci_exynos_enable_event_ring(xhci);
+#endif
+>>>>>>> upstream/android-13
 	return 0;
 
 fail:
 	xhci_halt(xhci);
+<<<<<<< HEAD
 	xhci_reset(xhci);
+=======
+	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+>>>>>>> upstream/android-13
 	xhci_mem_cleanup(xhci);
 	return -ENOMEM;
 }

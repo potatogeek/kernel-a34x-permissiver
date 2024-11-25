@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
  *     Author: Alex Williamson <alex.williamson@redhat.com>
@@ -6,6 +7,15 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved
+ *
+ * Copyright (C) 2012 Red Hat, Inc.  All rights reserved.
+ *     Author: Alex Williamson <alex.williamson@redhat.com>
+ *
+>>>>>>> upstream/android-13
  * Derived from original vfio:
  * Copyright 2010 Cisco Systems, Inc.  All rights reserved.
  * Author: Tom Lyon, pugs@cisco.com
@@ -21,11 +31,15 @@
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/notifier.h>
+<<<<<<< HEAD
 #include <linux/pci.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/slab.h>
 #include <linux/types.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/vfio.h>
 #include <linux/vgaarb.h>
 #include <linux/nospec.h>
@@ -34,6 +48,11 @@
 #include "vfio_pci_private.h"
 
 #define DRIVER_VERSION  "0.2"
+=======
+
+#include <linux/vfio_pci_core.h>
+
+>>>>>>> upstream/android-13
 #define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
 #define DRIVER_DESC     "VFIO PCI - User Level meta-driver"
 
@@ -57,6 +76,7 @@ module_param(disable_idle_d3, bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(disable_idle_d3,
 		 "Disable using the PCI D3 low power state for idle, unused devices");
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(driver_lock);
 
 static inline bool vfio_vga_disabled(void)
@@ -192,16 +212,38 @@ static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data);
  * the pin register to report zero and maintaining DisINTx set on the host.
  */
 static bool vfio_pci_nointx(struct pci_dev *pdev)
+=======
+static bool enable_sriov;
+#ifdef CONFIG_PCI_IOV
+module_param(enable_sriov, bool, 0644);
+MODULE_PARM_DESC(enable_sriov, "Enable support for SR-IOV configuration.  Enabling SR-IOV on a PF typically requires support of the userspace PF driver, enabling VFs without such support may result in non-functional VFs or PF.");
+#endif
+
+static bool disable_denylist;
+module_param(disable_denylist, bool, 0444);
+MODULE_PARM_DESC(disable_denylist, "Disable use of device denylist. Disabling the denylist allows binding to devices with known errata that may lead to exploitable stability or security issues when accessed by untrusted users.");
+
+static bool vfio_pci_dev_in_denylist(struct pci_dev *pdev)
+>>>>>>> upstream/android-13
 {
 	switch (pdev->vendor) {
 	case PCI_VENDOR_ID_INTEL:
 		switch (pdev->device) {
+<<<<<<< HEAD
 		/* All i40e (XL710/X710/XXV710) 10/20/25/40GbE NICs */
 		case 0x1572:
 		case 0x1574:
 		case 0x1580 ... 0x1581:
 		case 0x1583 ... 0x158b:
 		case 0x37d0 ... 0x37d2:
+=======
+		case PCI_DEVICE_ID_INTEL_QAT_C3XXX:
+		case PCI_DEVICE_ID_INTEL_QAT_C3XXX_VF:
+		case PCI_DEVICE_ID_INTEL_QAT_C62X:
+		case PCI_DEVICE_ID_INTEL_QAT_C62X_VF:
+		case PCI_DEVICE_ID_INTEL_QAT_DH895XCC:
+		case PCI_DEVICE_ID_INTEL_QAT_DH895XCC_VF:
+>>>>>>> upstream/android-13
 			return true;
 		default:
 			return false;
@@ -211,6 +253,7 @@ static bool vfio_pci_nointx(struct pci_dev *pdev)
 	return false;
 }
 
+<<<<<<< HEAD
 static int vfio_pci_enable(struct vfio_pci_device *vdev)
 {
 	struct pci_dev *pdev = vdev->pdev;
@@ -282,23 +325,65 @@ static int vfio_pci_enable(struct vfio_pci_device *vdev)
 		vdev->has_vga = true;
 
 
+=======
+static bool vfio_pci_is_denylisted(struct pci_dev *pdev)
+{
+	if (!vfio_pci_dev_in_denylist(pdev))
+		return false;
+
+	if (disable_denylist) {
+		pci_warn(pdev,
+			 "device denylist disabled - allowing device %04x:%04x.\n",
+			 pdev->vendor, pdev->device);
+		return false;
+	}
+
+	pci_warn(pdev, "%04x:%04x exists in vfio-pci device denylist, driver probing disallowed.\n",
+		 pdev->vendor, pdev->device);
+
+	return true;
+}
+
+static int vfio_pci_open_device(struct vfio_device *core_vdev)
+{
+	struct vfio_pci_core_device *vdev =
+		container_of(core_vdev, struct vfio_pci_core_device, vdev);
+	struct pci_dev *pdev = vdev->pdev;
+	int ret;
+
+	ret = vfio_pci_core_enable(vdev);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	if (vfio_pci_is_vga(pdev) &&
 	    pdev->vendor == PCI_VENDOR_ID_INTEL &&
 	    IS_ENABLED(CONFIG_VFIO_PCI_IGD)) {
 		ret = vfio_pci_igd_init(vdev);
+<<<<<<< HEAD
 		if (ret) {
 			dev_warn(&vdev->pdev->dev,
 				 "Failed to setup Intel IGD regions\n");
 			vfio_pci_disable(vdev);
+=======
+		if (ret && ret != -ENODEV) {
+			pci_warn(pdev, "Failed to setup Intel IGD regions\n");
+			vfio_pci_core_disable(vdev);
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
 
+<<<<<<< HEAD
 	vfio_pci_probe_mmaps(vdev);
+=======
+	vfio_pci_core_finish_enable(vdev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void vfio_pci_disable(struct vfio_pci_device *vdev)
 {
 	struct pci_dev *pdev = vdev->pdev;
@@ -1481,10 +1566,23 @@ static const struct vfio_device_ops vfio_pci_ops = {
 	.write		= vfio_pci_write,
 	.mmap		= vfio_pci_mmap,
 	.request	= vfio_pci_request,
+=======
+static const struct vfio_device_ops vfio_pci_ops = {
+	.name		= "vfio-pci",
+	.open_device	= vfio_pci_open_device,
+	.close_device	= vfio_pci_core_close_device,
+	.ioctl		= vfio_pci_core_ioctl,
+	.read		= vfio_pci_core_read,
+	.write		= vfio_pci_core_write,
+	.mmap		= vfio_pci_core_mmap,
+	.request	= vfio_pci_core_request,
+	.match		= vfio_pci_core_match,
+>>>>>>> upstream/android-13
 };
 
 static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
+<<<<<<< HEAD
 	struct vfio_pci_device *vdev;
 	struct iommu_group *group;
 	int ret;
@@ -1553,11 +1651,34 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		pci_set_power_state(pdev, PCI_D3hot);
 	}
 
+=======
+	struct vfio_pci_core_device *vdev;
+	int ret;
+
+	if (vfio_pci_is_denylisted(pdev))
+		return -EINVAL;
+
+	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
+	if (!vdev)
+		return -ENOMEM;
+	vfio_pci_core_init_device(vdev, pdev, &vfio_pci_ops);
+
+	ret = vfio_pci_core_register_device(vdev);
+	if (ret)
+		goto out_free;
+	dev_set_drvdata(&pdev->dev, vdev);
+	return 0;
+
+out_free:
+	vfio_pci_core_uninit_device(vdev);
+	kfree(vdev);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static void vfio_pci_remove(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 	struct vfio_pci_device *vdev;
 
 	vdev = vfio_del_group_dev(&pdev->dev);
@@ -1743,6 +1864,39 @@ static void __exit vfio_pci_cleanup(void)
 	vfio_pci_uninit_perm_bits();
 }
 
+=======
+	struct vfio_pci_core_device *vdev = dev_get_drvdata(&pdev->dev);
+
+	vfio_pci_core_unregister_device(vdev);
+	vfio_pci_core_uninit_device(vdev);
+	kfree(vdev);
+}
+
+static int vfio_pci_sriov_configure(struct pci_dev *pdev, int nr_virtfn)
+{
+	if (!enable_sriov)
+		return -ENOENT;
+
+	return vfio_pci_core_sriov_configure(pdev, nr_virtfn);
+}
+
+static const struct pci_device_id vfio_pci_table[] = {
+	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_ANY_ID, PCI_ANY_ID) }, /* match all by default */
+	{}
+};
+
+MODULE_DEVICE_TABLE(pci, vfio_pci_table);
+
+static struct pci_driver vfio_pci_driver = {
+	.name			= "vfio-pci",
+	.id_table		= vfio_pci_table,
+	.probe			= vfio_pci_probe,
+	.remove			= vfio_pci_remove,
+	.sriov_configure	= vfio_pci_sriov_configure,
+	.err_handler		= &vfio_pci_core_err_handlers,
+};
+
+>>>>>>> upstream/android-13
 static void __init vfio_pci_fill_ids(void)
 {
 	char *p, *id;
@@ -1787,15 +1941,26 @@ static void __init vfio_pci_fill_ids(void)
 static int __init vfio_pci_init(void)
 {
 	int ret;
+<<<<<<< HEAD
 
 	/* Allocate shared config space permision data used by all devices */
 	ret = vfio_pci_init_perm_bits();
 	if (ret)
 		return ret;
+=======
+	bool is_disable_vga = true;
+
+#ifdef CONFIG_VFIO_PCI_VGA
+	is_disable_vga = disable_vga;
+#endif
+
+	vfio_pci_core_set_params(nointxmask, is_disable_vga, disable_idle_d3);
+>>>>>>> upstream/android-13
 
 	/* Register and scan for devices */
 	ret = pci_register_driver(&vfio_pci_driver);
 	if (ret)
+<<<<<<< HEAD
 		goto out_driver;
 
 	vfio_pci_fill_ids();
@@ -1811,6 +1976,25 @@ module_init(vfio_pci_init);
 module_exit(vfio_pci_cleanup);
 
 MODULE_VERSION(DRIVER_VERSION);
+=======
+		return ret;
+
+	vfio_pci_fill_ids();
+
+	if (disable_denylist)
+		pr_warn("device denylist disabled.\n");
+
+	return 0;
+}
+module_init(vfio_pci_init);
+
+static void __exit vfio_pci_cleanup(void)
+{
+	pci_unregister_driver(&vfio_pci_driver);
+}
+module_exit(vfio_pci_cleanup);
+
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);

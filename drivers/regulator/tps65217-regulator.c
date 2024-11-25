@@ -3,7 +3,11 @@
  *
  * Regulator driver for TPS65217 PMIC
  *
+<<<<<<< HEAD
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,6 +60,7 @@ static const unsigned int LDO1_VSEL_table[] = {
 	2800000, 3000000, 3100000, 3300000,
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range tps65217_uv1_ranges[] = {
 	REGULATOR_LINEAR_RANGE(900000, 0, 24, 25000),
 	REGULATOR_LINEAR_RANGE(1550000, 25, 30, 50000),
@@ -65,6 +70,16 @@ static const struct regulator_linear_range tps65217_uv1_ranges[] = {
 };
 
 static const struct regulator_linear_range tps65217_uv2_ranges[] = {
+=======
+static const struct linear_range tps65217_uv1_ranges[] = {
+	REGULATOR_LINEAR_RANGE(900000, 0, 24, 25000),
+	REGULATOR_LINEAR_RANGE(1550000, 25, 52, 50000),
+	REGULATOR_LINEAR_RANGE(3000000, 53, 55, 100000),
+	REGULATOR_LINEAR_RANGE(3300000, 56, 63, 0),
+};
+
+static const struct linear_range tps65217_uv2_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(1500000, 0, 8, 50000),
 	REGULATOR_LINEAR_RANGE(2000000, 9, 13, 100000),
 	REGULATOR_LINEAR_RANGE(2450000, 14, 31, 50000),
@@ -125,7 +140,11 @@ static int tps65217_pmic_set_suspend_enable(struct regulator_dev *dev)
 	struct tps65217 *tps = rdev_get_drvdata(dev);
 	unsigned int rid = rdev_get_id(dev);
 
+<<<<<<< HEAD
 	if (rid < TPS65217_DCDC_1 || rid > TPS65217_LDO_4)
+=======
+	if (rid > TPS65217_LDO_4)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return tps65217_clear_bits(tps, dev->desc->bypass_reg,
@@ -138,7 +157,11 @@ static int tps65217_pmic_set_suspend_disable(struct regulator_dev *dev)
 	struct tps65217 *tps = rdev_get_drvdata(dev);
 	unsigned int rid = rdev_get_id(dev);
 
+<<<<<<< HEAD
 	if (rid < TPS65217_DCDC_1 || rid > TPS65217_LDO_4)
+=======
+	if (rid > TPS65217_LDO_4)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!tps->strobes[rid])
@@ -150,7 +173,11 @@ static int tps65217_pmic_set_suspend_disable(struct regulator_dev *dev)
 }
 
 /* Operations permitted on DCDCx, LDO2, LDO3 and LDO4 */
+<<<<<<< HEAD
 static struct regulator_ops tps65217_pmic_ops = {
+=======
+static const struct regulator_ops tps65217_pmic_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= tps65217_pmic_enable,
 	.disable		= tps65217_pmic_disable,
@@ -163,7 +190,11 @@ static struct regulator_ops tps65217_pmic_ops = {
 };
 
 /* Operations permitted on LDO1 */
+<<<<<<< HEAD
 static struct regulator_ops tps65217_pmic_ldo1_ops = {
+=======
+static const struct regulator_ops tps65217_pmic_ldo1_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= tps65217_pmic_enable,
 	.disable		= tps65217_pmic_disable,
@@ -255,6 +286,12 @@ static int tps65217_regulator_probe(struct platform_device *pdev)
 
 		/* Store default strobe info */
 		ret = tps65217_reg_read(tps, regulators[i].bypass_reg, &val);
+<<<<<<< HEAD
+=======
+		if (ret)
+			return ret;
+
+>>>>>>> upstream/android-13
 		tps->strobes[i] = val & regulators[i].bypass_mask;
 	}
 

@@ -3,7 +3,11 @@
 #define _ASM_IO_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #define virt_to_phys(a) ((unsigned long)__pa(a))
 #define phys_to_virt(a) __va(a)
@@ -127,6 +131,7 @@ static inline void gsc_writeq(unsigned long long val, unsigned long addr)
 /*
  * The standard PCI ioremap interfaces
  */
+<<<<<<< HEAD
 
 extern void __iomem * __ioremap(unsigned long offset, unsigned long size, unsigned long flags);
 
@@ -140,6 +145,11 @@ static inline void __iomem * ioremap(unsigned long offset, unsigned long size)
 #define ioremap_nocache(off, sz)	ioremap((off), (sz))
 #define ioremap_wc			ioremap_nocache
 #define ioremap_uc			ioremap_nocache
+=======
+void __iomem *ioremap(unsigned long offset, unsigned long size);
+#define ioremap_wc			ioremap
+#define ioremap_uc			ioremap
+>>>>>>> upstream/android-13
 
 extern void iounmap(const volatile void __iomem *addr);
 
@@ -229,8 +239,11 @@ static inline void writeq(unsigned long long q, volatile void __iomem *addr)
 #define writel_relaxed(l, addr)	writel(l, addr)
 #define writeq_relaxed(q, addr)	writeq(q, addr)
 
+<<<<<<< HEAD
 #define mmiowb() do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 void memset_io(volatile void __iomem *addr, unsigned char val, int count);
 void memcpy_fromio(void *dst, const volatile void __iomem *src, int count);
 void memcpy_toio(volatile void __iomem *dst, const void *src, int count);
@@ -311,6 +324,18 @@ extern void outsl (unsigned long port, const void *src, unsigned long count);
  * value for either 32 or 64 bit mode */
 #define F_EXTEND(x) ((unsigned long)((x) | (0xffffffff00000000ULL)))
 
+<<<<<<< HEAD
+=======
+#define ioread64 ioread64
+#define ioread64be ioread64be
+#define iowrite64 iowrite64
+#define iowrite64be iowrite64be
+extern u64 ioread64(const void __iomem *addr);
+extern u64 ioread64be(const void __iomem *addr);
+extern void iowrite64(u64 val, void __iomem *addr);
+extern void iowrite64be(u64 val, void __iomem *addr);
+
+>>>>>>> upstream/android-13
 #include <asm-generic/iomap.h>
 
 /*
@@ -319,9 +344,13 @@ extern void outsl (unsigned long port, const void *src, unsigned long count);
  */
 #define xlate_dev_mem_ptr(p)	__va(p)
 
+<<<<<<< HEAD
 /*
  * Convert a virtual cached pointer to an uncached pointer
  */
 #define xlate_dev_kmem_ptr(p)	p
+=======
+extern int devmem_is_allowed(unsigned long pfn);
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale/Motorola Coldfire Queued SPI driver
  *
  * Copyright 2010 Steven King <sfking@fdwdc.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/kernel.h>
@@ -348,7 +355,10 @@ static int mcfqspi_probe(struct platform_device *pdev)
 {
 	struct spi_master *master;
 	struct mcfqspi *mcfqspi;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct mcfqspi_platform_data *pdata;
 	int status;
 
@@ -371,8 +381,12 @@ static int mcfqspi_probe(struct platform_device *pdev)
 
 	mcfqspi = spi_master_get_devdata(master);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mcfqspi->iobase = devm_ioremap_resource(&pdev->dev, res);
+=======
+	mcfqspi->iobase = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mcfqspi->iobase)) {
 		status = PTR_ERR(mcfqspi->iobase);
 		goto fail0;
@@ -398,7 +412,11 @@ static int mcfqspi_probe(struct platform_device *pdev)
 		status = PTR_ERR(mcfqspi->clk);
 		goto fail0;
 	}
+<<<<<<< HEAD
 	clk_enable(mcfqspi->clk);
+=======
+	clk_prepare_enable(mcfqspi->clk);
+>>>>>>> upstream/android-13
 
 	master->bus_num = pdata->bus_num;
 	master->num_chipselect = pdata->num_chipselect;
@@ -436,7 +454,11 @@ fail2:
 	pm_runtime_disable(&pdev->dev);
 	mcfqspi_cs_teardown(mcfqspi);
 fail1:
+<<<<<<< HEAD
 	clk_disable(mcfqspi->clk);
+=======
+	clk_disable_unprepare(mcfqspi->clk);
+>>>>>>> upstream/android-13
 fail0:
 	spi_master_put(master);
 
@@ -455,7 +477,11 @@ static int mcfqspi_remove(struct platform_device *pdev)
 	mcfqspi_wr_qmr(mcfqspi, MCFQSPI_QMR_MSTR);
 
 	mcfqspi_cs_teardown(mcfqspi);
+<<<<<<< HEAD
 	clk_disable(mcfqspi->clk);
+=======
+	clk_disable_unprepare(mcfqspi->clk);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

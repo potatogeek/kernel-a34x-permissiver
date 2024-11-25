@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Read-Copy Update mechanism for mutual exclusion
  *
@@ -14,14 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, you can access it online at
  * http://www.gnu.org/licenses/gpl-2.0.html.
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Read-Copy Update mechanism for mutual exclusion (tree-based version)
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corporation, 2008
  *
  * Authors: Dipankar Sarma <dipankar@in.ibm.com>
  *	    Manfred Spraul <manfred@colorfullife.com>
+<<<<<<< HEAD
  *	    Paul E. McKenney <paulmck@linux.vnet.ibm.com> Hierarchical version
  *
  * Based on the original work by Paul McKenney <paulmck@us.ibm.com>
+=======
+ *	    Paul E. McKenney <paulmck@linux.ibm.com>
+ *
+ * Based on the original work by Paul McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
  * and inputs from Rusty Russell, Andrea Arcangeli and Andi Kleen.
  *
  * For detailed explanation of Read-Copy Update mechanism see -
@@ -45,6 +57,11 @@
 #include <linux/export.h>
 #include <linux/completion.h>
 #include <linux/moduleparam.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic.h>
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/percpu.h>
 #include <linux/notifier.h>
 #include <linux/cpu.h>
@@ -56,11 +73,31 @@
 #include <uapi/linux/sched/types.h>
 #include <linux/prefetch.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/stop_machine.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/random.h>
 #include <linux/trace_events.h>
 #include <linux/suspend.h>
 #include <linux/ftrace.h>
+<<<<<<< HEAD
+=======
+#include <linux/tick.h>
+#include <linux/sysrq.h>
+#include <linux/kprobes.h>
+#include <linux/gfp.h>
+#include <linux/oom.h>
+#include <linux/smpboot.h>
+#include <linux/jiffies.h>
+#include <linux/slab.h>
+#include <linux/sched/isolation.h>
+#include <linux/sched/clock.h>
+#include <linux/vmalloc.h>
+#include <linux/mm.h>
+#include <linux/kasan.h>
+#include "../time/tick-internal.h"
+>>>>>>> upstream/android-13
 
 #include "tree.h"
 #include "rcu.h"
@@ -72,6 +109,7 @@
 
 /* Data structures. */
 
+<<<<<<< HEAD
 /*
  * In order to export the rcu_state name to the tracing tools, it
  * needs to be added in the __tracepoint_string section.
@@ -112,10 +150,39 @@ RCU_STATE_INITIALIZER(rcu_bh, 'b', call_rcu_bh);
 
 static struct rcu_state *const rcu_state_p;
 LIST_HEAD(rcu_struct_flavors);
+=======
+static DEFINE_PER_CPU_SHARED_ALIGNED(struct rcu_data, rcu_data) = {
+	.dynticks_nesting = 1,
+	.dynticks_nmi_nesting = DYNTICK_IRQ_NONIDLE,
+	.dynticks = ATOMIC_INIT(1),
+#ifdef CONFIG_RCU_NOCB_CPU
+	.cblist.flags = SEGCBLIST_SOFTIRQ_ONLY,
+#endif
+};
+static struct rcu_state rcu_state = {
+	.level = { &rcu_state.node[0] },
+	.gp_state = RCU_GP_IDLE,
+	.gp_seq = (0UL - 300UL) << RCU_SEQ_CTR_SHIFT,
+	.barrier_mutex = __MUTEX_INITIALIZER(rcu_state.barrier_mutex),
+	.name = RCU_NAME,
+	.abbr = RCU_ABBR,
+	.exp_mutex = __MUTEX_INITIALIZER(rcu_state.exp_mutex),
+	.exp_wake_mutex = __MUTEX_INITIALIZER(rcu_state.exp_wake_mutex),
+	.ofl_lock = __RAW_SPIN_LOCK_UNLOCKED(rcu_state.ofl_lock),
+};
+>>>>>>> upstream/android-13
 
 /* Dump rcu_node combining tree at boot to verify correct setup. */
 static bool dump_tree;
 module_param(dump_tree, bool, 0444);
+<<<<<<< HEAD
+=======
+/* By default, use RCU_SOFTIRQ instead of rcuc kthreads. */
+static bool use_softirq = !IS_ENABLED(CONFIG_PREEMPT_RT);
+#ifndef CONFIG_PREEMPT_RT
+module_param(use_softirq, bool, 0444);
+#endif
+>>>>>>> upstream/android-13
 /* Control rcu_node-tree auto-balancing at boot time. */
 static bool rcu_fanout_exact;
 module_param(rcu_fanout_exact, bool, 0444);
@@ -126,8 +193,11 @@ int rcu_num_lvls __read_mostly = RCU_NUM_LVLS;
 /* Number of rcu_nodes at specified level. */
 int num_rcu_lvl[] = NUM_RCU_LVL_INIT;
 int rcu_num_nodes __read_mostly = NUM_RCU_NODES; /* Total # rcu_nodes in use. */
+<<<<<<< HEAD
 /* panic() on RCU Stall sysctl. */
 int sysctl_panic_on_rcu_stall __read_mostly;
+=======
+>>>>>>> upstream/android-13
 
 /*
  * The rcu_scheduler_active variable is initialized to the value
@@ -158,13 +228,19 @@ EXPORT_SYMBOL_GPL(rcu_scheduler_active);
  */
 static int rcu_scheduler_fully_active __read_mostly;
 
+<<<<<<< HEAD
 static void
 rcu_report_qs_rnp(unsigned long mask, struct rcu_state *rsp,
 		  struct rcu_node *rnp, unsigned long gps, unsigned long flags);
+=======
+static void rcu_report_qs_rnp(unsigned long mask, struct rcu_node *rnp,
+			      unsigned long gps, unsigned long flags);
+>>>>>>> upstream/android-13
 static void rcu_init_new_rnp(struct rcu_node *rnp_leaf);
 static void rcu_cleanup_dead_rnp(struct rcu_node *rnp_leaf);
 static void rcu_boost_kthread_setaffinity(struct rcu_node *rnp, int outgoingcpu);
 static void invoke_rcu_core(void);
+<<<<<<< HEAD
 static void invoke_rcu_callbacks(struct rcu_state *rsp, struct rcu_data *rdp);
 static void rcu_report_exp_rdp(struct rcu_state *rsp,
 			       struct rcu_data *rdp, bool wake);
@@ -173,6 +249,16 @@ static void sync_sched_exp_online_cleanup(int cpu);
 /* rcuc/rcub kthread realtime priority */
 static int kthread_prio = IS_ENABLED(CONFIG_RCU_BOOST) ? 1 : 0;
 module_param(kthread_prio, int, 0644);
+=======
+static void rcu_report_exp_rdp(struct rcu_data *rdp);
+static void sync_sched_exp_online_cleanup(int cpu);
+static void check_cb_ovld_locked(struct rcu_data *rdp, struct rcu_node *rnp);
+static bool rcu_rdp_is_offloaded(struct rcu_data *rdp);
+
+/* rcuc/rcub kthread realtime priority */
+static int kthread_prio = IS_ENABLED(CONFIG_RCU_BOOST) ? 1 : 0;
+module_param(kthread_prio, int, 0444);
+>>>>>>> upstream/android-13
 
 /* Delay in jiffies for grace-period initialization delays, debug only. */
 
@@ -183,7 +269,37 @@ module_param(gp_init_delay, int, 0444);
 static int gp_cleanup_delay;
 module_param(gp_cleanup_delay, int, 0444);
 
+<<<<<<< HEAD
 /* Retreive RCU kthreads priority for rcutorture */
+=======
+// Add delay to rcu_read_unlock() for strict grace periods.
+static int rcu_unlock_delay;
+#ifdef CONFIG_RCU_STRICT_GRACE_PERIOD
+module_param(rcu_unlock_delay, int, 0444);
+#endif
+
+/*
+ * This rcu parameter is runtime-read-only. It reflects
+ * a minimum allowed number of objects which can be cached
+ * per-CPU. Object size is equal to one page. This value
+ * can be changed at boot time.
+ */
+static int rcu_min_cached_objs = 5;
+module_param(rcu_min_cached_objs, int, 0444);
+
+// A page shrinker can ask for pages to be freed to make them
+// available for other parts of the system. This usually happens
+// under low memory conditions, and in that case we should also
+// defer page-cache filling for a short time period.
+//
+// The default value is 5 seconds, which is long enough to reduce
+// interference with the shrinker while it asks other systems to
+// drain their caches.
+static int rcu_delay_page_cache_fill_msec = 5000;
+module_param(rcu_delay_page_cache_fill_msec, int, 0444);
+
+/* Retrieve RCU kthreads priority for rcutorture */
+>>>>>>> upstream/android-13
 int rcu_get_gp_kthreads_prio(void)
 {
 	return kthread_prio;
@@ -199,7 +315,11 @@ EXPORT_SYMBOL_GPL(rcu_get_gp_kthreads_prio);
  * the need for long delays to increase some race probabilities with the
  * need for fast grace periods to increase other race probabilities.
  */
+<<<<<<< HEAD
 #define PER_RCU_NODE_PERIOD 3	/* Number of grace periods between delays. */
+=======
+#define PER_RCU_NODE_PERIOD 3	/* Number of grace periods between delays for debugging. */
+>>>>>>> upstream/android-13
 
 /*
  * Compute the mask of online CPUs for the specified rcu_node structure.
@@ -207,7 +327,11 @@ EXPORT_SYMBOL_GPL(rcu_get_gp_kthreads_prio);
  * held, but the bit corresponding to the current CPU will be stable
  * in most contexts.
  */
+<<<<<<< HEAD
 unsigned long rcu_rnp_online_cpus(struct rcu_node *rnp)
+=======
+static unsigned long rcu_rnp_online_cpus(struct rcu_node *rnp)
+>>>>>>> upstream/android-13
 {
 	return READ_ONCE(rnp->qsmaskinitnext);
 }
@@ -217,6 +341,7 @@ unsigned long rcu_rnp_online_cpus(struct rcu_node *rnp)
  * permit this function to be invoked without holding the root rcu_node
  * structure's ->lock, but of course results can be subject to change.
  */
+<<<<<<< HEAD
 static int rcu_gp_in_progress(struct rcu_state *rsp)
 {
 	return rcu_seq_state(rcu_seq_current(&rsp->gp_seq));
@@ -278,6 +403,50 @@ static DEFINE_PER_CPU(struct rcu_dynticks, rcu_dynticks) = {
 static void rcu_dynticks_eqs_enter(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
+=======
+static int rcu_gp_in_progress(void)
+{
+	return rcu_seq_state(rcu_seq_current(&rcu_state.gp_seq));
+}
+
+/*
+ * Return the number of callbacks queued on the specified CPU.
+ * Handles both the nocbs and normal cases.
+ */
+static long rcu_get_n_cbs_cpu(int cpu)
+{
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+
+	if (rcu_segcblist_is_enabled(&rdp->cblist))
+		return rcu_segcblist_n_cbs(&rdp->cblist);
+	return 0;
+}
+
+void rcu_softirq_qs(void)
+{
+	rcu_qs();
+	rcu_preempt_deferred_qs(current);
+	rcu_tasks_qs(current, false);
+}
+
+/*
+ * Increment the current CPU's rcu_data structure's ->dynticks field
+ * with ordering.  Return the new value.
+ */
+static noinline noinstr unsigned long rcu_dynticks_inc(int incby)
+{
+	return arch_atomic_add_return(incby, this_cpu_ptr(&rcu_data.dynticks));
+}
+
+/*
+ * Record entry into an extended quiescent state.  This is only to be
+ * called when not already in an extended quiescent state, that is,
+ * RCU is watching prior to the call to this function and is no longer
+ * watching upon return.
+ */
+static noinstr void rcu_dynticks_eqs_enter(void)
+{
+>>>>>>> upstream/android-13
 	int seq;
 
 	/*
@@ -285,6 +454,7 @@ static void rcu_dynticks_eqs_enter(void)
 	 * critical sections, and we also must force ordering with the
 	 * next idle sojourn.
 	 */
+<<<<<<< HEAD
 	seq = atomic_add_return(RCU_DYNTICK_CTRL_CTR, &rdtp->dynticks);
 	/* Better be in an extended quiescent state! */
 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) &&
@@ -292,15 +462,29 @@ static void rcu_dynticks_eqs_enter(void)
 	/* Better not have special action (TLB flush) pending! */
 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) &&
 		     (seq & RCU_DYNTICK_CTRL_MASK));
+=======
+	rcu_dynticks_task_trace_enter();  // Before ->dynticks update!
+	seq = rcu_dynticks_inc(1);
+	// RCU is no longer watching.  Better be in extended quiescent state!
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && (seq & 0x1));
+>>>>>>> upstream/android-13
 }
 
 /*
  * Record exit from an extended quiescent state.  This is only to be
+<<<<<<< HEAD
  * called from an extended quiescent state.
  */
 static void rcu_dynticks_eqs_exit(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
+=======
+ * called from an extended quiescent state, that is, RCU is not watching
+ * prior to the call to this function and is watching upon return.
+ */
+static noinstr void rcu_dynticks_eqs_exit(void)
+{
+>>>>>>> upstream/android-13
 	int seq;
 
 	/*
@@ -308,6 +492,7 @@ static void rcu_dynticks_eqs_exit(void)
 	 * and we also must force ordering with the next RCU read-side
 	 * critical section.
 	 */
+<<<<<<< HEAD
 	seq = atomic_add_return(RCU_DYNTICK_CTRL_CTR, &rdtp->dynticks);
 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) &&
 		     !(seq & RCU_DYNTICK_CTRL_CTR));
@@ -317,6 +502,12 @@ static void rcu_dynticks_eqs_exit(void)
 		/* Prefer duplicate flushes to losing a flush. */
 		rcu_eqs_special_exit();
 	}
+=======
+	seq = rcu_dynticks_inc(1);
+	// RCU is now watching.  Better not be in an extended quiescent state!
+	rcu_dynticks_task_trace_exit();  // After ->dynticks update!
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !(seq & 0x1));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -331,11 +522,19 @@ static void rcu_dynticks_eqs_exit(void)
  */
 static void rcu_dynticks_eqs_online(void)
 {
+<<<<<<< HEAD
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
 
 	if (atomic_read(&rdtp->dynticks) & RCU_DYNTICK_CTRL_CTR)
 		return;
 	atomic_add(RCU_DYNTICK_CTRL_CTR, &rdtp->dynticks);
+=======
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+
+	if (atomic_read(&rdp->dynticks) & 0x1)
+		return;
+	rcu_dynticks_inc(1);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -343,22 +542,35 @@ static void rcu_dynticks_eqs_online(void)
  *
  * No ordering, as we are sampling CPU-local information.
  */
+<<<<<<< HEAD
 bool rcu_dynticks_curr_cpu_in_eqs(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
 
 	return !(atomic_read(&rdtp->dynticks) & RCU_DYNTICK_CTRL_CTR);
+=======
+static __always_inline bool rcu_dynticks_curr_cpu_in_eqs(void)
+{
+	return !(arch_atomic_read(this_cpu_ptr(&rcu_data.dynticks)) & 0x1);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Snapshot the ->dynticks counter with full ordering so as to allow
  * stable comparison of this counter with past and future snapshots.
  */
+<<<<<<< HEAD
 int rcu_dynticks_snap(struct rcu_dynticks *rdtp)
 {
 	int snap = atomic_add_return(0, &rdtp->dynticks);
 
 	return snap & ~RCU_DYNTICK_CTRL_MASK;
+=======
+static int rcu_dynticks_snap(struct rcu_data *rdp)
+{
+	smp_mb();  // Fundamental RCU ordering guarantee.
+	return atomic_read_acquire(&rdp->dynticks);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -367,6 +579,7 @@ int rcu_dynticks_snap(struct rcu_dynticks *rdtp)
  */
 static bool rcu_dynticks_in_eqs(int snap)
 {
+<<<<<<< HEAD
 	return !(snap & RCU_DYNTICK_CTRL_CTR);
 }
 
@@ -400,6 +613,48 @@ bool rcu_eqs_special_set(int cpu)
 		new = old | RCU_DYNTICK_CTRL_MASK;
 	} while (atomic_cmpxchg(&rdtp->dynticks, old, new) != old);
 	return true;
+=======
+	return !(snap & 0x1);
+}
+
+/* Return true if the specified CPU is currently idle from an RCU viewpoint.  */
+bool rcu_is_idle_cpu(int cpu)
+{
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+
+	return rcu_dynticks_in_eqs(rcu_dynticks_snap(rdp));
+}
+
+/*
+ * Return true if the CPU corresponding to the specified rcu_data
+ * structure has spent some time in an extended quiescent state since
+ * rcu_dynticks_snap() returned the specified snapshot.
+ */
+static bool rcu_dynticks_in_eqs_since(struct rcu_data *rdp, int snap)
+{
+	return snap != rcu_dynticks_snap(rdp);
+}
+
+/*
+ * Return true if the referenced integer is zero while the specified
+ * CPU remains within a single extended quiescent state.
+ */
+bool rcu_dynticks_zero_in_eqs(int cpu, int *vp)
+{
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+	int snap;
+
+	// If not quiescent, force back to earlier extended quiescent state.
+	snap = atomic_read(&rdp->dynticks) & ~0x1;
+
+	smp_rmb(); // Order ->dynticks and *vp reads.
+	if (READ_ONCE(*vp))
+		return false;  // Non-zero, so report failure;
+	smp_rmb(); // Order *vp read and ->dynticks re-read.
+
+	// If still in the same extended quiescent state, we are good!
+	return snap == atomic_read(&rdp->dynticks);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -413,6 +668,7 @@ bool rcu_eqs_special_set(int cpu)
  *
  * The caller must have disabled interrupts and must not be idle.
  */
+<<<<<<< HEAD
 static void rcu_momentary_dyntick_idle(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
@@ -496,22 +752,141 @@ static long blimit = DEFAULT_RCU_BLIMIT;
 static long qhimark = DEFAULT_RCU_QHIMARK;
 #define DEFAULT_RCU_QLOMARK 100   /* Once only this many pending, use blimit. */
 static long qlowmark = DEFAULT_RCU_QLOMARK;
+=======
+notrace void rcu_momentary_dyntick_idle(void)
+{
+	int seq;
+
+	raw_cpu_write(rcu_data.rcu_need_heavy_qs, false);
+	seq = rcu_dynticks_inc(2);
+	/* It is illegal to call this from idle state. */
+	WARN_ON_ONCE(!(seq & 0x1));
+	rcu_preempt_deferred_qs(current);
+}
+EXPORT_SYMBOL_GPL(rcu_momentary_dyntick_idle);
+
+/**
+ * rcu_is_cpu_rrupt_from_idle - see if 'interrupted' from idle
+ *
+ * If the current CPU is idle and running at a first-level (not nested)
+ * interrupt, or directly, from idle, return true.
+ *
+ * The caller must have at least disabled IRQs.
+ */
+static int rcu_is_cpu_rrupt_from_idle(void)
+{
+	long nesting;
+
+	/*
+	 * Usually called from the tick; but also used from smp_function_call()
+	 * for expedited grace periods. This latter can result in running from
+	 * the idle task, instead of an actual IPI.
+	 */
+	lockdep_assert_irqs_disabled();
+
+	/* Check for counter underflows */
+	RCU_LOCKDEP_WARN(__this_cpu_read(rcu_data.dynticks_nesting) < 0,
+			 "RCU dynticks_nesting counter underflow!");
+	RCU_LOCKDEP_WARN(__this_cpu_read(rcu_data.dynticks_nmi_nesting) <= 0,
+			 "RCU dynticks_nmi_nesting counter underflow/zero!");
+
+	/* Are we at first interrupt nesting level? */
+	nesting = __this_cpu_read(rcu_data.dynticks_nmi_nesting);
+	if (nesting > 1)
+		return false;
+
+	/*
+	 * If we're not in an interrupt, we must be in the idle task!
+	 */
+	WARN_ON_ONCE(!nesting && !is_idle_task(current));
+
+	/* Does CPU appear to be idle from an RCU standpoint? */
+	return __this_cpu_read(rcu_data.dynticks_nesting) == 0;
+}
+
+#define DEFAULT_RCU_BLIMIT (IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD) ? 1000 : 10)
+				// Maximum callbacks per rcu_do_batch ...
+#define DEFAULT_MAX_RCU_BLIMIT 10000 // ... even during callback flood.
+static long blimit = DEFAULT_RCU_BLIMIT;
+#define DEFAULT_RCU_QHIMARK 10000 // If this many pending, ignore blimit.
+static long qhimark = DEFAULT_RCU_QHIMARK;
+#define DEFAULT_RCU_QLOMARK 100   // Once only this many pending, use blimit.
+static long qlowmark = DEFAULT_RCU_QLOMARK;
+#define DEFAULT_RCU_QOVLD_MULT 2
+#define DEFAULT_RCU_QOVLD (DEFAULT_RCU_QOVLD_MULT * DEFAULT_RCU_QHIMARK)
+static long qovld = DEFAULT_RCU_QOVLD; // If this many pending, hammer QS.
+static long qovld_calc = -1;	  // No pre-initialization lock acquisitions!
+>>>>>>> upstream/android-13
 
 module_param(blimit, long, 0444);
 module_param(qhimark, long, 0444);
 module_param(qlowmark, long, 0444);
+<<<<<<< HEAD
 
 static ulong jiffies_till_first_fqs = ULONG_MAX;
 static ulong jiffies_till_next_fqs = ULONG_MAX;
 static bool rcu_kick_kthreads;
+=======
+module_param(qovld, long, 0444);
+
+static ulong jiffies_till_first_fqs = IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD) ? 0 : ULONG_MAX;
+static ulong jiffies_till_next_fqs = ULONG_MAX;
+static bool rcu_kick_kthreads;
+static int rcu_divisor = 7;
+module_param(rcu_divisor, int, 0644);
+
+/* Force an exit from rcu_do_batch() after 3 milliseconds. */
+static long rcu_resched_ns = 3 * NSEC_PER_MSEC;
+module_param(rcu_resched_ns, long, 0644);
+
+/*
+ * How long the grace period must be before we start recruiting
+ * quiescent-state help from rcu_note_context_switch().
+ */
+static ulong jiffies_till_sched_qs = ULONG_MAX;
+module_param(jiffies_till_sched_qs, ulong, 0444);
+static ulong jiffies_to_sched_qs; /* See adjust_jiffies_till_sched_qs(). */
+module_param(jiffies_to_sched_qs, ulong, 0444); /* Display only! */
+
+/*
+ * Make sure that we give the grace-period kthread time to detect any
+ * idle CPUs before taking active measures to force quiescent states.
+ * However, don't go below 100 milliseconds, adjusted upwards for really
+ * large systems.
+ */
+static void adjust_jiffies_till_sched_qs(void)
+{
+	unsigned long j;
+
+	/* If jiffies_till_sched_qs was specified, respect the request. */
+	if (jiffies_till_sched_qs != ULONG_MAX) {
+		WRITE_ONCE(jiffies_to_sched_qs, jiffies_till_sched_qs);
+		return;
+	}
+	/* Otherwise, set to third fqs scan, but bound below on large system. */
+	j = READ_ONCE(jiffies_till_first_fqs) +
+		      2 * READ_ONCE(jiffies_till_next_fqs);
+	if (j < HZ / 10 + nr_cpu_ids / RCU_JIFFIES_FQS_DIV)
+		j = HZ / 10 + nr_cpu_ids / RCU_JIFFIES_FQS_DIV;
+	pr_info("RCU calculated value of scheduler-enlistment delay is %ld jiffies.\n", j);
+	WRITE_ONCE(jiffies_to_sched_qs, j);
+}
+>>>>>>> upstream/android-13
 
 static int param_set_first_fqs_jiffies(const char *val, const struct kernel_param *kp)
 {
 	ulong j;
 	int ret = kstrtoul(val, 0, &j);
 
+<<<<<<< HEAD
 	if (!ret)
 		WRITE_ONCE(*(ulong *)kp->arg, (j > HZ) ? HZ : j);
+=======
+	if (!ret) {
+		WRITE_ONCE(*(ulong *)kp->arg, (j > HZ) ? HZ : j);
+		adjust_jiffies_till_sched_qs();
+	}
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -520,17 +895,32 @@ static int param_set_next_fqs_jiffies(const char *val, const struct kernel_param
 	ulong j;
 	int ret = kstrtoul(val, 0, &j);
 
+<<<<<<< HEAD
 	if (!ret)
 		WRITE_ONCE(*(ulong *)kp->arg, (j > HZ) ? HZ : (j ?: 1));
 	return ret;
 }
 
 static struct kernel_param_ops first_fqs_jiffies_ops = {
+=======
+	if (!ret) {
+		WRITE_ONCE(*(ulong *)kp->arg, (j > HZ) ? HZ : (j ?: 1));
+		adjust_jiffies_till_sched_qs();
+	}
+	return ret;
+}
+
+static const struct kernel_param_ops first_fqs_jiffies_ops = {
+>>>>>>> upstream/android-13
 	.set = param_set_first_fqs_jiffies,
 	.get = param_get_ulong,
 };
 
+<<<<<<< HEAD
 static struct kernel_param_ops next_fqs_jiffies_ops = {
+=======
+static const struct kernel_param_ops next_fqs_jiffies_ops = {
+>>>>>>> upstream/android-13
 	.set = param_set_next_fqs_jiffies,
 	.get = param_get_ulong,
 };
@@ -539,6 +929,7 @@ module_param_cb(jiffies_till_first_fqs, &first_fqs_jiffies_ops, &jiffies_till_fi
 module_param_cb(jiffies_till_next_fqs, &next_fqs_jiffies_ops, &jiffies_till_next_fqs, 0644);
 module_param(rcu_kick_kthreads, bool, 0644);
 
+<<<<<<< HEAD
 /*
  * How long the grace period must be before we start recruiting
  * quiescent-state help from rcu_note_context_switch().
@@ -549,17 +940,26 @@ module_param(jiffies_till_sched_qs, ulong, 0444);
 static void force_qs_rnp(struct rcu_state *rsp, int (*f)(struct rcu_data *rsp));
 static void force_quiescent_state(struct rcu_state *rsp);
 static int rcu_pending(void);
+=======
+static void force_qs_rnp(int (*f)(struct rcu_data *rdp));
+static int rcu_pending(int user);
+>>>>>>> upstream/android-13
 
 /*
  * Return the number of RCU GPs completed thus far for debug & stats.
  */
 unsigned long rcu_get_gp_seq(void)
 {
+<<<<<<< HEAD
 	return READ_ONCE(rcu_state_p->gp_seq);
+=======
+	return READ_ONCE(rcu_state.gp_seq);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rcu_get_gp_seq);
 
 /*
+<<<<<<< HEAD
  * Return the number of RCU-sched GPs completed thus far for debug & stats.
  */
 unsigned long rcu_sched_get_gp_seq(void)
@@ -578,6 +978,8 @@ unsigned long rcu_bh_get_gp_seq(void)
 EXPORT_SYMBOL_GPL(rcu_bh_get_gp_seq);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Return the number of RCU expedited batches completed thus far for
  * debug & stats.  Odd numbers mean that a batch is in progress, even
  * numbers mean idle.  The value returned will thus be roughly double
@@ -585,11 +987,16 @@ EXPORT_SYMBOL_GPL(rcu_bh_get_gp_seq);
  */
 unsigned long rcu_exp_batches_completed(void)
 {
+<<<<<<< HEAD
 	return rcu_state_p->expedited_sequence;
+=======
+	return rcu_state.expedited_sequence;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rcu_exp_batches_completed);
 
 /*
+<<<<<<< HEAD
  * Return the number of RCU-sched expedited batches completed thus far
  * for debug & stats.  Similar to rcu_exp_batches_completed().
  */
@@ -661,6 +1068,14 @@ void show_rcu_gp_kthreads(void)
 	}
 }
 EXPORT_SYMBOL_GPL(show_rcu_gp_kthreads);
+=======
+ * Return the root node of the rcu_state structure.
+ */
+static struct rcu_node *rcu_get_root(void)
+{
+	return &rcu_state.node[0];
+}
+>>>>>>> upstream/android-13
 
 /*
  * Send along grace-period-related data for rcutorture diagnostics.
@@ -668,6 +1083,7 @@ EXPORT_SYMBOL_GPL(show_rcu_gp_kthreads);
 void rcutorture_get_gp_data(enum rcutorture_type test_type, int *flags,
 			    unsigned long *gp_seq)
 {
+<<<<<<< HEAD
 	struct rcu_state *rsp = NULL;
 
 	switch (test_type) {
@@ -679,18 +1095,28 @@ void rcutorture_get_gp_data(enum rcutorture_type test_type, int *flags,
 		break;
 	case RCU_SCHED_FLAVOR:
 		rsp = &rcu_sched_state;
+=======
+	switch (test_type) {
+	case RCU_FLAVOR:
+		*flags = READ_ONCE(rcu_state.gp_flags);
+		*gp_seq = rcu_seq_current(&rcu_state.gp_seq);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
 	}
+<<<<<<< HEAD
 	if (rsp == NULL)
 		return;
 	*flags = READ_ONCE(rsp->gp_flags);
 	*gp_seq = rcu_seq_current(&rsp->gp_seq);
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rcutorture_get_gp_data);
 
 /*
+<<<<<<< HEAD
  * Return the root node of the specified rcu_state structure.
  */
 static struct rcu_node *rcu_get_root(struct rcu_state *rsp)
@@ -699,6 +1125,8 @@ static struct rcu_node *rcu_get_root(struct rcu_state *rsp)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Enter an RCU extended quiescent state, which can be either the
  * idle loop or adaptive-tickless usermode execution.
  *
@@ -706,6 +1134,7 @@ static struct rcu_node *rcu_get_root(struct rcu_state *rsp)
  * the possibility of usermode upcalls having messed up our count
  * of interrupt nesting level during the prior busy period.
  */
+<<<<<<< HEAD
 static void rcu_eqs_enter(bool user)
 {
 	struct rcu_state *rsp;
@@ -718,10 +1147,24 @@ static void rcu_eqs_enter(bool user)
 		     rdtp->dynticks_nesting == 0);
 	if (rdtp->dynticks_nesting != 1) {
 		rdtp->dynticks_nesting--;
+=======
+static noinstr void rcu_eqs_enter(bool user)
+{
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+
+	WARN_ON_ONCE(rdp->dynticks_nmi_nesting != DYNTICK_IRQ_NONIDLE);
+	WRITE_ONCE(rdp->dynticks_nmi_nesting, 0);
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) &&
+		     rdp->dynticks_nesting == 0);
+	if (rdp->dynticks_nesting != 1) {
+		// RCU will still be watching, so just do accounting and leave.
+		rdp->dynticks_nesting--;
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	lockdep_assert_irqs_disabled();
+<<<<<<< HEAD
 	trace_rcu_dyntick(TPS("Start"), rdtp->dynticks_nesting, 0, rdtp->dynticks);
 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
 	for_each_rcu_flavor(rsp) {
@@ -731,6 +1174,22 @@ static void rcu_eqs_enter(bool user)
 	rcu_prepare_for_idle();
 	WRITE_ONCE(rdtp->dynticks_nesting, 0); /* Avoid irq-access tearing. */
 	rcu_dynticks_eqs_enter();
+=======
+	instrumentation_begin();
+	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
+	rcu_prepare_for_idle();
+	rcu_preempt_deferred_qs(current);
+
+	// instrumentation for the noinstr rcu_dynticks_eqs_enter()
+	instrument_atomic_write(&rdp->dynticks, sizeof(rdp->dynticks));
+
+	instrumentation_end();
+	WRITE_ONCE(rdp->dynticks_nesting, 0); /* Avoid irq-access tearing. */
+	// RCU is watching here ...
+	rcu_dynticks_eqs_enter();
+	// ... but is no longer watching here.
+>>>>>>> upstream/android-13
 	rcu_dynticks_task_enter();
 }
 
@@ -750,8 +1209,58 @@ void rcu_idle_enter(void)
 	lockdep_assert_irqs_disabled();
 	rcu_eqs_enter(false);
 }
+<<<<<<< HEAD
 
 #ifdef CONFIG_NO_HZ_FULL
+=======
+EXPORT_SYMBOL_GPL(rcu_idle_enter);
+
+#ifdef CONFIG_NO_HZ_FULL
+
+#if !defined(CONFIG_GENERIC_ENTRY) || !defined(CONFIG_KVM_XFER_TO_GUEST_WORK)
+/*
+ * An empty function that will trigger a reschedule on
+ * IRQ tail once IRQs get re-enabled on userspace/guest resume.
+ */
+static void late_wakeup_func(struct irq_work *work)
+{
+}
+
+static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
+	IRQ_WORK_INIT(late_wakeup_func);
+
+/*
+ * If either:
+ *
+ * 1) the task is about to enter in guest mode and $ARCH doesn't support KVM generic work
+ * 2) the task is about to enter in user mode and $ARCH doesn't support generic entry.
+ *
+ * In these cases the late RCU wake ups aren't supported in the resched loops and our
+ * last resort is to fire a local irq_work that will trigger a reschedule once IRQs
+ * get re-enabled again.
+ */
+noinstr static void rcu_irq_work_resched(void)
+{
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+
+	if (IS_ENABLED(CONFIG_GENERIC_ENTRY) && !(current->flags & PF_VCPU))
+		return;
+
+	if (IS_ENABLED(CONFIG_KVM_XFER_TO_GUEST_WORK) && (current->flags & PF_VCPU))
+		return;
+
+	instrumentation_begin();
+	if (do_nocb_deferred_wakeup(rdp) && need_resched()) {
+		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
+	}
+	instrumentation_end();
+}
+
+#else
+static inline void rcu_irq_work_resched(void) { }
+#endif
+
+>>>>>>> upstream/android-13
 /**
  * rcu_user_enter - inform RCU that we are resuming userspace.
  *
@@ -763,51 +1272,111 @@ void rcu_idle_enter(void)
  * If you add or remove a call to rcu_user_enter(), be sure to test with
  * CONFIG_RCU_EQS_DEBUG=y.
  */
+<<<<<<< HEAD
 void rcu_user_enter(void)
 {
 	lockdep_assert_irqs_disabled();
 	rcu_eqs_enter(true);
 }
+=======
+noinstr void rcu_user_enter(void)
+{
+	lockdep_assert_irqs_disabled();
+
+	/*
+	 * Other than generic entry implementation, we may be past the last
+	 * rescheduling opportunity in the entry code. Trigger a self IPI
+	 * that will fire and reschedule once we resume in user/guest mode.
+	 */
+	rcu_irq_work_resched();
+	rcu_eqs_enter(true);
+}
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_NO_HZ_FULL */
 
 /**
  * rcu_nmi_exit - inform RCU of exit from NMI context
  *
  * If we are returning from the outermost NMI handler that interrupted an
+<<<<<<< HEAD
  * RCU-idle period, update rdtp->dynticks and rdtp->dynticks_nmi_nesting
+=======
+ * RCU-idle period, update rdp->dynticks and rdp->dynticks_nmi_nesting
+>>>>>>> upstream/android-13
  * to let the RCU grace-period handling know that the CPU is back to
  * being RCU-idle.
  *
  * If you add or remove a call to rcu_nmi_exit(), be sure to test
  * with CONFIG_RCU_EQS_DEBUG=y.
  */
+<<<<<<< HEAD
 void rcu_nmi_exit(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
 
+=======
+noinstr void rcu_nmi_exit(void)
+{
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+
+	instrumentation_begin();
+>>>>>>> upstream/android-13
 	/*
 	 * Check for ->dynticks_nmi_nesting underflow and bad ->dynticks.
 	 * (We are exiting an NMI handler, so RCU better be paying attention
 	 * to us!)
 	 */
+<<<<<<< HEAD
 	WARN_ON_ONCE(rdtp->dynticks_nmi_nesting <= 0);
+=======
+	WARN_ON_ONCE(rdp->dynticks_nmi_nesting <= 0);
+>>>>>>> upstream/android-13
 	WARN_ON_ONCE(rcu_dynticks_curr_cpu_in_eqs());
 
 	/*
 	 * If the nesting level is not 1, the CPU wasn't RCU-idle, so
 	 * leave it in non-RCU-idle state.
 	 */
+<<<<<<< HEAD
 	if (rdtp->dynticks_nmi_nesting != 1) {
 		trace_rcu_dyntick(TPS("--="), rdtp->dynticks_nmi_nesting, rdtp->dynticks_nmi_nesting - 2, rdtp->dynticks);
 		WRITE_ONCE(rdtp->dynticks_nmi_nesting, /* No store tearing. */
 			   rdtp->dynticks_nmi_nesting - 2);
+=======
+	if (rdp->dynticks_nmi_nesting != 1) {
+		trace_rcu_dyntick(TPS("--="), rdp->dynticks_nmi_nesting, rdp->dynticks_nmi_nesting - 2,
+				  atomic_read(&rdp->dynticks));
+		WRITE_ONCE(rdp->dynticks_nmi_nesting, /* No store tearing. */
+			   rdp->dynticks_nmi_nesting - 2);
+		instrumentation_end();
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* This NMI interrupted an RCU-idle CPU, restore RCU-idleness. */
+<<<<<<< HEAD
 	trace_rcu_dyntick(TPS("Startirq"), rdtp->dynticks_nmi_nesting, 0, rdtp->dynticks);
 	WRITE_ONCE(rdtp->dynticks_nmi_nesting, 0); /* Avoid store tearing. */
 	rcu_dynticks_eqs_enter();
+=======
+	trace_rcu_dyntick(TPS("Startirq"), rdp->dynticks_nmi_nesting, 0, atomic_read(&rdp->dynticks));
+	WRITE_ONCE(rdp->dynticks_nmi_nesting, 0); /* Avoid store tearing. */
+
+	if (!in_nmi())
+		rcu_prepare_for_idle();
+
+	// instrumentation for the noinstr rcu_dynticks_eqs_enter()
+	instrument_atomic_write(&rdp->dynticks, sizeof(rdp->dynticks));
+	instrumentation_end();
+
+	// RCU is watching here ...
+	rcu_dynticks_eqs_enter();
+	// ... but is no longer watching here.
+
+	if (!in_nmi())
+		rcu_dynticks_task_enter();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -829,6 +1398,7 @@ void rcu_nmi_exit(void)
  * If you add or remove a call to rcu_irq_exit(), be sure to test with
  * CONFIG_RCU_EQS_DEBUG=y.
  */
+<<<<<<< HEAD
 void rcu_irq_exit(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
@@ -841,6 +1411,32 @@ void rcu_irq_exit(void)
 		rcu_dynticks_task_enter();
 }
 
+=======
+void noinstr rcu_irq_exit(void)
+{
+	lockdep_assert_irqs_disabled();
+	rcu_nmi_exit();
+}
+
+#ifdef CONFIG_PROVE_RCU
+/**
+ * rcu_irq_exit_check_preempt - Validate that scheduling is possible
+ */
+void rcu_irq_exit_check_preempt(void)
+{
+	lockdep_assert_irqs_disabled();
+
+	RCU_LOCKDEP_WARN(__this_cpu_read(rcu_data.dynticks_nesting) <= 0,
+			 "RCU dynticks_nesting counter underflow/zero!");
+	RCU_LOCKDEP_WARN(__this_cpu_read(rcu_data.dynticks_nmi_nesting) !=
+			 DYNTICK_IRQ_NONIDLE,
+			 "Bad RCU  dynticks_nmi_nesting counter\n");
+	RCU_LOCKDEP_WARN(rcu_dynticks_curr_cpu_in_eqs(),
+			 "RCU in extended quiescent state!");
+}
+#endif /* #ifdef CONFIG_PROVE_RCU */
+
+>>>>>>> upstream/android-13
 /*
  * Wrapper for rcu_irq_exit() where interrupts are enabled.
  *
@@ -864,6 +1460,7 @@ void rcu_irq_exit_irqson(void)
  * allow for the possibility of usermode upcalls messing up our count of
  * interrupt nesting level during the busy period that is just now starting.
  */
+<<<<<<< HEAD
 static void rcu_eqs_exit(bool user)
 {
 	struct rcu_dynticks *rdtp;
@@ -884,6 +1481,38 @@ static void rcu_eqs_exit(bool user)
 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
 	WRITE_ONCE(rdtp->dynticks_nesting, 1);
 	WRITE_ONCE(rdtp->dynticks_nmi_nesting, DYNTICK_IRQ_NONIDLE);
+=======
+static void noinstr rcu_eqs_exit(bool user)
+{
+	struct rcu_data *rdp;
+	long oldval;
+
+	lockdep_assert_irqs_disabled();
+	rdp = this_cpu_ptr(&rcu_data);
+	oldval = rdp->dynticks_nesting;
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && oldval < 0);
+	if (oldval) {
+		// RCU was already watching, so just do accounting and leave.
+		rdp->dynticks_nesting++;
+		return;
+	}
+	rcu_dynticks_task_exit();
+	// RCU is not watching here ...
+	rcu_dynticks_eqs_exit();
+	// ... but is watching here.
+	instrumentation_begin();
+
+	// instrumentation for the noinstr rcu_dynticks_eqs_exit()
+	instrument_atomic_write(&rdp->dynticks, sizeof(rdp->dynticks));
+
+	rcu_cleanup_after_idle();
+	trace_rcu_dyntick(TPS("End"), rdp->dynticks_nesting, 1, atomic_read(&rdp->dynticks));
+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
+	WRITE_ONCE(rdp->dynticks_nesting, 1);
+	WARN_ON_ONCE(rdp->dynticks_nmi_nesting);
+	WRITE_ONCE(rdp->dynticks_nmi_nesting, DYNTICK_IRQ_NONIDLE);
+	instrumentation_end();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -903,6 +1532,10 @@ void rcu_idle_exit(void)
 	rcu_eqs_exit(false);
 	local_irq_restore(flags);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(rcu_idle_exit);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NO_HZ_FULL
 /**
@@ -914,17 +1547,89 @@ void rcu_idle_exit(void)
  * If you add or remove a call to rcu_user_exit(), be sure to test with
  * CONFIG_RCU_EQS_DEBUG=y.
  */
+<<<<<<< HEAD
 void rcu_user_exit(void)
 {
 	rcu_eqs_exit(1);
+=======
+void noinstr rcu_user_exit(void)
+{
+	rcu_eqs_exit(true);
+}
+
+/**
+ * __rcu_irq_enter_check_tick - Enable scheduler tick on CPU if RCU needs it.
+ *
+ * The scheduler tick is not normally enabled when CPUs enter the kernel
+ * from nohz_full userspace execution.  After all, nohz_full userspace
+ * execution is an RCU quiescent state and the time executing in the kernel
+ * is quite short.  Except of course when it isn't.  And it is not hard to
+ * cause a large system to spend tens of seconds or even minutes looping
+ * in the kernel, which can cause a number of problems, include RCU CPU
+ * stall warnings.
+ *
+ * Therefore, if a nohz_full CPU fails to report a quiescent state
+ * in a timely manner, the RCU grace-period kthread sets that CPU's
+ * ->rcu_urgent_qs flag with the expectation that the next interrupt or
+ * exception will invoke this function, which will turn on the scheduler
+ * tick, which will enable RCU to detect that CPU's quiescent states,
+ * for example, due to cond_resched() calls in CONFIG_PREEMPT=n kernels.
+ * The tick will be disabled once a quiescent state is reported for
+ * this CPU.
+ *
+ * Of course, in carefully tuned systems, there might never be an
+ * interrupt or exception.  In that case, the RCU grace-period kthread
+ * will eventually cause one to happen.  However, in less carefully
+ * controlled environments, this function allows RCU to get what it
+ * needs without creating otherwise useless interruptions.
+ */
+void __rcu_irq_enter_check_tick(void)
+{
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+
+	// If we're here from NMI there's nothing to do.
+	if (in_nmi())
+		return;
+
+	RCU_LOCKDEP_WARN(rcu_dynticks_curr_cpu_in_eqs(),
+			 "Illegal rcu_irq_enter_check_tick() from extended quiescent state");
+
+	if (!tick_nohz_full_cpu(rdp->cpu) ||
+	    !READ_ONCE(rdp->rcu_urgent_qs) ||
+	    READ_ONCE(rdp->rcu_forced_tick)) {
+		// RCU doesn't need nohz_full help from this CPU, or it is
+		// already getting that help.
+		return;
+	}
+
+	// We get here only when not in an extended quiescent state and
+	// from interrupts (as opposed to NMIs).  Therefore, (1) RCU is
+	// already watching and (2) The fact that we are in an interrupt
+	// handler and that the rcu_node lock is an irq-disabled lock
+	// prevents self-deadlock.  So we can safely recheck under the lock.
+	// Note that the nohz_full state currently cannot change.
+	raw_spin_lock_rcu_node(rdp->mynode);
+	if (rdp->rcu_urgent_qs && !rdp->rcu_forced_tick) {
+		// A nohz_full CPU is in the kernel and RCU needs a
+		// quiescent state.  Turn on the tick!
+		WRITE_ONCE(rdp->rcu_forced_tick, true);
+		tick_dep_set_cpu(rdp->cpu, TICK_DEP_BIT_RCU);
+	}
+	raw_spin_unlock_rcu_node(rdp->mynode);
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_NO_HZ_FULL */
 
 /**
  * rcu_nmi_enter - inform RCU of entry to NMI context
  *
+<<<<<<< HEAD
  * If the CPU was idle from RCU's viewpoint, update rdtp->dynticks and
  * rdtp->dynticks_nmi_nesting to let the RCU grace-period handling know
+=======
+ * If the CPU was idle from RCU's viewpoint, update rdp->dynticks and
+ * rdp->dynticks_nmi_nesting to let the RCU grace-period handling know
+>>>>>>> upstream/android-13
  * that the CPU is active.  This implementation permits nested NMIs, as
  * long as the nesting level does not overflow an int.  (You will probably
  * run out of stack space first.)
@@ -932,6 +1637,7 @@ void rcu_user_exit(void)
  * If you add or remove a call to rcu_nmi_enter(), be sure to test
  * with CONFIG_RCU_EQS_DEBUG=y.
  */
+<<<<<<< HEAD
 void rcu_nmi_enter(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
@@ -939,6 +1645,15 @@ void rcu_nmi_enter(void)
 
 	/* Complain about underflow. */
 	WARN_ON_ONCE(rdtp->dynticks_nmi_nesting < 0);
+=======
+noinstr void rcu_nmi_enter(void)
+{
+	long incby = 2;
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+
+	/* Complain about underflow. */
+	WARN_ON_ONCE(rdp->dynticks_nmi_nesting < 0);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If idle from RCU viewpoint, atomically increment ->dynticks
@@ -949,6 +1664,7 @@ void rcu_nmi_enter(void)
 	 * period (observation due to Andy Lutomirski).
 	 */
 	if (rcu_dynticks_curr_cpu_in_eqs()) {
+<<<<<<< HEAD
 		rcu_dynticks_eqs_exit();
 		incby = 1;
 	}
@@ -957,6 +1673,42 @@ void rcu_nmi_enter(void)
 			  rdtp->dynticks_nmi_nesting + incby, rdtp->dynticks);
 	WRITE_ONCE(rdtp->dynticks_nmi_nesting, /* Prevent store tearing. */
 		   rdtp->dynticks_nmi_nesting + incby);
+=======
+
+		if (!in_nmi())
+			rcu_dynticks_task_exit();
+
+		// RCU is not watching here ...
+		rcu_dynticks_eqs_exit();
+		// ... but is watching here.
+
+		if (!in_nmi()) {
+			instrumentation_begin();
+			rcu_cleanup_after_idle();
+			instrumentation_end();
+		}
+
+		instrumentation_begin();
+		// instrumentation for the noinstr rcu_dynticks_curr_cpu_in_eqs()
+		instrument_atomic_read(&rdp->dynticks, sizeof(rdp->dynticks));
+		// instrumentation for the noinstr rcu_dynticks_eqs_exit()
+		instrument_atomic_write(&rdp->dynticks, sizeof(rdp->dynticks));
+
+		incby = 1;
+	} else if (!in_nmi()) {
+		instrumentation_begin();
+		rcu_irq_enter_check_tick();
+	} else  {
+		instrumentation_begin();
+	}
+
+	trace_rcu_dyntick(incby == 1 ? TPS("Endirq") : TPS("++="),
+			  rdp->dynticks_nmi_nesting,
+			  rdp->dynticks_nmi_nesting + incby, atomic_read(&rdp->dynticks));
+	instrumentation_end();
+	WRITE_ONCE(rdp->dynticks_nmi_nesting, /* Prevent store tearing. */
+		   rdp->dynticks_nmi_nesting + incby);
+>>>>>>> upstream/android-13
 	barrier();
 }
 
@@ -982,6 +1734,7 @@ void rcu_nmi_enter(void)
  * If you add or remove a call to rcu_irq_enter(), be sure to test with
  * CONFIG_RCU_EQS_DEBUG=y.
  */
+<<<<<<< HEAD
 void rcu_irq_enter(void)
 {
 	struct rcu_dynticks *rdtp = this_cpu_ptr(&rcu_dynticks);
@@ -992,6 +1745,12 @@ void rcu_irq_enter(void)
 	rcu_nmi_enter();
 	if (rdtp->dynticks_nmi_nesting == 1)
 		rcu_cleanup_after_idle();
+=======
+noinstr void rcu_irq_enter(void)
+{
+	lockdep_assert_irqs_disabled();
+	rcu_nmi_enter();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1009,6 +1768,7 @@ void rcu_irq_enter_irqson(void)
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 /**
  * rcu_is_watching - see if RCU thinks that the current CPU is idle
  *
@@ -1018,6 +1778,36 @@ void rcu_irq_enter_irqson(void)
  * or NMI handler, return true.
  */
 bool notrace rcu_is_watching(void)
+=======
+/*
+ * If any sort of urgency was applied to the current CPU (for example,
+ * the scheduler-clock interrupt was enabled on a nohz_full CPU) in order
+ * to get to a quiescent state, disable it.
+ */
+static void rcu_disable_urgency_upon_qs(struct rcu_data *rdp)
+{
+	raw_lockdep_assert_held_rcu_node(rdp->mynode);
+	WRITE_ONCE(rdp->rcu_urgent_qs, false);
+	WRITE_ONCE(rdp->rcu_need_heavy_qs, false);
+	if (tick_nohz_full_cpu(rdp->cpu) && rdp->rcu_forced_tick) {
+		tick_dep_clear_cpu(rdp->cpu, TICK_DEP_BIT_RCU);
+		WRITE_ONCE(rdp->rcu_forced_tick, false);
+	}
+}
+
+/**
+ * rcu_is_watching - see if RCU thinks that the current CPU is not idle
+ *
+ * Return true if RCU is watching the running CPU, which means that this
+ * CPU can safely enter RCU read-side critical sections.  In other words,
+ * if the current CPU is not in its idle loop or is in an interrupt or
+ * NMI handler, return true.
+ *
+ * Make notrace because it can be called by the internal functions of
+ * ftrace, and making this notrace removes unnecessary recursion calls.
+ */
+notrace bool rcu_is_watching(void)
+>>>>>>> upstream/android-13
 {
 	bool ret;
 
@@ -1043,7 +1833,11 @@ void rcu_request_urgent_qs_task(struct task_struct *t)
 	cpu = task_cpu(t);
 	if (!task_curr(t))
 		return; /* This task is not running on that CPU. */
+<<<<<<< HEAD
 	smp_store_release(per_cpu_ptr(&rcu_dynticks.rcu_urgent_qs, cpu), true);
+=======
+	smp_store_release(per_cpu_ptr(&rcu_data.rcu_urgent_qs, cpu), true);
+>>>>>>> upstream/android-13
 }
 
 #if defined(CONFIG_PROVE_RCU) && defined(CONFIG_HOTPLUG_CPU)
@@ -1054,11 +1848,15 @@ void rcu_request_urgent_qs_task(struct task_struct *t)
  * Disable preemption to avoid false positives that could otherwise
  * happen due to the current CPU number being sampled, this task being
  * preempted, its old CPU being taken offline, resuming on some other CPU,
+<<<<<<< HEAD
  * then determining that its old CPU is now offline.  Because there are
  * multiple flavors of RCU, and because this function can be called in the
  * midst of updating the flavors while a given CPU coming online or going
  * offline, it is necessary to check all flavors.  If any of the flavors
  * believe that given CPU is online, it is considered to be online.
+=======
+ * then determining that its old CPU is now offline.
+>>>>>>> upstream/android-13
  *
  * Disable checking if in an NMI handler because we cannot safely
  * report errors from NMI handlers anyway.  In addition, it is OK to use
@@ -1069,6 +1867,7 @@ bool rcu_lockdep_current_cpu_online(void)
 {
 	struct rcu_data *rdp;
 	struct rcu_node *rnp;
+<<<<<<< HEAD
 	struct rcu_state *rsp;
 
 	if (in_nmi() || !rcu_scheduler_fully_active)
@@ -1084,11 +1883,25 @@ bool rcu_lockdep_current_cpu_online(void)
 	}
 	preempt_enable();
 	return false;
+=======
+	bool ret = false;
+
+	if (in_nmi() || !rcu_scheduler_fully_active)
+		return true;
+	preempt_disable_notrace();
+	rdp = this_cpu_ptr(&rcu_data);
+	rnp = rdp->mynode;
+	if (rdp->grpmask & rcu_rnp_online_cpus(rnp) || READ_ONCE(rnp->ofl_seq) & 0x1)
+		ret = true;
+	preempt_enable_notrace();
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(rcu_lockdep_current_cpu_online);
 
 #endif /* #if defined(CONFIG_PROVE_RCU) && defined(CONFIG_HOTPLUG_CPU) */
 
+<<<<<<< HEAD
 /**
  * rcu_is_cpu_rrupt_from_idle - see if idle or immediately interrupted from idle
  *
@@ -1104,6 +1917,10 @@ static int rcu_is_cpu_rrupt_from_idle(void)
 
 /*
  * We are reporting a quiescent state on behalf of some other CPU, so
+=======
+/*
+ * When trying to report a quiescent state on behalf of some other CPU,
+>>>>>>> upstream/android-13
  * it is our responsibility to check for and handle potential overflow
  * of the rcu_node ->gp_seq counter with respect to the rcu_data counters.
  * After all, the CPU might be in deep idle state, and thus executing no
@@ -1126,9 +1943,15 @@ static void rcu_gpnum_ovf(struct rcu_node *rnp, struct rcu_data *rdp)
  */
 static int dyntick_save_progress_counter(struct rcu_data *rdp)
 {
+<<<<<<< HEAD
 	rdp->dynticks_snap = rcu_dynticks_snap(rdp->dynticks);
 	if (rcu_dynticks_in_eqs(rdp->dynticks_snap)) {
 		trace_rcu_fqs(rdp->rsp->name, rdp->gp_seq, rdp->cpu, TPS("dti"));
+=======
+	rdp->dynticks_snap = rcu_dynticks_snap(rdp);
+	if (rcu_dynticks_in_eqs(rdp->dynticks_snap)) {
+		trace_rcu_fqs(rcu_state.name, rdp->gp_seq, rdp->cpu, TPS("dti"));
+>>>>>>> upstream/android-13
 		rcu_gpnum_ovf(rdp->mynode, rdp);
 		return 1;
 	}
@@ -1136,6 +1959,7 @@ static int dyntick_save_progress_counter(struct rcu_data *rdp)
 }
 
 /*
+<<<<<<< HEAD
  * Handler for the irq_work request posted when a grace period has
  * gone on for too long, but not yet long enough for an RCU CPU
  * stall warning.  Set state appropriately, but just complain if
@@ -1157,6 +1981,8 @@ static void rcu_iw_handler(struct irq_work *iwp)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Return true if the specified CPU has passed through a quiescent
  * state by virtue of being in or having passed through an dynticks
  * idle state since the last call to dyntick_save_progress_counter()
@@ -1177,14 +2003,20 @@ static int rcu_implicit_dynticks_qs(struct rcu_data *rdp)
 	 * read-side critical section that started before the beginning
 	 * of the current RCU grace period.
 	 */
+<<<<<<< HEAD
 	if (rcu_dynticks_in_eqs_since(rdp->dynticks, rdp->dynticks_snap)) {
 		trace_rcu_fqs(rdp->rsp->name, rdp->gp_seq, rdp->cpu, TPS("dti"));
 		rdp->dynticks_fqs++;
+=======
+	if (rcu_dynticks_in_eqs_since(rdp, rdp->dynticks_snap)) {
+		trace_rcu_fqs(rcu_state.name, rdp->gp_seq, rdp->cpu, TPS("dti"));
+>>>>>>> upstream/android-13
 		rcu_gpnum_ovf(rnp, rdp);
 		return 1;
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Has this CPU encountered a cond_resched() since the beginning
 	 * of the grace period?  For this to be the case, the CPU has to
 	 * have noticed the current grace period.  This might not be the
@@ -1210,6 +2042,29 @@ static int rcu_implicit_dynticks_qs(struct rcu_data *rdp)
 		struct rcu_node *rnp1;
 
 		WARN_ON(1);  /* Offline CPUs are supposed to report QS! */
+=======
+	 * Complain if a CPU that is considered to be offline from RCU's
+	 * perspective has not yet reported a quiescent state.  After all,
+	 * the offline CPU should have reported a quiescent state during
+	 * the CPU-offline process, or, failing that, by rcu_gp_init()
+	 * if it ran concurrently with either the CPU going offline or the
+	 * last task on a leaf rcu_node structure exiting its RCU read-side
+	 * critical section while all CPUs corresponding to that structure
+	 * are offline.  This added warning detects bugs in any of these
+	 * code paths.
+	 *
+	 * The rcu_node structure's ->lock is held here, which excludes
+	 * the relevant portions the CPU-hotplug code, the grace-period
+	 * initialization code, and the rcu_read_unlock() code paths.
+	 *
+	 * For more detail, please refer to the "Hotplug CPU" section
+	 * of RCU's Requirements documentation.
+	 */
+	if (WARN_ON_ONCE(!(rdp->grpmask & rcu_rnp_online_cpus(rnp)))) {
+		bool onl;
+		struct rcu_node *rnp1;
+
+>>>>>>> upstream/android-13
 		pr_info("%s: grp: %d-%d level: %d ->gp_seq %ld ->completedqs %ld\n",
 			__func__, rnp->grplo, rnp->grphi, rnp->level,
 			(long)rnp->gp_seq, (long)rnp->completedqs);
@@ -1226,6 +2081,7 @@ static int rcu_implicit_dynticks_qs(struct rcu_data *rdp)
 
 	/*
 	 * A CPU running for an extended time within the kernel can
+<<<<<<< HEAD
 	 * delay RCU grace periods.  When the CPU is in NO_HZ_FULL mode,
 	 * even context-switching back and forth between a pair of
 	 * in-kernel CPU-bound tasks cannot advance grace periods.
@@ -1263,6 +2119,63 @@ static int rcu_implicit_dynticks_qs(struct rcu_data *rdp)
 		    !rdp->rcu_iw_pending && rdp->rcu_iw_gp_seq != rnp->gp_seq &&
 		    (rnp->ffmask & rdp->grpmask)) {
 			init_irq_work(&rdp->rcu_iw, rcu_iw_handler);
+=======
+	 * delay RCU grace periods: (1) At age jiffies_to_sched_qs,
+	 * set .rcu_urgent_qs, (2) At age 2*jiffies_to_sched_qs, set
+	 * both .rcu_need_heavy_qs and .rcu_urgent_qs.  Note that the
+	 * unsynchronized assignments to the per-CPU rcu_need_heavy_qs
+	 * variable are safe because the assignments are repeated if this
+	 * CPU failed to pass through a quiescent state.  This code
+	 * also checks .jiffies_resched in case jiffies_to_sched_qs
+	 * is set way high.
+	 */
+	jtsq = READ_ONCE(jiffies_to_sched_qs);
+	ruqp = per_cpu_ptr(&rcu_data.rcu_urgent_qs, rdp->cpu);
+	rnhqp = per_cpu_ptr(&rcu_data.rcu_need_heavy_qs, rdp->cpu);
+	if (!READ_ONCE(*rnhqp) &&
+	    (time_after(jiffies, rcu_state.gp_start + jtsq * 2) ||
+	     time_after(jiffies, rcu_state.jiffies_resched) ||
+	     rcu_state.cbovld)) {
+		WRITE_ONCE(*rnhqp, true);
+		/* Store rcu_need_heavy_qs before rcu_urgent_qs. */
+		smp_store_release(ruqp, true);
+	} else if (time_after(jiffies, rcu_state.gp_start + jtsq)) {
+		WRITE_ONCE(*ruqp, true);
+	}
+
+	/*
+	 * NO_HZ_FULL CPUs can run in-kernel without rcu_sched_clock_irq!
+	 * The above code handles this, but only for straight cond_resched().
+	 * And some in-kernel loops check need_resched() before calling
+	 * cond_resched(), which defeats the above code for CPUs that are
+	 * running in-kernel with scheduling-clock interrupts disabled.
+	 * So hit them over the head with the resched_cpu() hammer!
+	 */
+	if (tick_nohz_full_cpu(rdp->cpu) &&
+	    (time_after(jiffies, READ_ONCE(rdp->last_fqs_resched) + jtsq * 3) ||
+	     rcu_state.cbovld)) {
+		WRITE_ONCE(*ruqp, true);
+		resched_cpu(rdp->cpu);
+		WRITE_ONCE(rdp->last_fqs_resched, jiffies);
+	}
+
+	/*
+	 * If more than halfway to RCU CPU stall-warning time, invoke
+	 * resched_cpu() more frequently to try to loosen things up a bit.
+	 * Also check to see if the CPU is getting hammered with interrupts,
+	 * but only once per grace period, just to keep the IPIs down to
+	 * a dull roar.
+	 */
+	if (time_after(jiffies, rcu_state.jiffies_resched)) {
+		if (time_after(jiffies,
+			       READ_ONCE(rdp->last_fqs_resched) + jtsq)) {
+			resched_cpu(rdp->cpu);
+			WRITE_ONCE(rdp->last_fqs_resched, jiffies);
+		}
+		if (IS_ENABLED(CONFIG_IRQ_WORK) &&
+		    !rdp->rcu_iw_pending && rdp->rcu_iw_gp_seq != rnp->gp_seq &&
+		    (rnp->ffmask & rdp->grpmask)) {
+>>>>>>> upstream/android-13
 			rdp->rcu_iw_pending = true;
 			rdp->rcu_iw_gp_seq = rnp->gp_seq;
 			irq_work_queue_on(&rdp->rcu_iw, rdp->cpu);
@@ -1272,6 +2185,7 @@ static int rcu_implicit_dynticks_qs(struct rcu_data *rdp)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void record_gp_stall_check_time(struct rcu_state *rsp)
 {
 	unsigned long j = jiffies;
@@ -1585,12 +2499,20 @@ void rcu_cpu_stall_reset(void)
 		WRITE_ONCE(rsp->jiffies_stall, jiffies + ULONG_MAX / 2);
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Trace-event wrapper function for trace_rcu_future_grace_period.  */
 static void trace_rcu_this_gp(struct rcu_node *rnp, struct rcu_data *rdp,
 			      unsigned long gp_seq_req, const char *s)
 {
+<<<<<<< HEAD
 	trace_rcu_future_grace_period(rdp->rsp->name, rnp->gp_seq, gp_seq_req,
 				      rnp->level, rnp->grplo, rnp->grphi, s);
+=======
+	trace_rcu_future_grace_period(rcu_state.name, READ_ONCE(rnp->gp_seq),
+				      gp_seq_req, rnp->level,
+				      rnp->grplo, rnp->grphi, s);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1613,7 +2535,10 @@ static bool rcu_start_this_gp(struct rcu_node *rnp_start, struct rcu_data *rdp,
 			      unsigned long gp_seq_req)
 {
 	bool ret = false;
+<<<<<<< HEAD
 	struct rcu_state *rsp = rdp->rsp;
+=======
+>>>>>>> upstream/android-13
 	struct rcu_node *rnp;
 
 	/*
@@ -1638,7 +2563,11 @@ static bool rcu_start_this_gp(struct rcu_node *rnp_start, struct rcu_data *rdp,
 					  TPS("Prestarted"));
 			goto unlock_out;
 		}
+<<<<<<< HEAD
 		rnp->gp_seq_needed = gp_seq_req;
+=======
+		WRITE_ONCE(rnp->gp_seq_needed, gp_seq_req);
+>>>>>>> upstream/android-13
 		if (rcu_seq_state(rcu_seq_current(&rnp->gp_seq))) {
 			/*
 			 * We just marked the leaf or internal node, and a
@@ -1657,11 +2586,16 @@ static bool rcu_start_this_gp(struct rcu_node *rnp_start, struct rcu_data *rdp,
 	}
 
 	/* If GP already in progress, just leave, otherwise start one. */
+<<<<<<< HEAD
 	if (rcu_gp_in_progress(rsp)) {
+=======
+	if (rcu_gp_in_progress()) {
+>>>>>>> upstream/android-13
 		trace_rcu_this_gp(rnp, rdp, gp_seq_req, TPS("Startedleafroot"));
 		goto unlock_out;
 	}
 	trace_rcu_this_gp(rnp, rdp, gp_seq_req, TPS("Startedroot"));
+<<<<<<< HEAD
 	WRITE_ONCE(rsp->gp_flags, rsp->gp_flags | RCU_GP_FLAG_INIT);
 	rsp->gp_req_activity = jiffies;
 	if (!rsp->gp_kthread) {
@@ -1669,12 +2603,26 @@ static bool rcu_start_this_gp(struct rcu_node *rnp_start, struct rcu_data *rdp,
 		goto unlock_out;
 	}
 	trace_rcu_grace_period(rsp->name, READ_ONCE(rsp->gp_seq), TPS("newreq"));
+=======
+	WRITE_ONCE(rcu_state.gp_flags, rcu_state.gp_flags | RCU_GP_FLAG_INIT);
+	WRITE_ONCE(rcu_state.gp_req_activity, jiffies);
+	if (!READ_ONCE(rcu_state.gp_kthread)) {
+		trace_rcu_this_gp(rnp, rdp, gp_seq_req, TPS("NoGPkthread"));
+		goto unlock_out;
+	}
+	trace_rcu_grace_period(rcu_state.name, data_race(rcu_state.gp_seq), TPS("newreq"));
+>>>>>>> upstream/android-13
 	ret = true;  /* Caller must wake GP kthread. */
 unlock_out:
 	/* Push furthest requested GP to leaf node and rcu_data structure. */
 	if (ULONG_CMP_LT(gp_seq_req, rnp->gp_seq_needed)) {
+<<<<<<< HEAD
 		rnp_start->gp_seq_needed = rnp->gp_seq_needed;
 		rdp->gp_seq_needed = rnp->gp_seq_needed;
+=======
+		WRITE_ONCE(rnp_start->gp_seq_needed, rnp->gp_seq_needed);
+		WRITE_ONCE(rdp->gp_seq_needed, rnp->gp_seq_needed);
+>>>>>>> upstream/android-13
 	}
 	if (rnp != rnp_start)
 		raw_spin_unlock_rcu_node(rnp);
@@ -1685,10 +2633,17 @@ unlock_out:
  * Clean up any old requests for the just-ended grace period.  Also return
  * whether any additional grace periods have been requested.
  */
+<<<<<<< HEAD
 static bool rcu_future_gp_cleanup(struct rcu_state *rsp, struct rcu_node *rnp)
 {
 	bool needmore;
 	struct rcu_data *rdp = this_cpu_ptr(rsp->rda);
+=======
+static bool rcu_future_gp_cleanup(struct rcu_node *rnp)
+{
+	bool needmore;
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+>>>>>>> upstream/android-13
 
 	needmore = ULONG_CMP_LT(rnp->gp_seq, rnp->gp_seq_needed);
 	if (!needmore)
@@ -1699,12 +2654,22 @@ static bool rcu_future_gp_cleanup(struct rcu_state *rsp, struct rcu_node *rnp)
 }
 
 /*
+<<<<<<< HEAD
  * Awaken the grace-period kthread.  Don't do a self-awaken (unless in
  * an interrupt or softirq handler), and don't bother awakening when there
  * is nothing for the grace-period kthread to do (as in several CPUs raced
  * to awaken, and we lost), and finally don't try to awaken a kthread that
  * has not yet been created.  If all those checks are passed, track some
  * debug information and awaken.
+=======
+ * Awaken the grace-period kthread.  Don't do a self-awaken (unless in an
+ * interrupt or softirq handler, in which case we just might immediately
+ * sleep upon return, resulting in a grace-period hang), and don't bother
+ * awakening when there is nothing for the grace-period kthread to do
+ * (as in several CPUs raced to awaken, we lost), and finally don't try
+ * to awaken a kthread that has not yet been created.  If all those checks
+ * are passed, track some debug information and awaken.
+>>>>>>> upstream/android-13
  *
  * So why do the self-wakeup when in an interrupt or softirq handler
  * in the grace-period kthread's context?  Because the kthread might have
@@ -1712,6 +2677,7 @@ static bool rcu_future_gp_cleanup(struct rcu_state *rsp, struct rcu_node *rnp)
  * pre-sleep check of the awaken condition.  In this case, a wakeup really
  * is required, and is therefore supplied.
  */
+<<<<<<< HEAD
 static void rcu_gp_kthread_wake(struct rcu_state *rsp)
 {
 	if ((current == rsp->gp_kthread &&
@@ -1720,6 +2686,18 @@ static void rcu_gp_kthread_wake(struct rcu_state *rsp)
 	    !rsp->gp_kthread)
 		return;
 	swake_up_one(&rsp->gp_wq);
+=======
+static void rcu_gp_kthread_wake(void)
+{
+	struct task_struct *t = READ_ONCE(rcu_state.gp_kthread);
+
+	if ((current == t && !in_irq() && !in_serving_softirq()) ||
+	    !READ_ONCE(rcu_state.gp_flags) || !t)
+		return;
+	WRITE_ONCE(rcu_state.gp_wake_time, jiffies);
+	WRITE_ONCE(rcu_state.gp_wake_seq, READ_ONCE(rcu_state.gp_seq));
+	swake_up_one(&rcu_state.gp_wq);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1734,18 +2712,31 @@ static void rcu_gp_kthread_wake(struct rcu_state *rsp)
  *
  * The caller must hold rnp->lock with interrupts disabled.
  */
+<<<<<<< HEAD
 static bool rcu_accelerate_cbs(struct rcu_state *rsp, struct rcu_node *rnp,
 			       struct rcu_data *rdp)
+=======
+static bool rcu_accelerate_cbs(struct rcu_node *rnp, struct rcu_data *rdp)
+>>>>>>> upstream/android-13
 {
 	unsigned long gp_seq_req;
 	bool ret = false;
 
+<<<<<<< HEAD
+=======
+	rcu_lockdep_assert_cblist_protected(rdp);
+>>>>>>> upstream/android-13
 	raw_lockdep_assert_held_rcu_node(rnp);
 
 	/* If no pending (not yet ready to invoke) callbacks, nothing to do. */
 	if (!rcu_segcblist_pend_cbs(&rdp->cblist))
 		return false;
 
+<<<<<<< HEAD
+=======
+	trace_rcu_segcb_stats(&rdp->cblist, TPS("SegCbPreAcc"));
+
+>>>>>>> upstream/android-13
 	/*
 	 * Callbacks are often registered with incomplete grace-period
 	 * information.  Something about the fact that getting exact
@@ -1756,15 +2747,28 @@ static bool rcu_accelerate_cbs(struct rcu_state *rsp, struct rcu_node *rnp,
 	 * accelerating callback invocation to an earlier grace-period
 	 * number.
 	 */
+<<<<<<< HEAD
 	gp_seq_req = rcu_seq_snap(&rsp->gp_seq);
+=======
+	gp_seq_req = rcu_seq_snap(&rcu_state.gp_seq);
+>>>>>>> upstream/android-13
 	if (rcu_segcblist_accelerate(&rdp->cblist, gp_seq_req))
 		ret = rcu_start_this_gp(rnp, rdp, gp_seq_req);
 
 	/* Trace depending on how much we were able to accelerate. */
 	if (rcu_segcblist_restempty(&rdp->cblist, RCU_WAIT_TAIL))
+<<<<<<< HEAD
 		trace_rcu_grace_period(rsp->name, rdp->gp_seq, TPS("AccWaitCB"));
 	else
 		trace_rcu_grace_period(rsp->name, rdp->gp_seq, TPS("AccReadyCB"));
+=======
+		trace_rcu_grace_period(rcu_state.name, gp_seq_req, TPS("AccWaitCB"));
+	else
+		trace_rcu_grace_period(rcu_state.name, gp_seq_req, TPS("AccReadyCB"));
+
+	trace_rcu_segcb_stats(&rdp->cblist, TPS("SegCbPostAcc"));
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1775,25 +2779,42 @@ static bool rcu_accelerate_cbs(struct rcu_state *rsp, struct rcu_node *rnp,
  * that a new grace-period request be made, invokes rcu_accelerate_cbs()
  * while holding the leaf rcu_node structure's ->lock.
  */
+<<<<<<< HEAD
 static void rcu_accelerate_cbs_unlocked(struct rcu_state *rsp,
 					struct rcu_node *rnp,
+=======
+static void rcu_accelerate_cbs_unlocked(struct rcu_node *rnp,
+>>>>>>> upstream/android-13
 					struct rcu_data *rdp)
 {
 	unsigned long c;
 	bool needwake;
 
+<<<<<<< HEAD
 	lockdep_assert_irqs_disabled();
 	c = rcu_seq_snap(&rsp->gp_seq);
 	if (!rdp->gpwrap && ULONG_CMP_GE(rdp->gp_seq_needed, c)) {
+=======
+	rcu_lockdep_assert_cblist_protected(rdp);
+	c = rcu_seq_snap(&rcu_state.gp_seq);
+	if (!READ_ONCE(rdp->gpwrap) && ULONG_CMP_GE(rdp->gp_seq_needed, c)) {
+>>>>>>> upstream/android-13
 		/* Old request still live, so mark recent callbacks. */
 		(void)rcu_segcblist_accelerate(&rdp->cblist, c);
 		return;
 	}
 	raw_spin_lock_rcu_node(rnp); /* irqs already disabled. */
+<<<<<<< HEAD
 	needwake = rcu_accelerate_cbs(rsp, rnp, rdp);
 	raw_spin_unlock_rcu_node(rnp); /* irqs remain disabled. */
 	if (needwake)
 		rcu_gp_kthread_wake(rsp);
+=======
+	needwake = rcu_accelerate_cbs(rnp, rdp);
+	raw_spin_unlock_rcu_node(rnp); /* irqs remain disabled. */
+	if (needwake)
+		rcu_gp_kthread_wake();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1806,9 +2827,15 @@ static void rcu_accelerate_cbs_unlocked(struct rcu_state *rsp,
  *
  * The caller must hold rnp->lock with interrupts disabled.
  */
+<<<<<<< HEAD
 static bool rcu_advance_cbs(struct rcu_state *rsp, struct rcu_node *rnp,
 			    struct rcu_data *rdp)
 {
+=======
+static bool rcu_advance_cbs(struct rcu_node *rnp, struct rcu_data *rdp)
+{
+	rcu_lockdep_assert_cblist_protected(rdp);
+>>>>>>> upstream/android-13
 	raw_lockdep_assert_held_rcu_node(rnp);
 
 	/* If no pending (not yet ready to invoke) callbacks, nothing to do. */
@@ -1822,7 +2849,40 @@ static bool rcu_advance_cbs(struct rcu_state *rsp, struct rcu_node *rnp,
 	rcu_segcblist_advance(&rdp->cblist, rnp->gp_seq);
 
 	/* Classify any remaining callbacks. */
+<<<<<<< HEAD
 	return rcu_accelerate_cbs(rsp, rnp, rdp);
+=======
+	return rcu_accelerate_cbs(rnp, rdp);
+}
+
+/*
+ * Move and classify callbacks, but only if doing so won't require
+ * that the RCU grace-period kthread be awakened.
+ */
+static void __maybe_unused rcu_advance_cbs_nowake(struct rcu_node *rnp,
+						  struct rcu_data *rdp)
+{
+	rcu_lockdep_assert_cblist_protected(rdp);
+	if (!rcu_seq_state(rcu_seq_current(&rnp->gp_seq)) || !raw_spin_trylock_rcu_node(rnp))
+		return;
+	// The grace period cannot end while we hold the rcu_node lock.
+	if (rcu_seq_state(rcu_seq_current(&rnp->gp_seq)))
+		WARN_ON_ONCE(rcu_advance_cbs(rnp, rdp));
+	raw_spin_unlock_rcu_node(rnp);
+}
+
+/*
+ * In CONFIG_RCU_STRICT_GRACE_PERIOD=y kernels, attempt to generate a
+ * quiescent state.  This is intended to be invoked when the CPU notices
+ * a new grace period.
+ */
+static void rcu_strict_gp_check_qs(void)
+{
+	if (IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD)) {
+		rcu_read_lock();
+		rcu_read_unlock();
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1831,11 +2891,19 @@ static bool rcu_advance_cbs(struct rcu_state *rsp, struct rcu_node *rnp,
  * structure corresponding to the current CPU, and must have irqs disabled.
  * Returns true if the grace-period kthread needs to be awakened.
  */
+<<<<<<< HEAD
 static bool __note_gp_changes(struct rcu_state *rsp, struct rcu_node *rnp,
 			      struct rcu_data *rdp)
 {
 	bool ret;
 	bool need_gp;
+=======
+static bool __note_gp_changes(struct rcu_node *rnp, struct rcu_data *rdp)
+{
+	bool ret = false;
+	bool need_qs;
+	const bool offloaded = rcu_rdp_is_offloaded(rdp);
+>>>>>>> upstream/android-13
 
 	raw_lockdep_assert_held_rcu_node(rnp);
 
@@ -1845,10 +2913,22 @@ static bool __note_gp_changes(struct rcu_state *rsp, struct rcu_node *rnp,
 	/* Handle the ends of any preceding grace periods first. */
 	if (rcu_seq_completed_gp(rdp->gp_seq, rnp->gp_seq) ||
 	    unlikely(READ_ONCE(rdp->gpwrap))) {
+<<<<<<< HEAD
 		ret = rcu_advance_cbs(rsp, rnp, rdp); /* Advance callbacks. */
 		trace_rcu_grace_period(rsp->name, rdp->gp_seq, TPS("cpuend"));
 	} else {
 		ret = rcu_accelerate_cbs(rsp, rnp, rdp); /* Recent callbacks. */
+=======
+		if (!offloaded)
+			ret = rcu_advance_cbs(rnp, rdp); /* Advance CBs. */
+		rdp->core_needs_qs = false;
+		trace_rcu_grace_period(rcu_state.name, rdp->gp_seq, TPS("cpuend"));
+	} else {
+		if (!offloaded)
+			ret = rcu_accelerate_cbs(rnp, rdp); /* Recent CBs. */
+		if (rdp->core_needs_qs)
+			rdp->core_needs_qs = !!(rnp->qsmask & rdp->grpmask);
+>>>>>>> upstream/android-13
 	}
 
 	/* Now handle the beginnings of any new-to-this-CPU grace periods. */
@@ -1859,6 +2939,7 @@ static bool __note_gp_changes(struct rcu_state *rsp, struct rcu_node *rnp,
 		 * set up to detect a quiescent state, otherwise don't
 		 * go looking for one.
 		 */
+<<<<<<< HEAD
 		trace_rcu_grace_period(rsp->name, rnp->gp_seq, TPS("cpustart"));
 		need_gp = !!(rnp->qsmask & rdp->grpmask);
 		rdp->cpu_no_qs.b.norm = need_gp;
@@ -1869,12 +2950,27 @@ static bool __note_gp_changes(struct rcu_state *rsp, struct rcu_node *rnp,
 	rdp->gp_seq = rnp->gp_seq;  /* Remember new grace-period state. */
 	if (ULONG_CMP_GE(rnp->gp_seq_needed, rdp->gp_seq_needed) || rdp->gpwrap)
 		rdp->gp_seq_needed = rnp->gp_seq_needed;
+=======
+		trace_rcu_grace_period(rcu_state.name, rnp->gp_seq, TPS("cpustart"));
+		need_qs = !!(rnp->qsmask & rdp->grpmask);
+		rdp->cpu_no_qs.b.norm = need_qs;
+		rdp->core_needs_qs = need_qs;
+		zero_cpu_stall_ticks(rdp);
+	}
+	rdp->gp_seq = rnp->gp_seq;  /* Remember new grace-period state. */
+	if (ULONG_CMP_LT(rdp->gp_seq_needed, rnp->gp_seq_needed) || rdp->gpwrap)
+		WRITE_ONCE(rdp->gp_seq_needed, rnp->gp_seq_needed);
+>>>>>>> upstream/android-13
 	WRITE_ONCE(rdp->gpwrap, false);
 	rcu_gpnum_ovf(rnp, rdp);
 	return ret;
 }
 
+<<<<<<< HEAD
 static void note_gp_changes(struct rcu_state *rsp, struct rcu_data *rdp)
+=======
+static void note_gp_changes(struct rcu_data *rdp)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	bool needwake;
@@ -1888,6 +2984,7 @@ static void note_gp_changes(struct rcu_state *rsp, struct rcu_data *rdp)
 		local_irq_restore(flags);
 		return;
 	}
+<<<<<<< HEAD
 	needwake = __note_gp_changes(rsp, rnp, rdp);
 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
 	if (needwake)
@@ -1900,29 +2997,98 @@ static void rcu_gp_slow(struct rcu_state *rsp, int delay)
 	    !(rcu_seq_ctr(rsp->gp_seq) %
 	      (rcu_num_nodes * PER_RCU_NODE_PERIOD * delay)))
 		schedule_timeout_uninterruptible(delay);
+=======
+	needwake = __note_gp_changes(rnp, rdp);
+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+	rcu_strict_gp_check_qs();
+	if (needwake)
+		rcu_gp_kthread_wake();
+}
+
+static void rcu_gp_slow(int delay)
+{
+	if (delay > 0 &&
+	    !(rcu_seq_ctr(rcu_state.gp_seq) %
+	      (rcu_num_nodes * PER_RCU_NODE_PERIOD * delay)))
+		schedule_timeout_idle(delay);
+}
+
+static unsigned long sleep_duration;
+
+/* Allow rcutorture to stall the grace-period kthread. */
+void rcu_gp_set_torture_wait(int duration)
+{
+	if (IS_ENABLED(CONFIG_RCU_TORTURE_TEST) && duration > 0)
+		WRITE_ONCE(sleep_duration, duration);
+}
+EXPORT_SYMBOL_GPL(rcu_gp_set_torture_wait);
+
+/* Actually implement the aforementioned wait. */
+static void rcu_gp_torture_wait(void)
+{
+	unsigned long duration;
+
+	if (!IS_ENABLED(CONFIG_RCU_TORTURE_TEST))
+		return;
+	duration = xchg(&sleep_duration, 0UL);
+	if (duration > 0) {
+		pr_alert("%s: Waiting %lu jiffies\n", __func__, duration);
+		schedule_timeout_idle(duration);
+		pr_alert("%s: Wait complete\n", __func__);
+	}
+}
+
+/*
+ * Handler for on_each_cpu() to invoke the target CPU's RCU core
+ * processing.
+ */
+static void rcu_strict_gp_boundary(void *unused)
+{
+	invoke_rcu_core();
+>>>>>>> upstream/android-13
 }
 
 /*
  * Initialize a new grace period.  Return false if no grace period required.
  */
+<<<<<<< HEAD
 static bool rcu_gp_init(struct rcu_state *rsp)
 {
+=======
+static noinline_for_stack bool rcu_gp_init(void)
+{
+	unsigned long firstseq;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned long oldmask;
 	unsigned long mask;
 	struct rcu_data *rdp;
+<<<<<<< HEAD
 	struct rcu_node *rnp = rcu_get_root(rsp);
 
 	WRITE_ONCE(rsp->gp_activity, jiffies);
 	raw_spin_lock_irq_rcu_node(rnp);
 	if (!READ_ONCE(rsp->gp_flags)) {
+=======
+	struct rcu_node *rnp = rcu_get_root();
+
+	WRITE_ONCE(rcu_state.gp_activity, jiffies);
+	raw_spin_lock_irq_rcu_node(rnp);
+	if (!READ_ONCE(rcu_state.gp_flags)) {
+>>>>>>> upstream/android-13
 		/* Spurious wakeup, tell caller to go back to sleep.  */
 		raw_spin_unlock_irq_rcu_node(rnp);
 		return false;
 	}
+<<<<<<< HEAD
 	WRITE_ONCE(rsp->gp_flags, 0); /* Clear all flags: New grace period. */
 
 	if (WARN_ON_ONCE(rcu_gp_in_progress(rsp))) {
+=======
+	WRITE_ONCE(rcu_state.gp_flags, 0); /* Clear all flags: New GP. */
+
+	if (WARN_ON_ONCE(rcu_gp_in_progress())) {
+>>>>>>> upstream/android-13
 		/*
 		 * Grace period already in progress, don't start another.
 		 * Not supposed to be able to happen.
@@ -1932,6 +3098,7 @@ static bool rcu_gp_init(struct rcu_state *rsp)
 	}
 
 	/* Advance to a new grace period and initialize state. */
+<<<<<<< HEAD
 	record_gp_stall_check_time(rsp);
 	/* Record GP times before starting GP, hence rcu_seq_start(). */
 	rcu_seq_start(&rsp->gp_seq);
@@ -1947,12 +3114,43 @@ static bool rcu_gp_init(struct rcu_state *rsp)
 	rsp->gp_state = RCU_GP_ONOFF;
 	rcu_for_each_leaf_node(rsp, rnp) {
 		spin_lock(&rsp->ofl_lock);
+=======
+	record_gp_stall_check_time();
+	/* Record GP times before starting GP, hence rcu_seq_start(). */
+	rcu_seq_start(&rcu_state.gp_seq);
+	ASSERT_EXCLUSIVE_WRITER(rcu_state.gp_seq);
+	trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq, TPS("start"));
+	raw_spin_unlock_irq_rcu_node(rnp);
+
+	/*
+	 * Apply per-leaf buffered online and offline operations to
+	 * the rcu_node tree. Note that this new grace period need not
+	 * wait for subsequent online CPUs, and that RCU hooks in the CPU
+	 * offlining path, when combined with checks in this function,
+	 * will handle CPUs that are currently going offline or that will
+	 * go offline later.  Please also refer to "Hotplug CPU" section
+	 * of RCU's Requirements documentation.
+	 */
+	WRITE_ONCE(rcu_state.gp_state, RCU_GP_ONOFF);
+	rcu_for_each_leaf_node(rnp) {
+		smp_mb(); // Pair with barriers used when updating ->ofl_seq to odd values.
+		firstseq = READ_ONCE(rnp->ofl_seq);
+		if (firstseq & 0x1)
+			while (firstseq == READ_ONCE(rnp->ofl_seq))
+				schedule_timeout_idle(1);  // Can't wake unless RCU is watching.
+		smp_mb(); // Pair with barriers used when updating ->ofl_seq to even values.
+		raw_spin_lock(&rcu_state.ofl_lock);
+>>>>>>> upstream/android-13
 		raw_spin_lock_irq_rcu_node(rnp);
 		if (rnp->qsmaskinit == rnp->qsmaskinitnext &&
 		    !rnp->wait_blkd_tasks) {
 			/* Nothing to do on this leaf rcu_node structure. */
 			raw_spin_unlock_irq_rcu_node(rnp);
+<<<<<<< HEAD
 			spin_unlock(&rsp->ofl_lock);
+=======
+			raw_spin_unlock(&rcu_state.ofl_lock);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -1988,6 +3186,7 @@ static bool rcu_gp_init(struct rcu_state *rsp)
 		}
 
 		raw_spin_unlock_irq_rcu_node(rnp);
+<<<<<<< HEAD
 		spin_unlock(&rsp->ofl_lock);
 	}
 	rcu_gp_slow(rsp, gp_preinit_delay); /* Races with CPU hotplug. */
@@ -2000,10 +3199,25 @@ static bool rcu_gp_init(struct rcu_state *rsp)
 	 * will access only the leaves of the hierarchy, thus seeing that no
 	 * grace period is in progress, at least until the corresponding
 	 * leaf node has been initialized.
+=======
+		raw_spin_unlock(&rcu_state.ofl_lock);
+	}
+	rcu_gp_slow(gp_preinit_delay); /* Races with CPU hotplug. */
+
+	/*
+	 * Set the quiescent-state-needed bits in all the rcu_node
+	 * structures for all currently online CPUs in breadth-first
+	 * order, starting from the root rcu_node structure, relying on the
+	 * layout of the tree within the rcu_state.node[] array.  Note that
+	 * other CPUs will access only the leaves of the hierarchy, thus
+	 * seeing that no grace period is in progress, at least until the
+	 * corresponding leaf node has been initialized.
+>>>>>>> upstream/android-13
 	 *
 	 * The grace period cannot complete until the initialization
 	 * process finishes, because this kthread handles both.
 	 */
+<<<<<<< HEAD
 	rsp->gp_state = RCU_GP_INIT;
 	rcu_for_each_node_breadth_first(rsp, rnp) {
 		rcu_gp_slow(rsp, gp_init_delay);
@@ -2016,12 +3230,27 @@ static bool rcu_gp_init(struct rcu_state *rsp)
 			(void)__note_gp_changes(rsp, rnp, rdp);
 		rcu_preempt_boost_start_gp(rnp);
 		trace_rcu_grace_period_init(rsp->name, rnp->gp_seq,
+=======
+	WRITE_ONCE(rcu_state.gp_state, RCU_GP_INIT);
+	rcu_for_each_node_breadth_first(rnp) {
+		rcu_gp_slow(gp_init_delay);
+		raw_spin_lock_irqsave_rcu_node(rnp, flags);
+		rdp = this_cpu_ptr(&rcu_data);
+		rcu_preempt_check_blocked_tasks(rnp);
+		rnp->qsmask = rnp->qsmaskinit;
+		WRITE_ONCE(rnp->gp_seq, rcu_state.gp_seq);
+		if (rnp == rdp->mynode)
+			(void)__note_gp_changes(rnp, rdp);
+		rcu_preempt_boost_start_gp(rnp);
+		trace_rcu_grace_period_init(rcu_state.name, rnp->gp_seq,
+>>>>>>> upstream/android-13
 					    rnp->level, rnp->grplo,
 					    rnp->grphi, rnp->qsmask);
 		/* Quiescent states for tasks on any now-offline CPUs. */
 		mask = rnp->qsmask & ~rnp->qsmaskinitnext;
 		rnp->rcu_gp_init_mask = mask;
 		if ((mask || rnp->wait_blkd_tasks) && rcu_is_leaf_node(rnp))
+<<<<<<< HEAD
 			rcu_report_qs_rnp(mask, rsp, rnp, rnp->gp_seq, flags);
 		else
 			raw_spin_unlock_irq_rcu_node(rnp);
@@ -2029,6 +3258,19 @@ static bool rcu_gp_init(struct rcu_state *rsp)
 		WRITE_ONCE(rsp->gp_activity, jiffies);
 	}
 
+=======
+			rcu_report_qs_rnp(mask, rnp, rnp->gp_seq, flags);
+		else
+			raw_spin_unlock_irq_rcu_node(rnp);
+		cond_resched_tasks_rcu_qs();
+		WRITE_ONCE(rcu_state.gp_activity, jiffies);
+	}
+
+	// If strict, make all CPUs aware of new grace period.
+	if (IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD))
+		on_each_cpu(rcu_strict_gp_boundary, NULL, 0);
+
+>>>>>>> upstream/android-13
 	return true;
 }
 
@@ -2036,6 +3278,7 @@ static bool rcu_gp_init(struct rcu_state *rsp)
  * Helper function for swait_event_idle_exclusive() wakeup at force-quiescent-state
  * time.
  */
+<<<<<<< HEAD
 static bool rcu_gp_fqs_check_wake(struct rcu_state *rsp, int *gfp)
 {
 	struct rcu_node *rnp = rcu_get_root(rsp);
@@ -2046,6 +3289,22 @@ static bool rcu_gp_fqs_check_wake(struct rcu_state *rsp, int *gfp)
 		return true;
 
 	/* The current grace period has completed. */
+=======
+static bool rcu_gp_fqs_check_wake(int *gfp)
+{
+	struct rcu_node *rnp = rcu_get_root();
+
+	// If under overload conditions, force an immediate FQS scan.
+	if (*gfp & RCU_GP_FLAG_OVLD)
+		return true;
+
+	// Someone like call_rcu() requested a force-quiescent-state scan.
+	*gfp = READ_ONCE(rcu_state.gp_flags);
+	if (*gfp & RCU_GP_FLAG_FQS)
+		return true;
+
+	// The current grace period has completed.
+>>>>>>> upstream/android-13
 	if (!READ_ONCE(rnp->qsmask) && !rcu_preempt_blocked_readers_cgp(rnp))
 		return true;
 
@@ -2055,6 +3314,7 @@ static bool rcu_gp_fqs_check_wake(struct rcu_state *rsp, int *gfp)
 /*
  * Do one round of quiescent-state forcing.
  */
+<<<<<<< HEAD
 static void rcu_gp_fqs(struct rcu_state *rsp, bool first_time)
 {
 	struct rcu_node *rnp = rcu_get_root(rsp);
@@ -2073,11 +3333,32 @@ static void rcu_gp_fqs(struct rcu_state *rsp, bool first_time)
 		raw_spin_lock_irq_rcu_node(rnp);
 		WRITE_ONCE(rsp->gp_flags,
 			   READ_ONCE(rsp->gp_flags) & ~RCU_GP_FLAG_FQS);
+=======
+static void rcu_gp_fqs(bool first_time)
+{
+	struct rcu_node *rnp = rcu_get_root();
+
+	WRITE_ONCE(rcu_state.gp_activity, jiffies);
+	WRITE_ONCE(rcu_state.n_force_qs, rcu_state.n_force_qs + 1);
+	if (first_time) {
+		/* Collect dyntick-idle snapshots. */
+		force_qs_rnp(dyntick_save_progress_counter);
+	} else {
+		/* Handle dyntick-idle and offline CPUs. */
+		force_qs_rnp(rcu_implicit_dynticks_qs);
+	}
+	/* Clear flag to prevent immediate re-entry. */
+	if (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) {
+		raw_spin_lock_irq_rcu_node(rnp);
+		WRITE_ONCE(rcu_state.gp_flags,
+			   READ_ONCE(rcu_state.gp_flags) & ~RCU_GP_FLAG_FQS);
+>>>>>>> upstream/android-13
 		raw_spin_unlock_irq_rcu_node(rnp);
 	}
 }
 
 /*
+<<<<<<< HEAD
  * Clean up after the old grace period.
  */
 static void rcu_gp_cleanup(struct rcu_state *rsp)
@@ -2094,6 +3375,101 @@ static void rcu_gp_cleanup(struct rcu_state *rsp)
 	gp_duration = jiffies - rsp->gp_start;
 	if (gp_duration > rsp->gp_max)
 		rsp->gp_max = gp_duration;
+=======
+ * Loop doing repeated quiescent-state forcing until the grace period ends.
+ */
+static noinline_for_stack void rcu_gp_fqs_loop(void)
+{
+	bool first_gp_fqs;
+	int gf = 0;
+	unsigned long j;
+	int ret;
+	struct rcu_node *rnp = rcu_get_root();
+
+	first_gp_fqs = true;
+	j = READ_ONCE(jiffies_till_first_fqs);
+	if (rcu_state.cbovld)
+		gf = RCU_GP_FLAG_OVLD;
+	ret = 0;
+	for (;;) {
+		if (!ret) {
+			WRITE_ONCE(rcu_state.jiffies_force_qs, jiffies + j);
+			/*
+			 * jiffies_force_qs before RCU_GP_WAIT_FQS state
+			 * update; required for stall checks.
+			 */
+			smp_wmb();
+			WRITE_ONCE(rcu_state.jiffies_kick_kthreads,
+				   jiffies + (j ? 3 * j : 2));
+		}
+		trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq,
+				       TPS("fqswait"));
+		WRITE_ONCE(rcu_state.gp_state, RCU_GP_WAIT_FQS);
+		(void)swait_event_idle_timeout_exclusive(rcu_state.gp_wq,
+				 rcu_gp_fqs_check_wake(&gf), j);
+		rcu_gp_torture_wait();
+		WRITE_ONCE(rcu_state.gp_state, RCU_GP_DOING_FQS);
+		/* Locking provides needed memory barriers. */
+		/* If grace period done, leave loop. */
+		if (!READ_ONCE(rnp->qsmask) &&
+		    !rcu_preempt_blocked_readers_cgp(rnp))
+			break;
+		/* If time for quiescent-state forcing, do it. */
+		if (!time_after(rcu_state.jiffies_force_qs, jiffies) ||
+		    (gf & (RCU_GP_FLAG_FQS | RCU_GP_FLAG_OVLD))) {
+			trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq,
+					       TPS("fqsstart"));
+			rcu_gp_fqs(first_gp_fqs);
+			gf = 0;
+			if (first_gp_fqs) {
+				first_gp_fqs = false;
+				gf = rcu_state.cbovld ? RCU_GP_FLAG_OVLD : 0;
+			}
+			trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq,
+					       TPS("fqsend"));
+			cond_resched_tasks_rcu_qs();
+			WRITE_ONCE(rcu_state.gp_activity, jiffies);
+			ret = 0; /* Force full wait till next FQS. */
+			j = READ_ONCE(jiffies_till_next_fqs);
+		} else {
+			/* Deal with stray signal. */
+			cond_resched_tasks_rcu_qs();
+			WRITE_ONCE(rcu_state.gp_activity, jiffies);
+			WARN_ON(signal_pending(current));
+			trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq,
+					       TPS("fqswaitsig"));
+			ret = 1; /* Keep old FQS timing. */
+			j = jiffies;
+			if (time_after(jiffies, rcu_state.jiffies_force_qs))
+				j = 1;
+			else
+				j = rcu_state.jiffies_force_qs - j;
+			gf = 0;
+		}
+	}
+}
+
+/*
+ * Clean up after the old grace period.
+ */
+static noinline void rcu_gp_cleanup(void)
+{
+	int cpu;
+	bool needgp = false;
+	unsigned long gp_duration;
+	unsigned long new_gp_seq;
+	bool offloaded;
+	struct rcu_data *rdp;
+	struct rcu_node *rnp = rcu_get_root();
+	struct swait_queue_head *sq;
+
+	WRITE_ONCE(rcu_state.gp_activity, jiffies);
+	raw_spin_lock_irq_rcu_node(rnp);
+	rcu_state.gp_end = jiffies;
+	gp_duration = rcu_state.gp_end - rcu_state.gp_start;
+	if (gp_duration > rcu_state.gp_max)
+		rcu_state.gp_max = gp_duration;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We know the grace period is complete, but to everyone else
@@ -2114,6 +3490,7 @@ static void rcu_gp_cleanup(struct rcu_state *rsp)
 	 * the rcu_node structures before the beginning of the next grace
 	 * period is recorded in any of the rcu_node structures.
 	 */
+<<<<<<< HEAD
 	new_gp_seq = rsp->gp_seq;
 	rcu_seq_end(&new_gp_seq);
 	rcu_for_each_node_breadth_first(rsp, rnp) {
@@ -2127,10 +3504,32 @@ static void rcu_gp_cleanup(struct rcu_state *rsp)
 			needgp = __note_gp_changes(rsp, rnp, rdp) || needgp;
 		/* smp_mb() provided by prior unlock-lock pair. */
 		needgp = rcu_future_gp_cleanup(rsp, rnp) || needgp;
+=======
+	new_gp_seq = rcu_state.gp_seq;
+	rcu_seq_end(&new_gp_seq);
+	rcu_for_each_node_breadth_first(rnp) {
+		raw_spin_lock_irq_rcu_node(rnp);
+		if (WARN_ON_ONCE(rcu_preempt_blocked_readers_cgp(rnp)))
+			dump_blkd_tasks(rnp, 10);
+		WARN_ON_ONCE(rnp->qsmask);
+		WRITE_ONCE(rnp->gp_seq, new_gp_seq);
+		rdp = this_cpu_ptr(&rcu_data);
+		if (rnp == rdp->mynode)
+			needgp = __note_gp_changes(rnp, rdp) || needgp;
+		/* smp_mb() provided by prior unlock-lock pair. */
+		needgp = rcu_future_gp_cleanup(rnp) || needgp;
+		// Reset overload indication for CPUs no longer overloaded
+		if (rcu_is_leaf_node(rnp))
+			for_each_leaf_node_cpu_mask(rnp, cpu, rnp->cbovldmask) {
+				rdp = per_cpu_ptr(&rcu_data, cpu);
+				check_cb_ovld_locked(rdp, rnp);
+			}
+>>>>>>> upstream/android-13
 		sq = rcu_nocb_gp_get(rnp);
 		raw_spin_unlock_irq_rcu_node(rnp);
 		rcu_nocb_gp_cleanup(sq);
 		cond_resched_tasks_rcu_qs();
+<<<<<<< HEAD
 		WRITE_ONCE(rsp->gp_activity, jiffies);
 		rcu_gp_slow(rsp, gp_cleanup_delay);
 	}
@@ -2143,12 +3542,28 @@ static void rcu_gp_cleanup(struct rcu_state *rsp)
 	rsp->gp_state = RCU_GP_IDLE;
 	/* Check for GP requests since above loop. */
 	rdp = this_cpu_ptr(rsp->rda);
+=======
+		WRITE_ONCE(rcu_state.gp_activity, jiffies);
+		rcu_gp_slow(gp_cleanup_delay);
+	}
+	rnp = rcu_get_root();
+	raw_spin_lock_irq_rcu_node(rnp); /* GP before ->gp_seq update. */
+
+	/* Declare grace period done, trace first to use old GP number. */
+	trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq, TPS("end"));
+	rcu_seq_end(&rcu_state.gp_seq);
+	ASSERT_EXCLUSIVE_WRITER(rcu_state.gp_seq);
+	WRITE_ONCE(rcu_state.gp_state, RCU_GP_IDLE);
+	/* Check for GP requests since above loop. */
+	rdp = this_cpu_ptr(&rcu_data);
+>>>>>>> upstream/android-13
 	if (!needgp && ULONG_CMP_LT(rnp->gp_seq, rnp->gp_seq_needed)) {
 		trace_rcu_this_gp(rnp, rdp, rnp->gp_seq_needed,
 				  TPS("CleanupMore"));
 		needgp = true;
 	}
 	/* Advance CBs to reduce false positives below. */
+<<<<<<< HEAD
 	if (!rcu_accelerate_cbs(rsp, rnp, rdp) && needgp) {
 		WRITE_ONCE(rsp->gp_flags, RCU_GP_FLAG_INIT);
 		rsp->gp_req_activity = jiffies;
@@ -2158,11 +3573,30 @@ static void rcu_gp_cleanup(struct rcu_state *rsp)
 		WRITE_ONCE(rsp->gp_flags, rsp->gp_flags & RCU_GP_FLAG_INIT);
 	}
 	raw_spin_unlock_irq_rcu_node(rnp);
+=======
+	offloaded = rcu_rdp_is_offloaded(rdp);
+	if ((offloaded || !rcu_accelerate_cbs(rnp, rdp)) && needgp) {
+		WRITE_ONCE(rcu_state.gp_flags, RCU_GP_FLAG_INIT);
+		WRITE_ONCE(rcu_state.gp_req_activity, jiffies);
+		trace_rcu_grace_period(rcu_state.name,
+				       rcu_state.gp_seq,
+				       TPS("newreq"));
+	} else {
+		WRITE_ONCE(rcu_state.gp_flags,
+			   rcu_state.gp_flags & RCU_GP_FLAG_INIT);
+	}
+	raw_spin_unlock_irq_rcu_node(rnp);
+
+	// If strict, make all CPUs aware of the end of the old grace period.
+	if (IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD))
+		on_each_cpu(rcu_strict_gp_boundary, NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Body of kthread that handles grace periods.
  */
+<<<<<<< HEAD
 static int __noreturn rcu_gp_kthread(void *arg)
 {
 	bool first_gp_fqs;
@@ -2172,11 +3606,16 @@ static int __noreturn rcu_gp_kthread(void *arg)
 	struct rcu_state *rsp = arg;
 	struct rcu_node *rnp = rcu_get_root(rsp);
 
+=======
+static int __noreturn rcu_gp_kthread(void *unused)
+{
+>>>>>>> upstream/android-13
 	rcu_bind_gp_kthread();
 	for (;;) {
 
 		/* Handle grace-period start. */
 		for (;;) {
+<<<<<<< HEAD
 			trace_rcu_grace_period(rsp->name,
 					       READ_ONCE(rsp->gp_seq),
 					       TPS("reqwait"));
@@ -2192,10 +3631,28 @@ static int __noreturn rcu_gp_kthread(void *arg)
 			WARN_ON(signal_pending(current));
 			trace_rcu_grace_period(rsp->name,
 					       READ_ONCE(rsp->gp_seq),
+=======
+			trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq,
+					       TPS("reqwait"));
+			WRITE_ONCE(rcu_state.gp_state, RCU_GP_WAIT_GPS);
+			swait_event_idle_exclusive(rcu_state.gp_wq,
+					 READ_ONCE(rcu_state.gp_flags) &
+					 RCU_GP_FLAG_INIT);
+			rcu_gp_torture_wait();
+			WRITE_ONCE(rcu_state.gp_state, RCU_GP_DONE_GPS);
+			/* Locking provides needed memory barrier. */
+			if (rcu_gp_init())
+				break;
+			cond_resched_tasks_rcu_qs();
+			WRITE_ONCE(rcu_state.gp_activity, jiffies);
+			WARN_ON(signal_pending(current));
+			trace_rcu_grace_period(rcu_state.name, rcu_state.gp_seq,
+>>>>>>> upstream/android-13
 					       TPS("reqwaitsig"));
 		}
 
 		/* Handle quiescent-state forcing. */
+<<<<<<< HEAD
 		first_gp_fqs = true;
 		j = jiffies_till_first_fqs;
 		ret = 0;
@@ -2253,10 +3710,19 @@ static int __noreturn rcu_gp_kthread(void *arg)
 		rsp->gp_state = RCU_GP_CLEANUP;
 		rcu_gp_cleanup(rsp);
 		rsp->gp_state = RCU_GP_CLEANED;
+=======
+		rcu_gp_fqs_loop();
+
+		/* Handle grace-period end. */
+		WRITE_ONCE(rcu_state.gp_state, RCU_GP_CLEANUP);
+		rcu_gp_cleanup();
+		WRITE_ONCE(rcu_state.gp_state, RCU_GP_CLEANED);
+>>>>>>> upstream/android-13
 	}
 }
 
 /*
+<<<<<<< HEAD
  * Report a full set of quiescent states to the specified rcu_state data
  * structure.  Invoke rcu_gp_kthread_wake() to awaken the grace-period
  * kthread if another grace period is required.  Whether we wake
@@ -2273,6 +3739,25 @@ static void rcu_report_qs_rsp(struct rcu_state *rsp, unsigned long flags)
 	WRITE_ONCE(rsp->gp_flags, READ_ONCE(rsp->gp_flags) | RCU_GP_FLAG_FQS);
 	raw_spin_unlock_irqrestore_rcu_node(rcu_get_root(rsp), flags);
 	rcu_gp_kthread_wake(rsp);
+=======
+ * Report a full set of quiescent states to the rcu_state data structure.
+ * Invoke rcu_gp_kthread_wake() to awaken the grace-period kthread if
+ * another grace period is required.  Whether we wake the grace-period
+ * kthread or it awakens itself for the next round of quiescent-state
+ * forcing, that kthread will clean up after the just-completed grace
+ * period.  Note that the caller must hold rnp->lock, which is released
+ * before return.
+ */
+static void rcu_report_qs_rsp(unsigned long flags)
+	__releases(rcu_get_root()->lock)
+{
+	raw_lockdep_assert_held_rcu_node(rcu_get_root());
+	WARN_ON_ONCE(!rcu_gp_in_progress());
+	WRITE_ONCE(rcu_state.gp_flags,
+		   READ_ONCE(rcu_state.gp_flags) | RCU_GP_FLAG_FQS);
+	raw_spin_unlock_irqrestore_rcu_node(rcu_get_root(), flags);
+	rcu_gp_kthread_wake();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2289,9 +3774,14 @@ static void rcu_report_qs_rsp(struct rcu_state *rsp, unsigned long flags)
  * disabled.  This allows propagating quiescent state due to resumed tasks
  * during grace-period initialization.
  */
+<<<<<<< HEAD
 static void
 rcu_report_qs_rnp(unsigned long mask, struct rcu_state *rsp,
 		  struct rcu_node *rnp, unsigned long gps, unsigned long flags)
+=======
+static void rcu_report_qs_rnp(unsigned long mask, struct rcu_node *rnp,
+			      unsigned long gps, unsigned long flags)
+>>>>>>> upstream/android-13
 	__releases(rnp->lock)
 {
 	unsigned long oldmask = 0;
@@ -2313,8 +3803,13 @@ rcu_report_qs_rnp(unsigned long mask, struct rcu_state *rsp,
 		WARN_ON_ONCE(oldmask); /* Any child must be all zeroed! */
 		WARN_ON_ONCE(!rcu_is_leaf_node(rnp) &&
 			     rcu_preempt_blocked_readers_cgp(rnp));
+<<<<<<< HEAD
 		rnp->qsmask &= ~mask;
 		trace_rcu_quiescent_state_report(rsp->name, rnp->gp_seq,
+=======
+		WRITE_ONCE(rnp->qsmask, rnp->qsmask & ~mask);
+		trace_rcu_quiescent_state_report(rcu_state.name, rnp->gp_seq,
+>>>>>>> upstream/android-13
 						 mask, rnp->qsmask, rnp->level,
 						 rnp->grplo, rnp->grphi,
 						 !!rnp->gp_tasks);
@@ -2336,7 +3831,11 @@ rcu_report_qs_rnp(unsigned long mask, struct rcu_state *rsp,
 		rnp_c = rnp;
 		rnp = rnp->parent;
 		raw_spin_lock_irqsave_rcu_node(rnp, flags);
+<<<<<<< HEAD
 		oldmask = rnp_c->qsmask;
+=======
+		oldmask = READ_ONCE(rnp_c->qsmask);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -2344,19 +3843,31 @@ rcu_report_qs_rnp(unsigned long mask, struct rcu_state *rsp,
 	 * state for this grace period.  Invoke rcu_report_qs_rsp()
 	 * to clean up and start the next grace period if one is needed.
 	 */
+<<<<<<< HEAD
 	rcu_report_qs_rsp(rsp, flags); /* releases rnp->lock. */
+=======
+	rcu_report_qs_rsp(flags); /* releases rnp->lock. */
+>>>>>>> upstream/android-13
 }
 
 /*
  * Record a quiescent state for all tasks that were previously queued
  * on the specified rcu_node structure and that were blocking the current
+<<<<<<< HEAD
  * RCU grace period.  The caller must hold the specified rnp->lock with
+=======
+ * RCU grace period.  The caller must hold the corresponding rnp->lock with
+>>>>>>> upstream/android-13
  * irqs disabled, and this lock is released upon return, but irqs remain
  * disabled.
  */
 static void __maybe_unused
+<<<<<<< HEAD
 rcu_report_unblock_qs_rnp(struct rcu_state *rsp,
 			  struct rcu_node *rnp, unsigned long flags)
+=======
+rcu_report_unblock_qs_rnp(struct rcu_node *rnp, unsigned long flags)
+>>>>>>> upstream/android-13
 	__releases(rnp->lock)
 {
 	unsigned long gps;
@@ -2364,8 +3875,12 @@ rcu_report_unblock_qs_rnp(struct rcu_state *rsp,
 	struct rcu_node *rnp_p;
 
 	raw_lockdep_assert_held_rcu_node(rnp);
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(rcu_state_p == &rcu_sched_state) ||
 	    WARN_ON_ONCE(rsp != rcu_state_p) ||
+=======
+	if (WARN_ON_ONCE(!IS_ENABLED(CONFIG_PREEMPT_RCU)) ||
+>>>>>>> upstream/android-13
 	    WARN_ON_ONCE(rcu_preempt_blocked_readers_cgp(rnp)) ||
 	    rnp->qsmask != 0) {
 		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
@@ -2379,7 +3894,11 @@ rcu_report_unblock_qs_rnp(struct rcu_state *rsp,
 		 * Only one rcu_node structure in the tree, so don't
 		 * try to report up to its nonexistent parent!
 		 */
+<<<<<<< HEAD
 		rcu_report_qs_rsp(rsp, flags);
+=======
+		rcu_report_qs_rsp(flags);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2388,7 +3907,11 @@ rcu_report_unblock_qs_rnp(struct rcu_state *rsp,
 	mask = rnp->grpmask;
 	raw_spin_unlock_rcu_node(rnp);	/* irqs remain disabled. */
 	raw_spin_lock_rcu_node(rnp_p);	/* irqs already disabled. */
+<<<<<<< HEAD
 	rcu_report_qs_rnp(mask, rsp, rnp_p, gps, flags);
+=======
+	rcu_report_qs_rnp(mask, rnp_p, gps, flags);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2396,6 +3919,7 @@ rcu_report_unblock_qs_rnp(struct rcu_state *rsp,
  * structure.  This must be called from the specified CPU.
  */
 static void
+<<<<<<< HEAD
 rcu_report_qs_rdp(int cpu, struct rcu_state *rsp, struct rcu_data *rdp)
 {
 	unsigned long flags;
@@ -2403,6 +3927,17 @@ rcu_report_qs_rdp(int cpu, struct rcu_state *rsp, struct rcu_data *rdp)
 	bool needwake;
 	struct rcu_node *rnp;
 
+=======
+rcu_report_qs_rdp(struct rcu_data *rdp)
+{
+	unsigned long flags;
+	unsigned long mask;
+	bool needwake = false;
+	const bool offloaded = rcu_rdp_is_offloaded(rdp);
+	struct rcu_node *rnp;
+
+	WARN_ON_ONCE(rdp->cpu != smp_processor_id());
+>>>>>>> upstream/android-13
 	rnp = rdp->mynode;
 	raw_spin_lock_irqsave_rcu_node(rnp, flags);
 	if (rdp->cpu_no_qs.b.norm || rdp->gp_seq != rnp->gp_seq ||
@@ -2415,26 +3950,47 @@ rcu_report_qs_rdp(int cpu, struct rcu_state *rsp, struct rcu_data *rdp)
 		 * within the current grace period.
 		 */
 		rdp->cpu_no_qs.b.norm = true;	/* need qs for new gp. */
+<<<<<<< HEAD
 		rdp->rcu_qs_ctr_snap = __this_cpu_read(rcu_dynticks.rcu_qs_ctr);
+=======
+>>>>>>> upstream/android-13
 		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
 		return;
 	}
 	mask = rdp->grpmask;
+<<<<<<< HEAD
 	if ((rnp->qsmask & mask) == 0) {
 		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
 	} else {
 		rdp->core_needs_qs = false;
 
+=======
+	rdp->core_needs_qs = false;
+	if ((rnp->qsmask & mask) == 0) {
+		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+	} else {
+>>>>>>> upstream/android-13
 		/*
 		 * This GP can't end until cpu checks in, so all of our
 		 * callbacks can be processed during the next GP.
 		 */
+<<<<<<< HEAD
 		needwake = rcu_accelerate_cbs(rsp, rnp, rdp);
 
 		rcu_report_qs_rnp(mask, rsp, rnp, rnp->gp_seq, flags);
 		/* ^^^ Released rnp->lock */
 		if (needwake)
 			rcu_gp_kthread_wake(rsp);
+=======
+		if (!offloaded)
+			needwake = rcu_accelerate_cbs(rnp, rdp);
+
+		rcu_disable_urgency_upon_qs(rdp);
+		rcu_report_qs_rnp(mask, rnp, rnp->gp_seq, flags);
+		/* ^^^ Released rnp->lock */
+		if (needwake)
+			rcu_gp_kthread_wake();
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2445,10 +4001,17 @@ rcu_report_qs_rdp(int cpu, struct rcu_state *rsp, struct rcu_data *rdp)
  * quiescent state for this grace period, and record that fact if so.
  */
 static void
+<<<<<<< HEAD
 rcu_check_quiescent_state(struct rcu_state *rsp, struct rcu_data *rdp)
 {
 	/* Check for grace-period ends and beginnings. */
 	note_gp_changes(rsp, rdp);
+=======
+rcu_check_quiescent_state(struct rcu_data *rdp)
+{
+	/* Check for grace-period ends and beginnings. */
+	note_gp_changes(rdp);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Does this CPU still need to do its part for current grace period?
@@ -2468,6 +4031,7 @@ rcu_check_quiescent_state(struct rcu_state *rsp, struct rcu_data *rdp)
 	 * Tell RCU we are done (but rcu_report_qs_rdp() will be the
 	 * judge of that).
 	 */
+<<<<<<< HEAD
 	rcu_report_qs_rdp(rdp->cpu, rsp, rdp);
 }
 
@@ -2486,6 +4050,28 @@ static void rcu_cleanup_dying_cpu(struct rcu_state *rsp)
 	RCU_TRACE(blkd = !!(rnp->qsmask & rdp->grpmask);)
 	trace_rcu_grace_period(rsp->name, rnp->gp_seq,
 			       blkd ? TPS("cpuofl") : TPS("cpuofl-bgp"));
+=======
+	rcu_report_qs_rdp(rdp);
+}
+
+/*
+ * Near the end of the offline process.  Trace the fact that this CPU
+ * is going offline.
+ */
+int rcutree_dying_cpu(unsigned int cpu)
+{
+	bool blkd;
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+	struct rcu_node *rnp = rdp->mynode;
+
+	if (!IS_ENABLED(CONFIG_HOTPLUG_CPU))
+		return 0;
+
+	blkd = !!(rnp->qsmask & rdp->grpmask);
+	trace_rcu_grace_period(rcu_state.name, READ_ONCE(rnp->gp_seq),
+			       blkd ? TPS("cpuofl-bgp") : TPS("cpuofl"));
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2539,6 +4125,7 @@ static void rcu_cleanup_dead_rnp(struct rcu_node *rnp_leaf)
  * There can only be one CPU hotplug operation at a time, so no need for
  * explicit locking.
  */
+<<<<<<< HEAD
 static void rcu_cleanup_dead_cpu(int cpu, struct rcu_state *rsp)
 {
 	struct rcu_data *rdp = per_cpu_ptr(rsp->rda, cpu);
@@ -2549,10 +4136,27 @@ static void rcu_cleanup_dead_cpu(int cpu, struct rcu_state *rsp)
 
 	/* Adjust any no-longer-needed kthreads. */
 	rcu_boost_kthread_setaffinity(rnp, -1);
+=======
+int rcutree_dead_cpu(unsigned int cpu)
+{
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+	struct rcu_node *rnp = rdp->mynode;  /* Outgoing CPU's rdp & rnp. */
+
+	if (!IS_ENABLED(CONFIG_HOTPLUG_CPU))
+		return 0;
+
+	WRITE_ONCE(rcu_state.n_online_cpus, rcu_state.n_online_cpus - 1);
+	/* Adjust any no-longer-needed kthreads. */
+	rcu_boost_kthread_setaffinity(rnp, -1);
+	// Stop-machine done, so allow nohz_full to disable tick.
+	tick_dep_clear(TICK_DEP_BIT_RCU);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Invoke any RCU callbacks that have made it to the end of their grace
+<<<<<<< HEAD
  * period.  Thottle as specified by rdp->blimit.
  */
 static void rcu_do_batch(struct rcu_state *rsp, struct rcu_data *rdp)
@@ -2568,6 +4172,26 @@ static void rcu_do_batch(struct rcu_state *rsp, struct rcu_data *rdp)
 				      rcu_segcblist_n_lazy_cbs(&rdp->cblist),
 				      rcu_segcblist_n_cbs(&rdp->cblist), 0);
 		trace_rcu_batch_end(rsp->name, 0,
+=======
+ * period.  Throttle as specified by rdp->blimit.
+ */
+static void rcu_do_batch(struct rcu_data *rdp)
+{
+	int div;
+	bool __maybe_unused empty;
+	unsigned long flags;
+	const bool offloaded = rcu_rdp_is_offloaded(rdp);
+	struct rcu_head *rhp;
+	struct rcu_cblist rcl = RCU_CBLIST_INITIALIZER(rcl);
+	long bl, count = 0;
+	long pending, tlimit = 0;
+
+	/* If no callbacks are ready, just return. */
+	if (!rcu_segcblist_ready_cbs(&rdp->cblist)) {
+		trace_rcu_batch_start(rcu_state.name,
+				      rcu_segcblist_n_cbs(&rdp->cblist), 0);
+		trace_rcu_batch_end(rcu_state.name, 0,
+>>>>>>> upstream/android-13
 				    !rcu_segcblist_empty(&rdp->cblist),
 				    need_resched(), is_idle_task(current),
 				    rcu_is_callbacks_kthread());
@@ -2580,6 +4204,7 @@ static void rcu_do_batch(struct rcu_state *rsp, struct rcu_data *rdp)
 	 * callback counts, as rcu_barrier() needs to be conservative.
 	 */
 	local_irq_save(flags);
+<<<<<<< HEAD
 	WARN_ON_ONCE(cpu_is_offline(smp_processor_id()));
 	bl = rdp->blimit;
 	trace_rcu_batch_start(rsp->name, rcu_segcblist_n_lazy_cbs(&rdp->cblist),
@@ -2606,22 +4231,108 @@ static void rcu_do_batch(struct rcu_state *rsp, struct rcu_data *rdp)
 	local_irq_save(flags);
 	count = -rcl.len;
 	trace_rcu_batch_end(rsp->name, count, !!rcl.head, need_resched(),
+=======
+	rcu_nocb_lock(rdp);
+	WARN_ON_ONCE(cpu_is_offline(smp_processor_id()));
+	pending = rcu_segcblist_n_cbs(&rdp->cblist);
+	div = READ_ONCE(rcu_divisor);
+	div = div < 0 ? 7 : div > sizeof(long) * 8 - 2 ? sizeof(long) * 8 - 2 : div;
+	bl = max(rdp->blimit, pending >> div);
+	if (in_serving_softirq() && unlikely(bl > 100)) {
+		long rrn = READ_ONCE(rcu_resched_ns);
+
+		rrn = rrn < NSEC_PER_MSEC ? NSEC_PER_MSEC : rrn > NSEC_PER_SEC ? NSEC_PER_SEC : rrn;
+		tlimit = local_clock() + rrn;
+	}
+	trace_rcu_batch_start(rcu_state.name,
+			      rcu_segcblist_n_cbs(&rdp->cblist), bl);
+	rcu_segcblist_extract_done_cbs(&rdp->cblist, &rcl);
+	if (offloaded)
+		rdp->qlen_last_fqs_check = rcu_segcblist_n_cbs(&rdp->cblist);
+
+	trace_rcu_segcb_stats(&rdp->cblist, TPS("SegCbDequeued"));
+	rcu_nocb_unlock_irqrestore(rdp, flags);
+
+	/* Invoke callbacks. */
+	tick_dep_set_task(current, TICK_DEP_BIT_RCU);
+	rhp = rcu_cblist_dequeue(&rcl);
+
+	for (; rhp; rhp = rcu_cblist_dequeue(&rcl)) {
+		rcu_callback_t f;
+
+		count++;
+		debug_rcu_head_unqueue(rhp);
+
+		rcu_lock_acquire(&rcu_callback_map);
+		trace_rcu_invoke_callback(rcu_state.name, rhp);
+
+		f = rhp->func;
+		WRITE_ONCE(rhp->func, (rcu_callback_t)0L);
+		f(rhp);
+
+		rcu_lock_release(&rcu_callback_map);
+
+		/*
+		 * Stop only if limit reached and CPU has something to do.
+		 */
+		if (in_serving_softirq()) {
+			if (count >= bl && (need_resched() ||
+					(!is_idle_task(current) && !rcu_is_callbacks_kthread())))
+				break;
+
+			/*
+			 * Make sure we don't spend too much time here and deprive other
+			 * softirq vectors of CPU cycles.
+			 */
+			if (unlikely(tlimit)) {
+				/* only call local_clock() every 32 callbacks */
+				if (likely((count & 31) || local_clock() < tlimit))
+					continue;
+				/* Exceeded the time limit, so leave. */
+				break;
+			}
+		} else {
+			local_bh_enable();
+			lockdep_assert_irqs_enabled();
+			cond_resched_tasks_rcu_qs();
+			lockdep_assert_irqs_enabled();
+			local_bh_disable();
+		}
+	}
+
+	local_irq_save(flags);
+	rcu_nocb_lock(rdp);
+	rdp->n_cbs_invoked += count;
+	trace_rcu_batch_end(rcu_state.name, count, !!rcl.head, need_resched(),
+>>>>>>> upstream/android-13
 			    is_idle_task(current), rcu_is_callbacks_kthread());
 
 	/* Update counts and requeue any remaining callbacks. */
 	rcu_segcblist_insert_done_cbs(&rdp->cblist, &rcl);
+<<<<<<< HEAD
 	smp_mb(); /* List handling before counting for rcu_barrier(). */
 	rcu_segcblist_insert_count(&rdp->cblist, &rcl);
 
 	/* Reinstate batch limit if we have worked down the excess. */
 	count = rcu_segcblist_n_cbs(&rdp->cblist);
 	if (rdp->blimit == LONG_MAX && count <= qlowmark)
+=======
+	rcu_segcblist_add_len(&rdp->cblist, -count);
+
+	/* Reinstate batch limit if we have worked down the excess. */
+	count = rcu_segcblist_n_cbs(&rdp->cblist);
+	if (rdp->blimit >= DEFAULT_MAX_RCU_BLIMIT && count <= qlowmark)
+>>>>>>> upstream/android-13
 		rdp->blimit = blimit;
 
 	/* Reset ->qlen_last_fqs_check trigger if enough CBs have drained. */
 	if (count == 0 && rdp->qlen_last_fqs_check != 0) {
 		rdp->qlen_last_fqs_check = 0;
+<<<<<<< HEAD
 		rdp->n_force_qs_snap = rsp->n_force_qs;
+=======
+		rdp->n_force_qs_snap = READ_ONCE(rcu_state.n_force_qs);
+>>>>>>> upstream/android-13
 	} else if (count < rdp->qlen_last_fqs_check - qhimark)
 		rdp->qlen_last_fqs_check = count;
 
@@ -2629,6 +4340,7 @@ static void rcu_do_batch(struct rcu_state *rsp, struct rcu_data *rdp)
 	 * The following usually indicates a double call_rcu().  To track
 	 * this down, try building with CONFIG_DEBUG_OBJECTS_RCU_HEAD=y.
 	 */
+<<<<<<< HEAD
 	WARN_ON_ONCE(rcu_segcblist_empty(&rdp->cblist) != (count == 0));
 
 	local_irq_restore(flags);
@@ -2682,20 +4394,62 @@ void rcu_check_callbacks(int user)
 	rcu_preempt_check_callbacks();
 	/* The load-acquire pairs with the store-release setting to true. */
 	if (smp_load_acquire(this_cpu_ptr(&rcu_dynticks.rcu_urgent_qs))) {
+=======
+	empty = rcu_segcblist_empty(&rdp->cblist);
+	WARN_ON_ONCE(count == 0 && !empty);
+	WARN_ON_ONCE(!IS_ENABLED(CONFIG_RCU_NOCB_CPU) &&
+		     count != 0 && empty);
+	WARN_ON_ONCE(count == 0 && rcu_segcblist_n_segment_cbs(&rdp->cblist) != 0);
+	WARN_ON_ONCE(!empty && rcu_segcblist_n_segment_cbs(&rdp->cblist) == 0);
+
+	rcu_nocb_unlock_irqrestore(rdp, flags);
+
+	/* Re-invoke RCU core processing if there are callbacks remaining. */
+	if (!offloaded && rcu_segcblist_ready_cbs(&rdp->cblist))
+		invoke_rcu_core();
+	tick_dep_clear_task(current, TICK_DEP_BIT_RCU);
+}
+
+/*
+ * This function is invoked from each scheduling-clock interrupt,
+ * and checks to see if this CPU is in a non-context-switch quiescent
+ * state, for example, user mode or idle loop.  It also schedules RCU
+ * core processing.  If the current grace period has gone on too long,
+ * it will ask the scheduler to manufacture a context switch for the sole
+ * purpose of providing the needed quiescent state.
+ */
+void rcu_sched_clock_irq(int user)
+{
+	trace_rcu_utilization(TPS("Start scheduler-tick"));
+	lockdep_assert_irqs_disabled();
+	raw_cpu_inc(rcu_data.ticks_this_gp);
+	/* The load-acquire pairs with the store-release setting to true. */
+	if (smp_load_acquire(this_cpu_ptr(&rcu_data.rcu_urgent_qs))) {
+>>>>>>> upstream/android-13
 		/* Idle and userspace execution already are quiescent states. */
 		if (!rcu_is_cpu_rrupt_from_idle() && !user) {
 			set_tsk_need_resched(current);
 			set_preempt_need_resched();
 		}
+<<<<<<< HEAD
 		__this_cpu_write(rcu_dynticks.rcu_urgent_qs, false);
 	}
 	if (rcu_pending())
 		invoke_rcu_core();
+=======
+		__this_cpu_write(rcu_data.rcu_urgent_qs, false);
+	}
+	rcu_flavor_sched_clock_irq(user);
+	if (rcu_pending(user))
+		invoke_rcu_core();
+	lockdep_assert_irqs_disabled();
+>>>>>>> upstream/android-13
 
 	trace_rcu_utilization(TPS("End scheduler-tick"));
 }
 
 /*
+<<<<<<< HEAD
  * Scan the leaf rcu_node structures, processing dyntick state for any that
  * have not yet encountered a quiescent state, using the function specified.
  * Also initiate boosting for any threads blocked on the root rcu_node.
@@ -2703,10 +4457,20 @@ void rcu_check_callbacks(int user)
  * The caller must have suppressed start of new grace periods.
  */
 static void force_qs_rnp(struct rcu_state *rsp, int (*f)(struct rcu_data *rsp))
+=======
+ * Scan the leaf rcu_node structures.  For each structure on which all
+ * CPUs have reported a quiescent state and on which there are tasks
+ * blocking the current grace period, initiate RCU priority boosting.
+ * Otherwise, invoke the specified function to check dyntick state for
+ * each CPU that has not yet reported a quiescent state.
+ */
+static void force_qs_rnp(int (*f)(struct rcu_data *rdp))
+>>>>>>> upstream/android-13
 {
 	int cpu;
 	unsigned long flags;
 	unsigned long mask;
+<<<<<<< HEAD
 	struct rcu_node *rnp;
 
 	rcu_for_each_leaf_node(rsp, rnp) {
@@ -2717,6 +4481,20 @@ static void force_qs_rnp(struct rcu_state *rsp, int (*f)(struct rcu_data *rsp))
 			if (rcu_state_p == &rcu_sched_state ||
 			    rsp != rcu_state_p ||
 			    rcu_preempt_blocked_readers_cgp(rnp)) {
+=======
+	struct rcu_data *rdp;
+	struct rcu_node *rnp;
+
+	rcu_state.cbovld = rcu_state.cbovldnext;
+	rcu_state.cbovldnext = false;
+	rcu_for_each_leaf_node(rnp) {
+		cond_resched_tasks_rcu_qs();
+		mask = 0;
+		raw_spin_lock_irqsave_rcu_node(rnp, flags);
+		rcu_state.cbovldnext |= !!rnp->cbovldmask;
+		if (rnp->qsmask == 0) {
+			if (rcu_preempt_blocked_readers_cgp(rnp)) {
+>>>>>>> upstream/android-13
 				/*
 				 * No point in scanning bits because they
 				 * are all zero.  But we might need to
@@ -2729,16 +4507,28 @@ static void force_qs_rnp(struct rcu_state *rsp, int (*f)(struct rcu_data *rsp))
 			raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
 			continue;
 		}
+<<<<<<< HEAD
 		for_each_leaf_node_possible_cpu(rnp, cpu) {
 			unsigned long bit = leaf_node_cpu_bit(rnp, cpu);
 			if ((rnp->qsmask & bit) != 0) {
 				if (f(per_cpu_ptr(rsp->rda, cpu)))
 					mask |= bit;
+=======
+		for_each_leaf_node_cpu_mask(rnp, cpu, rnp->qsmask) {
+			rdp = per_cpu_ptr(&rcu_data, cpu);
+			if (f(rdp)) {
+				mask |= rdp->grpmask;
+				rcu_disable_urgency_upon_qs(rdp);
+>>>>>>> upstream/android-13
 			}
 		}
 		if (mask != 0) {
 			/* Idle/offline CPUs, report (releases rnp->lock). */
+<<<<<<< HEAD
 			rcu_report_qs_rnp(mask, rsp, rnp, rnp->gp_seq, flags);
+=======
+			rcu_report_qs_rnp(mask, rnp, rnp->gp_seq, flags);
+>>>>>>> upstream/android-13
 		} else {
 			/* Nothing to do here, so just drop the lock. */
 			raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
@@ -2750,7 +4540,11 @@ static void force_qs_rnp(struct rcu_state *rsp, int (*f)(struct rcu_data *rsp))
  * Force quiescent states on reluctant CPUs, and also detect which
  * CPUs are in dyntick-idle mode.
  */
+<<<<<<< HEAD
 static void force_quiescent_state(struct rcu_state *rsp)
+=======
+void rcu_force_quiescent_state(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	bool ret;
@@ -2758,21 +4552,33 @@ static void force_quiescent_state(struct rcu_state *rsp)
 	struct rcu_node *rnp_old = NULL;
 
 	/* Funnel through hierarchy to reduce memory contention. */
+<<<<<<< HEAD
 	rnp = __this_cpu_read(rsp->rda->mynode);
 	for (; rnp != NULL; rnp = rnp->parent) {
 		ret = (READ_ONCE(rsp->gp_flags) & RCU_GP_FLAG_FQS) ||
 		      !raw_spin_trylock(&rnp->fqslock);
+=======
+	rnp = __this_cpu_read(rcu_data.mynode);
+	for (; rnp != NULL; rnp = rnp->parent) {
+		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
+		       !raw_spin_trylock(&rnp->fqslock);
+>>>>>>> upstream/android-13
 		if (rnp_old != NULL)
 			raw_spin_unlock(&rnp_old->fqslock);
 		if (ret)
 			return;
 		rnp_old = rnp;
 	}
+<<<<<<< HEAD
 	/* rnp_old == rcu_get_root(rsp), rnp == NULL. */
+=======
+	/* rnp_old == rcu_get_root(), rnp == NULL. */
+>>>>>>> upstream/android-13
 
 	/* Reached the root of the rcu_node tree, acquire lock. */
 	raw_spin_lock_irqsave_rcu_node(rnp_old, flags);
 	raw_spin_unlock(&rnp_old->fqslock);
+<<<<<<< HEAD
 	if (READ_ONCE(rsp->gp_flags) & RCU_GP_FLAG_FQS) {
 		raw_spin_unlock_irqrestore_rcu_node(rnp_old, flags);
 		return;  /* Someone beat us to it. */
@@ -2883,10 +4689,39 @@ __rcu_process_callbacks(struct rcu_state *rsp)
 static __latent_entropy void rcu_process_callbacks(struct softirq_action *unused)
 {
 	struct rcu_state *rsp;
+=======
+	if (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) {
+		raw_spin_unlock_irqrestore_rcu_node(rnp_old, flags);
+		return;  /* Someone beat us to it. */
+	}
+	WRITE_ONCE(rcu_state.gp_flags,
+		   READ_ONCE(rcu_state.gp_flags) | RCU_GP_FLAG_FQS);
+	raw_spin_unlock_irqrestore_rcu_node(rnp_old, flags);
+	rcu_gp_kthread_wake();
+}
+EXPORT_SYMBOL_GPL(rcu_force_quiescent_state);
+
+// Workqueue handler for an RCU reader for kernels enforcing struct RCU
+// grace periods.
+static void strict_work_handler(struct work_struct *work)
+{
+	rcu_read_lock();
+	rcu_read_unlock();
+}
+
+/* Perform RCU core processing work for the current CPU.  */
+static __latent_entropy void rcu_core(void)
+{
+	unsigned long flags;
+	struct rcu_data *rdp = raw_cpu_ptr(&rcu_data);
+	struct rcu_node *rnp = rdp->mynode;
+	const bool do_batch = !rcu_segcblist_completely_offloaded(&rdp->cblist);
+>>>>>>> upstream/android-13
 
 	if (cpu_is_offline(smp_processor_id()))
 		return;
 	trace_rcu_utilization(TPS("Start RCU core"));
+<<<<<<< HEAD
 	for_each_rcu_flavor(rsp)
 		__rcu_process_callbacks(rsp);
 	trace_rcu_utilization(TPS("End RCU core"));
@@ -2914,13 +4749,167 @@ static void invoke_rcu_core(void)
 {
 	if (cpu_online(smp_processor_id()))
 		raise_softirq(RCU_SOFTIRQ);
+=======
+	WARN_ON_ONCE(!rdp->beenonline);
+
+	/* Report any deferred quiescent states if preemption enabled. */
+	if (!(preempt_count() & PREEMPT_MASK)) {
+		rcu_preempt_deferred_qs(current);
+	} else if (rcu_preempt_need_deferred_qs(current)) {
+		set_tsk_need_resched(current);
+		set_preempt_need_resched();
+	}
+
+	/* Update RCU state based on any recent quiescent states. */
+	rcu_check_quiescent_state(rdp);
+
+	/* No grace period and unregistered callbacks? */
+	if (!rcu_gp_in_progress() &&
+	    rcu_segcblist_is_enabled(&rdp->cblist) && do_batch) {
+		rcu_nocb_lock_irqsave(rdp, flags);
+		if (!rcu_segcblist_restempty(&rdp->cblist, RCU_NEXT_READY_TAIL))
+			rcu_accelerate_cbs_unlocked(rnp, rdp);
+		rcu_nocb_unlock_irqrestore(rdp, flags);
+	}
+
+	rcu_check_gp_start_stall(rnp, rdp, rcu_jiffies_till_stall_check());
+
+	/* If there are callbacks ready, invoke them. */
+	if (do_batch && rcu_segcblist_ready_cbs(&rdp->cblist) &&
+	    likely(READ_ONCE(rcu_scheduler_fully_active)))
+		rcu_do_batch(rdp);
+
+	/* Do any needed deferred wakeups of rcuo kthreads. */
+	do_nocb_deferred_wakeup(rdp);
+	trace_rcu_utilization(TPS("End RCU core"));
+
+	// If strict GPs, schedule an RCU reader in a clean environment.
+	if (IS_ENABLED(CONFIG_RCU_STRICT_GRACE_PERIOD))
+		queue_work_on(rdp->cpu, rcu_gp_wq, &rdp->strict_work);
+}
+
+static void rcu_core_si(struct softirq_action *h)
+{
+	rcu_core();
+}
+
+static void rcu_wake_cond(struct task_struct *t, int status)
+{
+	/*
+	 * If the thread is yielding, only wake it when this
+	 * is invoked from idle
+	 */
+	if (t && (status != RCU_KTHREAD_YIELDING || is_idle_task(current)))
+		wake_up_process(t);
+}
+
+static void invoke_rcu_core_kthread(void)
+{
+	struct task_struct *t;
+	unsigned long flags;
+
+	local_irq_save(flags);
+	__this_cpu_write(rcu_data.rcu_cpu_has_work, 1);
+	t = __this_cpu_read(rcu_data.rcu_cpu_kthread_task);
+	if (t != NULL && t != current)
+		rcu_wake_cond(t, __this_cpu_read(rcu_data.rcu_cpu_kthread_status));
+	local_irq_restore(flags);
+}
+
+/*
+ * Wake up this CPU's rcuc kthread to do RCU core processing.
+ */
+static void invoke_rcu_core(void)
+{
+	if (!cpu_online(smp_processor_id()))
+		return;
+	if (use_softirq)
+		raise_softirq(RCU_SOFTIRQ);
+	else
+		invoke_rcu_core_kthread();
+}
+
+static void rcu_cpu_kthread_park(unsigned int cpu)
+{
+	per_cpu(rcu_data.rcu_cpu_kthread_status, cpu) = RCU_KTHREAD_OFFCPU;
+}
+
+static int rcu_cpu_kthread_should_run(unsigned int cpu)
+{
+	return __this_cpu_read(rcu_data.rcu_cpu_has_work);
+}
+
+/*
+ * Per-CPU kernel thread that invokes RCU callbacks.  This replaces
+ * the RCU softirq used in configurations of RCU that do not support RCU
+ * priority boosting.
+ */
+static void rcu_cpu_kthread(unsigned int cpu)
+{
+	unsigned int *statusp = this_cpu_ptr(&rcu_data.rcu_cpu_kthread_status);
+	char work, *workp = this_cpu_ptr(&rcu_data.rcu_cpu_has_work);
+	int spincnt;
+
+	trace_rcu_utilization(TPS("Start CPU kthread@rcu_run"));
+	for (spincnt = 0; spincnt < 10; spincnt++) {
+		local_bh_disable();
+		*statusp = RCU_KTHREAD_RUNNING;
+		local_irq_disable();
+		work = *workp;
+		*workp = 0;
+		local_irq_enable();
+		if (work)
+			rcu_core();
+		local_bh_enable();
+		if (*workp == 0) {
+			trace_rcu_utilization(TPS("End CPU kthread@rcu_wait"));
+			*statusp = RCU_KTHREAD_WAITING;
+			return;
+		}
+	}
+	*statusp = RCU_KTHREAD_YIELDING;
+	trace_rcu_utilization(TPS("Start CPU kthread@rcu_yield"));
+	schedule_timeout_idle(2);
+	trace_rcu_utilization(TPS("End CPU kthread@rcu_yield"));
+	*statusp = RCU_KTHREAD_WAITING;
+}
+
+static struct smp_hotplug_thread rcu_cpu_thread_spec = {
+	.store			= &rcu_data.rcu_cpu_kthread_task,
+	.thread_should_run	= rcu_cpu_kthread_should_run,
+	.thread_fn		= rcu_cpu_kthread,
+	.thread_comm		= "rcuc/%u",
+	.setup			= rcu_cpu_kthread_setup,
+	.park			= rcu_cpu_kthread_park,
+};
+
+/*
+ * Spawn per-CPU RCU core processing kthreads.
+ */
+static int __init rcu_spawn_core_kthreads(void)
+{
+	int cpu;
+
+	for_each_possible_cpu(cpu)
+		per_cpu(rcu_data.rcu_cpu_has_work, cpu) = 0;
+	if (!IS_ENABLED(CONFIG_RCU_BOOST) && use_softirq)
+		return 0;
+	WARN_ONCE(smpboot_register_percpu_thread(&rcu_cpu_thread_spec),
+		  "%s: Could not start rcuc kthread, OOM is now expected behavior\n", __func__);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Handle any core-RCU processing required by a call_rcu() invocation.
  */
+<<<<<<< HEAD
 static void __call_rcu_core(struct rcu_state *rsp, struct rcu_data *rdp,
 			    struct rcu_head *head, unsigned long flags)
+=======
+static void __call_rcu_core(struct rcu_data *rdp, struct rcu_head *head,
+			    unsigned long flags)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * If called from an extended quiescent state, invoke the RCU
@@ -2935,15 +4924,22 @@ static void __call_rcu_core(struct rcu_state *rsp, struct rcu_data *rdp,
 
 	/*
 	 * Force the grace period if too many callbacks or too long waiting.
+<<<<<<< HEAD
 	 * Enforce hysteresis, and don't invoke force_quiescent_state()
 	 * if some other CPU has recently done so.  Also, don't bother
 	 * invoking force_quiescent_state() if the newly enqueued callback
+=======
+	 * Enforce hysteresis, and don't invoke rcu_force_quiescent_state()
+	 * if some other CPU has recently done so.  Also, don't bother
+	 * invoking rcu_force_quiescent_state() if the newly enqueued callback
+>>>>>>> upstream/android-13
 	 * is the only one waiting for a grace period to complete.
 	 */
 	if (unlikely(rcu_segcblist_n_cbs(&rdp->cblist) >
 		     rdp->qlen_last_fqs_check + qhimark)) {
 
 		/* Are we ignoring a completed grace period? */
+<<<<<<< HEAD
 		note_gp_changes(rsp, rdp);
 
 		/* Start a new grace period if one not already started. */
@@ -2956,6 +4952,20 @@ static void __call_rcu_core(struct rcu_state *rsp, struct rcu_data *rdp,
 			    rcu_segcblist_first_pend_cb(&rdp->cblist) != head)
 				force_quiescent_state(rsp);
 			rdp->n_force_qs_snap = rsp->n_force_qs;
+=======
+		note_gp_changes(rdp);
+
+		/* Start a new grace period if one not already started. */
+		if (!rcu_gp_in_progress()) {
+			rcu_accelerate_cbs_unlocked(rdp->mynode, rdp);
+		} else {
+			/* Give the grace period a kick. */
+			rdp->blimit = DEFAULT_MAX_RCU_BLIMIT;
+			if (READ_ONCE(rcu_state.n_force_qs) == rdp->n_force_qs_snap &&
+			    rcu_segcblist_first_pend_cb(&rdp->cblist) != head)
+				rcu_force_quiescent_state();
+			rdp->n_force_qs_snap = READ_ONCE(rcu_state.n_force_qs);
+>>>>>>> upstream/android-13
 			rdp->qlen_last_fqs_check = rcu_segcblist_n_cbs(&rdp->cblist);
 		}
 	}
@@ -2969,6 +4979,7 @@ static void rcu_leak_callback(struct rcu_head *rhp)
 }
 
 /*
+<<<<<<< HEAD
  * Helper function for call_rcu() and friends.  The cpu argument will
  * normally be -1, indicating "currently running CPU".  It may specify
  * a CPU only if that CPU is a no-CBs CPU.  Currently, only _rcu_barrier()
@@ -2980,6 +4991,57 @@ __call_rcu(struct rcu_head *head, rcu_callback_t func,
 {
 	unsigned long flags;
 	struct rcu_data *rdp;
+=======
+ * Check and if necessary update the leaf rcu_node structure's
+ * ->cbovldmask bit corresponding to the current CPU based on that CPU's
+ * number of queued RCU callbacks.  The caller must hold the leaf rcu_node
+ * structure's ->lock.
+ */
+static void check_cb_ovld_locked(struct rcu_data *rdp, struct rcu_node *rnp)
+{
+	raw_lockdep_assert_held_rcu_node(rnp);
+	if (qovld_calc <= 0)
+		return; // Early boot and wildcard value set.
+	if (rcu_segcblist_n_cbs(&rdp->cblist) >= qovld_calc)
+		WRITE_ONCE(rnp->cbovldmask, rnp->cbovldmask | rdp->grpmask);
+	else
+		WRITE_ONCE(rnp->cbovldmask, rnp->cbovldmask & ~rdp->grpmask);
+}
+
+/*
+ * Check and if necessary update the leaf rcu_node structure's
+ * ->cbovldmask bit corresponding to the current CPU based on that CPU's
+ * number of queued RCU callbacks.  No locks need be held, but the
+ * caller must have disabled interrupts.
+ *
+ * Note that this function ignores the possibility that there are a lot
+ * of callbacks all of which have already seen the end of their respective
+ * grace periods.  This omission is due to the need for no-CBs CPUs to
+ * be holding ->nocb_lock to do this check, which is too heavy for a
+ * common-case operation.
+ */
+static void check_cb_ovld(struct rcu_data *rdp)
+{
+	struct rcu_node *const rnp = rdp->mynode;
+
+	if (qovld_calc <= 0 ||
+	    ((rcu_segcblist_n_cbs(&rdp->cblist) >= qovld_calc) ==
+	     !!(READ_ONCE(rnp->cbovldmask) & rdp->grpmask)))
+		return; // Early boot wildcard value or already set correctly.
+	raw_spin_lock_rcu_node(rnp);
+	check_cb_ovld_locked(rdp, rnp);
+	raw_spin_unlock_rcu_node(rnp);
+}
+
+/* Helper function for call_rcu() and friends.  */
+static void
+__call_rcu(struct rcu_head *head, rcu_callback_t func)
+{
+	static atomic_t doublefrees;
+	unsigned long flags;
+	struct rcu_data *rdp;
+	bool was_alldone;
+>>>>>>> upstream/android-13
 
 	/* Misaligned rcu_head! */
 	WARN_ON_ONCE((unsigned long)head & (sizeof(void *) - 1));
@@ -2990,14 +5052,22 @@ __call_rcu(struct rcu_head *head, rcu_callback_t func,
 		 * Use rcu:rcu_callback trace event to find the previous
 		 * time callback was passed to __call_rcu().
 		 */
+<<<<<<< HEAD
 		WARN_ONCE(1, "__call_rcu(): Double-freed CB %p->%pF()!!!\n",
 			  head, head->func);
+=======
+		if (atomic_inc_return(&doublefrees) < 4) {
+			pr_err("%s(): Double-freed CB %p->%pS()!!!  ", __func__, head, head->func);
+			mem_dump_obj(head);
+		}
+>>>>>>> upstream/android-13
 		WRITE_ONCE(head->func, rcu_leak_callback);
 		return;
 	}
 	head->func = func;
 	head->next = NULL;
 	local_irq_save(flags);
+<<<<<<< HEAD
 	rdp = this_cpu_ptr(rsp->rda);
 
 	/* Add the callback to our list. */
@@ -3043,10 +5113,53 @@ __call_rcu(struct rcu_head *head, rcu_callback_t func,
 
 /**
  * call_rcu_sched() - Queue an RCU for invocation after sched grace period.
+=======
+	kasan_record_aux_stack_noalloc(head);
+	rdp = this_cpu_ptr(&rcu_data);
+
+	/* Add the callback to our list. */
+	if (unlikely(!rcu_segcblist_is_enabled(&rdp->cblist))) {
+		// This can trigger due to call_rcu() from offline CPU:
+		WARN_ON_ONCE(rcu_scheduler_active != RCU_SCHEDULER_INACTIVE);
+		WARN_ON_ONCE(!rcu_is_watching());
+		// Very early boot, before rcu_init().  Initialize if needed
+		// and then drop through to queue the callback.
+		if (rcu_segcblist_empty(&rdp->cblist))
+			rcu_segcblist_init(&rdp->cblist);
+	}
+
+	check_cb_ovld(rdp);
+	if (rcu_nocb_try_bypass(rdp, head, &was_alldone, flags))
+		return; // Enqueued onto ->nocb_bypass, so just leave.
+	// If no-CBs CPU gets here, rcu_nocb_try_bypass() acquired ->nocb_lock.
+	rcu_segcblist_enqueue(&rdp->cblist, head);
+	if (__is_kvfree_rcu_offset((unsigned long)func))
+		trace_rcu_kvfree_callback(rcu_state.name, head,
+					 (unsigned long)func,
+					 rcu_segcblist_n_cbs(&rdp->cblist));
+	else
+		trace_rcu_callback(rcu_state.name, head,
+				   rcu_segcblist_n_cbs(&rdp->cblist));
+
+	trace_rcu_segcb_stats(&rdp->cblist, TPS("SegCBQueued"));
+
+	/* Go handle any RCU core processing required. */
+	if (unlikely(rcu_rdp_is_offloaded(rdp))) {
+		__call_rcu_nocb_wake(rdp, was_alldone, flags); /* unlocks */
+	} else {
+		__call_rcu_core(rdp, head, flags);
+		local_irq_restore(flags);
+	}
+}
+
+/**
+ * call_rcu() - Queue an RCU callback for invocation after a grace period.
+>>>>>>> upstream/android-13
  * @head: structure to be used for queueing the RCU updates.
  * @func: actual callback function to be invoked after the grace period
  *
  * The callback function will be invoked some time after a full grace
+<<<<<<< HEAD
  * period elapses, in other words after all currently executing RCU
  * read-side critical sections have completed. call_rcu_sched() assumes
  * that the read-side critical sections end on enabling of preemption
@@ -3117,19 +5230,684 @@ EXPORT_SYMBOL_GPL(kfree_call_rcu);
  * occasionally incorrectly indicate that there are multiple CPUs online
  * when there was in fact only one the whole time, as this just adds
  * some overhead: RCU still operates correctly.
+=======
+ * period elapses, in other words after all pre-existing RCU read-side
+ * critical sections have completed.  However, the callback function
+ * might well execute concurrently with RCU read-side critical sections
+ * that started after call_rcu() was invoked.
+ *
+ * RCU read-side critical sections are delimited by rcu_read_lock()
+ * and rcu_read_unlock(), and may be nested.  In addition, but only in
+ * v5.0 and later, regions of code across which interrupts, preemption,
+ * or softirqs have been disabled also serve as RCU read-side critical
+ * sections.  This includes hardware interrupt handlers, softirq handlers,
+ * and NMI handlers.
+ *
+ * Note that all CPUs must agree that the grace period extended beyond
+ * all pre-existing RCU read-side critical section.  On systems with more
+ * than one CPU, this means that when "func()" is invoked, each CPU is
+ * guaranteed to have executed a full memory barrier since the end of its
+ * last RCU read-side critical section whose beginning preceded the call
+ * to call_rcu().  It also means that each CPU executing an RCU read-side
+ * critical section that continues beyond the start of "func()" must have
+ * executed a memory barrier after the call_rcu() but before the beginning
+ * of that RCU read-side critical section.  Note that these guarantees
+ * include CPUs that are offline, idle, or executing in user mode, as
+ * well as CPUs that are executing in the kernel.
+ *
+ * Furthermore, if CPU A invoked call_rcu() and CPU B invoked the
+ * resulting RCU callback function "func()", then both CPU A and CPU B are
+ * guaranteed to execute a full memory barrier during the time interval
+ * between the call to call_rcu() and the invocation of "func()" -- even
+ * if CPU A and CPU B are the same CPU (but again only if the system has
+ * more than one CPU).
+ *
+ * Implementation of these memory-ordering guarantees is described here:
+ * Documentation/RCU/Design/Memory-Ordering/Tree-RCU-Memory-Ordering.rst.
+ */
+void call_rcu(struct rcu_head *head, rcu_callback_t func)
+{
+	__call_rcu(head, func);
+}
+EXPORT_SYMBOL_GPL(call_rcu);
+
+
+/* Maximum number of jiffies to wait before draining a batch. */
+#define KFREE_DRAIN_JIFFIES (HZ / 50)
+#define KFREE_N_BATCHES 2
+#define FREE_N_CHANNELS 2
+
+/**
+ * struct kvfree_rcu_bulk_data - single block to store kvfree_rcu() pointers
+ * @nr_records: Number of active pointers in the array
+ * @next: Next bulk object in the block chain
+ * @records: Array of the kvfree_rcu() pointers
+ */
+struct kvfree_rcu_bulk_data {
+	unsigned long nr_records;
+	struct kvfree_rcu_bulk_data *next;
+	void *records[];
+};
+
+/*
+ * This macro defines how many entries the "records" array
+ * will contain. It is based on the fact that the size of
+ * kvfree_rcu_bulk_data structure becomes exactly one page.
+ */
+#define KVFREE_BULK_MAX_ENTR \
+	((PAGE_SIZE - sizeof(struct kvfree_rcu_bulk_data)) / sizeof(void *))
+
+/**
+ * struct kfree_rcu_cpu_work - single batch of kfree_rcu() requests
+ * @rcu_work: Let queue_rcu_work() invoke workqueue handler after grace period
+ * @head_free: List of kfree_rcu() objects waiting for a grace period
+ * @bkvhead_free: Bulk-List of kvfree_rcu() objects waiting for a grace period
+ * @krcp: Pointer to @kfree_rcu_cpu structure
+ */
+
+struct kfree_rcu_cpu_work {
+	struct rcu_work rcu_work;
+	struct rcu_head *head_free;
+	struct kvfree_rcu_bulk_data *bkvhead_free[FREE_N_CHANNELS];
+	struct kfree_rcu_cpu *krcp;
+};
+
+/**
+ * struct kfree_rcu_cpu - batch up kfree_rcu() requests for RCU grace period
+ * @head: List of kfree_rcu() objects not yet waiting for a grace period
+ * @bkvhead: Bulk-List of kvfree_rcu() objects not yet waiting for a grace period
+ * @krw_arr: Array of batches of kfree_rcu() objects waiting for a grace period
+ * @lock: Synchronize access to this structure
+ * @monitor_work: Promote @head to @head_free after KFREE_DRAIN_JIFFIES
+ * @monitor_todo: Tracks whether a @monitor_work delayed work is pending
+ * @initialized: The @rcu_work fields have been initialized
+ * @count: Number of objects for which GP not started
+ * @bkvcache:
+ *	A simple cache list that contains objects for reuse purpose.
+ *	In order to save some per-cpu space the list is singular.
+ *	Even though it is lockless an access has to be protected by the
+ *	per-cpu lock.
+ * @page_cache_work: A work to refill the cache when it is empty
+ * @backoff_page_cache_fill: Delay cache refills
+ * @work_in_progress: Indicates that page_cache_work is running
+ * @hrtimer: A hrtimer for scheduling a page_cache_work
+ * @nr_bkv_objs: number of allocated objects at @bkvcache.
+ *
+ * This is a per-CPU structure.  The reason that it is not included in
+ * the rcu_data structure is to permit this code to be extracted from
+ * the RCU files.  Such extraction could allow further optimization of
+ * the interactions with the slab allocators.
+ */
+struct kfree_rcu_cpu {
+	struct rcu_head *head;
+	struct kvfree_rcu_bulk_data *bkvhead[FREE_N_CHANNELS];
+	struct kfree_rcu_cpu_work krw_arr[KFREE_N_BATCHES];
+	raw_spinlock_t lock;
+	struct delayed_work monitor_work;
+	bool monitor_todo;
+	bool initialized;
+	int count;
+
+	struct delayed_work page_cache_work;
+	atomic_t backoff_page_cache_fill;
+	atomic_t work_in_progress;
+	struct hrtimer hrtimer;
+
+	struct llist_head bkvcache;
+	int nr_bkv_objs;
+};
+
+static DEFINE_PER_CPU(struct kfree_rcu_cpu, krc) = {
+	.lock = __RAW_SPIN_LOCK_UNLOCKED(krc.lock),
+};
+
+static __always_inline void
+debug_rcu_bhead_unqueue(struct kvfree_rcu_bulk_data *bhead)
+{
+#ifdef CONFIG_DEBUG_OBJECTS_RCU_HEAD
+	int i;
+
+	for (i = 0; i < bhead->nr_records; i++)
+		debug_rcu_head_unqueue((struct rcu_head *)(bhead->records[i]));
+#endif
+}
+
+static inline struct kfree_rcu_cpu *
+krc_this_cpu_lock(unsigned long *flags)
+{
+	struct kfree_rcu_cpu *krcp;
+
+	local_irq_save(*flags);	// For safely calling this_cpu_ptr().
+	krcp = this_cpu_ptr(&krc);
+	raw_spin_lock(&krcp->lock);
+
+	return krcp;
+}
+
+static inline void
+krc_this_cpu_unlock(struct kfree_rcu_cpu *krcp, unsigned long flags)
+{
+	raw_spin_unlock_irqrestore(&krcp->lock, flags);
+}
+
+static inline struct kvfree_rcu_bulk_data *
+get_cached_bnode(struct kfree_rcu_cpu *krcp)
+{
+	if (!krcp->nr_bkv_objs)
+		return NULL;
+
+	WRITE_ONCE(krcp->nr_bkv_objs, krcp->nr_bkv_objs - 1);
+	return (struct kvfree_rcu_bulk_data *)
+		llist_del_first(&krcp->bkvcache);
+}
+
+static inline bool
+put_cached_bnode(struct kfree_rcu_cpu *krcp,
+	struct kvfree_rcu_bulk_data *bnode)
+{
+	// Check the limit.
+	if (krcp->nr_bkv_objs >= rcu_min_cached_objs)
+		return false;
+
+	llist_add((struct llist_node *) bnode, &krcp->bkvcache);
+	WRITE_ONCE(krcp->nr_bkv_objs, krcp->nr_bkv_objs + 1);
+	return true;
+}
+
+static int
+drain_page_cache(struct kfree_rcu_cpu *krcp)
+{
+	unsigned long flags;
+	struct llist_node *page_list, *pos, *n;
+	int freed = 0;
+
+	raw_spin_lock_irqsave(&krcp->lock, flags);
+	page_list = llist_del_all(&krcp->bkvcache);
+	WRITE_ONCE(krcp->nr_bkv_objs, 0);
+	raw_spin_unlock_irqrestore(&krcp->lock, flags);
+
+	llist_for_each_safe(pos, n, page_list) {
+		free_page((unsigned long)pos);
+		freed++;
+	}
+
+	return freed;
+}
+
+/*
+ * This function is invoked in workqueue context after a grace period.
+ * It frees all the objects queued on ->bkvhead_free or ->head_free.
+ */
+static void kfree_rcu_work(struct work_struct *work)
+{
+	unsigned long flags;
+	struct kvfree_rcu_bulk_data *bkvhead[FREE_N_CHANNELS], *bnext;
+	struct rcu_head *head, *next;
+	struct kfree_rcu_cpu *krcp;
+	struct kfree_rcu_cpu_work *krwp;
+	int i, j;
+
+	krwp = container_of(to_rcu_work(work),
+			    struct kfree_rcu_cpu_work, rcu_work);
+	krcp = krwp->krcp;
+
+	raw_spin_lock_irqsave(&krcp->lock, flags);
+	// Channels 1 and 2.
+	for (i = 0; i < FREE_N_CHANNELS; i++) {
+		bkvhead[i] = krwp->bkvhead_free[i];
+		krwp->bkvhead_free[i] = NULL;
+	}
+
+	// Channel 3.
+	head = krwp->head_free;
+	krwp->head_free = NULL;
+	raw_spin_unlock_irqrestore(&krcp->lock, flags);
+
+	// Handle the first two channels.
+	for (i = 0; i < FREE_N_CHANNELS; i++) {
+		for (; bkvhead[i]; bkvhead[i] = bnext) {
+			bnext = bkvhead[i]->next;
+			debug_rcu_bhead_unqueue(bkvhead[i]);
+
+			rcu_lock_acquire(&rcu_callback_map);
+			if (i == 0) { // kmalloc() / kfree().
+				trace_rcu_invoke_kfree_bulk_callback(
+					rcu_state.name, bkvhead[i]->nr_records,
+					bkvhead[i]->records);
+
+				kfree_bulk(bkvhead[i]->nr_records,
+					bkvhead[i]->records);
+			} else { // vmalloc() / vfree().
+				for (j = 0; j < bkvhead[i]->nr_records; j++) {
+					trace_rcu_invoke_kvfree_callback(
+						rcu_state.name,
+						bkvhead[i]->records[j], 0);
+
+					vfree(bkvhead[i]->records[j]);
+				}
+			}
+			rcu_lock_release(&rcu_callback_map);
+
+			raw_spin_lock_irqsave(&krcp->lock, flags);
+			if (put_cached_bnode(krcp, bkvhead[i]))
+				bkvhead[i] = NULL;
+			raw_spin_unlock_irqrestore(&krcp->lock, flags);
+
+			if (bkvhead[i])
+				free_page((unsigned long) bkvhead[i]);
+
+			cond_resched_tasks_rcu_qs();
+		}
+	}
+
+	/*
+	 * This is used when the "bulk" path can not be used for the
+	 * double-argument of kvfree_rcu().  This happens when the
+	 * page-cache is empty, which means that objects are instead
+	 * queued on a linked list through their rcu_head structures.
+	 * This list is named "Channel 3".
+	 */
+	for (; head; head = next) {
+		unsigned long offset = (unsigned long)head->func;
+		void *ptr = (void *)head - offset;
+
+		next = head->next;
+		debug_rcu_head_unqueue((struct rcu_head *)ptr);
+		rcu_lock_acquire(&rcu_callback_map);
+		trace_rcu_invoke_kvfree_callback(rcu_state.name, head, offset);
+
+		if (!WARN_ON_ONCE(!__is_kvfree_rcu_offset(offset)))
+			kvfree(ptr);
+
+		rcu_lock_release(&rcu_callback_map);
+		cond_resched_tasks_rcu_qs();
+	}
+}
+
+/*
+ * This function is invoked after the KFREE_DRAIN_JIFFIES timeout.
+ */
+static void kfree_rcu_monitor(struct work_struct *work)
+{
+	struct kfree_rcu_cpu *krcp = container_of(work,
+		struct kfree_rcu_cpu, monitor_work.work);
+	unsigned long flags;
+	int i, j;
+
+	raw_spin_lock_irqsave(&krcp->lock, flags);
+
+	// Attempt to start a new batch.
+	for (i = 0; i < KFREE_N_BATCHES; i++) {
+		struct kfree_rcu_cpu_work *krwp = &(krcp->krw_arr[i]);
+
+		// Try to detach bkvhead or head and attach it over any
+		// available corresponding free channel. It can be that
+		// a previous RCU batch is in progress, it means that
+		// immediately to queue another one is not possible so
+		// in that case the monitor work is rearmed.
+		if ((krcp->bkvhead[0] && !krwp->bkvhead_free[0]) ||
+			(krcp->bkvhead[1] && !krwp->bkvhead_free[1]) ||
+				(krcp->head && !krwp->head_free)) {
+			// Channel 1 corresponds to the SLAB-pointer bulk path.
+			// Channel 2 corresponds to vmalloc-pointer bulk path.
+			for (j = 0; j < FREE_N_CHANNELS; j++) {
+				if (!krwp->bkvhead_free[j]) {
+					krwp->bkvhead_free[j] = krcp->bkvhead[j];
+					krcp->bkvhead[j] = NULL;
+				}
+			}
+
+			// Channel 3 corresponds to both SLAB and vmalloc
+			// objects queued on the linked list.
+			if (!krwp->head_free) {
+				krwp->head_free = krcp->head;
+				krcp->head = NULL;
+			}
+
+			WRITE_ONCE(krcp->count, 0);
+
+			// One work is per one batch, so there are three
+			// "free channels", the batch can handle. It can
+			// be that the work is in the pending state when
+			// channels have been detached following by each
+			// other.
+			queue_rcu_work(system_wq, &krwp->rcu_work);
+		}
+	}
+
+	// If there is nothing to detach, it means that our job is
+	// successfully done here. In case of having at least one
+	// of the channels that is still busy we should rearm the
+	// work to repeat an attempt. Because previous batches are
+	// still in progress.
+	if (!krcp->bkvhead[0] && !krcp->bkvhead[1] && !krcp->head)
+		krcp->monitor_todo = false;
+	else
+		schedule_delayed_work(&krcp->monitor_work, KFREE_DRAIN_JIFFIES);
+
+	raw_spin_unlock_irqrestore(&krcp->lock, flags);
+}
+
+static enum hrtimer_restart
+schedule_page_work_fn(struct hrtimer *t)
+{
+	struct kfree_rcu_cpu *krcp =
+		container_of(t, struct kfree_rcu_cpu, hrtimer);
+
+	queue_delayed_work(system_highpri_wq, &krcp->page_cache_work, 0);
+	return HRTIMER_NORESTART;
+}
+
+static void fill_page_cache_func(struct work_struct *work)
+{
+	struct kvfree_rcu_bulk_data *bnode;
+	struct kfree_rcu_cpu *krcp =
+		container_of(work, struct kfree_rcu_cpu,
+			page_cache_work.work);
+	unsigned long flags;
+	int nr_pages;
+	bool pushed;
+	int i;
+
+	nr_pages = atomic_read(&krcp->backoff_page_cache_fill) ?
+		1 : rcu_min_cached_objs;
+
+	for (i = 0; i < nr_pages; i++) {
+		bnode = (struct kvfree_rcu_bulk_data *)
+			__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
+
+		if (bnode) {
+			raw_spin_lock_irqsave(&krcp->lock, flags);
+			pushed = put_cached_bnode(krcp, bnode);
+			raw_spin_unlock_irqrestore(&krcp->lock, flags);
+
+			if (!pushed) {
+				free_page((unsigned long) bnode);
+				break;
+			}
+		}
+	}
+
+	atomic_set(&krcp->work_in_progress, 0);
+	atomic_set(&krcp->backoff_page_cache_fill, 0);
+}
+
+static void
+run_page_cache_worker(struct kfree_rcu_cpu *krcp)
+{
+	if (rcu_scheduler_active == RCU_SCHEDULER_RUNNING &&
+			!atomic_xchg(&krcp->work_in_progress, 1)) {
+		if (atomic_read(&krcp->backoff_page_cache_fill)) {
+			queue_delayed_work(system_wq,
+				&krcp->page_cache_work,
+					msecs_to_jiffies(rcu_delay_page_cache_fill_msec));
+		} else {
+			hrtimer_init(&krcp->hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+			krcp->hrtimer.function = schedule_page_work_fn;
+			hrtimer_start(&krcp->hrtimer, 0, HRTIMER_MODE_REL);
+		}
+	}
+}
+
+// Record ptr in a page managed by krcp, with the pre-krc_this_cpu_lock()
+// state specified by flags.  If can_alloc is true, the caller must
+// be schedulable and not be holding any locks or mutexes that might be
+// acquired by the memory allocator or anything that it might invoke.
+// Returns true if ptr was successfully recorded, else the caller must
+// use a fallback.
+static inline bool
+add_ptr_to_bulk_krc_lock(struct kfree_rcu_cpu **krcp,
+	unsigned long *flags, void *ptr, bool can_alloc)
+{
+	struct kvfree_rcu_bulk_data *bnode;
+	int idx;
+
+	*krcp = krc_this_cpu_lock(flags);
+	if (unlikely(!(*krcp)->initialized))
+		return false;
+
+	idx = !!is_vmalloc_addr(ptr);
+
+	/* Check if a new block is required. */
+	if (!(*krcp)->bkvhead[idx] ||
+			(*krcp)->bkvhead[idx]->nr_records == KVFREE_BULK_MAX_ENTR) {
+		bnode = get_cached_bnode(*krcp);
+		if (!bnode && can_alloc) {
+			krc_this_cpu_unlock(*krcp, *flags);
+
+			// __GFP_NORETRY - allows a light-weight direct reclaim
+			// what is OK from minimizing of fallback hitting point of
+			// view. Apart of that it forbids any OOM invoking what is
+			// also beneficial since we are about to release memory soon.
+			//
+			// __GFP_NOMEMALLOC - prevents from consuming of all the
+			// memory reserves. Please note we have a fallback path.
+			//
+			// __GFP_NOWARN - it is supposed that an allocation can
+			// be failed under low memory or high memory pressure
+			// scenarios.
+			bnode = (struct kvfree_rcu_bulk_data *)
+				__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
+			*krcp = krc_this_cpu_lock(flags);
+		}
+
+		if (!bnode)
+			return false;
+
+		/* Initialize the new block. */
+		bnode->nr_records = 0;
+		bnode->next = (*krcp)->bkvhead[idx];
+
+		/* Attach it to the head. */
+		(*krcp)->bkvhead[idx] = bnode;
+	}
+
+	/* Finally insert. */
+	(*krcp)->bkvhead[idx]->records
+		[(*krcp)->bkvhead[idx]->nr_records++] = ptr;
+
+	return true;
+}
+
+/*
+ * Queue a request for lazy invocation of the appropriate free routine
+ * after a grace period.  Please note that three paths are maintained,
+ * two for the common case using arrays of pointers and a third one that
+ * is used only when the main paths cannot be used, for example, due to
+ * memory pressure.
+ *
+ * Each kvfree_call_rcu() request is added to a batch. The batch will be drained
+ * every KFREE_DRAIN_JIFFIES number of jiffies. All the objects in the batch will
+ * be free'd in workqueue context. This allows us to: batch requests together to
+ * reduce the number of grace periods during heavy kfree_rcu()/kvfree_rcu() load.
+ */
+void kvfree_call_rcu(struct rcu_head *head, rcu_callback_t func)
+{
+	unsigned long flags;
+	struct kfree_rcu_cpu *krcp;
+	bool success;
+	void *ptr;
+
+	if (head) {
+		ptr = (void *) head - (unsigned long) func;
+	} else {
+		/*
+		 * Please note there is a limitation for the head-less
+		 * variant, that is why there is a clear rule for such
+		 * objects: it can be used from might_sleep() context
+		 * only. For other places please embed an rcu_head to
+		 * your data.
+		 */
+		might_sleep();
+		ptr = (unsigned long *) func;
+	}
+
+	// Queue the object but don't yet schedule the batch.
+	if (debug_rcu_head_queue(ptr)) {
+		// Probable double kfree_rcu(), just leak.
+		WARN_ONCE(1, "%s(): Double-freed call. rcu_head %p\n",
+			  __func__, head);
+
+		// Mark as success and leave.
+		return;
+	}
+
+	kasan_record_aux_stack_noalloc(ptr);
+	success = add_ptr_to_bulk_krc_lock(&krcp, &flags, ptr, !head);
+	if (!success) {
+		run_page_cache_worker(krcp);
+
+		if (head == NULL)
+			// Inline if kvfree_rcu(one_arg) call.
+			goto unlock_return;
+
+		head->func = func;
+		head->next = krcp->head;
+		krcp->head = head;
+		success = true;
+	}
+
+	WRITE_ONCE(krcp->count, krcp->count + 1);
+
+	// Set timer to drain after KFREE_DRAIN_JIFFIES.
+	if (rcu_scheduler_active == RCU_SCHEDULER_RUNNING &&
+	    !krcp->monitor_todo) {
+		krcp->monitor_todo = true;
+		schedule_delayed_work(&krcp->monitor_work, KFREE_DRAIN_JIFFIES);
+	}
+
+unlock_return:
+	krc_this_cpu_unlock(krcp, flags);
+
+	/*
+	 * Inline kvfree() after synchronize_rcu(). We can do
+	 * it from might_sleep() context only, so the current
+	 * CPU can pass the QS state.
+	 */
+	if (!success) {
+		debug_rcu_head_unqueue((struct rcu_head *) ptr);
+		synchronize_rcu();
+		kvfree(ptr);
+	}
+}
+EXPORT_SYMBOL_GPL(kvfree_call_rcu);
+
+static unsigned long
+kfree_rcu_shrink_count(struct shrinker *shrink, struct shrink_control *sc)
+{
+	int cpu;
+	unsigned long count = 0;
+
+	/* Snapshot count of all CPUs */
+	for_each_possible_cpu(cpu) {
+		struct kfree_rcu_cpu *krcp = per_cpu_ptr(&krc, cpu);
+
+		count += READ_ONCE(krcp->count);
+		count += READ_ONCE(krcp->nr_bkv_objs);
+		atomic_set(&krcp->backoff_page_cache_fill, 1);
+	}
+
+	return count;
+}
+
+static unsigned long
+kfree_rcu_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
+{
+	int cpu, freed = 0;
+
+	for_each_possible_cpu(cpu) {
+		int count;
+		struct kfree_rcu_cpu *krcp = per_cpu_ptr(&krc, cpu);
+
+		count = krcp->count;
+		count += drain_page_cache(krcp);
+		kfree_rcu_monitor(&krcp->monitor_work.work);
+
+		sc->nr_to_scan -= count;
+		freed += count;
+
+		if (sc->nr_to_scan <= 0)
+			break;
+	}
+
+	return freed == 0 ? SHRINK_STOP : freed;
+}
+
+static struct shrinker kfree_rcu_shrinker = {
+	.count_objects = kfree_rcu_shrink_count,
+	.scan_objects = kfree_rcu_shrink_scan,
+	.batch = 0,
+	.seeks = DEFAULT_SEEKS,
+};
+
+void __init kfree_rcu_scheduler_running(void)
+{
+	int cpu;
+	unsigned long flags;
+
+	for_each_possible_cpu(cpu) {
+		struct kfree_rcu_cpu *krcp = per_cpu_ptr(&krc, cpu);
+
+		raw_spin_lock_irqsave(&krcp->lock, flags);
+		if ((!krcp->bkvhead[0] && !krcp->bkvhead[1] && !krcp->head) ||
+				krcp->monitor_todo) {
+			raw_spin_unlock_irqrestore(&krcp->lock, flags);
+			continue;
+		}
+		krcp->monitor_todo = true;
+		schedule_delayed_work_on(cpu, &krcp->monitor_work,
+					 KFREE_DRAIN_JIFFIES);
+		raw_spin_unlock_irqrestore(&krcp->lock, flags);
+	}
+}
+
+/*
+ * During early boot, any blocking grace-period wait automatically
+ * implies a grace period.  Later on, this is never the case for PREEMPTION.
+ *
+ * However, because a context switch is a grace period for !PREEMPTION, any
+ * blocking grace-period wait automatically implies a grace period if
+ * there is only one CPU online at any point time during execution of
+ * either synchronize_rcu() or synchronize_rcu_expedited().  It is OK to
+ * occasionally incorrectly indicate that there are multiple CPUs online
+ * when there was in fact only one the whole time, as this just adds some
+ * overhead: RCU still operates correctly.
+>>>>>>> upstream/android-13
  */
 static int rcu_blocking_is_gp(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	might_sleep();  /* Check for RCU read-side critical section. */
 	preempt_disable();
 	ret = num_online_cpus() <= 1;
+=======
+	if (IS_ENABLED(CONFIG_PREEMPTION))
+		return rcu_scheduler_active == RCU_SCHEDULER_INACTIVE;
+	might_sleep();  /* Check for RCU read-side critical section. */
+	preempt_disable();
+	/*
+	 * If the rcu_state.n_online_cpus counter is equal to one,
+	 * there is only one CPU, and that CPU sees all prior accesses
+	 * made by any CPU that was online at the time of its access.
+	 * Furthermore, if this counter is equal to one, its value cannot
+	 * change until after the preempt_enable() below.
+	 *
+	 * Furthermore, if rcu_state.n_online_cpus is equal to one here,
+	 * all later CPUs (both this one and any that come online later
+	 * on) are guaranteed to see all accesses prior to this point
+	 * in the code, without the need for additional memory barriers.
+	 * Those memory barriers are provided by CPU-hotplug code.
+	 */
+	ret = READ_ONCE(rcu_state.n_online_cpus) <= 1;
+>>>>>>> upstream/android-13
 	preempt_enable();
 	return ret;
 }
 
 /**
+<<<<<<< HEAD
  * synchronize_sched - wait until an rcu-sched grace period has elapsed.
  *
  * Control will return to the caller some time after a full rcu-sched
@@ -3154,10 +5932,37 @@ static int rcu_blocking_is_gp(void)
  * an RCU read-side critical section that extends beyond the return from
  * synchronize_sched() is guaranteed to have executed a full memory barrier
  * after the beginning of synchronize_sched() and before the beginning of
+=======
+ * synchronize_rcu - wait until a grace period has elapsed.
+ *
+ * Control will return to the caller some time after a full grace
+ * period has elapsed, in other words after all currently executing RCU
+ * read-side critical sections have completed.  Note, however, that
+ * upon return from synchronize_rcu(), the caller might well be executing
+ * concurrently with new RCU read-side critical sections that began while
+ * synchronize_rcu() was waiting.
+ *
+ * RCU read-side critical sections are delimited by rcu_read_lock()
+ * and rcu_read_unlock(), and may be nested.  In addition, but only in
+ * v5.0 and later, regions of code across which interrupts, preemption,
+ * or softirqs have been disabled also serve as RCU read-side critical
+ * sections.  This includes hardware interrupt handlers, softirq handlers,
+ * and NMI handlers.
+ *
+ * Note that this guarantee implies further memory-ordering guarantees.
+ * On systems with more than one CPU, when synchronize_rcu() returns,
+ * each CPU is guaranteed to have executed a full memory barrier since
+ * the end of its last RCU read-side critical section whose beginning
+ * preceded the call to synchronize_rcu().  In addition, each CPU having
+ * an RCU read-side critical section that extends beyond the return from
+ * synchronize_rcu() is guaranteed to have executed a full memory barrier
+ * after the beginning of synchronize_rcu() and before the beginning of
+>>>>>>> upstream/android-13
  * that RCU read-side critical section.  Note that these guarantees include
  * CPUs that are offline, idle, or executing in user mode, as well as CPUs
  * that are executing in the kernel.
  *
+<<<<<<< HEAD
  * Furthermore, if CPU A invoked synchronize_sched(), which returned
  * to its caller on CPU B, then both CPU A and CPU B are guaranteed
  * to have executed a full memory barrier during the execution of
@@ -3165,10 +5970,23 @@ static int rcu_blocking_is_gp(void)
  * again only if the system has more than one CPU).
  */
 void synchronize_sched(void)
+=======
+ * Furthermore, if CPU A invoked synchronize_rcu(), which returned
+ * to its caller on CPU B, then both CPU A and CPU B are guaranteed
+ * to have executed a full memory barrier during the execution of
+ * synchronize_rcu() -- even if CPU A and CPU B are the same CPU (but
+ * again only if the system has more than one CPU).
+ *
+ * Implementation of these memory-ordering guarantees is described here:
+ * Documentation/RCU/Design/Memory-Ordering/Tree-RCU-Memory-Ordering.rst.
+ */
+void synchronize_rcu(void)
+>>>>>>> upstream/android-13
 {
 	RCU_LOCKDEP_WARN(lock_is_held(&rcu_bh_lock_map) ||
 			 lock_is_held(&rcu_lock_map) ||
 			 lock_is_held(&rcu_sched_lock_map),
+<<<<<<< HEAD
 			 "Illegal synchronize_sched() in RCU-sched read-side critical section");
 	if (rcu_blocking_is_gp())
 		return;
@@ -3205,13 +6023,29 @@ void synchronize_rcu_bh(void)
 		wait_rcu_gp(call_rcu_bh);
 }
 EXPORT_SYMBOL_GPL(synchronize_rcu_bh);
+=======
+			 "Illegal synchronize_rcu() in RCU read-side critical section");
+	if (rcu_blocking_is_gp())
+		return;  // Context allows vacuous grace periods.
+	if (rcu_gp_is_expedited())
+		synchronize_rcu_expedited();
+	else
+		wait_rcu_gp(call_rcu);
+}
+EXPORT_SYMBOL_GPL(synchronize_rcu);
+>>>>>>> upstream/android-13
 
 /**
  * get_state_synchronize_rcu - Snapshot current RCU state
  *
  * Returns a cookie that is used by a later call to cond_synchronize_rcu()
+<<<<<<< HEAD
  * to determine whether or not a full grace period has elapsed in the
  * meantime.
+=======
+ * or poll_state_synchronize_rcu() to determine whether or not a full
+ * grace period has elapsed in the meantime.
+>>>>>>> upstream/android-13
  */
 unsigned long get_state_synchronize_rcu(void)
 {
@@ -3220,11 +6054,16 @@ unsigned long get_state_synchronize_rcu(void)
 	 * before the load from ->gp_seq.
 	 */
 	smp_mb();  /* ^^^ */
+<<<<<<< HEAD
 	return rcu_seq_snap(&rcu_state_p->gp_seq);
+=======
+	return rcu_seq_snap(&rcu_state.gp_seq);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(get_state_synchronize_rcu);
 
 /**
+<<<<<<< HEAD
  * cond_synchronize_rcu - Conditionally wait for an RCU grace period
  *
  * @oldstate: return value from earlier call to get_state_synchronize_rcu()
@@ -3232,11 +6071,89 @@ EXPORT_SYMBOL_GPL(get_state_synchronize_rcu);
  * If a full RCU grace period has elapsed since the earlier call to
  * get_state_synchronize_rcu(), just return.  Otherwise, invoke
  * synchronize_rcu() to wait for a full grace period.
+=======
+ * start_poll_synchronize_rcu - Snapshot and start RCU grace period
+ *
+ * Returns a cookie that is used by a later call to cond_synchronize_rcu()
+ * or poll_state_synchronize_rcu() to determine whether or not a full
+ * grace period has elapsed in the meantime.  If the needed grace period
+ * is not already slated to start, notifies RCU core of the need for that
+ * grace period.
+ *
+ * Interrupts must be enabled for the case where it is necessary to awaken
+ * the grace-period kthread.
+ */
+unsigned long start_poll_synchronize_rcu(void)
+{
+	unsigned long flags;
+	unsigned long gp_seq = get_state_synchronize_rcu();
+	bool needwake;
+	struct rcu_data *rdp;
+	struct rcu_node *rnp;
+
+	lockdep_assert_irqs_enabled();
+	local_irq_save(flags);
+	rdp = this_cpu_ptr(&rcu_data);
+	rnp = rdp->mynode;
+	raw_spin_lock_rcu_node(rnp); // irqs already disabled.
+	needwake = rcu_start_this_gp(rnp, rdp, gp_seq);
+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+	if (needwake)
+		rcu_gp_kthread_wake();
+	return gp_seq;
+}
+EXPORT_SYMBOL_GPL(start_poll_synchronize_rcu);
+
+/**
+ * poll_state_synchronize_rcu - Conditionally wait for an RCU grace period
+ *
+ * @oldstate: value from get_state_synchronize_rcu() or start_poll_synchronize_rcu()
+ *
+ * If a full RCU grace period has elapsed since the earlier call from
+ * which oldstate was obtained, return @true, otherwise return @false.
+ * If @false is returned, it is the caller's responsibility to invoke this
+ * function later on until it does return @true.  Alternatively, the caller
+ * can explicitly wait for a grace period, for example, by passing @oldstate
+ * to cond_synchronize_rcu() or by directly invoking synchronize_rcu().
+ *
+ * Yes, this function does not take counter wrap into account.
+ * But counter wrap is harmless.  If the counter wraps, we have waited for
+ * more than 2 billion grace periods (and way more on a 64-bit system!).
+ * Those needing to keep oldstate values for very long time periods
+ * (many hours even on 32-bit systems) should check them occasionally
+ * and either refresh them or set a flag indicating that the grace period
+ * has completed.
+ *
+ * This function provides the same memory-ordering guarantees that
+ * would be provided by a synchronize_rcu() that was invoked at the call
+ * to the function that provided @oldstate, and that returned at the end
+ * of this function.
+ */
+bool poll_state_synchronize_rcu(unsigned long oldstate)
+{
+	if (rcu_seq_done(&rcu_state.gp_seq, oldstate)) {
+		smp_mb(); /* Ensure GP ends before subsequent accesses. */
+		return true;
+	}
+	return false;
+}
+EXPORT_SYMBOL_GPL(poll_state_synchronize_rcu);
+
+/**
+ * cond_synchronize_rcu - Conditionally wait for an RCU grace period
+ *
+ * @oldstate: value from get_state_synchronize_rcu() or start_poll_synchronize_rcu()
+ *
+ * If a full RCU grace period has elapsed since the earlier call to
+ * get_state_synchronize_rcu() or start_poll_synchronize_rcu(), just return.
+ * Otherwise, invoke synchronize_rcu() to wait for a full grace period.
+>>>>>>> upstream/android-13
  *
  * Yes, this function does not take counter wrap into account.  But
  * counter wrap is harmless.  If the counter wraps, we have waited for
  * more than 2 billion grace periods (and way more on a 64-bit system!),
  * so waiting for one additional grace period should be just fine.
+<<<<<<< HEAD
  */
 void cond_synchronize_rcu(unsigned long oldstate)
 {
@@ -3317,6 +6234,60 @@ static int __rcu_pending(struct rcu_state *rsp, struct rcu_data *rdp)
 	/* Has RCU gone idle with this CPU needing another grace period? */
 	if (!rcu_gp_in_progress(rsp) &&
 	    rcu_segcblist_is_enabled(&rdp->cblist) &&
+=======
+ *
+ * This function provides the same memory-ordering guarantees that
+ * would be provided by a synchronize_rcu() that was invoked at the call
+ * to the function that provided @oldstate, and that returned at the end
+ * of this function.
+ */
+void cond_synchronize_rcu(unsigned long oldstate)
+{
+	if (!poll_state_synchronize_rcu(oldstate))
+		synchronize_rcu();
+}
+EXPORT_SYMBOL_GPL(cond_synchronize_rcu);
+
+/*
+ * Check to see if there is any immediate RCU-related work to be done by
+ * the current CPU, returning 1 if so and zero otherwise.  The checks are
+ * in order of increasing expense: checks that can be carried out against
+ * CPU-local state are performed first.  However, we must check for CPU
+ * stalls first, else we might not get a chance.
+ */
+static int rcu_pending(int user)
+{
+	bool gp_in_progress;
+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+	struct rcu_node *rnp = rdp->mynode;
+
+	lockdep_assert_irqs_disabled();
+
+	/* Check for CPU stalls, if enabled. */
+	check_cpu_stall(rdp);
+
+	/* Does this CPU need a deferred NOCB wakeup? */
+	if (rcu_nocb_need_deferred_wakeup(rdp, RCU_NOCB_WAKE))
+		return 1;
+
+	/* Is this a nohz_full CPU in userspace or idle?  (Ignore RCU if so.) */
+	if ((user || rcu_is_cpu_rrupt_from_idle()) && rcu_nohz_full_cpu())
+		return 0;
+
+	/* Is the RCU core waiting for a quiescent state from this CPU? */
+	gp_in_progress = rcu_gp_in_progress();
+	if (rdp->core_needs_qs && !rdp->cpu_no_qs.b.norm && gp_in_progress)
+		return 1;
+
+	/* Does this CPU have callbacks ready to invoke? */
+	if (!rcu_rdp_is_offloaded(rdp) &&
+	    rcu_segcblist_ready_cbs(&rdp->cblist))
+		return 1;
+
+	/* Has RCU gone idle with this CPU needing another grace period? */
+	if (!gp_in_progress && rcu_segcblist_is_enabled(&rdp->cblist) &&
+	    !rcu_rdp_is_offloaded(rdp) &&
+>>>>>>> upstream/android-13
 	    !rcu_segcblist_restempty(&rdp->cblist, RCU_NEXT_READY_TAIL))
 		return 1;
 
@@ -3325,15 +6296,19 @@ static int __rcu_pending(struct rcu_state *rsp, struct rcu_data *rdp)
 	    unlikely(READ_ONCE(rdp->gpwrap))) /* outside lock */
 		return 1;
 
+<<<<<<< HEAD
 	/* Does this CPU need a deferred NOCB wakeup? */
 	if (rcu_nocb_need_deferred_wakeup(rdp))
 		return 1;
 
+=======
+>>>>>>> upstream/android-13
 	/* nothing to do */
 	return 0;
 }
 
 /*
+<<<<<<< HEAD
  * Check to see if there is any immediate RCU-related work to be done
  * by the current CPU, returning 1 if so.  This function is part of the
  * RCU implementation; it is -not- an exported member of the RCU API.
@@ -3401,12 +6376,43 @@ static void rcu_barrier_callback(struct rcu_head *rhp)
 		complete(&rsp->barrier_completion);
 	} else {
 		_rcu_barrier_trace(rsp, TPS("CB"), -1, rsp->barrier_sequence);
+=======
+ * Helper function for rcu_barrier() tracing.  If tracing is disabled,
+ * the compiler is expected to optimize this away.
+ */
+static void rcu_barrier_trace(const char *s, int cpu, unsigned long done)
+{
+	trace_rcu_barrier(rcu_state.name, s, cpu,
+			  atomic_read(&rcu_state.barrier_cpu_count), done);
+}
+
+/*
+ * RCU callback function for rcu_barrier().  If we are last, wake
+ * up the task executing rcu_barrier().
+ *
+ * Note that the value of rcu_state.barrier_sequence must be captured
+ * before the atomic_dec_and_test().  Otherwise, if this CPU is not last,
+ * other CPUs might count the value down to zero before this CPU gets
+ * around to invoking rcu_barrier_trace(), which might result in bogus
+ * data from the next instance of rcu_barrier().
+ */
+static void rcu_barrier_callback(struct rcu_head *rhp)
+{
+	unsigned long __maybe_unused s = rcu_state.barrier_sequence;
+
+	if (atomic_dec_and_test(&rcu_state.barrier_cpu_count)) {
+		rcu_barrier_trace(TPS("LastCB"), -1, s);
+		complete(&rcu_state.barrier_completion);
+	} else {
+		rcu_barrier_trace(TPS("CB"), -1, s);
+>>>>>>> upstream/android-13
 	}
 }
 
 /*
  * Called with preemption disabled, and from cross-cpu IRQ context.
  */
+<<<<<<< HEAD
 static void rcu_barrier_func(void *type)
 {
 	struct rcu_state *rsp = type;
@@ -3445,10 +6451,58 @@ static void _rcu_barrier(struct rcu_state *rsp)
 				   rsp->barrier_sequence);
 		smp_mb(); /* caller's subsequent code after above check. */
 		mutex_unlock(&rsp->barrier_mutex);
+=======
+static void rcu_barrier_func(void *cpu_in)
+{
+	uintptr_t cpu = (uintptr_t)cpu_in;
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+
+	rcu_barrier_trace(TPS("IRQ"), -1, rcu_state.barrier_sequence);
+	rdp->barrier_head.func = rcu_barrier_callback;
+	debug_rcu_head_queue(&rdp->barrier_head);
+	rcu_nocb_lock(rdp);
+	WARN_ON_ONCE(!rcu_nocb_flush_bypass(rdp, NULL, jiffies));
+	if (rcu_segcblist_entrain(&rdp->cblist, &rdp->barrier_head)) {
+		atomic_inc(&rcu_state.barrier_cpu_count);
+	} else {
+		debug_rcu_head_unqueue(&rdp->barrier_head);
+		rcu_barrier_trace(TPS("IRQNQ"), -1,
+				  rcu_state.barrier_sequence);
+	}
+	rcu_nocb_unlock(rdp);
+}
+
+/**
+ * rcu_barrier - Wait until all in-flight call_rcu() callbacks complete.
+ *
+ * Note that this primitive does not necessarily wait for an RCU grace period
+ * to complete.  For example, if there are no RCU callbacks queued anywhere
+ * in the system, then rcu_barrier() is within its rights to return
+ * immediately, without waiting for anything, much less an RCU grace period.
+ */
+void rcu_barrier(void)
+{
+	uintptr_t cpu;
+	struct rcu_data *rdp;
+	unsigned long s = rcu_seq_snap(&rcu_state.barrier_sequence);
+
+	rcu_barrier_trace(TPS("Begin"), -1, s);
+
+	/* Take mutex to serialize concurrent rcu_barrier() requests. */
+	mutex_lock(&rcu_state.barrier_mutex);
+
+	/* Did someone else do our work for us? */
+	if (rcu_seq_done(&rcu_state.barrier_sequence, s)) {
+		rcu_barrier_trace(TPS("EarlyExit"), -1,
+				  rcu_state.barrier_sequence);
+		smp_mb(); /* caller's subsequent code after above check. */
+		mutex_unlock(&rcu_state.barrier_mutex);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	/* Mark the start of the barrier operation. */
+<<<<<<< HEAD
 	rcu_seq_start(&rsp->barrier_sequence);
 	_rcu_barrier_trace(rsp, TPS("Inc1"), -1, rsp->barrier_sequence);
 
@@ -3461,6 +6515,21 @@ static void _rcu_barrier(struct rcu_state *rsp)
 	init_completion(&rsp->barrier_completion);
 	atomic_set(&rsp->barrier_cpu_count, 1);
 	get_online_cpus();
+=======
+	rcu_seq_start(&rcu_state.barrier_sequence);
+	rcu_barrier_trace(TPS("Inc1"), -1, rcu_state.barrier_sequence);
+
+	/*
+	 * Initialize the count to two rather than to zero in order
+	 * to avoid a too-soon return to zero in case of an immediate
+	 * invocation of the just-enqueued callback (or preemption of
+	 * this task).  Exclude CPU-hotplug operations to ensure that no
+	 * offline non-offloaded CPU has callbacks queued.
+	 */
+	init_completion(&rcu_state.barrier_completion);
+	atomic_set(&rcu_state.barrier_cpu_count, 2);
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Force each CPU with callbacks to register a new callback.
@@ -3468,6 +6537,7 @@ static void _rcu_barrier(struct rcu_state *rsp)
 	 * corresponding CPU's preceding callbacks have been invoked.
 	 */
 	for_each_possible_cpu(cpu) {
+<<<<<<< HEAD
 		if (!cpu_online(cpu) && !rcu_is_nocb_cpu(cpu))
 			continue;
 		rdp = per_cpu_ptr(rsp->rda, cpu);
@@ -3493,11 +6563,38 @@ static void _rcu_barrier(struct rcu_state *rsp)
 		}
 	}
 	put_online_cpus();
+=======
+		rdp = per_cpu_ptr(&rcu_data, cpu);
+		if (cpu_is_offline(cpu) &&
+		    !rcu_rdp_is_offloaded(rdp))
+			continue;
+		if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_online(cpu)) {
+			rcu_barrier_trace(TPS("OnlineQ"), cpu,
+					  rcu_state.barrier_sequence);
+			smp_call_function_single(cpu, rcu_barrier_func, (void *)cpu, 1);
+		} else if (rcu_segcblist_n_cbs(&rdp->cblist) &&
+			   cpu_is_offline(cpu)) {
+			rcu_barrier_trace(TPS("OfflineNoCBQ"), cpu,
+					  rcu_state.barrier_sequence);
+			local_irq_disable();
+			rcu_barrier_func((void *)cpu);
+			local_irq_enable();
+		} else if (cpu_is_offline(cpu)) {
+			rcu_barrier_trace(TPS("OfflineNoCBNoQ"), cpu,
+					  rcu_state.barrier_sequence);
+		} else {
+			rcu_barrier_trace(TPS("OnlineNQ"), cpu,
+					  rcu_state.barrier_sequence);
+		}
+	}
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	/*
 	 * Now that we have an rcu_barrier_callback() callback on each
 	 * CPU, and thus each counted, remove the initial count.
 	 */
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&rsp->barrier_cpu_count))
 		complete(&rsp->barrier_completion);
 
@@ -3529,11 +6626,31 @@ void rcu_barrier_sched(void)
 	_rcu_barrier(&rcu_sched_state);
 }
 EXPORT_SYMBOL_GPL(rcu_barrier_sched);
+=======
+	if (atomic_sub_and_test(2, &rcu_state.barrier_cpu_count))
+		complete(&rcu_state.barrier_completion);
+
+	/* Wait for all rcu_barrier_callback() callbacks to be invoked. */
+	wait_for_completion(&rcu_state.barrier_completion);
+
+	/* Mark the end of the barrier operation. */
+	rcu_barrier_trace(TPS("Inc2"), -1, rcu_state.barrier_sequence);
+	rcu_seq_end(&rcu_state.barrier_sequence);
+
+	/* Other rcu_barrier() invocations can now safely proceed. */
+	mutex_unlock(&rcu_state.barrier_mutex);
+}
+EXPORT_SYMBOL_GPL(rcu_barrier);
+>>>>>>> upstream/android-13
 
 /*
  * Propagate ->qsinitmask bits up the rcu_node tree to account for the
  * first CPU in a given leaf rcu_node structure coming online.  The caller
+<<<<<<< HEAD
  * must hold the corresponding leaf rcu_node ->lock with interrrupts
+=======
+ * must hold the corresponding leaf rcu_node ->lock with interrupts
+>>>>>>> upstream/android-13
  * disabled.
  */
 static void rcu_init_new_rnp(struct rcu_node *rnp_leaf)
@@ -3562,6 +6679,7 @@ static void rcu_init_new_rnp(struct rcu_node *rnp_leaf)
  * Do boot-time initialization of a CPU's per-CPU RCU data.
  */
 static void __init
+<<<<<<< HEAD
 rcu_boot_init_percpu_data(int cpu, struct rcu_state *rsp)
 {
 	struct rcu_data *rdp = per_cpu_ptr(rsp->rda, cpu);
@@ -3577,10 +6695,27 @@ rcu_boot_init_percpu_data(int cpu, struct rcu_state *rsp)
 	rdp->rcu_onl_gp_flags = RCU_GP_CLEANED;
 	rdp->cpu = cpu;
 	rdp->rsp = rsp;
+=======
+rcu_boot_init_percpu_data(int cpu)
+{
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+
+	/* Set up local state, ensuring consistent view of global state. */
+	rdp->grpmask = leaf_node_cpu_bit(rdp->mynode, cpu);
+	INIT_WORK(&rdp->strict_work, strict_work_handler);
+	WARN_ON_ONCE(rdp->dynticks_nesting != 1);
+	WARN_ON_ONCE(rcu_dynticks_in_eqs(rcu_dynticks_snap(rdp)));
+	rdp->rcu_ofl_gp_seq = rcu_state.gp_seq;
+	rdp->rcu_ofl_gp_flags = RCU_GP_CLEANED;
+	rdp->rcu_onl_gp_seq = rcu_state.gp_seq;
+	rdp->rcu_onl_gp_flags = RCU_GP_CLEANED;
+	rdp->cpu = cpu;
+>>>>>>> upstream/android-13
 	rcu_boot_init_nocb_percpu_data(rdp);
 }
 
 /*
+<<<<<<< HEAD
  * Initialize a CPU's per-CPU RCU data.  Note that only one online or
  * offline event can be happening at a given time.  Note also that we can
  * accept some slop in the rsp->gp_seq access due to the fact that this
@@ -3592,20 +6727,52 @@ rcu_init_percpu_data(int cpu, struct rcu_state *rsp)
 	unsigned long flags;
 	struct rcu_data *rdp = per_cpu_ptr(rsp->rda, cpu);
 	struct rcu_node *rnp = rcu_get_root(rsp);
+=======
+ * Invoked early in the CPU-online process, when pretty much all services
+ * are available.  The incoming CPU is not present.
+ *
+ * Initializes a CPU's per-CPU RCU data.  Note that only one online or
+ * offline event can be happening at a given time.  Note also that we can
+ * accept some slop in the rsp->gp_seq access due to the fact that this
+ * CPU cannot possibly have any non-offloaded RCU callbacks in flight yet.
+ * And any offloaded callbacks are being numbered elsewhere.
+ */
+int rcutree_prepare_cpu(unsigned int cpu)
+{
+	unsigned long flags;
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+	struct rcu_node *rnp = rcu_get_root();
+>>>>>>> upstream/android-13
 
 	/* Set up local state, ensuring consistent view of global state. */
 	raw_spin_lock_irqsave_rcu_node(rnp, flags);
 	rdp->qlen_last_fqs_check = 0;
+<<<<<<< HEAD
 	rdp->n_force_qs_snap = rsp->n_force_qs;
 	rdp->blimit = blimit;
 	if (rcu_segcblist_empty(&rdp->cblist) && /* No early-boot CBs? */
 	    !init_nocb_callback_list(rdp))
 		rcu_segcblist_init(&rdp->cblist);  /* Re-enable callbacks. */
 	rdp->dynticks->dynticks_nesting = 1;	/* CPU not up, no tearing. */
+=======
+	rdp->n_force_qs_snap = READ_ONCE(rcu_state.n_force_qs);
+	rdp->blimit = blimit;
+	rdp->dynticks_nesting = 1;	/* CPU not up, no tearing. */
+>>>>>>> upstream/android-13
 	rcu_dynticks_eqs_online();
 	raw_spin_unlock_rcu_node(rnp);		/* irqs remain disabled. */
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Only non-NOCB CPUs that didn't have early-boot callbacks need to be
+	 * (re-)initialized.
+	 */
+	if (!rcu_segcblist_is_enabled(&rdp->cblist))
+		rcu_segcblist_init(&rdp->cblist);  /* Re-enable callbacks. */
+
+	/*
+>>>>>>> upstream/android-13
 	 * Add CPU to leaf rcu_node pending-online bitmask.  Any needed
 	 * propagation up the rcu_node tree will happen at the beginning
 	 * of the next grace period.
@@ -3613,6 +6780,7 @@ rcu_init_percpu_data(int cpu, struct rcu_state *rsp)
 	rnp = rdp->mynode;
 	raw_spin_lock_rcu_node(rnp);		/* irqs already disabled. */
 	rdp->beenonline = true;	 /* We have now been online. */
+<<<<<<< HEAD
 	rdp->gp_seq = rnp->gp_seq;
 	rdp->gp_seq_needed = rnp->gp_seq;
 	rdp->cpu_no_qs.b.norm = true;
@@ -3637,6 +6805,20 @@ int rcutree_prepare_cpu(unsigned int cpu)
 
 	rcu_prepare_kthreads(cpu);
 	rcu_spawn_all_nocb_kthreads(cpu);
+=======
+	rdp->gp_seq = READ_ONCE(rnp->gp_seq);
+	rdp->gp_seq_needed = rdp->gp_seq;
+	rdp->cpu_no_qs.b.norm = true;
+	rdp->core_needs_qs = false;
+	rdp->rcu_iw_pending = false;
+	rdp->rcu_iw = IRQ_WORK_INIT_HARD(rcu_iw_handler);
+	rdp->rcu_iw_gp_seq = rdp->gp_seq - 1;
+	trace_rcu_grace_period(rcu_state.name, rdp->gp_seq, TPS("cpuonl"));
+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+	rcu_spawn_one_boost_kthread(rnp);
+	rcu_spawn_cpu_nocb_kthread(cpu);
+	WRITE_ONCE(rcu_state.n_online_cpus, rcu_state.n_online_cpus + 1);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3646,7 +6828,11 @@ int rcutree_prepare_cpu(unsigned int cpu)
  */
 static void rcutree_affinity_setting(unsigned int cpu, int outgoing)
 {
+<<<<<<< HEAD
 	struct rcu_data *rdp = per_cpu_ptr(rcu_state_p->rda, cpu);
+=======
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+>>>>>>> upstream/android-13
 
 	rcu_boost_kthread_setaffinity(rdp->mynode, outgoing);
 }
@@ -3660,6 +6846,7 @@ int rcutree_online_cpu(unsigned int cpu)
 	unsigned long flags;
 	struct rcu_data *rdp;
 	struct rcu_node *rnp;
+<<<<<<< HEAD
 	struct rcu_state *rsp;
 
 	for_each_rcu_flavor(rsp) {
@@ -3671,10 +6858,24 @@ int rcutree_online_cpu(unsigned int cpu)
 	}
 	if (IS_ENABLED(CONFIG_TREE_SRCU))
 		srcu_online_cpu(cpu);
+=======
+
+	rdp = per_cpu_ptr(&rcu_data, cpu);
+	rnp = rdp->mynode;
+	raw_spin_lock_irqsave_rcu_node(rnp, flags);
+	rnp->ffmask |= rdp->grpmask;
+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+>>>>>>> upstream/android-13
 	if (rcu_scheduler_active == RCU_SCHEDULER_INACTIVE)
 		return 0; /* Too early in boot for scheduler work. */
 	sync_sched_exp_online_cleanup(cpu);
 	rcutree_affinity_setting(cpu, -1);
+<<<<<<< HEAD
+=======
+
+	// Stop-machine done, so allow nohz_full to disable tick.
+	tick_dep_clear(TICK_DEP_BIT_RCU);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3687,6 +6888,7 @@ int rcutree_offline_cpu(unsigned int cpu)
 	unsigned long flags;
 	struct rcu_data *rdp;
 	struct rcu_node *rnp;
+<<<<<<< HEAD
 	struct rcu_state *rsp;
 
 	for_each_rcu_flavor(rsp) {
@@ -3700,10 +6902,24 @@ int rcutree_offline_cpu(unsigned int cpu)
 	rcutree_affinity_setting(cpu, cpu);
 	if (IS_ENABLED(CONFIG_TREE_SRCU))
 		srcu_offline_cpu(cpu);
+=======
+
+	rdp = per_cpu_ptr(&rcu_data, cpu);
+	rnp = rdp->mynode;
+	raw_spin_lock_irqsave_rcu_node(rnp, flags);
+	rnp->ffmask &= ~rdp->grpmask;
+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+
+	rcutree_affinity_setting(cpu, cpu);
+
+	// nohz_full CPUs need the tick for stop-machine to work quickly
+	tick_dep_set(TICK_DEP_BIT_RCU);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /*
+<<<<<<< HEAD
  * Near the end of the offline process.  We do only tracing here.
  */
 int rcutree_dying_cpu(unsigned int cpu)
@@ -3732,6 +6948,8 @@ int rcutree_dead_cpu(unsigned int cpu)
 static DEFINE_PER_CPU(int, rcu_cpu_started);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Mark the specified CPU as being online so that subsequent grace periods
  * (both expedited and normal) will wait on it.  Note that this means that
  * incoming CPUs are not allowed to use RCU read-side critical sections
@@ -3746,6 +6964,7 @@ void rcu_cpu_starting(unsigned int cpu)
 {
 	unsigned long flags;
 	unsigned long mask;
+<<<<<<< HEAD
 	int nbits;
 	unsigned long oldmask;
 	struct rcu_data *rdp;
@@ -3809,11 +7028,54 @@ static void rcu_cleanup_dying_idle_cpu(int cpu, struct rcu_state *rsp)
 	rnp->qsmaskinitnext &= ~mask;
 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
 	spin_unlock(&rsp->ofl_lock);
+=======
+	struct rcu_data *rdp;
+	struct rcu_node *rnp;
+	bool newcpu;
+
+	rdp = per_cpu_ptr(&rcu_data, cpu);
+	if (rdp->cpu_started)
+		return;
+	rdp->cpu_started = true;
+
+	rnp = rdp->mynode;
+	mask = rdp->grpmask;
+	WRITE_ONCE(rnp->ofl_seq, rnp->ofl_seq + 1);
+	WARN_ON_ONCE(!(rnp->ofl_seq & 0x1));
+	smp_mb(); // Pair with rcu_gp_cleanup()'s ->ofl_seq barrier().
+	raw_spin_lock_irqsave_rcu_node(rnp, flags);
+	WRITE_ONCE(rnp->qsmaskinitnext, rnp->qsmaskinitnext | mask);
+	newcpu = !(rnp->expmaskinitnext & mask);
+	rnp->expmaskinitnext |= mask;
+	/* Allow lockless access for expedited grace periods. */
+	smp_store_release(&rcu_state.ncpus, rcu_state.ncpus + newcpu); /* ^^^ */
+	ASSERT_EXCLUSIVE_WRITER(rcu_state.ncpus);
+	rcu_gpnum_ovf(rnp, rdp); /* Offline-induced counter wrap? */
+	rdp->rcu_onl_gp_seq = READ_ONCE(rcu_state.gp_seq);
+	rdp->rcu_onl_gp_flags = READ_ONCE(rcu_state.gp_flags);
+
+	/* An incoming CPU should never be blocking a grace period. */
+	if (WARN_ON_ONCE(rnp->qsmask & mask)) { /* RCU waiting on incoming CPU? */
+		rcu_disable_urgency_upon_qs(rdp);
+		/* Report QS -after- changing ->qsmaskinitnext! */
+		rcu_report_qs_rnp(mask, rnp, rnp->gp_seq, flags);
+	} else {
+		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+	}
+	smp_mb(); // Pair with rcu_gp_cleanup()'s ->ofl_seq barrier().
+	WRITE_ONCE(rnp->ofl_seq, rnp->ofl_seq + 1);
+	WARN_ON_ONCE(rnp->ofl_seq & 0x1);
+	smp_mb(); /* Ensure RCU read-side usage follows above initialization. */
+>>>>>>> upstream/android-13
 }
 
 /*
  * The outgoing function has no further need of RCU, so remove it from
+<<<<<<< HEAD
  * the list of CPUs that RCU must track.
+=======
+ * the rcu_node tree's ->qsmaskinitnext bit masks.
+>>>>>>> upstream/android-13
  *
  * Note that this function is special in that it is invoked directly
  * from the outgoing CPU rather than from the cpuhp_step mechanism.
@@ -3821,6 +7083,7 @@ static void rcu_cleanup_dying_idle_cpu(int cpu, struct rcu_state *rsp)
  */
 void rcu_report_dead(unsigned int cpu)
 {
+<<<<<<< HEAD
 	struct rcu_state *rsp;
 
 	/* QS for any half-done expedited RCU-sched GP. */
@@ -3862,12 +7125,95 @@ static void rcu_migrate_callbacks(int cpu, struct rcu_state *rsp)
 	raw_spin_unlock_irqrestore_rcu_node(rnp_root, flags);
 	if (needwake)
 		rcu_gp_kthread_wake(rsp);
+=======
+	unsigned long flags;
+	unsigned long mask;
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+	struct rcu_node *rnp = rdp->mynode;  /* Outgoing CPU's rdp & rnp. */
+
+	// Do any dangling deferred wakeups.
+	do_nocb_deferred_wakeup(rdp);
+
+	/* QS for any half-done expedited grace period. */
+	preempt_disable();
+	rcu_report_exp_rdp(this_cpu_ptr(&rcu_data));
+	preempt_enable();
+	rcu_preempt_deferred_qs(current);
+
+	/* Remove outgoing CPU from mask in the leaf rcu_node structure. */
+	mask = rdp->grpmask;
+	WRITE_ONCE(rnp->ofl_seq, rnp->ofl_seq + 1);
+	WARN_ON_ONCE(!(rnp->ofl_seq & 0x1));
+	smp_mb(); // Pair with rcu_gp_cleanup()'s ->ofl_seq barrier().
+	raw_spin_lock(&rcu_state.ofl_lock);
+	raw_spin_lock_irqsave_rcu_node(rnp, flags); /* Enforce GP memory-order guarantee. */
+	rdp->rcu_ofl_gp_seq = READ_ONCE(rcu_state.gp_seq);
+	rdp->rcu_ofl_gp_flags = READ_ONCE(rcu_state.gp_flags);
+	if (rnp->qsmask & mask) { /* RCU waiting on outgoing CPU? */
+		/* Report quiescent state -before- changing ->qsmaskinitnext! */
+		rcu_report_qs_rnp(mask, rnp, rnp->gp_seq, flags);
+		raw_spin_lock_irqsave_rcu_node(rnp, flags);
+	}
+	WRITE_ONCE(rnp->qsmaskinitnext, rnp->qsmaskinitnext & ~mask);
+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+	raw_spin_unlock(&rcu_state.ofl_lock);
+	smp_mb(); // Pair with rcu_gp_cleanup()'s ->ofl_seq barrier().
+	WRITE_ONCE(rnp->ofl_seq, rnp->ofl_seq + 1);
+	WARN_ON_ONCE(rnp->ofl_seq & 0x1);
+
+	rdp->cpu_started = false;
+}
+
+#ifdef CONFIG_HOTPLUG_CPU
+/*
+ * The outgoing CPU has just passed through the dying-idle state, and we
+ * are being invoked from the CPU that was IPIed to continue the offline
+ * operation.  Migrate the outgoing CPU's callbacks to the current CPU.
+ */
+void rcutree_migrate_callbacks(int cpu)
+{
+	unsigned long flags;
+	struct rcu_data *my_rdp;
+	struct rcu_node *my_rnp;
+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+	bool needwake;
+
+	if (rcu_rdp_is_offloaded(rdp) ||
+	    rcu_segcblist_empty(&rdp->cblist))
+		return;  /* No callbacks to migrate. */
+
+	local_irq_save(flags);
+	my_rdp = this_cpu_ptr(&rcu_data);
+	my_rnp = my_rdp->mynode;
+	rcu_nocb_lock(my_rdp); /* irqs already disabled. */
+	WARN_ON_ONCE(!rcu_nocb_flush_bypass(my_rdp, NULL, jiffies));
+	raw_spin_lock_rcu_node(my_rnp); /* irqs already disabled. */
+	/* Leverage recent GPs and set GP for new callbacks. */
+	needwake = rcu_advance_cbs(my_rnp, rdp) ||
+		   rcu_advance_cbs(my_rnp, my_rdp);
+	rcu_segcblist_merge(&my_rdp->cblist, &rdp->cblist);
+	needwake = needwake || rcu_advance_cbs(my_rnp, my_rdp);
+	rcu_segcblist_disable(&rdp->cblist);
+	WARN_ON_ONCE(rcu_segcblist_empty(&my_rdp->cblist) !=
+		     !rcu_segcblist_n_cbs(&my_rdp->cblist));
+	if (rcu_rdp_is_offloaded(my_rdp)) {
+		raw_spin_unlock_rcu_node(my_rnp); /* irqs remain disabled. */
+		__call_rcu_nocb_wake(my_rdp, true, flags);
+	} else {
+		rcu_nocb_unlock(my_rdp); /* irqs remain disabled. */
+		raw_spin_unlock_irqrestore_rcu_node(my_rnp, flags);
+	}
+	if (needwake)
+		rcu_gp_kthread_wake();
+	lockdep_assert_irqs_enabled();
+>>>>>>> upstream/android-13
 	WARN_ONCE(rcu_segcblist_n_cbs(&rdp->cblist) != 0 ||
 		  !rcu_segcblist_empty(&rdp->cblist),
 		  "rcu_cleanup_dead_cpu: Callbacks on offline CPU %d: qlen=%lu, 1stCB=%p\n",
 		  cpu, rcu_segcblist_n_cbs(&rdp->cblist),
 		  rcu_segcblist_first_cb(&rdp->cblist));
 }
+<<<<<<< HEAD
 
 /*
  * The outgoing CPU has just passed through the dying-idle state,
@@ -3881,6 +7227,8 @@ void rcutree_migrate_callbacks(int cpu)
 	for_each_rcu_flavor(rsp)
 		rcu_migrate_callbacks(cpu, rsp);
 }
+=======
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -3893,6 +7241,7 @@ static int rcu_pm_notify(struct notifier_block *self,
 	switch (action) {
 	case PM_HIBERNATION_PREPARE:
 	case PM_SUSPEND_PREPARE:
+<<<<<<< HEAD
 		if (nr_cpu_ids <= 256) /* Expediting bad for large systems. */
 			rcu_expedite_gp();
 		break;
@@ -3900,6 +7249,13 @@ static int rcu_pm_notify(struct notifier_block *self,
 	case PM_POST_SUSPEND:
 		if (nr_cpu_ids <= 256) /* Expediting bad for large systems. */
 			rcu_unexpedite_gp();
+=======
+		rcu_expedite_gp();
+		break;
+	case PM_POST_HIBERNATION:
+	case PM_POST_SUSPEND:
+		rcu_unexpedite_gp();
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -3907,15 +7263,68 @@ static int rcu_pm_notify(struct notifier_block *self,
 	return NOTIFY_OK;
 }
 
+<<<<<<< HEAD
 /*
  * Spawn the kthreads that handle each RCU flavor's grace periods.
+=======
+#ifdef CONFIG_RCU_EXP_KTHREAD
+struct kthread_worker *rcu_exp_gp_kworker;
+struct kthread_worker *rcu_exp_par_gp_kworker;
+
+static void __init rcu_start_exp_gp_kworkers(void)
+{
+	const char *par_gp_kworker_name = "rcu_exp_par_gp_kthread_worker";
+	const char *gp_kworker_name = "rcu_exp_gp_kthread_worker";
+	struct sched_param param = { .sched_priority = kthread_prio };
+
+	rcu_exp_gp_kworker = kthread_create_worker(0, gp_kworker_name);
+	if (IS_ERR_OR_NULL(rcu_exp_gp_kworker)) {
+		pr_err("Failed to create %s!\n", gp_kworker_name);
+		return;
+	}
+
+	rcu_exp_par_gp_kworker = kthread_create_worker(0, par_gp_kworker_name);
+	if (IS_ERR_OR_NULL(rcu_exp_par_gp_kworker)) {
+		pr_err("Failed to create %s!\n", par_gp_kworker_name);
+		kthread_destroy_worker(rcu_exp_gp_kworker);
+		return;
+	}
+
+	sched_setscheduler_nocheck(rcu_exp_gp_kworker->task, SCHED_FIFO, &param);
+	sched_setscheduler_nocheck(rcu_exp_par_gp_kworker->task, SCHED_FIFO,
+				   &param);
+}
+
+static inline void rcu_alloc_par_gp_wq(void)
+{
+}
+#else /* !CONFIG_RCU_EXP_KTHREAD */
+struct workqueue_struct *rcu_par_gp_wq;
+
+static void __init rcu_start_exp_gp_kworkers(void)
+{
+}
+
+static inline void rcu_alloc_par_gp_wq(void)
+{
+	rcu_par_gp_wq = alloc_workqueue("rcu_par_gp", WQ_MEM_RECLAIM, 0);
+	WARN_ON(!rcu_par_gp_wq);
+}
+#endif /* CONFIG_RCU_EXP_KTHREAD */
+
+/*
+ * Spawn the kthreads that handle RCU's grace periods.
+>>>>>>> upstream/android-13
  */
 static int __init rcu_spawn_gp_kthread(void)
 {
 	unsigned long flags;
 	int kthread_prio_in = kthread_prio;
 	struct rcu_node *rnp;
+<<<<<<< HEAD
 	struct rcu_state *rsp;
+=======
+>>>>>>> upstream/android-13
 	struct sched_param sp;
 	struct task_struct *t;
 
@@ -3935,6 +7344,7 @@ static int __init rcu_spawn_gp_kthread(void)
 			 kthread_prio, kthread_prio_in);
 
 	rcu_scheduler_fully_active = 1;
+<<<<<<< HEAD
 	for_each_rcu_flavor(rsp) {
 		t = kthread_create(rcu_gp_kthread, rsp, "%s", rsp->name);
 		BUG_ON(IS_ERR(t));
@@ -3950,6 +7360,28 @@ static int __init rcu_spawn_gp_kthread(void)
 	}
 	rcu_spawn_nocb_kthreads();
 	rcu_spawn_boost_kthreads();
+=======
+	t = kthread_create(rcu_gp_kthread, NULL, "%s", rcu_state.name);
+	if (WARN_ONCE(IS_ERR(t), "%s: Could not start grace-period kthread, OOM is now expected behavior\n", __func__))
+		return 0;
+	if (kthread_prio) {
+		sp.sched_priority = kthread_prio;
+		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
+	}
+	rnp = rcu_get_root();
+	raw_spin_lock_irqsave_rcu_node(rnp, flags);
+	WRITE_ONCE(rcu_state.gp_activity, jiffies);
+	WRITE_ONCE(rcu_state.gp_req_activity, jiffies);
+	// Reset .gp_activity and .gp_req_activity before setting .gp_kthread.
+	smp_store_release(&rcu_state.gp_kthread, t);  /* ^^^ */
+	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+	wake_up_process(t);
+	rcu_spawn_nocb_kthreads();
+	rcu_spawn_boost_kthreads();
+	rcu_spawn_core_kthreads();
+	/* Create kthread worker for expedited GPs */
+	rcu_start_exp_gp_kworkers();
+>>>>>>> upstream/android-13
 	return 0;
 }
 early_initcall(rcu_spawn_gp_kthread);
@@ -3974,9 +7406,15 @@ void rcu_scheduler_starting(void)
 }
 
 /*
+<<<<<<< HEAD
  * Helper function for rcu_init() that initializes one rcu_state structure.
  */
 static void __init rcu_init_one(struct rcu_state *rsp)
+=======
+ * Helper function for rcu_init() that initializes the rcu_state structure.
+ */
+static void __init rcu_init_one(void)
+>>>>>>> upstream/android-13
 {
 	static const char * const buf[] = RCU_NODE_NAME_INIT;
 	static const char * const fqs[] = RCU_FQS_NAME_INIT;
@@ -3998,14 +7436,23 @@ static void __init rcu_init_one(struct rcu_state *rsp)
 	/* Initialize the level-tracking arrays. */
 
 	for (i = 1; i < rcu_num_lvls; i++)
+<<<<<<< HEAD
 		rsp->level[i] = rsp->level[i - 1] + num_rcu_lvl[i - 1];
+=======
+		rcu_state.level[i] =
+			rcu_state.level[i - 1] + num_rcu_lvl[i - 1];
+>>>>>>> upstream/android-13
 	rcu_init_levelspread(levelspread, num_rcu_lvl);
 
 	/* Initialize the elements themselves, starting from the leaves. */
 
 	for (i = rcu_num_lvls - 1; i >= 0; i--) {
 		cpustride *= levelspread[i];
+<<<<<<< HEAD
 		rnp = rsp->level[i];
+=======
+		rnp = rcu_state.level[i];
+>>>>>>> upstream/android-13
 		for (j = 0; j < num_rcu_lvl[i]; j++, rnp++) {
 			raw_spin_lock_init(&ACCESS_PRIVATE(rnp, lock));
 			lockdep_set_class_and_name(&ACCESS_PRIVATE(rnp, lock),
@@ -4013,9 +7460,15 @@ static void __init rcu_init_one(struct rcu_state *rsp)
 			raw_spin_lock_init(&rnp->fqslock);
 			lockdep_set_class_and_name(&rnp->fqslock,
 						   &rcu_fqs_class[i], fqs[i]);
+<<<<<<< HEAD
 			rnp->gp_seq = rsp->gp_seq;
 			rnp->gp_seq_needed = rsp->gp_seq;
 			rnp->completedqs = rsp->gp_seq;
+=======
+			rnp->gp_seq = rcu_state.gp_seq;
+			rnp->gp_seq_needed = rcu_state.gp_seq;
+			rnp->completedqs = rcu_state.gp_seq;
+>>>>>>> upstream/android-13
 			rnp->qsmask = 0;
 			rnp->qsmaskinit = 0;
 			rnp->grplo = j * cpustride;
@@ -4028,8 +7481,13 @@ static void __init rcu_init_one(struct rcu_state *rsp)
 				rnp->parent = NULL;
 			} else {
 				rnp->grpnum = j % levelspread[i - 1];
+<<<<<<< HEAD
 				rnp->grpmask = 1UL << rnp->grpnum;
 				rnp->parent = rsp->level[i - 1] +
+=======
+				rnp->grpmask = BIT(rnp->grpnum);
+				rnp->parent = rcu_state.level[i - 1] +
+>>>>>>> upstream/android-13
 					      j / levelspread[i - 1];
 			}
 			rnp->level = i;
@@ -4043,6 +7501,7 @@ static void __init rcu_init_one(struct rcu_state *rsp)
 		}
 	}
 
+<<<<<<< HEAD
 	init_swait_queue_head(&rsp->gp_wq);
 	init_swait_queue_head(&rsp->expedited_wq);
 	rnp = rcu_first_leaf_node(rsp);
@@ -4053,6 +7512,17 @@ static void __init rcu_init_one(struct rcu_state *rsp)
 		rcu_boot_init_percpu_data(i, rsp);
 	}
 	list_add(&rsp->flavors, &rcu_struct_flavors);
+=======
+	init_swait_queue_head(&rcu_state.gp_wq);
+	init_swait_queue_head(&rcu_state.expedited_wq);
+	rnp = rcu_first_leaf_node();
+	for_each_possible_cpu(i) {
+		while (i > rnp->grphi)
+			rnp++;
+		per_cpu_ptr(&rcu_data, i)->mynode = rnp;
+		rcu_boot_init_percpu_data(i);
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -4060,11 +7530,33 @@ static void __init rcu_init_one(struct rcu_state *rsp)
  * replace the definitions in tree.h because those are needed to size
  * the ->node array in the rcu_state structure.
  */
+<<<<<<< HEAD
 static void __init rcu_init_geometry(void)
 {
 	ulong d;
 	int i;
 	int rcu_capacity[RCU_NUM_LVLS];
+=======
+void rcu_init_geometry(void)
+{
+	ulong d;
+	int i;
+	static unsigned long old_nr_cpu_ids;
+	int rcu_capacity[RCU_NUM_LVLS];
+	static bool initialized;
+
+	if (initialized) {
+		/*
+		 * Warn if setup_nr_cpu_ids() had not yet been invoked,
+		 * unless nr_cpus_ids == NR_CPUS, in which case who cares?
+		 */
+		WARN_ON_ONCE(old_nr_cpu_ids != nr_cpu_ids);
+		return;
+	}
+
+	old_nr_cpu_ids = nr_cpu_ids;
+	initialized = true;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize any unspecified boot parameters.
@@ -4078,6 +7570,10 @@ static void __init rcu_init_geometry(void)
 		jiffies_till_first_fqs = d;
 	if (jiffies_till_next_fqs == ULONG_MAX)
 		jiffies_till_next_fqs = d;
+<<<<<<< HEAD
+=======
+	adjust_jiffies_till_sched_qs();
+>>>>>>> upstream/android-13
 
 	/* If the compile-time values are accurate, just leave. */
 	if (rcu_fanout_leaf == RCU_FANOUT_LEAF &&
@@ -4136,16 +7632,26 @@ static void __init rcu_init_geometry(void)
 
 /*
  * Dump out the structure of the rcu_node combining tree associated
+<<<<<<< HEAD
  * with the rcu_state structure referenced by rsp.
  */
 static void __init rcu_dump_rcu_node_tree(struct rcu_state *rsp)
+=======
+ * with the rcu_state structure.
+ */
+static void __init rcu_dump_rcu_node_tree(void)
+>>>>>>> upstream/android-13
 {
 	int level = 0;
 	struct rcu_node *rnp;
 
 	pr_info("rcu_node tree layout dump\n");
 	pr_info(" ");
+<<<<<<< HEAD
 	rcu_for_each_node_breadth_first(rsp, rnp) {
+=======
+	rcu_for_each_node_breadth_first(rnp) {
+>>>>>>> upstream/android-13
 		if (rnp->level != level) {
 			pr_cont("\n");
 			pr_info(" ");
@@ -4157,7 +7663,43 @@ static void __init rcu_dump_rcu_node_tree(struct rcu_state *rsp)
 }
 
 struct workqueue_struct *rcu_gp_wq;
+<<<<<<< HEAD
 struct workqueue_struct *rcu_par_gp_wq;
+=======
+
+static void __init kfree_rcu_batch_init(void)
+{
+	int cpu;
+	int i;
+
+	/* Clamp it to [0:100] seconds interval. */
+	if (rcu_delay_page_cache_fill_msec < 0 ||
+		rcu_delay_page_cache_fill_msec > 100 * MSEC_PER_SEC) {
+
+		rcu_delay_page_cache_fill_msec =
+			clamp(rcu_delay_page_cache_fill_msec, 0,
+				(int) (100 * MSEC_PER_SEC));
+
+		pr_info("Adjusting rcutree.rcu_delay_page_cache_fill_msec to %d ms.\n",
+			rcu_delay_page_cache_fill_msec);
+	}
+
+	for_each_possible_cpu(cpu) {
+		struct kfree_rcu_cpu *krcp = per_cpu_ptr(&krc, cpu);
+
+		for (i = 0; i < KFREE_N_BATCHES; i++) {
+			INIT_RCU_WORK(&krcp->krw_arr[i].rcu_work, kfree_rcu_work);
+			krcp->krw_arr[i].krcp = krcp;
+		}
+
+		INIT_DELAYED_WORK(&krcp->monitor_work, kfree_rcu_monitor);
+		INIT_DELAYED_WORK(&krcp->page_cache_work, fill_page_cache_func);
+		krcp->initialized = true;
+	}
+	if (register_shrinker(&kfree_rcu_shrinker))
+		pr_err("Failed to register kfree_rcu() shrinker!\n");
+}
+>>>>>>> upstream/android-13
 
 void __init rcu_init(void)
 {
@@ -4165,6 +7707,7 @@ void __init rcu_init(void)
 
 	rcu_early_boot_tests();
 
+<<<<<<< HEAD
 	rcu_bootup_announce();
 	rcu_init_geometry();
 	rcu_init_one(&rcu_bh_state);
@@ -4173,6 +7716,16 @@ void __init rcu_init(void)
 		rcu_dump_rcu_node_tree(&rcu_sched_state);
 	__rcu_init_preempt();
 	open_softirq(RCU_SOFTIRQ, rcu_process_callbacks);
+=======
+	kfree_rcu_batch_init();
+	rcu_bootup_announce();
+	rcu_init_geometry();
+	rcu_init_one();
+	if (dump_tree)
+		rcu_dump_rcu_node_tree();
+	if (use_softirq)
+		open_softirq(RCU_SOFTIRQ, rcu_core_si);
+>>>>>>> upstream/android-13
 
 	/*
 	 * We don't need protection against CPU-hotplug here because
@@ -4186,6 +7739,7 @@ void __init rcu_init(void)
 		rcutree_online_cpu(cpu);
 	}
 
+<<<<<<< HEAD
 	/* Create workqueue for expedited GPs and for Tree SRCU. */
 	rcu_gp_wq = alloc_workqueue("rcu_gp", WQ_MEM_RECLAIM, 0);
 	WARN_ON(!rcu_gp_wq);
@@ -4194,4 +7748,22 @@ void __init rcu_init(void)
 }
 
 #include "tree_exp.h"
+=======
+	/* Create workqueue for Tree SRCU and for expedited GPs. */
+	rcu_gp_wq = alloc_workqueue("rcu_gp", WQ_MEM_RECLAIM, 0);
+	WARN_ON(!rcu_gp_wq);
+	rcu_alloc_par_gp_wq();
+
+	/* Fill in default value for rcutree.qovld boot parameter. */
+	/* -After- the rcu_node ->lock fields are initialized! */
+	if (qovld < 0)
+		qovld_calc = DEFAULT_RCU_QOVLD_MULT * qhimark;
+	else
+		qovld_calc = qovld;
+}
+
+#include "tree_stall.h"
+#include "tree_exp.h"
+#include "tree_nocb.h"
+>>>>>>> upstream/android-13
 #include "tree_plugin.h"

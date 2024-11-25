@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013 STMicroelectronics Limited
  * Author: Stephen Gallimore <stephen.gallimore@st.com>
  *
  * Inspired by mach-imx/src.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
@@ -21,7 +28,11 @@
 #include "reset-syscfg.h"
 
 /**
+<<<<<<< HEAD
  * Reset channel regmap configuration
+=======
+ * struct syscfg_reset_channel - Reset channel regmap configuration
+>>>>>>> upstream/android-13
  *
  * @reset: regmap field for the channel's reset bit.
  * @ack: regmap field for the channel's ack bit (optional).
@@ -32,8 +43,14 @@ struct syscfg_reset_channel {
 };
 
 /**
+<<<<<<< HEAD
  * A reset controller which groups together a set of related reset bits, which
  * may be located in different system configuration registers.
+=======
+ * struct syscfg_reset_controller - A reset controller which groups together
+ * a set of related reset bits, which may be located in different system
+ * configuration registers.
+>>>>>>> upstream/android-13
  *
  * @rst: base reset controller structure.
  * @active_low: are the resets in this controller active low, i.e. clearing
@@ -156,7 +173,11 @@ static int syscfg_reset_controller_register(struct device *dev,
 	if (!rc->channels)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rc->rst.ops = &syscfg_reset_ops,
+=======
+	rc->rst.ops = &syscfg_reset_ops;
+>>>>>>> upstream/android-13
 	rc->rst.of_node = dev->of_node;
 	rc->rst.nr_resets = data->nr_channels;
 	rc->active_low = data->active_low;

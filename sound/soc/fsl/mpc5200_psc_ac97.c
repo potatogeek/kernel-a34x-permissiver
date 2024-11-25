@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * linux/sound/mpc5200-ac97.c -- AC97 support for the Freescale MPC52xx chip.
  *
@@ -8,6 +9,14 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// linux/sound/mpc5200-ac97.c -- AC97 support for the Freescale MPC52xx chip.
+//
+// Copyright (C) 2009 Jon Smirl, Digispeaker
+// Author: Jon Smirl <jonsmirl@gmail.com>
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/of_device.h>
@@ -237,7 +246,10 @@ static const struct snd_soc_dai_ops psc_ac97_digital_ops = {
 static struct snd_soc_dai_driver psc_ac97_dai[] = {
 {
 	.name = "mpc5200-psc-ac97.0",
+<<<<<<< HEAD
 	.bus_control = true,
+=======
+>>>>>>> upstream/android-13
 	.probe	= psc_ac97_probe,
 	.playback = {
 		.stream_name	= "AC97 Playback",
@@ -257,7 +269,10 @@ static struct snd_soc_dai_driver psc_ac97_dai[] = {
 },
 {
 	.name = "mpc5200-psc-ac97.1",
+<<<<<<< HEAD
 	.bus_control = true,
+=======
+>>>>>>> upstream/android-13
 	.playback = {
 		.stream_name	= "AC97 SPDIF",
 		.channels_min   = 1,

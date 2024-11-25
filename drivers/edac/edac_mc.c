@@ -43,8 +43,11 @@
 int edac_op_state = EDAC_OPSTATE_INVAL;
 EXPORT_SYMBOL_GPL(edac_op_state);
 
+<<<<<<< HEAD
 static int edac_report = EDAC_REPORTING_ENABLED;
 
+=======
+>>>>>>> upstream/android-13
 /* lock to memory controller's control array */
 static DEFINE_MUTEX(mem_ctls_mutex);
 static LIST_HEAD(mc_devices);
@@ -55,6 +58,7 @@ static LIST_HEAD(mc_devices);
  */
 static const char *edac_mc_owner;
 
+<<<<<<< HEAD
 static struct bus_type mc_bus[EDAC_MAX_MCS];
 
 int edac_get_report_status(void)
@@ -118,6 +122,15 @@ module_param_cb(edac_report, &edac_report_ops, &edac_report, 0644);
 
 unsigned edac_dimm_info_location(struct dimm_info *dimm, char *buf,
 			         unsigned len)
+=======
+static struct mem_ctl_info *error_desc_to_mci(struct edac_raw_error_desc *e)
+{
+	return container_of(e, struct mem_ctl_info, error_desc);
+}
+
+unsigned int edac_dimm_info_location(struct dimm_info *dimm, char *buf,
+				     unsigned int len)
+>>>>>>> upstream/android-13
 {
 	struct mem_ctl_info *mci = dimm->mci;
 	int i, n, count = 0;
@@ -147,15 +160,29 @@ static void edac_mc_dump_channel(struct rank_info *chan)
 	edac_dbg(4, "    channel->dimm = %p\n", chan->dimm);
 }
 
+<<<<<<< HEAD
 static void edac_mc_dump_dimm(struct dimm_info *dimm, int number)
 {
 	char location[80];
 
+=======
+static void edac_mc_dump_dimm(struct dimm_info *dimm)
+{
+	char location[80];
+
+	if (!dimm->nr_pages)
+		return;
+
+>>>>>>> upstream/android-13
 	edac_dimm_info_location(dimm, location, sizeof(location));
 
 	edac_dbg(4, "%s%i: %smapped as virtual row %d, chan %d\n",
 		 dimm->mci->csbased ? "rank" : "dimm",
+<<<<<<< HEAD
 		 number, location, dimm->csrow, dimm->cschannel);
+=======
+		 dimm->idx, location, dimm->csrow, dimm->cschannel);
+>>>>>>> upstream/android-13
 	edac_dbg(4, "  dimm = %p\n", dimm);
 	edac_dbg(4, "  dimm->label = '%s'\n", dimm->label);
 	edac_dbg(4, "  dimm->nr_pages = 0x%x\n", dimm->nr_pages);
@@ -213,10 +240,22 @@ const char * const edac_mem_types[] = {
 	[MEM_DDR3]	= "Unbuffered-DDR3",
 	[MEM_RDDR3]	= "Registered-DDR3",
 	[MEM_LRDDR3]	= "Load-Reduced-DDR3-RAM",
+<<<<<<< HEAD
 	[MEM_DDR4]	= "Unbuffered-DDR4",
 	[MEM_RDDR4]	= "Registered-DDR4",
 	[MEM_LRDDR4]	= "Load-Reduced-DDR4-RAM",
 	[MEM_NVDIMM]	= "Non-volatile-RAM",
+=======
+	[MEM_LPDDR3]	= "Low-Power-DDR3-RAM",
+	[MEM_DDR4]	= "Unbuffered-DDR4",
+	[MEM_RDDR4]	= "Registered-DDR4",
+	[MEM_LPDDR4]	= "Low-Power-DDR4-RAM",
+	[MEM_LRDDR4]	= "Load-Reduced-DDR4-RAM",
+	[MEM_DDR5]	= "Unbuffered-DDR5",
+	[MEM_NVDIMM]	= "Non-volatile-RAM",
+	[MEM_WIO2]	= "Wide-IO-2",
+	[MEM_HBM2]	= "High-bandwidth-memory-Gen2",
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(edac_mem_types);
 
@@ -238,9 +277,15 @@ EXPORT_SYMBOL_GPL(edac_mem_types);
  * At return, the pointer 'p' will be incremented to be used on a next call
  * to this function.
  */
+<<<<<<< HEAD
 void *edac_align_ptr(void **p, unsigned size, int n_elems)
 {
 	unsigned align, r;
+=======
+void *edac_align_ptr(void **p, unsigned int size, int n_elems)
+{
+	unsigned int align, r;
+>>>>>>> upstream/android-13
 	void *ptr = *p;
 
 	*p += size * n_elems;
@@ -265,7 +310,11 @@ void *edac_align_ptr(void **p, unsigned size, int n_elems)
 	else
 		return (char *)ptr;
 
+<<<<<<< HEAD
 	r = (unsigned long)p % align;
+=======
+	r = (unsigned long)ptr % align;
+>>>>>>> upstream/android-13
 
 	if (r == 0)
 		return (char *)ptr;
@@ -277,6 +326,7 @@ void *edac_align_ptr(void **p, unsigned size, int n_elems)
 
 static void _edac_mc_free(struct mem_ctl_info *mci)
 {
+<<<<<<< HEAD
 	int i, chn, row;
 	struct csrow_info *csr;
 	const unsigned int tot_dimms = mci->tot_dimms;
@@ -299,12 +349,42 @@ static void _edac_mc_free(struct mem_ctl_info *mci)
 				}
 				kfree(csr);
 			}
+=======
+	put_device(&mci->dev);
+}
+
+static void mci_release(struct device *dev)
+{
+	struct mem_ctl_info *mci = container_of(dev, struct mem_ctl_info, dev);
+	struct csrow_info *csr;
+	int i, chn, row;
+
+	if (mci->dimms) {
+		for (i = 0; i < mci->tot_dimms; i++)
+			kfree(mci->dimms[i]);
+		kfree(mci->dimms);
+	}
+
+	if (mci->csrows) {
+		for (row = 0; row < mci->nr_csrows; row++) {
+			csr = mci->csrows[row];
+			if (!csr)
+				continue;
+
+			if (csr->channels) {
+				for (chn = 0; chn < mci->num_cschannel; chn++)
+					kfree(csr->channels[chn]);
+				kfree(csr->channels);
+			}
+			kfree(csr);
+>>>>>>> upstream/android-13
 		}
 		kfree(mci->csrows);
 	}
 	kfree(mci);
 }
 
+<<<<<<< HEAD
 struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 				   unsigned n_layers,
 				   struct edac_mc_layer *layers,
@@ -324,10 +404,156 @@ struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 	bool per_rank = false;
 
 	BUG_ON(n_layers > EDAC_MAX_LAYERS || n_layers == 0);
+=======
+static int edac_mc_alloc_csrows(struct mem_ctl_info *mci)
+{
+	unsigned int tot_channels = mci->num_cschannel;
+	unsigned int tot_csrows = mci->nr_csrows;
+	unsigned int row, chn;
+
+	/*
+	 * Alocate and fill the csrow/channels structs
+	 */
+	mci->csrows = kcalloc(tot_csrows, sizeof(*mci->csrows), GFP_KERNEL);
+	if (!mci->csrows)
+		return -ENOMEM;
+
+	for (row = 0; row < tot_csrows; row++) {
+		struct csrow_info *csr;
+
+		csr = kzalloc(sizeof(**mci->csrows), GFP_KERNEL);
+		if (!csr)
+			return -ENOMEM;
+
+		mci->csrows[row] = csr;
+		csr->csrow_idx = row;
+		csr->mci = mci;
+		csr->nr_channels = tot_channels;
+		csr->channels = kcalloc(tot_channels, sizeof(*csr->channels),
+					GFP_KERNEL);
+		if (!csr->channels)
+			return -ENOMEM;
+
+		for (chn = 0; chn < tot_channels; chn++) {
+			struct rank_info *chan;
+
+			chan = kzalloc(sizeof(**csr->channels), GFP_KERNEL);
+			if (!chan)
+				return -ENOMEM;
+
+			csr->channels[chn] = chan;
+			chan->chan_idx = chn;
+			chan->csrow = csr;
+		}
+	}
+
+	return 0;
+}
+
+static int edac_mc_alloc_dimms(struct mem_ctl_info *mci)
+{
+	unsigned int pos[EDAC_MAX_LAYERS];
+	unsigned int row, chn, idx;
+	int layer;
+	void *p;
+
+	/*
+	 * Allocate and fill the dimm structs
+	 */
+	mci->dimms  = kcalloc(mci->tot_dimms, sizeof(*mci->dimms), GFP_KERNEL);
+	if (!mci->dimms)
+		return -ENOMEM;
+
+	memset(&pos, 0, sizeof(pos));
+	row = 0;
+	chn = 0;
+	for (idx = 0; idx < mci->tot_dimms; idx++) {
+		struct dimm_info *dimm;
+		struct rank_info *chan;
+		int n, len;
+
+		chan = mci->csrows[row]->channels[chn];
+
+		dimm = kzalloc(sizeof(**mci->dimms), GFP_KERNEL);
+		if (!dimm)
+			return -ENOMEM;
+		mci->dimms[idx] = dimm;
+		dimm->mci = mci;
+		dimm->idx = idx;
+
+		/*
+		 * Copy DIMM location and initialize it.
+		 */
+		len = sizeof(dimm->label);
+		p = dimm->label;
+		n = snprintf(p, len, "mc#%u", mci->mc_idx);
+		p += n;
+		len -= n;
+		for (layer = 0; layer < mci->n_layers; layer++) {
+			n = snprintf(p, len, "%s#%u",
+				     edac_layer_name[mci->layers[layer].type],
+				     pos[layer]);
+			p += n;
+			len -= n;
+			dimm->location[layer] = pos[layer];
+
+			if (len <= 0)
+				break;
+		}
+
+		/* Link it to the csrows old API data */
+		chan->dimm = dimm;
+		dimm->csrow = row;
+		dimm->cschannel = chn;
+
+		/* Increment csrow location */
+		if (mci->layers[0].is_virt_csrow) {
+			chn++;
+			if (chn == mci->num_cschannel) {
+				chn = 0;
+				row++;
+			}
+		} else {
+			row++;
+			if (row == mci->nr_csrows) {
+				row = 0;
+				chn++;
+			}
+		}
+
+		/* Increment dimm location */
+		for (layer = mci->n_layers - 1; layer >= 0; layer--) {
+			pos[layer]++;
+			if (pos[layer] < mci->layers[layer].size)
+				break;
+			pos[layer] = 0;
+		}
+	}
+
+	return 0;
+}
+
+struct mem_ctl_info *edac_mc_alloc(unsigned int mc_num,
+				   unsigned int n_layers,
+				   struct edac_mc_layer *layers,
+				   unsigned int sz_pvt)
+{
+	struct mem_ctl_info *mci;
+	struct edac_mc_layer *layer;
+	unsigned int idx, size, tot_dimms = 1;
+	unsigned int tot_csrows = 1, tot_channels = 1;
+	void *pvt, *ptr = NULL;
+	bool per_rank = false;
+
+	if (WARN_ON(n_layers > EDAC_MAX_LAYERS || n_layers == 0))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Calculate the total amount of dimms and csrows/cschannels while
 	 * in the old API emulation mode
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < n_layers; i++) {
 		tot_dimms *= layers[i].size;
 		if (layers[i].is_virt_csrow)
@@ -336,6 +562,17 @@ struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 			tot_channels *= layers[i].size;
 
 		if (layers[i].type == EDAC_MC_LAYER_CHIP_SELECT)
+=======
+	for (idx = 0; idx < n_layers; idx++) {
+		tot_dimms *= layers[idx].size;
+
+		if (layers[idx].is_virt_csrow)
+			tot_csrows *= layers[idx].size;
+		else
+			tot_channels *= layers[idx].size;
+
+		if (layers[idx].type == EDAC_MC_LAYER_CHIP_SELECT)
+>>>>>>> upstream/android-13
 			per_rank = true;
 	}
 
@@ -344,6 +581,7 @@ struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 	 * stringent as what the compiler would provide if we could simply
 	 * hardcode everything into a single struct.
 	 */
+<<<<<<< HEAD
 	mci = edac_align_ptr(&ptr, sizeof(*mci), 1);
 	layer = edac_align_ptr(&ptr, sizeof(*layer), n_layers);
 	for (i = 0; i < n_layers; i++) {
@@ -357,6 +595,12 @@ struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 	edac_dbg(4, "allocating %d error counters\n", tot_errcount);
 	pvt = edac_align_ptr(&ptr, sz_pvt, 1);
 	size = ((unsigned long)pvt) + sz_pvt;
+=======
+	mci	= edac_align_ptr(&ptr, sizeof(*mci), 1);
+	layer	= edac_align_ptr(&ptr, sizeof(*layer), n_layers);
+	pvt	= edac_align_ptr(&ptr, sz_pvt, 1);
+	size	= ((unsigned long)pvt) + sz_pvt;
+>>>>>>> upstream/android-13
 
 	edac_dbg(1, "allocating %u bytes for mci data (%d %s, %d csrows/channels)\n",
 		 size,
@@ -368,14 +612,23 @@ struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 	if (mci == NULL)
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	mci->dev.release = mci_release;
+	device_initialize(&mci->dev);
+
+>>>>>>> upstream/android-13
 	/* Adjust pointers so they point within the memory we just allocated
 	 * rather than an imaginary chunk of memory located at address 0.
 	 */
 	layer = (struct edac_mc_layer *)(((char *)mci) + ((unsigned long)layer));
+<<<<<<< HEAD
 	for (i = 0; i < n_layers; i++) {
 		mci->ce_per_layer[i] = (u32 *)((char *)mci + ((unsigned long)ce_per_layer[i]));
 		mci->ue_per_layer[i] = (u32 *)((char *)mci + ((unsigned long)ue_per_layer[i]));
 	}
+=======
+>>>>>>> upstream/android-13
 	pvt = sz_pvt ? (((char *)mci) + ((unsigned long)pvt)) : NULL;
 
 	/* setup index and various internal pointers */
@@ -389,6 +642,7 @@ struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 	mci->num_cschannel = tot_channels;
 	mci->csbased = per_rank;
 
+<<<<<<< HEAD
 	/*
 	 * Alocate and fill the csrow/channels structs
 	 */
@@ -490,6 +744,13 @@ struct mem_ctl_info *edac_mc_alloc(unsigned mc_num,
 			pos[j] = 0;
 		}
 	}
+=======
+	if (edac_mc_alloc_csrows(mci))
+		goto error;
+
+	if (edac_mc_alloc_dimms(mci))
+		goto error;
+>>>>>>> upstream/android-13
 
 	mci->op_state = OP_ALLOC;
 
@@ -506,6 +767,7 @@ void edac_mc_free(struct mem_ctl_info *mci)
 {
 	edac_dbg(1, "\n");
 
+<<<<<<< HEAD
 	/* If we're not yet registered with sysfs free only what was allocated
 	 * in edac_mc_alloc().
 	 */
@@ -516,6 +778,9 @@ void edac_mc_free(struct mem_ctl_info *mci)
 
 	/* the mci instance is freed here, when the sysfs object is dropped */
 	edac_unregister_sysfs(mci);
+=======
+	_edac_mc_free(mci);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(edac_mc_free);
 
@@ -712,16 +977,23 @@ int edac_mc_add_mc_with_groups(struct mem_ctl_info *mci,
 	int ret = -EINVAL;
 	edac_dbg(0, "\n");
 
+<<<<<<< HEAD
 	if (mci->mc_idx >= EDAC_MAX_MCS) {
 		pr_warn_once("Too many memory controllers: %d\n", mci->mc_idx);
 		return -ENODEV;
 	}
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_EDAC_DEBUG
 	if (edac_debug_level >= 3)
 		edac_mc_dump_mci(mci);
 
 	if (edac_debug_level >= 4) {
+<<<<<<< HEAD
+=======
+		struct dimm_info *dimm;
+>>>>>>> upstream/android-13
 		int i;
 
 		for (i = 0; i < mci->nr_csrows; i++) {
@@ -738,9 +1010,15 @@ int edac_mc_add_mc_with_groups(struct mem_ctl_info *mci,
 				if (csrow->channels[j]->dimm->nr_pages)
 					edac_mc_dump_channel(csrow->channels[j]);
 		}
+<<<<<<< HEAD
 		for (i = 0; i < mci->tot_dimms; i++)
 			if (mci->dimms[i]->nr_pages)
 				edac_mc_dump_dimm(mci->dimms[i], i);
+=======
+
+		mci_for_each_dimm(mci, dimm)
+			edac_mc_dump_dimm(dimm);
+>>>>>>> upstream/android-13
 	}
 #endif
 	mutex_lock(&mem_ctls_mutex);
@@ -756,7 +1034,11 @@ int edac_mc_add_mc_with_groups(struct mem_ctl_info *mci,
 	/* set load time so that error rate can be tracked */
 	mci->start_time = jiffies;
 
+<<<<<<< HEAD
 	mci->bus = &mc_bus[mci->mc_idx];
+=======
+	mci->bus = edac_get_sysfs_subsys();
+>>>>>>> upstream/android-13
 
 	if (edac_create_sysfs_mci_device(mci, groups)) {
 		edac_mc_printk(mci, KERN_WARNING,
@@ -913,6 +1195,7 @@ const char *edac_layer_name[] = {
 };
 EXPORT_SYMBOL_GPL(edac_layer_name);
 
+<<<<<<< HEAD
 static void edac_inc_ce_error(struct mem_ctl_info *mci,
 			      bool enable_per_layer_report,
 			      const int pos[EDAC_MAX_LAYERS],
@@ -995,6 +1278,53 @@ static void edac_ce_error(struct mem_ctl_info *mci,
 				       location, detail);
 	}
 	edac_inc_ce_error(mci, enable_per_layer_report, pos, error_count);
+=======
+static void edac_inc_ce_error(struct edac_raw_error_desc *e)
+{
+	int pos[EDAC_MAX_LAYERS] = { e->top_layer, e->mid_layer, e->low_layer };
+	struct mem_ctl_info *mci = error_desc_to_mci(e);
+	struct dimm_info *dimm = edac_get_dimm(mci, pos[0], pos[1], pos[2]);
+
+	mci->ce_mc += e->error_count;
+
+	if (dimm)
+		dimm->ce_count += e->error_count;
+	else
+		mci->ce_noinfo_count += e->error_count;
+}
+
+static void edac_inc_ue_error(struct edac_raw_error_desc *e)
+{
+	int pos[EDAC_MAX_LAYERS] = { e->top_layer, e->mid_layer, e->low_layer };
+	struct mem_ctl_info *mci = error_desc_to_mci(e);
+	struct dimm_info *dimm = edac_get_dimm(mci, pos[0], pos[1], pos[2]);
+
+	mci->ue_mc += e->error_count;
+
+	if (dimm)
+		dimm->ue_count += e->error_count;
+	else
+		mci->ue_noinfo_count += e->error_count;
+}
+
+static void edac_ce_error(struct edac_raw_error_desc *e)
+{
+	struct mem_ctl_info *mci = error_desc_to_mci(e);
+	unsigned long remapped_page;
+
+	if (edac_mc_get_log_ce()) {
+		edac_mc_printk(mci, KERN_WARNING,
+			"%d CE %s%son %s (%s page:0x%lx offset:0x%lx grain:%ld syndrome:0x%lx%s%s)\n",
+			e->error_count, e->msg,
+			*e->msg ? " " : "",
+			e->label, e->location, e->page_frame_number, e->offset_in_page,
+			e->grain, e->syndrome,
+			*e->other_detail ? " - " : "",
+			e->other_detail);
+	}
+
+	edac_inc_ce_error(e);
+>>>>>>> upstream/android-13
 
 	if (mci->scrub_mode == SCRUB_SW_SRC) {
 		/*
@@ -1009,6 +1339,7 @@ static void edac_ce_error(struct mem_ctl_info *mci,
 			* be scrubbed.
 			*/
 		remapped_page = mci->ctl_page_to_phys ?
+<<<<<<< HEAD
 			mci->ctl_page_to_phys(mci, page_frame_number) :
 			page_frame_number;
 
@@ -1083,6 +1414,86 @@ void edac_raw_mc_handle_error(const enum hw_event_mc_err_type type,
 	}
 
 
+=======
+			mci->ctl_page_to_phys(mci, e->page_frame_number) :
+			e->page_frame_number;
+
+		edac_mc_scrub_block(remapped_page, e->offset_in_page, e->grain);
+	}
+}
+
+static void edac_ue_error(struct edac_raw_error_desc *e)
+{
+	struct mem_ctl_info *mci = error_desc_to_mci(e);
+
+	if (edac_mc_get_log_ue()) {
+		edac_mc_printk(mci, KERN_WARNING,
+			"%d UE %s%son %s (%s page:0x%lx offset:0x%lx grain:%ld%s%s)\n",
+			e->error_count, e->msg,
+			*e->msg ? " " : "",
+			e->label, e->location, e->page_frame_number, e->offset_in_page,
+			e->grain,
+			*e->other_detail ? " - " : "",
+			e->other_detail);
+	}
+
+	edac_inc_ue_error(e);
+
+	if (edac_mc_get_panic_on_ue()) {
+		panic("UE %s%son %s (%s page:0x%lx offset:0x%lx grain:%ld%s%s)\n",
+			e->msg,
+			*e->msg ? " " : "",
+			e->label, e->location, e->page_frame_number, e->offset_in_page,
+			e->grain,
+			*e->other_detail ? " - " : "",
+			e->other_detail);
+	}
+}
+
+static void edac_inc_csrow(struct edac_raw_error_desc *e, int row, int chan)
+{
+	struct mem_ctl_info *mci = error_desc_to_mci(e);
+	enum hw_event_mc_err_type type = e->type;
+	u16 count = e->error_count;
+
+	if (row < 0)
+		return;
+
+	edac_dbg(4, "csrow/channel to increment: (%d,%d)\n", row, chan);
+
+	if (type == HW_EVENT_ERR_CORRECTED) {
+		mci->csrows[row]->ce_count += count;
+		if (chan >= 0)
+			mci->csrows[row]->channels[chan]->ce_count += count;
+	} else {
+		mci->csrows[row]->ue_count += count;
+	}
+}
+
+void edac_raw_mc_handle_error(struct edac_raw_error_desc *e)
+{
+	struct mem_ctl_info *mci = error_desc_to_mci(e);
+	u8 grain_bits;
+
+	/* Sanity-check driver-supplied grain value. */
+	if (WARN_ON_ONCE(!e->grain))
+		e->grain = 1;
+
+	grain_bits = fls_long(e->grain - 1);
+
+	/* Report the error via the trace interface */
+	if (IS_ENABLED(CONFIG_RAS))
+		trace_mc_event(e->type, e->msg, e->label, e->error_count,
+			       mci->mc_idx, e->top_layer, e->mid_layer,
+			       e->low_layer,
+			       (e->page_frame_number << PAGE_SHIFT) | e->offset_in_page,
+			       grain_bits, e->syndrome, e->other_detail);
+
+	if (e->type == HW_EVENT_ERR_CORRECTED)
+		edac_ce_error(e);
+	else
+		edac_ue_error(e);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(edac_raw_mc_handle_error);
 
@@ -1098,24 +1509,38 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 			  const char *msg,
 			  const char *other_detail)
 {
+<<<<<<< HEAD
+=======
+	struct dimm_info *dimm;
+>>>>>>> upstream/android-13
 	char *p;
 	int row = -1, chan = -1;
 	int pos[EDAC_MAX_LAYERS] = { top_layer, mid_layer, low_layer };
 	int i, n_labels = 0;
+<<<<<<< HEAD
 	u8 grain_bits;
 	struct edac_raw_error_desc *e = &mci->error_desc;
+=======
+	struct edac_raw_error_desc *e = &mci->error_desc;
+	bool any_memory = true;
+>>>>>>> upstream/android-13
 
 	edac_dbg(3, "MC%d\n", mci->mc_idx);
 
 	/* Fills the error report buffer */
 	memset(e, 0, sizeof (*e));
 	e->error_count = error_count;
+<<<<<<< HEAD
+=======
+	e->type = type;
+>>>>>>> upstream/android-13
 	e->top_layer = top_layer;
 	e->mid_layer = mid_layer;
 	e->low_layer = low_layer;
 	e->page_frame_number = page_frame_number;
 	e->offset_in_page = offset_in_page;
 	e->syndrome = syndrome;
+<<<<<<< HEAD
 	e->msg = msg;
 	e->other_detail = other_detail;
 
@@ -1123,6 +1548,15 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 	 * Check if the event report is consistent and if the memory
 	 * location is known. If it is known, enable_per_layer_report will be
 	 * true, the DIMM(s) label info will be filled and the per-layer
+=======
+	/* need valid strings here for both: */
+	e->msg = msg ?: "";
+	e->other_detail = other_detail ?: "";
+
+	/*
+	 * Check if the event report is consistent and if the memory location is
+	 * known. If it is, the DIMM(s) label info will be filled and the DIMM's
+>>>>>>> upstream/android-13
 	 * error counters will be incremented.
 	 */
 	for (i = 0; i < mci->n_layers; i++) {
@@ -1141,7 +1575,11 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 			pos[i] = -1;
 		}
 		if (pos[i] >= 0)
+<<<<<<< HEAD
 			e->enable_per_layer_report = true;
+=======
+			any_memory = false;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1158,9 +1596,13 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 	p = e->label;
 	*p = '\0';
 
+<<<<<<< HEAD
 	for (i = 0; i < mci->tot_dimms; i++) {
 		struct dimm_info *dimm = mci->dimms[i];
 
+=======
+	mci_for_each_dimm(mci, dimm) {
+>>>>>>> upstream/android-13
 		if (top_layer >= 0 && top_layer != dimm->location[0])
 			continue;
 		if (mid_layer >= 0 && mid_layer != dimm->location[1])
@@ -1174,6 +1616,7 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 
 		/*
 		 * If the error is memory-controller wide, there's no need to
+<<<<<<< HEAD
 		 * seek for the affected DIMMs because the whole
 		 * channel/memory controller/...  may be affected.
 		 * Also, don't show errors for empty DIMM slots.
@@ -1184,12 +1627,27 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 				break;
 			}
 			n_labels++;
+=======
+		 * seek for the affected DIMMs because the whole channel/memory
+		 * controller/... may be affected. Also, don't show errors for
+		 * empty DIMM slots.
+		 */
+		if (!dimm->nr_pages)
+			continue;
+
+		n_labels++;
+		if (n_labels > EDAC_MAX_LABELS) {
+			p = e->label;
+			*p = '\0';
+		} else {
+>>>>>>> upstream/android-13
 			if (p != e->label) {
 				strcpy(p, OTHER_LABEL);
 				p += strlen(OTHER_LABEL);
 			}
 			strcpy(p, dimm->label);
 			p += strlen(p);
+<<<<<<< HEAD
 			*p = '\0';
 
 			/*
@@ -1227,6 +1685,34 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 			if (row >= 0)
 				mci->csrows[row]->ue_count += error_count;
 	}
+=======
+		}
+
+		/*
+		 * get csrow/channel of the DIMM, in order to allow
+		 * incrementing the compat API counters
+		 */
+		edac_dbg(4, "%s csrows map: (%d,%d)\n",
+			mci->csbased ? "rank" : "dimm",
+			dimm->csrow, dimm->cschannel);
+		if (row == -1)
+			row = dimm->csrow;
+		else if (row >= 0 && row != dimm->csrow)
+			row = -2;
+
+		if (chan == -1)
+			chan = dimm->cschannel;
+		else if (chan >= 0 && chan != dimm->cschannel)
+			chan = -2;
+	}
+
+	if (any_memory)
+		strcpy(e->label, "any memory");
+	else if (!*e->label)
+		strcpy(e->label, "unknown memory");
+
+	edac_inc_csrow(e, row, chan);
+>>>>>>> upstream/android-13
 
 	/* Fill the RAM location data */
 	p = e->location;
@@ -1242,6 +1728,7 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 	if (p > e->location)
 		*(p - 1) = '\0';
 
+<<<<<<< HEAD
 	/* Sanity-check driver-supplied grain value. */
 	if (WARN_ON_ONCE(!e->grain))
 		e->grain = 1;
@@ -1257,5 +1744,8 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
 			       grain_bits, e->syndrome, e->other_detail);
 
 	edac_raw_mc_handle_error(type, mci, e);
+=======
+	edac_raw_mc_handle_error(e);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(edac_mc_handle_error);

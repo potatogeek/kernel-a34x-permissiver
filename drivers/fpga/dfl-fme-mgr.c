@@ -30,8 +30,13 @@
 #define FME_PR_STS		0x10
 #define FME_PR_DATA		0x18
 #define FME_PR_ERR		0x20
+<<<<<<< HEAD
 #define FME_PR_INTFC_ID_H	0xA8
 #define FME_PR_INTFC_ID_L	0xB0
+=======
+#define FME_PR_INTFC_ID_L	0xA8
+#define FME_PR_INTFC_ID_H	0xB0
+>>>>>>> upstream/android-13
 
 /* FME PR Control Register Bitfield */
 #define FME_PR_CTRL_PR_RST	BIT_ULL(0)  /* Reset PR engine */
@@ -201,7 +206,11 @@ static int fme_mgr_write(struct fpga_manager *mgr,
 		}
 
 		if (count < 4) {
+<<<<<<< HEAD
 			dev_err(dev, "Invaild PR bitstream size\n");
+=======
+			dev_err(dev, "Invalid PR bitstream size\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
@@ -252,11 +261,14 @@ static int fme_mgr_write_complete(struct fpga_manager *mgr,
 	return 0;
 }
 
+<<<<<<< HEAD
 static enum fpga_mgr_states fme_mgr_state(struct fpga_manager *mgr)
 {
 	return FPGA_MGR_STATE_UNKNOWN;
 }
 
+=======
+>>>>>>> upstream/android-13
 static u64 fme_mgr_status(struct fpga_manager *mgr)
 {
 	struct fme_mgr_priv *priv = mgr->priv;
@@ -268,7 +280,10 @@ static const struct fpga_manager_ops fme_mgr_ops = {
 	.write_init = fme_mgr_write_init,
 	.write = fme_mgr_write,
 	.write_complete = fme_mgr_write_complete,
+<<<<<<< HEAD
 	.state = fme_mgr_state,
+=======
+>>>>>>> upstream/android-13
 	.status = fme_mgr_status,
 };
 
@@ -287,7 +302,10 @@ static int fme_mgr_probe(struct platform_device *pdev)
 	struct fme_mgr_priv *priv;
 	struct fpga_manager *mgr;
 	struct resource *res;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -309,12 +327,18 @@ static int fme_mgr_probe(struct platform_device *pdev)
 
 	fme_mgr_get_compat_id(priv->ioaddr, compat_id);
 
+<<<<<<< HEAD
 	mgr = fpga_mgr_create(dev, "DFL FME FPGA Manager",
 			      &fme_mgr_ops, priv);
+=======
+	mgr = devm_fpga_mgr_create(dev, "DFL FME FPGA Manager",
+				   &fme_mgr_ops, priv);
+>>>>>>> upstream/android-13
 	if (!mgr)
 		return -ENOMEM;
 
 	mgr->compat_id = compat_id;
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, mgr);
 
 	ret = fpga_mgr_register(mgr);
@@ -331,6 +355,10 @@ static int fme_mgr_remove(struct platform_device *pdev)
 	fpga_mgr_unregister(mgr);
 
 	return 0;
+=======
+
+	return devm_fpga_mgr_register(dev, mgr);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver fme_mgr_driver = {
@@ -338,7 +366,10 @@ static struct platform_driver fme_mgr_driver = {
 		.name    = DFL_FPGA_FME_MGR,
 	},
 	.probe   = fme_mgr_probe,
+<<<<<<< HEAD
 	.remove  = fme_mgr_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_platform_driver(fme_mgr_driver);

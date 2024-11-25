@@ -10,7 +10,11 @@
 
 static void sclp_early_write(struct console *con, const char *s, unsigned int len)
 {
+<<<<<<< HEAD
 	__sclp_early_printk(s, len, 0);
+=======
+	__sclp_early_printk(s, len);
+>>>>>>> upstream/android-13
 }
 
 static struct console sclp_early_console = {
@@ -25,7 +29,11 @@ static int __init setup_early_printk(char *buf)
 	if (early_console)
 		return 0;
 	/* Accept only "earlyprintk" and "earlyprintk=sclp" */
+<<<<<<< HEAD
 	if (buf && strncmp(buf, "sclp", 4))
+=======
+	if (buf && !str_has_prefix(buf, "sclp"))
+>>>>>>> upstream/android-13
 		return 0;
 	if (!sclp.has_linemode && !sclp.has_vt220)
 		return 0;

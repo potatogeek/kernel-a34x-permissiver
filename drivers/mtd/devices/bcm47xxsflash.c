@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -319,7 +323,11 @@ static int bcm47xxsflash_bcma_probe(struct platform_device *pdev)
 	 * ChipCommon revision.
 	 */
 	if (b47s->bcma_cc->core->id.rev == 54)
+<<<<<<< HEAD
 		b47s->window = ioremap_nocache(res->start, resource_size(res));
+=======
+		b47s->window = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	else
 		b47s->window = ioremap_cache(res->start, resource_size(res));
 	if (!b47s->window) {

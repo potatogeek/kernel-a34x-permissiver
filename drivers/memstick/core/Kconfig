@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # MemoryStick core configuration
 #
@@ -5,6 +9,7 @@
 comment "MemoryStick drivers"
 
 config MEMSTICK_UNSAFE_RESUME
+<<<<<<< HEAD
         bool "Allow unsafe resume (DANGEROUS)"
         help
           If you say Y here, the MemoryStick layer will assume that all
@@ -15,6 +20,18 @@ config MEMSTICK_UNSAFE_RESUME
 
           This option is usually just for embedded systems which use
           a MemoryStick card for rootfs. Most people should say N here.
+=======
+	bool "Allow unsafe resume (DANGEROUS)"
+	help
+	  If you say Y here, the MemoryStick layer will assume that all
+	  cards stayed in their respective slots during the suspend. The
+	  normal behaviour is to remove them at suspend and
+	  redetecting them at resume. Breaking this assumption will
+	  in most cases result in data corruption.
+
+	  This option is usually just for embedded systems which use
+	  a MemoryStick card for rootfs. Most people should say N here.
+>>>>>>> upstream/android-13
 
 config MSPRO_BLOCK
 	tristate "MemoryStick Pro block device driver"

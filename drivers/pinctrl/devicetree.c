@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Device tree integration for the pin control subsystem
  *
  * Copyright (C) 2012 NVIDIA CORPORATION. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -28,7 +35,12 @@
  * struct pinctrl_dt_map - mapping table chunk parsed from device tree
  * @node: list node for struct pinctrl's @dt_maps field
  * @pctldev: the pin controller that allocated this struct, and will free it
+<<<<<<< HEAD
  * @maps: the mapping table entries
+=======
+ * @map: the mapping table entries
+ * @num_maps: number of mapping table entries
+>>>>>>> upstream/android-13
  */
 struct pinctrl_dt_map {
 	struct list_head node;
@@ -62,7 +74,11 @@ void pinctrl_dt_free_maps(struct pinctrl *p)
 	struct pinctrl_dt_map *dt_map, *n1;
 
 	list_for_each_entry_safe(dt_map, n1, &p->dt_maps, node) {
+<<<<<<< HEAD
 		pinctrl_unregister_map(dt_map->map);
+=======
+		pinctrl_unregister_mappings(dt_map->map);
+>>>>>>> upstream/android-13
 		list_del(&dt_map->node);
 		dt_free_map(dt_map->pctldev, dt_map->map,
 			    dt_map->num_maps);
@@ -103,7 +119,11 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename,
 	dt_map->num_maps = num_maps;
 	list_add_tail(&dt_map->node, &p->dt_maps);
 
+<<<<<<< HEAD
 	return pinctrl_register_map(map, num_maps, false);
+=======
+	return pinctrl_register_mappings(map, num_maps);
+>>>>>>> upstream/android-13
 
 err_free_map:
 	dt_free_map(pctldev, map, num_maps);
@@ -114,6 +134,10 @@ struct pinctrl_dev *of_pinctrl_get(struct device_node *np)
 {
 	return get_pinctrl_dev_from_of_node(np);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(of_pinctrl_get);
+>>>>>>> upstream/android-13
 
 static int dt_to_map_one_config(struct pinctrl *p,
 				struct pinctrl_dev *hog_pctldev,
@@ -139,10 +163,16 @@ static int dt_to_map_one_config(struct pinctrl *p,
 		if (!np_pctldev || of_node_is_root(np_pctldev)) {
 			of_node_put(np_pctldev);
 			ret = driver_deferred_probe_check_state(p->dev);
+<<<<<<< HEAD
 			/* keep deferring if modules are enabled unless we've timed out */
 			if (IS_ENABLED(CONFIG_MODULES) && !allow_default && ret == -ENODEV)
 				ret = -EPROBE_DEFER;
 
+=======
+			/* keep deferring if modules are enabled */
+			if (IS_ENABLED(CONFIG_MODULES) && !allow_default && ret < 0)
+				ret = -EPROBE_DEFER;
+>>>>>>> upstream/android-13
 			return ret;
 		}
 		/* If we're creating a hog we can use the passed pctldev */
@@ -174,6 +204,19 @@ static int dt_to_map_one_config(struct pinctrl *p,
 	ret = ops->dt_node_to_map(pctldev, np_config, &map, &num_maps);
 	if (ret < 0)
 		return ret;
+<<<<<<< HEAD
+=======
+	else if (num_maps == 0) {
+		/*
+		 * If we have no valid maps (maybe caused by empty pinctrl node
+		 * or typing error) ther is no need remember this, so just
+		 * return.
+		 */
+		dev_info(p->dev,
+			 "there is not valid maps for state %s\n", statename);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 
 	/* Stash the mapping table chunk away for later use */
 	return dt_remember_or_free_map(p, statename, pctldev, map, num_maps);
@@ -193,6 +236,7 @@ static int dt_remember_dummy_state(struct pinctrl *p, const char *statename)
 	return dt_remember_or_free_map(p, statename, NULL, map, 1);
 }
 
+<<<<<<< HEAD
 bool pinctrl_dt_has_hogs(struct pinctrl_dev *pctldev)
 {
 	struct device_node *np;
@@ -208,6 +252,8 @@ bool pinctrl_dt_has_hogs(struct pinctrl_dev *pctldev)
 	return prop ? true : false;
 }
 
+=======
+>>>>>>> upstream/android-13
 int pinctrl_dt_to_map(struct pinctrl *p, struct pinctrl_dev *pctldev)
 {
 	struct device_node *np = p->dev->of_node;
@@ -255,10 +301,15 @@ int pinctrl_dt_to_map(struct pinctrl *p, struct pinctrl_dev *pctldev)
 		 * than dynamically allocate it and have to free it later,
 		 * just point part way into the property name for the string.
 		 */
+<<<<<<< HEAD
 		if (ret < 0) {
 			/* strlen("pinctrl-") == 8 */
 			statename = prop->name + 8;
 		}
+=======
+		if (ret < 0)
+			statename = prop->name + strlen("pinctrl-");
+>>>>>>> upstream/android-13
 
 		/* For every referenced pin configuration node in it */
 		for (config = 0; config < size; config++) {
@@ -414,7 +465,11 @@ static int pinctrl_copy_args(const struct device_node *np,
  * @np: pointer to device node with the property
  * @list_name: property that contains the list
  * @index: index within the list
+<<<<<<< HEAD
  * @out_arts: entries in the list pointed by index
+=======
+ * @out_args: entries in the list pointed by index
+>>>>>>> upstream/android-13
  *
  * Finds the selected element in a pinctrl array consisting of an index
  * within the controller and a number of u32 entries specified for each

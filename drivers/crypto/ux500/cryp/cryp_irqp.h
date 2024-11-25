@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /**
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Shujuan Chen <shujuan.chen@stericsson.com> for ST-Ericsson.
  * Author: Jonas Linde <jonas.linde@stericsson.com> for ST-Ericsson.
  * Author: Joakim Bech <joakim.xx.bech@stericsson.com> for ST-Ericsson.
  * Author: Berne Hebark <berne.herbark@stericsson.com> for ST-Ericsson.
  * Author: Niklas Hernaeus <niklas.hernaeus@stericsson.com> for ST-Ericsson.
+<<<<<<< HEAD
  * License terms: GNU General Public License (GPL) version 2
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __CRYP_IRQP_H_
@@ -13,7 +21,11 @@
 
 #include "cryp_irq.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *
  * CRYP Registers - Offset mapping
  *     +-----------------+

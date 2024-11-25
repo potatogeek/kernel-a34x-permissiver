@@ -52,12 +52,20 @@
 /*
  *  Function defined in target_core_spc.c
  */
+<<<<<<< HEAD
 void spc_parse_naa_6h_vendor_specific(struct se_device *, unsigned char *);
+=======
+void spc_gen_naa_6h_vendor_specific(struct se_device *, unsigned char *);
+>>>>>>> upstream/android-13
 
 extern struct kmem_cache *t10_pr_reg_cache;
 
 extern void core_pr_dump_initiator_port(struct t10_pr_registration *,
 			char *, u32);
+<<<<<<< HEAD
+=======
+extern void target_release_reservation(struct se_device *dev);
+>>>>>>> upstream/android-13
 extern sense_reason_t target_scsi2_reservation_release(struct se_cmd *);
 extern sense_reason_t target_scsi2_reservation_reserve(struct se_cmd *);
 extern int core_scsi3_alloc_aptpl_registration(

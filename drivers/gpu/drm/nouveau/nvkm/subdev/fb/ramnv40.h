@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NV40_FB_RAM_H__
 #define __NV40_FB_RAM_H__
 #define nv40_ram(p) container_of((p), struct nv40_ram, base)

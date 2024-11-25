@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "../util.h"
+<<<<<<< HEAD
 #include "../../util/util.h"
 #include "../../util/debug.h"
 #include "gtk.h"
 
 #include <string.h>
 
+=======
+#include "gtk.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 
 struct perf_gtk_context *pgctx;
 

@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: dpc.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: handle dpc rx functions
  *
  * Author: Lyndon Chen

@@ -18,6 +18,10 @@
 #include <rdma/ib_verbs.h>
 #include "bnxt_hsi.h"
 #include "bnxt.h"
+<<<<<<< HEAD
+=======
+#include "bnxt_hwrm.h"
+>>>>>>> upstream/android-13
 #include "bnxt_dcb.h"
 
 #ifdef CONFIG_BNXT_DCB
@@ -38,6 +42,7 @@ static int bnxt_queue_to_tc(struct bnxt *bp, u8 queue_id)
 
 static int bnxt_hwrm_queue_pri2cos_cfg(struct bnxt *bp, struct ieee_ets *ets)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_pri2cos_cfg_input req = {0};
 	int rc = 0, i;
 	u8 *pri2cos;
@@ -51,17 +56,40 @@ static int bnxt_hwrm_queue_pri2cos_cfg(struct bnxt *bp, struct ieee_ets *ets)
 		u8 qidx;
 
 		req.enables |= cpu_to_le32(
+=======
+	struct hwrm_queue_pri2cos_cfg_input *req;
+	u8 *pri2cos;
+	int rc, i;
+
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_PRI2COS_CFG);
+	if (rc)
+		return rc;
+
+	req->flags = cpu_to_le32(QUEUE_PRI2COS_CFG_REQ_FLAGS_PATH_BIDIR |
+				 QUEUE_PRI2COS_CFG_REQ_FLAGS_IVLAN);
+
+	pri2cos = &req->pri0_cos_queue_id;
+	for (i = 0; i < IEEE_8021QAZ_MAX_TCS; i++) {
+		u8 qidx;
+
+		req->enables |= cpu_to_le32(
+>>>>>>> upstream/android-13
 			QUEUE_PRI2COS_CFG_REQ_ENABLES_PRI0_COS_QUEUE_ID << i);
 
 		qidx = bp->tc_to_qidx[ets->prio_tc[i]];
 		pri2cos[i] = bp->q_info[qidx].queue_id;
 	}
+<<<<<<< HEAD
 	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
 	return rc;
+=======
+	return hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 }
 
 static int bnxt_hwrm_queue_pri2cos_qcfg(struct bnxt *bp, struct ieee_ets *ets)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_pri2cos_qcfg_output *resp = bp->hwrm_cmd_resp_addr;
 	struct hwrm_queue_pri2cos_qcfg_input req = {0};
 	int rc = 0;
@@ -71,6 +99,19 @@ static int bnxt_hwrm_queue_pri2cos_qcfg(struct bnxt *bp, struct ieee_ets *ets)
 
 	mutex_lock(&bp->hwrm_cmd_lock);
 	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
+=======
+	struct hwrm_queue_pri2cos_qcfg_output *resp;
+	struct hwrm_queue_pri2cos_qcfg_input *req;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_PRI2COS_QCFG);
+	if (rc)
+		return rc;
+
+	req->flags = cpu_to_le32(QUEUE_PRI2COS_QCFG_REQ_FLAGS_IVLAN);
+	resp = hwrm_req_hold(bp, req);
+	rc = hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 	if (!rc) {
 		u8 *pri2cos = &resp->pri0_cos_queue_id;
 		int i;
@@ -84,13 +125,18 @@ static int bnxt_hwrm_queue_pri2cos_qcfg(struct bnxt *bp, struct ieee_ets *ets)
 				ets->prio_tc[i] = tc;
 		}
 	}
+<<<<<<< HEAD
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_hwrm_queue_cos2bw_cfg(struct bnxt *bp, struct ieee_ets *ets,
 				      u8 max_tc)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_cos2bw_cfg_input req = {0};
 	struct bnxt_cos2bw_cfg cos2bw;
 	int rc = 0, i;
@@ -101,6 +147,21 @@ static int bnxt_hwrm_queue_cos2bw_cfg(struct bnxt *bp, struct ieee_ets *ets,
 		u8 qidx = bp->tc_to_qidx[i];
 
 		req.enables |= cpu_to_le32(
+=======
+	struct hwrm_queue_cos2bw_cfg_input *req;
+	struct bnxt_cos2bw_cfg cos2bw;
+	void *data;
+	int rc, i;
+
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_COS2BW_CFG);
+	if (rc)
+		return rc;
+
+	for (i = 0; i < max_tc; i++) {
+		u8 qidx = bp->tc_to_qidx[i];
+
+		req->enables |= cpu_to_le32(
+>>>>>>> upstream/android-13
 			QUEUE_COS2BW_CFG_REQ_ENABLES_COS_QUEUE_ID0_VALID <<
 			qidx);
 
@@ -121,6 +182,7 @@ static int bnxt_hwrm_queue_cos2bw_cfg(struct bnxt *bp, struct ieee_ets *ets,
 				cpu_to_le32((ets->tc_tx_bw[i] * 100) |
 					    BW_VALUE_UNIT_PERCENT1_100);
 		}
+<<<<<<< HEAD
 		data = &req.unused_0 + qidx * (sizeof(cos2bw) - 4);
 		memcpy(data, &cos2bw.queue_id, sizeof(cos2bw) - 4);
 		if (qidx == 0) {
@@ -130,22 +192,48 @@ static int bnxt_hwrm_queue_cos2bw_cfg(struct bnxt *bp, struct ieee_ets *ets,
 	}
 	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
 	return rc;
+=======
+		data = &req->unused_0 + qidx * (sizeof(cos2bw) - 4);
+		memcpy(data, &cos2bw.queue_id, sizeof(cos2bw) - 4);
+		if (qidx == 0) {
+			req->queue_id0 = cos2bw.queue_id;
+			req->unused_0 = 0;
+		}
+	}
+	return hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 }
 
 static int bnxt_hwrm_queue_cos2bw_qcfg(struct bnxt *bp, struct ieee_ets *ets)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_cos2bw_qcfg_output *resp = bp->hwrm_cmd_resp_addr;
 	struct hwrm_queue_cos2bw_qcfg_input req = {0};
+=======
+	struct hwrm_queue_cos2bw_qcfg_output *resp;
+	struct hwrm_queue_cos2bw_qcfg_input *req;
+>>>>>>> upstream/android-13
 	struct bnxt_cos2bw_cfg cos2bw;
 	void *data;
 	int rc, i;
 
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_QUEUE_COS2BW_QCFG, -1, -1);
 
 	mutex_lock(&bp->hwrm_cmd_lock);
 	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
 	if (rc) {
 		mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_COS2BW_QCFG);
+	if (rc)
+		return rc;
+
+	resp = hwrm_req_hold(bp, req);
+	rc = hwrm_req_send(bp, req);
+	if (rc) {
+		hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
@@ -169,7 +257,11 @@ static int bnxt_hwrm_queue_cos2bw_qcfg(struct bnxt *bp, struct ieee_ets *ets)
 			ets->tc_tx_bw[tc] = cos2bw.bw_weight;
 		}
 	}
+<<<<<<< HEAD
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -231,7 +323,11 @@ static int bnxt_queue_remap(struct bnxt *bp, unsigned int lltc_mask)
 
 static int bnxt_hwrm_queue_pfc_cfg(struct bnxt *bp, struct ieee_pfc *pfc)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_pfcenable_cfg_input req = {0};
+=======
+	struct hwrm_queue_pfcenable_cfg_input *req;
+>>>>>>> upstream/android-13
 	struct ieee_ets *my_ets = bp->ieee_ets;
 	unsigned int tc_mask = 0, pri_mask = 0;
 	u8 i, pri, lltc_count = 0;
@@ -267,6 +363,7 @@ static int bnxt_hwrm_queue_pfc_cfg(struct bnxt *bp, struct ieee_pfc *pfc)
 	}
 
 	if (need_q_remap)
+<<<<<<< HEAD
 		rc = bnxt_queue_remap(bp, tc_mask);
 
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_QUEUE_PFCENABLE_CFG, -1, -1);
@@ -276,10 +373,21 @@ static int bnxt_hwrm_queue_pfc_cfg(struct bnxt *bp, struct ieee_pfc *pfc)
 		return rc;
 
 	return rc;
+=======
+		bnxt_queue_remap(bp, tc_mask);
+
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_PFCENABLE_CFG);
+	if (rc)
+		return rc;
+
+	req->flags = cpu_to_le32(pri_mask);
+	return hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 }
 
 static int bnxt_hwrm_queue_pfc_qcfg(struct bnxt *bp, struct ieee_pfc *pfc)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_pfcenable_qcfg_output *resp = bp->hwrm_cmd_resp_addr;
 	struct hwrm_queue_pfcenable_qcfg_input req = {0};
 	u8 pri_mask;
@@ -291,20 +399,44 @@ static int bnxt_hwrm_queue_pfc_qcfg(struct bnxt *bp, struct ieee_pfc *pfc)
 	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
 	if (rc) {
 		mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	struct hwrm_queue_pfcenable_qcfg_output *resp;
+	struct hwrm_queue_pfcenable_qcfg_input *req;
+	u8 pri_mask;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_PFCENABLE_QCFG);
+	if (rc)
+		return rc;
+
+	resp = hwrm_req_hold(bp, req);
+	rc = hwrm_req_send(bp, req);
+	if (rc) {
+		hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 		return rc;
 	}
 
 	pri_mask = le32_to_cpu(resp->flags);
 	pfc->pfc_en = pri_mask;
+<<<<<<< HEAD
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int bnxt_hwrm_set_dcbx_app(struct bnxt *bp, struct dcb_app *app,
 				  bool add)
 {
+<<<<<<< HEAD
 	struct hwrm_fw_set_structured_data_input set = {0};
 	struct hwrm_fw_get_structured_data_input get = {0};
+=======
+	struct hwrm_fw_set_structured_data_input *set;
+	struct hwrm_fw_get_structured_data_input *get;
+>>>>>>> upstream/android-13
 	struct hwrm_struct_data_dcbx_app *fw_app;
 	struct hwrm_struct_hdr *data;
 	dma_addr_t mapping;
@@ -314,6 +446,7 @@ static int bnxt_hwrm_set_dcbx_app(struct bnxt *bp, struct dcb_app *app,
 	if (bp->hwrm_spec_code < 0x10601)
 		return 0;
 
+<<<<<<< HEAD
 	n = IEEE_8021QAZ_MAX_TCS;
 	data_len = sizeof(*data) + sizeof(*fw_app) * n;
 	data = dma_zalloc_coherent(&bp->pdev->dev, data_len, &mapping,
@@ -327,6 +460,28 @@ static int bnxt_hwrm_set_dcbx_app(struct bnxt *bp, struct dcb_app *app,
 	get.subtype = cpu_to_le16(HWRM_STRUCT_DATA_SUBTYPE_HOST_OPERATIONAL);
 	get.count = 0;
 	rc = hwrm_send_message(bp, &get, sizeof(get), HWRM_CMD_TIMEOUT);
+=======
+	rc = hwrm_req_init(bp, get, HWRM_FW_GET_STRUCTURED_DATA);
+	if (rc)
+		return rc;
+
+	hwrm_req_hold(bp, get);
+	hwrm_req_alloc_flags(bp, get, GFP_KERNEL | __GFP_ZERO);
+
+	n = IEEE_8021QAZ_MAX_TCS;
+	data_len = sizeof(*data) + sizeof(*fw_app) * n;
+	data = hwrm_req_dma_slice(bp, get, data_len, &mapping);
+	if (!data) {
+		rc = -ENOMEM;
+		goto set_app_exit;
+	}
+
+	get->dest_data_addr = cpu_to_le64(mapping);
+	get->structure_id = cpu_to_le16(STRUCT_HDR_STRUCT_ID_DCBX_APP);
+	get->subtype = cpu_to_le16(HWRM_STRUCT_DATA_SUBTYPE_HOST_OPERATIONAL);
+	get->count = 0;
+	rc = hwrm_req_send(bp, get);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto set_app_exit;
 
@@ -372,6 +527,7 @@ static int bnxt_hwrm_set_dcbx_app(struct bnxt *bp, struct dcb_app *app,
 	data->len = cpu_to_le16(sizeof(*fw_app) * n);
 	data->subtype = cpu_to_le16(HWRM_STRUCT_DATA_SUBTYPE_HOST_OPERATIONAL);
 
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &set, HWRM_FW_SET_STRUCTURED_DATA, -1, -1);
 	set.src_data_addr = cpu_to_le64(mapping);
 	set.data_len = cpu_to_le16(sizeof(*data) + sizeof(*fw_app) * n);
@@ -382,11 +538,25 @@ static int bnxt_hwrm_set_dcbx_app(struct bnxt *bp, struct dcb_app *app,
 
 set_app_exit:
 	dma_free_coherent(&bp->pdev->dev, data_len, data, mapping);
+=======
+	rc = hwrm_req_init(bp, set, HWRM_FW_SET_STRUCTURED_DATA);
+	if (rc)
+		goto set_app_exit;
+
+	set->src_data_addr = cpu_to_le64(mapping);
+	set->data_len = cpu_to_le16(sizeof(*data) + sizeof(*fw_app) * n);
+	set->hdr_cnt = 1;
+	rc = hwrm_req_send(bp, set);
+
+set_app_exit:
+	hwrm_req_drop(bp, get); /* dropping get request and associated slice */
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_hwrm_queue_dscp_qcaps(struct bnxt *bp)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_dscp_qcaps_output *resp = bp->hwrm_cmd_resp_addr;
 	struct hwrm_queue_dscp_qcaps_input req = {0};
 	int rc;
@@ -397,20 +567,44 @@ static int bnxt_hwrm_queue_dscp_qcaps(struct bnxt *bp)
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_QUEUE_DSCP_QCAPS, -1, -1);
 	mutex_lock(&bp->hwrm_cmd_lock);
 	rc = _hwrm_send_message_silent(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
+=======
+	struct hwrm_queue_dscp_qcaps_output *resp;
+	struct hwrm_queue_dscp_qcaps_input *req;
+	int rc;
+
+	bp->max_dscp_value = 0;
+	if (bp->hwrm_spec_code < 0x10800 || BNXT_VF(bp))
+		return 0;
+
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_DSCP_QCAPS);
+	if (rc)
+		return rc;
+
+	resp = hwrm_req_hold(bp, req);
+	rc = hwrm_req_send_silent(bp, req);
+>>>>>>> upstream/android-13
 	if (!rc) {
 		bp->max_dscp_value = (1 << resp->num_dscp_bits) - 1;
 		if (bp->max_dscp_value < 0x3f)
 			bp->max_dscp_value = 0;
 	}
+<<<<<<< HEAD
 
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_hwrm_queue_dscp2pri_cfg(struct bnxt *bp, struct dcb_app *app,
 					bool add)
 {
+<<<<<<< HEAD
 	struct hwrm_queue_dscp2pri_cfg_input req = {0};
+=======
+	struct hwrm_queue_dscp2pri_cfg_input *req;
+>>>>>>> upstream/android-13
 	struct bnxt_dscp2pri_entry *dscp2pri;
 	dma_addr_t mapping;
 	int rc;
@@ -418,6 +612,7 @@ static int bnxt_hwrm_queue_dscp2pri_cfg(struct bnxt *bp, struct dcb_app *app,
 	if (bp->hwrm_spec_code < 0x10800)
 		return 0;
 
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_QUEUE_DSCP2PRI_CFG, -1, -1);
 	dscp2pri = dma_alloc_coherent(&bp->pdev->dev, sizeof(*dscp2pri),
 				      &mapping, GFP_KERNEL);
@@ -425,24 +620,46 @@ static int bnxt_hwrm_queue_dscp2pri_cfg(struct bnxt *bp, struct dcb_app *app,
 		return -ENOMEM;
 
 	req.src_data_addr = cpu_to_le64(mapping);
+=======
+	rc = hwrm_req_init(bp, req, HWRM_QUEUE_DSCP2PRI_CFG);
+	if (rc)
+		return rc;
+
+	dscp2pri = hwrm_req_dma_slice(bp, req, sizeof(*dscp2pri), &mapping);
+	if (!dscp2pri) {
+		hwrm_req_drop(bp, req);
+		return -ENOMEM;
+	}
+
+	req->src_data_addr = cpu_to_le64(mapping);
+>>>>>>> upstream/android-13
 	dscp2pri->dscp = app->protocol;
 	if (add)
 		dscp2pri->mask = 0x3f;
 	else
 		dscp2pri->mask = 0;
 	dscp2pri->pri = app->priority;
+<<<<<<< HEAD
 	req.entry_cnt = cpu_to_le16(1);
 	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
 	if (rc)
 		rc = -EIO;
 	dma_free_coherent(&bp->pdev->dev, sizeof(*dscp2pri), dscp2pri,
 			  mapping);
+=======
+	req->entry_cnt = cpu_to_le16(1);
+	rc = hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_ets_validate(struct bnxt *bp, struct ieee_ets *ets, u8 *tc)
 {
 	int total_ets_bw = 0;
+<<<<<<< HEAD
+=======
+	bool zero = false;
+>>>>>>> upstream/android-13
 	u8 max_tc = 0;
 	int i;
 
@@ -463,15 +680,35 @@ static int bnxt_ets_validate(struct bnxt *bp, struct ieee_ets *ets, u8 *tc)
 			break;
 		case IEEE_8021QAZ_TSA_ETS:
 			total_ets_bw += ets->tc_tx_bw[i];
+<<<<<<< HEAD
+=======
+			zero = zero || !ets->tc_tx_bw[i];
+>>>>>>> upstream/android-13
 			break;
 		default:
 			return -ENOTSUPP;
 		}
 	}
+<<<<<<< HEAD
 	if (total_ets_bw > 100)
 		return -EINVAL;
 
 	*tc = max_tc + 1;
+=======
+	if (total_ets_bw > 100) {
+		netdev_warn(bp->dev, "rejecting ETS config exceeding available bandwidth\n");
+		return -EINVAL;
+	}
+	if (zero && total_ets_bw == 100) {
+		netdev_warn(bp->dev, "rejecting ETS config starving a TC\n");
+		return -EINVAL;
+	}
+
+	if (max_tc >= bp->max_tc)
+		*tc = bp->max_tc;
+	else
+		*tc = max_tc + 1;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -551,7 +788,11 @@ static int bnxt_dcbnl_ieee_setets(struct net_device *dev, struct ieee_ets *ets)
 static int bnxt_dcbnl_ieee_getpfc(struct net_device *dev, struct ieee_pfc *pfc)
 {
 	struct bnxt *bp = netdev_priv(dev);
+<<<<<<< HEAD
 	__le64 *stats = (__le64 *)bp->hw_rx_port_stats;
+=======
+	__le64 *stats = bp->port_stats.hw_stats;
+>>>>>>> upstream/android-13
 	struct ieee_pfc *my_pfc = bp->ieee_pfc;
 	long rx_off, tx_off;
 	int i, rc;
@@ -724,6 +965,10 @@ static const struct dcbnl_rtnl_ops dcbnl_ops = {
 
 void bnxt_dcb_init(struct bnxt *bp)
 {
+<<<<<<< HEAD
+=======
+	bp->dcbx_cap = 0;
+>>>>>>> upstream/android-13
 	if (bp->hwrm_spec_code < 0x10501)
 		return;
 

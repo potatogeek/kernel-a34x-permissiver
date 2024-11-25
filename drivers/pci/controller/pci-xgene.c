@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * APM X-Gene PCIe Driver
  *
  * Copyright (c) 2014 Applied Micro Circuits Corporation.
@@ -173,12 +177,22 @@ static int xgene_pcie_config_read32(struct pci_bus *bus, unsigned int devfn,
 
 	/*
 	 * The v1 controller has a bug in its Configuration Request
+<<<<<<< HEAD
 	 * Retry Status (CRS) logic: when CRS is enabled and we read the
 	 * Vendor and Device ID of a non-existent device, the controller
 	 * fabricates return data of 0xFFFF0001 ("device exists but is not
 	 * ready") instead of 0xFFFFFFFF ("device does not exist").  This
 	 * causes the PCI core to retry the read until it times out.
 	 * Avoid this by not claiming to support CRS.
+=======
+	 * Retry Status (CRS) logic: when CRS Software Visibility is
+	 * enabled and we read the Vendor and Device ID of a non-existent
+	 * device, the controller fabricates return data of 0xFFFF0001
+	 * ("device exists but is not ready") instead of 0xFFFFFFFF
+	 * ("device does not exist").  This causes the PCI core to retry
+	 * the read until it times out.  Avoid this by not claiming to
+	 * support CRS SV.
+>>>>>>> upstream/android-13
 	 */
 	if (pci_is_root_bus(bus) && (port->version == XGENE_PCIE_IP_VER_1) &&
 	    ((where & ~0x3) == XGENE_V1_PCI_EXP_CAP + PCI_EXP_RTCTL))
@@ -256,8 +270,12 @@ static int xgene_v1_pcie_ecam_init(struct pci_config_window *cfg)
 	return xgene_pcie_ecam_init(cfg, XGENE_PCIE_IP_VER_1);
 }
 
+<<<<<<< HEAD
 struct pci_ecam_ops xgene_v1_pcie_ecam_ops = {
 	.bus_shift	= 16,
+=======
+const struct pci_ecam_ops xgene_v1_pcie_ecam_ops = {
+>>>>>>> upstream/android-13
 	.init		= xgene_v1_pcie_ecam_init,
 	.pci_ops	= {
 		.map_bus	= xgene_pcie_map_bus,
@@ -271,8 +289,12 @@ static int xgene_v2_pcie_ecam_init(struct pci_config_window *cfg)
 	return xgene_pcie_ecam_init(cfg, XGENE_PCIE_IP_VER_2);
 }
 
+<<<<<<< HEAD
 struct pci_ecam_ops xgene_v2_pcie_ecam_ops = {
 	.bus_shift	= 16,
+=======
+const struct pci_ecam_ops xgene_v2_pcie_ecam_ops = {
+>>>>>>> upstream/android-13
 	.init		= xgene_v2_pcie_ecam_init,
 	.pci_ops	= {
 		.map_bus	= xgene_pcie_map_bus,
@@ -405,6 +427,7 @@ static void xgene_pcie_setup_cfg_reg(struct xgene_pcie_port *port)
 	xgene_pcie_writel(port, CFGCTL, EN_REG);
 }
 
+<<<<<<< HEAD
 static int xgene_pcie_map_ranges(struct xgene_pcie_port *port,
 				 struct list_head *res,
 				 resource_size_t io_base)
@@ -414,6 +437,15 @@ static int xgene_pcie_map_ranges(struct xgene_pcie_port *port,
 	int ret;
 
 	resource_list_for_each_entry(window, res) {
+=======
+static int xgene_pcie_map_ranges(struct xgene_pcie_port *port)
+{
+	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(port);
+	struct resource_entry *window;
+	struct device *dev = port->dev;
+
+	resource_list_for_each_entry(window, &bridge->windows) {
+>>>>>>> upstream/android-13
 		struct resource *res = window->res;
 		u64 restype = resource_type(res);
 
@@ -421,11 +453,17 @@ static int xgene_pcie_map_ranges(struct xgene_pcie_port *port,
 
 		switch (restype) {
 		case IORESOURCE_IO:
+<<<<<<< HEAD
 			xgene_pcie_setup_ob_reg(port, res, OMR3BARL, io_base,
 						res->start - window->offset);
 			ret = devm_pci_remap_iospace(dev, res, io_base);
 			if (ret < 0)
 				return ret;
+=======
+			xgene_pcie_setup_ob_reg(port, res, OMR3BARL,
+						pci_pio_to_address(res->start),
+						res->start - window->offset);
+>>>>>>> upstream/android-13
 			break;
 		case IORESOURCE_MEM:
 			if (res->flags & IORESOURCE_PREFETCH)
@@ -489,7 +527,11 @@ static void xgene_pcie_setup_ib_reg(struct xgene_pcie_port *port,
 {
 	void __iomem *cfg_base = port->cfg_base;
 	struct device *dev = port->dev;
+<<<<<<< HEAD
 	void *bar_addr;
+=======
+	void __iomem *bar_addr;
+>>>>>>> upstream/android-13
 	u32 pim_reg;
 	u64 cpu_addr = range->cpu_addr;
 	u64 pci_addr = range->pci_addr;
@@ -567,8 +609,12 @@ static void xgene_pcie_clear_config(struct xgene_pcie_port *port)
 		xgene_pcie_writel(port, i, 0);
 }
 
+<<<<<<< HEAD
 static int xgene_pcie_setup(struct xgene_pcie_port *port, struct list_head *res,
 			    resource_size_t io_base)
+=======
+static int xgene_pcie_setup(struct xgene_pcie_port *port)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = port->dev;
 	u32 val, lanes = 0, speed = 0;
@@ -580,7 +626,11 @@ static int xgene_pcie_setup(struct xgene_pcie_port *port, struct list_head *res,
 	val = (XGENE_PCIE_DEVICEID << 16) | XGENE_PCIE_VENDORID;
 	xgene_pcie_writel(port, BRIDGE_CFG_0, val);
 
+<<<<<<< HEAD
 	ret = xgene_pcie_map_ranges(port, res, io_base);
+=======
+	ret = xgene_pcie_map_ranges(port);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -607,11 +657,16 @@ static int xgene_pcie_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct device_node *dn = dev->of_node;
 	struct xgene_pcie_port *port;
+<<<<<<< HEAD
 	resource_size_t iobase = 0;
 	struct pci_bus *bus, *child;
 	struct pci_host_bridge *bridge;
 	int ret;
 	LIST_HEAD(res);
+=======
+	struct pci_host_bridge *bridge;
+	int ret;
+>>>>>>> upstream/android-13
 
 	bridge = devm_pci_alloc_host_bridge(dev, sizeof(*port));
 	if (!bridge)
@@ -634,6 +689,7 @@ static int xgene_pcie_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = devm_of_pci_get_host_bridge_resources(dev, 0, 0xff, &res,
 						    &iobase);
 	if (ret)
@@ -670,6 +726,16 @@ static int xgene_pcie_probe(struct platform_device *pdev)
 error:
 	pci_free_resource_list(&res);
 	return ret;
+=======
+	ret = xgene_pcie_setup(port);
+	if (ret)
+		return ret;
+
+	bridge->sysdata = port;
+	bridge->ops = &xgene_pcie_ops;
+
+	return pci_host_probe(bridge);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id xgene_pcie_match_table[] = {

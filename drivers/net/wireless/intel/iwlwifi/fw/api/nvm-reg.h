@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -62,6 +63,14 @@
  *
  *****************************************************************************/
 
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+/*
+ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
+ * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+ * Copyright (C) 2016-2017 Intel Deutschland GmbH
+ */
+>>>>>>> upstream/android-13
 #ifndef __iwl_fw_api_nvm_reg_h__
 #define __iwl_fw_api_nvm_reg_h__
 
@@ -75,11 +84,32 @@ enum iwl_regulatory_and_nvm_subcmd_ids {
 	NVM_ACCESS_COMPLETE = 0x0,
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @LARI_CONFIG_CHANGE: &struct iwl_lari_config_change_cmd
+	 */
+	LARI_CONFIG_CHANGE = 0x1,
+
+	/**
+>>>>>>> upstream/android-13
 	 * @NVM_GET_INFO:
 	 * Command is &struct iwl_nvm_get_info,
 	 * response is &struct iwl_nvm_get_info_rsp
 	 */
 	NVM_GET_INFO = 0x2,
+<<<<<<< HEAD
+=======
+
+	/**
+	 * @TAS_CONFIG: &struct iwl_tas_config_cmd
+	 */
+	TAS_CONFIG = 0x3,
+
+	/**
+	 * @PNVM_INIT_COMPLETE_NTFY: &struct iwl_pnvm_init_complete_ntfy
+	 */
+	PNVM_INIT_COMPLETE_NTFY = 0xFE,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -233,7 +263,12 @@ struct iwl_nvm_get_info_phy {
 	__le32 rx_chains;
 } __packed; /* REGULATORY_NVM_GET_INFO_PHY_SKU_SECTION_S_VER_1 */
 
+<<<<<<< HEAD
 #define IWL_NUM_CHANNELS (51)
+=======
+#define IWL_NUM_CHANNELS_V1	51
+#define IWL_NUM_CHANNELS	110
+>>>>>>> upstream/android-13
 
 /**
  * struct iwl_nvm_get_info_regulatory - regulatory information
@@ -241,13 +276,48 @@ struct iwl_nvm_get_info_phy {
  * @channel_profile: regulatory data of this channel
  * @reserved: reserved
  */
+<<<<<<< HEAD
 struct iwl_nvm_get_info_regulatory {
 	__le32 lar_enabled;
 	__le16 channel_profile[IWL_NUM_CHANNELS];
+=======
+struct iwl_nvm_get_info_regulatory_v1 {
+	__le32 lar_enabled;
+	__le16 channel_profile[IWL_NUM_CHANNELS_V1];
+>>>>>>> upstream/android-13
 	__le16 reserved;
 } __packed; /* REGULATORY_NVM_GET_INFO_REGULATORY_S_VER_1 */
 
 /**
+<<<<<<< HEAD
+=======
+ * struct iwl_nvm_get_info_regulatory - regulatory information
+ * @lar_enabled: is LAR enabled
+ * @n_channels: number of valid channels in the array
+ * @channel_profile: regulatory data of this channel
+ */
+struct iwl_nvm_get_info_regulatory {
+	__le32 lar_enabled;
+	__le32 n_channels;
+	__le32 channel_profile[IWL_NUM_CHANNELS];
+} __packed; /* REGULATORY_NVM_GET_INFO_REGULATORY_S_VER_2 */
+
+/**
+ * struct iwl_nvm_get_info_rsp_v3 - response to get NVM data
+ * @general: general NVM data
+ * @mac_sku: data relating to MAC sku
+ * @phy_sku: data relating to PHY sku
+ * @regulatory: regulatory data
+ */
+struct iwl_nvm_get_info_rsp_v3 {
+	struct iwl_nvm_get_info_general general;
+	struct iwl_nvm_get_info_sku mac_sku;
+	struct iwl_nvm_get_info_phy phy_sku;
+	struct iwl_nvm_get_info_regulatory_v1 regulatory;
+} __packed; /* REGULATORY_NVM_GET_INFO_RSP_API_S_VER_3 */
+
+/**
+>>>>>>> upstream/android-13
  * struct iwl_nvm_get_info_rsp - response to get NVM data
  * @general: general NVM data
  * @mac_sku: data relating to MAC sku
@@ -259,7 +329,11 @@ struct iwl_nvm_get_info_rsp {
 	struct iwl_nvm_get_info_sku mac_sku;
 	struct iwl_nvm_get_info_phy phy_sku;
 	struct iwl_nvm_get_info_regulatory regulatory;
+<<<<<<< HEAD
 } __packed; /* REGULATORY_NVM_GET_INFO_RSP_API_S_VER_3 */
+=======
+} __packed; /* REGULATORY_NVM_GET_INFO_RSP_API_S_VER_4 */
+>>>>>>> upstream/android-13
 
 /**
  * struct iwl_nvm_access_complete_cmd - NVM_ACCESS commands are completed
@@ -270,6 +344,7 @@ struct iwl_nvm_access_complete_cmd {
 } __packed; /* NVM_ACCESS_COMPLETE_CMD_API_S_VER_1 */
 
 /**
+<<<<<<< HEAD
  * struct iwl_mcc_update_cmd_v1 - Request the device to update geographic
  * regulatory profile according to the given MCC (Mobile Country Code).
  * The MCC is two letter-code, ascii upper case[A-Z] or '00' for world domain.
@@ -286,6 +361,8 @@ struct iwl_mcc_update_cmd_v1 {
 } __packed; /* LAR_UPDATE_MCC_CMD_API_S_VER_1 */
 
 /**
+=======
+>>>>>>> upstream/android-13
  * struct iwl_mcc_update_cmd - Request the device to update geographic
  * regulatory profile according to the given MCC (Mobile Country Code).
  * The MCC is two letter-code, ascii upper case[A-Z] or '00' for world domain.
@@ -306,6 +383,7 @@ struct iwl_mcc_update_cmd {
 } __packed; /* LAR_UPDATE_MCC_CMD_API_S_VER_2 */
 
 /**
+<<<<<<< HEAD
  * struct iwl_mcc_update_resp_v1  - response to MCC_UPDATE_CMD.
  * Contains the new channel control profile map, if changed, and the new MCC
  * (mobile country code).
@@ -329,6 +407,8 @@ struct iwl_mcc_update_resp_v1  {
 } __packed; /* LAR_UPDATE_MCC_CMD_RESP_S_VER_1 */
 
 /**
+=======
+>>>>>>> upstream/android-13
  * enum iwl_geo_information - geographic information.
  * @GEO_NO_INFO: no special info for this geo profile.
  * @GEO_WMM_ETSI_5GHZ_INFO: this geo profile limits the WMM params
@@ -340,7 +420,11 @@ enum iwl_geo_information {
 };
 
 /**
+<<<<<<< HEAD
  * struct iwl_mcc_update_resp - response to MCC_UPDATE_CMD.
+=======
+ * struct iwl_mcc_update_resp_v3 - response to MCC_UPDATE_CMD.
+>>>>>>> upstream/android-13
  * Contains the new channel control profile map, if changed, and the new MCC
  * (mobile country code).
  * The new MCC may be different than what was requested in MCC_UPDATE_CMD.
@@ -348,6 +432,7 @@ enum iwl_geo_information {
  * @mcc: the new applied MCC
  * @cap: capabilities for all channels which matches the MCC
  * @source_id: the MCC source, see iwl_mcc_source
+<<<<<<< HEAD
  * @time: time elapsed from the MCC test start (in 30 seconds TU)
  * @geo_info: geographic specific profile information
  *	see &enum iwl_geo_information.
@@ -357,6 +442,16 @@ enum iwl_geo_information {
  *	16bits are used.
  */
 struct iwl_mcc_update_resp {
+=======
+ * @time: time elapsed from the MCC test start (in units of 30 seconds)
+ * @geo_info: geographic specific profile information
+ *	see &enum iwl_geo_information.
+ * @n_channels: number of channels in @channels_data.
+ * @channels: channel control data map, DWORD for each channel. Only the first
+ *	16bits are used.
+ */
+struct iwl_mcc_update_resp_v3 {
+>>>>>>> upstream/android-13
 	__le32 status;
 	__le16 mcc;
 	u8 cap;
@@ -364,10 +459,46 @@ struct iwl_mcc_update_resp {
 	__le16 time;
 	__le16 geo_info;
 	__le32 n_channels;
+<<<<<<< HEAD
 	__le32 channels[0];
 } __packed; /* LAR_UPDATE_MCC_CMD_RESP_S_VER_3 */
 
 /**
+=======
+	__le32 channels[];
+} __packed; /* LAR_UPDATE_MCC_CMD_RESP_S_VER_3 */
+
+/**
+ * struct iwl_mcc_update_resp - response to MCC_UPDATE_CMD.
+ * Contains the new channel control profile map, if changed, and the new MCC
+ * (mobile country code).
+ * The new MCC may be different than what was requested in MCC_UPDATE_CMD.
+ * @status: see &enum iwl_mcc_update_status
+ * @mcc: the new applied MCC
+ * @cap: capabilities for all channels which matches the MCC
+ * @time: time elapsed from the MCC test start (in units of 30 seconds)
+ * @geo_info: geographic specific profile information
+ *	see &enum iwl_geo_information.
+ * @source_id: the MCC source, see iwl_mcc_source
+ * @reserved: for four bytes alignment.
+ * @n_channels: number of channels in @channels_data.
+ * @channels: channel control data map, DWORD for each channel. Only the first
+ *	16bits are used.
+ */
+struct iwl_mcc_update_resp {
+	__le32 status;
+	__le16 mcc;
+	__le16 cap;
+	__le16 time;
+	__le16 geo_info;
+	u8 source_id;
+	u8 reserved[3];
+	__le32 n_channels;
+	__le32 channels[];
+} __packed; /* LAR_UPDATE_MCC_CMD_RESP_S_VER_4 */
+
+/**
+>>>>>>> upstream/android-13
  * struct iwl_mcc_chub_notif - chub notifies of mcc change
  * (MCC_CHUB_UPDATE_CMD = 0xc9)
  * The Chub (Communication Hub, CommsHUB) is a HW component that connects to
@@ -415,4 +546,98 @@ enum iwl_mcc_source {
 	MCC_SOURCE_GETTING_MCC_TEST_MODE = 0x11,
 };
 
+<<<<<<< HEAD
+=======
+#define IWL_TAS_BLACK_LIST_MAX 16
+/**
+ * struct iwl_tas_config_cmd - configures the TAS
+ * @block_list_size: size of relevant field in block_list_array
+ * @block_list_array: block list countries (without TAS)
+ */
+struct iwl_tas_config_cmd {
+	__le32 block_list_size;
+	__le32 block_list_array[IWL_TAS_BLACK_LIST_MAX];
+} __packed; /* TAS_CONFIG_CMD_API_S_VER_2 */
+
+/**
+ * enum iwl_lari_configs - bit masks for the various LARI config operations
+ * @LARI_CONFIG_DISABLE_11AC_UKRAINE_MSK: disable 11ac in ukraine
+ * @LARI_CONFIG_CHANGE_ETSI_TO_PASSIVE_MSK: ETSI 5.8GHz SRD passive scan
+ * @LARI_CONFIG_CHANGE_ETSI_TO_DISABLED_MSK: ETSI 5.8GHz SRD disabled
+ * @LARI_CONFIG_ENABLE_5G2_IN_INDONESIA_MSK: enable 5.15/5.35GHz bands in
+ * 	Indonesia
+ */
+enum iwl_lari_config_masks {
+	LARI_CONFIG_DISABLE_11AC_UKRAINE_MSK		= BIT(0),
+	LARI_CONFIG_CHANGE_ETSI_TO_PASSIVE_MSK		= BIT(1),
+	LARI_CONFIG_CHANGE_ETSI_TO_DISABLED_MSK		= BIT(2),
+	LARI_CONFIG_ENABLE_5G2_IN_INDONESIA_MSK		= BIT(3),
+};
+
+#define IWL_11AX_UKRAINE_MASK 3
+#define IWL_11AX_UKRAINE_SHIFT 8
+
+/**
+ * struct iwl_lari_config_change_cmd_v1 - change LARI configuration
+ * @config_bitmap: bit map of the config commands. each bit will trigger a
+ * different predefined FW config operation
+ */
+struct iwl_lari_config_change_cmd_v1 {
+	__le32 config_bitmap;
+} __packed; /* LARI_CHANGE_CONF_CMD_S_VER_1 */
+
+/**
+ * struct iwl_lari_config_change_cmd_v2 - change LARI configuration
+ * @config_bitmap: bit map of the config commands. each bit will trigger a
+ * different predefined FW config operation
+ * @oem_uhb_allow_bitmap: bitmap of UHB enabled MCC sets
+ */
+struct iwl_lari_config_change_cmd_v2 {
+	__le32 config_bitmap;
+	__le32 oem_uhb_allow_bitmap;
+} __packed; /* LARI_CHANGE_CONF_CMD_S_VER_2 */
+
+/**
+ * struct iwl_lari_config_change_cmd_v3 - change LARI configuration
+ * @config_bitmap: bit map of the config commands. each bit will trigger a
+ * different predefined FW config operation
+ * @oem_uhb_allow_bitmap: bitmap of UHB enabled MCC sets
+ * @oem_11ax_allow_bitmap: bitmap of 11ax allowed MCCs.
+ * For each supported country, a pair of regulatory override bit and 11ax mode exist
+ * in the bit field.
+ */
+struct iwl_lari_config_change_cmd_v3 {
+	__le32 config_bitmap;
+	__le32 oem_uhb_allow_bitmap;
+	__le32 oem_11ax_allow_bitmap;
+} __packed; /* LARI_CHANGE_CONF_CMD_S_VER_3 */
+
+/**
+ * struct iwl_lari_config_change_cmd_v4 - change LARI configuration
+ * @config_bitmap: Bitmap of the config commands. Each bit will trigger a
+ *     different predefined FW config operation.
+ * @oem_uhb_allow_bitmap: Bitmap of UHB enabled MCC sets.
+ * @oem_11ax_allow_bitmap: Bitmap of 11ax allowed MCCs. There are two bits
+ *     per country, one to indicate whether to override and the other to
+ *     indicate the value to use.
+ * @oem_unii4_allow_bitmap: Bitmap of unii4 allowed MCCs.There are two bits
+ *     per country, one to indicate whether to override and the other to
+ *     indicate allow/disallow unii4 channels.
+ */
+struct iwl_lari_config_change_cmd_v4 {
+	__le32 config_bitmap;
+	__le32 oem_uhb_allow_bitmap;
+	__le32 oem_11ax_allow_bitmap;
+	__le32 oem_unii4_allow_bitmap;
+} __packed; /* LARI_CHANGE_CONF_CMD_S_VER_4 */
+
+/**
+ * struct iwl_pnvm_init_complete_ntfy - PNVM initialization complete
+ * @status: PNVM image loading status
+ */
+struct iwl_pnvm_init_complete_ntfy {
+	__le32 status;
+} __packed; /* PNVM_INIT_COMPLETE_NTFY_S_VER_1 */
+
+>>>>>>> upstream/android-13
 #endif /* __iwl_fw_api_nvm_reg_h__ */

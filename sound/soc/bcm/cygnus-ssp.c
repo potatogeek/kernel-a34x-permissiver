@@ -1052,10 +1052,20 @@ static int cygnus_set_dai_tdm_slot(struct snd_soc_dai *cpu_dai,
 }
 
 #ifdef CONFIG_PM_SLEEP
+<<<<<<< HEAD
 static int cygnus_ssp_suspend(struct snd_soc_dai *cpu_dai)
 {
 	struct cygnus_aio_port *aio = cygnus_dai_get_portinfo(cpu_dai);
 
+=======
+static int __cygnus_ssp_suspend(struct snd_soc_dai *cpu_dai)
+{
+	struct cygnus_aio_port *aio = cygnus_dai_get_portinfo(cpu_dai);
+
+	if (!snd_soc_dai_active(cpu_dai))
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (!aio->is_slave) {
 		u32 val;
 
@@ -1078,11 +1088,32 @@ static int cygnus_ssp_suspend(struct snd_soc_dai *cpu_dai)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cygnus_ssp_resume(struct snd_soc_dai *cpu_dai)
+=======
+static int cygnus_ssp_suspend(struct snd_soc_component *component)
+{
+	struct snd_soc_dai *dai;
+	int ret = 0;
+
+	for_each_component_dais(component, dai)
+		ret |= __cygnus_ssp_suspend(dai);
+
+	return ret;
+}
+
+static int __cygnus_ssp_resume(struct snd_soc_dai *cpu_dai)
+>>>>>>> upstream/android-13
 {
 	struct cygnus_aio_port *aio = cygnus_dai_get_portinfo(cpu_dai);
 	int error;
 
+<<<<<<< HEAD
+=======
+	if (!snd_soc_dai_active(cpu_dai))
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (!aio->is_slave) {
 		if (aio->clk_trace.cap_clk_en) {
 			error = clk_prepare_enable(aio->cygaud->
@@ -1109,6 +1140,21 @@ static int cygnus_ssp_resume(struct snd_soc_dai *cpu_dai)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+static int cygnus_ssp_resume(struct snd_soc_component *component)
+{
+	struct snd_soc_dai *dai;
+	int ret = 0;
+
+	for_each_component_dais(component, dai)
+		ret |= __cygnus_ssp_resume(dai);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 #else
 #define cygnus_ssp_suspend NULL
 #define cygnus_ssp_resume  NULL
@@ -1149,8 +1195,11 @@ static const struct snd_soc_dai_ops cygnus_spdif_dai_ops = {
 				SNDRV_PCM_FMTBIT_S32_LE, \
 	}, \
 	.ops = &cygnus_ssp_dai_ops, \
+<<<<<<< HEAD
 	.suspend = cygnus_ssp_suspend, \
 	.resume = cygnus_ssp_resume, \
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct snd_soc_dai_driver cygnus_ssp_dai_info[] = {
@@ -1169,14 +1218,22 @@ static const struct snd_soc_dai_driver cygnus_spdif_dai_info = {
 			SNDRV_PCM_FMTBIT_S32_LE,
 	},
 	.ops = &cygnus_spdif_dai_ops,
+<<<<<<< HEAD
 	.suspend = cygnus_ssp_suspend,
 	.resume = cygnus_ssp_resume,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver cygnus_ssp_dai[CYGNUS_MAX_PORTS];
 
 static const struct snd_soc_component_driver cygnus_ssp_component = {
 	.name		= "cygnus-audio",
+<<<<<<< HEAD
+=======
+	.suspend	= cygnus_ssp_suspend,
+	.resume		= cygnus_ssp_resume,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1281,9 +1338,14 @@ static int cygnus_ssp_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *child_node;
+<<<<<<< HEAD
 	struct resource *res;
 	struct cygnus_audio *cygaud;
 	int err = -EINVAL;
+=======
+	struct cygnus_audio *cygaud;
+	int err;
+>>>>>>> upstream/android-13
 	int node_count;
 	int active_port_count;
 
@@ -1293,6 +1355,7 @@ static int cygnus_ssp_probe(struct platform_device *pdev)
 
 	dev_set_drvdata(dev, cygaud);
 
+<<<<<<< HEAD
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "aud");
 	cygaud->audio = devm_ioremap_resource(dev, res);
 	if (IS_ERR(cygaud->audio))
@@ -1300,6 +1363,13 @@ static int cygnus_ssp_probe(struct platform_device *pdev)
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "i2s_in");
 	cygaud->i2s_in = devm_ioremap_resource(dev, res);
+=======
+	cygaud->audio = devm_platform_ioremap_resource_byname(pdev, "aud");
+	if (IS_ERR(cygaud->audio))
+		return PTR_ERR(cygaud->audio);
+
+	cygaud->i2s_in = devm_platform_ioremap_resource_byname(pdev, "i2s_in");
+>>>>>>> upstream/android-13
 	if (IS_ERR(cygaud->i2s_in))
 		return PTR_ERR(cygaud->i2s_in);
 
@@ -1321,8 +1391,15 @@ static int cygnus_ssp_probe(struct platform_device *pdev)
 					&cygnus_ssp_dai[active_port_count]);
 
 		/* negative is err, 0 is active and good, 1 is disabled */
+<<<<<<< HEAD
 		if (err < 0)
 			return err;
+=======
+		if (err < 0) {
+			of_node_put(child_node);
+			return err;
+		}
+>>>>>>> upstream/android-13
 		else if (!err) {
 			dev_dbg(dev, "Activating DAI: %s\n",
 				cygnus_ssp_dai[active_port_count].name);
@@ -1334,7 +1411,11 @@ static int cygnus_ssp_probe(struct platform_device *pdev)
 	cygaud->active_ports = 0;
 
 	dev_dbg(dev, "Registering %d DAIs\n", active_port_count);
+<<<<<<< HEAD
 	err = snd_soc_register_component(dev, &cygnus_ssp_component,
+=======
+	err = devm_snd_soc_register_component(dev, &cygnus_ssp_component,
+>>>>>>> upstream/android-13
 				cygnus_ssp_dai, active_port_count);
 	if (err) {
 		dev_err(dev, "snd_soc_register_dai failed\n");
@@ -1342,21 +1423,31 @@ static int cygnus_ssp_probe(struct platform_device *pdev)
 	}
 
 	cygaud->irq_num = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (cygaud->irq_num <= 0) {
 		dev_err(dev, "platform_get_irq failed\n");
 		err = cygaud->irq_num;
 		goto err_irq;
 	}
+=======
+	if (cygaud->irq_num <= 0)
+		return cygaud->irq_num;
+>>>>>>> upstream/android-13
 
 	err = audio_clk_init(pdev, cygaud);
 	if (err) {
 		dev_err(dev, "audio clock initialization failed\n");
+<<<<<<< HEAD
 		goto err_irq;
+=======
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	err = cygnus_soc_platform_register(dev, cygaud);
 	if (err) {
 		dev_err(dev, "platform reg error %d\n", err);
+<<<<<<< HEAD
 		goto err_irq;
 	}
 
@@ -1365,12 +1456,21 @@ static int cygnus_ssp_probe(struct platform_device *pdev)
 err_irq:
 	snd_soc_unregister_component(dev);
 	return err;
+=======
+		return err;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int cygnus_ssp_remove(struct platform_device *pdev)
 {
 	cygnus_soc_platform_unregister(&pdev->dev);
+<<<<<<< HEAD
 	snd_soc_unregister_component(&pdev->dev);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

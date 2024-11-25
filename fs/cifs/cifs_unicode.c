@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cifs_unicode.c
  *
@@ -17,6 +18,13 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *
+ *   Copyright (c) International Business Machines  Corp., 2000,2009
+ *   Modified by Steve French (sfrench@us.ibm.com)
+>>>>>>> upstream/android-13
  */
 #include <linux/fs.h>
 #include <linux/slab.h>
@@ -371,6 +379,7 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
 		if (!dst)
 			return NULL;
 		cifs_from_utf16(dst, (__le16 *) src, len, maxlen, codepage,
+<<<<<<< HEAD
 			       NO_MAP_UNI_RSVD);
 	} else {
 		len = strnlen(src, maxlen);
@@ -379,6 +388,11 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
 		if (!dst)
 			return NULL;
 		strlcpy(dst, src, len);
+=======
+				NO_MAP_UNI_RSVD);
+	} else {
+		dst = kstrndup(src, maxlen, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	}
 
 	return dst;

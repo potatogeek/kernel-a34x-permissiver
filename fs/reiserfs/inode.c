@@ -1066,7 +1066,11 @@ research:
 			} else {
 				/* paste hole to the indirect item */
 				/*
+<<<<<<< HEAD
 				 * If kmalloc failed, max_to_insert becomes
+=======
+				 * If kcalloc failed, max_to_insert becomes
+>>>>>>> upstream/android-13
 				 * zero and it means we only have space for
 				 * one block
 				 */
@@ -1160,11 +1164,17 @@ failure:
 	return retval;
 }
 
+<<<<<<< HEAD
 static int
 reiserfs_readpages(struct file *file, struct address_space *mapping,
 		   struct list_head *pages, unsigned nr_pages)
 {
 	return mpage_readpages(mapping, pages, nr_pages, reiserfs_get_block);
+=======
+static void reiserfs_readahead(struct readahead_control *rac)
+{
+	mpage_readahead(rac, reiserfs_get_block);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2586,9 +2596,13 @@ static int reiserfs_write_full_page(struct page *page,
 			clear_buffer_dirty(bh);
 			set_buffer_uptodate(bh);
 		} else if ((checked || buffer_dirty(bh)) &&
+<<<<<<< HEAD
 		           (!buffer_mapped(bh) || (buffer_mapped(bh)
 						       && bh->b_blocknr ==
 						       0))) {
+=======
+			   (!buffer_mapped(bh) || bh->b_blocknr == 0)) {
+>>>>>>> upstream/android-13
 			/*
 			 * not mapped yet, or it points to a direct item, search
 			 * the btree for the mapping info, and log any direct
@@ -3284,13 +3298,22 @@ static ssize_t reiserfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
 	return ret;
 }
 
+<<<<<<< HEAD
 int reiserfs_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+int reiserfs_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		     struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	unsigned int ia_valid;
 	int error;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -3415,7 +3438,11 @@ int reiserfs_setattr(struct dentry *dentry, struct iattr *attr)
 	}
 
 	if (!error) {
+<<<<<<< HEAD
 		setattr_copy(inode, attr);
+=======
+		setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 		mark_inode_dirty(inode);
 	}
 
@@ -3431,7 +3458,11 @@ out:
 const struct address_space_operations reiserfs_address_space_operations = {
 	.writepage = reiserfs_writepage,
 	.readpage = reiserfs_readpage,
+<<<<<<< HEAD
 	.readpages = reiserfs_readpages,
+=======
+	.readahead = reiserfs_readahead,
+>>>>>>> upstream/android-13
 	.releasepage = reiserfs_releasepage,
 	.invalidatepage = reiserfs_invalidatepage,
 	.write_begin = reiserfs_write_begin,

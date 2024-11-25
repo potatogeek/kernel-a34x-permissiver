@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Oxford Semiconductor OXNAS DWMAC glue layer
  *
@@ -5,6 +9,7 @@
  * Copyright (C) 2014 Daniel Golle <daniel@makrotopia.org>
  * Copyright (C) 2013 Ma Haijun <mahaijuns@gmail.com>
  * Copyright (C) 2012 John Crispin <blogic@openwrt.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -12,6 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -124,7 +131,11 @@ static int oxnas_dwmac_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	plat_dat = stmmac_probe_config_dt(pdev, &stmmac_res.mac);
+=======
+	plat_dat = stmmac_probe_config_dt(pdev, stmmac_res.mac);
+>>>>>>> upstream/android-13
 	if (IS_ERR(plat_dat))
 		return PTR_ERR(plat_dat);
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Realtek USB Memstick Card Interface driver
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -14,6 +19,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Author:
  *   Roger Tseng <rogerable@realtek.com>
  */
@@ -40,15 +47,23 @@ struct rtsx_usb_ms {
 
 	struct mutex		host_mutex;
 	struct work_struct	handle_req;
+<<<<<<< HEAD
 
 	struct task_struct	*detect_ms;
 	struct completion	detect_ms_exit;
+=======
+	struct delayed_work	poll_card;
+>>>>>>> upstream/android-13
 
 	u8			ssc_depth;
 	unsigned int		clock;
 	int			power_mode;
 	unsigned char           ifmode;
 	bool			eject;
+<<<<<<< HEAD
+=======
+	bool			system_suspending;
+>>>>>>> upstream/android-13
 };
 
 static inline struct device *ms_dev(struct rtsx_usb_ms *host)
@@ -545,7 +560,11 @@ static void rtsx_usb_ms_handle_req(struct work_struct *work)
 						host->req->error);
 			}
 		} while (!rc);
+<<<<<<< HEAD
 		pm_runtime_put(ms_dev(host));
+=======
+		pm_runtime_put_sync(ms_dev(host));
+>>>>>>> upstream/android-13
 	}
 
 }
@@ -585,6 +604,7 @@ static int rtsx_usb_ms_set_param(struct memstick_host *msh,
 			break;
 
 		if (value == MEMSTICK_POWER_ON) {
+<<<<<<< HEAD
 			pm_runtime_get_sync(ms_dev(host));
 			err = ms_power_on(host);
 		} else if (value == MEMSTICK_POWER_OFF) {
@@ -593,6 +613,16 @@ static int rtsx_usb_ms_set_param(struct memstick_host *msh,
 				pm_runtime_put_noidle(ms_dev(host));
 			else
 				pm_runtime_put(ms_dev(host));
+=======
+			pm_runtime_get_noresume(ms_dev(host));
+			err = ms_power_on(host);
+			if (err)
+				pm_runtime_put_noidle(ms_dev(host));
+		} else if (value == MEMSTICK_POWER_OFF) {
+			err = ms_power_off(host);
+			if (!err)
+				pm_runtime_put_noidle(ms_dev(host));
+>>>>>>> upstream/android-13
 		} else
 			err = -EINVAL;
 		if (!err)
@@ -638,12 +668,25 @@ static int rtsx_usb_ms_set_param(struct memstick_host *msh,
 	}
 out:
 	mutex_unlock(&ucr->dev_mutex);
+<<<<<<< HEAD
 	pm_runtime_put(ms_dev(host));
 
 	/* power-on delay */
 	if (param == MEMSTICK_POWER && value == MEMSTICK_POWER_ON)
 		usleep_range(10000, 12000);
 
+=======
+	pm_runtime_put_sync(ms_dev(host));
+
+	/* power-on delay */
+	if (param == MEMSTICK_POWER && value == MEMSTICK_POWER_ON) {
+		usleep_range(10000, 12000);
+
+		if (!host->eject)
+			schedule_delayed_work(&host->poll_card, 100);
+	}
+
+>>>>>>> upstream/android-13
 	dev_dbg(ms_dev(host), "%s: return = %d\n", __func__, err);
 	return err;
 }
@@ -654,9 +697,30 @@ static int rtsx_usb_ms_suspend(struct device *dev)
 	struct rtsx_usb_ms *host = dev_get_drvdata(dev);
 	struct memstick_host *msh = host->msh;
 
+<<<<<<< HEAD
 	dev_dbg(ms_dev(host), "--> %s\n", __func__);
 
 	memstick_suspend_host(msh);
+=======
+	/* Since we use rtsx_usb's resume callback to runtime resume its
+	 * children to implement remote wakeup signaling, this causes
+	 * rtsx_usb_ms' runtime resume callback runs after its suspend
+	 * callback:
+	 * rtsx_usb_ms_suspend()
+	 * rtsx_usb_resume()
+	 *   -> rtsx_usb_ms_runtime_resume()
+	 *     -> memstick_detect_change()
+	 *
+	 * rtsx_usb_suspend()
+	 *
+	 * To avoid this, skip runtime resume/suspend if system suspend is
+	 * underway.
+	 */
+
+	host->system_suspending = true;
+	memstick_suspend_host(msh);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -665,13 +729,20 @@ static int rtsx_usb_ms_resume(struct device *dev)
 	struct rtsx_usb_ms *host = dev_get_drvdata(dev);
 	struct memstick_host *msh = host->msh;
 
+<<<<<<< HEAD
 	dev_dbg(ms_dev(host), "--> %s\n", __func__);
 
 	memstick_resume_host(msh);
+=======
+	memstick_resume_host(msh);
+	host->system_suspending = false;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif /* CONFIG_PM_SLEEP */
 
+<<<<<<< HEAD
 /*
  * Thread function of ms card slot detection. The thread starts right after
  * successful host addition. It stops while the driver removal function sets
@@ -717,6 +788,80 @@ poll_again:
 
 	complete(&host->detect_ms_exit);
 	return 0;
+=======
+#ifdef CONFIG_PM
+static int rtsx_usb_ms_runtime_suspend(struct device *dev)
+{
+	struct rtsx_usb_ms *host = dev_get_drvdata(dev);
+
+	if (host->system_suspending)
+		return 0;
+
+	if (host->msh->card || host->power_mode != MEMSTICK_POWER_OFF)
+		return -EAGAIN;
+
+	return 0;
+}
+
+static int rtsx_usb_ms_runtime_resume(struct device *dev)
+{
+	struct rtsx_usb_ms *host = dev_get_drvdata(dev);
+
+
+	if (host->system_suspending)
+		return 0;
+
+	memstick_detect_change(host->msh);
+
+	return 0;
+}
+#endif /* CONFIG_PM */
+
+static const struct dev_pm_ops rtsx_usb_ms_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(rtsx_usb_ms_suspend, rtsx_usb_ms_resume)
+	SET_RUNTIME_PM_OPS(rtsx_usb_ms_runtime_suspend, rtsx_usb_ms_runtime_resume, NULL)
+};
+
+
+static void rtsx_usb_ms_poll_card(struct work_struct *work)
+{
+	struct rtsx_usb_ms *host = container_of(work, struct rtsx_usb_ms,
+			poll_card.work);
+	struct rtsx_ucr *ucr = host->ucr;
+	int err;
+	u8 val;
+
+	if (host->eject || host->power_mode != MEMSTICK_POWER_ON)
+		return;
+
+	pm_runtime_get_sync(ms_dev(host));
+	mutex_lock(&ucr->dev_mutex);
+
+	/* Check pending MS card changes */
+	err = rtsx_usb_read_register(ucr, CARD_INT_PEND, &val);
+	if (err) {
+		mutex_unlock(&ucr->dev_mutex);
+		goto poll_again;
+	}
+
+	/* Clear the pending */
+	rtsx_usb_write_register(ucr, CARD_INT_PEND,
+			XD_INT | MS_INT | SD_INT,
+			XD_INT | MS_INT | SD_INT);
+
+	mutex_unlock(&ucr->dev_mutex);
+
+	if (val & MS_INT) {
+		dev_dbg(ms_dev(host), "MS slot change detected\n");
+		memstick_detect_change(host->msh);
+	}
+
+poll_again:
+	pm_runtime_put_sync(ms_dev(host));
+
+	if (!host->eject && host->power_mode == MEMSTICK_POWER_ON)
+		schedule_delayed_work(&host->poll_card, 100);
+>>>>>>> upstream/android-13
 }
 
 static int rtsx_usb_ms_drv_probe(struct platform_device *pdev)
@@ -747,6 +892,7 @@ static int rtsx_usb_ms_drv_probe(struct platform_device *pdev)
 	mutex_init(&host->host_mutex);
 	INIT_WORK(&host->handle_req, rtsx_usb_ms_handle_req);
 
+<<<<<<< HEAD
 	init_completion(&host->detect_ms_exit);
 	host->detect_ms = kthread_create(rtsx_usb_detect_ms_card, host,
 			"rtsx_usb_ms_%d", pdev->id);
@@ -756,19 +902,38 @@ static int rtsx_usb_ms_drv_probe(struct platform_device *pdev)
 		err = PTR_ERR(host->detect_ms);
 		goto err_out;
 	}
+=======
+	INIT_DELAYED_WORK(&host->poll_card, rtsx_usb_ms_poll_card);
+>>>>>>> upstream/android-13
 
 	msh->request = rtsx_usb_ms_request;
 	msh->set_param = rtsx_usb_ms_set_param;
 	msh->caps = MEMSTICK_CAP_PAR4;
 
+<<<<<<< HEAD
 	pm_runtime_enable(&pdev->dev);
+=======
+	pm_runtime_get_noresume(ms_dev(host));
+	pm_runtime_set_active(ms_dev(host));
+	pm_runtime_enable(ms_dev(host));
+
+>>>>>>> upstream/android-13
 	err = memstick_add_host(msh);
 	if (err)
 		goto err_out;
 
+<<<<<<< HEAD
 	wake_up_process(host->detect_ms);
 	return 0;
 err_out:
+=======
+	pm_runtime_put(ms_dev(host));
+
+	return 0;
+err_out:
+	pm_runtime_disable(ms_dev(host));
+	pm_runtime_put_noidle(ms_dev(host));
+>>>>>>> upstream/android-13
 	memstick_free_host(msh);
 	return err;
 }
@@ -776,16 +941,26 @@ err_out:
 static int rtsx_usb_ms_drv_remove(struct platform_device *pdev)
 {
 	struct rtsx_usb_ms *host = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct memstick_host *msh;
 	int err;
 
 	msh = host->msh;
+=======
+	struct memstick_host *msh = host->msh;
+	int err;
+
+>>>>>>> upstream/android-13
 	host->eject = true;
 	cancel_work_sync(&host->handle_req);
 
 	mutex_lock(&host->host_mutex);
 	if (host->req) {
+<<<<<<< HEAD
 		dev_dbg(&(pdev->dev),
+=======
+		dev_dbg(ms_dev(host),
+>>>>>>> upstream/android-13
 			"%s: Controller removed during transfer\n",
 			dev_name(&msh->dev));
 		host->req->error = -ENOMEDIUM;
@@ -797,28 +972,43 @@ static int rtsx_usb_ms_drv_remove(struct platform_device *pdev)
 	}
 	mutex_unlock(&host->host_mutex);
 
+<<<<<<< HEAD
 	wait_for_completion(&host->detect_ms_exit);
 	memstick_remove_host(msh);
 	memstick_free_host(msh);
 
+=======
+>>>>>>> upstream/android-13
 	/* Balance possible unbalanced usage count
 	 * e.g. unconditional module removal
 	 */
 	if (pm_runtime_active(ms_dev(host)))
 		pm_runtime_put(ms_dev(host));
 
+<<<<<<< HEAD
 	pm_runtime_disable(&pdev->dev);
 	platform_set_drvdata(pdev, NULL);
 
 	dev_dbg(&(pdev->dev),
 		": Realtek USB Memstick controller has been removed\n");
+=======
+	pm_runtime_disable(ms_dev(host));
+	memstick_remove_host(msh);
+	dev_dbg(ms_dev(host),
+		": Realtek USB Memstick controller has been removed\n");
+	memstick_free_host(msh);
+	platform_set_drvdata(pdev, NULL);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static SIMPLE_DEV_PM_OPS(rtsx_usb_ms_pm_ops,
 		rtsx_usb_ms_suspend, rtsx_usb_ms_resume);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_device_id rtsx_usb_ms_ids[] = {
 	{
 		.name = "rtsx_usb_ms",

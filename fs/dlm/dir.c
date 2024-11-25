@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
 *******************************************************************************
 **
 **  Copyright (C) Sistina Software, Inc.  1997-2003  All rights reserved.
 **  Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
 **
+<<<<<<< HEAD
 **  This copyrighted material is made available to anyone wishing to use,
 **  modify, copy, or redistribute it subject to the terms and conditions
 **  of the GNU General Public License v.2.
+=======
+>>>>>>> upstream/android-13
 **
 *******************************************************************************
 ******************************************************************************/
@@ -87,8 +94,15 @@ int dlm_recover_directory(struct dlm_ls *ls)
 		for (;;) {
 			int left;
 			error = dlm_recovery_stopped(ls);
+<<<<<<< HEAD
 			if (error)
 				goto out_free;
+=======
+			if (error) {
+				error = -EINTR;
+				goto out_free;
+			}
+>>>>>>> upstream/android-13
 
 			error = dlm_rcom_names(ls, memb->nodeid,
 					       last_name, last_len);

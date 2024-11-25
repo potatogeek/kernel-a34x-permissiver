@@ -21,6 +21,12 @@ Required properties:
   - samsung,pll-clock-frequency: specifies frequency of the oscillator clock
   - #address-cells, #size-cells: should be set respectively to <1> and <0>
     according to DSI host bindings (see MIPI DSI bindings [1])
+<<<<<<< HEAD
+=======
+  - samsung,burst-clock-frequency: specifies DSI frequency in high-speed burst
+    mode
+  - samsung,esc-clock-frequency: specifies DSI frequency in escape mode
+>>>>>>> upstream/android-13
 
 Optional properties:
   - power-domains: a phandle to DSIM power domain node
@@ -29,6 +35,7 @@ Child nodes:
   Should contain DSI peripheral nodes (see MIPI DSI bindings [1]).
 
 Video interfaces:
+<<<<<<< HEAD
   Device node can contain video interface port nodes according to [2].
   The following are properties specific to those nodes:
 
@@ -48,6 +55,11 @@ Video interfaces:
     - samsung,burst-clock-frequency: specifies DSI frequency in high-speed burst
       mode
     - samsung,esc-clock-frequency: specifies DSI frequency in escape mode
+=======
+  Device node can contain following video interface port nodes according to [2]:
+  0: RGB input,
+  1: DSI output
+>>>>>>> upstream/android-13
 
 [1]: Documentation/devicetree/bindings/display/mipi-dsi-bus.txt
 [2]: Documentation/devicetree/bindings/media/video-interfaces.txt

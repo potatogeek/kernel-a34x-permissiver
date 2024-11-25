@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm64/mm/hugetlbpage.c
  *
  * Copyright (C) 2013 Linaro Ltd.
  *
  * Based on arch/x86/mm/hugetlbpage.c.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -25,7 +32,68 @@
 #include <asm/mman.h>
 #include <asm/tlb.h>
 #include <asm/tlbflush.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+
+/*
+ * HugeTLB Support Matrix
+ *
+ * ---------------------------------------------------
+ * | Page Size | CONT PTE |  PMD  | CONT PMD |  PUD  |
+ * ---------------------------------------------------
+ * |     4K    |   64K    |   2M  |    32M   |   1G  |
+ * |    16K    |    2M    |  32M  |     1G   |       |
+ * |    64K    |    2M    | 512M  |    16G   |       |
+ * ---------------------------------------------------
+ */
+
+/*
+ * Reserve CMA areas for the largest supported gigantic
+ * huge page when requested. Any other smaller gigantic
+ * huge pages could still be served from those areas.
+ */
+#ifdef CONFIG_CMA
+void __init arm64_hugetlb_cma_reserve(void)
+{
+	int order;
+
+#ifdef CONFIG_ARM64_4K_PAGES
+	order = PUD_SHIFT - PAGE_SHIFT;
+#else
+	order = CONT_PMD_SHIFT - PAGE_SHIFT;
+#endif
+	/*
+	 * HugeTLB CMA reservation is required for gigantic
+	 * huge pages which could not be allocated via the
+	 * page allocator. Just warn if there is any change
+	 * breaking this assumption.
+	 */
+	WARN_ON(order <= MAX_ORDER);
+	hugetlb_cma_reserve(order);
+}
+#endif /* CONFIG_CMA */
+
+#ifdef CONFIG_ARCH_ENABLE_HUGEPAGE_MIGRATION
+bool arch_hugetlb_migration_supported(struct hstate *h)
+{
+	size_t pagesize = huge_page_size(h);
+
+	switch (pagesize) {
+#ifdef CONFIG_ARM64_4K_PAGES
+	case PUD_SIZE:
+#endif
+	case PMD_SIZE:
+	case CONT_PMD_SIZE:
+	case CONT_PTE_SIZE:
+		return true;
+	}
+	pr_warn("%s: unrecognized huge page size 0x%lx\n",
+			__func__, pagesize);
+	return false;
+}
+#endif
+>>>>>>> upstream/android-13
 
 int pmd_huge(pmd_t pmd)
 {
@@ -55,11 +123,20 @@ static int find_num_contig(struct mm_struct *mm, unsigned long addr,
 			   pte_t *ptep, size_t *pgsize)
 {
 	pgd_t *pgdp = pgd_offset(mm, addr);
+<<<<<<< HEAD
+=======
+	p4d_t *p4dp;
+>>>>>>> upstream/android-13
 	pud_t *pudp;
 	pmd_t *pmdp;
 
 	*pgsize = PAGE_SIZE;
+<<<<<<< HEAD
 	pudp = pud_offset(pgdp, addr);
+=======
+	p4dp = p4d_offset(pgdp, addr);
+	pudp = pud_offset(p4dp, addr);
+>>>>>>> upstream/android-13
 	pmdp = pmd_offset(pudp, addr);
 	if ((pte_t *)pmdp == ptep) {
 		*pgsize = PMD_SIZE;
@@ -201,22 +278,39 @@ void set_huge_swap_pte_at(struct mm_struct *mm, unsigned long addr,
 		set_pte(ptep, pte);
 }
 
+<<<<<<< HEAD
 pte_t *huge_pte_alloc(struct mm_struct *mm,
 		      unsigned long addr, unsigned long sz)
 {
 	pgd_t *pgdp;
+=======
+pte_t *huge_pte_alloc(struct mm_struct *mm, struct vm_area_struct *vma,
+		      unsigned long addr, unsigned long sz)
+{
+	pgd_t *pgdp;
+	p4d_t *p4dp;
+>>>>>>> upstream/android-13
 	pud_t *pudp;
 	pmd_t *pmdp;
 	pte_t *ptep = NULL;
 
 	pgdp = pgd_offset(mm, addr);
+<<<<<<< HEAD
 	pudp = pud_alloc(mm, pgdp, addr);
+=======
+	p4dp = p4d_offset(pgdp, addr);
+	pudp = pud_alloc(mm, p4dp, addr);
+>>>>>>> upstream/android-13
 	if (!pudp)
 		return NULL;
 
 	if (sz == PUD_SIZE) {
 		ptep = (pte_t *)pudp;
+<<<<<<< HEAD
 	} else if (sz == (PAGE_SIZE * CONT_PTES)) {
+=======
+	} else if (sz == (CONT_PTE_SIZE)) {
+>>>>>>> upstream/android-13
 		pmdp = pmd_alloc(mm, pudp, addr);
 		if (!pmdp)
 			return NULL;
@@ -231,12 +325,20 @@ pte_t *huge_pte_alloc(struct mm_struct *mm,
 		 */
 		ptep = pte_alloc_map(mm, pmdp, addr);
 	} else if (sz == PMD_SIZE) {
+<<<<<<< HEAD
 		if (IS_ENABLED(CONFIG_ARCH_WANT_HUGE_PMD_SHARE) &&
 		    pud_none(READ_ONCE(*pudp)))
 			ptep = huge_pmd_share(mm, addr, pudp);
 		else
 			ptep = (pte_t *)pmd_alloc(mm, pudp, addr);
 	} else if (sz == (PMD_SIZE * CONT_PMDS)) {
+=======
+		if (want_pmd_share(vma, addr) && pud_none(READ_ONCE(*pudp)))
+			ptep = huge_pmd_share(mm, vma, addr, pudp);
+		else
+			ptep = (pte_t *)pmd_alloc(mm, pudp, addr);
+	} else if (sz == (CONT_PMD_SIZE)) {
+>>>>>>> upstream/android-13
 		pmdp = pmd_alloc(mm, pudp, addr);
 		WARN_ON(addr & (sz - 1));
 		return (pte_t *)pmdp;
@@ -249,6 +351,10 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
 		       unsigned long addr, unsigned long sz)
 {
 	pgd_t *pgdp;
+<<<<<<< HEAD
+=======
+	p4d_t *p4dp;
+>>>>>>> upstream/android-13
 	pud_t *pudp, pud;
 	pmd_t *pmdp, pmd;
 
@@ -256,7 +362,15 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
 	if (!pgd_present(READ_ONCE(*pgdp)))
 		return NULL;
 
+<<<<<<< HEAD
 	pudp = pud_offset(pgdp, addr);
+=======
+	p4dp = p4d_offset(pgdp, addr);
+	if (!p4d_present(READ_ONCE(*p4dp)))
+		return NULL;
+
+	pudp = pud_offset(p4dp, addr);
+>>>>>>> upstream/android-13
 	pud = READ_ONCE(*pudp);
 	if (sz != PUD_SIZE && pud_none(pud))
 		return NULL;
@@ -282,10 +396,16 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
 	return NULL;
 }
 
+<<<<<<< HEAD
 pte_t arch_make_huge_pte(pte_t entry, struct vm_area_struct *vma,
 			 struct page *page, int writable)
 {
 	size_t pagesize = huge_page_size(hstate_vma(vma));
+=======
+pte_t arch_make_huge_pte(pte_t entry, unsigned int shift, vm_flags_t flags)
+{
+	size_t pagesize = 1UL << shift;
+>>>>>>> upstream/android-13
 
 	if (pagesize == CONT_PTE_SIZE) {
 		entry = pte_mkcont(entry);
@@ -431,6 +551,7 @@ void huge_ptep_clear_flush(struct vm_area_struct *vma,
 	clear_flush(vma->vm_mm, addr, ptep, pgsize, ncontig);
 }
 
+<<<<<<< HEAD
 static __init int setup_hugepagesz(char *opt)
 {
 	unsigned long ps = memparse(opt, &opt);
@@ -461,3 +582,32 @@ static __init int add_default_hugepagesz(void)
 }
 arch_initcall(add_default_hugepagesz);
 #endif
+=======
+static int __init hugetlbpage_init(void)
+{
+#ifdef CONFIG_ARM64_4K_PAGES
+	hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
+#endif
+	hugetlb_add_hstate(CONT_PMD_SHIFT - PAGE_SHIFT);
+	hugetlb_add_hstate(PMD_SHIFT - PAGE_SHIFT);
+	hugetlb_add_hstate(CONT_PTE_SHIFT - PAGE_SHIFT);
+
+	return 0;
+}
+arch_initcall(hugetlbpage_init);
+
+bool __init arch_hugetlb_valid_size(unsigned long size)
+{
+	switch (size) {
+#ifdef CONFIG_ARM64_4K_PAGES
+	case PUD_SIZE:
+#endif
+	case CONT_PMD_SIZE:
+	case PMD_SIZE:
+	case CONT_PTE_SIZE:
+		return true;
+	}
+
+	return false;
+}
+>>>>>>> upstream/android-13

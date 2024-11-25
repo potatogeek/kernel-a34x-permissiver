@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic Event Device for ACPI.
  *
  * Copyright (c) 2016, The Linux Foundation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Generic Event Device allows platforms to handle interrupts in ACPI
  * ASL statements. It follows very similar to  _EVT method approach
  * from GPIO events. All interrupts are listed in _CRS and the handler
@@ -37,7 +44,10 @@
  *             }
  *     }
  * }
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -115,7 +125,11 @@ static acpi_status acpi_ged_request_interrupt(struct acpi_resource *ares,
 
 		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		if (ACPI_SUCCESS(acpi_get_handle(handle, "_EVT", &evt_handle)))
 			break;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * cifs_unicode:  Unicode kernel case support
  *
@@ -7,6 +11,7 @@
  *
  *   Copyright (c) International Business Machines  Corp., 2000,2009
  *
+<<<<<<< HEAD
  *   This program is free software;  you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -22,13 +27,18 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * Notes:
  *     These APIs are based on the C library functions.  The semantics
  *     should match the C functions but with expanded size operands.
  *
  *     The upper/lower functions are based on a table created by mkupr.
  *     This is a compressed table of upper and lower case conversion.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _CIFS_UNICODE_H
 #define _CIFS_UNICODE_H

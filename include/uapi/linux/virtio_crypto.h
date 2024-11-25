@@ -414,17 +414,26 @@ struct virtio_crypto_op_data_req {
 
 struct virtio_crypto_config {
 	/* See VIRTIO_CRYPTO_OP_* above */
+<<<<<<< HEAD
 	__u32  status;
+=======
+	__le32  status;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Maximum number of data queue
 	 */
+<<<<<<< HEAD
 	__u32  max_dataqueues;
+=======
+	__le32  max_dataqueues;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Specifies the services mask which the device support,
 	 * see VIRTIO_CRYPTO_SERVICE_* above
 	 */
+<<<<<<< HEAD
 	__u32 crypto_services;
 
 	/* Detailed algorithms mask */
@@ -441,6 +450,24 @@ struct virtio_crypto_config {
 	__u32 reserve;
 	/* Maximum size of each crypto request's content */
 	__u64 max_size;
+=======
+	__le32 crypto_services;
+
+	/* Detailed algorithms mask */
+	__le32 cipher_algo_l;
+	__le32 cipher_algo_h;
+	__le32 hash_algo;
+	__le32 mac_algo_l;
+	__le32 mac_algo_h;
+	__le32 aead_algo;
+	/* Maximum length of cipher key */
+	__le32 max_cipher_key_len;
+	/* Maximum length of authenticated key */
+	__le32 max_auth_key_len;
+	__le32 reserve;
+	/* Maximum size of each crypto request's content */
+	__le64 max_size;
+>>>>>>> upstream/android-13
 };
 
 struct virtio_crypto_inhdr {

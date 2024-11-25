@@ -25,6 +25,7 @@
 
 static inline unsigned long __hypfs_sprp_diag304(void *data, unsigned long cmd)
 {
+<<<<<<< HEAD
 	register unsigned long _data asm("2") = (unsigned long) data;
 	register unsigned long _rc asm("3");
 	register unsigned long _cmd asm("4") = cmd;
@@ -33,6 +34,15 @@ static inline unsigned long __hypfs_sprp_diag304(void *data, unsigned long cmd)
 		     : "=d" (_rc) : "d" (_data), "d" (_cmd) : "memory");
 
 	return _rc;
+=======
+	union register_pair r1 = { .even = (unsigned long)data, };
+
+	asm volatile("diag %[r1],%[r3],0x304\n"
+		     : [r1] "+&d" (r1.pair)
+		     : [r3] "d" (cmd)
+		     : "memory");
+	return r1.odd;
+>>>>>>> upstream/android-13
 }
 
 static unsigned long hypfs_sprp_diag304(void *data, unsigned long cmd)
@@ -68,12 +78,17 @@ static int hypfs_sprp_create(void **data_ptr, void **free_ptr, size_t *size)
 
 static int __hypfs_sprp_ioctl(void __user *user_area)
 {
+<<<<<<< HEAD
 	struct hypfs_diag304 diag304;
+=======
+	struct hypfs_diag304 *diag304;
+>>>>>>> upstream/android-13
 	unsigned long cmd;
 	void __user *udata;
 	void *data;
 	int rc;
 
+<<<<<<< HEAD
 	if (copy_from_user(&diag304, user_area, sizeof(diag304)))
 		return -EFAULT;
 	if ((diag304.args[0] >> 8) != 0 || diag304.args[1] > DIAG304_CMD_MAX)
@@ -95,13 +110,45 @@ static int __hypfs_sprp_ioctl(void __user *user_area)
 	diag304.rc = hypfs_sprp_diag304(data, cmd);
 
 	if (diag304.args[1] == DIAG304_QUERY_PRP)
+=======
+	rc = -ENOMEM;
+	data = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+	diag304 = kzalloc(sizeof(*diag304), GFP_KERNEL);
+	if (!data || !diag304)
+		goto out;
+
+	rc = -EFAULT;
+	if (copy_from_user(diag304, user_area, sizeof(*diag304)))
+		goto out;
+	rc = -EINVAL;
+	if ((diag304->args[0] >> 8) != 0 || diag304->args[1] > DIAG304_CMD_MAX)
+		goto out;
+
+	rc = -EFAULT;
+	udata = (void __user *)(unsigned long) diag304->data;
+	if (diag304->args[1] == DIAG304_SET_WEIGHTS ||
+	    diag304->args[1] == DIAG304_SET_CAPPING)
+		if (copy_from_user(data, udata, PAGE_SIZE))
+			goto out;
+
+	cmd = *(unsigned long *) &diag304->args[0];
+	diag304->rc = hypfs_sprp_diag304(data, cmd);
+
+	if (diag304->args[1] == DIAG304_QUERY_PRP)
+>>>>>>> upstream/android-13
 		if (copy_to_user(udata, data, PAGE_SIZE)) {
 			rc = -EFAULT;
 			goto out;
 		}
 
+<<<<<<< HEAD
 	rc = copy_to_user(user_area, &diag304, sizeof(diag304)) ? -EFAULT : 0;
 out:
+=======
+	rc = copy_to_user(user_area, diag304, sizeof(*diag304)) ? -EFAULT : 0;
+out:
+	kfree(diag304);
+>>>>>>> upstream/android-13
 	free_page((unsigned long) data);
 	return rc;
 }
@@ -133,11 +180,19 @@ static struct hypfs_dbfs_file hypfs_sprp_file = {
 	.unlocked_ioctl = hypfs_sprp_ioctl,
 };
 
+<<<<<<< HEAD
 int hypfs_sprp_init(void)
 {
 	if (!sclp.has_sprp)
 		return 0;
 	return hypfs_dbfs_create_file(&hypfs_sprp_file);
+=======
+void hypfs_sprp_init(void)
+{
+	if (!sclp.has_sprp)
+		return;
+	hypfs_dbfs_create_file(&hypfs_sprp_file);
+>>>>>>> upstream/android-13
 }
 
 void hypfs_sprp_exit(void)

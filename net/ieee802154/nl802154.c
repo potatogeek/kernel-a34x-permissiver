@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
@@ -6,6 +7,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Authors:
  * Alexander Aring <aar@pengutronix.de>
@@ -242,11 +247,16 @@ nl802154_prepare_wpan_dev_dump(struct sk_buff *skb,
 			       struct cfg802154_registered_device **rdev,
 			       struct wpan_dev **wpan_dev)
 {
+<<<<<<< HEAD
+=======
+	const struct genl_dumpit_info *info = genl_dumpit_info(cb);
+>>>>>>> upstream/android-13
 	int err;
 
 	rtnl_lock();
 
 	if (!cb->args[0]) {
+<<<<<<< HEAD
 		err = nlmsg_parse(cb->nlh, GENL_HDRLEN + nl802154_fam.hdrsize,
 				  genl_family_attrbuf(&nl802154_fam),
 				  nl802154_fam.maxattr, nl802154_policy, NULL);
@@ -255,6 +265,10 @@ nl802154_prepare_wpan_dev_dump(struct sk_buff *skb,
 
 		*wpan_dev = __cfg802154_wpan_dev_from_attrs(sock_net(skb->sk),
 							    genl_family_attrbuf(&nl802154_fam));
+=======
+		*wpan_dev = __cfg802154_wpan_dev_from_attrs(sock_net(skb->sk),
+							    info->attrs);
+>>>>>>> upstream/android-13
 		if (IS_ERR(*wpan_dev)) {
 			err = PTR_ERR(*wpan_dev);
 			goto out_unlock;
@@ -312,7 +326,11 @@ static inline void *nl802154hdr_put(struct sk_buff *skb, u32 portid, u32 seq,
 static int
 nl802154_put_flags(struct sk_buff *msg, int attr, u32 mask)
 {
+<<<<<<< HEAD
 	struct nlattr *nl_flags = nla_nest_start(msg, attr);
+=======
+	struct nlattr *nl_flags = nla_nest_start_noflag(msg, attr);
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!nl_flags)
@@ -338,7 +356,11 @@ nl802154_send_wpan_phy_channels(struct cfg802154_registered_device *rdev,
 	struct nlattr *nl_page;
 	unsigned long page;
 
+<<<<<<< HEAD
 	nl_page = nla_nest_start(msg, NL802154_ATTR_CHANNELS_SUPPORTED);
+=======
+	nl_page = nla_nest_start_noflag(msg, NL802154_ATTR_CHANNELS_SUPPORTED);
+>>>>>>> upstream/android-13
 	if (!nl_page)
 		return -ENOBUFS;
 
@@ -360,11 +382,19 @@ nl802154_put_capabilities(struct sk_buff *msg,
 	struct nlattr *nl_caps, *nl_channels;
 	int i;
 
+<<<<<<< HEAD
 	nl_caps = nla_nest_start(msg, NL802154_ATTR_WPAN_PHY_CAPS);
 	if (!nl_caps)
 		return -ENOBUFS;
 
 	nl_channels = nla_nest_start(msg, NL802154_CAP_ATTR_CHANNELS);
+=======
+	nl_caps = nla_nest_start_noflag(msg, NL802154_ATTR_WPAN_PHY_CAPS);
+	if (!nl_caps)
+		return -ENOBUFS;
+
+	nl_channels = nla_nest_start_noflag(msg, NL802154_CAP_ATTR_CHANNELS);
+>>>>>>> upstream/android-13
 	if (!nl_channels)
 		return -ENOBUFS;
 
@@ -380,8 +410,13 @@ nl802154_put_capabilities(struct sk_buff *msg,
 	if (rdev->wpan_phy.flags & WPAN_PHY_FLAG_CCA_ED_LEVEL) {
 		struct nlattr *nl_ed_lvls;
 
+<<<<<<< HEAD
 		nl_ed_lvls = nla_nest_start(msg,
 					    NL802154_CAP_ATTR_CCA_ED_LEVELS);
+=======
+		nl_ed_lvls = nla_nest_start_noflag(msg,
+						   NL802154_CAP_ATTR_CCA_ED_LEVELS);
+>>>>>>> upstream/android-13
 		if (!nl_ed_lvls)
 			return -ENOBUFS;
 
@@ -396,7 +431,12 @@ nl802154_put_capabilities(struct sk_buff *msg,
 	if (rdev->wpan_phy.flags & WPAN_PHY_FLAG_TXPOWER) {
 		struct nlattr *nl_tx_pwrs;
 
+<<<<<<< HEAD
 		nl_tx_pwrs = nla_nest_start(msg, NL802154_CAP_ATTR_TX_POWERS);
+=======
+		nl_tx_pwrs = nla_nest_start_noflag(msg,
+						   NL802154_CAP_ATTR_TX_POWERS);
+>>>>>>> upstream/android-13
 		if (!nl_tx_pwrs)
 			return -ENOBUFS;
 
@@ -504,7 +544,11 @@ static int nl802154_send_wpan_phy(struct cfg802154_registered_device *rdev,
 	if (nl802154_put_capabilities(msg, rdev))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	nl_cmds = nla_nest_start(msg, NL802154_ATTR_SUPPORTED_COMMANDS);
+=======
+	nl_cmds = nla_nest_start_noflag(msg, NL802154_ATTR_SUPPORTED_COMMANDS);
+>>>>>>> upstream/android-13
 	if (!nl_cmds)
 		goto nla_put_failure;
 
@@ -560,6 +604,7 @@ static int nl802154_dump_wpan_phy_parse(struct sk_buff *skb,
 					struct netlink_callback *cb,
 					struct nl802154_dump_wpan_phy_state *state)
 {
+<<<<<<< HEAD
 	struct nlattr **tb = genl_family_attrbuf(&nl802154_fam);
 	int ret = nlmsg_parse(cb->nlh, GENL_HDRLEN + nl802154_fam.hdrsize, tb,
 			      nl802154_fam.maxattr, nl802154_policy, NULL);
@@ -569,6 +614,10 @@ static int nl802154_dump_wpan_phy_parse(struct sk_buff *skb,
 	 */
 	if (ret)
 		return 0;
+=======
+	const struct genl_dumpit_info *info = genl_dumpit_info(cb);
+	struct nlattr **tb = info->attrs;
+>>>>>>> upstream/android-13
 
 	if (tb[NL802154_ATTR_WPAN_PHY])
 		state->filter_wpan_phy = nla_get_u32(tb[NL802154_ATTR_WPAN_PHY]);
@@ -693,7 +742,12 @@ ieee802154_llsec_send_key_id(struct sk_buff *msg,
 
 	switch (desc->mode) {
 	case NL802154_KEY_ID_MODE_IMPLICIT:
+<<<<<<< HEAD
 		nl_dev_addr = nla_nest_start(msg, NL802154_KEY_ID_ATTR_IMPLICIT);
+=======
+		nl_dev_addr = nla_nest_start_noflag(msg,
+						    NL802154_KEY_ID_ATTR_IMPLICIT);
+>>>>>>> upstream/android-13
 		if (!nl_dev_addr)
 			return -ENOBUFS;
 
@@ -768,7 +822,11 @@ static int nl802154_get_llsec_params(struct sk_buff *msg,
 			 params.frame_counter))
 		return -ENOBUFS;
 
+<<<<<<< HEAD
 	nl_key_id = nla_nest_start(msg, NL802154_ATTR_SEC_OUT_KEY_ID);
+=======
+	nl_key_id = nla_nest_start_noflag(msg, NL802154_ATTR_SEC_OUT_KEY_ID);
+>>>>>>> upstream/android-13
 	if (!nl_key_id)
 		return -ENOBUFS;
 
@@ -1311,6 +1369,7 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
 {
 	struct nlattr *attrs[NL802154_DEV_ADDR_ATTR_MAX + 1];
 
+<<<<<<< HEAD
 	if (!nla || nla_parse_nested(attrs, NL802154_DEV_ADDR_ATTR_MAX, nla,
 				     nl802154_dev_addr_policy, NULL))
 		return -EINVAL;
@@ -1319,15 +1378,31 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
 	    !attrs[NL802154_DEV_ADDR_ATTR_MODE] ||
 	    !(attrs[NL802154_DEV_ADDR_ATTR_SHORT] ||
 	      attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]))
+=======
+	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_DEV_ADDR_ATTR_MAX, nla, nl802154_dev_addr_policy, NULL))
+		return -EINVAL;
+
+	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] || !attrs[NL802154_DEV_ADDR_ATTR_MODE])
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	addr->pan_id = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_PAN_ID]);
 	addr->mode = nla_get_u32(attrs[NL802154_DEV_ADDR_ATTR_MODE]);
 	switch (addr->mode) {
 	case NL802154_DEV_ADDR_SHORT:
+<<<<<<< HEAD
 		addr->short_addr = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_SHORT]);
 		break;
 	case NL802154_DEV_ADDR_EXTENDED:
+=======
+		if (!attrs[NL802154_DEV_ADDR_ATTR_SHORT])
+			return -EINVAL;
+		addr->short_addr = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_SHORT]);
+		break;
+	case NL802154_DEV_ADDR_EXTENDED:
+		if (!attrs[NL802154_DEV_ADDR_ATTR_EXTENDED])
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		addr->extended_addr = nla_get_le64(attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]);
 		break;
 	default:
@@ -1351,8 +1426,12 @@ ieee802154_llsec_parse_key_id(struct nlattr *nla,
 {
 	struct nlattr *attrs[NL802154_KEY_ID_ATTR_MAX + 1];
 
+<<<<<<< HEAD
 	if (!nla || nla_parse_nested(attrs, NL802154_KEY_ID_ATTR_MAX, nla,
 				     nl802154_key_id_policy, NULL))
+=======
+	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_KEY_ID_ATTR_MAX, nla, nl802154_key_id_policy, NULL))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!attrs[NL802154_KEY_ID_ATTR_MODE])
@@ -1458,16 +1537,28 @@ static int nl802154_send_key(struct sk_buff *msg, u32 cmd, u32 portid,
 
 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
 	if (!hdr)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -ENOBUFS;
+>>>>>>> upstream/android-13
 
 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	nl_key = nla_nest_start(msg, NL802154_ATTR_SEC_KEY);
 	if (!nl_key)
 		goto nla_put_failure;
 
 	nl_key_id = nla_nest_start(msg, NL802154_KEY_ATTR_ID);
+=======
+	nl_key = nla_nest_start_noflag(msg, NL802154_ATTR_SEC_KEY);
+	if (!nl_key)
+		goto nla_put_failure;
+
+	nl_key_id = nla_nest_start_noflag(msg, NL802154_KEY_ATTR_ID);
+>>>>>>> upstream/android-13
 	if (!nl_key_id)
 		goto nla_put_failure;
 
@@ -1575,10 +1666,18 @@ static int nl802154_add_llsec_key(struct sk_buff *skb, struct genl_info *info)
 	struct ieee802154_llsec_key_id id = { };
 	u32 commands[NL802154_CMD_FRAME_NR_IDS / 32] = { };
 
+<<<<<<< HEAD
 	if (!info->attrs[NL802154_ATTR_SEC_KEY] ||
 	    nla_parse_nested(attrs, NL802154_KEY_ATTR_MAX,
 			     info->attrs[NL802154_ATTR_SEC_KEY],
 			     nl802154_key_policy, info->extack))
+=======
+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
+		return -EOPNOTSUPP;
+
+	if (!info->attrs[NL802154_ATTR_SEC_KEY] ||
+	    nla_parse_nested_deprecated(attrs, NL802154_KEY_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_KEY], nl802154_key_policy, info->extack))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!attrs[NL802154_KEY_ATTR_USAGE_FRAMES] ||
@@ -1626,10 +1725,18 @@ static int nl802154_del_llsec_key(struct sk_buff *skb, struct genl_info *info)
 	struct nlattr *attrs[NL802154_KEY_ATTR_MAX + 1];
 	struct ieee802154_llsec_key_id id;
 
+<<<<<<< HEAD
 	if (!info->attrs[NL802154_ATTR_SEC_KEY] ||
 	    nla_parse_nested(attrs, NL802154_KEY_ATTR_MAX,
 			     info->attrs[NL802154_ATTR_SEC_KEY],
 			     nl802154_key_policy, info->extack))
+=======
+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
+		return -EOPNOTSUPP;
+
+	if (!info->attrs[NL802154_ATTR_SEC_KEY] ||
+	    nla_parse_nested_deprecated(attrs, NL802154_KEY_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_KEY], nl802154_key_policy, info->extack))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (ieee802154_llsec_parse_key_id(attrs[NL802154_KEY_ATTR_ID], &id) < 0)
@@ -1649,12 +1756,20 @@ static int nl802154_send_device(struct sk_buff *msg, u32 cmd, u32 portid,
 
 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
 	if (!hdr)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -ENOBUFS;
+>>>>>>> upstream/android-13
 
 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	nl_device = nla_nest_start(msg, NL802154_ATTR_SEC_DEVICE);
+=======
+	nl_device = nla_nest_start_noflag(msg, NL802154_ATTR_SEC_DEVICE);
+>>>>>>> upstream/android-13
 	if (!nl_device)
 		goto nla_put_failure;
 
@@ -1748,8 +1863,12 @@ ieee802154_llsec_parse_device(struct nlattr *nla,
 {
 	struct nlattr *attrs[NL802154_DEV_ATTR_MAX + 1];
 
+<<<<<<< HEAD
 	if (!nla || nla_parse_nested(attrs, NL802154_DEV_ATTR_MAX,
 				     nla, nl802154_dev_policy, NULL))
+=======
+	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_DEV_ATTR_MAX, nla, nl802154_dev_policy, NULL))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	memset(dev, 0, sizeof(*dev));
@@ -1803,10 +1922,18 @@ static int nl802154_del_llsec_dev(struct sk_buff *skb, struct genl_info *info)
 	struct nlattr *attrs[NL802154_DEV_ATTR_MAX + 1];
 	__le64 extended_addr;
 
+<<<<<<< HEAD
 	if (!info->attrs[NL802154_ATTR_SEC_DEVICE] ||
 	    nla_parse_nested(attrs, NL802154_DEV_ATTR_MAX,
 			     info->attrs[NL802154_ATTR_SEC_DEVICE],
 			     nl802154_dev_policy, info->extack))
+=======
+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
+		return -EOPNOTSUPP;
+
+	if (!info->attrs[NL802154_ATTR_SEC_DEVICE] ||
+	    nla_parse_nested_deprecated(attrs, NL802154_DEV_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_DEVICE], nl802154_dev_policy, info->extack))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!attrs[NL802154_DEV_ATTR_EXTENDED_ADDR])
@@ -1827,12 +1954,20 @@ static int nl802154_send_devkey(struct sk_buff *msg, u32 cmd, u32 portid,
 
 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
 	if (!hdr)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -ENOBUFS;
+>>>>>>> upstream/android-13
 
 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	nl_devkey = nla_nest_start(msg, NL802154_ATTR_SEC_DEVKEY);
+=======
+	nl_devkey = nla_nest_start_noflag(msg, NL802154_ATTR_SEC_DEVKEY);
+>>>>>>> upstream/android-13
 	if (!nl_devkey)
 		goto nla_put_failure;
 
@@ -1842,7 +1977,11 @@ static int nl802154_send_devkey(struct sk_buff *msg, u32 cmd, u32 portid,
 			devkey->frame_counter))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	nl_key_id = nla_nest_start(msg, NL802154_DEVKEY_ATTR_ID);
+=======
+	nl_key_id = nla_nest_start_noflag(msg, NL802154_DEVKEY_ATTR_ID);
+>>>>>>> upstream/android-13
 	if (!nl_key_id)
 		goto nla_put_failure;
 
@@ -1940,9 +2079,13 @@ static int nl802154_add_llsec_devkey(struct sk_buff *skb, struct genl_info *info
 		return -EOPNOTSUPP;
 
 	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
+<<<<<<< HEAD
 	    nla_parse_nested(attrs, NL802154_DEVKEY_ATTR_MAX,
 			     info->attrs[NL802154_ATTR_SEC_DEVKEY],
 			     nl802154_devkey_policy, info->extack) < 0)
+=======
+	    nla_parse_nested_deprecated(attrs, NL802154_DEVKEY_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_DEVKEY], nl802154_devkey_policy, info->extack) < 0)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!attrs[NL802154_DEVKEY_ATTR_FRAME_COUNTER] ||
@@ -1972,10 +2115,18 @@ static int nl802154_del_llsec_devkey(struct sk_buff *skb, struct genl_info *info
 	struct ieee802154_llsec_device_key key;
 	__le64 extended_addr;
 
+<<<<<<< HEAD
 	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
 	    nla_parse_nested(attrs, NL802154_DEVKEY_ATTR_MAX,
 			     info->attrs[NL802154_ATTR_SEC_DEVKEY],
 			     nl802154_devkey_policy, info->extack))
+=======
+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
+		return -EOPNOTSUPP;
+
+	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
+	    nla_parse_nested_deprecated(attrs, NL802154_DEVKEY_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_DEVKEY], nl802154_devkey_policy, info->extack))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (!attrs[NL802154_DEVKEY_ATTR_EXTENDED_ADDR])
@@ -2004,12 +2155,20 @@ static int nl802154_send_seclevel(struct sk_buff *msg, u32 cmd, u32 portid,
 
 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
 	if (!hdr)
+<<<<<<< HEAD
 		return -1;
+=======
+		return -ENOBUFS;
+>>>>>>> upstream/android-13
 
 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
 		goto nla_put_failure;
 
+<<<<<<< HEAD
 	nl_seclevel = nla_nest_start(msg, NL802154_ATTR_SEC_LEVEL);
+=======
+	nl_seclevel = nla_nest_start_noflag(msg, NL802154_ATTR_SEC_LEVEL);
+>>>>>>> upstream/android-13
 	if (!nl_seclevel)
 		goto nla_put_failure;
 
@@ -2100,8 +2259,12 @@ llsec_parse_seclevel(struct nlattr *nla, struct ieee802154_llsec_seclevel *sl)
 {
 	struct nlattr *attrs[NL802154_SECLEVEL_ATTR_MAX + 1];
 
+<<<<<<< HEAD
 	if (!nla || nla_parse_nested(attrs, NL802154_SECLEVEL_ATTR_MAX,
 				     nla, nl802154_seclevel_policy, NULL))
+=======
+	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_SECLEVEL_ATTR_MAX, nla, nl802154_seclevel_policy, NULL))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	memset(sl, 0, sizeof(*sl));
@@ -2172,11 +2335,15 @@ static int nl802154_del_llsec_seclevel(struct sk_buff *skb,
 #define NL802154_FLAG_NEED_NETDEV	0x02
 #define NL802154_FLAG_NEED_RTNL		0x04
 #define NL802154_FLAG_CHECK_NETDEV_UP	0x08
+<<<<<<< HEAD
 #define NL802154_FLAG_NEED_NETDEV_UP	(NL802154_FLAG_NEED_NETDEV |\
 					 NL802154_FLAG_CHECK_NETDEV_UP)
 #define NL802154_FLAG_NEED_WPAN_DEV	0x10
 #define NL802154_FLAG_NEED_WPAN_DEV_UP	(NL802154_FLAG_NEED_WPAN_DEV |\
 					 NL802154_FLAG_CHECK_NETDEV_UP)
+=======
+#define NL802154_FLAG_NEED_WPAN_DEV	0x10
+>>>>>>> upstream/android-13
 
 static int nl802154_pre_doit(const struct genl_ops *ops, struct sk_buff *skb,
 			     struct genl_info *info)
@@ -2247,8 +2414,12 @@ static void nl802154_post_doit(const struct genl_ops *ops, struct sk_buff *skb,
 		if (ops->internal_flags & NL802154_FLAG_NEED_WPAN_DEV) {
 			struct wpan_dev *wpan_dev = info->user_ptr[1];
 
+<<<<<<< HEAD
 			if (wpan_dev->netdev)
 				dev_put(wpan_dev->netdev);
+=======
+			dev_put(wpan_dev->netdev);
+>>>>>>> upstream/android-13
 		} else {
 			dev_put(info->user_ptr[1]);
 		}
@@ -2261,131 +2432,215 @@ static void nl802154_post_doit(const struct genl_ops *ops, struct sk_buff *skb,
 static const struct genl_ops nl802154_ops[] = {
 	{
 		.cmd = NL802154_CMD_GET_WPAN_PHY,
+<<<<<<< HEAD
 		.doit = nl802154_get_wpan_phy,
 		.dumpit = nl802154_dump_wpan_phy,
 		.done = nl802154_dump_wpan_phy_done,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT |
+			    GENL_DONT_VALIDATE_DUMP_STRICT,
+		.doit = nl802154_get_wpan_phy,
+		.dumpit = nl802154_dump_wpan_phy,
+		.done = nl802154_dump_wpan_phy_done,
+>>>>>>> upstream/android-13
 		/* can be retrieved by unprivileged users */
 		.internal_flags = NL802154_FLAG_NEED_WPAN_PHY |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_GET_INTERFACE,
+<<<<<<< HEAD
 		.doit = nl802154_get_interface,
 		.dumpit = nl802154_dump_interface,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_get_interface,
+		.dumpit = nl802154_dump_interface,
+>>>>>>> upstream/android-13
 		/* can be retrieved by unprivileged users */
 		.internal_flags = NL802154_FLAG_NEED_WPAN_DEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_NEW_INTERFACE,
+<<<<<<< HEAD
 		.doit = nl802154_new_interface,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_new_interface,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_WPAN_PHY |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_DEL_INTERFACE,
+<<<<<<< HEAD
 		.doit = nl802154_del_interface,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_del_interface,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_WPAN_DEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_CHANNEL,
+<<<<<<< HEAD
 		.doit = nl802154_set_channel,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_channel,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_WPAN_PHY |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_CCA_MODE,
+<<<<<<< HEAD
 		.doit = nl802154_set_cca_mode,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_cca_mode,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_WPAN_PHY |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_CCA_ED_LEVEL,
+<<<<<<< HEAD
 		.doit = nl802154_set_cca_ed_level,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_cca_ed_level,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_WPAN_PHY |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_TX_POWER,
+<<<<<<< HEAD
 		.doit = nl802154_set_tx_power,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_tx_power,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_WPAN_PHY |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_WPAN_PHY_NETNS,
+<<<<<<< HEAD
 		.doit = nl802154_wpan_phy_netns,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_wpan_phy_netns,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_WPAN_PHY |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_PAN_ID,
+<<<<<<< HEAD
 		.doit = nl802154_set_pan_id,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_pan_id,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_SHORT_ADDR,
+<<<<<<< HEAD
 		.doit = nl802154_set_short_addr,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_short_addr,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_BACKOFF_EXPONENT,
+<<<<<<< HEAD
 		.doit = nl802154_set_backoff_exponent,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_backoff_exponent,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_MAX_CSMA_BACKOFFS,
+<<<<<<< HEAD
 		.doit = nl802154_set_max_csma_backoffs,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_max_csma_backoffs,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_MAX_FRAME_RETRIES,
+<<<<<<< HEAD
 		.doit = nl802154_set_max_frame_retries,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_max_frame_retries,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_LBT_MODE,
+<<<<<<< HEAD
 		.doit = nl802154_set_lbt_mode,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_lbt_mode,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_SET_ACKREQ_DEFAULT,
+<<<<<<< HEAD
 		.doit = nl802154_set_ackreq_default,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_ackreq_default,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
@@ -2393,33 +2648,55 @@ static const struct genl_ops nl802154_ops[] = {
 #ifdef CONFIG_IEEE802154_NL802154_EXPERIMENTAL
 	{
 		.cmd = NL802154_CMD_SET_SEC_PARAMS,
+<<<<<<< HEAD
 		.doit = nl802154_set_llsec_params,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_set_llsec_params,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_GET_SEC_KEY,
+<<<<<<< HEAD
 		/* TODO .doit by matching key id? */
 		.dumpit = nl802154_dump_llsec_key,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT |
+			    GENL_DONT_VALIDATE_DUMP_STRICT,
+		/* TODO .doit by matching key id? */
+		.dumpit = nl802154_dump_llsec_key,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_NEW_SEC_KEY,
+<<<<<<< HEAD
 		.doit = nl802154_add_llsec_key,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_add_llsec_key,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_DEL_SEC_KEY,
+<<<<<<< HEAD
 		.doit = nl802154_del_llsec_key,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_del_llsec_key,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
@@ -2427,25 +2704,42 @@ static const struct genl_ops nl802154_ops[] = {
 	/* TODO unique identifier must short+pan OR extended_addr */
 	{
 		.cmd = NL802154_CMD_GET_SEC_DEV,
+<<<<<<< HEAD
 		/* TODO .doit by matching extended_addr? */
 		.dumpit = nl802154_dump_llsec_dev,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT |
+			    GENL_DONT_VALIDATE_DUMP_STRICT,
+		/* TODO .doit by matching extended_addr? */
+		.dumpit = nl802154_dump_llsec_dev,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_NEW_SEC_DEV,
+<<<<<<< HEAD
 		.doit = nl802154_add_llsec_dev,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_add_llsec_dev,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_DEL_SEC_DEV,
+<<<<<<< HEAD
 		.doit = nl802154_del_llsec_dev,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_del_llsec_dev,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
@@ -2453,51 +2747,86 @@ static const struct genl_ops nl802154_ops[] = {
 	/* TODO remove complete devkey, put it as nested? */
 	{
 		.cmd = NL802154_CMD_GET_SEC_DEVKEY,
+<<<<<<< HEAD
 		/* TODO doit by matching ??? */
 		.dumpit = nl802154_dump_llsec_devkey,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT |
+			    GENL_DONT_VALIDATE_DUMP_STRICT,
+		/* TODO doit by matching ??? */
+		.dumpit = nl802154_dump_llsec_devkey,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_NEW_SEC_DEVKEY,
+<<<<<<< HEAD
 		.doit = nl802154_add_llsec_devkey,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_add_llsec_devkey,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_DEL_SEC_DEVKEY,
+<<<<<<< HEAD
 		.doit = nl802154_del_llsec_devkey,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_del_llsec_devkey,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_GET_SEC_LEVEL,
+<<<<<<< HEAD
 		/* TODO .doit by matching frame_type? */
 		.dumpit = nl802154_dump_llsec_seclevel,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT |
+			    GENL_DONT_VALIDATE_DUMP_STRICT,
+		/* TODO .doit by matching frame_type? */
+		.dumpit = nl802154_dump_llsec_seclevel,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_NEW_SEC_LEVEL,
+<<<<<<< HEAD
 		.doit = nl802154_add_llsec_seclevel,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		.doit = nl802154_add_llsec_seclevel,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
 	},
 	{
 		.cmd = NL802154_CMD_DEL_SEC_LEVEL,
+<<<<<<< HEAD
 		/* TODO match frame_type only? */
 		.doit = nl802154_del_llsec_seclevel,
 		.policy = nl802154_policy,
+=======
+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+		/* TODO match frame_type only? */
+		.doit = nl802154_del_llsec_seclevel,
+>>>>>>> upstream/android-13
 		.flags = GENL_ADMIN_PERM,
 		.internal_flags = NL802154_FLAG_NEED_NETDEV |
 				  NL802154_FLAG_NEED_RTNL,
@@ -2510,6 +2839,10 @@ static struct genl_family nl802154_fam __ro_after_init = {
 	.hdrsize = 0,			/* no private header */
 	.version = 1,			/* no particular meaning now */
 	.maxattr = NL802154_ATTR_MAX,
+<<<<<<< HEAD
+=======
+	.policy = nl802154_policy,
+>>>>>>> upstream/android-13
 	.netnsok = true,
 	.pre_doit = nl802154_pre_doit,
 	.post_doit = nl802154_post_doit,

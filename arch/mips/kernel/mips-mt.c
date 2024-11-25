@@ -119,12 +119,16 @@ void mips_mt_regdump(unsigned long mvpctl)
 	local_irq_restore(flags);
 }
 
+<<<<<<< HEAD
 static int mt_opt_norps;
+=======
+>>>>>>> upstream/android-13
 static int mt_opt_rpsctl = -1;
 static int mt_opt_nblsu = -1;
 static int mt_opt_forceconfig7;
 static int mt_opt_config7 = -1;
 
+<<<<<<< HEAD
 static int __init rps_disable(char *s)
 {
 	mt_opt_norps = 1;
@@ -132,6 +136,8 @@ static int __init rps_disable(char *s)
 }
 __setup("norps", rps_disable);
 
+=======
+>>>>>>> upstream/android-13
 static int __init rpsctl_set(char *str)
 {
 	get_option(&str, &mt_opt_rpsctl);
@@ -154,6 +160,7 @@ static int __init config7_set(char *str)
 }
 __setup("config7=", config7_set);
 
+<<<<<<< HEAD
 /* Experimental cache flush control parameters that should go away some day */
 int mt_protiflush;
 int mt_protdflush;
@@ -188,6 +195,8 @@ static int __init ndflush(char *s)
 }
 __setup("ndflush=", ndflush);
 
+=======
+>>>>>>> upstream/android-13
 static unsigned int itc_base;
 
 static int __init set_itc_base(char *str)
@@ -203,9 +212,12 @@ void mips_mt_set_cpuoptions(void)
 	unsigned int oconfig7 = read_c0_config7();
 	unsigned int nconfig7 = oconfig7;
 
+<<<<<<< HEAD
 	if (mt_opt_norps) {
 		printk("\"norps\" option deprecated: use \"rpsctl=\"\n");
 	}
+=======
+>>>>>>> upstream/android-13
 	if (mt_opt_rpsctl >= 0) {
 		printk("34K return prediction stack override set to %d.\n",
 			mt_opt_rpsctl);
@@ -232,6 +244,7 @@ void mips_mt_set_cpuoptions(void)
 		printk("Config7: 0x%08x\n", read_c0_config7());
 	}
 
+<<<<<<< HEAD
 	/* Report Cache management debug options */
 	if (mt_protiflush)
 		printk("I-cache flushes single-threaded\n");
@@ -242,6 +255,8 @@ void mips_mt_set_cpuoptions(void)
 	if (mt_n_dflushes != 1)
 		printk("D-Cache Flushes Repeated %d times\n", mt_n_dflushes);
 
+=======
+>>>>>>> upstream/android-13
 	if (itc_base != 0) {
 		/*
 		 * Configure ITC mapping.  This code is very
@@ -283,6 +298,7 @@ void mips_mt_set_cpuoptions(void)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * Function to protect cache flushes from concurrent execution
  * depends on MP software model chosen.
@@ -298,6 +314,8 @@ void mt_cflush_release(void)
 	/* FILL IN VSMP and AP/SP VERSIONS HERE */
 }
 
+=======
+>>>>>>> upstream/android-13
 struct class *mt_class;
 
 static int __init mt_init(void)

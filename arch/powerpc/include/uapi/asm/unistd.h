@@ -10,6 +10,7 @@
 #ifndef _UAPI_ASM_POWERPC_UNISTD_H_
 #define _UAPI_ASM_POWERPC_UNISTD_H_
 
+<<<<<<< HEAD
 
 #define __NR_restart_syscall	  0
 #define __NR_exit		  1
@@ -400,5 +401,12 @@
 #define __NR_pkey_mprotect	386
 #define __NR_rseq		387
 #define __NR_io_pgetevents	388
+=======
+#ifndef __powerpc64__
+#include <asm/unistd_32.h>
+#else
+#include <asm/unistd_64.h>
+#endif
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_ASM_POWERPC_UNISTD_H_ */

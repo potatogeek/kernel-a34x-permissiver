@@ -17,6 +17,11 @@
 #ifndef _XTENSA_MSGBUF_H
 #define _XTENSA_MSGBUF_H
 
+<<<<<<< HEAD
+=======
+#include <asm/ipcbuf.h>
+
+>>>>>>> upstream/android-13
 struct msqid64_ds {
 	struct ipc64_perm msg_perm;
 #ifdef __XTENSA_EB__

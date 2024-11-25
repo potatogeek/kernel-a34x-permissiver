@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <linux/export.h>
 #include <linux/errno.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/spi/spi.h>
 #include "fbtft.h"
 
@@ -14,7 +18,11 @@ int fbtft_write_spi(struct fbtft_par *par, void *buf, size_t len)
 	struct spi_message m;
 
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
+<<<<<<< HEAD
 			  "%s(len=%d): ", __func__, len);
+=======
+			  "%s(len=%zu): ", __func__, len);
+>>>>>>> upstream/android-13
 
 	if (!par->spi) {
 		dev_err(par->info->device,
@@ -47,7 +55,11 @@ int fbtft_write_spi_emulate_9(struct fbtft_par *par, void *buf, size_t len)
 	u64 val, dc, tmp;
 
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
+<<<<<<< HEAD
 			  "%s(len=%d): ", __func__, len);
+=======
+			  "%s(len=%zu): ", __func__, len);
+>>>>>>> upstream/android-13
 
 	if (!par->extra) {
 		dev_err(par->info->device, "%s: error: par->extra is NULL\n",
@@ -109,7 +121,11 @@ int fbtft_read_spi(struct fbtft_par *par, void *buf, size_t len)
 		txbuf[0] = par->startbyte | 0x3;
 		t.tx_buf = txbuf;
 		fbtft_par_dbg_hex(DEBUG_READ, par, par->info->device, u8,
+<<<<<<< HEAD
 				  txbuf, len, "%s(len=%d) txbuf => ",
+=======
+				  txbuf, len, "%s(len=%zu) txbuf => ",
+>>>>>>> upstream/android-13
 				  __func__, len);
 	}
 
@@ -117,7 +133,11 @@ int fbtft_read_spi(struct fbtft_par *par, void *buf, size_t len)
 	spi_message_add_tail(&t, &m);
 	ret = spi_sync(par->spi, &m);
 	fbtft_par_dbg_hex(DEBUG_READ, par, par->info->device, u8, buf, len,
+<<<<<<< HEAD
 			  "%s(len=%d) buf <= ", __func__, len);
+=======
+			  "%s(len=%zu) buf <= ", __func__, len);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -136,36 +156,61 @@ int fbtft_write_gpio8_wr(struct fbtft_par *par, void *buf, size_t len)
 #endif
 
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
+<<<<<<< HEAD
 			  "%s(len=%d): ", __func__, len);
+=======
+			  "%s(len=%zu): ", __func__, len);
+>>>>>>> upstream/android-13
 
 	while (len--) {
 		data = *(u8 *)buf;
 
 		/* Start writing by pulling down /WR */
+<<<<<<< HEAD
 		gpio_set_value(par->gpio.wr, 0);
+=======
+		gpiod_set_value(par->gpio.wr, 1);
+>>>>>>> upstream/android-13
 
 		/* Set data */
 #ifndef DO_NOT_OPTIMIZE_FBTFT_WRITE_GPIO
 		if (data == prev_data) {
+<<<<<<< HEAD
 			gpio_set_value(par->gpio.wr, 0); /* used as delay */
 		} else {
 			for (i = 0; i < 8; i++) {
 				if ((data & 1) != (prev_data & 1))
 					gpio_set_value(par->gpio.db[i],
 						       data & 1);
+=======
+			gpiod_set_value(par->gpio.wr, 1); /* used as delay */
+		} else {
+			for (i = 0; i < 8; i++) {
+				if ((data & 1) != (prev_data & 1))
+					gpiod_set_value(par->gpio.db[i],
+							data & 1);
+>>>>>>> upstream/android-13
 				data >>= 1;
 				prev_data >>= 1;
 			}
 		}
 #else
 		for (i = 0; i < 8; i++) {
+<<<<<<< HEAD
 			gpio_set_value(par->gpio.db[i], data & 1);
+=======
+			gpiod_set_value(par->gpio.db[i], data & 1);
+>>>>>>> upstream/android-13
 			data >>= 1;
 		}
 #endif
 
 		/* Pullup /WR */
+<<<<<<< HEAD
 		gpio_set_value(par->gpio.wr, 1);
+=======
+		gpiod_set_value(par->gpio.wr, 0);
+>>>>>>> upstream/android-13
 
 #ifndef DO_NOT_OPTIMIZE_FBTFT_WRITE_GPIO
 		prev_data = *(u8 *)buf;
@@ -186,36 +231,61 @@ int fbtft_write_gpio16_wr(struct fbtft_par *par, void *buf, size_t len)
 #endif
 
 	fbtft_par_dbg_hex(DEBUG_WRITE, par, par->info->device, u8, buf, len,
+<<<<<<< HEAD
 			  "%s(len=%d): ", __func__, len);
+=======
+			  "%s(len=%zu): ", __func__, len);
+>>>>>>> upstream/android-13
 
 	while (len) {
 		data = *(u16 *)buf;
 
 		/* Start writing by pulling down /WR */
+<<<<<<< HEAD
 		gpio_set_value(par->gpio.wr, 0);
+=======
+		gpiod_set_value(par->gpio.wr, 1);
+>>>>>>> upstream/android-13
 
 		/* Set data */
 #ifndef DO_NOT_OPTIMIZE_FBTFT_WRITE_GPIO
 		if (data == prev_data) {
+<<<<<<< HEAD
 			gpio_set_value(par->gpio.wr, 0); /* used as delay */
 		} else {
 			for (i = 0; i < 16; i++) {
 				if ((data & 1) != (prev_data & 1))
 					gpio_set_value(par->gpio.db[i],
 						       data & 1);
+=======
+			gpiod_set_value(par->gpio.wr, 1); /* used as delay */
+		} else {
+			for (i = 0; i < 16; i++) {
+				if ((data & 1) != (prev_data & 1))
+					gpiod_set_value(par->gpio.db[i],
+							data & 1);
+>>>>>>> upstream/android-13
 				data >>= 1;
 				prev_data >>= 1;
 			}
 		}
 #else
 		for (i = 0; i < 16; i++) {
+<<<<<<< HEAD
 			gpio_set_value(par->gpio.db[i], data & 1);
+=======
+			gpiod_set_value(par->gpio.db[i], data & 1);
+>>>>>>> upstream/android-13
 			data >>= 1;
 		}
 #endif
 
 		/* Pullup /WR */
+<<<<<<< HEAD
 		gpio_set_value(par->gpio.wr, 1);
+=======
+		gpiod_set_value(par->gpio.wr, 0);
+>>>>>>> upstream/android-13
 
 #ifndef DO_NOT_OPTIMIZE_FBTFT_WRITE_GPIO
 		prev_data = *(u16 *)buf;

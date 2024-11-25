@@ -80,7 +80,11 @@
 };
 
 &emac {
+<<<<<<< HEAD
 	phy = <&phy0>;
+=======
+	phy-handle = <&phy0>;
+>>>>>>> upstream/android-13
 	status = "okay";
 };
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic driver for NXP NCI NFC chips
  *
@@ -7,6 +11,7 @@
  *
  * Derived from PN544 device driver:
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -26,6 +31,13 @@
 #include <linux/module.h>
 #include <linux/nfc.h>
 #include <linux/platform_data/nxp-nci.h>
+=======
+ */
+
+#include <linux/delay.h>
+#include <linux/module.h>
+#include <linux/nfc.h>
+>>>>>>> upstream/android-13
 
 #include <net/nfc/nci_core.h>
 
@@ -83,6 +95,7 @@ static int nxp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
 	struct nxp_nci_info *info = nci_get_drvdata(ndev);
 	int r;
 
+<<<<<<< HEAD
 	if (!info->phy_ops->write) {
 		r = -ENOTSUPP;
 		goto send_exit;
@@ -92,16 +105,30 @@ static int nxp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
 		r = -EINVAL;
 		goto send_exit;
 	}
+=======
+	if (!info->phy_ops->write)
+		return -EOPNOTSUPP;
+
+	if (info->mode != NXP_NCI_MODE_NCI)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	r = info->phy_ops->write(info->phy_id, skb);
 	if (r < 0)
 		kfree_skb(skb);
 
+<<<<<<< HEAD
 send_exit:
 	return r;
 }
 
 static struct nci_ops nxp_nci_ops = {
+=======
+	return r;
+}
+
+static const struct nci_ops nxp_nci_ops = {
+>>>>>>> upstream/android-13
 	.open = nxp_nci_open,
 	.close = nxp_nci_close,
 	.send = nxp_nci_send,
@@ -117,10 +144,15 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
 	int r;
 
 	info = devm_kzalloc(pdev, sizeof(struct nxp_nci_info), GFP_KERNEL);
+<<<<<<< HEAD
 	if (!info) {
 		r = -ENOMEM;
 		goto probe_exit;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	info->phy_id = phy_id;
 	info->pdev = pdev;
@@ -133,21 +165,31 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
 	if (info->phy_ops->set_mode) {
 		r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_COLD);
 		if (r < 0)
+<<<<<<< HEAD
 			goto probe_exit;
+=======
+			return r;
+>>>>>>> upstream/android-13
 	}
 
 	info->mode = NXP_NCI_MODE_COLD;
 
 	info->ndev = nci_allocate_device(&nxp_nci_ops, NXP_NCI_NFC_PROTOCOLS,
 					 NXP_NCI_HDR_LEN, 0);
+<<<<<<< HEAD
 	if (!info->ndev) {
 		r = -ENOMEM;
 		goto probe_exit;
 	}
+=======
+	if (!info->ndev)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	nci_set_parent_dev(info->ndev, pdev);
 	nci_set_drvdata(info->ndev, info);
 	r = nci_register_device(info->ndev);
+<<<<<<< HEAD
 	if (r < 0)
 		goto probe_exit_free_nci;
 
@@ -158,6 +200,14 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
 probe_exit_free_nci:
 	nci_free_device(info->ndev);
 probe_exit:
+=======
+	if (r < 0) {
+		nci_free_device(info->ndev);
+		return r;
+	}
+
+	*ndev = info->ndev;
+>>>>>>> upstream/android-13
 	return r;
 }
 EXPORT_SYMBOL(nxp_nci_probe);

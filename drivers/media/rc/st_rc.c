@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 STMicroelectronics Limited
  * Author: Srinivas Kandagatla <srinivas.kandagatla@st.com>
@@ -6,6 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2013 STMicroelectronics Limited
+ * Author: Srinivas Kandagatla <srinivas.kandagatla@st.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/clk.h>
@@ -67,8 +74,12 @@ struct st_rc_device {
 
 static void st_rc_send_lirc_timeout(struct rc_dev *rdev)
 {
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(ev);
 	ev.timeout = true;
+=======
+	struct ir_raw_event ev = { .timeout = true, .duration = rdev->timeout };
+>>>>>>> upstream/android-13
 	ir_raw_event_store(rdev, &ev);
 }
 
@@ -101,7 +112,11 @@ static irqreturn_t st_rc_rx_interrupt(int irq, void *data)
 	struct st_rc_device *dev = data;
 	int last_symbol = 0;
 	u32 status, int_status;
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(ev);
+=======
+	struct ir_raw_event ev = {};
+>>>>>>> upstream/android-13
 
 	if (dev->irq_wake)
 		pm_wakeup_event(dev->dev, 0);
@@ -139,12 +154,20 @@ static irqreturn_t st_rc_rx_interrupt(int irq, void *data)
 				mark /= dev->sample_div;
 			}
 
+<<<<<<< HEAD
 			ev.duration = US_TO_NS(mark);
+=======
+			ev.duration = mark;
+>>>>>>> upstream/android-13
 			ev.pulse = true;
 			ir_raw_event_store(dev->rdev, &ev);
 
 			if (!last_symbol) {
+<<<<<<< HEAD
 				ev.duration = US_TO_NS(symbol);
+=======
+				ev.duration = symbol;
+>>>>>>> upstream/android-13
 				ev.pulse = false;
 				ir_raw_event_store(dev->rdev, &ev);
 			} else  {
@@ -162,8 +185,14 @@ static irqreturn_t st_rc_rx_interrupt(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static void st_rc_hardware_init(struct st_rc_device *dev)
 {
+=======
+static int st_rc_hardware_init(struct st_rc_device *dev)
+{
+	int ret;
+>>>>>>> upstream/android-13
 	int baseclock, freqdiff;
 	unsigned int rx_max_symbol_per = MAX_SYMB_TIME;
 	unsigned int rx_sampling_freq_div;
@@ -171,7 +200,16 @@ static void st_rc_hardware_init(struct st_rc_device *dev)
 	/* Enable the IP */
 	reset_control_deassert(dev->rstc);
 
+<<<<<<< HEAD
 	clk_prepare_enable(dev->sys_clock);
+=======
+	ret = clk_prepare_enable(dev->sys_clock);
+	if (ret) {
+		dev_err(dev->dev, "Failed to prepare/enable system clock\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	baseclock = clk_get_rate(dev->sys_clock);
 
 	/* IRB input pins are inverted internally from high to low. */
@@ -189,6 +227,11 @@ static void st_rc_hardware_init(struct st_rc_device *dev)
 	}
 
 	writel(rx_max_symbol_per, dev->rx_base + IRB_MAX_SYM_PERIOD);
+<<<<<<< HEAD
+=======
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int st_rc_remove(struct platform_device *pdev)
@@ -292,12 +335,22 @@ static int st_rc_probe(struct platform_device *pdev)
 
 	rc_dev->dev = dev;
 	platform_set_drvdata(pdev, rc_dev);
+<<<<<<< HEAD
 	st_rc_hardware_init(rc_dev);
+=======
+	ret = st_rc_hardware_init(rc_dev);
+	if (ret)
+		goto err;
+>>>>>>> upstream/android-13
 
 	rdev->allowed_protocols = RC_PROTO_BIT_ALL_IR_DECODER;
 	/* rx sampling rate is 10Mhz */
 	rdev->rx_resolution = 100;
+<<<<<<< HEAD
 	rdev->timeout = US_TO_NS(MAX_SYMB_TIME);
+=======
+	rdev->timeout = MAX_SYMB_TIME;
+>>>>>>> upstream/android-13
 	rdev->priv = rc_dev;
 	rdev->open = st_rc_open;
 	rdev->close = st_rc_close;
@@ -364,6 +417,10 @@ static int st_rc_suspend(struct device *dev)
 
 static int st_rc_resume(struct device *dev)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct st_rc_device *rc_dev = dev_get_drvdata(dev);
 	struct rc_dev	*rdev = rc_dev->rdev;
 
@@ -372,7 +429,14 @@ static int st_rc_resume(struct device *dev)
 		rc_dev->irq_wake = 0;
 	} else {
 		pinctrl_pm_select_default_state(dev);
+<<<<<<< HEAD
 		st_rc_hardware_init(rc_dev);
+=======
+		ret = st_rc_hardware_init(rc_dev);
+		if (ret)
+			return ret;
+
+>>>>>>> upstream/android-13
 		if (rdev->users) {
 			writel(IRB_RX_INTS, rc_dev->rx_base + IRB_RX_INT_EN);
 			writel(0x01, rc_dev->rx_base + IRB_RX_EN);

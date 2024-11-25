@@ -6,6 +6,10 @@
  */
 
 #include <linux/acpi.h>
+<<<<<<< HEAD
+=======
+#include <linux/devm-helpers.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -124,7 +128,11 @@ static void gpd_pocket_fan_force_update(struct gpd_pocket_fan_data *fan)
 static int gpd_pocket_fan_probe(struct platform_device *pdev)
 {
 	struct gpd_pocket_fan_data *fan;
+<<<<<<< HEAD
 	int i;
+=======
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(temp_limits); i++) {
 		if (temp_limits[i] < 20000 || temp_limits[i] > 90000) {
@@ -152,7 +160,14 @@ static int gpd_pocket_fan_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	fan->dev = &pdev->dev;
+<<<<<<< HEAD
 	INIT_DELAYED_WORK(&fan->work, gpd_pocket_fan_worker);
+=======
+	ret = devm_delayed_work_autocancel(&pdev->dev, &fan->work,
+					   gpd_pocket_fan_worker);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	/* Note this returns a "weak" reference which we don't need to free */
 	fan->dts0 = thermal_zone_get_zone_by_name("soc_dts0");
@@ -177,6 +192,7 @@ static int gpd_pocket_fan_probe(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int gpd_pocket_fan_remove(struct platform_device *pdev)
 {
 	struct gpd_pocket_fan_data *fan = platform_get_drvdata(pdev);
@@ -185,6 +201,8 @@ static int gpd_pocket_fan_remove(struct platform_device *pdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 static int gpd_pocket_fan_suspend(struct device *dev)
 {
@@ -215,7 +233,10 @@ MODULE_DEVICE_TABLE(acpi, gpd_pocket_fan_acpi_match);
 
 static struct platform_driver gpd_pocket_fan_driver = {
 	.probe	= gpd_pocket_fan_probe,
+<<<<<<< HEAD
 	.remove	= gpd_pocket_fan_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver	= {
 		.name			= "gpd_pocket_fan",
 		.acpi_match_table	= gpd_pocket_fan_acpi_match,

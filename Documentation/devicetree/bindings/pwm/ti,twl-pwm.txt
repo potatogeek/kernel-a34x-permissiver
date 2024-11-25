@@ -6,7 +6,11 @@ On TWL6030 series: PWM0 and PWM1
 
 Required properties:
 - compatible: "ti,twl4030-pwm" or "ti,twl6030-pwm"
+<<<<<<< HEAD
 - #pwm-cells: should be 2. See pwm.txt in this directory for a description of
+=======
+- #pwm-cells: should be 2. See pwm.yaml in this directory for a description of
+>>>>>>> upstream/android-13
   the cells format.
 
 Example:

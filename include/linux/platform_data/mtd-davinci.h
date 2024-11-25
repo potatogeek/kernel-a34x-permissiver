@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * mach-davinci/nand.h
  *
@@ -9,6 +13,7 @@
  *   Dirk Behme <Dirk.Behme@gmail.com>
  *
  * --------------------------------------------------------------------------
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ARCH_ARM_DAVINCI_NAND_H
@@ -73,15 +80,26 @@ struct davinci_nand_pdata {		/* platform_data */
 	struct mtd_partition	*parts;
 	unsigned		nr_parts;
 
+<<<<<<< HEAD
 	/* none  == NAND_ECC_NONE (strongly *not* advised!!)
 	 * soft  == NAND_ECC_SOFT
 	 * else  == NAND_ECC_HW, according to ecc_bits
+=======
+	/* none  == NAND_ECC_ENGINE_TYPE_NONE (strongly *not* advised!!)
+	 * soft  == NAND_ECC_ENGINE_TYPE_SOFT
+	 * else  == NAND_ECC_ENGINE_TYPE_ON_HOST, according to ecc_bits
+>>>>>>> upstream/android-13
 	 *
 	 * All DaVinci-family chips support 1-bit hardware ECC.
 	 * Newer ones also support 4-bit ECC, but are awkward
 	 * using it with large page chips.
 	 */
+<<<<<<< HEAD
 	nand_ecc_modes_t	ecc_mode;
+=======
+	enum nand_ecc_engine_type engine_type;
+	enum nand_ecc_placement ecc_placement;
+>>>>>>> upstream/android-13
 	u8			ecc_bits;
 
 	/* e.g. NAND_BUSWIDTH_16 */

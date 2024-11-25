@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Extended Error Log driver
  *
  * Copyright (C) 2013 Intel Corp.
  * Author: Chen, Gong <gong.chen@intel.com>
+<<<<<<< HEAD
  *
  * This file is licensed under GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -43,8 +50,11 @@ struct extlog_l1_head {
 	u8  rev1[12];
 };
 
+<<<<<<< HEAD
 static int old_edac_report_status;
 
+=======
+>>>>>>> upstream/android-13
 static u8 extlog_dsm_uuid[] __initdata = "663E35AF-CC10-41A4-88EA-5470AF055295";
 
 /* L1 table related physical address */
@@ -147,7 +157,11 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
 	static u32 err_seq;
 
 	estatus = extlog_elog_entry_check(cpu, bank);
+<<<<<<< HEAD
 	if (estatus == NULL)
+=======
+	if (estatus == NULL || (mce->kflags & MCE_HANDLED_CEC))
+>>>>>>> upstream/android-13
 		return NOTIFY_DONE;
 
 	memcpy(elog_buf, (void *)estatus, ELOG_ENTRY_LEN);
@@ -177,7 +191,12 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
 	}
 
 out:
+<<<<<<< HEAD
 	return NOTIFY_STOP;
+=======
+	mce->kflags |= MCE_HANDLED_EXTLOG;
+	return NOTIFY_OK;
+>>>>>>> upstream/android-13
 }
 
 static bool __init extlog_get_l1addr(void)
@@ -229,11 +248,14 @@ static int __init extlog_init(void)
 	    !extlog_get_l1addr())
 		return -ENODEV;
 
+<<<<<<< HEAD
 	if (edac_get_report_status() == EDAC_REPORTING_FORCE) {
 		pr_warn("Not loading eMCA, error reporting force-enabled through EDAC.\n");
 		return -EPERM;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	rc = -EINVAL;
 	/* get L1 header to fetch necessary information */
 	l1_hdr_size = sizeof(struct extlog_l1_head);
@@ -281,12 +303,15 @@ static int __init extlog_init(void)
 	if (elog_buf == NULL)
 		goto err_release_elog;
 
+<<<<<<< HEAD
 	/*
 	 * eMCA event report method has higher priority than EDAC method,
 	 * unless EDAC event report method is mandatory.
 	 */
 	old_edac_report_status = edac_get_report_status();
 	edac_set_report_status(EDAC_REPORTING_DISABLED);
+=======
+>>>>>>> upstream/android-13
 	mce_register_decode_chain(&extlog_mce_dec);
 	/* enable OS to be involved to take over management from BIOS */
 	((struct extlog_l1_head *)extlog_l1_addr)->flags |= FLAG_OS_OPTIN;
@@ -308,7 +333,10 @@ err:
 
 static void __exit extlog_exit(void)
 {
+<<<<<<< HEAD
 	edac_set_report_status(old_edac_report_status);
+=======
+>>>>>>> upstream/android-13
 	mce_unregister_decode_chain(&extlog_mce_dec);
 	((struct extlog_l1_head *)extlog_l1_addr)->flags &= ~FLAG_OS_OPTIN;
 	if (extlog_l1_addr)

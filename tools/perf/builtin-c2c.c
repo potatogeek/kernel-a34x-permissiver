@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/stringify.h>
 #include <asm/bug.h>
@@ -21,11 +22,29 @@
 #include "debug.h"
 #include "builtin.h"
 #include <subcmd/parse-options.h>
+=======
+#include <linux/err.h>
+#include <linux/kernel.h>
+#include <linux/stringify.h>
+#include <linux/zalloc.h>
+#include <asm/bug.h>
+#include <sys/param.h>
+#include "debug.h"
+#include "builtin.h"
+#include <perf/cpumap.h>
+#include <subcmd/pager.h>
+#include <subcmd/parse-options.h>
+#include "map_symbol.h"
+>>>>>>> upstream/android-13
 #include "mem-events.h"
 #include "session.h"
 #include "hist.h"
 #include "sort.h"
 #include "tool.h"
+<<<<<<< HEAD
+=======
+#include "cacheline.h"
+>>>>>>> upstream/android-13
 #include "data.h"
 #include "event.h"
 #include "evlist.h"
@@ -33,6 +52,15 @@
 #include "ui/browsers/hists.h"
 #include "thread.h"
 #include "mem2node.h"
+<<<<<<< HEAD
+=======
+#include "symbol.h"
+#include "ui/ui.h"
+#include "ui/progress.h"
+#include "../perf.h"
+#include "pmu.h"
+#include "pmu-hybrid.h"
+>>>>>>> upstream/android-13
 
 struct c2c_hists {
 	struct hists		hists;
@@ -68,7 +96,11 @@ struct c2c_hist_entry {
 	struct hist_entry	he;
 };
 
+<<<<<<< HEAD
 static char const *coalesce_default = "pid,iaddr";
+=======
+static char const *coalesce_default = "iaddr";
+>>>>>>> upstream/android-13
 
 struct perf_c2c {
 	struct perf_tool	tool;
@@ -86,9 +118,16 @@ struct perf_c2c {
 	bool			 use_stdio;
 	bool			 stats_only;
 	bool			 symbol_full;
+<<<<<<< HEAD
 
 	/* HITM shared clines stats */
 	struct c2c_stats	hitm_stats;
+=======
+	bool			 stitch_lbr;
+
+	/* Shared cache line stats */
+	struct c2c_stats	shared_clines_stats;
+>>>>>>> upstream/android-13
 	int			shared_clines;
 
 	int			 display;
@@ -127,11 +166,19 @@ static void *c2c_he_zalloc(size_t size)
 	if (!c2c_he)
 		return NULL;
 
+<<<<<<< HEAD
 	c2c_he->cpuset = bitmap_alloc(c2c.cpus_cnt);
 	if (!c2c_he->cpuset)
 		return NULL;
 
 	c2c_he->nodeset = bitmap_alloc(c2c.nodes_cnt);
+=======
+	c2c_he->cpuset = bitmap_zalloc(c2c.cpus_cnt);
+	if (!c2c_he->cpuset)
+		return NULL;
+
+	c2c_he->nodeset = bitmap_zalloc(c2c.nodes_cnt);
+>>>>>>> upstream/android-13
 	if (!c2c_he->nodeset)
 		return NULL;
 
@@ -247,7 +294,11 @@ static void compute_stats(struct c2c_hist_entry *c2c_he,
 static int process_sample_event(struct perf_tool *tool __maybe_unused,
 				union perf_event *event,
 				struct perf_sample *sample,
+<<<<<<< HEAD
 				struct perf_evsel *evsel,
+=======
+				struct evsel *evsel,
+>>>>>>> upstream/android-13
 				struct machine *machine)
 {
 	struct c2c_hists *c2c_hists = &c2c.hists;
@@ -264,6 +315,12 @@ static int process_sample_event(struct perf_tool *tool __maybe_unused,
 		return -1;
 	}
 
+<<<<<<< HEAD
+=======
+	if (c2c.stitch_lbr)
+		al.thread->lbr_stitch_enable = true;
+
+>>>>>>> upstream/android-13
 	ret = sample__resolve_callchain(sample, &callchain_cursor, NULL,
 					evsel, &al, sysctl_perf_event_max_stack);
 	if (ret)
@@ -356,6 +413,13 @@ static struct perf_c2c c2c = {
 		.exit		= perf_event__process_exit,
 		.fork		= perf_event__process_fork,
 		.lost		= perf_event__process_lost,
+<<<<<<< HEAD
+=======
+		.attr		= perf_event__process_attr,
+		.auxtrace_info  = perf_event__process_auxtrace_info,
+		.auxtrace       = perf_event__process_auxtrace,
+		.auxtrace_error = perf_event__process_auxtrace_error,
+>>>>>>> upstream/android-13
 		.ordered_events	= true,
 		.ordering_requires_timestamps = true,
 	},
@@ -639,6 +703,7 @@ STAT_FN(ld_l2hit)
 STAT_FN(ld_llchit)
 STAT_FN(rmt_hit)
 
+<<<<<<< HEAD
 static uint64_t llc_miss(struct c2c_stats *stats)
 {
 	uint64_t llcmiss;
@@ -678,6 +743,8 @@ ld_llcmiss_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
 	       (uint64_t) llc_miss(&c2c_right->stats);
 }
 
+=======
+>>>>>>> upstream/android-13
 static uint64_t total_records(struct c2c_stats *stats)
 {
 	uint64_t lclmiss, ldcnt, total;
@@ -898,7 +965,11 @@ static struct c2c_stats *total_stats(struct hist_entry *he)
 	return &hists->stats;
 }
 
+<<<<<<< HEAD
 static double percent(int st, int tot)
+=======
+static double percent(u32 st, u32 tot)
+>>>>>>> upstream/android-13
 {
 	return tot ? 100. * (double) st / (double) tot : 0;
 }
@@ -1070,6 +1141,22 @@ empty_cmp(struct perf_hpp_fmt *fmt __maybe_unused,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int display_metrics(struct perf_hpp *hpp, u32 val, u32 sum)
+{
+	int ret;
+
+	if (sum != 0)
+		ret = scnprintf(hpp->buf, hpp->size, "%5.1f%% ",
+				percent(val, sum));
+	else
+		ret = scnprintf(hpp->buf, hpp->size, "%6s ", "n/a");
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int
 node_entry(struct perf_hpp_fmt *fmt __maybe_unused, struct perf_hpp *hpp,
 	   struct hist_entry *he)
@@ -1107,12 +1194,17 @@ node_entry(struct perf_hpp_fmt *fmt __maybe_unused, struct perf_hpp *hpp,
 			break;
 		case 1:
 		{
+<<<<<<< HEAD
 			int num = bitmap_weight(c2c_he->cpuset, c2c.cpus_cnt);
+=======
+			int num = bitmap_weight(set, c2c.cpus_cnt);
+>>>>>>> upstream/android-13
 			struct c2c_stats *stats = &c2c_he->node_stats[node];
 
 			ret = scnprintf(hpp->buf, hpp->size, "%2d{%2d ", node, num);
 			advance_hpp(hpp, ret);
 
+<<<<<<< HEAD
 		#define DISPLAY_HITM(__h)						\
 			if (c2c_he->stats.__h> 0) {					\
 				ret = scnprintf(hpp->buf, hpp->size, "%5.1f%% ",	\
@@ -1130,12 +1222,30 @@ node_entry(struct perf_hpp_fmt *fmt __maybe_unused, struct perf_hpp *hpp,
 				break;
 			case DISPLAY_TOT:
 				DISPLAY_HITM(tot_hitm);
+=======
+			switch (c2c.display) {
+			case DISPLAY_RMT:
+				ret = display_metrics(hpp, stats->rmt_hitm,
+						      c2c_he->stats.rmt_hitm);
+				break;
+			case DISPLAY_LCL:
+				ret = display_metrics(hpp, stats->lcl_hitm,
+						      c2c_he->stats.lcl_hitm);
+				break;
+			case DISPLAY_TOT:
+				ret = display_metrics(hpp, stats->tot_hitm,
+						      c2c_he->stats.tot_hitm);
+				break;
+>>>>>>> upstream/android-13
 			default:
 				break;
 			}
 
+<<<<<<< HEAD
 		#undef DISPLAY_HITM
 
+=======
+>>>>>>> upstream/android-13
 			advance_hpp(hpp, ret);
 
 			if (c2c_he->stats.store > 0) {
@@ -1315,7 +1425,11 @@ static struct c2c_dimension dim_iaddr = {
 };
 
 static struct c2c_dimension dim_tot_hitm = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN("----- LLC Load Hitm -----", "Total", 2),
+=======
+	.header		= HEADER_SPAN("------- Load Hitm -------", "Total", 2),
+>>>>>>> upstream/android-13
 	.name		= "tot_hitm",
 	.cmp		= tot_hitm_cmp,
 	.entry		= tot_hitm_entry,
@@ -1323,7 +1437,11 @@ static struct c2c_dimension dim_tot_hitm = {
 };
 
 static struct c2c_dimension dim_lcl_hitm = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN_LOW("Lcl"),
+=======
+	.header		= HEADER_SPAN_LOW("LclHitm"),
+>>>>>>> upstream/android-13
 	.name		= "lcl_hitm",
 	.cmp		= lcl_hitm_cmp,
 	.entry		= lcl_hitm_entry,
@@ -1331,7 +1449,11 @@ static struct c2c_dimension dim_lcl_hitm = {
 };
 
 static struct c2c_dimension dim_rmt_hitm = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN_LOW("Rmt"),
+=======
+	.header		= HEADER_SPAN_LOW("RmtHitm"),
+>>>>>>> upstream/android-13
 	.name		= "rmt_hitm",
 	.cmp		= rmt_hitm_cmp,
 	.entry		= rmt_hitm_entry,
@@ -1354,16 +1476,26 @@ static struct c2c_dimension dim_cl_lcl_hitm = {
 	.width		= 7,
 };
 
+<<<<<<< HEAD
 static struct c2c_dimension dim_stores = {
 	.header		= HEADER_SPAN("---- Store Reference ----", "Total", 2),
 	.name		= "stores",
+=======
+static struct c2c_dimension dim_tot_stores = {
+	.header		= HEADER_BOTH("Total", "Stores"),
+	.name		= "tot_stores",
+>>>>>>> upstream/android-13
 	.cmp		= store_cmp,
 	.entry		= store_entry,
 	.width		= 7,
 };
 
 static struct c2c_dimension dim_stores_l1hit = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN_LOW("L1Hit"),
+=======
+	.header		= HEADER_SPAN("---- Stores ----", "L1Hit", 1),
+>>>>>>> upstream/android-13
 	.name		= "stores_l1hit",
 	.cmp		= st_l1hit_cmp,
 	.entry		= st_l1hit_entry,
@@ -1419,7 +1551,11 @@ static struct c2c_dimension dim_ld_l2hit = {
 };
 
 static struct c2c_dimension dim_ld_llchit = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN("-- LLC Load Hit --", "Llc", 1),
+=======
+	.header		= HEADER_SPAN("- LLC Load Hit --", "LclHit", 1),
+>>>>>>> upstream/android-13
 	.name		= "ld_lclhit",
 	.cmp		= ld_llchit_cmp,
 	.entry		= ld_llchit_entry,
@@ -1427,13 +1563,18 @@ static struct c2c_dimension dim_ld_llchit = {
 };
 
 static struct c2c_dimension dim_ld_rmthit = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN_LOW("Rmt"),
+=======
+	.header		= HEADER_SPAN("- RMT Load Hit --", "RmtHit", 1),
+>>>>>>> upstream/android-13
 	.name		= "ld_rmthit",
 	.cmp		= rmt_hit_cmp,
 	.entry		= rmt_hit_entry,
 	.width		= 8,
 };
 
+<<<<<<< HEAD
 static struct c2c_dimension dim_ld_llcmiss = {
 	.header		= HEADER_BOTH("LLC", "Ld Miss"),
 	.name		= "ld_llcmiss",
@@ -1442,6 +1583,8 @@ static struct c2c_dimension dim_ld_llcmiss = {
 	.width		= 7,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct c2c_dimension dim_tot_recs = {
 	.header		= HEADER_BOTH("Total", "records"),
 	.name		= "tot_recs",
@@ -1473,7 +1616,11 @@ static struct c2c_dimension dim_percent_hitm = {
 };
 
 static struct c2c_dimension dim_percent_rmt_hitm = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN("----- HITM -----", "Rmt", 1),
+=======
+	.header		= HEADER_SPAN("----- HITM -----", "RmtHitm", 1),
+>>>>>>> upstream/android-13
 	.name		= "percent_rmt_hitm",
 	.cmp		= percent_rmt_hitm_cmp,
 	.entry		= percent_rmt_hitm_entry,
@@ -1482,7 +1629,11 @@ static struct c2c_dimension dim_percent_rmt_hitm = {
 };
 
 static struct c2c_dimension dim_percent_lcl_hitm = {
+<<<<<<< HEAD
 	.header		= HEADER_SPAN_LOW("Lcl"),
+=======
+	.header		= HEADER_SPAN_LOW("LclHitm"),
+>>>>>>> upstream/android-13
 	.name		= "percent_lcl_hitm",
 	.cmp		= percent_lcl_hitm_cmp,
 	.entry		= percent_lcl_hitm_entry,
@@ -1635,7 +1786,11 @@ static struct c2c_dimension *dimensions[] = {
 	&dim_rmt_hitm,
 	&dim_cl_lcl_hitm,
 	&dim_cl_rmt_hitm,
+<<<<<<< HEAD
 	&dim_stores,
+=======
+	&dim_tot_stores,
+>>>>>>> upstream/android-13
 	&dim_stores_l1hit,
 	&dim_stores_l1miss,
 	&dim_cl_stores_l1hit,
@@ -1645,7 +1800,10 @@ static struct c2c_dimension *dimensions[] = {
 	&dim_ld_l2hit,
 	&dim_ld_llchit,
 	&dim_ld_rmthit,
+<<<<<<< HEAD
 	&dim_ld_llcmiss,
+=======
+>>>>>>> upstream/android-13
 	&dim_tot_recs,
 	&dim_tot_loads,
 	&dim_percent_hitm,
@@ -1696,7 +1854,11 @@ static struct c2c_dimension *get_dimension(const char *name)
 
 		if (!strcmp(dim->name, name))
 			return dim;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return NULL;
 }
@@ -1880,18 +2042,34 @@ static int c2c_hists__reinit(struct c2c_hists *c2c_hists,
 	return hpp_list__parse(&c2c_hists->list, output, sort);
 }
 
+<<<<<<< HEAD
 #define DISPLAY_LINE_LIMIT  0.0005
+=======
+#define DISPLAY_LINE_LIMIT  0.001
+
+static u8 filter_display(u32 val, u32 sum)
+{
+	if (sum == 0 || ((double)val / sum) < DISPLAY_LINE_LIMIT)
+		return HIST_FILTER__C2C;
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 static bool he__display(struct hist_entry *he, struct c2c_stats *stats)
 {
 	struct c2c_hist_entry *c2c_he;
+<<<<<<< HEAD
 	double ld_dist;
+=======
+>>>>>>> upstream/android-13
 
 	if (c2c.show_all)
 		return true;
 
 	c2c_he = container_of(he, struct c2c_hist_entry, he);
 
+<<<<<<< HEAD
 #define FILTER_HITM(__h)						\
 	if (stats->__h) {						\
 		ld_dist = ((double)c2c_he->stats.__h / stats->__h);	\
@@ -1915,10 +2093,29 @@ static bool he__display(struct hist_entry *he, struct c2c_stats *stats)
 	};
 
 #undef FILTER_HITM
+=======
+	switch (c2c.display) {
+	case DISPLAY_LCL:
+		he->filtered = filter_display(c2c_he->stats.lcl_hitm,
+					      stats->lcl_hitm);
+		break;
+	case DISPLAY_RMT:
+		he->filtered = filter_display(c2c_he->stats.rmt_hitm,
+					      stats->rmt_hitm);
+		break;
+	case DISPLAY_TOT:
+		he->filtered = filter_display(c2c_he->stats.tot_hitm,
+					      stats->tot_hitm);
+		break;
+	default:
+		break;
+	}
+>>>>>>> upstream/android-13
 
 	return he->filtered == 0;
 }
 
+<<<<<<< HEAD
 static inline int valid_hitm_or_store(struct hist_entry *he)
 {
 	struct c2c_hist_entry *c2c_he;
@@ -1929,6 +2126,34 @@ static inline int valid_hitm_or_store(struct hist_entry *he)
 		   c2c.display == DISPLAY_LCL ? c2c_he->stats.lcl_hitm :
 						c2c_he->stats.rmt_hitm;
 	return has_hitm || c2c_he->stats.store;
+=======
+static inline bool is_valid_hist_entry(struct hist_entry *he)
+{
+	struct c2c_hist_entry *c2c_he;
+	bool has_record = false;
+
+	c2c_he = container_of(he, struct c2c_hist_entry, he);
+
+	/* It's a valid entry if contains stores */
+	if (c2c_he->stats.store)
+		return true;
+
+	switch (c2c.display) {
+	case DISPLAY_LCL:
+		has_record = !!c2c_he->stats.lcl_hitm;
+		break;
+	case DISPLAY_RMT:
+		has_record = !!c2c_he->stats.rmt_hitm;
+		break;
+	case DISPLAY_TOT:
+		has_record = !!c2c_he->stats.tot_hitm;
+		break;
+	default:
+		break;
+	}
+
+	return has_record;
+>>>>>>> upstream/android-13
 }
 
 static void set_node_width(struct c2c_hist_entry *c2c_he, int len)
@@ -1971,7 +2196,11 @@ static void calc_width(struct c2c_hist_entry *c2c_he)
 	set_nodestr(c2c_he);
 }
 
+<<<<<<< HEAD
 static int filter_cb(struct hist_entry *he)
+=======
+static int filter_cb(struct hist_entry *he, void *arg __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	struct c2c_hist_entry *c2c_he;
 
@@ -1982,17 +2211,29 @@ static int filter_cb(struct hist_entry *he)
 
 	calc_width(c2c_he);
 
+<<<<<<< HEAD
 	if (!valid_hitm_or_store(he))
+=======
+	if (!is_valid_hist_entry(he))
+>>>>>>> upstream/android-13
 		he->filtered = HIST_FILTER__C2C;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int resort_cl_cb(struct hist_entry *he)
 {
 	struct c2c_hist_entry *c2c_he;
 	struct c2c_hists *c2c_hists;
 	bool display = he__display(he, &c2c.hitm_stats);
+=======
+static int resort_cl_cb(struct hist_entry *he, void *arg __maybe_unused)
+{
+	struct c2c_hist_entry *c2c_he;
+	struct c2c_hists *c2c_hists;
+	bool display = he__display(he, &c2c.shared_clines_stats);
+>>>>>>> upstream/android-13
 
 	c2c_he = container_of(he, struct c2c_hist_entry, he);
 	c2c_hists = c2c_he->hists;
@@ -2028,7 +2269,11 @@ static int setup_nodes(struct perf_session *session)
 		c2c.node_info = 2;
 
 	c2c.nodes_cnt = session->header.env.nr_numa_nodes;
+<<<<<<< HEAD
 	c2c.cpus_cnt  = session->header.env.nr_cpus_online;
+=======
+	c2c.cpus_cnt  = session->header.env.nr_cpus_avail;
+>>>>>>> upstream/android-13
 
 	n = session->header.env.numa_nodes;
 	if (!n)
@@ -2050,17 +2295,28 @@ static int setup_nodes(struct perf_session *session)
 	c2c.cpu2node = cpu2node;
 
 	for (node = 0; node < c2c.nodes_cnt; node++) {
+<<<<<<< HEAD
 		struct cpu_map *map = n[node].map;
 		unsigned long *set;
 
 		set = bitmap_alloc(c2c.cpus_cnt);
+=======
+		struct perf_cpu_map *map = n[node].map;
+		unsigned long *set;
+
+		set = bitmap_zalloc(c2c.cpus_cnt);
+>>>>>>> upstream/android-13
 		if (!set)
 			return -ENOMEM;
 
 		nodes[node] = set;
 
 		/* empty node, skip */
+<<<<<<< HEAD
 		if (cpu_map__empty(map))
+=======
+		if (perf_cpu_map__empty(map))
+>>>>>>> upstream/android-13
 			continue;
 
 		for (cpu = 0; cpu < map->nr; cpu++) {
@@ -2079,14 +2335,22 @@ static int setup_nodes(struct perf_session *session)
 
 #define HAS_HITMS(__h) ((__h)->stats.lcl_hitm || (__h)->stats.rmt_hitm)
 
+<<<<<<< HEAD
 static int resort_hitm_cb(struct hist_entry *he)
+=======
+static int resort_shared_cl_cb(struct hist_entry *he, void *arg __maybe_unused)
+>>>>>>> upstream/android-13
 {
 	struct c2c_hist_entry *c2c_he;
 	c2c_he = container_of(he, struct c2c_hist_entry, he);
 
 	if (HAS_HITMS(c2c_he)) {
 		c2c.shared_clines++;
+<<<<<<< HEAD
 		c2c_add_stats(&c2c.hitm_stats, &c2c_he->stats);
+=======
+		c2c_add_stats(&c2c.shared_clines_stats, &c2c_he->stats);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -2094,14 +2358,22 @@ static int resort_hitm_cb(struct hist_entry *he)
 
 static int hists__iterate_cb(struct hists *hists, hists__resort_cb_t cb)
 {
+<<<<<<< HEAD
 	struct rb_node *next = rb_first(&hists->entries);
+=======
+	struct rb_node *next = rb_first_cached(&hists->entries);
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	while (next) {
 		struct hist_entry *he;
 
 		he = rb_entry(next, struct hist_entry, rb_node);
+<<<<<<< HEAD
 		ret = cb(he);
+=======
+		ret = cb(he, NULL);
+>>>>>>> upstream/android-13
 		if (ret)
 			break;
 		next = rb_next(&he->rb_node);
@@ -2142,6 +2414,11 @@ static void print_c2c__display_stats(FILE *out)
 	fprintf(out, "  Load MESI State Exclusive         : %10d\n", stats->ld_excl);
 	fprintf(out, "  Load MESI State Shared            : %10d\n", stats->ld_shared);
 	fprintf(out, "  Load LLC Misses                   : %10d\n", llc_misses);
+<<<<<<< HEAD
+=======
+	fprintf(out, "  Load access blocked by data       : %10d\n", stats->blk_data);
+	fprintf(out, "  Load access blocked by address    : %10d\n", stats->blk_addr);
+>>>>>>> upstream/android-13
 	fprintf(out, "  LLC Misses to Local DRAM          : %10.1f%%\n", ((double)stats->lcl_dram/(double)llc_misses) * 100.);
 	fprintf(out, "  LLC Misses to Remote DRAM         : %10.1f%%\n", ((double)stats->rmt_dram/(double)llc_misses) * 100.);
 	fprintf(out, "  LLC Misses to Remote cache (HIT)  : %10.1f%%\n", ((double)stats->rmt_hit /(double)llc_misses) * 100.);
@@ -2157,7 +2434,11 @@ static void print_c2c__display_stats(FILE *out)
 
 static void print_shared_cacheline_info(FILE *out)
 {
+<<<<<<< HEAD
 	struct c2c_stats *stats = &c2c.hitm_stats;
+=======
+	struct c2c_stats *stats = &c2c.shared_clines_stats;
+>>>>>>> upstream/android-13
 	int hitm_cnt = stats->lcl_hitm + stats->rmt_hitm;
 
 	fprintf(out, "=================================================\n");
@@ -2170,6 +2451,10 @@ static void print_shared_cacheline_info(FILE *out)
 	fprintf(out, "  L2D hits on shared lines          : %10d\n", stats->ld_l2hit);
 	fprintf(out, "  LLC hits on shared lines          : %10d\n", stats->ld_llchit + stats->lcl_hitm);
 	fprintf(out, "  Locked Access on shared lines     : %10d\n", stats->locks);
+<<<<<<< HEAD
+=======
+	fprintf(out, "  Blocked Access on shared lines    : %10d\n", stats->blk_data + stats->blk_addr);
+>>>>>>> upstream/android-13
 	fprintf(out, "  Store HITs on shared lines        : %10d\n", stats->store);
 	fprintf(out, "  Store L1D hits on shared lines    : %10d\n", stats->st_l1hit);
 	fprintf(out, "  Total Merged records              : %10d\n", hitm_cnt + stats->store);
@@ -2207,6 +2492,7 @@ static void print_pareto(FILE *out)
 	struct perf_hpp_list hpp_list;
 	struct rb_node *nd;
 	int ret;
+<<<<<<< HEAD
 
 	perf_hpp_list__init(&hpp_list);
 	ret = hpp_list__parse(&hpp_list,
@@ -2217,11 +2503,28 @@ static void print_pareto(FILE *out)
 				"cl_stores_l1miss,"
 				"dcacheline",
 				NULL);
+=======
+	const char *cl_output;
+
+	cl_output = "cl_num,"
+		    "cl_rmt_hitm,"
+		    "cl_lcl_hitm,"
+		    "cl_stores_l1hit,"
+		    "cl_stores_l1miss,"
+		    "dcacheline";
+
+	perf_hpp_list__init(&hpp_list);
+	ret = hpp_list__parse(&hpp_list, cl_output, NULL);
+>>>>>>> upstream/android-13
 
 	if (WARN_ONCE(ret, "failed to setup sort entries\n"))
 		return;
 
+<<<<<<< HEAD
 	nd = rb_first(&c2c.hists.hists.entries);
+=======
+	nd = rb_first_cached(&c2c.hists.hists.entries);
+>>>>>>> upstream/android-13
 
 	for (; nd; nd = rb_next(nd)) {
 		struct hist_entry *he = rb_entry(nd, struct hist_entry, rb_node);
@@ -2237,8 +2540,13 @@ static void print_pareto(FILE *out)
 
 static void print_c2c_info(FILE *out, struct perf_session *session)
 {
+<<<<<<< HEAD
 	struct perf_evlist *evlist = session->evlist;
 	struct perf_evsel *evsel;
+=======
+	struct evlist *evlist = session->evlist;
+	struct evsel *evsel;
+>>>>>>> upstream/android-13
 	bool first = true;
 
 	fprintf(out, "=================================================\n");
@@ -2246,8 +2554,12 @@ static void print_c2c_info(FILE *out, struct perf_session *session)
 	fprintf(out, "=================================================\n");
 
 	evlist__for_each_entry(evlist, evsel) {
+<<<<<<< HEAD
 		fprintf(out, "%-36s: %s\n", first ? "  Events" : "",
 			perf_evsel__name(evsel));
+=======
+		fprintf(out, "%-36s: %s\n", first ? "  Events" : "", evsel__name(evsel));
+>>>>>>> upstream/android-13
 		first = false;
 	}
 	fprintf(out, "  Cachelines sort on                : %s HITMs\n",
@@ -2289,7 +2601,11 @@ static void perf_c2c__hists_fprintf(FILE *out, struct perf_session *session)
 static void c2c_browser__update_nr_entries(struct hist_browser *hb)
 {
 	u64 nr_entries = 0;
+<<<<<<< HEAD
 	struct rb_node *nd = rb_first(&hb->hists->entries);
+=======
+	struct rb_node *nd = rb_first_cached(&hb->hists->entries);
+>>>>>>> upstream/android-13
 
 	while (nd) {
 		struct hist_entry *he = rb_entry(nd, struct hist_entry, rb_node);
@@ -2349,7 +2665,11 @@ static int perf_c2c__browse_cacheline(struct hist_entry *he)
 	struct c2c_cacheline_browser *cl_browser;
 	struct hist_browser *browser;
 	int key = -1;
+<<<<<<< HEAD
 	const char help[] =
+=======
+	static const char help[] =
+>>>>>>> upstream/android-13
 	" ENTER         Toggle callchains (if present) \n"
 	" n             Toggle Node details info \n"
 	" s             Toggle full length of symbol and source line columns \n"
@@ -2377,7 +2697,11 @@ static int perf_c2c__browse_cacheline(struct hist_entry *he)
 	c2c_browser__update_nr_entries(browser);
 
 	while (1) {
+<<<<<<< HEAD
 		key = hist_browser__run(browser, "? - help", true);
+=======
+		key = hist_browser__run(browser, "? - help", true, 0);
+>>>>>>> upstream/android-13
 
 		switch (key) {
 		case 's':
@@ -2430,7 +2754,11 @@ static int perf_c2c__hists_browse(struct hists *hists)
 {
 	struct hist_browser *browser;
 	int key = -1;
+<<<<<<< HEAD
 	const char help[] =
+=======
+	static const char help[] =
+>>>>>>> upstream/android-13
 	" d             Display cacheline details \n"
 	" ENTER         Toggle callchains (if present) \n"
 	" q             Quit \n";
@@ -2446,7 +2774,11 @@ static int perf_c2c__hists_browse(struct hists *hists)
 	c2c_browser__update_nr_entries(browser);
 
 	while (1) {
+<<<<<<< HEAD
 		key = hist_browser__run(browser, "? - help", true);
+=======
+		key = hist_browser__run(browser, "? - help", true, 0);
+>>>>>>> upstream/android-13
 
 		switch (key) {
 		case 'q':
@@ -2568,9 +2900,15 @@ parse_callchain_opt(const struct option *opt, const char *arg, int unset)
 	return parse_callchain_report_opt(arg);
 }
 
+<<<<<<< HEAD
 static int setup_callchain(struct perf_evlist *evlist)
 {
 	u64 sample_type = perf_evlist__combined_sample_type(evlist);
+=======
+static int setup_callchain(struct evlist *evlist)
+{
+	u64 sample_type = evlist__combined_sample_type(evlist);
+>>>>>>> upstream/android-13
 	enum perf_call_graph_mode mode = CALLCHAIN_NONE;
 
 	if ((sample_type & PERF_SAMPLE_REGS_USER) &&
@@ -2592,6 +2930,15 @@ static int setup_callchain(struct perf_evlist *evlist)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	if (c2c.stitch_lbr && (mode != CALLCHAIN_LBR)) {
+		ui__warning("Can't find LBR callchain. Switch off --stitch-lbr.\n"
+			    "Please apply --call-graph lbr when recording.\n");
+		c2c.stitch_lbr = false;
+	}
+
+>>>>>>> upstream/android-13
 	callchain_param.record_mode = mode;
 	callchain_param.min_percent = 0;
 	return 0;
@@ -2708,6 +3055,15 @@ static int setup_coalesce(const char *coalesce, bool no_source)
 
 static int perf_c2c__report(int argc, const char **argv)
 {
+<<<<<<< HEAD
+=======
+	struct itrace_synth_opts itrace_synth_opts = {
+		.set = true,
+		.mem = true,	/* Only enable memory event */
+		.default_no_sample = true,
+	};
+
+>>>>>>> upstream/android-13
 	struct perf_session *session;
 	struct ui_progress prog;
 	struct perf_data data = {
@@ -2743,10 +3099,19 @@ static int perf_c2c__report(int argc, const char **argv)
 	OPT_STRING('c', "coalesce", &coalesce, "coalesce fields",
 		   "coalesce fields: pid,tid,iaddr,dso"),
 	OPT_BOOLEAN('f', "force", &symbol_conf.force, "don't complain, do it"),
+<<<<<<< HEAD
+=======
+	OPT_BOOLEAN(0, "stitch-lbr", &c2c.stitch_lbr,
+		    "Enable LBR callgraph stitching approach"),
+>>>>>>> upstream/android-13
 	OPT_PARENT(c2c_options),
 	OPT_END()
 	};
 	int err = 0;
+<<<<<<< HEAD
+=======
+	const char *output_str, *sort_str = NULL;
+>>>>>>> upstream/android-13
 
 	argc = parse_options(argc, argv, options, report_c2c_usage,
 			     PARSE_OPT_STOP_AT_NON_OPTION);
@@ -2759,8 +3124,13 @@ static int perf_c2c__report(int argc, const char **argv)
 	if (!input_name || !strlen(input_name))
 		input_name = "perf.data";
 
+<<<<<<< HEAD
 	data.file.path = input_name;
 	data.force     = symbol_conf.force;
+=======
+	data.path  = input_name;
+	data.force = symbol_conf.force;
+>>>>>>> upstream/android-13
 
 	err = setup_display(display);
 	if (err)
@@ -2778,12 +3148,24 @@ static int perf_c2c__report(int argc, const char **argv)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	session = perf_session__new(&data, 0, &c2c.tool);
 	if (session == NULL) {
 		pr_debug("No memory for session\n");
 		goto out;
 	}
 
+=======
+	session = perf_session__new(&data, &c2c.tool);
+	if (IS_ERR(session)) {
+		err = PTR_ERR(session);
+		pr_debug("Error creating perf session\n");
+		goto out;
+	}
+
+	session->itrace_synth_opts = &itrace_synth_opts;
+
+>>>>>>> upstream/android-13
 	err = setup_nodes(session);
 	if (err) {
 		pr_err("Failed setup nodes\n");
@@ -2820,6 +3202,7 @@ static int perf_c2c__report(int argc, const char **argv)
 		goto out_mem2node;
 	}
 
+<<<<<<< HEAD
 	c2c_hists__reinit(&c2c.hists,
 			"cl_idx,"
 			"dcacheline,"
@@ -2837,11 +3220,40 @@ static int perf_c2c__report(int argc, const char **argv)
 			c2c.display == DISPLAY_TOT ? "tot_hitm" :
 			c2c.display == DISPLAY_LCL ? "lcl_hitm" : "rmt_hitm"
 			);
+=======
+	output_str = "cl_idx,"
+		     "dcacheline,"
+		     "dcacheline_node,"
+		     "dcacheline_count,"
+		     "percent_hitm,"
+		     "tot_hitm,lcl_hitm,rmt_hitm,"
+		     "tot_recs,"
+		     "tot_loads,"
+		     "tot_stores,"
+		     "stores_l1hit,stores_l1miss,"
+		     "ld_fbhit,ld_l1hit,ld_l2hit,"
+		     "ld_lclhit,lcl_hitm,"
+		     "ld_rmthit,rmt_hitm,"
+		     "dram_lcl,dram_rmt";
+
+	if (c2c.display == DISPLAY_TOT)
+		sort_str = "tot_hitm";
+	else if (c2c.display == DISPLAY_RMT)
+		sort_str = "rmt_hitm";
+	else if (c2c.display == DISPLAY_LCL)
+		sort_str = "lcl_hitm";
+
+	c2c_hists__reinit(&c2c.hists, output_str, sort_str);
+>>>>>>> upstream/android-13
 
 	ui_progress__init(&prog, c2c.hists.hists.nr_entries, "Sorting...");
 
 	hists__collapse_resort(&c2c.hists.hists, NULL);
+<<<<<<< HEAD
 	hists__output_resort_cb(&c2c.hists.hists, &prog, resort_hitm_cb);
+=======
+	hists__output_resort_cb(&c2c.hists.hists, &prog, resort_shared_cl_cb);
+>>>>>>> upstream/android-13
 	hists__iterate_cb(&c2c.hists.hists, resort_cl_cb);
 
 	ui_progress__finish();
@@ -2866,8 +3278,20 @@ static int parse_record_events(const struct option *opt,
 {
 	bool *event_set = (bool *) opt->value;
 
+<<<<<<< HEAD
 	*event_set = true;
 	return perf_mem_events__parse(str);
+=======
+	if (!strcmp(str, "list")) {
+		perf_mem_events__list();
+		exit(0);
+	}
+	if (perf_mem_events__parse(str))
+		exit(-1);
+
+	*event_set = true;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 
@@ -2881,6 +3305,7 @@ static const char * const *record_mem_usage = __usage_record;
 
 static int perf_c2c__record(int argc, const char **argv)
 {
+<<<<<<< HEAD
 	int rec_argc, i = 0, j;
 	const char **rec_argv;
 	int ret;
@@ -2889,6 +3314,18 @@ static int perf_c2c__record(int argc, const char **argv)
 	struct option options[] = {
 	OPT_CALLBACK('e', "event", &event_set, "event",
 		     "event selector. Use 'perf mem record -e list' to list available events",
+=======
+	int rec_argc, i = 0, j, rec_tmp_nr = 0;
+	const char **rec_argv;
+	char **rec_tmp;
+	int ret;
+	bool all_user = false, all_kernel = false;
+	bool event_set = false;
+	struct perf_mem_event *e;
+	struct option options[] = {
+	OPT_CALLBACK('e', "event", &event_set, "event",
+		     "event selector. Use 'perf c2c record -e list' to list available events",
+>>>>>>> upstream/android-13
 		     parse_record_events),
 	OPT_BOOLEAN('u', "all-user", &all_user, "collect only user level data"),
 	OPT_BOOLEAN('k', "all-kernel", &all_kernel, "collect only kernel level data"),
@@ -2905,11 +3342,20 @@ static int perf_c2c__record(int argc, const char **argv)
 	argc = parse_options(argc, argv, options, record_mem_usage,
 			     PARSE_OPT_KEEP_UNKNOWN);
 
+<<<<<<< HEAD
 	rec_argc = argc + 11; /* max number of arguments */
+=======
+	if (!perf_pmu__has_hybrid())
+		rec_argc = argc + 11; /* max number of arguments */
+	else
+		rec_argc = argc + 11 * perf_pmu__hybrid_pmu_num();
+
+>>>>>>> upstream/android-13
 	rec_argv = calloc(rec_argc + 1, sizeof(char *));
 	if (!rec_argv)
 		return -1;
 
+<<<<<<< HEAD
 	rec_argv[i++] = "record";
 
 	if (!event_set) {
@@ -2918,12 +3364,42 @@ static int perf_c2c__record(int argc, const char **argv)
 	}
 
 	if (perf_mem_events[PERF_MEM_EVENTS__LOAD].record)
+=======
+	rec_tmp = calloc(rec_argc + 1, sizeof(char *));
+	if (!rec_tmp) {
+		free(rec_argv);
+		return -1;
+	}
+
+	rec_argv[i++] = "record";
+
+	if (!event_set) {
+		e = perf_mem_events__ptr(PERF_MEM_EVENTS__LOAD_STORE);
+		/*
+		 * The load and store operations are required, use the event
+		 * PERF_MEM_EVENTS__LOAD_STORE if it is supported.
+		 */
+		if (e->tag) {
+			e->record = true;
+		} else {
+			e = perf_mem_events__ptr(PERF_MEM_EVENTS__LOAD);
+			e->record = true;
+
+			e = perf_mem_events__ptr(PERF_MEM_EVENTS__STORE);
+			e->record = true;
+		}
+	}
+
+	e = perf_mem_events__ptr(PERF_MEM_EVENTS__LOAD);
+	if (e->record)
+>>>>>>> upstream/android-13
 		rec_argv[i++] = "-W";
 
 	rec_argv[i++] = "-d";
 	rec_argv[i++] = "--phys-data";
 	rec_argv[i++] = "--sample-cpu";
 
+<<<<<<< HEAD
 	for (j = 0; j < PERF_MEM_EVENTS__MAX; j++) {
 		if (!perf_mem_events[j].record)
 			continue;
@@ -2938,6 +3414,11 @@ static int perf_c2c__record(int argc, const char **argv)
 		rec_argv[i++] = "-e";
 		rec_argv[i++] = perf_mem_events__name(j);
 	};
+=======
+	ret = perf_mem_events__record_args(rec_argv, &i, rec_tmp, &rec_tmp_nr);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (all_user)
 		rec_argv[i++] = "--all-user";
@@ -2961,6 +3442,14 @@ static int perf_c2c__record(int argc, const char **argv)
 	}
 
 	ret = cmd_record(i, rec_argv);
+<<<<<<< HEAD
+=======
+out:
+	for (i = 0; i < rec_tmp_nr; i++)
+		free(rec_tmp[i]);
+
+	free(rec_tmp);
+>>>>>>> upstream/android-13
 	free(rec_argv);
 	return ret;
 }

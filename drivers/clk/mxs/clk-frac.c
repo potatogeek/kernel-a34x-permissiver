@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Freescale Semiconductor, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -118,7 +124,11 @@ struct clk *mxs_clk_frac(const char *name, const char *parent_name,
 {
 	struct clk_frac *frac;
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 
 	frac = kzalloc(sizeof(*frac), GFP_KERNEL);
 	if (!frac)

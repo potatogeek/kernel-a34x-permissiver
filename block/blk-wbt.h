@@ -34,6 +34,10 @@ enum {
 enum {
 	WBT_STATE_ON_DEFAULT	= 1,
 	WBT_STATE_ON_MANUAL	= 2,
+<<<<<<< HEAD
+=======
+	WBT_STATE_OFF_DEFAULT
+>>>>>>> upstream/android-13
 };
 
 struct rq_wb {
@@ -88,14 +92,20 @@ static inline unsigned int wbt_inflight(struct rq_wb *rwb)
 #ifdef CONFIG_BLK_WBT
 
 int wbt_init(struct request_queue *);
+<<<<<<< HEAD
 void wbt_update_limits(struct request_queue *);
+=======
+>>>>>>> upstream/android-13
 void wbt_disable_default(struct request_queue *);
 void wbt_enable_default(struct request_queue *);
 
 u64 wbt_get_min_lat(struct request_queue *q);
 void wbt_set_min_lat(struct request_queue *q, u64 val);
 
+<<<<<<< HEAD
 void wbt_set_queue_depth(struct request_queue *, unsigned int);
+=======
+>>>>>>> upstream/android-13
 void wbt_set_write_cache(struct request_queue *, bool);
 
 u64 wbt_default_latency_nsec(struct request_queue *);
@@ -109,18 +119,24 @@ static inline int wbt_init(struct request_queue *q)
 {
 	return -EINVAL;
 }
+<<<<<<< HEAD
 static inline void wbt_update_limits(struct request_queue *q)
 {
 }
+=======
+>>>>>>> upstream/android-13
 static inline void wbt_disable_default(struct request_queue *q)
 {
 }
 static inline void wbt_enable_default(struct request_queue *q)
 {
 }
+<<<<<<< HEAD
 static inline void wbt_set_queue_depth(struct request_queue *q, unsigned int depth)
 {
 }
+=======
+>>>>>>> upstream/android-13
 static inline void wbt_set_write_cache(struct request_queue *q, bool wc)
 {
 }

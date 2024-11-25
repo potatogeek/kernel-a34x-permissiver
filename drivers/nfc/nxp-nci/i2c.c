@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * I2C link layer for the NXP NCI driver
  *
@@ -9,6 +13,7 @@
  *
  * Derived from PN544 device driver:
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -25,6 +30,10 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/acpi.h>
 #include <linux/delay.h>
 #include <linux/i2c.h>
@@ -32,9 +41,12 @@
 #include <linux/module.h>
 #include <linux/nfc.h>
 #include <linux/gpio/consumer.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/of_irq.h>
 #include <linux/platform_data/nxp-nci.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 
 #include <net/nfc/nfc.h>
@@ -49,8 +61,13 @@ struct nxp_nci_i2c_phy {
 	struct i2c_client *i2c_dev;
 	struct nci_dev *ndev;
 
+<<<<<<< HEAD
 	unsigned int gpio_en;
 	unsigned int gpio_fw;
+=======
+	struct gpio_desc *gpiod_en;
+	struct gpio_desc *gpiod_fw;
+>>>>>>> upstream/android-13
 
 	int hard_fault; /*
 			 * < 0 if hardware error occurred (e.g. i2c err)
@@ -63,8 +80,13 @@ static int nxp_nci_i2c_set_mode(void *phy_id,
 {
 	struct nxp_nci_i2c_phy *phy = (struct nxp_nci_i2c_phy *) phy_id;
 
+<<<<<<< HEAD
 	gpio_set_value(phy->gpio_fw, (mode == NXP_NCI_MODE_FW) ? 1 : 0);
 	gpio_set_value(phy->gpio_en, (mode != NXP_NCI_MODE_COLD) ? 1 : 0);
+=======
+	gpiod_set_value(phy->gpiod_fw, (mode == NXP_NCI_MODE_FW) ? 1 : 0);
+	gpiod_set_value(phy->gpiod_en, (mode != NXP_NCI_MODE_COLD) ? 1 : 0);
+>>>>>>> upstream/android-13
 	usleep_range(10000, 15000);
 
 	if (mode == NXP_NCI_MODE_COLD)
@@ -263,6 +285,7 @@ exit_irq_none:
 	return IRQ_NONE;
 }
 
+<<<<<<< HEAD
 static int nxp_nci_i2c_parse_devtree(struct i2c_client *client)
 {
 	struct nxp_nci_i2c_phy *phy = i2c_get_clientdata(client);
@@ -312,30 +335,55 @@ static int nxp_nci_i2c_acpi_config(struct nxp_nci_i2c_phy *phy)
 
 	return 0;
 }
+=======
+static const struct acpi_gpio_params firmware_gpios = { 1, 0, false };
+static const struct acpi_gpio_params enable_gpios = { 2, 0, false };
+
+static const struct acpi_gpio_mapping acpi_nxp_nci_gpios[] = {
+	{ "enable-gpios", &enable_gpios, 1 },
+	{ "firmware-gpios", &firmware_gpios, 1 },
+	{ }
+};
+>>>>>>> upstream/android-13
 
 static int nxp_nci_i2c_probe(struct i2c_client *client,
 			    const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	struct nxp_nci_i2c_phy *phy;
 	struct nxp_nci_nfc_platform_data *pdata;
+=======
+	struct device *dev = &client->dev;
+	struct nxp_nci_i2c_phy *phy;
+>>>>>>> upstream/android-13
 	int r;
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		nfc_err(&client->dev, "Need I2C_FUNC_I2C\n");
+<<<<<<< HEAD
 		r = -ENODEV;
 		goto probe_exit;
+=======
+		return -ENODEV;
+>>>>>>> upstream/android-13
 	}
 
 	phy = devm_kzalloc(&client->dev, sizeof(struct nxp_nci_i2c_phy),
 			   GFP_KERNEL);
+<<<<<<< HEAD
 	if (!phy) {
 		r = -ENOMEM;
 		goto probe_exit;
 	}
+=======
+	if (!phy)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	phy->i2c_dev = client;
 	i2c_set_clientdata(client, phy);
 
+<<<<<<< HEAD
 	pdata = client->dev.platform_data;
 
 	if (!pdata && client->dev.of_node) {
@@ -373,6 +421,28 @@ nci_probe:
 			  NXP_NCI_I2C_MAX_PAYLOAD, &phy->ndev);
 	if (r < 0)
 		goto probe_exit;
+=======
+	r = devm_acpi_dev_add_driver_gpios(dev, acpi_nxp_nci_gpios);
+	if (r)
+		dev_dbg(dev, "Unable to add GPIO mapping table\n");
+
+	phy->gpiod_en = devm_gpiod_get(dev, "enable", GPIOD_OUT_LOW);
+	if (IS_ERR(phy->gpiod_en)) {
+		nfc_err(dev, "Failed to get EN gpio\n");
+		return PTR_ERR(phy->gpiod_en);
+	}
+
+	phy->gpiod_fw = devm_gpiod_get_optional(dev, "firmware", GPIOD_OUT_LOW);
+	if (IS_ERR(phy->gpiod_fw)) {
+		nfc_err(dev, "Failed to get FW gpio\n");
+		return PTR_ERR(phy->gpiod_fw);
+	}
+
+	r = nxp_nci_probe(phy, &client->dev, &i2c_phy_ops,
+			  NXP_NCI_I2C_MAX_PAYLOAD, &phy->ndev);
+	if (r < 0)
+		return r;
+>>>>>>> upstream/android-13
 
 	r = request_threaded_irq(client->irq, NULL,
 				 nxp_nci_i2c_irq_thread_fn,
@@ -381,7 +451,10 @@ nci_probe:
 	if (r < 0)
 		nfc_err(&client->dev, "Unable to register IRQ handler\n");
 
+<<<<<<< HEAD
 probe_exit:
+=======
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -403,14 +476,25 @@ MODULE_DEVICE_TABLE(i2c, nxp_nci_i2c_id_table);
 
 static const struct of_device_id of_nxp_nci_i2c_match[] = {
 	{ .compatible = "nxp,nxp-nci-i2c", },
+<<<<<<< HEAD
 	{},
+=======
+	{}
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(of, of_nxp_nci_i2c_match);
 
 #ifdef CONFIG_ACPI
+<<<<<<< HEAD
 static struct acpi_device_id acpi_id[] = {
 	{ "NXP7471" },
 	{ },
+=======
+static const struct acpi_device_id acpi_id[] = {
+	{ "NXP1001" },
+	{ "NXP7471" },
+	{ }
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(acpi, acpi_id);
 #endif
@@ -419,7 +503,11 @@ static struct i2c_driver nxp_nci_i2c_driver = {
 	.driver = {
 		   .name = NXP_NCI_I2C_DRIVER_NAME,
 		   .acpi_match_table = ACPI_PTR(acpi_id),
+<<<<<<< HEAD
 		   .of_match_table = of_match_ptr(of_nxp_nci_i2c_match),
+=======
+		   .of_match_table = of_nxp_nci_i2c_match,
+>>>>>>> upstream/android-13
 		  },
 	.probe = nxp_nci_i2c_probe,
 	.id_table = nxp_nci_i2c_id_table,

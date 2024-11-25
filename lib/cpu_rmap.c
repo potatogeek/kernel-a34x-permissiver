@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cpu_rmap.c: CPU affinity reverse-map support
  * Copyright 2011 Solarflare Communications Inc.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation, incorporated herein by reference.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * cpu_rmap.c: CPU affinity reverse-map support
+ * Copyright 2011 Solarflare Communications Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/cpu_rmap.h>
@@ -258,7 +265,11 @@ irq_cpu_rmap_notify(struct irq_affinity_notify *notify, const cpumask_t *mask)
 
 	rc = cpu_rmap_update(glue->rmap, glue->index, mask);
 	if (rc)
+<<<<<<< HEAD
 		pr_warning("irq_cpu_rmap_notify: update failed: %d\n", rc);
+=======
+		pr_warn("irq_cpu_rmap_notify: update failed: %d\n", rc);
+>>>>>>> upstream/android-13
 }
 
 /**

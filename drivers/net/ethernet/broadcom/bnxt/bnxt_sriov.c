@@ -8,6 +8,10 @@
  * the Free Software Foundation.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/netdevice.h>
@@ -16,6 +20,10 @@
 #include <linux/etherdevice.h>
 #include "bnxt_hsi.h"
 #include "bnxt.h"
+<<<<<<< HEAD
+=======
+#include "bnxt_hwrm.h"
+>>>>>>> upstream/android-13
 #include "bnxt_ulp.h"
 #include "bnxt_sriov.h"
 #include "bnxt_vfr.h"
@@ -25,6 +33,7 @@
 static int bnxt_hwrm_fwd_async_event_cmpl(struct bnxt *bp,
 					  struct bnxt_vf_info *vf, u16 event_id)
 {
+<<<<<<< HEAD
 	struct hwrm_fwd_async_event_cmpl_output *resp = bp->hwrm_cmd_resp_addr;
 	struct hwrm_fwd_async_event_cmpl_input req = {0};
 	struct hwrm_async_event_cmpl *async_cmpl;
@@ -57,15 +66,43 @@ static int bnxt_hwrm_fwd_async_event_cmpl(struct bnxt *bp,
 
 fwd_async_event_cmpl_exit:
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	struct hwrm_fwd_async_event_cmpl_input *req;
+	struct hwrm_async_event_cmpl *async_cmpl;
+	int rc = 0;
+
+	rc = hwrm_req_init(bp, req, HWRM_FWD_ASYNC_EVENT_CMPL);
+	if (rc)
+		goto exit;
+
+	if (vf)
+		req->encap_async_event_target_id = cpu_to_le16(vf->fw_fid);
+	else
+		/* broadcast this async event to all VFs */
+		req->encap_async_event_target_id = cpu_to_le16(0xffff);
+	async_cmpl =
+		(struct hwrm_async_event_cmpl *)req->encap_async_event_cmpl;
+	async_cmpl->type = cpu_to_le16(ASYNC_EVENT_CMPL_TYPE_HWRM_ASYNC_EVENT);
+	async_cmpl->event_id = cpu_to_le16(event_id);
+
+	rc = hwrm_req_send(bp, req);
+exit:
+	if (rc)
+		netdev_err(bp->dev, "hwrm_fwd_async_event_cmpl failed. rc:%d\n",
+			   rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_vf_ndo_prep(struct bnxt *bp, int vf_id)
 {
+<<<<<<< HEAD
 	if (!test_bit(BNXT_STATE_OPEN, &bp->state)) {
 		netdev_err(bp->dev, "vf ndo called though PF is down\n");
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (!bp->pf.active_vfs) {
 		netdev_err(bp->dev, "vf ndo called though sriov is disabled\n");
 		return -EINVAL;
@@ -79,10 +116,17 @@ static int bnxt_vf_ndo_prep(struct bnxt *bp, int vf_id)
 
 int bnxt_set_vf_spoofchk(struct net_device *dev, int vf_id, bool setting)
 {
+<<<<<<< HEAD
 	struct hwrm_func_cfg_input req = {0};
 	struct bnxt *bp = netdev_priv(dev);
 	struct bnxt_vf_info *vf;
 	bool old_setting = false;
+=======
+	struct bnxt *bp = netdev_priv(dev);
+	struct hwrm_func_cfg_input *req;
+	bool old_setting = false;
+	struct bnxt_vf_info *vf;
+>>>>>>> upstream/android-13
 	u32 func_flags;
 	int rc;
 
@@ -106,6 +150,7 @@ int bnxt_set_vf_spoofchk(struct net_device *dev, int vf_id, bool setting)
 	/*TODO: if the driver supports VLAN filter on guest VLAN,
 	 * the spoof check should also include vlan anti-spoofing
 	 */
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FUNC_CFG, -1, -1);
 	req.fid = cpu_to_le16(vf->fw_fid);
 	req.flags = cpu_to_le32(func_flags);
@@ -115,10 +160,74 @@ int bnxt_set_vf_spoofchk(struct net_device *dev, int vf_id, bool setting)
 			vf->flags |= BNXT_VF_SPOOFCHK;
 		else
 			vf->flags &= ~BNXT_VF_SPOOFCHK;
+=======
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_CFG);
+	if (!rc) {
+		req->fid = cpu_to_le16(vf->fw_fid);
+		req->flags = cpu_to_le32(func_flags);
+		rc = hwrm_req_send(bp, req);
+		if (!rc) {
+			if (setting)
+				vf->flags |= BNXT_VF_SPOOFCHK;
+			else
+				vf->flags &= ~BNXT_VF_SPOOFCHK;
+		}
+>>>>>>> upstream/android-13
 	}
 	return rc;
 }
 
+<<<<<<< HEAD
+=======
+static int bnxt_hwrm_func_qcfg_flags(struct bnxt *bp, struct bnxt_vf_info *vf)
+{
+	struct hwrm_func_qcfg_output *resp;
+	struct hwrm_func_qcfg_input *req;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_QCFG);
+	if (rc)
+		return rc;
+
+	req->fid = cpu_to_le16(BNXT_PF(bp) ? vf->fw_fid : 0xffff);
+	resp = hwrm_req_hold(bp, req);
+	rc = hwrm_req_send(bp, req);
+	if (!rc)
+		vf->func_qcfg_flags = le16_to_cpu(resp->flags);
+	hwrm_req_drop(bp, req);
+	return rc;
+}
+
+bool bnxt_is_trusted_vf(struct bnxt *bp, struct bnxt_vf_info *vf)
+{
+	if (BNXT_PF(bp) && !(bp->fw_cap & BNXT_FW_CAP_TRUSTED_VF))
+		return !!(vf->flags & BNXT_VF_TRUST);
+
+	bnxt_hwrm_func_qcfg_flags(bp, vf);
+	return !!(vf->func_qcfg_flags & FUNC_QCFG_RESP_FLAGS_TRUSTED_VF);
+}
+
+static int bnxt_hwrm_set_trusted_vf(struct bnxt *bp, struct bnxt_vf_info *vf)
+{
+	struct hwrm_func_cfg_input *req;
+	int rc;
+
+	if (!(bp->fw_cap & BNXT_FW_CAP_TRUSTED_VF))
+		return 0;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_CFG);
+	if (rc)
+		return rc;
+
+	req->fid = cpu_to_le16(vf->fw_fid);
+	if (vf->flags & BNXT_VF_TRUST)
+		req->flags = cpu_to_le32(FUNC_CFG_REQ_FLAGS_TRUSTED_VF_ENABLE);
+	else
+		req->flags = cpu_to_le32(FUNC_CFG_REQ_FLAGS_TRUSTED_VF_DISABLE);
+	return hwrm_req_send(bp, req);
+}
+
+>>>>>>> upstream/android-13
 int bnxt_set_vf_trust(struct net_device *dev, int vf_id, bool trusted)
 {
 	struct bnxt *bp = netdev_priv(dev);
@@ -133,6 +242,10 @@ int bnxt_set_vf_trust(struct net_device *dev, int vf_id, bool trusted)
 	else
 		vf->flags &= ~BNXT_VF_TRUST;
 
+<<<<<<< HEAD
+=======
+	bnxt_hwrm_set_trusted_vf(bp, vf);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -162,7 +275,11 @@ int bnxt_get_vf_config(struct net_device *dev, int vf_id,
 	else
 		ivi->qos = 0;
 	ivi->spoofchk = !!(vf->flags & BNXT_VF_SPOOFCHK);
+<<<<<<< HEAD
 	ivi->trusted = !!(vf->flags & BNXT_VF_TRUST);
+=======
+	ivi->trusted = bnxt_is_trusted_vf(bp, vf);
+>>>>>>> upstream/android-13
 	if (!(vf->flags & BNXT_VF_LINK_FORCED))
 		ivi->linkstate = IFLA_VF_LINK_STATE_AUTO;
 	else if (vf->flags & BNXT_VF_LINK_UP)
@@ -175,8 +292,13 @@ int bnxt_get_vf_config(struct net_device *dev, int vf_id,
 
 int bnxt_set_vf_mac(struct net_device *dev, int vf_id, u8 *mac)
 {
+<<<<<<< HEAD
 	struct hwrm_func_cfg_input req = {0};
 	struct bnxt *bp = netdev_priv(dev);
+=======
+	struct bnxt *bp = netdev_priv(dev);
+	struct hwrm_func_cfg_input *req;
+>>>>>>> upstream/android-13
 	struct bnxt_vf_info *vf;
 	int rc;
 
@@ -192,19 +314,37 @@ int bnxt_set_vf_mac(struct net_device *dev, int vf_id, u8 *mac)
 	}
 	vf = &bp->pf.vf[vf_id];
 
+<<<<<<< HEAD
 	memcpy(vf->mac_addr, mac, ETH_ALEN);
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FUNC_CFG, -1, -1);
 	req.fid = cpu_to_le16(vf->fw_fid);
 	req.enables = cpu_to_le32(FUNC_CFG_REQ_ENABLES_DFLT_MAC_ADDR);
 	memcpy(req.dflt_mac_addr, mac, ETH_ALEN);
 	return hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
+=======
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_CFG);
+	if (rc)
+		return rc;
+
+	memcpy(vf->mac_addr, mac, ETH_ALEN);
+
+	req->fid = cpu_to_le16(vf->fw_fid);
+	req->enables = cpu_to_le32(FUNC_CFG_REQ_ENABLES_DFLT_MAC_ADDR);
+	memcpy(req->dflt_mac_addr, mac, ETH_ALEN);
+	return hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 }
 
 int bnxt_set_vf_vlan(struct net_device *dev, int vf_id, u16 vlan_id, u8 qos,
 		     __be16 vlan_proto)
 {
+<<<<<<< HEAD
 	struct hwrm_func_cfg_input req = {0};
 	struct bnxt *bp = netdev_priv(dev);
+=======
+	struct bnxt *bp = netdev_priv(dev);
+	struct hwrm_func_cfg_input *req;
+>>>>>>> upstream/android-13
 	struct bnxt_vf_info *vf;
 	u16 vlan_tag;
 	int rc;
@@ -230,6 +370,7 @@ int bnxt_set_vf_vlan(struct net_device *dev, int vf_id, u16 vlan_id, u8 qos,
 	if (vlan_tag == vf->vlan)
 		return 0;
 
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FUNC_CFG, -1, -1);
 	req.fid = cpu_to_le16(vf->fw_fid);
 	req.dflt_vlan = cpu_to_le16(vlan_tag);
@@ -237,14 +378,30 @@ int bnxt_set_vf_vlan(struct net_device *dev, int vf_id, u16 vlan_id, u8 qos,
 	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
 	if (!rc)
 		vf->vlan = vlan_tag;
+=======
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_CFG);
+	if (!rc) {
+		req->fid = cpu_to_le16(vf->fw_fid);
+		req->dflt_vlan = cpu_to_le16(vlan_tag);
+		req->enables = cpu_to_le32(FUNC_CFG_REQ_ENABLES_DFLT_VLAN);
+		rc = hwrm_req_send(bp, req);
+		if (!rc)
+			vf->vlan = vlan_tag;
+	}
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 int bnxt_set_vf_bw(struct net_device *dev, int vf_id, int min_tx_rate,
 		   int max_tx_rate)
 {
+<<<<<<< HEAD
 	struct hwrm_func_cfg_input req = {0};
 	struct bnxt *bp = netdev_priv(dev);
+=======
+	struct bnxt *bp = netdev_priv(dev);
+	struct hwrm_func_cfg_input *req;
+>>>>>>> upstream/android-13
 	struct bnxt_vf_info *vf;
 	u32 pf_link_speed;
 	int rc;
@@ -268,6 +425,7 @@ int bnxt_set_vf_bw(struct net_device *dev, int vf_id, int min_tx_rate,
 	}
 	if (min_tx_rate == vf->min_tx_rate && max_tx_rate == vf->max_tx_rate)
 		return 0;
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FUNC_CFG, -1, -1);
 	req.fid = cpu_to_le16(vf->fw_fid);
 	req.enables = cpu_to_le32(FUNC_CFG_REQ_ENABLES_MAX_BW);
@@ -278,6 +436,20 @@ int bnxt_set_vf_bw(struct net_device *dev, int vf_id, int min_tx_rate,
 	if (!rc) {
 		vf->min_tx_rate = min_tx_rate;
 		vf->max_tx_rate = max_tx_rate;
+=======
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_CFG);
+	if (!rc) {
+		req->fid = cpu_to_le16(vf->fw_fid);
+		req->enables = cpu_to_le32(FUNC_CFG_REQ_ENABLES_MAX_BW |
+					   FUNC_CFG_REQ_ENABLES_MIN_BW);
+		req->max_bw = cpu_to_le32(max_tx_rate);
+		req->min_bw = cpu_to_le32(min_tx_rate);
+		rc = hwrm_req_send(bp, req);
+		if (!rc) {
+			vf->min_tx_rate = min_tx_rate;
+			vf->max_tx_rate = max_tx_rate;
+		}
+>>>>>>> upstream/android-13
 	}
 	return rc;
 }
@@ -330,6 +502,7 @@ static int bnxt_set_vf_attr(struct bnxt *bp, int num_vfs)
 
 static int bnxt_hwrm_func_vf_resource_free(struct bnxt *bp, int num_vfs)
 {
+<<<<<<< HEAD
 	int i, rc = 0;
 	struct bnxt_pf_info *pf = &bp->pf;
 	struct hwrm_func_vf_resc_free_input req = {0};
@@ -345,6 +518,24 @@ static int bnxt_hwrm_func_vf_resource_free(struct bnxt *bp, int num_vfs)
 			break;
 	}
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	struct hwrm_func_vf_resc_free_input *req;
+	struct bnxt_pf_info *pf = &bp->pf;
+	int i, rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_VF_RESC_FREE);
+	if (rc)
+		return rc;
+
+	hwrm_req_hold(bp, req);
+	for (i = pf->first_vf_id; i < pf->first_vf_id + num_vfs; i++) {
+		req->vf_id = cpu_to_le16(i);
+		rc = hwrm_req_send(bp, req);
+		if (rc)
+			break;
+	}
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -418,6 +609,7 @@ static int bnxt_alloc_vf_resources(struct bnxt *bp, int num_vfs)
 
 static int bnxt_hwrm_func_buf_rgtr(struct bnxt *bp)
 {
+<<<<<<< HEAD
 	struct hwrm_func_buf_rgtr_input req = {0};
 
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FUNC_BUF_RGTR, -1, -1);
@@ -431,28 +623,104 @@ static int bnxt_hwrm_func_buf_rgtr(struct bnxt *bp)
 	req.req_buf_page_addr3 = cpu_to_le64(bp->pf.hwrm_cmd_req_dma_addr[3]);
 
 	return hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
+=======
+	struct hwrm_func_buf_rgtr_input *req;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_BUF_RGTR);
+	if (rc)
+		return rc;
+
+	req->req_buf_num_pages = cpu_to_le16(bp->pf.hwrm_cmd_req_pages);
+	req->req_buf_page_size = cpu_to_le16(BNXT_PAGE_SHIFT);
+	req->req_buf_len = cpu_to_le16(BNXT_HWRM_REQ_MAX_SIZE);
+	req->req_buf_page_addr0 = cpu_to_le64(bp->pf.hwrm_cmd_req_dma_addr[0]);
+	req->req_buf_page_addr1 = cpu_to_le64(bp->pf.hwrm_cmd_req_dma_addr[1]);
+	req->req_buf_page_addr2 = cpu_to_le64(bp->pf.hwrm_cmd_req_dma_addr[2]);
+	req->req_buf_page_addr3 = cpu_to_le64(bp->pf.hwrm_cmd_req_dma_addr[3]);
+
+	return hwrm_req_send(bp, req);
+}
+
+static int __bnxt_set_vf_params(struct bnxt *bp, int vf_id)
+{
+	struct hwrm_func_cfg_input *req;
+	struct bnxt_vf_info *vf;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_CFG);
+	if (rc)
+		return rc;
+
+	vf = &bp->pf.vf[vf_id];
+	req->fid = cpu_to_le16(vf->fw_fid);
+
+	if (is_valid_ether_addr(vf->mac_addr)) {
+		req->enables |= cpu_to_le32(FUNC_CFG_REQ_ENABLES_DFLT_MAC_ADDR);
+		memcpy(req->dflt_mac_addr, vf->mac_addr, ETH_ALEN);
+	}
+	if (vf->vlan) {
+		req->enables |= cpu_to_le32(FUNC_CFG_REQ_ENABLES_DFLT_VLAN);
+		req->dflt_vlan = cpu_to_le16(vf->vlan);
+	}
+	if (vf->max_tx_rate) {
+		req->enables |= cpu_to_le32(FUNC_CFG_REQ_ENABLES_MAX_BW |
+					    FUNC_CFG_REQ_ENABLES_MIN_BW);
+		req->max_bw = cpu_to_le32(vf->max_tx_rate);
+		req->min_bw = cpu_to_le32(vf->min_tx_rate);
+	}
+	if (vf->flags & BNXT_VF_TRUST)
+		req->flags |= cpu_to_le32(FUNC_CFG_REQ_FLAGS_TRUSTED_VF_ENABLE);
+
+	return hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 }
 
 /* Only called by PF to reserve resources for VFs, returns actual number of
  * VFs configured, or < 0 on error.
  */
+<<<<<<< HEAD
 static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs)
 {
 	struct hwrm_func_vf_resource_cfg_input req = {0};
+=======
+static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs, bool reset)
+{
+	struct hwrm_func_vf_resource_cfg_input *req;
+>>>>>>> upstream/android-13
 	struct bnxt_hw_resc *hw_resc = &bp->hw_resc;
 	u16 vf_tx_rings, vf_rx_rings, vf_cp_rings;
 	u16 vf_stat_ctx, vf_vnics, vf_ring_grps;
 	struct bnxt_pf_info *pf = &bp->pf;
 	int i, rc = 0, min = 1;
+<<<<<<< HEAD
 
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FUNC_VF_RESOURCE_CFG, -1, -1);
 
 	vf_cp_rings = bnxt_get_max_func_cp_rings_for_en(bp) - bp->cp_nr_rings;
 	vf_stat_ctx = hw_resc->max_stat_ctxs - bp->num_stat_ctxs;
+=======
+	u16 vf_msix = 0;
+	u16 vf_rss;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_VF_RESOURCE_CFG);
+	if (rc)
+		return rc;
+
+	if (bp->flags & BNXT_FLAG_CHIP_P5) {
+		vf_msix = hw_resc->max_nqs - bnxt_nq_rings_in_use(bp);
+		vf_ring_grps = 0;
+	} else {
+		vf_ring_grps = hw_resc->max_hw_ring_grps - bp->rx_nr_rings;
+	}
+	vf_cp_rings = bnxt_get_avail_cp_rings_for_en(bp);
+	vf_stat_ctx = bnxt_get_avail_stat_ctxs_for_en(bp);
+>>>>>>> upstream/android-13
 	if (bp->flags & BNXT_FLAG_AGG_RINGS)
 		vf_rx_rings = hw_resc->max_rx_rings - bp->rx_nr_rings * 2;
 	else
 		vf_rx_rings = hw_resc->max_rx_rings - bp->rx_nr_rings;
+<<<<<<< HEAD
 	vf_ring_grps = hw_resc->max_hw_ring_grps - bp->rx_nr_rings;
 	vf_tx_rings = hw_resc->max_tx_rings - bp->tx_nr_rings;
 	vf_vnics = hw_resc->max_vnics - bp->nr_vnics;
@@ -473,6 +741,28 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs)
 		req.min_vnics = cpu_to_le16(min);
 		req.min_stat_ctx = cpu_to_le16(min);
 		req.min_hw_ring_grps = cpu_to_le16(min);
+=======
+	vf_tx_rings = hw_resc->max_tx_rings - bp->tx_nr_rings;
+	vf_vnics = hw_resc->max_vnics - bp->nr_vnics;
+	vf_vnics = min_t(u16, vf_vnics, vf_rx_rings);
+	vf_rss = hw_resc->max_rsscos_ctxs - bp->rsscos_nr_ctxs;
+
+	req->min_rsscos_ctx = cpu_to_le16(BNXT_VF_MIN_RSS_CTX);
+	if (pf->vf_resv_strategy == BNXT_VF_RESV_STRATEGY_MINIMAL_STATIC) {
+		min = 0;
+		req->min_rsscos_ctx = cpu_to_le16(min);
+	}
+	if (pf->vf_resv_strategy == BNXT_VF_RESV_STRATEGY_MINIMAL ||
+	    pf->vf_resv_strategy == BNXT_VF_RESV_STRATEGY_MINIMAL_STATIC) {
+		req->min_cmpl_rings = cpu_to_le16(min);
+		req->min_tx_rings = cpu_to_le16(min);
+		req->min_rx_rings = cpu_to_le16(min);
+		req->min_l2_ctxs = cpu_to_le16(min);
+		req->min_vnics = cpu_to_le16(min);
+		req->min_stat_ctx = cpu_to_le16(min);
+		if (!(bp->flags & BNXT_FLAG_CHIP_P5))
+			req->min_hw_ring_grps = cpu_to_le16(min);
+>>>>>>> upstream/android-13
 	} else {
 		vf_cp_rings /= num_vfs;
 		vf_tx_rings /= num_vfs;
@@ -480,6 +770,7 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs)
 		vf_vnics /= num_vfs;
 		vf_stat_ctx /= num_vfs;
 		vf_ring_grps /= num_vfs;
+<<<<<<< HEAD
 
 		req.min_cmpl_rings = cpu_to_le16(vf_cp_rings);
 		req.min_tx_rings = cpu_to_le16(vf_tx_rings);
@@ -524,6 +815,61 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs)
 
 		rc = pf->active_vfs;
 	}
+=======
+		vf_rss /= num_vfs;
+
+		req->min_cmpl_rings = cpu_to_le16(vf_cp_rings);
+		req->min_tx_rings = cpu_to_le16(vf_tx_rings);
+		req->min_rx_rings = cpu_to_le16(vf_rx_rings);
+		req->min_l2_ctxs = cpu_to_le16(BNXT_VF_MAX_L2_CTX);
+		req->min_vnics = cpu_to_le16(vf_vnics);
+		req->min_stat_ctx = cpu_to_le16(vf_stat_ctx);
+		req->min_hw_ring_grps = cpu_to_le16(vf_ring_grps);
+		req->min_rsscos_ctx = cpu_to_le16(vf_rss);
+	}
+	req->max_cmpl_rings = cpu_to_le16(vf_cp_rings);
+	req->max_tx_rings = cpu_to_le16(vf_tx_rings);
+	req->max_rx_rings = cpu_to_le16(vf_rx_rings);
+	req->max_l2_ctxs = cpu_to_le16(BNXT_VF_MAX_L2_CTX);
+	req->max_vnics = cpu_to_le16(vf_vnics);
+	req->max_stat_ctx = cpu_to_le16(vf_stat_ctx);
+	req->max_hw_ring_grps = cpu_to_le16(vf_ring_grps);
+	req->max_rsscos_ctx = cpu_to_le16(vf_rss);
+	if (bp->flags & BNXT_FLAG_CHIP_P5)
+		req->max_msix = cpu_to_le16(vf_msix / num_vfs);
+
+	hwrm_req_hold(bp, req);
+	for (i = 0; i < num_vfs; i++) {
+		if (reset)
+			__bnxt_set_vf_params(bp, i);
+
+		req->vf_id = cpu_to_le16(pf->first_vf_id + i);
+		rc = hwrm_req_send(bp, req);
+		if (rc)
+			break;
+		pf->active_vfs = i + 1;
+		pf->vf[i].fw_fid = pf->first_vf_id + i;
+	}
+
+	if (pf->active_vfs) {
+		u16 n = pf->active_vfs;
+
+		hw_resc->max_tx_rings -= le16_to_cpu(req->min_tx_rings) * n;
+		hw_resc->max_rx_rings -= le16_to_cpu(req->min_rx_rings) * n;
+		hw_resc->max_hw_ring_grps -=
+			le16_to_cpu(req->min_hw_ring_grps) * n;
+		hw_resc->max_cp_rings -= le16_to_cpu(req->min_cmpl_rings) * n;
+		hw_resc->max_rsscos_ctxs -=
+			le16_to_cpu(req->min_rsscos_ctx) * n;
+		hw_resc->max_stat_ctxs -= le16_to_cpu(req->min_stat_ctx) * n;
+		hw_resc->max_vnics -= le16_to_cpu(req->min_vnics) * n;
+		if (bp->flags & BNXT_FLAG_CHIP_P5)
+			hw_resc->max_irqs -= vf_msix * n;
+
+		rc = pf->active_vfs;
+	}
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -532,6 +878,7 @@ static int bnxt_hwrm_func_vf_resc_cfg(struct bnxt *bp, int num_vfs)
  */
 static int bnxt_hwrm_func_cfg(struct bnxt *bp, int num_vfs)
 {
+<<<<<<< HEAD
 	u32 rc = 0, mtu, i;
 	u16 vf_tx_rings, vf_rx_rings, vf_cp_rings, vf_stat_ctx, vf_vnics;
 	struct bnxt_hw_resc *hw_resc = &bp->hw_resc;
@@ -548,6 +895,24 @@ static int bnxt_hwrm_func_cfg(struct bnxt *bp, int num_vfs)
 	vf_cp_rings = (bnxt_get_max_func_cp_rings_for_en(bp) -
 		       bp->cp_nr_rings) / num_vfs;
 	vf_stat_ctx = (max_stat_ctxs - bp->num_stat_ctxs) / num_vfs;
+=======
+	u16 vf_tx_rings, vf_rx_rings, vf_cp_rings, vf_stat_ctx, vf_vnics;
+	struct bnxt_hw_resc *hw_resc = &bp->hw_resc;
+	struct bnxt_pf_info *pf = &bp->pf;
+	struct hwrm_func_cfg_input *req;
+	int total_vf_tx_rings = 0;
+	u16 vf_ring_grps;
+	u32 mtu, i;
+	int rc;
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_CFG);
+	if (rc)
+		return rc;
+
+	/* Remaining rings are distributed equally amongs VF's for now */
+	vf_cp_rings = bnxt_get_avail_cp_rings_for_en(bp) / num_vfs;
+	vf_stat_ctx = bnxt_get_avail_stat_ctxs_for_en(bp) / num_vfs;
+>>>>>>> upstream/android-13
 	if (bp->flags & BNXT_FLAG_AGG_RINGS)
 		vf_rx_rings = (hw_resc->max_rx_rings - bp->rx_nr_rings * 2) /
 			      num_vfs;
@@ -559,6 +924,7 @@ static int bnxt_hwrm_func_cfg(struct bnxt *bp, int num_vfs)
 	vf_vnics = (hw_resc->max_vnics - bp->nr_vnics) / num_vfs;
 	vf_vnics = min_t(u16, vf_vnics, vf_rx_rings);
 
+<<<<<<< HEAD
 	req.enables = cpu_to_le32(FUNC_CFG_REQ_ENABLES_MTU |
 				  FUNC_CFG_REQ_ENABLES_MRU |
 				  FUNC_CFG_REQ_ENABLES_NUM_RSSCOS_CTXS |
@@ -596,15 +962,57 @@ static int bnxt_hwrm_func_cfg(struct bnxt *bp, int num_vfs)
 			break;
 		pf->active_vfs = i + 1;
 		pf->vf[i].fw_fid = le16_to_cpu(req.fid);
+=======
+	req->enables = cpu_to_le32(FUNC_CFG_REQ_ENABLES_ADMIN_MTU |
+				   FUNC_CFG_REQ_ENABLES_MRU |
+				   FUNC_CFG_REQ_ENABLES_NUM_RSSCOS_CTXS |
+				   FUNC_CFG_REQ_ENABLES_NUM_STAT_CTXS |
+				   FUNC_CFG_REQ_ENABLES_NUM_CMPL_RINGS |
+				   FUNC_CFG_REQ_ENABLES_NUM_TX_RINGS |
+				   FUNC_CFG_REQ_ENABLES_NUM_RX_RINGS |
+				   FUNC_CFG_REQ_ENABLES_NUM_L2_CTXS |
+				   FUNC_CFG_REQ_ENABLES_NUM_VNICS |
+				   FUNC_CFG_REQ_ENABLES_NUM_HW_RING_GRPS);
+
+	mtu = bp->dev->mtu + ETH_HLEN + VLAN_HLEN;
+	req->mru = cpu_to_le16(mtu);
+	req->admin_mtu = cpu_to_le16(mtu);
+
+	req->num_rsscos_ctxs = cpu_to_le16(1);
+	req->num_cmpl_rings = cpu_to_le16(vf_cp_rings);
+	req->num_tx_rings = cpu_to_le16(vf_tx_rings);
+	req->num_rx_rings = cpu_to_le16(vf_rx_rings);
+	req->num_hw_ring_grps = cpu_to_le16(vf_ring_grps);
+	req->num_l2_ctxs = cpu_to_le16(4);
+
+	req->num_vnics = cpu_to_le16(vf_vnics);
+	/* FIXME spec currently uses 1 bit for stats ctx */
+	req->num_stat_ctxs = cpu_to_le16(vf_stat_ctx);
+
+	hwrm_req_hold(bp, req);
+	for (i = 0; i < num_vfs; i++) {
+		int vf_tx_rsvd = vf_tx_rings;
+
+		req->fid = cpu_to_le16(pf->first_vf_id + i);
+		rc = hwrm_req_send(bp, req);
+		if (rc)
+			break;
+		pf->active_vfs = i + 1;
+		pf->vf[i].fw_fid = le16_to_cpu(req->fid);
+>>>>>>> upstream/android-13
 		rc = __bnxt_hwrm_get_tx_rings(bp, pf->vf[i].fw_fid,
 					      &vf_tx_rsvd);
 		if (rc)
 			break;
 		total_vf_tx_rings += vf_tx_rsvd;
 	}
+<<<<<<< HEAD
 	mutex_unlock(&bp->hwrm_cmd_lock);
 	if (rc)
 		rc = -ENOMEM;
+=======
+	hwrm_req_drop(bp, req);
+>>>>>>> upstream/android-13
 	if (pf->active_vfs) {
 		hw_resc->max_tx_rings -= total_vf_tx_rings;
 		hw_resc->max_rx_rings -= vf_rx_rings * num_vfs;
@@ -618,14 +1026,50 @@ static int bnxt_hwrm_func_cfg(struct bnxt *bp, int num_vfs)
 	return rc;
 }
 
+<<<<<<< HEAD
 static int bnxt_func_cfg(struct bnxt *bp, int num_vfs)
 {
 	if (BNXT_NEW_RM(bp))
 		return bnxt_hwrm_func_vf_resc_cfg(bp, num_vfs);
+=======
+static int bnxt_func_cfg(struct bnxt *bp, int num_vfs, bool reset)
+{
+	if (BNXT_NEW_RM(bp))
+		return bnxt_hwrm_func_vf_resc_cfg(bp, num_vfs, reset);
+>>>>>>> upstream/android-13
 	else
 		return bnxt_hwrm_func_cfg(bp, num_vfs);
 }
 
+<<<<<<< HEAD
+=======
+int bnxt_cfg_hw_sriov(struct bnxt *bp, int *num_vfs, bool reset)
+{
+	int rc;
+
+	/* Register buffers for VFs */
+	rc = bnxt_hwrm_func_buf_rgtr(bp);
+	if (rc)
+		return rc;
+
+	/* Reserve resources for VFs */
+	rc = bnxt_func_cfg(bp, *num_vfs, reset);
+	if (rc != *num_vfs) {
+		if (rc <= 0) {
+			netdev_warn(bp->dev, "Unable to reserve resources for SRIOV.\n");
+			*num_vfs = 0;
+			return rc;
+		}
+		netdev_warn(bp->dev, "Only able to reserve resources for %d VFs.\n",
+			    rc);
+		*num_vfs = rc;
+	}
+
+	bnxt_ulp_sriov_cfg(bp, *num_vfs);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int bnxt_sriov_enable(struct bnxt *bp, int *num_vfs)
 {
 	int rc = 0, vfs_supported;
@@ -640,8 +1084,13 @@ static int bnxt_sriov_enable(struct bnxt *bp, int *num_vfs)
 	 */
 	vfs_supported = *num_vfs;
 
+<<<<<<< HEAD
 	avail_cp = bnxt_get_max_func_cp_rings_for_en(bp) - bp->cp_nr_rings;
 	avail_stat = hw_resc->max_stat_ctxs - bp->num_stat_ctxs;
+=======
+	avail_cp = bnxt_get_avail_cp_rings_for_en(bp);
+	avail_stat = bnxt_get_avail_stat_ctxs_for_en(bp);
+>>>>>>> upstream/android-13
 	avail_cp = min_t(int, avail_cp, avail_stat);
 
 	while (vfs_supported) {
@@ -691,6 +1140,7 @@ static int bnxt_sriov_enable(struct bnxt *bp, int *num_vfs)
 	if (rc)
 		goto err_out1;
 
+<<<<<<< HEAD
 	/* Reserve resources for VFs */
 	rc = bnxt_func_cfg(bp, *num_vfs);
 	if (rc != *num_vfs) {
@@ -710,6 +1160,12 @@ static int bnxt_sriov_enable(struct bnxt *bp, int *num_vfs)
 
 	bnxt_ulp_sriov_cfg(bp, *num_vfs);
 
+=======
+	rc = bnxt_cfg_hw_sriov(bp, num_vfs, false);
+	if (rc)
+		goto err_out2;
+
+>>>>>>> upstream/android-13
 	rc = pci_enable_sriov(bp->pdev, *num_vfs);
 	if (rc)
 		goto err_out2;
@@ -775,6 +1231,14 @@ int bnxt_sriov_configure(struct pci_dev *pdev, int num_vfs)
 		rtnl_unlock();
 		return 0;
 	}
+<<<<<<< HEAD
+=======
+	if (test_bit(BNXT_STATE_IN_FW_RESET, &bp->state)) {
+		netdev_warn(dev, "Reject SRIOV config request when FW reset is in progress\n");
+		rtnl_unlock();
+		return 0;
+	}
+>>>>>>> upstream/android-13
 	bp->sriov_cfg = true;
 	rtnl_unlock();
 
@@ -806,13 +1270,19 @@ static int bnxt_hwrm_fwd_resp(struct bnxt *bp, struct bnxt_vf_info *vf,
 			      void *encap_resp, __le64 encap_resp_addr,
 			      __le16 encap_resp_cpr, u32 msg_size)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	struct hwrm_fwd_resp_input req = {0};
 	struct hwrm_fwd_resp_output *resp = bp->hwrm_cmd_resp_addr;
+=======
+	struct hwrm_fwd_resp_input *req;
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (BNXT_FWD_RESP_SIZE_ERR(msg_size))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FWD_RESP, -1, -1);
 
 	/* Set the new target id */
@@ -839,19 +1309,41 @@ static int bnxt_hwrm_fwd_resp(struct bnxt *bp, struct bnxt_vf_info *vf,
 
 fwd_resp_exit:
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	rc = hwrm_req_init(bp, req, HWRM_FWD_RESP);
+	if (!rc) {
+		/* Set the new target id */
+		req->target_id = cpu_to_le16(vf->fw_fid);
+		req->encap_resp_target_id = cpu_to_le16(vf->fw_fid);
+		req->encap_resp_len = cpu_to_le16(msg_size);
+		req->encap_resp_addr = encap_resp_addr;
+		req->encap_resp_cmpl_ring = encap_resp_cpr;
+		memcpy(req->encap_resp, encap_resp, msg_size);
+
+		rc = hwrm_req_send(bp, req);
+	}
+	if (rc)
+		netdev_err(bp->dev, "hwrm_fwd_resp failed. rc:%d\n", rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_hwrm_fwd_err_resp(struct bnxt *bp, struct bnxt_vf_info *vf,
 				  u32 msg_size)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	struct hwrm_reject_fwd_resp_input req = {0};
 	struct hwrm_reject_fwd_resp_output *resp = bp->hwrm_cmd_resp_addr;
+=======
+	struct hwrm_reject_fwd_resp_input *req;
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (BNXT_REJ_FWD_RESP_SIZE_ERR(msg_size))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_REJECT_FWD_RESP, -1, -1);
 	/* Set the new target id */
 	req.target_id = cpu_to_le16(vf->fw_fid);
@@ -874,19 +1366,38 @@ static int bnxt_hwrm_fwd_err_resp(struct bnxt *bp, struct bnxt_vf_info *vf,
 
 fwd_err_resp_exit:
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	rc = hwrm_req_init(bp, req, HWRM_REJECT_FWD_RESP);
+	if (!rc) {
+		/* Set the new target id */
+		req->target_id = cpu_to_le16(vf->fw_fid);
+		req->encap_resp_target_id = cpu_to_le16(vf->fw_fid);
+		memcpy(req->encap_request, vf->hwrm_cmd_req_addr, msg_size);
+
+		rc = hwrm_req_send(bp, req);
+	}
+	if (rc)
+		netdev_err(bp->dev, "hwrm_fwd_err_resp failed. rc:%d\n", rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 static int bnxt_hwrm_exec_fwd_resp(struct bnxt *bp, struct bnxt_vf_info *vf,
 				   u32 msg_size)
 {
+<<<<<<< HEAD
 	int rc = 0;
 	struct hwrm_exec_fwd_resp_input req = {0};
 	struct hwrm_exec_fwd_resp_output *resp = bp->hwrm_cmd_resp_addr;
+=======
+	struct hwrm_exec_fwd_resp_input *req;
+	int rc;
+>>>>>>> upstream/android-13
 
 	if (BNXT_EXEC_FWD_RESP_SIZE_ERR(msg_size))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_EXEC_FWD_RESP, -1, -1);
 	/* Set the new target id */
 	req.target_id = cpu_to_le16(vf->fw_fid);
@@ -909,6 +1420,19 @@ static int bnxt_hwrm_exec_fwd_resp(struct bnxt *bp, struct bnxt_vf_info *vf,
 
 exec_fwd_resp_exit:
 	mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+	rc = hwrm_req_init(bp, req, HWRM_EXEC_FWD_RESP);
+	if (!rc) {
+		/* Set the new target id */
+		req->target_id = cpu_to_le16(vf->fw_fid);
+		req->encap_resp_target_id = cpu_to_le16(vf->fw_fid);
+		memcpy(req->encap_request, vf->hwrm_cmd_req_addr, msg_size);
+
+		rc = hwrm_req_send(bp, req);
+	}
+	if (rc)
+		netdev_err(bp->dev, "hwrm_exec_fw_resp failed. rc:%d\n", rc);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -922,9 +1446,16 @@ static int bnxt_vf_configure_mac(struct bnxt *bp, struct bnxt_vf_info *vf)
 	 * if the PF assigned MAC address is zero
 	 */
 	if (req->enables & cpu_to_le32(FUNC_VF_CFG_REQ_ENABLES_DFLT_MAC_ADDR)) {
+<<<<<<< HEAD
 		if (is_valid_ether_addr(req->dflt_mac_addr) &&
 		    ((vf->flags & BNXT_VF_TRUST) ||
 		     !is_valid_ether_addr(vf->mac_addr) ||
+=======
+		bool trust = bnxt_is_trusted_vf(bp, vf);
+
+		if (is_valid_ether_addr(req->dflt_mac_addr) &&
+		    (trust || !is_valid_ether_addr(vf->mac_addr) ||
+>>>>>>> upstream/android-13
 		     ether_addr_equal(req->dflt_mac_addr, vf->mac_addr))) {
 			ether_addr_copy(vf->vf_mac_addr, req->dflt_mac_addr);
 			return bnxt_hwrm_exec_fwd_resp(bp, vf, msg_size);
@@ -949,7 +1480,11 @@ static int bnxt_vf_validate_set_mac(struct bnxt *bp, struct bnxt_vf_info *vf)
 	 * Otherwise, it must match the VF MAC address if firmware spec >=
 	 * 1.2.2
 	 */
+<<<<<<< HEAD
 	if (vf->flags & BNXT_VF_TRUST) {
+=======
+	if (bnxt_is_trusted_vf(bp, vf)) {
+>>>>>>> upstream/android-13
 		mac_ok = true;
 	} else if (is_valid_ether_addr(vf->mac_addr)) {
 		if (ether_addr_equal((const u8 *)req->l2_addr, vf->mac_addr))
@@ -980,15 +1515,26 @@ static int bnxt_vf_set_link(struct bnxt *bp, struct bnxt_vf_info *vf)
 		rc = bnxt_hwrm_exec_fwd_resp(
 			bp, vf, sizeof(struct hwrm_port_phy_qcfg_input));
 	} else {
+<<<<<<< HEAD
 		struct hwrm_port_phy_qcfg_output phy_qcfg_resp;
+=======
+		struct hwrm_port_phy_qcfg_output phy_qcfg_resp = {0};
+>>>>>>> upstream/android-13
 		struct hwrm_port_phy_qcfg_input *phy_qcfg_req;
 
 		phy_qcfg_req =
 		(struct hwrm_port_phy_qcfg_input *)vf->hwrm_cmd_req_addr;
+<<<<<<< HEAD
 		mutex_lock(&bp->hwrm_cmd_lock);
 		memcpy(&phy_qcfg_resp, &bp->link_info.phy_qcfg_resp,
 		       sizeof(phy_qcfg_resp));
 		mutex_unlock(&bp->hwrm_cmd_lock);
+=======
+		mutex_lock(&bp->link_lock);
+		memcpy(&phy_qcfg_resp, &bp->link_info.phy_qcfg_resp,
+		       sizeof(phy_qcfg_resp));
+		mutex_unlock(&bp->link_lock);
+>>>>>>> upstream/android-13
 		phy_qcfg_resp.resp_len = cpu_to_le16(sizeof(phy_qcfg_resp));
 		phy_qcfg_resp.seq_id = phy_qcfg_req->seq_id;
 		phy_qcfg_resp.valid = 1;
@@ -1070,6 +1616,7 @@ void bnxt_hwrm_exec_fwd_req(struct bnxt *bp)
 	}
 }
 
+<<<<<<< HEAD
 void bnxt_update_vf_mac(struct bnxt *bp)
 {
 	struct hwrm_func_qcaps_input req = {0};
@@ -1102,6 +1649,11 @@ update_vf_mac_exit:
 int bnxt_approve_mac(struct bnxt *bp, u8 *mac, bool strict)
 {
 	struct hwrm_func_vf_cfg_input req = {0};
+=======
+int bnxt_approve_mac(struct bnxt *bp, u8 *mac, bool strict)
+{
+	struct hwrm_func_vf_cfg_input *req;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	if (!BNXT_VF(bp))
@@ -1112,10 +1664,23 @@ int bnxt_approve_mac(struct bnxt *bp, u8 *mac, bool strict)
 			rc = -EADDRNOTAVAIL;
 		goto mac_done;
 	}
+<<<<<<< HEAD
 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FUNC_VF_CFG, -1, -1);
 	req.enables = cpu_to_le32(FUNC_VF_CFG_REQ_ENABLES_DFLT_MAC_ADDR);
 	memcpy(req.dflt_mac_addr, mac, ETH_ALEN);
 	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
+=======
+
+	rc = hwrm_req_init(bp, req, HWRM_FUNC_VF_CFG);
+	if (rc)
+		goto mac_done;
+
+	req->enables = cpu_to_le32(FUNC_VF_CFG_REQ_ENABLES_DFLT_MAC_ADDR);
+	memcpy(req->dflt_mac_addr, mac, ETH_ALEN);
+	if (!strict)
+		hwrm_req_flags(bp, req, BNXT_HWRM_CTX_SILENT);
+	rc = hwrm_req_send(bp, req);
+>>>>>>> upstream/android-13
 mac_done:
 	if (rc && strict) {
 		rc = -EADDRNOTAVAIL;
@@ -1125,8 +1690,61 @@ mac_done:
 	}
 	return 0;
 }
+<<<<<<< HEAD
 #else
 
+=======
+
+void bnxt_update_vf_mac(struct bnxt *bp)
+{
+	struct hwrm_func_qcaps_output *resp;
+	struct hwrm_func_qcaps_input *req;
+	bool inform_pf = false;
+
+	if (hwrm_req_init(bp, req, HWRM_FUNC_QCAPS))
+		return;
+
+	req->fid = cpu_to_le16(0xffff);
+
+	resp = hwrm_req_hold(bp, req);
+	if (hwrm_req_send(bp, req))
+		goto update_vf_mac_exit;
+
+	/* Store MAC address from the firmware.  There are 2 cases:
+	 * 1. MAC address is valid.  It is assigned from the PF and we
+	 *    need to override the current VF MAC address with it.
+	 * 2. MAC address is zero.  The VF will use a random MAC address by
+	 *    default but the stored zero MAC will allow the VF user to change
+	 *    the random MAC address using ndo_set_mac_address() if he wants.
+	 */
+	if (!ether_addr_equal(resp->mac_address, bp->vf.mac_addr)) {
+		memcpy(bp->vf.mac_addr, resp->mac_address, ETH_ALEN);
+		/* This means we are now using our own MAC address, let
+		 * the PF know about this MAC address.
+		 */
+		if (!is_valid_ether_addr(bp->vf.mac_addr))
+			inform_pf = true;
+	}
+
+	/* overwrite netdev dev_addr with admin VF MAC */
+	if (is_valid_ether_addr(bp->vf.mac_addr))
+		memcpy(bp->dev->dev_addr, bp->vf.mac_addr, ETH_ALEN);
+update_vf_mac_exit:
+	hwrm_req_drop(bp, req);
+	if (inform_pf)
+		bnxt_approve_mac(bp, bp->dev->dev_addr, false);
+}
+
+#else
+
+int bnxt_cfg_hw_sriov(struct bnxt *bp, int *num_vfs, bool reset)
+{
+	if (*num_vfs)
+		return -EOPNOTSUPP;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 void bnxt_sriov_disable(struct bnxt *bp)
 {
 }

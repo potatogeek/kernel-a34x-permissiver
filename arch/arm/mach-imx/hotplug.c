@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  * Copyright 2011 Linaro Ltd.
@@ -8,14 +9,25 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
 #include <linux/jiffies.h>
+<<<<<<< HEAD
+=======
+#include <asm/cacheflush.h>
+>>>>>>> upstream/android-13
 #include <asm/cp15.h>
 #include <asm/proc-fns.h>
 
 #include "common.h"
+<<<<<<< HEAD
 
 static inline void cpu_enter_lowpower(void)
 {
@@ -37,6 +49,9 @@ static inline void cpu_enter_lowpower(void)
 	  : "r" (0), "Ir" (CR_C), "Ir" (0x40)
 	  : "cc");
 }
+=======
+#include "hardware.h"
+>>>>>>> upstream/android-13
 
 /*
  * platform-specific code to shutdown a CPU
@@ -45,7 +60,11 @@ static inline void cpu_enter_lowpower(void)
  */
 void imx_cpu_die(unsigned int cpu)
 {
+<<<<<<< HEAD
 	cpu_enter_lowpower();
+=======
+	v7_exit_coherency_flush(louis);
+>>>>>>> upstream/android-13
 	/*
 	 * We use the cpu jumping argument register to sync with
 	 * imx_cpu_kill() which is running on cpu0 and waiting for
@@ -66,5 +85,10 @@ int imx_cpu_kill(unsigned int cpu)
 			return 0;
 	imx_enable_cpu(cpu, false);
 	imx_set_cpu_arg(cpu, 0);
+<<<<<<< HEAD
+=======
+	if (cpu_is_imx7d())
+		imx_gpcv2_set_core1_pdn_pup_by_software(true);
+>>>>>>> upstream/android-13
 	return 1;
 }

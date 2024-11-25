@@ -17,9 +17,15 @@
 #define RWPF_MIN_HEIGHT				1
 
 struct v4l2_rect *vsp1_rwpf_get_crop(struct vsp1_rwpf *rwpf,
+<<<<<<< HEAD
 				     struct v4l2_subdev_pad_config *config)
 {
 	return v4l2_subdev_get_try_crop(&rwpf->entity.subdev, config,
+=======
+				     struct v4l2_subdev_state *sd_state)
+{
+	return v4l2_subdev_get_try_crop(&rwpf->entity.subdev, sd_state,
+>>>>>>> upstream/android-13
 					RWPF_PAD_SINK);
 }
 
@@ -28,7 +34,11 @@ struct v4l2_rect *vsp1_rwpf_get_crop(struct vsp1_rwpf *rwpf,
  */
 
 static int vsp1_rwpf_enum_mbus_code(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				    struct v4l2_subdev_pad_config *cfg,
+=======
+				    struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				    struct v4l2_subdev_mbus_code_enum *code)
 {
 	static const unsigned int codes[] = {
@@ -46,28 +56,50 @@ static int vsp1_rwpf_enum_mbus_code(struct v4l2_subdev *subdev,
 }
 
 static int vsp1_rwpf_enum_frame_size(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				     struct v4l2_subdev_pad_config *cfg,
+=======
+				     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				     struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct vsp1_rwpf *rwpf = to_rwpf(subdev);
 
+<<<<<<< HEAD
 	return vsp1_subdev_enum_frame_size(subdev, cfg, fse, RWPF_MIN_WIDTH,
+=======
+	return vsp1_subdev_enum_frame_size(subdev, sd_state, fse,
+					   RWPF_MIN_WIDTH,
+>>>>>>> upstream/android-13
 					   RWPF_MIN_HEIGHT, rwpf->max_width,
 					   rwpf->max_height);
 }
 
 static int vsp1_rwpf_set_format(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				struct v4l2_subdev_pad_config *cfg,
 				struct v4l2_subdev_format *fmt)
 {
 	struct vsp1_rwpf *rwpf = to_rwpf(subdev);
 	struct v4l2_subdev_pad_config *config;
+=======
+				struct v4l2_subdev_state *sd_state,
+				struct v4l2_subdev_format *fmt)
+{
+	struct vsp1_rwpf *rwpf = to_rwpf(subdev);
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 	struct v4l2_mbus_framefmt *format;
 	int ret = 0;
 
 	mutex_lock(&rwpf->entity.lock);
 
+<<<<<<< HEAD
 	config = vsp1_entity_get_pad_config(&rwpf->entity, cfg, fmt->which);
+=======
+	config = vsp1_entity_get_pad_config(&rwpf->entity, sd_state,
+					    fmt->which);
+>>>>>>> upstream/android-13
 	if (!config) {
 		ret = -EINVAL;
 		goto done;
@@ -128,11 +160,19 @@ done:
 }
 
 static int vsp1_rwpf_get_selection(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
 				   struct v4l2_subdev_selection *sel)
 {
 	struct vsp1_rwpf *rwpf = to_rwpf(subdev);
 	struct v4l2_subdev_pad_config *config;
+=======
+				   struct v4l2_subdev_state *sd_state,
+				   struct v4l2_subdev_selection *sel)
+{
+	struct vsp1_rwpf *rwpf = to_rwpf(subdev);
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 	struct v4l2_mbus_framefmt *format;
 	int ret = 0;
 
@@ -145,7 +185,12 @@ static int vsp1_rwpf_get_selection(struct v4l2_subdev *subdev,
 
 	mutex_lock(&rwpf->entity.lock);
 
+<<<<<<< HEAD
 	config = vsp1_entity_get_pad_config(&rwpf->entity, cfg, sel->which);
+=======
+	config = vsp1_entity_get_pad_config(&rwpf->entity, sd_state,
+					    sel->which);
+>>>>>>> upstream/android-13
 	if (!config) {
 		ret = -EINVAL;
 		goto done;
@@ -176,11 +221,19 @@ done:
 }
 
 static int vsp1_rwpf_set_selection(struct v4l2_subdev *subdev,
+<<<<<<< HEAD
 				   struct v4l2_subdev_pad_config *cfg,
 				   struct v4l2_subdev_selection *sel)
 {
 	struct vsp1_rwpf *rwpf = to_rwpf(subdev);
 	struct v4l2_subdev_pad_config *config;
+=======
+				   struct v4l2_subdev_state *sd_state,
+				   struct v4l2_subdev_selection *sel)
+{
+	struct vsp1_rwpf *rwpf = to_rwpf(subdev);
+	struct v4l2_subdev_state *config;
+>>>>>>> upstream/android-13
 	struct v4l2_mbus_framefmt *format;
 	struct v4l2_rect *crop;
 	int ret = 0;
@@ -197,7 +250,12 @@ static int vsp1_rwpf_set_selection(struct v4l2_subdev *subdev,
 
 	mutex_lock(&rwpf->entity.lock);
 
+<<<<<<< HEAD
 	config = vsp1_entity_get_pad_config(&rwpf->entity, cfg, sel->which);
+=======
+	config = vsp1_entity_get_pad_config(&rwpf->entity, sd_state,
+					    sel->which);
+>>>>>>> upstream/android-13
 	if (!config) {
 		ret = -EINVAL;
 		goto done;

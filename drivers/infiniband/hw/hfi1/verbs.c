@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2015 - 2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2015 - 2020 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <rdma/ib_mad.h>
@@ -66,6 +72,10 @@
 #include "vnic.h"
 #include "fault.h"
 #include "affinity.h"
+<<<<<<< HEAD
+=======
+#include "ipoib.h"
+>>>>>>> upstream/android-13
 
 static unsigned int hfi1_lkey_table_size = 16;
 module_param_named(lkey_table_size, hfi1_lkey_table_size, uint,
@@ -130,8 +140,11 @@ unsigned short piothreshold = 256;
 module_param(piothreshold, ushort, S_IRUGO);
 MODULE_PARM_DESC(piothreshold, "size used to determine sdma vs. pio");
 
+<<<<<<< HEAD
 #define COPY_CACHELESS 1
 #define COPY_ADAPTIVE  2
+=======
+>>>>>>> upstream/android-13
 static unsigned int sge_copy_mode;
 module_param(sge_copy_mode, uint, S_IRUGO);
 MODULE_PARM_DESC(sge_copy_mode,
@@ -149,13 +162,18 @@ static int pio_wait(struct rvt_qp *qp,
 /* Length of buffer to create verbs txreq cache name */
 #define TXREQ_NAME_LEN 24
 
+<<<<<<< HEAD
 static uint wss_threshold;
+=======
+static uint wss_threshold = 80;
+>>>>>>> upstream/android-13
 module_param(wss_threshold, uint, S_IRUGO);
 MODULE_PARM_DESC(wss_threshold, "Percentage (1-100) of LLC to use as a threshold for a cacheless copy");
 static uint wss_clean_period = 256;
 module_param(wss_clean_period, uint, S_IRUGO);
 MODULE_PARM_DESC(wss_clean_period, "Count of verbs copies before an entry in the page copy table is cleaned");
 
+<<<<<<< HEAD
 /* memory working set size */
 struct hfi1_wss {
 	unsigned long *entries;
@@ -302,15 +320,25 @@ static inline bool wss_exceeds_threshold(void)
 	return atomic_read(&wss.total_count) >= wss.threshold;
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Translate ib_wr_opcode into ib_wc_opcode.
  */
 const enum ib_wc_opcode ib_hfi1_wc_opcode[] = {
 	[IB_WR_RDMA_WRITE] = IB_WC_RDMA_WRITE,
+<<<<<<< HEAD
+=======
+	[IB_WR_TID_RDMA_WRITE] = IB_WC_RDMA_WRITE,
+>>>>>>> upstream/android-13
 	[IB_WR_RDMA_WRITE_WITH_IMM] = IB_WC_RDMA_WRITE,
 	[IB_WR_SEND] = IB_WC_SEND,
 	[IB_WR_SEND_WITH_IMM] = IB_WC_SEND,
 	[IB_WR_RDMA_READ] = IB_WC_RDMA_READ,
+<<<<<<< HEAD
+=======
+	[IB_WR_TID_RDMA_READ] = IB_WC_RDMA_READ,
+>>>>>>> upstream/android-13
 	[IB_WR_ATOMIC_CMP_AND_SWP] = IB_WC_COMP_SWAP,
 	[IB_WR_ATOMIC_FETCH_AND_ADD] = IB_WC_FETCH_ADD,
 	[IB_WR_SEND_WITH_INV] = IB_WC_SEND,
@@ -346,6 +374,17 @@ const u8 hdr_len_by_opcode[256] = {
 	[IB_OPCODE_RC_FETCH_ADD]                      = 12 + 8 + 28,
 	[IB_OPCODE_RC_SEND_LAST_WITH_INVALIDATE]      = 12 + 8 + 4,
 	[IB_OPCODE_RC_SEND_ONLY_WITH_INVALIDATE]      = 12 + 8 + 4,
+<<<<<<< HEAD
+=======
+	[IB_OPCODE_TID_RDMA_READ_REQ]                 = 12 + 8 + 36,
+	[IB_OPCODE_TID_RDMA_READ_RESP]                = 12 + 8 + 36,
+	[IB_OPCODE_TID_RDMA_WRITE_REQ]                = 12 + 8 + 36,
+	[IB_OPCODE_TID_RDMA_WRITE_RESP]               = 12 + 8 + 36,
+	[IB_OPCODE_TID_RDMA_WRITE_DATA]               = 12 + 8 + 36,
+	[IB_OPCODE_TID_RDMA_WRITE_DATA_LAST]          = 12 + 8 + 36,
+	[IB_OPCODE_TID_RDMA_ACK]                      = 12 + 8 + 36,
+	[IB_OPCODE_TID_RDMA_RESYNC]                   = 12 + 8 + 36,
+>>>>>>> upstream/android-13
 	/* UC */
 	[IB_OPCODE_UC_SEND_FIRST]                     = 12 + 8,
 	[IB_OPCODE_UC_SEND_MIDDLE]                    = 12 + 8,
@@ -389,6 +428,20 @@ static const opcode_handler opcode_handler_tbl[256] = {
 	[IB_OPCODE_RC_FETCH_ADD]                      = &hfi1_rc_rcv,
 	[IB_OPCODE_RC_SEND_LAST_WITH_INVALIDATE]      = &hfi1_rc_rcv,
 	[IB_OPCODE_RC_SEND_ONLY_WITH_INVALIDATE]      = &hfi1_rc_rcv,
+<<<<<<< HEAD
+=======
+
+	/* TID RDMA has separate handlers for different opcodes.*/
+	[IB_OPCODE_TID_RDMA_WRITE_REQ]       = &hfi1_rc_rcv_tid_rdma_write_req,
+	[IB_OPCODE_TID_RDMA_WRITE_RESP]      = &hfi1_rc_rcv_tid_rdma_write_resp,
+	[IB_OPCODE_TID_RDMA_WRITE_DATA]      = &hfi1_rc_rcv_tid_rdma_write_data,
+	[IB_OPCODE_TID_RDMA_WRITE_DATA_LAST] = &hfi1_rc_rcv_tid_rdma_write_data,
+	[IB_OPCODE_TID_RDMA_READ_REQ]        = &hfi1_rc_rcv_tid_rdma_read_req,
+	[IB_OPCODE_TID_RDMA_READ_RESP]       = &hfi1_rc_rcv_tid_rdma_read_resp,
+	[IB_OPCODE_TID_RDMA_RESYNC]          = &hfi1_rc_rcv_tid_rdma_resync,
+	[IB_OPCODE_TID_RDMA_ACK]             = &hfi1_rc_rcv_tid_rdma_ack,
+
+>>>>>>> upstream/android-13
 	/* UC */
 	[IB_OPCODE_UC_SEND_FIRST]                     = &hfi1_uc_rcv,
 	[IB_OPCODE_UC_SEND_MIDDLE]                    = &hfi1_uc_rcv,
@@ -436,6 +489,7 @@ static const u32 pio_opmask[BIT(3)] = {
  */
 __be64 ib_hfi1_sys_image_guid;
 
+<<<<<<< HEAD
 /**
  * hfi1_copy_sge - copy data to SGE memory
  * @ss: the SGE state
@@ -509,6 +563,8 @@ again:
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Make sure the QP is ready and able to accept the given opcode.
  */
@@ -527,7 +583,11 @@ static inline opcode_handler qp_ok(struct hfi1_packet *packet)
 static u64 hfi1_fault_tx(struct rvt_qp *qp, u8 opcode, u64 pbc)
 {
 #ifdef CONFIG_FAULT_INJECTION
+<<<<<<< HEAD
 	if ((opcode & IB_OPCODE_MSP) == IB_OPCODE_MSP)
+=======
+	if ((opcode & IB_OPCODE_MSP) == IB_OPCODE_MSP) {
+>>>>>>> upstream/android-13
 		/*
 		 * In order to drop non-IB traffic we
 		 * set PbcInsertHrc to NONE (0x2).
@@ -538,8 +598,14 @@ static u64 hfi1_fault_tx(struct rvt_qp *qp, u8 opcode, u64 pbc)
 		 * packet will not be delivered to the
 		 * correct context.
 		 */
+<<<<<<< HEAD
 		pbc |= (u64)PBC_IHCRC_NONE << PBC_INSERT_HCRC_SHIFT;
 	else
+=======
+		pbc &= ~PBC_INSERT_HCRC_SMASK;
+		pbc |= (u64)PBC_IHCRC_NONE << PBC_INSERT_HCRC_SHIFT;
+	} else {
+>>>>>>> upstream/android-13
 		/*
 		 * In order to drop regular verbs
 		 * traffic we set the PbcTestEbp
@@ -549,10 +615,135 @@ static u64 hfi1_fault_tx(struct rvt_qp *qp, u8 opcode, u64 pbc)
 		 * triggered and will be dropped.
 		 */
 		pbc |= PBC_TEST_EBP;
+<<<<<<< HEAD
+=======
+	}
+>>>>>>> upstream/android-13
 #endif
 	return pbc;
 }
 
+<<<<<<< HEAD
+=======
+static opcode_handler tid_qp_ok(int opcode, struct hfi1_packet *packet)
+{
+	if (packet->qp->ibqp.qp_type != IB_QPT_RC ||
+	    !(ib_rvt_state_ops[packet->qp->state] & RVT_PROCESS_RECV_OK))
+		return NULL;
+	if ((opcode & RVT_OPCODE_QP_MASK) == IB_OPCODE_TID_RDMA)
+		return opcode_handler_tbl[opcode];
+	return NULL;
+}
+
+void hfi1_kdeth_eager_rcv(struct hfi1_packet *packet)
+{
+	struct hfi1_ctxtdata *rcd = packet->rcd;
+	struct ib_header *hdr = packet->hdr;
+	u32 tlen = packet->tlen;
+	struct hfi1_pportdata *ppd = rcd->ppd;
+	struct hfi1_ibport *ibp = &ppd->ibport_data;
+	struct rvt_dev_info *rdi = &ppd->dd->verbs_dev.rdi;
+	opcode_handler opcode_handler;
+	unsigned long flags;
+	u32 qp_num;
+	int lnh;
+	u8 opcode;
+
+	/* DW == LRH (2) + BTH (3) + KDETH (9) + CRC (1) */
+	if (unlikely(tlen < 15 * sizeof(u32)))
+		goto drop;
+
+	lnh = be16_to_cpu(hdr->lrh[0]) & 3;
+	if (lnh != HFI1_LRH_BTH)
+		goto drop;
+
+	packet->ohdr = &hdr->u.oth;
+	trace_input_ibhdr(rcd->dd, packet, !!(rhf_dc_info(packet->rhf)));
+
+	opcode = (be32_to_cpu(packet->ohdr->bth[0]) >> 24);
+	inc_opstats(tlen, &rcd->opstats->stats[opcode]);
+
+	/* verbs_qp can be picked up from any tid_rdma header struct */
+	qp_num = be32_to_cpu(packet->ohdr->u.tid_rdma.r_req.verbs_qp) &
+		RVT_QPN_MASK;
+
+	rcu_read_lock();
+	packet->qp = rvt_lookup_qpn(rdi, &ibp->rvp, qp_num);
+	if (!packet->qp)
+		goto drop_rcu;
+	spin_lock_irqsave(&packet->qp->r_lock, flags);
+	opcode_handler = tid_qp_ok(opcode, packet);
+	if (likely(opcode_handler))
+		opcode_handler(packet);
+	else
+		goto drop_unlock;
+	spin_unlock_irqrestore(&packet->qp->r_lock, flags);
+	rcu_read_unlock();
+
+	return;
+drop_unlock:
+	spin_unlock_irqrestore(&packet->qp->r_lock, flags);
+drop_rcu:
+	rcu_read_unlock();
+drop:
+	ibp->rvp.n_pkt_drops++;
+}
+
+void hfi1_kdeth_expected_rcv(struct hfi1_packet *packet)
+{
+	struct hfi1_ctxtdata *rcd = packet->rcd;
+	struct ib_header *hdr = packet->hdr;
+	u32 tlen = packet->tlen;
+	struct hfi1_pportdata *ppd = rcd->ppd;
+	struct hfi1_ibport *ibp = &ppd->ibport_data;
+	struct rvt_dev_info *rdi = &ppd->dd->verbs_dev.rdi;
+	opcode_handler opcode_handler;
+	unsigned long flags;
+	u32 qp_num;
+	int lnh;
+	u8 opcode;
+
+	/* DW == LRH (2) + BTH (3) + KDETH (9) + CRC (1) */
+	if (unlikely(tlen < 15 * sizeof(u32)))
+		goto drop;
+
+	lnh = be16_to_cpu(hdr->lrh[0]) & 3;
+	if (lnh != HFI1_LRH_BTH)
+		goto drop;
+
+	packet->ohdr = &hdr->u.oth;
+	trace_input_ibhdr(rcd->dd, packet, !!(rhf_dc_info(packet->rhf)));
+
+	opcode = (be32_to_cpu(packet->ohdr->bth[0]) >> 24);
+	inc_opstats(tlen, &rcd->opstats->stats[opcode]);
+
+	/* verbs_qp can be picked up from any tid_rdma header struct */
+	qp_num = be32_to_cpu(packet->ohdr->u.tid_rdma.r_rsp.verbs_qp) &
+		RVT_QPN_MASK;
+
+	rcu_read_lock();
+	packet->qp = rvt_lookup_qpn(rdi, &ibp->rvp, qp_num);
+	if (!packet->qp)
+		goto drop_rcu;
+	spin_lock_irqsave(&packet->qp->r_lock, flags);
+	opcode_handler = tid_qp_ok(opcode, packet);
+	if (likely(opcode_handler))
+		opcode_handler(packet);
+	else
+		goto drop_unlock;
+	spin_unlock_irqrestore(&packet->qp->r_lock, flags);
+	rcu_read_unlock();
+
+	return;
+drop_unlock:
+	spin_unlock_irqrestore(&packet->qp->r_lock, flags);
+drop_rcu:
+	rcu_read_unlock();
+drop:
+	ibp->rvp.n_pkt_drops++;
+}
+
+>>>>>>> upstream/android-13
 static int hfi1_do_pkey_check(struct hfi1_packet *packet)
 {
 	struct hfi1_ctxtdata *rcd = packet->rcd;
@@ -713,11 +904,20 @@ static void verbs_sdma_complete(
 
 	spin_lock(&qp->s_lock);
 	if (tx->wqe) {
+<<<<<<< HEAD
 		hfi1_send_complete(qp, tx->wqe, IB_WC_SUCCESS);
+=======
+		rvt_send_complete(qp, tx->wqe, IB_WC_SUCCESS);
+>>>>>>> upstream/android-13
 	} else if (qp->ibqp.qp_type == IB_QPT_RC) {
 		struct hfi1_opa_header *hdr;
 
 		hdr = &tx->phdr.hdr;
+<<<<<<< HEAD
+=======
+		if (unlikely(status == SDMA_TXREQ_S_ABORTED))
+			hfi1_rc_verbs_aborted(qp, hdr);
+>>>>>>> upstream/android-13
 		hfi1_rc_send_complete(qp, hdr);
 	}
 	spin_unlock(&qp->s_lock);
@@ -725,11 +925,35 @@ static void verbs_sdma_complete(
 	hfi1_put_txreq(tx);
 }
 
+<<<<<<< HEAD
+=======
+void hfi1_wait_kmem(struct rvt_qp *qp)
+{
+	struct hfi1_qp_priv *priv = qp->priv;
+	struct ib_qp *ibqp = &qp->ibqp;
+	struct ib_device *ibdev = ibqp->device;
+	struct hfi1_ibdev *dev = to_idev(ibdev);
+
+	if (list_empty(&priv->s_iowait.list)) {
+		if (list_empty(&dev->memwait))
+			mod_timer(&dev->mem_timer, jiffies + 1);
+		qp->s_flags |= RVT_S_WAIT_KMEM;
+		list_add_tail(&priv->s_iowait.list, &dev->memwait);
+		priv->s_iowait.lock = &dev->iowait_lock;
+		trace_hfi1_qpsleep(qp, RVT_S_WAIT_KMEM);
+		rvt_get_qp(qp);
+	}
+}
+
+>>>>>>> upstream/android-13
 static int wait_kmem(struct hfi1_ibdev *dev,
 		     struct rvt_qp *qp,
 		     struct hfi1_pkt_state *ps)
 {
+<<<<<<< HEAD
 	struct hfi1_qp_priv *priv = qp->priv;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret = 0;
 
@@ -737,6 +961,7 @@ static int wait_kmem(struct hfi1_ibdev *dev,
 	if (ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK) {
 		write_seqlock(&dev->iowait_lock);
 		list_add_tail(&ps->s_txreq->txreq.list,
+<<<<<<< HEAD
 			      &priv->s_iowait.tx_head);
 		if (list_empty(&priv->s_iowait.list)) {
 			if (list_empty(&dev->memwait))
@@ -749,6 +974,12 @@ static int wait_kmem(struct hfi1_ibdev *dev,
 		}
 		write_sequnlock(&dev->iowait_lock);
 		qp->s_flags &= ~RVT_S_BUSY;
+=======
+			      &ps->wait->tx_head);
+		hfi1_wait_kmem(qp);
+		write_sequnlock(&dev->iowait_lock);
+		hfi1_qp_unbusy(qp, ps->wait);
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 	}
 	spin_unlock_irqrestore(&qp->s_lock, flags);
@@ -774,11 +1005,15 @@ static noinline int build_verbs_ulp_payload(
 	int ret = 0;
 
 	while (length) {
+<<<<<<< HEAD
 		len = ss->sge.length;
 		if (len > length)
 			len = length;
 		if (len > ss->sge.sge_length)
 			len = ss->sge.sge_length;
+=======
+		len = rvt_get_sge_length(&ss->sge, length);
+>>>>>>> upstream/android-13
 		WARN_ON_ONCE(len == 0);
 		ret = sdma_txadd_kvaddr(
 			sde->dd,
@@ -801,7 +1036,11 @@ bail_txadd:
 
 /**
  * update_tx_opstats - record stats by opcode
+<<<<<<< HEAD
  * @qp; the qp
+=======
+ * @qp: the qp
+>>>>>>> upstream/android-13
  * @ps: transmit packet state
  * @plen: the plen in dwords
  *
@@ -899,6 +1138,18 @@ bail_txadd:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static u64 update_hcrc(u8 opcode, u64 pbc)
+{
+	if ((opcode & IB_OPCODE_TID_RDMA) == IB_OPCODE_TID_RDMA) {
+		pbc &= ~PBC_INSERT_HCRC_SMASK;
+		pbc |= (u64)PBC_IHCRC_LKDETH << PBC_INSERT_HCRC_SHIFT;
+	}
+	return pbc;
+}
+
+>>>>>>> upstream/android-13
 int hfi1_verbs_send_dma(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 			u64 pbc)
 {
@@ -937,21 +1188,37 @@ int hfi1_verbs_send_dma(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 			else
 				pbc |= (ib_is_sc5(sc5) << PBC_DC_INFO_SHIFT);
 
+<<<<<<< HEAD
 			if (unlikely(hfi1_dbg_should_fault_tx(qp, ps->opcode)))
 				pbc = hfi1_fault_tx(qp, ps->opcode, pbc);
+=======
+>>>>>>> upstream/android-13
 			pbc = create_pbc(ppd,
 					 pbc,
 					 qp->srate_mbps,
 					 vl,
 					 plen);
+<<<<<<< HEAD
+=======
+
+			if (unlikely(hfi1_dbg_should_fault_tx(qp, ps->opcode)))
+				pbc = hfi1_fault_tx(qp, ps->opcode, pbc);
+			else
+				/* Update HCRC based on packet opcode */
+				pbc = update_hcrc(ps->opcode, pbc);
+>>>>>>> upstream/android-13
 		}
 		tx->wqe = qp->s_wqe;
 		ret = build_verbs_tx_desc(tx->sde, len, tx, ahg_info, pbc);
 		if (unlikely(ret))
 			goto bail_build;
 	}
+<<<<<<< HEAD
 	ret =  sdma_send_txreq(tx->sde, &priv->s_iowait, &tx->txreq,
 			       ps->pkts_sent);
+=======
+	ret =  sdma_send_txreq(tx->sde, ps->wait, &tx->txreq, ps->pkts_sent);
+>>>>>>> upstream/android-13
 	if (unlikely(ret < 0)) {
 		if (ret == -ECOMM)
 			goto bail_ecomm;
@@ -987,7 +1254,10 @@ static int pio_wait(struct rvt_qp *qp,
 {
 	struct hfi1_qp_priv *priv = qp->priv;
 	struct hfi1_devdata *dd = sc->dd;
+<<<<<<< HEAD
 	struct hfi1_ibdev *dev = &dd->verbs_dev;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret = 0;
 
@@ -999,9 +1269,15 @@ static int pio_wait(struct rvt_qp *qp,
 	 */
 	spin_lock_irqsave(&qp->s_lock, flags);
 	if (ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK) {
+<<<<<<< HEAD
 		write_seqlock(&dev->iowait_lock);
 		list_add_tail(&ps->s_txreq->txreq.list,
 			      &priv->s_iowait.tx_head);
+=======
+		write_seqlock(&sc->waitlock);
+		list_add_tail(&ps->s_txreq->txreq.list,
+			      &ps->wait->tx_head);
+>>>>>>> upstream/android-13
 		if (list_empty(&priv->s_iowait.list)) {
 			struct hfi1_ibdev *dev = &dd->verbs_dev;
 			int was_empty;
@@ -1010,17 +1286,29 @@ static int pio_wait(struct rvt_qp *qp,
 			dev->n_piodrain += !!(flag & HFI1_S_WAIT_PIO_DRAIN);
 			qp->s_flags |= flag;
 			was_empty = list_empty(&sc->piowait);
+<<<<<<< HEAD
 			iowait_queue(ps->pkts_sent, &priv->s_iowait,
 				     &sc->piowait);
 			priv->s_iowait.lock = &dev->iowait_lock;
+=======
+			iowait_get_priority(&priv->s_iowait);
+			iowait_queue(ps->pkts_sent, &priv->s_iowait,
+				     &sc->piowait);
+			priv->s_iowait.lock = &sc->waitlock;
+>>>>>>> upstream/android-13
 			trace_hfi1_qpsleep(qp, RVT_S_WAIT_PIO);
 			rvt_get_qp(qp);
 			/* counting: only call wantpiobuf_intr if first user */
 			if (was_empty)
 				hfi1_sc_wantpiobuf_intr(sc, 1);
 		}
+<<<<<<< HEAD
 		write_sequnlock(&dev->iowait_lock);
 		qp->s_flags &= ~RVT_S_BUSY;
+=======
+		write_sequnlock(&sc->waitlock);
+		hfi1_qp_unbusy(qp, ps->wait);
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 	}
 	spin_unlock_irqrestore(&qp->s_lock, flags);
@@ -1091,14 +1379,27 @@ int hfi1_verbs_send_pio(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 		else
 			pbc |= (ib_is_sc5(sc5) << PBC_DC_INFO_SHIFT);
 
+<<<<<<< HEAD
 		if (unlikely(hfi1_dbg_should_fault_tx(qp, ps->opcode)))
 			pbc = hfi1_fault_tx(qp, ps->opcode, pbc);
 		pbc = create_pbc(ppd, pbc, qp->srate_mbps, vl, plen);
+=======
+		pbc = create_pbc(ppd, pbc, qp->srate_mbps, vl, plen);
+		if (unlikely(hfi1_dbg_should_fault_tx(qp, ps->opcode)))
+			pbc = hfi1_fault_tx(qp, ps->opcode, pbc);
+		else
+			/* Update HCRC based on packet opcode */
+			pbc = update_hcrc(ps->opcode, pbc);
+>>>>>>> upstream/android-13
 	}
 	if (cb)
 		iowait_pio_inc(&priv->s_iowait);
 	pbuf = sc_buffer_alloc(sc, plen, cb, qp);
+<<<<<<< HEAD
 	if (unlikely(IS_ERR_OR_NULL(pbuf))) {
+=======
+	if (IS_ERR_OR_NULL(pbuf)) {
+>>>>>>> upstream/android-13
 		if (cb)
 			verbs_pio_complete(qp, 0);
 		if (IS_ERR(pbuf)) {
@@ -1137,12 +1438,17 @@ int hfi1_verbs_send_pio(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 		if (ss) {
 			while (len) {
 				void *addr = ss->sge.vaddr;
+<<<<<<< HEAD
 				u32 slen = ss->sge.length;
 
 				if (slen > len)
 					slen = len;
 				if (slen > ss->sge.sge_length)
 					slen = ss->sge.sge_length;
+=======
+				u32 slen = rvt_get_sge_length(&ss->sge, len);
+
+>>>>>>> upstream/android-13
 				rvt_update_sge(ss, slen, false);
 				seg_pio_copy_mid(pbuf, addr, slen);
 				len -= slen;
@@ -1161,6 +1467,7 @@ int hfi1_verbs_send_pio(struct rvt_qp *qp, struct hfi1_pkt_state *ps,
 			       &ps->s_txreq->phdr.hdr, ib_is_sc5(sc5));
 
 pio_bail:
+<<<<<<< HEAD
 	if (qp->s_wqe) {
 		spin_lock_irqsave(&qp->s_lock, flags);
 		hfi1_send_complete(qp, qp->s_wqe, wc_status);
@@ -1170,6 +1477,17 @@ pio_bail:
 		hfi1_rc_send_complete(qp, &ps->s_txreq->phdr.hdr);
 		spin_unlock_irqrestore(&qp->s_lock, flags);
 	}
+=======
+	spin_lock_irqsave(&qp->s_lock, flags);
+	if (qp->s_wqe) {
+		rvt_send_complete(qp, qp->s_wqe, wc_status);
+	} else if (qp->ibqp.qp_type == IB_QPT_RC) {
+		if (unlikely(wc_status == IB_WC_GENERAL_ERR))
+			hfi1_rc_verbs_aborted(qp, &ps->s_txreq->phdr.hdr);
+		hfi1_rc_send_complete(qp, &ps->s_txreq->phdr.hdr);
+	}
+	spin_unlock_irqrestore(&qp->s_lock, flags);
+>>>>>>> upstream/android-13
 
 	ret = 0;
 
@@ -1206,7 +1524,11 @@ static inline int egress_pkey_matches_entry(u16 pkey, u16 ent)
  * egress_pkey_check - check P_KEY of a packet
  * @ppd:  Physical IB port data
  * @slid: SLID for packet
+<<<<<<< HEAD
  * @bkey: PKEY for header
+=======
+ * @pkey: PKEY for header
+>>>>>>> upstream/android-13
  * @sc5:  SC for packet
  * @s_pkey_index: It will be used for look up optimization for kernel contexts
  * only. If it is negative value, then it means user contexts is calling this
@@ -1267,7 +1589,11 @@ bad:
 	return 1;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * get_send_routine - choose an egress routine
  *
  * Choose an egress routine based on QP type
@@ -1289,15 +1615,26 @@ static inline send_routine get_send_routine(struct rvt_qp *qp,
 	case IB_QPT_UD:
 		break;
 	case IB_QPT_UC:
+<<<<<<< HEAD
 	case IB_QPT_RC: {
 		if (piothreshold &&
 		    tx->s_cur_size <= min(piothreshold, qp->pmtu) &&
+=======
+	case IB_QPT_RC:
+		priv->s_running_pkt_size =
+			(tx->s_cur_size + priv->s_running_pkt_size) / 2;
+		if (piothreshold &&
+		    priv->s_running_pkt_size <= min(piothreshold, qp->pmtu) &&
+>>>>>>> upstream/android-13
 		    (BIT(ps->opcode & OPMASK) & pio_opmask[ps->opcode >> 5]) &&
 		    iowait_sdma_pending(&priv->s_iowait) == 0 &&
 		    !sdma_txreq_built(&tx->txreq))
 			return dd->process_pio_send;
 		break;
+<<<<<<< HEAD
 	}
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1370,7 +1707,11 @@ int hfi1_verbs_send(struct rvt_qp *qp, struct hfi1_pkt_state *ps)
 			hfi1_cdbg(PIO, "%s() Failed. Completing with err",
 				  __func__);
 			spin_lock_irqsave(&qp->s_lock, flags);
+<<<<<<< HEAD
 			hfi1_send_complete(qp, qp->s_wqe, IB_WC_GENERAL_ERR);
+=======
+			rvt_send_complete(qp, qp->s_wqe, IB_WC_GENERAL_ERR);
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&qp->s_lock, flags);
 		}
 		return -EINVAL;
@@ -1403,7 +1744,11 @@ static void hfi1_fill_device_attr(struct hfi1_devdata *dd)
 			IB_DEVICE_SYS_IMAGE_GUID | IB_DEVICE_RC_RNR_NAK_GEN |
 			IB_DEVICE_PORT_ACTIVE_EVENT | IB_DEVICE_SRQ_RESIZE |
 			IB_DEVICE_MEM_MGT_EXTENSIONS |
+<<<<<<< HEAD
 			IB_DEVICE_RDMA_NETDEV_OPA_VNIC;
+=======
+			IB_DEVICE_RDMA_NETDEV_OPA;
+>>>>>>> upstream/android-13
 	rdi->dparms.props.page_size_cap = PAGE_SIZE;
 	rdi->dparms.props.vendor_id = dd->oui1 << 16 | dd->oui2 << 8 | dd->oui3;
 	rdi->dparms.props.vendor_part_id = dd->pcidev->device;
@@ -1412,14 +1757,23 @@ static void hfi1_fill_device_attr(struct hfi1_devdata *dd)
 	rdi->dparms.props.max_mr_size = U64_MAX;
 	rdi->dparms.props.max_fast_reg_page_list_len = UINT_MAX;
 	rdi->dparms.props.max_qp = hfi1_max_qps;
+<<<<<<< HEAD
 	rdi->dparms.props.max_qp_wr = hfi1_max_qp_wrs;
+=======
+	rdi->dparms.props.max_qp_wr =
+		(hfi1_max_qp_wrs >= HFI1_QP_WQE_INVALID ?
+		 HFI1_QP_WQE_INVALID - 1 : hfi1_max_qp_wrs);
+>>>>>>> upstream/android-13
 	rdi->dparms.props.max_send_sge = hfi1_max_sges;
 	rdi->dparms.props.max_recv_sge = hfi1_max_sges;
 	rdi->dparms.props.max_sge_rd = hfi1_max_sges;
 	rdi->dparms.props.max_cq = hfi1_max_cqs;
 	rdi->dparms.props.max_ah = hfi1_max_ahs;
 	rdi->dparms.props.max_cqe = hfi1_max_cqes;
+<<<<<<< HEAD
 	rdi->dparms.props.max_map_per_fmr = 32767;
+=======
+>>>>>>> upstream/android-13
 	rdi->dparms.props.max_pd = hfi1_max_pds;
 	rdi->dparms.props.max_qp_rd_atom = HFI1_MAX_RDMA_ATOMIC;
 	rdi->dparms.props.max_qp_init_rd_atom = 255;
@@ -1466,7 +1820,11 @@ static inline u16 opa_width_to_ib(u16 in)
 	}
 }
 
+<<<<<<< HEAD
 static int query_port(struct rvt_dev_info *rdi, u8 port_num,
+=======
+static int query_port(struct rvt_dev_info *rdi, u32 port_num,
+>>>>>>> upstream/android-13
 		      struct ib_port_attr *props)
 {
 	struct hfi1_ibdev *verbs_dev = dev_from_rdi(rdi);
@@ -1483,7 +1841,11 @@ static int query_port(struct rvt_dev_info *rdi, u8 port_num,
 	props->gid_tbl_len = HFI1_GUIDS_PER_PORT;
 	props->active_width = (u8)opa_width_to_ib(ppd->link_width_active);
 	/* see rate_show() in ib core/sysfs.c */
+<<<<<<< HEAD
 	props->active_speed = (u8)opa_speed_to_ib(ppd->link_speed_active);
+=======
+	props->active_speed = opa_speed_to_ib(ppd->link_speed_active);
+>>>>>>> upstream/android-13
 	props->max_vl_num = ppd->vls_supported;
 
 	/* Once we are a "first class" citizen and have added the OPA MTUs to
@@ -1498,6 +1860,10 @@ static int query_port(struct rvt_dev_info *rdi, u8 port_num,
 				      4096 : hfi1_max_mtu), IB_MTU_4096);
 	props->active_mtu = !valid_ib_mtu(ppd->ibmtu) ? props->max_mtu :
 		mtu_to_enum(ppd->ibmtu, IB_MTU_4096);
+<<<<<<< HEAD
+=======
+	props->phys_mtu = hfi1_max_mtu;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1542,7 +1908,11 @@ bail:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int shut_down_port(struct rvt_dev_info *rdi, u8 port_num)
+=======
+static int shut_down_port(struct rvt_dev_info *rdi, u32 port_num)
+>>>>>>> upstream/android-13
 {
 	struct hfi1_ibdev *verbs_dev = dev_from_rdi(rdi);
 	struct hfi1_devdata *dd = dd_from_dev(verbs_dev);
@@ -1750,6 +2120,7 @@ static int init_cntr_names(const char *names_in,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct rdma_hw_stats *alloc_hw_stats(struct ib_device *ibdev,
 					    u8 port_num)
 {
@@ -1798,10 +2169,60 @@ static struct rdma_hw_stats *alloc_hw_stats(struct ib_device *ibdev,
 				port_cntr_names,
 				num_port_cntrs,
 				RDMA_HW_STATS_DEFAULT_LIFESPAN);
+=======
+static int init_counters(struct ib_device *ibdev)
+{
+	struct hfi1_devdata *dd = dd_from_ibdev(ibdev);
+	int i, err = 0;
+
+	mutex_lock(&cntr_names_lock);
+	if (cntr_names_initialized)
+		goto out_unlock;
+
+	err = init_cntr_names(dd->cntrnames, dd->cntrnameslen, num_driver_cntrs,
+			      &num_dev_cntrs, &dev_cntr_names);
+	if (err)
+		goto out_unlock;
+
+	for (i = 0; i < num_driver_cntrs; i++)
+		dev_cntr_names[num_dev_cntrs + i] = driver_cntr_names[i];
+
+	err = init_cntr_names(dd->portcntrnames, dd->portcntrnameslen, 0,
+			      &num_port_cntrs, &port_cntr_names);
+	if (err) {
+		kfree(dev_cntr_names);
+		dev_cntr_names = NULL;
+		goto out_unlock;
+	}
+	cntr_names_initialized = 1;
+
+out_unlock:
+	mutex_unlock(&cntr_names_lock);
+	return err;
+}
+
+static struct rdma_hw_stats *hfi1_alloc_hw_device_stats(struct ib_device *ibdev)
+{
+	if (init_counters(ibdev))
+		return NULL;
+	return rdma_alloc_hw_stats_struct(dev_cntr_names,
+					  num_dev_cntrs + num_driver_cntrs,
+					  RDMA_HW_STATS_DEFAULT_LIFESPAN);
+}
+
+static struct rdma_hw_stats *hfi_alloc_hw_port_stats(struct ib_device *ibdev,
+						     u32 port_num)
+{
+	if (init_counters(ibdev))
+		return NULL;
+	return rdma_alloc_hw_stats_struct(port_cntr_names, num_port_cntrs,
+					  RDMA_HW_STATS_DEFAULT_LIFESPAN);
+>>>>>>> upstream/android-13
 }
 
 static u64 hfi1_sps_ints(void)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	struct hfi1_devdata *dd;
 	u64 sps_ints = 0;
@@ -1811,11 +2232,26 @@ static u64 hfi1_sps_ints(void)
 		sps_ints += get_all_cpu_total(dd->int_counter);
 	}
 	spin_unlock_irqrestore(&hfi1_devs_lock, flags);
+=======
+	unsigned long index, flags;
+	struct hfi1_devdata *dd;
+	u64 sps_ints = 0;
+
+	xa_lock_irqsave(&hfi1_dev_table, flags);
+	xa_for_each(&hfi1_dev_table, index, dd) {
+		sps_ints += get_all_cpu_total(dd->int_counter);
+	}
+	xa_unlock_irqrestore(&hfi1_dev_table, flags);
+>>>>>>> upstream/android-13
 	return sps_ints;
 }
 
 static int get_hw_stats(struct ib_device *ibdev, struct rdma_hw_stats *stats,
+<<<<<<< HEAD
 			u8 port, int index)
+=======
+			u32 port, int index)
+>>>>>>> upstream/android-13
 {
 	u64 *values;
 	int count;
@@ -1840,6 +2276,26 @@ static int get_hw_stats(struct ib_device *ibdev, struct rdma_hw_stats *stats,
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static const struct ib_device_ops hfi1_dev_ops = {
+	.owner = THIS_MODULE,
+	.driver_id = RDMA_DRIVER_HFI1,
+
+	.alloc_hw_device_stats = hfi1_alloc_hw_device_stats,
+	.alloc_hw_port_stats = hfi_alloc_hw_port_stats,
+	.alloc_rdma_netdev = hfi1_vnic_alloc_rn,
+	.device_group = &ib_hfi1_attr_group,
+	.get_dev_fw_str = hfi1_get_dev_fw_str,
+	.get_hw_stats = get_hw_stats,
+	.modify_device = modify_device,
+	.port_groups = hfi1_attr_port_groups,
+	/* keep process mad in the driver */
+	.process_mad = hfi1_process_mad,
+	.rdma_netdev_get_params = hfi1_ipoib_rn_get_params,
+};
+
+>>>>>>> upstream/android-13
 /**
  * hfi1_register_ib_device - register our device with the infiniband core
  * @dd: the device data structure
@@ -1880,6 +2336,7 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 	 */
 	if (!ib_hfi1_sys_image_guid)
 		ib_hfi1_sys_image_guid = ibdev->node_guid;
+<<<<<<< HEAD
 	ibdev->owner = THIS_MODULE;
 	ibdev->phys_port_cnt = dd->num_pports;
 	ibdev->dev.parent = &dd->pcidev->dev;
@@ -1891,6 +2348,12 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 	/* keep process mad in the driver */
 	ibdev->process_mad = hfi1_process_mad;
 	ibdev->get_dev_fw_str = hfi1_get_dev_fw_str;
+=======
+	ibdev->phys_port_cnt = dd->num_pports;
+	ibdev->dev.parent = &dd->pcidev->dev;
+
+	ib_set_device_ops(ibdev, &hfi1_dev_ops);
+>>>>>>> upstream/android-13
 
 	strlcpy(ibdev->node_desc, init_utsname()->nodename,
 		sizeof(ibdev->node_desc));
@@ -1898,7 +2361,10 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 	/*
 	 * Fill in rvt info object.
 	 */
+<<<<<<< HEAD
 	dd->verbs_dev.rdi.driver_f.port_callback = hfi1_create_port_files;
+=======
+>>>>>>> upstream/android-13
 	dd->verbs_dev.rdi.driver_f.get_pci_dev = get_pci_dev;
 	dd->verbs_dev.rdi.driver_f.check_ah = hfi1_check_ah;
 	dd->verbs_dev.rdi.driver_f.notify_new_ah = hfi1_notify_new_ah;
@@ -1916,9 +2382,14 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 	dd->verbs_dev.rdi.dparms.qpn_start = 0;
 	dd->verbs_dev.rdi.dparms.qpn_inc = 1;
 	dd->verbs_dev.rdi.dparms.qos_shift = dd->qos_shift;
+<<<<<<< HEAD
 	dd->verbs_dev.rdi.dparms.qpn_res_start = kdeth_qp << 16;
 	dd->verbs_dev.rdi.dparms.qpn_res_end =
 	dd->verbs_dev.rdi.dparms.qpn_res_start + 65535;
+=======
+	dd->verbs_dev.rdi.dparms.qpn_res_start = RVT_KDETH_QP_BASE;
+	dd->verbs_dev.rdi.dparms.qpn_res_end = RVT_AIP_QP_MAX;
+>>>>>>> upstream/android-13
 	dd->verbs_dev.rdi.dparms.max_rdma_atomic = HFI1_MAX_RDMA_ATOMIC;
 	dd->verbs_dev.rdi.dparms.psn_mask = PSN_MASK;
 	dd->verbs_dev.rdi.dparms.psn_shift = PSN_SHIFT;
@@ -1928,6 +2399,10 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 	dd->verbs_dev.rdi.dparms.max_mad_size = OPA_MGMT_MAD_SIZE;
 
 	dd->verbs_dev.rdi.driver_f.qp_priv_alloc = qp_priv_alloc;
+<<<<<<< HEAD
+=======
+	dd->verbs_dev.rdi.driver_f.qp_priv_init = hfi1_qp_priv_init;
+>>>>>>> upstream/android-13
 	dd->verbs_dev.rdi.driver_f.qp_priv_free = qp_priv_free;
 	dd->verbs_dev.rdi.driver_f.free_all_qps = free_all_qps;
 	dd->verbs_dev.rdi.driver_f.notify_qp_reset = notify_qp_reset;
@@ -1945,7 +2420,11 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 	dd->verbs_dev.rdi.driver_f.check_modify_qp = hfi1_check_modify_qp;
 	dd->verbs_dev.rdi.driver_f.modify_qp = hfi1_modify_qp;
 	dd->verbs_dev.rdi.driver_f.notify_restart_rc = hfi1_restart_rc;
+<<<<<<< HEAD
 	dd->verbs_dev.rdi.driver_f.check_send_wqe = hfi1_check_send_wqe;
+=======
+	dd->verbs_dev.rdi.driver_f.setup_wqe = hfi1_setup_wqe;
+>>>>>>> upstream/android-13
 	dd->verbs_dev.rdi.driver_f.comp_vect_cpu_lookup =
 						hfi1_comp_vect_mappings_lookup;
 
@@ -1958,10 +2437,24 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 	dd->verbs_dev.rdi.dparms.lkey_table_size = hfi1_lkey_table_size;
 	dd->verbs_dev.rdi.dparms.nports = dd->num_pports;
 	dd->verbs_dev.rdi.dparms.npkeys = hfi1_get_npkeys(dd);
+<<<<<<< HEAD
+=======
+	dd->verbs_dev.rdi.dparms.sge_copy_mode = sge_copy_mode;
+	dd->verbs_dev.rdi.dparms.wss_threshold = wss_threshold;
+	dd->verbs_dev.rdi.dparms.wss_clean_period = wss_clean_period;
+	dd->verbs_dev.rdi.dparms.reserved_operations = 1;
+	dd->verbs_dev.rdi.dparms.extra_rdma_atomic = HFI1_TID_RDMA_WRITE_CNT;
+>>>>>>> upstream/android-13
 
 	/* post send table */
 	dd->verbs_dev.rdi.post_parms = hfi1_post_parms;
 
+<<<<<<< HEAD
+=======
+	/* opcode translation table */
+	dd->verbs_dev.rdi.wc_opcode = ib_hfi1_wc_opcode;
+
+>>>>>>> upstream/android-13
 	ppd = dd->pport;
 	for (i = 0; i < dd->num_pports; i++, ppd++)
 		rvt_init_port(&dd->verbs_dev.rdi,
@@ -1969,7 +2462,11 @@ int hfi1_register_ib_device(struct hfi1_devdata *dd)
 			      i,
 			      ppd->pkeys);
 
+<<<<<<< HEAD
 	ret = rvt_register_device(&dd->verbs_dev.rdi, RDMA_DRIVER_HFI1);
+=======
+	ret = rvt_register_device(&dd->verbs_dev.rdi);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_verbs_txreq;
 

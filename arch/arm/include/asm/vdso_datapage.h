@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Adapted from arm64 version.
  *
  * Copyright (C) 2012 ARM Limited
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_VDSO_DATAPAGE_H
 #define __ASM_VDSO_DATAPAGE_H
@@ -22,6 +29,7 @@
 
 #ifndef __ASSEMBLY__
 
+<<<<<<< HEAD
 #include <asm/page.h>
 
 /* Try to be cache-friendly on systems that don't implement the
@@ -51,6 +59,14 @@ struct vdso_data {
 union vdso_data_store {
 	struct vdso_data data;
 	u8 page[PAGE_SIZE];
+=======
+#include <vdso/datapage.h>
+#include <asm/page.h>
+
+union vdso_data_store {
+	struct vdso_data	data[CS_BASES];
+	u8			page[PAGE_SIZE];
+>>>>>>> upstream/android-13
 };
 
 #endif /* !__ASSEMBLY__ */

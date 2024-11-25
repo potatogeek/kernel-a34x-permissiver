@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2006-2011 Intel Corporation
  *
@@ -14,12 +15,19 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2006-2011 Intel Corporation
+ *
+>>>>>>> upstream/android-13
  * Authors:
  *	Eric Anholt <eric@anholt.net>
  *	Dave Airlie <airlied@linux.ie>
  *	Jesse Barnes <jesse.barnes@intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/i2c.h>
 #include <linux/dmi.h>
 #include <drm/drmP.h>
@@ -33,6 +41,22 @@
 #include "cdv_device.h"
 
 /**
+=======
+#include <linux/dmi.h>
+#include <linux/i2c.h>
+#include <linux/pm_runtime.h>
+
+#include <drm/drm_simple_kms_helper.h>
+
+#include "cdv_device.h"
+#include "intel_bios.h"
+#include "power.h"
+#include "psb_drv.h"
+#include "psb_intel_drv.h"
+#include "psb_intel_reg.h"
+
+/*
+>>>>>>> upstream/android-13
  * LVDS I2C backlight control macros
  */
 #define BRIGHTNESS_MAX_LEVEL 100
@@ -85,6 +109,7 @@ static u32 cdv_intel_lvds_get_max_backlight(struct drm_device *dev)
 	return retval;
 }
 
+<<<<<<< HEAD
 #if 0
 /*
  * Set LVDS backlight level by I2C command
@@ -169,6 +194,9 @@ void cdv_intel_lvds_set_brightness(struct drm_device *dev, int level)
 #endif
 
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Sets the backlight level.
  *
  * level backlight level, from 0 to cdv_intel_lvds_get_max_backlight().
@@ -193,7 +221,11 @@ static void cdv_intel_lvds_set_backlight(struct drm_device *dev, int level)
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Sets the power state for the panel.
  */
 static void cdv_intel_lvds_set_power(struct drm_device *dev,
@@ -385,7 +417,11 @@ static void cdv_intel_lvds_mode_set(struct drm_encoder *encoder,
 	REG_WRITE(PFIT_CONTROL, pfit_control);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Return the list of DDC modes if available, or the BIOS fixed mode otherwise.
  */
 static int cdv_intel_lvds_get_modes(struct drm_connector *connector)
@@ -512,6 +548,7 @@ static const struct drm_connector_funcs cdv_intel_lvds_connector_funcs = {
 	.destroy = cdv_intel_lvds_destroy,
 };
 
+<<<<<<< HEAD
 
 static void cdv_intel_lvds_enc_destroy(struct drm_encoder *encoder)
 {
@@ -522,6 +559,8 @@ static const struct drm_encoder_funcs cdv_intel_lvds_enc_funcs = {
 	.destroy = cdv_intel_lvds_enc_destroy,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Enumerate the child dev array parsed from VBT to check whether
  * the LVDS is present.
@@ -575,6 +614,10 @@ static bool lvds_is_present_in_vbt(struct drm_device *dev,
 /**
  * cdv_intel_lvds_init - setup LVDS connectors on this device
  * @dev: drm device
+<<<<<<< HEAD
+=======
+ * @mode_dev: PSB mode device
+>>>>>>> upstream/android-13
  *
  * Create the connector, register the LVDS DDC bus, and try to figure out what
  * modes we can display on the LVDS panel (if present).
@@ -629,10 +672,14 @@ void cdv_intel_lvds_init(struct drm_device *dev,
 			   &cdv_intel_lvds_connector_funcs,
 			   DRM_MODE_CONNECTOR_LVDS);
 
+<<<<<<< HEAD
 	drm_encoder_init(dev, encoder,
 			 &cdv_intel_lvds_enc_funcs,
 			 DRM_MODE_ENCODER_LVDS, NULL);
 
+=======
+	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
+>>>>>>> upstream/android-13
 
 	gma_connector_attach_encoder(gma_connector, gma_encoder);
 	gma_encoder->type = INTEL_OUTPUT_LVDS;
@@ -661,7 +708,11 @@ void cdv_intel_lvds_init(struct drm_device *dev,
 							 "LVDSBLC_B");
 	if (!gma_encoder->i2c_bus) {
 		dev_printk(KERN_ERR,
+<<<<<<< HEAD
 			&dev->pdev->dev, "I2C bus registration failed.\n");
+=======
+			dev->dev, "I2C bus registration failed.\n");
+>>>>>>> upstream/android-13
 		goto failed_blc_i2c;
 	}
 	gma_encoder->i2c_bus->slave_addr = 0x2C;
@@ -682,7 +733,11 @@ void cdv_intel_lvds_init(struct drm_device *dev,
 							 GPIOC,
 							 "LVDSDDC_C");
 	if (!gma_encoder->ddc_bus) {
+<<<<<<< HEAD
 		dev_printk(KERN_ERR, &dev->pdev->dev,
+=======
+		dev_printk(KERN_ERR, dev->dev,
+>>>>>>> upstream/android-13
 			   "DDC bus registration " "failed.\n");
 		goto failed_ddc;
 	}

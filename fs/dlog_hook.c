@@ -35,7 +35,10 @@ DEFINE_DLOG(dlog_rmdir);
 #define EXT_SHIFT		7
 #define MAX_EXT			(1 << 7)
 #define MAX_DEPTH		2
+<<<<<<< HEAD
 #define MEDIA_MIN_SIZE		(512 * 1024)
+=======
+>>>>>>> upstream/android-13
 
 struct dlog_keyword {
 	struct hlist_node hlist;
@@ -55,7 +58,10 @@ enum {
 enum {
 	DLOG_SUPP_PART_DATA = 0,
 	DLOG_SUPP_PART_EFS,
+<<<<<<< HEAD
 	DLOG_SUPP_PART_FUSE,
+=======
+>>>>>>> upstream/android-13
 	DLOG_SUPP_PART_MAX
 };
 
@@ -69,7 +75,11 @@ enum {
 static struct dlog_keyword_hash_tbl ht[DLOG_HT_MAX];
 
 static const char *support_part[] = {
+<<<<<<< HEAD
 	"data", "efs", "emulated", NULL,
+=======
+	"data", "efs", NULL,
+>>>>>>> upstream/android-13
 };
 
 static const char *extensions[] = {
@@ -218,11 +228,18 @@ static int get_support_part_id(struct vfsmount *mnt)
 #endif
 static int is_sdcard(struct vfsmount *mnt)
 {
+<<<<<<< HEAD
 	/* internal storage (external storage till Andorid 8.x) */
 	if (mnt->mnt_sb->s_magic == SDCARDFS_SUPER_MAGIC)
 		return true;
 	/* internal storage (external storage till Andorid 11.x) */
 	else if (mnt->mnt_sb->s_magic == FUSE_SUPER_MAGIC)
+=======
+	/* internal storage (external storage after Andorid 11.x)
+	sdcardfs is deleted at this kernel branch
+	 */
+	if (mnt->mnt_sb->s_magic == FUSE_SUPER_MAGIC)
+>>>>>>> upstream/android-13
 		return true;
 	/* external storage from Android 9.x */
 	else if (mnt->mnt_sb->s_magic == SDFAT_SUPER_MAGIC)
@@ -307,8 +324,12 @@ void dlog_hook(struct dentry *dentry, struct inode *inode, struct path *path)
 
 	/* for data partition`s only multimedia file */
 	if (is_ext(dentry->d_name.name, '.', &ht[DLOG_HT_EXTENSION])) {
+<<<<<<< HEAD
 		if (i_size_read(inode) >= MEDIA_MIN_SIZE)
 			store_log(dentry, inode, path, DLOG_MM, part_id);
+=======
+		store_log(dentry, inode, path, DLOG_MM, part_id);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 

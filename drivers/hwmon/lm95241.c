@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008, 2010 Davide Rizzo <elpa.rizzo@gmail.com>
  *
@@ -5,6 +9,7 @@
  * It reports up to three temperatures (its own plus up to two external ones).
  * Complete datasheet can be obtained from National's website at:
  *   http://www.national.com/ds.cgi/LM/LM95241.pdf
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -349,12 +356,17 @@ static umode_t lm95241_is_visible(const void *data,
 	case hwmon_chip:
 		switch (attr) {
 		case hwmon_chip_update_interval:
+<<<<<<< HEAD
 			return S_IRUGO | S_IWUSR;
+=======
+			return 0644;
+>>>>>>> upstream/android-13
 		}
 		break;
 	case hwmon_temp:
 		switch (attr) {
 		case hwmon_temp_input:
+<<<<<<< HEAD
 			return S_IRUGO;
 		case hwmon_temp_fault:
 			return S_IRUGO;
@@ -362,6 +374,15 @@ static umode_t lm95241_is_visible(const void *data,
 		case hwmon_temp_max:
 		case hwmon_temp_type:
 			return S_IRUGO | S_IWUSR;
+=======
+			return 0444;
+		case hwmon_temp_fault:
+			return 0444;
+		case hwmon_temp_min:
+		case hwmon_temp_max:
+		case hwmon_temp_type:
+			return 0644;
+>>>>>>> upstream/android-13
 		}
 		break;
 	default:
@@ -418,6 +439,7 @@ static void lm95241_init_client(struct i2c_client *client,
 				  data->model);
 }
 
+<<<<<<< HEAD
 static const u32 lm95241_chip_config[] = {
 	HWMON_C_UPDATE_INTERVAL,
 	0
@@ -445,6 +467,17 @@ static const struct hwmon_channel_info lm95241_temp = {
 static const struct hwmon_channel_info *lm95241_info[] = {
 	&lm95241_chip,
 	&lm95241_temp,
+=======
+static const struct hwmon_channel_info *lm95241_info[] = {
+	HWMON_CHANNEL_INFO(chip,
+			   HWMON_C_UPDATE_INTERVAL),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_MIN |
+			   HWMON_T_TYPE | HWMON_T_FAULT,
+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_MIN |
+			   HWMON_T_TYPE | HWMON_T_FAULT),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -459,8 +492,12 @@ static const struct hwmon_chip_info lm95241_chip_info = {
 	.info = lm95241_info,
 };
 
+<<<<<<< HEAD
 static int lm95241_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int lm95241_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct lm95241_data *data;
@@ -496,7 +533,11 @@ static struct i2c_driver lm95241_driver = {
 	.driver = {
 		.name	= DEVNAME,
 	},
+<<<<<<< HEAD
 	.probe		= lm95241_probe,
+=======
+	.probe_new	= lm95241_probe,
+>>>>>>> upstream/android-13
 	.id_table	= lm95241_id,
 	.detect		= lm95241_detect,
 	.address_list	= normal_i2c,

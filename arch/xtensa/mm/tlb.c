@@ -162,6 +162,15 @@ void local_flush_tlb_kernel_range(unsigned long start, unsigned long end)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void update_mmu_tlb(struct vm_area_struct *vma,
+		    unsigned long address, pte_t *ptep)
+{
+	local_flush_tlb_page(vma, address);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_DEBUG_TLB_SANITY
 
 static unsigned get_pte_for_vaddr(unsigned vaddr)
@@ -169,6 +178,11 @@ static unsigned get_pte_for_vaddr(unsigned vaddr)
 	struct task_struct *task = get_current();
 	struct mm_struct *mm = task->mm;
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+	pud_t *pud;
+>>>>>>> upstream/android-13
 	pmd_t *pmd;
 	pte_t *pte;
 
@@ -177,7 +191,17 @@ static unsigned get_pte_for_vaddr(unsigned vaddr)
 	pgd = pgd_offset(mm, vaddr);
 	if (pgd_none_or_clear_bad(pgd))
 		return 0;
+<<<<<<< HEAD
 	pmd = pmd_offset(pgd, vaddr);
+=======
+	p4d = p4d_offset(pgd, vaddr);
+	if (p4d_none_or_clear_bad(p4d))
+		return 0;
+	pud = pud_offset(p4d, vaddr);
+	if (pud_none_or_clear_bad(pud))
+		return 0;
+	pmd = pmd_offset(pud, vaddr);
+>>>>>>> upstream/android-13
 	if (pmd_none_or_clear_bad(pmd))
 		return 0;
 	pte = pte_offset_map(pmd, vaddr);

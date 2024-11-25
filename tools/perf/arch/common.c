@@ -1,9 +1,28 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <stdio.h>
 #include "common.h"
 #include "../util/env.h"
 #include "../util/util.h"
 #include "../util/debug.h"
+=======
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include "common.h"
+#include "../util/env.h"
+#include "../util/debug.h"
+#include <linux/zalloc.h>
+
+const char *const arc_triplets[] = {
+	"arc-linux-",
+	"arc-snps-linux-uclibc-",
+	"arc-snps-linux-gnu-",
+	NULL
+};
+>>>>>>> upstream/android-13
 
 const char *const arm_triplets[] = {
 	"arm-eabi-",
@@ -147,7 +166,13 @@ static int perf_env__lookup_binutils_path(struct perf_env *env,
 		zfree(&buf);
 	}
 
+<<<<<<< HEAD
 	if (!strcmp(arch, "arm"))
+=======
+	if (!strcmp(arch, "arc"))
+		path_list = arc_triplets;
+	else if (!strcmp(arch, "arm"))
+>>>>>>> upstream/android-13
 		path_list = arm_triplets;
 	else if (!strcmp(arch, "arm64"))
 		path_list = arm64_triplets;

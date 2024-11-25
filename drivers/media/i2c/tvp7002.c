@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Texas Instruments Triple 8-/10-BIT 165-/110-MSPS Video and Graphics
  * Digitizer with Horizontal PLL registers
  *
@@ -9,6 +13,7 @@
  * the TVP514x driver written by Vaibhav Hiremath <hvaibhav@ti.com>
  * and the TVP7002 driver in the TI LSP 2.10.00.14. Revisions by
  * Muralidharan Karicheri and Snehaprabha Narnakaje (TI).
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/i2c.h>
@@ -697,9 +704,17 @@ static int tvp7002_g_register(struct v4l2_subdev *sd,
 	int ret;
 
 	ret = tvp7002_read(sd, reg->reg & 0xff, &val);
+<<<<<<< HEAD
 	reg->val = val;
 	reg->size = 1;
 	return ret;
+=======
+	if (ret < 0)
+		return ret;
+	reg->val = val;
+	reg->size = 1;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -804,7 +819,12 @@ static const struct v4l2_ctrl_ops tvp7002_ctrl_ops = {
  * Enumerate supported digital video formats for pad.
  */
 static int
+<<<<<<< HEAD
 tvp7002_enum_mbus_code(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg,
+=======
+tvp7002_enum_mbus_code(struct v4l2_subdev *sd,
+		       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		       struct v4l2_subdev_mbus_code_enum *code)
 {
 	/* Check requested format index is within range */
@@ -825,7 +845,12 @@ tvp7002_enum_mbus_code(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cf
  * get video format for pad.
  */
 static int
+<<<<<<< HEAD
 tvp7002_get_pad_format(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg,
+=======
+tvp7002_get_pad_format(struct v4l2_subdev *sd,
+		       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		       struct v4l2_subdev_format *fmt)
 {
 	struct tvp7002 *tvp7002 = to_tvp7002(sd);
@@ -848,10 +873,18 @@ tvp7002_get_pad_format(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cf
  * set video format for pad.
  */
 static int
+<<<<<<< HEAD
 tvp7002_set_pad_format(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg,
 		       struct v4l2_subdev_format *fmt)
 {
 	return tvp7002_get_pad_format(sd, cfg, fmt);
+=======
+tvp7002_set_pad_format(struct v4l2_subdev *sd,
+		       struct v4l2_subdev_state *sd_state,
+		       struct v4l2_subdev_format *fmt)
+{
+	return tvp7002_get_pad_format(sd, sd_state, fmt);
+>>>>>>> upstream/android-13
 }
 
 /* V4L2 core operation handlers */
@@ -889,7 +922,11 @@ static const struct v4l2_subdev_ops tvp7002_ops = {
 static struct tvp7002_config *
 tvp7002_get_pdata(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint bus_cfg;
+=======
+	struct v4l2_fwnode_endpoint bus_cfg = { .bus_type = 0 };
+>>>>>>> upstream/android-13
 	struct tvp7002_config *pdata = NULL;
 	struct device_node *endpoint;
 	unsigned int flags;
@@ -939,7 +976,11 @@ done:
  * Returns zero when successful, -EINVAL if register read fails or
  * -EIO if i2c access is not available.
  */
+<<<<<<< HEAD
 static int tvp7002_probe(struct i2c_client *c, const struct i2c_device_id *id)
+=======
+static int tvp7002_probe(struct i2c_client *c)
+>>>>>>> upstream/android-13
 {
 	struct tvp7002_config *pdata = tvp7002_get_pdata(c);
 	struct v4l2_subdev *sd;
@@ -1084,7 +1125,11 @@ static struct i2c_driver tvp7002_driver = {
 		.of_match_table = of_match_ptr(tvp7002_of_match),
 		.name = TVP7002_MODULE_NAME,
 	},
+<<<<<<< HEAD
 	.probe = tvp7002_probe,
+=======
+	.probe_new = tvp7002_probe,
+>>>>>>> upstream/android-13
 	.remove = tvp7002_remove,
 	.id_table = tvp7002_id,
 };

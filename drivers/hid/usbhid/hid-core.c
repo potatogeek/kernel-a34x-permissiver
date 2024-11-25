@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  USB HID support for Linux
  *
@@ -9,10 +13,13 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -377,21 +384,32 @@ static int hid_submit_ctrl(struct hid_device *hid)
 	raw_report = usbhid->ctrl[usbhid->ctrltail].raw_report;
 	dir = usbhid->ctrl[usbhid->ctrltail].dir;
 
+<<<<<<< HEAD
 	len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
 	if (dir == USB_DIR_OUT) {
 		usbhid->urbctrl->pipe = usb_sndctrlpipe(hid_to_usb_dev(hid), 0);
 		usbhid->urbctrl->transfer_buffer_length = len;
+=======
+	len = hid_report_len(report);
+	if (dir == USB_DIR_OUT) {
+		usbhid->urbctrl->pipe = usb_sndctrlpipe(hid_to_usb_dev(hid), 0);
+>>>>>>> upstream/android-13
 		if (raw_report) {
 			memcpy(usbhid->ctrlbuf, raw_report, len);
 			kfree(raw_report);
 			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
 		}
 	} else {
+<<<<<<< HEAD
 		int maxpacket, padlen;
+=======
+		int maxpacket;
+>>>>>>> upstream/android-13
 
 		usbhid->urbctrl->pipe = usb_rcvctrlpipe(hid_to_usb_dev(hid), 0);
 		maxpacket = usb_maxpacket(hid_to_usb_dev(hid),
 					  usbhid->urbctrl->pipe, 0);
+<<<<<<< HEAD
 		if (maxpacket > 0) {
 			padlen = DIV_ROUND_UP(len, maxpacket);
 			padlen *= maxpacket;
@@ -401,6 +419,14 @@ static int hid_submit_ctrl(struct hid_device *hid)
 			padlen = 0;
 		usbhid->urbctrl->transfer_buffer_length = padlen;
 	}
+=======
+		len += (len == 0);	/* Don't allow 0-length reports */
+		len = round_up(len, maxpacket);
+		if (len > usbhid->bufsize)
+			len = usbhid->bufsize;
+	}
+	usbhid->urbctrl->transfer_buffer_length = len;
+>>>>>>> upstream/android-13
 	usbhid->urbctrl->dev = hid_to_usb_dev(hid);
 
 	usbhid->cr->bRequestType = USB_TYPE_CLASS | USB_RECIP_INTERFACE | dir;
@@ -441,6 +467,10 @@ static void hid_irq_out(struct urb *urb)
 		break;
 	case -ESHUTDOWN:	/* unplug */
 		unplug = 1;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case -EILSEQ:		/* protocol error or unplug */
 	case -EPROTO:		/* protocol error or unplug */
 	case -ECONNRESET:	/* unlink */
@@ -492,6 +522,10 @@ static void hid_ctrl(struct urb *urb)
 		break;
 	case -ESHUTDOWN:	/* unplug */
 		unplug = 1;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case -EILSEQ:		/* protocol error or unplug */
 	case -EPROTO:		/* protocol error or unplug */
 	case -ECONNRESET:	/* unlink */
@@ -506,7 +540,11 @@ static void hid_ctrl(struct urb *urb)
 
 	if (unplug) {
 		usbhid->ctrltail = usbhid->ctrlhead;
+<<<<<<< HEAD
 	} else {
+=======
+	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
+>>>>>>> upstream/android-13
 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
 
 		if (usbhid->ctrlhead != usbhid->ctrltail &&
@@ -1224,9 +1262,26 @@ static void usbhid_stop(struct hid_device *hid)
 	mutex_lock(&usbhid->mutex);
 
 	clear_bit(HID_STARTED, &usbhid->iofl);
+<<<<<<< HEAD
 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
 	spin_unlock_irq(&usbhid->lock);
+=======
+
+	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
+	set_bit(HID_DISCONNECTED, &usbhid->iofl);
+	while (usbhid->ctrltail != usbhid->ctrlhead) {
+		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
+			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
+			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
+		}
+
+		usbhid->ctrltail = (usbhid->ctrltail + 1) &
+			(HID_CONTROL_FIFO_SIZE - 1);
+	}
+	spin_unlock_irq(&usbhid->lock);
+
+>>>>>>> upstream/android-13
 	usb_kill_urb(usbhid->urbin);
 	usb_kill_urb(usbhid->urbout);
 	usb_kill_urb(usbhid->urbctrl);
@@ -1305,6 +1360,16 @@ static int usbhid_idle(struct hid_device *hid, int report, int idle,
 	return hid_set_idle(dev, ifnum, report, idle);
 }
 
+<<<<<<< HEAD
+=======
+static bool usbhid_may_wakeup(struct hid_device *hid)
+{
+	struct usb_device *dev = hid_to_usb_dev(hid);
+
+	return device_may_wakeup(&dev->dev);
+}
+
+>>>>>>> upstream/android-13
 struct hid_ll_driver usb_hid_driver = {
 	.parse = usbhid_parse,
 	.start = usbhid_start,
@@ -1317,6 +1382,10 @@ struct hid_ll_driver usb_hid_driver = {
 	.raw_request = usbhid_raw_request,
 	.output_report = usbhid_output_report,
 	.idle = usbhid_idle,
+<<<<<<< HEAD
+=======
+	.may_wakeup = usbhid_may_wakeup,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(usb_hid_driver);
 
@@ -1670,7 +1739,11 @@ struct usb_interface *usbhid_find_interface(int minor)
 
 static int __init hid_init(void)
 {
+<<<<<<< HEAD
 	int retval = -ENOMEM;
+=======
+	int retval;
+>>>>>>> upstream/android-13
 
 	retval = hid_quirks_init(quirks_param, BUS_USB, MAX_USBHID_BOOT_QUIRKS);
 	if (retval)

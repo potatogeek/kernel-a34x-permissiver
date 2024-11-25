@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc. All rights reserved.
  *
@@ -6,11 +10,14 @@
  *
  * Description:
  * Internal header file for UCC SLOW unit routines.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __UCC_SLOW_H__
 #define __UCC_SLOW_H__
@@ -188,8 +195,13 @@ struct ucc_slow_info {
 struct ucc_slow_private {
 	struct ucc_slow_info *us_info;
 	struct ucc_slow __iomem *us_regs; /* Ptr to memory map of UCC regs */
+<<<<<<< HEAD
 	struct ucc_slow_pram *us_pram;	/* a pointer to the parameter RAM */
 	u32 us_pram_offset;
+=======
+	struct ucc_slow_pram __iomem *us_pram;	/* a pointer to the parameter RAM */
+	s32 us_pram_offset;
+>>>>>>> upstream/android-13
 	int enabled_tx;		/* Whether channel is enabled for Tx (ENT) */
 	int enabled_rx;		/* Whether channel is enabled for Rx (ENR) */
 	int stopped_tx;		/* Whether channel has been stopped for Tx
@@ -198,6 +210,7 @@ struct ucc_slow_private {
 	struct list_head confQ;	/* frames passed to chip waiting for tx */
 	u32 first_tx_bd_mask;	/* mask is used in Tx routine to save status
 				   and length for first BD in a frame */
+<<<<<<< HEAD
 	u32 tx_base_offset;	/* first BD in Tx BD table offset (In MURAM) */
 	u32 rx_base_offset;	/* first BD in Rx BD table offset (In MURAM) */
 	struct qe_bd *confBd;	/* next BD for confirm after Tx */
@@ -207,6 +220,16 @@ struct ucc_slow_private {
 	u16 *p_ucce;		/* a pointer to the event register in memory.
 				 */
 	u16 *p_uccm;		/* a pointer to the mask register in memory */
+=======
+	s32 tx_base_offset;	/* first BD in Tx BD table offset (In MURAM) */
+	s32 rx_base_offset;	/* first BD in Rx BD table offset (In MURAM) */
+	struct qe_bd __iomem *confBd;	/* next BD for confirm after Tx */
+	struct qe_bd __iomem *tx_bd;	/* next BD for new Tx request */
+	struct qe_bd __iomem *rx_bd;	/* next BD to collect after Rx */
+	void *p_rx_frame;	/* accumulating receive frame */
+	__be16 __iomem *p_ucce;	/* a pointer to the event register in memory */
+	__be16 __iomem *p_uccm;	/* a pointer to the mask register in memory */
+>>>>>>> upstream/android-13
 	u16 saved_uccm;		/* a saved mask for the RX Interrupt bits */
 #ifdef STATISTICS
 	u32 tx_frames;		/* Transmitted frames counters */

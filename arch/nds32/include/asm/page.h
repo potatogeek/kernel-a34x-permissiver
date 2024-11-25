@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+>>>>>>> upstream/android-13
  * Copyright (C) 2005-2017 Andes Technology Corporation
  */
 
@@ -41,17 +46,26 @@ void clear_page(void *page);
 void copy_page(void *to, void *from);
 
 typedef unsigned long pte_t;
+<<<<<<< HEAD
 typedef unsigned long pmd_t;
+=======
+>>>>>>> upstream/android-13
 typedef unsigned long pgd_t;
 typedef unsigned long pgprot_t;
 
 #define pte_val(x)      (x)
+<<<<<<< HEAD
 #define pmd_val(x)      (x)
+=======
+>>>>>>> upstream/android-13
 #define pgd_val(x)	(x)
 #define pgprot_val(x)   (x)
 
 #define __pte(x)        (x)
+<<<<<<< HEAD
 #define __pmd(x)        (x)
+=======
+>>>>>>> upstream/android-13
 #define __pgd(x)        (x)
 #define __pgprot(x)     (x)
 
@@ -62,9 +76,12 @@ typedef struct page *pgtable_t;
 
 #endif /* !__ASSEMBLY__ */
 
+<<<<<<< HEAD
 #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -24,6 +25,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL8723E_TABLE__H_
 #define __RTL8723E_TABLE__H_
@@ -36,8 +41,11 @@ extern u32 RTL8723EPHY_REG_1TARRAY[RTL8723E_PHY_REG_1TARRAY_LENGTH];
 extern u32 RTL8723EPHY_REG_ARRAY_PG[RTL8723E_PHY_REG_ARRAY_PGLENGTH];
 #define RTL8723ERADIOA_1TARRAYLENGTH		282
 extern u32 RTL8723E_RADIOA_1TARRAY[RTL8723ERADIOA_1TARRAYLENGTH];
+<<<<<<< HEAD
 #define RTL8723E_RADIOB_1TARRAYLENGTH		1
 extern u32 RTL8723E_RADIOB_1TARRAY[RTL8723E_RADIOB_1TARRAYLENGTH];
+=======
+>>>>>>> upstream/android-13
 #define RTL8723E_MACARRAYLENGTH			172
 extern u32 RTL8723EMAC_ARRAY[RTL8723E_MACARRAYLENGTH];
 #define RTL8723E_AGCTAB_1TARRAYLENGTH		320

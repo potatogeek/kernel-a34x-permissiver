@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * i2c-boardinfo.c - collect pre-declarations of I2C devices
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * i2c-boardinfo.c - collect pre-declarations of I2C devices
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -56,7 +62,10 @@ EXPORT_SYMBOL_GPL(__i2c_first_dynamic_bus_num);
  *
  * The board info passed can safely be __initdata, but be careful of embedded
  * pointers (for platform_data, functions, etc) since that won't be copied.
+<<<<<<< HEAD
  * Device properties are deep-copied though.
+=======
+>>>>>>> upstream/android-13
  */
 int i2c_register_board_info(int busnum, struct i2c_board_info const *info, unsigned len)
 {
@@ -81,6 +90,7 @@ int i2c_register_board_info(int busnum, struct i2c_board_info const *info, unsig
 		devinfo->busnum = busnum;
 		devinfo->board_info = *info;
 
+<<<<<<< HEAD
 		if (info->properties) {
 			devinfo->board_info.properties =
 					property_entries_dup(info->properties);
@@ -91,6 +101,8 @@ int i2c_register_board_info(int busnum, struct i2c_board_info const *info, unsig
 			}
 		}
 
+=======
+>>>>>>> upstream/android-13
 		if (info->resources) {
 			devinfo->board_info.resources =
 				kmemdup(info->resources,

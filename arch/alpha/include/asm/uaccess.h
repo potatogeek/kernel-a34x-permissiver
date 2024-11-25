@@ -18,10 +18,16 @@
 #define USER_DS		((mm_segment_t) { -0x40000000000UL })
 
 #define get_fs()  (current_thread_info()->addr_limit)
+<<<<<<< HEAD
 #define get_ds()  (KERNEL_DS)
 #define set_fs(x) (current_thread_info()->addr_limit = (x))
 
 #define segment_eq(a, b)	((a).seg == (b).seg)
+=======
+#define set_fs(x) (current_thread_info()->addr_limit = (x))
+
+#define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+>>>>>>> upstream/android-13
 
 /*
  * Is a address valid? This does a straightforward calculation rather
@@ -38,7 +44,11 @@
 	unsigned long __ao_end = __ao_a + __ao_b - !!__ao_b;	\
 	(get_fs().seg & (__ao_a | __ao_b | __ao_end)) == 0; })
 
+<<<<<<< HEAD
 #define access_ok(type, addr, size)			\
+=======
+#define access_ok(addr, size)				\
+>>>>>>> upstream/android-13
 ({							\
 	__chk_user_ptr(addr);				\
 	__access_ok(((unsigned long)(addr)), (size));	\

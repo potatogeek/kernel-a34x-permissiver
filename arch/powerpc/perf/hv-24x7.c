@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Hypervisor supplied "24x7" performance counter support
  *
  * Author: Cody P Schafer <cody@linux.vnet.ibm.com>
  * Copyright 2014 IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "hv-24x7: " fmt
@@ -24,6 +31,10 @@
 #include <asm/io.h>
 #include <linux/byteorder/generic.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/rtas.h>
+>>>>>>> upstream/android-13
 #include "hv-24x7.h"
 #include "hv-24x7-catalog.h"
 #include "hv-common.h"
@@ -34,6 +45,11 @@ static int interface_version;
 /* Whether we have to aggregate result data for some domains. */
 static bool aggregate_result_elements;
 
+<<<<<<< HEAD
+=======
+static cpumask_t hv_24x7_cpumask;
+
+>>>>>>> upstream/android-13
 static bool domain_is_valid(unsigned domain)
 {
 	switch (domain) {
@@ -61,6 +77,68 @@ static bool is_physical_domain(unsigned domain)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * The Processor Module Information system parameter allows transferring
+ * of certain processor module information from the platform to the OS.
+ * Refer PAPR+ document to get parameter token value as '43'.
+ */
+
+#define PROCESSOR_MODULE_INFO   43
+
+static u32 phys_sockets;	/* Physical sockets */
+static u32 phys_chipspersocket;	/* Physical chips per socket*/
+static u32 phys_coresperchip; /* Physical cores per chip */
+
+/*
+ * read_24x7_sys_info()
+ * Retrieve the number of sockets and chips per socket and cores per
+ * chip details through the get-system-parameter rtas call.
+ */
+void read_24x7_sys_info(void)
+{
+	int call_status, len, ntypes;
+
+	spin_lock(&rtas_data_buf_lock);
+
+	/*
+	 * Making system parameter: chips and sockets and cores per chip
+	 * default to 1.
+	 */
+	phys_sockets = 1;
+	phys_chipspersocket = 1;
+	phys_coresperchip = 1;
+
+	call_status = rtas_call(rtas_token("ibm,get-system-parameter"), 3, 1,
+				NULL,
+				PROCESSOR_MODULE_INFO,
+				__pa(rtas_data_buf),
+				RTAS_DATA_BUF_SIZE);
+
+	if (call_status != 0) {
+		pr_err("Error calling get-system-parameter %d\n",
+		       call_status);
+	} else {
+		len = be16_to_cpup((__be16 *)&rtas_data_buf[0]);
+		if (len < 8)
+			goto out;
+
+		ntypes = be16_to_cpup((__be16 *)&rtas_data_buf[2]);
+
+		if (!ntypes)
+			goto out;
+
+		phys_sockets = be16_to_cpup((__be16 *)&rtas_data_buf[4]);
+		phys_chipspersocket = be16_to_cpup((__be16 *)&rtas_data_buf[6]);
+		phys_coresperchip = be16_to_cpup((__be16 *)&rtas_data_buf[8]);
+	}
+
+out:
+	spin_unlock(&rtas_data_buf_lock);
+}
+
+>>>>>>> upstream/android-13
 /* Domains for which more than one result element are returned for each event. */
 static bool domain_needs_aggregation(unsigned int domain)
 {
@@ -168,14 +246,23 @@ static struct attribute_group event_long_desc_group = {
 
 static struct kmem_cache *hv_page_cache;
 
+<<<<<<< HEAD
 DEFINE_PER_CPU(int, hv_24x7_txn_flags);
 DEFINE_PER_CPU(int, hv_24x7_txn_err);
+=======
+static DEFINE_PER_CPU(int, hv_24x7_txn_flags);
+static DEFINE_PER_CPU(int, hv_24x7_txn_err);
+>>>>>>> upstream/android-13
 
 struct hv_24x7_hw {
 	struct perf_event *events[255];
 };
 
+<<<<<<< HEAD
 DEFINE_PER_CPU(struct hv_24x7_hw, hv_24x7_hw);
+=======
+static DEFINE_PER_CPU(struct hv_24x7_hw, hv_24x7_hw);
+>>>>>>> upstream/android-13
 
 /*
  * request_buffer and result_buffer are not required to be 4k aligned,
@@ -183,8 +270,13 @@ DEFINE_PER_CPU(struct hv_24x7_hw, hv_24x7_hw);
  * the simplest way to ensure that.
  */
 #define H24x7_DATA_BUFFER_SIZE	4096
+<<<<<<< HEAD
 DEFINE_PER_CPU(char, hv_24x7_reqb[H24x7_DATA_BUFFER_SIZE]) __aligned(4096);
 DEFINE_PER_CPU(char, hv_24x7_resb[H24x7_DATA_BUFFER_SIZE]) __aligned(4096);
+=======
+static DEFINE_PER_CPU(char, hv_24x7_reqb[H24x7_DATA_BUFFER_SIZE]) __aligned(4096);
+static DEFINE_PER_CPU(char, hv_24x7_resb[H24x7_DATA_BUFFER_SIZE]) __aligned(4096);
+>>>>>>> upstream/android-13
 
 static unsigned int max_num_requests(int interface_version)
 {
@@ -390,6 +482,33 @@ static ssize_t device_show_string(struct device *dev,
 	return sprintf(buf, "%s\n", (char *)d->var);
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t cpumask_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+{
+	return cpumap_print_to_pagebuf(true, buf, &hv_24x7_cpumask);
+}
+
+static ssize_t sockets_show(struct device *dev,
+			    struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", phys_sockets);
+}
+
+static ssize_t chipspersocket_show(struct device *dev,
+				   struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", phys_chipspersocket);
+}
+
+static ssize_t coresperchip_show(struct device *dev,
+				 struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", phys_coresperchip);
+}
+
+>>>>>>> upstream/android-13
 static struct attribute *device_str_attr_create_(char *name, char *str)
 {
 	struct dev_ext_attribute *attr = kzalloc(sizeof(*attr), GFP_KERNEL);
@@ -571,7 +690,11 @@ static int event_uniq_add(struct rb_root *root, const char *name, int nl,
 		struct event_uniq *it;
 		int result;
 
+<<<<<<< HEAD
 		it = container_of(*new, struct event_uniq, node);
+=======
+		it = rb_entry(*new, struct event_uniq, node);
+>>>>>>> upstream/android-13
 		result = ev_uniq_ord(name, nl, domain, it->name, it->nl,
 					it->domain);
 
@@ -682,6 +805,17 @@ static ssize_t catalog_event_len_validate(struct hv_24x7_event_data *event,
 	return ev_len;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Return true incase of invalid or dummy events with names like RESERVED*
+ */
+static bool ignore_event(const char *name)
+{
+	return strncmp(name, "RESERVED", 8) == 0;
+}
+
+>>>>>>> upstream/android-13
 #define MAX_4K (SIZE_MAX / 4096)
 
 static int create_events_from_catalog(struct attribute ***events_,
@@ -812,6 +946,13 @@ static int create_events_from_catalog(struct attribute ***events_,
 
 		name = event_name(event, &nl);
 
+<<<<<<< HEAD
+=======
+		if (ignore_event(name)) {
+			junk_events++;
+			continue;
+		}
+>>>>>>> upstream/android-13
 		if (event->event_group_record_len == 0) {
 			pr_devel("invalid event %zu (%.*s): group_record_len == 0, skipping\n",
 					event_idx, nl, name);
@@ -873,6 +1014,12 @@ static int create_events_from_catalog(struct attribute ***events_,
 			continue;
 
 		name  = event_name(event, &nl);
+<<<<<<< HEAD
+=======
+		if (ignore_event(name))
+			continue;
+
+>>>>>>> upstream/android-13
 		nonce = event_uniq_add(&ev_uniq, name, nl, event->domain);
 		ct    = event_data_to_attrs(event_idx, events + event_attr_ct,
 					    event, nonce);
@@ -1036,16 +1183,41 @@ PAGE_0_ATTR(catalog_len, "%lld\n",
 		(unsigned long long)be32_to_cpu(page_0->length) * 4096);
 static BIN_ATTR_RO(catalog, 0/* real length varies */);
 static DEVICE_ATTR_RO(domains);
+<<<<<<< HEAD
+=======
+static DEVICE_ATTR_RO(sockets);
+static DEVICE_ATTR_RO(chipspersocket);
+static DEVICE_ATTR_RO(coresperchip);
+static DEVICE_ATTR_RO(cpumask);
+>>>>>>> upstream/android-13
 
 static struct bin_attribute *if_bin_attrs[] = {
 	&bin_attr_catalog,
 	NULL,
 };
 
+<<<<<<< HEAD
+=======
+static struct attribute *cpumask_attrs[] = {
+	&dev_attr_cpumask.attr,
+	NULL,
+};
+
+static struct attribute_group cpumask_attr_group = {
+	.attrs = cpumask_attrs,
+};
+
+>>>>>>> upstream/android-13
 static struct attribute *if_attrs[] = {
 	&dev_attr_catalog_len.attr,
 	&dev_attr_catalog_version.attr,
 	&dev_attr_domains.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_sockets.attr,
+	&dev_attr_chipspersocket.attr,
+	&dev_attr_coresperchip.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1061,6 +1233,10 @@ static const struct attribute_group *attr_groups[] = {
 	&event_desc_group,
 	&event_long_desc_group,
 	&if_group,
+<<<<<<< HEAD
+=======
+	&cpumask_attr_group,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -1306,6 +1482,7 @@ static int h_24x7_event_init(struct perf_event *event)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* unsupported modes and filters */
 	if (event->attr.exclude_user   ||
 	    event->attr.exclude_kernel ||
@@ -1315,6 +1492,8 @@ static int h_24x7_event_init(struct perf_event *event)
 	    event->attr.exclude_guest)
 		return -EINVAL;
 
+=======
+>>>>>>> upstream/android-13
 	/* no branch sampling */
 	if (has_branch_stack(event))
 		return -EOPNOTSUPP;
@@ -1567,8 +1746,53 @@ static struct pmu h_24x7_pmu = {
 	.start_txn   = h_24x7_event_start_txn,
 	.commit_txn  = h_24x7_event_commit_txn,
 	.cancel_txn  = h_24x7_event_cancel_txn,
+<<<<<<< HEAD
 };
 
+=======
+	.capabilities = PERF_PMU_CAP_NO_EXCLUDE,
+};
+
+static int ppc_hv_24x7_cpu_online(unsigned int cpu)
+{
+	if (cpumask_empty(&hv_24x7_cpumask))
+		cpumask_set_cpu(cpu, &hv_24x7_cpumask);
+
+	return 0;
+}
+
+static int ppc_hv_24x7_cpu_offline(unsigned int cpu)
+{
+	int target;
+
+	/* Check if exiting cpu is used for collecting 24x7 events */
+	if (!cpumask_test_and_clear_cpu(cpu, &hv_24x7_cpumask))
+		return 0;
+
+	/* Find a new cpu to collect 24x7 events */
+	target = cpumask_last(cpu_active_mask);
+
+	if (target < 0 || target >= nr_cpu_ids) {
+		pr_err("hv_24x7: CPU hotplug init failed\n");
+		return -1;
+	}
+
+	/* Migrate 24x7 events to the new target */
+	cpumask_set_cpu(target, &hv_24x7_cpumask);
+	perf_pmu_migrate_context(&h_24x7_pmu, cpu, target);
+
+	return 0;
+}
+
+static int hv_24x7_cpu_hotplug_init(void)
+{
+	return cpuhp_setup_state(CPUHP_AP_PERF_POWERPC_HV_24x7_ONLINE,
+			  "perf/powerpc/hv_24x7:online",
+			  ppc_hv_24x7_cpu_online,
+			  ppc_hv_24x7_cpu_offline);
+}
+
+>>>>>>> upstream/android-13
 static int hv_24x7_init(void)
 {
 	int r;
@@ -1613,10 +1837,23 @@ static int hv_24x7_init(void)
 	if (r)
 		return r;
 
+<<<<<<< HEAD
+=======
+	/* init cpuhotplug */
+	r = hv_24x7_cpu_hotplug_init();
+	if (r)
+		return r;
+
+>>>>>>> upstream/android-13
 	r = perf_pmu_register(&h_24x7_pmu, h_24x7_pmu.name, -1);
 	if (r)
 		return r;
 
+<<<<<<< HEAD
+=======
+	read_24x7_sys_info();
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

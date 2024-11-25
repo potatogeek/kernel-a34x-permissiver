@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * fs/inotify_user.c - inotify support for userspace
  *
@@ -10,6 +14,7 @@
  *
  * Copyright (C) 2009 Eric Paris <Red Hat Inc>
  * inotify was largely rewriten to make use of the fsnotify infrastructure
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +25,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dcache.h> /* d_unlinked */
@@ -43,27 +50,44 @@ static bool event_compare(struct fsnotify_event *old_fsn,
 {
 	struct inotify_event_info *old, *new;
 
+<<<<<<< HEAD
 	if (old_fsn->mask & FS_IN_IGNORED)
 		return false;
 	old = INOTIFY_E(old_fsn);
 	new = INOTIFY_E(new_fsn);
 	if ((old_fsn->mask == new_fsn->mask) &&
 	    (old_fsn->inode == new_fsn->inode) &&
+=======
+	old = INOTIFY_E(old_fsn);
+	new = INOTIFY_E(new_fsn);
+	if (old->mask & FS_IN_IGNORED)
+		return false;
+	if ((old->mask == new->mask) &&
+	    (old->wd == new->wd) &&
+>>>>>>> upstream/android-13
 	    (old->name_len == new->name_len) &&
 	    (!old->name_len || !strcmp(old->name, new->name)))
 		return true;
 	return false;
 }
 
+<<<<<<< HEAD
 static int inotify_merge(struct list_head *list,
 			  struct fsnotify_event *event)
 {
+=======
+static int inotify_merge(struct fsnotify_group *group,
+			 struct fsnotify_event *event)
+{
+	struct list_head *list = &group->notification_list;
+>>>>>>> upstream/android-13
 	struct fsnotify_event *last_event;
 
 	last_event = list_entry(list->prev, struct fsnotify_event, list);
 	return event_compare(last_event, event);
 }
 
+<<<<<<< HEAD
 int inotify_handle_event(struct fsnotify_group *group,
 			 struct inode *inode,
 			 u32 mask, const void *data, int data_type,
@@ -94,6 +118,27 @@ int inotify_handle_event(struct fsnotify_group *group,
 	}
 
 	pr_debug("%s: group=%p inode=%p mask=%x\n", __func__, group, inode,
+=======
+int inotify_handle_inode_event(struct fsnotify_mark *inode_mark, u32 mask,
+			       struct inode *inode, struct inode *dir,
+			       const struct qstr *name, u32 cookie)
+{
+	struct inotify_inode_mark *i_mark;
+	struct inotify_event_info *event;
+	struct fsnotify_event *fsn_event;
+	struct fsnotify_group *group = inode_mark->group;
+	int ret;
+	int len = 0;
+	int alloc_len = sizeof(struct inotify_event_info);
+	struct mem_cgroup *old_memcg;
+
+	if (name) {
+		len = name->len;
+		alloc_len += len + 1;
+	}
+
+	pr_debug("%s: group=%p mark=%p mask=%x\n", __func__, group, inode_mark,
+>>>>>>> upstream/android-13
 		 mask);
 
 	i_mark = container_of(inode_mark, struct inotify_inode_mark,
@@ -104,9 +149,15 @@ int inotify_handle_event(struct fsnotify_group *group,
 	 * trigger OOM killer in the target monitoring memcg as it may have
 	 * security repercussion.
 	 */
+<<<<<<< HEAD
 	memalloc_use_memcg(group->memcg);
 	event = kmalloc(alloc_len, GFP_KERNEL_ACCOUNT | __GFP_RETRY_MAYFAIL);
 	memalloc_unuse_memcg();
+=======
+	old_memcg = set_active_memcg(group->memcg);
+	event = kmalloc(alloc_len, GFP_KERNEL_ACCOUNT | __GFP_RETRY_MAYFAIL);
+	set_active_memcg(old_memcg);
+>>>>>>> upstream/android-13
 
 	if (unlikely(!event)) {
 		/*
@@ -117,15 +168,36 @@ int inotify_handle_event(struct fsnotify_group *group,
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	fsn_event = &event->fse;
 	fsnotify_init_event(fsn_event, inode, mask);
+=======
+	/*
+	 * We now report FS_ISDIR flag with MOVE_SELF and DELETE_SELF events
+	 * for fanotify. inotify never reported IN_ISDIR with those events.
+	 * It looks like an oversight, but to avoid the risk of breaking
+	 * existing inotify programs, mask the flag out from those events.
+	 */
+	if (mask & (IN_MOVE_SELF | IN_DELETE_SELF))
+		mask &= ~IN_ISDIR;
+
+	fsn_event = &event->fse;
+	fsnotify_init_event(fsn_event);
+	event->mask = mask;
+>>>>>>> upstream/android-13
 	event->wd = i_mark->wd;
 	event->sync_cookie = cookie;
 	event->name_len = len;
 	if (len)
+<<<<<<< HEAD
 		strcpy(event->name, file_name);
 
 	ret = fsnotify_add_event(group, fsn_event, inotify_merge);
+=======
+		strcpy(event->name, name->name);
+
+	ret = fsnotify_add_event(group, fsn_event, inotify_merge, NULL);
+>>>>>>> upstream/android-13
 	if (ret) {
 		/* Our event wasn't used in the end. Free it. */
 		fsnotify_destroy_event(group, fsn_event);
@@ -202,7 +274,11 @@ static void inotify_free_mark(struct fsnotify_mark *fsn_mark)
 }
 
 const struct fsnotify_ops inotify_fsnotify_ops = {
+<<<<<<< HEAD
 	.handle_event = inotify_handle_event,
+=======
+	.handle_inode_event = inotify_handle_inode_event,
+>>>>>>> upstream/android-13
 	.free_group_priv = inotify_free_group_priv,
 	.free_event = inotify_free_event,
 	.freeing_mark = inotify_freeing_mark,

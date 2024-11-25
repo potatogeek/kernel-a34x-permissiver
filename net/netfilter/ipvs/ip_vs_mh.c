@@ -174,8 +174,13 @@ static int ip_vs_mh_populate(struct ip_vs_mh_state *s,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	table =  kcalloc(BITS_TO_LONGS(IP_VS_MH_TAB_SIZE),
 			 sizeof(unsigned long), GFP_KERNEL);
+=======
+	table = kcalloc(BITS_TO_LONGS(IP_VS_MH_TAB_SIZE),
+			sizeof(unsigned long), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!table)
 		return -ENOMEM;
 

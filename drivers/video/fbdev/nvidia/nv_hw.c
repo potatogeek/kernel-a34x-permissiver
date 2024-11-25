@@ -896,7 +896,11 @@ void NVCalcStateExt(struct nvidia_par *par,
 		if (!par->FlatPanel)
 			state->control = NV_RD32(par->PRAMDAC0, 0x0580) &
 				0xeffffeff;
+<<<<<<< HEAD
 		/* fallthrough */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NV_ARCH_10:
 	case NV_ARCH_20:
 	case NV_ARCH_30:

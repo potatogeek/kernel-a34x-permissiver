@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 TI CPSW Phy mode Selection Device Tree Bindings
+=======
+TI CPSW Phy mode Selection Device Tree Bindings (DEPRECATED)
+>>>>>>> upstream/android-13
 -----------------------------------------------
 
 Required properties:

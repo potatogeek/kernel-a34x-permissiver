@@ -36,6 +36,7 @@
 #include <asm/byteorder.h>
 #include <asm/irq.h>
 #include <asm/unaligned.h>
+<<<<<<< HEAD
 #include <mach/irqs.h>
 
 #include <mach/hardware.h>
@@ -45,6 +46,13 @@
 
 
 #include "s3c2410_udc.h"
+=======
+
+#include <linux/platform_data/usb-s3c2410_udc.h>
+
+#include "s3c2410_udc.h"
+#include "s3c2410_udc_regs.h"
+>>>>>>> upstream/android-13
 
 #define DRIVER_DESC	"S3C2410 USB Device Controller Gadget"
 #define DRIVER_AUTHOR	"Herbert Pötzl <herbert@13thfloor.at>, " \
@@ -57,8 +65,12 @@ static struct s3c2410_udc	*the_controller;
 static struct clk		*udc_clock;
 static struct clk		*usb_bus_clock;
 static void __iomem		*base_addr;
+<<<<<<< HEAD
 static u64			rsrc_start;
 static u64			rsrc_len;
+=======
+static int			irq_usbd;
+>>>>>>> upstream/android-13
 static struct dentry		*s3c2410_udc_debugfs_root;
 
 static inline u32 udc_read(u32 reg)
@@ -119,7 +131,11 @@ static void dprintk(int level, const char *fmt, ...)
 }
 #endif
 
+<<<<<<< HEAD
 static int s3c2410_udc_debugfs_seq_show(struct seq_file *m, void *p)
+=======
+static int s3c2410_udc_debugfs_show(struct seq_file *m, void *p)
+>>>>>>> upstream/android-13
 {
 	u32 addr_reg, pwr_reg, ep_int_reg, usb_int_reg;
 	u32 ep_int_en_reg, usb_int_en_reg, ep0_csr;
@@ -168,6 +184,7 @@ static int s3c2410_udc_debugfs_seq_show(struct seq_file *m, void *p)
 
 	return 0;
 }
+<<<<<<< HEAD
 
 static int s3c2410_udc_debugfs_fops_open(struct inode *inode,
 					 struct file *file)
@@ -182,6 +199,9 @@ static const struct file_operations s3c2410_udc_debugfs_fops = {
 	.release	= single_release,
 	.owner		= THIS_MODULE,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(s3c2410_udc_debugfs);
+>>>>>>> upstream/android-13
 
 /* io macros */
 
@@ -216,7 +236,11 @@ static inline void s3c2410_udc_set_ep0_de(void __iomem *base)
 	udc_writeb(base, S3C2410_UDC_EP0_CSR_DE, S3C2410_UDC_EP0_CSR_REG);
 }
 
+<<<<<<< HEAD
 inline void s3c2410_udc_set_ep0_ss(void __iomem *b)
+=======
+static inline void s3c2410_udc_set_ep0_ss(void __iomem *b)
+>>>>>>> upstream/android-13
 {
 	udc_writeb(b, S3C2410_UDC_INDEX_EP0, S3C2410_UDC_INDEX_REG);
 	udc_writeb(b, S3C2410_UDC_EP0_CSR_SENDSTL, S3C2410_UDC_EP0_CSR_REG);
@@ -321,6 +345,10 @@ static int s3c2410_udc_write_fifo(struct s3c2410_ep *ep,
 	switch (idx) {
 	default:
 		idx = 0;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		fifo_reg = S3C2410_UDC_EP0_FIFO_REG;
 		break;
@@ -425,6 +453,10 @@ static int s3c2410_udc_read_fifo(struct s3c2410_ep *ep,
 	switch (idx) {
 	default:
 		idx = 0;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0:
 		fifo_reg = S3C2410_UDC_EP0_FIFO_REG;
 		break;
@@ -846,8 +878,11 @@ static void s3c2410_udc_handle_ep(struct s3c2410_ep *ep)
 	}
 }
 
+<<<<<<< HEAD
 #include <mach/regs-irq.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  *	s3c2410_udc_irq - interrupt handler
  */
@@ -988,7 +1023,11 @@ static irqreturn_t s3c2410_udc_irq(int dummy, void *_dev)
 		}
 	}
 
+<<<<<<< HEAD
 	dprintk(DEBUG_VERBOSE, "irq: %d s3c2410_udc_done.\n", IRQ_USBD);
+=======
+	dprintk(DEBUG_VERBOSE, "irq: %d s3c2410_udc_done.\n", irq_usbd);
+>>>>>>> upstream/android-13
 
 	/* Restore old index */
 	udc_write(idx, S3C2410_UDC_INDEX_REG);
@@ -1281,7 +1320,10 @@ static int s3c2410_udc_queue(struct usb_ep *_ep, struct usb_request *_req,
 static int s3c2410_udc_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 {
 	struct s3c2410_ep	*ep = to_s3c2410_ep(_ep);
+<<<<<<< HEAD
 	struct s3c2410_udc	*udc;
+=======
+>>>>>>> upstream/android-13
 	int			retval = -EINVAL;
 	unsigned long		flags;
 	struct s3c2410_request	*req = NULL;
@@ -1294,8 +1336,11 @@ static int s3c2410_udc_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 	if (!_ep || !_req)
 		return retval;
 
+<<<<<<< HEAD
 	udc = to_s3c2410_udc(ep->gadget);
 
+=======
+>>>>>>> upstream/android-13
 	local_irq_save(flags);
 
 	list_for_each_entry(req, &ep->queue, queue) {
@@ -1771,7 +1816,12 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
 	udc_clock = clk_get(NULL, "usb-device");
 	if (IS_ERR(udc_clock)) {
 		dev_err(dev, "failed to get udc clock source\n");
+<<<<<<< HEAD
 		return PTR_ERR(udc_clock);
+=======
+		retval = PTR_ERR(udc_clock);
+		goto err_usb_bus_clk;
+>>>>>>> upstream/android-13
 	}
 
 	clk_prepare_enable(udc_clock);
@@ -1791,6 +1841,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
 	spin_lock_init(&udc->lock);
 	udc_info = dev_get_platdata(&pdev->dev);
 
+<<<<<<< HEAD
 	rsrc_start = S3C2410_PA_USBDEV;
 	rsrc_len   = S3C24XX_SZ_USBDEV;
 
@@ -1801,6 +1852,12 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
 	if (!base_addr) {
 		retval = -ENOMEM;
 		goto err_mem;
+=======
+	base_addr = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(base_addr)) {
+		retval = PTR_ERR(base_addr);
+		goto err_udc_clk;
+>>>>>>> upstream/android-13
 	}
 
 	the_controller = udc;
@@ -1809,6 +1866,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
 	s3c2410_udc_disable(udc);
 	s3c2410_udc_reinit(udc);
 
+<<<<<<< HEAD
 	/* irq setup after old hardware state is cleaned up */
 	retval = request_irq(IRQ_USBD, s3c2410_udc_irq,
 			     0, gadget_name, udc);
@@ -1820,6 +1878,25 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
 	}
 
 	dev_dbg(dev, "got irq %i\n", IRQ_USBD);
+=======
+	irq_usbd = platform_get_irq(pdev, 0);
+	if (irq_usbd < 0) {
+		retval = irq_usbd;
+		goto err_udc_clk;
+	}
+
+	/* irq setup after old hardware state is cleaned up */
+	retval = request_irq(irq_usbd, s3c2410_udc_irq,
+			     0, gadget_name, udc);
+
+	if (retval != 0) {
+		dev_err(dev, "cannot get irq %i, err %d\n", irq_usbd, retval);
+		retval = -EBUSY;
+		goto err_udc_clk;
+	}
+
+	dev_dbg(dev, "got irq %i\n", irq_usbd);
+>>>>>>> upstream/android-13
 
 	if (udc_info && udc_info->vbus_pin > 0) {
 		retval = gpio_request(udc_info->vbus_pin, "udc vbus");
@@ -1867,9 +1944,14 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
 	if (retval)
 		goto err_add_udc;
 
+<<<<<<< HEAD
 	udc->regs_info = debugfs_create_file("registers", S_IRUGO,
 					     s3c2410_udc_debugfs_root, udc,
 					     &s3c2410_udc_debugfs_fops);
+=======
+	debugfs_create_file("registers", S_IRUGO, s3c2410_udc_debugfs_root, udc,
+			    &s3c2410_udc_debugfs_fops);
+>>>>>>> upstream/android-13
 
 	dev_dbg(dev, "probe ok\n");
 
@@ -1886,11 +1968,23 @@ err_gpio_claim:
 	if (udc_info && udc_info->vbus_pin > 0)
 		gpio_free(udc_info->vbus_pin);
 err_int:
+<<<<<<< HEAD
 	free_irq(IRQ_USBD, udc);
 err_map:
 	iounmap(base_addr);
 err_mem:
 	release_mem_region(rsrc_start, rsrc_len);
+=======
+	free_irq(irq_usbd, udc);
+err_udc_clk:
+	clk_disable_unprepare(udc_clock);
+	clk_put(udc_clock);
+	udc_clock = NULL;
+err_usb_bus_clk:
+	clk_disable_unprepare(usb_bus_clock);
+	clk_put(usb_bus_clock);
+	usb_bus_clock = NULL;
+>>>>>>> upstream/android-13
 
 	return retval;
 }
@@ -1909,7 +2003,11 @@ static int s3c2410_udc_remove(struct platform_device *pdev)
 		return -EBUSY;
 
 	usb_del_gadget_udc(&udc->gadget);
+<<<<<<< HEAD
 	debugfs_remove(udc->regs_info);
+=======
+	debugfs_remove(debugfs_lookup("registers", s3c2410_udc_debugfs_root));
+>>>>>>> upstream/android-13
 
 	if (udc_info && !udc_info->udc_command &&
 		gpio_is_valid(udc_info->pullup_pin))
@@ -1920,10 +2018,14 @@ static int s3c2410_udc_remove(struct platform_device *pdev)
 		free_irq(irq, udc);
 	}
 
+<<<<<<< HEAD
 	free_irq(IRQ_USBD, udc);
 
 	iounmap(base_addr);
 	release_mem_region(rsrc_start, rsrc_len);
+=======
+	free_irq(irq_usbd, udc);
+>>>>>>> upstream/android-13
 
 	if (!IS_ERR(udc_clock) && udc_clock != NULL) {
 		clk_disable_unprepare(udc_clock);
@@ -1985,7 +2087,12 @@ static int __init udc_init(void)
 
 	dprintk(DEBUG_NORMAL, "%s\n", gadget_name);
 
+<<<<<<< HEAD
 	s3c2410_udc_debugfs_root = debugfs_create_dir(gadget_name, NULL);
+=======
+	s3c2410_udc_debugfs_root = debugfs_create_dir(gadget_name,
+						      usb_debug_root);
+>>>>>>> upstream/android-13
 
 	retval = platform_driver_register(&udc_driver_24x0);
 	if (retval)

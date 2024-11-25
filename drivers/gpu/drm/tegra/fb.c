@@ -1,20 +1,37 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012-2013 Avionic Design GmbH
  * Copyright (C) 2012 NVIDIA CORPORATION.  All rights reserved.
  *
  * Based on the KMS/FB CMA helpers
+<<<<<<< HEAD
  *   Copyright (C) 2012 Analog Device Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ *   Copyright (C) 2012 Analog Devices Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/console.h>
 
+<<<<<<< HEAD
 #include "drm.h"
 #include "gem.h"
 #include <drm/drm_gem_framebuffer_helper.h>
+=======
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_modeset_helper.h>
+
+#include "drm.h"
+#include "gem.h"
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_DRM_FBDEV_EMULATION
 static inline struct tegra_fbdev *to_tegra_fbdev(struct drm_fb_helper *helper)
@@ -44,6 +61,18 @@ int tegra_fb_get_tiling(struct drm_framebuffer *framebuffer,
 {
 	uint64_t modifier = framebuffer->modifier;
 
+<<<<<<< HEAD
+=======
+	if ((modifier >> 56) == DRM_FORMAT_MOD_VENDOR_NVIDIA) {
+		if ((modifier & DRM_FORMAT_MOD_NVIDIA_SECTOR_LAYOUT) == 0)
+			tiling->sector_layout = TEGRA_BO_SECTOR_LAYOUT_TEGRA;
+		else
+			tiling->sector_layout = TEGRA_BO_SECTOR_LAYOUT_GPU;
+
+		modifier &= ~DRM_FORMAT_MOD_NVIDIA_SECTOR_LAYOUT;
+	}
+
+>>>>>>> upstream/android-13
 	switch (modifier) {
 	case DRM_FORMAT_MOD_LINEAR:
 		tiling->mode = TEGRA_BO_TILING_MODE_PITCH;
@@ -86,6 +115,10 @@ int tegra_fb_get_tiling(struct drm_framebuffer *framebuffer,
 		break;
 
 	default:
+<<<<<<< HEAD
+=======
+		DRM_DEBUG_KMS("unknown format modifier: %llx\n", modifier);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -130,6 +163,7 @@ struct drm_framebuffer *tegra_fb_create(struct drm_device *drm,
 					struct drm_file *file,
 					const struct drm_mode_fb_cmd2 *cmd)
 {
+<<<<<<< HEAD
 	unsigned int hsub, vsub, i;
 	struct tegra_bo *planes[4];
 	struct drm_gem_object *gem;
@@ -142,6 +176,18 @@ struct drm_framebuffer *tegra_fb_create(struct drm_device *drm,
 	for (i = 0; i < drm_format_num_planes(cmd->pixel_format); i++) {
 		unsigned int width = cmd->width / (i ? hsub : 1);
 		unsigned int height = cmd->height / (i ? vsub : 1);
+=======
+	const struct drm_format_info *info = drm_get_format_info(drm, cmd);
+	struct tegra_bo *planes[4];
+	struct drm_gem_object *gem;
+	struct drm_framebuffer *fb;
+	unsigned int i;
+	int err;
+
+	for (i = 0; i < info->num_planes; i++) {
+		unsigned int width = cmd->width / (i ? info->hsub : 1);
+		unsigned int height = cmd->height / (i ? info->vsub : 1);
+>>>>>>> upstream/android-13
 		unsigned int size, bpp;
 
 		gem = drm_gem_object_lookup(file, cmd->handles[i]);
@@ -150,7 +196,11 @@ struct drm_framebuffer *tegra_fb_create(struct drm_device *drm,
 			goto unreference;
 		}
 
+<<<<<<< HEAD
 		bpp = drm_format_plane_cpp(cmd->pixel_format, i);
+=======
+		bpp = info->cpp[i];
+>>>>>>> upstream/android-13
 
 		size = (height - 1) * cmd->pitches[i] +
 		       width * bpp + cmd->offsets[i];
@@ -173,7 +223,11 @@ struct drm_framebuffer *tegra_fb_create(struct drm_device *drm,
 
 unreference:
 	while (i--)
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(&planes[i]->gem);
+=======
+		drm_gem_object_put(&planes[i]->gem);
+>>>>>>> upstream/android-13
 
 	return ERR_PTR(err);
 }
@@ -194,7 +248,11 @@ static int tegra_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 	return __tegra_gem_mmap(&bo->gem, vma);
 }
 
+<<<<<<< HEAD
 static struct fb_ops tegra_fb_ops = {
+=======
+static const struct fb_ops tegra_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	DRM_FB_HELPER_DEFAULT_OPS,
 	.fb_fillrect = drm_fb_helper_sys_fillrect,
@@ -237,7 +295,11 @@ static int tegra_fbdev_probe(struct drm_fb_helper *helper,
 	info = drm_fb_helper_alloc_fbi(helper);
 	if (IS_ERR(info)) {
 		dev_err(drm->dev, "failed to allocate framebuffer info\n");
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(&bo->gem);
+=======
+		drm_gem_object_put(&bo->gem);
+>>>>>>> upstream/android-13
 		return PTR_ERR(info);
 	}
 
@@ -246,7 +308,11 @@ static int tegra_fbdev_probe(struct drm_fb_helper *helper,
 		err = PTR_ERR(fbdev->fb);
 		dev_err(drm->dev, "failed to allocate DRM framebuffer: %d\n",
 			err);
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(&bo->gem);
+=======
+		drm_gem_object_put(&bo->gem);
+>>>>>>> upstream/android-13
 		return PTR_ERR(fbdev->fb);
 	}
 
@@ -254,12 +320,18 @@ static int tegra_fbdev_probe(struct drm_fb_helper *helper,
 	helper->fb = fb;
 	helper->fbdev = info;
 
+<<<<<<< HEAD
 	info->par = helper;
 	info->flags = FBINFO_FLAG_DEFAULT;
 	info->fbops = &tegra_fb_ops;
 
 	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
 	drm_fb_helper_fill_var(info, helper, fb->width, fb->height);
+=======
+	info->fbops = &tegra_fb_ops;
+
+	drm_fb_helper_fill_info(info, helper, sizes);
+>>>>>>> upstream/android-13
 
 	offset = info->var.xoffset * bytes_per_pixel +
 		 info->var.yoffset * fb->pitches[0];
@@ -274,10 +346,17 @@ static int tegra_fbdev_probe(struct drm_fb_helper *helper,
 		}
 	}
 
+<<<<<<< HEAD
 	drm->mode_config.fb_base = (resource_size_t)bo->paddr;
 	info->screen_base = (void __iomem *)bo->vaddr + offset;
 	info->screen_size = size;
 	info->fix.smem_start = (unsigned long)(bo->paddr + offset);
+=======
+	drm->mode_config.fb_base = (resource_size_t)bo->iova;
+	info->screen_base = (void __iomem *)bo->vaddr + offset;
+	info->screen_size = size;
+	info->fix.smem_start = (unsigned long)(bo->iova + offset);
+>>>>>>> upstream/android-13
 	info->fix.smem_len = size;
 
 	return 0;
@@ -319,19 +398,26 @@ static int tegra_fbdev_init(struct tegra_fbdev *fbdev,
 	struct drm_device *drm = fbdev->base.dev;
 	int err;
 
+<<<<<<< HEAD
 	err = drm_fb_helper_init(drm, &fbdev->base, max_connectors);
+=======
+	err = drm_fb_helper_init(drm, &fbdev->base);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		dev_err(drm->dev, "failed to initialize DRM FB helper: %d\n",
 			err);
 		return err;
 	}
 
+<<<<<<< HEAD
 	err = drm_fb_helper_single_add_all_connectors(&fbdev->base);
 	if (err < 0) {
 		dev_err(drm->dev, "failed to add connectors: %d\n", err);
 		goto fini;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	err = drm_fb_helper_initial_config(&fbdev->base, preferred_bpp);
 	if (err < 0) {
 		dev_err(drm->dev, "failed to set initial configuration: %d\n",
@@ -356,7 +442,11 @@ static void tegra_fbdev_exit(struct tegra_fbdev *fbdev)
 		/* Undo the special mapping we made in fbdev probe. */
 		if (bo && bo->pages) {
 			vunmap(bo->vaddr);
+<<<<<<< HEAD
 			bo->vaddr = 0;
+=======
+			bo->vaddr = NULL;
+>>>>>>> upstream/android-13
 		}
 
 		drm_framebuffer_remove(fbdev->fb);
@@ -412,6 +502,7 @@ void tegra_drm_fb_exit(struct drm_device *drm)
 	tegra_fbdev_exit(tegra->fbdev);
 #endif
 }
+<<<<<<< HEAD
 
 void tegra_drm_fb_suspend(struct drm_device *drm)
 {
@@ -434,3 +525,5 @@ void tegra_drm_fb_resume(struct drm_device *drm)
 	console_unlock();
 #endif
 }
+=======
+>>>>>>> upstream/android-13

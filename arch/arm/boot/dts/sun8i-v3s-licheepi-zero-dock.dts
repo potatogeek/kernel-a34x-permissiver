@@ -49,18 +49,67 @@
 	compatible = "licheepi,licheepi-zero-dock", "licheepi,licheepi-zero",
 		     "allwinner,sun8i-v3s";
 
+<<<<<<< HEAD
+=======
+	aliases {
+		ethernet0 = &emac;
+	};
+
+>>>>>>> upstream/android-13
 	leds {
 		/* The LEDs use PG0~2 pins, which conflict with MMC1 */
 		status = "disabled";
 	};
 };
 
+<<<<<<< HEAD
+=======
+&emac {
+	allwinner,leds-active-low;
+	status = "okay";
+};
+
+&lradc {
+	vref-supply = <&reg_vcc3v0>;
+	status = "okay";
+
+	button-200 {
+		label = "Volume Up";
+		linux,code = <KEY_VOLUMEUP>;
+		channel = <0>;
+		voltage = <200000>;
+	};
+
+	button-400 {
+		label = "Volume Down";
+		linux,code = <KEY_VOLUMEDOWN>;
+		channel = <0>;
+		voltage = <400000>;
+	};
+
+	button-600 {
+		label = "Select";
+		linux,code = <KEY_SELECT>;
+		channel = <0>;
+		voltage = <600000>;
+	};
+
+	button-800 {
+		label = "Start";
+		linux,code = <KEY_OK>;
+		channel = <0>;
+		voltage = <800000>;
+	};
+};
+
+>>>>>>> upstream/android-13
 &mmc1 {
 	broken-cd;
 	bus-width = <4>;
 	vmmc-supply = <&reg_vcc3v3>;
 	status = "okay";
 };
+<<<<<<< HEAD
 
 &lradc {
 	vref-supply = <&reg_vcc3v0>;
@@ -94,3 +143,5 @@
 		voltage = <800000>;
 	};
 };
+=======
+>>>>>>> upstream/android-13

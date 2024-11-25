@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2016,2017 IBM Corporation.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2016,2017 IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "xive: " fmt
@@ -66,8 +72,25 @@ static const struct xive_ops *xive_ops;
 static struct irq_domain *xive_irq_domain;
 
 #ifdef CONFIG_SMP
+<<<<<<< HEAD
 /* The IPIs all use the same logical irq number */
 static u32 xive_ipi_irq;
+=======
+/* The IPIs use the same logical irq number when on the same chip */
+static struct xive_ipi_desc {
+	unsigned int irq;
+	char name[16];
+	atomic_t started;
+} *xive_ipis;
+
+/*
+ * Use early_cpu_to_node() for hot-plugged CPUs
+ */
+static unsigned int xive_ipi_cpu_to_irq(unsigned int cpu)
+{
+	return xive_ipis[early_cpu_to_node(cpu)].irq;
+}
+>>>>>>> upstream/android-13
 #endif
 
 /* Xive state for each CPU */
@@ -133,7 +156,11 @@ static u32 xive_read_eq(struct xive_q *q, bool just_peek)
 static u32 xive_scan_interrupts(struct xive_cpu *xc, bool just_peek)
 {
 	u32 irq = 0;
+<<<<<<< HEAD
 	u8 prio;
+=======
+	u8 prio = 0;
+>>>>>>> upstream/android-13
 
 	/* Find highest pending priority */
 	while (xc->pending_prio != 0) {
@@ -146,8 +173,24 @@ static u32 xive_scan_interrupts(struct xive_cpu *xc, bool just_peek)
 		irq = xive_read_eq(&xc->queue[prio], just_peek);
 
 		/* Found something ? That's it */
+<<<<<<< HEAD
 		if (irq)
 			break;
+=======
+		if (irq) {
+			if (just_peek || irq_to_desc(irq))
+				break;
+			/*
+			 * We should never get here; if we do then we must
+			 * have failed to synchronize the interrupt properly
+			 * when shutting it down.
+			 */
+			pr_crit("xive: got interrupt %d without descriptor, dropping\n",
+				irq);
+			WARN_ON(1);
+			continue;
+		}
+>>>>>>> upstream/android-13
 
 		/* Clear pending bits */
 		xc->pending_prio &= ~(1 << prio);
@@ -183,15 +226,24 @@ static u32 xive_scan_interrupts(struct xive_cpu *xc, bool just_peek)
 
 /*
  * This is used to perform the magic loads from an ESB
+<<<<<<< HEAD
  * described in xive.h
+=======
+ * described in xive-regs.h
+>>>>>>> upstream/android-13
  */
 static notrace u8 xive_esb_read(struct xive_irq_data *xd, u32 offset)
 {
 	u64 val;
 
+<<<<<<< HEAD
 	/* Handle HW errata */
 	if (xd->flags & XIVE_IRQ_FLAG_SHIFT_BUG)
 		offset |= offset << 4;
+=======
+	if (offset == XIVE_ESB_SET_PQ_10 && xd->flags & XIVE_IRQ_FLAG_STORE_EOI)
+		offset |= XIVE_ESB_LD_ST_MO;
+>>>>>>> upstream/android-13
 
 	if ((xd->flags & XIVE_IRQ_FLAG_H_INT_ESB) && xive_ops->esb_rw)
 		val = xive_ops->esb_rw(xd->hw_irq, offset, 0, 0);
@@ -203,10 +255,13 @@ static notrace u8 xive_esb_read(struct xive_irq_data *xd, u32 offset)
 
 static void xive_esb_write(struct xive_irq_data *xd, u32 offset, u64 data)
 {
+<<<<<<< HEAD
 	/* Handle HW errata */
 	if (xd->flags & XIVE_IRQ_FLAG_SHIFT_BUG)
 		offset |= offset << 4;
 
+=======
+>>>>>>> upstream/android-13
 	if ((xd->flags & XIVE_IRQ_FLAG_H_INT_ESB) && xive_ops->esb_rw)
 		xive_ops->esb_rw(xd->hw_irq, offset, data, 1);
 	else
@@ -224,14 +279,20 @@ static notrace void xive_dump_eq(const char *name, struct xive_q *q)
 	i0 = be32_to_cpup(q->qpage + idx);
 	idx = (idx + 1) & q->msk;
 	i1 = be32_to_cpup(q->qpage + idx);
+<<<<<<< HEAD
 	xmon_printf("  %s Q T=%d %08x %08x ...\n", name,
 		    q->toggle, i0, i1);
+=======
+	xmon_printf("%s idx=%d T=%d %08x %08x ...", name,
+		     q->idx, q->toggle, i0, i1);
+>>>>>>> upstream/android-13
 }
 
 notrace void xmon_xive_do_dump(int cpu)
 {
 	struct xive_cpu *xc = per_cpu(xive_cpu, cpu);
 
+<<<<<<< HEAD
 	xmon_printf("XIVE state for CPU %d:\n", cpu);
 	xmon_printf("  pp=%02x cppr=%02x\n", xc->pending_prio, xc->cppr);
 	xive_dump_eq("IRQ", &xc->queue[xive_irq_priority]);
@@ -244,6 +305,81 @@ notrace void xmon_xive_do_dump(int cpu)
 	}
 #endif
 }
+=======
+	xmon_printf("CPU %d:", cpu);
+	if (xc) {
+		xmon_printf("pp=%02x CPPR=%02x ", xc->pending_prio, xc->cppr);
+
+#ifdef CONFIG_SMP
+		{
+			u64 val = xive_esb_read(&xc->ipi_data, XIVE_ESB_GET);
+
+			xmon_printf("IPI=0x%08x PQ=%c%c ", xc->hw_ipi,
+				    val & XIVE_ESB_VAL_P ? 'P' : '-',
+				    val & XIVE_ESB_VAL_Q ? 'Q' : '-');
+		}
+#endif
+		xive_dump_eq("EQ", &xc->queue[xive_irq_priority]);
+	}
+	xmon_printf("\n");
+}
+
+static struct irq_data *xive_get_irq_data(u32 hw_irq)
+{
+	unsigned int irq = irq_find_mapping(xive_irq_domain, hw_irq);
+
+	return irq ? irq_get_irq_data(irq) : NULL;
+}
+
+int xmon_xive_get_irq_config(u32 hw_irq, struct irq_data *d)
+{
+	int rc;
+	u32 target;
+	u8 prio;
+	u32 lirq;
+
+	rc = xive_ops->get_irq_config(hw_irq, &target, &prio, &lirq);
+	if (rc) {
+		xmon_printf("IRQ 0x%08x : no config rc=%d\n", hw_irq, rc);
+		return rc;
+	}
+
+	xmon_printf("IRQ 0x%08x : target=0x%x prio=%02x lirq=0x%x ",
+		    hw_irq, target, prio, lirq);
+
+	if (!d)
+		d = xive_get_irq_data(hw_irq);
+
+	if (d) {
+		struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
+		u64 val = xive_esb_read(xd, XIVE_ESB_GET);
+
+		xmon_printf("flags=%c%c%c PQ=%c%c",
+			    xd->flags & XIVE_IRQ_FLAG_STORE_EOI ? 'S' : ' ',
+			    xd->flags & XIVE_IRQ_FLAG_LSI ? 'L' : ' ',
+			    xd->flags & XIVE_IRQ_FLAG_H_INT_ESB ? 'H' : ' ',
+			    val & XIVE_ESB_VAL_P ? 'P' : '-',
+			    val & XIVE_ESB_VAL_Q ? 'Q' : '-');
+	}
+
+	xmon_printf("\n");
+	return 0;
+}
+
+void xmon_xive_get_irq_all(void)
+{
+	unsigned int i;
+	struct irq_desc *desc;
+
+	for_each_irq_desc(i, desc) {
+		struct irq_data *d = irq_domain_get_irq_data(xive_irq_domain, i);
+
+		if (d)
+			xmon_xive_get_irq_config(irqd_to_hwirq(d), d);
+	}
+}
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_XMON */
 
 static unsigned int xive_get_irq(void)
@@ -303,6 +439,7 @@ static void xive_do_queue_eoi(struct xive_cpu *xc)
  * EOI an interrupt at the source. There are several methods
  * to do this depending on the HW version and source type
  */
+<<<<<<< HEAD
 void xive_do_source_eoi(u32 hw_irq, struct xive_irq_data *xd)
 {
 	/* If the XIVE supports the new "store EOI facility, use it */
@@ -349,6 +486,45 @@ void xive_do_source_eoi(u32 hw_irq, struct xive_irq_data *xd)
 }
 
 /* irq_chip eoi callback */
+=======
+static void xive_do_source_eoi(struct xive_irq_data *xd)
+{
+	u8 eoi_val;
+
+	xd->stale_p = false;
+
+	/* If the XIVE supports the new "store EOI facility, use it */
+	if (xd->flags & XIVE_IRQ_FLAG_STORE_EOI) {
+		xive_esb_write(xd, XIVE_ESB_STORE_EOI, 0);
+		return;
+	}
+
+	/*
+	 * For LSIs, we use the "EOI cycle" special load rather than
+	 * PQ bits, as they are automatically re-triggered in HW when
+	 * still pending.
+	 */
+	if (xd->flags & XIVE_IRQ_FLAG_LSI) {
+		xive_esb_read(xd, XIVE_ESB_LOAD_EOI);
+		return;
+	}
+
+	/*
+	 * Otherwise, we use the special MMIO that does a clear of
+	 * both P and Q and returns the old Q. This allows us to then
+	 * do a re-trigger if Q was set rather than synthesizing an
+	 * interrupt in software
+	 */
+	eoi_val = xive_esb_read(xd, XIVE_ESB_SET_PQ_00);
+	DBG_VERBOSE("eoi_val=%x\n", eoi_val);
+
+	/* Re-trigger if needed */
+	if ((eoi_val & XIVE_ESB_VAL_Q) && xd->trig_mmio)
+		out_be64(xd->trig_mmio, 0);
+}
+
+/* irq_chip eoi callback, called with irq descriptor lock held */
+>>>>>>> upstream/android-13
 static void xive_irq_eoi(struct irq_data *d)
 {
 	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
@@ -362,8 +538,15 @@ static void xive_irq_eoi(struct irq_data *d)
 	 * been passed-through to a KVM guest
 	 */
 	if (!irqd_irq_disabled(d) && !irqd_is_forwarded_to_vcpu(d) &&
+<<<<<<< HEAD
 	    !(xd->flags & XIVE_IRQ_NO_EOI))
 		xive_do_source_eoi(irqd_to_hwirq(d), xd);
+=======
+	    !(xd->flags & XIVE_IRQ_FLAG_NO_EOI))
+		xive_do_source_eoi(xd);
+	else
+		xd->stale_p = true;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Clear saved_p to indicate that it's no longer occupying
@@ -376,9 +559,13 @@ static void xive_irq_eoi(struct irq_data *d)
 }
 
 /*
+<<<<<<< HEAD
  * Helper used to mask and unmask an interrupt source. This
  * is only called for normal interrupts that do not require
  * masking/unmasking via firmware.
+=======
+ * Helper used to mask and unmask an interrupt source.
+>>>>>>> upstream/android-13
  */
 static void xive_do_source_set_mask(struct xive_irq_data *xd,
 				    bool mask)
@@ -395,11 +582,24 @@ static void xive_do_source_set_mask(struct xive_irq_data *xd,
 	 */
 	if (mask) {
 		val = xive_esb_read(xd, XIVE_ESB_SET_PQ_01);
+<<<<<<< HEAD
 		xd->saved_p = !!(val & XIVE_ESB_VAL_P);
 	} else if (xd->saved_p)
 		xive_esb_read(xd, XIVE_ESB_SET_PQ_10);
 	else
 		xive_esb_read(xd, XIVE_ESB_SET_PQ_00);
+=======
+		if (!xd->stale_p && !!(val & XIVE_ESB_VAL_P))
+			xd->saved_p = true;
+		xd->stale_p = false;
+	} else if (xd->saved_p) {
+		xive_esb_read(xd, XIVE_ESB_SET_PQ_10);
+		xd->saved_p = false;
+	} else {
+		xive_esb_read(xd, XIVE_ESB_SET_PQ_00);
+		xd->stale_p = false;
+	}
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -436,7 +636,11 @@ static void xive_dec_target_count(int cpu)
 	struct xive_cpu *xc = per_cpu(xive_cpu, cpu);
 	struct xive_q *q = &xc->queue[xive_irq_priority];
 
+<<<<<<< HEAD
 	if (unlikely(WARN_ON(cpu < 0 || !xc))) {
+=======
+	if (WARN_ON(cpu < 0 || !xc)) {
+>>>>>>> upstream/android-13
 		pr_err("%s: cpu=%d xc=%p\n", __func__, cpu, xc);
 		return;
 	}
@@ -539,6 +743,7 @@ static unsigned int xive_irq_startup(struct irq_data *d)
 	unsigned int hw_irq = (unsigned int)irqd_to_hwirq(d);
 	int target, rc;
 
+<<<<<<< HEAD
 	pr_devel("xive_irq_startup: irq %d [0x%x] data @%p\n",
 		 d->irq, hw_irq, d);
 
@@ -552,6 +757,13 @@ static unsigned int xive_irq_startup(struct irq_data *d)
 		pci_msi_unmask_irq(d);
 #endif
 
+=======
+	xd->saved_p = false;
+	xd->stale_p = false;
+	pr_devel("xive_irq_startup: irq %d [0x%x] data @%p\n",
+		 d->irq, hw_irq, d);
+
+>>>>>>> upstream/android-13
 	/* Pick a target */
 	target = xive_pick_irq_target(d, irq_data_get_affinity_mask(d));
 	if (target == XIVE_INVALID_TARGET) {
@@ -585,6 +797,10 @@ static unsigned int xive_irq_startup(struct irq_data *d)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* called with irq descriptor lock held */
+>>>>>>> upstream/android-13
 static void xive_irq_shutdown(struct irq_data *d)
 {
 	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
@@ -600,6 +816,7 @@ static void xive_irq_shutdown(struct irq_data *d)
 	xive_do_source_set_mask(xd, true);
 
 	/*
+<<<<<<< HEAD
 	 * The above may have set saved_p. We clear it otherwise it
 	 * will prevent re-enabling later on. It is ok to forget the
 	 * fact that the interrupt might be in a queue because we are
@@ -610,6 +827,8 @@ static void xive_irq_shutdown(struct irq_data *d)
 	xd->saved_p = false;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Mask the interrupt in HW in the IVT/EAS and set the number
 	 * to be the "bad" IRQ number
 	 */
@@ -627,6 +846,7 @@ static void xive_irq_unmask(struct irq_data *d)
 
 	pr_devel("xive_irq_unmask: irq %d data @%p\n", d->irq, xd);
 
+<<<<<<< HEAD
 	/*
 	 * This is a workaround for PCI LSI problems on P9, for
 	 * these, we call FW to set the mask. The problems might
@@ -641,6 +861,8 @@ static void xive_irq_unmask(struct irq_data *d)
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	xive_do_source_set_mask(xd, false);
 }
 
@@ -650,6 +872,7 @@ static void xive_irq_mask(struct irq_data *d)
 
 	pr_devel("xive_irq_mask: irq %d data @%p\n", d->irq, xd);
 
+<<<<<<< HEAD
 	/*
 	 * This is a workaround for PCI LSI problems on P9, for
 	 * these, we call OPAL to set the mask. The problems might
@@ -664,6 +887,8 @@ static void xive_irq_mask(struct irq_data *d)
 		return;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	xive_do_source_set_mask(xd, true);
 }
 
@@ -676,16 +901,23 @@ static int xive_irq_set_affinity(struct irq_data *d,
 	u32 target, old_target;
 	int rc = 0;
 
+<<<<<<< HEAD
 	pr_devel("xive_irq_set_affinity: irq %d\n", d->irq);
+=======
+	pr_debug("%s: irq %d/%x\n", __func__, d->irq, hw_irq);
+>>>>>>> upstream/android-13
 
 	/* Is this valid ? */
 	if (cpumask_any_and(cpumask, cpu_online_mask) >= nr_cpu_ids)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Don't do anything if the interrupt isn't started */
 	if (!irqd_is_started(d))
 		return IRQ_SET_MASK_OK;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * If existing target is already in the new mask, and is
 	 * online then do nothing.
@@ -721,7 +953,11 @@ static int xive_irq_set_affinity(struct irq_data *d,
 		return rc;
 	}
 
+<<<<<<< HEAD
 	pr_devel("  target: 0x%x\n", target);
+=======
+	pr_debug("  target: 0x%x\n", target);
+>>>>>>> upstream/android-13
 	xd->target = target;
 
 	/* Give up previous target */
@@ -783,6 +1019,7 @@ static int xive_irq_retrigger(struct irq_data *d)
 	 * 11, then perform an EOI.
 	 */
 	xive_esb_read(xd, XIVE_ESB_SET_PQ_11);
+<<<<<<< HEAD
 
 	/*
 	 * Note: We pass "0" to the hw_irq argument in order to
@@ -791,10 +1028,20 @@ static int xive_irq_retrigger(struct irq_data *d)
 	 * only do EOI for LSIs anyway.
 	 */
 	xive_do_source_eoi(0, xd);
+=======
+	xive_do_source_eoi(xd);
+>>>>>>> upstream/android-13
 
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Caller holds the irq descriptor lock, so this won't be called
+ * concurrently with xive_get_irqchip_state on the same interrupt.
+ */
+>>>>>>> upstream/android-13
 static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 {
 	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
@@ -803,6 +1050,7 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 	u8 pq;
 
 	/*
+<<<<<<< HEAD
 	 * We only support this on interrupts that do not require
 	 * firmware calls for masking and unmasking
 	 */
@@ -810,6 +1058,8 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 		return -EIO;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * This is called by KVM with state non-NULL for enabling
 	 * pass-through or NULL for disabling it
 	 */
@@ -818,6 +1068,13 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 
 		/* Set it to PQ=10 state to prevent further sends */
 		pq = xive_esb_read(xd, XIVE_ESB_SET_PQ_10);
+<<<<<<< HEAD
+=======
+		if (!xd->stale_p) {
+			xd->saved_p = !!(pq & XIVE_ESB_VAL_P);
+			xd->stale_p = !xd->saved_p;
+		}
+>>>>>>> upstream/android-13
 
 		/* No target ? nothing to do */
 		if (xd->target == XIVE_INVALID_TARGET) {
@@ -825,7 +1082,11 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 			 * An untargetted interrupt should have been
 			 * also masked at the source
 			 */
+<<<<<<< HEAD
 			WARN_ON(pq & 2);
+=======
+			WARN_ON(xd->saved_p);
+>>>>>>> upstream/android-13
 
 			return 0;
 		}
@@ -845,9 +1106,14 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 		 * This saved_p is cleared by the host EOI, when we know
 		 * for sure the queue slot is no longer in use.
 		 */
+<<<<<<< HEAD
 		if (pq & 2) {
 			pq = xive_esb_read(xd, XIVE_ESB_SET_PQ_11);
 			xd->saved_p = true;
+=======
+		if (xd->saved_p) {
+			xive_esb_read(xd, XIVE_ESB_SET_PQ_11);
+>>>>>>> upstream/android-13
 
 			/*
 			 * Sync the XIVE source HW to ensure the interrupt
@@ -860,8 +1126,12 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 			 */
 			if (xive_ops->sync_source)
 				xive_ops->sync_source(hw_irq);
+<<<<<<< HEAD
 		} else
 			xd->saved_p = false;
+=======
+		}
+>>>>>>> upstream/android-13
 	} else {
 		irqd_clr_forwarded_to_vcpu(d);
 
@@ -906,12 +1176,46 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
 		 * while masked, the generic code will re-mask it anyway.
 		 */
 		if (!xd->saved_p)
+<<<<<<< HEAD
 			xive_do_source_eoi(hw_irq, xd);
+=======
+			xive_do_source_eoi(xd);
+>>>>>>> upstream/android-13
 
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/* Called with irq descriptor lock held. */
+static int xive_get_irqchip_state(struct irq_data *data,
+				  enum irqchip_irq_state which, bool *state)
+{
+	struct xive_irq_data *xd = irq_data_get_irq_handler_data(data);
+	u8 pq;
+
+	switch (which) {
+	case IRQCHIP_STATE_ACTIVE:
+		pq = xive_esb_read(xd, XIVE_ESB_GET);
+
+		/*
+		 * The esb value being all 1's means we couldn't get
+		 * the PQ state of the interrupt through mmio. It may
+		 * happen, for example when querying a PHB interrupt
+		 * while the PHB is in an error state. We consider the
+		 * interrupt to be inactive in that case.
+		 */
+		*state = (pq != XIVE_ESB_INVALID) && !xd->stale_p &&
+			(xd->saved_p || (!!(pq & XIVE_ESB_VAL_P) &&
+			 !irqd_irq_disabled(data)));
+		return 0;
+	default:
+		return -EINVAL;
+	}
+}
+
+>>>>>>> upstream/android-13
 static struct irq_chip xive_irq_chip = {
 	.name = "XIVE-IRQ",
 	.irq_startup = xive_irq_startup,
@@ -923,6 +1227,10 @@ static struct irq_chip xive_irq_chip = {
 	.irq_set_type = xive_irq_set_type,
 	.irq_retrigger = xive_irq_retrigger,
 	.irq_set_vcpu_affinity = xive_irq_set_vcpu_affinity,
+<<<<<<< HEAD
+=======
+	.irq_get_irqchip_state = xive_get_irqchip_state,
+>>>>>>> upstream/android-13
 };
 
 bool is_xive_irq(struct irq_chip *chip)
@@ -933,17 +1241,26 @@ EXPORT_SYMBOL_GPL(is_xive_irq);
 
 void xive_cleanup_irq_data(struct xive_irq_data *xd)
 {
+<<<<<<< HEAD
 	if (xd->eoi_mmio) {
 		unmap_kernel_range((unsigned long)xd->eoi_mmio,
 				   1u << xd->esb_shift);
+=======
+	pr_debug("%s for HW %x\n", __func__, xd->hw_irq);
+
+	if (xd->eoi_mmio) {
+>>>>>>> upstream/android-13
 		iounmap(xd->eoi_mmio);
 		if (xd->eoi_mmio == xd->trig_mmio)
 			xd->trig_mmio = NULL;
 		xd->eoi_mmio = NULL;
 	}
 	if (xd->trig_mmio) {
+<<<<<<< HEAD
 		unmap_kernel_range((unsigned long)xd->trig_mmio,
 				   1u << xd->esb_shift);
+=======
+>>>>>>> upstream/android-13
 		iounmap(xd->trig_mmio);
 		xd->trig_mmio = NULL;
 	}
@@ -978,7 +1295,11 @@ static int xive_irq_alloc_data(unsigned int virq, irq_hw_number_t hw)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void xive_irq_free_data(unsigned int virq)
+=======
+void xive_irq_free_data(unsigned int virq)
+>>>>>>> upstream/android-13
 {
 	struct xive_irq_data *xd = irq_get_handler_data(virq);
 
@@ -988,6 +1309,10 @@ static void xive_irq_free_data(unsigned int virq)
 	xive_cleanup_irq_data(xd);
 	kfree(xd);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xive_irq_free_data);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 
@@ -1023,7 +1348,11 @@ static void xive_ipi_eoi(struct irq_data *d)
 	DBG_VERBOSE("IPI eoi: irq=%d [0x%lx] (HW IRQ 0x%x) pending=%02x\n",
 		    d->irq, irqd_to_hwirq(d), xc->hw_ipi, xc->pending_prio);
 
+<<<<<<< HEAD
 	xive_do_source_eoi(xc->hw_ipi, &xc->ipi_data);
+=======
+	xive_do_source_eoi(&xc->ipi_data);
+>>>>>>> upstream/android-13
 	xive_do_queue_eoi(xc);
 }
 
@@ -1042,6 +1371,7 @@ static struct irq_chip xive_ipi_chip = {
 	.irq_unmask = xive_ipi_do_nothing,
 };
 
+<<<<<<< HEAD
 static void __init xive_request_ipi(void)
 {
 	unsigned int virq;
@@ -1060,10 +1390,105 @@ static void __init xive_request_ipi(void)
 
 	WARN_ON(request_irq(virq, xive_muxed_ipi_action,
 			    IRQF_PERCPU | IRQF_NO_THREAD, "IPI", NULL));
+=======
+/*
+ * IPIs are marked per-cpu. We use separate HW interrupts under the
+ * hood but associated with the same "linux" interrupt
+ */
+struct xive_ipi_alloc_info {
+	irq_hw_number_t hwirq;
+};
+
+static int xive_ipi_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
+				     unsigned int nr_irqs, void *arg)
+{
+	struct xive_ipi_alloc_info *info = arg;
+	int i;
+
+	for (i = 0; i < nr_irqs; i++) {
+		irq_domain_set_info(domain, virq + i, info->hwirq + i, &xive_ipi_chip,
+				    domain->host_data, handle_percpu_irq,
+				    NULL, NULL);
+	}
+	return 0;
+}
+
+static const struct irq_domain_ops xive_ipi_irq_domain_ops = {
+	.alloc  = xive_ipi_irq_domain_alloc,
+};
+
+static int __init xive_init_ipis(void)
+{
+	struct fwnode_handle *fwnode;
+	struct irq_domain *ipi_domain;
+	unsigned int node;
+	int ret = -ENOMEM;
+
+	fwnode = irq_domain_alloc_named_fwnode("XIVE-IPI");
+	if (!fwnode)
+		goto out;
+
+	ipi_domain = irq_domain_create_linear(fwnode, nr_node_ids,
+					      &xive_ipi_irq_domain_ops, NULL);
+	if (!ipi_domain)
+		goto out_free_fwnode;
+
+	xive_ipis = kcalloc(nr_node_ids, sizeof(*xive_ipis), GFP_KERNEL | __GFP_NOFAIL);
+	if (!xive_ipis)
+		goto out_free_domain;
+
+	for_each_node(node) {
+		struct xive_ipi_desc *xid = &xive_ipis[node];
+		struct xive_ipi_alloc_info info = { node };
+
+		/*
+		 * Map one IPI interrupt per node for all cpus of that node.
+		 * Since the HW interrupt number doesn't have any meaning,
+		 * simply use the node number.
+		 */
+		ret = irq_domain_alloc_irqs(ipi_domain, 1, node, &info);
+		if (ret < 0)
+			goto out_free_xive_ipis;
+		xid->irq = ret;
+
+		snprintf(xid->name, sizeof(xid->name), "IPI-%d", node);
+	}
+
+	return ret;
+
+out_free_xive_ipis:
+	kfree(xive_ipis);
+out_free_domain:
+	irq_domain_remove(ipi_domain);
+out_free_fwnode:
+	irq_domain_free_fwnode(fwnode);
+out:
+	return ret;
+}
+
+static int xive_request_ipi(unsigned int cpu)
+{
+	struct xive_ipi_desc *xid = &xive_ipis[early_cpu_to_node(cpu)];
+	int ret;
+
+	if (atomic_inc_return(&xid->started) > 1)
+		return 0;
+
+	ret = request_irq(xid->irq, xive_muxed_ipi_action,
+			  IRQF_NO_DEBUG | IRQF_PERCPU | IRQF_NO_THREAD,
+			  xid->name, NULL);
+
+	WARN(ret < 0, "Failed to request IPI %d: %d\n", xid->irq, ret);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int xive_setup_cpu_ipi(unsigned int cpu)
 {
+<<<<<<< HEAD
+=======
+	unsigned int xive_ipi_irq = xive_ipi_cpu_to_irq(cpu);
+>>>>>>> upstream/android-13
 	struct xive_cpu *xc;
 	int rc;
 
@@ -1075,6 +1500,12 @@ static int xive_setup_cpu_ipi(unsigned int cpu)
 	if (xc->hw_ipi != XIVE_BAD_IRQ)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	/* Register the IPI */
+	xive_request_ipi(cpu);
+
+>>>>>>> upstream/android-13
 	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
 	if (xive_ops->get_ipi(cpu, xc))
 		return -EIO;
@@ -1106,12 +1537,22 @@ static int xive_setup_cpu_ipi(unsigned int cpu)
 
 static void xive_cleanup_cpu_ipi(unsigned int cpu, struct xive_cpu *xc)
 {
+<<<<<<< HEAD
+=======
+	unsigned int xive_ipi_irq = xive_ipi_cpu_to_irq(cpu);
+
+>>>>>>> upstream/android-13
 	/* Disable the IPI and free the IRQ data */
 
 	/* Already cleaned up ? */
 	if (xc->hw_ipi == XIVE_BAD_IRQ)
 		return;
 
+<<<<<<< HEAD
+=======
+	/* TODO: clear IPI mapping */
+
+>>>>>>> upstream/android-13
 	/* Mask the IPI */
 	xive_do_source_set_mask(&xc->ipi_data, true);
 
@@ -1134,7 +1575,11 @@ void __init xive_smp_probe(void)
 	smp_ops->cause_ipi = xive_cause_ipi;
 
 	/* Register the IPI */
+<<<<<<< HEAD
 	xive_request_ipi();
+=======
+	xive_init_ipis();
+>>>>>>> upstream/android-13
 
 	/* Allocate and setup IPI for the boot CPU */
 	xive_setup_cpu_ipi(smp_processor_id());
@@ -1153,6 +1598,7 @@ static int xive_irq_domain_map(struct irq_domain *h, unsigned int virq,
 	 */
 	irq_clear_status_flags(virq, IRQ_LEVEL);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 	/* IPIs are special and come up with HW number 0 */
 	if (hw == 0) {
@@ -1166,6 +1612,8 @@ static int xive_irq_domain_map(struct irq_domain *h, unsigned int virq,
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	rc = xive_irq_alloc_data(virq, hw);
 	if (rc)
 		return rc;
@@ -1177,6 +1625,7 @@ static int xive_irq_domain_map(struct irq_domain *h, unsigned int virq,
 
 static void xive_irq_domain_unmap(struct irq_domain *d, unsigned int virq)
 {
+<<<<<<< HEAD
 	struct irq_data *data = irq_get_irq_data(virq);
 	unsigned int hw_irq;
 
@@ -1186,6 +1635,9 @@ static void xive_irq_domain_unmap(struct irq_domain *d, unsigned int virq)
 	hw_irq = (unsigned int)irqd_to_hwirq(data);
 	if (hw_irq)
 		xive_irq_free_data(virq);
+=======
+	xive_irq_free_data(virq);
+>>>>>>> upstream/android-13
 }
 
 static int xive_irq_domain_xlate(struct irq_domain *h, struct device_node *ct,
@@ -1216,17 +1668,148 @@ static int xive_irq_domain_match(struct irq_domain *h, struct device_node *node,
 	return xive_ops->match(node);
 }
 
+<<<<<<< HEAD
 static const struct irq_domain_ops xive_irq_domain_ops = {
+=======
+#ifdef CONFIG_GENERIC_IRQ_DEBUGFS
+static const char * const esb_names[] = { "RESET", "OFF", "PENDING", "QUEUED" };
+
+static const struct {
+	u64  mask;
+	char *name;
+} xive_irq_flags[] = {
+	{ XIVE_IRQ_FLAG_STORE_EOI, "STORE_EOI" },
+	{ XIVE_IRQ_FLAG_LSI,       "LSI"       },
+	{ XIVE_IRQ_FLAG_H_INT_ESB, "H_INT_ESB" },
+	{ XIVE_IRQ_FLAG_NO_EOI,    "NO_EOI"    },
+};
+
+static void xive_irq_domain_debug_show(struct seq_file *m, struct irq_domain *d,
+				       struct irq_data *irqd, int ind)
+{
+	struct xive_irq_data *xd;
+	u64 val;
+	int i;
+
+	/* No IRQ domain level information. To be done */
+	if (!irqd)
+		return;
+
+	if (!is_xive_irq(irq_data_get_irq_chip(irqd)))
+		return;
+
+	seq_printf(m, "%*sXIVE:\n", ind, "");
+	ind++;
+
+	xd = irq_data_get_irq_handler_data(irqd);
+	if (!xd) {
+		seq_printf(m, "%*snot assigned\n", ind, "");
+		return;
+	}
+
+	val = xive_esb_read(xd, XIVE_ESB_GET);
+	seq_printf(m, "%*sESB:      %s\n", ind, "", esb_names[val & 0x3]);
+	seq_printf(m, "%*sPstate:   %s %s\n", ind, "", xd->stale_p ? "stale" : "",
+		   xd->saved_p ? "saved" : "");
+	seq_printf(m, "%*sTarget:   %d\n", ind, "", xd->target);
+	seq_printf(m, "%*sChip:     %d\n", ind, "", xd->src_chip);
+	seq_printf(m, "%*sTrigger:  0x%016llx\n", ind, "", xd->trig_page);
+	seq_printf(m, "%*sEOI:      0x%016llx\n", ind, "", xd->eoi_page);
+	seq_printf(m, "%*sFlags:    0x%llx\n", ind, "", xd->flags);
+	for (i = 0; i < ARRAY_SIZE(xive_irq_flags); i++) {
+		if (xd->flags & xive_irq_flags[i].mask)
+			seq_printf(m, "%*s%s\n", ind + 12, "", xive_irq_flags[i].name);
+	}
+}
+#endif
+
+#ifdef	CONFIG_IRQ_DOMAIN_HIERARCHY
+static int xive_irq_domain_translate(struct irq_domain *d,
+				     struct irq_fwspec *fwspec,
+				     unsigned long *hwirq,
+				     unsigned int *type)
+{
+	return xive_irq_domain_xlate(d, to_of_node(fwspec->fwnode),
+				     fwspec->param, fwspec->param_count,
+				     hwirq, type);
+}
+
+static int xive_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
+				 unsigned int nr_irqs, void *arg)
+{
+	struct irq_fwspec *fwspec = arg;
+	irq_hw_number_t hwirq;
+	unsigned int type = IRQ_TYPE_NONE;
+	int i, rc;
+
+	rc = xive_irq_domain_translate(domain, fwspec, &hwirq, &type);
+	if (rc)
+		return rc;
+
+	pr_debug("%s %d/%lx #%d\n", __func__, virq, hwirq, nr_irqs);
+
+	for (i = 0; i < nr_irqs; i++) {
+		/* TODO: call xive_irq_domain_map() */
+
+		/*
+		 * Mark interrupts as edge sensitive by default so that resend
+		 * actually works. Will fix that up below if needed.
+		 */
+		irq_clear_status_flags(virq, IRQ_LEVEL);
+
+		/* allocates and sets handler data */
+		rc = xive_irq_alloc_data(virq + i, hwirq + i);
+		if (rc)
+			return rc;
+
+		irq_domain_set_hwirq_and_chip(domain, virq + i, hwirq + i,
+					      &xive_irq_chip, domain->host_data);
+		irq_set_handler(virq + i, handle_fasteoi_irq);
+	}
+
+	return 0;
+}
+
+static void xive_irq_domain_free(struct irq_domain *domain,
+				 unsigned int virq, unsigned int nr_irqs)
+{
+	int i;
+
+	pr_debug("%s %d #%d\n", __func__, virq, nr_irqs);
+
+	for (i = 0; i < nr_irqs; i++)
+		xive_irq_free_data(virq + i);
+}
+#endif
+
+static const struct irq_domain_ops xive_irq_domain_ops = {
+#ifdef	CONFIG_IRQ_DOMAIN_HIERARCHY
+	.alloc	= xive_irq_domain_alloc,
+	.free	= xive_irq_domain_free,
+	.translate = xive_irq_domain_translate,
+#endif
+>>>>>>> upstream/android-13
 	.match = xive_irq_domain_match,
 	.map = xive_irq_domain_map,
 	.unmap = xive_irq_domain_unmap,
 	.xlate = xive_irq_domain_xlate,
+<<<<<<< HEAD
 };
 
 static void __init xive_init_host(void)
 {
 	xive_irq_domain = irq_domain_add_nomap(NULL, XIVE_MAX_IRQ,
 					       &xive_irq_domain_ops, NULL);
+=======
+#ifdef CONFIG_GENERIC_IRQ_DEBUGFS
+	.debug_show = xive_irq_domain_debug_show,
+#endif
+};
+
+static void __init xive_init_host(struct device_node *np)
+{
+	xive_irq_domain = irq_domain_add_tree(np, &xive_irq_domain_ops, NULL);
+>>>>>>> upstream/android-13
 	if (WARN_ON(xive_irq_domain == NULL))
 		return;
 	irq_set_default_host(xive_irq_domain);
@@ -1255,17 +1838,27 @@ static int xive_prepare_cpu(unsigned int cpu)
 
 	xc = per_cpu(xive_cpu, cpu);
 	if (!xc) {
+<<<<<<< HEAD
 		struct device_node *np;
 
+=======
+>>>>>>> upstream/android-13
 		xc = kzalloc_node(sizeof(struct xive_cpu),
 				  GFP_KERNEL, cpu_to_node(cpu));
 		if (!xc)
 			return -ENOMEM;
+<<<<<<< HEAD
 		np = of_get_cpu_node(cpu, NULL);
 		if (np)
 			xc->chip_id = of_get_ibm_chip_id(np);
 		of_node_put(np);
 		xc->hw_ipi = XIVE_BAD_IRQ;
+=======
+		xc->hw_ipi = XIVE_BAD_IRQ;
+		xc->chip_id = XIVE_INVALID_CHIP_ID;
+		if (xive_ops->prepare_cpu)
+			xive_ops->prepare_cpu(cpu, xc);
+>>>>>>> upstream/android-13
 
 		per_cpu(xive_cpu, cpu) = xc;
 	}
@@ -1328,13 +1921,20 @@ static void xive_flush_cpu_queue(unsigned int cpu, struct xive_cpu *xc)
 		struct irq_desc *desc = irq_to_desc(irq);
 		struct irq_data *d = irq_desc_get_irq_data(desc);
 		struct xive_irq_data *xd;
+<<<<<<< HEAD
 		unsigned int hw_irq = (unsigned int)irqd_to_hwirq(d);
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * Ignore anything that isn't a XIVE irq and ignore
 		 * IPIs, so can just be dropped.
 		 */
+<<<<<<< HEAD
 		if (d->domain != xive_irq_domain || hw_irq == 0)
+=======
+		if (d->domain != xive_irq_domain)
+>>>>>>> upstream/android-13
 			continue;
 
 		/*
@@ -1350,11 +1950,23 @@ static void xive_flush_cpu_queue(unsigned int cpu, struct xive_cpu *xc)
 		xd = irq_desc_get_handler_data(desc);
 
 		/*
+<<<<<<< HEAD
+=======
+		 * Clear saved_p to indicate that it's no longer pending
+		 */
+		xd->saved_p = false;
+
+		/*
+>>>>>>> upstream/android-13
 		 * For LSIs, we EOI, this will cause a resend if it's
 		 * still asserted. Otherwise do an MSI retrigger.
 		 */
 		if (xd->flags & XIVE_IRQ_FLAG_LSI)
+<<<<<<< HEAD
 			xive_do_source_eoi(irqd_to_hwirq(d), xd);
+=======
+			xive_do_source_eoi(xd);
+>>>>>>> upstream/android-13
 		else
 			xive_irq_retrigger(d);
 
@@ -1421,8 +2033,13 @@ void xive_shutdown(void)
 	xive_ops->shutdown();
 }
 
+<<<<<<< HEAD
 bool __init xive_core_init(const struct xive_ops *ops, void __iomem *area, u32 offset,
 			   u8 max_prio)
+=======
+bool __init xive_core_init(struct device_node *np, const struct xive_ops *ops,
+			   void __iomem *area, u32 offset, u8 max_prio)
+>>>>>>> upstream/android-13
 {
 	xive_tima = area;
 	xive_tima_offset = offset;
@@ -1433,7 +2050,11 @@ bool __init xive_core_init(const struct xive_ops *ops, void __iomem *area, u32 o
 	__xive_enabled = true;
 
 	pr_devel("Initializing host..\n");
+<<<<<<< HEAD
 	xive_init_host();
+=======
+	xive_init_host(np);
+>>>>>>> upstream/android-13
 
 	pr_devel("Initializing boot CPU..\n");
 
@@ -1472,3 +2093,100 @@ static int __init xive_off(char *arg)
 	return 0;
 }
 __setup("xive=off", xive_off);
+<<<<<<< HEAD
+=======
+
+static void xive_debug_show_cpu(struct seq_file *m, int cpu)
+{
+	struct xive_cpu *xc = per_cpu(xive_cpu, cpu);
+
+	seq_printf(m, "CPU %d:", cpu);
+	if (xc) {
+		seq_printf(m, "pp=%02x CPPR=%02x ", xc->pending_prio, xc->cppr);
+
+#ifdef CONFIG_SMP
+		{
+			u64 val = xive_esb_read(&xc->ipi_data, XIVE_ESB_GET);
+
+			seq_printf(m, "IPI=0x%08x PQ=%c%c ", xc->hw_ipi,
+				   val & XIVE_ESB_VAL_P ? 'P' : '-',
+				   val & XIVE_ESB_VAL_Q ? 'Q' : '-');
+		}
+#endif
+		{
+			struct xive_q *q = &xc->queue[xive_irq_priority];
+			u32 i0, i1, idx;
+
+			if (q->qpage) {
+				idx = q->idx;
+				i0 = be32_to_cpup(q->qpage + idx);
+				idx = (idx + 1) & q->msk;
+				i1 = be32_to_cpup(q->qpage + idx);
+				seq_printf(m, "EQ idx=%d T=%d %08x %08x ...",
+					   q->idx, q->toggle, i0, i1);
+			}
+		}
+	}
+	seq_puts(m, "\n");
+}
+
+static void xive_debug_show_irq(struct seq_file *m, struct irq_data *d)
+{
+	unsigned int hw_irq = (unsigned int)irqd_to_hwirq(d);
+	int rc;
+	u32 target;
+	u8 prio;
+	u32 lirq;
+	struct xive_irq_data *xd;
+	u64 val;
+
+	rc = xive_ops->get_irq_config(hw_irq, &target, &prio, &lirq);
+	if (rc) {
+		seq_printf(m, "IRQ 0x%08x : no config rc=%d\n", hw_irq, rc);
+		return;
+	}
+
+	seq_printf(m, "IRQ 0x%08x : target=0x%x prio=%02x lirq=0x%x ",
+		   hw_irq, target, prio, lirq);
+
+	xd = irq_data_get_irq_handler_data(d);
+	val = xive_esb_read(xd, XIVE_ESB_GET);
+	seq_printf(m, "flags=%c%c%c PQ=%c%c",
+		   xd->flags & XIVE_IRQ_FLAG_STORE_EOI ? 'S' : ' ',
+		   xd->flags & XIVE_IRQ_FLAG_LSI ? 'L' : ' ',
+		   xd->flags & XIVE_IRQ_FLAG_H_INT_ESB ? 'H' : ' ',
+		   val & XIVE_ESB_VAL_P ? 'P' : '-',
+		   val & XIVE_ESB_VAL_Q ? 'Q' : '-');
+	seq_puts(m, "\n");
+}
+
+static int xive_core_debug_show(struct seq_file *m, void *private)
+{
+	unsigned int i;
+	struct irq_desc *desc;
+	int cpu;
+
+	if (xive_ops->debug_show)
+		xive_ops->debug_show(m, private);
+
+	for_each_possible_cpu(cpu)
+		xive_debug_show_cpu(m, cpu);
+
+	for_each_irq_desc(i, desc) {
+		struct irq_data *d = irq_domain_get_irq_data(xive_irq_domain, i);
+
+		if (d)
+			xive_debug_show_irq(m, d);
+	}
+	return 0;
+}
+DEFINE_SHOW_ATTRIBUTE(xive_core_debug);
+
+int xive_core_debug_init(void)
+{
+	if (xive_enabled())
+		debugfs_create_file("xive", 0400, arch_debugfs_dir,
+				    NULL, &xive_core_debug_fops);
+	return 0;
+}
+>>>>>>> upstream/android-13

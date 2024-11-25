@@ -8,12 +8,20 @@
 #ifndef __ODMEDCATURBOCHECK_H__
 #define __ODMEDCATURBOCHECK_H__
 
+<<<<<<< HEAD
 typedef struct _EDCA_TURBO_ {
+=======
+struct edca_t { /* _EDCA_TURBO_ */
+>>>>>>> upstream/android-13
 	bool bCurrentTurboEDCA;
 	bool bIsCurRDLState;
 
 	u32 prv_traffic_idx; /*  edca turbo */
+<<<<<<< HEAD
 } EDCA_T, *pEDCA_T;
+=======
+};
+>>>>>>> upstream/android-13
 
 void odm_EdcaTurboCheck(void *pDM_VOID);
 void ODM_EdcaTurboInit(void *pDM_VOID);

@@ -33,6 +33,13 @@ static const struct proc_ns_operations *ns_entries[] = {
 #ifdef CONFIG_CGROUPS
 	&cgroupns_operations,
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TIME_NS
+	&timens_operations,
+	&timens_for_children_operations,
+#endif
+>>>>>>> upstream/android-13
 };
 
 static const char *proc_ns_get_link(struct dentry *dentry,
@@ -42,13 +49,18 @@ static const char *proc_ns_get_link(struct dentry *dentry,
 	const struct proc_ns_operations *ns_ops = PROC_I(inode)->ns_ops;
 	struct task_struct *task;
 	struct path ns_path;
+<<<<<<< HEAD
 	void *error = ERR_PTR(-EACCES);
+=======
+	int error = -EACCES;
+>>>>>>> upstream/android-13
 
 	if (!dentry)
 		return ERR_PTR(-ECHILD);
 
 	task = get_proc_task(inode);
 	if (!task)
+<<<<<<< HEAD
 		return error;
 
 	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
@@ -58,6 +70,21 @@ static const char *proc_ns_get_link(struct dentry *dentry,
 	}
 	put_task_struct(task);
 	return error;
+=======
+		return ERR_PTR(-EACCES);
+
+	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
+		goto out;
+
+	error = ns_get_path(&ns_path, task, ns_ops);
+	if (error)
+		goto out;
+
+	error = nd_jump_link(&ns_path);
+out:
+	put_task_struct(task);
+	return ERR_PTR(error);
+>>>>>>> upstream/android-13
 }
 
 static int proc_ns_readlink(struct dentry *dentry, char __user *buffer, int buflen)

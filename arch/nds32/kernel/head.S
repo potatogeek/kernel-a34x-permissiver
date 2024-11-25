@@ -3,11 +3,19 @@
 
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <asm/ptrace.h>
 #include <asm/asm-offsets.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
 #include <asm/sizes.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/ptrace.h>
+#include <asm/asm-offsets.h>
+#include <asm/page.h>
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/thread_info.h>
 
 #ifdef CONFIG_CPU_BIG_ENDIAN
@@ -123,6 +131,7 @@ _image_size_check:
         andi    $r0, $r0, MMU_CFG_mskTBS
         srli    $r6, $r6, MMU_CFG_offTBW
         srli    $r0, $r0, MMU_CFG_offTBS
+<<<<<<< HEAD
         /*
          * we just map the kernel to the maximum way - 1 of tlb
          * reserver one way for UART VA mapping
@@ -132,12 +141,18 @@ _image_size_check:
          */
         li      $r2, 't'
         beqz    $r6, __error                 ! MMU_CFG.TBW = 0 is direct mappin
+=======
+	addi    $r6, $r6, #0x1               ! MMU_CFG.TBW value -> meaning
+>>>>>>> upstream/android-13
         addi    $r0, $r0, #0x2               ! MMU_CFG.TBS value -> meaning
         sll     $r0, $r6, $r0                ! entries = k-way * n-set
         mul     $r6, $r0, $r5                ! max size = entries * page size
         /* check kernel image size */
         la      $r3, (_end - PAGE_OFFSET)
+<<<<<<< HEAD
         li      $r2, 's'
+=======
+>>>>>>> upstream/android-13
         bgt     $r3, $r6, __error
 
 	li      $r2, #(PHYS_OFFSET + TLB_DATA_kernel_text_attr)
@@ -160,7 +175,11 @@ _tlb:
 #endif
 	mtsr    $r3, $TLB_MISC
 
+<<<<<<< HEAD
 	mfsr    $r0, $MISC_CTL      ! Enable BTB and RTP and shadow sp
+=======
+	mfsr    $r0, $MISC_CTL      ! Enable BTB, RTP, shadow sp, and HW_PRE
+>>>>>>> upstream/android-13
 	ori     $r0, $r0, #MISC_init
 	mtsr    $r0, $MISC_CTL
 

@@ -86,6 +86,7 @@
 #ifdef CONFIG_QUOTA
 /* Amount of blocks needed for quota update - we know that the structure was
  * allocated so we need to update only data block */
+<<<<<<< HEAD
 #define EXT4_QUOTA_TRANS_BLOCKS(sb) ((test_opt(sb, QUOTA) ||\
 		ext4_has_feature_quota(sb)) ? 1 : 0)
 /* Amount of blocks needed for quota insert/delete - we do some block writes
@@ -97,6 +98,16 @@
 
 #define EXT4_QUOTA_DEL_BLOCKS(sb) ((test_opt(sb, QUOTA) ||\
 		ext4_has_feature_quota(sb)) ?\
+=======
+#define EXT4_QUOTA_TRANS_BLOCKS(sb) ((ext4_quota_capable(sb)) ? 1 : 0)
+/* Amount of blocks needed for quota insert/delete - we do some block writes
+ * but inode, sb and group updates are done only once */
+#define EXT4_QUOTA_INIT_BLOCKS(sb) ((ext4_quota_capable(sb)) ?\
+		(DQUOT_INIT_ALLOC*(EXT4_SINGLEDATA_TRANS_BLOCKS(sb)-3)\
+		 +3+DQUOT_INIT_REWRITE) : 0)
+
+#define EXT4_QUOTA_DEL_BLOCKS(sb) ((ext4_quota_capable(sb)) ?\
+>>>>>>> upstream/android-13
 		(DQUOT_DEL_ALLOC*(EXT4_SINGLEDATA_TRANS_BLOCKS(sb)-3)\
 		 +3+DQUOT_DEL_REWRITE) : 0)
 #else
@@ -222,7 +233,14 @@ ext4_mark_iloc_dirty(handle_t *handle,
 int ext4_reserve_inode_write(handle_t *handle, struct inode *inode,
 			struct ext4_iloc *iloc);
 
+<<<<<<< HEAD
 int ext4_mark_inode_dirty(handle_t *handle, struct inode *inode);
+=======
+#define ext4_mark_inode_dirty(__h, __i)					\
+		__ext4_mark_inode_dirty((__h), (__i), __func__, __LINE__)
+int __ext4_mark_inode_dirty(handle_t *handle, struct inode *inode,
+				const char *func, unsigned int line);
+>>>>>>> upstream/android-13
 
 int ext4_expand_extra_isize(struct inode *inode,
 			    unsigned int new_extra_isize,
@@ -231,19 +249,32 @@ int ext4_expand_extra_isize(struct inode *inode,
  * Wrapper functions with which ext4 calls into JBD.
  */
 int __ext4_journal_get_write_access(const char *where, unsigned int line,
+<<<<<<< HEAD
 				    handle_t *handle, struct buffer_head *bh);
+=======
+				    handle_t *handle, struct super_block *sb,
+				    struct buffer_head *bh,
+				    enum ext4_journal_trigger_type trigger_type);
+>>>>>>> upstream/android-13
 
 int __ext4_forget(const char *where, unsigned int line, handle_t *handle,
 		  int is_metadata, struct inode *inode,
 		  struct buffer_head *bh, ext4_fsblk_t blocknr);
 
 int __ext4_journal_get_create_access(const char *where, unsigned int line,
+<<<<<<< HEAD
 				handle_t *handle, struct buffer_head *bh);
+=======
+				handle_t *handle, struct super_block *sb,
+				struct buffer_head *bh,
+				enum ext4_journal_trigger_type trigger_type);
+>>>>>>> upstream/android-13
 
 int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
 				 handle_t *handle, struct inode *inode,
 				 struct buffer_head *bh);
 
+<<<<<<< HEAD
 int __ext4_handle_dirty_super(const char *where, unsigned int line,
 			      handle_t *handle, struct super_block *sb);
 
@@ -262,6 +293,24 @@ int __ext4_handle_dirty_super(const char *where, unsigned int line,
 
 handle_t *__ext4_journal_start_sb(struct super_block *sb, unsigned int line,
 				  int type, int blocks, int rsv_blocks);
+=======
+#define ext4_journal_get_write_access(handle, sb, bh, trigger_type) \
+	__ext4_journal_get_write_access(__func__, __LINE__, (handle), (sb), \
+					(bh), (trigger_type))
+#define ext4_forget(handle, is_metadata, inode, bh, block_nr) \
+	__ext4_forget(__func__, __LINE__, (handle), (is_metadata), (inode), \
+		      (bh), (block_nr))
+#define ext4_journal_get_create_access(handle, sb, bh, trigger_type) \
+	__ext4_journal_get_create_access(__func__, __LINE__, (handle), (sb), \
+					 (bh), (trigger_type))
+#define ext4_handle_dirty_metadata(handle, inode, bh) \
+	__ext4_handle_dirty_metadata(__func__, __LINE__, (handle), (inode), \
+				     (bh))
+
+handle_t *__ext4_journal_start_sb(struct super_block *sb, unsigned int line,
+				  int type, int blocks, int rsv_blocks,
+				  int revoke_creds);
+>>>>>>> upstream/android-13
 int __ext4_journal_stop(const char *where, unsigned int line, handle_t *handle);
 
 #define EXT4_NOJOURNAL_MAX_REF_COUNT ((unsigned long) 4096)
@@ -288,6 +337,7 @@ static inline int ext4_handle_is_aborted(handle_t *handle)
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline int ext4_handle_has_enough_credits(handle_t *handle, int needed)
 {
 	if (ext4_handle_valid(handle) && handle->h_buffer_credits < needed)
@@ -310,6 +360,43 @@ static inline handle_t *__ext4_journal_start(struct inode *inode,
 {
 	return __ext4_journal_start_sb(inode->i_sb, line, type, blocks,
 				       rsv_blocks);
+=======
+static inline int ext4_free_metadata_revoke_credits(struct super_block *sb,
+						    int blocks)
+{
+	/* Freeing each metadata block can result in freeing one cluster */
+	return blocks * EXT4_SB(sb)->s_cluster_ratio;
+}
+
+static inline int ext4_trans_default_revoke_credits(struct super_block *sb)
+{
+	return ext4_free_metadata_revoke_credits(sb, 8);
+}
+
+#define ext4_journal_start_sb(sb, type, nblocks)			\
+	__ext4_journal_start_sb((sb), __LINE__, (type), (nblocks), 0,	\
+				ext4_trans_default_revoke_credits(sb))
+
+#define ext4_journal_start(inode, type, nblocks)			\
+	__ext4_journal_start((inode), __LINE__, (type), (nblocks), 0,	\
+			     ext4_trans_default_revoke_credits((inode)->i_sb))
+
+#define ext4_journal_start_with_reserve(inode, type, blocks, rsv_blocks)\
+	__ext4_journal_start((inode), __LINE__, (type), (blocks), (rsv_blocks),\
+			     ext4_trans_default_revoke_credits((inode)->i_sb))
+
+#define ext4_journal_start_with_revoke(inode, type, blocks, revoke_creds) \
+	__ext4_journal_start((inode), __LINE__, (type), (blocks), 0,	\
+			     (revoke_creds))
+
+static inline handle_t *__ext4_journal_start(struct inode *inode,
+					     unsigned int line, int type,
+					     int blocks, int rsv_blocks,
+					     int revoke_creds)
+{
+	return __ext4_journal_start_sb(inode->i_sb, line, type, blocks,
+				       rsv_blocks, revoke_creds);
+>>>>>>> upstream/android-13
 }
 
 #define ext4_journal_stop(handle) \
@@ -321,17 +408,21 @@ static inline handle_t *__ext4_journal_start(struct inode *inode,
 handle_t *__ext4_journal_start_reserved(handle_t *handle, unsigned int line,
 					int type);
 
+<<<<<<< HEAD
 static inline void ext4_journal_free_reserved(handle_t *handle)
 {
 	if (ext4_handle_valid(handle))
 		jbd2_journal_free_reserved(handle);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline handle_t *ext4_journal_current_handle(void)
 {
 	return journal_current_handle();
 }
 
+<<<<<<< HEAD
 static inline int ext4_journal_extend(handle_t *handle, int nblocks)
 {
 	if (ext4_handle_valid(handle))
@@ -346,6 +437,70 @@ static inline int ext4_journal_restart(handle_t *handle, int nblocks)
 	return 0;
 }
 
+=======
+static inline int ext4_journal_extend(handle_t *handle, int nblocks, int revoke)
+{
+	if (ext4_handle_valid(handle))
+		return jbd2_journal_extend(handle, nblocks, revoke);
+	return 0;
+}
+
+static inline int ext4_journal_restart(handle_t *handle, int nblocks,
+				       int revoke)
+{
+	if (ext4_handle_valid(handle))
+		return jbd2__journal_restart(handle, nblocks, revoke, GFP_NOFS);
+	return 0;
+}
+
+int __ext4_journal_ensure_credits(handle_t *handle, int check_cred,
+				  int extend_cred, int revoke_cred);
+
+
+/*
+ * Ensure @handle has at least @check_creds credits available. If not,
+ * transaction will be extended or restarted to contain at least @extend_cred
+ * credits. Before restarting transaction @fn is executed to allow for cleanup
+ * before the transaction is restarted.
+ *
+ * The return value is < 0 in case of error, 0 in case the handle has enough
+ * credits or transaction extension succeeded, 1 in case transaction had to be
+ * restarted.
+ */
+#define ext4_journal_ensure_credits_fn(handle, check_cred, extend_cred,	\
+				       revoke_cred, fn) \
+({									\
+	__label__ __ensure_end;						\
+	int err = __ext4_journal_ensure_credits((handle), (check_cred),	\
+					(extend_cred), (revoke_cred));	\
+									\
+	if (err <= 0)							\
+		goto __ensure_end;					\
+	err = (fn);							\
+	if (err < 0)							\
+		goto __ensure_end;					\
+	err = ext4_journal_restart((handle), (extend_cred), (revoke_cred)); \
+	if (err == 0)							\
+		err = 1;						\
+__ensure_end:								\
+	err;								\
+})
+
+/*
+ * Ensure given handle has at least requested amount of credits available,
+ * possibly restarting transaction if needed. We also make sure the transaction
+ * has space for at least ext4_trans_default_revoke_credits(sb) revoke records
+ * as freeing one or two blocks is very common pattern and requesting this is
+ * very cheap.
+ */
+static inline int ext4_journal_ensure_credits(handle_t *handle, int credits,
+					      int revoke_creds)
+{
+	return ext4_journal_ensure_credits_fn(handle, credits, credits,
+				revoke_creds, 0);
+}
+
+>>>>>>> upstream/android-13
 static inline int ext4_journal_blocks_per_page(struct inode *inode)
 {
 	if (EXT4_JOURNAL(inode) != NULL)
@@ -401,6 +556,7 @@ int ext4_force_commit(struct super_block *sb);
 #define EXT4_INODE_ORDERED_DATA_MODE	0x02 /* ordered data mode */
 #define EXT4_INODE_WRITEBACK_DATA_MODE	0x04 /* writeback data mode */
 
+<<<<<<< HEAD
 static inline int ext4_inode_journal_mode(struct inode *inode)
 {
 	if (EXT4_JOURNAL(inode) == NULL)
@@ -421,6 +577,9 @@ static inline int ext4_inode_journal_mode(struct inode *inode)
 		return EXT4_INODE_WRITEBACK_DATA_MODE;	/* writeback */
 	BUG();
 }
+=======
+int ext4_inode_journal_mode(struct inode *inode);
+>>>>>>> upstream/android-13
 
 static inline int ext4_should_journal_data(struct inode *inode)
 {
@@ -437,6 +596,22 @@ static inline int ext4_should_writeback_data(struct inode *inode)
 	return ext4_inode_journal_mode(inode) & EXT4_INODE_WRITEBACK_DATA_MODE;
 }
 
+<<<<<<< HEAD
+=======
+static inline int ext4_free_data_revoke_credits(struct inode *inode, int blocks)
+{
+	if (test_opt(inode->i_sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA)
+		return 0;
+	if (!ext4_should_journal_data(inode))
+		return 0;
+	/*
+	 * Data blocks in one extent are contiguous, just account for partial
+	 * clusters at extent boundaries
+	 */
+	return blocks + 2*(EXT4_SB(inode->i_sb)->s_cluster_ratio - 1);
+}
+
+>>>>>>> upstream/android-13
 /*
  * This function controls whether or not we should try to go down the
  * dioread_nolock code paths, which makes it safe to avoid taking
@@ -456,6 +631,12 @@ static inline int ext4_should_dioread_nolock(struct inode *inode)
 		return 0;
 	if (ext4_should_journal_data(inode))
 		return 0;
+<<<<<<< HEAD
+=======
+	/* temporary fix to prevent generic/422 test failures */
+	if (!test_opt(inode->i_sb, DELALLOC))
+		return 0;
+>>>>>>> upstream/android-13
 	return 1;
 }
 

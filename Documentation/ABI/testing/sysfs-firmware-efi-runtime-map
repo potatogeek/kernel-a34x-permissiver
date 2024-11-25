@@ -14,7 +14,11 @@ Description:	Switching efi runtime services to virtual mode requires
 		/sys/firmware/efi/runtime-map/ is the directory the kernel
 		exports that information in.
 
+<<<<<<< HEAD
 		subdirectories are named with the number of the memory range:
+=======
+		subdirectories are named with the number of the memory range::
+>>>>>>> upstream/android-13
 
 			/sys/firmware/efi/runtime-map/0
 			/sys/firmware/efi/runtime-map/1
@@ -24,11 +28,21 @@ Description:	Switching efi runtime services to virtual mode requires
 
 		Each subdirectory contains five files:
 
+<<<<<<< HEAD
 		attribute : The attributes of the memory range.
 		num_pages : The size of the memory range in pages.
 		phys_addr : The physical address of the memory range.
 		type      : The type of the memory range.
 		virt_addr : The virtual address of the memory range.
+=======
+		=========   =========================================
+		attribute   The attributes of the memory range.
+		num_pages   The size of the memory range in pages.
+		phys_addr   The physical address of the memory range.
+		type        The type of the memory range.
+		virt_addr   The virtual address of the memory range.
+		=========   =========================================
+>>>>>>> upstream/android-13
 
 		Above values are all hexadecimal numbers with the '0x' prefix.
 Users:		Kexec

@@ -3,7 +3,11 @@
 			 ============================
 
 By: David Howells <dhowells@redhat.com>
+<<<<<<< HEAD
     Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+    Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
     Will Deacon <will.deacon@arm.com>
     Peter Zijlstra <peterz@infradead.org>
 
@@ -63,7 +67,10 @@ CONTENTS
 
      - Compiler barrier.
      - CPU memory barriers.
+<<<<<<< HEAD
      - MMIO write barrier.
+=======
+>>>>>>> upstream/android-13
 
  (*) Implicit kernel memory barriers.
 
@@ -75,7 +82,10 @@ CONTENTS
  (*) Inter-CPU acquiring barrier effects.
 
      - Acquires vs memory accesses.
+<<<<<<< HEAD
      - Acquires vs I/O accesses.
+=======
+>>>>>>> upstream/android-13
 
  (*) Where are memory barriers needed?
 
@@ -187,7 +197,11 @@ As a further example, consider this sequence of events:
 	===============	===============
 	{ A == 1, B == 2, C == 3, P == &A, Q == &C }
 	B = 4;		Q = P;
+<<<<<<< HEAD
 	P = &B		D = *Q;
+=======
+	P = &B;		D = *Q;
+>>>>>>> upstream/android-13
 
 There is an obvious data dependency here, as the value loaded into D depends on
 the address retrieved from P by CPU 2.  At the end of the sequence, any of the
@@ -471,8 +485,12 @@ And a couple of implicit varieties:
      operations after the ACQUIRE operation will appear to happen after the
      ACQUIRE operation with respect to the other components of the system.
      ACQUIRE operations include LOCK operations and both smp_load_acquire()
+<<<<<<< HEAD
      and smp_cond_acquire() operations. The later builds the necessary ACQUIRE
      semantics from relying on a control dependency and smp_rmb().
+=======
+     and smp_cond_load_acquire() operations.
+>>>>>>> upstream/android-13
 
      Memory operations that occur before an ACQUIRE operation may appear to
      happen after it completes.
@@ -493,10 +511,16 @@ And a couple of implicit varieties:
      happen before it completes.
 
      The use of ACQUIRE and RELEASE operations generally precludes the need
+<<<<<<< HEAD
      for other sorts of memory barrier (but note the exceptions mentioned in
      the subsection "MMIO write barrier").  In addition, a RELEASE+ACQUIRE
      pair is -not- guaranteed to act as a full memory barrier.  However, after
      an ACQUIRE on a given variable, all memory accesses preceding any prior
+=======
+     for other sorts of memory barrier.  In addition, a RELEASE+ACQUIRE pair is
+     -not- guaranteed to act as a full memory barrier.  However, after an
+     ACQUIRE on a given variable, all memory accesses preceding any prior
+>>>>>>> upstream/android-13
      RELEASE on that same variable are guaranteed to be visible.  In other
      words, within a given variable's critical section, all accesses of all
      previous critical sections for that variable are guaranteed to have
@@ -549,20 +573,35 @@ There are certain things that the Linux kernel memory barriers do not guarantee:
 
 	[*] For information on bus mastering DMA and coherency please read:
 
+<<<<<<< HEAD
 	    Documentation/PCI/pci.txt
 	    Documentation/DMA-API-HOWTO.txt
 	    Documentation/DMA-API.txt
+=======
+	    Documentation/driver-api/pci/pci.rst
+	    Documentation/core-api/dma-api-howto.rst
+	    Documentation/core-api/dma-api.rst
+>>>>>>> upstream/android-13
 
 
 DATA DEPENDENCY BARRIERS (HISTORICAL)
 -------------------------------------
 
+<<<<<<< HEAD
 As of v4.15 of the Linux kernel, an smp_read_barrier_depends() was
 added to READ_ONCE(), which means that about the only people who
 need to pay attention to this section are those working on DEC Alpha
 architecture-specific code and those working on READ_ONCE() itself.
 For those who need it, and for those who are interested in the history,
 here is the story of data-dependency barriers.
+=======
+As of v4.15 of the Linux kernel, an smp_mb() was added to READ_ONCE() for
+DEC Alpha, which means that about the only people who need to pay attention
+to this section are those working on DEC Alpha architecture-specific code
+and those working on READ_ONCE() itself.  For those who need it, and for
+those who are interested in the history, here is the story of
+data-dependency barriers.
+>>>>>>> upstream/android-13
 
 The usage requirements of data dependency barriers are a little subtle, and
 it's not always obvious that they're needed.  To illustrate, consider the
@@ -573,7 +612,11 @@ following sequence of events:
 	{ A == 1, B == 2, C == 3, P == &A, Q == &C }
 	B = 4;
 	<write barrier>
+<<<<<<< HEAD
 	WRITE_ONCE(P, &B)
+=======
+	WRITE_ONCE(P, &B);
+>>>>>>> upstream/android-13
 			      Q = READ_ONCE(P);
 			      D = *Q;
 
@@ -588,7 +631,11 @@ leading to the following situation:
 
 	(Q == &B) and (D == 2) ????
 
+<<<<<<< HEAD
 Whilst this may seem like a failure of coherency or causality maintenance, it
+=======
+While this may seem like a failure of coherency or causality maintenance, it
+>>>>>>> upstream/android-13
 isn't, and this behaviour can be observed on certain real CPUs (such as the DEC
 Alpha).
 
@@ -624,7 +671,11 @@ because the CPUs that the Linux kernel supports don't do writes
 until they are certain (1) that the write will actually happen, (2)
 of the location of the write, and (3) of the value to be written.
 But please carefully read the "CONTROL DEPENDENCIES" section and the
+<<<<<<< HEAD
 Documentation/RCU/rcu_dereference.txt file:  The compiler can and does
+=======
+Documentation/RCU/rcu_dereference.rst file:  The compiler can and does
+>>>>>>> upstream/android-13
 break dependencies in a great many highly creative ways.
 
 	CPU 1		      CPU 2
@@ -1513,8 +1564,11 @@ levels:
 
   (*) CPU memory barriers.
 
+<<<<<<< HEAD
   (*) MMIO write barrier.
 
+=======
+>>>>>>> upstream/android-13
 
 COMPILER BARRIER
 ----------------
@@ -1727,7 +1781,11 @@ of optimizations:
      and WRITE_ONCE() are more selective:  With READ_ONCE() and
      WRITE_ONCE(), the compiler need only forget the contents of the
      indicated memory locations, while with barrier() the compiler must
+<<<<<<< HEAD
      discard the value of all memory locations that it has currented
+=======
+     discard the value of all memory locations that it has currently
+>>>>>>> upstream/android-13
      cached in any machine registers.  Of course, the compiler must also
      respect the order in which the READ_ONCE()s and WRITE_ONCE()s occur,
      though the CPU of course need not do so.
@@ -1839,7 +1897,11 @@ Aside: In the case of data dependencies, the compiler would be expected
 to issue the loads in the correct order (eg. `a[b]` would have to load
 the value of b before loading a[b]), however there is no guarantee in
 the C specification that the compiler may not speculate the value of b
+<<<<<<< HEAD
 (eg. is equal to 1) and load a before b (eg. tmp = a[1]; if (b != 1)
+=======
+(eg. is equal to 1) and load a[b] before b (eg. tmp = a[1]; if (b != 1)
+>>>>>>> upstream/android-13
 tmp = a[b]; ).  There is also the problem of a compiler reloading b after
 having loaded a[b], thus having a newer copy of b than a[b].  A consensus
 has not yet been reached about these problems, however the READ_ONCE()
@@ -1874,12 +1936,25 @@ There are some more advanced barrier functions:
  (*) smp_mb__before_atomic();
  (*) smp_mb__after_atomic();
 
+<<<<<<< HEAD
      These are for use with atomic (such as add, subtract, increment and
      decrement) functions that don't return a value, especially when used for
      reference counting.  These functions do not imply memory barriers.
 
      These are also used for atomic bitop functions that do not return a
      value (such as set_bit and clear_bit).
+=======
+     These are for use with atomic RMW functions that do not imply memory
+     barriers, but where the code needs a memory barrier. Examples for atomic
+     RMW functions that do not imply a memory barrier are e.g. add,
+     subtract, (failed) conditional operations, _relaxed functions,
+     but not atomic_read or atomic_set. A common example where a memory
+     barrier may be required is when atomic ops are used for reference
+     counting.
+
+     These are also used for atomic RMW bitop functions that do not imply a
+     memory barrier (such as set_bit and clear_bit).
+>>>>>>> upstream/android-13
 
      As an example, consider a piece of code that marks an object as being dead
      and then decrements the object's reference count:
@@ -1934,6 +2009,7 @@ There are some more advanced barrier functions:
      here.
 
      See the subsection "Kernel I/O barrier effects" for more information on
+<<<<<<< HEAD
      relaxed I/O accessors and the Documentation/DMA-API.txt file for more
      information on consistent memory.
 
@@ -1952,6 +2028,25 @@ CPU->Hardware interface and actually affect the hardware at some level.
 
 See the subsection "Acquires vs I/O accesses" for more information.
 
+=======
+     relaxed I/O accessors and the Documentation/core-api/dma-api.rst file for
+     more information on consistent memory.
+
+ (*) pmem_wmb();
+
+     This is for use with persistent memory to ensure that stores for which
+     modifications are written to persistent storage reached a platform
+     durability domain.
+
+     For example, after a non-temporal write to pmem region, we use pmem_wmb()
+     to ensure that stores have reached a platform durability domain. This ensures
+     that stores have updated persistent storage before any data access or
+     data transfer caused by subsequent instructions is initiated. This is
+     in addition to the ordering done by wmb().
+
+     For load from persistent memory, existing read memory barriers are sufficient
+     to ensure read ordering.
+>>>>>>> upstream/android-13
 
 ===============================
 IMPLICIT KERNEL MEMORY BARRIERS
@@ -2009,7 +2104,11 @@ for each construct.  These operations all imply certain barriers:
 
      Certain locking variants of the ACQUIRE operation may fail, either due to
      being unable to get the lock immediately, or due to receiving an unblocked
+<<<<<<< HEAD
      signal whilst asleep waiting for the lock to become available.  Failed
+=======
+     signal while asleep waiting for the lock to become available.  Failed
+>>>>>>> upstream/android-13
      locks do not imply any sort of barrier.
 
 [!] Note: one of the consequences of lock ACQUIREs and RELEASEs being only
@@ -2318,6 +2417,7 @@ But it won't see any of:
 	*E, *F or *G following RELEASE Q
 
 
+<<<<<<< HEAD
 
 ACQUIRES VS I/O ACCESSES
 ------------------------
@@ -2387,6 +2487,8 @@ is performed:
 See Documentation/driver-api/device-io.rst for more information.
 
 
+=======
+>>>>>>> upstream/android-13
 =================================
 WHERE ARE MEMORY BARRIERS NEEDED?
 =================================
@@ -2509,7 +2611,11 @@ CPU, that CPU's dependency ordering logic will take care of everything else.
 ATOMIC OPERATIONS
 -----------------
 
+<<<<<<< HEAD
 Whilst they are technically interprocessor interaction considerations, atomic
+=======
+While they are technically interprocessor interaction considerations, atomic
+>>>>>>> upstream/android-13
 operations are noted specially as some of them imply full memory barriers and
 some don't, but they're very heavily relied on as a group throughout the
 kernel.
@@ -2532,6 +2638,7 @@ the device to malfunction.
 
 Inside of the Linux kernel, I/O should be done through the appropriate accessor
 routines - such as inb() or writel() - which know how to make such accesses
+<<<<<<< HEAD
 appropriately sequential.  Whilst this, for the most part, renders the explicit
 use of memory barriers unnecessary, there are a couple of situations where they
 might be needed:
@@ -2543,6 +2650,12 @@ might be needed:
  (2) If the accessor functions are used to refer to an I/O memory window with
      relaxed memory access properties, then _mandatory_ memory barriers are
      required to enforce ordering.
+=======
+appropriately sequential.  While this, for the most part, renders the explicit
+use of memory barriers unnecessary, if the accessor functions are used to refer
+to an I/O memory window with relaxed memory access properties, then _mandatory_
+memory barriers are required to enforce ordering.
+>>>>>>> upstream/android-13
 
 See Documentation/driver-api/device-io.rst for more information.
 
@@ -2556,7 +2669,11 @@ access the device.
 
 This may be alleviated - at least in part - by disabling local interrupts (a
 form of locking), such that the critical operations are all contained within
+<<<<<<< HEAD
 the interrupt-disabled section in the driver.  Whilst the driver's interrupt
+=======
+the interrupt-disabled section in the driver.  While the driver's interrupt
+>>>>>>> upstream/android-13
 routine is executing, the driver's core may not run on the same CPU, and its
 interrupt is not permitted to happen again until the current interrupt has been
 handled, thus the interrupt handler does not need to lock against that.
@@ -2587,8 +2704,12 @@ explicit barriers are used.
 
 Normally this won't be a problem because the I/O accesses done inside such
 sections will include synchronous load operations on strictly ordered I/O
+<<<<<<< HEAD
 registers that form implicit I/O barriers.  If this isn't sufficient then an
 mmiowb() may need to be used explicitly.
+=======
+registers that form implicit I/O barriers.
+>>>>>>> upstream/android-13
 
 
 A similar situation may occur between an interrupt routine and two routines
@@ -2600,6 +2721,7 @@ likely, then interrupt-disabling locks should be used to guarantee ordering.
 KERNEL I/O BARRIER EFFECTS
 ==========================
 
+<<<<<<< HEAD
 When accessing I/O memory, drivers should use the appropriate accessor
 functions:
 
@@ -2665,6 +2787,116 @@ functions:
 
      These will perform appropriately for the type of access they're actually
      doing, be it inX()/outX() or readX()/writeX().
+=======
+Interfacing with peripherals via I/O accesses is deeply architecture and device
+specific. Therefore, drivers which are inherently non-portable may rely on
+specific behaviours of their target systems in order to achieve synchronization
+in the most lightweight manner possible. For drivers intending to be portable
+between multiple architectures and bus implementations, the kernel offers a
+series of accessor functions that provide various degrees of ordering
+guarantees:
+
+ (*) readX(), writeX():
+
+	The readX() and writeX() MMIO accessors take a pointer to the
+	peripheral being accessed as an __iomem * parameter. For pointers
+	mapped with the default I/O attributes (e.g. those returned by
+	ioremap()), the ordering guarantees are as follows:
+
+	1. All readX() and writeX() accesses to the same peripheral are ordered
+	   with respect to each other. This ensures that MMIO register accesses
+	   by the same CPU thread to a particular device will arrive in program
+	   order.
+
+	2. A writeX() issued by a CPU thread holding a spinlock is ordered
+	   before a writeX() to the same peripheral from another CPU thread
+	   issued after a later acquisition of the same spinlock. This ensures
+	   that MMIO register writes to a particular device issued while holding
+	   a spinlock will arrive in an order consistent with acquisitions of
+	   the lock.
+
+	3. A writeX() by a CPU thread to the peripheral will first wait for the
+	   completion of all prior writes to memory either issued by, or
+	   propagated to, the same thread. This ensures that writes by the CPU
+	   to an outbound DMA buffer allocated by dma_alloc_coherent() will be
+	   visible to a DMA engine when the CPU writes to its MMIO control
+	   register to trigger the transfer.
+
+	4. A readX() by a CPU thread from the peripheral will complete before
+	   any subsequent reads from memory by the same thread can begin. This
+	   ensures that reads by the CPU from an incoming DMA buffer allocated
+	   by dma_alloc_coherent() will not see stale data after reading from
+	   the DMA engine's MMIO status register to establish that the DMA
+	   transfer has completed.
+
+	5. A readX() by a CPU thread from the peripheral will complete before
+	   any subsequent delay() loop can begin execution on the same thread.
+	   This ensures that two MMIO register writes by the CPU to a peripheral
+	   will arrive at least 1us apart if the first write is immediately read
+	   back with readX() and udelay(1) is called prior to the second
+	   writeX():
+
+		writel(42, DEVICE_REGISTER_0); // Arrives at the device...
+		readl(DEVICE_REGISTER_0);
+		udelay(1);
+		writel(42, DEVICE_REGISTER_1); // ...at least 1us before this.
+
+	The ordering properties of __iomem pointers obtained with non-default
+	attributes (e.g. those returned by ioremap_wc()) are specific to the
+	underlying architecture and therefore the guarantees listed above cannot
+	generally be relied upon for accesses to these types of mappings.
+
+ (*) readX_relaxed(), writeX_relaxed():
+
+	These are similar to readX() and writeX(), but provide weaker memory
+	ordering guarantees. Specifically, they do not guarantee ordering with
+	respect to locking, normal memory accesses or delay() loops (i.e.
+	bullets 2-5 above) but they are still guaranteed to be ordered with
+	respect to other accesses from the same CPU thread to the same
+	peripheral when operating on __iomem pointers mapped with the default
+	I/O attributes.
+
+ (*) readsX(), writesX():
+
+	The readsX() and writesX() MMIO accessors are designed for accessing
+	register-based, memory-mapped FIFOs residing on peripherals that are not
+	capable of performing DMA. Consequently, they provide only the ordering
+	guarantees of readX_relaxed() and writeX_relaxed(), as documented above.
+
+ (*) inX(), outX():
+
+	The inX() and outX() accessors are intended to access legacy port-mapped
+	I/O peripherals, which may require special instructions on some
+	architectures (notably x86). The port number of the peripheral being
+	accessed is passed as an argument.
+
+	Since many CPU architectures ultimately access these peripherals via an
+	internal virtual memory mapping, the portable ordering guarantees
+	provided by inX() and outX() are the same as those provided by readX()
+	and writeX() respectively when accessing a mapping with the default I/O
+	attributes.
+
+	Device drivers may expect outX() to emit a non-posted write transaction
+	that waits for a completion response from the I/O peripheral before
+	returning. This is not guaranteed by all architectures and is therefore
+	not part of the portable ordering semantics.
+
+ (*) insX(), outsX():
+
+	As above, the insX() and outsX() accessors provide the same ordering
+	guarantees as readsX() and writesX() respectively when accessing a
+	mapping with the default I/O attributes.
+
+ (*) ioreadX(), iowriteX():
+
+	These will perform appropriately for the type of access they're actually
+	doing, be it inX()/outX() or readX()/writeX().
+
+With the exception of the string accessors (insX(), outsX(), readsX() and
+writesX()), all of the above assume that the underlying peripheral is
+little-endian and will therefore perform byte-swapping operations on big-endian
+architectures.
+>>>>>>> upstream/android-13
 
 
 ========================================
@@ -2759,6 +2991,7 @@ the properties of the memory window through which devices are accessed and/or
 the use of any special device communication instructions the CPU may have.
 
 
+<<<<<<< HEAD
 CACHE COHERENCY
 ---------------
 
@@ -2897,6 +3130,8 @@ please note that (again, as of v4.15) smp_read_barrier_depends() should not
 be used except in Alpha arch-specific code and within the READ_ONCE() macro.
 
 
+=======
+>>>>>>> upstream/android-13
 CACHE COHERENCY VS DMA
 ----------------------
 
@@ -2975,7 +3210,11 @@ assumption doesn't hold because:
      thus cutting down on transaction setup costs (memory and PCI devices may
      both be able to do this); and
 
+<<<<<<< HEAD
  (*) the CPU's data cache may affect the ordering, and whilst cache-coherency
+=======
+ (*) the CPU's data cache may affect the ordering, and while cache-coherency
+>>>>>>> upstream/android-13
      mechanisms may alleviate this - once the store has actually hit the cache
      - there's no guarantee that the coherency management will be propagated in
      order to other CPUs.
@@ -3060,10 +3299,15 @@ caches with the memory coherence system, thus making it seem like pointer
 changes vs new data occur in the right order.
 
 The Alpha defines the Linux kernel's memory model, although as of v4.15
+<<<<<<< HEAD
 the Linux kernel's addition of smp_read_barrier_depends() to READ_ONCE()
 greatly reduced Alpha's impact on the memory model.
 
 See the subsection on "Cache Coherency" above.
+=======
+the Linux kernel's addition of smp_mb() to READ_ONCE() on Alpha greatly
+reduced its impact on the memory model.
+>>>>>>> upstream/android-13
 
 
 VIRTUAL MACHINE GUESTS

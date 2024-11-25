@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 snd-soc-adi-axi-i2s-objs := axi-i2s.o
 snd-soc-adi-axi-spdif-objs := axi-spdif.o
 

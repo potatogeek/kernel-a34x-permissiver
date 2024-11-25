@@ -3,7 +3,11 @@
  *
  * Module Name: utdebug - Debug print/trace routines
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -158,7 +162,11 @@ acpi_debug_print(u32 requested_debug_level,
 	 * Display the module name, current line number, thread ID (if requested),
 	 * current procedure nesting level, and the current procedure name
 	 */
+<<<<<<< HEAD
 	acpi_os_printf("%9s-%04ld ", module_name, line_number);
+=======
+	acpi_os_printf("%9s-%04d ", module_name, line_number);
+>>>>>>> upstream/android-13
 
 #ifdef ACPI_APPLICATION
 	/*
@@ -177,7 +185,11 @@ acpi_debug_print(u32 requested_debug_level,
 		fill_count = 0;
 	}
 
+<<<<<<< HEAD
 	acpi_os_printf("[%02ld] %*s",
+=======
+	acpi_os_printf("[%02d] %*s",
+>>>>>>> upstream/android-13
 		       acpi_gbl_nesting_level, acpi_gbl_nesting_level + 1, " ");
 	acpi_os_printf("%s%*s: ",
 		       acpi_ut_trim_function_name(function_name), fill_count,

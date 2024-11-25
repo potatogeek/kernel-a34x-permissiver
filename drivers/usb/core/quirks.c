@@ -353,7 +353,11 @@ static const struct usb_device_id usb_quirk_list[] = {
 
 	/* Guillemot Hercules DJ Console audio card (BZ 208357) */
 	{ USB_DEVICE(0x06f8, 0xb000), .driver_info =
+<<<<<<< HEAD
 			USB_QUIRK_ENDPOINT_BLACKLIST },
+=======
+			USB_QUIRK_ENDPOINT_IGNORE },
+>>>>>>> upstream/android-13
 
 	/* Midiman M-Audio Keystation 88es */
 	{ USB_DEVICE(0x0763, 0x0192), .driver_info = USB_QUIRK_RESET_RESUME },
@@ -375,11 +379,19 @@ static const struct usb_device_id usb_quirk_list[] = {
 
 	/* Sound Devices USBPre2 */
 	{ USB_DEVICE(0x0926, 0x0202), .driver_info =
+<<<<<<< HEAD
 			USB_QUIRK_ENDPOINT_BLACKLIST },
 
 	/* Sound Devices MixPre-D */
 	{ USB_DEVICE(0x0926, 0x0208), .driver_info =
 			USB_QUIRK_ENDPOINT_BLACKLIST },
+=======
+			USB_QUIRK_ENDPOINT_IGNORE },
+
+	/* Sound Devices MixPre-D */
+	{ USB_DEVICE(0x0926, 0x0208), .driver_info =
+			USB_QUIRK_ENDPOINT_IGNORE },
+>>>>>>> upstream/android-13
 
 	/* Keytouch QWERTY Panel keyboard */
 	{ USB_DEVICE(0x0926, 0x3333), .driver_info =
@@ -404,6 +416,12 @@ static const struct usb_device_id usb_quirk_list[] = {
 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =
 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
 
+<<<<<<< HEAD
+=======
+	/* Realtek Semiconductor Corp. Mass Storage Device (Multicard Reader)*/
+	{ USB_DEVICE(0x0bda, 0x0151), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
+
+>>>>>>> upstream/android-13
 	/* Realtek hub in Dell WD19 (Type-C) */
 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
 	{ USB_DEVICE(0x0bda, 0x5487), .driver_info = USB_QUIRK_RESET_RESUME },
@@ -435,6 +453,15 @@ static const struct usb_device_id usb_quirk_list[] = {
 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
 
+<<<<<<< HEAD
+=======
+	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
+	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
+
+	/* Lenovo Powered USB-C Travel Hub (4X90S92381, RTL8153 GigE) */
+	{ USB_DEVICE(0x17ef, 0x721e), .driver_info = USB_QUIRK_NO_LPM },
+
+>>>>>>> upstream/android-13
 	/* Lenovo ThinkCenter A630Z TI024Gen3 usb-audio */
 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
 			USB_QUIRK_DISCONNECT_SUSPEND },
@@ -502,6 +529,7 @@ static const struct usb_device_id usb_quirk_list[] = {
 	/* DJI CineSSD */
 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
 
+<<<<<<< HEAD
 	/* Fibocom L850-GL LTE Modem */
 	{ USB_DEVICE(0x2cb7, 0x0007), .driver_info =
 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
@@ -513,6 +541,21 @@ static const struct usb_device_id usb_quirk_list[] = {
 	{ USB_DEVICE(0x2109, 0x0817),
 		.driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_HUB_NO_SUSPEND },
 #endif
+=======
+	/* VCOM device */
+	{ USB_DEVICE(0x4296, 0x7570), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
+
+	/* INTEL VALUE SSD */
+	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
+
+	/* novation SoundControl XL */
+	{ USB_DEVICE(0x1235, 0x0061), .driver_info = USB_QUIRK_RESET_RESUME },
+
+	/* VIA 3.0 HUB (MPA HUB) */
+	{ USB_DEVICE(0x2109, 0x0817),
+		.driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_HUB_NO_SUSPEND },
+
+>>>>>>> upstream/android-13
 	/* Realtek r8153 Lan dongle */
 	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
 
@@ -544,12 +587,21 @@ static const struct usb_device_id usb_amd_resume_quirk_list[] = {
 };
 
 /*
+<<<<<<< HEAD
  * Entries for blacklisted endpoints that should be ignored when parsing
  * configuration descriptors.
  *
  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
  */
 static const struct usb_device_id usb_endpoint_blacklist[] = {
+=======
+ * Entries for endpoints that should be ignored when parsing configuration
+ * descriptors.
+ *
+ * Matched for devices with USB_QUIRK_ENDPOINT_IGNORE.
+ */
+static const struct usb_device_id usb_endpoint_ignore[] = {
+>>>>>>> upstream/android-13
 	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x01 },
 	{ USB_DEVICE_INTERFACE_NUMBER(0x06f8, 0xb000, 5), .driver_info = 0x81 },
 	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
@@ -557,14 +609,24 @@ static const struct usb_device_id usb_endpoint_blacklist[] = {
 	{ }
 };
 
+<<<<<<< HEAD
 bool usb_endpoint_is_blacklisted(struct usb_device *udev,
 		struct usb_host_interface *intf,
 		struct usb_endpoint_descriptor *epd)
+=======
+bool usb_endpoint_is_ignored(struct usb_device *udev,
+			     struct usb_host_interface *intf,
+			     struct usb_endpoint_descriptor *epd)
+>>>>>>> upstream/android-13
 {
 	const struct usb_device_id *id;
 	unsigned int address;
 
+<<<<<<< HEAD
 	for (id = usb_endpoint_blacklist; id->match_flags; ++id) {
+=======
+	for (id = usb_endpoint_ignore; id->match_flags; ++id) {
+>>>>>>> upstream/android-13
 		if (!usb_match_device(udev, id))
 			continue;
 
@@ -735,4 +797,7 @@ int usb_detect_interface_lpm(struct usb_device *udev)
 	return l1_enable;
 }
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

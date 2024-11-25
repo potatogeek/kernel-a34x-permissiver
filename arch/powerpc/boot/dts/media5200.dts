@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale Media5200 board Device Tree Source
  *
  * Copyright 2009 Secret Lab Technologies Ltd.
  * Grant Likely <grant.likely@secretlab.ca>
  * Steven Cavanagh <scavanagh@secretlab.ca>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /include/ "mpc5200b.dtsi"
@@ -36,7 +43,11 @@
 		};
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+>>>>>>> upstream/android-13
 		reg = <0x00000000 0x08000000>;	// 128MB RAM
 	};
 

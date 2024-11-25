@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2013 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 
@@ -47,8 +53,13 @@ int brcmf_proto_attach(struct brcmf_pub *drvr)
 		if (brcmf_proto_msgbuf_attach(drvr))
 			goto fail;
 	} else {
+<<<<<<< HEAD
 		brcmf_err("Unsupported proto type %d\n",
 			  drvr->bus_if->proto_type);
+=======
+		bphy_err(drvr, "Unsupported proto type %d\n",
+			 drvr->bus_if->proto_type);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 	if (!proto->tx_queue_data || (proto->hdrpull == NULL) ||
@@ -56,7 +67,11 @@ int brcmf_proto_attach(struct brcmf_pub *drvr)
 	    (proto->configure_addr_mode == NULL) ||
 	    (proto->delete_peer == NULL) || (proto->add_tdls_peer == NULL) ||
 	    (proto->debugfs_create == NULL)) {
+<<<<<<< HEAD
 		brcmf_err("Not all proto handlers have been installed\n");
+=======
+		bphy_err(drvr, "Not all proto handlers have been installed\n");
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 	return 0;
@@ -67,22 +82,33 @@ fail:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 void brcmf_proto_detach_post_delif(struct brcmf_pub *drvr)
+=======
+void brcmf_proto_detach(struct brcmf_pub *drvr)
+>>>>>>> upstream/android-13
 {
 	brcmf_dbg(TRACE, "Enter\n");
 
 	if (drvr->proto) {
 		if (drvr->bus_if->proto_type == BRCMF_PROTO_BCDC)
+<<<<<<< HEAD
 			brcmf_proto_bcdc_detach_post_delif(drvr);
+=======
+			brcmf_proto_bcdc_detach(drvr);
+>>>>>>> upstream/android-13
 		else if (drvr->bus_if->proto_type == BRCMF_PROTO_MSGBUF)
 			brcmf_proto_msgbuf_detach(drvr);
 		kfree(drvr->proto);
 		drvr->proto = NULL;
 	}
 }
+<<<<<<< HEAD
 
 void brcmf_proto_detach_pre_delif(struct brcmf_pub *drvr)
 {
 	if (drvr->proto && drvr->bus_if->proto_type == BRCMF_PROTO_BCDC)
 		brcmf_proto_bcdc_detach_pre_delif(drvr);
 }
+=======
+>>>>>>> upstream/android-13

@@ -257,7 +257,11 @@ static inline int uv_numa_blade_id(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 /* Convert a cpu number to the the UV blade number */
+=======
+/* Convert a cpu number to the UV blade number */
+>>>>>>> upstream/android-13
 static inline int uv_cpu_to_blade_id(int cpu)
 {
 	return 0;

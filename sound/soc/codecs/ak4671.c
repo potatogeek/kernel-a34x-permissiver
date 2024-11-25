@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ak4671.c  --  audio driver for AK4671
  *
  * Copyright (C) 2009 Samsung Electronics Co.Ltd
  * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -430,7 +437,11 @@ static int ak4671_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_component *component = dai->component;
 	u8 fs;
 
+<<<<<<< HEAD
 	fs = snd_soc_component_read32(component, AK4671_PLL_MODE_SELECT0);
+=======
+	fs = snd_soc_component_read(component, AK4671_PLL_MODE_SELECT0);
+>>>>>>> upstream/android-13
 	fs &= ~AK4671_FS;
 
 	switch (params_rate(params)) {
@@ -476,7 +487,11 @@ static int ak4671_set_dai_sysclk(struct snd_soc_dai *dai, int clk_id,
 	struct snd_soc_component *component = dai->component;
 	u8 pll;
 
+<<<<<<< HEAD
 	pll = snd_soc_component_read32(component, AK4671_PLL_MODE_SELECT0);
+=======
+	pll = snd_soc_component_read(component, AK4671_PLL_MODE_SELECT0);
+>>>>>>> upstream/android-13
 	pll &= ~AK4671_PLL;
 
 	switch (freq) {
@@ -523,7 +538,11 @@ static int ak4671_set_dai_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 	u8 format;
 
 	/* set master/slave audio interface */
+<<<<<<< HEAD
 	mode = snd_soc_component_read32(component, AK4671_PLL_MODE_SELECT1);
+=======
+	mode = snd_soc_component_read(component, AK4671_PLL_MODE_SELECT1);
+>>>>>>> upstream/android-13
 
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBM_CFM:
@@ -537,7 +556,11 @@ static int ak4671_set_dai_fmt(struct snd_soc_dai *dai, unsigned int fmt)
 	}
 
 	/* interface format */
+<<<<<<< HEAD
 	format = snd_soc_component_read32(component, AK4671_FORMAT_SELECT);
+=======
+	format = snd_soc_component_read(component, AK4671_FORMAT_SELECT);
+>>>>>>> upstream/android-13
 	format &= ~AK4671_DIF;
 
 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {

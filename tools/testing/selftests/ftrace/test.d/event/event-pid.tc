@@ -1,6 +1,10 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: event tracing - restricts events based on pid
+<<<<<<< HEAD
+=======
+# requires: set_event set_event_pid events/sched
+>>>>>>> upstream/android-13
 # flags: instance
 
 do_reset() {
@@ -16,6 +20,7 @@ fail() { #msg
     exit_fail
 }
 
+<<<<<<< HEAD
 yield() {
     ping localhost -c 1 || sleep .001 || usleep 1 || sleep 1
 }
@@ -32,6 +37,9 @@ fi
 
 reset_tracer
 do_reset
+=======
+echo 0 > options/event-fork
+>>>>>>> upstream/android-13
 
 echo 1 > events/sched/sched_switch/enable
 
@@ -47,6 +55,10 @@ do_reset
 read mypid rest < /proc/self/stat
 
 echo $mypid > set_event_pid
+<<<<<<< HEAD
+=======
+grep -q $mypid set_event_pid
+>>>>>>> upstream/android-13
 echo 'sched:sched_switch' > set_event
 
 yield

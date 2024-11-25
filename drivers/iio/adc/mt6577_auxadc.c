@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2019 MediaTek Inc.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2016 MediaTek Inc.
+ * Author: Zhiyong Tao <zhiyong.tao@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -8,6 +15,7 @@
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
@@ -18,12 +26,23 @@
 #include <linux/seq_file.h>
 #include <linux/nvmem-consumer.h>
 #include "../../misc/mediatek/include/mt-plat/mtk_devinfo.h"
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/platform_device.h>
+#include <linux/property.h>
+#include <linux/iopoll.h>
+#include <linux/io.h>
+#include <linux/iio/iio.h>
+>>>>>>> upstream/android-13
 
 /* Register definitions */
 #define MT6577_AUXADC_CON0                    0x00
 #define MT6577_AUXADC_CON1                    0x04
+<<<<<<< HEAD
 #define MT6577_AUXADC_CON1_SET                0x08
 #define MT6577_AUXADC_CON1_CLR                0x0C
+=======
+>>>>>>> upstream/android-13
 #define MT6577_AUXADC_CON2                    0x10
 #define MT6577_AUXADC_STA                     BIT(0)
 
@@ -65,8 +84,12 @@ static const struct mtk_auxadc_compatible mt6765_compat = {
 		.type = IIO_VOLTAGE,				    \
 		.indexed = 1,					    \
 		.channel = (idx),				    \
+<<<<<<< HEAD
 		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |	    \
 				      BIT(IIO_CHAN_INFO_PROCESSED), \
+=======
+		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED), \
+>>>>>>> upstream/android-13
 }
 
 static const struct iio_chan_spec mt6577_auxadc_iio_channels[] = {
@@ -92,6 +115,7 @@ static const struct iio_chan_spec mt6577_auxadc_iio_channels[] = {
 #define VOLTAGE_FULL_RANGE  1500	/* VA voltage */
 #define AUXADC_PRECISE      4096	/* 12 bits */
 
+<<<<<<< HEAD
 /* For calibration */
 #define ADC_GE_OE_MASK          0x000003ff
 #define ADC_GE_OE_EN_MASK       0x00000001
@@ -202,6 +226,11 @@ static int mt_auxadc_get_cali_data(int rawdata, bool enable_cali)
 		data = rawdata;
 
 	return data;
+=======
+static int mt_auxadc_get_cali_data(int rawdata, bool enable_cali)
+{
+	return rawdata;
+>>>>>>> upstream/android-13
 }
 
 static inline void mt6577_auxadc_mod_reg(void __iomem *reg,
@@ -228,7 +257,12 @@ static int mt6577_auxadc_read(struct iio_dev *indio_dev,
 
 	mutex_lock(&adc_dev->lock);
 
+<<<<<<< HEAD
 	writel(1 << chan->channel, adc_dev->reg_base + MT6577_AUXADC_CON1_CLR);
+=======
+	mt6577_auxadc_mod_reg(adc_dev->reg_base + MT6577_AUXADC_CON1,
+			      0, 1 << chan->channel);
+>>>>>>> upstream/android-13
 
 	/* read channel and make sure old ready bit == 0 */
 	ret = readl_poll_timeout(reg_channel, val,
@@ -236,14 +270,23 @@ static int mt6577_auxadc_read(struct iio_dev *indio_dev,
 				 MT6577_AUXADC_SLEEP_US,
 				 MT6577_AUXADC_TIMEOUT_US);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_notice(indio_dev->dev.parent,
+=======
+		dev_err(indio_dev->dev.parent,
+>>>>>>> upstream/android-13
 			"wait for channel[%d] ready bit clear time out\n",
 			chan->channel);
 		goto err_timeout;
 	}
 
 	/* set bit to trigger sample */
+<<<<<<< HEAD
 	writel(1 << chan->channel, adc_dev->reg_base + MT6577_AUXADC_CON1_SET);
+=======
+	mt6577_auxadc_mod_reg(adc_dev->reg_base + MT6577_AUXADC_CON1,
+			      1 << chan->channel, 0);
+>>>>>>> upstream/android-13
 
 	/* we must delay here for hardware sample channel data */
 	udelay(MT6577_AUXADC_SAMPLE_READY_US);
@@ -255,7 +298,11 @@ static int mt6577_auxadc_read(struct iio_dev *indio_dev,
 					 MT6577_AUXADC_SLEEP_US,
 					 MT6577_AUXADC_TIMEOUT_US);
 		if (ret < 0) {
+<<<<<<< HEAD
 			dev_notice(indio_dev->dev.parent,
+=======
+			dev_err(indio_dev->dev.parent,
+>>>>>>> upstream/android-13
 				"wait for auxadc idle time out\n");
 			goto err_timeout;
 		}
@@ -267,7 +314,11 @@ static int mt6577_auxadc_read(struct iio_dev *indio_dev,
 				 MT6577_AUXADC_SLEEP_US,
 				 MT6577_AUXADC_TIMEOUT_US);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_notice(indio_dev->dev.parent,
+=======
+		dev_err(indio_dev->dev.parent,
+>>>>>>> upstream/android-13
 			"wait for channel[%d] data ready time out\n",
 			chan->channel);
 		goto err_timeout;
@@ -296,6 +347,7 @@ static int mt6577_auxadc_read_raw(struct iio_dev *indio_dev,
 	struct mt6577_auxadc_device *adc_dev = iio_priv(indio_dev);
 
 	switch (info) {
+<<<<<<< HEAD
 	case IIO_CHAN_INFO_RAW:
 		*val = mt6577_auxadc_read(indio_dev, chan);
 		if (*val < 0) {
@@ -313,6 +365,12 @@ static int mt6577_auxadc_read_raw(struct iio_dev *indio_dev,
 		*val = mt6577_auxadc_read(indio_dev, chan);
 		if (*val < 0) {
 			dev_notice(indio_dev->dev.parent,
+=======
+	case IIO_CHAN_INFO_PROCESSED:
+		*val = mt6577_auxadc_read(indio_dev, chan);
+		if (*val < 0) {
+			dev_err(indio_dev->dev.parent,
+>>>>>>> upstream/android-13
 				"failed to sample data on channel[%d]\n",
 				chan->channel);
 			return *val;
@@ -342,7 +400,11 @@ static int __maybe_unused mt6577_auxadc_resume(struct device *dev)
 
 	ret = clk_prepare_enable(adc_dev->adc_clk);
 	if (ret) {
+<<<<<<< HEAD
 		pr_notice("failed to enable auxadc clock\n");
+=======
+		pr_err("failed to enable auxadc clock\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -365,6 +427,7 @@ static int __maybe_unused mt6577_auxadc_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int auxadc_utilization_show(struct seq_file *m, void *v)
 {
 	int raw, raw_cali;
@@ -421,11 +484,16 @@ static void adc_debug_init(struct device *dev)
 	dev_info(dev, "debugfs_create auxadc_debugfs_fops\n");
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mt6577_auxadc_probe(struct platform_device *pdev)
 {
 	struct mt6577_auxadc_device *adc_dev;
 	unsigned long adc_clk_rate;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct iio_dev *indio_dev;
 	int ret;
 
@@ -434,35 +502,53 @@ static int mt6577_auxadc_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	adc_dev = iio_priv(indio_dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&pdev->dev);
 	indio_dev->info = &mt6577_auxadc_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = mt6577_auxadc_iio_channels;
 	indio_dev->num_channels = ARRAY_SIZE(mt6577_auxadc_iio_channels);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	adc_dev->reg_base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(adc_dev->reg_base)) {
 		dev_notice(&pdev->dev, "failed to get auxadc base address\n");
+=======
+	adc_dev->reg_base = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(adc_dev->reg_base)) {
+		dev_err(&pdev->dev, "failed to get auxadc base address\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(adc_dev->reg_base);
 	}
 
 	adc_dev->adc_clk = devm_clk_get(&pdev->dev, "main");
 	if (IS_ERR(adc_dev->adc_clk)) {
+<<<<<<< HEAD
 		dev_notice(&pdev->dev, "failed to get auxadc clock\n");
+=======
+		dev_err(&pdev->dev, "failed to get auxadc clock\n");
+>>>>>>> upstream/android-13
 		return PTR_ERR(adc_dev->adc_clk);
 	}
 
 	ret = clk_prepare_enable(adc_dev->adc_clk);
 	if (ret) {
+<<<<<<< HEAD
 		dev_notice(&pdev->dev, "failed to enable auxadc clock\n");
+=======
+		dev_err(&pdev->dev, "failed to enable auxadc clock\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	adc_clk_rate = clk_get_rate(adc_dev->adc_clk);
 	if (!adc_clk_rate) {
 		ret = -EINVAL;
+<<<<<<< HEAD
 		dev_notice(&pdev->dev, "null clock rate\n");
 		goto err_disable_clk;
 	}
@@ -471,6 +557,13 @@ static int mt6577_auxadc_probe(struct platform_device *pdev)
 
 	if (adc_dev->dev_comp->sample_data_cali)
 		mt_auxadc_update_cali(&pdev->dev);
+=======
+		dev_err(&pdev->dev, "null clock rate\n");
+		goto err_disable_clk;
+	}
+
+	adc_dev->dev_comp = device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	mutex_init(&adc_dev->lock);
 
@@ -482,6 +575,7 @@ static int mt6577_auxadc_probe(struct platform_device *pdev)
 
 	ret = iio_device_register(indio_dev);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_notice(&pdev->dev, "failed to register iio device\n");
 		goto err_power_off;
 	}
@@ -490,6 +584,12 @@ static int mt6577_auxadc_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "%s done\n", __func__);
 
+=======
+		dev_err(&pdev->dev, "failed to register iio device\n");
+		goto err_power_off;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_power_off:
@@ -525,7 +625,10 @@ static const struct of_device_id mt6577_auxadc_of_match[] = {
 	{ .compatible = "mediatek,mt7622-auxadc", .data = &mt8173_compat},
 	{ .compatible = "mediatek,mt8173-auxadc", .data = &mt8173_compat},
 	{ .compatible = "mediatek,mt6765-auxadc", .data = &mt6765_compat},
+<<<<<<< HEAD
 	{ .compatible = "mediatek,mt6768-auxadc", .data = &mt6765_compat},
+=======
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, mt6577_auxadc_of_match);
@@ -539,6 +642,7 @@ static struct platform_driver mt6577_auxadc_driver = {
 	.probe	= mt6577_auxadc_probe,
 	.remove	= mt6577_auxadc_remove,
 };
+<<<<<<< HEAD
 
 static int __init mt6577_auxadc_init(void)
 {
@@ -552,6 +656,9 @@ static void __exit mt6577_auxadc_exit(void)
 
 subsys_initcall(mt6577_auxadc_init);
 module_exit(mt6577_auxadc_exit);
+=======
+module_platform_driver(mt6577_auxadc_driver);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Zhiyong Tao <zhiyong.tao@mediatek.com>");
 MODULE_DESCRIPTION("MTK AUXADC Device Driver");

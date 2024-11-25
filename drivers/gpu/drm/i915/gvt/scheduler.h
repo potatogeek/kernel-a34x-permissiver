@@ -36,6 +36,14 @@
 #ifndef _GVT_SCHEDULER_H_
 #define _GVT_SCHEDULER_H_
 
+<<<<<<< HEAD
+=======
+#include "gt/intel_engine_types.h"
+
+#include "execlist.h"
+#include "interrupt.h"
+
+>>>>>>> upstream/android-13
 struct intel_gvt_workload_scheduler {
 	struct intel_vgpu *current_vgpu;
 	struct intel_vgpu *next_vgpu;
@@ -61,7 +69,11 @@ struct shadow_indirect_ctx {
 	unsigned long guest_gma;
 	unsigned long shadow_gma;
 	void *shadow_va;
+<<<<<<< HEAD
 	uint32_t size;
+=======
+	u32 size;
+>>>>>>> upstream/android-13
 };
 
 #define PER_CTX_ADDR_MASK 0xfffff000
@@ -79,6 +91,7 @@ struct intel_shadow_wa_ctx {
 
 struct intel_vgpu_workload {
 	struct intel_vgpu *vgpu;
+<<<<<<< HEAD
 	int ring_id;
 	struct i915_request *req;
 	/* if this workload has been dispatched to i915? */
@@ -86,6 +99,17 @@ struct intel_vgpu_workload {
 	int status;
 
 	struct intel_vgpu_mm *shadow_mm;
+=======
+	const struct intel_engine_cs *engine;
+	struct i915_request *req;
+	/* if this workload has been dispatched to i915? */
+	bool dispatched;
+	bool shadow;      /* if workload has done shadow of guest request */
+	int status;
+
+	struct intel_vgpu_mm *shadow_mm;
+	struct list_head lri_shadow_mm; /* For PPGTT load cmd */
+>>>>>>> upstream/android-13
 
 	/* different submission model may need different handler */
 	int (*prepare)(struct intel_vgpu_workload *);
@@ -99,6 +123,10 @@ struct intel_vgpu_workload {
 	struct execlist_ctx_descriptor_format ctx_desc;
 	struct execlist_ring_context *ring_context;
 	unsigned long rb_head, rb_tail, rb_ctl, rb_start, rb_len;
+<<<<<<< HEAD
+=======
+	unsigned long guest_rb_head;
+>>>>>>> upstream/android-13
 	bool restore_inhibit;
 	struct intel_vgpu_elsp_dwords elsp_dwords;
 	bool emulate_schedule_in;
@@ -121,14 +149,22 @@ struct intel_vgpu_shadow_bb {
 	struct i915_vma *vma;
 	void *va;
 	u32 *bb_start_cmd_va;
+<<<<<<< HEAD
 	unsigned int clflush;
 	bool accessing;
+=======
+>>>>>>> upstream/android-13
 	unsigned long bb_offset;
 	bool ppgtt;
 };
 
+<<<<<<< HEAD
 #define workload_q_head(vgpu, ring_id) \
 	(&(vgpu->submission.workload_q_head[ring_id]))
+=======
+#define workload_q_head(vgpu, e) \
+	(&(vgpu)->submission.workload_q_head[(e)->id])
+>>>>>>> upstream/android-13
 
 void intel_vgpu_queue_workload(struct intel_vgpu_workload *workload);
 
@@ -141,24 +177,41 @@ void intel_gvt_wait_vgpu_idle(struct intel_vgpu *vgpu);
 int intel_vgpu_setup_submission(struct intel_vgpu *vgpu);
 
 void intel_vgpu_reset_submission(struct intel_vgpu *vgpu,
+<<<<<<< HEAD
 				 unsigned long engine_mask);
+=======
+				 intel_engine_mask_t engine_mask);
+>>>>>>> upstream/android-13
 
 void intel_vgpu_clean_submission(struct intel_vgpu *vgpu);
 
 int intel_vgpu_select_submission_ops(struct intel_vgpu *vgpu,
+<<<<<<< HEAD
 				     unsigned long engine_mask,
+=======
+				     intel_engine_mask_t engine_mask,
+>>>>>>> upstream/android-13
 				     unsigned int interface);
 
 extern const struct intel_vgpu_submission_ops
 intel_vgpu_execlist_submission_ops;
 
 struct intel_vgpu_workload *
+<<<<<<< HEAD
 intel_vgpu_create_workload(struct intel_vgpu *vgpu, int ring_id,
+=======
+intel_vgpu_create_workload(struct intel_vgpu *vgpu,
+			   const struct intel_engine_cs *engine,
+>>>>>>> upstream/android-13
 			   struct execlist_ctx_descriptor_format *desc);
 
 void intel_vgpu_destroy_workload(struct intel_vgpu_workload *workload);
 
 void intel_vgpu_clean_workloads(struct intel_vgpu *vgpu,
+<<<<<<< HEAD
 				unsigned long engine_mask);
+=======
+				intel_engine_mask_t engine_mask);
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file contains the major functions in WLAN
  * driver. It includes init, exit, open, close and main
@@ -720,7 +724,11 @@ EXPORT_SYMBOL_GPL(lbs_resume);
  * lbs_cmd_timeout_handler - handles the timeout of command sending.
  * It will re-send the same command again.
  *
+<<<<<<< HEAD
  * @data: &struct lbs_private pointer
+=======
+ * @t: Context from which to retrieve a &struct lbs_private pointer
+>>>>>>> upstream/android-13
  */
 static void lbs_cmd_timeout_handler(struct timer_list *t)
 {
@@ -754,7 +762,11 @@ out:
  * to the hardware. This is known to frequently happen with SD8686 when
  * waking up after a Wake-on-WLAN-triggered resume.
  *
+<<<<<<< HEAD
  * @data: &struct lbs_private pointer
+=======
+ * @t: Context from which to retrieve a &struct lbs_private pointer
+>>>>>>> upstream/android-13
  */
 static void lbs_tx_lockup_handler(struct timer_list *t)
 {
@@ -776,7 +788,11 @@ static void lbs_tx_lockup_handler(struct timer_list *t)
 /**
  * auto_deepsleep_timer_fn - put the device back to deep sleep mode when
  * timer expires and no activity (command, event, data etc.) is detected.
+<<<<<<< HEAD
  * @data:	&struct lbs_private pointer
+=======
+ * @t: Context from which to retrieve a &struct lbs_private pointer
+>>>>>>> upstream/android-13
  * returns:	N/A
  */
 static void auto_deepsleep_timer_fn(struct timer_list *t)
@@ -907,25 +923,44 @@ struct lbs_private *lbs_add_card(void *card, struct device *dmdev)
 	struct net_device *dev;
 	struct wireless_dev *wdev;
 	struct lbs_private *priv = NULL;
+<<<<<<< HEAD
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	/* Allocate an Ethernet device and register it */
 	wdev = lbs_cfg_alloc(dmdev);
 	if (IS_ERR(wdev)) {
+<<<<<<< HEAD
 		pr_err("cfg80211 init failed\n");
 		goto done;
+=======
+		err = PTR_ERR(wdev);
+		pr_err("cfg80211 init failed\n");
+		goto err_cfg;
+>>>>>>> upstream/android-13
 	}
 
 	wdev->iftype = NL80211_IFTYPE_STATION;
 	priv = wdev_priv(wdev);
 	priv->wdev = wdev;
 
+<<<<<<< HEAD
 	if (lbs_init_adapter(priv)) {
+=======
+	err = lbs_init_adapter(priv);
+	if (err) {
+>>>>>>> upstream/android-13
 		pr_err("failed to initialize adapter structure\n");
 		goto err_wdev;
 	}
 
 	dev = alloc_netdev(0, "wlan%d", NET_NAME_UNKNOWN, ether_setup);
 	if (!dev) {
+<<<<<<< HEAD
+=======
+		err = -ENOMEM;
+>>>>>>> upstream/android-13
 		dev_err(dmdev, "no memory for network device instance\n");
 		goto err_adapter;
 	}
@@ -936,7 +971,11 @@ struct lbs_private *lbs_add_card(void *card, struct device *dmdev)
 	wdev->netdev = dev;
 	priv->dev = dev;
 
+<<<<<<< HEAD
  	dev->netdev_ops = &lbs_netdev_ops;
+=======
+	dev->netdev_ops = &lbs_netdev_ops;
+>>>>>>> upstream/android-13
 	dev->watchdog_timeo = 5 * HZ;
 	dev->ethtool_ops = &lbs_ethtool_ops;
 	dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
@@ -949,6 +988,10 @@ struct lbs_private *lbs_add_card(void *card, struct device *dmdev)
 	init_waitqueue_head(&priv->waitq);
 	priv->main_thread = kthread_run(lbs_thread, dev, "lbs_main");
 	if (IS_ERR(priv->main_thread)) {
+<<<<<<< HEAD
+=======
+		err = PTR_ERR(priv->main_thread);
+>>>>>>> upstream/android-13
 		lbs_deb_thread("Error creating main thread.\n");
 		goto err_ndev;
 	}
@@ -961,7 +1004,11 @@ struct lbs_private *lbs_add_card(void *card, struct device *dmdev)
 	priv->wol_gap = 20;
 	priv->ehs_remove_supported = true;
 
+<<<<<<< HEAD
 	goto done;
+=======
+	return priv;
+>>>>>>> upstream/android-13
 
  err_ndev:
 	free_netdev(dev);
@@ -972,10 +1019,15 @@ struct lbs_private *lbs_add_card(void *card, struct device *dmdev)
  err_wdev:
 	lbs_cfg_free(priv);
 
+<<<<<<< HEAD
 	priv = NULL;
 
 done:
 	return priv;
+=======
+ err_cfg:
+	return ERR_PTR(err);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(lbs_add_card);
 
@@ -1042,7 +1094,11 @@ int lbs_rtap_supported(struct lbs_private *priv)
 int lbs_start_card(struct lbs_private *priv)
 {
 	struct net_device *dev = priv->dev;
+<<<<<<< HEAD
 	int ret = -1;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* poke the firmware */
 	ret = lbs_setup_firmware(priv);

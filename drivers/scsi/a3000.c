@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/mm.h>
 #include <linux/ioport.h>
@@ -9,7 +13,10 @@
 #include <linux/module.h>
 
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/amigaints.h>
 #include <asm/amigahw.h>
 
@@ -38,7 +45,11 @@ static irqreturn_t a3000_intr(int irq, void *data)
 		spin_unlock_irqrestore(instance->host_lock, flags);
 		return IRQ_HANDLED;
 	}
+<<<<<<< HEAD
 	pr_warning("Non-serviced A3000 SCSI-interrupt? ISTR = %02x\n", status);
+=======
+	pr_warn("Non-serviced A3000 SCSI-interrupt? ISTR = %02x\n", status);
+>>>>>>> upstream/android-13
 	return IRQ_NONE;
 }
 
@@ -175,7 +186,10 @@ static struct scsi_host_template amiga_a3000_scsi_template = {
 	.this_id		= 7,
 	.sg_tablesize		= SG_ALL,
 	.cmd_per_lun		= CMD_PER_LUN,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING
+=======
+>>>>>>> upstream/android-13
 };
 
 static int __init amiga_a3000_scsi_probe(struct platform_device *pdev)

@@ -60,12 +60,20 @@ SECTIONS {
 #endif
 
 	_sdata = .;
+<<<<<<< HEAD
 	RO_DATA_SECTION(PAGE_SIZE)
 	RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE)
 	_edata = .;
 
 	EXCEPTION_TABLE(16)
 	NOTES
+=======
+	RO_DATA(PAGE_SIZE)
+	RW_DATA(16, PAGE_SIZE, THREAD_SIZE)
+	_edata = .;
+
+	EXCEPTION_TABLE(16)
+>>>>>>> upstream/android-13
 
 	. = ALIGN(PAGE_SIZE);
 	__init_begin = .;
@@ -82,12 +90,20 @@ SECTIONS {
 		__init_end = .;
 	}
 
+<<<<<<< HEAD
 	BSS_SECTION(0, 0, 0)
+=======
+	BSS_SECTION(4, 0, 4)
+>>>>>>> upstream/android-13
 
 	_end = .;
 
 	STABS_DEBUG
+<<<<<<< HEAD
 	.comment 0 : { *(.comment) }
+=======
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	/* Sections to be discarded */
 	DISCARDS

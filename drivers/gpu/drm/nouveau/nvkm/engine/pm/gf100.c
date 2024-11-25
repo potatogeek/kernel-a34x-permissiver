@@ -187,7 +187,11 @@ gf100_pm_ = {
 
 int
 gf100_pm_new_(const struct gf100_pm_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_pm **ppm)
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_pm **ppm)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_pm *pm;
 	u32 mask;
@@ -196,7 +200,11 @@ gf100_pm_new_(const struct gf100_pm_func *func, struct nvkm_device *device,
 	if (!(pm = *ppm = kzalloc(sizeof(*pm), GFP_KERNEL)))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = nvkm_pm_ctor(&gf100_pm_, device, index, pm);
+=======
+	ret = nvkm_pm_ctor(&gf100_pm_, device, type, inst, pm);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -237,7 +245,13 @@ gf100_pm = {
 };
 
 int
+<<<<<<< HEAD
 gf100_pm_new(struct nvkm_device *device, int index, struct nvkm_pm **ppm)
 {
 	return gf100_pm_new_(&gf100_pm, device, index, ppm);
+=======
+gf100_pm_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst, struct nvkm_pm **ppm)
+{
+	return gf100_pm_new_(&gf100_pm, device, type, inst, ppm);
+>>>>>>> upstream/android-13
 }

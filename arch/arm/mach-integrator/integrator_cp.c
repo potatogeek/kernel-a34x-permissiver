@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-integrator/integrator_cp.c
  *
  *  Copyright (C) 2003 Deep Blue Solutions Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/amba/mmci.h>
@@ -80,8 +87,11 @@ static unsigned int mmc_status(struct device *dev)
 static struct mmci_platform_data mmc_data = {
 	.ocr_mask	= MMC_VDD_32_33|MMC_VDD_33_34,
 	.status		= mmc_status,
+<<<<<<< HEAD
 	.gpio_wp	= -1,
 	.gpio_cd	= -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static u64 notrace intcp_read_sched_clock(void)

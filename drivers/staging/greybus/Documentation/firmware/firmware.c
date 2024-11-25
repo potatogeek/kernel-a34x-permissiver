@@ -2,6 +2,7 @@
 /*
  * Sample code to test firmware-management protocol
  *
+<<<<<<< HEAD
  * This file is provided under a dual BSD/GPLv2 license.  When using or
  * redistributing this file, you may do so under either license.
  *
@@ -50,6 +51,10 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+ * Copyright(c) 2016 Google Inc. All rights reserved.
+ * Copyright(c) 2016 Linaro Ltd. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>

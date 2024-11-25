@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * recordmcount.h
  *
@@ -15,8 +19,11 @@
  *
  * This conversion to macros was done by:
  * Copyright 2010 Steven Rostedt <srostedt@redhat.com>, Red Hat Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GNU General Public License, version 2 (GPLv2).
+=======
+>>>>>>> upstream/android-13
  */
 #undef append_func
 #undef is_fake_mcount
@@ -193,6 +200,7 @@ static unsigned int get_symindex(Elf_Sym const *sym, Elf32_Word const *symtab,
 				 Elf32_Word const *symtab_shndx)
 {
 	unsigned long offset;
+<<<<<<< HEAD
 	int index;
 
 	if (sym->st_shndx != SHN_XINDEX)
@@ -202,6 +210,22 @@ static unsigned int get_symindex(Elf_Sym const *sym, Elf32_Word const *symtab,
 	index = offset / sizeof(*sym);
 
 	return w(symtab_shndx[index]);
+=======
+	unsigned short shndx = w2(sym->st_shndx);
+	int index;
+
+	if (shndx > SHN_UNDEF && shndx < SHN_LORESERVE)
+		return shndx;
+
+	if (shndx == SHN_XINDEX) {
+		offset = (unsigned long)sym - (unsigned long)symtab;
+		index = offset / sizeof(*sym);
+
+		return w(symtab_shndx[index]);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int get_shnum(Elf_Ehdr const *ehdr, Elf_Shdr const *shdr0)
@@ -251,7 +275,11 @@ static void find_symtab(Elf_Ehdr *const ehdr, Elf_Shdr const *shdr0,
 }
 
 /* Append the new shstrtab, Elf_Shdr[], __mcount_loc and its relocations. */
+<<<<<<< HEAD
 static void append_func(Elf_Ehdr *const ehdr,
+=======
+static int append_func(Elf_Ehdr *const ehdr,
+>>>>>>> upstream/android-13
 			Elf_Shdr *const shstr,
 			uint_t const *const mloc0,
 			uint_t const *const mlocp,
@@ -283,6 +311,7 @@ static void append_func(Elf_Ehdr *const ehdr,
 	set_shnum(ehdr, shdr0, new_shnum);
 
 	/* body for new shstrtab */
+<<<<<<< HEAD
 	ulseek(fd_map, sb.st_size, SEEK_SET);
 	uwrite(fd_map, old_shstr_sh_offset + (void *)ehdr, old_shstr_sh_size);
 	uwrite(fd_map, mc_name, 1 + strlen(mc_name));
@@ -292,6 +321,22 @@ static void append_func(Elf_Ehdr *const ehdr,
 	t += sizeof(Elf_Shdr) * old_shnum;
 	uwrite(fd_map, old_shoff + (void *)ehdr,
 	       sizeof(Elf_Shdr) * old_shnum);
+=======
+	if (ulseek(sb.st_size, SEEK_SET) < 0)
+		return -1;
+	if (uwrite(old_shstr_sh_offset + (void *)ehdr, old_shstr_sh_size) < 0)
+		return -1;
+	if (uwrite(mc_name, 1 + strlen(mc_name)) < 0)
+		return -1;
+
+	/* old(modified) Elf_Shdr table, word-byte aligned */
+	if (ulseek(t, SEEK_SET) < 0)
+		return -1;
+	t += sizeof(Elf_Shdr) * old_shnum;
+	if (uwrite(old_shoff + (void *)ehdr,
+	       sizeof(Elf_Shdr) * old_shnum) < 0)
+		return -1;
+>>>>>>> upstream/android-13
 
 	/* new sections __mcount_loc and .rel__mcount_loc */
 	t += 2*sizeof(mcsec);
@@ -306,7 +351,12 @@ static void append_func(Elf_Ehdr *const ehdr,
 	mcsec.sh_info = 0;
 	mcsec.sh_addralign = _w(_size);
 	mcsec.sh_entsize = _w(_size);
+<<<<<<< HEAD
 	uwrite(fd_map, &mcsec, sizeof(mcsec));
+=======
+	if (uwrite(&mcsec, sizeof(mcsec)) < 0)
+		return -1;
+>>>>>>> upstream/android-13
 
 	mcsec.sh_name = w(old_shstr_sh_size);
 	mcsec.sh_type = (sizeof(Elf_Rela) == rel_entsize)
@@ -320,6 +370,7 @@ static void append_func(Elf_Ehdr *const ehdr,
 	mcsec.sh_info = w(old_shnum);
 	mcsec.sh_addralign = _w(_size);
 	mcsec.sh_entsize = _w(rel_entsize);
+<<<<<<< HEAD
 	uwrite(fd_map, &mcsec, sizeof(mcsec));
 
 	uwrite(fd_map, mloc0, (void *)mlocp - (void *)mloc0);
@@ -328,6 +379,23 @@ static void append_func(Elf_Ehdr *const ehdr,
 	ehdr->e_shoff = _w(new_e_shoff);
 	ulseek(fd_map, 0, SEEK_SET);
 	uwrite(fd_map, ehdr, sizeof(*ehdr));
+=======
+
+	if (uwrite(&mcsec, sizeof(mcsec)) < 0)
+		return -1;
+
+	if (uwrite(mloc0, (void *)mlocp - (void *)mloc0) < 0)
+		return -1;
+	if (uwrite(mrel0, (void *)mrelp - (void *)mrel0) < 0)
+		return -1;
+
+	ehdr->e_shoff = _w(new_e_shoff);
+	if (ulseek(0, SEEK_SET) < 0)
+		return -1;
+	if (uwrite(ehdr, sizeof(*ehdr)) < 0)
+		return -1;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static unsigned get_mcountsym(Elf_Sym const *const sym0,
@@ -431,9 +499,15 @@ static uint_t *sift_rel_mcount(uint_t *mlocp,
  * that are not going to be traced. The mcount calls here will be converted
  * into nops.
  */
+<<<<<<< HEAD
 static void nop_mcount(Elf_Shdr const *const relhdr,
 		       Elf_Ehdr const *const ehdr,
 		       const char *const txtname)
+=======
+static int nop_mcount(Elf_Shdr const *const relhdr,
+		      Elf_Ehdr const *const ehdr,
+		      const char *const txtname)
+>>>>>>> upstream/android-13
 {
 	Elf_Shdr *const shdr0 = (Elf_Shdr *)(_w(ehdr->e_shoff)
 		+ (void *)ehdr);
@@ -464,7 +538,11 @@ static void nop_mcount(Elf_Shdr const *const relhdr,
 				once = 1;
 				/* just warn? */
 				if (!make_nop)
+<<<<<<< HEAD
 					return;
+=======
+					return 0;
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -476,6 +554,7 @@ static void nop_mcount(Elf_Shdr const *const relhdr,
 			Elf_Rel rel;
 			rel = *(Elf_Rel *)relp;
 			Elf_r_info(&rel, Elf_r_sym(relp), rel_type_nop);
+<<<<<<< HEAD
 			ulseek(fd_map, (void *)relp - (void *)ehdr, SEEK_SET);
 			uwrite(fd_map, &rel, sizeof(rel));
 		}
@@ -484,6 +563,18 @@ static void nop_mcount(Elf_Shdr const *const relhdr,
 }
 
 
+=======
+			if (ulseek((void *)relp - (void *)ehdr, SEEK_SET) < 0)
+				return -1;
+			if (uwrite(&rel, sizeof(rel)) < 0)
+				return -1;
+		}
+		relp = (Elf_Rel const *)(rel_entsize + (void *)relp);
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Find a symbol in the given section, to be used as the base for relocating
  * the table of offsets of calls to mcount.  A local or global symbol suffices,
@@ -494,9 +585,16 @@ static void nop_mcount(Elf_Shdr const *const relhdr,
  *    Num:    Value  Size Type    Bind   Vis      Ndx Name
  *      2: 00000000     0 SECTION LOCAL  DEFAULT    1
  */
+<<<<<<< HEAD
 static unsigned find_secsym_ndx(unsigned const txtndx,
 				char const *const txtname,
 				uint_t *const recvalp,
+=======
+static int find_secsym_ndx(unsigned const txtndx,
+				char const *const txtname,
+				uint_t *const recvalp,
+				unsigned int *sym_index,
+>>>>>>> upstream/android-13
 				Elf_Shdr const *const symhdr,
 				Elf32_Word const *symtab,
 				Elf32_Word const *symtab_shndx,
@@ -520,11 +618,17 @@ static unsigned find_secsym_ndx(unsigned const txtndx,
 				continue;
 
 			*recvalp = _w(symp->st_value);
+<<<<<<< HEAD
 			return symp - sym0;
+=======
+			*sym_index = symp - sym0;
+			return 0;
+>>>>>>> upstream/android-13
 		}
 	}
 	fprintf(stderr, "Cannot find symbol for section %u: %s.\n",
 		txtndx, txtname);
+<<<<<<< HEAD
 	fail_file();
 }
 
@@ -535,6 +639,16 @@ __has_rel_mcount(Elf_Shdr const *const relhdr,  /* is SHT_REL or SHT_RELA */
 		 Elf_Shdr const *const shdr0,
 		 char const *const shstrtab,
 		 char const *const fname)
+=======
+	return -1;
+}
+
+/* Evade ISO C restriction: no declaration after statement in has_rel_mcount. */
+static char const * __has_rel_mcount(Elf_Shdr const *const relhdr, /* reltype */
+				     Elf_Shdr const *const shdr0,
+				     char const *const shstrtab,
+				     char const *const fname)
+>>>>>>> upstream/android-13
 {
 	/* .sh_info depends on .sh_type == SHT_REL[,A] */
 	Elf_Shdr const *const txthdr = &shdr0[w(relhdr->sh_info)];
@@ -543,7 +657,11 @@ __has_rel_mcount(Elf_Shdr const *const relhdr,  /* is SHT_REL or SHT_RELA */
 	if (strcmp("__mcount_loc", txtname) == 0) {
 		fprintf(stderr, "warning: __mcount_loc already exists: %s\n",
 			fname);
+<<<<<<< HEAD
 		succeed_file();
+=======
+		return already_has_rel_mcount;
+>>>>>>> upstream/android-13
 	}
 	if (w(txthdr->sh_type) != SHT_PROGBITS ||
 	    !(_w(txthdr->sh_flags) & SHF_EXECINSTR))
@@ -573,6 +691,13 @@ static unsigned tot_relsize(Elf_Shdr const *const shdr0,
 
 	for (; nhdr; --nhdr, ++shdrp) {
 		txtname = has_rel_mcount(shdrp, shdr0, shstrtab, fname);
+<<<<<<< HEAD
+=======
+		if (txtname == already_has_rel_mcount) {
+			totrelsz = 0;
+			break;
+		}
+>>>>>>> upstream/android-13
 		if (txtname && is_mcounted_section_name(txtname))
 			totrelsz += _w(shdrp->sh_size);
 	}
@@ -580,8 +705,13 @@ static unsigned tot_relsize(Elf_Shdr const *const shdr0,
 }
 
 /* Overall supervision for Elf32 ET_REL file. */
+<<<<<<< HEAD
 static void
 do_func(Elf_Ehdr *const ehdr, char const *const fname, unsigned const reltype)
+=======
+static int do_func(Elf_Ehdr *const ehdr, char const *const fname,
+		   unsigned const reltype)
+>>>>>>> upstream/android-13
 {
 	Elf_Shdr *const shdr0 = (Elf_Shdr *)(_w(ehdr->e_shoff)
 		+ (void *)ehdr);
@@ -597,6 +727,7 @@ do_func(Elf_Ehdr *const ehdr, char const *const fname, unsigned const reltype)
 	Elf32_Word *symtab_shndx;
 
 	/* Upper bound on space: assume all relevant relocs are for mcount. */
+<<<<<<< HEAD
 	unsigned const totrelsz = tot_relsize(shdr0, nhdr, shstrtab, fname);
 	Elf_Rel *const mrel0 = umalloc(totrelsz);
 	Elf_Rel *      mrelp = mrel0;
@@ -604,15 +735,46 @@ do_func(Elf_Ehdr *const ehdr, char const *const fname, unsigned const reltype)
 	/* 2*sizeof(address) <= sizeof(Elf_Rel) */
 	uint_t *const mloc0 = umalloc(totrelsz>>1);
 	uint_t *      mlocp = mloc0;
+=======
+	unsigned       totrelsz;
+
+	Elf_Rel *      mrel0;
+	Elf_Rel *      mrelp;
+
+	uint_t *      mloc0;
+	uint_t *      mlocp;
+>>>>>>> upstream/android-13
 
 	unsigned rel_entsize = 0;
 	unsigned symsec_sh_link = 0;
 
+<<<<<<< HEAD
+=======
+	int result = 0;
+
+	totrelsz = tot_relsize(shdr0, nhdr, shstrtab, fname);
+	if (totrelsz == 0)
+		return 0;
+	mrel0 = umalloc(totrelsz);
+	mrelp = mrel0;
+	if (!mrel0)
+		return -1;
+
+	/* 2*sizeof(address) <= sizeof(Elf_Rel) */
+	mloc0 = umalloc(totrelsz>>1);
+	mlocp = mloc0;
+	if (!mloc0) {
+		free(mrel0);
+		return -1;
+	}
+
+>>>>>>> upstream/android-13
 	find_symtab(ehdr, shdr0, nhdr, &symtab, &symtab_shndx);
 
 	for (relhdr = shdr0, k = nhdr; k; --k, ++relhdr) {
 		char const *const txtname = has_rel_mcount(relhdr, shdr0,
 			shstrtab, fname);
+<<<<<<< HEAD
 		if (txtname && is_mcounted_section_name(txtname)) {
 			uint_t recval = 0;
 			unsigned const recsym = find_secsym_ndx(
@@ -620,6 +782,25 @@ do_func(Elf_Ehdr *const ehdr, char const *const fname, unsigned const reltype)
 				&shdr0[symsec_sh_link = w(relhdr->sh_link)],
 				symtab, symtab_shndx,
 				ehdr);
+=======
+		if (txtname == already_has_rel_mcount) {
+			result = 0;
+			file_updated = 0;
+			goto out; /* Nothing to be done; don't append! */
+		}
+		if (txtname && is_mcounted_section_name(txtname)) {
+			unsigned int recsym;
+			uint_t recval = 0;
+
+			symsec_sh_link = w(relhdr->sh_link);
+			result = find_secsym_ndx(w(relhdr->sh_info), txtname,
+						&recval, &recsym,
+						&shdr0[symsec_sh_link],
+						symtab, symtab_shndx,
+						ehdr);
+			if (result)
+				goto out;
+>>>>>>> upstream/android-13
 
 			rel_entsize = _w(relhdr->sh_entsize);
 			mlocp = sift_rel_mcount(mlocp,
@@ -630,6 +811,7 @@ do_func(Elf_Ehdr *const ehdr, char const *const fname, unsigned const reltype)
 			 * This section is ignored by ftrace, but still
 			 * has mcount calls. Convert them to nops now.
 			 */
+<<<<<<< HEAD
 			nop_mcount(relhdr, ehdr, txtname);
 		}
 	}
@@ -639,4 +821,19 @@ do_func(Elf_Ehdr *const ehdr, char const *const fname, unsigned const reltype)
 	}
 	free(mrel0);
 	free(mloc0);
+=======
+			if (nop_mcount(relhdr, ehdr, txtname) < 0) {
+				result = -1;
+				goto out;
+			}
+		}
+	}
+	if (!result && mloc0 != mlocp)
+		result = append_func(ehdr, shstr, mloc0, mlocp, mrel0, mrelp,
+				     rel_entsize, symsec_sh_link);
+out:
+	free(mrel0);
+	free(mloc0);
+	return result;
+>>>>>>> upstream/android-13
 }

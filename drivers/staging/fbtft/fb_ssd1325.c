@@ -6,7 +6,11 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 
 #include "fbtft.h"
@@ -35,8 +39,11 @@ static int init_display(struct fbtft_par *par)
 {
 	par->fbtftops.reset(par);
 
+<<<<<<< HEAD
 	gpio_set_value(par->gpio.cs, 0);
 
+=======
+>>>>>>> upstream/android-13
 	write_reg(par, 0xb3);
 	write_reg(par, 0xf0);
 	write_reg(par, 0xae);
@@ -155,7 +162,11 @@ static int write_vmem(struct fbtft_par *par, size_t offset, size_t len)
 		}
 	}
 
+<<<<<<< HEAD
 	gpio_set_value(par->gpio.dc, 1);
+=======
+	gpiod_set_value(par->gpio.dc, 1);
+>>>>>>> upstream/android-13
 
 	/* Write data */
 	ret = par->fbtftops.write(par, par->txbuf.buf,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * emc1403.c - SMSC Thermal Driver
  *
@@ -5,6 +9,7 @@
  *
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
@@ -43,8 +50,13 @@ struct thermal_data {
 	const struct attribute_group *groups[4];
 };
 
+<<<<<<< HEAD
 static ssize_t show_temp(struct device *dev,
 			struct device_attribute *attr, char *buf)
+=======
+static ssize_t temp_show(struct device *dev, struct device_attribute *attr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sda = to_sensor_dev_attr(attr);
 	struct thermal_data *data = dev_get_drvdata(dev);
@@ -57,8 +69,13 @@ static ssize_t show_temp(struct device *dev,
 	return sprintf(buf, "%d000\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t show_bit(struct device *dev,
 			struct device_attribute *attr, char *buf)
+=======
+static ssize_t bit_show(struct device *dev, struct device_attribute *attr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute_2 *sda = to_sensor_dev_attr_2(attr);
 	struct thermal_data *data = dev_get_drvdata(dev);
@@ -71,8 +88,13 @@ static ssize_t show_bit(struct device *dev,
 	return sprintf(buf, "%d\n", !!(val & sda->index));
 }
 
+<<<<<<< HEAD
 static ssize_t store_temp(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t temp_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sda = to_sensor_dev_attr(attr);
 	struct thermal_data *data = dev_get_drvdata(dev);
@@ -88,8 +110,13 @@ static ssize_t store_temp(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t store_bit(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t bit_store(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute_2 *sda = to_sensor_dev_attr_2(attr);
 	struct thermal_data *data = dev_get_drvdata(dev);
@@ -128,20 +155,34 @@ static ssize_t show_hyst_common(struct device *dev,
 	return sprintf(buf, "%d000\n", is_min ? limit + hyst : limit - hyst);
 }
 
+<<<<<<< HEAD
 static ssize_t show_hyst(struct device *dev,
 			 struct device_attribute *attr, char *buf)
+=======
+static ssize_t hyst_show(struct device *dev, struct device_attribute *attr,
+			 char *buf)
+>>>>>>> upstream/android-13
 {
 	return show_hyst_common(dev, attr, buf, false);
 }
 
+<<<<<<< HEAD
 static ssize_t show_min_hyst(struct device *dev,
+=======
+static ssize_t min_hyst_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *attr, char *buf)
 {
 	return show_hyst_common(dev, attr, buf, true);
 }
 
+<<<<<<< HEAD
 static ssize_t store_hyst(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t hyst_store(struct device *dev, struct device_attribute *attr,
+			  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sda = to_sensor_dev_attr(attr);
 	struct thermal_data *data = dev_get_drvdata(dev);
@@ -173,6 +214,7 @@ fail:
  *	Sensors. We pass the actual i2c register to the methods.
  */
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_min, S_IRUGO | S_IWUSR,
 	show_temp, store_temp, 0x06);
 static SENSOR_DEVICE_ATTR(temp1_max, S_IRUGO | S_IWUSR,
@@ -247,6 +289,56 @@ static SENSOR_DEVICE_ATTR(temp4_crit_hyst, S_IRUGO, show_hyst, NULL, 0x30);
 
 static SENSOR_DEVICE_ATTR_2(power_state, S_IRUGO | S_IWUSR,
 	show_bit, store_bit, 0x03, 0x40);
+=======
+static SENSOR_DEVICE_ATTR_RW(temp1_min, temp, 0x06);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp, 0x05);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit, temp, 0x20);
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp, 0x00);
+static SENSOR_DEVICE_ATTR_2_RO(temp1_min_alarm, bit, 0x36, 0x01);
+static SENSOR_DEVICE_ATTR_2_RO(temp1_max_alarm, bit, 0x35, 0x01);
+static SENSOR_DEVICE_ATTR_2_RO(temp1_crit_alarm, bit, 0x37, 0x01);
+static SENSOR_DEVICE_ATTR_RO(temp1_min_hyst, min_hyst, 0x06);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_hyst, hyst, 0x05);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit_hyst, hyst, 0x20);
+
+static SENSOR_DEVICE_ATTR_RW(temp2_min, temp, 0x08);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp, 0x07);
+static SENSOR_DEVICE_ATTR_RW(temp2_crit, temp, 0x19);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp, 0x01);
+static SENSOR_DEVICE_ATTR_2_RO(temp2_fault, bit, 0x1b, 0x02);
+static SENSOR_DEVICE_ATTR_2_RO(temp2_min_alarm, bit, 0x36, 0x02);
+static SENSOR_DEVICE_ATTR_2_RO(temp2_max_alarm, bit, 0x35, 0x02);
+static SENSOR_DEVICE_ATTR_2_RO(temp2_crit_alarm, bit, 0x37, 0x02);
+static SENSOR_DEVICE_ATTR_RO(temp2_min_hyst, min_hyst, 0x08);
+static SENSOR_DEVICE_ATTR_RO(temp2_max_hyst, hyst, 0x07);
+static SENSOR_DEVICE_ATTR_RO(temp2_crit_hyst, hyst, 0x19);
+
+static SENSOR_DEVICE_ATTR_RW(temp3_min, temp, 0x16);
+static SENSOR_DEVICE_ATTR_RW(temp3_max, temp, 0x15);
+static SENSOR_DEVICE_ATTR_RW(temp3_crit, temp, 0x1A);
+static SENSOR_DEVICE_ATTR_RO(temp3_input, temp, 0x23);
+static SENSOR_DEVICE_ATTR_2_RO(temp3_fault, bit, 0x1b, 0x04);
+static SENSOR_DEVICE_ATTR_2_RO(temp3_min_alarm, bit, 0x36, 0x04);
+static SENSOR_DEVICE_ATTR_2_RO(temp3_max_alarm, bit, 0x35, 0x04);
+static SENSOR_DEVICE_ATTR_2_RO(temp3_crit_alarm, bit, 0x37, 0x04);
+static SENSOR_DEVICE_ATTR_RO(temp3_min_hyst, min_hyst, 0x16);
+static SENSOR_DEVICE_ATTR_RO(temp3_max_hyst, hyst, 0x15);
+static SENSOR_DEVICE_ATTR_RO(temp3_crit_hyst, hyst, 0x1A);
+
+static SENSOR_DEVICE_ATTR_RW(temp4_min, temp, 0x2D);
+static SENSOR_DEVICE_ATTR_RW(temp4_max, temp, 0x2C);
+static SENSOR_DEVICE_ATTR_RW(temp4_crit, temp, 0x30);
+static SENSOR_DEVICE_ATTR_RO(temp4_input, temp, 0x2A);
+static SENSOR_DEVICE_ATTR_2_RO(temp4_fault, bit, 0x1b, 0x08);
+static SENSOR_DEVICE_ATTR_2_RO(temp4_min_alarm, bit, 0x36, 0x08);
+static SENSOR_DEVICE_ATTR_2_RO(temp4_max_alarm, bit, 0x35, 0x08);
+static SENSOR_DEVICE_ATTR_2_RO(temp4_crit_alarm, bit, 0x37, 0x08);
+static SENSOR_DEVICE_ATTR_RO(temp4_min_hyst, min_hyst, 0x2D);
+static SENSOR_DEVICE_ATTR_RO(temp4_max_hyst, hyst, 0x2C);
+static SENSOR_DEVICE_ATTR_RO(temp4_crit_hyst, hyst, 0x30);
+
+static SENSOR_DEVICE_ATTR_2_RW(power_state, bit, 0x03, 0x40);
+>>>>>>> upstream/android-13
 
 static struct attribute *emc1402_attrs[] = {
 	&sensor_dev_attr_temp1_min.dev_attr.attr,
@@ -328,6 +420,7 @@ static const struct attribute_group emc1404_group = {
  * array.
  */
 static struct sensor_device_attribute_2 emc1402_alarms[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR_2(temp1_min_alarm, S_IRUGO, show_bit, NULL, 0x02, 0x20),
 	SENSOR_ATTR_2(temp1_max_alarm, S_IRUGO, show_bit, NULL, 0x02, 0x40),
 	SENSOR_ATTR_2(temp1_crit_alarm, S_IRUGO, show_bit, NULL, 0x02, 0x01),
@@ -336,6 +429,16 @@ static struct sensor_device_attribute_2 emc1402_alarms[] = {
 	SENSOR_ATTR_2(temp2_min_alarm, S_IRUGO, show_bit, NULL, 0x02, 0x08),
 	SENSOR_ATTR_2(temp2_max_alarm, S_IRUGO, show_bit, NULL, 0x02, 0x10),
 	SENSOR_ATTR_2(temp2_crit_alarm, S_IRUGO, show_bit, NULL, 0x02, 0x02),
+=======
+	SENSOR_ATTR_2_RO(temp1_min_alarm, bit, 0x02, 0x20),
+	SENSOR_ATTR_2_RO(temp1_max_alarm, bit, 0x02, 0x40),
+	SENSOR_ATTR_2_RO(temp1_crit_alarm, bit, 0x02, 0x01),
+
+	SENSOR_ATTR_2_RO(temp2_fault, bit, 0x02, 0x04),
+	SENSOR_ATTR_2_RO(temp2_min_alarm, bit, 0x02, 0x08),
+	SENSOR_ATTR_2_RO(temp2_max_alarm, bit, 0x02, 0x10),
+	SENSOR_ATTR_2_RO(temp2_crit_alarm, bit, 0x02, 0x02),
+>>>>>>> upstream/android-13
 };
 
 static struct attribute *emc1402_alarm_attrs[] = {
@@ -423,11 +526,21 @@ static const struct regmap_config emc1403_regmap_config = {
 	.volatile_reg = emc1403_regmap_is_volatile,
 };
 
+<<<<<<< HEAD
 static int emc1403_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
 	struct thermal_data *data;
 	struct device *hwmon_dev;
+=======
+static const struct i2c_device_id emc1403_idtable[];
+
+static int emc1403_probe(struct i2c_client *client)
+{
+	struct thermal_data *data;
+	struct device *hwmon_dev;
+	const struct i2c_device_id *id = i2c_match_id(emc1403_idtable, client);
+>>>>>>> upstream/android-13
 
 	data = devm_kzalloc(&client->dev, sizeof(struct thermal_data),
 			    GFP_KERNEL);
@@ -443,10 +556,17 @@ static int emc1403_probe(struct i2c_client *client,
 	switch (id->driver_data) {
 	case emc1404:
 		data->groups[2] = &emc1404_group;
+<<<<<<< HEAD
 		/* fall through */
 	case emc1403:
 		data->groups[1] = &emc1403_group;
 		/* fall through */
+=======
+		fallthrough;
+	case emc1403:
+		data->groups[1] = &emc1403_group;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case emc1402:
 		data->groups[0] = &emc1402_group;
 	}
@@ -489,7 +609,11 @@ static struct i2c_driver sensor_emc1403 = {
 		.name = "emc1403",
 	},
 	.detect = emc1403_detect,
+<<<<<<< HEAD
 	.probe = emc1403_probe,
+=======
+	.probe_new = emc1403_probe,
+>>>>>>> upstream/android-13
 	.id_table = emc1403_idtable,
 	.address_list = emc1403_address_list,
 };

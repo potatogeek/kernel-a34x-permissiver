@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Pixart PAC207BCA / PAC73xx common functions
  *
@@ -6,6 +10,7 @@
  * Copyleft (C) 2005 Michel Xhaard mxhaard@magic.fr
  *
  * V4L2 by Jean-Francois Moine <http://moinejf.free.fr>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +22,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /* We calculate the autogain at the end of the transfer of a frame, at this
    moment a frame with the old settings is being captured and transmitted. So
+<<<<<<< HEAD
    if we adjust the gain or exposure we must ignore atleast the next frame for
+=======
+   if we adjust the gain or exposure we must ignore at least the next frame for
+>>>>>>> upstream/android-13
    the new settings to come into effect before doing any other adjustments. */
 #define PAC_AUTOGAIN_IGNORE_FRAMES	2
 

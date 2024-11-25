@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD5421 Digital to analog converters  driver
  *
  * Copyright 2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -63,12 +70,20 @@
  * @current_range:	current range which the device is configured for
  * @data:		spi transfer buffers
  * @fault_mask:		software masking of events
+<<<<<<< HEAD
+=======
+ * @lock:		lock to protect the data buffer during SPI ops
+>>>>>>> upstream/android-13
  */
 struct ad5421_state {
 	struct spi_device		*spi;
 	unsigned int			ctrl;
 	enum ad5421_current_range	current_range;
 	unsigned int			fault_mask;
+<<<<<<< HEAD
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
@@ -143,11 +158,20 @@ static int ad5421_write_unlocked(struct iio_dev *indio_dev,
 static int ad5421_write(struct iio_dev *indio_dev, unsigned int reg,
 	unsigned int val)
 {
+<<<<<<< HEAD
 	int ret;
 
 	mutex_lock(&indio_dev->mlock);
 	ret = ad5421_write_unlocked(indio_dev, reg, val);
 	mutex_unlock(&indio_dev->mlock);
+=======
+	struct ad5421_state *st = iio_priv(indio_dev);
+	int ret;
+
+	mutex_lock(&st->lock);
+	ret = ad5421_write_unlocked(indio_dev, reg, val);
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -167,7 +191,11 @@ static int ad5421_read(struct iio_dev *indio_dev, unsigned int reg)
 		},
 	};
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	st->data[0].d32 = cpu_to_be32((1 << 23) | (reg << 16));
 
@@ -175,7 +203,11 @@ static int ad5421_read(struct iio_dev *indio_dev, unsigned int reg)
 	if (ret >= 0)
 		ret = be32_to_cpu(st->data[1].d32) & 0xffff;
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -186,14 +218,22 @@ static int ad5421_update_ctrl(struct iio_dev *indio_dev, unsigned int set,
 	struct ad5421_state *st = iio_priv(indio_dev);
 	unsigned int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 
 	st->ctrl &= ~clr;
 	st->ctrl |= set;
 
 	ret = ad5421_write_unlocked(indio_dev, AD5421_REG_CTRL, st->ctrl);
 
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -401,12 +441,20 @@ static int ad5421_write_event_config(struct iio_dev *indio_dev,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 	if (state)
 		st->fault_mask |= mask;
 	else
 		st->fault_mask &= ~mask;
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -485,13 +533,21 @@ static int ad5421_probe(struct spi_device *spi)
 
 	st->spi = spi;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = "ad5421";
 	indio_dev->info = &ad5421_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = ad5421_channels;
 	indio_dev->num_channels = ARRAY_SIZE(ad5421_channels);
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	st->ctrl = AD5421_CTRL_WATCHDOG_DISABLE |
 			AD5421_CTRL_AUTO_FAULT_READBACK;
 

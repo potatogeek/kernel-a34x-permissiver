@@ -1,10 +1,15 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: ftrace - function graph filters with stack tracer
+<<<<<<< HEAD
+=======
+# requires: stack_trace set_ftrace_filter function_graph:tracer
+>>>>>>> upstream/android-13
 
 # Make sure that function graph filtering works, and is not
 # affected by other tracers enabled (like stack tracer)
 
+<<<<<<< HEAD
 if ! grep -q function_graph available_tracers; then
     echo "no function graph tracer configured"
     exit_unsupported
@@ -23,6 +28,12 @@ do_reset() {
     enable_tracing
     clear_trace
     echo > set_ftrace_filter
+=======
+do_reset() {
+    if [ -e /proc/sys/kernel/stack_tracer_enabled ]; then
+	    echo 0 > /proc/sys/kernel/stack_tracer_enabled
+    fi
+>>>>>>> upstream/android-13
 }
 
 fail() { # msg
@@ -44,12 +55,15 @@ fi
 
 echo function_graph > current_tracer
 
+<<<<<<< HEAD
 if [ ! -f stack_trace ]; then
     echo "Stack tracer not configured"
     do_reset
     exit_unsupported;
 fi
 
+=======
+>>>>>>> upstream/android-13
 echo "Now testing with stack tracer"
 
 echo 1 > /proc/sys/kernel/stack_tracer_enabled

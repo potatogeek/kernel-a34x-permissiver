@@ -24,18 +24,28 @@
 #include <asm/cacheflush.h>
 #include <asm/tlbflush.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/sections.h>
 #include <asm/shmparam.h>
 
+<<<<<<< HEAD
 int split_tlb __read_mostly;
 int dcache_stride __read_mostly;
 int icache_stride __read_mostly;
+=======
+int split_tlb __ro_after_init;
+int dcache_stride __ro_after_init;
+int icache_stride __ro_after_init;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(dcache_stride);
 
 void flush_dcache_page_asm(unsigned long phys_addr, unsigned long vaddr);
 EXPORT_SYMBOL(flush_dcache_page_asm);
+<<<<<<< HEAD
 void flush_icache_page_asm(unsigned long phys_addr, unsigned long vaddr);
 
 
@@ -49,6 +59,29 @@ DEFINE_SPINLOCK(pa_tlb_lock);
 struct pdc_cache_info cache_info __read_mostly;
 #ifndef CONFIG_PA20
 static struct pdc_btlb_info btlb_info __read_mostly;
+=======
+void purge_dcache_page_asm(unsigned long phys_addr, unsigned long vaddr);
+void flush_icache_page_asm(unsigned long phys_addr, unsigned long vaddr);
+
+
+/* On some machines (i.e., ones with the Merced bus), there can be
+ * only a single PxTLB broadcast at a time; this must be guaranteed
+ * by software. We need a spinlock around all TLB flushes to ensure
+ * this.
+ */
+DEFINE_SPINLOCK(pa_tlb_flush_lock);
+
+/* Swapper page setup lock. */
+DEFINE_SPINLOCK(pa_swapper_pg_lock);
+
+#if defined(CONFIG_64BIT) && defined(CONFIG_SMP)
+int pa_serialize_tlb_flushes __ro_after_init;
+#endif
+
+struct pdc_cache_info cache_info __ro_after_init;
+#ifndef CONFIG_PA20
+static struct pdc_btlb_info btlb_info __ro_after_init;
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_SMP
@@ -76,9 +109,15 @@ EXPORT_SYMBOL(flush_cache_all_local);
 #define pfn_va(pfn)	__va(PFN_PHYS(pfn))
 
 void
+<<<<<<< HEAD
 update_mmu_cache(struct vm_area_struct *vma, unsigned long address, pte_t *ptep)
 {
 	unsigned long pfn = pte_pfn(*ptep);
+=======
+__update_cache(pte_t pte)
+{
+	unsigned long pfn = pte_pfn(pte);
+>>>>>>> upstream/android-13
 	struct page *page;
 
 	/* We don't have pte special.  As a result, we can be called with
@@ -303,6 +342,20 @@ __flush_cache_page(struct vm_area_struct *vma, unsigned long vmaddr,
 	preempt_enable();
 }
 
+<<<<<<< HEAD
+=======
+static inline void
+__purge_cache_page(struct vm_area_struct *vma, unsigned long vmaddr,
+		   unsigned long physaddr)
+{
+	preempt_disable();
+	purge_dcache_page_asm(physaddr, vmaddr);
+	if (vma->vm_flags & VM_EXEC)
+		flush_icache_page_asm(physaddr, vmaddr);
+	preempt_enable();
+}
+
+>>>>>>> upstream/android-13
 void flush_dcache_page(struct page *page)
 {
 	struct address_space *mapping = page_mapping_file(page);
@@ -316,7 +369,11 @@ void flush_dcache_page(struct page *page)
 		return;
 	}
 
+<<<<<<< HEAD
 	flush_kernel_dcache_page(page);
+=======
+	flush_kernel_dcache_page_addr(page_address(page));
+>>>>>>> upstream/android-13
 
 	if (!mapping)
 		return;
@@ -346,7 +403,11 @@ void flush_dcache_page(struct page *page)
 		if (old_addr == 0 || (old_addr & (SHM_COLOUR - 1))
 				      != (addr & (SHM_COLOUR - 1))) {
 			__flush_cache_page(mpnt, addr, page_to_phys(page));
+<<<<<<< HEAD
 			if (old_addr)
+=======
+			if (parisc_requires_coherency() && old_addr)
+>>>>>>> upstream/android-13
 				printk(KERN_ERR "INEQUIVALENT ALIASES 0x%lx and 0x%lx in file %pD\n", old_addr, addr, mpnt->vm_file);
 			old_addr = addr;
 		}
@@ -357,20 +418,34 @@ EXPORT_SYMBOL(flush_dcache_page);
 
 /* Defined in arch/parisc/kernel/pacache.S */
 EXPORT_SYMBOL(flush_kernel_dcache_range_asm);
+<<<<<<< HEAD
 EXPORT_SYMBOL(flush_kernel_dcache_page_asm);
+=======
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(flush_data_cache_local);
 EXPORT_SYMBOL(flush_kernel_icache_range_asm);
 
 #define FLUSH_THRESHOLD 0x80000 /* 0.5MB */
+<<<<<<< HEAD
 static unsigned long parisc_cache_flush_threshold __read_mostly = FLUSH_THRESHOLD;
 
 #define FLUSH_TLB_THRESHOLD (2*1024*1024) /* 2MB initial TLB threshold */
 static unsigned long parisc_tlb_flush_threshold __read_mostly = FLUSH_TLB_THRESHOLD;
+=======
+static unsigned long parisc_cache_flush_threshold __ro_after_init = FLUSH_THRESHOLD;
+
+#define FLUSH_TLB_THRESHOLD (16*1024) /* 16 KiB minimum TLB threshold */
+static unsigned long parisc_tlb_flush_threshold __ro_after_init = ~0UL;
+>>>>>>> upstream/android-13
 
 void __init parisc_setup_cache_timing(void)
 {
 	unsigned long rangetime, alltime;
+<<<<<<< HEAD
 	unsigned long size, start;
+=======
+	unsigned long size;
+>>>>>>> upstream/android-13
 	unsigned long threshold;
 
 	alltime = mfctl(16);
@@ -404,10 +479,19 @@ void __init parisc_setup_cache_timing(void)
 		goto set_tlb_threshold;
 	}
 
+<<<<<<< HEAD
+=======
+	size = (unsigned long)_end - (unsigned long)_text;
+	rangetime = mfctl(16);
+	flush_tlb_kernel_range((unsigned long)_text, (unsigned long)_end);
+	rangetime = mfctl(16) - rangetime;
+
+>>>>>>> upstream/android-13
 	alltime = mfctl(16);
 	flush_tlb_all();
 	alltime = mfctl(16) - alltime;
 
+<<<<<<< HEAD
 	size = 0;
 	start = (unsigned long) _text;
 	rangetime = mfctl(16);
@@ -426,6 +510,21 @@ void __init parisc_setup_cache_timing(void)
 set_tlb_threshold:
 	if (threshold)
 		parisc_tlb_flush_threshold = threshold;
+=======
+	printk(KERN_INFO "Whole TLB flush %lu cycles, Range flush %lu bytes %lu cycles\n",
+		alltime, size, rangetime);
+
+	threshold = PAGE_ALIGN((num_online_cpus() * size * alltime) / rangetime);
+	printk(KERN_INFO "Calculated TLB flush threshold %lu KiB\n",
+		threshold/1024);
+
+set_tlb_threshold:
+	if (threshold > FLUSH_TLB_THRESHOLD)
+		parisc_tlb_flush_threshold = threshold;
+	else
+		parisc_tlb_flush_threshold = FLUSH_TLB_THRESHOLD;
+
+>>>>>>> upstream/android-13
 	printk(KERN_INFO "TLB flush threshold set to %lu KiB\n",
 		parisc_tlb_flush_threshold/1024);
 }
@@ -477,6 +576,7 @@ int __flush_tlb_range(unsigned long sid, unsigned long start,
 	/* Purge TLB entries for small ranges using the pdtlb and
 	   pitlb instructions.  These instructions execute locally
 	   but cause a purge request to be broadcast to other TLBs.  */
+<<<<<<< HEAD
 	if (likely(!split_tlb)) {
 		while (start < end) {
 			purge_tlb_start(flags);
@@ -489,6 +589,8 @@ int __flush_tlb_range(unsigned long sid, unsigned long start,
 	}
 
 	/* split TLB case */
+=======
+>>>>>>> upstream/android-13
 	while (start < end) {
 		purge_tlb_start(flags);
 		mtsp(sid, 1);
@@ -525,11 +627,22 @@ static inline pte_t *get_ptep(pgd_t *pgd, unsigned long addr)
 	pte_t *ptep = NULL;
 
 	if (!pgd_none(*pgd)) {
+<<<<<<< HEAD
 		pud_t *pud = pud_offset(pgd, addr);
 		if (!pud_none(*pud)) {
 			pmd_t *pmd = pmd_offset(pud, addr);
 			if (!pmd_none(*pmd))
 				ptep = pte_offset_map(pmd, addr);
+=======
+		p4d_t *p4d = p4d_offset(pgd, addr);
+		if (!p4d_none(*p4d)) {
+			pud_t *pud = pud_offset(p4d, addr);
+			if (!pud_none(*pud)) {
+				pmd_t *pmd = pmd_offset(pud, addr);
+				if (!pmd_none(*pmd))
+					ptep = pte_offset_map(pmd, addr);
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	return ptep;
@@ -573,9 +686,18 @@ void flush_cache_mm(struct mm_struct *mm)
 			pfn = pte_pfn(*ptep);
 			if (!pfn_valid(pfn))
 				continue;
+<<<<<<< HEAD
 			if (unlikely(mm->context))
 				flush_tlb_page(vma, addr);
 			__flush_cache_page(vma, addr, PFN_PHYS(pfn));
+=======
+			if (unlikely(mm->context)) {
+				flush_tlb_page(vma, addr);
+				__flush_cache_page(vma, addr, PFN_PHYS(pfn));
+			} else {
+				__purge_cache_page(vma, addr, PFN_PHYS(pfn));
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -610,9 +732,18 @@ void flush_cache_range(struct vm_area_struct *vma,
 			continue;
 		pfn = pte_pfn(*ptep);
 		if (pfn_valid(pfn)) {
+<<<<<<< HEAD
 			if (unlikely(vma->vm_mm->context))
 				flush_tlb_page(vma, addr);
 			__flush_cache_page(vma, addr, PFN_PHYS(pfn));
+=======
+			if (unlikely(vma->vm_mm->context)) {
+				flush_tlb_page(vma, addr);
+				__flush_cache_page(vma, addr, PFN_PHYS(pfn));
+			} else {
+				__purge_cache_page(vma, addr, PFN_PHYS(pfn));
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -621,9 +752,18 @@ void
 flush_cache_page(struct vm_area_struct *vma, unsigned long vmaddr, unsigned long pfn)
 {
 	if (pfn_valid(pfn)) {
+<<<<<<< HEAD
 		if (likely(vma->vm_mm->context))
 			flush_tlb_page(vma, vmaddr);
 		__flush_cache_page(vma, vmaddr, PFN_PHYS(pfn));
+=======
+		if (likely(vma->vm_mm->context)) {
+			flush_tlb_page(vma, vmaddr);
+			__flush_cache_page(vma, vmaddr, PFN_PHYS(pfn));
+		} else {
+			__purge_cache_page(vma, vmaddr, PFN_PHYS(pfn));
+		}
+>>>>>>> upstream/android-13
 	}
 }
 

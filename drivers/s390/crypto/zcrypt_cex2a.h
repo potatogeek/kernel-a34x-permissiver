@@ -1,7 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+<<<<<<< HEAD
  *  zcrypt 2.1.0
  *
+=======
+>>>>>>> upstream/android-13
  *  Copyright IBM Corp. 2001, 2006
  *  Author(s): Robert Burroughs
  *	       Eric Rossman (edrossma@us.ibm.com)
@@ -14,7 +17,11 @@
 #define _ZCRYPT_CEX2A_H_
 
 /**
+<<<<<<< HEAD
  * The type 50 message family is associated with a CEX2A card.
+=======
+ * The type 50 message family is associated with CEXxA cards.
+>>>>>>> upstream/android-13
  *
  * The four members of the family are described below.
  *
@@ -111,7 +118,11 @@ struct type50_crb3_msg {
 } __packed;
 
 /**
+<<<<<<< HEAD
  * The type 80 response family is associated with a CEX2A card.
+=======
+ * The type 80 response family is associated with a CEXxA cards.
+>>>>>>> upstream/android-13
  *
  * Note that all unsigned char arrays are right-justified and left-padded
  * with zeroes.

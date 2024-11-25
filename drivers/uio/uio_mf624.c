@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * UIO driver fo Humusoft MF624 DAQ card.
  * Copyright (C) 2011 Rostislav Lisovy <lisovy@gmail.com>,
  *                    Czech Technical University in Prague
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -149,12 +156,20 @@ static int mf624_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
 {
 	struct uio_info *info;
 
+<<<<<<< HEAD
 	info = kzalloc(sizeof(struct uio_info), GFP_KERNEL);
+=======
+	info = devm_kzalloc(&dev->dev, sizeof(struct uio_info), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!info)
 		return -ENOMEM;
 
 	if (pci_enable_device(dev))
+<<<<<<< HEAD
 		goto out_free;
+=======
+		return -ENODEV;
+>>>>>>> upstream/android-13
 
 	if (pci_request_regions(dev, "mf624"))
 		goto out_disable;
@@ -202,8 +217,11 @@ out_release:
 out_disable:
 	pci_disable_device(dev);
 
+<<<<<<< HEAD
 out_free:
 	kfree(info);
+=======
+>>>>>>> upstream/android-13
 	return -ENODEV;
 }
 
@@ -220,8 +238,11 @@ static void mf624_pci_remove(struct pci_dev *dev)
 	iounmap(info->mem[0].internal_addr);
 	iounmap(info->mem[1].internal_addr);
 	iounmap(info->mem[2].internal_addr);
+<<<<<<< HEAD
 
 	kfree(info);
+=======
+>>>>>>> upstream/android-13
 }
 
 static const struct pci_device_id mf624_pci_id[] = {

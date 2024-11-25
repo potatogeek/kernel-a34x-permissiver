@@ -58,6 +58,16 @@ OPTIONS
 --ignore-vmlinux::
 	Ignore vmlinux files.
 
+<<<<<<< HEAD
+=======
+--itrace::
+	Options for decoding instruction tracing data. The options are:
+
+include::itrace.txt[]
+
+	To disable decoding entirely, use --no-itrace.
+
+>>>>>>> upstream/android-13
 -m::
 --modules::
         Load module symbols. WARNING: use only with -k and LIVE kernel.
@@ -112,12 +122,31 @@ OPTIONS
 --objdump=<path>::
         Path to objdump binary.
 
+<<<<<<< HEAD
+=======
+--prefix=PREFIX::
+--prefix-strip=N::
+	Remove first N entries from source file path names in executables
+	and add PREFIX. This allows to display source code compiled on systems
+	with different file system layout.
+
+>>>>>>> upstream/android-13
 --skip-missing::
 	Skip symbols that cannot be annotated.
 
 --group::
 	Show event group information together
 
+<<<<<<< HEAD
+=======
+--demangle::
+	Demangle symbol names to human readable form. It's enabled by default,
+	disable with --no-demangle.
+
+--demangle-kernel::
+	Demangle kernel symbol names to human readable form (for C++ kernels).
+
+>>>>>>> upstream/android-13
 --percent-type::
 	Set annotation percent type from following choices:
 	  global-period, local-period, global-hits, local-hits

@@ -6,7 +6,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <linux/types.h>
+<<<<<<< HEAD
 #include "stat.h"
+=======
+#include <linux/refcount.h>
+#include <linux/perf_event.h>
+#include "stat.h"
+#include "evsel.h"
+>>>>>>> upstream/android-13
 
 struct perf_mem_event {
 	bool		record;
@@ -16,6 +23,7 @@ struct perf_mem_event {
 	const char	*sysfs_name;
 };
 
+<<<<<<< HEAD
 enum {
 	PERF_MEM_EVENTS__LOAD,
 	PERF_MEM_EVENTS__STORE,
@@ -23,18 +31,49 @@ enum {
 };
 
 extern struct perf_mem_event perf_mem_events[PERF_MEM_EVENTS__MAX];
+=======
+struct mem_info {
+	struct addr_map_symbol	iaddr;
+	struct addr_map_symbol	daddr;
+	union perf_mem_data_src	data_src;
+	refcount_t		refcnt;
+};
+
+enum {
+	PERF_MEM_EVENTS__LOAD,
+	PERF_MEM_EVENTS__STORE,
+	PERF_MEM_EVENTS__LOAD_STORE,
+	PERF_MEM_EVENTS__MAX,
+};
+
+>>>>>>> upstream/android-13
 extern unsigned int perf_mem_events__loads_ldlat;
 
 int perf_mem_events__parse(const char *str);
 int perf_mem_events__init(void);
 
+<<<<<<< HEAD
 char *perf_mem_events__name(int i);
 
 struct mem_info;
+=======
+char *perf_mem_events__name(int i, char *pmu_name);
+struct perf_mem_event *perf_mem_events__ptr(int i);
+bool is_mem_loads_aux_event(struct evsel *leader);
+
+void perf_mem_events__list(void);
+int perf_mem_events__record_args(const char **rec_argv, int *argv_nr,
+				 char **rec_tmp, int *tmp_nr);
+
+>>>>>>> upstream/android-13
 int perf_mem__tlb_scnprintf(char *out, size_t sz, struct mem_info *mem_info);
 int perf_mem__lvl_scnprintf(char *out, size_t sz, struct mem_info *mem_info);
 int perf_mem__snp_scnprintf(char *out, size_t sz, struct mem_info *mem_info);
 int perf_mem__lck_scnprintf(char *out, size_t sz, struct mem_info *mem_info);
+<<<<<<< HEAD
+=======
+int perf_mem__blk_scnprintf(char *out, size_t sz, struct mem_info *mem_info);
+>>>>>>> upstream/android-13
 
 int perf_script__meminfo_scnprintf(char *bf, size_t size, struct mem_info *mem_info);
 
@@ -64,7 +103,13 @@ struct c2c_stats {
 	u32	rmt_hit;             /* count of loads with remote hit clean; */
 	u32	lcl_dram;            /* count of loads miss to local DRAM */
 	u32	rmt_dram;            /* count of loads miss to remote DRAM */
+<<<<<<< HEAD
 	u32	nomap;               /* count of load/stores with no phys adrs */
+=======
+	u32	blk_data;            /* count of loads blocked by data */
+	u32	blk_addr;            /* count of loads blocked by address conflict */
+	u32	nomap;               /* count of load/stores with no phys addrs */
+>>>>>>> upstream/android-13
 	u32	noparse;             /* count of unparsable data sources */
 };
 

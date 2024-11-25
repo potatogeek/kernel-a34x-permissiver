@@ -16,7 +16,11 @@ struct netns_sysctl_lowpan {
 
 struct netns_ieee802154_lowpan {
 	struct netns_sysctl_lowpan sysctl;
+<<<<<<< HEAD
 	struct netns_frags	frags;
+=======
+	struct fqdir		*fqdir;
+>>>>>>> upstream/android-13
 };
 
 #endif

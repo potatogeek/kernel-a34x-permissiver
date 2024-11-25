@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Module for modifying the secmark field of the skb, for use by
  * security subsystems.
@@ -6,11 +10,14 @@
  * (C) 1999-2001 Marc Boucher <marc@mbsi.ca>
  *
  * (C) 2006,2008 Red Hat, Inc., James Morris <jmorris@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
@@ -25,8 +32,11 @@ MODULE_DESCRIPTION("Xtables: packet security mark modification");
 MODULE_ALIAS("ipt_SECMARK");
 MODULE_ALIAS("ip6t_SECMARK");
 
+<<<<<<< HEAD
 #define PFX "SECMARK: "
 
+=======
+>>>>>>> upstream/android-13
 static u8 mode;
 
 static unsigned int
@@ -34,8 +44,11 @@ secmark_tg(struct sk_buff *skb, const struct xt_secmark_target_info_v1 *info)
 {
 	u32 secmark = 0;
 
+<<<<<<< HEAD
 	BUG_ON(info->mode != mode);
 
+=======
+>>>>>>> upstream/android-13
 	switch (mode) {
 	case SECMARK_MODE_SEL:
 		secmark = info->secid;

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* user_defined.c: user defined key type
  *
  * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -10,6 +15,11 @@
  */
 
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/export.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/seq_file.h>
@@ -86,7 +96,11 @@ EXPORT_SYMBOL_GPL(user_preparse);
  */
 void user_free_preparse(struct key_preparsed_payload *prep)
 {
+<<<<<<< HEAD
 	kzfree(prep->payload.data[0]);
+=======
+	kfree_sensitive(prep->payload.data[0]);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(user_free_preparse);
 
@@ -95,7 +109,11 @@ static void user_free_payload_rcu(struct rcu_head *head)
 	struct user_key_payload *payload;
 
 	payload = container_of(head, struct user_key_payload, rcu);
+<<<<<<< HEAD
 	kzfree(payload);
+=======
+	kfree_sensitive(payload);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -151,7 +169,11 @@ void user_destroy(struct key *key)
 {
 	struct user_key_payload *upayload = key->payload.data[0];
 
+<<<<<<< HEAD
 	kzfree(upayload);
+=======
+	kfree_sensitive(upayload);
+>>>>>>> upstream/android-13
 }
 
 EXPORT_SYMBOL_GPL(user_destroy);

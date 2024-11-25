@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * max77686.c - mfd core driver for the Maxim 77686/802
  *
@@ -21,6 +22,17 @@
  *
  * This driver is based on max8997.c
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// max77686.c - mfd core driver for the Maxim 77686/802
+//
+// Copyright (C) 2012 Samsung Electronics
+// Chiwoong Byun <woong.byun@samsung.com>
+// Jonghwa Lee <jonghwa3.lee@samsung.com>
+//
+//This driver is based on max8997.c
+>>>>>>> upstream/android-13
 
 #include <linux/export.h>
 #include <linux/slab.h>
@@ -284,7 +296,11 @@ static struct i2c_driver max77686_i2c_driver = {
 	.driver = {
 		   .name = "max77686",
 		   .pm = &max77686_pm,
+<<<<<<< HEAD
 		   .of_match_table = of_match_ptr(max77686_pmic_dt_match),
+=======
+		   .of_match_table = max77686_pmic_dt_match,
+>>>>>>> upstream/android-13
 	},
 	.probe_new = max77686_i2c_probe,
 };

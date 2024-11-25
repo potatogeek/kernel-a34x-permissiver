@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *	Marvell PATA driver.
  *
@@ -82,6 +86,11 @@ static int marvell_cable_detect(struct ata_port *ap)
 	switch(ap->port_no)
 	{
 	case 0:
+<<<<<<< HEAD
+=======
+		if (!ap->ioaddr.bmdma_addr)
+			return ATA_CBL_PATA_UNK;
+>>>>>>> upstream/android-13
 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
 			return ATA_CBL_PATA40;
 		return ATA_CBL_PATA80;
@@ -109,7 +118,11 @@ static struct ata_port_operations marvell_ops = {
 /**
  *	marvell_init_one - Register Marvell ATA PCI device with kernel services
  *	@pdev: PCI device to register
+<<<<<<< HEAD
  *	@ent: Entry in marvell_pci_tbl matching with @pdev
+=======
+ *	@id: PCI device ID
+>>>>>>> upstream/android-13
  *
  *	Called from kernel PCI layer.
  *

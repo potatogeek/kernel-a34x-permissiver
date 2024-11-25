@@ -145,6 +145,11 @@ void local_flush_cache_page(struct vm_area_struct *vma,
 
 #endif
 
+<<<<<<< HEAD
+=======
+#define flush_icache_user_range flush_icache_range
+
+>>>>>>> upstream/android-13
 /* Ensure consistency between data and instruction cache. */
 #define local_flush_icache_range(start, end)				\
 	do {								\

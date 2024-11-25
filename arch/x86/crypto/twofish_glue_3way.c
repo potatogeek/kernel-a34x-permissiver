@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Glue Code for 3-way parallel assembler optimized version of Twofish
  *
  * Copyright (c) 2011 Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +30,23 @@
 #include <crypto/algapi.h>
 #include <crypto/b128ops.h>
 #include <crypto/internal/skcipher.h>
+=======
+ */
+
+#include <crypto/algapi.h>
+>>>>>>> upstream/android-13
 #include <crypto/twofish.h>
 #include <linux/crypto.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#include "twofish.h"
+#include "ecb_cbc_helpers.h"
+
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(__twofish_enc_blk_3way);
 EXPORT_SYMBOL_GPL(twofish_dec_blk_3way);
 
@@ -40,12 +56,17 @@ static int twofish_setkey_skcipher(struct crypto_skcipher *tfm,
 	return twofish_setkey(&tfm->base, key, keylen);
 }
 
+<<<<<<< HEAD
 static inline void twofish_enc_blk_3way(struct twofish_ctx *ctx, u8 *dst,
 					const u8 *src)
+=======
+static inline void twofish_enc_blk_3way(const void *ctx, u8 *dst, const u8 *src)
+>>>>>>> upstream/android-13
 {
 	__twofish_enc_blk_3way(ctx, dst, src, false);
 }
 
+<<<<<<< HEAD
 static inline void twofish_enc_blk_xor_3way(struct twofish_ctx *ctx, u8 *dst,
 					    const u8 *src)
 {
@@ -158,27 +179,68 @@ static const struct common_glue_ctx twofish_dec_cbc = {
 static int ecb_encrypt(struct skcipher_request *req)
 {
 	return glue_ecb_req_128bit(&twofish_enc, req);
+=======
+void twofish_dec_blk_cbc_3way(const void *ctx, u8 *dst, const u8 *src)
+{
+	u8 buf[2][TF_BLOCK_SIZE];
+	const u8 *s = src;
+
+	if (dst == src)
+		s = memcpy(buf, src, sizeof(buf));
+	twofish_dec_blk_3way(ctx, dst, src);
+	crypto_xor(dst + TF_BLOCK_SIZE, s, sizeof(buf));
+
+}
+EXPORT_SYMBOL_GPL(twofish_dec_blk_cbc_3way);
+
+static int ecb_encrypt(struct skcipher_request *req)
+{
+	ECB_WALK_START(req, TF_BLOCK_SIZE, -1);
+	ECB_BLOCK(3, twofish_enc_blk_3way);
+	ECB_BLOCK(1, twofish_enc_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int ecb_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_ecb_req_128bit(&twofish_dec, req);
+=======
+	ECB_WALK_START(req, TF_BLOCK_SIZE, -1);
+	ECB_BLOCK(3, twofish_dec_blk_3way);
+	ECB_BLOCK(1, twofish_dec_blk);
+	ECB_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_encrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_encrypt_req_128bit(GLUE_FUNC_CAST(twofish_enc_blk),
 					   req);
+=======
+	CBC_WALK_START(req, TF_BLOCK_SIZE, -1);
+	CBC_ENC_BLOCK(twofish_enc_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static int cbc_decrypt(struct skcipher_request *req)
 {
+<<<<<<< HEAD
 	return glue_cbc_decrypt_req_128bit(&twofish_dec_cbc, req);
 }
 
 static int ctr_crypt(struct skcipher_request *req)
 {
 	return glue_ctr_req_128bit(&twofish_ctr, req);
+=======
+	CBC_WALK_START(req, TF_BLOCK_SIZE, -1);
+	CBC_DEC_BLOCK(3, twofish_dec_blk_cbc_3way);
+	CBC_DEC_BLOCK(1, twofish_dec_blk);
+	CBC_WALK_END();
+>>>>>>> upstream/android-13
 }
 
 static struct skcipher_alg tf_skciphers[] = {
@@ -207,6 +269,7 @@ static struct skcipher_alg tf_skciphers[] = {
 		.setkey			= twofish_setkey_skcipher,
 		.encrypt		= cbc_encrypt,
 		.decrypt		= cbc_decrypt,
+<<<<<<< HEAD
 	}, {
 		.base.cra_name		= "ctr(twofish)",
 		.base.cra_driver_name	= "ctr-twofish-3way",
@@ -221,6 +284,8 @@ static struct skcipher_alg tf_skciphers[] = {
 		.setkey			= twofish_setkey_skcipher,
 		.encrypt		= ctr_crypt,
 		.decrypt		= ctr_crypt,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -239,7 +304,11 @@ static bool is_blacklisted_cpu(void)
 		 * storing blocks in 64bit registers to allow three blocks to
 		 * be processed parallel. Parallel operation then allows gaining
 		 * more performance than was trade off, on out-of-order CPUs.
+<<<<<<< HEAD
 		 * However Atom does not benefit from this parallellism and
+=======
+		 * However Atom does not benefit from this parallelism and
+>>>>>>> upstream/android-13
 		 * should be blacklisted.
 		 */
 		return true;

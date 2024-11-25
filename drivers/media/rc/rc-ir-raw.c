@@ -42,7 +42,11 @@ static int ir_raw_event_thread(void *data)
 				if (dev->enabled_protocols &
 				    handler->protocols || !handler->protocols)
 					handler->decode(dev, ev);
+<<<<<<< HEAD
 			ir_lirc_raw_event(dev, ev);
+=======
+			lirc_raw_event(dev, ev);
+>>>>>>> upstream/android-13
 			raw->prev_ev = ev;
 		}
 		mutex_unlock(&ir_raw_handler_lock);
@@ -77,7 +81,11 @@ int ir_raw_event_store(struct rc_dev *dev, struct ir_raw_event *ev)
 		return -EINVAL;
 
 	dev_dbg(&dev->dev, "sample: (%05dus %s)\n",
+<<<<<<< HEAD
 		TO_US(ev->duration), TO_STR(ev->pulse));
+=======
+		ev->duration, TO_STR(ev->pulse));
+>>>>>>> upstream/android-13
 
 	if (!kfifo_put(&dev->raw->kfifo, *ev)) {
 		dev_err(&dev->dev, "IR event FIFO is full!\n");
@@ -102,13 +110,21 @@ EXPORT_SYMBOL_GPL(ir_raw_event_store);
 int ir_raw_event_store_edge(struct rc_dev *dev, bool pulse)
 {
 	ktime_t			now;
+<<<<<<< HEAD
 	DEFINE_IR_RAW_EVENT(ev);
+=======
+	struct ir_raw_event	ev = {};
+>>>>>>> upstream/android-13
 
 	if (!dev->raw)
 		return -EINVAL;
 
 	now = ktime_get();
+<<<<<<< HEAD
 	ev.duration = ktime_to_ns(ktime_sub(now, dev->raw->last_event));
+=======
+	ev.duration = ktime_to_us(ktime_sub(now, dev->raw->last_event));
+>>>>>>> upstream/android-13
 	ev.pulse = !pulse;
 
 	return ir_raw_event_store_with_timeout(dev, &ev);
@@ -186,7 +202,11 @@ int ir_raw_event_store_with_filter(struct rc_dev *dev, struct ir_raw_event *ev)
 		dev->raw->this_ev = *ev;
 	}
 
+<<<<<<< HEAD
 	/* Enter idle mode if nessesary */
+=======
+	/* Enter idle mode if necessary */
+>>>>>>> upstream/android-13
 	if (!ev->pulse && dev->timeout &&
 	    dev->raw->this_ev.duration >= dev->timeout)
 		ir_raw_event_set_idle(dev, true);
@@ -210,7 +230,11 @@ void ir_raw_event_set_idle(struct rc_dev *dev, bool idle)
 	if (idle) {
 		dev->raw->this_ev.timeout = true;
 		ir_raw_event_store(dev, &dev->raw->this_ev);
+<<<<<<< HEAD
 		init_ir_raw_event(&dev->raw->this_ev);
+=======
+		dev->raw->this_ev = (struct ir_raw_event) {};
+>>>>>>> upstream/android-13
 	}
 
 	if (dev->s_idle)
@@ -275,7 +299,11 @@ static int change_protocol(struct rc_dev *dev, u64 *rc_proto)
 	if (timeout == 0)
 		timeout = IR_DEFAULT_TIMEOUT;
 	else
+<<<<<<< HEAD
 		timeout += MS_TO_NS(10);
+=======
+		timeout += MS_TO_US(10);
+>>>>>>> upstream/android-13
 
 	if (timeout < dev->min_timeout)
 		timeout = dev->min_timeout;
@@ -561,17 +589,30 @@ static void ir_raw_edge_handle(struct timer_list *t)
 
 	spin_lock_irqsave(&dev->raw->edge_spinlock, flags);
 	interval = ktime_sub(ktime_get(), dev->raw->last_event);
+<<<<<<< HEAD
 	if (ktime_to_ns(interval) >= dev->timeout) {
 		DEFINE_IR_RAW_EVENT(ev);
 
 		ev.timeout = true;
 		ev.duration = ktime_to_ns(interval);
+=======
+	if (ktime_to_us(interval) >= dev->timeout) {
+		struct ir_raw_event ev = {
+			.timeout = true,
+			.duration = ktime_to_us(interval)
+		};
+>>>>>>> upstream/android-13
 
 		ir_raw_event_store(dev, &ev);
 	} else {
 		mod_timer(&dev->raw->edge_handle,
+<<<<<<< HEAD
 			  jiffies + nsecs_to_jiffies(dev->timeout -
 						     ktime_to_ns(interval)));
+=======
+			  jiffies + usecs_to_jiffies(dev->timeout -
+						     ktime_to_us(interval)));
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(&dev->raw->edge_spinlock, flags);
 

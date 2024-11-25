@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* A network driver using virtio.
  *
  * Copyright 2007 Rusty Russell <rusty@rustcorp.com.au> IBM Corporation
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* A network driver using virtio.
+ *
+ * Copyright 2007 Rusty Russell <rusty@rustcorp.com.au> IBM Corporation
+>>>>>>> upstream/android-13
  */
 //#define DEBUG
 #include <linux/netdevice.h>
@@ -31,7 +38,10 @@
 #include <linux/average.h>
 #include <linux/filter.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <linux/pci.h>
+=======
+>>>>>>> upstream/android-13
 #include <net/route.h>
 #include <net/xdp.h>
 #include <net/net_failover.h>
@@ -39,7 +49,11 @@
 static int napi_weight = NAPI_POLL_WEIGHT;
 module_param(napi_weight, int, 0444);
 
+<<<<<<< HEAD
 static bool csum = true, gso = true, napi_tx;
+=======
+static bool csum = true, gso = true, napi_tx = true;
+>>>>>>> upstream/android-13
 module_param(csum, bool, 0444);
 module_param(gso, bool, 0444);
 module_param(napi_tx, bool, 0644);
@@ -76,6 +90,14 @@ static const unsigned long guest_offloads[] = {
 	VIRTIO_NET_F_GUEST_CSUM
 };
 
+<<<<<<< HEAD
+=======
+#define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
+				(1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
+				(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
+				(1ULL << VIRTIO_NET_F_GUEST_UFO))
+
+>>>>>>> upstream/android-13
 struct virtnet_stat_desc {
 	char desc[ETH_GSTRING_LEN];
 	size_t offset;
@@ -203,6 +225,12 @@ struct virtnet_info {
 	/* # of XDP queue pairs currently used by the driver */
 	u16 xdp_queue_pairs;
 
+<<<<<<< HEAD
+=======
+	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
+	bool xdp_enabled;
+
+>>>>>>> upstream/android-13
 	/* I like... big packets and I cannot lie! */
 	bool big_packets;
 
@@ -238,6 +266,10 @@ struct virtnet_info {
 	u32 speed;
 
 	unsigned long guest_offloads;
+<<<<<<< HEAD
+=======
+	unsigned long guest_offloads_capable;
+>>>>>>> upstream/android-13
 
 	/* failover when STANDBY feature enabled */
 	struct failover *failover;
@@ -383,11 +415,17 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
 				   struct receive_queue *rq,
 				   struct page *page, unsigned int offset,
 				   unsigned int len, unsigned int truesize,
+<<<<<<< HEAD
 				   bool hdr_valid, unsigned int metasize)
+=======
+				   bool hdr_valid, unsigned int metasize,
+				   unsigned int headroom)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *skb;
 	struct virtio_net_hdr_mrg_rxbuf *hdr;
 	unsigned int copy, hdr_len, hdr_padded_len;
+<<<<<<< HEAD
 	char *p;
 
 	p = page_address(page) + offset;
@@ -398,6 +436,14 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
 		return NULL;
 
 	hdr = skb_vnet_hdr(skb);
+=======
+	struct page *page_to_free = NULL;
+	int tailroom, shinfo_size;
+	char *p, *hdr_p, *buf;
+
+	p = page_address(page) + offset;
+	hdr_p = p;
+>>>>>>> upstream/android-13
 
 	hdr_len = vi->hdr_len;
 	if (vi->mergeable_rx_bufs)
@@ -405,14 +451,28 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
 	else
 		hdr_padded_len = sizeof(struct padded_vnet_hdr);
 
+<<<<<<< HEAD
 	/* hdr_valid means no XDP, so we can copy the vnet header */
 	if (hdr_valid)
 		memcpy(hdr, p, hdr_len);
+=======
+	/* If headroom is not 0, there is an offset between the beginning of the
+	 * data and the allocated space, otherwise the data and the allocated
+	 * space are aligned.
+	 *
+	 * Buffers with headroom use PAGE_SIZE as alloc size, see
+	 * add_recvbuf_mergeable() + get_mergeable_buf_len()
+	 */
+	truesize = headroom ? PAGE_SIZE : truesize;
+	tailroom = truesize - len - headroom - (hdr_padded_len - hdr_len);
+	buf = p - headroom;
+>>>>>>> upstream/android-13
 
 	len -= hdr_len;
 	offset += hdr_padded_len;
 	p += hdr_padded_len;
 
+<<<<<<< HEAD
 	copy = len;
 	if (copy > skb_tailroom(skb))
 		copy = skb_tailroom(skb);
@@ -423,6 +483,39 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
 		skb_metadata_set(skb, metasize);
 	}
 
+=======
+	shinfo_size = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+
+	/* copy small packet so we can reuse these pages */
+	if (!NET_IP_ALIGN && len > GOOD_COPY_LEN && tailroom >= shinfo_size) {
+		skb = build_skb(buf, truesize);
+		if (unlikely(!skb))
+			return NULL;
+
+		skb_reserve(skb, p - buf);
+		skb_put(skb, len);
+
+		page = (struct page *)page->private;
+		if (page)
+			give_pages(rq, page);
+		goto ok;
+	}
+
+	/* copy small packet so we can reuse these pages for small data */
+	skb = napi_alloc_skb(&rq->napi, GOOD_COPY_LEN);
+	if (unlikely(!skb))
+		return NULL;
+
+	/* Copy all frame if it fits skb->head, otherwise
+	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
+	 */
+	if (len <= skb_tailroom(skb))
+		copy = len;
+	else
+		copy = ETH_HLEN + metasize;
+	skb_put_data(skb, p, copy);
+
+>>>>>>> upstream/android-13
 	len -= copy;
 	offset += copy;
 
@@ -430,8 +523,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
 		if (len)
 			skb_add_rx_frag(skb, 0, page, offset, len, truesize);
 		else
+<<<<<<< HEAD
 			put_page(page);
 		return skb;
+=======
+			page_to_free = page;
+		goto ok;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -458,6 +556,23 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
 	if (page)
 		give_pages(rq, page);
 
+<<<<<<< HEAD
+=======
+ok:
+	/* hdr_valid means no XDP, so we can copy the vnet header */
+	if (hdr_valid) {
+		hdr = skb_vnet_hdr(skb);
+		memcpy(hdr, hdr_p, hdr_len);
+	}
+	if (page_to_free)
+		put_page(page_to_free);
+
+	if (metasize) {
+		__skb_pull(skb, metasize);
+		skb_metadata_set(skb, metasize);
+	}
+
+>>>>>>> upstream/android-13
 	return skb;
 }
 
@@ -488,12 +603,51 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct send_queue *virtnet_xdp_sq(struct virtnet_info *vi)
 {
 	unsigned int qp;
 
 	qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
 	return &vi->sq[qp];
+=======
+/* when vi->curr_queue_pairs > nr_cpu_ids, the txq/sq is only used for xdp tx on
+ * the current cpu, so it does not need to be locked.
+ *
+ * Here we use marco instead of inline functions because we have to deal with
+ * three issues at the same time: 1. the choice of sq. 2. judge and execute the
+ * lock/unlock of txq 3. make sparse happy. It is difficult for two inline
+ * functions to perfectly solve these three problems at the same time.
+ */
+#define virtnet_xdp_get_sq(vi) ({                                       \
+	int cpu = smp_processor_id();                                   \
+	struct netdev_queue *txq;                                       \
+	typeof(vi) v = (vi);                                            \
+	unsigned int qp;                                                \
+									\
+	if (v->curr_queue_pairs > nr_cpu_ids) {                         \
+		qp = v->curr_queue_pairs - v->xdp_queue_pairs;          \
+		qp += cpu;                                              \
+		txq = netdev_get_tx_queue(v->dev, qp);                  \
+		__netif_tx_acquire(txq);                                \
+	} else {                                                        \
+		qp = cpu % v->curr_queue_pairs;                         \
+		txq = netdev_get_tx_queue(v->dev, qp);                  \
+		__netif_tx_lock(txq, cpu);                              \
+	}                                                               \
+	v->sq + qp;                                                     \
+})
+
+#define virtnet_xdp_put_sq(vi, q) {                                     \
+	struct netdev_queue *txq;                                       \
+	typeof(vi) v = (vi);                                            \
+									\
+	txq = netdev_get_tx_queue(v->dev, (q) - v->sq);                 \
+	if (v->curr_queue_pairs > nr_cpu_ids)                           \
+		__netif_tx_release(txq);                                \
+	else                                                            \
+		__netif_tx_unlock(txq);                                 \
+>>>>>>> upstream/android-13
 }
 
 static int virtnet_xdp_xmit(struct net_device *dev,
@@ -506,15 +660,23 @@ static int virtnet_xdp_xmit(struct net_device *dev,
 	unsigned int len;
 	int packets = 0;
 	int bytes = 0;
+<<<<<<< HEAD
 	int drops = 0;
 	int kicks = 0;
 	int ret, err;
 	void *ptr;
+=======
+	int nxmit = 0;
+	int kicks = 0;
+	void *ptr;
+	int ret;
+>>>>>>> upstream/android-13
 	int i;
 
 	/* Only allow ndo_xdp_xmit if XDP is loaded on dev, as this
 	 * indicate XDP resources have been successfully allocated.
 	 */
+<<<<<<< HEAD
 	xdp_prog = rcu_dereference(rq->xdp_prog);
 	if (!xdp_prog)
 		return -ENXIO;
@@ -524,6 +686,16 @@ static int virtnet_xdp_xmit(struct net_device *dev,
 	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK)) {
 		ret = -EINVAL;
 		drops = n;
+=======
+	xdp_prog = rcu_access_pointer(rq->xdp_prog);
+	if (!xdp_prog)
+		return -ENXIO;
+
+	sq = virtnet_xdp_get_sq(vi);
+
+	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK)) {
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -546,6 +718,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
 	for (i = 0; i < n; i++) {
 		struct xdp_frame *xdpf = frames[i];
 
+<<<<<<< HEAD
 		err = __virtnet_xdp_xmit_one(vi, sq, xdpf);
 		if (err) {
 			xdp_return_frame_rx_napi(xdpf);
@@ -553,6 +726,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
 		}
 	}
 	ret = n - drops;
+=======
+		if (__virtnet_xdp_xmit_one(vi, sq, xdpf))
+			break;
+		nxmit++;
+	}
+	ret = nxmit;
+>>>>>>> upstream/android-13
 
 	if (flags & XDP_XMIT_FLUSH) {
 		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq))
@@ -563,16 +743,28 @@ out:
 	sq->stats.bytes += bytes;
 	sq->stats.packets += packets;
 	sq->stats.xdp_tx += n;
+<<<<<<< HEAD
 	sq->stats.xdp_tx_drops += drops;
 	sq->stats.kicks += kicks;
 	u64_stats_update_end(&sq->stats.syncp);
 
+=======
+	sq->stats.xdp_tx_drops += n - nxmit;
+	sq->stats.kicks += kicks;
+	u64_stats_update_end(&sq->stats.syncp);
+
+	virtnet_xdp_put_sq(vi, sq);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
 {
+<<<<<<< HEAD
 	return vi->xdp_queue_pairs ? VIRTIO_XDP_HEADROOM : 0;
+=======
+	return vi->xdp_enabled ? VIRTIO_XDP_HEADROOM : 0;
+>>>>>>> upstream/android-13
 }
 
 /* We copy the packet for XDP in the following cases:
@@ -663,6 +855,15 @@ static struct sk_buff *receive_small(struct net_device *dev,
 	len -= vi->hdr_len;
 	stats->bytes += len;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(len > GOOD_PACKET_LEN)) {
+		pr_debug("%s: rx error: len %u exceeds max size %d\n",
+			 dev->name, len, GOOD_PACKET_LEN);
+		dev->stats.rx_length_errors++;
+		goto err_len;
+	}
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	xdp_prog = rcu_dereference(rq->xdp_prog);
 	if (xdp_prog) {
@@ -696,11 +897,17 @@ static struct sk_buff *receive_small(struct net_device *dev,
 			page = xdp_page;
 		}
 
+<<<<<<< HEAD
 		xdp.data_hard_start = buf + VIRTNET_RX_PAD + vi->hdr_len;
 		xdp.data = xdp.data_hard_start + xdp_headroom;
 		xdp.data_end = xdp.data + len;
 		xdp.data_meta = xdp.data;
 		xdp.rxq = &rq->xdp_rxq;
+=======
+		xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
+		xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
+				 xdp_headroom, len, true);
+>>>>>>> upstream/android-13
 		orig_data = xdp.data;
 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
 		stats->xdp_packets++;
@@ -714,11 +921,21 @@ static struct sk_buff *receive_small(struct net_device *dev,
 			break;
 		case XDP_TX:
 			stats->xdp_tx++;
+<<<<<<< HEAD
 			xdpf = convert_to_xdp_frame(&xdp);
 			if (unlikely(!xdpf))
 				goto err_xdp;
 			err = virtnet_xdp_xmit(dev, 1, &xdpf, 0);
 			if (unlikely(err < 0)) {
+=======
+			xdpf = xdp_convert_buff_to_frame(&xdp);
+			if (unlikely(!xdpf))
+				goto err_xdp;
+			err = virtnet_xdp_xmit(dev, 1, &xdpf, 0);
+			if (unlikely(!err)) {
+				xdp_return_frame_rx_napi(xdpf);
+			} else if (unlikely(err < 0)) {
+>>>>>>> upstream/android-13
 				trace_xdp_exception(vi->dev, xdp_prog, act);
 				goto err_xdp;
 			}
@@ -735,9 +952,16 @@ static struct sk_buff *receive_small(struct net_device *dev,
 			goto xdp_xmit;
 		default:
 			bpf_warn_invalid_xdp_action(act);
+<<<<<<< HEAD
 			/* fall through */
 		case XDP_ABORTED:
 			trace_xdp_exception(vi->dev, xdp_prog, act);
+=======
+			fallthrough;
+		case XDP_ABORTED:
+			trace_xdp_exception(vi->dev, xdp_prog, act);
+			goto err_xdp;
+>>>>>>> upstream/android-13
 		case XDP_DROP:
 			goto err_xdp;
 		}
@@ -751,10 +975,17 @@ static struct sk_buff *receive_small(struct net_device *dev,
 	}
 	skb_reserve(skb, headroom - delta);
 	skb_put(skb, len);
+<<<<<<< HEAD
 	if (!delta) {
 		buf += header_offset;
 		memcpy(skb_vnet_hdr(skb), buf, vi->hdr_len);
 	} /* keep zeroed vnet hdr since packet was changed by bpf */
+=======
+	if (!xdp_prog) {
+		buf += header_offset;
+		memcpy(skb_vnet_hdr(skb), buf, vi->hdr_len);
+	} /* keep zeroed vnet hdr since XDP is loaded */
+>>>>>>> upstream/android-13
 
 	if (metasize)
 		skb_metadata_set(skb, metasize);
@@ -765,6 +996,10 @@ err:
 err_xdp:
 	rcu_read_unlock();
 	stats->xdp_drops++;
+<<<<<<< HEAD
+=======
+err_len:
+>>>>>>> upstream/android-13
 	stats->drops++;
 	put_page(page);
 xdp_xmit:
@@ -780,7 +1015,11 @@ static struct sk_buff *receive_big(struct net_device *dev,
 {
 	struct page *page = buf;
 	struct sk_buff *skb =
+<<<<<<< HEAD
 		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, true, 0);
+=======
+		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, true, 0, 0);
+>>>>>>> upstream/android-13
 
 	stats->bytes += len - vi->hdr_len;
 	if (unlikely(!skb))
@@ -809,14 +1048,31 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 	int offset = buf - page_address(page);
 	struct sk_buff *head_skb, *curr_skb;
 	struct bpf_prog *xdp_prog;
+<<<<<<< HEAD
 	unsigned int truesize;
 	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
 	int err;
 	unsigned int metasize = 0;
+=======
+	unsigned int truesize = mergeable_ctx_to_truesize(ctx);
+	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
+	unsigned int metasize = 0;
+	unsigned int frame_sz;
+	int err;
+>>>>>>> upstream/android-13
 
 	head_skb = NULL;
 	stats->bytes += len - vi->hdr_len;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(len > truesize)) {
+		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+			 dev->name, len, (unsigned long)ctx);
+		dev->stats.rx_length_errors++;
+		goto err_skb;
+	}
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	xdp_prog = rcu_dereference(rq->xdp_prog);
 	if (xdp_prog) {
@@ -833,6 +1089,14 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 		if (unlikely(hdr->hdr.gso_type))
 			goto err_xdp;
 
+<<<<<<< HEAD
+=======
+		/* Buffers with headroom use PAGE_SIZE as alloc size,
+		 * see add_recvbuf_mergeable() + get_mergeable_buf_len()
+		 */
+		frame_sz = headroom ? PAGE_SIZE : truesize;
+
+>>>>>>> upstream/android-13
 		/* This happens when rx buffer size is underestimated
 		 * or headroom is not enough because of the buffer
 		 * was refilled before XDP is set. This should only
@@ -846,6 +1110,11 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 						      page, offset,
 						      VIRTIO_XDP_HEADROOM,
 						      &len);
+<<<<<<< HEAD
+=======
+			frame_sz = PAGE_SIZE;
+
+>>>>>>> upstream/android-13
 			if (!xdp_page)
 				goto err_xdp;
 			offset = VIRTIO_XDP_HEADROOM;
@@ -857,11 +1126,17 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 		 * the descriptor on if we get an XDP_TX return code.
 		 */
 		data = page_address(xdp_page) + offset;
+<<<<<<< HEAD
 		xdp.data_hard_start = data - VIRTIO_XDP_HEADROOM + vi->hdr_len;
 		xdp.data = data + vi->hdr_len;
 		xdp.data_end = xdp.data + (len - vi->hdr_len);
 		xdp.data_meta = xdp.data;
 		xdp.rxq = &rq->xdp_rxq;
+=======
+		xdp_init_buff(&xdp, frame_sz - vi->hdr_len, &rq->xdp_rxq);
+		xdp_prepare_buff(&xdp, data - VIRTIO_XDP_HEADROOM + vi->hdr_len,
+				 VIRTIO_XDP_HEADROOM, len - vi->hdr_len, true);
+>>>>>>> upstream/android-13
 
 		act = bpf_prog_run_xdp(xdp_prog, &xdp);
 		stats->xdp_packets++;
@@ -882,23 +1157,59 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 			 * xdp.data_meta were adjusted
 			 */
 			len = xdp.data_end - xdp.data + vi->hdr_len + metasize;
+<<<<<<< HEAD
+=======
+
+			/* recalculate headroom if xdp.data or xdp_data_meta
+			 * were adjusted, note that offset should always point
+			 * to the start of the reserved bytes for virtio_net
+			 * header which are followed by xdp.data, that means
+			 * that offset is equal to the headroom (when buf is
+			 * starting at the beginning of the page, otherwise
+			 * there is a base offset inside the page) but it's used
+			 * with a different starting point (buf start) than
+			 * xdp.data (buf start + vnet hdr size). If xdp.data or
+			 * data_meta were adjusted by the xdp prog then the
+			 * headroom size has changed and so has the offset, we
+			 * can use data_hard_start, which points at buf start +
+			 * vnet hdr size, to calculate the new headroom and use
+			 * it later to compute buf start in page_to_skb()
+			 */
+			headroom = xdp.data - xdp.data_hard_start - metasize;
+
+>>>>>>> upstream/android-13
 			/* We can only create skb based on xdp_page. */
 			if (unlikely(xdp_page != page)) {
 				rcu_read_unlock();
 				put_page(page);
 				head_skb = page_to_skb(vi, rq, xdp_page, offset,
 						       len, PAGE_SIZE, false,
+<<<<<<< HEAD
 						       metasize);
+=======
+						       metasize,
+						       headroom);
+>>>>>>> upstream/android-13
 				return head_skb;
 			}
 			break;
 		case XDP_TX:
 			stats->xdp_tx++;
+<<<<<<< HEAD
 			xdpf = convert_to_xdp_frame(&xdp);
 			if (unlikely(!xdpf))
 				goto err_xdp;
 			err = virtnet_xdp_xmit(dev, 1, &xdpf, 0);
 			if (unlikely(err < 0)) {
+=======
+			xdpf = xdp_convert_buff_to_frame(&xdp);
+			if (unlikely(!xdpf))
+				goto err_xdp;
+			err = virtnet_xdp_xmit(dev, 1, &xdpf, 0);
+			if (unlikely(!err)) {
+				xdp_return_frame_rx_napi(xdpf);
+			} else if (unlikely(err < 0)) {
+>>>>>>> upstream/android-13
 				trace_xdp_exception(vi->dev, xdp_prog, act);
 				if (unlikely(xdp_page != page))
 					put_page(xdp_page);
@@ -924,10 +1235,17 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 			goto xdp_xmit;
 		default:
 			bpf_warn_invalid_xdp_action(act);
+<<<<<<< HEAD
 			/* fall through */
 		case XDP_ABORTED:
 			trace_xdp_exception(vi->dev, xdp_prog, act);
 			/* fall through */
+=======
+			fallthrough;
+		case XDP_ABORTED:
+			trace_xdp_exception(vi->dev, xdp_prog, act);
+			fallthrough;
+>>>>>>> upstream/android-13
 		case XDP_DROP:
 			if (unlikely(xdp_page != page))
 				__free_pages(xdp_page, 0);
@@ -936,6 +1254,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 	}
 	rcu_read_unlock();
 
+<<<<<<< HEAD
 	truesize = mergeable_ctx_to_truesize(ctx);
 	if (unlikely(len > truesize)) {
 		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
@@ -946,6 +1265,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
 
 	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, !xdp_prog,
 			       metasize);
+=======
+	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, !xdp_prog,
+			       metasize, headroom);
+>>>>>>> upstream/android-13
 	curr_skb = head_skb;
 
 	if (unlikely(!curr_skb))
@@ -1077,6 +1400,10 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
 		goto frame_err;
 	}
 
+<<<<<<< HEAD
+=======
+	skb_record_rx_queue(skb, vq2rxq(rq->vq));
+>>>>>>> upstream/android-13
 	skb->protocol = eth_type_trans(skb, dev);
 	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
 		 ntohs(skb->protocol), skb->len, skb->pkt_type);
@@ -1356,7 +1683,11 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
 		}
 	}
 
+<<<<<<< HEAD
 	if (rq->vq->num_free > virtqueue_get_vring_size(rq->vq) / 2) {
+=======
+	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+>>>>>>> upstream/android-13
 		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
 			schedule_delayed_work(&vi->refill, 0);
 	}
@@ -1431,12 +1762,25 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
 		return;
 
 	if (__netif_tx_trylock(txq)) {
+<<<<<<< HEAD
 		free_old_xmit_skbs(sq, true);
 		__netif_tx_unlock(txq);
 	}
 
 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
 		netif_tx_wake_queue(txq);
+=======
+		do {
+			virtqueue_disable_cb(sq->vq);
+			free_old_xmit_skbs(sq, true);
+		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+
+		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+			netif_tx_wake_queue(txq);
+
+		__netif_tx_unlock(txq);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int virtnet_poll(struct napi_struct *napi, int budget)
@@ -1457,15 +1801,26 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
 		virtqueue_napi_complete(napi, rq->vq, received);
 
 	if (xdp_xmit & VIRTIO_XDP_REDIR)
+<<<<<<< HEAD
 		xdp_do_flush_map();
 
 	if (xdp_xmit & VIRTIO_XDP_TX) {
 		sq = virtnet_xdp_sq(vi);
+=======
+		xdp_do_flush();
+
+	if (xdp_xmit & VIRTIO_XDP_TX) {
+		sq = virtnet_xdp_get_sq(vi);
+>>>>>>> upstream/android-13
 		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
 			u64_stats_update_begin(&sq->stats.syncp);
 			sq->stats.kicks++;
 			u64_stats_update_end(&sq->stats.syncp);
 		}
+<<<<<<< HEAD
+=======
+		virtnet_xdp_put_sq(vi, sq);
+>>>>>>> upstream/android-13
 	}
 
 	return received;
@@ -1482,7 +1837,11 @@ static int virtnet_open(struct net_device *dev)
 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
 				schedule_delayed_work(&vi->refill, 0);
 
+<<<<<<< HEAD
 		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i);
+=======
+		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i, vi->rq[i].napi.napi_id);
+>>>>>>> upstream/android-13
 		if (err < 0)
 			return err;
 
@@ -1506,6 +1865,11 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
 	struct virtnet_info *vi = sq->vq->vdev->priv;
 	unsigned int index = vq2txq(sq->vq);
 	struct netdev_queue *txq;
+<<<<<<< HEAD
+=======
+	int opaque;
+	bool done;
+>>>>>>> upstream/android-13
 
 	if (unlikely(is_xdp_raw_buffer_queue(vi, index))) {
 		/* We don't need to enable cb for XDP */
@@ -1515,14 +1879,42 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
 
 	txq = netdev_get_tx_queue(vi->dev, index);
 	__netif_tx_lock(txq, raw_smp_processor_id());
+<<<<<<< HEAD
 	free_old_xmit_skbs(sq, true);
 	__netif_tx_unlock(txq);
 
 	virtqueue_napi_complete(napi, sq->vq, 0);
+=======
+	virtqueue_disable_cb(sq->vq);
+	free_old_xmit_skbs(sq, true);
+>>>>>>> upstream/android-13
 
 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
 		netif_tx_wake_queue(txq);
 
+<<<<<<< HEAD
+=======
+	opaque = virtqueue_enable_cb_prepare(sq->vq);
+
+	done = napi_complete_done(napi, 0);
+
+	if (!done)
+		virtqueue_disable_cb(sq->vq);
+
+	__netif_tx_unlock(txq);
+
+	if (done) {
+		if (unlikely(virtqueue_poll(sq->vq, opaque))) {
+			if (napi_schedule_prep(napi)) {
+				__netif_tx_lock(txq, raw_smp_processor_id());
+				virtqueue_disable_cb(sq->vq);
+				__netif_tx_unlock(txq);
+				__napi_schedule(napi);
+			}
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1550,7 +1942,11 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
 	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
 				    virtio_is_little_endian(vi->vdev), false,
 				    0))
+<<<<<<< HEAD
 		BUG();
+=======
+		return -EPROTO;
+>>>>>>> upstream/android-13
 
 	if (vi->mergeable_rx_bufs)
 		hdr->num_buffers = 0;
@@ -1580,6 +1976,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
 	struct send_queue *sq = &vi->sq[qnum];
 	int err;
 	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+<<<<<<< HEAD
 	bool kick = !skb->xmit_more;
 	bool use_napi = sq->napi.weight;
 
@@ -1588,6 +1985,20 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	if (use_napi && kick)
 		virtqueue_enable_cb_delayed(sq->vq);
+=======
+	bool kick = !netdev_xmit_more();
+	bool use_napi = sq->napi.weight;
+
+	/* Free up any pending old buffers before queueing new ones. */
+	do {
+		if (use_napi)
+			virtqueue_disable_cb(sq->vq);
+
+		free_old_xmit_skbs(sq, false);
+
+	} while (use_napi && kick &&
+	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+>>>>>>> upstream/android-13
 
 	/* timestamp packet in software */
 	skb_tx_timestamp(skb);
@@ -1600,7 +2011,12 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
 		dev->stats.tx_fifo_errors++;
 		if (net_ratelimit())
 			dev_warn(&dev->dev,
+<<<<<<< HEAD
 				 "Unexpected TXQ (%d) queue failure: %d\n", qnum, err);
+=======
+				 "Unexpected TXQ (%d) queue failure: %d\n",
+				 qnum, err);
+>>>>>>> upstream/android-13
 		dev->stats.tx_dropped++;
 		dev_kfree_skb_any(skb);
 		return NETDEV_TX_OK;
@@ -1609,7 +2025,11 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
 	/* Don't wait up for transmitted skbs to be freed. */
 	if (!use_napi) {
 		skb_orphan(skb);
+<<<<<<< HEAD
 		nf_reset(skb);
+=======
+		nf_reset_ct(skb);
+>>>>>>> upstream/android-13
 	}
 
 	/* If running out of space, stop queue to avoid getting packets that we
@@ -1656,6 +2076,10 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
 {
 	struct scatterlist *sgs[4], hdr, stat;
 	unsigned out_num = 0, tmp;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Caller should know better */
 	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
@@ -1675,7 +2099,16 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
 	sgs[out_num] = &stat;
 
 	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
+<<<<<<< HEAD
 	virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
+=======
+	ret = virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC);
+	if (ret < 0) {
+		dev_warn(&vi->vdev->dev,
+			 "Failed to add sgs for command vq: %d\n.", ret);
+		return false;
+	}
+>>>>>>> upstream/android-13
 
 	if (unlikely(!virtqueue_kick(vi->cvq)))
 		return vi->ctrl->status == VIRTIO_NET_OK;
@@ -1937,7 +2370,11 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void virtnet_clean_affinity(struct virtnet_info *vi, long hcpu)
+=======
+static void virtnet_clean_affinity(struct virtnet_info *vi)
+>>>>>>> upstream/android-13
 {
 	int i;
 
@@ -1961,7 +2398,11 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
 	int stride;
 
 	if (!zalloc_cpumask_var(&mask, GFP_KERNEL)) {
+<<<<<<< HEAD
 		virtnet_clean_affinity(vi, -1);
+=======
+		virtnet_clean_affinity(vi);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -1982,7 +2423,11 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
 		}
 		virtqueue_set_affinity(vi->rq[i].vq, mask);
 		virtqueue_set_affinity(vi->sq[i].vq, mask);
+<<<<<<< HEAD
 		__netif_set_xps_queue(vi->dev, cpumask_bits(mask), i, false);
+=======
+		__netif_set_xps_queue(vi->dev, cpumask_bits(mask), i, XPS_CPUS);
+>>>>>>> upstream/android-13
 		cpumask_clear(mask);
 	}
 
@@ -2011,7 +2456,11 @@ static int virtnet_cpu_down_prep(unsigned int cpu, struct hlist_node *node)
 	struct virtnet_info *vi = hlist_entry_safe(node, struct virtnet_info,
 						   node);
 
+<<<<<<< HEAD
 	virtnet_clean_affinity(vi, cpu);
+=======
+	virtnet_clean_affinity(vi);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2087,6 +2536,7 @@ static int virtnet_set_channels(struct net_device *dev,
 	if (vi->rq[0].xdp_prog)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	err = _virtnet_set_queues(vi, queue_pairs);
 	if (err) {
@@ -2095,6 +2545,16 @@ static int virtnet_set_channels(struct net_device *dev,
 	}
 	virtnet_set_affinity(vi);
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	err = _virtnet_set_queues(vi, queue_pairs);
+	if (err) {
+		cpus_read_unlock();
+		goto err;
+	}
+	virtnet_set_affinity(vi);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	netif_set_real_num_tx_queues(dev, queue_pairs);
 	netif_set_real_num_rx_queues(dev, queue_pairs);
@@ -2105,12 +2565,18 @@ static int virtnet_set_channels(struct net_device *dev,
 static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
 {
 	struct virtnet_info *vi = netdev_priv(dev);
+<<<<<<< HEAD
 	char *p = (char *)data;
 	unsigned int i, j;
+=======
+	unsigned int i, j;
+	u8 *p = data;
+>>>>>>> upstream/android-13
 
 	switch (stringset) {
 	case ETH_SS_STATS:
 		for (i = 0; i < vi->curr_queue_pairs; i++) {
+<<<<<<< HEAD
 			for (j = 0; j < VIRTNET_RQ_STATS_LEN; j++) {
 				snprintf(p, ETH_GSTRING_LEN, "rx_queue_%u_%s",
 					 i, virtnet_rq_stats_desc[j].desc);
@@ -2124,6 +2590,17 @@ static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
 					 i, virtnet_sq_stats_desc[j].desc);
 				p += ETH_GSTRING_LEN;
 			}
+=======
+			for (j = 0; j < VIRTNET_RQ_STATS_LEN; j++)
+				ethtool_sprintf(&p, "rx_queue_%u_%s", i,
+						virtnet_rq_stats_desc[j].desc);
+		}
+
+		for (i = 0; i < vi->curr_queue_pairs; i++) {
+			for (j = 0; j < VIRTNET_SQ_STATS_LEN; j++)
+				ethtool_sprintf(&p, "tx_queue_%u_%s", i,
+						virtnet_sq_stats_desc[j].desc);
+>>>>>>> upstream/android-13
 		}
 		break;
 	}
@@ -2192,6 +2669,7 @@ static void virtnet_get_channels(struct net_device *dev,
 	channels->other_count = 0;
 }
 
+<<<<<<< HEAD
 /* Check if the user is trying to change anything besides speed/duplex */
 static bool
 virtnet_validate_ethtool_cmd(const struct ethtool_link_ksettings *cmd)
@@ -2218,10 +2696,13 @@ virtnet_validate_ethtool_cmd(const struct ethtool_link_ksettings *cmd)
 			     __ETHTOOL_LINK_MODE_MASK_NBITS);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int virtnet_set_link_ksettings(struct net_device *dev,
 				      const struct ethtool_link_ksettings *cmd)
 {
 	struct virtnet_info *vi = netdev_priv(dev);
+<<<<<<< HEAD
 	u32 speed;
 
 	speed = cmd->base.speed;
@@ -2234,6 +2715,11 @@ static int virtnet_set_link_ksettings(struct net_device *dev,
 	vi->duplex = cmd->base.duplex;
 
 	return 0;
+=======
+
+	return ethtool_virtdev_set_link_ksettings(dev, cmd,
+						  &vi->speed, &vi->duplex);
+>>>>>>> upstream/android-13
 }
 
 static int virtnet_get_link_ksettings(struct net_device *dev,
@@ -2248,6 +2734,51 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int virtnet_set_coalesce(struct net_device *dev,
+				struct ethtool_coalesce *ec,
+				struct kernel_ethtool_coalesce *kernel_coal,
+				struct netlink_ext_ack *extack)
+{
+	struct virtnet_info *vi = netdev_priv(dev);
+	int i, napi_weight;
+
+	if (ec->tx_max_coalesced_frames > 1 ||
+	    ec->rx_max_coalesced_frames != 1)
+		return -EINVAL;
+
+	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+	if (napi_weight ^ vi->sq[0].napi.weight) {
+		if (dev->flags & IFF_UP)
+			return -EBUSY;
+		for (i = 0; i < vi->max_queue_pairs; i++)
+			vi->sq[i].napi.weight = napi_weight;
+	}
+
+	return 0;
+}
+
+static int virtnet_get_coalesce(struct net_device *dev,
+				struct ethtool_coalesce *ec,
+				struct kernel_ethtool_coalesce *kernel_coal,
+				struct netlink_ext_ack *extack)
+{
+	struct ethtool_coalesce ec_default = {
+		.cmd = ETHTOOL_GCOALESCE,
+		.rx_max_coalesced_frames = 1,
+	};
+	struct virtnet_info *vi = netdev_priv(dev);
+
+	memcpy(ec, &ec_default, sizeof(ec_default));
+
+	if (vi->sq[0].napi.weight)
+		ec->tx_max_coalesced_frames = 1;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void virtnet_init_settings(struct net_device *dev)
 {
 	struct virtnet_info *vi = netdev_priv(dev);
@@ -2264,17 +2795,31 @@ static void virtnet_update_settings(struct virtnet_info *vi)
 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
 		return;
 
+<<<<<<< HEAD
 	speed = virtio_cread32(vi->vdev, offsetof(struct virtio_net_config,
 						  speed));
 	if (ethtool_validate_speed(speed))
 		vi->speed = speed;
 	duplex = virtio_cread8(vi->vdev, offsetof(struct virtio_net_config,
 						  duplex));
+=======
+	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
+
+	if (ethtool_validate_speed(speed))
+		vi->speed = speed;
+
+	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+
+>>>>>>> upstream/android-13
 	if (ethtool_validate_duplex(duplex))
 		vi->duplex = duplex;
 }
 
 static const struct ethtool_ops virtnet_ethtool_ops = {
+<<<<<<< HEAD
+=======
+	.supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES,
+>>>>>>> upstream/android-13
 	.get_drvinfo = virtnet_get_drvinfo,
 	.get_link = ethtool_op_get_link,
 	.get_ringparam = virtnet_get_ringparam,
@@ -2286,6 +2831,11 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
 	.get_ts_info = ethtool_op_get_ts_info,
 	.get_link_ksettings = virtnet_get_link_ksettings,
 	.set_link_ksettings = virtnet_set_link_ksettings,
+<<<<<<< HEAD
+=======
+	.set_coalesce = virtnet_set_coalesce,
+	.get_coalesce = virtnet_get_coalesce,
+>>>>>>> upstream/android-13
 };
 
 static void virtnet_freeze_down(struct virtio_device *vdev)
@@ -2349,7 +2899,11 @@ static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
 
 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
 				  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
+<<<<<<< HEAD
 		dev_warn(&vi->dev->dev, "Fail to set guest offload. \n");
+=======
+		dev_warn(&vi->dev->dev, "Fail to set guest offload.\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2391,7 +2945,11 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
 	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO) ||
 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))) {
+<<<<<<< HEAD
 		NL_SET_ERR_MSG_MOD(extack, "Can't set XDP while host is implementing LRO/CSUM, disable LRO/CSUM first");
+=======
+		NL_SET_ERR_MSG_MOD(extack, "Can't set XDP while host is implementing GRO_HW/CSUM, disable GRO_HW/CSUM first");
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 	}
 
@@ -2412,21 +2970,32 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
 
 	/* XDP requires extra queues for XDP_TX */
 	if (curr_qp + xdp_qp > vi->max_queue_pairs) {
+<<<<<<< HEAD
 		NL_SET_ERR_MSG_MOD(extack, "Too few free TX rings available");
 		netdev_warn(dev, "request %i queues but max is %i\n",
 			    curr_qp + xdp_qp, vi->max_queue_pairs);
 		return -ENOMEM;
+=======
+		netdev_warn(dev, "XDP request %i queues but max is %i. XDP_TX and XDP_REDIRECT will operate in a slower locked tx mode.\n",
+			    curr_qp + xdp_qp, vi->max_queue_pairs);
+		xdp_qp = 0;
+>>>>>>> upstream/android-13
 	}
 
 	old_prog = rtnl_dereference(vi->rq[0].xdp_prog);
 	if (!prog && !old_prog)
 		return 0;
 
+<<<<<<< HEAD
 	if (prog) {
 		prog = bpf_prog_add(prog, vi->max_queue_pairs - 1);
 		if (IS_ERR(prog))
 			return PTR_ERR(prog);
 	}
+=======
+	if (prog)
+		bpf_prog_add(prog, vi->max_queue_pairs - 1);
+>>>>>>> upstream/android-13
 
 	/* Make sure NAPI is not using any XDP TX queues for RX. */
 	if (netif_running(dev)) {
@@ -2452,11 +3021,20 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
 	vi->xdp_queue_pairs = xdp_qp;
 
 	if (prog) {
+<<<<<<< HEAD
+=======
+		vi->xdp_enabled = true;
+>>>>>>> upstream/android-13
 		for (i = 0; i < vi->max_queue_pairs; i++) {
 			rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
 			if (i == 0 && !old_prog)
 				virtnet_clear_guest_offloads(vi);
 		}
+<<<<<<< HEAD
+=======
+	} else {
+		vi->xdp_enabled = false;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < vi->max_queue_pairs; i++) {
@@ -2490,6 +3068,7 @@ err:
 	return err;
 }
 
+<<<<<<< HEAD
 static u32 virtnet_xdp_query(struct net_device *dev)
 {
 	struct virtnet_info *vi = netdev_priv(dev);
@@ -2504,14 +3083,19 @@ static u32 virtnet_xdp_query(struct net_device *dev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int virtnet_xdp(struct net_device *dev, struct netdev_bpf *xdp)
 {
 	switch (xdp->command) {
 	case XDP_SETUP_PROG:
 		return virtnet_xdp_set(dev, xdp->prog, xdp->extack);
+<<<<<<< HEAD
 	case XDP_QUERY_PROG:
 		xdp->prog_id = virtnet_xdp_query(dev);
 		return 0;
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -EINVAL;
 	}
@@ -2533,6 +3117,35 @@ static int virtnet_get_phys_port_name(struct net_device *dev, char *buf,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int virtnet_set_features(struct net_device *dev,
+				netdev_features_t features)
+{
+	struct virtnet_info *vi = netdev_priv(dev);
+	u64 offloads;
+	int err;
+
+	if ((dev->features ^ features) & NETIF_F_GRO_HW) {
+		if (vi->xdp_enabled)
+			return -EBUSY;
+
+		if (features & NETIF_F_GRO_HW)
+			offloads = vi->guest_offloads_capable;
+		else
+			offloads = vi->guest_offloads_capable &
+				   ~GUEST_OFFLOAD_GRO_HW_MASK;
+
+		err = virtnet_set_guest_offloads(vi, offloads);
+		if (err)
+			return err;
+		vi->guest_offloads = offloads;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static const struct net_device_ops virtnet_netdev = {
 	.ndo_open            = virtnet_open,
 	.ndo_stop   	     = virtnet_close,
@@ -2547,6 +3160,10 @@ static const struct net_device_ops virtnet_netdev = {
 	.ndo_xdp_xmit		= virtnet_xdp_xmit,
 	.ndo_features_check	= passthru_features_check,
 	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
+<<<<<<< HEAD
+=======
+	.ndo_set_features	= virtnet_set_features,
+>>>>>>> upstream/android-13
 };
 
 static void virtnet_config_changed_work(struct work_struct *work)
@@ -2594,12 +3211,20 @@ static void virtnet_free_queues(struct virtnet_info *vi)
 	int i;
 
 	for (i = 0; i < vi->max_queue_pairs; i++) {
+<<<<<<< HEAD
 		napi_hash_del(&vi->rq[i].napi);
 		netif_napi_del(&vi->rq[i].napi);
 		netif_napi_del(&vi->sq[i].napi);
 	}
 
 	/* We called napi_hash_del() before netif_napi_del(),
+=======
+		__netif_napi_del(&vi->rq[i].napi);
+		__netif_napi_del(&vi->sq[i].napi);
+	}
+
+	/* We called __netif_napi_del(),
+>>>>>>> upstream/android-13
 	 * we need to respect an RCU grace period before freeing vi->rq
 	 */
 	synchronize_net();
@@ -2674,7 +3299,11 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
 {
 	struct virtio_device *vdev = vi->vdev;
 
+<<<<<<< HEAD
 	virtnet_clean_affinity(vi, -1);
+=======
+	virtnet_clean_affinity(vi);
+>>>>>>> upstream/android-13
 
 	vdev->config->del_vqs(vdev);
 
@@ -2749,8 +3378,13 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
 			ctx[rxq2vq(i)] = true;
 	}
 
+<<<<<<< HEAD
 	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
 					 names, ctx, NULL);
+=======
+	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
+				  names, ctx, NULL);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_find;
 
@@ -2785,9 +3419,19 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
 {
 	int i;
 
+<<<<<<< HEAD
 	vi->ctrl = kzalloc(sizeof(*vi->ctrl), GFP_KERNEL);
 	if (!vi->ctrl)
 		goto err_ctrl;
+=======
+	if (vi->has_cvq) {
+		vi->ctrl = kzalloc(sizeof(*vi->ctrl), GFP_KERNEL);
+		if (!vi->ctrl)
+			goto err_ctrl;
+	} else {
+		vi->ctrl = NULL;
+	}
+>>>>>>> upstream/android-13
 	vi->sq = kcalloc(vi->max_queue_pairs, sizeof(*vi->sq), GFP_KERNEL);
 	if (!vi->sq)
 		goto err_sq;
@@ -2834,9 +3478,15 @@ static int init_vqs(struct virtnet_info *vi)
 	if (ret)
 		goto err_free;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	virtnet_set_affinity(vi);
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	virtnet_set_affinity(vi);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -2961,7 +3611,12 @@ static int virtnet_probe(struct virtio_device *vdev)
 		return -ENOMEM;
 
 	/* Set up network device as normal. */
+<<<<<<< HEAD
 	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE;
+=======
+	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE |
+			   IFF_TX_SKB_NO_LINEAR;
+>>>>>>> upstream/android-13
 	dev->netdev_ops = &virtnet_netdev;
 	dev->features = NETIF_F_HIGHDMA;
 
@@ -2995,6 +3650,14 @@ static int virtnet_probe(struct virtio_device *vdev)
 	}
 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM))
 		dev->features |= NETIF_F_RXCSUM;
+<<<<<<< HEAD
+=======
+	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
+		dev->features |= NETIF_F_GRO_HW;
+	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+		dev->hw_features |= NETIF_F_GRO_HW;
+>>>>>>> upstream/android-13
 
 	dev->vlan_features = dev->features;
 
@@ -3049,8 +3712,15 @@ static int virtnet_probe(struct virtio_device *vdev)
 			/* Should never trigger: MTU was previously validated
 			 * in virtnet_validate.
 			 */
+<<<<<<< HEAD
 			dev_err(&vdev->dev, "device MTU appears to have changed "
 				"it is now %d < %d", mtu, dev->min_mtu);
+=======
+			dev_err(&vdev->dev,
+				"device MTU appears to have changed it is now %d < %d",
+				mtu, dev->min_mtu);
+			err = -EINVAL;
+>>>>>>> upstream/android-13
 			goto free;
 		}
 
@@ -3124,6 +3794,10 @@ static int virtnet_probe(struct virtio_device *vdev)
 	for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
 		if (virtio_has_feature(vi->vdev, guest_offloads[i]))
 			set_bit(guest_offloads[i], &vi->guest_offloads);
+<<<<<<< HEAD
+=======
+	vi->guest_offloads_capable = vi->guest_offloads;
+>>>>>>> upstream/android-13
 
 	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
 		 dev->name, max_queue_pairs);
@@ -3199,8 +3873,16 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
 	virtnet_set_queues(vi, vi->curr_queue_pairs);
 
 	err = virtnet_cpu_notif_add(vi);
+<<<<<<< HEAD
 	if (err)
 		return err;
+=======
+	if (err) {
+		virtnet_freeze_down(vdev);
+		remove_vq_common(vi);
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -30,8 +30,13 @@ The ftrace context
   This requires extra care to what can be done inside a callback. A callback
   can be called outside the protective scope of RCU.
 
+<<<<<<< HEAD
 The ftrace infrastructure has some protections against recursions and RCU
 but one must still be very careful how they use the callbacks.
+=======
+There are helper functions to help against recursion, and making sure
+RCU is watching. These are explained below.
+>>>>>>> upstream/android-13
 
 
 The ftrace_ops structure
@@ -55,6 +60,7 @@ an ftrace_ops with ftrace:
 
 Both .flags and .private are optional. Only .func is required.
 
+<<<<<<< HEAD
 To enable tracing call:
 
 .. c:function::  register_ftrace_function(&ops);
@@ -66,6 +72,19 @@ To disable tracing call:
 The above is defined by including the header:
 
 .. c:function:: #include <linux/ftrace.h>
+=======
+To enable tracing call::
+
+    register_ftrace_function(&ops);
+
+To disable tracing call::
+
+    unregister_ftrace_function(&ops);
+
+The above is defined by including the header::
+
+    #include <linux/ftrace.h>
+>>>>>>> upstream/android-13
 
 The registered callback will start being called some time after the
 register_ftrace_function() is called and before it returns. The exact time
@@ -108,6 +127,61 @@ The prototype of the callback function is as follows (as of v4.14):
 	at the start of the function where ftrace was tracing. Otherwise it
 	either contains garbage, or NULL.
 
+<<<<<<< HEAD
+=======
+Protect your callback
+=====================
+
+As functions can be called from anywhere, and it is possible that a function
+called by a callback may also be traced, and call that same callback,
+recursion protection must be used. There are two helper functions that
+can help in this regard. If you start your code with:
+
+.. code-block:: c
+
+	int bit;
+
+	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+	if (bit < 0)
+		return;
+
+and end it with:
+
+.. code-block:: c
+
+	ftrace_test_recursion_unlock(bit);
+
+The code in between will be safe to use, even if it ends up calling a
+function that the callback is tracing. Note, on success,
+ftrace_test_recursion_trylock() will disable preemption, and the
+ftrace_test_recursion_unlock() will enable it again (if it was previously
+enabled). The instruction pointer (ip) and its parent (parent_ip) is passed to
+ftrace_test_recursion_trylock() to record where the recursion happened
+(if CONFIG_FTRACE_RECORD_RECURSION is set).
+
+Alternatively, if the FTRACE_OPS_FL_RECURSION flag is set on the ftrace_ops
+(as explained below), then a helper trampoline will be used to test
+for recursion for the callback and no recursion test needs to be done.
+But this is at the expense of a slightly more overhead from an extra
+function call.
+
+If your callback accesses any data or critical section that requires RCU
+protection, it is best to make sure that RCU is "watching", otherwise
+that data or critical section will not be protected as expected. In this
+case add:
+
+.. code-block:: c
+
+	if (!rcu_is_watching())
+		return;
+
+Alternatively, if the FTRACE_OPS_FL_RCU flag is set on the ftrace_ops
+(as explained below), then a helper trampoline will be used to test
+for rcu_is_watching for the callback and no other test needs to be done.
+But this is at the expense of a slightly more overhead from an extra
+function call.
+
+>>>>>>> upstream/android-13
 
 The ftrace FLAGS
 ================
@@ -128,6 +202,7 @@ FTRACE_OPS_FL_SAVE_REGS_IF_SUPPORTED
 	will not fail with this flag set. But the callback must check if
 	regs is NULL or not to determine if the architecture supports it.
 
+<<<<<<< HEAD
 FTRACE_OPS_FL_RECURSION_SAFE
 	By default, a wrapper is added around the callback to
 	make sure that recursion of the function does not occur. That is,
@@ -148,6 +223,22 @@ FTRACE_OPS_FL_RECURSION_SAFE
 	If this flag is set, it is possible that the callback will also
 	be called with preemption enabled (when CONFIG_PREEMPT is set),
 	but this is not guaranteed.
+=======
+FTRACE_OPS_FL_RECURSION
+	By default, it is expected that the callback can handle recursion.
+	But if the callback is not that worried about overehead, then
+	setting this bit will add the recursion protection around the
+	callback by calling a helper function that will do the recursion
+	protection and only call the callback if it did not recurse.
+
+	Note, if this flag is not set, and recursion does occur, it could
+	cause the system to crash, and possibly reboot via a triple fault.
+
+	Not, if this flag is set, then the callback will always be called
+	with preemption disabled. If it is not set, then it is possible
+	(but not guaranteed) that the callback will be called in
+	preemptable context.
+>>>>>>> upstream/android-13
 
 FTRACE_OPS_FL_IPMODIFY
 	Requires FTRACE_OPS_FL_SAVE_REGS set. If the callback is to "hijack"
@@ -170,6 +261,17 @@ FTRACE_OPS_FL_RCU
 	a callback may be executed and RCU synchronization will not protect
 	it.
 
+<<<<<<< HEAD
+=======
+FTRACE_OPS_FL_PERMANENT
+        If this is set on any ftrace ops, then the tracing cannot disabled by
+        writing 0 to the proc sysctl ftrace_enabled. Equally, a callback with
+        the flag set cannot be registered if ftrace_enabled is 0.
+
+        Livepatch uses it not to lose the function redirection, so the system
+        stays protected.
+
+>>>>>>> upstream/android-13
 
 Filtering which functions to trace
 ==================================

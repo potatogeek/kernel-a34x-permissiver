@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -11,6 +16,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -44,8 +51,11 @@ enum _NIC_VERSION {
 	RTL8716_NIC
 };
 
+<<<<<<< HEAD
 struct _adapter;
 
+=======
+>>>>>>> upstream/android-13
 struct	qos_priv	{
 	/* bit mask option: u-apsd, s-apsd, ts, block ack... */
 	unsigned int qos_option;
@@ -153,6 +163,7 @@ struct _adapter {
 	struct	hal_priv	halpriv;
 	struct	led_priv	ledpriv;
 	struct mp_priv  mppriv;
+<<<<<<< HEAD
 	s32	bDriverStopped;
 	s32	bSurpriseRemoved;
 	s32	bSuspended;
@@ -164,6 +175,14 @@ struct _adapter {
 	pid_t evtThread;
 	struct task_struct *xmitThread;
 	pid_t recvThread;
+=======
+	bool	driver_stopped;
+	bool	surprise_removed;
+	bool	suspended;
+	u8	eeprom_address_size;
+	u8	hw_init_completed;
+	struct task_struct *cmd_thread;
+>>>>>>> upstream/android-13
 	uint (*dvobj_init)(struct _adapter *adapter);
 	void (*dvobj_deinit)(struct _adapter *adapter);
 	struct net_device *pnetdev;
@@ -171,9 +190,15 @@ struct _adapter {
 	struct net_device_stats stats;
 	struct iw_statistics iwstats;
 	int pid; /*process id from UI*/
+<<<<<<< HEAD
 	struct work_struct wkFilterRxFF0;
 	u8 blnEnableRxFF0Filter;
 	spinlock_t lockRxFF0Filter;
+=======
+	struct work_struct wk_filter_rx_ff0;
+	u8 blnEnableRxFF0Filter;
+	spinlock_t lock_rx_ff0_filter;
+>>>>>>> upstream/android-13
 	const struct firmware *fw;
 	struct usb_interface *pusb_intf;
 	struct mutex mutex_start;

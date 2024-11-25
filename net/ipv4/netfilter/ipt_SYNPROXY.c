@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013 Patrick McHardy <kaber@trash.net>
  *
@@ -258,6 +259,18 @@ synproxy_recv_client_ack(struct net *net,
 	synproxy_send_server_syn(net, skb, th, opts, recv_seq);
 	return true;
 }
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013 Patrick McHardy <kaber@trash.net>
+ */
+
+#include <linux/netfilter_ipv4/ip_tables.h>
+#include <linux/netfilter/x_tables.h>
+#include <linux/netfilter/xt_SYNPROXY.h>
+
+#include <net/netfilter/nf_synproxy.h>
+>>>>>>> upstream/android-13
 
 static unsigned int
 synproxy_tg4(struct sk_buff *skb, const struct xt_action_param *par)
@@ -286,6 +299,11 @@ synproxy_tg4(struct sk_buff *skb, const struct xt_action_param *par)
 			opts.options |= XT_SYNPROXY_OPT_ECN;
 
 		opts.options &= info->options;
+<<<<<<< HEAD
+=======
+		opts.mss_encode = opts.mss_option;
+		opts.mss_option = info->mss;
+>>>>>>> upstream/android-13
 		if (opts.options & XT_SYNPROXY_OPT_TIMESTAMP)
 			synproxy_init_timestamp_cookie(info, &opts);
 		else
@@ -309,6 +327,7 @@ synproxy_tg4(struct sk_buff *skb, const struct xt_action_param *par)
 	return XT_CONTINUE;
 }
 
+<<<<<<< HEAD
 static unsigned int ipv4_synproxy_hook(void *priv,
 				       struct sk_buff *skb,
 				       const struct nf_hook_state *nhs)
@@ -438,6 +457,8 @@ static const struct nf_hook_ops ipv4_synproxy_ops[] = {
 	},
 };
 
+=======
+>>>>>>> upstream/android-13
 static int synproxy_tg4_check(const struct xt_tgchk_param *par)
 {
 	struct synproxy_net *snet = synproxy_pernet(par->net);
@@ -452,6 +473,7 @@ static int synproxy_tg4_check(const struct xt_tgchk_param *par)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	if (snet->hook_ref4 == 0) {
 		err = nf_register_net_hooks(par->net, ipv4_synproxy_ops,
 					    ARRAY_SIZE(ipv4_synproxy_ops));
@@ -462,6 +484,14 @@ static int synproxy_tg4_check(const struct xt_tgchk_param *par)
 	}
 
 	snet->hook_ref4++;
+=======
+	err = nf_synproxy_ipv4_init(snet, par->net);
+	if (err) {
+		nf_ct_netns_put(par->net, par->family);
+		return err;
+	}
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -469,10 +499,14 @@ static void synproxy_tg4_destroy(const struct xt_tgdtor_param *par)
 {
 	struct synproxy_net *snet = synproxy_pernet(par->net);
 
+<<<<<<< HEAD
 	snet->hook_ref4--;
 	if (snet->hook_ref4 == 0)
 		nf_unregister_net_hooks(par->net, ipv4_synproxy_ops,
 					ARRAY_SIZE(ipv4_synproxy_ops));
+=======
+	nf_synproxy_ipv4_fini(snet, par->net);
+>>>>>>> upstream/android-13
 	nf_ct_netns_put(par->net, par->family);
 }
 
@@ -502,3 +536,7 @@ module_exit(synproxy_tg4_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Patrick McHardy <kaber@trash.net>");
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Intercept TCP connections and establish them using syncookies");
+>>>>>>> upstream/android-13

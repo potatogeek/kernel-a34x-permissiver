@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***********************************************************************
 * linux/kernel/time/jiffies.c
 *
@@ -20,12 +21,21 @@
 * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 *
 ************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * This file contains the jiffies based clocksource.
+ *
+ * Copyright (C) 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
+ */
+>>>>>>> upstream/android-13
 #include <linux/clocksource.h>
 #include <linux/jiffies.h>
 #include <linux/module.h>
 #include <linux/init.h>
 
 #include "timekeeping.h"
+<<<<<<< HEAD
 
 
 /* Since jiffies uses a simple TICK_NSEC multiplier
@@ -48,6 +58,11 @@
 #define JIFFIES_SHIFT	8
 #endif
 
+=======
+#include "tick-internal.h"
+
+
+>>>>>>> upstream/android-13
 static u64 jiffies_read(struct clocksource *cs)
 {
 	return (u64) jiffies;
@@ -60,11 +75,16 @@ static u64 jiffies_read(struct clocksource *cs)
  * the timer interrupt frequency HZ and it suffers
  * inaccuracies caused by missed or lost timer
  * interrupts and the inability for the timer
+<<<<<<< HEAD
  * interrupt hardware to accuratly tick at the
+=======
+ * interrupt hardware to accurately tick at the
+>>>>>>> upstream/android-13
  * requested HZ value. It is also not recommended
  * for "tick-less" systems.
  */
 static struct clocksource clocksource_jiffies = {
+<<<<<<< HEAD
 	.name		= "jiffies",
 	.rating		= 1, /* lowest valid rating*/
 	.read		= jiffies_read,
@@ -75,10 +95,26 @@ static struct clocksource clocksource_jiffies = {
 };
 
 __cacheline_aligned_in_smp DEFINE_SEQLOCK(jiffies_lock);
+=======
+	.name			= "jiffies",
+	.rating			= 1, /* lowest valid rating*/
+	.uncertainty_margin	= 32 * NSEC_PER_MSEC,
+	.read			= jiffies_read,
+	.mask			= CLOCKSOURCE_MASK(32),
+	.mult			= TICK_NSEC << JIFFIES_SHIFT, /* details above */
+	.shift			= JIFFIES_SHIFT,
+	.max_cycles		= 10,
+};
+
+__cacheline_aligned_in_smp DEFINE_RAW_SPINLOCK(jiffies_lock);
+__cacheline_aligned_in_smp seqcount_raw_spinlock_t jiffies_seq =
+	SEQCNT_RAW_SPINLOCK_ZERO(jiffies_seq, &jiffies_lock);
+>>>>>>> upstream/android-13
 
 #if (BITS_PER_LONG < 64)
 u64 get_jiffies_64(void)
 {
+<<<<<<< HEAD
 	unsigned long seq;
 	u64 ret;
 
@@ -86,6 +122,15 @@ u64 get_jiffies_64(void)
 		seq = read_seqbegin(&jiffies_lock);
 		ret = jiffies_64;
 	} while (read_seqretry(&jiffies_lock, seq));
+=======
+	unsigned int seq;
+	u64 ret;
+
+	do {
+		seq = read_seqcount_begin(&jiffies_seq);
+		ret = jiffies_64;
+	} while (read_seqcount_retry(&jiffies_seq, seq));
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(get_jiffies_64);
@@ -105,7 +150,11 @@ struct clocksource * __init __weak clocksource_default_clock(void)
 	return &clocksource_jiffies;
 }
 
+<<<<<<< HEAD
 struct clocksource refined_jiffies;
+=======
+static struct clocksource refined_jiffies;
+>>>>>>> upstream/android-13
 
 int register_refined_jiffies(long cycles_per_second)
 {

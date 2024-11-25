@@ -12,7 +12,11 @@
 #include "igb.h"
 
 static s32 igb_set_default_fc(struct e1000_hw *hw);
+<<<<<<< HEAD
 static s32 igb_set_fc_watermarks(struct e1000_hw *hw);
+=======
+static void igb_set_fc_watermarks(struct e1000_hw *hw);
+>>>>>>> upstream/android-13
 
 /**
  *  igb_get_bus_info_pcie - Get PCIe bus information
@@ -166,6 +170,10 @@ static s32 igb_find_vlvf_slot(struct e1000_hw *hw, u32 vlan, bool vlvf_bypass)
  *  @vlan: VLAN id to add or remove
  *  @vind: VMDq output index that maps queue to VLAN id
  *  @vlan_on: if true add filter, if false remove
+<<<<<<< HEAD
+=======
+ *  @vlvf_bypass: skip VLVF if no match is found
+>>>>>>> upstream/android-13
  *
  *  Sets or clears a bit in the VLAN filter table array based on VLAN id
  *  and if we are adding or removing the filter
@@ -483,6 +491,38 @@ static u32 igb_hash_mc_addr(struct e1000_hw *hw, u8 *mc_addr)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * igb_i21x_hw_doublecheck - double checks potential HW issue in i21X
+ * @hw: pointer to the HW structure
+ *
+ * Checks if multicast array is wrote correctly
+ * If not then rewrites again to register
+ **/
+static void igb_i21x_hw_doublecheck(struct e1000_hw *hw)
+{
+	int failed_cnt = 3;
+	bool is_failed;
+	int i;
+
+	do {
+		is_failed = false;
+		for (i = hw->mac.mta_reg_count - 1; i >= 0; i--) {
+			if (array_rd32(E1000_MTA, i) != hw->mac.mta_shadow[i]) {
+				is_failed = true;
+				array_wr32(E1000_MTA, i, hw->mac.mta_shadow[i]);
+				wrfl();
+			}
+		}
+		if (is_failed && --failed_cnt <= 0) {
+			hw_dbg("Failed to update MTA_REGISTER, too many retries");
+			break;
+		}
+	} while (is_failed);
+}
+
+/**
+>>>>>>> upstream/android-13
  *  igb_update_mc_addr_list - Update Multicast addresses
  *  @hw: pointer to the HW structure
  *  @mc_addr_list: array of multicast addresses to program
@@ -515,6 +555,11 @@ void igb_update_mc_addr_list(struct e1000_hw *hw,
 	for (i = hw->mac.mta_reg_count - 1; i >= 0; i--)
 		array_wr32(E1000_MTA, i, hw->mac.mta_shadow[i]);
 	wrfl();
+<<<<<<< HEAD
+=======
+	if (hw->mac.type == e1000_i210 || hw->mac.type == e1000_i211)
+		igb_i21x_hw_doublecheck(hw);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -687,7 +732,11 @@ s32 igb_setup_link(struct e1000_hw *hw)
 
 	wr32(E1000_FCTTV, hw->fc.pause_time);
 
+<<<<<<< HEAD
 	ret_val = igb_set_fc_watermarks(hw);
+=======
+	igb_set_fc_watermarks(hw);
+>>>>>>> upstream/android-13
 
 out:
 
@@ -723,9 +772,14 @@ void igb_config_collision_dist(struct e1000_hw *hw)
  *  flow control XON frame transmission is enabled, then set XON frame
  *  tansmission as well.
  **/
+<<<<<<< HEAD
 static s32 igb_set_fc_watermarks(struct e1000_hw *hw)
 {
 	s32 ret_val = 0;
+=======
+static void igb_set_fc_watermarks(struct e1000_hw *hw)
+{
+>>>>>>> upstream/android-13
 	u32 fcrtl = 0, fcrth = 0;
 
 	/* Set the flow control receive threshold registers.  Normally,
@@ -747,8 +801,11 @@ static s32 igb_set_fc_watermarks(struct e1000_hw *hw)
 	}
 	wr32(E1000_FCRTL, fcrtl);
 	wr32(E1000_FCRTH, fcrth);
+<<<<<<< HEAD
 
 	return ret_val;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**

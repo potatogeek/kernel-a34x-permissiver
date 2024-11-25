@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Queued read/write locks
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Queued read/write locks
+ *
+>>>>>>> upstream/android-13
  * (C) Copyright 2013-2014 Hewlett-Packard Development Company, L.P.
  *
  * Authors: Waiman Long <waiman.long@hp.com>
@@ -21,7 +28,10 @@
 #include <linux/percpu.h>
 #include <linux/hardirq.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <asm/qrwlock.h>
+=======
+>>>>>>> upstream/android-13
 
 /**
  * queued_read_lock_slowpath - acquire read lock of a queue rwlock
@@ -76,12 +86,21 @@ void queued_write_lock_slowpath(struct qrwlock *lock)
 	arch_spin_lock(&lock->wait_lock);
 
 	/* Try to acquire the lock directly if no reader is present */
+<<<<<<< HEAD
 	if (!atomic_read(&lock->cnts) &&
 	    (atomic_cmpxchg_acquire(&lock->cnts, 0, _QW_LOCKED) == 0))
 		goto unlock;
 
 	/* Set the waiting flag to notify readers that a writer is pending */
 	atomic_add(_QW_WAITING, &lock->cnts);
+=======
+	if (!(cnts = atomic_read(&lock->cnts)) &&
+	    atomic_try_cmpxchg_acquire(&lock->cnts, &cnts, _QW_LOCKED))
+		goto unlock;
+
+	/* Set the waiting flag to notify readers that a writer is pending */
+	atomic_or(_QW_WAITING, &lock->cnts);
+>>>>>>> upstream/android-13
 
 	/* When no more readers or writers, set the locked flag */
 	do {

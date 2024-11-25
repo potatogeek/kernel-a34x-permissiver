@@ -130,6 +130,7 @@ int sm750_hw_fillrect(struct lynx_accel *accel,
 	return 0;
 }
 
+<<<<<<< HEAD
 int sm750_hw_copyarea(
 struct lynx_accel *accel,
 unsigned int sBase,  /* Address of source: offset in frame buffer */
@@ -144,6 +145,31 @@ unsigned int dy,     /* Starting coordinate of destination surface */
 unsigned int width,
 unsigned int height, /* width and height of rectangle in pixel value */
 unsigned int rop2)   /* ROP value */
+=======
+/**
+ * sm750_hw_copyarea
+ * @accel: Acceleration device data
+ * @sBase: Address of source: offset in frame buffer
+ * @sPitch: Pitch value of source surface in BYTE
+ * @sx: Starting x coordinate of source surface
+ * @sy: Starting y coordinate of source surface
+ * @dBase: Address of destination: offset in frame buffer
+ * @dPitch: Pitch value of destination surface in BYTE
+ * @Bpp: Color depth of destination surface
+ * @dx: Starting x coordinate of destination surface
+ * @dy: Starting y coordinate of destination surface
+ * @width: width of rectangle in pixel value
+ * @height: height of rectangle in pixel value
+ * @rop2: ROP value
+ */
+int sm750_hw_copyarea(struct lynx_accel *accel,
+		      unsigned int sBase, unsigned int sPitch,
+		      unsigned int sx, unsigned int sy,
+		      unsigned int dBase, unsigned int dPitch,
+		      unsigned int Bpp, unsigned int dx, unsigned int dy,
+		      unsigned int width, unsigned int height,
+		      unsigned int rop2)
+>>>>>>> upstream/android-13
 {
 	unsigned int nDirection, de_ctrl;
 
@@ -155,6 +181,7 @@ unsigned int rop2)   /* ROP value */
 	if (sBase == dBase && sPitch == dPitch) {
 		/* Determine direction of operation */
 		if (sy < dy) {
+<<<<<<< HEAD
 			/* +----------+
 			 * |S         |
 			 * |   +----------+
@@ -163,10 +190,21 @@ unsigned int rop2)   /* ROP value */
 			 * +---|------+   |
 			 * |         D|
 			 * +----------+
+=======
+			/*  +----------+
+			 *  |S         |
+			 *  |   +----------+
+			 *  |   |      |   |
+			 *  |   |      |   |
+			 *  +---|------+   |
+			 *	|         D|
+			 *	+----------+
+>>>>>>> upstream/android-13
 			 */
 
 			nDirection = BOTTOM_TO_TOP;
 		} else if (sy > dy) {
+<<<<<<< HEAD
 			/* +----------+
 			 * |D         |
 			 * |   +----------+
@@ -175,6 +213,16 @@ unsigned int rop2)   /* ROP value */
 			 * +---|------+   |
 			 * |         S|
 			 * +----------+
+=======
+			/*  +----------+
+			 *  |D         |
+			 *  |   +----------+
+			 *  |   |      |   |
+			 *  |   |      |   |
+			 *  +---|------+   |
+			 *	|         S|
+			 *	+----------+
+>>>>>>> upstream/android-13
 			 */
 
 			nDirection = TOP_TO_BOTTOM;
@@ -216,7 +264,11 @@ unsigned int rop2)   /* ROP value */
 
 	/*
 	 * Note:
+<<<<<<< HEAD
 	 * DE_FOREGROUND are DE_BACKGROUND are don't care.
+=======
+	 * DE_FOREGROUND and DE_BACKGROUND are don't care.
+>>>>>>> upstream/android-13
 	 * DE_COLOR_COMPARE and DE_COLOR_COMPARE_MAKS
 	 * are set by set deSetTransparency().
 	 */
@@ -235,21 +287,37 @@ unsigned int rop2)   /* ROP value */
 	 */
 	write_dpr(accel, DE_WINDOW_DESTINATION_BASE, dBase); /* dpr44 */
 
+<<<<<<< HEAD
     /*
      * Program pitch (distance between the 1st points of two adjacent lines).
      * Note that input pitch is BYTE value, but the 2D Pitch register uses
      * pixel values. Need Byte to pixel conversion.
      */
+=======
+	/*
+	 * Program pitch (distance between the 1st points of two adjacent lines).
+	 * Note that input pitch is BYTE value, but the 2D Pitch register uses
+	 * pixel values. Need Byte to pixel conversion.
+	 */
+>>>>>>> upstream/android-13
 	write_dpr(accel, DE_PITCH,
 		  ((dPitch / Bpp << DE_PITCH_DESTINATION_SHIFT) &
 		   DE_PITCH_DESTINATION_MASK) |
 		  (sPitch / Bpp & DE_PITCH_SOURCE_MASK)); /* dpr10 */
 
+<<<<<<< HEAD
     /*
      * Screen Window width in Pixels.
      * 2D engine uses this value to calculate the linear address in frame buffer
      * for a given point.
      */
+=======
+	/*
+	 * Screen Window width in Pixels.
+	 * 2D engine uses this value to calculate the linear address in frame buffer
+	 * for a given point.
+	 */
+>>>>>>> upstream/android-13
 	write_dpr(accel, DE_WINDOW_WIDTH,
 		  ((dPitch / Bpp << DE_WINDOW_WIDTH_DST_SHIFT) &
 		   DE_WINDOW_WIDTH_DST_MASK) |
@@ -288,6 +356,7 @@ static unsigned int deGetTransparency(struct lynx_accel *accel)
 	return de_ctrl;
 }
 
+<<<<<<< HEAD
 int sm750_hw_imageblit(struct lynx_accel *accel,
 		 const char *pSrcbuf, /* pointer to start of source buffer in system memory */
 		 u32 srcDelta,          /* Pitch value (in bytes) of the source buffer, +ive means top down and -ive mean button up */
@@ -302,6 +371,31 @@ int sm750_hw_imageblit(struct lynx_accel *accel,
 		 u32 fColor,   /* Foreground color (corresponding to a 1 in the monochrome data */
 		 u32 bColor,   /* Background color (corresponding to a 0 in the monochrome data */
 		 u32 rop2)     /* ROP value */
+=======
+/**
+ * sm750_hw_imageblit
+ * @accel: Acceleration device data
+ * @pSrcbuf: pointer to start of source buffer in system memory
+ * @srcDelta: Pitch value (in bytes) of the source buffer, +ive means top down
+ *	      and -ive mean button up
+ * @startBit: Mono data can start at any bit in a byte, this value should be
+ *	      0 to 7
+ * @dBase: Address of destination: offset in frame buffer
+ * @dPitch: Pitch value of destination surface in BYTE
+ * @bytePerPixel: Color depth of destination surface
+ * @dx: Starting x coordinate of destination surface
+ * @dy: Starting y coordinate of destination surface
+ * @width: width of rectangle in pixel value
+ * @height: height of rectangle in pixel value
+ * @fColor: Foreground color (corresponding to a 1 in the monochrome data
+ * @bColor: Background color (corresponding to a 0 in the monochrome data
+ * @rop2: ROP value
+ */
+int sm750_hw_imageblit(struct lynx_accel *accel, const char *pSrcbuf,
+		       u32 srcDelta, u32 startBit, u32 dBase, u32 dPitch,
+		       u32 bytePerPixel, u32 dx, u32 dy, u32 width,
+		       u32 height, u32 fColor, u32 bColor, u32 rop2)
+>>>>>>> upstream/android-13
 {
 	unsigned int ulBytesPerScan;
 	unsigned int ul4BytesPerScan;
@@ -383,7 +477,12 @@ int sm750_hw_imageblit(struct lynx_accel *accel,
 			write_dpPort(accel, *(unsigned int *)(pSrcbuf + (j * 4)));
 
 		if (ulBytesRemain) {
+<<<<<<< HEAD
 			memcpy(ajRemain, pSrcbuf+ul4BytesPerScan, ulBytesRemain);
+=======
+			memcpy(ajRemain, pSrcbuf + ul4BytesPerScan,
+			       ulBytesRemain);
+>>>>>>> upstream/android-13
 			write_dpPort(accel, *(unsigned int *)ajRemain);
 		}
 

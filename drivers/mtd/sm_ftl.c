@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2009 - Maxim Levitsky
  * SmartMedia/xD translation layer
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright © 2009 - Maxim Levitsky
+ * SmartMedia/xD translation layer
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -16,7 +23,11 @@
 #include <linux/sysfs.h>
 #include <linux/bitops.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/mtd/nand_ecc.h>
+=======
+#include <linux/mtd/nand-ecc-sw-hamming.h>
+>>>>>>> upstream/android-13
 #include "nand/raw/sm_common.h"
 #include "sm_ftl.h"
 
@@ -219,16 +230,31 @@ static void sm_break_offset(struct sm_ftl *ftl, loff_t loffset,
 
 static int sm_correct_sector(uint8_t *buffer, struct sm_oob *oob)
 {
+<<<<<<< HEAD
 	uint8_t ecc[3];
 
 	__nand_calculate_ecc(buffer, SM_SMALL_PAGE, ecc);
 	if (__nand_correct_data(buffer, ecc, oob->ecc1, SM_SMALL_PAGE) < 0)
+=======
+	bool sm_order = IS_ENABLED(CONFIG_MTD_NAND_ECC_SW_HAMMING_SMC);
+	uint8_t ecc[3];
+
+	ecc_sw_hamming_calculate(buffer, SM_SMALL_PAGE, ecc, sm_order);
+	if (ecc_sw_hamming_correct(buffer, ecc, oob->ecc1, SM_SMALL_PAGE,
+				   sm_order) < 0)
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	buffer += SM_SMALL_PAGE;
 
+<<<<<<< HEAD
 	__nand_calculate_ecc(buffer, SM_SMALL_PAGE, ecc);
 	if (__nand_correct_data(buffer, ecc, oob->ecc2, SM_SMALL_PAGE) < 0)
+=======
+	ecc_sw_hamming_calculate(buffer, SM_SMALL_PAGE, ecc, sm_order);
+	if (ecc_sw_hamming_correct(buffer, ecc, oob->ecc2, SM_SMALL_PAGE,
+				   sm_order) < 0)
+>>>>>>> upstream/android-13
 		return -EIO;
 	return 0;
 }
@@ -246,7 +272,12 @@ static int sm_read_sector(struct sm_ftl *ftl,
 
 	/* FTL can contain -1 entries that are by default filled with bits */
 	if (block == -1) {
+<<<<<<< HEAD
 		memset(buffer, 0xFF, SM_SECTOR_SIZE);
+=======
+		if (buffer)
+			memset(buffer, 0xFF, SM_SECTOR_SIZE);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -264,7 +295,12 @@ static int sm_read_sector(struct sm_ftl *ftl,
 again:
 	if (try++) {
 		/* Avoid infinite recursion on CIS reads, sm_recheck_media
+<<<<<<< HEAD
 			won't help anyway */
+=======
+		 * won't help anyway
+		 */
+>>>>>>> upstream/android-13
 		if (zone == 0 && block == ftl->cis_block && boffset ==
 			ftl->cis_boffset)
 			return ret;
@@ -275,7 +311,12 @@ again:
 	}
 
 	/* Unfortunately, oob read will _always_ succeed,
+<<<<<<< HEAD
 		despite card removal..... */
+=======
+	 * despite card removal.....
+	 */
+>>>>>>> upstream/android-13
 	ret = mtd_read_oob(mtd, sm_mkoffset(ftl, zone, block, boffset), &ops);
 
 	/* Test for unknown errors */
@@ -367,6 +408,10 @@ static int sm_write_block(struct sm_ftl *ftl, uint8_t *buf,
 			  int zone, int block, int lba,
 			  unsigned long invalid_bitmap)
 {
+<<<<<<< HEAD
+=======
+	bool sm_order = IS_ENABLED(CONFIG_MTD_NAND_ECC_SW_HAMMING_SMC);
+>>>>>>> upstream/android-13
 	struct sm_oob oob;
 	int boffset;
 	int retry = 0;
@@ -393,11 +438,21 @@ restart:
 		}
 
 		if (ftl->smallpagenand) {
+<<<<<<< HEAD
 			__nand_calculate_ecc(buf + boffset,
 						SM_SMALL_PAGE, oob.ecc1);
 
 			__nand_calculate_ecc(buf + boffset + SM_SMALL_PAGE,
 						SM_SMALL_PAGE, oob.ecc2);
+=======
+			ecc_sw_hamming_calculate(buf + boffset,
+						 SM_SMALL_PAGE, oob.ecc1,
+						 sm_order);
+
+			ecc_sw_hamming_calculate(buf + boffset + SM_SMALL_PAGE,
+						 SM_SMALL_PAGE, oob.ecc2,
+						 sm_order);
+>>>>>>> upstream/android-13
 		}
 		if (!sm_write_sector(ftl, zone, block, boffset,
 							buf + boffset, &oob))
@@ -407,9 +462,16 @@ restart:
 
 			/* If write fails. try to erase the block */
 			/* This is safe, because we never write in blocks
+<<<<<<< HEAD
 				that contain valuable data.
 			This is intended to repair block that are marked
 			as erased, but that isn't fully erased*/
+=======
+			 * that contain valuable data.
+			 * This is intended to repair block that are marked
+			 * as erased, but that isn't fully erased
+			 */
+>>>>>>> upstream/android-13
 
 			if (sm_erase_block(ftl, zone, block, 0))
 				return -EIO;
@@ -444,7 +506,12 @@ static void sm_mark_block_bad(struct sm_ftl *ftl, int zone, int block)
 
 	/* We aren't checking the return value, because we don't care */
 	/* This also fails on fake xD cards, but I guess these won't expose
+<<<<<<< HEAD
 		any bad blocks till fail completely */
+=======
+	 * any bad blocks till fail completely
+	 */
+>>>>>>> upstream/android-13
 	for (boffset = 0; boffset < ftl->block_size; boffset += SM_SECTOR_SIZE)
 		sm_write_sector(ftl, zone, block, boffset, NULL, &oob);
 }
@@ -501,7 +568,12 @@ static int sm_check_block(struct sm_ftl *ftl, int zone, int block)
 
 	/* First just check that block doesn't look fishy */
 	/* Only blocks that are valid or are sliced in two parts, are
+<<<<<<< HEAD
 		accepted */
+=======
+	 * accepted
+	 */
+>>>>>>> upstream/android-13
 	for (boffset = 0; boffset < ftl->block_size;
 					boffset += SM_SECTOR_SIZE) {
 
@@ -550,7 +622,12 @@ static const uint8_t cis_signature[] = {
 	0x01, 0x03, 0xD9, 0x01, 0xFF, 0x18, 0x02, 0xDF, 0x01, 0x20
 };
 /* Find out media parameters.
+<<<<<<< HEAD
  * This ideally has to be based on nand id, but for now device size is enough */
+=======
+ * This ideally has to be based on nand id, but for now device size is enough
+ */
+>>>>>>> upstream/android-13
 static int sm_get_media_info(struct sm_ftl *ftl, struct mtd_info *mtd)
 {
 	int i;
@@ -603,7 +680,12 @@ static int sm_get_media_info(struct sm_ftl *ftl, struct mtd_info *mtd)
 	}
 
 	/* Minimum xD size is 16MiB. Also, all xD cards have standard zone
+<<<<<<< HEAD
 	   sizes. SmartMedia cards exist up to 128 MiB and have same layout*/
+=======
+	 * sizes. SmartMedia cards exist up to 128 MiB and have same layout
+	 */
+>>>>>>> upstream/android-13
 	if (size_in_megs >= 16) {
 		ftl->zone_count = size_in_megs / 16;
 		ftl->zone_size = 1024;
@@ -771,11 +853,23 @@ static int sm_init_zone(struct sm_ftl *ftl, int zone_num)
 			continue;
 
 		/* Read the oob of first sector */
+<<<<<<< HEAD
 		if (sm_read_sector(ftl, zone_num, block, 0, NULL, &oob))
 			return -EIO;
 
 		/* Test to see if block is erased. It is enough to test
 			first sector, because erase happens in one shot */
+=======
+		if (sm_read_sector(ftl, zone_num, block, 0, NULL, &oob)) {
+			kfifo_free(&zone->free_sectors);
+			kfree(zone->lba_to_phys_table);
+			return -EIO;
+		}
+
+		/* Test to see if block is erased. It is enough to test
+		 * first sector, because erase happens in one shot
+		 */
+>>>>>>> upstream/android-13
 		if (sm_block_erased(&oob)) {
 			kfifo_in(&zone->free_sectors,
 				(unsigned char *)&block, 2);
@@ -785,7 +879,12 @@ static int sm_init_zone(struct sm_ftl *ftl, int zone_num)
 		/* If block is marked as bad, skip it */
 		/* This assumes we can trust first sector*/
 		/* However the way the block valid status is defined, ensures
+<<<<<<< HEAD
 			very low probability of failure here */
+=======
+		 * very low probability of failure here
+		 */
+>>>>>>> upstream/android-13
 		if (!sm_block_valid(&oob)) {
 			dbg("PH %04d <-> <marked bad>", block);
 			continue;
@@ -796,7 +895,12 @@ static int sm_init_zone(struct sm_ftl *ftl, int zone_num)
 
 		/* Invalid LBA means that block is damaged. */
 		/* We can try to erase it, or mark it as bad, but
+<<<<<<< HEAD
 			lets leave that to recovery application */
+=======
+		 * lets leave that to recovery application
+		 */
+>>>>>>> upstream/android-13
 		if (lba == -2 || lba >= ftl->max_lba) {
 			dbg("PH %04d <-> LBA %04d(bad)", block, lba);
 			continue;
@@ -804,7 +908,12 @@ static int sm_init_zone(struct sm_ftl *ftl, int zone_num)
 
 
 		/* If there is no collision,
+<<<<<<< HEAD
 			just put the sector in the FTL table */
+=======
+		 * just put the sector in the FTL table
+		 */
+>>>>>>> upstream/android-13
 		if (zone->lba_to_phys_table[lba] < 0) {
 			dbg_verbose("PH %04d <-> LBA %04d", block, lba);
 			zone->lba_to_phys_table[lba] = block;
@@ -827,9 +936,15 @@ static int sm_init_zone(struct sm_ftl *ftl, int zone_num)
 		}
 
 		/* If both blocks are valid and share same LBA, it means that
+<<<<<<< HEAD
 			they hold different versions of same data. It not
 			known which is more recent, thus just erase one of them
 		*/
+=======
+		 * they hold different versions of same data. It not
+		 * known which is more recent, thus just erase one of them
+		 */
+>>>>>>> upstream/android-13
 		sm_printk("both blocks are valid, erasing the later");
 		sm_erase_block(ftl, zone_num, block, 1);
 	}
@@ -838,7 +953,12 @@ static int sm_init_zone(struct sm_ftl *ftl, int zone_num)
 	zone->initialized = 1;
 
 	/* No free sectors, means that the zone is heavily damaged, write won't
+<<<<<<< HEAD
 		work, but it can still can be (partially) read */
+=======
+	 * work, but it can still can be (partially) read
+	 */
+>>>>>>> upstream/android-13
 	if (!kfifo_len(&zone->free_sectors)) {
 		sm_printk("no free blocks in zone %d", zone_num);
 		return 0;
@@ -945,8 +1065,14 @@ restart:
 
 	/* If there are no spare blocks, */
 	/* we could still continue by erasing/writing the current block,
+<<<<<<< HEAD
 		but for such worn out media it doesn't worth the trouble,
 			and the dangers */
+=======
+	 * but for such worn out media it doesn't worth the trouble,
+	 * and the dangers
+	 */
+>>>>>>> upstream/android-13
 	if (kfifo_out(&zone->free_sectors,
 				(unsigned char *)&write_sector, 2) != 2) {
 		dbg("no free sectors for write!");

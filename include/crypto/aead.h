@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * AEAD: Authenticated Encryption with Associated Data
  * 
  * Copyright (c) 2007-2015 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option) 
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYPTO_AEAD_H
@@ -48,6 +55,7 @@
  *
  * Memory Structure:
  *
+<<<<<<< HEAD
  * To support the needs of the most prominent user of AEAD ciphers, namely
  * IPSEC, the AEAD ciphers have a special memory layout the caller must adhere
  * to.
@@ -69,6 +77,35 @@
  * buffer. If there is any potential where the AAD buffer can be NULL, the
  * calling code must contain a precaution to ensure that this does not result
  * in the first scatter gather list entry pointing to a NULL buffer.
+=======
+ * The source scatterlist must contain the concatenation of
+ * associated data || plaintext or ciphertext.
+ *
+ * The destination scatterlist has the same layout, except that the plaintext
+ * (resp. ciphertext) will grow (resp. shrink) by the authentication tag size
+ * during encryption (resp. decryption).
+ *
+ * In-place encryption/decryption is enabled by using the same scatterlist
+ * pointer for both the source and destination.
+ *
+ * Even in the out-of-place case, space must be reserved in the destination for
+ * the associated data, even though it won't be written to.  This makes the
+ * in-place and out-of-place cases more consistent.  It is permissible for the
+ * "destination" associated data to alias the "source" associated data.
+ *
+ * As with the other scatterlist crypto APIs, zero-length scatterlist elements
+ * are not allowed in the used part of the scatterlist.  Thus, if there is no
+ * associated data, the first element must point to the plaintext/ciphertext.
+ *
+ * To meet the needs of IPsec, a special quirk applies to rfc4106, rfc4309,
+ * rfc4543, and rfc7539esp ciphers.  For these ciphers, the final 'ivsize' bytes
+ * of the associated data buffer must contain a second copy of the IV.  This is
+ * in addition to the copy passed to aead_request_set_crypt().  These two IV
+ * copies must not differ; different implementations of the same algorithm may
+ * behave differently in that case.  Note that the algorithm might not actually
+ * treat the IV as associated data; nevertheless the length passed to
+ * aead_request_set_ad() must include it.
+>>>>>>> upstream/android-13
  */
 
 struct crypto_aead;
@@ -115,7 +152,10 @@ struct aead_request {
  * @setkey: see struct skcipher_alg
  * @encrypt: see struct skcipher_alg
  * @decrypt: see struct skcipher_alg
+<<<<<<< HEAD
  * @geniv: see struct skcipher_alg
+=======
+>>>>>>> upstream/android-13
  * @ivsize: see struct skcipher_alg
  * @chunksize: see struct skcipher_alg
  * @init: Initialize the cryptographic transformation object. This function
@@ -142,8 +182,11 @@ struct aead_alg {
 	int (*init)(struct crypto_aead *tfm);
 	void (*exit)(struct crypto_aead *tfm);
 
+<<<<<<< HEAD
 	const char *geniv;
 
+=======
+>>>>>>> upstream/android-13
 	unsigned int ivsize;
 	unsigned int maxauthsize;
 	unsigned int chunksize;
@@ -195,6 +238,14 @@ static inline void crypto_free_aead(struct crypto_aead *tfm)
 	crypto_destroy_tfm(tfm, crypto_aead_tfm(tfm));
 }
 
+<<<<<<< HEAD
+=======
+static inline const char *crypto_aead_driver_name(struct crypto_aead *tfm)
+{
+	return crypto_tfm_alg_driver_name(crypto_aead_tfm(tfm));
+}
+
+>>>>>>> upstream/android-13
 static inline struct aead_alg *crypto_aead_alg(struct crypto_aead *tfm)
 {
 	return container_of(crypto_aead_tfm(tfm)->__crt_alg,
@@ -237,6 +288,19 @@ static inline unsigned int crypto_aead_authsize(struct crypto_aead *tfm)
 	return tfm->authsize;
 }
 
+<<<<<<< HEAD
+=======
+static inline unsigned int crypto_aead_alg_maxauthsize(struct aead_alg *alg)
+{
+	return alg->maxauthsize;
+}
+
+static inline unsigned int crypto_aead_maxauthsize(struct crypto_aead *aead)
+{
+	return crypto_aead_alg_maxauthsize(crypto_aead_alg(aead));
+}
+
+>>>>>>> upstream/android-13
 /**
  * crypto_aead_blocksize() - obtain block size of cipher
  * @tfm: cipher handle
@@ -327,6 +391,7 @@ static inline struct crypto_aead *crypto_aead_reqtfm(struct aead_request *req)
  *
  * Return: 0 if the cipher operation was successful; < 0 if an error occurred
  */
+<<<<<<< HEAD
 static inline int crypto_aead_encrypt(struct aead_request *req)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(req);
@@ -340,6 +405,13 @@ static inline int crypto_aead_encrypt(struct aead_request *req)
 /**
  * crypto_aead_decrypt() - decrypt ciphertext
  * @req: reference to the ablkcipher_request handle that holds all information
+=======
+int crypto_aead_encrypt(struct aead_request *req);
+
+/**
+ * crypto_aead_decrypt() - decrypt ciphertext
+ * @req: reference to the aead_request handle that holds all information
+>>>>>>> upstream/android-13
  *	 needed to perform the cipher operation
  *
  * Decrypt ciphertext data using the aead_request handle. That data structure
@@ -359,6 +431,7 @@ static inline int crypto_aead_encrypt(struct aead_request *req)
  *	   integrity of the ciphertext or the associated data was violated);
  *	   < 0 if an error occurred.
  */
+<<<<<<< HEAD
 static inline int crypto_aead_decrypt(struct aead_request *req)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(req);
@@ -371,6 +444,9 @@ static inline int crypto_aead_decrypt(struct aead_request *req)
 
 	return crypto_aead_alg(aead)->decrypt(req);
 }
+=======
+int crypto_aead_decrypt(struct aead_request *req);
+>>>>>>> upstream/android-13
 
 /**
  * DOC: Asynchronous AEAD Request Handle
@@ -438,7 +514,11 @@ static inline struct aead_request *aead_request_alloc(struct crypto_aead *tfm,
  */
 static inline void aead_request_free(struct aead_request *req)
 {
+<<<<<<< HEAD
 	kzfree(req);
+=======
+	kfree_sensitive(req);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -496,7 +576,11 @@ static inline void aead_request_set_callback(struct aead_request *req,
  * The memory structure for cipher operation has the following structure:
  *
  * - AEAD encryption input:  assoc data || plaintext
+<<<<<<< HEAD
  * - AEAD encryption output: assoc data || cipherntext || auth tag
+=======
+ * - AEAD encryption output: assoc data || ciphertext || auth tag
+>>>>>>> upstream/android-13
  * - AEAD decryption input:  assoc data || ciphertext || auth tag
  * - AEAD decryption output: assoc data || plaintext
  *

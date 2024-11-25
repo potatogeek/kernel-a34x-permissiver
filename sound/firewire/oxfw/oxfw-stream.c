@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * oxfw_stream.c - a part of driver for OXFW970/971 based devices
  *
  * Copyright (c) 2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "oxfw.h"
 #include <linux/delay.h>
 
 #define AVC_GENERIC_FRAME_MAXIMUM_BYTES	512
+<<<<<<< HEAD
 #define CALLBACK_TIMEOUT	200
+=======
+#define READY_TIMEOUT_MS	600
+>>>>>>> upstream/android-13
 
 /*
  * According to datasheet of Oxford Semiconductor:
@@ -101,6 +112,7 @@ static int set_stream_format(struct snd_oxfw *oxfw, struct amdtp_stream *s,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void stop_stream(struct snd_oxfw *oxfw, struct amdtp_stream *stream)
 {
 	amdtp_stream_pcm_abort(stream);
@@ -180,6 +192,30 @@ static int start_stream(struct snd_oxfw *oxfw, struct amdtp_stream *stream,
 	}
 end:
 	return err;
+=======
+static int start_stream(struct snd_oxfw *oxfw, struct amdtp_stream *stream)
+{
+	struct cmp_connection *conn;
+	int err;
+
+	if (stream == &oxfw->rx_stream)
+		conn = &oxfw->in_conn;
+	else
+		conn = &oxfw->out_conn;
+
+	err = cmp_connection_establish(conn);
+	if (err < 0)
+		return err;
+
+	err = amdtp_domain_add_stream(&oxfw->domain, stream,
+				      conn->resources.channel, conn->speed);
+	if (err < 0) {
+		cmp_connection_break(conn);
+		return err;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int check_connection_used_by_others(struct snd_oxfw *oxfw,
@@ -206,18 +242,48 @@ static int check_connection_used_by_others(struct snd_oxfw *oxfw,
 	return err;
 }
 
+<<<<<<< HEAD
 int snd_oxfw_stream_init_simplex(struct snd_oxfw *oxfw,
 				 struct amdtp_stream *stream)
+=======
+static int init_stream(struct snd_oxfw *oxfw, struct amdtp_stream *stream)
+>>>>>>> upstream/android-13
 {
 	struct cmp_connection *conn;
 	enum cmp_direction c_dir;
 	enum amdtp_stream_direction s_dir;
+<<<<<<< HEAD
 	int err;
 
+=======
+	unsigned int flags = 0;
+	int err;
+
+	if (!(oxfw->quirks & SND_OXFW_QUIRK_BLOCKING_TRANSMISSION))
+		flags |= CIP_NONBLOCKING;
+	else
+		flags |= CIP_BLOCKING;
+
+	// OXFW 970/971 has no function to generate playback timing according to the sequence
+	// of value in syt field, thus the packet should include NO_INFO value in the field.
+	// However, some models just ignore data blocks in packet with NO_INFO for audio data
+	// processing.
+	if (!(oxfw->quirks & SND_OXFW_QUIRK_IGNORE_NO_INFO_PACKET))
+		flags |= CIP_UNAWARE_SYT;
+
+>>>>>>> upstream/android-13
 	if (stream == &oxfw->tx_stream) {
 		conn = &oxfw->out_conn;
 		c_dir = CMP_OUTPUT;
 		s_dir = AMDTP_IN_STREAM;
+<<<<<<< HEAD
+=======
+
+		if (oxfw->quirks & SND_OXFW_QUIRK_JUMBO_PAYLOAD)
+			flags |= CIP_JUMBO_PAYLOAD;
+		if (oxfw->quirks & SND_OXFW_QUIRK_WRONG_DBS)
+			flags |= CIP_WRONG_DBS;
+>>>>>>> upstream/android-13
 	} else {
 		conn = &oxfw->in_conn;
 		c_dir = CMP_INPUT;
@@ -226,6 +292,7 @@ int snd_oxfw_stream_init_simplex(struct snd_oxfw *oxfw,
 
 	err = cmp_connection_init(conn, oxfw->unit, c_dir, 0);
 	if (err < 0)
+<<<<<<< HEAD
 		goto end;
 
 	err = amdtp_am824_init(stream, oxfw->unit, s_dir, CIP_NONBLOCKING);
@@ -309,10 +376,123 @@ int snd_oxfw_stream_start_simplex(struct snd_oxfw *oxfw,
 		}
 		stop_stream(oxfw, stream);
 
+=======
+		return err;
+
+	err = amdtp_am824_init(stream, oxfw->unit, s_dir, flags);
+	if (err < 0) {
+		cmp_connection_destroy(conn);
+		return err;
+	}
+
+	return 0;
+}
+
+static int keep_resources(struct snd_oxfw *oxfw, struct amdtp_stream *stream)
+{
+	enum avc_general_plug_dir dir;
+	u8 **formats;
+	struct snd_oxfw_stream_formation formation;
+	struct cmp_connection *conn;
+	int i;
+	int err;
+
+	if (stream == &oxfw->rx_stream) {
+		dir = AVC_GENERAL_PLUG_DIR_IN;
+		formats = oxfw->rx_stream_formats;
+		conn = &oxfw->in_conn;
+	} else {
+		dir = AVC_GENERAL_PLUG_DIR_OUT;
+		formats = oxfw->tx_stream_formats;
+		conn = &oxfw->out_conn;
+	}
+
+	err = snd_oxfw_stream_get_current_formation(oxfw, dir, &formation);
+	if (err < 0)
+		return err;
+
+	for (i = 0; i < SND_OXFW_STREAM_FORMAT_ENTRIES; i++) {
+		struct snd_oxfw_stream_formation fmt;
+
+		if (formats[i] == NULL)
+			break;
+
+		err = snd_oxfw_stream_parse_format(formats[i], &fmt);
+		if (err < 0)
+			return err;
+
+		if (fmt.rate == formation.rate && fmt.pcm == formation.pcm &&
+		    fmt.midi == formation.midi)
+			break;
+	}
+	if (i == SND_OXFW_STREAM_FORMAT_ENTRIES)
+		return -EINVAL;
+
+	// The stream should have one pcm channels at least.
+	if (formation.pcm == 0)
+		return -EINVAL;
+
+	err = amdtp_am824_set_parameters(stream, formation.rate, formation.pcm,
+					 formation.midi * 8, false);
+	if (err < 0)
+		return err;
+
+	return cmp_connection_reserve(conn, amdtp_stream_get_max_payload(stream));
+}
+
+int snd_oxfw_stream_reserve_duplex(struct snd_oxfw *oxfw,
+				   struct amdtp_stream *stream,
+				   unsigned int rate, unsigned int pcm_channels,
+				   unsigned int frames_per_period,
+				   unsigned int frames_per_buffer)
+{
+	struct snd_oxfw_stream_formation formation;
+	enum avc_general_plug_dir dir;
+	int err;
+
+	// Considering JACK/FFADO streaming:
+	// TODO: This can be removed hwdep functionality becomes popular.
+	err = check_connection_used_by_others(oxfw, &oxfw->rx_stream);
+	if (err < 0)
+		return err;
+	if (oxfw->has_output) {
+		err = check_connection_used_by_others(oxfw, &oxfw->tx_stream);
+		if (err < 0)
+			return err;
+	}
+
+	if (stream == &oxfw->tx_stream)
+		dir = AVC_GENERAL_PLUG_DIR_OUT;
+	else
+		dir = AVC_GENERAL_PLUG_DIR_IN;
+
+	err = snd_oxfw_stream_get_current_formation(oxfw, dir, &formation);
+	if (err < 0)
+		return err;
+	if (rate == 0) {
+		rate = formation.rate;
+		pcm_channels = formation.pcm;
+	}
+	if (formation.rate != rate || formation.pcm != pcm_channels) {
+		amdtp_domain_stop(&oxfw->domain);
+
+		cmp_connection_break(&oxfw->in_conn);
+		cmp_connection_release(&oxfw->in_conn);
+
+		if (oxfw->has_output) {
+			cmp_connection_break(&oxfw->out_conn);
+			cmp_connection_release(&oxfw->out_conn);
+		}
+	}
+
+	if (oxfw->substreams_count == 0 ||
+	    formation.rate != rate || formation.pcm != pcm_channels) {
+>>>>>>> upstream/android-13
 		err = set_stream_format(oxfw, stream, rate, pcm_channels);
 		if (err < 0) {
 			dev_err(&oxfw->unit->device,
 				"fail to set stream format: %d\n", err);
+<<<<<<< HEAD
 			goto end;
 		}
 
@@ -355,6 +535,126 @@ void snd_oxfw_stream_stop_simplex(struct snd_oxfw *oxfw,
  */
 void snd_oxfw_stream_destroy_simplex(struct snd_oxfw *oxfw,
 				     struct amdtp_stream *stream)
+=======
+			return err;
+		}
+
+		err = keep_resources(oxfw, &oxfw->rx_stream);
+		if (err < 0)
+			return err;
+
+		if (oxfw->has_output) {
+			err = keep_resources(oxfw, &oxfw->tx_stream);
+			if (err < 0) {
+				cmp_connection_release(&oxfw->in_conn);
+				return err;
+			}
+		}
+
+		err = amdtp_domain_set_events_per_period(&oxfw->domain,
+					frames_per_period, frames_per_buffer);
+		if (err < 0) {
+			cmp_connection_release(&oxfw->in_conn);
+			if (oxfw->has_output)
+				cmp_connection_release(&oxfw->out_conn);
+			return err;
+		}
+	}
+
+	return 0;
+}
+
+int snd_oxfw_stream_start_duplex(struct snd_oxfw *oxfw)
+{
+	int err;
+
+	if (oxfw->substreams_count == 0)
+		return -EIO;
+
+	if (amdtp_streaming_error(&oxfw->rx_stream) ||
+	    amdtp_streaming_error(&oxfw->tx_stream)) {
+		amdtp_domain_stop(&oxfw->domain);
+
+		cmp_connection_break(&oxfw->in_conn);
+		if (oxfw->has_output)
+			cmp_connection_break(&oxfw->out_conn);
+	}
+
+	if (!amdtp_stream_running(&oxfw->rx_stream)) {
+		unsigned int tx_init_skip_cycles = 0;
+		bool replay_seq = false;
+
+		err = start_stream(oxfw, &oxfw->rx_stream);
+		if (err < 0) {
+			dev_err(&oxfw->unit->device,
+				"fail to prepare rx stream: %d\n", err);
+			goto error;
+		}
+
+		if (oxfw->has_output &&
+		    !amdtp_stream_running(&oxfw->tx_stream)) {
+			err = start_stream(oxfw, &oxfw->tx_stream);
+			if (err < 0) {
+				dev_err(&oxfw->unit->device,
+					"fail to prepare tx stream: %d\n", err);
+				goto error;
+			}
+
+			if (oxfw->quirks & SND_OXFW_QUIRK_JUMBO_PAYLOAD) {
+				// Just after changing sampling transfer frequency, many cycles are
+				// skipped for packet transmission.
+				tx_init_skip_cycles = 400;
+			} else if (oxfw->quirks & SND_OXFW_QUIRK_VOLUNTARY_RECOVERY) {
+				// It takes a bit time for target device to adjust event frequency
+				// according to nominal event frequency in isochronous packets from
+				// ALSA oxfw driver.
+				tx_init_skip_cycles = 4000;
+			} else {
+				replay_seq = true;
+			}
+		}
+
+		// NOTE: The device ignores presentation time expressed by the value of syt field
+		// of CIP header in received packets. The sequence of the number of data blocks per
+		// packet is important for media clock recovery.
+		err = amdtp_domain_start(&oxfw->domain, tx_init_skip_cycles, replay_seq, false);
+		if (err < 0)
+			goto error;
+
+		if (!amdtp_domain_wait_ready(&oxfw->domain, READY_TIMEOUT_MS)) {
+			err = -ETIMEDOUT;
+			goto error;
+		}
+	}
+
+	return 0;
+error:
+	amdtp_domain_stop(&oxfw->domain);
+
+	cmp_connection_break(&oxfw->in_conn);
+	if (oxfw->has_output)
+		cmp_connection_break(&oxfw->out_conn);
+
+	return err;
+}
+
+void snd_oxfw_stream_stop_duplex(struct snd_oxfw *oxfw)
+{
+	if (oxfw->substreams_count == 0) {
+		amdtp_domain_stop(&oxfw->domain);
+
+		cmp_connection_break(&oxfw->in_conn);
+		cmp_connection_release(&oxfw->in_conn);
+
+		if (oxfw->has_output) {
+			cmp_connection_break(&oxfw->out_conn);
+			cmp_connection_release(&oxfw->out_conn);
+		}
+	}
+}
+
+static void destroy_stream(struct snd_oxfw *oxfw, struct amdtp_stream *stream)
+>>>>>>> upstream/android-13
 {
 	struct cmp_connection *conn;
 
@@ -367,6 +667,7 @@ void snd_oxfw_stream_destroy_simplex(struct snd_oxfw *oxfw,
 	cmp_connection_destroy(conn);
 }
 
+<<<<<<< HEAD
 void snd_oxfw_stream_update_simplex(struct snd_oxfw *oxfw,
 				    struct amdtp_stream *stream)
 {
@@ -381,6 +682,59 @@ void snd_oxfw_stream_update_simplex(struct snd_oxfw *oxfw,
 		stop_stream(oxfw, stream);
 	else
 		amdtp_stream_update(stream);
+=======
+int snd_oxfw_stream_init_duplex(struct snd_oxfw *oxfw)
+{
+	int err;
+
+	err = init_stream(oxfw, &oxfw->rx_stream);
+	if (err < 0)
+		return err;
+
+	if (oxfw->has_output) {
+		err = init_stream(oxfw, &oxfw->tx_stream);
+		if (err < 0) {
+			destroy_stream(oxfw, &oxfw->rx_stream);
+			return err;
+		}
+	}
+
+	err = amdtp_domain_init(&oxfw->domain);
+	if (err < 0) {
+		destroy_stream(oxfw, &oxfw->rx_stream);
+		if (oxfw->has_output)
+			destroy_stream(oxfw, &oxfw->tx_stream);
+	}
+
+	return err;
+}
+
+// This function should be called before starting the stream or after stopping
+// the streams.
+void snd_oxfw_stream_destroy_duplex(struct snd_oxfw *oxfw)
+{
+	amdtp_domain_destroy(&oxfw->domain);
+
+	destroy_stream(oxfw, &oxfw->rx_stream);
+
+	if (oxfw->has_output)
+		destroy_stream(oxfw, &oxfw->tx_stream);
+}
+
+void snd_oxfw_stream_update_duplex(struct snd_oxfw *oxfw)
+{
+	amdtp_domain_stop(&oxfw->domain);
+
+	cmp_connection_break(&oxfw->in_conn);
+
+	amdtp_stream_pcm_abort(&oxfw->rx_stream);
+
+	if (oxfw->has_output) {
+		cmp_connection_break(&oxfw->out_conn);
+
+		amdtp_stream_pcm_abort(&oxfw->tx_stream);
+	}
+>>>>>>> upstream/android-13
 }
 
 int snd_oxfw_stream_get_current_formation(struct snd_oxfw *oxfw,
@@ -429,7 +783,11 @@ int snd_oxfw_stream_parse_format(u8 *format,
 	 *  Level 1:	AM824 Compound  (0x40)
 	 */
 	if ((format[0] != 0x90) || (format[1] != 0x40))
+<<<<<<< HEAD
 		return -ENOSYS;
+=======
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	/* check the sampling rate */
 	for (i = 0; i < ARRAY_SIZE(avc_stream_rate_table); i++) {
@@ -437,7 +795,11 @@ int snd_oxfw_stream_parse_format(u8 *format,
 			break;
 	}
 	if (i == ARRAY_SIZE(avc_stream_rate_table))
+<<<<<<< HEAD
 		return -ENOSYS;
+=======
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	formation->rate = oxfw_rate_table[i];
 
@@ -481,13 +843,21 @@ int snd_oxfw_stream_parse_format(u8 *format,
 		/* Don't care */
 		case 0xff:
 		default:
+<<<<<<< HEAD
 			return -ENOSYS;	/* not supported */
+=======
+			return -ENXIO;	/* not supported */
+>>>>>>> upstream/android-13
 		}
 	}
 
 	if (formation->pcm  > AM824_MAX_CHANNELS_FOR_PCM ||
 	    formation->midi > AM824_MAX_CHANNELS_FOR_MIDI)
+<<<<<<< HEAD
 		return -ENOSYS;
+=======
+		return -ENXIO;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -517,8 +887,14 @@ assume_stream_formats(struct snd_oxfw *oxfw, enum avc_general_plug_dir dir,
 	if (err < 0)
 		goto end;
 
+<<<<<<< HEAD
 	formats[eid] = kmemdup(buf, *len, GFP_KERNEL);
 	if (formats[eid] == NULL) {
+=======
+	formats[eid] = devm_kmemdup(&oxfw->card->card_dev, buf, *len,
+				    GFP_KERNEL);
+	if (!formats[eid]) {
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto end;
 	}
@@ -535,7 +911,12 @@ assume_stream_formats(struct snd_oxfw *oxfw, enum avc_general_plug_dir dir,
 			continue;
 
 		eid++;
+<<<<<<< HEAD
 		formats[eid] = kmemdup(buf, *len, GFP_KERNEL);
+=======
+		formats[eid] = devm_kmemdup(&oxfw->card->card_dev, buf, *len,
+					    GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (formats[eid] == NULL) {
 			err = -ENOMEM;
 			goto end;
@@ -570,7 +951,11 @@ static int fill_stream_formats(struct snd_oxfw *oxfw,
 	/* get first entry */
 	len = AVC_GENERIC_FRAME_MAXIMUM_BYTES;
 	err = avc_stream_get_format_list(oxfw->unit, dir, 0, buf, &len, 0);
+<<<<<<< HEAD
 	if (err == -ENOSYS) {
+=======
+	if (err == -ENXIO) {
+>>>>>>> upstream/android-13
 		/* LIST subfunction is not implemented */
 		len = AVC_GENERIC_FRAME_MAXIMUM_BYTES;
 		err = assume_stream_formats(oxfw, dir, pid, buf, &len,
@@ -597,8 +982,14 @@ static int fill_stream_formats(struct snd_oxfw *oxfw,
 		if (err < 0)
 			break;
 
+<<<<<<< HEAD
 		formats[eid] = kmemdup(buf, len, GFP_KERNEL);
 		if (formats[eid] == NULL) {
+=======
+		formats[eid] = devm_kmemdup(&oxfw->card->card_dev, buf, len,
+					    GFP_KERNEL);
+		if (!formats[eid]) {
+>>>>>>> upstream/android-13
 			err = -ENOMEM;
 			break;
 		}
@@ -641,13 +1032,18 @@ int snd_oxfw_stream_discover(struct snd_oxfw *oxfw)
 			err);
 		goto end;
 	} else if ((plugs[0] == 0) && (plugs[1] == 0)) {
+<<<<<<< HEAD
 		err = -ENOSYS;
+=======
+		err = -ENXIO;
+>>>>>>> upstream/android-13
 		goto end;
 	}
 
 	/* use oPCR[0] if exists */
 	if (plugs[1] > 0) {
 		err = fill_stream_formats(oxfw, AVC_GENERAL_PLUG_DIR_OUT, 0);
+<<<<<<< HEAD
 		if (err < 0)
 			goto end;
 
@@ -665,11 +1061,37 @@ int snd_oxfw_stream_discover(struct snd_oxfw *oxfw)
 		}
 
 		oxfw->has_output = true;
+=======
+		if (err < 0) {
+			if (err != -ENXIO)
+				return err;
+
+			// The oPCR is not available for isoc communication.
+			err = 0;
+		} else {
+			for (i = 0; i < SND_OXFW_STREAM_FORMAT_ENTRIES; i++) {
+				format = oxfw->tx_stream_formats[i];
+				if (format == NULL)
+					continue;
+				err = snd_oxfw_stream_parse_format(format,
+								   &formation);
+				if (err < 0)
+					continue;
+
+				/* Add one MIDI port. */
+				if (formation.midi > 0)
+					oxfw->midi_input_ports = 1;
+			}
+
+			oxfw->has_output = true;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* use iPCR[0] if exists */
 	if (plugs[0] > 0) {
 		err = fill_stream_formats(oxfw, AVC_GENERAL_PLUG_DIR_IN, 0);
+<<<<<<< HEAD
 		if (err < 0)
 			goto end;
 
@@ -684,6 +1106,30 @@ int snd_oxfw_stream_discover(struct snd_oxfw *oxfw)
 			/* Add one MIDI port. */
 			if (formation.midi > 0)
 				oxfw->midi_output_ports = 1;
+=======
+		if (err < 0) {
+			if (err != -ENXIO)
+				return err;
+
+			// The iPCR is not available for isoc communication.
+			err = 0;
+		} else {
+			for (i = 0; i < SND_OXFW_STREAM_FORMAT_ENTRIES; i++) {
+				format = oxfw->rx_stream_formats[i];
+				if (format == NULL)
+					continue;
+				err = snd_oxfw_stream_parse_format(format,
+								   &formation);
+				if (err < 0)
+					continue;
+
+				/* Add one MIDI port. */
+				if (formation.midi > 0)
+					oxfw->midi_output_ports = 1;
+			}
+
+			oxfw->has_input = true;
+>>>>>>> upstream/android-13
 		}
 	}
 end:

@@ -22,10 +22,15 @@
 #include <media/v4l2-subdev.h>
 
 #include "camss-csid.h"
+<<<<<<< HEAD
+=======
+#include "camss-csid-gen1.h"
+>>>>>>> upstream/android-13
 #include "camss.h"
 
 #define MSM_CSID_NAME "msm_csid"
 
+<<<<<<< HEAD
 #define CAMSS_CSID_HW_VERSION		0x0
 #define CAMSS_CSID_CORE_CTRL_0		0x004
 #define CAMSS_CSID_CORE_CTRL_1		0x008
@@ -424,6 +429,49 @@ static const struct csid_format *csid_get_fmt_entry(
 	unsigned int i;
 
 	for (i = 0; i < nformat; i++)
+=======
+const char * const csid_testgen_modes[] = {
+	"Disabled",
+	"Incrementing",
+	"Alternating 0x55/0xAA",
+	"All Zeros 0x00",
+	"All Ones 0xFF",
+	"Pseudo-random Data",
+	"User Specified",
+	"Complex pattern",
+	"Color box",
+	"Color bars",
+	NULL
+};
+
+u32 csid_find_code(u32 *codes, unsigned int ncodes,
+		   unsigned int match_format_idx, u32 match_code)
+{
+	int i;
+
+	if (!match_code && (match_format_idx >= ncodes))
+		return 0;
+
+	for (i = 0; i < ncodes; i++)
+		if (match_code) {
+			if (codes[i] == match_code)
+				return match_code;
+		} else {
+			if (i == match_format_idx)
+				return codes[i];
+		}
+
+	return codes[0];
+}
+
+const struct csid_format *csid_get_fmt_entry(const struct csid_format *formats,
+					     unsigned int nformats,
+					     u32 code)
+{
+	unsigned int i;
+
+	for (i = 0; i < nformats; i++)
+>>>>>>> upstream/android-13
 		if (code == formats[i].code)
 			return &formats[i];
 
@@ -433,6 +481,7 @@ static const struct csid_format *csid_get_fmt_entry(
 }
 
 /*
+<<<<<<< HEAD
  * csid_isr - CSID module interrupt handler
  * @irq: Interrupt line
  * @dev: CSID device
@@ -455,12 +504,15 @@ static irqreturn_t csid_isr(int irq, void *dev)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * csid_set_clock_rates - Calculate and set clock rates on CSID module
  * @csiphy: CSID device
  */
 static int csid_set_clock_rates(struct csid_device *csid)
 {
 	struct device *dev = csid->camss->dev;
+<<<<<<< HEAD
 	u32 pixel_clock;
 	int i, j;
 	int ret;
@@ -468,6 +520,19 @@ static int csid_set_clock_rates(struct csid_device *csid)
 	ret = camss_get_pixel_clock(&csid->subdev.entity, &pixel_clock);
 	if (ret)
 		pixel_clock = 0;
+=======
+	const struct csid_format *fmt;
+	s64 link_freq;
+	int i, j;
+	int ret;
+
+	fmt = csid_get_fmt_entry(csid->formats, csid->nformats,
+				 csid->fmt[MSM_CSIPHY_PAD_SINK].code);
+	link_freq = camss_get_link_freq(&csid->subdev.entity, fmt->bpp,
+					csid->phy.lane_cnt);
+	if (link_freq < 0)
+		link_freq = 0;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < csid->nclocks; i++) {
 		struct camss_clock *clock = &csid->clock[i];
@@ -476,6 +541,7 @@ static int csid_set_clock_rates(struct csid_device *csid)
 		    !strcmp(clock->name, "csi1") ||
 		    !strcmp(clock->name, "csi2") ||
 		    !strcmp(clock->name, "csi3")) {
+<<<<<<< HEAD
 			const struct csid_format *f = csid_get_fmt_entry(
 				csid->formats,
 				csid->nformats,
@@ -483,6 +549,9 @@ static int csid_set_clock_rates(struct csid_device *csid)
 			u8 num_lanes = csid->phy.lane_cnt;
 			u64 min_rate = pixel_clock * f->bpp /
 							(2 * num_lanes * 4);
+=======
+			u64 min_rate = link_freq / 4;
+>>>>>>> upstream/android-13
 			long rate;
 
 			camss_add_clock_margin(&min_rate);
@@ -514,6 +583,11 @@ static int csid_set_clock_rates(struct csid_device *csid)
 				dev_err(dev, "clk set rate failed: %d\n", ret);
 				return ret;
 			}
+<<<<<<< HEAD
+=======
+		} else if (clock->nfreqs) {
+			clk_set_rate(clock->clk, clock->freq[0]);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -521,6 +595,7 @@ static int csid_set_clock_rates(struct csid_device *csid)
 }
 
 /*
+<<<<<<< HEAD
  * csid_reset - Trigger reset on CSID module and wait to complete
  * @csid: CSID device
  *
@@ -546,6 +621,8 @@ static int csid_reset(struct csid_device *csid)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * csid_set_power - Power on/off CSID module
  * @sd: CSID V4L2 subdevice
  * @on: Requested power state
@@ -559,9 +636,13 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
 	int ret;
 
 	if (on) {
+<<<<<<< HEAD
 		u32 hw_version;
 
 		ret = pm_runtime_get_sync(dev);
+=======
+		ret = pm_runtime_resume_and_get(dev);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
@@ -587,7 +668,11 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
 
 		enable_irq(csid->irq);
 
+<<<<<<< HEAD
 		ret = csid_reset(csid);
+=======
+		ret = csid->ops->reset(csid);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			disable_irq(csid->irq);
 			camss_disable_clocks(csid->nclocks, csid->clock);
@@ -596,8 +681,12 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
 			return ret;
 		}
 
+<<<<<<< HEAD
 		hw_version = readl_relaxed(csid->base + CAMSS_CSID_HW_VERSION);
 		dev_dbg(dev, "CSID HW Version = 0x%08x\n", hw_version);
+=======
+		csid->ops->hw_version(csid);
+>>>>>>> upstream/android-13
 	} else {
 		disable_irq(csid->irq);
 		camss_disable_clocks(csid->nclocks, csid->clock);
@@ -620,6 +709,7 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
 static int csid_set_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct csid_device *csid = v4l2_get_subdevdata(sd);
+<<<<<<< HEAD
 	struct csid_testgen_config *tg = &csid->testgen;
 	enum camss_version ver = csid->camss->version;
 	u32 val;
@@ -630,6 +720,11 @@ static int csid_set_stream(struct v4l2_subdev *sd, int enable)
 		u8 dt, dt_shift, df;
 		int ret;
 
+=======
+	int ret;
+
+	if (enable) {
+>>>>>>> upstream/android-13
 		ret = v4l2_ctrl_handler_setup(&csid->ctrls);
 		if (ret < 0) {
 			dev_err(csid->camss->dev,
@@ -637,6 +732,7 @@ static int csid_set_stream(struct v4l2_subdev *sd, int enable)
 			return ret;
 		}
 
+<<<<<<< HEAD
 		if (!tg->enabled &&
 		    !media_entity_remote_pad(&csid->pads[MSM_CSID_PAD_SINK]))
 			return -ENOLINK;
@@ -746,6 +842,15 @@ static int csid_set_stream(struct v4l2_subdev *sd, int enable)
 		}
 	}
 
+=======
+		if (!csid->testgen.enabled &&
+		    !media_entity_remote_pad(&csid->pads[MSM_CSID_PAD_SINK]))
+			return -ENOLINK;
+	}
+
+	csid->ops->configure_stream(csid, enable);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -760,12 +865,21 @@ static int csid_set_stream(struct v4l2_subdev *sd, int enable)
  */
 static struct v4l2_mbus_framefmt *
 __csid_get_format(struct csid_device *csid,
+<<<<<<< HEAD
 		  struct v4l2_subdev_pad_config *cfg,
+=======
+		  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		  unsigned int pad,
 		  enum v4l2_subdev_format_whence which)
 {
 	if (which == V4L2_SUBDEV_FORMAT_TRY)
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_format(&csid->subdev, cfg, pad);
+=======
+		return v4l2_subdev_get_try_format(&csid->subdev, sd_state,
+						  pad);
+>>>>>>> upstream/android-13
 
 	return &csid->fmt[pad];
 }
@@ -779,7 +893,11 @@ __csid_get_format(struct csid_device *csid,
  * @which: wanted subdev format
  */
 static void csid_try_format(struct csid_device *csid,
+<<<<<<< HEAD
 			    struct v4l2_subdev_pad_config *cfg,
+=======
+			    struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			    unsigned int pad,
 			    struct v4l2_mbus_framefmt *fmt,
 			    enum v4l2_subdev_format_whence which)
@@ -812,9 +930,15 @@ static void csid_try_format(struct csid_device *csid,
 			/* keep pad formats in sync */
 			u32 code = fmt->code;
 
+<<<<<<< HEAD
 			*fmt = *__csid_get_format(csid, cfg,
 						      MSM_CSID_PAD_SINK, which);
 			fmt->code = csid_src_pad_code(csid, fmt->code, 0, code);
+=======
+			*fmt = *__csid_get_format(csid, sd_state,
+						      MSM_CSID_PAD_SINK, which);
+			fmt->code = csid->ops->src_pad_code(csid, fmt->code, 0, code);
+>>>>>>> upstream/android-13
 		} else {
 			/* Test generator is enabled, set format on source */
 			/* pad to allow test generator usage */
@@ -846,7 +970,11 @@ static void csid_try_format(struct csid_device *csid,
  * return -EINVAL or zero on success
  */
 static int csid_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
+=======
+			       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			       struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct csid_device *csid = v4l2_get_subdevdata(sd);
@@ -860,11 +988,19 @@ static int csid_enum_mbus_code(struct v4l2_subdev *sd,
 		if (csid->testgen_mode->cur.val == 0) {
 			struct v4l2_mbus_framefmt *sink_fmt;
 
+<<<<<<< HEAD
 			sink_fmt = __csid_get_format(csid, cfg,
 						     MSM_CSID_PAD_SINK,
 						     code->which);
 
 			code->code = csid_src_pad_code(csid, sink_fmt->code,
+=======
+			sink_fmt = __csid_get_format(csid, sd_state,
+						     MSM_CSID_PAD_SINK,
+						     code->which);
+
+			code->code = csid->ops->src_pad_code(csid, sink_fmt->code,
+>>>>>>> upstream/android-13
 						       code->index, 0);
 			if (!code->code)
 				return -EINVAL;
@@ -887,7 +1023,11 @@ static int csid_enum_mbus_code(struct v4l2_subdev *sd,
  * return -EINVAL or zero on success
  */
 static int csid_enum_frame_size(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				struct v4l2_subdev_pad_config *cfg,
+=======
+				struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct csid_device *csid = v4l2_get_subdevdata(sd);
@@ -899,7 +1039,11 @@ static int csid_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = 1;
 	format.height = 1;
+<<<<<<< HEAD
 	csid_try_format(csid, cfg, fse->pad, &format, fse->which);
+=======
+	csid_try_format(csid, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->min_width = format.width;
 	fse->min_height = format.height;
 
@@ -909,7 +1053,11 @@ static int csid_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = -1;
 	format.height = -1;
+<<<<<<< HEAD
 	csid_try_format(csid, cfg, fse->pad, &format, fse->which);
+=======
+	csid_try_format(csid, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->max_width = format.width;
 	fse->max_height = format.height;
 
@@ -925,13 +1073,21 @@ static int csid_enum_frame_size(struct v4l2_subdev *sd,
  * Return -EINVAL or zero on success
  */
 static int csid_get_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   struct v4l2_subdev_format *fmt)
 {
 	struct csid_device *csid = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __csid_get_format(csid, cfg, fmt->pad, fmt->which);
+=======
+	format = __csid_get_format(csid, sd_state, fmt->pad, fmt->which);
+>>>>>>> upstream/android-13
 	if (format == NULL)
 		return -EINVAL;
 
@@ -949,26 +1105,46 @@ static int csid_get_format(struct v4l2_subdev *sd,
  * Return -EINVAL or zero on success
  */
 static int csid_set_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   struct v4l2_subdev_format *fmt)
 {
 	struct csid_device *csid = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __csid_get_format(csid, cfg, fmt->pad, fmt->which);
 	if (format == NULL)
 		return -EINVAL;
 
 	csid_try_format(csid, cfg, fmt->pad, &fmt->format, fmt->which);
+=======
+	format = __csid_get_format(csid, sd_state, fmt->pad, fmt->which);
+	if (format == NULL)
+		return -EINVAL;
+
+	csid_try_format(csid, sd_state, fmt->pad, &fmt->format, fmt->which);
+>>>>>>> upstream/android-13
 	*format = fmt->format;
 
 	/* Propagate the format from sink to source */
 	if (fmt->pad == MSM_CSID_PAD_SINK) {
+<<<<<<< HEAD
 		format = __csid_get_format(csid, cfg, MSM_CSID_PAD_SRC,
 					   fmt->which);
 
 		*format = fmt->format;
 		csid_try_format(csid, cfg, MSM_CSID_PAD_SRC, format,
+=======
+		format = __csid_get_format(csid, sd_state, MSM_CSID_PAD_SRC,
+					   fmt->which);
+
+		*format = fmt->format;
+		csid_try_format(csid, sd_state, MSM_CSID_PAD_SRC, format,
+>>>>>>> upstream/android-13
 				fmt->which);
 	}
 
@@ -997,6 +1173,7 @@ static int csid_init_formats(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 		}
 	};
 
+<<<<<<< HEAD
 	return csid_set_format(sd, fh ? fh->pad : NULL, &format);
 }
 
@@ -1009,6 +1186,11 @@ static const char * const csid_test_pattern_menu[] = {
 	"Pseudo-random Data",
 };
 
+=======
+	return csid_set_format(sd, fh ? fh->state : NULL, &format);
+}
+
+>>>>>>> upstream/android-13
 /*
  * csid_set_test_pattern - Set test generator's pattern mode
  * @csid: CSID device
@@ -1026,6 +1208,7 @@ static int csid_set_test_pattern(struct csid_device *csid, s32 value)
 
 	tg->enabled = !!value;
 
+<<<<<<< HEAD
 	switch (value) {
 	case 1:
 		tg->payload_mode = CSID_PAYLOAD_MODE_INCREMENTING;
@@ -1045,6 +1228,9 @@ static int csid_set_test_pattern(struct csid_device *csid, s32 value)
 	}
 
 	return 0;
+=======
+	return csid->ops->configure_testgen_pattern(csid, value);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1093,6 +1279,7 @@ int msm_csid_subdev_init(struct camss *camss, struct csid_device *csid,
 	csid->id = id;
 
 	if (camss->version == CAMSS_8x16) {
+<<<<<<< HEAD
 		csid->formats = csid_formats_8x16;
 		csid->nformats =
 				ARRAY_SIZE(csid_formats_8x16);
@@ -1112,6 +1299,24 @@ int msm_csid_subdev_init(struct camss *camss, struct csid_device *csid,
 		dev_err(dev, "could not map memory\n");
 		return PTR_ERR(csid->base);
 	}
+=======
+		csid->ops = &csid_ops_4_1;
+	} else if (camss->version == CAMSS_8x96 ||
+		   camss->version == CAMSS_660) {
+		csid->ops = &csid_ops_4_7;
+	} else if (camss->version == CAMSS_845) {
+		csid->ops = &csid_ops_170;
+	} else {
+		return -EINVAL;
+	}
+	csid->ops->subdev_init(csid);
+
+	/* Memory */
+
+	csid->base = devm_platform_ioremap_resource_byname(pdev, res->reg[0]);
+	if (IS_ERR(csid->base))
+		return PTR_ERR(csid->base);
+>>>>>>> upstream/android-13
 
 	/* Interrupt */
 
@@ -1125,15 +1330,24 @@ int msm_csid_subdev_init(struct camss *camss, struct csid_device *csid,
 	csid->irq = r->start;
 	snprintf(csid->irq_name, sizeof(csid->irq_name), "%s_%s%d",
 		 dev_name(dev), MSM_CSID_NAME, csid->id);
+<<<<<<< HEAD
 	ret = devm_request_irq(dev, csid->irq, csid_isr,
 		IRQF_TRIGGER_RISING, csid->irq_name, csid);
+=======
+	ret = devm_request_irq(dev, csid->irq, csid->ops->isr,
+			       IRQF_TRIGGER_RISING | IRQF_NO_AUTOEN,
+			       csid->irq_name, csid);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(dev, "request_irq failed: %d\n", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	disable_irq(csid->irq);
 
+=======
+>>>>>>> upstream/android-13
 	/* Clocks */
 
 	csid->nclocks = 0;
@@ -1336,8 +1550,13 @@ int msm_csid_register_entity(struct csid_device *csid,
 
 	csid->testgen_mode = v4l2_ctrl_new_std_menu_items(&csid->ctrls,
 				&csid_ctrl_ops, V4L2_CID_TEST_PATTERN,
+<<<<<<< HEAD
 				ARRAY_SIZE(csid_test_pattern_menu) - 1, 0, 0,
 				csid_test_pattern_menu);
+=======
+				csid->testgen.nmodes, 0, 0,
+				csid->testgen.modes);
+>>>>>>> upstream/android-13
 
 	if (csid->ctrls.error) {
 		dev_err(dev, "Failed to init ctrl: %d\n", csid->ctrls.error);
@@ -1356,7 +1575,11 @@ int msm_csid_register_entity(struct csid_device *csid,
 	pads[MSM_CSID_PAD_SINK].flags = MEDIA_PAD_FL_SINK;
 	pads[MSM_CSID_PAD_SRC].flags = MEDIA_PAD_FL_SOURCE;
 
+<<<<<<< HEAD
 	sd->entity.function = MEDIA_ENT_F_IO_V4L;
+=======
+	sd->entity.function = MEDIA_ENT_F_PROC_VIDEO_PIXEL_FORMATTER;
+>>>>>>> upstream/android-13
 	sd->entity.ops = &csid_media_ops;
 	ret = media_entity_pads_init(&sd->entity, MSM_CSID_PADS_NUM, pads);
 	if (ret < 0) {

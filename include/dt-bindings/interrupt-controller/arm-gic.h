@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR MIT */
+>>>>>>> upstream/android-13
 /*
  * This header provides constants for the ARM GIC.
  */

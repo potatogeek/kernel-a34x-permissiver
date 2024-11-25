@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DTS_IMX1_PINFUNC_H

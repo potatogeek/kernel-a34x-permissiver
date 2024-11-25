@@ -134,6 +134,7 @@ bool osq_lock(struct optimistic_spin_queue *lock)
 	 * cmpxchg in an attempt to undo our queueing.
 	 */
 
+<<<<<<< HEAD
 	while (!READ_ONCE(node->locked)) {
 		/*
 		 * If we need to reschedule bail... so we can block.
@@ -148,6 +149,19 @@ bool osq_lock(struct optimistic_spin_queue *lock)
 	return true;
 
 unqueue:
+=======
+	/*
+	 * Wait to acquire the lock or cancellation. Note that need_resched()
+	 * will come with an IPI, which will wake smp_cond_load_relaxed() if it
+	 * is implemented with a monitor-wait. vcpu_is_preempted() relies on
+	 * polling, be careful.
+	 */
+	if (smp_cond_load_relaxed(&node->locked, VAL || need_resched() ||
+				  vcpu_is_preempted(node_cpu(node->prev))))
+		return true;
+
+	/* unqueue */
+>>>>>>> upstream/android-13
 	/*
 	 * Step - A  -- stabilize @prev
 	 *
@@ -157,13 +171,25 @@ unqueue:
 	 */
 
 	for (;;) {
+<<<<<<< HEAD
 		if (prev->next == node &&
+=======
+		/*
+		 * cpu_relax() below implies a compiler barrier which would
+		 * prevent this comparison being optimized away.
+		 */
+		if (data_race(prev->next) == node &&
+>>>>>>> upstream/android-13
 		    cmpxchg(&prev->next, node, NULL) == node)
 			break;
 
 		/*
 		 * We can only fail the cmpxchg() racing against an unlock(),
+<<<<<<< HEAD
 		 * in which case we should observe @node->locked becomming
+=======
+		 * in which case we should observe @node->locked becoming
+>>>>>>> upstream/android-13
 		 * true.
 		 */
 		if (smp_load_acquire(&node->locked))

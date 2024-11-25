@@ -12,6 +12,12 @@ This binding uses the common clock binding[1].
 Required properties:
 - compatible : shall be:
   "st,quadfs"
+<<<<<<< HEAD
+=======
+  "st,quadfs-d0"
+  "st,quadfs-d2"
+  "st,quadfs-d3"
+>>>>>>> upstream/android-13
   "st,quadfs-pll"
 
 

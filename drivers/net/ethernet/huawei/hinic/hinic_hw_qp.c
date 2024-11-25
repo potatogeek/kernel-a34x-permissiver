@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -70,8 +77,11 @@
 #define SQ_MASKED_IDX(sq, idx)  ((idx) & (sq)->wq->mask)
 #define RQ_MASKED_IDX(rq, idx)  ((idx) & (rq)->wq->mask)
 
+<<<<<<< HEAD
 #define TX_MAX_MSS_DEFAULT      0x3E00
 
+=======
+>>>>>>> upstream/android-13
 enum sq_wqe_type {
 	SQ_NORMAL_WQE = 0,
 };
@@ -119,7 +129,16 @@ void hinic_sq_prepare_ctxt(struct hinic_sq_ctxt *sq_ctxt,
 	wq_page_pfn_hi = upper_32_bits(wq_page_pfn);
 	wq_page_pfn_lo = lower_32_bits(wq_page_pfn);
 
+<<<<<<< HEAD
 	wq_block_pfn = HINIC_WQ_BLOCK_PFN(wq->block_paddr);
+=======
+	/* If only one page, use 0-level CLA */
+	if (wq->num_q_pages == 1)
+		wq_block_pfn = HINIC_WQ_BLOCK_PFN(wq_page_addr);
+	else
+		wq_block_pfn = HINIC_WQ_BLOCK_PFN(wq->block_paddr);
+
+>>>>>>> upstream/android-13
 	wq_block_pfn_hi = upper_32_bits(wq_block_pfn);
 	wq_block_pfn_lo = lower_32_bits(wq_block_pfn);
 
@@ -338,9 +357,15 @@ static int alloc_rq_cqe(struct hinic_rq *rq)
 		goto err_cqe_dma_arr_alloc;
 
 	for (i = 0; i < wq->q_depth; i++) {
+<<<<<<< HEAD
 		rq->cqe[i] = dma_zalloc_coherent(&pdev->dev,
 						 sizeof(*rq->cqe[i]),
 						 &rq->cqe_dma[i], GFP_KERNEL);
+=======
+		rq->cqe[i] = dma_alloc_coherent(&pdev->dev,
+						sizeof(*rq->cqe[i]),
+						&rq->cqe_dma[i], GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!rq->cqe[i])
 			goto err_cqe_alloc;
 	}
@@ -417,10 +442,16 @@ int hinic_init_rq(struct hinic_rq *rq, struct hinic_hwif *hwif,
 
 	/* HW requirements: Must be at least 32 bit */
 	pi_size = ALIGN(sizeof(*rq->pi_virt_addr), sizeof(u32));
+<<<<<<< HEAD
 	rq->pi_virt_addr = dma_zalloc_coherent(&pdev->dev, pi_size,
 					       &rq->pi_dma_addr, GFP_KERNEL);
 	if (!rq->pi_virt_addr) {
 		dev_err(&pdev->dev, "Failed to allocate PI address\n");
+=======
+	rq->pi_virt_addr = dma_alloc_coherent(&pdev->dev, pi_size,
+					      &rq->pi_dma_addr, GFP_KERNEL);
+	if (!rq->pi_virt_addr) {
+>>>>>>> upstream/android-13
 		err = -ENOMEM;
 		goto err_pi_virt;
 	}
@@ -494,12 +525,19 @@ static void sq_prepare_ctrl(struct hinic_sq_ctrl *ctrl, u16 prod_idx,
 			  HINIC_SQ_CTRL_SET(SQ_NORMAL_WQE, DATA_FORMAT)     |
 			  HINIC_SQ_CTRL_SET(ctrl_size, LEN);
 
+<<<<<<< HEAD
 	ctrl->queue_info = HINIC_SQ_CTRL_SET(TX_MAX_MSS_DEFAULT,
 					     QUEUE_INFO_MSS);
+=======
+	ctrl->queue_info = HINIC_SQ_CTRL_SET(HINIC_MSS_DEFAULT,
+					     QUEUE_INFO_MSS) |
+			   HINIC_SQ_CTRL_SET(1, QUEUE_INFO_UC);
+>>>>>>> upstream/android-13
 }
 
 static void sq_prepare_task(struct hinic_sq_task *task)
 {
+<<<<<<< HEAD
 	task->pkt_info0 =
 		HINIC_SQ_TASK_INFO0_SET(0, L2HDR_LEN) |
 		HINIC_SQ_TASK_INFO0_SET(HINIC_L4_OFF_DISABLE, L4_OFFLOAD) |
@@ -521,6 +559,11 @@ static void sq_prepare_task(struct hinic_sq_task *task)
 					TUNNEL_L4TYPE)    |
 		HINIC_SQ_TASK_INFO2_SET(HINIC_OUTER_L3TYPE_UNKNOWN,
 					OUTER_L3TYPE);
+=======
+	task->pkt_info0 = 0;
+	task->pkt_info1 = 0;
+	task->pkt_info2 = 0;
+>>>>>>> upstream/android-13
 
 	task->ufo_v6_identify = 0;
 
@@ -529,6 +572,89 @@ static void sq_prepare_task(struct hinic_sq_task *task)
 	task->zero_pad = 0;
 }
 
+<<<<<<< HEAD
+=======
+void hinic_task_set_l2hdr(struct hinic_sq_task *task, u32 len)
+{
+	task->pkt_info0 |= HINIC_SQ_TASK_INFO0_SET(len, L2HDR_LEN);
+}
+
+void hinic_task_set_outter_l3(struct hinic_sq_task *task,
+			      enum hinic_l3_offload_type l3_type,
+			      u32 network_len)
+{
+	task->pkt_info2 |= HINIC_SQ_TASK_INFO2_SET(l3_type, OUTER_L3TYPE) |
+			   HINIC_SQ_TASK_INFO2_SET(network_len, OUTER_L3LEN);
+}
+
+void hinic_task_set_inner_l3(struct hinic_sq_task *task,
+			     enum hinic_l3_offload_type l3_type,
+			     u32 network_len)
+{
+	task->pkt_info0 |= HINIC_SQ_TASK_INFO0_SET(l3_type, INNER_L3TYPE);
+	task->pkt_info1 |= HINIC_SQ_TASK_INFO1_SET(network_len, INNER_L3LEN);
+}
+
+void hinic_task_set_tunnel_l4(struct hinic_sq_task *task,
+			      enum hinic_l4_tunnel_type l4_type,
+			      u32 tunnel_len)
+{
+	task->pkt_info2 |= HINIC_SQ_TASK_INFO2_SET(l4_type, TUNNEL_L4TYPE) |
+			   HINIC_SQ_TASK_INFO2_SET(tunnel_len, TUNNEL_L4LEN);
+}
+
+void hinic_set_cs_inner_l4(struct hinic_sq_task *task, u32 *queue_info,
+			   enum hinic_l4_offload_type l4_offload,
+			   u32 l4_len, u32 offset)
+{
+	u32 tcp_udp_cs = 0, sctp = 0;
+	u32 mss = HINIC_MSS_DEFAULT;
+
+	if (l4_offload == TCP_OFFLOAD_ENABLE ||
+	    l4_offload == UDP_OFFLOAD_ENABLE)
+		tcp_udp_cs = 1;
+	else if (l4_offload == SCTP_OFFLOAD_ENABLE)
+		sctp = 1;
+
+	task->pkt_info0 |= HINIC_SQ_TASK_INFO0_SET(l4_offload, L4_OFFLOAD);
+	task->pkt_info1 |= HINIC_SQ_TASK_INFO1_SET(l4_len, INNER_L4LEN);
+
+	*queue_info |= HINIC_SQ_CTRL_SET(offset, QUEUE_INFO_PLDOFF) |
+		       HINIC_SQ_CTRL_SET(tcp_udp_cs, QUEUE_INFO_TCPUDP_CS) |
+		       HINIC_SQ_CTRL_SET(sctp, QUEUE_INFO_SCTP);
+
+	*queue_info = HINIC_SQ_CTRL_CLEAR(*queue_info, QUEUE_INFO_MSS);
+	*queue_info |= HINIC_SQ_CTRL_SET(mss, QUEUE_INFO_MSS);
+}
+
+void hinic_set_tso_inner_l4(struct hinic_sq_task *task, u32 *queue_info,
+			    enum hinic_l4_offload_type l4_offload,
+			    u32 l4_len, u32 offset, u32 ip_ident, u32 mss)
+{
+	u32 tso = 0, ufo = 0;
+
+	if (l4_offload == TCP_OFFLOAD_ENABLE)
+		tso = 1;
+	else if (l4_offload == UDP_OFFLOAD_ENABLE)
+		ufo = 1;
+
+	task->ufo_v6_identify = ip_ident;
+
+	task->pkt_info0 |= HINIC_SQ_TASK_INFO0_SET(l4_offload, L4_OFFLOAD);
+	task->pkt_info0 |= HINIC_SQ_TASK_INFO0_SET(tso || ufo, TSO_FLAG);
+	task->pkt_info1 |= HINIC_SQ_TASK_INFO1_SET(l4_len, INNER_L4LEN);
+
+	*queue_info |= HINIC_SQ_CTRL_SET(offset, QUEUE_INFO_PLDOFF) |
+		       HINIC_SQ_CTRL_SET(tso, QUEUE_INFO_TSO) |
+		       HINIC_SQ_CTRL_SET(ufo, QUEUE_INFO_UFO) |
+		       HINIC_SQ_CTRL_SET(!!l4_offload, QUEUE_INFO_TCPUDP_CS);
+
+	/* set MSS value */
+	*queue_info = HINIC_SQ_CTRL_CLEAR(*queue_info, QUEUE_INFO_MSS);
+	*queue_info |= HINIC_SQ_CTRL_SET(mss, QUEUE_INFO_MSS);
+}
+
+>>>>>>> upstream/android-13
 /**
  * hinic_sq_prepare_wqe - prepare wqe before insert to the queue
  * @sq: send queue
@@ -586,6 +712,10 @@ void hinic_sq_write_db(struct hinic_sq *sq, u16 prod_idx, unsigned int wqe_size,
 
 	/* increment prod_idx to the next */
 	prod_idx += ALIGN(wqe_size, wq->wqebb_size) / wq->wqebb_size;
+<<<<<<< HEAD
+=======
+	prod_idx = SQ_MASKED_IDX(sq, prod_idx);
+>>>>>>> upstream/android-13
 
 	wmb();  /* Write all before the doorbell */
 
@@ -613,6 +743,19 @@ struct hinic_sq_wqe *hinic_sq_get_wqe(struct hinic_sq *sq,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * hinic_sq_return_wqe - return the wqe to the sq
+ * @sq: send queue
+ * @wqe_size: the size of the wqe
+ **/
+void hinic_sq_return_wqe(struct hinic_sq *sq, unsigned int wqe_size)
+{
+	hinic_return_wqe(sq->wq, wqe_size);
+}
+
+/**
+>>>>>>> upstream/android-13
  * hinic_sq_write_wqe - write the wqe to the sq
  * @sq: send queue
  * @prod_idx: pi of the wqe
@@ -827,7 +970,11 @@ struct hinic_rq_wqe *hinic_rq_read_next_wqe(struct hinic_rq *rq,
 }
 
 /**
+<<<<<<< HEAD
  * hinic_put_wqe - release the ci for new wqes
+=======
+ * hinic_rq_put_wqe - release the ci for new wqes
+>>>>>>> upstream/android-13
  * @rq: recv queue
  * @cons_idx: consumer index of the wqe
  * @wqe_size: the size of the wqe

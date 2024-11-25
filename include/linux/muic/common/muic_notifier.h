@@ -85,10 +85,15 @@ extern void muic_pdic_notifier_attach_attached_dev(muic_attached_dev_t new_dev);
 extern void muic_pdic_notifier_detach_attached_dev(muic_attached_dev_t new_dev);
 extern void muic_notifier_logically_attach_attached_dev(muic_attached_dev_t new_dev);
 extern void muic_notifier_logically_detach_attached_dev(muic_attached_dev_t cur_dev);
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_VIRTUAL_MUIC)
 extern void vt_muic_notifier_attach_attached_dev(muic_attached_dev_t new_dev);
 extern void vt_muic_notifier_detach_attached_dev(muic_attached_dev_t cur_dev);
 #endif
+=======
+extern void vt_muic_notifier_attach_attached_dev(muic_attached_dev_t new_dev);
+extern void vt_muic_notifier_detach_attached_dev(muic_attached_dev_t cur_dev);
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_PDIC_SLSI_NON_MCU)
 extern int muic_pdic_notifier_register(struct notifier_block *nb,

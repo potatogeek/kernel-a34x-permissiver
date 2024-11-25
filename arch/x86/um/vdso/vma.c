@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011 Richard Weinberger <richrd@nod.at>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011 Richard Weinberger <richrd@nod.at>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -61,7 +67,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	if (!vdso_enabled)
 		return 0;
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem))
+=======
+	if (mmap_write_lock_killable(mm))
+>>>>>>> upstream/android-13
 		return -EINTR;
 
 	err = install_special_mapping(mm, um_vdso_addr, PAGE_SIZE,
@@ -69,7 +79,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 		VM_MAYREAD|VM_MAYWRITE|VM_MAYEXEC,
 		vdsop);
 
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 
 	return err;
 }

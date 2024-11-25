@@ -27,7 +27,11 @@
  */
 struct bcom_bd {
 	u32	status;
+<<<<<<< HEAD
 	u32	data[0];	/* variable payload size */
+=======
+	u32	data[];	/* variable payload size */
+>>>>>>> upstream/android-13
 };
 
 /* ======================================================================== */

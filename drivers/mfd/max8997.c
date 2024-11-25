@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * max8997.c - mfd core driver for the Maxim 8966 and 8997
  *
@@ -20,11 +21,25 @@
  *
  * This driver is based on max8998.c
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// max8997.c - mfd core driver for the Maxim 8966 and 8997
+//
+// Copyright (C) 2011 Samsung Electronics
+// MyungJoo Ham <myungjoo.ham@samsung.com>
+//
+// This driver is based on max8998.c
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/of_irq.h>
 #include <linux/interrupt.h>
 #include <linux/pm_runtime.h>
@@ -159,11 +174,17 @@ static struct max8997_platform_data *max8997_i2c_parse_dt_pdata(
 static inline unsigned long max8997_i2c_get_driver_data(struct i2c_client *i2c,
 						const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_OF) && i2c->dev.of_node) {
 		const struct of_device_id *match;
 		match = of_match_node(max8997_pmic_dt_match, i2c->dev.of_node);
 		return (unsigned long)match->data;
 	}
+=======
+	if (i2c->dev.of_node)
+		return (unsigned long)of_device_get_match_data(&i2c->dev);
+
+>>>>>>> upstream/android-13
 	return id->driver_data;
 }
 
@@ -199,6 +220,7 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
 
 	mutex_init(&max8997->iolock);
 
+<<<<<<< HEAD
 	max8997->rtc = i2c_new_dummy(i2c->adapter, I2C_ADDR_RTC);
 	if (!max8997->rtc) {
 		dev_err(max8997->dev, "Failed to allocate I2C device for RTC\n");
@@ -210,14 +232,34 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
 	if (!max8997->haptic) {
 		dev_err(max8997->dev, "Failed to allocate I2C device for Haptic\n");
 		ret = -ENODEV;
+=======
+	max8997->rtc = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_RTC);
+	if (IS_ERR(max8997->rtc)) {
+		dev_err(max8997->dev, "Failed to allocate I2C device for RTC\n");
+		return PTR_ERR(max8997->rtc);
+	}
+	i2c_set_clientdata(max8997->rtc, max8997);
+
+	max8997->haptic = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_HAPTIC);
+	if (IS_ERR(max8997->haptic)) {
+		dev_err(max8997->dev, "Failed to allocate I2C device for Haptic\n");
+		ret = PTR_ERR(max8997->haptic);
+>>>>>>> upstream/android-13
 		goto err_i2c_haptic;
 	}
 	i2c_set_clientdata(max8997->haptic, max8997);
 
+<<<<<<< HEAD
 	max8997->muic = i2c_new_dummy(i2c->adapter, I2C_ADDR_MUIC);
 	if (!max8997->muic) {
 		dev_err(max8997->dev, "Failed to allocate I2C device for MUIC\n");
 		ret = -ENODEV;
+=======
+	max8997->muic = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_MUIC);
+	if (IS_ERR(max8997->muic)) {
+		dev_err(max8997->dev, "Failed to allocate I2C device for MUIC\n");
+		ret = PTR_ERR(max8997->muic);
+>>>>>>> upstream/android-13
 		goto err_i2c_muic;
 	}
 	i2c_set_clientdata(max8997->muic, max8997);
@@ -462,6 +504,10 @@ static int max8997_suspend(struct device *dev)
 	struct i2c_client *i2c = to_i2c_client(dev);
 	struct max8997_dev *max8997 = i2c_get_clientdata(i2c);
 
+<<<<<<< HEAD
+=======
+	disable_irq(max8997->irq);
+>>>>>>> upstream/android-13
 	if (device_may_wakeup(dev))
 		irq_set_irq_wake(max8997->irq, 1);
 	return 0;
@@ -474,6 +520,10 @@ static int max8997_resume(struct device *dev)
 
 	if (device_may_wakeup(dev))
 		irq_set_irq_wake(max8997->irq, 0);
+<<<<<<< HEAD
+=======
+	enable_irq(max8997->irq);
+>>>>>>> upstream/android-13
 	return max8997_irq_resume(max8997);
 }
 

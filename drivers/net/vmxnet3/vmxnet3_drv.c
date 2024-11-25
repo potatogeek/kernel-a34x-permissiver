@@ -1,7 +1,11 @@
 /*
  * Linux driver for VMware's vmxnet3 ethernet NIC.
  *
+<<<<<<< HEAD
  * Copyright (C) 2008-2016, VMware, Inc. All Rights Reserved.
+=======
+ * Copyright (C) 2008-2021, VMware, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -314,10 +318,17 @@ vmxnet3_unmap_tx_buf(struct vmxnet3_tx_buf_info *tbi,
 {
 	if (tbi->map_type == VMXNET3_MAP_SINGLE)
 		dma_unmap_single(&pdev->dev, tbi->dma_addr, tbi->len,
+<<<<<<< HEAD
 				 PCI_DMA_TODEVICE);
 	else if (tbi->map_type == VMXNET3_MAP_PAGE)
 		dma_unmap_page(&pdev->dev, tbi->dma_addr, tbi->len,
 			       PCI_DMA_TODEVICE);
+=======
+				 DMA_TO_DEVICE);
+	else if (tbi->map_type == VMXNET3_MAP_PAGE)
+		dma_unmap_page(&pdev->dev, tbi->dma_addr, tbi->len,
+			       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	else
 		BUG_ON(tbi->map_type != VMXNET3_MAP_NONE);
 
@@ -451,12 +462,17 @@ vmxnet3_tq_destroy(struct vmxnet3_tx_queue *tq,
 				  tq->comp_ring.base, tq->comp_ring.basePA);
 		tq->comp_ring.base = NULL;
 	}
+<<<<<<< HEAD
 	if (tq->buf_info) {
 		dma_free_coherent(&adapter->pdev->dev,
 				  tq->tx_ring.size * sizeof(tq->buf_info[0]),
 				  tq->buf_info, tq->buf_info_pa);
 		tq->buf_info = NULL;
 	}
+=======
+	kfree(tq->buf_info);
+	tq->buf_info = NULL;
+>>>>>>> upstream/android-13
 }
 
 
@@ -505,8 +521,11 @@ static int
 vmxnet3_tq_create(struct vmxnet3_tx_queue *tq,
 		  struct vmxnet3_adapter *adapter)
 {
+<<<<<<< HEAD
 	size_t sz;
 
+=======
+>>>>>>> upstream/android-13
 	BUG_ON(tq->tx_ring.base || tq->data_ring.base ||
 	       tq->comp_ring.base || tq->buf_info);
 
@@ -534,9 +553,15 @@ vmxnet3_tq_create(struct vmxnet3_tx_queue *tq,
 		goto err;
 	}
 
+<<<<<<< HEAD
 	sz = tq->tx_ring.size * sizeof(tq->buf_info[0]);
 	tq->buf_info = dma_zalloc_coherent(&adapter->pdev->dev, sz,
 					   &tq->buf_info_pa, GFP_KERNEL);
+=======
+	tq->buf_info = kcalloc_node(tq->tx_ring.size, sizeof(tq->buf_info[0]),
+				    GFP_KERNEL,
+				    dev_to_node(&adapter->pdev->dev));
+>>>>>>> upstream/android-13
 	if (!tq->buf_info)
 		goto err;
 
@@ -591,7 +616,11 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
 				rbi->dma_addr = dma_map_single(
 						&adapter->pdev->dev,
 						rbi->skb->data, rbi->len,
+<<<<<<< HEAD
 						PCI_DMA_FROMDEVICE);
+=======
+						DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				if (dma_mapping_error(&adapter->pdev->dev,
 						      rbi->dma_addr)) {
 					dev_kfree_skb_any(rbi->skb);
@@ -615,7 +644,11 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
 				rbi->dma_addr = dma_map_page(
 						&adapter->pdev->dev,
 						rbi->page, 0, PAGE_SIZE,
+<<<<<<< HEAD
 						PCI_DMA_FROMDEVICE);
+=======
+						DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				if (dma_mapping_error(&adapter->pdev->dev,
 						      rbi->dma_addr)) {
 					put_page(rbi->page);
@@ -657,13 +690,21 @@ static void
 vmxnet3_append_frag(struct sk_buff *skb, struct Vmxnet3_RxCompDesc *rcd,
 		    struct vmxnet3_rx_buf_info *rbi)
 {
+<<<<<<< HEAD
 	struct skb_frag_struct *frag = skb_shinfo(skb)->frags +
 		skb_shinfo(skb)->nr_frags;
+=======
+	skb_frag_t *frag = skb_shinfo(skb)->frags + skb_shinfo(skb)->nr_frags;
+>>>>>>> upstream/android-13
 
 	BUG_ON(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS);
 
 	__skb_frag_set_page(frag, rbi->page);
+<<<<<<< HEAD
 	frag->page_offset = 0;
+=======
+	skb_frag_off_set(frag, 0);
+>>>>>>> upstream/android-13
 	skb_frag_size_set(frag, rcd->len);
 	skb->data_len += rcd->len;
 	skb->truesize += PAGE_SIZE;
@@ -730,7 +771,11 @@ vmxnet3_map_pkt(struct sk_buff *skb, struct vmxnet3_tx_ctx *ctx,
 		tbi->map_type = VMXNET3_MAP_SINGLE;
 		tbi->dma_addr = dma_map_single(&adapter->pdev->dev,
 				skb->data + buf_offset, buf_size,
+<<<<<<< HEAD
 				PCI_DMA_TODEVICE);
+=======
+				DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		if (dma_mapping_error(&adapter->pdev->dev, tbi->dma_addr))
 			return -EFAULT;
 
@@ -755,7 +800,11 @@ vmxnet3_map_pkt(struct sk_buff *skb, struct vmxnet3_tx_ctx *ctx,
 	}
 
 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+<<<<<<< HEAD
 		const struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i];
+=======
+		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+>>>>>>> upstream/android-13
 		u32 buf_size;
 
 		buf_offset = 0;
@@ -843,6 +892,7 @@ vmxnet3_parse_hdr(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 	u8 protocol = 0;
 
 	if (ctx->mss) {	/* TSO */
+<<<<<<< HEAD
 		ctx->eth_ip_hdr_size = skb_transport_offset(skb);
 		ctx->l4_hdr_size = tcp_hdrlen(skb);
 		ctx->copy_size = ctx->eth_ip_hdr_size + ctx->l4_hdr_size;
@@ -858,11 +908,58 @@ vmxnet3_parse_hdr(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 				const struct ipv6hdr *ipv6h = ipv6_hdr(skb);
 
 				protocol = ipv6h->nexthdr;
+=======
+		if (VMXNET3_VERSION_GE_4(adapter) && skb->encapsulation) {
+			ctx->l4_offset = skb_inner_transport_offset(skb);
+			ctx->l4_hdr_size = inner_tcp_hdrlen(skb);
+			ctx->copy_size = ctx->l4_offset + ctx->l4_hdr_size;
+		} else {
+			ctx->l4_offset = skb_transport_offset(skb);
+			ctx->l4_hdr_size = tcp_hdrlen(skb);
+			ctx->copy_size = ctx->l4_offset + ctx->l4_hdr_size;
+		}
+	} else {
+		if (skb->ip_summed == CHECKSUM_PARTIAL) {
+			/* For encap packets, skb_checksum_start_offset refers
+			 * to inner L4 offset. Thus, below works for encap as
+			 * well as non-encap case
+			 */
+			ctx->l4_offset = skb_checksum_start_offset(skb);
+
+			if (VMXNET3_VERSION_GE_4(adapter) &&
+			    skb->encapsulation) {
+				struct iphdr *iph = inner_ip_hdr(skb);
+
+				if (iph->version == 4) {
+					protocol = iph->protocol;
+				} else {
+					const struct ipv6hdr *ipv6h;
+
+					ipv6h = inner_ipv6_hdr(skb);
+					protocol = ipv6h->nexthdr;
+				}
+			} else {
+				if (ctx->ipv4) {
+					const struct iphdr *iph = ip_hdr(skb);
+
+					protocol = iph->protocol;
+				} else if (ctx->ipv6) {
+					const struct ipv6hdr *ipv6h;
+
+					ipv6h = ipv6_hdr(skb);
+					protocol = ipv6h->nexthdr;
+				}
+>>>>>>> upstream/android-13
 			}
 
 			switch (protocol) {
 			case IPPROTO_TCP:
+<<<<<<< HEAD
 				ctx->l4_hdr_size = tcp_hdrlen(skb);
+=======
+				ctx->l4_hdr_size = skb->encapsulation ? inner_tcp_hdrlen(skb) :
+						   tcp_hdrlen(skb);
+>>>>>>> upstream/android-13
 				break;
 			case IPPROTO_UDP:
 				ctx->l4_hdr_size = sizeof(struct udphdr);
@@ -872,10 +969,17 @@ vmxnet3_parse_hdr(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 				break;
 			}
 
+<<<<<<< HEAD
 			ctx->copy_size = min(ctx->eth_ip_hdr_size +
 					 ctx->l4_hdr_size, skb->len);
 		} else {
 			ctx->eth_ip_hdr_size = 0;
+=======
+			ctx->copy_size = min(ctx->l4_offset +
+					 ctx->l4_hdr_size, skb->len);
+		} else {
+			ctx->l4_offset = 0;
+>>>>>>> upstream/android-13
 			ctx->l4_hdr_size = 0;
 			/* copy as much as allowed */
 			ctx->copy_size = min_t(unsigned int,
@@ -931,6 +1035,28 @@ vmxnet3_copy_hdr(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 
 
 static void
+<<<<<<< HEAD
+=======
+vmxnet3_prepare_inner_tso(struct sk_buff *skb,
+			  struct vmxnet3_tx_ctx *ctx)
+{
+	struct tcphdr *tcph = inner_tcp_hdr(skb);
+	struct iphdr *iph = inner_ip_hdr(skb);
+
+	if (iph->version == 4) {
+		iph->check = 0;
+		tcph->check = ~csum_tcpudp_magic(iph->saddr, iph->daddr, 0,
+						 IPPROTO_TCP, 0);
+	} else {
+		struct ipv6hdr *iph = inner_ipv6_hdr(skb);
+
+		tcph->check = ~csum_ipv6_magic(&iph->saddr, &iph->daddr, 0,
+					       IPPROTO_TCP, 0);
+	}
+}
+
+static void
+>>>>>>> upstream/android-13
 vmxnet3_prepare_tso(struct sk_buff *skb,
 		    struct vmxnet3_tx_ctx *ctx)
 {
@@ -943,10 +1069,14 @@ vmxnet3_prepare_tso(struct sk_buff *skb,
 		tcph->check = ~csum_tcpudp_magic(iph->saddr, iph->daddr, 0,
 						 IPPROTO_TCP, 0);
 	} else if (ctx->ipv6) {
+<<<<<<< HEAD
 		struct ipv6hdr *iph = ipv6_hdr(skb);
 
 		tcph->check = ~csum_ipv6_magic(&iph->saddr, &iph->daddr, 0,
 					       IPPROTO_TCP, 0);
+=======
+		tcp_v6_gso_csum_prep(skb);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -956,7 +1086,11 @@ static int txd_estimate(const struct sk_buff *skb)
 	int i;
 
 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+<<<<<<< HEAD
 		const struct skb_frag_struct *frag = &skb_shinfo(skb)->frags[i];
+=======
+		const skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+>>>>>>> upstream/android-13
 
 		count += VMXNET3_TXD_NEEDED(skb_frag_size(frag));
 	}
@@ -1007,7 +1141,15 @@ vmxnet3_tq_xmit(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 			}
 			tq->stats.copy_skb_header++;
 		}
+<<<<<<< HEAD
 		vmxnet3_prepare_tso(skb, &ctx);
+=======
+		if (skb->encapsulation) {
+			vmxnet3_prepare_inner_tso(skb, &ctx);
+		} else {
+			vmxnet3_prepare_tso(skb, &ctx);
+		}
+>>>>>>> upstream/android-13
 	} else {
 		if (unlikely(count > VMXNET3_MAX_TXD_PER_PKT)) {
 
@@ -1030,14 +1172,22 @@ vmxnet3_tq_xmit(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 		BUG_ON(ret <= 0 && ctx.copy_size != 0);
 		/* hdrs parsed, check against other limits */
 		if (ctx.mss) {
+<<<<<<< HEAD
 			if (unlikely(ctx.eth_ip_hdr_size + ctx.l4_hdr_size >
+=======
+			if (unlikely(ctx.l4_offset + ctx.l4_hdr_size >
+>>>>>>> upstream/android-13
 				     VMXNET3_MAX_TX_BUF_SIZE)) {
 				tq->stats.drop_oversized_hdr++;
 				goto drop_pkt;
 			}
 		} else {
 			if (skb->ip_summed == CHECKSUM_PARTIAL) {
+<<<<<<< HEAD
 				if (unlikely(ctx.eth_ip_hdr_size +
+=======
+				if (unlikely(ctx.l4_offset +
+>>>>>>> upstream/android-13
 					     skb->csum_offset >
 					     VMXNET3_MAX_CSUM_OFFSET)) {
 					tq->stats.drop_oversized_hdr++;
@@ -1084,6 +1234,7 @@ vmxnet3_tq_xmit(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 #endif
 	tx_num_deferred = le32_to_cpu(tq->shared->txNumDeferred);
 	if (ctx.mss) {
+<<<<<<< HEAD
 		gdesc->txd.hlen = ctx.eth_ip_hdr_size + ctx.l4_hdr_size;
 		gdesc->txd.om = VMXNET3_OM_TSO;
 		gdesc->txd.msscof = ctx.mss;
@@ -1094,6 +1245,35 @@ vmxnet3_tq_xmit(struct sk_buff *skb, struct vmxnet3_tx_queue *tq,
 			gdesc->txd.om = VMXNET3_OM_CSUM;
 			gdesc->txd.msscof = ctx.eth_ip_hdr_size +
 					    skb->csum_offset;
+=======
+		if (VMXNET3_VERSION_GE_4(adapter) && skb->encapsulation) {
+			gdesc->txd.hlen = ctx.l4_offset + ctx.l4_hdr_size;
+			gdesc->txd.om = VMXNET3_OM_ENCAP;
+			gdesc->txd.msscof = ctx.mss;
+
+			if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_TUNNEL_CSUM)
+				gdesc->txd.oco = 1;
+		} else {
+			gdesc->txd.hlen = ctx.l4_offset + ctx.l4_hdr_size;
+			gdesc->txd.om = VMXNET3_OM_TSO;
+			gdesc->txd.msscof = ctx.mss;
+		}
+		num_pkts = (skb->len - gdesc->txd.hlen + ctx.mss - 1) / ctx.mss;
+	} else {
+		if (skb->ip_summed == CHECKSUM_PARTIAL) {
+			if (VMXNET3_VERSION_GE_4(adapter) &&
+			    skb->encapsulation) {
+				gdesc->txd.hlen = ctx.l4_offset +
+						  ctx.l4_hdr_size;
+				gdesc->txd.om = VMXNET3_OM_ENCAP;
+				gdesc->txd.msscof = 0;		/* Reserved */
+			} else {
+				gdesc->txd.hlen = ctx.l4_offset;
+				gdesc->txd.om = VMXNET3_OM_CSUM;
+				gdesc->txd.msscof = ctx.l4_offset +
+						    skb->csum_offset;
+			}
+>>>>>>> upstream/android-13
 		} else {
 			gdesc->txd.om = 0;
 			gdesc->txd.msscof = 0;
@@ -1172,6 +1352,7 @@ vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
 		    (le32_to_cpu(gdesc->dword[3]) &
 		     VMXNET3_RCD_CSUM_OK) == VMXNET3_RCD_CSUM_OK) {
 			skb->ip_summed = CHECKSUM_UNNECESSARY;
+<<<<<<< HEAD
 			BUG_ON(!(gdesc->rcd.tcp || gdesc->rcd.udp));
 			BUG_ON(gdesc->rcd.frg);
 		} else if (gdesc->rcd.v6 && (le32_to_cpu(gdesc->dword[3]) &
@@ -1179,6 +1360,23 @@ vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
 			skb->ip_summed = CHECKSUM_UNNECESSARY;
 			BUG_ON(!(gdesc->rcd.tcp || gdesc->rcd.udp));
 			BUG_ON(gdesc->rcd.frg);
+=======
+			WARN_ON_ONCE(!(gdesc->rcd.tcp || gdesc->rcd.udp) &&
+				     !(le32_to_cpu(gdesc->dword[0]) &
+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
+			WARN_ON_ONCE(gdesc->rcd.frg &&
+				     !(le32_to_cpu(gdesc->dword[0]) &
+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
+		} else if (gdesc->rcd.v6 && (le32_to_cpu(gdesc->dword[3]) &
+					     (1 << VMXNET3_RCD_TUC_SHIFT))) {
+			skb->ip_summed = CHECKSUM_UNNECESSARY;
+			WARN_ON_ONCE(!(gdesc->rcd.tcp || gdesc->rcd.udp) &&
+				     !(le32_to_cpu(gdesc->dword[0]) &
+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
+			WARN_ON_ONCE(gdesc->rcd.frg &&
+				     !(le32_to_cpu(gdesc->dword[0]) &
+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
+>>>>>>> upstream/android-13
 		} else {
 			if (gdesc->rcd.csum) {
 				skb->csum = htons(gdesc->rcd.csum);
@@ -1385,7 +1583,11 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
 				new_dma_addr =
 					dma_map_single(&adapter->pdev->dev,
 						       new_skb->data, rbi->len,
+<<<<<<< HEAD
 						       PCI_DMA_FROMDEVICE);
+=======
+						       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				if (dma_mapping_error(&adapter->pdev->dev,
 						      new_dma_addr)) {
 					dev_kfree_skb(new_skb);
@@ -1403,7 +1605,11 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
 				dma_unmap_single(&adapter->pdev->dev,
 						 rbi->dma_addr,
 						 rbi->len,
+<<<<<<< HEAD
 						 PCI_DMA_FROMDEVICE);
+=======
+						 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 				/* Immediate refill */
 				rbi->skb = new_skb;
@@ -1414,10 +1620,35 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
 
 #ifdef VMXNET3_RSS
 			if (rcd->rssType != VMXNET3_RCD_RSS_TYPE_NONE &&
+<<<<<<< HEAD
 			    (adapter->netdev->features & NETIF_F_RXHASH))
 				skb_set_hash(ctx->skb,
 					     le32_to_cpu(rcd->rssHash),
 					     PKT_HASH_TYPE_L3);
+=======
+			    (adapter->netdev->features & NETIF_F_RXHASH)) {
+				enum pkt_hash_types hash_type;
+
+				switch (rcd->rssType) {
+				case VMXNET3_RCD_RSS_TYPE_IPV4:
+				case VMXNET3_RCD_RSS_TYPE_IPV6:
+					hash_type = PKT_HASH_TYPE_L3;
+					break;
+				case VMXNET3_RCD_RSS_TYPE_TCPIPV4:
+				case VMXNET3_RCD_RSS_TYPE_TCPIPV6:
+				case VMXNET3_RCD_RSS_TYPE_UDPIPV4:
+				case VMXNET3_RCD_RSS_TYPE_UDPIPV6:
+					hash_type = PKT_HASH_TYPE_L4;
+					break;
+				default:
+					hash_type = PKT_HASH_TYPE_L3;
+					break;
+				}
+				skb_set_hash(ctx->skb,
+					     le32_to_cpu(rcd->rssHash),
+					     hash_type);
+			}
+>>>>>>> upstream/android-13
 #endif
 			skb_put(ctx->skb, rcd->len);
 
@@ -1464,7 +1695,11 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
 				new_dma_addr = dma_map_page(&adapter->pdev->dev,
 							    new_page,
 							    0, PAGE_SIZE,
+<<<<<<< HEAD
 							    PCI_DMA_FROMDEVICE);
+=======
+							    DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				if (dma_mapping_error(&adapter->pdev->dev,
 						      new_dma_addr)) {
 					put_page(new_page);
@@ -1477,7 +1712,11 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
 
 				dma_unmap_page(&adapter->pdev->dev,
 					       rbi->dma_addr, rbi->len,
+<<<<<<< HEAD
 					       PCI_DMA_FROMDEVICE);
+=======
+					       DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 				vmxnet3_append_frag(ctx->skb, rcd, rbi);
 
@@ -1595,13 +1834,21 @@ vmxnet3_rq_cleanup(struct vmxnet3_rx_queue *rq,
 			if (rxd->btype == VMXNET3_RXD_BTYPE_HEAD &&
 					rq->buf_info[ring_idx][i].skb) {
 				dma_unmap_single(&adapter->pdev->dev, rxd->addr,
+<<<<<<< HEAD
 						 rxd->len, PCI_DMA_FROMDEVICE);
+=======
+						 rxd->len, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				dev_kfree_skb(rq->buf_info[ring_idx][i].skb);
 				rq->buf_info[ring_idx][i].skb = NULL;
 			} else if (rxd->btype == VMXNET3_RXD_BTYPE_BODY &&
 					rq->buf_info[ring_idx][i].page) {
 				dma_unmap_page(&adapter->pdev->dev, rxd->addr,
+<<<<<<< HEAD
 					       rxd->len, PCI_DMA_FROMDEVICE);
+=======
+					       rxd->len, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 				put_page(rq->buf_info[ring_idx][i].page);
 				rq->buf_info[ring_idx][i].page = NULL;
 			}
@@ -1667,6 +1914,7 @@ static void vmxnet3_rq_destroy(struct vmxnet3_rx_queue *rq,
 		rq->comp_ring.base = NULL;
 	}
 
+<<<<<<< HEAD
 	if (rq->buf_info[0]) {
 		size_t sz = sizeof(struct vmxnet3_rx_buf_info) *
 			(rq->rx_ring[0].size + rq->rx_ring[1].size);
@@ -1674,6 +1922,11 @@ static void vmxnet3_rq_destroy(struct vmxnet3_rx_queue *rq,
 				  rq->buf_info_pa);
 		rq->buf_info[0] = rq->buf_info[1] = NULL;
 	}
+=======
+	kfree(rq->buf_info[0]);
+	rq->buf_info[0] = NULL;
+	rq->buf_info[1] = NULL;
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -1813,10 +2066,16 @@ vmxnet3_rq_create(struct vmxnet3_rx_queue *rq, struct vmxnet3_adapter *adapter)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	sz = sizeof(struct vmxnet3_rx_buf_info) * (rq->rx_ring[0].size +
 						   rq->rx_ring[1].size);
 	bi = dma_zalloc_coherent(&adapter->pdev->dev, sz, &rq->buf_info_pa,
 				 GFP_KERNEL);
+=======
+	bi = kcalloc_node(rq->rx_ring[0].size + rq->rx_ring[1].size,
+			  sizeof(rq->buf_info[0][0]), GFP_KERNEL,
+			  dev_to_node(&adapter->pdev->dev));
+>>>>>>> upstream/android-13
 	if (!bi)
 		goto err;
 
@@ -2342,7 +2601,11 @@ vmxnet3_set_mc(struct net_device *netdev)
 							&adapter->pdev->dev,
 							new_table,
 							sz,
+<<<<<<< HEAD
 							PCI_DMA_TODEVICE);
+=======
+							DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 				if (!dma_mapping_error(&adapter->pdev->dev,
 						       new_table_pa)) {
 					new_mode |= VMXNET3_RXM_MCAST;
@@ -2378,7 +2641,11 @@ vmxnet3_set_mc(struct net_device *netdev)
 
 	if (new_table_pa_valid)
 		dma_unmap_single(&adapter->pdev->dev, new_table_pa,
+<<<<<<< HEAD
 				 rxConf->mfTableLen, PCI_DMA_TODEVICE);
+=======
+				 rxConf->mfTableLen, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	kfree(new_table);
 }
 
@@ -2401,6 +2668,10 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 {
 	struct Vmxnet3_DriverShared *shared = adapter->shared;
 	struct Vmxnet3_DSDevRead *devRead = &shared->devRead;
+<<<<<<< HEAD
+=======
+	struct Vmxnet3_DSDevReadExt *devReadExt = &shared->devReadExt;
+>>>>>>> upstream/android-13
 	struct Vmxnet3_TxQueueConf *tqc;
 	struct Vmxnet3_RxQueueConf *rqc;
 	int i;
@@ -2433,6 +2704,13 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 	if (adapter->netdev->features & NETIF_F_HW_VLAN_CTAG_RX)
 		devRead->misc.uptFeatures |= UPT1_F_RXVLAN;
 
+<<<<<<< HEAD
+=======
+	if (adapter->netdev->features & (NETIF_F_GSO_UDP_TUNNEL |
+					 NETIF_F_GSO_UDP_TUNNEL_CSUM))
+		devRead->misc.uptFeatures |= UPT1_F_RXINNEROFLD;
+
+>>>>>>> upstream/android-13
 	devRead->misc.mtu = cpu_to_le32(adapter->netdev->mtu);
 	devRead->misc.queueDescPA = cpu_to_le64(adapter->queue_desc_pa);
 	devRead->misc.queueDescLen = cpu_to_le32(
@@ -2448,14 +2726,22 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 		tqc->txRingBasePA   = cpu_to_le64(tq->tx_ring.basePA);
 		tqc->dataRingBasePA = cpu_to_le64(tq->data_ring.basePA);
 		tqc->compRingBasePA = cpu_to_le64(tq->comp_ring.basePA);
+<<<<<<< HEAD
 		tqc->ddPA           = cpu_to_le64(tq->buf_info_pa);
+=======
+		tqc->ddPA           = cpu_to_le64(~0ULL);
+>>>>>>> upstream/android-13
 		tqc->txRingSize     = cpu_to_le32(tq->tx_ring.size);
 		tqc->dataRingSize   = cpu_to_le32(tq->data_ring.size);
 		tqc->txDataRingDescSize = cpu_to_le32(tq->txdata_desc_size);
 		tqc->compRingSize   = cpu_to_le32(tq->comp_ring.size);
+<<<<<<< HEAD
 		tqc->ddLen          = cpu_to_le32(
 					sizeof(struct vmxnet3_tx_buf_info) *
 					tqc->txRingSize);
+=======
+		tqc->ddLen          = cpu_to_le32(0);
+>>>>>>> upstream/android-13
 		tqc->intrIdx        = tq->comp_ring.intr_idx;
 	}
 
@@ -2467,6 +2753,7 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 		rqc->rxRingBasePA[0] = cpu_to_le64(rq->rx_ring[0].basePA);
 		rqc->rxRingBasePA[1] = cpu_to_le64(rq->rx_ring[1].basePA);
 		rqc->compRingBasePA  = cpu_to_le64(rq->comp_ring.basePA);
+<<<<<<< HEAD
 		rqc->ddPA            = cpu_to_le64(rq->buf_info_pa);
 		rqc->rxRingSize[0]   = cpu_to_le32(rq->rx_ring[0].size);
 		rqc->rxRingSize[1]   = cpu_to_le32(rq->rx_ring[1].size);
@@ -2475,6 +2762,13 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 					sizeof(struct vmxnet3_rx_buf_info) *
 					(rqc->rxRingSize[0] +
 					 rqc->rxRingSize[1]));
+=======
+		rqc->ddPA            = cpu_to_le64(~0ULL);
+		rqc->rxRingSize[0]   = cpu_to_le32(rq->rx_ring[0].size);
+		rqc->rxRingSize[1]   = cpu_to_le32(rq->rx_ring[1].size);
+		rqc->compRingSize    = cpu_to_le32(rq->comp_ring.size);
+		rqc->ddLen           = cpu_to_le32(0);
+>>>>>>> upstream/android-13
 		rqc->intrIdx         = rq->comp_ring.intr_idx;
 		if (VMXNET3_VERSION_GE_3(adapter)) {
 			rqc->rxDataRingBasePA =
@@ -2514,6 +2808,7 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 #endif /* VMXNET3_RSS */
 
 	/* intr settings */
+<<<<<<< HEAD
 	devRead->intrConf.autoMask = adapter->intr.mask_mode ==
 				     VMXNET3_IMM_AUTO;
 	devRead->intrConf.numIntrs = adapter->intr.num_intrs;
@@ -2522,6 +2817,28 @@ vmxnet3_setup_driver_shared(struct vmxnet3_adapter *adapter)
 
 	devRead->intrConf.eventIntrIdx = adapter->intr.event_intr_idx;
 	devRead->intrConf.intrCtrl |= cpu_to_le32(VMXNET3_IC_DISABLE_ALL);
+=======
+	if (!VMXNET3_VERSION_GE_6(adapter) ||
+	    !adapter->queuesExtEnabled) {
+		devRead->intrConf.autoMask = adapter->intr.mask_mode ==
+					     VMXNET3_IMM_AUTO;
+		devRead->intrConf.numIntrs = adapter->intr.num_intrs;
+		for (i = 0; i < adapter->intr.num_intrs; i++)
+			devRead->intrConf.modLevels[i] = adapter->intr.mod_levels[i];
+
+		devRead->intrConf.eventIntrIdx = adapter->intr.event_intr_idx;
+		devRead->intrConf.intrCtrl |= cpu_to_le32(VMXNET3_IC_DISABLE_ALL);
+	} else {
+		devReadExt->intrConfExt.autoMask = adapter->intr.mask_mode ==
+						   VMXNET3_IMM_AUTO;
+		devReadExt->intrConfExt.numIntrs = adapter->intr.num_intrs;
+		for (i = 0; i < adapter->intr.num_intrs; i++)
+			devReadExt->intrConfExt.modLevels[i] = adapter->intr.mod_levels[i];
+
+		devReadExt->intrConfExt.eventIntrIdx = adapter->intr.event_intr_idx;
+		devReadExt->intrConfExt.intrCtrl |= cpu_to_le32(VMXNET3_IC_DISABLE_ALL);
+	}
+>>>>>>> upstream/android-13
 
 	/* rx filter settings */
 	devRead->rxFilterConf.rxMode = 0;
@@ -2558,6 +2875,42 @@ vmxnet3_init_coalesce(struct vmxnet3_adapter *adapter)
 	spin_unlock_irqrestore(&adapter->cmd_lock, flags);
 }
 
+<<<<<<< HEAD
+=======
+static void
+vmxnet3_init_rssfields(struct vmxnet3_adapter *adapter)
+{
+	struct Vmxnet3_DriverShared *shared = adapter->shared;
+	union Vmxnet3_CmdInfo *cmdInfo = &shared->cu.cmdInfo;
+	unsigned long flags;
+
+	if (!VMXNET3_VERSION_GE_4(adapter))
+		return;
+
+	spin_lock_irqsave(&adapter->cmd_lock, flags);
+
+	if (adapter->default_rss_fields) {
+		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
+				       VMXNET3_CMD_GET_RSS_FIELDS);
+		adapter->rss_fields =
+			VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_CMD);
+	} else {
+		cmdInfo->setRssFields = adapter->rss_fields;
+		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
+				       VMXNET3_CMD_SET_RSS_FIELDS);
+		/* Not all requested RSS may get applied, so get and
+		 * cache what was actually applied.
+		 */
+		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
+				       VMXNET3_CMD_GET_RSS_FIELDS);
+		adapter->rss_fields =
+			VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_CMD);
+	}
+
+	spin_unlock_irqrestore(&adapter->cmd_lock, flags);
+}
+
+>>>>>>> upstream/android-13
 int
 vmxnet3_activate_dev(struct vmxnet3_adapter *adapter)
 {
@@ -2607,6 +2960,10 @@ vmxnet3_activate_dev(struct vmxnet3_adapter *adapter)
 	}
 
 	vmxnet3_init_coalesce(adapter);
+<<<<<<< HEAD
+=======
+	vmxnet3_init_rssfields(adapter);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < adapter->num_rx_queues; i++) {
 		VMXNET3_WRITE_BAR0_REG(adapter,
@@ -2625,6 +2982,10 @@ vmxnet3_activate_dev(struct vmxnet3_adapter *adapter)
 	 * tx queue if the link is up.
 	 */
 	vmxnet3_check_link(adapter, true);
+<<<<<<< HEAD
+=======
+	netif_tx_wake_all_queues(adapter->netdev);
+>>>>>>> upstream/android-13
 	for (i = 0; i < adapter->num_rx_queues; i++)
 		napi_enable(&adapter->rx_queue[i].napi);
 	vmxnet3_enable_all_intrs(adapter);
@@ -3043,6 +3404,21 @@ vmxnet3_declare_features(struct vmxnet3_adapter *adapter, bool dma64)
 		NETIF_F_HW_CSUM | NETIF_F_HW_VLAN_CTAG_TX |
 		NETIF_F_HW_VLAN_CTAG_RX | NETIF_F_TSO | NETIF_F_TSO6 |
 		NETIF_F_LRO;
+<<<<<<< HEAD
+=======
+
+	if (VMXNET3_VERSION_GE_4(adapter)) {
+		netdev->hw_features |= NETIF_F_GSO_UDP_TUNNEL |
+				NETIF_F_GSO_UDP_TUNNEL_CSUM;
+
+		netdev->hw_enc_features = NETIF_F_SG | NETIF_F_RXCSUM |
+			NETIF_F_HW_CSUM | NETIF_F_HW_VLAN_CTAG_TX |
+			NETIF_F_HW_VLAN_CTAG_RX | NETIF_F_TSO | NETIF_F_TSO6 |
+			NETIF_F_LRO | NETIF_F_GSO_UDP_TUNNEL |
+			NETIF_F_GSO_UDP_TUNNEL_CSUM;
+	}
+
+>>>>>>> upstream/android-13
 	if (dma64)
 		netdev->hw_features |= NETIF_F_HIGHDMA;
 	netdev->vlan_features = netdev->hw_features &
@@ -3125,7 +3501,11 @@ vmxnet3_alloc_intr_resources(struct vmxnet3_adapter *adapter)
 
 #ifdef CONFIG_PCI_MSI
 	if (adapter->intr.type == VMXNET3_IT_MSIX) {
+<<<<<<< HEAD
 		int i, nvec;
+=======
+		int i, nvec, nvec_allocated;
+>>>>>>> upstream/android-13
 
 		nvec  = adapter->share_intr == VMXNET3_INTR_TXSHARE ?
 			1 : adapter->num_tx_queues;
@@ -3138,14 +3518,24 @@ vmxnet3_alloc_intr_resources(struct vmxnet3_adapter *adapter)
 		for (i = 0; i < nvec; i++)
 			adapter->intr.msix_entries[i].entry = i;
 
+<<<<<<< HEAD
 		nvec = vmxnet3_acquire_msix_vectors(adapter, nvec);
 		if (nvec < 0)
+=======
+		nvec_allocated = vmxnet3_acquire_msix_vectors(adapter, nvec);
+		if (nvec_allocated < 0)
+>>>>>>> upstream/android-13
 			goto msix_err;
 
 		/* If we cannot allocate one MSIx vector per queue
 		 * then limit the number of rx queues to 1
 		 */
+<<<<<<< HEAD
 		if (nvec == VMXNET3_LINUX_MIN_MSIX_VECT) {
+=======
+		if (nvec_allocated == VMXNET3_LINUX_MIN_MSIX_VECT &&
+		    nvec != VMXNET3_LINUX_MIN_MSIX_VECT) {
+>>>>>>> upstream/android-13
 			if (adapter->share_intr != VMXNET3_INTR_BUDDYSHARE
 			    || adapter->num_rx_queues != 1) {
 				adapter->share_intr = VMXNET3_INTR_TXSHARE;
@@ -3155,14 +3545,22 @@ vmxnet3_alloc_intr_resources(struct vmxnet3_adapter *adapter)
 			}
 		}
 
+<<<<<<< HEAD
 		adapter->intr.num_intrs = nvec;
+=======
+		adapter->intr.num_intrs = nvec_allocated;
+>>>>>>> upstream/android-13
 		return;
 
 msix_err:
 		/* If we cannot allocate MSIx vectors use only one rx queue */
 		dev_info(&adapter->pdev->dev,
 			 "Failed to enable MSI-X, error %d. "
+<<<<<<< HEAD
 			 "Limiting #rx queues to 1, try MSI.\n", nvec);
+=======
+			 "Limiting #rx queues to 1, try MSI.\n", nvec_allocated);
+>>>>>>> upstream/android-13
 
 		adapter->intr.type = VMXNET3_IT_MSI;
 	}
@@ -3199,7 +3597,11 @@ vmxnet3_free_intr_resources(struct vmxnet3_adapter *adapter)
 
 
 static void
+<<<<<<< HEAD
 vmxnet3_tx_timeout(struct net_device *netdev)
+=======
+vmxnet3_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
 	adapter->tx_timeout_count++;
@@ -3247,7 +3649,13 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 		.ndo_start_xmit = vmxnet3_xmit_frame,
 		.ndo_set_mac_address = vmxnet3_set_mac_addr,
 		.ndo_change_mtu = vmxnet3_change_mtu,
+<<<<<<< HEAD
 		.ndo_set_features = vmxnet3_set_features,
+=======
+		.ndo_fix_features = vmxnet3_fix_features,
+		.ndo_set_features = vmxnet3_set_features,
+		.ndo_features_check = vmxnet3_features_check,
+>>>>>>> upstream/android-13
 		.ndo_get_stats64 = vmxnet3_get_stats64,
 		.ndo_tx_timeout = vmxnet3_tx_timeout,
 		.ndo_set_rx_mode = vmxnet3_set_mc,
@@ -3266,6 +3674,11 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 	int size;
 	int num_tx_queues;
 	int num_rx_queues;
+<<<<<<< HEAD
+=======
+	int queues;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	if (!pci_msi_enabled())
 		enable_mq = 0;
@@ -3277,7 +3690,10 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 	else
 #endif
 		num_rx_queues = 1;
+<<<<<<< HEAD
 	num_rx_queues = rounddown_pow_of_two(num_rx_queues);
+=======
+>>>>>>> upstream/android-13
 
 	if (enable_mq)
 		num_tx_queues = min(VMXNET3_DEVICE_MAX_TX_QUEUES,
@@ -3285,6 +3701,7 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 	else
 		num_tx_queues = 1;
 
+<<<<<<< HEAD
 	num_tx_queues = rounddown_pow_of_two(num_tx_queues);
 	netdev = alloc_etherdev_mq(sizeof(struct vmxnet3_adapter),
 				   max(num_tx_queues, num_rx_queues));
@@ -3292,6 +3709,10 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 		 "# of Tx queues : %d, # of Rx queues : %d\n",
 		 num_tx_queues, num_rx_queues);
 
+=======
+	netdev = alloc_etherdev_mq(sizeof(struct vmxnet3_adapter),
+				   max(num_tx_queues, num_rx_queues));
+>>>>>>> upstream/android-13
 	if (!netdev)
 		return -ENOMEM;
 
@@ -3304,6 +3725,7 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 	adapter->rx_ring_size = VMXNET3_DEF_RX_RING_SIZE;
 	adapter->rx_ring2_size = VMXNET3_DEF_RX_RING2_SIZE;
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) == 0) {
 		if (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64)) != 0) {
 			dev_err(&pdev->dev,
@@ -3317,6 +3739,14 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 			dev_err(&pdev->dev,
 				"pci_set_dma_mask failed\n");
 			err = -EIO;
+=======
+	if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64)) == 0) {
+		dma64 = true;
+	} else {
+		err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
+		if (err) {
+			dev_err(&pdev->dev, "dma_set_mask failed\n");
+>>>>>>> upstream/android-13
 			goto err_set_mask;
 		}
 		dma64 = false;
@@ -3325,7 +3755,11 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 	spin_lock_init(&adapter->cmd_lock);
 	adapter->adapter_pa = dma_map_single(&adapter->pdev->dev, adapter,
 					     sizeof(struct vmxnet3_adapter),
+<<<<<<< HEAD
 					     PCI_DMA_TODEVICE);
+=======
+					     DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	if (dma_mapping_error(&adapter->pdev->dev, adapter->adapter_pa)) {
 		dev_err(&pdev->dev, "Failed to map dma\n");
 		err = -EFAULT;
@@ -3341,6 +3775,7 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 		goto err_alloc_shared;
 	}
 
+<<<<<<< HEAD
 	adapter->num_rx_queues = num_rx_queues;
 	adapter->num_tx_queues = num_tx_queues;
 	adapter->rx_buf_per_pkt = 1;
@@ -3380,12 +3815,33 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 	}
 #endif /* VMXNET3_RSS */
 
+=======
+>>>>>>> upstream/android-13
 	err = vmxnet3_alloc_pci_resources(adapter);
 	if (err < 0)
 		goto err_alloc_pci;
 
 	ver = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_VRRS);
+<<<<<<< HEAD
 	if (ver & (1 << VMXNET3_REV_3)) {
+=======
+	if (ver & (1 << VMXNET3_REV_6)) {
+		VMXNET3_WRITE_BAR1_REG(adapter,
+				       VMXNET3_REG_VRRS,
+				       1 << VMXNET3_REV_6);
+		adapter->version = VMXNET3_REV_6 + 1;
+	} else if (ver & (1 << VMXNET3_REV_5)) {
+		VMXNET3_WRITE_BAR1_REG(adapter,
+				       VMXNET3_REG_VRRS,
+				       1 << VMXNET3_REV_5);
+		adapter->version = VMXNET3_REV_5 + 1;
+	} else if (ver & (1 << VMXNET3_REV_4)) {
+		VMXNET3_WRITE_BAR1_REG(adapter,
+				       VMXNET3_REG_VRRS,
+				       1 << VMXNET3_REV_4);
+		adapter->version = VMXNET3_REV_4 + 1;
+	} else if (ver & (1 << VMXNET3_REV_3)) {
+>>>>>>> upstream/android-13
 		VMXNET3_WRITE_BAR1_REG(adapter,
 				       VMXNET3_REG_VRRS,
 				       1 << VMXNET3_REV_3);
@@ -3418,6 +3874,80 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 		goto err_ver;
 	}
 
+<<<<<<< HEAD
+=======
+	if (VMXNET3_VERSION_GE_6(adapter)) {
+		spin_lock_irqsave(&adapter->cmd_lock, flags);
+		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
+				       VMXNET3_CMD_GET_MAX_QUEUES_CONF);
+		queues = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_CMD);
+		spin_unlock_irqrestore(&adapter->cmd_lock, flags);
+		if (queues > 0) {
+			adapter->num_rx_queues = min(num_rx_queues, ((queues >> 8) & 0xff));
+			adapter->num_tx_queues = min(num_tx_queues, (queues & 0xff));
+		} else {
+			adapter->num_rx_queues = min(num_rx_queues,
+						     VMXNET3_DEVICE_DEFAULT_RX_QUEUES);
+			adapter->num_tx_queues = min(num_tx_queues,
+						     VMXNET3_DEVICE_DEFAULT_TX_QUEUES);
+		}
+		if (adapter->num_rx_queues > VMXNET3_MAX_RX_QUEUES ||
+		    adapter->num_tx_queues > VMXNET3_MAX_TX_QUEUES) {
+			adapter->queuesExtEnabled = true;
+		} else {
+			adapter->queuesExtEnabled = false;
+		}
+	} else {
+		adapter->queuesExtEnabled = false;
+		num_rx_queues = rounddown_pow_of_two(num_rx_queues);
+		num_tx_queues = rounddown_pow_of_two(num_tx_queues);
+		adapter->num_rx_queues = min(num_rx_queues,
+					     VMXNET3_DEVICE_DEFAULT_RX_QUEUES);
+		adapter->num_tx_queues = min(num_tx_queues,
+					     VMXNET3_DEVICE_DEFAULT_TX_QUEUES);
+	}
+	dev_info(&pdev->dev,
+		 "# of Tx queues : %d, # of Rx queues : %d\n",
+		 adapter->num_tx_queues, adapter->num_rx_queues);
+
+	adapter->rx_buf_per_pkt = 1;
+
+	size = sizeof(struct Vmxnet3_TxQueueDesc) * adapter->num_tx_queues;
+	size += sizeof(struct Vmxnet3_RxQueueDesc) * adapter->num_rx_queues;
+	adapter->tqd_start = dma_alloc_coherent(&adapter->pdev->dev, size,
+						&adapter->queue_desc_pa,
+						GFP_KERNEL);
+
+	if (!adapter->tqd_start) {
+		dev_err(&pdev->dev, "Failed to allocate memory\n");
+		err = -ENOMEM;
+		goto err_ver;
+	}
+	adapter->rqd_start = (struct Vmxnet3_RxQueueDesc *)(adapter->tqd_start +
+							    adapter->num_tx_queues);
+
+	adapter->pm_conf = dma_alloc_coherent(&adapter->pdev->dev,
+					      sizeof(struct Vmxnet3_PMConf),
+					      &adapter->pm_conf_pa,
+					      GFP_KERNEL);
+	if (adapter->pm_conf == NULL) {
+		err = -ENOMEM;
+		goto err_alloc_pm;
+	}
+
+#ifdef VMXNET3_RSS
+
+	adapter->rss_conf = dma_alloc_coherent(&adapter->pdev->dev,
+					       sizeof(struct UPT1_RSSConf),
+					       &adapter->rss_conf_pa,
+					       GFP_KERNEL);
+	if (adapter->rss_conf == NULL) {
+		err = -ENOMEM;
+		goto err_alloc_rss;
+	}
+#endif /* VMXNET3_RSS */
+
+>>>>>>> upstream/android-13
 	if (VMXNET3_VERSION_GE_3(adapter)) {
 		adapter->coal_conf =
 			dma_alloc_coherent(&adapter->pdev->dev,
@@ -3427,13 +3957,26 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 					   GFP_KERNEL);
 		if (!adapter->coal_conf) {
 			err = -ENOMEM;
+<<<<<<< HEAD
 			goto err_ver;
 		}
 		memset(adapter->coal_conf, 0, sizeof(*adapter->coal_conf));
+=======
+			goto err_coal_conf;
+		}
+>>>>>>> upstream/android-13
 		adapter->coal_conf->coalMode = VMXNET3_COALESCE_DISABLED;
 		adapter->default_coal_mode = true;
 	}
 
+<<<<<<< HEAD
+=======
+	if (VMXNET3_VERSION_GE_4(adapter)) {
+		adapter->default_rss_fields = true;
+		adapter->rss_fields = VMXNET3_RSS_FIELDS_DEFAULT;
+	}
+
+>>>>>>> upstream/android-13
 	SET_NETDEV_DEV(netdev, &pdev->dev);
 	vmxnet3_declare_features(adapter, dma64);
 
@@ -3466,9 +4009,18 @@ vmxnet3_probe_device(struct pci_dev *pdev,
 	vmxnet3_set_ethtool_ops(netdev);
 	netdev->watchdog_timeo = 5 * HZ;
 
+<<<<<<< HEAD
 	/* MTU range: 60 - 9000 */
 	netdev->min_mtu = VMXNET3_MIN_MTU;
 	netdev->max_mtu = VMXNET3_MAX_MTU;
+=======
+	/* MTU range: 60 - 9190 */
+	netdev->min_mtu = VMXNET3_MIN_MTU;
+	if (VMXNET3_VERSION_GE_6(adapter))
+		netdev->max_mtu = VMXNET3_V6_MAX_MTU;
+	else
+		netdev->max_mtu = VMXNET3_MAX_MTU;
+>>>>>>> upstream/android-13
 
 	INIT_WORK(&adapter->work, vmxnet3_reset_work);
 	set_bit(VMXNET3_STATE_BIT_QUIESCED, &adapter->state);
@@ -3506,9 +4058,13 @@ err_register:
 				  adapter->coal_conf, adapter->coal_conf_pa);
 	}
 	vmxnet3_free_intr_resources(adapter);
+<<<<<<< HEAD
 err_ver:
 	vmxnet3_free_pci_resources(adapter);
 err_alloc_pci:
+=======
+err_coal_conf:
+>>>>>>> upstream/android-13
 #ifdef VMXNET3_RSS
 	dma_free_coherent(&adapter->pdev->dev, sizeof(struct UPT1_RSSConf),
 			  adapter->rss_conf, adapter->rss_conf_pa);
@@ -3519,13 +4075,23 @@ err_alloc_rss:
 err_alloc_pm:
 	dma_free_coherent(&adapter->pdev->dev, size, adapter->tqd_start,
 			  adapter->queue_desc_pa);
+<<<<<<< HEAD
 err_alloc_queue_desc:
+=======
+err_ver:
+	vmxnet3_free_pci_resources(adapter);
+err_alloc_pci:
+>>>>>>> upstream/android-13
 	dma_free_coherent(&adapter->pdev->dev,
 			  sizeof(struct Vmxnet3_DriverShared),
 			  adapter->shared, adapter->shared_pa);
 err_alloc_shared:
 	dma_unmap_single(&adapter->pdev->dev, adapter->adapter_pa,
+<<<<<<< HEAD
 			 sizeof(struct vmxnet3_adapter), PCI_DMA_TODEVICE);
+=======
+			 sizeof(struct vmxnet3_adapter), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 err_set_mask:
 	free_netdev(netdev);
 	return err;
@@ -3538,7 +4104,12 @@ vmxnet3_remove_device(struct pci_dev *pdev)
 	struct net_device *netdev = pci_get_drvdata(pdev);
 	struct vmxnet3_adapter *adapter = netdev_priv(netdev);
 	int size = 0;
+<<<<<<< HEAD
 	int num_rx_queues;
+=======
+	int num_rx_queues, rx_queues;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 #ifdef VMXNET3_RSS
 	if (enable_mq)
@@ -3547,7 +4118,28 @@ vmxnet3_remove_device(struct pci_dev *pdev)
 	else
 #endif
 		num_rx_queues = 1;
+<<<<<<< HEAD
 	num_rx_queues = rounddown_pow_of_two(num_rx_queues);
+=======
+	if (!VMXNET3_VERSION_GE_6(adapter)) {
+		num_rx_queues = rounddown_pow_of_two(num_rx_queues);
+	}
+	if (VMXNET3_VERSION_GE_6(adapter)) {
+		spin_lock_irqsave(&adapter->cmd_lock, flags);
+		VMXNET3_WRITE_BAR1_REG(adapter, VMXNET3_REG_CMD,
+				       VMXNET3_CMD_GET_MAX_QUEUES_CONF);
+		rx_queues = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_CMD);
+		spin_unlock_irqrestore(&adapter->cmd_lock, flags);
+		if (rx_queues > 0)
+			rx_queues = (rx_queues >> 8) & 0xff;
+		else
+			rx_queues = min(num_rx_queues, VMXNET3_DEVICE_DEFAULT_RX_QUEUES);
+		num_rx_queues = min(num_rx_queues, rx_queues);
+	} else {
+		num_rx_queues = min(num_rx_queues,
+				    VMXNET3_DEVICE_DEFAULT_RX_QUEUES);
+	}
+>>>>>>> upstream/android-13
 
 	cancel_work_sync(&adapter->work);
 
@@ -3575,7 +4167,11 @@ vmxnet3_remove_device(struct pci_dev *pdev)
 			  sizeof(struct Vmxnet3_DriverShared),
 			  adapter->shared, adapter->shared_pa);
 	dma_unmap_single(&adapter->pdev->dev, adapter->adapter_pa,
+<<<<<<< HEAD
 			 sizeof(struct vmxnet3_adapter), PCI_DMA_TODEVICE);
+=======
+			 sizeof(struct vmxnet3_adapter), DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	free_netdev(netdev);
 }
 
@@ -3634,7 +4230,10 @@ vmxnet3_suspend(struct device *device)
 	vmxnet3_free_intr_resources(adapter);
 
 	netif_device_detach(netdev);
+<<<<<<< HEAD
 	netif_tx_stop_all_queues(netdev);
+=======
+>>>>>>> upstream/android-13
 
 	/* Create wake-up filters. */
 	pmConf = adapter->pm_conf;
@@ -3651,6 +4250,7 @@ vmxnet3_suspend(struct device *device)
 	}
 
 	if (adapter->wol & WAKE_ARP) {
+<<<<<<< HEAD
 		in_dev = in_dev_get(netdev);
 		if (!in_dev)
 			goto skip_arp;
@@ -3658,6 +4258,21 @@ vmxnet3_suspend(struct device *device)
 		ifa = (struct in_ifaddr *)in_dev->ifa_list;
 		if (!ifa)
 			goto skip_arp;
+=======
+		rcu_read_lock();
+
+		in_dev = __in_dev_get_rcu(netdev);
+		if (!in_dev) {
+			rcu_read_unlock();
+			goto skip_arp;
+		}
+
+		ifa = rcu_dereference(in_dev->ifa_list);
+		if (!ifa) {
+			rcu_read_unlock();
+			goto skip_arp;
+		}
+>>>>>>> upstream/android-13
 
 		pmConf->filters[i].patternSize = ETH_HLEN + /* Ethernet header*/
 			sizeof(struct arphdr) +		/* ARP header */
@@ -3677,7 +4292,13 @@ vmxnet3_suspend(struct device *device)
 
 		/* The Unicast IPv4 address in 'tip' field. */
 		arpreq += 2 * ETH_ALEN + sizeof(u32);
+<<<<<<< HEAD
 		*(u32 *)arpreq = ifa->ifa_address;
+=======
+		*(__be32 *)arpreq = ifa->ifa_address;
+
+		rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 		/* The mask for the relevant bits. */
 		pmConf->filters[i].mask[0] = 0x00;
@@ -3686,7 +4307,10 @@ vmxnet3_suspend(struct device *device)
 		pmConf->filters[i].mask[3] = 0x00;
 		pmConf->filters[i].mask[4] = 0xC0; /* IPv4 TIP */
 		pmConf->filters[i].mask[5] = 0x03; /* IPv4 TIP */
+<<<<<<< HEAD
 		in_dev_put(in_dev);
+=======
+>>>>>>> upstream/android-13
 
 		pmConf->wakeUpEvents |= VMXNET3_PM_WAKEUP_FILTER;
 		i++;

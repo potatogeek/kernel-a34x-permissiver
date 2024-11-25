@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2020 MediaTek Inc.
  * Author: Owen Chen <owen.chen@mediatek.com>
  */
@@ -12,6 +13,19 @@
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>
+=======
+ * Copyright (c) 2018 MediaTek Inc.
+ * Author: Owen Chen <owen.chen@mediatek.com>
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/slab.h>
+#include <linux/mfd/syscon.h>
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 
 #include "clk-mtk.h"
 #include "clk-gate.h"
@@ -19,6 +33,7 @@
 
 #include <dt-bindings/clock/mt6765-clk.h>
 
+<<<<<<< HEAD
 #define MT_CCF_BRINGUP		0
 #if MT_CCF_BRINGUP
 #define MT_MTCMOS_ENABLE	0
@@ -189,12 +204,27 @@ void __iomem *mmsys_config_base;
 #define CLK_SCP_CFG_1		(cksys_base + 0x204)
 #define CLK26CALI_0		(cksys_base + 0x220)
 #define CLK26CALI_1		(cksys_base + 0x224)
+=======
+/*fmeter div select 4*/
+#define _DIV4_ 1
+
+static DEFINE_SPINLOCK(mt6765_clk_lock);
+
+/* Total 12 subsys */
+static void __iomem *cksys_base;
+static void __iomem *apmixed_base;
+
+/* CKSYS */
+#define CLK_SCP_CFG_0		(cksys_base + 0x200)
+#define CLK_SCP_CFG_1		(cksys_base + 0x204)
+>>>>>>> upstream/android-13
 
 /* CG */
 #define AP_PLL_CON3		(apmixed_base + 0x0C)
 #define PLLON_CON0		(apmixed_base + 0x44)
 #define PLLON_CON1		(apmixed_base + 0x48)
 
+<<<<<<< HEAD
 #define ARMPLL_CON0		(apmixed_base + 0x20C)
 #define ARMPLL_CON1		(apmixed_base + 0x210)
 #define ARMPLL_CON2		(apmixed_base + 0x214)
@@ -461,6 +491,43 @@ unsigned int mt_get_abist_freq(unsigned int ID)
 		return output * 4;
 }
 EXPORT_SYMBOL(mt_get_abist_freq);
+=======
+/* clk cfg update */
+#define CLK_CFG_0		0x40
+#define CLK_CFG_0_SET		0x44
+#define CLK_CFG_0_CLR		0x48
+#define CLK_CFG_1		0x50
+#define CLK_CFG_1_SET		0x54
+#define CLK_CFG_1_CLR		0x58
+#define CLK_CFG_2		0x60
+#define CLK_CFG_2_SET		0x64
+#define CLK_CFG_2_CLR		0x68
+#define CLK_CFG_3		0x70
+#define CLK_CFG_3_SET		0x74
+#define CLK_CFG_3_CLR		0x78
+#define CLK_CFG_4		0x80
+#define CLK_CFG_4_SET		0x84
+#define CLK_CFG_4_CLR		0x88
+#define CLK_CFG_5		0x90
+#define CLK_CFG_5_SET		0x94
+#define CLK_CFG_5_CLR		0x98
+#define CLK_CFG_6		0xa0
+#define CLK_CFG_6_SET		0xa4
+#define CLK_CFG_6_CLR		0xa8
+#define CLK_CFG_7		0xb0
+#define CLK_CFG_7_SET		0xb4
+#define CLK_CFG_7_CLR		0xb8
+#define CLK_CFG_8		0xc0
+#define CLK_CFG_8_SET		0xc4
+#define CLK_CFG_8_CLR		0xc8
+#define CLK_CFG_9		0xd0
+#define CLK_CFG_9_SET		0xd4
+#define CLK_CFG_9_CLR		0xd8
+#define CLK_CFG_10		0xe0
+#define CLK_CFG_10_SET		0xe4
+#define CLK_CFG_10_CLR		0xe8
+#define CLK_CFG_UPDATE		0x004
+>>>>>>> upstream/android-13
 
 static const struct mtk_fixed_clk fixed_clks[] = {
 	FIXED_CLK(CLK_TOP_F_FRTC, "f_frtc_ck", "clk32k", 32768),
@@ -490,9 +557,15 @@ static const struct mtk_fixed_factor top_divs[] = {
 	FACTOR(CLK_TOP_USB20_192M_D4, "usb20_192m_d4", "usb20_192m_ck", 1, 4),
 	FACTOR(CLK_TOP_USB20_192M_D8, "usb20_192m_d8", "usb20_192m_ck", 1, 8),
 	FACTOR(CLK_TOP_USB20_192M_D16,
+<<<<<<< HEAD
 		"usb20_192m_d16", "usb20_192m_ck", 1, 16),
 	FACTOR(CLK_TOP_USB20_192M_D32,
 		"usb20_192m_d32", "usb20_192m_ck", 1, 32),
+=======
+	       "usb20_192m_d16", "usb20_192m_ck", 1, 16),
+	FACTOR(CLK_TOP_USB20_192M_D32,
+	       "usb20_192m_d32", "usb20_192m_ck", 1, 32),
+>>>>>>> upstream/android-13
 	FACTOR(CLK_TOP_UNIVPLL_D2, "univpll_d2", "univpll", 1, 2),
 	FACTOR(CLK_TOP_UNIVPLL1_D2, "univpll1_d2", "univpll_d2", 1, 2),
 	FACTOR(CLK_TOP_UNIVPLL1_D4, "univpll1_d4", "univpll_d2", 1, 4),
@@ -522,10 +595,13 @@ static const struct mtk_fixed_factor top_divs[] = {
 	FACTOR(CLK_TOP_ULPOSC1_D8, "ulposc1_d8", "ulposc1_ck", 1, 8),
 	FACTOR(CLK_TOP_ULPOSC1_D16, "ulposc1_d16", "ulposc1_ck", 1, 16),
 	FACTOR(CLK_TOP_ULPOSC1_D32, "ulposc1_d32", "ulposc1_ck", 1, 32),
+<<<<<<< HEAD
 	/* dummy clk define, do not control
 	 *this clock due to it's a ddrphy clock source
 	 */
 	/* FACTOR(CLK_TOP_DMPLL, "dmpll_ck", "ulposc1_ck", 1, 32), */
+=======
+>>>>>>> upstream/android-13
 	FACTOR(CLK_TOP_F_F26M, "f_f26m_ck", "clk_26m_ck", 1, 1),
 	FACTOR(CLK_TOP_AXI, "axi_ck", "axi_sel", 1, 1),
 	FACTOR(CLK_TOP_MM, "mm_ck", "mm_sel", 1, 1),
@@ -550,7 +626,11 @@ static const struct mtk_fixed_factor top_divs[] = {
 	FACTOR(CLK_TOP_ARMPLL_DIVIDER_PLL1, "arm_div_pll1", "syspll_ck", 1, 1),
 	FACTOR(CLK_TOP_ARMPLL_DIVIDER_PLL2, "arm_div_pll2", "univpll_d2", 1, 1),
 	FACTOR(CLK_TOP_DA_USB20_48M_DIV,
+<<<<<<< HEAD
 		"usb20_48m_div", "usb20_192m_d4", 1, 1),
+=======
+	       "usb20_48m_div", "usb20_192m_d4", 1, 1),
+>>>>>>> upstream/android-13
 	FACTOR(CLK_TOP_DA_UNIV_48M_DIV, "univ_48m_div", "usb20_192m_d4", 1, 1),
 };
 
@@ -759,6 +839,7 @@ static const char * const camtm_parents[] = {
 static const struct mtk_mux top_muxes[] = {
 	/* CLK_CFG_0 */
 	MUX_GATE_CLR_SET_UPD_FLAGS(CLK_TOP_AXI_SEL, "axi_sel", axi_parents,
+<<<<<<< HEAD
 		CLK_CFG_0, CLK_CFG_0_SET, CLK_CFG_0_CLR, 0, 2, 7,
 		CLK_CFG_UPDATE, 0, CLK_IS_CRITICAL),
 	MUX_GATE_CLR_SET_UPD_FLAGS(CLK_TOP_MEM_SEL, "mem_sel", mem_parents,
@@ -848,6 +929,105 @@ static const struct mtk_mux top_muxes[] = {
 	MUX_GATE_CLR_SET_UPD(CLK_TOP_CAMTM_SEL, "camtm_sel",
 		camtm_parents, CLK_CFG_7, CLK_CFG_7_SET, CLK_CFG_7_CLR,
 		8, 2, 15, CLK_CFG_UPDATE, 29),
+=======
+			      CLK_CFG_0, CLK_CFG_0_SET, CLK_CFG_0_CLR,
+			      0, 2, 7, CLK_CFG_UPDATE, 0, CLK_IS_CRITICAL),
+	MUX_GATE_CLR_SET_UPD_FLAGS(CLK_TOP_MEM_SEL, "mem_sel", mem_parents,
+			      CLK_CFG_0, CLK_CFG_0_SET, CLK_CFG_0_CLR,
+			      8, 2, 15, CLK_CFG_UPDATE, 1, CLK_IS_CRITICAL),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_MM_SEL, "mm_sel", mm_parents, CLK_CFG_0,
+			CLK_CFG_0_SET, CLK_CFG_0_CLR, 16, 3, 23,
+			CLK_CFG_UPDATE, 2),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_SCP_SEL, "scp_sel", scp_parents, CLK_CFG_0,
+			CLK_CFG_0_SET, CLK_CFG_0_CLR, 24, 3, 31,
+			CLK_CFG_UPDATE, 3),
+	/* CLK_CFG_1 */
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_MFG_SEL, "mfg_sel", mfg_parents, CLK_CFG_1,
+			CLK_CFG_1_SET, CLK_CFG_1_CLR, 0, 2, 7,
+			CLK_CFG_UPDATE, 4),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_ATB_SEL, "atb_sel", atb_parents, CLK_CFG_1,
+			CLK_CFG_1_SET, CLK_CFG_1_CLR, 8, 2, 15,
+			CLK_CFG_UPDATE, 5),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_CAMTG_SEL, "camtg_sel",
+			camtg_parents, CLK_CFG_1, CLK_CFG_1_SET,
+			CLK_CFG_1_CLR, 16, 3, 23, CLK_CFG_UPDATE, 6),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_CAMTG1_SEL, "camtg1_sel", camtg_parents,
+			CLK_CFG_1, CLK_CFG_1_SET, CLK_CFG_1_CLR,
+			24, 3, 31, CLK_CFG_UPDATE, 7),
+	/* CLK_CFG_2 */
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_CAMTG2_SEL, "camtg2_sel",
+			camtg_parents, CLK_CFG_2, CLK_CFG_2_SET,
+			CLK_CFG_2_CLR, 0, 3, 7, CLK_CFG_UPDATE, 8),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_CAMTG3_SEL, "camtg3_sel", camtg_parents,
+			CLK_CFG_2, CLK_CFG_2_SET, CLK_CFG_2_CLR,
+			8, 3, 15, CLK_CFG_UPDATE, 9),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_UART_SEL, "uart_sel", uart_parents,
+			CLK_CFG_2, CLK_CFG_2_SET, CLK_CFG_2_CLR, 16, 1, 23,
+			CLK_CFG_UPDATE, 10),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_SPI_SEL, "spi_sel", spi_parents, CLK_CFG_2,
+			CLK_CFG_2_SET, CLK_CFG_2_CLR, 24, 2, 31,
+			CLK_CFG_UPDATE, 11),
+	/* CLK_CFG_3 */
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_MSDC50_0_HCLK_SEL, "msdc5hclk",
+			msdc5hclk_parents, CLK_CFG_3, CLK_CFG_3_SET,
+			CLK_CFG_3_CLR, 0, 2, 7, CLK_CFG_UPDATE, 12),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_MSDC50_0_SEL, "msdc50_0_sel",
+			msdc50_0_parents, CLK_CFG_3, CLK_CFG_3_SET,
+			CLK_CFG_3_CLR, 8, 3, 15, CLK_CFG_UPDATE, 13),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_MSDC30_1_SEL, "msdc30_1_sel",
+			msdc30_1_parents, CLK_CFG_3, CLK_CFG_3_SET,
+			CLK_CFG_3_CLR, 16, 3, 23, CLK_CFG_UPDATE, 14),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_AUDIO_SEL, "audio_sel", audio_parents,
+			CLK_CFG_3, CLK_CFG_3_SET, CLK_CFG_3_CLR,
+			24, 2, 31, CLK_CFG_UPDATE, 15),
+	/* CLK_CFG_4 */
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_AUD_INTBUS_SEL, "aud_intbus_sel",
+			aud_intbus_parents, CLK_CFG_4, CLK_CFG_4_SET,
+			CLK_CFG_4_CLR, 0, 2, 7, CLK_CFG_UPDATE, 16),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_AUD_1_SEL, "aud_1_sel", aud_1_parents,
+			CLK_CFG_4, CLK_CFG_4_SET, CLK_CFG_4_CLR,
+			8, 1, 15, CLK_CFG_UPDATE, 17),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_AUD_ENGEN1_SEL, "aud_engen1_sel",
+			aud_engen1_parents, CLK_CFG_4, CLK_CFG_4_SET,
+			CLK_CFG_4_CLR, 16, 2, 23, CLK_CFG_UPDATE, 18),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_DISP_PWM_SEL, "disp_pwm_sel",
+			disp_pwm_parents, CLK_CFG_4, CLK_CFG_4_SET,
+			CLK_CFG_4_CLR, 24, 2, 31, CLK_CFG_UPDATE, 19),
+	/* CLK_CFG_5 */
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_SSPM_SEL, "sspm_sel", sspm_parents,
+			CLK_CFG_5, CLK_CFG_5_SET, CLK_CFG_5_CLR, 0, 2, 7,
+			CLK_CFG_UPDATE, 20),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_DXCC_SEL, "dxcc_sel", dxcc_parents,
+			CLK_CFG_5, CLK_CFG_5_SET, CLK_CFG_5_CLR, 8, 2, 15,
+			CLK_CFG_UPDATE, 21),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_USB_TOP_SEL, "usb_top_sel",
+			usb_top_parents, CLK_CFG_5, CLK_CFG_5_SET,
+			CLK_CFG_5_CLR, 16, 1, 23, CLK_CFG_UPDATE, 22),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_SPM_SEL, "spm_sel", spm_parents, CLK_CFG_5,
+			CLK_CFG_5_SET, CLK_CFG_5_CLR, 24, 1, 31,
+			CLK_CFG_UPDATE, 23),
+	/* CLK_CFG_6 */
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_I2C_SEL, "i2c_sel", i2c_parents, CLK_CFG_6,
+			CLK_CFG_6_SET, CLK_CFG_6_CLR, 0, 3, 7, CLK_CFG_UPDATE,
+			24),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_PWM_SEL, "pwm_sel", pwm_parents, CLK_CFG_6,
+			CLK_CFG_6_SET, CLK_CFG_6_CLR, 8, 2, 15, CLK_CFG_UPDATE,
+			25),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_SENINF_SEL, "seninf_sel", seninf_parents,
+			CLK_CFG_6, CLK_CFG_6_SET, CLK_CFG_6_CLR, 16, 2, 23,
+			CLK_CFG_UPDATE, 26),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_AES_FDE_SEL, "aes_fde_sel",
+			aes_fde_parents, CLK_CFG_6, CLK_CFG_6_SET,
+			CLK_CFG_6_CLR, 24, 3, 31, CLK_CFG_UPDATE, 27),
+	/* CLK_CFG_7 */
+	MUX_GATE_CLR_SET_UPD_FLAGS(CLK_TOP_PWRAP_ULPOSC_SEL, "ulposc_sel",
+			      ulposc_parents, CLK_CFG_7, CLK_CFG_7_SET,
+			      CLK_CFG_7_CLR, 0, 3, 7, CLK_CFG_UPDATE, 28,
+			      CLK_IS_CRITICAL),
+	MUX_GATE_CLR_SET_UPD(CLK_TOP_CAMTM_SEL, "camtm_sel", camtm_parents,
+			CLK_CFG_7, CLK_CFG_7_SET, CLK_CFG_7_CLR, 8, 2, 15,
+			CLK_CFG_UPDATE, 29),
+>>>>>>> upstream/android-13
 };
 
 static const struct mtk_gate_regs top0_cg_regs = {
@@ -897,6 +1077,7 @@ static const struct mtk_gate_regs top2_cg_regs = {
 
 static const struct mtk_gate top_clks[] = {
 	/* TOP0 */
+<<<<<<< HEAD
 	/*
 	 * GATE_TOP0(CLK_TOP_MD_32K, "md_32k", "f_frtc_ck", 8),
 	 * GATE_TOP0(CLK_TOP_MD_26M, "md_26m", "f_f26m_ck", 9),
@@ -919,6 +1100,23 @@ static const struct mtk_gate top_clks[] = {
 	 * GATE_TOP1(CLK_TOP_MPLL_52M_EN, "mpll_52m_en", "mpll_52m_div", 11),
 	 * GATE_TOP1(CLK_TOP_F_UFS_MP_SAP_CFG_EN, "ufs_sap", "f_f26m_ck", 12),
 	 */
+=======
+	GATE_TOP0(CLK_TOP_MD_32K, "md_32k", "f_frtc_ck", 8),
+	GATE_TOP0(CLK_TOP_MD_26M, "md_26m", "f_f26m_ck", 9),
+	GATE_TOP0(CLK_TOP_MD2_32K, "md2_32k", "f_frtc_ck", 10),
+	GATE_TOP0(CLK_TOP_MD2_26M, "md2_26m", "f_f26m_ck", 11),
+	/* TOP1 */
+	GATE_TOP1(CLK_TOP_ARMPLL_DIVIDER_PLL0_EN,
+		  "arm_div_pll0_en", "arm_div_pll0", 3),
+	GATE_TOP1(CLK_TOP_ARMPLL_DIVIDER_PLL1_EN,
+		  "arm_div_pll1_en", "arm_div_pll1", 4),
+	GATE_TOP1(CLK_TOP_ARMPLL_DIVIDER_PLL2_EN,
+		  "arm_div_pll2_en", "arm_div_pll2", 5),
+	GATE_TOP1(CLK_TOP_FMEM_OCC_DRC_EN, "drc_en", "univpll2_d2", 6),
+	GATE_TOP1(CLK_TOP_USB20_48M_EN, "usb20_48m_en", "usb20_48m_div", 8),
+	GATE_TOP1(CLK_TOP_UNIVPLL_48M_EN, "univpll_48m_en", "univ_48m_div", 9),
+	GATE_TOP1(CLK_TOP_F_UFS_MP_SAP_CFG_EN, "ufs_sap", "f_f26m_ck", 12),
+>>>>>>> upstream/android-13
 	GATE_TOP1(CLK_TOP_F_BIST2FPC_EN, "bist2fpc", "f_bist2fpc_ck", 16),
 	/* TOP2 */
 	GATE_TOP2(CLK_TOP_APLL12_DIV0, "apll12_div0", "aud_1_ck", 2),
@@ -927,6 +1125,7 @@ static const struct mtk_gate top_clks[] = {
 	GATE_TOP2(CLK_TOP_APLL12_DIV3, "apll12_div3", "aud_1_ck", 5),
 };
 
+<<<<<<< HEAD
 static const struct mtk_gate_regs ifr0_cg_regs = {
 	.set_ofs = 0x200,
 	.clr_ofs = 0x200,
@@ -939,6 +1138,8 @@ static const struct mtk_gate_regs ifr1_cg_regs = {
 	.sta_ofs = 0x74,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct mtk_gate_regs ifr2_cg_regs = {
 	.set_ofs = 0x80,
 	.clr_ofs = 0x84,
@@ -963,6 +1164,7 @@ static const struct mtk_gate_regs ifr5_cg_regs = {
 	.sta_ofs = 0xc8,
 };
 
+<<<<<<< HEAD
 #define GATE_IFR0(_id, _name, _parent, _shift) {	\
 		.id = _id,				\
 		.name = _name,				\
@@ -981,6 +1183,8 @@ static const struct mtk_gate_regs ifr5_cg_regs = {
 		.ops = &mtk_clk_gate_ops_no_setclr,	\
 	}
 
+=======
+>>>>>>> upstream/android-13
 #define GATE_IFR2(_id, _name, _parent, _shift) {	\
 		.id = _id,				\
 		.name = _name,				\
@@ -999,6 +1203,7 @@ static const struct mtk_gate_regs ifr5_cg_regs = {
 		.ops = &mtk_clk_gate_ops_setclr,	\
 	}
 
+<<<<<<< HEAD
 
 #define GATE_IFR3_AO(_id, _name, _parent, _shift) {	\
 		.id = _id,				\
@@ -1010,6 +1215,8 @@ static const struct mtk_gate_regs ifr5_cg_regs = {
 		.flags = CLK_IS_CRITICAL,		\
 	}
 
+=======
+>>>>>>> upstream/android-13
 #define GATE_IFR4(_id, _name, _parent, _shift) {	\
 		.id = _id,				\
 		.name = _name,				\
@@ -1019,6 +1226,7 @@ static const struct mtk_gate_regs ifr5_cg_regs = {
 		.ops = &mtk_clk_gate_ops_setclr,	\
 	}
 
+<<<<<<< HEAD
 #define GATE_IFR4_AO(_id, _name, _parent, _shift) {	\
 		.id = _id,				\
 		.name = _name,				\
@@ -1029,6 +1237,8 @@ static const struct mtk_gate_regs ifr5_cg_regs = {
 		.flags = CLK_IS_CRITICAL,		\
 	}
 
+=======
+>>>>>>> upstream/android-13
 #define GATE_IFR5(_id, _name, _parent, _shift) {	\
 		.id = _id,				\
 		.name = _name,				\
@@ -1042,7 +1252,10 @@ static const struct mtk_gate ifr_clks[] = {
 	/* INFRA_TOPAXI */
 	/* INFRA PERI */
 	/* INFRA mode 0 */
+<<<<<<< HEAD
 	GATE_IFR2(CLK_IFR_PMIC_AP, "ifr_pmic_ap", "axi_ck", 1),
+=======
+>>>>>>> upstream/android-13
 	GATE_IFR2(CLK_IFR_ICUSB, "ifr_icusb", "axi_ck", 8),
 	GATE_IFR2(CLK_IFR_GCE, "ifr_gce", "axi_ck", 9),
 	GATE_IFR2(CLK_IFR_THERM, "ifr_therm", "axi_ck", 10),
@@ -1068,20 +1281,31 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR3(CLK_IFR_MSDC1, "ifr_msdc1", "axi_ck", 4),
 	GATE_IFR3(CLK_IFR_TRNG, "ifr_trng", "axi_ck", 9),
 	GATE_IFR3(CLK_IFR_AUXADC, "ifr_auxadc", "f_f26m_ck", 10),
+<<<<<<< HEAD
 	GATE_IFR3(CLK_IFR_CPUM, "ifr_cpum", "axi_ck", 11),
+=======
+>>>>>>> upstream/android-13
 	GATE_IFR3(CLK_IFR_CCIF1_AP, "ifr_ccif1_ap", "axi_ck", 12),
 	GATE_IFR3(CLK_IFR_CCIF1_MD, "ifr_ccif1_md", "axi_ck", 13),
 	GATE_IFR3(CLK_IFR_AUXADC_MD, "ifr_auxadc_md", "f_f26m_ck", 14),
 	GATE_IFR3(CLK_IFR_AP_DMA, "ifr_ap_dma", "axi_ck", 18),
 	GATE_IFR3(CLK_IFR_DEVICE_APC, "ifr_dapc", "axi_ck", 20),
 	GATE_IFR3(CLK_IFR_CCIF_AP, "ifr_ccif_ap", "axi_ck", 23),
+<<<<<<< HEAD
 	GATE_IFR3_AO(CLK_IFR_AUDIO, "ifr_audio", "axi_ck", 25),
+=======
+	GATE_IFR3(CLK_IFR_AUDIO, "ifr_audio", "axi_ck", 25),
+>>>>>>> upstream/android-13
 	GATE_IFR3(CLK_IFR_CCIF_MD, "ifr_ccif_md", "axi_ck", 26),
 	/* INFRA mode 2 */
 	GATE_IFR4(CLK_IFR_RG_PWM_FBCLK6, "ifr_pwmfb", "f_f26m_ck", 0),
 	GATE_IFR4(CLK_IFR_DISP_PWM, "ifr_disp_pwm", "f_fdisp_pwm_ck", 2),
 	GATE_IFR4(CLK_IFR_CLDMA_BCLK, "ifr_cldmabclk", "axi_ck", 3),
+<<<<<<< HEAD
 	GATE_IFR4_AO(CLK_IFR_AUDIO_26M_BCLK, "ifr_audio26m", "f_f26m_ck", 4),
+=======
+	GATE_IFR4(CLK_IFR_AUDIO_26M_BCLK, "ifr_audio26m", "f_f26m_ck", 4),
+>>>>>>> upstream/android-13
 	GATE_IFR4(CLK_IFR_SPI1, "ifr_spi1", "spi_ck", 6),
 	GATE_IFR4(CLK_IFR_I2C4, "ifr_i2c4", "i2c_ck", 7),
 	GATE_IFR4(CLK_IFR_SPI2, "ifr_spi2", "spi_ck", 9),
@@ -1105,7 +1329,10 @@ static const struct mtk_gate ifr_clks[] = {
 	GATE_IFR5(CLK_IFR_MD_MSDC0, "ifr_md_msdc0", "msdc50_0_ck", 8),
 	GATE_IFR5(CLK_IFR_MSDC0_SRC, "ifr_msdc0_clk", "msdc50_0_ck", 9),
 	GATE_IFR5(CLK_IFR_MSDC1_SRC, "ifr_msdc1_clk", "msdc30_1_ck", 10),
+<<<<<<< HEAD
 	/* GATE_IFR5(CLK_IFR_AES_TOP0_BCLK, "ifr_aes", "axi_ck", 16), */
+=======
+>>>>>>> upstream/android-13
 	GATE_IFR5(CLK_IFR_MCU_PM_BCLK, "ifr_mcu_pm_bclk", "axi_ck", 17),
 	GATE_IFR5(CLK_IFR_CCIF2_AP, "ifr_ccif2_ap", "axi_ck", 18),
 	GATE_IFR5(CLK_IFR_CCIF2_MD, "ifr_ccif2_md", "axi_ck", 19),
@@ -1126,11 +1353,16 @@ static const struct mtk_gate_regs apmixed_cg_regs = {
 		.parent_name = _parent,			\
 		.regs = &apmixed_cg_regs,		\
 		.shift = _shift,			\
+<<<<<<< HEAD
 		.ops = &mtk_clk_gate_ops_no_setclr_inv,	\
+=======
+		.ops = &mtk_clk_gate_ops_no_setclr_inv,		\
+>>>>>>> upstream/android-13
 	}
 
 static const struct mtk_gate apmixed_clks[] = {
 	/* AUDIO0 */
+<<<<<<< HEAD
 	/*
 	 * GATE_APMIXED(CLK_APMIXED_SSUSB26M, "apmixed_ssusb26m", "f_f26m_ck",
 	 *	4),
@@ -1166,6 +1398,32 @@ static const struct mtk_gate apmixed_clks[] = {
 /* FIXME: modify FMAX/FMIN/RSTBAR */
 #define MT6765_PLL_FMAX		(3800UL * MHZ)
 #define MT6765_PLL_FMIN		(1600UL * MHZ)
+=======
+	GATE_APMIXED(CLK_APMIXED_SSUSB26M, "apmixed_ssusb26m", "f_f26m_ck",
+		     4),
+	GATE_APMIXED(CLK_APMIXED_APPLL26M, "apmixed_appll26m", "f_f26m_ck",
+		     5),
+	GATE_APMIXED(CLK_APMIXED_MIPIC0_26M, "apmixed_mipic026m", "f_f26m_ck",
+		     6),
+	GATE_APMIXED(CLK_APMIXED_MDPLLGP26M, "apmixed_mdpll26m", "f_f26m_ck",
+		     7),
+	GATE_APMIXED(CLK_APMIXED_MMSYS_F26M, "apmixed_mmsys26m", "f_f26m_ck",
+		     8),
+	GATE_APMIXED(CLK_APMIXED_UFS26M, "apmixed_ufs26m", "f_f26m_ck",
+		     9),
+	GATE_APMIXED(CLK_APMIXED_MIPIC1_26M, "apmixed_mipic126m", "f_f26m_ck",
+		     11),
+	GATE_APMIXED(CLK_APMIXED_MEMPLL26M, "apmixed_mempll26m", "f_f26m_ck",
+		     13),
+	GATE_APMIXED(CLK_APMIXED_CLKSQ_LVPLL_26M, "apmixed_lvpll26m",
+		     "f_f26m_ck", 14),
+	GATE_APMIXED(CLK_APMIXED_MIPID0_26M, "apmixed_mipid026m", "f_f26m_ck",
+		     16),
+};
+
+#define MT6765_PLL_FMAX		(3800UL * MHZ)
+#define MT6765_PLL_FMIN		(1500UL * MHZ)
+>>>>>>> upstream/android-13
 
 #define CON0_MT6765_RST_BAR	BIT(23)
 
@@ -1205,6 +1463,7 @@ static const struct mtk_gate apmixed_clks[] = {
 			_pcw_reg, _pcw_shift, NULL)	\
 
 static const struct mtk_pll_data plls[] = {
+<<<<<<< HEAD
 	/* FIXME: need to fix flags/div_table/tuner_reg/table */
 	PLL(CLK_APMIXED_ARMPLL_L, "armpll_l", 0x021C, 0x0228, BIT(0),
 		PLL_AO, 22, 8, 0x0220, 24, 0, 0, 0, 0x0220, 0),
@@ -1252,10 +1511,34 @@ static const struct mtk_pll_data plls_no_armpll_ll[] = {
 		0, 32, 8, 0x0290, 24, 0x0040, 0x000C, 0, 0x0294, 0),
 	PLL(CLK_APMIXED_MPLL, "mpll", 0x02A0, 0x02AC, BIT(0),
 		PLL_AO, 22, 8, 0x02A4, 24, 0, 0, 0, 0x02A4, 0),
+=======
+	PLL(CLK_APMIXED_ARMPLL_L, "armpll_l", 0x021C, 0x0228, BIT(0),
+	    PLL_AO, 22, 8, 0x0220, 24, 0, 0, 0, 0x0220, 0),
+	PLL(CLK_APMIXED_ARMPLL, "armpll", 0x020C, 0x0218, BIT(0),
+	    PLL_AO, 22, 8, 0x0210, 24, 0, 0, 0, 0x0210, 0),
+	PLL(CLK_APMIXED_CCIPLL, "ccipll", 0x022C, 0x0238, BIT(0),
+	    PLL_AO, 22, 8, 0x0230, 24, 0, 0, 0, 0x0230, 0),
+	PLL(CLK_APMIXED_MAINPLL, "mainpll", 0x023C, 0x0248, BIT(0),
+	    (HAVE_RST_BAR | PLL_AO), 22, 8, 0x0240, 24, 0, 0, 0, 0x0240,
+	    0),
+	PLL(CLK_APMIXED_MFGPLL, "mfgpll", 0x024C, 0x0258, BIT(0),
+	    0, 22, 8, 0x0250, 24, 0, 0, 0, 0x0250, 0),
+	PLL(CLK_APMIXED_MMPLL, "mmpll", 0x025C, 0x0268, BIT(0),
+	    0, 22, 8, 0x0260, 24, 0, 0, 0, 0x0260, 0),
+	PLL(CLK_APMIXED_UNIV2PLL, "univ2pll", 0x026C, 0x0278, BIT(0),
+	    HAVE_RST_BAR, 22, 8, 0x0270, 24, 0, 0, 0, 0x0270, 0),
+	PLL(CLK_APMIXED_MSDCPLL, "msdcpll", 0x027C, 0x0288, BIT(0),
+	    0, 22, 8, 0x0280, 24, 0, 0, 0, 0x0280, 0),
+	PLL(CLK_APMIXED_APLL1, "apll1", 0x028C, 0x029C, BIT(0),
+	    0, 32, 8, 0x0290, 24, 0x0040, 0x000C, 0, 0x0294, 0),
+	PLL(CLK_APMIXED_MPLL, "mpll", 0x02A0, 0x02AC, BIT(0),
+	    PLL_AO, 22, 8, 0x02A4, 24, 0, 0, 0, 0x02A4, 0),
+>>>>>>> upstream/android-13
 };
 
 static int clk_mt6765_apmixed_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	struct device_node *node = pdev->dev.of_node;
 	struct clk_onecell_data *clk_data;
@@ -1263,6 +1546,13 @@ static int clk_mt6765_apmixed_probe(struct platform_device *pdev)
 	void __iomem *base;
 	unsigned int val;
 	int r;
+=======
+	struct clk_onecell_data *clk_data;
+	int r;
+	struct device_node *node = pdev->dev.of_node;
+	void __iomem *base;
+	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>>>>>> upstream/android-13
 
 	base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(base)) {
@@ -1271,6 +1561,7 @@ static int clk_mt6765_apmixed_probe(struct platform_device *pdev)
 	}
 
 	clk_data = mtk_alloc_clk_data(CLK_APMIXED_NR_CLK);
+<<<<<<< HEAD
 	if (!clk_data)
 		return -ENOMEM;
 
@@ -1307,6 +1598,20 @@ static int clk_mt6765_apmixed_probe(struct platform_device *pdev)
 
 	apmixed_base = base;
 
+=======
+
+	mtk_clk_register_plls(node, plls, ARRAY_SIZE(plls), clk_data);
+
+	mtk_clk_register_gates(node, apmixed_clks,
+			       ARRAY_SIZE(apmixed_clks), clk_data);
+	r = of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
+
+	if (r)
+		pr_err("%s(): could not register clock provider: %d\n",
+		       __func__, r);
+
+	apmixed_base = base;
+>>>>>>> upstream/android-13
 	/* MPLL, CCIPLL, MAINPLL set HW mode, TDCLKSQ, CLKSQ1 */
 	writel(readl(AP_PLL_CON3) & 0xFFFFFFE1, AP_PLL_CON3);
 	writel(readl(PLLON_CON0) & 0x01041041, PLLON_CON0);
@@ -1317,11 +1622,19 @@ static int clk_mt6765_apmixed_probe(struct platform_device *pdev)
 
 static int clk_mt6765_top_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	struct device_node *node = pdev->dev.of_node;
 	struct clk_onecell_data *clk_data;
 	void __iomem *base;
 	int r;
+=======
+	int r;
+	struct device_node *node = pdev->dev.of_node;
+	void __iomem *base;
+	struct clk_onecell_data *clk_data;
+	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>>>>>> upstream/android-13
 
 	base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(base)) {
@@ -1330,6 +1643,7 @@ static int clk_mt6765_top_probe(struct platform_device *pdev)
 	}
 
 	clk_data = mtk_alloc_clk_data(CLK_TOP_NR_CLK);
+<<<<<<< HEAD
 	if (!clk_data)
 		return -ENOMEM;
 
@@ -1352,6 +1666,23 @@ static int clk_mt6765_top_probe(struct platform_device *pdev)
 		pr_err("%s(): could not register clock provider: %d\n",
 				__func__, r);
 	}
+=======
+
+	mtk_clk_register_fixed_clks(fixed_clks, ARRAY_SIZE(fixed_clks),
+				    clk_data);
+	mtk_clk_register_factors(top_divs, ARRAY_SIZE(top_divs),
+				 clk_data);
+	mtk_clk_register_muxes(top_muxes, ARRAY_SIZE(top_muxes), node,
+			       &mt6765_clk_lock, clk_data);
+	mtk_clk_register_gates(node, top_clks, ARRAY_SIZE(top_clks),
+			       clk_data);
+
+	r = of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
+
+	if (r)
+		pr_err("%s(): could not register clock provider: %d\n",
+		       __func__, r);
+>>>>>>> upstream/android-13
 
 	cksys_base = base;
 	/* [4]:no need */
@@ -1364,6 +1695,7 @@ static int clk_mt6765_top_probe(struct platform_device *pdev)
 
 static int clk_mt6765_ifr_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct device_node *node = pdev->dev.of_node;
 	struct clk_onecell_data *clk_data;
 	int r;
@@ -1381,6 +1713,29 @@ static int clk_mt6765_ifr_probe(struct platform_device *pdev)
 		pr_err("%s(): could not register clock provider: %d\n",
 				__func__, r);
 	}
+=======
+	struct clk_onecell_data *clk_data;
+	int r;
+	struct device_node *node = pdev->dev.of_node;
+	void __iomem *base;
+	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+
+	base = devm_ioremap_resource(&pdev->dev, res);
+	if (IS_ERR(base)) {
+		pr_err("%s(): ioremap failed\n", __func__);
+		return PTR_ERR(base);
+	}
+
+	clk_data = mtk_alloc_clk_data(CLK_IFR_NR_CLK);
+
+	mtk_clk_register_gates(node, ifr_clks, ARRAY_SIZE(ifr_clks),
+			       clk_data);
+	r = of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
+
+	if (r)
+		pr_err("%s(): could not register clock provider: %d\n",
+		       __func__, r);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -1422,7 +1777,10 @@ static struct platform_driver clk_mt6765_drv = {
 	.probe = clk_mt6765_probe,
 	.driver = {
 		.name = "clk-mt6765",
+<<<<<<< HEAD
 		.owner = THIS_MODULE,
+=======
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_clk_mt6765,
 	},
 };
@@ -1432,6 +1790,7 @@ static int __init clk_mt6765_init(void)
 	return platform_driver_register(&clk_mt6765_drv);
 }
 
+<<<<<<< HEAD
 static void __exit clk_mt6765_exit(void)
 {
 }
@@ -1440,3 +1799,6 @@ postcore_initcall_sync(clk_mt6765_init);
 module_exit(clk_mt6765_exit);
 
 MODULE_LICENSE("GPL");
+=======
+arch_initcall(clk_mt6765_init);
+>>>>>>> upstream/android-13

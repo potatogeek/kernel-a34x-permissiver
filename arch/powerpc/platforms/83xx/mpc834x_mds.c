@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/platforms/83xx/mpc834x_mds.c
  *
  * MPC834x MDS board specific routines
  *
  * Maintainer: Kumar Gala <galak@kernel.crashing.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/stddef.h>
@@ -95,6 +102,10 @@ define_machine(mpc834x_mds) {
 	.name			= "MPC834x MDS",
 	.probe			= mpc834x_mds_probe,
 	.setup_arch		= mpc834x_mds_setup_arch,
+<<<<<<< HEAD
+=======
+	.discover_phbs  	= mpc83xx_setup_pci,
+>>>>>>> upstream/android-13
 	.init_IRQ		= mpc83xx_ipic_init_IRQ,
 	.get_irq		= ipic_get_irq,
 	.restart		= mpc83xx_restart,

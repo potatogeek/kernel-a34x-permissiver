@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_HW_BREAKPOINT_H
 #define __ASM_HW_BREAKPOINT_H
@@ -21,8 +27,11 @@
 #include <asm/sysreg.h>
 #include <asm/virt.h>
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 struct arch_hw_breakpoint_ctrl {
 	u32 __reserved	: 19,
 	len		: 8,
@@ -167,5 +176,8 @@ static inline int get_num_wrps(void)
 						ID_AA64DFR0_WRPS_SHIFT);
 }
 
+<<<<<<< HEAD
 #endif	/* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif	/* __ASM_BREAKPOINT_H */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IBM ASM Service Processor Device Driver
  *
@@ -19,6 +20,15 @@
  *
  * Author: Max Asböck <amax@us.ibm.com>
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * IBM ASM Service Processor Device Driver
+ *
+ * Copyright (C) IBM Corporation, 2004
+ *
+ * Author: Max Asböck <amax@us.ibm.com>
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -74,6 +84,10 @@
  */
 
 #include <linux/fs.h>
+<<<<<<< HEAD
+=======
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/pagemap.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
@@ -88,6 +102,7 @@ static LIST_HEAD(service_processors);
 
 static struct inode *ibmasmfs_make_inode(struct super_block *sb, int mode);
 static void ibmasmfs_create_files (struct super_block *sb);
+<<<<<<< HEAD
 static int ibmasmfs_fill_super (struct super_block *sb, void *data, int silent);
 
 
@@ -95,6 +110,23 @@ static struct dentry *ibmasmfs_mount(struct file_system_type *fst,
 			int flags, const char *name, void *data)
 {
 	return mount_single(fst, flags, data, ibmasmfs_fill_super);
+=======
+static int ibmasmfs_fill_super(struct super_block *sb, struct fs_context *fc);
+
+static int ibmasmfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, ibmasmfs_fill_super);
+}
+
+static const struct fs_context_operations ibmasmfs_context_ops = {
+	.get_tree	= ibmasmfs_get_tree,
+};
+
+static int ibmasmfs_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &ibmasmfs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct super_operations ibmasmfs_s_ops = {
@@ -107,12 +139,20 @@ static const struct file_operations *ibmasmfs_dir_ops = &simple_dir_operations;
 static struct file_system_type ibmasmfs_type = {
 	.owner          = THIS_MODULE,
 	.name           = "ibmasmfs",
+<<<<<<< HEAD
 	.mount          = ibmasmfs_mount,
+=======
+	.init_fs_context = ibmasmfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb        = kill_litter_super,
 };
 MODULE_ALIAS_FS("ibmasmfs");
 
+<<<<<<< HEAD
 static int ibmasmfs_fill_super (struct super_block *sb, void *data, int silent)
+=======
+static int ibmasmfs_fill_super(struct super_block *sb, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	struct inode *root;
 

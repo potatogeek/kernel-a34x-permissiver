@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Glue code to lib/swiotlb.c */
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/pci.h>
 #include <linux/cache.h>
 #include <linux/init.h>
 #include <linux/swiotlb.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/dma-direct.h>
 #include <linux/mem_encrypt.h>
 
@@ -62,10 +69,15 @@ IOMMU_INIT(pci_swiotlb_detect_4gb,
 
 void __init pci_swiotlb_init(void)
 {
+<<<<<<< HEAD
 	if (swiotlb) {
 		swiotlb_init(0);
 		dma_ops = &swiotlb_dma_ops;
 	}
+=======
+	if (swiotlb)
+		swiotlb_init(0);
+>>>>>>> upstream/android-13
 }
 
 void __init pci_swiotlb_late_init(void)

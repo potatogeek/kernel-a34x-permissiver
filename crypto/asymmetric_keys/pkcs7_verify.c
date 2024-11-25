@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Verify the signature on a PKCS#7 message.
  *
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "PKCS7: "fmt
@@ -16,6 +23,10 @@
 #include <linux/err.h>
 #include <linux/asn1.h>
 #include <crypto/hash.h>
+<<<<<<< HEAD
+=======
+#include <crypto/hash_info.h>
+>>>>>>> upstream/android-13
 #include <crypto/public_key.h>
 #include "pkcs7_parser.h"
 
@@ -33,6 +44,13 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
 
 	kenter(",%u,%s", sinfo->index, sinfo->sig->hash_algo);
 
+<<<<<<< HEAD
+=======
+	/* The digest was calculated already. */
+	if (sig->digest)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (!sinfo->sig->hash_algo)
 		return -ENOPKG;
 
@@ -56,7 +74,10 @@ static int pkcs7_digest(struct pkcs7_message *pkcs7,
 		goto error_no_desc;
 
 	desc->tfm   = tfm;
+<<<<<<< HEAD
 	desc->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
+=======
+>>>>>>> upstream/android-13
 
 	/* Digest the message [RFC2315 9.3] */
 	ret = crypto_shash_digest(desc, pkcs7->data, pkcs7->data_len,
@@ -122,6 +143,36 @@ error_no_desc:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+int pkcs7_get_digest(struct pkcs7_message *pkcs7, const u8 **buf, u32 *len,
+		     enum hash_algo *hash_algo)
+{
+	struct pkcs7_signed_info *sinfo = pkcs7->signed_infos;
+	int i, ret;
+
+	/*
+	 * This function doesn't support messages with more than one signature.
+	 */
+	if (sinfo == NULL || sinfo->next != NULL)
+		return -EBADMSG;
+
+	ret = pkcs7_digest(pkcs7, sinfo);
+	if (ret)
+		return ret;
+
+	*buf = sinfo->sig->digest;
+	*len = sinfo->sig->digest_size;
+
+	i = match_string(hash_algo_name, HASH_ALGO__LAST,
+			 sinfo->sig->hash_algo);
+	if (i >= 0)
+		*hash_algo = i;
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Find the key (X.509 certificate) to use to verify a PKCS#7 message.  PKCS#7
  * uses the issuer's name and the issuing certificate serial number for
@@ -147,12 +198,15 @@ static int pkcs7_find_key(struct pkcs7_message *pkcs7,
 		pr_devel("Sig %u: Found cert serial match X.509[%u]\n",
 			 sinfo->index, certix);
 
+<<<<<<< HEAD
 		if (strcmp(x509->pub->pkey_algo, sinfo->sig->pkey_algo) != 0) {
 			pr_warn("Sig %u: X.509 algo and PKCS#7 sig algo don't match\n",
 				sinfo->index);
 			continue;
 		}
 
+=======
+>>>>>>> upstream/android-13
 		sinfo->signer = x509;
 		return 0;
 	}

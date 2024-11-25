@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Marvell 88E6xxx Switch PTP support
  *
@@ -7,11 +11,14 @@
  *      Erik Hons <erik.hons@ni.com>
  *      Brandon Streiff <brandon.streiff@ni.com>
  *      Dane Wagner <dane.wagner@ni.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "chip.h"
@@ -19,11 +26,39 @@
 #include "hwtstamp.h"
 #include "ptp.h"
 
+<<<<<<< HEAD
 /* Raw timestamps are in units of 8-ns clock periods. */
 #define CC_SHIFT	28
 #define CC_MULT		(8 << CC_SHIFT)
 #define CC_MULT_NUM	(1 << 9)
 #define CC_MULT_DEM	15625ULL
+=======
+#define MV88E6XXX_MAX_ADJ_PPB	1000000
+
+/* Family MV88E6250:
+ * Raw timestamps are in units of 10-ns clock periods.
+ *
+ * clkadj = scaled_ppm * 10*2^28 / (10^6 * 2^16)
+ * simplifies to
+ * clkadj = scaled_ppm * 2^7 / 5^5
+ */
+#define MV88E6250_CC_SHIFT	28
+#define MV88E6250_CC_MULT	(10 << MV88E6250_CC_SHIFT)
+#define MV88E6250_CC_MULT_NUM	(1 << 7)
+#define MV88E6250_CC_MULT_DEM	3125ULL
+
+/* Other families:
+ * Raw timestamps are in units of 8-ns clock periods.
+ *
+ * clkadj = scaled_ppm * 8*2^28 / (10^6 * 2^16)
+ * simplifies to
+ * clkadj = scaled_ppm * 2^9 / 5^6
+ */
+#define MV88E6XXX_CC_SHIFT	28
+#define MV88E6XXX_CC_MULT	(8 << MV88E6XXX_CC_SHIFT)
+#define MV88E6XXX_CC_MULT_NUM	(1 << 9)
+#define MV88E6XXX_CC_MULT_DEM	15625ULL
+>>>>>>> upstream/android-13
 
 #define TAI_EVENT_WORK_INTERVAL msecs_to_jiffies(100)
 
@@ -142,10 +177,17 @@ static void mv88e6352_tai_event_work(struct work_struct *ugly)
 	u32 raw_ts;
 	int err;
 
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
 	err = mv88e6xxx_tai_read(chip, MV88E6XXX_TAI_EVENT_STATUS,
 				 status, ARRAY_SIZE(status));
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+	err = mv88e6xxx_tai_read(chip, MV88E6XXX_TAI_EVENT_STATUS,
+				 status, ARRAY_SIZE(status));
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	if (err) {
 		dev_err(chip->dev, "failed to read TAI status register\n");
@@ -162,18 +204,30 @@ static void mv88e6352_tai_event_work(struct work_struct *ugly)
 
 	/* Clear the valid bit so the next timestamp can come in */
 	status[0] &= ~MV88E6XXX_TAI_EVENT_STATUS_VALID;
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
 	err = mv88e6xxx_tai_write(chip, MV88E6XXX_TAI_EVENT_STATUS, status[0]);
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+	err = mv88e6xxx_tai_write(chip, MV88E6XXX_TAI_EVENT_STATUS, status[0]);
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	/* This is an external timestamp */
 	ev.type = PTP_CLOCK_EXTTS;
 
 	/* We only have one timestamping channel. */
 	ev.index = 0;
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
 	ev.timestamp = timecounter_cyc2time(&chip->tstamp_tc, raw_ts);
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+	ev.timestamp = timecounter_cyc2time(&chip->tstamp_tc, raw_ts);
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	ptp_clock_event(chip->ptp_clock, &ev);
 out:
@@ -183,6 +237,10 @@ out:
 static int mv88e6xxx_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
 {
 	struct mv88e6xxx_chip *chip = ptp_to_chip(ptp);
+<<<<<<< HEAD
+=======
+	const struct mv88e6xxx_ptp_ops *ptp_ops = chip->info->ops->ptp_ops;
+>>>>>>> upstream/android-13
 	int neg_adj = 0;
 	u32 diff, mult;
 	u64 adj;
@@ -191,17 +249,31 @@ static int mv88e6xxx_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
 		neg_adj = 1;
 		scaled_ppm = -scaled_ppm;
 	}
+<<<<<<< HEAD
 	mult = CC_MULT;
 	adj = CC_MULT_NUM;
 	adj *= scaled_ppm;
 	diff = div_u64(adj, CC_MULT_DEM);
 
 	mutex_lock(&chip->reg_lock);
+=======
+
+	mult = ptp_ops->cc_mult;
+	adj = ptp_ops->cc_mult_num;
+	adj *= scaled_ppm;
+	diff = div_u64(adj, ptp_ops->cc_mult_dem);
+
+	mv88e6xxx_reg_lock(chip);
+>>>>>>> upstream/android-13
 
 	timecounter_read(&chip->tstamp_tc);
 	chip->tstamp_cc.mult = neg_adj ? mult - diff : mult + diff;
 
+<<<<<<< HEAD
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -210,9 +282,15 @@ static int mv88e6xxx_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 {
 	struct mv88e6xxx_chip *chip = ptp_to_chip(ptp);
 
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
 	timecounter_adjtime(&chip->tstamp_tc, delta);
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+	timecounter_adjtime(&chip->tstamp_tc, delta);
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -223,9 +301,15 @@ static int mv88e6xxx_ptp_gettime(struct ptp_clock_info *ptp,
 	struct mv88e6xxx_chip *chip = ptp_to_chip(ptp);
 	u64 ns;
 
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
 	ns = timecounter_read(&chip->tstamp_tc);
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+	ns = timecounter_read(&chip->tstamp_tc);
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	*ts = ns_to_timespec64(ns);
 
@@ -240,9 +324,15 @@ static int mv88e6xxx_ptp_settime(struct ptp_clock_info *ptp,
 
 	ns = timespec64_to_ns(ts);
 
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
 	timecounter_init(&chip->tstamp_tc, &chip->tstamp_cc, ns);
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+	timecounter_init(&chip->tstamp_tc, &chip->tstamp_cc, ns);
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -255,12 +345,32 @@ static int mv88e6352_ptp_enable_extts(struct mv88e6xxx_chip *chip,
 	int pin;
 	int err;
 
+<<<<<<< HEAD
+=======
+	/* Reject requests with unsupported flags */
+	if (rq->extts.flags & ~(PTP_ENABLE_FEATURE |
+				PTP_RISING_EDGE |
+				PTP_FALLING_EDGE |
+				PTP_STRICT_FLAGS))
+		return -EOPNOTSUPP;
+
+	/* Reject requests to enable time stamping on both edges. */
+	if ((rq->extts.flags & PTP_STRICT_FLAGS) &&
+	    (rq->extts.flags & PTP_ENABLE_FEATURE) &&
+	    (rq->extts.flags & PTP_EXTTS_EDGES) == PTP_EXTTS_EDGES)
+		return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 	pin = ptp_find_pin(chip->ptp_clock, PTP_PF_EXTTS, rq->extts.index);
 
 	if (pin < 0)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	mutex_lock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_lock(chip);
+>>>>>>> upstream/android-13
 
 	if (on) {
 		func = MV88E6352_G2_SCRATCH_GPIO_PCTL_EVREQ;
@@ -282,7 +392,11 @@ static int mv88e6352_ptp_enable_extts(struct mv88e6xxx_chip *chip,
 	}
 
 out:
+<<<<<<< HEAD
 	mutex_unlock(&chip->reg_lock);
+=======
+	mv88e6xxx_reg_unlock(chip);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -314,6 +428,56 @@ static int mv88e6352_ptp_verify(struct ptp_clock_info *ptp, unsigned int pin,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+const struct mv88e6xxx_ptp_ops mv88e6165_ptp_ops = {
+	.clock_read = mv88e6165_ptp_clock_read,
+	.global_enable = mv88e6165_global_enable,
+	.global_disable = mv88e6165_global_disable,
+	.arr0_sts_reg = MV88E6165_PORT_PTP_ARR0_STS,
+	.arr1_sts_reg = MV88E6165_PORT_PTP_ARR1_STS,
+	.dep_sts_reg = MV88E6165_PORT_PTP_DEP_STS,
+	.rx_filters = (1 << HWTSTAMP_FILTER_NONE) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L2_EVENT) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L2_SYNC) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_EVENT) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_SYNC) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_DELAY_REQ),
+	.cc_shift = MV88E6XXX_CC_SHIFT,
+	.cc_mult = MV88E6XXX_CC_MULT,
+	.cc_mult_num = MV88E6XXX_CC_MULT_NUM,
+	.cc_mult_dem = MV88E6XXX_CC_MULT_DEM,
+};
+
+const struct mv88e6xxx_ptp_ops mv88e6250_ptp_ops = {
+	.clock_read = mv88e6352_ptp_clock_read,
+	.ptp_enable = mv88e6352_ptp_enable,
+	.ptp_verify = mv88e6352_ptp_verify,
+	.event_work = mv88e6352_tai_event_work,
+	.port_enable = mv88e6352_hwtstamp_port_enable,
+	.port_disable = mv88e6352_hwtstamp_port_disable,
+	.n_ext_ts = 1,
+	.arr0_sts_reg = MV88E6XXX_PORT_PTP_ARR0_STS,
+	.arr1_sts_reg = MV88E6XXX_PORT_PTP_ARR1_STS,
+	.dep_sts_reg = MV88E6XXX_PORT_PTP_DEP_STS,
+	.rx_filters = (1 << HWTSTAMP_FILTER_NONE) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L4_EVENT) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L4_SYNC) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L2_EVENT) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L2_SYNC) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_EVENT) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_SYNC) |
+		(1 << HWTSTAMP_FILTER_PTP_V2_DELAY_REQ),
+	.cc_shift = MV88E6250_CC_SHIFT,
+	.cc_mult = MV88E6250_CC_MULT,
+	.cc_mult_num = MV88E6250_CC_MULT_NUM,
+	.cc_mult_dem = MV88E6250_CC_MULT_DEM,
+};
+
+>>>>>>> upstream/android-13
 const struct mv88e6xxx_ptp_ops mv88e6352_ptp_ops = {
 	.clock_read = mv88e6352_ptp_clock_read,
 	.ptp_enable = mv88e6352_ptp_enable,
@@ -335,6 +499,7 @@ const struct mv88e6xxx_ptp_ops mv88e6352_ptp_ops = {
 		(1 << HWTSTAMP_FILTER_PTP_V2_EVENT) |
 		(1 << HWTSTAMP_FILTER_PTP_V2_SYNC) |
 		(1 << HWTSTAMP_FILTER_PTP_V2_DELAY_REQ),
+<<<<<<< HEAD
 };
 
 const struct mv88e6xxx_ptp_ops mv88e6165_ptp_ops = {
@@ -351,6 +516,12 @@ const struct mv88e6xxx_ptp_ops mv88e6165_ptp_ops = {
 		(1 << HWTSTAMP_FILTER_PTP_V2_EVENT) |
 		(1 << HWTSTAMP_FILTER_PTP_V2_SYNC) |
 		(1 << HWTSTAMP_FILTER_PTP_V2_DELAY_REQ),
+=======
+	.cc_shift = MV88E6XXX_CC_SHIFT,
+	.cc_mult = MV88E6XXX_CC_MULT,
+	.cc_mult_num = MV88E6XXX_CC_MULT_NUM,
+	.cc_mult_dem = MV88E6XXX_CC_MULT_DEM,
+>>>>>>> upstream/android-13
 };
 
 static u64 mv88e6xxx_ptp_clock_read(const struct cyclecounter *cc)
@@ -388,8 +559,13 @@ int mv88e6xxx_ptp_setup(struct mv88e6xxx_chip *chip)
 	memset(&chip->tstamp_cc, 0, sizeof(chip->tstamp_cc));
 	chip->tstamp_cc.read	= mv88e6xxx_ptp_clock_read;
 	chip->tstamp_cc.mask	= CYCLECOUNTER_MASK(32);
+<<<<<<< HEAD
 	chip->tstamp_cc.mult	= CC_MULT;
 	chip->tstamp_cc.shift	= CC_SHIFT;
+=======
+	chip->tstamp_cc.mult	= ptp_ops->cc_mult;
+	chip->tstamp_cc.shift	= ptp_ops->cc_shift;
+>>>>>>> upstream/android-13
 
 	timecounter_init(&chip->tstamp_tc, &chip->tstamp_cc,
 			 ktime_to_ns(ktime_get_real()));
@@ -400,8 +576,12 @@ int mv88e6xxx_ptp_setup(struct mv88e6xxx_chip *chip)
 
 	chip->ptp_clock_info.owner = THIS_MODULE;
 	snprintf(chip->ptp_clock_info.name, sizeof(chip->ptp_clock_info.name),
+<<<<<<< HEAD
 		 dev_name(chip->dev));
 	chip->ptp_clock_info.max_adj	= 1000000;
+=======
+		 "%s", dev_name(chip->dev));
+>>>>>>> upstream/android-13
 
 	chip->ptp_clock_info.n_ext_ts	= ptp_ops->n_ext_ts;
 	chip->ptp_clock_info.n_per_out	= 0;
@@ -417,6 +597,10 @@ int mv88e6xxx_ptp_setup(struct mv88e6xxx_chip *chip)
 	}
 	chip->ptp_clock_info.pin_config = chip->pin_config;
 
+<<<<<<< HEAD
+=======
+	chip->ptp_clock_info.max_adj    = MV88E6XXX_MAX_ADJ_PPB;
+>>>>>>> upstream/android-13
 	chip->ptp_clock_info.adjfine	= mv88e6xxx_ptp_adjfine;
 	chip->ptp_clock_info.adjtime	= mv88e6xxx_ptp_adjtime;
 	chip->ptp_clock_info.gettime64	= mv88e6xxx_ptp_gettime;

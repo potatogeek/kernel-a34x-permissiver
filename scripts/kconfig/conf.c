@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+>>>>>>> upstream/android-13
  */
 
 #include <ctype.h>
@@ -11,7 +17,10 @@
 #include <time.h>
 #include <unistd.h>
 #include <getopt.h>
+<<<<<<< HEAD
 #include <sys/stat.h>
+=======
+>>>>>>> upstream/android-13
 #include <sys/time.h>
 #include <errno.h>
 
@@ -32,10 +41,20 @@ enum input_mode {
 	defconfig,
 	savedefconfig,
 	listnewconfig,
+<<<<<<< HEAD
 	olddefconfig,
 };
 static enum input_mode input_mode = oldaskconfig;
 
+=======
+	helpnewconfig,
+	olddefconfig,
+	yes2modconfig,
+	mod2yesconfig,
+};
+static enum input_mode input_mode = oldaskconfig;
+static int input_mode_opt;
+>>>>>>> upstream/android-13
 static int indent = 1;
 static int tty_stdio;
 static int sync_kconfig;
@@ -80,17 +99,261 @@ static void xfgets(char *str, int size, FILE *in)
 		printf("%s", str);
 }
 
+<<<<<<< HEAD
 static int conf_askvalue(struct symbol *sym, const char *def)
 {
 	enum symbol_type type = sym_get_type(sym);
 
+=======
+static void set_randconfig_seed(void)
+{
+	unsigned int seed;
+	char *env;
+	bool seed_set = false;
+
+	env = getenv("KCONFIG_SEED");
+	if (env && *env) {
+		char *endp;
+
+		seed = strtol(env, &endp, 0);
+		if (*endp == '\0')
+			seed_set = true;
+	}
+
+	if (!seed_set) {
+		struct timeval now;
+
+		/*
+		 * Use microseconds derived seed, compensate for systems where it may
+		 * be zero.
+		 */
+		gettimeofday(&now, NULL);
+		seed = (now.tv_sec + 1) * (now.tv_usec + 1);
+	}
+
+	printf("KCONFIG_SEED=0x%X\n", seed);
+	srand(seed);
+}
+
+static bool randomize_choice_values(struct symbol *csym)
+{
+	struct property *prop;
+	struct symbol *sym;
+	struct expr *e;
+	int cnt, def;
+
+	/*
+	 * If choice is mod then we may have more items selected
+	 * and if no then no-one.
+	 * In both cases stop.
+	 */
+	if (csym->curr.tri != yes)
+		return false;
+
+	prop = sym_get_choice_prop(csym);
+
+	/* count entries in choice block */
+	cnt = 0;
+	expr_list_for_each_sym(prop->expr, e, sym)
+		cnt++;
+
+	/*
+	 * find a random value and set it to yes,
+	 * set the rest to no so we have only one set
+	 */
+	def = rand() % cnt;
+
+	cnt = 0;
+	expr_list_for_each_sym(prop->expr, e, sym) {
+		if (def == cnt++) {
+			sym->def[S_DEF_USER].tri = yes;
+			csym->def[S_DEF_USER].val = sym;
+		} else {
+			sym->def[S_DEF_USER].tri = no;
+		}
+		sym->flags |= SYMBOL_DEF_USER;
+		/* clear VALID to get value calculated */
+		sym->flags &= ~SYMBOL_VALID;
+	}
+	csym->flags |= SYMBOL_DEF_USER;
+	/* clear VALID to get value calculated */
+	csym->flags &= ~SYMBOL_VALID;
+
+	return true;
+}
+
+enum conf_def_mode {
+	def_default,
+	def_yes,
+	def_mod,
+	def_y2m,
+	def_m2y,
+	def_no,
+	def_random
+};
+
+static bool conf_set_all_new_symbols(enum conf_def_mode mode)
+{
+	struct symbol *sym, *csym;
+	int i, cnt;
+	/*
+	 * can't go as the default in switch-case below, otherwise gcc whines
+	 * about -Wmaybe-uninitialized
+	 */
+	int pby = 50; /* probability of bool     = y */
+	int pty = 33; /* probability of tristate = y */
+	int ptm = 33; /* probability of tristate = m */
+	bool has_changed = false;
+
+	if (mode == def_random) {
+		int n, p[3];
+		char *env = getenv("KCONFIG_PROBABILITY");
+
+		n = 0;
+		while (env && *env) {
+			char *endp;
+			int tmp = strtol(env, &endp, 10);
+
+			if (tmp >= 0 && tmp <= 100) {
+				p[n++] = tmp;
+			} else {
+				errno = ERANGE;
+				perror("KCONFIG_PROBABILITY");
+				exit(1);
+			}
+			env = (*endp == ':') ? endp + 1 : endp;
+			if (n >= 3)
+				break;
+		}
+		switch (n) {
+		case 1:
+			pby = p[0];
+			ptm = pby / 2;
+			pty = pby - ptm;
+			break;
+		case 2:
+			pty = p[0];
+			ptm = p[1];
+			pby = pty + ptm;
+			break;
+		case 3:
+			pby = p[0];
+			pty = p[1];
+			ptm = p[2];
+			break;
+		}
+
+		if (pty + ptm > 100) {
+			errno = ERANGE;
+			perror("KCONFIG_PROBABILITY");
+			exit(1);
+		}
+	}
+
+	for_all_symbols(i, sym) {
+		if (sym_has_value(sym) || sym->flags & SYMBOL_VALID)
+			continue;
+		switch (sym_get_type(sym)) {
+		case S_BOOLEAN:
+		case S_TRISTATE:
+			has_changed = true;
+			switch (mode) {
+			case def_yes:
+				sym->def[S_DEF_USER].tri = yes;
+				break;
+			case def_mod:
+				sym->def[S_DEF_USER].tri = mod;
+				break;
+			case def_no:
+				sym->def[S_DEF_USER].tri = no;
+				break;
+			case def_random:
+				sym->def[S_DEF_USER].tri = no;
+				cnt = rand() % 100;
+				if (sym->type == S_TRISTATE) {
+					if (cnt < pty)
+						sym->def[S_DEF_USER].tri = yes;
+					else if (cnt < pty + ptm)
+						sym->def[S_DEF_USER].tri = mod;
+				} else if (cnt < pby)
+					sym->def[S_DEF_USER].tri = yes;
+				break;
+			default:
+				continue;
+			}
+			if (!(sym_is_choice(sym) && mode == def_random))
+				sym->flags |= SYMBOL_DEF_USER;
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	sym_clear_all_valid();
+
+	/*
+	 * We have different type of choice blocks.
+	 * If curr.tri equals to mod then we can select several
+	 * choice symbols in one block.
+	 * In this case we do nothing.
+	 * If curr.tri equals yes then only one symbol can be
+	 * selected in a choice block and we set it to yes,
+	 * and the rest to no.
+	 */
+	if (mode != def_random) {
+		for_all_symbols(i, csym) {
+			if ((sym_is_choice(csym) && !sym_has_value(csym)) ||
+			    sym_is_choice_value(csym))
+				csym->flags |= SYMBOL_NEED_SET_CHOICE_VALUES;
+		}
+	}
+
+	for_all_symbols(i, csym) {
+		if (sym_has_value(csym) || !sym_is_choice(csym))
+			continue;
+
+		sym_calc_value(csym);
+		if (mode == def_random)
+			has_changed |= randomize_choice_values(csym);
+		else {
+			set_all_choice_values(csym);
+			has_changed = true;
+		}
+	}
+
+	return has_changed;
+}
+
+static void conf_rewrite_mod_or_yes(enum conf_def_mode mode)
+{
+	struct symbol *sym;
+	int i;
+	tristate old_val = (mode == def_y2m) ? yes : mod;
+	tristate new_val = (mode == def_y2m) ? mod : yes;
+
+	for_all_symbols(i, sym) {
+		if (sym_get_type(sym) == S_TRISTATE &&
+		    sym->def[S_DEF_USER].tri == old_val)
+			sym->def[S_DEF_USER].tri = new_val;
+	}
+	sym_clear_all_valid();
+}
+
+static int conf_askvalue(struct symbol *sym, const char *def)
+{
+>>>>>>> upstream/android-13
 	if (!sym_has_value(sym))
 		printf("(NEW) ");
 
 	line[0] = '\n';
 	line[1] = 0;
 
+<<<<<<< HEAD
 	if (!sym_is_changable(sym)) {
+=======
+	if (!sym_is_changeable(sym)) {
+>>>>>>> upstream/android-13
 		printf("%s\n", def);
 		line[0] = '\n';
 		line[1] = 0;
@@ -105,6 +368,7 @@ static int conf_askvalue(struct symbol *sym, const char *def)
 			return 0;
 		}
 		/* fall through */
+<<<<<<< HEAD
 	case oldaskconfig:
 		fflush(stdout);
 		xfgets(line, sizeof(line), stdin);
@@ -123,6 +387,14 @@ static int conf_askvalue(struct symbol *sym, const char *def)
 		;
 	}
 	printf("%s", line);
+=======
+	default:
+		fflush(stdout);
+		xfgets(line, sizeof(line), stdin);
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -135,7 +407,11 @@ static int conf_string(struct menu *menu)
 		printf("%*s%s ", indent - 1, "", menu->prompt->text);
 		printf("(%s) ", sym->name);
 		def = sym_get_string_value(sym);
+<<<<<<< HEAD
 		if (sym_get_string_value(sym))
+=======
+		if (def)
+>>>>>>> upstream/android-13
 			printf("[%s] ", def);
 		if (!conf_askvalue(sym, def))
 			return 0;
@@ -234,7 +510,11 @@ static int conf_choice(struct menu *menu)
 
 	sym = menu->sym;
 	is_new = !sym_has_value(sym);
+<<<<<<< HEAD
 	if (sym_is_changable(sym)) {
+=======
+	if (sym_is_changeable(sym)) {
+>>>>>>> upstream/android-13
 		conf_sym(menu);
 		sym_calc_value(sym);
 		switch (sym_get_tristate_value(sym)) {
@@ -417,6 +697,7 @@ static void check_conf(struct menu *menu)
 		return;
 
 	sym = menu->sym;
+<<<<<<< HEAD
 	if (sym && !sym_has_value(sym)) {
 		if (sym_is_changable(sym) ||
 		    (sym_is_choice(sym) && sym_get_tristate_value(sym) == yes)) {
@@ -440,6 +721,39 @@ static void check_conf(struct menu *menu)
 				rootEntry = menu_get_parent_menu(menu);
 				conf(rootEntry);
 			}
+=======
+	if (sym && !sym_has_value(sym) &&
+	    (sym_is_changeable(sym) ||
+	     (sym_is_choice(sym) && sym_get_tristate_value(sym) == yes))) {
+
+		switch (input_mode) {
+		case listnewconfig:
+			if (sym->name) {
+				const char *str;
+
+				if (sym->type == S_STRING) {
+					str = sym_get_string_value(sym);
+					str = sym_escape_string_value(str);
+					printf("%s%s=%s\n", CONFIG_, sym->name, str);
+					free((void *)str);
+				} else {
+					str = sym_get_string_value(sym);
+					printf("%s%s=%s\n", CONFIG_, sym->name, str);
+				}
+			}
+			break;
+		case helpnewconfig:
+			printf("-----\n");
+			print_help(menu);
+			printf("-----\n");
+			break;
+		default:
+			if (!conf_cnt++)
+				printf("*\n* Restart config...\n*\n");
+			rootEntry = menu_get_parent_menu(menu);
+			conf(rootEntry);
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -447,6 +761,7 @@ static void check_conf(struct menu *menu)
 		check_conf(child);
 }
 
+<<<<<<< HEAD
 static struct option long_opts[] = {
 	{"oldaskconfig",    no_argument,       NULL, oldaskconfig},
 	{"oldconfig",       no_argument,       NULL, oldconfig},
@@ -466,21 +781,56 @@ static struct option long_opts[] = {
 	 * value but not 'n') with the counter-intuitive name.
 	 */
 	{"oldnoconfig",     no_argument,       NULL, olddefconfig},
+=======
+static const struct option long_opts[] = {
+	{"help",          no_argument,       NULL,            'h'},
+	{"silent",        no_argument,       NULL,            's'},
+	{"oldaskconfig",  no_argument,       &input_mode_opt, oldaskconfig},
+	{"oldconfig",     no_argument,       &input_mode_opt, oldconfig},
+	{"syncconfig",    no_argument,       &input_mode_opt, syncconfig},
+	{"defconfig",     required_argument, &input_mode_opt, defconfig},
+	{"savedefconfig", required_argument, &input_mode_opt, savedefconfig},
+	{"allnoconfig",   no_argument,       &input_mode_opt, allnoconfig},
+	{"allyesconfig",  no_argument,       &input_mode_opt, allyesconfig},
+	{"allmodconfig",  no_argument,       &input_mode_opt, allmodconfig},
+	{"alldefconfig",  no_argument,       &input_mode_opt, alldefconfig},
+	{"randconfig",    no_argument,       &input_mode_opt, randconfig},
+	{"listnewconfig", no_argument,       &input_mode_opt, listnewconfig},
+	{"helpnewconfig", no_argument,       &input_mode_opt, helpnewconfig},
+	{"olddefconfig",  no_argument,       &input_mode_opt, olddefconfig},
+	{"yes2modconfig", no_argument,       &input_mode_opt, yes2modconfig},
+	{"mod2yesconfig", no_argument,       &input_mode_opt, mod2yesconfig},
+>>>>>>> upstream/android-13
 	{NULL, 0, NULL, 0}
 };
 
 static void conf_usage(const char *progname)
 {
+<<<<<<< HEAD
 
 	printf("Usage: %s [-s] [option] <kconfig-file>\n", progname);
 	printf("[option] is _one_ of the following:\n");
 	printf("  --listnewconfig         List new options\n");
+=======
+	printf("Usage: %s [options] <kconfig-file>\n", progname);
+	printf("\n");
+	printf("Generic options:\n");
+	printf("  -h, --help              Print this message and exit.\n");
+	printf("  -s, --silent            Do not print log.\n");
+	printf("\n");
+	printf("Mode options:\n");
+	printf("  --listnewconfig         List new options\n");
+	printf("  --helpnewconfig         List new options and help text\n");
+>>>>>>> upstream/android-13
 	printf("  --oldaskconfig          Start a new configuration using a line-oriented program\n");
 	printf("  --oldconfig             Update a configuration using a provided .config as base\n");
 	printf("  --syncconfig            Similar to oldconfig but generates configuration in\n"
 	       "                          include/{generated/,config/}\n");
 	printf("  --olddefconfig          Same as oldconfig but sets new symbols to their default value\n");
+<<<<<<< HEAD
 	printf("  --oldnoconfig           An alias of olddefconfig\n");
+=======
+>>>>>>> upstream/android-13
 	printf("  --defconfig <file>      New config with default defined in <file>\n");
 	printf("  --savedefconfig <file>  Save the minimal current configuration to <file>\n");
 	printf("  --allnoconfig           New config where all options are answered with no\n");
@@ -488,6 +838,12 @@ static void conf_usage(const char *progname)
 	printf("  --allmodconfig          New config where all options are answered with mod\n");
 	printf("  --alldefconfig          New config with all symbols set to default\n");
 	printf("  --randconfig            New config with random answer to all options\n");
+<<<<<<< HEAD
+=======
+	printf("  --yes2modconfig         Change answers from yes to mod if possible\n");
+	printf("  --mod2yesconfig         Change answers from mod to yes if possible\n");
+	printf("  (If none of the above is given, --oldaskconfig is the default)\n");
+>>>>>>> upstream/android-13
 }
 
 int main(int ac, char **av)
@@ -495,11 +851,15 @@ int main(int ac, char **av)
 	const char *progname = av[0];
 	int opt;
 	const char *name, *defconfig_file = NULL /* gcc uninit */;
+<<<<<<< HEAD
 	struct stat tmpstat;
+=======
+>>>>>>> upstream/android-13
 	int no_conf_write = 0;
 
 	tty_stdio = isatty(0) && isatty(1);
 
+<<<<<<< HEAD
 	while ((opt = getopt_long(ac, av, "s", long_opts, NULL)) != -1) {
 		if (opt == 's') {
 			conf_set_message_callback(NULL);
@@ -557,6 +917,41 @@ int main(int ac, char **av)
 			conf_usage(progname);
 			exit(1);
 			break;
+=======
+	while ((opt = getopt_long(ac, av, "hs", long_opts, NULL)) != -1) {
+		switch (opt) {
+		case 'h':
+			conf_usage(progname);
+			exit(1);
+			break;
+		case 's':
+			conf_set_message_callback(NULL);
+			break;
+		case 0:
+			input_mode = input_mode_opt;
+			switch (input_mode) {
+			case syncconfig:
+				/*
+				 * syncconfig is invoked during the build stage.
+				 * Suppress distracting
+				 *   "configuration written to ..."
+				 */
+				conf_set_message_callback(NULL);
+				sync_kconfig = 1;
+				break;
+			case defconfig:
+			case savedefconfig:
+				defconfig_file = optarg;
+				break;
+			case randconfig:
+				set_randconfig_seed();
+				break;
+			default:
+				break;
+			}
+		default:
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 	if (ac == optind) {
@@ -564,6 +959,7 @@ int main(int ac, char **av)
 		conf_usage(progname);
 		exit(1);
 	}
+<<<<<<< HEAD
 	name = av[optind];
 	conf_parse(name);
 	//zconfdump(stdout);
@@ -584,6 +980,13 @@ int main(int ac, char **av)
 	case defconfig:
 		if (!defconfig_file)
 			defconfig_file = conf_get_default_confname();
+=======
+	conf_parse(av[optind]);
+	//zconfdump(stdout);
+
+	switch (input_mode) {
+	case defconfig:
+>>>>>>> upstream/android-13
 		if (conf_read(defconfig_file)) {
 			fprintf(stderr,
 				"***\n"
@@ -598,7 +1001,14 @@ int main(int ac, char **av)
 	case oldaskconfig:
 	case oldconfig:
 	case listnewconfig:
+<<<<<<< HEAD
 	case olddefconfig:
+=======
+	case helpnewconfig:
+	case olddefconfig:
+	case yes2modconfig:
+	case mod2yesconfig:
+>>>>>>> upstream/android-13
 		conf_read(NULL);
 		break;
 	case allnoconfig:
@@ -672,6 +1082,15 @@ int main(int ac, char **av)
 		break;
 	case savedefconfig:
 		break;
+<<<<<<< HEAD
+=======
+	case yes2modconfig:
+		conf_rewrite_mod_or_yes(def_y2m);
+		break;
+	case mod2yesconfig:
+		conf_rewrite_mod_or_yes(def_m2y);
+		break;
+>>>>>>> upstream/android-13
 	case oldaskconfig:
 		rootEntry = &rootmenu;
 		conf(&rootmenu);
@@ -679,6 +1098,10 @@ int main(int ac, char **av)
 		/* fall through */
 	case oldconfig:
 	case listnewconfig:
+<<<<<<< HEAD
+=======
+	case helpnewconfig:
+>>>>>>> upstream/android-13
 	case syncconfig:
 		/* Update until a loop caused no more changes */
 		do {
@@ -697,7 +1120,11 @@ int main(int ac, char **av)
 				defconfig_file);
 			return 1;
 		}
+<<<<<<< HEAD
 	} else if (input_mode != listnewconfig) {
+=======
+	} else if (input_mode != listnewconfig && input_mode != helpnewconfig) {
+>>>>>>> upstream/android-13
 		if (!no_conf_write && conf_write(NULL)) {
 			fprintf(stderr, "\n*** Error during writing of the configuration.\n\n");
 			exit(1);

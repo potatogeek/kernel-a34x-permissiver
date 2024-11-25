@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * System Control and Power Interface (SCPI) Protocol based clock driver
  *
  * Copyright (C) 2015 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -140,7 +147,11 @@ static const struct clk_ops scpi_dvfs_ops = {
 	.set_rate = scpi_dvfs_set_rate,
 };
 
+<<<<<<< HEAD
 static const struct of_device_id scpi_clk_match[] = {
+=======
+static const struct of_device_id scpi_clk_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "arm,scpi-dvfs-clocks", .data = &scpi_dvfs_ops, },
 	{ .compatible = "arm,scpi-variable-clocks", .data = &scpi_clk_ops, },
 	{}
@@ -150,7 +161,11 @@ static int
 scpi_clk_ops_init(struct device *dev, const struct of_device_id *match,
 		  struct scpi_clk *sclk, const char *name)
 {
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	unsigned long min = 0, max = 0;
 	int ret;
 
@@ -207,7 +222,11 @@ static int scpi_clk_add(struct device *dev, struct device_node *np,
 
 	count = of_property_count_strings(np, "clock-output-names");
 	if (count < 0) {
+<<<<<<< HEAD
 		dev_err(dev, "%s: invalid clock output count\n", np->name);
+=======
+		dev_err(dev, "%pOFn: invalid clock output count\n", np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -232,13 +251,21 @@ static int scpi_clk_add(struct device *dev, struct device_node *np,
 
 		if (of_property_read_string_index(np, "clock-output-names",
 						  idx, &name)) {
+<<<<<<< HEAD
 			dev_err(dev, "invalid clock name @ %s\n", np->name);
+=======
+			dev_err(dev, "invalid clock name @ %pOFn\n", np);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
 		if (of_property_read_u32_index(np, "clock-indices",
 					       idx, &val)) {
+<<<<<<< HEAD
 			dev_err(dev, "invalid clock index @ %s\n", np->name);
+=======
+			dev_err(dev, "invalid clock index @ %pOFn\n", np);
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  74Hx164 - Generic serial-in/parallel-out 8-bits shift register GPIO driver
  *
  *  Copyright (C) 2010 Gabor Juhos <juhosg@openwrt.org>
  *  Copyright (C) 2010 Miguel Gaio <miguel.gaio@efixo.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,18 @@
 #include <linux/gpio/consumer.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/bitops.h>
+#include <linux/gpio/consumer.h>
+#include <linux/gpio/driver.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/property.h>
+#include <linux/slab.h>
+#include <linux/spi/spi.h>
+>>>>>>> upstream/android-13
 
 #define GEN_74X164_NUMBER_GPIOS	8
 
@@ -75,6 +92,7 @@ static void gen_74x164_set_multiple(struct gpio_chip *gc, unsigned long *mask,
 				    unsigned long *bits)
 {
 	struct gen_74x164_chip *chip = gpiochip_get_data(gc);
+<<<<<<< HEAD
 	unsigned int i, idx, shift;
 	u8 bank, bankmask;
 
@@ -89,6 +107,20 @@ static void gen_74x164_set_multiple(struct gpio_chip *gc, unsigned long *mask,
 
 		chip->buffer[bank] &= ~bankmask;
 		chip->buffer[bank] |= bankmask & (bits[idx] >> shift);
+=======
+	unsigned long offset;
+	unsigned long bankmask;
+	size_t bank;
+	unsigned long bitmask;
+
+	mutex_lock(&chip->lock);
+	for_each_set_clump8(offset, bankmask, mask, chip->registers * 8) {
+		bank = chip->registers - 1 - offset / 8;
+		bitmask = bitmap_get_value8(bits, offset) & bankmask;
+
+		chip->buffer[bank] &= ~bankmask;
+		chip->buffer[bank] |= bitmask;
+>>>>>>> upstream/android-13
 	}
 	__gen_74x164_write_config(chip);
 	mutex_unlock(&chip->lock);
@@ -116,10 +148,16 @@ static int gen_74x164_probe(struct spi_device *spi)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	if (of_property_read_u32(spi->dev.of_node, "registers-number",
 				 &nregs)) {
 		dev_err(&spi->dev,
 			"Missing registers-number property in the DT.\n");
+=======
+	ret = device_property_read_u32(&spi->dev, "registers-number", &nregs);
+	if (ret) {
+		dev_err(&spi->dev, "Missing 'registers-number' property.\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -179,6 +217,16 @@ static int gen_74x164_remove(struct spi_device *spi)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct spi_device_id gen_74x164_spi_ids[] = {
+	{ .name = "74hc595" },
+	{ .name = "74lvc594" },
+	{},
+};
+MODULE_DEVICE_TABLE(spi, gen_74x164_spi_ids);
+
+>>>>>>> upstream/android-13
 static const struct of_device_id gen_74x164_dt_ids[] = {
 	{ .compatible = "fairchild,74hc595" },
 	{ .compatible = "nxp,74lvc594" },
@@ -193,6 +241,10 @@ static struct spi_driver gen_74x164_driver = {
 	},
 	.probe		= gen_74x164_probe,
 	.remove		= gen_74x164_remove,
+<<<<<<< HEAD
+=======
+	.id_table	= gen_74x164_spi_ids,
+>>>>>>> upstream/android-13
 };
 module_spi_driver(gen_74x164_driver);
 

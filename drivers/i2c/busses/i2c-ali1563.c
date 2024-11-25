@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /**
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *	i2c-ali1563.c - i2c driver for the ALi 1563 Southbridge
  *
  *	Copyright (C) 2004 Patrick Mochel
@@ -12,8 +17,11 @@
  *
  *	This driver is based on a mix of the 15x3, 1535, and i801 drivers,
  *	with a little help from the ALi 1563 spec.
+<<<<<<< HEAD
  *
  *	This file is released under the GPLv2
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

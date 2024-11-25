@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ST Microelectronics MFD: stmpe's spi client specific driver
  *
  * Copyright (C) ST Microelectronics SA 2011
  *
+<<<<<<< HEAD
  * License Terms: GNU General Public License, version 2
+=======
+>>>>>>> upstream/android-13
  * Author: Viresh Kumar <vireshk@kernel.org> for ST Microelectronics
  */
 

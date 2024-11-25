@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * mmap.c
  *
  * Code to deal with the mess that is clustered mmap.
  *
  * Copyright (C) 2002, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -76,7 +84,11 @@ static vm_fault_t __ocfs2_page_mkwrite(struct file *file,
 	last_index = (size - 1) >> PAGE_SHIFT;
 
 	/*
+<<<<<<< HEAD
 	 * There are cases that lead to the page no longer bebongs to the
+=======
+	 * There are cases that lead to the page no longer belonging to the
+>>>>>>> upstream/android-13
 	 * mapping.
 	 * 1) pagecache truncates locally due to memory pressure.
 	 * 2) pagecache truncates when another is taking EX lock against 
@@ -173,9 +185,12 @@ out:
 static const struct vm_operations_struct ocfs2_file_vm_ops = {
 	.fault		= ocfs2_fault,
 	.page_mkwrite	= ocfs2_page_mkwrite,
+<<<<<<< HEAD
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 	.suitable_for_spf = true,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 int ocfs2_mmap(struct file *file, struct vm_area_struct *vma)

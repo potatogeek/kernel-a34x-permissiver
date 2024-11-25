@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * This file is provided under a dual BSD/GPLv2 license.  When using or
@@ -61,6 +62,12 @@
  *
  *****************************************************************************/
 
+=======
+// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+/*
+ * Copyright (C) 2005-2011 Intel Corporation
+ */
+>>>>>>> upstream/android-13
 #include <linux/device.h>
 #include <linux/interrupt.h>
 #include <linux/export.h>
@@ -126,10 +133,16 @@ void __iwl_dbg(struct device *dev,
 #ifdef CONFIG_IWLWIFI_DEBUG
 	if (iwl_have_debug_level(level) &&
 	    (!limit || net_ratelimit()))
+<<<<<<< HEAD
 		dev_printk(KERN_DEBUG, dev, "%c %s %pV",
 			   in_interrupt() ? 'I' : 'U', function, &vaf);
 #endif
 	trace_iwlwifi_dbg(level, in_interrupt(), function, &vaf);
+=======
+		dev_printk(KERN_DEBUG, dev, "%s %pV", function, &vaf);
+#endif
+	trace_iwlwifi_dbg(level, function, &vaf);
+>>>>>>> upstream/android-13
 	va_end(args);
 }
 IWL_EXPORT_SYMBOL(__iwl_dbg);

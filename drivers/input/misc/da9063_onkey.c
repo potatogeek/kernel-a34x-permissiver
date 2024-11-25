@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * OnKey device driver for DA9063, DA9062 and DA9061 PMICs
  * Copyright (C) 2015  Dialog Semiconductor Ltd.
@@ -11,6 +12,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * OnKey device driver for DA9063, DA9062 and DA9061 PMICs
+ * Copyright (C) 2015  Dialog Semiconductor Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -22,7 +29,10 @@
 #include <linux/regmap.h>
 #include <linux/of.h>
 #include <linux/mfd/da9063/core.h>
+<<<<<<< HEAD
 #include <linux/mfd/da9063/pdata.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mfd/da9063/registers.h>
 #include <linux/mfd/da9062/core.h>
 #include <linux/mfd/da9062/registers.h>
@@ -201,8 +211,11 @@ static void da9063_cancel_poll(void *data)
 
 static int da9063_onkey_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
 	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
+=======
+>>>>>>> upstream/android-13
 	struct da9063_onkey *onkey;
 	const struct of_device_id *match;
 	int irq;
@@ -229,12 +242,17 @@ static int da9063_onkey_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	if (pdata)
 		onkey->key_power = pdata->key_power;
 	else
 		onkey->key_power =
 			!of_property_read_bool(pdev->dev.of_node,
 					       "dlg,disable-key-power");
+=======
+	onkey->key_power = !of_property_read_bool(pdev->dev.of_node,
+						  "dlg,disable-key-power");
+>>>>>>> upstream/android-13
 
 	onkey->input = devm_input_allocate_device(&pdev->dev);
 	if (!onkey->input) {
@@ -261,11 +279,16 @@ static int da9063_onkey_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq_byname(pdev, "ONKEY");
+<<<<<<< HEAD
 	if (irq < 0) {
 		error = irq;
 		dev_err(&pdev->dev, "Failed to get platform IRQ: %d\n", error);
 		return error;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	error = devm_request_threaded_irq(&pdev->dev, irq,
 					  NULL, da9063_onkey_irq_handler,

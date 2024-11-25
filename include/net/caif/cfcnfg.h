@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson AB 2010
  * Author:	Sjur Brendeland
  * License terms: GNU General Public License (GPL) version 2
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) ST-Ericsson AB 2010
+ * Author:	Sjur Brendeland
+>>>>>>> upstream/android-13
  */
 
 #ifndef CFCNFG_H_
@@ -62,7 +69,11 @@ void cfcnfg_remove(struct cfcnfg *cfg);
  * @fcs:	Specify if checksum is used in CAIF Framing Layer.
  * @head_room:	Head space needed by link specific protocol.
  */
+<<<<<<< HEAD
 void
+=======
+int
+>>>>>>> upstream/android-13
 cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
 		     struct net_device *dev, struct cflayer *phy_layer,
 		     enum cfcnfg_phy_preference pref,

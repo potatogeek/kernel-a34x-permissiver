@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AD5446 SPI DAC driver
  *
  * Copyright 2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -18,20 +25,40 @@
 #include <linux/regulator/consumer.h>
 #include <linux/err.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/unaligned.h>
+
+>>>>>>> upstream/android-13
 #define MODE_PWRDWN_1k		0x1
 #define MODE_PWRDWN_100k	0x2
 #define MODE_PWRDWN_TRISTATE	0x3
 
 /**
  * struct ad5446_state - driver instance specific data
+<<<<<<< HEAD
  * @spi:		spi_device
  * @chip_info:		chip model specific constants, available modes etc
  * @reg:		supply regulator
  * @vref_mv:		actual reference voltage used
+=======
+ * @dev:		this device
+ * @chip_info:		chip model specific constants, available modes etc
+ * @reg:		supply regulator
+ * @vref_mv:		actual reference voltage used
+ * @cached_val:		store/retrieve values during power down
+ * @pwr_down_mode:	power down mode (1k, 100k or tristate)
+ * @pwr_down:		true if the device is in power down
+ * @lock:		lock to protect the data buffer during write ops
+>>>>>>> upstream/android-13
  */
 
 struct ad5446_state {
@@ -42,6 +69,10 @@ struct ad5446_state {
 	unsigned			cached_val;
 	unsigned			pwr_down_mode;
 	unsigned			pwr_down;
+<<<<<<< HEAD
+=======
+	struct mutex			lock;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -93,7 +124,11 @@ static ssize_t ad5446_read_dac_powerdown(struct iio_dev *indio_dev,
 {
 	struct ad5446_state *st = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "%d\n", st->pwr_down);
+=======
+	return sysfs_emit(buf, "%d\n", st->pwr_down);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t ad5446_write_dac_powerdown(struct iio_dev *indio_dev,
@@ -111,7 +146,11 @@ static ssize_t ad5446_write_dac_powerdown(struct iio_dev *indio_dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	mutex_lock(&indio_dev->mlock);
+=======
+	mutex_lock(&st->lock);
+>>>>>>> upstream/android-13
 	st->pwr_down = powerdown;
 
 	if (st->pwr_down) {
@@ -122,7 +161,11 @@ static ssize_t ad5446_write_dac_powerdown(struct iio_dev *indio_dev,
 	}
 
 	ret = st->chip_info->write(st, val);
+<<<<<<< HEAD
 	mutex_unlock(&indio_dev->mlock);
+=======
+	mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 
 	return ret ? ret : len;
 }
@@ -171,7 +214,11 @@ static int ad5446_read_raw(struct iio_dev *indio_dev,
 
 	switch (m) {
 	case IIO_CHAN_INFO_RAW:
+<<<<<<< HEAD
 		*val = st->cached_val;
+=======
+		*val = st->cached_val >> chan->scan_type.shift;
+>>>>>>> upstream/android-13
 		return IIO_VAL_INT;
 	case IIO_CHAN_INFO_SCALE:
 		*val = st->vref_mv;
@@ -196,11 +243,19 @@ static int ad5446_write_raw(struct iio_dev *indio_dev,
 			return -EINVAL;
 
 		val <<= chan->scan_type.shift;
+<<<<<<< HEAD
 		mutex_lock(&indio_dev->mlock);
 		st->cached_val = val;
 		if (!st->pwr_down)
 			ret = st->chip_info->write(st, val);
 		mutex_unlock(&indio_dev->mlock);
+=======
+		mutex_lock(&st->lock);
+		st->cached_val = val;
+		if (!st->pwr_down)
+			ret = st->chip_info->write(st, val);
+		mutex_unlock(&st->lock);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -247,14 +302,22 @@ static int ad5446_probe(struct device *dev, const char *name,
 	st->reg = reg;
 	st->dev = dev;
 
+<<<<<<< HEAD
 	/* Establish that the iio_dev is a child of the device */
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = name;
 	indio_dev->info = &ad5446_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = &st->chip_info->channel;
 	indio_dev->num_channels = 1;
 
+<<<<<<< HEAD
+=======
+	mutex_init(&st->lock);
+
+>>>>>>> upstream/android-13
 	st->pwr_down_mode = MODE_PWRDWN_1k;
 
 	if (st->chip_info->int_vref_mv)
@@ -303,14 +366,22 @@ static int ad5660_write(struct ad5446_state *st, unsigned val)
 	struct spi_device *spi = to_spi_device(st->dev);
 	uint8_t data[3];
 
+<<<<<<< HEAD
 	data[0] = (val >> 16) & 0xFF;
 	data[1] = (val >> 8) & 0xFF;
 	data[2] = val & 0xFF;
+=======
+	put_unaligned_be24(val, &data[0]);
+>>>>>>> upstream/android-13
 
 	return spi_write(spi, data, sizeof(data));
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * ad5446_supported_spi_device_ids:
  * The AD5620/40/60 parts are available in different fixed internal reference
  * voltage options. The actual part numbers may look differently
@@ -474,13 +545,19 @@ static const struct spi_device_id ad5446_spi_ids[] = {
 };
 MODULE_DEVICE_TABLE(spi, ad5446_spi_ids);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id ad5446_of_ids[] = {
 	{ .compatible = "ti,dac7512" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, ad5446_of_ids);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static int ad5446_spi_probe(struct spi_device *spi)
 {
@@ -498,7 +575,11 @@ static int ad5446_spi_remove(struct spi_device *spi)
 static struct spi_driver ad5446_spi_driver = {
 	.driver = {
 		.name	= "ad5446",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(ad5446_of_ids),
+=======
+		.of_match_table = ad5446_of_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe		= ad5446_spi_probe,
 	.remove		= ad5446_spi_remove,
@@ -528,11 +609,26 @@ static int ad5622_write(struct ad5446_state *st, unsigned val)
 {
 	struct i2c_client *client = to_i2c_client(st->dev);
 	__be16 data = cpu_to_be16(val);
+<<<<<<< HEAD
 
 	return i2c_master_send(client, (char *)&data, sizeof(data));
 }
 
 /**
+=======
+	int ret;
+
+	ret = i2c_master_send(client, (char *)&data, sizeof(data));
+	if (ret < 0)
+		return ret;
+	if (ret != sizeof(data))
+		return -EIO;
+
+	return 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * ad5446_supported_i2c_device_ids:
  * The AD5620/40/60 parts are available in different fixed internal reference
  * voltage options. The actual part numbers may look differently
@@ -634,6 +730,10 @@ static void __exit ad5446_exit(void)
 }
 module_exit(ad5446_exit);
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+=======
+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Analog Devices AD5444/AD5446 DAC");
 MODULE_LICENSE("GPL v2");

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * AMD Cryptographic Coprocessor (CCP) AES CMAC crypto API support
  *
@@ -8,6 +9,15 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * AMD Cryptographic Coprocessor (CCP) AES CMAC crypto API support
+ *
+ * Copyright (C) 2013,2018 Advanced Micro Devices, Inc.
+ *
+ * Author: Tom Lendacky <thomas.lendacky@amd.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -264,6 +274,10 @@ static int ccp_aes_cmac_setkey(struct crypto_ahash *tfm, const u8 *key,
 		ccp_crypto_ahash_alg(crypto_ahash_tfm(tfm));
 	u64 k0_hi, k0_lo, k1_hi, k1_lo, k2_hi, k2_lo;
 	u64 rb_hi = 0x00, rb_lo = 0x87;
+<<<<<<< HEAD
+=======
+	struct crypto_aes_ctx aes;
+>>>>>>> upstream/android-13
 	__be64 *gk;
 	int ret;
 
@@ -278,7 +292,10 @@ static int ccp_aes_cmac_setkey(struct crypto_ahash *tfm, const u8 *key,
 		ctx->u.aes.type = CCP_AES_TYPE_256;
 		break;
 	default:
+<<<<<<< HEAD
 		crypto_ahash_set_flags(tfm, CRYPTO_TFM_RES_BAD_KEY_LEN);
+=======
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	ctx->u.aes.mode = alg->mode;
@@ -287,14 +304,23 @@ static int ccp_aes_cmac_setkey(struct crypto_ahash *tfm, const u8 *key,
 	ctx->u.aes.key_len = 0;
 
 	/* Set the key for the AES cipher used to generate the keys */
+<<<<<<< HEAD
 	ret = crypto_cipher_setkey(ctx->u.aes.tfm_cipher, key, key_len);
+=======
+	ret = aes_expandkey(&aes, key, key_len);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	/* Encrypt a block of zeroes - use key area in context */
 	memset(ctx->u.aes.key, 0, sizeof(ctx->u.aes.key));
+<<<<<<< HEAD
 	crypto_cipher_encrypt_one(ctx->u.aes.tfm_cipher, ctx->u.aes.key,
 				  ctx->u.aes.key);
+=======
+	aes_encrypt(&aes, ctx->u.aes.key, ctx->u.aes.key);
+	memzero_explicit(&aes, sizeof(aes));
+>>>>>>> upstream/android-13
 
 	/* Generate K1 and K2 */
 	k0_hi = be64_to_cpu(*((__be64 *)ctx->u.aes.key));
@@ -339,13 +365,17 @@ static int ccp_aes_cmac_cra_init(struct crypto_tfm *tfm)
 {
 	struct ccp_ctx *ctx = crypto_tfm_ctx(tfm);
 	struct crypto_ahash *ahash = __crypto_ahash_cast(tfm);
+<<<<<<< HEAD
 	struct crypto_cipher *cipher_tfm;
+=======
+>>>>>>> upstream/android-13
 
 	ctx->complete = ccp_aes_cmac_complete;
 	ctx->u.aes.key_len = 0;
 
 	crypto_ahash_set_reqsize(ahash, sizeof(struct ccp_aes_cmac_req_ctx));
 
+<<<<<<< HEAD
 	cipher_tfm = crypto_alloc_cipher("aes", 0,
 					 CRYPTO_ALG_ASYNC |
 					 CRYPTO_ALG_NEED_FALLBACK);
@@ -367,6 +397,11 @@ static void ccp_aes_cmac_cra_exit(struct crypto_tfm *tfm)
 	ctx->u.aes.tfm_cipher = NULL;
 }
 
+=======
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 int ccp_register_aes_cmac_algs(struct list_head *head)
 {
 	struct ccp_crypto_ahash_alg *ccp_alg;
@@ -400,13 +435,20 @@ int ccp_register_aes_cmac_algs(struct list_head *head)
 	snprintf(base->cra_name, CRYPTO_MAX_ALG_NAME, "cmac(aes)");
 	snprintf(base->cra_driver_name, CRYPTO_MAX_ALG_NAME, "cmac-aes-ccp");
 	base->cra_flags = CRYPTO_ALG_ASYNC |
+<<<<<<< HEAD
+=======
+			  CRYPTO_ALG_ALLOCATES_MEMORY |
+>>>>>>> upstream/android-13
 			  CRYPTO_ALG_KERN_DRIVER_ONLY |
 			  CRYPTO_ALG_NEED_FALLBACK;
 	base->cra_blocksize = AES_BLOCK_SIZE;
 	base->cra_ctxsize = sizeof(struct ccp_ctx);
 	base->cra_priority = CCP_CRA_PRIORITY;
 	base->cra_init = ccp_aes_cmac_cra_init;
+<<<<<<< HEAD
 	base->cra_exit = ccp_aes_cmac_cra_exit;
+=======
+>>>>>>> upstream/android-13
 	base->cra_module = THIS_MODULE;
 
 	ret = crypto_register_ahash(alg);

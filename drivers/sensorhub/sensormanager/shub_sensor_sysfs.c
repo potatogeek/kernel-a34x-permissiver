@@ -101,26 +101,35 @@ static ssize_t scontext_list_show(struct device *dev,
 	return get_sensors_scontext_probe_state((uint64_t *)buf);
 }
 
+<<<<<<< HEAD
 static ssize_t wakeup_reason_show(struct device *dev,
 				 struct device_attribute *attr, char *buf)
 {
 	return get_bigdata_wakeup_reason(buf);
 }
 
+=======
+>>>>>>> upstream/android-13
 static DEVICE_ATTR(enable, S_IRUGO | S_IWUSR | S_IWGRP,
                    show_sensors_enable, set_sensors_enable);
 static DEVICE_ATTR(ssp_flush, S_IWUSR | S_IWGRP,
                    NULL, set_flush);
 static DEVICE_ATTR(sensor_spec, S_IRUGO, show_sensor_spec, NULL);
 static DEVICE_ATTR_RO(scontext_list);
+<<<<<<< HEAD
 static DEVICE_ATTR_RO(wakeup_reason);
+=======
+>>>>>>> upstream/android-13
 
 static struct device_attribute *shub_sensor_attrs[] = {
 	&dev_attr_enable,
 	&dev_attr_ssp_flush,
 	&dev_attr_sensor_spec,
 	&dev_attr_scontext_list,
+<<<<<<< HEAD
 	&dev_attr_wakeup_reason,
+=======
+>>>>>>> upstream/android-13
 	NULL,
 };
 

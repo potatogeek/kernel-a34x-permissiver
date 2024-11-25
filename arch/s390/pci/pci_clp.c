@@ -24,7 +24,11 @@
 
 bool zpci_unique_uid;
 
+<<<<<<< HEAD
 static void update_uid_checking(bool new)
+=======
+void update_uid_checking(bool new)
+>>>>>>> upstream/android-13
 {
 	if (zpci_unique_uid != new)
 		zpci_dbg(1, "uid checking:%d\n", new);
@@ -66,7 +70,11 @@ static inline int clp_get_ilp(unsigned long *ilp)
 /*
  * Call Logical Processor with c=0, the give constant lps and an lpcb request.
  */
+<<<<<<< HEAD
 static inline int clp_req(void *data, unsigned int lps)
+=======
+static __always_inline int clp_req(void *data, unsigned int lps)
+>>>>>>> upstream/android-13
 {
 	struct { u8 _[CLP_BLK_SIZE]; } *req = data;
 	u64 ignored;
@@ -102,6 +110,10 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
 	zdev->msi_addr = response->msia;
 	zdev->max_msi = response->noi;
 	zdev->fmb_update = response->mui;
+<<<<<<< HEAD
+=======
+	zdev->version = response->version;
+>>>>>>> upstream/android-13
 
 	switch (response->version) {
 	case 1:
@@ -145,7 +157,11 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < PCI_BAR_COUNT; i++) {
+=======
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>>>>>> upstream/android-13
 		zdev->bars[i].val = le32_to_cpu(response->bar[i]);
 		zdev->bars[i].size = response->bar_size[i];
 	}
@@ -155,19 +171,46 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
 	zdev->pfgid = response->pfgid;
 	zdev->pft = response->pft;
 	zdev->vfn = response->vfn;
+<<<<<<< HEAD
 	zdev->uid = response->uid;
 	zdev->fmb_length = sizeof(u32) * response->fmb_len;
+=======
+	zdev->port = response->port;
+	zdev->uid = response->uid;
+	zdev->fmb_length = sizeof(u32) * response->fmb_len;
+	zdev->rid_available = response->rid_avail;
+	zdev->is_physfn = response->is_physfn;
+	if (!s390_pci_no_rid && zdev->rid_available)
+		zdev->devfn = response->rid & ZPCI_RID_MASK_DEVFN;
+>>>>>>> upstream/android-13
 
 	memcpy(zdev->pfip, response->pfip, sizeof(zdev->pfip));
 	if (response->util_str_avail) {
 		memcpy(zdev->util_str, response->util_str,
 		       sizeof(zdev->util_str));
+<<<<<<< HEAD
 	}
 
 	return 0;
 }
 
 static int clp_query_pci_fn(struct zpci_dev *zdev, u32 fh)
+=======
+		zdev->util_str_avail = 1;
+	}
+	zdev->mio_capable = response->mio_addr_avail;
+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+		if (!(response->mio.valid & (1 << (PCI_STD_NUM_BARS - i - 1))))
+			continue;
+
+		zdev->bars[i].mio_wb = (void __iomem *) response->mio.addr[i].wb;
+		zdev->bars[i].mio_wt = (void __iomem *) response->mio.addr[i].wt;
+	}
+	return 0;
+}
+
+int clp_query_pci_fn(struct zpci_dev *zdev)
+>>>>>>> upstream/android-13
 {
 	struct clp_req_rsp_query_pci *rrb;
 	int rc;
@@ -180,7 +223,11 @@ static int clp_query_pci_fn(struct zpci_dev *zdev, u32 fh)
 	rrb->request.hdr.len = sizeof(rrb->request);
 	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
 	rrb->response.hdr.len = sizeof(rrb->response);
+<<<<<<< HEAD
 	rrb->request.fh = fh;
+=======
+	rrb->request.fh = zdev->fh;
+>>>>>>> upstream/android-13
 
 	rc = clp_req(rrb, CLP_LPS_PCI);
 	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
@@ -198,6 +245,7 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 int clp_add_pci_device(u32 fid, u32 fh, int configured)
 {
 	struct zpci_dev *zdev;
@@ -236,10 +284,27 @@ error:
  * Enable/Disable a given PCI function defined by its function handle.
  */
 static int clp_set_pci_fn(u32 *fh, u8 nr_dma_as, u8 command)
+=======
+/**
+ * clp_set_pci_fn() - Execute a command on a PCI function
+ * @zdev: Function that will be affected
+ * @fh: Out parameter for updated function handle
+ * @nr_dma_as: DMA address space number
+ * @command: The command code to execute
+ *
+ * Returns: 0 on success, < 0 for Linux errors (e.g. -ENOMEM), and
+ * > 0 for non-success platform responses
+ */
+static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 command)
+>>>>>>> upstream/android-13
 {
 	struct clp_req_rsp_set_pci *rrb;
 	int rc, retries = 100;
 
+<<<<<<< HEAD
+=======
+	*fh = 0;
+>>>>>>> upstream/android-13
 	rrb = clp_alloc_block(GFP_KERNEL);
 	if (!rrb)
 		return -ENOMEM;
@@ -249,7 +314,11 @@ static int clp_set_pci_fn(u32 *fh, u8 nr_dma_as, u8 command)
 		rrb->request.hdr.len = sizeof(rrb->request);
 		rrb->request.hdr.cmd = CLP_SET_PCI_FN;
 		rrb->response.hdr.len = sizeof(rrb->response);
+<<<<<<< HEAD
 		rrb->request.fh = *fh;
+=======
+		rrb->request.fh = zdev->fh;
+>>>>>>> upstream/android-13
 		rrb->request.oc = command;
 		rrb->request.ndas = nr_dma_as;
 
@@ -262,17 +331,61 @@ static int clp_set_pci_fn(u32 *fh, u8 nr_dma_as, u8 command)
 		}
 	} while (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY);
 
+<<<<<<< HEAD
 	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
 		*fh = rrb->response.fh;
 	else {
 		zpci_err("Set PCI FN:\n");
 		zpci_err_clp(rrb->response.hdr.rsp, rc);
+=======
+	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
+		*fh = rrb->response.fh;
+	} else {
+		zpci_err("Set PCI FN:\n");
+		zpci_err_clp(rrb->response.hdr.rsp, rc);
+		if (!rc)
+			rc = rrb->response.hdr.rsp;
+	}
+	clp_free_block(rrb);
+	return rc;
+}
+
+int clp_setup_writeback_mio(void)
+{
+	struct clp_req_rsp_slpc_pci *rrb;
+	u8  wb_bit_pos;
+	int rc;
+
+	rrb = clp_alloc_block(GFP_KERNEL);
+	if (!rrb)
+		return -ENOMEM;
+
+	memset(rrb, 0, sizeof(*rrb));
+	rrb->request.hdr.len = sizeof(rrb->request);
+	rrb->request.hdr.cmd = CLP_SLPC;
+	rrb->response.hdr.len = sizeof(rrb->response);
+
+	rc = clp_req(rrb, CLP_LPS_PCI);
+	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
+		if (rrb->response.vwb) {
+			wb_bit_pos = rrb->response.mio_wb;
+			set_bit_inv(wb_bit_pos, &mio_wb_bit_mask);
+			zpci_dbg(3, "wb bit: %d\n", wb_bit_pos);
+		} else {
+			zpci_dbg(3, "wb bit: n.a.\n");
+		}
+
+	} else {
+		zpci_err("SLPC PCI:\n");
+		zpci_err_clp(rrb->response.hdr.rsp, rc);
+>>>>>>> upstream/android-13
 		rc = -EIO;
 	}
 	clp_free_block(rrb);
 	return rc;
 }
 
+<<<<<<< HEAD
 int clp_enable_fh(struct zpci_dev *zdev, u8 nr_dma_as)
 {
 	u32 fh = zdev->fh;
@@ -290,17 +403,73 @@ int clp_enable_fh(struct zpci_dev *zdev, u8 nr_dma_as)
 int clp_disable_fh(struct zpci_dev *zdev)
 {
 	u32 fh = zdev->fh;
+=======
+int clp_enable_fh(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as)
+{
+	int rc;
+
+	rc = clp_set_pci_fn(zdev, fh, nr_dma_as, CLP_SET_ENABLE_PCI_FN);
+	zpci_dbg(3, "ena fid:%x, fh:%x, rc:%d\n", zdev->fid, *fh, rc);
+	if (!rc && zpci_use_mio(zdev)) {
+		rc = clp_set_pci_fn(zdev, fh, nr_dma_as, CLP_SET_ENABLE_MIO);
+		zpci_dbg(3, "ena mio fid:%x, fh:%x, rc:%d\n",
+				zdev->fid, *fh, rc);
+		if (rc)
+			clp_disable_fh(zdev, fh);
+	}
+	return rc;
+}
+
+int clp_disable_fh(struct zpci_dev *zdev, u32 *fh)
+{
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (!zdev_enabled(zdev))
 		return 0;
 
+<<<<<<< HEAD
 	rc = clp_set_pci_fn(&fh, 0, CLP_SET_DISABLE_PCI_FN);
 	if (!rc)
 		/* Success -> store disabled handle in zdev */
 		zdev->fh = fh;
 
 	zpci_dbg(3, "dis fid:%x, fh:%x, rc:%d\n", zdev->fid, zdev->fh, rc);
+=======
+	rc = clp_set_pci_fn(zdev, fh, 0, CLP_SET_DISABLE_PCI_FN);
+	zpci_dbg(3, "dis fid:%x, fh:%x, rc:%d\n", zdev->fid, *fh, rc);
+	return rc;
+}
+
+static int clp_list_pci_req(struct clp_req_rsp_list_pci *rrb,
+			    u64 *resume_token, int *nentries)
+{
+	int rc;
+
+	memset(rrb, 0, sizeof(*rrb));
+	rrb->request.hdr.len = sizeof(rrb->request);
+	rrb->request.hdr.cmd = CLP_LIST_PCI;
+	/* store as many entries as possible */
+	rrb->response.hdr.len = CLP_BLK_SIZE - LIST_PCI_HDR_LEN;
+	rrb->request.resume_token = *resume_token;
+
+	/* Get PCI function handle list */
+	rc = clp_req(rrb, CLP_LPS_PCI);
+	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
+		zpci_err("List PCI FN:\n");
+		zpci_err_clp(rrb->response.hdr.rsp, rc);
+		return -EIO;
+	}
+
+	update_uid_checking(rrb->response.uid_checking);
+	WARN_ON_ONCE(rrb->response.entry_size !=
+		sizeof(struct clp_fh_list_entry));
+
+	*nentries = (rrb->response.hdr.len - LIST_PCI_HDR_LEN) /
+		rrb->response.entry_size;
+	*resume_token = rrb->response.resume_token;
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -308,6 +477,7 @@ static int clp_list_pci(struct clp_req_rsp_list_pci *rrb, void *data,
 			void (*cb)(struct clp_fh_list_entry *, void *))
 {
 	u64 resume_token = 0;
+<<<<<<< HEAD
 	int entries, i, rc;
 
 	do {
@@ -342,6 +512,44 @@ out:
 	return rc;
 }
 
+=======
+	int nentries, i, rc;
+
+	do {
+		rc = clp_list_pci_req(rrb, &resume_token, &nentries);
+		if (rc)
+			return rc;
+		for (i = 0; i < nentries; i++)
+			cb(&rrb->response.fh_list[i], data);
+	} while (resume_token);
+
+	return rc;
+}
+
+static int clp_find_pci(struct clp_req_rsp_list_pci *rrb, u32 fid,
+			struct clp_fh_list_entry *entry)
+{
+	struct clp_fh_list_entry *fh_list;
+	u64 resume_token = 0;
+	int nentries, i, rc;
+
+	do {
+		rc = clp_list_pci_req(rrb, &resume_token, &nentries);
+		if (rc)
+			return rc;
+		fh_list = rrb->response.fh_list;
+		for (i = 0; i < nentries; i++) {
+			if (fh_list[i].fid == fid) {
+				*entry = fh_list[i];
+				return 0;
+			}
+		}
+	} while (resume_token);
+
+	return -ENODEV;
+}
+
+>>>>>>> upstream/android-13
 static void __clp_add(struct clp_fh_list_entry *entry, void *data)
 {
 	struct zpci_dev *zdev;
@@ -351,6 +559,7 @@ static void __clp_add(struct clp_fh_list_entry *entry, void *data)
 
 	zdev = get_zdev_by_fid(entry->fid);
 	if (!zdev)
+<<<<<<< HEAD
 		clp_add_pci_device(entry->fid, entry->fh, entry->config_state);
 }
 
@@ -366,6 +575,9 @@ static void __clp_update(struct clp_fh_list_entry *entry, void *data)
 		return;
 
 	zdev->fh = entry->fh;
+=======
+		zpci_create_device(entry->fid, entry->fh, entry->config_state);
+>>>>>>> upstream/android-13
 }
 
 int clp_scan_pci_devices(void)
@@ -383,6 +595,7 @@ int clp_scan_pci_devices(void)
 	return rc;
 }
 
+<<<<<<< HEAD
 int clp_rescan_pci_devices(void)
 {
 	struct clp_req_rsp_list_pci *rrb;
@@ -403,18 +616,34 @@ int clp_rescan_pci_devices(void)
 int clp_rescan_pci_devices_simple(void)
 {
 	struct clp_req_rsp_list_pci *rrb;
+=======
+/*
+ * Get the current function handle of the function matching @fid
+ */
+int clp_refresh_fh(u32 fid, u32 *fh)
+{
+	struct clp_req_rsp_list_pci *rrb;
+	struct clp_fh_list_entry entry;
+>>>>>>> upstream/android-13
 	int rc;
 
 	rrb = clp_alloc_block(GFP_NOWAIT);
 	if (!rrb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rc = clp_list_pci(rrb, NULL, __clp_update);
+=======
+	rc = clp_find_pci(rrb, fid, &entry);
+	if (!rc)
+		*fh = entry.fh;
+>>>>>>> upstream/android-13
 
 	clp_free_block(rrb);
 	return rc;
 }
 
+<<<<<<< HEAD
 struct clp_state_data {
 	u32 fid;
 	enum zpci_state state;
@@ -434,15 +663,31 @@ int clp_get_state(u32 fid, enum zpci_state *state)
 {
 	struct clp_req_rsp_list_pci *rrb;
 	struct clp_state_data sd = {fid, ZPCI_FN_STATE_RESERVED};
+=======
+int clp_get_state(u32 fid, enum zpci_state *state)
+{
+	struct clp_req_rsp_list_pci *rrb;
+	struct clp_fh_list_entry entry;
+>>>>>>> upstream/android-13
 	int rc;
 
 	rrb = clp_alloc_block(GFP_ATOMIC);
 	if (!rrb)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	rc = clp_list_pci(rrb, &sd, __clp_get_state);
 	if (!rc)
 		*state = sd.state;
+=======
+	rc = clp_find_pci(rrb, fid, &entry);
+	if (!rc) {
+		*state = entry.config_state;
+	} else if (rc == -ENODEV) {
+		*state = ZPCI_FN_STATE_RESERVED;
+		rc = 0;
+	}
+>>>>>>> upstream/android-13
 
 	clp_free_block(rrb);
 	return rc;
@@ -468,7 +713,11 @@ static int clp_base_command(struct clp_req *req, struct clp_req_hdr *lpcb)
 	}
 }
 
+<<<<<<< HEAD
 static int clp_pci_slpc(struct clp_req *req, struct clp_req_rsp_slpc *lpcb)
+=======
+static int clp_pci_slpc(struct clp_req *req, struct clp_req_rsp_slpc_pci *lpcb)
+>>>>>>> upstream/android-13
 {
 	unsigned long limit = PAGE_SIZE - sizeof(lpcb->request);
 

@@ -1,6 +1,10 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: ftrace - function profiler with function tracing
+<<<<<<< HEAD
+=======
+# requires: function_profile_enabled set_ftrace_filter function_graph:tracer
+>>>>>>> upstream/android-13
 
 # There was a bug after a rewrite of the ftrace infrastructure that
 # caused the function_profiler not to be able to run with the function
@@ -13,6 +17,7 @@
 # This test triggers those bugs on those kernels.
 #
 # We need function_graph and profiling to to run this test
+<<<<<<< HEAD
 if ! grep -q function_graph available_tracers; then
     echo "no function graph tracer configured"
     exit_unsupported;
@@ -31,6 +36,10 @@ fi
 fail() { # mesg
     reset_tracer
     echo > set_ftrace_filter
+=======
+
+fail() { # mesg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
@@ -76,6 +85,9 @@ if ! grep -v -e '^#' -e 'schedule' trace > /dev/null; then
 	fail "no other functions besides schedule was found"
 fi
 
+<<<<<<< HEAD
 reset_tracer
 
+=======
+>>>>>>> upstream/android-13
 exit 0

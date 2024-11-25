@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Cyril Bur, IBM Corp.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2015, Cyril Bur, IBM Corp.
+ *
+>>>>>>> upstream/android-13
  * This test attempts to see if the VMX registers change across a syscall (fork).
  */
 
@@ -53,9 +60,20 @@ int test_vmx_syscall(void)
 	 * Setup an environment with much context switching
 	 */
 	pid_t pid2;
+<<<<<<< HEAD
 	pid_t pid = fork();
 	int ret;
 	int child_ret;
+=======
+	pid_t pid;
+	int ret;
+	int child_ret;
+
+	// vcmpequd used in vmx_asm.S is v2.07
+	SKIP_IF(!have_hwcap2(PPC_FEATURE2_ARCH_2_07));
+
+	pid = fork();
+>>>>>>> upstream/android-13
 	FAIL_IF(pid == -1);
 
 	pid2 = fork();

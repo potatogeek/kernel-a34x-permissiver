@@ -61,6 +61,12 @@ USB-specific:
 			(c) requested data transfer length is invalid: negative
 			    or too large for the host controller.
 
+<<<<<<< HEAD
+=======
+``-EBADR``		The wLength value in a control URB's setup packet does
+			not match the URB's transfer_buffer_length.
+
+>>>>>>> upstream/android-13
 ``-ENOSPC``		This request would overcommit the usb bandwidth reserved
 			for periodic transfers (interrupt, isochronous).
 

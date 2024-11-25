@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *
  * Copyright (C) 2007 Google, Inc.
  * Copyright (c) 2011, Code Aurora Forum. All rights reserved.
  * Author: Brian Swetland <swetland@google.com>
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 	.macro	addruart, rp, rv, tmp
@@ -26,7 +33,14 @@ ARM_BE8(rev	\rd, \rd )
 	str	\rd, [\rx, #0x70]
 	.endm
 
+<<<<<<< HEAD
 	.macro	waituart, rd, rx
+=======
+	.macro	waituartcts,rd,rx
+	.endm
+
+	.macro	waituarttxrdy, rd, rx
+>>>>>>> upstream/android-13
 	@ check for TX_EMT in UARTDM_SR
 	ldr	\rd, [\rx, #0x08]
 ARM_BE8(rev     \rd, \rd )

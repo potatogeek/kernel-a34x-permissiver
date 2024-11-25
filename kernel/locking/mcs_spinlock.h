@@ -7,7 +7,11 @@
  * The MCS lock (proposed by Mellor-Crummey and Scott) is a simple spin-lock
  * with the desirable properties of being fair, and with each cpu trying
  * to acquire the lock spinning on a local variable.
+<<<<<<< HEAD
  * It avoids expensive cache bouncings that common test-and-set spin-lock
+=======
+ * It avoids expensive cache bounces that common test-and-set spin-lock
+>>>>>>> upstream/android-13
  * implementations incur.
  */
 #ifndef __LINUX_MCS_SPINLOCK_H

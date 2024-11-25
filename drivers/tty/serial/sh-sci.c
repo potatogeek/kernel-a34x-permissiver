@@ -15,10 +15,13 @@
  *   Modified to support SH7300 SCIF. Takashi Kusuda (Jun 2003).
  *   Removed SH7300 support (Jul 2007).
  */
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_SH_SCI_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #undef DEBUG
 
 #include <linux/clk.h>
@@ -54,6 +57,10 @@
 
 #ifdef CONFIG_SUPERH
 #include <asm/sh_bios.h>
+<<<<<<< HEAD
+=======
+#include <asm/platform_early.h>
+>>>>>>> upstream/android-13
 #endif
 
 #include "serial_mctrl_gpio.h"
@@ -292,7 +299,11 @@ static const struct sci_port_params sci_port_params[SCIx_NR_REGTYPES] = {
 	},
 
 	/*
+<<<<<<< HEAD
 	 * The "SCIFA" that is in RZ/T and RZ/A2.
+=======
+	 * The "SCIFA" that is in RZ/A2, RZ/G2L and RZ/T.
+>>>>>>> upstream/android-13
 	 * It looks like a normal SCIF with FIFO data, but with a
 	 * compressed address space. Also, the break out of interrupts
 	 * are different: ERI/BRI, RXI, TXI, TEI, DRI.
@@ -309,6 +320,10 @@ static const struct sci_port_params sci_port_params[SCIx_NR_REGTYPES] = {
 			[SCFDR]		= { 0x0E, 16 },
 			[SCSPTR]	= { 0x10, 16 },
 			[SCLSR]		= { 0x12, 16 },
+<<<<<<< HEAD
+=======
+			[SEMR]		= { 0x14, 8 },
+>>>>>>> upstream/android-13
 		},
 		.fifosize = 16,
 		.overrun_reg = SCLSR,
@@ -613,6 +628,17 @@ static void sci_stop_tx(struct uart_port *port)
 	ctrl &= ~SCSCR_TIE;
 
 	serial_port_out(port, SCSCR, ctrl);
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_SERIAL_SH_SCI_DMA
+	if (to_sci_port(port)->chan_tx &&
+	    !dma_submit_error(to_sci_port(port)->cookie_tx)) {
+		dmaengine_terminate_async(to_sci_port(port)->chan_tx);
+		to_sci_port(port)->cookie_tx = -EINVAL;
+	}
+#endif
+>>>>>>> upstream/android-13
 }
 
 static void sci_start_rx(struct uart_port *port)
@@ -843,9 +869,12 @@ static void sci_transmit_chars(struct uart_port *port)
 
 }
 
+<<<<<<< HEAD
 /* On SH3, SCIF may read end-of-break as a space->mark char */
 #define STEPFN(c)  ({int __c = (c); (((__c-1)|(__c)) == -1); })
 
+=======
+>>>>>>> upstream/android-13
 static void sci_receive_chars(struct uart_port *port)
 {
 	struct tty_port *tport = &port->state->port;
@@ -1026,10 +1055,17 @@ static int scif_set_rtrg(struct uart_port *port, int rx_trig)
 {
 	unsigned int bits;
 
+<<<<<<< HEAD
 	if (rx_trig < 1)
 		rx_trig = 1;
 	if (rx_trig >= port->fifosize)
 		rx_trig = port->fifosize;
+=======
+	if (rx_trig >= port->fifosize)
+		rx_trig = port->fifosize - 1;
+	if (rx_trig < 1)
+		rx_trig = 1;
+>>>>>>> upstream/android-13
 
 	/* HSCIF can be set to an arbitrary level. */
 	if (sci_getreg(port, HSRTRGR)->size) {
@@ -1099,9 +1135,14 @@ static void rx_fifo_timer_fn(struct timer_list *t)
 	scif_set_rtrg(port, 1);
 }
 
+<<<<<<< HEAD
 static ssize_t rx_trigger_show(struct device *dev,
 			       struct device_attribute *attr,
 			       char *buf)
+=======
+static ssize_t rx_fifo_trigger_show(struct device *dev,
+				    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct uart_port *port = dev_get_drvdata(dev);
 	struct sci_port *sci = to_sci_port(port);
@@ -1109,10 +1150,16 @@ static ssize_t rx_trigger_show(struct device *dev,
 	return sprintf(buf, "%d\n", sci->rx_trigger);
 }
 
+<<<<<<< HEAD
 static ssize_t rx_trigger_store(struct device *dev,
 				struct device_attribute *attr,
 				const char *buf,
 				size_t count)
+=======
+static ssize_t rx_fifo_trigger_store(struct device *dev,
+				     struct device_attribute *attr,
+				     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct uart_port *port = dev_get_drvdata(dev);
 	struct sci_port *sci = to_sci_port(port);
@@ -1130,7 +1177,11 @@ static ssize_t rx_trigger_store(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(rx_fifo_trigger, 0644, rx_trigger_show, rx_trigger_store);
+=======
+static DEVICE_ATTR_RW(rx_fifo_trigger);
+>>>>>>> upstream/android-13
 
 static ssize_t rx_fifo_timeout_show(struct device *dev,
 			       struct device_attribute *attr,
@@ -1240,12 +1291,31 @@ static int sci_dma_rx_find_active(struct sci_port *s)
 	return -1;
 }
 
+<<<<<<< HEAD
 static void sci_rx_dma_release(struct sci_port *s)
 {
 	struct dma_chan *chan = s->chan_rx_saved;
 
 	s->chan_rx_saved = s->chan_rx = NULL;
 	s->cookie_rx[0] = s->cookie_rx[1] = -EINVAL;
+=======
+static void sci_dma_rx_chan_invalidate(struct sci_port *s)
+{
+	unsigned int i;
+
+	s->chan_rx = NULL;
+	for (i = 0; i < ARRAY_SIZE(s->cookie_rx); i++)
+		s->cookie_rx[i] = -EINVAL;
+	s->active_rx = 0;
+}
+
+static void sci_dma_rx_release(struct sci_port *s)
+{
+	struct dma_chan *chan = s->chan_rx_saved;
+
+	s->chan_rx_saved = NULL;
+	sci_dma_rx_chan_invalidate(s);
+>>>>>>> upstream/android-13
 	dmaengine_terminate_sync(chan);
 	dma_free_coherent(chan->device->dev, s->buf_len_rx * 2, s->rx_buf[0],
 			  sg_dma_address(&s->sg_rx[0]));
@@ -1261,6 +1331,23 @@ static void start_hrtimer_us(struct hrtimer *hrt, unsigned long usec)
 	hrtimer_start(hrt, t, HRTIMER_MODE_REL);
 }
 
+<<<<<<< HEAD
+=======
+static void sci_dma_rx_reenable_irq(struct sci_port *s)
+{
+	struct uart_port *port = &s->port;
+	u16 scr;
+
+	/* Direct new serial port interrupts back to CPU */
+	scr = serial_port_in(port, SCSCR);
+	if (port->type == PORT_SCIFA || port->type == PORT_SCIFB) {
+		scr &= ~SCSCR_RDRQE;
+		enable_irq(s->irqs[SCIx_RXI_IRQ]);
+	}
+	serial_port_out(port, SCSCR, scr | SCSCR_RIE);
+}
+
+>>>>>>> upstream/android-13
 static void sci_dma_rx_complete(void *arg)
 {
 	struct sci_port *s = arg;
@@ -1310,12 +1397,22 @@ fail:
 	dev_warn(port->dev, "Failed submitting Rx DMA descriptor\n");
 	/* Switch to PIO */
 	spin_lock_irqsave(&port->lock, flags);
+<<<<<<< HEAD
 	s->chan_rx = NULL;
 	sci_start_rx(port);
 	spin_unlock_irqrestore(&port->lock, flags);
 }
 
 static void sci_tx_dma_release(struct sci_port *s)
+=======
+	dmaengine_terminate_async(chan);
+	sci_dma_rx_chan_invalidate(s);
+	sci_dma_rx_reenable_irq(s);
+	spin_unlock_irqrestore(&port->lock, flags);
+}
+
+static void sci_dma_tx_release(struct sci_port *s)
+>>>>>>> upstream/android-13
 {
 	struct dma_chan *chan = s->chan_tx_saved;
 
@@ -1328,7 +1425,11 @@ static void sci_tx_dma_release(struct sci_port *s)
 	dma_release_channel(chan);
 }
 
+<<<<<<< HEAD
 static int sci_submit_rx(struct sci_port *s, bool port_lock_held)
+=======
+static int sci_dma_rx_submit(struct sci_port *s, bool port_lock_held)
+>>>>>>> upstream/android-13
 {
 	struct dma_chan *chan = s->chan_rx;
 	struct uart_port *port = &s->port;
@@ -1364,17 +1465,25 @@ fail:
 		spin_lock_irqsave(&port->lock, flags);
 	if (i)
 		dmaengine_terminate_async(chan);
+<<<<<<< HEAD
 	for (i = 0; i < 2; i++)
 		s->cookie_rx[i] = -EINVAL;
 	s->active_rx = 0;
 	s->chan_rx = NULL;
+=======
+	sci_dma_rx_chan_invalidate(s);
+>>>>>>> upstream/android-13
 	sci_start_rx(port);
 	if (!port_lock_held)
 		spin_unlock_irqrestore(&port->lock, flags);
 	return -EAGAIN;
 }
 
+<<<<<<< HEAD
 static void work_fn_tx(struct work_struct *work)
+=======
+static void sci_dma_tx_work_fn(struct work_struct *work)
+>>>>>>> upstream/android-13
 {
 	struct sci_port *s = container_of(work, struct sci_port, work_tx);
 	struct dma_async_tx_descriptor *desc;
@@ -1441,7 +1550,11 @@ switch_to_pio:
 	return;
 }
 
+<<<<<<< HEAD
 static enum hrtimer_restart rx_timer_fn(struct hrtimer *t)
+=======
+static enum hrtimer_restart sci_dma_rx_timer_fn(struct hrtimer *t)
+>>>>>>> upstream/android-13
 {
 	struct sci_port *s = container_of(t, struct sci_port, rx_timer);
 	struct dma_chan *chan = s->chan_rx;
@@ -1451,7 +1564,10 @@ static enum hrtimer_restart rx_timer_fn(struct hrtimer *t)
 	unsigned long flags;
 	unsigned int read;
 	int active, count;
+<<<<<<< HEAD
 	u16 scr;
+=======
+>>>>>>> upstream/android-13
 
 	dev_dbg(port->dev, "DMA Rx timed out\n");
 
@@ -1499,6 +1615,7 @@ static enum hrtimer_restart rx_timer_fn(struct hrtimer *t)
 	}
 
 	if (port->type == PORT_SCIFA || port->type == PORT_SCIFB)
+<<<<<<< HEAD
 		sci_submit_rx(s, true);
 
 	/* Direct new serial port interrupts back to CPU */
@@ -1508,6 +1625,11 @@ static enum hrtimer_restart rx_timer_fn(struct hrtimer *t)
 		enable_irq(s->irqs[SCIx_RXI_IRQ]);
 	}
 	serial_port_out(port, SCSCR, scr | SCSCR_RIE);
+=======
+		sci_dma_rx_submit(s, true);
+
+	sci_dma_rx_reenable_irq(s);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&port->lock, flags);
 
@@ -1524,7 +1646,11 @@ static struct dma_chan *sci_request_dma_chan(struct uart_port *port,
 	chan = dma_request_slave_channel(port->dev,
 					 dir == DMA_MEM_TO_DEV ? "tx" : "rx");
 	if (!chan) {
+<<<<<<< HEAD
 		dev_warn(port->dev, "dma_request_slave_channel failed\n");
+=======
+		dev_dbg(port->dev, "dma_request_slave_channel failed\n");
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -1592,7 +1718,11 @@ static void sci_request_dma(struct uart_port *port)
 				__func__, UART_XMIT_SIZE,
 				port->state->xmit.buf, &s->tx_dma_addr);
 
+<<<<<<< HEAD
 			INIT_WORK(&s->work_tx, work_fn_tx);
+=======
+			INIT_WORK(&s->work_tx, sci_dma_tx_work_fn);
+>>>>>>> upstream/android-13
 			s->chan_tx_saved = s->chan_tx = chan;
 		}
 	}
@@ -1627,12 +1757,20 @@ static void sci_request_dma(struct uart_port *port)
 		}
 
 		hrtimer_init(&s->rx_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+<<<<<<< HEAD
 		s->rx_timer.function = rx_timer_fn;
+=======
+		s->rx_timer.function = sci_dma_rx_timer_fn;
+>>>>>>> upstream/android-13
 
 		s->chan_rx_saved = s->chan_rx = chan;
 
 		if (port->type == PORT_SCIFA || port->type == PORT_SCIFB)
+<<<<<<< HEAD
 			sci_submit_rx(s, false);
+=======
+			sci_dma_rx_submit(s, false);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1641,9 +1779,15 @@ static void sci_free_dma(struct uart_port *port)
 	struct sci_port *s = to_sci_port(port);
 
 	if (s->chan_tx_saved)
+<<<<<<< HEAD
 		sci_tx_dma_release(s);
 	if (s->chan_rx_saved)
 		sci_rx_dma_release(s);
+=======
+		sci_dma_tx_release(s);
+	if (s->chan_rx_saved)
+		sci_dma_rx_release(s);
+>>>>>>> upstream/android-13
 }
 
 static void sci_flush_buffer(struct uart_port *port)
@@ -1688,7 +1832,11 @@ static irqreturn_t sci_rx_interrupt(int irq, void *ptr)
 			disable_irq_nosync(irq);
 			scr |= SCSCR_RDRQE;
 		} else {
+<<<<<<< HEAD
 			if (sci_submit_rx(s, false) < 0)
+=======
+			if (sci_dma_rx_submit(s, false) < 0)
+>>>>>>> upstream/android-13
 				goto handle_pio;
 
 			scr &= ~SCSCR_RIE;
@@ -1719,7 +1867,11 @@ handle_pio:
 	 * of whether the I_IXOFF is set, otherwise, how is the interrupt
 	 * to be disabled?
 	 */
+<<<<<<< HEAD
 	sci_receive_chars(ptr);
+=======
+	sci_receive_chars(port);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -1742,6 +1894,13 @@ static irqreturn_t sci_br_interrupt(int irq, void *ptr)
 
 	/* Handle BREAKs */
 	sci_handle_breaks(port);
+<<<<<<< HEAD
+=======
+
+	/* drop invalid character received before break was detected */
+	serial_port_in(port, SCxRDR);
+
+>>>>>>> upstream/android-13
 	sci_clear_SCxSR(port, SCxSR_BREAK_CLEAR(port));
 
 	return IRQ_HANDLED;
@@ -1775,7 +1934,11 @@ static irqreturn_t sci_er_interrupt(int irq, void *ptr)
 	} else {
 		sci_handle_fifo_overrun(port);
 		if (!s->chan_rx)
+<<<<<<< HEAD
 			sci_receive_chars(ptr);
+=======
+			sci_receive_chars(port);
+>>>>>>> upstream/android-13
 	}
 
 	sci_clear_SCxSR(port, SCxSR_ERROR_CLEAR(port));
@@ -1821,7 +1984,12 @@ static irqreturn_t sci_mpxed_interrupt(int irq, void *ptr)
 		ret = sci_er_interrupt(irq, ptr);
 
 	/* Break Interrupt */
+<<<<<<< HEAD
 	if ((ssr_status & SCxSR_BRK(port)) && err_enabled)
+=======
+	if (s->irqs[SCIx_ERI_IRQ] != s->irqs[SCIx_BRI_IRQ] &&
+	    (ssr_status & SCxSR_BRK(port)) && err_enabled)
+>>>>>>> upstream/android-13
 		ret = sci_br_interrupt(irq, ptr);
 
 	/* Overrun Interrupt */
@@ -2093,12 +2261,21 @@ static unsigned int sci_get_mctrl(struct uart_port *port)
 	if (s->autorts) {
 		if (sci_get_cts(port))
 			mctrl |= TIOCM_CTS;
+<<<<<<< HEAD
 	} else if (IS_ERR_OR_NULL(mctrl_gpio_to_gpiod(gpios, UART_GPIO_CTS))) {
 		mctrl |= TIOCM_CTS;
 	}
 	if (IS_ERR_OR_NULL(mctrl_gpio_to_gpiod(gpios, UART_GPIO_DSR)))
 		mctrl |= TIOCM_DSR;
 	if (IS_ERR_OR_NULL(mctrl_gpio_to_gpiod(gpios, UART_GPIO_DCD)))
+=======
+	} else if (!mctrl_gpio_to_gpiod(gpios, UART_GPIO_CTS)) {
+		mctrl |= TIOCM_CTS;
+	}
+	if (!mctrl_gpio_to_gpiod(gpios, UART_GPIO_DSR))
+		mctrl |= TIOCM_DSR;
+	if (!mctrl_gpio_to_gpiod(gpios, UART_GPIO_DCD))
+>>>>>>> upstream/android-13
 		mctrl |= TIOCM_CAR;
 
 	return mctrl;
@@ -2114,7 +2291,11 @@ static void sci_break_ctl(struct uart_port *port, int break_state)
 	unsigned short scscr, scsptr;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	/* check wheter the port has SCSPTR */
+=======
+	/* check whether the port has SCSPTR */
+>>>>>>> upstream/android-13
 	if (!sci_getreg(port, SCSPTR)->size) {
 		/*
 		 * Not supported by hardware. Most parts couple break and rx
@@ -2484,6 +2665,7 @@ done:
 	uart_update_timeout(port, termios->c_cflag, baud);
 
 	/* byte size and parity */
+<<<<<<< HEAD
 	switch (termios->c_cflag & CSIZE) {
 	case CS5:
 		bits = 7;
@@ -2503,6 +2685,12 @@ done:
 		bits++;
 	if (termios->c_cflag & PARENB)
 		bits++;
+=======
+	bits = tty_get_frame_size(termios->c_cflag);
+
+	if (sci_getreg(port, SEMR)->size)
+		serial_port_out(port, SEMR, 0);
+>>>>>>> upstream/android-13
 
 	if (best_clk >= 0) {
 		if (port->type == PORT_SCIFA || port->type == PORT_SCIFB)
@@ -2599,6 +2787,7 @@ done:
 		udelay(DIV_ROUND_UP(10 * 1000000, baud));
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Calculate delay for 2 DMA buffers (4 FIFO).
 	 * See serial_core.c::uart_update_timeout().
@@ -2614,6 +2803,12 @@ done:
 	s->rx_timeout = s->buf_len_rx * 2 * s->rx_frame;
 	if (s->rx_timeout < 20)
 		s->rx_timeout = 20;
+=======
+	/* Calculate delay for 2 DMA buffers (4 FIFO). */
+	s->rx_frame = (10000 * bits) / (baud / 100);
+#ifdef CONFIG_SERIAL_SH_SCI_DMA
+	s->rx_timeout = s->buf_len_rx * 2 * s->rx_frame;
+>>>>>>> upstream/android-13
 #endif
 
 	if ((termios->c_cflag & CREAD) != 0)
@@ -2673,7 +2868,11 @@ static int sci_remap_port(struct uart_port *port)
 		return 0;
 
 	if (port->dev->of_node || (port->flags & UPF_IOREMAP)) {
+<<<<<<< HEAD
 		port->membase = ioremap_nocache(port->mapbase, sport->reg_size);
+=======
+		port->membase = ioremap(port->mapbase, sport->reg_size);
+>>>>>>> upstream/android-13
 		if (unlikely(!port->membase)) {
 			dev_err(port->dev, "can't remap port#%d\n", port->line);
 			return -ENXIO;
@@ -2880,6 +3079,10 @@ static int sci_init_single(struct platform_device *dev,
 	port->ops	= &sci_uart_ops;
 	port->iotype	= UPIO_MEM;
 	port->line	= index;
+<<<<<<< HEAD
+=======
+	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_SH_SCI_CONSOLE);
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
 	if (res == NULL)
@@ -2888,8 +3091,17 @@ static int sci_init_single(struct platform_device *dev,
 	port->mapbase = res->start;
 	sci_port->reg_size = resource_size(res);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(sci_port->irqs); ++i)
 		sci_port->irqs[i] = platform_get_irq(dev, i);
+=======
+	for (i = 0; i < ARRAY_SIZE(sci_port->irqs); ++i) {
+		if (i)
+			sci_port->irqs[i] = platform_get_irq_optional(dev, i);
+		else
+			sci_port->irqs[i] = platform_get_irq(dev, i);
+	}
+>>>>>>> upstream/android-13
 
 	/* The SCI generates several interrupts. They can be muxed together or
 	 * connected to different interrupt lines. In the muxed case only one
@@ -3004,12 +3216,18 @@ static void serial_console_write(struct console *co, const char *s,
 	unsigned long flags;
 	int locked = 1;
 
+<<<<<<< HEAD
 #if defined(SUPPORT_SYSRQ)
 	if (port->sysrq)
 		locked = 0;
 	else
 #endif
 	if (oops_in_progress)
+=======
+	if (port->sysrq)
+		locked = 0;
+	else if (oops_in_progress)
+>>>>>>> upstream/android-13
 		locked = spin_trylock_irqsave(&port->lock, flags);
 	else
 		spin_lock_irqsave(&port->lock, flags);
@@ -3080,6 +3298,10 @@ static struct console serial_console = {
 	.data		= &sci_uart_driver,
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SUPERH
+>>>>>>> upstream/android-13
 static struct console early_serial_console = {
 	.name           = "early_ttySC",
 	.write          = serial_console_write,
@@ -3108,6 +3330,10 @@ static int sci_probe_earlyprintk(struct platform_device *pdev)
 	register_console(&early_serial_console);
 	return 0;
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #define SCI_CONSOLE	(&serial_console)
 
@@ -3144,6 +3370,7 @@ static int sci_remove(struct platform_device *dev)
 
 	sci_cleanup_single(port);
 
+<<<<<<< HEAD
 	if (port->port.fifosize > 1) {
 		sysfs_remove_file(&dev->dev.kobj,
 				  &dev_attr_rx_fifo_trigger.attr);
@@ -3152,6 +3379,12 @@ static int sci_remove(struct platform_device *dev)
 		sysfs_remove_file(&dev->dev.kobj,
 				  &dev_attr_rx_fifo_timeout.attr);
 	}
+=======
+	if (port->port.fifosize > 1)
+		device_remove_file(&dev->dev, &dev_attr_rx_fifo_trigger);
+	if (type == PORT_SCIFA || type == PORT_SCIFB || type == PORT_HSCIF)
+		device_remove_file(&dev->dev, &dev_attr_rx_fifo_timeout);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -3171,6 +3404,13 @@ static const struct of_device_id of_sci_match[] = {
 		.compatible = "renesas,scif-r7s9210",
 		.data = SCI_OF_DATA(PORT_SCIF, SCIx_RZ_SCIFA_REGTYPE),
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible = "renesas,scif-r9a07g044",
+		.data = SCI_OF_DATA(PORT_SCIF, SCIx_RZ_SCIFA_REGTYPE),
+	},
+>>>>>>> upstream/android-13
 	/* Family-specific types */
 	{
 		.compatible = "renesas,rcar-gen1-scif",
@@ -3279,6 +3519,7 @@ static int sci_probe_single(struct platform_device *dev,
 		return ret;
 
 	sciport->gpios = mctrl_gpio_init(&sciport->port, 0);
+<<<<<<< HEAD
 	if (IS_ERR(sciport->gpios) && PTR_ERR(sciport->gpios) != -ENOSYS)
 		return PTR_ERR(sciport->gpios);
 
@@ -3287,6 +3528,14 @@ static int sci_probe_single(struct platform_device *dev,
 							UART_GPIO_CTS)) ||
 		    !IS_ERR_OR_NULL(mctrl_gpio_to_gpiod(sciport->gpios,
 							UART_GPIO_RTS))) {
+=======
+	if (IS_ERR(sciport->gpios))
+		return PTR_ERR(sciport->gpios);
+
+	if (sciport->has_rtscts) {
+		if (mctrl_gpio_to_gpiod(sciport->gpios, UART_GPIO_CTS) ||
+		    mctrl_gpio_to_gpiod(sciport->gpios, UART_GPIO_RTS)) {
+>>>>>>> upstream/android-13
 			dev_err(&dev->dev, "Conflicting RTS/CTS config\n");
 			return -EINVAL;
 		}
@@ -3314,8 +3563,15 @@ static int sci_probe(struct platform_device *dev)
 	 * the special early probe. We don't have sufficient device state
 	 * to make it beyond this yet.
 	 */
+<<<<<<< HEAD
 	if (is_early_platform_device(dev))
 		return sci_probe_earlyprintk(dev);
+=======
+#ifdef CONFIG_SUPERH
+	if (is_sh_early_platform_device(dev))
+		return sci_probe_earlyprintk(dev);
+#endif
+>>>>>>> upstream/android-13
 
 	if (dev->dev.of_node) {
 		p = sci_parse_dt(dev, &dev_id);
@@ -3339,19 +3595,31 @@ static int sci_probe(struct platform_device *dev)
 		return ret;
 
 	if (sp->port.fifosize > 1) {
+<<<<<<< HEAD
 		ret = sysfs_create_file(&dev->dev.kobj,
 				&dev_attr_rx_fifo_trigger.attr);
+=======
+		ret = device_create_file(&dev->dev, &dev_attr_rx_fifo_trigger);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
 	if (sp->port.type == PORT_SCIFA || sp->port.type == PORT_SCIFB ||
 	    sp->port.type == PORT_HSCIF) {
+<<<<<<< HEAD
 		ret = sysfs_create_file(&dev->dev.kobj,
 				&dev_attr_rx_fifo_timeout.attr);
 		if (ret) {
 			if (sp->port.fifosize > 1) {
 				sysfs_remove_file(&dev->dev.kobj,
 					&dev_attr_rx_fifo_trigger.attr);
+=======
+		ret = device_create_file(&dev->dev, &dev_attr_rx_fifo_timeout);
+		if (ret) {
+			if (sp->port.fifosize > 1) {
+				device_remove_file(&dev->dev,
+						   &dev_attr_rx_fifo_trigger);
+>>>>>>> upstream/android-13
 			}
 			return ret;
 		}
@@ -3412,8 +3680,13 @@ static void __exit sci_exit(void)
 		uart_unregister_driver(&sci_uart_driver);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SERIAL_SH_SCI_CONSOLE
 early_platform_init_buffer("earlyprintk", &sci_driver,
+=======
+#if defined(CONFIG_SUPERH) && defined(CONFIG_SERIAL_SH_SCI_CONSOLE)
+sh_early_platform_init_buffer("earlyprintk", &sci_driver,
+>>>>>>> upstream/android-13
 			   early_serial_buf, ARRAY_SIZE(early_serial_buf));
 #endif
 #ifdef CONFIG_SERIAL_SH_SCI_EARLYCON
@@ -3449,6 +3722,16 @@ static int __init scif_early_console_setup(struct earlycon_device *device,
 {
 	return early_console_setup(device, PORT_SCIF);
 }
+<<<<<<< HEAD
+=======
+static int __init rzscifa_early_console_setup(struct earlycon_device *device,
+					  const char *opt)
+{
+	port_cfg.regtype = SCIx_RZ_SCIFA_REGTYPE;
+	return early_console_setup(device, PORT_SCIF);
+}
+
+>>>>>>> upstream/android-13
 static int __init scifa_early_console_setup(struct earlycon_device *device,
 					  const char *opt)
 {
@@ -3467,6 +3750,11 @@ static int __init hscif_early_console_setup(struct earlycon_device *device,
 
 OF_EARLYCON_DECLARE(sci, "renesas,sci", sci_early_console_setup);
 OF_EARLYCON_DECLARE(scif, "renesas,scif", scif_early_console_setup);
+<<<<<<< HEAD
+=======
+OF_EARLYCON_DECLARE(scif, "renesas,scif-r7s9210", rzscifa_early_console_setup);
+OF_EARLYCON_DECLARE(scif, "renesas,scif-r9a07g044", rzscifa_early_console_setup);
+>>>>>>> upstream/android-13
 OF_EARLYCON_DECLARE(scifa, "renesas,scifa", scifa_early_console_setup);
 OF_EARLYCON_DECLARE(scifb, "renesas,scifb", scifb_early_console_setup);
 OF_EARLYCON_DECLARE(hscif, "renesas,hscif", hscif_early_console_setup);

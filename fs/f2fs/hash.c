@@ -12,7 +12,10 @@
 #include <linux/types.h>
 #include <linux/fs.h>
 #include <linux/f2fs_fs.h>
+<<<<<<< HEAD
 #include <linux/cryptohash.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pagemap.h>
 #include <linux/unicode.h>
 

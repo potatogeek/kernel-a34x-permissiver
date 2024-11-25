@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Broadcom tag support
  *
  * Copyright (C) 2014 Broadcom Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,15 +14,43 @@
  * (at your option) any later version.
  */
 
+=======
+ */
+
+#include <linux/dsa/brcm.h>
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include <linux/list.h>
 #include <linux/slab.h>
 
 #include "dsa_priv.h"
 
+<<<<<<< HEAD
 /* This tag length is 4 bytes, older ones were 6 bytes, we do not
  * handle them
  */
+=======
+/* Legacy Broadcom tag (6 bytes) */
+#define BRCM_LEG_TAG_LEN	6
+
+/* Type fields */
+/* 1st byte in the tag */
+#define BRCM_LEG_TYPE_HI	0x88
+/* 2nd byte in the tag */
+#define BRCM_LEG_TYPE_LO	0x74
+
+/* Tag fields */
+/* 3rd byte in the tag */
+#define BRCM_LEG_UNICAST	(0 << 5)
+#define BRCM_LEG_MULTICAST	(1 << 5)
+#define BRCM_LEG_EGRESS		(2 << 5)
+#define BRCM_LEG_INGRESS	(3 << 5)
+
+/* 6th byte in the tag */
+#define BRCM_LEG_PORT_ID	(0xf)
+
+/* Newer Broadcom tag (4 bytes) */
+>>>>>>> upstream/android-13
 #define BRCM_TAG_LEN	4
 
 /* Tag is constructed and desconstructed using byte by byte access
@@ -59,6 +92,12 @@
 #define BRCM_EG_TC_MASK		0x7
 #define BRCM_EG_PID_MASK	0x1f
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM) || \
+	IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM_PREPEND)
+
+>>>>>>> upstream/android-13
 static struct sk_buff *brcm_tag_xmit_ll(struct sk_buff *skb,
 					struct net_device *dev,
 					unsigned int offset)
@@ -67,9 +106,12 @@ static struct sk_buff *brcm_tag_xmit_ll(struct sk_buff *skb,
 	u16 queue = skb_get_queue_mapping(skb);
 	u8 *brcm_tag;
 
+<<<<<<< HEAD
 	if (skb_cow_head(skb, BRCM_TAG_LEN) < 0)
 		return NULL;
 
+=======
+>>>>>>> upstream/android-13
 	/* The Ethernet switch we are interfaced with needs packets to be at
 	 * least 64 bytes (including FCS) otherwise they will be discarded when
 	 * they enter the switch port logic. When Broadcom tags are enabled, we
@@ -85,7 +127,11 @@ static struct sk_buff *brcm_tag_xmit_ll(struct sk_buff *skb,
 	skb_push(skb, BRCM_TAG_LEN);
 
 	if (offset)
+<<<<<<< HEAD
 		memmove(skb->data, skb->data + BRCM_TAG_LEN, offset);
+=======
+		dsa_alloc_etype_header(skb, BRCM_TAG_LEN);
+>>>>>>> upstream/android-13
 
 	brcm_tag = skb->data + offset;
 
@@ -108,9 +154,26 @@ static struct sk_buff *brcm_tag_xmit_ll(struct sk_buff *skb,
 	return skb;
 }
 
+<<<<<<< HEAD
 static struct sk_buff *brcm_tag_rcv_ll(struct sk_buff *skb,
 				       struct net_device *dev,
 				       struct packet_type *pt,
+=======
+/* Frames with this tag have one of these two layouts:
+ * -----------------------------------
+ * | MAC DA | MAC SA | 4b tag | Type | DSA_TAG_PROTO_BRCM
+ * -----------------------------------
+ * -----------------------------------
+ * | 4b tag | MAC DA | MAC SA | Type | DSA_TAG_PROTO_BRCM_PREPEND
+ * -----------------------------------
+ * In both cases, at receive time, skb->data points 2 bytes before the actual
+ * Ethernet type field and we have an offset of 4bytes between where skb->data
+ * and where the payload starts. So the same low-level receive function can be
+ * used.
+ */
+static struct sk_buff *brcm_tag_rcv_ll(struct sk_buff *skb,
+				       struct net_device *dev,
+>>>>>>> upstream/android-13
 				       unsigned int offset)
 {
 	int source_port;
@@ -141,12 +204,22 @@ static struct sk_buff *brcm_tag_rcv_ll(struct sk_buff *skb,
 	/* Remove Broadcom tag and update checksum */
 	skb_pull_rcsum(skb, BRCM_TAG_LEN);
 
+<<<<<<< HEAD
 	skb->offload_fwd_mark = 1;
 
 	return skb;
 }
 
 #ifdef CONFIG_NET_DSA_TAG_BRCM
+=======
+	dsa_default_offload_fwd_mark(skb);
+
+	return skb;
+}
+#endif
+
+#if IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM)
+>>>>>>> upstream/android-13
 static struct sk_buff *brcm_tag_xmit(struct sk_buff *skb,
 				     struct net_device *dev)
 {
@@ -155,12 +228,17 @@ static struct sk_buff *brcm_tag_xmit(struct sk_buff *skb,
 }
 
 
+<<<<<<< HEAD
 static struct sk_buff *brcm_tag_rcv(struct sk_buff *skb, struct net_device *dev,
 				    struct packet_type *pt)
+=======
+static struct sk_buff *brcm_tag_rcv(struct sk_buff *skb, struct net_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct sk_buff *nskb;
 
 	/* skb->data points to the EtherType, the tag is right before it */
+<<<<<<< HEAD
 	nskb = brcm_tag_rcv_ll(skb, dev, pt, 2);
 	if (!nskb)
 		return nskb;
@@ -169,10 +247,18 @@ static struct sk_buff *brcm_tag_rcv(struct sk_buff *skb, struct net_device *dev,
 	memmove(nskb->data - ETH_HLEN,
 		nskb->data - ETH_HLEN - BRCM_TAG_LEN,
 		2 * ETH_ALEN);
+=======
+	nskb = brcm_tag_rcv_ll(skb, dev, 2);
+	if (!nskb)
+		return nskb;
+
+	dsa_strip_etype_header(skb, BRCM_TAG_LEN);
+>>>>>>> upstream/android-13
 
 	return nskb;
 }
 
+<<<<<<< HEAD
 const struct dsa_device_ops brcm_netdev_ops = {
 	.xmit	= brcm_tag_xmit,
 	.rcv	= brcm_tag_rcv,
@@ -180,6 +266,98 @@ const struct dsa_device_ops brcm_netdev_ops = {
 #endif
 
 #ifdef CONFIG_NET_DSA_TAG_BRCM_PREPEND
+=======
+static const struct dsa_device_ops brcm_netdev_ops = {
+	.name	= "brcm",
+	.proto	= DSA_TAG_PROTO_BRCM,
+	.xmit	= brcm_tag_xmit,
+	.rcv	= brcm_tag_rcv,
+	.needed_headroom = BRCM_TAG_LEN,
+};
+
+DSA_TAG_DRIVER(brcm_netdev_ops);
+MODULE_ALIAS_DSA_TAG_DRIVER(DSA_TAG_PROTO_BRCM);
+#endif
+
+#if IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM_LEGACY)
+static struct sk_buff *brcm_leg_tag_xmit(struct sk_buff *skb,
+					 struct net_device *dev)
+{
+	struct dsa_port *dp = dsa_slave_to_port(dev);
+	u8 *brcm_tag;
+
+	/* The Ethernet switch we are interfaced with needs packets to be at
+	 * least 64 bytes (including FCS) otherwise they will be discarded when
+	 * they enter the switch port logic. When Broadcom tags are enabled, we
+	 * need to make sure that packets are at least 70 bytes
+	 * (including FCS and tag) because the length verification is done after
+	 * the Broadcom tag is stripped off the ingress packet.
+	 *
+	 * Let dsa_slave_xmit() free the SKB
+	 */
+	if (__skb_put_padto(skb, ETH_ZLEN + BRCM_LEG_TAG_LEN, false))
+		return NULL;
+
+	skb_push(skb, BRCM_LEG_TAG_LEN);
+
+	dsa_alloc_etype_header(skb, BRCM_LEG_TAG_LEN);
+
+	brcm_tag = skb->data + 2 * ETH_ALEN;
+
+	/* Broadcom tag type */
+	brcm_tag[0] = BRCM_LEG_TYPE_HI;
+	brcm_tag[1] = BRCM_LEG_TYPE_LO;
+
+	/* Broadcom tag value */
+	brcm_tag[2] = BRCM_LEG_EGRESS;
+	brcm_tag[3] = 0;
+	brcm_tag[4] = 0;
+	brcm_tag[5] = dp->index & BRCM_LEG_PORT_ID;
+
+	return skb;
+}
+
+static struct sk_buff *brcm_leg_tag_rcv(struct sk_buff *skb,
+					struct net_device *dev)
+{
+	int source_port;
+	u8 *brcm_tag;
+
+	if (unlikely(!pskb_may_pull(skb, BRCM_LEG_PORT_ID)))
+		return NULL;
+
+	brcm_tag = dsa_etype_header_pos_rx(skb);
+
+	source_port = brcm_tag[5] & BRCM_LEG_PORT_ID;
+
+	skb->dev = dsa_master_find_slave(dev, 0, source_port);
+	if (!skb->dev)
+		return NULL;
+
+	/* Remove Broadcom tag and update checksum */
+	skb_pull_rcsum(skb, BRCM_LEG_TAG_LEN);
+
+	dsa_default_offload_fwd_mark(skb);
+
+	dsa_strip_etype_header(skb, BRCM_LEG_TAG_LEN);
+
+	return skb;
+}
+
+static const struct dsa_device_ops brcm_legacy_netdev_ops = {
+	.name = "brcm-legacy",
+	.proto = DSA_TAG_PROTO_BRCM_LEGACY,
+	.xmit = brcm_leg_tag_xmit,
+	.rcv = brcm_leg_tag_rcv,
+	.needed_headroom = BRCM_LEG_TAG_LEN,
+};
+
+DSA_TAG_DRIVER(brcm_legacy_netdev_ops);
+MODULE_ALIAS_DSA_TAG_DRIVER(DSA_TAG_PROTO_BRCM_LEGACY);
+#endif /* CONFIG_NET_DSA_TAG_BRCM_LEGACY */
+
+#if IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM_PREPEND)
+>>>>>>> upstream/android-13
 static struct sk_buff *brcm_tag_xmit_prepend(struct sk_buff *skb,
 					     struct net_device *dev)
 {
@@ -188,6 +366,7 @@ static struct sk_buff *brcm_tag_xmit_prepend(struct sk_buff *skb,
 }
 
 static struct sk_buff *brcm_tag_rcv_prepend(struct sk_buff *skb,
+<<<<<<< HEAD
 					    struct net_device *dev,
 					    struct packet_type *pt)
 {
@@ -200,3 +379,38 @@ const struct dsa_device_ops brcm_prepend_netdev_ops = {
 	.rcv	= brcm_tag_rcv_prepend,
 };
 #endif
+=======
+					    struct net_device *dev)
+{
+	/* tag is prepended to the packet */
+	return brcm_tag_rcv_ll(skb, dev, ETH_HLEN);
+}
+
+static const struct dsa_device_ops brcm_prepend_netdev_ops = {
+	.name	= "brcm-prepend",
+	.proto	= DSA_TAG_PROTO_BRCM_PREPEND,
+	.xmit	= brcm_tag_xmit_prepend,
+	.rcv	= brcm_tag_rcv_prepend,
+	.needed_headroom = BRCM_TAG_LEN,
+};
+
+DSA_TAG_DRIVER(brcm_prepend_netdev_ops);
+MODULE_ALIAS_DSA_TAG_DRIVER(DSA_TAG_PROTO_BRCM_PREPEND);
+#endif
+
+static struct dsa_tag_driver *dsa_tag_driver_array[] =	{
+#if IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM)
+	&DSA_TAG_DRIVER_NAME(brcm_netdev_ops),
+#endif
+#if IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM_LEGACY)
+	&DSA_TAG_DRIVER_NAME(brcm_legacy_netdev_ops),
+#endif
+#if IS_ENABLED(CONFIG_NET_DSA_TAG_BRCM_PREPEND)
+	&DSA_TAG_DRIVER_NAME(brcm_prepend_netdev_ops),
+#endif
+};
+
+module_dsa_tag_drivers(dsa_tag_driver_array);
+
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

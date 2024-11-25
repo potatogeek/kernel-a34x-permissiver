@@ -8,8 +8,13 @@
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/firmware.h>
+<<<<<<< HEAD
 #include "firmware.h"
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+#include "firmware.h"
+>>>>>>> upstream/android-13
 #include "spilib.h"
 
 struct gb_fw_core {

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * SiS 300/540/630[S]/730[S],
  * SiS 315[E|PRO]/550/[M]65x/[M]661[F|M]X/740/[M]741[GX]/330/[M]76x[GX],
@@ -5,6 +9,7 @@
  * frame buffer driver for Linux kernels >=2.4.14 and >=2.6.3
  *
  * Copyright (C) 2001-2005 Thomas Winischhofer, Vienna, Austria.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _SIS_H_
@@ -28,7 +35,10 @@
 
 #include "vgatypes.h"
 #include "vstruct.h"
+<<<<<<< HEAD
 #include "init.h"
+=======
+>>>>>>> upstream/android-13
 
 #define VER_MAJOR		1
 #define VER_MINOR		8

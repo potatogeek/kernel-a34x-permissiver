@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Intel Management Engine Interface (Intel MEI) Linux driver
@@ -12,6 +13,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2015-2016, Intel Corporation. All rights reserved.
+ * Intel Management Engine Interface (Intel MEI) Linux driver
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 

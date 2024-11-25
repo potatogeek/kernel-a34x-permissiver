@@ -7,6 +7,7 @@
 
 /* This struct should be in sync with struct rtnl_link_stats64 */
 struct rtnl_link_stats {
+<<<<<<< HEAD
 	__u32	rx_packets;		/* total packets received	*/
 	__u32	tx_packets;		/* total packets transmitted	*/
 	__u32	rx_bytes;		/* total bytes received 	*/
@@ -25,6 +26,25 @@ struct rtnl_link_stats {
 	__u32	rx_frame_errors;	/* recv'd frame alignment error */
 	__u32	rx_fifo_errors;		/* recv'r fifo overrun		*/
 	__u32	rx_missed_errors;	/* receiver missed packet	*/
+=======
+	__u32	rx_packets;
+	__u32	tx_packets;
+	__u32	rx_bytes;
+	__u32	tx_bytes;
+	__u32	rx_errors;
+	__u32	tx_errors;
+	__u32	rx_dropped;
+	__u32	tx_dropped;
+	__u32	multicast;
+	__u32	collisions;
+	/* detailed rx_errors: */
+	__u32	rx_length_errors;
+	__u32	rx_over_errors;
+	__u32	rx_crc_errors;
+	__u32	rx_frame_errors;
+	__u32	rx_fifo_errors;
+	__u32	rx_missed_errors;
+>>>>>>> upstream/android-13
 
 	/* detailed tx_errors */
 	__u32	tx_aborted_errors;
@@ -37,6 +57,7 @@ struct rtnl_link_stats {
 	__u32	rx_compressed;
 	__u32	tx_compressed;
 
+<<<<<<< HEAD
 	__u32	rx_nohandler;		/* dropped, no handler found	*/
 };
 
@@ -51,15 +72,211 @@ struct rtnl_link_stats64 {
 	__u64	rx_dropped;		/* no space in linux buffers	*/
 	__u64	tx_dropped;		/* no space available in linux	*/
 	__u64	multicast;		/* multicast packets received	*/
+=======
+	__u32	rx_nohandler;
+};
+
+/**
+ * struct rtnl_link_stats64 - The main device statistics structure.
+ *
+ * @rx_packets: Number of good packets received by the interface.
+ *   For hardware interfaces counts all good packets received from the device
+ *   by the host, including packets which host had to drop at various stages
+ *   of processing (even in the driver).
+ *
+ * @tx_packets: Number of packets successfully transmitted.
+ *   For hardware interfaces counts packets which host was able to successfully
+ *   hand over to the device, which does not necessarily mean that packets
+ *   had been successfully transmitted out of the device, only that device
+ *   acknowledged it copied them out of host memory.
+ *
+ * @rx_bytes: Number of good received bytes, corresponding to @rx_packets.
+ *
+ *   For IEEE 802.3 devices should count the length of Ethernet Frames
+ *   excluding the FCS.
+ *
+ * @tx_bytes: Number of good transmitted bytes, corresponding to @tx_packets.
+ *
+ *   For IEEE 802.3 devices should count the length of Ethernet Frames
+ *   excluding the FCS.
+ *
+ * @rx_errors: Total number of bad packets received on this network device.
+ *   This counter must include events counted by @rx_length_errors,
+ *   @rx_crc_errors, @rx_frame_errors and other errors not otherwise
+ *   counted.
+ *
+ * @tx_errors: Total number of transmit problems.
+ *   This counter must include events counter by @tx_aborted_errors,
+ *   @tx_carrier_errors, @tx_fifo_errors, @tx_heartbeat_errors,
+ *   @tx_window_errors and other errors not otherwise counted.
+ *
+ * @rx_dropped: Number of packets received but not processed,
+ *   e.g. due to lack of resources or unsupported protocol.
+ *   For hardware interfaces this counter may include packets discarded
+ *   due to L2 address filtering but should not include packets dropped
+ *   by the device due to buffer exhaustion which are counted separately in
+ *   @rx_missed_errors (since procfs folds those two counters together).
+ *
+ * @tx_dropped: Number of packets dropped on their way to transmission,
+ *   e.g. due to lack of resources.
+ *
+ * @multicast: Multicast packets received.
+ *   For hardware interfaces this statistic is commonly calculated
+ *   at the device level (unlike @rx_packets) and therefore may include
+ *   packets which did not reach the host.
+ *
+ *   For IEEE 802.3 devices this counter may be equivalent to:
+ *
+ *    - 30.3.1.1.21 aMulticastFramesReceivedOK
+ *
+ * @collisions: Number of collisions during packet transmissions.
+ *
+ * @rx_length_errors: Number of packets dropped due to invalid length.
+ *   Part of aggregate "frame" errors in `/proc/net/dev`.
+ *
+ *   For IEEE 802.3 devices this counter should be equivalent to a sum
+ *   of the following attributes:
+ *
+ *    - 30.3.1.1.23 aInRangeLengthErrors
+ *    - 30.3.1.1.24 aOutOfRangeLengthField
+ *    - 30.3.1.1.25 aFrameTooLongErrors
+ *
+ * @rx_over_errors: Receiver FIFO overflow event counter.
+ *
+ *   Historically the count of overflow events. Such events may be
+ *   reported in the receive descriptors or via interrupts, and may
+ *   not correspond one-to-one with dropped packets.
+ *
+ *   The recommended interpretation for high speed interfaces is -
+ *   number of packets dropped because they did not fit into buffers
+ *   provided by the host, e.g. packets larger than MTU or next buffer
+ *   in the ring was not available for a scatter transfer.
+ *
+ *   Part of aggregate "frame" errors in `/proc/net/dev`.
+ *
+ *   This statistics was historically used interchangeably with
+ *   @rx_fifo_errors.
+ *
+ *   This statistic corresponds to hardware events and is not commonly used
+ *   on software devices.
+ *
+ * @rx_crc_errors: Number of packets received with a CRC error.
+ *   Part of aggregate "frame" errors in `/proc/net/dev`.
+ *
+ *   For IEEE 802.3 devices this counter must be equivalent to:
+ *
+ *    - 30.3.1.1.6 aFrameCheckSequenceErrors
+ *
+ * @rx_frame_errors: Receiver frame alignment errors.
+ *   Part of aggregate "frame" errors in `/proc/net/dev`.
+ *
+ *   For IEEE 802.3 devices this counter should be equivalent to:
+ *
+ *    - 30.3.1.1.7 aAlignmentErrors
+ *
+ * @rx_fifo_errors: Receiver FIFO error counter.
+ *
+ *   Historically the count of overflow events. Those events may be
+ *   reported in the receive descriptors or via interrupts, and may
+ *   not correspond one-to-one with dropped packets.
+ *
+ *   This statistics was used interchangeably with @rx_over_errors.
+ *   Not recommended for use in drivers for high speed interfaces.
+ *
+ *   This statistic is used on software devices, e.g. to count software
+ *   packet queue overflow (can) or sequencing errors (GRE).
+ *
+ * @rx_missed_errors: Count of packets missed by the host.
+ *   Folded into the "drop" counter in `/proc/net/dev`.
+ *
+ *   Counts number of packets dropped by the device due to lack
+ *   of buffer space. This usually indicates that the host interface
+ *   is slower than the network interface, or host is not keeping up
+ *   with the receive packet rate.
+ *
+ *   This statistic corresponds to hardware events and is not used
+ *   on software devices.
+ *
+ * @tx_aborted_errors:
+ *   Part of aggregate "carrier" errors in `/proc/net/dev`.
+ *   For IEEE 802.3 devices capable of half-duplex operation this counter
+ *   must be equivalent to:
+ *
+ *    - 30.3.1.1.11 aFramesAbortedDueToXSColls
+ *
+ *   High speed interfaces may use this counter as a general device
+ *   discard counter.
+ *
+ * @tx_carrier_errors: Number of frame transmission errors due to loss
+ *   of carrier during transmission.
+ *   Part of aggregate "carrier" errors in `/proc/net/dev`.
+ *
+ *   For IEEE 802.3 devices this counter must be equivalent to:
+ *
+ *    - 30.3.1.1.13 aCarrierSenseErrors
+ *
+ * @tx_fifo_errors: Number of frame transmission errors due to device
+ *   FIFO underrun / underflow. This condition occurs when the device
+ *   begins transmission of a frame but is unable to deliver the
+ *   entire frame to the transmitter in time for transmission.
+ *   Part of aggregate "carrier" errors in `/proc/net/dev`.
+ *
+ * @tx_heartbeat_errors: Number of Heartbeat / SQE Test errors for
+ *   old half-duplex Ethernet.
+ *   Part of aggregate "carrier" errors in `/proc/net/dev`.
+ *
+ *   For IEEE 802.3 devices possibly equivalent to:
+ *
+ *    - 30.3.2.1.4 aSQETestErrors
+ *
+ * @tx_window_errors: Number of frame transmission errors due
+ *   to late collisions (for Ethernet - after the first 64B of transmission).
+ *   Part of aggregate "carrier" errors in `/proc/net/dev`.
+ *
+ *   For IEEE 802.3 devices this counter must be equivalent to:
+ *
+ *    - 30.3.1.1.10 aLateCollisions
+ *
+ * @rx_compressed: Number of correctly received compressed packets.
+ *   This counters is only meaningful for interfaces which support
+ *   packet compression (e.g. CSLIP, PPP).
+ *
+ * @tx_compressed: Number of transmitted compressed packets.
+ *   This counters is only meaningful for interfaces which support
+ *   packet compression (e.g. CSLIP, PPP).
+ *
+ * @rx_nohandler: Number of packets received on the interface
+ *   but dropped by the networking stack because the device is
+ *   not designated to receive packets (e.g. backup link in a bond).
+ */
+struct rtnl_link_stats64 {
+	__u64	rx_packets;
+	__u64	tx_packets;
+	__u64	rx_bytes;
+	__u64	tx_bytes;
+	__u64	rx_errors;
+	__u64	tx_errors;
+	__u64	rx_dropped;
+	__u64	tx_dropped;
+	__u64	multicast;
+>>>>>>> upstream/android-13
 	__u64	collisions;
 
 	/* detailed rx_errors: */
 	__u64	rx_length_errors;
+<<<<<<< HEAD
 	__u64	rx_over_errors;		/* receiver ring buff overflow	*/
 	__u64	rx_crc_errors;		/* recved pkt with crc error	*/
 	__u64	rx_frame_errors;	/* recv'd frame alignment error */
 	__u64	rx_fifo_errors;		/* recv'r fifo overrun		*/
 	__u64	rx_missed_errors;	/* receiver missed packet	*/
+=======
+	__u64	rx_over_errors;
+	__u64	rx_crc_errors;
+	__u64	rx_frame_errors;
+	__u64	rx_fifo_errors;
+	__u64	rx_missed_errors;
+>>>>>>> upstream/android-13
 
 	/* detailed tx_errors */
 	__u64	tx_aborted_errors;
@@ -71,8 +288,12 @@ struct rtnl_link_stats64 {
 	/* for cslip etc */
 	__u64	rx_compressed;
 	__u64	tx_compressed;
+<<<<<<< HEAD
 
 	__u64	rx_nohandler;		/* dropped, no handler found	*/
+=======
+	__u64	rx_nohandler;
+>>>>>>> upstream/android-13
 };
 
 /* The struct should be in sync with struct ifmap */
@@ -161,17 +382,47 @@ enum {
 	IFLA_EVENT,
 	IFLA_NEW_NETNSID,
 	IFLA_IF_NETNSID,
+<<<<<<< HEAD
+=======
+	IFLA_TARGET_NETNSID = IFLA_IF_NETNSID, /* new alias */
+>>>>>>> upstream/android-13
 	IFLA_CARRIER_UP_COUNT,
 	IFLA_CARRIER_DOWN_COUNT,
 	IFLA_NEW_IFINDEX,
 	IFLA_MIN_MTU,
 	IFLA_MAX_MTU,
+<<<<<<< HEAD
+=======
+	IFLA_PROP_LIST,
+	IFLA_ALT_IFNAME, /* Alternative ifname */
+	IFLA_PERM_ADDRESS,
+	IFLA_PROTO_DOWN_REASON,
+
+	/* device (sysfs) name as parent, used instead
+	 * of IFLA_LINK where there's no parent netdev
+	 */
+	IFLA_PARENT_DEV_NAME,
+	IFLA_PARENT_DEV_BUS_NAME,
+
+>>>>>>> upstream/android-13
 	__IFLA_MAX
 };
 
 
 #define IFLA_MAX (__IFLA_MAX - 1)
 
+<<<<<<< HEAD
+=======
+enum {
+	IFLA_PROTO_DOWN_REASON_UNSPEC,
+	IFLA_PROTO_DOWN_REASON_MASK,	/* u32, mask for reason bits */
+	IFLA_PROTO_DOWN_REASON_VALUE,   /* u32, reason bit value */
+
+	__IFLA_PROTO_DOWN_REASON_CNT,
+	IFLA_PROTO_DOWN_REASON_MAX = __IFLA_PROTO_DOWN_REASON_CNT - 1
+};
+
+>>>>>>> upstream/android-13
 /* backwards compatibility for userspace */
 #ifndef __KERNEL__
 #define IFLA_RTA(r)  ((struct rtattr*)(((char*)(r)) + NLMSG_ALIGN(sizeof(struct ifinfomsg))))
@@ -226,6 +477,10 @@ enum {
 	IFLA_INET6_ICMP6STATS,	/* statistics (icmpv6)		*/
 	IFLA_INET6_TOKEN,	/* device token			*/
 	IFLA_INET6_ADDR_GEN_MODE, /* implicit address generator mode */
+<<<<<<< HEAD
+=======
+	IFLA_INET6_RA_MTU,	/* mtu carried in the RA message */
+>>>>>>> upstream/android-13
 	__IFLA_INET6_MAX
 };
 
@@ -286,6 +541,12 @@ enum {
 	IFLA_BR_MCAST_STATS_ENABLED,
 	IFLA_BR_MCAST_IGMP_VERSION,
 	IFLA_BR_MCAST_MLD_VERSION,
+<<<<<<< HEAD
+=======
+	IFLA_BR_VLAN_STATS_PER_PORT,
+	IFLA_BR_MULTI_BOOLOPT,
+	IFLA_BR_MCAST_QUERIER_STATE,
+>>>>>>> upstream/android-13
 	__IFLA_BR_MAX,
 };
 
@@ -337,6 +598,13 @@ enum {
 	IFLA_BRPORT_NEIGH_SUPPRESS,
 	IFLA_BRPORT_ISOLATED,
 	IFLA_BRPORT_BACKUP_PORT,
+<<<<<<< HEAD
+=======
+	IFLA_BRPORT_MRP_RING_OPEN,
+	IFLA_BRPORT_MRP_IN_OPEN,
+	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
+	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
+>>>>>>> upstream/android-13
 	__IFLA_BRPORT_MAX
 };
 #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
@@ -401,6 +669,11 @@ enum {
 	IFLA_MACVLAN_MACADDR,
 	IFLA_MACVLAN_MACADDR_DATA,
 	IFLA_MACVLAN_MACADDR_COUNT,
+<<<<<<< HEAD
+=======
+	IFLA_MACVLAN_BC_QUEUE_LEN,
+	IFLA_MACVLAN_BC_QUEUE_LEN_USED,
+>>>>>>> upstream/android-13
 	__IFLA_MACVLAN_MAX,
 };
 
@@ -422,6 +695,10 @@ enum macvlan_macaddr_mode {
 };
 
 #define MACVLAN_FLAG_NOPROMISC	1
+<<<<<<< HEAD
+=======
+#define MACVLAN_FLAG_NODST	2 /* skip dst macvlan if matching src macvlan */
+>>>>>>> upstream/android-13
 
 /* VRF section */
 enum {
@@ -457,6 +734,10 @@ enum {
 	IFLA_MACSEC_REPLAY_PROTECT,
 	IFLA_MACSEC_VALIDATION,
 	IFLA_MACSEC_PAD,
+<<<<<<< HEAD
+=======
+	IFLA_MACSEC_OFFLOAD,
+>>>>>>> upstream/android-13
 	__IFLA_MACSEC_MAX,
 };
 
@@ -480,6 +761,17 @@ enum macsec_validation_type {
 	MACSEC_VALIDATE_MAX = __MACSEC_VALIDATE_END - 1,
 };
 
+<<<<<<< HEAD
+=======
+enum macsec_offload {
+	MACSEC_OFFLOAD_OFF = 0,
+	MACSEC_OFFLOAD_PHY = 1,
+	MACSEC_OFFLOAD_MAC = 2,
+	__MACSEC_OFFLOAD_END,
+	MACSEC_OFFLOAD_MAX = __MACSEC_OFFLOAD_END - 1,
+};
+
+>>>>>>> upstream/android-13
 /* IPVLAN section */
 enum {
 	IFLA_IPVLAN_UNSPEC,
@@ -531,6 +823,10 @@ enum {
 	IFLA_VXLAN_LABEL,
 	IFLA_VXLAN_GPE,
 	IFLA_VXLAN_TTL_INHERIT,
+<<<<<<< HEAD
+=======
+	IFLA_VXLAN_DF,
+>>>>>>> upstream/android-13
 	__IFLA_VXLAN_MAX
 };
 #define IFLA_VXLAN_MAX	(__IFLA_VXLAN_MAX - 1)
@@ -540,6 +836,17 @@ struct ifla_vxlan_port_range {
 	__be16	high;
 };
 
+<<<<<<< HEAD
+=======
+enum ifla_vxlan_df {
+	VXLAN_DF_UNSET = 0,
+	VXLAN_DF_SET,
+	VXLAN_DF_INHERIT,
+	__VXLAN_DF_END,
+	VXLAN_DF_MAX = __VXLAN_DF_END - 1,
+};
+
+>>>>>>> upstream/android-13
 /* GENEVE section */
 enum {
 	IFLA_GENEVE_UNSPEC,
@@ -554,10 +861,38 @@ enum {
 	IFLA_GENEVE_UDP_ZERO_CSUM6_TX,
 	IFLA_GENEVE_UDP_ZERO_CSUM6_RX,
 	IFLA_GENEVE_LABEL,
+<<<<<<< HEAD
+=======
+	IFLA_GENEVE_TTL_INHERIT,
+	IFLA_GENEVE_DF,
+>>>>>>> upstream/android-13
 	__IFLA_GENEVE_MAX
 };
 #define IFLA_GENEVE_MAX	(__IFLA_GENEVE_MAX - 1)
 
+<<<<<<< HEAD
+=======
+enum ifla_geneve_df {
+	GENEVE_DF_UNSET = 0,
+	GENEVE_DF_SET,
+	GENEVE_DF_INHERIT,
+	__GENEVE_DF_END,
+	GENEVE_DF_MAX = __GENEVE_DF_END - 1,
+};
+
+/* Bareudp section  */
+enum {
+	IFLA_BAREUDP_UNSPEC,
+	IFLA_BAREUDP_PORT,
+	IFLA_BAREUDP_ETHERTYPE,
+	IFLA_BAREUDP_SRCPORT_MIN,
+	IFLA_BAREUDP_MULTIPROTO_MODE,
+	__IFLA_BAREUDP_MAX
+};
+
+#define IFLA_BAREUDP_MAX (__IFLA_BAREUDP_MAX - 1)
+
+>>>>>>> upstream/android-13
 /* PPP section */
 enum {
 	IFLA_PPP_UNSPEC,
@@ -614,6 +949,11 @@ enum {
 	IFLA_BOND_AD_USER_PORT_KEY,
 	IFLA_BOND_AD_ACTOR_SYSTEM,
 	IFLA_BOND_TLB_DYNAMIC_LB,
+<<<<<<< HEAD
+=======
+	IFLA_BOND_PEER_NOTIF_DELAY,
+	IFLA_BOND_AD_LACP_ACTIVE,
+>>>>>>> upstream/android-13
 	__IFLA_BOND_MAX,
 };
 
@@ -672,6 +1012,10 @@ enum {
 	IFLA_VF_IB_NODE_GUID,	/* VF Infiniband node GUID */
 	IFLA_VF_IB_PORT_GUID,	/* VF Infiniband port GUID */
 	IFLA_VF_VLAN_LIST,	/* nested list of vlans, option for QinQ */
+<<<<<<< HEAD
+=======
+	IFLA_VF_BROADCAST,	/* VF broadcast */
+>>>>>>> upstream/android-13
 	__IFLA_VF_MAX,
 };
 
@@ -682,6 +1026,13 @@ struct ifla_vf_mac {
 	__u8 mac[32]; /* MAX_ADDR_LEN */
 };
 
+<<<<<<< HEAD
+=======
+struct ifla_vf_broadcast {
+	__u8 broadcast[32];
+};
+
+>>>>>>> upstream/android-13
 struct ifla_vf_vlan {
 	__u32 vf;
 	__u32 vlan; /* 0 - 4095, 0 disables VLAN filter */
@@ -853,7 +1204,18 @@ enum {
 #define IFLA_IPOIB_MAX (__IFLA_IPOIB_MAX - 1)
 
 
+<<<<<<< HEAD
 /* HSR section */
+=======
+/* HSR/PRP section, both uses same interface */
+
+/* Different redundancy protocols for hsr device */
+enum {
+	HSR_PROTOCOL_HSR,
+	HSR_PROTOCOL_PRP,
+	HSR_PROTOCOL_MAX,
+};
+>>>>>>> upstream/android-13
 
 enum {
 	IFLA_HSR_UNSPEC,
@@ -863,6 +1225,12 @@ enum {
 	IFLA_HSR_SUPERVISION_ADDR,	/* Supervision frame multicast addr */
 	IFLA_HSR_SEQ_NR,
 	IFLA_HSR_VERSION,		/* HSR version */
+<<<<<<< HEAD
+=======
+	IFLA_HSR_PROTOCOL,		/* Indicate different protocol than
+					 * HSR. For example PRP.
+					 */
+>>>>>>> upstream/android-13
 	__IFLA_HSR_MAX,
 };
 
@@ -903,6 +1271,10 @@ enum {
 enum {
 	LINK_XSTATS_TYPE_UNSPEC,
 	LINK_XSTATS_TYPE_BRIDGE,
+<<<<<<< HEAD
+=======
+	LINK_XSTATS_TYPE_BOND,
+>>>>>>> upstream/android-13
 	__LINK_XSTATS_TYPE_MAX
 };
 #define LINK_XSTATS_TYPE_MAX (__LINK_XSTATS_TYPE_MAX - 1)
@@ -921,11 +1293,19 @@ enum {
 #define XDP_FLAGS_SKB_MODE		(1U << 1)
 #define XDP_FLAGS_DRV_MODE		(1U << 2)
 #define XDP_FLAGS_HW_MODE		(1U << 3)
+<<<<<<< HEAD
+=======
+#define XDP_FLAGS_REPLACE		(1U << 4)
+>>>>>>> upstream/android-13
 #define XDP_FLAGS_MODES			(XDP_FLAGS_SKB_MODE | \
 					 XDP_FLAGS_DRV_MODE | \
 					 XDP_FLAGS_HW_MODE)
 #define XDP_FLAGS_MASK			(XDP_FLAGS_UPDATE_IF_NOEXIST | \
+<<<<<<< HEAD
 					 XDP_FLAGS_MODES)
+=======
+					 XDP_FLAGS_MODES | XDP_FLAGS_REPLACE)
+>>>>>>> upstream/android-13
 
 /* These are stored into IFLA_XDP_ATTACHED on dump. */
 enum {
@@ -945,6 +1325,10 @@ enum {
 	IFLA_XDP_DRV_PROG_ID,
 	IFLA_XDP_SKB_PROG_ID,
 	IFLA_XDP_HW_PROG_ID,
+<<<<<<< HEAD
+=======
+	IFLA_XDP_EXPECTED_FD,
+>>>>>>> upstream/android-13
 	__IFLA_XDP_MAX,
 };
 
@@ -984,6 +1368,11 @@ enum {
 #define RMNET_FLAGS_INGRESS_MAP_COMMANDS          (1U << 1)
 #define RMNET_FLAGS_INGRESS_MAP_CKSUMV4           (1U << 2)
 #define RMNET_FLAGS_EGRESS_MAP_CKSUMV4            (1U << 3)
+<<<<<<< HEAD
+=======
+#define RMNET_FLAGS_INGRESS_MAP_CKSUMV5           (1U << 4)
+#define RMNET_FLAGS_EGRESS_MAP_CKSUMV5            (1U << 5)
+>>>>>>> upstream/android-13
 
 enum {
 	IFLA_RMNET_UNSPEC,
@@ -999,4 +1388,17 @@ struct ifla_rmnet_flags {
 	__u32	mask;
 };
 
+<<<<<<< HEAD
+=======
+/* MCTP section */
+
+enum {
+	IFLA_MCTP_UNSPEC,
+	IFLA_MCTP_NET,
+	__IFLA_MCTP_MAX,
+};
+
+#define IFLA_MCTP_MAX (__IFLA_MCTP_MAX - 1)
+
+>>>>>>> upstream/android-13
 #endif /* _UAPI_LINUX_IF_LINK_H */

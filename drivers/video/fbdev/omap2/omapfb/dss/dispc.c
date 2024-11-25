@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/omap2/dss/dispc.c
  *
@@ -6,6 +10,7 @@
  *
  * Some code and ideas taken from drivers/video/omap/ driver
  * by Imre Deak.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
@@ -18,6 +23,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "DISPC"
@@ -571,11 +578,14 @@ u32 dispc_mgr_get_sync_lost_irq(enum omap_channel channel)
 }
 EXPORT_SYMBOL(dispc_mgr_get_sync_lost_irq);
 
+<<<<<<< HEAD
 u32 dispc_wb_get_framedone_irq(void)
 {
 	return DISPC_IRQ_FRAMEDONEWB;
 }
 
+=======
+>>>>>>> upstream/android-13
 bool dispc_mgr_go_busy(enum omap_channel channel)
 {
 	return mgr_fld_read(channel, DISPC_MGR_FLD_GO) == 1;
@@ -593,6 +603,7 @@ void dispc_mgr_go(enum omap_channel channel)
 }
 EXPORT_SYMBOL(dispc_mgr_go);
 
+<<<<<<< HEAD
 bool dispc_wb_go_busy(void)
 {
 	return REG_GET(DISPC_CONTROL2, 6, 6) == 1;
@@ -617,6 +628,8 @@ void dispc_wb_go(void)
 	REG_FLD_MOD(DISPC_CONTROL2, 1, 6, 6);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dispc_ovl_write_firh_reg(enum omap_plane plane, int reg, u32 value)
 {
 	dispc_write_reg(DISPC_OVL_FIR_COEF_H(plane, reg), value);
@@ -931,7 +944,11 @@ static void dispc_ovl_set_color_mode(enum omap_plane plane,
 static void dispc_ovl_configure_burst_type(enum omap_plane plane,
 		enum omap_dss_rotation_type rotation_type)
 {
+<<<<<<< HEAD
 	if (dss_has_feature(FEAT_BURST_2D) == 0)
+=======
+	if (!dss_has_feature(FEAT_BURST_2D))
+>>>>>>> upstream/android-13
 		return;
 
 	if (rotation_type == OMAP_DSS_ROT_TILER)
@@ -1042,6 +1059,7 @@ static enum omap_channel dispc_ovl_get_channel_out(enum omap_plane plane)
 	}
 }
 
+<<<<<<< HEAD
 void dispc_wb_set_channel_in(enum dss_writeback_channel channel)
 {
 	enum omap_plane plane = OMAP_DSS_WB;
@@ -1049,6 +1067,8 @@ void dispc_wb_set_channel_in(enum dss_writeback_channel channel)
 	REG_FLD_MOD(DISPC_OVL_ATTRIBUTES(plane), channel, 18, 16);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dispc_ovl_set_burst_size(enum omap_plane plane,
 		enum omap_burst_size burst_size)
 {
@@ -1649,7 +1669,11 @@ static void dispc_ovl_set_scaling_uv(enum omap_plane plane,
 {
 	int scale_x = out_width != orig_width;
 	int scale_y = out_height != orig_height;
+<<<<<<< HEAD
 	bool chroma_upscale = plane != OMAP_DSS_WB ? true : false;
+=======
+	bool chroma_upscale = plane != OMAP_DSS_WB;
+>>>>>>> upstream/android-13
 
 	if (!dss_has_feature(FEAT_HANDLE_UV_SEPARATE))
 		return;
@@ -1908,7 +1932,11 @@ static void calc_vrfb_rotation_offset(u8 rotation, bool mirror,
 		if (color_mode == OMAP_DSS_COLOR_YUV2 ||
 			color_mode == OMAP_DSS_COLOR_UYVY)
 			width = width >> 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OMAP_DSS_ROT_90:
 	case OMAP_DSS_ROT_270:
 		*offset1 = 0;
@@ -1931,7 +1959,11 @@ static void calc_vrfb_rotation_offset(u8 rotation, bool mirror,
 		if (color_mode == OMAP_DSS_COLOR_YUV2 ||
 			color_mode == OMAP_DSS_COLOR_UYVY)
 			width = width >> 1;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case OMAP_DSS_ROT_90 + 4:
 	case OMAP_DSS_ROT_270 + 4:
 		*offset1 = 0;
@@ -2819,6 +2851,7 @@ int dispc_ovl_setup(enum omap_plane plane, const struct omap_overlay_info *oi,
 }
 EXPORT_SYMBOL(dispc_ovl_setup);
 
+<<<<<<< HEAD
 int dispc_wb_setup(const struct omap_dss_writeback_info *wi,
 		bool mem_to_mem, const struct omap_video_timings *mgr_timings)
 {
@@ -2887,6 +2920,8 @@ int dispc_wb_setup(const struct omap_dss_writeback_info *wi,
 	return r;
 }
 
+=======
+>>>>>>> upstream/android-13
 int dispc_ovl_enable(enum omap_plane plane, bool enable)
 {
 	DSSDBG("dispc_enable_plane %d, %d\n", plane, enable);
@@ -2917,6 +2952,7 @@ bool dispc_mgr_is_enabled(enum omap_channel channel)
 }
 EXPORT_SYMBOL(dispc_mgr_is_enabled);
 
+<<<<<<< HEAD
 void dispc_wb_enable(bool enable)
 {
 	dispc_ovl_enable(OMAP_DSS_WB, enable);
@@ -2927,6 +2963,8 @@ bool dispc_wb_is_enabled(void)
 	return dispc_ovl_enabled(OMAP_DSS_WB);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dispc_lcd_enable_signal_polarity(bool act_high)
 {
 	if (!dss_has_feature(FEAT_LCDENABLEPOL))
@@ -3114,9 +3152,15 @@ static bool _dispc_mgr_pclk_ok(enum omap_channel channel,
 		unsigned long pclk)
 {
 	if (dss_mgr_is_lcd(channel))
+<<<<<<< HEAD
 		return pclk <= dispc.feat->max_lcd_pclk ? true : false;
 	else
 		return pclk <= dispc.feat->max_tv_pclk ? true : false;
+=======
+		return pclk <= dispc.feat->max_lcd_pclk;
+	else
+		return pclk <= dispc.feat->max_tv_pclk;
+>>>>>>> upstream/android-13
 }
 
 bool dispc_mgr_timings_ok(enum omap_channel channel,

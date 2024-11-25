@@ -12,6 +12,7 @@
 #define pr_fmt(fmt) "tulip: " fmt
 
 #define DRV_NAME	"tulip"
+<<<<<<< HEAD
 #ifdef CONFIG_TULIP_NAPI
 #define DRV_VERSION    "1.1.15-NAPI" /* Keep at least for test */
 #else
@@ -19,6 +20,8 @@
 #endif
 #define DRV_RELDATE	"Feb 27, 2007"
 
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/module.h>
 #include <linux/pci.h>
@@ -37,9 +40,12 @@
 #include <asm/prom.h>
 #endif
 
+<<<<<<< HEAD
 static char version[] =
 	"Linux Tulip driver version " DRV_VERSION " (" DRV_RELDATE ")\n";
 
+=======
+>>>>>>> upstream/android-13
 /* A few user-configurable values. */
 
 /* Maximum events (Rx packets, etc.) to handle at each interrupt. */
@@ -109,7 +115,10 @@ static int csr0;
 MODULE_AUTHOR("The Linux Kernel Team");
 MODULE_DESCRIPTION("Digital 21*4* Tulip ethernet driver");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
 MODULE_VERSION(DRV_VERSION);
+=======
+>>>>>>> upstream/android-13
 module_param(tulip_debug, int, 0);
 module_param(max_interrupt_work, int, 0);
 module_param(rx_copybreak, int, 0);
@@ -255,7 +264,11 @@ MODULE_DEVICE_TABLE(pci, tulip_pci_tbl);
 const char tulip_media_cap[32] =
 {0,0,0,16,  3,19,16,24,  27,4,7,5, 0,20,23,20,  28,31,0,0, };
 
+<<<<<<< HEAD
 static void tulip_tx_timeout(struct net_device *dev);
+=======
+static void tulip_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static void tulip_init_ring(struct net_device *dev);
 static void tulip_free_ring(struct net_device *dev);
 static netdev_tx_t tulip_start_xmit(struct sk_buff *skb,
@@ -361,9 +374,15 @@ static void tulip_up(struct net_device *dev)
 		*setup_frm++ = eaddrs[1]; *setup_frm++ = eaddrs[1];
 		*setup_frm++ = eaddrs[2]; *setup_frm++ = eaddrs[2];
 
+<<<<<<< HEAD
 		mapping = pci_map_single(tp->pdev, tp->setup_frame,
 					 sizeof(tp->setup_frame),
 					 PCI_DMA_TODEVICE);
+=======
+		mapping = dma_map_single(&tp->pdev->dev, tp->setup_frame,
+					 sizeof(tp->setup_frame),
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		tp->tx_buffers[tp->cur_tx].skb = NULL;
 		tp->tx_buffers[tp->cur_tx].mapping = mapping;
 
@@ -534,7 +553,11 @@ free_ring:
 }
 
 
+<<<<<<< HEAD
 static void tulip_tx_timeout(struct net_device *dev)
+=======
+static void tulip_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct tulip_private *tp = netdev_priv(dev);
 	void __iomem *ioaddr = tp->base_addr;
@@ -641,8 +664,13 @@ static void tulip_init_ring(struct net_device *dev)
 		tp->rx_buffers[i].skb = skb;
 		if (skb == NULL)
 			break;
+<<<<<<< HEAD
 		mapping = pci_map_single(tp->pdev, skb->data,
 					 PKT_BUF_SZ, PCI_DMA_FROMDEVICE);
+=======
+		mapping = dma_map_single(&tp->pdev->dev, skb->data,
+					 PKT_BUF_SZ, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 		tp->rx_buffers[i].mapping = mapping;
 		tp->rx_ring[i].status = cpu_to_le32(DescOwned);	/* Owned by Tulip chip */
 		tp->rx_ring[i].buffer1 = cpu_to_le32(mapping);
@@ -675,8 +703,13 @@ tulip_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	entry = tp->cur_tx % TX_RING_SIZE;
 
 	tp->tx_buffers[entry].skb = skb;
+<<<<<<< HEAD
 	mapping = pci_map_single(tp->pdev, skb->data,
 				 skb->len, PCI_DMA_TODEVICE);
+=======
+	mapping = dma_map_single(&tp->pdev->dev, skb->data, skb->len,
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 	tp->tx_buffers[entry].mapping = mapping;
 	tp->tx_ring[entry].buffer1 = cpu_to_le32(mapping);
 
@@ -727,6 +760,7 @@ static void tulip_clean_tx_ring(struct tulip_private *tp)
 		if (tp->tx_buffers[entry].skb == NULL) {
 			/* test because dummy frames not mapped */
 			if (tp->tx_buffers[entry].mapping)
+<<<<<<< HEAD
 				pci_unmap_single(tp->pdev,
 					tp->tx_buffers[entry].mapping,
 					sizeof(tp->setup_frame),
@@ -737,6 +771,19 @@ static void tulip_clean_tx_ring(struct tulip_private *tp)
 		pci_unmap_single(tp->pdev, tp->tx_buffers[entry].mapping,
 				tp->tx_buffers[entry].skb->len,
 				PCI_DMA_TODEVICE);
+=======
+				dma_unmap_single(&tp->pdev->dev,
+						 tp->tx_buffers[entry].mapping,
+						 sizeof(tp->setup_frame),
+						 DMA_TO_DEVICE);
+			continue;
+		}
+
+		dma_unmap_single(&tp->pdev->dev,
+				 tp->tx_buffers[entry].mapping,
+				 tp->tx_buffers[entry].skb->len,
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 		/* Free the original skb. */
 		dev_kfree_skb_irq(tp->tx_buffers[entry].skb);
@@ -806,8 +853,13 @@ static void tulip_free_ring (struct net_device *dev)
 		/* An invalid address. */
 		tp->rx_ring[i].buffer1 = cpu_to_le32(0xBADF00D0);
 		if (skb) {
+<<<<<<< HEAD
 			pci_unmap_single(tp->pdev, mapping, PKT_BUF_SZ,
 					 PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&tp->pdev->dev, mapping, PKT_BUF_SZ,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb (skb);
 		}
 	}
@@ -816,8 +868,14 @@ static void tulip_free_ring (struct net_device *dev)
 		struct sk_buff *skb = tp->tx_buffers[i].skb;
 
 		if (skb != NULL) {
+<<<<<<< HEAD
 			pci_unmap_single(tp->pdev, tp->tx_buffers[i].mapping,
 					 skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&tp->pdev->dev,
+					 tp->tx_buffers[i].mapping, skb->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb (skb);
 		}
 		tp->tx_buffers[i].skb = NULL;
@@ -868,7 +926,10 @@ static void tulip_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *in
 {
 	struct tulip_private *np = netdev_priv(dev);
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, pci_name(np->pdev), sizeof(info->bus_info));
 }
 
@@ -923,7 +984,11 @@ static int private_ioctl (struct net_device *dev, struct ifreq *rq, int cmd)
 			data->phy_id = 1;
 		else
 			return -ENODEV;
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case SIOCGMIIREG:		/* Read MII PHY register. */
 		if (data->phy_id == 32 && (tp->flags & HAS_NWAY)) {
@@ -1161,9 +1226,16 @@ static void set_rx_mode(struct net_device *dev)
 
 			tp->tx_buffers[entry].skb = NULL;
 			tp->tx_buffers[entry].mapping =
+<<<<<<< HEAD
 				pci_map_single(tp->pdev, tp->setup_frame,
 					       sizeof(tp->setup_frame),
 					       PCI_DMA_TODEVICE);
+=======
+				dma_map_single(&tp->pdev->dev,
+					       tp->setup_frame,
+					       sizeof(tp->setup_frame),
+					       DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			/* Put the setup frame on the Tx list. */
 			if (entry == TX_RING_SIZE-1)
 				tx_flags |= DESC_RING_WRAP;		/* Wrap ring. */
@@ -1280,7 +1352,11 @@ static const struct net_device_ops tulip_netdev_ops = {
 	.ndo_tx_timeout		= tulip_tx_timeout,
 	.ndo_stop		= tulip_close,
 	.ndo_get_stats		= tulip_get_stats,
+<<<<<<< HEAD
 	.ndo_do_ioctl 		= private_ioctl,
+=======
+	.ndo_eth_ioctl		= private_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= set_rx_mode,
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
@@ -1289,7 +1365,11 @@ static const struct net_device_ops tulip_netdev_ops = {
 #endif
 };
 
+<<<<<<< HEAD
 const struct pci_device_id early_486_chipsets[] = {
+=======
+static const struct pci_device_id early_486_chipsets[] = {
+>>>>>>> upstream/android-13
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82424) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_496) },
 	{ },
@@ -1302,7 +1382,13 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	static unsigned char last_phys_addr[ETH_ALEN] = {
 		0x00, 'L', 'i', 'n', 'u', 'x'
 	};
+<<<<<<< HEAD
 	static int last_irq;
+=======
+#if defined(__i386__) || defined(__x86_64__)	/* Patch up x86 BIOS bug. */
+	static int last_irq;
+#endif
+>>>>>>> upstream/android-13
 	int i, irq;
 	unsigned short sum;
 	unsigned char *ee_data;
@@ -1314,11 +1400,14 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	unsigned int eeprom_missing = 0;
 	unsigned int force_csr0 = 0;
 
+<<<<<<< HEAD
 #ifndef MODULE
 	if (tulip_debug > 0)
 		printk_once(KERN_INFO "%s", version);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	board_idx++;
 
 	/*
@@ -1439,10 +1528,17 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	tp = netdev_priv(dev);
 	tp->dev = dev;
 
+<<<<<<< HEAD
 	tp->rx_ring = pci_alloc_consistent(pdev,
 					   sizeof(struct tulip_rx_desc) * RX_RING_SIZE +
 					   sizeof(struct tulip_tx_desc) * TX_RING_SIZE,
 					   &tp->rx_ring_dma);
+=======
+	tp->rx_ring = dma_alloc_coherent(&pdev->dev,
+					 sizeof(struct tulip_rx_desc) * RX_RING_SIZE +
+					 sizeof(struct tulip_tx_desc) * TX_RING_SIZE,
+					 &tp->rx_ring_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!tp->rx_ring)
 		goto err_out_mtable;
 	tp->tx_ring = (struct tulip_tx_desc *)(tp->rx_ring + RX_RING_SIZE);
@@ -1631,7 +1727,13 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	for (i = 0; i < 6; i++)
 		last_phys_addr[i] = dev->dev_addr[i];
+<<<<<<< HEAD
 	last_irq = irq;
+=======
+#if defined(__i386__) || defined(__x86_64__)	/* Patch up x86 BIOS bug. */
+	last_irq = irq;
+#endif
+>>>>>>> upstream/android-13
 
 	/* The lower four bits are the media type. */
 	if (board_idx >= 0  &&  board_idx < MAX_UNITS) {
@@ -1774,10 +1876,17 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	return 0;
 
 err_out_free_ring:
+<<<<<<< HEAD
 	pci_free_consistent (pdev,
 			     sizeof (struct tulip_rx_desc) * RX_RING_SIZE +
 			     sizeof (struct tulip_tx_desc) * TX_RING_SIZE,
 			     tp->rx_ring, tp->rx_ring_dma);
+=======
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct tulip_rx_desc) * RX_RING_SIZE +
+			  sizeof(struct tulip_tx_desc) * TX_RING_SIZE,
+			  tp->rx_ring, tp->rx_ring_dma);
+>>>>>>> upstream/android-13
 
 err_out_mtable:
 	kfree (tp->mtable);
@@ -1800,14 +1909,23 @@ static void tulip_set_wolopts (struct pci_dev *pdev, u32 wolopts)
 	void __iomem *ioaddr = tp->base_addr;
 
 	if (tp->flags & COMET_PM) {
+<<<<<<< HEAD
 	  
 		unsigned int tmp;
 			
+=======
+		unsigned int tmp;
+
+>>>>>>> upstream/android-13
 		tmp = ioread32(ioaddr + CSR18);
 		tmp &= ~(comet_csr18_pmes_sticky | comet_csr18_apm_mode | comet_csr18_d3a);
 		tmp |= comet_csr18_pm_mode;
 		iowrite32(tmp, ioaddr + CSR18);
+<<<<<<< HEAD
 			
+=======
+
+>>>>>>> upstream/android-13
 		/* Set the Wake-up Control/Status Register to the given WOL options*/
 		tmp = ioread32(ioaddr + CSR13);
 		tmp &= ~(comet_csr13_linkoffe | comet_csr13_linkone | comet_csr13_wfre | comet_csr13_lsce | comet_csr13_mpre);
@@ -1821,6 +1939,7 @@ static void tulip_set_wolopts (struct pci_dev *pdev, u32 wolopts)
 	}
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 
@@ -1828,6 +1947,11 @@ static int tulip_suspend (struct pci_dev *pdev, pm_message_t state)
 {
 	pci_power_t pstate;
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused tulip_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct tulip_private *tp = netdev_priv(dev);
 
 	if (!dev)
@@ -1843,6 +1967,7 @@ static int tulip_suspend (struct pci_dev *pdev, pm_message_t state)
 	free_irq(tp->pdev->irq, dev);
 
 save_state:
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 	pstate = pci_choose_state(pdev, state);
@@ -1855,10 +1980,15 @@ save_state:
 			pr_err("pci_enable_wake failed (%d)\n", rc);
 	}
 	pci_set_power_state(pdev, pstate);
+=======
+	tulip_set_wolopts(to_pci_dev(dev_d), tp->wolinfo.wolopts);
+	device_set_wakeup_enable(dev_d, !!tp->wolinfo.wolopts);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 
 static int tulip_resume(struct pci_dev *pdev)
 {
@@ -1867,10 +1997,21 @@ static int tulip_resume(struct pci_dev *pdev)
 	void __iomem *ioaddr = tp->base_addr;
 	int retval;
 	unsigned int tmp;
+=======
+static int __maybe_unused tulip_resume(struct device *dev_d)
+{
+	struct pci_dev *pdev = to_pci_dev(dev_d);
+	struct net_device *dev = dev_get_drvdata(dev_d);
+	struct tulip_private *tp = netdev_priv(dev);
+	void __iomem *ioaddr = tp->base_addr;
+	unsigned int tmp;
+	int retval = 0;
+>>>>>>> upstream/android-13
 
 	if (!dev)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	pci_set_power_state(pdev, PCI_D0);
 	pci_restore_state(pdev);
 
@@ -1882,6 +2023,11 @@ static int tulip_resume(struct pci_dev *pdev)
 		return retval;
 	}
 
+=======
+	if (!netif_running(dev))
+		return 0;
+
+>>>>>>> upstream/android-13
 	retval = request_irq(pdev->irq, tulip_interrupt, IRQF_SHARED,
 			     dev->name, dev);
 	if (retval) {
@@ -1890,8 +2036,12 @@ static int tulip_resume(struct pci_dev *pdev)
 	}
 
 	if (tp->flags & COMET_PM) {
+<<<<<<< HEAD
 		pci_enable_wake(pdev, PCI_D3hot, 0);
 		pci_enable_wake(pdev, PCI_D3cold, 0);
+=======
+		device_set_wakeup_enable(dev_d, 0);
+>>>>>>> upstream/android-13
 
 		/* Clear the PMES flag */
 		tmp = ioread32(ioaddr + CSR20);
@@ -1909,9 +2059,12 @@ static int tulip_resume(struct pci_dev *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
 
 
+=======
+>>>>>>> upstream/android-13
 static void tulip_remove_one(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata (pdev);
@@ -1922,10 +2075,17 @@ static void tulip_remove_one(struct pci_dev *pdev)
 
 	tp = netdev_priv(dev);
 	unregister_netdev(dev);
+<<<<<<< HEAD
 	pci_free_consistent (pdev,
 			     sizeof (struct tulip_rx_desc) * RX_RING_SIZE +
 			     sizeof (struct tulip_tx_desc) * TX_RING_SIZE,
 			     tp->rx_ring, tp->rx_ring_dma);
+=======
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct tulip_rx_desc) * RX_RING_SIZE +
+			  sizeof(struct tulip_tx_desc) * TX_RING_SIZE,
+			  tp->rx_ring, tp->rx_ring_dma);
+>>>>>>> upstream/android-13
 	kfree (tp->mtable);
 	pci_iounmap(pdev, tp->base_addr);
 	free_netdev (dev);
@@ -1955,24 +2115,36 @@ static void poll_tulip (struct net_device *dev)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(tulip_pm_ops, tulip_suspend, tulip_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver tulip_driver = {
 	.name		= DRV_NAME,
 	.id_table	= tulip_pci_tbl,
 	.probe		= tulip_init_one,
 	.remove		= tulip_remove_one,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend	= tulip_suspend,
 	.resume		= tulip_resume,
 #endif /* CONFIG_PM */
+=======
+	.driver.pm	= &tulip_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 
 static int __init tulip_init (void)
 {
+<<<<<<< HEAD
 #ifdef MODULE
 	pr_info("%s", version);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (!csr0) {
 		pr_warn("tulip: unknown CPU architecture, using default csr0\n");
 		/* default to 8 longword cache line alignment */

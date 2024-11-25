@@ -2,7 +2,11 @@
 TEST_GEN_PROGS := ptrace-gpr ptrace-tm-gpr ptrace-tm-spd-gpr \
               ptrace-tar ptrace-tm-tar ptrace-tm-spd-tar ptrace-vsx ptrace-tm-vsx \
               ptrace-tm-spd-vsx ptrace-tm-spr ptrace-hwbreak ptrace-pkey core-pkey \
+<<<<<<< HEAD
               perf-hwbreak
+=======
+              perf-hwbreak ptrace-syscall ptrace-perf-hwbreak
+>>>>>>> upstream/android-13
 
 top_srcdir = ../../../../..
 include ../../lib.mk

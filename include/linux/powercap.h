@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * powercap.h: Data types and headers for sysfs power capping interface
  * Copyright (c) 2013, Intel Corporation.
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * powercap.h: Data types and headers for sysfs power capping interface
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __POWERCAP_H__
@@ -56,6 +63,7 @@ struct powercap_control_type_ops {
 };
 
 /**
+<<<<<<< HEAD
  * struct powercap_control_type- Defines a powercap control_type
  * @name:		name of control_type
  * @dev:		device for this control_type
@@ -63,12 +71,24 @@ struct powercap_control_type_ops {
  * @root_node:		Root holding power zones for this control_type
  * @ops:		Pointer to callback struct
  * @node_lock:		mutex for control type
+=======
+ * struct powercap_control_type - Defines a powercap control_type
+ * @dev:		device for this control_type
+ * @idr:		idr to have unique id for its child
+ * @nr_zones:		counter for number of zones of this type
+ * @ops:		Pointer to callback struct
+ * @lock:		mutex for control type
+>>>>>>> upstream/android-13
  * @allocated:		This is possible that client owns the memory
  *			used by this structure. In this case
  *			this flag is set to false by framework to
  *			prevent deallocation during release process.
  *			Otherwise this flag is set to true.
+<<<<<<< HEAD
  * @ctrl_inst:		link to the control_type list
+=======
+ * @node:		linked-list node
+>>>>>>> upstream/android-13
  *
  * Defines powercap control_type. This acts as a container for power
  * zones, which use same method to control power. E.g. RAPL, RAPL-PCI etc.
@@ -141,7 +161,11 @@ struct powercap_zone_ops {
  *			this flag is set to false by framework to
  *			prevent deallocation during release process.
  *			Otherwise this flag is set to true.
+<<<<<<< HEAD
  * @constraint_ptr:	List of constraints for this zone.
+=======
+ * @constraints:	List of constraints for this zone.
+>>>>>>> upstream/android-13
  *
  * This defines a power zone instance. The fields of this structure are
  * private, and should not be used by client drivers.

@@ -18,10 +18,13 @@
 
 #include "sclp.h"
 
+<<<<<<< HEAD
 static void (*old_machine_restart)(char *);
 static void (*old_machine_halt)(void);
 static void (*old_machine_power_off)(void);
 
+=======
+>>>>>>> upstream/android-13
 /* Shutdown handler. Signal completion of shutdown by loading special PSW. */
 static void do_machine_quiesce(void)
 {
@@ -37,6 +40,7 @@ static void do_machine_quiesce(void)
 /* Handler for quiesce event. Start shutdown procedure. */
 static void sclp_quiesce_handler(struct evbuf_header *evbuf)
 {
+<<<<<<< HEAD
 	if (_machine_restart != (void *) do_machine_quiesce) {
 		old_machine_restart = _machine_restart;
 		old_machine_halt = _machine_halt;
@@ -73,6 +77,17 @@ static struct sclp_register sclp_quiesce_event = {
 	.receive_mask = EVTYP_SIGQUIESCE_MASK,
 	.receiver_fn = sclp_quiesce_handler,
 	.pm_event_fn = sclp_quiesce_pm_event
+=======
+	_machine_restart = (void *) do_machine_quiesce;
+	_machine_halt = do_machine_quiesce;
+	_machine_power_off = do_machine_quiesce;
+	ctrl_alt_del();
+}
+
+static struct sclp_register sclp_quiesce_event = {
+	.receive_mask = EVTYP_SIGQUIESCE_MASK,
+	.receiver_fn = sclp_quiesce_handler,
+>>>>>>> upstream/android-13
 };
 
 /* Initialize quiesce driver. */

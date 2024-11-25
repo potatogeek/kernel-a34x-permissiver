@@ -3,7 +3,11 @@
  *
  * TPS65217 chip family multi-function driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,12 +37,20 @@
 #include <linux/mfd/core.h>
 #include <linux/mfd/tps65217.h>
 
+<<<<<<< HEAD
 static struct resource charger_resources[] = {
+=======
+static const struct resource charger_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_AC, "AC"),
 	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
 };
 
+<<<<<<< HEAD
 static struct resource pb_resources[] = {
+=======
+static const struct resource pb_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
 };
 
@@ -205,7 +217,11 @@ EXPORT_SYMBOL_GPL(tps65217_reg_read);
 /**
  * tps65217_reg_write: Write a single tps65217 register.
  *
+<<<<<<< HEAD
  * @tps65217: Device to write to.
+=======
+ * @tps: Device to write to.
+>>>>>>> upstream/android-13
  * @reg: Register to write to.
  * @val: Value to write.
  * @level: Password protected level
@@ -250,7 +266,11 @@ EXPORT_SYMBOL_GPL(tps65217_reg_write);
 /**
  * tps65217_update_bits: Modify bits w.r.t mask, val and level.
  *
+<<<<<<< HEAD
  * @tps65217: Device to write to.
+=======
+ * @tps: Device to write to.
+>>>>>>> upstream/android-13
  * @reg: Register to read-write to.
  * @mask: Mask.
  * @val: Value to write.

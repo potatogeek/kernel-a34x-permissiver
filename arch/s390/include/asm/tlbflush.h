@@ -5,8 +5,11 @@
 #include <linux/mm.h>
 #include <linux/sched.h>
 #include <asm/processor.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Flush all TLB entries on the local CPU.
@@ -32,9 +35,12 @@ static inline void __tlb_flush_idte(unsigned long asce)
 		: : "a" (opt), "a" (asce) : "cc");
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 void smp_ptlb_all(void);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Flush all TLB entries on all CPUs.
  */
@@ -83,6 +89,7 @@ static inline void __tlb_flush_kernel(void)
 	else
 		__tlb_flush_global();
 }
+<<<<<<< HEAD
 #else
 #define __tlb_flush_global()	__tlb_flush_local()
 
@@ -99,6 +106,8 @@ static inline void __tlb_flush_kernel(void)
 	__tlb_flush_local();
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static inline void __tlb_flush_mm_lazy(struct mm_struct * mm)
 {

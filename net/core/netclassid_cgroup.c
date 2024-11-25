@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/core/netclassid_cgroup.c	Classid Cgroupfs Handling
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/core/netclassid_cgroup.c	Classid Cgroupfs Handling
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  */
 
@@ -72,6 +79,7 @@ struct update_classid_context {
 
 static int update_classid_sock(const void *v, struct file *file, unsigned n)
 {
+<<<<<<< HEAD
 	int err;
 	struct update_classid_context *ctx = (void *)v;
 	struct socket *sock = sock_from_file(file, &err);
@@ -81,6 +89,13 @@ static int update_classid_sock(const void *v, struct file *file, unsigned n)
 		sock_cgroup_set_classid(&sock->sk->sk_cgrp_data, ctx->classid);
 		spin_unlock(&cgroup_sk_update_lock);
 	}
+=======
+	struct update_classid_context *ctx = (void *)v;
+	struct socket *sock = sock_from_file(file);
+
+	if (sock)
+		sock_cgroup_set_classid(&sock->sk->sk_cgrp_data, ctx->classid);
+>>>>>>> upstream/android-13
 	if (--ctx->batch == 0) {
 		ctx->batch = UPDATE_CLASSID_BATCH;
 		return n + 1;
@@ -126,8 +141,11 @@ static int write_classid(struct cgroup_subsys_state *css, struct cftype *cft,
 	struct css_task_iter it;
 	struct task_struct *p;
 
+<<<<<<< HEAD
 	cgroup_sk_alloc_disable();
 
+=======
+>>>>>>> upstream/android-13
 	cs->classid = (u32)value;
 
 	css_task_iter_start(css, 0, &it);

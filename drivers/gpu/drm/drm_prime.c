@@ -29,6 +29,7 @@
 #include <linux/export.h>
 #include <linux/dma-buf.h>
 #include <linux/rbtree.h>
+<<<<<<< HEAD
 #include <drm/drm_prime.h>
 #include <drm/drm_gem.h>
 #include <drm/drmP.h>
@@ -76,6 +77,64 @@
  *
  * GEM struct &dma_buf_ops symbols are now exported. They can be resued by
  * drivers which implement GEM interface.
+=======
+
+#include <drm/drm.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_framebuffer.h>
+#include <drm/drm_gem.h>
+#include <drm/drm_prime.h>
+
+#include "drm_internal.h"
+
+/**
+ * DOC: overview and lifetime rules
+ *
+ * Similar to GEM global names, PRIME file descriptors are also used to share
+ * buffer objects across processes. They offer additional security: as file
+ * descriptors must be explicitly sent over UNIX domain sockets to be shared
+ * between applications, they can't be guessed like the globally unique GEM
+ * names.
+ *
+ * Drivers that support the PRIME API implement the
+ * &drm_driver.prime_handle_to_fd and &drm_driver.prime_fd_to_handle operations.
+ * GEM based drivers must use drm_gem_prime_handle_to_fd() and
+ * drm_gem_prime_fd_to_handle() to implement these. For GEM based drivers the
+ * actual driver interfaces is provided through the &drm_gem_object_funcs.export
+ * and &drm_driver.gem_prime_import hooks.
+ *
+ * &dma_buf_ops implementations for GEM drivers are all individually exported
+ * for drivers which need to overwrite or reimplement some of them.
+ *
+ * Reference Counting for GEM Drivers
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * On the export the &dma_buf holds a reference to the exported buffer object,
+ * usually a &drm_gem_object. It takes this reference in the PRIME_HANDLE_TO_FD
+ * IOCTL, when it first calls &drm_gem_object_funcs.export
+ * and stores the exporting GEM object in the &dma_buf.priv field. This
+ * reference needs to be released when the final reference to the &dma_buf
+ * itself is dropped and its &dma_buf_ops.release function is called.  For
+ * GEM-based drivers, the &dma_buf should be exported using
+ * drm_gem_dmabuf_export() and then released by drm_gem_dmabuf_release().
+ *
+ * Thus the chain of references always flows in one direction, avoiding loops:
+ * importing GEM object -> dma-buf -> exported GEM bo. A further complication
+ * are the lookup caches for import and export. These are required to guarantee
+ * that any given object will always have only one unique userspace handle. This
+ * is required to allow userspace to detect duplicated imports, since some GEM
+ * drivers do fail command submissions if a given buffer object is listed more
+ * than once. These import and export caches in &drm_prime_file_private only
+ * retain a weak reference, which is cleaned up when the corresponding object is
+ * released.
+ *
+ * Self-importing: If userspace is using PRIME as a replacement for flink then
+ * it will get a fd->handle request for a GEM object that it created.  Drivers
+ * should detect this situation and return back the underlying object from the
+ * dma-buf private. For GEM based drivers this is handled in
+ * drm_gem_prime_import() already.
+>>>>>>> upstream/android-13
  */
 
 struct drm_prime_member {
@@ -86,11 +145,14 @@ struct drm_prime_member {
 	struct rb_node handle_rb;
 };
 
+<<<<<<< HEAD
 struct drm_prime_attachment {
 	struct sg_table *sgt;
 	enum dma_data_direction dir;
 };
 
+=======
+>>>>>>> upstream/android-13
 static int drm_prime_add_buf_handle(struct drm_prime_file_private *prime_fpriv,
 				    struct dma_buf *dma_buf, uint32_t handle)
 {
@@ -183,6 +245,7 @@ static int drm_prime_lookup_buf_handle(struct drm_prime_file_private *prime_fpri
 	return -ENOENT;
 }
 
+<<<<<<< HEAD
 /**
  * drm_gem_map_attach - dma_buf attach implementation for GEM
  * @dma_buf: buffer to attach device to
@@ -252,6 +315,8 @@ void drm_gem_map_detach(struct dma_buf *dma_buf,
 }
 EXPORT_SYMBOL(drm_gem_map_detach);
 
+=======
+>>>>>>> upstream/android-13
 void drm_prime_remove_buf_handle_locked(struct drm_prime_file_private *prime_fpriv,
 					struct dma_buf *dma_buf)
 {
@@ -277,6 +342,7 @@ void drm_prime_remove_buf_handle_locked(struct drm_prime_file_private *prime_fpr
 	}
 }
 
+<<<<<<< HEAD
 /**
  * drm_gem_map_dma_buf - map_dma_buf implementation for GEM
  * @attach: attachment whose scatterlist is to be returned
@@ -347,6 +413,23 @@ EXPORT_SYMBOL(drm_gem_unmap_dma_buf);
 
 /**
  * drm_gem_dmabuf_export - dma_buf export implementation for GEM
+=======
+void drm_prime_init_file_private(struct drm_prime_file_private *prime_fpriv)
+{
+	mutex_init(&prime_fpriv->lock);
+	prime_fpriv->dmabufs = RB_ROOT;
+	prime_fpriv->handles = RB_ROOT;
+}
+
+void drm_prime_destroy_file_private(struct drm_prime_file_private *prime_fpriv)
+{
+	/* by now drm_gem_release should've made sure the list is empty */
+	WARN_ON(!RB_EMPTY_ROOT(&prime_fpriv->dmabufs));
+}
+
+/**
+ * drm_gem_dmabuf_export - &dma_buf export implementation for GEM
+>>>>>>> upstream/android-13
  * @dev: parent device for the exported dmabuf
  * @exp_info: the export information used by dma_buf_export()
  *
@@ -360,6 +443,10 @@ EXPORT_SYMBOL(drm_gem_unmap_dma_buf);
 struct dma_buf *drm_gem_dmabuf_export(struct drm_device *dev,
 				      struct dma_buf_export_info *exp_info)
 {
+<<<<<<< HEAD
+=======
+	struct drm_gem_object *obj = exp_info->priv;
+>>>>>>> upstream/android-13
 	struct dma_buf *dma_buf;
 
 	dma_buf = dma_buf_export(exp_info);
@@ -367,18 +454,31 @@ struct dma_buf *drm_gem_dmabuf_export(struct drm_device *dev,
 		return dma_buf;
 
 	drm_dev_get(dev);
+<<<<<<< HEAD
 	drm_gem_object_get(exp_info->priv);
+=======
+	drm_gem_object_get(obj);
+	dma_buf->file->f_mapping = obj->dev->anon_inode->i_mapping;
+>>>>>>> upstream/android-13
 
 	return dma_buf;
 }
 EXPORT_SYMBOL(drm_gem_dmabuf_export);
 
 /**
+<<<<<<< HEAD
  * drm_gem_dmabuf_release - dma_buf release implementation for GEM
  * @dma_buf: buffer to be released
  *
  * Generic release function for dma_bufs exported as PRIME buffers. GEM drivers
  * must use this in their dma_buf ops structure as the release callback.
+=======
+ * drm_gem_dmabuf_release - &dma_buf release implementation for GEM
+ * @dma_buf: buffer to be released
+ *
+ * Generic release function for dma_bufs exported as PRIME buffers. GEM drivers
+ * must use this in their &dma_buf_ops structure as the release callback.
+>>>>>>> upstream/android-13
  * drm_gem_dmabuf_release() should be used in conjunction with
  * drm_gem_dmabuf_export().
  */
@@ -388,13 +488,18 @@ void drm_gem_dmabuf_release(struct dma_buf *dma_buf)
 	struct drm_device *dev = obj->dev;
 
 	/* drop the reference on the export fd holds */
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 
 	drm_dev_put(dev);
 }
 EXPORT_SYMBOL(drm_gem_dmabuf_release);
 
 /**
+<<<<<<< HEAD
  * drm_gem_dmabuf_vmap - dma_buf vmap implementation for GEM
  * @dma_buf: buffer to be mapped
  *
@@ -569,6 +674,102 @@ struct dma_buf *drm_gem_prime_export(struct drm_device *dev,
 	return drm_gem_dmabuf_export(dev, &exp_info);
 }
 EXPORT_SYMBOL(drm_gem_prime_export);
+=======
+ * drm_gem_prime_fd_to_handle - PRIME import function for GEM drivers
+ * @dev: dev to export the buffer from
+ * @file_priv: drm file-private structure
+ * @prime_fd: fd id of the dma-buf which should be imported
+ * @handle: pointer to storage for the handle of the imported buffer object
+ *
+ * This is the PRIME import function which must be used mandatorily by GEM
+ * drivers to ensure correct lifetime management of the underlying GEM object.
+ * The actual importing of GEM object from the dma-buf is done through the
+ * &drm_driver.gem_prime_import driver callback.
+ *
+ * Returns 0 on success or a negative error code on failure.
+ */
+int drm_gem_prime_fd_to_handle(struct drm_device *dev,
+			       struct drm_file *file_priv, int prime_fd,
+			       uint32_t *handle)
+{
+	struct dma_buf *dma_buf;
+	struct drm_gem_object *obj;
+	int ret;
+
+	dma_buf = dma_buf_get(prime_fd);
+	if (IS_ERR(dma_buf))
+		return PTR_ERR(dma_buf);
+
+	mutex_lock(&file_priv->prime.lock);
+
+	ret = drm_prime_lookup_buf_handle(&file_priv->prime,
+			dma_buf, handle);
+	if (ret == 0)
+		goto out_put;
+
+	/* never seen this one, need to import */
+	mutex_lock(&dev->object_name_lock);
+	if (dev->driver->gem_prime_import)
+		obj = dev->driver->gem_prime_import(dev, dma_buf);
+	else
+		obj = drm_gem_prime_import(dev, dma_buf);
+	if (IS_ERR(obj)) {
+		ret = PTR_ERR(obj);
+		goto out_unlock;
+	}
+
+	if (obj->dma_buf) {
+		WARN_ON(obj->dma_buf != dma_buf);
+	} else {
+		obj->dma_buf = dma_buf;
+		get_dma_buf(dma_buf);
+	}
+
+	/* _handle_create_tail unconditionally unlocks dev->object_name_lock. */
+	ret = drm_gem_handle_create_tail(file_priv, obj, handle);
+	drm_gem_object_put(obj);
+	if (ret)
+		goto out_put;
+
+	ret = drm_prime_add_buf_handle(&file_priv->prime,
+			dma_buf, *handle);
+	mutex_unlock(&file_priv->prime.lock);
+	if (ret)
+		goto fail;
+
+	dma_buf_put(dma_buf);
+
+	return 0;
+
+fail:
+	/* hmm, if driver attached, we are relying on the free-object path
+	 * to detach.. which seems ok..
+	 */
+	drm_gem_handle_delete(file_priv, *handle);
+	dma_buf_put(dma_buf);
+	return ret;
+
+out_unlock:
+	mutex_unlock(&dev->object_name_lock);
+out_put:
+	mutex_unlock(&file_priv->prime.lock);
+	dma_buf_put(dma_buf);
+	return ret;
+}
+EXPORT_SYMBOL(drm_gem_prime_fd_to_handle);
+
+int drm_prime_fd_to_handle_ioctl(struct drm_device *dev, void *data,
+				 struct drm_file *file_priv)
+{
+	struct drm_prime_handle *args = data;
+
+	if (!dev->driver->prime_fd_to_handle)
+		return -ENOSYS;
+
+	return dev->driver->prime_fd_to_handle(dev, file_priv,
+			args->fd, &args->handle);
+}
+>>>>>>> upstream/android-13
 
 static struct dma_buf *export_and_register_object(struct drm_device *dev,
 						  struct drm_gem_object *obj,
@@ -582,7 +783,14 @@ static struct dma_buf *export_and_register_object(struct drm_device *dev,
 		return dmabuf;
 	}
 
+<<<<<<< HEAD
 	dmabuf = dev->driver->gem_prime_export(dev, obj, flags);
+=======
+	if (obj->funcs && obj->funcs->export)
+		dmabuf = obj->funcs->export(obj, flags);
+	else
+		dmabuf = drm_gem_prime_export(obj, flags);
+>>>>>>> upstream/android-13
 	if (IS_ERR(dmabuf)) {
 		/* normally the created dma-buf takes ownership of the ref,
 		 * but if that fails then drop the ref
@@ -612,7 +820,11 @@ static struct dma_buf *export_and_register_object(struct drm_device *dev,
  * This is the PRIME export function which must be used mandatorily by GEM
  * drivers to ensure correct lifetime management of the underlying GEM object.
  * The actual exporting from GEM object to a dma-buf is done through the
+<<<<<<< HEAD
  * gem_prime_export driver callback.
+=======
+ * &drm_gem_object_funcs.export callback.
+>>>>>>> upstream/android-13
  */
 int drm_gem_prime_handle_to_fd(struct drm_device *dev,
 			       struct drm_file *file_priv, uint32_t handle,
@@ -693,7 +905,11 @@ out_have_handle:
 fail_put_dmabuf:
 	dma_buf_put(dmabuf);
 out:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(obj);
+=======
+	drm_gem_object_put(obj);
+>>>>>>> upstream/android-13
 out_unlock:
 	mutex_unlock(&file_priv->prime.lock);
 
@@ -701,6 +917,198 @@ out_unlock:
 }
 EXPORT_SYMBOL(drm_gem_prime_handle_to_fd);
 
+<<<<<<< HEAD
+=======
+int drm_prime_handle_to_fd_ioctl(struct drm_device *dev, void *data,
+				 struct drm_file *file_priv)
+{
+	struct drm_prime_handle *args = data;
+
+	if (!dev->driver->prime_handle_to_fd)
+		return -ENOSYS;
+
+	/* check flags are valid */
+	if (args->flags & ~(DRM_CLOEXEC | DRM_RDWR))
+		return -EINVAL;
+
+	return dev->driver->prime_handle_to_fd(dev, file_priv,
+			args->handle, args->flags, &args->fd);
+}
+
+/**
+ * DOC: PRIME Helpers
+ *
+ * Drivers can implement &drm_gem_object_funcs.export and
+ * &drm_driver.gem_prime_import in terms of simpler APIs by using the helper
+ * functions drm_gem_prime_export() and drm_gem_prime_import(). These functions
+ * implement dma-buf support in terms of some lower-level helpers, which are
+ * again exported for drivers to use individually:
+ *
+ * Exporting buffers
+ * ~~~~~~~~~~~~~~~~~
+ *
+ * Optional pinning of buffers is handled at dma-buf attach and detach time in
+ * drm_gem_map_attach() and drm_gem_map_detach(). Backing storage itself is
+ * handled by drm_gem_map_dma_buf() and drm_gem_unmap_dma_buf(), which relies on
+ * &drm_gem_object_funcs.get_sg_table.
+ *
+ * For kernel-internal access there's drm_gem_dmabuf_vmap() and
+ * drm_gem_dmabuf_vunmap(). Userspace mmap support is provided by
+ * drm_gem_dmabuf_mmap().
+ *
+ * Note that these export helpers can only be used if the underlying backing
+ * storage is fully coherent and either permanently pinned, or it is safe to pin
+ * it indefinitely.
+ *
+ * FIXME: The underlying helper functions are named rather inconsistently.
+ *
+ * Importing buffers
+ * ~~~~~~~~~~~~~~~~~
+ *
+ * Importing dma-bufs using drm_gem_prime_import() relies on
+ * &drm_driver.gem_prime_import_sg_table.
+ *
+ * Note that similarly to the export helpers this permanently pins the
+ * underlying backing storage. Which is ok for scanout, but is not the best
+ * option for sharing lots of buffers for rendering.
+ */
+
+/**
+ * drm_gem_map_attach - dma_buf attach implementation for GEM
+ * @dma_buf: buffer to attach device to
+ * @attach: buffer attachment data
+ *
+ * Calls &drm_gem_object_funcs.pin for device specific handling. This can be
+ * used as the &dma_buf_ops.attach callback. Must be used together with
+ * drm_gem_map_detach().
+ *
+ * Returns 0 on success, negative error code on failure.
+ */
+int drm_gem_map_attach(struct dma_buf *dma_buf,
+		       struct dma_buf_attachment *attach)
+{
+	struct drm_gem_object *obj = dma_buf->priv;
+
+	return drm_gem_pin(obj);
+}
+EXPORT_SYMBOL(drm_gem_map_attach);
+
+/**
+ * drm_gem_map_detach - dma_buf detach implementation for GEM
+ * @dma_buf: buffer to detach from
+ * @attach: attachment to be detached
+ *
+ * Calls &drm_gem_object_funcs.pin for device specific handling.  Cleans up
+ * &dma_buf_attachment from drm_gem_map_attach(). This can be used as the
+ * &dma_buf_ops.detach callback.
+ */
+void drm_gem_map_detach(struct dma_buf *dma_buf,
+			struct dma_buf_attachment *attach)
+{
+	struct drm_gem_object *obj = dma_buf->priv;
+
+	drm_gem_unpin(obj);
+}
+EXPORT_SYMBOL(drm_gem_map_detach);
+
+/**
+ * drm_gem_map_dma_buf - map_dma_buf implementation for GEM
+ * @attach: attachment whose scatterlist is to be returned
+ * @dir: direction of DMA transfer
+ *
+ * Calls &drm_gem_object_funcs.get_sg_table and then maps the scatterlist. This
+ * can be used as the &dma_buf_ops.map_dma_buf callback. Should be used together
+ * with drm_gem_unmap_dma_buf().
+ *
+ * Returns:sg_table containing the scatterlist to be returned; returns ERR_PTR
+ * on error. May return -EINTR if it is interrupted by a signal.
+ */
+struct sg_table *drm_gem_map_dma_buf(struct dma_buf_attachment *attach,
+				     enum dma_data_direction dir)
+{
+	struct drm_gem_object *obj = attach->dmabuf->priv;
+	struct sg_table *sgt;
+	int ret;
+
+	if (WARN_ON(dir == DMA_NONE))
+		return ERR_PTR(-EINVAL);
+
+	if (WARN_ON(!obj->funcs->get_sg_table))
+		return ERR_PTR(-ENOSYS);
+
+	sgt = obj->funcs->get_sg_table(obj);
+	if (IS_ERR(sgt))
+		return sgt;
+
+	ret = dma_map_sgtable(attach->dev, sgt, dir,
+			      DMA_ATTR_SKIP_CPU_SYNC);
+	if (ret) {
+		sg_free_table(sgt);
+		kfree(sgt);
+		sgt = ERR_PTR(ret);
+	}
+
+	return sgt;
+}
+EXPORT_SYMBOL(drm_gem_map_dma_buf);
+
+/**
+ * drm_gem_unmap_dma_buf - unmap_dma_buf implementation for GEM
+ * @attach: attachment to unmap buffer from
+ * @sgt: scatterlist info of the buffer to unmap
+ * @dir: direction of DMA transfer
+ *
+ * This can be used as the &dma_buf_ops.unmap_dma_buf callback.
+ */
+void drm_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
+			   struct sg_table *sgt,
+			   enum dma_data_direction dir)
+{
+	if (!sgt)
+		return;
+
+	dma_unmap_sgtable(attach->dev, sgt, dir, DMA_ATTR_SKIP_CPU_SYNC);
+	sg_free_table(sgt);
+	kfree(sgt);
+}
+EXPORT_SYMBOL(drm_gem_unmap_dma_buf);
+
+/**
+ * drm_gem_dmabuf_vmap - dma_buf vmap implementation for GEM
+ * @dma_buf: buffer to be mapped
+ * @map: the virtual address of the buffer
+ *
+ * Sets up a kernel virtual mapping. This can be used as the &dma_buf_ops.vmap
+ * callback. Calls into &drm_gem_object_funcs.vmap for device specific handling.
+ * The kernel virtual address is returned in map.
+ *
+ * Returns 0 on success or a negative errno code otherwise.
+ */
+int drm_gem_dmabuf_vmap(struct dma_buf *dma_buf, struct dma_buf_map *map)
+{
+	struct drm_gem_object *obj = dma_buf->priv;
+
+	return drm_gem_vmap(obj, map);
+}
+EXPORT_SYMBOL(drm_gem_dmabuf_vmap);
+
+/**
+ * drm_gem_dmabuf_vunmap - dma_buf vunmap implementation for GEM
+ * @dma_buf: buffer to be unmapped
+ * @map: the virtual address of the buffer
+ *
+ * Releases a kernel virtual mapping. This can be used as the
+ * &dma_buf_ops.vunmap callback. Calls into &drm_gem_object_funcs.vunmap for device specific handling.
+ */
+void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct dma_buf_map *map)
+{
+	struct drm_gem_object *obj = dma_buf->priv;
+
+	drm_gem_vunmap(obj, map);
+}
+EXPORT_SYMBOL(drm_gem_dmabuf_vunmap);
+
+>>>>>>> upstream/android-13
 /**
  * drm_gem_prime_mmap - PRIME mmap function for GEM drivers
  * @obj: GEM object
@@ -719,6 +1127,25 @@ int drm_gem_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
 	struct file *fil;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	/* Add the fake offset */
+	vma->vm_pgoff += drm_vma_node_start(&obj->vma_node);
+
+	if (obj->funcs && obj->funcs->mmap) {
+		vma->vm_ops = obj->funcs->vm_ops;
+
+		drm_gem_object_get(obj);
+		ret = obj->funcs->mmap(obj, vma);
+		if (ret) {
+			drm_gem_object_put(obj);
+			return ret;
+		}
+		vma->vm_private_data = obj;
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	fil = kzalloc(sizeof(*fil), GFP_KERNEL);
 	if (!priv || !fil) {
@@ -734,8 +1161,11 @@ int drm_gem_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
 	if (ret)
 		goto out;
 
+<<<<<<< HEAD
 	vma->vm_pgoff += drm_vma_node_start(&obj->vma_node);
 
+=======
+>>>>>>> upstream/android-13
 	ret = obj->dev->driver->fops->mmap(fil, vma);
 
 	drm_vma_node_revoke(&obj->vma_node, priv);
@@ -748,14 +1178,161 @@ out:
 EXPORT_SYMBOL(drm_gem_prime_mmap);
 
 /**
+<<<<<<< HEAD
+=======
+ * drm_gem_dmabuf_mmap - dma_buf mmap implementation for GEM
+ * @dma_buf: buffer to be mapped
+ * @vma: virtual address range
+ *
+ * Provides memory mapping for the buffer. This can be used as the
+ * &dma_buf_ops.mmap callback. It just forwards to &drm_driver.gem_prime_mmap,
+ * which should be set to drm_gem_prime_mmap().
+ *
+ * FIXME: There's really no point to this wrapper, drivers which need anything
+ * else but drm_gem_prime_mmap can roll their own &dma_buf_ops.mmap callback.
+ *
+ * Returns 0 on success or a negative error code on failure.
+ */
+int drm_gem_dmabuf_mmap(struct dma_buf *dma_buf, struct vm_area_struct *vma)
+{
+	struct drm_gem_object *obj = dma_buf->priv;
+	struct drm_device *dev = obj->dev;
+
+	if (!dev->driver->gem_prime_mmap)
+		return -ENOSYS;
+
+	return dev->driver->gem_prime_mmap(obj, vma);
+}
+EXPORT_SYMBOL(drm_gem_dmabuf_mmap);
+
+static const struct dma_buf_ops drm_gem_prime_dmabuf_ops =  {
+	.cache_sgt_mapping = true,
+	.attach = drm_gem_map_attach,
+	.detach = drm_gem_map_detach,
+	.map_dma_buf = drm_gem_map_dma_buf,
+	.unmap_dma_buf = drm_gem_unmap_dma_buf,
+	.release = drm_gem_dmabuf_release,
+	.mmap = drm_gem_dmabuf_mmap,
+	.vmap = drm_gem_dmabuf_vmap,
+	.vunmap = drm_gem_dmabuf_vunmap,
+};
+
+/**
+ * drm_prime_pages_to_sg - converts a page array into an sg list
+ * @dev: DRM device
+ * @pages: pointer to the array of page pointers to convert
+ * @nr_pages: length of the page vector
+ *
+ * This helper creates an sg table object from a set of pages
+ * the driver is responsible for mapping the pages into the
+ * importers address space for use with dma_buf itself.
+ *
+ * This is useful for implementing &drm_gem_object_funcs.get_sg_table.
+ */
+struct sg_table *drm_prime_pages_to_sg(struct drm_device *dev,
+				       struct page **pages, unsigned int nr_pages)
+{
+	struct sg_table *sg;
+	size_t max_segment = 0;
+	int err;
+
+	sg = kmalloc(sizeof(struct sg_table), GFP_KERNEL);
+	if (!sg)
+		return ERR_PTR(-ENOMEM);
+
+	if (dev)
+		max_segment = dma_max_mapping_size(dev->dev);
+	if (max_segment == 0)
+		max_segment = UINT_MAX;
+	err = sg_alloc_table_from_pages_segment(sg, pages, nr_pages, 0,
+						nr_pages << PAGE_SHIFT,
+						max_segment, GFP_KERNEL);
+	if (err) {
+		kfree(sg);
+		sg = ERR_PTR(err);
+	}
+	return sg;
+}
+EXPORT_SYMBOL(drm_prime_pages_to_sg);
+
+/**
+ * drm_prime_get_contiguous_size - returns the contiguous size of the buffer
+ * @sgt: sg_table describing the buffer to check
+ *
+ * This helper calculates the contiguous size in the DMA address space
+ * of the the buffer described by the provided sg_table.
+ *
+ * This is useful for implementing
+ * &drm_gem_object_funcs.gem_prime_import_sg_table.
+ */
+unsigned long drm_prime_get_contiguous_size(struct sg_table *sgt)
+{
+	dma_addr_t expected = sg_dma_address(sgt->sgl);
+	struct scatterlist *sg;
+	unsigned long size = 0;
+	int i;
+
+	for_each_sgtable_dma_sg(sgt, sg, i) {
+		unsigned int len = sg_dma_len(sg);
+
+		if (!len)
+			break;
+		if (sg_dma_address(sg) != expected)
+			break;
+		expected += len;
+		size += len;
+	}
+	return size;
+}
+EXPORT_SYMBOL(drm_prime_get_contiguous_size);
+
+/**
+ * drm_gem_prime_export - helper library implementation of the export callback
+ * @obj: GEM object to export
+ * @flags: flags like DRM_CLOEXEC and DRM_RDWR
+ *
+ * This is the implementation of the &drm_gem_object_funcs.export functions for GEM drivers
+ * using the PRIME helpers. It is used as the default in
+ * drm_gem_prime_handle_to_fd().
+ */
+struct dma_buf *drm_gem_prime_export(struct drm_gem_object *obj,
+				     int flags)
+{
+	struct drm_device *dev = obj->dev;
+	struct dma_buf_export_info exp_info = {
+		.exp_name = KBUILD_MODNAME, /* white lie for debug */
+		.owner = dev->driver->fops->owner,
+		.ops = &drm_gem_prime_dmabuf_ops,
+		.size = obj->size,
+		.flags = flags,
+		.priv = obj,
+		.resv = obj->resv,
+	};
+
+	return drm_gem_dmabuf_export(dev, &exp_info);
+}
+EXPORT_SYMBOL(drm_gem_prime_export);
+
+/**
+>>>>>>> upstream/android-13
  * drm_gem_prime_import_dev - core implementation of the import callback
  * @dev: drm_device to import into
  * @dma_buf: dma-buf object to import
  * @attach_dev: struct device to dma_buf attach
  *
+<<<<<<< HEAD
  * This is the core of drm_gem_prime_import. It's designed to be called by
  * drivers who want to use a different device structure than dev->dev for
  * attaching via dma_buf.
+=======
+ * This is the core of drm_gem_prime_import(). It's designed to be called by
+ * drivers who want to use a different device structure than &drm_device.dev for
+ * attaching via dma_buf. This function calls
+ * &drm_driver.gem_prime_import_sg_table internally.
+ *
+ * Drivers must arrange to call drm_prime_gem_destroy() from their
+ * &drm_gem_object_funcs.free hook when using this function.
+>>>>>>> upstream/android-13
  */
 struct drm_gem_object *drm_gem_prime_import_dev(struct drm_device *dev,
 					    struct dma_buf *dma_buf,
@@ -800,6 +1377,10 @@ struct drm_gem_object *drm_gem_prime_import_dev(struct drm_device *dev,
 	}
 
 	obj->import_attach = attach;
+<<<<<<< HEAD
+=======
+	obj->resv = dma_buf->resv;
+>>>>>>> upstream/android-13
 
 	return obj;
 
@@ -819,7 +1400,16 @@ EXPORT_SYMBOL(drm_gem_prime_import_dev);
  * @dma_buf: dma-buf object to import
  *
  * This is the implementation of the gem_prime_import functions for GEM drivers
+<<<<<<< HEAD
  * using the PRIME helpers.
+=======
+ * using the PRIME helpers. Drivers can use this as their
+ * &drm_driver.gem_prime_import implementation. It is used as the default
+ * implementation in drm_gem_prime_fd_to_handle().
+ *
+ * Drivers must arrange to call drm_prime_gem_destroy() from their
+ * &drm_gem_object_funcs.free hook when using this function.
+>>>>>>> upstream/android-13
  */
 struct drm_gem_object *drm_gem_prime_import(struct drm_device *dev,
 					    struct dma_buf *dma_buf)
@@ -829,6 +1419,7 @@ struct drm_gem_object *drm_gem_prime_import(struct drm_device *dev,
 EXPORT_SYMBOL(drm_gem_prime_import);
 
 /**
+<<<<<<< HEAD
  * drm_gem_prime_fd_to_handle - PRIME import function for GEM drivers
  * @dev: dev to export the buffer from
  * @file_priv: drm file-private structure
@@ -1015,6 +1606,60 @@ int drm_prime_sg_to_page_addr_arrays(struct sg_table *sgt, struct page **pages,
 	return 0;
 }
 EXPORT_SYMBOL(drm_prime_sg_to_page_addr_arrays);
+=======
+ * drm_prime_sg_to_page_array - convert an sg table into a page array
+ * @sgt: scatter-gather table to convert
+ * @pages: array of page pointers to store the pages in
+ * @max_entries: size of the passed-in array
+ *
+ * Exports an sg table into an array of pages.
+ *
+ * This function is deprecated and strongly discouraged to be used.
+ * The page array is only useful for page faults and those can corrupt fields
+ * in the struct page if they are not handled by the exporting driver.
+ */
+int __deprecated drm_prime_sg_to_page_array(struct sg_table *sgt,
+					    struct page **pages,
+					    int max_entries)
+{
+	struct sg_page_iter page_iter;
+	struct page **p = pages;
+
+	for_each_sgtable_page(sgt, &page_iter, 0) {
+		if (WARN_ON(p - pages >= max_entries))
+			return -1;
+		*p++ = sg_page_iter_page(&page_iter);
+	}
+	return 0;
+}
+EXPORT_SYMBOL(drm_prime_sg_to_page_array);
+
+/**
+ * drm_prime_sg_to_dma_addr_array - convert an sg table into a dma addr array
+ * @sgt: scatter-gather table to convert
+ * @addrs: array to store the dma bus address of each page
+ * @max_entries: size of both the passed-in arrays
+ *
+ * Exports an sg table into an array of addresses.
+ *
+ * Drivers should use this in their &drm_driver.gem_prime_import_sg_table
+ * implementation.
+ */
+int drm_prime_sg_to_dma_addr_array(struct sg_table *sgt, dma_addr_t *addrs,
+				   int max_entries)
+{
+	struct sg_dma_page_iter dma_iter;
+	dma_addr_t *a = addrs;
+
+	for_each_sgtable_dma_page(sgt, &dma_iter, 0) {
+		if (WARN_ON(a - addrs >= max_entries))
+			return -1;
+		*a++ = sg_page_iter_dma_address(&dma_iter);
+	}
+	return 0;
+}
+EXPORT_SYMBOL(drm_prime_sg_to_dma_addr_array);
+>>>>>>> upstream/android-13
 
 /**
  * drm_prime_gem_destroy - helper to clean up a PRIME-imported GEM object
@@ -1022,12 +1667,20 @@ EXPORT_SYMBOL(drm_prime_sg_to_page_addr_arrays);
  * @sg: the sg-table which was pinned at import time
  *
  * This is the cleanup functions which GEM drivers need to call when they use
+<<<<<<< HEAD
  * @drm_gem_prime_import to import dma-bufs.
+=======
+ * drm_gem_prime_import() or drm_gem_prime_import_dev() to import dma-bufs.
+>>>>>>> upstream/android-13
  */
 void drm_prime_gem_destroy(struct drm_gem_object *obj, struct sg_table *sg)
 {
 	struct dma_buf_attachment *attach;
 	struct dma_buf *dma_buf;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	attach = obj->import_attach;
 	if (sg)
 		dma_buf_unmap_attachment(attach, sg, DMA_BIDIRECTIONAL);
@@ -1037,6 +1690,7 @@ void drm_prime_gem_destroy(struct drm_gem_object *obj, struct sg_table *sg)
 	dma_buf_put(dma_buf);
 }
 EXPORT_SYMBOL(drm_prime_gem_destroy);
+<<<<<<< HEAD
 
 void drm_prime_init_file_private(struct drm_prime_file_private *prime_fpriv)
 {
@@ -1050,3 +1704,5 @@ void drm_prime_destroy_file_private(struct drm_prime_file_private *prime_fpriv)
 	/* by now drm_gem_release should've made sure the list is empty */
 	WARN_ON(!RB_EMPTY_ROOT(&prime_fpriv->dmabufs));
 }
+=======
+>>>>>>> upstream/android-13

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016 Facebook
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2016 Facebook
+>>>>>>> upstream/android-13
  */
 #ifndef __BPF_LRU_LIST_H_
 #define __BPF_LRU_LIST_H_
@@ -33,7 +38,11 @@ struct bpf_lru_node {
 struct bpf_lru_list {
 	struct list_head lists[NR_BPF_LRU_LIST_T];
 	unsigned int counts[NR_BPF_LRU_LIST_COUNT];
+<<<<<<< HEAD
 	/* The next inacitve list rotation starts from here */
+=======
+	/* The next inactive list rotation starts from here */
+>>>>>>> upstream/android-13
 	struct list_head *next_inactive_rotation;
 
 	raw_spinlock_t lock ____cacheline_aligned_in_smp;

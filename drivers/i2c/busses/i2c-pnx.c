@@ -138,7 +138,11 @@ static inline void i2c_pnx_arm_timer(struct i2c_pnx_algo_data *alg_data)
 /**
  * i2c_pnx_start - start a device
  * @slave_addr:		slave address
+<<<<<<< HEAD
  * @adap:		pointer to adapter structure
+=======
+ * @alg_data:		pointer to local driver data structure
+>>>>>>> upstream/android-13
  *
  * Generate a START signal in the desired mode.
  */
@@ -194,7 +198,11 @@ static int i2c_pnx_start(unsigned char slave_addr,
 
 /**
  * i2c_pnx_stop - stop a device
+<<<<<<< HEAD
  * @adap:		pointer to I2C adapter structure
+=======
+ * @alg_data:		pointer to local driver data structure
+>>>>>>> upstream/android-13
  *
  * Generate a STOP signal to terminate the master transaction.
  */
@@ -223,7 +231,11 @@ static void i2c_pnx_stop(struct i2c_pnx_algo_data *alg_data)
 
 /**
  * i2c_pnx_master_xmit - transmit data to slave
+<<<<<<< HEAD
  * @adap:		pointer to I2C adapter structure
+=======
+ * @alg_data:		pointer to local driver data structure
+>>>>>>> upstream/android-13
  *
  * Sends one byte of data to the slave
  */
@@ -293,7 +305,11 @@ static int i2c_pnx_master_xmit(struct i2c_pnx_algo_data *alg_data)
 
 /**
  * i2c_pnx_master_rcv - receive data from slave
+<<<<<<< HEAD
  * @adap:		pointer to I2C adapter structure
+=======
+ * @alg_data:		pointer to local driver data structure
+>>>>>>> upstream/android-13
  *
  * Reads one byte data from the slave
  */
@@ -720,7 +736,10 @@ static int i2c_pnx_probe(struct platform_device *pdev)
 
 	alg_data->irq = platform_get_irq(pdev, 0);
 	if (alg_data->irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Failed to get IRQ from platform resource\n");
+=======
+>>>>>>> upstream/android-13
 		ret = alg_data->irq;
 		goto out_clock;
 	}
@@ -734,8 +753,13 @@ static int i2c_pnx_probe(struct platform_device *pdev)
 	if (ret < 0)
 		goto out_clock;
 
+<<<<<<< HEAD
 	dev_dbg(&pdev->dev, "%s: Master at %#8x, irq %d.\n",
 		alg_data->adapter.name, res->start, alg_data->irq);
+=======
+	dev_dbg(&pdev->dev, "%s: Master at %pap, irq %d.\n",
+		alg_data->adapter.name, &res->start, alg_data->irq);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -782,7 +806,12 @@ static void __exit i2c_adap_pnx_exit(void)
 	platform_driver_unregister(&i2c_pnx_driver);
 }
 
+<<<<<<< HEAD
 MODULE_AUTHOR("Vitaly Wool, Dennis Kovalev <source@mvista.com>");
+=======
+MODULE_AUTHOR("Vitaly Wool");
+MODULE_AUTHOR("Dennis Kovalev <source@mvista.com>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("I2C driver for Philips IP3204-based I2C busses");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:pnx-i2c");

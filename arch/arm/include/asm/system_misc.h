@@ -13,7 +13,10 @@
 extern void cpu_init(void);
 
 void soft_restart(unsigned long);
+<<<<<<< HEAD
 extern void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+=======
+>>>>>>> upstream/android-13
 extern void (*arm_pm_idle)(void);
 
 #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
@@ -37,12 +40,15 @@ static inline void harden_branch_predictor(void)
 #define UDBG_BUS	(1 << 4)
 
 extern unsigned int user_debug;
+<<<<<<< HEAD
 extern char* (*arch_read_hardware_id)(void);
 
 static inline int handle_guest_sea(phys_addr_t addr, unsigned int esr)
 {
 	return -1;
 }
+=======
+>>>>>>> upstream/android-13
 
 #endif /* !__ASSEMBLY__ */
 

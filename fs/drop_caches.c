@@ -3,6 +3,10 @@
  * Implement the manual drop-all-pagecache function
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/pagemap.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/mm.h>
 #include <linux/fs.h>
@@ -27,7 +31,11 @@ static void drop_pagecache_sb(struct super_block *sb, void *unused)
 		 * we need to reschedule to avoid softlockups.
 		 */
 		if ((inode->i_state & (I_FREEING|I_WILL_FREE|I_NEW)) ||
+<<<<<<< HEAD
 		    (inode->i_mapping->nrpages == 0 && !need_resched())) {
+=======
+		    (mapping_empty(inode->i_mapping) && !need_resched())) {
+>>>>>>> upstream/android-13
 			spin_unlock(&inode->i_lock);
 			continue;
 		}
@@ -47,7 +55,11 @@ static void drop_pagecache_sb(struct super_block *sb, void *unused)
 }
 
 int drop_caches_sysctl_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 	void __user *buffer, size_t *length, loff_t *ppos)
+=======
+		void *buffer, size_t *length, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 

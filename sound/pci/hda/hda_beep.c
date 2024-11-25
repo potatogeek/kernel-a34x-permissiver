@@ -102,7 +102,11 @@ static int snd_hda_beep_event(struct input_dev *dev, unsigned int type,
 	case SND_BELL:
 		if (hz)
 			hz = 1000;
+<<<<<<< HEAD
 		/* fallthru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SND_TONE:
 		if (beep->linear_tone)
 			beep->tone = beep_linear_tone(beep, hz);
@@ -127,6 +131,7 @@ static void turn_off_beep(struct hda_beep *beep)
 	}
 }
 
+<<<<<<< HEAD
 static void snd_hda_do_detach(struct hda_beep *beep)
 {
 	if (beep->registered)
@@ -165,6 +170,8 @@ static int snd_hda_do_attach(struct hda_beep *beep)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * snd_hda_enable_beep_device - Turn on/off beep sound
  * @codec: the HDA codec
@@ -186,6 +193,41 @@ int snd_hda_enable_beep_device(struct hda_codec *codec, int enable)
 }
 EXPORT_SYMBOL_GPL(snd_hda_enable_beep_device);
 
+<<<<<<< HEAD
+=======
+static int beep_dev_register(struct snd_device *device)
+{
+	struct hda_beep *beep = device->device_data;
+	int err;
+
+	err = input_register_device(beep->dev);
+	if (!err)
+		beep->registered = true;
+	return err;
+}
+
+static int beep_dev_disconnect(struct snd_device *device)
+{
+	struct hda_beep *beep = device->device_data;
+
+	if (beep->registered)
+		input_unregister_device(beep->dev);
+	else
+		input_free_device(beep->dev);
+	turn_off_beep(beep);
+	return 0;
+}
+
+static int beep_dev_free(struct snd_device *device)
+{
+	struct hda_beep *beep = device->device_data;
+
+	beep->codec->beep = NULL;
+	kfree(beep);
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * snd_hda_attach_beep_device - Attach a beep input device
  * @codec: the HDA codec
@@ -194,14 +236,26 @@ EXPORT_SYMBOL_GPL(snd_hda_enable_beep_device);
  * Attach a beep object to the given widget.  If beep hint is turned off
  * explicitly or beep_mode of the codec is turned off, this doesn't nothing.
  *
+<<<<<<< HEAD
  * The attached beep device has to be registered via
  * snd_hda_register_beep_device() and released via snd_hda_detach_beep_device()
  * appropriately.
  *
+=======
+>>>>>>> upstream/android-13
  * Currently, only one beep device is allowed to each codec.
  */
 int snd_hda_attach_beep_device(struct hda_codec *codec, int nid)
 {
+<<<<<<< HEAD
+=======
+	static const struct snd_device_ops ops = {
+		.dev_register = beep_dev_register,
+		.dev_disconnect = beep_dev_disconnect,
+		.dev_free = beep_dev_free,
+	};
+	struct input_dev *input_dev;
+>>>>>>> upstream/android-13
 	struct hda_beep *beep;
 	int err;
 
@@ -226,6 +280,7 @@ int snd_hda_attach_beep_device(struct hda_codec *codec, int nid)
 	INIT_WORK(&beep->beep_work, &snd_hda_generate_beep);
 	mutex_init(&beep->mutex);
 
+<<<<<<< HEAD
 	err = snd_hda_do_attach(beep);
 	if (err < 0) {
 		kfree(beep);
@@ -234,6 +289,43 @@ int snd_hda_attach_beep_device(struct hda_codec *codec, int nid)
 	}
 
 	return 0;
+=======
+	input_dev = input_allocate_device();
+	if (!input_dev) {
+		err = -ENOMEM;
+		goto err_free;
+	}
+
+	/* setup digital beep device */
+	input_dev->name = "HDA Digital PCBeep";
+	input_dev->phys = beep->phys;
+	input_dev->id.bustype = BUS_PCI;
+	input_dev->dev.parent = &codec->card->card_dev;
+
+	input_dev->id.vendor = codec->core.vendor_id >> 16;
+	input_dev->id.product = codec->core.vendor_id & 0xffff;
+	input_dev->id.version = 0x01;
+
+	input_dev->evbit[0] = BIT_MASK(EV_SND);
+	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
+	input_dev->event = snd_hda_beep_event;
+	input_set_drvdata(input_dev, beep);
+
+	beep->dev = input_dev;
+
+	err = snd_device_new(codec->card, SNDRV_DEV_JACK, beep, &ops);
+	if (err < 0)
+		goto err_input;
+
+	return 0;
+
+ err_input:
+	input_free_device(beep->dev);
+ err_free:
+	kfree(beep);
+	codec->beep = NULL;
+	return err;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(snd_hda_attach_beep_device);
 
@@ -243,6 +335,7 @@ EXPORT_SYMBOL_GPL(snd_hda_attach_beep_device);
  */
 void snd_hda_detach_beep_device(struct hda_codec *codec)
 {
+<<<<<<< HEAD
 	struct hda_beep *beep = codec->beep;
 	if (beep) {
 		if (beep->dev)
@@ -278,6 +371,13 @@ int snd_hda_register_beep_device(struct hda_codec *codec)
 }
 EXPORT_SYMBOL_GPL(snd_hda_register_beep_device);
 
+=======
+	if (!codec->bus->shutdown && codec->beep)
+		snd_device_free(codec->card, codec->beep);
+}
+EXPORT_SYMBOL_GPL(snd_hda_detach_beep_device);
+
+>>>>>>> upstream/android-13
 static bool ctl_has_mute(struct snd_kcontrol *kcontrol)
 {
 	struct hda_codec *codec = snd_kcontrol_chip(kcontrol);

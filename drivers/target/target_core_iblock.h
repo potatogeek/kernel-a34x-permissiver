@@ -4,6 +4,10 @@
 
 #include <linux/atomic.h>
 #include <linux/refcount.h>
+<<<<<<< HEAD
+=======
+#include <linux/blkdev.h>
+>>>>>>> upstream/android-13
 #include <target/target_core_base.h>
 
 #define IBLOCK_VERSION		"4.0"
@@ -17,6 +21,17 @@ struct iblock_req {
 
 #define IBDF_HAS_UDEV_PATH		0x01
 
+<<<<<<< HEAD
+=======
+#define IBD_PLUGF_PLUGGED		0x01
+
+struct iblock_dev_plug {
+	struct se_dev_plug se_plug;
+	struct blk_plug blk_plug;
+	unsigned long flags;
+};
+
+>>>>>>> upstream/android-13
 struct iblock_dev {
 	struct se_device dev;
 	unsigned char ibd_udev_path[SE_UDEV_PATH_LEN];
@@ -24,6 +39,10 @@ struct iblock_dev {
 	struct bio_set	ibd_bio_set;
 	struct block_device *ibd_bd;
 	bool ibd_readonly;
+<<<<<<< HEAD
+=======
+	struct iblock_dev_plug *ibd_plug;
+>>>>>>> upstream/android-13
 } ____cacheline_aligned;
 
 #endif /* TARGET_CORE_IBLOCK_H */

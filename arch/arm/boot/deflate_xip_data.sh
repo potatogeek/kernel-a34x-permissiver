@@ -1,13 +1,20 @@
 #!/bin/sh
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 # XIP kernel .data segment compressor
 #
 # Created by:	Nicolas Pitre, August 2017
 # Copyright:	(C) 2017  Linaro Limited
 #
+<<<<<<< HEAD
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 
 # This script locates the start of the .data section in xipImage and
 # substitutes it with a compressed version. The needed offsets are obtained
@@ -58,7 +65,11 @@ trap 'rm -f "$XIPIMAGE.tmp"; exit 1' 1 2 3
 # substitute the data section by a compressed version
 $DD if="$XIPIMAGE" count=$data_start iflag=count_bytes of="$XIPIMAGE.tmp"
 $DD if="$XIPIMAGE"  skip=$data_start iflag=skip_bytes |
+<<<<<<< HEAD
 gzip -9 >> "$XIPIMAGE.tmp"
+=======
+$KGZIP -9 >> "$XIPIMAGE.tmp"
+>>>>>>> upstream/android-13
 
 # replace kernel binary
 mv -f "$XIPIMAGE.tmp" "$XIPIMAGE"

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * drivers/net/ethernet/nxp/lpc_eth.c
  *
@@ -5,6 +9,7 @@
  *
  * Copyright (C) 2010 NXP Semiconductors
  * Copyright (C) 2012 Roland Stigge <stigge@antcom.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +20,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -47,6 +55,19 @@
 #include <mach/board.h>
 #include <mach/platform.h>
 #include <mach/hardware.h>
+=======
+#include <linux/clk.h>
+#include <linux/crc32.h>
+#include <linux/etherdevice.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_mdio.h>
+#include <linux/of_net.h>
+#include <linux/phy.h>
+#include <linux/platform_device.h>
+#include <linux/spinlock.h>
+#include <linux/soc/nxp/lpc32xx-misc.h>
+>>>>>>> upstream/android-13
 
 #define MODNAME "lpc-eth"
 #define DRV_VERSION "1.00"
@@ -296,7 +317,11 @@
 #define LPC_FCCR_MIRRORCOUNTERCURRENT(n)	((n) & 0xFFFF)
 
 /*
+<<<<<<< HEAD
  * rxfliterctrl, rxfilterwolstatus, and rxfilterwolclear shared
+=======
+ * rxfilterctrl, rxfilterwolstatus, and rxfilterwolclear shared
+>>>>>>> upstream/android-13
  * register definitions
  */
 #define LPC_RXFLTRW_ACCEPTUNICAST		(1 << 0)
@@ -307,7 +332,11 @@
 #define LPC_RXFLTRW_ACCEPTPERFECT		(1 << 5)
 
 /*
+<<<<<<< HEAD
  * rxfliterctrl register definitions
+=======
+ * rxfilterctrl register definitions
+>>>>>>> upstream/android-13
  */
 #define LPC_RXFLTRWSTS_MAGICPACKETENWOL		(1 << 12)
 #define LPC_RXFLTRWSTS_RXFILTERENWOL		(1 << 13)
@@ -418,6 +447,10 @@ struct rx_status_t {
 struct netdata_local {
 	struct platform_device	*pdev;
 	struct net_device	*ndev;
+<<<<<<< HEAD
+=======
+	struct device_node	*phy_node;
+>>>>>>> upstream/android-13
 	spinlock_t		lock;
 	void __iomem		*net_base;
 	u32			msg_enable;
@@ -776,31 +809,55 @@ static void lpc_handle_link_change(struct net_device *ndev)
 static int lpc_mii_probe(struct net_device *ndev)
 {
 	struct netdata_local *pldat = netdev_priv(ndev);
+<<<<<<< HEAD
 	struct phy_device *phydev = phy_find_first(pldat->mii_bus);
 
 	if (!phydev) {
 		netdev_err(ndev, "no PHY found\n");
 		return -ENODEV;
 	}
+=======
+	struct phy_device *phydev;
+>>>>>>> upstream/android-13
 
 	/* Attach to the PHY */
 	if (lpc_phy_interface_mode(&pldat->pdev->dev) == PHY_INTERFACE_MODE_MII)
 		netdev_info(ndev, "using MII interface\n");
 	else
 		netdev_info(ndev, "using RMII interface\n");
+<<<<<<< HEAD
 	phydev = phy_connect(ndev, phydev_name(phydev),
 			     &lpc_handle_link_change,
 			     lpc_phy_interface_mode(&pldat->pdev->dev));
 
+=======
+
+	if (pldat->phy_node)
+		phydev =  of_phy_find_device(pldat->phy_node);
+	else
+		phydev = phy_find_first(pldat->mii_bus);
+	if (!phydev) {
+		netdev_err(ndev, "no PHY found\n");
+		return -ENODEV;
+	}
+
+	phydev = phy_connect(ndev, phydev_name(phydev),
+			     &lpc_handle_link_change,
+			     lpc_phy_interface_mode(&pldat->pdev->dev));
+>>>>>>> upstream/android-13
 	if (IS_ERR(phydev)) {
 		netdev_err(ndev, "Could not attach to PHY\n");
 		return PTR_ERR(phydev);
 	}
 
+<<<<<<< HEAD
 	/* mask with MAC supported features */
 	phydev->supported &= PHY_BASIC_FEATURES;
 
 	phydev->advertising = phydev->supported;
+=======
+	phy_set_max_speed(phydev, SPEED_100);
+>>>>>>> upstream/android-13
 
 	pldat->link = 0;
 	pldat->speed = 0;
@@ -813,6 +870,10 @@ static int lpc_mii_probe(struct net_device *ndev)
 
 static int lpc_mii_init(struct netdata_local *pldat)
 {
+<<<<<<< HEAD
+=======
+	struct device_node *node;
+>>>>>>> upstream/android-13
 	int err = -ENXIO;
 
 	pldat->mii_bus = mdiobus_alloc();
@@ -840,9 +901,16 @@ static int lpc_mii_init(struct netdata_local *pldat)
 	pldat->mii_bus->priv = pldat;
 	pldat->mii_bus->parent = &pldat->pdev->dev;
 
+<<<<<<< HEAD
 	platform_set_drvdata(pldat->pdev, pldat->mii_bus);
 
 	if (mdiobus_register(pldat->mii_bus))
+=======
+	node = of_get_child_by_name(pldat->pdev->dev.of_node, "mdio");
+	err = of_mdiobus_register(pldat->mii_bus, node);
+	of_node_put(node);
+	if (err)
+>>>>>>> upstream/android-13
 		goto err_out_unregister_bus;
 
 	err = lpc_mii_probe(pldat->ndev);
@@ -1037,9 +1105,12 @@ static int lpc_eth_close(struct net_device *ndev)
 	napi_disable(&pldat->napi);
 	netif_stop_queue(ndev);
 
+<<<<<<< HEAD
 	if (ndev->phydev)
 		phy_stop(ndev->phydev);
 
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&pldat->lock, flags);
 	__lpc_eth_reset(pldat);
 	netif_carrier_off(ndev);
@@ -1047,12 +1118,22 @@ static int lpc_eth_close(struct net_device *ndev)
 	writel(0, LPC_ENET_MAC2(pldat->net_base));
 	spin_unlock_irqrestore(&pldat->lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (ndev->phydev)
+		phy_stop(ndev->phydev);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(pldat->clk);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int lpc_eth_hard_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+=======
+static netdev_tx_t lpc_eth_hard_start_xmit(struct sk_buff *skb,
+					   struct net_device *ndev)
+>>>>>>> upstream/android-13
 {
 	struct netdata_local *pldat = netdev_priv(ndev);
 	u32 len, txidx;
@@ -1065,7 +1146,12 @@ static int lpc_eth_hard_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 
 	if (pldat->num_used_tx_buffs >= (ENET_TX_DESC - 1)) {
 		/* This function should never be called when there are no
+<<<<<<< HEAD
 		   buffers */
+=======
+		 * buffers
+		 */
+>>>>>>> upstream/android-13
 		netif_stop_queue(ndev);
 		spin_unlock_irq(&pldat->lock);
 		WARN(1, "BUG! TX request when no free TX buffers!\n");
@@ -1172,6 +1258,7 @@ static void lpc_eth_set_multicast_list(struct net_device *ndev)
 	spin_unlock_irqrestore(&pldat->lock, flags);
 }
 
+<<<<<<< HEAD
 static int lpc_eth_ioctl(struct net_device *ndev, struct ifreq *req, int cmd)
 {
 	struct phy_device *phydev = ndev->phydev;
@@ -1185,6 +1272,8 @@ static int lpc_eth_ioctl(struct net_device *ndev, struct ifreq *req, int cmd)
 	return phy_mii_ioctl(phydev, req, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int lpc_eth_open(struct net_device *ndev)
 {
 	struct netdata_local *pldat = netdev_priv(ndev);
@@ -1252,13 +1341,18 @@ static const struct net_device_ops lpc_netdev_ops = {
 	.ndo_stop		= lpc_eth_close,
 	.ndo_start_xmit		= lpc_eth_hard_start_xmit,
 	.ndo_set_rx_mode	= lpc_eth_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= lpc_eth_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address	= lpc_set_mac_address,
 	.ndo_validate_addr	= eth_validate_addr,
 };
 
 static int lpc_eth_drv_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	struct net_device *ndev;
 	struct netdata_local *pldat;
@@ -1275,12 +1369,28 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	else
 		tmp |= LPC32XX_CLKPWR_MACCTRL_USE_RMII_PINS;
 	__raw_writel(tmp, LPC32XX_CLKPWR_MACCLK_CTRL);
+=======
+	struct device *dev = &pdev->dev;
+	struct device_node *np = dev->of_node;
+	struct netdata_local *pldat;
+	struct net_device *ndev;
+	dma_addr_t dma_handle;
+	struct resource *res;
+	int irq, ret;
+
+	/* Setup network interface for RMII or MII mode */
+	lpc32xx_set_phy_interface_mode(lpc_phy_interface_mode(dev));
+>>>>>>> upstream/android-13
 
 	/* Get platform resources */
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	irq = platform_get_irq(pdev, 0);
 	if (!res || irq < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "error getting resources.\n");
+=======
+		dev_err(dev, "error getting resources.\n");
+>>>>>>> upstream/android-13
 		ret = -ENXIO;
 		goto err_exit;
 	}
@@ -1288,12 +1398,20 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	/* Allocate net driver data structure */
 	ndev = alloc_etherdev(sizeof(struct netdata_local));
 	if (!ndev) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "could not allocate device.\n");
+=======
+		dev_err(dev, "could not allocate device.\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_exit;
 	}
 
+<<<<<<< HEAD
 	SET_NETDEV_DEV(ndev, &pdev->dev);
+=======
+	SET_NETDEV_DEV(ndev, dev);
+>>>>>>> upstream/android-13
 
 	pldat = netdev_priv(ndev);
 	pldat->pdev = pdev;
@@ -1305,9 +1423,15 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	ndev->irq = irq;
 
 	/* Get clock for the device */
+<<<<<<< HEAD
 	pldat->clk = clk_get(&pdev->dev, NULL);
 	if (IS_ERR(pldat->clk)) {
 		dev_err(&pdev->dev, "error getting clock.\n");
+=======
+	pldat->clk = clk_get(dev, NULL);
+	if (IS_ERR(pldat->clk)) {
+		dev_err(dev, "error getting clock.\n");
+>>>>>>> upstream/android-13
 		ret = PTR_ERR(pldat->clk);
 		goto err_out_free_dev;
 	}
@@ -1320,14 +1444,22 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	/* Map IO space */
 	pldat->net_base = ioremap(res->start, resource_size(res));
 	if (!pldat->net_base) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to map registers\n");
+=======
+		dev_err(dev, "failed to map registers\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_out_disable_clocks;
 	}
 	ret = request_irq(ndev->irq, __lpc_eth_interrupt, 0,
 			  ndev->name, ndev);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "error requesting interrupt.\n");
+=======
+		dev_err(dev, "error requesting interrupt.\n");
+>>>>>>> upstream/android-13
 		goto err_out_iounmap;
 	}
 
@@ -1339,6 +1471,7 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	/* Get size of DMA buffers/descriptors region */
 	pldat->dma_buff_size = (ENET_TX_DESC + ENET_RX_DESC) * (ENET_MAXF_SIZE +
 		sizeof(struct txrx_desc_t) + sizeof(struct rx_status_t));
+<<<<<<< HEAD
 	pldat->dma_buff_base_v = 0;
 
 	if (use_iram_for_net(&pldat->pdev->dev)) {
@@ -1353,15 +1486,37 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 
 	if (pldat->dma_buff_base_v == 0) {
 		ret = dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+=======
+
+	if (use_iram_for_net(dev)) {
+		if (pldat->dma_buff_size >
+		    lpc32xx_return_iram(&pldat->dma_buff_base_v, &dma_handle)) {
+			pldat->dma_buff_base_v = NULL;
+			pldat->dma_buff_size = 0;
+			netdev_err(ndev,
+				"IRAM not big enough for net buffers, using SDRAM instead.\n");
+		}
+	}
+
+	if (pldat->dma_buff_base_v == NULL) {
+		ret = dma_coerce_mask_and_coherent(dev, DMA_BIT_MASK(32));
+>>>>>>> upstream/android-13
 		if (ret)
 			goto err_out_free_irq;
 
 		pldat->dma_buff_size = PAGE_ALIGN(pldat->dma_buff_size);
 
 		/* Allocate a chunk of memory for the DMA ethernet buffers
+<<<<<<< HEAD
 		   and descriptors */
 		pldat->dma_buff_base_v =
 			dma_alloc_coherent(&pldat->pdev->dev,
+=======
+		 * and descriptors
+		 */
+		pldat->dma_buff_base_v =
+			dma_alloc_coherent(dev,
+>>>>>>> upstream/android-13
 					   pldat->dma_buff_size, &dma_handle,
 					   GFP_KERNEL);
 		if (pldat->dma_buff_base_v == NULL) {
@@ -1383,20 +1538,32 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	netdev_dbg(ndev, "DMA buffer V address :0x%p\n",
 			pldat->dma_buff_base_v);
 
+<<<<<<< HEAD
+=======
+	pldat->phy_node = of_parse_phandle(np, "phy-handle", 0);
+
+>>>>>>> upstream/android-13
 	/* Get MAC address from current HW setting (POR state is all zeros) */
 	__lpc_get_mac(pldat, ndev->dev_addr);
 
 	if (!is_valid_ether_addr(ndev->dev_addr)) {
+<<<<<<< HEAD
 		const char *macaddr = of_get_mac_address(pdev->dev.of_node);
 		if (macaddr)
 			memcpy(ndev->dev_addr, macaddr, ETH_ALEN);
+=======
+		of_get_mac_address(np, ndev->dev_addr);
+>>>>>>> upstream/android-13
 	}
 	if (!is_valid_ether_addr(ndev->dev_addr))
 		eth_hw_addr_random(ndev);
 
+<<<<<<< HEAD
 	/* Reset the ethernet controller */
 	__lpc_eth_reset(pldat);
 
+=======
+>>>>>>> upstream/android-13
 	/* then shut everything down to save power */
 	__lpc_eth_shutdown(pldat);
 
@@ -1407,7 +1574,12 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	__lpc_mii_mngt_reset(pldat);
 
 	/* Force default PHY interface setup in chip, this will probably be
+<<<<<<< HEAD
 	   changed by the PHY driver */
+=======
+	 * changed by the PHY driver
+	 */
+>>>>>>> upstream/android-13
 	pldat->link = 0;
 	pldat->speed = 100;
 	pldat->duplex = DUPLEX_FULL;
@@ -1417,7 +1589,11 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 
 	ret = register_netdev(ndev);
 	if (ret) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Cannot register net device, aborting.\n");
+=======
+		dev_err(dev, "Cannot register net device, aborting.\n");
+>>>>>>> upstream/android-13
 		goto err_out_dma_unmap;
 	}
 	platform_set_drvdata(pdev, ndev);
@@ -1429,19 +1605,30 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
 	netdev_info(ndev, "LPC mac at 0x%08lx irq %d\n",
 	       (unsigned long)res->start, ndev->irq);
 
+<<<<<<< HEAD
 	phydev = ndev->phydev;
 
 	device_init_wakeup(&pdev->dev, 1);
 	device_set_wakeup_enable(&pdev->dev, 0);
+=======
+	device_init_wakeup(dev, 1);
+	device_set_wakeup_enable(dev, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 
 err_out_unregister_netdev:
 	unregister_netdev(ndev);
 err_out_dma_unmap:
+<<<<<<< HEAD
 	if (!use_iram_for_net(&pldat->pdev->dev) ||
 	    pldat->dma_buff_size > lpc32xx_return_iram_size())
 		dma_free_coherent(&pldat->pdev->dev, pldat->dma_buff_size,
+=======
+	if (!use_iram_for_net(dev) ||
+	    pldat->dma_buff_size > lpc32xx_return_iram(NULL, NULL))
+		dma_free_coherent(dev, pldat->dma_buff_size,
+>>>>>>> upstream/android-13
 				  pldat->dma_buff_base_v,
 				  pldat->dma_buff_base_p);
 err_out_free_irq:
@@ -1467,7 +1654,11 @@ static int lpc_eth_drv_remove(struct platform_device *pdev)
 	unregister_netdev(ndev);
 
 	if (!use_iram_for_net(&pldat->pdev->dev) ||
+<<<<<<< HEAD
 	    pldat->dma_buff_size > lpc32xx_return_iram_size())
+=======
+	    pldat->dma_buff_size > lpc32xx_return_iram(NULL, NULL))
+>>>>>>> upstream/android-13
 		dma_free_coherent(&pldat->pdev->dev, pldat->dma_buff_size,
 				  pldat->dma_buff_base_v,
 				  pldat->dma_buff_base_p);
@@ -1513,6 +1704,10 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
 {
 	struct net_device *ndev = platform_get_drvdata(pdev);
 	struct netdata_local *pldat;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (device_may_wakeup(&pdev->dev))
 		disable_irq_wake(ndev->irq);
@@ -1522,7 +1717,13 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
 			pldat = netdev_priv(ndev);
 
 			/* Enable interface clock */
+<<<<<<< HEAD
 			clk_enable(pldat->clk);
+=======
+			ret = clk_enable(pldat->clk);
+			if (ret)
+				return ret;
+>>>>>>> upstream/android-13
 
 			/* Reset and initialize */
 			__lpc_eth_reset(pldat);
@@ -1536,13 +1737,19 @@ static int lpc_eth_drv_resume(struct platform_device *pdev)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id lpc_eth_match[] = {
 	{ .compatible = "nxp,lpc-eth" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, lpc_eth_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct platform_driver lpc_eth_driver = {
 	.probe		= lpc_eth_drv_probe,
@@ -1553,7 +1760,11 @@ static struct platform_driver lpc_eth_driver = {
 #endif
 	.driver		= {
 		.name	= MODNAME,
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(lpc_eth_match),
+=======
+		.of_match_table = lpc_eth_match,
+>>>>>>> upstream/android-13
 	},
 };
 

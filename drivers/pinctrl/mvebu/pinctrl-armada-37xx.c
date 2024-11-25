@@ -45,6 +45,7 @@
  * The pins of a pinmux groups are composed of one or two groups of contiguous
  * pins.
  * @name:	Name of the pin group, used to lookup the group.
+<<<<<<< HEAD
  * @start_pins:	Index of the first pin of the main range of pins belonging to
  *		the group
  * @npins:	Number of pins included in the first range
@@ -52,6 +53,16 @@
  * @extra_pins:	Index of the first pin of the optional second range of pins
  *		belonging to the group
  * @npins:	Number of pins included in the second optional range
+=======
+ * @start_pin:	Index of the first pin of the main range of pins belonging to
+ *		the group
+ * @npins:	Number of pins included in the first range
+ * @reg_mask:	Bit mask matching the group in the selection register
+ * @val:	Value to write to the registers for a given function
+ * @extra_pin:	Index of the first pin of the optional second range of pins
+ *		belonging to the group
+ * @extra_npins:Number of pins included in the second optional range
+>>>>>>> upstream/android-13
  * @funcs:	A list of pinmux functions that can be selected for this group.
  * @pins:	List of the pins included in the group
  */
@@ -166,12 +177,25 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
 	PIN_GRP_GPIO("jtag", 20, 5, BIT(0), "jtag"),
 	PIN_GRP_GPIO("sdio0", 8, 3, BIT(1), "sdio"),
 	PIN_GRP_GPIO("emmc_nb", 27, 9, BIT(2), "emmc"),
+<<<<<<< HEAD
 	PIN_GRP_GPIO("pwm0", 11, 1, BIT(3), "pwm"),
 	PIN_GRP_GPIO("pwm1", 12, 1, BIT(4), "pwm"),
 	PIN_GRP_GPIO("pwm2", 13, 1, BIT(5), "pwm"),
 	PIN_GRP_GPIO("pwm3", 14, 1, BIT(6), "pwm"),
 	PIN_GRP_GPIO("pmic1", 17, 1, BIT(7), "pmic"),
 	PIN_GRP_GPIO("pmic0", 16, 1, BIT(8), "pmic"),
+=======
+	PIN_GRP_GPIO_3("pwm0", 11, 1, BIT(3) | BIT(20), 0, BIT(20), BIT(3),
+		       "pwm", "led"),
+	PIN_GRP_GPIO_3("pwm1", 12, 1, BIT(4) | BIT(21), 0, BIT(21), BIT(4),
+		       "pwm", "led"),
+	PIN_GRP_GPIO_3("pwm2", 13, 1, BIT(5) | BIT(22), 0, BIT(22), BIT(5),
+		       "pwm", "led"),
+	PIN_GRP_GPIO_3("pwm3", 14, 1, BIT(6) | BIT(23), 0, BIT(23), BIT(6),
+		       "pwm", "led"),
+	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
+	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
+>>>>>>> upstream/android-13
 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
 	PIN_GRP_GPIO("i2c1", 0, 2, BIT(10), "i2c"),
 	PIN_GRP_GPIO("spi_cs1", 17, 1, BIT(12), "spi"),
@@ -183,11 +207,14 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
 		      18, 2, "gpio", "uart"),
+<<<<<<< HEAD
 	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
 	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
 	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
 	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
 
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
@@ -195,8 +222,16 @@ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 	PIN_GRP_GPIO("usb2_drvvbus1", 1, 1, BIT(1), "drvbus"),
 	PIN_GRP_GPIO("sdio_sb", 24, 6, BIT(2), "sdio"),
 	PIN_GRP_GPIO("rgmii", 6, 12, BIT(3), "mii"),
+<<<<<<< HEAD
 	PIN_GRP_GPIO("pcie1", 3, 2, BIT(4), "pcie"),
 	PIN_GRP_GPIO("ptp", 20, 3, BIT(5), "ptp"),
+=======
+	PIN_GRP_GPIO("smi", 18, 2, BIT(4), "smi"),
+	PIN_GRP_GPIO("pcie1", 3, 1, BIT(5), "pcie"), /* this actually controls "pcie1_reset" */
+	PIN_GRP_GPIO("pcie1_clkreq", 4, 1, BIT(9), "pcie"),
+	PIN_GRP_GPIO("pcie1_wakeup", 5, 1, BIT(10), "pcie"),
+	PIN_GRP_GPIO("ptp", 20, 3, BIT(11) | BIT(12) | BIT(13), "ptp"),
+>>>>>>> upstream/android-13
 	PIN_GRP("ptp_clk", 21, 1, BIT(6), "ptp", "mii"),
 	PIN_GRP("ptp_trig", 22, 1, BIT(7), "ptp", "mii"),
 	PIN_GRP_GPIO_3("mii_col", 23, 1, BIT(8) | BIT(14), 0, BIT(8), BIT(14),
@@ -400,7 +435,14 @@ static int armada_37xx_gpio_get_direction(struct gpio_chip *chip,
 	mask = BIT(offset);
 	regmap_read(info->regmap, reg, &val);
 
+<<<<<<< HEAD
 	return !(val & mask);
+=======
+	if (val & mask)
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+>>>>>>> upstream/android-13
 }
 
 static int armada_37xx_gpio_direction_output(struct gpio_chip *chip,
@@ -719,6 +761,11 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
 	struct device_node *np = info->dev->of_node;
 	struct gpio_chip *gc = &info->gpio_chip;
 	struct irq_chip *irqchip = &info->irq_chip;
+<<<<<<< HEAD
+=======
+	struct gpio_irq_chip *girq = &gc->irq;
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	struct resource res;
 	int ret = -ENODEV, i, nr_irq_parent;
 
@@ -728,20 +775,36 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
 			ret = 0;
 			break;
 		}
+<<<<<<< HEAD
 	};
 	if (ret)
 		return ret;
+=======
+	}
+	if (ret) {
+		dev_err(dev, "no gpio-controller child node\n");
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	nr_irq_parent = of_irq_count(np);
 	spin_lock_init(&info->irq_lock);
 
 	if (!nr_irq_parent) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Invalid or no IRQ\n");
+=======
+		dev_err(dev, "invalid or no IRQ\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	if (of_address_to_resource(info->dev->of_node, 1, &res)) {
+<<<<<<< HEAD
 		dev_err(info->dev, "cannot find IO resource\n");
+=======
+		dev_err(dev, "cannot find IO resource\n");
+>>>>>>> upstream/android-13
 		return -ENOENT;
 	}
 
@@ -756,6 +819,7 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
 	irqchip->irq_set_type = armada_37xx_irq_set_type;
 	irqchip->irq_startup = armada_37xx_irq_startup;
 	irqchip->name = info->data->name;
+<<<<<<< HEAD
 	ret = gpiochip_irqchip_add(gc, irqchip, 0,
 				   handle_edge_irq, IRQ_TYPE_NONE);
 	if (ret) {
@@ -763,20 +827,39 @@ static int armada_37xx_irqchip_register(struct platform_device *pdev,
 		return ret;
 	}
 
+=======
+	girq->chip = irqchip;
+	girq->parent_handler = armada_37xx_irq_handler;
+>>>>>>> upstream/android-13
 	/*
 	 * Many interrupts are connected to the parent interrupt
 	 * controller. But we do not take advantage of this and use
 	 * the chained irq with all of them.
 	 */
+<<<<<<< HEAD
+=======
+	girq->num_parents = nr_irq_parent;
+	girq->parents = devm_kcalloc(&pdev->dev, nr_irq_parent,
+				     sizeof(*girq->parents), GFP_KERNEL);
+	if (!girq->parents)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	for (i = 0; i < nr_irq_parent; i++) {
 		int irq = irq_of_parse_and_map(np, i);
 
 		if (irq < 0)
 			continue;
+<<<<<<< HEAD
 
 		gpiochip_set_chained_irqchip(gc, irqchip, irq,
 					     armada_37xx_irq_handler);
 	}
+=======
+		girq->parents[i] = irq;
+	}
+	girq->default_type = IRQ_TYPE_NONE;
+	girq->handler = handle_edge_irq;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -793,7 +876,11 @@ static int armada_37xx_gpiochip_register(struct platform_device *pdev,
 			ret = 0;
 			break;
 		}
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -806,10 +893,17 @@ static int armada_37xx_gpiochip_register(struct platform_device *pdev,
 	gc->of_node = np;
 	gc->label = info->data->name;
 
+<<<<<<< HEAD
 	ret = devm_gpiochip_add_data(&pdev->dev, gc, info);
 	if (ret)
 		return ret;
 	ret = armada_37xx_irqchip_register(pdev, info);
+=======
+	ret = armada_37xx_irqchip_register(pdev, info);
+	if (ret)
+		return ret;
+	ret = devm_gpiochip_add_data(&pdev->dev, gc, info);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -1104,8 +1198,13 @@ static int armada_3700_pinctrl_resume(struct device *dev)
  * to other IO drivers.
  */
 static const struct dev_pm_ops armada_3700_pinctrl_pm_ops = {
+<<<<<<< HEAD
 	.suspend_late = armada_3700_pinctrl_suspend,
 	.resume_early = armada_3700_pinctrl_resume,
+=======
+	.suspend_noirq = armada_3700_pinctrl_suspend,
+	.resume_noirq = armada_3700_pinctrl_resume,
+>>>>>>> upstream/android-13
 };
 
 #define PINCTRL_ARMADA_37XX_DEV_PM_OPS (&armada_3700_pinctrl_pm_ops)

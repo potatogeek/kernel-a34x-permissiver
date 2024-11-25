@@ -14,7 +14,11 @@
 
 #include <soc/at91/atmel-sfr.h>
 
+<<<<<<< HEAD
 #define	I2S_BUS_NR	2
+=======
+#include "pmc.h"
+>>>>>>> upstream/android-13
 
 struct clk_i2s_mux {
 	struct clk_hw hw;
@@ -48,7 +52,11 @@ static const struct clk_ops clk_i2s_mux_ops = {
 	.determine_rate = __clk_mux_determine_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_i2s_mux_register(struct regmap *regmap, const char *name,
 			  const char * const *parent_names,
 			  unsigned int num_parents, u8 bus_id)
@@ -78,6 +86,7 @@ at91_clk_i2s_mux_register(struct regmap *regmap, const char *name,
 
 	return &i2s_ck->hw;
 }
+<<<<<<< HEAD
 
 static void __init of_sama5d2_clk_i2s_mux_setup(struct device_node *np)
 {
@@ -114,3 +123,5 @@ static void __init of_sama5d2_clk_i2s_mux_setup(struct device_node *np)
 
 CLK_OF_DECLARE(sama5d2_clk_i2s_mux, "atmel,sama5d2-clk-i2s-mux",
 	       of_sama5d2_clk_i2s_mux_setup);
+=======
+>>>>>>> upstream/android-13

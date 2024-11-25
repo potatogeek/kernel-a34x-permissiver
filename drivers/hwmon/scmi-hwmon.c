@@ -2,7 +2,11 @@
 /*
  * System Control and Management Interface(SCMI) based hwmon sensor driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2018 ARM Ltd.
+=======
+ * Copyright (C) 2018-2021 ARM Ltd.
+>>>>>>> upstream/android-13
  * Sudeep Holla <sudeep.holla@arm.com>
  */
 
@@ -13,11 +17,65 @@
 #include <linux/sysfs.h>
 #include <linux/thermal.h>
 
+<<<<<<< HEAD
 struct scmi_sensors {
 	const struct scmi_handle *handle;
 	const struct scmi_sensor_info **info[hwmon_max];
 };
 
+=======
+static const struct scmi_sensor_proto_ops *sensor_ops;
+
+struct scmi_sensors {
+	const struct scmi_protocol_handle *ph;
+	const struct scmi_sensor_info **info[hwmon_max];
+};
+
+static inline u64 __pow10(u8 x)
+{
+	u64 r = 1;
+
+	while (x--)
+		r *= 10;
+
+	return r;
+}
+
+static int scmi_hwmon_scale(const struct scmi_sensor_info *sensor, u64 *value)
+{
+	int scale = sensor->scale;
+	u64 f;
+
+	switch (sensor->type) {
+	case TEMPERATURE_C:
+	case VOLTAGE:
+	case CURRENT:
+		scale += 3;
+		break;
+	case POWER:
+	case ENERGY:
+		scale += 6;
+		break;
+	default:
+		break;
+	}
+
+	if (scale == 0)
+		return 0;
+
+	if (abs(scale) > 19)
+		return -E2BIG;
+
+	f = __pow10(abs(scale));
+	if (scale > 0)
+		*value *= f;
+	else
+		*value = div64_u64(*value, f);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int scmi_hwmon_read(struct device *dev, enum hwmon_sensor_types type,
 			   u32 attr, int channel, long *val)
 {
@@ -25,10 +83,20 @@ static int scmi_hwmon_read(struct device *dev, enum hwmon_sensor_types type,
 	u64 value;
 	const struct scmi_sensor_info *sensor;
 	struct scmi_sensors *scmi_sensors = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	const struct scmi_handle *h = scmi_sensors->handle;
 
 	sensor = *(scmi_sensors->info[type] + channel);
 	ret = h->sensor_ops->reading_get(h, sensor->id, false, &value);
+=======
+
+	sensor = *(scmi_sensors->info[type] + channel);
+	ret = sensor_ops->reading_get(scmi_sensors->ph, sensor->id, &value);
+	if (ret)
+		return ret;
+
+	ret = scmi_hwmon_scale(sensor, &value);
+>>>>>>> upstream/android-13
 	if (!ret)
 		*val = value;
 
@@ -56,8 +124,13 @@ scmi_hwmon_is_visible(const void *drvdata, enum hwmon_sensor_types type,
 	const struct scmi_sensors *scmi_sensors = drvdata;
 
 	sensor = *(scmi_sensors->info[type] + channel);
+<<<<<<< HEAD
 	if (sensor && sensor->name)
 		return S_IRUGO;
+=======
+	if (sensor)
+		return 0444;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -121,11 +194,24 @@ static int scmi_hwmon_probe(struct scmi_device *sdev)
 	struct hwmon_channel_info *scmi_hwmon_chan;
 	const struct hwmon_channel_info **ptr_scmi_ci;
 	const struct scmi_handle *handle = sdev->handle;
+<<<<<<< HEAD
 
 	if (!handle || !handle->sensor_ops)
 		return -ENODEV;
 
 	nr_sensors = handle->sensor_ops->count_get(handle);
+=======
+	struct scmi_protocol_handle *ph;
+
+	if (!handle)
+		return -ENODEV;
+
+	sensor_ops = handle->devm_protocol_get(sdev, SCMI_PROTOCOL_SENSOR, &ph);
+	if (IS_ERR(sensor_ops))
+		return PTR_ERR(sensor_ops);
+
+	nr_sensors = sensor_ops->count_get(ph);
+>>>>>>> upstream/android-13
 	if (!nr_sensors)
 		return -EIO;
 
@@ -133,10 +219,17 @@ static int scmi_hwmon_probe(struct scmi_device *sdev)
 	if (!scmi_sensors)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	scmi_sensors->handle = handle;
 
 	for (i = 0; i < nr_sensors; i++) {
 		sensor = handle->sensor_ops->info_get(handle, i);
+=======
+	scmi_sensors->ph = ph;
+
+	for (i = 0; i < nr_sensors; i++) {
+		sensor = sensor_ops->info_get(ph, i);
+>>>>>>> upstream/android-13
 		if (!sensor)
 			return -EINVAL;
 
@@ -154,8 +247,15 @@ static int scmi_hwmon_probe(struct scmi_device *sdev)
 		}
 	}
 
+<<<<<<< HEAD
 	if (nr_count[hwmon_temp])
 		nr_count[hwmon_chip]++, nr_types++;
+=======
+	if (nr_count[hwmon_temp]) {
+		nr_count[hwmon_chip]++;
+		nr_types++;
+	}
+>>>>>>> upstream/android-13
 
 	scmi_hwmon_chan = devm_kcalloc(dev, nr_types, sizeof(*scmi_hwmon_chan),
 				       GFP_KERNEL);
@@ -186,7 +286,11 @@ static int scmi_hwmon_probe(struct scmi_device *sdev)
 	}
 
 	for (i = nr_sensors - 1; i >= 0 ; i--) {
+<<<<<<< HEAD
 		sensor = handle->sensor_ops->info_get(handle, i);
+=======
+		sensor = sensor_ops->info_get(ph, i);
+>>>>>>> upstream/android-13
 		if (!sensor)
 			continue;
 
@@ -211,7 +315,11 @@ static int scmi_hwmon_probe(struct scmi_device *sdev)
 }
 
 static const struct scmi_device_id scmi_id_table[] = {
+<<<<<<< HEAD
 	{ SCMI_PROTOCOL_SENSOR },
+=======
+	{ SCMI_PROTOCOL_SENSOR, "hwmon" },
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(scmi, scmi_id_table);

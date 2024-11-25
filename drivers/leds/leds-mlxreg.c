@@ -22,15 +22,27 @@
 #define MLXREG_LED_AMBER_SOLID		0x09 /* Solid amber */
 #define MLXREG_LED_BLINK_3HZ		167 /* ~167 msec off/on - HW support */
 #define MLXREG_LED_BLINK_6HZ		83 /* ~83 msec off/on - HW support */
+<<<<<<< HEAD
+=======
+#define MLXREG_LED_CAPABILITY_CLEAR	GENMASK(31, 8) /* Clear mask */
+>>>>>>> upstream/android-13
 
 /**
  * struct mlxreg_led_data - led control data:
  *
  * @data: led configuration data;
+<<<<<<< HEAD
  * @led_classdev: led class data;
  * @base_color: base led color (other colors have constant offset from base);
  * @led_data: led data;
  * @data_parent: pointer to private device control data of parent;
+=======
+ * @led_cdev: led class data;
+ * @base_color: base led color (other colors have constant offset from base);
+ * @led_data: led data;
+ * @data_parent: pointer to private device control data of parent;
+ * @led_cdev_name: class device name
+>>>>>>> upstream/android-13
  */
 struct mlxreg_led_data {
 	struct mlxreg_core_data *data;
@@ -187,6 +199,10 @@ static int mlxreg_led_config(struct mlxreg_led_priv_data *priv)
 	struct mlxreg_led_data *led_data;
 	struct led_classdev *led_cdev;
 	enum led_brightness brightness;
+<<<<<<< HEAD
+=======
+	u32 regval;
+>>>>>>> upstream/android-13
 	int i;
 	int err;
 
@@ -196,6 +212,26 @@ static int mlxreg_led_config(struct mlxreg_led_priv_data *priv)
 		if (!led_data)
 			return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+		if (data->capability) {
+			err = regmap_read(led_pdata->regmap, data->capability,
+					  &regval);
+			if (err) {
+				dev_err(&priv->pdev->dev, "Failed to query capability register\n");
+				return err;
+			}
+			if (!(regval & data->bit))
+				continue;
+			/*
+			 * Field "bit" can contain one capability bit in 0 byte
+			 * and offset bit in 1-3 bytes. Clear capability bit and
+			 * keep only offset bit.
+			 */
+			data->bit &= MLXREG_LED_CAPABILITY_CLEAR;
+		}
+
+>>>>>>> upstream/android-13
 		led_cdev = &led_data->led_cdev;
 		led_data->data_parent = priv;
 		if (strstr(data->label, "red") ||

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * LCD Lowlevel Control Abstraction
  *
@@ -29,6 +33,7 @@ static int fb_notifier_callback(struct notifier_block *self,
 	struct lcd_device *ld;
 	struct fb_event *evdata = data;
 
+<<<<<<< HEAD
 	/* If we aren't interested in this event, skip it immediately ... */
 	switch (event) {
 	case FB_EVENT_BLANK:
@@ -41,6 +46,8 @@ static int fb_notifier_callback(struct notifier_block *self,
 		return 0;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ld = container_of(self, struct lcd_device, fb_notif);
 	if (!ld->ops)
 		return 0;
@@ -50,6 +57,7 @@ static int fb_notifier_callback(struct notifier_block *self,
 		if (event == FB_EVENT_BLANK) {
 			if (ld->ops->set_power)
 				ld->ops->set_power(ld, *(int *)evdata->data);
+<<<<<<< HEAD
 		} else if (event == FB_EARLY_EVENT_BLANK) {
 			if (ld->ops->early_set_power)
 				ld->ops->early_set_power(ld,
@@ -58,6 +66,8 @@ static int fb_notifier_callback(struct notifier_block *self,
 			if (ld->ops->r_early_set_power)
 				ld->ops->r_early_set_power(ld,
 						*(int *)evdata->data);
+=======
+>>>>>>> upstream/android-13
 		} else {
 			if (ld->ops->set_mode)
 				ld->ops->set_mode(ld, evdata->data);
@@ -198,6 +208,10 @@ ATTRIBUTE_GROUPS(lcd_device);
  * lcd_device_register - register a new object of lcd_device class.
  * @name: the name of the new object(must be the same as the name of the
  *   respective framebuffer device).
+<<<<<<< HEAD
+=======
+ * @parent: pointer to the parent's struct device .
+>>>>>>> upstream/android-13
  * @devdata: an optional pointer to be stored in the device. The
  *   methods may retrieve it by using lcd_get_data(ld).
  * @ops: the lcd operations structure.

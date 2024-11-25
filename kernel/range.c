@@ -2,8 +2,14 @@
 /*
  * Range add and subtract
  */
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/init.h>
+=======
+#include <linux/init.h>
+#include <linux/minmax.h>
+#include <linux/printk.h>
+>>>>>>> upstream/android-13
 #include <linux/sort.h>
 #include <linux/string.h>
 #include <linux/range.h>

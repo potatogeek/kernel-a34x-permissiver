@@ -30,6 +30,10 @@
 #define HPFS_SUPER_MAGIC	0xf995e849
 #define ISOFS_SUPER_MAGIC	0x9660
 #define JFFS2_SUPER_MAGIC	0x72b6
+<<<<<<< HEAD
+=======
+#define XFS_SUPER_MAGIC		0x58465342	/* "XFSB" */
+>>>>>>> upstream/android-13
 #define PSTOREFS_MAGIC		0x6165676C
 #define EFIVARFS_MAGIC		0xde5e81e4
 #define HOSTFS_SUPER_MAGIC	0x00c0ffee
@@ -58,8 +62,11 @@
 #define REISER2FS_SUPER_MAGIC_STRING	"ReIsEr2Fs"
 #define REISER2FS_JR_SUPER_MAGIC_STRING	"ReIsEr3Fs"
 
+<<<<<<< HEAD
 #define SDCARDFS_SUPER_MAGIC	0x5dca2df5
 
+=======
+>>>>>>> upstream/android-13
 #define SMB_SUPER_MAGIC		0x517B
 #define CGROUP_SUPER_MAGIC	0x27e0eb
 #define CGROUP2_SUPER_MAGIC	0x63677270
@@ -89,11 +96,22 @@
 #define NSFS_MAGIC		0x6e736673
 #define BPF_FS_MAGIC		0xcafe4a11
 #define AAFS_MAGIC		0x5a3c69f0
+<<<<<<< HEAD
+=======
+#define ZONEFS_MAGIC		0x5a4f4653
+>>>>>>> upstream/android-13
 
 /* Since UDF 2.01 is ISO 13346 based... */
 #define UDF_SUPER_MAGIC		0x15013346
 #define BALLOON_KVM_MAGIC	0x13661366
 #define ZSMALLOC_MAGIC		0x58295829
 #define DMA_BUF_MAGIC		0x444d4142	/* "DMAB" */
+<<<<<<< HEAD
+=======
+#define DEVMEM_MAGIC		0x454d444d	/* "DMEM" */
+#define Z3FOLD_MAGIC		0x33
+#define PPC_CMM_MAGIC		0xc7571590
+#define SECRETMEM_MAGIC		0x5345434d	/* "SECM" */
+>>>>>>> upstream/android-13
 
 #endif /* __LINUX_MAGIC_H__ */

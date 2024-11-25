@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  syscore_ops.h - System core operations.
  *
  *  Copyright (C) 2011 Rafael J. Wysocki <rjw@sisk.pl>, Novell Inc.
+<<<<<<< HEAD
  *
  *  This file is released under the GPLv2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_SYSCORE_OPS_H

@@ -14,6 +14,10 @@
 #include <linux/irqchip/chained_irq.h>
 #include <linux/irqdomain.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/mfd/syscon.h>
+>>>>>>> upstream/android-13
 #include <linux/msi.h>
 #include <linux/module.h>
 #include <linux/of_address.h>
@@ -23,6 +27,10 @@
 #include <linux/phy/phy.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
+=======
+#include <linux/regmap.h>
+>>>>>>> upstream/android-13
 #include <linux/reset.h>
 
 #include "../pci.h"
@@ -91,6 +99,15 @@
 #define AHB2PCIE_SIZE(x)	((x) & GENMASK(4, 0))
 #define PCIE_AXI_WINDOW0	0x448
 #define WIN_ENABLE		BIT(7)
+<<<<<<< HEAD
+=======
+/*
+ * Define PCIe to AHB window size as 2^33 to support max 8GB address space
+ * translate, support least 4GB DRAM size access from EP DMA(physical DRAM
+ * start from 0x40000000).
+ */
+#define PCIE2AHB_SIZE	0x21
+>>>>>>> upstream/android-13
 
 /* PCIe V2 configuration transaction header */
 #define PCIE_CFG_HEADER0	0x460
@@ -137,6 +154,10 @@ struct mtk_pcie_port;
  * struct mtk_pcie_soc - differentiate between host generations
  * @need_fix_class_id: whether this host's class ID needed to be fixed or not
  * @need_fix_device_id: whether this host's device ID needed to be fixed or not
+<<<<<<< HEAD
+=======
+ * @no_msi: Bridge has no MSI support, and relies on an external block
+>>>>>>> upstream/android-13
  * @device_id: device ID which this host need to be fixed
  * @ops: pointer to configuration access functions
  * @startup: pointer to controller setting functions
@@ -145,6 +166,10 @@ struct mtk_pcie_port;
 struct mtk_pcie_soc {
 	bool need_fix_class_id;
 	bool need_fix_device_id;
+<<<<<<< HEAD
+=======
+	bool no_msi;
+>>>>>>> upstream/android-13
 	unsigned int device_id;
 	struct pci_ops *ops;
 	int (*startup)(struct mtk_pcie_port *port);
@@ -166,7 +191,10 @@ struct mtk_pcie_soc {
  * @obff_ck: pointer to OBFF functional block operating clock
  * @pipe_ck: pointer to LTSSM and PHY/MAC layer operating clock
  * @phy: pointer to PHY control block
+<<<<<<< HEAD
  * @lane: lane count
+=======
+>>>>>>> upstream/android-13
  * @slot: port slot
  * @irq: GIC irq
  * @irq_domain: legacy INTx IRQ domain
@@ -187,7 +215,10 @@ struct mtk_pcie_port {
 	struct clk *obff_ck;
 	struct clk *pipe_ck;
 	struct phy *phy;
+<<<<<<< HEAD
 	u32 lane;
+=======
+>>>>>>> upstream/android-13
 	u32 slot;
 	int irq;
 	struct irq_domain *irq_domain;
@@ -201,18 +232,25 @@ struct mtk_pcie_port {
  * struct mtk_pcie - PCIe host information
  * @dev: pointer to PCIe device
  * @base: IO mapped register base
+<<<<<<< HEAD
  * @free_ck: free-run reference clock
  * @io: IO resource
  * @pio: PIO resource
  * @mem: non-prefetchable memory resource
  * @busn: bus range
  * @offset: IO / Memory offset
+=======
+ * @cfg: IO mapped register map for PCIe config
+ * @free_ck: free-run reference clock
+ * @mem: non-prefetchable memory resource
+>>>>>>> upstream/android-13
  * @ports: pointer to PCIe port information
  * @soc: pointer to SoC-dependent operations
  */
 struct mtk_pcie {
 	struct device *dev;
 	void __iomem *base;
+<<<<<<< HEAD
 	struct clk *free_ck;
 
 	struct resource io;
@@ -223,6 +261,11 @@ struct mtk_pcie {
 		resource_size_t mem;
 		resource_size_t io;
 	} offset;
+=======
+	struct regmap *cfg;
+	struct clk *free_ck;
+
+>>>>>>> upstream/android-13
 	struct list_head ports;
 	const struct mtk_pcie_soc *soc;
 };
@@ -608,7 +651,10 @@ static void mtk_pcie_intr_handler(struct irq_desc *desc)
 	struct mtk_pcie_port *port = irq_desc_get_handler_data(desc);
 	struct irq_chip *irqchip = irq_desc_get_chip(desc);
 	unsigned long status;
+<<<<<<< HEAD
 	u32 virq;
+=======
+>>>>>>> upstream/android-13
 	u32 bit = INTX_SHIFT;
 
 	chained_irq_enter(irqchip, desc);
@@ -618,9 +664,14 @@ static void mtk_pcie_intr_handler(struct irq_desc *desc)
 		for_each_set_bit_from(bit, &status, PCI_NUM_INTX + INTX_SHIFT) {
 			/* Clear the INTx */
 			writel(1 << bit, port->base + PCIE_INT_STATUS);
+<<<<<<< HEAD
 			virq = irq_find_mapping(port->irq_domain,
 						bit - INTX_SHIFT);
 			generic_handle_irq(virq);
+=======
+			generic_handle_domain_irq(port->irq_domain,
+						  bit - INTX_SHIFT);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -629,10 +680,15 @@ static void mtk_pcie_intr_handler(struct irq_desc *desc)
 			unsigned long imsi_status;
 
 			while ((imsi_status = readl(port->base + PCIE_IMSI_STATUS))) {
+<<<<<<< HEAD
 				for_each_set_bit(bit, &imsi_status, MTK_MSI_IRQS_NUM) {
 					virq = irq_find_mapping(port->inner_domain, bit);
 					generic_handle_irq(virq);
 				}
+=======
+				for_each_set_bit(bit, &imsi_status, MTK_MSI_IRQS_NUM)
+					generic_handle_domain_irq(port->inner_domain, bit);
+>>>>>>> upstream/android-13
 			}
 			/* Clear MSI interrupt status */
 			writel(MSI_STATUS, port->base + PCIE_INT_STATUS);
@@ -640,8 +696,11 @@ static void mtk_pcie_intr_handler(struct irq_desc *desc)
 	}
 
 	chained_irq_exit(irqchip, desc);
+<<<<<<< HEAD
 
 	return;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int mtk_pcie_setup_irq(struct mtk_pcie_port *port,
@@ -658,7 +717,18 @@ static int mtk_pcie_setup_irq(struct mtk_pcie_port *port,
 		return err;
 	}
 
+<<<<<<< HEAD
 	port->irq = platform_get_irq(pdev, port->slot);
+=======
+	if (of_find_property(dev->of_node, "interrupt-names", NULL))
+		port->irq = platform_get_irq_byname(pdev, "pcie_irq");
+	else
+		port->irq = platform_get_irq(pdev, port->slot);
+
+	if (port->irq < 0)
+		return port->irq;
+
+>>>>>>> upstream/android-13
 	irq_set_chained_handler_and_data(port->irq,
 					 mtk_pcie_intr_handler, port);
 
@@ -668,18 +738,41 @@ static int mtk_pcie_setup_irq(struct mtk_pcie_port *port,
 static int mtk_pcie_startup_port_v2(struct mtk_pcie_port *port)
 {
 	struct mtk_pcie *pcie = port->pcie;
+<<<<<<< HEAD
 	struct resource *mem = &pcie->mem;
 	const struct mtk_pcie_soc *soc = port->pcie->soc;
 	u32 val;
 	size_t size;
 	int err;
 
+=======
+	struct pci_host_bridge *host = pci_host_bridge_from_priv(pcie);
+	struct resource *mem = NULL;
+	struct resource_entry *entry;
+	const struct mtk_pcie_soc *soc = port->pcie->soc;
+	u32 val;
+	int err;
+
+	entry = resource_list_first_type(&host->windows, IORESOURCE_MEM);
+	if (entry)
+		mem = entry->res;
+	if (!mem)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* MT7622 platforms need to enable LTSSM and ASPM from PCIe subsys */
 	if (pcie->base) {
 		val = readl(pcie->base + PCIE_SYS_CFG_V2);
 		val |= PCIE_CSR_LTSSM_EN(port->slot) |
 		       PCIE_CSR_ASPM_L1_EN(port->slot);
 		writel(val, pcie->base + PCIE_SYS_CFG_V2);
+<<<<<<< HEAD
+=======
+	} else if (pcie->cfg) {
+		val = PCIE_CSR_LTSSM_EN(port->slot) |
+		      PCIE_CSR_ASPM_L1_EN(port->slot);
+		regmap_update_bits(pcie->cfg, PCIE_SYS_CFG_V2, val, val);
+>>>>>>> upstream/android-13
 	}
 
 	/* Assert all reset signals */
@@ -726,15 +819,24 @@ static int mtk_pcie_startup_port_v2(struct mtk_pcie_port *port)
 		mtk_pcie_enable_msi(port);
 
 	/* Set AHB to PCIe translation windows */
+<<<<<<< HEAD
 	size = mem->end - mem->start;
 	val = lower_32_bits(mem->start) | AHB2PCIE_SIZE(fls(size));
+=======
+	val = lower_32_bits(mem->start) |
+	      AHB2PCIE_SIZE(fls(resource_size(mem)));
+>>>>>>> upstream/android-13
 	writel(val, port->base + PCIE_AHB_TRANS_BASE0_L);
 
 	val = upper_32_bits(mem->start);
 	writel(val, port->base + PCIE_AHB_TRANS_BASE0_H);
 
 	/* Set PCIe to AXI translation memory space.*/
+<<<<<<< HEAD
 	val = fls(0xffffffff) | WIN_ENABLE;
+=======
+	val = PCIE2AHB_SIZE | WIN_ENABLE;
+>>>>>>> upstream/android-13
 	writel(val, port->base + PCIE_AXI_WINDOW0);
 
 	return 0;
@@ -760,7 +862,11 @@ static struct pci_ops mtk_pcie_ops = {
 static int mtk_pcie_startup_port(struct mtk_pcie_port *port)
 {
 	struct mtk_pcie *pcie = port->pcie;
+<<<<<<< HEAD
 	u32 func = PCI_FUNC(port->slot << 3);
+=======
+	u32 func = PCI_FUNC(port->slot);
+>>>>>>> upstream/android-13
 	u32 slot = PCI_SLOT(port->slot << 3);
 	u32 val;
 	int err;
@@ -903,7 +1009,10 @@ static int mtk_pcie_parse_port(struct mtk_pcie *pcie,
 			       int slot)
 {
 	struct mtk_pcie_port *port;
+<<<<<<< HEAD
 	struct resource *regs;
+=======
+>>>>>>> upstream/android-13
 	struct device *dev = pcie->dev;
 	struct platform_device *pdev = to_platform_device(dev);
 	char name[10];
@@ -913,6 +1022,7 @@ static int mtk_pcie_parse_port(struct mtk_pcie *pcie,
 	if (!port)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	err = of_property_read_u32(node, "num-lanes", &port->lane);
 	if (err) {
 		dev_err(dev, "missing num-lanes property\n");
@@ -922,6 +1032,10 @@ static int mtk_pcie_parse_port(struct mtk_pcie *pcie,
 	snprintf(name, sizeof(name), "port%d", slot);
 	regs = platform_get_resource_byname(pdev, IORESOURCE_MEM, name);
 	port->base = devm_ioremap_resource(dev, regs);
+=======
+	snprintf(name, sizeof(name), "port%d", slot);
+	port->base = devm_platform_ioremap_resource_byname(pdev, name);
+>>>>>>> upstream/android-13
 	if (IS_ERR(port->base)) {
 		dev_err(dev, "failed to map port%d base\n", slot);
 		return PTR_ERR(port->base);
@@ -991,16 +1105,33 @@ static int mtk_pcie_subsys_powerup(struct mtk_pcie *pcie)
 	struct device *dev = pcie->dev;
 	struct platform_device *pdev = to_platform_device(dev);
 	struct resource *regs;
+<<<<<<< HEAD
+=======
+	struct device_node *cfg_node;
+>>>>>>> upstream/android-13
 	int err;
 
 	/* get shared registers, which are optional */
 	regs = platform_get_resource_byname(pdev, IORESOURCE_MEM, "subsys");
 	if (regs) {
 		pcie->base = devm_ioremap_resource(dev, regs);
+<<<<<<< HEAD
 		if (IS_ERR(pcie->base)) {
 			dev_err(dev, "failed to map shared register\n");
 			return PTR_ERR(pcie->base);
 		}
+=======
+		if (IS_ERR(pcie->base))
+			return PTR_ERR(pcie->base);
+	}
+
+	cfg_node = of_find_compatible_node(NULL, NULL,
+					   "mediatek,generic-pciecfg");
+	if (cfg_node) {
+		pcie->cfg = syscon_node_to_regmap(cfg_node);
+		if (IS_ERR(pcie->cfg))
+			return PTR_ERR(pcie->cfg);
+>>>>>>> upstream/android-13
 	}
 
 	pcie->free_ck = devm_clk_get(dev, "free_ck");
@@ -1034,6 +1165,7 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
 {
 	struct device *dev = pcie->dev;
 	struct device_node *node = dev->of_node, *child;
+<<<<<<< HEAD
 	struct of_pci_range_parser parser;
 	struct of_pci_range range;
 	struct resource res;
@@ -1097,6 +1229,30 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
 		err = mtk_pcie_parse_port(pcie, child, slot);
 		if (err)
 			goto error_put_node;
+=======
+	struct mtk_pcie_port *port, *tmp;
+	int err, slot;
+
+	slot = of_get_pci_domain_nr(dev->of_node);
+	if (slot < 0) {
+		for_each_available_child_of_node(node, child) {
+			err = of_pci_get_devfn(child);
+			if (err < 0) {
+				dev_err(dev, "failed to get devfn: %d\n", err);
+				goto error_put_node;
+			}
+
+			slot = PCI_SLOT(err);
+
+			err = mtk_pcie_parse_port(pcie, child, slot);
+			if (err)
+				goto error_put_node;
+		}
+	} else {
+		err = mtk_pcie_parse_port(pcie, node, slot);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 	}
 
 	err = mtk_pcie_subsys_powerup(pcie);
@@ -1117,6 +1273,7 @@ error_put_node:
 	return err;
 }
 
+<<<<<<< HEAD
 static int mtk_pcie_request_resources(struct mtk_pcie *pcie)
 {
 	struct pci_host_bridge *host = pci_host_bridge_from_priv(pcie);
@@ -1139,6 +1296,8 @@ static int mtk_pcie_request_resources(struct mtk_pcie *pcie)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mtk_pcie_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -1161,6 +1320,7 @@ static int mtk_pcie_probe(struct platform_device *pdev)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = mtk_pcie_request_resources(pcie);
 	if (err)
 		goto put_resources;
@@ -1171,6 +1331,11 @@ static int mtk_pcie_probe(struct platform_device *pdev)
 	host->map_irq = of_irq_parse_and_map_pci;
 	host->swizzle_irq = pci_common_swizzle;
 	host->sysdata = pcie;
+=======
+	host->ops = pcie->soc->ops;
+	host->sysdata = pcie;
+	host->msi_domain = pcie->soc->no_msi;
+>>>>>>> upstream/android-13
 
 	err = pci_host_probe(host);
 	if (err)
@@ -1260,6 +1425,10 @@ static const struct dev_pm_ops mtk_pcie_pm_ops = {
 };
 
 static const struct mtk_pcie_soc mtk_pcie_soc_v1 = {
+<<<<<<< HEAD
+=======
+	.no_msi = true,
+>>>>>>> upstream/android-13
 	.ops = &mtk_pcie_ops,
 	.startup = mtk_pcie_startup_port,
 };
@@ -1294,6 +1463,10 @@ static const struct of_device_id mtk_pcie_ids[] = {
 	{ .compatible = "mediatek,mt7629-pcie", .data = &mtk_pcie_soc_mt7629 },
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, mtk_pcie_ids);
+>>>>>>> upstream/android-13
 
 static struct platform_driver mtk_pcie_driver = {
 	.probe = mtk_pcie_probe,

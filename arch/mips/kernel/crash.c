@@ -3,7 +3,11 @@
 #include <linux/smp.h>
 #include <linux/reboot.h>
 #include <linux/kexec.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/crash_dump.h>
 #include <linux/delay.h>
 #include <linux/irq.h>
@@ -46,7 +50,13 @@ static void crash_shutdown_secondary(void *passed_regs)
 
 	while (!atomic_read(&kexec_ready_to_reboot))
 		cpu_relax();
+<<<<<<< HEAD
 	relocated_kexec_smp_wait(NULL);
+=======
+
+	kexec_reboot();
+
+>>>>>>> upstream/android-13
 	/* NOTREACHED */
 }
 

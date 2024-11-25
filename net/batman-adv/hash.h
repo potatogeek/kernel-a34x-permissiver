@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2006-2018  B.A.T.M.A.N. contributors:
  *
  * Simon Wunderlich, Marek Lindner
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Simon Wunderlich, Marek Lindner
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_HASH_H_
@@ -21,16 +27,27 @@
 
 #include "main.h"
 
+<<<<<<< HEAD
 #include <linux/compiler.h>
 #include <linux/list.h>
+=======
+#include <linux/atomic.h>
+#include <linux/compiler.h>
+#include <linux/list.h>
+#include <linux/lockdep.h>
+>>>>>>> upstream/android-13
 #include <linux/rculist.h>
 #include <linux/spinlock.h>
 #include <linux/stddef.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
 struct lock_class_key;
 
 /* callback to a compare function.  should compare 2 element datas for their
+=======
+/* callback to a compare function.  should compare 2 element data for their
+>>>>>>> upstream/android-13
  * keys
  *
  * Return: true if same and false if not same
@@ -58,6 +75,12 @@ struct batadv_hashtable {
 
 	/** @size: size of hashtable */
 	u32 size;
+<<<<<<< HEAD
+=======
+
+	/** @generation: current (generation) sequence number */
+	atomic_t generation;
+>>>>>>> upstream/android-13
 };
 
 /* allocates and clears the hash */
@@ -112,6 +135,10 @@ static inline int batadv_hash_add(struct batadv_hashtable *hash,
 
 	/* no duplicate found in list, add new element */
 	hlist_add_head_rcu(data_node, head);
+<<<<<<< HEAD
+=======
+	atomic_inc(&hash->generation);
+>>>>>>> upstream/android-13
 
 	ret = 0;
 
@@ -154,6 +181,10 @@ static inline void *batadv_hash_remove(struct batadv_hashtable *hash,
 
 		data_save = node;
 		hlist_del_rcu(node);
+<<<<<<< HEAD
+=======
+		atomic_inc(&hash->generation);
+>>>>>>> upstream/android-13
 		break;
 	}
 	spin_unlock_bh(&hash->list_locks[index]);

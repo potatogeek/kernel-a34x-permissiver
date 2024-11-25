@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 
 /*
     card-als100.c - driver for Avance Logic ALS100 based soundcards.
@@ -9,6 +13,7 @@
     Generalised for soundcards based on DT-0196 and ALS-007 chips
     by Jonathan Woithe <jwoithe@just42.net>: June 2002.
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +27,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/init.h>
@@ -38,6 +45,7 @@
 #define PFX "als100: "
 
 MODULE_DESCRIPTION("Avance Logic ALS007/ALS1X0");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Diamond Technologies DT-019X},"
 		"{Avance Logic ALS-007}}"
 		"{{Avance Logic,ALS100 - PRO16PNP},"
@@ -49,6 +57,8 @@ MODULE_SUPPORTED_DEVICE("{{Diamond Technologies DT-019X},"
 	        "{Avance Logic,ALS120},"
 	        "{RTL,RTL3000}}");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Massimo Piccioni <dafastidio@libero.it>");
 MODULE_LICENSE("GPL");
 
@@ -193,17 +203,29 @@ static int snd_card_als100_probe(int dev,
 	struct snd_card_als100 *acard;
 	struct snd_opl3 *opl3;
 
+<<<<<<< HEAD
 	error = snd_card_new(&pcard->card->dev,
 			     index[dev], id[dev], THIS_MODULE,
 			     sizeof(struct snd_card_als100), &card);
+=======
+	error = snd_devm_card_new(&pcard->card->dev,
+				  index[dev], id[dev], THIS_MODULE,
+				  sizeof(struct snd_card_als100), &card);
+>>>>>>> upstream/android-13
 	if (error < 0)
 		return error;
 	acard = card->private_data;
 
+<<<<<<< HEAD
 	if ((error = snd_card_als100_pnp(dev, acard, pcard, pid))) {
 		snd_card_free(card);
 		return error;
 	}
+=======
+	error = snd_card_als100_pnp(dev, acard, pcard, pid);
+	if (error)
+		return error;
+>>>>>>> upstream/android-13
 
 	if (pid->driver_data == SB_HW_DT019X)
 		dma16[dev] = -1;
@@ -213,10 +235,15 @@ static int snd_card_als100_probe(int dev,
 				  dma8[dev], dma16[dev],
 				  pid->driver_data,
 				  &chip);
+<<<<<<< HEAD
 	if (error < 0) {
 		snd_card_free(card);
 		return error;
 	}
+=======
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 	acard->chip = chip;
 
 	if (pid->driver_data == SB_HW_DT019X) {
@@ -234,6 +261,7 @@ static int snd_card_als100_probe(int dev,
 			 dma16[dev]);
 	}
 
+<<<<<<< HEAD
 	if ((error = snd_sb16dsp_pcm(chip, 0)) < 0) {
 		snd_card_free(card);
 		return error;
@@ -243,6 +271,15 @@ static int snd_card_als100_probe(int dev,
 		snd_card_free(card);
 		return error;
 	}
+=======
+	error = snd_sb16dsp_pcm(chip, 0);
+	if (error < 0)
+		return error;
+
+	error = snd_sbmixer_new(chip);
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 
 	if (mpu_port[dev] > 0 && mpu_port[dev] != SNDRV_AUTO_PORT) {
 		int mpu_type = MPU401_HW_ALS100;
@@ -268,6 +305,7 @@ static int snd_card_als100_probe(int dev,
 			snd_printk(KERN_ERR PFX "no OPL device at 0x%lx-0x%lx\n",
 				   fm_port[dev], fm_port[dev] + 2);
 		} else {
+<<<<<<< HEAD
 			if ((error = snd_opl3_timer_new(opl3, 0, 1)) < 0) {
 				snd_card_free(card);
 				return error;
@@ -283,6 +321,20 @@ static int snd_card_als100_probe(int dev,
 		snd_card_free(card);
 		return error;
 	}
+=======
+			error = snd_opl3_timer_new(opl3, 0, 1);
+			if (error < 0)
+				return error;
+			error = snd_opl3_hwdep_new(opl3, 0, 1, NULL);
+			if (error < 0)
+				return error;
+		}
+	}
+
+	error = snd_card_register(card);
+	if (error < 0)
+		return error;
+>>>>>>> upstream/android-13
 	pnp_set_card_drvdata(pcard, card);
 	return 0;
 }
@@ -308,12 +360,15 @@ static int snd_als100_pnp_detect(struct pnp_card_link *card,
 	return -ENODEV;
 }
 
+<<<<<<< HEAD
 static void snd_als100_pnp_remove(struct pnp_card_link *pcard)
 {
 	snd_card_free(pnp_get_card_drvdata(pcard));
 	pnp_set_card_drvdata(pcard, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int snd_als100_pnp_suspend(struct pnp_card_link *pcard, pm_message_t state)
 {
@@ -322,7 +377,10 @@ static int snd_als100_pnp_suspend(struct pnp_card_link *pcard, pm_message_t stat
 	struct snd_sb *chip = acard->chip;
 
 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+<<<<<<< HEAD
 	snd_pcm_suspend_all(chip->pcm);
+=======
+>>>>>>> upstream/android-13
 	snd_sbmixer_suspend(chip);
 	return 0;
 }
@@ -345,7 +403,10 @@ static struct pnp_card_driver als100_pnpc_driver = {
 	.name		= "als100",
         .id_table       = snd_als100_pnpids,
         .probe          = snd_als100_pnp_detect,
+<<<<<<< HEAD
 	.remove		= snd_als100_pnp_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend	= snd_als100_pnp_suspend,
 	.resume		= snd_als100_pnp_resume,

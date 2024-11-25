@@ -9,9 +9,18 @@
 #include <linux/tracepoint.h>
 
 TRACE_DEFINE_ENUM(VIRTIO_VSOCK_TYPE_STREAM);
+<<<<<<< HEAD
 
 #define show_type(val) \
 	__print_symbolic(val, { VIRTIO_VSOCK_TYPE_STREAM, "STREAM" })
+=======
+TRACE_DEFINE_ENUM(VIRTIO_VSOCK_TYPE_SEQPACKET);
+
+#define show_type(val) \
+	__print_symbolic(val, \
+			 { VIRTIO_VSOCK_TYPE_STREAM, "STREAM" }, \
+			 { VIRTIO_VSOCK_TYPE_SEQPACKET, "SEQPACKET" })
+>>>>>>> upstream/android-13
 
 TRACE_DEFINE_ENUM(VIRTIO_VSOCK_OP_INVALID);
 TRACE_DEFINE_ENUM(VIRTIO_VSOCK_OP_REQUEST);

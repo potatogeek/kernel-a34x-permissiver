@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2017 Priit Laes <plaes@plaes.org>.
  * Copyright (c) 2017 Maxime Ripard.
  * Copyright (c) 2017 Jonathan Liu.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,6 +19,12 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 
 #include "ccu_common.h"
@@ -167,8 +178,14 @@ static struct ccu_nk pll_periph_base_clk = {
 	},
 };
 
+<<<<<<< HEAD
 static CLK_FIXED_FACTOR(pll_periph_clk, "pll-periph", "pll-periph-base",
 			2, 1, CLK_SET_RATE_PARENT);
+=======
+static CLK_FIXED_FACTOR_HW(pll_periph_clk, "pll-periph",
+			   &pll_periph_base_clk.common.hw,
+			   2, 1, CLK_SET_RATE_PARENT);
+>>>>>>> upstream/android-13
 
 /* Not documented on A10 */
 static struct ccu_div pll_periph_sata_clk = {
@@ -1035,6 +1052,7 @@ static struct ccu_common *sun4i_sun7i_ccu_clks[] = {
 	&out_b_clk.common
 };
 
+<<<<<<< HEAD
 /* Post-divider for pll-audio is hardcoded to 1 */
 static CLK_FIXED_FACTOR(pll_audio_clk, "pll-audio",
 			"pll-audio-base", 1, 1, CLK_SET_RATE_PARENT);
@@ -1048,6 +1066,31 @@ static CLK_FIXED_FACTOR(pll_video0_2x_clk, "pll-video0-2x",
 			"pll-video0", 1, 2, CLK_SET_RATE_PARENT);
 static CLK_FIXED_FACTOR(pll_video1_2x_clk, "pll-video1-2x",
 			"pll-video1", 1, 2, CLK_SET_RATE_PARENT);
+=======
+static const struct clk_hw *clk_parent_pll_audio[] = {
+	&pll_audio_base_clk.common.hw
+};
+
+/* Post-divider for pll-audio is hardcoded to 1 */
+static CLK_FIXED_FACTOR_HWS(pll_audio_clk, "pll-audio",
+			    clk_parent_pll_audio,
+			    1, 1, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HWS(pll_audio_2x_clk, "pll-audio-2x",
+			    clk_parent_pll_audio,
+			    2, 1, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HWS(pll_audio_4x_clk, "pll-audio-4x",
+			    clk_parent_pll_audio,
+			    1, 1, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HWS(pll_audio_8x_clk, "pll-audio-8x",
+			    clk_parent_pll_audio,
+			    1, 2, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HW(pll_video0_2x_clk, "pll-video0-2x",
+			   &pll_video0_clk.common.hw,
+			   1, 2, CLK_SET_RATE_PARENT);
+static CLK_FIXED_FACTOR_HW(pll_video1_2x_clk, "pll-video1-2x",
+			   &pll_video1_clk.common.hw,
+			   1, 2, CLK_SET_RATE_PARENT);
+>>>>>>> upstream/android-13
 
 
 static struct clk_hw_onecell_data sun4i_a10_hw_clks = {
@@ -1460,7 +1503,11 @@ static void __init sun4i_ccu_init(struct device_node *node,
 	val &= ~GENMASK(7, 6);
 	writel(val | (2 << 6), reg + SUN4I_AHB_REG);
 
+<<<<<<< HEAD
 	sunxi_ccu_probe(node, reg, desc);
+=======
+	of_sunxi_ccu_probe(node, reg, desc);
+>>>>>>> upstream/android-13
 }
 
 static void __init sun4i_a10_ccu_setup(struct device_node *node)

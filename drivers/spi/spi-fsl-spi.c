@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Freescale SPI controller driver.
  *
@@ -13,16 +17,23 @@
  * GRLIB support:
  * Copyright (c) 2012 Aeroflex Gaisler AB.
  * Author: Andreas Larsson <andreas@gaisler.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
 #include <linux/fsl_devices.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/kernel.h>
@@ -32,13 +43,27 @@
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/spi_bitbang.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_FSL_SOC
+#include <sysdev/fsl_soc.h>
+#endif
+
+/* Specific to the MPC8306/MPC8309 */
+#define IMMR_SPI_CS_OFFSET 0x14c
+#define SPI_BOOT_SEL_BIT   0x80000000
+
+>>>>>>> upstream/android-13
 #include "spi-fsl-lib.h"
 #include "spi-fsl-cpm.h"
 #include "spi-fsl-spi.h"
@@ -87,7 +112,11 @@ static void fsl_spi_change_mode(struct spi_device *spi)
 {
 	struct mpc8xxx_spi *mspi = spi_master_get_devdata(spi->master);
 	struct spi_mpc8xxx_cs *cs = spi->controller_state;
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base = mspi->reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base = mspi->reg_base;
+>>>>>>> upstream/android-13
 	__be32 __iomem *mode = &reg_base->mode;
 	unsigned long flags;
 
@@ -112,14 +141,21 @@ static void fsl_spi_chipselect(struct spi_device *spi, int value)
 {
 	struct mpc8xxx_spi *mpc8xxx_spi = spi_master_get_devdata(spi->master);
 	struct fsl_spi_platform_data *pdata;
+<<<<<<< HEAD
 	bool pol = spi->mode & SPI_CS_HIGH;
+=======
+>>>>>>> upstream/android-13
 	struct spi_mpc8xxx_cs	*cs = spi->controller_state;
 
 	pdata = spi->dev.parent->parent->platform_data;
 
 	if (value == BITBANG_CS_INACTIVE) {
 		if (pdata->cs_control)
+<<<<<<< HEAD
 			pdata->cs_control(spi, !pol);
+=======
+			pdata->cs_control(spi, false);
+>>>>>>> upstream/android-13
 	}
 
 	if (value == BITBANG_CS_ACTIVE) {
@@ -131,7 +167,11 @@ static void fsl_spi_chipselect(struct spi_device *spi, int value)
 		fsl_spi_change_mode(spi);
 
 		if (pdata->cs_control)
+<<<<<<< HEAD
 			pdata->cs_control(spi, pol);
+=======
+			pdata->cs_control(spi, true);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -288,7 +328,11 @@ static int fsl_spi_cpu_bufs(struct mpc8xxx_spi *mspi,
 				struct spi_transfer *t, unsigned int len)
 {
 	u32 word;
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base = mspi->reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base = mspi->reg_base;
+>>>>>>> upstream/android-13
 
 	mspi->count = len;
 
@@ -306,7 +350,11 @@ static int fsl_spi_bufs(struct spi_device *spi, struct spi_transfer *t,
 			    bool is_dma_mapped)
 {
 	struct mpc8xxx_spi *mpc8xxx_spi = spi_master_get_devdata(spi->master);
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base;
+>>>>>>> upstream/android-13
 	unsigned int len = t->len;
 	u8 bits_per_word;
 	int ret;
@@ -355,10 +403,15 @@ static int fsl_spi_bufs(struct spi_device *spi, struct spi_transfer *t,
 static int fsl_spi_do_one_msg(struct spi_master *master,
 			      struct spi_message *m)
 {
+<<<<<<< HEAD
+=======
+	struct mpc8xxx_spi *mpc8xxx_spi = spi_master_get_devdata(master);
+>>>>>>> upstream/android-13
 	struct spi_device *spi = m->spi;
 	struct spi_transfer *t, *first;
 	unsigned int cs_change;
 	const int nsecs = 50;
+<<<<<<< HEAD
 	int status;
 
 	/* Don't allow changes if CS is active */
@@ -369,10 +422,39 @@ static int fsl_spi_do_one_msg(struct spi_master *master,
 			(first->speed_hz != t->speed_hz)) {
 			dev_err(&spi->dev,
 				"bits_per_word/speed_hz should be same for the same SPI transfer\n");
+=======
+	int status, last_bpw;
+
+	/*
+	 * In CPU mode, optimize large byte transfers to use larger
+	 * bits_per_word values to reduce number of interrupts taken.
+	 */
+	if (!(mpc8xxx_spi->flags & SPI_CPM_MODE)) {
+		list_for_each_entry(t, &m->transfers, transfer_list) {
+			if (t->len < 256 || t->bits_per_word != 8)
+				continue;
+			if ((t->len & 3) == 0)
+				t->bits_per_word = 32;
+			else if ((t->len & 1) == 0)
+				t->bits_per_word = 16;
+		}
+	}
+
+	/* Don't allow changes if CS is active */
+	cs_change = 1;
+	list_for_each_entry(t, &m->transfers, transfer_list) {
+		if (cs_change)
+			first = t;
+		cs_change = t->cs_change;
+		if (first->speed_hz != t->speed_hz) {
+			dev_err(&spi->dev,
+				"speed_hz cannot change while CS is active\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	}
 
+<<<<<<< HEAD
 	cs_change = 1;
 	status = -EINVAL;
 	list_for_each_entry(t, &m->transfers, transfer_list) {
@@ -382,6 +464,17 @@ static int fsl_spi_do_one_msg(struct spi_master *master,
 			if (status < 0)
 				break;
 		}
+=======
+	last_bpw = -1;
+	cs_change = 1;
+	status = -EINVAL;
+	list_for_each_entry(t, &m->transfers, transfer_list) {
+		if (cs_change || last_bpw != t->bits_per_word)
+			status = fsl_spi_setup_transfer(spi, t);
+		if (status < 0)
+			break;
+		last_bpw = t->bits_per_word;
+>>>>>>> upstream/android-13
 
 		if (cs_change) {
 			fsl_spi_chipselect(spi, BITBANG_CS_ACTIVE);
@@ -396,8 +489,12 @@ static int fsl_spi_do_one_msg(struct spi_master *master,
 		}
 		m->actual_length += t->len;
 
+<<<<<<< HEAD
 		if (t->delay_usecs)
 			udelay(t->delay_usecs);
+=======
+		spi_transfer_delay_exec(t);
+>>>>>>> upstream/android-13
 
 		if (cs_change) {
 			ndelay(nsecs);
@@ -421,7 +518,12 @@ static int fsl_spi_do_one_msg(struct spi_master *master,
 static int fsl_spi_setup(struct spi_device *spi)
 {
 	struct mpc8xxx_spi *mpc8xxx_spi;
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base;
+	bool initial_setup = false;
+>>>>>>> upstream/android-13
 	int retval;
 	u32 hw_mode;
 	struct spi_mpc8xxx_cs *cs = spi_get_ctldata(spi);
@@ -434,6 +536,10 @@ static int fsl_spi_setup(struct spi_device *spi)
 		if (!cs)
 			return -ENOMEM;
 		spi_set_ctldata(spi, cs);
+<<<<<<< HEAD
+=======
+		initial_setup = true;
+>>>>>>> upstream/android-13
 	}
 	mpc8xxx_spi = spi_master_get_devdata(spi->master);
 
@@ -457,6 +563,7 @@ static int fsl_spi_setup(struct spi_device *spi)
 	retval = fsl_spi_setup_transfer(spi, NULL);
 	if (retval < 0) {
 		cs->hw_mode = hw_mode; /* Restore settings */
+<<<<<<< HEAD
 		return retval;
 	}
 
@@ -486,6 +593,13 @@ static int fsl_spi_setup(struct spi_device *spi)
 		 */
 	}
 
+=======
+		if (initial_setup)
+			kfree(cs);
+		return retval;
+	}
+
+>>>>>>> upstream/android-13
 	/* Initialize chipselect - might be active for SPI_CS_HIGH mode */
 	fsl_spi_chipselect(spi, BITBANG_CS_INACTIVE);
 
@@ -494,19 +608,28 @@ static int fsl_spi_setup(struct spi_device *spi)
 
 static void fsl_spi_cleanup(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct mpc8xxx_spi *mpc8xxx_spi = spi_master_get_devdata(spi->master);
 	struct spi_mpc8xxx_cs *cs = spi_get_ctldata(spi);
 
 	if (mpc8xxx_spi->type == TYPE_GRLIB && gpio_is_valid(spi->cs_gpio))
 		gpio_free(spi->cs_gpio);
 
+=======
+	struct spi_mpc8xxx_cs *cs = spi_get_ctldata(spi);
+
+>>>>>>> upstream/android-13
 	kfree(cs);
 	spi_set_ctldata(spi, NULL);
 }
 
 static void fsl_spi_cpu_irq(struct mpc8xxx_spi *mspi, u32 events)
 {
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base = mspi->reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base = mspi->reg_base;
+>>>>>>> upstream/android-13
 
 	/* We need handle RX first */
 	if (events & SPIE_NE) {
@@ -541,7 +664,11 @@ static irqreturn_t fsl_spi_irq(s32 irq, void *context_data)
 	struct mpc8xxx_spi *mspi = context_data;
 	irqreturn_t ret = IRQ_NONE;
 	u32 events;
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base = mspi->reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base = mspi->reg_base;
+>>>>>>> upstream/android-13
 
 	/* Get interrupt events(tx/rx) */
 	events = mpc8xxx_spi_read_reg(&reg_base->event);
@@ -561,12 +688,21 @@ static irqreturn_t fsl_spi_irq(s32 irq, void *context_data)
 static void fsl_spi_grlib_cs_control(struct spi_device *spi, bool on)
 {
 	struct mpc8xxx_spi *mpc8xxx_spi = spi_master_get_devdata(spi->master);
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base = mpc8xxx_spi->reg_base;
 	u32 slvsel;
 	u16 cs = spi->chip_select;
 
 	if (gpio_is_valid(spi->cs_gpio)) {
 		gpio_set_value(spi->cs_gpio, on);
+=======
+	struct fsl_spi_reg __iomem *reg_base = mpc8xxx_spi->reg_base;
+	u32 slvsel;
+	u16 cs = spi->chip_select;
+
+	if (spi->cs_gpiod) {
+		gpiod_set_value(spi->cs_gpiod, on);
+>>>>>>> upstream/android-13
 	} else if (cs < mpc8xxx_spi->native_chipselects) {
 		slvsel = mpc8xxx_spi_read_reg(&reg_base->slvsel);
 		slvsel = on ? (slvsel | (1 << cs)) : (slvsel & ~(1 << cs));
@@ -579,7 +715,11 @@ static void fsl_spi_grlib_probe(struct device *dev)
 	struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
 	struct spi_master *master = dev_get_drvdata(dev);
 	struct mpc8xxx_spi *mpc8xxx_spi = spi_master_get_devdata(master);
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base = mpc8xxx_spi->reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base = mpc8xxx_spi->reg_base;
+>>>>>>> upstream/android-13
 	int mbits;
 	u32 capabilities;
 
@@ -599,13 +739,21 @@ static void fsl_spi_grlib_probe(struct device *dev)
 	pdata->cs_control = fsl_spi_grlib_cs_control;
 }
 
+<<<<<<< HEAD
 static struct spi_master * fsl_spi_probe(struct device *dev,
+=======
+static struct spi_master *fsl_spi_probe(struct device *dev,
+>>>>>>> upstream/android-13
 		struct resource *mem, unsigned int irq)
 {
 	struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
 	struct spi_master *master;
 	struct mpc8xxx_spi *mpc8xxx_spi;
+<<<<<<< HEAD
 	struct fsl_spi_reg *reg_base;
+=======
+	struct fsl_spi_reg __iomem *reg_base;
+>>>>>>> upstream/android-13
 	u32 regval;
 	int ret = 0;
 
@@ -622,6 +770,10 @@ static struct spi_master * fsl_spi_probe(struct device *dev,
 	master->setup = fsl_spi_setup;
 	master->cleanup = fsl_spi_cleanup;
 	master->transfer_one_message = fsl_spi_do_one_msg;
+<<<<<<< HEAD
+=======
+	master->use_gpio_descriptors = true;
+>>>>>>> upstream/android-13
 
 	mpc8xxx_spi = spi_master_get_devdata(master);
 	mpc8xxx_spi->max_bits_per_word = 32;
@@ -697,6 +849,7 @@ err:
 
 static void fsl_spi_cs_control(struct spi_device *spi, bool on)
 {
+<<<<<<< HEAD
 	struct device *dev = spi->dev.parent->parent;
 	struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
 	struct mpc8xxx_spi_probe_info *pinfo = to_of_pinfo(pdata);
@@ -806,6 +959,19 @@ static int of_fsl_spi_free_chipselects(struct device *dev)
 	kfree(pinfo->gpios);
 	kfree(pinfo->alow_flags);
 	return 0;
+=======
+	if (spi->cs_gpiod) {
+		gpiod_set_value(spi->cs_gpiod, on);
+	} else {
+		struct device *dev = spi->dev.parent->parent;
+		struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
+		struct mpc8xxx_spi_probe_info *pinfo = to_of_pinfo(pdata);
+
+		if (WARN_ON_ONCE(!pinfo->immr_spi_cs))
+			return;
+		iowrite32be(on ? 0 : SPI_BOOT_SEL_BIT, pinfo->immr_spi_cs);
+	}
+>>>>>>> upstream/android-13
 }
 
 static int of_fsl_spi_probe(struct platform_device *ofdev)
@@ -814,8 +980,18 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
 	struct device_node *np = ofdev->dev.of_node;
 	struct spi_master *master;
 	struct resource mem;
+<<<<<<< HEAD
 	int irq = 0, type;
 	int ret = -ENOMEM;
+=======
+	int irq, type;
+	int ret;
+	bool spisel_boot = false;
+#if IS_ENABLED(CONFIG_FSL_SOC)
+	struct mpc8xxx_spi_probe_info *pinfo = NULL;
+#endif
+
+>>>>>>> upstream/android-13
 
 	ret = of_mpc8xxx_spi_probe(ofdev);
 	if (ret)
@@ -823,18 +999,53 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
 
 	type = fsl_spi_get_type(&ofdev->dev);
 	if (type == TYPE_FSL) {
+<<<<<<< HEAD
 		ret = of_fsl_spi_get_chipselects(dev);
 		if (ret)
 			goto err;
+=======
+		struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
+#if IS_ENABLED(CONFIG_FSL_SOC)
+		pinfo = to_of_pinfo(pdata);
+
+		spisel_boot = of_property_read_bool(np, "fsl,spisel_boot");
+		if (spisel_boot) {
+			pinfo->immr_spi_cs = ioremap(get_immrbase() + IMMR_SPI_CS_OFFSET, 4);
+			if (!pinfo->immr_spi_cs)
+				return -ENOMEM;
+		}
+#endif
+		/*
+		 * Handle the case where we have one hardwired (always selected)
+		 * device on the first "chipselect". Else we let the core code
+		 * handle any GPIOs or native chip selects and assign the
+		 * appropriate callback for dealing with the CS lines. This isn't
+		 * supported on the GRLIB variant.
+		 */
+		ret = gpiod_count(dev, "cs");
+		if (ret < 0)
+			ret = 0;
+		if (ret == 0 && !spisel_boot) {
+			pdata->max_chipselect = 1;
+		} else {
+			pdata->max_chipselect = ret + spisel_boot;
+			pdata->cs_control = fsl_spi_cs_control;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	ret = of_address_to_resource(np, 0, &mem);
 	if (ret)
+<<<<<<< HEAD
 		goto err;
+=======
+		goto unmap_out;
+>>>>>>> upstream/android-13
 
 	irq = platform_get_irq(ofdev, 0);
 	if (irq < 0) {
 		ret = irq;
+<<<<<<< HEAD
 		goto err;
 	}
 
@@ -849,6 +1060,20 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
 err:
 	if (type == TYPE_FSL)
 		of_fsl_spi_free_chipselects(dev);
+=======
+		goto unmap_out;
+	}
+
+	master = fsl_spi_probe(dev, &mem, irq);
+
+	return PTR_ERR_OR_ZERO(master);
+
+unmap_out:
+#if IS_ENABLED(CONFIG_FSL_SOC)
+	if (spisel_boot)
+		iounmap(pinfo->immr_spi_cs);
+#endif
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -858,8 +1083,11 @@ static int of_fsl_spi_remove(struct platform_device *ofdev)
 	struct mpc8xxx_spi *mpc8xxx_spi = spi_master_get_devdata(master);
 
 	fsl_spi_cpm_free(mpc8xxx_spi);
+<<<<<<< HEAD
 	if (mpc8xxx_spi->type == TYPE_FSL)
 		of_fsl_spi_free_chipselects(&ofdev->dev);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * gpio-reg: single register individually fixed-direction GPIOs
  *
  * Copyright (C) 2016 Russell King
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/gpio/driver.h>
 #include <linux/gpio/gpio-reg.h>
@@ -29,7 +36,12 @@ static int gpio_reg_get_direction(struct gpio_chip *gc, unsigned offset)
 {
 	struct gpio_reg *r = to_gpio_reg(gc);
 
+<<<<<<< HEAD
 	return r->direction & BIT(offset) ? 1 : 0;
+=======
+	return r->direction & BIT(offset) ? GPIO_LINE_DIRECTION_IN :
+					    GPIO_LINE_DIRECTION_OUT;
+>>>>>>> upstream/android-13
 }
 
 static int gpio_reg_direction_output(struct gpio_chip *gc, unsigned offset,

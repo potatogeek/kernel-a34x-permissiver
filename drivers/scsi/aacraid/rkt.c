@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Adaptec AAC series RAID controller driver
  *	(c) Copyright 2001 Red Hat Inc.
@@ -9,6 +13,7 @@
  *               2010-2015 PMC-Sierra, Inc. (aacraid@pmc-sierra.com)
  *		 2016-2017 Microsemi Corp. (aacraid@microsemi.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -23,11 +28,16 @@
  * along with this program; see the file COPYING.  If not, write to
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Module Name:
  *  rkt.c
  *
  * Abstract: Hardware miniport for Drawbridge specific hardware functions.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/blkdev.h>
@@ -71,6 +81,10 @@ static int aac_rkt_select_comm(struct aac_dev *dev, int comm)
 
 /**
  *	aac_rkt_ioremap
+<<<<<<< HEAD
+=======
+ *	@dev: device to ioremap
+>>>>>>> upstream/android-13
  *	@size: mapping resize request
  *
  */
@@ -91,8 +105,13 @@ static int aac_rkt_ioremap(struct aac_dev * dev, u32 size)
  *	aac_rkt_init	-	initialize an i960 based AAC card
  *	@dev: device to configure
  *
+<<<<<<< HEAD
  *	Allocate and set up resources for the i960 based AAC variants. The 
  *	device_interface in the commregion will be allocated and linked 
+=======
+ *	Allocate and set up resources for the i960 based AAC variants. The
+ *	device_interface in the commregion will be allocated and linked
+>>>>>>> upstream/android-13
  *	to the comm region.
  */
 

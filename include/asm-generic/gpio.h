@@ -2,10 +2,15 @@
 #ifndef _ASM_GENERIC_GPIO_H
 #define _ASM_GENERIC_GPIO_H
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/of.h>
+=======
+#include <linux/types.h>
+#include <linux/errno.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_GPIOLIB
 
@@ -140,6 +145,11 @@ static inline void gpio_unexport(unsigned gpio)
 
 #else	/* !CONFIG_GPIOLIB */
 
+<<<<<<< HEAD
+=======
+#include <linux/kernel.h>
+
+>>>>>>> upstream/android-13
 static inline bool gpio_is_valid(int number)
 {
 	/* only non-negative numbers are valid */

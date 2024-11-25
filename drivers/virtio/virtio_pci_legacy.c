@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Virtio PCI driver - legacy device support
  *
@@ -11,10 +15,13 @@
  *  Anthony Liguori  <aliguori@us.ibm.com>
  *  Rusty Russell <rusty@rustcorp.com.au>
  *  Michael S. Tsirkin <mst@redhat.com>
+<<<<<<< HEAD
  *
  * This work is licensed under the terms of the GNU GPL, version 2 or later.
  * See the COPYING file in the top-level directory.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "virtio_pci_common.h"
@@ -52,7 +59,12 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
 	void __iomem *ioaddr = vp_dev->ioaddr +
+<<<<<<< HEAD
 				VIRTIO_PCI_CONFIG(vp_dev) + offset;
+=======
+			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
+			offset;
+>>>>>>> upstream/android-13
 	u8 *ptr = buf;
 	int i;
 
@@ -67,7 +79,12 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
 {
 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
 	void __iomem *ioaddr = vp_dev->ioaddr +
+<<<<<<< HEAD
 				VIRTIO_PCI_CONFIG(vp_dev) + offset;
+=======
+			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
+			offset;
+>>>>>>> upstream/android-13
 	const u8 *ptr = buf;
 	int i;
 

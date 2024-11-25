@@ -35,8 +35,16 @@
 #include <linux/ipv6.h>
 #include <linux/tcp.h>
 #include <linux/mlx5/fs.h>
+<<<<<<< HEAD
 #include "en.h"
 #include "lib/mpfs.h"
+=======
+#include <linux/mlx5/mpfs.h>
+#include "en.h"
+#include "en_rep.h"
+#include "lib/mpfs.h"
+#include "en/ptp.h"
+>>>>>>> upstream/android-13
 
 static int mlx5e_add_l2_flow_rule(struct mlx5e_priv *priv,
 				  struct mlx5e_l2_rule *ai, int type);
@@ -46,7 +54,10 @@ static void mlx5e_del_l2_flow_rule(struct mlx5e_priv *priv,
 enum {
 	MLX5E_FULLMATCH = 0,
 	MLX5E_ALLMULTI  = 1,
+<<<<<<< HEAD
 	MLX5E_PROMISC   = 2,
+=======
+>>>>>>> upstream/android-13
 };
 
 enum {
@@ -107,6 +118,32 @@ static void mlx5e_del_l2_from_hash(struct mlx5e_l2_hash_node *hn)
 	kfree(hn);
 }
 
+<<<<<<< HEAD
+=======
+struct mlx5e_vlan_table {
+	struct mlx5e_flow_table		ft;
+	DECLARE_BITMAP(active_cvlans, VLAN_N_VID);
+	DECLARE_BITMAP(active_svlans, VLAN_N_VID);
+	struct mlx5_flow_handle	*active_cvlans_rule[VLAN_N_VID];
+	struct mlx5_flow_handle	*active_svlans_rule[VLAN_N_VID];
+	struct mlx5_flow_handle	*untagged_rule;
+	struct mlx5_flow_handle	*any_cvlan_rule;
+	struct mlx5_flow_handle	*any_svlan_rule;
+	struct mlx5_flow_handle	*trap_rule;
+	bool			cvlan_filter_disabled;
+};
+
+unsigned long *mlx5e_vlan_get_active_svlans(struct mlx5e_vlan_table *vlan)
+{
+	return vlan->active_svlans;
+}
+
+struct mlx5_flow_table *mlx5e_vlan_get_flowtable(struct mlx5e_vlan_table *vlan)
+{
+	return vlan->ft.t;
+}
+
+>>>>>>> upstream/android-13
 static int mlx5e_vport_context_update_vlans(struct mlx5e_priv *priv)
 {
 	struct net_device *ndev = priv->netdev;
@@ -118,7 +155,11 @@ static int mlx5e_vport_context_update_vlans(struct mlx5e_priv *priv)
 	int i;
 
 	list_size = 0;
+<<<<<<< HEAD
 	for_each_set_bit(vlan, priv->fs.vlan.active_cvlans, VLAN_N_VID)
+=======
+	for_each_set_bit(vlan, priv->fs.vlan->active_cvlans, VLAN_N_VID)
+>>>>>>> upstream/android-13
 		list_size++;
 
 	max_list_size = 1 << MLX5_CAP_GEN(priv->mdev, log_max_vlan_list);
@@ -135,7 +176,11 @@ static int mlx5e_vport_context_update_vlans(struct mlx5e_priv *priv)
 		return -ENOMEM;
 
 	i = 0;
+<<<<<<< HEAD
 	for_each_set_bit(vlan, priv->fs.vlan.active_cvlans, VLAN_N_VID) {
+=======
+	for_each_set_bit(vlan, priv->fs.vlan->active_cvlans, VLAN_N_VID) {
+>>>>>>> upstream/android-13
 		if (i >= list_size)
 			break;
 		vlans[i++] = vlan;
@@ -162,7 +207,11 @@ static int __mlx5e_add_vlan_rule(struct mlx5e_priv *priv,
 				 enum mlx5e_vlan_rule_type rule_type,
 				 u16 vid, struct mlx5_flow_spec *spec)
 {
+<<<<<<< HEAD
 	struct mlx5_flow_table *ft = priv->fs.vlan.ft.t;
+=======
+	struct mlx5_flow_table *ft = priv->fs.vlan->ft.t;
+>>>>>>> upstream/android-13
 	struct mlx5_flow_destination dest = {};
 	struct mlx5_flow_handle **rule_p;
 	MLX5_DECLARE_FLOW_ACT(flow_act);
@@ -179,24 +228,40 @@ static int __mlx5e_add_vlan_rule(struct mlx5e_priv *priv,
 		 * disabled in match value means both S & C tags
 		 * don't exist (untagged of both)
 		 */
+<<<<<<< HEAD
 		rule_p = &priv->fs.vlan.untagged_rule;
+=======
+		rule_p = &priv->fs.vlan->untagged_rule;
+>>>>>>> upstream/android-13
 		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
 				 outer_headers.cvlan_tag);
 		break;
 	case MLX5E_VLAN_RULE_TYPE_ANY_CTAG_VID:
+<<<<<<< HEAD
 		rule_p = &priv->fs.vlan.any_cvlan_rule;
+=======
+		rule_p = &priv->fs.vlan->any_cvlan_rule;
+>>>>>>> upstream/android-13
 		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
 				 outer_headers.cvlan_tag);
 		MLX5_SET(fte_match_param, spec->match_value, outer_headers.cvlan_tag, 1);
 		break;
 	case MLX5E_VLAN_RULE_TYPE_ANY_STAG_VID:
+<<<<<<< HEAD
 		rule_p = &priv->fs.vlan.any_svlan_rule;
+=======
+		rule_p = &priv->fs.vlan->any_svlan_rule;
+>>>>>>> upstream/android-13
 		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
 				 outer_headers.svlan_tag);
 		MLX5_SET(fte_match_param, spec->match_value, outer_headers.svlan_tag, 1);
 		break;
 	case MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID:
+<<<<<<< HEAD
 		rule_p = &priv->fs.vlan.active_svlans_rule[vid];
+=======
+		rule_p = &priv->fs.vlan->active_svlans_rule[vid];
+>>>>>>> upstream/android-13
 		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
 				 outer_headers.svlan_tag);
 		MLX5_SET(fte_match_param, spec->match_value, outer_headers.svlan_tag, 1);
@@ -206,7 +271,11 @@ static int __mlx5e_add_vlan_rule(struct mlx5e_priv *priv,
 			 vid);
 		break;
 	default: /* MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID */
+<<<<<<< HEAD
 		rule_p = &priv->fs.vlan.active_cvlans_rule[vid];
+=======
+		rule_p = &priv->fs.vlan->active_cvlans_rule[vid];
+>>>>>>> upstream/android-13
 		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
 				 outer_headers.cvlan_tag);
 		MLX5_SET(fte_match_param, spec->match_value, outer_headers.cvlan_tag, 1);
@@ -256,6 +325,7 @@ static void mlx5e_del_vlan_rule(struct mlx5e_priv *priv,
 {
 	switch (rule_type) {
 	case MLX5E_VLAN_RULE_TYPE_UNTAGGED:
+<<<<<<< HEAD
 		if (priv->fs.vlan.untagged_rule) {
 			mlx5_del_flow_rules(priv->fs.vlan.untagged_rule);
 			priv->fs.vlan.untagged_rule = NULL;
@@ -283,6 +353,35 @@ static void mlx5e_del_vlan_rule(struct mlx5e_priv *priv,
 		if (priv->fs.vlan.active_cvlans_rule[vid]) {
 			mlx5_del_flow_rules(priv->fs.vlan.active_cvlans_rule[vid]);
 			priv->fs.vlan.active_cvlans_rule[vid] = NULL;
+=======
+		if (priv->fs.vlan->untagged_rule) {
+			mlx5_del_flow_rules(priv->fs.vlan->untagged_rule);
+			priv->fs.vlan->untagged_rule = NULL;
+		}
+		break;
+	case MLX5E_VLAN_RULE_TYPE_ANY_CTAG_VID:
+		if (priv->fs.vlan->any_cvlan_rule) {
+			mlx5_del_flow_rules(priv->fs.vlan->any_cvlan_rule);
+			priv->fs.vlan->any_cvlan_rule = NULL;
+		}
+		break;
+	case MLX5E_VLAN_RULE_TYPE_ANY_STAG_VID:
+		if (priv->fs.vlan->any_svlan_rule) {
+			mlx5_del_flow_rules(priv->fs.vlan->any_svlan_rule);
+			priv->fs.vlan->any_svlan_rule = NULL;
+		}
+		break;
+	case MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID:
+		if (priv->fs.vlan->active_svlans_rule[vid]) {
+			mlx5_del_flow_rules(priv->fs.vlan->active_svlans_rule[vid]);
+			priv->fs.vlan->active_svlans_rule[vid] = NULL;
+		}
+		break;
+	case MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID:
+		if (priv->fs.vlan->active_cvlans_rule[vid]) {
+			mlx5_del_flow_rules(priv->fs.vlan->active_cvlans_rule[vid]);
+			priv->fs.vlan->active_cvlans_rule[vid] = NULL;
+>>>>>>> upstream/android-13
 		}
 		mlx5e_vport_context_update_vlans(priv);
 		break;
@@ -306,12 +405,94 @@ static int mlx5e_add_any_vid_rules(struct mlx5e_priv *priv)
 	return mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_ANY_STAG_VID, 0);
 }
 
+<<<<<<< HEAD
 void mlx5e_enable_cvlan_filter(struct mlx5e_priv *priv)
 {
 	if (!priv->fs.vlan.cvlan_filter_disabled)
 		return;
 
 	priv->fs.vlan.cvlan_filter_disabled = false;
+=======
+static struct mlx5_flow_handle *
+mlx5e_add_trap_rule(struct mlx5_flow_table *ft, int trap_id, int tir_num)
+{
+	struct mlx5_flow_destination dest = {};
+	MLX5_DECLARE_FLOW_ACT(flow_act);
+	struct mlx5_flow_handle *rule;
+	struct mlx5_flow_spec *spec;
+
+	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+	if (!spec)
+		return ERR_PTR(-ENOMEM);
+	spec->flow_context.flags |= FLOW_CONTEXT_HAS_TAG;
+	spec->flow_context.flow_tag = trap_id;
+	dest.type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+	dest.tir_num = tir_num;
+
+	rule = mlx5_add_flow_rules(ft, spec, &flow_act, &dest, 1);
+	kvfree(spec);
+	return rule;
+}
+
+int mlx5e_add_vlan_trap(struct mlx5e_priv *priv, int trap_id, int tir_num)
+{
+	struct mlx5_flow_table *ft = priv->fs.vlan->ft.t;
+	struct mlx5_flow_handle *rule;
+	int err;
+
+	rule = mlx5e_add_trap_rule(ft, trap_id, tir_num);
+	if (IS_ERR(rule)) {
+		err = PTR_ERR(rule);
+		priv->fs.vlan->trap_rule = NULL;
+		netdev_err(priv->netdev, "%s: add VLAN trap rule failed, err %d\n",
+			   __func__, err);
+		return err;
+	}
+	priv->fs.vlan->trap_rule = rule;
+	return 0;
+}
+
+void mlx5e_remove_vlan_trap(struct mlx5e_priv *priv)
+{
+	if (priv->fs.vlan->trap_rule) {
+		mlx5_del_flow_rules(priv->fs.vlan->trap_rule);
+		priv->fs.vlan->trap_rule = NULL;
+	}
+}
+
+int mlx5e_add_mac_trap(struct mlx5e_priv *priv, int trap_id, int tir_num)
+{
+	struct mlx5_flow_table *ft = priv->fs.l2.ft.t;
+	struct mlx5_flow_handle *rule;
+	int err;
+
+	rule = mlx5e_add_trap_rule(ft, trap_id, tir_num);
+	if (IS_ERR(rule)) {
+		err = PTR_ERR(rule);
+		priv->fs.l2.trap_rule = NULL;
+		netdev_err(priv->netdev, "%s: add MAC trap rule failed, err %d\n",
+			   __func__, err);
+		return err;
+	}
+	priv->fs.l2.trap_rule = rule;
+	return 0;
+}
+
+void mlx5e_remove_mac_trap(struct mlx5e_priv *priv)
+{
+	if (priv->fs.l2.trap_rule) {
+		mlx5_del_flow_rules(priv->fs.l2.trap_rule);
+		priv->fs.l2.trap_rule = NULL;
+	}
+}
+
+void mlx5e_enable_cvlan_filter(struct mlx5e_priv *priv)
+{
+	if (!priv->fs.vlan->cvlan_filter_disabled)
+		return;
+
+	priv->fs.vlan->cvlan_filter_disabled = false;
+>>>>>>> upstream/android-13
 	if (priv->netdev->flags & IFF_PROMISC)
 		return;
 	mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_ANY_CTAG_VID, 0);
@@ -319,10 +500,17 @@ void mlx5e_enable_cvlan_filter(struct mlx5e_priv *priv)
 
 void mlx5e_disable_cvlan_filter(struct mlx5e_priv *priv)
 {
+<<<<<<< HEAD
 	if (priv->fs.vlan.cvlan_filter_disabled)
 		return;
 
 	priv->fs.vlan.cvlan_filter_disabled = true;
+=======
+	if (priv->fs.vlan->cvlan_filter_disabled)
+		return;
+
+	priv->fs.vlan->cvlan_filter_disabled = true;
+>>>>>>> upstream/android-13
 	if (priv->netdev->flags & IFF_PROMISC)
 		return;
 	mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_ANY_CTAG_VID, 0);
@@ -332,11 +520,19 @@ static int mlx5e_vlan_rx_add_cvid(struct mlx5e_priv *priv, u16 vid)
 {
 	int err;
 
+<<<<<<< HEAD
 	set_bit(vid, priv->fs.vlan.active_cvlans);
 
 	err = mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, vid);
 	if (err)
 		clear_bit(vid, priv->fs.vlan.active_cvlans);
+=======
+	set_bit(vid, priv->fs.vlan->active_cvlans);
+
+	err = mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, vid);
+	if (err)
+		clear_bit(vid, priv->fs.vlan->active_cvlans);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -346,11 +542,19 @@ static int mlx5e_vlan_rx_add_svid(struct mlx5e_priv *priv, u16 vid)
 	struct net_device *netdev = priv->netdev;
 	int err;
 
+<<<<<<< HEAD
 	set_bit(vid, priv->fs.vlan.active_svlans);
 
 	err = mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, vid);
 	if (err) {
 		clear_bit(vid, priv->fs.vlan.active_svlans);
+=======
+	set_bit(vid, priv->fs.vlan->active_svlans);
+
+	err = mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, vid);
+	if (err) {
+		clear_bit(vid, priv->fs.vlan->active_svlans);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -363,6 +567,12 @@ int mlx5e_vlan_rx_add_vid(struct net_device *dev, __be16 proto, u16 vid)
 {
 	struct mlx5e_priv *priv = netdev_priv(dev);
 
+<<<<<<< HEAD
+=======
+	if (mlx5e_is_uplink_rep(priv))
+		return 0; /* no vlan table for uplink rep */
+
+>>>>>>> upstream/android-13
 	if (be16_to_cpu(proto) == ETH_P_8021Q)
 		return mlx5e_vlan_rx_add_cvid(priv, vid);
 	else if (be16_to_cpu(proto) == ETH_P_8021AD)
@@ -375,11 +585,22 @@ int mlx5e_vlan_rx_kill_vid(struct net_device *dev, __be16 proto, u16 vid)
 {
 	struct mlx5e_priv *priv = netdev_priv(dev);
 
+<<<<<<< HEAD
 	if (be16_to_cpu(proto) == ETH_P_8021Q) {
 		clear_bit(vid, priv->fs.vlan.active_cvlans);
 		mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, vid);
 	} else if (be16_to_cpu(proto) == ETH_P_8021AD) {
 		clear_bit(vid, priv->fs.vlan.active_svlans);
+=======
+	if (mlx5e_is_uplink_rep(priv))
+		return 0; /* no vlan table for uplink rep */
+
+	if (be16_to_cpu(proto) == ETH_P_8021Q) {
+		clear_bit(vid, priv->fs.vlan->active_cvlans);
+		mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, vid);
+	} else if (be16_to_cpu(proto) == ETH_P_8021AD) {
+		clear_bit(vid, priv->fs.vlan->active_svlans);
+>>>>>>> upstream/android-13
 		mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, vid);
 		netdev_update_features(dev);
 	}
@@ -393,6 +614,7 @@ static void mlx5e_add_vlan_rules(struct mlx5e_priv *priv)
 
 	mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_UNTAGGED, 0);
 
+<<<<<<< HEAD
 	for_each_set_bit(i, priv->fs.vlan.active_cvlans, VLAN_N_VID) {
 		mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, i);
 	}
@@ -401,6 +623,16 @@ static void mlx5e_add_vlan_rules(struct mlx5e_priv *priv)
 		mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, i);
 
 	if (priv->fs.vlan.cvlan_filter_disabled)
+=======
+	for_each_set_bit(i, priv->fs.vlan->active_cvlans, VLAN_N_VID) {
+		mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, i);
+	}
+
+	for_each_set_bit(i, priv->fs.vlan->active_svlans, VLAN_N_VID)
+		mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, i);
+
+	if (priv->fs.vlan->cvlan_filter_disabled)
+>>>>>>> upstream/android-13
 		mlx5e_add_any_vid_rules(priv);
 }
 
@@ -410,19 +642,36 @@ static void mlx5e_del_vlan_rules(struct mlx5e_priv *priv)
 
 	mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_UNTAGGED, 0);
 
+<<<<<<< HEAD
 	for_each_set_bit(i, priv->fs.vlan.active_cvlans, VLAN_N_VID) {
 		mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, i);
 	}
 
 	for_each_set_bit(i, priv->fs.vlan.active_svlans, VLAN_N_VID)
+=======
+	for_each_set_bit(i, priv->fs.vlan->active_cvlans, VLAN_N_VID) {
+		mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_CTAG_VID, i);
+	}
+
+	for_each_set_bit(i, priv->fs.vlan->active_svlans, VLAN_N_VID)
+>>>>>>> upstream/android-13
 		mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, i);
 
 	WARN_ON_ONCE(!(test_bit(MLX5E_STATE_DESTROYING, &priv->state)));
 
+<<<<<<< HEAD
 	/* must be called after DESTROY bit is set and
 	 * set_rx_mode is called and flushed
 	 */
 	if (priv->fs.vlan.cvlan_filter_disabled)
+=======
+	mlx5e_remove_vlan_trap(priv);
+
+	/* must be called after DESTROY bit is set and
+	 * set_rx_mode is called and flushed
+	 */
+	if (priv->fs.vlan->cvlan_filter_disabled)
+>>>>>>> upstream/android-13
 		mlx5e_del_any_vid_rules(priv);
 }
 
@@ -596,6 +845,86 @@ static void mlx5e_handle_netdev_addr(struct mlx5e_priv *priv)
 	mlx5e_apply_netdev_addr(priv);
 }
 
+<<<<<<< HEAD
+=======
+#define MLX5E_PROMISC_GROUP0_SIZE BIT(0)
+#define MLX5E_PROMISC_TABLE_SIZE MLX5E_PROMISC_GROUP0_SIZE
+
+static int mlx5e_add_promisc_rule(struct mlx5e_priv *priv)
+{
+	struct mlx5_flow_table *ft = priv->fs.promisc.ft.t;
+	struct mlx5_flow_destination dest = {};
+	struct mlx5_flow_handle **rule_p;
+	MLX5_DECLARE_FLOW_ACT(flow_act);
+	struct mlx5_flow_spec *spec;
+	int err = 0;
+
+	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+	if (!spec)
+		return -ENOMEM;
+	dest.type = MLX5_FLOW_DESTINATION_TYPE_FLOW_TABLE;
+	dest.ft = mlx5_get_ttc_flow_table(priv->fs.ttc);
+
+	rule_p = &priv->fs.promisc.rule;
+	*rule_p = mlx5_add_flow_rules(ft, spec, &flow_act, &dest, 1);
+	if (IS_ERR(*rule_p)) {
+		err = PTR_ERR(*rule_p);
+		*rule_p = NULL;
+		netdev_err(priv->netdev, "%s: add promiscuous rule failed\n", __func__);
+	}
+	kvfree(spec);
+	return err;
+}
+
+static int mlx5e_create_promisc_table(struct mlx5e_priv *priv)
+{
+	struct mlx5e_flow_table *ft = &priv->fs.promisc.ft;
+	struct mlx5_flow_table_attr ft_attr = {};
+	int err;
+
+	ft_attr.max_fte = MLX5E_PROMISC_TABLE_SIZE;
+	ft_attr.autogroup.max_num_groups = 1;
+	ft_attr.level = MLX5E_PROMISC_FT_LEVEL;
+	ft_attr.prio = MLX5E_NIC_PRIO;
+
+	ft->t = mlx5_create_auto_grouped_flow_table(priv->fs.ns, &ft_attr);
+	if (IS_ERR(ft->t)) {
+		err = PTR_ERR(ft->t);
+		netdev_err(priv->netdev, "fail to create promisc table err=%d\n", err);
+		return err;
+	}
+
+	err = mlx5e_add_promisc_rule(priv);
+	if (err)
+		goto err_destroy_promisc_table;
+
+	return 0;
+
+err_destroy_promisc_table:
+	mlx5_destroy_flow_table(ft->t);
+	ft->t = NULL;
+
+	return err;
+}
+
+static void mlx5e_del_promisc_rule(struct mlx5e_priv *priv)
+{
+	if (WARN(!priv->fs.promisc.rule, "Trying to remove non-existing promiscuous rule"))
+		return;
+	mlx5_del_flow_rules(priv->fs.promisc.rule);
+	priv->fs.promisc.rule = NULL;
+}
+
+static void mlx5e_destroy_promisc_table(struct mlx5e_priv *priv)
+{
+	if (WARN(!priv->fs.promisc.ft.t, "Trying to remove non-existing promiscuous table"))
+		return;
+	mlx5e_del_promisc_rule(priv);
+	mlx5_destroy_flow_table(priv->fs.promisc.ft.t);
+	priv->fs.promisc.ft.t = NULL;
+}
+
+>>>>>>> upstream/android-13
 void mlx5e_set_rx_mode_work(struct work_struct *work)
 {
 	struct mlx5e_priv *priv = container_of(work, struct mlx5e_priv,
@@ -615,6 +944,7 @@ void mlx5e_set_rx_mode_work(struct work_struct *work)
 	bool disable_allmulti  =  ea->allmulti_enabled  && !allmulti_enabled;
 	bool enable_broadcast  = !ea->broadcast_enabled &&  broadcast_enabled;
 	bool disable_broadcast =  ea->broadcast_enabled && !broadcast_enabled;
+<<<<<<< HEAD
 
 	if (enable_promisc) {
 		if (!priv->channels.params.vlan_strip_disable)
@@ -623,6 +953,17 @@ void mlx5e_set_rx_mode_work(struct work_struct *work)
 		mlx5e_add_l2_flow_rule(priv, &ea->promisc, MLX5E_PROMISC);
 		if (!priv->fs.vlan.cvlan_filter_disabled)
 			mlx5e_add_any_vid_rules(priv);
+=======
+	int err;
+
+	if (enable_promisc) {
+		err = mlx5e_create_promisc_table(priv);
+		if (err)
+			enable_promisc = false;
+		if (!priv->channels.params.vlan_strip_disable && !err)
+			netdev_warn_once(ndev,
+					 "S-tagged traffic will be dropped while C-tag vlan stripping is enabled\n");
+>>>>>>> upstream/android-13
 	}
 	if (enable_allmulti)
 		mlx5e_add_l2_flow_rule(priv, &ea->allmulti, MLX5E_ALLMULTI);
@@ -635,11 +976,16 @@ void mlx5e_set_rx_mode_work(struct work_struct *work)
 		mlx5e_del_l2_flow_rule(priv, &ea->broadcast);
 	if (disable_allmulti)
 		mlx5e_del_l2_flow_rule(priv, &ea->allmulti);
+<<<<<<< HEAD
 	if (disable_promisc) {
 		if (!priv->fs.vlan.cvlan_filter_disabled)
 			mlx5e_del_any_vid_rules(priv);
 		mlx5e_del_l2_flow_rule(priv, &ea->promisc);
 	}
+=======
+	if (disable_promisc)
+		mlx5e_destroy_promisc_table(priv);
+>>>>>>> upstream/android-13
 
 	ea->promisc_enabled   = promisc_enabled;
 	ea->allmulti_enabled  = allmulti_enabled;
@@ -673,6 +1019,7 @@ void mlx5e_destroy_flow_table(struct mlx5e_flow_table *ft)
 	ft->t = NULL;
 }
 
+<<<<<<< HEAD
 static void mlx5e_cleanup_ttc_rules(struct mlx5e_ttc_table *ttc)
 {
 	int i;
@@ -1182,6 +1529,61 @@ int mlx5e_create_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
 err:
 	mlx5e_destroy_flow_table(ft);
 	return err;
+=======
+static void mlx5e_set_inner_ttc_params(struct mlx5e_priv *priv,
+				       struct ttc_params *ttc_params)
+{
+	struct mlx5_flow_table_attr *ft_attr = &ttc_params->ft_attr;
+	int tt;
+
+	memset(ttc_params, 0, sizeof(*ttc_params));
+	ttc_params->ns = mlx5_get_flow_namespace(priv->mdev,
+						 MLX5_FLOW_NAMESPACE_KERNEL);
+	ft_attr->level = MLX5E_INNER_TTC_FT_LEVEL;
+	ft_attr->prio = MLX5E_NIC_PRIO;
+
+	for (tt = 0; tt < MLX5_NUM_TT; tt++) {
+		ttc_params->dests[tt].type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+		ttc_params->dests[tt].tir_num =
+			tt == MLX5_TT_ANY ?
+				mlx5e_rx_res_get_tirn_direct(priv->rx_res, 0) :
+				mlx5e_rx_res_get_tirn_rss_inner(priv->rx_res,
+								tt);
+	}
+}
+
+void mlx5e_set_ttc_params(struct mlx5e_priv *priv,
+			  struct ttc_params *ttc_params, bool tunnel)
+
+{
+	struct mlx5_flow_table_attr *ft_attr = &ttc_params->ft_attr;
+	int tt;
+
+	memset(ttc_params, 0, sizeof(*ttc_params));
+	ttc_params->ns = mlx5_get_flow_namespace(priv->mdev,
+						 MLX5_FLOW_NAMESPACE_KERNEL);
+	ft_attr->level = MLX5E_TTC_FT_LEVEL;
+	ft_attr->prio = MLX5E_NIC_PRIO;
+
+	for (tt = 0; tt < MLX5_NUM_TT; tt++) {
+		ttc_params->dests[tt].type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+		ttc_params->dests[tt].tir_num =
+			tt == MLX5_TT_ANY ?
+				mlx5e_rx_res_get_tirn_direct(priv->rx_res, 0) :
+				mlx5e_rx_res_get_tirn_rss(priv->rx_res, tt);
+	}
+
+	ttc_params->inner_ttc = tunnel;
+	if (!tunnel || !mlx5_tunnel_inner_ft_supported(priv->mdev))
+		return;
+
+	for (tt = 0; tt < MLX5_NUM_TUNNEL_TT; tt++) {
+		ttc_params->tunnel_dests[tt].type =
+			MLX5_FLOW_DESTINATION_TYPE_FLOW_TABLE;
+		ttc_params->tunnel_dests[tt].ft =
+			mlx5_get_ttc_flow_table(priv->fs.inner_ttc);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void mlx5e_del_l2_flow_rule(struct mlx5e_priv *priv,
@@ -1214,7 +1616,11 @@ static int mlx5e_add_l2_flow_rule(struct mlx5e_priv *priv,
 			       outer_headers.dmac_47_16);
 
 	dest.type = MLX5_FLOW_DESTINATION_TYPE_FLOW_TABLE;
+<<<<<<< HEAD
 	dest.ft = priv->fs.ttc.ft.t;
+=======
+	dest.ft = mlx5_get_ttc_flow_table(priv->fs.ttc);
+>>>>>>> upstream/android-13
 
 	switch (type) {
 	case MLX5E_FULLMATCH:
@@ -1228,9 +1634,12 @@ static int mlx5e_add_l2_flow_rule(struct mlx5e_priv *priv,
 		mc_dmac[0] = 0x01;
 		mv_dmac[0] = 0x01;
 		break;
+<<<<<<< HEAD
 
 	case MLX5E_PROMISC:
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	ai->rule = mlx5_add_flow_rules(ft, spec, &flow_act, &dest, 1);
@@ -1247,12 +1656,21 @@ static int mlx5e_add_l2_flow_rule(struct mlx5e_priv *priv,
 }
 
 #define MLX5E_NUM_L2_GROUPS	   3
+<<<<<<< HEAD
 #define MLX5E_L2_GROUP1_SIZE	   BIT(0)
 #define MLX5E_L2_GROUP2_SIZE	   BIT(15)
 #define MLX5E_L2_GROUP3_SIZE	   BIT(0)
 #define MLX5E_L2_TABLE_SIZE	   (MLX5E_L2_GROUP1_SIZE +\
 				    MLX5E_L2_GROUP2_SIZE +\
 				    MLX5E_L2_GROUP3_SIZE)
+=======
+#define MLX5E_L2_GROUP1_SIZE	   BIT(15)
+#define MLX5E_L2_GROUP2_SIZE	   BIT(0)
+#define MLX5E_L2_GROUP_TRAP_SIZE   BIT(0) /* must be last */
+#define MLX5E_L2_TABLE_SIZE	   (MLX5E_L2_GROUP1_SIZE +\
+				    MLX5E_L2_GROUP2_SIZE +\
+				    MLX5E_L2_GROUP_TRAP_SIZE)
+>>>>>>> upstream/android-13
 static int mlx5e_create_l2_table_groups(struct mlx5e_l2_table *l2_table)
 {
 	int inlen = MLX5_ST_SZ_BYTES(create_flow_group_in);
@@ -1275,6 +1693,7 @@ static int mlx5e_create_l2_table_groups(struct mlx5e_l2_table *l2_table)
 	mc = MLX5_ADDR_OF(create_flow_group_in, in, match_criteria);
 	mc_dmac = MLX5_ADDR_OF(fte_match_param, mc,
 			       outer_headers.dmac_47_16);
+<<<<<<< HEAD
 	/* Flow Group for promiscuous */
 	MLX5_SET_CFG(in, start_flow_index, ix);
 	ix += MLX5E_L2_GROUP1_SIZE;
@@ -1284,11 +1703,17 @@ static int mlx5e_create_l2_table_groups(struct mlx5e_l2_table *l2_table)
 		goto err_destroy_groups;
 	ft->num_groups++;
 
+=======
+>>>>>>> upstream/android-13
 	/* Flow Group for full match */
 	eth_broadcast_addr(mc_dmac);
 	MLX5_SET_CFG(in, match_criteria_enable, MLX5_MATCH_OUTER_HEADERS);
 	MLX5_SET_CFG(in, start_flow_index, ix);
+<<<<<<< HEAD
 	ix += MLX5E_L2_GROUP2_SIZE;
+=======
+	ix += MLX5E_L2_GROUP1_SIZE;
+>>>>>>> upstream/android-13
 	MLX5_SET_CFG(in, end_flow_index, ix - 1);
 	ft->g[ft->num_groups] = mlx5_create_flow_group(ft->t, in);
 	if (IS_ERR(ft->g[ft->num_groups]))
@@ -1299,7 +1724,21 @@ static int mlx5e_create_l2_table_groups(struct mlx5e_l2_table *l2_table)
 	eth_zero_addr(mc_dmac);
 	mc_dmac[0] = 0x01;
 	MLX5_SET_CFG(in, start_flow_index, ix);
+<<<<<<< HEAD
 	ix += MLX5E_L2_GROUP3_SIZE;
+=======
+	ix += MLX5E_L2_GROUP2_SIZE;
+	MLX5_SET_CFG(in, end_flow_index, ix - 1);
+	ft->g[ft->num_groups] = mlx5_create_flow_group(ft->t, in);
+	if (IS_ERR(ft->g[ft->num_groups]))
+		goto err_destroy_groups;
+	ft->num_groups++;
+
+	/* Flow Group for l2 traps */
+	memset(in, 0, inlen);
+	MLX5_SET_CFG(in, start_flow_index, ix);
+	ix += MLX5E_L2_GROUP_TRAP_SIZE;
+>>>>>>> upstream/android-13
 	MLX5_SET_CFG(in, end_flow_index, ix - 1);
 	ft->g[ft->num_groups] = mlx5_create_flow_group(ft->t, in);
 	if (IS_ERR(ft->g[ft->num_groups]))
@@ -1357,15 +1796,28 @@ err_destroy_flow_table:
 	return err;
 }
 
+<<<<<<< HEAD
 #define MLX5E_NUM_VLAN_GROUPS	4
+=======
+#define MLX5E_NUM_VLAN_GROUPS	5
+>>>>>>> upstream/android-13
 #define MLX5E_VLAN_GROUP0_SIZE	BIT(12)
 #define MLX5E_VLAN_GROUP1_SIZE	BIT(12)
 #define MLX5E_VLAN_GROUP2_SIZE	BIT(1)
 #define MLX5E_VLAN_GROUP3_SIZE	BIT(0)
+<<<<<<< HEAD
 #define MLX5E_VLAN_TABLE_SIZE	(MLX5E_VLAN_GROUP0_SIZE +\
 				 MLX5E_VLAN_GROUP1_SIZE +\
 				 MLX5E_VLAN_GROUP2_SIZE +\
 				 MLX5E_VLAN_GROUP3_SIZE)
+=======
+#define MLX5E_VLAN_GROUP_TRAP_SIZE BIT(0) /* must be last */
+#define MLX5E_VLAN_TABLE_SIZE	(MLX5E_VLAN_GROUP0_SIZE +\
+				 MLX5E_VLAN_GROUP1_SIZE +\
+				 MLX5E_VLAN_GROUP2_SIZE +\
+				 MLX5E_VLAN_GROUP3_SIZE +\
+				 MLX5E_VLAN_GROUP_TRAP_SIZE)
+>>>>>>> upstream/android-13
 
 static int __mlx5e_create_vlan_table_groups(struct mlx5e_flow_table *ft, u32 *in,
 					    int inlen)
@@ -1420,6 +1872,18 @@ static int __mlx5e_create_vlan_table_groups(struct mlx5e_flow_table *ft, u32 *in
 		goto err_destroy_groups;
 	ft->num_groups++;
 
+<<<<<<< HEAD
+=======
+	memset(in, 0, inlen);
+	MLX5_SET_CFG(in, start_flow_index, ix);
+	ix += MLX5E_VLAN_GROUP_TRAP_SIZE;
+	MLX5_SET_CFG(in, end_flow_index, ix - 1);
+	ft->g[ft->num_groups] = mlx5_create_flow_group(ft->t, in);
+	if (IS_ERR(ft->g[ft->num_groups]))
+		goto err_destroy_groups;
+	ft->num_groups++;
+
+>>>>>>> upstream/android-13
 	return 0;
 
 err_destroy_groups:
@@ -1448,10 +1912,18 @@ static int mlx5e_create_vlan_table_groups(struct mlx5e_flow_table *ft)
 
 static int mlx5e_create_vlan_table(struct mlx5e_priv *priv)
 {
+<<<<<<< HEAD
 	struct mlx5e_flow_table *ft = &priv->fs.vlan.ft;
 	struct mlx5_flow_table_attr ft_attr = {};
 	int err;
 
+=======
+	struct mlx5_flow_table_attr ft_attr = {};
+	struct mlx5e_flow_table *ft;
+	int err;
+
+	ft = &priv->fs.vlan->ft;
+>>>>>>> upstream/android-13
 	ft->num_groups = 0;
 
 	ft_attr.max_fte = MLX5E_VLAN_TABLE_SIZE;
@@ -1459,12 +1931,18 @@ static int mlx5e_create_vlan_table(struct mlx5e_priv *priv)
 	ft_attr.prio = MLX5E_NIC_PRIO;
 
 	ft->t = mlx5_create_flow_table(priv->fs.ns, &ft_attr);
+<<<<<<< HEAD
 
 	if (IS_ERR(ft->t)) {
 		err = PTR_ERR(ft->t);
 		ft->t = NULL;
 		return err;
 	}
+=======
+	if (IS_ERR(ft->t))
+		return PTR_ERR(ft->t);
+
+>>>>>>> upstream/android-13
 	ft->g = kcalloc(MLX5E_NUM_VLAN_GROUPS, sizeof(*ft->g), GFP_KERNEL);
 	if (!ft->g) {
 		err = -ENOMEM;
@@ -1483,7 +1961,10 @@ err_free_g:
 	kfree(ft->g);
 err_destroy_vlan_table:
 	mlx5_destroy_flow_table(ft->t);
+<<<<<<< HEAD
 	ft->t = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -1491,13 +1972,59 @@ err_destroy_vlan_table:
 static void mlx5e_destroy_vlan_table(struct mlx5e_priv *priv)
 {
 	mlx5e_del_vlan_rules(priv);
+<<<<<<< HEAD
 	mlx5e_destroy_flow_table(&priv->fs.vlan.ft);
+=======
+	mlx5e_destroy_flow_table(&priv->fs.vlan->ft);
+}
+
+static void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv)
+{
+	if (!mlx5_tunnel_inner_ft_supported(priv->mdev))
+		return;
+	mlx5_destroy_ttc_table(priv->fs.inner_ttc);
+}
+
+void mlx5e_destroy_ttc_table(struct mlx5e_priv *priv)
+{
+	mlx5_destroy_ttc_table(priv->fs.ttc);
+}
+
+static int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv)
+{
+	struct ttc_params ttc_params = {};
+
+	if (!mlx5_tunnel_inner_ft_supported(priv->mdev))
+		return 0;
+
+	mlx5e_set_inner_ttc_params(priv, &ttc_params);
+	priv->fs.inner_ttc = mlx5_create_inner_ttc_table(priv->mdev,
+							 &ttc_params);
+	if (IS_ERR(priv->fs.inner_ttc))
+		return PTR_ERR(priv->fs.inner_ttc);
+	return 0;
+}
+
+int mlx5e_create_ttc_table(struct mlx5e_priv *priv)
+{
+	struct ttc_params ttc_params = {};
+
+	mlx5e_set_ttc_params(priv, &ttc_params, true);
+	priv->fs.ttc = mlx5_create_ttc_table(priv->mdev, &ttc_params);
+	if (IS_ERR(priv->fs.ttc))
+		return PTR_ERR(priv->fs.ttc);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int mlx5e_create_flow_steering(struct mlx5e_priv *priv)
 {
+<<<<<<< HEAD
 	struct ttc_params ttc_params = {};
 	int tt, err;
+=======
+	int err;
+>>>>>>> upstream/android-13
 
 	priv->fs.ns = mlx5_get_flow_namespace(priv->mdev,
 					       MLX5_FLOW_NAMESPACE_KERNEL);
@@ -1512,6 +2039,7 @@ int mlx5e_create_flow_steering(struct mlx5e_priv *priv)
 		priv->netdev->hw_features &= ~NETIF_F_NTUPLE;
 	}
 
+<<<<<<< HEAD
 	mlx5e_set_ttc_basic_params(priv, &ttc_params);
 	mlx5e_set_inner_ttc_ft_params(&ttc_params);
 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
@@ -1520,15 +2048,25 @@ int mlx5e_create_flow_steering(struct mlx5e_priv *priv)
 	err = mlx5e_create_inner_ttc_table(priv, &ttc_params, &priv->fs.inner_ttc);
 	if (err) {
 		netdev_err(priv->netdev, "Failed to create inner ttc table, err=%d\n",
+=======
+	err = mlx5e_create_inner_ttc_table(priv);
+	if (err) {
+		netdev_err(priv->netdev,
+			   "Failed to create inner ttc table, err=%d\n",
+>>>>>>> upstream/android-13
 			   err);
 		goto err_destroy_arfs_tables;
 	}
 
+<<<<<<< HEAD
 	mlx5e_set_ttc_ft_params(&ttc_params);
 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
 		ttc_params.indir_tirn[tt] = priv->indir_tir[tt].tirn;
 
 	err = mlx5e_create_ttc_table(priv, &ttc_params, &priv->fs.ttc);
+=======
+	err = mlx5e_create_ttc_table(priv);
+>>>>>>> upstream/android-13
 	if (err) {
 		netdev_err(priv->netdev, "Failed to create ttc table, err=%d\n",
 			   err);
@@ -1549,16 +2087,34 @@ int mlx5e_create_flow_steering(struct mlx5e_priv *priv)
 		goto err_destroy_l2_table;
 	}
 
+<<<<<<< HEAD
+=======
+	err = mlx5e_ptp_alloc_rx_fs(priv);
+	if (err)
+		goto err_destory_vlan_table;
+
+>>>>>>> upstream/android-13
 	mlx5e_ethtool_init_steering(priv);
 
 	return 0;
 
+<<<<<<< HEAD
 err_destroy_l2_table:
 	mlx5e_destroy_l2_table(priv);
 err_destroy_ttc_table:
 	mlx5e_destroy_ttc_table(priv, &priv->fs.ttc);
 err_destroy_inner_ttc_table:
 	mlx5e_destroy_inner_ttc_table(priv, &priv->fs.inner_ttc);
+=======
+err_destory_vlan_table:
+	mlx5e_destroy_vlan_table(priv);
+err_destroy_l2_table:
+	mlx5e_destroy_l2_table(priv);
+err_destroy_ttc_table:
+	mlx5e_destroy_ttc_table(priv);
+err_destroy_inner_ttc_table:
+	mlx5e_destroy_inner_ttc_table(priv);
+>>>>>>> upstream/android-13
 err_destroy_arfs_tables:
 	mlx5e_arfs_destroy_tables(priv);
 
@@ -1567,6 +2123,7 @@ err_destroy_arfs_tables:
 
 void mlx5e_destroy_flow_steering(struct mlx5e_priv *priv)
 {
+<<<<<<< HEAD
 	mlx5e_destroy_vlan_table(priv);
 	mlx5e_destroy_l2_table(priv);
 	mlx5e_destroy_ttc_table(priv, &priv->fs.ttc);
@@ -1574,3 +2131,27 @@ void mlx5e_destroy_flow_steering(struct mlx5e_priv *priv)
 	mlx5e_arfs_destroy_tables(priv);
 	mlx5e_ethtool_cleanup_steering(priv);
 }
+=======
+	mlx5e_ptp_free_rx_fs(priv);
+	mlx5e_destroy_vlan_table(priv);
+	mlx5e_destroy_l2_table(priv);
+	mlx5e_destroy_ttc_table(priv);
+	mlx5e_destroy_inner_ttc_table(priv);
+	mlx5e_arfs_destroy_tables(priv);
+	mlx5e_ethtool_cleanup_steering(priv);
+}
+
+int mlx5e_fs_init(struct mlx5e_priv *priv)
+{
+	priv->fs.vlan = kvzalloc(sizeof(*priv->fs.vlan), GFP_KERNEL);
+	if (!priv->fs.vlan)
+		return -ENOMEM;
+	return 0;
+}
+
+void mlx5e_fs_cleanup(struct mlx5e_priv *priv)
+{
+	kvfree(priv->fs.vlan);
+	priv->fs.vlan = NULL;
+}
+>>>>>>> upstream/android-13

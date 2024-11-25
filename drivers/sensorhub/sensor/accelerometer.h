@@ -19,11 +19,16 @@
 #include <linux/types.h>
 #include <linux/device.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_SHUB_TEST_FOR_ONLY_UML
 #define ACCEL_CALIBRATION_FILE_PATH "accelerometer_calibration.txt"
 #else
 #define ACCEL_CALIBRATION_FILE_PATH "/efs/FactoryApp/calibration_data"
 #endif
+=======
+#define ACCEL_CALIBRATION_FILE_PATH "/efs/FactoryApp/calibration_data"
+
+>>>>>>> upstream/android-13
 struct accel_event {
 	s16 x;
 	s16 y;
@@ -49,7 +54,10 @@ struct accelerometer_data {
 	int position;
 	struct calibration_data cal_data;
 	bool is_accel_alert;
+<<<<<<< HEAD
 	int range;
+=======
+>>>>>>> upstream/android-13
 };
 
 struct sensor_chipset_init_funcs *get_accelometer_lsm6dsl_function_pointer(char *name);
@@ -57,7 +65,10 @@ struct sensor_chipset_init_funcs *get_accelometer_icm42605m_function_pointer(cha
 struct sensor_chipset_init_funcs *get_accelometer_lis2dlc12_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_accelometer_lsm6dsotr_function_pointer(char *name);
 struct sensor_chipset_init_funcs *get_accelometer_icm42632m_function_pointer(char *name);
+<<<<<<< HEAD
 struct sensor_chipset_init_funcs *get_accelometer_lsm6dsvtr_function_pointer(char *name);
+=======
+>>>>>>> upstream/android-13
 
 int set_accel_cal(struct accelerometer_data *data);
 #endif

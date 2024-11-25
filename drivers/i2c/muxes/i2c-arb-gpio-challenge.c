@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * GPIO-based I2C Arbitration Using a Challenge & Response Mechanism
  *
  * Copyright (C) 2012 Google, Inc
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -16,11 +21,20 @@
 
 #include <linux/delay.h>
 #include <linux/gpio.h>
+=======
+ */
+
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/i2c.h>
 #include <linux/i2c-mux.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
@@ -28,29 +42,43 @@
 /**
  * struct i2c_arbitrator_data - Driver data for I2C arbitrator
  *
+<<<<<<< HEAD
  * @our_gpio: GPIO we'll use to claim.
  * @our_gpio_release: 0 if active high; 1 if active low; AKA if the GPIO ==
  *   this then consider it released.
  * @their_gpio: GPIO that the other side will use to claim.
  * @their_gpio_release: 0 if active high; 1 if active low; AKA if the GPIO ==
  *   this then consider it released.
+=======
+ * @our_gpio: GPIO descriptor we'll use to claim.
+ * @their_gpio: GPIO descriptor that the other side will use to claim.
+>>>>>>> upstream/android-13
  * @slew_delay_us: microseconds to wait for a GPIO to go high.
  * @wait_retry_us: we'll attempt another claim after this many microseconds.
  * @wait_free_us: we'll give up after this many microseconds.
  */
 
 struct i2c_arbitrator_data {
+<<<<<<< HEAD
 	int our_gpio;
 	int our_gpio_release;
 	int their_gpio;
 	int their_gpio_release;
+=======
+	struct gpio_desc *our_gpio;
+	struct gpio_desc *their_gpio;
+>>>>>>> upstream/android-13
 	unsigned int slew_delay_us;
 	unsigned int wait_retry_us;
 	unsigned int wait_free_us;
 };
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * i2c_arbitrator_select - claim the I2C bus
  *
  * Use the GPIO-based signalling protocol; return -EBUSY if we fail.
@@ -64,15 +92,25 @@ static int i2c_arbitrator_select(struct i2c_mux_core *muxc, u32 chan)
 	stop_time = jiffies + usecs_to_jiffies(arb->wait_free_us) + 1;
 	do {
 		/* Indicate that we want to claim the bus */
+<<<<<<< HEAD
 		gpio_set_value(arb->our_gpio, !arb->our_gpio_release);
+=======
+		gpiod_set_value(arb->our_gpio, 1);
+>>>>>>> upstream/android-13
 		udelay(arb->slew_delay_us);
 
 		/* Wait for the other master to release it */
 		stop_retry = jiffies + usecs_to_jiffies(arb->wait_retry_us) + 1;
 		while (time_before(jiffies, stop_retry)) {
+<<<<<<< HEAD
 			int gpio_val = !!gpio_get_value(arb->their_gpio);
 
 			if (gpio_val == arb->their_gpio_release) {
+=======
+			int gpio_val = gpiod_get_value(arb->their_gpio);
+
+			if (!gpio_val) {
+>>>>>>> upstream/android-13
 				/* We got it, so return */
 				return 0;
 			}
@@ -81,19 +119,31 @@ static int i2c_arbitrator_select(struct i2c_mux_core *muxc, u32 chan)
 		}
 
 		/* It didn't release, so give up, wait, and try again */
+<<<<<<< HEAD
 		gpio_set_value(arb->our_gpio, arb->our_gpio_release);
+=======
+		gpiod_set_value(arb->our_gpio, 0);
+>>>>>>> upstream/android-13
 
 		usleep_range(arb->wait_retry_us, arb->wait_retry_us * 2);
 	} while (time_before(jiffies, stop_time));
 
 	/* Give up, release our claim */
+<<<<<<< HEAD
 	gpio_set_value(arb->our_gpio, arb->our_gpio_release);
+=======
+	gpiod_set_value(arb->our_gpio, 0);
+>>>>>>> upstream/android-13
 	udelay(arb->slew_delay_us);
 	dev_err(muxc->dev, "Could not claim bus, timeout\n");
 	return -EBUSY;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * i2c_arbitrator_deselect - release the I2C bus
  *
  * Release the I2C bus using the GPIO-based signalling protocol.
@@ -103,7 +153,11 @@ static int i2c_arbitrator_deselect(struct i2c_mux_core *muxc, u32 chan)
 	const struct i2c_arbitrator_data *arb = i2c_mux_priv(muxc);
 
 	/* Release the bus and wait for the other master to notice */
+<<<<<<< HEAD
 	gpio_set_value(arb->our_gpio, arb->our_gpio_release);
+=======
+	gpiod_set_value(arb->our_gpio, 0);
+>>>>>>> upstream/android-13
 	udelay(arb->slew_delay_us);
 
 	return 0;
@@ -116,8 +170,12 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
 	struct device_node *parent_np;
 	struct i2c_mux_core *muxc;
 	struct i2c_arbitrator_data *arb;
+<<<<<<< HEAD
 	enum of_gpio_flags gpio_flags;
 	unsigned long out_init;
+=======
+	struct gpio_desc *dummy;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* We only support probing from device tree; no platform_data */
@@ -138,6 +196,7 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, muxc);
 
+<<<<<<< HEAD
 	/* Request GPIOs */
 	ret = of_get_named_gpio_flags(np, "our-claim-gpio", 0, &gpio_flags);
 	if (!gpio_is_valid(ret)) {
@@ -177,6 +236,30 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
 	if (gpio_is_valid(of_get_named_gpio(np, "their-claim-gpios", 1))) {
 		dev_err(dev, "Only one other master is supported\n");
 		return -EINVAL;
+=======
+	/* Request GPIOs, our GPIO as unclaimed to begin with */
+	arb->our_gpio = devm_gpiod_get(dev, "our-claim", GPIOD_OUT_LOW);
+	if (IS_ERR(arb->our_gpio)) {
+		dev_err(dev, "could not get \"our-claim\" GPIO (%ld)\n",
+			PTR_ERR(arb->our_gpio));
+		return PTR_ERR(arb->our_gpio);
+	}
+
+	arb->their_gpio = devm_gpiod_get(dev, "their-claim", GPIOD_IN);
+	if (IS_ERR(arb->their_gpio)) {
+		dev_err(dev, "could not get \"their-claim\" GPIO (%ld)\n",
+			PTR_ERR(arb->their_gpio));
+		return PTR_ERR(arb->their_gpio);
+	}
+
+	/* At the moment we only support a single two master (us + 1 other) */
+	dummy = devm_gpiod_get_index(dev, "their-claim", 1, GPIOD_IN);
+	if (!IS_ERR(dummy)) {
+		dev_err(dev, "Only one other master is supported\n");
+		return -EINVAL;
+	} else if (PTR_ERR(dummy) == -EPROBE_DEFER) {
+		return -EPROBE_DEFER;
+>>>>>>> upstream/android-13
 	}
 
 	/* Arbitration parameters */

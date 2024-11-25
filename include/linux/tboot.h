@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * tboot.h: shared data structure with tboot and kernel and functions
  *          used by kernel for runtime support of Intel(R) Trusted
  *          Execution Technology
  *
  * Copyright (c) 2006-2009, Intel Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -18,6 +23,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _LINUX_TBOOT_H
@@ -57,7 +64,11 @@ struct tboot_acpi_generic_address {
 
 /*
  * combines Sx info from FADT and FACS tables per ACPI 2.0+ spec
+<<<<<<< HEAD
  * (http://www.acpi.info/)
+=======
+ * (https://uefi.org/specifications)
+>>>>>>> upstream/android-13
  */
 struct tboot_acpi_sleep_info {
 	struct tboot_acpi_generic_address pm1a_cnt_blk;
@@ -134,6 +145,7 @@ struct tboot {
 #define TBOOT_UUID	{0xff, 0x8d, 0x3c, 0x66, 0xb3, 0xe8, 0x82, 0x4b, 0xbf,\
 			 0xaa, 0x19, 0xea, 0x4d, 0x5, 0x7a, 0x8}
 
+<<<<<<< HEAD
 extern struct tboot *tboot;
 
 static inline int tboot_enabled(void)
@@ -141,6 +153,9 @@ static inline int tboot_enabled(void)
 	return tboot != NULL;
 }
 
+=======
+bool tboot_enabled(void);
+>>>>>>> upstream/android-13
 extern void tboot_probe(void);
 extern void tboot_shutdown(u32 shutdown_type);
 extern struct acpi_table_header *tboot_get_dmar_table(

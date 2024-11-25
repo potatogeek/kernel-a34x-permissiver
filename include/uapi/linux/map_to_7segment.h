@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
 /*
  * Copyright (c) 2005 Henk Vergonet <Henk.Vergonet@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef MAP_TO_7SEGMENT_H
@@ -24,7 +27,11 @@
  * of (ASCII) characters to a 7-segments notation.
  *
  * The 7 segment's wikipedia notation below is used as standard.
+<<<<<<< HEAD
  * See: http://en.wikipedia.org/wiki/Seven_segment_display
+=======
+ * See: https://en.wikipedia.org/wiki/Seven_segment_display
+>>>>>>> upstream/android-13
  *
  * Notation:	+-a-+
  *		f   b
@@ -45,17 +52,34 @@
  * In device drivers it is recommended, if required, to make the char map
  * accessible via the sysfs interface using the following scheme:
  *
+<<<<<<< HEAD
  * static ssize_t show_map(struct device *dev, char *buf) {
  *	memcpy(buf, &map_seg7, sizeof(map_seg7));
  *	return sizeof(map_seg7);
  * }
  * static ssize_t store_map(struct device *dev, const char *buf, size_t cnt) {
+=======
+ * static ssize_t map_seg7_show(struct device *dev,
+ *				struct device_attribute *attr, char *buf)
+ * {
+ *	memcpy(buf, &map_seg7, sizeof(map_seg7));
+ *	return sizeof(map_seg7);
+ * }
+ * static ssize_t map_seg7_store(struct device *dev,
+ *				 struct device_attribute *attr, const char *buf,
+ *				 size_t cnt)
+ * {
+>>>>>>> upstream/android-13
  *	if(cnt != sizeof(map_seg7))
  *		return -EINVAL;
  *	memcpy(&map_seg7, buf, cnt);
  *	return cnt;
  * }
+<<<<<<< HEAD
  * static DEVICE_ATTR(map_seg7, PERMS_RW, show_map, store_map);
+=======
+ * static DEVICE_ATTR_RW(map_seg7);
+>>>>>>> upstream/android-13
  *
  * History:
  * 2005-05-31	RFC linux-kernel@vger.kernel.org

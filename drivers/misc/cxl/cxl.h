@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2014 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CXL_H_
@@ -912,11 +918,19 @@ void cxl_update_dedicated_ivtes_psl8(struct cxl_context *ctx);
 
 #ifdef CONFIG_DEBUG_FS
 
+<<<<<<< HEAD
 int cxl_debugfs_init(void);
 void cxl_debugfs_exit(void);
 int cxl_debugfs_adapter_add(struct cxl *adapter);
 void cxl_debugfs_adapter_remove(struct cxl *adapter);
 int cxl_debugfs_afu_add(struct cxl_afu *afu);
+=======
+void cxl_debugfs_init(void);
+void cxl_debugfs_exit(void);
+void cxl_debugfs_adapter_add(struct cxl *adapter);
+void cxl_debugfs_adapter_remove(struct cxl *adapter);
+void cxl_debugfs_afu_add(struct cxl_afu *afu);
+>>>>>>> upstream/android-13
 void cxl_debugfs_afu_remove(struct cxl_afu *afu);
 void cxl_debugfs_add_adapter_regs_psl9(struct cxl *adapter, struct dentry *dir);
 void cxl_debugfs_add_adapter_regs_psl8(struct cxl *adapter, struct dentry *dir);
@@ -925,27 +939,42 @@ void cxl_debugfs_add_afu_regs_psl8(struct cxl_afu *afu, struct dentry *dir);
 
 #else /* CONFIG_DEBUG_FS */
 
+<<<<<<< HEAD
 static inline int __init cxl_debugfs_init(void)
 {
 	return 0;
+=======
+static inline void __init cxl_debugfs_init(void)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void cxl_debugfs_exit(void)
 {
 }
 
+<<<<<<< HEAD
 static inline int cxl_debugfs_adapter_add(struct cxl *adapter)
 {
 	return 0;
+=======
+static inline void cxl_debugfs_adapter_add(struct cxl *adapter)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void cxl_debugfs_adapter_remove(struct cxl *adapter)
 {
 }
 
+<<<<<<< HEAD
 static inline int cxl_debugfs_afu_add(struct cxl_afu *afu)
 {
 	return 0;
+=======
+static inline void cxl_debugfs_afu_add(struct cxl_afu *afu)
+{
+>>>>>>> upstream/android-13
 }
 
 static inline void cxl_debugfs_afu_remove(struct cxl_afu *afu)

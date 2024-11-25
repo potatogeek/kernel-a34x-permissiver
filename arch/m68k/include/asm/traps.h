@@ -267,6 +267,13 @@ struct frame {
     } un;
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_M68040
+asmlinkage void berr_040cleanup(struct frame *fp);
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #endif /* _M68K_TRAPS_H */

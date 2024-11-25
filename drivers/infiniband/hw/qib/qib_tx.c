@@ -377,6 +377,10 @@ void qib_sendbuf_done(struct qib_devdata *dd, unsigned n)
  * @start: the starting send buffer number
  * @len: the number of send buffers
  * @avail: true if the buffers are available for kernel use, false otherwise
+<<<<<<< HEAD
+=======
+ * @rcd: the context pointer
+>>>>>>> upstream/android-13
  */
 void qib_chg_pioavailkernel(struct qib_devdata *dd, unsigned start,
 	unsigned len, u32 avail, struct qib_ctxtdata *rcd)

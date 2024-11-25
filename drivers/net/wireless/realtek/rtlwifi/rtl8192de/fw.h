@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #ifndef __RTL92D__FW__H__
 #define __RTL92D__FW__H__
@@ -38,6 +43,7 @@
 		(GET_FIRMWARE_HDR_SIGNATURE(_pfwhdr) & 0xFFFF) == 0x92D2 ||  \
 		(GET_FIRMWARE_HDR_SIGNATURE(_pfwhdr) & 0xFFFF) == 0x92D3)
 
+<<<<<<< HEAD
 /* Define a macro that takes an le32 word, converts it to host ordering,
  * right shifts by a specified count, creates a mask of the specified
  * bit count, and extracts that number of bits.
@@ -87,10 +93,21 @@
 	SHIFT_AND_MASK_LE(__fwhdr + 24, 0, 32)
 #define GET_FIRMWARE_HDR_RSVD5(__fwhdr)			\
 	SHIFT_AND_MASK_LE(__fwhdr + 28, 0, 32)
+=======
+/* Firmware Header(8-byte alinment required) */
+/* --- LONG WORD 0 ---- */
+#define GET_FIRMWARE_HDR_SIGNATURE(__fwhdr)		\
+	le32_get_bits(*(__le32 *)__fwhdr, GENMASK(15, 0))
+#define GET_FIRMWARE_HDR_VERSION(__fwhdr)		\
+	le32_get_bits(*(__le32 *)(__fwhdr + 4), GENMASK(15, 0))
+#define GET_FIRMWARE_HDR_SUB_VER(__fwhdr)		\
+	le32_get_bits(*(__le32 *)(__fwhdr + 4), GENMASK(23, 16))
+>>>>>>> upstream/android-13
 
 #define pagenum_128(_len) \
 	(u32)(((_len) >> 7) + ((_len) & 0x7F ? 1 : 0))
 
+<<<<<<< HEAD
 #define SET_H2CCMD_PWRMODE_PARM_MODE(__ph2ccmd, __val)		\
 	SET_BITS_TO_LE_1BYTE(__ph2ccmd, 0, 8, __val)
 #define SET_H2CCMD_PWRMODE_PARM_SMART_PS(__ph2ccmd, __val)	\
@@ -105,6 +122,16 @@
 	SET_BITS_TO_LE_1BYTE((__ph2ccmd) + 1, 0, 8, __val)
 #define SET_H2CCMD_RSVDPAGE_LOC_NULL_DATA(__ph2ccmd, __val)	\
 	SET_BITS_TO_LE_1BYTE((__ph2ccmd) + 2, 0, 8, __val)
+=======
+#define SET_H2CCMD_JOINBSSRPT_PARM_OPMODE(__ph2ccmd, __val)	\
+	*(u8 *)__ph2ccmd = __val;
+#define SET_H2CCMD_RSVDPAGE_LOC_PROBE_RSP(__ph2ccmd, __val)	\
+	*(u8 *)__ph2ccmd = __val;
+#define SET_H2CCMD_RSVDPAGE_LOC_PSPOLL(__ph2ccmd, __val)	\
+	*(u8 *)(__ph2ccmd + 1) = __val;
+#define SET_H2CCMD_RSVDPAGE_LOC_NULL_DATA(__ph2ccmd, __val)	\
+	*(u8 *)(__ph2ccmd + 2) = __val;
+>>>>>>> upstream/android-13
 
 int rtl92d_download_fw(struct ieee80211_hw *hw);
 void rtl92d_fill_h2c_cmd(struct ieee80211_hw *hw, u8 element_id,

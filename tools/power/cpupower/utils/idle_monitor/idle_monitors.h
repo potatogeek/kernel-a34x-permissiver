@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
  *
@@ -5,6 +6,13 @@
  *
  *  Based on the idea from Michael Matz <matz@suse.de>
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
+ *
+ *  Based on the idea from Michael Matz <matz@suse.de>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CPUIDLE_IDLE_MONITORS_H_

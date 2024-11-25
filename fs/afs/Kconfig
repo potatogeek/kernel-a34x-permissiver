@@ -1,13 +1,25 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config AFS_FS
 	tristate "Andrew File System support (AFS)"
 	depends on INET
 	select AF_RXRPC
 	select DNS_RESOLVER
+<<<<<<< HEAD
+=======
+	select NETFS_SUPPORT
+>>>>>>> upstream/android-13
 	help
 	  If you say Y here, you will get an experimental Andrew File System
 	  driver. It currently only supports unsecured read-only AFS access.
 
+<<<<<<< HEAD
 	  See <file:Documentation/filesystems/afs.txt> for more information.
+=======
+	  See <file:Documentation/filesystems/afs.rst> for more information.
+>>>>>>> upstream/android-13
 
 	  If unsure, say N.
 
@@ -17,7 +29,11 @@ config AFS_DEBUG
 	help
 	  Say Y here to make runtime controllable debugging messages appear.
 
+<<<<<<< HEAD
 	  See <file:Documentation/filesystems/afs.txt> for more information.
+=======
+	  See <file:Documentation/filesystems/afs.rst> for more information.
+>>>>>>> upstream/android-13
 
 	  If unsure, say N.
 
@@ -27,3 +43,18 @@ config AFS_FSCACHE
 	help
 	  Say Y here if you want AFS data to be cached locally on disk through
 	  the generic filesystem cache manager
+<<<<<<< HEAD
+=======
+
+config AFS_DEBUG_CURSOR
+	bool "AFS server cursor debugging"
+	depends on AFS_FS
+	help
+	  Say Y here to cause the contents of a server cursor to be dumped to
+	  the dmesg log if the server rotation algorithm fails to successfully
+	  contact a server.
+
+	  See <file:Documentation/filesystems/afs.rst> for more information.
+
+	  If unsure, say N.
+>>>>>>> upstream/android-13

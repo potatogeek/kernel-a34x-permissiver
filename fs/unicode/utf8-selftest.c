@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Kernel module for testing utf-8 support.
  *
  * Copyright 2017 Collabora Ltd.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -43,7 +50,11 @@ unsigned int total_tests;
 #define test_f(cond, fmt, ...) _test(cond, __func__, __LINE__, fmt, ##__VA_ARGS__)
 #define test(cond) _test(cond, __func__, __LINE__, "")
 
+<<<<<<< HEAD
 const static struct {
+=======
+static const struct {
+>>>>>>> upstream/android-13
 	/* UTF-8 strings in this vector _must_ be NULL-terminated. */
 	unsigned char str[10];
 	unsigned char dec[10];
@@ -97,7 +108,11 @@ const static struct {
 
 };
 
+<<<<<<< HEAD
 const static struct {
+=======
+static const struct {
+>>>>>>> upstream/android-13
 	/* UTF-8 strings in this vector _must_ be NULL-terminated. */
 	unsigned char str[30];
 	unsigned char ncf[30];

@@ -1,4 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
+=======
+include ../../scripts/Makefile.include
+
+>>>>>>> upstream/android-13
 FILES=                                          \
          test-all.bin                           \
          test-backtrace.bin                     \
@@ -7,7 +12,10 @@ FILES=                                          \
          test-dwarf_getlocations.bin            \
          test-eventfd.bin                       \
          test-fortify-source.bin                \
+<<<<<<< HEAD
          test-sync-compare-and-swap.bin         \
+=======
+>>>>>>> upstream/android-13
          test-get_current_dir_name.bin          \
          test-glibc.bin                         \
          test-gtk2.bin                          \
@@ -15,22 +23,40 @@ FILES=                                          \
          test-hello.bin                         \
          test-libaudit.bin                      \
          test-libbfd.bin                        \
+<<<<<<< HEAD
+=======
+         test-libbfd-buildid.bin		\
+>>>>>>> upstream/android-13
          test-disassembler-four-args.bin        \
          test-reallocarray.bin			\
          test-libbfd-liberty.bin                \
          test-libbfd-liberty-z.bin              \
          test-cplus-demangle.bin                \
+<<<<<<< HEAD
+=======
+         test-libcap.bin			\
+>>>>>>> upstream/android-13
          test-libelf.bin                        \
          test-libelf-getphdrnum.bin             \
          test-libelf-gelf_getnote.bin           \
          test-libelf-getshdrstrndx.bin          \
+<<<<<<< HEAD
          test-libelf-mmap.bin                   \
+=======
+         test-libdebuginfod.bin                 \
+>>>>>>> upstream/android-13
          test-libnuma.bin                       \
          test-numa_num_possible_cpus.bin        \
          test-libperl.bin                       \
          test-libpython.bin                     \
+<<<<<<< HEAD
          test-libpython-version.bin             \
          test-libslang.bin                      \
+=======
+         test-libslang.bin                      \
+         test-libslang-include-subdir.bin       \
+         test-libtraceevent.bin                 \
+>>>>>>> upstream/android-13
          test-libcrypto.bin                     \
          test-libunwind.bin                     \
          test-libunwind-debug-frame.bin         \
@@ -51,22 +77,42 @@ FILES=                                          \
          test-zlib.bin                          \
          test-lzma.bin                          \
          test-bpf.bin                           \
+<<<<<<< HEAD
+=======
+         test-libbpf.bin                        \
+>>>>>>> upstream/android-13
          test-get_cpuid.bin                     \
          test-sdt.bin                           \
          test-cxx.bin                           \
          test-gettid.bin			\
          test-jvmti.bin				\
+<<<<<<< HEAD
+=======
+         test-jvmti-cmlr.bin			\
+>>>>>>> upstream/android-13
          test-sched_getcpu.bin			\
          test-setns.bin				\
          test-libopencsd.bin			\
          test-clang.bin				\
          test-llvm.bin				\
+<<<<<<< HEAD
          test-llvm-version.bin
+=======
+         test-llvm-version.bin			\
+         test-libaio.bin			\
+         test-libzstd.bin			\
+         test-clang-bpf-co-re.bin		\
+         test-file-handle.bin			\
+         test-libpfm4.bin
+>>>>>>> upstream/android-13
 
 FILES := $(addprefix $(OUTPUT),$(FILES))
 
 PKG_CONFIG ?= $(CROSS_COMPILE)pkg-config
+<<<<<<< HEAD
 LLVM_CONFIG ?= llvm-config
+=======
+>>>>>>> upstream/android-13
 
 all: $(FILES)
 
@@ -79,7 +125,11 @@ __BUILDXX = $(CXX) $(CXXFLAGS) -MD -Wall -Werror -o $@ $(patsubst %.bin,%.cpp,$(
 ###############################
 
 $(OUTPUT)test-all.bin:
+<<<<<<< HEAD
 	$(BUILD) -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2 -ldw -lelf -lnuma -lelf -laudit -I/usr/include/slang -lslang $(shell $(PKG_CONFIG) --libs --cflags gtk+-2.0 2>/dev/null) $(FLAGS_PERL_EMBED) $(FLAGS_PYTHON_EMBED) -DPACKAGE='"perf"' -lbfd -ldl -lz -llzma
+=======
+	$(BUILD) -fstack-protector-all -O2 -D_FORTIFY_SOURCE=2 -ldw -lelf -lnuma -lelf -I/usr/include/slang -lslang $(FLAGS_PERL_EMBED) $(FLAGS_PYTHON_EMBED) -DPACKAGE='"perf"' -lbfd -ldl -lz -llzma -lzstd -lcap
+>>>>>>> upstream/android-13
 
 $(OUTPUT)test-hello.bin:
 	$(BUILD)
@@ -99,6 +149,12 @@ $(OUTPUT)test-fortify-source.bin:
 $(OUTPUT)test-bionic.bin:
 	$(BUILD)
 
+<<<<<<< HEAD
+=======
+$(OUTPUT)test-libcap.bin:
+	$(BUILD) -lcap
+
+>>>>>>> upstream/android-13
 $(OUTPUT)test-libelf.bin:
 	$(BUILD) -lelf
 
@@ -132,9 +188,12 @@ $(OUTPUT)test-dwarf.bin:
 $(OUTPUT)test-dwarf_getlocations.bin:
 	$(BUILD) $(DWARFLIBS)
 
+<<<<<<< HEAD
 $(OUTPUT)test-libelf-mmap.bin:
 	$(BUILD) -lelf
 
+=======
+>>>>>>> upstream/android-13
 $(OUTPUT)test-libelf-getphdrnum.bin:
 	$(BUILD) -lelf
 
@@ -144,6 +203,12 @@ $(OUTPUT)test-libelf-gelf_getnote.bin:
 $(OUTPUT)test-libelf-getshdrstrndx.bin:
 	$(BUILD) -lelf
 
+<<<<<<< HEAD
+=======
+$(OUTPUT)test-libdebuginfod.bin:
+	$(BUILD) -ldebuginfod
+
+>>>>>>> upstream/android-13
 $(OUTPUT)test-libnuma.bin:
 	$(BUILD) -lnuma
 
@@ -177,13 +242,27 @@ $(OUTPUT)test-libaudit.bin:
 	$(BUILD) -laudit
 
 $(OUTPUT)test-libslang.bin:
+<<<<<<< HEAD
 	$(BUILD) -I/usr/include/slang -lslang
+=======
+	$(BUILD) -lslang
+
+$(OUTPUT)test-libslang-include-subdir.bin:
+	$(BUILD) -lslang
+
+$(OUTPUT)test-libtraceevent.bin:
+	$(BUILD) -ltraceevent
+>>>>>>> upstream/android-13
 
 $(OUTPUT)test-libcrypto.bin:
 	$(BUILD) -lcrypto
 
 $(OUTPUT)test-gtk2.bin:
+<<<<<<< HEAD
 	$(BUILD) $(shell $(PKG_CONFIG) --libs --cflags gtk+-2.0 2>/dev/null)
+=======
+	$(BUILD) $(shell $(PKG_CONFIG) --libs --cflags gtk+-2.0 2>/dev/null) -Wno-deprecated-declarations
+>>>>>>> upstream/android-13
 
 $(OUTPUT)test-gtk2-infobar.bin:
 	$(BUILD) $(shell $(PKG_CONFIG) --libs --cflags gtk+-2.0 2>/dev/null)
@@ -194,21 +273,43 @@ strip-libs = $(filter-out -l%,$(1))
 PERL_EMBED_LDOPTS = $(shell perl -MExtUtils::Embed -e ldopts 2>/dev/null)
 PERL_EMBED_LDFLAGS = $(call strip-libs,$(PERL_EMBED_LDOPTS))
 PERL_EMBED_LIBADD = $(call grep-libs,$(PERL_EMBED_LDOPTS))
+<<<<<<< HEAD
 PERL_EMBED_CCOPTS = `perl -MExtUtils::Embed -e ccopts 2>/dev/null`
 FLAGS_PERL_EMBED=$(PERL_EMBED_CCOPTS) $(PERL_EMBED_LDOPTS)
 
+=======
+PERL_EMBED_CCOPTS = $(shell perl -MExtUtils::Embed -e ccopts 2>/dev/null)
+FLAGS_PERL_EMBED=$(PERL_EMBED_CCOPTS) $(PERL_EMBED_LDOPTS)
+
+ifeq ($(CC_NO_CLANG), 0)
+  PERL_EMBED_LDOPTS := $(filter-out -specs=%,$(PERL_EMBED_LDOPTS))
+  PERL_EMBED_CCOPTS := $(filter-out -flto=auto -ffat-lto-objects, $(PERL_EMBED_CCOPTS))
+  PERL_EMBED_CCOPTS := $(filter-out -specs=%,$(PERL_EMBED_CCOPTS))
+  FLAGS_PERL_EMBED += -Wno-compound-token-split-by-macro
+endif
+
+>>>>>>> upstream/android-13
 $(OUTPUT)test-libperl.bin:
 	$(BUILD) $(FLAGS_PERL_EMBED)
 
 $(OUTPUT)test-libpython.bin:
 	$(BUILD) $(FLAGS_PYTHON_EMBED)
 
+<<<<<<< HEAD
 $(OUTPUT)test-libpython-version.bin:
 	$(BUILD)
 
 $(OUTPUT)test-libbfd.bin:
 	$(BUILD) -DPACKAGE='"perf"' -lbfd -ldl
 
+=======
+$(OUTPUT)test-libbfd.bin:
+	$(BUILD) -DPACKAGE='"perf"' -lbfd -ldl
+
+$(OUTPUT)test-libbfd-buildid.bin:
+	$(BUILD) -DPACKAGE='"perf"' -lbfd -ldl
+
+>>>>>>> upstream/android-13
 $(OUTPUT)test-disassembler-four-args.bin:
 	$(BUILD) -DPACKAGE='"perf"' -lbfd -lopcodes
 
@@ -236,9 +337,12 @@ $(OUTPUT)test-libdw-dwarf-unwind.bin:
 $(OUTPUT)test-libbabeltrace.bin:
 	$(BUILD) # -lbabeltrace provided by $(FEATURE_CHECK_LDFLAGS-libbabeltrace)
 
+<<<<<<< HEAD
 $(OUTPUT)test-sync-compare-and-swap.bin:
 	$(BUILD)
 
+=======
+>>>>>>> upstream/android-13
 $(OUTPUT)test-compile-32.bin:
 	$(CC) -m32 -o $@ test-compile.c
 
@@ -257,6 +361,12 @@ $(OUTPUT)test-get_cpuid.bin:
 $(OUTPUT)test-bpf.bin:
 	$(BUILD)
 
+<<<<<<< HEAD
+=======
+$(OUTPUT)test-libbpf.bin:
+	$(BUILD) -lbpf
+
+>>>>>>> upstream/android-13
 $(OUTPUT)test-sdt.bin:
 	$(BUILD)
 
@@ -269,6 +379,12 @@ $(OUTPUT)test-gettid.bin:
 $(OUTPUT)test-jvmti.bin:
 	$(BUILD)
 
+<<<<<<< HEAD
+=======
+$(OUTPUT)test-jvmti-cmlr.bin:
+	$(BUILD)
+
+>>>>>>> upstream/android-13
 $(OUTPUT)test-llvm.bin:
 	$(BUILDXX) -std=gnu++11 				\
 		-I$(shell $(LLVM_CONFIG) --includedir) 		\
@@ -295,6 +411,25 @@ $(OUTPUT)test-clang.bin:
 
 -include $(OUTPUT)*.d
 
+<<<<<<< HEAD
+=======
+$(OUTPUT)test-libaio.bin:
+	$(BUILD) -lrt
+
+$(OUTPUT)test-libzstd.bin:
+	$(BUILD) -lzstd
+
+$(OUTPUT)test-clang-bpf-co-re.bin:
+	$(CLANG) -S -g -target bpf -o - $(patsubst %.bin,%.c,$(@F)) |	\
+		grep BTF_KIND_VAR
+
+$(OUTPUT)test-file-handle.bin:
+	$(BUILD)
+
+$(OUTPUT)test-libpfm4.bin:
+	$(BUILD) -lpfm
+
+>>>>>>> upstream/android-13
 ###############################
 
 clean:

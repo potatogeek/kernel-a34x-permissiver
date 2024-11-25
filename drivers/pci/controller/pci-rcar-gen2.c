@@ -98,22 +98,33 @@ struct rcar_pci_priv {
 	void __iomem *reg;
 	struct resource mem_res;
 	struct resource *cfg_res;
+<<<<<<< HEAD
 	unsigned busnr;
 	int irq;
 	unsigned long window_size;
 	unsigned long window_addr;
 	unsigned long window_pci;
+=======
+	int irq;
+>>>>>>> upstream/android-13
 };
 
 /* PCI configuration space operations */
 static void __iomem *rcar_pci_cfg_base(struct pci_bus *bus, unsigned int devfn,
 				       int where)
 {
+<<<<<<< HEAD
 	struct pci_sys_data *sys = bus->sysdata;
 	struct rcar_pci_priv *priv = sys->private_data;
 	int slot, val;
 
 	if (sys->busnr != bus->number || PCI_FUNC(devfn))
+=======
+	struct rcar_pci_priv *priv = bus->sysdata;
+	int slot, val;
+
+	if (!pci_is_root_bus(bus) || PCI_FUNC(devfn))
+>>>>>>> upstream/android-13
 		return NULL;
 
 	/* Only one EHCI/OHCI device built-in */
@@ -132,6 +143,7 @@ static void __iomem *rcar_pci_cfg_base(struct pci_bus *bus, unsigned int devfn,
 	return priv->reg + (slot >> 1) * 0x100 + where;
 }
 
+<<<<<<< HEAD
 /* PCI interrupt mapping */
 static int rcar_pci_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 {
@@ -146,6 +158,8 @@ static int rcar_pci_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 	return irq;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PCI_DEBUG
 /* if debug enabled, then attach an error handler irq to the bridge */
 
@@ -189,6 +203,7 @@ static inline void rcar_pci_setup_errirq(struct rcar_pci_priv *priv) { }
 #endif
 
 /* PCI host controller setup */
+<<<<<<< HEAD
 static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 {
 	struct rcar_pci_priv *priv = sys->private_data;
@@ -196,12 +211,39 @@ static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 	void __iomem *reg = priv->reg;
 	u32 val;
 	int ret;
+=======
+static void rcar_pci_setup(struct rcar_pci_priv *priv)
+{
+	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(priv);
+	struct device *dev = priv->dev;
+	void __iomem *reg = priv->reg;
+	struct resource_entry *entry;
+	unsigned long window_size;
+	unsigned long window_addr;
+	unsigned long window_pci;
+	u32 val;
+
+	entry = resource_list_first_type(&bridge->dma_ranges, IORESOURCE_MEM);
+	if (!entry) {
+		window_addr = 0x40000000;
+		window_pci = 0x40000000;
+		window_size = SZ_1G;
+	} else {
+		window_addr = entry->res->start;
+		window_pci = entry->res->start - entry->offset;
+		window_size = resource_size(entry->res);
+	}
+>>>>>>> upstream/android-13
 
 	pm_runtime_enable(dev);
 	pm_runtime_get_sync(dev);
 
 	val = ioread32(reg + RCAR_PCI_UNIT_REV_REG);
+<<<<<<< HEAD
 	dev_info(dev, "PCI: bus%u revision %x\n", sys->busnr, val);
+=======
+	dev_info(dev, "PCI: revision %x\n", val);
+>>>>>>> upstream/android-13
 
 	/* Disable Direct Power Down State and assert reset */
 	val = ioread32(reg + RCAR_USBCTR_REG) & ~RCAR_USBCTR_DIRPD;
@@ -214,7 +256,11 @@ static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 		 RCAR_USBCTR_USBH_RST | RCAR_USBCTR_PLL_RST);
 
 	/* Setup PCIAHB window1 size */
+<<<<<<< HEAD
 	switch (priv->window_size) {
+=======
+	switch (window_size) {
+>>>>>>> upstream/android-13
 	case SZ_2G:
 		val |= RCAR_USBCTR_PCIAHB_WIN1_2G;
 		break;
@@ -226,9 +272,15 @@ static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 		break;
 	default:
 		pr_warn("unknown window size %ld - defaulting to 256M\n",
+<<<<<<< HEAD
 			priv->window_size);
 		priv->window_size = SZ_256M;
 		/* fall-through */
+=======
+			window_size);
+		window_size = SZ_256M;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SZ_256M:
 		val |= RCAR_USBCTR_PCIAHB_WIN1_256M;
 		break;
@@ -245,7 +297,11 @@ static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 	iowrite32(val, reg + RCAR_PCI_ARBITER_CTR_REG);
 
 	/* PCI-AHB mapping */
+<<<<<<< HEAD
 	iowrite32(priv->window_addr | RCAR_PCIAHB_PREFETCH16,
+=======
+	iowrite32(window_addr | RCAR_PCIAHB_PREFETCH16,
+>>>>>>> upstream/android-13
 		  reg + RCAR_PCIAHB_WIN1_CTR_REG);
 
 	/* AHB-PCI mapping: OHCI/EHCI registers */
@@ -256,7 +312,11 @@ static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 	iowrite32(RCAR_AHBPCI_WIN1_HOST | RCAR_AHBPCI_WIN_CTR_CFG,
 		  reg + RCAR_AHBPCI_WIN1_CTR_REG);
 	/* Set PCI-AHB Window1 address */
+<<<<<<< HEAD
 	iowrite32(priv->window_pci | PCI_BASE_ADDRESS_MEM_PREFETCH,
+=======
+	iowrite32(window_pci | PCI_BASE_ADDRESS_MEM_PREFETCH,
+>>>>>>> upstream/android-13
 		  reg + PCI_BASE_ADDRESS_1);
 	/* Set AHB-PCI bridge PCI communication area address */
 	val = priv->cfg_res->start + RCAR_AHBPCI_PCICOM_OFFSET;
@@ -271,6 +331,7 @@ static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 	iowrite32(RCAR_PCI_INT_A | RCAR_PCI_INT_B | RCAR_PCI_INT_PME,
 		  reg + RCAR_PCI_INT_ENABLE_REG);
 
+<<<<<<< HEAD
 	if (priv->irq > 0)
 		rcar_pci_setup_errirq(priv);
 
@@ -283,6 +344,9 @@ static int rcar_pci_setup(int nr, struct pci_sys_data *sys)
 	/* Setup bus number based on platform device id / of bus-range */
 	sys->busnr = priv->busnr;
 	return 1;
+=======
+	rcar_pci_setup_errirq(priv);
+>>>>>>> upstream/android-13
 }
 
 static struct pci_ops rcar_pci_ops = {
@@ -291,6 +355,7 @@ static struct pci_ops rcar_pci_ops = {
 	.write	= pci_generic_config_write,
 };
 
+<<<<<<< HEAD
 static int rcar_pci_parse_map_dma_ranges(struct rcar_pci_priv *pci,
 					 struct device_node *np)
 {
@@ -332,14 +397,28 @@ static int rcar_pci_parse_map_dma_ranges(struct rcar_pci_priv *pci,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int rcar_pci_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct resource *cfg_res, *mem_res;
 	struct rcar_pci_priv *priv;
+<<<<<<< HEAD
 	void __iomem *reg;
 	struct hw_pci hw;
 	void *hw_private[1];
+=======
+	struct pci_host_bridge *bridge;
+	void __iomem *reg;
+
+	bridge = devm_pci_alloc_host_bridge(dev, sizeof(*priv));
+	if (!bridge)
+		return -ENOMEM;
+
+	priv = pci_host_bridge_priv(bridge);
+	bridge->sysdata = priv;
+>>>>>>> upstream/android-13
 
 	cfg_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	reg = devm_ioremap_resource(dev, cfg_res);
@@ -353,10 +432,13 @@ static int rcar_pci_probe(struct platform_device *pdev)
 	if (mem_res->start & 0xFFFF)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	priv = devm_kzalloc(dev, sizeof(struct rcar_pci_priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
+=======
+>>>>>>> upstream/android-13
 	priv->mem_res = *mem_res;
 	priv->cfg_res = cfg_res;
 
@@ -369,6 +451,7 @@ static int rcar_pci_probe(struct platform_device *pdev)
 		return priv->irq;
 	}
 
+<<<<<<< HEAD
 	/* default window addr and size if not specified in DT */
 	priv->window_addr = 0x40000000;
 	priv->window_pci = 0x40000000;
@@ -407,6 +490,15 @@ static int rcar_pci_probe(struct platform_device *pdev)
 	hw.setup = rcar_pci_setup;
 	pci_common_init_dev(dev, &hw);
 	return 0;
+=======
+	bridge->ops = &rcar_pci_ops;
+
+	pci_add_flags(PCI_REASSIGN_ALL_BUS);
+
+	rcar_pci_setup(priv);
+
+	return pci_host_probe(bridge);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id rcar_pci_of_match[] = {

@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Michael Neuling, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015, Michael Neuling, IBM Corp.
+>>>>>>> upstream/android-13
  *
  * Edited: Rashmica Gupta, Nov 2015
  *
@@ -21,6 +27,10 @@
 int test_fork(void)
 {
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 
 	asm __volatile__(
 		"tbegin.;"

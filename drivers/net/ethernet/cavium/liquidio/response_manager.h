@@ -53,7 +53,13 @@ enum {
 	OCTEON_ORDERED_LIST = 0,
 	OCTEON_UNORDERED_NONBLOCKING_LIST = 1,
 	OCTEON_UNORDERED_BLOCKING_LIST = 2,
+<<<<<<< HEAD
 	OCTEON_ORDERED_SC_LIST = 3
+=======
+	OCTEON_ORDERED_SC_LIST = 3,
+	OCTEON_DONE_SC_LIST = 4,
+	OCTEON_ZOMBIE_SC_LIST = 5
+>>>>>>> upstream/android-13
 };
 
 /** Response Order values for a Octeon Request. */

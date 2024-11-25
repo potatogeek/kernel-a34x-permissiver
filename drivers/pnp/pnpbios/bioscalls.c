@@ -72,7 +72,11 @@ __visible u32 pnp_bios_fault_esp;
 __visible u32 pnp_bios_fault_eip;
 __visible u32 pnp_bios_is_utter_crap = 0;
 
+<<<<<<< HEAD
 static spinlock_t pnp_bios_lock;
+=======
+static DEFINE_SPINLOCK(pnp_bios_lock);
+>>>>>>> upstream/android-13
 
 /*
  * Support Functions
@@ -473,7 +477,10 @@ void pnpbios_calls_init(union pnp_bios_install_struct *header)
 {
 	int i;
 
+<<<<<<< HEAD
 	spin_lock_init(&pnp_bios_lock);
+=======
+>>>>>>> upstream/android-13
 	pnp_bios_callpoint.offset = header->fields.pm16offset;
 	pnp_bios_callpoint.segment = PNP_CS16;
 

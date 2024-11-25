@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * srf08.c - Support for Devantech SRFxx ultrasonic ranger
  *           with i2c interface
@@ -5,6 +9,7 @@
  *
  * Copyright (c) 2016, 2017 Andreas Klinger <ak@it-klinger.de>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of version 2 of
  * the GNU General Public License. See the file COPYING in the main
  * directory of this archive for more details.
@@ -13,6 +18,12 @@
  * http://www.robot-electronics.co.uk/htm/srf08tech.html
  * http://www.robot-electronics.co.uk/htm/srf10tech.htm
  * http://www.robot-electronics.co.uk/htm/srf02tech.htm
+=======
+ * For details about the device see:
+ * https://www.robot-electronics.co.uk/htm/srf08tech.html
+ * https://www.robot-electronics.co.uk/htm/srf10tech.htm
+ * https://www.robot-electronics.co.uk/htm/srf02tech.htm
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -66,11 +77,19 @@ struct srf08_data {
 	int			range_mm;
 	struct mutex		lock;
 
+<<<<<<< HEAD
 	/*
 	 * triggered buffer
 	 * 1x16-bit channel + 3x16 padding + 4x16 timestamp
 	 */
 	s16			buffer[8];
+=======
+	/* Ensure timestamp is naturally aligned */
+	struct {
+		s16 chan;
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 
 	/* Sensor-Type */
 	enum srf08_sensor_type	sensor_type;
@@ -193,9 +212,15 @@ static irqreturn_t srf08_trigger_handler(int irq, void *p)
 
 	mutex_lock(&data->lock);
 
+<<<<<<< HEAD
 	data->buffer[0] = sensor_data;
 	iio_push_to_buffers_with_timestamp(indio_dev,
 						data->buffer, pf->timestamp);
+=======
+	data->scan.chan = sensor_data;
+	iio_push_to_buffers_with_timestamp(indio_dev,
+					   &data->scan, pf->timestamp);
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&data->lock);
 err:
@@ -486,7 +511,10 @@ static int srf08_probe(struct i2c_client *client,
 	}
 
 	indio_dev->name = id->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = srf08_channels;
 	indio_dev->num_channels = ARRAY_SIZE(srf08_channels);

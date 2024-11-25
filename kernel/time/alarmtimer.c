@@ -1,12 +1,21 @@
+<<<<<<< HEAD
 /*
  * Alarmtimer interface
  *
  * This interface provides a timer which is similarto hrtimers,
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Alarmtimer interface
+ *
+ * This interface provides a timer which is similar to hrtimers,
+>>>>>>> upstream/android-13
  * but triggers a RTC alarm if the box is suspend.
  *
  * This interface is influenced by the Android RTC Alarm timer
  * interface.
  *
+<<<<<<< HEAD
  * Copyright (C) 2010 IBM Corperation
  *
  * Author: John Stultz <john.stultz@linaro.org>
@@ -14,6 +23,11 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * Copyright (C) 2010 IBM Corporation
+ *
+ * Author: John Stultz <john.stultz@linaro.org>
+>>>>>>> upstream/android-13
  */
 #include <linux/time.h>
 #include <linux/hrtimer.h>
@@ -29,6 +43,10 @@
 #include <linux/freezer.h>
 #include <linux/compat.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/time_namespace.h>
+>>>>>>> upstream/android-13
 
 #include "posix-timers.h"
 
@@ -39,13 +57,23 @@
  * struct alarm_base - Alarm timer bases
  * @lock:		Lock for syncrhonized access to the base
  * @timerqueue:		Timerqueue head managing the list of events
+<<<<<<< HEAD
  * @gettime:		Function to read the time correlating to the base
+=======
+ * @get_ktime:		Function to read the time correlating to the base
+ * @get_timespec:	Function to read the namespace time correlating to the base
+>>>>>>> upstream/android-13
  * @base_clockid:	clockid for the base
  */
 static struct alarm_base {
 	spinlock_t		lock;
 	struct timerqueue_head	timerqueue;
+<<<<<<< HEAD
 	ktime_t			(*gettime)(void);
+=======
+	ktime_t			(*get_ktime)(void);
+	void			(*get_timespec)(struct timespec64 *tp);
+>>>>>>> upstream/android-13
 	clockid_t		base_clockid;
 } alarm_bases[ALARM_NUMTYPE];
 
@@ -58,8 +86,11 @@ static DEFINE_SPINLOCK(freezer_delta_lock);
 #endif
 
 #ifdef CONFIG_RTC_CLASS
+<<<<<<< HEAD
 static struct wakeup_source *ws;
 
+=======
+>>>>>>> upstream/android-13
 /* rtc timer and device for setting alarm wakeups at suspend */
 static struct rtc_timer		rtctimer;
 static struct rtc_device	*rtcdev;
@@ -69,8 +100,11 @@ static DEFINE_SPINLOCK(rtcdev_lock);
  * alarmtimer_get_rtcdev - Return selected rtcdevice
  *
  * This function returns the rtc device to use for wakealarms.
+<<<<<<< HEAD
  * If one has not already been chosen, it checks to see if a
  * functional rtc device is available.
+=======
+>>>>>>> upstream/android-13
  */
 struct rtc_device *alarmtimer_get_rtcdev(void)
 {
@@ -90,21 +124,39 @@ static int alarmtimer_rtc_add_device(struct device *dev,
 {
 	unsigned long flags;
 	struct rtc_device *rtc = to_rtc_device(dev);
+<<<<<<< HEAD
 	struct wakeup_source *__ws;
+=======
+	struct platform_device *pdev;
+>>>>>>> upstream/android-13
 	int ret = 0;
 
 	if (rtcdev)
 		return -EBUSY;
 
+<<<<<<< HEAD
 	if (!rtc->ops->set_alarm)
+=======
+	if (!test_bit(RTC_FEATURE_ALARM, rtc->features))
+>>>>>>> upstream/android-13
 		return -1;
 	if (!device_may_wakeup(rtc->dev.parent))
 		return -1;
 
+<<<<<<< HEAD
 	__ws = wakeup_source_register(dev, "alarmtimer");
 
 	spin_lock_irqsave(&rtcdev_lock, flags);
 	if (!rtcdev) {
+=======
+	pdev = platform_device_register_data(dev, "alarmtimer",
+					     PLATFORM_DEVID_AUTO, NULL, 0);
+	if (!IS_ERR(pdev))
+		device_init_wakeup(&pdev->dev, true);
+
+	spin_lock_irqsave(&rtcdev_lock, flags);
+	if (!IS_ERR(pdev) && !rtcdev) {
+>>>>>>> upstream/android-13
 		if (!try_module_get(rtc->owner)) {
 			ret = -1;
 			goto unlock;
@@ -113,13 +165,23 @@ static int alarmtimer_rtc_add_device(struct device *dev,
 		rtcdev = rtc;
 		/* hold a reference so it doesn't go away */
 		get_device(dev);
+<<<<<<< HEAD
 		ws = __ws;
 		__ws = NULL;
+=======
+		pdev = NULL;
+	} else {
+		ret = -1;
+>>>>>>> upstream/android-13
 	}
 unlock:
 	spin_unlock_irqrestore(&rtcdev_lock, flags);
 
+<<<<<<< HEAD
 	wakeup_source_unregister(__ws);
+=======
+	platform_device_unregister(pdev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -143,11 +205,14 @@ static void alarmtimer_rtc_interface_remove(void)
 	class_interface_unregister(&alarmtimer_rtc_interface);
 }
 #else
+<<<<<<< HEAD
 struct rtc_device *alarmtimer_get_rtcdev(void)
 {
 	return NULL;
 }
 #define rtcdev (NULL)
+=======
+>>>>>>> upstream/android-13
 static inline int alarmtimer_rtc_interface_setup(void) { return 0; }
 static inline void alarmtimer_rtc_interface_remove(void) { }
 static inline void alarmtimer_rtc_timer_init(void) { }
@@ -164,6 +229,7 @@ static inline void alarmtimer_rtc_timer_init(void) { }
  */
 static void alarmtimer_enqueue(struct alarm_base *base, struct alarm *alarm)
 {
+<<<<<<< HEAD
 	static DEFINE_RATELIMIT_STATE(ratelimit, HZ - 1, 5);
 
 	if (alarm->state & ALARMTIMER_STATE_ENQUEUED)
@@ -174,6 +240,11 @@ static void alarmtimer_enqueue(struct alarm_base *base, struct alarm *alarm)
 		pr_notice("%s, %lld\n", __func__, alarm->node.expires);
 	}
 
+=======
+	if (alarm->state & ALARMTIMER_STATE_ENQUEUED)
+		timerqueue_del(&base->timerqueue, &alarm->node);
+
+>>>>>>> upstream/android-13
 	timerqueue_add(&base->timerqueue, &alarm->node);
 	alarm->state |= ALARMTIMER_STATE_ENQUEUED;
 }
@@ -204,7 +275,11 @@ static void alarmtimer_dequeue(struct alarm_base *base, struct alarm *alarm)
  * When a alarm timer fires, this runs through the timerqueue to
  * see which alarms expired, and runs those. If there are more alarm
  * timers queued for the future, we set the hrtimer to fire when
+<<<<<<< HEAD
  * when the next future alarm timer expires.
+=======
+ * the next future alarm timer expires.
+>>>>>>> upstream/android-13
  */
 static enum hrtimer_restart alarmtimer_fired(struct hrtimer *timer)
 {
@@ -219,7 +294,11 @@ static enum hrtimer_restart alarmtimer_fired(struct hrtimer *timer)
 	spin_unlock_irqrestore(&base->lock, flags);
 
 	if (alarm->function)
+<<<<<<< HEAD
 		restart = alarm->function(alarm, base->gettime());
+=======
+		restart = alarm->function(alarm, base->get_ktime());
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&base->lock, flags);
 	if (restart != ALARMTIMER_NORESTART) {
@@ -229,7 +308,11 @@ static enum hrtimer_restart alarmtimer_fired(struct hrtimer *timer)
 	}
 	spin_unlock_irqrestore(&base->lock, flags);
 
+<<<<<<< HEAD
 	trace_alarmtimer_fired(alarm, base->gettime());
+=======
+	trace_alarmtimer_fired(alarm, base->get_ktime());
+>>>>>>> upstream/android-13
 	return ret;
 
 }
@@ -237,7 +320,11 @@ static enum hrtimer_restart alarmtimer_fired(struct hrtimer *timer)
 ktime_t alarm_expires_remaining(const struct alarm *alarm)
 {
 	struct alarm_base *base = &alarm_bases[alarm->type];
+<<<<<<< HEAD
 	return ktime_sub(alarm->node.expires, base->gettime());
+=======
+	return ktime_sub(alarm->node.expires, base->get_ktime());
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(alarm_expires_remaining);
 
@@ -245,7 +332,10 @@ EXPORT_SYMBOL_GPL(alarm_expires_remaining);
 /**
  * alarmtimer_suspend - Suspend time callback
  * @dev: unused
+<<<<<<< HEAD
  * @state: unused
+=======
+>>>>>>> upstream/android-13
  *
  * When we are going into suspend, we look through the bases
  * to see which is the soonest timer to expire. We then
@@ -258,10 +348,14 @@ static int alarmtimer_suspend(struct device *dev)
 	int i, ret, type;
 	struct rtc_device *rtc;
 	unsigned long flags;
+<<<<<<< HEAD
 	struct rtc_time tm, time;
 #ifdef CONFIG_SEC_PM
 	struct alarm *min_alarm;
 #endif /* CONFIG_SEC_PM  */
+=======
+	struct rtc_time tm;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&freezer_delta_lock, flags);
 	min = freezer_delta;
@@ -286,24 +380,35 @@ static int alarmtimer_suspend(struct device *dev)
 		spin_unlock_irqrestore(&base->lock, flags);
 		if (!next)
 			continue;
+<<<<<<< HEAD
 		delta = ktime_sub(next->expires, base->gettime());
+=======
+		delta = ktime_sub(next->expires, base->get_ktime());
+>>>>>>> upstream/android-13
 		if (!min || (delta < min)) {
 			expires = next->expires;
 			min = delta;
 			type = i;
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 			min_alarm = container_of(next, struct alarm, node);
 #endif /* CONFIG_SEC_PM  */
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 	if (min == 0)
 		return 0;
 
 	if (ktime_to_ns(min) < 2 * NSEC_PER_SEC) {
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_PM
 		pr_info("alarmtimer suspending blocked by %ps\n", min_alarm->function);
 #endif /* CONFIG_SEC_PM  */
 		__pm_wakeup_event(ws, 2 * MSEC_PER_SEC);
+=======
+		pm_wakeup_event(dev, 2 * MSEC_PER_SEC);
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
@@ -315,6 +420,7 @@ static int alarmtimer_suspend(struct device *dev)
 	now = rtc_tm_to_ktime(tm);
 	now = ktime_add(now, min);
 
+<<<<<<< HEAD
 	time = rtc_ktime_to_tm(now);
 	pr_notice_ratelimited("%s convert %lld to %04d/%02d/%02d %02d:%02d:%02d (now = %04d/%02d/%02d %02d:%02d:%02d)\n",
 			__func__, expires,
@@ -327,6 +433,12 @@ static int alarmtimer_suspend(struct device *dev)
 	ret = rtc_timer_start(rtc, &rtctimer, now, 0);
 	if (ret < 0)
 		__pm_wakeup_event(ws, MSEC_PER_SEC);
+=======
+	/* Set alarm, if in the past reject suspend briefly to handle */
+	ret = rtc_timer_start(rtc, &rtctimer, now, 0);
+	if (ret < 0)
+		pm_wakeup_event(dev, MSEC_PER_SEC);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -394,7 +506,11 @@ void alarm_start(struct alarm *alarm, ktime_t start)
 	hrtimer_start(&alarm->timer, alarm->node.expires, HRTIMER_MODE_ABS);
 	spin_unlock_irqrestore(&base->lock, flags);
 
+<<<<<<< HEAD
 	trace_alarmtimer_start(alarm, base->gettime());
+=======
+	trace_alarmtimer_start(alarm, base->get_ktime());
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(alarm_start);
 
@@ -407,7 +523,11 @@ void alarm_start_relative(struct alarm *alarm, ktime_t start)
 {
 	struct alarm_base *base = &alarm_bases[alarm->type];
 
+<<<<<<< HEAD
 	start = ktime_add_safe(start, base->gettime());
+=======
+	start = ktime_add_safe(start, base->get_ktime());
+>>>>>>> upstream/android-13
 	alarm_start(alarm, start);
 }
 EXPORT_SYMBOL_GPL(alarm_start_relative);
@@ -444,7 +564,11 @@ int alarm_try_to_cancel(struct alarm *alarm)
 		alarmtimer_dequeue(base, alarm);
 	spin_unlock_irqrestore(&base->lock, flags);
 
+<<<<<<< HEAD
 	trace_alarmtimer_cancel(alarm, base->gettime());
+=======
+	trace_alarmtimer_cancel(alarm, base->get_ktime());
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL_GPL(alarm_try_to_cancel);
@@ -462,7 +586,11 @@ int alarm_cancel(struct alarm *alarm)
 		int ret = alarm_try_to_cancel(alarm);
 		if (ret >= 0)
 			return ret;
+<<<<<<< HEAD
 		cpu_relax();
+=======
+		hrtimer_cancel_wait_running(&alarm->timer);
+>>>>>>> upstream/android-13
 	}
 }
 EXPORT_SYMBOL_GPL(alarm_cancel);
@@ -504,7 +632,11 @@ u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
 {
 	struct alarm_base *base = &alarm_bases[alarm->type];
 
+<<<<<<< HEAD
 	return alarm_forward(alarm, base->gettime(), interval);
+=======
+	return alarm_forward(alarm, base->get_ktime(), interval);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(alarm_forward_now);
 
@@ -530,7 +662,11 @@ static void alarmtimer_freezerset(ktime_t absexp, enum alarmtimer_type type)
 		return;
 	}
 
+<<<<<<< HEAD
 	delta = ktime_sub(absexp, base->gettime());
+=======
+	delta = ktime_sub(absexp, base->get_ktime());
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&freezer_delta_lock, flags);
 	if (!freezer_delta || (delta < freezer_delta)) {
@@ -557,8 +693,16 @@ static enum alarmtimer_type clock2alarm(clockid_t clockid)
 /**
  * alarm_handle_timer - Callback for posix timers
  * @alarm: alarm that fired
+<<<<<<< HEAD
  *
  * Posix timer callback for expired alarm timers.
+=======
+ * @now: time at the timer expiration
+ *
+ * Posix timer callback for expired alarm timers.
+ *
+ * Return: whether the timer is to be restarted
+>>>>>>> upstream/android-13
  */
 static enum alarmtimer_restart alarm_handle_timer(struct alarm *alarm,
 							ktime_t now)
@@ -636,6 +780,22 @@ static int alarm_timer_try_to_cancel(struct k_itimer *timr)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * alarm_timer_wait_running - Posix timer callback to wait for a timer
+ * @timr:	Pointer to the posixtimer data struct
+ *
+ * Called from the core code when timer cancel detected that the callback
+ * is running. @timr is unlocked and rcu read lock is held to prevent it
+ * from being freed.
+ */
+static void alarm_timer_wait_running(struct k_itimer *timr)
+{
+	hrtimer_cancel_wait_running(&timr->it.alarm.alarmtimer.timer);
+}
+
+/**
+>>>>>>> upstream/android-13
  * alarm_timer_arm - Posix timer callback to arm a timer
  * @timr:	Pointer to the posixtimer data struct
  * @expires:	The new expiry time
@@ -649,7 +809,11 @@ static void alarm_timer_arm(struct k_itimer *timr, ktime_t expires,
 	struct alarm_base *base = &alarm_bases[alarm->type];
 
 	if (!absolute)
+<<<<<<< HEAD
 		expires = ktime_add_safe(expires, base->gettime());
+=======
+		expires = ktime_add_safe(expires, base->get_ktime());
+>>>>>>> upstream/android-13
 	if (sigev_none)
 		alarm->node.expires = expires;
 	else
@@ -674,6 +838,7 @@ static int alarm_clock_getres(const clockid_t which_clock, struct timespec64 *tp
 }
 
 /**
+<<<<<<< HEAD
  * alarm_clock_get - posix clock_get interface
  * @which_clock: clockid
  * @tp: timespec to fill.
@@ -681,17 +846,50 @@ static int alarm_clock_getres(const clockid_t which_clock, struct timespec64 *tp
  * Provides the underlying alarm base time.
  */
 static int alarm_clock_get(clockid_t which_clock, struct timespec64 *tp)
+=======
+ * alarm_clock_get_timespec - posix clock_get_timespec interface
+ * @which_clock: clockid
+ * @tp: timespec to fill.
+ *
+ * Provides the underlying alarm base time in a tasks time namespace.
+ */
+static int alarm_clock_get_timespec(clockid_t which_clock, struct timespec64 *tp)
+>>>>>>> upstream/android-13
 {
 	struct alarm_base *base = &alarm_bases[clock2alarm(which_clock)];
 
 	if (!alarmtimer_get_rtcdev())
 		return -EINVAL;
 
+<<<<<<< HEAD
 	*tp = ktime_to_timespec64(base->gettime());
+=======
+	base->get_timespec(tp);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * alarm_clock_get_ktime - posix clock_get_ktime interface
+ * @which_clock: clockid
+ *
+ * Provides the underlying alarm base time in the root namespace.
+ */
+static ktime_t alarm_clock_get_ktime(clockid_t which_clock)
+{
+	struct alarm_base *base = &alarm_bases[clock2alarm(which_clock)];
+
+	if (!alarmtimer_get_rtcdev())
+		return -EINVAL;
+
+	return base->get_ktime();
+}
+
+/**
+>>>>>>> upstream/android-13
  * alarm_timer_create - posix timer_create interface
  * @new_timer: k_itimer pointer to manage
  *
@@ -715,8 +913,16 @@ static int alarm_timer_create(struct k_itimer *new_timer)
 /**
  * alarmtimer_nsleep_wakeup - Wakeup function for alarm_timer_nsleep
  * @alarm: ptr to alarm that fired
+<<<<<<< HEAD
  *
  * Wakes up the task that set the alarmtimer
+=======
+ * @now: time at the timer expiration
+ *
+ * Wakes up the task that set the alarmtimer
+ *
+ * Return: ALARMTIMER_NORESTART
+>>>>>>> upstream/android-13
  */
 static enum alarmtimer_restart alarmtimer_nsleep_wakeup(struct alarm *alarm,
 								ktime_t now)
@@ -733,6 +939,10 @@ static enum alarmtimer_restart alarmtimer_nsleep_wakeup(struct alarm *alarm,
  * alarmtimer_do_nsleep - Internal alarmtimer nsleep implementation
  * @alarm: ptr to alarmtimer
  * @absexp: absolute expiration time
+<<<<<<< HEAD
+=======
+ * @type: alarm type (BOOTTIME/REALTIME).
+>>>>>>> upstream/android-13
  *
  * Sets the alarm timer and sleeps until it is fired or interrupted.
  */
@@ -764,7 +974,11 @@ static int alarmtimer_do_nsleep(struct alarm *alarm, ktime_t absexp,
 		struct timespec64 rmt;
 		ktime_t rem;
 
+<<<<<<< HEAD
 		rem = ktime_sub(absexp, alarm_bases[type].gettime());
+=======
+		rem = ktime_sub(absexp, alarm_bases[type].get_ktime());
+>>>>>>> upstream/android-13
 
 		if (rem <= 0)
 			return 0;
@@ -804,9 +1018,14 @@ static long __sched alarm_timer_nsleep_restart(struct restart_block *restart)
 /**
  * alarm_timer_nsleep - alarmtimer nanosleep
  * @which_clock: clockid
+<<<<<<< HEAD
  * @flags: determins abstime or relative
  * @tsreq: requested sleep time (abs or rel)
  * @rmtp: remaining sleep time saved
+=======
+ * @flags: determines abstime or relative
+ * @tsreq: requested sleep time (abs or rel)
+>>>>>>> upstream/android-13
  *
  * Handles clock_nanosleep calls against _ALARM clockids
  */
@@ -833,9 +1052,17 @@ static int alarm_timer_nsleep(const clockid_t which_clock, int flags,
 	exp = timespec64_to_ktime(*tsreq);
 	/* Convert (if necessary) to absolute time */
 	if (flags != TIMER_ABSTIME) {
+<<<<<<< HEAD
 		ktime_t now = alarm_bases[type].gettime();
 
 		exp = ktime_add_safe(now, exp);
+=======
+		ktime_t now = alarm_bases[type].get_ktime();
+
+		exp = ktime_add_safe(now, exp);
+	} else {
+		exp = timens_ktime_to_host(which_clock, exp);
+>>>>>>> upstream/android-13
 	}
 
 	ret = alarmtimer_do_nsleep(&alarm, exp, type);
@@ -854,7 +1081,12 @@ static int alarm_timer_nsleep(const clockid_t which_clock, int flags,
 
 const struct k_clock alarm_clock = {
 	.clock_getres		= alarm_clock_getres,
+<<<<<<< HEAD
 	.clock_get		= alarm_clock_get,
+=======
+	.clock_get_ktime	= alarm_clock_get_ktime,
+	.clock_get_timespec	= alarm_clock_get_timespec,
+>>>>>>> upstream/android-13
 	.timer_create		= alarm_timer_create,
 	.timer_set		= common_timer_set,
 	.timer_del		= common_timer_del,
@@ -864,6 +1096,10 @@ const struct k_clock alarm_clock = {
 	.timer_forward		= alarm_timer_forward,
 	.timer_remaining	= alarm_timer_remaining,
 	.timer_try_to_cancel	= alarm_timer_try_to_cancel,
+<<<<<<< HEAD
+=======
+	.timer_wait_running	= alarm_timer_wait_running,
+>>>>>>> upstream/android-13
 	.nsleep			= alarm_timer_nsleep,
 };
 #endif /* CONFIG_POSIX_TIMERS */
@@ -882,6 +1118,15 @@ static struct platform_driver alarmtimer_driver = {
 	}
 };
 
+<<<<<<< HEAD
+=======
+static void get_boottime_timespec(struct timespec64 *tp)
+{
+	ktime_get_boottime_ts64(tp);
+	timens_add_boottime(tp);
+}
+
+>>>>>>> upstream/android-13
 /**
  * alarmtimer_init - Initialize alarm timer code
  *
@@ -890,17 +1135,29 @@ static struct platform_driver alarmtimer_driver = {
  */
 static int __init alarmtimer_init(void)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev;
 	int error = 0;
+=======
+	int error;
+>>>>>>> upstream/android-13
 	int i;
 
 	alarmtimer_rtc_timer_init();
 
 	/* Initialize alarm bases */
 	alarm_bases[ALARM_REALTIME].base_clockid = CLOCK_REALTIME;
+<<<<<<< HEAD
 	alarm_bases[ALARM_REALTIME].gettime = &ktime_get_real;
 	alarm_bases[ALARM_BOOTTIME].base_clockid = CLOCK_BOOTTIME;
 	alarm_bases[ALARM_BOOTTIME].gettime = &ktime_get_boottime;
+=======
+	alarm_bases[ALARM_REALTIME].get_ktime = &ktime_get_real;
+	alarm_bases[ALARM_REALTIME].get_timespec = ktime_get_real_ts64;
+	alarm_bases[ALARM_BOOTTIME].base_clockid = CLOCK_BOOTTIME;
+	alarm_bases[ALARM_BOOTTIME].get_ktime = &ktime_get_boottime;
+	alarm_bases[ALARM_BOOTTIME].get_timespec = get_boottime_timespec;
+>>>>>>> upstream/android-13
 	for (i = 0; i < ALARM_NUMTYPE; i++) {
 		timerqueue_init_head(&alarm_bases[i].timerqueue);
 		spin_lock_init(&alarm_bases[i].lock);
@@ -914,6 +1171,7 @@ static int __init alarmtimer_init(void)
 	if (error)
 		goto out_if;
 
+<<<<<<< HEAD
 	pdev = platform_device_register_simple("alarmtimer", -1, NULL, 0);
 	if (IS_ERR(pdev)) {
 		error = PTR_ERR(pdev);
@@ -923,6 +1181,9 @@ static int __init alarmtimer_init(void)
 
 out_drv:
 	platform_driver_unregister(&alarmtimer_driver);
+=======
+	return 0;
+>>>>>>> upstream/android-13
 out_if:
 	alarmtimer_rtc_interface_remove();
 	return error;

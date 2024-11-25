@@ -9,6 +9,10 @@
 #include <linux/types.h>
 #include <linux/export.h>
 #include <linux/raid/xor.h>
+<<<<<<< HEAD
+=======
+#include <asm/xor.h>
+>>>>>>> upstream/android-13
 
 static void xor_xc_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
 {
@@ -90,9 +94,12 @@ static void xor_xc_4(unsigned long bytes, unsigned long *p1, unsigned long *p2,
 static void xor_xc_5(unsigned long bytes, unsigned long *p1, unsigned long *p2,
 		     unsigned long *p3, unsigned long *p4, unsigned long *p5)
 {
+<<<<<<< HEAD
 	/* Get around a gcc oddity */
 	register unsigned long *reg7 asm ("7") = p5;
 
+=======
+>>>>>>> upstream/android-13
 	asm volatile(
 		"	larl	1,2f\n"
 		"	aghi	%0,-1\n"
@@ -121,7 +128,11 @@ static void xor_xc_5(unsigned long bytes, unsigned long *p1, unsigned long *p2,
 		"	xc	0(1,%1),0(%5)\n"
 		"3:\n"
 		: "+d" (bytes), "+a" (p1), "+a" (p2), "+a" (p3), "+a" (p4),
+<<<<<<< HEAD
 		  "+a" (reg7)
+=======
+		  "+a" (p5)
+>>>>>>> upstream/android-13
 		: : "0", "1", "cc", "memory");
 }
 

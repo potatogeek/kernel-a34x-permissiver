@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /****************************************************************
 
 Siano Mobile Silicon, Inc.
 MDTV receiver kernel modules.
 Copyright (C) 2006-2008, Uri Shkolnik
 
+<<<<<<< HEAD
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
@@ -16,6 +21,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
 
 ****************************************************************/
 
@@ -37,8 +44,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 
+<<<<<<< HEAD
 static struct list_head g_smsdvb_clients;
 static struct mutex g_smsdvb_clientslock;
+=======
+static LIST_HEAD(g_smsdvb_clients);
+static DEFINE_MUTEX(g_smsdvb_clientslock);
+>>>>>>> upstream/android-13
 
 static u32 sms_to_guard_interval_table[] = {
 	[0] = GUARD_INTERVAL_1_32,
@@ -178,6 +190,37 @@ static inline int sms_to_mode(u32 mode)
 	return TRANSMISSION_MODE_AUTO;
 }
 
+<<<<<<< HEAD
+=======
+static inline int sms_to_isdbt_mode(u32 mode)
+{
+	switch (mode) {
+	case 1:
+		return TRANSMISSION_MODE_2K;
+	case 2:
+		return TRANSMISSION_MODE_4K;
+	case 3:
+		return TRANSMISSION_MODE_8K;
+	}
+	return TRANSMISSION_MODE_AUTO;
+}
+
+static inline int sms_to_isdbt_guard_interval(u32 interval)
+{
+	switch (interval) {
+	case 4:
+		return GUARD_INTERVAL_1_4;
+	case 8:
+		return GUARD_INTERVAL_1_8;
+	case 16:
+		return GUARD_INTERVAL_1_16;
+	case 32:
+		return GUARD_INTERVAL_1_32;
+	}
+	return GUARD_INTERVAL_AUTO;
+}
+
+>>>>>>> upstream/android-13
 static inline int sms_to_status(u32 is_demod_locked, u32 is_rf_locked)
 {
 	if (is_demod_locked)
@@ -356,8 +399,13 @@ static void smsdvb_update_isdbt_stats(struct smsdvb_client_t *client,
 	/* Update ISDB-T transmission parameters */
 	c->frequency = p->frequency;
 	c->bandwidth_hz = sms_to_bw(p->bandwidth);
+<<<<<<< HEAD
 	c->transmission_mode = sms_to_mode(p->transmission_mode);
 	c->guard_interval = sms_to_guard_interval(p->guard_interval);
+=======
+	c->transmission_mode = sms_to_isdbt_mode(p->transmission_mode);
+	c->guard_interval = sms_to_isdbt_guard_interval(p->guard_interval);
+>>>>>>> upstream/android-13
 	c->isdbt_partial_reception = p->partial_reception ? 1 : 0;
 	n_layers = p->num_of_layers;
 	if (n_layers < 1)
@@ -402,6 +450,13 @@ static void smsdvb_update_isdbt_stats(struct smsdvb_client_t *client,
 			continue;
 		}
 		c->layer[i].modulation = sms_to_modulation(lr->constellation);
+<<<<<<< HEAD
+=======
+		c->layer[i].fec = sms_to_code_rate(lr->code_rate);
+
+		/* Time interleaving */
+		c->layer[i].interleaving = (u8)lr->ti_ldepth_i;
+>>>>>>> upstream/android-13
 
 		/* TS PER */
 		c->block_error.stat[i + 1].scale = FE_SCALE_COUNTER;
@@ -440,8 +495,13 @@ static void smsdvb_update_isdbt_stats_ex(struct smsdvb_client_t *client,
 	c->frequency = p->frequency;
 	client->fe_status = sms_to_status(p->is_demod_locked, 0);
 	c->bandwidth_hz = sms_to_bw(p->bandwidth);
+<<<<<<< HEAD
 	c->transmission_mode = sms_to_mode(p->transmission_mode);
 	c->guard_interval = sms_to_guard_interval(p->guard_interval);
+=======
+	c->transmission_mode = sms_to_isdbt_mode(p->transmission_mode);
+	c->guard_interval = sms_to_isdbt_guard_interval(p->guard_interval);
+>>>>>>> upstream/android-13
 	c->isdbt_partial_reception = p->partial_reception ? 1 : 0;
 	n_layers = p->num_of_layers;
 	if (n_layers < 1)
@@ -490,6 +550,13 @@ static void smsdvb_update_isdbt_stats_ex(struct smsdvb_client_t *client,
 			continue;
 		}
 		c->layer[i].modulation = sms_to_modulation(lr->constellation);
+<<<<<<< HEAD
+=======
+		c->layer[i].fec = sms_to_code_rate(lr->code_rate);
+
+		/* Time interleaving */
+		c->layer[i].interleaving = (u8)lr->ti_ldepth_i;
+>>>>>>> upstream/android-13
 
 		/* TS PER */
 		c->block_error.stat[i + 1].scale = FE_SCALE_COUNTER;
@@ -641,11 +708,19 @@ static void smsdvb_unregister_client(struct smsdvb_client_t *client)
 
 static void smsdvb_onremove(void *context)
 {
+<<<<<<< HEAD
 	kmutex_lock(&g_smsdvb_clientslock);
 
 	smsdvb_unregister_client((struct smsdvb_client_t *) context);
 
 	kmutex_unlock(&g_smsdvb_clientslock);
+=======
+	mutex_lock(&g_smsdvb_clientslock);
+
+	smsdvb_unregister_client((struct smsdvb_client_t *) context);
+
+	mutex_unlock(&g_smsdvb_clientslock);
+>>>>>>> upstream/android-13
 }
 
 static int smsdvb_start_feed(struct dvb_demux_feed *feed)
@@ -1162,11 +1237,19 @@ static int smsdvb_hotplug(struct smscore_device_t *coredev,
 	init_completion(&client->tune_done);
 	init_completion(&client->stats_done);
 
+<<<<<<< HEAD
 	kmutex_lock(&g_smsdvb_clientslock);
 
 	list_add(&client->entry, &g_smsdvb_clients);
 
 	kmutex_unlock(&g_smsdvb_clientslock);
+=======
+	mutex_lock(&g_smsdvb_clientslock);
+
+	list_add(&client->entry, &g_smsdvb_clients);
+
+	mutex_unlock(&g_smsdvb_clientslock);
+>>>>>>> upstream/android-13
 
 	client->event_fe_state = -1;
 	client->event_unc_state = -1;
@@ -1187,6 +1270,13 @@ static int smsdvb_hotplug(struct smscore_device_t *coredev,
 	return 0;
 
 media_graph_error:
+<<<<<<< HEAD
+=======
+	mutex_lock(&g_smsdvb_clientslock);
+	list_del(&client->entry);
+	mutex_unlock(&g_smsdvb_clientslock);
+
+>>>>>>> upstream/android-13
 	smsdvb_debugfs_release(client);
 
 client_error:
@@ -1211,9 +1301,12 @@ static int __init smsdvb_module_init(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&g_smsdvb_clients);
 	kmutex_init(&g_smsdvb_clientslock);
 
+=======
+>>>>>>> upstream/android-13
 	smsdvb_debugfs_register();
 
 	rc = smscore_register_hotplug(smsdvb_hotplug);
@@ -1227,14 +1320,22 @@ static void __exit smsdvb_module_exit(void)
 {
 	smscore_unregister_hotplug(smsdvb_hotplug);
 
+<<<<<<< HEAD
 	kmutex_lock(&g_smsdvb_clientslock);
+=======
+	mutex_lock(&g_smsdvb_clientslock);
+>>>>>>> upstream/android-13
 
 	while (!list_empty(&g_smsdvb_clients))
 		smsdvb_unregister_client((struct smsdvb_client_t *)g_smsdvb_clients.next);
 
 	smsdvb_debugfs_unregister();
 
+<<<<<<< HEAD
 	kmutex_unlock(&g_smsdvb_clientslock);
+=======
+	mutex_unlock(&g_smsdvb_clientslock);
+>>>>>>> upstream/android-13
 }
 
 module_init(smsdvb_module_init);

@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ADAU1977/ADAU1978/ADAU1979 driver
  *
  * Copyright 2014 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -13,7 +20,10 @@
 #include <linux/i2c.h>
 #include <linux/init.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/platform_data/adau1977.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/regmap.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
@@ -25,6 +35,11 @@
 #include <sound/soc.h>
 #include <sound/tlv.h>
 
+<<<<<<< HEAD
+=======
+#include <dt-bindings/sound/adi,adau1977.h>
+
+>>>>>>> upstream/android-13
 #include "adau1977.h"
 
 #define ADAU1977_REG_POWER		0x00
@@ -236,8 +251,11 @@ static int adau1977_reset(struct adau1977 *adau1977)
 	ret = regmap_write(adau1977->regmap, ADAU1977_REG_POWER,
 			ADAU1977_POWER_RESET);
 	regcache_cache_bypass(adau1977->regmap, false);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -882,6 +900,7 @@ static const struct snd_soc_component_driver adau1977_component_driver = {
 
 static int adau1977_setup_micbias(struct adau1977 *adau1977)
 {
+<<<<<<< HEAD
 	struct adau1977_platform_data *pdata = adau1977->dev->platform_data;
 	unsigned int micbias;
 
@@ -892,6 +911,16 @@ static int adau1977_setup_micbias(struct adau1977 *adau1977)
 
 	} else {
 		micbias = ADAU1977_MICBIAS_8V5;
+=======
+	unsigned int micbias;
+
+	if (device_property_read_u32(adau1977->dev, "adi,micbias", &micbias))
+		micbias = ADAU1977_MICBIAS_8V5;
+
+	if (micbias > ADAU1977_MICBIAS_9V0) {
+		dev_err(adau1977->dev, "Invalid value for 'adi,micbias'\n");
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	return regmap_update_bits(adau1977->regmap, ADAU1977_REG_MICBIAS,

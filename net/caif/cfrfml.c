@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson AB 2010
  * Author:	Sjur Brendeland
  * License terms: GNU General Public License (GPL) version 2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) ST-Ericsson AB 2010
+ * Author:	Sjur Brendeland
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ":%s(): " fmt, __func__
@@ -116,7 +123,11 @@ static int cfrfml_receive(struct cflayer *layr, struct cfpkt *pkt)
 	if (segmented) {
 		if (rfml->incomplete_frm == NULL) {
 			/* Initial Segment */
+<<<<<<< HEAD
 			if (cfpkt_peek_head(pkt, rfml->seghead, 6) < 0)
+=======
+			if (cfpkt_peek_head(pkt, rfml->seghead, 6) != 0)
+>>>>>>> upstream/android-13
 				goto out;
 
 			rfml->pdu_size = get_unaligned_le16(rfml->seghead+4);
@@ -233,7 +244,11 @@ static int cfrfml_transmit(struct cflayer *layr, struct cfpkt *pkt)
 	if (cfpkt_getlen(pkt) > rfml->fragment_size + RFM_HEAD_SIZE)
 		err = cfpkt_peek_head(pkt, head, 6);
 
+<<<<<<< HEAD
 	if (err < 0)
+=======
+	if (err != 0)
+>>>>>>> upstream/android-13
 		goto out;
 
 	while (cfpkt_getlen(frontpkt) > rfml->fragment_size + RFM_HEAD_SIZE) {
@@ -264,9 +279,12 @@ static int cfrfml_transmit(struct cflayer *layr, struct cfpkt *pkt)
 		frontpkt = rearpkt;
 		rearpkt = NULL;
 
+<<<<<<< HEAD
 		err = -ENOMEM;
 		if (frontpkt == NULL)
 			goto out;
+=======
+>>>>>>> upstream/android-13
 		err = -EPROTO;
 		if (cfpkt_add_head(frontpkt, head, 6) < 0)
 			goto out;

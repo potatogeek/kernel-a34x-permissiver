@@ -40,6 +40,7 @@ struct timer_list {
 #define __TIMER_LOCKDEP_MAP_INITIALIZER(_kn)
 #endif
 
+<<<<<<< HEAD
 /*
  * A deferrable timer will work normally when the system is busy, but
  * will not cause a CPU to come out of idle just to service it; instead,
@@ -49,10 +50,35 @@ struct timer_list {
  * An irqsafe timer is executed with IRQ disabled and it's safe to wait for
  * the completion of the running instance from IRQ handlers, for example,
  * by calling del_timer_sync().
+=======
+/**
+ * @TIMER_DEFERRABLE: A deferrable timer will work normally when the
+ * system is busy, but will not cause a CPU to come out of idle just
+ * to service it; instead, the timer will be serviced when the CPU
+ * eventually wakes up with a subsequent non-deferrable timer.
+ *
+ * @TIMER_IRQSAFE: An irqsafe timer is executed with IRQ disabled and
+ * it's safe to wait for the completion of the running instance from
+ * IRQ handlers, for example, by calling del_timer_sync().
+>>>>>>> upstream/android-13
  *
  * Note: The irq disabled callback execution is a special case for
  * workqueue locking issues. It's not meant for executing random crap
  * with interrupts disabled. Abuse is monitored!
+<<<<<<< HEAD
+=======
+ *
+ * @TIMER_PINNED: A pinned timer will not be affected by any timer
+ * placement heuristics (like, NOHZ) and will always expire on the CPU
+ * on which the timer was enqueued.
+ *
+ * Note: Because enqueuing of timers can migrate the timer from one
+ * CPU to another, pinned timers are not guaranteed to stay on the
+ * initialy selected CPU.  They move to the CPU on which the enqueue
+ * function is invoked via mod_timer() or add_timer().  If the timer
+ * should be placed on a particular CPU, then add_timer_on() has to be
+ * used.
+>>>>>>> upstream/android-13
  */
 #define TIMER_CPUMASK		0x0003FFFF
 #define TIMER_MIGRATING		0x00040000
@@ -60,6 +86,10 @@ struct timer_list {
 #define TIMER_DEFERRABLE	0x00080000
 #define TIMER_PINNED		0x00100000
 #define TIMER_IRQSAFE		0x00200000
+<<<<<<< HEAD
+=======
+#define TIMER_INIT_FLAGS	(TIMER_DEFERRABLE | TIMER_PINNED | TIMER_IRQSAFE)
+>>>>>>> upstream/android-13
 #define TIMER_ARRAYSHIFT	22
 #define TIMER_ARRAYMASK		0xFFC00000
 
@@ -157,7 +187,11 @@ static inline void destroy_timer_on_stack(struct timer_list *timer) { }
  */
 static inline int timer_pending(const struct timer_list * timer)
 {
+<<<<<<< HEAD
 	return timer->entry.pprev != NULL;
+=======
+	return !hlist_unhashed_lockless(&timer->entry);
+>>>>>>> upstream/android-13
 }
 
 extern void add_timer_on(struct timer_list *timer, int cpu);
@@ -176,7 +210,11 @@ extern void add_timer(struct timer_list *timer);
 
 extern int try_to_del_timer_sync(struct timer_list *timer);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
+=======
+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_RT)
+>>>>>>> upstream/android-13
   extern int del_timer_sync(struct timer_list *timer);
 #else
 # define del_timer_sync(t)		del_timer(t)
@@ -185,7 +223,10 @@ extern int try_to_del_timer_sync(struct timer_list *timer);
 #define del_singleshot_timer_sync(t) del_timer_sync(t)
 
 extern void init_timers(void);
+<<<<<<< HEAD
 extern void run_local_timers(void);
+=======
+>>>>>>> upstream/android-13
 struct hrtimer;
 extern enum hrtimer_restart it_real_fn(struct hrtimer *);
 
@@ -194,8 +235,12 @@ struct ctl_table;
 
 extern unsigned int sysctl_timer_migration;
 int timer_migration_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			    void __user *buffer, size_t *lenp,
 			    loff_t *ppos);
+=======
+			    void *buffer, size_t *lenp, loff_t *ppos);
+>>>>>>> upstream/android-13
 #endif
 
 unsigned long __round_jiffies(unsigned long j, int cpu);

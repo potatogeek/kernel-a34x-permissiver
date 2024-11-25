@@ -25,6 +25,12 @@
  *
  **************************************************************************/
 
+<<<<<<< HEAD
+=======
+#include <linux/dmapool.h>
+#include <linux/pci.h>
+
+>>>>>>> upstream/android-13
 #include <drm/ttm/ttm_bo_api.h>
 
 #include "vmwgfx_drv.h"
@@ -45,6 +51,10 @@
  * @hw_submitted: List of command buffers submitted to hardware.
  * @preempted: List of preempted command buffers.
  * @num_hw_submitted: Number of buffers currently being processed by hardware
+<<<<<<< HEAD
+=======
+ * @block_submission: Identifies a block command submission.
+>>>>>>> upstream/android-13
  */
 struct vmw_cmdbuf_context {
 	struct list_head submitted;
@@ -55,7 +65,11 @@ struct vmw_cmdbuf_context {
 };
 
 /**
+<<<<<<< HEAD
  * struct vmw_cmdbuf_man: - Command buffer manager
+=======
+ * struct vmw_cmdbuf_man - Command buffer manager
+>>>>>>> upstream/android-13
  *
  * @cur_mutex: Mutex protecting the command buffer used for incremental small
  * kernel command submissions, @cur.
@@ -85,7 +99,11 @@ struct vmw_cmdbuf_context {
  * @max_hw_submitted: Max number of in-flight command buffers the device can
  * handle. Immutable.
  * @lock: Spinlock protecting command submission queues.
+<<<<<<< HEAD
  * @header: Pool of DMA memory for device command buffer headers.
+=======
+ * @headers: Pool of DMA memory for device command buffer headers.
+>>>>>>> upstream/android-13
  * Internal protection.
  * @dheaders: Pool of DMA memory for device command buffer headers with trailing
  * space for inline data. Internal protection.
@@ -140,7 +158,11 @@ struct vmw_cmdbuf_man {
  * @cb_context: The device command buffer context.
  * @list: List head for attaching to the manager lists.
  * @node: The range manager node.
+<<<<<<< HEAD
  * @handle. The DMA address of @cb_header. Handed to the device on command
+=======
+ * @handle: The DMA address of @cb_header. Handed to the device on command
+>>>>>>> upstream/android-13
  * buffer submission.
  * @cmd: Pointer to the command buffer space of this buffer.
  * @size: Size of the command buffer space of this buffer.
@@ -246,7 +268,11 @@ static void vmw_cmdbuf_header_inline_free(struct vmw_cmdbuf_header *header)
  * __vmw_cmdbuf_header_free - Free a struct vmw_cmdbuf_header  and its
  * associated structures.
  *
+<<<<<<< HEAD
  * header: Pointer to the header to free.
+=======
+ * @header: Pointer to the header to free.
+>>>>>>> upstream/android-13
  *
  * For internal use. Must be called with man::lock held.
  */
@@ -291,7 +317,11 @@ void vmw_cmdbuf_header_free(struct vmw_cmdbuf_header *header)
 
 
 /**
+<<<<<<< HEAD
  * vmw_cmbuf_header_submit: Submit a command buffer to hardware.
+=======
+ * vmw_cmdbuf_header_submit: Submit a command buffer to hardware.
+>>>>>>> upstream/android-13
  *
  * @header: The header of the buffer to submit.
  */
@@ -354,18 +384,30 @@ static void vmw_cmdbuf_ctx_submit(struct vmw_cmdbuf_man *man,
 			break;
 		}
 
+<<<<<<< HEAD
 		list_del(&entry->list);
 		list_add_tail(&entry->list, &ctx->hw_submitted);
+=======
+		list_move_tail(&entry->list, &ctx->hw_submitted);
+>>>>>>> upstream/android-13
 		ctx->num_hw_submitted++;
 	}
 
 }
 
 /**
+<<<<<<< HEAD
  * vmw_cmdbuf_ctx_submit: Process a command buffer context.
  *
  * @man: The command buffer manager.
  * @ctx: The command buffer context.
+=======
+ * vmw_cmdbuf_ctx_process - Process a command buffer context.
+ *
+ * @man: The command buffer manager.
+ * @ctx: The command buffer context.
+ * @notempty: Pass back count of non-empty command submitted lists.
+>>>>>>> upstream/android-13
  *
  * Submit command buffers to hardware if possible, and process finished
  * buffers. Typically freeing them, but on preemption or error take
@@ -393,6 +435,10 @@ static void vmw_cmdbuf_ctx_process(struct vmw_cmdbuf_man *man,
 			__vmw_cmdbuf_header_free(entry);
 			break;
 		case SVGA_CB_STATUS_COMMAND_ERROR:
+<<<<<<< HEAD
+=======
+			WARN_ONCE(true, "Command buffer error.\n");
+>>>>>>> upstream/android-13
 			entry->cb_header->status = SVGA_CB_STATUS_NONE;
 			list_add_tail(&entry->list, &man->error);
 			schedule_work(&man->work);
@@ -510,7 +556,11 @@ static void vmw_cmdbuf_work_func(struct work_struct *work)
 	struct vmw_cmdbuf_man *man =
 		container_of(work, struct vmw_cmdbuf_man, work);
 	struct vmw_cmdbuf_header *entry, *next;
+<<<<<<< HEAD
 	uint32_t dummy;
+=======
+	uint32_t dummy = 0;
+>>>>>>> upstream/android-13
 	bool send_fence = false;
 	struct list_head restart_head[SVGA_CB_CONTEXT_MAX];
 	int i;
@@ -533,19 +583,34 @@ static void vmw_cmdbuf_work_func(struct work_struct *work)
 		global_block = true;
 
 		if (!vmw_cmd_describe(header, &error_cmd_size, &cmd_name)) {
+<<<<<<< HEAD
 			DRM_ERROR("Unknown command causing device error.\n");
 			DRM_ERROR("Command buffer offset is %lu\n",
 				  (unsigned long) cb_hdr->errorOffset);
+=======
+			VMW_DEBUG_USER("Unknown command causing device error.\n");
+			VMW_DEBUG_USER("Command buffer offset is %lu\n",
+				       (unsigned long) cb_hdr->errorOffset);
+>>>>>>> upstream/android-13
 			__vmw_cmdbuf_header_free(entry);
 			send_fence = true;
 			continue;
 		}
 
+<<<<<<< HEAD
 		DRM_ERROR("Command \"%s\" causing device error.\n", cmd_name);
 		DRM_ERROR("Command buffer offset is %lu\n",
 			  (unsigned long) cb_hdr->errorOffset);
 		DRM_ERROR("Command size is %lu\n",
 			  (unsigned long) error_cmd_size);
+=======
+		VMW_DEBUG_USER("Command \"%s\" causing device error.\n",
+			       cmd_name);
+		VMW_DEBUG_USER("Command buffer offset is %lu\n",
+			       (unsigned long) cb_hdr->errorOffset);
+		VMW_DEBUG_USER("Command size is %lu\n",
+			       (unsigned long) error_cmd_size);
+>>>>>>> upstream/android-13
 
 		new_start_offset = cb_hdr->errorOffset + error_cmd_size;
 
@@ -605,7 +670,11 @@ static void vmw_cmdbuf_work_func(struct work_struct *work)
 
 	/* Send a new fence in case one was removed */
 	if (send_fence) {
+<<<<<<< HEAD
 		vmw_fifo_send_fence(man->dev_priv, &dummy);
+=======
+		vmw_cmd_send_fence(man->dev_priv, &dummy);
+>>>>>>> upstream/android-13
 		wake_up_all(&man->idle_queue);
 	}
 
@@ -613,7 +682,11 @@ static void vmw_cmdbuf_work_func(struct work_struct *work)
 }
 
 /**
+<<<<<<< HEAD
  * vmw_cmdbuf_man idle - Check whether the command buffer manager is idle.
+=======
+ * vmw_cmdbuf_man_idle - Check whether the command buffer manager is idle.
+>>>>>>> upstream/android-13
  *
  * @man: The command buffer manager.
  * @check_preempted: Check also the preempted queue for pending command buffers.
@@ -656,7 +729,11 @@ static void __vmw_cmdbuf_cur_flush(struct vmw_cmdbuf_man *man)
 {
 	struct vmw_cmdbuf_header *cur = man->cur;
 
+<<<<<<< HEAD
 	WARN_ON(!mutex_is_locked(&man->cur_mutex));
+=======
+	lockdep_assert_held_once(&man->cur_mutex);
+>>>>>>> upstream/android-13
 
 	if (!cur)
 		return;
@@ -761,7 +838,11 @@ static bool vmw_cmdbuf_try_alloc(struct vmw_cmdbuf_man *man,
 
 	if (info->done)
 		return true;
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> upstream/android-13
 	memset(info->node, 0, sizeof(*info->node));
 	spin_lock(&man->lock);
 	ret = drm_mm_insert_node(&man->mm, info->node, info->page_size);
@@ -795,7 +876,11 @@ static int vmw_cmdbuf_alloc_space(struct vmw_cmdbuf_man *man,
 {
 	struct vmw_cmdbuf_alloc_info info;
 
+<<<<<<< HEAD
 	info.page_size = PAGE_ALIGN(size) >> PAGE_SHIFT;
+=======
+	info.page_size = PFN_UP(size);
+>>>>>>> upstream/android-13
 	info.node = node;
 	info.done = false;
 
@@ -882,7 +967,11 @@ static int vmw_cmdbuf_space_pool(struct vmw_cmdbuf_man *man,
 	header->cmd = man->map + offset;
 	if (man->using_mob) {
 		cb_hdr->flags = SVGA_CB_FLAG_MOB;
+<<<<<<< HEAD
 		cb_hdr->ptr.mob.mobid = man->cmd_space->mem.start;
+=======
+		cb_hdr->ptr.mob.mobid = man->cmd_space->resource->start;
+>>>>>>> upstream/android-13
 		cb_hdr->ptr.mob.mobOffset = offset;
 	} else {
 		cb_hdr->ptr.pa = (u64)man->handle + (u64)offset;
@@ -1041,7 +1130,11 @@ static void vmw_cmdbuf_commit_cur(struct vmw_cmdbuf_man *man,
 {
 	struct vmw_cmdbuf_header *cur = man->cur;
 
+<<<<<<< HEAD
 	WARN_ON(!mutex_is_locked(&man->cur_mutex));
+=======
+	lockdep_assert_held_once(&man->cur_mutex);
+>>>>>>> upstream/android-13
 
 	WARN_ON(size > cur->reserved);
 	man->cur_pos += size;
@@ -1156,6 +1249,10 @@ static int vmw_cmdbuf_send_device_command(struct vmw_cmdbuf_man *man,
  * context.
  *
  * @man: The command buffer manager.
+<<<<<<< HEAD
+=======
+ * @context: Device context to pass command through.
+>>>>>>> upstream/android-13
  *
  * Synchronously sends a preempt command.
  */
@@ -1179,6 +1276,10 @@ static int vmw_cmdbuf_preempt(struct vmw_cmdbuf_man *man, u32 context)
  * context.
  *
  * @man: The command buffer manager.
+<<<<<<< HEAD
+=======
+ * @context: Device context to start/stop.
+>>>>>>> upstream/android-13
  * @enable: Whether to enable or disable the context.
  *
  * Synchronously sends a device start / stop context command.
@@ -1203,6 +1304,7 @@ static int vmw_cmdbuf_startstop(struct vmw_cmdbuf_man *man, u32 context,
  *
  * @man: The command buffer manager.
  * @size: The size of the main space pool.
+<<<<<<< HEAD
  * @default_size: The default size of the command buffer for small kernel
  * submissions.
  *
@@ -1215,6 +1317,16 @@ static int vmw_cmdbuf_startstop(struct vmw_cmdbuf_man *man, u32 context,
  */
 int vmw_cmdbuf_set_pool_size(struct vmw_cmdbuf_man *man,
 			     size_t size, size_t default_size)
+=======
+ *
+ * Set the size and allocate the main command buffer space pool.
+ * If successful, this enables large command submissions.
+ * Note that this function requires that rudimentary command
+ * submission is already available and that the MOB memory manager is alive.
+ * Returns 0 on success. Negative error code on failure.
+ */
+int vmw_cmdbuf_set_pool_size(struct vmw_cmdbuf_man *man, size_t size)
+>>>>>>> upstream/android-13
 {
 	struct vmw_private *dev_priv = man->dev_priv;
 	bool dummy;
@@ -1225,7 +1337,11 @@ int vmw_cmdbuf_set_pool_size(struct vmw_cmdbuf_man *man,
 
 	/* First, try to allocate a huge chunk of DMA memory */
 	size = PAGE_ALIGN(size);
+<<<<<<< HEAD
 	man->map = dma_alloc_coherent(&dev_priv->dev->pdev->dev, size,
+=======
+	man->map = dma_alloc_coherent(dev_priv->drm.dev, size,
+>>>>>>> upstream/android-13
 				      &man->handle, GFP_KERNEL);
 	if (man->map) {
 		man->using_mob = false;
@@ -1236,12 +1352,22 @@ int vmw_cmdbuf_set_pool_size(struct vmw_cmdbuf_man *man,
 		 * actually call into the already enabled manager, when
 		 * binding the MOB.
 		 */
+<<<<<<< HEAD
 		if (!(dev_priv->capabilities & SVGA_CAP_DX))
 			return -ENOMEM;
 
 		ret = ttm_bo_create(&dev_priv->bdev, size, ttm_bo_type_device,
 				    &vmw_mob_ne_placement, 0, false,
 				    &man->cmd_space);
+=======
+		if (!(dev_priv->capabilities & SVGA_CAP_DX) ||
+		    !dev_priv->has_mob)
+			return -ENOMEM;
+
+		ret = vmw_bo_create_kernel(dev_priv, size,
+					   &vmw_mob_placement,
+					   &man->cmd_space);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -1266,14 +1392,26 @@ int vmw_cmdbuf_set_pool_size(struct vmw_cmdbuf_man *man,
 	 * submissions to be able to free up space.
 	 */
 	man->default_size = VMW_CMDBUF_INLINE_SIZE;
+<<<<<<< HEAD
 	DRM_INFO("Using command buffers with %s pool.\n",
+=======
+	drm_info(&dev_priv->drm,
+		 "Using command buffers with %s pool.\n",
+>>>>>>> upstream/android-13
 		 (man->using_mob) ? "MOB" : "DMA");
 
 	return 0;
 
 out_no_map:
+<<<<<<< HEAD
 	if (man->using_mob)
 		ttm_bo_unref(&man->cmd_space);
+=======
+	if (man->using_mob) {
+		ttm_bo_put(man->cmd_space);
+		man->cmd_space = NULL;
+	}
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -1305,7 +1443,11 @@ struct vmw_cmdbuf_man *vmw_cmdbuf_man_create(struct vmw_private *dev_priv)
 	man->num_contexts = (dev_priv->capabilities & SVGA_CAP_HP_CMD_QUEUE) ?
 		2 : 1;
 	man->headers = dma_pool_create("vmwgfx cmdbuf",
+<<<<<<< HEAD
 				       &dev_priv->dev->pdev->dev,
+=======
+				       dev_priv->drm.dev,
+>>>>>>> upstream/android-13
 				       sizeof(SVGACBHeader),
 				       64, PAGE_SIZE);
 	if (!man->headers) {
@@ -1314,7 +1456,11 @@ struct vmw_cmdbuf_man *vmw_cmdbuf_man_create(struct vmw_private *dev_priv)
 	}
 
 	man->dheaders = dma_pool_create("vmwgfx inline cmdbuf",
+<<<<<<< HEAD
 					&dev_priv->dev->pdev->dev,
+=======
+					dev_priv->drm.dev,
+>>>>>>> upstream/android-13
 					sizeof(struct vmw_cmdbuf_dheader),
 					64, PAGE_SIZE);
 	if (!man->dheaders) {
@@ -1376,9 +1522,16 @@ void vmw_cmdbuf_remove_pool(struct vmw_cmdbuf_man *man)
 	(void) vmw_cmdbuf_idle(man, false, 10*HZ);
 	if (man->using_mob) {
 		(void) ttm_bo_kunmap(&man->map_obj);
+<<<<<<< HEAD
 		ttm_bo_unref(&man->cmd_space);
 	} else {
 		dma_free_coherent(&man->dev_priv->dev->pdev->dev,
+=======
+		ttm_bo_put(man->cmd_space);
+		man->cmd_space = NULL;
+	} else {
+		dma_free_coherent(man->dev_priv->drm.dev,
+>>>>>>> upstream/android-13
 				  man->size, man->map, man->handle);
 	}
 }

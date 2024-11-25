@@ -21,6 +21,10 @@
 #include "smc_cdc.h"
 #include "smc_tx.h" /* smc_tx_consumer_update() */
 #include "smc_rx.h"
+<<<<<<< HEAD
+=======
+#include "smc_stats.h"
+>>>>>>> upstream/android-13
 
 /* callback implementation to wakeup consumers blocked with smc_rx_wait().
  * indirectly called by smc_cdc_msg_recv_action().
@@ -129,6 +133,7 @@ out:
 	sock_put(sk);
 }
 
+<<<<<<< HEAD
 static int smc_rx_pipe_buf_nosteal(struct pipe_inode_info *pipe,
 				   struct pipe_buffer *buf)
 {
@@ -140,6 +145,10 @@ static const struct pipe_buf_operations smc_pipe_ops = {
 	.confirm = generic_pipe_buf_confirm,
 	.release = smc_rx_pipe_buf_release,
 	.steal = smc_rx_pipe_buf_nosteal,
+=======
+static const struct pipe_buf_operations smc_pipe_ops = {
+	.release = smc_rx_pipe_buf_release,
+>>>>>>> upstream/android-13
 	.get = generic_pipe_buf_get
 };
 
@@ -202,6 +211,11 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
 {
 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
 	struct smc_connection *conn = &smc->conn;
+<<<<<<< HEAD
+=======
+	struct smc_cdc_conn_state_flags *cflags =
+					&conn->local_tx_ctrl.conn_state_flags;
+>>>>>>> upstream/android-13
 	struct sock *sk = &smc->sk;
 	int rc;
 
@@ -211,7 +225,13 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
 	add_wait_queue(sk_sleep(sk), &wait);
 	rc = sk_wait_event(sk, timeo,
 			   sk->sk_err ||
+<<<<<<< HEAD
 			   sk->sk_shutdown & RCV_SHUTDOWN ||
+=======
+			   cflags->peer_conn_abort ||
+			   sk->sk_shutdown & RCV_SHUTDOWN ||
+			   conn->killed ||
+>>>>>>> upstream/android-13
 			   fcrit(conn),
 			   &wait);
 	remove_wait_queue(sk_sleep(sk), &wait);
@@ -232,6 +252,10 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
 	    conn->urg_state == SMC_URG_READ)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	SMC_STAT_INC(smc, urg_data_cnt);
+>>>>>>> upstream/android-13
 	if (conn->urg_state == SMC_URG_VALID) {
 		if (!(flags & MSG_PEEK))
 			smc->conn.urg_state = SMC_URG_READ;
@@ -308,6 +332,15 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
 	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
 	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
 
+<<<<<<< HEAD
+=======
+	readable = atomic_read(&conn->bytes_to_rcv);
+	if (readable >= conn->rmb_desc->len)
+		SMC_STAT_RMB_RX_FULL(smc, !conn->lnk);
+
+	if (len < readable)
+		SMC_STAT_RMB_RX_SIZE_SMALL(smc, !conn->lnk);
+>>>>>>> upstream/android-13
 	/* we currently use 1 RMBE per RMB, so RMBE == RMB base addr */
 	rcvbuf_base = conn->rx_off + conn->rmb_desc->cpu_addr;
 
@@ -315,11 +348,21 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
 		if (read_done >= target || (pipe && read_done))
 			break;
 
+<<<<<<< HEAD
 		if (smc_rx_recvmsg_data_available(smc))
 			goto copy;
 
 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
 		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort) {
+=======
+		if (conn->killed)
+			break;
+
+		if (smc_rx_recvmsg_data_available(smc))
+			goto copy;
+
+		if (sk->sk_shutdown & RCV_SHUTDOWN) {
+>>>>>>> upstream/android-13
 			/* smc_cdc_msg_recv_action() could have run after
 			 * above smc_rx_recvmsg_data_available()
 			 */
@@ -349,12 +392,20 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
 				}
 				break;
 			}
+<<<<<<< HEAD
+=======
+			if (!timeo)
+				return -EAGAIN;
+>>>>>>> upstream/android-13
 			if (signal_pending(current)) {
 				read_done = sock_intr_errno(timeo);
 				break;
 			}
+<<<<<<< HEAD
 			if (!timeo)
 				return -EAGAIN;
+=======
+>>>>>>> upstream/android-13
 		}
 
 		if (!smc_rx_data_available(conn)) {

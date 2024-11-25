@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * keyboard input driver for i2c IR remote controls
@@ -32,6 +36,7 @@
  *	Mark Weaver <mark@npsl.co.uk>
  *	Jarod Wilson <jarod@redhat.com>
  *	Copyright (C) 2011 Andy Walls <awalls@md.metrocast.net>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -43,6 +48,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/unaligned.h>
@@ -688,8 +695,13 @@ static int zilog_tx(struct rc_dev *rcdev, unsigned int *txbuf,
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
 	i = i2c_master_recv(ir->tx_c, buf, 1);
 	if (i != 1) {
+=======
+	ret = i2c_master_recv(ir->tx_c, buf, 1);
+	if (ret != 1) {
+>>>>>>> upstream/android-13
 		dev_err(&ir->rc->dev, "i2c_master_recv failed with %d\n", ret);
 		ret = -EIO;
 		goto out_unlock;
@@ -801,6 +813,10 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		rc_proto    = RC_PROTO_BIT_RC5 | RC_PROTO_BIT_RC6_MCE |
 							RC_PROTO_BIT_RC6_6A_32;
 		ir_codes    = RC_MAP_HAUPPAUGE;
+<<<<<<< HEAD
+=======
+		ir->polling_interval = 125;
+>>>>>>> upstream/android-13
 		probe_tx = true;
 		break;
 	}
@@ -895,9 +911,17 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	INIT_DELAYED_WORK(&ir->work, ir_work);
 
 	if (probe_tx) {
+<<<<<<< HEAD
 		ir->tx_c = i2c_new_dummy(client->adapter, 0x70);
 		if (!ir->tx_c) {
 			dev_err(&client->dev, "failed to setup tx i2c address");
+=======
+		ir->tx_c = i2c_new_dummy_device(client->adapter, 0x70);
+		if (IS_ERR(ir->tx_c)) {
+			dev_err(&client->dev, "failed to setup tx i2c address");
+			err = PTR_ERR(ir->tx_c);
+			goto err_out_free;
+>>>>>>> upstream/android-13
 		} else if (!zilog_init(ir)) {
 			ir->carrier = 38000;
 			ir->duty_cycle = 40;
@@ -914,7 +938,11 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	return 0;
 
  err_out_free:
+<<<<<<< HEAD
 	if (ir->tx_c)
+=======
+	if (!IS_ERR(ir->tx_c))
+>>>>>>> upstream/android-13
 		i2c_unregister_device(ir->tx_c);
 
 	/* Only frees rc if it were allocated internally */
@@ -926,6 +954,7 @@ static int ir_remove(struct i2c_client *client)
 {
 	struct IR_i2c *ir = i2c_get_clientdata(client);
 
+<<<<<<< HEAD
 	/* kill outstanding polls */
 	cancel_delayed_work_sync(&ir->work);
 
@@ -936,6 +965,14 @@ static int ir_remove(struct i2c_client *client)
 	rc_unregister_device(ir->rc);
 
 	/* free memory */
+=======
+	cancel_delayed_work_sync(&ir->work);
+
+	i2c_unregister_device(ir->tx_c);
+
+	rc_unregister_device(ir->rc);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

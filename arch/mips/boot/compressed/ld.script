@@ -31,9 +31,18 @@ SECTIONS
 		CONSTRUCTORS
 		. = ALIGN(16);
 	}
+<<<<<<< HEAD
 	__appended_dtb = .;
 	/* leave space for appended DTB */
 	. += 0x100000;
+=======
+
+	.appended_dtb : {
+		__appended_dtb = .;
+		/* leave space for appended DTB */
+		. += 0x100000;
+	}
+>>>>>>> upstream/android-13
 
 	_edata = .;
 	/* End of data section */

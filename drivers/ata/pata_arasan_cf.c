@@ -219,7 +219,10 @@ struct arasan_cf_dev {
 
 static struct scsi_host_template arasan_cf_sht = {
 	ATA_BASE_SHT(DRIVER_NAME),
+<<<<<<< HEAD
 	.sg_tablesize = SG_NONE,
+=======
+>>>>>>> upstream/android-13
 	.dma_boundary = 0xFFFFFFFFUL,
 };
 
@@ -527,9 +530,16 @@ static void data_xfer(struct work_struct *work)
 
 	/* request dma channels */
 	/* dma_request_channel may sleep, so calling from process context */
+<<<<<<< HEAD
 	acdev->dma_chan = dma_request_slave_channel(acdev->host->dev, "data");
 	if (!acdev->dma_chan) {
 		dev_err(acdev->host->dev, "Unable to get dma_chan\n");
+=======
+	acdev->dma_chan = dma_request_chan(acdev->host->dev, "data");
+	if (IS_ERR(acdev->dma_chan)) {
+		dev_err(acdev->host->dev, "Unable to get dma_chan\n");
+		acdev->dma_chan = NULL;
+>>>>>>> upstream/android-13
 		goto chan_request_fail;
 	}
 
@@ -540,6 +550,10 @@ static void data_xfer(struct work_struct *work)
 	}
 
 	dma_release_channel(acdev->dma_chan);
+<<<<<<< HEAD
+=======
+	acdev->dma_chan = NULL;
+>>>>>>> upstream/android-13
 
 	/* data xferred successfully */
 	if (!ret) {
@@ -832,7 +846,11 @@ static int arasan_cf_probe(struct platform_device *pdev)
 	}
 
 	acdev->pbase = res->start;
+<<<<<<< HEAD
 	acdev->vbase = devm_ioremap_nocache(&pdev->dev, res->start,
+=======
+	acdev->vbase = devm_ioremap(&pdev->dev, res->start,
+>>>>>>> upstream/android-13
 			resource_size(res));
 	if (!acdev->vbase) {
 		dev_warn(&pdev->dev, "ioremap fail\n");

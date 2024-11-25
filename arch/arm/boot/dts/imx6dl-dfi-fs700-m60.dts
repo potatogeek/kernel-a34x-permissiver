@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2013 Sascha Hauer <s.hauer@pengutronix.de>
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2013 Sascha Hauer <s.hauer@pengutronix.de>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DTS_V1__
@@ -23,6 +29,10 @@
 
 	/* Will be filled by the bootloader */
 	memory@10000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x10000000 0>;
 	};
 };

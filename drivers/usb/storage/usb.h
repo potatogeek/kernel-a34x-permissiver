@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Driver for USB Mass Storage compliant devices
  * Main Header File
@@ -95,7 +99,12 @@ struct us_data {
 	struct mutex		dev_mutex;	 /* protect pusb_dev */
 	struct usb_device	*pusb_dev;	 /* this usb_device */
 	struct usb_interface	*pusb_intf;	 /* this interface */
+<<<<<<< HEAD
 	struct us_unusual_dev   *unusual_dev;	 /* device-filter entry     */
+=======
+	const struct us_unusual_dev   *unusual_dev;
+						/* device-filter entry     */
+>>>>>>> upstream/android-13
 	unsigned long		fflags;		 /* fixed flags from filter */
 	unsigned long		dflags;		 /* dynamic atomic bitflags */
 	unsigned int		send_bulk_pipe;	 /* cached pipe values */
@@ -187,7 +196,11 @@ extern int usb_stor_post_reset(struct usb_interface *iface);
 extern int usb_stor_probe1(struct us_data **pus,
 		struct usb_interface *intf,
 		const struct usb_device_id *id,
+<<<<<<< HEAD
 		struct us_unusual_dev *unusual_dev,
+=======
+		const struct us_unusual_dev *unusual_dev,
+>>>>>>> upstream/android-13
 		struct scsi_host_template *sht);
 extern int usb_stor_probe2(struct us_data *us);
 extern void usb_stor_disconnect(struct usb_interface *intf);

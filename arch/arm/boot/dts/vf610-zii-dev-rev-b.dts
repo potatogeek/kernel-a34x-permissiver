@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015, 2016 Zodiac Inflight Innovations
  *
@@ -40,6 +41,11 @@
  *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
+=======
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2015, 2016 Zodiac Inflight Innovations
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -334,11 +340,19 @@
 		gpio-sck  = <&gpio1 12 GPIO_ACTIVE_HIGH>;
 		gpio-mosi = <&gpio1 11 GPIO_ACTIVE_HIGH>;
 		gpio-miso = <&gpio1 10 GPIO_ACTIVE_HIGH>;
+<<<<<<< HEAD
 		cs-gpios  = <&gpio1  9 GPIO_ACTIVE_HIGH
 			     &gpio1  8 GPIO_ACTIVE_HIGH>;
 		num-chipselects = <2>;
 
 		m25p128@0 {
+=======
+		cs-gpios  = <&gpio1  9 GPIO_ACTIVE_LOW
+			     &gpio1  8 GPIO_ACTIVE_HIGH>;
+		num-chipselects = <2>;
+
+		flash@0 {
+>>>>>>> upstream/android-13
 			compatible = "m25p128", "jedec,spi-nor";
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -350,8 +364,11 @@
 			compatible = "atmel,at93c46d";
 			pinctrl-0 = <&pinctrl_gpio_e6185_eeprom_sel>;
 			pinctrl-names = "default";
+<<<<<<< HEAD
 			#address-cells = <0>;
 			#size-cells = <0>;
+=======
+>>>>>>> upstream/android-13
 			reg = <1>;
 			spi-max-frequency = <500000>;
 			spi-cs-high;
@@ -362,12 +379,16 @@
 };
 
 &i2c0 {
+<<<<<<< HEAD
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c0>;
 	status = "okay";
 
 	gpio5: pca9554@20 {
+=======
+	gpio5: io-expander@20 {
+>>>>>>> upstream/android-13
 		compatible = "nxp,pca9554";
 		reg = <0x20>;
 		gpio-controller;
@@ -375,7 +396,11 @@
 
 	};
 
+<<<<<<< HEAD
 	gpio6: pca9554@22 {
+=======
+	gpio6: io-expander@22 {
+>>>>>>> upstream/android-13
 		compatible = "nxp,pca9554";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pca9554_22>;
@@ -389,11 +414,14 @@
 };
 
 &i2c2 {
+<<<<<<< HEAD
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
+=======
+>>>>>>> upstream/android-13
 	tca9548@70 {
 		compatible = "nxp,pca9548";
 		pinctrl-0 = <&pinctrl_i2c_mux_reset>;
@@ -408,7 +436,11 @@
 			#size-cells = <0>;
 			reg = <0>;
 
+<<<<<<< HEAD
 			sfp1: at24c04@50 {
+=======
+			sfp1: eeprom@50 {
+>>>>>>> upstream/android-13
 				compatible = "atmel,24c02";
 				reg = <0x50>;
 			};
@@ -419,7 +451,11 @@
 			#size-cells = <0>;
 			reg = <1>;
 
+<<<<<<< HEAD
 			sfp2: at24c04@50 {
+=======
+			sfp2: eeprom@50 {
+>>>>>>> upstream/android-13
 				compatible = "atmel,24c02";
 				reg = <0x50>;
 			};
@@ -430,7 +466,11 @@
 			#size-cells = <0>;
 			reg = <2>;
 
+<<<<<<< HEAD
 			sfp3: at24c04@50 {
+=======
+			sfp3: eeprom@50 {
+>>>>>>> upstream/android-13
 				compatible = "atmel,24c02";
 				reg = <0x50>;
 			};
@@ -441,7 +481,11 @@
 			#size-cells = <0>;
 			reg = <3>;
 
+<<<<<<< HEAD
 			sfp4: at24c04@50 {
+=======
+			sfp4: eeprom@50 {
+>>>>>>> upstream/android-13
 				compatible = "atmel,24c02";
 				reg = <0x50>;
 			};
@@ -455,6 +499,12 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+&mdio1 {
+	clock-frequency = <5000000>;
+};
+>>>>>>> upstream/android-13
 
 &iomuxc {
 	pinctrl_gpio_e6185_eeprom_sel: pinctrl-gpio-e6185-eeprom-spi0 {

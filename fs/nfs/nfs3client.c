@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/nfs_fs.h>
 #include <linux/nfs_mount.h>
 #include <linux/sunrpc/addr.h>
@@ -45,10 +49,17 @@ static inline void nfs_init_server_aclclient(struct nfs_server *server)
 }
 #endif
 
+<<<<<<< HEAD
 struct nfs_server *nfs3_create_server(struct nfs_mount_info *mount_info,
 				      struct nfs_subversion *nfs_mod)
 {
 	struct nfs_server *server = nfs_create_server(mount_info, nfs_mod);
+=======
+struct nfs_server *nfs3_create_server(struct fs_context *fc)
+{
+	struct nfs_server *server = nfs_create_server(fc);
+
+>>>>>>> upstream/android-13
 	/* Create a client RPC handle for the NFS v3 ACL management interface */
 	if (!IS_ERR(server))
 		nfs_init_server_aclclient(server);
@@ -91,6 +102,10 @@ struct nfs_client *nfs3_set_ds_client(struct nfs_server *mds_srv,
 		.proto = ds_proto,
 		.net = mds_clp->cl_net,
 		.timeparms = &ds_timeout,
+<<<<<<< HEAD
+=======
+		.cred = mds_srv->cred,
+>>>>>>> upstream/android-13
 	};
 	struct nfs_client *clp;
 	char buf[INET6_ADDRSTRLEN + 1];
@@ -100,8 +115,19 @@ struct nfs_client *nfs3_set_ds_client(struct nfs_server *mds_srv,
 		return ERR_PTR(-EINVAL);
 	cl_init.hostname = buf;
 
+<<<<<<< HEAD
 	if (mds_srv->flags & NFS_MOUNT_NORESVPORT)
 		set_bit(NFS_CS_NORESVPORT, &cl_init.init_flags);
+=======
+	if (mds_clp->cl_nconnect > 1 && ds_proto == XPRT_TRANSPORT_TCP)
+		cl_init.nconnect = mds_clp->cl_nconnect;
+
+	if (mds_srv->flags & NFS_MOUNT_NORESVPORT)
+		__set_bit(NFS_CS_NORESVPORT, &cl_init.init_flags);
+
+	__set_bit(NFS_CS_NOPING, &cl_init.init_flags);
+	__set_bit(NFS_CS_DS, &cl_init.init_flags);
+>>>>>>> upstream/android-13
 
 	/* Use the MDS nfs_client cl_ipaddr. */
 	nfs_init_timeout_values(&ds_timeout, ds_proto, ds_timeo, ds_retrans);

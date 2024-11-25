@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * bsbe1.h - ALPS BSBE1 tuner support
  *
@@ -16,6 +17,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * bsbe1.h - ALPS BSBE1 tuner support
+ *
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Pavel Machek <pavel@ucw.cz>
  * Copyright (C) 2013-2014 Aaro Koskinen <aaro.koskinen@iki.fi>
@@ -5,12 +6,22 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 (or later) as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2013 Pavel Machek <pavel@ucw.cz>
+ * Copyright (C) 2013-2014 Aaro Koskinen <aaro.koskinen@iki.fi>
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
 
 #include "omap34xx.dtsi"
 #include <dt-bindings/input/input.h>
+<<<<<<< HEAD
+=======
+#include <dt-bindings/leds/common.h>
+>>>>>>> upstream/android-13
 
 /*
  * Default secure signed bootloader (Nokia X-Loader) does not enable L3 firewall
@@ -22,7 +33,15 @@
  * but it is not widely used and to prevent kernel crash rather AES is disabled.
  * There is also no runtime detection code if AES is disabled in L3 firewall...
  */
+<<<<<<< HEAD
 &aes {
+=======
+&aes1_target {
+	status = "disabled";
+};
+
+&aes2_target {
+>>>>>>> upstream/android-13
 	status = "disabled";
 };
 
@@ -108,6 +127,17 @@
 			linux,code = <SW_FRONT_PROXIMITY>;
 			linux,can-disable;
 		};
+<<<<<<< HEAD
+=======
+
+		machine_cover {
+			label = "Machine Cover";
+			gpios = <&gpio6 0 GPIO_ACTIVE_LOW>; /* 160 */
+			linux,input-type = <EV_SW>;
+			linux,code = <SW_MACHINE_COVER>;
+			linux,can-disable;
+		};
+>>>>>>> upstream/android-13
 	};
 
 	isp1707: isp1707 {
@@ -485,6 +515,14 @@
 	regulator-always-on;
 };
 
+<<<<<<< HEAD
+=======
+/* First two dma channels are reserved on secure omap3 */
+&sdma {
+	dma-channel-mask = <0xfffffffc>;
+};
+
+>>>>>>> upstream/android-13
 &twl {
 	twl_audio: audio {
 		compatible = "ti,twl4030-audio";
@@ -616,6 +654,7 @@
 	};
 
 	lp5523: lp5523@32 {
+<<<<<<< HEAD
 		compatible = "national,lp5523";
 		reg = <0x32>;
 		clock-mode = /bits/ 8 <0>; /* LP55XX_CLOCK_AUTO */
@@ -673,6 +712,94 @@
 			chan-name = "lp5523:kb6";
 			led-cur = /bits/ 8 <50>;
 			max-cur = /bits/ 8 <100>;
+=======
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "national,lp5523";
+		reg = <0x32>;
+		clock-mode = /bits/ 8 <0>; /* LP55XX_CLOCK_AUTO */
+		enable-gpios = <&gpio2 9 GPIO_ACTIVE_HIGH>; /* 41 */
+
+		led@0 {
+			reg = <0>;
+			chan-name = "lp5523:kb1";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_WHITE>;
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+		};
+
+		led@1 {
+			reg = <1>;
+			chan-name = "lp5523:kb2";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_WHITE>;
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+		};
+
+		led@2 {
+			reg = <2>;
+			chan-name = "lp5523:kb3";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_WHITE>;
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+		};
+
+		led@3 {
+			reg = <3>;
+			chan-name = "lp5523:kb4";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_WHITE>;
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+		};
+
+		led@4 {
+			reg = <4>;
+			chan-name = "lp5523:b";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_STATUS;
+		};
+
+		led@5 {
+			reg = <5>;
+			chan-name = "lp5523:g";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_STATUS;
+		};
+
+		led@6 {
+			reg = <6>;
+			chan-name = "lp5523:r";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_RED>;
+			function = LED_FUNCTION_STATUS;
+		};
+
+		led@7 {
+			reg = <7>;
+			chan-name = "lp5523:kb5";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_WHITE>;
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+		};
+
+		led@8 {
+			reg = <8>;
+			chan-name = "lp5523:kb6";
+			led-cur = /bits/ 8 <50>;
+			max-cur = /bits/ 8 <100>;
+			color = <LED_COLOR_ID_WHITE>;
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+>>>>>>> upstream/android-13
 		};
 	};
 
@@ -817,10 +944,13 @@
 	pinctrl-0 = <&mmc1_pins>;
 	vmmc-supply = <&vmmc1>;
 	bus-width = <4>;
+<<<<<<< HEAD
 	/* For debugging, it is often good idea to remove this GPIO.
 	   It means you can remove back cover (to reboot by removing
 	   battery) and still use the MMC card. */
 	cd-gpios = <&gpio6 0 GPIO_ACTIVE_HIGH>; /* 160 */
+=======
+>>>>>>> upstream/android-13
 };
 
 /* most boards use vaux3, only some old versions use vmmc2 instead */
@@ -1034,6 +1164,14 @@
 	};
 };
 
+<<<<<<< HEAD
+=======
+/* RNG not directly accessible on n900, see omap3-rom-rng instead */
+&rng_target {
+	status = "disabled";
+};
+
+>>>>>>> upstream/android-13
 &usb_otg_hs {
 	interface-type = <0>;
 	usb-phy = <&usb2_phy>;
@@ -1068,7 +1206,11 @@
 };
 
 &dss {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	pinctrl-names = "default";
 	pinctrl-0 = <&dss_sdi_pins>;
@@ -1091,7 +1233,11 @@
 };
 
 &venc {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 
 	vdda-supply = <&vdac>;
 
@@ -1104,7 +1250,11 @@
 };
 
 &mcbsp2 {
+<<<<<<< HEAD
 	status = "ok";
+=======
+	status = "okay";
+>>>>>>> upstream/android-13
 };
 
 &ssi_port1 {

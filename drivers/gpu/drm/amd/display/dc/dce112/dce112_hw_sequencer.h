@@ -27,6 +27,10 @@
 #define __DC_HWSS_DCE112_H__
 
 #include "core_types.h"
+<<<<<<< HEAD
+=======
+#include "hw_sequencer_private.h"
+>>>>>>> upstream/android-13
 
 struct dc;
 

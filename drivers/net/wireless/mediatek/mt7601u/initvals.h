@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * (c) Copyright 2002-2010, Ralink Technology, Inc.
  * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * (c) Copyright 2002-2010, Ralink Technology, Inc.
+ * Copyright (C) 2015 Jakub Kicinski <kubakici@wp.pl>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MT7601U_INITVALS_H

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Device driver for regulators in Hi6421V530 IC
  *
@@ -13,6 +14,19 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Device driver for regulators in Hi6421V530 IC
+//
+// Copyright (c) <2017> HiSilicon Technologies Co., Ltd.
+//              http://www.hisilicon.com
+// Copyright (c) <2017> Linaro Ltd.
+//              https://www.linaro.org
+//
+// Author: Wang Xiaoyin <hw.wangxiaoyin@hisilicon.com>
+//         Guodong Xu <guodong.xu@linaro.org>
+>>>>>>> upstream/android-13
 
 #include <linux/mfd/hi6421-pmic.h>
 #include <linux/module.h>

@@ -17,7 +17,11 @@
 #include <linux/string.h>
 #include <linux/types.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/gfp.h>
 
 #include <asm/setup.h>
@@ -40,6 +44,7 @@
 void *empty_zero_page;
 EXPORT_SYMBOL(empty_zero_page);
 
+<<<<<<< HEAD
 #if !defined(CONFIG_SUN3) && !defined(CONFIG_COLDFIRE)
 extern void init_pointer_table(unsigned long ptable);
 extern pmd_t *zero_pgtable;
@@ -71,6 +76,14 @@ void __init m68k_setup_node(int node)
 		pg_data_table[i] = pg_data_map + node;
 	}
 #endif
+=======
+#ifdef CONFIG_MMU
+
+int m68k_virt_to_node_shift;
+
+void __init m68k_setup_node(int node)
+{
+>>>>>>> upstream/android-13
 	node_set_online(node);
 }
 
@@ -89,6 +102,7 @@ void __init paging_init(void)
 	 * page_alloc get different views of the world.
 	 */
 	unsigned long end_mem = memory_end & PAGE_MASK;
+<<<<<<< HEAD
 	unsigned long zones_size[MAX_NR_ZONES] = { 0, };
 
 	high_memory = (void *) end_mem;
@@ -102,6 +116,18 @@ void __init paging_init(void)
 
 	zones_size[ZONE_DMA] = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
 	free_area_init(zones_size);
+=======
+	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0, };
+
+	high_memory = (void *) end_mem;
+
+	empty_zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+	if (!empty_zero_page)
+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+		      __func__, PAGE_SIZE, PAGE_SIZE);
+	max_zone_pfn[ZONE_DMA] = end_mem >> PAGE_SHIFT;
+	free_area_init(max_zone_pfn);
+>>>>>>> upstream/android-13
 }
 
 #endif /* CONFIG_MMU */
@@ -122,6 +148,7 @@ void free_initmem(void)
 static inline void init_pointer_tables(void)
 {
 #if defined(CONFIG_MMU) && !defined(CONFIG_SUN3) && !defined(CONFIG_COLDFIRE)
+<<<<<<< HEAD
 	int i;
 
 	/* insert pointer tables allocated so far into the tablelist */
@@ -134,12 +161,40 @@ static inline void init_pointer_tables(void)
 	/* insert also pointer table that we used to unmap the zero page */
 	if (zero_pgtable)
 		init_pointer_table((unsigned long)zero_pgtable);
+=======
+	int i, j;
+
+	/* insert pointer tables allocated so far into the tablelist */
+	init_pointer_table(kernel_pg_dir, TABLE_PGD);
+	for (i = 0; i < PTRS_PER_PGD; i++) {
+		pud_t *pud = (pud_t *)&kernel_pg_dir[i];
+		pmd_t *pmd_dir;
+
+		if (!pud_present(*pud))
+			continue;
+
+		pmd_dir = (pmd_t *)pgd_page_vaddr(kernel_pg_dir[i]);
+		init_pointer_table(pmd_dir, TABLE_PMD);
+
+		for (j = 0; j < PTRS_PER_PMD; j++) {
+			pmd_t *pmd = &pmd_dir[j];
+			pte_t *pte_dir;
+
+			if (!pmd_present(*pmd))
+				continue;
+
+			pte_dir = (pte_t *)pmd_page_vaddr(*pmd);
+			init_pointer_table(pte_dir, TABLE_PTE);
+		}
+	}
+>>>>>>> upstream/android-13
 #endif
 }
 
 void __init mem_init(void)
 {
 	/* this will put all memory onto the freelists */
+<<<<<<< HEAD
 	free_all_bootmem();
 	init_pointer_tables();
 	mem_init_print_info(NULL);
@@ -151,3 +206,8 @@ void free_initrd_mem(unsigned long start, unsigned long end)
 	free_reserved_area((void *)start, (void *)end, -1, "initrd");
 }
 #endif
+=======
+	memblock_free_all();
+	init_pointer_tables();
+}
+>>>>>>> upstream/android-13

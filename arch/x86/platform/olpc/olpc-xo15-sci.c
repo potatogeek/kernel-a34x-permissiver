@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Support for OLPC XO-1.5 System Control Interrupts (SCI)
  *
  * Copyright (C) 2009-2010 One Laptop per Child
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -31,7 +38,11 @@ static bool				lid_wake_on_close;
  * wake-on-close. This is implemented as standard by the XO-1.5 DSDT.
  *
  * We provide here a sysfs attribute that will additionally enable
+<<<<<<< HEAD
  * wake-on-close behavior. This is useful (e.g.) when we oportunistically
+=======
+ * wake-on-close behavior. This is useful (e.g.) when we opportunistically
+>>>>>>> upstream/android-13
  * suspend with the display running; if the lid is then closed, we want to
  * wake up to turn the display off.
  *
@@ -43,7 +54,11 @@ static int set_lid_wake_behavior(bool wake_on_close)
 
 	status = acpi_execute_simple_method(NULL, "\\_SB.PCI0.LID.LIDW", wake_on_close);
 	if (ACPI_FAILURE(status)) {
+<<<<<<< HEAD
 		pr_warning(PFX "failed to set lid behavior\n");
+=======
+		pr_warn(PFX "failed to set lid behavior\n");
+>>>>>>> upstream/android-13
 		return 1;
 	}
 
@@ -79,7 +94,11 @@ static struct kobj_attribute lid_wake_on_close_attr =
 
 static void battery_status_changed(void)
 {
+<<<<<<< HEAD
 	struct power_supply *psy = power_supply_get_by_name("olpc-battery");
+=======
+	struct power_supply *psy = power_supply_get_by_name("olpc_battery");
+>>>>>>> upstream/android-13
 
 	if (psy) {
 		power_supply_changed(psy);
@@ -89,7 +108,11 @@ static void battery_status_changed(void)
 
 static void ac_status_changed(void)
 {
+<<<<<<< HEAD
 	struct power_supply *psy = power_supply_get_by_name("olpc-ac");
+=======
+	struct power_supply *psy = power_supply_get_by_name("olpc_ac");
+>>>>>>> upstream/android-13
 
 	if (psy) {
 		power_supply_changed(psy);

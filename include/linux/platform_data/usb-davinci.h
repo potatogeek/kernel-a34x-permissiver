@@ -11,6 +11,7 @@
 #ifndef __ASM_ARCH_USB_H
 #define __ASM_ARCH_USB_H
 
+<<<<<<< HEAD
 struct	da8xx_ohci_root_hub;
 
 typedef void (*da8xx_ocic_handler_t)(struct da8xx_ohci_root_hub *hub,
@@ -27,6 +28,10 @@ struct	da8xx_ohci_root_hub {
 	/* Over-current indicator change notification (pass NULL to disable) */
 	int	(*ocic_notify)(da8xx_ocic_handler_t handler);
 
+=======
+/* Passed as the platform data to the OHCI driver */
+struct	da8xx_ohci_root_hub {
+>>>>>>> upstream/android-13
 	/* Time from power on to power good (in 2 ms units) */
 	u8	potpgt;
 };

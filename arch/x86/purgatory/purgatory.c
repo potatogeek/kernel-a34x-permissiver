@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * purgatory: Runs between two kernels
  *
@@ -5,6 +9,7 @@
  *
  * Author:
  *       Vivek Goyal <vgoyal@redhat.com>
+<<<<<<< HEAD
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
@@ -12,10 +17,19 @@
 
 #include <linux/bug.h>
 #include <linux/sha256.h>
+=======
+ */
+
+#include <linux/bug.h>
+#include <linux/kernel.h>
+#include <linux/types.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <asm/purgatory.h>
 
 #include "../boot/string.h"
 
+<<<<<<< HEAD
 unsigned long purgatory_backup_dest __section(.kexec-purgatory);
 unsigned long purgatory_backup_src __section(.kexec-purgatory);
 unsigned long purgatory_backup_sz __section(.kexec-purgatory);
@@ -37,6 +51,11 @@ static int copy_backup_region(void)
 	}
 	return 0;
 }
+=======
+u8 purgatory_sha256_digest[SHA256_DIGEST_SIZE] __section(".kexec-purgatory");
+
+struct kexec_sha_region purgatory_sha_regions[KEXEC_SEGMENT_MAX] __section(".kexec-purgatory");
+>>>>>>> upstream/android-13
 
 static int verify_sha256_digest(void)
 {
@@ -68,7 +87,10 @@ void purgatory(void)
 		for (;;)
 			;
 	}
+<<<<<<< HEAD
 	copy_backup_region();
+=======
+>>>>>>> upstream/android-13
 }
 
 /*

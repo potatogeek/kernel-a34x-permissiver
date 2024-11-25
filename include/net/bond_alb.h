@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 1999 - 2004 Intel Corporation. All rights reserved.
  *
@@ -17,6 +18,11 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 1999 - 2004 Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BOND_ALB_H
@@ -142,7 +148,11 @@ struct tlb_slave_info {
 struct alb_bond_info {
 	struct tlb_client_info	*tx_hashtbl; /* Dynamically allocated */
 	u32			unbalanced_load;
+<<<<<<< HEAD
 	int			tx_rebalance_counter;
+=======
+	atomic_t		tx_rebalance_counter;
+>>>>>>> upstream/android-13
 	int			lp_counter;
 	/* -------- rlb parameters -------- */
 	int rlb_enabled;
@@ -174,6 +184,13 @@ void bond_alb_handle_link_change(struct bonding *bond, struct slave *slave, char
 void bond_alb_handle_active_change(struct bonding *bond, struct slave *new_slave);
 int bond_alb_xmit(struct sk_buff *skb, struct net_device *bond_dev);
 int bond_tlb_xmit(struct sk_buff *skb, struct net_device *bond_dev);
+<<<<<<< HEAD
+=======
+struct slave *bond_xmit_alb_slave_get(struct bonding *bond,
+				      struct sk_buff *skb);
+struct slave *bond_xmit_tlb_slave_get(struct bonding *bond,
+				      struct sk_buff *skb);
+>>>>>>> upstream/android-13
 void bond_alb_monitor(struct work_struct *);
 int bond_alb_set_mac_address(struct net_device *bond_dev, void *addr);
 void bond_alb_clear_vlan(struct bonding *bond, unsigned short vlan_id);

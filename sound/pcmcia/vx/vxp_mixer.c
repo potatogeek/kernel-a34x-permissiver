@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram VXpocket soundcards
  *
  * VX-pocket mixer
  *
  * Copyright (c) 2002 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/core.h>
@@ -137,11 +144,21 @@ int vxp_add_mic_controls(struct vx_core *_chip)
 	/* mic level */
 	switch (_chip->type) {
 	case VX_TYPE_VXPOCKET:
+<<<<<<< HEAD
 		if ((err = snd_ctl_add(_chip->card, snd_ctl_new1(&vx_control_mic_level, chip))) < 0)
 			return err;
 		break;
 	case VX_TYPE_VXP440:
 		if ((err = snd_ctl_add(_chip->card, snd_ctl_new1(&vx_control_mic_boost, chip))) < 0)
+=======
+		err = snd_ctl_add(_chip->card, snd_ctl_new1(&vx_control_mic_level, chip));
+		if (err < 0)
+			return err;
+		break;
+	case VX_TYPE_VXP440:
+		err = snd_ctl_add(_chip->card, snd_ctl_new1(&vx_control_mic_boost, chip));
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 		break;
 	}

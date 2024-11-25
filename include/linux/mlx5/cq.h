@@ -33,7 +33,10 @@
 #ifndef MLX5_CORE_CQ_H
 #define MLX5_CORE_CQ_H
 
+<<<<<<< HEAD
 #include <rdma/ib_verbs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mlx5/driver.h>
 #include <linux/refcount.h>
 
@@ -47,7 +50,11 @@ struct mlx5_core_cq {
 	struct completion	free;
 	unsigned		vector;
 	unsigned int		irqn;
+<<<<<<< HEAD
 	void (*comp)		(struct mlx5_core_cq *);
+=======
+	void (*comp)(struct mlx5_core_cq *cq, struct mlx5_eqe *eqe);
+>>>>>>> upstream/android-13
 	void (*event)		(struct mlx5_core_cq *, enum mlx5_event);
 	u32			cons_index;
 	unsigned		arm_sn;
@@ -55,12 +62,21 @@ struct mlx5_core_cq {
 	int			pid;
 	struct {
 		struct list_head list;
+<<<<<<< HEAD
 		void (*comp)(struct mlx5_core_cq *);
+=======
+		void (*comp)(struct mlx5_core_cq *cq, struct mlx5_eqe *eqe);
+>>>>>>> upstream/android-13
 		void		*priv;
 	} tasklet_ctx;
 	int			reset_notify_added;
 	struct list_head	reset_notify;
+<<<<<<< HEAD
 	struct mlx5_eq		*eq;
+=======
+	struct mlx5_eq_comp	*eq;
+	u16 uid;
+>>>>>>> upstream/android-13
 };
 
 
@@ -124,9 +140,15 @@ struct mlx5_cq_modify_params {
 };
 
 enum {
+<<<<<<< HEAD
 	CQE_SIZE_64 = 0,
 	CQE_SIZE_128 = 1,
 	CQE_SIZE_128_PAD = 2,
+=======
+	CQE_STRIDE_64 = 0,
+	CQE_STRIDE_128 = 1,
+	CQE_STRIDE_128_PAD = 2,
+>>>>>>> upstream/android-13
 };
 
 #define MLX5_MAX_CQ_PERIOD (BIT(__mlx5_bit_sz(cqc, cq_period)) - 1)
@@ -134,8 +156,13 @@ enum {
 
 static inline int cqe_sz_to_mlx_sz(u8 size, int padding_128_en)
 {
+<<<<<<< HEAD
 	return padding_128_en ? CQE_SIZE_128_PAD :
 				size == 64 ? CQE_SIZE_64 : CQE_SIZE_128;
+=======
+	return padding_128_en ? CQE_STRIDE_128_PAD :
+				size == 64 ? CQE_STRIDE_64 : CQE_STRIDE_128;
+>>>>>>> upstream/android-13
 }
 
 static inline void mlx5_cq_set_ci(struct mlx5_core_cq *cq)
@@ -169,7 +196,11 @@ static inline void mlx5_cq_arm(struct mlx5_core_cq *cq, u32 cmd,
 	doorbell[0] = cpu_to_be32(sn << 28 | cmd | ci);
 	doorbell[1] = cpu_to_be32(cq->cqn);
 
+<<<<<<< HEAD
 	mlx5_write64(doorbell, uar_page + MLX5_CQ_DOORBELL, NULL);
+=======
+	mlx5_write64(doorbell, uar_page + MLX5_CQ_DOORBELL);
+>>>>>>> upstream/android-13
 }
 
 static inline void mlx5_cq_hold(struct mlx5_core_cq *cq)
@@ -184,10 +215,17 @@ static inline void mlx5_cq_put(struct mlx5_core_cq *cq)
 }
 
 int mlx5_core_create_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq,
+<<<<<<< HEAD
 			u32 *in, int inlen);
 int mlx5_core_destroy_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq);
 int mlx5_core_query_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq,
 		       u32 *out, int outlen);
+=======
+			u32 *in, int inlen, u32 *out, int outlen);
+int mlx5_core_destroy_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq);
+int mlx5_core_query_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq,
+		       u32 *out);
+>>>>>>> upstream/android-13
 int mlx5_core_modify_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq,
 			u32 *in, int inlen);
 int mlx5_core_modify_cq_moderation(struct mlx5_core_dev *dev,

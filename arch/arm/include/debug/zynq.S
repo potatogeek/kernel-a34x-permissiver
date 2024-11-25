@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Debugging macro include header
  *
  *  Copyright (C) 2011 Xilinx
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #define UART_CR_OFFSET		0x00  /* Control Register [8:0] */
 #define UART_SR_OFFSET		0x2C  /* Channel Status [11:0] */
@@ -41,7 +48,14 @@
 		strb	\rd, [\rx, #UART_FIFO_OFFSET]	@ TXDATA
 		.endm
 
+<<<<<<< HEAD
 		.macro	waituart,rd,rx
+=======
+		.macro	waituartcts,rd,rx
+		.endm
+
+		.macro	waituarttxrdy,rd,rx
+>>>>>>> upstream/android-13
 1001:		ldr	\rd, [\rx, #UART_SR_OFFSET]
 ARM_BE8(	rev	\rd, \rd )
 		tst	\rd, #UART_SR_TXEMPTY

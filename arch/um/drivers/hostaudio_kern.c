@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 Steve Schmidtke
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 Steve Schmidtke
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -122,13 +128,20 @@ static ssize_t hostaudio_write(struct file *file, const char __user *buffer,
 static __poll_t hostaudio_poll(struct file *file,
 				struct poll_table_struct *wait)
 {
+<<<<<<< HEAD
 	__poll_t mask = 0;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 	printk(KERN_DEBUG "hostaudio: poll called (unimplemented)\n");
 #endif
 
+<<<<<<< HEAD
 	return mask;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static long hostaudio_ioctl(struct file *file,
@@ -298,6 +311,10 @@ static const struct file_operations hostaudio_fops = {
 	.write          = hostaudio_write,
 	.poll           = hostaudio_poll,
 	.unlocked_ioctl	= hostaudio_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.mmap           = NULL,
 	.open           = hostaudio_open,
 	.release        = hostaudio_release,

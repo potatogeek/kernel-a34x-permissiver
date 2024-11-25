@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2001 Mike Corrigan & Dave Engebretsen IBM Corporation
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2001 Mike Corrigan & Dave Engebretsen IBM Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -52,10 +58,17 @@ static int page_map_mmap( struct file *file, struct vm_area_struct *vma )
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct file_operations page_map_fops = {
 	.llseek	= page_map_seek,
 	.read	= page_map_read,
 	.mmap	= page_map_mmap
+=======
+static const struct proc_ops page_map_proc_ops = {
+	.proc_lseek	= page_map_seek,
+	.proc_read	= page_map_read,
+	.proc_mmap	= page_map_mmap,
+>>>>>>> upstream/android-13
 };
 
 
@@ -64,7 +77,11 @@ static int __init proc_ppc64_init(void)
 	struct proc_dir_entry *pde;
 
 	pde = proc_create_data("powerpc/systemcfg", S_IFREG | 0444, NULL,
+<<<<<<< HEAD
 			       &page_map_fops, vdso_data);
+=======
+			       &page_map_proc_ops, vdso_data);
+>>>>>>> upstream/android-13
 	if (!pde)
 		return 1;
 	proc_set_size(pde, PAGE_SIZE);

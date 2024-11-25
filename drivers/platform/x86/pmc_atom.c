@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Intel Atom SOC Power Management Controller Driver
  * Copyright (c) 2014, Intel Corporation.
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Intel Atom SOC Power Management Controller Driver
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -350,6 +357,7 @@ static int pmc_sleep_tmr_show(struct seq_file *s, void *unused)
 
 DEFINE_SHOW_ATTRIBUTE(pmc_sleep_tmr);
 
+<<<<<<< HEAD
 static void pmc_dbgfs_unregister(struct pmc_dev *pmc)
 {
 	debugfs_remove_recursive(pmc->dbgfs_dir);
@@ -389,6 +397,26 @@ err:
 static int pmc_dbgfs_register(struct pmc_dev *pmc)
 {
 	return 0;
+=======
+static void pmc_dbgfs_register(struct pmc_dev *pmc)
+{
+	struct dentry *dir;
+
+	dir = debugfs_create_dir("pmc_atom", NULL);
+
+	pmc->dbgfs_dir = dir;
+
+	debugfs_create_file("dev_state", S_IFREG | S_IRUGO, dir, pmc,
+			    &pmc_dev_state_fops);
+	debugfs_create_file("pss_state", S_IFREG | S_IRUGO, dir, pmc,
+			    &pmc_pss_state_fops);
+	debugfs_create_file("sleep_state", S_IFREG | S_IRUGO, dir, pmc,
+			    &pmc_sleep_tmr_fops);
+}
+#else
+static void pmc_dbgfs_register(struct pmc_dev *pmc)
+{
+>>>>>>> upstream/android-13
 }
 #endif /* CONFIG_DEBUG_FS */
 
@@ -437,6 +465,16 @@ static const struct dmi_system_id critclk_systems[] = {
 		},
 	},
 	{
+<<<<<<< HEAD
+=======
+		.ident = "SIMATIC IPC277E",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
+			DMI_MATCH(DMI_PRODUCT_VERSION, "6AV7882-0"),
+		},
+	},
+	{
+>>>>>>> upstream/android-13
 		.ident = "CONNECT X300",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
@@ -496,7 +534,11 @@ static int pmc_setup_dev(struct pci_dev *pdev, const struct pci_device_id *ent)
 	pci_read_config_dword(pdev, PMC_BASE_ADDR_OFFSET, &pmc->base_addr);
 	pmc->base_addr &= PMC_BASE_ADDR_MASK;
 
+<<<<<<< HEAD
 	pmc->regmap = ioremap_nocache(pmc->base_addr, PMC_MMIO_REG_LEN);
+=======
+	pmc->regmap = ioremap(pmc->base_addr, PMC_MMIO_REG_LEN);
+>>>>>>> upstream/android-13
 	if (!pmc->regmap) {
 		dev_err(&pdev->dev, "error: ioremap failed\n");
 		return -ENOMEM;
@@ -507,9 +549,13 @@ static int pmc_setup_dev(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* PMC hardware registers setup */
 	pmc_hw_reg_setup(pmc);
 
+<<<<<<< HEAD
 	ret = pmc_dbgfs_register(pmc);
 	if (ret)
 		dev_warn(&pdev->dev, "debugfs register failed\n");
+=======
+	pmc_dbgfs_register(pmc);
+>>>>>>> upstream/android-13
 
 	/* Register platform clocks - PMC_PLT_CLK [0..5] */
 	ret = pmc_setup_clks(pdev, pmc->regmap, data);

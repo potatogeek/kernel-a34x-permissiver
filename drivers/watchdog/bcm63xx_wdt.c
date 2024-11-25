@@ -116,7 +116,11 @@ static int bcm63xx_wdt_open(struct inode *inode, struct file *file)
 		return -EBUSY;
 
 	bcm63xx_wdt_start();
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int bcm63xx_wdt_release(struct inode *inode, struct file *file)
@@ -221,6 +225,10 @@ static const struct file_operations bcm63xx_wdt_fops = {
 	.llseek		= no_llseek,
 	.write		= bcm63xx_wdt_write,
 	.unlocked_ioctl	= bcm63xx_wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= bcm63xx_wdt_open,
 	.release	= bcm63xx_wdt_release,
 };
@@ -245,7 +253,11 @@ static int bcm63xx_wdt_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	bcm63xx_wdt_device.regs = devm_ioremap_nocache(&pdev->dev, r->start,
+=======
+	bcm63xx_wdt_device.regs = devm_ioremap(&pdev->dev, r->start,
+>>>>>>> upstream/android-13
 							resource_size(r));
 	if (!bcm63xx_wdt_device.regs) {
 		dev_err(&pdev->dev, "failed to remap I/O resources\n");

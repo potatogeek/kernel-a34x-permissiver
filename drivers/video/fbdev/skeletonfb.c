@@ -634,7 +634,11 @@ int xxxfb_sync(struct fb_info *info)
      *  Frame buffer operations
      */
 
+<<<<<<< HEAD
 static struct fb_ops xxxfb_ops = {
+=======
+static const struct fb_ops xxxfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_open	= xxxfb_open,
 	.fb_read	= xxxfb_read,

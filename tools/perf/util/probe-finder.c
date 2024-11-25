@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * probe-finder.c : C expression to kprobe event converter
  *
  * Written by Masami Hiramatsu <mhiramat@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <inttypes.h>
@@ -33,17 +40,32 @@
 #include <dwarf-regs.h>
 
 #include <linux/bitops.h>
+<<<<<<< HEAD
+=======
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 #include "event.h"
 #include "dso.h"
 #include "debug.h"
 #include "intlist.h"
+<<<<<<< HEAD
 #include "util.h"
+=======
+#include "strbuf.h"
+>>>>>>> upstream/android-13
 #include "strlist.h"
 #include "symbol.h"
 #include "probe-finder.h"
 #include "probe-file.h"
 #include "string2.h"
 
+<<<<<<< HEAD
+=======
+#ifdef HAVE_DEBUGINFOD_SUPPORT
+#include <elfutils/debuginfod.h>
+#endif
+
+>>>>>>> upstream/android-13
 /* Kprobe tracer basic type is up to u64 */
 #define MAX_BASIC_TYPE_BITS	64
 
@@ -64,6 +86,10 @@ static const Dwfl_Callbacks offline_callbacks = {
 static int debuginfo__init_offline_dwarf(struct debuginfo *dbg,
 					 const char *path)
 {
+<<<<<<< HEAD
+=======
+	GElf_Addr dummy;
+>>>>>>> upstream/android-13
 	int fd;
 
 	fd = open(path, O_RDONLY);
@@ -83,6 +109,11 @@ static int debuginfo__init_offline_dwarf(struct debuginfo *dbg,
 	if (!dbg->dbg)
 		goto error;
 
+<<<<<<< HEAD
+=======
+	dwfl_module_build_id(dbg->mod, &dbg->build_id, &dummy);
+
+>>>>>>> upstream/android-13
 	dwfl_report_end(dbg->dwfl, NULL, NULL);
 
 	return 0;
@@ -124,12 +155,23 @@ struct debuginfo *debuginfo__new(const char *path)
 	char buf[PATH_MAX], nil = '\0';
 	struct dso *dso;
 	struct debuginfo *dinfo = NULL;
+<<<<<<< HEAD
+=======
+	struct build_id bid;
+>>>>>>> upstream/android-13
 
 	/* Try to open distro debuginfo files */
 	dso = dso__new(path);
 	if (!dso)
 		goto out;
 
+<<<<<<< HEAD
+=======
+	/* Set the build id for DSO_BINARY_TYPE__BUILDID_DEBUGINFO */
+	if (is_regular_file(path) && filename__read_build_id(path, &bid) > 0)
+		dso__set_build_id(dso, &bid);
+
+>>>>>>> upstream/android-13
 	for (type = distro_dwarf_types;
 	     !dinfo && *type != DSO_BINARY_TYPE__NOT_FOUND;
 	     type++) {
@@ -170,7 +212,11 @@ static struct probe_trace_arg_ref *alloc_trace_arg_ref(long offs)
 /*
  * Convert a location into trace_arg.
  * If tvar == NULL, this just checks variable can be converted.
+<<<<<<< HEAD
  * If fentry == true and vr_die is a parameter, do huristic search
+=======
+ * If fentry == true and vr_die is a parameter, do heuristic search
+>>>>>>> upstream/android-13
  * for the location fuzzed by function entry mcount.
  */
 static int convert_variable_location(Dwarf_Die *vr_die, Dwarf_Addr addr,
@@ -191,6 +237,23 @@ static int convert_variable_location(Dwarf_Die *vr_die, Dwarf_Addr addr,
 	if (dwarf_attr(vr_die, DW_AT_external, &attr) != NULL)
 		goto static_var;
 
+<<<<<<< HEAD
+=======
+	/* Constant value */
+	if (dwarf_attr(vr_die, DW_AT_const_value, &attr) &&
+	    immediate_value_is_supported()) {
+		Dwarf_Sword snum;
+
+		if (!tvar)
+			return 0;
+
+		dwarf_formsdata(&attr, &snum);
+		ret = asprintf(&tvar->value, "\\%ld", (long)snum);
+
+		return ret < 0 ? -ENOMEM : 0;
+	}
+
+>>>>>>> upstream/android-13
 	/* TODO: handle more than 1 exprs */
 	if (dwarf_attr(vr_die, DW_AT_location, &attr) == NULL)
 		return -EINVAL;	/* Broken DIE ? */
@@ -295,7 +358,11 @@ static_var:
 
 static int convert_variable_type(Dwarf_Die *vr_die,
 				 struct probe_trace_arg *tvar,
+<<<<<<< HEAD
 				 const char *cast)
+=======
+				 const char *cast, bool user_access)
+>>>>>>> upstream/android-13
 {
 	struct probe_trace_arg_ref **ref_ptr = &tvar->ref;
 	Dwarf_Die type;
@@ -306,7 +373,12 @@ static int convert_variable_type(Dwarf_Die *vr_die,
 	char prefix;
 
 	/* TODO: check all types */
+<<<<<<< HEAD
 	if (cast && strcmp(cast, "string") != 0 && strcmp(cast, "x") != 0 &&
+=======
+	if (cast && strcmp(cast, "string") != 0 && strcmp(cast, "ustring") &&
+	    strcmp(cast, "x") != 0 &&
+>>>>>>> upstream/android-13
 	    strcmp(cast, "s") != 0 && strcmp(cast, "u") != 0) {
 		/* Non string type is OK */
 		/* and respect signedness/hexadecimal cast */
@@ -335,7 +407,12 @@ static int convert_variable_type(Dwarf_Die *vr_die,
 	pr_debug("%s type is %s.\n",
 		 dwarf_diename(vr_die), dwarf_diename(&type));
 
+<<<<<<< HEAD
 	if (cast && strcmp(cast, "string") == 0) {	/* String type */
+=======
+	if (cast && (!strcmp(cast, "string") || !strcmp(cast, "ustring"))) {
+		/* String type */
+>>>>>>> upstream/android-13
 		ret = dwarf_tag(&type);
 		if (ret != DW_TAG_pointer_type &&
 		    ret != DW_TAG_array_type) {
@@ -358,6 +435,10 @@ static int convert_variable_type(Dwarf_Die *vr_die,
 				pr_warning("Out of memory error\n");
 				return -ENOMEM;
 			}
+<<<<<<< HEAD
+=======
+			(*ref_ptr)->user_access = user_access;
+>>>>>>> upstream/android-13
 		}
 		if (!die_compare_name(&type, "char") &&
 		    !die_compare_name(&type, "unsigned char")) {
@@ -412,7 +493,11 @@ formatted:
 static int convert_variable_fields(Dwarf_Die *vr_die, const char *varname,
 				    struct perf_probe_arg_field *field,
 				    struct probe_trace_arg_ref **ref_ptr,
+<<<<<<< HEAD
 				    Dwarf_Die *die_mem)
+=======
+				    Dwarf_Die *die_mem, bool user_access)
+>>>>>>> upstream/android-13
 {
 	struct probe_trace_arg_ref *ref = *ref_ptr;
 	Dwarf_Die type;
@@ -449,6 +534,10 @@ static int convert_variable_fields(Dwarf_Die *vr_die, const char *varname,
 				*ref_ptr = ref;
 		}
 		ref->offset += dwarf_bytesize(&type) * field->index;
+<<<<<<< HEAD
+=======
+		ref->user_access = user_access;
+>>>>>>> upstream/android-13
 		goto next;
 	} else if (tag == DW_TAG_pointer_type) {
 		/* Check the pointer and dereference */
@@ -489,7 +578,11 @@ static int convert_variable_fields(Dwarf_Die *vr_die, const char *varname,
 			       " nor array.\n", varname);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		/* While prcessing unnamed field, we don't care about this */
+=======
+		/* While processing unnamed field, we don't care about this */
+>>>>>>> upstream/android-13
 		if (field->ref && dwarf_diename(vr_die)) {
 			pr_err("Semantic error: %s must be referred by '.'\n",
 			       field->name);
@@ -520,21 +613,44 @@ static int convert_variable_fields(Dwarf_Die *vr_die, const char *varname,
 		}
 	}
 	ref->offset += (long)offs;
+<<<<<<< HEAD
+=======
+	ref->user_access = user_access;
+>>>>>>> upstream/android-13
 
 	/* If this member is unnamed, we need to reuse this field */
 	if (!dwarf_diename(die_mem))
 		return convert_variable_fields(die_mem, varname, field,
+<<<<<<< HEAD
 						&ref, die_mem);
+=======
+						&ref, die_mem, user_access);
+>>>>>>> upstream/android-13
 
 next:
 	/* Converting next field */
 	if (field->next)
 		return convert_variable_fields(die_mem, field->name,
+<<<<<<< HEAD
 					field->next, &ref, die_mem);
+=======
+				field->next, &ref, die_mem, user_access);
+>>>>>>> upstream/android-13
 	else
 		return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void print_var_not_found(const char *varname)
+{
+	pr_err("Failed to find the location of the '%s' variable at this address.\n"
+	       " Perhaps it has been optimized out.\n"
+	       " Use -V with the --range option to show '%s' location range.\n",
+		varname, varname);
+}
+
+>>>>>>> upstream/android-13
 /* Show a variables in kprobe event format */
 static int convert_variable(Dwarf_Die *vr_die, struct probe_finder *pf)
 {
@@ -546,21 +662,38 @@ static int convert_variable(Dwarf_Die *vr_die, struct probe_finder *pf)
 
 	ret = convert_variable_location(vr_die, pf->addr, pf->fb_ops,
 					&pf->sp_die, pf->machine, pf->tvar);
+<<<<<<< HEAD
 	if (ret == -ENOENT || ret == -EINVAL) {
 		pr_err("Failed to find the location of the '%s' variable at this address.\n"
 		       " Perhaps it has been optimized out.\n"
 		       " Use -V with the --range option to show '%s' location range.\n",
 		       pf->pvar->var, pf->pvar->var);
+=======
+	if (ret == -ENOENT && pf->skip_empty_arg)
+		/* This can be found in other place. skip it */
+		return 0;
+	if (ret == -ENOENT || ret == -EINVAL) {
+		print_var_not_found(pf->pvar->var);
+>>>>>>> upstream/android-13
 	} else if (ret == -ENOTSUP)
 		pr_err("Sorry, we don't support this variable location yet.\n");
 	else if (ret == 0 && pf->pvar->field) {
 		ret = convert_variable_fields(vr_die, pf->pvar->var,
 					      pf->pvar->field, &pf->tvar->ref,
+<<<<<<< HEAD
 					      &die_mem);
 		vr_die = &die_mem;
 	}
 	if (ret == 0)
 		ret = convert_variable_type(vr_die, pf->tvar, pf->pvar->type);
+=======
+					      &die_mem, pf->pvar->user_access);
+		vr_die = &die_mem;
+	}
+	if (ret == 0)
+		ret = convert_variable_type(vr_die, pf->tvar, pf->pvar->type,
+					    pf->pvar->user_access);
+>>>>>>> upstream/android-13
 	/* *expr will be cached in libdw. Don't free it. */
 	return ret;
 }
@@ -596,6 +729,11 @@ static int find_variable(Dwarf_Die *sc_die, struct probe_finder *pf)
 		/* Search again in global variables */
 		if (!die_find_variable_at(&pf->cu_die, pf->pvar->var,
 						0, &vr_die)) {
+<<<<<<< HEAD
+=======
+			if (pf->skip_empty_arg)
+				return 0;
+>>>>>>> upstream/android-13
 			pr_warning("Failed to find '%s' in this function.\n",
 				   pf->pvar->var);
 			ret = -ENOENT;
@@ -639,7 +777,11 @@ static int convert_to_trace_point(Dwarf_Die *sp_die, Dwfl_Module *mod,
 	}
 
 	tp->offset = (unsigned long)(paddr - eaddr);
+<<<<<<< HEAD
 	tp->address = (unsigned long)paddr;
+=======
+	tp->address = paddr;
+>>>>>>> upstream/android-13
 	tp->symbol = strdup(symbol);
 	if (!tp->symbol)
 		return -ENOMEM;
@@ -790,6 +932,42 @@ static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
 	return fsp.found ? die_mem : NULL;
 }
 
+<<<<<<< HEAD
+=======
+static int verify_representive_line(struct probe_finder *pf, const char *fname,
+				int lineno, Dwarf_Addr addr)
+{
+	const char *__fname, *__func = NULL;
+	Dwarf_Die die_mem;
+	int __lineno;
+
+	/* Verify line number and address by reverse search */
+	if (cu_find_lineinfo(&pf->cu_die, addr, &__fname, &__lineno) < 0)
+		return 0;
+
+	pr_debug2("Reversed line: %s:%d\n", __fname, __lineno);
+	if (strcmp(fname, __fname) || lineno == __lineno)
+		return 0;
+
+	pr_warning("This line is sharing the address with other lines.\n");
+
+	if (pf->pev->point.function) {
+		/* Find best match function name and lines */
+		pf->addr = addr;
+		if (find_best_scope(pf, &die_mem)
+		    && die_match_name(&die_mem, pf->pev->point.function)
+		    && dwarf_decl_line(&die_mem, &lineno) == 0) {
+			__func = dwarf_diename(&die_mem);
+			__lineno -= lineno;
+		}
+	}
+	pr_warning("Please try to probe at %s:%d instead.\n",
+		   __func ? : __fname, __lineno);
+
+	return -ENOENT;
+}
+
+>>>>>>> upstream/android-13
 static int probe_point_line_walker(const char *fname, int lineno,
 				   Dwarf_Addr addr, void *data)
 {
@@ -800,6 +978,12 @@ static int probe_point_line_walker(const char *fname, int lineno,
 	if (lineno != pf->lno || strtailcmp(fname, pf->fname) != 0)
 		return 0;
 
+<<<<<<< HEAD
+=======
+	if (verify_representive_line(pf, fname, lineno, addr))
+		return -ENOENT;
+
+>>>>>>> upstream/android-13
 	pf->addr = addr;
 	sc_die = find_best_scope(pf, &die_mem);
 	if (!sc_die) {
@@ -892,6 +1076,11 @@ static int probe_point_lazy_walker(const char *fname, int lineno,
 /* Find probe points from lazy pattern  */
 static int find_probe_point_lazy(Dwarf_Die *sp_die, struct probe_finder *pf)
 {
+<<<<<<< HEAD
+=======
+	struct build_id bid;
+	char sbuild_id[SBUILD_ID_SIZE] = "";
+>>>>>>> upstream/android-13
 	int ret = 0;
 	char *fpath;
 
@@ -899,7 +1088,15 @@ static int find_probe_point_lazy(Dwarf_Die *sp_die, struct probe_finder *pf)
 		const char *comp_dir;
 
 		comp_dir = cu_get_comp_dir(&pf->cu_die);
+<<<<<<< HEAD
 		ret = get_real_path(pf->fname, comp_dir, &fpath);
+=======
+		if (pf->dbg->build_id) {
+			build_id__init(&bid, pf->dbg->build_id, BUILD_ID_SIZE);
+			build_id__sprintf(&bid, sbuild_id);
+		}
+		ret = find_source_path(pf->fname, sbuild_id, comp_dir, &fpath);
+>>>>>>> upstream/android-13
 		if (ret < 0) {
 			pr_warning("Failed to find source file path.\n");
 			return ret;
@@ -1124,8 +1321,15 @@ static int debuginfo__find_probe_location(struct debuginfo *dbg,
 	while (!dwarf_nextcu(dbg->dbg, off, &noff, &cuhl, NULL, NULL, NULL)) {
 		/* Get the DIE(Debugging Information Entry) of this CU */
 		diep = dwarf_offdie(dbg->dbg, off + cuhl, &pf->cu_die);
+<<<<<<< HEAD
 		if (!diep)
 			continue;
+=======
+		if (!diep) {
+			off = noff;
+			continue;
+		}
+>>>>>>> upstream/android-13
 
 		/* Check if target file is included. */
 		if (pp->file)
@@ -1262,6 +1466,20 @@ static int expand_probe_args(Dwarf_Die *sc_die, struct probe_finder *pf,
 	return n;
 }
 
+<<<<<<< HEAD
+=======
+static bool trace_event_finder_overlap(struct trace_event_finder *tf)
+{
+	int i;
+
+	for (i = 0; i < tf->ntevs; i++) {
+		if (tf->pf.addr == tf->tevs[i].point.address)
+			return true;
+	}
+	return false;
+}
+
+>>>>>>> upstream/android-13
 /* Add a found probe point into trace event list */
 static int add_probe_trace_event(Dwarf_Die *sc_die, struct probe_finder *pf)
 {
@@ -1272,6 +1490,17 @@ static int add_probe_trace_event(Dwarf_Die *sc_die, struct probe_finder *pf)
 	struct perf_probe_arg *args = NULL;
 	int ret, i;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * For some reason (e.g. different column assigned to same address)
+	 * This callback can be called with the address which already passed.
+	 * Ignore it first.
+	 */
+	if (trace_event_finder_overlap(tf))
+		return 0;
+
+>>>>>>> upstream/android-13
 	/* Check number of tevs */
 	if (tf->ntevs == tf->max_tevs) {
 		pr_warning("Too many( > %d) probe point found.\n",
@@ -1332,13 +1561,61 @@ end:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int fill_empty_trace_arg(struct perf_probe_event *pev,
+				struct probe_trace_event *tevs, int ntevs)
+{
+	char **valp;
+	char *type;
+	int i, j, ret;
+
+	if (!ntevs)
+		return -ENOENT;
+
+	for (i = 0; i < pev->nargs; i++) {
+		type = NULL;
+		for (j = 0; j < ntevs; j++) {
+			if (tevs[j].args[i].value) {
+				type = tevs[j].args[i].type;
+				break;
+			}
+		}
+		if (j == ntevs) {
+			print_var_not_found(pev->args[i].var);
+			return -ENOENT;
+		}
+		for (j = 0; j < ntevs; j++) {
+			valp = &tevs[j].args[i].value;
+			if (*valp)
+				continue;
+
+			ret = asprintf(valp, "\\%lx", probe_conf.magic_num);
+			if (ret < 0)
+				return -ENOMEM;
+			/* Note that type can be NULL */
+			if (type) {
+				tevs[j].args[i].type = strdup(type);
+				if (!tevs[j].args[i].type)
+					return -ENOMEM;
+			}
+		}
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /* Find probe_trace_events specified by perf_probe_event from debuginfo */
 int debuginfo__find_trace_events(struct debuginfo *dbg,
 				 struct perf_probe_event *pev,
 				 struct probe_trace_event **tevs)
 {
 	struct trace_event_finder tf = {
+<<<<<<< HEAD
 			.pf = {.pev = pev, .callback = add_probe_trace_event},
+=======
+			.pf = {.pev = pev, .dbg = dbg, .callback = add_probe_trace_event},
+>>>>>>> upstream/android-13
 			.max_tevs = probe_conf.max_probes, .mod = dbg->mod};
 	int ret, i;
 
@@ -1350,7 +1627,17 @@ int debuginfo__find_trace_events(struct debuginfo *dbg,
 	tf.tevs = *tevs;
 	tf.ntevs = 0;
 
+<<<<<<< HEAD
 	ret = debuginfo__find_probes(dbg, &tf.pf);
+=======
+	if (pev->nargs != 0 && immediate_value_is_supported())
+		tf.pf.skip_empty_arg = true;
+
+	ret = debuginfo__find_probes(dbg, &tf.pf);
+	if (ret >= 0 && tf.pf.skip_empty_arg)
+		ret = fill_empty_trace_arg(pev, tf.tevs, tf.ntevs);
+
+>>>>>>> upstream/android-13
 	if (ret < 0 || tf.ntevs == 0) {
 		for (i = 0; i < tf.ntevs; i++)
 			clear_probe_trace_event(&tf.tevs[i]);
@@ -1502,7 +1789,11 @@ int debuginfo__find_available_vars_at(struct debuginfo *dbg,
 				      struct variable_list **vls)
 {
 	struct available_var_finder af = {
+<<<<<<< HEAD
 			.pf = {.pev = pev, .callback = add_available_vars},
+=======
+			.pf = {.pev = pev, .dbg = dbg, .callback = add_available_vars},
+>>>>>>> upstream/android-13
 			.mod = dbg->mod,
 			.max_vls = probe_conf.max_probes};
 	int ret;
@@ -1568,7 +1859,11 @@ int debuginfo__get_text_offset(struct debuginfo *dbg, Dwarf_Addr *offs,
 }
 
 /* Reverse search */
+<<<<<<< HEAD
 int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
+=======
+int debuginfo__find_probe_point(struct debuginfo *dbg, u64 addr,
+>>>>>>> upstream/android-13
 				struct perf_probe_point *ppt)
 {
 	Dwarf_Die cudie, spdie, indie;
@@ -1581,14 +1876,22 @@ int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
 		addr += baseaddr;
 	/* Find cu die */
 	if (!dwarf_addrdie(dbg->dbg, (Dwarf_Addr)addr, &cudie)) {
+<<<<<<< HEAD
 		pr_warning("Failed to find debug information for address %lx\n",
+=======
+		pr_warning("Failed to find debug information for address %" PRIx64 "\n",
+>>>>>>> upstream/android-13
 			   addr);
 		ret = -EINVAL;
 		goto end;
 	}
 
 	/* Find a corresponding line (filename and lineno) */
+<<<<<<< HEAD
 	cu_find_lineinfo(&cudie, addr, &fname, &lineno);
+=======
+	cu_find_lineinfo(&cudie, (Dwarf_Addr)addr, &fname, &lineno);
+>>>>>>> upstream/android-13
 	/* Don't care whether it failed or not */
 
 	/* Find a corresponding function (name, baseline and baseaddr) */
@@ -1603,7 +1906,11 @@ int debuginfo__find_probe_point(struct debuginfo *dbg, unsigned long addr,
 		}
 
 		fname = dwarf_decl_file(&spdie);
+<<<<<<< HEAD
 		if (addr == (unsigned long)baseaddr) {
+=======
+		if (addr == baseaddr) {
+>>>>>>> upstream/android-13
 			/* Function entry - Relative line number is 0 */
 			lineno = baseline;
 			goto post;
@@ -1649,7 +1956,11 @@ post:
 	if (lineno)
 		ppt->line = lineno - baseline;
 	else if (basefunc) {
+<<<<<<< HEAD
 		ppt->offset = addr - (unsigned long)baseaddr;
+=======
+		ppt->offset = addr - baseaddr;
+>>>>>>> upstream/android-13
 		func = basefunc;
 	}
 
@@ -1689,16 +2000,32 @@ static int line_range_add_line(const char *src, unsigned int lineno,
 }
 
 static int line_range_walk_cb(const char *fname, int lineno,
+<<<<<<< HEAD
 			      Dwarf_Addr addr __maybe_unused,
 			      void *data)
 {
 	struct line_finder *lf = data;
+=======
+			      Dwarf_Addr addr, void *data)
+{
+	struct line_finder *lf = data;
+	const char *__fname;
+	int __lineno;
+>>>>>>> upstream/android-13
 	int err;
 
 	if ((strtailcmp(fname, lf->fname) != 0) ||
 	    (lf->lno_s > lineno || lf->lno_e < lineno))
 		return 0;
 
+<<<<<<< HEAD
+=======
+	/* Make sure this line can be reversible */
+	if (cu_find_lineinfo(&lf->cu_die, addr, &__fname, &__lineno) > 0
+	    && (lineno != __lineno || strcmp(fname, __fname)))
+		return 0;
+
+>>>>>>> upstream/android-13
 	err = line_range_add_line(fname, lineno, lf->lr);
 	if (err < 0 && err != -EEXIST)
 		return err;
@@ -1749,8 +2076,12 @@ static int line_range_search_cb(Dwarf_Die *sp_die, void *data)
 	if (lr->file && strtailcmp(lr->file, dwarf_decl_file(sp_die)))
 		return DWARF_CB_OK;
 
+<<<<<<< HEAD
 	if (die_is_func_def(sp_die) &&
 	    die_match_name(sp_die, lr->function)) {
+=======
+	if (die_match_name(sp_die, lr->function) && die_is_func_def(sp_die)) {
+>>>>>>> upstream/android-13
 		lf->fname = dwarf_decl_file(sp_die);
 		dwarf_decl_line(sp_die, &lr->offset);
 		pr_debug("fname: %s, lineno:%d\n", lf->fname, lr->offset);
@@ -1814,8 +2145,15 @@ int debuginfo__find_line_range(struct debuginfo *dbg, struct line_range *lr)
 
 		/* Get the DIE(Debugging Information Entry) of this CU */
 		diep = dwarf_offdie(dbg->dbg, off + cuhl, &lf.cu_die);
+<<<<<<< HEAD
 		if (!diep)
 			continue;
+=======
+		if (!diep) {
+			off = noff;
+			continue;
+		}
+>>>>>>> upstream/android-13
 
 		/* Check if target file is included. */
 		if (lr->file)
@@ -1850,17 +2188,68 @@ found:
 	return (ret < 0) ? ret : lf.found;
 }
 
+<<<<<<< HEAD
+=======
+#ifdef HAVE_DEBUGINFOD_SUPPORT
+/* debuginfod doesn't require the comp_dir but buildid is required */
+static int get_source_from_debuginfod(const char *raw_path,
+				const char *sbuild_id, char **new_path)
+{
+	debuginfod_client *c = debuginfod_begin();
+	const char *p = raw_path;
+	int fd;
+
+	if (!c)
+		return -ENOMEM;
+
+	fd = debuginfod_find_source(c, (const unsigned char *)sbuild_id,
+				0, p, new_path);
+	pr_debug("Search %s from debuginfod -> %d\n", p, fd);
+	if (fd >= 0)
+		close(fd);
+	debuginfod_end(c);
+	if (fd < 0) {
+		pr_debug("Failed to find %s in debuginfod (%s)\n",
+			raw_path, sbuild_id);
+		return -ENOENT;
+	}
+	pr_debug("Got a source %s\n", *new_path);
+
+	return 0;
+}
+#else
+static inline int get_source_from_debuginfod(const char *raw_path __maybe_unused,
+				const char *sbuild_id __maybe_unused,
+				char **new_path __maybe_unused)
+{
+	return -ENOTSUP;
+}
+#endif
+>>>>>>> upstream/android-13
 /*
  * Find a src file from a DWARF tag path. Prepend optional source path prefix
  * and chop off leading directories that do not exist. Result is passed back as
  * a newly allocated path on success.
  * Return 0 if file was found and readable, -errno otherwise.
  */
+<<<<<<< HEAD
 int get_real_path(const char *raw_path, const char *comp_dir,
 			 char **new_path)
 {
 	const char *prefix = symbol_conf.source_prefix;
 
+=======
+int find_source_path(const char *raw_path, const char *sbuild_id,
+		const char *comp_dir, char **new_path)
+{
+	const char *prefix = symbol_conf.source_prefix;
+
+	if (sbuild_id && !prefix) {
+		if (!get_source_from_debuginfod(raw_path, sbuild_id, new_path))
+			return 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (!prefix) {
 		if (raw_path[0] != '/' && comp_dir)
 			/* If not an absolute path, try to use comp_dir */

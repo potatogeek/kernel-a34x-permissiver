@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2003
  * Copyright (c) Cisco 1999,2000
@@ -8,6 +12,7 @@
  *
  * A collection class to handle the storage of transport addresses.
  *
+<<<<<<< HEAD
  * This SCTP implementation is free software;
  * you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by
@@ -24,6 +29,8 @@
  * along with GNU CC; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Please send any bug reports or fixes you make to the
  * email address(es):
  *    lksctp developers <linux-sctp@vger.kernel.org>
@@ -340,6 +347,37 @@ int sctp_bind_addr_match(struct sctp_bind_addr *bp,
 	return match;
 }
 
+<<<<<<< HEAD
+=======
+int sctp_bind_addrs_check(struct sctp_sock *sp,
+			  struct sctp_sock *sp2, int cnt2)
+{
+	struct sctp_bind_addr *bp2 = &sp2->ep->base.bind_addr;
+	struct sctp_bind_addr *bp = &sp->ep->base.bind_addr;
+	struct sctp_sockaddr_entry *laddr, *laddr2;
+	bool exist = false;
+	int cnt = 0;
+
+	rcu_read_lock();
+	list_for_each_entry_rcu(laddr, &bp->address_list, list) {
+		list_for_each_entry_rcu(laddr2, &bp2->address_list, list) {
+			if (sp->pf->af->cmp_addr(&laddr->a, &laddr2->a) &&
+			    laddr->valid && laddr2->valid) {
+				exist = true;
+				goto next;
+			}
+		}
+		cnt = 0;
+		break;
+next:
+		cnt++;
+	}
+	rcu_read_unlock();
+
+	return (cnt == cnt2) ? 0 : (exist ? -EEXIST : 1);
+}
+
+>>>>>>> upstream/android-13
 /* Does the address 'addr' conflict with any addresses in
  * the bp.
  */
@@ -383,6 +421,7 @@ int sctp_bind_addr_state(const struct sctp_bind_addr *bp,
 {
 	struct sctp_sockaddr_entry *laddr;
 	struct sctp_af *af;
+<<<<<<< HEAD
 	int state = -1;
 
 	af = sctp_get_af_specific(addr->sa.sa_family);
@@ -401,6 +440,21 @@ int sctp_bind_addr_state(const struct sctp_bind_addr *bp,
 	rcu_read_unlock();
 
 	return state;
+=======
+
+	af = sctp_get_af_specific(addr->sa.sa_family);
+	if (unlikely(!af))
+		return -1;
+
+	list_for_each_entry_rcu(laddr, &bp->address_list, list) {
+		if (!laddr->valid)
+			continue;
+		if (af->cmp_addr(&laddr->a, addr))
+			return laddr->state;
+	}
+
+	return -1;
+>>>>>>> upstream/android-13
 }
 
 /* Find the first address in the bind address list that is not present in
@@ -500,7 +554,11 @@ int sctp_in_scope(struct net *net, const union sctp_addr *addr,
 		return 0;
 	/*
 	 * For INIT and INIT-ACK address list, let L be the level of
+<<<<<<< HEAD
 	 * of requested destination address, sender and receiver
+=======
+	 * requested destination address, sender and receiver
+>>>>>>> upstream/android-13
 	 * SHOULD include all of its addresses with level greater
 	 * than or equal to L.
 	 *

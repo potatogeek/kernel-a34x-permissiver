@@ -24,7 +24,11 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/amdgpu_drm.h>
 #include "amdgpu.h"
 
@@ -60,7 +64,11 @@ static int amdgpu_atombios_dp_process_aux_ch(struct amdgpu_i2c_chan *chan,
 				      u8 delay, u8 *ack)
 {
 	struct drm_device *dev = chan->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	union aux_channel_transaction args;
 	int index = GetIndexIntoMasterTable(COMMAND, ProcessAuxChannelTransaction);
 	unsigned char *base;
@@ -186,6 +194,7 @@ amdgpu_atombios_dp_aux_transfer(struct drm_dp_aux *aux, struct drm_dp_aux_msg *m
 
 void amdgpu_atombios_dp_aux_init(struct amdgpu_connector *amdgpu_connector)
 {
+<<<<<<< HEAD
 	int ret;
 
 	amdgpu_connector->ddc_bus->rec.hpd = amdgpu_connector->hpd.hpd;
@@ -196,6 +205,14 @@ void amdgpu_atombios_dp_aux_init(struct amdgpu_connector *amdgpu_connector)
 		amdgpu_connector->ddc_bus->has_aux = true;
 
 	WARN(ret, "drm_dp_aux_register_i2c_bus() failed with error %d\n", ret);
+=======
+	amdgpu_connector->ddc_bus->rec.hpd = amdgpu_connector->hpd.hpd;
+	amdgpu_connector->ddc_bus->aux.transfer = amdgpu_atombios_dp_aux_transfer;
+	amdgpu_connector->ddc_bus->aux.drm_dev = amdgpu_connector->base.dev;
+
+	drm_dp_aux_init(&amdgpu_connector->ddc_bus->aux);
+	amdgpu_connector->ddc_bus->has_aux = true;
+>>>>>>> upstream/android-13
 }
 
 /***** general DP utility functions *****/
@@ -311,7 +328,11 @@ static u8 amdgpu_atombios_dp_encoder_service(struct amdgpu_device *adev,
 u8 amdgpu_atombios_dp_get_sinktype(struct amdgpu_connector *amdgpu_connector)
 {
 	struct drm_device *dev = amdgpu_connector->base.dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 
 	return amdgpu_atombios_dp_encoder_service(adev, ATOM_DP_ACTION_GET_SINK_TYPE, 0,
 					   amdgpu_connector->ddc_bus->rec.i2c_id, 0);
@@ -334,6 +355,25 @@ static void amdgpu_atombios_dp_probe_oui(struct amdgpu_connector *amdgpu_connect
 			      buf[0], buf[1], buf[2]);
 }
 
+<<<<<<< HEAD
+=======
+static void amdgpu_atombios_dp_ds_ports(struct amdgpu_connector *amdgpu_connector)
+{
+	struct amdgpu_connector_atom_dig *dig_connector = amdgpu_connector->con_priv;
+	int ret;
+
+	if (dig_connector->dpcd[DP_DPCD_REV] > 0x10) {
+		ret = drm_dp_dpcd_read(&amdgpu_connector->ddc_bus->aux,
+				       DP_DOWNSTREAM_PORT_0,
+				       dig_connector->downstream_ports,
+				       DP_MAX_DOWNSTREAM_PORTS);
+		if (ret)
+			memset(dig_connector->downstream_ports, 0,
+			       DP_MAX_DOWNSTREAM_PORTS);
+	}
+}
+
+>>>>>>> upstream/android-13
 int amdgpu_atombios_dp_get_dpcd(struct amdgpu_connector *amdgpu_connector)
 {
 	struct amdgpu_connector_atom_dig *dig_connector = amdgpu_connector->con_priv;
@@ -349,7 +389,11 @@ int amdgpu_atombios_dp_get_dpcd(struct amdgpu_connector *amdgpu_connector)
 			      dig_connector->dpcd);
 
 		amdgpu_atombios_dp_probe_oui(amdgpu_connector);
+<<<<<<< HEAD
 
+=======
+		amdgpu_atombios_dp_ds_ports(amdgpu_connector);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -361,7 +405,10 @@ int amdgpu_atombios_dp_get_panel_mode(struct drm_encoder *encoder,
 			       struct drm_connector *connector)
 {
 	struct amdgpu_connector *amdgpu_connector = to_amdgpu_connector(connector);
+<<<<<<< HEAD
 	struct amdgpu_connector_atom_dig *dig_connector;
+=======
+>>>>>>> upstream/android-13
 	int panel_mode = DP_PANEL_MODE_EXTERNAL_DP_MODE;
 	u16 dp_bridge = amdgpu_connector_encoder_get_dp_bridge_encoder_id(connector);
 	u8 tmp;
@@ -369,8 +416,11 @@ int amdgpu_atombios_dp_get_panel_mode(struct drm_encoder *encoder,
 	if (!amdgpu_connector->con_priv)
 		return panel_mode;
 
+<<<<<<< HEAD
 	dig_connector = amdgpu_connector->con_priv;
 
+=======
+>>>>>>> upstream/android-13
 	if (dp_bridge != ENCODER_OBJECT_ID_NONE) {
 		/* DP bridge chips */
 		if (drm_dp_dpcd_readb(&amdgpu_connector->ddc_bus->aux,
@@ -603,7 +653,11 @@ amdgpu_atombios_dp_link_train_cr(struct amdgpu_atombios_dp_link_train_info *dp_i
 	dp_info->tries = 0;
 	voltage = 0xff;
 	while (1) {
+<<<<<<< HEAD
 		drm_dp_link_train_clock_recovery_delay(dp_info->dpcd);
+=======
+		drm_dp_link_train_clock_recovery_delay(dp_info->aux, dp_info->dpcd);
+>>>>>>> upstream/android-13
 
 		if (drm_dp_dpcd_read_link_status(dp_info->aux,
 						 dp_info->link_status) <= 0) {
@@ -668,7 +722,11 @@ amdgpu_atombios_dp_link_train_ce(struct amdgpu_atombios_dp_link_train_info *dp_i
 	dp_info->tries = 0;
 	channel_eq = false;
 	while (1) {
+<<<<<<< HEAD
 		drm_dp_link_train_channel_eq_delay(dp_info->dpcd);
+=======
+		drm_dp_link_train_channel_eq_delay(dp_info->aux, dp_info->dpcd);
+>>>>>>> upstream/android-13
 
 		if (drm_dp_dpcd_read_link_status(dp_info->aux,
 						 dp_info->link_status) <= 0) {
@@ -711,9 +769,14 @@ void amdgpu_atombios_dp_link_train(struct drm_encoder *encoder,
 			    struct drm_connector *connector)
 {
 	struct drm_device *dev = encoder->dev;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
 	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
 	struct amdgpu_encoder_atom_dig *dig;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+	struct amdgpu_encoder *amdgpu_encoder = to_amdgpu_encoder(encoder);
+>>>>>>> upstream/android-13
 	struct amdgpu_connector *amdgpu_connector;
 	struct amdgpu_connector_atom_dig *dig_connector;
 	struct amdgpu_atombios_dp_link_train_info dp_info;
@@ -721,7 +784,10 @@ void amdgpu_atombios_dp_link_train(struct drm_encoder *encoder,
 
 	if (!amdgpu_encoder->enc_priv)
 		return;
+<<<<<<< HEAD
 	dig = amdgpu_encoder->enc_priv;
+=======
+>>>>>>> upstream/android-13
 
 	amdgpu_connector = to_amdgpu_connector(connector);
 	if (!amdgpu_connector->con_priv)

@@ -1,5 +1,6 @@
 
 - general code review and cleanup
+<<<<<<< HEAD
 - can this be converted to not require PCI_DRIVERS_LEGACY ??
     The irq returned by pcibios_map_irq is a "hwirq" (hardware irq number)
     and pci_assign_irq() assigns this directly to dev->irq, which
@@ -10,3 +11,7 @@
 - ensure device-tree requirements are documented
 
 Cc:  NeilBrown <neil@brown.name>
+=======
+
+Cc: NeilBrown <neil@brown.name>
+>>>>>>> upstream/android-13

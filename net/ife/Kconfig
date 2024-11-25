@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # IFE subsystem configuration
 #
 
 menuconfig NET_IFE
+<<<<<<< HEAD
 	depends on NET
         tristate "Inter-FE based on IETF ForCES InterFE LFB"
+=======
+	tristate "Inter-FE based on IETF ForCES InterFE LFB"
+>>>>>>> upstream/android-13
 	default n
 	help
 	  Say Y here to add support of IFE encapsulation protocol

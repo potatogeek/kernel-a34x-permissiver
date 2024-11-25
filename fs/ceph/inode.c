@@ -13,6 +13,10 @@
 #include <linux/posix_acl.h>
 #include <linux/random.h>
 #include <linux/sort.h>
+<<<<<<< HEAD
+=======
+#include <linux/iversion.h>
+>>>>>>> upstream/android-13
 
 #include "super.h"
 #include "mds_client.h"
@@ -33,23 +37,39 @@
 
 static const struct inode_operations ceph_symlink_iops;
 
+<<<<<<< HEAD
 static void ceph_invalidate_work(struct work_struct *work);
 static void ceph_writeback_work(struct work_struct *work);
 static void ceph_vmtruncate_work(struct work_struct *work);
+=======
+static void ceph_inode_work(struct work_struct *work);
+>>>>>>> upstream/android-13
 
 /*
  * find or create an inode, given the ceph ino number
  */
 static int ceph_set_ino_cb(struct inode *inode, void *data)
 {
+<<<<<<< HEAD
 	ceph_inode(inode)->i_vino = *(struct ceph_vino *)data;
 	inode->i_ino = ceph_vino_to_ino(*(struct ceph_vino *)data);
+=======
+	struct ceph_inode_info *ci = ceph_inode(inode);
+	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(inode->i_sb);
+
+	ci->i_vino = *(struct ceph_vino *)data;
+	inode->i_ino = ceph_vino_to_ino_t(ci->i_vino);
+	inode_set_iversion_raw(inode, 0);
+	percpu_counter_inc(&mdsc->metric.total_inodes);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 struct inode *ceph_get_inode(struct super_block *sb, struct ceph_vino vino)
 {
 	struct inode *inode;
+<<<<<<< HEAD
 	ino_t t = ceph_vino_to_ino(vino);
 
 	inode = iget5_locked(sb, t, ceph_ino_compare, ceph_set_ino_cb, &vino);
@@ -63,6 +83,19 @@ struct inode *ceph_get_inode(struct super_block *sb, struct ceph_vino vino)
 
 	dout("get_inode on %lu=%llx.%llx got %p\n", inode->i_ino, vino.ino,
 	     vino.snap, inode);
+=======
+
+	if (ceph_vino_is_reserved(vino))
+		return ERR_PTR(-EREMOTEIO);
+
+	inode = iget5_locked(sb, (unsigned long)vino.ino, ceph_ino_compare,
+			     ceph_set_ino_cb, &vino);
+	if (!inode)
+		return ERR_PTR(-ENOMEM);
+
+	dout("get_inode on %llu=%llx.%llx got %p new %d\n", ceph_present_inode(inode),
+	     ceph_vinop(inode), inode, !!(inode->i_state & I_NEW));
+>>>>>>> upstream/android-13
 	return inode;
 }
 
@@ -78,6 +111,7 @@ struct inode *ceph_get_snapdir(struct inode *parent)
 	struct inode *inode = ceph_get_inode(parent->i_sb, vino);
 	struct ceph_inode_info *ci = ceph_inode(inode);
 
+<<<<<<< HEAD
 	BUG_ON(!S_ISDIR(parent->i_mode));
 	if (IS_ERR(inode))
 		return inode;
@@ -89,6 +123,46 @@ struct inode *ceph_get_snapdir(struct inode *parent)
 	ci->i_snap_caps = CEPH_CAP_PIN; /* so we can open */
 	ci->i_rbytes = 0;
 	return inode;
+=======
+	if (IS_ERR(inode))
+		return inode;
+
+	if (!S_ISDIR(parent->i_mode)) {
+		pr_warn_once("bad snapdir parent type (mode=0%o)\n",
+			     parent->i_mode);
+		goto err;
+	}
+
+	if (!(inode->i_state & I_NEW) && !S_ISDIR(inode->i_mode)) {
+		pr_warn_once("bad snapdir inode type (mode=0%o)\n",
+			     inode->i_mode);
+		goto err;
+	}
+
+	inode->i_mode = parent->i_mode;
+	inode->i_uid = parent->i_uid;
+	inode->i_gid = parent->i_gid;
+	inode->i_mtime = parent->i_mtime;
+	inode->i_ctime = parent->i_ctime;
+	inode->i_atime = parent->i_atime;
+	ci->i_rbytes = 0;
+	ci->i_btime = ceph_inode(parent)->i_btime;
+
+	if (inode->i_state & I_NEW) {
+		inode->i_op = &ceph_snapdir_iops;
+		inode->i_fop = &ceph_snapdir_fops;
+		ci->i_snap_caps = CEPH_CAP_PIN; /* so we can open */
+		unlock_new_inode(inode);
+	}
+
+	return inode;
+err:
+	if ((inode->i_state & I_NEW))
+		discard_new_inode(inode);
+	else
+		iput(inode);
+	return ERR_PTR(-ENOTDIR);
+>>>>>>> upstream/android-13
 }
 
 const struct inode_operations ceph_file_iops = {
@@ -445,6 +519,10 @@ struct inode *ceph_alloc_inode(struct super_block *sb)
 	ci->i_max_files = 0;
 
 	memset(&ci->i_dir_layout, 0, sizeof(ci->i_dir_layout));
+<<<<<<< HEAD
+=======
+	memset(&ci->i_cached_layout, 0, sizeof(ci->i_cached_layout));
+>>>>>>> upstream/android-13
 	RCU_INIT_POINTER(ci->i_layout.pool_ns, NULL);
 
 	ci->i_fragtree = RB_ROOT;
@@ -469,13 +547,20 @@ struct inode *ceph_alloc_inode(struct super_block *sb)
 	ci->i_prealloc_cap_flush = NULL;
 	INIT_LIST_HEAD(&ci->i_cap_flush_list);
 	init_waitqueue_head(&ci->i_cap_wq);
+<<<<<<< HEAD
 	ci->i_hold_caps_min = 0;
+=======
+>>>>>>> upstream/android-13
 	ci->i_hold_caps_max = 0;
 	INIT_LIST_HEAD(&ci->i_cap_delay_list);
 	INIT_LIST_HEAD(&ci->i_cap_snaps);
 	ci->i_head_snapc = NULL;
 	ci->i_snap_caps = 0;
 
+<<<<<<< HEAD
+=======
+	ci->i_last_rd = ci->i_last_wr = jiffies - 3600 * HZ;
+>>>>>>> upstream/android-13
 	for (i = 0; i < CEPH_FILE_MODE_BITS; i++)
 		ci->i_nr_by_mode[i] = 0;
 
@@ -494,10 +579,18 @@ struct inode *ceph_alloc_inode(struct super_block *sb)
 	ci->i_rdcache_ref = 0;
 	ci->i_wr_ref = 0;
 	ci->i_wb_ref = 0;
+<<<<<<< HEAD
 	ci->i_wrbuffer_ref = 0;
 	ci->i_wrbuffer_ref_head = 0;
 	atomic_set(&ci->i_filelock_ref, 0);
 	atomic_set(&ci->i_shared_gen, 0);
+=======
+	ci->i_fx_ref = 0;
+	ci->i_wrbuffer_ref = 0;
+	ci->i_wrbuffer_ref_head = 0;
+	atomic_set(&ci->i_filelock_ref, 0);
+	atomic_set(&ci->i_shared_gen, 1);
+>>>>>>> upstream/android-13
 	ci->i_rdcache_gen = 0;
 	ci->i_rdcache_revoking = 0;
 
@@ -509,19 +602,30 @@ struct inode *ceph_alloc_inode(struct super_block *sb)
 	INIT_LIST_HEAD(&ci->i_snap_realm_item);
 	INIT_LIST_HEAD(&ci->i_snap_flush_item);
 
+<<<<<<< HEAD
 	INIT_WORK(&ci->i_wb_work, ceph_writeback_work);
 	INIT_WORK(&ci->i_pg_inv_work, ceph_invalidate_work);
 
 	INIT_WORK(&ci->i_vmtruncate_work, ceph_vmtruncate_work);
+=======
+	INIT_WORK(&ci->i_work, ceph_inode_work);
+	ci->i_work_mask = 0;
+	memset(&ci->i_btime, '\0', sizeof(ci->i_btime));
+>>>>>>> upstream/android-13
 
 	ceph_fscache_inode_init(ci);
 
 	return &ci->vfs_inode;
 }
 
+<<<<<<< HEAD
 static void ceph_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
+=======
+void ceph_free_inode(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	struct ceph_inode_info *ci = ceph_inode(inode);
 
 	kfree(ci->i_symlink);
@@ -531,17 +635,30 @@ static void ceph_i_callback(struct rcu_head *head)
 void ceph_evict_inode(struct inode *inode)
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
+<<<<<<< HEAD
+=======
+	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(inode->i_sb);
+>>>>>>> upstream/android-13
 	struct ceph_inode_frag *frag;
 	struct rb_node *n;
 
 	dout("evict_inode %p ino %llx.%llx\n", inode, ceph_vinop(inode));
 
+<<<<<<< HEAD
+=======
+	percpu_counter_dec(&mdsc->metric.total_inodes);
+
+>>>>>>> upstream/android-13
 	truncate_inode_pages_final(&inode->i_data);
 	clear_inode(inode);
 
 	ceph_fscache_unregister_inode_cookie(ci);
 
+<<<<<<< HEAD
 	ceph_queue_caps_release(inode);
+=======
+	__ceph_remove_caps(ci);
+>>>>>>> upstream/android-13
 
 	if (__ceph_has_any_quota(ci))
 		ceph_adjust_quota_realms_count(inode, false);
@@ -551,6 +668,7 @@ void ceph_evict_inode(struct inode *inode)
 	 * caps in i_snap_caps.
 	 */
 	if (ci->i_snap_realm) {
+<<<<<<< HEAD
 		struct ceph_mds_client *mdsc =
 			ceph_sb_to_client(ci->vfs_inode.i_sb)->mdsc;
 		struct ceph_snap_realm *realm = ci->i_snap_realm;
@@ -563,6 +681,16 @@ void ceph_evict_inode(struct inode *inode)
 			realm->inode = NULL;
 		spin_unlock(&realm->inodes_with_caps_lock);
 		ceph_put_snap_realm(mdsc, realm);
+=======
+		if (ceph_snap(inode) == CEPH_NOSNAP) {
+			dout(" dropping residual ref to snap realm %p\n",
+			     ci->i_snap_realm);
+			ceph_change_snap_realm(inode, NULL);
+		} else {
+			ceph_put_snapid_map(mdsc, ci->i_snapid_map);
+			ci->i_snap_realm = NULL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	while ((n = rb_first(&ci->i_fragtree)) != NULL) {
@@ -579,6 +707,7 @@ void ceph_evict_inode(struct inode *inode)
 		ceph_buffer_put(ci->i_xattrs.prealloc_blob);
 
 	ceph_put_string(rcu_dereference_raw(ci->i_layout.pool_ns));
+<<<<<<< HEAD
 }
 
 void ceph_destroy_inode(struct inode *inode)
@@ -594,6 +723,9 @@ int ceph_drop_inode(struct inode *inode)
 	 * dropping all its aliases.
 	 */
 	return 1;
+=======
+	ceph_put_string(rcu_dereference_raw(ci->i_cached_layout.pool_ns));
+>>>>>>> upstream/android-13
 }
 
 static inline blkcnt_t calc_inode_blocks(u64 size)
@@ -614,10 +746,18 @@ int ceph_fill_file_size(struct inode *inode, int issued,
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	int queue_trunc = 0;
+<<<<<<< HEAD
 
 	if (ceph_seq_cmp(truncate_seq, ci->i_truncate_seq) > 0 ||
 	    (truncate_seq == ci->i_truncate_seq && size > inode->i_size)) {
 		dout("size %lld -> %llu\n", inode->i_size, size);
+=======
+	loff_t isize = i_size_read(inode);
+
+	if (ceph_seq_cmp(truncate_seq, ci->i_truncate_seq) > 0 ||
+	    (truncate_seq == ci->i_truncate_seq && size > isize)) {
+		dout("size %lld -> %llu\n", isize, size);
+>>>>>>> upstream/android-13
 		if (size > 0 && S_ISDIR(inode->i_mode)) {
 			pr_err("fill_file_size non-zero size for directory\n");
 			size = 0;
@@ -644,7 +784,11 @@ int ceph_fill_file_size(struct inode *inode, int issued,
 			if ((issued & (CEPH_CAP_FILE_CACHE|
 				       CEPH_CAP_FILE_BUFFER)) ||
 			    mapping_mapped(inode->i_mapping) ||
+<<<<<<< HEAD
 			    __ceph_caps_file_wanted(ci)) {
+=======
+			    __ceph_is_file_opened(ci)) {
+>>>>>>> upstream/android-13
 				ci->i_truncate_pending++;
 				queue_trunc = 1;
 			}
@@ -735,6 +879,7 @@ void ceph_fill_file_time(struct inode *inode, int issued,
  * Populate an inode based on info from mds.  May be called on new or
  * existing inodes.
  */
+<<<<<<< HEAD
 static int fill_inode(struct inode *inode, struct page *locked_page,
 		      struct ceph_mds_reply_info_in *iinfo,
 		      struct ceph_mds_reply_dirfrag *dirinfo,
@@ -743,6 +888,15 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 		      struct ceph_cap_reservation *caps_reservation)
 {
 	struct ceph_mds_client *mdsc = ceph_inode_to_client(inode)->mdsc;
+=======
+int ceph_fill_inode(struct inode *inode, struct page *locked_page,
+		    struct ceph_mds_reply_info_in *iinfo,
+		    struct ceph_mds_reply_dirfrag *dirinfo,
+		    struct ceph_mds_session *session, int cap_fmode,
+		    struct ceph_cap_reservation *caps_reservation)
+{
+	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(inode->i_sb);
+>>>>>>> upstream/android-13
 	struct ceph_mds_reply_inode *info = iinfo->in;
 	struct ceph_inode_info *ci = ceph_inode(inode);
 	int issued, new_issued, info_caps;
@@ -756,11 +910,42 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 	bool queue_trunc = false;
 	bool new_version = false;
 	bool fill_inline = false;
+<<<<<<< HEAD
 
 	dout("fill_inode %p ino %llx.%llx v %llu had %llu\n",
 	     inode, ceph_vinop(inode), le64_to_cpu(info->version),
 	     ci->i_version);
 
+=======
+	umode_t mode = le32_to_cpu(info->mode);
+	dev_t rdev = le32_to_cpu(info->rdev);
+
+	lockdep_assert_held(&mdsc->snap_rwsem);
+
+	dout("%s %p ino %llx.%llx v %llu had %llu\n", __func__,
+	     inode, ceph_vinop(inode), le64_to_cpu(info->version),
+	     ci->i_version);
+
+	/* Once I_NEW is cleared, we can't change type or dev numbers */
+	if (inode->i_state & I_NEW) {
+		inode->i_mode = mode;
+	} else {
+		if (inode_wrong_type(inode, mode)) {
+			pr_warn_once("inode type changed! (ino %llx.%llx is 0%o, mds says 0%o)\n",
+				     ceph_vinop(inode), inode->i_mode, mode);
+			return -ESTALE;
+		}
+
+		if ((S_ISCHR(mode) || S_ISBLK(mode)) && inode->i_rdev != rdev) {
+			pr_warn_once("dev inode rdev changed! (ino %llx.%llx is %u:%u, mds says %u:%u)\n",
+				     ceph_vinop(inode), MAJOR(inode->i_rdev),
+				     MINOR(inode->i_rdev), MAJOR(rdev),
+				     MINOR(rdev));
+			return -ESTALE;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	info_caps = le32_to_cpu(info->cap.caps);
 
 	/* prealloc new cap struct */
@@ -778,7 +963,11 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 	if (iinfo->xattr_len > 4) {
 		xattr_blob = ceph_buffer_new(iinfo->xattr_len, GFP_NOFS);
 		if (!xattr_blob)
+<<<<<<< HEAD
 			pr_err("fill_inode ENOMEM xattr blob %d bytes\n",
+=======
+			pr_err("%s ENOMEM xattr blob %d bytes\n", __func__,
+>>>>>>> upstream/android-13
 			       iinfo->xattr_len);
 	}
 
@@ -786,6 +975,12 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 		pool_ns = ceph_find_or_create_string(iinfo->pool_ns_data,
 						     iinfo->pool_ns_len);
 
+<<<<<<< HEAD
+=======
+	if (ceph_snap(inode) != CEPH_NOSNAP && !ci->i_snapid_map)
+		ci->i_snapid_map = ceph_get_snapid_map(mdsc, ceph_snap(inode));
+
+>>>>>>> upstream/android-13
 	spin_lock(&ci->i_ceph_lock);
 
 	/*
@@ -804,12 +999,21 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 	     le64_to_cpu(info->version) > (ci->i_version & ~1)))
 		new_version = true;
 
+<<<<<<< HEAD
+=======
+	/* Update change_attribute */
+	inode_set_max_iversion_raw(inode, iinfo->change_attr);
+
+>>>>>>> upstream/android-13
 	__ceph_caps_issued(ci, &issued);
 	issued |= __ceph_caps_dirty(ci);
 	new_issued = ~issued & info_caps;
 
+<<<<<<< HEAD
 	/* update inode */
 	inode->i_rdev = le32_to_cpu(info->rdev);
+=======
+>>>>>>> upstream/android-13
 	/* directories have fl_stripe_unit set to zero */
 	if (le32_to_cpu(info->layout.fl_stripe_unit))
 		inode->i_blkbits =
@@ -821,12 +1025,21 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 
 	if ((new_version || (new_issued & CEPH_CAP_AUTH_SHARED)) &&
 	    (issued & CEPH_CAP_AUTH_EXCL) == 0) {
+<<<<<<< HEAD
 		inode->i_mode = le32_to_cpu(info->mode);
+=======
+		inode->i_mode = mode;
+>>>>>>> upstream/android-13
 		inode->i_uid = make_kuid(&init_user_ns, le32_to_cpu(info->uid));
 		inode->i_gid = make_kgid(&init_user_ns, le32_to_cpu(info->gid));
 		dout("%p mode 0%o uid.gid %d.%d\n", inode, inode->i_mode,
 		     from_kuid(&init_user_ns, inode->i_uid),
 		     from_kgid(&init_user_ns, inode->i_gid));
+<<<<<<< HEAD
+=======
+		ceph_decode_timespec64(&ci->i_btime, &iinfo->btime);
+		ceph_decode_timespec64(&ci->i_snap_btime, &iinfo->snap_btime);
+>>>>>>> upstream/android-13
 	}
 
 	if ((new_version || (new_issued & CEPH_CAP_LINK_SHARED)) &&
@@ -884,6 +1097,11 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 			ci->i_rbytes = le64_to_cpu(info->rbytes);
 			ci->i_rfiles = le64_to_cpu(info->rfiles);
 			ci->i_rsubdirs = le64_to_cpu(info->rsubdirs);
+<<<<<<< HEAD
+=======
+			ci->i_dir_pin = iinfo->dir_pin;
+			ci->i_rsnaps = iinfo->rsnaps;
+>>>>>>> upstream/android-13
 			ceph_decode_timespec64(&ci->i_rctime, &info->rctime);
 		}
 	}
@@ -900,6 +1118,10 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 			       iinfo->xattr_data, iinfo->xattr_len);
 		ci->i_xattrs.version = le64_to_cpu(info->xattr_version);
 		ceph_forget_all_cached_acls(inode);
+<<<<<<< HEAD
+=======
+		ceph_security_invalidate_secctx(inode);
+>>>>>>> upstream/android-13
 		xattr_blob = NULL;
 	}
 
@@ -914,7 +1136,12 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 	case S_IFBLK:
 	case S_IFCHR:
 	case S_IFSOCK:
+<<<<<<< HEAD
 		init_special_inode(inode, inode->i_mode, inode->i_rdev);
+=======
+		inode->i_blkbits = PAGE_SHIFT;
+		init_special_inode(inode, inode->i_mode, rdev);
+>>>>>>> upstream/android-13
 		inode->i_op = &ceph_file_iops;
 		break;
 	case S_IFREG:
@@ -930,8 +1157,14 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 			spin_unlock(&ci->i_ceph_lock);
 
 			if (symlen != i_size_read(inode)) {
+<<<<<<< HEAD
 				pr_err("fill_inode %llx.%llx BAD symlink "
 					"size %lld\n", ceph_vinop(inode),
+=======
+				pr_err("%s %llx.%llx BAD symlink "
+					"size %lld\n", __func__,
+					ceph_vinop(inode),
+>>>>>>> upstream/android-13
 					i_size_read(inode));
 				i_size_write(inode, symlen);
 				inode->i_blocks = calc_inode_blocks(symlen);
@@ -955,7 +1188,11 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 		inode->i_fop = &ceph_dir_fops;
 		break;
 	default:
+<<<<<<< HEAD
 		pr_err("fill_inode %llx.%llx BAD mode 0%o\n",
+=======
+		pr_err("%s %llx.%llx BAD mode 0%o\n", __func__,
+>>>>>>> upstream/android-13
 		       ceph_vinop(inode), inode->i_mode);
 	}
 
@@ -964,7 +1201,11 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 		if (ceph_snap(inode) == CEPH_NOSNAP) {
 			ceph_add_cap(inode, session,
 				     le64_to_cpu(info->cap.cap_id),
+<<<<<<< HEAD
 				     cap_fmode, info_caps,
+=======
+				     info_caps,
+>>>>>>> upstream/android-13
 				     le32_to_cpu(info->cap.wanted),
 				     le32_to_cpu(info->cap.seq),
 				     le32_to_cpu(info->cap.mseq),
@@ -989,6 +1230,7 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 			dout(" %p got snap_caps %s\n", inode,
 			     ceph_cap_string(info_caps));
 			ci->i_snap_caps |= info_caps;
+<<<<<<< HEAD
 			if (cap_fmode >= 0)
 				__ceph_get_fmode(ci, cap_fmode);
 		}
@@ -996,6 +1238,9 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 		pr_warn("mds issued no caps on %llx.%llx\n",
 			   ceph_vinop(inode));
 		__ceph_get_fmode(ci, cap_fmode);
+=======
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (iinfo->inline_version > 0 &&
@@ -1007,6 +1252,16 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
 			fill_inline = true;
 	}
 
+<<<<<<< HEAD
+=======
+	if (cap_fmode >= 0) {
+		if (!info_caps)
+			pr_warn("mds issued no caps on %llx.%llx\n",
+				ceph_vinop(inode));
+		__ceph_touch_fmode(ci, mdsc, cap_fmode);
+	}
+
+>>>>>>> upstream/android-13
 	spin_unlock(&ci->i_ceph_lock);
 
 	if (fill_inline)
@@ -1039,6 +1294,7 @@ out:
 }
 
 /*
+<<<<<<< HEAD
  * caller should hold session s_mutex.
  */
 static void update_dentry_lease(struct dentry *dentry,
@@ -1099,22 +1355,137 @@ static void update_dentry_lease(struct dentry *dentry,
 	if (!di->lease_session)
 		di->lease_session = ceph_get_mds_session(session);
 	di->lease_gen = session->s_cap_gen;
+=======
+ * caller should hold session s_mutex and dentry->d_lock.
+ */
+static void __update_dentry_lease(struct inode *dir, struct dentry *dentry,
+				  struct ceph_mds_reply_lease *lease,
+				  struct ceph_mds_session *session,
+				  unsigned long from_time,
+				  struct ceph_mds_session **old_lease_session)
+{
+	struct ceph_dentry_info *di = ceph_dentry(dentry);
+	unsigned mask = le16_to_cpu(lease->mask);
+	long unsigned duration = le32_to_cpu(lease->duration_ms);
+	long unsigned ttl = from_time + (duration * HZ) / 1000;
+	long unsigned half_ttl = from_time + (duration * HZ / 2) / 1000;
+
+	dout("update_dentry_lease %p duration %lu ms ttl %lu\n",
+	     dentry, duration, ttl);
+
+	/* only track leases on regular dentries */
+	if (ceph_snap(dir) != CEPH_NOSNAP)
+		return;
+
+	if (mask & CEPH_LEASE_PRIMARY_LINK)
+		di->flags |= CEPH_DENTRY_PRIMARY_LINK;
+	else
+		di->flags &= ~CEPH_DENTRY_PRIMARY_LINK;
+
+	di->lease_shared_gen = atomic_read(&ceph_inode(dir)->i_shared_gen);
+	if (!(mask & CEPH_LEASE_VALID)) {
+		__ceph_dentry_dir_lease_touch(di);
+		return;
+	}
+
+	if (di->lease_gen == atomic_read(&session->s_cap_gen) &&
+	    time_before(ttl, di->time))
+		return;  /* we already have a newer lease. */
+
+	if (di->lease_session && di->lease_session != session) {
+		*old_lease_session = di->lease_session;
+		di->lease_session = NULL;
+	}
+
+	if (!di->lease_session)
+		di->lease_session = ceph_get_mds_session(session);
+	di->lease_gen = atomic_read(&session->s_cap_gen);
+>>>>>>> upstream/android-13
 	di->lease_seq = le32_to_cpu(lease->seq);
 	di->lease_renew_after = half_ttl;
 	di->lease_renew_from = 0;
 	di->time = ttl;
+<<<<<<< HEAD
 out_unlock:
 	spin_unlock(&dentry->d_lock);
 	if (old_lease_session)
 		ceph_put_mds_session(old_lease_session);
+=======
+
+	__ceph_dentry_lease_touch(di);
+}
+
+static inline void update_dentry_lease(struct inode *dir, struct dentry *dentry,
+					struct ceph_mds_reply_lease *lease,
+					struct ceph_mds_session *session,
+					unsigned long from_time)
+{
+	struct ceph_mds_session *old_lease_session = NULL;
+	spin_lock(&dentry->d_lock);
+	__update_dentry_lease(dir, dentry, lease, session, from_time,
+			      &old_lease_session);
+	spin_unlock(&dentry->d_lock);
+	ceph_put_mds_session(old_lease_session);
+}
+
+/*
+ * update dentry lease without having parent inode locked
+ */
+static void update_dentry_lease_careful(struct dentry *dentry,
+					struct ceph_mds_reply_lease *lease,
+					struct ceph_mds_session *session,
+					unsigned long from_time,
+					char *dname, u32 dname_len,
+					struct ceph_vino *pdvino,
+					struct ceph_vino *ptvino)
+
+{
+	struct inode *dir;
+	struct ceph_mds_session *old_lease_session = NULL;
+
+	spin_lock(&dentry->d_lock);
+	/* make sure dentry's name matches target */
+	if (dentry->d_name.len != dname_len ||
+	    memcmp(dentry->d_name.name, dname, dname_len))
+		goto out_unlock;
+
+	dir = d_inode(dentry->d_parent);
+	/* make sure parent matches dvino */
+	if (!ceph_ino_compare(dir, pdvino))
+		goto out_unlock;
+
+	/* make sure dentry's inode matches target. NULL ptvino means that
+	 * we expect a negative dentry */
+	if (ptvino) {
+		if (d_really_is_negative(dentry))
+			goto out_unlock;
+		if (!ceph_ino_compare(d_inode(dentry), ptvino))
+			goto out_unlock;
+	} else {
+		if (d_really_is_positive(dentry))
+			goto out_unlock;
+	}
+
+	__update_dentry_lease(dir, dentry, lease, session,
+			      from_time, &old_lease_session);
+out_unlock:
+	spin_unlock(&dentry->d_lock);
+	ceph_put_mds_session(old_lease_session);
+>>>>>>> upstream/android-13
 }
 
 /*
  * splice a dentry to an inode.
  * caller must hold directory i_mutex for this to be safe.
  */
+<<<<<<< HEAD
 static struct dentry *splice_dentry(struct dentry *dn, struct inode *in)
 {
+=======
+static int splice_dentry(struct dentry **pdn, struct inode *in)
+{
+	struct dentry *dn = *pdn;
+>>>>>>> upstream/android-13
 	struct dentry *realdn;
 
 	BUG_ON(d_inode(dn));
@@ -1147,6 +1518,7 @@ static struct dentry *splice_dentry(struct dentry *dn, struct inode *in)
 	if (IS_ERR(realdn)) {
 		pr_err("splice_dentry error %ld %p inode %p ino %llx.%llx\n",
 		       PTR_ERR(realdn), dn, in, ceph_vinop(in));
+<<<<<<< HEAD
 		dn = realdn;
 		/*
 		 * Caller should release 'dn' in the case of error.
@@ -1155,20 +1527,34 @@ static struct dentry *splice_dentry(struct dentry *dn, struct inode *in)
 		 */
 		goto out;
 	} else if (realdn) {
+=======
+		return PTR_ERR(realdn);
+	}
+
+	if (realdn) {
+>>>>>>> upstream/android-13
 		dout("dn %p (%d) spliced with %p (%d) "
 		     "inode %p ino %llx.%llx\n",
 		     dn, d_count(dn),
 		     realdn, d_count(realdn),
 		     d_inode(realdn), ceph_vinop(d_inode(realdn)));
 		dput(dn);
+<<<<<<< HEAD
 		dn = realdn;
+=======
+		*pdn = realdn;
+>>>>>>> upstream/android-13
 	} else {
 		BUG_ON(!ceph_dentry(dn));
 		dout("dn %p attached to %p ino %llx.%llx\n",
 		     dn, d_inode(dn), ceph_vinop(d_inode(dn)));
 	}
+<<<<<<< HEAD
 out:
 	return dn;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1205,17 +1591,29 @@ int ceph_fill_trace(struct super_block *sb, struct ceph_mds_request *req)
 		struct inode *dir = req->r_parent;
 
 		if (dir) {
+<<<<<<< HEAD
 			err = fill_inode(dir, NULL,
 					 &rinfo->diri, rinfo->dirfrag,
 					 session, req->r_request_started, -1,
 					 &req->r_caps_reservation);
+=======
+			err = ceph_fill_inode(dir, NULL, &rinfo->diri,
+					      rinfo->dirfrag, session, -1,
+					      &req->r_caps_reservation);
+>>>>>>> upstream/android-13
 			if (err < 0)
 				goto done;
 		} else {
 			WARN_ON_ONCE(1);
 		}
 
+<<<<<<< HEAD
 		if (dir && req->r_op == CEPH_MDS_OP_LOOKUPNAME) {
+=======
+		if (dir && req->r_op == CEPH_MDS_OP_LOOKUPNAME &&
+		    test_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags) &&
+		    !test_bit(CEPH_MDS_R_ABORTED, &req->r_req_flags)) {
+>>>>>>> upstream/android-13
 			struct qstr dname;
 			struct dentry *dn, *parent;
 
@@ -1262,6 +1660,7 @@ retry_lookup:
 	}
 
 	if (rinfo->head->is_target) {
+<<<<<<< HEAD
 		tvino.ino = le64_to_cpu(rinfo->targeti.in->ino);
 		tvino.snap = le64_to_cpu(rinfo->targeti.in->snapid);
 
@@ -1282,6 +1681,30 @@ retry_lookup:
 				in, ceph_vinop(in));
 			goto done;
 		}
+=======
+		/* Should be filled in by handle_reply */
+		BUG_ON(!req->r_target_inode);
+
+		in = req->r_target_inode;
+		err = ceph_fill_inode(in, req->r_locked_page, &rinfo->targeti,
+				NULL, session,
+				(!test_bit(CEPH_MDS_R_ABORTED, &req->r_req_flags) &&
+				 !test_bit(CEPH_MDS_R_ASYNC, &req->r_req_flags) &&
+				 rinfo->head->result == 0) ?  req->r_fmode : -1,
+				&req->r_caps_reservation);
+		if (err < 0) {
+			pr_err("ceph_fill_inode badness %p %llx.%llx\n",
+				in, ceph_vinop(in));
+			req->r_target_inode = NULL;
+			if (in->i_state & I_NEW)
+				discard_new_inode(in);
+			else
+				iput(in);
+			goto done;
+		}
+		if (in->i_state & I_NEW)
+			unlock_new_inode(in);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1353,7 +1776,16 @@ retry_lookup:
 			dout("dn %p gets new offset %lld\n", req->r_old_dentry,
 			     ceph_dentry(req->r_old_dentry)->offset);
 
+<<<<<<< HEAD
 			dn = req->r_old_dentry;  /* use old_dentry */
+=======
+			/* swap r_dentry and r_old_dentry in case that
+			 * splice_dentry() gets called later. This is safe
+			 * because no other place will use them */
+			req->r_dentry = req->r_old_dentry;
+			req->r_old_dentry = dn;
+			dn = req->r_dentry;
+>>>>>>> upstream/android-13
 		}
 
 		/* null dentry? */
@@ -1366,10 +1798,16 @@ retry_lookup:
 			} else if (have_lease) {
 				if (d_unhashed(dn))
 					d_add(dn, NULL);
+<<<<<<< HEAD
 				update_dentry_lease(dn, rinfo->dlease,
 						    session,
 						    req->r_request_started,
 						    NULL, &dvino);
+=======
+				update_dentry_lease(dir, dn,
+						    rinfo->dlease, session,
+						    req->r_request_started);
+>>>>>>> upstream/android-13
 			}
 			goto done;
 		}
@@ -1378,12 +1816,19 @@ retry_lookup:
 		if (d_really_is_negative(dn)) {
 			ceph_dir_clear_ordered(dir);
 			ihold(in);
+<<<<<<< HEAD
 			dn = splice_dentry(dn, in);
 			if (IS_ERR(dn)) {
 				err = PTR_ERR(dn);
 				goto done;
 			}
 			req->r_dentry = dn;  /* may have spliced */
+=======
+			err = splice_dentry(&req->r_dentry, in);
+			if (err < 0)
+				goto done;
+			dn = req->r_dentry;  /* may have spliced */
+>>>>>>> upstream/android-13
 		} else if (d_really_is_positive(dn) && d_inode(dn) != in) {
 			dout(" %p links to %p %llx.%llx, not %llx.%llx\n",
 			     dn, d_inode(dn), ceph_vinop(d_inode(dn)),
@@ -1393,17 +1838,24 @@ retry_lookup:
 		}
 
 		if (have_lease) {
+<<<<<<< HEAD
 			tvino.ino = le64_to_cpu(rinfo->targeti.in->ino);
 			tvino.snap = le64_to_cpu(rinfo->targeti.in->snapid);
 			update_dentry_lease(dn, rinfo->dlease, session,
 					    req->r_request_started,
 					    &tvino, &dvino);
+=======
+			update_dentry_lease(dir, dn,
+					    rinfo->dlease, session,
+					    req->r_request_started);
+>>>>>>> upstream/android-13
 		}
 		dout(" final dn %p\n", dn);
 	} else if ((req->r_op == CEPH_MDS_OP_LOOKUPSNAP ||
 		    req->r_op == CEPH_MDS_OP_MKSNAP) &&
 	           test_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags) &&
 		   !test_bit(CEPH_MDS_R_ABORTED, &req->r_req_flags)) {
+<<<<<<< HEAD
 		struct dentry *dn = req->r_dentry;
 		struct inode *dir = req->r_parent;
 
@@ -1440,6 +1892,34 @@ retry_lookup:
 		} else {
 			dout("%s: no dentry lease or dir cap\n", __func__);
 		}
+=======
+		struct inode *dir = req->r_parent;
+
+		/* fill out a snapdir LOOKUPSNAP dentry */
+		BUG_ON(!dir);
+		BUG_ON(ceph_snap(dir) != CEPH_SNAPDIR);
+		BUG_ON(!req->r_dentry);
+		dout(" linking snapped dir %p to dn %p\n", in, req->r_dentry);
+		ceph_dir_clear_ordered(dir);
+		ihold(in);
+		err = splice_dentry(&req->r_dentry, in);
+		if (err < 0)
+			goto done;
+	} else if (rinfo->head->is_dentry && req->r_dentry) {
+		/* parent inode is not locked, be carefull */
+		struct ceph_vino *ptvino = NULL;
+		dvino.ino = le64_to_cpu(rinfo->diri.in->ino);
+		dvino.snap = le64_to_cpu(rinfo->diri.in->snapid);
+		if (rinfo->head->is_target) {
+			tvino.ino = le64_to_cpu(rinfo->targeti.in->ino);
+			tvino.snap = le64_to_cpu(rinfo->targeti.in->snapid);
+			ptvino = &tvino;
+		}
+		update_dentry_lease_careful(req->r_dentry, rinfo->dlease,
+					    session, req->r_request_started,
+					    rinfo->dname, rinfo->dname_len,
+					    &dvino, ptvino);
+>>>>>>> upstream/android-13
 	}
 done:
 	dout("fill_trace done err=%d\n", err);
@@ -1470,6 +1950,7 @@ static int readdir_prepopulate_inodes_only(struct ceph_mds_request *req,
 			dout("new_inode badness got %d\n", err);
 			continue;
 		}
+<<<<<<< HEAD
 		rc = fill_inode(in, NULL, &rde->inode, NULL, session,
 				req->r_request_started, -1,
 				&req->r_caps_reservation);
@@ -1477,6 +1958,22 @@ static int readdir_prepopulate_inodes_only(struct ceph_mds_request *req,
 			pr_err("fill_inode badness on %p got %d\n", in, rc);
 			err = rc;
 		}
+=======
+		rc = ceph_fill_inode(in, NULL, &rde->inode, NULL, session,
+				     -1, &req->r_caps_reservation);
+		if (rc < 0) {
+			pr_err("ceph_fill_inode badness on %p got %d\n",
+			       in, rc);
+			err = rc;
+			if (in->i_state & I_NEW) {
+				ihold(in);
+				discard_new_inode(in);
+			}
+		} else if (in->i_state & I_NEW) {
+			unlock_new_inode(in);
+		}
+
+>>>>>>> upstream/android-13
 		iput(in);
 	}
 
@@ -1541,8 +2038,12 @@ int ceph_readdir_prepopulate(struct ceph_mds_request *req,
 	struct dentry *dn;
 	struct inode *in;
 	int err = 0, skipped = 0, ret, i;
+<<<<<<< HEAD
 	struct ceph_mds_request_head *rhead = req->r_request->front.iov_base;
 	u32 frag = le32_to_cpu(rhead->args.readdir.frag);
+=======
+	u32 frag = le32_to_cpu(req->r_args.readdir.frag);
+>>>>>>> upstream/android-13
 	u32 last_hash = 0;
 	u32 fpos_offset;
 	struct ceph_readdir_cache_control cache_ctl = {};
@@ -1559,7 +2060,11 @@ int ceph_readdir_prepopulate(struct ceph_mds_request *req,
 		} else if (rinfo->offset_hash) {
 			/* mds understands offset_hash */
 			WARN_ON_ONCE(req->r_readdir_offset != 2);
+<<<<<<< HEAD
 			last_hash = le32_to_cpu(rhead->args.readdir.offset_hash);
+=======
+			last_hash = le32_to_cpu(req->r_args.readdir.offset_hash);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -1600,7 +2105,11 @@ int ceph_readdir_prepopulate(struct ceph_mds_request *req,
 	/* FIXME: release caps/leases if error occurs */
 	for (i = 0; i < rinfo->dir_nr; i++) {
 		struct ceph_mds_reply_dir_entry *rde = rinfo->dir_entries + i;
+<<<<<<< HEAD
 		struct ceph_vino tvino, dvino;
+=======
+		struct ceph_vino tvino;
+>>>>>>> upstream/android-13
 
 		dname.name = rde->name;
 		dname.len = rde->name_len;
@@ -1670,6 +2179,7 @@ retry_lookup:
 			}
 		}
 
+<<<<<<< HEAD
 		ret = fill_inode(in, NULL, &rde->inode, NULL, session,
 				 req->r_request_started, -1,
 				 &req->r_caps_reservation);
@@ -1677,14 +2187,34 @@ retry_lookup:
 			pr_err("fill_inode badness on %p\n", in);
 			if (d_really_is_negative(dn))
 				iput(in);
+=======
+		ret = ceph_fill_inode(in, NULL, &rde->inode, NULL, session,
+				      -1, &req->r_caps_reservation);
+		if (ret < 0) {
+			pr_err("ceph_fill_inode badness on %p\n", in);
+			if (d_really_is_negative(dn)) {
+				if (in->i_state & I_NEW) {
+					ihold(in);
+					discard_new_inode(in);
+				}
+				iput(in);
+			}
+>>>>>>> upstream/android-13
 			d_drop(dn);
 			err = ret;
 			goto next_item;
 		}
+<<<<<<< HEAD
 
 		if (d_really_is_negative(dn)) {
 			struct dentry *realdn;
 
+=======
+		if (in->i_state & I_NEW)
+			unlock_new_inode(in);
+
+		if (d_really_is_negative(dn)) {
+>>>>>>> upstream/android-13
 			if (ceph_security_xattr_deadlock(in)) {
 				dout(" skip splicing dn %p to inode %p"
 				     " (security xattr deadlock)\n", dn, in);
@@ -1693,6 +2223,7 @@ retry_lookup:
 				goto next_item;
 			}
 
+<<<<<<< HEAD
 			realdn = splice_dentry(dn, in);
 			if (IS_ERR(realdn)) {
 				err = PTR_ERR(realdn);
@@ -1700,13 +2231,24 @@ retry_lookup:
 				goto next_item;
 			}
 			dn = realdn;
+=======
+			err = splice_dentry(&dn, in);
+			if (err < 0)
+				goto next_item;
+>>>>>>> upstream/android-13
 		}
 
 		ceph_dentry(dn)->offset = rde->offset;
 
+<<<<<<< HEAD
 		dvino = ceph_vino(d_inode(parent));
 		update_dentry_lease(dn, rde->lease, req->r_session,
 				    req->r_request_started, &tvino, &dvino);
+=======
+		update_dentry_lease(d_inode(parent), dn,
+				    rde->lease, req->r_session,
+				    req->r_request_started);
+>>>>>>> upstream/android-13
 
 		if (err == 0 && skipped == 0 && cache_ctl.index >= 0) {
 			ret = fill_readdir_cache(d_inode(parent), dn,
@@ -1715,8 +2257,12 @@ retry_lookup:
 				err = ret;
 		}
 next_item:
+<<<<<<< HEAD
 		if (dn)
 			dput(dn);
+=======
+		dput(dn);
+>>>>>>> upstream/android-13
 	}
 out:
 	if (err == 0 && skipped == 0) {
@@ -1734,7 +2280,11 @@ bool ceph_inode_set_size(struct inode *inode, loff_t size)
 	bool ret;
 
 	spin_lock(&ci->i_ceph_lock);
+<<<<<<< HEAD
 	dout("set_size %p %llu -> %llu\n", inode, inode->i_size, size);
+=======
+	dout("set_size %p %llu -> %llu\n", inode, i_size_read(inode), size);
+>>>>>>> upstream/android-13
 	i_size_write(inode, size);
 	inode->i_blocks = calc_inode_blocks(size);
 
@@ -1744,6 +2294,7 @@ bool ceph_inode_set_size(struct inode *inode, loff_t size)
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Write back inode data in a worker thread.  (This can't be done
  * in the message handler context.)
@@ -1756,10 +2307,25 @@ void ceph_queue_writeback(struct inode *inode)
 		dout("ceph_queue_writeback %p\n", inode);
 	} else {
 		dout("ceph_queue_writeback %p failed\n", inode);
+=======
+void ceph_queue_inode_work(struct inode *inode, int work_bit)
+{
+	struct ceph_fs_client *fsc = ceph_inode_to_client(inode);
+	struct ceph_inode_info *ci = ceph_inode(inode);
+	set_bit(work_bit, &ci->i_work_mask);
+
+	ihold(inode);
+	if (queue_work(fsc->inode_wq, &ci->i_work)) {
+		dout("queue_inode_work %p, mask=%lx\n", inode, ci->i_work_mask);
+	} else {
+		dout("queue_inode_work %p already queued, mask=%lx\n",
+		     inode, ci->i_work_mask);
+>>>>>>> upstream/android-13
 		iput(inode);
 	}
 }
 
+<<<<<<< HEAD
 static void ceph_writeback_work(struct work_struct *work)
 {
 	struct ceph_inode_info *ci = container_of(work, struct ceph_inode_info,
@@ -1795,13 +2361,22 @@ static void ceph_invalidate_work(struct work_struct *work)
 	struct ceph_inode_info *ci = container_of(work, struct ceph_inode_info,
 						  i_pg_inv_work);
 	struct inode *inode = &ci->vfs_inode;
+=======
+static void ceph_do_invalidate_pages(struct inode *inode)
+{
+	struct ceph_inode_info *ci = ceph_inode(inode);
+>>>>>>> upstream/android-13
 	struct ceph_fs_client *fsc = ceph_inode_to_client(inode);
 	u32 orig_gen;
 	int check = 0;
 
 	mutex_lock(&ci->i_truncate_mutex);
 
+<<<<<<< HEAD
 	if (READ_ONCE(fsc->mount_state) == CEPH_MOUNT_SHUTDOWN) {
+=======
+	if (READ_ONCE(fsc->mount_state) >= CEPH_MOUNT_SHUTDOWN) {
+>>>>>>> upstream/android-13
 		pr_warn_ratelimited("invalidate_pages %p %lld forced umount\n",
 				    inode, ceph_ino(inode));
 		mapping_set_error(inode->i_mapping, -EIO);
@@ -1847,6 +2422,7 @@ static void ceph_invalidate_work(struct work_struct *work)
 out:
 	if (check)
 		ceph_check_caps(ci, 0, NULL);
+<<<<<<< HEAD
 	iput(inode);
 }
 
@@ -1885,6 +2461,8 @@ void ceph_queue_vmtruncate(struct inode *inode)
 		     inode, ci->i_truncate_pending);
 		iput(inode);
 	}
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1943,11 +2521,43 @@ retry:
 	mutex_unlock(&ci->i_truncate_mutex);
 
 	if (wrbuffer_refs == 0)
+<<<<<<< HEAD
 		ceph_check_caps(ci, CHECK_CAPS_AUTHONLY, NULL);
+=======
+		ceph_check_caps(ci, 0, NULL);
+>>>>>>> upstream/android-13
 
 	wake_up_all(&ci->i_cap_wq);
 }
 
+<<<<<<< HEAD
+=======
+static void ceph_inode_work(struct work_struct *work)
+{
+	struct ceph_inode_info *ci = container_of(work, struct ceph_inode_info,
+						 i_work);
+	struct inode *inode = &ci->vfs_inode;
+
+	if (test_and_clear_bit(CEPH_I_WORK_WRITEBACK, &ci->i_work_mask)) {
+		dout("writeback %p\n", inode);
+		filemap_fdatawrite(&inode->i_data);
+	}
+	if (test_and_clear_bit(CEPH_I_WORK_INVALIDATE_PAGES, &ci->i_work_mask))
+		ceph_do_invalidate_pages(inode);
+
+	if (test_and_clear_bit(CEPH_I_WORK_VMTRUNCATE, &ci->i_work_mask))
+		__ceph_do_pending_vmtruncate(inode);
+
+	if (test_and_clear_bit(CEPH_I_WORK_CHECK_CAPS, &ci->i_work_mask))
+		ceph_check_caps(ci, 0, NULL);
+
+	if (test_and_clear_bit(CEPH_I_WORK_FLUSH_SNAPS, &ci->i_work_mask))
+		ceph_flush_snaps(ci, NULL);
+
+	iput(inode);
+}
+
+>>>>>>> upstream/android-13
 /*
  * symlinks
  */
@@ -1961,7 +2571,11 @@ static const struct inode_operations ceph_symlink_iops = {
 int __ceph_setattr(struct inode *inode, struct iattr *attr)
 {
 	struct ceph_inode_info *ci = ceph_inode(inode);
+<<<<<<< HEAD
 	const unsigned int ia_valid = attr->ia_valid;
+=======
+	unsigned int ia_valid = attr->ia_valid;
+>>>>>>> upstream/android-13
 	struct ceph_mds_request *req;
 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
 	struct ceph_cap_flush *prealloc_cf;
@@ -2066,6 +2680,28 @@ int __ceph_setattr(struct inode *inode, struct iattr *attr)
 				   CEPH_CAP_FILE_RD | CEPH_CAP_FILE_WR;
 		}
 	}
+<<<<<<< HEAD
+=======
+	if (ia_valid & ATTR_SIZE) {
+		loff_t isize = i_size_read(inode);
+
+		dout("setattr %p size %lld -> %lld\n", inode, isize, attr->ia_size);
+		if ((issued & CEPH_CAP_FILE_EXCL) && attr->ia_size > isize) {
+			i_size_write(inode, attr->ia_size);
+			inode->i_blocks = calc_inode_blocks(attr->ia_size);
+			ci->i_reported_size = attr->ia_size;
+			dirtied |= CEPH_CAP_FILE_EXCL;
+			ia_valid |= ATTR_MTIME;
+		} else if ((issued & CEPH_CAP_FILE_SHARED) == 0 ||
+			   attr->ia_size != isize) {
+			req->r_args.setattr.size = cpu_to_le64(attr->ia_size);
+			req->r_args.setattr.old_size = cpu_to_le64(isize);
+			mask |= CEPH_SETATTR_SIZE;
+			release |= CEPH_CAP_FILE_SHARED | CEPH_CAP_FILE_EXCL |
+				   CEPH_CAP_FILE_RD | CEPH_CAP_FILE_WR;
+		}
+	}
+>>>>>>> upstream/android-13
 	if (ia_valid & ATTR_MTIME) {
 		dout("setattr %p mtime %lld.%ld -> %lld.%ld\n", inode,
 		     inode->i_mtime.tv_sec, inode->i_mtime.tv_nsec,
@@ -2088,6 +2724,7 @@ int __ceph_setattr(struct inode *inode, struct iattr *attr)
 				   CEPH_CAP_FILE_RD | CEPH_CAP_FILE_WR;
 		}
 	}
+<<<<<<< HEAD
 	if (ia_valid & ATTR_SIZE) {
 		dout("setattr %p size %lld -> %lld\n", inode,
 		     inode->i_size, attr->ia_size);
@@ -2107,6 +2744,8 @@ int __ceph_setattr(struct inode *inode, struct iattr *attr)
 				   CEPH_CAP_FILE_RD | CEPH_CAP_FILE_WR;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 
 	/* these do nothing */
 	if (ia_valid & ATTR_CTIME) {
@@ -2174,7 +2813,12 @@ int __ceph_setattr(struct inode *inode, struct iattr *attr)
 /*
  * setattr
  */
+<<<<<<< HEAD
 int ceph_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+int ceph_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		 struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	struct ceph_fs_client *fsc = ceph_inode_to_client(inode);
@@ -2183,12 +2827,20 @@ int ceph_setattr(struct dentry *dentry, struct iattr *attr)
 	if (ceph_snap(inode) != CEPH_NOSNAP)
 		return -EROFS;
 
+<<<<<<< HEAD
 	err = setattr_prepare(dentry, attr);
+=======
+	err = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (err != 0)
 		return err;
 
 	if ((attr->ia_valid & ATTR_SIZE) &&
+<<<<<<< HEAD
 	    attr->ia_size > max(inode->i_size, fsc->max_file_size))
+=======
+	    attr->ia_size > max(i_size_read(inode), fsc->max_file_size))
+>>>>>>> upstream/android-13
 		return -EFBIG;
 
 	if ((attr->ia_valid & ATTR_SIZE) &&
@@ -2198,7 +2850,11 @@ int ceph_setattr(struct dentry *dentry, struct iattr *attr)
 	err = __ceph_setattr(inode, attr);
 
 	if (err >= 0 && (attr->ia_valid & ATTR_MODE))
+<<<<<<< HEAD
 		err = posix_acl_chmod(inode, attr->ia_mode);
+=======
+		err = posix_acl_chmod(&init_user_ns, inode, attr->ia_mode);
+>>>>>>> upstream/android-13
 
 	return err;
 }
@@ -2223,8 +2879,13 @@ int __ceph_do_getattr(struct inode *inode, struct page *locked_page,
 
 	dout("do_getattr inode %p mask %s mode 0%o\n",
 	     inode, ceph_cap_string(mask), inode->i_mode);
+<<<<<<< HEAD
 	if (!force && ceph_caps_issued_mask(ceph_inode(inode), mask, 1))
 		return 0;
+=======
+	if (!force && ceph_caps_issued_mask_metric(ceph_inode(inode), mask, 1))
+			return 0;
+>>>>>>> upstream/android-13
 
 	mode = (mask & CEPH_STAT_RSTAT) ? USE_AUTH_MDS : USE_ANY_MDS;
 	req = ceph_mdsc_create_request(mdsc, CEPH_MDS_OP_GETATTR, mode);
@@ -2257,7 +2918,12 @@ int __ceph_do_getattr(struct inode *inode, struct page *locked_page,
  * Check inode permissions.  We verify we have a valid value for
  * the AUTH cap, then call the generic handler.
  */
+<<<<<<< HEAD
 int ceph_permission(struct inode *inode, int mask)
+=======
+int ceph_permission(struct user_namespace *mnt_userns, struct inode *inode,
+		    int mask)
+>>>>>>> upstream/android-13
 {
 	int err;
 
@@ -2267,6 +2933,7 @@ int ceph_permission(struct inode *inode, int mask)
 	err = ceph_do_getattr(inode, CEPH_CAP_AUTH_SHARED, false);
 
 	if (!err)
+<<<<<<< HEAD
 		err = generic_permission(inode, mask);
 	return err;
 }
@@ -2308,5 +2975,97 @@ int ceph_getattr(const struct path *path, struct kstat *stat,
 				stat->nlink = 1 + 1 + ci->i_subdirs;
 		}
 	}
+=======
+		err = generic_permission(&init_user_ns, inode, mask);
+	return err;
+}
+
+/* Craft a mask of needed caps given a set of requested statx attrs. */
+static int statx_to_caps(u32 want, umode_t mode)
+{
+	int mask = 0;
+
+	if (want & (STATX_MODE|STATX_UID|STATX_GID|STATX_CTIME|STATX_BTIME))
+		mask |= CEPH_CAP_AUTH_SHARED;
+
+	if (want & (STATX_NLINK|STATX_CTIME)) {
+		/*
+		 * The link count for directories depends on inode->i_subdirs,
+		 * and that is only updated when Fs caps are held.
+		 */
+		if (S_ISDIR(mode))
+			mask |= CEPH_CAP_FILE_SHARED;
+		else
+			mask |= CEPH_CAP_LINK_SHARED;
+	}
+
+	if (want & (STATX_ATIME|STATX_MTIME|STATX_CTIME|STATX_SIZE|
+		    STATX_BLOCKS))
+		mask |= CEPH_CAP_FILE_SHARED;
+
+	if (want & (STATX_CTIME))
+		mask |= CEPH_CAP_XATTR_SHARED;
+
+	return mask;
+}
+
+/*
+ * Get all the attributes. If we have sufficient caps for the requested attrs,
+ * then we can avoid talking to the MDS at all.
+ */
+int ceph_getattr(struct user_namespace *mnt_userns, const struct path *path,
+		 struct kstat *stat, u32 request_mask, unsigned int flags)
+{
+	struct inode *inode = d_inode(path->dentry);
+	struct ceph_inode_info *ci = ceph_inode(inode);
+	u32 valid_mask = STATX_BASIC_STATS;
+	int err = 0;
+
+	/* Skip the getattr altogether if we're asked not to sync */
+	if (!(flags & AT_STATX_DONT_SYNC)) {
+		err = ceph_do_getattr(inode,
+				statx_to_caps(request_mask, inode->i_mode),
+				flags & AT_STATX_FORCE_SYNC);
+		if (err)
+			return err;
+	}
+
+	generic_fillattr(&init_user_ns, inode, stat);
+	stat->ino = ceph_present_inode(inode);
+
+	/*
+	 * btime on newly-allocated inodes is 0, so if this is still set to
+	 * that, then assume that it's not valid.
+	 */
+	if (ci->i_btime.tv_sec || ci->i_btime.tv_nsec) {
+		stat->btime = ci->i_btime;
+		valid_mask |= STATX_BTIME;
+	}
+
+	if (ceph_snap(inode) == CEPH_NOSNAP)
+		stat->dev = inode->i_sb->s_dev;
+	else
+		stat->dev = ci->i_snapid_map ? ci->i_snapid_map->dev : 0;
+
+	if (S_ISDIR(inode->i_mode)) {
+		if (ceph_test_mount_opt(ceph_sb_to_client(inode->i_sb),
+					RBYTES))
+			stat->size = ci->i_rbytes;
+		else
+			stat->size = ci->i_files + ci->i_subdirs;
+		stat->blocks = 0;
+		stat->blksize = 65536;
+		/*
+		 * Some applications rely on the number of st_nlink
+		 * value on directories to be either 0 (if unlinked)
+		 * or 2 + number of subdirectories.
+		 */
+		if (stat->nlink == 1)
+			/* '.' + '..' + subdirs */
+			stat->nlink = 1 + 1 + ci->i_subdirs;
+	}
+
+	stat->result_mask = request_mask & valid_mask;
+>>>>>>> upstream/android-13
 	return err;
 }

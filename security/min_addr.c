@@ -6,8 +6,11 @@
 
 /* amount of vm to protect from userspace access by both DAC and the LSM*/
 unsigned long mmap_min_addr;
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mmap_min_addr);
 
+=======
+>>>>>>> upstream/android-13
 /* amount of vm to protect from userspace using CAP_SYS_RAWIO (DAC) */
 unsigned long dac_mmap_min_addr = CONFIG_DEFAULT_MMAP_MIN_ADDR;
 /* amount of vm to protect from userspace using the LSM = CONFIG_LSM_MMAP_MIN_ADDR */
@@ -32,7 +35,11 @@ static void update_mmap_min_addr(void)
  * calls update_mmap_min_addr() so non MAP_FIXED hints get rounded properly
  */
 int mmap_min_addr_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			  void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+			  void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	int ret;
 

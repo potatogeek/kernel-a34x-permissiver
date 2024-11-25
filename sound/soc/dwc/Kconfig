@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 config SND_DESIGNWARE_I2S
 	tristate "Synopsys I2S Device Driver"
 	depends on CLKDEV_LOOKUP
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+config SND_DESIGNWARE_I2S
+	tristate "Synopsys I2S Device Driver"
+	depends on HAVE_CLK
+>>>>>>> upstream/android-13
 	select SND_SOC_GENERIC_DMAENGINE_PCM
 	help
 	 Say Y or M if you want to add support for I2S driver for

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* riowd.c - driver for hw watchdog inside Super I/O of RIO
  *
  * Copyright (C) 2001, 2008 David S. Miller (davem@davemloft.net)
@@ -45,7 +49,10 @@
 
 MODULE_AUTHOR("David S. Miller <davem@davemloft.net>");
 MODULE_DESCRIPTION("Hardware watchdog driver for Sun RIO");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("watchdog");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 
 #define DRIVER_NAME	"riowd"
@@ -76,7 +83,11 @@ static void riowd_writereg(struct riowd *p, u8 val, int index)
 
 static int riowd_open(struct inode *inode, struct file *filp)
 {
+<<<<<<< HEAD
 	nonseekable_open(inode, filp);
+=======
+	stream_open(inode, filp);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -133,14 +144,22 @@ static long riowd_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			return -EINVAL;
 		riowd_timeout = (new_margin + 59) / 60;
 		riowd_writereg(p, riowd_timeout, WDTO_INDEX);
+<<<<<<< HEAD
 		/* Fall */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case WDIOC_GETTIMEOUT:
 		return put_user(riowd_timeout * 60, (int __user *)argp);
 
 	default:
 		return -EINVAL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -162,6 +181,10 @@ static const struct file_operations riowd_fops = {
 	.owner =		THIS_MODULE,
 	.llseek =		no_llseek,
 	.unlocked_ioctl =	riowd_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	=	compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open =			riowd_open,
 	.write =		riowd_write,
 	.release =		riowd_release,

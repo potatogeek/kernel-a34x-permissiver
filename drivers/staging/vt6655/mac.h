@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: mac.h
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: MAC routines
  *
  * Author: Tevin Chen
@@ -621,7 +628,11 @@ do {									\
 
 /* set the chip with current BCN length */
 #define MACvSetCurrBCNLength(iobase, wCurrBCNLength)		\
+<<<<<<< HEAD
 	VNSvOutPortW(iobase + MAC_REG_BCNDMACTL+2,		\
+=======
+	VNSvOutPortW(iobase + MAC_REG_BCNDMACTL + 2,		\
+>>>>>>> upstream/android-13
 		     wCurrBCNLength)
 
 #define MACvReadBSSIDAddress(iobase, pbyEtherAddr)		\
@@ -876,18 +887,28 @@ do {								\
 #define MACvSetRFLE_LatchBase(iobase)                                 \
 	MACvWordRegBitsOn(iobase, MAC_REG_SOFTPWRCTL, SOFTPWRCTL_RFLEOPT)
 
+<<<<<<< HEAD
 bool MACbIsRegBitsOn(struct vnt_private *priv, unsigned char byRegOfs,
 		     unsigned char byTestBits);
+=======
+>>>>>>> upstream/android-13
 bool MACbIsRegBitsOff(struct vnt_private *priv, unsigned char byRegOfs,
 		      unsigned char byTestBits);
 
 bool MACbIsIntDisable(struct vnt_private *priv);
 
+<<<<<<< HEAD
 void MACvSetShortRetryLimit(struct vnt_private *priv, unsigned char byRetryLimit);
 
 void MACvSetLongRetryLimit(struct vnt_private *priv, unsigned char byRetryLimit);
 void MACvGetLongRetryLimit(struct vnt_private *priv,
 			   unsigned char *pbyRetryLimit);
+=======
+void MACvSetShortRetryLimit(struct vnt_private *priv,
+			    unsigned char byRetryLimit);
+
+void MACvSetLongRetryLimit(struct vnt_private *priv, unsigned char byRetryLimit);
+>>>>>>> upstream/android-13
 
 void MACvSetLoopbackMode(struct vnt_private *priv, unsigned char byLoopbackMode);
 

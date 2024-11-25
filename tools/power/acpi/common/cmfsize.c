@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
 /******************************************************************************
  *
+<<<<<<< HEAD
  * Module Name: cfsize - Common get file size function
  *
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Module Name: cmfsize - Common get file size function
+ *
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* p9100.c: P9100 frame buffer driver
  *
  * Copyright (C) 2003, 2006 David S. Miller (davem@davemloft.net)
@@ -36,7 +40,11 @@ static int p9100_ioctl(struct fb_info *, unsigned int, unsigned long);
  *  Frame buffer operations
  */
 
+<<<<<<< HEAD
 static struct fb_ops p9100_ops = {
+=======
+static const struct fb_ops p9100_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= p9100_setcolreg,
 	.fb_blank		= p9100_blank,
@@ -174,7 +182,11 @@ static int p9100_setcolreg(unsigned regno,
 
 /**
  *      p9100_blank - Optional function.  Blanks the display.
+<<<<<<< HEAD
  *      @blank_mode: the blank mode we want.
+=======
+ *      @blank: the blank mode we want.
+>>>>>>> upstream/android-13
  *      @info: frame buffer structure that represents a single frame buffer
  */
 static int
@@ -239,7 +251,11 @@ static int p9100_ioctl(struct fb_info *info, unsigned int cmd,
 
 static void p9100_init_fix(struct fb_info *info, int linebytes, struct device_node *dp)
 {
+<<<<<<< HEAD
 	strlcpy(info->fix.id, dp->name, sizeof(info->fix.id));
+=======
+	snprintf(info->fix.id, sizeof(info->fix.id), "%pOFn", dp);
+>>>>>>> upstream/android-13
 
 	info->fix.type = FB_TYPE_PACKED_PIXELS;
 	info->fix.visual = FB_VISUAL_PSEUDOCOLOR;

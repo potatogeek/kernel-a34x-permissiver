@@ -12,7 +12,11 @@
 #include <linux/log2.h>
 #include <linux/percpu.h>
 #include <linux/perf_event.h>
+<<<<<<< HEAD
 #include <variant/core.h>
+=======
+#include <asm/core.h>
+>>>>>>> upstream/android-13
 
 /* Breakpoint currently in use for each IBREAKA. */
 static DEFINE_PER_CPU(struct perf_event *, bp_on_reg[XCHAL_NUM_IBREAK]);
@@ -101,30 +105,53 @@ static void xtensa_wsr(unsigned long v, u8 sr)
 	switch (sr) {
 #if XCHAL_NUM_IBREAK > 0
 	case SREG_IBREAKA + 0:
+<<<<<<< HEAD
 		WSR(v, SREG_IBREAKA + 0);
+=======
+		xtensa_set_sr(v, SREG_IBREAKA + 0);
+>>>>>>> upstream/android-13
 		break;
 #endif
 #if XCHAL_NUM_IBREAK > 1
 	case SREG_IBREAKA + 1:
+<<<<<<< HEAD
 		WSR(v, SREG_IBREAKA + 1);
+=======
+		xtensa_set_sr(v, SREG_IBREAKA + 1);
+>>>>>>> upstream/android-13
 		break;
 #endif
 
 #if XCHAL_NUM_DBREAK > 0
 	case SREG_DBREAKA + 0:
+<<<<<<< HEAD
 		WSR(v, SREG_DBREAKA + 0);
 		break;
 	case SREG_DBREAKC + 0:
 		WSR(v, SREG_DBREAKC + 0);
+=======
+		xtensa_set_sr(v, SREG_DBREAKA + 0);
+		break;
+	case SREG_DBREAKC + 0:
+		xtensa_set_sr(v, SREG_DBREAKC + 0);
+>>>>>>> upstream/android-13
 		break;
 #endif
 #if XCHAL_NUM_DBREAK > 1
 	case SREG_DBREAKA + 1:
+<<<<<<< HEAD
 		WSR(v, SREG_DBREAKA + 1);
 		break;
 
 	case SREG_DBREAKC + 1:
 		WSR(v, SREG_DBREAKC + 1);
+=======
+		xtensa_set_sr(v, SREG_DBREAKA + 1);
+		break;
+
+	case SREG_DBREAKC + 1:
+		xtensa_set_sr(v, SREG_DBREAKC + 1);
+>>>>>>> upstream/android-13
 		break;
 #endif
 	}
@@ -150,8 +177,13 @@ static void set_ibreak_regs(int reg, struct perf_event *bp)
 	unsigned long ibreakenable;
 
 	xtensa_wsr(info->address, SREG_IBREAKA + reg);
+<<<<<<< HEAD
 	RSR(ibreakenable, SREG_IBREAKENABLE);
 	WSR(ibreakenable | (1 << reg), SREG_IBREAKENABLE);
+=======
+	ibreakenable = xtensa_get_sr(SREG_IBREAKENABLE);
+	xtensa_set_sr(ibreakenable | (1 << reg), SREG_IBREAKENABLE);
+>>>>>>> upstream/android-13
 }
 
 static void set_dbreak_regs(int reg, struct perf_event *bp)
@@ -214,8 +246,14 @@ void arch_uninstall_hw_breakpoint(struct perf_event *bp)
 		/* Breakpoint */
 		i = free_slot(this_cpu_ptr(bp_on_reg), XCHAL_NUM_IBREAK, bp);
 		if (i >= 0) {
+<<<<<<< HEAD
 			RSR(ibreakenable, SREG_IBREAKENABLE);
 			WSR(ibreakenable & ~(1 << i), SREG_IBREAKENABLE);
+=======
+			ibreakenable = xtensa_get_sr(SREG_IBREAKENABLE);
+			xtensa_set_sr(ibreakenable & ~(1 << i),
+				      SREG_IBREAKENABLE);
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/* Watchpoint */

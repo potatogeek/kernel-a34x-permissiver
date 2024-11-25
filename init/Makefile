@@ -5,10 +5,13 @@
 
 ccflags-y := -fno-function-sections -fno-data-sections
 
+<<<<<<< HEAD
 ifdef CONFIG_KASAN_SW_TAGS
 KASAN_SANITIZE_main.o := n
 endif
 
+=======
+>>>>>>> upstream/android-13
 obj-y                          := main.o version.o mounts.o
 ifneq ($(CONFIG_BLK_DEV_INITRD),y)
 obj-y                          += noinitramfs.o
@@ -22,7 +25,10 @@ obj-y                          += init_task.o
 mounts-y			:= do_mounts.o
 mounts-$(CONFIG_BLK_DEV_RAM)	+= do_mounts_rd.o
 mounts-$(CONFIG_BLK_DEV_INITRD)	+= do_mounts_initrd.o
+<<<<<<< HEAD
 mounts-$(CONFIG_BLK_DEV_MD)	+= do_mounts_md.o
+=======
+>>>>>>> upstream/android-13
 
 # dependencies on generated files need to be listed explicitly
 $(obj)/version.o: include/generated/compile.h
@@ -32,6 +38,7 @@ $(obj)/version.o: include/generated/compile.h
 # mkcompile_h will make sure to only update the
 # actual file if its content has changed.
 
+<<<<<<< HEAD
        chk_compile.h = :
  quiet_chk_compile.h = echo '  CHK     $@'
 silent_chk_compile.h = :
@@ -40,3 +47,13 @@ include/generated/compile.h: FORCE
 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@	\
 	"$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CONFIG_PREEMPT)"	\
 	"$(CC) $(KBUILD_CFLAGS)" "$(LD)"
+=======
+quiet_cmd_compile.h = CHK     $@
+      cmd_compile.h = \
+	$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@	\
+	"$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CONFIG_PREEMPT)"	\
+	"$(CONFIG_PREEMPT_RT)" $(CONFIG_CC_VERSION_TEXT) "$(LD)"
+
+include/generated/compile.h: FORCE
+	$(call cmd,compile.h)
+>>>>>>> upstream/android-13

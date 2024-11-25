@@ -26,9 +26,16 @@
 #ifndef __DRM_SYNCOBJ_H__
 #define __DRM_SYNCOBJ_H__
 
+<<<<<<< HEAD
 #include "linux/dma-fence.h"
 
 struct drm_syncobj_cb;
+=======
+#include <linux/dma-fence.h>
+#include <linux/dma-fence-chain.h>
+
+struct drm_file;
+>>>>>>> upstream/android-13
 
 /**
  * struct drm_syncobj - sync object.
@@ -62,6 +69,7 @@ struct drm_syncobj {
 	struct file *file;
 };
 
+<<<<<<< HEAD
 typedef void (*drm_syncobj_func_t)(struct drm_syncobj *syncobj,
 				   struct drm_syncobj_cb *cb);
 
@@ -81,6 +89,8 @@ struct drm_syncobj_cb {
 	drm_syncobj_func_t func;
 };
 
+=======
+>>>>>>> upstream/android-13
 void drm_syncobj_free(struct kref *kref);
 
 /**
@@ -131,6 +141,7 @@ drm_syncobj_fence_get(struct drm_syncobj *syncobj)
 
 struct drm_syncobj *drm_syncobj_find(struct drm_file *file_private,
 				     u32 handle);
+<<<<<<< HEAD
 void drm_syncobj_add_callback(struct drm_syncobj *syncobj,
 			      struct drm_syncobj_cb *cb,
 			      drm_syncobj_func_t func);
@@ -140,6 +151,16 @@ void drm_syncobj_replace_fence(struct drm_syncobj *syncobj,
 			       struct dma_fence *fence);
 int drm_syncobj_find_fence(struct drm_file *file_private,
 			   u32 handle,
+=======
+void drm_syncobj_add_point(struct drm_syncobj *syncobj,
+			   struct dma_fence_chain *chain,
+			   struct dma_fence *fence,
+			   uint64_t point);
+void drm_syncobj_replace_fence(struct drm_syncobj *syncobj,
+			       struct dma_fence *fence);
+int drm_syncobj_find_fence(struct drm_file *file_private,
+			   u32 handle, u64 point, u64 flags,
+>>>>>>> upstream/android-13
 			   struct dma_fence **fence);
 void drm_syncobj_free(struct kref *kref);
 int drm_syncobj_create(struct drm_syncobj **out_syncobj, uint32_t flags,

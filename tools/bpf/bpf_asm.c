@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Minimal BPF assembler
  *
@@ -10,13 +14,20 @@
  *
  * How to get into it:
  *
+<<<<<<< HEAD
  * 1) read Documentation/networking/filter.txt
+=======
+ * 1) read Documentation/networking/filter.rst
+>>>>>>> upstream/android-13
  * 2) Run `bpf_asm [-c] <filter-prog file>` to translate into binary
  *    blob that is loadable with xt_bpf, cls_bpf et al. Note: -c will
  *    pretty print a C-like construct.
  *
  * Copyright 2013 Daniel Borkmann <borkmann@redhat.com>
+<<<<<<< HEAD
  * Licensed under the GNU General Public License, version 2.0 (GPLv2)
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <stdbool.h>

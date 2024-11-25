@@ -46,6 +46,7 @@ again:
 			continue;
 		switch (resp->operation) {
 		case XENSND_OP_OPEN:
+<<<<<<< HEAD
 			/* fall through */
 		case XENSND_OP_CLOSE:
 			/* fall through */
@@ -53,6 +54,11 @@ again:
 			/* fall through */
 		case XENSND_OP_WRITE:
 			/* fall through */
+=======
+		case XENSND_OP_CLOSE:
+		case XENSND_OP_READ:
+		case XENSND_OP_WRITE:
+>>>>>>> upstream/android-13
 		case XENSND_OP_TRIGGER:
 			channel->u.req.resp_status = resp->status;
 			complete(&channel->u.req.completion);

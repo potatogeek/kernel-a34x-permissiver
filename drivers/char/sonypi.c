@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Sony Programmable I/O Control Device driver for VAIO
  *
@@ -18,6 +22,7 @@
  * Copyright (C) 2000 Andrew Tridgell <tridge@valinux.com>
  *
  * Earlier work by Werner Almesberger, Paul `Rusty' Russell and Paul Mackerras.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +38,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

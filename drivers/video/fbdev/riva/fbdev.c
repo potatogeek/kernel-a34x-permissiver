@@ -202,11 +202,15 @@ static int flatpanel = -1; /* Autodetect later */
 static int forceCRTC = -1;
 static bool noaccel  = 0;
 static bool nomtrr = 0;
+<<<<<<< HEAD
 #ifdef CONFIG_PMAC_BACKLIGHT
 static int backlight = 1;
 #else
 static int backlight = 0;
 #endif
+=======
+static int backlight = IS_BUILTIN(CONFIG_PMAC_BACKLIGHT);
+>>>>>>> upstream/android-13
 
 static char *mode_option = NULL;
 static bool strictmode       = 0;
@@ -468,7 +472,11 @@ static inline void reverse_order(u32 *l)
 
 /**
  * rivafb_load_cursor_image - load cursor image to hardware
+<<<<<<< HEAD
  * @data: address to monochrome bitmap (1 = foreground color, 0 = background)
+=======
+ * @data8: address to monochrome bitmap (1 = foreground color, 0 = background)
+>>>>>>> upstream/android-13
  * @par:  pointer to private data
  * @w:    width of cursor image in pixels
  * @h:    height of cursor image in scanlines
@@ -847,9 +855,15 @@ static void riva_update_var(struct fb_var_screeninfo *var,
 /**
  * rivafb_do_maximize - 
  * @info: pointer to fb_info object containing info for current riva board
+<<<<<<< HEAD
  * @var:
  * @nom:
  * @den:
+=======
+ * @var: standard kernel fb changeable data
+ * @nom: nom
+ * @den: den
+>>>>>>> upstream/android-13
  *
  * DESCRIPTION:
  * .
@@ -1088,6 +1102,12 @@ static int rivafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 	int mode_valid = 0;
 	
 	NVTRACE_ENTER();
+<<<<<<< HEAD
+=======
+	if (!var->pixclock)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	switch (var->bits_per_pixel) {
 	case 1 ... 8:
 		var->red.offset = var->green.offset = var->blue.offset = 0;
@@ -1097,7 +1117,11 @@ static int rivafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 		break;
 	case 9 ... 15:
 		var->green.length = 5;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 16:
 		var->bits_per_pixel = 16;
 		/* The Riva128 supports RGB555 only */
@@ -1218,7 +1242,10 @@ out:
 /**
  * rivafb_pan_display
  * @var: standard kernel fb changeable data
+<<<<<<< HEAD
  * @con: TODO
+=======
+>>>>>>> upstream/android-13
  * @info: pointer to fb_info object containing info for current riva board
  *
  * DESCRIPTION:
@@ -1673,7 +1700,11 @@ static int rivafb_sync(struct fb_info *info)
  * ------------------------------------------------------------------------- */
 
 /* kernel interface */
+<<<<<<< HEAD
 static struct fb_ops riva_fb_ops = {
+=======
+static const struct fb_ops riva_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner 		= THIS_MODULE,
 	.fb_open	= rivafb_open,
 	.fb_release	= rivafb_release,
@@ -1902,7 +1933,10 @@ static int rivafb_probe(struct pci_dev *pd, const struct pci_device_id *ent)
 
 	info = framebuffer_alloc(sizeof(struct riva_par), &pd->dev);
 	if (!info) {
+<<<<<<< HEAD
 		printk (KERN_ERR PFX "could not allocate memory\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_ret;
 	}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -90,6 +96,10 @@ struct brcmf_mp_global_t brcmf_mp_global;
 
 void brcmf_c_set_joinpref_default(struct brcmf_if *ifp)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = ifp->drvr;
+>>>>>>> upstream/android-13
 	struct brcmf_join_pref_params join_pref_params[2];
 	int err;
 
@@ -106,7 +116,11 @@ void brcmf_c_set_joinpref_default(struct brcmf_if *ifp)
 	err = brcmf_fil_iovar_data_set(ifp, "join_pref", join_pref_params,
 				       sizeof(join_pref_params));
 	if (err)
+<<<<<<< HEAD
 		brcmf_err("Set join_pref error (%d)\n", err);
+=======
+		bphy_err(drvr, "Set join_pref error (%d)\n", err);
+>>>>>>> upstream/android-13
 }
 
 static int brcmf_c_download(struct brcmf_if *ifp, u16 flag,
@@ -129,7 +143,12 @@ static int brcmf_c_download(struct brcmf_if *ifp, u16 flag,
 
 static int brcmf_c_process_clm_blob(struct brcmf_if *ifp)
 {
+<<<<<<< HEAD
 	struct brcmf_bus *bus = ifp->drvr->bus_if;
+=======
+	struct brcmf_pub *drvr = ifp->drvr;
+	struct brcmf_bus *bus = drvr->bus_if;
+>>>>>>> upstream/android-13
 	struct brcmf_dload_data_le *chunk_buf;
 	const struct firmware *clm = NULL;
 	u8 clm_name[BRCMF_FW_NAME_LEN];
@@ -145,7 +164,11 @@ static int brcmf_c_process_clm_blob(struct brcmf_if *ifp)
 	memset(clm_name, 0, sizeof(clm_name));
 	err = brcmf_bus_get_fwname(bus, ".clm_blob", clm_name);
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("get CLM blob file name failed (%d)\n", err);
+=======
+		bphy_err(drvr, "get CLM blob file name failed (%d)\n", err);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
@@ -182,12 +205,21 @@ static int brcmf_c_process_clm_blob(struct brcmf_if *ifp)
 	} while ((datalen > 0) && (err == 0));
 
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("clmload (%zu byte file) failed (%d); ",
 			  clm->size, err);
 		/* Retrieve clmload_status and print */
 		err = brcmf_fil_iovar_int_get(ifp, "clmload_status", &status);
 		if (err)
 			brcmf_err("get clmload_status failed (%d)\n", err);
+=======
+		bphy_err(drvr, "clmload (%zu byte file) failed (%d)\n",
+			 clm->size, err);
+		/* Retrieve clmload_status and print */
+		err = brcmf_fil_iovar_int_get(ifp, "clmload_status", &status);
+		if (err)
+			bphy_err(drvr, "get clmload_status failed (%d)\n", err);
+>>>>>>> upstream/android-13
 		else
 			brcmf_dbg(INFO, "clmload_status=%d\n", status);
 		err = -EIO;
@@ -201,6 +233,10 @@ done:
 
 int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 {
+<<<<<<< HEAD
+=======
+	struct brcmf_pub *drvr = ifp->drvr;
+>>>>>>> upstream/android-13
 	s8 eventmask[BRCMF_EVENTING_MASK_LEN];
 	u8 buf[BRCMF_DCMD_SMLEN];
 	struct brcmf_bus *bus;
@@ -214,11 +250,19 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 	err = brcmf_fil_iovar_data_get(ifp, "cur_etheraddr", ifp->mac_addr,
 				       sizeof(ifp->mac_addr));
 	if (err < 0) {
+<<<<<<< HEAD
 		brcmf_err("Retreiving cur_etheraddr failed, %d\n", err);
 		goto done;
 	}
 	memcpy(ifp->drvr->wiphy->perm_addr, ifp->drvr->mac, ETH_ALEN);
 	memcpy(ifp->drvr->mac, ifp->mac_addr, sizeof(ifp->drvr->mac));
+=======
+		bphy_err(drvr, "Retrieving cur_etheraddr failed, %d\n", err);
+		goto done;
+	}
+	memcpy(ifp->drvr->mac, ifp->mac_addr, sizeof(ifp->drvr->mac));
+	memcpy(ifp->drvr->wiphy->perm_addr, ifp->drvr->mac, ETH_ALEN);
+>>>>>>> upstream/android-13
 
 	bus = ifp->drvr->bus_if;
 	ri = &ifp->drvr->revinfo;
@@ -226,7 +270,11 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 	err = brcmf_fil_cmd_data_get(ifp, BRCMF_C_GET_REVINFO,
 				     &revinfo, sizeof(revinfo));
 	if (err < 0) {
+<<<<<<< HEAD
 		brcmf_err("retrieving revision info failed, %d\n", err);
+=======
+		bphy_err(drvr, "retrieving revision info failed, %d\n", err);
+>>>>>>> upstream/android-13
 		strlcpy(ri->chipname, "UNKNOWN", sizeof(ri->chipname));
 	} else {
 		ri->vendorid = le32_to_cpu(revinfo.vendorid);
@@ -260,17 +308,28 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 	/* Do any CLM downloading */
 	err = brcmf_c_process_clm_blob(ifp);
 	if (err < 0) {
+<<<<<<< HEAD
 		brcmf_err("download CLM blob file failed, %d\n", err);
+=======
+		bphy_err(drvr, "download CLM blob file failed, %d\n", err);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
 	/* query for 'ver' to get version info from firmware */
 	memset(buf, 0, sizeof(buf));
+<<<<<<< HEAD
 	strcpy(buf, "ver");
 	err = brcmf_fil_iovar_data_get(ifp, "ver", buf, sizeof(buf));
 	if (err < 0) {
 		brcmf_err("Retreiving version information failed, %d\n",
 			  err);
+=======
+	err = brcmf_fil_iovar_data_get(ifp, "ver", buf, sizeof(buf));
+	if (err < 0) {
+		bphy_err(drvr, "Retrieving version information failed, %d\n",
+			 err);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 	ptr = (char *)buf;
@@ -304,7 +363,11 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 	/* set mpc */
 	err = brcmf_fil_iovar_int_set(ifp, "mpc", 1);
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("failed setting mpc\n");
+=======
+		bphy_err(drvr, "failed setting mpc\n");
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -314,14 +377,22 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 	err = brcmf_fil_iovar_data_get(ifp, "event_msgs", eventmask,
 				       BRCMF_EVENTING_MASK_LEN);
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("Get event_msgs error (%d)\n", err);
+=======
+		bphy_err(drvr, "Get event_msgs error (%d)\n", err);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 	setbit(eventmask, BRCMF_E_IF);
 	err = brcmf_fil_iovar_data_set(ifp, "event_msgs", eventmask,
 				       BRCMF_EVENTING_MASK_LEN);
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("Set event_msgs error (%d)\n", err);
+=======
+		bphy_err(drvr, "Set event_msgs error (%d)\n", err);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -329,8 +400,13 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 	err = brcmf_fil_cmd_int_set(ifp, BRCMF_C_SET_SCAN_CHANNEL_TIME,
 				    BRCMF_DEFAULT_SCAN_CHANNEL_TIME);
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("BRCMF_C_SET_SCAN_CHANNEL_TIME error (%d)\n",
 			  err);
+=======
+		bphy_err(drvr, "BRCMF_C_SET_SCAN_CHANNEL_TIME error (%d)\n",
+			 err);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -338,8 +414,13 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 	err = brcmf_fil_cmd_int_set(ifp, BRCMF_C_SET_SCAN_UNASSOC_TIME,
 				    BRCMF_DEFAULT_SCAN_UNASSOC_TIME);
 	if (err) {
+<<<<<<< HEAD
 		brcmf_err("BRCMF_C_SET_SCAN_UNASSOC_TIME error (%d)\n",
 			  err);
+=======
+		bphy_err(drvr, "BRCMF_C_SET_SCAN_UNASSOC_TIME error (%d)\n",
+			 err);
+>>>>>>> upstream/android-13
 		goto done;
 	}
 
@@ -350,7 +431,11 @@ done:
 }
 
 #ifndef CONFIG_BRCM_TRACING
+<<<<<<< HEAD
 void __brcmf_err(const char *func, const char *fmt, ...)
+=======
+void __brcmf_err(struct brcmf_bus *bus, const char *func, const char *fmt, ...)
+>>>>>>> upstream/android-13
 {
 	struct va_format vaf;
 	va_list args;
@@ -359,7 +444,14 @@ void __brcmf_err(const char *func, const char *fmt, ...)
 
 	vaf.fmt = fmt;
 	vaf.va = &args;
+<<<<<<< HEAD
 	pr_err("%s: %pV", func, &vaf);
+=======
+	if (bus)
+		dev_err(bus->dev, "%s: %pV", func, &vaf);
+	else
+		pr_err("%s: %pV", func, &vaf);
+>>>>>>> upstream/android-13
 
 	va_end(args);
 }
@@ -448,7 +540,12 @@ struct brcmf_mp_device *brcmf_get_module_param(struct device *dev,
 		}
 	}
 	if (!found) {
+<<<<<<< HEAD
 		/* No platform data for this device, try OF (Open Firwmare) */
+=======
+		/* No platform data for this device, try OF and DMI data */
+		brcmf_dmi_probe(settings, chip, chiprev);
+>>>>>>> upstream/android-13
 		brcmf_of_probe(dev, bus_type, settings);
 	}
 	return settings;

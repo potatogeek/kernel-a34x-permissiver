@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2017 Chen-Yu Tsai. All rights reserved.
  *
@@ -12,6 +13,15 @@
  */
 
 #include <linux/clk-provider.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2017 Chen-Yu Tsai. All rights reserved.
+ */
+
+#include <linux/clk-provider.h>
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
 
@@ -108,6 +118,10 @@ static struct ccu_nkmp pll_video0_clk = {
 	.n		= _SUNXI_CCU_MULT_OFFSET_MIN_MAX(8, 8, 0, 12, 0),
 	.m		= _SUNXI_CCU_DIV(16, 1), /* input divider */
 	.p		= _SUNXI_CCU_DIV(0, 2), /* output divider */
+<<<<<<< HEAD
+=======
+	.max_rate	= 3000000000UL,
+>>>>>>> upstream/android-13
 	.common		= {
 		.reg		= 0x010,
 		.lock_reg	= CCU_SUN8I_A83T_LOCK_REG,
@@ -220,6 +234,10 @@ static struct ccu_nkmp pll_video1_clk = {
 	.n		= _SUNXI_CCU_MULT_OFFSET_MIN_MAX(8, 8, 0, 12, 0),
 	.m		= _SUNXI_CCU_DIV(16, 1), /* input divider */
 	.p		= _SUNXI_CCU_DIV(0, 2), /* external divider p */
+<<<<<<< HEAD
+=======
+	.max_rate	= 3000000000UL,
+>>>>>>> upstream/android-13
 	.common		= {
 		.reg		= 0x04c,
 		.lock_reg	= CCU_SUN8I_A83T_LOCK_REG,
@@ -511,8 +529,14 @@ static SUNXI_CCU_GATE(csi_misc_clk, "csi-misc", "osc24M", 0x130, BIT(16), 0);
 
 static SUNXI_CCU_GATE(mipi_csi_clk, "mipi-csi", "osc24M", 0x130, BIT(31), 0);
 
+<<<<<<< HEAD
 static const char * const csi_mclk_parents[] = { "pll-de", "osc24M" };
 static const u8 csi_mclk_table[] = { 3, 5 };
+=======
+static const char * const csi_mclk_parents[] = { "pll-video0", "pll-de",
+						 "osc24M" };
+static const u8 csi_mclk_table[] = { 0, 3, 5 };
+>>>>>>> upstream/android-13
 static SUNXI_CCU_M_WITH_MUX_TABLE_GATE(csi_mclk_clk, "csi-mclk",
 				       csi_mclk_parents, csi_mclk_table,
 				       0x134,
@@ -910,7 +934,11 @@ static int sun8i_a83t_ccu_probe(struct platform_device *pdev)
 	sun8i_a83t_cpu_pll_fixup(reg + SUN8I_A83T_PLL_C0CPUX_REG);
 	sun8i_a83t_cpu_pll_fixup(reg + SUN8I_A83T_PLL_C1CPUX_REG);
 
+<<<<<<< HEAD
 	return sunxi_ccu_probe(pdev->dev.of_node, reg, &sun8i_a83t_ccu_desc);
+=======
+	return devm_sunxi_ccu_probe(&pdev->dev, reg, &sun8i_a83t_ccu_desc);
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id sun8i_a83t_ccu_ids[] = {

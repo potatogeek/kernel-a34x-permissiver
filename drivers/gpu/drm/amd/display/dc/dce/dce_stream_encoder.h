@@ -199,7 +199,12 @@
 	SE_SF(DP_SEC_CNTL, DP_SEC_ATP_ENABLE, mask_sh),\
 	SE_SF(DP_SEC_CNTL, DP_SEC_AIP_ENABLE, mask_sh),\
 	SE_SF(DP_SEC_CNTL, DP_SEC_ACM_ENABLE, mask_sh),\
+<<<<<<< HEAD
 	SE_SF(AFMT_AUDIO_PACKET_CONTROL, AFMT_AUDIO_SAMPLE_SEND, mask_sh)
+=======
+	SE_SF(AFMT_AUDIO_PACKET_CONTROL, AFMT_AUDIO_SAMPLE_SEND, mask_sh),\
+	SE_SF(DIG_FE_CNTL, DIG_SOURCE_SELECT, mask_sh)
+>>>>>>> upstream/android-13
 
 #define SE_COMMON_MASK_SH_LIST_DCE_COMMON(mask_sh)\
 	SE_COMMON_MASK_SH_LIST_DCE_COMMON_BASE(mask_sh)
@@ -284,7 +289,12 @@
 	SE_SF(DIG0_DIG_FE_CNTL, TMDS_PIXEL_ENCODING, mask_sh),\
 	SE_SF(DIG0_DIG_FE_CNTL, TMDS_COLOR_FORMAT, mask_sh),\
 	SE_SF(DIG0_DIG_FE_CNTL, DIG_STEREOSYNC_SELECT, mask_sh),\
+<<<<<<< HEAD
 	SE_SF(DIG0_DIG_FE_CNTL, DIG_STEREOSYNC_GATE_EN, mask_sh)
+=======
+	SE_SF(DIG0_DIG_FE_CNTL, DIG_STEREOSYNC_GATE_EN, mask_sh),\
+	SE_SF(DIG0_DIG_FE_CNTL, DIG_SOURCE_SELECT, mask_sh)
+>>>>>>> upstream/android-13
 
 #define SE_COMMON_MASK_SH_LIST_SOC(mask_sh)\
 	SE_COMMON_MASK_SH_LIST_SOC_BASE(mask_sh)
@@ -494,6 +504,10 @@ struct dce_stream_encoder_shift {
 	uint8_t HDMI_DB_DISABLE;
 	uint8_t DP_VID_N_MUL;
 	uint8_t DP_VID_M_DOUBLE_VALUE_EN;
+<<<<<<< HEAD
+=======
+	uint8_t DIG_SOURCE_SELECT;
+>>>>>>> upstream/android-13
 };
 
 struct dce_stream_encoder_mask {
@@ -624,6 +638,10 @@ struct dce_stream_encoder_mask {
 	uint32_t HDMI_DB_DISABLE;
 	uint32_t DP_VID_N_MUL;
 	uint32_t DP_VID_M_DOUBLE_VALUE_EN;
+<<<<<<< HEAD
+=======
+	uint32_t DIG_SOURCE_SELECT;
+>>>>>>> upstream/android-13
 };
 
 struct dce110_stream_enc_registers {

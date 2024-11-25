@@ -46,7 +46,10 @@
  */
 
 #define DRIVER_NAME "et131x"
+<<<<<<< HEAD
 #define DRIVER_VERSION "v2.0"
+=======
+>>>>>>> upstream/android-13
 
 /* EEPROM registers */
 

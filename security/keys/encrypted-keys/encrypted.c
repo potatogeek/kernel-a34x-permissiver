@@ -1,16 +1,27 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010 IBM Corporation
  * Copyright (C) 2010 Politecnico di Torino, Italy
  *                    TORSEC group -- http://security.polito.it
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2010 IBM Corporation
+ * Copyright (C) 2010 Politecnico di Torino, Italy
+ *                    TORSEC group -- https://security.polito.it
+>>>>>>> upstream/android-13
  *
  * Authors:
  * Mimi Zohar <zohar@us.ibm.com>
  * Roberto Sassu <roberto.sassu@polito.it>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * See Documentation/security/keys/trusted-encrypted.rst
  */
 
@@ -32,7 +43,11 @@
 #include <crypto/aes.h>
 #include <crypto/algapi.h>
 #include <crypto/hash.h>
+<<<<<<< HEAD
 #include <crypto/sha.h>
+=======
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <crypto/skcipher.h>
 
 #include "encrypted.h"
@@ -45,6 +60,10 @@ static const char hmac_alg[] = "hmac(sha256)";
 static const char blkcipher_alg[] = "cbc(aes)";
 static const char key_format_default[] = "default";
 static const char key_format_ecryptfs[] = "ecryptfs";
+<<<<<<< HEAD
+=======
+static const char key_format_enc32[] = "enc32";
+>>>>>>> upstream/android-13
 static unsigned int ivsize;
 static int blksize;
 
@@ -54,20 +73,36 @@ static int blksize;
 #define HASH_SIZE SHA256_DIGEST_SIZE
 #define MAX_DATA_SIZE 4096
 #define MIN_DATA_SIZE  20
+<<<<<<< HEAD
+=======
+#define KEY_ENC32_PAYLOAD_LEN 32
+>>>>>>> upstream/android-13
 
 static struct crypto_shash *hash_tfm;
 
 enum {
+<<<<<<< HEAD
 	Opt_err = -1, Opt_new, Opt_load, Opt_update
 };
 
 enum {
 	Opt_error = -1, Opt_default, Opt_ecryptfs
+=======
+	Opt_new, Opt_load, Opt_update, Opt_err
+};
+
+enum {
+	Opt_default, Opt_ecryptfs, Opt_enc32, Opt_error
+>>>>>>> upstream/android-13
 };
 
 static const match_table_t key_format_tokens = {
 	{Opt_default, "default"},
 	{Opt_ecryptfs, "ecryptfs"},
+<<<<<<< HEAD
+=======
+	{Opt_enc32, "enc32"},
+>>>>>>> upstream/android-13
 	{Opt_error, NULL}
 };
 
@@ -195,6 +230,10 @@ static int datablob_parse(char *datablob, const char **format,
 	key_format = match_token(p, key_format_tokens, args);
 	switch (key_format) {
 	case Opt_ecryptfs:
+<<<<<<< HEAD
+=======
+	case Opt_enc32:
+>>>>>>> upstream/android-13
 	case Opt_default:
 		*format = p;
 		*master_desc = strsep(&datablob, " \t");
@@ -322,6 +361,7 @@ error:
 	return ukey;
 }
 
+<<<<<<< HEAD
 static int calc_hash(struct crypto_shash *tfm, u8 *digest,
 		     const u8 *buf, unsigned int buflen)
 {
@@ -336,13 +376,19 @@ static int calc_hash(struct crypto_shash *tfm, u8 *digest,
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int calc_hmac(u8 *digest, const u8 *key, unsigned int keylen,
 		     const u8 *buf, unsigned int buflen)
 {
 	struct crypto_shash *tfm;
 	int err;
 
+<<<<<<< HEAD
 	tfm = crypto_alloc_shash(hmac_alg, 0, CRYPTO_ALG_ASYNC);
+=======
+	tfm = crypto_alloc_shash(hmac_alg, 0, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(tfm)) {
 		pr_err("encrypted_key: can't alloc %s transform: %ld\n",
 		       hmac_alg, PTR_ERR(tfm));
@@ -351,7 +397,11 @@ static int calc_hmac(u8 *digest, const u8 *key, unsigned int keylen,
 
 	err = crypto_shash_setkey(tfm, key, keylen);
 	if (!err)
+<<<<<<< HEAD
 		err = calc_hash(tfm, digest, buf, buflen);
+=======
+		err = crypto_shash_tfm_digest(tfm, buf, buflen, digest);
+>>>>>>> upstream/android-13
 	crypto_free_shash(tfm);
 	return err;
 }
@@ -381,8 +431,14 @@ static int get_derived_key(u8 *derived_key, enum derived_key_type key_type,
 
 	memcpy(derived_buf + strlen(derived_buf) + 1, master_key,
 	       master_keylen);
+<<<<<<< HEAD
 	ret = calc_hash(hash_tfm, derived_key, derived_buf, derived_buf_len);
 	kzfree(derived_buf);
+=======
+	ret = crypto_shash_tfm_digest(hash_tfm, derived_buf, derived_buf_len,
+				      derived_key);
+	kfree_sensitive(derived_buf);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -625,6 +681,7 @@ static struct encrypted_key_payload *encrypted_key_alloc(struct key *key,
 	format_len = (!format) ? strlen(key_format_default) : strlen(format);
 	decrypted_datalen = dlen;
 	payload_datalen = decrypted_datalen;
+<<<<<<< HEAD
 	if (format && !strcmp(format, key_format_ecryptfs)) {
 		if (dlen != ECRYPTFS_MAX_KEY_BYTES) {
 			pr_err("encrypted_key: keylen for the ecryptfs format "
@@ -634,6 +691,24 @@ static struct encrypted_key_payload *encrypted_key_alloc(struct key *key,
 		}
 		decrypted_datalen = ECRYPTFS_MAX_KEY_BYTES;
 		payload_datalen = sizeof(struct ecryptfs_auth_tok);
+=======
+	if (format) {
+		if (!strcmp(format, key_format_ecryptfs)) {
+			if (dlen != ECRYPTFS_MAX_KEY_BYTES) {
+				pr_err("encrypted_key: keylen for the ecryptfs format must be equal to %d bytes\n",
+					ECRYPTFS_MAX_KEY_BYTES);
+				return ERR_PTR(-EINVAL);
+			}
+			decrypted_datalen = ECRYPTFS_MAX_KEY_BYTES;
+			payload_datalen = sizeof(struct ecryptfs_auth_tok);
+		} else if (!strcmp(format, key_format_enc32)) {
+			if (decrypted_datalen != KEY_ENC32_PAYLOAD_LEN) {
+				pr_err("encrypted_key: enc32 key payload incorrect length: %d\n",
+						decrypted_datalen);
+				return ERR_PTR(-EINVAL);
+			}
+		}
+>>>>>>> upstream/android-13
 	}
 
 	encrypted_datalen = roundup(decrypted_datalen, blksize);
@@ -817,13 +892,21 @@ static int encrypted_instantiate(struct key *key,
 	ret = encrypted_init(epayload, key->description, format, master_desc,
 			     decrypted_datalen, hex_encoded_iv);
 	if (ret < 0) {
+<<<<<<< HEAD
 		kzfree(epayload);
+=======
+		kfree_sensitive(epayload);
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
 	rcu_assign_keypointer(key, epayload);
 out:
+<<<<<<< HEAD
 	kzfree(datablob);
+=======
+	kfree_sensitive(datablob);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -832,7 +915,11 @@ static void encrypted_rcu_free(struct rcu_head *rcu)
 	struct encrypted_key_payload *epayload;
 
 	epayload = container_of(rcu, struct encrypted_key_payload, rcu);
+<<<<<<< HEAD
 	kzfree(epayload);
+=======
+	kfree_sensitive(epayload);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -890,7 +977,11 @@ static int encrypted_update(struct key *key, struct key_preparsed_payload *prep)
 	rcu_assign_keypointer(key, new_epayload);
 	call_rcu(&epayload->rcu, encrypted_rcu_free);
 out:
+<<<<<<< HEAD
 	kzfree(buf);
+=======
+	kfree_sensitive(buf);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -951,7 +1042,11 @@ static long encrypted_read(const struct key *key, char *buffer,
 	memzero_explicit(derived_key, sizeof(derived_key));
 
 	memcpy(buffer, ascii_buf, asciiblob_len);
+<<<<<<< HEAD
 	kzfree(ascii_buf);
+=======
+	kfree_sensitive(ascii_buf);
+>>>>>>> upstream/android-13
 
 	return asciiblob_len;
 out:
@@ -966,7 +1061,11 @@ out:
  */
 static void encrypted_destroy(struct key *key)
 {
+<<<<<<< HEAD
 	kzfree(key->payload.data[0]);
+=======
+	kfree_sensitive(key->payload.data[0]);
+>>>>>>> upstream/android-13
 }
 
 struct key_type key_type_encrypted = {
@@ -983,7 +1082,11 @@ static int __init init_encrypted(void)
 {
 	int ret;
 
+<<<<<<< HEAD
 	hash_tfm = crypto_alloc_shash(hash_alg, 0, CRYPTO_ALG_ASYNC);
+=======
+	hash_tfm = crypto_alloc_shash(hash_alg, 0, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hash_tfm)) {
 		pr_err("encrypted_key: can't allocate %s transform: %ld\n",
 		       hash_alg, PTR_ERR(hash_tfm));

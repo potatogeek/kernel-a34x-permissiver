@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Management of Tx window, Tx resend, ACKs and out-of-sequence reception
  *
  * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -47,8 +54,12 @@ static void rxrpc_propose_ping(struct rxrpc_call *call,
  * propose an ACK be sent
  */
 static void __rxrpc_propose_ACK(struct rxrpc_call *call, u8 ack_reason,
+<<<<<<< HEAD
 				u16 skew, u32 serial, bool immediate,
 				bool background,
+=======
+				u32 serial, bool immediate, bool background,
+>>>>>>> upstream/android-13
 				enum rxrpc_propose_ack_trace why)
 {
 	enum rxrpc_propose_ack_outcome outcome = rxrpc_propose_ack_use;
@@ -73,14 +84,20 @@ static void __rxrpc_propose_ACK(struct rxrpc_call *call, u8 ack_reason,
 		if (RXRPC_ACK_UPDATEABLE & (1 << ack_reason)) {
 			outcome = rxrpc_propose_ack_update;
 			call->ackr_serial = serial;
+<<<<<<< HEAD
 			call->ackr_skew = skew;
+=======
+>>>>>>> upstream/android-13
 		}
 		if (!immediate)
 			goto trace;
 	} else if (prior > rxrpc_ack_priority[call->ackr_reason]) {
 		call->ackr_reason = ack_reason;
 		call->ackr_serial = serial;
+<<<<<<< HEAD
 		call->ackr_skew = skew;
+=======
+>>>>>>> upstream/android-13
 	} else {
 		outcome = rxrpc_propose_ack_subsume;
 	}
@@ -118,8 +135,13 @@ static void __rxrpc_propose_ACK(struct rxrpc_call *call, u8 ack_reason,
 	} else {
 		unsigned long now = jiffies, ack_at;
 
+<<<<<<< HEAD
 		if (call->peer->rtt_usage > 0)
 			ack_at = nsecs_to_jiffies(call->peer->rtt);
+=======
+		if (call->peer->srtt_us != 0)
+			ack_at = usecs_to_jiffies(call->peer->srtt_us >> 3);
+>>>>>>> upstream/android-13
 		else
 			ack_at = expiry;
 
@@ -141,11 +163,19 @@ trace:
  * propose an ACK be sent, locking the call structure
  */
 void rxrpc_propose_ACK(struct rxrpc_call *call, u8 ack_reason,
+<<<<<<< HEAD
 		       u16 skew, u32 serial, bool immediate, bool background,
 		       enum rxrpc_propose_ack_trace why)
 {
 	spin_lock_bh(&call->lock);
 	__rxrpc_propose_ACK(call, ack_reason, skew, serial,
+=======
+		       u32 serial, bool immediate, bool background,
+		       enum rxrpc_propose_ack_trace why)
+{
+	spin_lock_bh(&call->lock);
+	__rxrpc_propose_ACK(call, ack_reason, serial,
+>>>>>>> upstream/android-13
 			    immediate, background, why);
 	spin_unlock_bh(&call->lock);
 }
@@ -166,12 +196,17 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
 	struct sk_buff *skb;
 	unsigned long resend_at;
 	rxrpc_seq_t cursor, seq, top;
+<<<<<<< HEAD
 	ktime_t now, max_age, oldest, ack_ts, timeout, min_timeo;
+=======
+	ktime_t now, max_age, oldest, ack_ts;
+>>>>>>> upstream/android-13
 	int ix;
 	u8 annotation, anno_type, retrans = 0, unacked = 0;
 
 	_enter("{%d,%d}", call->tx_hard_ack, call->tx_top);
 
+<<<<<<< HEAD
 	if (call->peer->rtt_usage > 1)
 		timeout = ns_to_ktime(call->peer->rtt * 3 / 2);
 	else
@@ -182,6 +217,10 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
 
 	now = ktime_get_real();
 	max_age = ktime_sub(now, timeout);
+=======
+	now = ktime_get_real();
+	max_age = ktime_sub(now, jiffies_to_usecs(call->peer->rto_j));
+>>>>>>> upstream/android-13
 
 	spin_lock_bh(&call->lock);
 
@@ -206,7 +245,11 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
 			continue;
 
 		skb = call->rxtx_buffer[ix];
+<<<<<<< HEAD
 		rxrpc_see_skb(skb, rxrpc_skb_tx_seen);
+=======
+		rxrpc_see_skb(skb, rxrpc_skb_seen);
+>>>>>>> upstream/android-13
 
 		if (anno_type == RXRPC_TX_ANNO_UNACK) {
 			if (ktime_after(skb->tstamp, max_age)) {
@@ -226,7 +269,11 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
 	}
 
 	resend_at = nsecs_to_jiffies(ktime_to_ns(ktime_sub(now, oldest)));
+<<<<<<< HEAD
 	resend_at += jiffies + rxrpc_resend_timeout;
+=======
+	resend_at += jiffies + rxrpc_get_rto_backoff(call->peer, retrans);
+>>>>>>> upstream/android-13
 	WRITE_ONCE(call->resend_at, resend_at);
 
 	if (unacked)
@@ -241,9 +288,15 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
 					rxrpc_timer_set_for_resend);
 		spin_unlock_bh(&call->lock);
 		ack_ts = ktime_sub(now, call->acks_latest_ts);
+<<<<<<< HEAD
 		if (ktime_to_ns(ack_ts) < call->peer->rtt)
 			goto out;
 		rxrpc_propose_ACK(call, RXRPC_ACK_PING, 0, 0, true, false,
+=======
+		if (ktime_to_us(ack_ts) < (call->peer->srtt_us >> 3))
+			goto out;
+		rxrpc_propose_ACK(call, RXRPC_ACK_PING, 0, true, false,
+>>>>>>> upstream/android-13
 				  rxrpc_propose_ack_ping_for_lost_ack);
 		rxrpc_send_ack_packet(call, true, NULL);
 		goto out;
@@ -261,18 +314,39 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
 		if (anno_type != RXRPC_TX_ANNO_RETRANS)
 			continue;
 
+<<<<<<< HEAD
 		skb = call->rxtx_buffer[ix];
 		rxrpc_get_skb(skb, rxrpc_skb_tx_got);
 		spin_unlock_bh(&call->lock);
 
 		if (rxrpc_send_data_packet(call, skb, true) < 0) {
 			rxrpc_free_skb(skb, rxrpc_skb_tx_freed);
+=======
+		/* We need to reset the retransmission state, but we need to do
+		 * so before we drop the lock as a new ACK/NAK may come in and
+		 * confuse things
+		 */
+		annotation &= ~RXRPC_TX_ANNO_MASK;
+		annotation |= RXRPC_TX_ANNO_UNACK | RXRPC_TX_ANNO_RESENT;
+		call->rxtx_annotations[ix] = annotation;
+
+		skb = call->rxtx_buffer[ix];
+		if (!skb)
+			continue;
+
+		rxrpc_get_skb(skb, rxrpc_skb_got);
+		spin_unlock_bh(&call->lock);
+
+		if (rxrpc_send_data_packet(call, skb, true) < 0) {
+			rxrpc_free_skb(skb, rxrpc_skb_freed);
+>>>>>>> upstream/android-13
 			return;
 		}
 
 		if (rxrpc_is_client_call(call))
 			rxrpc_expose_client_call(call);
 
+<<<<<<< HEAD
 		rxrpc_free_skb(skb, rxrpc_skb_tx_freed);
 		spin_lock_bh(&call->lock);
 
@@ -293,6 +367,10 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
 			call->rxtx_annotations[ix] = annotation;
 		}
 
+=======
+		rxrpc_free_skb(skb, rxrpc_skb_freed);
+		spin_lock_bh(&call->lock);
+>>>>>>> upstream/android-13
 		if (after(call->tx_hard_ack, seq))
 			seq = call->tx_hard_ack;
 	}
@@ -332,8 +410,12 @@ recheck_state:
 	}
 
 	if (call->state == RXRPC_CALL_COMPLETE) {
+<<<<<<< HEAD
 		del_timer_sync(&call->timer);
 		rxrpc_notify_socket(call);
+=======
+		rxrpc_delete_call_timer(call);
+>>>>>>> upstream/android-13
 		goto out_put;
 	}
 
@@ -376,7 +458,11 @@ recheck_state:
 	if (time_after_eq(now, t)) {
 		trace_rxrpc_timer(call, rxrpc_timer_exp_keepalive, now);
 		cmpxchg(&call->keepalive_at, t, now + MAX_JIFFY_OFFSET);
+<<<<<<< HEAD
 		rxrpc_propose_ACK(call, RXRPC_ACK_PING, 0, 0, true, true,
+=======
+		rxrpc_propose_ACK(call, RXRPC_ACK_PING, 0, true, true,
+>>>>>>> upstream/android-13
 				  rxrpc_propose_ack_ping_for_keepalive);
 		set_bit(RXRPC_CALL_EV_PING, &call->events);
 	}
@@ -411,7 +497,11 @@ recheck_state:
 	send_ack = NULL;
 	if (test_and_clear_bit(RXRPC_CALL_EV_ACK_LOST, &call->events)) {
 		call->acks_lost_top = call->tx_top;
+<<<<<<< HEAD
 		rxrpc_propose_ACK(call, RXRPC_ACK_PING, 0, 0, true, false,
+=======
+		rxrpc_propose_ACK(call, RXRPC_ACK_PING, 0, true, false,
+>>>>>>> upstream/android-13
 				  rxrpc_propose_ack_ping_for_lost_ack);
 		send_ack = &call->acks_lost_ping;
 	}

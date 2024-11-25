@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  *	(C)Copyright 1998,1999 SysKonnect,
@@ -5,19 +9,25 @@
  *
  *	See the file "skfddi.c" for further information.
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	The information in this file is provided "AS IS" without warranty.
  *
  ******************************************************************************/
 
+<<<<<<< HEAD
 #ifndef	lint
 static char const ID_sccs[] = "@(#)hwmtm.c	1.40 99/05/31 (C) SK" ;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #define	HWMTM
 
 #ifndef FDDI
@@ -1206,7 +1216,11 @@ void process_receive(struct s_smc *smc)
 		}
 		/*
 		 * SUPERNET 3 Bug: FORMAC delivers status words
+<<<<<<< HEAD
 		 * of aborded frames to the BMU
+=======
+		 * of aborted frames to the BMU
+>>>>>>> upstream/android-13
 		 */
 		if (len <= 4) {
 			DB_RX(2, "Frame length = 0");
@@ -1343,7 +1357,11 @@ void process_receive(struct s_smc *smc)
 				break ;
 			default :
 				/*
+<<<<<<< HEAD
 				 * unknown FC abord the frame
+=======
+				 * unknown FC abort the frame
+>>>>>>> upstream/android-13
 				 */
 				DB_RX(2, "unknown FC error");
 				smt_free_mbuf(smc,mb) ;

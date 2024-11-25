@@ -60,8 +60,13 @@ void dql_completed(struct dql *dql, unsigned int count)
 		 * A decrease is only considered if the queue has been busy in
 		 * the whole interval (the check above).
 		 *
+<<<<<<< HEAD
 		 * If there is slack, the amount of execess data queued above
 		 * the the amount needed to prevent starvation, the queue limit
+=======
+		 * If there is slack, the amount of excess data queued above
+		 * the amount needed to prevent starvation, the queue limit
+>>>>>>> upstream/android-13
 		 * can be decreased.  To avoid hysteresis we consider the
 		 * minimum amount of slack found over several iterations of the
 		 * completion routine.

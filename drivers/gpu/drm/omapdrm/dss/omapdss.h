@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -13,11 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2016 Texas Instruments Incorporated - https://www.ti.com/
+ * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OMAP_DRM_DSS_H
 #define __OMAP_DRM_DSS_H
 
+<<<<<<< HEAD
 #include <linux/list.h>
 #include <linux/kobject.h>
 #include <linux/device.h>
@@ -26,6 +34,16 @@
 #include <linux/platform_data/omapdss.h>
 #include <uapi/drm/drm_mode.h>
 #include <drm/drm_crtc.h>
+=======
+#include <drm/drm_color_mgmt.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_mode.h>
+#include <linux/device.h>
+#include <linux/interrupt.h>
+#include <linux/list.h>
+#include <linux/platform_data/omapdss.h>
+#include <video/videomode.h>
+>>>>>>> upstream/android-13
 
 #define DISPC_IRQ_FRAMEDONE		(1 << 0)
 #define DISPC_IRQ_VSYNC			(1 << 1)
@@ -59,6 +77,7 @@
 #define DISPC_IRQ_ACBIAS_COUNT_STAT3	(1 << 29)
 #define DISPC_IRQ_FRAMEDONE3		(1 << 30)
 
+<<<<<<< HEAD
 struct dss_device;
 struct omap_drm_private;
 struct omap_dss_device;
@@ -68,6 +87,17 @@ struct dss_lcd_mgr_config;
 struct snd_aes_iec958;
 struct snd_cea_861_aud_if;
 struct hdmi_avi_infoframe;
+=======
+struct dispc_device;
+struct drm_connector;
+struct dss_device;
+struct dss_lcd_mgr_config;
+struct hdmi_avi_infoframe;
+struct omap_drm_private;
+struct omap_dss_device;
+struct snd_aes_iec958;
+struct snd_cea_861_aud_if;
+>>>>>>> upstream/android-13
 
 enum omap_display_type {
 	OMAP_DISPLAY_TYPE_NONE		= 0,
@@ -127,6 +157,7 @@ enum omap_dss_venc_type {
 	OMAP_DSS_VENC_TYPE_SVIDEO,
 };
 
+<<<<<<< HEAD
 enum omap_dss_dsi_pixel_format {
 	OMAP_DSS_DSI_FMT_RGB888,
 	OMAP_DSS_DSI_FMT_RGB666,
@@ -149,6 +180,8 @@ enum omap_dss_display_state {
 	OMAP_DSS_DISPLAY_ACTIVE,
 };
 
+=======
+>>>>>>> upstream/android-13
 enum omap_dss_rotation_type {
 	OMAP_DSS_ROT_NONE	= 0,
 	OMAP_DSS_ROT_TILER	= 1 << 0,
@@ -173,6 +206,7 @@ enum omap_dss_output_id {
 	OMAP_DSS_OUTPUT_HDMI	= 1 << 6,
 };
 
+<<<<<<< HEAD
 /* DSI */
 
 enum omap_dss_dsi_trans_mode {
@@ -231,6 +265,8 @@ struct omap_dss_dsi_config {
 	enum omap_dss_dsi_trans_mode trans_mode;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct omap_dss_cpr_coefs {
 	s16 rr, rg, rb;
 	s16 gr, gg, gb;
@@ -254,6 +290,12 @@ struct omap_overlay_info {
 	u8 global_alpha;
 	u8 pre_mult_alpha;
 	u8 zorder;
+<<<<<<< HEAD
+=======
+
+	enum drm_color_encoding color_encoding;
+	enum drm_color_range color_range;
+>>>>>>> upstream/android-13
 };
 
 struct omap_overlay_manager_info {
@@ -269,6 +311,7 @@ struct omap_overlay_manager_info {
 	struct omap_dss_cpr_coefs cpr_coefs;
 };
 
+<<<<<<< HEAD
 /* 22 pins means 1 clk lane and 10 data lanes */
 #define OMAP_DSS_MAX_DSI_PINS 22
 
@@ -284,6 +327,8 @@ struct omap_dsi_pin_config {
 	int pins[OMAP_DSS_MAX_DSI_PINS];
 };
 
+=======
+>>>>>>> upstream/android-13
 struct omap_dss_writeback_info {
 	u32 paddr;
 	u32 p_uv_addr;
@@ -296,6 +341,7 @@ struct omap_dss_writeback_info {
 	u8 pre_mult_alpha;
 };
 
+<<<<<<< HEAD
 struct omapdss_dpi_ops {
 	int (*connect)(struct omap_dss_device *dssdev,
 			struct omap_dss_device *dst);
@@ -507,10 +553,44 @@ struct omap_dss_device {
 	/* DISPC channel for this output */
 	enum omap_channel dispc_channel;
 	bool dispc_channel_connected;
+=======
+struct omapdss_dsi_ops {
+	int (*update)(struct omap_dss_device *dssdev);
+	bool (*is_video_mode)(struct omap_dss_device *dssdev);
+};
+
+struct omap_dss_device {
+	struct device *dev;
+
+	struct dss_device *dss;
+	struct drm_bridge *bridge;
+	struct drm_bridge *next_bridge;
+	struct drm_panel *panel;
+
+	struct list_head list;
+
+	/*
+	 * DSS type that this device generates (for DSS internal devices) or
+	 * requires (for external encoders, connectors and panels). Must be a
+	 * non-zero (different than OMAP_DISPLAY_TYPE_NONE) value.
+	 */
+	enum omap_display_type type;
+
+	const char *name;
+
+	const struct omapdss_dsi_ops *dsi_ops;
+	u32 bus_flags;
+
+	/* OMAP DSS output specific fields */
+
+	/* DISPC channel for this output */
+	enum omap_channel dispc_channel;
+>>>>>>> upstream/android-13
 
 	/* output instance */
 	enum omap_dss_output_id id;
 
+<<<<<<< HEAD
 	/* the port number in the DT node */
 	int port_num;
 
@@ -588,11 +668,32 @@ struct omap_dss_device *omap_dss_get_device(struct omap_dss_device *dssdev);
 void omap_dss_put_device(struct omap_dss_device *dssdev);
 #define for_each_dss_dev(d) while ((d = omap_dss_get_next_device(d)) != NULL)
 struct omap_dss_device *omap_dss_get_next_device(struct omap_dss_device *from);
+=======
+	/* port number in DT */
+	unsigned int of_port;
+};
+
+struct dss_pdata {
+	struct dss_device *dss;
+};
+
+void omapdss_device_register(struct omap_dss_device *dssdev);
+void omapdss_device_unregister(struct omap_dss_device *dssdev);
+struct omap_dss_device *omapdss_device_get(struct omap_dss_device *dssdev);
+void omapdss_device_put(struct omap_dss_device *dssdev);
+struct omap_dss_device *omapdss_find_device_by_node(struct device_node *node);
+int omapdss_device_connect(struct dss_device *dss,
+			   struct omap_dss_device *src,
+			   struct omap_dss_device *dst);
+void omapdss_device_disconnect(struct omap_dss_device *src,
+			       struct omap_dss_device *dst);
+>>>>>>> upstream/android-13
 
 int omap_dss_get_num_overlay_managers(void);
 
 int omap_dss_get_num_overlays(void);
 
+<<<<<<< HEAD
 int omapdss_register_output(struct omap_dss_device *output);
 void omapdss_unregister_output(struct omap_dss_device *output);
 struct omap_dss_device *omap_dss_get_output(enum omap_dss_output_id id);
@@ -602,6 +703,14 @@ int omapdss_output_set_device(struct omap_dss_device *out,
 int omapdss_output_unset_device(struct omap_dss_device *out);
 
 struct omap_dss_device *omapdss_find_output_from_display(struct omap_dss_device *dssdev);
+=======
+#define for_each_dss_output(d) \
+	while ((d = omapdss_device_next_output(d)) != NULL)
+struct omap_dss_device *omapdss_device_next_output(struct omap_dss_device *from);
+int omapdss_device_init_output(struct omap_dss_device *out,
+			       struct drm_bridge *local_bridge);
+void omapdss_device_cleanup_output(struct omap_dss_device *out);
+>>>>>>> upstream/android-13
 
 typedef void (*omap_dispc_isr_t) (void *arg, u32 mask);
 int omap_dispc_register_isr(omap_dispc_isr_t isr, void *arg, u32 mask);
@@ -610,6 +719,7 @@ int omap_dispc_unregister_isr(omap_dispc_isr_t isr, void *arg, u32 mask);
 int omapdss_compat_init(void);
 void omapdss_compat_uninit(void);
 
+<<<<<<< HEAD
 static inline bool omapdss_device_is_connected(struct omap_dss_device *dssdev)
 {
 	return dssdev->src;
@@ -626,6 +736,8 @@ omapdss_of_find_source_for_first_ep(struct device_node *node);
 struct device_node *dss_of_port_get_parent_device(struct device_node *port);
 u32 dss_of_port_get_port_number(struct device_node *port);
 
+=======
+>>>>>>> upstream/android-13
 enum dss_writeback_channel {
 	DSS_WB_LCD1_MGR =	0,
 	DSS_WB_LCD2_MGR =	1,
@@ -637,6 +749,7 @@ enum dss_writeback_channel {
 	DSS_WB_LCD3_MGR =	7,
 };
 
+<<<<<<< HEAD
 struct dss_mgr_ops {
 	int (*connect)(struct omap_drm_private *priv,
 		       enum omap_channel channel,
@@ -673,6 +786,26 @@ int dss_mgr_connect(struct omap_dss_device *dssdev,
 		    struct omap_dss_device *dst);
 void dss_mgr_disconnect(struct omap_dss_device *dssdev,
 			struct omap_dss_device *dst);
+=======
+void omap_crtc_dss_start_update(struct omap_drm_private *priv,
+				       enum omap_channel channel);
+void omap_crtc_set_enabled(struct drm_crtc *crtc, bool enable);
+int omap_crtc_dss_enable(struct omap_drm_private *priv, enum omap_channel channel);
+void omap_crtc_dss_disable(struct omap_drm_private *priv, enum omap_channel channel);
+void omap_crtc_dss_set_timings(struct omap_drm_private *priv,
+		enum omap_channel channel,
+		const struct videomode *vm);
+void omap_crtc_dss_set_lcd_config(struct omap_drm_private *priv,
+		enum omap_channel channel,
+		const struct dss_lcd_mgr_config *config);
+int omap_crtc_dss_register_framedone(
+		struct omap_drm_private *priv, enum omap_channel channel,
+		void (*handler)(void *), void *data);
+void omap_crtc_dss_unregister_framedone(
+		struct omap_drm_private *priv, enum omap_channel channel,
+		void (*handler)(void *), void *data);
+
+>>>>>>> upstream/android-13
 void dss_mgr_set_timings(struct omap_dss_device *dssdev,
 		const struct videomode *vm);
 void dss_mgr_set_lcd_config(struct omap_dss_device *dssdev,
@@ -685,6 +818,7 @@ int dss_mgr_register_framedone_handler(struct omap_dss_device *dssdev,
 void dss_mgr_unregister_framedone_handler(struct omap_dss_device *dssdev,
 		void (*handler)(void *), void *data);
 
+<<<<<<< HEAD
 /* dispc ops */
 
 struct dispc_ops {
@@ -759,8 +893,17 @@ const struct dispc_ops *dispc_get_ops(struct dss_device *dss);
 
 bool omapdss_component_is_display(struct device_node *node);
 bool omapdss_component_is_output(struct device_node *node);
+=======
+struct dispc_device *dispc_get_dispc(struct dss_device *dss);
+>>>>>>> upstream/android-13
 
 bool omapdss_stack_is_ready(void);
 void omapdss_gather_components(struct device *dev);
 
+<<<<<<< HEAD
+=======
+int omap_dss_init(void);
+void omap_dss_exit(void);
+
+>>>>>>> upstream/android-13
 #endif /* __OMAP_DRM_DSS_H */

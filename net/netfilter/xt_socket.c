@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Transparent proxy support for Linux/iptables
  *
  * Copyright (C) 2007-2008 BalaBit IT Ltd.
  * Author: Krisztian Kovacs
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
@@ -220,6 +227,19 @@ static int socket_mt_v3_check(const struct xt_mtchk_param *par)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void socket_mt_destroy(const struct xt_mtdtor_param *par)
+{
+	if (par->family == NFPROTO_IPV4)
+		nf_defrag_ipv4_disable(par->net);
+#if IS_ENABLED(CONFIG_IP6_NF_IPTABLES)
+	else if (par->family == NFPROTO_IPV6)
+		nf_defrag_ipv6_disable(par->net);
+#endif
+}
+
+>>>>>>> upstream/android-13
 static struct xt_match socket_mt_reg[] __read_mostly = {
 	{
 		.name		= "socket",
@@ -235,6 +255,10 @@ static struct xt_match socket_mt_reg[] __read_mostly = {
 		.revision	= 1,
 		.family		= NFPROTO_IPV4,
 		.match		= socket_mt4_v1_v2_v3,
+<<<<<<< HEAD
+=======
+		.destroy	= socket_mt_destroy,
+>>>>>>> upstream/android-13
 		.checkentry	= socket_mt_v1_check,
 		.matchsize	= sizeof(struct xt_socket_mtinfo1),
 		.hooks		= (1 << NF_INET_PRE_ROUTING) |
@@ -249,6 +273,10 @@ static struct xt_match socket_mt_reg[] __read_mostly = {
 		.match		= socket_mt6_v1_v2_v3,
 		.checkentry	= socket_mt_v1_check,
 		.matchsize	= sizeof(struct xt_socket_mtinfo1),
+<<<<<<< HEAD
+=======
+		.destroy	= socket_mt_destroy,
+>>>>>>> upstream/android-13
 		.hooks		= (1 << NF_INET_PRE_ROUTING) |
 				  (1 << NF_INET_LOCAL_IN),
 		.me		= THIS_MODULE,
@@ -260,6 +288,10 @@ static struct xt_match socket_mt_reg[] __read_mostly = {
 		.family		= NFPROTO_IPV4,
 		.match		= socket_mt4_v1_v2_v3,
 		.checkentry	= socket_mt_v2_check,
+<<<<<<< HEAD
+=======
+		.destroy	= socket_mt_destroy,
+>>>>>>> upstream/android-13
 		.matchsize	= sizeof(struct xt_socket_mtinfo1),
 		.hooks		= (1 << NF_INET_PRE_ROUTING) |
 				  (1 << NF_INET_LOCAL_IN),
@@ -272,6 +304,10 @@ static struct xt_match socket_mt_reg[] __read_mostly = {
 		.family		= NFPROTO_IPV6,
 		.match		= socket_mt6_v1_v2_v3,
 		.checkentry	= socket_mt_v2_check,
+<<<<<<< HEAD
+=======
+		.destroy	= socket_mt_destroy,
+>>>>>>> upstream/android-13
 		.matchsize	= sizeof(struct xt_socket_mtinfo1),
 		.hooks		= (1 << NF_INET_PRE_ROUTING) |
 				  (1 << NF_INET_LOCAL_IN),
@@ -284,6 +320,10 @@ static struct xt_match socket_mt_reg[] __read_mostly = {
 		.family		= NFPROTO_IPV4,
 		.match		= socket_mt4_v1_v2_v3,
 		.checkentry	= socket_mt_v3_check,
+<<<<<<< HEAD
+=======
+		.destroy	= socket_mt_destroy,
+>>>>>>> upstream/android-13
 		.matchsize	= sizeof(struct xt_socket_mtinfo1),
 		.hooks		= (1 << NF_INET_PRE_ROUTING) |
 				  (1 << NF_INET_LOCAL_IN),
@@ -296,6 +336,10 @@ static struct xt_match socket_mt_reg[] __read_mostly = {
 		.family		= NFPROTO_IPV6,
 		.match		= socket_mt6_v1_v2_v3,
 		.checkentry	= socket_mt_v3_check,
+<<<<<<< HEAD
+=======
+		.destroy	= socket_mt_destroy,
+>>>>>>> upstream/android-13
 		.matchsize	= sizeof(struct xt_socket_mtinfo1),
 		.hooks		= (1 << NF_INET_PRE_ROUTING) |
 				  (1 << NF_INET_LOCAL_IN),

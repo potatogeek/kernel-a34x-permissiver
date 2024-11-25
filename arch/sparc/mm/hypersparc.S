@@ -10,6 +10,10 @@
 #include <asm/asm-offsets.h>
 #include <asm/asi.h>
 #include <asm/page.h>
+<<<<<<< HEAD
+=======
+#include <asm/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/pgtsrmmu.h>
 #include <linux/init.h>
 
@@ -293,7 +297,11 @@ hypersparc_flush_tlb_range:
 	cmp	%o3, -1
 	be	hypersparc_flush_tlb_range_out
 #endif
+<<<<<<< HEAD
 	 sethi	%hi(~((1 << SRMMU_PGDIR_SHIFT) - 1)), %o4
+=======
+	 sethi	%hi(~((1 << PGDIR_SHIFT) - 1)), %o4
+>>>>>>> upstream/android-13
 	sta	%o3, [%g1] ASI_M_MMUREGS
 	and	%o1, %o4, %o1
 	add	%o1, 0x200, %o1

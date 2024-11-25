@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  sst_ipc.c - Intel SST Driver for audio engine
  *
@@ -8,6 +12,7 @@
  *		KP Jeeja <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -17,6 +22,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 #include <linux/pci.h>
@@ -32,7 +39,10 @@
 #include <asm/platform_sst_audio.h>
 #include "../sst-mfld-platform.h"
 #include "sst.h"
+<<<<<<< HEAD
 #include "../../common/sst-dsp.h"
+=======
+>>>>>>> upstream/android-13
 
 struct sst_block *sst_create_block(struct intel_sst_drv *ctx,
 					u32 msg_id, u32 drv_id)
@@ -137,7 +147,11 @@ int sst_post_message_mrfld(struct intel_sst_drv *sst_drv_ctx,
 		while (header.p.header_high.part.busy) {
 			if (loop_count > 25) {
 				dev_err(sst_drv_ctx->dev,
+<<<<<<< HEAD
 					"sst: Busy wait failed, cant send this msg\n");
+=======
+					"sst: Busy wait failed, can't send this msg\n");
+>>>>>>> upstream/android-13
 				retval = -EBUSY;
 				goto out;
 			}

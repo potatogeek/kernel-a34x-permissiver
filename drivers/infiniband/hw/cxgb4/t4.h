@@ -35,6 +35,10 @@
 #include "t4_regs.h"
 #include "t4_values.h"
 #include "t4_msg.h"
+<<<<<<< HEAD
+=======
+#include "t4_tcb.h"
+>>>>>>> upstream/android-13
 #include "t4fw_ri_api.h"
 
 #define T4_MAX_NUM_PD 65536
@@ -397,7 +401,11 @@ struct t4_srq_pending_wr {
 struct t4_srq {
 	union t4_recv_wr *queue;
 	dma_addr_t dma_addr;
+<<<<<<< HEAD
 	DECLARE_PCI_UNMAP_ADDR(mapping);
+=======
+	DEFINE_DMA_UNMAP_ADDR(mapping);
+>>>>>>> upstream/android-13
 	struct t4_swrqe *sw_rq;
 	void __iomem *bar2_va;
 	u64 bar2_pa;
@@ -486,11 +494,14 @@ static inline int t4_rq_empty(struct t4_wq *wq)
 	return wq->rq.in_use == 0;
 }
 
+<<<<<<< HEAD
 static inline int t4_rq_full(struct t4_wq *wq)
 {
 	return wq->rq.in_use == (wq->rq.size - 1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 t4_rq_avail(struct t4_wq *wq)
 {
 	return wq->rq.size - 1 - wq->rq.in_use;
@@ -533,11 +544,14 @@ static inline int t4_sq_empty(struct t4_wq *wq)
 	return wq->sq.in_use == 0;
 }
 
+<<<<<<< HEAD
 static inline int t4_sq_full(struct t4_wq *wq)
 {
 	return wq->sq.in_use == (wq->sq.size - 1);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline u32 t4_sq_avail(struct t4_wq *wq)
 {
 	return wq->sq.size - 1 - wq->sq.in_use;
@@ -678,11 +692,14 @@ static inline void t4_enable_wq_db(struct t4_wq *wq)
 	wq->rq.queue[wq->rq.size].status.db_off = 0;
 }
 
+<<<<<<< HEAD
 static inline int t4_wq_db_enabled(struct t4_wq *wq)
 {
 	return !wq->rq.queue[wq->rq.size].status.db_off;
 }
 
+=======
+>>>>>>> upstream/android-13
 enum t4_cq_flags {
 	CQ_ARMED	= 1,
 };
@@ -816,6 +833,7 @@ static inline int t4_next_hw_cqe(struct t4_cq *cq, struct t4_cqe **cqe)
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline struct t4_cqe *t4_next_sw_cqe(struct t4_cq *cq)
 {
 	if (cq->sw_in_use == cq->size) {
@@ -829,6 +847,8 @@ static inline struct t4_cqe *t4_next_sw_cqe(struct t4_cq *cq)
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int t4_next_cqe(struct t4_cq *cq, struct t4_cqe **cqe)
 {
 	int ret = 0;
@@ -842,11 +862,14 @@ static inline int t4_next_cqe(struct t4_cq *cq, struct t4_cqe **cqe)
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline int t4_cq_in_error(struct t4_cq *cq)
 {
 	return *cq->qp_errp;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void t4_set_cq_in_error(struct t4_cq *cq)
 {
 	*cq->qp_errp = 1;

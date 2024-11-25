@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
@@ -17,6 +18,11 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2002, 2004 Oracle.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -25,11 +31,18 @@
 #include <linux/pagemap.h>
 #include <asm/byteorder.h>
 #include <linux/swap.h>
+<<<<<<< HEAD
 #include <linux/pipe_fs_i.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/mpage.h>
 #include <linux/quotaops.h>
 #include <linux/blkdev.h>
 #include <linux/uio.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 
 #include <cluster/masklog.h>
 
@@ -364,6 +377,7 @@ out:
  * grow out to a tree. If need be, detecting boundary extents could
  * trivially be added in a future version of ocfs2_get_block().
  */
+<<<<<<< HEAD
 static int ocfs2_readpages(struct file *filp, struct address_space *mapping,
 			   struct list_head *pages, unsigned nr_pages)
 {
@@ -372,6 +386,13 @@ static int ocfs2_readpages(struct file *filp, struct address_space *mapping,
 	struct ocfs2_inode_info *oi = OCFS2_I(inode);
 	loff_t start;
 	struct page *last;
+=======
+static void ocfs2_readahead(struct readahead_control *rac)
+{
+	int ret;
+	struct inode *inode = rac->mapping->host;
+	struct ocfs2_inode_info *oi = OCFS2_I(inode);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Use the nonblocking flag for the dlm code to avoid page
@@ -379,24 +400,36 @@ static int ocfs2_readpages(struct file *filp, struct address_space *mapping,
 	 */
 	ret = ocfs2_inode_lock_full(inode, NULL, 0, OCFS2_LOCK_NONBLOCK);
 	if (ret)
+<<<<<<< HEAD
 		return err;
 
 	if (down_read_trylock(&oi->ip_alloc_sem) == 0) {
 		ocfs2_inode_unlock(inode, 0);
 		return err;
 	}
+=======
+		return;
+
+	if (down_read_trylock(&oi->ip_alloc_sem) == 0)
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Don't bother with inline-data. There isn't anything
 	 * to read-ahead in that case anyway...
 	 */
 	if (oi->ip_dyn_features & OCFS2_INLINE_DATA_FL)
+<<<<<<< HEAD
 		goto out_unlock;
+=======
+		goto out_up;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Check whether a remote node truncated this file - we just
 	 * drop out in that case as it's not worth handling here.
 	 */
+<<<<<<< HEAD
 	last = list_entry(pages->prev, struct page, lru);
 	start = (loff_t)last->index << PAGE_SHIFT;
 	if (start >= i_size_read(inode))
@@ -409,6 +442,17 @@ out_unlock:
 	ocfs2_inode_unlock(inode, 0);
 
 	return err;
+=======
+	if (readahead_pos(rac) >= i_size_read(inode))
+		goto out_up;
+
+	mpage_readahead(rac, ocfs2_get_block);
+
+out_up:
+	up_read(&oi->ip_alloc_sem);
+out_unlock:
+	ocfs2_inode_unlock(inode, 0);
+>>>>>>> upstream/android-13
 }
 
 /* Note: Because we don't support holes, our allocation has
@@ -656,8 +700,12 @@ int ocfs2_map_page_blocks(struct page *page, u64 *p_blkno,
 		}
 
 		if (PageUptodate(page)) {
+<<<<<<< HEAD
 			if (!buffer_uptodate(bh))
 				set_buffer_uptodate(bh);
+=======
+			set_buffer_uptodate(bh);
+>>>>>>> upstream/android-13
 		} else if (!buffer_uptodate(bh) && !buffer_delay(bh) &&
 			   !buffer_new(bh) &&
 			   ocfs2_should_read_blk(inode, page, block_start) &&
@@ -955,7 +1003,12 @@ static void ocfs2_write_failure(struct inode *inode,
 
 		if (tmppage && page_has_buffers(tmppage)) {
 			if (ocfs2_should_order_data(inode))
+<<<<<<< HEAD
 				ocfs2_jbd2_file_inode(wc->w_handle, inode);
+=======
+				ocfs2_jbd2_inode_add_write(wc->w_handle, inode,
+							   user_pos, user_len);
+>>>>>>> upstream/android-13
 
 			block_commit_write(tmppage, from, to);
 		}
@@ -1392,8 +1445,12 @@ retry:
 unlock:
 	spin_unlock(&oi->ip_lock);
 out:
+<<<<<<< HEAD
 	if (new)
 		kfree(new);
+=======
+	kfree(new);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2037,8 +2094,19 @@ int ocfs2_write_end_nolock(struct address_space *mapping,
 		}
 
 		if (page_has_buffers(tmppage)) {
+<<<<<<< HEAD
 			if (handle && ocfs2_should_order_data(inode))
 				ocfs2_jbd2_file_inode(handle, inode);
+=======
+			if (handle && ocfs2_should_order_data(inode)) {
+				loff_t start_byte =
+					((loff_t)tmppage->index << PAGE_SHIFT) +
+					from;
+				loff_t length = to - from;
+				ocfs2_jbd2_inode_add_write(handle, inode,
+							   start_byte, length);
+			}
+>>>>>>> upstream/android-13
 			block_commit_write(tmppage, from, to);
 		}
 	}
@@ -2472,8 +2540,14 @@ static ssize_t ocfs2_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
 }
 
 const struct address_space_operations ocfs2_aops = {
+<<<<<<< HEAD
 	.readpage		= ocfs2_readpage,
 	.readpages		= ocfs2_readpages,
+=======
+	.set_page_dirty		= __set_page_dirty_buffers,
+	.readpage		= ocfs2_readpage,
+	.readahead		= ocfs2_readahead,
+>>>>>>> upstream/android-13
 	.writepage		= ocfs2_writepage,
 	.write_begin		= ocfs2_write_begin,
 	.write_end		= ocfs2_write_end,

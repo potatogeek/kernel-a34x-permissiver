@@ -24,8 +24,11 @@
 
 #define MLXSW_PORT_DONT_CARE		0xFF
 
+<<<<<<< HEAD
 #define MLXSW_PORT_MODULE_MAX_WIDTH	4
 
+=======
+>>>>>>> upstream/android-13
 enum mlxsw_port_admin_status {
 	MLXSW_PORT_ADMIN_STATUS_UP = 1,
 	MLXSW_PORT_ADMIN_STATUS_DOWN = 2,

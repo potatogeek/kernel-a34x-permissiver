@@ -93,7 +93,10 @@ void arch_trigger_cpumask_backtrace(const struct cpumask *mask,
 
 extern void *hardirq_stack[NR_CPUS];
 extern void *softirq_stack[NR_CPUS];
+<<<<<<< HEAD
 #define __ARCH_HAS_DO_SOFTIRQ
+=======
+>>>>>>> upstream/android-13
 
 #define NO_IRQ		0xffffffff
 

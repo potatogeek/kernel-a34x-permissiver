@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mm/proc-arm720.S: MMU functions for ARM720
  *
@@ -6,6 +10,7 @@
  *  Copyright (C) 2000 ARM Limited, Deep Blue Solutions Ltd.
  *  hacked for non-paged-MM by Hyok S. Choi, 2004.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -21,6 +26,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  * These are the low level assembler for performing cache and TLB
  * functions on the ARM720T.  The ARM720T has a writethrough IDC
  * cache, so we don't need to clean it.
@@ -34,11 +41,18 @@
  */
 #include <linux/linkage.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/assembler.h>
 #include <asm/asm-offsets.h>
 #include <asm/hwcap.h>
 #include <asm/pgtable-hwdef.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 
 #include "proc-macros.S"
@@ -186,7 +200,11 @@ arm720_crval:
  * See <asm/procinfo.h> for a definition of this structure.
  */
 	
+<<<<<<< HEAD
 		.section ".proc.info.init", #alloc
+=======
+		.section ".proc.info.init", "a"
+>>>>>>> upstream/android-13
 
 .macro arm720_proc_info name:req, cpu_val:req, cpu_mask:req, cpu_name:req, cpu_flush:req
 		.type	__\name\()_proc_info,#object

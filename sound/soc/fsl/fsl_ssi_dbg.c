@@ -78,7 +78,11 @@ void fsl_ssi_dbg_isr(struct fsl_ssi_dbg *dbg, u32 sisr)
 		dbg->stats.tfe0++;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Show the statistics of a flag only if its interrupt is enabled
  *
  * Compilers will optimize it to a no-op if the interrupt is disabled
@@ -90,7 +94,11 @@ void fsl_ssi_dbg_isr(struct fsl_ssi_dbg *dbg, u32 sisr)
 	} while (0)
 
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Display the statistics for the current SSI device
  *
  * To avoid confusion, only show those counts that are enabled
@@ -124,6 +132,7 @@ static int fsl_ssi_stats_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fsl_ssi_stats_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, fsl_ssi_stats_show, inode->i_private);
@@ -151,10 +160,24 @@ int fsl_ssi_debugfs_create(struct fsl_ssi_dbg *ssi_dbg, struct device *dev)
 	}
 
 	return 0;
+=======
+DEFINE_SHOW_ATTRIBUTE(fsl_ssi_stats);
+
+void fsl_ssi_debugfs_create(struct fsl_ssi_dbg *ssi_dbg, struct device *dev)
+{
+	ssi_dbg->dbg_dir = debugfs_create_dir(dev_name(dev), NULL);
+
+	debugfs_create_file("stats", 0444, ssi_dbg->dbg_dir, ssi_dbg,
+			    &fsl_ssi_stats_fops);
+>>>>>>> upstream/android-13
 }
 
 void fsl_ssi_debugfs_remove(struct fsl_ssi_dbg *ssi_dbg)
 {
+<<<<<<< HEAD
 	debugfs_remove(ssi_dbg->dbg_stats);
 	debugfs_remove(ssi_dbg->dbg_dir);
+=======
+	debugfs_remove_recursive(ssi_dbg->dbg_dir);
+>>>>>>> upstream/android-13
 }

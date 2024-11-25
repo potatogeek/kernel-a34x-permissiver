@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Driver for the ADC on Freescale Semiconductor MC13783 and MC13892 PMICs.
  *
  * Copyright 2004-2007 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright (C) 2009 Sascha Hauer, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mfd/mc13xxx.h>
@@ -75,8 +82,14 @@ static int mc13783_adc_read(struct device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t mc13783_adc_read_bp(struct device *dev,
 		struct device_attribute *devattr, char *buf)
+=======
+static ssize_t mc13783_adc_bp_show(struct device *dev,
+				   struct device_attribute *devattr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	unsigned val;
 	struct platform_device *pdev = to_platform_device(dev);
@@ -98,8 +111,14 @@ static ssize_t mc13783_adc_read_bp(struct device *dev,
 	return sprintf(buf, "%u\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t mc13783_adc_read_gp(struct device *dev,
 		struct device_attribute *devattr, char *buf)
+=======
+static ssize_t mc13783_adc_gp_show(struct device *dev,
+				   struct device_attribute *devattr,
+				   char *buf)
+>>>>>>> upstream/android-13
 {
 	unsigned val;
 	int ret = mc13783_adc_read(dev, devattr, &val);
@@ -116,8 +135,14 @@ static ssize_t mc13783_adc_read_gp(struct device *dev,
 	return sprintf(buf, "%u\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t mc13783_adc_read_uid(struct device *dev,
 		struct device_attribute *devattr, char *buf)
+=======
+static ssize_t mc13783_adc_uid_show(struct device *dev,
+				    struct device_attribute *devattr,
+				    char *buf)
+>>>>>>> upstream/android-13
 {
 	unsigned int val;
 	struct platform_device *pdev = to_platform_device(dev);
@@ -137,8 +162,14 @@ static ssize_t mc13783_adc_read_uid(struct device *dev,
 	return sprintf(buf, "%u\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t mc13783_adc_read_temp(struct device *dev,
 		struct device_attribute *devattr, char *buf)
+=======
+static ssize_t mc13783_adc_temp_show(struct device *dev,
+				     struct device_attribute *devattr,
+				     char *buf)
+>>>>>>> upstream/android-13
 {
 	unsigned int val;
 	struct platform_device *pdev = to_platform_device(dev);
@@ -168,6 +199,7 @@ static ssize_t mc13783_adc_read_temp(struct device *dev,
 }
 
 static DEVICE_ATTR_RO(name);
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in2_input, S_IRUGO, mc13783_adc_read_bp, NULL, 2);
 static SENSOR_DEVICE_ATTR(in5_input, S_IRUGO, mc13783_adc_read_gp, NULL, 5);
 static SENSOR_DEVICE_ATTR(in6_input, S_IRUGO, mc13783_adc_read_gp, NULL, 6);
@@ -183,6 +215,22 @@ static SENSOR_DEVICE_ATTR(in15_input, S_IRUGO, mc13783_adc_read_gp, NULL, 15);
 static SENSOR_DEVICE_ATTR(in16_input, S_IRUGO, mc13783_adc_read_uid, NULL, 16);
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO,
 			  mc13783_adc_read_temp, NULL, 17);
+=======
+static SENSOR_DEVICE_ATTR_RO(in2_input, mc13783_adc_bp, 2);
+static SENSOR_DEVICE_ATTR_RO(in5_input, mc13783_adc_gp, 5);
+static SENSOR_DEVICE_ATTR_RO(in6_input, mc13783_adc_gp, 6);
+static SENSOR_DEVICE_ATTR_RO(in7_input, mc13783_adc_gp, 7);
+static SENSOR_DEVICE_ATTR_RO(in8_input, mc13783_adc_gp, 8);
+static SENSOR_DEVICE_ATTR_RO(in9_input, mc13783_adc_gp, 9);
+static SENSOR_DEVICE_ATTR_RO(in10_input, mc13783_adc_gp, 10);
+static SENSOR_DEVICE_ATTR_RO(in11_input, mc13783_adc_gp, 11);
+static SENSOR_DEVICE_ATTR_RO(in12_input, mc13783_adc_gp, 12);
+static SENSOR_DEVICE_ATTR_RO(in13_input, mc13783_adc_gp, 13);
+static SENSOR_DEVICE_ATTR_RO(in14_input, mc13783_adc_gp, 14);
+static SENSOR_DEVICE_ATTR_RO(in15_input, mc13783_adc_gp, 15);
+static SENSOR_DEVICE_ATTR_RO(in16_input, mc13783_adc_uid, 16);
+static SENSOR_DEVICE_ATTR_RO(temp1_input, mc13783_adc_temp, 17);
+>>>>>>> upstream/android-13
 
 static struct attribute *mc13783_attr_base[] = {
 	&dev_attr_name.attr,

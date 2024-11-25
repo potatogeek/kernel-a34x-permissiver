@@ -15,6 +15,12 @@ nfp-objs := \
 	    nfpcore/nfp_resource.o \
 	    nfpcore/nfp_rtsym.o \
 	    nfpcore/nfp_target.o \
+<<<<<<< HEAD
+=======
+	    ccm.o \
+	    ccm_mbox.o \
+	    devlink_param.o \
+>>>>>>> upstream/android-13
 	    nfp_asm.o \
 	    nfp_app.o \
 	    nfp_app_nic.o \
@@ -33,6 +39,14 @@ nfp-objs := \
 	    nfp_shared_buf.o \
 	    nic/main.o
 
+<<<<<<< HEAD
+=======
+ifeq ($(CONFIG_TLS_DEVICE),y)
+nfp-objs += \
+	    crypto/tls.o
+endif
+
+>>>>>>> upstream/android-13
 ifeq ($(CONFIG_NFP_APP_FLOWER),y)
 nfp-objs += \
 	    flower/action.o \
@@ -42,7 +56,13 @@ nfp-objs += \
 	    flower/match.o \
 	    flower/metadata.o \
 	    flower/offload.o \
+<<<<<<< HEAD
 	    flower/tunnel_conf.o
+=======
+	    flower/tunnel_conf.o \
+	    flower/qos_conf.o \
+	    flower/conntrack.o
+>>>>>>> upstream/android-13
 endif
 
 ifeq ($(CONFIG_BPF_SYSCALL),y)
@@ -56,7 +76,13 @@ endif
 
 ifeq ($(CONFIG_NFP_APP_ABM_NIC),y)
 nfp-objs += \
+<<<<<<< HEAD
 	    abm/ctrl.o \
+=======
+	    abm/cls.o \
+	    abm/ctrl.o \
+	    abm/qdisc.o \
+>>>>>>> upstream/android-13
 	    abm/main.o
 endif
 

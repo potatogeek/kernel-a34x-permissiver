@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 /*
  * soc-apci-intel-skl-match.c - tables and support for SKL ACPI enumeration.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * soc-acpi-intel-skl-match.c - tables and support for SKL ACPI enumeration.
+>>>>>>> upstream/android-13
  *
  * Copyright (c) 2018, Intel Corporation.
  *
@@ -42,6 +48,9 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_skl_machines[] = {
 	{},
 };
 EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_skl_machines);
+<<<<<<< HEAD
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("Intel Common ACPI Match module");
+=======
+>>>>>>> upstream/android-13

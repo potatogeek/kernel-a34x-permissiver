@@ -9,6 +9,10 @@
 #ifndef _LINUX_PMU_H
 #define _LINUX_PMU_H
 
+<<<<<<< HEAD
+=======
+#include <linux/rtc.h>
+>>>>>>> upstream/android-13
 #include <uapi/linux/pmu.h>
 
 
@@ -36,6 +40,12 @@ static inline void pmu_resume(void)
 
 extern void pmu_enable_irled(int on);
 
+<<<<<<< HEAD
+=======
+extern time64_t pmu_get_time(void);
+extern int pmu_set_rtc_time(struct rtc_time *tm);
+
+>>>>>>> upstream/android-13
 extern void pmu_restart(void);
 extern void pmu_shutdown(void);
 extern void pmu_unlock(void);

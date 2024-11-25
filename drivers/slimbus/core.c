@@ -9,6 +9,10 @@
 #include <linux/init.h>
 #include <linux/idr.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/slimbus.h>
 #include "slimbus.h"
@@ -20,7 +24,13 @@ static const struct slim_device_id *slim_match(const struct slim_device_id *id,
 {
 	while (id->manf_id != 0 || id->prod_code != 0) {
 		if (id->manf_id == sbdev->e_addr.manf_id &&
+<<<<<<< HEAD
 		    id->prod_code == sbdev->e_addr.prod_code)
+=======
+		    id->prod_code == sbdev->e_addr.prod_code &&
+		    id->dev_index == sbdev->e_addr.dev_index &&
+		    id->instance == sbdev->e_addr.instance)
+>>>>>>> upstream/android-13
 			return id;
 		id++;
 	}
@@ -32,18 +42,67 @@ static int slim_device_match(struct device *dev, struct device_driver *drv)
 	struct slim_device *sbdev = to_slim_device(dev);
 	struct slim_driver *sbdrv = to_slim_driver(drv);
 
+<<<<<<< HEAD
 	return !!slim_match(sbdrv->id_table, sbdev);
 }
 
+=======
+	/* Attempt an OF style match first */
+	if (of_driver_match_device(dev, drv))
+		return 1;
+
+	return !!slim_match(sbdrv->id_table, sbdev);
+}
+
+static void slim_device_update_status(struct slim_device *sbdev,
+				      enum slim_device_status status)
+{
+	struct slim_driver *sbdrv;
+
+	if (sbdev->status == status)
+		return;
+
+	sbdev->status = status;
+	if (!sbdev->dev.driver)
+		return;
+
+	sbdrv = to_slim_driver(sbdev->dev.driver);
+	if (sbdrv->device_status)
+		sbdrv->device_status(sbdev, sbdev->status);
+}
+
+>>>>>>> upstream/android-13
 static int slim_device_probe(struct device *dev)
 {
 	struct slim_device	*sbdev = to_slim_device(dev);
 	struct slim_driver	*sbdrv = to_slim_driver(dev->driver);
+<<<<<<< HEAD
 
 	return sbdrv->probe(sbdev);
 }
 
 static int slim_device_remove(struct device *dev)
+=======
+	int ret;
+
+	ret = sbdrv->probe(sbdev);
+	if (ret)
+		return ret;
+
+	/* try getting the logical address after probe */
+	ret = slim_get_logical_addr(sbdev);
+	if (!ret) {
+		slim_device_update_status(sbdev, SLIM_DEVICE_STATUS_UP);
+	} else {
+		dev_err(&sbdev->dev, "Failed to get logical address\n");
+		ret = -EPROBE_DEFER;
+	}
+
+	return ret;
+}
+
+static void slim_device_remove(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct slim_device *sbdev = to_slim_device(dev);
 	struct slim_driver *sbdrv;
@@ -53,8 +112,18 @@ static int slim_device_remove(struct device *dev)
 		if (sbdrv->remove)
 			sbdrv->remove(sbdev);
 	}
+<<<<<<< HEAD
 
 	return 0;
+=======
+}
+
+static int slim_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+{
+	struct slim_device *sbdev = to_slim_device(dev);
+
+	return add_uevent_var(env, "MODALIAS=slim:%s", dev_name(&sbdev->dev));
+>>>>>>> upstream/android-13
 }
 
 struct bus_type slimbus_bus = {
@@ -62,6 +131,10 @@ struct bus_type slimbus_bus = {
 	.match		= slim_device_match,
 	.probe		= slim_device_probe,
 	.remove		= slim_device_remove,
+<<<<<<< HEAD
+=======
+	.uevent		= slim_device_uevent,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(slimbus_bus);
 
@@ -77,7 +150,11 @@ EXPORT_SYMBOL_GPL(slimbus_bus);
 int __slim_driver_register(struct slim_driver *drv, struct module *owner)
 {
 	/* ID table and probe are mandatory */
+<<<<<<< HEAD
 	if (!drv->id_table || !drv->probe)
+=======
+	if (!(drv->driver.of_match_table || drv->id_table) || !drv->probe)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	drv->driver.bus = &slimbus_bus;
@@ -116,9 +193,14 @@ static int slim_add_device(struct slim_controller *ctrl,
 	sbdev->ctrl = ctrl;
 	INIT_LIST_HEAD(&sbdev->stream_list);
 	spin_lock_init(&sbdev->stream_list_lock);
+<<<<<<< HEAD
 
 	if (node)
 		sbdev->dev.of_node = of_node_get(node);
+=======
+	sbdev->dev.of_node = of_node_get(node);
+	sbdev->dev.fwnode = of_fwnode_handle(node);
+>>>>>>> upstream/android-13
 
 	dev_set_name(&sbdev->dev, "%x:%x:%x:%x",
 				  sbdev->e_addr.manf_id,
@@ -223,6 +305,10 @@ int slim_register_controller(struct slim_controller *ctrl)
 	mutex_init(&ctrl->lock);
 	mutex_init(&ctrl->sched.m_reconf);
 	init_completion(&ctrl->sched.pause_comp);
+<<<<<<< HEAD
+=======
+	spin_lock_init(&ctrl->txn_lock);
+>>>>>>> upstream/android-13
 
 	dev_dbg(ctrl->dev, "Bus [%s] registered:dev:%p\n",
 		ctrl->name, ctrl->dev);
@@ -261,6 +347,7 @@ int slim_unregister_controller(struct slim_controller *ctrl)
 }
 EXPORT_SYMBOL_GPL(slim_unregister_controller);
 
+<<<<<<< HEAD
 static void slim_device_update_status(struct slim_device *sbdev,
 				      enum slim_device_status status)
 {
@@ -278,6 +365,8 @@ static void slim_device_update_status(struct slim_device *sbdev,
 		sbdrv->device_status(sbdev, sbdev->status);
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * slim_report_absent() - Controller calls this function when a device
  *	reports absent, OR when the device cannot be communicated with
@@ -430,6 +519,10 @@ static int slim_device_alloc_laddr(struct slim_device *sbdev,
 
 	sbdev->laddr = laddr;
 	sbdev->is_laddr_valid = true;
+<<<<<<< HEAD
+=======
+	mutex_unlock(&ctrl->lock);
+>>>>>>> upstream/android-13
 
 	slim_device_update_status(sbdev, SLIM_DEVICE_STATUS_UP);
 
@@ -437,6 +530,11 @@ static int slim_device_alloc_laddr(struct slim_device *sbdev,
 		laddr, sbdev->e_addr.manf_id, sbdev->e_addr.prod_code,
 		sbdev->e_addr.dev_index, sbdev->e_addr.instance);
 
+<<<<<<< HEAD
+=======
+	return 0;
+
+>>>>>>> upstream/android-13
 err:
 	mutex_unlock(&ctrl->lock);
 	return ret;

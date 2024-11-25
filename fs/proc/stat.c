@@ -10,6 +10,10 @@
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/time.h>
+<<<<<<< HEAD
+=======
+#include <linux/time_namespace.h>
+>>>>>>> upstream/android-13
 #include <linux/irqnr.h>
 #include <linux/sched/cputime.h>
 #include <linux/tick.h>
@@ -23,21 +27,37 @@
 
 #ifdef arch_idle_time
 
+<<<<<<< HEAD
 static u64 get_idle_time(int cpu)
 {
 	u64 idle;
 
 	idle = kcpustat_cpu(cpu).cpustat[CPUTIME_IDLE];
+=======
+u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
+{
+	u64 idle;
+
+	idle = kcs->cpustat[CPUTIME_IDLE];
+>>>>>>> upstream/android-13
 	if (cpu_online(cpu) && !nr_iowait_cpu(cpu))
 		idle += arch_idle_time(cpu);
 	return idle;
 }
 
+<<<<<<< HEAD
 static u64 get_iowait_time(int cpu)
 {
 	u64 iowait;
 
 	iowait = kcpustat_cpu(cpu).cpustat[CPUTIME_IOWAIT];
+=======
+static u64 get_iowait_time(struct kernel_cpustat *kcs, int cpu)
+{
+	u64 iowait;
+
+	iowait = kcs->cpustat[CPUTIME_IOWAIT];
+>>>>>>> upstream/android-13
 	if (cpu_online(cpu) && nr_iowait_cpu(cpu))
 		iowait += arch_idle_time(cpu);
 	return iowait;
@@ -45,7 +65,11 @@ static u64 get_iowait_time(int cpu)
 
 #else
 
+<<<<<<< HEAD
 static u64 get_idle_time(int cpu)
+=======
+u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
+>>>>>>> upstream/android-13
 {
 	u64 idle, idle_usecs = -1ULL;
 
@@ -54,14 +78,22 @@ static u64 get_idle_time(int cpu)
 
 	if (idle_usecs == -1ULL)
 		/* !NO_HZ or cpu offline so we can rely on cpustat.idle */
+<<<<<<< HEAD
 		idle = kcpustat_cpu(cpu).cpustat[CPUTIME_IDLE];
+=======
+		idle = kcs->cpustat[CPUTIME_IDLE];
+>>>>>>> upstream/android-13
 	else
 		idle = idle_usecs * NSEC_PER_USEC;
 
 	return idle;
 }
 
+<<<<<<< HEAD
 static u64 get_iowait_time(int cpu)
+=======
+static u64 get_iowait_time(struct kernel_cpustat *kcs, int cpu)
+>>>>>>> upstream/android-13
 {
 	u64 iowait, iowait_usecs = -1ULL;
 
@@ -70,7 +102,11 @@ static u64 get_iowait_time(int cpu)
 
 	if (iowait_usecs == -1ULL)
 		/* !NO_HZ or cpu offline so we can rely on cpustat.iowait */
+<<<<<<< HEAD
 		iowait = kcpustat_cpu(cpu).cpustat[CPUTIME_IOWAIT];
+=======
+		iowait = kcs->cpustat[CPUTIME_IOWAIT];
+>>>>>>> upstream/android-13
 	else
 		iowait = iowait_usecs * NSEC_PER_USEC;
 
@@ -79,6 +115,34 @@ static u64 get_iowait_time(int cpu)
 
 #endif
 
+<<<<<<< HEAD
+=======
+static void show_irq_gap(struct seq_file *p, unsigned int gap)
+{
+	static const char zeros[] = " 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0";
+
+	while (gap > 0) {
+		unsigned int inc;
+
+		inc = min_t(unsigned int, gap, ARRAY_SIZE(zeros) / 2);
+		seq_write(p, zeros, 2 * inc);
+		gap -= inc;
+	}
+}
+
+static void show_all_irqs(struct seq_file *p)
+{
+	unsigned int i, next = 0;
+
+	for_each_active_irq(i) {
+		show_irq_gap(p, i - next);
+		seq_put_decimal_ull(p, " ", kstat_irqs_usr(i));
+		next = i + 1;
+	}
+	show_irq_gap(p, nr_irqs - next);
+}
+
+>>>>>>> upstream/android-13
 static int show_stat(struct seq_file *p, void *v)
 {
 	int i, j;
@@ -93,6 +157,7 @@ static int show_stat(struct seq_file *p, void *v)
 		irq = softirq = steal = 0;
 	guest = guest_nice = 0;
 	getboottime64(&boottime);
+<<<<<<< HEAD
 
 	for_each_possible_cpu(i) {
 		user += kcpustat_cpu(i).cpustat[CPUTIME_USER];
@@ -107,6 +172,29 @@ static int show_stat(struct seq_file *p, void *v)
 		guest_nice += kcpustat_cpu(i).cpustat[CPUTIME_GUEST_NICE];
 		sum += kstat_cpu_irqs_sum(i);
 		sum += arch_irq_stat_cpu(i);
+=======
+	/* shift boot timestamp according to the timens offset */
+	timens_sub_boottime(&boottime);
+
+	for_each_possible_cpu(i) {
+		struct kernel_cpustat kcpustat;
+		u64 *cpustat = kcpustat.cpustat;
+
+		kcpustat_cpu_fetch(&kcpustat, i);
+
+		user		+= cpustat[CPUTIME_USER];
+		nice		+= cpustat[CPUTIME_NICE];
+		system		+= cpustat[CPUTIME_SYSTEM];
+		idle		+= get_idle_time(&kcpustat, i);
+		iowait		+= get_iowait_time(&kcpustat, i);
+		irq		+= cpustat[CPUTIME_IRQ];
+		softirq		+= cpustat[CPUTIME_SOFTIRQ];
+		steal		+= cpustat[CPUTIME_STEAL];
+		guest		+= cpustat[CPUTIME_GUEST];
+		guest_nice	+= cpustat[CPUTIME_GUEST_NICE];
+		sum		+= kstat_cpu_irqs_sum(i);
+		sum		+= arch_irq_stat_cpu(i);
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < NR_SOFTIRQS; j++) {
 			unsigned int softirq_stat = kstat_softirqs_cpu(j, i);
@@ -130,6 +218,7 @@ static int show_stat(struct seq_file *p, void *v)
 	seq_putc(p, '\n');
 
 	for_each_online_cpu(i) {
+<<<<<<< HEAD
 		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
 		user = kcpustat_cpu(i).cpustat[CPUTIME_USER];
 		nice = kcpustat_cpu(i).cpustat[CPUTIME_NICE];
@@ -141,6 +230,24 @@ static int show_stat(struct seq_file *p, void *v)
 		steal = kcpustat_cpu(i).cpustat[CPUTIME_STEAL];
 		guest = kcpustat_cpu(i).cpustat[CPUTIME_GUEST];
 		guest_nice = kcpustat_cpu(i).cpustat[CPUTIME_GUEST_NICE];
+=======
+		struct kernel_cpustat kcpustat;
+		u64 *cpustat = kcpustat.cpustat;
+
+		kcpustat_cpu_fetch(&kcpustat, i);
+
+		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
+		user		= cpustat[CPUTIME_USER];
+		nice		= cpustat[CPUTIME_NICE];
+		system		= cpustat[CPUTIME_SYSTEM];
+		idle		= get_idle_time(&kcpustat, i);
+		iowait		= get_iowait_time(&kcpustat, i);
+		irq		= cpustat[CPUTIME_IRQ];
+		softirq		= cpustat[CPUTIME_SOFTIRQ];
+		steal		= cpustat[CPUTIME_STEAL];
+		guest		= cpustat[CPUTIME_GUEST];
+		guest_nice	= cpustat[CPUTIME_GUEST_NICE];
+>>>>>>> upstream/android-13
 		seq_printf(p, "cpu%d", i);
 		seq_put_decimal_ull(p, " ", nsec_to_clock_t(user));
 		seq_put_decimal_ull(p, " ", nsec_to_clock_t(nice));
@@ -156,16 +263,25 @@ static int show_stat(struct seq_file *p, void *v)
 	}
 	seq_put_decimal_ull(p, "intr ", (unsigned long long)sum);
 
+<<<<<<< HEAD
 	/* sum again ? it could be updated? */
 	for_each_irq_nr(j)
 		seq_put_decimal_ull(p, " ", kstat_irqs_usr(j));
+=======
+	show_all_irqs(p);
+>>>>>>> upstream/android-13
 
 	seq_printf(p,
 		"\nctxt %llu\n"
 		"btime %llu\n"
 		"processes %lu\n"
+<<<<<<< HEAD
 		"procs_running %lu\n"
 		"procs_blocked %lu\n",
+=======
+		"procs_running %u\n"
+		"procs_blocked %u\n",
+>>>>>>> upstream/android-13
 		nr_context_switches(),
 		(unsigned long long)boottime.tv_sec,
 		total_forks,
@@ -190,16 +306,29 @@ static int stat_open(struct inode *inode, struct file *file)
 	return single_open_size(file, show_stat, NULL, size);
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_stat_operations = {
 	.open		= stat_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
+=======
+static const struct proc_ops stat_proc_ops = {
+	.proc_flags	= PROC_ENTRY_PERMANENT,
+	.proc_open	= stat_open,
+	.proc_read_iter	= seq_read_iter,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init proc_stat_init(void)
 {
+<<<<<<< HEAD
 	proc_create("stat", 0, NULL, &proc_stat_operations);
+=======
+	proc_create("stat", 0, NULL, &stat_proc_ops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 fs_initcall(proc_stat_init);

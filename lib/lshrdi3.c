@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * lib/lshrdi3.c
  *
@@ -14,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see the file COPYING, or write
  * to the Free Software Foundation, Inc.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * lib/lshrdi3.c
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef RXE_VERBS_H
@@ -61,6 +68,7 @@ static inline int psn_compare(u32 psn_a, u32 psn_b)
 }
 
 struct rxe_ucontext {
+<<<<<<< HEAD
 	struct rxe_pool_entry	pelem;
 	struct ib_ucontext	ibuc;
 };
@@ -73,6 +81,20 @@ struct rxe_pd {
 struct rxe_ah {
 	struct rxe_pool_entry	pelem;
 	struct ib_ah		ibah;
+=======
+	struct ib_ucontext ibuc;
+	struct rxe_pool_entry	pelem;
+};
+
+struct rxe_pd {
+	struct ib_pd            ibpd;
+	struct rxe_pool_entry	pelem;
+};
+
+struct rxe_ah {
+	struct ib_ah		ibah;
+	struct rxe_pool_entry	pelem;
+>>>>>>> upstream/android-13
 	struct rxe_pd		*pd;
 	struct rxe_av		av;
 };
@@ -85,8 +107,13 @@ struct rxe_cqe {
 };
 
 struct rxe_cq {
+<<<<<<< HEAD
 	struct rxe_pool_entry	pelem;
 	struct ib_cq		ibcq;
+=======
+	struct ib_cq		ibcq;
+	struct rxe_pool_entry	pelem;
+>>>>>>> upstream/android-13
 	struct rxe_queue	*queue;
 	spinlock_t		cq_lock;
 	u8			notify;
@@ -104,6 +131,10 @@ enum wqe_state {
 };
 
 struct rxe_sq {
+<<<<<<< HEAD
+=======
+	bool			is_user;
+>>>>>>> upstream/android-13
 	int			max_wr;
 	int			max_sge;
 	int			max_inline;
@@ -112,6 +143,10 @@ struct rxe_sq {
 };
 
 struct rxe_rq {
+<<<<<<< HEAD
+=======
+	bool			is_user;
+>>>>>>> upstream/android-13
 	int			max_wr;
 	int			max_sge;
 	spinlock_t		producer_lock; /* guard queue producer */
@@ -120,11 +155,20 @@ struct rxe_rq {
 };
 
 struct rxe_srq {
+<<<<<<< HEAD
 	struct rxe_pool_entry	pelem;
 	struct ib_srq		ibsrq;
 	struct rxe_pd		*pd;
 	struct rxe_rq		rq;
 	u32			srq_num;
+=======
+	struct ib_srq		ibsrq;
+	struct rxe_pool_entry	pelem;
+	struct rxe_pd		*pd;
+	struct rxe_rq		rq;
+	u32			srq_num;
+	bool			is_user;
+>>>>>>> upstream/android-13
 
 	int			limit;
 	int			error;
@@ -183,7 +227,11 @@ struct resp_res {
 			struct sk_buff	*skb;
 		} atomic;
 		struct {
+<<<<<<< HEAD
 			struct rxe_mem	*mr;
+=======
+			struct rxe_mr	*mr;
+>>>>>>> upstream/android-13
 			u64		va_org;
 			u32		rkey;
 			u32		length;
@@ -210,7 +258,12 @@ struct rxe_resp_info {
 
 	/* RDMA read / atomic only */
 	u64			va;
+<<<<<<< HEAD
 	struct rxe_mem		*mr;
+=======
+	u64			offset;
+	struct rxe_mr		*mr;
+>>>>>>> upstream/android-13
 	u32			resid;
 	u32			rkey;
 	u32			length;
@@ -233,12 +286,21 @@ struct rxe_resp_info {
 };
 
 struct rxe_qp {
+<<<<<<< HEAD
 	struct rxe_pool_entry	pelem;
 	struct ib_qp		ibqp;
 	struct ib_qp_attr	attr;
 	unsigned int		valid;
 	unsigned int		mtu;
 	int			is_user;
+=======
+	struct ib_qp		ibqp;
+	struct rxe_pool_entry	pelem;
+	struct ib_qp_attr	attr;
+	unsigned int		valid;
+	unsigned int		mtu;
+	bool			is_user;
+>>>>>>> upstream/android-13
 
 	struct rxe_pd		*pd;
 	struct rxe_srq		*srq;
@@ -252,6 +314,10 @@ struct rxe_qp {
 
 	struct socket		*sk;
 	u32			dst_cookie;
+<<<<<<< HEAD
+=======
+	u16			src_port;
+>>>>>>> upstream/android-13
 
 	struct rxe_av		pri_av;
 	struct rxe_av		alt_av;
@@ -288,6 +354,7 @@ struct rxe_qp {
 	struct execute_work	cleanup_work;
 };
 
+<<<<<<< HEAD
 enum rxe_mem_state {
 	RXE_MEM_STATE_ZOMBIE,
 	RXE_MEM_STATE_INVALID,
@@ -301,6 +368,29 @@ enum rxe_mem_type {
 	RXE_MEM_TYPE_MR,
 	RXE_MEM_TYPE_FMR,
 	RXE_MEM_TYPE_MW,
+=======
+enum rxe_mr_state {
+	RXE_MR_STATE_ZOMBIE,
+	RXE_MR_STATE_INVALID,
+	RXE_MR_STATE_FREE,
+	RXE_MR_STATE_VALID,
+};
+
+enum rxe_mr_type {
+	RXE_MR_TYPE_NONE,
+	RXE_MR_TYPE_DMA,
+	RXE_MR_TYPE_MR,
+};
+
+enum rxe_mr_copy_dir {
+	RXE_TO_MR_OBJ,
+	RXE_FROM_MR_OBJ,
+};
+
+enum rxe_mr_lookup_type {
+	RXE_LOOKUP_LOCAL,
+	RXE_LOOKUP_REMOTE,
+>>>>>>> upstream/android-13
 };
 
 #define RXE_BUF_PER_MAP		(PAGE_SIZE / sizeof(struct rxe_phys_buf))
@@ -314,6 +404,7 @@ struct rxe_map {
 	struct rxe_phys_buf	buf[RXE_BUF_PER_MAP];
 };
 
+<<<<<<< HEAD
 struct rxe_mem {
 	struct rxe_pool_entry	pelem;
 	union {
@@ -322,13 +413,31 @@ struct rxe_mem {
 	};
 
 	struct rxe_pd		*pd;
+=======
+static inline int rkey_is_mw(u32 rkey)
+{
+	u32 index = rkey >> 8;
+
+	return (index >= RXE_MIN_MW_INDEX) && (index <= RXE_MAX_MW_INDEX);
+}
+
+struct rxe_mr {
+	struct rxe_pool_entry	pelem;
+	struct ib_mr		ibmr;
+
+>>>>>>> upstream/android-13
 	struct ib_umem		*umem;
 
 	u32			lkey;
 	u32			rkey;
+<<<<<<< HEAD
 
 	enum rxe_mem_state	state;
 	enum rxe_mem_type	type;
+=======
+	enum rxe_mr_state	state;
+	enum rxe_mr_type	type;
+>>>>>>> upstream/android-13
 	u64			va;
 	u64			iova;
 	size_t			length;
@@ -346,9 +455,36 @@ struct rxe_mem {
 	u32			max_buf;
 	u32			num_map;
 
+<<<<<<< HEAD
 	struct rxe_map		**map;
 };
 
+=======
+	atomic_t		num_mw;
+
+	struct rxe_map		**map;
+};
+
+enum rxe_mw_state {
+	RXE_MW_STATE_INVALID	= RXE_MR_STATE_INVALID,
+	RXE_MW_STATE_FREE	= RXE_MR_STATE_FREE,
+	RXE_MW_STATE_VALID	= RXE_MR_STATE_VALID,
+};
+
+struct rxe_mw {
+	struct ib_mw		ibmw;
+	struct rxe_pool_entry	pelem;
+	spinlock_t		lock;
+	enum rxe_mw_state	state;
+	struct rxe_qp		*qp; /* Type 2 only */
+	struct rxe_mr		*mr;
+	u32			rkey;
+	int			access;
+	u64			addr;
+	u64			length;
+};
+
+>>>>>>> upstream/android-13
 struct rxe_mc_grp {
 	struct rxe_pool_entry	pelem;
 	spinlock_t		mcg_lock; /* guard group */
@@ -370,7 +506,10 @@ struct rxe_mc_elem {
 
 struct rxe_port {
 	struct ib_port_attr	attr;
+<<<<<<< HEAD
 	u16			*pkey_tbl;
+=======
+>>>>>>> upstream/android-13
 	__be64			port_guid;
 	__be64			subnet_prefix;
 	spinlock_t		port_lock; /* guard port */
@@ -385,7 +524,10 @@ struct rxe_dev {
 	struct ib_device_attr	attr;
 	int			max_ucontext;
 	int			max_inline_data;
+<<<<<<< HEAD
 	struct kref		ref_cnt;
+=======
+>>>>>>> upstream/android-13
 	struct mutex	usdev_lock;
 
 	struct net_device	*ndev;
@@ -412,7 +554,10 @@ struct rxe_dev {
 	atomic64_t		stats_counters[RXE_NUM_OF_COUNTERS];
 
 	struct rxe_port		port;
+<<<<<<< HEAD
 	struct list_head	list;
+=======
+>>>>>>> upstream/android-13
 	struct crypto_shash	*tfm;
 };
 
@@ -456,6 +601,7 @@ static inline struct rxe_cq *to_rcq(struct ib_cq *cq)
 	return cq ? container_of(cq, struct rxe_cq, ibcq) : NULL;
 }
 
+<<<<<<< HEAD
 static inline struct rxe_mem *to_rmr(struct ib_mr *mr)
 {
 	return mr ? container_of(mr, struct rxe_mem, ibmr) : NULL;
@@ -468,6 +614,29 @@ static inline struct rxe_mem *to_rmw(struct ib_mw *mw)
 
 int rxe_register_device(struct rxe_dev *rxe);
 int rxe_unregister_device(struct rxe_dev *rxe);
+=======
+static inline struct rxe_mr *to_rmr(struct ib_mr *mr)
+{
+	return mr ? container_of(mr, struct rxe_mr, ibmr) : NULL;
+}
+
+static inline struct rxe_mw *to_rmw(struct ib_mw *mw)
+{
+	return mw ? container_of(mw, struct rxe_mw, ibmw) : NULL;
+}
+
+static inline struct rxe_pd *mr_pd(struct rxe_mr *mr)
+{
+	return to_rpd(mr->ibmr.pd);
+}
+
+static inline struct rxe_pd *rxe_mw_pd(struct rxe_mw *mw)
+{
+	return to_rpd(mw->ibmw.pd);
+}
+
+int rxe_register_device(struct rxe_dev *rxe, const char *ibdev_name);
+>>>>>>> upstream/android-13
 
 void rxe_mc_cleanup(struct rxe_pool_entry *arg);
 

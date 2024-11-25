@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Scalar AES core transform
  *
  * Copyright (C) 2017 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/aes.h>
@@ -13,12 +20,18 @@
 #include <linux/module.h>
 
 asmlinkage void __aes_arm64_encrypt(u32 *rk, u8 *out, const u8 *in, int rounds);
+<<<<<<< HEAD
 EXPORT_SYMBOL(__aes_arm64_encrypt);
 
 asmlinkage void __aes_arm64_decrypt(u32 *rk, u8 *out, const u8 *in, int rounds);
 EXPORT_SYMBOL(__aes_arm64_decrypt);
 
 static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+=======
+asmlinkage void __aes_arm64_decrypt(u32 *rk, u8 *out, const u8 *in, int rounds);
+
+static void aes_arm64_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+>>>>>>> upstream/android-13
 {
 	struct crypto_aes_ctx *ctx = crypto_tfm_ctx(tfm);
 	int rounds = 6 + ctx->key_length / 4;
@@ -26,7 +39,11 @@ static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	__aes_arm64_encrypt(ctx->key_enc, out, in, rounds);
 }
 
+<<<<<<< HEAD
 static void aes_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+=======
+static void aes_arm64_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
+>>>>>>> upstream/android-13
 {
 	struct crypto_aes_ctx *ctx = crypto_tfm_ctx(tfm);
 	int rounds = 6 + ctx->key_length / 4;
@@ -46,8 +63,13 @@ static struct crypto_alg aes_alg = {
 	.cra_cipher.cia_min_keysize	= AES_MIN_KEY_SIZE,
 	.cra_cipher.cia_max_keysize	= AES_MAX_KEY_SIZE,
 	.cra_cipher.cia_setkey		= crypto_aes_set_key,
+<<<<<<< HEAD
 	.cra_cipher.cia_encrypt		= aes_encrypt,
 	.cra_cipher.cia_decrypt		= aes_decrypt
+=======
+	.cra_cipher.cia_encrypt		= aes_arm64_encrypt,
+	.cra_cipher.cia_decrypt		= aes_arm64_decrypt
+>>>>>>> upstream/android-13
 };
 
 static int __init aes_init(void)

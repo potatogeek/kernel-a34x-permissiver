@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Watchdog timer for PowerPC Book-E systems
  *
@@ -5,11 +9,14 @@
  * Maintainer: Kumar Gala <galak@kernel.crashing.org>
  *
  * Copyright 2005, 2008, 2010-2011 Freescale Semiconductor Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -25,7 +32,11 @@
 /* If the kernel parameter wdt=1, the watchdog will be enabled at boot.
  * Also, the wdt_period sets the watchdog timer period timeout.
  * For E500 cpus the wdt_period sets which bit changing from 0->1 will
+<<<<<<< HEAD
  * trigger a watchog timeout. This watchdog timeout will occur 3 times, the
+=======
+ * trigger a watchdog timeout. This watchdog timeout will occur 3 times, the
+>>>>>>> upstream/android-13
  * first time nothing will happen, the second time a watchdog exception will
  * occur, and the final time the board will reset.
  */
@@ -43,6 +54,14 @@ static bool booke_wdt_enabled;
 module_param(booke_wdt_enabled, bool, 0);
 static int  booke_wdt_period = CONFIG_BOOKE_WDT_DEFAULT_TIMEOUT;
 module_param(booke_wdt_period, int, 0);
+<<<<<<< HEAD
+=======
+static bool nowayout = WATCHDOG_NOWAYOUT;
+module_param(nowayout, bool, 0);
+MODULE_PARM_DESC(nowayout,
+		"Watchdog cannot be stopped once started (default="
+				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_FSL_BOOK3E
 
@@ -147,7 +166,11 @@ static void __booke_wdt_enable(void *data)
 }
 
 /**
+<<<<<<< HEAD
  * booke_wdt_disable - disable the watchdog on the given CPU
+=======
+ * __booke_wdt_disable - disable the watchdog on the given CPU
+>>>>>>> upstream/android-13
  *
  * This function is called on each CPU.  It disables the watchdog on that CPU.
  *
@@ -219,7 +242,10 @@ static void __exit booke_wdt_exit(void)
 static int __init booke_wdt_init(void)
 {
 	int ret = 0;
+<<<<<<< HEAD
 	bool nowayout = WATCHDOG_NOWAYOUT;
+=======
+>>>>>>> upstream/android-13
 
 	pr_info("powerpc book-e watchdog driver loaded\n");
 	booke_wdt_info.firmware_version = cur_cpu_spec->pvr_value;

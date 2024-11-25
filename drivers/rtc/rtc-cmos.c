@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RTC class driver for "CMOS RTC":  PCs, ACPI, etc
  *
  * Copyright (C) 1996 Paul Gortmaker (drivers/char/rtc.c)
  * Copyright (C) 2006 David Brownell (convert to new framework)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -226,6 +233,11 @@ static inline void cmos_write_bank2(unsigned char val, unsigned char addr)
 
 static int cmos_read_time(struct device *dev, struct rtc_time *t)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If pm_trace abused the RTC for storage, set the timespec to 0,
 	 * which tells the caller that this RTC value is unusable.
@@ -233,19 +245,32 @@ static int cmos_read_time(struct device *dev, struct rtc_time *t)
 	if (!pm_trace_rtc_valid())
 		return -EIO;
 
+<<<<<<< HEAD
 	/* REVISIT:  if the clock has a "century" register, use
 	 * that instead of the heuristic in mc146818_get_time().
 	 * That'll make Y3K compatility (year > 2070) easy!
 	 */
 	mc146818_get_time(t);
+=======
+	ret = mc146818_get_time(t);
+	if (ret < 0) {
+		dev_err_ratelimited(dev, "unable to read current time\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int cmos_set_time(struct device *dev, struct rtc_time *t)
 {
+<<<<<<< HEAD
 	/* REVISIT:  set the "century" register if available
 	 *
 	 * NOTE: this ignores the issue whereby updating the seconds
+=======
+	/* NOTE: this ignores the issue whereby updating the seconds
+>>>>>>> upstream/android-13
 	 * takes effect exactly 500ms after we write the register.
 	 * (Also queueing and other delays before we get this far.)
 	 */
@@ -467,7 +492,14 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
 	min = t->time.tm_min;
 	sec = t->time.tm_sec;
 
+<<<<<<< HEAD
 	rtc_control = CMOS_READ(RTC_CONTROL);
+=======
+	spin_lock_irq(&rtc_lock);
+	rtc_control = CMOS_READ(RTC_CONTROL);
+	spin_unlock_irq(&rtc_lock);
+
+>>>>>>> upstream/android-13
 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
 		/* Writing 0xff means "don't care" or "match all".  */
 		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
@@ -578,12 +610,15 @@ static const struct rtc_class_ops cmos_rtc_ops = {
 	.alarm_irq_enable	= cmos_alarm_irq_enable,
 };
 
+<<<<<<< HEAD
 static const struct rtc_class_ops cmos_rtc_ops_no_alarm = {
 	.read_time		= cmos_read_time,
 	.set_time		= cmos_set_time,
 	.proc			= cmos_procfs,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*----------------------------------------------------------------*/
 
 /*
@@ -806,6 +841,15 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
 
 	rename_region(ports, dev_name(&cmos_rtc.rtc->dev));
 
+<<<<<<< HEAD
+=======
+	if (!mc146818_does_rtc_work()) {
+		dev_warn(dev, "broken or not accessible\n");
+		retval = -ENXIO;
+		goto cleanup1;
+	}
+
+>>>>>>> upstream/android-13
 	spin_lock_irq(&rtc_lock);
 
 	if (!(flags & CMOS_RTC_FLAGS_NOFREQ)) {
@@ -860,6 +904,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
 			goto cleanup1;
 		}
+<<<<<<< HEAD
 
 		cmos_rtc.rtc->ops = &cmos_rtc_ops;
 	} else {
@@ -875,6 +920,24 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
 	nvmem_cfg.size = address_space - NVRAM_OFFSET;
 	if (rtc_nvmem_register(cmos_rtc.rtc, &nvmem_cfg))
 		dev_err(dev, "nvmem registration failed\n");
+=======
+	} else {
+		clear_bit(RTC_FEATURE_ALARM, cmos_rtc.rtc->features);
+	}
+
+	cmos_rtc.rtc->ops = &cmos_rtc_ops;
+
+	retval = devm_rtc_register_device(cmos_rtc.rtc);
+	if (retval)
+		goto cleanup2;
+
+	/* Set the sync offset for the periodic 11min update correct */
+	cmos_rtc.rtc->set_offset_nsec = NSEC_PER_SEC / 2;
+
+	/* export at least the first block of NVRAM */
+	nvmem_cfg.size = address_space - NVRAM_OFFSET;
+	devm_rtc_nvmem_register(cmos_rtc.rtc, &nvmem_cfg);
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "%s%s, %d bytes nvram%s\n",
 		 !is_valid_irq(rtc_irq) ? "no alarms" :
@@ -1009,6 +1072,10 @@ static int cmos_suspend(struct device *dev)
 			enable_irq_wake(cmos->irq);
 	}
 
+<<<<<<< HEAD
+=======
+	memset(&cmos->saved_wkalrm, 0, sizeof(struct rtc_wkalrm));
+>>>>>>> upstream/android-13
 	cmos_read_alarm(dev, &cmos->saved_wkalrm);
 
 	dev_dbg(dev, "suspend%s, ctrl %02x\n",
@@ -1053,10 +1120,20 @@ static void cmos_check_wkalrm(struct device *dev)
 	 * ACK the rtc irq here
 	 */
 	if (t_now >= cmos->alarm_expires && cmos_use_acpi_alarm()) {
+<<<<<<< HEAD
 		cmos_interrupt(0, (void *)cmos->rtc);
 		return;
 	}
 
+=======
+		local_irq_disable();
+		cmos_interrupt(0, (void *)cmos->rtc);
+		local_irq_enable();
+		return;
+	}
+
+	memset(&current_alarm, 0, sizeof(struct rtc_wkalrm));
+>>>>>>> upstream/android-13
 	cmos_read_alarm(dev, &current_alarm);
 	t_current_expires = rtc_tm_to_time64(&current_alarm.time);
 	t_saved_expires = rtc_tm_to_time64(&cmos->saved_wkalrm.time);
@@ -1201,8 +1278,11 @@ static void rtc_wake_off(struct device *dev)
 /* Enable use_acpi_alarm mode for Intel platforms no earlier than 2015 */
 static void use_acpi_alarm_quirks(void)
 {
+<<<<<<< HEAD
 	int year;
 
+=======
+>>>>>>> upstream/android-13
 	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
 		return;
 
@@ -1212,8 +1292,15 @@ static void use_acpi_alarm_quirks(void)
 	if (!is_hpet_enabled())
 		return;
 
+<<<<<<< HEAD
 	if (dmi_get_date(DMI_BIOS_DATE, &year, NULL, NULL) && year >= 2015)
 		use_acpi_alarm = true;
+=======
+	if (dmi_get_bios_year() < 2015)
+		return;
+
+	use_acpi_alarm = true;
+>>>>>>> upstream/android-13
 }
 #else
 static inline void use_acpi_alarm_quirks(void) { }
@@ -1309,7 +1396,11 @@ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
 		 * hardcode it on systems with a legacy PIC.
 		 */
 		if (nr_legacy_irqs())
+<<<<<<< HEAD
 			irq = 8;
+=======
+			irq = RTC_IRQ;
+>>>>>>> upstream/android-13
 #endif
 		return cmos_do_probe(&pnp->dev,
 				pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
@@ -1349,7 +1440,11 @@ static const struct pnp_device_id rtc_ids[] = {
 MODULE_DEVICE_TABLE(pnp, rtc_ids);
 
 static struct pnp_driver cmos_pnp_driver = {
+<<<<<<< HEAD
 	.name		= (char *) driver_name,
+=======
+	.name		= driver_name,
+>>>>>>> upstream/android-13
 	.id_table	= rtc_ids,
 	.probe		= cmos_pnp_probe,
 	.remove		= cmos_pnp_remove,

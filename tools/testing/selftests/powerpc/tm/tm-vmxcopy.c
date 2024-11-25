@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Michael Neuling, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015, Michael Neuling, IBM Corp.
+>>>>>>> upstream/android-13
  *
  * Original: Michael Neuling 4/12/2013
  * Edited: Rashmica Gupta 4/12/2015
@@ -46,6 +52,10 @@ int test_vmxcopy()
 	uint64_t aborted = 0;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 	SKIP_IF(!is_ppc64le());
 
 	fd = mkstemp(tmpfile);
@@ -79,7 +89,11 @@ int test_vmxcopy()
 
 		"5:;"
 		"stxvd2x 40,0,%[vecoutptr];"
+<<<<<<< HEAD
 		: [res]"=r"(aborted)
+=======
+		: [res]"=&r"(aborted)
+>>>>>>> upstream/android-13
 		: [vecinptr]"r"(&vecin),
 		  [vecoutptr]"r"(&vecout),
 		  [map]"r"(a)

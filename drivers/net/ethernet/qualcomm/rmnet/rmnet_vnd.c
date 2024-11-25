@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,6 +16,16 @@
  */
 
 #include <linux/etherdevice.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+ *
+ * RMNET Data virtual network driver
+ */
+
+#include <linux/etherdevice.h>
+#include <linux/ethtool.h>
+>>>>>>> upstream/android-13
 #include <linux/if_arp.h>
 #include <net/pkt_sched.h>
 #include "rmnet_config.h"
@@ -68,9 +79,36 @@ static netdev_tx_t rmnet_vnd_start_xmit(struct sk_buff *skb,
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
 static int rmnet_vnd_change_mtu(struct net_device *rmnet_dev, int new_mtu)
 {
 	if (new_mtu < 0 || new_mtu > RMNET_MAX_PACKET_SIZE)
+=======
+static int rmnet_vnd_headroom(struct rmnet_port *port)
+{
+	u32 headroom;
+
+	headroom = sizeof(struct rmnet_map_header);
+
+	if (port->data_format & RMNET_FLAGS_EGRESS_MAP_CKSUMV4)
+		headroom += sizeof(struct rmnet_map_ul_csum_header);
+
+	return headroom;
+}
+
+static int rmnet_vnd_change_mtu(struct net_device *rmnet_dev, int new_mtu)
+{
+	struct rmnet_priv *priv = netdev_priv(rmnet_dev);
+	struct rmnet_port *port;
+	u32 headroom;
+
+	port = rmnet_get_port_rtnl(priv->real_dev);
+
+	headroom = rmnet_vnd_headroom(port);
+
+	if (new_mtu < 0 || new_mtu > RMNET_MAX_PACKET_SIZE ||
+	    new_mtu > (priv->real_dev->mtu - headroom))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	rmnet_dev->mtu = new_mtu;
@@ -114,17 +152,26 @@ static void rmnet_get_stats64(struct net_device *dev,
 			      struct rtnl_link_stats64 *s)
 {
 	struct rmnet_priv *priv = netdev_priv(dev);
+<<<<<<< HEAD
 	struct rmnet_vnd_stats total_stats;
 	struct rmnet_pcpu_stats *pcpu_ptr;
 	unsigned int cpu, start;
 
 	memset(&total_stats, 0, sizeof(struct rmnet_vnd_stats));
 
+=======
+	struct rmnet_vnd_stats total_stats = { };
+	struct rmnet_pcpu_stats *pcpu_ptr;
+	struct rmnet_vnd_stats snapshot;
+	unsigned int cpu, start;
+
+>>>>>>> upstream/android-13
 	for_each_possible_cpu(cpu) {
 		pcpu_ptr = per_cpu_ptr(priv->pcpu_stats, cpu);
 
 		do {
 			start = u64_stats_fetch_begin_irq(&pcpu_ptr->syncp);
+<<<<<<< HEAD
 			total_stats.rx_pkts += pcpu_ptr->stats.rx_pkts;
 			total_stats.rx_bytes += pcpu_ptr->stats.rx_bytes;
 			total_stats.tx_pkts += pcpu_ptr->stats.tx_pkts;
@@ -132,6 +179,16 @@ static void rmnet_get_stats64(struct net_device *dev,
 		} while (u64_stats_fetch_retry_irq(&pcpu_ptr->syncp, start));
 
 		total_stats.tx_drops += pcpu_ptr->stats.tx_drops;
+=======
+			snapshot = pcpu_ptr->stats;	/* struct assignment */
+		} while (u64_stats_fetch_retry_irq(&pcpu_ptr->syncp, start));
+
+		total_stats.rx_pkts += snapshot.rx_pkts;
+		total_stats.rx_bytes += snapshot.rx_bytes;
+		total_stats.tx_pkts += snapshot.tx_pkts;
+		total_stats.tx_bytes += snapshot.tx_bytes;
+		total_stats.tx_drops += snapshot.tx_drops;
+>>>>>>> upstream/android-13
 	}
 
 	s->rx_packets = total_stats.rx_pkts;
@@ -154,6 +211,10 @@ static const struct net_device_ops rmnet_vnd_ops = {
 
 static const char rmnet_gstrings_stats[][ETH_GSTRING_LEN] = {
 	"Checksum ok",
+<<<<<<< HEAD
+=======
+	"Bad IPv4 header checksum",
+>>>>>>> upstream/android-13
 	"Checksum valid bit not set",
 	"Checksum validation failed",
 	"Checksum error bad buffer",
@@ -162,6 +223,10 @@ static const char rmnet_gstrings_stats[][ETH_GSTRING_LEN] = {
 	"Checksum skipped on ip fragment",
 	"Checksum skipped",
 	"Checksum computed in software",
+<<<<<<< HEAD
+=======
+	"Checksum computed in hardware",
+>>>>>>> upstream/android-13
 };
 
 static void rmnet_get_strings(struct net_device *dev, u32 stringset, u8 *buf)
@@ -222,6 +287,11 @@ void rmnet_vnd_setup(struct net_device *rmnet_dev)
 	rmnet_dev->needs_free_netdev = true;
 	rmnet_dev->ethtool_ops = &rmnet_ethtool_ops;
 
+<<<<<<< HEAD
+=======
+	rmnet_dev->features |= NETIF_F_LLTX;
+
+>>>>>>> upstream/android-13
 	/* This perm addr will be used as interface identifier by IPv6 */
 	rmnet_dev->addr_assign_type = NET_ADDR_RANDOM;
 	eth_random_addr(rmnet_dev->perm_addr);
@@ -232,6 +302,7 @@ void rmnet_vnd_setup(struct net_device *rmnet_dev)
 int rmnet_vnd_newlink(u8 id, struct net_device *rmnet_dev,
 		      struct rmnet_port *port,
 		      struct net_device *real_dev,
+<<<<<<< HEAD
 		      struct rmnet_endpoint *ep)
 {
 	struct rmnet_priv *priv = netdev_priv(rmnet_dev);
@@ -242,6 +313,20 @@ int rmnet_vnd_newlink(u8 id, struct net_device *rmnet_dev,
 
 	if (rmnet_get_endpoint(port, id))
 		return -EBUSY;
+=======
+		      struct rmnet_endpoint *ep,
+		      struct netlink_ext_ack *extack)
+
+{
+	struct rmnet_priv *priv = netdev_priv(rmnet_dev);
+	u32 headroom;
+	int rc;
+
+	if (rmnet_get_endpoint(port, id)) {
+		NL_SET_ERR_MSG_MOD(extack, "MUX ID already exists");
+		return -EBUSY;
+	}
+>>>>>>> upstream/android-13
 
 	rmnet_dev->hw_features = NETIF_F_RXCSUM;
 	rmnet_dev->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
@@ -249,6 +334,16 @@ int rmnet_vnd_newlink(u8 id, struct net_device *rmnet_dev,
 
 	priv->real_dev = real_dev;
 
+<<<<<<< HEAD
+=======
+	headroom = rmnet_vnd_headroom(port);
+
+	if (rmnet_vnd_change_mtu(rmnet_dev, real_dev->mtu - headroom)) {
+		NL_SET_ERR_MSG_MOD(extack, "Invalid MTU on real dev");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	rc = register_netdevice(rmnet_dev);
 	if (!rc) {
 		ep->egress_dev = rmnet_dev;
@@ -290,3 +385,48 @@ int rmnet_vnd_do_flow_control(struct net_device *rmnet_dev, int enable)
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+int rmnet_vnd_validate_real_dev_mtu(struct net_device *real_dev)
+{
+	struct hlist_node *tmp_ep;
+	struct rmnet_endpoint *ep;
+	struct rmnet_port *port;
+	unsigned long bkt_ep;
+	u32 headroom;
+
+	port = rmnet_get_port_rtnl(real_dev);
+
+	headroom = rmnet_vnd_headroom(port);
+
+	hash_for_each_safe(port->muxed_ep, bkt_ep, tmp_ep, ep, hlnode) {
+		if (ep->egress_dev->mtu > (real_dev->mtu - headroom))
+			return -1;
+	}
+
+	return 0;
+}
+
+int rmnet_vnd_update_dev_mtu(struct rmnet_port *port,
+			     struct net_device *real_dev)
+{
+	struct hlist_node *tmp_ep;
+	struct rmnet_endpoint *ep;
+	unsigned long bkt_ep;
+	u32 headroom;
+
+	headroom = rmnet_vnd_headroom(port);
+
+	hash_for_each_safe(port->muxed_ep, bkt_ep, tmp_ep, ep, hlnode) {
+		if (ep->egress_dev->mtu <= (real_dev->mtu - headroom))
+			continue;
+
+		if (rmnet_vnd_change_mtu(ep->egress_dev,
+					 real_dev->mtu - headroom))
+			return -1;
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13

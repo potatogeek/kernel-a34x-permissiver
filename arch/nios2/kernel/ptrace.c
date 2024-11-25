@@ -21,6 +21,7 @@
 
 static int genregs_get(struct task_struct *target,
 		       const struct user_regset *regset,
+<<<<<<< HEAD
 		       unsigned int pos, unsigned int count,
 		       void *kbuf, void __user *ubuf)
 {
@@ -60,6 +61,26 @@ static int genregs_get(struct task_struct *target,
 					 PTR_STATUS * 4, -1);
 
 	return ret;
+=======
+		       struct membuf to)
+{
+	const struct pt_regs *regs = task_pt_regs(target);
+	const struct switch_stack *sw = (struct switch_stack *)regs - 1;
+
+	membuf_zero(&to, 4); // R0
+	membuf_write(&to, &regs->r1, 7 * 4); // R1..R7
+	membuf_write(&to, &regs->r8, 8 * 4); // R8..R15
+	membuf_write(&to, sw, 8 * 4); // R16..R23
+	membuf_zero(&to, 2 * 4); /* et and bt */
+	membuf_store(&to, regs->gp);
+	membuf_store(&to, regs->sp);
+	membuf_store(&to, regs->fp);
+	membuf_store(&to, regs->ea);
+	membuf_zero(&to, 4); // PTR_BA
+	membuf_store(&to, regs->ra);
+	membuf_store(&to, regs->ea); /* use ea for PC */
+	return membuf_zero(&to, (NUM_PTRACE_REG - PTR_PC) * 4);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -121,7 +142,11 @@ static const struct user_regset nios2_regsets[] = {
 		.n = NUM_PTRACE_REG,
 		.size = sizeof(unsigned long),
 		.align = sizeof(unsigned long),
+<<<<<<< HEAD
 		.get = genregs_get,
+=======
+		.regset_get = genregs_get,
+>>>>>>> upstream/android-13
 		.set = genregs_set,
 	}
 };

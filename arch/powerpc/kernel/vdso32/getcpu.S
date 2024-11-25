@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) IBM Corporation, 2012
  *
@@ -27,6 +32,10 @@
  * int __kernel_getcpu(unsigned *cpu, unsigned *node);
  *
  */
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_PPC64)
+>>>>>>> upstream/android-13
 V_FUNCTION_BEGIN(__kernel_getcpu)
   .cfi_startproc
 	mfspr	r5,SPRN_SPRG_VDSO_READ
@@ -36,6 +45,7 @@ V_FUNCTION_BEGIN(__kernel_getcpu)
 	rlwinm  r7,r5,16,31-15,31-0
 	beq	cr0,1f
 	stw	r6,0(r3)
+<<<<<<< HEAD
 1:	beq	cr1,2f
 	stw	r7,0(r4)
 2:	crclr	cr0*4+so
@@ -43,3 +53,28 @@ V_FUNCTION_BEGIN(__kernel_getcpu)
 	blr
   .cfi_endproc
 V_FUNCTION_END(__kernel_getcpu)
+=======
+1:	crclr	cr0*4+so
+	li	r3,0			/* always success */
+	beqlr	cr1
+	stw	r7,0(r4)
+	blr
+  .cfi_endproc
+V_FUNCTION_END(__kernel_getcpu)
+#elif !defined(CONFIG_SMP)
+V_FUNCTION_BEGIN(__kernel_getcpu)
+  .cfi_startproc
+	cmpwi	cr0, r3, 0
+	cmpwi	cr1, r4, 0
+	li	r5, 0
+	beq	cr0, 1f
+	stw	r5, 0(r3)
+1:	li	r3, 0			/* always success */
+	crclr	cr0*4+so
+	beqlr	cr1
+	stw	r5, 0(r4)
+	blr
+  .cfi_endproc
+V_FUNCTION_END(__kernel_getcpu)
+#endif
+>>>>>>> upstream/android-13

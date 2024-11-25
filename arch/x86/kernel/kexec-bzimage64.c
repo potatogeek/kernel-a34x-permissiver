@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Kexec bzImage loader
  *
  * Copyright (C) 2014 Red Hat Inc.
  * Authors:
  *      Vivek Goyal <vgoyal@redhat.com>
+<<<<<<< HEAD
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	"kexec-bzImage64: " fmt
@@ -77,7 +84,11 @@ static int setup_cmdline(struct kimage *image, struct boot_params *params,
 
 	if (image->type == KEXEC_TYPE_CRASH) {
 		len = sprintf(cmdline_ptr,
+<<<<<<< HEAD
 			"elfcorehdr=0x%lx ", image->arch.elf_load_addr);
+=======
+			"elfcorehdr=0x%lx ", image->elf_load_addr);
+>>>>>>> upstream/android-13
 	}
 	memcpy(cmdline_ptr + len, cmdline, cmdline_len);
 	cmdline_len += len;
@@ -143,9 +154,14 @@ prepare_add_efi_setup_data(struct boot_params *params,
 	struct setup_data *sd = (void *)params + efi_setup_data_offset;
 	struct efi_setup_data *esd = (void *)sd + sizeof(struct setup_data);
 
+<<<<<<< HEAD
 	esd->fw_vendor = efi.fw_vendor;
 	esd->runtime = efi.runtime;
 	esd->tables = efi.config_table;
+=======
+	esd->fw_vendor = efi_fw_vendor;
+	esd->tables = efi_config_table;
+>>>>>>> upstream/android-13
 	esd->smbios = efi.smbios;
 
 	sd->type = SETUP_EFI;
@@ -173,6 +189,7 @@ setup_efi_state(struct boot_params *params, unsigned long params_load_addr,
 	if (!current_ei->efi_memmap_size)
 		return 0;
 
+<<<<<<< HEAD
 	/*
 	 * If 1:1 mapping is not enabled, second kernel can not setup EFI
 	 * and use EFI run time services. User space will have to pass
@@ -182,6 +199,9 @@ setup_efi_state(struct boot_params *params, unsigned long params_load_addr,
 	if (efi_enabled(EFI_OLD_MEMMAP))
 		return 0;
 
+=======
+	params->secure_boot = boot_params.secure_boot;
+>>>>>>> upstream/android-13
 	ei->efi_loader_signature = current_ei->efi_loader_signature;
 	ei->efi_systab = current_ei->efi_systab;
 	ei->efi_systab_hi = current_ei->efi_systab_hi;
@@ -217,6 +237,12 @@ setup_boot_parameters(struct kimage *image, struct boot_params *params,
 	params->screen_info.ext_mem_k = 0;
 	params->alt_mem_k = 0;
 
+<<<<<<< HEAD
+=======
+	/* Always fill in RSDP: it is either 0 or a valid value */
+	params->acpi_rsdp_addr = boot_params.acpi_rsdp_addr;
+
+>>>>>>> upstream/android-13
 	/* Default APM info */
 	memset(&params->apm_bios_info, 0, sizeof(params->apm_bios_info));
 
@@ -255,7 +281,10 @@ setup_boot_parameters(struct kimage *image, struct boot_params *params,
 	setup_efi_state(params, params_load_addr, efi_map_offset, efi_map_sz,
 			efi_setup_data_offset);
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	/* Setup EDD info */
 	memcpy(params->eddbuf, boot_params.eddbuf,
 				EDDMAXNR * sizeof(struct edd_info));
@@ -318,6 +347,14 @@ static int bzImage64_probe(const char *buf, unsigned long len)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!(header->xloadflags & XLF_5LEVEL) && pgtable_l5_enabled()) {
+		pr_err("bzImage cannot handle 5-level paging mode.\n");
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	/* I've got a bzImage */
 	pr_debug("It's a relocatable bzImage64\n");
 	ret = 0;
@@ -413,7 +450,11 @@ static void *bzImage64_load(struct kimage *image, char *kernel,
 	efi_map_offset = params_cmdline_sz;
 	efi_setup_data_offset = efi_map_offset + ALIGN(efi_map_sz, 16);
 
+<<<<<<< HEAD
 	/* Copy setup header onto bootparams. Documentation/x86/boot.txt */
+=======
+	/* Copy setup header onto bootparams. Documentation/x86/boot.rst */
+>>>>>>> upstream/android-13
 	setup_header_size = 0x0202 + kernel[0x0201] - setup_hdr_offset;
 
 	/* Is there a limit on setup header size? */
@@ -436,6 +477,10 @@ static void *bzImage64_load(struct kimage *image, char *kernel,
 	kbuf.memsz = PAGE_ALIGN(header->init_size);
 	kbuf.buf_align = header->kernel_alignment;
 	kbuf.buf_min = MIN_KERNEL_LOAD_ADDR;
+<<<<<<< HEAD
+=======
+	kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+>>>>>>> upstream/android-13
 	ret = kexec_add_buffer(&kbuf);
 	if (ret)
 		goto out_free_params;
@@ -450,6 +495,10 @@ static void *bzImage64_load(struct kimage *image, char *kernel,
 		kbuf.bufsz = kbuf.memsz = initrd_len;
 		kbuf.buf_align = PAGE_SIZE;
 		kbuf.buf_min = MIN_INITRD_LOAD_ADDR;
+<<<<<<< HEAD
+=======
+		kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+>>>>>>> upstream/android-13
 		ret = kexec_add_buffer(&kbuf);
 		if (ret)
 			goto out_free_params;
@@ -533,9 +582,23 @@ static int bzImage64_cleanup(void *loader_data)
 #ifdef CONFIG_KEXEC_BZIMAGE_VERIFY_SIG
 static int bzImage64_verify_sig(const char *kernel, unsigned long kernel_len)
 {
+<<<<<<< HEAD
 	return verify_pefile_signature(kernel, kernel_len,
 				       VERIFY_USE_SECONDARY_KEYRING,
 				       VERIFYING_KEXEC_PE_SIGNATURE);
+=======
+	int ret;
+
+	ret = verify_pefile_signature(kernel, kernel_len,
+				      VERIFY_USE_SECONDARY_KEYRING,
+				      VERIFYING_KEXEC_PE_SIGNATURE);
+	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING)) {
+		ret = verify_pefile_signature(kernel, kernel_len,
+					      VERIFY_USE_PLATFORM_KEYRING,
+					      VERIFYING_KEXEC_PE_SIGNATURE);
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 #endif
 

@@ -44,7 +44,13 @@ Message transfer.
      b. Transfer message (Read/Write) to Slave1 or broadcast message on
         Bus in case of bank switch.
 
+<<<<<<< HEAD
      c. Release Message lock ::
+=======
+     c. Release Message lock
+
+     ::
+>>>>>>> upstream/android-13
 
 	+----------+                    +---------+
 	|          |                    |         |

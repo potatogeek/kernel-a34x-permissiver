@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Free Electrons
  *
@@ -15,6 +16,25 @@
 
 #include <video/mipi_display.h>
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2017 Free Electrons
+ */
+
+#include <linux/delay.h>
+#include <linux/gpio/consumer.h>
+#include <linux/module.h>
+#include <linux/regulator/consumer.h>
+#include <linux/spi/spi.h>
+
+#include <video/mipi_display.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_modes.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 #define ST7789V_COLMOD_RGB_FMT_18BITS		(6 << 4)
 #define ST7789V_COLMOD_CTRL_FMT_18BITS		(6 << 0)
 
@@ -115,7 +135,10 @@ struct st7789v {
 	struct drm_panel panel;
 	struct spi_device *spi;
 	struct gpio_desc *reset;
+<<<<<<< HEAD
 	struct backlight_device *backlight;
+=======
+>>>>>>> upstream/android-13
 	struct regulator *power;
 };
 
@@ -166,6 +189,7 @@ static const struct drm_display_mode default_mode = {
 	.vsync_start = 320 + 8,
 	.vsync_end = 320 + 8 + 4,
 	.vtotal = 320 + 8 + 4 + 4,
+<<<<<<< HEAD
 	.vrefresh = 60,
 };
 
@@ -179,6 +203,20 @@ static int st7789v_get_modes(struct drm_panel *panel)
 		dev_err(panel->drm->dev, "failed to add mode %ux%ux@%u\n",
 			default_mode.hdisplay, default_mode.vdisplay,
 			default_mode.vrefresh);
+=======
+};
+
+static int st7789v_get_modes(struct drm_panel *panel,
+			     struct drm_connector *connector)
+{
+	struct drm_display_mode *mode;
+
+	mode = drm_mode_duplicate(connector->dev, &default_mode);
+	if (!mode) {
+		dev_err(panel->dev, "failed to add mode %ux%ux@%u\n",
+			default_mode.hdisplay, default_mode.vdisplay,
+			drm_mode_vrefresh(&default_mode));
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -187,8 +225,13 @@ static int st7789v_get_modes(struct drm_panel *panel)
 	mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
 	drm_mode_probed_add(connector, mode);
 
+<<<<<<< HEAD
 	panel->connector->display_info.width_mm = 61;
 	panel->connector->display_info.height_mm = 103;
+=======
+	connector->display_info.width_mm = 61;
+	connector->display_info.height_mm = 103;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -322,12 +365,15 @@ static int st7789v_enable(struct drm_panel *panel)
 {
 	struct st7789v *ctx = panel_to_st7789v(panel);
 
+<<<<<<< HEAD
 	if (ctx->backlight) {
 		ctx->backlight->props.state &= ~BL_CORE_FBBLANK;
 		ctx->backlight->props.power = FB_BLANK_UNBLANK;
 		backlight_update_status(ctx->backlight);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return st7789v_write_command(ctx, MIPI_DCS_SET_DISPLAY_ON);
 }
 
@@ -338,12 +384,15 @@ static int st7789v_disable(struct drm_panel *panel)
 
 	ST7789V_TEST(ret, st7789v_write_command(ctx, MIPI_DCS_SET_DISPLAY_OFF));
 
+<<<<<<< HEAD
 	if (ctx->backlight) {
 		ctx->backlight->props.power = FB_BLANK_POWERDOWN;
 		ctx->backlight->props.state |= BL_CORE_FBBLANK;
 		backlight_update_status(ctx->backlight);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -369,7 +418,10 @@ static const struct drm_panel_funcs st7789v_drm_funcs = {
 
 static int st7789v_probe(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct device_node *backlight;
+=======
+>>>>>>> upstream/android-13
 	struct st7789v *ctx;
 	int ret;
 
@@ -380,8 +432,13 @@ static int st7789v_probe(struct spi_device *spi)
 	spi_set_drvdata(spi, ctx);
 	ctx->spi = spi;
 
+<<<<<<< HEAD
 	ctx->panel.dev = &spi->dev;
 	ctx->panel.funcs = &st7789v_drm_funcs;
+=======
+	drm_panel_init(&ctx->panel, &spi->dev, &st7789v_drm_funcs,
+		       DRM_MODE_CONNECTOR_DPI);
+>>>>>>> upstream/android-13
 
 	ctx->power = devm_regulator_get(&spi->dev, "power");
 	if (IS_ERR(ctx->power))
@@ -393,6 +450,7 @@ static int st7789v_probe(struct spi_device *spi)
 		return PTR_ERR(ctx->reset);
 	}
 
+<<<<<<< HEAD
 	backlight = of_parse_phandle(spi->dev.of_node, "backlight", 0);
 	if (backlight) {
 		ctx->backlight = of_find_backlight_by_node(backlight);
@@ -413,18 +471,32 @@ err_free_backlight:
 		put_device(&ctx->backlight->dev);
 
 	return ret;
+=======
+	ret = drm_panel_of_backlight(&ctx->panel);
+	if (ret)
+		return ret;
+
+	drm_panel_add(&ctx->panel);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int st7789v_remove(struct spi_device *spi)
 {
 	struct st7789v *ctx = spi_get_drvdata(spi);
 
+<<<<<<< HEAD
 	drm_panel_detach(&ctx->panel);
 	drm_panel_remove(&ctx->panel);
 
 	if (ctx->backlight)
 		put_device(&ctx->backlight->dev);
 
+=======
+	drm_panel_remove(&ctx->panel);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

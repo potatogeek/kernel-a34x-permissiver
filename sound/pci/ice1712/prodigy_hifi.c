@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *   ALSA driver for ICEnsemble VT1724 (Envy24HT)
  *
@@ -7,6 +11,7 @@
  *      Copyright (c) 2007 Julian Scheel <julian@jusst.de>
  *      Copyright (c) 2007 allank
  *      Copyright (c) 2004 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -298,7 +305,11 @@ static int ak4396_dac_vol_put(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
 static const DECLARE_TLV_DB_SCALE(db_scale_wm_dac, -12700, 100, 1);
 static const DECLARE_TLV_DB_LINEAR(ak4396_db_scale, TLV_DB_GAIN_MUTE, 0);
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new prodigy_hd2_controls[] = {
+=======
+static const struct snd_kcontrol_new prodigy_hd2_controls[] = {
+>>>>>>> upstream/android-13
     {
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = (SNDRV_CTL_ELEM_ACCESS_READWRITE |
@@ -755,7 +766,11 @@ static int wm_chswap_put(struct snd_kcontrol *kcontrol,
  * mixers
  */
 
+<<<<<<< HEAD
 static struct snd_kcontrol_new prodigy_hifi_controls[] = {
+=======
+static const struct snd_kcontrol_new prodigy_hifi_controls[] = {
+>>>>>>> upstream/android-13
 	{
 		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 		.access = (SNDRV_CTL_ELEM_ACCESS_READWRITE |
@@ -904,12 +919,17 @@ static void wm_proc_regs_read(struct snd_info_entry *entry,
 
 static void wm_proc_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	if (!snd_card_proc_new(ice->card, "wm_codec", &entry)) {
 		snd_info_set_text_ops(entry, ice, wm_proc_regs_read);
 		entry->mode |= 0200;
 		entry->c.text.write = wm_proc_regs_write;
 	}
+=======
+	snd_card_rw_proc_new(ice->card, "wm_codec", ice, wm_proc_regs_read,
+			     wm_proc_regs_write);
+>>>>>>> upstream/android-13
 }
 
 static int prodigy_hifi_add_controls(struct snd_ice1712 *ice)
@@ -948,7 +968,11 @@ static int prodigy_hd2_add_controls(struct snd_ice1712 *ice)
 
 static void wm8766_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	static unsigned short wm8766_inits[] = {
+=======
+	static const unsigned short wm8766_inits[] = {
+>>>>>>> upstream/android-13
 		WM8766_RESET,	   0x0000,
 		WM8766_DAC_CTRL,	0x0120,
 		WM8766_INT_CTRL,	0x0022, /* I2S Normal Mode, 24 bit */
@@ -971,7 +995,11 @@ static void wm8766_init(struct snd_ice1712 *ice)
 
 static void wm8776_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	static unsigned short wm8776_inits[] = {
+=======
+	static const unsigned short wm8776_inits[] = {
+>>>>>>> upstream/android-13
 		/* These come first to reduce init pop noise */
 		WM_ADC_MUX,	0x0003,	/* ADC mute */
 		/* 0x00c0 replaced by 0x0003 */
@@ -991,7 +1019,11 @@ static void wm8776_init(struct snd_ice1712 *ice)
 #ifdef CONFIG_PM_SLEEP
 static int prodigy_hifi_resume(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	static unsigned short wm8776_reinit_registers[] = {
+=======
+	static const unsigned short wm8776_reinit_registers[] = {
+>>>>>>> upstream/android-13
 		WM_MASTER_CTRL,
 		WM_DAC_INT,
 		WM_ADC_INT,
@@ -1051,7 +1083,11 @@ static int prodigy_hifi_resume(struct snd_ice1712 *ice)
  */
 static int prodigy_hifi_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	static unsigned short wm8776_defaults[] = {
+=======
+	static const unsigned short wm8776_defaults[] = {
+>>>>>>> upstream/android-13
 		WM_MASTER_CTRL,  0x0022, /* 256fs, slave mode */
 		WM_DAC_INT,	0x0022,	/* I2S, normal polarity, 24bit */
 		WM_ADC_INT,	0x0022,	/* I2S, normal polarity, 24bit */
@@ -1126,7 +1162,11 @@ static int prodigy_hifi_init(struct snd_ice1712 *ice)
  */
 static void ak4396_init(struct snd_ice1712 *ice)
 {
+<<<<<<< HEAD
 	static unsigned short ak4396_inits[] = {
+=======
+	static const unsigned short ak4396_inits[] = {
+>>>>>>> upstream/android-13
 		AK4396_CTRL1,	   0x87,   /* I2S Normal Mode, 24 bit */
 		AK4396_CTRL2,	   0x02,
 		AK4396_CTRL3,	   0x00, 
@@ -1198,7 +1238,11 @@ static int prodigy_hd2_init(struct snd_ice1712 *ice)
 }
 
 
+<<<<<<< HEAD
 static unsigned char prodigy71hifi_eeprom[] = {
+=======
+static const unsigned char prodigy71hifi_eeprom[] = {
+>>>>>>> upstream/android-13
 	0x4b,   /* SYSCONF: clock 512, spdif-in/ADC, 4DACs */
 	0x80,   /* ACLINK: I2S */
 	0xfc,   /* I2S: vol, 96k, 24bit, 192k */
@@ -1214,7 +1258,11 @@ static unsigned char prodigy71hifi_eeprom[] = {
 	0x00,   /* GPIO_STATE2 */
 };
 
+<<<<<<< HEAD
 static unsigned char prodigyhd2_eeprom[] = {
+=======
+static const unsigned char prodigyhd2_eeprom[] = {
+>>>>>>> upstream/android-13
 	0x4b,   /* SYSCONF: clock 512, spdif-in/ADC, 4DACs */
 	0x80,   /* ACLINK: I2S */
 	0xfc,   /* I2S: vol, 96k, 24bit, 192k */
@@ -1230,7 +1278,11 @@ static unsigned char prodigyhd2_eeprom[] = {
 	0x00,   /* GPIO_STATE2 */
 };
 
+<<<<<<< HEAD
 static unsigned char fortissimo4_eeprom[] = {
+=======
+static const unsigned char fortissimo4_eeprom[] = {
+>>>>>>> upstream/android-13
 	0x43,   /* SYSCONF: clock 512, ADC, 4DACs */	
 	0x80,   /* ACLINK: I2S */
 	0xfc,   /* I2S: vol, 96k, 24bit, 192k */

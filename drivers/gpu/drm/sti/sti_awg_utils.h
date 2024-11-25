@@ -7,7 +7,11 @@
 #ifndef _STI_AWG_UTILS_H_
 #define _STI_AWG_UTILS_H_
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <linux/types.h>
+>>>>>>> upstream/android-13
 
 #define AWG_MAX_INST 64
 

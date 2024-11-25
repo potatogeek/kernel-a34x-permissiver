@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * wm8350-core.c  --  Device access for Wolfson WM8350
  *
  * Copyright 2007, 2008 Wolfson Microelectronics PLC.
  *
  * Author: Liam Girdwood, Mark Brown
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
@@ -14,6 +19,13 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
+=======
+ */
+
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/export.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/bug.h>
 #include <linux/device.h>
@@ -135,6 +147,11 @@ EXPORT_SYMBOL_GPL(wm8350_block_write);
  * The WM8350 has a hardware lock which can be used to prevent writes to
  * some registers (generally those which can cause particularly serious
  * problems if misused).  This function enables that lock.
+<<<<<<< HEAD
+=======
+ *
+ * @wm8350: pointer to local driver data structure
+>>>>>>> upstream/android-13
  */
 int wm8350_reg_lock(struct wm8350 *wm8350)
 {
@@ -164,6 +181,11 @@ EXPORT_SYMBOL_GPL(wm8350_reg_lock);
  * problems if misused).  This function disables that lock so updates
  * can be performed.  For maximum safety this should be done only when
  * required.
+<<<<<<< HEAD
+=======
+ *
+ * @wm8350: pointer to local driver data structure
+>>>>>>> upstream/android-13
  */
 int wm8350_reg_unlock(struct wm8350 *wm8350)
 {
@@ -442,6 +464,7 @@ err:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(wm8350_device_init);
+<<<<<<< HEAD
 
 void wm8350_device_exit(struct wm8350 *wm8350)
 {
@@ -469,3 +492,5 @@ EXPORT_SYMBOL_GPL(wm8350_device_exit);
 
 MODULE_DESCRIPTION("WM8350 AudioPlus PMIC core driver");
 MODULE_LICENSE("GPL");
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -28,6 +29,13 @@
 #include "table.h"
 
 
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+
+#include "table.h"
+
+>>>>>>> upstream/android-13
 u32 RTL8192CEPHY_REG_2TARRAY[PHY_REG_2TARRAY_LENGTH] = {
 	0x024, 0x0011800f,
 	0x028, 0x00ffdb83,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 
 /*
  * Linux device driver for USB based Prism54
@@ -6,10 +10,13 @@
  *
  * Based on the islsm (softmac prism54) driver, which is:
  * Copyright 2004-2006 Jean-Baptiste Note <jbnote@gmail.com>, et al.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/usb.h>
@@ -39,7 +46,11 @@ static struct usb_driver p54u_driver;
  * Note:
  *
  * Always update our wiki's device list (located at:
+<<<<<<< HEAD
  * http://wireless.kernel.org/en/users/Drivers/p54/devices ),
+=======
+ * http://wireless.wiki.kernel.org/en/users/Drivers/p54/devices ),
+>>>>>>> upstream/android-13
  * whenever you add a new device.
  */
 

@@ -38,12 +38,19 @@
  */
 
 
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/asmmacro.h>
 #include <asm/cache.h>
 #include <asm/errno.h>
 #include <asm/kregs.h>
 #include <asm/asm-offsets.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/percpu.h>
 #include <asm/processor.h>
 #include <asm/thread_info.h>
@@ -112,6 +119,7 @@ GLOBAL_ENTRY(sys_clone2)
 	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(8)
 	alloc r16=ar.pfs,8,2,6,0
 	DO_SAVE_SWITCH_STACK
+<<<<<<< HEAD
 	adds r2=PT(R16)+IA64_SWITCH_STACK_SIZE+16,sp
 	mov loc0=rp
 	mov loc1=r16				// save ar.pfs across do_fork
@@ -125,6 +133,18 @@ GLOBAL_ENTRY(sys_clone2)
 	mov out4=in4	// child_tidptr:  valid only w/CLONE_CHILD_SETTID or CLONE_CHILD_CLEARTID
 	mov out0=in0				// out0 = clone_flags
 	br.call.sptk.many rp=do_fork
+=======
+	mov loc0=rp
+	mov loc1=r16                             // save ar.pfs across ia64_clone
+	.body
+	mov out0=in0
+	mov out1=in1
+	mov out2=in2
+	mov out3=in3
+	mov out4=in4
+	mov out5=in5
+	br.call.sptk.many rp=ia64_clone
+>>>>>>> upstream/android-13
 .ret1:	.restore sp
 	adds sp=IA64_SWITCH_STACK_SIZE,sp	// pop the switch stack
 	mov ar.pfs=loc1
@@ -143,6 +163,7 @@ GLOBAL_ENTRY(sys_clone)
 	.prologue ASM_UNW_PRLG_RP|ASM_UNW_PRLG_PFS, ASM_UNW_PRLG_GRSAVE(8)
 	alloc r16=ar.pfs,8,2,6,0
 	DO_SAVE_SWITCH_STACK
+<<<<<<< HEAD
 	adds r2=PT(R16)+IA64_SWITCH_STACK_SIZE+16,sp
 	mov loc0=rp
 	mov loc1=r16				// save ar.pfs across do_fork
@@ -156,6 +177,18 @@ GLOBAL_ENTRY(sys_clone)
 	mov out4=in3	// child_tidptr:  valid only w/CLONE_CHILD_SETTID or CLONE_CHILD_CLEARTID
 	mov out0=in0				// out0 = clone_flags
 	br.call.sptk.many rp=do_fork
+=======
+	mov loc0=rp
+	mov loc1=r16                             // save ar.pfs across ia64_clone
+	.body
+	mov out0=in0
+	mov out1=in1
+	mov out2=16				// stacksize (compensates for 16-byte scratch area)
+	mov out3=in3
+	mov out4=in4
+	mov out5=in5
+	br.call.sptk.many rp=ia64_clone
+>>>>>>> upstream/android-13
 .ret2:	.restore sp
 	adds sp=IA64_SWITCH_STACK_SIZE,sp	// pop the switch stack
 	mov ar.pfs=loc1
@@ -590,7 +623,11 @@ GLOBAL_ENTRY(ia64_ret_from_clone)
 	nop.i 0
 	/*
 	 * We need to call schedule_tail() to complete the scheduling process.
+<<<<<<< HEAD
 	 * Called by ia64_switch_to() after do_fork()->copy_thread().  r8 contains the
+=======
+	 * Called by ia64_switch_to() after ia64_clone()->copy_thread().  r8 contains the
+>>>>>>> upstream/android-13
 	 * address of the previously executing task.
 	 */
 	br.call.sptk.many rp=ia64_invoke_schedule_tail
@@ -670,12 +707,20 @@ GLOBAL_ENTRY(ia64_leave_syscall)
 	 *
 	 * p6 controls whether current_thread_info()->flags needs to be check for
 	 * extra work.  We always check for extra work when returning to user-level.
+<<<<<<< HEAD
 	 * With CONFIG_PREEMPT, we also check for extra work when the preempt_count
+=======
+	 * With CONFIG_PREEMPTION, we also check for extra work when the preempt_count
+>>>>>>> upstream/android-13
 	 * is 0.  After extra work processing has been completed, execution
 	 * resumes at ia64_work_processed_syscall with p6 set to 1 if the extra-work-check
 	 * needs to be redone.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	RSM_PSR_I(p0, r2, r18)			// disable interrupts
 	cmp.eq pLvSys,p0=r0,r0			// pLvSys=1: leave from syscall
 (pKStk) adds r20=TI_PRE_COUNT+IA64_TASK_SIZE,r13
@@ -685,7 +730,11 @@ GLOBAL_ENTRY(ia64_leave_syscall)
 (pUStk)	mov r21=0			// r21 <- 0
 	;;
 	cmp.eq p6,p0=r21,r0		// p6 <- pUStk || (preempt_count == 0)
+<<<<<<< HEAD
 #else /* !CONFIG_PREEMPT */
+=======
+#else /* !CONFIG_PREEMPTION */
+>>>>>>> upstream/android-13
 	RSM_PSR_I(pUStk, r2, r18)
 	cmp.eq pLvSys,p0=r0,r0		// pLvSys=1: leave from syscall
 (pUStk)	cmp.eq.unc p6,p0=r0,r0		// p6 <- pUStk
@@ -814,12 +863,20 @@ GLOBAL_ENTRY(ia64_leave_kernel)
 	 *
 	 * p6 controls whether current_thread_info()->flags needs to be check for
 	 * extra work.  We always check for extra work when returning to user-level.
+<<<<<<< HEAD
 	 * With CONFIG_PREEMPT, we also check for extra work when the preempt_count
+=======
+	 * With CONFIG_PREEMPTION, we also check for extra work when the preempt_count
+>>>>>>> upstream/android-13
 	 * is 0.  After extra work processing has been completed, execution
 	 * resumes at .work_processed_syscall with p6 set to 1 if the extra-work-check
 	 * needs to be redone.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_PREEMPT
+=======
+#ifdef CONFIG_PREEMPTION
+>>>>>>> upstream/android-13
 	RSM_PSR_I(p0, r17, r31)			// disable interrupts
 	cmp.eq p0,pLvSys=r0,r0			// pLvSys=0: leave from kernel
 (pKStk)	adds r20=TI_PRE_COUNT+IA64_TASK_SIZE,r13
@@ -1120,7 +1177,11 @@ skip_rbs_switch:
 
 	/*
 	 * On entry:
+<<<<<<< HEAD
 	 *	r20 = &current->thread_info->pre_count (if CONFIG_PREEMPT)
+=======
+	 *	r20 = &current->thread_info->pre_count (if CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 	 *	r31 = current->thread_info->flags
 	 * On exit:
 	 *	p6 = TRUE if work-pending-check needs to be redone
@@ -1426,10 +1487,15 @@ END(ftrace_stub)
 
 #endif /* CONFIG_FUNCTION_TRACER */
 
+<<<<<<< HEAD
+=======
+#define __SYSCALL(nr, entry) data8 entry
+>>>>>>> upstream/android-13
 	.rodata
 	.align 8
 	.globl sys_call_table
 sys_call_table:
+<<<<<<< HEAD
 	data8 sys_ni_syscall		//  This must be sys_ni_syscall!  See ivt.S.
 	data8 sys_exit				// 1025
 	data8 sys_read
@@ -1758,3 +1824,6 @@ sys_call_table:
 	data8 sys_pwritev2
 
 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
+=======
+#include <asm/syscall_table.h>
+>>>>>>> upstream/android-13

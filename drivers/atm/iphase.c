@@ -47,6 +47,10 @@
 #include <linux/errno.h>  
 #include <linux/atm.h>  
 #include <linux/atmdev.h>  
+<<<<<<< HEAD
+=======
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 #include <linux/sonet.h>  
 #include <linux/skbuff.h>  
 #include <linux/time.h>  
@@ -680,7 +684,11 @@ static void ia_tx_poll (IADEV *iadev) {
           skb1 = skb_dequeue(&iavcc->txing_skb);
        }                                                        
        if (!skb1) {
+<<<<<<< HEAD
           IF_EVENT(printk("IA: Vci %d - skb not found requed\n",vcc->vci);)
+=======
+          IF_EVENT(printk("IA: Vci %d - skb not found requeued\n",vcc->vci);)
+>>>>>>> upstream/android-13
           ia_enque_head_rtn_q (&iadev->tx_return_q, rtne);
           break;
        }
@@ -996,10 +1004,19 @@ static void xdump( u_char*  cp, int  length, char*  prefix )
         }
         pBuf += sprintf( pBuf, "  " );
         for(col = 0;count + col < length && col < 16; col++){
+<<<<<<< HEAD
             if (isprint((int)cp[count + col]))
                 pBuf += sprintf( pBuf, "%c", cp[count + col] );
             else
                 pBuf += sprintf( pBuf, "." );
+=======
+		u_char c = cp[count + col];
+
+		if (isascii(c) && isprint(c))
+			pBuf += sprintf(pBuf, "%c", c);
+		else
+			pBuf += sprintf(pBuf, ".");
+>>>>>>> upstream/android-13
                 }
         printk("%s\n", prntBuf);
         count += col;
@@ -2771,12 +2788,15 @@ static int ia_ioctl(struct atm_dev *dev, unsigned int cmd, void __user *arg)
    case MEMDUMP:
    {
 	switch (ia_cmds.sub_cmd) {
+<<<<<<< HEAD
        	  case MEMDUMP_DEV:     
 	     if (!capable(CAP_NET_ADMIN)) return -EPERM;
 	     if (copy_to_user(ia_cmds.buf, iadev, sizeof(IADEV)))
                 return -EFAULT;
              ia_cmds.status = 0;
              break;
+=======
+>>>>>>> upstream/android-13
           case MEMDUMP_SEGREG:
 	     if (!capable(CAP_NET_ADMIN)) return -EPERM;
              tmps = (u16 __user *)ia_cmds.buf;
@@ -2830,8 +2850,13 @@ static int ia_ioctl(struct atm_dev *dev, unsigned int cmd, void __user *arg)
          case 0x6:
          {  
              ia_cmds.status = 0; 
+<<<<<<< HEAD
              printk("skb = 0x%lx\n", (long)skb_peek(&iadev->tx_backlog));
              printk("rtn_q: 0x%lx\n",(long)ia_deque_rtn_q(&iadev->tx_return_q));
+=======
+             printk("skb = 0x%p\n", skb_peek(&iadev->tx_backlog));
+             printk("rtn_q: 0x%p\n",ia_deque_rtn_q(&iadev->tx_return_q));
+>>>>>>> upstream/android-13
          }
              break;
          case 0x8:
@@ -2886,6 +2911,7 @@ static int ia_ioctl(struct atm_dev *dev, unsigned int cmd, void __user *arg)
    return 0;  
 }  
   
+<<<<<<< HEAD
 static int ia_getsockopt(struct atm_vcc *vcc, int level, int optname,   
 	void __user *optval, int optlen)  
 {  
@@ -2900,6 +2926,8 @@ static int ia_setsockopt(struct atm_vcc *vcc, int level, int optname,
 	return -EINVAL;  
 }  
   
+=======
+>>>>>>> upstream/android-13
 static int ia_pkt_tx (struct atm_vcc *vcc, struct sk_buff *skb) {
         IADEV *iadev;
         struct dle *wr_ptr;
@@ -3170,8 +3198,11 @@ static const struct atmdev_ops ops = {
 	.open		= ia_open,  
 	.close		= ia_close,  
 	.ioctl		= ia_ioctl,  
+<<<<<<< HEAD
 	.getsockopt	= ia_getsockopt,  
 	.setsockopt	= ia_setsockopt,  
+=======
+>>>>>>> upstream/android-13
 	.send		= ia_send,  
 	.phy_put	= ia_phy_put,  
 	.phy_get	= ia_phy_get,  
@@ -3301,7 +3332,11 @@ static void __exit ia_module_exit(void)
 {
 	pci_unregister_driver(&ia_driver);
 
+<<<<<<< HEAD
         del_timer(&ia_timer);
+=======
+	del_timer_sync(&ia_timer);
+>>>>>>> upstream/android-13
 }
 
 module_init(ia_module_init);

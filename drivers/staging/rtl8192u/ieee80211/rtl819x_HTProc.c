@@ -93,10 +93,13 @@ void HTUpdateDefaultSetting(struct ieee80211_device *ieee)
 	ieee->bTxDisableRateFallBack = 0;
 	ieee->bTxUseDriverAssingedRate = 0;
 
+<<<<<<< HEAD
 #ifdef	TO_DO_LIST
 	// 8190 only. Assign duration operation mode to firmware
 	pMgntInfo->bTxEnableFwCalcDur = (BOOLEAN)pNdisCommon->bRegTxEnableFwCalcDur;
 #endif
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * 8190 only, Realtek proprietary aggregation mode
 	 * Set MPDUDensity=2,   1: Set MPDUDensity=2(32k)  for Realtek AP and set MPDUDensity=0(8k) for others
@@ -130,15 +133,26 @@ void HTUpdateDefaultSetting(struct ieee80211_device *ieee)
  */
 void HTDebugHTCapability(u8 *CapIE, u8 *TitleString)
 {
+<<<<<<< HEAD
 	static u8	EWC11NHTCap[] = {0x00, 0x90, 0x4c, 0x33};	// For 11n EWC definition, 2007.07.17, by Emily
 	PHT_CAPABILITY_ELE		pCapELE;
+=======
+	static u8	          EWC11NHTCap[] = {0x00, 0x90, 0x4c, 0x33};	// For 11n EWC definition, 2007.07.17, by Emily
+	struct ht_capability_ele *pCapELE;
+>>>>>>> upstream/android-13
 
 	if (!memcmp(CapIE, EWC11NHTCap, sizeof(EWC11NHTCap))) {
 		//EWC IE
 		IEEE80211_DEBUG(IEEE80211_DL_HT, "EWC IE in %s()\n", __func__);
+<<<<<<< HEAD
 		pCapELE = (PHT_CAPABILITY_ELE)(&CapIE[4]);
 	} else {
 		pCapELE = (PHT_CAPABILITY_ELE)(&CapIE[0]);
+=======
+		pCapELE = (struct ht_capability_ele *)(&CapIE[4]);
+	} else {
+		pCapELE = (struct ht_capability_ele *)(&CapIE[0]);
+>>>>>>> upstream/android-13
 	}
 	IEEE80211_DEBUG(IEEE80211_DL_HT, "<Log HT Capability>. Called by %s\n", TitleString);
 
@@ -216,6 +230,7 @@ void HTDebugHTInfo(u8 *InfoIE, u8 *TitleString)
 				pHTInfoEle->BasicMSC[1], pHTInfoEle->BasicMSC[2], pHTInfoEle->BasicMSC[3], pHTInfoEle->BasicMSC[4]);
 }
 
+<<<<<<< HEAD
 /*
  *	Return:		true if station in half n mode and AP supports 40 bw
  */
@@ -274,6 +289,9 @@ u16 HTHalfMcsToDataRate(struct ieee80211_device *ieee,	u8	nMcsRate)
 }
 
 u16 HTMcsToDataRate(struct ieee80211_device *ieee, u8 nMcsRate)
+=======
+static u16 HTMcsToDataRate(struct ieee80211_device *ieee, u8 nMcsRate)
+>>>>>>> upstream/android-13
 {
 	PRT_HIGH_THROUGHPUT	pHTInfo = ieee->pHTInfo;
 
@@ -530,7 +548,11 @@ void HTResetIOTSetting(PRT_HIGH_THROUGHPUT pHTInfo)
 void HTConstructCapabilityElement(struct ieee80211_device *ieee, u8 *posHTCap, u8 *len, u8 IsEncrypt)
 {
 	PRT_HIGH_THROUGHPUT	pHT = ieee->pHTInfo;
+<<<<<<< HEAD
 	PHT_CAPABILITY_ELE	pCapELE = NULL;
+=======
+	struct ht_capability_ele   *pCapELE = NULL;
+>>>>>>> upstream/android-13
 	//u8 bIsDeclareMCS13;
 
 	if (!posHTCap || !pHT) {
@@ -544,9 +566,15 @@ void HTConstructCapabilityElement(struct ieee80211_device *ieee, u8 *posHTCap, u
 		u8	EWC11NHTCap[] = {0x00, 0x90, 0x4c, 0x33};	// For 11n EWC definition, 2007.07.17, by Emily
 
 		memcpy(posHTCap, EWC11NHTCap, sizeof(EWC11NHTCap));
+<<<<<<< HEAD
 		pCapELE = (PHT_CAPABILITY_ELE)&posHTCap[4];
 	} else {
 		pCapELE = (PHT_CAPABILITY_ELE)posHTCap;
+=======
+		pCapELE = (struct ht_capability_ele *)&posHTCap[4];
+	} else {
+		pCapELE = (struct ht_capability_ele *)posHTCap;
+>>>>>>> upstream/android-13
 	}
 
 	//HT capability info
@@ -894,11 +922,18 @@ static u8 HTFilterMCSRate(struct ieee80211_device *ieee, u8 *pSupportMCS,
 	return true;
 }
 
+<<<<<<< HEAD
 void HTSetConnectBwMode(struct ieee80211_device *ieee, enum ht_channel_width Bandwidth, enum ht_extension_chan_offset	Offset);
 void HTOnAssocRsp(struct ieee80211_device *ieee)
 {
 	PRT_HIGH_THROUGHPUT	pHTInfo = ieee->pHTInfo;
 	PHT_CAPABILITY_ELE		pPeerHTCap = NULL;
+=======
+void HTOnAssocRsp(struct ieee80211_device *ieee)
+{
+	PRT_HIGH_THROUGHPUT	pHTInfo = ieee->pHTInfo;
+	struct ht_capability_ele       *pPeerHTCap = NULL;
+>>>>>>> upstream/android-13
 	PHT_INFORMATION_ELE		pPeerHTInfo = NULL;
 	u16	nMaxAMSDUSize = 0;
 	u8	*pMcsFilter = NULL;
@@ -913,16 +948,26 @@ void HTOnAssocRsp(struct ieee80211_device *ieee)
 		return;
 	}
 	IEEE80211_DEBUG(IEEE80211_DL_HT, "===> HTOnAssocRsp_wq(): HT_ENABLE\n");
+<<<<<<< HEAD
 //	IEEE80211_DEBUG_DATA(IEEE80211_DL_DATA, pHTInfo->PeerHTCapBuf, sizeof(HT_CAPABILITY_ELE));
+=======
+//	IEEE80211_DEBUG_DATA(IEEE80211_DL_DATA, pHTInfo->PeerHTCapBuf, sizeof(struct ht_capability_ele));
+>>>>>>> upstream/android-13
 //	IEEE80211_DEBUG_DATA(IEEE80211_DL_DATA, pHTInfo->PeerHTInfoBuf, sizeof(HT_INFORMATION_ELE));
 
 //	HTDebugHTCapability(pHTInfo->PeerHTCapBuf,"HTOnAssocRsp_wq");
 //	HTDebugHTInfo(pHTInfo->PeerHTInfoBuf,"HTOnAssocRsp_wq");
 	//
 	if (!memcmp(pHTInfo->PeerHTCapBuf, EWC11NHTCap, sizeof(EWC11NHTCap)))
+<<<<<<< HEAD
 		pPeerHTCap = (PHT_CAPABILITY_ELE)(&pHTInfo->PeerHTCapBuf[4]);
 	else
 		pPeerHTCap = (PHT_CAPABILITY_ELE)(pHTInfo->PeerHTCapBuf);
+=======
+		pPeerHTCap = (struct ht_capability_ele *)(&pHTInfo->PeerHTCapBuf[4]);
+	else
+		pPeerHTCap = (struct ht_capability_ele *)(pHTInfo->PeerHTCapBuf);
+>>>>>>> upstream/android-13
 
 	if (!memcmp(pHTInfo->PeerHTInfoBuf, EWC11NHTInfo, sizeof(EWC11NHTInfo)))
 		pPeerHTInfo = (PHT_INFORMATION_ELE)(&pHTInfo->PeerHTInfoBuf[4]);
@@ -932,7 +977,11 @@ void HTOnAssocRsp(struct ieee80211_device *ieee)
 	////////////////////////////////////////////////////////
 	// Configurations:
 	////////////////////////////////////////////////////////
+<<<<<<< HEAD
 	IEEE80211_DEBUG_DATA(IEEE80211_DL_DATA | IEEE80211_DL_HT, pPeerHTCap, sizeof(HT_CAPABILITY_ELE));
+=======
+	IEEE80211_DEBUG_DATA(IEEE80211_DL_DATA | IEEE80211_DL_HT, pPeerHTCap, sizeof(struct ht_capability_ele));
+>>>>>>> upstream/android-13
 //	IEEE80211_DEBUG_DATA(IEEE80211_DL_DATA|IEEE80211_DL_HT, pPeerHTInfo, sizeof(HT_INFORMATION_ELE));
 	// Config Supported Channel Width setting
 	//
@@ -1069,7 +1118,10 @@ void HTOnAssocRsp(struct ieee80211_device *ieee)
 	pHTInfo->CurrentOpMode = pPeerHTInfo->OptMode;
 }
 
+<<<<<<< HEAD
 void HTSetConnectBwModeCallback(struct ieee80211_device *ieee);
+=======
+>>>>>>> upstream/android-13
 /*
  *function:  initialize HT info(struct PRT_HIGH_THROUGHPUT)
  *   input:  struct ieee80211_device*	ieee
@@ -1122,7 +1174,10 @@ void HTInitializeHTInfo(struct ieee80211_device *ieee)
 	memset(&pHTInfo->PeerHTInfoBuf, 0, sizeof(pHTInfo->PeerHTInfoBuf));
 
 	pHTInfo->bSwBwInProgress = false;
+<<<<<<< HEAD
 	pHTInfo->ChnlOp = CHNLOP_NONE;
+=======
+>>>>>>> upstream/android-13
 
 	// Set default IEEE spec for Draft N
 	pHTInfo->ePeerHTSpecVer = HT_SPEC_VER_IEEE;
@@ -1177,7 +1232,11 @@ void HTResetSelfAndSavePeerSetting(struct ieee80211_device *ieee,	struct ieee802
 {
 	PRT_HIGH_THROUGHPUT		pHTInfo = ieee->pHTInfo;
 //	u16						nMaxAMSDUSize;
+<<<<<<< HEAD
 //	PHT_CAPABILITY_ELE		pPeerHTCap = (PHT_CAPABILITY_ELE)pNetwork->bssht.bdHTCapBuf;
+=======
+//	struct ht_capability_ele       *pPeerHTCap = (struct ht_capability_ele *)pNetwork->bssht.bdHTCapBuf;
+>>>>>>> upstream/android-13
 //	PHT_INFORMATION_ELE		pPeerHTInfo = (PHT_INFORMATION_ELE)pNetwork->bssht.bdHTInfoBuf;
 //	u8*	pMcsFilter;
 	u8	bIOTAction = 0;
@@ -1250,8 +1309,13 @@ void HTResetSelfAndSavePeerSetting(struct ieee80211_device *ieee,	struct ieee802
 
 void HTUpdateSelfAndPeerSetting(struct ieee80211_device *ieee,	struct ieee80211_network *pNetwork)
 {
+<<<<<<< HEAD
 	PRT_HIGH_THROUGHPUT	pHTInfo = ieee->pHTInfo;
 //	PHT_CAPABILITY_ELE		pPeerHTCap = (PHT_CAPABILITY_ELE)pNetwork->bssht.bdHTCapBuf;
+=======
+	PRT_HIGH_THROUGHPUT	        pHTInfo = ieee->pHTInfo;
+//	struct ht_capability_ele       *pPeerHTCap = (struct ht_capability_ele *)pNetwork->bssht.bdHTCapBuf;
+>>>>>>> upstream/android-13
 	PHT_INFORMATION_ELE		pPeerHTInfo = (PHT_INFORMATION_ELE)pNetwork->bssht.bdHTInfoBuf;
 
 	if (pHTInfo->bCurrentHTSupport) {
@@ -1287,6 +1351,32 @@ u8 HTCCheck(struct ieee80211_device *ieee, u8 *pFrame)
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static void HTSetConnectBwModeCallback(struct ieee80211_device *ieee)
+{
+	PRT_HIGH_THROUGHPUT pHTInfo = ieee->pHTInfo;
+
+	IEEE80211_DEBUG(IEEE80211_DL_HT, "======>%s()\n", __func__);
+
+	if (pHTInfo->bCurBW40MHz) {
+		if (pHTInfo->CurSTAExtChnlOffset == HT_EXTCHNL_OFFSET_UPPER)
+			ieee->set_chan(ieee->dev, ieee->current_network.channel + 2);
+		else if (pHTInfo->CurSTAExtChnlOffset == HT_EXTCHNL_OFFSET_LOWER)
+			ieee->set_chan(ieee->dev, ieee->current_network.channel - 2);
+		else
+			ieee->set_chan(ieee->dev, ieee->current_network.channel);
+
+		ieee->SetBWModeHandler(ieee->dev, HT_CHANNEL_WIDTH_20_40, pHTInfo->CurSTAExtChnlOffset);
+	} else {
+		ieee->set_chan(ieee->dev, ieee->current_network.channel);
+		ieee->SetBWModeHandler(ieee->dev, HT_CHANNEL_WIDTH_20, HT_EXTCHNL_OFFSET_NO_EXT);
+	}
+
+	pHTInfo->bSwBwInProgress = false;
+}
+
+>>>>>>> upstream/android-13
 /*
  * This function set bandwidth mode in protocol layer.
  */
@@ -1337,6 +1427,7 @@ void HTSetConnectBwMode(struct ieee80211_device *ieee, enum ht_channel_width Ban
 
 //	spin_unlock_irqrestore(&(ieee->bw_spinlock), flags);
 }
+<<<<<<< HEAD
 
 void HTSetConnectBwModeCallback(struct ieee80211_device *ieee)
 {
@@ -1360,3 +1451,5 @@ void HTSetConnectBwModeCallback(struct ieee80211_device *ieee)
 
 	pHTInfo->bSwBwInProgress = false;
 }
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * GPL LICENSE SUMMARY
@@ -20,6 +21,13 @@
  *
  * The full GNU General Public License is included in this distribution
  * in the file called COPYING.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/******************************************************************************
+ *
+ * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
+ * Copyright(c) 2018        Intel Corporation
+>>>>>>> upstream/android-13
  *
  * Contact Information:
  *  Intel Linux Wireless <linuxwifi@intel.com>
@@ -203,7 +211,11 @@ static void iwl_do_scan_abort(struct iwl_priv *priv)
 		IWL_DEBUG_SCAN(priv, "Successfully send scan abort\n");
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * iwl_scan_cancel - Cancel any currently executing HW scan
  */
 int iwl_scan_cancel(struct iwl_priv *priv)
@@ -213,10 +225,16 @@ int iwl_scan_cancel(struct iwl_priv *priv)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * iwl_scan_cancel_timeout - Cancel any currently executing HW scan
  * @ms: amount of time to wait (in milliseconds) for scan to abort
  *
+=======
+/*
+ * iwl_scan_cancel_timeout - Cancel any currently executing HW scan
+ * @ms: amount of time to wait (in milliseconds) for scan to abort
+>>>>>>> upstream/android-13
  */
 void iwl_scan_cancel_timeout(struct iwl_priv *priv, unsigned long ms)
 {
@@ -423,7 +441,11 @@ static u16 iwl_limit_dwell(struct iwl_priv *priv, u16 dwell_time)
 		limit = (limits[1] * 98) / 100 - IWL_CHANNEL_TUNE_TIME * 2;
 		limit /= 2;
 		dwell_time = min(limit, dwell_time);
+<<<<<<< HEAD
 		/* fall through to limit further */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		limit = (limits[0] * 98) / 100 - IWL_CHANNEL_TUNE_TIME * 2;
 		limit /= n_active;
@@ -577,10 +599,16 @@ static int iwl_get_channels_for_scan(struct iwl_priv *priv,
 	return added;
 }
 
+<<<<<<< HEAD
 /**
  * iwl_fill_probe_req - fill in all required fields and IE for probe request
  */
 
+=======
+/*
+ * iwl_fill_probe_req - fill in all required fields and IE for probe request
+ */
+>>>>>>> upstream/android-13
 static u16 iwl_fill_probe_req(struct ieee80211_mgmt *frame, const u8 *ta,
 			      const u8 *ies, int ie_len, const u8 *ssid,
 			      u8 ssid_len, int left)

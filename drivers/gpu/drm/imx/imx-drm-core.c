@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Freescale i.MX drm driver
  *
  * Copyright (C) 2011 Sascha Hauer, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,11 +18,16 @@
  * GNU General Public License for more details.
  *
  */
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/component.h>
 #include <linux/device.h>
 #include <linux/dma-buf.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
@@ -29,16 +39,38 @@
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_of.h>
 #include <video/imx-ipu-v3.h>
+=======
+
+#include <video/imx-ipu-v3.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fb_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_managed.h>
+#include <drm/drm_of.h>
+#include <drm/drm_plane_helper.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "imx-drm.h"
 #include "ipuv3-plane.h"
 
 #define MAX_CRTC	4
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION)
 static int legacyfb_depth = 16;
 module_param(legacyfb_depth, int, 0444);
 #endif
+=======
+static int legacyfb_depth = 16;
+module_param(legacyfb_depth, int, 0444);
+>>>>>>> upstream/android-13
 
 DEFINE_DRM_GEM_CMA_FOPS(imx_drm_driver_fops);
 
@@ -49,22 +81,29 @@ void imx_drm_connector_destroy(struct drm_connector *connector)
 }
 EXPORT_SYMBOL_GPL(imx_drm_connector_destroy);
 
+<<<<<<< HEAD
 void imx_drm_encoder_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
 }
 EXPORT_SYMBOL_GPL(imx_drm_encoder_destroy);
 
+=======
+>>>>>>> upstream/android-13
 static int imx_drm_atomic_check(struct drm_device *dev,
 				struct drm_atomic_state *state)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = drm_atomic_helper_check_modeset(dev, state);
 	if (ret)
 		return ret;
 
 	ret = drm_atomic_helper_check_planes(dev, state);
+=======
+	ret = drm_atomic_helper_check(dev, state);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -86,7 +125,10 @@ static int imx_drm_atomic_check(struct drm_device *dev,
 
 static const struct drm_mode_config_funcs imx_drm_mode_config_funcs = {
 	.fb_create = drm_gem_fb_create,
+<<<<<<< HEAD
 	.output_poll_changed = drm_fb_helper_output_poll_changed,
+=======
+>>>>>>> upstream/android-13
 	.atomic_check = imx_drm_atomic_check,
 	.atomic_commit = drm_atomic_helper_commit,
 };
@@ -151,8 +193,13 @@ int imx_drm_encoder_parse_of(struct drm_device *drm,
 
 	encoder->possible_crtcs = crtc_mask;
 
+<<<<<<< HEAD
 	/* FIXME: this is the mask of outputs which can clone this output. */
 	encoder->possible_clones = ~0;
+=======
+	/* FIXME: cloning support not clear, disable it all for now */
+	encoder->possible_clones = 0;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -162,6 +209,7 @@ static const struct drm_ioctl_desc imx_drm_ioctls[] = {
 	/* none so far */
 };
 
+<<<<<<< HEAD
 static struct drm_driver imx_drm_driver = {
 	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
 				  DRIVER_ATOMIC,
@@ -179,6 +227,28 @@ static struct drm_driver imx_drm_driver = {
 	.gem_prime_vmap		= drm_gem_cma_prime_vmap,
 	.gem_prime_vunmap	= drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap		= drm_gem_cma_prime_mmap,
+=======
+static int imx_drm_dumb_create(struct drm_file *file_priv,
+			       struct drm_device *drm,
+			       struct drm_mode_create_dumb *args)
+{
+	u32 width = args->width;
+	int ret;
+
+	args->width = ALIGN(width, 8);
+
+	ret = drm_gem_cma_dumb_create(file_priv, drm, args);
+	if (ret)
+		return ret;
+
+	args->width = width;
+	return ret;
+}
+
+static const struct drm_driver imx_drm_driver = {
+	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+	DRM_GEM_CMA_DRIVER_OPS_WITH_DUMB_CREATE(imx_drm_dumb_create),
+>>>>>>> upstream/android-13
 	.ioctls			= imx_drm_ioctls,
 	.num_ioctls		= ARRAY_SIZE(imx_drm_ioctls),
 	.fops			= &imx_drm_driver_fops,
@@ -202,7 +272,11 @@ static int compare_of(struct device *dev, void *data)
 	}
 
 	/* Special case for LDB, one device for two channels */
+<<<<<<< HEAD
 	if (of_node_cmp(np->name, "lvds-channel") == 0) {
+=======
+	if (of_node_name_eq(np, "lvds-channel")) {
+>>>>>>> upstream/android-13
 		np = of_get_parent(np);
 		of_node_put(np);
 	}
@@ -220,6 +294,7 @@ static int imx_drm_bind(struct device *dev)
 		return PTR_ERR(drm);
 
 	/*
+<<<<<<< HEAD
 	 * enable drm irq mode.
 	 * - with irq_enabled = true, we can use the vblank feature.
 	 *
@@ -231,6 +306,8 @@ static int imx_drm_bind(struct device *dev)
 	drm->irq_enabled = true;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * set max width and height as default value(4096x4096).
 	 * this value would be used to check framebuffer size limitation
 	 * at drm_mode_addfb().
@@ -241,9 +318,17 @@ static int imx_drm_bind(struct device *dev)
 	drm->mode_config.max_height = 4096;
 	drm->mode_config.funcs = &imx_drm_mode_config_funcs;
 	drm->mode_config.helper_private = &imx_drm_mode_config_helpers;
+<<<<<<< HEAD
 	drm->mode_config.allow_fb_modifiers = true;
 
 	drm_mode_config_init(drm);
+=======
+	drm->mode_config.normalize_zpos = true;
+
+	ret = drmm_mode_config_init(drm);
+	if (ret)
+		goto err_kms;
+>>>>>>> upstream/android-13
 
 	ret = drm_vblank_init(drm, MAX_CRTC);
 	if (ret)
@@ -263,20 +348,27 @@ static int imx_drm_bind(struct device *dev)
 	 * The fb helper takes copies of key hardware information, so the
 	 * crtcs/connectors/encoders must not change after this point.
 	 */
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_DRM_FBDEV_EMULATION)
+=======
+>>>>>>> upstream/android-13
 	if (legacyfb_depth != 16 && legacyfb_depth != 32) {
 		dev_warn(dev, "Invalid legacyfb_depth.  Defaulting to 16bpp\n");
 		legacyfb_depth = 16;
 	}
+<<<<<<< HEAD
 	ret = drm_fb_cma_fbdev_init(drm, legacyfb_depth, MAX_CRTC);
 	if (ret)
 		goto err_unbind;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	drm_kms_helper_poll_init(drm);
 
 	ret = drm_dev_register(drm, 0);
 	if (ret)
+<<<<<<< HEAD
 		goto err_fbhelper;
 
 	return 0;
@@ -290,6 +382,18 @@ err_unbind:
 	component_unbind_all(drm->dev, drm);
 err_kms:
 	drm_mode_config_cleanup(drm);
+=======
+		goto err_poll_fini;
+
+	drm_fbdev_generic_setup(drm, legacyfb_depth);
+
+	return 0;
+
+err_poll_fini:
+	drm_kms_helper_poll_fini(drm);
+	component_unbind_all(drm->dev, drm);
+err_kms:
+>>>>>>> upstream/android-13
 	drm_dev_put(drm);
 
 	return ret;
@@ -303,6 +407,7 @@ static void imx_drm_unbind(struct device *dev)
 
 	drm_kms_helper_poll_fini(drm);
 
+<<<<<<< HEAD
 	drm_fb_cma_fbdev_fini(drm);
 
 	drm_mode_config_cleanup(drm);
@@ -311,6 +416,13 @@ static void imx_drm_unbind(struct device *dev)
 	dev_set_drvdata(dev, NULL);
 
 	drm_dev_put(drm);
+=======
+	component_unbind_all(drm->dev, drm);
+
+	drm_dev_put(drm);
+
+	dev_set_drvdata(dev, NULL);
+>>>>>>> upstream/android-13
 }
 
 static const struct component_master_ops imx_drm_ops = {

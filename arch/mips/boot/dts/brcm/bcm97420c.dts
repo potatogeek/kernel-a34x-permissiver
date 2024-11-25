@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 
+<<<<<<< HEAD
 /include/ "bcm7420.dtsi"
+=======
+#include "bcm7420.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	compatible = "brcm,bcm97420c", "brcm,bcm7420";

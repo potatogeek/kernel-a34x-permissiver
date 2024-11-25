@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2011-2015 Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
  * Copyright (C) 2016 Hauke Mehrtens <hauke@hauke-m.de>
@@ -5,6 +6,12 @@
  * This program is free software; you can distribute it and/or modify it
  * under the terms of the GNU General Public License (Version 2) as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2011-2015 Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
+ * Copyright (C) 2016 Hauke Mehrtens <hauke@hauke-m.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -18,7 +25,10 @@
 #include <linux/completion.h>
 #include <linux/spinlock.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/spi/spi.h>
 
@@ -53,8 +63,11 @@
 #define LTQ_SPI_RXCNT		0x84
 #define LTQ_SPI_DMACON		0xec
 #define LTQ_SPI_IRNEN		0xf4
+<<<<<<< HEAD
 #define LTQ_SPI_IRNICR		0xf8
 #define LTQ_SPI_IRNCR		0xfc
+=======
+>>>>>>> upstream/android-13
 
 #define LTQ_SPI_CLC_SMC_S	16	/* Clock divider for sleep mode */
 #define LTQ_SPI_CLC_SMC_M	(0xFF << LTQ_SPI_CLC_SMC_S)
@@ -64,9 +77,13 @@
 #define LTQ_SPI_CLC_DISR	BIT(0)	/* Disable request bit */
 
 #define LTQ_SPI_ID_TXFS_S	24	/* Implemented TX FIFO size */
+<<<<<<< HEAD
 #define LTQ_SPI_ID_TXFS_M	(0x3F << LTQ_SPI_ID_TXFS_S)
 #define LTQ_SPI_ID_RXFS_S	16	/* Implemented RX FIFO size */
 #define LTQ_SPI_ID_RXFS_M	(0x3F << LTQ_SPI_ID_RXFS_S)
+=======
+#define LTQ_SPI_ID_RXFS_S	16	/* Implemented RX FIFO size */
+>>>>>>> upstream/android-13
 #define LTQ_SPI_ID_MOD_S	8	/* Module ID */
 #define LTQ_SPI_ID_MOD_M	(0xff << LTQ_SPI_ID_MOD_S)
 #define LTQ_SPI_ID_CFG_S	5	/* DMA interface support */
@@ -129,19 +146,29 @@
 					 LTQ_SPI_WHBSTATE_CLRTUE)
 
 #define LTQ_SPI_RXFCON_RXFITL_S	8	/* FIFO interrupt trigger level */
+<<<<<<< HEAD
 #define LTQ_SPI_RXFCON_RXFITL_M	(0x3F << LTQ_SPI_RXFCON_RXFITL_S)
+=======
+>>>>>>> upstream/android-13
 #define LTQ_SPI_RXFCON_RXFLU	BIT(1)	/* FIFO flush */
 #define LTQ_SPI_RXFCON_RXFEN	BIT(0)	/* FIFO enable */
 
 #define LTQ_SPI_TXFCON_TXFITL_S	8	/* FIFO interrupt trigger level */
+<<<<<<< HEAD
 #define LTQ_SPI_TXFCON_TXFITL_M	(0x3F << LTQ_SPI_TXFCON_TXFITL_S)
+=======
+>>>>>>> upstream/android-13
 #define LTQ_SPI_TXFCON_TXFLU	BIT(1)	/* FIFO flush */
 #define LTQ_SPI_TXFCON_TXFEN	BIT(0)	/* FIFO enable */
 
 #define LTQ_SPI_FSTAT_RXFFL_S	0
+<<<<<<< HEAD
 #define LTQ_SPI_FSTAT_RXFFL_M	(0x3f << LTQ_SPI_FSTAT_RXFFL_S)
 #define LTQ_SPI_FSTAT_TXFFL_S	8
 #define LTQ_SPI_FSTAT_TXFFL_M	(0x3f << LTQ_SPI_FSTAT_TXFFL_S)
+=======
+#define LTQ_SPI_FSTAT_TXFFL_S	8
+>>>>>>> upstream/android-13
 
 #define LTQ_SPI_GPOCON_ISCSBN_S	8
 #define LTQ_SPI_GPOCON_INVOUTN_S	0
@@ -161,9 +188,22 @@
 #define LTQ_SPI_IRNEN_T_XRX	BIT(0)	/* Receive end interrupt request */
 #define LTQ_SPI_IRNEN_ALL	0x1F
 
+<<<<<<< HEAD
 struct lantiq_ssc_hwcfg {
 	unsigned int irnen_r;
 	unsigned int irnen_t;
+=======
+struct lantiq_ssc_spi;
+
+struct lantiq_ssc_hwcfg {
+	int (*cfg_irq)(struct platform_device *pdev, struct lantiq_ssc_spi *spi);
+	unsigned int	irnen_r;
+	unsigned int	irnen_t;
+	unsigned int	irncr;
+	unsigned int	irnicr;
+	bool		irq_ack;
+	u32		fifo_size_mask;
+>>>>>>> upstream/android-13
 };
 
 struct lantiq_ssc_spi {
@@ -213,16 +253,30 @@ static void lantiq_ssc_maskl(const struct lantiq_ssc_spi *spi, u32 clr,
 
 static unsigned int tx_fifo_level(const struct lantiq_ssc_spi *spi)
 {
+<<<<<<< HEAD
 	u32 fstat = lantiq_ssc_readl(spi, LTQ_SPI_FSTAT);
 
 	return (fstat & LTQ_SPI_FSTAT_TXFFL_M) >> LTQ_SPI_FSTAT_TXFFL_S;
+=======
+	const struct lantiq_ssc_hwcfg *hwcfg = spi->hwcfg;
+	u32 fstat = lantiq_ssc_readl(spi, LTQ_SPI_FSTAT);
+
+	return (fstat >> LTQ_SPI_FSTAT_TXFFL_S) & hwcfg->fifo_size_mask;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int rx_fifo_level(const struct lantiq_ssc_spi *spi)
 {
+<<<<<<< HEAD
 	u32 fstat = lantiq_ssc_readl(spi, LTQ_SPI_FSTAT);
 
 	return fstat & LTQ_SPI_FSTAT_RXFFL_M;
+=======
+	const struct lantiq_ssc_hwcfg *hwcfg = spi->hwcfg;
+	u32 fstat = lantiq_ssc_readl(spi, LTQ_SPI_FSTAT);
+
+	return (fstat >> LTQ_SPI_FSTAT_RXFFL_S) & hwcfg->fifo_size_mask;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int tx_fifo_free(const struct lantiq_ssc_spi *spi)
@@ -395,7 +449,11 @@ static int lantiq_ssc_setup(struct spi_device *spidev)
 	u32 gpocon;
 
 	/* GPIOs are used for CS */
+<<<<<<< HEAD
 	if (gpio_is_valid(spidev->cs_gpio))
+=======
+	if (spidev->cs_gpiod)
+>>>>>>> upstream/android-13
 		return 0;
 
 	dev_dbg(spi->dev, "using internal chipselect %u\n", cs);
@@ -626,6 +684,15 @@ static void rx_request(struct lantiq_ssc_spi *spi)
 static irqreturn_t lantiq_ssc_xmit_interrupt(int irq, void *data)
 {
 	struct lantiq_ssc_spi *spi = data;
+<<<<<<< HEAD
+=======
+	const struct lantiq_ssc_hwcfg *hwcfg = spi->hwcfg;
+	u32 val = lantiq_ssc_readl(spi, hwcfg->irncr);
+
+	spin_lock(&spi->lock);
+	if (hwcfg->irq_ack)
+		lantiq_ssc_writel(spi, val, hwcfg->irncr);
+>>>>>>> upstream/android-13
 
 	if (spi->tx) {
 		if (spi->rx && spi->rx_todo)
@@ -648,10 +715,18 @@ static irqreturn_t lantiq_ssc_xmit_interrupt(int irq, void *data)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	spin_unlock(&spi->lock);
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 
 completed:
 	queue_work(spi->wq, &spi->work);
+<<<<<<< HEAD
+=======
+	spin_unlock(&spi->lock);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -659,11 +734,24 @@ completed:
 static irqreturn_t lantiq_ssc_err_interrupt(int irq, void *data)
 {
 	struct lantiq_ssc_spi *spi = data;
+<<<<<<< HEAD
 	u32 stat = lantiq_ssc_readl(spi, LTQ_SPI_STAT);
+=======
+	const struct lantiq_ssc_hwcfg *hwcfg = spi->hwcfg;
+	u32 stat = lantiq_ssc_readl(spi, LTQ_SPI_STAT);
+	u32 val = lantiq_ssc_readl(spi, hwcfg->irncr);
+>>>>>>> upstream/android-13
 
 	if (!(stat & LTQ_SPI_STAT_ERRORS))
 		return IRQ_NONE;
 
+<<<<<<< HEAD
+=======
+	spin_lock(&spi->lock);
+	if (hwcfg->irq_ack)
+		lantiq_ssc_writel(spi, val, hwcfg->irncr);
+
+>>>>>>> upstream/android-13
 	if (stat & LTQ_SPI_STAT_RUE)
 		dev_err(spi->dev, "receive underflow error\n");
 	if (stat & LTQ_SPI_STAT_TUE)
@@ -684,6 +772,28 @@ static irqreturn_t lantiq_ssc_err_interrupt(int irq, void *data)
 	if (spi->master->cur_msg)
 		spi->master->cur_msg->status = -EIO;
 	queue_work(spi->wq, &spi->work);
+<<<<<<< HEAD
+=======
+	spin_unlock(&spi->lock);
+
+	return IRQ_HANDLED;
+}
+
+static irqreturn_t intel_lgm_ssc_isr(int irq, void *data)
+{
+	struct lantiq_ssc_spi *spi = data;
+	const struct lantiq_ssc_hwcfg *hwcfg = spi->hwcfg;
+	u32 val = lantiq_ssc_readl(spi, hwcfg->irncr);
+
+	if (!(val & LTQ_SPI_IRNEN_ALL))
+		return IRQ_NONE;
+
+	if (val & LTQ_SPI_IRNEN_E)
+		return lantiq_ssc_err_interrupt(irq, data);
+
+	if ((val & hwcfg->irnen_t) || (val & hwcfg->irnen_r))
+		return lantiq_ssc_xmit_interrupt(irq, data);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -788,6 +898,7 @@ static int lantiq_ssc_transfer_one(struct spi_master *master,
 	return transfer_start(spi, spidev, t);
 }
 
+<<<<<<< HEAD
 static const struct lantiq_ssc_hwcfg lantiq_ssc_xway = {
 	.irnen_r = LTQ_SPI_IRNEN_R_XWAY,
 	.irnen_t = LTQ_SPI_IRNEN_T_XWAY,
@@ -796,12 +907,89 @@ static const struct lantiq_ssc_hwcfg lantiq_ssc_xway = {
 static const struct lantiq_ssc_hwcfg lantiq_ssc_xrx = {
 	.irnen_r = LTQ_SPI_IRNEN_R_XRX,
 	.irnen_t = LTQ_SPI_IRNEN_T_XRX,
+=======
+static int intel_lgm_cfg_irq(struct platform_device *pdev, struct lantiq_ssc_spi *spi)
+{
+	int irq;
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+
+	return devm_request_irq(&pdev->dev, irq, intel_lgm_ssc_isr, 0, "spi", spi);
+}
+
+static int lantiq_cfg_irq(struct platform_device *pdev, struct lantiq_ssc_spi *spi)
+{
+	int irq, err;
+
+	irq = platform_get_irq_byname(pdev, LTQ_SPI_RX_IRQ_NAME);
+	if (irq < 0)
+		return irq;
+
+	err = devm_request_irq(&pdev->dev, irq, lantiq_ssc_xmit_interrupt,
+			       0, LTQ_SPI_RX_IRQ_NAME, spi);
+	if (err)
+		return err;
+
+	irq = platform_get_irq_byname(pdev, LTQ_SPI_TX_IRQ_NAME);
+	if (irq < 0)
+		return irq;
+
+	err = devm_request_irq(&pdev->dev, irq, lantiq_ssc_xmit_interrupt,
+			       0, LTQ_SPI_TX_IRQ_NAME, spi);
+
+	if (err)
+		return err;
+
+	irq = platform_get_irq_byname(pdev, LTQ_SPI_ERR_IRQ_NAME);
+	if (irq < 0)
+		return irq;
+
+	err = devm_request_irq(&pdev->dev, irq, lantiq_ssc_err_interrupt,
+			       0, LTQ_SPI_ERR_IRQ_NAME, spi);
+	return err;
+}
+
+static const struct lantiq_ssc_hwcfg lantiq_ssc_xway = {
+	.cfg_irq	= lantiq_cfg_irq,
+	.irnen_r	= LTQ_SPI_IRNEN_R_XWAY,
+	.irnen_t	= LTQ_SPI_IRNEN_T_XWAY,
+	.irnicr		= 0xF8,
+	.irncr		= 0xFC,
+	.fifo_size_mask	= GENMASK(5, 0),
+	.irq_ack	= false,
+};
+
+static const struct lantiq_ssc_hwcfg lantiq_ssc_xrx = {
+	.cfg_irq	= lantiq_cfg_irq,
+	.irnen_r	= LTQ_SPI_IRNEN_R_XRX,
+	.irnen_t	= LTQ_SPI_IRNEN_T_XRX,
+	.irnicr		= 0xF8,
+	.irncr		= 0xFC,
+	.fifo_size_mask	= GENMASK(5, 0),
+	.irq_ack	= false,
+};
+
+static const struct lantiq_ssc_hwcfg intel_ssc_lgm = {
+	.cfg_irq	= intel_lgm_cfg_irq,
+	.irnen_r	= LTQ_SPI_IRNEN_R_XRX,
+	.irnen_t	= LTQ_SPI_IRNEN_T_XRX,
+	.irnicr		= 0xFC,
+	.irncr		= 0xF8,
+	.fifo_size_mask	= GENMASK(7, 0),
+	.irq_ack	= true,
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id lantiq_ssc_match[] = {
 	{ .compatible = "lantiq,ase-spi", .data = &lantiq_ssc_xway, },
 	{ .compatible = "lantiq,falcon-spi", .data = &lantiq_ssc_xrx, },
 	{ .compatible = "lantiq,xrx100-spi", .data = &lantiq_ssc_xrx, },
+<<<<<<< HEAD
+=======
+	{ .compatible = "intel,lgm-spi", .data = &intel_ssc_lgm, },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, lantiq_ssc_match);
@@ -810,6 +998,7 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct spi_master *master;
+<<<<<<< HEAD
 	struct resource *res;
 	struct lantiq_ssc_spi *spi;
 	const struct lantiq_ssc_hwcfg *hwcfg;
@@ -817,6 +1006,14 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 	int err, rx_irq, tx_irq, err_irq;
 	u32 id, supports_dma, revision;
 	unsigned int num_cs;
+=======
+	struct lantiq_ssc_spi *spi;
+	const struct lantiq_ssc_hwcfg *hwcfg;
+	const struct of_device_id *match;
+	u32 id, supports_dma, revision;
+	unsigned int num_cs;
+	int err;
+>>>>>>> upstream/android-13
 
 	match = of_match_device(lantiq_ssc_match, dev);
 	if (!match) {
@@ -825,6 +1022,7 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 	}
 	hwcfg = match->data;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
 		dev_err(dev, "failed to get resources\n");
@@ -849,6 +1047,8 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	master = spi_alloc_master(dev, sizeof(struct lantiq_ssc_spi));
 	if (!master)
 		return -ENOMEM;
@@ -858,13 +1058,18 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 	spi->dev = dev;
 	spi->hwcfg = hwcfg;
 	platform_set_drvdata(pdev, spi);
+<<<<<<< HEAD
 
 	spi->regbase = devm_ioremap_resource(dev, res);
+=======
+	spi->regbase = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(spi->regbase)) {
 		err = PTR_ERR(spi->regbase);
 		goto err_master_put;
 	}
 
+<<<<<<< HEAD
 	err = devm_request_irq(dev, rx_irq, lantiq_ssc_xmit_interrupt,
 			       0, LTQ_SPI_RX_IRQ_NAME, spi);
 	if (err)
@@ -877,6 +1082,9 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 
 	err = devm_request_irq(dev, err_irq, lantiq_ssc_err_interrupt,
 			       0, LTQ_SPI_ERR_IRQ_NAME, spi);
+=======
+	err = hwcfg->cfg_irq(pdev, spi);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_master_put;
 
@@ -915,6 +1123,10 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 
 	master->dev.of_node = pdev->dev.of_node;
 	master->num_chipselect = num_cs;
+<<<<<<< HEAD
+=======
+	master->use_gpio_descriptors = true;
+>>>>>>> upstream/android-13
 	master->setup = lantiq_ssc_setup;
 	master->set_cs = lantiq_ssc_set_cs;
 	master->handle_err = lantiq_ssc_handle_err;
@@ -926,7 +1138,11 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(2, 8) |
 				     SPI_BPW_MASK(16) | SPI_BPW_MASK(32);
 
+<<<<<<< HEAD
 	spi->wq = alloc_ordered_workqueue(dev_name(dev), 0);
+=======
+	spi->wq = alloc_ordered_workqueue(dev_name(dev), WQ_MEM_RECLAIM);
+>>>>>>> upstream/android-13
 	if (!spi->wq) {
 		err = -ENOMEM;
 		goto err_clk_put;
@@ -934,8 +1150,13 @@ static int lantiq_ssc_probe(struct platform_device *pdev)
 	INIT_WORK(&spi->work, lantiq_ssc_bussy_work);
 
 	id = lantiq_ssc_readl(spi, LTQ_SPI_ID);
+<<<<<<< HEAD
 	spi->tx_fifo_size = (id & LTQ_SPI_ID_TXFS_M) >> LTQ_SPI_ID_TXFS_S;
 	spi->rx_fifo_size = (id & LTQ_SPI_ID_RXFS_M) >> LTQ_SPI_ID_RXFS_S;
+=======
+	spi->tx_fifo_size = (id >> LTQ_SPI_ID_TXFS_S) & hwcfg->fifo_size_mask;
+	spi->rx_fifo_size = (id >> LTQ_SPI_ID_RXFS_S) & hwcfg->fifo_size_mask;
+>>>>>>> upstream/android-13
 	supports_dma = (id & LTQ_SPI_ID_CFG_M) >> LTQ_SPI_ID_CFG_S;
 	revision = id & LTQ_SPI_ID_REV_M;
 

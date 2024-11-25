@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include "hdmi.h"
@@ -66,7 +73,11 @@ static int ddc_clear_irq(struct hdmi_i2c_adapter *hdmi_i2c)
 	} while ((ddc_int_ctrl & HDMI_DDC_INT_CTRL_SW_DONE_INT) && retry);
 
 	if (!retry) {
+<<<<<<< HEAD
 		dev_err(dev->dev, "timeout waiting for DDC\n");
+=======
+		DRM_DEV_ERROR(dev->dev, "timeout waiting for DDC\n");
+>>>>>>> upstream/android-13
 		return -ETIMEDOUT;
 	}
 

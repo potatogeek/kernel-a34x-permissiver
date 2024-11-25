@@ -33,6 +33,12 @@
 #define NFS4_ACCESS_EXTEND      0x0008
 #define NFS4_ACCESS_DELETE      0x0010
 #define NFS4_ACCESS_EXECUTE     0x0020
+<<<<<<< HEAD
+=======
+#define NFS4_ACCESS_XAREAD      0x0040
+#define NFS4_ACCESS_XAWRITE     0x0080
+#define NFS4_ACCESS_XALIST      0x0100
+>>>>>>> upstream/android-13
 
 #define NFS4_FH_PERSISTENT		0x0000
 #define NFS4_FH_NOEXPIRE_WITH_OPEN	0x0001
@@ -175,9 +181,12 @@
 #define NFS4_MAX_BACK_CHANNEL_OPS 2
 
 #endif /* _UAPI_LINUX_NFS4_H */
+<<<<<<< HEAD
 
 /*
  * Local variables:
  *  c-basic-offset: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

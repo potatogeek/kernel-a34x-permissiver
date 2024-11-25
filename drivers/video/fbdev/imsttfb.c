@@ -30,9 +30,14 @@
 #include <asm/io.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_PPC)
 #include <linux/nvram.h>
 #include <asm/prom.h>
+=======
+#if defined(CONFIG_PPC_PMAC)
+#include <linux/nvram.h>
+>>>>>>> upstream/android-13
 #include "macmodes.h"
 #endif
 
@@ -327,14 +332,21 @@ enum {
 	TVP = 1
 };
 
+<<<<<<< HEAD
 #define USE_NV_MODES		1
+=======
+>>>>>>> upstream/android-13
 #define INIT_BPP		8
 #define INIT_XRES		640
 #define INIT_YRES		480
 
 static int inverse = 0;
 static char fontname[40] __initdata = { 0 };
+<<<<<<< HEAD
 #if defined(CONFIG_PPC)
+=======
+#if defined(CONFIG_PPC_PMAC)
+>>>>>>> upstream/android-13
 static signed char init_vmode = -1, init_cmode = -1;
 #endif
 
@@ -1335,7 +1347,11 @@ static struct pci_driver imsttfb_pci_driver = {
 	.remove =	imsttfb_remove,
 };
 
+<<<<<<< HEAD
 static struct fb_ops imsttfb_ops = {
+=======
+static const struct fb_ops imsttfb_ops = {
+>>>>>>> upstream/android-13
 	.owner 		= THIS_MODULE,
 	.fb_check_var	= imsttfb_check_var,
 	.fb_set_par 	= imsttfb_set_par,
@@ -1390,8 +1406,13 @@ static void init_imstt(struct fb_info *info)
 		}
 	}
 
+<<<<<<< HEAD
 #if USE_NV_MODES && defined(CONFIG_PPC32)
 	{
+=======
+#if defined(CONFIG_PPC_PMAC) && defined(CONFIG_PPC32)
+	if (IS_REACHABLE(CONFIG_NVRAM) && machine_is(powermac)) {
+>>>>>>> upstream/android-13
 		int vmode = init_vmode, cmode = init_cmode;
 
 		if (vmode == -1) {
@@ -1409,12 +1430,22 @@ static void init_imstt(struct fb_info *info)
 			info->var.yres = info->var.yres_virtual = INIT_YRES;
 			info->var.bits_per_pixel = INIT_BPP;
 		}
+<<<<<<< HEAD
 	}
 #else
 	info->var.xres = info->var.xres_virtual = INIT_XRES;
 	info->var.yres = info->var.yres_virtual = INIT_YRES;
 	info->var.bits_per_pixel = INIT_BPP;
 #endif
+=======
+	} else
+#endif
+	{
+		info->var.xres = info->var.xres_virtual = INIT_XRES;
+		info->var.yres = info->var.yres_virtual = INIT_YRES;
+		info->var.bits_per_pixel = INIT_BPP;
+	}
+>>>>>>> upstream/android-13
 
 	if ((info->var.xres * info->var.yres) * (info->var.bits_per_pixel >> 3) > info->fix.smem_len
 	    || !(compute_imstt_regvals(par, info->var.xres, info->var.yres))) {
@@ -1470,19 +1501,32 @@ static int imsttfb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	struct imstt_par *par;
 	struct fb_info *info;
 	struct device_node *dp;
+<<<<<<< HEAD
 	
 	dp = pci_device_to_OF_node(pdev);
 	if(dp)
 		printk(KERN_INFO "%s: OF name %s\n",__func__, dp->name);
+=======
+	int ret = -ENOMEM;
+	
+	dp = pci_device_to_OF_node(pdev);
+	if(dp)
+		printk(KERN_INFO "%s: OF name %pOFn\n",__func__, dp);
+>>>>>>> upstream/android-13
 	else if (IS_ENABLED(CONFIG_OF))
 		printk(KERN_ERR "imsttfb: no OF node for pci device\n");
 
 	info = framebuffer_alloc(sizeof(struct imstt_par), &pdev->dev);
+<<<<<<< HEAD
 
 	if (!info) {
 		printk(KERN_ERR "imsttfb: Can't allocate memory\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	par = info->par;
 
@@ -1498,8 +1542,13 @@ static int imsttfb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	switch (pdev->device) {
 		case PCI_DEVICE_ID_IMS_TT128: /* IMS,tt128mbA */
 			par->ramdac = IBM;
+<<<<<<< HEAD
 			if (dp && ((strcmp(dp->name, "IMS,tt128mb8") == 0) ||
 				   (strcmp(dp->name, "IMS,tt128mb8A") == 0)))
+=======
+			if (of_node_name_eq(dp, "IMS,tt128mb8") ||
+			    of_node_name_eq(dp, "IMS,tt128mb8A"))
+>>>>>>> upstream/android-13
 				par->ramdac = TVP;
 			break;
 		case PCI_DEVICE_ID_IMS_TT3D:  /* IMS,tt3d */
@@ -1508,14 +1557,20 @@ static int imsttfb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		default:
 			printk(KERN_INFO "imsttfb: Device 0x%x unknown, "
 					 "contact maintainer.\n", pdev->device);
+<<<<<<< HEAD
 			release_mem_region(addr, size);
 			framebuffer_release(info);
 			return -ENODEV;
+=======
+			ret = -ENODEV;
+			goto error;
+>>>>>>> upstream/android-13
 	}
 
 	info->fix.smem_start = addr;
 	info->screen_base = (__u8 *)ioremap(addr, par->ramdac == IBM ?
 					    0x400000 : 0x800000);
+<<<<<<< HEAD
 	if (!info->screen_base) {
 		release_mem_region(addr, size);
 		framebuffer_release(info);
@@ -1525,11 +1580,35 @@ static int imsttfb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
 	par->cmap_regs_phys = addr + 0x840000;
 	par->cmap_regs = (__u8 *)ioremap(addr + 0x840000, 0x1000);
+=======
+	if (!info->screen_base)
+		goto error;
+	info->fix.mmio_start = addr + 0x800000;
+	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
+	if (!par->dc_regs)
+		goto error;
+	par->cmap_regs_phys = addr + 0x840000;
+	par->cmap_regs = (__u8 *)ioremap(addr + 0x840000, 0x1000);
+	if (!par->cmap_regs)
+		goto error;
+>>>>>>> upstream/android-13
 	info->pseudo_palette = par->palette;
 	init_imstt(info);
 
 	pci_set_drvdata(pdev, info);
 	return 0;
+<<<<<<< HEAD
+=======
+
+error:
+	if (par->dc_regs)
+		iounmap(par->dc_regs);
+	if (info->screen_base)
+		iounmap(info->screen_base);
+	release_mem_region(addr, size);
+	framebuffer_release(info);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void imsttfb_remove(struct pci_dev *pdev)
@@ -1570,7 +1649,11 @@ imsttfb_setup(char *options)
 			inverse = 1;
 			fb_invert_cmaps();
 		}
+<<<<<<< HEAD
 #if defined(CONFIG_PPC)
+=======
+#if defined(CONFIG_PPC_PMAC)
+>>>>>>> upstream/android-13
 		else if (!strncmp(this_opt, "vmode:", 6)) {
 			int vmode = simple_strtoul(this_opt+6, NULL, 0);
 			if (vmode > 0 && vmode <= VMODE_MAX)

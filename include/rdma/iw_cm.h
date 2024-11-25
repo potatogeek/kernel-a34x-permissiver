@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005 Network Appliance, Inc. All rights reserved.
  * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
@@ -30,6 +31,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+/*
+ * Copyright (c) 2005 Network Appliance, Inc. All rights reserved.
+ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef IW_CM_H
 #define IW_CM_H
 
@@ -94,7 +103,13 @@ struct iw_cm_id {
 	void (*add_ref)(struct iw_cm_id *);
 	void (*rem_ref)(struct iw_cm_id *);
 	u8  tos;
+<<<<<<< HEAD
 	bool mapped;
+=======
+	bool tos_set:1;
+	bool mapped:1;
+	bool afonly:1;
+>>>>>>> upstream/android-13
 };
 
 struct iw_cm_conn_param {
@@ -105,6 +120,7 @@ struct iw_cm_conn_param {
 	u32 qpn;
 };
 
+<<<<<<< HEAD
 struct iw_cm_verbs {
 	void		(*add_ref)(struct ib_qp *qp);
 
@@ -127,6 +143,18 @@ struct iw_cm_verbs {
 
 	int		(*destroy_listen)(struct iw_cm_id *cm_id);
 	char		ifname[IFNAMSIZ];
+=======
+enum iw_flags {
+
+	/*
+	 * This flag allows the iwcm and iwpmd to still advertise
+	 * mappings but the real and mapped port numbers are the
+	 * same.  Further, iwpmd will not bind any user socket to
+	 * reserve the port.  This is required for soft iwarp
+	 * to play in the port mapped iwarp space.
+	 */
+	IW_F_NO_PORT_MAP = (1 << 0),
+>>>>>>> upstream/android-13
 };
 
 /**

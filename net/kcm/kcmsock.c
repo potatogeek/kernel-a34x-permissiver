@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Kernel Connection Multiplexor
  *
  * Copyright (c) 2016 Tom Herbert <tom@herbertland.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bpf.h>
@@ -50,7 +57,11 @@ static inline struct kcm_tx_msg *kcm_tx_msg(struct sk_buff *skb)
 static void report_csk_error(struct sock *csk, int err)
 {
 	csk->sk_err = EPIPE;
+<<<<<<< HEAD
 	csk->sk_error_report(csk);
+=======
+	sk_error_report(csk);
+>>>>>>> upstream/android-13
 }
 
 static void kcm_abort_tx_psock(struct kcm_psock *psock, int err,
@@ -383,9 +394,13 @@ static int kcm_parse_func_strparser(struct strparser *strp, struct sk_buff *skb)
 	struct bpf_prog *prog = psock->bpf_prog;
 	int res;
 
+<<<<<<< HEAD
 	preempt_disable();
 	res = BPF_PROG_RUN(prog, skb);
 	preempt_enable();
+=======
+	res = bpf_prog_run_pin_on_cpu(prog, skb);
+>>>>>>> upstream/android-13
 	return res;
 }
 
@@ -642,15 +657,25 @@ do_frag_list:
 			frag_offset = 0;
 do_frag:
 			frag = &skb_shinfo(skb)->frags[fragidx];
+<<<<<<< HEAD
 			if (WARN_ON(!frag->size)) {
+=======
+			if (WARN_ON(!skb_frag_size(frag))) {
+>>>>>>> upstream/android-13
 				ret = -EINVAL;
 				goto out;
 			}
 
 			ret = kernel_sendpage(psock->sk->sk_socket,
+<<<<<<< HEAD
 					      frag->page.p,
 					      frag->page_offset + frag_offset,
 					      frag->size - frag_offset,
+=======
+					      skb_frag_page(frag),
+					      skb_frag_off(frag) + frag_offset,
+					      skb_frag_size(frag) - frag_offset,
+>>>>>>> upstream/android-13
 					      MSG_DONTWAIT);
 			if (ret <= 0) {
 				if (ret == -EAGAIN) {
@@ -668,7 +693,11 @@ do_frag:
 
 				/* Hard failure in sending message, abort this
 				 * psock since it has lost framing
+<<<<<<< HEAD
 				 * synchonization and retry sending the
+=======
+				 * synchronization and retry sending the
+>>>>>>> upstream/android-13
 				 * message from the beginning.
 				 */
 				kcm_abort_tx_psock(psock, ret ? -ret : EPIPE,
@@ -685,7 +714,11 @@ do_frag:
 			sent += ret;
 			frag_offset += ret;
 			KCM_STATS_ADD(psock->stats.tx_bytes, ret);
+<<<<<<< HEAD
 			if (frag_offset < frag->size) {
+=======
+			if (frag_offset < skb_frag_size(frag)) {
+>>>>>>> upstream/android-13
 				/* Not finished with this frag */
 				goto do_frag;
 			}
@@ -791,7 +824,11 @@ static ssize_t kcm_sendpage(struct socket *sock, struct page *page,
 
 		if (skb_can_coalesce(skb, i, page, offset)) {
 			skb_frag_size_add(&skb_shinfo(skb)->frags[i - 1], size);
+<<<<<<< HEAD
 			skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
+=======
+			skb_shinfo(skb)->flags |= SKBFL_SHARED_FRAG;
+>>>>>>> upstream/android-13
 			goto coalesced;
 		}
 
@@ -839,7 +876,11 @@ static ssize_t kcm_sendpage(struct socket *sock, struct page *page,
 
 	get_page(page);
 	skb_fill_page_desc(skb, i, page, offset, size);
+<<<<<<< HEAD
 	skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
+=======
+	skb_shinfo(skb)->flags |= SKBFL_SHARED_FRAG;
+>>>>>>> upstream/android-13
 
 coalesced:
 	skb->len += size;
@@ -1270,7 +1311,11 @@ static void kcm_recv_enable(struct kcm_sock *kcm)
 }
 
 static int kcm_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			  char __user *optval, unsigned int optlen)
+=======
+			  sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct kcm_sock *kcm = kcm_sk(sock->sk);
 	int val, valbool;
@@ -1282,8 +1327,13 @@ static int kcm_setsockopt(struct socket *sock, int level, int optname,
 	if (optlen < sizeof(int))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (get_user(val, (int __user *)optval))
 		return -EINVAL;
+=======
+	if (copy_from_sockptr(&val, optval, sizeof(int)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 
 	valbool = val ? 1 : 0;
 
@@ -1424,7 +1474,11 @@ static int kcm_attach(struct socket *sock, struct socket *csock,
 
 	write_lock_bh(&csk->sk_callback_lock);
 
+<<<<<<< HEAD
 	/* Check if sk_user_data is aready by KCM or someone else.
+=======
+	/* Check if sk_user_data is already by KCM or someone else.
+>>>>>>> upstream/android-13
 	 * Must be done under lock to prevent race conditions.
 	 */
 	if (csk->sk_user_data) {
@@ -1501,7 +1555,11 @@ static int kcm_attach_ioctl(struct socket *sock, struct kcm_attach *info)
 
 	return 0;
 out:
+<<<<<<< HEAD
 	fput(csock->file);
+=======
+	sockfd_put(csock);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -1649,7 +1707,11 @@ static int kcm_unattach_ioctl(struct socket *sock, struct kcm_unattach *info)
 	spin_unlock_bh(&mux->lock);
 
 out:
+<<<<<<< HEAD
 	fput(csock->file);
+=======
+	sockfd_put(csock);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -2040,13 +2102,21 @@ static int __init kcm_init(void)
 
 	kcm_muxp = kmem_cache_create("kcm_mux_cache",
 				     sizeof(struct kcm_mux), 0,
+<<<<<<< HEAD
 				     SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL);
+=======
+				     SLAB_HWCACHE_ALIGN, NULL);
+>>>>>>> upstream/android-13
 	if (!kcm_muxp)
 		goto fail;
 
 	kcm_psockp = kmem_cache_create("kcm_psock_cache",
 				       sizeof(struct kcm_psock), 0,
+<<<<<<< HEAD
 					SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL);
+=======
+					SLAB_HWCACHE_ALIGN, NULL);
+>>>>>>> upstream/android-13
 	if (!kcm_psockp)
 		goto fail;
 

@@ -1,11 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* Disk protection for HP/DELL machines.
  *
  * Copyright 2008 Eric Piel
  * Copyright 2009 Pavel Machek <pavel@ucw.cz>
  * Copyright 2012 Sonal Santan
+<<<<<<< HEAD
  * Copyright 2014 Pali Rohár <pali.rohar@gmail.com>
  *
  * GPLv2.
+=======
+ * Copyright 2014 Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #include <stdio.h>

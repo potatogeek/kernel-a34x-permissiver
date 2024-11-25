@@ -61,12 +61,25 @@ typedef struct fs_disk_quota {
 	__u64		d_ino_softlimit;/* preferred inode limit */
 	__u64		d_bcount;	/* # disk blocks owned by the user */
 	__u64		d_icount;	/* # inodes owned by the user */
+<<<<<<< HEAD
 	__s32		d_itimer;	/* zero if within inode limits */
 					/* if not, we refuse service */
 	__s32		d_btimer;	/* similar to above; for disk blocks */
 	__u16	  	d_iwarns;       /* # warnings issued wrt num inodes */
 	__u16	  	d_bwarns;       /* # warnings issued wrt disk blocks */
 	__s32		d_padding2;	/* padding2 - for future use */
+=======
+	__s32		d_itimer;	/* Zero if within inode limits. If
+					 * not, we refuse service at this time
+					 * (in seconds since Unix epoch) */
+	__s32		d_btimer;	/* similar to above; for disk blocks */
+	__u16	  	d_iwarns;       /* # warnings issued wrt num inodes */
+	__u16	  	d_bwarns;       /* # warnings issued wrt disk blocks */
+	__s8		d_itimer_hi;	/* upper 8 bits of timer values */
+	__s8		d_btimer_hi;
+	__s8		d_rtbtimer_hi;
+	__s8		d_padding2;	/* padding2 - for future use */
+>>>>>>> upstream/android-13
 	__u64		d_rtb_hardlimit;/* absolute limit on realtime blks */
 	__u64		d_rtb_softlimit;/* preferred limit on RT disk blks */
 	__u64		d_rtbcount;	/* # realtime blocks owned */
@@ -122,6 +135,15 @@ typedef struct fs_disk_quota {
 #define FS_DQ_ACCT_MASK		(FS_DQ_BCOUNT | FS_DQ_ICOUNT | FS_DQ_RTBCOUNT)
 
 /*
+<<<<<<< HEAD
+=======
+ * Quota expiration timestamps are 40-bit signed integers, with the upper 8
+ * bits encoded in the _hi fields.
+ */
+#define FS_DQ_BIGTIME		(1<<15)
+
+/*
+>>>>>>> upstream/android-13
  * Various flags related to quotactl(2).
  */
 #define FS_QUOTA_UDQ_ACCT	(1<<0)  /* user quota accounting */
@@ -209,7 +231,14 @@ struct fs_quota_statv {
 	__s32			qs_rtbtimelimit;/* limit for rt blks timer */
 	__u16			qs_bwarnlimit;	/* limit for num warnings */
 	__u16			qs_iwarnlimit;	/* limit for num warnings */
+<<<<<<< HEAD
 	__u64			qs_pad2[8];	/* for future proofing */
+=======
+	__u16			qs_rtbwarnlimit;/* limit for rt blks warnings */
+	__u16			qs_pad3;
+	__u32			qs_pad4;
+	__u64			qs_pad2[7];	/* for future proofing */
+>>>>>>> upstream/android-13
 };
 
 #endif	/* _LINUX_DQBLK_XFS_H */

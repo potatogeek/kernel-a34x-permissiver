@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * net/sunrpc/cache.c
  *
@@ -5,9 +9,12 @@
  * used by sunrpc clients and servers.
  *
  * Copyright (C) 2002 Neil Brown <neilb@cse.unsw.edu.au>
+<<<<<<< HEAD
  *
  * Released under terms in GPL version 2.  See COPYING.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -34,6 +41,10 @@
 #include <linux/sunrpc/cache.h>
 #include <linux/sunrpc/stats.h>
 #include <linux/sunrpc/rpc_pipe_fs.h>
+<<<<<<< HEAD
+=======
+#include <trace/events/sunrpc.h>
+>>>>>>> upstream/android-13
 #include "netns.h"
 
 #define	 RPCDBG_FACILITY RPCDBG_CACHE
@@ -43,7 +54,11 @@ static void cache_revisit_request(struct cache_head *item);
 
 static void cache_init(struct cache_head *h, struct cache_detail *detail)
 {
+<<<<<<< HEAD
 	time_t now = seconds_since_boot();
+=======
+	time64_t now = seconds_since_boot();
+>>>>>>> upstream/android-13
 	INIT_HLIST_NODE(&h->cache_list);
 	h->flags = 0;
 	kref_init(&h->ref);
@@ -57,6 +72,7 @@ static void cache_init(struct cache_head *h, struct cache_detail *detail)
 static void cache_fresh_unlocked(struct cache_head *head,
 				struct cache_detail *detail);
 
+<<<<<<< HEAD
 struct cache_head *sunrpc_cache_lookup(struct cache_detail *detail,
 				       struct cache_head *key, int hash)
 {
@@ -79,6 +95,52 @@ struct cache_head *sunrpc_cache_lookup(struct cache_detail *detail,
 	}
 	read_unlock(&detail->hash_lock);
 	/* Didn't find anything, insert an empty entry */
+=======
+static struct cache_head *sunrpc_cache_find_rcu(struct cache_detail *detail,
+						struct cache_head *key,
+						int hash)
+{
+	struct hlist_head *head = &detail->hash_table[hash];
+	struct cache_head *tmp;
+
+	rcu_read_lock();
+	hlist_for_each_entry_rcu(tmp, head, cache_list) {
+		if (!detail->match(tmp, key))
+			continue;
+		if (test_bit(CACHE_VALID, &tmp->flags) &&
+		    cache_is_expired(detail, tmp))
+			continue;
+		tmp = cache_get_rcu(tmp);
+		rcu_read_unlock();
+		return tmp;
+	}
+	rcu_read_unlock();
+	return NULL;
+}
+
+static void sunrpc_begin_cache_remove_entry(struct cache_head *ch,
+					    struct cache_detail *cd)
+{
+	/* Must be called under cd->hash_lock */
+	hlist_del_init_rcu(&ch->cache_list);
+	set_bit(CACHE_CLEANED, &ch->flags);
+	cd->entries --;
+}
+
+static void sunrpc_end_cache_remove_entry(struct cache_head *ch,
+					  struct cache_detail *cd)
+{
+	cache_fresh_unlocked(ch, cd);
+	cache_put(ch, cd);
+}
+
+static struct cache_head *sunrpc_cache_add_entry(struct cache_detail *detail,
+						 struct cache_head *key,
+						 int hash)
+{
+	struct cache_head *new, *tmp, *freeme = NULL;
+	struct hlist_head *head = &detail->hash_table[hash];
+>>>>>>> upstream/android-13
 
 	new = detail->alloc();
 	if (!new)
@@ -90,6 +152,7 @@ struct cache_head *sunrpc_cache_lookup(struct cache_detail *detail,
 	cache_init(new, detail);
 	detail->init(new, key);
 
+<<<<<<< HEAD
 	write_lock(&detail->hash_lock);
 
 	/* check if entry appeared while we slept */
@@ -128,6 +191,57 @@ static void cache_fresh_locked(struct cache_head *head, time_t expiry,
 			       struct cache_detail *detail)
 {
 	time_t now = seconds_since_boot();
+=======
+	spin_lock(&detail->hash_lock);
+
+	/* check if entry appeared while we slept */
+	hlist_for_each_entry_rcu(tmp, head, cache_list,
+				 lockdep_is_held(&detail->hash_lock)) {
+		if (!detail->match(tmp, key))
+			continue;
+		if (test_bit(CACHE_VALID, &tmp->flags) &&
+		    cache_is_expired(detail, tmp)) {
+			sunrpc_begin_cache_remove_entry(tmp, detail);
+			trace_cache_entry_expired(detail, tmp);
+			freeme = tmp;
+			break;
+		}
+		cache_get(tmp);
+		spin_unlock(&detail->hash_lock);
+		cache_put(new, detail);
+		return tmp;
+	}
+
+	hlist_add_head_rcu(&new->cache_list, head);
+	detail->entries++;
+	cache_get(new);
+	spin_unlock(&detail->hash_lock);
+
+	if (freeme)
+		sunrpc_end_cache_remove_entry(freeme, detail);
+	return new;
+}
+
+struct cache_head *sunrpc_cache_lookup_rcu(struct cache_detail *detail,
+					   struct cache_head *key, int hash)
+{
+	struct cache_head *ret;
+
+	ret = sunrpc_cache_find_rcu(detail, key, hash);
+	if (ret)
+		return ret;
+	/* Didn't find anything, insert an empty entry */
+	return sunrpc_cache_add_entry(detail, key, hash);
+}
+EXPORT_SYMBOL_GPL(sunrpc_cache_lookup_rcu);
+
+static void cache_dequeue(struct cache_detail *detail, struct cache_head *ch);
+
+static void cache_fresh_locked(struct cache_head *head, time64_t expiry,
+			       struct cache_detail *detail)
+{
+	time64_t now = seconds_since_boot();
+>>>>>>> upstream/android-13
 	if (now <= detail->flush_time)
 		/* ensure it isn't immediately treated as expired */
 		now = detail->flush_time + 1;
@@ -146,6 +260,28 @@ static void cache_fresh_unlocked(struct cache_head *head,
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void cache_make_negative(struct cache_detail *detail,
+				struct cache_head *h)
+{
+	set_bit(CACHE_NEGATIVE, &h->flags);
+	trace_cache_entry_make_negative(detail, h);
+}
+
+static void cache_entry_update(struct cache_detail *detail,
+			       struct cache_head *h,
+			       struct cache_head *new)
+{
+	if (!test_bit(CACHE_NEGATIVE, &new->flags)) {
+		detail->update(h, new);
+		trace_cache_entry_update(detail, h);
+	} else {
+		cache_make_negative(detail, h);
+	}
+}
+
+>>>>>>> upstream/android-13
 struct cache_head *sunrpc_cache_update(struct cache_detail *detail,
 				       struct cache_head *new, struct cache_head *old, int hash)
 {
@@ -156,6 +292,7 @@ struct cache_head *sunrpc_cache_update(struct cache_detail *detail,
 	struct cache_head *tmp;
 
 	if (!test_bit(CACHE_VALID, &old->flags)) {
+<<<<<<< HEAD
 		write_lock(&detail->hash_lock);
 		if (!test_bit(CACHE_VALID, &old->flags)) {
 			if (test_bit(CACHE_NEGATIVE, &new->flags))
@@ -168,6 +305,17 @@ struct cache_head *sunrpc_cache_update(struct cache_detail *detail,
 			return old;
 		}
 		write_unlock(&detail->hash_lock);
+=======
+		spin_lock(&detail->hash_lock);
+		if (!test_bit(CACHE_VALID, &old->flags)) {
+			cache_entry_update(detail, old, new);
+			cache_fresh_locked(old, new->expiry_time, detail);
+			spin_unlock(&detail->hash_lock);
+			cache_fresh_unlocked(old, detail);
+			return old;
+		}
+		spin_unlock(&detail->hash_lock);
+>>>>>>> upstream/android-13
 	}
 	/* We need to insert a new entry */
 	tmp = detail->alloc();
@@ -178,17 +326,26 @@ struct cache_head *sunrpc_cache_update(struct cache_detail *detail,
 	cache_init(tmp, detail);
 	detail->init(tmp, old);
 
+<<<<<<< HEAD
 	write_lock(&detail->hash_lock);
 	if (test_bit(CACHE_NEGATIVE, &new->flags))
 		set_bit(CACHE_NEGATIVE, &tmp->flags);
 	else
 		detail->update(tmp, new);
+=======
+	spin_lock(&detail->hash_lock);
+	cache_entry_update(detail, tmp, new);
+>>>>>>> upstream/android-13
 	hlist_add_head(&tmp->cache_list, &detail->hash_table[hash]);
 	detail->entries++;
 	cache_get(tmp);
 	cache_fresh_locked(tmp, new->expiry_time, detail);
 	cache_fresh_locked(old, 0, detail);
+<<<<<<< HEAD
 	write_unlock(&detail->hash_lock);
+=======
+	spin_unlock(&detail->hash_lock);
+>>>>>>> upstream/android-13
 	cache_fresh_unlocked(tmp, detail);
 	cache_fresh_unlocked(old, detail);
 	cache_put(old, detail);
@@ -196,6 +353,7 @@ struct cache_head *sunrpc_cache_update(struct cache_detail *detail,
 }
 EXPORT_SYMBOL_GPL(sunrpc_cache_update);
 
+<<<<<<< HEAD
 static int cache_make_upcall(struct cache_detail *cd, struct cache_head *h)
 {
 	if (cd->cache_upcall)
@@ -203,6 +361,8 @@ static int cache_make_upcall(struct cache_detail *cd, struct cache_head *h)
 	return sunrpc_cache_pipe_upcall(cd, h);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline int cache_is_valid(struct cache_head *h)
 {
 	if (!test_bit(CACHE_VALID, &h->flags))
@@ -228,15 +388,26 @@ static int try_to_negate_entry(struct cache_detail *detail, struct cache_head *h
 {
 	int rv;
 
+<<<<<<< HEAD
 	write_lock(&detail->hash_lock);
 	rv = cache_is_valid(h);
 	if (rv == -EAGAIN) {
 		set_bit(CACHE_NEGATIVE, &h->flags);
+=======
+	spin_lock(&detail->hash_lock);
+	rv = cache_is_valid(h);
+	if (rv == -EAGAIN) {
+		cache_make_negative(detail, h);
+>>>>>>> upstream/android-13
 		cache_fresh_locked(h, seconds_since_boot()+CACHE_NEW_EXPIRY,
 				   detail);
 		rv = -ENOENT;
 	}
+<<<<<<< HEAD
 	write_unlock(&detail->hash_lock);
+=======
+	spin_unlock(&detail->hash_lock);
+>>>>>>> upstream/android-13
 	cache_fresh_unlocked(h, detail);
 	return rv;
 }
@@ -259,7 +430,11 @@ int cache_check(struct cache_detail *detail,
 		    struct cache_head *h, struct cache_req *rqstp)
 {
 	int rv;
+<<<<<<< HEAD
 	long refresh_age, age;
+=======
+	time64_t refresh_age, age;
+>>>>>>> upstream/android-13
 
 	/* First decide return status as best we can */
 	rv = cache_is_valid(h);
@@ -273,6 +448,7 @@ int cache_check(struct cache_detail *detail,
 			rv = -ENOENT;
 	} else if (rv == -EAGAIN ||
 		   (h->expiry_time != 0 && age > refresh_age/2)) {
+<<<<<<< HEAD
 		dprintk("RPC:       Want update, refage=%ld, age=%ld\n",
 				refresh_age, age);
 		if (!test_and_set_bit(CACHE_PENDING, &h->flags)) {
@@ -284,6 +460,17 @@ int cache_check(struct cache_detail *detail,
 				cache_fresh_unlocked(h, detail);
 				break;
 			}
+=======
+		dprintk("RPC:       Want update, refage=%lld, age=%lld\n",
+				refresh_age, age);
+		switch (detail->cache_upcall(detail, h)) {
+		case -EINVAL:
+			rv = try_to_negate_entry(detail, h);
+			break;
+		case -EAGAIN:
+			cache_fresh_unlocked(h, detail);
+			break;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -346,12 +533,20 @@ static struct delayed_work cache_cleaner;
 
 void sunrpc_init_cache_detail(struct cache_detail *cd)
 {
+<<<<<<< HEAD
 	rwlock_init(&cd->hash_lock);
+=======
+	spin_lock_init(&cd->hash_lock);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&cd->queue);
 	spin_lock(&cache_list_lock);
 	cd->nextcheck = 0;
 	cd->entries = 0;
+<<<<<<< HEAD
 	atomic_set(&cd->readers, 0);
+=======
+	atomic_set(&cd->writers, 0);
+>>>>>>> upstream/android-13
 	cd->last_close = 0;
 	cd->last_warn = -1;
 	list_add(&cd->others, &cache_list);
@@ -366,11 +561,19 @@ void sunrpc_destroy_cache_detail(struct cache_detail *cd)
 {
 	cache_purge(cd);
 	spin_lock(&cache_list_lock);
+<<<<<<< HEAD
 	write_lock(&cd->hash_lock);
 	if (current_detail == cd)
 		current_detail = NULL;
 	list_del_init(&cd->others);
 	write_unlock(&cd->hash_lock);
+=======
+	spin_lock(&cd->hash_lock);
+	if (current_detail == cd)
+		current_detail = NULL;
+	list_del_init(&cd->others);
+	spin_unlock(&cd->hash_lock);
+>>>>>>> upstream/android-13
 	spin_unlock(&cache_list_lock);
 	if (list_empty(&cache_list)) {
 		/* module must be being unloaded so its safe to kill the worker */
@@ -427,7 +630,11 @@ static int cache_clean(void)
 		struct hlist_head *head;
 		struct hlist_node *tmp;
 
+<<<<<<< HEAD
 		write_lock(&current_detail->hash_lock);
+=======
+		spin_lock(&current_detail->hash_lock);
+>>>>>>> upstream/android-13
 
 		/* Ok, now to clean this strand */
 
@@ -438,22 +645,36 @@ static int cache_clean(void)
 			if (!cache_is_expired(current_detail, ch))
 				continue;
 
+<<<<<<< HEAD
 			hlist_del_init(&ch->cache_list);
 			current_detail->entries--;
+=======
+			sunrpc_begin_cache_remove_entry(ch, current_detail);
+			trace_cache_entry_expired(current_detail, ch);
+>>>>>>> upstream/android-13
 			rv = 1;
 			break;
 		}
 
+<<<<<<< HEAD
 		write_unlock(&current_detail->hash_lock);
+=======
+		spin_unlock(&current_detail->hash_lock);
+>>>>>>> upstream/android-13
 		d = current_detail;
 		if (!ch)
 			current_index ++;
 		spin_unlock(&cache_list_lock);
+<<<<<<< HEAD
 		if (ch) {
 			set_bit(CACHE_CLEANED, &ch->flags);
 			cache_fresh_unlocked(ch, d);
 			cache_put(ch, d);
 		}
+=======
+		if (ch)
+			sunrpc_end_cache_remove_entry(ch, d);
+>>>>>>> upstream/android-13
 	} else
 		spin_unlock(&cache_list_lock);
 
@@ -465,6 +686,7 @@ static int cache_clean(void)
  */
 static void do_cache_clean(struct work_struct *work)
 {
+<<<<<<< HEAD
 	int delay = 5;
 	if (cache_clean() == -1)
 		delay = round_jiffies_relative(30*HZ);
@@ -475,6 +697,19 @@ static void do_cache_clean(struct work_struct *work)
 	if (delay)
 		queue_delayed_work(system_power_efficient_wq,
 				   &cache_cleaner, delay);
+=======
+	int delay;
+
+	if (list_empty(&cache_list))
+		return;
+
+	if (cache_clean() == -1)
+		delay = round_jiffies_relative(30*HZ);
+	else
+		delay = 5;
+
+	queue_delayed_work(system_power_efficient_wq, &cache_cleaner, delay);
+>>>>>>> upstream/android-13
 }
 
 
@@ -496,18 +731,27 @@ void cache_purge(struct cache_detail *detail)
 {
 	struct cache_head *ch = NULL;
 	struct hlist_head *head = NULL;
+<<<<<<< HEAD
 	struct hlist_node *tmp = NULL;
 	int i = 0;
 
 	write_lock(&detail->hash_lock);
 	if (!detail->entries) {
 		write_unlock(&detail->hash_lock);
+=======
+	int i = 0;
+
+	spin_lock(&detail->hash_lock);
+	if (!detail->entries) {
+		spin_unlock(&detail->hash_lock);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	dprintk("RPC: %d entries in %s cache\n", detail->entries, detail->name);
 	for (i = 0; i < detail->hash_size; i++) {
 		head = &detail->hash_table[i];
+<<<<<<< HEAD
 		hlist_for_each_entry_safe(ch, tmp, head, cache_list) {
 			hlist_del_init(&ch->cache_list);
 			detail->entries--;
@@ -520,6 +764,18 @@ void cache_purge(struct cache_detail *detail)
 		}
 	}
 	write_unlock(&detail->hash_lock);
+=======
+		while (!hlist_empty(head)) {
+			ch = hlist_entry(head->first, struct cache_head,
+					 cache_list);
+			sunrpc_begin_cache_remove_entry(ch, detail);
+			spin_unlock(&detail->hash_lock);
+			sunrpc_end_cache_remove_entry(ch, detail);
+			spin_lock(&detail->hash_lock);
+		}
+	}
+	spin_unlock(&detail->hash_lock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(cache_purge);
 
@@ -747,7 +1003,10 @@ void cache_clean_deferred(void *owner)
  */
 
 static DEFINE_SPINLOCK(queue_lock);
+<<<<<<< HEAD
 static DEFINE_MUTEX(queue_io_mutex);
+=======
+>>>>>>> upstream/android-13
 
 struct cache_queue {
 	struct list_head	list;
@@ -773,7 +1032,11 @@ static int cache_request(struct cache_detail *detail,
 
 	detail->cache_request(detail, crq->item, &bp, &len);
 	if (len < 0)
+<<<<<<< HEAD
 		return -EAGAIN;
+=======
+		return -E2BIG;
+>>>>>>> upstream/android-13
 	return PAGE_SIZE - len;
 }
 
@@ -875,6 +1138,7 @@ static ssize_t cache_do_downcall(char *kaddr, const char __user *buf,
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t cache_slow_downcall(const char __user *buf,
 				   size_t count, struct cache_detail *cd)
 {
@@ -890,10 +1154,13 @@ out:
 	return ret;
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t cache_downcall(struct address_space *mapping,
 			      const char __user *buf,
 			      size_t count, struct cache_detail *cd)
 {
+<<<<<<< HEAD
 	struct page *page;
 	char *kaddr;
 	ssize_t ret = -ENOMEM;
@@ -913,6 +1180,24 @@ static ssize_t cache_downcall(struct address_space *mapping,
 	return ret;
 out_slow:
 	return cache_slow_downcall(buf, count, cd);
+=======
+	char *write_buf;
+	ssize_t ret = -ENOMEM;
+
+	if (count >= 32768) { /* 32k is max userland buffer, lets check anyway */
+		ret = -EINVAL;
+		goto out;
+	}
+
+	write_buf = kvmalloc(count + 1, GFP_KERNEL);
+	if (!write_buf)
+		goto out;
+
+	ret = cache_do_downcall(write_buf, buf, count, cd);
+	kvfree(write_buf);
+out:
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static ssize_t cache_write(struct file *filp, const char __user *buf,
@@ -1007,11 +1292,20 @@ static int cache_open(struct inode *inode, struct file *filp,
 		}
 		rp->offset = 0;
 		rp->q.reader = 1;
+<<<<<<< HEAD
 		atomic_inc(&cd->readers);
+=======
+
+>>>>>>> upstream/android-13
 		spin_lock(&queue_lock);
 		list_add(&rp->q.list, &cd->queue);
 		spin_unlock(&queue_lock);
 	}
+<<<<<<< HEAD
+=======
+	if (filp->f_mode & FMODE_WRITE)
+		atomic_inc(&cd->writers);
+>>>>>>> upstream/android-13
 	filp->private_data = rp;
 	return 0;
 }
@@ -1040,8 +1334,15 @@ static int cache_release(struct inode *inode, struct file *filp,
 		filp->private_data = NULL;
 		kfree(rp);
 
+<<<<<<< HEAD
 		cd->last_close = seconds_since_boot();
 		atomic_dec(&cd->readers);
+=======
+	}
+	if (filp->f_mode & FMODE_WRITE) {
+		atomic_dec(&cd->writers);
+		cd->last_close = seconds_since_boot();
+>>>>>>> upstream/android-13
 	}
 	module_put(cd->owner);
 	return 0;
@@ -1149,7 +1450,11 @@ static void warn_no_listener(struct cache_detail *detail)
 
 static bool cache_listeners_exist(struct cache_detail *detail)
 {
+<<<<<<< HEAD
 	if (atomic_read(&detail->readers))
+=======
+	if (atomic_read(&detail->writers))
+>>>>>>> upstream/android-13
 		return true;
 	if (detail->last_close == 0)
 		/* This cache was never opened */
@@ -1170,13 +1475,19 @@ static bool cache_listeners_exist(struct cache_detail *detail)
  *
  * Each request is at most one page long.
  */
+<<<<<<< HEAD
 int sunrpc_cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h)
 {
 
+=======
+static int cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h)
+{
+>>>>>>> upstream/android-13
 	char *buf;
 	struct cache_request *crq;
 	int ret = 0;
 
+<<<<<<< HEAD
 	if (!detail->cache_request)
 		return -EINVAL;
 
@@ -1184,6 +1495,8 @@ int sunrpc_cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h)
 		warn_no_listener(detail);
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 	if (test_bit(CACHE_CLEANED, &h->flags))
 		/* Too late to make an upcall */
 		return -EAGAIN;
@@ -1206,6 +1519,10 @@ int sunrpc_cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h)
 	if (test_bit(CACHE_PENDING, &h->flags)) {
 		crq->item = cache_get(h);
 		list_add_tail(&crq->q.list, &detail->queue);
+<<<<<<< HEAD
+=======
+		trace_cache_entry_upcall(detail, h);
+>>>>>>> upstream/android-13
 	} else
 		/* Lost a race, no longer PENDING, so don't enqueue */
 		ret = -EAGAIN;
@@ -1217,8 +1534,32 @@ int sunrpc_cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h)
 	}
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(sunrpc_cache_pipe_upcall);
 
+=======
+
+int sunrpc_cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h)
+{
+	if (test_and_set_bit(CACHE_PENDING, &h->flags))
+		return 0;
+	return cache_pipe_upcall(detail, h);
+}
+EXPORT_SYMBOL_GPL(sunrpc_cache_pipe_upcall);
+
+int sunrpc_cache_pipe_upcall_timeout(struct cache_detail *detail,
+				     struct cache_head *h)
+{
+	if (!cache_listeners_exist(detail)) {
+		warn_no_listener(detail);
+		trace_cache_entry_no_listener(detail, h);
+		return -EINVAL;
+	}
+	return sunrpc_cache_pipe_upcall(detail, h);
+}
+EXPORT_SYMBOL_GPL(sunrpc_cache_pipe_upcall_timeout);
+
+>>>>>>> upstream/android-13
 /*
  * parse a message from user-space and pass it
  * to an appropriate cache
@@ -1294,21 +1635,32 @@ EXPORT_SYMBOL_GPL(qword_get);
  * get a header, then pass each real item in the cache
  */
 
+<<<<<<< HEAD
 void *cache_seq_start(struct seq_file *m, loff_t *pos)
 	__acquires(cd->hash_lock)
+=======
+static void *__cache_seq_start(struct seq_file *m, loff_t *pos)
+>>>>>>> upstream/android-13
 {
 	loff_t n = *pos;
 	unsigned int hash, entry;
 	struct cache_head *ch;
 	struct cache_detail *cd = m->private;
 
+<<<<<<< HEAD
 	read_lock(&cd->hash_lock);
+=======
+>>>>>>> upstream/android-13
 	if (!n--)
 		return SEQ_START_TOKEN;
 	hash = n >> 32;
 	entry = n & ((1LL<<32) - 1);
 
+<<<<<<< HEAD
 	hlist_for_each_entry(ch, &cd->hash_table[hash], cache_list)
+=======
+	hlist_for_each_entry_rcu(ch, &cd->hash_table[hash], cache_list)
+>>>>>>> upstream/android-13
 		if (!entry--)
 			return ch;
 	n &= ~((1LL<<32) - 1);
@@ -1320,12 +1672,21 @@ void *cache_seq_start(struct seq_file *m, loff_t *pos)
 	if (hash >= cd->hash_size)
 		return NULL;
 	*pos = n+1;
+<<<<<<< HEAD
 	return hlist_entry_safe(cd->hash_table[hash].first,
 				struct cache_head, cache_list);
 }
 EXPORT_SYMBOL_GPL(cache_seq_start);
 
 void *cache_seq_next(struct seq_file *m, void *p, loff_t *pos)
+=======
+	return hlist_entry_safe(rcu_dereference_raw(
+				hlist_first_rcu(&cd->hash_table[hash])),
+				struct cache_head, cache_list);
+}
+
+static void *cache_seq_next(struct seq_file *m, void *p, loff_t *pos)
+>>>>>>> upstream/android-13
 {
 	struct cache_head *ch = p;
 	int hash = (*pos >> 32);
@@ -1338,7 +1699,12 @@ void *cache_seq_next(struct seq_file *m, void *p, loff_t *pos)
 		*pos += 1LL<<32;
 	} else {
 		++*pos;
+<<<<<<< HEAD
 		return hlist_entry_safe(ch->cache_list.next,
+=======
+		return hlist_entry_safe(rcu_dereference_raw(
+					hlist_next_rcu(&ch->cache_list)),
+>>>>>>> upstream/android-13
 					struct cache_head, cache_list);
 	}
 	*pos &= ~((1LL<<32) - 1);
@@ -1350,6 +1716,7 @@ void *cache_seq_next(struct seq_file *m, void *p, loff_t *pos)
 	if (hash >= cd->hash_size)
 		return NULL;
 	++*pos;
+<<<<<<< HEAD
 	return hlist_entry_safe(cd->hash_table[hash].first,
 				struct cache_head, cache_list);
 }
@@ -1362,6 +1729,33 @@ void cache_seq_stop(struct seq_file *m, void *p)
 	read_unlock(&cd->hash_lock);
 }
 EXPORT_SYMBOL_GPL(cache_seq_stop);
+=======
+	return hlist_entry_safe(rcu_dereference_raw(
+				hlist_first_rcu(&cd->hash_table[hash])),
+				struct cache_head, cache_list);
+}
+
+void *cache_seq_start_rcu(struct seq_file *m, loff_t *pos)
+	__acquires(RCU)
+{
+	rcu_read_lock();
+	return __cache_seq_start(m, pos);
+}
+EXPORT_SYMBOL_GPL(cache_seq_start_rcu);
+
+void *cache_seq_next_rcu(struct seq_file *file, void *p, loff_t *pos)
+{
+	return cache_seq_next(file, p, pos);
+}
+EXPORT_SYMBOL_GPL(cache_seq_next_rcu);
+
+void cache_seq_stop_rcu(struct seq_file *m, void *p)
+	__releases(RCU)
+{
+	rcu_read_unlock();
+}
+EXPORT_SYMBOL_GPL(cache_seq_stop_rcu);
+>>>>>>> upstream/android-13
 
 static int c_show(struct seq_file *m, void *p)
 {
@@ -1372,16 +1766,27 @@ static int c_show(struct seq_file *m, void *p)
 		return cd->cache_show(m, cd, NULL);
 
 	ifdebug(CACHE)
+<<<<<<< HEAD
 		seq_printf(m, "# expiry=%ld refcnt=%d flags=%lx\n",
+=======
+		seq_printf(m, "# expiry=%lld refcnt=%d flags=%lx\n",
+>>>>>>> upstream/android-13
 			   convert_to_wallclock(cp->expiry_time),
 			   kref_read(&cp->ref), cp->flags);
 	cache_get(cp);
 	if (cache_check(cd, cp, NULL))
 		/* cache_check does a cache_put on failure */
+<<<<<<< HEAD
 		seq_printf(m, "# ");
 	else {
 		if (cache_is_expired(cd, cp))
 			seq_printf(m, "# ");
+=======
+		seq_puts(m, "# ");
+	else {
+		if (cache_is_expired(cd, cp))
+			seq_puts(m, "# ");
+>>>>>>> upstream/android-13
 		cache_put(cp, cd);
 	}
 
@@ -1389,9 +1794,15 @@ static int c_show(struct seq_file *m, void *p)
 }
 
 static const struct seq_operations cache_content_op = {
+<<<<<<< HEAD
 	.start	= cache_seq_start,
 	.next	= cache_seq_next,
 	.stop	= cache_seq_stop,
+=======
+	.start	= cache_seq_start_rcu,
+	.next	= cache_seq_next_rcu,
+	.stop	= cache_seq_stop_rcu,
+>>>>>>> upstream/android-13
 	.show	= c_show,
 };
 
@@ -1445,7 +1856,11 @@ static ssize_t read_flush(struct file *file, char __user *buf,
 	char tbuf[22];
 	size_t len;
 
+<<<<<<< HEAD
 	len = snprintf(tbuf, sizeof(tbuf), "%lu\n",
+=======
+	len = snprintf(tbuf, sizeof(tbuf), "%llu\n",
+>>>>>>> upstream/android-13
 			convert_to_wallclock(cd->flush_time));
 	return simple_read_from_buffer(buf, count, ppos, tbuf, len);
 }
@@ -1456,7 +1871,11 @@ static ssize_t write_flush(struct file *file, const char __user *buf,
 {
 	char tbuf[20];
 	char *ep;
+<<<<<<< HEAD
 	time_t now;
+=======
+	time64_t now;
+>>>>>>> upstream/android-13
 
 	if (*ppos || count > sizeof(tbuf)-1)
 		return -EINVAL;
@@ -1486,6 +1905,12 @@ static ssize_t write_flush(struct file *file, const char __user *buf,
 	cd->nextcheck = now;
 	cache_flush();
 
+<<<<<<< HEAD
+=======
+	if (cd->flush)
+		cd->flush();
+
+>>>>>>> upstream/android-13
 	*ppos += count;
 	return count;
 }
@@ -1536,6 +1961,7 @@ static int cache_release_procfs(struct inode *inode, struct file *filp)
 	return cache_release(inode, filp, cd);
 }
 
+<<<<<<< HEAD
 static const struct file_operations cache_file_operations_procfs = {
 	.owner		= THIS_MODULE,
 	.llseek		= no_llseek,
@@ -1545,6 +1971,16 @@ static const struct file_operations cache_file_operations_procfs = {
 	.unlocked_ioctl	= cache_ioctl_procfs, /* for FIONREAD */
 	.open		= cache_open_procfs,
 	.release	= cache_release_procfs,
+=======
+static const struct proc_ops cache_channel_proc_ops = {
+	.proc_lseek	= no_llseek,
+	.proc_read	= cache_read_procfs,
+	.proc_write	= cache_write_procfs,
+	.proc_poll	= cache_poll_procfs,
+	.proc_ioctl	= cache_ioctl_procfs, /* for FIONREAD */
+	.proc_open	= cache_open_procfs,
+	.proc_release	= cache_release_procfs,
+>>>>>>> upstream/android-13
 };
 
 static int content_open_procfs(struct inode *inode, struct file *filp)
@@ -1561,11 +1997,19 @@ static int content_release_procfs(struct inode *inode, struct file *filp)
 	return content_release(inode, filp, cd);
 }
 
+<<<<<<< HEAD
 static const struct file_operations content_file_operations_procfs = {
 	.open		= content_open_procfs,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= content_release_procfs,
+=======
+static const struct proc_ops content_proc_ops = {
+	.proc_open	= content_open_procfs,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= content_release_procfs,
+>>>>>>> upstream/android-13
 };
 
 static int open_flush_procfs(struct inode *inode, struct file *filp)
@@ -1599,12 +2043,21 @@ static ssize_t write_flush_procfs(struct file *filp,
 	return write_flush(filp, buf, count, ppos, cd);
 }
 
+<<<<<<< HEAD
 static const struct file_operations cache_flush_operations_procfs = {
 	.open		= open_flush_procfs,
 	.read		= read_flush_procfs,
 	.write		= write_flush_procfs,
 	.release	= release_flush_procfs,
 	.llseek		= no_llseek,
+=======
+static const struct proc_ops cache_flush_proc_ops = {
+	.proc_open	= open_flush_procfs,
+	.proc_read	= read_flush_procfs,
+	.proc_write	= write_flush_procfs,
+	.proc_release	= release_flush_procfs,
+	.proc_lseek	= no_llseek,
+>>>>>>> upstream/android-13
 };
 
 static void remove_cache_proc_entries(struct cache_detail *cd)
@@ -1627,19 +2080,31 @@ static int create_cache_proc_entries(struct cache_detail *cd, struct net *net)
 		goto out_nomem;
 
 	p = proc_create_data("flush", S_IFREG | 0600,
+<<<<<<< HEAD
 			     cd->procfs, &cache_flush_operations_procfs, cd);
+=======
+			     cd->procfs, &cache_flush_proc_ops, cd);
+>>>>>>> upstream/android-13
 	if (p == NULL)
 		goto out_nomem;
 
 	if (cd->cache_request || cd->cache_parse) {
 		p = proc_create_data("channel", S_IFREG | 0600, cd->procfs,
+<<<<<<< HEAD
 				     &cache_file_operations_procfs, cd);
+=======
+				     &cache_channel_proc_ops, cd);
+>>>>>>> upstream/android-13
 		if (p == NULL)
 			goto out_nomem;
 	}
 	if (cd->cache_show) {
 		p = proc_create_data("content", S_IFREG | 0400, cd->procfs,
+<<<<<<< HEAD
 				     &content_file_operations_procfs, cd);
+=======
+				     &content_proc_ops, cd);
+>>>>>>> upstream/android-13
 		if (p == NULL)
 			goto out_nomem;
 	}
@@ -1849,6 +2314,7 @@ EXPORT_SYMBOL_GPL(sunrpc_cache_unregister_pipefs);
 
 void sunrpc_cache_unhash(struct cache_detail *cd, struct cache_head *h)
 {
+<<<<<<< HEAD
 	write_lock(&cd->hash_lock);
 	if (!hlist_unhashed(&h->cache_list)){
 		hlist_del_init(&h->cache_list);
@@ -1857,5 +2323,14 @@ void sunrpc_cache_unhash(struct cache_detail *cd, struct cache_head *h)
 		cache_put(h, cd);
 	} else
 		write_unlock(&cd->hash_lock);
+=======
+	spin_lock(&cd->hash_lock);
+	if (!hlist_unhashed(&h->cache_list)){
+		sunrpc_begin_cache_remove_entry(h, cd);
+		spin_unlock(&cd->hash_lock);
+		sunrpc_end_cache_remove_entry(h, cd);
+	} else
+		spin_unlock(&cd->hash_lock);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sunrpc_cache_unhash);

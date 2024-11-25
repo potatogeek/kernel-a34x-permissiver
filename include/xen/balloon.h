@@ -2,6 +2,11 @@
 /******************************************************************************
  * Xen balloon functionality
  */
+<<<<<<< HEAD
+=======
+#ifndef _XEN_BALLOON_H
+#define _XEN_BALLOON_H
+>>>>>>> upstream/android-13
 
 #define RETRY_UNLIMITED	0
 
@@ -27,6 +32,7 @@ void balloon_set_new_target(unsigned long target);
 int alloc_xenballooned_pages(int nr_pages, struct page **pages);
 void free_xenballooned_pages(int nr_pages, struct page **pages);
 
+<<<<<<< HEAD
 struct device;
 #ifdef CONFIG_XEN_SELFBALLOONING
 extern int register_xen_selfballooning(struct device *dev);
@@ -37,6 +43,8 @@ static inline int register_xen_selfballooning(struct device *dev)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_XEN_BALLOON
 void xen_balloon_init(void);
 #else
@@ -44,3 +52,8 @@ static inline void xen_balloon_init(void)
 {
 }
 #endif
+<<<<<<< HEAD
+=======
+
+#endif	/* _XEN_BALLOON_H */
+>>>>>>> upstream/android-13

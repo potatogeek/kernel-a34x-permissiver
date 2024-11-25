@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006-2007 PA Semi, Inc
  *
  * Maintained by: Olof Johansson <olof@lixom.net>
  *
  * Driver for the PWRficient onchip rng
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -98,10 +105,15 @@ static struct hwrng pasemi_rng = {
 static int rng_probe(struct platform_device *pdev)
 {
 	void __iomem *rng_regs;
+<<<<<<< HEAD
 	struct resource *res;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	rng_regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+
+	rng_regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(rng_regs))
 		return PTR_ERR(rng_regs);
 

@@ -1,15 +1,23 @@
+<<<<<<< HEAD
 /* da9063-irq.c: Interrupts support for Dialog DA9063
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/* Interrupt support for Dialog DA9063
+>>>>>>> upstream/android-13
  *
  * Copyright 2012 Dialog Semiconductor Ltd.
  * Copyright 2013 Philipp Zabel, Pengutronix
  *
  * Author: Michal Hajduk, Dialog Semiconductor
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -19,7 +27,10 @@
 #include <linux/interrupt.h>
 #include <linux/regmap.h>
 #include <linux/mfd/da9063/core.h>
+<<<<<<< HEAD
 #include <linux/mfd/da9063/pdata.h>
+=======
+>>>>>>> upstream/android-13
 
 #define	DA9063_REG_EVENT_A_OFFSET	0
 #define	DA9063_REG_EVENT_B_OFFSET	1

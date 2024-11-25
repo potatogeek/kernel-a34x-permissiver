@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Driver for Realtek PCI-Express card reader
  *
  * Copyright(c) 2009-2013 Realtek Semiconductor Corp. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Author:
  *   Wei WANG <wei_wang@realsil.com.cn>
  *   Roger Tseng <rogerable@realtek.com>
@@ -49,10 +56,18 @@ static int rtl8411b_is_qfn48(struct rtsx_pcr *pcr)
 
 static void rtl8411_fetch_vendor_settings(struct rtsx_pcr *pcr)
 {
+<<<<<<< HEAD
 	u32 reg1 = 0;
 	u8 reg3 = 0;
 
 	rtsx_pci_read_config_dword(pcr, PCR_SETTING_REG1, &reg1);
+=======
+	struct pci_dev *pdev = pcr->pci;
+	u32 reg1 = 0;
+	u8 reg3 = 0;
+
+	pci_read_config_dword(pdev, PCR_SETTING_REG1, &reg1);
+>>>>>>> upstream/android-13
 	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG1, reg1);
 
 	if (!rtsx_vendor_setting_valid(reg1))
@@ -64,16 +79,27 @@ static void rtl8411_fetch_vendor_settings(struct rtsx_pcr *pcr)
 	pcr->card_drive_sel &= 0x3F;
 	pcr->card_drive_sel |= rtsx_reg_to_card_drive_sel(reg1);
 
+<<<<<<< HEAD
 	rtsx_pci_read_config_byte(pcr, PCR_SETTING_REG3, &reg3);
+=======
+	pci_read_config_byte(pdev, PCR_SETTING_REG3, &reg3);
+>>>>>>> upstream/android-13
 	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG3, reg3);
 	pcr->sd30_drive_sel_3v3 = rtl8411_reg_to_sd30_drive_sel_3v3(reg3);
 }
 
 static void rtl8411b_fetch_vendor_settings(struct rtsx_pcr *pcr)
 {
+<<<<<<< HEAD
 	u32 reg = 0;
 
 	rtsx_pci_read_config_dword(pcr, PCR_SETTING_REG1, &reg);
+=======
+	struct pci_dev *pdev = pcr->pci;
+	u32 reg = 0;
+
+	pci_read_config_dword(pdev, PCR_SETTING_REG1, &reg);
+>>>>>>> upstream/android-13
 	pcr_dbg(pcr, "Cfg 0x%x: 0x%x\n", PCR_SETTING_REG1, reg);
 
 	if (!rtsx_vendor_setting_valid(reg))
@@ -478,6 +504,10 @@ static void rtl8411_init_common_params(struct rtsx_pcr *pcr)
 	pcr->sd30_drive_sel_1v8 = DRIVER_TYPE_B;
 	pcr->sd30_drive_sel_3v3 = DRIVER_TYPE_D;
 	pcr->aspm_en = ASPM_L1_EN;
+<<<<<<< HEAD
+=======
+	pcr->aspm_mode = ASPM_MODE_CFG;
+>>>>>>> upstream/android-13
 	pcr->tx_initial_phase = SET_CLOCK_PHASE(23, 7, 14);
 	pcr->rx_initial_phase = SET_CLOCK_PHASE(4, 3, 10);
 	pcr->ic_version = rtl8411_get_ic_version(pcr);

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/kernel/smp_twd.c
  *
  *  Copyright (C) 2002 ARM Ltd.
  *  All Rights Reserved
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -100,8 +107,11 @@ static void twd_timer_stop(void)
 	disable_percpu_irq(clk->irq);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMMON_CLK
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Updates clockevent frequency when the cpu frequency changes.
  * Called on the cpu that is changing frequency with interrupts disabled.
@@ -143,6 +153,7 @@ static int twd_clk_init(void)
 }
 core_initcall(twd_clk_init);
 
+<<<<<<< HEAD
 #elif defined (CONFIG_CPU_FREQ)
 
 #include <linux/cpufreq.h>
@@ -191,6 +202,8 @@ core_initcall(twd_cpufreq_init);
 
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void twd_calibrate_rate(void)
 {
 	unsigned long count;
@@ -366,6 +379,7 @@ out_free:
 	return err;
 }
 
+<<<<<<< HEAD
 int __init twd_local_timer_register(struct twd_local_timer *tlt)
 {
 	if (twd_base || twd_evt)
@@ -381,6 +395,8 @@ int __init twd_local_timer_register(struct twd_local_timer *tlt)
 }
 
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static int __init twd_local_timer_of_register(struct device_node *np)
 {
 	int err;
@@ -406,4 +422,7 @@ out:
 TIMER_OF_DECLARE(arm_twd_a9, "arm,cortex-a9-twd-timer", twd_local_timer_of_register);
 TIMER_OF_DECLARE(arm_twd_a5, "arm,cortex-a5-twd-timer", twd_local_timer_of_register);
 TIMER_OF_DECLARE(arm_twd_11mp, "arm,arm11mp-twd-timer", twd_local_timer_of_register);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM7120 style Level 2 interrupt controller driver
  *
  * Copyright (C) 2014 Broadcom Corporation
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME	": " fmt
@@ -77,10 +84,15 @@ static void bcm7120_l2_intc_irq_handle(struct irq_desc *desc)
 					    data->irq_map_mask[idx];
 		irq_gc_unlock(gc);
 
+<<<<<<< HEAD
 		for_each_set_bit(hwirq, &pending, IRQS_PER_WORD) {
 			generic_handle_irq(irq_find_mapping(b->domain,
 					   base + hwirq));
 		}
+=======
+		for_each_set_bit(hwirq, &pending, IRQS_PER_WORD)
+			generic_handle_domain_irq(b->domain, base + hwirq);
+>>>>>>> upstream/android-13
 	}
 
 	chained_irq_exit(chip, desc);
@@ -146,6 +158,12 @@ static int bcm7120_l2_intc_init_one(struct device_node *dn,
 
 	irq_set_chained_handler_and_data(parent_irq,
 					 bcm7120_l2_intc_irq_handle, l1_data);
+<<<<<<< HEAD
+=======
+	if (data->can_wake)
+		enable_irq_wake(parent_irq);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -250,6 +268,11 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
 	if (ret < 0)
 		goto out_free_l1_data;
 
+<<<<<<< HEAD
+=======
+	data->can_wake = of_property_read_bool(dn, "brcm,irq-can-wake");
+
+>>>>>>> upstream/android-13
 	for (irq = 0; irq < data->num_parent_irqs; irq++) {
 		ret = bcm7120_l2_intc_init_one(dn, data, irq, valid_mask);
 		if (ret)
@@ -277,9 +300,12 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
 		goto out_free_domain;
 	}
 
+<<<<<<< HEAD
 	if (of_property_read_bool(dn, "brcm,irq-can-wake"))
 		data->can_wake = true;
 
+=======
+>>>>>>> upstream/android-13
 	for (idx = 0; idx < data->n_words; idx++) {
 		irq = idx * IRQS_PER_WORD;
 		gc = irq_get_domain_generic_chip(data->domain, irq);
@@ -310,7 +336,11 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
 
 		if (data->can_wake) {
 			/* This IRQ chip can wake the system, set all
+<<<<<<< HEAD
 			 * relevant child interupts in wake_enabled mask
+=======
+			 * relevant child interrupts in wake_enabled mask
+>>>>>>> upstream/android-13
 			 */
 			gc->wake_enabled = 0xffffffff;
 			gc->wake_enabled &= ~gc->unused;
@@ -318,6 +348,12 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	pr_info("registered %s intc (%pOF, parent IRQ(s): %d)\n",
+		intc_name, dn, data->num_parent_irqs);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out_free_domain:

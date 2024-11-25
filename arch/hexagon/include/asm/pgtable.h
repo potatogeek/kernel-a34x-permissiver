@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Page table support for the Hexagon architecture
  *
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_PGTABLE_H
@@ -25,7 +32,10 @@
  * Page table definitions for Qualcomm Hexagon processor.
  */
 #include <asm/page.h>
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/pgtable-nopmd.h>
 
 /* A handy thing to have if one has the RAM. Declared in head.S */
@@ -169,11 +179,14 @@ extern unsigned long _dflt_cache_att;
 
 extern pgd_t swapper_pg_dir[PTRS_PER_PGD];  /* located in head.S */
 
+<<<<<<< HEAD
 /* Seems to be zero even in architectures where the zero page is firewalled? */
 #define FIRST_USER_ADDRESS 0UL
 #define pte_special(pte)	0
 #define pte_mkspecial(pte)	(pte)
 
+=======
+>>>>>>> upstream/android-13
 /*  HUGETLB not working currently  */
 #ifdef CONFIG_HUGETLB_PAGE
 #define pte_mkhuge(pte) __pte((pte_val(pte) & ~0x3) | HVM_HUGEPAGE_SIZE)
@@ -222,6 +235,7 @@ static inline void pte_clear(struct mm_struct *mm, unsigned long addr,
 	pte_val(*ptep) = _NULL_PTE;
 }
 
+<<<<<<< HEAD
 #ifdef NEED_PMD_INDEX_DESPITE_BEING_2_LEVEL
 /**
  * pmd_index - returns the index of the entry in the PMD page
@@ -249,6 +263,8 @@ static inline void pte_clear(struct mm_struct *mm, unsigned long addr,
  */
 #define pgd_offset_k(address) pgd_offset(&init_mm, address)
 
+=======
+>>>>>>> upstream/android-13
 /**
  * pmd_none - check if pmd_entry is mapped
  * @pmd_entry:  pmd entry
@@ -285,7 +301,10 @@ static inline int pmd_bad(pmd_t pmd)
  * pmd_page - converts a PMD entry to a page pointer
  */
 #define pmd_page(pmd)  (pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+<<<<<<< HEAD
 #define pmd_pgtable(pmd) pmd_page(pmd)
+=======
+>>>>>>> upstream/android-13
 
 /**
  * pte_none - check if pte is mapped
@@ -419,6 +438,7 @@ static inline int pte_exec(pte_t pte)
  */
 #define set_pte_at(mm, addr, ptep, pte) set_pte(ptep, pte)
 
+<<<<<<< HEAD
 /*
  * May need to invoke the virtual machine as well...
  */
@@ -438,15 +458,24 @@ static inline int pte_exec(pte_t pte)
 #define pte_offset_kernel(dir, address) \
 	((pte_t *) (unsigned long) __va(pmd_val(*dir) & PAGE_MASK) \
 				+  __pte_offset(address))
+=======
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	return (unsigned long)__va(pmd_val(pmd) & PAGE_MASK);
+}
+>>>>>>> upstream/android-13
 
 /* ZERO_PAGE - returns the globally shared zero page */
 #define ZERO_PAGE(vaddr) (virt_to_page(&empty_zero_page))
 
+<<<<<<< HEAD
 #define __pte_offset(address) (((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
 
 /*  I think this is in case we have page table caches; needed by init/main.c  */
 #define pgtable_cache_init()    do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Swap/file PTE definitions.  If _PAGE_PRESENT is zero, the rest of the PTE is
  * interpreted as swap information.  The remaining free bits are interpreted as
@@ -479,7 +508,10 @@ static inline int pte_exec(pte_t pte)
 		((type << 1) | \
 		 ((offset & 0x7ffff0) << 9) | ((offset & 0xf) << 6)) })
 
+<<<<<<< HEAD
 /*  Oh boy.  There are a lot of possible arch overrides found in this file.  */
 #include <asm-generic/pgtable.h>
 
+=======
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ROHM BD9571MWV-M MFD driver
  *
@@ -11,6 +12,14 @@
  * kind, whether expressed or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License version 2 for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * ROHM BD9571MWV-M and BD9574MVF-M core driver
+ *
+ * Copyright (C) 2017 Marek Vasut <marek.vasut+renesas@gmail.com>
+ * Copyright (C) 2020 Renesas Electronics Corporation
+>>>>>>> upstream/android-13
  *
  * Based on the TPS65086 driver
  */
@@ -18,6 +27,10 @@
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include <linux/mfd/core.h>
+<<<<<<< HEAD
+=======
+#include <linux/mfd/rohm-generic.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 
 #include <linux/mfd/bd9571mwv.h>
@@ -110,6 +123,7 @@ static struct regmap_irq_chip bd9571mwv_irq_chip = {
 	.num_irqs	= ARRAY_SIZE(bd9571mwv_irqs),
 };
 
+<<<<<<< HEAD
 static int bd9571mwv_identify(struct bd9571mwv *bd)
 {
 	struct device *dev = bd->dev;
@@ -117,6 +131,80 @@ static int bd9571mwv_identify(struct bd9571mwv *bd)
 	int ret;
 
 	ret = regmap_read(bd->regmap, BD9571MWV_VENDOR_CODE, &value);
+=======
+static const struct mfd_cell bd9574mwf_cells[] = {
+	{ .name = "bd9574mwf-regulator", },
+	{ .name = "bd9574mwf-gpio", },
+};
+
+static const struct regmap_range bd9574mwf_readable_yes_ranges[] = {
+	regmap_reg_range(BD9571MWV_VENDOR_CODE, BD9571MWV_PRODUCT_REVISION),
+	regmap_reg_range(BD9571MWV_BKUP_MODE_CNT, BD9571MWV_BKUP_MODE_CNT),
+	regmap_reg_range(BD9571MWV_DVFS_VINIT, BD9571MWV_DVFS_SETVMAX),
+	regmap_reg_range(BD9571MWV_DVFS_SETVID, BD9571MWV_DVFS_MONIVDAC),
+	regmap_reg_range(BD9571MWV_GPIO_IN, BD9571MWV_GPIO_IN),
+	regmap_reg_range(BD9571MWV_GPIO_INT, BD9571MWV_GPIO_INTMASK),
+	regmap_reg_range(BD9571MWV_INT_INTREQ, BD9571MWV_INT_INTMASK),
+};
+
+static const struct regmap_access_table bd9574mwf_readable_table = {
+	.yes_ranges	= bd9574mwf_readable_yes_ranges,
+	.n_yes_ranges	= ARRAY_SIZE(bd9574mwf_readable_yes_ranges),
+};
+
+static const struct regmap_range bd9574mwf_writable_yes_ranges[] = {
+	regmap_reg_range(BD9571MWV_BKUP_MODE_CNT, BD9571MWV_BKUP_MODE_CNT),
+	regmap_reg_range(BD9571MWV_DVFS_SETVID, BD9571MWV_DVFS_SETVID),
+	regmap_reg_range(BD9571MWV_GPIO_DIR, BD9571MWV_GPIO_OUT),
+	regmap_reg_range(BD9571MWV_GPIO_INT_SET, BD9571MWV_GPIO_INTMASK),
+	regmap_reg_range(BD9571MWV_INT_INTREQ, BD9571MWV_INT_INTMASK),
+};
+
+static const struct regmap_access_table bd9574mwf_writable_table = {
+	.yes_ranges	= bd9574mwf_writable_yes_ranges,
+	.n_yes_ranges	= ARRAY_SIZE(bd9574mwf_writable_yes_ranges),
+};
+
+static const struct regmap_range bd9574mwf_volatile_yes_ranges[] = {
+	regmap_reg_range(BD9571MWV_DVFS_MONIVDAC, BD9571MWV_DVFS_MONIVDAC),
+	regmap_reg_range(BD9571MWV_GPIO_IN, BD9571MWV_GPIO_IN),
+	regmap_reg_range(BD9571MWV_GPIO_INT, BD9571MWV_GPIO_INT),
+	regmap_reg_range(BD9571MWV_INT_INTREQ, BD9571MWV_INT_INTREQ),
+};
+
+static const struct regmap_access_table bd9574mwf_volatile_table = {
+	.yes_ranges	= bd9574mwf_volatile_yes_ranges,
+	.n_yes_ranges	= ARRAY_SIZE(bd9574mwf_volatile_yes_ranges),
+};
+
+static const struct regmap_config bd9574mwf_regmap_config = {
+	.reg_bits	= 8,
+	.val_bits	= 8,
+	.cache_type	= REGCACHE_RBTREE,
+	.rd_table	= &bd9574mwf_readable_table,
+	.wr_table	= &bd9574mwf_writable_table,
+	.volatile_table	= &bd9574mwf_volatile_table,
+	.max_register	= 0xff,
+};
+
+static struct regmap_irq_chip bd9574mwf_irq_chip = {
+	.name		= "bd9574mwf",
+	.status_base	= BD9571MWV_INT_INTREQ,
+	.mask_base	= BD9571MWV_INT_INTMASK,
+	.ack_base	= BD9571MWV_INT_INTREQ,
+	.init_ack_masked = true,
+	.num_regs	= 1,
+	.irqs		= bd9571mwv_irqs,
+	.num_irqs	= ARRAY_SIZE(bd9571mwv_irqs),
+};
+
+static int bd957x_identify(struct device *dev, struct regmap *regmap)
+{
+	unsigned int value;
+	int ret;
+
+	ret = regmap_read(regmap, BD9571MWV_VENDOR_CODE, &value);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "Failed to read vendor code register (ret=%i)\n",
 			ret);
@@ -129,12 +217,17 @@ static int bd9571mwv_identify(struct bd9571mwv *bd)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ret = regmap_read(bd->regmap, BD9571MWV_PRODUCT_CODE, &value);
+=======
+	ret = regmap_read(regmap, BD9571MWV_PRODUCT_CODE, &value);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "Failed to read product code register (ret=%i)\n",
 			ret);
 		return ret;
 	}
+<<<<<<< HEAD
 
 	if (value != BD9571MWV_PRODUCT_CODE_VAL) {
 		dev_err(dev, "Invalid product code ID %02x (expected %02x)\n",
@@ -143,18 +236,25 @@ static int bd9571mwv_identify(struct bd9571mwv *bd)
 	}
 
 	ret = regmap_read(bd->regmap, BD9571MWV_PRODUCT_REVISION, &value);
+=======
+	ret = regmap_read(regmap, BD9571MWV_PRODUCT_REVISION, &value);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev, "Failed to read revision register (ret=%i)\n",
 			ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	dev_info(dev, "Device: BD9571MWV rev. %d\n", value & 0xff);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int bd9571mwv_probe(struct i2c_client *client,
+<<<<<<< HEAD
 			  const struct i2c_device_id *ids)
 {
 	struct bd9571mwv *bd;
@@ -203,10 +303,70 @@ static int bd9571mwv_remove(struct i2c_client *client)
 	regmap_del_irq_chip(bd->irq, bd->irq_data);
 
 	return 0;
+=======
+			   const struct i2c_device_id *ids)
+{
+	const struct regmap_config *regmap_config;
+	const struct regmap_irq_chip *irq_chip;
+	const struct mfd_cell *cells;
+	struct device *dev = &client->dev;
+	struct regmap *regmap;
+	struct regmap_irq_chip_data *irq_data;
+	int ret, num_cells, irq = client->irq;
+
+	/* Read the PMIC product code */
+	ret = i2c_smbus_read_byte_data(client, BD9571MWV_PRODUCT_CODE);
+	if (ret < 0) {
+		dev_err(dev, "Failed to read product code\n");
+		return ret;
+	}
+
+	switch (ret) {
+	case BD9571MWV_PRODUCT_CODE_BD9571MWV:
+		regmap_config = &bd9571mwv_regmap_config;
+		irq_chip = &bd9571mwv_irq_chip;
+		cells = bd9571mwv_cells;
+		num_cells = ARRAY_SIZE(bd9571mwv_cells);
+		break;
+	case BD9571MWV_PRODUCT_CODE_BD9574MWF:
+		regmap_config = &bd9574mwf_regmap_config;
+		irq_chip = &bd9574mwf_irq_chip;
+		cells = bd9574mwf_cells;
+		num_cells = ARRAY_SIZE(bd9574mwf_cells);
+		break;
+	default:
+		dev_err(dev, "Unsupported device 0x%x\n", ret);
+		return -ENODEV;
+	}
+
+	regmap = devm_regmap_init_i2c(client, regmap_config);
+	if (IS_ERR(regmap)) {
+		dev_err(dev, "Failed to initialize register map\n");
+		return PTR_ERR(regmap);
+	}
+
+	ret = bd957x_identify(dev, regmap);
+	if (ret)
+		return ret;
+
+	ret = devm_regmap_add_irq_chip(dev, regmap, irq, IRQF_ONESHOT, 0,
+				       irq_chip, &irq_data);
+	if (ret) {
+		dev_err(dev, "Failed to register IRQ chip\n");
+		return ret;
+	}
+
+	return devm_mfd_add_devices(dev, PLATFORM_DEVID_AUTO, cells, num_cells,
+				    NULL, 0, regmap_irq_get_domain(irq_data));
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id bd9571mwv_of_match_table[] = {
 	{ .compatible = "rohm,bd9571mwv", },
+<<<<<<< HEAD
+=======
+	{ .compatible = "rohm,bd9574mwf", },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, bd9571mwv_of_match_table);
@@ -223,7 +383,10 @@ static struct i2c_driver bd9571mwv_driver = {
 		.of_match_table = bd9571mwv_of_match_table,
 	},
 	.probe		= bd9571mwv_probe,
+<<<<<<< HEAD
 	.remove		= bd9571mwv_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table       = bd9571mwv_id_table,
 };
 module_i2c_driver(bd9571mwv_driver);

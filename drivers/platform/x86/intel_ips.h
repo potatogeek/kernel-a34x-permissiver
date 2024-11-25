@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Intel Corporation
  *
@@ -12,6 +13,11 @@
  *
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (c) 2010 Intel Corporation
+>>>>>>> upstream/android-13
  */
 
 void ips_link_to_i915_driver(void);

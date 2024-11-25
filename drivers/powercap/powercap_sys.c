@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Power capping class
  * Copyright (c) 2013, Intel Corporation.
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Power capping class
+ * Copyright (c) 2013, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -182,9 +189,14 @@ static ssize_t show_constraint_name(struct device *dev,
 	if (pconst && pconst->ops && pconst->ops->get_name) {
 		name = pconst->ops->get_name(power_zone, id);
 		if (name) {
+<<<<<<< HEAD
 			snprintf(buf, POWERCAP_CONSTRAINT_NAME_LEN,
 								"%s\n", name);
 			buf[POWERCAP_CONSTRAINT_NAME_LEN] = '\0';
+=======
+			sprintf(buf, "%.*s\n", POWERCAP_CONSTRAINT_NAME_LEN - 1,
+				name);
+>>>>>>> upstream/android-13
 			len = strlen(buf);
 		}
 	}
@@ -683,7 +695,11 @@ static int __init powercap_init(void)
 	return class_register(&powercap_class);
 }
 
+<<<<<<< HEAD
 device_initcall(powercap_init);
+=======
+fs_initcall(powercap_init);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("PowerCap sysfs Driver");
 MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>");

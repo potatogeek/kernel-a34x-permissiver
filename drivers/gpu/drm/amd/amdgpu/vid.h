@@ -67,8 +67,11 @@
 #define HPD4_REGISTER_OFFSET                 (0x18b8 - 0x1898)
 #define HPD5_REGISTER_OFFSET                 (0x18c0 - 0x1898)
 
+<<<<<<< HEAD
 #define AMDGPU_NUM_OF_VMIDS			8
 
+=======
+>>>>>>> upstream/android-13
 #define		PIPEID(x)					((x) << 0)
 #define		MEID(x)						((x) << 2)
 #define		VMID(x)						((x) << 4)
@@ -332,7 +335,11 @@
 #              define PACKET3_DMA_DATA_CMD_SAIC    (1 << 28)
 #              define PACKET3_DMA_DATA_CMD_DAIC    (1 << 29)
 #              define PACKET3_DMA_DATA_CMD_RAW_WAIT  (1 << 30)
+<<<<<<< HEAD
 #define	PACKET3_AQUIRE_MEM				0x58
+=======
+#define	PACKET3_ACQUIRE_MEM				0x58
+>>>>>>> upstream/android-13
 #define	PACKET3_REWIND					0x59
 #define	PACKET3_LOAD_UCONFIG_REG			0x5E
 #define	PACKET3_LOAD_SH_REG				0x5F

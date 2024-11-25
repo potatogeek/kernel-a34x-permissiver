@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Copyright (c) 2014 Redpine Signals Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -184,7 +188,11 @@ int rsi_init_sdio_slave_regs(struct rsi_hw *adapter)
 	}
 
 	/* This tells SDIO FIFO when to start read to host */
+<<<<<<< HEAD
 	rsi_dbg(INIT_ZONE, "%s: Initialzing SDIO read start level\n", __func__);
+=======
+	rsi_dbg(INIT_ZONE, "%s: Initializing SDIO read start level\n", __func__);
+>>>>>>> upstream/android-13
 	byte = 0x24;
 
 	status = rsi_sdio_write_register(adapter,
@@ -197,7 +205,11 @@ int rsi_init_sdio_slave_regs(struct rsi_hw *adapter)
 		return -1;
 	}
 
+<<<<<<< HEAD
 	rsi_dbg(INIT_ZONE, "%s: Initialzing FIFO ctrl registers\n", __func__);
+=======
+	rsi_dbg(INIT_ZONE, "%s: Initializing FIFO ctrl registers\n", __func__);
+>>>>>>> upstream/android-13
 	byte = (128 - 32);
 
 	status = rsi_sdio_write_register(adapter,
@@ -236,7 +248,10 @@ static void rsi_rx_handler(struct rsi_hw *adapter)
 	struct rsi_91x_sdiodev *dev =
 		(struct rsi_91x_sdiodev *)adapter->rsi_dev;
 	int status;
+<<<<<<< HEAD
 	enum sdio_interrupt_type isr_type;
+=======
+>>>>>>> upstream/android-13
 	u8 isr_status = 0;
 	u8 fw_status = 0;
 
@@ -267,6 +282,7 @@ static void rsi_rx_handler(struct rsi_hw *adapter)
 			__func__, isr_status, (1 << MSDU_PKT_PENDING),
 			(1 << FW_ASSERT_IND));
 
+<<<<<<< HEAD
 		do {
 			RSI_GET_SDIO_INTERRUPT_TYPE(isr_status, isr_type);
 
@@ -334,6 +350,71 @@ static void rsi_rx_handler(struct rsi_hw *adapter)
 			}
 			isr_status ^= BIT(isr_type - 1);
 		} while (isr_status);
+=======
+		if (isr_status & BIT(PKT_BUFF_AVAILABLE)) {
+			status = rsi_sdio_check_buffer_status(adapter, 0);
+			if (status < 0)
+				rsi_dbg(ERR_ZONE,
+					"%s: Failed to check buffer status\n",
+					__func__);
+			rsi_sdio_ack_intr(common->priv,
+					  BIT(PKT_BUFF_AVAILABLE));
+			rsi_set_event(&common->tx_thread.event);
+
+			rsi_dbg(ISR_ZONE, "%s: ==> BUFFER_AVAILABLE <==\n",
+				__func__);
+			dev->buff_status_updated = true;
+
+			isr_status &= ~BIT(PKT_BUFF_AVAILABLE);
+		}
+
+		if (isr_status & BIT(FW_ASSERT_IND)) {
+			rsi_dbg(ERR_ZONE, "%s: ==> FIRMWARE Assert <==\n",
+				__func__);
+			status = rsi_sdio_read_register(common->priv,
+							SDIO_FW_STATUS_REG,
+							&fw_status);
+			if (status) {
+				rsi_dbg(ERR_ZONE,
+					"%s: Failed to read f/w reg\n",
+					__func__);
+			} else {
+				rsi_dbg(ERR_ZONE,
+					"%s: Firmware Status is 0x%x\n",
+					__func__, fw_status);
+				rsi_sdio_ack_intr(common->priv,
+						  BIT(FW_ASSERT_IND));
+			}
+
+			common->fsm_state = FSM_CARD_NOT_READY;
+
+			isr_status &= ~BIT(FW_ASSERT_IND);
+		}
+
+		if (isr_status & BIT(MSDU_PKT_PENDING)) {
+			rsi_dbg(ISR_ZONE, "Pkt pending interrupt\n");
+			dev->rx_info.total_sdio_msdu_pending_intr++;
+
+			status = rsi_process_pkt(common);
+			if (status) {
+				rsi_dbg(ERR_ZONE, "%s: Failed to read pkt\n",
+					__func__);
+				mutex_unlock(&common->rx_lock);
+				return;
+			}
+
+			isr_status &= ~BIT(MSDU_PKT_PENDING);
+		}
+
+		if (isr_status) {
+			rsi_sdio_ack_intr(common->priv, isr_status);
+			dev->rx_info.total_sdio_unknown_intr++;
+			isr_status = 0;
+			rsi_dbg(ISR_ZONE, "Unknown Interrupt %x\n",
+				isr_status);
+		}
+
+>>>>>>> upstream/android-13
 		mutex_unlock(&common->rx_lock);
 	} while (1);
 }

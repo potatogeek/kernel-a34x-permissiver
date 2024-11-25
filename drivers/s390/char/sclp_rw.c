@@ -26,6 +26,7 @@
  */
 #define MAX_SCCB_ROOM (PAGE_SIZE - sizeof(struct sclp_buffer))
 
+<<<<<<< HEAD
 static void sclp_rw_pm_event(struct sclp_register *reg,
 			     enum sclp_pm_event sclp_pm_event)
 {
@@ -36,6 +37,11 @@ static void sclp_rw_pm_event(struct sclp_register *reg,
 static struct sclp_register sclp_rw_event = {
 	.send_mask = EVTYP_MSG_MASK,
 	.pm_event_fn = sclp_rw_pm_event,
+=======
+/* Event type structure for write message and write priority message */
+static struct sclp_register sclp_rw_event = {
+	.send_mask = EVTYP_MSG_MASK,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -325,10 +331,17 @@ sclp_buffer_space(struct sclp_buffer *buffer)
 /*
  * Return number of characters in buffer
  */
+<<<<<<< HEAD
 int
 sclp_chars_in_buffer(struct sclp_buffer *buffer)
 {
 	int count;
+=======
+unsigned int
+sclp_chars_in_buffer(struct sclp_buffer *buffer)
+{
+	unsigned int count;
+>>>>>>> upstream/android-13
 
 	count = buffer->char_sum;
 	if (buffer->current_line != NULL)
@@ -337,6 +350,7 @@ sclp_chars_in_buffer(struct sclp_buffer *buffer)
 }
 
 /*
+<<<<<<< HEAD
  * sets or provides some values that influence the drivers behaviour
  */
 void
@@ -355,6 +369,8 @@ sclp_set_htab(struct sclp_buffer *buffer, unsigned short htab)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * called by sclp_console_init and/or sclp_tty_init
  */
 int

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 obj-y				:= setup.o
 obj-$(CONFIG_SH_RSK7203)	+= devices-rsk7203.o
 obj-$(CONFIG_SH_RSK7264)	+= devices-rsk7264.o

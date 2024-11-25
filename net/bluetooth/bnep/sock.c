@@ -49,18 +49,29 @@ static int bnep_sock_release(struct socket *sock)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int bnep_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+=======
+static int do_bnep_sock_ioctl(struct socket *sock, unsigned int cmd, void __user *argp)
+>>>>>>> upstream/android-13
 {
 	struct bnep_connlist_req cl;
 	struct bnep_connadd_req  ca;
 	struct bnep_conndel_req  cd;
 	struct bnep_conninfo ci;
 	struct socket *nsock;
+<<<<<<< HEAD
 	void __user *argp = (void __user *)arg;
 	__u32 supp_feat = BIT(BNEP_SETUP_RESPONSE);
 	int err;
 
 	BT_DBG("cmd %x arg %lx", cmd, arg);
+=======
+	__u32 supp_feat = BIT(BNEP_SETUP_RESPONSE);
+	int err;
+
+	BT_DBG("cmd %x arg %p", cmd, argp);
+>>>>>>> upstream/android-13
 
 	switch (cmd) {
 	case BNEPCONNADD:
@@ -134,6 +145,7 @@ static int bnep_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long 
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 static int bnep_sock_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 {
@@ -144,6 +156,24 @@ static int bnep_sock_compat_ioctl(struct socket *sock, unsigned int cmd, unsigne
 
 		if (get_user(cl.cnum, (u32 __user *) arg) ||
 				get_user(uci, (u32 __user *) (arg + 4)))
+=======
+static int bnep_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+{
+	return do_bnep_sock_ioctl(sock, cmd, (void __user *)arg);
+}
+
+#ifdef CONFIG_COMPAT
+static int bnep_sock_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+{
+	void __user *argp = compat_ptr(arg);
+	if (cmd == BNEPGETCONNLIST) {
+		struct bnep_connlist_req cl;
+		unsigned __user *p = argp;
+		u32 uci;
+		int err;
+
+		if (get_user(cl.cnum, p) || get_user(uci, p + 1))
+>>>>>>> upstream/android-13
 			return -EFAULT;
 
 		cl.ci = compat_ptr(uci);
@@ -153,13 +183,21 @@ static int bnep_sock_compat_ioctl(struct socket *sock, unsigned int cmd, unsigne
 
 		err = bnep_get_connlist(&cl);
 
+<<<<<<< HEAD
 		if (!err && put_user(cl.cnum, (u32 __user *) arg))
+=======
+		if (!err && put_user(cl.cnum, p))
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 
 		return err;
 	}
 
+<<<<<<< HEAD
 	return bnep_sock_ioctl(sock, cmd, arg);
+=======
+	return do_bnep_sock_ioctl(sock, cmd, argp);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -177,8 +215,11 @@ static const struct proto_ops bnep_sock_ops = {
 	.recvmsg	= sock_no_recvmsg,
 	.listen		= sock_no_listen,
 	.shutdown	= sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt	= sock_no_setsockopt,
 	.getsockopt	= sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.connect	= sock_no_connect,
 	.socketpair	= sock_no_socketpair,
 	.accept		= sock_no_accept,

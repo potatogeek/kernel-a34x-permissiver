@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * This file contains miscellaneous low-level functions.
  *    Copyright (C) 1995-1996 Gary Thomas (gdt@linuxppc.org)
@@ -6,12 +10,15 @@
  * and Paul Mackerras.
  * Adapted for iSeries by Mike Corrigan (mikejc@us.ibm.com)
  * PPC64 updates by Dave Engebretsen (engebret@us.ibm.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sys.h>
@@ -32,6 +39,7 @@
 
 	.text
 
+<<<<<<< HEAD
 _GLOBAL(call_do_softirq)
 	mflr	r0
 	std	r0,16(r1)
@@ -208,6 +216,8 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
 	isync
 	blr
 
+=======
+>>>>>>> upstream/android-13
 _GLOBAL(__bswapdi2)
 EXPORT_SYMBOL(__bswapdi2)
 	srdi	r8,r3,32
@@ -436,7 +446,11 @@ _GLOBAL(scom970_write)
  * Physical (hardware) cpu id should be in r3.
  */
 _GLOBAL(kexec_wait)
+<<<<<<< HEAD
 	bl	1f
+=======
+	bcl	20,31,$+4
+>>>>>>> upstream/android-13
 1:	mflr	r5
 	addi	r5,r5,kexec_flag-1b
 
@@ -489,18 +503,25 @@ kexec_create_tlb:
 	rlwimi	r9,r10,16,4,15		/* Setup MAS0 = TLBSEL | ESEL(r9) */
 
 /* Set up a temp identity mapping v:0 to p:0 and return to it. */
+<<<<<<< HEAD
 #if defined(CONFIG_SMP) || defined(CONFIG_PPC_E500MC)
 #define M_IF_NEEDED	MAS2_M
 #else
 #define M_IF_NEEDED	0
 #endif
+=======
+>>>>>>> upstream/android-13
 	mtspr	SPRN_MAS0,r9
 
 	lis	r9,(MAS1_VALID|MAS1_IPROT)@h
 	ori	r9,r9,(MAS1_TSIZE(BOOK3E_PAGESZ_1GB))@l
 	mtspr	SPRN_MAS1,r9
 
+<<<<<<< HEAD
 	LOAD_REG_IMMEDIATE(r9, 0x0 | M_IF_NEEDED)
+=======
+	LOAD_REG_IMMEDIATE(r9, 0x0 | MAS2_M_IF_NEEDED)
+>>>>>>> upstream/android-13
 	mtspr	SPRN_MAS2,r9
 
 	LOAD_REG_IMMEDIATE(r9, 0x0 | MAS3_SR | MAS3_SW | MAS3_SX)
@@ -529,7 +550,10 @@ _GLOBAL(kexec_smp_wait)
 
 	li	r4,KEXEC_STATE_REAL_MODE
 	stb	r4,PACAKEXECSTATE(r13)
+<<<<<<< HEAD
 	SYNC
+=======
+>>>>>>> upstream/android-13
 
 	b	kexec_wait
 
@@ -577,6 +601,7 @@ _GLOBAL(kexec_sequence)
 	li	r0,0
 	std	r0,16(r1)
 
+<<<<<<< HEAD
 BEGIN_FTR_SECTION
 	/*
 	 * This is the best time to turn AMR/IAMR off.
@@ -591,6 +616,8 @@ BEGIN_FTR_SECTION_NESTED(42)
 END_FTR_SECTION_NESTED_IFSET(CPU_FTR_HVMODE, 42)
 END_FTR_SECTION_IFSET(CPU_FTR_ARCH_300)
 
+=======
+>>>>>>> upstream/android-13
 	/* save regs for local vars on new stack.
 	 * yes, we won't go back, but ...
 	 */

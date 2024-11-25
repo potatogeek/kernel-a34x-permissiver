@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Maxim MAX77620 Watchdog Driver
  *
  * Copyright (C) 2016 NVIDIA CORPORATION. All rights reserved.
  *
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -112,17 +119,30 @@ static const struct watchdog_ops max77620_wdt_ops = {
 
 static int max77620_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	struct max77620_wdt *wdt;
 	struct watchdog_device *wdt_dev;
 	unsigned int regval;
 	int ret;
 
+<<<<<<< HEAD
 	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
 	if (!wdt)
 		return -ENOMEM;
 
 	wdt->dev = &pdev->dev;
 	wdt->rmap = dev_get_regmap(pdev->dev.parent, NULL);
+=======
+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+	if (!wdt)
+		return -ENOMEM;
+
+	wdt->dev = dev;
+	wdt->rmap = dev_get_regmap(dev->parent, NULL);
+>>>>>>> upstream/android-13
 	if (!wdt->rmap) {
 		dev_err(wdt->dev, "Failed to get parent regmap\n");
 		return -ENODEV;
@@ -183,6 +203,7 @@ static int max77620_wdt_probe(struct platform_device *pdev)
 	watchdog_set_nowayout(wdt_dev, nowayout);
 	watchdog_set_drvdata(wdt_dev, wdt);
 
+<<<<<<< HEAD
 	ret = watchdog_register_device(wdt_dev);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "watchdog registration failed: %d\n", ret);
@@ -200,6 +221,10 @@ static int max77620_wdt_remove(struct platform_device *pdev)
 	watchdog_unregister_device(&wdt->wdt_dev);
 
 	return 0;
+=======
+	watchdog_stop_on_unregister(wdt_dev);
+	return devm_watchdog_register_device(dev, wdt_dev);
+>>>>>>> upstream/android-13
 }
 
 static const struct platform_device_id max77620_wdt_devtype[] = {
@@ -213,7 +238,10 @@ static struct platform_driver max77620_wdt_driver = {
 		.name	= "max77620-watchdog",
 	},
 	.probe	= max77620_wdt_probe,
+<<<<<<< HEAD
 	.remove	= max77620_wdt_remove,
+=======
+>>>>>>> upstream/android-13
 	.id_table = max77620_wdt_devtype,
 };
 

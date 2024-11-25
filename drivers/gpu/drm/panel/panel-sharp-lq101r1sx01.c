@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 NVIDIA Corporation
  *
@@ -7,11 +8,20 @@
  */
 
 #include <linux/backlight.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 NVIDIA Corporation
+ */
+
+#include <linux/delay.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_mipi_dsi.h>
@@ -19,13 +29,25 @@
 
 #include <video/mipi_display.h>
 
+=======
+#include <video/mipi_display.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_device.h>
+#include <drm/drm_mipi_dsi.h>
+#include <drm/drm_panel.h>
+
+>>>>>>> upstream/android-13
 struct sharp_panel {
 	struct drm_panel base;
 	/* the datasheet refers to them as DSI-LINK1 and DSI-LINK2 */
 	struct mipi_dsi_device *link1;
 	struct mipi_dsi_device *link2;
 
+<<<<<<< HEAD
 	struct backlight_device *backlight;
+=======
+>>>>>>> upstream/android-13
 	struct regulator *supply;
 
 	bool prepared;
@@ -96,11 +118,14 @@ static int sharp_panel_disable(struct drm_panel *panel)
 	if (!sharp->enabled)
 		return 0;
 
+<<<<<<< HEAD
 	if (sharp->backlight) {
 		sharp->backlight->props.power = FB_BLANK_POWERDOWN;
 		backlight_update_status(sharp->backlight);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	sharp->enabled = false;
 
 	return 0;
@@ -263,11 +288,14 @@ static int sharp_panel_enable(struct drm_panel *panel)
 	if (sharp->enabled)
 		return 0;
 
+<<<<<<< HEAD
 	if (sharp->backlight) {
 		sharp->backlight->props.power = FB_BLANK_UNBLANK;
 		backlight_update_status(sharp->backlight);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	sharp->enabled = true;
 
 	return 0;
@@ -283,6 +311,7 @@ static const struct drm_display_mode default_mode = {
 	.vsync_start = 1600 + 4,
 	.vsync_end = 1600 + 4 + 8,
 	.vtotal = 1600 + 4 + 8 + 32,
+<<<<<<< HEAD
 	.vrefresh = 60,
 };
 
@@ -295,15 +324,36 @@ static int sharp_panel_get_modes(struct drm_panel *panel)
 		dev_err(panel->drm->dev, "failed to add mode %ux%ux@%u\n",
 			default_mode.hdisplay, default_mode.vdisplay,
 			default_mode.vrefresh);
+=======
+};
+
+static int sharp_panel_get_modes(struct drm_panel *panel,
+				 struct drm_connector *connector)
+{
+	struct drm_display_mode *mode;
+
+	mode = drm_mode_duplicate(connector->dev, &default_mode);
+	if (!mode) {
+		dev_err(panel->dev, "failed to add mode %ux%ux@%u\n",
+			default_mode.hdisplay, default_mode.vdisplay,
+			drm_mode_vrefresh(&default_mode));
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
 	drm_mode_set_name(mode);
 
+<<<<<<< HEAD
 	drm_mode_probed_add(panel->connector, mode);
 
 	panel->connector->display_info.width_mm = 217;
 	panel->connector->display_info.height_mm = 136;
+=======
+	drm_mode_probed_add(connector, mode);
+
+	connector->display_info.width_mm = 217;
+	connector->display_info.height_mm = 136;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -324,8 +374,12 @@ MODULE_DEVICE_TABLE(of, sharp_of_match);
 
 static int sharp_panel_add(struct sharp_panel *sharp)
 {
+<<<<<<< HEAD
 	struct device_node *np;
 	int err;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	sharp->mode = &default_mode;
 
@@ -333,6 +387,7 @@ static int sharp_panel_add(struct sharp_panel *sharp)
 	if (IS_ERR(sharp->supply))
 		return PTR_ERR(sharp->supply);
 
+<<<<<<< HEAD
 	np = of_parse_phandle(sharp->link1->dev.of_node, "backlight", 0);
 	if (np) {
 		sharp->backlight = of_find_backlight_by_node(np);
@@ -357,6 +412,18 @@ put_backlight:
 		put_device(&sharp->backlight->dev);
 
 	return err;
+=======
+	drm_panel_init(&sharp->base, &sharp->link1->dev, &sharp_panel_funcs,
+		       DRM_MODE_CONNECTOR_DSI);
+
+	ret = drm_panel_of_backlight(&sharp->base);
+	if (ret)
+		return ret;
+
+	drm_panel_add(&sharp->base);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void sharp_panel_del(struct sharp_panel *sharp)
@@ -364,9 +431,12 @@ static void sharp_panel_del(struct sharp_panel *sharp)
 	if (sharp->base.dev)
 		drm_panel_remove(&sharp->base);
 
+<<<<<<< HEAD
 	if (sharp->backlight)
 		put_device(&sharp->backlight->dev);
 
+=======
+>>>>>>> upstream/android-13
 	if (sharp->link2)
 		put_device(&sharp->link2->dev);
 }
@@ -434,7 +504,11 @@ static int sharp_panel_remove(struct mipi_dsi_device *dsi)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	err = sharp_panel_disable(&sharp->base);
+=======
+	err = drm_panel_disable(&sharp->base);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		dev_err(&dsi->dev, "failed to disable panel: %d\n", err);
 
@@ -442,7 +516,10 @@ static int sharp_panel_remove(struct mipi_dsi_device *dsi)
 	if (err < 0)
 		dev_err(&dsi->dev, "failed to detach from DSI host: %d\n", err);
 
+<<<<<<< HEAD
 	drm_panel_detach(&sharp->base);
+=======
+>>>>>>> upstream/android-13
 	sharp_panel_del(sharp);
 
 	return 0;
@@ -456,7 +533,11 @@ static void sharp_panel_shutdown(struct mipi_dsi_device *dsi)
 	if (!sharp)
 		return;
 
+<<<<<<< HEAD
 	sharp_panel_disable(&sharp->base);
+=======
+	drm_panel_disable(&sharp->base);
+>>>>>>> upstream/android-13
 }
 
 static struct mipi_dsi_driver sharp_panel_driver = {

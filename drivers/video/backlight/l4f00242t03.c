@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * l4f00242t03.c -- support for Epson L4F00242T03 LCD
  *
@@ -5,10 +9,13 @@
  *
  * Copyright (c) 2009 Alberto Panizzo <maramaopercheseimorto@gmail.com>
  *	Inspired by Marek Vasut work in l4f00242t03.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -17,6 +24,7 @@
 #include <linux/kernel.h>
 #include <linux/delay.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
 #include <linux/lcd.h>
 #include <linux/slab.h>
@@ -24,6 +32,13 @@
 
 #include <linux/spi/spi.h>
 #include <linux/spi/l4f00242t03.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/lcd.h>
+#include <linux/slab.h>
+#include <linux/regulator/consumer.h>
+#include <linux/spi/spi.h>
+>>>>>>> upstream/android-13
 
 struct l4f00242t03_priv {
 	struct spi_device	*spi;
@@ -31,6 +46,7 @@ struct l4f00242t03_priv {
 	int lcd_state;
 	struct regulator *io_reg;
 	struct regulator *core_reg;
+<<<<<<< HEAD
 };
 
 static void l4f00242t03_reset(unsigned int gpio)
@@ -41,6 +57,20 @@ static void l4f00242t03_reset(unsigned int gpio)
 	gpio_set_value(gpio, 0);
 	mdelay(10);	/* tRES >= 100us */
 	gpio_set_value(gpio, 1);
+=======
+	struct gpio_desc *reset;
+	struct gpio_desc *enable;
+};
+
+static void l4f00242t03_reset(struct gpio_desc *gpiod)
+{
+	pr_debug("l4f00242t03_reset.\n");
+	gpiod_set_value(gpiod, 1);
+	mdelay(100);
+	gpiod_set_value(gpiod, 0);
+	mdelay(10);	/* tRES >= 100us */
+	gpiod_set_value(gpiod, 1);
+>>>>>>> upstream/android-13
 	mdelay(20);
 }
 
@@ -48,7 +78,10 @@ static void l4f00242t03_reset(unsigned int gpio)
 
 static void l4f00242t03_lcd_init(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct l4f00242t03_pdata *pdata = dev_get_platdata(&spi->dev);
+=======
+>>>>>>> upstream/android-13
 	struct l4f00242t03_priv *priv = spi_get_drvdata(spi);
 	const u16 cmd[] = { 0x36, param(0), 0x3A, param(0x60) };
 	int ret;
@@ -79,21 +112,34 @@ static void l4f00242t03_lcd_init(struct spi_device *spi)
 		return;
 	}
 
+<<<<<<< HEAD
 	l4f00242t03_reset(pdata->reset_gpio);
 
 	gpio_set_value(pdata->data_enable_gpio, 1);
+=======
+	l4f00242t03_reset(priv->reset);
+
+	gpiod_set_value(priv->enable, 1);
+>>>>>>> upstream/android-13
 	msleep(60);
 	spi_write(spi, (const u8 *)cmd, ARRAY_SIZE(cmd) * sizeof(u16));
 }
 
 static void l4f00242t03_lcd_powerdown(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	struct l4f00242t03_pdata *pdata = dev_get_platdata(&spi->dev);
+=======
+>>>>>>> upstream/android-13
 	struct l4f00242t03_priv *priv = spi_get_drvdata(spi);
 
 	dev_dbg(&spi->dev, "Powering down LCD\n");
 
+<<<<<<< HEAD
 	gpio_set_value(pdata->data_enable_gpio, 0);
+=======
+	gpiod_set_value(priv->enable, 0);
+>>>>>>> upstream/android-13
 
 	regulator_disable(priv->io_reg);
 	regulator_disable(priv->core_reg);
@@ -171,6 +217,7 @@ static struct lcd_ops l4f_ops = {
 static int l4f00242t03_probe(struct spi_device *spi)
 {
 	struct l4f00242t03_priv *priv;
+<<<<<<< HEAD
 	struct l4f00242t03_pdata *pdata = dev_get_platdata(&spi->dev);
 	int ret;
 
@@ -178,6 +225,8 @@ static int l4f00242t03_probe(struct spi_device *spi)
 		dev_err(&spi->dev, "Uninitialized platform data.\n");
 		return -EINVAL;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	priv = devm_kzalloc(&spi->dev, sizeof(struct l4f00242t03_priv),
 				GFP_KERNEL);
@@ -190,6 +239,7 @@ static int l4f00242t03_probe(struct spi_device *spi)
 
 	priv->spi = spi;
 
+<<<<<<< HEAD
 	ret = devm_gpio_request_one(&spi->dev, pdata->reset_gpio,
 			GPIOF_OUT_INIT_HIGH, "lcd l4f00242t03 reset");
 	if (ret) {
@@ -205,6 +255,23 @@ static int l4f00242t03_probe(struct spi_device *spi)
 			"Unable to get the lcd l4f00242t03 data en gpio.\n");
 		return ret;
 	}
+=======
+	priv->reset = devm_gpiod_get(&spi->dev, "reset", GPIOD_OUT_HIGH);
+	if (IS_ERR(priv->reset)) {
+		dev_err(&spi->dev,
+			"Unable to get the lcd l4f00242t03 reset gpio.\n");
+		return PTR_ERR(priv->reset);
+	}
+	gpiod_set_consumer_name(priv->reset, "lcd l4f00242t03 reset");
+
+	priv->enable = devm_gpiod_get(&spi->dev, "enable", GPIOD_OUT_LOW);
+	if (IS_ERR(priv->enable)) {
+		dev_err(&spi->dev,
+			"Unable to get the lcd l4f00242t03 data en gpio.\n");
+		return PTR_ERR(priv->enable);
+	}
+	gpiod_set_consumer_name(priv->enable, "lcd l4f00242t03 data enable");
+>>>>>>> upstream/android-13
 
 	priv->io_reg = devm_regulator_get(&spi->dev, "vdd");
 	if (IS_ERR(priv->io_reg)) {

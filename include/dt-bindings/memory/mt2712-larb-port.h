@@ -3,10 +3,17 @@
  * Copyright (c) 2017 MediaTek Inc.
  * Author: Yong Wu <yong.wu@mediatek.com>
  */
+<<<<<<< HEAD
 #ifndef __DTS_IOMMU_PORT_MT2712_H
 #define __DTS_IOMMU_PORT_MT2712_H
 
 #define MTK_M4U_ID(larb, port)		(((larb) << 5) | (port))
+=======
+#ifndef _DT_BINDINGS_MEMORY_MT2712_LARB_PORT_H_
+#define _DT_BINDINGS_MEMORY_MT2712_LARB_PORT_H_
+
+#include <dt-bindings/memory/mtk-memory-port.h>
+>>>>>>> upstream/android-13
 
 #define M4U_LARB0_ID			0
 #define M4U_LARB1_ID			1

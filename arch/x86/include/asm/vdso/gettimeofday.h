@@ -18,10 +18,17 @@
 #include <asm/unistd.h>
 #include <asm/msr.h>
 #include <asm/pvclock.h>
+<<<<<<< HEAD
 #include <asm/mshyperv.h>
 #include <linux/compat_time.h>
 
 #define __vdso_data (VVAR(_vdso_data))
+=======
+#include <clocksource/hyperv_timer.h>
+
+#define __vdso_data (VVAR(_vdso_data))
+#define __timens_vdso_data (TIMENS(_vdso_data))
+>>>>>>> upstream/android-13
 
 #define VDSO_HAS_TIME 1
 
@@ -52,11 +59,26 @@ extern struct pvclock_vsyscall_time_info pvclock_page
 	__attribute__((visibility("hidden")));
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_HYPERV_TSCPAGE
+=======
+#ifdef CONFIG_HYPERV_TIMER
+>>>>>>> upstream/android-13
 extern struct ms_hyperv_tsc_page hvclock_page
 	__attribute__((visibility("hidden")));
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TIME_NS
+static __always_inline
+const struct vdso_data *__arch_get_timens_vdso_data(const struct vdso_data *vd)
+{
+	return __timens_vdso_data;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifndef BUILD_VDSO32
 
 static __always_inline
@@ -97,8 +119,11 @@ long clock_getres_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
 
 #else
 
+<<<<<<< HEAD
 #define VDSO_HAS_32BIT_FALLBACK	1
 
+=======
+>>>>>>> upstream/android-13
 static __always_inline
 long clock_gettime_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
 {
@@ -110,7 +135,11 @@ long clock_gettime_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
 		"call __kernel_vsyscall \n"
 		"mov %%edx, %%ebx \n"
 		: "=a" (ret), "=m" (*_ts)
+<<<<<<< HEAD
 		: "0" (__NR_clock_gettime), [clock] "g" (_clkid), "c" (_ts)
+=======
+		: "0" (__NR_clock_gettime64), [clock] "g" (_clkid), "c" (_ts)
+>>>>>>> upstream/android-13
 		: "edx");
 
 	return ret;
@@ -162,7 +191,11 @@ clock_getres_fallback(clockid_t _clkid, struct __kernel_timespec *_ts)
 		"call __kernel_vsyscall \n"
 		"mov %%edx, %%ebx \n"
 		: "=a" (ret), "=m" (*_ts)
+<<<<<<< HEAD
 		: "0" (__NR_clock_getres), [clock] "g" (_clkid), "c" (_ts)
+=======
+		: "0" (__NR_clock_getres_time64), [clock] "g" (_clkid), "c" (_ts)
+>>>>>>> upstream/android-13
 		: "edx");
 
 	return ret;
@@ -229,16 +262,27 @@ static u64 vread_pvclock(void)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_HYPERV_TSCPAGE
+=======
+#ifdef CONFIG_HYPERV_TIMER
+>>>>>>> upstream/android-13
 static u64 vread_hvclock(void)
 {
 	return hv_read_tsc_page(&hvclock_page);
 }
 #endif
 
+<<<<<<< HEAD
 static inline u64 __arch_get_hw_counter(s32 clock_mode)
 {
 	if (clock_mode == VCLOCK_TSC)
+=======
+static inline u64 __arch_get_hw_counter(s32 clock_mode,
+					const struct vdso_data *vd)
+{
+	if (likely(clock_mode == VDSO_CLOCKMODE_TSC))
+>>>>>>> upstream/android-13
 		return (u64)rdtsc_ordered();
 	/*
 	 * For any memory-mapped vclock type, we need to make sure that gcc
@@ -247,13 +291,22 @@ static inline u64 __arch_get_hw_counter(s32 clock_mode)
 	 * question isn't enabled, which will segfault.  Hence the barriers.
 	 */
 #ifdef CONFIG_PARAVIRT_CLOCK
+<<<<<<< HEAD
 	if (clock_mode == VCLOCK_PVCLOCK) {
+=======
+	if (clock_mode == VDSO_CLOCKMODE_PVCLOCK) {
+>>>>>>> upstream/android-13
 		barrier();
 		return vread_pvclock();
 	}
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_HYPERV_TSCPAGE
 	if (clock_mode == VCLOCK_HVCLOCK) {
+=======
+#ifdef CONFIG_HYPERV_TIMER
+	if (clock_mode == VDSO_CLOCKMODE_HVCLOCK) {
+>>>>>>> upstream/android-13
 		barrier();
 		return vread_hvclock();
 	}
@@ -266,6 +319,27 @@ static __always_inline const struct vdso_data *__arch_get_vdso_data(void)
 	return __vdso_data;
 }
 
+<<<<<<< HEAD
+=======
+static inline bool arch_vdso_clocksource_ok(const struct vdso_data *vd)
+{
+	return true;
+}
+#define vdso_clocksource_ok arch_vdso_clocksource_ok
+
+/*
+ * Clocksource read value validation to handle PV and HyperV clocksources
+ * which can be invalidated asynchronously and indicate invalidation by
+ * returning U64_MAX, which can be effectively tested by checking for a
+ * negative value after casting it to s64.
+ */
+static inline bool arch_vdso_cycles_ok(u64 cycles)
+{
+	return (s64)cycles >= 0;
+}
+#define vdso_cycles_ok arch_vdso_cycles_ok
+
+>>>>>>> upstream/android-13
 /*
  * x86 specific delta calculation.
  *

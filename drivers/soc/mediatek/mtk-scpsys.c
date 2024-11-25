@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
 //
 // Copyright (c) 2015 Pengutronix, Sascha Hauer <kernel@pengutronix.de>
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2015 Pengutronix, Sascha Hauer <kernel@pengutronix.de>
+ */
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/init.h>
 #include <linux/io.h>
@@ -10,6 +17,7 @@
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/pm_domain.h>
+<<<<<<< HEAD
 #include <linux/pm_opp.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
@@ -24,15 +32,29 @@
 #include <dt-bindings/power/v7623a-power.h>
 #include <dt-bindings/power/v8173-power.h>
 #include "mtk-scpsys.h"
+=======
+#include <linux/regulator/consumer.h>
+#include <linux/soc/mediatek/infracfg.h>
+
+#include <dt-bindings/power/mt2701-power.h>
+#include <dt-bindings/power/mt2712-power.h>
+#include <dt-bindings/power/mt6797-power.h>
+#include <dt-bindings/power/mt7622-power.h>
+#include <dt-bindings/power/mt7623a-power.h>
+#include <dt-bindings/power/mt8173-power.h>
+>>>>>>> upstream/android-13
 
 #define MTK_POLL_DELAY_US   10
 #define MTK_POLL_TIMEOUT    USEC_PER_SEC
 
 #define MTK_SCPD_ACTIVE_WAKEUP		BIT(0)
 #define MTK_SCPD_FWAIT_SRAM		BIT(1)
+<<<<<<< HEAD
 #define MTK_SCPD_STRICT_BUSP		BIT(2)
 #define MTK_SCPD_ALWAYS_ON		BIT(3)
 #define MTK_SCPD_MD_OPS			BIT(4)
+=======
+>>>>>>> upstream/android-13
 #define MTK_SCPD_CAPS(_scpd, _x)	((_scpd)->data->caps & (_x))
 
 #define SPM_VDE_PWR_CON			0x0210
@@ -64,8 +86,11 @@
 #define PWR_ON_BIT			BIT(2)
 #define PWR_ON_2ND_BIT			BIT(3)
 #define PWR_CLK_DIS_BIT			BIT(4)
+<<<<<<< HEAD
 #define PWR_SRAM_CLKISO_BIT		BIT(5)
 #define PWR_SRAM_ISOINT_B_BIT		BIT(6)
+=======
+>>>>>>> upstream/android-13
 
 #define PWR_STATUS_CONN			BIT(1)
 #define PWR_STATUS_DISP			BIT(3)
@@ -117,13 +142,17 @@ static const char * const clk_names[] = {
 };
 
 #define MAX_CLKS	3
+<<<<<<< HEAD
 #define MAX_SUBSYS_CLKS 13
+=======
+>>>>>>> upstream/android-13
 
 /**
  * struct scp_domain_data - scp domain data for power on/off flow
  * @name: The domain name.
  * @sta_mask: The mask for power on/off status bit.
  * @ctl_offs: The offset for main power control register.
+<<<<<<< HEAD
  * @sram_iso_ctrl: The flag to judge if the power domain need to do
  *                 the extra sram isolation control.
  * @sram_pdn_bits: The mask for sram power control bits.
@@ -137,11 +166,19 @@ static const char * const clk_names[] = {
  *                     before releasing bus protection.
  * @caps: The flag for active wake-up action.
  * @bp_table: The mask table for multiple step bus protection.
+=======
+ * @sram_pdn_bits: The mask for sram power control bits.
+ * @sram_pdn_ack_bits: The mask for sram power control acked bits.
+ * @bus_prot_mask: The mask for single step bus protection.
+ * @clk_id: The basic clocks required by this power domain.
+ * @caps: The flag for active wake-up action.
+>>>>>>> upstream/android-13
  */
 struct scp_domain_data {
 	const char *name;
 	u32 sta_mask;
 	int ctl_offs;
+<<<<<<< HEAD
 	bool sram_iso_ctrl;
 	u32 sram_pdn_bits;
 	u32 sram_pdn_ack_bits;
@@ -153,6 +190,13 @@ struct scp_domain_data {
 	const char *subsys_clk_prefix;
 	u8 caps;
 	struct bus_prot bp_table[MAX_STEPS];
+=======
+	u32 sram_pdn_bits;
+	u32 sram_pdn_ack_bits;
+	u32 bus_prot_mask;
+	enum clk_id clk_id[MAX_CLKS];
+	u8 caps;
+>>>>>>> upstream/android-13
 };
 
 struct scp;
@@ -161,7 +205,10 @@ struct scp_domain {
 	struct generic_pm_domain genpd;
 	struct scp *scp;
 	struct clk *clk[MAX_CLKS];
+<<<<<<< HEAD
 	struct clk *subsys_clk[MAX_SUBSYS_CLKS];
+=======
+>>>>>>> upstream/android-13
 	const struct scp_domain_data *data;
 	struct regulator *supply;
 };
@@ -177,8 +224,11 @@ struct scp {
 	struct device *dev;
 	void __iomem *base;
 	struct regmap *infracfg;
+<<<<<<< HEAD
 	struct regmap *infracfg_nao;
 	struct regmap *smi_common;
+=======
+>>>>>>> upstream/android-13
 	struct scp_ctrl_reg ctrl_reg;
 	bool bus_prot_reg_update;
 };
@@ -197,6 +247,7 @@ struct scp_soc_data {
 	bool bus_prot_reg_update;
 };
 
+<<<<<<< HEAD
 static BLOCKING_NOTIFIER_HEAD(scpsys_notifier_list);
 
 int register_scpsys_notifier(struct notifier_block *nb)
@@ -211,6 +262,8 @@ int unregister_scpsys_notifier(struct notifier_block *nb)
 }
 EXPORT_SYMBOL_GPL(unregister_scpsys_notifier);
 
+=======
+>>>>>>> upstream/android-13
 static int scpsys_domain_is_on(struct scp_domain *scpd)
 {
 	struct scp *scp = scpd->scp;
@@ -233,6 +286,7 @@ static int scpsys_domain_is_on(struct scp_domain *scpd)
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
 static int scpsys_md_domain_is_on(struct scp_domain *scpd)
 {
 	struct scp *scp = scpd->scp;
@@ -247,6 +301,8 @@ static int scpsys_md_domain_is_on(struct scp_domain *scpd)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int scpsys_regulator_enable(struct scp_domain *scpd)
 {
 	if (!scpd->supply)
@@ -263,6 +319,17 @@ static int scpsys_regulator_disable(struct scp_domain *scpd)
 	return regulator_disable(scpd->supply);
 }
 
+<<<<<<< HEAD
+=======
+static void scpsys_clk_disable(struct clk *clk[], int max_num)
+{
+	int i;
+
+	for (i = max_num - 1; i >= 0; i--)
+		clk_disable_unprepare(clk[i]);
+}
+
+>>>>>>> upstream/android-13
 static int scpsys_clk_enable(struct clk *clk[], int max_num)
 {
 	int i, ret = 0;
@@ -270,9 +337,13 @@ static int scpsys_clk_enable(struct clk *clk[], int max_num)
 	for (i = 0; i < max_num && clk[i]; i++) {
 		ret = clk_prepare_enable(clk[i]);
 		if (ret) {
+<<<<<<< HEAD
 			for (--i; i >= 0; i--)
 				clk_disable_unprepare(clk[i]);
 
+=======
+			scpsys_clk_disable(clk, i);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}
@@ -280,6 +351,7 @@ static int scpsys_clk_enable(struct clk *clk[], int max_num)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void scpsys_clk_disable(struct clk *clk[], int max_num)
 {
 	int i;
@@ -290,13 +362,20 @@ static void scpsys_clk_disable(struct clk *clk[], int max_num)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static int scpsys_sram_enable(struct scp_domain *scpd, void __iomem *ctl_addr)
 {
 	u32 val;
 	u32 pdn_ack = scpd->data->sram_pdn_ack_bits;
 	int tmp;
 
+<<<<<<< HEAD
 	val = readl(ctl_addr) & ~scpd->data->sram_pdn_bits;
+=======
+	val = readl(ctl_addr);
+	val &= ~scpd->data->sram_pdn_bits;
+>>>>>>> upstream/android-13
 	writel(val, ctl_addr);
 
 	/* Either wait until SRAM_PDN_ACK all 0 or have a force wait */
@@ -316,6 +395,7 @@ static int scpsys_sram_enable(struct scp_domain *scpd, void __iomem *ctl_addr)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	if (scpd->data->sram_iso_ctrl)	{
 		val = readl(ctl_addr) | PWR_SRAM_ISOINT_B_BIT;
 		writel(val, ctl_addr);
@@ -324,6 +404,8 @@ static int scpsys_sram_enable(struct scp_domain *scpd, void __iomem *ctl_addr)
 		writel(val, ctl_addr);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -333,6 +415,7 @@ static int scpsys_sram_disable(struct scp_domain *scpd, void __iomem *ctl_addr)
 	u32 pdn_ack = scpd->data->sram_pdn_ack_bits;
 	int tmp;
 
+<<<<<<< HEAD
 	if (scpd->data->sram_iso_ctrl)	{
 		val = readl(ctl_addr);
 		val |= PWR_SRAM_CLKISO_BIT;
@@ -343,6 +426,10 @@ static int scpsys_sram_disable(struct scp_domain *scpd, void __iomem *ctl_addr)
 	}
 
 	val = readl(ctl_addr) | scpd->data->sram_pdn_bits;
+=======
+	val = readl(ctl_addr);
+	val |= scpd->data->sram_pdn_bits;
+>>>>>>> upstream/android-13
 	writel(val, ctl_addr);
 
 	/* Either wait until SRAM_PDN_ACK all 1 or 0 */
@@ -354,6 +441,7 @@ static int scpsys_sram_disable(struct scp_domain *scpd, void __iomem *ctl_addr)
 static int scpsys_bus_protect_enable(struct scp_domain *scpd)
 {
 	struct scp *scp = scpd->scp;
+<<<<<<< HEAD
 	int ret = 0;
 
 	if (scpd->data->bus_prot_mask) {
@@ -367,11 +455,21 @@ static int scpsys_bus_protect_enable(struct scp_domain *scpd)
 	}
 
 	return ret;
+=======
+
+	if (!scpd->data->bus_prot_mask)
+		return 0;
+
+	return mtk_infracfg_set_bus_protection(scp->infracfg,
+			scpd->data->bus_prot_mask,
+			scp->bus_prot_reg_update);
+>>>>>>> upstream/android-13
 }
 
 static int scpsys_bus_protect_disable(struct scp_domain *scpd)
 {
 	struct scp *scp = scpd->scp;
+<<<<<<< HEAD
 	int ret = 0;
 
 	if (scpd->data->bus_prot_mask) {
@@ -415,6 +513,15 @@ static void scpsys_extb_iso_up(struct scp_domain *scpd)
 	ctl_addr = scp->base + scpd->data->extb_iso_offs;
 	val = readl(ctl_addr) | scpd->data->extb_iso_bits;
 	writel(val, ctl_addr);
+=======
+
+	if (!scpd->data->bus_prot_mask)
+		return 0;
+
+	return mtk_infracfg_clear_bus_protection(scp->infracfg,
+			scpd->data->bus_prot_mask,
+			scp->bus_prot_reg_update);
+>>>>>>> upstream/android-13
 }
 
 static int scpsys_power_on(struct generic_pm_domain *genpd)
@@ -429,8 +536,11 @@ static int scpsys_power_on(struct generic_pm_domain *genpd)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	scpsys_extb_iso_down(scpd);
 
+=======
+>>>>>>> upstream/android-13
 	ret = scpsys_clk_enable(scpd->clk, MAX_CLKS);
 	if (ret)
 		goto err_clk;
@@ -457,6 +567,7 @@ static int scpsys_power_on(struct generic_pm_domain *genpd)
 	val |= PWR_RST_B_BIT;
 	writel(val, ctl_addr);
 
+<<<<<<< HEAD
 	if (MTK_SCPD_CAPS(scpd, MTK_SCPD_STRICT_BUSP)) {
 		/*
 		 * In few Mediatek platforms(e.g. MT6779), the bus protect
@@ -496,6 +607,21 @@ err_pwr_ack:
 	scpsys_clk_disable(scpd->clk, MAX_CLKS);
 err_clk:
 	scpsys_extb_iso_up(scpd);
+=======
+	ret = scpsys_sram_enable(scpd, ctl_addr);
+	if (ret < 0)
+		goto err_pwr_ack;
+
+	ret = scpsys_bus_protect_disable(scpd);
+	if (ret < 0)
+		goto err_pwr_ack;
+
+	return 0;
+
+err_pwr_ack:
+	scpsys_clk_disable(scpd->clk, MAX_CLKS);
+err_clk:
+>>>>>>> upstream/android-13
 	scpsys_regulator_disable(scpd);
 
 	dev_err(scp->dev, "Failed to power on domain %s\n", genpd->name);
@@ -519,10 +645,16 @@ static int scpsys_power_off(struct generic_pm_domain *genpd)
 	if (ret < 0)
 		goto out;
 
+<<<<<<< HEAD
 	scpsys_clk_disable(scpd->subsys_clk, MAX_SUBSYS_CLKS);
 
 	/* subsys power off */
 	val = readl(ctl_addr) | PWR_ISO_BIT;
+=======
+	/* subsys power off */
+	val = readl(ctl_addr);
+	val |= PWR_ISO_BIT;
+>>>>>>> upstream/android-13
 	writel(val, ctl_addr);
 
 	val &= ~PWR_RST_B_BIT;
@@ -545,8 +677,11 @@ static int scpsys_power_off(struct generic_pm_domain *genpd)
 
 	scpsys_clk_disable(scpd->clk, MAX_CLKS);
 
+<<<<<<< HEAD
 	scpsys_extb_iso_up(scpd);
 
+=======
+>>>>>>> upstream/android-13
 	ret = scpsys_regulator_disable(scpd);
 	if (ret < 0)
 		goto out;
@@ -559,6 +694,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int scpsys_md_power_on(struct generic_pm_domain *genpd)
 {
 	struct scp_domain *scpd = container_of(genpd, struct scp_domain, genpd);
@@ -728,6 +864,8 @@ static int init_subsys_clks(struct platform_device *pdev,
 	return sub_clk_cnt;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void init_clks(struct platform_device *pdev, struct clk **clk)
 {
 	int i;
@@ -736,6 +874,7 @@ static void init_clks(struct platform_device *pdev, struct clk **clk)
 		clk[i] = devm_clk_get(&pdev->dev, clk_names[i]);
 }
 
+<<<<<<< HEAD
 static int mtk_pd_set_performance(struct generic_pm_domain *genpd,
 				  unsigned int state)
 {
@@ -781,6 +920,8 @@ static unsigned int mtk_pd_get_performance(struct generic_pm_domain *genpd,
 	return val;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct scp *init_scp(struct platform_device *pdev,
 			const struct scp_domain_data *scp_domain_data, int num,
 			const struct scp_ctrl_reg *scp_ctrl_reg,
@@ -788,7 +929,11 @@ static struct scp *init_scp(struct platform_device *pdev,
 {
 	struct genpd_onecell_data *pd_data;
 	struct resource *res;
+<<<<<<< HEAD
 	int i, j, count;
+=======
+	int i, j;
+>>>>>>> upstream/android-13
 	struct scp *scp;
 	struct clk *clk[CLK_MAX];
 
@@ -828,6 +973,7 @@ static struct scp *init_scp(struct platform_device *pdev,
 		return ERR_CAST(scp->infracfg);
 	}
 
+<<<<<<< HEAD
 	scp->smi_common = syscon_regmap_lookup_by_phandle(pdev->dev.of_node,
 			"smi_comm");
 
@@ -850,6 +996,8 @@ static struct scp *init_scp(struct platform_device *pdev,
 		return ERR_CAST(scp->infracfg_nao);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < num; i++) {
 		struct scp_domain *scpd = &scp->domains[i];
 		const struct scp_domain_data *data = &scp_domain_data[i];
@@ -871,13 +1019,17 @@ static struct scp *init_scp(struct platform_device *pdev,
 		struct scp_domain *scpd = &scp->domains[i];
 		struct generic_pm_domain *genpd = &scpd->genpd;
 		const struct scp_domain_data *data = &scp_domain_data[i];
+<<<<<<< HEAD
 		int clk_cnt;
+=======
+>>>>>>> upstream/android-13
 
 		pd_data->domains[i] = genpd;
 		scpd->scp = scp;
 
 		scpd->data = data;
 
+<<<<<<< HEAD
 		if (data->clk_id[0]) {
 			for (j = 0; j < MAX_CLKS && data->clk_id[j]; j++) {
 				struct clk *c = clk[data->clk_id[j]];
@@ -931,6 +1083,25 @@ static struct scp *init_scp(struct platform_device *pdev,
 			genpd->opp_to_performance_state =
 				mtk_pd_get_performance;
 		}
+=======
+		for (j = 0; j < MAX_CLKS && data->clk_id[j]; j++) {
+			struct clk *c = clk[data->clk_id[j]];
+
+			if (IS_ERR(c)) {
+				dev_err(&pdev->dev, "%s: clk unavailable\n",
+					data->name);
+				return ERR_CAST(c);
+			}
+
+			scpd->clk[j] = c;
+		}
+
+		genpd->name = data->name;
+		genpd->power_off = scpsys_power_off;
+		genpd->power_on = scpsys_power_on;
+		if (MTK_SCPD_CAPS(scpd, MTK_SCPD_ACTIVE_WAKEUP))
+			genpd->flags |= GENPD_FLAG_ACTIVE_WAKEUP;
+>>>>>>> upstream/android-13
 	}
 
 	return scp;
@@ -1245,6 +1416,7 @@ static const struct scp_subdomain scp_subdomain_mt6797[] = {
 	{MT6797_POWER_DOMAIN_MM, MT6797_POWER_DOMAIN_MJC},
 };
 
+<<<<<<< HEAD
 
 /*
  * MT6779 power domain support
@@ -1509,6 +1681,8 @@ static const struct scp_subdomain scp_subdomain_mt6779[] = {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 /*
  * MT7622 power domain support
  */
@@ -1730,6 +1904,7 @@ static const struct scp_soc_data mt6797_data = {
 	.bus_prot_reg_update = true,
 };
 
+<<<<<<< HEAD
 static const struct scp_soc_data mt6779_data = {
 	.domains = scp_domain_data_mt6779,
 	.num_domains = ARRAY_SIZE(scp_domain_data_mt6779),
@@ -1742,6 +1917,8 @@ static const struct scp_soc_data mt6779_data = {
 	.bus_prot_reg_update = true,
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct scp_soc_data mt7622_data = {
 	.domains = scp_domain_data_mt7622,
 	.num_domains = ARRAY_SIZE(scp_domain_data_mt7622),

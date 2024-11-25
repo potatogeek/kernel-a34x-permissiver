@@ -8,7 +8,10 @@
 #include <linux/mmzone.h>
 #include <linux/proc_fs.h>
 #include <linux/percpu.h>
+<<<<<<< HEAD
 #include <linux/quicklist.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/seq_file.h>
 #include <linux/swap.h>
 #include <linux/vmstat.h>
@@ -18,9 +21,14 @@
 #include <linux/cma.h>
 #endif
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include "internal.h"
 
+=======
+#include "internal.h"
+#include <trace/hooks/mm.h>
+>>>>>>> upstream/android-13
 void __attribute__((weak)) arch_report_meminfo(struct seq_file *m)
 {
 }
@@ -31,6 +39,13 @@ static void show_val_kb(struct seq_file *m, const char *s, unsigned long num)
 	seq_write(m, " kB\n", 4);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_RBIN
+unsigned long rbin_total;
+#endif
+
+>>>>>>> upstream/android-13
 static int meminfo_proc_show(struct seq_file *m, void *v)
 {
 	struct sysinfo i;
@@ -40,6 +55,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	unsigned long pages[NR_LRU_LISTS];
 	unsigned long sreclaimable, sunreclaim;
 	int lru;
+<<<<<<< HEAD
 	long rbinfree;
 
 	si_meminfo(&i);
@@ -51,6 +67,23 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 #ifdef CONFIG_ION_RBIN_HEAP
 	cached += atomic_read(&rbin_cached_pages);
 #endif
+=======
+#ifdef CONFIG_RBIN
+	int stats[NR_RBIN_STAT_ITEMS] = {0,};
+#endif
+
+	si_meminfo(&i);
+	si_swapinfo(&i);
+	committed = vm_memory_committed();
+
+	cached = global_node_page_state(NR_FILE_PAGES) -
+			total_swapcache_pages() - i.bufferram;
+#ifdef CONFIG_RBIN
+	rbin_oem_func(GET_RBIN_STATS, stats);
+	cached += stats[RBIN_CACHED];
+#endif
+
+>>>>>>> upstream/android-13
 	if (cached < 0)
 		cached = 0;
 
@@ -58,6 +91,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 		pages[lru] = global_node_page_state(NR_LRU_BASE + lru);
 
 	available = si_mem_available();
+<<<<<<< HEAD
 	rbinfree = global_zone_page_state(NR_FREE_RBIN_PAGES);
 	sreclaimable = global_node_page_state(NR_SLAB_RECLAIMABLE);
 	sunreclaim = global_node_page_state(NR_SLAB_UNRECLAIMABLE);
@@ -65,6 +99,19 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "MemTotal:       ", i.totalram);
 	show_val_kb(m, "MemFree:        ", i.freeram + rbinfree);
 	show_val_kb(m, "MemAvailable:   ", available + rbinfree);
+=======
+	sreclaimable = global_node_page_state_pages(NR_SLAB_RECLAIMABLE_B);
+	sunreclaim = global_node_page_state_pages(NR_SLAB_UNRECLAIMABLE_B);
+
+	show_val_kb(m, "MemTotal:       ", i.totalram);
+#ifdef CONFIG_RBIN
+	show_val_kb(m, "MemFree:        ", i.freeram + stats[RBIN_FREE]);
+	show_val_kb(m, "MemAvailable:   ", available + stats[RBIN_FREE]);
+#else
+	show_val_kb(m, "MemFree:        ", i.freeram);
+	show_val_kb(m, "MemAvailable:   ", available);
+#endif
+>>>>>>> upstream/android-13
 	show_val_kb(m, "Buffers:        ", i.bufferram);
 	show_val_kb(m, "Cached:         ", cached);
 	show_val_kb(m, "SwapCached:     ", total_swapcache_pages());
@@ -90,6 +137,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "MmapCopy:       ",
 		    (unsigned long)atomic_long_read(&mmap_pages_allocated));
 #endif
+<<<<<<< HEAD
 
 #ifdef CONFIG_ION_RBIN_HEAP
 	show_val_kb(m, "RbinTotal:      ", totalrbin_pages);
@@ -101,6 +149,16 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "RbinCached:     ",
 		    atomic_read(&rbin_cached_pages));
 #endif
+=======
+#ifdef CONFIG_RBIN
+	show_val_kb(m, "RbinTotal:      ", rbin_total);
+	show_val_kb(m, "RbinAlloced:    ", stats[RBIN_ALLOCATED] + stats[RBIN_POOL]);
+	show_val_kb(m, "RbinPool:       ", stats[RBIN_POOL]);
+	show_val_kb(m, "RbinFree:       ", stats[RBIN_FREE]);
+	show_val_kb(m, "RbinCached:     ", stats[RBIN_CACHED]);
+#endif
+
+>>>>>>> upstream/android-13
 	show_val_kb(m, "SwapTotal:      ", i.totalswap);
 	show_val_kb(m, "SwapFree:       ", i.freeswap);
 	show_val_kb(m, "Dirty:          ",
@@ -118,6 +176,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "SReclaimable:   ", sreclaimable);
 	show_val_kb(m, "SUnreclaim:     ", sunreclaim);
 	seq_printf(m, "KernelStack:    %8lu kB\n",
+<<<<<<< HEAD
 		   global_zone_page_state(NR_KERNEL_STACK_KB));
 #ifdef CONFIG_SHADOW_CALL_STACK
 	seq_printf(m, "ShadowCallStack:%8lu kB\n",
@@ -131,6 +190,17 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 
 	show_val_kb(m, "NFS_Unstable:   ",
 		    global_node_page_state(NR_UNSTABLE_NFS));
+=======
+		   global_node_page_state(NR_KERNEL_STACK_KB));
+#ifdef CONFIG_SHADOW_CALL_STACK
+	seq_printf(m, "ShadowCallStack:%8lu kB\n",
+		   global_node_page_state(NR_KERNEL_SCS_KB));
+#endif
+	show_val_kb(m, "PageTables:     ",
+		    global_node_page_state(NR_PAGETABLE));
+
+	show_val_kb(m, "NFS_Unstable:   ", 0);
+>>>>>>> upstream/android-13
 	show_val_kb(m, "Bounce:         ",
 		    global_zone_page_state(NR_BOUNCE));
 	show_val_kb(m, "WritebackTmp:   ",
@@ -150,11 +220,23 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 	show_val_kb(m, "AnonHugePages:  ",
+<<<<<<< HEAD
 		    global_node_page_state(NR_ANON_THPS) * HPAGE_PMD_NR);
 	show_val_kb(m, "ShmemHugePages: ",
 		    global_node_page_state(NR_SHMEM_THPS) * HPAGE_PMD_NR);
 	show_val_kb(m, "ShmemPmdMapped: ",
 		    global_node_page_state(NR_SHMEM_PMDMAPPED) * HPAGE_PMD_NR);
+=======
+		    global_node_page_state(NR_ANON_THPS));
+	show_val_kb(m, "ShmemHugePages: ",
+		    global_node_page_state(NR_SHMEM_THPS));
+	show_val_kb(m, "ShmemPmdMapped: ",
+		    global_node_page_state(NR_SHMEM_PMDMAPPED));
+	show_val_kb(m, "FileHugePages:  ",
+		    global_node_page_state(NR_FILE_THPS));
+	show_val_kb(m, "FilePmdMapped:  ",
+		    global_node_page_state(NR_FILE_PMDMAPPED));
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_CMA
@@ -162,6 +244,10 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "CmaFree:        ",
 		    global_zone_page_state(NR_FREE_CMA_PAGES));
 #endif
+<<<<<<< HEAD
+=======
+	trace_android_vh_meminfo_proc_show(m);
+>>>>>>> upstream/android-13
 
 	hugetlb_report_meminfo(m);
 

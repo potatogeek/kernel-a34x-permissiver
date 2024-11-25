@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017  Dialog Semiconductor
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2015-2017  Dialog Semiconductor
+>>>>>>> upstream/android-13
  */
 
 #ifndef __DA9062_H__
@@ -806,6 +812,12 @@
 #define DA9062AA_BUCK3_SL_A_SHIFT	7
 #define DA9062AA_BUCK3_SL_A_MASK	BIT(7)
 
+<<<<<<< HEAD
+=======
+/* DA9062AA_VLDO[1-4]_A common */
+#define DA9062AA_VLDO_A_MIN_SEL	2
+
+>>>>>>> upstream/android-13
 /* DA9062AA_VLDO1_A = 0x0A9 */
 #define DA9062AA_VLDO1_A_SHIFT		0
 #define DA9062AA_VLDO1_A_MASK		0x3f

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*
  * CAN bus driver for Microchip 251x/25625 CAN Controller with SPI Interface
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* CAN bus driver for Microchip 251x/25625 CAN Controller with SPI Interface
+>>>>>>> upstream/android-13
  *
  * MCP2510 support and bug fixes by Christian Pellegrin
  * <chripell@evolware.org>
@@ -17,6 +22,7 @@
  * - Sascha Hauer, Marc Kleine-Budde, Pengutronix
  * - Simon Kallweit, intefo AG
  * Copyright 2007
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License
@@ -58,10 +64,19 @@
 #include <linux/can/dev.h>
 #include <linux/can/led.h>
 #include <linux/can/platform/mcp251x.h>
+=======
+ */
+
+#include <linux/bitfield.h>
+#include <linux/can/core.h>
+#include <linux/can/dev.h>
+#include <linux/can/led.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/completion.h>
 #include <linux/delay.h>
 #include <linux/device.h>
+<<<<<<< HEAD
 #include <linux/dma-mapping.h>
 #include <linux/freezer.h>
 #include <linux/interrupt.h>
@@ -76,6 +91,23 @@
 #include <linux/spi/spi.h>
 #include <linux/uaccess.h>
 #include <linux/regulator/consumer.h>
+=======
+#include <linux/freezer.h>
+#include <linux/gpio.h>
+#include <linux/gpio/driver.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/netdevice.h>
+#include <linux/platform_device.h>
+#include <linux/property.h>
+#include <linux/regulator/consumer.h>
+#include <linux/slab.h>
+#include <linux/spi/spi.h>
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 
 /* SPI interface instruction set */
 #define INSTRUCTION_WRITE	0x02
@@ -89,8 +121,36 @@
 #define RTS_TXB2		0x04
 #define INSTRUCTION_RTS(n)	(0x80 | ((n) & 0x07))
 
+<<<<<<< HEAD
 
 /* MPC251x registers */
+=======
+/* MPC251x registers */
+#define BFPCTRL			0x0c
+#  define BFPCTRL_B0BFM		BIT(0)
+#  define BFPCTRL_B1BFM		BIT(1)
+#  define BFPCTRL_BFM(n)	(BFPCTRL_B0BFM << (n))
+#  define BFPCTRL_BFM_MASK	GENMASK(1, 0)
+#  define BFPCTRL_B0BFE		BIT(2)
+#  define BFPCTRL_B1BFE		BIT(3)
+#  define BFPCTRL_BFE(n)	(BFPCTRL_B0BFE << (n))
+#  define BFPCTRL_BFE_MASK	GENMASK(3, 2)
+#  define BFPCTRL_B0BFS		BIT(4)
+#  define BFPCTRL_B1BFS		BIT(5)
+#  define BFPCTRL_BFS(n)	(BFPCTRL_B0BFS << (n))
+#  define BFPCTRL_BFS_MASK	GENMASK(5, 4)
+#define TXRTSCTRL		0x0d
+#  define TXRTSCTRL_B0RTSM	BIT(0)
+#  define TXRTSCTRL_B1RTSM	BIT(1)
+#  define TXRTSCTRL_B2RTSM	BIT(2)
+#  define TXRTSCTRL_RTSM(n)	(TXRTSCTRL_B0RTSM << (n))
+#  define TXRTSCTRL_RTSM_MASK	GENMASK(2, 0)
+#  define TXRTSCTRL_B0RTS	BIT(3)
+#  define TXRTSCTRL_B1RTS	BIT(4)
+#  define TXRTSCTRL_B2RTS	BIT(5)
+#  define TXRTSCTRL_RTS(n)	(TXRTSCTRL_B0RTS << (n))
+#  define TXRTSCTRL_RTS_MASK	GENMASK(5, 3)
+>>>>>>> upstream/android-13
 #define CANSTAT	      0x0e
 #define CANCTRL	      0x0f
 #  define CANCTRL_REQOP_MASK	    0xe0
@@ -205,8 +265,12 @@
 #define SET_BYTE(val, byte)			\
 	(((val) & 0xff) << ((byte) * 8))
 
+<<<<<<< HEAD
 /*
  * Buffer size required for the largest SPI transfer (i.e., reading a
+=======
+/* Buffer size required for the largest SPI transfer (i.e., reading a
+>>>>>>> upstream/android-13
  * frame)
  */
 #define CAN_FRAME_MAX_DATA_LEN	8
@@ -219,10 +283,13 @@
 
 #define DEVICE_NAME "mcp251x"
 
+<<<<<<< HEAD
 static int mcp251x_enable_dma; /* Enable SPI DMA. Default: 0 (Off) */
 module_param(mcp251x_enable_dma, int, 0444);
 MODULE_PARM_DESC(mcp251x_enable_dma, "Enable SPI DMA. Default: 0 (Off)");
 
+=======
+>>>>>>> upstream/android-13
 static const struct can_bittiming_const mcp251x_bittiming_const = {
 	.name = DEVICE_NAME,
 	.tseg1_min = 3,
@@ -251,8 +318,11 @@ struct mcp251x_priv {
 
 	u8 *spi_tx_buf;
 	u8 *spi_rx_buf;
+<<<<<<< HEAD
 	dma_addr_t spi_tx_dma;
 	dma_addr_t spi_rx_dma;
+=======
+>>>>>>> upstream/android-13
 
 	struct sk_buff *tx_skb;
 	int tx_len;
@@ -271,6 +341,13 @@ struct mcp251x_priv {
 	struct regulator *power;
 	struct regulator *transceiver;
 	struct clk *clk;
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_GPIOLIB
+	struct gpio_chip gpio;
+	u8 reg_bfpctrl;
+#endif
+>>>>>>> upstream/android-13
 };
 
 #define MCP251X_IS(_model) \
@@ -288,16 +365,26 @@ static void mcp251x_clean(struct net_device *net)
 
 	if (priv->tx_skb || priv->tx_len)
 		net->stats.tx_errors++;
+<<<<<<< HEAD
 	if (priv->tx_skb)
 		dev_kfree_skb(priv->tx_skb);
 	if (priv->tx_len)
 		can_free_echo_skb(priv->net, 0);
+=======
+	dev_kfree_skb(priv->tx_skb);
+	if (priv->tx_len)
+		can_free_echo_skb(priv->net, 0, NULL);
+>>>>>>> upstream/android-13
 	priv->tx_skb = NULL;
 	priv->tx_len = 0;
 }
 
+<<<<<<< HEAD
 /*
  * Note about handling of error return of mcp251x_spi_trans: accessing
+=======
+/* Note about handling of error return of mcp251x_spi_trans: accessing
+>>>>>>> upstream/android-13
  * registers via SPI is not really different conceptually than using
  * normal I/O assembler instructions, although it's much more
  * complicated from a practical POV. So it's not advisable to always
@@ -322,6 +409,7 @@ static int mcp251x_spi_trans(struct spi_device *spi, int len)
 	int ret;
 
 	spi_message_init(&m);
+<<<<<<< HEAD
 
 	if (mcp251x_enable_dma) {
 		t.tx_dma = priv->spi_tx_dma;
@@ -329,6 +417,8 @@ static int mcp251x_spi_trans(struct spi_device *spi, int len)
 		m.is_dma_mapped = 1;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	spi_message_add_tail(&t, &m);
 
 	ret = spi_sync(spi, &m);
@@ -337,7 +427,23 @@ static int mcp251x_spi_trans(struct spi_device *spi, int len)
 	return ret;
 }
 
+<<<<<<< HEAD
 static u8 mcp251x_read_reg(struct spi_device *spi, uint8_t reg)
+=======
+static int mcp251x_spi_write(struct spi_device *spi, int len)
+{
+	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+	int ret;
+
+	ret = spi_write(spi, priv->spi_tx_buf, len);
+	if (ret)
+		dev_err(&spi->dev, "spi write failed: ret = %d\n", ret);
+
+	return ret;
+}
+
+static u8 mcp251x_read_reg(struct spi_device *spi, u8 reg)
+>>>>>>> upstream/android-13
 {
 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
 	u8 val = 0;
@@ -345,20 +451,34 @@ static u8 mcp251x_read_reg(struct spi_device *spi, uint8_t reg)
 	priv->spi_tx_buf[0] = INSTRUCTION_READ;
 	priv->spi_tx_buf[1] = reg;
 
+<<<<<<< HEAD
 	mcp251x_spi_trans(spi, 3);
 	val = priv->spi_rx_buf[2];
+=======
+	if (spi->controller->flags & SPI_CONTROLLER_HALF_DUPLEX) {
+		spi_write_then_read(spi, priv->spi_tx_buf, 2, &val, 1);
+	} else {
+		mcp251x_spi_trans(spi, 3);
+		val = priv->spi_rx_buf[2];
+	}
+>>>>>>> upstream/android-13
 
 	return val;
 }
 
+<<<<<<< HEAD
 static void mcp251x_read_2regs(struct spi_device *spi, uint8_t reg,
 		uint8_t *v1, uint8_t *v2)
+=======
+static void mcp251x_read_2regs(struct spi_device *spi, u8 reg, u8 *v1, u8 *v2)
+>>>>>>> upstream/android-13
 {
 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
 
 	priv->spi_tx_buf[0] = INSTRUCTION_READ;
 	priv->spi_tx_buf[1] = reg;
 
+<<<<<<< HEAD
 	mcp251x_spi_trans(spi, 4);
 
 	*v1 = priv->spi_rx_buf[2];
@@ -366,6 +486,23 @@ static void mcp251x_read_2regs(struct spi_device *spi, uint8_t reg,
 }
 
 static void mcp251x_write_reg(struct spi_device *spi, u8 reg, uint8_t val)
+=======
+	if (spi->controller->flags & SPI_CONTROLLER_HALF_DUPLEX) {
+		u8 val[2] = { 0 };
+
+		spi_write_then_read(spi, priv->spi_tx_buf, 2, val, 2);
+		*v1 = val[0];
+		*v2 = val[1];
+	} else {
+		mcp251x_spi_trans(spi, 4);
+
+		*v1 = priv->spi_rx_buf[2];
+		*v2 = priv->spi_rx_buf[3];
+	}
+}
+
+static void mcp251x_write_reg(struct spi_device *spi, u8 reg, u8 val)
+>>>>>>> upstream/android-13
 {
 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
 
@@ -373,11 +510,31 @@ static void mcp251x_write_reg(struct spi_device *spi, u8 reg, uint8_t val)
 	priv->spi_tx_buf[1] = reg;
 	priv->spi_tx_buf[2] = val;
 
+<<<<<<< HEAD
 	mcp251x_spi_trans(spi, 3);
 }
 
 static void mcp251x_write_bits(struct spi_device *spi, u8 reg,
 			       u8 mask, uint8_t val)
+=======
+	mcp251x_spi_write(spi, 3);
+}
+
+static void mcp251x_write_2regs(struct spi_device *spi, u8 reg, u8 v1, u8 v2)
+{
+	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+
+	priv->spi_tx_buf[0] = INSTRUCTION_WRITE;
+	priv->spi_tx_buf[1] = reg;
+	priv->spi_tx_buf[2] = v1;
+	priv->spi_tx_buf[3] = v2;
+
+	mcp251x_spi_write(spi, 4);
+}
+
+static void mcp251x_write_bits(struct spi_device *spi, u8 reg,
+			       u8 mask, u8 val)
+>>>>>>> upstream/android-13
 {
 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
 
@@ -386,9 +543,231 @@ static void mcp251x_write_bits(struct spi_device *spi, u8 reg,
 	priv->spi_tx_buf[2] = mask;
 	priv->spi_tx_buf[3] = val;
 
+<<<<<<< HEAD
 	mcp251x_spi_trans(spi, 4);
 }
 
+=======
+	mcp251x_spi_write(spi, 4);
+}
+
+static u8 mcp251x_read_stat(struct spi_device *spi)
+{
+	return mcp251x_read_reg(spi, CANSTAT) & CANCTRL_REQOP_MASK;
+}
+
+#define mcp251x_read_stat_poll_timeout(addr, val, cond, delay_us, timeout_us) \
+	readx_poll_timeout(mcp251x_read_stat, addr, val, cond, \
+			   delay_us, timeout_us)
+
+#ifdef CONFIG_GPIOLIB
+enum {
+	MCP251X_GPIO_TX0RTS = 0,		/* inputs */
+	MCP251X_GPIO_TX1RTS,
+	MCP251X_GPIO_TX2RTS,
+	MCP251X_GPIO_RX0BF,			/* outputs */
+	MCP251X_GPIO_RX1BF,
+};
+
+#define MCP251X_GPIO_INPUT_MASK \
+	GENMASK(MCP251X_GPIO_TX2RTS, MCP251X_GPIO_TX0RTS)
+#define MCP251X_GPIO_OUTPUT_MASK \
+	GENMASK(MCP251X_GPIO_RX1BF, MCP251X_GPIO_RX0BF)
+
+static const char * const mcp251x_gpio_names[] = {
+	[MCP251X_GPIO_TX0RTS] = "TX0RTS",	/* inputs */
+	[MCP251X_GPIO_TX1RTS] = "TX1RTS",
+	[MCP251X_GPIO_TX2RTS] = "TX2RTS",
+	[MCP251X_GPIO_RX0BF] = "RX0BF",		/* outputs */
+	[MCP251X_GPIO_RX1BF] = "RX1BF",
+};
+
+static inline bool mcp251x_gpio_is_input(unsigned int offset)
+{
+	return offset <= MCP251X_GPIO_TX2RTS;
+}
+
+static int mcp251x_gpio_request(struct gpio_chip *chip,
+				unsigned int offset)
+{
+	struct mcp251x_priv *priv = gpiochip_get_data(chip);
+	u8 val;
+
+	/* nothing to be done for inputs */
+	if (mcp251x_gpio_is_input(offset))
+		return 0;
+
+	val = BFPCTRL_BFE(offset - MCP251X_GPIO_RX0BF);
+
+	mutex_lock(&priv->mcp_lock);
+	mcp251x_write_bits(priv->spi, BFPCTRL, val, val);
+	mutex_unlock(&priv->mcp_lock);
+
+	priv->reg_bfpctrl |= val;
+
+	return 0;
+}
+
+static void mcp251x_gpio_free(struct gpio_chip *chip,
+			      unsigned int offset)
+{
+	struct mcp251x_priv *priv = gpiochip_get_data(chip);
+	u8 val;
+
+	/* nothing to be done for inputs */
+	if (mcp251x_gpio_is_input(offset))
+		return;
+
+	val = BFPCTRL_BFE(offset - MCP251X_GPIO_RX0BF);
+
+	mutex_lock(&priv->mcp_lock);
+	mcp251x_write_bits(priv->spi, BFPCTRL, val, 0);
+	mutex_unlock(&priv->mcp_lock);
+
+	priv->reg_bfpctrl &= ~val;
+}
+
+static int mcp251x_gpio_get_direction(struct gpio_chip *chip,
+				      unsigned int offset)
+{
+	if (mcp251x_gpio_is_input(offset))
+		return GPIOF_DIR_IN;
+
+	return GPIOF_DIR_OUT;
+}
+
+static int mcp251x_gpio_get(struct gpio_chip *chip, unsigned int offset)
+{
+	struct mcp251x_priv *priv = gpiochip_get_data(chip);
+	u8 reg, mask, val;
+
+	if (mcp251x_gpio_is_input(offset)) {
+		reg = TXRTSCTRL;
+		mask = TXRTSCTRL_RTS(offset);
+	} else {
+		reg = BFPCTRL;
+		mask = BFPCTRL_BFS(offset - MCP251X_GPIO_RX0BF);
+	}
+
+	mutex_lock(&priv->mcp_lock);
+	val = mcp251x_read_reg(priv->spi, reg);
+	mutex_unlock(&priv->mcp_lock);
+
+	return !!(val & mask);
+}
+
+static int mcp251x_gpio_get_multiple(struct gpio_chip *chip,
+				     unsigned long *maskp, unsigned long *bitsp)
+{
+	struct mcp251x_priv *priv = gpiochip_get_data(chip);
+	unsigned long bits = 0;
+	u8 val;
+
+	mutex_lock(&priv->mcp_lock);
+	if (maskp[0] & MCP251X_GPIO_INPUT_MASK) {
+		val = mcp251x_read_reg(priv->spi, TXRTSCTRL);
+		val = FIELD_GET(TXRTSCTRL_RTS_MASK, val);
+		bits |= FIELD_PREP(MCP251X_GPIO_INPUT_MASK, val);
+	}
+	if (maskp[0] & MCP251X_GPIO_OUTPUT_MASK) {
+		val = mcp251x_read_reg(priv->spi, BFPCTRL);
+		val = FIELD_GET(BFPCTRL_BFS_MASK, val);
+		bits |= FIELD_PREP(MCP251X_GPIO_OUTPUT_MASK, val);
+	}
+	mutex_unlock(&priv->mcp_lock);
+
+	bitsp[0] = bits;
+	return 0;
+}
+
+static void mcp251x_gpio_set(struct gpio_chip *chip, unsigned int offset,
+			     int value)
+{
+	struct mcp251x_priv *priv = gpiochip_get_data(chip);
+	u8 mask, val;
+
+	mask = BFPCTRL_BFS(offset - MCP251X_GPIO_RX0BF);
+	val = value ? mask : 0;
+
+	mutex_lock(&priv->mcp_lock);
+	mcp251x_write_bits(priv->spi, BFPCTRL, mask, val);
+	mutex_unlock(&priv->mcp_lock);
+
+	priv->reg_bfpctrl &= ~mask;
+	priv->reg_bfpctrl |= val;
+}
+
+static void
+mcp251x_gpio_set_multiple(struct gpio_chip *chip,
+			  unsigned long *maskp, unsigned long *bitsp)
+{
+	struct mcp251x_priv *priv = gpiochip_get_data(chip);
+	u8 mask, val;
+
+	mask = FIELD_GET(MCP251X_GPIO_OUTPUT_MASK, maskp[0]);
+	mask = FIELD_PREP(BFPCTRL_BFS_MASK, mask);
+
+	val = FIELD_GET(MCP251X_GPIO_OUTPUT_MASK, bitsp[0]);
+	val = FIELD_PREP(BFPCTRL_BFS_MASK, val);
+
+	if (!mask)
+		return;
+
+	mutex_lock(&priv->mcp_lock);
+	mcp251x_write_bits(priv->spi, BFPCTRL, mask, val);
+	mutex_unlock(&priv->mcp_lock);
+
+	priv->reg_bfpctrl &= ~mask;
+	priv->reg_bfpctrl |= val;
+}
+
+static void mcp251x_gpio_restore(struct spi_device *spi)
+{
+	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+
+	mcp251x_write_reg(spi, BFPCTRL, priv->reg_bfpctrl);
+}
+
+static int mcp251x_gpio_setup(struct mcp251x_priv *priv)
+{
+	struct gpio_chip *gpio = &priv->gpio;
+
+	if (!device_property_present(&priv->spi->dev, "gpio-controller"))
+		return 0;
+
+	/* gpiochip handles TX[0..2]RTS and RX[0..1]BF */
+	gpio->label = priv->spi->modalias;
+	gpio->parent = &priv->spi->dev;
+	gpio->owner = THIS_MODULE;
+	gpio->request = mcp251x_gpio_request;
+	gpio->free = mcp251x_gpio_free;
+	gpio->get_direction = mcp251x_gpio_get_direction;
+	gpio->get = mcp251x_gpio_get;
+	gpio->get_multiple = mcp251x_gpio_get_multiple;
+	gpio->set = mcp251x_gpio_set;
+	gpio->set_multiple = mcp251x_gpio_set_multiple;
+	gpio->base = -1;
+	gpio->ngpio = ARRAY_SIZE(mcp251x_gpio_names);
+	gpio->names = mcp251x_gpio_names;
+	gpio->can_sleep = true;
+#ifdef CONFIG_OF_GPIO
+	gpio->of_node = priv->spi->dev.of_node;
+#endif
+
+	return devm_gpiochip_add_data(&priv->spi->dev, gpio, priv);
+}
+#else
+static inline void mcp251x_gpio_restore(struct spi_device *spi)
+{
+}
+
+static inline int mcp251x_gpio_setup(struct mcp251x_priv *priv)
+{
+	return 0;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static void mcp251x_hw_tx_frame(struct spi_device *spi, u8 *buf,
 				int len, int tx_buf_idx)
 {
@@ -402,7 +781,11 @@ static void mcp251x_hw_tx_frame(struct spi_device *spi, u8 *buf,
 					  buf[i]);
 	} else {
 		memcpy(priv->spi_tx_buf, buf, TXBDAT_OFF + len);
+<<<<<<< HEAD
 		mcp251x_spi_trans(spi, TXBDAT_OFF + len);
+=======
+		mcp251x_spi_write(spi, TXBDAT_OFF + len);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -428,6 +811,7 @@ static void mcp251x_hw_tx(struct spi_device *spi, struct can_frame *frame,
 		((eid >> SIDL_EID_SHIFT) & SIDL_EID_MASK);
 	buf[TXBEID8_OFF] = GET_BYTE(eid, 1);
 	buf[TXBEID0_OFF] = GET_BYTE(eid, 0);
+<<<<<<< HEAD
 	buf[TXBDLC_OFF] = (rtr << DLC_RTR_SHIFT) | frame->can_dlc;
 	memcpy(buf + TXBDAT_OFF, frame->data, frame->can_dlc);
 	mcp251x_hw_tx_frame(spi, buf, frame->can_dlc, tx_buf_idx);
@@ -435,6 +819,15 @@ static void mcp251x_hw_tx(struct spi_device *spi, struct can_frame *frame,
 	/* use INSTRUCTION_RTS, to avoid "repeated frame problem" */
 	priv->spi_tx_buf[0] = INSTRUCTION_RTS(1 << tx_buf_idx);
 	mcp251x_spi_trans(priv->spi, 1);
+=======
+	buf[TXBDLC_OFF] = (rtr << DLC_RTR_SHIFT) | frame->len;
+	memcpy(buf + TXBDAT_OFF, frame->data, frame->len);
+	mcp251x_hw_tx_frame(spi, buf, frame->len, tx_buf_idx);
+
+	/* use INSTRUCTION_RTS, to avoid "repeated frame problem" */
+	priv->spi_tx_buf[0] = INSTRUCTION_RTS(1 << tx_buf_idx);
+	mcp251x_spi_write(priv->spi, 1);
+>>>>>>> upstream/android-13
 }
 
 static void mcp251x_hw_rx_frame(struct spi_device *spi, u8 *buf,
@@ -448,13 +841,30 @@ static void mcp251x_hw_rx_frame(struct spi_device *spi, u8 *buf,
 		for (i = 1; i < RXBDAT_OFF; i++)
 			buf[i] = mcp251x_read_reg(spi, RXBCTRL(buf_idx) + i);
 
+<<<<<<< HEAD
 		len = get_can_dlc(buf[RXBDLC_OFF] & RXBDLC_LEN_MASK);
+=======
+		len = can_cc_dlc2len(buf[RXBDLC_OFF] & RXBDLC_LEN_MASK);
+>>>>>>> upstream/android-13
 		for (; i < (RXBDAT_OFF + len); i++)
 			buf[i] = mcp251x_read_reg(spi, RXBCTRL(buf_idx) + i);
 	} else {
 		priv->spi_tx_buf[RXBCTRL_OFF] = INSTRUCTION_READ_RXB(buf_idx);
+<<<<<<< HEAD
 		mcp251x_spi_trans(spi, SPI_TRANSFER_BUF_LEN);
 		memcpy(buf, priv->spi_rx_buf, SPI_TRANSFER_BUF_LEN);
+=======
+		if (spi->controller->flags & SPI_CONTROLLER_HALF_DUPLEX) {
+			spi_write_then_read(spi, priv->spi_tx_buf, 1,
+					    priv->spi_rx_buf,
+					    SPI_TRANSFER_BUF_LEN);
+			memcpy(buf + 1, priv->spi_rx_buf,
+			       SPI_TRANSFER_BUF_LEN - 1);
+		} else {
+			mcp251x_spi_trans(spi, SPI_TRANSFER_BUF_LEN);
+			memcpy(buf, priv->spi_rx_buf, SPI_TRANSFER_BUF_LEN);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -496,11 +906,19 @@ static void mcp251x_hw_rx(struct spi_device *spi, int buf_idx)
 			frame->can_id |= CAN_RTR_FLAG;
 	}
 	/* Data length */
+<<<<<<< HEAD
 	frame->can_dlc = get_can_dlc(buf[RXBDLC_OFF] & RXBDLC_LEN_MASK);
 	memcpy(frame->data, buf + RXBDAT_OFF, frame->can_dlc);
 
 	priv->net->stats.rx_packets++;
 	priv->net->stats.rx_bytes += frame->can_dlc;
+=======
+	frame->len = can_cc_dlc2len(buf[RXBDLC_OFF] & RXBDLC_LEN_MASK);
+	memcpy(frame->data, buf + RXBDAT_OFF, frame->len);
+
+	priv->net->stats.rx_packets++;
+	priv->net->stats.rx_bytes += frame->len;
+>>>>>>> upstream/android-13
 
 	can_led_event(priv->net, CAN_LED_EVENT_RX);
 
@@ -512,6 +930,41 @@ static void mcp251x_hw_sleep(struct spi_device *spi)
 	mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_SLEEP);
 }
 
+<<<<<<< HEAD
+=======
+/* May only be called when device is sleeping! */
+static int mcp251x_hw_wake(struct spi_device *spi)
+{
+	u8 value;
+	int ret;
+
+	/* Force wakeup interrupt to wake device, but don't execute IST */
+	disable_irq(spi->irq);
+	mcp251x_write_2regs(spi, CANINTE, CANINTE_WAKIE, CANINTF_WAKIF);
+
+	/* Wait for oscillator startup timer after wake up */
+	mdelay(MCP251X_OST_DELAY_MS);
+
+	/* Put device into config mode */
+	mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_CONF);
+
+	/* Wait for the device to enter config mode */
+	ret = mcp251x_read_stat_poll_timeout(spi, value, value == CANCTRL_REQOP_CONF,
+					     MCP251X_OST_DELAY_MS * 1000,
+					     USEC_PER_SEC);
+	if (ret) {
+		dev_err(&spi->dev, "MCP251x didn't enter in config mode\n");
+		return ret;
+	}
+
+	/* Disable and clear pending interrupts */
+	mcp251x_write_2regs(spi, CANINTE, 0x00, 0x00);
+	enable_irq(spi->irq);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static netdev_tx_t mcp251x_hard_start_xmit(struct sk_buff *skb,
 					   struct net_device *net)
 {
@@ -557,7 +1010,12 @@ static int mcp251x_do_set_mode(struct net_device *net, enum can_mode mode)
 static int mcp251x_set_normal_mode(struct spi_device *spi)
 {
 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+<<<<<<< HEAD
 	unsigned long timeout;
+=======
+	u8 value;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Enable interrupts */
 	mcp251x_write_reg(spi, CANINTE,
@@ -575,6 +1033,7 @@ static int mcp251x_set_normal_mode(struct spi_device *spi)
 		mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_NORMAL);
 
 		/* Wait for the device to enter normal mode */
+<<<<<<< HEAD
 		timeout = jiffies + HZ;
 		while (mcp251x_read_reg(spi, CANSTAT) & CANCTRL_REQOP_MASK) {
 			schedule();
@@ -583,6 +1042,14 @@ static int mcp251x_set_normal_mode(struct spi_device *spi)
 					" enter in normal mode\n");
 				return -EBUSY;
 			}
+=======
+		ret = mcp251x_read_stat_poll_timeout(spi, value, value == 0,
+						     MCP251X_OST_DELAY_MS * 1000,
+						     USEC_PER_SEC);
+		if (ret) {
+			dev_err(&spi->dev, "MCP251x didn't enter in normal mode\n");
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
@@ -626,14 +1093,22 @@ static int mcp251x_setup(struct net_device *net, struct spi_device *spi)
 static int mcp251x_hw_reset(struct spi_device *spi)
 {
 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+<<<<<<< HEAD
 	unsigned long timeout;
+=======
+	u8 value;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Wait for oscillator startup timer after power up */
 	mdelay(MCP251X_OST_DELAY_MS);
 
 	priv->spi_tx_buf[0] = INSTRUCTION_RESET;
+<<<<<<< HEAD
 	ret = mcp251x_spi_trans(spi, 1);
+=======
+	ret = mcp251x_spi_write(spi, 1);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -641,6 +1116,7 @@ static int mcp251x_hw_reset(struct spi_device *spi)
 	mdelay(MCP251X_OST_DELAY_MS);
 
 	/* Wait for reset to finish */
+<<<<<<< HEAD
 	timeout = jiffies + HZ;
 	while ((mcp251x_read_reg(spi, CANSTAT) & CANCTRL_REQOP_MASK) !=
 	       CANCTRL_REQOP_CONF) {
@@ -654,6 +1130,14 @@ static int mcp251x_hw_reset(struct spi_device *spi)
 		}
 	}
 	return 0;
+=======
+	ret = mcp251x_read_stat_poll_timeout(spi, value, value == CANCTRL_REQOP_CONF,
+					     MCP251X_OST_DELAY_MS * 1000,
+					     USEC_PER_SEC);
+	if (ret)
+		dev_err(&spi->dev, "MCP251x didn't enter in conf mode after reset\n");
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int mcp251x_hw_probe(struct spi_device *spi)
@@ -696,14 +1180,21 @@ static int mcp251x_stop(struct net_device *net)
 
 	priv->force_quit = 1;
 	free_irq(spi->irq, priv);
+<<<<<<< HEAD
 	destroy_workqueue(priv->wq);
 	priv->wq = NULL;
+=======
+>>>>>>> upstream/android-13
 
 	mutex_lock(&priv->mcp_lock);
 
 	/* Disable and clear pending interrupts */
+<<<<<<< HEAD
 	mcp251x_write_reg(spi, CANINTE, 0x00);
 	mcp251x_write_reg(spi, CANINTF, 0x00);
+=======
+	mcp251x_write_2regs(spi, CANINTE, 0x00, 0x00);
+>>>>>>> upstream/android-13
 
 	mcp251x_write_reg(spi, TXBCTRL(0), 0);
 	mcp251x_clean(net);
@@ -751,11 +1242,19 @@ static void mcp251x_tx_work_handler(struct work_struct *ws)
 		} else {
 			frame = (struct can_frame *)priv->tx_skb->data;
 
+<<<<<<< HEAD
 			if (frame->can_dlc > CAN_FRAME_MAX_DATA_LEN)
 				frame->can_dlc = CAN_FRAME_MAX_DATA_LEN;
 			mcp251x_hw_tx(spi, frame, 0);
 			priv->tx_len = 1 + frame->can_dlc;
 			can_put_echo_skb(priv->tx_skb, net, 0);
+=======
+			if (frame->len > CAN_FRAME_MAX_DATA_LEN)
+				frame->len = CAN_FRAME_MAX_DATA_LEN;
+			mcp251x_hw_tx(spi, frame, 0);
+			priv->tx_len = 1 + frame->len;
+			can_put_echo_skb(priv->tx_skb, net, 0, 0);
+>>>>>>> upstream/android-13
 			priv->tx_skb = NULL;
 		}
 	}
@@ -771,8 +1270,18 @@ static void mcp251x_restart_work_handler(struct work_struct *ws)
 
 	mutex_lock(&priv->mcp_lock);
 	if (priv->after_suspend) {
+<<<<<<< HEAD
 		mcp251x_hw_reset(spi);
 		mcp251x_setup(net, spi);
+=======
+		if (priv->after_suspend & AFTER_SUSPEND_POWER) {
+			mcp251x_hw_reset(spi);
+			mcp251x_setup(net, spi);
+			mcp251x_gpio_restore(spi);
+		} else {
+			mcp251x_hw_wake(spi);
+		}
+>>>>>>> upstream/android-13
 		priv->force_quit = 0;
 		if (priv->after_suspend & AFTER_SUSPEND_RESTART) {
 			mcp251x_set_normal_mode(spi);
@@ -822,7 +1331,12 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
 			 * (The MCP2515/25625 does this automatically.)
 			 */
 			if (mcp251x_is_2510(spi))
+<<<<<<< HEAD
 				mcp251x_write_bits(spi, CANINTF, CANINTF_RX0IF, 0x00);
+=======
+				mcp251x_write_bits(spi, CANINTF,
+						   CANINTF_RX0IF, 0x00);
+>>>>>>> upstream/android-13
 		}
 
 		/* receive buffer 1 */
@@ -872,7 +1386,12 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
 			if (new_state >= CAN_STATE_ERROR_WARNING &&
 			    new_state <= CAN_STATE_BUS_OFF)
 				priv->can.can_stats.error_warning++;
+<<<<<<< HEAD
 		case CAN_STATE_ERROR_WARNING:	/* fallthrough */
+=======
+			fallthrough;
+		case CAN_STATE_ERROR_WARNING:
+>>>>>>> upstream/android-13
 			if (new_state >= CAN_STATE_ERROR_PASSIVE &&
 			    new_state <= CAN_STATE_BUS_OFF)
 				priv->can.can_stats.error_passive++;
@@ -917,12 +1436,19 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
 			net->stats.tx_bytes += priv->tx_len - 1;
 			can_led_event(net, CAN_LED_EVENT_TX);
 			if (priv->tx_len) {
+<<<<<<< HEAD
 				can_get_echo_skb(net, 0);
+=======
+				can_get_echo_skb(net, 0, NULL);
+>>>>>>> upstream/android-13
 				priv->tx_len = 0;
 			}
 			netif_wake_queue(net);
 		}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&priv->mcp_lock);
 	return IRQ_HANDLED;
@@ -932,7 +1458,11 @@ static int mcp251x_open(struct net_device *net)
 {
 	struct mcp251x_priv *priv = netdev_priv(net);
 	struct spi_device *spi = priv->spi;
+<<<<<<< HEAD
 	unsigned long flags = IRQF_ONESHOT | IRQF_TRIGGER_FALLING;
+=======
+	unsigned long flags = 0;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = open_candev(net);
@@ -948,13 +1478,23 @@ static int mcp251x_open(struct net_device *net)
 	priv->tx_skb = NULL;
 	priv->tx_len = 0;
 
+<<<<<<< HEAD
 	ret = request_threaded_irq(spi->irq, NULL, mcp251x_can_ist,
 				   flags | IRQF_ONESHOT, DEVICE_NAME, priv);
+=======
+	if (!dev_fwnode(&spi->dev))
+		flags = IRQF_TRIGGER_FALLING;
+
+	ret = request_threaded_irq(spi->irq, NULL, mcp251x_can_ist,
+				   flags | IRQF_ONESHOT, dev_name(&spi->dev),
+				   priv);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&spi->dev, "failed to acquire irq %d\n", spi->irq);
 		goto out_close;
 	}
 
+<<<<<<< HEAD
 	priv->wq = alloc_workqueue("mcp251x_wq", WQ_FREEZABLE | WQ_MEM_RECLAIM,
 				   0);
 	if (!priv->wq) {
@@ -973,6 +1513,17 @@ static int mcp251x_open(struct net_device *net)
 	ret = mcp251x_set_normal_mode(spi);
 	if (ret)
 		goto out_free_wq;
+=======
+	ret = mcp251x_hw_wake(spi);
+	if (ret)
+		goto out_free_irq;
+	ret = mcp251x_setup(net, spi);
+	if (ret)
+		goto out_free_irq;
+	ret = mcp251x_set_normal_mode(spi);
+	if (ret)
+		goto out_free_irq;
+>>>>>>> upstream/android-13
 
 	can_led_event(net, CAN_LED_EVENT_OPEN);
 
@@ -981,9 +1532,13 @@ static int mcp251x_open(struct net_device *net)
 
 	return 0;
 
+<<<<<<< HEAD
 out_free_wq:
 	destroy_workqueue(priv->wq);
 out_clean:
+=======
+out_free_irq:
+>>>>>>> upstream/android-13
 	free_irq(spi->irq, priv);
 	mcp251x_hw_sleep(spi);
 out_close:
@@ -1036,6 +1591,7 @@ MODULE_DEVICE_TABLE(spi, mcp251x_id_table);
 
 static int mcp251x_can_probe(struct spi_device *spi)
 {
+<<<<<<< HEAD
 	const struct of_device_id *of_id = of_match_device(mcp251x_of_match,
 							   &spi->dev);
 	struct mcp251x_platform_data *pdata = dev_get_platdata(&spi->dev);
@@ -1053,6 +1609,22 @@ static int mcp251x_can_probe(struct spi_device *spi)
 	} else {
 		freq = clk_get_rate(clk);
 	}
+=======
+	const void *match = device_get_match_data(&spi->dev);
+	struct net_device *net;
+	struct mcp251x_priv *priv;
+	struct clk *clk;
+	u32 freq;
+	int ret;
+
+	clk = devm_clk_get_optional(&spi->dev, NULL);
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+
+	freq = clk_get_rate(clk);
+	if (freq == 0)
+		device_property_read_u32(&spi->dev, "clock-frequency", &freq);
+>>>>>>> upstream/android-13
 
 	/* Sanity check */
 	if (freq < 1000000 || freq > 25000000)
@@ -1063,11 +1635,17 @@ static int mcp251x_can_probe(struct spi_device *spi)
 	if (!net)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (!IS_ERR(clk)) {
 		ret = clk_prepare_enable(clk);
 		if (ret)
 			goto out_free;
 	}
+=======
+	ret = clk_prepare_enable(clk);
+	if (ret)
+		goto out_free;
+>>>>>>> upstream/android-13
 
 	net->netdev_ops = &mcp251x_netdev_ops;
 	net->flags |= IFF_ECHO;
@@ -1078,8 +1656,13 @@ static int mcp251x_can_probe(struct spi_device *spi)
 	priv->can.clock.freq = freq / 2;
 	priv->can.ctrlmode_supported = CAN_CTRLMODE_3_SAMPLES |
 		CAN_CTRLMODE_LOOPBACK | CAN_CTRLMODE_LISTENONLY;
+<<<<<<< HEAD
 	if (of_id)
 		priv->model = (enum mcp251x_model)of_id->data;
+=======
+	if (match)
+		priv->model = (enum mcp251x_model)(uintptr_t)match;
+>>>>>>> upstream/android-13
 	else
 		priv->model = spi_get_device_id(spi)->driver_data;
 	priv->net = net;
@@ -1109,6 +1692,7 @@ static int mcp251x_can_probe(struct spi_device *spi)
 	if (ret)
 		goto out_clk;
 
+<<<<<<< HEAD
 	priv->spi = spi;
 	mutex_init(&priv->mcp_lock);
 
@@ -1149,6 +1733,32 @@ static int mcp251x_can_probe(struct spi_device *spi)
 			ret = -ENOMEM;
 			goto error_probe;
 		}
+=======
+	priv->wq = alloc_workqueue("mcp251x_wq", WQ_FREEZABLE | WQ_MEM_RECLAIM,
+				   0);
+	if (!priv->wq) {
+		ret = -ENOMEM;
+		goto out_clk;
+	}
+	INIT_WORK(&priv->tx_work, mcp251x_tx_work_handler);
+	INIT_WORK(&priv->restart_work, mcp251x_restart_work_handler);
+
+	priv->spi = spi;
+	mutex_init(&priv->mcp_lock);
+
+	priv->spi_tx_buf = devm_kzalloc(&spi->dev, SPI_TRANSFER_BUF_LEN,
+					GFP_KERNEL);
+	if (!priv->spi_tx_buf) {
+		ret = -ENOMEM;
+		goto error_probe;
+	}
+
+	priv->spi_rx_buf = devm_kzalloc(&spi->dev, SPI_TRANSFER_BUF_LEN,
+					GFP_KERNEL);
+	if (!priv->spi_rx_buf) {
+		ret = -ENOMEM;
+		goto error_probe;
+>>>>>>> upstream/android-13
 	}
 
 	SET_NETDEV_DEV(net, &spi->dev);
@@ -1157,7 +1767,12 @@ static int mcp251x_can_probe(struct spi_device *spi)
 	ret = mcp251x_hw_probe(spi);
 	if (ret) {
 		if (ret == -ENODEV)
+<<<<<<< HEAD
 			dev_err(&spi->dev, "Cannot initialize MCP%x. Wrong wiring?\n", priv->model);
+=======
+			dev_err(&spi->dev, "Cannot initialize MCP%x. Wrong wiring?\n",
+				priv->model);
+>>>>>>> upstream/android-13
 		goto error_probe;
 	}
 
@@ -1169,15 +1784,31 @@ static int mcp251x_can_probe(struct spi_device *spi)
 
 	devm_can_led_init(net);
 
+<<<<<<< HEAD
+=======
+	ret = mcp251x_gpio_setup(priv);
+	if (ret)
+		goto error_probe;
+
+>>>>>>> upstream/android-13
 	netdev_info(net, "MCP%x successfully initialized.\n", priv->model);
 	return 0;
 
 error_probe:
+<<<<<<< HEAD
 	mcp251x_power_enable(priv->power, 0);
 
 out_clk:
 	if (!IS_ERR(clk))
 		clk_disable_unprepare(clk);
+=======
+	destroy_workqueue(priv->wq);
+	priv->wq = NULL;
+	mcp251x_power_enable(priv->power, 0);
+
+out_clk:
+	clk_disable_unprepare(clk);
+>>>>>>> upstream/android-13
 
 out_free:
 	free_candev(net);
@@ -1195,8 +1826,15 @@ static int mcp251x_can_remove(struct spi_device *spi)
 
 	mcp251x_power_enable(priv->power, 0);
 
+<<<<<<< HEAD
 	if (!IS_ERR(priv->clk))
 		clk_disable_unprepare(priv->clk);
+=======
+	destroy_workqueue(priv->wq);
+	priv->wq = NULL;
+
+	clk_disable_unprepare(priv->clk);
+>>>>>>> upstream/android-13
 
 	free_candev(net);
 
@@ -1211,8 +1849,12 @@ static int __maybe_unused mcp251x_can_suspend(struct device *dev)
 
 	priv->force_quit = 1;
 	disable_irq(spi->irq);
+<<<<<<< HEAD
 	/*
 	 * Note: at this point neither IST nor workqueues are running.
+=======
+	/* Note: at this point neither IST nor workqueues are running.
+>>>>>>> upstream/android-13
 	 * open/stop cannot be called anyway so locking is not needed
 	 */
 	if (netif_running(net)) {
@@ -1225,10 +1867,15 @@ static int __maybe_unused mcp251x_can_suspend(struct device *dev)
 		priv->after_suspend = AFTER_SUSPEND_DOWN;
 	}
 
+<<<<<<< HEAD
 	if (!IS_ERR_OR_NULL(priv->power)) {
 		regulator_disable(priv->power);
 		priv->after_suspend |= AFTER_SUSPEND_POWER;
 	}
+=======
+	mcp251x_power_enable(priv->power, 0);
+	priv->after_suspend |= AFTER_SUSPEND_POWER;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1240,6 +1887,7 @@ static int __maybe_unused mcp251x_can_resume(struct device *dev)
 
 	if (priv->after_suspend & AFTER_SUSPEND_POWER)
 		mcp251x_power_enable(priv->power, 1);
+<<<<<<< HEAD
 
 	if (priv->after_suspend & AFTER_SUSPEND_UP) {
 		mcp251x_power_enable(priv->transceiver, 1);
@@ -1247,6 +1895,15 @@ static int __maybe_unused mcp251x_can_resume(struct device *dev)
 	} else {
 		priv->after_suspend = 0;
 	}
+=======
+	if (priv->after_suspend & AFTER_SUSPEND_UP)
+		mcp251x_power_enable(priv->transceiver, 1);
+
+	if (priv->after_suspend & (AFTER_SUSPEND_POWER | AFTER_SUSPEND_UP))
+		queue_work(priv->wq, &priv->restart_work);
+	else
+		priv->after_suspend = 0;
+>>>>>>> upstream/android-13
 
 	priv->force_quit = 0;
 	enable_irq(spi->irq);

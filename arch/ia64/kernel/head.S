@@ -21,13 +21,20 @@
  */
 
 
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/asmmacro.h>
 #include <asm/fpu.h>
 #include <asm/kregs.h>
 #include <asm/mmu_context.h>
 #include <asm/asm-offsets.h>
 #include <asm/pal.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/ptrace.h>
 #include <asm/mca_asm.h>
@@ -404,11 +411,14 @@ start_ap:
 
 	// This is executed by the bootstrap processor (bsp) only:
 
+<<<<<<< HEAD
 #ifdef CONFIG_IA64_FW_EMU
 	// initialize PAL & SAL emulator:
 	br.call.sptk.many rp=sys_fw_init
 .ret1:
 #endif
+=======
+>>>>>>> upstream/android-13
 	br.call.sptk.many rp=start_kernel
 .ret2:	addl r3=@ltoff(halt_msg),gp
 	;;

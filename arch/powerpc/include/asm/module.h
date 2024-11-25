@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_MODULE_H
 #define _ASM_POWERPC_MODULE_H
 #ifdef __KERNEL__
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,10 +14,13 @@
  * 2 of the License, or (at your option) any later version.
  */
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <asm/bug.h>
 #include <asm-generic/module.h>
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_MPROFILE_KERNEL
 #define MODULE_ARCH_VERMAGIC_FTRACE	"mprofile-kernel "
@@ -28,6 +36,8 @@
 
 #define MODULE_ARCH_VERMAGIC MODULE_ARCH_VERMAGIC_FTRACE MODULE_ARCH_VERMAGIC_RELOCATABLE
 
+=======
+>>>>>>> upstream/android-13
 #ifndef __powerpc64__
 /*
  * Thanks to Paul M for explaining this.
@@ -93,12 +103,18 @@ struct mod_arch_specific {
 #    ifdef MODULE
 	asm(".section .ftrace.tramp,\"ax\",@nobits; .align 3; .previous");
 #    endif	/* MODULE */
+<<<<<<< HEAD
 #endif
 
 int module_trampoline_target(struct module *mod, unsigned long trampoline,
 			     unsigned long *target);
 
 #ifdef CONFIG_DYNAMIC_FTRACE
+=======
+
+int module_trampoline_target(struct module *mod, unsigned long trampoline,
+			     unsigned long *target);
+>>>>>>> upstream/android-13
 int module_finalize_ftrace(struct module *mod, const Elf_Shdr *sechdrs);
 #else
 static inline int module_finalize_ftrace(struct module *mod, const Elf_Shdr *sechdrs)

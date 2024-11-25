@@ -20,6 +20,11 @@
 #include <linux/spi/spi.h>
 #include <linux/mutex.h>
 #include <linux/of.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset.h>
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 
 #define HSSPI_GLOBAL_CTRL_REG			0x0
 #define GLOBAL_CTRL_CS_POLARITY_SHIFT		0
@@ -291,8 +296,12 @@ static int bcm63xx_hsspi_transfer_one(struct spi_master *master,
 
 		msg->actual_length += t->len;
 
+<<<<<<< HEAD
 		if (t->delay_usecs)
 			udelay(t->delay_usecs);
+=======
+		spi_transfer_delay_exec(t);
+>>>>>>> upstream/android-13
 
 		if (t->cs_change)
 			bcm63xx_hsspi_set_cs(bs, spi->chip_select, false);
@@ -330,12 +339,16 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
 {
 	struct spi_master *master;
 	struct bcm63xx_hsspi *bs;
+<<<<<<< HEAD
 	struct resource *res_mem;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *regs;
 	struct device *dev = &pdev->dev;
 	struct clk *clk, *pll_clk = NULL;
 	int irq, ret;
 	u32 reg, rate, num_cs = HSSPI_SPI_MAX_CS;
+<<<<<<< HEAD
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
@@ -345,6 +358,15 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
 
 	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(dev, res_mem);
+=======
+	struct reset_control *reset;
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+
+	regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 
@@ -353,10 +375,26 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
 	if (IS_ERR(clk))
 		return PTR_ERR(clk);
 
+<<<<<<< HEAD
+=======
+	reset = devm_reset_control_get_optional_exclusive(dev, NULL);
+	if (IS_ERR(reset))
+		return PTR_ERR(reset);
+
+>>>>>>> upstream/android-13
 	ret = clk_prepare_enable(clk);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	ret = reset_control_reset(reset);
+	if (ret) {
+		dev_err(dev, "unable to reset device: %d\n", ret);
+		goto out_disable_clk;
+	}
+
+>>>>>>> upstream/android-13
 	rate = clk_get_rate(clk);
 	if (!rate) {
 		pll_clk = devm_clk_get(dev, "pll");
@@ -432,6 +470,7 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
 	if (ret)
 		goto out_put_master;
 
+<<<<<<< HEAD
 	/* register and we are done */
 	ret = devm_spi_register_master(dev, master);
 	if (ret)
@@ -439,6 +478,19 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
 
 	return 0;
 
+=======
+	pm_runtime_enable(&pdev->dev);
+
+	/* register and we are done */
+	ret = devm_spi_register_master(dev, master);
+	if (ret)
+		goto out_pm_disable;
+
+	return 0;
+
+out_pm_disable:
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 out_put_master:
 	spi_master_put(master);
 out_disable_pll_clk:

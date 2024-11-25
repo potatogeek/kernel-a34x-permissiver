@@ -10,13 +10,17 @@
 #ifndef __KERNELCAPI_H__
 #define __KERNELCAPI_H__
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/list.h>
 #include <linux/skbuff.h>
 #include <linux/workqueue.h>
 #include <linux/notifier.h>
 #include <uapi/linux/kernelcapi.h>
 
+<<<<<<< HEAD
 struct capi20_appl {
 	u16 applid;
 	capi_register_params rparam;
@@ -50,6 +54,8 @@ int capi20_manufacturer(unsigned long cmd, void __user *data);
 int register_capictr_notifier(struct notifier_block *nb);
 int unregister_capictr_notifier(struct notifier_block *nb);
 
+=======
+>>>>>>> upstream/android-13
 #define CAPI_NOERROR                      0x0000
 
 #define CAPI_TOOMANYAPPLS		  0x1001
@@ -76,6 +82,7 @@ int unregister_capictr_notifier(struct notifier_block *nb);
 #define CAPI_MSGCTRLERNOTSUPPORTEXTEQUIP  0x110a
 #define CAPI_MSGCTRLERONLYSUPPORTEXTEQUIP 0x110b
 
+<<<<<<< HEAD
 typedef enum {
         CapiMessageNotSupportedInCurrentState = 0x2001,
         CapiIllContrPlciNcci                  = 0x2002,
@@ -117,4 +124,6 @@ typedef enum {
 	CapiCallGivenToOtherApplication                 = 0x3304,
 } CAPI_REASON;
 
+=======
+>>>>>>> upstream/android-13
 #endif				/* __KERNELCAPI_H__ */

@@ -4,6 +4,10 @@
 
 #ifdef CONFIG_PPC_WATCHDOG
 extern void arch_touch_nmi_watchdog(void);
+<<<<<<< HEAD
+=======
+long soft_nmi_interrupt(struct pt_regs *regs);
+>>>>>>> upstream/android-13
 #else
 static inline void arch_touch_nmi_watchdog(void) {}
 #endif
@@ -14,4 +18,9 @@ extern void arch_trigger_cpumask_backtrace(const cpumask_t *mask,
 #define arch_trigger_cpumask_backtrace arch_trigger_cpumask_backtrace
 #endif
 
+<<<<<<< HEAD
+=======
+extern void hv_nmi_check_nonrecoverable(struct pt_regs *regs);
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_NMI_H */

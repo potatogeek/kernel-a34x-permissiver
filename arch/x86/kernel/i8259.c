@@ -15,11 +15,18 @@
 #include <linux/acpi.h>
 #include <linux/io.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <linux/atomic.h>
 #include <asm/timer.h>
 #include <asm/hw_irq.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/desc.h>
 #include <asm/apic.h>
 #include <asm/i8259.h>
@@ -235,15 +242,25 @@ static char irq_trigger[2];
  */
 static void restore_ELCR(char *trigger)
 {
+<<<<<<< HEAD
 	outb(trigger[0], 0x4d0);
 	outb(trigger[1], 0x4d1);
+=======
+	outb(trigger[0], PIC_ELCR1);
+	outb(trigger[1], PIC_ELCR2);
+>>>>>>> upstream/android-13
 }
 
 static void save_ELCR(char *trigger)
 {
 	/* IRQ 0,1,2,8,13 are marked as reserved */
+<<<<<<< HEAD
 	trigger[0] = inb(0x4d0) & 0xF8;
 	trigger[1] = inb(0x4d1) & 0xDE;
+=======
+	trigger[0] = inb(PIC_ELCR1) & 0xF8;
+	trigger[1] = inb(PIC_ELCR2) & 0xDE;
+>>>>>>> upstream/android-13
 }
 
 static void i8259A_resume(void)

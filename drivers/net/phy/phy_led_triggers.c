@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (C) 2016 National Instruments Corp.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -10,6 +11,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/* Copyright (C) 2016 National Instruments Corp. */
+>>>>>>> upstream/android-13
 #include <linux/leds.h>
 #include <linux/phy.h>
 #include <linux/phy_led_triggers.h>
@@ -68,7 +73,11 @@ void phy_led_trigger_change_speed(struct phy_device *phy)
 EXPORT_SYMBOL_GPL(phy_led_trigger_change_speed);
 
 static void phy_led_trigger_format_name(struct phy_device *phy, char *buf,
+<<<<<<< HEAD
 					size_t size, char *suffix)
+=======
+					size_t size, const char *suffix)
+>>>>>>> upstream/android-13
 {
 	snprintf(buf, size, PHY_ID_FMT ":%s",
 		 phy->mdio.bus->id, phy->mdio.addr, suffix);
@@ -76,6 +85,7 @@ static void phy_led_trigger_format_name(struct phy_device *phy, char *buf,
 
 static int phy_led_trigger_register(struct phy_device *phy,
 				    struct phy_led_trigger *plt,
+<<<<<<< HEAD
 				    unsigned int speed)
 {
 	char name_suffix[PHY_LED_TRIGGER_SPEED_SUFFIX_SIZE];
@@ -92,6 +102,13 @@ static int phy_led_trigger_register(struct phy_device *phy,
 
 	phy_led_trigger_format_name(phy, plt->name, sizeof(plt->name),
 				    name_suffix);
+=======
+				    unsigned int speed,
+				    const char *suffix)
+{
+	plt->speed = speed;
+	phy_led_trigger_format_name(phy, plt->name, sizeof(plt->name), suffix);
+>>>>>>> upstream/android-13
 	plt->trigger.name = plt->name;
 
 	return led_trigger_register(&plt->trigger);
@@ -120,12 +137,16 @@ int phy_led_triggers_register(struct phy_device *phy)
 		goto out_clear;
 	}
 
+<<<<<<< HEAD
 	phy_led_trigger_format_name(phy, phy->led_link_trigger->name,
 				    sizeof(phy->led_link_trigger->name),
 				    "link");
 	phy->led_link_trigger->trigger.name = phy->led_link_trigger->name;
 
 	err = led_trigger_register(&phy->led_link_trigger->trigger);
+=======
+	err = phy_led_trigger_register(phy, phy->led_link_trigger, 0, "link");
+>>>>>>> upstream/android-13
 	if (err)
 		goto out_free_link;
 
@@ -140,7 +161,12 @@ int phy_led_triggers_register(struct phy_device *phy)
 
 	for (i = 0; i < phy->phy_num_led_triggers; i++) {
 		err = phy_led_trigger_register(phy, &phy->phy_led_triggers[i],
+<<<<<<< HEAD
 					       speeds[i]);
+=======
+					       speeds[i],
+					       phy_speed_to_str(speeds[i]));
+>>>>>>> upstream/android-13
 		if (err)
 			goto out_unreg;
 	}

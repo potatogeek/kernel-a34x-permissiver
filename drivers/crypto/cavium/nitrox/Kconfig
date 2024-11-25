@@ -1,11 +1,21 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Cavium NITROX Crypto Device configuration
 #
 config CRYPTO_DEV_NITROX
 	tristate
+<<<<<<< HEAD
 	select CRYPTO_BLKCIPHER
 	select CRYPTO_AES
 	select CRYPTO_DES
+=======
+	select CRYPTO_SKCIPHER
+	select CRYPTO_AES
+	select CRYPTO_LIB_DES
+>>>>>>> upstream/android-13
 	select FW_LOADER
 
 config CRYPTO_DEV_NITROX_CNN55XX

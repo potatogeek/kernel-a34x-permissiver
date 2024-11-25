@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Beep using pcm
  *
  * Copyright (c) by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io.h>
@@ -57,7 +64,11 @@ void snd_pmac_beep_stop(struct snd_pmac *chip)
  * so we can multiply by an amplitude in the range 0..100 to get a
  * signed short value to put in the output buffer.
  */
+<<<<<<< HEAD
 static short beep_wform[256] = {
+=======
+static const short beep_wform[256] = {
+>>>>>>> upstream/android-13
 	0,	40,	79,	117,	153,	187,	218,	245,
 	269,	288,	304,	316,	323,	327,	327,	324,
 	318,	310,	299,	288,	275,	262,	249,	236,
@@ -118,7 +129,14 @@ static int snd_pmac_beep_event(struct input_dev *dev, unsigned int type,
 	}
 
 	chip = input_get_drvdata(dev);
+<<<<<<< HEAD
 	if (! chip || (beep = chip->beep) == NULL)
+=======
+	if (!chip)
+		return -1;
+	beep = chip->beep;
+	if (!beep)
+>>>>>>> upstream/android-13
 		return -1;
 
 	if (! hz) {

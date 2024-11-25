@@ -42,7 +42,10 @@
 #include <linux/delay.h>
 #include <linux/fb.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_ZORRO
 #include <linux/zorro.h>
@@ -470,7 +473,11 @@ static int cirrusfb_check_mclk(struct fb_info *info, long freq)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
+=======
+static int cirrusfb_check_pixclock(struct fb_var_screeninfo *var,
+>>>>>>> upstream/android-13
 				   struct fb_info *info)
 {
 	long freq;
@@ -479,9 +486,13 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
 	unsigned maxclockidx = var->bits_per_pixel >> 3;
 
 	/* convert from ps to kHz */
+<<<<<<< HEAD
 	freq = PICOS2KHZ(var->pixclock);
 
 	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
+=======
+	freq = PICOS2KHZ(var->pixclock ? : 1);
+>>>>>>> upstream/android-13
 
 	maxclock = cirrusfb_board_info[cinfo->btype].maxclock[maxclockidx];
 	cinfo->multiplexing = 0;
@@ -489,11 +500,21 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
 	/* If the frequency is greater than we can support, we might be able
 	 * to use multiplexing for the video mode */
 	if (freq > maxclock) {
+<<<<<<< HEAD
 		dev_err(info->device,
 			"Frequency greater than maxclock (%ld kHz)\n",
 			maxclock);
 		return -EINVAL;
 	}
+=======
+		var->pixclock = KHZ2PICOS(maxclock);
+
+		while ((freq = PICOS2KHZ(var->pixclock)) > maxclock)
+			var->pixclock++;
+	}
+	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
+
+>>>>>>> upstream/android-13
 	/*
 	 * Additional constraint: 8bpp uses DAC clock doubling to allow maximum
 	 * pixel clock
@@ -532,7 +553,11 @@ static int cirrusfb_check_var(struct fb_var_screeninfo *var,
 {
 	int yres;
 	/* memory size in pixels */
+<<<<<<< HEAD
 	unsigned pixels = info->screen_size * 8 / var->bits_per_pixel;
+=======
+	unsigned int pixels;
+>>>>>>> upstream/android-13
 	struct cirrusfb_info *cinfo = info->par;
 
 	switch (var->bits_per_pixel) {
@@ -574,6 +599,10 @@ static int cirrusfb_check_var(struct fb_var_screeninfo *var,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	pixels = info->screen_size * 8 / var->bits_per_pixel;
+>>>>>>> upstream/android-13
 	if (var->xres_virtual < var->xres)
 		var->xres_virtual = var->xres;
 	/* use highest possible virtual resolution */
@@ -1477,11 +1506,19 @@ static void init_vgachip(struct fb_info *info)
 		mdelay(100);
 		/* mode */
 		vga_wgfx(cinfo->regbase, CL_GR31, 0x00);
+<<<<<<< HEAD
 		/* fall through */
 	case BT_GD5480:
 		/* from Klaus' NetBSD driver: */
 		vga_wgfx(cinfo->regbase, CL_GR2F, 0x00);
 		/* fall through */
+=======
+		fallthrough;
+	case BT_GD5480:
+		/* from Klaus' NetBSD driver: */
+		vga_wgfx(cinfo->regbase, CL_GR2F, 0x00);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case BT_ALPINE:
 		/* put blitter into 542x compat */
 		vga_wgfx(cinfo->regbase, CL_GR33, 0x00);
@@ -1956,7 +1993,11 @@ static void cirrusfb_zorro_unmap(struct fb_info *info)
 #endif /* CONFIG_ZORRO */
 
 /* function table of the above functions */
+<<<<<<< HEAD
 static struct fb_ops cirrusfb_ops = {
+=======
+static const struct fb_ops cirrusfb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_open	= cirrusfb_open,
 	.fb_release	= cirrusfb_release,
@@ -2093,7 +2134,10 @@ static int cirrusfb_pci_register(struct pci_dev *pdev,
 
 	info = framebuffer_alloc(sizeof(struct cirrusfb_info), &pdev->dev);
 	if (!info) {
+<<<<<<< HEAD
 		printk(KERN_ERR "cirrusfb: could not allocate memory\n");
+=======
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_out;
 	}
@@ -2206,10 +2250,15 @@ static int cirrusfb_zorro_register(struct zorro_dev *z,
 	struct cirrusfb_info *cinfo;
 
 	info = framebuffer_alloc(sizeof(struct cirrusfb_info), &z->dev);
+<<<<<<< HEAD
 	if (!info) {
 		printk(KERN_ERR "cirrusfb: could not allocate memory\n");
 		return -ENOMEM;
 	}
+=======
+	if (!info)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	zcl = (const struct zorrocl *)ent->driver_data;
 	btype = zcl->type;
@@ -2466,8 +2515,11 @@ static void AttrOn(const struct cirrusfb_info *cinfo)
  */
 static void WHDR(const struct cirrusfb_info *cinfo, unsigned char val)
 {
+<<<<<<< HEAD
 	unsigned char dummy;
 
+=======
+>>>>>>> upstream/android-13
 	if (is_laguna(cinfo))
 		return;
 	if (cinfo->btype == BT_PICASSO) {
@@ -2476,11 +2528,16 @@ static void WHDR(const struct cirrusfb_info *cinfo, unsigned char val)
 		WGen(cinfo, VGA_PEL_MSK, 0x00);
 		udelay(200);
 		/* next read dummy from pixel address (3c8) */
+<<<<<<< HEAD
 		dummy = RGen(cinfo, VGA_PEL_IW);
+=======
+		RGen(cinfo, VGA_PEL_IW);
+>>>>>>> upstream/android-13
 		udelay(200);
 	}
 	/* now do the usual stuff to access the HDR */
 
+<<<<<<< HEAD
 	dummy = RGen(cinfo, VGA_PEL_MSK);
 	udelay(200);
 	dummy = RGen(cinfo, VGA_PEL_MSK);
@@ -2488,6 +2545,15 @@ static void WHDR(const struct cirrusfb_info *cinfo, unsigned char val)
 	dummy = RGen(cinfo, VGA_PEL_MSK);
 	udelay(200);
 	dummy = RGen(cinfo, VGA_PEL_MSK);
+=======
+	RGen(cinfo, VGA_PEL_MSK);
+	udelay(200);
+	RGen(cinfo, VGA_PEL_MSK);
+	udelay(200);
+	RGen(cinfo, VGA_PEL_MSK);
+	udelay(200);
+	RGen(cinfo, VGA_PEL_MSK);
+>>>>>>> upstream/android-13
 	udelay(200);
 
 	WGen(cinfo, VGA_PEL_MSK, val);
@@ -2495,7 +2561,11 @@ static void WHDR(const struct cirrusfb_info *cinfo, unsigned char val)
 
 	if (cinfo->btype == BT_PICASSO) {
 		/* now first reset HDR access counter */
+<<<<<<< HEAD
 		dummy = RGen(cinfo, VGA_PEL_IW);
+=======
+		RGen(cinfo, VGA_PEL_IW);
+>>>>>>> upstream/android-13
 		udelay(200);
 
 		/* and at the end, restore the mask value */
@@ -2803,9 +2873,15 @@ static void bestclock(long freq, int *nom, int *den, int *div)
 
 #ifdef CIRRUSFB_DEBUG
 
+<<<<<<< HEAD
 /**
  * cirrusfb_dbg_print_regs
  * @base: If using newmmio, the newmmio base address, otherwise %NULL
+=======
+/*
+ * cirrusfb_dbg_print_regs
+ * @regbase: If using newmmio, the newmmio base address, otherwise %NULL
+>>>>>>> upstream/android-13
  * @reg_class: type of registers to read: %CRT, or %SEQ
  *
  * DESCRIPTION:
@@ -2850,7 +2926,11 @@ static void cirrusfb_dbg_print_regs(struct fb_info *info,
 	va_end(list);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * cirrusfb_dbg_reg_dump
  * @base: If using newmmio, the newmmio base address, otherwise %NULL
  *

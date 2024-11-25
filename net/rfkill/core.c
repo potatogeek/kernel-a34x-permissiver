@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2006 - 2007 Ivo van Doorn
  * Copyright (C) 2007 Dmitry Torokhov
  * Copyright 2009 Johannes Berg <johannes@sipsolutions.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -52,6 +59,10 @@ struct rfkill {
 	enum rfkill_type	type;
 
 	unsigned long		state;
+<<<<<<< HEAD
+=======
+	unsigned long		hard_block_reasons;
+>>>>>>> upstream/android-13
 
 	u32			idx;
 
@@ -80,7 +91,11 @@ struct rfkill {
 
 struct rfkill_int_event {
 	struct list_head	list;
+<<<<<<< HEAD
 	struct rfkill_event	ev;
+=======
+	struct rfkill_event_ext	ev;
+>>>>>>> upstream/android-13
 };
 
 struct rfkill_data {
@@ -89,6 +104,10 @@ struct rfkill_data {
 	struct mutex		mtx;
 	wait_queue_head_t	read_wait;
 	bool			input_handler;
+<<<<<<< HEAD
+=======
+	u8			max_size;
+>>>>>>> upstream/android-13
 };
 
 
@@ -264,7 +283,12 @@ static void rfkill_global_led_trigger_unregister(void)
 }
 #endif /* CONFIG_RFKILL_LEDS */
 
+<<<<<<< HEAD
 static void rfkill_fill_event(struct rfkill_event *ev, struct rfkill *rfkill,
+=======
+static void rfkill_fill_event(struct rfkill_event_ext *ev,
+			      struct rfkill *rfkill,
+>>>>>>> upstream/android-13
 			      enum rfkill_operation op)
 {
 	unsigned long flags;
@@ -277,6 +301,10 @@ static void rfkill_fill_event(struct rfkill_event *ev, struct rfkill *rfkill,
 	ev->hard = !!(rfkill->state & RFKILL_BLOCK_HW);
 	ev->soft = !!(rfkill->state & (RFKILL_BLOCK_SW |
 					RFKILL_BLOCK_SW_PREV));
+<<<<<<< HEAD
+=======
+	ev->hard_block_reasons = rfkill->hard_block_reasons;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&rfkill->lock, flags);
 }
 
@@ -510,8 +538,13 @@ void rfkill_remove_epo_lock(void)
 /**
  * rfkill_is_epo_lock_active - returns true EPO is active
  *
+<<<<<<< HEAD
  * Returns 0 (false) if there is NOT an active EPO contidion,
  * and 1 (true) if there is an active EPO contition, which
+=======
+ * Returns 0 (false) if there is NOT an active EPO condition,
+ * and 1 (true) if there is an active EPO condition, which
+>>>>>>> upstream/android-13
  * locks all radios in one of the BLOCKED states.
  *
  * Can be called in atomic context.
@@ -534,19 +567,42 @@ bool rfkill_get_global_sw_state(const enum rfkill_type type)
 }
 #endif
 
+<<<<<<< HEAD
 bool rfkill_set_hw_state(struct rfkill *rfkill, bool blocked)
+=======
+bool rfkill_set_hw_state_reason(struct rfkill *rfkill,
+				bool blocked, unsigned long reason)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	bool ret, prev;
 
 	BUG_ON(!rfkill);
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&rfkill->lock, flags);
 	prev = !!(rfkill->state & RFKILL_BLOCK_HW);
 	if (blocked)
 		rfkill->state |= RFKILL_BLOCK_HW;
 	else
 		rfkill->state &= ~RFKILL_BLOCK_HW;
+=======
+	if (WARN(reason &
+	    ~(RFKILL_HARD_BLOCK_SIGNAL | RFKILL_HARD_BLOCK_NOT_OWNER),
+	    "hw_state reason not supported: 0x%lx", reason))
+		return blocked;
+
+	spin_lock_irqsave(&rfkill->lock, flags);
+	prev = !!(rfkill->hard_block_reasons & reason);
+	if (blocked) {
+		rfkill->state |= RFKILL_BLOCK_HW;
+		rfkill->hard_block_reasons |= reason;
+	} else {
+		rfkill->hard_block_reasons &= ~reason;
+		if (!rfkill->hard_block_reasons)
+			rfkill->state &= ~RFKILL_BLOCK_HW;
+	}
+>>>>>>> upstream/android-13
 	ret = !!(rfkill->state & RFKILL_BLOCK_ANY);
 	spin_unlock_irqrestore(&rfkill->lock, flags);
 
@@ -558,7 +614,11 @@ bool rfkill_set_hw_state(struct rfkill *rfkill, bool blocked)
 
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(rfkill_set_hw_state);
+=======
+EXPORT_SYMBOL(rfkill_set_hw_state_reason);
+>>>>>>> upstream/android-13
 
 static void __rfkill_set_sw_state(struct rfkill *rfkill, bool blocked)
 {
@@ -756,6 +816,19 @@ static ssize_t soft_store(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_RW(soft);
 
+<<<<<<< HEAD
+=======
+static ssize_t hard_block_reasons_show(struct device *dev,
+				       struct device_attribute *attr,
+				       char *buf)
+{
+	struct rfkill *rfkill = to_rfkill(dev);
+
+	return sprintf(buf, "0x%lx\n", rfkill->hard_block_reasons);
+}
+static DEVICE_ATTR_RO(hard_block_reasons);
+
+>>>>>>> upstream/android-13
 static u8 user_state_from_blocked(unsigned long state)
 {
 	if (state & RFKILL_BLOCK_HW)
@@ -808,6 +881,10 @@ static struct attribute *rfkill_dev_attrs[] = {
 	&dev_attr_state.attr,
 	&dev_attr_soft.attr,
 	&dev_attr_hard.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_hard_block_reasons.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 ATTRIBUTE_GROUPS(rfkill_dev);
@@ -823,6 +900,10 @@ static int rfkill_dev_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	struct rfkill *rfkill = to_rfkill(dev);
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	unsigned long reasons;
+>>>>>>> upstream/android-13
 	u32 state;
 	int error;
 
@@ -835,10 +916,20 @@ static int rfkill_dev_uevent(struct device *dev, struct kobj_uevent_env *env)
 		return error;
 	spin_lock_irqsave(&rfkill->lock, flags);
 	state = rfkill->state;
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&rfkill->lock, flags);
 	error = add_uevent_var(env, "RFKILL_STATE=%d",
 			       user_state_from_blocked(state));
 	return error;
+=======
+	reasons = rfkill->hard_block_reasons;
+	spin_unlock_irqrestore(&rfkill->lock, flags);
+	error = add_uevent_var(env, "RFKILL_STATE=%d",
+			       user_state_from_blocked(state));
+	if (error)
+		return error;
+	return add_uevent_var(env, "RFKILL_HW_BLOCK_REASON=0x%lx", reasons);
+>>>>>>> upstream/android-13
 }
 
 void rfkill_pause_polling(struct rfkill *rfkill)
@@ -888,6 +979,12 @@ static int rfkill_resume(struct device *dev)
 
 	rfkill->suspended = false;
 
+<<<<<<< HEAD
+=======
+	if (!rfkill->registered)
+		return 0;
+
+>>>>>>> upstream/android-13
 	if (!rfkill->persistent) {
 		cur = !!(rfkill->state & RFKILL_BLOCK_SW);
 		rfkill_set_block(rfkill, cur);
@@ -1122,6 +1219,11 @@ static int rfkill_fop_open(struct inode *inode, struct file *file)
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	data->max_size = RFKILL_EVENT_SIZE_V1;
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&data->events);
 	mutex_init(&data->mtx);
 	init_waitqueue_head(&data->read_wait);
@@ -1146,7 +1248,11 @@ static int rfkill_fop_open(struct inode *inode, struct file *file)
 
 	file->private_data = data;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 
  free:
 	mutex_unlock(&data->mtx);
@@ -1204,6 +1310,10 @@ static ssize_t rfkill_fop_read(struct file *file, char __user *buf,
 				list);
 
 	sz = min_t(unsigned long, sizeof(ev->ev), count);
+<<<<<<< HEAD
+=======
+	sz = min_t(unsigned long, sz, data->max_size);
+>>>>>>> upstream/android-13
 	ret = sz;
 	if (copy_to_user(buf, &ev->ev, sz))
 		ret = -EFAULT;
@@ -1218,8 +1328,14 @@ static ssize_t rfkill_fop_read(struct file *file, char __user *buf,
 static ssize_t rfkill_fop_write(struct file *file, const char __user *buf,
 				size_t count, loff_t *pos)
 {
+<<<<<<< HEAD
 	struct rfkill *rfkill;
 	struct rfkill_event ev;
+=======
+	struct rfkill_data *data = file->private_data;
+	struct rfkill *rfkill;
+	struct rfkill_event_ext ev;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* we don't need the 'hard' variable but accept it */
@@ -1232,6 +1348,10 @@ static ssize_t rfkill_fop_write(struct file *file, const char __user *buf,
 	 * our API version even in a write() call, if it cares.
 	 */
 	count = min(count, sizeof(ev));
+<<<<<<< HEAD
+=======
+	count = min_t(size_t, count, data->max_size);
+>>>>>>> upstream/android-13
 	if (copy_from_user(&ev, buf, count))
 		return -EFAULT;
 
@@ -1291,15 +1411,24 @@ static int rfkill_fop_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_RFKILL_INPUT
+=======
+>>>>>>> upstream/android-13
 static long rfkill_fop_ioctl(struct file *file, unsigned int cmd,
 			     unsigned long arg)
 {
 	struct rfkill_data *data = file->private_data;
+<<<<<<< HEAD
+=======
+	int ret = -ENOSYS;
+	u32 size;
+>>>>>>> upstream/android-13
 
 	if (_IOC_TYPE(cmd) != RFKILL_IOC_MAGIC)
 		return -ENOSYS;
 
+<<<<<<< HEAD
 	if (_IOC_NR(cmd) != RFKILL_IOC_NOINPUT)
 		return -ENOSYS;
 
@@ -1316,6 +1445,39 @@ static long rfkill_fop_ioctl(struct file *file, unsigned int cmd,
 	return 0;
 }
 #endif
+=======
+	mutex_lock(&data->mtx);
+	switch (_IOC_NR(cmd)) {
+#ifdef CONFIG_RFKILL_INPUT
+	case RFKILL_IOC_NOINPUT:
+		if (!data->input_handler) {
+			if (atomic_inc_return(&rfkill_input_disabled) == 1)
+				printk(KERN_DEBUG "rfkill: input handler disabled\n");
+			data->input_handler = true;
+		}
+		ret = 0;
+		break;
+#endif
+	case RFKILL_IOC_MAX_SIZE:
+		if (get_user(size, (__u32 __user *)arg)) {
+			ret = -EFAULT;
+			break;
+		}
+		if (size < RFKILL_EVENT_SIZE_V1 || size > U8_MAX) {
+			ret = -EINVAL;
+			break;
+		}
+		data->max_size = size;
+		ret = 0;
+		break;
+	default:
+		break;
+	}
+	mutex_unlock(&data->mtx);
+
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 static const struct file_operations rfkill_fops = {
 	.owner		= THIS_MODULE,
@@ -1324,10 +1486,15 @@ static const struct file_operations rfkill_fops = {
 	.write		= rfkill_fop_write,
 	.poll		= rfkill_fop_poll,
 	.release	= rfkill_fop_release,
+<<<<<<< HEAD
 #ifdef CONFIG_RFKILL_INPUT
 	.unlocked_ioctl	= rfkill_fop_ioctl,
 	.compat_ioctl	= rfkill_fop_ioctl,
 #endif
+=======
+	.unlocked_ioctl	= rfkill_fop_ioctl,
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.llseek		= no_llseek,
 };
 

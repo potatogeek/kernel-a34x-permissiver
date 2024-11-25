@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright(c) 2013 - 2018 Intel Corporation. */
+=======
+/* Copyright(c) 2013 - 2019 Intel Corporation. */
+>>>>>>> upstream/android-13
 
 #include "fm10k.h"
 #include "fm10k_vf.h"
@@ -244,7 +248,12 @@ process_mbx:
 		}
 
 		/* guarantee we have free space in the SM mailbox */
+<<<<<<< HEAD
 		if (!hw->mbx.ops.tx_ready(&hw->mbx, FM10K_VFMBX_MSG_MTU)) {
+=======
+		if (hw->mbx.state == FM10K_STATE_OPEN &&
+		    !hw->mbx.ops.tx_ready(&hw->mbx, FM10K_VFMBX_MSG_MTU)) {
+>>>>>>> upstream/android-13
 			/* keep track of how many times this occurs */
 			interface->hw_sm_mbx_full++;
 
@@ -320,8 +329,11 @@ static void fm10k_mask_aer_comp_abort(struct pci_dev *pdev)
 	pci_read_config_dword(pdev, pos + PCI_ERR_UNCOR_MASK, &err_mask);
 	err_mask |= PCI_ERR_UNC_COMP_ABORT;
 	pci_write_config_dword(pdev, pos + PCI_ERR_UNCOR_MASK, err_mask);
+<<<<<<< HEAD
 
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 int fm10k_iov_resume(struct pci_dev *pdev)
@@ -427,7 +439,11 @@ static s32 fm10k_iov_alloc_data(struct pci_dev *pdev, int num_vfs)
 	struct fm10k_iov_data *iov_data = interface->iov_data;
 	struct fm10k_hw *hw = &interface->hw;
 	size_t size;
+<<<<<<< HEAD
 	int i, err;
+=======
+	int i;
+>>>>>>> upstream/android-13
 
 	/* return error if iov_data is already populated */
 	if (iov_data)
@@ -453,6 +469,10 @@ static s32 fm10k_iov_alloc_data(struct pci_dev *pdev, int num_vfs)
 	/* loop through vf_info structures initializing each entry */
 	for (i = 0; i < num_vfs; i++) {
 		struct fm10k_vf_info *vf_info = &iov_data->vf_info[i];
+<<<<<<< HEAD
+=======
+		int err;
+>>>>>>> upstream/android-13
 
 		/* Record VF VSI value */
 		vf_info->vsi = i + 1;
@@ -520,6 +540,30 @@ int fm10k_iov_configure(struct pci_dev *pdev, int num_vfs)
 	return num_vfs;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * fm10k_iov_update_stats - Update stats for all VFs
+ * @interface: device private structure
+ *
+ * Updates the VF statistics for all enabled VFs. Expects to be called by
+ * fm10k_update_stats and assumes that locking via the __FM10K_UPDATING_STATS
+ * bit is already handled.
+ */
+void fm10k_iov_update_stats(struct fm10k_intfc *interface)
+{
+	struct fm10k_iov_data *iov_data = interface->iov_data;
+	struct fm10k_hw *hw = &interface->hw;
+	int i;
+
+	if (!iov_data)
+		return;
+
+	for (i = 0; i < iov_data->num_vfs; i++)
+		hw->iov.ops.update_stats(hw, iov_data->vf_info[i].stats, i);
+}
+
+>>>>>>> upstream/android-13
 static inline void fm10k_reset_vf_info(struct fm10k_intfc *interface,
 				       struct fm10k_vf_info *vf_info)
 {
@@ -650,3 +694,33 @@ int fm10k_ndo_get_vf_config(struct net_device *netdev,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+int fm10k_ndo_get_vf_stats(struct net_device *netdev,
+			   int vf_idx, struct ifla_vf_stats *stats)
+{
+	struct fm10k_intfc *interface = netdev_priv(netdev);
+	struct fm10k_iov_data *iov_data = interface->iov_data;
+	struct fm10k_hw *hw = &interface->hw;
+	struct fm10k_hw_stats_q *hw_stats;
+	u32 idx, qpp;
+
+	/* verify SR-IOV is active and that vf idx is valid */
+	if (!iov_data || vf_idx >= iov_data->num_vfs)
+		return -EINVAL;
+
+	qpp = fm10k_queues_per_pool(hw);
+	hw_stats = iov_data->vf_info[vf_idx].stats;
+
+	for (idx = 0; idx < qpp; idx++) {
+		stats->rx_packets += hw_stats[idx].rx_packets.count;
+		stats->tx_packets += hw_stats[idx].tx_packets.count;
+		stats->rx_bytes += hw_stats[idx].rx_bytes.count;
+		stats->tx_bytes += hw_stats[idx].tx_bytes.count;
+		stats->rx_dropped += hw_stats[idx].rx_drops.count;
+	}
+
+	return 0;
+}
+>>>>>>> upstream/android-13

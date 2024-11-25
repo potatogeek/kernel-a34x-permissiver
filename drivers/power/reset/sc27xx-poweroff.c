@@ -6,6 +6,10 @@
 
 #include <linux/cpu.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/pm.h>
 #include <linux/regmap.h>
@@ -13,6 +17,11 @@
 
 #define SC27XX_PWR_PD_HW	0xc2c
 #define SC27XX_PWR_OFF_EN	BIT(0)
+<<<<<<< HEAD
+=======
+#define SC27XX_SLP_CTRL		0xdf0
+#define SC27XX_LDO_XTL_EN	BIT(3)
+>>>>>>> upstream/android-13
 
 static struct regmap *regmap;
 
@@ -27,10 +36,20 @@ static struct regmap *regmap;
  */
 static void sc27xx_poweroff_shutdown(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP_SMP
 	int cpu = smp_processor_id();
 
 	freeze_secondary_cpus(cpu);
+=======
+#ifdef CONFIG_HOTPLUG_CPU
+	int cpu;
+
+	for_each_online_cpu(cpu) {
+		if (cpu != smp_processor_id())
+			remove_cpu(cpu);
+	}
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -40,6 +59,12 @@ static struct syscore_ops poweroff_syscore_ops = {
 
 static void sc27xx_poweroff_do_poweroff(void)
 {
+<<<<<<< HEAD
+=======
+	/* Disable the external subsys connection's power firstly */
+	regmap_write(regmap, SC27XX_SLP_CTRL, SC27XX_LDO_XTL_EN);
+
+>>>>>>> upstream/android-13
 	regmap_write(regmap, SC27XX_PWR_PD_HW, SC27XX_PWR_OFF_EN);
 }
 
@@ -63,4 +88,12 @@ static struct platform_driver sc27xx_poweroff_driver = {
 		.name = "sc27xx-poweroff",
 	},
 };
+<<<<<<< HEAD
 builtin_platform_driver(sc27xx_poweroff_driver);
+=======
+module_platform_driver(sc27xx_poweroff_driver);
+
+MODULE_DESCRIPTION("Power off driver for SC27XX PMIC Device");
+MODULE_AUTHOR("Baolin Wang <baolin.wang@unisoc.com>");
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

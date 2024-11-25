@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
  *
@@ -5,6 +6,12 @@
  * See the COPYING file included in the main directory of this source
  * distribution for the license terms and conditions.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2008, Creative Technology Ltd. All Rights Reserved.
+ *
+>>>>>>> upstream/android-13
  * @File	ctresource.c
  *
  * @Brief
@@ -12,7 +19,10 @@
  *
  * @Author	Liu Chun
  * @Date 	May 15 2008
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "ctresource.h"
@@ -96,7 +106,11 @@ int mgr_put_resource(struct rsc_mgr *mgr, unsigned int n, unsigned int idx)
 	return 0;
 }
 
+<<<<<<< HEAD
 static unsigned char offset_in_audio_slot_block[NUM_RSCTYP] = {
+=======
+static const unsigned char offset_in_audio_slot_block[NUM_RSCTYP] = {
+>>>>>>> upstream/android-13
 	/* SRC channel is at Audio Ring slot 1 every 16 slots. */
 	[SRC]		= 0x1,
 	[AMIXER]	= 0x4,
@@ -113,18 +127,30 @@ static int audio_ring_slot(const struct rsc *rsc)
     return (rsc->conj << 4) + offset_in_audio_slot_block[rsc->type];
 }
 
+<<<<<<< HEAD
 static int rsc_next_conj(struct rsc *rsc)
+=======
+static void rsc_next_conj(struct rsc *rsc)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 	for (i = 0; (i < 8) && (!(rsc->msr & (0x1 << i))); )
 		i++;
 	rsc->conj += (AUDIO_SLOT_BLOCK_NUM >> i);
+<<<<<<< HEAD
 	return rsc->conj;
 }
 
 static int rsc_master(struct rsc *rsc)
 {
 	return rsc->conj = rsc->idx;
+=======
+}
+
+static void rsc_master(struct rsc *rsc)
+{
+	rsc->conj = rsc->idx;
+>>>>>>> upstream/android-13
 }
 
 static const struct rsc_ops rsc_generic_ops = {
@@ -213,7 +239,11 @@ int rsc_mgr_init(struct rsc_mgr *mgr, enum RSCTYP type,
 
 	mgr->type = NUM_RSCTYP;
 
+<<<<<<< HEAD
 	mgr->rscs = kzalloc(((amount + 8 - 1) / 8), GFP_KERNEL);
+=======
+	mgr->rscs = kzalloc(DIV_ROUND_UP(amount, 8), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!mgr->rscs)
 		return -ENOMEM;
 

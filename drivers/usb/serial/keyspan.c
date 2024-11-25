@@ -41,6 +41,7 @@
 #define DRIVER_AUTHOR "Hugh Blemings <hugh@misc.nu"
 #define DRIVER_DESC "Keyspan USB to Serial Converter Driver"
 
+<<<<<<< HEAD
 /* Function prototypes for Keyspan serial converter */
 static int keyspan_open(struct tty_struct *tty, struct usb_serial_port *port);
 static void keyspan_close(struct usb_serial_port *port);
@@ -62,6 +63,9 @@ static int keyspan_tiocmget(struct tty_struct *tty);
 static int keyspan_tiocmset(struct tty_struct *tty, unsigned int set,
 			    unsigned int clear);
 static int keyspan_fake_startup(struct usb_serial *serial);
+=======
+static void keyspan_send_setup(struct usb_serial_port *port, int reset_port);
+>>>>>>> upstream/android-13
 
 static int keyspan_usa19_calc_baud(struct usb_serial_port *port,
 				   u32 baud_rate, u32 baudclk,
@@ -1473,13 +1477,21 @@ static void usa67_glocont_callback(struct urb *urb)
 	}
 }
 
+<<<<<<< HEAD
 static int keyspan_write_room(struct tty_struct *tty)
+=======
+static unsigned int keyspan_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct keyspan_port_private	*p_priv;
 	const struct keyspan_device_details	*d_details;
 	int				flip;
+<<<<<<< HEAD
 	int				data_len;
+=======
+	unsigned int			data_len;
+>>>>>>> upstream/android-13
 	struct urb			*this_urb;
 
 	p_priv = usb_get_serial_port_data(port);
@@ -2910,22 +2922,38 @@ static int keyspan_port_probe(struct usb_serial_port *port)
 	for (i = 0; i < ARRAY_SIZE(p_priv->in_buffer); ++i) {
 		p_priv->in_buffer[i] = kzalloc(IN_BUFLEN, GFP_KERNEL);
 		if (!p_priv->in_buffer[i])
+<<<<<<< HEAD
 			goto err_in_buffer;
+=======
+			goto err_free_in_buffer;
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < ARRAY_SIZE(p_priv->out_buffer); ++i) {
 		p_priv->out_buffer[i] = kzalloc(OUT_BUFLEN, GFP_KERNEL);
 		if (!p_priv->out_buffer[i])
+<<<<<<< HEAD
 			goto err_out_buffer;
+=======
+			goto err_free_out_buffer;
+>>>>>>> upstream/android-13
 	}
 
 	p_priv->inack_buffer = kzalloc(INACK_BUFLEN, GFP_KERNEL);
 	if (!p_priv->inack_buffer)
+<<<<<<< HEAD
 		goto err_inack_buffer;
 
 	p_priv->outcont_buffer = kzalloc(OUTCONT_BUFLEN, GFP_KERNEL);
 	if (!p_priv->outcont_buffer)
 		goto err_outcont_buffer;
+=======
+		goto err_free_out_buffer;
+
+	p_priv->outcont_buffer = kzalloc(OUTCONT_BUFLEN, GFP_KERNEL);
+	if (!p_priv->outcont_buffer)
+		goto err_free_inack_buffer;
+>>>>>>> upstream/android-13
 
 	p_priv->device_details = d_details;
 
@@ -2971,6 +2999,7 @@ static int keyspan_port_probe(struct usb_serial_port *port)
 
 	return 0;
 
+<<<<<<< HEAD
 err_outcont_buffer:
 	kfree(p_priv->inack_buffer);
 err_inack_buffer:
@@ -2980,12 +3009,26 @@ err_out_buffer:
 	for (i = 0; i < ARRAY_SIZE(p_priv->in_buffer); ++i)
 		kfree(p_priv->in_buffer[i]);
 err_in_buffer:
+=======
+err_free_inack_buffer:
+	kfree(p_priv->inack_buffer);
+err_free_out_buffer:
+	for (i = 0; i < ARRAY_SIZE(p_priv->out_buffer); ++i)
+		kfree(p_priv->out_buffer[i]);
+err_free_in_buffer:
+	for (i = 0; i < ARRAY_SIZE(p_priv->in_buffer); ++i)
+		kfree(p_priv->in_buffer[i]);
+>>>>>>> upstream/android-13
 	kfree(p_priv);
 
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 static int keyspan_port_remove(struct usb_serial_port *port)
+=======
+static void keyspan_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct keyspan_port_private *p_priv;
 	int i;
@@ -3014,8 +3057,11 @@ static int keyspan_port_remove(struct usb_serial_port *port)
 		kfree(p_priv->in_buffer[i]);
 
 	kfree(p_priv);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /* Structs for the devices, pre and post renumeration. */

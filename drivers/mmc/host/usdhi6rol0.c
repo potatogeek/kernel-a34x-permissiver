@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013-2014 Renesas Electronics Europe Ltd.
  * Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2013-2014 Renesas Electronics Europe Ltd.
+ * Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -139,6 +146,11 @@
 
 #define USDHI6_MIN_DMA 64
 
+<<<<<<< HEAD
+=======
+#define USDHI6_REQ_TIMEOUT_MS 4000
+
+>>>>>>> upstream/android-13
 enum usdhi6_wait_for {
 	USDHI6_WAIT_FOR_REQUEST,
 	USDHI6_WAIT_FOR_CMD,
@@ -202,7 +214,10 @@ struct usdhi6_host {
 
 	/* Pin control */
 	struct pinctrl *pinctrl;
+<<<<<<< HEAD
 	struct pinctrl_state *pins_default;
+=======
+>>>>>>> upstream/android-13
 	struct pinctrl_state *pins_uhs;
 };
 
@@ -633,9 +648,15 @@ static void usdhi6_dma_kill(struct usdhi6_host *host)
 		__func__, data->sg_len, data->blocks, data->blksz);
 	/* Abort DMA */
 	if (data->flags & MMC_DATA_READ)
+<<<<<<< HEAD
 		dmaengine_terminate_all(host->chan_rx);
 	else
 		dmaengine_terminate_all(host->chan_tx);
+=======
+		dmaengine_terminate_sync(host->chan_rx);
+	else
+		dmaengine_terminate_sync(host->chan_tx);
+>>>>>>> upstream/android-13
 }
 
 static void usdhi6_dma_check_error(struct usdhi6_host *host)
@@ -680,12 +701,23 @@ static void usdhi6_dma_request(struct usdhi6_host *host, phys_addr_t start)
 	};
 	int ret;
 
+<<<<<<< HEAD
 	host->chan_tx = dma_request_slave_channel(mmc_dev(host->mmc), "tx");
 	dev_dbg(mmc_dev(host->mmc), "%s: TX: got channel %p\n", __func__,
 		host->chan_tx);
 
 	if (!host->chan_tx)
 		return;
+=======
+	host->chan_tx = dma_request_chan(mmc_dev(host->mmc), "tx");
+	dev_dbg(mmc_dev(host->mmc), "%s: TX: got channel %p\n", __func__,
+		host->chan_tx);
+
+	if (IS_ERR(host->chan_tx)) {
+		host->chan_tx = NULL;
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	cfg.direction = DMA_MEM_TO_DEV;
 	cfg.dst_addr = start + USDHI6_SD_BUF0;
@@ -695,12 +727,23 @@ static void usdhi6_dma_request(struct usdhi6_host *host, phys_addr_t start)
 	if (ret < 0)
 		goto e_release_tx;
 
+<<<<<<< HEAD
 	host->chan_rx = dma_request_slave_channel(mmc_dev(host->mmc), "rx");
 	dev_dbg(mmc_dev(host->mmc), "%s: RX: got channel %p\n", __func__,
 		host->chan_rx);
 
 	if (!host->chan_rx)
 		goto e_release_tx;
+=======
+	host->chan_rx = dma_request_chan(mmc_dev(host->mmc), "rx");
+	dev_dbg(mmc_dev(host->mmc), "%s: RX: got channel %p\n", __func__,
+		host->chan_rx);
+
+	if (IS_ERR(host->chan_rx)) {
+		host->chan_rx = NULL;
+		goto e_release_tx;
+	}
+>>>>>>> upstream/android-13
 
 	cfg.direction = DMA_DEV_TO_MEM;
 	cfg.src_addr = cfg.dst_addr;
@@ -1165,8 +1208,12 @@ static int usdhi6_set_pinstates(struct usdhi6_host *host, int voltage)
 					    host->pins_uhs);
 
 	default:
+<<<<<<< HEAD
 		return pinctrl_select_state(host->pinctrl,
 					    host->pins_default);
+=======
+		return pinctrl_select_default_state(mmc_dev(host->mmc));
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1185,6 +1232,18 @@ static int usdhi6_sig_volt_switch(struct mmc_host *mmc, struct mmc_ios *ios)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int usdhi6_card_busy(struct mmc_host *mmc)
+{
+	struct usdhi6_host *host = mmc_priv(mmc);
+	u32 tmp = usdhi6_read(host, USDHI6_SD_INFO2);
+
+	/* Card is busy if it is pulling dat[0] low */
+	return !(tmp & USDHI6_SD_INFO2_SDDAT0);
+}
+
+>>>>>>> upstream/android-13
 static const struct mmc_host_ops usdhi6_ops = {
 	.request	= usdhi6_request,
 	.set_ios	= usdhi6_set_ios,
@@ -1192,6 +1251,10 @@ static const struct mmc_host_ops usdhi6_ops = {
 	.get_ro		= usdhi6_get_ro,
 	.enable_sdio_irq = usdhi6_enable_sdio_irq,
 	.start_signal_voltage_switch = usdhi6_sig_volt_switch,
+<<<<<<< HEAD
+=======
+	.card_busy = usdhi6_card_busy,
+>>>>>>> upstream/android-13
 };
 
 /*			State machine handlers				*/
@@ -1342,7 +1405,11 @@ static int usdhi6_stop_cmd(struct usdhi6_host *host)
 			host->wait = USDHI6_WAIT_FOR_STOP;
 			return 0;
 		}
+<<<<<<< HEAD
 		/* Unsupported STOP command */
+=======
+		fallthrough;	/* Unsupported STOP command */
+>>>>>>> upstream/android-13
 	default:
 		dev_err(mmc_dev(host->mmc),
 			"unsupported stop CMD%d for CMD%d\n",
@@ -1690,7 +1757,11 @@ static void usdhi6_timeout_work(struct work_struct *work)
 	switch (host->wait) {
 	default:
 		dev_err(mmc_dev(host->mmc), "Invalid state %u\n", host->wait);
+<<<<<<< HEAD
 		/* mrq can be NULL in this actually impossible case */
+=======
+		fallthrough;	/* mrq can be NULL, but is impossible */
+>>>>>>> upstream/android-13
 	case USDHI6_WAIT_FOR_CMD:
 		usdhi6_error_code(host);
 		if (mrq)
@@ -1712,10 +1783,14 @@ static void usdhi6_timeout_work(struct work_struct *work)
 			host->offset, data->blocks, data->blksz, data->sg_len,
 			sg_dma_len(sg), sg->offset);
 		usdhi6_sg_unmap(host, true);
+<<<<<<< HEAD
 		/*
 		 * If USDHI6_WAIT_FOR_DATA_END times out, we have already unmapped
 		 * the page
 		 */
+=======
+		fallthrough;	/* page unmapped in USDHI6_WAIT_FOR_DATA_END */
+>>>>>>> upstream/android-13
 	case USDHI6_WAIT_FOR_DATA_END:
 		usdhi6_error_code(host);
 		data->error = -ETIMEDOUT;
@@ -1767,7 +1842,16 @@ static int usdhi6_probe(struct platform_device *pdev)
 	host		= mmc_priv(mmc);
 	host->mmc	= mmc;
 	host->wait	= USDHI6_WAIT_FOR_REQUEST;
+<<<<<<< HEAD
 	host->timeout	= msecs_to_jiffies(4000);
+=======
+	host->timeout	= msecs_to_jiffies(USDHI6_REQ_TIMEOUT_MS);
+	/*
+	 * We use a fixed timeout of 4s, hence inform the core about it. A
+	 * future improvement should instead respect the cmd->busy_timeout.
+	 */
+	mmc->max_busy_timeout = USDHI6_REQ_TIMEOUT_MS;
+>>>>>>> upstream/android-13
 
 	host->pinctrl = devm_pinctrl_get(&pdev->dev);
 	if (IS_ERR(host->pinctrl)) {
@@ -1776,6 +1860,7 @@ static int usdhi6_probe(struct platform_device *pdev)
 	}
 
 	host->pins_uhs = pinctrl_lookup_state(host->pinctrl, "state_uhs");
+<<<<<<< HEAD
 	if (!IS_ERR(host->pins_uhs)) {
 		host->pins_default = pinctrl_lookup_state(host->pinctrl,
 							  PINCTRL_STATE_DEFAULT);
@@ -1787,6 +1872,8 @@ static int usdhi6_probe(struct platform_device *pdev)
 			goto e_free_mmc;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	host->base = devm_ioremap_resource(dev, res);
@@ -1809,6 +1896,10 @@ static int usdhi6_probe(struct platform_device *pdev)
 
 	version = usdhi6_read(host, USDHI6_VERSION);
 	if ((version & 0xfff) != 0xa0d) {
+<<<<<<< HEAD
+=======
+		ret = -EPERM;
+>>>>>>> upstream/android-13
 		dev_err(dev, "Version not recognized %x\n", version);
 		goto e_clk_off;
 	}
@@ -1900,6 +1991,10 @@ static struct platform_driver usdhi6_driver = {
 	.remove		= usdhi6_remove,
 	.driver		= {
 		.name	= "usdhi6rol0",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = usdhi6_of_match,
 	},
 };

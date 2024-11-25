@@ -258,4 +258,10 @@
 #define SMUSVI0_PLANE0_CURRENTVID__CURRENT_SVI0_PLANE0_VID__SHIFT                                             0x18
 #define SMUSVI0_PLANE0_CURRENTVID__CURRENT_SVI0_PLANE0_VID_MASK                                               0xFF000000L
 
+<<<<<<< HEAD
+=======
+#define SMUSVI0_TEL_PLANE0__SVI0_PLANE0_VDDCOR__SHIFT                                                         0x10
+#define SMUSVI0_TEL_PLANE0__SVI0_PLANE0_VDDCOR_MASK                                                           0x01FF0000L
+
+>>>>>>> upstream/android-13
 #endif

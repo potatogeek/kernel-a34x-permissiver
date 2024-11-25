@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2006, Johannes Berg <johannes@sipsolutions.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright 2006, Johannes Berg <johannes@sipsolutions.net>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/list.h>
@@ -75,19 +81,33 @@ static inline void ieee80211_mod_tpt_led_trig(struct ieee80211_local *local,
 #endif
 
 static inline void
+<<<<<<< HEAD
 ieee80211_tpt_led_trig_tx(struct ieee80211_local *local, __le16 fc, int bytes)
 {
 #ifdef CONFIG_MAC80211_LEDS
 	if (ieee80211_is_data(fc) && atomic_read(&local->tpt_led_active))
+=======
+ieee80211_tpt_led_trig_tx(struct ieee80211_local *local, int bytes)
+{
+#ifdef CONFIG_MAC80211_LEDS
+	if (atomic_read(&local->tpt_led_active))
+>>>>>>> upstream/android-13
 		local->tpt_led_trigger->tx_bytes += bytes;
 #endif
 }
 
 static inline void
+<<<<<<< HEAD
 ieee80211_tpt_led_trig_rx(struct ieee80211_local *local, __le16 fc, int bytes)
 {
 #ifdef CONFIG_MAC80211_LEDS
 	if (ieee80211_is_data(fc) && atomic_read(&local->tpt_led_active))
+=======
+ieee80211_tpt_led_trig_rx(struct ieee80211_local *local, int bytes)
+{
+#ifdef CONFIG_MAC80211_LEDS
+	if (atomic_read(&local->tpt_led_active))
+>>>>>>> upstream/android-13
 		local->tpt_led_trigger->rx_bytes += bytes;
 #endif
 }

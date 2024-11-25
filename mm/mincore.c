@@ -10,16 +10,26 @@
  */
 #include <linux/pagemap.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
 #include <linux/mm.h>
+=======
+#include <linux/pagewalk.h>
+>>>>>>> upstream/android-13
 #include <linux/mman.h>
 #include <linux/syscalls.h>
 #include <linux/swap.h>
 #include <linux/swapops.h>
 #include <linux/shmem_fs.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
 
 #include <linux/uaccess.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+
+#include <linux/uaccess.h>
+>>>>>>> upstream/android-13
 
 static int mincore_hugetlb(pte_t *pte, unsigned long hmask, unsigned long addr,
 			unsigned long end, struct mm_walk *walk)
@@ -48,7 +58,11 @@ static int mincore_hugetlb(pte_t *pte, unsigned long hmask, unsigned long addr,
  * and is up to date; i.e. that no page-in operation would be required
  * at this time if an application were to map and access this page.
  */
+<<<<<<< HEAD
 static unsigned char mincore_page(struct address_space *mapping, pgoff_t pgoff)
+=======
+static unsigned char mincore_page(struct address_space *mapping, pgoff_t index)
+>>>>>>> upstream/android-13
 {
 	unsigned char present = 0;
 	struct page *page;
@@ -59,6 +73,7 @@ static unsigned char mincore_page(struct address_space *mapping, pgoff_t pgoff)
 	 * any other file mapping (ie. marked !present and faulted in with
 	 * tmpfs's .fault). So swapped out tmpfs mappings are tested here.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_SWAP
 	if (shmem_mapping(mapping)) {
 		page = find_get_entry(mapping, pgoff);
@@ -76,6 +91,9 @@ static unsigned char mincore_page(struct address_space *mapping, pgoff_t pgoff)
 #else
 	page = find_get_page(mapping, pgoff);
 #endif
+=======
+	page = find_get_incore_page(mapping, index);
+>>>>>>> upstream/android-13
 	if (page) {
 		present = PageUptodate(page);
 		put_page(page);
@@ -104,6 +122,10 @@ static int __mincore_unmapped_range(unsigned long addr, unsigned long end,
 }
 
 static int mincore_unmapped_range(unsigned long addr, unsigned long end,
+<<<<<<< HEAD
+=======
+				   __always_unused int depth,
+>>>>>>> upstream/android-13
 				   struct mm_walk *walk)
 {
 	walk->private += __mincore_unmapped_range(addr, end,
@@ -181,10 +203,24 @@ static inline bool can_do_mincore(struct vm_area_struct *vma)
 	 * for writing; otherwise we'd be including shared non-exclusive
 	 * mappings, which opens a side channel.
 	 */
+<<<<<<< HEAD
 	return inode_owner_or_capable(file_inode(vma->vm_file)) ||
 		inode_permission(file_inode(vma->vm_file), MAY_WRITE) == 0;
 }
 
+=======
+	return inode_owner_or_capable(&init_user_ns,
+				      file_inode(vma->vm_file)) ||
+	       file_permission(vma->vm_file, MAY_WRITE) == 0;
+}
+
+static const struct mm_walk_ops mincore_walk_ops = {
+	.pmd_entry		= mincore_pte_range,
+	.pte_hole		= mincore_unmapped_range,
+	.hugetlb_entry		= mincore_hugetlb,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Do a chunk of "sys_mincore()". We've already checked
  * all the arguments, we hold the mmap semaphore: we should
@@ -195,12 +231,15 @@ static long do_mincore(unsigned long addr, unsigned long pages, unsigned char *v
 	struct vm_area_struct *vma;
 	unsigned long end;
 	int err;
+<<<<<<< HEAD
 	struct mm_walk mincore_walk = {
 		.pmd_entry = mincore_pte_range,
 		.pte_hole = mincore_unmapped_range,
 		.hugetlb_entry = mincore_hugetlb,
 		.private = vec,
 	};
+=======
+>>>>>>> upstream/android-13
 
 	vma = find_vma(current->mm, addr);
 	if (!vma || addr < vma->vm_start)
@@ -211,8 +250,12 @@ static long do_mincore(unsigned long addr, unsigned long pages, unsigned char *v
 		memset(vec, 1, pages);
 		return pages;
 	}
+<<<<<<< HEAD
 	mincore_walk.mm = vma->vm_mm;
 	err = walk_page_range(addr, end, &mincore_walk);
+=======
+	err = walk_page_range(vma->vm_mm, addr, end, &mincore_walk_ops, vec);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 	return (end - addr) >> PAGE_SHIFT;
@@ -256,14 +299,22 @@ SYSCALL_DEFINE3(mincore, unsigned long, start, size_t, len,
 		return -EINVAL;
 
 	/* ..and we need to be passed a valid user-space range */
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, (void __user *) start, len))
+=======
+	if (!access_ok((void __user *) start, len))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/* This also avoids any overflows on PAGE_ALIGN */
 	pages = len >> PAGE_SHIFT;
 	pages += (offset_in_page(len)) != 0;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, vec, pages))
+=======
+	if (!access_ok(vec, pages))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	tmp = (void *) __get_free_page(GFP_USER);
@@ -276,9 +327,15 @@ SYSCALL_DEFINE3(mincore, unsigned long, start, size_t, len,
 		 * Do at most PAGE_SIZE entries per iteration, due to
 		 * the temporary buffer size.
 		 */
+<<<<<<< HEAD
 		down_read(&current->mm->mmap_sem);
 		retval = do_mincore(start, min(pages, PAGE_SIZE), tmp);
 		up_read(&current->mm->mmap_sem);
+=======
+		mmap_read_lock(current->mm);
+		retval = do_mincore(start, min(pages, PAGE_SIZE), tmp);
+		mmap_read_unlock(current->mm);
+>>>>>>> upstream/android-13
 
 		if (retval <= 0)
 			break;

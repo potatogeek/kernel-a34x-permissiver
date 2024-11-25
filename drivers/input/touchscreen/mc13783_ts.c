@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Driver for the Freescale Semiconductor MC13783 touchscreen.
  *
@@ -6,10 +10,13 @@
  *
  * Initial development of this code was funded by
  * Phytec Messtechnik GmbH, http://www.phytec.de/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/platform_device.h>
 #include <linux/mfd/mc13783.h>

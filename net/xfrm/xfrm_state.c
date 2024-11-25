@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * xfrm_state.c
  *
@@ -26,6 +30,11 @@
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
 
+<<<<<<< HEAD
+=======
+#include <crypto/aead.h>
+
+>>>>>>> upstream/android-13
 #include "xfrm_hash.h"
 
 #define xfrm_state_deref_prot(table, net) \
@@ -41,7 +50,10 @@ static void xfrm_state_gc_task(struct work_struct *work);
  */
 
 static unsigned int xfrm_state_hashmax __read_mostly = 1 * 1024 * 1024;
+<<<<<<< HEAD
 static __read_mostly seqcount_t xfrm_state_hash_generation = SEQCNT_ZERO(xfrm_state_hash_generation);
+=======
+>>>>>>> upstream/android-13
 static struct kmem_cache *xfrm_state_cache __ro_after_init;
 
 static DECLARE_WORK(xfrm_state_gc_work, xfrm_state_gc_task);
@@ -76,10 +88,22 @@ xfrm_spi_hash(struct net *net, const xfrm_address_t *daddr,
 	return __xfrm_spi_hash(daddr, spi, proto, family, net->xfrm.state_hmask);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int xfrm_seq_hash(struct net *net, u32 seq)
+{
+	return __xfrm_seq_hash(seq, net->xfrm.state_hmask);
+}
+
+>>>>>>> upstream/android-13
 static void xfrm_hash_transfer(struct hlist_head *list,
 			       struct hlist_head *ndsttable,
 			       struct hlist_head *nsrctable,
 			       struct hlist_head *nspitable,
+<<<<<<< HEAD
+=======
+			       struct hlist_head *nseqtable,
+>>>>>>> upstream/android-13
 			       unsigned int nhashmask)
 {
 	struct hlist_node *tmp;
@@ -104,6 +128,14 @@ static void xfrm_hash_transfer(struct hlist_head *list,
 					    nhashmask);
 			hlist_add_head_rcu(&x->byspi, nspitable + h);
 		}
+<<<<<<< HEAD
+=======
+
+		if (x->km.seq) {
+			h = __xfrm_seq_hash(x->km.seq, nhashmask);
+			hlist_add_head_rcu(&x->byseq, nseqtable + h);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -115,7 +147,11 @@ static unsigned long xfrm_hash_new_size(unsigned int state_hmask)
 static void xfrm_hash_resize(struct work_struct *work)
 {
 	struct net *net = container_of(work, struct net, xfrm.state_hash_work);
+<<<<<<< HEAD
 	struct hlist_head *ndst, *nsrc, *nspi, *odst, *osrc, *ospi;
+=======
+	struct hlist_head *ndst, *nsrc, *nspi, *nseq, *odst, *osrc, *ospi, *oseq;
+>>>>>>> upstream/android-13
 	unsigned long nsize, osize;
 	unsigned int nhashmask, ohashmask;
 	int i;
@@ -135,25 +171,53 @@ static void xfrm_hash_resize(struct work_struct *work)
 		xfrm_hash_free(nsrc, nsize);
 		return;
 	}
+<<<<<<< HEAD
 
 	spin_lock_bh(&net->xfrm.xfrm_state_lock);
 	write_seqcount_begin(&xfrm_state_hash_generation);
+=======
+	nseq = xfrm_hash_alloc(nsize);
+	if (!nseq) {
+		xfrm_hash_free(ndst, nsize);
+		xfrm_hash_free(nsrc, nsize);
+		xfrm_hash_free(nspi, nsize);
+		return;
+	}
+
+	spin_lock_bh(&net->xfrm.xfrm_state_lock);
+	write_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+>>>>>>> upstream/android-13
 
 	nhashmask = (nsize / sizeof(struct hlist_head)) - 1U;
 	odst = xfrm_state_deref_prot(net->xfrm.state_bydst, net);
 	for (i = net->xfrm.state_hmask; i >= 0; i--)
+<<<<<<< HEAD
 		xfrm_hash_transfer(odst + i, ndst, nsrc, nspi, nhashmask);
 
 	osrc = xfrm_state_deref_prot(net->xfrm.state_bysrc, net);
 	ospi = xfrm_state_deref_prot(net->xfrm.state_byspi, net);
+=======
+		xfrm_hash_transfer(odst + i, ndst, nsrc, nspi, nseq, nhashmask);
+
+	osrc = xfrm_state_deref_prot(net->xfrm.state_bysrc, net);
+	ospi = xfrm_state_deref_prot(net->xfrm.state_byspi, net);
+	oseq = xfrm_state_deref_prot(net->xfrm.state_byseq, net);
+>>>>>>> upstream/android-13
 	ohashmask = net->xfrm.state_hmask;
 
 	rcu_assign_pointer(net->xfrm.state_bydst, ndst);
 	rcu_assign_pointer(net->xfrm.state_bysrc, nsrc);
 	rcu_assign_pointer(net->xfrm.state_byspi, nspi);
+<<<<<<< HEAD
 	net->xfrm.state_hmask = nhashmask;
 
 	write_seqcount_end(&xfrm_state_hash_generation);
+=======
+	rcu_assign_pointer(net->xfrm.state_byseq, nseq);
+	net->xfrm.state_hmask = nhashmask;
+
+	write_seqcount_end(&net->xfrm.xfrm_state_hash_generation);
+>>>>>>> upstream/android-13
 	spin_unlock_bh(&net->xfrm.xfrm_state_lock);
 
 	osize = (ohashmask + 1) * sizeof(struct hlist_head);
@@ -163,6 +227,10 @@ static void xfrm_hash_resize(struct work_struct *work)
 	xfrm_hash_free(odst, osize);
 	xfrm_hash_free(osrc, osize);
 	xfrm_hash_free(ospi, osize);
+<<<<<<< HEAD
+=======
+	xfrm_hash_free(oseq, osize);
+>>>>>>> upstream/android-13
 }
 
 static DEFINE_SPINLOCK(xfrm_state_afinfo_lock);
@@ -173,6 +241,7 @@ static DEFINE_SPINLOCK(xfrm_state_gc_lock);
 int __xfrm_state_delete(struct xfrm_state *x);
 
 int km_query(struct xfrm_state *x, struct xfrm_tmpl *t, struct xfrm_policy *pol);
+<<<<<<< HEAD
 bool km_is_alive(const struct km_event *c);
 void km_state_expired(struct xfrm_state *x, int hard, u32 portid);
 
@@ -193,11 +262,58 @@ int xfrm_register_type(const struct xfrm_type *type, unsigned short family)
 	else
 		err = -EEXIST;
 	spin_unlock_bh(&xfrm_type_lock);
+=======
+static bool km_is_alive(const struct km_event *c);
+void km_state_expired(struct xfrm_state *x, int hard, u32 portid);
+
+int xfrm_register_type(const struct xfrm_type *type, unsigned short family)
+{
+	struct xfrm_state_afinfo *afinfo = xfrm_state_get_afinfo(family);
+	int err = 0;
+
+	if (!afinfo)
+		return -EAFNOSUPPORT;
+
+#define X(afi, T, name) do {			\
+		WARN_ON((afi)->type_ ## name);	\
+		(afi)->type_ ## name = (T);	\
+	} while (0)
+
+	switch (type->proto) {
+	case IPPROTO_COMP:
+		X(afinfo, type, comp);
+		break;
+	case IPPROTO_AH:
+		X(afinfo, type, ah);
+		break;
+	case IPPROTO_ESP:
+		X(afinfo, type, esp);
+		break;
+	case IPPROTO_IPIP:
+		X(afinfo, type, ipip);
+		break;
+	case IPPROTO_DSTOPTS:
+		X(afinfo, type, dstopts);
+		break;
+	case IPPROTO_ROUTING:
+		X(afinfo, type, routing);
+		break;
+	case IPPROTO_IPV6:
+		X(afinfo, type, ipip6);
+		break;
+	default:
+		WARN_ON(1);
+		err = -EPROTONOSUPPORT;
+		break;
+	}
+#undef X
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return err;
 }
 EXPORT_SYMBOL(xfrm_register_type);
 
+<<<<<<< HEAD
 int xfrm_unregister_type(const struct xfrm_type *type, unsigned short family)
 {
 	struct xfrm_state_afinfo *afinfo = xfrm_state_get_afinfo(family);
@@ -216,23 +332,100 @@ int xfrm_unregister_type(const struct xfrm_type *type, unsigned short family)
 	spin_unlock_bh(&xfrm_type_lock);
 	rcu_read_unlock();
 	return err;
+=======
+void xfrm_unregister_type(const struct xfrm_type *type, unsigned short family)
+{
+	struct xfrm_state_afinfo *afinfo = xfrm_state_get_afinfo(family);
+
+	if (unlikely(afinfo == NULL))
+		return;
+
+#define X(afi, T, name) do {				\
+		WARN_ON((afi)->type_ ## name != (T));	\
+		(afi)->type_ ## name = NULL;		\
+	} while (0)
+
+	switch (type->proto) {
+	case IPPROTO_COMP:
+		X(afinfo, type, comp);
+		break;
+	case IPPROTO_AH:
+		X(afinfo, type, ah);
+		break;
+	case IPPROTO_ESP:
+		X(afinfo, type, esp);
+		break;
+	case IPPROTO_IPIP:
+		X(afinfo, type, ipip);
+		break;
+	case IPPROTO_DSTOPTS:
+		X(afinfo, type, dstopts);
+		break;
+	case IPPROTO_ROUTING:
+		X(afinfo, type, routing);
+		break;
+	case IPPROTO_IPV6:
+		X(afinfo, type, ipip6);
+		break;
+	default:
+		WARN_ON(1);
+		break;
+	}
+#undef X
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(xfrm_unregister_type);
 
 static const struct xfrm_type *xfrm_get_type(u8 proto, unsigned short family)
 {
+<<<<<<< HEAD
 	struct xfrm_state_afinfo *afinfo;
 	const struct xfrm_type **typemap;
 	const struct xfrm_type *type;
+=======
+	const struct xfrm_type *type = NULL;
+	struct xfrm_state_afinfo *afinfo;
+>>>>>>> upstream/android-13
 	int modload_attempted = 0;
 
 retry:
 	afinfo = xfrm_state_get_afinfo(family);
 	if (unlikely(afinfo == NULL))
 		return NULL;
+<<<<<<< HEAD
 	typemap = afinfo->type_map;
 
 	type = READ_ONCE(typemap[proto]);
+=======
+
+	switch (proto) {
+	case IPPROTO_COMP:
+		type = afinfo->type_comp;
+		break;
+	case IPPROTO_AH:
+		type = afinfo->type_ah;
+		break;
+	case IPPROTO_ESP:
+		type = afinfo->type_esp;
+		break;
+	case IPPROTO_IPIP:
+		type = afinfo->type_ipip;
+		break;
+	case IPPROTO_DSTOPTS:
+		type = afinfo->type_dstopts;
+		break;
+	case IPPROTO_ROUTING:
+		type = afinfo->type_routing;
+		break;
+	case IPPROTO_IPV6:
+		type = afinfo->type_ipip6;
+		break;
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if (unlikely(type && !try_module_get(type->owner)))
 		type = NULL;
 
@@ -252,16 +445,23 @@ static void xfrm_put_type(const struct xfrm_type *type)
 	module_put(type->owner);
 }
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(xfrm_type_offload_lock);
+=======
+>>>>>>> upstream/android-13
 int xfrm_register_type_offload(const struct xfrm_type_offload *type,
 			       unsigned short family)
 {
 	struct xfrm_state_afinfo *afinfo = xfrm_state_get_afinfo(family);
+<<<<<<< HEAD
 	const struct xfrm_type_offload **typemap;
+=======
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	if (unlikely(afinfo == NULL))
 		return -EAFNOSUPPORT;
+<<<<<<< HEAD
 	typemap = afinfo->type_offload_map;
 	spin_lock_bh(&xfrm_type_offload_lock);
 
@@ -270,11 +470,26 @@ int xfrm_register_type_offload(const struct xfrm_type_offload *type,
 	else
 		err = -EEXIST;
 	spin_unlock_bh(&xfrm_type_offload_lock);
+=======
+
+	switch (type->proto) {
+	case IPPROTO_ESP:
+		WARN_ON(afinfo->type_offload_esp);
+		afinfo->type_offload_esp = type;
+		break;
+	default:
+		WARN_ON(1);
+		err = -EPROTONOSUPPORT;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return err;
 }
 EXPORT_SYMBOL(xfrm_register_type_offload);
 
+<<<<<<< HEAD
 int xfrm_unregister_type_offload(const struct xfrm_type_offload *type,
 				 unsigned short family)
 {
@@ -294,23 +509,60 @@ int xfrm_unregister_type_offload(const struct xfrm_type_offload *type,
 	spin_unlock_bh(&xfrm_type_offload_lock);
 	rcu_read_unlock();
 	return err;
+=======
+void xfrm_unregister_type_offload(const struct xfrm_type_offload *type,
+				  unsigned short family)
+{
+	struct xfrm_state_afinfo *afinfo = xfrm_state_get_afinfo(family);
+
+	if (unlikely(afinfo == NULL))
+		return;
+
+	switch (type->proto) {
+	case IPPROTO_ESP:
+		WARN_ON(afinfo->type_offload_esp != type);
+		afinfo->type_offload_esp = NULL;
+		break;
+	default:
+		WARN_ON(1);
+		break;
+	}
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(xfrm_unregister_type_offload);
 
 static const struct xfrm_type_offload *
 xfrm_get_type_offload(u8 proto, unsigned short family, bool try_load)
 {
+<<<<<<< HEAD
 	struct xfrm_state_afinfo *afinfo;
 	const struct xfrm_type_offload **typemap;
 	const struct xfrm_type_offload *type;
+=======
+	const struct xfrm_type_offload *type = NULL;
+	struct xfrm_state_afinfo *afinfo;
+>>>>>>> upstream/android-13
 
 retry:
 	afinfo = xfrm_state_get_afinfo(family);
 	if (unlikely(afinfo == NULL))
 		return NULL;
+<<<<<<< HEAD
 	typemap = afinfo->type_offload_map;
 
 	type = typemap[proto];
+=======
+
+	switch (proto) {
+	case IPPROTO_ESP:
+		type = afinfo->type_offload_esp;
+		break;
+	default:
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	if ((type && !try_module_get(type->owner)))
 		type = NULL;
 
@@ -330,6 +582,7 @@ static void xfrm_put_type_offload(const struct xfrm_type_offload *type)
 	module_put(type->owner);
 }
 
+<<<<<<< HEAD
 static DEFINE_SPINLOCK(xfrm_mode_lock);
 int xfrm_register_mode(struct xfrm_mode *mode, int family)
 {
@@ -398,10 +651,54 @@ static struct xfrm_mode *xfrm_get_mode(unsigned int encap, int family)
 	struct xfrm_state_afinfo *afinfo;
 	struct xfrm_mode *mode;
 	int modload_attempted = 0;
+=======
+static const struct xfrm_mode xfrm4_mode_map[XFRM_MODE_MAX] = {
+	[XFRM_MODE_BEET] = {
+		.encap = XFRM_MODE_BEET,
+		.flags = XFRM_MODE_FLAG_TUNNEL,
+		.family = AF_INET,
+	},
+	[XFRM_MODE_TRANSPORT] = {
+		.encap = XFRM_MODE_TRANSPORT,
+		.family = AF_INET,
+	},
+	[XFRM_MODE_TUNNEL] = {
+		.encap = XFRM_MODE_TUNNEL,
+		.flags = XFRM_MODE_FLAG_TUNNEL,
+		.family = AF_INET,
+	},
+};
+
+static const struct xfrm_mode xfrm6_mode_map[XFRM_MODE_MAX] = {
+	[XFRM_MODE_BEET] = {
+		.encap = XFRM_MODE_BEET,
+		.flags = XFRM_MODE_FLAG_TUNNEL,
+		.family = AF_INET6,
+	},
+	[XFRM_MODE_ROUTEOPTIMIZATION] = {
+		.encap = XFRM_MODE_ROUTEOPTIMIZATION,
+		.family = AF_INET6,
+	},
+	[XFRM_MODE_TRANSPORT] = {
+		.encap = XFRM_MODE_TRANSPORT,
+		.family = AF_INET6,
+	},
+	[XFRM_MODE_TUNNEL] = {
+		.encap = XFRM_MODE_TUNNEL,
+		.flags = XFRM_MODE_FLAG_TUNNEL,
+		.family = AF_INET6,
+	},
+};
+
+static const struct xfrm_mode *xfrm_get_mode(unsigned int encap, int family)
+{
+	const struct xfrm_mode *mode;
+>>>>>>> upstream/android-13
 
 	if (unlikely(encap >= XFRM_MODE_MAX))
 		return NULL;
 
+<<<<<<< HEAD
 retry:
 	afinfo = xfrm_state_get_afinfo(family);
 	if (unlikely(afinfo == NULL))
@@ -424,6 +721,24 @@ retry:
 static void xfrm_put_mode(struct xfrm_mode *mode)
 {
 	module_put(mode->owner);
+=======
+	switch (family) {
+	case AF_INET:
+		mode = &xfrm4_mode_map[encap];
+		if (mode->family == family)
+			return mode;
+		break;
+	case AF_INET6:
+		mode = &xfrm6_mode_map[encap];
+		if (mode->family == family)
+			return mode;
+		break;
+	default:
+		break;
+	}
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 void xfrm_state_free(struct xfrm_state *x)
@@ -434,7 +749,11 @@ EXPORT_SYMBOL(xfrm_state_free);
 
 static void ___xfrm_state_destroy(struct xfrm_state *x)
 {
+<<<<<<< HEAD
 	tasklet_hrtimer_cancel(&x->mtimer);
+=======
+	hrtimer_cancel(&x->mtimer);
+>>>>>>> upstream/android-13
 	del_timer_sync(&x->rtimer);
 	kfree(x->aead);
 	kfree(x->aalg);
@@ -444,12 +763,15 @@ static void ___xfrm_state_destroy(struct xfrm_state *x)
 	kfree(x->coaddr);
 	kfree(x->replay_esn);
 	kfree(x->preplay_esn);
+<<<<<<< HEAD
 	if (x->inner_mode)
 		xfrm_put_mode(x->inner_mode);
 	if (x->inner_mode_iaf)
 		xfrm_put_mode(x->inner_mode_iaf);
 	if (x->outer_mode)
 		xfrm_put_mode(x->outer_mode);
+=======
+>>>>>>> upstream/android-13
 	if (x->type_offload)
 		xfrm_put_type_offload(x->type_offload);
 	if (x->type) {
@@ -481,8 +803,13 @@ static void xfrm_state_gc_task(struct work_struct *work)
 
 static enum hrtimer_restart xfrm_timer_handler(struct hrtimer *me)
 {
+<<<<<<< HEAD
 	struct tasklet_hrtimer *thr = container_of(me, struct tasklet_hrtimer, timer);
 	struct xfrm_state *x = container_of(thr, struct xfrm_state, mtimer);
+=======
+	struct xfrm_state *x = container_of(me, struct xfrm_state, mtimer);
+	enum hrtimer_restart ret = HRTIMER_NORESTART;
+>>>>>>> upstream/android-13
 	time64_t now = ktime_get_real_seconds();
 	time64_t next = TIME64_MAX;
 	int warn = 0;
@@ -546,7 +873,12 @@ static enum hrtimer_restart xfrm_timer_handler(struct hrtimer *me)
 		km_state_expired(x, 0, 0);
 resched:
 	if (next != TIME64_MAX) {
+<<<<<<< HEAD
 		tasklet_hrtimer_start(&x->mtimer, ktime_set(next, 0), HRTIMER_MODE_REL);
+=======
+		hrtimer_forward_now(&x->mtimer, ktime_set(next, 0));
+		ret = HRTIMER_RESTART;
+>>>>>>> upstream/android-13
 	}
 
 	goto out;
@@ -563,7 +895,11 @@ expired:
 
 out:
 	spin_unlock(&x->lock);
+<<<<<<< HEAD
 	return HRTIMER_NORESTART;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void xfrm_replay_timer_handler(struct timer_list *t);
@@ -572,7 +908,11 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
 {
 	struct xfrm_state *x;
 
+<<<<<<< HEAD
 	x = kmem_cache_alloc(xfrm_state_cache, GFP_ATOMIC | __GFP_ZERO);
+=======
+	x = kmem_cache_zalloc(xfrm_state_cache, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 
 	if (x) {
 		write_pnet(&x->xs_net, net);
@@ -582,8 +922,14 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
 		INIT_HLIST_NODE(&x->bydst);
 		INIT_HLIST_NODE(&x->bysrc);
 		INIT_HLIST_NODE(&x->byspi);
+<<<<<<< HEAD
 		tasklet_hrtimer_init(&x->mtimer, xfrm_timer_handler,
 					CLOCK_BOOTTIME, HRTIMER_MODE_ABS);
+=======
+		INIT_HLIST_NODE(&x->byseq);
+		hrtimer_init(&x->mtimer, CLOCK_BOOTTIME, HRTIMER_MODE_ABS_SOFT);
+		x->mtimer.function = xfrm_timer_handler;
+>>>>>>> upstream/android-13
 		timer_setup(&x->rtimer, xfrm_replay_timer_handler, 0);
 		x->curlft.add_time = ktime_get_real_seconds();
 		x->lft.soft_byte_limit = XFRM_INF;
@@ -592,8 +938,11 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
 		x->lft.hard_packet_limit = XFRM_INF;
 		x->replay_maxage = 0;
 		x->replay_maxdiff = 0;
+<<<<<<< HEAD
 		x->inner_mode = NULL;
 		x->inner_mode_iaf = NULL;
+=======
+>>>>>>> upstream/android-13
 		spin_lock_init(&x->lock);
 	}
 	return x;
@@ -627,11 +976,22 @@ int __xfrm_state_delete(struct xfrm_state *x)
 		list_del(&x->km.all);
 		hlist_del_rcu(&x->bydst);
 		hlist_del_rcu(&x->bysrc);
+<<<<<<< HEAD
+=======
+		if (x->km.seq)
+			hlist_del_rcu(&x->byseq);
+>>>>>>> upstream/android-13
 		if (x->id.spi)
 			hlist_del_rcu(&x->byspi);
 		net->xfrm.state_num--;
 		spin_unlock(&net->xfrm.xfrm_state_lock);
 
+<<<<<<< HEAD
+=======
+		if (x->encap_sk)
+			sock_put(rcu_dereference_raw(x->encap_sk));
+
+>>>>>>> upstream/android-13
 		xfrm_dev_state_delete(x);
 
 		/* All xfrm_state objects are created by xfrm_state_alloc.
@@ -811,11 +1171,52 @@ void xfrm_sad_getinfo(struct net *net, struct xfrmk_sadinfo *si)
 EXPORT_SYMBOL(xfrm_sad_getinfo);
 
 static void
+<<<<<<< HEAD
+=======
+__xfrm4_init_tempsel(struct xfrm_selector *sel, const struct flowi *fl)
+{
+	const struct flowi4 *fl4 = &fl->u.ip4;
+
+	sel->daddr.a4 = fl4->daddr;
+	sel->saddr.a4 = fl4->saddr;
+	sel->dport = xfrm_flowi_dport(fl, &fl4->uli);
+	sel->dport_mask = htons(0xffff);
+	sel->sport = xfrm_flowi_sport(fl, &fl4->uli);
+	sel->sport_mask = htons(0xffff);
+	sel->family = AF_INET;
+	sel->prefixlen_d = 32;
+	sel->prefixlen_s = 32;
+	sel->proto = fl4->flowi4_proto;
+	sel->ifindex = fl4->flowi4_oif;
+}
+
+static void
+__xfrm6_init_tempsel(struct xfrm_selector *sel, const struct flowi *fl)
+{
+	const struct flowi6 *fl6 = &fl->u.ip6;
+
+	/* Initialize temporary selector matching only to current session. */
+	*(struct in6_addr *)&sel->daddr = fl6->daddr;
+	*(struct in6_addr *)&sel->saddr = fl6->saddr;
+	sel->dport = xfrm_flowi_dport(fl, &fl6->uli);
+	sel->dport_mask = htons(0xffff);
+	sel->sport = xfrm_flowi_sport(fl, &fl6->uli);
+	sel->sport_mask = htons(0xffff);
+	sel->family = AF_INET6;
+	sel->prefixlen_d = 128;
+	sel->prefixlen_s = 128;
+	sel->proto = fl6->flowi6_proto;
+	sel->ifindex = fl6->flowi6_oif;
+}
+
+static void
+>>>>>>> upstream/android-13
 xfrm_init_tempstate(struct xfrm_state *x, const struct flowi *fl,
 		    const struct xfrm_tmpl *tmpl,
 		    const xfrm_address_t *daddr, const xfrm_address_t *saddr,
 		    unsigned short family)
 {
+<<<<<<< HEAD
 	struct xfrm_state_afinfo *afinfo = xfrm_state_afinfo_get_rcu(family);
 
 	if (!afinfo)
@@ -829,6 +1230,39 @@ xfrm_init_tempstate(struct xfrm_state *x, const struct flowi *fl,
 			return;
 	}
 	afinfo->init_temprop(x, tmpl, daddr, saddr);
+=======
+	switch (family) {
+	case AF_INET:
+		__xfrm4_init_tempsel(&x->sel, fl);
+		break;
+	case AF_INET6:
+		__xfrm6_init_tempsel(&x->sel, fl);
+		break;
+	}
+
+	x->id = tmpl->id;
+
+	switch (tmpl->encap_family) {
+	case AF_INET:
+		if (x->id.daddr.a4 == 0)
+			x->id.daddr.a4 = daddr->a4;
+		x->props.saddr = tmpl->saddr;
+		if (x->props.saddr.a4 == 0)
+			x->props.saddr.a4 = saddr->a4;
+		break;
+	case AF_INET6:
+		if (ipv6_addr_any((struct in6_addr *)&x->id.daddr))
+			memcpy(&x->id.daddr, daddr, sizeof(x->sel.daddr));
+		memcpy(&x->props.saddr, &tmpl->saddr, sizeof(x->props.saddr));
+		if (ipv6_addr_any((struct in6_addr *)&x->props.saddr))
+			memcpy(&x->props.saddr, saddr, sizeof(x->props.saddr));
+		break;
+	}
+
+	x->props.mode = tmpl->mode;
+	x->props.reqid = tmpl->reqid;
+	x->props.family = tmpl->encap_family;
+>>>>>>> upstream/android-13
 }
 
 static struct xfrm_state *__xfrm_state_lookup(struct net *net, u32 mark,
@@ -925,7 +1359,12 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
 		if ((x->sel.family &&
 		     (x->sel.family != family ||
 		      !xfrm_selector_match(&x->sel, fl, family))) ||
+<<<<<<< HEAD
 		    !security_xfrm_state_pol_flow_match(x, pol, fl))
+=======
+		    !security_xfrm_state_pol_flow_match(x, pol,
+							&fl->u.__fl_common))
+>>>>>>> upstream/android-13
 			return;
 
 		if (!*best ||
@@ -940,7 +1379,12 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
 		if ((!x->sel.family ||
 		     (x->sel.family == family &&
 		      xfrm_selector_match(&x->sel, fl, family))) &&
+<<<<<<< HEAD
 		    security_xfrm_state_pol_flow_match(x, pol, fl))
+=======
+		    security_xfrm_state_pol_flow_match(x, pol,
+						       &fl->u.__fl_common))
+>>>>>>> upstream/android-13
 			*error = -ESRCH;
 	}
 }
@@ -965,7 +1409,11 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
 
 	to_put = NULL;
 
+<<<<<<< HEAD
 	sequence = read_seqcount_begin(&xfrm_state_hash_generation);
+=======
+	sequence = read_seqcount_begin(&net->xfrm.xfrm_state_hash_generation);
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	h = xfrm_dst_hash(net, daddr, saddr, tmpl->reqid, encap_family);
@@ -1051,8 +1499,19 @@ found:
 				h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, encap_family);
 				hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
 			}
+<<<<<<< HEAD
 			x->lft.hard_add_expires_seconds = net->xfrm.sysctl_acq_expires;
 			tasklet_hrtimer_start(&x->mtimer, ktime_set(net->xfrm.sysctl_acq_expires, 0), HRTIMER_MODE_REL);
+=======
+			if (x->km.seq) {
+				h = xfrm_seq_hash(net, x->km.seq);
+				hlist_add_head_rcu(&x->byseq, net->xfrm.state_byseq + h);
+			}
+			x->lft.hard_add_expires_seconds = net->xfrm.sysctl_acq_expires;
+			hrtimer_start(&x->mtimer,
+				      ktime_set(net->xfrm.sysctl_acq_expires, 0),
+				      HRTIMER_MODE_REL_SOFT);
+>>>>>>> upstream/android-13
 			net->xfrm.state_num++;
 			xfrm_hash_grow_check(net, x->bydst.next != NULL);
 			spin_unlock_bh(&net->xfrm.xfrm_state_lock);
@@ -1076,7 +1535,11 @@ out:
 	if (to_put)
 		xfrm_state_put(to_put);
 
+<<<<<<< HEAD
 	if (read_seqcount_retry(&xfrm_state_hash_generation, sequence)) {
+=======
+	if (read_seqcount_retry(&net->xfrm.xfrm_state_hash_generation, sequence)) {
+>>>>>>> upstream/android-13
 		*err = -EAGAIN;
 		if (x) {
 			xfrm_state_put(x);
@@ -1164,7 +1627,17 @@ static void __xfrm_state_insert(struct xfrm_state *x)
 		hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
 	}
 
+<<<<<<< HEAD
 	tasklet_hrtimer_start(&x->mtimer, ktime_set(1, 0), HRTIMER_MODE_REL);
+=======
+	if (x->km.seq) {
+		h = xfrm_seq_hash(net, x->km.seq);
+
+		hlist_add_head_rcu(&x->byseq, net->xfrm.state_byseq + h);
+	}
+
+	hrtimer_start(&x->mtimer, ktime_set(1, 0), HRTIMER_MODE_REL_SOFT);
+>>>>>>> upstream/android-13
 	if (x->replay_maxage)
 		mod_timer(&x->rtimer, jiffies + x->replay_maxage);
 
@@ -1271,7 +1744,13 @@ static struct xfrm_state *__find_acq_core(struct net *net,
 		x->mark.m = m->m;
 		x->lft.hard_add_expires_seconds = net->xfrm.sysctl_acq_expires;
 		xfrm_state_hold(x);
+<<<<<<< HEAD
 		tasklet_hrtimer_start(&x->mtimer, ktime_set(net->xfrm.sysctl_acq_expires, 0), HRTIMER_MODE_REL);
+=======
+		hrtimer_start(&x->mtimer,
+			      ktime_set(net->xfrm.sysctl_acq_expires, 0),
+			      HRTIMER_MODE_REL_SOFT);
+>>>>>>> upstream/android-13
 		list_add(&x->km.all, &net->xfrm.state_all);
 		hlist_add_head_rcu(&x->bydst, net->xfrm.state_bydst + h);
 		h = xfrm_src_hash(net, daddr, saddr, family);
@@ -1443,9 +1922,12 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
 	memcpy(&x->mark, &orig->mark, sizeof(x->mark));
 	memcpy(&x->props.smark, &orig->props.smark, sizeof(x->props.smark));
 
+<<<<<<< HEAD
 	if (xfrm_init_state(x) < 0)
 		goto error;
 
+=======
+>>>>>>> upstream/android-13
 	x->props.flags = orig->props.flags;
 	x->props.extra_flags = orig->props.extra_flags;
 
@@ -1458,6 +1940,12 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
 	x->km.seq = orig->km.seq;
 	x->replay = orig->replay;
 	x->preplay = orig->preplay;
+<<<<<<< HEAD
+=======
+	x->mapping_maxage = orig->mapping_maxage;
+	x->new_mapping = 0;
+	x->new_mapping_sport = 0;
+>>>>>>> upstream/android-13
 
 	return x;
 
@@ -1467,7 +1955,12 @@ out:
 	return NULL;
 }
 
+<<<<<<< HEAD
 struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net)
+=======
+struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *net,
+						u32 if_id)
+>>>>>>> upstream/android-13
 {
 	unsigned int h;
 	struct xfrm_state *x = NULL;
@@ -1483,6 +1976,11 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
 				continue;
 			if (m->reqid && x->props.reqid != m->reqid)
 				continue;
+<<<<<<< HEAD
+=======
+			if (if_id != 0 && x->if_id != if_id)
+				continue;
+>>>>>>> upstream/android-13
 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
 					     m->old_family) ||
 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
@@ -1498,6 +1996,11 @@ struct xfrm_state *xfrm_migrate_state_find(struct xfrm_migrate *m, struct net *n
 			if (x->props.mode != m->mode ||
 			    x->id.proto != m->proto)
 				continue;
+<<<<<<< HEAD
+=======
+			if (if_id != 0 && x->if_id != if_id)
+				continue;
+>>>>>>> upstream/android-13
 			if (!xfrm_addr_equal(&x->id.daddr, &m->old_daddr,
 					     m->old_family) ||
 			    !xfrm_addr_equal(&x->props.saddr, &m->old_saddr,
@@ -1524,6 +2027,14 @@ struct xfrm_state *xfrm_state_migrate(struct xfrm_state *x,
 	if (!xc)
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	xc->props.family = m->new_family;
+
+	if (xfrm_init_state(xc) < 0)
+		goto error;
+
+>>>>>>> upstream/android-13
 	memcpy(&xc->id.daddr, &m->new_daddr, sizeof(xc->id.daddr));
 	memcpy(&xc->props.saddr, &m->new_saddr, sizeof(xc->props.saddr));
 
@@ -1605,7 +2116,12 @@ out:
 		memcpy(&x1->lft, &x->lft, sizeof(x1->lft));
 		x1->km.dying = 0;
 
+<<<<<<< HEAD
 		tasklet_hrtimer_start(&x1->mtimer, ktime_set(1, 0), HRTIMER_MODE_REL);
+=======
+		hrtimer_start(&x1->mtimer, ktime_set(1, 0),
+			      HRTIMER_MODE_REL_SOFT);
+>>>>>>> upstream/android-13
 		if (x1->curlft.use_time)
 			xfrm_state_check_expire(x1);
 
@@ -1644,7 +2160,11 @@ int xfrm_state_check_expire(struct xfrm_state *x)
 	if (x->curlft.bytes >= x->lft.hard_byte_limit ||
 	    x->curlft.packets >= x->lft.hard_packet_limit) {
 		x->km.state = XFRM_STATE_EXPIRED;
+<<<<<<< HEAD
 		tasklet_hrtimer_start(&x->mtimer, 0, HRTIMER_MODE_REL);
+=======
+		hrtimer_start(&x->mtimer, 0, HRTIMER_MODE_REL_SOFT);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1701,6 +2221,7 @@ xfrm_find_acq(struct net *net, const struct xfrm_mark *mark, u8 mode, u32 reqid,
 EXPORT_SYMBOL(xfrm_find_acq);
 
 #ifdef CONFIG_XFRM_SUB_POLICY
+<<<<<<< HEAD
 int
 xfrm_tmpl_sort(struct xfrm_tmpl **dst, struct xfrm_tmpl **src, int n,
 	       unsigned short family, struct net *net)
@@ -1724,10 +2245,124 @@ xfrm_tmpl_sort(struct xfrm_tmpl **dst, struct xfrm_tmpl **src, int n,
 EXPORT_SYMBOL(xfrm_tmpl_sort);
 
 int
+=======
+#if IS_ENABLED(CONFIG_IPV6)
+/* distribution counting sort function for xfrm_state and xfrm_tmpl */
+static void
+__xfrm6_sort(void **dst, void **src, int n,
+	     int (*cmp)(const void *p), int maxclass)
+{
+	int count[XFRM_MAX_DEPTH] = { };
+	int class[XFRM_MAX_DEPTH];
+	int i;
+
+	for (i = 0; i < n; i++) {
+		int c = cmp(src[i]);
+
+		class[i] = c;
+		count[c]++;
+	}
+
+	for (i = 2; i < maxclass; i++)
+		count[i] += count[i - 1];
+
+	for (i = 0; i < n; i++) {
+		dst[count[class[i] - 1]++] = src[i];
+		src[i] = NULL;
+	}
+}
+
+/* Rule for xfrm_state:
+ *
+ * rule 1: select IPsec transport except AH
+ * rule 2: select MIPv6 RO or inbound trigger
+ * rule 3: select IPsec transport AH
+ * rule 4: select IPsec tunnel
+ * rule 5: others
+ */
+static int __xfrm6_state_sort_cmp(const void *p)
+{
+	const struct xfrm_state *v = p;
+
+	switch (v->props.mode) {
+	case XFRM_MODE_TRANSPORT:
+		if (v->id.proto != IPPROTO_AH)
+			return 1;
+		else
+			return 3;
+#if IS_ENABLED(CONFIG_IPV6_MIP6)
+	case XFRM_MODE_ROUTEOPTIMIZATION:
+	case XFRM_MODE_IN_TRIGGER:
+		return 2;
+#endif
+	case XFRM_MODE_TUNNEL:
+	case XFRM_MODE_BEET:
+		return 4;
+	}
+	return 5;
+}
+
+/* Rule for xfrm_tmpl:
+ *
+ * rule 1: select IPsec transport
+ * rule 2: select MIPv6 RO or inbound trigger
+ * rule 3: select IPsec tunnel
+ * rule 4: others
+ */
+static int __xfrm6_tmpl_sort_cmp(const void *p)
+{
+	const struct xfrm_tmpl *v = p;
+
+	switch (v->mode) {
+	case XFRM_MODE_TRANSPORT:
+		return 1;
+#if IS_ENABLED(CONFIG_IPV6_MIP6)
+	case XFRM_MODE_ROUTEOPTIMIZATION:
+	case XFRM_MODE_IN_TRIGGER:
+		return 2;
+#endif
+	case XFRM_MODE_TUNNEL:
+	case XFRM_MODE_BEET:
+		return 3;
+	}
+	return 4;
+}
+#else
+static inline int __xfrm6_state_sort_cmp(const void *p) { return 5; }
+static inline int __xfrm6_tmpl_sort_cmp(const void *p) { return 4; }
+
+static inline void
+__xfrm6_sort(void **dst, void **src, int n,
+	     int (*cmp)(const void *p), int maxclass)
+{
+	int i;
+
+	for (i = 0; i < n; i++)
+		dst[i] = src[i];
+}
+#endif /* CONFIG_IPV6 */
+
+void
+xfrm_tmpl_sort(struct xfrm_tmpl **dst, struct xfrm_tmpl **src, int n,
+	       unsigned short family)
+{
+	int i;
+
+	if (family == AF_INET6)
+		__xfrm6_sort((void **)dst, (void **)src, n,
+			     __xfrm6_tmpl_sort_cmp, 5);
+	else
+		for (i = 0; i < n; i++)
+			dst[i] = src[i];
+}
+
+void
+>>>>>>> upstream/android-13
 xfrm_state_sort(struct xfrm_state **dst, struct xfrm_state **src, int n,
 		unsigned short family)
 {
 	int i;
+<<<<<<< HEAD
 	int err = 0;
 	struct xfrm_state_afinfo *afinfo = xfrm_state_get_afinfo(family);
 	struct net *net = xs_net(*src);
@@ -1746,12 +2381,23 @@ xfrm_state_sort(struct xfrm_state **dst, struct xfrm_state **src, int n,
 	return err;
 }
 EXPORT_SYMBOL(xfrm_state_sort);
+=======
+
+	if (family == AF_INET6)
+		__xfrm6_sort((void **)dst, (void **)src, n,
+			     __xfrm6_state_sort_cmp, 6);
+	else
+		for (i = 0; i < n; i++)
+			dst[i] = src[i];
+}
+>>>>>>> upstream/android-13
 #endif
 
 /* Silly enough, but I'm lazy to build resolution list */
 
 static struct xfrm_state *__xfrm_find_acq_byseq(struct net *net, u32 mark, u32 seq)
 {
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i <= net->xfrm.state_hmask; i++) {
@@ -1766,6 +2412,20 @@ static struct xfrm_state *__xfrm_find_acq_byseq(struct net *net, u32 mark, u32 s
 			}
 		}
 	}
+=======
+	unsigned int h = xfrm_seq_hash(net, seq);
+	struct xfrm_state *x;
+
+	hlist_for_each_entry_rcu(x, net->xfrm.state_byseq + h, byseq) {
+		if (x->km.seq == seq &&
+		    (mark & x->mark.m) == x->mark.v &&
+		    x->km.state == XFRM_STATE_ACQ) {
+			xfrm_state_hold(x);
+			return x;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -1965,7 +2625,11 @@ static void xfrm_replay_timer_handler(struct timer_list *t)
 
 	if (x->km.state == XFRM_STATE_VALID) {
 		if (xfrm_aevent_is_on(xs_net(x)))
+<<<<<<< HEAD
 			x->repl->notify(x, XFRM_REPLAY_TIMEOUT);
+=======
+			xfrm_replay_notify(x, XFRM_REPLAY_TIMEOUT);
+>>>>>>> upstream/android-13
 		else
 			x->xflags |= XFRM_TIME_DEFER;
 	}
@@ -2030,7 +2694,11 @@ int km_query(struct xfrm_state *x, struct xfrm_tmpl *t, struct xfrm_policy *pol)
 }
 EXPORT_SYMBOL(km_query);
 
+<<<<<<< HEAD
 int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
+=======
+static int __km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
+>>>>>>> upstream/android-13
 {
 	int err = -EINVAL;
 	struct xfrm_mgr *km;
@@ -2045,6 +2713,27 @@ int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
 	rcu_read_unlock();
 	return err;
 }
+<<<<<<< HEAD
+=======
+
+int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
+{
+	int ret = 0;
+
+	if (x->mapping_maxage) {
+		if ((jiffies / HZ - x->new_mapping) > x->mapping_maxage ||
+		    x->new_mapping_sport != sport) {
+			x->new_mapping_sport = sport;
+			x->new_mapping = jiffies / HZ;
+			ret = __km_new_mapping(x, ipaddr, sport);
+		}
+	} else {
+		ret = __km_new_mapping(x, ipaddr, sport);
+	}
+
+	return ret;
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(km_new_mapping);
 
 void km_policy_expired(struct xfrm_policy *pol, int dir, int hard, u32 portid)
@@ -2102,7 +2791,11 @@ int km_report(struct net *net, u8 proto, struct xfrm_selector *sel, xfrm_address
 }
 EXPORT_SYMBOL(km_report);
 
+<<<<<<< HEAD
 bool km_is_alive(const struct km_event *c)
+=======
+static bool km_is_alive(const struct km_event *c)
+>>>>>>> upstream/android-13
 {
 	struct xfrm_mgr *km;
 	bool is_alive = false;
@@ -2118,7 +2811,10 @@ bool km_is_alive(const struct km_event *c)
 
 	return is_alive;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(km_is_alive);
+=======
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_XFRM_USER_COMPAT)
 static DEFINE_SPINLOCK(xfrm_translator_lock);
@@ -2180,14 +2876,22 @@ int xfrm_unregister_translator(struct xfrm_translator *xtr)
 EXPORT_SYMBOL_GPL(xfrm_unregister_translator);
 #endif
 
+<<<<<<< HEAD
 int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
+=======
+int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval, int optlen)
+>>>>>>> upstream/android-13
 {
 	int err;
 	u8 *data;
 	struct xfrm_mgr *km;
 	struct xfrm_policy *pol = NULL;
 
+<<<<<<< HEAD
 	if (!optval && !optlen) {
+=======
+	if (sockptr_is_null(optval) && !optlen) {
+>>>>>>> upstream/android-13
 		xfrm_sk_policy_insert(sk, XFRM_POLICY_IN, NULL);
 		xfrm_sk_policy_insert(sk, XFRM_POLICY_OUT, NULL);
 		__sk_dst_reset(sk);
@@ -2197,7 +2901,11 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
 	if (optlen <= 0 || optlen > PAGE_SIZE)
 		return -EMSGSIZE;
 
+<<<<<<< HEAD
 	data = memdup_user(optval, optlen);
+=======
+	data = memdup_sockptr(optval, optlen);
+>>>>>>> upstream/android-13
 	if (IS_ERR(data))
 		return PTR_ERR(data);
 
@@ -2206,8 +2914,15 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
 		if (in_compat_syscall()) {
 			struct xfrm_translator *xtr = xfrm_get_translator();
 
+<<<<<<< HEAD
 			if (!xtr)
 				return -EOPNOTSUPP;
+=======
+			if (!xtr) {
+				kfree(data);
+				return -EOPNOTSUPP;
+			}
+>>>>>>> upstream/android-13
 
 			err = xtr->xlate_user_policy_sockptr(&data, optlen);
 			xfrm_put_translator(xtr);
@@ -2305,6 +3020,10 @@ struct xfrm_state_afinfo *xfrm_state_afinfo_get_rcu(unsigned int family)
 
 	return rcu_dereference(xfrm_state_afinfo[family]);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xfrm_state_afinfo_get_rcu);
+>>>>>>> upstream/android-13
 
 struct xfrm_state_afinfo *xfrm_state_get_afinfo(unsigned int family)
 {
@@ -2339,6 +3058,7 @@ void xfrm_state_delete_tunnel(struct xfrm_state *x)
 }
 EXPORT_SYMBOL(xfrm_state_delete_tunnel);
 
+<<<<<<< HEAD
 int xfrm_state_mtu(struct xfrm_state *x, int mtu)
 {
 	const struct xfrm_type *type = READ_ONCE(x->type);
@@ -2370,6 +3090,51 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
 
 	if (err)
 		goto error;
+=======
+u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
+{
+	const struct xfrm_type *type = READ_ONCE(x->type);
+	struct crypto_aead *aead;
+	u32 blksize, net_adj = 0;
+
+	if (x->km.state != XFRM_STATE_VALID ||
+	    !type || type->proto != IPPROTO_ESP)
+		return mtu - x->props.header_len;
+
+	aead = x->data;
+	blksize = ALIGN(crypto_aead_blocksize(aead), 4);
+
+	switch (x->props.mode) {
+	case XFRM_MODE_TRANSPORT:
+	case XFRM_MODE_BEET:
+		if (x->props.family == AF_INET)
+			net_adj = sizeof(struct iphdr);
+		else if (x->props.family == AF_INET6)
+			net_adj = sizeof(struct ipv6hdr);
+		break;
+	case XFRM_MODE_TUNNEL:
+		break;
+	default:
+		WARN_ON_ONCE(1);
+		break;
+	}
+
+	return ((mtu - x->props.header_len - crypto_aead_authsize(aead) -
+		 net_adj) & ~(blksize - 1)) + net_adj - 2;
+}
+EXPORT_SYMBOL_GPL(xfrm_state_mtu);
+
+int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
+{
+	const struct xfrm_mode *inner_mode;
+	const struct xfrm_mode *outer_mode;
+	int family = x->props.family;
+	int err;
+
+	if (family == AF_INET &&
+	    xs_net(x)->ipv4.sysctl_ip_no_pmtu_disc)
+		x->props.flags |= XFRM_STATE_NOPMTUDISC;
+>>>>>>> upstream/android-13
 
 	err = -EPROTONOSUPPORT;
 
@@ -2379,6 +3144,7 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
 			goto error;
 
 		if (!(inner_mode->flags & XFRM_MODE_FLAG_TUNNEL) &&
+<<<<<<< HEAD
 		    family != x->sel.family) {
 			xfrm_put_mode(inner_mode);
 			goto error;
@@ -2387,17 +3153,32 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
 		x->inner_mode = inner_mode;
 	} else {
 		struct xfrm_mode *inner_mode_iaf;
+=======
+		    family != x->sel.family)
+			goto error;
+
+		x->inner_mode = *inner_mode;
+	} else {
+		const struct xfrm_mode *inner_mode_iaf;
+>>>>>>> upstream/android-13
 		int iafamily = AF_INET;
 
 		inner_mode = xfrm_get_mode(x->props.mode, x->props.family);
 		if (inner_mode == NULL)
 			goto error;
 
+<<<<<<< HEAD
 		if (!(inner_mode->flags & XFRM_MODE_FLAG_TUNNEL)) {
 			xfrm_put_mode(inner_mode);
 			goto error;
 		}
 		x->inner_mode = inner_mode;
+=======
+		if (!(inner_mode->flags & XFRM_MODE_FLAG_TUNNEL))
+			goto error;
+
+		x->inner_mode = *inner_mode;
+>>>>>>> upstream/android-13
 
 		if (x->props.family == AF_INET)
 			iafamily = AF_INET6;
@@ -2405,9 +3186,13 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
 		inner_mode_iaf = xfrm_get_mode(x->props.mode, iafamily);
 		if (inner_mode_iaf) {
 			if (inner_mode_iaf->flags & XFRM_MODE_FLAG_TUNNEL)
+<<<<<<< HEAD
 				x->inner_mode_iaf = inner_mode_iaf;
 			else
 				xfrm_put_mode(inner_mode_iaf);
+=======
+				x->inner_mode_iaf = *inner_mode_iaf;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2421,12 +3206,21 @@ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
 	if (err)
 		goto error;
 
+<<<<<<< HEAD
 	x->outer_mode = xfrm_get_mode(x->props.mode, family);
 	if (x->outer_mode == NULL) {
+=======
+	outer_mode = xfrm_get_mode(x->props.mode, family);
+	if (!outer_mode) {
+>>>>>>> upstream/android-13
 		err = -EPROTONOSUPPORT;
 		goto error;
 	}
 
+<<<<<<< HEAD
+=======
+	x->outer_mode = *outer_mode;
+>>>>>>> upstream/android-13
 	if (init_replay) {
 		err = xfrm_init_replay(x);
 		if (err)
@@ -2473,13 +3267,28 @@ int __net_init xfrm_state_init(struct net *net)
 	net->xfrm.state_byspi = xfrm_hash_alloc(sz);
 	if (!net->xfrm.state_byspi)
 		goto out_byspi;
+<<<<<<< HEAD
+=======
+	net->xfrm.state_byseq = xfrm_hash_alloc(sz);
+	if (!net->xfrm.state_byseq)
+		goto out_byseq;
+>>>>>>> upstream/android-13
 	net->xfrm.state_hmask = ((sz / sizeof(struct hlist_head)) - 1);
 
 	net->xfrm.state_num = 0;
 	INIT_WORK(&net->xfrm.state_hash_work, xfrm_hash_resize);
 	spin_lock_init(&net->xfrm.xfrm_state_lock);
+<<<<<<< HEAD
 	return 0;
 
+=======
+	seqcount_spinlock_init(&net->xfrm.xfrm_state_hash_generation,
+			       &net->xfrm.xfrm_state_lock);
+	return 0;
+
+out_byseq:
+	xfrm_hash_free(net->xfrm.state_byspi, sz);
+>>>>>>> upstream/android-13
 out_byspi:
 	xfrm_hash_free(net->xfrm.state_bysrc, sz);
 out_bysrc:
@@ -2499,6 +3308,11 @@ void xfrm_state_fini(struct net *net)
 	WARN_ON(!list_empty(&net->xfrm.state_all));
 
 	sz = (net->xfrm.state_hmask + 1) * sizeof(struct hlist_head);
+<<<<<<< HEAD
+=======
+	WARN_ON(!hlist_empty(net->xfrm.state_byseq));
+	xfrm_hash_free(net->xfrm.state_byseq, sz);
+>>>>>>> upstream/android-13
 	WARN_ON(!hlist_empty(net->xfrm.state_byspi));
 	xfrm_hash_free(net->xfrm.state_byspi, sz);
 	WARN_ON(!hlist_empty(net->xfrm.state_bysrc));
@@ -2507,8 +3321,12 @@ void xfrm_state_fini(struct net *net)
 	xfrm_hash_free(net->xfrm.state_bydst, sz);
 }
 
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON - remove AUDIT_MAC_IPSEC_EVENT audit log, it conflict with security notification
 #if 0 // #ifdef CONFIG_AUDITSYSCALL
+=======
+#ifdef CONFIG_AUDITSYSCALL
+>>>>>>> upstream/android-13
 static void xfrm_audit_helper_sainfo(struct xfrm_state *x,
 				     struct audit_buffer *audit_buf)
 {
@@ -2669,5 +3487,8 @@ void xfrm_audit_state_icvfail(struct xfrm_state *x,
 }
 EXPORT_SYMBOL_GPL(xfrm_audit_state_icvfail);
 #endif /* CONFIG_AUDITSYSCALL */
+<<<<<<< HEAD
 // ] SEC_SELINUX_PORTING_COMMON - remove AUDIT_MAC_IPSEC_EVENT audit log, it conflict with security notification
 
+=======
+>>>>>>> upstream/android-13

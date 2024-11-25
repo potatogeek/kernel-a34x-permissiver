@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Qualcomm Atheros, Inc.
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2014-2016 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -26,8 +32,12 @@ void wil_platform_modexit(void)
 {
 }
 
+<<<<<<< HEAD
 /**
  * wil_platform_init() - wil6210 platform module init
+=======
+/* wil_platform_init() - wil6210 platform module init
+>>>>>>> upstream/android-13
  *
  * The function must be called before all other functions in this module.
  * It returns a handle which is used with the rest of the API

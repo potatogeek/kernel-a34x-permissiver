@@ -26,6 +26,7 @@
  *          Jerome Glisse
  */
 #include <linux/ktime.h>
+<<<<<<< HEAD
 #include <linux/pagemap.h>
 #include <drm/drmP.h>
 #include <drm/amdgpu_drm.h>
@@ -33,6 +34,65 @@
 #include "amdgpu_display.h"
 
 void amdgpu_gem_object_free(struct drm_gem_object *gobj)
+=======
+#include <linux/module.h>
+#include <linux/pagemap.h>
+#include <linux/pci.h>
+#include <linux/dma-buf.h>
+
+#include <drm/amdgpu_drm.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_gem_ttm_helper.h>
+
+#include "amdgpu.h"
+#include "amdgpu_display.h"
+#include "amdgpu_dma_buf.h"
+#include "amdgpu_xgmi.h"
+
+static const struct drm_gem_object_funcs amdgpu_gem_object_funcs;
+
+static vm_fault_t amdgpu_gem_fault(struct vm_fault *vmf)
+{
+	struct ttm_buffer_object *bo = vmf->vma->vm_private_data;
+	struct drm_device *ddev = bo->base.dev;
+	vm_fault_t ret;
+	int idx;
+
+	ret = ttm_bo_vm_reserve(bo, vmf);
+	if (ret)
+		return ret;
+
+	if (drm_dev_enter(ddev, &idx)) {
+		ret = amdgpu_bo_fault_reserve_notify(bo);
+		if (ret) {
+			drm_dev_exit(idx);
+			goto unlock;
+		}
+
+		 ret = ttm_bo_vm_fault_reserved(vmf, vmf->vma->vm_page_prot,
+						TTM_BO_VM_NUM_PREFAULT);
+
+		 drm_dev_exit(idx);
+	} else {
+		ret = ttm_bo_vm_dummy_page(vmf, vmf->vma->vm_page_prot);
+	}
+	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
+		return ret;
+
+unlock:
+	dma_resv_unlock(bo->base.resv);
+	return ret;
+}
+
+static const struct vm_operations_struct amdgpu_gem_vm_ops = {
+	.fault = amdgpu_gem_fault,
+	.open = ttm_bo_vm_open,
+	.close = ttm_bo_vm_close,
+	.access = ttm_bo_vm_access
+};
+
+static void amdgpu_gem_object_free(struct drm_gem_object *gobj)
+>>>>>>> upstream/android-13
 {
 	struct amdgpu_bo *robj = gem_to_amdgpu_bo(gobj);
 
@@ -45,25 +105,37 @@ void amdgpu_gem_object_free(struct drm_gem_object *gobj)
 int amdgpu_gem_object_create(struct amdgpu_device *adev, unsigned long size,
 			     int alignment, u32 initial_domain,
 			     u64 flags, enum ttm_bo_type type,
+<<<<<<< HEAD
 			     struct reservation_object *resv,
 			     struct drm_gem_object **obj)
 {
 	struct amdgpu_bo *bo;
+=======
+			     struct dma_resv *resv,
+			     struct drm_gem_object **obj)
+{
+	struct amdgpu_bo *bo;
+	struct amdgpu_bo_user *ubo;
+>>>>>>> upstream/android-13
 	struct amdgpu_bo_param bp;
 	int r;
 
 	memset(&bp, 0, sizeof(bp));
 	*obj = NULL;
+<<<<<<< HEAD
 	/* At least align on page size */
 	if (alignment < PAGE_SIZE) {
 		alignment = PAGE_SIZE;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	bp.size = size;
 	bp.byte_align = alignment;
 	bp.type = type;
 	bp.resv = resv;
 	bp.preferred_domain = initial_domain;
+<<<<<<< HEAD
 retry:
 	bp.flags = flags;
 	bp.domain = initial_domain;
@@ -85,13 +157,30 @@ retry:
 		return r;
 	}
 	*obj = &bo->gem_base;
+=======
+	bp.flags = flags;
+	bp.domain = initial_domain;
+	bp.bo_ptr_size = sizeof(struct amdgpu_bo);
+
+	r = amdgpu_bo_create_user(adev, &bp, &ubo);
+	if (r)
+		return r;
+
+	bo = &ubo->bo;
+	*obj = &bo->tbo.base;
+	(*obj)->funcs = &amdgpu_gem_object_funcs;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 void amdgpu_gem_force_release(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	struct drm_device *ddev = adev->ddev;
+=======
+	struct drm_device *ddev = adev_to_drm(adev);
+>>>>>>> upstream/android-13
 	struct drm_file *file;
 
 	mutex_lock(&ddev->filelist_mutex);
@@ -104,7 +193,11 @@ void amdgpu_gem_force_release(struct amdgpu_device *adev)
 		spin_lock(&file->table_lock);
 		idr_for_each_entry(&file->object_idr, gobj, handle) {
 			WARN_ONCE(1, "And also active allocations!\n");
+<<<<<<< HEAD
 			drm_gem_object_put_unlocked(gobj);
+=======
+			drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 		}
 		idr_destroy(&file->object_idr);
 		spin_unlock(&file->table_lock);
@@ -117,8 +210,13 @@ void amdgpu_gem_force_release(struct amdgpu_device *adev)
  * Call from drm_gem_handle_create which appear in both new and open ioctl
  * case.
  */
+<<<<<<< HEAD
 int amdgpu_gem_object_open(struct drm_gem_object *obj,
 			   struct drm_file *file_priv)
+=======
+static int amdgpu_gem_object_open(struct drm_gem_object *obj,
+				  struct drm_file *file_priv)
+>>>>>>> upstream/android-13
 {
 	struct amdgpu_bo *abo = gem_to_amdgpu_bo(obj);
 	struct amdgpu_device *adev = amdgpu_ttm_adev(abo->tbo.bdev);
@@ -133,7 +231,11 @@ int amdgpu_gem_object_open(struct drm_gem_object *obj,
 		return -EPERM;
 
 	if (abo->flags & AMDGPU_GEM_CREATE_VM_ALWAYS_VALID &&
+<<<<<<< HEAD
 	    abo->tbo.resv != vm->root.base.bo->tbo.resv)
+=======
+	    abo->tbo.base.resv != vm->root.bo->tbo.base.resv)
+>>>>>>> upstream/android-13
 		return -EPERM;
 
 	r = amdgpu_bo_reserve(abo, false);
@@ -150,8 +252,13 @@ int amdgpu_gem_object_open(struct drm_gem_object *obj,
 	return 0;
 }
 
+<<<<<<< HEAD
 void amdgpu_gem_object_close(struct drm_gem_object *obj,
 			     struct drm_file *file_priv)
+=======
+static void amdgpu_gem_object_close(struct drm_gem_object *obj,
+				    struct drm_file *file_priv)
+>>>>>>> upstream/android-13
 {
 	struct amdgpu_bo *bo = gem_to_amdgpu_bo(obj);
 	struct amdgpu_device *adev = amdgpu_ttm_adev(bo->tbo.bdev);
@@ -160,16 +267,28 @@ void amdgpu_gem_object_close(struct drm_gem_object *obj,
 
 	struct amdgpu_bo_list_entry vm_pd;
 	struct list_head list, duplicates;
+<<<<<<< HEAD
 	struct ttm_validate_buffer tv;
 	struct ww_acquire_ctx ticket;
 	struct amdgpu_bo_va *bo_va;
 	int r;
+=======
+	struct dma_fence *fence = NULL;
+	struct ttm_validate_buffer tv;
+	struct ww_acquire_ctx ticket;
+	struct amdgpu_bo_va *bo_va;
+	long r;
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&list);
 	INIT_LIST_HEAD(&duplicates);
 
 	tv.bo = &bo->tbo;
+<<<<<<< HEAD
 	tv.shared = true;
+=======
+	tv.num_shared = 2;
+>>>>>>> upstream/android-13
 	list_add(&tv.head, &list);
 
 	amdgpu_vm_get_pd_bo(vm, &list, &vm_pd);
@@ -177,6 +296,7 @@ void amdgpu_gem_object_close(struct drm_gem_object *obj,
 	r = ttm_eu_reserve_buffers(&ticket, &list, false, &duplicates);
 	if (r) {
 		dev_err(adev->dev, "leaking bo va because "
+<<<<<<< HEAD
 			"we fail to reserve bo (%d)\n", r);
 		return;
 	}
@@ -202,21 +322,96 @@ void amdgpu_gem_object_close(struct drm_gem_object *obj,
 	ttm_eu_backoff_reservation(&ticket, &list);
 }
 
+=======
+			"we fail to reserve bo (%ld)\n", r);
+		return;
+	}
+	bo_va = amdgpu_vm_bo_find(vm, bo);
+	if (!bo_va || --bo_va->ref_count)
+		goto out_unlock;
+
+	amdgpu_vm_bo_rmv(adev, bo_va);
+	if (!amdgpu_vm_ready(vm))
+		goto out_unlock;
+
+	fence = dma_resv_excl_fence(bo->tbo.base.resv);
+	if (fence) {
+		amdgpu_bo_fence(bo, fence, true);
+		fence = NULL;
+	}
+
+	r = amdgpu_vm_clear_freed(adev, vm, &fence);
+	if (r || !fence)
+		goto out_unlock;
+
+	amdgpu_bo_fence(bo, fence, true);
+	dma_fence_put(fence);
+
+out_unlock:
+	if (unlikely(r < 0))
+		dev_err(adev->dev, "failed to clear page "
+			"tables on GEM object close (%ld)\n", r);
+	ttm_eu_backoff_reservation(&ticket, &list);
+}
+
+static int amdgpu_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+{
+	struct amdgpu_bo *bo = gem_to_amdgpu_bo(obj);
+
+	if (amdgpu_ttm_tt_get_usermm(bo->tbo.ttm))
+		return -EPERM;
+	if (bo->flags & AMDGPU_GEM_CREATE_NO_CPU_ACCESS)
+		return -EPERM;
+
+	/* Workaround for Thunk bug creating PROT_NONE,MAP_PRIVATE mappings
+	 * for debugger access to invisible VRAM. Should have used MAP_SHARED
+	 * instead. Clearing VM_MAYWRITE prevents the mapping from ever
+	 * becoming writable and makes is_cow_mapping(vm_flags) false.
+	 */
+	if (is_cow_mapping(vma->vm_flags) &&
+	    !(vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)))
+		vma->vm_flags &= ~VM_MAYWRITE;
+
+	return drm_gem_ttm_mmap(obj, vma);
+}
+
+static const struct drm_gem_object_funcs amdgpu_gem_object_funcs = {
+	.free = amdgpu_gem_object_free,
+	.open = amdgpu_gem_object_open,
+	.close = amdgpu_gem_object_close,
+	.export = amdgpu_gem_prime_export,
+	.vmap = drm_gem_ttm_vmap,
+	.vunmap = drm_gem_ttm_vunmap,
+	.mmap = amdgpu_gem_object_mmap,
+	.vm_ops = &amdgpu_gem_vm_ops,
+};
+
+>>>>>>> upstream/android-13
 /*
  * GEM ioctls.
  */
 int amdgpu_gem_create_ioctl(struct drm_device *dev, void *data,
 			    struct drm_file *filp)
 {
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_fpriv *fpriv = filp->driver_priv;
 	struct amdgpu_vm *vm = &fpriv->vm;
 	union drm_amdgpu_gem_create *args = data;
 	uint64_t flags = args->in.domain_flags;
 	uint64_t size = args->in.bo_size;
+<<<<<<< HEAD
 	struct reservation_object *resv = NULL;
 	struct drm_gem_object *gobj;
 	uint32_t handle;
+=======
+	struct dma_resv *resv = NULL;
+	struct drm_gem_object *gobj;
+	uint32_t handle, initial_domain;
+>>>>>>> upstream/android-13
 	int r;
 
 	/* reject invalid gem flags */
@@ -225,7 +420,12 @@ int amdgpu_gem_create_ioctl(struct drm_device *dev, void *data,
 		      AMDGPU_GEM_CREATE_CPU_GTT_USWC |
 		      AMDGPU_GEM_CREATE_VRAM_CLEARED |
 		      AMDGPU_GEM_CREATE_VM_ALWAYS_VALID |
+<<<<<<< HEAD
 		      AMDGPU_GEM_CREATE_EXPLICIT_SYNC))
+=======
+		      AMDGPU_GEM_CREATE_EXPLICIT_SYNC |
+		      AMDGPU_GEM_CREATE_ENCRYPTED))
+>>>>>>> upstream/android-13
 
 		return -EINVAL;
 
@@ -233,6 +433,14 @@ int amdgpu_gem_create_ioctl(struct drm_device *dev, void *data,
 	if (args->in.domains & ~AMDGPU_GEM_DOMAIN_MASK)
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (!amdgpu_is_tmz(adev) && (flags & AMDGPU_GEM_CREATE_ENCRYPTED)) {
+		DRM_NOTE_ONCE("Cannot allocate secure buffer since TMZ is disabled\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	/* create a gem object to contain this object in */
 	if (args->in.domains & (AMDGPU_GEM_DOMAIN_GDS |
 	    AMDGPU_GEM_DOMAIN_GWS | AMDGPU_GEM_DOMAIN_OA)) {
@@ -244,6 +452,7 @@ int amdgpu_gem_create_ioctl(struct drm_device *dev, void *data,
 			return -EINVAL;
 		}
 		flags |= AMDGPU_GEM_CREATE_NO_CPU_ACCESS;
+<<<<<<< HEAD
 		if (args->in.domains == AMDGPU_GEM_DOMAIN_GDS)
 			size = size << AMDGPU_GDS_SHIFT;
 		else if (args->in.domains == AMDGPU_GEM_DOMAIN_GWS)
@@ -266,20 +475,61 @@ int amdgpu_gem_create_ioctl(struct drm_device *dev, void *data,
 	r = amdgpu_gem_object_create(adev, size, args->in.alignment,
 				     (u32)(0xffffffff & args->in.domains),
 				     flags, ttm_bo_type_device, resv, &gobj);
+=======
+	}
+
+	if (flags & AMDGPU_GEM_CREATE_VM_ALWAYS_VALID) {
+		r = amdgpu_bo_reserve(vm->root.bo, false);
+		if (r)
+			return r;
+
+		resv = vm->root.bo->tbo.base.resv;
+	}
+
+	initial_domain = (u32)(0xffffffff & args->in.domains);
+retry:
+	r = amdgpu_gem_object_create(adev, size, args->in.alignment,
+				     initial_domain,
+				     flags, ttm_bo_type_device, resv, &gobj);
+	if (r && r != -ERESTARTSYS) {
+		if (flags & AMDGPU_GEM_CREATE_CPU_ACCESS_REQUIRED) {
+			flags &= ~AMDGPU_GEM_CREATE_CPU_ACCESS_REQUIRED;
+			goto retry;
+		}
+
+		if (initial_domain == AMDGPU_GEM_DOMAIN_VRAM) {
+			initial_domain |= AMDGPU_GEM_DOMAIN_GTT;
+			goto retry;
+		}
+		DRM_DEBUG("Failed to allocate GEM object (%llu, %d, %llu, %d)\n",
+				size, initial_domain, args->in.alignment, r);
+	}
+
+>>>>>>> upstream/android-13
 	if (flags & AMDGPU_GEM_CREATE_VM_ALWAYS_VALID) {
 		if (!r) {
 			struct amdgpu_bo *abo = gem_to_amdgpu_bo(gobj);
 
+<<<<<<< HEAD
 			abo->parent = amdgpu_bo_ref(vm->root.base.bo);
 		}
 		amdgpu_bo_unreserve(vm->root.base.bo);
+=======
+			abo->parent = amdgpu_bo_ref(vm->root.bo);
+		}
+		amdgpu_bo_unreserve(vm->root.bo);
+>>>>>>> upstream/android-13
 	}
 	if (r)
 		return r;
 
 	r = drm_gem_handle_create(filp, gobj, &handle);
 	/* drop reference from allocate - handle holds it now */
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -292,7 +542,11 @@ int amdgpu_gem_userptr_ioctl(struct drm_device *dev, void *data,
 			     struct drm_file *filp)
 {
 	struct ttm_operation_ctx ctx = { true, false };
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct drm_amdgpu_gem_userptr *args = data;
 	struct drm_gem_object *gobj;
 	struct amdgpu_bo *bo;
@@ -326,7 +580,11 @@ int amdgpu_gem_userptr_ioctl(struct drm_device *dev, void *data,
 	bo = gem_to_amdgpu_bo(gobj);
 	bo->preferred_domains = AMDGPU_GEM_DOMAIN_GTT;
 	bo->allowed_domains = AMDGPU_GEM_DOMAIN_GTT;
+<<<<<<< HEAD
 	r = amdgpu_ttm_tt_set_userptr(bo->tbo.ttm, args->addr, args->flags);
+=======
+	r = amdgpu_ttm_tt_set_userptr(&bo->tbo, args->addr, args->flags);
+>>>>>>> upstream/android-13
 	if (r)
 		goto release_object;
 
@@ -337,19 +595,28 @@ int amdgpu_gem_userptr_ioctl(struct drm_device *dev, void *data,
 	}
 
 	if (args->flags & AMDGPU_GEM_USERPTR_VALIDATE) {
+<<<<<<< HEAD
 		r = amdgpu_ttm_tt_get_user_pages(bo->tbo.ttm,
 						 bo->tbo.ttm->pages);
+=======
+		r = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages);
+>>>>>>> upstream/android-13
 		if (r)
 			goto release_object;
 
 		r = amdgpu_bo_reserve(bo, true);
 		if (r)
+<<<<<<< HEAD
 			goto free_pages;
+=======
+			goto user_pages_done;
+>>>>>>> upstream/android-13
 
 		amdgpu_bo_placement_from_domain(bo, AMDGPU_GEM_DOMAIN_GTT);
 		r = ttm_bo_validate(&bo->tbo, &bo->placement, &ctx);
 		amdgpu_bo_unreserve(bo);
 		if (r)
+<<<<<<< HEAD
 			goto free_pages;
 	}
 
@@ -367,6 +634,23 @@ free_pages:
 
 release_object:
 	drm_gem_object_put_unlocked(gobj);
+=======
+			goto user_pages_done;
+	}
+
+	r = drm_gem_handle_create(filp, gobj, &handle);
+	if (r)
+		goto user_pages_done;
+
+	args->handle = handle;
+
+user_pages_done:
+	if (args->flags & AMDGPU_GEM_USERPTR_VALIDATE)
+		amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm);
+
+release_object:
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -385,11 +669,19 @@ int amdgpu_mode_dumb_mmap(struct drm_file *filp,
 	robj = gem_to_amdgpu_bo(gobj);
 	if (amdgpu_ttm_tt_get_usermm(robj->tbo.ttm) ||
 	    (robj->flags & AMDGPU_GEM_CREATE_NO_CPU_ACCESS)) {
+<<<<<<< HEAD
 		drm_gem_object_put_unlocked(gobj);
 		return -EPERM;
 	}
 	*offset_p = amdgpu_bo_mmap_offset(robj);
 	drm_gem_object_put_unlocked(gobj);
+=======
+		drm_gem_object_put(gobj);
+		return -EPERM;
+	}
+	*offset_p = amdgpu_bo_mmap_offset(robj);
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -446,8 +738,12 @@ int amdgpu_gem_wait_idle_ioctl(struct drm_device *dev, void *data,
 		return -ENOENT;
 	}
 	robj = gem_to_amdgpu_bo(gobj);
+<<<<<<< HEAD
 	ret = reservation_object_wait_timeout_rcu(robj->tbo.resv, true, true,
 						  timeout);
+=======
+	ret = dma_resv_wait_timeout(robj->tbo.base.resv, true, true, timeout);
+>>>>>>> upstream/android-13
 
 	/* ret == 0 means not signaled,
 	 * ret > 0 means signaled
@@ -459,7 +755,11 @@ int amdgpu_gem_wait_idle_ioctl(struct drm_device *dev, void *data,
 	} else
 		r = ret;
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -502,7 +802,11 @@ int amdgpu_gem_metadata_ioctl(struct drm_device *dev, void *data,
 unreserve:
 	amdgpu_bo_unreserve(robj);
 out:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -533,18 +837,57 @@ static void amdgpu_gem_va_update_vm(struct amdgpu_device *adev,
 
 	if (operation == AMDGPU_VA_OP_MAP ||
 	    operation == AMDGPU_VA_OP_REPLACE) {
+<<<<<<< HEAD
 		r = amdgpu_vm_bo_update(adev, bo_va, false);
+=======
+		r = amdgpu_vm_bo_update(adev, bo_va, false, NULL);
+>>>>>>> upstream/android-13
 		if (r)
 			goto error;
 	}
 
+<<<<<<< HEAD
 	r = amdgpu_vm_update_directories(adev, vm);
+=======
+	r = amdgpu_vm_update_pdes(adev, vm, false);
+>>>>>>> upstream/android-13
 
 error:
 	if (r && r != -ERESTARTSYS)
 		DRM_ERROR("Couldn't update BO_VA (%d)\n", r);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * amdgpu_gem_va_map_flags - map GEM UAPI flags into hardware flags
+ *
+ * @adev: amdgpu_device pointer
+ * @flags: GEM UAPI flags
+ *
+ * Returns the GEM UAPI flags mapped into hardware for the ASIC.
+ */
+uint64_t amdgpu_gem_va_map_flags(struct amdgpu_device *adev, uint32_t flags)
+{
+	uint64_t pte_flag = 0;
+
+	if (flags & AMDGPU_VM_PAGE_EXECUTABLE)
+		pte_flag |= AMDGPU_PTE_EXECUTABLE;
+	if (flags & AMDGPU_VM_PAGE_READABLE)
+		pte_flag |= AMDGPU_PTE_READABLE;
+	if (flags & AMDGPU_VM_PAGE_WRITEABLE)
+		pte_flag |= AMDGPU_PTE_WRITEABLE;
+	if (flags & AMDGPU_VM_PAGE_PRT)
+		pte_flag |= AMDGPU_PTE_PRT;
+
+	if (adev->gmc.gmc_funcs->map_mtype)
+		pte_flag |= amdgpu_gmc_map_mtype(adev,
+						 flags & AMDGPU_VM_MTYPE_MASK);
+
+	return pte_flag;
+}
+
+>>>>>>> upstream/android-13
 int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 			  struct drm_file *filp)
 {
@@ -556,7 +899,11 @@ int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 
 	struct drm_amdgpu_gem_va *args = data;
 	struct drm_gem_object *gobj;
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+>>>>>>> upstream/android-13
 	struct amdgpu_fpriv *fpriv = filp->driver_priv;
 	struct amdgpu_bo *abo;
 	struct amdgpu_bo_va *bo_va;
@@ -569,12 +916,17 @@ int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 	int r = 0;
 
 	if (args->va_address < AMDGPU_VA_RESERVED_SIZE) {
+<<<<<<< HEAD
 		dev_dbg(&dev->pdev->dev,
+=======
+		dev_dbg(dev->dev,
+>>>>>>> upstream/android-13
 			"va_address 0x%LX is in reserved area 0x%LX\n",
 			args->va_address, AMDGPU_VA_RESERVED_SIZE);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (args->va_address >= AMDGPU_VA_HOLE_START &&
 	    args->va_address < AMDGPU_VA_HOLE_END) {
 		dev_dbg(&dev->pdev->dev,
@@ -585,18 +937,38 @@ int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 	}
 
 	args->va_address &= AMDGPU_VA_HOLE_MASK;
+=======
+	if (args->va_address >= AMDGPU_GMC_HOLE_START &&
+	    args->va_address < AMDGPU_GMC_HOLE_END) {
+		dev_dbg(dev->dev,
+			"va_address 0x%LX is in VA hole 0x%LX-0x%LX\n",
+			args->va_address, AMDGPU_GMC_HOLE_START,
+			AMDGPU_GMC_HOLE_END);
+		return -EINVAL;
+	}
+
+	args->va_address &= AMDGPU_GMC_HOLE_MASK;
+>>>>>>> upstream/android-13
 
 	vm_size = adev->vm_manager.max_pfn * AMDGPU_GPU_PAGE_SIZE;
 	vm_size -= AMDGPU_VA_RESERVED_SIZE;
 	if (args->va_address + args->map_size > vm_size) {
+<<<<<<< HEAD
 		dev_dbg(&dev->pdev->dev,
+=======
+		dev_dbg(dev->dev,
+>>>>>>> upstream/android-13
 			"va_address 0x%llx is in top reserved area 0x%llx\n",
 			args->va_address + args->map_size, vm_size);
 		return -EINVAL;
 	}
 
 	if ((args->flags & ~valid_flags) && (args->flags & ~prt_flags)) {
+<<<<<<< HEAD
 		dev_dbg(&dev->pdev->dev, "invalid flags combination 0x%08X\n",
+=======
+		dev_dbg(dev->dev, "invalid flags combination 0x%08X\n",
+>>>>>>> upstream/android-13
 			args->flags);
 		return -EINVAL;
 	}
@@ -608,7 +980,11 @@ int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 	case AMDGPU_VA_OP_REPLACE:
 		break;
 	default:
+<<<<<<< HEAD
 		dev_dbg(&dev->pdev->dev, "unsupported operation %d\n",
+=======
+		dev_dbg(dev->dev, "unsupported operation %d\n",
+>>>>>>> upstream/android-13
 			args->operation);
 		return -EINVAL;
 	}
@@ -622,7 +998,14 @@ int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 			return -ENOENT;
 		abo = gem_to_amdgpu_bo(gobj);
 		tv.bo = &abo->tbo;
+<<<<<<< HEAD
 		tv.shared = !!(abo->flags & AMDGPU_GEM_CREATE_VM_ALWAYS_VALID);
+=======
+		if (abo->flags & AMDGPU_GEM_CREATE_VM_ALWAYS_VALID)
+			tv.num_shared = 1;
+		else
+			tv.num_shared = 0;
+>>>>>>> upstream/android-13
 		list_add(&tv.head, &list);
 	} else {
 		gobj = NULL;
@@ -649,12 +1032,16 @@ int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 
 	switch (args->operation) {
 	case AMDGPU_VA_OP_MAP:
+<<<<<<< HEAD
 		r = amdgpu_vm_alloc_pts(adev, bo_va->base.vm, args->va_address,
 					args->map_size);
 		if (r)
 			goto error_backoff;
 
 		va_flags = amdgpu_gmc_get_pte_flags(adev, args->flags);
+=======
+		va_flags = amdgpu_gem_va_map_flags(adev, args->flags);
+>>>>>>> upstream/android-13
 		r = amdgpu_vm_bo_map(adev, bo_va, args->va_address,
 				     args->offset_in_bo, args->map_size,
 				     va_flags);
@@ -669,12 +1056,16 @@ int amdgpu_gem_va_ioctl(struct drm_device *dev, void *data,
 						args->map_size);
 		break;
 	case AMDGPU_VA_OP_REPLACE:
+<<<<<<< HEAD
 		r = amdgpu_vm_alloc_pts(adev, bo_va->base.vm, args->va_address,
 					args->map_size);
 		if (r)
 			goto error_backoff;
 
 		va_flags = amdgpu_gmc_get_pte_flags(adev, args->flags);
+=======
+		va_flags = amdgpu_gem_va_map_flags(adev, args->flags);
+>>>>>>> upstream/android-13
 		r = amdgpu_vm_bo_replace_map(adev, bo_va, args->va_address,
 					     args->offset_in_bo, args->map_size,
 					     va_flags);
@@ -690,16 +1081,27 @@ error_backoff:
 	ttm_eu_backoff_reservation(&ticket, &list);
 
 error_unref:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	return r;
 }
 
 int amdgpu_gem_op_ioctl(struct drm_device *dev, void *data,
 			struct drm_file *filp)
 {
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
 	struct drm_amdgpu_gem_op *args = data;
 	struct drm_gem_object *gobj;
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+	struct drm_amdgpu_gem_op *args = data;
+	struct drm_gem_object *gobj;
+	struct amdgpu_vm_bo_base *base;
+>>>>>>> upstream/android-13
 	struct amdgpu_bo *robj;
 	int r;
 
@@ -718,8 +1120,13 @@ int amdgpu_gem_op_ioctl(struct drm_device *dev, void *data,
 		struct drm_amdgpu_gem_create_in info;
 		void __user *out = u64_to_user_ptr(args->value);
 
+<<<<<<< HEAD
 		info.bo_size = robj->gem_base.size;
 		info.alignment = robj->tbo.mem.page_alignment << PAGE_SHIFT;
+=======
+		info.bo_size = robj->tbo.base.size;
+		info.alignment = robj->tbo.page_alignment << PAGE_SHIFT;
+>>>>>>> upstream/android-13
 		info.domains = robj->preferred_domains;
 		info.domain_flags = robj->flags;
 		amdgpu_bo_unreserve(robj);
@@ -728,7 +1135,12 @@ int amdgpu_gem_op_ioctl(struct drm_device *dev, void *data,
 		break;
 	}
 	case AMDGPU_GEM_OP_SET_PLACEMENT:
+<<<<<<< HEAD
 		if (robj->prime_shared_count && (args->value & AMDGPU_GEM_DOMAIN_VRAM)) {
+=======
+		if (robj->tbo.base.import_attach &&
+		    args->value & AMDGPU_GEM_DOMAIN_VRAM) {
+>>>>>>> upstream/android-13
 			r = -EINVAL;
 			amdgpu_bo_unreserve(robj);
 			break;
@@ -738,6 +1150,18 @@ int amdgpu_gem_op_ioctl(struct drm_device *dev, void *data,
 			amdgpu_bo_unreserve(robj);
 			break;
 		}
+<<<<<<< HEAD
+=======
+		for (base = robj->vm_bo; base; base = base->next)
+			if (amdgpu_xgmi_same_hive(amdgpu_ttm_adev(robj->tbo.bdev),
+				amdgpu_ttm_adev(base->vm->root.bo->tbo.bdev))) {
+				r = -EINVAL;
+				amdgpu_bo_unreserve(robj);
+				goto out;
+			}
+
+
+>>>>>>> upstream/android-13
 		robj->preferred_domains = args->value & (AMDGPU_GEM_DOMAIN_VRAM |
 							AMDGPU_GEM_DOMAIN_GTT |
 							AMDGPU_GEM_DOMAIN_CPU);
@@ -756,7 +1180,11 @@ int amdgpu_gem_op_ioctl(struct drm_device *dev, void *data,
 	}
 
 out:
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -764,27 +1192,56 @@ int amdgpu_mode_dumb_create(struct drm_file *file_priv,
 			    struct drm_device *dev,
 			    struct drm_mode_create_dumb *args)
 {
+<<<<<<< HEAD
 	struct amdgpu_device *adev = dev->dev_private;
 	struct drm_gem_object *gobj;
 	uint32_t handle;
 	u32 domain;
 	int r;
 
+=======
+	struct amdgpu_device *adev = drm_to_adev(dev);
+	struct drm_gem_object *gobj;
+	uint32_t handle;
+	u64 flags = AMDGPU_GEM_CREATE_CPU_ACCESS_REQUIRED |
+		    AMDGPU_GEM_CREATE_CPU_GTT_USWC;
+	u32 domain;
+	int r;
+
+	/*
+	 * The buffer returned from this function should be cleared, but
+	 * it can only be done if the ring is enabled or we'll fail to
+	 * create the buffer.
+	 */
+	if (adev->mman.buffer_funcs_enabled)
+		flags |= AMDGPU_GEM_CREATE_VRAM_CLEARED;
+
+>>>>>>> upstream/android-13
 	args->pitch = amdgpu_align_pitch(adev, args->width,
 					 DIV_ROUND_UP(args->bpp, 8), 0);
 	args->size = (u64)args->pitch * args->height;
 	args->size = ALIGN(args->size, PAGE_SIZE);
+<<<<<<< HEAD
 	domain = amdgpu_bo_get_preferred_pin_domain(adev,
 				amdgpu_display_supported_domains(adev));
 	r = amdgpu_gem_object_create(adev, args->size, 0, domain,
 				     AMDGPU_GEM_CREATE_CPU_ACCESS_REQUIRED,
+=======
+	domain = amdgpu_bo_get_preferred_domain(adev,
+				amdgpu_display_supported_domains(adev, flags));
+	r = amdgpu_gem_object_create(adev, args->size, 0, domain, flags,
+>>>>>>> upstream/android-13
 				     ttm_bo_type_device, NULL, &gobj);
 	if (r)
 		return -ENOMEM;
 
 	r = drm_gem_handle_create(file_priv, gobj, &handle);
 	/* drop reference from allocate - handle holds it now */
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(gobj);
+=======
+	drm_gem_object_put(gobj);
+>>>>>>> upstream/android-13
 	if (r) {
 		return r;
 	}
@@ -793,6 +1250,7 @@ int amdgpu_mode_dumb_create(struct drm_file *file_priv,
 }
 
 #if defined(CONFIG_DEBUG_FS)
+<<<<<<< HEAD
 
 #define amdgpu_debugfs_gem_bo_print_flag(m, bo, flag)	\
 	if (bo->flags & (AMDGPU_GEM_CREATE_ ## flag)) {	\
@@ -857,6 +1315,12 @@ static int amdgpu_debugfs_gem_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *)m->private;
 	struct drm_device *dev = node->minor->dev;
+=======
+static int amdgpu_debugfs_gem_info_show(struct seq_file *m, void *unused)
+{
+	struct amdgpu_device *adev = (struct amdgpu_device *)m->private;
+	struct drm_device *dev = adev_to_drm(adev);
+>>>>>>> upstream/android-13
 	struct drm_file *file;
 	int r;
 
@@ -866,6 +1330,11 @@ static int amdgpu_debugfs_gem_info(struct seq_file *m, void *data)
 
 	list_for_each_entry(file, &dev->filelist, lhead) {
 		struct task_struct *task;
+<<<<<<< HEAD
+=======
+		struct drm_gem_object *gobj;
+		int id;
+>>>>>>> upstream/android-13
 
 		/*
 		 * Although we have a valid reference on file->pid, that does
@@ -880,7 +1349,15 @@ static int amdgpu_debugfs_gem_info(struct seq_file *m, void *data)
 		rcu_read_unlock();
 
 		spin_lock(&file->table_lock);
+<<<<<<< HEAD
 		idr_for_each(&file->object_idr, amdgpu_debugfs_gem_bo_info, m);
+=======
+		idr_for_each_entry(&file->object_idr, gobj, id) {
+			struct amdgpu_bo *bo = gem_to_amdgpu_bo(gobj);
+
+			amdgpu_bo_print_info(id, bo, m);
+		}
+>>>>>>> upstream/android-13
 		spin_unlock(&file->table_lock);
 	}
 
@@ -888,6 +1365,7 @@ static int amdgpu_debugfs_gem_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct drm_info_list amdgpu_debugfs_gem_list[] = {
 	{"amdgpu_gem_info", &amdgpu_debugfs_gem_info, 0, NULL},
 };
@@ -899,4 +1377,19 @@ int amdgpu_debugfs_gem_init(struct amdgpu_device *adev)
 	return amdgpu_debugfs_add_files(adev, amdgpu_debugfs_gem_list, 1);
 #endif
 	return 0;
+=======
+DEFINE_SHOW_ATTRIBUTE(amdgpu_debugfs_gem_info);
+
+#endif
+
+void amdgpu_debugfs_gem_init(struct amdgpu_device *adev)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct drm_minor *minor = adev_to_drm(adev)->primary;
+	struct dentry *root = minor->debugfs_root;
+
+	debugfs_create_file("amdgpu_gem_info", 0444, root, adev,
+			    &amdgpu_debugfs_gem_info_fops);
+#endif
+>>>>>>> upstream/android-13
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Originally from efivars.c,
  *
@@ -6,6 +10,7 @@
  *
  * This code takes all variables accessible from EFI runtime and
  *  exports them via sysfs
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -63,6 +68,8 @@
  *
  *  26 February 2001 - Matt Domsch <Matt_Domsch@dell.com>
  *   v0.01 release to linux-ia64@linuxia64.org
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/efi.h>
@@ -78,10 +85,15 @@ MODULE_AUTHOR("Matt Domsch <Matt_Domsch@Dell.com>");
 MODULE_DESCRIPTION("sysfs interface to EFI Variables");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(EFIVARS_VERSION);
+<<<<<<< HEAD
 MODULE_ALIAS("platform:efivars");
 
 LIST_HEAD(efivar_sysfs_list);
 EXPORT_SYMBOL_GPL(efivar_sysfs_list);
+=======
+
+static LIST_HEAD(efivar_sysfs_list);
+>>>>>>> upstream/android-13
 
 static struct kset *efivars_kset;
 
@@ -238,6 +250,7 @@ sanity_check(struct efi_variable *var, efi_char16_t *name, efi_guid_t vendor,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline bool is_compat(void)
 {
 	if (IS_ENABLED(CONFIG_COMPAT) && in_compat_syscall())
@@ -246,6 +259,8 @@ static inline bool is_compat(void)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void
 copy_out_compat(struct efi_variable *dst, struct compat_efi_variable *src)
 {
@@ -275,7 +290,11 @@ efivar_store_raw(struct efivar_entry *entry, const char *buf, size_t count)
 	if (!entry || !buf)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (is_compat()) {
+=======
+	if (in_compat_syscall()) {
+>>>>>>> upstream/android-13
 		struct compat_efi_variable *compat;
 
 		if (count != sizeof(*compat))
@@ -338,7 +357,11 @@ efivar_show_raw(struct efivar_entry *entry, char *buf)
 	if (ret)
 		return -EIO;
 
+<<<<<<< HEAD
 	if (is_compat()) {
+=======
+	if (in_compat_syscall()) {
+>>>>>>> upstream/android-13
 		compat = (struct compat_efi_variable *)buf;
 
 		size = sizeof(*compat);
@@ -432,7 +455,11 @@ static ssize_t efivar_create(struct file *filp, struct kobject *kobj,
 	struct compat_efi_variable *compat = (struct compat_efi_variable *)buf;
 	struct efi_variable *new_var = (struct efi_variable *)buf;
 	struct efivar_entry *new_entry;
+<<<<<<< HEAD
 	bool need_compat = is_compat();
+=======
+	bool need_compat = in_compat_syscall();
+>>>>>>> upstream/android-13
 	efi_char16_t *name;
 	unsigned long size;
 	u32 attributes;
@@ -509,7 +536,11 @@ static ssize_t efivar_delete(struct file *filp, struct kobject *kobj,
 	if (!capable(CAP_SYS_ADMIN))
 		return -EACCES;
 
+<<<<<<< HEAD
 	if (is_compat()) {
+=======
+	if (in_compat_syscall()) {
+>>>>>>> upstream/android-13
 		if (count != sizeof(*compat))
 			return -EINVAL;
 
@@ -655,6 +686,7 @@ out_free:
 	return error;
 }
 
+<<<<<<< HEAD
 static int efivar_update_sysfs_entry(efi_char16_t *name, efi_guid_t vendor,
 				     unsigned long name_size, void *data)
 {
@@ -691,6 +723,8 @@ static void efivar_update_sysfs_entries(struct work_struct *work)
 	kfree(entry);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int efivars_sysfs_callback(efi_char16_t *name, efi_guid_t vendor,
 				  unsigned long name_size, void *data)
 {
@@ -739,16 +773,25 @@ static void efivars_sysfs_exit(void)
 	kset_unregister(efivars_kset);
 }
 
+<<<<<<< HEAD
 int efivars_sysfs_init(void)
+=======
+static int efivars_sysfs_init(void)
+>>>>>>> upstream/android-13
 {
 	struct kobject *parent_kobj = efivars_kobject();
 	int error = 0;
 
+<<<<<<< HEAD
 	if (!efi_enabled(EFI_RUNTIME_SERVICES))
 		return -ENODEV;
 
 	/* No efivars has been registered yet */
 	if (!parent_kobj)
+=======
+	/* No efivars has been registered yet */
+	if (!parent_kobj || !efivar_supports_writes())
+>>>>>>> upstream/android-13
 		return 0;
 
 	printk(KERN_INFO "EFI Variables Facility v%s %s\n", EFIVARS_VERSION,
@@ -768,11 +811,16 @@ int efivars_sysfs_init(void)
 		return error;
 	}
 
+<<<<<<< HEAD
 	INIT_WORK(&efivar_work, efivar_update_sysfs_entries);
 
 	return 0;
 }
 EXPORT_SYMBOL_GPL(efivars_sysfs_init);
+=======
+	return 0;
+}
+>>>>>>> upstream/android-13
 
 module_init(efivars_sysfs_init);
 module_exit(efivars_sysfs_exit);

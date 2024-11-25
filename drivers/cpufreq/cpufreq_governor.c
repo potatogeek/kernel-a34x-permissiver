@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/cpufreq/cpufreq_governor.c
  *
@@ -8,10 +12,13 @@
  *		(C) 2003 Jun Nakajima <jun.nakajima@intel.com>
  *		(C) 2009 Alexander Clouter <alex@digriz.org.uk>
  *		(c) 2012 Viresh Kumar <viresh.kumar@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -29,7 +36,11 @@ static DEFINE_PER_CPU(struct cpu_dbs_info, cpu_dbs);
 static DEFINE_MUTEX(gov_dbs_data_mutex);
 
 /* Common sysfs tunables */
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * store_sampling_rate - update sampling rate effective immediately if needed.
  *
  * If new rate is smaller than the old, simply updating
@@ -108,7 +119,11 @@ void gov_update_cpu_data(struct dbs_data *dbs_data)
 			j_cdbs->prev_cpu_idle = get_cpu_idle_time(j, &j_cdbs->prev_update_time,
 								  dbs_data->io_is_busy);
 			if (dbs_data->ignore_nice_load)
+<<<<<<< HEAD
 				j_cdbs->prev_cpu_nice = kcpustat_cpu(j).cpustat[CPUTIME_NICE];
+=======
+				j_cdbs->prev_cpu_nice = kcpustat_field(&kcpustat_cpu(j), CPUTIME_NICE, j);
+>>>>>>> upstream/android-13
 		}
 	}
 }
@@ -152,7 +167,11 @@ unsigned int dbs_update(struct cpufreq_policy *policy)
 		j_cdbs->prev_cpu_idle = cur_idle_time;
 
 		if (ignore_nice) {
+<<<<<<< HEAD
 			u64 cur_nice = kcpustat_cpu(j).cpustat[CPUTIME_NICE];
+=======
+			u64 cur_nice = kcpustat_field(&kcpustat_cpu(j), CPUTIME_NICE, j);
+>>>>>>> upstream/android-13
 
 			idle_time += div_u64(cur_nice - j_cdbs->prev_cpu_nice, NSEC_PER_USEC);
 			j_cdbs->prev_cpu_nice = cur_nice;
@@ -346,7 +365,11 @@ static inline void gov_clear_update_util(struct cpufreq_policy *policy)
 	for_each_cpu(i, policy->cpus)
 		cpufreq_remove_update_util_hook(i);
 
+<<<<<<< HEAD
 	synchronize_sched();
+=======
+	synchronize_rcu();
+>>>>>>> upstream/android-13
 }
 
 static struct policy_dbs_info *alloc_policy_dbs_info(struct cpufreq_policy *policy,
@@ -533,7 +556,11 @@ int cpufreq_dbs_governor_start(struct cpufreq_policy *policy)
 		j_cdbs->prev_load = 0;
 
 		if (ignore_nice)
+<<<<<<< HEAD
 			j_cdbs->prev_cpu_nice = kcpustat_cpu(j).cpustat[CPUTIME_NICE];
+=======
+			j_cdbs->prev_cpu_nice = kcpustat_field(&kcpustat_cpu(j), CPUTIME_NICE, j);
+>>>>>>> upstream/android-13
 	}
 
 	gov->start(policy);

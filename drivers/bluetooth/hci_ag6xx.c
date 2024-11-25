@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Bluetooth HCI UART driver for Intel/AG6xx devices
  *
  *  Copyright (C) 2016  Intel Corporation
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,6 +24,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -42,7 +49,11 @@ struct ag6xx_data {
 struct pbn_entry {
 	__le32 addr;
 	__le32 plen;
+<<<<<<< HEAD
 	__u8 data[0];
+=======
+	__u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 static int ag6xx_open(struct hci_uart *hu)
@@ -214,7 +225,10 @@ static int ag6xx_setup(struct hci_uart *hu)
 			   fwname, err);
 		goto patch;
 	}
+<<<<<<< HEAD
 	fw_ptr = fw->data;
+=======
+>>>>>>> upstream/android-13
 
 	bt_dev_info(hdev, "Applying bddata (%s)", fwname);
 

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pinctrl based I2C DeMultiplexer
  *
  * Copyright (C) 2015-16 by Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
  * Copyright (C) 2015-16 by Renesas Electronics Corporation
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2 of the License.
  *
+=======
+>>>>>>> upstream/android-13
  * See the bindings doc for DTS setup and the sysfs doc for usage information.
  * (look for filenames containing 'i2c-demux-pinctrl' in Documentation/)
  */
@@ -99,6 +106,11 @@ static int i2c_demux_activate_master(struct i2c_demux_pinctrl_priv *priv, u32 ne
 
 	/* Now fill out current adapter structure. cur_chan must be up to date */
 	priv->algo.master_xfer = i2c_demux_master_xfer;
+<<<<<<< HEAD
+=======
+	if (adap->algo->master_xfer_atomic)
+		priv->algo.master_xfer_atomic = i2c_demux_master_xfer;
+>>>>>>> upstream/android-13
 	priv->algo.functionality = i2c_demux_functionality;
 
 	snprintf(priv->cur_adap.name, sizeof(priv->cur_adap.name),
@@ -219,8 +231,13 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv)
 			   + num_chan * sizeof(struct i2c_demux_pinctrl_chan), GFP_KERNEL);
+=======
+	priv = devm_kzalloc(&pdev->dev, struct_size(priv, chan, num_chan),
+			    GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	props = devm_kcalloc(&pdev->dev, num_chan, sizeof(*props), GFP_KERNEL);
 
@@ -262,7 +279,11 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
 
 	err = device_create_file(&pdev->dev, &dev_attr_available_masters);
 	if (err)
+<<<<<<< HEAD
 		goto err_rollback;
+=======
+		goto err_rollback_activation;
+>>>>>>> upstream/android-13
 
 	err = device_create_file(&pdev->dev, &dev_attr_current_master);
 	if (err)
@@ -272,8 +293,14 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
 
 err_rollback_available:
 	device_remove_file(&pdev->dev, &dev_attr_available_masters);
+<<<<<<< HEAD
 err_rollback:
 	i2c_demux_deactivate_master(priv);
+=======
+err_rollback_activation:
+	i2c_demux_deactivate_master(priv);
+err_rollback:
+>>>>>>> upstream/android-13
 	for (j = 0; j < i; j++) {
 		of_node_put(priv->chan[j].parent_np);
 		of_changeset_destroy(&priv->chan[j].chgset);

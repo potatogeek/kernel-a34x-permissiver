@@ -745,7 +745,11 @@ static int audio_pcm_open(struct snd_pcm_substream *substream)
 	audio->substream = substream;
 
 	/* Add the QoS request and set the latency to 0 */
+<<<<<<< HEAD
 	pm_qos_add_request(&audio->pm_qos, PM_QOS_CPU_DMA_LATENCY, 0);
+=======
+	cpu_latency_qos_add_request(&audio->pm_qos, 0);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -758,7 +762,11 @@ static int audio_pcm_close(struct snd_pcm_substream *substream)
 	spin_lock_irqsave(&audio->lock, flags);
 
 	/* Remove the QoS request */
+<<<<<<< HEAD
 	pm_qos_remove_request(&audio->pm_qos);
+=======
+	cpu_latency_qos_remove_request(&audio->pm_qos);
+>>>>>>> upstream/android-13
 
 	audio->substream = NULL;
 	spin_unlock_irqrestore(&audio->lock, flags);

@@ -6,7 +6,11 @@
  * Author: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/bitops.h>
+=======
+#include <linux/bits.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/module.h>
@@ -135,7 +139,11 @@ static const struct pinctrl_pin_desc mrfld_pins[] = {
 	PINCTRL_PIN(43, "GP83_SD_D3"),
 	PINCTRL_PIN(44, "GP84_SD_LS_CLK_FB"),
 	PINCTRL_PIN(45, "GP85_SD_LS_CMD_DIR"),
+<<<<<<< HEAD
 	PINCTRL_PIN(46, "GP86_SD_LVL_D_DIR"),
+=======
+	PINCTRL_PIN(46, "GP86_SD_LS_D_DIR"),
+>>>>>>> upstream/android-13
 	PINCTRL_PIN(47, "GP88_SD_LS_SEL"),
 	PINCTRL_PIN(48, "GP87_SD_PD"),
 	PINCTRL_PIN(49, "GP89_SD_WP"),
@@ -171,6 +179,7 @@ static const struct pinctrl_pin_desc mrfld_pins[] = {
 	PINCTRL_PIN(77, "GP42_I2S_2_RXD"),
 	PINCTRL_PIN(78, "GP43_I2S_2_TXD"),
 	/* Family 6: GP SSP (22 pins) */
+<<<<<<< HEAD
 	PINCTRL_PIN(79, "GP120_SPI_3_CLK"),
 	PINCTRL_PIN(80, "GP121_SPI_3_SS"),
 	PINCTRL_PIN(81, "GP122_SPI_3_RXD"),
@@ -193,6 +202,30 @@ static const struct pinctrl_pin_desc mrfld_pins[] = {
 	PINCTRL_PIN(98, "GP117_SPI_6_SS"),
 	PINCTRL_PIN(99, "GP118_SPI_6_RXD"),
 	PINCTRL_PIN(100, "GP119_SPI_6_TXD"),
+=======
+	PINCTRL_PIN(79, "GP120_SPI_0_CLK"),
+	PINCTRL_PIN(80, "GP121_SPI_0_SS"),
+	PINCTRL_PIN(81, "GP122_SPI_0_RXD"),
+	PINCTRL_PIN(82, "GP123_SPI_0_TXD"),
+	PINCTRL_PIN(83, "GP102_SPI_1_CLK"),
+	PINCTRL_PIN(84, "GP103_SPI_1_SS0"),
+	PINCTRL_PIN(85, "GP104_SPI_1_SS1"),
+	PINCTRL_PIN(86, "GP105_SPI_1_SS2"),
+	PINCTRL_PIN(87, "GP106_SPI_1_SS3"),
+	PINCTRL_PIN(88, "GP107_SPI_1_RXD"),
+	PINCTRL_PIN(89, "GP108_SPI_1_TXD"),
+	PINCTRL_PIN(90, "GP109_SPI_2_CLK"),
+	PINCTRL_PIN(91, "GP110_SPI_2_SS0"),
+	PINCTRL_PIN(92, "GP111_SPI_2_SS1"),
+	PINCTRL_PIN(93, "GP112_SPI_2_SS2"),
+	PINCTRL_PIN(94, "GP113_SPI_2_SS3"),
+	PINCTRL_PIN(95, "GP114_SPI_2_RXD"),
+	PINCTRL_PIN(96, "GP115_SPI_2_TXD"),
+	PINCTRL_PIN(97, "GP116_SPI_3_CLK"),
+	PINCTRL_PIN(98, "GP117_SPI_3_SS"),
+	PINCTRL_PIN(99, "GP118_SPI_3_RXD"),
+	PINCTRL_PIN(100, "GP119_SPI_3_TXD"),
+>>>>>>> upstream/android-13
 	/* Family 7: I2C (14 pins) */
 	PINCTRL_PIN(101, "GP19_I2C_1_SCL"),
 	PINCTRL_PIN(102, "GP20_I2C_1_SDA"),
@@ -340,6 +373,10 @@ static const struct pinctrl_pin_desc mrfld_pins[] = {
 };
 
 static const unsigned int mrfld_sdio_pins[] = { 50, 51, 52, 53, 54, 55, 56 };
+<<<<<<< HEAD
+=======
+static const unsigned int mrfld_i2s2_pins[] = { 75, 76, 77, 78 };
+>>>>>>> upstream/android-13
 static const unsigned int mrfld_spi5_pins[] = { 90, 91, 92, 93, 94, 95, 96 };
 static const unsigned int mrfld_uart0_pins[] = { 115, 116, 117, 118 };
 static const unsigned int mrfld_uart1_pins[] = { 119, 120, 121, 122 };
@@ -351,6 +388,10 @@ static const unsigned int mrfld_pwm3_pins[] = { 133 };
 
 static const struct intel_pingroup mrfld_groups[] = {
 	PIN_GROUP("sdio_grp", mrfld_sdio_pins, 1),
+<<<<<<< HEAD
+=======
+	PIN_GROUP("i2s2_grp", mrfld_i2s2_pins, 1),
+>>>>>>> upstream/android-13
 	PIN_GROUP("spi5_grp", mrfld_spi5_pins, 1),
 	PIN_GROUP("uart0_grp", mrfld_uart0_pins, 1),
 	PIN_GROUP("uart1_grp", mrfld_uart1_pins, 1),
@@ -362,6 +403,10 @@ static const struct intel_pingroup mrfld_groups[] = {
 };
 
 static const char * const mrfld_sdio_groups[] = { "sdio_grp" };
+<<<<<<< HEAD
+=======
+static const char * const mrfld_i2s2_groups[] = { "i2s2_grp" };
+>>>>>>> upstream/android-13
 static const char * const mrfld_spi5_groups[] = { "spi5_grp" };
 static const char * const mrfld_uart0_groups[] = { "uart0_grp" };
 static const char * const mrfld_uart1_groups[] = { "uart1_grp" };
@@ -373,6 +418,10 @@ static const char * const mrfld_pwm3_groups[] = { "pwm3_grp" };
 
 static const struct intel_function mrfld_functions[] = {
 	FUNCTION("sdio", mrfld_sdio_groups),
+<<<<<<< HEAD
+=======
+	FUNCTION("i2s2", mrfld_i2s2_groups),
+>>>>>>> upstream/android-13
 	FUNCTION("spi5", mrfld_spi5_groups),
 	FUNCTION("uart0", mrfld_uart0_groups),
 	FUNCTION("uart1", mrfld_uart1_groups),
@@ -476,6 +525,37 @@ static void __iomem *mrfld_get_bufcfg(struct mrfld_pinctrl *mp, unsigned int pin
 	return family->regs + BUFCFG_OFFSET + bufno * 4;
 }
 
+<<<<<<< HEAD
+=======
+static int mrfld_read_bufcfg(struct mrfld_pinctrl *mp, unsigned int pin, u32 *value)
+{
+	void __iomem *bufcfg;
+
+	if (!mrfld_buf_available(mp, pin))
+		return -EBUSY;
+
+	bufcfg = mrfld_get_bufcfg(mp, pin);
+	*value = readl(bufcfg);
+
+	return 0;
+}
+
+static void mrfld_update_bufcfg(struct mrfld_pinctrl *mp, unsigned int pin,
+				u32 bits, u32 mask)
+{
+	void __iomem *bufcfg;
+	u32 value;
+
+	bufcfg = mrfld_get_bufcfg(mp, pin);
+	value = readl(bufcfg);
+
+	value &= ~mask;
+	value |= bits & mask;
+
+	writel(value, bufcfg);
+}
+
+>>>>>>> upstream/android-13
 static int mrfld_get_groups_count(struct pinctrl_dev *pctldev)
 {
 	struct mrfld_pinctrl *mp = pinctrl_dev_get_drvdata(pctldev);
@@ -505,17 +585,28 @@ static void mrfld_pin_dbg_show(struct pinctrl_dev *pctldev, struct seq_file *s,
 			       unsigned int pin)
 {
 	struct mrfld_pinctrl *mp = pinctrl_dev_get_drvdata(pctldev);
+<<<<<<< HEAD
 	void __iomem *bufcfg;
 	u32 value, mode;
 
 	if (!mrfld_buf_available(mp, pin)) {
+=======
+	u32 value, mode;
+	int ret;
+
+	ret = mrfld_read_bufcfg(mp, pin, &value);
+	if (ret) {
+>>>>>>> upstream/android-13
 		seq_puts(s, "not available");
 		return;
 	}
 
+<<<<<<< HEAD
 	bufcfg = mrfld_get_bufcfg(mp, pin);
 	value = readl(bufcfg);
 
+=======
+>>>>>>> upstream/android-13
 	mode = (value & BUFCFG_PINMODE_MASK) >> BUFCFG_PINMODE_SHIFT;
 	if (!mode)
 		seq_puts(s, "GPIO ");
@@ -559,6 +650,7 @@ static int mrfld_get_function_groups(struct pinctrl_dev *pctldev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mrfld_update_bufcfg(struct mrfld_pinctrl *mp, unsigned int pin,
 				u32 bits, u32 mask)
 {
@@ -574,6 +666,8 @@ static void mrfld_update_bufcfg(struct mrfld_pinctrl *mp, unsigned int pin,
 	writel(value, bufcfg);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mrfld_pinmux_set_mux(struct pinctrl_dev *pctldev,
 				unsigned int function,
 				unsigned int group)
@@ -637,11 +731,20 @@ static int mrfld_config_get(struct pinctrl_dev *pctldev, unsigned int pin,
 	enum pin_config_param param = pinconf_to_config_param(*config);
 	u32 value, term;
 	u16 arg = 0;
+<<<<<<< HEAD
 
 	if (!mrfld_buf_available(mp, pin))
 		return -ENOTSUPP;
 
 	value = readl(mrfld_get_bufcfg(mp, pin));
+=======
+	int ret;
+
+	ret = mrfld_read_bufcfg(mp, pin, &value);
+	if (ret)
+		return -ENOTSUPP;
+
+>>>>>>> upstream/android-13
 	term = (value & BUFCFG_PUPD_VAL_MASK) >> BUFCFG_PUPD_VAL_SHIFT;
 
 	switch (param) {
@@ -881,7 +984,10 @@ static int mrfld_pinctrl_probe(struct platform_device *pdev)
 {
 	struct mrfld_family *families;
 	struct mrfld_pinctrl *mp;
+<<<<<<< HEAD
 	struct resource *mem;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *regs;
 	size_t nfamilies;
 	unsigned int i;
@@ -893,8 +999,12 @@ static int mrfld_pinctrl_probe(struct platform_device *pdev)
 	mp->dev = &pdev->dev;
 	raw_spin_lock_init(&mp->lock);
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 

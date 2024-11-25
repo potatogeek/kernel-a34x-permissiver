@@ -105,6 +105,18 @@ struct cpuinfo_mips {
 	unsigned int		gtoffset_mask;
 	unsigned int		guestid_mask;
 	unsigned int		guestid_cache;
+<<<<<<< HEAD
+=======
+
+#ifdef CONFIG_CPU_LOONGSON3_CPUCFG_EMULATION
+	/* CPUCFG data for this CPU, synthesized at probe time.
+	 *
+	 * CPUCFG select 0 is PRId, 4 and above are unimplemented for now.
+	 * So the only stored values are for CPUCFG selects 1-3 inclusive.
+	 */
+	u32 loongson3_cpucfg_data[3];
+#endif
+>>>>>>> upstream/android-13
 } __attribute__((aligned(SMP_CACHE_BYTES)));
 
 extern struct cpuinfo_mips cpu_data[];
@@ -142,7 +154,11 @@ struct proc_cpuinfo_notifier_args {
 static inline unsigned int cpu_cluster(struct cpuinfo_mips *cpuinfo)
 {
 	/* Optimisation for systems where multiple clusters aren't used */
+<<<<<<< HEAD
 	if (!IS_ENABLED(CONFIG_CPU_MIPSR6))
+=======
+	if (!IS_ENABLED(CONFIG_CPU_MIPSR5) && !IS_ENABLED(CONFIG_CPU_MIPSR6))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return (cpuinfo->globalnumber & MIPS_GLOBALNUMBER_CLUSTER) >>

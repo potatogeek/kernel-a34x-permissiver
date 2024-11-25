@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * dell-smm-hwmon.c -- Linux driver for accessing the SMM BIOS on Dell laptops.
  *
@@ -6,6 +10,7 @@
  * Hwmon integration:
  * Copyright (C) 2011  Jean Delvare <jdelvare@suse.de>
  * Copyright (C) 2013, 2014  Guenter Roeck <linux@roeck-us.net>
+<<<<<<< HEAD
  * Copyright (C) 2014, 2015  Pali Rohár <pali.rohar@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,13 +22,22 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+ * Copyright (C) 2014, 2015  Pali Rohár <pali@kernel.org>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/cpu.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/module.h>
+=======
+#include <linux/err.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/init.h>
 #include <linux/proc_fs.h>
@@ -32,7 +46,10 @@
 #include <linux/capability.h>
 #include <linux/mutex.h>
 #include <linux/hwmon.h>
+<<<<<<< HEAD
 #include <linux/hwmon-sysfs.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <linux/io.h>
 #include <linux/sched.h>
@@ -67,6 +84,7 @@
 #define I8K_POWER_AC		0x05
 #define I8K_POWER_BATTERY	0x01
 
+<<<<<<< HEAD
 static DEFINE_MUTEX(i8k_mutex);
 static char bios_version[4];
 static char bios_machineid[16];
@@ -88,6 +106,29 @@ static bool disallow_fan_support;
 
 MODULE_AUTHOR("Massimo Dal Zotto (dz@debian.org)");
 MODULE_AUTHOR("Pali Rohár <pali.rohar@gmail.com>");
+=======
+#define DELL_SMM_NO_TEMP	10
+#define DELL_SMM_NO_FANS	3
+
+struct dell_smm_data {
+	struct mutex i8k_mutex; /* lock for sensors writes */
+	char bios_version[4];
+	char bios_machineid[16];
+	uint i8k_fan_mult;
+	uint i8k_pwm_mult;
+	uint i8k_fan_max;
+	bool disallow_fan_type_call;
+	bool disallow_fan_support;
+	unsigned int manual_fan;
+	unsigned int auto_fan;
+	int temp_type[DELL_SMM_NO_TEMP];
+	bool fan[DELL_SMM_NO_FANS];
+	int fan_type[DELL_SMM_NO_FANS];
+};
+
+MODULE_AUTHOR("Massimo Dal Zotto (dz@debian.org)");
+MODULE_AUTHOR("Pali Rohár <pali@kernel.org>");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("Dell laptop SMM BIOS hwmon driver");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("i8k");
@@ -127,7 +168,38 @@ struct smm_regs {
 	unsigned int edi __packed;
 };
 
+<<<<<<< HEAD
 static inline const char *i8k_get_dmi_data(int field)
+=======
+static const char * const temp_labels[] = {
+	"CPU",
+	"GPU",
+	"SODIMM",
+	"Other",
+	"Ambient",
+	"Other",
+};
+
+static const char * const fan_labels[] = {
+	"Processor Fan",
+	"Motherboard Fan",
+	"Video Fan",
+	"Power Supply Fan",
+	"Chipset Fan",
+	"Other Fan",
+};
+
+static const char * const docking_labels[] = {
+	"Docking Processor Fan",
+	"Docking Motherboard Fan",
+	"Docking Video Fan",
+	"Docking Power Supply Fan",
+	"Docking Chipset Fan",
+	"Docking Other Fan",
+};
+
+static inline const char __init *i8k_get_dmi_data(int field)
+>>>>>>> upstream/android-13
 {
 	const char *dmi_data = dmi_get_system_info(field);
 
@@ -139,6 +211,7 @@ static inline const char *i8k_get_dmi_data(int field)
  */
 static int i8k_smm_func(void *par)
 {
+<<<<<<< HEAD
 	int rc;
 	struct smm_regs *regs = par;
 	int eax = regs->eax;
@@ -150,6 +223,14 @@ static int i8k_smm_func(void *par)
 
 	calltime = ktime_get();
 #endif
+=======
+	ktime_t calltime = ktime_get();
+	struct smm_regs *regs = par;
+	int eax = regs->eax;
+	int ebx = regs->ebx;
+	long long duration;
+	int rc;
+>>>>>>> upstream/android-13
 
 	/* SMM requires CPU 0 */
 	if (smp_processor_id() != 0)
@@ -211,6 +292,7 @@ static int i8k_smm_func(void *par)
 	if (rc != 0 || (regs->eax & 0xffff) == 0xffff || regs->eax == eax)
 		rc = -EINVAL;
 
+<<<<<<< HEAD
 #ifdef DEBUG
 	rettime = ktime_get();
 	delta = ktime_sub(rettime, calltime);
@@ -218,6 +300,11 @@ static int i8k_smm_func(void *par)
 	pr_debug("smm(0x%.4x 0x%.4x) = 0x%.4x  (took %7lu usecs)\n", eax, ebx,
 		(rc ? 0xffff : regs->eax & 0xffff), duration);
 #endif
+=======
+	duration = ktime_us_delta(ktime_get(), calltime);
+	pr_debug("smm(0x%.4x 0x%.4x) = 0x%.4x  (took %7lld usecs)\n", eax, ebx,
+		 (rc ? 0xffff : regs->eax & 0xffff), duration);
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -229,9 +316,15 @@ static int i8k_smm(struct smm_regs *regs)
 {
 	int ret;
 
+<<<<<<< HEAD
 	get_online_cpus();
 	ret = smp_call_on_cpu(0, i8k_smm_func, regs, true);
 	put_online_cpus();
+=======
+	cpus_read_lock();
+	ret = smp_call_on_cpu(0, i8k_smm_func, regs, true);
+	cpus_read_unlock();
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -239,11 +332,19 @@ static int i8k_smm(struct smm_regs *regs)
 /*
  * Read the fan status.
  */
+<<<<<<< HEAD
 static int i8k_get_fan_status(int fan)
 {
 	struct smm_regs regs = { .eax = I8K_SMM_GET_FAN, };
 
 	if (disallow_fan_support)
+=======
+static int i8k_get_fan_status(const struct dell_smm_data *data, int fan)
+{
+	struct smm_regs regs = { .eax = I8K_SMM_GET_FAN, };
+
+	if (data->disallow_fan_support)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	regs.ebx = fan & 0xff;
@@ -253,6 +354,7 @@ static int i8k_get_fan_status(int fan)
 /*
  * Read the fan speed in RPM.
  */
+<<<<<<< HEAD
 static int i8k_get_fan_speed(int fan)
 {
 	struct smm_regs regs = { .eax = I8K_SMM_GET_SPEED, };
@@ -262,22 +364,42 @@ static int i8k_get_fan_speed(int fan)
 
 	regs.ebx = fan & 0xff;
 	return i8k_smm(&regs) ? : (regs.eax & 0xffff) * i8k_fan_mult;
+=======
+static int i8k_get_fan_speed(const struct dell_smm_data *data, int fan)
+{
+	struct smm_regs regs = { .eax = I8K_SMM_GET_SPEED, };
+
+	if (data->disallow_fan_support)
+		return -EINVAL;
+
+	regs.ebx = fan & 0xff;
+	return i8k_smm(&regs) ? : (regs.eax & 0xffff) * data->i8k_fan_mult;
+>>>>>>> upstream/android-13
 }
 
 /*
  * Read the fan type.
  */
+<<<<<<< HEAD
 static int _i8k_get_fan_type(int fan)
 {
 	struct smm_regs regs = { .eax = I8K_SMM_GET_FAN_TYPE, };
 
 	if (disallow_fan_support || disallow_fan_type_call)
+=======
+static int _i8k_get_fan_type(const struct dell_smm_data *data, int fan)
+{
+	struct smm_regs regs = { .eax = I8K_SMM_GET_FAN_TYPE, };
+
+	if (data->disallow_fan_support || data->disallow_fan_type_call)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	regs.ebx = fan & 0xff;
 	return i8k_smm(&regs) ? : regs.eax & 0xff;
 }
 
+<<<<<<< HEAD
 static int i8k_get_fan_type(int fan)
 {
 	/* I8K_SMM_GET_FAN_TYPE SMM call is expensive, so cache values */
@@ -287,11 +409,21 @@ static int i8k_get_fan_type(int fan)
 		types[fan] = _i8k_get_fan_type(fan);
 
 	return types[fan];
+=======
+static int i8k_get_fan_type(struct dell_smm_data *data, int fan)
+{
+	/* I8K_SMM_GET_FAN_TYPE SMM call is expensive, so cache values */
+	if (data->fan_type[fan] == INT_MIN)
+		data->fan_type[fan] = _i8k_get_fan_type(data, fan);
+
+	return data->fan_type[fan];
+>>>>>>> upstream/android-13
 }
 
 /*
  * Read the fan nominal rpm for specific fan speed.
  */
+<<<<<<< HEAD
 static int i8k_get_fan_nominal_speed(int fan, int speed)
 {
 	struct smm_regs regs = { .eax = I8K_SMM_GET_NOM_SPEED, };
@@ -320,6 +452,50 @@ static int i8k_set_fan(int fan, int speed)
 }
 
 static int i8k_get_temp_type(int sensor)
+=======
+static int __init i8k_get_fan_nominal_speed(const struct dell_smm_data *data, int fan, int speed)
+{
+	struct smm_regs regs = { .eax = I8K_SMM_GET_NOM_SPEED, };
+
+	if (data->disallow_fan_support)
+		return -EINVAL;
+
+	regs.ebx = (fan & 0xff) | (speed << 8);
+	return i8k_smm(&regs) ? : (regs.eax & 0xffff) * data->i8k_fan_mult;
+}
+
+/*
+ * Enable or disable automatic BIOS fan control support
+ */
+static int i8k_enable_fan_auto_mode(const struct dell_smm_data *data, bool enable)
+{
+	struct smm_regs regs = { };
+
+	if (data->disallow_fan_support)
+		return -EINVAL;
+
+	regs.eax = enable ? data->auto_fan : data->manual_fan;
+	return i8k_smm(&regs);
+}
+
+/*
+ * Set the fan speed (off, low, high, ...).
+ */
+static int i8k_set_fan(const struct dell_smm_data *data, int fan, int speed)
+{
+	struct smm_regs regs = { .eax = I8K_SMM_SET_FAN, };
+
+	if (data->disallow_fan_support)
+		return -EINVAL;
+
+	speed = (speed < 0) ? 0 : ((speed > data->i8k_fan_max) ? data->i8k_fan_max : speed);
+	regs.ebx = (fan & 0xff) | (speed << 8);
+
+	return i8k_smm(&regs);
+}
+
+static int __init i8k_get_temp_type(int sensor)
+>>>>>>> upstream/android-13
 {
 	struct smm_regs regs = { .eax = I8K_SMM_GET_TEMP_TYPE, };
 
@@ -369,7 +545,11 @@ static int i8k_get_temp(int sensor)
 	return temp;
 }
 
+<<<<<<< HEAD
 static int i8k_get_dell_signature(int req_fn)
+=======
+static int __init i8k_get_dell_signature(int req_fn)
+>>>>>>> upstream/android-13
 {
 	struct smm_regs regs = { .eax = req_fn, };
 	int rc;
@@ -427,10 +607,17 @@ static int i8k_get_power_status(void)
  */
 
 static int
+<<<<<<< HEAD
 i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
 {
 	int val = 0;
 	int speed;
+=======
+i8k_ioctl_unlocked(struct file *fp, struct dell_smm_data *data, unsigned int cmd, unsigned long arg)
+{
+	int val = 0;
+	int speed, err;
+>>>>>>> upstream/android-13
 	unsigned char buff[16];
 	int __user *argp = (int __user *)arg;
 
@@ -439,12 +626,21 @@ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
 
 	switch (cmd) {
 	case I8K_BIOS_VERSION:
+<<<<<<< HEAD
 		if (!isdigit(bios_version[0]) || !isdigit(bios_version[1]) ||
 		    !isdigit(bios_version[2]))
 			return -EINVAL;
 
 		val = (bios_version[0] << 16) |
 				(bios_version[1] << 8) | bios_version[2];
+=======
+		if (!isdigit(data->bios_version[0]) || !isdigit(data->bios_version[1]) ||
+		    !isdigit(data->bios_version[2]))
+			return -EINVAL;
+
+		val = (data->bios_version[0] << 16) |
+				(data->bios_version[1] << 8) | data->bios_version[2];
+>>>>>>> upstream/android-13
 		break;
 
 	case I8K_MACHINE_ID:
@@ -452,7 +648,11 @@ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
 			return -EPERM;
 
 		memset(buff, 0, sizeof(buff));
+<<<<<<< HEAD
 		strlcpy(buff, bios_machineid, sizeof(buff));
+=======
+		strscpy(buff, data->bios_machineid, sizeof(buff));
+>>>>>>> upstream/android-13
 		break;
 
 	case I8K_FN_STATUS:
@@ -471,14 +671,22 @@ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
 		if (copy_from_user(&val, argp, sizeof(int)))
 			return -EFAULT;
 
+<<<<<<< HEAD
 		val = i8k_get_fan_speed(val);
+=======
+		val = i8k_get_fan_speed(data, val);
+>>>>>>> upstream/android-13
 		break;
 
 	case I8K_GET_FAN:
 		if (copy_from_user(&val, argp, sizeof(int)))
 			return -EFAULT;
 
+<<<<<<< HEAD
 		val = i8k_get_fan_status(val);
+=======
+		val = i8k_get_fan_status(data, val);
+>>>>>>> upstream/android-13
 		break;
 
 	case I8K_SET_FAN:
@@ -491,7 +699,15 @@ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
 		if (copy_from_user(&speed, argp + 1, sizeof(int)))
 			return -EFAULT;
 
+<<<<<<< HEAD
 		val = i8k_set_fan(val, speed);
+=======
+		err = i8k_set_fan(data, val, speed);
+		if (err < 0)
+			return err;
+
+		val = i8k_get_fan_status(data, val);
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -524,11 +740,20 @@ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
 
 static long i8k_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 {
+<<<<<<< HEAD
 	long ret;
 
 	mutex_lock(&i8k_mutex);
 	ret = i8k_ioctl_unlocked(fp, cmd, arg);
 	mutex_unlock(&i8k_mutex);
+=======
+	struct dell_smm_data *data = PDE_DATA(file_inode(fp));
+	long ret;
+
+	mutex_lock(&data->i8k_mutex);
+	ret = i8k_ioctl_unlocked(fp, data, cmd, arg);
+	mutex_unlock(&data->i8k_mutex);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -538,6 +763,7 @@ static long i8k_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
  */
 static int i8k_proc_show(struct seq_file *seq, void *offset)
 {
+<<<<<<< HEAD
 	int fn_key, cpu_temp, ac_power;
 	int left_fan, right_fan, left_speed, right_speed;
 
@@ -549,6 +775,20 @@ static int i8k_proc_show(struct seq_file *seq, void *offset)
 	fn_key		= i8k_get_fn_status();			/*   750 µs */
 	if (power_status)
 		ac_power = i8k_get_power_status();		/* 14700 µs */
+=======
+	struct dell_smm_data *data = seq->private;
+	int fn_key, cpu_temp, ac_power;
+	int left_fan, right_fan, left_speed, right_speed;
+
+	cpu_temp	= i8k_get_temp(0);				/* 11100 µs */
+	left_fan	= i8k_get_fan_status(data, I8K_FAN_LEFT);	/*   580 µs */
+	right_fan	= i8k_get_fan_status(data, I8K_FAN_RIGHT);	/*   580 µs */
+	left_speed	= i8k_get_fan_speed(data, I8K_FAN_LEFT);	/*   580 µs */
+	right_speed	= i8k_get_fan_speed(data, I8K_FAN_RIGHT);	/*   580 µs */
+	fn_key		= i8k_get_fn_status();				/*   750 µs */
+	if (power_status)
+		ac_power = i8k_get_power_status();			/* 14700 µs */
+>>>>>>> upstream/android-13
 	else
 		ac_power = -1;
 
@@ -568,8 +808,13 @@ static int i8k_proc_show(struct seq_file *seq, void *offset)
 	 */
 	seq_printf(seq, "%s %s %s %d %d %d %d %d %d %d\n",
 		   I8K_PROC_FMT,
+<<<<<<< HEAD
 		   bios_version,
 		   (restricted && !capable(CAP_SYS_ADMIN)) ? "-1" : bios_machineid,
+=======
+		   data->bios_version,
+		   (restricted && !capable(CAP_SYS_ADMIN)) ? "-1" : data->bios_machineid,
+>>>>>>> upstream/android-13
 		   cpu_temp,
 		   left_fan, right_fan, left_speed, right_speed,
 		   ac_power, fn_key);
@@ -579,6 +824,7 @@ static int i8k_proc_show(struct seq_file *seq, void *offset)
 
 static int i8k_open_fs(struct inode *inode, struct file *file)
 {
+<<<<<<< HEAD
 	return single_open(file, i8k_proc_show, NULL);
 }
 
@@ -598,10 +844,25 @@ static void __init i8k_init_procfs(void)
 }
 
 static void __exit i8k_exit_procfs(void)
+=======
+	return single_open(file, i8k_proc_show, PDE_DATA(inode));
+}
+
+static const struct proc_ops i8k_proc_ops = {
+	.proc_open	= i8k_open_fs,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_ioctl	= i8k_ioctl,
+};
+
+static void i8k_exit_procfs(void *param)
+>>>>>>> upstream/android-13
 {
 	remove_proc_entry("i8k", NULL);
 }
 
+<<<<<<< HEAD
 #else
 
 static inline void __init i8k_init_procfs(void)
@@ -609,6 +870,20 @@ static inline void __init i8k_init_procfs(void)
 }
 
 static inline void __exit i8k_exit_procfs(void)
+=======
+static void __init i8k_init_procfs(struct device *dev)
+{
+	struct dell_smm_data *data = dev_get_drvdata(dev);
+
+	/* Only register exit function if creation was successful */
+	if (proc_create_data("i8k", 0, NULL, &i8k_proc_ops, data))
+		devm_add_action_or_reset(dev, i8k_exit_procfs, NULL);
+}
+
+#else
+
+static void __init i8k_init_procfs(struct device *dev)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -618,6 +893,7 @@ static inline void __exit i8k_exit_procfs(void)
  * Hwmon interface
  */
 
+<<<<<<< HEAD
 static ssize_t i8k_hwmon_show_temp_label(struct device *dev,
 					 struct device_attribute *devattr,
 					 char *buf)
@@ -673,12 +949,147 @@ static ssize_t i8k_hwmon_show_fan_label(struct device *dev,
 	type = i8k_get_fan_type(index);
 	if (type < 0)
 		return type;
+=======
+static umode_t dell_smm_is_visible(const void *drvdata, enum hwmon_sensor_types type, u32 attr,
+				   int channel)
+{
+	const struct dell_smm_data *data = drvdata;
+
+	switch (type) {
+	case hwmon_temp:
+		switch (attr) {
+		case hwmon_temp_input:
+		case hwmon_temp_label:
+			if (data->temp_type[channel] >= 0)
+				return 0444;
+
+			break;
+		default:
+			break;
+		}
+		break;
+	case hwmon_fan:
+		if (data->disallow_fan_support)
+			break;
+
+		switch (attr) {
+		case hwmon_fan_input:
+			if (data->fan[channel])
+				return 0444;
+
+			break;
+		case hwmon_fan_label:
+			if (data->fan[channel] && !data->disallow_fan_type_call)
+				return 0444;
+
+			break;
+		default:
+			break;
+		}
+		break;
+	case hwmon_pwm:
+		if (data->disallow_fan_support)
+			break;
+
+		switch (attr) {
+		case hwmon_pwm_input:
+			if (data->fan[channel])
+				return 0644;
+
+			break;
+		case hwmon_pwm_enable:
+			if (data->auto_fan)
+				/*
+				 * There is no command for retrieve the current status
+				 * from BIOS, and userspace/firmware itself can change
+				 * it.
+				 * Thus we can only provide write-only access for now.
+				 */
+				return 0200;
+
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+static int dell_smm_read(struct device *dev, enum hwmon_sensor_types type, u32 attr, int channel,
+			 long *val)
+{
+	struct dell_smm_data *data = dev_get_drvdata(dev);
+	int ret;
+
+	switch (type) {
+	case hwmon_temp:
+		switch (attr) {
+		case hwmon_temp_input:
+			ret = i8k_get_temp(channel);
+			if (ret < 0)
+				return ret;
+
+			*val = ret * 1000;
+
+			return 0;
+		default:
+			break;
+		}
+		break;
+	case hwmon_fan:
+		switch (attr) {
+		case hwmon_fan_input:
+			ret = i8k_get_fan_speed(data, channel);
+			if (ret < 0)
+				return ret;
+
+			*val = ret;
+
+			return 0;
+		default:
+			break;
+		}
+		break;
+	case hwmon_pwm:
+		switch (attr) {
+		case hwmon_pwm_input:
+			ret = i8k_get_fan_status(data, channel);
+			if (ret < 0)
+				return ret;
+
+			*val = clamp_val(ret * data->i8k_pwm_mult, 0, 255);
+
+			return 0;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+static const char *dell_smm_fan_label(struct dell_smm_data *data, int channel)
+{
+	bool dock = false;
+	int type = i8k_get_fan_type(data, channel);
+
+	if (type < 0)
+		return ERR_PTR(type);
+>>>>>>> upstream/android-13
 
 	if (type & 0x10) {
 		dock = true;
 		type &= 0x0F;
 	}
 
+<<<<<<< HEAD
 	if (type >= ARRAY_SIZE(labels))
 		type = (ARRAY_SIZE(labels) - 1);
 
@@ -872,6 +1283,163 @@ static int __init i8k_init_hwmon(void)
 		return err;
 	}
 	return 0;
+=======
+	if (type >= ARRAY_SIZE(fan_labels))
+		type = ARRAY_SIZE(fan_labels) - 1;
+
+	return dock ? docking_labels[type] : fan_labels[type];
+}
+
+static int dell_smm_read_string(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+				int channel, const char **str)
+{
+	struct dell_smm_data *data = dev_get_drvdata(dev);
+
+	switch (type) {
+	case hwmon_temp:
+		switch (attr) {
+		case hwmon_temp_label:
+			*str = temp_labels[data->temp_type[channel]];
+			return 0;
+		default:
+			break;
+		}
+		break;
+	case hwmon_fan:
+		switch (attr) {
+		case hwmon_fan_label:
+			*str = dell_smm_fan_label(data, channel);
+			return PTR_ERR_OR_ZERO(*str);
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+static int dell_smm_write(struct device *dev, enum hwmon_sensor_types type, u32 attr, int channel,
+			  long val)
+{
+	struct dell_smm_data *data = dev_get_drvdata(dev);
+	unsigned long pwm;
+	bool enable;
+	int err;
+
+	switch (type) {
+	case hwmon_pwm:
+		switch (attr) {
+		case hwmon_pwm_input:
+			pwm = clamp_val(DIV_ROUND_CLOSEST(val, data->i8k_pwm_mult), 0,
+					data->i8k_fan_max);
+
+			mutex_lock(&data->i8k_mutex);
+			err = i8k_set_fan(data, channel, pwm);
+			mutex_unlock(&data->i8k_mutex);
+
+			if (err < 0)
+				return err;
+
+			return 0;
+		case hwmon_pwm_enable:
+			if (!val)
+				return -EINVAL;
+
+			if (val == 1)
+				enable = false;
+			else
+				enable = true;
+
+			mutex_lock(&data->i8k_mutex);
+			err = i8k_enable_fan_auto_mode(data, enable);
+			mutex_unlock(&data->i8k_mutex);
+
+			if (err < 0)
+				return err;
+
+			return 0;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return -EOPNOTSUPP;
+}
+
+static const struct hwmon_ops dell_smm_ops = {
+	.is_visible = dell_smm_is_visible,
+	.read = dell_smm_read,
+	.read_string = dell_smm_read_string,
+	.write = dell_smm_write,
+};
+
+static const struct hwmon_channel_info *dell_smm_info[] = {
+	HWMON_CHANNEL_INFO(chip, HWMON_C_REGISTER_TZ),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL,
+			   HWMON_T_INPUT | HWMON_T_LABEL
+			   ),
+	HWMON_CHANNEL_INFO(fan,
+			   HWMON_F_INPUT | HWMON_F_LABEL,
+			   HWMON_F_INPUT | HWMON_F_LABEL,
+			   HWMON_F_INPUT | HWMON_F_LABEL
+			   ),
+	HWMON_CHANNEL_INFO(pwm,
+			   HWMON_PWM_INPUT | HWMON_PWM_ENABLE,
+			   HWMON_PWM_INPUT,
+			   HWMON_PWM_INPUT
+			   ),
+	NULL
+};
+
+static const struct hwmon_chip_info dell_smm_chip_info = {
+	.ops = &dell_smm_ops,
+	.info = dell_smm_info,
+};
+
+static int __init dell_smm_init_hwmon(struct device *dev)
+{
+	struct dell_smm_data *data = dev_get_drvdata(dev);
+	struct device *dell_smm_hwmon_dev;
+	int i, err;
+
+	for (i = 0; i < DELL_SMM_NO_TEMP; i++) {
+		data->temp_type[i] = i8k_get_temp_type(i);
+		if (data->temp_type[i] < 0)
+			continue;
+
+		if (data->temp_type[i] >= ARRAY_SIZE(temp_labels))
+			data->temp_type[i] = ARRAY_SIZE(temp_labels) - 1;
+	}
+
+	for (i = 0; i < DELL_SMM_NO_FANS; i++) {
+		data->fan_type[i] = INT_MIN;
+		err = i8k_get_fan_status(data, i);
+		if (err < 0)
+			err = i8k_get_fan_type(data, i);
+		if (err >= 0)
+			data->fan[i] = true;
+	}
+
+	dell_smm_hwmon_dev = devm_hwmon_device_register_with_info(dev, "dell_smm", data,
+								  &dell_smm_chip_info, NULL);
+
+	return PTR_ERR_OR_ZERO(dell_smm_hwmon_dev);
+>>>>>>> upstream/android-13
 }
 
 struct i8k_config_data {
@@ -886,7 +1454,11 @@ enum i8k_configs {
 	DELL_XPS,
 };
 
+<<<<<<< HEAD
 static const struct i8k_config_data i8k_config_data[] = {
+=======
+static const struct i8k_config_data i8k_config_data[] __initconst = {
+>>>>>>> upstream/android-13
 	[DELL_LATITUDE_D520] = {
 		.fan_mult = 1,
 		.fan_max = I8K_FAN_TURBO,
@@ -980,6 +1552,7 @@ static const struct dmi_system_id i8k_dmi_table[] __initconst = {
 		},
 	},
 	{
+<<<<<<< HEAD
 		.ident = "Dell XPS421",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
@@ -987,6 +1560,8 @@ static const struct dmi_system_id i8k_dmi_table[] __initconst = {
 		},
 	},
 	{
+=======
+>>>>>>> upstream/android-13
 		.ident = "Dell Studio",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
@@ -995,6 +1570,7 @@ static const struct dmi_system_id i8k_dmi_table[] __initconst = {
 		.driver_data = (void *)&i8k_config_data[DELL_STUDIO],
 	},
 	{
+<<<<<<< HEAD
 		.ident = "Dell XPS 13",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
@@ -1003,6 +1579,8 @@ static const struct dmi_system_id i8k_dmi_table[] __initconst = {
 		.driver_data = (void *)&i8k_config_data[DELL_XPS],
 	},
 	{
+=======
+>>>>>>> upstream/android-13
 		.ident = "Dell XPS M140",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
@@ -1011,10 +1589,17 @@ static const struct dmi_system_id i8k_dmi_table[] __initconst = {
 		.driver_data = (void *)&i8k_config_data[DELL_XPS],
 	},
 	{
+<<<<<<< HEAD
 		.ident = "Dell XPS 15 9560",
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
 			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 15 9560"),
+=======
+		.ident = "Dell XPS",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "XPS"),
+>>>>>>> upstream/android-13
 		},
 	},
 	{ }
@@ -1059,7 +1644,11 @@ static const struct dmi_system_id i8k_blacklist_fan_type_dmi_table[] __initconst
  * support for affected blacklisted Dell machines stay disabled.
  * See bug: https://bugzilla.kernel.org/show_bug.cgi?id=195751
  */
+<<<<<<< HEAD
 static struct dmi_system_id i8k_blacklist_fan_support_dmi_table[] __initdata = {
+=======
+static const struct dmi_system_id i8k_blacklist_fan_support_dmi_table[] __initconst = {
+>>>>>>> upstream/android-13
 	{
 		.ident = "Dell Inspiron 7720",
 		.matches = {
@@ -1081,6 +1670,7 @@ static struct dmi_system_id i8k_blacklist_fan_support_dmi_table[] __initdata = {
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS13 9333"),
 		},
 	},
+<<<<<<< HEAD
 	{ }
 };
 
@@ -1092,6 +1682,178 @@ static int __init i8k_probe(void)
 	const struct dmi_system_id *id;
 	int fan, ret;
 
+=======
+	{
+		.ident = "Dell XPS 15 L502X",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L502X"),
+		},
+	},
+	{ }
+};
+
+struct i8k_fan_control_data {
+	unsigned int manual_fan;
+	unsigned int auto_fan;
+};
+
+enum i8k_fan_controls {
+	I8K_FAN_34A3_35A3,
+};
+
+static const struct i8k_fan_control_data i8k_fan_control_data[] __initconst = {
+	[I8K_FAN_34A3_35A3] = {
+		.manual_fan = 0x34a3,
+		.auto_fan = 0x35a3,
+	},
+};
+
+static const struct dmi_system_id i8k_whitelist_fan_control[] __initconst = {
+	{
+		.ident = "Dell Latitude 5480",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Latitude 5480"),
+		},
+		.driver_data = (void *)&i8k_fan_control_data[I8K_FAN_34A3_35A3],
+	},
+	{
+		.ident = "Dell Latitude E6440",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Latitude E6440"),
+		},
+		.driver_data = (void *)&i8k_fan_control_data[I8K_FAN_34A3_35A3],
+	},
+	{
+		.ident = "Dell Latitude E7440",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Latitude E7440"),
+		},
+		.driver_data = (void *)&i8k_fan_control_data[I8K_FAN_34A3_35A3],
+	},
+	{
+		.ident = "Dell Precision 5530",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Precision 5530"),
+		},
+		.driver_data = (void *)&i8k_fan_control_data[I8K_FAN_34A3_35A3],
+	},
+	{
+		.ident = "Dell Precision 7510",
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Precision 7510"),
+		},
+		.driver_data = (void *)&i8k_fan_control_data[I8K_FAN_34A3_35A3],
+	},
+	{ }
+};
+
+static int __init dell_smm_probe(struct platform_device *pdev)
+{
+	struct dell_smm_data *data;
+	const struct dmi_system_id *id, *fan_control;
+	int fan, ret;
+
+	data = devm_kzalloc(&pdev->dev, sizeof(struct dell_smm_data), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	mutex_init(&data->i8k_mutex);
+	data->i8k_fan_mult = I8K_FAN_MULT;
+	data->i8k_fan_max = I8K_FAN_HIGH;
+	platform_set_drvdata(pdev, data);
+
+	if (dmi_check_system(i8k_blacklist_fan_support_dmi_table)) {
+		dev_warn(&pdev->dev, "broken Dell BIOS detected, disallow fan support\n");
+		if (!force)
+			data->disallow_fan_support = true;
+	}
+
+	if (dmi_check_system(i8k_blacklist_fan_type_dmi_table)) {
+		dev_warn(&pdev->dev, "broken Dell BIOS detected, disallow fan type call\n");
+		if (!force)
+			data->disallow_fan_type_call = true;
+	}
+
+	strscpy(data->bios_version, i8k_get_dmi_data(DMI_BIOS_VERSION),
+		sizeof(data->bios_version));
+	strscpy(data->bios_machineid, i8k_get_dmi_data(DMI_PRODUCT_SERIAL),
+		sizeof(data->bios_machineid));
+
+	/*
+	 * Set fan multiplier and maximal fan speed from dmi config
+	 * Values specified in module parameters override values from dmi
+	 */
+	id = dmi_first_match(i8k_dmi_table);
+	if (id && id->driver_data) {
+		const struct i8k_config_data *conf = id->driver_data;
+
+		if (!fan_mult && conf->fan_mult)
+			fan_mult = conf->fan_mult;
+
+		if (!fan_max && conf->fan_max)
+			fan_max = conf->fan_max;
+	}
+
+	data->i8k_fan_max = fan_max ? : I8K_FAN_HIGH;	/* Must not be 0 */
+	data->i8k_pwm_mult = DIV_ROUND_UP(255, data->i8k_fan_max);
+
+	fan_control = dmi_first_match(i8k_whitelist_fan_control);
+	if (fan_control && fan_control->driver_data) {
+		const struct i8k_fan_control_data *control = fan_control->driver_data;
+
+		data->manual_fan = control->manual_fan;
+		data->auto_fan = control->auto_fan;
+		dev_info(&pdev->dev, "enabling support for setting automatic/manual fan control\n");
+	}
+
+	if (!fan_mult) {
+		/*
+		 * Autodetect fan multiplier based on nominal rpm
+		 * If fan reports rpm value too high then set multiplier to 1
+		 */
+		for (fan = 0; fan < DELL_SMM_NO_FANS; ++fan) {
+			ret = i8k_get_fan_nominal_speed(data, fan, data->i8k_fan_max);
+			if (ret < 0)
+				continue;
+
+			if (ret > I8K_FAN_MAX_RPM)
+				data->i8k_fan_mult = 1;
+			break;
+		}
+	} else {
+		/* Fan multiplier was specified in module param or in dmi */
+		data->i8k_fan_mult = fan_mult;
+	}
+
+	ret = dell_smm_init_hwmon(&pdev->dev);
+	if (ret)
+		return ret;
+
+	i8k_init_procfs(&pdev->dev);
+
+	return 0;
+}
+
+static struct platform_driver dell_smm_driver = {
+	.driver		= {
+		.name	= KBUILD_MODNAME,
+	},
+};
+
+static struct platform_device *dell_smm_device;
+
+/*
+ * Probe for the presence of a supported laptop.
+ */
+static int __init i8k_init(void)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Get DMI information
 	 */
@@ -1106,6 +1868,7 @@ static int __init i8k_probe(void)
 			i8k_get_dmi_data(DMI_BIOS_VERSION));
 	}
 
+<<<<<<< HEAD
 	if (dmi_check_system(i8k_blacklist_fan_support_dmi_table)) {
 		pr_warn("broken Dell BIOS detected, disallow fan support\n");
 		if (!force)
@@ -1123,6 +1886,8 @@ static int __init i8k_probe(void)
 	strlcpy(bios_machineid, i8k_get_dmi_data(DMI_PRODUCT_SERIAL),
 		sizeof(bios_machineid));
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Get SMM Dell signature
 	 */
@@ -1133,6 +1898,7 @@ static int __init i8k_probe(void)
 			return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Set fan multiplier and maximal fan speed from dmi config
 	 * Values specified in module parameters override values from dmi
@@ -1184,12 +1950,23 @@ static int __init i8k_init(void)
 
 	i8k_init_procfs();
 	return 0;
+=======
+	dell_smm_device = platform_create_bundle(&dell_smm_driver, dell_smm_probe, NULL, 0, NULL,
+						 0);
+
+	return PTR_ERR_OR_ZERO(dell_smm_device);
+>>>>>>> upstream/android-13
 }
 
 static void __exit i8k_exit(void)
 {
+<<<<<<< HEAD
 	hwmon_device_unregister(i8k_hwmon_dev);
 	i8k_exit_procfs();
+=======
+	platform_device_unregister(dell_smm_device);
+	platform_driver_unregister(&dell_smm_driver);
+>>>>>>> upstream/android-13
 }
 
 module_init(i8k_init);

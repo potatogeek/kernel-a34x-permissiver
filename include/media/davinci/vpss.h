@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Texas Instruments Inc
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2009 Texas Instruments Inc
+ *
+>>>>>>> upstream/android-13
  * vpss - video processing subsystem module header file.
  *
  * Include this header file if a driver needs to configure vpss system

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**************************************************************************
  * Copyright (c) 2007, Intel Corporation.
  *
@@ -19,6 +20,19 @@
 #include "psb_drv.h"
 #include "psb_reg.h"
 #include "mmu.h"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/**************************************************************************
+ * Copyright (c) 2007, Intel Corporation.
+ *
+ **************************************************************************/
+
+#include <linux/highmem.h>
+
+#include "mmu.h"
+#include "psb_drv.h"
+#include "psb_reg.h"
+>>>>>>> upstream/android-13
 
 /*
  * Code for the SGX MMU:
@@ -58,7 +72,10 @@ static inline uint32_t psb_mmu_pd_index(uint32_t offset)
 	return offset >> PSB_PDE_SHIFT;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_X86)
+=======
+>>>>>>> upstream/android-13
 static inline void psb_clflush(void *addr)
 {
 	__asm__ __volatile__("clflush (%0)\n" : : "r"(addr) : "memory");
@@ -73,6 +90,7 @@ static inline void psb_mmu_clflush(struct psb_mmu_driver *driver, void *addr)
 	psb_clflush(addr);
 	mb();
 }
+<<<<<<< HEAD
 #else
 
 static inline void psb_mmu_clflush(struct psb_mmu_driver *driver, void *addr)
@@ -80,6 +98,8 @@ static inline void psb_mmu_clflush(struct psb_mmu_driver *driver, void *addr)
 }
 
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static void psb_mmu_flush_pd_locked(struct psb_mmu_driver *driver, int force)
 {
@@ -303,7 +323,10 @@ static struct psb_mmu_pt *psb_mmu_alloc_pt(struct psb_mmu_pd *pd)
 	for (i = 0; i < (PAGE_SIZE / sizeof(uint32_t)); ++i)
 		*ptes++ = pd->invalid_pte;
 
+<<<<<<< HEAD
 #if defined(CONFIG_X86)
+=======
+>>>>>>> upstream/android-13
 	if (pd->driver->has_clflush && pd->hw_context != -1) {
 		mb();
 		for (i = 0; i < clflush_count; ++i) {
@@ -312,7 +335,10 @@ static struct psb_mmu_pt *psb_mmu_alloc_pt(struct psb_mmu_pd *pd)
 		}
 		mb();
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 	kunmap_atomic(v);
 	spin_unlock(lock);
 
@@ -323,8 +349,13 @@ static struct psb_mmu_pt *psb_mmu_alloc_pt(struct psb_mmu_pd *pd)
 	return pt;
 }
 
+<<<<<<< HEAD
 struct psb_mmu_pt *psb_mmu_pt_alloc_map_lock(struct psb_mmu_pd *pd,
 					     unsigned long addr)
+=======
+static struct psb_mmu_pt *psb_mmu_pt_alloc_map_lock(struct psb_mmu_pd *pd,
+						    unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	uint32_t index = psb_mmu_pd_index(addr);
 	struct psb_mmu_pt *pt;
@@ -426,6 +457,7 @@ struct psb_mmu_pd *psb_mmu_get_default_pd(struct psb_mmu_driver *driver)
 	return pd;
 }
 
+<<<<<<< HEAD
 /* Returns the physical address of the PD shared by sgx/msvdx */
 uint32_t psb_get_default_pd_addr(struct psb_mmu_driver *driver)
 {
@@ -435,6 +467,8 @@ uint32_t psb_get_default_pd_addr(struct psb_mmu_driver *driver)
 	return page_to_pfn(pd->p) << PAGE_SHIFT;
 }
 
+=======
+>>>>>>> upstream/android-13
 void psb_mmu_driver_takedown(struct psb_mmu_driver *driver)
 {
 	struct drm_device *dev = driver->dev;
@@ -478,7 +512,10 @@ struct psb_mmu_driver *psb_mmu_driver_init(struct drm_device *dev,
 
 	driver->has_clflush = 0;
 
+<<<<<<< HEAD
 #if defined(CONFIG_X86)
+=======
+>>>>>>> upstream/android-13
 	if (boot_cpu_has(X86_FEATURE_CLFLUSH)) {
 		uint32_t tfms, misc, cap0, cap4, clflush_size;
 
@@ -495,7 +532,10 @@ struct psb_mmu_driver *psb_mmu_driver_init(struct drm_device *dev,
 		driver->clflush_mask = driver->clflush_add - 1;
 		driver->clflush_mask = ~driver->clflush_mask;
 	}
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	up_write(&driver->sem);
 	return driver;
@@ -505,7 +545,10 @@ out_err1:
 	return NULL;
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_X86)
+=======
+>>>>>>> upstream/android-13
 static void psb_mmu_flush_ptes(struct psb_mmu_pd *pd, unsigned long address,
 			       uint32_t num_pages, uint32_t desired_tile_stride,
 			       uint32_t hw_tile_stride)
@@ -553,6 +596,7 @@ static void psb_mmu_flush_ptes(struct psb_mmu_pd *pd, unsigned long address,
 	}
 	mb();
 }
+<<<<<<< HEAD
 #else
 static void psb_mmu_flush_ptes(struct psb_mmu_pd *pd, unsigned long address,
 			       uint32_t num_pages, uint32_t desired_tile_stride,
@@ -561,6 +605,8 @@ static void psb_mmu_flush_ptes(struct psb_mmu_pd *pd, unsigned long address,
 	drm_ttm_cache_flush();
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 void psb_mmu_remove_pfn_sequence(struct psb_mmu_pd *pd,
 				 unsigned long address, uint32_t num_pages)
@@ -700,7 +746,11 @@ out:
 	if (pd->hw_context != -1)
 		psb_mmu_flush(pd->driver);
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int psb_mmu_insert_pages(struct psb_mmu_pd *pd, struct page **pages,

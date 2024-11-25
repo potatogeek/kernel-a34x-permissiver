@@ -3,6 +3,10 @@
  * Renesas USB
  *
  * Copyright (C) 2011 Renesas Solutions Corp.
+<<<<<<< HEAD
+=======
+ * Copyright (C) 2019 Renesas Electronics Corporation
+>>>>>>> upstream/android-13
  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
  *
  * This program is distributed in the hope that it will be useful,
@@ -33,6 +37,7 @@ enum {
 };
 
 /*
+<<<<<<< HEAD
  * callback functions table for driver
  *
  * These functions are called from platform for driver.
@@ -44,6 +49,8 @@ struct renesas_usbhs_driver_callback {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * callback functions for platform
  *
  * These functions are called from driver for platform
@@ -180,6 +187,7 @@ struct renesas_usbhs_driver_param {
 	 */
 	int pio_dma_border; /* default is 64byte */
 
+<<<<<<< HEAD
 	uintptr_t type;
 	u32 enable_gpio;
 
@@ -197,6 +205,20 @@ struct renesas_usbhs_driver_param {
 #define USBHS_TYPE_RCAR_GEN3_WITH_PLL	3
 #define USBHS_TYPE_RZA1			4
 
+=======
+	/*
+	 * option:
+	 */
+	u32 has_usb_dmac:1; /* for USB-DMAC */
+	u32 runtime_pwctrl:1;
+	u32 has_cnen:1;
+	u32 cfifo_byte_addr:1; /* CFIFO is byte addressable */
+#define USBHS_USB_DMAC_XFER_SIZE	32	/* hardcode the xfer size */
+	u32 multi_clks:1;
+	u32 has_new_pipe_configs:1;
+};
+
+>>>>>>> upstream/android-13
 /*
  * option:
  *
@@ -212,12 +234,15 @@ struct renesas_usbhs_platform_info {
 	struct renesas_usbhs_platform_callback	platform_callback;
 
 	/*
+<<<<<<< HEAD
 	 * driver set these callback functions pointer.
 	 * platform can use it on callback functions
 	 */
 	struct renesas_usbhs_driver_callback	driver_callback;
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * option:
 	 *
 	 * driver use these param for some register
@@ -230,6 +255,7 @@ struct renesas_usbhs_platform_info {
  */
 #define renesas_usbhs_get_info(pdev)\
 	((struct renesas_usbhs_platform_info *)(pdev)->dev.platform_data)
+<<<<<<< HEAD
 
 #define renesas_usbhs_call_notify_hotplug(pdev)				\
 	({								\
@@ -238,4 +264,6 @@ struct renesas_usbhs_platform_info {
 		if (dc && dc->notify_hotplug)				\
 			dc->notify_hotplug(pdev);			\
 	})
+=======
+>>>>>>> upstream/android-13
 #endif /* RENESAS_USB_H */

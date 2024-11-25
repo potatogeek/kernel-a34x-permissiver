@@ -83,6 +83,7 @@ static void ls_pcie_drop_msg_tlp(struct ls_pcie *pcie)
 	iowrite32(val, pci->dbi_base + PCIE_STRFMR1);
 }
 
+<<<<<<< HEAD
 static void ls_pcie_disable_outbound_atus(struct ls_pcie *pcie)
 {
 	int i;
@@ -91,6 +92,8 @@ static void ls_pcie_disable_outbound_atus(struct ls_pcie *pcie)
 		dw_pcie_disable_atu(pcie->pci, i, DW_PCIE_REGION_OUTBOUND);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int ls1021_pcie_link_up(struct dw_pcie *pci)
 {
 	u32 state;
@@ -136,12 +139,15 @@ static int ls_pcie_host_init(struct pcie_port *pp)
 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
 	struct ls_pcie *pcie = to_ls_pcie(pci);
 
+<<<<<<< HEAD
 	/*
 	 * Disable outbound windows configured by the bootloader to avoid
 	 * one transaction hitting multiple outbound windows.
 	 * dw_pcie_setup_rc() will reconfigure the outbound windows.
 	 */
 	ls_pcie_disable_outbound_atus(pcie);
+=======
+>>>>>>> upstream/android-13
 	ls_pcie_fix_error_response(pcie);
 
 	dw_pcie_dbi_ro_wr_en(pci);
@@ -150,8 +156,11 @@ static int ls_pcie_host_init(struct pcie_port *pp)
 
 	ls_pcie_drop_msg_tlp(pcie);
 
+<<<<<<< HEAD
 	dw_pcie_setup_rc(pp);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -182,6 +191,7 @@ static int ls1021_pcie_host_init(struct pcie_port *pp)
 	return ls_pcie_host_init(pp);
 }
 
+<<<<<<< HEAD
 static int ls_pcie_msi_host_init(struct pcie_port *pp)
 {
 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
@@ -207,11 +217,18 @@ static int ls_pcie_msi_host_init(struct pcie_port *pp)
 static const struct dw_pcie_host_ops ls1021_pcie_host_ops = {
 	.host_init = ls1021_pcie_host_init,
 	.msi_host_init = ls_pcie_msi_host_init,
+=======
+static const struct dw_pcie_host_ops ls1021_pcie_host_ops = {
+	.host_init = ls1021_pcie_host_init,
+>>>>>>> upstream/android-13
 };
 
 static const struct dw_pcie_host_ops ls_pcie_host_ops = {
 	.host_init = ls_pcie_host_init,
+<<<<<<< HEAD
 	.msi_host_init = ls_pcie_msi_host_init,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct dw_pcie_ops dw_ls1021_pcie_ops = {
@@ -222,12 +239,20 @@ static const struct dw_pcie_ops dw_ls_pcie_ops = {
 	.link_up = ls_pcie_link_up,
 };
 
+<<<<<<< HEAD
 static struct ls_pcie_drvdata ls1021_drvdata = {
+=======
+static const struct ls_pcie_drvdata ls1021_drvdata = {
+>>>>>>> upstream/android-13
 	.ops = &ls1021_pcie_host_ops,
 	.dw_pcie_ops = &dw_ls1021_pcie_ops,
 };
 
+<<<<<<< HEAD
 static struct ls_pcie_drvdata ls1043_drvdata = {
+=======
+static const struct ls_pcie_drvdata ls1043_drvdata = {
+>>>>>>> upstream/android-13
 	.lut_offset = 0x10000,
 	.ltssm_shift = 24,
 	.lut_dbg = 0x7fc,
@@ -235,7 +260,11 @@ static struct ls_pcie_drvdata ls1043_drvdata = {
 	.dw_pcie_ops = &dw_ls_pcie_ops,
 };
 
+<<<<<<< HEAD
 static struct ls_pcie_drvdata ls1046_drvdata = {
+=======
+static const struct ls_pcie_drvdata ls1046_drvdata = {
+>>>>>>> upstream/android-13
 	.lut_offset = 0x80000,
 	.ltssm_shift = 24,
 	.lut_dbg = 0x407fc,
@@ -243,7 +272,11 @@ static struct ls_pcie_drvdata ls1046_drvdata = {
 	.dw_pcie_ops = &dw_ls_pcie_ops,
 };
 
+<<<<<<< HEAD
 static struct ls_pcie_drvdata ls2080_drvdata = {
+=======
+static const struct ls_pcie_drvdata ls2080_drvdata = {
+>>>>>>> upstream/android-13
 	.lut_offset = 0x80000,
 	.ltssm_shift = 0,
 	.lut_dbg = 0x7fc,
@@ -251,7 +284,11 @@ static struct ls_pcie_drvdata ls2080_drvdata = {
 	.dw_pcie_ops = &dw_ls_pcie_ops,
 };
 
+<<<<<<< HEAD
 static struct ls_pcie_drvdata ls2088_drvdata = {
+=======
+static const struct ls_pcie_drvdata ls2088_drvdata = {
+>>>>>>> upstream/android-13
 	.lut_offset = 0x80000,
 	.ltssm_shift = 0,
 	.lut_dbg = 0x407fc,
@@ -262,6 +299,10 @@ static struct ls_pcie_drvdata ls2088_drvdata = {
 static const struct of_device_id ls_pcie_of_match[] = {
 	{ .compatible = "fsl,ls1012a-pcie", .data = &ls1046_drvdata },
 	{ .compatible = "fsl,ls1021a-pcie", .data = &ls1021_drvdata },
+<<<<<<< HEAD
+=======
+	{ .compatible = "fsl,ls1028a-pcie", .data = &ls2088_drvdata },
+>>>>>>> upstream/android-13
 	{ .compatible = "fsl,ls1043a-pcie", .data = &ls1043_drvdata },
 	{ .compatible = "fsl,ls1046a-pcie", .data = &ls1046_drvdata },
 	{ .compatible = "fsl,ls2080a-pcie", .data = &ls2080_drvdata },
@@ -271,6 +312,7 @@ static const struct of_device_id ls_pcie_of_match[] = {
 	{ },
 };
 
+<<<<<<< HEAD
 static int __init ls_add_pcie_port(struct ls_pcie *pcie)
 {
 	struct dw_pcie *pci = pcie->pci;
@@ -290,12 +332,18 @@ static int __init ls_add_pcie_port(struct ls_pcie *pcie)
 }
 
 static int __init ls_pcie_probe(struct platform_device *pdev)
+=======
+static int ls_pcie_probe(struct platform_device *pdev)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &pdev->dev;
 	struct dw_pcie *pci;
 	struct ls_pcie *pcie;
 	struct resource *dbi_base;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	pcie = devm_kzalloc(dev, sizeof(*pcie), GFP_KERNEL);
 	if (!pcie)
@@ -309,6 +357,10 @@ static int __init ls_pcie_probe(struct platform_device *pdev)
 
 	pci->dev = dev;
 	pci->ops = pcie->drvdata->dw_pcie_ops;
+<<<<<<< HEAD
+=======
+	pci->pp.ops = pcie->drvdata->ops;
+>>>>>>> upstream/android-13
 
 	pcie->pci = pci;
 
@@ -324,6 +376,7 @@ static int __init ls_pcie_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, pcie);
 
+<<<<<<< HEAD
 	ret = ls_add_pcie_port(pcie);
 	if (ret < 0)
 		return ret;
@@ -332,10 +385,21 @@ static int __init ls_pcie_probe(struct platform_device *pdev)
 }
 
 static struct platform_driver ls_pcie_driver = {
+=======
+	return dw_pcie_host_init(&pci->pp);
+}
+
+static struct platform_driver ls_pcie_driver = {
+	.probe = ls_pcie_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "layerscape-pcie",
 		.of_match_table = ls_pcie_of_match,
 		.suppress_bind_attrs = true,
 	},
 };
+<<<<<<< HEAD
 builtin_platform_driver_probe(ls_pcie_driver, ls_pcie_probe);
+=======
+builtin_platform_driver(ls_pcie_driver);
+>>>>>>> upstream/android-13

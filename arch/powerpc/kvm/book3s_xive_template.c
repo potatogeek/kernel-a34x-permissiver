@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright 2017 Benjamin Herrenschmidt, IBM Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2017 Benjamin Herrenschmidt, IBM Corporation
+>>>>>>> upstream/android-13
  */
 
 /* File to be included by other .c files */
@@ -61,8 +67,13 @@ static u8 GLUE(X_PFX,esb_load)(struct xive_irq_data *xd, u32 offset)
 {
 	u64 val;
 
+<<<<<<< HEAD
 	if (xd->flags & XIVE_IRQ_FLAG_SHIFT_BUG)
 		offset |= offset << 4;
+=======
+	if (offset == XIVE_ESB_SET_PQ_10 && xd->flags & XIVE_IRQ_FLAG_STORE_EOI)
+		offset |= XIVE_ESB_LD_ST_MO;
+>>>>>>> upstream/android-13
 
 	val =__x_readq(__x_eoi_page(xd) + offset);
 #ifdef __LITTLE_ENDIAN__
@@ -77,8 +88,11 @@ static void GLUE(X_PFX,source_eoi)(u32 hw_irq, struct xive_irq_data *xd)
 	/* If the XIVE supports the new "store EOI facility, use it */
 	if (xd->flags & XIVE_IRQ_FLAG_STORE_EOI)
 		__x_writeq(0, __x_eoi_page(xd) + XIVE_ESB_STORE_EOI);
+<<<<<<< HEAD
 	else if (hw_irq && xd->flags & XIVE_IRQ_FLAG_EOI_FW)
 		opal_int_eoi(hw_irq);
+=======
+>>>>>>> upstream/android-13
 	else if (xd->flags & XIVE_IRQ_FLAG_LSI) {
 		/*
 		 * For LSIs the HW EOI cycle is used rather than PQ bits,
@@ -130,6 +144,7 @@ static u32 GLUE(X_PFX,scan_interrupts)(struct kvmppc_xive_vcpu *xc,
 		 */
 		prio = ffs(pending) - 1;
 
+<<<<<<< HEAD
 		/*
 		 * If the most favoured prio we found pending is less
 		 * favored (or equal) than a pending IPI, we return
@@ -149,6 +164,17 @@ static u32 GLUE(X_PFX,scan_interrupts)(struct kvmppc_xive_vcpu *xc,
 		if (prio >= xc->cppr || prio > 7)
 			break;
 
+=======
+		/* Don't scan past the guest cppr */
+		if (prio >= xc->cppr || prio > 7) {
+			if (xc->mfrr < xc->cppr) {
+				prio = xc->mfrr;
+				hirq = XICS_IPI;
+			}
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		/* Grab queue and pointers */
 		q = &xc->queues[prio];
 		idx = q->idx;
@@ -184,9 +210,18 @@ skip_ipi:
 		 * been set and another occurrence of the IPI will trigger.
 		 */
 		if (hirq == XICS_IPI || (prio == 0 && !qpage)) {
+<<<<<<< HEAD
 			if (scan_type == scan_fetch)
 				GLUE(X_PFX,source_eoi)(xc->vp_ipi,
 						       &xc->vp_ipi_data);
+=======
+			if (scan_type == scan_fetch) {
+				GLUE(X_PFX,source_eoi)(xc->vp_ipi,
+						       &xc->vp_ipi_data);
+				q->idx = idx;
+				q->toggle = toggle;
+			}
+>>>>>>> upstream/android-13
 			/* Loop back on same queue with updated idx/toggle */
 #ifdef XIVE_RUNTIME_CHECKS
 			WARN_ON(hirq && hirq != XICS_IPI);
@@ -199,11 +234,45 @@ skip_ipi:
 		if (hirq == XICS_DUMMY)
 			goto skip_ipi;
 
+<<<<<<< HEAD
+=======
+		/* Clear the pending bit if the queue is now empty */
+		if (!hirq) {
+			pending &= ~(1 << prio);
+
+			/*
+			 * Check if the queue count needs adjusting due to
+			 * interrupts being moved away.
+			 */
+			if (atomic_read(&q->pending_count)) {
+				int p = atomic_xchg(&q->pending_count, 0);
+				if (p) {
+#ifdef XIVE_RUNTIME_CHECKS
+					WARN_ON(p > atomic_read(&q->count));
+#endif
+					atomic_sub(p, &q->count);
+				}
+			}
+		}
+
+		/*
+		 * If the most favoured prio we found pending is less
+		 * favored (or equal) than a pending IPI, we return
+		 * the IPI instead.
+		 */
+		if (prio >= xc->mfrr && xc->mfrr < xc->cppr) {
+			prio = xc->mfrr;
+			hirq = XICS_IPI;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		/* If fetching, update queue pointers */
 		if (scan_type == scan_fetch) {
 			q->idx = idx;
 			q->toggle = toggle;
 		}
+<<<<<<< HEAD
 
 		/* Something found, stop searching */
 		if (hirq)
@@ -225,6 +294,8 @@ skip_ipi:
 				atomic_sub(p, &q->count);
 			}
 		}
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* If we are just taking a "peek", do nothing else */
@@ -280,6 +351,7 @@ X_STATIC unsigned long GLUE(X_PFX,h_xirr)(struct kvm_vcpu *vcpu)
 	/* First collect pending bits from HW */
 	GLUE(X_PFX,ack_pending)(xc);
 
+<<<<<<< HEAD
 	/*
 	 * Cleanup the old-style bits if needed (they may have been
 	 * set by pull or an escalation interrupts).
@@ -288,6 +360,8 @@ X_STATIC unsigned long GLUE(X_PFX,h_xirr)(struct kvm_vcpu *vcpu)
 		clear_bit(BOOK3S_IRQPRIO_EXTERNAL_LEVEL,
 			  &vcpu->arch.pending_exceptions);
 
+=======
+>>>>>>> upstream/android-13
 	pr_devel(" new pending=0x%02x hw_cppr=%d cppr=%d\n",
 		 xc->pending, xc->hw_cppr, xc->cppr);
 

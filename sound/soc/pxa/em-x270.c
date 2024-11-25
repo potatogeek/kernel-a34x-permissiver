@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SoC audio driver for EM-X270, eXeda and CM-X300
  *
@@ -11,12 +15,15 @@
  *
  * Authors: Liam Girdwood <lrg@slimlogic.co.uk>
  *          Richard Purdie <richard@openedhand.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -30,22 +37,43 @@
 #include <asm/mach-types.h>
 #include <mach/audio.h>
 
+<<<<<<< HEAD
+=======
+SND_SOC_DAILINK_DEFS(ac97,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9712-codec", "wm9712-hifi")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+SND_SOC_DAILINK_DEFS(ac97_aux,
+	DAILINK_COMP_ARRAY(COMP_CPU("pxa2xx-ac97-aux")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm9712-codec", "wm9712-aux")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("pxa-pcm-audio")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link em_x270_dai[] = {
 	{
 		.name = "AC97",
 		.stream_name = "AC97 HiFi",
+<<<<<<< HEAD
 		.cpu_dai_name = "pxa2xx-ac97",
 		.codec_dai_name = "wm9712-hifi",
 		.platform_name = "pxa-pcm-audio",
 		.codec_name = "wm9712-codec",
+=======
+		SND_SOC_DAILINK_REG(ac97),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "AC97 Aux",
 		.stream_name = "AC97 Aux",
+<<<<<<< HEAD
 		.cpu_dai_name = "pxa2xx-ac97-aux",
 		.codec_dai_name = "wm9712-aux",
 		.platform_name = "pxa-pcm-audio",
 		.codec_name = "wm9712-codec",
+=======
+		SND_SOC_DAILINK_REG(ac97_aux),
+>>>>>>> upstream/android-13
 	},
 };
 

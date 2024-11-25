@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * File: socket.c
  *
@@ -7,6 +11,7 @@
  *
  * Authors: Sakari Ailus <sakari.ailus@nokia.com>
  *          Rémi Denis-Courmont
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gfp.h>
@@ -392,8 +399,12 @@ static int pn_socket_ioctl(struct socket *sock, unsigned int cmd,
 			saddr = PN_NO_ADDR;
 		release_sock(sk);
 
+<<<<<<< HEAD
 		if (dev)
 			dev_put(dev);
+=======
+		dev_put(dev);
+>>>>>>> upstream/android-13
 		if (saddr == PN_NO_ADDR)
 			return -EHOSTUNREACH;
 
@@ -452,12 +463,15 @@ const struct proto_ops phonet_dgram_ops = {
 	.ioctl		= pn_socket_ioctl,
 	.listen		= sock_no_listen,
 	.shutdown	= sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt	= sock_no_setsockopt,
 	.getsockopt	= sock_no_getsockopt,
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = sock_no_setsockopt,
 	.compat_getsockopt = sock_no_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.sendmsg	= pn_socket_sendmsg,
 	.recvmsg	= sock_common_recvmsg,
 	.mmap		= sock_no_mmap,
@@ -479,10 +493,13 @@ const struct proto_ops phonet_stream_ops = {
 	.shutdown	= sock_no_shutdown,
 	.setsockopt	= sock_common_setsockopt,
 	.getsockopt	= sock_common_getsockopt,
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT
 	.compat_setsockopt = compat_sock_common_setsockopt,
 	.compat_getsockopt = compat_sock_common_getsockopt,
 #endif
+=======
+>>>>>>> upstream/android-13
 	.sendmsg	= pn_socket_sendmsg,
 	.recvmsg	= sock_common_recvmsg,
 	.mmap		= sock_no_mmap,
@@ -607,7 +624,11 @@ static int pn_sock_seq_show(struct seq_file *seq, void *v)
 		struct pn_sock *pn = pn_sk(sk);
 
 		seq_printf(seq, "%2d %04X:%04X:%02X %02X %08X:%08X %5d %lu "
+<<<<<<< HEAD
 			"%d %pK %d",
+=======
+			"%d %pK %u",
+>>>>>>> upstream/android-13
 			sk->sk_protocol, pn->sobject, pn->dobject,
 			pn->resource, sk->sk_state,
 			sk_wmem_alloc_get(sk), sk_rmem_alloc_get(sk),

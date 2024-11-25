@@ -12,7 +12,11 @@ Linux Sound Subsystem Documentation
    hd-audio/index
    cards/index
 
+<<<<<<< HEAD
 .. only::  subproject
+=======
+.. only::  subproject and html
+>>>>>>> upstream/android-13
 
    Indices
    =======

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
  * rtl8712_recv.c
  *
  * Copyright(c) 2007 - 2010 Realtek Corporation. All rights reserved.
  * Linux device driver for RTL8192SU
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -17,6 +22,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
  *
+=======
+>>>>>>> upstream/android-13
  * Modifications for inclusion into the Linux staging tree are
  * Copyright(c) 2010 Larry Finger. All rights reserved.
  *
@@ -30,6 +37,10 @@
 
 #include <linux/if_ether.h>
 #include <linux/ip.h>
+<<<<<<< HEAD
+=======
+#include <net/cfg80211.h>
+>>>>>>> upstream/android-13
 
 #include "osdep_service.h"
 #include "drv_types.h"
@@ -39,6 +50,7 @@
 #include "usb_ops.h"
 #include "wifi.h"
 
+<<<<<<< HEAD
 /* Bridge-Tunnel header (for EtherTypes ETH_P_AARP and ETH_P_IPX) */
 static u8 bridge_tunnel_header[] = {0xaa, 0xaa, 0x03, 0x00, 0x00, 0xf8};
 
@@ -52,6 +64,15 @@ int r8712_init_recv_priv(struct recv_priv *precvpriv, struct _adapter *padapter)
 	int i;
 	struct recv_buf *precvbuf;
 	int res = _SUCCESS;
+=======
+static void recv_tasklet(struct tasklet_struct *t);
+
+void r8712_init_recv_priv(struct recv_priv *precvpriv,
+			  struct _adapter *padapter)
+{
+	int i;
+	struct recv_buf *precvbuf;
+>>>>>>> upstream/android-13
 	addr_t tmpaddr = 0;
 	int alignment = 0;
 	struct sk_buff *pskb = NULL;
@@ -61,19 +82,30 @@ int r8712_init_recv_priv(struct recv_priv *precvpriv, struct _adapter *padapter)
 	precvpriv->pallocated_recv_buf =
 		kzalloc(NR_RECVBUFF * sizeof(struct recv_buf) + 4, GFP_ATOMIC);
 	if (!precvpriv->pallocated_recv_buf)
+<<<<<<< HEAD
 		return _FAIL;
 	precvpriv->precv_buf = precvpriv->pallocated_recv_buf + 4 -
 			      ((addr_t) (precvpriv->pallocated_recv_buf) & 3);
+=======
+		return;
+	precvpriv->precv_buf = precvpriv->pallocated_recv_buf + 4 -
+			      ((addr_t)(precvpriv->pallocated_recv_buf) & 3);
+>>>>>>> upstream/android-13
 	precvbuf = (struct recv_buf *)precvpriv->precv_buf;
 	for (i = 0; i < NR_RECVBUFF; i++) {
 		INIT_LIST_HEAD(&precvbuf->list);
 		spin_lock_init(&precvbuf->recvbuf_lock);
+<<<<<<< HEAD
 		res = r8712_os_recvbuf_resource_alloc(padapter, precvbuf);
 		if (res == _FAIL)
+=======
+		if (r8712_os_recvbuf_resource_alloc(padapter, precvbuf))
+>>>>>>> upstream/android-13
 			break;
 		precvbuf->ref_cnt = 0;
 		precvbuf->adapter = padapter;
 		list_add_tail(&precvbuf->list,
+<<<<<<< HEAD
 				 &(precvpriv->free_recv_buf_queue.queue));
 		precvbuf++;
 	}
@@ -81,6 +113,13 @@ int r8712_init_recv_priv(struct recv_priv *precvpriv, struct _adapter *padapter)
 	tasklet_init(&precvpriv->recv_tasklet,
 	     (void(*)(unsigned long))recv_tasklet,
 	     (unsigned long)padapter);
+=======
+			      &(precvpriv->free_recv_buf_queue.queue));
+		precvbuf++;
+	}
+	precvpriv->free_recv_buf_queue_cnt = NR_RECVBUFF;
+	tasklet_setup(&precvpriv->recv_tasklet, recv_tasklet);
+>>>>>>> upstream/android-13
 	skb_queue_head_init(&precvpriv->rx_skb_queue);
 
 	skb_queue_head_init(&precvpriv->free_recv_skb_queue);
@@ -95,7 +134,10 @@ int r8712_init_recv_priv(struct recv_priv *precvpriv, struct _adapter *padapter)
 		}
 		pskb = NULL;
 	}
+<<<<<<< HEAD
 	return res;
+=======
+>>>>>>> upstream/android-13
 }
 
 void r8712_free_recv_priv(struct recv_priv *precvpriv)
@@ -119,7 +161,11 @@ void r8712_free_recv_priv(struct recv_priv *precvpriv)
 			    skb_queue_len(&precvpriv->free_recv_skb_queue));
 }
 
+<<<<<<< HEAD
 int r8712_init_recvbuf(struct _adapter *padapter, struct recv_buf *precvbuf)
+=======
+void r8712_init_recvbuf(struct _adapter *padapter, struct recv_buf *precvbuf)
+>>>>>>> upstream/android-13
 {
 	precvbuf->transfer_len = 0;
 	precvbuf->len = 0;
@@ -130,11 +176,18 @@ int r8712_init_recvbuf(struct _adapter *padapter, struct recv_buf *precvbuf)
 		precvbuf->ptail = precvbuf->pbuf;
 		precvbuf->pend = precvbuf->pdata + MAX_RECVBUF_SZ;
 	}
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 int r8712_free_recvframe(union recv_frame *precvframe,
 		   struct  __queue *pfree_recv_queue)
+=======
+}
+
+void r8712_free_recvframe(union recv_frame *precvframe,
+			  struct  __queue *pfree_recv_queue)
+>>>>>>> upstream/android-13
 {
 	unsigned long irqL;
 	struct _adapter *padapter = precvframe->u.hdr.adapter;
@@ -147,16 +200,27 @@ int r8712_free_recvframe(union recv_frame *precvframe,
 	spin_lock_irqsave(&pfree_recv_queue->lock, irqL);
 	list_del_init(&(precvframe->u.hdr.list));
 	list_add_tail(&(precvframe->u.hdr.list), &pfree_recv_queue->queue);
+<<<<<<< HEAD
 	if (padapter != NULL) {
+=======
+	if (padapter) {
+>>>>>>> upstream/android-13
 		if (pfree_recv_queue == &precvpriv->free_recv_queue)
 			precvpriv->free_recvframe_cnt++;
 	}
 	spin_unlock_irqrestore(&pfree_recv_queue->lock, irqL);
+<<<<<<< HEAD
 	return _SUCCESS;
 }
 
 static void update_recvframe_attrib_from_recvstat(struct rx_pkt_attrib *pattrib,
 					   struct recv_stat *prxstat)
+=======
+}
+
+static void update_recvframe_attrib_from_recvstat(struct rx_pkt_attrib *pattrib,
+						  struct recv_stat *prxstat)
+>>>>>>> upstream/android-13
 {
 	u16 drvinfo_sz;
 
@@ -165,9 +229,14 @@ static void update_recvframe_attrib_from_recvstat(struct rx_pkt_attrib *pattrib,
 	/*TODO:
 	 * Offset 0
 	 */
+<<<<<<< HEAD
 	pattrib->bdecrypted = ((le32_to_cpu(prxstat->rxdw0) & BIT(27)) >> 27)
 				 ? 0 : 1;
 	pattrib->crc_err = (le32_to_cpu(prxstat->rxdw0) & BIT(14)) >> 14;
+=======
+	pattrib->bdecrypted = (le32_to_cpu(prxstat->rxdw0) & BIT(27)) == 0;
+	pattrib->crc_err = (le32_to_cpu(prxstat->rxdw0) & BIT(14)) != 0;
+>>>>>>> upstream/android-13
 	/*Offset 4*/
 	/*Offset 8*/
 	/*Offset 12*/
@@ -193,7 +262,11 @@ static void update_recvframe_attrib_from_recvstat(struct rx_pkt_attrib *pattrib,
 
 /*perform defrag*/
 static union recv_frame *recvframe_defrag(struct _adapter *adapter,
+<<<<<<< HEAD
 				   struct  __queue *defrag_q)
+=======
+					  struct  __queue *defrag_q)
+>>>>>>> upstream/android-13
 {
 	struct list_head *plist, *phead;
 	u8 wlanhdr_offset;
@@ -285,7 +358,11 @@ union recv_frame *r8712_recvframe_chk_defrag(struct _adapter *padapter,
 		/* 0~(n-1) fragment frame
 		 * enqueue to defraf_g
 		 */
+<<<<<<< HEAD
 		if (pdefrag_q != NULL) {
+=======
+		if (pdefrag_q) {
+>>>>>>> upstream/android-13
 			if (fragnum == 0) {
 				/*the first fragment*/
 				if (!list_empty(&pdefrag_q->queue)) {
@@ -305,13 +382,20 @@ union recv_frame *r8712_recvframe_chk_defrag(struct _adapter *padapter,
 			r8712_free_recvframe(precv_frame, pfree_recv_queue);
 			prtnframe = NULL;
 		}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	}
 	if ((ismfrag == 0) && (fragnum != 0)) {
 		/* the last fragment frame
 		 * enqueue the last fragment
 		 */
+<<<<<<< HEAD
 		if (pdefrag_q != NULL) {
+=======
+		if (pdefrag_q) {
+>>>>>>> upstream/android-13
 			phead = &pdefrag_q->queue;
 			list_add_tail(&pfhdr->list, phead);
 			/*call recvframe_defrag to defrag*/
@@ -325,7 +409,11 @@ union recv_frame *r8712_recvframe_chk_defrag(struct _adapter *padapter,
 			prtnframe = NULL;
 		}
 	}
+<<<<<<< HEAD
 	if ((prtnframe != NULL) && (prtnframe->u.hdr.attrib.privacy)) {
+=======
+	if (prtnframe && (prtnframe->u.hdr.attrib.privacy)) {
+>>>>>>> upstream/android-13
 		/* after defrag we must check tkip mic code */
 		if (r8712_recvframe_chkmic(padapter, prtnframe) == _FAIL) {
 			r8712_free_recvframe(prtnframe, pfree_recv_queue);
@@ -335,7 +423,11 @@ union recv_frame *r8712_recvframe_chk_defrag(struct _adapter *padapter,
 	return prtnframe;
 }
 
+<<<<<<< HEAD
 static int amsdu_to_msdu(struct _adapter *padapter, union recv_frame *prframe)
+=======
+static void amsdu_to_msdu(struct _adapter *padapter, union recv_frame *prframe)
+>>>>>>> upstream/android-13
 {
 	int	a_len, padding_len;
 	u16	eth_type, nSubframe_Length;
@@ -395,26 +487,44 @@ static int amsdu_to_msdu(struct _adapter *padapter, union recv_frame *prframe)
 		/* convert hdr + possible LLC headers into Ethernet header */
 		eth_type = (sub_skb->data[6] << 8) | sub_skb->data[7];
 		if (sub_skb->len >= 8 &&
+<<<<<<< HEAD
 		   ((!memcmp(sub_skb->data, rfc1042_header, SNAP_SIZE) &&
 		   eth_type != ETH_P_AARP && eth_type != ETH_P_IPX) ||
 		   !memcmp(sub_skb->data, bridge_tunnel_header, SNAP_SIZE))) {
+=======
+		    ((!memcmp(sub_skb->data, rfc1042_header, SNAP_SIZE) &&
+		      eth_type != ETH_P_AARP && eth_type != ETH_P_IPX) ||
+		     !memcmp(sub_skb->data, bridge_tunnel_header, SNAP_SIZE))) {
+>>>>>>> upstream/android-13
 			/* remove RFC1042 or Bridge-Tunnel encapsulation and
 			 * replace EtherType
 			 */
 			skb_pull(sub_skb, SNAP_SIZE);
 			memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->src,
+<<<<<<< HEAD
 				ETH_ALEN);
 			memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->dst,
 				ETH_ALEN);
+=======
+			       ETH_ALEN);
+			memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->dst,
+			       ETH_ALEN);
+>>>>>>> upstream/android-13
 		} else {
 			__be16 len;
 			/* Leave Ethernet header part of hdr and full payload */
 			len = htons(sub_skb->len);
 			memcpy(skb_push(sub_skb, 2), &len, 2);
 			memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->src,
+<<<<<<< HEAD
 				ETH_ALEN);
 			memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->dst,
 				ETH_ALEN);
+=======
+			       ETH_ALEN);
+			memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->dst,
+			       ETH_ALEN);
+>>>>>>> upstream/android-13
 		}
 		/* Indicate the packets to upper layer */
 		if (sub_skb) {
@@ -433,7 +543,10 @@ static int amsdu_to_msdu(struct _adapter *padapter, union recv_frame *prframe)
 exit:
 	prframe->u.hdr.len = 0;
 	r8712_free_recvframe(prframe, pfree_recv_queue);
+<<<<<<< HEAD
 	return _SUCCESS;
+=======
+>>>>>>> upstream/android-13
 }
 
 void r8712_rxcmd_event_hdl(struct _adapter *padapter, void *prxcmdbuf)
@@ -455,7 +568,10 @@ void r8712_rxcmd_event_hdl(struct _adapter *padapter, void *prxcmdbuf)
 		r8712_event_handle(padapter, (__le32 *)poffset);
 		poffset += (cmd_len + 8);/*8 bytes alignment*/
 	} while (le32_to_cpu(voffset) & BIT(31));
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 
 static int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl,
@@ -489,7 +605,11 @@ static int check_indicate_seq(struct recv_reorder_ctrl *preorder_ctrl,
 }
 
 static int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl,
+<<<<<<< HEAD
 			      union recv_frame *prframe)
+=======
+				     union recv_frame *prframe)
+>>>>>>> upstream/android-13
 {
 	struct list_head *phead, *plist;
 	union recv_frame *pnextrframe;
@@ -503,10 +623,19 @@ static int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl,
 	while (!end_of_queue_search(phead, plist)) {
 		pnextrframe = container_of(plist, union recv_frame, u.list);
 		pnextattrib = &pnextrframe->u.hdr.attrib;
+<<<<<<< HEAD
 		if (SN_LESS(pnextattrib->seq_num, pattrib->seq_num))
 			plist = plist->next;
 		else if (SN_EQUAL(pnextattrib->seq_num, pattrib->seq_num))
 			return false;
+=======
+
+		if (SN_EQUAL(pnextattrib->seq_num, pattrib->seq_num))
+			return false;
+
+		if (SN_LESS(pnextattrib->seq_num, pattrib->seq_num))
+			plist = plist->next;
+>>>>>>> upstream/android-13
 		else
 			break;
 	}
@@ -516,14 +645,22 @@ static int enqueue_reorder_recvframe(struct recv_reorder_ctrl *preorder_ctrl,
 }
 
 int r8712_recv_indicatepkts_in_order(struct _adapter *padapter,
+<<<<<<< HEAD
 			       struct recv_reorder_ctrl *preorder_ctrl,
 			       int bforced)
+=======
+				     struct recv_reorder_ctrl *preorder_ctrl,
+				     int bforced)
+>>>>>>> upstream/android-13
 {
 	struct list_head *phead, *plist;
 	union recv_frame *prframe;
 	struct rx_pkt_attrib *pattrib;
 	int bPktInBuf = false;
+<<<<<<< HEAD
 	struct recv_priv *precvpriv = &padapter->recvpriv;
+=======
+>>>>>>> upstream/android-13
 	struct  __queue *ppending_recvframe_queue =
 			 &preorder_ctrl->pending_recvframe_queue;
 
@@ -548,22 +685,35 @@ int r8712_recv_indicatepkts_in_order(struct _adapter *padapter,
 			plist = plist->next;
 			list_del_init(&(prframe->u.hdr.list));
 			if (SN_EQUAL(preorder_ctrl->indicate_seq,
+<<<<<<< HEAD
 			    pattrib->seq_num))
+=======
+				     pattrib->seq_num))
+>>>>>>> upstream/android-13
 				preorder_ctrl->indicate_seq =
 				  (preorder_ctrl->indicate_seq + 1) % 4096;
 			/*indicate this recv_frame*/
 			if (!pattrib->amsdu) {
+<<<<<<< HEAD
 				if (!padapter->bDriverStopped &&
 				    !padapter->bSurpriseRemoved) {
+=======
+				if (!padapter->driver_stopped &&
+				    !padapter->surprise_removed) {
+>>>>>>> upstream/android-13
 					/* indicate this recv_frame */
 					r8712_recv_indicatepkt(padapter,
 							       prframe);
 				}
 			} else if (pattrib->amsdu == 1) {
+<<<<<<< HEAD
 				if (amsdu_to_msdu(padapter, prframe) !=
 				    _SUCCESS)
 					r8712_free_recvframe(prframe,
 						   &precvpriv->free_recv_queue);
+=======
+				amsdu_to_msdu(padapter, prframe);
+>>>>>>> upstream/android-13
 			}
 			/* Update local variables. */
 			bPktInBuf = false;
@@ -576,7 +726,11 @@ int r8712_recv_indicatepkts_in_order(struct _adapter *padapter,
 }
 
 static int recv_indicatepkt_reorder(struct _adapter *padapter,
+<<<<<<< HEAD
 			     union recv_frame *prframe)
+=======
+				    union recv_frame *prframe)
+>>>>>>> upstream/android-13
 {
 	unsigned long irql;
 	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
@@ -588,12 +742,21 @@ static int recv_indicatepkt_reorder(struct _adapter *padapter,
 		/* s1. */
 		r8712_wlanhdr_to_ethhdr(prframe);
 		if (pattrib->qos != 1) {
+<<<<<<< HEAD
 			if (!padapter->bDriverStopped &&
 			    !padapter->bSurpriseRemoved) {
 				r8712_recv_indicatepkt(padapter, prframe);
 				return _SUCCESS;
 			} else {
 				return _FAIL;
+=======
+			if (!padapter->driver_stopped &&
+			    !padapter->surprise_removed) {
+				r8712_recv_indicatepkt(padapter, prframe);
+				return 0;
+			} else {
+				return -EINVAL;
+>>>>>>> upstream/android-13
 			}
 		}
 	}
@@ -615,8 +778,12 @@ static int recv_indicatepkt_reorder(struct _adapter *padapter,
 	 * 2. All packets with SeqNum larger than or equal to
 	 * WinStart => Buffer it.
 	 */
+<<<<<<< HEAD
 	if (r8712_recv_indicatepkts_in_order(padapter, preorder_ctrl, false) ==
 	    true) {
+=======
+	if (r8712_recv_indicatepkts_in_order(padapter, preorder_ctrl, false)) {
+>>>>>>> upstream/android-13
 		mod_timer(&preorder_ctrl->reordering_ctrl_timer,
 			  jiffies + msecs_to_jiffies(REORDER_WAIT_TIME));
 		spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql);
@@ -624,10 +791,17 @@ static int recv_indicatepkt_reorder(struct _adapter *padapter,
 		spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql);
 		del_timer(&preorder_ctrl->reordering_ctrl_timer);
 	}
+<<<<<<< HEAD
 	return _SUCCESS;
 _err_exit:
 	spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql);
 	return _FAIL;
+=======
+	return 0;
+_err_exit:
+	spin_unlock_irqrestore(&ppending_recvframe_queue->lock, irql);
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 void r8712_reordering_ctrl_timeout_handler(void *pcontext)
@@ -638,7 +812,11 @@ void r8712_reordering_ctrl_timeout_handler(void *pcontext)
 	struct  __queue *ppending_recvframe_queue =
 				 &preorder_ctrl->pending_recvframe_queue;
 
+<<<<<<< HEAD
 	if (padapter->bDriverStopped || padapter->bSurpriseRemoved)
+=======
+	if (padapter->driver_stopped || padapter->surprise_removed)
+>>>>>>> upstream/android-13
 		return;
 	spin_lock_irqsave(&ppending_recvframe_queue->lock, irql);
 	r8712_recv_indicatepkts_in_order(padapter, preorder_ctrl, true);
@@ -646,24 +824,41 @@ void r8712_reordering_ctrl_timeout_handler(void *pcontext)
 }
 
 static int r8712_process_recv_indicatepkts(struct _adapter *padapter,
+<<<<<<< HEAD
 			      union recv_frame *prframe)
+=======
+					   union recv_frame *prframe)
+>>>>>>> upstream/android-13
 {
 	int retval = _SUCCESS;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv	*phtpriv = &pmlmepriv->htpriv;
 
 	if (phtpriv->ht_option == 1) { /*B/G/N Mode*/
+<<<<<<< HEAD
 		if (recv_indicatepkt_reorder(padapter, prframe) != _SUCCESS) {
 			/* including perform A-MPDU Rx Ordering Buffer Control*/
 			if (!padapter->bDriverStopped &&
 			    !padapter->bSurpriseRemoved)
+=======
+		if (recv_indicatepkt_reorder(padapter, prframe)) {
+			/* including perform A-MPDU Rx Ordering Buffer Control*/
+			if (!padapter->driver_stopped &&
+			    !padapter->surprise_removed)
+>>>>>>> upstream/android-13
 				return _FAIL;
 		}
 	} else { /*B/G mode*/
 		retval = r8712_wlanhdr_to_ethhdr(prframe);
+<<<<<<< HEAD
 		if (retval != _SUCCESS)
 			return retval;
 		if (!padapter->bDriverStopped && !padapter->bSurpriseRemoved) {
+=======
+		if (retval)
+			return _FAIL;
+		if (!padapter->driver_stopped && !padapter->surprise_removed) {
+>>>>>>> upstream/android-13
 			/* indicate this recv_frame */
 			r8712_recv_indicatepkt(padapter, prframe);
 		} else {
@@ -688,6 +883,7 @@ static u8 evm_db2percentage(s8 value)
 	/*
 	 * -33dB~0dB to 0%~99%
 	 */
+<<<<<<< HEAD
 	s8 ret_val;
 
 	ret_val = value;
@@ -699,6 +895,13 @@ static u8 evm_db2percentage(s8 value)
 	ret_val *= 3;
 	if (ret_val == 99)
 		ret_val = 100;
+=======
+	s8 ret_val = clamp(-value, 0, 33) * 3;
+
+	if (ret_val == 99)
+		ret_val = 100;
+
+>>>>>>> upstream/android-13
 	return ret_val;
 }
 
@@ -901,7 +1104,11 @@ static void process_link_qual(struct _adapter *padapter,
 	struct rx_pkt_attrib *pattrib;
 	struct smooth_rssi_data *sqd = &padapter->recvpriv.signal_qual_data;
 
+<<<<<<< HEAD
 	if (prframe == NULL || padapter == NULL)
+=======
+	if (!prframe || !padapter)
+>>>>>>> upstream/android-13
 		return;
 	pattrib = &prframe->u.hdr.attrib;
 	if (pattrib->signal_qual != 0) {
@@ -1003,7 +1210,11 @@ _exit_recv_func:
 	return retval;
 }
 
+<<<<<<< HEAD
 static int recvbuf2recvframe(struct _adapter *padapter, struct sk_buff *pskb)
+=======
+static void recvbuf2recvframe(struct _adapter *padapter, struct sk_buff *pskb)
+>>>>>>> upstream/android-13
 {
 	u8 *pbuf, shift_sz = 0;
 	u8	frag, mf;
@@ -1030,7 +1241,11 @@ static int recvbuf2recvframe(struct _adapter *padapter, struct sk_buff *pskb)
 		/* In this case, it means the MAX_RECVBUF_SZ is too small to
 		 * get the data from 8712u.
 		 */
+<<<<<<< HEAD
 		return _FAIL;
+=======
+		return;
+>>>>>>> upstream/android-13
 	}
 	do {
 		prxstat = (struct recv_stat *)pbuf;
@@ -1043,13 +1258,21 @@ static int recvbuf2recvframe(struct _adapter *padapter, struct sk_buff *pskb)
 		drvinfo_sz = (le32_to_cpu(prxstat->rxdw0) & 0x000f0000) >> 16;
 		drvinfo_sz <<= 3;
 		if (pkt_len <= 0)
+<<<<<<< HEAD
 			goto  _exit_recvbuf2recvframe;
+=======
+			return;
+>>>>>>> upstream/android-13
 		/* Qos data, wireless lan header length is 26 */
 		if ((le32_to_cpu(prxstat->rxdw0) >> 23) & 0x01)
 			shift_sz = 2;
 		precvframe = r8712_alloc_recvframe(pfree_recv_queue);
 		if (!precvframe)
+<<<<<<< HEAD
 			goto  _exit_recvbuf2recvframe;
+=======
+			return;
+>>>>>>> upstream/android-13
 		INIT_LIST_HEAD(&precvframe->u.hdr.list);
 		precvframe->u.hdr.precvbuf = NULL; /*can't access the precvbuf*/
 		precvframe->u.hdr.len = 0;
@@ -1068,6 +1291,7 @@ static int recvbuf2recvframe(struct _adapter *padapter, struct sk_buff *pskb)
 		 */
 		alloc_sz += 6;
 		pkt_copy = netdev_alloc_skb(padapter->pnetdev, alloc_sz);
+<<<<<<< HEAD
 		if (pkt_copy) {
 			precvframe->u.hdr.pkt = pkt_copy;
 			skb_reserve(pkt_copy, 4 - ((addr_t)(pkt_copy->data)
@@ -1086,6 +1310,20 @@ static int recvbuf2recvframe(struct _adapter *padapter, struct sk_buff *pskb)
 			precvframe->u.hdr.rx_tail = pbuf;
 			precvframe->u.hdr.rx_end = pbuf + alloc_sz;
 		}
+=======
+		if (!pkt_copy)
+			return;
+
+		precvframe->u.hdr.pkt = pkt_copy;
+		skb_reserve(pkt_copy, 4 - ((addr_t)(pkt_copy->data) % 4));
+		skb_reserve(pkt_copy, shift_sz);
+		memcpy(pkt_copy->data, pbuf, tmp_len);
+		precvframe->u.hdr.rx_head = pkt_copy->data;
+		precvframe->u.hdr.rx_data = pkt_copy->data;
+		precvframe->u.hdr.rx_tail = pkt_copy->data;
+		precvframe->u.hdr.rx_end = pkt_copy->data + alloc_sz;
+
+>>>>>>> upstream/android-13
 		recvframe_put(precvframe, tmp_len);
 		recvframe_pull(precvframe, drvinfo_sz + RXDESC_SIZE);
 		/* because the endian issue, driver avoid reference to the
@@ -1100,6 +1338,7 @@ static int recvbuf2recvframe(struct _adapter *padapter, struct sk_buff *pskb)
 		precvframe = NULL;
 		pkt_copy = NULL;
 	} while ((transfer_len > 0) && pkt_cnt > 0);
+<<<<<<< HEAD
 _exit_recvbuf2recvframe:
 	return _SUCCESS;
 }
@@ -1108,6 +1347,15 @@ static void recv_tasklet(void *priv)
 {
 	struct sk_buff *pskb;
 	struct _adapter *padapter = priv;
+=======
+}
+
+static void recv_tasklet(struct tasklet_struct *t)
+{
+	struct sk_buff *pskb;
+	struct _adapter *padapter = from_tasklet(padapter, t,
+						 recvpriv.recv_tasklet);
+>>>>>>> upstream/android-13
 	struct recv_priv *precvpriv = &padapter->recvpriv;
 
 	while (NULL != (pskb = skb_dequeue(&precvpriv->rx_skb_queue))) {

@@ -10,7 +10,11 @@ if a symbol is not found at the documentation. That helps to keep the
 uAPI documentation in sync with the Kernel changes.
 The :ref:`parse_headers.pl <parse_headers>` provide a way to generate such
 cross-references. It has to be called via Makefile, while building the
+<<<<<<< HEAD
 documentation. Please see ``Documentation/media/Makefile`` for an example
+=======
+documentation. Please see ``Documentation/userspace-api/media/Makefile`` for an example
+>>>>>>> upstream/android-13
 about how to use it inside the Kernel tree.
 
 .. _parse_headers:
@@ -186,7 +190,11 @@ COPYRIGHT
 
 Copyright (c) 2016 by Mauro Carvalho Chehab <mchehab+samsung@kernel.org>.
 
+<<<<<<< HEAD
 License GPLv2: GNU GPL version 2 <http://gnu.org/licenses/gpl.html>.
+=======
+License GPLv2: GNU GPL version 2 <https://gnu.org/licenses/gpl.html>.
+>>>>>>> upstream/android-13
 
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.

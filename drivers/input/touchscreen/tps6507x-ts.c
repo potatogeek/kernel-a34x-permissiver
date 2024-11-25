@@ -17,7 +17,10 @@
 #include <linux/workqueue.h>
 #include <linux/slab.h>
 #include <linux/input.h>
+<<<<<<< HEAD
 #include <linux/input-polldev.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/mfd/tps6507x.h>
 #include <linux/input/tps6507x-ts.h>
@@ -40,7 +43,11 @@ struct ts_event {
 
 struct tps6507x_ts {
 	struct device		*dev;
+<<<<<<< HEAD
 	struct input_polled_dev	*poll_dev;
+=======
+	struct input_dev	*input;
+>>>>>>> upstream/android-13
 	struct tps6507x_dev	*mfd;
 	char			phys[32];
 	struct ts_event		tc;
@@ -148,10 +155,16 @@ static s32 tps6507x_adc_standby(struct tps6507x_ts *tsc)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
 {
 	struct tps6507x_ts *tsc = poll_dev->private;
 	struct input_dev *input_dev = poll_dev->input;
+=======
+static void tps6507x_ts_poll(struct input_dev *input_dev)
+{
+	struct tps6507x_ts *tsc = input_get_drvdata(input_dev);
+>>>>>>> upstream/android-13
 	bool pendown;
 	s32 ret;
 
@@ -205,7 +218,10 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
 	const struct tps6507x_board *tps_board;
 	const struct touchscreen_init_data *init_data;
 	struct tps6507x_ts *tsc;
+<<<<<<< HEAD
 	struct input_polled_dev *poll_dev;
+=======
+>>>>>>> upstream/android-13
 	struct input_dev *input_dev;
 	int error;
 
@@ -240,12 +256,18 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
 	snprintf(tsc->phys, sizeof(tsc->phys),
 		 "%s/input0", dev_name(tsc->dev));
 
+<<<<<<< HEAD
 	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
 	if (!poll_dev) {
+=======
+	input_dev = devm_input_allocate_device(&pdev->dev);
+	if (!input_dev) {
+>>>>>>> upstream/android-13
 		dev_err(tsc->dev, "Failed to allocate polled input device.\n");
 		return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	tsc->poll_dev = poll_dev;
 
 	poll_dev->private = tsc;
@@ -257,6 +279,12 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
 
+=======
+	tsc->input = input_dev;
+	input_set_drvdata(input_dev, tsc);
+
+	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+>>>>>>> upstream/android-13
 	input_set_abs_params(input_dev, ABS_X, 0, MAX_10BIT, 0, 0);
 	input_set_abs_params(input_dev, ABS_Y, 0, MAX_10BIT, 0, 0);
 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_10BIT, 0, 0);
@@ -275,7 +303,19 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	error = input_register_polled_device(poll_dev);
+=======
+	error = input_setup_polling(input_dev, tps6507x_ts_poll);
+	if (error)
+		return error;
+
+	input_set_poll_interval(input_dev,
+				init_data ? init_data->poll_period :
+					    TSC_DEFAULT_POLL_PERIOD);
+
+	error = input_register_device(input_dev);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 

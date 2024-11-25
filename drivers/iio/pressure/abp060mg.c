@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 - Marcin Malagowski <mrc@bourne.st>
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 - Marcin Malagowski <mrc@bourne.st>
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/device.h>
@@ -203,7 +209,10 @@ static int abp060mg_probe(struct i2c_client *client,
 
 	abp060mg_init_device(indio_dev, cfg_id);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&client->dev);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &abp060mg_info;

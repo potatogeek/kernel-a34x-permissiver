@@ -98,7 +98,11 @@ struct mpls_nh { /* next hop label forwarding entry */
 	u8			nh_via_table;
 	u8			nh_reserved1;
 
+<<<<<<< HEAD
 	u32			nh_label[0];
+=======
+	u32			nh_label[];
+>>>>>>> upstream/android-13
 };
 
 /* offset of via from beginning of mpls_nh */
@@ -154,7 +158,11 @@ struct mpls_route { /* next hop label forwarding entry */
 	u8			rt_nh_size;
 	u8			rt_via_offset;
 	u8			rt_reserved1;
+<<<<<<< HEAD
 	struct mpls_nh		rt_nh[0];
+=======
+	struct mpls_nh		rt_nh[];
+>>>>>>> upstream/android-13
 };
 
 #define for_nexthops(rt) {						\
@@ -172,6 +180,7 @@ struct mpls_route { /* next hop label forwarding entry */
 
 #define endfor_nexthops(rt) }
 
+<<<<<<< HEAD
 static inline struct mpls_shim_hdr mpls_entry_encode(u32 label, unsigned ttl, unsigned tc, bool bos)
 {
 	struct mpls_shim_hdr result;
@@ -183,6 +192,8 @@ static inline struct mpls_shim_hdr mpls_entry_encode(u32 label, unsigned ttl, un
 	return result;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct mpls_entry_decoded mpls_entry_decode(struct mpls_shim_hdr *hdr)
 {
 	struct mpls_entry_decoded result;

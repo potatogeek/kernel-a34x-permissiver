@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MediaTek display pulse-width-modulation controller driver.
  * Copyright (c) 2015 MediaTek Inc.
  * Author: YH Huang <yh.huang@mediatek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,11 @@
  * GNU General Public License for more details.
  */
 
+=======
+ */
+
+#include <linux/bitfield.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/io.h>
@@ -22,8 +32,11 @@
 #include <linux/platform_device.h>
 #include <linux/pwm.h>
 #include <linux/slab.h>
+<<<<<<< HEAD
 #include <linux/of_address.h>
 #include <linux/delay.h>
+=======
+>>>>>>> upstream/android-13
 
 #define DISP_PWM_EN		0x00
 
@@ -37,9 +50,12 @@
 #define PWM_HIGH_WIDTH_SHIFT	16
 #define PWM_HIGH_WIDTH_MASK	(0x1fff << PWM_HIGH_WIDTH_SHIFT)
 
+<<<<<<< HEAD
 #undef pr_fmt
 #define pr_fmt(fmt) "[mtk_disp_pwm]" fmt
 
+=======
+>>>>>>> upstream/android-13
 struct mtk_pwm_data {
 	u32 enable_mask;
 	unsigned int con0;
@@ -60,8 +76,12 @@ struct mtk_disp_pwm {
 	struct clk *clk_main;
 	struct clk *clk_mm;
 	void __iomem *base;
+<<<<<<< HEAD
 	void __iomem *pmw_src_addr;
 	bool pwm_src_enabled;
+=======
+	bool enabled;
+>>>>>>> upstream/android-13
 };
 
 static inline struct mtk_disp_pwm *to_mtk_disp_pwm(struct pwm_chip *chip)
@@ -81,6 +101,7 @@ static void mtk_disp_pwm_update_bits(struct mtk_disp_pwm *mdp, u32 offset,
 	writel(value, address);
 }
 
+<<<<<<< HEAD
 static int get_pwm_src_base(struct device *dev, struct mtk_disp_pwm *mdp)
 {
 	int ret = 0;
@@ -155,12 +176,52 @@ static int pwm_src_power_off(struct mtk_disp_pwm *mdp)
 
 static int mtk_disp_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 			       int duty_ns, int period_ns)
+=======
+static int mtk_disp_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+			      const struct pwm_state *state)
+>>>>>>> upstream/android-13
 {
 	struct mtk_disp_pwm *mdp = to_mtk_disp_pwm(chip);
 	u32 clk_div, period, high_width, value;
 	u64 div, rate;
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (state->polarity != PWM_POLARITY_NORMAL)
+		return -EINVAL;
+
+	if (!state->enabled) {
+		mtk_disp_pwm_update_bits(mdp, DISP_PWM_EN, mdp->data->enable_mask,
+					 0x0);
+
+		if (mdp->enabled) {
+			clk_disable_unprepare(mdp->clk_mm);
+			clk_disable_unprepare(mdp->clk_main);
+		}
+
+		mdp->enabled = false;
+		return 0;
+	}
+
+	if (!mdp->enabled) {
+		err = clk_prepare_enable(mdp->clk_main);
+		if (err < 0) {
+			dev_err(chip->dev, "Can't enable mdp->clk_main: %pe\n",
+				ERR_PTR(err));
+			return err;
+		}
+
+		err = clk_prepare_enable(mdp->clk_mm);
+		if (err < 0) {
+			dev_err(chip->dev, "Can't enable mdp->clk_mm: %pe\n",
+				ERR_PTR(err));
+			clk_disable_unprepare(mdp->clk_main);
+			return err;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Find period, high_width and clk_div to suit duty_ns and period_ns.
 	 * Calculate proper div value to keep period value in the bound.
@@ -171,6 +232,7 @@ static int mtk_disp_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 	 * period = (PWM_CLK_RATE * period_ns) / (10^9 * (clk_div + 1)) - 1
 	 * high_width = (PWM_CLK_RATE * duty_ns) / (10^9 * (clk_div + 1))
 	 */
+<<<<<<< HEAD
 	dev_dbg(mdp->chip.dev, "duty=%d period=%d\n", duty_ns, period_ns);
 	rate = clk_get_rate(mdp->clk_main);
 	clk_div = div_u64(rate * period_ns, NSEC_PER_SEC) >>
@@ -200,6 +262,26 @@ static int mtk_disp_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		clk_disable(mdp->clk_main);
 		return err;
 	}
+=======
+	rate = clk_get_rate(mdp->clk_main);
+	clk_div = mul_u64_u64_div_u64(state->period, rate, NSEC_PER_SEC) >>
+			  PWM_PERIOD_BIT_WIDTH;
+	if (clk_div > PWM_CLKDIV_MAX) {
+		if (!mdp->enabled) {
+			clk_disable_unprepare(mdp->clk_mm);
+			clk_disable_unprepare(mdp->clk_main);
+		}
+		return -EINVAL;
+	}
+
+	div = NSEC_PER_SEC * (clk_div + 1);
+	period = mul_u64_u64_div_u64(state->period, rate, div);
+	if (period > 0)
+		period--;
+
+	high_width = mul_u64_u64_div_u64(state->duty_cycle, rate, div);
+	value = period | (high_width << PWM_HIGH_WIDTH_SHIFT);
+>>>>>>> upstream/android-13
 
 	mtk_disp_pwm_update_bits(mdp, mdp->data->con0,
 				 PWM_CLKDIV_MASK,
@@ -215,6 +297,7 @@ static int mtk_disp_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		mtk_disp_pwm_update_bits(mdp, mdp->data->commit,
 					 mdp->data->commit_mask,
 					 0x0);
+<<<<<<< HEAD
 	}
 
 	clk_disable(mdp->clk_mm);
@@ -243,10 +326,29 @@ static int mtk_disp_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 
 	mtk_disp_pwm_update_bits(mdp, DISP_PWM_EN, mdp->data->enable_mask,
 				 mdp->data->enable_mask);
+=======
+	} else {
+		/*
+		 * For MT2701, disable double buffer before writing register
+		 * and select manual mode and use PWM_PERIOD/PWM_HIGH_WIDTH.
+		 */
+		mtk_disp_pwm_update_bits(mdp, mdp->data->bls_debug,
+					 mdp->data->bls_debug_mask,
+					 mdp->data->bls_debug_mask);
+		mtk_disp_pwm_update_bits(mdp, mdp->data->con0,
+					 mdp->data->con0_sel,
+					 mdp->data->con0_sel);
+	}
+
+	mtk_disp_pwm_update_bits(mdp, DISP_PWM_EN, mdp->data->enable_mask,
+				 mdp->data->enable_mask);
+	mdp->enabled = true;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void mtk_disp_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
 {
 	struct mtk_disp_pwm *mdp = to_mtk_disp_pwm(chip);
@@ -265,14 +367,63 @@ static const struct pwm_ops mtk_disp_pwm_ops = {
 	.config = mtk_disp_pwm_config,
 	.enable = mtk_disp_pwm_enable,
 	.disable = mtk_disp_pwm_disable,
+=======
+static void mtk_disp_pwm_get_state(struct pwm_chip *chip,
+				   struct pwm_device *pwm,
+				   struct pwm_state *state)
+{
+	struct mtk_disp_pwm *mdp = to_mtk_disp_pwm(chip);
+	u64 rate, period, high_width;
+	u32 clk_div, con0, con1;
+	int err;
+
+	err = clk_prepare_enable(mdp->clk_main);
+	if (err < 0) {
+		dev_err(chip->dev, "Can't enable mdp->clk_main: %pe\n", ERR_PTR(err));
+		return;
+	}
+
+	err = clk_prepare_enable(mdp->clk_mm);
+	if (err < 0) {
+		dev_err(chip->dev, "Can't enable mdp->clk_mm: %pe\n", ERR_PTR(err));
+		clk_disable_unprepare(mdp->clk_main);
+		return;
+	}
+
+	rate = clk_get_rate(mdp->clk_main);
+	con0 = readl(mdp->base + mdp->data->con0);
+	con1 = readl(mdp->base + mdp->data->con1);
+	state->enabled = !!(con0 & BIT(0));
+	clk_div = FIELD_GET(PWM_CLKDIV_MASK, con0);
+	period = FIELD_GET(PWM_PERIOD_MASK, con1);
+	/*
+	 * period has 12 bits, clk_div 11 and NSEC_PER_SEC has 30,
+	 * so period * (clk_div + 1) * NSEC_PER_SEC doesn't overflow.
+	 */
+	state->period = DIV64_U64_ROUND_UP(period * (clk_div + 1) * NSEC_PER_SEC, rate);
+	high_width = FIELD_GET(PWM_HIGH_WIDTH_MASK, con1);
+	state->duty_cycle = DIV64_U64_ROUND_UP(high_width * (clk_div + 1) * NSEC_PER_SEC,
+					       rate);
+	state->polarity = PWM_POLARITY_NORMAL;
+	clk_disable_unprepare(mdp->clk_mm);
+	clk_disable_unprepare(mdp->clk_main);
+}
+
+static const struct pwm_ops mtk_disp_pwm_ops = {
+	.apply = mtk_disp_pwm_apply,
+	.get_state = mtk_disp_pwm_get_state,
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 };
 
 static int mtk_disp_pwm_probe(struct platform_device *pdev)
 {
 	struct mtk_disp_pwm *mdp;
+<<<<<<< HEAD
 	struct resource *r;
 	struct clk *pwm_src;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	mdp = devm_kzalloc(&pdev->dev, sizeof(*mdp), GFP_KERNEL);
@@ -281,8 +432,12 @@ static int mtk_disp_pwm_probe(struct platform_device *pdev)
 
 	mdp->data = of_device_get_match_data(&pdev->dev);
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mdp->base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	mdp->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mdp->base))
 		return PTR_ERR(mdp->base);
 
@@ -294,6 +449,7 @@ static int mtk_disp_pwm_probe(struct platform_device *pdev)
 	if (IS_ERR(mdp->clk_mm))
 		return PTR_ERR(mdp->clk_mm);
 
+<<<<<<< HEAD
 	ret = clk_prepare(mdp->clk_main);
 	if (ret < 0)
 		return ret;
@@ -313,16 +469,26 @@ static int mtk_disp_pwm_probe(struct platform_device *pdev)
 	mdp->chip.dev = &pdev->dev;
 	mdp->chip.ops = &mtk_disp_pwm_ops;
 	mdp->chip.base = -1;
+=======
+	mdp->chip.dev = &pdev->dev;
+	mdp->chip.ops = &mtk_disp_pwm_ops;
+>>>>>>> upstream/android-13
 	mdp->chip.npwm = 1;
 
 	ret = pwmchip_add(&mdp->chip);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
 		goto disable_clk_mm;
+=======
+		dev_err(&pdev->dev, "pwmchip_add() failed: %pe\n", ERR_PTR(ret));
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, mdp);
 
+<<<<<<< HEAD
 	/*
 	 * For MT2701, disable double buffer before writing register
 	 * and select manual mode and use PWM_PERIOD/PWM_HIGH_WIDTH.
@@ -343,11 +509,15 @@ disable_clk_mm:
 disable_clk_main:
 	clk_unprepare(mdp->clk_main);
 	return ret;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int mtk_disp_pwm_remove(struct platform_device *pdev)
 {
 	struct mtk_disp_pwm *mdp = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	int ret;
 
 	ret = pwmchip_remove(&mdp->chip);
@@ -355,6 +525,12 @@ static int mtk_disp_pwm_remove(struct platform_device *pdev)
 	clk_unprepare(mdp->clk_main);
 
 	return ret;
+=======
+
+	pwmchip_remove(&mdp->chip);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct mtk_pwm_data mt2701_pwm_data = {
@@ -377,6 +553,7 @@ static const struct mtk_pwm_data mt8173_pwm_data = {
 	.commit_mask = 0x1,
 };
 
+<<<<<<< HEAD
 static const struct mtk_pwm_data mt6799_pwm_data = {
 	.enable_mask = BIT(0),
 	.con0 = 0x18,
@@ -399,6 +576,24 @@ static const struct of_device_id mtk_disp_pwm_of_match[] = {
 	{.compatible = "mediatek,mt6877-disp-pwm", .data = &mt6799_pwm_data},
 	{.compatible = "mediatek,mt6781-disp-pwm", .data = &mt6799_pwm_data},
 	{}
+=======
+static const struct mtk_pwm_data mt8183_pwm_data = {
+	.enable_mask = BIT(0),
+	.con0 = 0x18,
+	.con0_sel = 0x0,
+	.con1 = 0x1c,
+	.has_commit = false,
+	.bls_debug = 0x80,
+	.bls_debug_mask = 0x3,
+};
+
+static const struct of_device_id mtk_disp_pwm_of_match[] = {
+	{ .compatible = "mediatek,mt2701-disp-pwm", .data = &mt2701_pwm_data},
+	{ .compatible = "mediatek,mt6595-disp-pwm", .data = &mt8173_pwm_data},
+	{ .compatible = "mediatek,mt8173-disp-pwm", .data = &mt8173_pwm_data},
+	{ .compatible = "mediatek,mt8183-disp-pwm", .data = &mt8183_pwm_data},
+	{ }
+>>>>>>> upstream/android-13
 };
 MODULE_DEVICE_TABLE(of, mtk_disp_pwm_of_match);
 

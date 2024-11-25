@@ -12,6 +12,7 @@
 #include <asm/user32.h>
 #include <asm/unistd.h>
 
+<<<<<<< HEAD
 #define COMPAT_USER_HZ		100
 #define COMPAT_UTS_MACHINE	"i686\0\0"
 
@@ -48,13 +49,36 @@ typedef u32		compat_uptr_t;
 struct compat_stat {
 	compat_dev_t	st_dev;
 	u16		__pad1;
+=======
+#define compat_mode_t	compat_mode_t
+typedef u16		compat_mode_t;
+
+#include <asm-generic/compat.h>
+
+#define COMPAT_USER_HZ		100
+#define COMPAT_UTS_MACHINE	"i686\0\0"
+
+typedef u16		__compat_uid_t;
+typedef u16		__compat_gid_t;
+typedef u16		compat_dev_t;
+typedef u16		compat_nlink_t;
+typedef u16		compat_ipc_pid_t;
+typedef __kernel_fsid_t	compat_fsid_t;
+
+struct compat_stat {
+	u32		st_dev;
+>>>>>>> upstream/android-13
 	compat_ino_t	st_ino;
 	compat_mode_t	st_mode;
 	compat_nlink_t	st_nlink;
 	__compat_uid_t	st_uid;
 	__compat_gid_t	st_gid;
+<<<<<<< HEAD
 	compat_dev_t	st_rdev;
 	u16		__pad2;
+=======
+	u32		st_rdev;
+>>>>>>> upstream/android-13
 	u32		st_size;
 	u32		st_blksize;
 	u32		st_blocks;
@@ -109,6 +133,7 @@ struct compat_statfs {
 
 #define COMPAT_RLIM_INFINITY		0xffffffff
 
+<<<<<<< HEAD
 typedef u32		compat_old_sigset_t;	/* at least 32 bits */
 
 #define _COMPAT_NSIG		64
@@ -116,6 +141,8 @@ typedef u32		compat_old_sigset_t;	/* at least 32 bits */
 
 typedef u32               compat_sigset_word;
 
+=======
+>>>>>>> upstream/android-13
 #define COMPAT_OFF_T_MAX	0x7fffffff
 
 struct compat_ipc64_perm {
@@ -176,6 +203,7 @@ struct compat_shmid64_ds {
 	compat_ulong_t __unused5;
 };
 
+<<<<<<< HEAD
 /*
  * The type of struct elf_prstatus.pr_reg in compatible core dumps.
  */
@@ -187,11 +215,14 @@ typedef struct user_regs_struct compat_elf_gregset_t;
   do { *(int *) (((void *) &((S)->pr_reg)) + R) = (V); } \
   while (0)
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_X86_X32_ABI
 #define COMPAT_USE_64BIT_TIME \
 	(!!(task_pt_regs(current)->orig_ax & __X32_SYSCALL_BIT))
 #endif
 
+<<<<<<< HEAD
 /*
  * A pointer passed in from user mode. This should not
  * be used for syscall parameters, just declare them
@@ -223,6 +254,8 @@ static inline void __user *arch_compat_alloc_user_space(long len)
 	return (void __user *)round_down(sp - len, 16);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool in_x32_syscall(void)
 {
 #ifdef CONFIG_X86_X32_ABI
@@ -232,6 +265,7 @@ static inline bool in_x32_syscall(void)
 	return false;
 }
 
+<<<<<<< HEAD
 static inline bool in_compat_syscall(void)
 {
 	return in_ia32_syscall() || in_x32_syscall();
@@ -241,5 +275,28 @@ static inline bool in_compat_syscall(void)
 struct compat_siginfo;
 int __copy_siginfo_to_user32(struct compat_siginfo __user *to,
 		const siginfo_t *from, bool x32_ABI);
+=======
+static inline bool in_32bit_syscall(void)
+{
+	return in_ia32_syscall() || in_x32_syscall();
+}
+
+#ifdef CONFIG_COMPAT
+static inline bool in_compat_syscall(void)
+{
+	return in_32bit_syscall();
+}
+#define in_compat_syscall in_compat_syscall	/* override the generic impl */
+#define compat_need_64bit_alignment_fixup in_ia32_syscall
+#endif
+
+struct compat_siginfo;
+
+#ifdef CONFIG_X86_X32_ABI
+int copy_siginfo_to_user32(struct compat_siginfo __user *to,
+		const kernel_siginfo_t *from);
+#define copy_siginfo_to_user32 copy_siginfo_to_user32
+#endif /* CONFIG_X86_X32_ABI */
+>>>>>>> upstream/android-13
 
 #endif /* _ASM_X86_COMPAT_H */

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Regulator driver for National Semiconductors LP3972 PMIC chip
  *
  * Based on lp3971.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -305,7 +312,11 @@ static int lp3972_ldo_set_voltage_sel(struct regulator_dev *dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops lp3972_ldo_ops = {
+=======
+static const struct regulator_ops lp3972_ldo_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage = regulator_list_voltage_table,
 	.map_voltage = regulator_map_voltage_ascend,
 	.is_enabled = lp3972_ldo_is_enabled,
@@ -386,7 +397,11 @@ static int lp3972_dcdc_set_voltage_sel(struct regulator_dev *dev,
 				LP3972_VOL_CHANGE_FLAG_MASK, 0);
 }
 
+<<<<<<< HEAD
 static struct regulator_ops lp3972_dcdc_ops = {
+=======
+static const struct regulator_ops lp3972_dcdc_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage = regulator_list_voltage_table,
 	.map_voltage = regulator_map_voltage_ascend,
 	.is_enabled = lp3972_dcdc_is_enabled,

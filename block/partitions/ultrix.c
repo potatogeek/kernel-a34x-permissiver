@@ -8,7 +8,10 @@
  */
 
 #include "check.h"
+<<<<<<< HEAD
 #include "ultrix.h"
+=======
+>>>>>>> upstream/android-13
 
 int ultrix_partition(struct parsed_partitions *state)
 {

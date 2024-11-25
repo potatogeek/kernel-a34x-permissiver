@@ -22,11 +22,19 @@
 #include <linux/utsname.h>
 #include <linux/stackprotector.h>
 #include <linux/cpuidle.h>
+<<<<<<< HEAD
+=======
+#include <linux/acpi.h>
+#include <linux/elf-randomize.h>
+>>>>>>> upstream/android-13
 #include <trace/events/power.h>
 #include <linux/hw_breakpoint.h>
 #include <asm/cpu.h>
 #include <asm/apic.h>
+<<<<<<< HEAD
 #include <asm/syscalls.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 #include <asm/mwait.h>
 #include <asm/fpu/internal.h>
@@ -39,6 +47,12 @@
 #include <asm/desc.h>
 #include <asm/prctl.h>
 #include <asm/spec-ctrl.h>
+<<<<<<< HEAD
+=======
+#include <asm/io_bitmap.h>
+#include <asm/proto.h>
+#include <asm/frame.h>
+>>>>>>> upstream/android-13
 
 #include "process.h"
 
@@ -59,6 +73,7 @@ __visible DEFINE_PER_CPU_PAGE_ALIGNED(struct tss_struct, cpu_tss_rw) = {
 		 */
 		.sp0 = (1UL << (BITS_PER_LONG-1)) + 1,
 
+<<<<<<< HEAD
 		/*
 		 * .sp1 is cpu_current_top_of_stack.  The init task never
 		 * runs user code, but cpu_current_top_of_stack should still
@@ -81,6 +96,16 @@ __visible DEFINE_PER_CPU_PAGE_ALIGNED(struct tss_struct, cpu_tss_rw) = {
 	  */
 	.io_bitmap		= { [0 ... IO_BITMAP_LONGS] = ~0 },
 #endif
+=======
+#ifdef CONFIG_X86_32
+		.sp1 = TOP_OF_INIT_STACK,
+
+		.ss0 = __KERNEL_DS,
+		.ss1 = __KERNEL_CS,
+#endif
+		.io_bitmap_base	= IO_BITMAP_OFFSET_INVALID,
+	 },
+>>>>>>> upstream/android-13
 };
 EXPORT_PER_CPU_SYMBOL(cpu_tss_rw);
 
@@ -97,16 +122,25 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
 #ifdef CONFIG_VM86
 	dst->thread.vm86 = NULL;
 #endif
+<<<<<<< HEAD
 
 	return fpu__copy(&dst->thread.fpu, &src->thread.fpu);
 }
 
 /*
  * Free current thread data structures etc..
+=======
+	return fpu_clone(dst);
+}
+
+/*
+ * Free thread data structures etc..
+>>>>>>> upstream/android-13
  */
 void exit_thread(struct task_struct *tsk)
 {
 	struct thread_struct *t = &tsk->thread;
+<<<<<<< HEAD
 	unsigned long *bp = t->io_bitmap_ptr;
 	struct fpu *fpu = &t->fpu;
 
@@ -123,12 +157,130 @@ void exit_thread(struct task_struct *tsk)
 		put_cpu();
 		kfree(bp);
 	}
+=======
+	struct fpu *fpu = &t->fpu;
+
+	if (test_thread_flag(TIF_IO_BITMAP))
+		io_bitmap_exit(tsk);
+>>>>>>> upstream/android-13
 
 	free_vm86(t);
 
 	fpu__drop(fpu);
 }
 
+<<<<<<< HEAD
+=======
+static int set_new_tls(struct task_struct *p, unsigned long tls)
+{
+	struct user_desc __user *utls = (struct user_desc __user *)tls;
+
+	if (in_ia32_syscall())
+		return do_set_thread_area(p, -1, utls, 0);
+	else
+		return do_set_thread_area_64(p, ARCH_SET_FS, tls);
+}
+
+int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
+		struct task_struct *p, unsigned long tls)
+{
+	struct inactive_task_frame *frame;
+	struct fork_frame *fork_frame;
+	struct pt_regs *childregs;
+	int ret = 0;
+
+	childregs = task_pt_regs(p);
+	fork_frame = container_of(childregs, struct fork_frame, regs);
+	frame = &fork_frame->frame;
+
+	frame->bp = encode_frame_pointer(childregs);
+	frame->ret_addr = (unsigned long) ret_from_fork;
+	p->thread.sp = (unsigned long) fork_frame;
+	p->thread.io_bitmap = NULL;
+	p->thread.iopl_warn = 0;
+	memset(p->thread.ptrace_bps, 0, sizeof(p->thread.ptrace_bps));
+
+#ifdef CONFIG_X86_64
+	current_save_fsgs();
+	p->thread.fsindex = current->thread.fsindex;
+	p->thread.fsbase = current->thread.fsbase;
+	p->thread.gsindex = current->thread.gsindex;
+	p->thread.gsbase = current->thread.gsbase;
+
+	savesegment(es, p->thread.es);
+	savesegment(ds, p->thread.ds);
+#else
+	p->thread.sp0 = (unsigned long) (childregs + 1);
+	/*
+	 * Clear all status flags including IF and set fixed bit. 64bit
+	 * does not have this initialization as the frame does not contain
+	 * flags. The flags consistency (especially vs. AC) is there
+	 * ensured via objtool, which lacks 32bit support.
+	 */
+	frame->flags = X86_EFLAGS_FIXED;
+#endif
+
+	/* Kernel thread ? */
+	if (unlikely(p->flags & PF_KTHREAD)) {
+		p->thread.pkru = pkru_get_init_value();
+		memset(childregs, 0, sizeof(struct pt_regs));
+		kthread_frame_init(frame, sp, arg);
+		return 0;
+	}
+
+	/*
+	 * Clone current's PKRU value from hardware. tsk->thread.pkru
+	 * is only valid when scheduled out.
+	 */
+	p->thread.pkru = read_pkru();
+
+	frame->bx = 0;
+	*childregs = *current_pt_regs();
+	childregs->ax = 0;
+	if (sp)
+		childregs->sp = sp;
+
+#ifdef CONFIG_X86_32
+	task_user_gs(p) = get_user_gs(current_pt_regs());
+#endif
+
+	if (unlikely(p->flags & PF_IO_WORKER)) {
+		/*
+		 * An IO thread is a user space thread, but it doesn't
+		 * return to ret_after_fork().
+		 *
+		 * In order to indicate that to tools like gdb,
+		 * we reset the stack and instruction pointers.
+		 *
+		 * It does the same kernel frame setup to return to a kernel
+		 * function that a kernel thread does.
+		 */
+		childregs->sp = 0;
+		childregs->ip = 0;
+		kthread_frame_init(frame, sp, arg);
+		return 0;
+	}
+
+	/* Set a new TLS for the child thread? */
+	if (clone_flags & CLONE_SETTLS)
+		ret = set_new_tls(p, tls);
+
+	if (!ret && unlikely(test_tsk_thread_flag(current, TIF_IO_BITMAP)))
+		io_bitmap_share(p);
+
+	return ret;
+}
+
+static void pkru_flush_thread(void)
+{
+	/*
+	 * If PKRU is enabled the default PKRU value has to be loaded into
+	 * the hardware right here (similar to context switch).
+	 */
+	pkru_write_default();
+}
+
+>>>>>>> upstream/android-13
 void flush_thread(void)
 {
 	struct task_struct *tsk = current;
@@ -136,7 +288,12 @@ void flush_thread(void)
 	flush_ptrace_hw_breakpoint(tsk);
 	memset(tsk->thread.tls_array, 0, sizeof(tsk->thread.tls_array));
 
+<<<<<<< HEAD
 	fpu__clear(&tsk->thread.fpu);
+=======
+	fpu_flush_thread();
+	pkru_flush_thread();
+>>>>>>> upstream/android-13
 }
 
 void disable_TSC(void)
@@ -233,7 +390,11 @@ static int get_cpuid_mode(void)
 
 static int set_cpuid_mode(struct task_struct *task, unsigned long cpuid_enabled)
 {
+<<<<<<< HEAD
 	if (!static_cpu_has(X86_FEATURE_CPUID_FAULT))
+=======
+	if (!boot_cpu_has(X86_FEATURE_CPUID_FAULT))
+>>>>>>> upstream/android-13
 		return -ENODEV;
 
 	if (cpuid_enabled)
@@ -252,6 +413,7 @@ void arch_setup_new_exec(void)
 	/* If cpuid was previously disabled for this task, re-enable it. */
 	if (test_thread_flag(TIF_NOCPUID))
 		enable_cpuid();
+<<<<<<< HEAD
 }
 
 static inline void switch_to_bitmap(struct thread_struct *prev,
@@ -280,6 +442,99 @@ static inline void switch_to_bitmap(struct thread_struct *prev,
 	}
 }
 
+=======
+
+	/*
+	 * Don't inherit TIF_SSBD across exec boundary when
+	 * PR_SPEC_DISABLE_NOEXEC is used.
+	 */
+	if (test_thread_flag(TIF_SSBD) &&
+	    task_spec_ssb_noexec(current)) {
+		clear_thread_flag(TIF_SSBD);
+		task_clear_spec_ssb_disable(current);
+		task_clear_spec_ssb_noexec(current);
+		speculation_ctrl_update(task_thread_info(current)->flags);
+	}
+}
+
+#ifdef CONFIG_X86_IOPL_IOPERM
+static inline void switch_to_bitmap(unsigned long tifp)
+{
+	/*
+	 * Invalidate I/O bitmap if the previous task used it. This prevents
+	 * any possible leakage of an active I/O bitmap.
+	 *
+	 * If the next task has an I/O bitmap it will handle it on exit to
+	 * user mode.
+	 */
+	if (tifp & _TIF_IO_BITMAP)
+		tss_invalidate_io_bitmap();
+}
+
+static void tss_copy_io_bitmap(struct tss_struct *tss, struct io_bitmap *iobm)
+{
+	/*
+	 * Copy at least the byte range of the incoming tasks bitmap which
+	 * covers the permitted I/O ports.
+	 *
+	 * If the previous task which used an I/O bitmap had more bits
+	 * permitted, then the copy needs to cover those as well so they
+	 * get turned off.
+	 */
+	memcpy(tss->io_bitmap.bitmap, iobm->bitmap,
+	       max(tss->io_bitmap.prev_max, iobm->max));
+
+	/*
+	 * Store the new max and the sequence number of this bitmap
+	 * and a pointer to the bitmap itself.
+	 */
+	tss->io_bitmap.prev_max = iobm->max;
+	tss->io_bitmap.prev_sequence = iobm->sequence;
+}
+
+/**
+ * tss_update_io_bitmap - Update I/O bitmap before exiting to usermode
+ */
+void native_tss_update_io_bitmap(void)
+{
+	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
+	struct thread_struct *t = &current->thread;
+	u16 *base = &tss->x86_tss.io_bitmap_base;
+
+	if (!test_thread_flag(TIF_IO_BITMAP)) {
+		native_tss_invalidate_io_bitmap();
+		return;
+	}
+
+	if (IS_ENABLED(CONFIG_X86_IOPL_IOPERM) && t->iopl_emul == 3) {
+		*base = IO_BITMAP_OFFSET_VALID_ALL;
+	} else {
+		struct io_bitmap *iobm = t->io_bitmap;
+
+		/*
+		 * Only copy bitmap data when the sequence number differs. The
+		 * update time is accounted to the incoming task.
+		 */
+		if (tss->io_bitmap.prev_sequence != iobm->sequence)
+			tss_copy_io_bitmap(tss, iobm);
+
+		/* Enable the bitmap */
+		*base = IO_BITMAP_OFFSET_VALID_MAP;
+	}
+
+	/*
+	 * Make sure that the TSS limit is covering the IO bitmap. It might have
+	 * been cut down by a VMEXIT to 0x67 which would cause a subsequent I/O
+	 * access from user space to trigger a #GP because tbe bitmap is outside
+	 * the TSS limit.
+	 */
+	refresh_tss_limit();
+}
+#else /* CONFIG_X86_IOPL_IOPERM */
+static inline void switch_to_bitmap(unsigned long tifp) { }
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_SMP
 
 struct ssb_state {
@@ -330,7 +585,11 @@ void speculative_store_bypass_ht_init(void)
 	 * First HT sibling to come up on the core.  Link shared state of
 	 * the first HT sibling to itself. The siblings on the same core
 	 * which come up later will see the shared state pointer and link
+<<<<<<< HEAD
 	 * themself to the state of this CPU.
+=======
+	 * themselves to the state of this CPU.
+>>>>>>> upstream/android-13
 	 */
 	st->shared_state = st;
 }
@@ -472,6 +731,7 @@ void speculation_ctrl_update_current(void)
 	preempt_enable();
 }
 
+<<<<<<< HEAD
 void __switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p)
 {
 	struct thread_struct *prev, *next;
@@ -483,6 +743,27 @@ void __switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p)
 	tifn = READ_ONCE(task_thread_info(next_p)->flags);
 	tifp = READ_ONCE(task_thread_info(prev_p)->flags);
 	switch_to_bitmap(prev, next, tifp, tifn);
+=======
+static inline void cr4_toggle_bits_irqsoff(unsigned long mask)
+{
+	unsigned long newval, cr4 = this_cpu_read(cpu_tlbstate.cr4);
+
+	newval = cr4 ^ mask;
+	if (newval != cr4) {
+		this_cpu_write(cpu_tlbstate.cr4, newval);
+		__write_cr4(newval);
+	}
+}
+
+void __switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p)
+{
+	unsigned long tifp, tifn;
+
+	tifn = READ_ONCE(task_thread_info(next_p)->flags);
+	tifp = READ_ONCE(task_thread_info(prev_p)->flags);
+
+	switch_to_bitmap(tifp);
+>>>>>>> upstream/android-13
 
 	propagate_user_return_notify(prev_p, next_p);
 
@@ -512,6 +793,12 @@ void __switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p)
 		/* Enforce MSR update to ensure consistent state */
 		__speculation_ctrl_update(~tifn, tifn);
 	}
+<<<<<<< HEAD
+=======
+
+	if ((tifp ^ tifn) & _TIF_SLD)
+		switch_to_sld(tifn);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -553,11 +840,17 @@ void arch_cpu_idle(void)
  */
 void __cpuidle default_idle(void)
 {
+<<<<<<< HEAD
 	trace_cpu_idle_rcuidle(1, smp_processor_id());
 	safe_halt();
 	trace_cpu_idle_rcuidle(PWR_EVENT_EXIT, smp_processor_id());
 }
 #ifdef CONFIG_APM_MODULE
+=======
+	raw_safe_halt();
+}
+#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(default_idle);
 #endif
 
@@ -606,6 +899,11 @@ void stop_this_cpu(void *dummy)
 /*
  * AMD Erratum 400 aware idle routine. We handle it the same way as C3 power
  * states (local apic timer and TSC stop).
+<<<<<<< HEAD
+=======
+ *
+ * XXX this function is completely buggered vs RCU and tracing.
+>>>>>>> upstream/android-13
  */
 static void amd_e400_idle(void)
 {
@@ -627,9 +925,15 @@ static void amd_e400_idle(void)
 	 * The switch back from broadcast mode needs to be called with
 	 * interrupts disabled.
 	 */
+<<<<<<< HEAD
 	local_irq_disable();
 	tick_broadcast_exit();
 	local_irq_enable();
+=======
+	raw_local_irq_disable();
+	tick_broadcast_exit();
+	raw_local_irq_enable();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -647,7 +951,11 @@ static int prefer_mwait_c1_over_halt(const struct cpuinfo_x86 *c)
 	if (c->x86_vendor != X86_VENDOR_INTEL)
 		return 0;
 
+<<<<<<< HEAD
 	if (!cpu_has(c, X86_FEATURE_MWAIT) || static_cpu_has_bug(X86_BUG_MONITOR))
+=======
+	if (!cpu_has(c, X86_FEATURE_MWAIT) || boot_cpu_has_bug(X86_BUG_MONITOR))
+>>>>>>> upstream/android-13
 		return 0;
 
 	return 1;
@@ -661,7 +969,10 @@ static int prefer_mwait_c1_over_halt(const struct cpuinfo_x86 *c)
 static __cpuidle void mwait_idle(void)
 {
 	if (!current_set_polling_and_test()) {
+<<<<<<< HEAD
 		trace_cpu_idle_rcuidle(1, smp_processor_id());
+=======
+>>>>>>> upstream/android-13
 		if (this_cpu_has(X86_BUG_CLFLUSH_MONITOR)) {
 			mb(); /* quirk */
 			clflush((void *)&current_thread_info()->flags);
@@ -672,10 +983,16 @@ static __cpuidle void mwait_idle(void)
 		if (!need_resched())
 			__sti_mwait(0, 0);
 		else
+<<<<<<< HEAD
 			local_irq_enable();
 		trace_cpu_idle_rcuidle(PWR_EVENT_EXIT, smp_processor_id());
 	} else {
 		local_irq_enable();
+=======
+			raw_local_irq_enable();
+	} else {
+		raw_local_irq_enable();
+>>>>>>> upstream/android-13
 	}
 	__current_clr_polling();
 }
@@ -789,7 +1106,11 @@ unsigned long get_wchan(struct task_struct *p)
 	unsigned long start, bottom, top, sp, fp, ip, ret = 0;
 	int count = 0;
 
+<<<<<<< HEAD
 	if (!p || p == current || p->state == TASK_RUNNING)
+=======
+	if (p == current || task_is_running(p))
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (!try_get_task_stack(p))
@@ -833,7 +1154,11 @@ unsigned long get_wchan(struct task_struct *p)
 			goto out;
 		}
 		fp = READ_ONCE_NOCHECK(*(unsigned long *)fp);
+<<<<<<< HEAD
 	} while (count++ < 16 && p->state != TASK_RUNNING);
+=======
+	} while (count++ < 16 && !task_is_running(p));
+>>>>>>> upstream/android-13
 
 out:
 	put_task_stack(p);

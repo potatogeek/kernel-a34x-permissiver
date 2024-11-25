@@ -8,7 +8,11 @@
 #include <linux/string.h>
 #include <linux/buffer_head.h>
 
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+#include <linux/stdarg.h>
+>>>>>>> upstream/android-13
 
 static char error_buf[1024];
 static char fmt_buf[1024];
@@ -746,9 +750,12 @@ static void check_leaf_block_head(struct buffer_head *bh)
 
 static void check_internal_block_head(struct buffer_head *bh)
 {
+<<<<<<< HEAD
 	struct block_head *blkh;
 
 	blkh = B_BLK_HEAD(bh);
+=======
+>>>>>>> upstream/android-13
 	if (!(B_LEVEL(bh) > DISK_LEAF_NODE_LEVEL && B_LEVEL(bh) <= MAX_HEIGHT))
 		reiserfs_panic(NULL, "vs-6025", "invalid level %z", bh);
 

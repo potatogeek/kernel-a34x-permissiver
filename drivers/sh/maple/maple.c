@@ -30,7 +30,10 @@
 MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk>");
 MODULE_DESCRIPTION("Maple bus driver for Dreamcast");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{SEGA, Dreamcast/Maple}}");
+=======
+>>>>>>> upstream/android-13
 
 static void maple_dma_handler(struct work_struct *work);
 static void maple_vblank_handler(struct work_struct *work);
@@ -835,8 +838,15 @@ static int __init maple_bus_init(void)
 
 	maple_queue_cache = KMEM_CACHE(maple_buffer, SLAB_HWCACHE_ALIGN);
 
+<<<<<<< HEAD
 	if (!maple_queue_cache)
 		goto cleanup_bothirqs;
+=======
+	if (!maple_queue_cache) {
+		retval = -ENOMEM;
+		goto cleanup_bothirqs;
+	}
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&maple_waitq);
 	INIT_LIST_HEAD(&maple_sentq);
@@ -849,6 +859,10 @@ static int __init maple_bus_init(void)
 		if (!mdev[i]) {
 			while (i-- > 0)
 				maple_free_dev(mdev[i]);
+<<<<<<< HEAD
+=======
+			retval = -ENOMEM;
+>>>>>>> upstream/android-13
 			goto cleanup_cache;
 		}
 		baseunits[i] = mdev[i];

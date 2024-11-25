@@ -24,6 +24,10 @@
 #define __SUMO_DPM_H__
 
 #include "atom.h"
+<<<<<<< HEAD
+=======
+#include "radeon.h"
+>>>>>>> upstream/android-13
 
 #define SUMO_MAX_HARDWARE_POWERLEVELS 5
 #define SUMO_PM_NUMBER_OF_TC 15
@@ -206,6 +210,10 @@ u32 sumo_get_sleep_divider_from_id(u32 id);
 u32 sumo_get_sleep_divider_id_from_clock(struct radeon_device *rdev,
 					 u32 sclk,
 					 u32 min_sclk_in_sr);
+<<<<<<< HEAD
+=======
+struct sumo_power_info *sumo_get_pi(struct radeon_device *rdev);
+>>>>>>> upstream/android-13
 
 /* sumo_smc.c */
 void sumo_initialize_m3_arb(struct radeon_device *rdev);

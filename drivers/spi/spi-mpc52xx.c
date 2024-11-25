@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MPC52xx SPI bus driver.
  *
  * Copyright (C) 2008 Secret Lab Technologies Ltd.
  *
+<<<<<<< HEAD
  * This file is released under the GPLv2
  *
+=======
+>>>>>>> upstream/android-13
  * This is the driver for the MPC5200's dedicated SPI controller.
  *
  * Note: this driver does not support the MPC5200 PSC in SPI mode.  For
@@ -121,7 +128,11 @@ static void mpc52xx_spi_start_transfer(struct mpc52xx_spi *ms)
 	ms->cs_change = ms->transfer->cs_change;
 
 	/* Write out the first byte */
+<<<<<<< HEAD
 	ms->wcol_tx_timestamp = get_tbl();
+=======
+	ms->wcol_tx_timestamp = mftb();
+>>>>>>> upstream/android-13
 	if (ms->tx_buf)
 		out_8(ms->regs + SPI_DATA, *ms->tx_buf++);
 	else
@@ -222,8 +233,13 @@ static int mpc52xx_spi_fsmstate_transfer(int irq, struct mpc52xx_spi *ms,
 		 * but it can also be worked around simply by retrying the
 		 * transfer which is what we do here. */
 		ms->wcol_count++;
+<<<<<<< HEAD
 		ms->wcol_ticks += get_tbl() - ms->wcol_tx_timestamp;
 		ms->wcol_tx_timestamp = get_tbl();
+=======
+		ms->wcol_ticks += mftb() - ms->wcol_tx_timestamp;
+		ms->wcol_tx_timestamp = mftb();
+>>>>>>> upstream/android-13
 		data = 0;
 		if (ms->tx_buf)
 			data = *(ms->tx_buf - 1);
@@ -248,14 +264,25 @@ static int mpc52xx_spi_fsmstate_transfer(int irq, struct mpc52xx_spi *ms,
 	/* Is the transfer complete? */
 	ms->len--;
 	if (ms->len == 0) {
+<<<<<<< HEAD
 		ms->timestamp = get_tbl();
 		ms->timestamp += ms->transfer->delay_usecs * tb_ticks_per_usec;
+=======
+		ms->timestamp = mftb();
+		if (ms->transfer->delay.unit == SPI_DELAY_UNIT_USECS)
+			ms->timestamp += ms->transfer->delay.value *
+					 tb_ticks_per_usec;
+>>>>>>> upstream/android-13
 		ms->state = mpc52xx_spi_fsmstate_wait;
 		return FSM_CONTINUE;
 	}
 
 	/* Write out the next byte */
+<<<<<<< HEAD
 	ms->wcol_tx_timestamp = get_tbl();
+=======
+	ms->wcol_tx_timestamp = mftb();
+>>>>>>> upstream/android-13
 	if (ms->tx_buf)
 		out_8(ms->regs + SPI_DATA, *ms->tx_buf++);
 	else
@@ -277,7 +304,11 @@ mpc52xx_spi_fsmstate_wait(int irq, struct mpc52xx_spi *ms, u8 status, u8 data)
 		dev_err(&ms->master->dev, "spurious irq, status=0x%.2x\n",
 			status);
 
+<<<<<<< HEAD
 	if (((int)get_tbl()) - ms->timestamp < 0)
+=======
+	if (((int)mftb()) - ms->timestamp < 0)
+>>>>>>> upstream/android-13
 		return FSM_POLL;
 
 	ms->message->actual_length += ms->transfer->len;
@@ -414,7 +445,11 @@ static int mpc52xx_spi_probe(struct platform_device *op)
 	}
 
 	dev_dbg(&op->dev, "allocating spi_master struct\n");
+<<<<<<< HEAD
 	master = spi_alloc_master(&op->dev, sizeof *ms);
+=======
+	master = spi_alloc_master(&op->dev, sizeof(*ms));
+>>>>>>> upstream/android-13
 	if (!master) {
 		rc = -ENOMEM;
 		goto err_alloc;

@@ -3,7 +3,11 @@
  *
  * Module Name: exfldio - Aml Field I/O
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -434,7 +438,11 @@ acpi_ex_field_datum_io(union acpi_operand_object *obj_desc,
 		 * region_field case and write the datum to the Operation Region
 		 */
 
+<<<<<<< HEAD
 		/*lint -fallthrough */
+=======
+		ACPI_FALLTHROUGH;
+>>>>>>> upstream/android-13
 
 	case ACPI_TYPE_LOCAL_REGION_FIELD:
 		/*

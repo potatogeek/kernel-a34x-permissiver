@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	X.25 Packet Layer release 002
  *
@@ -7,12 +11,15 @@
  *
  *	This code REQUIRES 2.1.15 or higher
  *
+<<<<<<< HEAD
  *	This module:
  *		This module is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	History
  *	X.25 001	Jonathan Naylor	  Started coding.
  *	X.25 002	Jonathan Naylor	  New timer architecture.
@@ -63,11 +70,14 @@ static inline void x25_stop_t20timer(struct x25_neigh *nb)
 	del_timer(&nb->t20timer);
 }
 
+<<<<<<< HEAD
 static inline int x25_t20timer_pending(struct x25_neigh *nb)
 {
 	return timer_pending(&nb->t20timer);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  *	This handles all restart and diagnostic frames.
  */
@@ -75,6 +85,7 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
 		      unsigned short frametype)
 {
 	struct sk_buff *skbn;
+<<<<<<< HEAD
 	int confirm;
 
 	switch (frametype) {
@@ -89,6 +100,47 @@ void x25_link_control(struct sk_buff *skb, struct x25_neigh *nb,
 	case X25_RESTART_CONFIRMATION:
 		x25_stop_t20timer(nb);
 		nb->state = X25_LINK_STATE_3;
+=======
+
+	switch (frametype) {
+	case X25_RESTART_REQUEST:
+		switch (nb->state) {
+		case X25_LINK_STATE_0:
+			/* This can happen when the x25 module just gets loaded
+			 * and doesn't know layer 2 has already connected
+			 */
+			nb->state = X25_LINK_STATE_3;
+			x25_transmit_restart_confirmation(nb);
+			break;
+		case X25_LINK_STATE_2:
+			x25_stop_t20timer(nb);
+			nb->state = X25_LINK_STATE_3;
+			break;
+		case X25_LINK_STATE_3:
+			/* clear existing virtual calls */
+			x25_kill_by_neigh(nb);
+
+			x25_transmit_restart_confirmation(nb);
+			break;
+		}
+		break;
+
+	case X25_RESTART_CONFIRMATION:
+		switch (nb->state) {
+		case X25_LINK_STATE_2:
+			x25_stop_t20timer(nb);
+			nb->state = X25_LINK_STATE_3;
+			break;
+		case X25_LINK_STATE_3:
+			/* clear existing virtual calls */
+			x25_kill_by_neigh(nb);
+
+			x25_transmit_restart_request(nb);
+			nb->state = X25_LINK_STATE_2;
+			x25_start_t20timer(nb);
+			break;
+		}
+>>>>>>> upstream/android-13
 		break;
 
 	case X25_DIAGNOSTIC:
@@ -219,8 +271,11 @@ void x25_link_established(struct x25_neigh *nb)
 {
 	switch (nb->state) {
 	case X25_LINK_STATE_0:
+<<<<<<< HEAD
 		nb->state = X25_LINK_STATE_2;
 		break;
+=======
+>>>>>>> upstream/android-13
 	case X25_LINK_STATE_1:
 		x25_transmit_restart_request(nb);
 		nb->state = X25_LINK_STATE_2;
@@ -237,6 +292,12 @@ void x25_link_established(struct x25_neigh *nb)
 void x25_link_terminated(struct x25_neigh *nb)
 {
 	nb->state = X25_LINK_STATE_0;
+<<<<<<< HEAD
+=======
+	skb_queue_purge(&nb->queue);
+	x25_stop_t20timer(nb);
+
+>>>>>>> upstream/android-13
 	/* Out of order: clear existing virtual calls (X.25 03/93 4.6.3) */
 	x25_kill_by_neigh(nb);
 }
@@ -275,16 +336,23 @@ void x25_link_device_up(struct net_device *dev)
 
 /**
  *	__x25_remove_neigh - remove neighbour from x25_neigh_list
+<<<<<<< HEAD
  *	@nb - neigh to remove
+=======
+ *	@nb: - neigh to remove
+>>>>>>> upstream/android-13
  *
  *	Remove neighbour from x25_neigh_list. If it was there.
  *	Caller must hold x25_neigh_list_lock.
  */
 static void __x25_remove_neigh(struct x25_neigh *nb)
 {
+<<<<<<< HEAD
 	skb_queue_purge(&nb->queue);
 	x25_stop_t20timer(nb);
 
+=======
+>>>>>>> upstream/android-13
 	if (nb->node.next) {
 		list_del(&nb->node);
 		x25_neigh_put(nb);
@@ -319,12 +387,18 @@ void x25_link_device_down(struct net_device *dev)
 struct x25_neigh *x25_get_neigh(struct net_device *dev)
 {
 	struct x25_neigh *nb, *use = NULL;
+<<<<<<< HEAD
 	struct list_head *entry;
 
 	read_lock_bh(&x25_neigh_list_lock);
 	list_for_each(entry, &x25_neigh_list) {
 		nb = list_entry(entry, struct x25_neigh, node);
 
+=======
+
+	read_lock_bh(&x25_neigh_list_lock);
+	list_for_each_entry(nb, &x25_neigh_list, node) {
+>>>>>>> upstream/android-13
 		if (nb->dev == dev) {
 			use = nb;
 			break;

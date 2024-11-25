@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 ARM Ltd.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -28,7 +34,11 @@
  *	x0 - dest
  *	x1 - src
  */
+<<<<<<< HEAD
 ENTRY(copy_page)
+=======
+SYM_FUNC_START_PI(copy_page)
+>>>>>>> upstream/android-13
 alternative_if ARM64_HAS_NO_HW_PREFETCH
 	// Prefetch three cache lines ahead.
 	prfm	pldl1strm, [x1, #128]
@@ -86,4 +96,9 @@ alternative_else_nop_endif
 	stnp	x16, x17, [x0, #112 - 256]
 
 	ret
+<<<<<<< HEAD
 ENDPROC(copy_page)
+=======
+SYM_FUNC_END_PI(copy_page)
+EXPORT_SYMBOL(copy_page)
+>>>>>>> upstream/android-13

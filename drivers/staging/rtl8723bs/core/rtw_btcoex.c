@@ -9,6 +9,7 @@
 #include <rtw_btcoex.h>
 #include <hal_btcoex.h>
 
+<<<<<<< HEAD
 
 void rtw_btcoex_Initialize(struct adapter *padapter)
 {
@@ -45,6 +46,8 @@ void rtw_btcoex_ConnectNotify(struct adapter *padapter, u8 action)
 	hal_btcoex_ConnectNotify(padapter, action);
 }
 
+=======
+>>>>>>> upstream/android-13
 void rtw_btcoex_MediaStatusNotify(struct adapter *padapter, u8 mediaStatus)
 {
 	if ((mediaStatus == RT_MEDIA_CONNECT)
@@ -55,6 +58,7 @@ void rtw_btcoex_MediaStatusNotify(struct adapter *padapter, u8 mediaStatus)
 	hal_btcoex_MediaStatusNotify(padapter, mediaStatus);
 }
 
+<<<<<<< HEAD
 void rtw_btcoex_SpecialPacketNotify(struct adapter *padapter, u8 pktType)
 {
 	hal_btcoex_SpecialPacketNotify(padapter, pktType);
@@ -90,10 +94,20 @@ void rtw_btcoex_HaltNotify(struct adapter *padapter)
 
 		return;
 	}
+=======
+void rtw_btcoex_HaltNotify(struct adapter *padapter)
+{
+	if (!padapter->bup)
+		return;
+
+	if (padapter->bSurpriseRemoved)
+		return;
+>>>>>>> upstream/android-13
 
 	hal_btcoex_HaltNotify(padapter);
 }
 
+<<<<<<< HEAD
 u8 rtw_btcoex_IsBtDisabled(struct adapter *padapter)
 {
 	return hal_btcoex_IsBtDisabled(padapter);
@@ -183,6 +197,8 @@ u32 rtw_btcoex_GetDBG(struct adapter *padapter, u8 *pStrBuf, u32 bufSize)
 	return hal_btcoex_GetDBG(padapter, pStrBuf, bufSize);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*  ================================================== */
 /*  Below Functions are called by BT-Coex */
 /*  ================================================== */
@@ -212,7 +228,11 @@ void rtw_btcoex_LPS_Enter(struct adapter *padapter)
 	pwrpriv = adapter_to_pwrctl(padapter);
 
 	pwrpriv->bpower_saving = true;
+<<<<<<< HEAD
 	lpsVal = rtw_btcoex_LpsVal(padapter);
+=======
+	lpsVal = hal_btcoex_LpsVal(padapter);
+>>>>>>> upstream/android-13
 	rtw_set_ps_mode(padapter, PS_MODE_MIN, 0, lpsVal, "BTCOEX");
 }
 

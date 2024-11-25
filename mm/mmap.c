@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * mm/mmap.c
  *
@@ -12,6 +16,10 @@
 #include <linux/slab.h>
 #include <linux/backing-dev.h>
 #include <linux/mm.h>
+<<<<<<< HEAD
+=======
+#include <linux/mm_inline.h>
+>>>>>>> upstream/android-13
 #include <linux/vmacache.h>
 #include <linux/shm.h>
 #include <linux/mman.h>
@@ -52,6 +60,14 @@
 #include <asm/tlb.h>
 #include <asm/mmu_context.h>
 
+<<<<<<< HEAD
+=======
+#define CREATE_TRACE_POINTS
+#include <trace/events/mmap.h>
+#undef CREATE_TRACE_POINTS
+#include <trace/hooks/mm.h>
+
+>>>>>>> upstream/android-13
 #include "internal.h"
 
 #ifndef arch_mmap_check
@@ -89,6 +105,15 @@ static void unmap_region(struct mm_struct *mm,
  * MAP_PRIVATE	r: (no) no	r: (yes) yes	r: (no) yes	r: (no) yes
  *		w: (no) no	w: (no) no	w: (copy) copy	w: (no) no
  *		x: (no) no	x: (no) yes	x: (no) yes	x: (yes) yes
+<<<<<<< HEAD
+=======
+ *
+ * On arm64, PROT_EXEC has the following behaviour for both MAP_SHARED and
+ * MAP_PRIVATE (with Enhanced PAN supported):
+ *								r: (no) no
+ *								w: (no) no
+ *								x: (yes) yes
+>>>>>>> upstream/android-13
  */
 pgprot_t protection_map[16] __ro_after_init = {
 	__P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
@@ -128,7 +153,11 @@ void vma_set_page_prot(struct vm_area_struct *vma)
 		vm_flags &= ~VM_SHARED;
 		vm_page_prot = vm_pgprot_modify(vm_page_prot, vm_flags);
 	}
+<<<<<<< HEAD
 	/* remove_protection_ptes reads vma->vm_page_prot without mmap_sem */
+=======
+	/* remove_protection_ptes reads vma->vm_page_prot without mmap_lock */
+>>>>>>> upstream/android-13
 	WRITE_ONCE(vma->vm_page_prot, vm_page_prot);
 }
 
@@ -138,8 +167,11 @@ void vma_set_page_prot(struct vm_area_struct *vma)
 static void __remove_shared_vm_struct(struct vm_area_struct *vma,
 		struct file *file, struct address_space *mapping)
 {
+<<<<<<< HEAD
 	if (vma->vm_flags & VM_DENYWRITE)
 		atomic_inc(&file_inode(file)->i_writecount);
+=======
+>>>>>>> upstream/android-13
 	if (vma->vm_flags & VM_SHARED)
 		mapping_unmap_writable(mapping);
 
@@ -164,6 +196,7 @@ void unlink_file_vma(struct vm_area_struct *vma)
 	}
 }
 
+<<<<<<< HEAD
 static void __free_vma(struct vm_area_struct *vma)
 {
 	if (vma->vm_file)
@@ -185,6 +218,8 @@ static inline void put_vma(struct vm_area_struct *vma)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Close a vm structure and free it, returning the next.
  */
@@ -195,7 +230,13 @@ static struct vm_area_struct *remove_vma(struct vm_area_struct *vma)
 	might_sleep();
 	if (vma->vm_ops && vma->vm_ops->close)
 		vma->vm_ops->close(vma);
+<<<<<<< HEAD
 	put_vma(vma);
+=======
+	mpol_put(vma_policy(vma));
+	/* fput(vma->vm_file) happens in vm_area_free after an RCU delay. */
+	vm_area_free(vma);
+>>>>>>> upstream/android-13
 	return next;
 }
 
@@ -203,17 +244,32 @@ static int do_brk_flags(unsigned long addr, unsigned long request, unsigned long
 		struct list_head *uf);
 SYSCALL_DEFINE1(brk, unsigned long, brk)
 {
+<<<<<<< HEAD
 	unsigned long retval;
 	unsigned long newbrk, oldbrk;
+=======
+	unsigned long newbrk, oldbrk, origbrk;
+>>>>>>> upstream/android-13
 	struct mm_struct *mm = current->mm;
 	struct vm_area_struct *next;
 	unsigned long min_brk;
 	bool populate;
+<<<<<<< HEAD
 	LIST_HEAD(uf);
 
 	if (down_write_killable(&mm->mmap_sem))
 		return -EINTR;
 
+=======
+	bool downgraded = false;
+	LIST_HEAD(uf);
+
+	if (mmap_write_lock_killable(mm))
+		return -EINTR;
+
+	origbrk = mm->brk;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_COMPAT_BRK
 	/*
 	 * CONFIG_COMPAT_BRK can still be overridden by setting
@@ -242,6 +298,7 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
 
 	newbrk = PAGE_ALIGN(brk);
 	oldbrk = PAGE_ALIGN(mm->brk);
+<<<<<<< HEAD
 	if (oldbrk == newbrk)
 		goto set_brk;
 
@@ -250,6 +307,34 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
 		if (!do_munmap(mm, newbrk, oldbrk-newbrk, &uf))
 			goto set_brk;
 		goto out;
+=======
+	if (oldbrk == newbrk) {
+		mm->brk = brk;
+		goto success;
+	}
+
+	/*
+	 * Always allow shrinking brk.
+	 * __do_munmap() may downgrade mmap_lock to read.
+	 */
+	if (brk <= mm->brk) {
+		int ret;
+
+		/*
+		 * mm->brk must to be protected by write mmap_lock so update it
+		 * before downgrading mmap_lock. When __do_munmap() fails,
+		 * mm->brk will be restored from origbrk.
+		 */
+		mm->brk = brk;
+		ret = __do_munmap(mm, newbrk, oldbrk-newbrk, &uf, true);
+		if (ret < 0) {
+			mm->brk = origbrk;
+			goto out;
+		} else if (ret == 1) {
+			downgraded = true;
+		}
+		goto success;
+>>>>>>> upstream/android-13
 	}
 
 	/* Check against existing mmap mappings. */
@@ -260,17 +345,29 @@ SYSCALL_DEFINE1(brk, unsigned long, brk)
 	/* Ok, looks good - let it rip. */
 	if (do_brk_flags(oldbrk, newbrk-oldbrk, 0, &uf) < 0)
 		goto out;
+<<<<<<< HEAD
 
 set_brk:
 	mm->brk = brk;
 	populate = newbrk > oldbrk && (mm->def_flags & VM_LOCKED) != 0;
 	up_write(&mm->mmap_sem);
+=======
+	mm->brk = brk;
+
+success:
+	populate = newbrk > oldbrk && (mm->def_flags & VM_LOCKED) != 0;
+	if (downgraded)
+		mmap_read_unlock(mm);
+	else
+		mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	userfaultfd_unmap_complete(mm, &uf);
 	if (populate)
 		mm_populate(oldbrk, newbrk - oldbrk);
 	return brk;
 
 out:
+<<<<<<< HEAD
 	retval = mm->brk;
 	up_write(&mm->mmap_sem);
 	return retval;
@@ -279,6 +376,15 @@ out:
 static long vma_compute_subtree_gap(struct vm_area_struct *vma)
 {
 	unsigned long max, prev_end, subtree_gap;
+=======
+	mmap_write_unlock(mm);
+	return origbrk;
+}
+
+static inline unsigned long vma_compute_gap(struct vm_area_struct *vma)
+{
+	unsigned long gap, prev_end;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Note: in the rare case of a VM_GROWSDOWN above a VM_GROWSUP, we
@@ -286,6 +392,7 @@ static long vma_compute_subtree_gap(struct vm_area_struct *vma)
 	 * an unmapped area; whereas when expanding we only require one.
 	 * That's a little inconsistent, but keeps the code here simpler.
 	 */
+<<<<<<< HEAD
 	max = vm_start_gap(vma);
 	if (vma->vm_prev) {
 		prev_end = vm_end_gap(vma->vm_prev);
@@ -294,6 +401,23 @@ static long vma_compute_subtree_gap(struct vm_area_struct *vma)
 		else
 			max = 0;
 	}
+=======
+	gap = vm_start_gap(vma);
+	if (vma->vm_prev) {
+		prev_end = vm_end_gap(vma->vm_prev);
+		if (gap > prev_end)
+			gap -= prev_end;
+		else
+			gap = 0;
+	}
+	return gap;
+}
+
+#ifdef CONFIG_DEBUG_VM_RB
+static unsigned long vma_compute_subtree_gap(struct vm_area_struct *vma)
+{
+	unsigned long max = vma_compute_gap(vma), subtree_gap;
+>>>>>>> upstream/android-13
 	if (vma->vm_rb.rb_left) {
 		subtree_gap = rb_entry(vma->vm_rb.rb_left,
 				struct vm_area_struct, vm_rb)->rb_subtree_gap;
@@ -309,7 +433,10 @@ static long vma_compute_subtree_gap(struct vm_area_struct *vma)
 	return max;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_VM_RB
+=======
+>>>>>>> upstream/android-13
 static int browse_rb(struct mm_struct *mm)
 {
 	struct rb_root *root = &mm->mm_rb;
@@ -415,6 +542,7 @@ static void validate_mm(struct mm_struct *mm)
 #define validate_mm(mm) do { } while (0)
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 #define mm_rb_write_lock(mm)	write_lock(&(mm)->mm_rb_lock)
 #define mm_rb_write_unlock(mm)	write_unlock(&(mm)->mm_rb_lock)
@@ -425,6 +553,11 @@ static void validate_mm(struct mm_struct *mm)
 
 RB_DECLARE_CALLBACKS(static, vma_gap_callbacks, struct vm_area_struct, vm_rb,
 		     unsigned long, rb_subtree_gap, vma_compute_subtree_gap)
+=======
+RB_DECLARE_CALLBACKS_MAX(static, vma_gap_callbacks,
+			 struct vm_area_struct, vm_rb,
+			 unsigned long, rb_subtree_gap, vma_compute_gap)
+>>>>>>> upstream/android-13
 
 /*
  * Update augmented rbtree rb_subtree_gap values after vma->vm_start or
@@ -434,31 +567,47 @@ RB_DECLARE_CALLBACKS(static, vma_gap_callbacks, struct vm_area_struct, vm_rb,
 static void vma_gap_update(struct vm_area_struct *vma)
 {
 	/*
+<<<<<<< HEAD
 	 * As it turns out, RB_DECLARE_CALLBACKS() already created a callback
 	 * function that does exacltly what we want.
+=======
+	 * As it turns out, RB_DECLARE_CALLBACKS_MAX() already created
+	 * a callback function that does exactly what we want.
+>>>>>>> upstream/android-13
 	 */
 	vma_gap_callbacks_propagate(&vma->vm_rb, NULL);
 }
 
 static inline void vma_rb_insert(struct vm_area_struct *vma,
+<<<<<<< HEAD
 				 struct mm_struct *mm)
 {
 	struct rb_root *root = &mm->mm_rb;
 
+=======
+				 struct rb_root *root)
+{
+>>>>>>> upstream/android-13
 	/* All rb_subtree_gap values must be consistent prior to insertion */
 	validate_mm_rb(root, NULL);
 
 	rb_insert_augmented(&vma->vm_rb, root, &vma_gap_callbacks);
 }
 
+<<<<<<< HEAD
 static void __vma_rb_erase(struct vm_area_struct *vma, struct mm_struct *mm)
 {
 	struct rb_root *root = &mm->mm_rb;
+=======
+static void __vma_rb_erase(struct vm_area_struct *vma, struct rb_root *root)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * Note rb_erase_augmented is a fairly large inline function,
 	 * so make sure we instantiate it only once with our desired
 	 * augmented rbtree callbacks.
 	 */
+<<<<<<< HEAD
 	mm_rb_write_lock(mm);
 	rb_erase_augmented(&vma->vm_rb, root, &vma_gap_callbacks);
 	mm_rb_write_unlock(mm); /* wmb */
@@ -472,10 +621,18 @@ static void __vma_rb_erase(struct vm_area_struct *vma, struct mm_struct *mm)
 
 static __always_inline void vma_rb_erase_ignore(struct vm_area_struct *vma,
 						struct mm_struct *mm,
+=======
+	rb_erase_augmented(&vma->vm_rb, root, &vma_gap_callbacks);
+}
+
+static __always_inline void vma_rb_erase_ignore(struct vm_area_struct *vma,
+						struct rb_root *root,
+>>>>>>> upstream/android-13
 						struct vm_area_struct *ignore)
 {
 	/*
 	 * All rb_subtree_gap values must be consistent prior to erase,
+<<<<<<< HEAD
 	 * with the possible exception of the "next" vma being erased if
 	 * next->vm_start was reduced.
 	 */
@@ -494,6 +651,24 @@ static __always_inline void vma_rb_erase(struct vm_area_struct *vma,
 	validate_mm_rb(&mm->mm_rb, vma);
 
 	__vma_rb_erase(vma, mm);
+=======
+	 * with the possible exception of
+	 *
+	 * a. the "next" vma being erased if next->vm_start was reduced in
+	 *    __vma_adjust() -> __vma_unlink()
+	 * b. the vma being erased in detach_vmas_to_be_unmapped() ->
+	 *    vma_rb_erase()
+	 */
+	validate_mm_rb(root, ignore);
+
+	__vma_rb_erase(vma, root);
+}
+
+static __always_inline void vma_rb_erase(struct vm_area_struct *vma,
+					 struct rb_root *root)
+{
+	vma_rb_erase_ignore(vma, root, vma);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -507,7 +682,11 @@ static __always_inline void vma_rb_erase(struct vm_area_struct *vma,
  * After the update, the vma will be reinserted using
  * anon_vma_interval_tree_post_update_vma().
  *
+<<<<<<< HEAD
  * The entire update must be protected by exclusive mmap_sem and by
+=======
+ * The entire update must be protected by exclusive mmap_lock and by
+>>>>>>> upstream/android-13
  * the root anon_vma's mutex.
  */
 static inline void
@@ -534,6 +713,10 @@ static int find_vma_links(struct mm_struct *mm, unsigned long addr,
 {
 	struct rb_node **__rb_link, *__rb_parent, *rb_prev;
 
+<<<<<<< HEAD
+=======
+	mmap_assert_locked(mm);
+>>>>>>> upstream/android-13
 	__rb_link = &mm->mm_rb.rb_node;
 	rb_prev = __rb_parent = NULL;
 
@@ -562,13 +745,64 @@ static int find_vma_links(struct mm_struct *mm, unsigned long addr,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * vma_next() - Get the next VMA.
+ * @mm: The mm_struct.
+ * @vma: The current vma.
+ *
+ * If @vma is NULL, return the first vma in the mm.
+ *
+ * Returns: The next VMA after @vma.
+ */
+static inline struct vm_area_struct *vma_next(struct mm_struct *mm,
+					 struct vm_area_struct *vma)
+{
+	if (!vma)
+		return mm->mmap;
+
+	return vma->vm_next;
+}
+
+/*
+ * munmap_vma_range() - munmap VMAs that overlap a range.
+ * @mm: The mm struct
+ * @start: The start of the range.
+ * @len: The length of the range.
+ * @pprev: pointer to the pointer that will be set to previous vm_area_struct
+ * @rb_link: the rb_node
+ * @rb_parent: the parent rb_node
+ *
+ * Find all the vm_area_struct that overlap from @start to
+ * @end and munmap them.  Set @pprev to the previous vm_area_struct.
+ *
+ * Returns: -ENOMEM on munmap failure or 0 on success.
+ */
+static inline int
+munmap_vma_range(struct mm_struct *mm, unsigned long start, unsigned long len,
+		 struct vm_area_struct **pprev, struct rb_node ***link,
+		 struct rb_node **parent, struct list_head *uf)
+{
+
+	while (find_vma_links(mm, start, start + len, pprev, link, parent))
+		if (do_munmap(mm, start, len, uf))
+			return -ENOMEM;
+
+	return 0;
+}
+>>>>>>> upstream/android-13
 static unsigned long count_vma_pages_range(struct mm_struct *mm,
 		unsigned long addr, unsigned long end)
 {
 	unsigned long nr_pages = 0;
 	struct vm_area_struct *vma;
 
+<<<<<<< HEAD
 	/* Find first overlaping mapping */
+=======
+	/* Find first overlapping mapping */
+>>>>>>> upstream/android-13
 	vma = find_vma_intersection(mm, addr, end);
 	if (!vma)
 		return 0;
@@ -608,12 +842,19 @@ void __vma_link_rb(struct mm_struct *mm, struct vm_area_struct *vma,
 	 * immediately update the gap to the correct value. Finally we
 	 * rebalance the rbtree after all augmented values have been set.
 	 */
+<<<<<<< HEAD
 	mm_rb_write_lock(mm);
 	rb_link_node(&vma->vm_rb, rb_parent, rb_link);
 	vma->rb_subtree_gap = 0;
 	vma_gap_update(vma);
 	vma_rb_insert(vma, mm);
 	mm_rb_write_unlock(mm);
+=======
+	rb_link_node(&vma->vm_rb, rb_parent, rb_link);
+	vma->rb_subtree_gap = 0;
+	vma_gap_update(vma);
+	vma_rb_insert(vma, &mm->mm_rb);
+>>>>>>> upstream/android-13
 }
 
 static void __vma_link_file(struct vm_area_struct *vma)
@@ -624,10 +865,15 @@ static void __vma_link_file(struct vm_area_struct *vma)
 	if (file) {
 		struct address_space *mapping = file->f_mapping;
 
+<<<<<<< HEAD
 		if (vma->vm_flags & VM_DENYWRITE)
 			atomic_dec(&file_inode(file)->i_writecount);
 		if (vma->vm_flags & VM_SHARED)
 			atomic_inc(&mapping->i_mmap_writable);
+=======
+		if (vma->vm_flags & VM_SHARED)
+			mapping_allow_writable(mapping);
+>>>>>>> upstream/android-13
 
 		flush_dcache_mmap_lock(mapping);
 		vma_interval_tree_insert(vma, &mapping->i_mmap);
@@ -640,7 +886,11 @@ __vma_link(struct mm_struct *mm, struct vm_area_struct *vma,
 	struct vm_area_struct *prev, struct rb_node **rb_link,
 	struct rb_node *rb_parent)
 {
+<<<<<<< HEAD
 	__vma_link_list(mm, vma, prev, rb_parent);
+=======
+	__vma_link_list(mm, vma, prev);
+>>>>>>> upstream/android-13
 	__vma_link_rb(mm, vma, rb_link, rb_parent);
 }
 
@@ -681,6 +931,7 @@ static void __insert_vm_struct(struct mm_struct *mm, struct vm_area_struct *vma)
 	mm->map_count++;
 }
 
+<<<<<<< HEAD
 static __always_inline void __vma_unlink_common(struct mm_struct *mm,
 						struct vm_area_struct *vma,
 						struct vm_area_struct *prev,
@@ -703,10 +954,19 @@ static __always_inline void __vma_unlink_common(struct mm_struct *mm,
 	if (next)
 		next->vm_prev = prev;
 
+=======
+static __always_inline void __vma_unlink(struct mm_struct *mm,
+						struct vm_area_struct *vma,
+						struct vm_area_struct *ignore)
+{
+	vma_rb_erase_ignore(vma, &mm->mm_rb, ignore);
+	__vma_unlink_list(mm, vma);
+>>>>>>> upstream/android-13
 	/* Kill the cache */
 	vmacache_invalidate(mm);
 }
 
+<<<<<<< HEAD
 static inline void __vma_unlink_prev(struct mm_struct *mm,
 				     struct vm_area_struct *vma,
 				     struct vm_area_struct *prev)
@@ -714,6 +974,8 @@ static inline void __vma_unlink_prev(struct mm_struct *mm,
 	__vma_unlink_common(mm, vma, prev, true, vma);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * We cannot adjust vm_start, vm_end, vm_pgoff fields of a vma that
  * is already present in an i_mmap tree without adjusting the tree.
@@ -723,7 +985,11 @@ static inline void __vma_unlink_prev(struct mm_struct *mm,
  */
 int __vma_adjust(struct vm_area_struct *vma, unsigned long start,
 	unsigned long end, pgoff_t pgoff, struct vm_area_struct *insert,
+<<<<<<< HEAD
 	struct vm_area_struct *expand, bool keep_locked)
+=======
+	struct vm_area_struct *expand)
+>>>>>>> upstream/android-13
 {
 	struct mm_struct *mm = vma->vm_mm;
 	struct vm_area_struct *next = vma->vm_next, *orig_vma = vma;
@@ -735,6 +1001,7 @@ int __vma_adjust(struct vm_area_struct *vma, unsigned long start,
 	long adjust_next = 0;
 	int remove_next = 0;
 
+<<<<<<< HEAD
 	/*
 	 * Why using vm_raw_write*() functions here to avoid lockdep's warning ?
 	 *
@@ -759,6 +1026,8 @@ int __vma_adjust(struct vm_area_struct *vma, unsigned long start,
 	if (next)
 		vm_raw_write_begin(next);
 
+=======
+>>>>>>> upstream/android-13
 	if (next && !insert) {
 		struct vm_area_struct *exporter = NULL, *importer = NULL;
 
@@ -792,8 +1061,11 @@ int __vma_adjust(struct vm_area_struct *vma, unsigned long start,
 				remove_next = 1 + (end > next->vm_end);
 				VM_WARN_ON(remove_next == 2 &&
 					   end != next->vm_next->vm_end);
+<<<<<<< HEAD
 				VM_WARN_ON(remove_next == 1 &&
 					   end != next->vm_end);
+=======
+>>>>>>> upstream/android-13
 				/* trim end to next, for case 6 first pass */
 				end = next->vm_end;
 			}
@@ -813,7 +1085,11 @@ int __vma_adjust(struct vm_area_struct *vma, unsigned long start,
 			 * vma expands, overlapping part of the next:
 			 * mprotect case 5 shifting the boundary up.
 			 */
+<<<<<<< HEAD
 			adjust_next = (end - next->vm_start) >> PAGE_SHIFT;
+=======
+			adjust_next = (end - next->vm_start);
+>>>>>>> upstream/android-13
 			exporter = next;
 			importer = vma;
 			VM_WARN_ON(expand != importer);
@@ -823,7 +1099,11 @@ int __vma_adjust(struct vm_area_struct *vma, unsigned long start,
 			 * split_vma inserting another: so it must be
 			 * mprotect case 4 shifting the boundary down.
 			 */
+<<<<<<< HEAD
 			adjust_next = -((vma->vm_end - end) >> PAGE_SHIFT);
+=======
+			adjust_next = -(vma->vm_end - end);
+>>>>>>> upstream/android-13
 			exporter = vma;
 			importer = next;
 			VM_WARN_ON(expand != importer);
@@ -839,12 +1119,17 @@ int __vma_adjust(struct vm_area_struct *vma, unsigned long start,
 
 			importer->anon_vma = exporter->anon_vma;
 			error = anon_vma_clone(importer, exporter);
+<<<<<<< HEAD
 			if (error) {
 				if (next && next != vma)
 					vm_raw_write_end(next);
 				vm_raw_write_end(vma);
 				return error;
 			}
+=======
+			if (error)
+				return error;
+>>>>>>> upstream/android-13
 		}
 	}
 again:
@@ -882,7 +1167,11 @@ again:
 			anon_vma_interval_tree_pre_update_vma(next);
 	}
 
+<<<<<<< HEAD
 	if (root) {
+=======
+	if (file) {
+>>>>>>> upstream/android-13
 		flush_dcache_mmap_lock(mapping);
 		vma_interval_tree_remove(vma, root);
 		if (adjust_next)
@@ -890,6 +1179,7 @@ again:
 	}
 
 	if (start != vma->vm_start) {
+<<<<<<< HEAD
 		WRITE_ONCE(vma->vm_start, start);
 		start_changed = true;
 	}
@@ -905,6 +1195,22 @@ again:
 	}
 
 	if (root) {
+=======
+		vma->vm_start = start;
+		start_changed = true;
+	}
+	if (end != vma->vm_end) {
+		vma->vm_end = end;
+		end_changed = true;
+	}
+	vma->vm_pgoff = pgoff;
+	if (adjust_next) {
+		next->vm_start += adjust_next;
+		next->vm_pgoff += adjust_next >> PAGE_SHIFT;
+	}
+
+	if (file) {
+>>>>>>> upstream/android-13
 		if (adjust_next)
 			vma_interval_tree_insert(next, root);
 		vma_interval_tree_insert(vma, root);
@@ -917,7 +1223,11 @@ again:
 		 * us to remove next before dropping the locks.
 		 */
 		if (remove_next != 3)
+<<<<<<< HEAD
 			__vma_unlink_prev(mm, next, vma);
+=======
+			__vma_unlink(mm, next, next);
+>>>>>>> upstream/android-13
 		else
 			/*
 			 * vma is not before next if they've been
@@ -928,7 +1238,11 @@ again:
 			 * "next" (which is stored in post-swap()
 			 * "vma").
 			 */
+<<<<<<< HEAD
 			__vma_unlink_common(mm, next, NULL, false, vma);
+=======
+			__vma_unlink(mm, next, vma);
+>>>>>>> upstream/android-13
 		if (file)
 			__remove_shared_vm_struct(next, file, mapping);
 	} else if (insert) {
@@ -955,10 +1269,16 @@ again:
 			anon_vma_interval_tree_post_update_vma(next);
 		anon_vma_unlock_write(anon_vma);
 	}
+<<<<<<< HEAD
 	if (mapping)
 		i_mmap_unlock_write(mapping);
 
 	if (root) {
+=======
+
+	if (file) {
+		i_mmap_unlock_write(mapping);
+>>>>>>> upstream/android-13
 		uprobe_mmap(vma);
 
 		if (adjust_next)
@@ -966,6 +1286,7 @@ again:
 	}
 
 	if (remove_next) {
+<<<<<<< HEAD
 		if (file)
 			uprobe_munmap(next, next->vm_start, next->vm_end);
 		if (next->anon_vma)
@@ -973,6 +1294,18 @@ again:
 		mm->map_count--;
 		vm_raw_write_end(next);
 		put_vma(next);
+=======
+		if (file) {
+			uprobe_munmap(next, next->vm_start, next->vm_end);
+			/* fput(file) happens whthin vm_area_free(next) */
+			VM_BUG_ON(file != next->vm_file);
+		}
+		if (next->anon_vma)
+			anon_vma_merge(vma, next);
+		mm->map_count--;
+		mpol_put(vma_policy(next));
+		vm_area_free(next);
+>>>>>>> upstream/android-13
 		/*
 		 * In mprotect's case 6 (see comments on vma_merge),
 		 * we must remove another next too. It would clutter
@@ -986,8 +1319,11 @@ again:
 			 * "vma->vm_next" gap must be updated.
 			 */
 			next = vma->vm_next;
+<<<<<<< HEAD
 			if (next)
 				vm_raw_write_begin(next);
+=======
+>>>>>>> upstream/android-13
 		} else {
 			/*
 			 * For the scope of the comment "next" and
@@ -1034,11 +1370,14 @@ again:
 	if (insert && file)
 		uprobe_mmap(insert);
 
+<<<<<<< HEAD
 	if (next && next != vma)
 		vm_raw_write_end(next);
 	if (!keep_locked)
 		vm_raw_write_end(vma);
 
+=======
+>>>>>>> upstream/android-13
 	validate_mm(mm);
 
 	return 0;
@@ -1051,13 +1390,21 @@ again:
 static inline int is_mergeable_vma(struct vm_area_struct *vma,
 				struct file *file, unsigned long vm_flags,
 				struct vm_userfaultfd_ctx vm_userfaultfd_ctx,
+<<<<<<< HEAD
 				const char __user *anon_name)
+=======
+				struct anon_vma_name *anon_name)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * VM_SOFTDIRTY should not prevent from VMA merging, if we
 	 * match the flags but dirty bit -- the caller should mark
 	 * merged VMA as dirty. If dirty bit won't be excluded from
+<<<<<<< HEAD
 	 * comparison, we increase pressue on the memory system forcing
+=======
+	 * comparison, we increase pressure on the memory system forcing
+>>>>>>> upstream/android-13
 	 * the kernel to generate new VMAs when old one could be
 	 * extended instead.
 	 */
@@ -1069,7 +1416,11 @@ static inline int is_mergeable_vma(struct vm_area_struct *vma,
 		return 0;
 	if (!is_mergeable_vm_userfaultfd_ctx(vma, vm_userfaultfd_ctx))
 		return 0;
+<<<<<<< HEAD
 	if (vma_get_anon_name(vma) != anon_name)
+=======
+	if (!anon_vma_name_eq(anon_vma_name(vma), anon_name))
+>>>>>>> upstream/android-13
 		return 0;
 	return 1;
 }
@@ -1096,7 +1447,11 @@ static inline int is_mergeable_anon_vma(struct anon_vma *anon_vma1,
  * anon_vmas, nor if same anon_vma is assigned but offsets incompatible.
  *
  * We don't check here for the merged mmap wrapping around the end of pagecache
+<<<<<<< HEAD
  * indices (16TB on ia32) because do_mmap_pgoff() does not permit mmap's which
+=======
+ * indices (16TB on ia32) because do_mmap() does not permit mmap's which
+>>>>>>> upstream/android-13
  * wrap, nor mmaps which cover the final page at index -1UL.
  */
 static int
@@ -1104,7 +1459,11 @@ can_vma_merge_before(struct vm_area_struct *vma, unsigned long vm_flags,
 		     struct anon_vma *anon_vma, struct file *file,
 		     pgoff_t vm_pgoff,
 		     struct vm_userfaultfd_ctx vm_userfaultfd_ctx,
+<<<<<<< HEAD
 		     const char __user *anon_name)
+=======
+		     struct anon_vma_name *anon_name)
+>>>>>>> upstream/android-13
 {
 	if (is_mergeable_vma(vma, file, vm_flags, vm_userfaultfd_ctx, anon_name) &&
 	    is_mergeable_anon_vma(anon_vma, vma->anon_vma, vma)) {
@@ -1126,7 +1485,11 @@ can_vma_merge_after(struct vm_area_struct *vma, unsigned long vm_flags,
 		    struct anon_vma *anon_vma, struct file *file,
 		    pgoff_t vm_pgoff,
 		    struct vm_userfaultfd_ctx vm_userfaultfd_ctx,
+<<<<<<< HEAD
 		    const char __user *anon_name)
+=======
+		    struct anon_vma_name *anon_name)
+>>>>>>> upstream/android-13
 {
 	if (is_mergeable_vma(vma, file, vm_flags, vm_userfaultfd_ctx, anon_name) &&
 	    is_mergeable_anon_vma(anon_vma, vma->anon_vma, vma)) {
@@ -1154,6 +1517,7 @@ can_vma_merge_after(struct vm_area_struct *vma, unsigned long vm_flags,
  * the area passed down from mprotect_fixup, never extending beyond one
  * vma, PPPPPP is the prev vma specified, and NNNNNN the next vma after:
  *
+<<<<<<< HEAD
  *     AAAA             AAAA                AAAA          AAAA
  *    PPPPPPNNNNNN    PPPPPPNNNNNN    PPPPPPNNNNNN    PPPPNNNNXXXX
  *    cannot merge    might become    might become    might become
@@ -1165,6 +1529,22 @@ can_vma_merge_after(struct vm_area_struct *vma, unsigned long vm_flags,
  *    might become    case 1 below    case 2 below    case 3 below
  *
  * It is important for case 8 that the the vma NNNN overlapping the
+=======
+ *     AAAA             AAAA                   AAAA
+ *    PPPPPPNNNNNN    PPPPPPNNNNNN       PPPPPPNNNNNN
+ *    cannot merge    might become       might become
+ *                    PPNNNNNNNNNN       PPPPPPPPPPNN
+ *    mmap, brk or    case 4 below       case 5 below
+ *    mremap move:
+ *                        AAAA               AAAA
+ *                    PPPP    NNNN       PPPPNNNNXXXX
+ *                    might become       might become
+ *                    PPPPPPPPPPPP 1 or  PPPPPPPPPPPP 6 or
+ *                    PPPPPPPPNNNN 2 or  PPPPPPPPXXXX 7 or
+ *                    PPPPNNNNNNNN 3     PPPPXXXXXXXX 8
+ *
+ * It is important for case 8 that the vma NNNN overlapping the
+>>>>>>> upstream/android-13
  * region AAAA is never going to extended over XXXX. Instead XXXX must
  * be extended in region AAAA and NNNN must be removed. This way in
  * all cases where vma_merge succeeds, the moment vma_adjust drops the
@@ -1178,13 +1558,21 @@ can_vma_merge_after(struct vm_area_struct *vma, unsigned long vm_flags,
  * parameter) may establish ptes with the wrong permissions of NNNN
  * instead of the right permissions of XXXX.
  */
+<<<<<<< HEAD
 struct vm_area_struct *__vma_merge(struct mm_struct *mm,
+=======
+struct vm_area_struct *vma_merge(struct mm_struct *mm,
+>>>>>>> upstream/android-13
 			struct vm_area_struct *prev, unsigned long addr,
 			unsigned long end, unsigned long vm_flags,
 			struct anon_vma *anon_vma, struct file *file,
 			pgoff_t pgoff, struct mempolicy *policy,
 			struct vm_userfaultfd_ctx vm_userfaultfd_ctx,
+<<<<<<< HEAD
 			const char __user *anon_name, bool keep_locked)
+=======
+			struct anon_vma_name *anon_name)
+>>>>>>> upstream/android-13
 {
 	pgoff_t pglen = (end - addr) >> PAGE_SHIFT;
 	struct vm_area_struct *area, *next;
@@ -1197,10 +1585,14 @@ struct vm_area_struct *__vma_merge(struct mm_struct *mm,
 	if (vm_flags & VM_SPECIAL)
 		return NULL;
 
+<<<<<<< HEAD
 	if (prev)
 		next = prev->vm_next;
 	else
 		next = mm->mmap;
+=======
+	next = vma_next(mm, prev);
+>>>>>>> upstream/android-13
 	area = next;
 	if (area && area->vm_end == end)		/* cases 6, 7, 8 */
 		next = next->vm_next;
@@ -1217,8 +1609,12 @@ struct vm_area_struct *__vma_merge(struct mm_struct *mm,
 			mpol_equal(vma_policy(prev), policy) &&
 			can_vma_merge_after(prev, vm_flags,
 					    anon_vma, file, pgoff,
+<<<<<<< HEAD
 					    vm_userfaultfd_ctx,
 					    anon_name)) {
+=======
+					    vm_userfaultfd_ctx, anon_name)) {
+>>>>>>> upstream/android-13
 		/*
 		 * OK, it can.  Can we now merge in the successor as well?
 		 */
@@ -1227,18 +1623,29 @@ struct vm_area_struct *__vma_merge(struct mm_struct *mm,
 				can_vma_merge_before(next, vm_flags,
 						     anon_vma, file,
 						     pgoff+pglen,
+<<<<<<< HEAD
 						     vm_userfaultfd_ctx,
 						     anon_name) &&
+=======
+						     vm_userfaultfd_ctx, anon_name) &&
+>>>>>>> upstream/android-13
 				is_mergeable_anon_vma(prev->anon_vma,
 						      next->anon_vma, NULL)) {
 							/* cases 1, 6 */
 			err = __vma_adjust(prev, prev->vm_start,
 					 next->vm_end, prev->vm_pgoff, NULL,
+<<<<<<< HEAD
 					 prev, keep_locked);
 		} else					/* cases 2, 5, 7 */
 			err = __vma_adjust(prev, prev->vm_start,
 					   end, prev->vm_pgoff, NULL, prev,
 					   keep_locked);
+=======
+					 prev);
+		} else					/* cases 2, 5, 7 */
+			err = __vma_adjust(prev, prev->vm_start,
+					 end, prev->vm_pgoff, NULL, prev);
+>>>>>>> upstream/android-13
 		if (err)
 			return NULL;
 		khugepaged_enter_vma_merge(prev, vm_flags);
@@ -1252,6 +1659,7 @@ struct vm_area_struct *__vma_merge(struct mm_struct *mm,
 			mpol_equal(policy, vma_policy(next)) &&
 			can_vma_merge_before(next, vm_flags,
 					     anon_vma, file, pgoff+pglen,
+<<<<<<< HEAD
 					     vm_userfaultfd_ctx,
 					     anon_name)) {
 		if (prev && addr < prev->vm_end)	/* case 4 */
@@ -1262,6 +1670,15 @@ struct vm_area_struct *__vma_merge(struct mm_struct *mm,
 			err = __vma_adjust(area, addr, next->vm_end,
 					 next->vm_pgoff - pglen, NULL, next,
 					 keep_locked);
+=======
+					     vm_userfaultfd_ctx, anon_name)) {
+		if (prev && addr < prev->vm_end)	/* case 4 */
+			err = __vma_adjust(prev, prev->vm_start,
+					 addr, prev->vm_pgoff, NULL, next);
+		else {					/* cases 3, 8 */
+			err = __vma_adjust(area, addr, next->vm_end,
+					 next->vm_pgoff - pglen, NULL, next);
+>>>>>>> upstream/android-13
 			/*
 			 * In case 3 area is already equal to next and
 			 * this is a noop, but in case 8 "area" has
@@ -1279,7 +1696,11 @@ struct vm_area_struct *__vma_merge(struct mm_struct *mm,
 }
 
 /*
+<<<<<<< HEAD
  * Rough compatbility check to quickly see if it's even worth looking
+=======
+ * Rough compatibility check to quickly see if it's even worth looking
+>>>>>>> upstream/android-13
  * at sharing an anon_vma.
  *
  * They need to have the same vm_file, and the flags can only differ
@@ -1296,7 +1717,11 @@ static int anon_vma_compatible(struct vm_area_struct *a, struct vm_area_struct *
 	return a->vm_end == b->vm_start &&
 		mpol_equal(vma_policy(a), vma_policy(b)) &&
 		a->vm_file == b->vm_file &&
+<<<<<<< HEAD
 		!((a->vm_flags ^ b->vm_flags) & ~(VM_READ|VM_WRITE|VM_EXEC|VM_SOFTDIRTY)) &&
+=======
+		!((a->vm_flags ^ b->vm_flags) & ~(VM_ACCESS_FLAGS | VM_SOFTDIRTY)) &&
+>>>>>>> upstream/android-13
 		b->vm_pgoff == a->vm_pgoff + ((b->vm_start - a->vm_start) >> PAGE_SHIFT);
 }
 
@@ -1343,6 +1768,7 @@ static struct anon_vma *reusable_anon_vma(struct vm_area_struct *old, struct vm_
  */
 struct anon_vma *find_mergeable_anon_vma(struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 	struct anon_vma *anon_vma;
 	struct vm_area_struct *near;
 
@@ -1363,6 +1789,24 @@ try_prev:
 		return anon_vma;
 none:
 	/*
+=======
+	struct anon_vma *anon_vma = NULL;
+
+	/* Try next first. */
+	if (vma->vm_next) {
+		anon_vma = reusable_anon_vma(vma->vm_next, vma, vma->vm_next);
+		if (anon_vma)
+			return anon_vma;
+	}
+
+	/* Try prev next. */
+	if (vma->vm_prev)
+		anon_vma = reusable_anon_vma(vma->vm_prev, vma->vm_prev, vma);
+
+	/*
+	 * We might reach here with anon_vma == NULL if we can't find
+	 * any reusable anon_vma.
+>>>>>>> upstream/android-13
 	 * There's no absolute need to look only at touching neighbours:
 	 * we could search further afield for "compatible" anon_vmas.
 	 * But it would probably just be a waste of time searching,
@@ -1370,7 +1814,11 @@ none:
 	 * We're trying to allow mprotect remerging later on,
 	 * not trying to minimize memory used for anon_vmas.
 	 */
+<<<<<<< HEAD
 	return NULL;
+=======
+	return anon_vma;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1386,9 +1834,14 @@ static inline unsigned long round_hint_to_min(unsigned long hint)
 	return hint;
 }
 
+<<<<<<< HEAD
 static inline int mlock_future_check(struct mm_struct *mm,
 				     unsigned long flags,
 				     unsigned long len)
+=======
+int mlock_future_check(struct mm_struct *mm, unsigned long flags,
+		       unsigned long len)
+>>>>>>> upstream/android-13
 {
 	unsigned long locked, lock_limit;
 
@@ -1412,6 +1865,12 @@ static inline u64 file_mmap_size_max(struct file *file, struct inode *inode)
 	if (S_ISBLK(inode->i_mode))
 		return MAX_LFS_FILESIZE;
 
+<<<<<<< HEAD
+=======
+	if (S_ISSOCK(inode->i_mode))
+		return MAX_LFS_FILESIZE;
+
+>>>>>>> upstream/android-13
 	/* Special "we do even unsigned file positions" case */
 	if (file->f_mode & FMODE_UNSIGNED_OFFSET)
 		return 0;
@@ -1434,6 +1893,7 @@ static inline bool file_mmap_ok(struct file *file, struct inode *inode,
 }
 
 /*
+<<<<<<< HEAD
  * The caller must hold down_write(&current->mm->mmap_sem).
  */
 unsigned long do_mmap(struct file *file, unsigned long addr,
@@ -1443,6 +1903,17 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 			struct list_head *uf)
 {
 	struct mm_struct *mm = current->mm;
+=======
+ * The caller must write-lock current->mm->mmap_lock.
+ */
+unsigned long do_mmap(struct file *file, unsigned long addr,
+			unsigned long len, unsigned long prot,
+			unsigned long flags, unsigned long pgoff,
+			unsigned long *populate, struct list_head *uf)
+{
+	struct mm_struct *mm = current->mm;
+	vm_flags_t vm_flags;
+>>>>>>> upstream/android-13
 	int pkey = 0;
 
 	*populate = 0;
@@ -1484,6 +1955,7 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 	 * that it represents a valid section of the address space.
 	 */
 	addr = get_unmapped_area(file, addr, len, pgoff, flags);
+<<<<<<< HEAD
 	if (offset_in_page(addr))
 		return addr;
 
@@ -1491,6 +1963,13 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 		struct vm_area_struct *vma = find_vma(mm, addr);
 
 		if (vma && vma->vm_start < addr + len)
+=======
+	if (IS_ERR_VALUE(addr))
+		return addr;
+
+	if (flags & MAP_FIXED_NOREPLACE) {
+		if (find_vma_intersection(mm, addr, addr + len))
+>>>>>>> upstream/android-13
 			return -EEXIST;
 	}
 
@@ -1504,7 +1983,11 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 	 * to. we assume access permissions have been handled by the open
 	 * of the memory object, so we don't do any here.
 	 */
+<<<<<<< HEAD
 	vm_flags |= calc_vm_prot_bits(prot, pkey) | calc_vm_flag_bits(flags) |
+=======
+	vm_flags = calc_vm_prot_bits(prot, pkey) | calc_vm_flag_bits(flags) |
+>>>>>>> upstream/android-13
 			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
 
 	if (flags & MAP_LOCKED)
@@ -1533,7 +2016,11 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 			 * with MAP_SHARED to preserve backward compatibility.
 			 */
 			flags &= LEGACY_MAP_MASK;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case MAP_SHARED_VALIDATE:
 			if (flags & ~flags_mask)
 				return -EOPNOTSUPP;
@@ -1551,6 +2038,7 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 			if (IS_APPEND(inode) && (file->f_mode & FMODE_WRITE))
 				return -EACCES;
 
+<<<<<<< HEAD
 			/*
 			 * Make sure there are no mandatory locks on the file.
 			 */
@@ -1562,6 +2050,12 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 				vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
 
 			/* fall through */
+=======
+			vm_flags |= VM_SHARED | VM_MAYSHARE;
+			if (!(file->f_mode & FMODE_WRITE))
+				vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
+			fallthrough;
+>>>>>>> upstream/android-13
 		case MAP_PRIVATE:
 			if (!(file->f_mode & FMODE_READ))
 				return -EACCES;
@@ -1636,6 +2130,7 @@ unsigned long ksys_mmap_pgoff(unsigned long addr, unsigned long len,
 		file = fget(fd);
 		if (!file)
 			return -EBADF;
+<<<<<<< HEAD
 		if (is_file_hugepages(file))
 			len = ALIGN(len, huge_page_size(hstate_file(file)));
 		retval = -EINVAL;
@@ -1643,6 +2138,16 @@ unsigned long ksys_mmap_pgoff(unsigned long addr, unsigned long len,
 			goto out_fput;
 	} else if (flags & MAP_HUGETLB) {
 		struct user_struct *user = NULL;
+=======
+		if (is_file_hugepages(file)) {
+			len = ALIGN(len, huge_page_size(hstate_file(file)));
+		} else if (unlikely(flags & MAP_HUGETLB)) {
+			retval = -EINVAL;
+			goto out_fput;
+		}
+	} else if (flags & MAP_HUGETLB) {
+		struct ucounts *ucounts = NULL;
+>>>>>>> upstream/android-13
 		struct hstate *hs;
 
 		hs = hstate_sizelog((flags >> MAP_HUGE_SHIFT) & MAP_HUGE_MASK);
@@ -1658,14 +2163,21 @@ unsigned long ksys_mmap_pgoff(unsigned long addr, unsigned long len,
 		 */
 		file = hugetlb_file_setup(HUGETLB_ANON_FILE, len,
 				VM_NORESERVE,
+<<<<<<< HEAD
 				&user, HUGETLB_ANONHUGE_INODE,
+=======
+				&ucounts, HUGETLB_ANONHUGE_INODE,
+>>>>>>> upstream/android-13
 				(flags >> MAP_HUGE_SHIFT) & MAP_HUGE_MASK);
 		if (IS_ERR(file))
 			return PTR_ERR(file);
 	}
 
+<<<<<<< HEAD
 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
 
+=======
+>>>>>>> upstream/android-13
 	retval = vm_mmap_pgoff(file, addr, len, prot, flags, pgoff);
 out_fput:
 	if (file)
@@ -1705,7 +2217,11 @@ SYSCALL_DEFINE1(old_mmap, struct mmap_arg_struct __user *, arg)
 #endif /* __ARCH_WANT_SYS_OLD_MMAP */
 
 /*
+<<<<<<< HEAD
  * Some shared mappigns will want the pages marked read-only
+=======
+ * Some shared mappings will want the pages marked read-only
+>>>>>>> upstream/android-13
  * to track write events. If so, we'll downgrade vm_page_prot
  * to the private version (using protection_map[] without the
  * VM_SHARED bit).
@@ -1739,7 +2255,11 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
 
 	/* Can the mapping track the dirty pages? */
 	return vma->vm_file && vma->vm_file->f_mapping &&
+<<<<<<< HEAD
 		mapping_cap_account_dirty(vma->vm_file->f_mapping);
+=======
+		mapping_can_writeback(vma->vm_file->f_mapping);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1763,7 +2283,11 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 		struct list_head *uf)
 {
 	struct mm_struct *mm = current->mm;
+<<<<<<< HEAD
 	struct vm_area_struct *vma, *prev;
+=======
+	struct vm_area_struct *vma, *prev, *merge;
+>>>>>>> upstream/android-13
 	int error;
 	struct rb_node **rb_link, *rb_parent;
 	unsigned long charged = 0;
@@ -1783,6 +2307,7 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 			return -ENOMEM;
 	}
 
+<<<<<<< HEAD
 	/* Clear old maps */
 	while (find_vma_links(mm, addr, addr + len, &prev, &rb_link,
 			      &rb_parent)) {
@@ -1790,6 +2315,11 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 			return -ENOMEM;
 	}
 
+=======
+	/* Clear old maps, set up prev, rb_link, rb_parent, and uf */
+	if (munmap_vma_range(mm, addr, len, &prev, &rb_link, &rb_parent, uf))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	/*
 	 * Private writable mapping: check memory availability
 	 */
@@ -1824,6 +2354,7 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 	vma->vm_flags = vm_flags;
 	vma->vm_page_prot = vm_get_page_prot(vm_flags);
 	vma->vm_pgoff = pgoff;
+<<<<<<< HEAD
 	INIT_VMA(vma);
 
 	if (file) {
@@ -1843,6 +2374,16 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 		 * and map writably if VM_SHARED is set. This usually means the
 		 * new file must not have been exposed to user-space, yet.
 		 */
+=======
+
+	if (file) {
+		if (vm_flags & VM_SHARED) {
+			error = mapping_map_writable(file->f_mapping);
+			if (error)
+				goto free_vma;
+		}
+
+>>>>>>> upstream/android-13
 		vma->vm_file = get_file(file);
 		error = call_mmap(file, vma);
 		if (error)
@@ -1858,6 +2399,30 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 		WARN_ON_ONCE(addr != vma->vm_start);
 
 		addr = vma->vm_start;
+<<<<<<< HEAD
+=======
+
+		/* If vm_flags changed after call_mmap(), we should try merge vma again
+		 * as we may succeed this time.
+		 */
+		if (unlikely(vm_flags != vma->vm_flags && prev)) {
+			merge = vma_merge(mm, prev, vma->vm_start, vma->vm_end, vma->vm_flags,
+				NULL, vma->vm_file, vma->vm_pgoff, NULL, NULL_VM_UFFD_CTX, NULL);
+			if (merge) {
+				/* ->mmap() can change vma->vm_file and fput the original file. So
+				 * fput the vma->vm_file here or we would add an extra fput for file
+				 * and cause general protection fault ultimately.
+				 */
+				/* fput happens within vm_area_free */
+				vm_area_free(vma);
+				vma = merge;
+				/* Update vm_flags to pick up the change. */
+				vm_flags = vma->vm_flags;
+				goto unmap_writable;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		vm_flags = vma->vm_flags;
 	} else if (vm_flags & VM_SHARED) {
 		error = shmem_zero_setup(vma);
@@ -1867,6 +2432,7 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 		vma_set_anonymous(vma);
 	}
 
+<<<<<<< HEAD
 	vma_link(mm, vma, prev, rb_link, rb_parent);
 	/* Once vma denies write, undo our temporary denial count */
 	if (file) {
@@ -1875,18 +2441,41 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
 		if (vm_flags & VM_DENYWRITE)
 			allow_write_access(file);
 	}
+=======
+	/* Allow architectures to sanity-check the vm_flags */
+	if (!arch_validate_flags(vma->vm_flags)) {
+		error = -EINVAL;
+		if (file)
+			goto unmap_and_free_vma;
+		else
+			goto free_vma;
+	}
+
+	vma_link(mm, vma, prev, rb_link, rb_parent);
+	/* Once vma denies write, undo our temporary denial count */
+unmap_writable:
+	if (file && vm_flags & VM_SHARED)
+		mapping_unmap_writable(file->f_mapping);
+>>>>>>> upstream/android-13
 	file = vma->vm_file;
 out:
 	perf_event_mmap(vma);
 
+<<<<<<< HEAD
 	vm_write_begin(vma);
+=======
+>>>>>>> upstream/android-13
 	vm_stat_account(mm, vm_flags, len >> PAGE_SHIFT);
 	if (vm_flags & VM_LOCKED) {
 		if ((vm_flags & VM_SPECIAL) || vma_is_dax(vma) ||
 					is_vm_hugetlb_page(vma) ||
 					vma == get_gate_vma(current->mm))
+<<<<<<< HEAD
 			WRITE_ONCE(vma->vm_flags,
 				   vma->vm_flags & VM_LOCKED_CLEAR_MASK);
+=======
+			vma->vm_flags &= VM_LOCKED_CLEAR_MASK;
+>>>>>>> upstream/android-13
 		else
 			mm->locked_vm += (len >> PAGE_SHIFT);
 	}
@@ -1901,26 +2490,44 @@ out:
 	 * then new mapped in-place (which must be aimed as
 	 * a completely new data area).
 	 */
+<<<<<<< HEAD
 	WRITE_ONCE(vma->vm_flags, vma->vm_flags | VM_SOFTDIRTY);
 
 	vma_set_page_prot(vma);
 	vm_write_end(vma);
+=======
+	vma->vm_flags |= VM_SOFTDIRTY;
+
+	vma_set_page_prot(vma);
+
+	trace_android_vh_mmap_region(vma, addr);
+>>>>>>> upstream/android-13
 
 	return addr;
 
 unmap_and_free_vma:
+<<<<<<< HEAD
 	vma->vm_file = NULL;
 	fput(file);
+=======
+	fput(vma->vm_file);
+	vma->vm_file = NULL;
+>>>>>>> upstream/android-13
 
 	/* Undo any partial mapping done by a device driver. */
 	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
 	charged = 0;
 	if (vm_flags & VM_SHARED)
 		mapping_unmap_writable(file->f_mapping);
+<<<<<<< HEAD
 allow_write_and_free_vma:
 	if (vm_flags & VM_DENYWRITE)
 		allow_write_access(file);
 free_vma:
+=======
+free_vma:
+	VM_BUG_ON(vma->vm_file);
+>>>>>>> upstream/android-13
 	vm_area_free(vma);
 unacct_error:
 	if (charged)
@@ -1928,7 +2535,11 @@ unacct_error:
 	return error;
 }
 
+<<<<<<< HEAD
 unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+=======
+static unsigned long unmapped_area(struct vm_unmapped_area_info *info)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * We implement the search by looking for an rbtree node that
@@ -2031,7 +2642,11 @@ found:
 	return gap_start;
 }
 
+<<<<<<< HEAD
 unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+=======
+static unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+>>>>>>> upstream/android-13
 {
 	struct mm_struct *mm = current->mm;
 	struct vm_area_struct *vma;
@@ -2129,7 +2744,32 @@ found_highest:
 	VM_BUG_ON(gap_end < gap_start);
 	return gap_end;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(unmapped_area_topdown);
+=======
+
+/*
+ * Search for an unmapped address range.
+ *
+ * We are looking for a range that:
+ * - does not intersect with any VMA;
+ * - is contained within the [low_limit, high_limit) interval;
+ * - is at least the desired size.
+ * - satisfies (begin_addr & align_mask) == (align_offset & align_mask)
+ */
+unsigned long vm_unmapped_area(struct vm_unmapped_area_info *info)
+{
+	unsigned long addr;
+
+	if (info->flags & VM_UNMAPPED_AREA_TOPDOWN)
+		addr = unmapped_area_topdown(info);
+	else
+		addr = unmapped_area(info);
+
+	trace_vm_unmapped_area(addr, info);
+	return addr;
+}
+>>>>>>> upstream/android-13
 
 /* Get an address range which is currently unmapped.
  * For shmat() with addr=0.
@@ -2150,8 +2790,14 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 	struct mm_struct *mm = current->mm;
 	struct vm_area_struct *vma, *prev;
 	struct vm_unmapped_area_info info;
+<<<<<<< HEAD
 
 	if (len > TASK_SIZE - mmap_min_addr)
+=======
+	const unsigned long mmap_end = arch_get_mmap_end(addr);
+
+	if (len > mmap_end - mmap_min_addr)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	if (flags & MAP_FIXED)
@@ -2160,7 +2806,11 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 	if (addr) {
 		addr = PAGE_ALIGN(addr);
 		vma = find_vma_prev(mm, addr, &prev);
+<<<<<<< HEAD
 		if (TASK_SIZE - len >= addr && addr >= mmap_min_addr &&
+=======
+		if (mmap_end - len >= addr && addr >= mmap_min_addr &&
+>>>>>>> upstream/android-13
 		    (!vma || addr + len <= vm_start_gap(vma)) &&
 		    (!prev || addr >= vm_end_gap(prev)))
 			return addr;
@@ -2169,7 +2819,11 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 	info.flags = 0;
 	info.length = len;
 	info.low_limit = mm->mmap_base;
+<<<<<<< HEAD
 	info.high_limit = TASK_SIZE;
+=======
+	info.high_limit = mmap_end;
+>>>>>>> upstream/android-13
 	info.align_mask = 0;
 	info.align_offset = 0;
 	return vm_unmapped_area(&info);
@@ -2182,6 +2836,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
  */
 #ifndef HAVE_ARCH_UNMAPPED_AREA_TOPDOWN
 unsigned long
+<<<<<<< HEAD
 arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 			  const unsigned long len, const unsigned long pgoff,
 			  const unsigned long flags)
@@ -2193,6 +2848,19 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 
 	/* requested length too big for entire address space */
 	if (len > TASK_SIZE - mmap_min_addr)
+=======
+arch_get_unmapped_area_topdown(struct file *filp, unsigned long addr,
+			  unsigned long len, unsigned long pgoff,
+			  unsigned long flags)
+{
+	struct vm_area_struct *vma, *prev;
+	struct mm_struct *mm = current->mm;
+	struct vm_unmapped_area_info info;
+	const unsigned long mmap_end = arch_get_mmap_end(addr);
+
+	/* requested length too big for entire address space */
+	if (len > mmap_end - mmap_min_addr)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	if (flags & MAP_FIXED)
@@ -2202,7 +2870,11 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 	if (addr) {
 		addr = PAGE_ALIGN(addr);
 		vma = find_vma_prev(mm, addr, &prev);
+<<<<<<< HEAD
 		if (TASK_SIZE - len >= addr && addr >= mmap_min_addr &&
+=======
+		if (mmap_end - len >= addr && addr >= mmap_min_addr &&
+>>>>>>> upstream/android-13
 				(!vma || addr + len <= vm_start_gap(vma)) &&
 				(!prev || addr >= vm_end_gap(prev)))
 			return addr;
@@ -2211,7 +2883,11 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
 	info.length = len;
 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+<<<<<<< HEAD
 	info.high_limit = mm->mmap_base;
+=======
+	info.high_limit = arch_get_mmap_base(addr, mm->mmap_base);
+>>>>>>> upstream/android-13
 	info.align_mask = 0;
 	info.align_offset = 0;
 	addr = vm_unmapped_area(&info);
@@ -2226,7 +2902,11 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
 		VM_BUG_ON(addr != -ENOMEM);
 		info.flags = 0;
 		info.low_limit = TASK_UNMAPPED_BASE;
+<<<<<<< HEAD
 		info.high_limit = TASK_SIZE;
+=======
+		info.high_limit = mmap_end;
+>>>>>>> upstream/android-13
 		addr = vm_unmapped_area(&info);
 	}
 
@@ -2257,7 +2937,11 @@ get_unmapped_area(struct file *file, unsigned long addr, unsigned long len,
 		/*
 		 * mmap_region() will call shmem_zero_setup() to create a file,
 		 * so use shmem's get_unmapped_area in case it can be huge.
+<<<<<<< HEAD
 		 * do_mmap_pgoff() will clear pgoff, so match alignment.
+=======
+		 * do_mmap() will clear pgoff, so match alignment.
+>>>>>>> upstream/android-13
 		 */
 		pgoff = 0;
 		get_area = shmem_get_unmapped_area;
@@ -2278,9 +2962,13 @@ get_unmapped_area(struct file *file, unsigned long addr, unsigned long len,
 
 EXPORT_SYMBOL(get_unmapped_area);
 
+<<<<<<< HEAD
 /* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
 static struct vm_area_struct *__find_vma(struct mm_struct *mm,
 					 unsigned long addr)
+=======
+struct vm_area_struct *find_vma_from_tree(struct mm_struct *mm, unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	struct rb_node *rb_node;
 	struct vm_area_struct *vma = NULL;
@@ -2304,7 +2992,12 @@ static struct vm_area_struct *__find_vma(struct mm_struct *mm,
 	return vma;
 }
 
+<<<<<<< HEAD
 struct vm_area_struct *find_vma(struct mm_struct *mm, unsigned long addr)
+=======
+/* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
+struct vm_area_struct *__find_vma(struct mm_struct *mm, unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	struct vm_area_struct *vma;
 
@@ -2313,11 +3006,17 @@ struct vm_area_struct *find_vma(struct mm_struct *mm, unsigned long addr)
 	if (likely(vma))
 		return vma;
 
+<<<<<<< HEAD
 	vma = __find_vma(mm, addr);
+=======
+	vma = find_vma_from_tree(mm, addr);
+
+>>>>>>> upstream/android-13
 	if (vma)
 		vmacache_update(addr, vma);
 	return vma;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(find_vma);
 
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
@@ -2334,6 +3033,10 @@ struct vm_area_struct *get_vma(struct mm_struct *mm, unsigned long addr)
 	return vma;
 }
 #endif
+=======
+
+EXPORT_SYMBOL(__find_vma);
+>>>>>>> upstream/android-13
 
 /*
  * Same as find_vma, but also return a pointer to the previous VMA in *pprev.
@@ -2348,12 +3051,18 @@ find_vma_prev(struct mm_struct *mm, unsigned long addr,
 	if (vma) {
 		*pprev = vma->vm_prev;
 	} else {
+<<<<<<< HEAD
 		struct rb_node *rb_node = mm->mm_rb.rb_node;
 		*pprev = NULL;
 		while (rb_node) {
 			*pprev = rb_entry(rb_node, struct vm_area_struct, vm_rb);
 			rb_node = rb_node->rb_right;
 		}
+=======
+		struct rb_node *rb_node = rb_last(&mm->mm_rb);
+
+		*pprev = rb_node ? rb_entry(rb_node, struct vm_area_struct, vm_rb) : NULL;
+>>>>>>> upstream/android-13
 	}
 	return vma;
 }
@@ -2433,8 +3142,12 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 		gap_addr = TASK_SIZE;
 
 	next = vma->vm_next;
+<<<<<<< HEAD
 	if (next && next->vm_start < gap_addr &&
 			(next->vm_flags & (VM_WRITE|VM_READ|VM_EXEC))) {
+=======
+	if (next && next->vm_start < gap_addr && vma_is_accessible(next)) {
+>>>>>>> upstream/android-13
 		if (!(next->vm_flags & VM_GROWSUP))
 			return -ENOMEM;
 		/* Check that both stack segments have the same anon_vma? */
@@ -2446,7 +3159,11 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 
 	/*
 	 * vma->vm_start/vm_end cannot change under us because the caller
+<<<<<<< HEAD
 	 * is required to hold the mmap_sem in read mode.  We need the
+=======
+	 * is required to hold the mmap_lock in read mode.  We need the
+>>>>>>> upstream/android-13
 	 * anon_vma lock to serialize against concurrent expand_stacks.
 	 */
 	anon_vma_lock_write(vma->anon_vma);
@@ -2464,7 +3181,11 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 			if (!error) {
 				/*
 				 * vma_gap_update() doesn't support concurrent
+<<<<<<< HEAD
 				 * updates, but we only hold a shared mmap_sem
+=======
+				 * updates, but we only hold a shared mmap_lock
+>>>>>>> upstream/android-13
 				 * lock here, so we need to protect against
 				 * concurrent vma expansions.
 				 * anon_vma_lock_write() doesn't help here, as
@@ -2478,9 +3199,13 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 					mm->locked_vm += grow;
 				vm_stat_account(mm, vma->vm_flags, grow);
 				anon_vma_interval_tree_pre_update_vma(vma);
+<<<<<<< HEAD
 				vm_write_begin(vma);
 				WRITE_ONCE(vma->vm_end, address);
 				vm_write_end(vma);
+=======
+				vma->vm_end = address;
+>>>>>>> upstream/android-13
 				anon_vma_interval_tree_post_update_vma(vma);
 				if (vma->vm_next)
 					vma_gap_update(vma->vm_next);
@@ -2517,7 +3242,11 @@ int expand_downwards(struct vm_area_struct *vma,
 	prev = vma->vm_prev;
 	/* Check that both stack segments have the same anon_vma? */
 	if (prev && !(prev->vm_flags & VM_GROWSDOWN) &&
+<<<<<<< HEAD
 			(prev->vm_flags & (VM_WRITE|VM_READ|VM_EXEC))) {
+=======
+			vma_is_accessible(prev)) {
+>>>>>>> upstream/android-13
 		if (address - prev->vm_end < stack_guard_gap)
 			return -ENOMEM;
 	}
@@ -2528,7 +3257,11 @@ int expand_downwards(struct vm_area_struct *vma,
 
 	/*
 	 * vma->vm_start/vm_end cannot change under us because the caller
+<<<<<<< HEAD
 	 * is required to hold the mmap_sem in read mode.  We need the
+=======
+	 * is required to hold the mmap_lock in read mode.  We need the
+>>>>>>> upstream/android-13
 	 * anon_vma lock to serialize against concurrent expand_stacks.
 	 */
 	anon_vma_lock_write(vma->anon_vma);
@@ -2546,7 +3279,11 @@ int expand_downwards(struct vm_area_struct *vma,
 			if (!error) {
 				/*
 				 * vma_gap_update() doesn't support concurrent
+<<<<<<< HEAD
 				 * updates, but we only hold a shared mmap_sem
+=======
+				 * updates, but we only hold a shared mmap_lock
+>>>>>>> upstream/android-13
 				 * lock here, so we need to protect against
 				 * concurrent vma expansions.
 				 * anon_vma_lock_write() doesn't help here, as
@@ -2560,8 +3297,13 @@ int expand_downwards(struct vm_area_struct *vma,
 					mm->locked_vm += grow;
 				vm_stat_account(mm, vma->vm_flags, grow);
 				anon_vma_interval_tree_pre_update_vma(vma);
+<<<<<<< HEAD
 				WRITE_ONCE(vma->vm_start, address);
 				WRITE_ONCE(vma->vm_pgoff, vma->vm_pgoff - grow);
+=======
+				vma->vm_start = address;
+				vma->vm_pgoff -= grow;
+>>>>>>> upstream/android-13
 				anon_vma_interval_tree_post_update_vma(vma);
 				vma_gap_update(vma);
 				spin_unlock(&mm->page_table_lock);
@@ -2588,7 +3330,11 @@ static int __init cmdline_parse_stack_guard_gap(char *p)
 	if (!*endptr)
 		stack_guard_gap = val << PAGE_SHIFT;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return 1;
+>>>>>>> upstream/android-13
 }
 __setup("stack_guard_gap=", cmdline_parse_stack_guard_gap);
 
@@ -2608,7 +3354,11 @@ find_extend_vma(struct mm_struct *mm, unsigned long addr)
 	if (vma && (vma->vm_start <= addr))
 		return vma;
 	/* don't alter vm_end if the coredump is running */
+<<<<<<< HEAD
 	if (!prev || !mmget_still_valid(mm) || expand_stack(prev, addr))
+=======
+	if (!prev || expand_stack(prev, addr))
+>>>>>>> upstream/android-13
 		return NULL;
 	if (prev->vm_flags & VM_LOCKED)
 		populate_vma_page_range(prev, addr, prev->vm_end, NULL);
@@ -2634,9 +3384,12 @@ find_extend_vma(struct mm_struct *mm, unsigned long addr)
 		return vma;
 	if (!(vma->vm_flags & VM_GROWSDOWN))
 		return NULL;
+<<<<<<< HEAD
 	/* don't alter vm_start if the coredump is running */
 	if (!mmget_still_valid(mm))
 		return NULL;
+=======
+>>>>>>> upstream/android-13
 	start = vma->vm_start;
 	if (expand_stack(vma, addr))
 		return NULL;
@@ -2681,23 +3434,39 @@ static void unmap_region(struct mm_struct *mm,
 		struct vm_area_struct *vma, struct vm_area_struct *prev,
 		unsigned long start, unsigned long end)
 {
+<<<<<<< HEAD
 	struct vm_area_struct *next = prev ? prev->vm_next : mm->mmap;
 	struct mmu_gather tlb;
 
 	lru_add_drain();
 	tlb_gather_mmu(&tlb, mm, start, end);
+=======
+	struct vm_area_struct *next = vma_next(mm, prev);
+	struct mmu_gather tlb;
+
+	lru_add_drain();
+	tlb_gather_mmu(&tlb, mm);
+>>>>>>> upstream/android-13
 	update_hiwater_rss(mm);
 	unmap_vmas(&tlb, vma, start, end);
 	free_pgtables(&tlb, vma, prev ? prev->vm_end : FIRST_USER_ADDRESS,
 				 next ? next->vm_start : USER_PGTABLES_CEILING);
+<<<<<<< HEAD
 	tlb_finish_mmu(&tlb, start, end);
+=======
+	tlb_finish_mmu(&tlb);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Create a list of vma's touched by the unmap, removing them from the mm's
  * vma list as we go..
  */
+<<<<<<< HEAD
 static void
+=======
+static bool
+>>>>>>> upstream/android-13
 detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
 	struct vm_area_struct *prev, unsigned long end)
 {
@@ -2707,7 +3476,11 @@ detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
 	insertion_point = (prev ? &prev->vm_next : &mm->mmap);
 	vma->vm_prev = NULL;
 	do {
+<<<<<<< HEAD
 		vma_rb_erase(vma, mm);
+=======
+		vma_rb_erase(vma, &mm->mm_rb);
+>>>>>>> upstream/android-13
 		mm->map_count--;
 		tail_vma = vma;
 		vma = vma->vm_next;
@@ -2722,6 +3495,20 @@ detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
 
 	/* Kill the cache */
 	vmacache_invalidate(mm);
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Do not downgrade mmap_lock if we are next to VM_GROWSDOWN or
+	 * VM_GROWSUP VMA. Such VMAs can change their size under
+	 * down_read(mmap_lock) and collide with the VMA we are about to unmap.
+	 */
+	if (vma && (vma->vm_flags & VM_GROWSDOWN))
+		return false;
+	if (prev && (prev->vm_flags & VM_GROWSUP))
+		return false;
+	return true;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2734,8 +3521,13 @@ int __split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
 	struct vm_area_struct *new;
 	int err;
 
+<<<<<<< HEAD
 	if (vma->vm_ops && vma->vm_ops->split) {
 		err = vma->vm_ops->split(vma, addr);
+=======
+	if (vma->vm_ops && vma->vm_ops->may_split) {
+		err = vma->vm_ops->may_split(vma, addr);
+>>>>>>> upstream/android-13
 		if (err)
 			return err;
 	}
@@ -2784,6 +3576,10 @@ int __split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
  out_free_mpol:
 	mpol_put(vma_policy(new));
  out_free_vma:
+<<<<<<< HEAD
+=======
+	new->vm_file = NULL;	/* prevents fput within vm_area_free() */
+>>>>>>> upstream/android-13
 	vm_area_free(new);
 	return err;
 }
@@ -2801,13 +3597,37 @@ int split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
 	return __split_vma(mm, vma, addr, new_below);
 }
 
+<<<<<<< HEAD
+=======
+static inline void
+unlock_range(struct vm_area_struct *start, unsigned long limit)
+{
+	struct mm_struct *mm = start->vm_mm;
+	struct vm_area_struct *tmp = start;
+
+	while (tmp && tmp->vm_start < limit) {
+		if (tmp->vm_flags & VM_LOCKED) {
+			mm->locked_vm -= vma_pages(tmp);
+			munlock_vma_pages_all(tmp);
+		}
+
+		tmp = tmp->vm_next;
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Munmap is split into 2 main parts -- this part which finds
  * what needs doing, and the areas themselves, which do the
  * work.  This now handles partial unmappings.
  * Jeremy Fitzhardinge <jeremy@goop.org>
  */
+<<<<<<< HEAD
 int do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
 	      struct list_head *uf)
+=======
+int __do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
+		struct list_head *uf, bool downgrade)
+>>>>>>> upstream/android-13
 {
 	unsigned long end;
 	struct vm_area_struct *vma, *prev, *last;
@@ -2816,6 +3636,7 @@ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
 		return -EINVAL;
 
 	len = PAGE_ALIGN(len);
+<<<<<<< HEAD
 	if (len == 0)
 		return -EINVAL;
 
@@ -2830,6 +3651,24 @@ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
 	end = start + len;
 	if (vma->vm_start >= end)
 		return 0;
+=======
+	end = start + len;
+	if (len == 0)
+		return -EINVAL;
+
+	/*
+	 * arch_unmap() might do unmaps itself.  It must be called
+	 * and finish any rbtree manipulation before this code
+	 * runs and also starts to manipulate the rbtree.
+	 */
+	arch_unmap(mm, start, end);
+
+	/* Find the first overlapping VMA where start < vma->vm_end */
+	vma = find_vma_intersection(mm, start, end);
+	if (!vma)
+		return 0;
+	prev = vma->vm_prev;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we need to split any vma, do it now to save pain later.
@@ -2862,12 +3701,20 @@ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
 		if (error)
 			return error;
 	}
+<<<<<<< HEAD
 	vma = prev ? prev->vm_next : mm->mmap;
+=======
+	vma = vma_next(mm, prev);
+>>>>>>> upstream/android-13
 
 	if (unlikely(uf)) {
 		/*
 		 * If userfaultfd_unmap_prep returns an error the vmas
+<<<<<<< HEAD
 		 * will remain splitted, but userland will get a
+=======
+		 * will remain split, but userland will get a
+>>>>>>> upstream/android-13
 		 * highly unexpected error anyway. This is no
 		 * different than the case where the first of the two
 		 * __split_vma fails, but we don't undo the first
@@ -2882,6 +3729,7 @@ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
 	/*
 	 * unlock any mlock()ed ranges before detaching vmas
 	 */
+<<<<<<< HEAD
 	if (mm->locked_vm) {
 		struct vm_area_struct *tmp = vma;
 		while (tmp && tmp->vm_start < end) {
@@ -2908,11 +3756,39 @@ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
 }
 
 int vm_munmap(unsigned long start, size_t len)
+=======
+	if (mm->locked_vm)
+		unlock_range(vma, end);
+
+	/* Detach vmas from rbtree */
+	if (!detach_vmas_to_be_unmapped(mm, vma, prev, end))
+		downgrade = false;
+
+	if (downgrade)
+		mmap_write_downgrade(mm);
+
+	unmap_region(mm, vma, prev, start, end);
+
+	/* Fix up all other VM information */
+	remove_vma_list(mm, vma);
+
+	return downgrade ? 1 : 0;
+}
+
+int do_munmap(struct mm_struct *mm, unsigned long start, size_t len,
+	      struct list_head *uf)
+{
+	return __do_munmap(mm, start, len, uf, false);
+}
+
+static int __vm_munmap(unsigned long start, size_t len, bool downgrade)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct mm_struct *mm = current->mm;
 	LIST_HEAD(uf);
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem))
 		return -EINTR;
 
@@ -2921,13 +3797,42 @@ int vm_munmap(unsigned long start, size_t len)
 	userfaultfd_unmap_complete(mm, &uf);
 	return ret;
 }
+=======
+	if (mmap_write_lock_killable(mm))
+		return -EINTR;
+
+	ret = __do_munmap(mm, start, len, &uf, downgrade);
+	/*
+	 * Returning 1 indicates mmap_lock is downgraded.
+	 * But 1 is not legal return value of vm_munmap() and munmap(), reset
+	 * it to 0 before return.
+	 */
+	if (ret == 1) {
+		mmap_read_unlock(mm);
+		ret = 0;
+	} else
+		mmap_write_unlock(mm);
+
+	userfaultfd_unmap_complete(mm, &uf);
+	return ret;
+}
+
+int vm_munmap(unsigned long start, size_t len)
+{
+	return __vm_munmap(start, len, false);
+}
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(vm_munmap);
 
 SYSCALL_DEFINE2(munmap, unsigned long, addr, size_t, len)
 {
 	addr = untagged_addr(addr);
 	profile_munmap(addr);
+<<<<<<< HEAD
 	return vm_munmap(addr, len);
+=======
+	return __vm_munmap(addr, len, true);
+>>>>>>> upstream/android-13
 }
 
 
@@ -2959,17 +3864,27 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 	if (pgoff + (size >> PAGE_SHIFT) < pgoff)
 		return ret;
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem))
 		return -EINTR;
 
 	vma = find_vma(mm, start);
+=======
+	if (mmap_write_lock_killable(mm))
+		return -EINTR;
+
+	vma = vma_lookup(mm, start);
+>>>>>>> upstream/android-13
 
 	if (!vma || !(vma->vm_flags & VM_SHARED))
 		goto out;
 
+<<<<<<< HEAD
 	if (start < vma->vm_start)
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	if (start + size > vma->vm_end) {
 		struct vm_area_struct *next;
 
@@ -2998,6 +3913,7 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 
 	flags &= MAP_NONBLOCK;
 	flags |= MAP_SHARED | MAP_FIXED | MAP_POPULATE;
+<<<<<<< HEAD
 	if (vma->vm_flags & VM_LOCKED) {
 		struct vm_area_struct *tmp;
 		flags |= MAP_LOCKED;
@@ -3023,6 +3939,17 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
 	fput(file);
 out:
 	up_write(&mm->mmap_sem);
+=======
+	if (vma->vm_flags & VM_LOCKED)
+		flags |= MAP_LOCKED;
+
+	file = get_file(vma->vm_file);
+	ret = do_mmap(vma->vm_file, start, size,
+			prot, flags, pgoff, &populate, NULL);
+	fput(file);
+out:
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	if (populate)
 		mm_populate(ret, populate);
 	if (!IS_ERR_VALUE(ret))
@@ -3030,6 +3957,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static inline void verify_mm_writelocked(struct mm_struct *mm)
 {
 #ifdef CONFIG_DEBUG_VM
@@ -3040,6 +3968,8 @@ static inline void verify_mm_writelocked(struct mm_struct *mm)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  *  this is really a simplified "do_mmap".  it only handles
  *  anonymous maps.  eventually we may be able to do some
@@ -3052,20 +3982,31 @@ static int do_brk_flags(unsigned long addr, unsigned long len, unsigned long fla
 	struct rb_node **rb_link, *rb_parent;
 	pgoff_t pgoff = addr >> PAGE_SHIFT;
 	int error;
+<<<<<<< HEAD
+=======
+	unsigned long mapped_addr;
+>>>>>>> upstream/android-13
 
 	/* Until we need other flags, refuse anything except VM_EXEC. */
 	if ((flags & (~VM_EXEC)) != 0)
 		return -EINVAL;
 	flags |= VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
 
+<<<<<<< HEAD
 	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
 	if (offset_in_page(error))
 		return error;
+=======
+	mapped_addr = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
+	if (IS_ERR_VALUE(mapped_addr))
+		return mapped_addr;
+>>>>>>> upstream/android-13
 
 	error = mlock_future_check(mm, mm->def_flags, len);
 	if (error)
 		return error;
 
+<<<<<<< HEAD
 	/*
 	 * mm->mmap_sem is required to protect against another thread
 	 * changing the mappings in case we sleep.
@@ -3080,6 +4021,11 @@ static int do_brk_flags(unsigned long addr, unsigned long len, unsigned long fla
 		if (do_munmap(mm, addr, len, uf))
 			return -ENOMEM;
 	}
+=======
+	/* Clear old maps, set up prev, rb_link, rb_parent, and uf */
+	if (munmap_vma_range(mm, addr, len, &prev, &rb_link, &rb_parent, uf))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	/* Check against address space limits *after* clearing old maps... */
 	if (!may_expand_vm(mm, flags, len >> PAGE_SHIFT))
@@ -3107,7 +4053,10 @@ static int do_brk_flags(unsigned long addr, unsigned long len, unsigned long fla
 	}
 
 	vma_set_anonymous(vma);
+<<<<<<< HEAD
 	INIT_VMA(vma);
+=======
+>>>>>>> upstream/android-13
 	vma->vm_start = addr;
 	vma->vm_end = addr + len;
 	vma->vm_pgoff = pgoff;
@@ -3138,12 +4087,20 @@ int vm_brk_flags(unsigned long addr, unsigned long request, unsigned long flags)
 	if (!len)
 		return 0;
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem))
+=======
+	if (mmap_write_lock_killable(mm))
+>>>>>>> upstream/android-13
 		return -EINTR;
 
 	ret = do_brk_flags(addr, len, flags, &uf);
 	populate = ((mm->def_flags & VM_LOCKED) != 0);
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	userfaultfd_unmap_complete(mm, &uf);
 	if (populate && !ret)
 		mm_populate(addr, len);
@@ -3171,6 +4128,7 @@ void exit_mmap(struct mm_struct *mm)
 		/*
 		 * Manually reap the mm to free as much memory as possible.
 		 * Then, as the oom reaper does, set MMF_OOM_SKIP to disregard
+<<<<<<< HEAD
 		 * this mm from further consideration.  Taking mm->mmap_sem for
 		 * write after setting MMF_OOM_SKIP will guarantee that the oom
 		 * reaper will not run on this mm again after mmap_sem is
@@ -3181,12 +4139,25 @@ void exit_mmap(struct mm_struct *mm)
 		 * __oom_reap_task_mm() will not block.
 		 *
 		 * This needs to be done before calling munlock_vma_pages_all(),
+=======
+		 * this mm from further consideration.  Taking mm->mmap_lock for
+		 * write after setting MMF_OOM_SKIP will guarantee that the oom
+		 * reaper will not run on this mm again after mmap_lock is
+		 * dropped.
+		 *
+		 * Nothing can be holding mm->mmap_lock here and the above call
+		 * to mmu_notifier_release(mm) ensures mmu notifier callbacks in
+		 * __oom_reap_task_mm() will not block.
+		 *
+		 * This needs to be done before calling unlock_range(),
+>>>>>>> upstream/android-13
 		 * which clears VM_LOCKED, otherwise the oom reaper cannot
 		 * reliably test it.
 		 */
 		(void)__oom_reap_task_mm(mm);
 
 		set_bit(MMF_OOM_SKIP, &mm->flags);
+<<<<<<< HEAD
 		down_write(&mm->mmap_sem);
 		up_write(&mm->mmap_sem);
 	}
@@ -3199,32 +4170,61 @@ void exit_mmap(struct mm_struct *mm)
 			vma = vma->vm_next;
 		}
 	}
+=======
+	}
+
+	mmap_write_lock(mm);
+	if (mm->locked_vm)
+		unlock_range(mm->mmap, ULONG_MAX);
+>>>>>>> upstream/android-13
 
 	arch_exit_mmap(mm);
 
 	vma = mm->mmap;
+<<<<<<< HEAD
 	if (!vma)	/* Can happen if dup_mmap() received an OOM */
 		return;
 
 	lru_add_drain();
 	flush_cache_mm(mm);
 	tlb_gather_mmu(&tlb, mm, 0, -1);
+=======
+	if (!vma) {
+		/* Can happen if dup_mmap() received an OOM */
+		mmap_write_unlock(mm);
+		return;
+	}
+
+	lru_add_drain();
+	flush_cache_mm(mm);
+	tlb_gather_mmu_fullmm(&tlb, mm);
+>>>>>>> upstream/android-13
 	/* update_hiwater_rss(mm) here? but nobody should be looking */
 	/* Use -1 here to ensure all VMAs in the mm are unmapped */
 	unmap_vmas(&tlb, vma, 0, -1);
 	free_pgtables(&tlb, vma, FIRST_USER_ADDRESS, USER_PGTABLES_CEILING);
+<<<<<<< HEAD
 	tlb_finish_mmu(&tlb, 0, -1);
 
 	/*
 	 * Walk the list again, actually closing and freeing it,
 	 * with preemption enabled, without holding any MM locks.
 	 */
+=======
+	tlb_finish_mmu(&tlb);
+
+	/* Walk the list again, actually closing and freeing it. */
+>>>>>>> upstream/android-13
 	while (vma) {
 		if (vma->vm_flags & VM_ACCOUNT)
 			nr_accounted += vma_pages(vma);
 		vma = remove_vma(vma);
 		cond_resched();
 	}
+<<<<<<< HEAD
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	vm_unacct_memory(nr_accounted);
 }
 
@@ -3254,7 +4254,11 @@ int insert_vm_struct(struct mm_struct *mm, struct vm_area_struct *vma)
 	 * By setting it to reflect the virtual start address of the
 	 * vma, merges and splits can happen in a seamless way, just
 	 * using the existing file pgoff checks and manipulations.
+<<<<<<< HEAD
 	 * Similarly in do_mmap_pgoff and in do_brk.
+=======
+	 * Similarly in do_mmap and in do_brk_flags.
+>>>>>>> upstream/android-13
 	 */
 	if (vma_is_anonymous(vma)) {
 		BUG_ON(vma->anon_vma);
@@ -3291,6 +4295,7 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 
 	if (find_vma_links(mm, addr, addr + len, &prev, &rb_link, &rb_parent))
 		return NULL;	/* should never get here */
+<<<<<<< HEAD
 
 	/* There is 3 cases to manage here in
 	 *     AAAA            AAAA              AAAA              AAAA
@@ -3306,6 +4311,11 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 			      vma->anon_vma, vma->vm_file, pgoff,
 			      vma_policy(vma), vma->vm_userfaultfd_ctx,
 			      vma_get_anon_name(vma), true);
+=======
+	new_vma = vma_merge(mm, prev, addr, addr + len, vma->vm_flags,
+			    vma->anon_vma, vma->vm_file, pgoff, vma_policy(vma),
+			    vma->vm_userfaultfd_ctx, anon_vma_name(vma));
+>>>>>>> upstream/android-13
 	if (new_vma) {
 		/*
 		 * Source vma may have been merged into new_vma
@@ -3343,6 +4353,7 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 			get_file(new_vma->vm_file);
 		if (new_vma->vm_ops && new_vma->vm_ops->open)
 			new_vma->vm_ops->open(new_vma);
+<<<<<<< HEAD
 		/*
 		 * As the VMA is linked right now, it may be hit by the
 		 * speculative page fault handler. But we don't want it to
@@ -3352,6 +4363,8 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 		 * it once the move is done.
 		 */
 		vm_raw_write_begin(new_vma);
+=======
+>>>>>>> upstream/android-13
 		vma_link(mm, new_vma, prev, rb_link, rb_parent);
 		*need_rmap_locks = false;
 	}
@@ -3360,6 +4373,10 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
 out_free_mempol:
 	mpol_put(vma_policy(new_vma));
 out_free_vma:
+<<<<<<< HEAD
+=======
+	new_vma->vm_file = NULL;	/* Prevent fput within vm_area_free */
+>>>>>>> upstream/android-13
 	vm_area_free(new_vma);
 out:
 	return NULL;
@@ -3433,11 +4450,31 @@ static int special_mapping_mremap(struct vm_area_struct *new_vma)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int special_mapping_split(struct vm_area_struct *vma, unsigned long addr)
+{
+	/*
+	 * Forbid splitting special mappings - kernel has expectations over
+	 * the number of pages in mapping. Together with VM_DONTEXPAND
+	 * the size of vma should stay the same over the special mapping's
+	 * lifetime.
+	 */
+	return -EINVAL;
+}
+
+>>>>>>> upstream/android-13
 static const struct vm_operations_struct special_mapping_vmops = {
 	.close = special_mapping_close,
 	.fault = special_mapping_fault,
 	.mremap = special_mapping_mremap,
 	.name = special_mapping_name,
+<<<<<<< HEAD
+=======
+	/* vDSO code relies that VVAR can't be accessed remotely */
+	.access = NULL,
+	.may_split = special_mapping_split,
+>>>>>>> upstream/android-13
 };
 
 static const struct vm_operations_struct legacy_special_mapping_vmops = {
@@ -3488,7 +4525,10 @@ static struct vm_area_struct *__install_special_mapping(
 	if (unlikely(vma == NULL))
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	INIT_VMA(vma);
+=======
+>>>>>>> upstream/android-13
 	vma->vm_start = addr;
 	vma->vm_end = addr + len;
 
@@ -3522,7 +4562,11 @@ bool vma_is_special_mapping(const struct vm_area_struct *vma,
 }
 
 /*
+<<<<<<< HEAD
  * Called with mm->mmap_sem held for writing.
+=======
+ * Called with mm->mmap_lock held for writing.
+>>>>>>> upstream/android-13
  * Insert a new vma covering the given region, with the given flags.
  * Its pages are supplied by the given array of struct page *.
  * The array can be shorter than len >> PAGE_SHIFT if it's null-terminated.
@@ -3559,7 +4603,11 @@ static void vm_lock_anon_vma(struct mm_struct *mm, struct anon_vma *anon_vma)
 		 * The LSB of head.next can't change from under us
 		 * because we hold the mm_all_locks_mutex.
 		 */
+<<<<<<< HEAD
 		down_write_nest_lock(&anon_vma->root->rwsem, &mm->mmap_sem);
+=======
+		down_write_nest_lock(&anon_vma->root->rwsem, &mm->mmap_lock);
+>>>>>>> upstream/android-13
 		/*
 		 * We can safely modify head.next after taking the
 		 * anon_vma->root->rwsem. If some other vma in this mm shares
@@ -3589,7 +4637,11 @@ static void vm_lock_mapping(struct mm_struct *mm, struct address_space *mapping)
 		 */
 		if (test_and_set_bit(AS_MM_ALL_LOCKS, &mapping->flags))
 			BUG();
+<<<<<<< HEAD
 		down_write_nest_lock(&mapping->i_mmap_rwsem, &mm->mmap_sem);
+=======
+		down_write_nest_lock(&mapping->i_mmap_rwsem, &mm->mmap_lock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3598,11 +4650,19 @@ static void vm_lock_mapping(struct mm_struct *mm, struct address_space *mapping)
  * operations that could ever happen on a certain mm. This includes
  * vmtruncate, try_to_unmap, and all page faults.
  *
+<<<<<<< HEAD
  * The caller must take the mmap_sem in write mode before calling
  * mm_take_all_locks(). The caller isn't allowed to release the
  * mmap_sem until mm_drop_all_locks() returns.
  *
  * mmap_sem in write mode is required in order to block all operations
+=======
+ * The caller must take the mmap_lock in write mode before calling
+ * mm_take_all_locks(). The caller isn't allowed to release the
+ * mmap_lock until mm_drop_all_locks() returns.
+ *
+ * mmap_lock in write mode is required in order to block all operations
+>>>>>>> upstream/android-13
  * that could modify pagetables and free pages without need of
  * altering the vma layout. It's also needed in write mode to avoid new
  * anon_vmas to be associated with existing vmas.
@@ -3635,10 +4695,21 @@ int mm_take_all_locks(struct mm_struct *mm)
 	struct vm_area_struct *vma;
 	struct anon_vma_chain *avc;
 
+<<<<<<< HEAD
 	BUG_ON(down_read_trylock(&mm->mmap_sem));
 
 	mutex_lock(&mm_all_locks_mutex);
 
+=======
+	BUG_ON(mmap_read_trylock(mm));
+
+	mutex_lock(&mm_all_locks_mutex);
+
+#if defined(CONFIG_MMU_NOTIFIER) && defined(CONFIG_SPECULATIVE_PAGE_FAULT)
+	percpu_down_write(mm->mmu_notifier_lock);
+#endif
+
+>>>>>>> upstream/android-13
 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
 		if (signal_pending(current))
 			goto out_unlock;
@@ -3707,7 +4778,11 @@ static void vm_unlock_mapping(struct address_space *mapping)
 }
 
 /*
+<<<<<<< HEAD
  * The mmap_sem cannot be released by the caller until
+=======
+ * The mmap_lock cannot be released by the caller until
+>>>>>>> upstream/android-13
  * mm_drop_all_locks() returns.
  */
 void mm_drop_all_locks(struct mm_struct *mm)
@@ -3715,7 +4790,11 @@ void mm_drop_all_locks(struct mm_struct *mm)
 	struct vm_area_struct *vma;
 	struct anon_vma_chain *avc;
 
+<<<<<<< HEAD
 	BUG_ON(down_read_trylock(&mm->mmap_sem));
+=======
+	BUG_ON(mmap_read_trylock(mm));
+>>>>>>> upstream/android-13
 	BUG_ON(!mutex_is_locked(&mm_all_locks_mutex));
 
 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
@@ -3726,6 +4805,13 @@ void mm_drop_all_locks(struct mm_struct *mm)
 			vm_unlock_mapping(vma->vm_file->f_mapping);
 	}
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_MMU_NOTIFIER) && defined(CONFIG_SPECULATIVE_PAGE_FAULT)
+	percpu_up_write(mm->mmu_notifier_lock);
+#endif
+
+>>>>>>> upstream/android-13
 	mutex_unlock(&mm_all_locks_mutex);
 }
 

@@ -46,6 +46,7 @@ static inline void virtio_wmb(bool weak_barriers)
 		dma_wmb();
 }
 
+<<<<<<< HEAD
 static inline void virtio_store_mb(bool weak_barriers,
 				   __virtio16 *p, __virtio16 v)
 {
@@ -56,6 +57,17 @@ static inline void virtio_store_mb(bool weak_barriers,
 		mb();
 	}
 }
+=======
+#define virtio_store_mb(weak_barriers, p, v) \
+do { \
+	if (weak_barriers) { \
+		virt_store_mb(*p, v); \
+	} else { \
+		WRITE_ONCE(*p, v); \
+		mb(); \
+	} \
+} while (0) \
+>>>>>>> upstream/android-13
 
 struct virtio_device;
 struct virtqueue;

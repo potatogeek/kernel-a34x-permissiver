@@ -1,17 +1,28 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Silicon Image SiI8620 HDMI/MHL bridge driver
  *
  * Copyright (C) 2015, Samsung Electronics Co., Ltd.
  * Andrzej Hajda <a.hajda@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <asm/unaligned.h>
 
 #include <drm/bridge/mhl.h>
+<<<<<<< HEAD
+=======
+#include <drm/drm_bridge.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_crtc.h>
 #include <drm/drm_edid.h>
 #include <drm/drm_encoder.h>
@@ -988,7 +999,11 @@ static void sii8620_set_auto_zone(struct sii8620 *ctx)
 
 static void sii8620_stop_video(struct sii8620 *ctx)
 {
+<<<<<<< HEAD
 	u8 uninitialized_var(val);
+=======
+	u8 val;
+>>>>>>> upstream/android-13
 
 	sii8620_write_seq_static(ctx,
 		REG_TPI_INTR_EN, 0,
@@ -1104,8 +1119,12 @@ static void sii8620_set_infoframes(struct sii8620 *ctx,
 	int ret;
 
 	ret = drm_hdmi_avi_infoframe_from_display_mode(&frm.avi,
+<<<<<<< HEAD
 						       mode,
 						       true);
+=======
+						       NULL, mode);
+>>>>>>> upstream/android-13
 	if (ctx->use_packed_pixel)
 		frm.avi.colorspace = HDMI_COLORSPACE_YUV422;
 
@@ -1763,10 +1782,15 @@ static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
 
 	scancode &= MHL_RCP_KEY_ID_MASK;
 
+<<<<<<< HEAD
 	if (!ctx->rc_dev) {
 		dev_dbg(ctx->dev, "RCP input device not initialized\n");
 		return false;
 	}
+=======
+	if (!IS_ENABLED(CONFIG_RC_CORE) || !ctx->rc_dev)
+		return false;
+>>>>>>> upstream/android-13
 
 	if (pressed)
 		rc_keydown(ctx->rc_dev, RC_PROTO_CEC, scancode, 0);
@@ -2103,6 +2127,12 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
 	struct rc_dev *rc_dev;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	if (!IS_ENABLED(CONFIG_RC_CORE))
+		return;
+
+>>>>>>> upstream/android-13
 	rc_dev = rc_allocate_device(RC_DRIVER_SCANCODE);
 	if (!rc_dev) {
 		dev_err(ctx->dev, "Failed to allocate RC device\n");
@@ -2122,7 +2152,11 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
 	if (ret) {
 		dev_err(ctx->dev, "Failed to register RC device\n");
 		ctx->error = ret;
+<<<<<<< HEAD
 		rc_free_device(ctx->rc_dev);
+=======
+		rc_free_device(rc_dev);
+>>>>>>> upstream/android-13
 		return;
 	}
 	ctx->rc_dev = rc_dev;
@@ -2204,7 +2238,12 @@ static inline struct sii8620 *bridge_to_sii8620(struct drm_bridge *bridge)
 	return container_of(bridge, struct sii8620, bridge);
 }
 
+<<<<<<< HEAD
 static int sii8620_attach(struct drm_bridge *bridge)
+=======
+static int sii8620_attach(struct drm_bridge *bridge,
+			  enum drm_bridge_attach_flags flags)
+>>>>>>> upstream/android-13
 {
 	struct sii8620 *ctx = bridge_to_sii8620(bridge);
 
@@ -2217,6 +2256,12 @@ static void sii8620_detach(struct drm_bridge *bridge)
 {
 	struct sii8620 *ctx = bridge_to_sii8620(bridge);
 
+<<<<<<< HEAD
+=======
+	if (!IS_ENABLED(CONFIG_RC_CORE))
+		return;
+
+>>>>>>> upstream/android-13
 	rc_unregister_device(ctx->rc_dev);
 }
 
@@ -2242,6 +2287,10 @@ static int sii8620_is_packing_required(struct sii8620 *ctx,
 }
 
 static enum drm_mode_status sii8620_mode_valid(struct drm_bridge *bridge,
+<<<<<<< HEAD
+=======
+					 const struct drm_display_info *info,
+>>>>>>> upstream/android-13
 					 const struct drm_display_mode *mode)
 {
 	struct sii8620 *ctx = bridge_to_sii8620(bridge);
@@ -2297,10 +2346,16 @@ static int sii8620_probe(struct i2c_client *client,
 	INIT_LIST_HEAD(&ctx->mt_queue);
 
 	ctx->clk_xtal = devm_clk_get(dev, "xtal");
+<<<<<<< HEAD
 	if (IS_ERR(ctx->clk_xtal)) {
 		dev_err(dev, "failed to get xtal clock from DT\n");
 		return PTR_ERR(ctx->clk_xtal);
 	}
+=======
+	if (IS_ERR(ctx->clk_xtal))
+		return dev_err_probe(dev, PTR_ERR(ctx->clk_xtal),
+				     "failed to get xtal clock from DT\n");
+>>>>>>> upstream/android-13
 
 	if (!client->irq) {
 		dev_err(dev, "no irq provided\n");
@@ -2311,6 +2366,7 @@ static int sii8620_probe(struct i2c_client *client,
 					sii8620_irq_thread,
 					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
 					"sii8620", ctx);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(dev, "failed to install IRQ handler\n");
 		return ret;
@@ -2321,6 +2377,16 @@ static int sii8620_probe(struct i2c_client *client,
 		dev_err(dev, "failed to get reset gpio from DT\n");
 		return PTR_ERR(ctx->gpio_reset);
 	}
+=======
+	if (ret < 0)
+		return dev_err_probe(dev, ret,
+				     "failed to install IRQ handler\n");
+
+	ctx->gpio_reset = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+	if (IS_ERR(ctx->gpio_reset))
+		return dev_err_probe(dev, PTR_ERR(ctx->gpio_reset),
+				     "failed to get reset gpio from DT\n");
+>>>>>>> upstream/android-13
 
 	ctx->supplies[0].supply = "cvcc10";
 	ctx->supplies[1].supply = "iovcc18";

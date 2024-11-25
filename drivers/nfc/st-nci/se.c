@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Secure Element driver for STMicroelectronics NFC NCI chip
  *
  * Copyright (C) 2014-2015 STMicroelectronics SAS. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -14,6 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -287,7 +294,10 @@ static int st_nci_hci_apdu_reader_event_received(struct nci_dev *ndev,
 						   u8 event,
 						   struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	int r = 0;
+=======
+>>>>>>> upstream/android-13
 	struct st_nci_info *info = nci_get_drvdata(ndev);
 
 	pr_debug("apdu reader gate event: %x\n", event);
@@ -309,7 +319,11 @@ static int st_nci_hci_apdu_reader_event_received(struct nci_dev *ndev,
 	}
 
 	kfree_skb(skb);
+<<<<<<< HEAD
 	return r;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -342,8 +356,12 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
 		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
 			return -EPROTO;
 
+<<<<<<< HEAD
 		transaction = (struct nfc_evt_transaction *)devm_kzalloc(dev,
 					    skb->len - 2, GFP_KERNEL);
+=======
+		transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!transaction)
 			return -ENOMEM;
 
@@ -483,8 +501,11 @@ int st_nci_disable_se(struct nci_dev *ndev, u32 se_idx)
 {
 	int r;
 
+<<<<<<< HEAD
 	pr_debug("st_nci_disable_se\n");
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * According to upper layer, se_idx == NFC_SE_UICC when
 	 * info->se_info.se_status->is_uicc_enable is true should never happen
@@ -509,8 +530,11 @@ int st_nci_enable_se(struct nci_dev *ndev, u32 se_idx)
 {
 	int r;
 
+<<<<<<< HEAD
 	pr_debug("st_nci_enable_se\n");
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * According to upper layer, se_idx == NFC_SE_UICC when
 	 * info->se_info.se_status->is_uicc_enable is true should never happen.
@@ -547,10 +571,15 @@ static int st_nci_hci_network_init(struct nci_dev *ndev)
 	dest_params =
 		kzalloc(sizeof(struct core_conn_create_dest_spec_params) +
 			sizeof(struct dest_spec_params), GFP_KERNEL);
+<<<<<<< HEAD
 	if (dest_params == NULL) {
 		r = -ENOMEM;
 		goto exit;
 	}
+=======
+	if (dest_params == NULL)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	dest_params->type = NCI_DESTINATION_SPECIFIC_PARAM_NFCEE_TYPE;
 	dest_params->length = sizeof(struct dest_spec_params);
@@ -607,8 +636,11 @@ static int st_nci_hci_network_init(struct nci_dev *ndev)
 
 free_dest_params:
 	kfree(dest_params);
+<<<<<<< HEAD
 
 exit:
+=======
+>>>>>>> upstream/android-13
 	return r;
 }
 
@@ -619,8 +651,11 @@ int st_nci_discover_se(struct nci_dev *ndev)
 	int se_count = 0;
 	struct st_nci_info *info = nci_get_drvdata(ndev);
 
+<<<<<<< HEAD
 	pr_debug("st_nci_discover_se\n");
 
+=======
+>>>>>>> upstream/android-13
 	r = st_nci_hci_network_init(ndev);
 	if (r != 0)
 		return r;

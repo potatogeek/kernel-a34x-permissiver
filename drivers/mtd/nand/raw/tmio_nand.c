@@ -34,8 +34,13 @@
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
 #include <linux/mtd/mtd.h>
+<<<<<<< HEAD
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/nand_ecc.h>
+=======
+#include <linux/mtd/nand-ecc-sw-hamming.h>
+#include <linux/mtd/rawnand.h>
+>>>>>>> upstream/android-13
 #include <linux/mtd/partitions.h>
 #include <linux/slab.h>
 
@@ -103,7 +108,13 @@
 /*--------------------------------------------------------------------------*/
 
 struct tmio_nand {
+<<<<<<< HEAD
 	struct nand_chip chip;
+=======
+	struct nand_controller controller;
+	struct nand_chip chip;
+	struct completion comp;
+>>>>>>> upstream/android-13
 
 	struct platform_device *dev;
 
@@ -126,11 +137,18 @@ static inline struct tmio_nand *mtd_to_tmio(struct mtd_info *mtd)
 
 /*--------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static void tmio_nand_hwcontrol(struct mtd_info *mtd, int cmd,
 				   unsigned int ctrl)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
 	struct nand_chip *chip = mtd_to_nand(mtd);
+=======
+static void tmio_nand_hwcontrol(struct nand_chip *chip, int cmd,
+				unsigned int ctrl)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	if (ctrl & NAND_CTRL_CHANGE) {
 		u8 mode;
@@ -156,12 +174,21 @@ static void tmio_nand_hwcontrol(struct mtd_info *mtd, int cmd,
 	}
 
 	if (cmd != NAND_CMD_NONE)
+<<<<<<< HEAD
 		tmio_iowrite8(cmd, chip->IO_ADDR_W);
 }
 
 static int tmio_nand_dev_ready(struct mtd_info *mtd)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
+=======
+		tmio_iowrite8(cmd, chip->legacy.IO_ADDR_W);
+}
+
+static int tmio_nand_dev_ready(struct nand_chip *chip)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	return !(tmio_ioread8(tmio->fcr + FCR_STATUS) & FCR_STATUS_BUSY);
 }
@@ -169,6 +196,7 @@ static int tmio_nand_dev_ready(struct mtd_info *mtd)
 static irqreturn_t tmio_irq(int irq, void *__tmio)
 {
 	struct tmio_nand *tmio = __tmio;
+<<<<<<< HEAD
 	struct nand_chip *nand_chip = &tmio->chip;
 
 	/* disable RDYREQ interrupt */
@@ -178,6 +206,13 @@ static irqreturn_t tmio_irq(int irq, void *__tmio)
 		dev_warn(&tmio->dev->dev, "spurious interrupt\n");
 
 	wake_up(&nand_chip->controller->wq);
+=======
+
+	/* disable RDYREQ interrupt */
+	tmio_iowrite8(0x00, tmio->fcr + FCR_IMR);
+	complete(&tmio->comp);
+
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -187,14 +222,21 @@ static irqreturn_t tmio_irq(int irq, void *__tmio)
   *erase and write, we enable it to wake us up.  The irq handler
   *disables the interrupt.
  */
+<<<<<<< HEAD
 static int
 tmio_nand_wait(struct mtd_info *mtd, struct nand_chip *nand_chip)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
+=======
+static int tmio_nand_wait(struct nand_chip *nand_chip)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(nand_chip));
+>>>>>>> upstream/android-13
 	long timeout;
 	u8 status;
 
 	/* enable RDYREQ interrupt */
+<<<<<<< HEAD
 	tmio_iowrite8(0x0f, tmio->fcr + FCR_ISR);
 	tmio_iowrite8(0x81, tmio->fcr + FCR_IMR);
 
@@ -207,6 +249,20 @@ tmio_nand_wait(struct mtd_info *mtd, struct nand_chip *nand_chip)
 		dev_warn(&tmio->dev->dev, "still busy with %s after %d ms\n",
 			nand_chip->state == FL_ERASING ? "erase" : "program",
 			nand_chip->state == FL_ERASING ? 400 : 20);
+=======
+
+	tmio_iowrite8(0x0f, tmio->fcr + FCR_ISR);
+	reinit_completion(&tmio->comp);
+	tmio_iowrite8(0x81, tmio->fcr + FCR_IMR);
+
+	timeout = 400;
+	timeout = wait_for_completion_timeout(&tmio->comp,
+					      msecs_to_jiffies(timeout));
+
+	if (unlikely(!tmio_nand_dev_ready(nand_chip))) {
+		tmio_iowrite8(0x00, tmio->fcr + FCR_IMR);
+		dev_warn(&tmio->dev->dev, "still busy after 400 ms\n");
+>>>>>>> upstream/android-13
 
 	} else if (unlikely(!timeout)) {
 		tmio_iowrite8(0x00, tmio->fcr + FCR_IMR);
@@ -225,9 +281,15 @@ tmio_nand_wait(struct mtd_info *mtd, struct nand_chip *nand_chip)
   *To prevent stale data from being read, tmio_nand_hwcontrol() clears
   *tmio->read_good.
  */
+<<<<<<< HEAD
 static u_char tmio_nand_read_byte(struct mtd_info *mtd)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
+=======
+static u_char tmio_nand_read_byte(struct nand_chip *chip)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	unsigned int data;
 
 	if (tmio->read_good--)
@@ -245,33 +307,58 @@ static u_char tmio_nand_read_byte(struct mtd_info *mtd)
   *buffer functions.
  */
 static void
+<<<<<<< HEAD
 tmio_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
+=======
+tmio_nand_write_buf(struct nand_chip *chip, const u_char *buf, int len)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	tmio_iowrite16_rep(tmio->fcr + FCR_DATA, buf, len >> 1);
 }
 
+<<<<<<< HEAD
 static void tmio_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
+=======
+static void tmio_nand_read_buf(struct nand_chip *chip, u_char *buf, int len)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	tmio_ioread16_rep(tmio->fcr + FCR_DATA, buf, len >> 1);
 }
 
+<<<<<<< HEAD
 static void tmio_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
+=======
+static void tmio_nand_enable_hwecc(struct nand_chip *chip, int mode)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 
 	tmio_iowrite8(FCR_MODE_HWECC_RESET, tmio->fcr + FCR_MODE);
 	tmio_ioread8(tmio->fcr + FCR_DATA);	/* dummy read */
 	tmio_iowrite8(FCR_MODE_HWECC_CALC, tmio->fcr + FCR_MODE);
 }
 
+<<<<<<< HEAD
 static int tmio_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 							u_char *ecc_code)
 {
 	struct tmio_nand *tmio = mtd_to_tmio(mtd);
+=======
+static int tmio_nand_calculate_ecc(struct nand_chip *chip, const u_char *dat,
+				   u_char *ecc_code)
+{
+	struct tmio_nand *tmio = mtd_to_tmio(nand_to_mtd(chip));
+>>>>>>> upstream/android-13
 	unsigned int ecc;
 
 	tmio_iowrite8(FCR_MODE_HWECC_RESULT, tmio->fcr + FCR_MODE);
@@ -290,16 +377,31 @@ static int tmio_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tmio_nand_correct_data(struct mtd_info *mtd, unsigned char *buf,
 		unsigned char *read_ecc, unsigned char *calc_ecc)
+=======
+static int tmio_nand_correct_data(struct nand_chip *chip, unsigned char *buf,
+				  unsigned char *read_ecc,
+				  unsigned char *calc_ecc)
+>>>>>>> upstream/android-13
 {
 	int r0, r1;
 
 	/* assume ecc.size = 512 and ecc.bytes = 6 */
+<<<<<<< HEAD
 	r0 = __nand_correct_data(buf, read_ecc, calc_ecc, 256);
 	if (r0 < 0)
 		return r0;
 	r1 = __nand_correct_data(buf + 256, read_ecc + 3, calc_ecc + 3, 256);
+=======
+	r0 = ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
+				    chip->ecc.size, false);
+	if (r0 < 0)
+		return r0;
+	r1 = ecc_sw_hamming_correct(buf + 256, read_ecc + 3, calc_ecc + 3,
+				    chip->ecc.size, false);
+>>>>>>> upstream/android-13
 	if (r1 < 0)
 		return r1;
 	return r0 + r1;
@@ -358,6 +460,28 @@ static void tmio_hw_stop(struct platform_device *dev, struct tmio_nand *tmio)
 		cell->disable(dev);
 }
 
+<<<<<<< HEAD
+=======
+static int tmio_attach_chip(struct nand_chip *chip)
+{
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST)
+		return 0;
+
+	chip->ecc.size = 512;
+	chip->ecc.bytes = 6;
+	chip->ecc.strength = 2;
+	chip->ecc.hwctl = tmio_nand_enable_hwecc;
+	chip->ecc.calculate = tmio_nand_calculate_ecc;
+	chip->ecc.correct = tmio_nand_correct_data;
+
+	return 0;
+}
+
+static const struct nand_controller_ops tmio_ops = {
+	.attach_chip = tmio_attach_chip,
+};
+
+>>>>>>> upstream/android-13
 static int tmio_probe(struct platform_device *dev)
 {
 	struct tmio_nand_data *data = dev_get_platdata(&dev->dev);
@@ -378,6 +502,11 @@ static int tmio_probe(struct platform_device *dev)
 	if (!tmio)
 		return -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	init_completion(&tmio->comp);
+
+>>>>>>> upstream/android-13
 	tmio->dev = dev;
 
 	platform_set_drvdata(dev, tmio);
@@ -386,6 +515,13 @@ static int tmio_probe(struct platform_device *dev)
 	mtd->name = "tmio-nand";
 	mtd->dev.parent = &dev->dev;
 
+<<<<<<< HEAD
+=======
+	nand_controller_init(&tmio->controller);
+	tmio->controller.ops = &tmio_ops;
+	nand_chip->controller = &tmio->controller;
+
+>>>>>>> upstream/android-13
 	tmio->ccr = devm_ioremap(&dev->dev, ccr->start, resource_size(ccr));
 	if (!tmio->ccr)
 		return -EIO;
@@ -400,6 +536,7 @@ static int tmio_probe(struct platform_device *dev)
 		return retval;
 
 	/* Set address of NAND IO lines */
+<<<<<<< HEAD
 	nand_chip->IO_ADDR_R = tmio->fcr;
 	nand_chip->IO_ADDR_W = tmio->fcr;
 
@@ -418,12 +555,27 @@ static int tmio_probe(struct platform_device *dev)
 	nand_chip->ecc.hwctl = tmio_nand_enable_hwecc;
 	nand_chip->ecc.calculate = tmio_nand_calculate_ecc;
 	nand_chip->ecc.correct = tmio_nand_correct_data;
+=======
+	nand_chip->legacy.IO_ADDR_R = tmio->fcr;
+	nand_chip->legacy.IO_ADDR_W = tmio->fcr;
+
+	/* Set address of hardware control function */
+	nand_chip->legacy.cmd_ctrl = tmio_nand_hwcontrol;
+	nand_chip->legacy.dev_ready = tmio_nand_dev_ready;
+	nand_chip->legacy.read_byte = tmio_nand_read_byte;
+	nand_chip->legacy.write_buf = tmio_nand_write_buf;
+	nand_chip->legacy.read_buf = tmio_nand_read_buf;
+>>>>>>> upstream/android-13
 
 	if (data)
 		nand_chip->badblock_pattern = data->badblock_pattern;
 
 	/* 15 us command delay time */
+<<<<<<< HEAD
 	nand_chip->chip_delay = 15;
+=======
+	nand_chip->legacy.chip_delay = 15;
+>>>>>>> upstream/android-13
 
 	retval = devm_request_irq(&dev->dev, irq, &tmio_irq, 0,
 				  dev_name(&dev->dev), tmio);
@@ -433,7 +585,11 @@ static int tmio_probe(struct platform_device *dev)
 	}
 
 	tmio->irq = irq;
+<<<<<<< HEAD
 	nand_chip->waitfunc = tmio_nand_wait;
+=======
+	nand_chip->legacy.waitfunc = tmio_nand_wait;
+>>>>>>> upstream/android-13
 
 	/* Scan to find existence of the device */
 	retval = nand_scan(nand_chip, 1);
@@ -459,8 +615,17 @@ err_irq:
 static int tmio_remove(struct platform_device *dev)
 {
 	struct tmio_nand *tmio = platform_get_drvdata(dev);
+<<<<<<< HEAD
 
 	nand_release(&tmio->chip);
+=======
+	struct nand_chip *chip = &tmio->chip;
+	int ret;
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 	tmio_hw_stop(dev, tmio);
 	return 0;
 }

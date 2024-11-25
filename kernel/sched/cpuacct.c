@@ -5,6 +5,10 @@
  * Based on the work by Paul Menage (menage@google.com) and Balbir Singh
  * (balbir@in.ibm.com).
  */
+<<<<<<< HEAD
+=======
+#include <asm/irq_regs.h>
+>>>>>>> upstream/android-13
 #include "sched.h"
 
 /* Time spent by the tasks of the CPU accounting group executing in ... */
@@ -20,15 +24,22 @@ static const char * const cpuacct_stat_desc[] = {
 	[CPUACCT_STAT_SYSTEM] = "system",
 };
 
+<<<<<<< HEAD
 struct cpuacct_usage {
 	u64	usages[CPUACCT_STAT_NSTATS];
 };
 
+=======
+>>>>>>> upstream/android-13
 /* track CPU usage of a group of tasks and its child groups */
 struct cpuacct {
 	struct cgroup_subsys_state	css;
 	/* cpuusage holds pointer to a u64-type object on every CPU */
+<<<<<<< HEAD
 	struct cpuacct_usage __percpu	*cpuusage;
+=======
+	u64 __percpu	*cpuusage;
+>>>>>>> upstream/android-13
 	struct kernel_cpustat __percpu	*cpustat;
 };
 
@@ -48,7 +59,11 @@ static inline struct cpuacct *parent_ca(struct cpuacct *ca)
 	return css_ca(ca->css.parent);
 }
 
+<<<<<<< HEAD
 static DEFINE_PER_CPU(struct cpuacct_usage, root_cpuacct_cpuusage);
+=======
+static DEFINE_PER_CPU(u64, root_cpuacct_cpuusage);
+>>>>>>> upstream/android-13
 static struct cpuacct root_cpuacct = {
 	.cpustat	= &kernel_cpustat,
 	.cpuusage	= &root_cpuacct_cpuusage,
@@ -67,7 +82,11 @@ cpuacct_css_alloc(struct cgroup_subsys_state *parent_css)
 	if (!ca)
 		goto out;
 
+<<<<<<< HEAD
 	ca->cpuusage = alloc_percpu(struct cpuacct_usage);
+=======
+	ca->cpuusage = alloc_percpu(u64);
+>>>>>>> upstream/android-13
 	if (!ca->cpuusage)
 		goto out_free_ca;
 
@@ -98,12 +117,21 @@ static void cpuacct_css_free(struct cgroup_subsys_state *css)
 static u64 cpuacct_cpuusage_read(struct cpuacct *ca, int cpu,
 				 enum cpuacct_stat_index index)
 {
+<<<<<<< HEAD
 	struct cpuacct_usage *cpuusage = per_cpu_ptr(ca->cpuusage, cpu);
+=======
+	u64 *cpuusage = per_cpu_ptr(ca->cpuusage, cpu);
+	u64 *cpustat = per_cpu_ptr(ca->cpustat, cpu)->cpustat;
+>>>>>>> upstream/android-13
 	u64 data;
 
 	/*
 	 * We allow index == CPUACCT_STAT_NSTATS here to read
+<<<<<<< HEAD
 	 * the sum of suages.
+=======
+	 * the sum of usages.
+>>>>>>> upstream/android-13
 	 */
 	BUG_ON(index > CPUACCT_STAT_NSTATS);
 
@@ -111,6 +139,7 @@ static u64 cpuacct_cpuusage_read(struct cpuacct *ca, int cpu,
 	/*
 	 * Take rq->lock to make 64-bit read safe on 32-bit platforms.
 	 */
+<<<<<<< HEAD
 	raw_spin_lock_irq(&cpu_rq(cpu)->lock);
 #endif
 
@@ -126,20 +155,52 @@ static u64 cpuacct_cpuusage_read(struct cpuacct *ca, int cpu,
 
 #ifndef CONFIG_64BIT
 	raw_spin_unlock_irq(&cpu_rq(cpu)->lock);
+=======
+	raw_spin_rq_lock_irq(cpu_rq(cpu));
+#endif
+
+	switch (index) {
+	case CPUACCT_STAT_USER:
+		data = cpustat[CPUTIME_USER] + cpustat[CPUTIME_NICE];
+		break;
+	case CPUACCT_STAT_SYSTEM:
+		data = cpustat[CPUTIME_SYSTEM] + cpustat[CPUTIME_IRQ] +
+			cpustat[CPUTIME_SOFTIRQ];
+		break;
+	case CPUACCT_STAT_NSTATS:
+		data = *cpuusage;
+		break;
+	}
+
+#ifndef CONFIG_64BIT
+	raw_spin_rq_unlock_irq(cpu_rq(cpu));
+>>>>>>> upstream/android-13
 #endif
 
 	return data;
 }
 
+<<<<<<< HEAD
 static void cpuacct_cpuusage_write(struct cpuacct *ca, int cpu, u64 val)
 {
 	struct cpuacct_usage *cpuusage = per_cpu_ptr(ca->cpuusage, cpu);
 	int i;
+=======
+static void cpuacct_cpuusage_write(struct cpuacct *ca, int cpu)
+{
+	u64 *cpuusage = per_cpu_ptr(ca->cpuusage, cpu);
+	u64 *cpustat = per_cpu_ptr(ca->cpustat, cpu)->cpustat;
+
+	/* Don't allow to reset global kernel_cpustat */
+	if (ca == &root_cpuacct)
+		return;
+>>>>>>> upstream/android-13
 
 #ifndef CONFIG_64BIT
 	/*
 	 * Take rq->lock to make 64-bit write safe on 32-bit platforms.
 	 */
+<<<<<<< HEAD
 	raw_spin_lock_irq(&cpu_rq(cpu)->lock);
 #endif
 
@@ -148,6 +209,17 @@ static void cpuacct_cpuusage_write(struct cpuacct *ca, int cpu, u64 val)
 
 #ifndef CONFIG_64BIT
 	raw_spin_unlock_irq(&cpu_rq(cpu)->lock);
+=======
+	raw_spin_rq_lock_irq(cpu_rq(cpu));
+#endif
+	*cpuusage = 0;
+	cpustat[CPUTIME_USER] = cpustat[CPUTIME_NICE] = 0;
+	cpustat[CPUTIME_SYSTEM] = cpustat[CPUTIME_IRQ] = 0;
+	cpustat[CPUTIME_SOFTIRQ] = 0;
+
+#ifndef CONFIG_64BIT
+	raw_spin_rq_unlock_irq(cpu_rq(cpu));
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -195,7 +267,11 @@ static int cpuusage_write(struct cgroup_subsys_state *css, struct cftype *cft,
 		return -EINVAL;
 
 	for_each_possible_cpu(cpu)
+<<<<<<< HEAD
 		cpuacct_cpuusage_write(ca, cpu, 0);
+=======
+		cpuacct_cpuusage_write(ca, cpu);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -242,6 +318,7 @@ static int cpuacct_all_seq_show(struct seq_file *m, void *V)
 	seq_puts(m, "\n");
 
 	for_each_possible_cpu(cpu) {
+<<<<<<< HEAD
 		struct cpuacct_usage *cpuusage = per_cpu_ptr(ca->cpuusage, cpu);
 
 		seq_printf(m, "%d", cpu);
@@ -261,6 +338,12 @@ static int cpuacct_all_seq_show(struct seq_file *m, void *V)
 			raw_spin_unlock_irq(&cpu_rq(cpu)->lock);
 #endif
 		}
+=======
+		seq_printf(m, "%d", cpu);
+		for (index = 0; index < CPUACCT_STAT_NSTATS; index++)
+			seq_printf(m, " %llu",
+				   cpuacct_cpuusage_read(ca, cpu, index));
+>>>>>>> upstream/android-13
 		seq_puts(m, "\n");
 	}
 	return 0;
@@ -337,17 +420,26 @@ static struct cftype files[] = {
  */
 void cpuacct_charge(struct task_struct *tsk, u64 cputime)
 {
+<<<<<<< HEAD
 	struct cpuacct *ca;
 	int index = CPUACCT_STAT_SYSTEM;
 	struct pt_regs *regs = task_pt_regs(tsk);
 
 	if (regs && user_mode(regs))
 		index = CPUACCT_STAT_USER;
+=======
+	unsigned int cpu = task_cpu(tsk);
+	struct cpuacct *ca;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 
 	for (ca = task_ca(tsk); ca; ca = parent_ca(ca))
+<<<<<<< HEAD
 		this_cpu_ptr(ca->cpuusage)->usages[index] += cputime;
+=======
+		*per_cpu_ptr(ca->cpuusage, cpu) += cputime;
+>>>>>>> upstream/android-13
 
 	rcu_read_unlock();
 }
@@ -363,7 +455,11 @@ void cpuacct_account_field(struct task_struct *tsk, int index, u64 val)
 
 	rcu_read_lock();
 	for (ca = task_ca(tsk); ca != &root_cpuacct; ca = parent_ca(ca))
+<<<<<<< HEAD
 		this_cpu_ptr(ca->cpustat)->cpustat[index] += val;
+=======
+		__this_cpu_add(ca->cpustat->cpustat[index], val);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 }
 

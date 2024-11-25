@@ -7,19 +7,91 @@
 #include <linux/slab.h>
 #include <linux/bpf.h>
 #include <linux/bpf_perf_event.h>
+<<<<<<< HEAD
+=======
+#include <linux/btf.h>
+>>>>>>> upstream/android-13
 #include <linux/filter.h>
 #include <linux/uaccess.h>
 #include <linux/ctype.h>
 #include <linux/kprobes.h>
+<<<<<<< HEAD
 #include <linux/syscalls.h>
 #include <linux/error-injection.h>
+=======
+#include <linux/spinlock.h>
+#include <linux/syscalls.h>
+#include <linux/error-injection.h>
+#include <linux/btf_ids.h>
+#include <linux/bpf_lsm.h>
+
+#include <net/bpf_sk_storage.h>
+
+#include <uapi/linux/bpf.h>
+#include <uapi/linux/btf.h>
+
+#include <asm/tlb.h>
+>>>>>>> upstream/android-13
 
 #include "trace_probe.h"
 #include "trace.h"
 
+<<<<<<< HEAD
 u64 bpf_get_stackid(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
 u64 bpf_get_stack(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
 
+=======
+#define CREATE_TRACE_POINTS
+#include "bpf_trace.h"
+
+#define bpf_event_rcu_dereference(p)					\
+	rcu_dereference_protected(p, lockdep_is_held(&bpf_event_mutex))
+
+#ifdef CONFIG_MODULES
+struct bpf_trace_module {
+	struct module *module;
+	struct list_head list;
+};
+
+static LIST_HEAD(bpf_trace_modules);
+static DEFINE_MUTEX(bpf_module_mutex);
+
+static struct bpf_raw_event_map *bpf_get_raw_tracepoint_module(const char *name)
+{
+	struct bpf_raw_event_map *btp, *ret = NULL;
+	struct bpf_trace_module *btm;
+	unsigned int i;
+
+	mutex_lock(&bpf_module_mutex);
+	list_for_each_entry(btm, &bpf_trace_modules, list) {
+		for (i = 0; i < btm->module->num_bpf_raw_events; ++i) {
+			btp = &btm->module->bpf_raw_events[i];
+			if (!strcmp(btp->tp->name, name)) {
+				if (try_module_get(btm->module))
+					ret = btp;
+				goto out;
+			}
+		}
+	}
+out:
+	mutex_unlock(&bpf_module_mutex);
+	return ret;
+}
+#else
+static struct bpf_raw_event_map *bpf_get_raw_tracepoint_module(const char *name)
+{
+	return NULL;
+}
+#endif /* CONFIG_MODULES */
+
+u64 bpf_get_stackid(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
+u64 bpf_get_stack(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
+
+static int bpf_btf_printf_prepare(struct btf_ptr *ptr, u32 btf_ptr_size,
+				  u64 flags, const struct btf **btf,
+				  s32 *btf_id);
+
+>>>>>>> upstream/android-13
 /**
  * trace_call_bpf - invoke BPF program
  * @call: tracepoint event
@@ -38,10 +110,14 @@ unsigned int trace_call_bpf(struct trace_event_call *call, void *ctx)
 {
 	unsigned int ret;
 
+<<<<<<< HEAD
 	if (in_nmi()) /* not supported yet */
 		return 1;
 
 	preempt_disable();
+=======
+	cant_sleep();
+>>>>>>> upstream/android-13
 
 	if (unlikely(__this_cpu_inc_return(bpf_prog_active) != 1)) {
 		/*
@@ -58,7 +134,11 @@ unsigned int trace_call_bpf(struct trace_event_call *call, void *ctx)
 	 * Instead of moving rcu_read_lock/rcu_dereference/rcu_read_unlock
 	 * to all call sites, we did a bpf_prog_array_valid() there to check
 	 * whether call->prog_array is empty or not, which is
+<<<<<<< HEAD
 	 * a heurisitc to speed up execution.
+=======
+	 * a heuristic to speed up execution.
+>>>>>>> upstream/android-13
 	 *
 	 * If bpf_prog_array_valid() fetched prog_array was
 	 * non-NULL, we go into trace_call_bpf() and do the actual
@@ -69,6 +149,7 @@ unsigned int trace_call_bpf(struct trace_event_call *call, void *ctx)
 	 * out of events when it was updated in between this and the
 	 * rcu_dereference() which is accepted risk.
 	 */
+<<<<<<< HEAD
 	ret = BPF_PROG_RUN_ARRAY_CHECK(call->prog_array, ctx, BPF_PROG_RUN);
 
  out:
@@ -78,6 +159,15 @@ unsigned int trace_call_bpf(struct trace_event_call *call, void *ctx)
 	return ret;
 }
 EXPORT_SYMBOL_GPL(trace_call_bpf);
+=======
+	ret = BPF_PROG_RUN_ARRAY(call->prog_array, ctx, bpf_prog_run);
+
+ out:
+	__this_cpu_dec(bpf_prog_active);
+
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_BPF_KPROBE_OVERRIDE
 BPF_CALL_2(bpf_override_return, struct pt_regs *, regs, unsigned long, rc)
@@ -96,6 +186,7 @@ static const struct bpf_func_proto bpf_override_return_proto = {
 };
 #endif
 
+<<<<<<< HEAD
 BPF_CALL_3(bpf_probe_read, void *, dst, u32, size, const void *, unsafe_ptr)
 {
 	int ret;
@@ -109,6 +200,27 @@ BPF_CALL_3(bpf_probe_read, void *, dst, u32, size, const void *, unsafe_ptr)
 
 static const struct bpf_func_proto bpf_probe_read_proto = {
 	.func		= bpf_probe_read,
+=======
+static __always_inline int
+bpf_probe_read_user_common(void *dst, u32 size, const void __user *unsafe_ptr)
+{
+	int ret;
+
+	ret = copy_from_user_nofault(dst, unsafe_ptr, size);
+	if (unlikely(ret < 0))
+		memset(dst, 0, size);
+	return ret;
+}
+
+BPF_CALL_3(bpf_probe_read_user, void *, dst, u32, size,
+	   const void __user *, unsafe_ptr)
+{
+	return bpf_probe_read_user_common(dst, size, unsafe_ptr);
+}
+
+const struct bpf_func_proto bpf_probe_read_user_proto = {
+	.func		= bpf_probe_read_user,
+>>>>>>> upstream/android-13
 	.gpl_only	= true,
 	.ret_type	= RET_INTEGER,
 	.arg1_type	= ARG_PTR_TO_UNINIT_MEM,
@@ -116,7 +228,149 @@ static const struct bpf_func_proto bpf_probe_read_proto = {
 	.arg3_type	= ARG_ANYTHING,
 };
 
+<<<<<<< HEAD
 BPF_CALL_3(bpf_probe_write_user, void *, unsafe_ptr, const void *, src,
+=======
+static __always_inline int
+bpf_probe_read_user_str_common(void *dst, u32 size,
+			       const void __user *unsafe_ptr)
+{
+	int ret;
+
+	/*
+	 * NB: We rely on strncpy_from_user() not copying junk past the NUL
+	 * terminator into `dst`.
+	 *
+	 * strncpy_from_user() does long-sized strides in the fast path. If the
+	 * strncpy does not mask out the bytes after the NUL in `unsafe_ptr`,
+	 * then there could be junk after the NUL in `dst`. If user takes `dst`
+	 * and keys a hash map with it, then semantically identical strings can
+	 * occupy multiple entries in the map.
+	 */
+	ret = strncpy_from_user_nofault(dst, unsafe_ptr, size);
+	if (unlikely(ret < 0))
+		memset(dst, 0, size);
+	return ret;
+}
+
+BPF_CALL_3(bpf_probe_read_user_str, void *, dst, u32, size,
+	   const void __user *, unsafe_ptr)
+{
+	return bpf_probe_read_user_str_common(dst, size, unsafe_ptr);
+}
+
+const struct bpf_func_proto bpf_probe_read_user_str_proto = {
+	.func		= bpf_probe_read_user_str,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_UNINIT_MEM,
+	.arg2_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+static __always_inline int
+bpf_probe_read_kernel_common(void *dst, u32 size, const void *unsafe_ptr)
+{
+	int ret;
+
+	ret = copy_from_kernel_nofault(dst, unsafe_ptr, size);
+	if (unlikely(ret < 0))
+		memset(dst, 0, size);
+	return ret;
+}
+
+BPF_CALL_3(bpf_probe_read_kernel, void *, dst, u32, size,
+	   const void *, unsafe_ptr)
+{
+	return bpf_probe_read_kernel_common(dst, size, unsafe_ptr);
+}
+
+const struct bpf_func_proto bpf_probe_read_kernel_proto = {
+	.func		= bpf_probe_read_kernel,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_UNINIT_MEM,
+	.arg2_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+static __always_inline int
+bpf_probe_read_kernel_str_common(void *dst, u32 size, const void *unsafe_ptr)
+{
+	int ret;
+
+	/*
+	 * The strncpy_from_kernel_nofault() call will likely not fill the
+	 * entire buffer, but that's okay in this circumstance as we're probing
+	 * arbitrary memory anyway similar to bpf_probe_read_*() and might
+	 * as well probe the stack. Thus, memory is explicitly cleared
+	 * only in error case, so that improper users ignoring return
+	 * code altogether don't copy garbage; otherwise length of string
+	 * is returned that can be used for bpf_perf_event_output() et al.
+	 */
+	ret = strncpy_from_kernel_nofault(dst, unsafe_ptr, size);
+	if (unlikely(ret < 0))
+		memset(dst, 0, size);
+	return ret;
+}
+
+BPF_CALL_3(bpf_probe_read_kernel_str, void *, dst, u32, size,
+	   const void *, unsafe_ptr)
+{
+	return bpf_probe_read_kernel_str_common(dst, size, unsafe_ptr);
+}
+
+const struct bpf_func_proto bpf_probe_read_kernel_str_proto = {
+	.func		= bpf_probe_read_kernel_str,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_UNINIT_MEM,
+	.arg2_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
+BPF_CALL_3(bpf_probe_read_compat, void *, dst, u32, size,
+	   const void *, unsafe_ptr)
+{
+	if ((unsigned long)unsafe_ptr < TASK_SIZE) {
+		return bpf_probe_read_user_common(dst, size,
+				(__force void __user *)unsafe_ptr);
+	}
+	return bpf_probe_read_kernel_common(dst, size, unsafe_ptr);
+}
+
+static const struct bpf_func_proto bpf_probe_read_compat_proto = {
+	.func		= bpf_probe_read_compat,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_UNINIT_MEM,
+	.arg2_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg3_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_3(bpf_probe_read_compat_str, void *, dst, u32, size,
+	   const void *, unsafe_ptr)
+{
+	if ((unsigned long)unsafe_ptr < TASK_SIZE) {
+		return bpf_probe_read_user_str_common(dst, size,
+				(__force void __user *)unsafe_ptr);
+	}
+	return bpf_probe_read_kernel_str_common(dst, size, unsafe_ptr);
+}
+
+static const struct bpf_func_proto bpf_probe_read_compat_str_proto = {
+	.func		= bpf_probe_read_compat_str,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_UNINIT_MEM,
+	.arg2_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg3_type	= ARG_ANYTHING,
+};
+#endif /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
+
+BPF_CALL_3(bpf_probe_write_user, void __user *, unsafe_ptr, const void *, src,
+>>>>>>> upstream/android-13
 	   u32, size)
 {
 	/*
@@ -126,6 +380,13 @@ BPF_CALL_3(bpf_probe_write_user, void *, unsafe_ptr, const void *, src,
 	 * access_ok() should prevent writing to non-user memory, but in
 	 * some situations (nommu, temporary switch, etc) access_ok() does
 	 * not provide enough validation, hence the check on KERNEL_DS.
+<<<<<<< HEAD
+=======
+	 *
+	 * nmi_uaccess_okay() ensures the probe is not run in an interim
+	 * state, when the task or mm are switched. This is specifically
+	 * required to prevent the use of temporary mm.
+>>>>>>> upstream/android-13
 	 */
 
 	if (unlikely(in_interrupt() ||
@@ -133,10 +394,17 @@ BPF_CALL_3(bpf_probe_write_user, void *, unsafe_ptr, const void *, src,
 		return -EPERM;
 	if (unlikely(uaccess_kernel()))
 		return -EPERM;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, unsafe_ptr, size))
 		return -EPERM;
 
 	return probe_kernel_write(unsafe_ptr, src, size);
+=======
+	if (unlikely(!nmi_uaccess_okay()))
+		return -EPERM;
+
+	return copy_to_user_nofault(unsafe_ptr, src, size);
+>>>>>>> upstream/android-13
 }
 
 static const struct bpf_func_proto bpf_probe_write_user_proto = {
@@ -144,18 +412,29 @@ static const struct bpf_func_proto bpf_probe_write_user_proto = {
 	.gpl_only	= true,
 	.ret_type	= RET_INTEGER,
 	.arg1_type	= ARG_ANYTHING,
+<<<<<<< HEAD
 	.arg2_type	= ARG_PTR_TO_MEM,
+=======
+	.arg2_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+>>>>>>> upstream/android-13
 	.arg3_type	= ARG_CONST_SIZE,
 };
 
 static const struct bpf_func_proto *bpf_get_probe_write_proto(void)
 {
+<<<<<<< HEAD
+=======
+	if (!capable(CAP_SYS_ADMIN))
+		return NULL;
+
+>>>>>>> upstream/android-13
 	pr_warn_ratelimited("%s[%d] is installing a program with bpf_probe_write_user helper that may corrupt user memory!",
 			    current->comm, task_pid_nr(current));
 
 	return &bpf_probe_write_user_proto;
 }
 
+<<<<<<< HEAD
 /*
  * Only limited trace_printk() conversion specifiers allowed:
  * %d %i %u %x %ld %li %lu %lx %lld %lli %llu %llx %p %s
@@ -271,27 +550,154 @@ BPF_CALL_5(bpf_trace_printk, char *, fmt, u32, fmt_size, u64, arg1,
 	      : __BPF_ARG2_TP((u32)arg3, ##__VA_ARGS__)))
 
 	return __BPF_TP_EMIT();
+=======
+static DEFINE_RAW_SPINLOCK(trace_printk_lock);
+
+#define MAX_TRACE_PRINTK_VARARGS	3
+#define BPF_TRACE_PRINTK_SIZE		1024
+
+BPF_CALL_5(bpf_trace_printk, char *, fmt, u32, fmt_size, u64, arg1,
+	   u64, arg2, u64, arg3)
+{
+	u64 args[MAX_TRACE_PRINTK_VARARGS] = { arg1, arg2, arg3 };
+	u32 *bin_args;
+	static char buf[BPF_TRACE_PRINTK_SIZE];
+	unsigned long flags;
+	int ret;
+
+	ret = bpf_bprintf_prepare(fmt, fmt_size, args, &bin_args,
+				  MAX_TRACE_PRINTK_VARARGS);
+	if (ret < 0)
+		return ret;
+
+	raw_spin_lock_irqsave(&trace_printk_lock, flags);
+	ret = bstr_printf(buf, sizeof(buf), fmt, bin_args);
+
+	trace_bpf_trace_printk(buf);
+	raw_spin_unlock_irqrestore(&trace_printk_lock, flags);
+
+	bpf_bprintf_cleanup();
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static const struct bpf_func_proto bpf_trace_printk_proto = {
 	.func		= bpf_trace_printk,
 	.gpl_only	= true,
 	.ret_type	= RET_INTEGER,
+<<<<<<< HEAD
 	.arg1_type	= ARG_PTR_TO_MEM,
+=======
+	.arg1_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+>>>>>>> upstream/android-13
 	.arg2_type	= ARG_CONST_SIZE,
 };
 
 const struct bpf_func_proto *bpf_get_trace_printk_proto(void)
 {
 	/*
+<<<<<<< HEAD
 	 * this program might be calling bpf_trace_printk,
 	 * so allocate per-cpu printk buffers
 	 */
 	trace_printk_init_buffers();
+=======
+	 * This program might be calling bpf_trace_printk,
+	 * so enable the associated bpf_trace/bpf_trace_printk event.
+	 * Repeat this each time as it is possible a user has
+	 * disabled bpf_trace_printk events.  By loading a program
+	 * calling bpf_trace_printk() however the user has expressed
+	 * the intent to see such events.
+	 */
+	if (trace_set_clr_event("bpf_trace", "bpf_trace_printk", 1))
+		pr_warn_ratelimited("could not enable bpf_trace_printk events");
+>>>>>>> upstream/android-13
 
 	return &bpf_trace_printk_proto;
 }
 
+<<<<<<< HEAD
+=======
+#define MAX_SEQ_PRINTF_VARARGS		12
+
+BPF_CALL_5(bpf_seq_printf, struct seq_file *, m, char *, fmt, u32, fmt_size,
+	   const void *, data, u32, data_len)
+{
+	int err, num_args;
+	u32 *bin_args;
+
+	if (data_len & 7 || data_len > MAX_SEQ_PRINTF_VARARGS * 8 ||
+	    (data_len && !data))
+		return -EINVAL;
+	num_args = data_len / 8;
+
+	err = bpf_bprintf_prepare(fmt, fmt_size, data, &bin_args, num_args);
+	if (err < 0)
+		return err;
+
+	seq_bprintf(m, fmt, bin_args);
+
+	bpf_bprintf_cleanup();
+
+	return seq_has_overflowed(m) ? -EOVERFLOW : 0;
+}
+
+BTF_ID_LIST_SINGLE(btf_seq_file_ids, struct, seq_file)
+
+static const struct bpf_func_proto bpf_seq_printf_proto = {
+	.func		= bpf_seq_printf,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+	.arg1_btf_id	= &btf_seq_file_ids[0],
+	.arg2_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+	.arg3_type	= ARG_CONST_SIZE,
+	.arg4_type      = ARG_PTR_TO_MEM | PTR_MAYBE_NULL | MEM_RDONLY,
+	.arg5_type      = ARG_CONST_SIZE_OR_ZERO,
+};
+
+BPF_CALL_3(bpf_seq_write, struct seq_file *, m, const void *, data, u32, len)
+{
+	return seq_write(m, data, len) ? -EOVERFLOW : 0;
+}
+
+static const struct bpf_func_proto bpf_seq_write_proto = {
+	.func		= bpf_seq_write,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+	.arg1_btf_id	= &btf_seq_file_ids[0],
+	.arg2_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+	.arg3_type	= ARG_CONST_SIZE_OR_ZERO,
+};
+
+BPF_CALL_4(bpf_seq_printf_btf, struct seq_file *, m, struct btf_ptr *, ptr,
+	   u32, btf_ptr_size, u64, flags)
+{
+	const struct btf *btf;
+	s32 btf_id;
+	int ret;
+
+	ret = bpf_btf_printf_prepare(ptr, btf_ptr_size, flags, &btf, &btf_id);
+	if (ret)
+		return ret;
+
+	return btf_type_seq_show_flags(btf, btf_id, ptr->ptr, m, flags);
+}
+
+static const struct bpf_func_proto bpf_seq_printf_btf_proto = {
+	.func		= bpf_seq_printf_btf,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+	.arg1_btf_id	= &btf_seq_file_ids[0],
+	.arg2_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+	.arg3_type	= ARG_CONST_SIZE_OR_ZERO,
+	.arg4_type	= ARG_ANYTHING,
+};
+
+>>>>>>> upstream/android-13
 static __always_inline int
 get_map_perf_counter(struct bpf_map *map, u64 flags,
 		     u64 *value, u64 *enabled, u64 *running)
@@ -392,8 +798,12 @@ __bpf_perf_event_output(struct pt_regs *regs, struct bpf_map *map,
 	if (unlikely(event->oncpu != cpu))
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	perf_event_output(event, sd, regs);
 	return 0;
+=======
+	return perf_event_output(event, sd, regs);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -449,18 +859,35 @@ static const struct bpf_func_proto bpf_perf_event_output_proto = {
 	.arg1_type	= ARG_PTR_TO_CTX,
 	.arg2_type	= ARG_CONST_MAP_PTR,
 	.arg3_type	= ARG_ANYTHING,
+<<<<<<< HEAD
 	.arg4_type	= ARG_PTR_TO_MEM,
 	.arg5_type	= ARG_CONST_SIZE_OR_ZERO,
 };
 
 static DEFINE_PER_CPU(struct pt_regs, bpf_pt_regs);
 static DEFINE_PER_CPU(struct perf_sample_data, bpf_misc_sd);
+=======
+	.arg4_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+	.arg5_type	= ARG_CONST_SIZE_OR_ZERO,
+};
+
+static DEFINE_PER_CPU(int, bpf_event_output_nest_level);
+struct bpf_nested_pt_regs {
+	struct pt_regs regs[3];
+};
+static DEFINE_PER_CPU(struct bpf_nested_pt_regs, bpf_pt_regs);
+static DEFINE_PER_CPU(struct bpf_trace_sample_data, bpf_misc_sds);
+>>>>>>> upstream/android-13
 
 u64 bpf_event_output(struct bpf_map *map, u64 flags, void *meta, u64 meta_size,
 		     void *ctx, u64 ctx_size, bpf_ctx_copy_t ctx_copy)
 {
+<<<<<<< HEAD
 	struct perf_sample_data *sd = this_cpu_ptr(&bpf_misc_sd);
 	struct pt_regs *regs = this_cpu_ptr(&bpf_pt_regs);
+=======
+	int nest_level = this_cpu_inc_return(bpf_event_output_nest_level);
+>>>>>>> upstream/android-13
 	struct perf_raw_frag frag = {
 		.copy		= ctx_copy,
 		.size		= ctx_size,
@@ -475,12 +902,32 @@ u64 bpf_event_output(struct bpf_map *map, u64 flags, void *meta, u64 meta_size,
 			.data	= meta,
 		},
 	};
+<<<<<<< HEAD
+=======
+	struct perf_sample_data *sd;
+	struct pt_regs *regs;
+	u64 ret;
+
+	if (WARN_ON_ONCE(nest_level > ARRAY_SIZE(bpf_misc_sds.sds))) {
+		ret = -EBUSY;
+		goto out;
+	}
+	sd = this_cpu_ptr(&bpf_misc_sds.sds[nest_level - 1]);
+	regs = this_cpu_ptr(&bpf_pt_regs.regs[nest_level - 1]);
+>>>>>>> upstream/android-13
 
 	perf_fetch_caller_regs(regs);
 	perf_sample_data_init(sd, 0, 0);
 	sd->raw = &raw;
 
+<<<<<<< HEAD
 	return __bpf_perf_event_output(regs, map, flags, sd);
+=======
+	ret = __bpf_perf_event_output(regs, map, flags, sd);
+out:
+	this_cpu_dec(bpf_event_output_nest_level);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 BPF_CALL_0(bpf_get_current_task)
@@ -488,12 +935,48 @@ BPF_CALL_0(bpf_get_current_task)
 	return (long) current;
 }
 
+<<<<<<< HEAD
 static const struct bpf_func_proto bpf_get_current_task_proto = {
+=======
+const struct bpf_func_proto bpf_get_current_task_proto = {
+>>>>>>> upstream/android-13
 	.func		= bpf_get_current_task,
 	.gpl_only	= true,
 	.ret_type	= RET_INTEGER,
 };
 
+<<<<<<< HEAD
+=======
+BPF_CALL_0(bpf_get_current_task_btf)
+{
+	return (unsigned long) current;
+}
+
+const struct bpf_func_proto bpf_get_current_task_btf_proto = {
+	.func		= bpf_get_current_task_btf,
+	.gpl_only	= true,
+	.ret_type	= RET_PTR_TO_BTF_ID,
+	.ret_btf_id	= &btf_task_struct_ids[0],
+};
+
+BPF_CALL_1(bpf_task_pt_regs, struct task_struct *, task)
+{
+	return (unsigned long) task_pt_regs(task);
+}
+
+BTF_ID_LIST(bpf_task_pt_regs_ids)
+BTF_ID(struct, pt_regs)
+
+const struct bpf_func_proto bpf_task_pt_regs_proto = {
+	.func		= bpf_task_pt_regs,
+	.gpl_only	= true,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+	.arg1_btf_id	= &btf_task_struct_ids[0],
+	.ret_type	= RET_PTR_TO_BTF_ID,
+	.ret_btf_id	= &bpf_task_pt_regs_ids[0],
+};
+
+>>>>>>> upstream/android-13
 BPF_CALL_2(bpf_current_task_under_cgroup, struct bpf_map *, map, u32, idx)
 {
 	struct bpf_array *array = container_of(map, struct bpf_array, map);
@@ -517,6 +1000,7 @@ static const struct bpf_func_proto bpf_current_task_under_cgroup_proto = {
 	.arg2_type      = ARG_ANYTHING,
 };
 
+<<<<<<< HEAD
 BPF_CALL_3(bpf_probe_read_str, void *, dst, u32, size,
 	   const void *, unsafe_ptr)
 {
@@ -549,6 +1033,266 @@ static const struct bpf_func_proto bpf_probe_read_str_proto = {
 
 static const struct bpf_func_proto *
 tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+=======
+struct send_signal_irq_work {
+	struct irq_work irq_work;
+	struct task_struct *task;
+	u32 sig;
+	enum pid_type type;
+};
+
+static DEFINE_PER_CPU(struct send_signal_irq_work, send_signal_work);
+
+static void do_bpf_send_signal(struct irq_work *entry)
+{
+	struct send_signal_irq_work *work;
+
+	work = container_of(entry, struct send_signal_irq_work, irq_work);
+	group_send_sig_info(work->sig, SEND_SIG_PRIV, work->task, work->type);
+}
+
+static int bpf_send_signal_common(u32 sig, enum pid_type type)
+{
+	struct send_signal_irq_work *work = NULL;
+
+	/* Similar to bpf_probe_write_user, task needs to be
+	 * in a sound condition and kernel memory access be
+	 * permitted in order to send signal to the current
+	 * task.
+	 */
+	if (unlikely(current->flags & (PF_KTHREAD | PF_EXITING)))
+		return -EPERM;
+	if (unlikely(uaccess_kernel()))
+		return -EPERM;
+	if (unlikely(!nmi_uaccess_okay()))
+		return -EPERM;
+
+	if (irqs_disabled()) {
+		/* Do an early check on signal validity. Otherwise,
+		 * the error is lost in deferred irq_work.
+		 */
+		if (unlikely(!valid_signal(sig)))
+			return -EINVAL;
+
+		work = this_cpu_ptr(&send_signal_work);
+		if (irq_work_is_busy(&work->irq_work))
+			return -EBUSY;
+
+		/* Add the current task, which is the target of sending signal,
+		 * to the irq_work. The current task may change when queued
+		 * irq works get executed.
+		 */
+		work->task = current;
+		work->sig = sig;
+		work->type = type;
+		irq_work_queue(&work->irq_work);
+		return 0;
+	}
+
+	return group_send_sig_info(sig, SEND_SIG_PRIV, current, type);
+}
+
+BPF_CALL_1(bpf_send_signal, u32, sig)
+{
+	return bpf_send_signal_common(sig, PIDTYPE_TGID);
+}
+
+static const struct bpf_func_proto bpf_send_signal_proto = {
+	.func		= bpf_send_signal,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_1(bpf_send_signal_thread, u32, sig)
+{
+	return bpf_send_signal_common(sig, PIDTYPE_PID);
+}
+
+static const struct bpf_func_proto bpf_send_signal_thread_proto = {
+	.func		= bpf_send_signal_thread,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_3(bpf_d_path, struct path *, path, char *, buf, u32, sz)
+{
+	long len;
+	char *p;
+
+	if (!sz)
+		return 0;
+
+	p = d_path(path, buf, sz);
+	if (IS_ERR(p)) {
+		len = PTR_ERR(p);
+	} else {
+		len = buf + sz - p;
+		memmove(buf, p, len);
+	}
+
+	return len;
+}
+
+BTF_SET_START(btf_allowlist_d_path)
+#ifdef CONFIG_SECURITY
+BTF_ID(func, security_file_permission)
+BTF_ID(func, security_inode_getattr)
+BTF_ID(func, security_file_open)
+#endif
+#ifdef CONFIG_SECURITY_PATH
+BTF_ID(func, security_path_truncate)
+#endif
+BTF_ID(func, vfs_truncate)
+BTF_ID(func, vfs_fallocate)
+BTF_ID(func, dentry_open)
+BTF_ID(func, vfs_getattr)
+BTF_ID(func, filp_close)
+BTF_SET_END(btf_allowlist_d_path)
+
+static bool bpf_d_path_allowed(const struct bpf_prog *prog)
+{
+	if (prog->type == BPF_PROG_TYPE_TRACING &&
+	    prog->expected_attach_type == BPF_TRACE_ITER)
+		return true;
+
+	if (prog->type == BPF_PROG_TYPE_LSM)
+		return bpf_lsm_is_sleepable_hook(prog->aux->attach_btf_id);
+
+	return btf_id_set_contains(&btf_allowlist_d_path,
+				   prog->aux->attach_btf_id);
+}
+
+BTF_ID_LIST_SINGLE(bpf_d_path_btf_ids, struct, path)
+
+static const struct bpf_func_proto bpf_d_path_proto = {
+	.func		= bpf_d_path,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_BTF_ID,
+	.arg1_btf_id	= &bpf_d_path_btf_ids[0],
+	.arg2_type	= ARG_PTR_TO_MEM,
+	.arg3_type	= ARG_CONST_SIZE_OR_ZERO,
+	.allowed	= bpf_d_path_allowed,
+};
+
+#define BTF_F_ALL	(BTF_F_COMPACT  | BTF_F_NONAME | \
+			 BTF_F_PTR_RAW | BTF_F_ZERO)
+
+static int bpf_btf_printf_prepare(struct btf_ptr *ptr, u32 btf_ptr_size,
+				  u64 flags, const struct btf **btf,
+				  s32 *btf_id)
+{
+	const struct btf_type *t;
+
+	if (unlikely(flags & ~(BTF_F_ALL)))
+		return -EINVAL;
+
+	if (btf_ptr_size != sizeof(struct btf_ptr))
+		return -EINVAL;
+
+	*btf = bpf_get_btf_vmlinux();
+
+	if (IS_ERR_OR_NULL(*btf))
+		return IS_ERR(*btf) ? PTR_ERR(*btf) : -EINVAL;
+
+	if (ptr->type_id > 0)
+		*btf_id = ptr->type_id;
+	else
+		return -EINVAL;
+
+	if (*btf_id > 0)
+		t = btf_type_by_id(*btf, *btf_id);
+	if (*btf_id <= 0 || !t)
+		return -ENOENT;
+
+	return 0;
+}
+
+BPF_CALL_5(bpf_snprintf_btf, char *, str, u32, str_size, struct btf_ptr *, ptr,
+	   u32, btf_ptr_size, u64, flags)
+{
+	const struct btf *btf;
+	s32 btf_id;
+	int ret;
+
+	ret = bpf_btf_printf_prepare(ptr, btf_ptr_size, flags, &btf, &btf_id);
+	if (ret)
+		return ret;
+
+	return btf_type_snprintf_show(btf, btf_id, ptr->ptr, str, str_size,
+				      flags);
+}
+
+const struct bpf_func_proto bpf_snprintf_btf_proto = {
+	.func		= bpf_snprintf_btf,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_MEM,
+	.arg2_type	= ARG_CONST_SIZE,
+	.arg3_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+	.arg4_type	= ARG_CONST_SIZE,
+	.arg5_type	= ARG_ANYTHING,
+};
+
+BPF_CALL_1(bpf_get_func_ip_tracing, void *, ctx)
+{
+	/* This helper call is inlined by verifier. */
+	return ((u64 *)ctx)[-1];
+}
+
+static const struct bpf_func_proto bpf_get_func_ip_proto_tracing = {
+	.func		= bpf_get_func_ip_tracing,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_CTX,
+};
+
+BPF_CALL_1(bpf_get_func_ip_kprobe, struct pt_regs *, regs)
+{
+	struct kprobe *kp = kprobe_running();
+
+	return kp ? (uintptr_t)kp->addr : 0;
+}
+
+static const struct bpf_func_proto bpf_get_func_ip_proto_kprobe = {
+	.func		= bpf_get_func_ip_kprobe,
+	.gpl_only	= true,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_CTX,
+};
+
+BPF_CALL_1(bpf_get_attach_cookie_trace, void *, ctx)
+{
+	struct bpf_trace_run_ctx *run_ctx;
+
+	run_ctx = container_of(current->bpf_ctx, struct bpf_trace_run_ctx, run_ctx);
+	return run_ctx->bpf_cookie;
+}
+
+static const struct bpf_func_proto bpf_get_attach_cookie_proto_trace = {
+	.func		= bpf_get_attach_cookie_trace,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_CTX,
+};
+
+BPF_CALL_1(bpf_get_attach_cookie_pe, struct bpf_perf_event_data_kern *, ctx)
+{
+	return ctx->event->bpf_cookie;
+}
+
+static const struct bpf_func_proto bpf_get_attach_cookie_proto_pe = {
+	.func		= bpf_get_attach_cookie_pe,
+	.gpl_only	= false,
+	.ret_type	= RET_INTEGER,
+	.arg1_type	= ARG_PTR_TO_CTX,
+};
+
+static const struct bpf_func_proto *
+bpf_tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+>>>>>>> upstream/android-13
 {
 	switch (func_id) {
 	case BPF_FUNC_map_lookup_elem:
@@ -557,8 +1301,17 @@ tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_map_update_elem_proto;
 	case BPF_FUNC_map_delete_elem:
 		return &bpf_map_delete_elem_proto;
+<<<<<<< HEAD
 	case BPF_FUNC_probe_read:
 		return &bpf_probe_read_proto;
+=======
+	case BPF_FUNC_map_push_elem:
+		return &bpf_map_push_elem_proto;
+	case BPF_FUNC_map_pop_elem:
+		return &bpf_map_pop_elem_proto;
+	case BPF_FUNC_map_peek_elem:
+		return &bpf_map_peek_elem_proto;
+>>>>>>> upstream/android-13
 	case BPF_FUNC_ktime_get_ns:
 		return &bpf_ktime_get_ns_proto;
 	case BPF_FUNC_ktime_get_boot_ns:
@@ -569,6 +1322,13 @@ tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_get_current_pid_tgid_proto;
 	case BPF_FUNC_get_current_task:
 		return &bpf_get_current_task_proto;
+<<<<<<< HEAD
+=======
+	case BPF_FUNC_get_current_task_btf:
+		return &bpf_get_current_task_btf_proto;
+	case BPF_FUNC_task_pt_regs:
+		return &bpf_task_pt_regs_proto;
+>>>>>>> upstream/android-13
 	case BPF_FUNC_get_current_uid_gid:
 		return &bpf_get_current_uid_gid_proto;
 	case BPF_FUNC_get_current_comm:
@@ -581,12 +1341,16 @@ tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_get_numa_node_id_proto;
 	case BPF_FUNC_perf_event_read:
 		return &bpf_perf_event_read_proto;
+<<<<<<< HEAD
 	case BPF_FUNC_probe_write_user:
 		return bpf_get_probe_write_proto();
+=======
+>>>>>>> upstream/android-13
 	case BPF_FUNC_current_task_under_cgroup:
 		return &bpf_current_task_under_cgroup_proto;
 	case BPF_FUNC_get_prandom_u32:
 		return &bpf_get_prandom_u32_proto;
+<<<<<<< HEAD
 	case BPF_FUNC_probe_read_str:
 		return &bpf_probe_read_str_proto;
 #ifdef CONFIG_CGROUPS
@@ -595,6 +1359,77 @@ tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 #endif
 	default:
 		return NULL;
+=======
+	case BPF_FUNC_probe_write_user:
+		return security_locked_down(LOCKDOWN_BPF_WRITE_USER) < 0 ?
+		       NULL : bpf_get_probe_write_proto();
+	case BPF_FUNC_probe_read_user:
+		return &bpf_probe_read_user_proto;
+	case BPF_FUNC_probe_read_kernel:
+		return security_locked_down(LOCKDOWN_BPF_READ_KERNEL) < 0 ?
+		       NULL : &bpf_probe_read_kernel_proto;
+	case BPF_FUNC_probe_read_user_str:
+		return &bpf_probe_read_user_str_proto;
+	case BPF_FUNC_probe_read_kernel_str:
+		return security_locked_down(LOCKDOWN_BPF_READ_KERNEL) < 0 ?
+		       NULL : &bpf_probe_read_kernel_str_proto;
+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
+	case BPF_FUNC_probe_read:
+		return security_locked_down(LOCKDOWN_BPF_READ_KERNEL) < 0 ?
+		       NULL : &bpf_probe_read_compat_proto;
+	case BPF_FUNC_probe_read_str:
+		return security_locked_down(LOCKDOWN_BPF_READ_KERNEL) < 0 ?
+		       NULL : &bpf_probe_read_compat_str_proto;
+#endif
+#ifdef CONFIG_CGROUPS
+	case BPF_FUNC_get_current_cgroup_id:
+		return &bpf_get_current_cgroup_id_proto;
+	case BPF_FUNC_get_current_ancestor_cgroup_id:
+		return &bpf_get_current_ancestor_cgroup_id_proto;
+#endif
+	case BPF_FUNC_send_signal:
+		return &bpf_send_signal_proto;
+	case BPF_FUNC_send_signal_thread:
+		return &bpf_send_signal_thread_proto;
+	case BPF_FUNC_perf_event_read_value:
+		return &bpf_perf_event_read_value_proto;
+	case BPF_FUNC_get_ns_current_pid_tgid:
+		return &bpf_get_ns_current_pid_tgid_proto;
+	case BPF_FUNC_ringbuf_output:
+		return &bpf_ringbuf_output_proto;
+	case BPF_FUNC_ringbuf_reserve:
+		return &bpf_ringbuf_reserve_proto;
+	case BPF_FUNC_ringbuf_submit:
+		return &bpf_ringbuf_submit_proto;
+	case BPF_FUNC_ringbuf_discard:
+		return &bpf_ringbuf_discard_proto;
+	case BPF_FUNC_ringbuf_query:
+		return &bpf_ringbuf_query_proto;
+	case BPF_FUNC_jiffies64:
+		return &bpf_jiffies64_proto;
+	case BPF_FUNC_get_task_stack:
+		return &bpf_get_task_stack_proto;
+	case BPF_FUNC_copy_from_user:
+		return prog->aux->sleepable ? &bpf_copy_from_user_proto : NULL;
+	case BPF_FUNC_snprintf_btf:
+		return &bpf_snprintf_btf_proto;
+	case BPF_FUNC_per_cpu_ptr:
+		return &bpf_per_cpu_ptr_proto;
+	case BPF_FUNC_this_cpu_ptr:
+		return &bpf_this_cpu_ptr_proto;
+	case BPF_FUNC_task_storage_get:
+		return &bpf_task_storage_get_proto;
+	case BPF_FUNC_task_storage_delete:
+		return &bpf_task_storage_delete_proto;
+	case BPF_FUNC_for_each_map_elem:
+		return &bpf_for_each_map_elem_proto;
+	case BPF_FUNC_snprintf:
+		return &bpf_snprintf_proto;
+	case BPF_FUNC_get_func_ip:
+		return &bpf_get_func_ip_proto_tracing;
+	default:
+		return bpf_base_func_proto(func_id);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -608,14 +1443,26 @@ kprobe_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_get_stackid_proto;
 	case BPF_FUNC_get_stack:
 		return &bpf_get_stack_proto;
+<<<<<<< HEAD
 	case BPF_FUNC_perf_event_read_value:
 		return &bpf_perf_event_read_value_proto;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BPF_KPROBE_OVERRIDE
 	case BPF_FUNC_override_return:
 		return &bpf_override_return_proto;
 #endif
+<<<<<<< HEAD
 	default:
 		return tracing_func_proto(func_id, prog);
+=======
+	case BPF_FUNC_get_func_ip:
+		return &bpf_get_func_ip_proto_kprobe;
+	case BPF_FUNC_get_attach_cookie:
+		return &bpf_get_attach_cookie_proto_trace;
+	default:
+		return bpf_tracing_func_proto(func_id, prog);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -668,7 +1515,11 @@ static const struct bpf_func_proto bpf_perf_event_output_proto_tp = {
 	.arg1_type	= ARG_PTR_TO_CTX,
 	.arg2_type	= ARG_CONST_MAP_PTR,
 	.arg3_type	= ARG_ANYTHING,
+<<<<<<< HEAD
 	.arg4_type	= ARG_PTR_TO_MEM,
+=======
+	.arg4_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+>>>>>>> upstream/android-13
 	.arg5_type	= ARG_CONST_SIZE_OR_ZERO,
 };
 
@@ -724,8 +1575,15 @@ tp_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_get_stackid_proto_tp;
 	case BPF_FUNC_get_stack:
 		return &bpf_get_stack_proto_tp;
+<<<<<<< HEAD
 	default:
 		return tracing_func_proto(func_id, prog);
+=======
+	case BPF_FUNC_get_attach_cookie:
+		return &bpf_get_attach_cookie_proto_trace;
+	default:
+		return bpf_tracing_func_proto(func_id, prog);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -778,6 +1636,44 @@ static const struct bpf_func_proto bpf_perf_prog_read_value_proto = {
          .arg3_type      = ARG_CONST_SIZE,
 };
 
+<<<<<<< HEAD
+=======
+BPF_CALL_4(bpf_read_branch_records, struct bpf_perf_event_data_kern *, ctx,
+	   void *, buf, u32, size, u64, flags)
+{
+	static const u32 br_entry_size = sizeof(struct perf_branch_entry);
+	struct perf_branch_stack *br_stack = ctx->data->br_stack;
+	u32 to_copy;
+
+	if (unlikely(flags & ~BPF_F_GET_BRANCH_RECORDS_SIZE))
+		return -EINVAL;
+
+	if (unlikely(!br_stack))
+		return -ENOENT;
+
+	if (flags & BPF_F_GET_BRANCH_RECORDS_SIZE)
+		return br_stack->nr * br_entry_size;
+
+	if (!buf || (size % br_entry_size != 0))
+		return -EINVAL;
+
+	to_copy = min_t(u32, br_stack->nr * br_entry_size, size);
+	memcpy(buf, br_stack->entries, to_copy);
+
+	return to_copy;
+}
+
+static const struct bpf_func_proto bpf_read_branch_records_proto = {
+	.func           = bpf_read_branch_records,
+	.gpl_only       = true,
+	.ret_type       = RET_INTEGER,
+	.arg1_type      = ARG_PTR_TO_CTX,
+	.arg2_type      = ARG_PTR_TO_MEM_OR_NULL,
+	.arg3_type      = ARG_CONST_SIZE_OR_ZERO,
+	.arg4_type      = ARG_ANYTHING,
+};
+
+>>>>>>> upstream/android-13
 static const struct bpf_func_proto *
 pe_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
@@ -785,6 +1681,7 @@ pe_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	case BPF_FUNC_perf_event_output:
 		return &bpf_perf_event_output_proto_tp;
 	case BPF_FUNC_get_stackid:
+<<<<<<< HEAD
 		return &bpf_get_stackid_proto_tp;
 	case BPF_FUNC_get_stack:
 		return &bpf_get_stack_proto_tp;
@@ -792,6 +1689,19 @@ pe_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_perf_prog_read_value_proto;
 	default:
 		return tracing_func_proto(func_id, prog);
+=======
+		return &bpf_get_stackid_proto_pe;
+	case BPF_FUNC_get_stack:
+		return &bpf_get_stack_proto_pe;
+	case BPF_FUNC_perf_prog_read_value:
+		return &bpf_perf_prog_read_value_proto;
+	case BPF_FUNC_read_branch_records:
+		return &bpf_read_branch_records_proto;
+	case BPF_FUNC_get_attach_cookie:
+		return &bpf_get_attach_cookie_proto_pe;
+	default:
+		return bpf_tracing_func_proto(func_id, prog);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -849,10 +1759,20 @@ static const struct bpf_func_proto bpf_perf_event_output_proto_raw_tp = {
 	.arg1_type	= ARG_PTR_TO_CTX,
 	.arg2_type	= ARG_CONST_MAP_PTR,
 	.arg3_type	= ARG_ANYTHING,
+<<<<<<< HEAD
 	.arg4_type	= ARG_PTR_TO_MEM,
 	.arg5_type	= ARG_CONST_SIZE_OR_ZERO,
 };
 
+=======
+	.arg4_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+	.arg5_type	= ARG_CONST_SIZE_OR_ZERO,
+};
+
+extern const struct bpf_func_proto bpf_skb_output_proto;
+extern const struct bpf_func_proto bpf_xdp_output_proto;
+
+>>>>>>> upstream/android-13
 BPF_CALL_3(bpf_get_stackid_raw_tp, struct bpf_raw_tracepoint_args *, args,
 	   struct bpf_map *, map, u64, flags)
 {
@@ -900,7 +1820,11 @@ static const struct bpf_func_proto bpf_get_stack_proto_raw_tp = {
 	.gpl_only	= true,
 	.ret_type	= RET_INTEGER,
 	.arg1_type	= ARG_PTR_TO_CTX,
+<<<<<<< HEAD
 	.arg2_type	= ARG_PTR_TO_MEM,
+=======
+	.arg2_type	= ARG_PTR_TO_MEM | MEM_RDONLY,
+>>>>>>> upstream/android-13
 	.arg3_type	= ARG_CONST_SIZE_OR_ZERO,
 	.arg4_type	= ARG_ANYTHING,
 };
@@ -916,7 +1840,63 @@ raw_tp_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	case BPF_FUNC_get_stack:
 		return &bpf_get_stack_proto_raw_tp;
 	default:
+<<<<<<< HEAD
 		return tracing_func_proto(func_id, prog);
+=======
+		return bpf_tracing_func_proto(func_id, prog);
+	}
+}
+
+const struct bpf_func_proto *
+tracing_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+{
+	const struct bpf_func_proto *fn;
+
+	switch (func_id) {
+#ifdef CONFIG_NET
+	case BPF_FUNC_skb_output:
+		return &bpf_skb_output_proto;
+	case BPF_FUNC_xdp_output:
+		return &bpf_xdp_output_proto;
+	case BPF_FUNC_skc_to_tcp6_sock:
+		return &bpf_skc_to_tcp6_sock_proto;
+	case BPF_FUNC_skc_to_tcp_sock:
+		return &bpf_skc_to_tcp_sock_proto;
+	case BPF_FUNC_skc_to_tcp_timewait_sock:
+		return &bpf_skc_to_tcp_timewait_sock_proto;
+	case BPF_FUNC_skc_to_tcp_request_sock:
+		return &bpf_skc_to_tcp_request_sock_proto;
+	case BPF_FUNC_skc_to_udp6_sock:
+		return &bpf_skc_to_udp6_sock_proto;
+	case BPF_FUNC_sk_storage_get:
+		return &bpf_sk_storage_get_tracing_proto;
+	case BPF_FUNC_sk_storage_delete:
+		return &bpf_sk_storage_delete_tracing_proto;
+	case BPF_FUNC_sock_from_file:
+		return &bpf_sock_from_file_proto;
+	case BPF_FUNC_get_socket_cookie:
+		return &bpf_get_socket_ptr_cookie_proto;
+#endif
+	case BPF_FUNC_seq_printf:
+		return prog->expected_attach_type == BPF_TRACE_ITER ?
+		       &bpf_seq_printf_proto :
+		       NULL;
+	case BPF_FUNC_seq_write:
+		return prog->expected_attach_type == BPF_TRACE_ITER ?
+		       &bpf_seq_write_proto :
+		       NULL;
+	case BPF_FUNC_seq_printf_btf:
+		return prog->expected_attach_type == BPF_TRACE_ITER ?
+		       &bpf_seq_printf_btf_proto :
+		       NULL;
+	case BPF_FUNC_d_path:
+		return &bpf_d_path_proto;
+	default:
+		fn = raw_tp_prog_func_proto(func_id, prog);
+		if (!fn && prog->expected_attach_type == BPF_TRACE_ITER)
+			fn = bpf_iter_get_func_proto(func_id, prog);
+		return fn;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -925,8 +1905,12 @@ static bool raw_tp_prog_is_valid_access(int off, int size,
 					const struct bpf_prog *prog,
 					struct bpf_insn_access_aux *info)
 {
+<<<<<<< HEAD
 	/* largest tracepoint in the kernel has 12 args */
 	if (off < 0 || off >= sizeof(__u64) * 12)
+=======
+	if (off < 0 || off >= sizeof(__u64) * MAX_BPF_FUNC_ARGS)
+>>>>>>> upstream/android-13
 		return false;
 	if (type != BPF_READ)
 		return false;
@@ -935,12 +1919,72 @@ static bool raw_tp_prog_is_valid_access(int off, int size,
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static bool tracing_prog_is_valid_access(int off, int size,
+					 enum bpf_access_type type,
+					 const struct bpf_prog *prog,
+					 struct bpf_insn_access_aux *info)
+{
+	if (off < 0 || off >= sizeof(__u64) * MAX_BPF_FUNC_ARGS)
+		return false;
+	if (type != BPF_READ)
+		return false;
+	if (off % size != 0)
+		return false;
+	return btf_ctx_access(off, size, type, prog, info);
+}
+
+int __weak bpf_prog_test_run_tracing(struct bpf_prog *prog,
+				     const union bpf_attr *kattr,
+				     union bpf_attr __user *uattr)
+{
+	return -ENOTSUPP;
+}
+
+>>>>>>> upstream/android-13
 const struct bpf_verifier_ops raw_tracepoint_verifier_ops = {
 	.get_func_proto  = raw_tp_prog_func_proto,
 	.is_valid_access = raw_tp_prog_is_valid_access,
 };
 
 const struct bpf_prog_ops raw_tracepoint_prog_ops = {
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_NET
+	.test_run = bpf_prog_test_run_raw_tp,
+#endif
+};
+
+const struct bpf_verifier_ops tracing_verifier_ops = {
+	.get_func_proto  = tracing_prog_func_proto,
+	.is_valid_access = tracing_prog_is_valid_access,
+};
+
+const struct bpf_prog_ops tracing_prog_ops = {
+	.test_run = bpf_prog_test_run_tracing,
+};
+
+static bool raw_tp_writable_prog_is_valid_access(int off, int size,
+						 enum bpf_access_type type,
+						 const struct bpf_prog *prog,
+						 struct bpf_insn_access_aux *info)
+{
+	if (off == 0) {
+		if (size != sizeof(u64) || type != BPF_READ)
+			return false;
+		info->reg_type = PTR_TO_TP_BUFFER;
+	}
+	return raw_tp_prog_is_valid_access(off, size, type, prog, info);
+}
+
+const struct bpf_verifier_ops raw_tracepoint_writable_verifier_ops = {
+	.get_func_proto  = raw_tp_prog_func_proto,
+	.is_valid_access = raw_tp_writable_prog_is_valid_access,
+};
+
+const struct bpf_prog_ops raw_tracepoint_writable_prog_ops = {
+>>>>>>> upstream/android-13
 };
 
 static bool pe_prog_is_valid_access(int off, int size, enum bpf_access_type type,
@@ -1031,9 +2075,16 @@ static DEFINE_MUTEX(bpf_event_mutex);
 #define BPF_TRACE_MAX_PROGS 64
 
 int perf_event_attach_bpf_prog(struct perf_event *event,
+<<<<<<< HEAD
 			       struct bpf_prog *prog)
 {
 	struct bpf_prog_array __rcu *old_array;
+=======
+			       struct bpf_prog *prog,
+			       u64 bpf_cookie)
+{
+	struct bpf_prog_array *old_array;
+>>>>>>> upstream/android-13
 	struct bpf_prog_array *new_array;
 	int ret = -EEXIST;
 
@@ -1051,19 +2102,31 @@ int perf_event_attach_bpf_prog(struct perf_event *event,
 	if (event->prog)
 		goto unlock;
 
+<<<<<<< HEAD
 	old_array = event->tp_event->prog_array;
+=======
+	old_array = bpf_event_rcu_dereference(event->tp_event->prog_array);
+>>>>>>> upstream/android-13
 	if (old_array &&
 	    bpf_prog_array_length(old_array) >= BPF_TRACE_MAX_PROGS) {
 		ret = -E2BIG;
 		goto unlock;
 	}
 
+<<<<<<< HEAD
 	ret = bpf_prog_array_copy(old_array, NULL, prog, &new_array);
+=======
+	ret = bpf_prog_array_copy(old_array, NULL, prog, bpf_cookie, &new_array);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		goto unlock;
 
 	/* set the new array to event->tp_event and set event->prog */
 	event->prog = prog;
+<<<<<<< HEAD
+=======
+	event->bpf_cookie = bpf_cookie;
+>>>>>>> upstream/android-13
 	rcu_assign_pointer(event->tp_event->prog_array, new_array);
 	bpf_prog_array_free(old_array);
 
@@ -1074,7 +2137,11 @@ unlock:
 
 void perf_event_detach_bpf_prog(struct perf_event *event)
 {
+<<<<<<< HEAD
 	struct bpf_prog_array __rcu *old_array;
+=======
+	struct bpf_prog_array *old_array;
+>>>>>>> upstream/android-13
 	struct bpf_prog_array *new_array;
 	int ret;
 
@@ -1083,8 +2150,13 @@ void perf_event_detach_bpf_prog(struct perf_event *event)
 	if (!event->prog)
 		goto unlock;
 
+<<<<<<< HEAD
 	old_array = event->tp_event->prog_array;
 	ret = bpf_prog_array_copy(old_array, event->prog, NULL, &new_array);
+=======
+	old_array = bpf_event_rcu_dereference(event->tp_event->prog_array);
+	ret = bpf_prog_array_copy(old_array, event->prog, NULL, 0, &new_array);
+>>>>>>> upstream/android-13
 	if (ret == -ENOENT)
 		goto unlock;
 	if (ret < 0) {
@@ -1105,10 +2177,18 @@ int perf_event_query_prog_array(struct perf_event *event, void __user *info)
 {
 	struct perf_event_query_bpf __user *uquery = info;
 	struct perf_event_query_bpf query = {};
+<<<<<<< HEAD
 	u32 *ids, prog_cnt, ids_len;
 	int ret;
 
 	if (!capable(CAP_SYS_ADMIN))
+=======
+	struct bpf_prog_array *progs;
+	u32 *ids, prog_cnt, ids_len;
+	int ret;
+
+	if (!perfmon_capable())
+>>>>>>> upstream/android-13
 		return -EPERM;
 	if (event->attr.type != PERF_TYPE_TRACEPOINT)
 		return -EINVAL;
@@ -1129,10 +2209,15 @@ int perf_event_query_prog_array(struct perf_event *event, void __user *info)
 	 */
 
 	mutex_lock(&bpf_event_mutex);
+<<<<<<< HEAD
 	ret = bpf_prog_array_copy_info(event->tp_event->prog_array,
 				       ids,
 				       ids_len,
 				       &prog_cnt);
+=======
+	progs = bpf_event_rcu_dereference(event->tp_event->prog_array);
+	ret = bpf_prog_array_copy_info(progs, ids, ids_len, &prog_cnt);
+>>>>>>> upstream/android-13
 	mutex_unlock(&bpf_event_mutex);
 
 	if (copy_to_user(&uquery->prog_cnt, &prog_cnt, sizeof(prog_cnt)) ||
@@ -1146,7 +2231,11 @@ int perf_event_query_prog_array(struct perf_event *event, void __user *info)
 extern struct bpf_raw_event_map __start__bpf_raw_tp[];
 extern struct bpf_raw_event_map __stop__bpf_raw_tp[];
 
+<<<<<<< HEAD
 struct bpf_raw_event_map *bpf_find_raw_tracepoint(const char *name)
+=======
+struct bpf_raw_event_map *bpf_get_raw_tracepoint(const char *name)
+>>>>>>> upstream/android-13
 {
 	struct bpf_raw_event_map *btp = __start__bpf_raw_tp;
 
@@ -1154,16 +2243,37 @@ struct bpf_raw_event_map *bpf_find_raw_tracepoint(const char *name)
 		if (!strcmp(btp->tp->name, name))
 			return btp;
 	}
+<<<<<<< HEAD
 	return NULL;
+=======
+
+	return bpf_get_raw_tracepoint_module(name);
+}
+
+void bpf_put_raw_tracepoint(struct bpf_raw_event_map *btp)
+{
+	struct module *mod;
+
+	preempt_disable();
+	mod = __module_address((unsigned long)btp);
+	module_put(mod);
+	preempt_enable();
+>>>>>>> upstream/android-13
 }
 
 static __always_inline
 void __bpf_trace_run(struct bpf_prog *prog, u64 *args)
 {
+<<<<<<< HEAD
 	rcu_read_lock();
 	preempt_disable();
 	(void) BPF_PROG_RUN(prog, args);
 	preempt_enable();
+=======
+	cant_sleep();
+	rcu_read_lock();
+	(void) bpf_prog_run(prog, args);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 }
 
@@ -1223,7 +2333,15 @@ static int __bpf_probe_register(struct bpf_raw_event_map *btp, struct bpf_prog *
 	if (prog->aux->max_ctx_offset > btp->num_args * sizeof(u64))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return tracepoint_probe_register(tp, (void *)btp->bpf_func, prog);
+=======
+	if (prog->aux->max_tp_access > btp->writable_size)
+		return -EINVAL;
+
+	return tracepoint_probe_register_may_exist(tp, (void *)btp->bpf_func,
+						   prog);
+>>>>>>> upstream/android-13
 }
 
 int bpf_probe_register(struct bpf_raw_event_map *btp, struct bpf_prog *prog)
@@ -1282,3 +2400,74 @@ int bpf_get_perf_event_info(const struct perf_event *event, u32 *prog_id,
 
 	return err;
 }
+<<<<<<< HEAD
+=======
+
+static int __init send_signal_irq_work_init(void)
+{
+	int cpu;
+	struct send_signal_irq_work *work;
+
+	for_each_possible_cpu(cpu) {
+		work = per_cpu_ptr(&send_signal_work, cpu);
+		init_irq_work(&work->irq_work, do_bpf_send_signal);
+	}
+	return 0;
+}
+
+subsys_initcall(send_signal_irq_work_init);
+
+#ifdef CONFIG_MODULES
+static int bpf_event_notify(struct notifier_block *nb, unsigned long op,
+			    void *module)
+{
+	struct bpf_trace_module *btm, *tmp;
+	struct module *mod = module;
+	int ret = 0;
+
+	if (mod->num_bpf_raw_events == 0 ||
+	    (op != MODULE_STATE_COMING && op != MODULE_STATE_GOING))
+		goto out;
+
+	mutex_lock(&bpf_module_mutex);
+
+	switch (op) {
+	case MODULE_STATE_COMING:
+		btm = kzalloc(sizeof(*btm), GFP_KERNEL);
+		if (btm) {
+			btm->module = module;
+			list_add(&btm->list, &bpf_trace_modules);
+		} else {
+			ret = -ENOMEM;
+		}
+		break;
+	case MODULE_STATE_GOING:
+		list_for_each_entry_safe(btm, tmp, &bpf_trace_modules, list) {
+			if (btm->module == module) {
+				list_del(&btm->list);
+				kfree(btm);
+				break;
+			}
+		}
+		break;
+	}
+
+	mutex_unlock(&bpf_module_mutex);
+
+out:
+	return notifier_from_errno(ret);
+}
+
+static struct notifier_block bpf_module_nb = {
+	.notifier_call = bpf_event_notify,
+};
+
+static int __init bpf_event_init(void)
+{
+	register_module_notifier(&bpf_module_nb);
+	return 0;
+}
+
+fs_initcall(bpf_event_init);
+#endif /* CONFIG_MODULES */
+>>>>>>> upstream/android-13

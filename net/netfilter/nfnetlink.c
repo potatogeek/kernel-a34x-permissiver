@@ -28,11 +28,19 @@
 #include <linux/sched/signal.h>
 
 #include <net/netlink.h>
+<<<<<<< HEAD
+=======
+#include <net/netns/generic.h>
+>>>>>>> upstream/android-13
 #include <linux/netfilter/nfnetlink.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Harald Welte <laforge@netfilter.org>");
 MODULE_ALIAS_NET_PF_PROTO(PF_NETLINK, NETLINK_NETFILTER);
+<<<<<<< HEAD
+=======
+MODULE_DESCRIPTION("Netfilter messages via netlink socket");
+>>>>>>> upstream/android-13
 
 #define nfnl_dereference_protected(id) \
 	rcu_dereference_protected(table[(id)].subsys, \
@@ -40,11 +48,41 @@ MODULE_ALIAS_NET_PF_PROTO(PF_NETLINK, NETLINK_NETFILTER);
 
 #define NFNL_MAX_ATTR_COUNT	32
 
+<<<<<<< HEAD
+=======
+static unsigned int nfnetlink_pernet_id __read_mostly;
+
+struct nfnl_net {
+	struct sock *nfnl;
+};
+
+>>>>>>> upstream/android-13
 static struct {
 	struct mutex				mutex;
 	const struct nfnetlink_subsystem __rcu	*subsys;
 } table[NFNL_SUBSYS_COUNT];
 
+<<<<<<< HEAD
+=======
+static struct lock_class_key nfnl_lockdep_keys[NFNL_SUBSYS_COUNT];
+
+static const char *const nfnl_lockdep_names[NFNL_SUBSYS_COUNT] = {
+	[NFNL_SUBSYS_NONE] = "nfnl_subsys_none",
+	[NFNL_SUBSYS_CTNETLINK] = "nfnl_subsys_ctnetlink",
+	[NFNL_SUBSYS_CTNETLINK_EXP] = "nfnl_subsys_ctnetlink_exp",
+	[NFNL_SUBSYS_QUEUE] = "nfnl_subsys_queue",
+	[NFNL_SUBSYS_ULOG] = "nfnl_subsys_ulog",
+	[NFNL_SUBSYS_OSF] = "nfnl_subsys_osf",
+	[NFNL_SUBSYS_IPSET] = "nfnl_subsys_ipset",
+	[NFNL_SUBSYS_ACCT] = "nfnl_subsys_acct",
+	[NFNL_SUBSYS_CTNETLINK_TIMEOUT] = "nfnl_subsys_cttimeout",
+	[NFNL_SUBSYS_CTHELPER] = "nfnl_subsys_cthelper",
+	[NFNL_SUBSYS_NFTABLES] = "nfnl_subsys_nftables",
+	[NFNL_SUBSYS_NFT_COMPAT] = "nfnl_subsys_nftcompat",
+	[NFNL_SUBSYS_HOOK] = "nfnl_subsys_hook",
+};
+
+>>>>>>> upstream/android-13
 static const int nfnl_group2type[NFNLGRP_MAX+1] = {
 	[NFNLGRP_CONNTRACK_NEW]		= NFNL_SUBSYS_CTNETLINK,
 	[NFNLGRP_CONNTRACK_UPDATE]	= NFNL_SUBSYS_CTNETLINK,
@@ -57,6 +95,14 @@ static const int nfnl_group2type[NFNLGRP_MAX+1] = {
 	[NFNLGRP_NFTRACE]		= NFNL_SUBSYS_NFTABLES,
 };
 
+<<<<<<< HEAD
+=======
+static struct nfnl_net *nfnl_pernet(struct net *net)
+{
+	return net_generic(net, nfnetlink_pernet_id);
+}
+
+>>>>>>> upstream/android-13
 void nfnl_lock(__u8 subsys_id)
 {
 	mutex_lock(&table[subsys_id].mutex);
@@ -131,28 +177,53 @@ nfnetlink_find_client(u16 type, const struct nfnetlink_subsystem *ss)
 
 int nfnetlink_has_listeners(struct net *net, unsigned int group)
 {
+<<<<<<< HEAD
 	return netlink_has_listeners(net->nfnl, group);
+=======
+	struct nfnl_net *nfnlnet = nfnl_pernet(net);
+
+	return netlink_has_listeners(nfnlnet->nfnl, group);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nfnetlink_has_listeners);
 
 int nfnetlink_send(struct sk_buff *skb, struct net *net, u32 portid,
 		   unsigned int group, int echo, gfp_t flags)
 {
+<<<<<<< HEAD
 	return nlmsg_notify(net->nfnl, skb, portid, group, echo, flags);
+=======
+	struct nfnl_net *nfnlnet = nfnl_pernet(net);
+
+	return nlmsg_notify(nfnlnet->nfnl, skb, portid, group, echo, flags);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nfnetlink_send);
 
 int nfnetlink_set_err(struct net *net, u32 portid, u32 group, int error)
 {
+<<<<<<< HEAD
 	return netlink_set_err(net->nfnl, portid, group, error);
+=======
+	struct nfnl_net *nfnlnet = nfnl_pernet(net);
+
+	return netlink_set_err(nfnlnet->nfnl, portid, group, error);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nfnetlink_set_err);
 
 int nfnetlink_unicast(struct sk_buff *skb, struct net *net, u32 portid)
 {
+<<<<<<< HEAD
 	int err;
 
 	err = nlmsg_unicast(net->nfnl, skb, portid);
+=======
+	struct nfnl_net *nfnlnet = nfnl_pernet(net);
+	int err;
+
+	err = nlmsg_unicast(nfnlnet->nfnl, skb, portid);
+>>>>>>> upstream/android-13
 	if (err == -EAGAIN)
 		err = -ENOBUFS;
 
@@ -160,6 +231,18 @@ int nfnetlink_unicast(struct sk_buff *skb, struct net *net, u32 portid)
 }
 EXPORT_SYMBOL_GPL(nfnetlink_unicast);
 
+<<<<<<< HEAD
+=======
+void nfnetlink_broadcast(struct net *net, struct sk_buff *skb, __u32 portid,
+			 __u32 group, gfp_t allocation)
+{
+	struct nfnl_net *nfnlnet = nfnl_pernet(net);
+
+	netlink_broadcast(nfnlnet->nfnl, skb, portid, group, allocation);
+}
+EXPORT_SYMBOL_GPL(nfnetlink_broadcast);
+
+>>>>>>> upstream/android-13
 /* Process one complete nfnetlink message. */
 static int nfnetlink_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh,
 			     struct netlink_ext_ack *extack)
@@ -176,6 +259,10 @@ static int nfnetlink_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh,
 	type = nlh->nlmsg_type;
 replay:
 	rcu_read_lock();
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	ss = nfnetlink_get_subsys(type);
 	if (!ss) {
 #ifdef CONFIG_MODULES
@@ -199,11 +286,25 @@ replay:
 
 	{
 		int min_len = nlmsg_total_size(sizeof(struct nfgenmsg));
+<<<<<<< HEAD
+=======
+		struct nfnl_net *nfnlnet = nfnl_pernet(net);
+>>>>>>> upstream/android-13
 		u8 cb_id = NFNL_MSG_TYPE(nlh->nlmsg_type);
 		struct nlattr *cda[NFNL_MAX_ATTR_COUNT + 1];
 		struct nlattr *attr = (void *)nlh + min_len;
 		int attrlen = nlh->nlmsg_len - min_len;
 		__u8 subsys_id = NFNL_SUBSYS_ID(type);
+<<<<<<< HEAD
+=======
+		struct nfnl_info info = {
+			.net	= net,
+			.sk	= nfnlnet->nfnl,
+			.nlh	= nlh,
+			.nfmsg	= nlmsg_data(nlh),
+			.extack	= extack,
+		};
+>>>>>>> upstream/android-13
 
 		/* Sanity-check NFNL_MAX_ATTR_COUNT */
 		if (ss->cb[cb_id].attr_count > NFNL_MAX_ATTR_COUNT) {
@@ -211,13 +312,20 @@ replay:
 			return -ENOMEM;
 		}
 
+<<<<<<< HEAD
 		err = nla_parse(cda, ss->cb[cb_id].attr_count, attr, attrlen,
 				ss->cb[cb_id].policy, extack);
+=======
+		err = nla_parse_deprecated(cda, ss->cb[cb_id].attr_count,
+					   attr, attrlen,
+					   ss->cb[cb_id].policy, extack);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			rcu_read_unlock();
 			return err;
 		}
 
+<<<<<<< HEAD
 		if (nc->call_rcu) {
 			err = nc->call_rcu(net, net->nfnl, skb, nlh,
 					   (const struct nlattr **)cda,
@@ -236,6 +344,33 @@ replay:
 			else
 				err = -EINVAL;
 			nfnl_unlock(subsys_id);
+=======
+		if (!nc->call) {
+			rcu_read_unlock();
+			return -EINVAL;
+		}
+
+		switch (nc->type) {
+		case NFNL_CB_RCU:
+			err = nc->call(skb, &info, (const struct nlattr **)cda);
+			rcu_read_unlock();
+			break;
+		case NFNL_CB_MUTEX:
+			rcu_read_unlock();
+			nfnl_lock(subsys_id);
+			if (nfnl_dereference_protected(subsys_id) != ss ||
+			    nfnetlink_find_client(type, ss) != nc) {
+				err = -EAGAIN;
+				break;
+			}
+			err = nc->call(skb, &info, (const struct nlattr **)cda);
+			nfnl_unlock(subsys_id);
+			break;
+		default:
+			rcu_read_unlock();
+			err = -EINVAL;
+			break;
+>>>>>>> upstream/android-13
 		}
 		if (err == -EAGAIN)
 			goto replay;
@@ -314,7 +449,11 @@ static void nfnetlink_rcv_batch(struct sk_buff *skb, struct nlmsghdr *nlh,
 		return netlink_ack(skb, nlh, -EINVAL, NULL);
 replay:
 	status = 0;
+<<<<<<< HEAD
 
+=======
+replay_abort:
+>>>>>>> upstream/android-13
 	skb = netlink_skb_clone(oskb, GFP_KERNEL);
 	if (!skb)
 		return netlink_ack(oskb, nlh, -ENOMEM, NULL);
@@ -413,12 +552,34 @@ replay:
 			goto ack;
 		}
 
+<<<<<<< HEAD
 		{
 			int min_len = nlmsg_total_size(sizeof(struct nfgenmsg));
 			u8 cb_id = NFNL_MSG_TYPE(nlh->nlmsg_type);
 			struct nlattr *cda[NFNL_MAX_ATTR_COUNT + 1];
 			struct nlattr *attr = (void *)nlh + min_len;
 			int attrlen = nlh->nlmsg_len - min_len;
+=======
+		if (nc->type != NFNL_CB_BATCH) {
+			err = -EINVAL;
+			goto ack;
+		}
+
+		{
+			int min_len = nlmsg_total_size(sizeof(struct nfgenmsg));
+			struct nfnl_net *nfnlnet = nfnl_pernet(net);
+			struct nlattr *cda[NFNL_MAX_ATTR_COUNT + 1];
+			struct nlattr *attr = (void *)nlh + min_len;
+			u8 cb_id = NFNL_MSG_TYPE(nlh->nlmsg_type);
+			int attrlen = nlh->nlmsg_len - min_len;
+			struct nfnl_info info = {
+				.net	= net,
+				.sk	= nfnlnet->nfnl,
+				.nlh	= nlh,
+				.nfmsg	= nlmsg_data(nlh),
+				.extack	= &extack,
+			};
+>>>>>>> upstream/android-13
 
 			/* Sanity-check NFTA_MAX_ATTR */
 			if (ss->cb[cb_id].attr_count > NFNL_MAX_ATTR_COUNT) {
@@ -426,6 +587,7 @@ replay:
 				goto ack;
 			}
 
+<<<<<<< HEAD
 			err = nla_parse(cda, ss->cb[cb_id].attr_count, attr,
 					attrlen, ss->cb[cb_id].policy, NULL);
 			if (err < 0)
@@ -436,6 +598,16 @@ replay:
 						     (const struct nlattr **)cda,
 						     &extack);
 			}
+=======
+			err = nla_parse_deprecated(cda,
+						   ss->cb[cb_id].attr_count,
+						   attr, attrlen,
+						   ss->cb[cb_id].policy, NULL);
+			if (err < 0)
+				goto ack;
+
+			err = nc->call(skb, &info, (const struct nlattr **)cda);
+>>>>>>> upstream/android-13
 
 			/* The lock was released to autoload some module, we
 			 * have to abort and start from scratch using the
@@ -478,7 +650,11 @@ ack:
 	}
 done:
 	if (status & NFNL_BATCH_REPLAY) {
+<<<<<<< HEAD
 		ss->abort(net, oskb);
+=======
+		ss->abort(net, oskb, NFNL_ABORT_AUTOLOAD);
+>>>>>>> upstream/android-13
 		nfnl_err_reset(&err_list);
 		kfree_skb(skb);
 		module_put(ss->owner);
@@ -489,11 +665,33 @@ done:
 			status |= NFNL_BATCH_REPLAY;
 			goto done;
 		} else if (err) {
+<<<<<<< HEAD
 			ss->abort(net, oskb);
 			netlink_ack(oskb, nlmsg_hdr(oskb), err, NULL);
 		}
 	} else {
 		ss->abort(net, oskb);
+=======
+			ss->abort(net, oskb, NFNL_ABORT_NONE);
+			netlink_ack(oskb, nlmsg_hdr(oskb), err, NULL);
+		}
+	} else {
+		enum nfnl_abort_action abort_action;
+
+		if (status & NFNL_BATCH_FAILURE)
+			abort_action = NFNL_ABORT_NONE;
+		else
+			abort_action = NFNL_ABORT_VALIDATE;
+
+		err = ss->abort(net, oskb, abort_action);
+		if (err == -EAGAIN) {
+			nfnl_err_reset(&err_list);
+			kfree_skb(skb);
+			module_put(ss->owner);
+			status |= NFNL_BATCH_FAILURE;
+			goto replay_abort;
+		}
+>>>>>>> upstream/android-13
 	}
 	if (ss->cleanup)
 		ss->cleanup(net);
@@ -525,8 +723,13 @@ static void nfnetlink_rcv_skb_batch(struct sk_buff *skb, struct nlmsghdr *nlh)
 	if (skb->len < NLMSG_HDRLEN + sizeof(struct nfgenmsg))
 		return;
 
+<<<<<<< HEAD
 	err = nla_parse(cda, NFNL_BATCH_MAX, attr, attrlen, nfnl_batch_policy,
 			NULL);
+=======
+	err = nla_parse_deprecated(cda, NFNL_BATCH_MAX, attr, attrlen,
+				   nfnl_batch_policy, NULL);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		netlink_ack(skb, nlh, err, NULL);
 		return;
@@ -587,7 +790,11 @@ static int nfnetlink_bind(struct net *net, int group)
 
 static int __net_init nfnetlink_net_init(struct net *net)
 {
+<<<<<<< HEAD
 	struct sock *nfnl;
+=======
+	struct nfnl_net *nfnlnet = nfnl_pernet(net);
+>>>>>>> upstream/android-13
 	struct netlink_kernel_cfg cfg = {
 		.groups	= NFNLGRP_MAX,
 		.input	= nfnetlink_rcv,
@@ -596,16 +803,23 @@ static int __net_init nfnetlink_net_init(struct net *net)
 #endif
 	};
 
+<<<<<<< HEAD
 	nfnl = netlink_kernel_create(net, NETLINK_NETFILTER, &cfg);
 	if (!nfnl)
 		return -ENOMEM;
 	net->nfnl_stash = nfnl;
 	rcu_assign_pointer(net->nfnl, nfnl);
+=======
+	nfnlnet->nfnl = netlink_kernel_create(net, NETLINK_NETFILTER, &cfg);
+	if (!nfnlnet->nfnl)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void __net_exit nfnetlink_net_exit_batch(struct list_head *net_exit_list)
 {
+<<<<<<< HEAD
 	struct net *net;
 
 	list_for_each_entry(net, net_exit_list, exit_list)
@@ -613,11 +827,26 @@ static void __net_exit nfnetlink_net_exit_batch(struct list_head *net_exit_list)
 	synchronize_net();
 	list_for_each_entry(net, net_exit_list, exit_list)
 		netlink_kernel_release(net->nfnl_stash);
+=======
+	struct nfnl_net *nfnlnet;
+	struct net *net;
+
+	list_for_each_entry(net, net_exit_list, exit_list) {
+		nfnlnet = nfnl_pernet(net);
+
+		netlink_kernel_release(nfnlnet->nfnl);
+	}
+>>>>>>> upstream/android-13
 }
 
 static struct pernet_operations nfnetlink_net_ops = {
 	.init		= nfnetlink_net_init,
 	.exit_batch	= nfnetlink_net_exit_batch,
+<<<<<<< HEAD
+=======
+	.id		= &nfnetlink_pernet_id,
+	.size		= sizeof(struct nfnl_net),
+>>>>>>> upstream/android-13
 };
 
 static int __init nfnetlink_init(void)
@@ -628,7 +857,11 @@ static int __init nfnetlink_init(void)
 		BUG_ON(nfnl_group2type[i] == NFNL_SUBSYS_NONE);
 
 	for (i=0; i<NFNL_SUBSYS_COUNT; i++)
+<<<<<<< HEAD
 		mutex_init(&table[i].mutex);
+=======
+		__mutex_init(&table[i].mutex, nfnl_lockdep_names[i], &nfnl_lockdep_keys[i]);
+>>>>>>> upstream/android-13
 
 	return register_pernet_subsys(&nfnetlink_net_ops);
 }

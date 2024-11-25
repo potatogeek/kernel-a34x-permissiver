@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SPI controller driver for the Mikrotik RB4xx boards
  *
@@ -6,11 +10,14 @@
  *
  * This file was based on the patches for Linux 2.6.27.39 published by
  * MikroTik for their RouterBoard 4xx series devices.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -18,6 +25,10 @@
 #include <linux/platform_device.h>
 #include <linux/clk.h>
 #include <linux/spi/spi.h>
+<<<<<<< HEAD
+=======
+#include <linux/of.h>
+>>>>>>> upstream/android-13
 
 #include <asm/mach-ath79/ar71xx_regs.h>
 
@@ -139,12 +150,19 @@ static int rb4xx_spi_probe(struct platform_device *pdev)
 	struct spi_master *master;
 	struct clk *ahb_clk;
 	struct rb4xx_spi *rbspi;
+<<<<<<< HEAD
 	struct resource *r;
 	int err;
 	void __iomem *spi_base;
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	spi_base = devm_ioremap_resource(&pdev->dev, r);
+=======
+	int err;
+	void __iomem *spi_base;
+
+	spi_base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(spi_base))
 		return PTR_ERR(spi_base);
 
@@ -156,14 +174,30 @@ static int rb4xx_spi_probe(struct platform_device *pdev)
 	if (IS_ERR(ahb_clk))
 		return PTR_ERR(ahb_clk);
 
+<<<<<<< HEAD
 	master->bus_num = 0;
 	master->num_chipselect = 3;
 	master->mode_bits = SPI_TX_DUAL;
 	master->bits_per_word_mask = BIT(7);
+=======
+	master->dev.of_node = pdev->dev.of_node;
+	master->bus_num = 0;
+	master->num_chipselect = 3;
+	master->mode_bits = SPI_TX_DUAL;
+	master->bits_per_word_mask = SPI_BPW_MASK(8);
+>>>>>>> upstream/android-13
 	master->flags = SPI_MASTER_MUST_TX;
 	master->transfer_one = rb4xx_transfer_one;
 	master->set_cs = rb4xx_set_cs;
 
+<<<<<<< HEAD
+=======
+	rbspi = spi_master_get_devdata(master);
+	rbspi->base = spi_base;
+	rbspi->clk = ahb_clk;
+	platform_set_drvdata(pdev, rbspi);
+
+>>>>>>> upstream/android-13
 	err = devm_spi_register_master(&pdev->dev, master);
 	if (err) {
 		dev_err(&pdev->dev, "failed to register SPI master\n");
@@ -174,11 +208,14 @@ static int rb4xx_spi_probe(struct platform_device *pdev)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	rbspi = spi_master_get_devdata(master);
 	rbspi->base = spi_base;
 	rbspi->clk = ahb_clk;
 	platform_set_drvdata(pdev, rbspi);
 
+=======
+>>>>>>> upstream/android-13
 	/* Enable SPI */
 	rb4xx_write(rbspi, AR71XX_SPI_REG_FS, AR71XX_SPI_FS_GPIO);
 
@@ -194,11 +231,24 @@ static int rb4xx_spi_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id rb4xx_spi_dt_match[] = {
+	{ .compatible = "mikrotik,rb4xx-spi" },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, rb4xx_spi_dt_match);
+
+>>>>>>> upstream/android-13
 static struct platform_driver rb4xx_spi_drv = {
 	.probe = rb4xx_spi_probe,
 	.remove = rb4xx_spi_remove,
 	.driver = {
 		.name = "rb4xx-spi",
+<<<<<<< HEAD
+=======
+		.of_match_table = of_match_ptr(rb4xx_spi_dt_match),
+>>>>>>> upstream/android-13
 	},
 };
 

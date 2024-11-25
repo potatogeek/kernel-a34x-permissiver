@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
  *
@@ -6,6 +7,11 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -34,6 +40,7 @@
 #define PLL_OUT_SHIFT		14
 #define PLL_MAX_ID		1
 
+<<<<<<< HEAD
 struct clk_pll_characteristics {
 	struct clk_range input;
 	int num_output;
@@ -48,6 +55,8 @@ struct clk_pll_layout {
 	u8 mul_shift;
 };
 
+=======
+>>>>>>> upstream/android-13
 #define to_clk_pll(hw) container_of(hw, struct clk_pll, hw)
 
 struct clk_pll {
@@ -288,7 +297,11 @@ static const struct clk_ops pll_ops = {
 	.set_rate = clk_pll_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_pll(struct regmap *regmap, const char *name,
 		      const char *parent_name, u8 id,
 		      const struct clk_pll_layout *layout,
@@ -296,7 +309,11 @@ at91_clk_register_pll(struct regmap *regmap, const char *name,
 {
 	struct clk_pll *pll;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int offset = PLL_REG(id);
 	unsigned int pllr;
 	int ret;
@@ -334,29 +351,46 @@ at91_clk_register_pll(struct regmap *regmap, const char *name,
 }
 
 
+<<<<<<< HEAD
 static const struct clk_pll_layout at91rm9200_pll_layout = {
+=======
+const struct clk_pll_layout at91rm9200_pll_layout = {
+>>>>>>> upstream/android-13
 	.pllr_mask = 0x7FFFFFF,
 	.mul_shift = 16,
 	.mul_mask = 0x7FF,
 };
 
+<<<<<<< HEAD
 static const struct clk_pll_layout at91sam9g45_pll_layout = {
+=======
+const struct clk_pll_layout at91sam9g45_pll_layout = {
+>>>>>>> upstream/android-13
 	.pllr_mask = 0xFFFFFF,
 	.mul_shift = 16,
 	.mul_mask = 0xFF,
 };
 
+<<<<<<< HEAD
 static const struct clk_pll_layout at91sam9g20_pllb_layout = {
+=======
+const struct clk_pll_layout at91sam9g20_pllb_layout = {
+>>>>>>> upstream/android-13
 	.pllr_mask = 0x3FFFFF,
 	.mul_shift = 16,
 	.mul_mask = 0x3F,
 };
 
+<<<<<<< HEAD
 static const struct clk_pll_layout sama5d3_pll_layout = {
+=======
+const struct clk_pll_layout sama5d3_pll_layout = {
+>>>>>>> upstream/android-13
 	.pllr_mask = 0x1FFFFFF,
 	.mul_shift = 18,
 	.mul_mask = 0x7F,
 };
+<<<<<<< HEAD
 
 
 static struct clk_pll_characteristics * __init
@@ -520,3 +554,5 @@ static void __init of_sama5d3_clk_pll_setup(struct device_node *np)
 }
 CLK_OF_DECLARE(sama5d3_clk_pll, "atmel,sama5d3-clk-pll",
 	       of_sama5d3_clk_pll_setup);
+=======
+>>>>>>> upstream/android-13

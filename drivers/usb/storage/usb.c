@@ -121,12 +121,20 @@ MODULE_PARM_DESC(quirks, "supplemental list of device IDs and their quirks");
 	.initFunction = init_function,	\
 }
 
+<<<<<<< HEAD
 static struct us_unusual_dev us_unusual_dev_list[] = {
+=======
+static const struct us_unusual_dev us_unusual_dev_list[] = {
+>>>>>>> upstream/android-13
 #	include "unusual_devs.h"
 	{ }		/* Terminating entry */
 };
 
+<<<<<<< HEAD
 static struct us_unusual_dev for_dynamic_ids =
+=======
+static const struct us_unusual_dev for_dynamic_ids =
+>>>>>>> upstream/android-13
 		USUAL_DEV(USB_SC_SCSI, USB_PR_BULK);
 
 #undef UNUSUAL_DEV
@@ -395,7 +403,11 @@ void fill_inquiry_response(struct us_data *us, unsigned char *data,
 }
 EXPORT_SYMBOL_GPL(fill_inquiry_response);
 
+<<<<<<< HEAD
 static int usb_stor_control_thread(void *__us)
+=======
+static int usb_stor_control_thread(void * __us)
+>>>>>>> upstream/android-13
 {
 	struct us_data *us = (struct us_data *)__us;
 	struct Scsi_Host *host = us_to_host(us);
@@ -690,7 +702,11 @@ EXPORT_SYMBOL_GPL(usb_stor_adjust_quirks);
 
 /* Get the unusual_devs entries and the string descriptors */
 static int get_device_info(struct us_data *us, const struct usb_device_id *id,
+<<<<<<< HEAD
 		struct us_unusual_dev *unusual_dev)
+=======
+		const struct us_unusual_dev *unusual_dev)
+>>>>>>> upstream/android-13
 {
 	struct usb_device *dev = us->pusb_dev;
 	struct usb_interface_descriptor *idesc =
@@ -1040,7 +1056,11 @@ static unsigned int usb_stor_sg_tablesize(struct usb_interface *intf)
 int usb_stor_probe1(struct us_data **pus,
 		struct usb_interface *intf,
 		const struct usb_device_id *id,
+<<<<<<< HEAD
 		struct us_unusual_dev *unusual_dev,
+=======
+		const struct us_unusual_dev *unusual_dev,
+>>>>>>> upstream/android-13
 		struct scsi_host_template *sht)
 {
 	struct Scsi_Host *host;
@@ -1208,7 +1228,11 @@ static struct scsi_host_template usb_stor_host_template;
 static int storage_probe(struct usb_interface *intf,
 			 const struct usb_device_id *id)
 {
+<<<<<<< HEAD
 	struct us_unusual_dev *unusual_dev;
+=======
+	const struct us_unusual_dev *unusual_dev;
+>>>>>>> upstream/android-13
 	struct us_data *us;
 	int result;
 	int size;

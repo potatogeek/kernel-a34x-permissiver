@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/rtc/rtc-pl030.c
  *
  *  Copyright (C) 2000-2001 Deep Blue Solutions Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/rtc.h>
@@ -39,13 +46,18 @@ static int pl030_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 {
 	struct pl030_rtc *rtc = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(readl(rtc->base + RTC_MR), &alrm->time);
+=======
+	rtc_time64_to_tm(readl(rtc->base + RTC_MR), &alrm->time);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int pl030_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 {
 	struct pl030_rtc *rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	unsigned long time;
 	int ret;
 
@@ -58,13 +70,23 @@ static int pl030_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
 	if (ret == 0)
 		writel(time, rtc->base + RTC_MR);
 	return ret;
+=======
+
+	writel(rtc_tm_to_time64(&alrm->time), rtc->base + RTC_MR);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int pl030_read_time(struct device *dev, struct rtc_time *tm)
 {
 	struct pl030_rtc *rtc = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	rtc_time_to_tm(readl(rtc->base + RTC_DR), tm);
+=======
+	rtc_time64_to_tm(readl(rtc->base + RTC_DR), tm);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -80,6 +102,7 @@ static int pl030_read_time(struct device *dev, struct rtc_time *tm)
 static int pl030_set_time(struct device *dev, struct rtc_time *tm)
 {
 	struct pl030_rtc *rtc = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	unsigned long time;
 	int ret;
 
@@ -88,6 +111,12 @@ static int pl030_set_time(struct device *dev, struct rtc_time *tm)
 		writel(time + 1, rtc->base + RTC_LR);
 
 	return ret;
+=======
+
+	writel(rtc_tm_to_time64(tm) + 1, rtc->base + RTC_LR);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct rtc_class_ops pl030_ops = {
@@ -119,6 +148,10 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
 	}
 
 	rtc->rtc->ops = &pl030_ops;
+<<<<<<< HEAD
+=======
+	rtc->rtc->range_max = U32_MAX;
+>>>>>>> upstream/android-13
 	rtc->base = ioremap(dev->res.start, resource_size(&dev->res));
 	if (!rtc->base) {
 		ret = -ENOMEM;
@@ -135,7 +168,11 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
 	if (ret)
 		goto err_irq;
 
+<<<<<<< HEAD
 	ret = rtc_register_device(rtc->rtc);
+=======
+	ret = devm_rtc_register_device(rtc->rtc);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_reg;
 
@@ -151,7 +188,11 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int pl030_remove(struct amba_device *dev)
+=======
+static void pl030_remove(struct amba_device *dev)
+>>>>>>> upstream/android-13
 {
 	struct pl030_rtc *rtc = amba_get_drvdata(dev);
 
@@ -160,8 +201,11 @@ static int pl030_remove(struct amba_device *dev)
 	free_irq(dev->irq[0], rtc);
 	iounmap(rtc->base);
 	amba_release_regions(dev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct amba_id pl030_ids[] = {

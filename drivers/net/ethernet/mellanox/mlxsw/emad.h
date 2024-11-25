@@ -19,10 +19,15 @@
 enum {
 	MLXSW_EMAD_TLV_TYPE_END,
 	MLXSW_EMAD_TLV_TYPE_OP,
+<<<<<<< HEAD
 	MLXSW_EMAD_TLV_TYPE_DR,
 	MLXSW_EMAD_TLV_TYPE_REG,
 	MLXSW_EMAD_TLV_TYPE_USERDATA,
 	MLXSW_EMAD_TLV_TYPE_OOBETH,
+=======
+	MLXSW_EMAD_TLV_TYPE_STRING,
+	MLXSW_EMAD_TLV_TYPE_REG,
+>>>>>>> upstream/android-13
 };
 
 /* OP TLV */
@@ -89,6 +94,12 @@ enum {
 	MLXSW_EMAD_OP_TLV_METHOD_EVENT = 5,
 };
 
+<<<<<<< HEAD
+=======
+/* STRING TLV */
+#define MLXSW_EMAD_STRING_TLV_LEN 33	/* Length in u32 */
+
+>>>>>>> upstream/android-13
 /* END TLV */
 #define MLXSW_EMAD_END_TLV_LEN 1	/* Length in u32 */
 

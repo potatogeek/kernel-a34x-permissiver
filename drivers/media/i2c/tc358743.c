@@ -444,7 +444,11 @@ static void print_avi_infoframe(struct v4l2_subdev *sd)
 
 	i2c_rd(sd, PK_AVI_0HEAD, buffer, HDMI_INFOFRAME_SIZE(AVI));
 
+<<<<<<< HEAD
 	if (hdmi_infoframe_unpack(&frame, buffer) < 0) {
+=======
+	if (hdmi_infoframe_unpack(&frame, buffer, sizeof(buffer)) < 0) {
+>>>>>>> upstream/android-13
 		v4l2_err(sd, "%s: unpack of AVI infoframe failed\n", __func__);
 		return;
 	}
@@ -1604,12 +1608,22 @@ static int tc358743_dv_timings_cap(struct v4l2_subdev *sd,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tc358743_g_mbus_config(struct v4l2_subdev *sd,
 			     struct v4l2_mbus_config *cfg)
 {
 	struct tc358743_state *state = to_state(sd);
 
 	cfg->type = V4L2_MBUS_CSI2;
+=======
+static int tc358743_get_mbus_config(struct v4l2_subdev *sd,
+				    unsigned int pad,
+				    struct v4l2_mbus_config *cfg)
+{
+	struct tc358743_state *state = to_state(sd);
+
+	cfg->type = V4L2_MBUS_CSI2_DPHY;
+>>>>>>> upstream/android-13
 
 	/* Support for non-continuous CSI-2 clock is missing in the driver */
 	cfg->flags = V4L2_MBUS_CSI2_CONTINUOUS_CLOCK;
@@ -1648,7 +1662,11 @@ static int tc358743_s_stream(struct v4l2_subdev *sd, int enable)
 /* --------------- PAD OPS --------------- */
 
 static int tc358743_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_mbus_code_enum *code)
 {
 	switch (code->index) {
@@ -1665,7 +1683,11 @@ static int tc358743_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int tc358743_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct tc358743_state *state = to_state(sd);
@@ -1701,13 +1723,21 @@ static int tc358743_get_fmt(struct v4l2_subdev *sd,
 }
 
 static int tc358743_set_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 		struct v4l2_subdev_pad_config *cfg,
+=======
+		struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		struct v4l2_subdev_format *format)
 {
 	struct tc358743_state *state = to_state(sd);
 
 	u32 code = format->format.code; /* is overwritten by get_fmt */
+<<<<<<< HEAD
 	int ret = tc358743_get_fmt(sd, cfg, format);
+=======
+	int ret = tc358743_get_fmt(sd, sd_state, format);
+>>>>>>> upstream/android-13
 
 	format->format.code = code;
 
@@ -1838,7 +1868,10 @@ static const struct v4l2_subdev_video_ops tc358743_video_ops = {
 	.s_dv_timings = tc358743_s_dv_timings,
 	.g_dv_timings = tc358743_g_dv_timings,
 	.query_dv_timings = tc358743_query_dv_timings,
+<<<<<<< HEAD
 	.g_mbus_config = tc358743_g_mbus_config,
+=======
+>>>>>>> upstream/android-13
 	.s_stream = tc358743_s_stream,
 };
 
@@ -1850,6 +1883,10 @@ static const struct v4l2_subdev_pad_ops tc358743_pad_ops = {
 	.set_edid = tc358743_s_edid,
 	.enum_dv_timings = tc358743_enum_dv_timings,
 	.dv_timings_cap = tc358743_dv_timings_cap,
+<<<<<<< HEAD
+=======
+	.get_mbus_config = tc358743_get_mbus_config,
+>>>>>>> upstream/android-13
 };
 
 static const struct v4l2_subdev_ops tc358743_ops = {
@@ -1897,11 +1934,19 @@ static void tc358743_gpio_reset(struct tc358743_state *state)
 static int tc358743_probe_of(struct tc358743_state *state)
 {
 	struct device *dev = &state->i2c_client->dev;
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint *endpoint;
 	struct device_node *ep;
 	struct clk *refclk;
 	u32 bps_pr_lane;
 	int ret = -EINVAL;
+=======
+	struct v4l2_fwnode_endpoint endpoint = { .bus_type = 0 };
+	struct device_node *ep;
+	struct clk *refclk;
+	u32 bps_pr_lane;
+	int ret;
+>>>>>>> upstream/android-13
 
 	refclk = devm_clk_get(dev, "refclk");
 	if (IS_ERR(refclk)) {
@@ -1917,6 +1962,7 @@ static int tc358743_probe_of(struct tc358743_state *state)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	endpoint = v4l2_fwnode_endpoint_alloc_parse(of_fwnode_handle(ep));
 	if (IS_ERR(endpoint)) {
 		dev_err(dev, "failed to parse endpoint\n");
@@ -1937,6 +1983,29 @@ static int tc358743_probe_of(struct tc358743_state *state)
 	}
 
 	state->bus = endpoint->bus.mipi_csi2;
+=======
+	ret = v4l2_fwnode_endpoint_alloc_parse(of_fwnode_handle(ep), &endpoint);
+	if (ret) {
+		dev_err(dev, "failed to parse endpoint\n");
+		goto put_node;
+	}
+
+	if (endpoint.bus_type != V4L2_MBUS_CSI2_DPHY ||
+	    endpoint.bus.mipi_csi2.num_data_lanes == 0 ||
+	    endpoint.nr_of_link_frequencies == 0) {
+		dev_err(dev, "missing CSI-2 properties in endpoint\n");
+		ret = -EINVAL;
+		goto free_endpoint;
+	}
+
+	if (endpoint.bus.mipi_csi2.num_data_lanes > 4) {
+		dev_err(dev, "invalid number of lanes\n");
+		ret = -EINVAL;
+		goto free_endpoint;
+	}
+
+	state->bus = endpoint.bus.mipi_csi2;
+>>>>>>> upstream/android-13
 
 	ret = clk_prepare_enable(refclk);
 	if (ret) {
@@ -1969,9 +2038,16 @@ static int tc358743_probe_of(struct tc358743_state *state)
 	 * The CSI bps per lane must be between 62.5 Mbps and 1 Gbps.
 	 * The default is 594 Mbps for 4-lane 1080p60 or 2-lane 720p60.
 	 */
+<<<<<<< HEAD
 	bps_pr_lane = 2 * endpoint->link_frequencies[0];
 	if (bps_pr_lane < 62500000U || bps_pr_lane > 1000000000U) {
 		dev_err(dev, "unsupported bps per lane: %u bps\n", bps_pr_lane);
+=======
+	bps_pr_lane = 2 * endpoint.link_frequencies[0];
+	if (bps_pr_lane < 62500000U || bps_pr_lane > 1000000000U) {
+		dev_err(dev, "unsupported bps per lane: %u bps\n", bps_pr_lane);
+		ret = -EINVAL;
+>>>>>>> upstream/android-13
 		goto disable_clk;
 	}
 
@@ -2015,7 +2091,11 @@ static int tc358743_probe_of(struct tc358743_state *state)
 disable_clk:
 	clk_disable_unprepare(refclk);
 free_endpoint:
+<<<<<<< HEAD
 	v4l2_fwnode_endpoint_free(endpoint);
+=======
+	v4l2_fwnode_endpoint_free(&endpoint);
+>>>>>>> upstream/android-13
 put_node:
 	of_node_put(ep);
 	return ret;
@@ -2027,8 +2107,12 @@ static inline int tc358743_probe_of(struct tc358743_state *state)
 }
 #endif
 
+<<<<<<< HEAD
 static int tc358743_probe(struct i2c_client *client,
 			  const struct i2c_device_id *id)
+=======
+static int tc358743_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	static struct v4l2_dv_timings default_timing =
 		V4L2_DV_BT_CEA_640X480P59_94;
@@ -2223,7 +2307,11 @@ static struct i2c_driver tc358743_driver = {
 		.name = "tc358743",
 		.of_match_table = of_match_ptr(tc358743_of_match),
 	},
+<<<<<<< HEAD
 	.probe = tc358743_probe,
+=======
+	.probe_new = tc358743_probe,
+>>>>>>> upstream/android-13
 	.remove = tc358743_remove,
 	.id_table = tc358743_id,
 };

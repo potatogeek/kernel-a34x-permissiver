@@ -33,6 +33,7 @@ unsigned long parse_tag_value(const char *str, struct parse_tag *tags)
 	return (unsigned long) -1;
 }
 
+<<<<<<< HEAD
 unsigned long convert_unit(unsigned long value, char *unit)
 {
 	*unit = ' ';
@@ -49,12 +50,40 @@ unsigned long convert_unit(unsigned long value, char *unit)
 
 	if (value > 1000) {
 		value /= 1000;
+=======
+double convert_unit_double(double value, char *unit)
+{
+	*unit = ' ';
+
+	if (value > 1000.0) {
+		value /= 1000.0;
+		*unit = 'K';
+	}
+
+	if (value > 1000.0) {
+		value /= 1000.0;
+		*unit = 'M';
+	}
+
+	if (value > 1000.0) {
+		value /= 1000.0;
+>>>>>>> upstream/android-13
 		*unit = 'G';
 	}
 
 	return value;
 }
 
+<<<<<<< HEAD
+=======
+unsigned long convert_unit(unsigned long value, char *unit)
+{
+	double v = convert_unit_double((double)value, unit);
+
+	return (unsigned long)v;
+}
+
+>>>>>>> upstream/android-13
 int unit_number__scnprintf(char *buf, size_t size, u64 n)
 {
 	char unit[4] = "BKMG";

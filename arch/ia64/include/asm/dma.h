@@ -12,11 +12,15 @@
 
 extern unsigned long MAX_DMA_ADDRESS;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI
   extern int isa_dma_bridge_buggy;
 #else
 # define isa_dma_bridge_buggy 	(0)
 #endif
+=======
+extern int isa_dma_bridge_buggy;
+>>>>>>> upstream/android-13
 
 #define free_dma(x)
 

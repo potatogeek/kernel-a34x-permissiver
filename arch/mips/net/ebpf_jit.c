@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Just-In-Time compiler for eBPF filters on MIPS
  *
@@ -7,10 +11,13 @@
  *
  * Copyright (c) 2014 Imagination Technologies Ltd.
  * Author: Markos Chandras <markos.chandras@imgtec.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; version 2 of the License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -22,6 +29,10 @@
 #include <asm/byteorder.h>
 #include <asm/cacheflush.h>
 #include <asm/cpu-features.h>
+<<<<<<< HEAD
+=======
+#include <asm/isa-rev.h>
+>>>>>>> upstream/android-13
 #include <asm/uasm.h>
 
 /* Registers used by JIT */
@@ -79,8 +90,11 @@ enum reg_val_type {
 	REG_64BIT_32BIT,
 	/* 32-bit compatible, need truncation for 64-bit ops. */
 	REG_32BIT,
+<<<<<<< HEAD
 	/* 32-bit zero extended. */
 	REG_32BIT_ZERO_EX,
+=======
+>>>>>>> upstream/android-13
 	/* 32-bit no sign/zero extension needed. */
 	REG_32BIT_POS
 };
@@ -127,6 +141,7 @@ static enum reg_val_type get_reg_val_type(const struct jit_ctx *ctx,
 }
 
 /* Simply emit the instruction if the JIT memory space has been allocated */
+<<<<<<< HEAD
 #define emit_instr(ctx, func, ...)			\
 do {							\
 	if ((ctx)->target != NULL) {			\
@@ -136,6 +151,23 @@ do {							\
 	(ctx)->idx++;					\
 } while (0)
 
+=======
+#define emit_instr_long(ctx, func64, func32, ...)		\
+do {								\
+	if ((ctx)->target != NULL) {				\
+		u32 *p = &(ctx)->target[ctx->idx];		\
+		if (IS_ENABLED(CONFIG_64BIT))			\
+			uasm_i_##func64(&p, ##__VA_ARGS__);	\
+		else						\
+			uasm_i_##func32(&p, ##__VA_ARGS__);	\
+	}							\
+	(ctx)->idx++;						\
+} while (0)
+
+#define emit_instr(ctx, func, ...)				\
+	emit_instr_long(ctx, func, func, ##__VA_ARGS__)
+
+>>>>>>> upstream/android-13
 static unsigned int j_target(struct jit_ctx *ctx, int target_idx)
 {
 	unsigned long target_va, base_va;
@@ -188,8 +220,14 @@ enum which_ebpf_reg {
  * separate frame pointer, so BPF_REG_10 relative accesses are
  * adjusted to be $sp relative.
  */
+<<<<<<< HEAD
 int ebpf_to_mips_reg(struct jit_ctx *ctx, const struct bpf_insn *insn,
 		     enum which_ebpf_reg w)
+=======
+static int ebpf_to_mips_reg(struct jit_ctx *ctx,
+			    const struct bpf_insn *insn,
+			    enum which_ebpf_reg w)
+>>>>>>> upstream/android-13
 {
 	int ebpf_reg = (w == src_reg || w == src_reg_no_fp) ?
 		insn->src_reg : insn->dst_reg;
@@ -275,6 +313,7 @@ static int gen_int_prologue(struct jit_ctx *ctx)
 		 * If RA we are doing a function call and may need
 		 * extra 8-byte tmp area.
 		 */
+<<<<<<< HEAD
 		stack_adjust += 16;
 	if (ctx->flags & EBPF_SAVE_S0)
 		stack_adjust += 8;
@@ -286,6 +325,19 @@ static int gen_int_prologue(struct jit_ctx *ctx)
 		stack_adjust += 8;
 	if (ctx->flags & EBPF_SAVE_S4)
 		stack_adjust += 8;
+=======
+		stack_adjust += 2 * sizeof(long);
+	if (ctx->flags & EBPF_SAVE_S0)
+		stack_adjust += sizeof(long);
+	if (ctx->flags & EBPF_SAVE_S1)
+		stack_adjust += sizeof(long);
+	if (ctx->flags & EBPF_SAVE_S2)
+		stack_adjust += sizeof(long);
+	if (ctx->flags & EBPF_SAVE_S3)
+		stack_adjust += sizeof(long);
+	if (ctx->flags & EBPF_SAVE_S4)
+		stack_adjust += sizeof(long);
+>>>>>>> upstream/android-13
 
 	BUILD_BUG_ON(MAX_BPF_STACK & 7);
 	locals_size = (ctx->flags & EBPF_SEEN_FP) ? MAX_BPF_STACK : 0;
@@ -299,6 +351,7 @@ static int gen_int_prologue(struct jit_ctx *ctx)
 	 * On tail call we skip this instruction, and the TCC is
 	 * passed in $v1 from the caller.
 	 */
+<<<<<<< HEAD
 	emit_instr(ctx, daddiu, MIPS_R_V1, MIPS_R_ZERO, MAX_TAIL_CALL_CNT);
 	if (stack_adjust)
 		emit_instr(ctx, daddiu, MIPS_R_SP, MIPS_R_SP, -stack_adjust);
@@ -334,6 +387,51 @@ static int gen_int_prologue(struct jit_ctx *ctx)
 
 	if ((ctx->flags & EBPF_SEEN_TC) && !(ctx->flags & EBPF_TCC_IN_V1))
 		emit_instr(ctx, daddu, MIPS_R_S4, MIPS_R_V1, MIPS_R_ZERO);
+=======
+	emit_instr(ctx, addiu, MIPS_R_V1, MIPS_R_ZERO, MAX_TAIL_CALL_CNT);
+	if (stack_adjust)
+		emit_instr_long(ctx, daddiu, addiu,
+					MIPS_R_SP, MIPS_R_SP, -stack_adjust);
+	else
+		return 0;
+
+	store_offset = stack_adjust - sizeof(long);
+
+	if (ctx->flags & EBPF_SAVE_RA) {
+		emit_instr_long(ctx, sd, sw,
+					MIPS_R_RA, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S0) {
+		emit_instr_long(ctx, sd, sw,
+					MIPS_R_S0, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S1) {
+		emit_instr_long(ctx, sd, sw,
+					MIPS_R_S1, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S2) {
+		emit_instr_long(ctx, sd, sw,
+					MIPS_R_S2, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S3) {
+		emit_instr_long(ctx, sd, sw,
+					MIPS_R_S3, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S4) {
+		emit_instr_long(ctx, sd, sw,
+					MIPS_R_S4, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+
+	if ((ctx->flags & EBPF_SEEN_TC) && !(ctx->flags & EBPF_TCC_IN_V1))
+		emit_instr_long(ctx, daddu, addu,
+					MIPS_R_S4, MIPS_R_V1, MIPS_R_ZERO);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -342,18 +440,27 @@ static int build_int_epilogue(struct jit_ctx *ctx, int dest_reg)
 {
 	const struct bpf_prog *prog = ctx->skf;
 	int stack_adjust = ctx->stack_size;
+<<<<<<< HEAD
 	int store_offset = stack_adjust - 8;
+=======
+	int store_offset = stack_adjust - sizeof(long);
+>>>>>>> upstream/android-13
 	enum reg_val_type td;
 	int r0 = MIPS_R_V0;
 
 	if (dest_reg == MIPS_R_RA) {
 		/* Don't let zero extended value escape. */
 		td = get_reg_val_type(ctx, prog->len, BPF_REG_0);
+<<<<<<< HEAD
 		if (td == REG_64BIT || td == REG_32BIT_ZERO_EX)
+=======
+		if (td == REG_64BIT)
+>>>>>>> upstream/android-13
 			emit_instr(ctx, sll, r0, r0, 0);
 	}
 
 	if (ctx->flags & EBPF_SAVE_RA) {
+<<<<<<< HEAD
 		emit_instr(ctx, ld, MIPS_R_RA, store_offset, MIPS_R_SP);
 		store_offset -= 8;
 	}
@@ -376,11 +483,46 @@ static int build_int_epilogue(struct jit_ctx *ctx, int dest_reg)
 	if (ctx->flags & EBPF_SAVE_S4) {
 		emit_instr(ctx, ld, MIPS_R_S4, store_offset, MIPS_R_SP);
 		store_offset -= 8;
+=======
+		emit_instr_long(ctx, ld, lw,
+					MIPS_R_RA, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S0) {
+		emit_instr_long(ctx, ld, lw,
+					MIPS_R_S0, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S1) {
+		emit_instr_long(ctx, ld, lw,
+					MIPS_R_S1, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S2) {
+		emit_instr_long(ctx, ld, lw,
+				MIPS_R_S2, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S3) {
+		emit_instr_long(ctx, ld, lw,
+					MIPS_R_S3, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+	}
+	if (ctx->flags & EBPF_SAVE_S4) {
+		emit_instr_long(ctx, ld, lw,
+					MIPS_R_S4, store_offset, MIPS_R_SP);
+		store_offset -= sizeof(long);
+>>>>>>> upstream/android-13
 	}
 	emit_instr(ctx, jr, dest_reg);
 
 	if (stack_adjust)
+<<<<<<< HEAD
 		emit_instr(ctx, daddiu, MIPS_R_SP, MIPS_R_SP, stack_adjust);
+=======
+		emit_instr_long(ctx, daddiu, addiu,
+					MIPS_R_SP, MIPS_R_SP, stack_adjust);
+>>>>>>> upstream/android-13
 	else
 		emit_instr(ctx, nop);
 
@@ -648,6 +790,13 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 	s64 t64s;
 	int bpf_op = BPF_OP(insn->code);
 
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_32BIT) && ((BPF_CLASS(insn->code) == BPF_ALU64)
+						|| (bpf_op == BPF_DW)))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	switch (insn->code) {
 	case BPF_ALU64 | BPF_ADD | BPF_K: /* ALU64_IMM */
 	case BPF_ALU64 | BPF_SUB | BPF_K: /* ALU64_IMM */
@@ -680,8 +829,17 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 		if (insn->imm == 1) /* Mult by 1 is a nop */
 			break;
 		gen_imm_to_reg(insn, MIPS_R_AT, ctx);
+<<<<<<< HEAD
 		emit_instr(ctx, dmultu, MIPS_R_AT, dst);
 		emit_instr(ctx, mflo, dst);
+=======
+		if (MIPS_ISA_REV >= 6) {
+			emit_instr(ctx, dmulu, dst, dst, MIPS_R_AT);
+		} else {
+			emit_instr(ctx, dmultu, MIPS_R_AT, dst);
+			emit_instr(ctx, mflo, dst);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case BPF_ALU64 | BPF_NEG | BPF_K: /* ALU64_IMM */
 		dst = ebpf_to_mips_reg(ctx, insn, dst_reg);
@@ -696,22 +854,39 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 		if (dst < 0)
 			return dst;
 		td = get_reg_val_type(ctx, this_idx, insn->dst_reg);
+<<<<<<< HEAD
 		if (td == REG_64BIT || td == REG_32BIT_ZERO_EX) {
+=======
+		if (td == REG_64BIT) {
+>>>>>>> upstream/android-13
 			/* sign extend */
 			emit_instr(ctx, sll, dst, dst, 0);
 		}
 		if (insn->imm == 1) /* Mult by 1 is a nop */
 			break;
 		gen_imm_to_reg(insn, MIPS_R_AT, ctx);
+<<<<<<< HEAD
 		emit_instr(ctx, multu, dst, MIPS_R_AT);
 		emit_instr(ctx, mflo, dst);
+=======
+		if (MIPS_ISA_REV >= 6) {
+			emit_instr(ctx, mulu, dst, dst, MIPS_R_AT);
+		} else {
+			emit_instr(ctx, multu, dst, MIPS_R_AT);
+			emit_instr(ctx, mflo, dst);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case BPF_ALU | BPF_NEG | BPF_K: /* ALU_IMM */
 		dst = ebpf_to_mips_reg(ctx, insn, dst_reg);
 		if (dst < 0)
 			return dst;
 		td = get_reg_val_type(ctx, this_idx, insn->dst_reg);
+<<<<<<< HEAD
 		if (td == REG_64BIT || td == REG_32BIT_ZERO_EX) {
+=======
+		if (td == REG_64BIT) {
+>>>>>>> upstream/android-13
 			/* sign extend */
 			emit_instr(ctx, sll, dst, dst, 0);
 		}
@@ -725,7 +900,11 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 		if (dst < 0)
 			return dst;
 		td = get_reg_val_type(ctx, this_idx, insn->dst_reg);
+<<<<<<< HEAD
 		if (td == REG_64BIT || td == REG_32BIT_ZERO_EX)
+=======
+		if (td == REG_64BIT)
+>>>>>>> upstream/android-13
 			/* sign extend */
 			emit_instr(ctx, sll, dst, dst, 0);
 		if (insn->imm == 1) {
@@ -735,6 +914,16 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 			break;
 		}
 		gen_imm_to_reg(insn, MIPS_R_AT, ctx);
+<<<<<<< HEAD
+=======
+		if (MIPS_ISA_REV >= 6) {
+			if (bpf_op == BPF_DIV)
+				emit_instr(ctx, divu_r6, dst, dst, MIPS_R_AT);
+			else
+				emit_instr(ctx, modu, dst, dst, MIPS_R_AT);
+			break;
+		}
+>>>>>>> upstream/android-13
 		emit_instr(ctx, divu, dst, MIPS_R_AT);
 		if (bpf_op == BPF_DIV)
 			emit_instr(ctx, mflo, dst);
@@ -757,6 +946,16 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 			break;
 		}
 		gen_imm_to_reg(insn, MIPS_R_AT, ctx);
+<<<<<<< HEAD
+=======
+		if (MIPS_ISA_REV >= 6) {
+			if (bpf_op == BPF_DIV)
+				emit_instr(ctx, ddivu_r6, dst, dst, MIPS_R_AT);
+			else
+				emit_instr(ctx, modu, dst, dst, MIPS_R_AT);
+			break;
+		}
+>>>>>>> upstream/android-13
 		emit_instr(ctx, ddivu, dst, MIPS_R_AT);
 		if (bpf_op == BPF_DIV)
 			emit_instr(ctx, mflo, dst);
@@ -822,11 +1021,31 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 			emit_instr(ctx, and, dst, dst, src);
 			break;
 		case BPF_MUL:
+<<<<<<< HEAD
 			emit_instr(ctx, dmultu, dst, src);
 			emit_instr(ctx, mflo, dst);
 			break;
 		case BPF_DIV:
 		case BPF_MOD:
+=======
+			if (MIPS_ISA_REV >= 6) {
+				emit_instr(ctx, dmulu, dst, dst, src);
+			} else {
+				emit_instr(ctx, dmultu, dst, src);
+				emit_instr(ctx, mflo, dst);
+			}
+			break;
+		case BPF_DIV:
+		case BPF_MOD:
+			if (MIPS_ISA_REV >= 6) {
+				if (bpf_op == BPF_DIV)
+					emit_instr(ctx, ddivu_r6,
+							dst, dst, src);
+				else
+					emit_instr(ctx, modu, dst, dst, src);
+				break;
+			}
+>>>>>>> upstream/android-13
 			emit_instr(ctx, ddivu, dst, src);
 			if (bpf_op == BPF_DIV)
 				emit_instr(ctx, mflo, dst);
@@ -858,18 +1077,30 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 	case BPF_ALU | BPF_MOD | BPF_X: /* ALU_REG */
 	case BPF_ALU | BPF_LSH | BPF_X: /* ALU_REG */
 	case BPF_ALU | BPF_RSH | BPF_X: /* ALU_REG */
+<<<<<<< HEAD
+=======
+	case BPF_ALU | BPF_ARSH | BPF_X: /* ALU_REG */
+>>>>>>> upstream/android-13
 		src = ebpf_to_mips_reg(ctx, insn, src_reg_no_fp);
 		dst = ebpf_to_mips_reg(ctx, insn, dst_reg);
 		if (src < 0 || dst < 0)
 			return -EINVAL;
 		td = get_reg_val_type(ctx, this_idx, insn->dst_reg);
+<<<<<<< HEAD
 		if (td == REG_64BIT || td == REG_32BIT_ZERO_EX) {
+=======
+		if (td == REG_64BIT) {
+>>>>>>> upstream/android-13
 			/* sign extend */
 			emit_instr(ctx, sll, dst, dst, 0);
 		}
 		did_move = false;
 		ts = get_reg_val_type(ctx, this_idx, insn->src_reg);
+<<<<<<< HEAD
 		if (ts == REG_64BIT || ts == REG_32BIT_ZERO_EX) {
+=======
+		if (ts == REG_64BIT) {
+>>>>>>> upstream/android-13
 			int tmp_reg = MIPS_R_AT;
 
 			if (bpf_op == BPF_MOV) {
@@ -905,6 +1136,16 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 			break;
 		case BPF_DIV:
 		case BPF_MOD:
+<<<<<<< HEAD
+=======
+			if (MIPS_ISA_REV >= 6) {
+				if (bpf_op == BPF_DIV)
+					emit_instr(ctx, divu_r6, dst, dst, src);
+				else
+					emit_instr(ctx, modu, dst, dst, src);
+				break;
+			}
+>>>>>>> upstream/android-13
 			emit_instr(ctx, divu, dst, src);
 			if (bpf_op == BPF_DIV)
 				emit_instr(ctx, mflo, dst);
@@ -917,6 +1158,12 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 		case BPF_RSH:
 			emit_instr(ctx, srlv, dst, dst, src);
 			break;
+<<<<<<< HEAD
+=======
+		case BPF_ARSH:
+			emit_instr(ctx, srav, dst, dst, src);
+			break;
+>>>>>>> upstream/android-13
 		default:
 			pr_err("ALU_REG NOT HANDLED\n");
 			return -EINVAL;
@@ -1005,8 +1252,20 @@ static int build_one_insn(const struct bpf_insn *insn, struct jit_ctx *ctx,
 			emit_instr(ctx, dsubu, MIPS_R_T8, dst, src);
 			emit_instr(ctx, sltu, MIPS_R_AT, dst, src);
 			/* SP known to be non-zero, movz becomes boolean not */
+<<<<<<< HEAD
 			emit_instr(ctx, movz, MIPS_R_T9, MIPS_R_SP, MIPS_R_T8);
 			emit_instr(ctx, movn, MIPS_R_T9, MIPS_R_ZERO, MIPS_R_T8);
+=======
+			if (MIPS_ISA_REV >= 6) {
+				emit_instr(ctx, seleqz, MIPS_R_T9,
+						MIPS_R_SP, MIPS_R_T8);
+			} else {
+				emit_instr(ctx, movz, MIPS_R_T9,
+						MIPS_R_SP, MIPS_R_T8);
+				emit_instr(ctx, movn, MIPS_R_T9,
+						MIPS_R_ZERO, MIPS_R_T8);
+			}
+>>>>>>> upstream/android-13
 			emit_instr(ctx, or, MIPS_R_AT, MIPS_R_T9, MIPS_R_AT);
 			cmp_eq = bpf_op == BPF_JGT;
 			dst = MIPS_R_AT;
@@ -1233,7 +1492,11 @@ jeq_common:
 
 	case BPF_JMP | BPF_CALL:
 		ctx->flags |= EBPF_SAVE_RA;
+<<<<<<< HEAD
 		t64s = (s64)insn->imm + (s64)__bpf_call_base;
+=======
+		t64s = (s64)insn->imm + (long)__bpf_call_base;
+>>>>>>> upstream/android-13
 		emit_const_to_reg(ctx, MIPS_R_T9, (u64)t64s);
 		emit_instr(ctx, jalr, MIPS_R_RA, MIPS_R_T9);
 		/* delay slot */
@@ -1254,8 +1517,12 @@ jeq_common:
 		if (insn->imm == 64 && td == REG_32BIT)
 			emit_instr(ctx, dinsu, dst, MIPS_R_ZERO, 32, 32);
 
+<<<<<<< HEAD
 		if (insn->imm != 64 &&
 		    (td == REG_64BIT || td == REG_32BIT_ZERO_EX)) {
+=======
+		if (insn->imm != 64 && td == REG_64BIT) {
+>>>>>>> upstream/android-13
 			/* sign extend */
 			emit_instr(ctx, sll, dst, dst, 0);
 		}
@@ -1282,6 +1549,12 @@ jeq_common:
 		}
 		break;
 
+<<<<<<< HEAD
+=======
+	case BPF_ST | BPF_NOSPEC: /* speculation barrier */
+		break;
+
+>>>>>>> upstream/android-13
 	case BPF_ST | BPF_B | BPF_MEM:
 	case BPF_ST | BPF_H | BPF_MEM:
 	case BPF_ST | BPF_W | BPF_MEM:
@@ -1350,8 +1623,13 @@ jeq_common:
 	case BPF_STX | BPF_H | BPF_MEM:
 	case BPF_STX | BPF_W | BPF_MEM:
 	case BPF_STX | BPF_DW | BPF_MEM:
+<<<<<<< HEAD
 	case BPF_STX | BPF_W | BPF_XADD:
 	case BPF_STX | BPF_DW | BPF_XADD:
+=======
+	case BPF_STX | BPF_W | BPF_ATOMIC:
+	case BPF_STX | BPF_DW | BPF_ATOMIC:
+>>>>>>> upstream/android-13
 		if (insn->dst_reg == BPF_REG_10) {
 			ctx->flags |= EBPF_SEEN_FP;
 			dst = MIPS_R_SP;
@@ -1365,7 +1643,27 @@ jeq_common:
 		src = ebpf_to_mips_reg(ctx, insn, src_reg_no_fp);
 		if (src < 0)
 			return src;
+<<<<<<< HEAD
 		if (BPF_MODE(insn->code) == BPF_XADD) {
+=======
+		if (BPF_MODE(insn->code) == BPF_ATOMIC) {
+			if (insn->imm != BPF_ADD) {
+				pr_err("ATOMIC OP %02x NOT HANDLED\n", insn->imm);
+				return -EINVAL;
+			}
+
+			/*
+			 * If mem_off does not fit within the 9 bit ll/sc
+			 * instruction immediate field, use a temp reg.
+			 */
+			if (MIPS_ISA_REV >= 6 &&
+			    (mem_off >= BIT(8) || mem_off < -BIT(8))) {
+				emit_instr(ctx, daddiu, MIPS_R_T6,
+						dst, mem_off);
+				mem_off = 0;
+				dst = MIPS_R_T6;
+			}
+>>>>>>> upstream/android-13
 			switch (BPF_SIZE(insn->code)) {
 			case BPF_W:
 				if (get_reg_val_type(ctx, this_idx, insn->src_reg) == REG_32BIT) {
@@ -1720,7 +2018,11 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
 	unsigned int image_size;
 	u8 *image_ptr;
 
+<<<<<<< HEAD
 	if (!prog->jit_requested || !cpu_has_mips64r2)
+=======
+	if (!prog->jit_requested)
+>>>>>>> upstream/android-13
 		return prog;
 
 	tmp = bpf_jit_blind_constants(prog);

@@ -19,7 +19,12 @@ extern int __pata_platform_probe(struct device *dev,
 				 struct resource *irq_res,
 				 unsigned int ioport_shift,
 				 int __pio_mask,
+<<<<<<< HEAD
 				 struct scsi_host_template *sht);
+=======
+				 struct scsi_host_template *sht,
+				 bool use16bit);
+>>>>>>> upstream/android-13
 
 /*
  * Marvell SATA private data

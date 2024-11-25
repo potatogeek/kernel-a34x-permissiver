@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   Copyright (C) International Business Machines Corp., 2000-2004
  *   Portions Copyright (C) Christoph Hellwig, 2001-2002
@@ -15,6 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program;  if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   Copyright (C) International Business Machines Corp., 2000-2004
+ *   Portions Copyright (C) Christoph Hellwig, 2001-2002
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -1092,8 +1099,12 @@ int lmLogOpen(struct super_block *sb)
 	mutex_lock(&jfs_log_mutex);
 	list_for_each_entry(log, &jfs_external_logs, journal_list) {
 		if (log->bdev->bd_dev == sbi->logdev) {
+<<<<<<< HEAD
 			if (memcmp(log->uuid, sbi->loguuid,
 				   sizeof(log->uuid))) {
+=======
+			if (!uuid_equal(&log->uuid, &sbi->loguuid)) {
+>>>>>>> upstream/android-13
 				jfs_warn("wrong uuid on JFS journal");
 				mutex_unlock(&jfs_log_mutex);
 				return -EINVAL;
@@ -1130,7 +1141,11 @@ int lmLogOpen(struct super_block *sb)
 	}
 
 	log->bdev = bdev;
+<<<<<<< HEAD
 	memcpy(log->uuid, sbi->loguuid, sizeof(log->uuid));
+=======
+	uuid_copy(&log->uuid, &sbi->loguuid);
+>>>>>>> upstream/android-13
 
 	/*
 	 * initialize log:
@@ -1336,8 +1351,14 @@ int lmLogInit(struct jfs_log * log)
 			jfs_info("lmLogInit: inline log:0x%p base:0x%Lx size:0x%x",
 				 log, (unsigned long long)log->base, log->size);
 		} else {
+<<<<<<< HEAD
 			if (memcmp(logsuper->uuid, log->uuid, 16)) {
 				jfs_warn("wrong uuid on JFS log device");
+=======
+			if (!uuid_equal(&logsuper->uuid, &log->uuid)) {
+				jfs_warn("wrong uuid on JFS log device");
+				rc = -EINVAL;
+>>>>>>> upstream/android-13
 				goto errout20;
 			}
 			log->size = le32_to_cpu(logsuper->size);
@@ -1732,7 +1753,11 @@ static int lmLogFileSystem(struct jfs_log * log, struct jfs_sb_info *sbi,
 	int i;
 	struct logsuper *logsuper;
 	struct lbuf *bpsuper;
+<<<<<<< HEAD
 	char *uuid = sbi->uuid;
+=======
+	uuid_t *uuid = &sbi->uuid;
+>>>>>>> upstream/android-13
 
 	/*
 	 * insert/remove file system device to log active file system list.
@@ -1743,8 +1768,13 @@ static int lmLogFileSystem(struct jfs_log * log, struct jfs_sb_info *sbi,
 	logsuper = (struct logsuper *) bpsuper->l_ldata;
 	if (activate) {
 		for (i = 0; i < MAX_ACTIVE; i++)
+<<<<<<< HEAD
 			if (!memcmp(logsuper->active[i].uuid, NULL_UUID, 16)) {
 				memcpy(logsuper->active[i].uuid, uuid, 16);
+=======
+			if (uuid_is_null(&logsuper->active[i].uuid)) {
+				uuid_copy(&logsuper->active[i].uuid, uuid);
+>>>>>>> upstream/android-13
 				sbi->aggregate = i;
 				break;
 			}
@@ -1755,8 +1785,14 @@ static int lmLogFileSystem(struct jfs_log * log, struct jfs_sb_info *sbi,
 		}
 	} else {
 		for (i = 0; i < MAX_ACTIVE; i++)
+<<<<<<< HEAD
 			if (!memcmp(logsuper->active[i].uuid, uuid, 16)) {
 				memcpy(logsuper->active[i].uuid, NULL_UUID, 16);
+=======
+			if (uuid_equal(&logsuper->active[i].uuid, uuid)) {
+				uuid_copy(&logsuper->active[i].uuid,
+					  &uuid_null);
+>>>>>>> upstream/android-13
 				break;
 			}
 		if (i == MAX_ACTIVE) {

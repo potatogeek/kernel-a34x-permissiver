@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * af_alg: User-space algorithm interface
  *
  * This file provides the user-space API for algorithms.
  *
  * Copyright (c) 2010 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -21,6 +28,10 @@
 #include <linux/module.h>
 #include <linux/net.h>
 #include <linux/rwsem.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched.h>
+>>>>>>> upstream/android-13
 #include <linux/sched/signal.h>
 #include <linux/security.h>
 
@@ -174,7 +185,11 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 	sa->salg_name[addr_len - sizeof(*sa) - 1] = 0;
 
 	type = alg_get_type(sa->salg_type);
+<<<<<<< HEAD
 	if (IS_ERR(type) && PTR_ERR(type) == -ENOENT) {
+=======
+	if (PTR_ERR(type) == -ENOENT) {
+>>>>>>> upstream/android-13
 		request_module("algif-%s", sa->salg_type);
 		type = alg_get_type(sa->salg_type);
 	}
@@ -206,8 +221,12 @@ unlock:
 	return err;
 }
 
+<<<<<<< HEAD
 static int alg_setkey(struct sock *sk, char __user *ukey,
 		      unsigned int keylen)
+=======
+static int alg_setkey(struct sock *sk, sockptr_t ukey, unsigned int keylen)
+>>>>>>> upstream/android-13
 {
 	struct alg_sock *ask = alg_sk(sk);
 	const struct af_alg_type *type = ask->type;
@@ -219,7 +238,11 @@ static int alg_setkey(struct sock *sk, char __user *ukey,
 		return -ENOMEM;
 
 	err = -EFAULT;
+<<<<<<< HEAD
 	if (copy_from_user(key, ukey, keylen))
+=======
+	if (copy_from_sockptr(key, ukey, keylen))
+>>>>>>> upstream/android-13
 		goto out;
 
 	err = type->setkey(ask->private, key, keylen);
@@ -231,7 +254,11 @@ out:
 }
 
 static int alg_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 			  char __user *optval, unsigned int optlen)
+=======
+			  sockptr_t optval, unsigned int optlen)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	struct alg_sock *ask = alg_sk(sk);
@@ -263,6 +290,17 @@ static int alg_setsockopt(struct socket *sock, int level, int optname,
 		if (!type->setauthsize)
 			goto unlock;
 		err = type->setauthsize(ask->private, optlen);
+<<<<<<< HEAD
+=======
+		break;
+	case ALG_SET_DRBG_ENTROPY:
+		if (sock->state == SS_CONNECTED)
+			goto unlock;
+		if (!type->setentropy)
+			goto unlock;
+
+		err = type->setentropy(ask->private, optval, optlen);
+>>>>>>> upstream/android-13
 	}
 
 unlock:
@@ -295,6 +333,14 @@ int af_alg_accept(struct sock *sk, struct socket *newsock, bool kern)
 	security_sock_graft(sk2, newsock);
 	security_sk_clone(sk, sk2);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * newsock->ops assigned here to allow type->accept call to override
+	 * them when required.
+	 */
+	newsock->ops = type->ops;
+>>>>>>> upstream/android-13
 	err = type->accept(ask->private, sk2);
 
 	nokey = err == -ENOKEY;
@@ -304,8 +350,11 @@ int af_alg_accept(struct sock *sk, struct socket *newsock, bool kern)
 	if (err)
 		goto unlock;
 
+<<<<<<< HEAD
 	sk2->sk_family = PF_ALG;
 
+=======
+>>>>>>> upstream/android-13
 	if (atomic_inc_return_relaxed(&ask->refcnt) == 1)
 		sock_hold(sk);
 	if (nokey) {
@@ -315,7 +364,10 @@ int af_alg_accept(struct sock *sk, struct socket *newsock, bool kern)
 	alg_sk(sk2)->parent = sk;
 	alg_sk(sk2)->type = type;
 
+<<<<<<< HEAD
 	newsock->ops = type->ops;
+=======
+>>>>>>> upstream/android-13
 	newsock->state = SS_CONNECTED;
 
 	if (nokey)
@@ -346,7 +398,10 @@ static const struct proto_ops alg_proto_ops = {
 	.ioctl		=	sock_no_ioctl,
 	.listen		=	sock_no_listen,
 	.shutdown	=	sock_no_shutdown,
+<<<<<<< HEAD
 	.getsockopt	=	sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.mmap		=	sock_no_mmap,
 	.sendpage	=	sock_no_sendpage,
 	.sendmsg	=	sock_no_sendmsg,
@@ -384,7 +439,10 @@ static int alg_create(struct net *net, struct socket *sock, int protocol,
 	sock->ops = &alg_proto_ops;
 	sock_init_data(sock, sk);
 
+<<<<<<< HEAD
 	sk->sk_family = PF_ALG;
+=======
+>>>>>>> upstream/android-13
 	sk->sk_destruct = alg_sock_destruct;
 
 	return 0;
@@ -408,7 +466,11 @@ int af_alg_make_sg(struct af_alg_sgl *sgl, struct iov_iter *iter, int len)
 	if (n < 0)
 		return n;
 
+<<<<<<< HEAD
 	npages = (off + n + PAGE_SIZE - 1) >> PAGE_SHIFT;
+=======
+	npages = DIV_ROUND_UP(off + n, PAGE_SIZE);
+>>>>>>> upstream/android-13
 	if (WARN_ON(npages == 0))
 		return -EINVAL;
 	/* Add one extra for linking */
@@ -429,12 +491,20 @@ int af_alg_make_sg(struct af_alg_sgl *sgl, struct iov_iter *iter, int len)
 }
 EXPORT_SYMBOL_GPL(af_alg_make_sg);
 
+<<<<<<< HEAD
 void af_alg_link_sg(struct af_alg_sgl *sgl_prev, struct af_alg_sgl *sgl_new)
+=======
+static void af_alg_link_sg(struct af_alg_sgl *sgl_prev,
+			   struct af_alg_sgl *sgl_new)
+>>>>>>> upstream/android-13
 {
 	sg_unmark_end(sgl_prev->sg + sgl_prev->npages - 1);
 	sg_chain(sgl_prev->sg, sgl_prev->npages + 1, sgl_new->sg);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(af_alg_link_sg);
+=======
+>>>>>>> upstream/android-13
 
 void af_alg_free_sg(struct af_alg_sgl *sgl)
 {
@@ -445,7 +515,11 @@ void af_alg_free_sg(struct af_alg_sgl *sgl)
 }
 EXPORT_SYMBOL_GPL(af_alg_free_sg);
 
+<<<<<<< HEAD
 int af_alg_cmsg_send(struct msghdr *msg, struct af_alg_control *con)
+=======
+static int af_alg_cmsg_send(struct msghdr *msg, struct af_alg_control *con)
+>>>>>>> upstream/android-13
 {
 	struct cmsghdr *cmsg;
 
@@ -484,15 +558,25 @@ int af_alg_cmsg_send(struct msghdr *msg, struct af_alg_control *con)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(af_alg_cmsg_send);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * af_alg_alloc_tsgl - allocate the TX SGL
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
  * @return: 0 upon success, < 0 upon error
  */
 int af_alg_alloc_tsgl(struct sock *sk)
+=======
+ * @sk: socket of connection to user space
+ * Return: 0 upon success, < 0 upon error
+ */
+static int af_alg_alloc_tsgl(struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	struct alg_sock *ask = alg_sk(sk);
 	struct af_alg_ctx *ctx = ask->private;
@@ -521,6 +605,7 @@ int af_alg_alloc_tsgl(struct sock *sk)
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(af_alg_alloc_tsgl);
 
 /**
@@ -539,14 +624,38 @@ unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset)
 	struct alg_sock *ask = alg_sk(sk);
 	struct af_alg_ctx *ctx = ask->private;
 	struct af_alg_tsgl *sgl, *tmp;
+=======
+
+/**
+ * af_alg_count_tsgl - Count number of TX SG entries
+ *
+ * The counting starts from the beginning of the SGL to @bytes. If
+ * an @offset is provided, the counting of the SG entries starts at the @offset.
+ *
+ * @sk: socket of connection to user space
+ * @bytes: Count the number of SG entries holding given number of bytes.
+ * @offset: Start the counting of SG entries from the given offset.
+ * Return: Number of TX SG entries found given the constraints
+ */
+unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset)
+{
+	const struct alg_sock *ask = alg_sk(sk);
+	const struct af_alg_ctx *ctx = ask->private;
+	const struct af_alg_tsgl *sgl;
+>>>>>>> upstream/android-13
 	unsigned int i;
 	unsigned int sgl_count = 0;
 
 	if (!bytes)
 		return 0;
 
+<<<<<<< HEAD
 	list_for_each_entry_safe(sgl, tmp, &ctx->tsgl_list, list) {
 		struct scatterlist *sg = sgl->sg;
+=======
+	list_for_each_entry(sgl, &ctx->tsgl_list, list) {
+		const struct scatterlist *sg = sgl->sg;
+>>>>>>> upstream/android-13
 
 		for (i = 0; i < sgl->cur; i++) {
 			size_t bytes_count;
@@ -576,19 +685,34 @@ unsigned int af_alg_count_tsgl(struct sock *sk, size_t bytes, size_t offset)
 EXPORT_SYMBOL_GPL(af_alg_count_tsgl);
 
 /**
+<<<<<<< HEAD
  * aead_pull_tsgl - Release the specified buffers from TX SGL
  *
  * If @dst is non-null, reassign the pages to dst. The caller must release
+=======
+ * af_alg_pull_tsgl - Release the specified buffers from TX SGL
+ *
+ * If @dst is non-null, reassign the pages to @dst. The caller must release
+>>>>>>> upstream/android-13
  * the pages. If @dst_offset is given only reassign the pages to @dst starting
  * at the @dst_offset (byte). The caller must ensure that @dst is large
  * enough (e.g. by using af_alg_count_tsgl with the same offset).
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
  * @used Number of bytes to pull from TX SGL
  * @dst If non-NULL, buffer is reassigned to dst SGL instead of releasing. The
  *	caller must release the buffers in dst.
  * @dst_offset Reassign the TX SGL from given offset. All buffers before
  *	       reaching the offset is released.
+=======
+ * @sk: socket of connection to user space
+ * @used: Number of bytes to pull from TX SGL
+ * @dst: If non-NULL, buffer is reassigned to dst SGL instead of releasing. The
+ *	 caller must release the buffers in dst.
+ * @dst_offset: Reassign the TX SGL from given offset. All buffers before
+ *	        reaching the offset is released.
+>>>>>>> upstream/android-13
  */
 void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
 		      size_t dst_offset)
@@ -644,21 +768,35 @@ void af_alg_pull_tsgl(struct sock *sk, size_t used, struct scatterlist *dst,
 		}
 
 		list_del(&sgl->list);
+<<<<<<< HEAD
 		sock_kfree_s(sk, sgl, sizeof(*sgl) + sizeof(sgl->sg[0]) *
 						     (MAX_SGL_ENTS + 1));
+=======
+		sock_kfree_s(sk, sgl, struct_size(sgl, sg, MAX_SGL_ENTS + 1));
+>>>>>>> upstream/android-13
 	}
 
 	if (!ctx->used)
 		ctx->merge = 0;
+<<<<<<< HEAD
+=======
+	ctx->init = ctx->more;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(af_alg_pull_tsgl);
 
 /**
  * af_alg_free_areq_sgls - Release TX and RX SGLs of the request
  *
+<<<<<<< HEAD
  * @areq Request holding the TX and RX SGL
  */
 void af_alg_free_areq_sgls(struct af_alg_async_req *areq)
+=======
+ * @areq: Request holding the TX and RX SGL
+ */
+static void af_alg_free_areq_sgls(struct af_alg_async_req *areq)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = areq->sk;
 	struct alg_sock *ask = alg_sk(sk);
@@ -687,16 +825,27 @@ void af_alg_free_areq_sgls(struct af_alg_async_req *areq)
 		sock_kfree_s(sk, tsgl, areq->tsgl_entries * sizeof(*tsgl));
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(af_alg_free_areq_sgls);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * af_alg_wait_for_wmem - wait for availability of writable memory
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
  * @flags If MSG_DONTWAIT is set, then only report if function would sleep
  * @return 0 when writable memory is available, < 0 upon error
  */
 int af_alg_wait_for_wmem(struct sock *sk, unsigned int flags)
+=======
+ * @sk: socket of connection to user space
+ * @flags: If MSG_DONTWAIT is set, then only report if function would sleep
+ * Return: 0 when writable memory is available, < 0 upon error
+ */
+static int af_alg_wait_for_wmem(struct sock *sk, unsigned int flags)
+>>>>>>> upstream/android-13
 {
 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
 	int err = -ERESTARTSYS;
@@ -721,12 +870,19 @@ int af_alg_wait_for_wmem(struct sock *sk, unsigned int flags)
 
 	return err;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(af_alg_wait_for_wmem);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * af_alg_wmem_wakeup - wakeup caller when writable memory is available
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
+=======
+ * @sk: socket of connection to user space
+>>>>>>> upstream/android-13
  */
 void af_alg_wmem_wakeup(struct sock *sk)
 {
@@ -749,11 +905,20 @@ EXPORT_SYMBOL_GPL(af_alg_wmem_wakeup);
 /**
  * af_alg_wait_for_data - wait for availability of TX data
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
  * @flags If MSG_DONTWAIT is set, then only report if function would sleep
  * @return 0 when writable memory is available, < 0 upon error
  */
 int af_alg_wait_for_data(struct sock *sk, unsigned flags)
+=======
+ * @sk: socket of connection to user space
+ * @flags: If MSG_DONTWAIT is set, then only report if function would sleep
+ * @min: Set to minimum request size if partial requests are allowed.
+ * Return: 0 when writable memory is available, < 0 upon error
+ */
+int af_alg_wait_for_data(struct sock *sk, unsigned flags, unsigned min)
+>>>>>>> upstream/android-13
 {
 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
 	struct alg_sock *ask = alg_sk(sk);
@@ -771,7 +936,13 @@ int af_alg_wait_for_data(struct sock *sk, unsigned flags)
 		if (signal_pending(current))
 			break;
 		timeout = MAX_SCHEDULE_TIMEOUT;
+<<<<<<< HEAD
 		if (sk_wait_event(sk, &timeout, (ctx->used || !ctx->more),
+=======
+		if (sk_wait_event(sk, &timeout,
+				  ctx->init && (!ctx->more ||
+						(min && ctx->used >= min)),
+>>>>>>> upstream/android-13
 				  &wait)) {
 			err = 0;
 			break;
@@ -788,10 +959,16 @@ EXPORT_SYMBOL_GPL(af_alg_wait_for_data);
 /**
  * af_alg_data_wakeup - wakeup caller when new data can be sent to kernel
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
  */
 
 void af_alg_data_wakeup(struct sock *sk)
+=======
+ * @sk: socket of connection to user space
+ */
+static void af_alg_data_wakeup(struct sock *sk)
+>>>>>>> upstream/android-13
 {
 	struct alg_sock *ask = alg_sk(sk);
 	struct af_alg_ctx *ctx = ask->private;
@@ -809,7 +986,10 @@ void af_alg_data_wakeup(struct sock *sk)
 	sk_wake_async(sk, SOCK_WAKE_SPACE, POLL_OUT);
 	rcu_read_unlock();
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(af_alg_data_wakeup);
+=======
+>>>>>>> upstream/android-13
 
 /**
  * af_alg_sendmsg - implementation of sendmsg system call handler
@@ -820,12 +1000,21 @@ EXPORT_SYMBOL_GPL(af_alg_data_wakeup);
  *
  * In addition, the ctx is filled with the information sent via CMSG.
  *
+<<<<<<< HEAD
  * @sock socket of connection to user space
  * @msg message from user space
  * @size size of message from user space
  * @ivsize the size of the IV for the cipher operation to verify that the
  *	   user-space-provided IV has the right size
  * @return the number of copied data upon success, < 0 upon error
+=======
+ * @sock: socket of connection to user space
+ * @msg: message from user space
+ * @size: size of message from user space
+ * @ivsize: the size of the IV for the cipher operation to verify that the
+ *	   user-space-provided IV has the right size
+ * Return: the number of copied data upon success, < 0 upon error
+>>>>>>> upstream/android-13
  */
 int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
 		   unsigned int ivsize)
@@ -836,8 +1025,13 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
 	struct af_alg_tsgl *sgl;
 	struct af_alg_control con = {};
 	long copied = 0;
+<<<<<<< HEAD
 	bool enc = 0;
 	bool init = 0;
+=======
+	bool enc = false;
+	bool init = false;
+>>>>>>> upstream/android-13
 	int err = 0;
 
 	if (msg->msg_controllen) {
@@ -845,6 +1039,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
 		if (err)
 			return err;
 
+<<<<<<< HEAD
 		init = 1;
 		switch (con.op) {
 		case ALG_OP_ENCRYPT:
@@ -852,6 +1047,15 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
 			break;
 		case ALG_OP_DECRYPT:
 			enc = 0;
+=======
+		init = true;
+		switch (con.op) {
+		case ALG_OP_ENCRYPT:
+			enc = true;
+			break;
+		case ALG_OP_DECRYPT:
+			enc = false;
+>>>>>>> upstream/android-13
 			break;
 		default:
 			return -EINVAL;
@@ -862,10 +1066,24 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
 	}
 
 	lock_sock(sk);
+<<<<<<< HEAD
 	if (!ctx->more && ctx->used) {
 		err = -EINVAL;
 		goto unlock;
 	}
+=======
+	if (ctx->init && !ctx->more) {
+		if (ctx->used) {
+			err = -EINVAL;
+			goto unlock;
+		}
+
+		pr_info_once(
+			"%s sent an empty control message without MSG_MORE.\n",
+			current->comm);
+	}
+	ctx->init = true;
+>>>>>>> upstream/android-13
 
 	if (init) {
 		ctx->enc = enc;
@@ -970,6 +1188,14 @@ EXPORT_SYMBOL_GPL(af_alg_sendmsg);
 
 /**
  * af_alg_sendpage - sendpage system call handler
+<<<<<<< HEAD
+=======
+ * @sock: socket of connection to user space to write to
+ * @page: data to send
+ * @offset: offset into page to begin sending
+ * @size: length of data
+ * @flags: message send/receive flags
+>>>>>>> upstream/android-13
  *
  * This is a generic implementation of sendpage to fill ctx->tsgl_list.
  */
@@ -1028,6 +1254,10 @@ EXPORT_SYMBOL_GPL(af_alg_sendpage);
 
 /**
  * af_alg_free_resources - release resources required for crypto request
+<<<<<<< HEAD
+=======
+ * @areq: Request holding the TX and RX SGL
+>>>>>>> upstream/android-13
  */
 void af_alg_free_resources(struct af_alg_async_req *areq)
 {
@@ -1040,6 +1270,12 @@ EXPORT_SYMBOL_GPL(af_alg_free_resources);
 
 /**
  * af_alg_async_cb - AIO callback handler
+<<<<<<< HEAD
+=======
+ * @_req: async request info
+ * @err: if non-zero, error result to be returned via ki_complete();
+ *       otherwise return the AIO output length via ki_complete().
+>>>>>>> upstream/android-13
  *
  * This handler cleans up the struct af_alg_async_req upon completion of the
  * AIO operation.
@@ -1066,6 +1302,12 @@ EXPORT_SYMBOL_GPL(af_alg_async_cb);
 
 /**
  * af_alg_poll - poll system call handler
+<<<<<<< HEAD
+=======
+ * @file: file pointer
+ * @sock: socket to poll
+ * @wait: poll_table
+>>>>>>> upstream/android-13
  */
 __poll_t af_alg_poll(struct file *file, struct socket *sock,
 			 poll_table *wait)
@@ -1091,9 +1333,15 @@ EXPORT_SYMBOL_GPL(af_alg_poll);
 /**
  * af_alg_alloc_areq - allocate struct af_alg_async_req
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
  * @areqlen size of struct af_alg_async_req + crypto_*_reqsize
  * @return allocated data structure or ERR_PTR upon error
+=======
+ * @sk: socket of connection to user space
+ * @areqlen: size of struct af_alg_async_req + crypto_*_reqsize
+ * Return: allocated data structure or ERR_PTR upon error
+>>>>>>> upstream/android-13
  */
 struct af_alg_async_req *af_alg_alloc_areq(struct sock *sk,
 					   unsigned int areqlen)
@@ -1118,6 +1366,7 @@ EXPORT_SYMBOL_GPL(af_alg_alloc_areq);
  * af_alg_get_rsgl - create the RX SGL for the output data from the crypto
  *		     operation
  *
+<<<<<<< HEAD
  * @sk socket of connection to user space
  * @msg user space message
  * @flags flags used to invoke recvmsg with
@@ -1125,6 +1374,15 @@ EXPORT_SYMBOL_GPL(af_alg_alloc_areq);
  * @maxsize maximum number of bytes to be pulled from user space
  * @outlen number of bytes in the RX SGL
  * @return 0 on success, < 0 upon error
+=======
+ * @sk: socket of connection to user space
+ * @msg: user space message
+ * @flags: flags used to invoke recvmsg with
+ * @areq: instance of the cryptographic request that will hold the RX SGL
+ * @maxsize: maximum number of bytes to be pulled from user space
+ * @outlen: number of bytes in the RX SGL
+ * Return: 0 on success, < 0 upon error
+>>>>>>> upstream/android-13
  */
 int af_alg_get_rsgl(struct sock *sk, struct msghdr *msg, int flags,
 		    struct af_alg_async_req *areq, size_t maxsize,

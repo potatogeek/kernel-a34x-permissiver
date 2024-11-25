@@ -28,7 +28,12 @@ nvkm_top_device_new(struct nvkm_top *top)
 {
 	struct nvkm_top_device *info = kmalloc(sizeof(*info), GFP_KERNEL);
 	if (info) {
+<<<<<<< HEAD
 		info->index = NVKM_SUBDEV_NR;
+=======
+		info->type = NVKM_SUBDEV_NR;
+		info->inst = -1;
+>>>>>>> upstream/android-13
 		info->addr = 0;
 		info->fault = -1;
 		info->engine = -1;
@@ -41,14 +46,38 @@ nvkm_top_device_new(struct nvkm_top *top)
 }
 
 u32
+<<<<<<< HEAD
 nvkm_top_reset(struct nvkm_device *device, enum nvkm_devidx index)
+=======
+nvkm_top_addr(struct nvkm_device *device, enum nvkm_subdev_type type, int inst)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_top *top = device->top;
 	struct nvkm_top_device *info;
 
 	if (top) {
 		list_for_each_entry(info, &top->device, head) {
+<<<<<<< HEAD
 			if (info->index == index && info->reset >= 0)
+=======
+			if (info->type == type && info->inst == inst)
+				return info->addr;
+		}
+	}
+
+	return 0;
+}
+
+u32
+nvkm_top_reset(struct nvkm_device *device, enum nvkm_subdev_type type, int inst)
+{
+	struct nvkm_top *top = device->top;
+	struct nvkm_top_device *info;
+
+	if (top) {
+		list_for_each_entry(info, &top->device, head) {
+			if (info->type == type && info->inst == inst && info->reset >= 0)
+>>>>>>> upstream/android-13
 				return BIT(info->reset);
 		}
 	}
@@ -57,14 +86,22 @@ nvkm_top_reset(struct nvkm_device *device, enum nvkm_devidx index)
 }
 
 u32
+<<<<<<< HEAD
 nvkm_top_intr_mask(struct nvkm_device *device, enum nvkm_devidx devidx)
+=======
+nvkm_top_intr_mask(struct nvkm_device *device, enum nvkm_subdev_type type, int inst)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_top *top = device->top;
 	struct nvkm_top_device *info;
 
 	if (top) {
 		list_for_each_entry(info, &top->device, head) {
+<<<<<<< HEAD
 			if (info->index == devidx && info->intr >= 0)
+=======
+			if (info->type == type && info->inst == inst && info->intr >= 0)
+>>>>>>> upstream/android-13
 				return BIT(info->intr);
 		}
 	}
@@ -72,6 +109,7 @@ nvkm_top_intr_mask(struct nvkm_device *device, enum nvkm_devidx devidx)
 	return 0;
 }
 
+<<<<<<< HEAD
 u32
 nvkm_top_intr(struct nvkm_device *device, u32 intr, u64 *psubdevs)
 {
@@ -97,19 +135,31 @@ nvkm_top_intr(struct nvkm_device *device, u32 intr, u64 *psubdevs)
 
 int
 nvkm_top_fault_id(struct nvkm_device *device, enum nvkm_devidx devidx)
+=======
+int
+nvkm_top_fault_id(struct nvkm_device *device, enum nvkm_subdev_type type, int inst)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_top *top = device->top;
 	struct nvkm_top_device *info;
 
 	list_for_each_entry(info, &top->device, head) {
+<<<<<<< HEAD
 		if (info->index == devidx && info->fault >= 0)
+=======
+		if (info->type == type && info->inst == inst && info->fault >= 0)
+>>>>>>> upstream/android-13
 			return info->fault;
 	}
 
 	return -ENOENT;
 }
 
+<<<<<<< HEAD
 enum nvkm_devidx
+=======
+struct nvkm_subdev *
+>>>>>>> upstream/android-13
 nvkm_top_fault(struct nvkm_device *device, int fault)
 {
 	struct nvkm_top *top = device->top;
@@ -117,6 +167,7 @@ nvkm_top_fault(struct nvkm_device *device, int fault)
 
 	list_for_each_entry(info, &top->device, head) {
 		if (info->fault == fault)
+<<<<<<< HEAD
 			return info->index;
 	}
 
@@ -139,6 +190,12 @@ nvkm_top_engine(struct nvkm_device *device, int index, int *runl, int *engn)
 	}
 
 	return -ENODEV;
+=======
+			return nvkm_device_subdev(device, info->type, info->inst);
+	}
+
+	return NULL;
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -170,12 +227,20 @@ nvkm_top = {
 
 int
 nvkm_top_new_(const struct nvkm_top_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_top **ptop)
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_top **ptop)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_top *top;
 	if (!(top = *ptop = kzalloc(sizeof(*top), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
 	nvkm_subdev_ctor(&nvkm_top, device, index, &top->subdev);
+=======
+	nvkm_subdev_ctor(&nvkm_top, device, type, inst, &top->subdev);
+>>>>>>> upstream/android-13
 	top->func = func;
 	INIT_LIST_HEAD(&top->device);
 	return 0;

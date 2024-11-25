@@ -13,7 +13,11 @@
 struct idset {
 	int num_ssid;
 	int num_id;
+<<<<<<< HEAD
 	unsigned long bitmap[0];
+=======
+	unsigned long bitmap[];
+>>>>>>> upstream/android-13
 };
 
 static inline unsigned long bitmap_size(int num_ssid, int num_id)
@@ -59,6 +63,7 @@ static inline int idset_contains(struct idset *set, int ssid, int id)
 	return test_bit(ssid * set->num_id + id, set->bitmap);
 }
 
+<<<<<<< HEAD
 static inline int idset_get_first(struct idset *set, int *ssid, int *id)
 {
 	int bitnum;
@@ -71,6 +76,8 @@ static inline int idset_get_first(struct idset *set, int *ssid, int *id)
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct idset *idset_sch_new(void)
 {
 	return idset_new(max_ssid + 1, __MAX_SUBCHANNEL + 1);

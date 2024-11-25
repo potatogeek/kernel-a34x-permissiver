@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Copyright (c) 2000-2001 Vojtech Pavlik
  *  Copyright (c) 2006-2010 Jiri Kosina
@@ -6,6 +10,7 @@
  */
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +24,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  *
  * Should you need to contact me, the author, you can do so either by
  * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
@@ -172,6 +179,10 @@ static int hidinput_setkeycode(struct input_dev *dev,
 	if (usage) {
 		*old_keycode = usage->type == EV_KEY ?
 				usage->code : KEY_RESERVED;
+<<<<<<< HEAD
+=======
+		usage->type = EV_KEY;
+>>>>>>> upstream/android-13
 		usage->code = ke->keycode;
 
 		clear_bit(*old_keycode, dev->keybit);
@@ -336,6 +347,17 @@ static const struct hid_device_id hid_battery_quirks[] = {
 	  HID_BATTERY_QUIRK_IGNORE },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
 	  HID_BATTERY_QUIRK_IGNORE },
+<<<<<<< HEAD
+=======
+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN),
+	  HID_BATTERY_QUIRK_IGNORE },
+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
+	  HID_BATTERY_QUIRK_IGNORE },
+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
+	  HID_BATTERY_QUIRK_IGNORE },
+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+	  HID_BATTERY_QUIRK_IGNORE },
+>>>>>>> upstream/android-13
 	{}
 };
 
@@ -427,8 +449,11 @@ static int hidinput_get_battery_property(struct power_supply *psy,
 
 		if (dev->battery_status == HID_BATTERY_UNKNOWN)
 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+<<<<<<< HEAD
 		else if (dev->battery_capacity == 100)
 			val->intval = POWER_SUPPLY_STATUS_FULL;
+=======
+>>>>>>> upstream/android-13
 		else
 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
 		break;
@@ -445,7 +470,12 @@ static int hidinput_get_battery_property(struct power_supply *psy,
 	return ret;
 }
 
+<<<<<<< HEAD
 static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type, struct hid_field *field)
+=======
+static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+				  struct hid_field *field, bool is_percentage)
+>>>>>>> upstream/android-13
 {
 	struct power_supply_desc *psy_desc;
 	struct power_supply_config psy_cfg = { .drv_data = dev, };
@@ -485,7 +515,11 @@ static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type, 
 	min = field->logical_minimum;
 	max = field->logical_maximum;
 
+<<<<<<< HEAD
 	if (quirks & HID_BATTERY_QUIRK_PERCENT) {
+=======
+	if (is_percentage || (quirks & HID_BATTERY_QUIRK_PERCENT)) {
+>>>>>>> upstream/android-13
 		min = 0;
 		max = 100;
 	}
@@ -551,15 +585,28 @@ static void hidinput_update_battery(struct hid_device *dev, int value)
 	capacity = hidinput_scale_battery_capacity(dev, value);
 
 	if (dev->battery_status != HID_BATTERY_REPORTED ||
+<<<<<<< HEAD
 	    capacity != dev->battery_capacity) {
 		dev->battery_capacity = capacity;
 		dev->battery_status = HID_BATTERY_REPORTED;
+=======
+	    capacity != dev->battery_capacity ||
+	    ktime_after(ktime_get_coarse(), dev->battery_ratelimit_time)) {
+		dev->battery_capacity = capacity;
+		dev->battery_status = HID_BATTERY_REPORTED;
+		dev->battery_ratelimit_time =
+			ktime_add_ms(ktime_get_coarse(), 30 * 1000);
+>>>>>>> upstream/android-13
 		power_supply_changed(dev->battery);
 	}
 }
 #else  /* !CONFIG_HID_BATTERY_STRENGTH */
 static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+<<<<<<< HEAD
 				  struct hid_field *field)
+=======
+				  struct hid_field *field, bool is_percentage)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -573,6 +620,19 @@ static void hidinput_update_battery(struct hid_device *dev, int value)
 }
 #endif	/* CONFIG_HID_BATTERY_STRENGTH */
 
+<<<<<<< HEAD
+=======
+static bool hidinput_field_in_collection(struct hid_device *device, struct hid_field *field,
+					 unsigned int type, unsigned int usage)
+{
+	struct hid_collection *collection;
+
+	collection = &device->collection[field->usage->collection_index];
+
+	return collection->type == type && collection->usage == usage;
+}
+
+>>>>>>> upstream/android-13
 static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_field *field,
 				     struct hid_usage *usage)
 {
@@ -638,6 +698,20 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 				else
 					code += BTN_TRIGGER_HAPPY - 0x10;
 				break;
+<<<<<<< HEAD
+=======
+		case HID_CP_CONSUMER_CONTROL:
+				if (hidinput_field_in_collection(device, field,
+								 HID_COLLECTION_NAMED_ARRAY,
+								 HID_CP_PROGRAMMABLEBUTTONS)) {
+					if (code <= 0x1d)
+						code += KEY_MACRO1;
+					else
+						code += BTN_TRIGGER_HAPPY - 0x1e;
+					break;
+				}
+				fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			switch (field->physical) {
 			case HID_GD_MOUSE:
@@ -728,7 +802,19 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 				map_abs_clear(usage->hid & 0xf);
 			break;
 
+<<<<<<< HEAD
 		case HID_GD_SLIDER: case HID_GD_DIAL: case HID_GD_WHEEL:
+=======
+		case HID_GD_WHEEL:
+			if (field->flags & HID_MAIN_ITEM_RELATIVE) {
+				set_bit(REL_WHEEL, input->relbit);
+				map_rel(REL_WHEEL_HI_RES);
+			} else {
+				map_abs(usage->hid & 0xf);
+			}
+			break;
+		case HID_GD_SLIDER: case HID_GD_DIAL:
+>>>>>>> upstream/android-13
 			if (field->flags & HID_MAIN_ITEM_RELATIVE)
 				map_rel(usage->hid & 0xf);
 			else
@@ -752,6 +838,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 				field->flags |= HID_MAIN_ITEM_RELATIVE;
 				break;
 			}
+<<<<<<< HEAD
+=======
+			goto unknown;
+>>>>>>> upstream/android-13
 
 		default: goto unknown;
 		}
@@ -777,6 +867,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		break;
 
 	case HID_UP_DIGITIZER:
+<<<<<<< HEAD
+=======
+		if ((field->application & 0xff) == 0x01) /* Digitizer */
+			__set_bit(INPUT_PROP_POINTER, input->propbit);
+		else if ((field->application & 0xff) == 0x02) /* Pen */
+			__set_bit(INPUT_PROP_DIRECT, input->propbit);
+
+>>>>>>> upstream/android-13
 		switch (usage->hid & 0xff) {
 		case 0x00: /* Undefined */
 			goto ignore;
@@ -799,7 +897,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 			break;
 
 		case 0x3b: /* Battery Strength */
+<<<<<<< HEAD
 			hidinput_setup_battery(device, HID_INPUT_REPORT, field);
+=======
+			hidinput_setup_battery(device, HID_INPUT_REPORT, field, false);
+>>>>>>> upstream/android-13
 			usage->type = EV_PWR;
 			return;
 
@@ -902,7 +1004,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		case 0x06a: map_key_clear(KEY_GREEN);		break;
 		case 0x06b: map_key_clear(KEY_BLUE);		break;
 		case 0x06c: map_key_clear(KEY_YELLOW);		break;
+<<<<<<< HEAD
 		case 0x06d: map_key_clear(KEY_ZOOM);		break;
+=======
+		case 0x06d: map_key_clear(KEY_ASPECT_RATIO);	break;
+>>>>>>> upstream/android-13
 
 		case 0x06f: map_key_clear(KEY_BRIGHTNESSUP);		break;
 		case 0x070: map_key_clear(KEY_BRIGHTNESSDOWN);		break;
@@ -956,6 +1062,13 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 
 		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
 		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
+<<<<<<< HEAD
+=======
+
+		case 0x0d8: map_key_clear(KEY_DICTATE);		break;
+		case 0x0d9: map_key_clear(KEY_EMOJI_PICKER);	break;
+
+>>>>>>> upstream/android-13
 		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
 		case 0x0e2: map_key_clear(KEY_MUTE);		break;
 		case 0x0e5: map_key_clear(KEY_BASSBOOST);	break;
@@ -1026,9 +1139,19 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		case 0x22d: map_key_clear(KEY_ZOOMIN);		break;
 		case 0x22e: map_key_clear(KEY_ZOOMOUT);		break;
 		case 0x22f: map_key_clear(KEY_ZOOMRESET);	break;
+<<<<<<< HEAD
 		case 0x233: map_key_clear(KEY_SCROLLUP);	break;
 		case 0x234: map_key_clear(KEY_SCROLLDOWN);	break;
 		case 0x238: map_rel(REL_HWHEEL);		break;
+=======
+		case 0x232: map_key_clear(KEY_FULL_SCREEN);	break;
+		case 0x233: map_key_clear(KEY_SCROLLUP);	break;
+		case 0x234: map_key_clear(KEY_SCROLLDOWN);	break;
+		case 0x238: /* AC Pan */
+			set_bit(REL_HWHEEL, input->relbit);
+			map_rel(REL_HWHEEL_HI_RES);
+			break;
+>>>>>>> upstream/android-13
 		case 0x23d: map_key_clear(KEY_EDIT);		break;
 		case 0x25f: map_key_clear(KEY_CANCEL);		break;
 		case 0x269: map_key_clear(KEY_INSERT);		break;
@@ -1039,6 +1162,13 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		case 0x28b: map_key_clear(KEY_FORWARDMAIL);	break;
 		case 0x28c: map_key_clear(KEY_SEND);		break;
 
+<<<<<<< HEAD
+=======
+		case 0x29d: map_key_clear(KEY_KBD_LAYOUT_NEXT);	break;
+
+		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
+
+>>>>>>> upstream/android-13
 		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
 		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
 		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
@@ -1055,7 +1185,20 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 	case HID_UP_GENDEVCTRLS:
 		switch (usage->hid) {
 		case HID_DC_BATTERYSTRENGTH:
+<<<<<<< HEAD
 			hidinput_setup_battery(device, HID_INPUT_REPORT, field);
+=======
+			hidinput_setup_battery(device, HID_INPUT_REPORT, field, false);
+			usage->type = EV_PWR;
+			return;
+		}
+		goto unknown;
+
+	case HID_UP_BATTERY:
+		switch (usage->hid) {
+		case HID_BAT_ABSOLUTESTATEOFCHARGE:
+			hidinput_setup_battery(device, HID_INPUT_REPORT, field, true);
+>>>>>>> upstream/android-13
 			usage->type = EV_PWR;
 			return;
 		}
@@ -1230,6 +1373,41 @@ ignore:
 	usage->code = 0;
 }
 
+<<<<<<< HEAD
+=======
+static void hidinput_handle_scroll(struct hid_usage *usage,
+				   struct input_dev *input,
+				   __s32 value)
+{
+	int code;
+	int hi_res, lo_res;
+
+	if (value == 0)
+		return;
+
+	if (usage->code == REL_WHEEL_HI_RES)
+		code = REL_WHEEL;
+	else
+		code = REL_HWHEEL;
+
+	/*
+	 * Windows reports one wheel click as value 120. Where a high-res
+	 * scroll wheel is present, a fraction of 120 is reported instead.
+	 * Our REL_WHEEL_HI_RES axis does the same because all HW must
+	 * adhere to the 120 expectation.
+	 */
+	hi_res = value * 120/usage->resolution_multiplier;
+
+	usage->wheel_accumulated += hi_res;
+	lo_res = usage->wheel_accumulated/120;
+	if (lo_res)
+		usage->wheel_accumulated -= lo_res * 120;
+
+	input_event(input, EV_REL, code, lo_res);
+	input_event(input, EV_REL, usage->code, hi_res);
+}
+
+>>>>>>> upstream/android-13
 void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value)
 {
 	struct input_dev *input;
@@ -1248,6 +1426,15 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct 
 
 	input = field->hidinput->input;
 
+<<<<<<< HEAD
+=======
+	if (usage->type == EV_ABS &&
+	    (((*quirks & HID_QUIRK_X_INVERT) && usage->code == ABS_X) ||
+	     ((*quirks & HID_QUIRK_Y_INVERT) && usage->code == ABS_Y))) {
+		value = field->logical_maximum - value;
+	}
+
+>>>>>>> upstream/android-13
 	if (usage->hat_min < usage->hat_max || usage->hat_dir) {
 		int hat_dir = usage->hat_dir;
 		if (!hat_dir)
@@ -1258,12 +1445,20 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct 
 		return;
 	}
 
+<<<<<<< HEAD
 	if (usage->hid == (HID_UP_DIGITIZER | 0x003c)) { /* Invert */
+=======
+	if (usage->hid == HID_DG_INVERT) {
+>>>>>>> upstream/android-13
 		*quirks = value ? (*quirks | HID_QUIRK_INVERT) : (*quirks & ~HID_QUIRK_INVERT);
 		return;
 	}
 
+<<<<<<< HEAD
 	if (usage->hid == (HID_UP_DIGITIZER | 0x0032)) { /* InRange */
+=======
+	if (usage->hid == HID_DG_INRANGE) {
+>>>>>>> upstream/android-13
 		if (value) {
 			input_event(input, usage->type, (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL_RUBBER : usage->code, 1);
 			return;
@@ -1273,7 +1468,11 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct 
 		return;
 	}
 
+<<<<<<< HEAD
 	if (usage->hid == (HID_UP_DIGITIZER | 0x0030) && (*quirks & HID_QUIRK_NOTOUCH)) { /* Pressure */
+=======
+	if (usage->hid == HID_DG_TIPPRESSURE && (*quirks & HID_QUIRK_NOTOUCH)) {
+>>>>>>> upstream/android-13
 		int a = field->logical_minimum;
 		int b = field->logical_maximum;
 		input_event(input, EV_KEY, BTN_TOUCH, value > a + ((b - a) >> 3));
@@ -1292,6 +1491,15 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct 
 	if ((usage->type == EV_KEY) && (usage->code == 0)) /* Key 0 is "unassigned", not KEY_UNKNOWN */
 		return;
 
+<<<<<<< HEAD
+=======
+	if ((usage->type == EV_REL) && (usage->code == REL_WHEEL_HI_RES ||
+					usage->code == REL_HWHEEL_HI_RES)) {
+		hidinput_handle_scroll(usage, input, value);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if ((usage->type == EV_ABS) && (field->flags & HID_MAIN_ITEM_RELATIVE) &&
 			(usage->code == ABS_VOLUME)) {
 		int count = abs(value);
@@ -1519,6 +1727,92 @@ static void hidinput_close(struct input_dev *dev)
 	hid_hw_close(hid);
 }
 
+<<<<<<< HEAD
+=======
+#if 0
+static bool __hidinput_change_resolution_multipliers(struct hid_device *hid,
+		struct hid_report *report, bool use_logical_max)
+{
+	struct hid_usage *usage;
+	bool update_needed = false;
+	bool get_report_completed = false;
+	int i, j;
+
+	if (report->maxfield == 0)
+		return false;
+
+	for (i = 0; i < report->maxfield; i++) {
+		__s32 value = use_logical_max ?
+			      report->field[i]->logical_maximum :
+			      report->field[i]->logical_minimum;
+
+		/* There is no good reason for a Resolution
+		 * Multiplier to have a count other than 1.
+		 * Ignore that case.
+		 */
+		if (report->field[i]->report_count != 1)
+			continue;
+
+		for (j = 0; j < report->field[i]->maxusage; j++) {
+			usage = &report->field[i]->usage[j];
+
+			if (usage->hid != HID_GD_RESOLUTION_MULTIPLIER)
+				continue;
+
+			/*
+			 * If we have more than one feature within this
+			 * report we need to fill in the bits from the
+			 * others before we can overwrite the ones for the
+			 * Resolution Multiplier.
+			 *
+			 * But if we're not allowed to read from the device,
+			 * we just bail. Such a device should not exist
+			 * anyway.
+			 */
+			if (!get_report_completed && report->maxfield > 1) {
+				if (hid->quirks & HID_QUIRK_NO_INIT_REPORTS)
+					return update_needed;
+
+				hid_hw_request(hid, report, HID_REQ_GET_REPORT);
+				hid_hw_wait(hid);
+				get_report_completed = true;
+			}
+
+			report->field[i]->value[j] = value;
+			update_needed = true;
+		}
+	}
+
+	return update_needed;
+}
+
+static void hidinput_change_resolution_multipliers(struct hid_device *hid)
+{
+	struct hid_report_enum *rep_enum;
+	struct hid_report *rep;
+	int ret;
+
+	rep_enum = &hid->report_enum[HID_FEATURE_REPORT];
+	list_for_each_entry(rep, &rep_enum->report_list, list) {
+		bool update_needed = __hidinput_change_resolution_multipliers(hid,
+								     rep, true);
+
+		if (update_needed) {
+			ret = __hid_request(hid, rep, HID_REQ_SET_REPORT);
+			if (ret) {
+				__hidinput_change_resolution_multipliers(hid,
+								    rep, false);
+				return;
+			}
+		}
+	}
+
+	/* refresh our structs */
+	hid_setup_resolution_multiplier(hid);
+}
+#endif
+
+>>>>>>> upstream/android-13
 static void report_features(struct hid_device *hid)
 {
 	struct hid_driver *drv = hid->driver;
@@ -1540,7 +1834,11 @@ static void report_features(struct hid_device *hid)
 				/* Verify if Battery Strength feature is available */
 				if (usage->hid == HID_DC_BATTERYSTRENGTH)
 					hidinput_setup_battery(hid, HID_FEATURE_REPORT,
+<<<<<<< HEAD
 							       rep->field[i]);
+=======
+							       rep->field[i], false);
+>>>>>>> upstream/android-13
 
 				if (drv->feature_mapping)
 					drv->feature_mapping(hid, rep->field[i], usage);
@@ -1554,6 +1852,10 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid,
 	struct hid_input *hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
 	struct input_dev *input_dev = input_allocate_device();
 	const char *suffix = NULL;
+<<<<<<< HEAD
+=======
+	size_t suffix_len, name_len;
+>>>>>>> upstream/android-13
 
 	if (!hidinput || !input_dev)
 		goto fail;
@@ -1597,10 +1899,22 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid,
 	}
 
 	if (suffix) {
+<<<<<<< HEAD
 		hidinput->name = kasprintf(GFP_KERNEL, "%s %s",
 					   hid->name, suffix);
 		if (!hidinput->name)
 			goto fail;
+=======
+		name_len = strlen(hid->name);
+		suffix_len = strlen(suffix);
+		if ((name_len < suffix_len) ||
+		    strcmp(hid->name + name_len - suffix_len, suffix)) {
+			hidinput->name = kasprintf(GFP_KERNEL, "%s %s",
+						   hid->name, suffix);
+			if (!hidinput->name)
+				goto fail;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	input_set_drvdata(input_dev, hid);
@@ -1718,6 +2032,19 @@ static struct hid_input *hidinput_match_application(struct hid_report *report)
 	list_for_each_entry(hidinput, &hid->inputs, list) {
 		if (hidinput->application == report->application)
 			return hidinput;
+<<<<<<< HEAD
+=======
+
+		/*
+		 * Keep SystemControl and ConsumerControl applications together
+		 * with the main keyboard, if present.
+		 */
+		if ((report->application == HID_GD_SYSTEM_CONTROL ||
+		     report->application == HID_CP_CONSUMER_CONTROL) &&
+		    hidinput->application == HID_GD_KEYBOARD) {
+			return hidinput;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return NULL;
@@ -1806,6 +2133,11 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	//hidinput_change_resolution_multipliers(hid);
+
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
 		if (drv->input_configured &&
 		    drv->input_configured(hid, hidinput))
@@ -1864,4 +2196,7 @@ void hidinput_disconnect(struct hid_device *hid)
 	cancel_work_sync(&hid->led_work);
 }
 EXPORT_SYMBOL_GPL(hidinput_disconnect);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

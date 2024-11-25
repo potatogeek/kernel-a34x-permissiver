@@ -5,10 +5,13 @@
  * Copyright (C) 2003-2013 STMicroelectronics (R&D) Limited
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_ST_ASC_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/serial.h>
 #include <linux/console.h>
@@ -69,7 +72,11 @@ static struct uart_driver asc_uart_driver;
 /* ASC_RXBUF */
 #define ASC_RXBUF_PE			0x100
 #define ASC_RXBUF_FE			0x200
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Some of status comes from higher bits of the character and some come from
  * the status register. Combining both of them in to single status using dummy
  * bits.
@@ -482,7 +489,11 @@ static void asc_pm(struct uart_port *port, unsigned int state,
 		unsigned int oldstate)
 {
 	struct asc_port *ascport = to_asc_port(port);
+<<<<<<< HEAD
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	u32 ctl;
 
 	switch (state) {
@@ -508,7 +519,10 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
 			    struct ktermios *old)
 {
 	struct asc_port *ascport = to_asc_port(port);
+<<<<<<< HEAD
 	struct device_node *np = port->dev->of_node;
+=======
+>>>>>>> upstream/android-13
 	struct gpio_desc *gpiod;
 	unsigned int baud;
 	u32 ctrl_val;
@@ -570,6 +584,7 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
 			pinctrl_select_state(ascport->pinctrl,
 					     ascport->states[NO_HW_FLOWCTRL]);
 
+<<<<<<< HEAD
 			gpiod = devm_fwnode_get_gpiod_from_child(port->dev,
 								 "rts",
 								 &np->fwnode,
@@ -577,6 +592,14 @@ static void asc_set_termios(struct uart_port *port, struct ktermios *termios,
 								 np->name);
 			if (!IS_ERR(gpiod))
 				ascport->rts = gpiod;
+=======
+			gpiod = devm_gpiod_get(port->dev, "rts", GPIOD_OUT_LOW);
+			if (!IS_ERR(gpiod)) {
+				gpiod_set_consumer_name(gpiod,
+						port->dev->of_node->name);
+				ascport->rts = gpiod;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -730,6 +753,10 @@ static int asc_init_port(struct asc_port *ascport,
 	port->fifosize	= ASC_FIFO_SIZE;
 	port->dev	= &pdev->dev;
 	port->irq	= platform_get_irq(pdev, 0);
+<<<<<<< HEAD
+=======
+	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_ST_ASC_CONSOLE);
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	port->membase = devm_ioremap_resource(&pdev->dev, res);

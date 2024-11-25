@@ -54,7 +54,11 @@ You will need to create a new device to use ``/dev/console``. The official
 ``/dev/console`` is now character device 5,1.
 
 (You can also use a network device as a console.  See
+<<<<<<< HEAD
 ``Documentation/networking/netconsole.txt`` for information on that.)
+=======
+``Documentation/networking/netconsole.rst`` for information on that.)
+>>>>>>> upstream/android-13
 
 Here's an example that will use ``/dev/ttyS1`` (COM2) as the console.
 Replace the sample values as needed.

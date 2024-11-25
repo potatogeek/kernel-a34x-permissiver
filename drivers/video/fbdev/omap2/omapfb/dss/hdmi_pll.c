@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HDMI PLL
  *
  * Copyright (C) 2013 Texas Instruments Incorporated
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define DSS_SUBSYS_NAME "HDMIPLL"
@@ -103,6 +110,7 @@ static int hdmi_pll_enable(struct dss_pll *dsspll)
 {
 	struct hdmi_pll_data *pll = container_of(dsspll, struct hdmi_pll_data, pll);
 	struct hdmi_wp_data *wp = pll->wp;
+<<<<<<< HEAD
 	u16 r = 0;
 
 	dss_ctrl_pll_enable(DSS_PLL_HDMI, true);
@@ -112,6 +120,12 @@ static int hdmi_pll_enable(struct dss_pll *dsspll)
 		return r;
 
 	return 0;
+=======
+
+	dss_ctrl_pll_enable(DSS_PLL_HDMI, true);
+
+	return hdmi_wp_set_pll_pwr(wp, HDMI_PLLPWRCMD_BOTHON_ALLCLKS);
+>>>>>>> upstream/android-13
 }
 
 static void hdmi_pll_disable(struct dss_pll *dsspll)
@@ -223,6 +237,7 @@ int hdmi_pll_init(struct platform_device *pdev, struct hdmi_pll_data *pll,
 	struct hdmi_wp_data *wp)
 {
 	int r;
+<<<<<<< HEAD
 	struct resource *res;
 
 	pll->wp = wp;
@@ -234,6 +249,12 @@ int hdmi_pll_init(struct platform_device *pdev, struct hdmi_pll_data *pll,
 	}
 
 	pll->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+
+	pll->wp = wp;
+
+	pll->base = devm_platform_ioremap_resource_byname(pdev, "pll");
+>>>>>>> upstream/android-13
 	if (IS_ERR(pll->base)) {
 		DSSERR("can't ioremap PLLCTRL\n");
 		return PTR_ERR(pll->base);

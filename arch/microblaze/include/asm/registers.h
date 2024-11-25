@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2008-2009 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2008-2009 PetaLogix
  * Copyright (C) 2006 Atmark Techno, Inc.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License. See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_MICROBLAZE_REGISTERS_H
@@ -30,7 +37,10 @@
 #define FSR_UF		(1<<1) /* Underflow */
 #define FSR_DO		(1<<0) /* Denormalized operand error */
 
+<<<<<<< HEAD
 # ifdef CONFIG_MMU
+=======
+>>>>>>> upstream/android-13
 /* Machine State Register (MSR) Fields */
 # define MSR_UM		(1<<11) /* User Mode */
 # define MSR_UMS	(1<<12) /* User Mode Save */
@@ -46,5 +56,8 @@
 # define	  ESR_DIZ	(1<<11) /* Zone Protection */
 # define	  ESR_S		(1<<10) /* Store instruction */
 
+<<<<<<< HEAD
 # endif /* CONFIG_MMU */
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_MICROBLAZE_REGISTERS_H */

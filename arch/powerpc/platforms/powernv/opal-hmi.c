@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * OPAL hypervisor Maintenance interrupt handling support in PowerNV.
  *
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * OPAL hypervisor Maintenance interrupt handling support in PowerNV.
+ *
+>>>>>>> upstream/android-13
  * Copyright 2014 IBM Corporation
  * Author: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
  */
@@ -149,6 +156,46 @@ static void print_nx_checkstop_reason(const char *level,
 					xstop_reason[i].description);
 }
 
+<<<<<<< HEAD
+=======
+static void print_npu_checkstop_reason(const char *level,
+					struct OpalHMIEvent *hmi_evt)
+{
+	uint8_t reason, reason_count, i;
+
+	/*
+	 * We may not have a checkstop reason on some combination of
+	 * hardware and/or skiboot version
+	 */
+	if (!hmi_evt->u.xstop_error.xstop_reason) {
+		printk("%s	NPU checkstop on chip %x\n", level,
+			be32_to_cpu(hmi_evt->u.xstop_error.u.chip_id));
+		return;
+	}
+
+	/*
+	 * NPU2 has 3 FIRs. Reason encoded on a byte as:
+	 *   2 bits for the FIR number
+	 *   6 bits for the bit number
+	 * It may be possible to find several reasons.
+	 *
+	 * We don't display a specific message per FIR bit as there
+	 * are too many and most are meaningless without the workbook
+	 * and/or hw team help anyway.
+	 */
+	reason_count = sizeof(hmi_evt->u.xstop_error.xstop_reason) /
+		sizeof(reason);
+	for (i = 0; i < reason_count; i++) {
+		reason = (hmi_evt->u.xstop_error.xstop_reason >> (8 * i)) & 0xFF;
+		if (reason)
+			printk("%s	NPU checkstop on chip %x: FIR%d bit %d is set\n",
+				level,
+				be32_to_cpu(hmi_evt->u.xstop_error.u.chip_id),
+				reason >> 6, reason & 0x3F);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void print_checkstop_reason(const char *level,
 					struct OpalHMIEvent *hmi_evt)
 {
@@ -160,6 +207,12 @@ static void print_checkstop_reason(const char *level,
 	case CHECKSTOP_TYPE_NX:
 		print_nx_checkstop_reason(level, hmi_evt);
 		break;
+<<<<<<< HEAD
+=======
+	case CHECKSTOP_TYPE_NPU:
+		print_npu_checkstop_reason(level, hmi_evt);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		printk("%s	Unknown Malfunction Alert of type %d\n",
 		       level, type);
@@ -185,6 +238,11 @@ static void print_hmi_event_info(struct OpalHMIEvent *hmi_evt)
 		"A hypervisor resource error occurred",
 		"CAPP recovery process is in progress",
 	};
+<<<<<<< HEAD
+=======
+	static DEFINE_RATELIMIT_STATE(rs, DEFAULT_RATELIMIT_INTERVAL,
+				      DEFAULT_RATELIMIT_BURST);
+>>>>>>> upstream/android-13
 
 	/* Print things out */
 	if (hmi_evt->version < OpalHMIEvt_V1) {
@@ -212,6 +270,7 @@ static void print_hmi_event_info(struct OpalHMIEvent *hmi_evt)
 		break;
 	}
 
+<<<<<<< HEAD
 	printk("%s%s Hypervisor Maintenance interrupt [%s]\n",
 		level, sevstr,
 		hmi_evt->disposition == OpalHMI_DISPOSITION_RECOVERED ?
@@ -225,6 +284,24 @@ static void print_hmi_event_info(struct OpalHMIEvent *hmi_evt)
 		(hmi_evt->type == OpalHMI_ERROR_TFMR_PARITY))
 		printk("%s	TFMR: %016llx\n", level,
 						be64_to_cpu(hmi_evt->tfmr));
+=======
+	if (hmi_evt->severity != OpalHMI_SEV_NO_ERROR || __ratelimit(&rs)) {
+		printk("%s%s Hypervisor Maintenance interrupt [%s]\n",
+			level, sevstr,
+			hmi_evt->disposition == OpalHMI_DISPOSITION_RECOVERED ?
+			"Recovered" : "Not recovered");
+		error_info = hmi_evt->type < ARRAY_SIZE(hmi_error_types) ?
+				hmi_error_types[hmi_evt->type]
+				: "Unknown";
+		printk("%s Error detail: %s\n", level, error_info);
+		printk("%s	HMER: %016llx\n", level,
+					be64_to_cpu(hmi_evt->hmer));
+		if ((hmi_evt->type == OpalHMI_ERROR_TFAC) ||
+			(hmi_evt->type == OpalHMI_ERROR_TFMR_PARITY))
+			printk("%s	TFMR: %016llx\n", level,
+						be64_to_cpu(hmi_evt->tfmr));
+	}
+>>>>>>> upstream/android-13
 
 	if (hmi_evt->version < OpalHMIEvt_V2)
 		return;

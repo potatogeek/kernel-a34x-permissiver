@@ -88,10 +88,18 @@ extern unsigned int da850_max_speed;
 #define DA8XX_ARM_RAM_BASE	0xffff0000
 
 void da830_init(void);
+<<<<<<< HEAD
+=======
+void da830_init_irq(void);
+>>>>>>> upstream/android-13
 void da830_init_time(void);
 void da830_register_clocks(void);
 
 void da850_init(void);
+<<<<<<< HEAD
+=======
+void da850_init_irq(void);
+>>>>>>> upstream/android-13
 void da850_init_time(void);
 void da850_register_clocks(void);
 

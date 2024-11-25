@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *
  * Author	Karsten Keil <kkeil@novell.com>
  *
  * Copyright 2008  by Karsten Keil <kkeil@novell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/mISDNif.h>
@@ -103,7 +110,11 @@ mISDN_ctrl(struct mISDNchannel *ch, u_int cmd, void *arg)
 static inline void
 mISDN_sock_cmsg(struct sock *sk, struct msghdr *msg, struct sk_buff *skb)
 {
+<<<<<<< HEAD
 	struct timeval	tv;
+=======
+	struct __kernel_old_timeval	tv;
+>>>>>>> upstream/android-13
 
 	if (_pms(sk)->cmask & MISDN_TIME_STAMP) {
 		skb_get_timestamp(skb, &tv);
@@ -236,8 +247,12 @@ mISDN_sock_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
 	}
 
 done:
+<<<<<<< HEAD
 	if (skb)
 		kfree_skb(skb);
+=======
+	kfree_skb(skb);
+>>>>>>> upstream/android-13
 	release_sock(sk);
 	return err;
 }
@@ -411,20 +426,33 @@ data_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 }
 
 static int data_sock_setsockopt(struct socket *sock, int level, int optname,
+<<<<<<< HEAD
 				char __user *optval, unsigned int len)
+=======
+				sockptr_t optval, unsigned int len)
+>>>>>>> upstream/android-13
 {
 	struct sock *sk = sock->sk;
 	int err = 0, opt = 0;
 
 	if (*debug & DEBUG_SOCKET)
+<<<<<<< HEAD
 		printk(KERN_DEBUG "%s(%p, %d, %x, %p, %d)\n", __func__, sock,
 		       level, optname, optval, len);
+=======
+		printk(KERN_DEBUG "%s(%p, %d, %x, optval, %d)\n", __func__, sock,
+		       level, optname, len);
+>>>>>>> upstream/android-13
 
 	lock_sock(sk);
 
 	switch (optname) {
 	case MISDN_TIME_STAMP:
+<<<<<<< HEAD
 		if (get_user(opt, (int __user *)optval)) {
+=======
+		if (copy_from_sockptr(&opt, optval, sizeof(int))) {
+>>>>>>> upstream/android-13
 			err = -EFAULT;
 			break;
 		}
@@ -748,8 +776,11 @@ static const struct proto_ops base_sock_ops = {
 	.recvmsg	= sock_no_recvmsg,
 	.listen		= sock_no_listen,
 	.shutdown	= sock_no_shutdown,
+<<<<<<< HEAD
 	.setsockopt	= sock_no_setsockopt,
 	.getsockopt	= sock_no_getsockopt,
+=======
+>>>>>>> upstream/android-13
 	.connect	= sock_no_connect,
 	.socketpair	= sock_no_socketpair,
 	.accept		= sock_no_accept,

@@ -1,6 +1,9 @@
 [
     {
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "Counter": "Fixed counter 0",
         "UMask": "0x1",
         "EventName": "INST_RETIRED.ANY",
@@ -9,7 +12,10 @@
         "CounterHTOff": "Fixed counter 0"
     },
     {
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "Counter": "Fixed counter 1",
         "UMask": "0x2",
         "EventName": "CPU_CLK_UNHALTED.THREAD",
@@ -19,7 +25,10 @@
     },
     {
         "PublicDescription": "Core cycles when at least one thread on the physical core is not in halt state.",
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "Counter": "Fixed counter 1",
         "UMask": "0x2",
         "AnyThread": "1",
@@ -29,7 +38,10 @@
         "CounterHTOff": "Fixed counter 1"
     },
     {
+<<<<<<< HEAD
         "EventCode": "0x00",
+=======
+>>>>>>> upstream/android-13
         "Counter": "Fixed counter 2",
         "UMask": "0x3",
         "EventName": "CPU_CLK_UNHALTED.REF_TSC",

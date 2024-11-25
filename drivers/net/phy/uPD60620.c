@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Driver for the Renesas PHY uPD60620.
  *
  * Copyright (C) 2015 Softing Industrial Automation GmbH
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -47,7 +54,11 @@ static int upd60620_read_status(struct phy_device *phydev)
 		return phy_state;
 
 	phydev->link = 0;
+<<<<<<< HEAD
 	phydev->lp_advertising = 0;
+=======
+	linkmode_zero(phydev->lp_advertising);
+>>>>>>> upstream/android-13
 	phydev->pause = 0;
 	phydev->asym_pause = 0;
 
@@ -70,6 +81,7 @@ static int upd60620_read_status(struct phy_device *phydev)
 			if (phy_state < 0)
 				return phy_state;
 
+<<<<<<< HEAD
 			phydev->lp_advertising
 				= mii_lpa_to_ethtool_lpa_t(phy_state);
 
@@ -79,6 +91,12 @@ static int upd60620_read_status(struct phy_device *phydev)
 				if (phy_state & LPA_PAUSE_ASYM)
 					phydev->asym_pause = 1;
 			}
+=======
+			mii_lpa_to_linkmode_lpa_t(phydev->lp_advertising,
+						  phy_state);
+
+			phy_resolve_aneg_pause(phydev);
+>>>>>>> upstream/android-13
 		}
 	}
 	return 0;
@@ -92,7 +110,11 @@ static struct phy_driver upd60620_driver[1] = { {
 	.phy_id         = UPD60620_PHY_ID,
 	.phy_id_mask    = 0xfffffffe,
 	.name           = "Renesas uPD60620",
+<<<<<<< HEAD
 	.features       = PHY_BASIC_FEATURES,
+=======
+	/* PHY_BASIC_FEATURES */
+>>>>>>> upstream/android-13
 	.flags          = 0,
 	.config_init    = upd60620_config_init,
 	.read_status    = upd60620_read_status,

@@ -28,11 +28,14 @@ struct thread_info {
 	unsigned long		tp_value;	/* thread pointer */
 	__u32			cpu;		/* current CPU */
 	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
+<<<<<<< HEAD
 	mm_segment_t		addr_limit;	/*
 						 * thread address space limit:
 						 * 0x7fffffff for user-thead
 						 * 0xffffffff for kernel-thread
 						 */
+=======
+>>>>>>> upstream/android-13
 	struct pt_regs		*regs;
 	long			syscall;	/* syscall number */
 };
@@ -46,7 +49,10 @@ struct thread_info {
 	.flags		= _TIF_FIXADE,		\
 	.cpu		= 0,			\
 	.preempt_count	= INIT_PREEMPT_COUNT,	\
+<<<<<<< HEAD
 	.addr_limit	= KERNEL_DS,		\
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -115,6 +121,10 @@ static inline struct thread_info *current_thread_info(void)
 #define TIF_SECCOMP		4	/* secure computing */
 #define TIF_NOTIFY_RESUME	5	/* callback before returning to user */
 #define TIF_UPROBE		6	/* breakpointed or singlestepping */
+<<<<<<< HEAD
+=======
+#define TIF_NOTIFY_SIGNAL	7	/* signal notifications exist */
+>>>>>>> upstream/android-13
 #define TIF_RESTORE_SIGMASK	9	/* restore signal mask in do_signal() */
 #define TIF_USEDFPU		16	/* FPU was used by this task this quantum (SMP) */
 #define TIF_MEMDIE		18	/* is terminating due to OOM killer */
@@ -139,6 +149,10 @@ static inline struct thread_info *current_thread_info(void)
 #define _TIF_SECCOMP		(1<<TIF_SECCOMP)
 #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
 #define _TIF_UPROBE		(1<<TIF_UPROBE)
+<<<<<<< HEAD
+=======
+#define _TIF_NOTIFY_SIGNAL	(1<<TIF_NOTIFY_SIGNAL)
+>>>>>>> upstream/android-13
 #define _TIF_USEDFPU		(1<<TIF_USEDFPU)
 #define _TIF_NOHZ		(1<<TIF_NOHZ)
 #define _TIF_FIXADE		(1<<TIF_FIXADE)
@@ -164,7 +178,11 @@ static inline struct thread_info *current_thread_info(void)
 /* work to do on interrupt/exception return */
 #define _TIF_WORK_MASK		\
 	(_TIF_SIGPENDING | _TIF_NEED_RESCHED | _TIF_NOTIFY_RESUME |	\
+<<<<<<< HEAD
 	 _TIF_UPROBE)
+=======
+	 _TIF_UPROBE | _TIF_NOTIFY_SIGNAL)
+>>>>>>> upstream/android-13
 /* work to do on any return to u-space */
 #define _TIF_ALLWORK_MASK	(_TIF_NOHZ | _TIF_WORK_MASK |		\
 				 _TIF_WORK_SYSCALL_EXIT |		\

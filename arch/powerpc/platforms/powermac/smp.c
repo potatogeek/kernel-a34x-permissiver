@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * SMP support for power macintosh.
  *
@@ -15,11 +19,14 @@
  *
  * Support for DayStar quad CPU cards
  * Copyright (C) XLR8, Inc. 1994-2000
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -34,13 +41,20 @@
 #include <linux/hardirq.h>
 #include <linux/cpu.h>
 #include <linux/compiler.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/ptrace.h>
 #include <linux/atomic.h>
 #include <asm/code-patching.h>
 #include <asm/irq.h>
 #include <asm/page.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sections.h>
 #include <asm/io.h>
 #include <asm/prom.h>
@@ -53,6 +67,10 @@
 #include <asm/keylargo.h>
 #include <asm/pmac_low_i2c.h>
 #include <asm/pmac_pfunc.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+>>>>>>> upstream/android-13
 
 #include "pmac.h"
 
@@ -149,6 +167,10 @@ static inline void psurge_clr_ipi(int cpu)
 		switch(psurge_type) {
 		case PSURGE_DUAL:
 			out_8(psurge_sec_intr, ~0);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		case PSURGE_NONE:
 			break;
 		default:
@@ -273,10 +295,13 @@ static void __init smp_psurge_probe(void)
 	int i, ncpus;
 	struct device_node *dn;
 
+<<<<<<< HEAD
 	/* We don't do SMP on the PPC601 -- paulus */
 	if (PVR_VER(mfspr(SPRN_PVR)) == 1)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The powersurge cpu board can be used in the generation
 	 * of powermacs that have a socket for an upgradeable cpu card,
@@ -403,6 +428,7 @@ static int __init smp_psurge_kick_cpu(int nr)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct irqaction psurge_irqaction = {
 	.handler = psurge_ipi_intr,
 	.flags = IRQF_PERCPU | IRQF_NO_THREAD,
@@ -411,13 +437,25 @@ static struct irqaction psurge_irqaction = {
 
 static void __init smp_psurge_setup_cpu(int cpu_nr)
 {
+=======
+static void __init smp_psurge_setup_cpu(int cpu_nr)
+{
+	unsigned long flags = IRQF_PERCPU | IRQF_NO_THREAD;
+	int irq;
+
+>>>>>>> upstream/android-13
 	if (cpu_nr != 0 || !psurge_start)
 		return;
 
 	/* reset the entry point so if we get another intr we won't
 	 * try to startup again */
 	out_be32(psurge_start, 0x100);
+<<<<<<< HEAD
 	if (setup_irq(irq_create_mapping(NULL, 30), &psurge_irqaction))
+=======
+	irq = irq_create_mapping(NULL, 30);
+	if (request_irq(irq, psurge_ipi_intr, flags, "primary IPI", NULL))
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "Couldn't get primary IPI interrupt");
 }
 
@@ -664,6 +702,7 @@ static void smp_core99_gpio_tb_freeze(int freeze)
 
 #endif /* !CONFIG_PPC64 */
 
+<<<<<<< HEAD
 /* L2 and L3 cache settings to pass from CPU0 to CPU1 on G4 cpus */
 volatile static long int core99_l2_cache;
 volatile static long int core99_l3_cache;
@@ -671,6 +710,15 @@ volatile static long int core99_l3_cache;
 static void core99_init_caches(int cpu)
 {
 #ifndef CONFIG_PPC64
+=======
+static void core99_init_caches(int cpu)
+{
+#ifndef CONFIG_PPC64
+	/* L2 and L3 cache settings to pass from CPU0 to CPU1 on G4 cpus */
+	static long int core99_l2_cache;
+	static long int core99_l3_cache;
+
+>>>>>>> upstream/android-13
 	if (!cpu_has_feature(CPU_FTR_L2CR))
 		return;
 
@@ -832,8 +880,12 @@ static int smp_core99_kick_cpu(int nr)
 	mdelay(1);
 
 	/* Restore our exception vector */
+<<<<<<< HEAD
 	*vector = save_vector;
 	flush_icache_range((unsigned long) vector, (unsigned long) vector + 4);
+=======
+	patch_instruction(vector, ppc_inst(save_vector));
+>>>>>>> upstream/android-13
 
 	local_irq_restore(flags);
 	if (ppc_md.progress) ppc_md.progress("smp_core99_kick_cpu done", 0x347);
@@ -921,12 +973,21 @@ static int smp_core99_cpu_disable(void)
 
 	mpic_cpu_set_priority(0xf);
 
+<<<<<<< HEAD
+=======
+	cleanup_cpu_mmu_context();
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 #ifdef CONFIG_PPC32
 
+<<<<<<< HEAD
 static void pmac_cpu_die(void)
+=======
+static void pmac_cpu_offline_self(void)
+>>>>>>> upstream/android-13
 {
 	int cpu = smp_processor_id();
 
@@ -936,12 +997,20 @@ static void pmac_cpu_die(void)
 	generic_set_cpu_dead(cpu);
 	smp_wmb();
 	mb();
+<<<<<<< HEAD
 	low_cpu_die();
+=======
+	low_cpu_offline_self();
+>>>>>>> upstream/android-13
 }
 
 #else /* CONFIG_PPC32 */
 
+<<<<<<< HEAD
 static void pmac_cpu_die(void)
+=======
+static void pmac_cpu_offline_self(void)
+>>>>>>> upstream/android-13
 {
 	int cpu = smp_processor_id();
 
@@ -1026,7 +1095,11 @@ void __init pmac_setup_smp(void)
 #endif /* CONFIG_PPC_PMAC32_PSURGE */
 
 #ifdef CONFIG_HOTPLUG_CPU
+<<<<<<< HEAD
 	ppc_md.cpu_die = pmac_cpu_die;
+=======
+	smp_ops->cpu_offline_self = pmac_cpu_offline_self;
+>>>>>>> upstream/android-13
 #endif
 }
 

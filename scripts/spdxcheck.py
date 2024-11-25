@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #!/usr/bin/env python
+=======
+#!/usr/bin/env python3
+>>>>>>> upstream/android-13
 # SPDX-License-Identifier: GPL-2.0
 # Copyright Thomas Gleixner <tglx@linutronix.de>
 
@@ -32,7 +36,12 @@ class SPDXdata(object):
 def read_spdxdata(repo):
 
     # The subdirectories of LICENSES in the kernel source
+<<<<<<< HEAD
     license_dirs = [ "preferred", "other", "exceptions" ]
+=======
+    # Note: exceptions needs to be parsed as last directory.
+    license_dirs = [ "preferred", "dual", "deprecated", "exceptions" ]
+>>>>>>> upstream/android-13
     lictree = repo.head.commit.tree['LICENSES']
 
     spdx = SPDXdata()
@@ -43,7 +52,11 @@ def read_spdxdata(repo):
                 continue
 
             exception = None
+<<<<<<< HEAD
             for l in open(el.path).readlines():
+=======
+            for l in open(el.path, encoding="utf-8").readlines():
+>>>>>>> upstream/android-13
                 if l.startswith('Valid-License-Identifier:'):
                     lid = l.split(':')[1].strip().upper()
                     if lid in spdx.licenses:
@@ -58,13 +71,21 @@ def read_spdxdata(repo):
                 elif l.startswith('SPDX-Licenses:'):
                     for lic in l.split(':')[1].upper().strip().replace(' ', '').replace('\t', '').split(','):
                         if not lic in spdx.licenses:
+<<<<<<< HEAD
                             raise SPDXException(None, 'Exception %s missing license %s' %(ex, lic))
+=======
+                            raise SPDXException(None, 'Exception %s missing license %s' %(exception, lic))
+>>>>>>> upstream/android-13
                         spdx.exceptions[exception].append(lic)
 
                 elif l.startswith("License-Text:"):
                     if exception:
                         if not len(spdx.exceptions[exception]):
+<<<<<<< HEAD
                             raise SPDXException(el, 'Exception %s is missing SPDX-Licenses' %excid)
+=======
+                            raise SPDXException(el, 'Exception %s is missing SPDX-Licenses' %exception)
+>>>>>>> upstream/android-13
                         spdx.exception_files += 1
                     else:
                         spdx.license_files += 1
@@ -175,7 +196,20 @@ class id_parser(object):
                 self.lines_checked += 1
                 if line.find("SPDX-License-Identifier:") < 0:
                     continue
+<<<<<<< HEAD
                 expr = line.split(':')[1].replace('*/', '').strip()
+=======
+                expr = line.split(':')[1].strip()
+                # Remove trailing comment closure
+                if line.strip().endswith('*/'):
+                    expr = expr.rstrip('*/').strip()
+                # Remove trailing xml comment closure
+                if line.strip().endswith('-->'):
+                    expr = expr.rstrip('-->').strip()
+                # Special case for SH magic boot code files
+                if line.startswith('LIST \"'):
+                    expr = expr.rstrip('\"').strip()
+>>>>>>> upstream/android-13
                 self.parse(expr)
                 self.spdx_valid += 1
                 #
@@ -233,7 +267,11 @@ if __name__ == '__main__':
         # Initialize SPDX data
         spdx = read_spdxdata(repo)
 
+<<<<<<< HEAD
         # Initilize the parser
+=======
+        # Initialize the parser
+>>>>>>> upstream/android-13
         parser = id_parser(spdx)
 
     except SPDXException as se:

@@ -50,12 +50,20 @@ static void fsl_mc_io_unset_dpmcp(struct fsl_mc_io *mc_io)
 }
 
 /**
+<<<<<<< HEAD
  * Creates an MC I/O object
+=======
+ * fsl_create_mc_io() - Creates an MC I/O object
+>>>>>>> upstream/android-13
  *
  * @dev: device to be associated with the MC I/O object
  * @mc_portal_phys_addr: physical address of the MC portal to use
  * @mc_portal_size: size in bytes of the MC portal
+<<<<<<< HEAD
  * @dpmcp-dev: Pointer to the DPMCP object associated with this MC I/O
+=======
+ * @dpmcp_dev: Pointer to the DPMCP object associated with this MC I/O
+>>>>>>> upstream/android-13
  * object or NULL if none.
  * @flags: flags for the new MC I/O object
  * @new_mc_io: Area to return pointer to newly created MC I/O object
@@ -82,7 +90,11 @@ int __must_check fsl_create_mc_io(struct device *dev,
 	mc_io->portal_phys_addr = mc_portal_phys_addr;
 	mc_io->portal_size = mc_portal_size;
 	if (flags & FSL_MC_IO_ATOMIC_CONTEXT_PORTAL)
+<<<<<<< HEAD
 		spin_lock_init(&mc_io->spinlock);
+=======
+		raw_spin_lock_init(&mc_io->spinlock);
+>>>>>>> upstream/android-13
 	else
 		mutex_init(&mc_io->mutex);
 
@@ -97,12 +109,20 @@ int __must_check fsl_create_mc_io(struct device *dev,
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	mc_portal_virt_addr = devm_ioremap_nocache(dev,
+=======
+	mc_portal_virt_addr = devm_ioremap(dev,
+>>>>>>> upstream/android-13
 						   mc_portal_phys_addr,
 						   mc_portal_size);
 	if (!mc_portal_virt_addr) {
 		dev_err(dev,
+<<<<<<< HEAD
 			"devm_ioremap_nocache failed for MC portal %pa\n",
+=======
+			"devm_ioremap failed for MC portal %pa\n",
+>>>>>>> upstream/android-13
 			&mc_portal_phys_addr);
 		return -ENXIO;
 	}
@@ -123,7 +143,11 @@ error_destroy_mc_io:
 }
 
 /**
+<<<<<<< HEAD
  * Destroys an MC I/O object
+=======
+ * fsl_destroy_mc_io() - Destroys an MC I/O object
+>>>>>>> upstream/android-13
  *
  * @mc_io: MC I/O object to destroy
  */
@@ -214,9 +238,25 @@ int __must_check fsl_mc_portal_allocate(struct fsl_mc_device *mc_dev,
 	if (error < 0)
 		goto error_cleanup_resource;
 
+<<<<<<< HEAD
 	*new_mc_io = mc_io;
 	return 0;
 
+=======
+	dpmcp_dev->consumer_link = device_link_add(&mc_dev->dev,
+						   &dpmcp_dev->dev,
+						   DL_FLAG_AUTOREMOVE_CONSUMER);
+	if (!dpmcp_dev->consumer_link) {
+		error = -EINVAL;
+		goto error_cleanup_mc_io;
+	}
+
+	*new_mc_io = mc_io;
+	return 0;
+
+error_cleanup_mc_io:
+	fsl_destroy_mc_io(mc_io);
+>>>>>>> upstream/android-13
 error_cleanup_resource:
 	fsl_mc_resource_free(resource);
 	return error;
@@ -249,6 +289,11 @@ void fsl_mc_portal_free(struct fsl_mc_io *mc_io)
 
 	fsl_destroy_mc_io(mc_io);
 	fsl_mc_resource_free(resource);
+<<<<<<< HEAD
+=======
+
+	dpmcp_dev->consumer_link = NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(fsl_mc_portal_free);
 

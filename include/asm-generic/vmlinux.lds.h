@@ -23,18 +23,30 @@
  *	_etext = .;
  *
  *      _sdata = .;
+<<<<<<< HEAD
  *	RO_DATA_SECTION(PAGE_SIZE)
  *	RW_DATA_SECTION(...)
  *	_edata = .;
  *
  *	EXCEPTION_TABLE(...)
  *	NOTES
+=======
+ *	RO_DATA(PAGE_SIZE)
+ *	RW_DATA(...)
+ *	_edata = .;
+ *
+ *	EXCEPTION_TABLE(...)
+>>>>>>> upstream/android-13
  *
  *	BSS_SECTION(0, 0, 0)
  *	_end = .;
  *
  *	STABS_DEBUG
  *	DWARF_DEBUG
+<<<<<<< HEAD
+=======
+ *	ELF_DETAILS
+>>>>>>> upstream/android-13
  *
  *	DISCARDS		// must be the last
  * }
@@ -54,6 +66,36 @@
 #define LOAD_OFFSET 0
 #endif
 
+<<<<<<< HEAD
+=======
+/*
+ * Only some architectures want to have the .notes segment visible in
+ * a separate PT_NOTE ELF Program Header. When this happens, it needs
+ * to be visible in both the kernel text's PT_LOAD and the PT_NOTE
+ * Program Headers. In this case, though, the PT_LOAD needs to be made
+ * the default again so that all the following sections don't also end
+ * up in the PT_NOTE Program Header.
+ */
+#ifdef EMITS_PT_NOTE
+#define NOTES_HEADERS		:text :note
+#define NOTES_HEADERS_RESTORE	__restore_ph : { *(.__restore_ph) } :text
+#else
+#define NOTES_HEADERS
+#define NOTES_HEADERS_RESTORE
+#endif
+
+/*
+ * Some architectures have non-executable read-only exception tables.
+ * They can be added to the RO_DATA segment by specifying their desired
+ * alignment.
+ */
+#ifdef RO_EXCEPTION_TABLE_ALIGN
+#define RO_EXCEPTION_TABLE	EXCEPTION_TABLE(RO_EXCEPTION_TABLE_ALIGN)
+#else
+#define RO_EXCEPTION_TABLE
+#endif
+
+>>>>>>> upstream/android-13
 /* Align . to a 8 byte boundary equals to maximum function alignment. */
 #define ALIGN_FUNCTION()  . = ALIGN(8)
 
@@ -63,20 +105,33 @@
  * .data. We don't want to pull in .data..other sections, which Linux
  * has defined. Same for text and bss.
  *
+<<<<<<< HEAD
+=======
+ * With LTO_CLANG, the linker also splits sections by default, so we need
+ * these macros to combine the sections during the final link.
+ *
+>>>>>>> upstream/android-13
  * RODATA_MAIN is not used because existing code already defines .rodata.x
  * sections to be brought in with rodata.
  */
 #if defined(CONFIG_LD_DEAD_CODE_DATA_ELIMINATION) || defined(CONFIG_LTO_CLANG)
 #define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
+<<<<<<< HEAD
 #define TEXT_CFI_MAIN .text.[0-9a-zA-Z_]*.cfi
 #define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliteral*
+=======
+#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliteral* .data.$__unnamed_* .data.$L*
+>>>>>>> upstream/android-13
 #define SDATA_MAIN .sdata .sdata.[0-9a-zA-Z_]*
 #define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]* .rodata..L*
 #define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
 #define SBSS_MAIN .sbss .sbss.[0-9a-zA-Z_]*
 #else
 #define TEXT_MAIN .text
+<<<<<<< HEAD
 #define TEXT_CFI_MAIN .text.cfi
+=======
+>>>>>>> upstream/android-13
 #define DATA_MAIN .data
 #define SDATA_MAIN .sdata
 #define RODATA_MAIN .rodata
@@ -85,12 +140,35 @@
 #endif
 
 /*
+<<<<<<< HEAD
  * Align to a 32 byte boundary equal to the
  * alignment gcc 4.5 uses for a struct
+=======
+ * GCC 4.5 and later have a 32 bytes section alignment for structures.
+ * Except GCC 4.9, that feels the need to align on 64 bytes.
+>>>>>>> upstream/android-13
  */
 #define STRUCT_ALIGNMENT 32
 #define STRUCT_ALIGN() . = ALIGN(STRUCT_ALIGNMENT)
 
+<<<<<<< HEAD
+=======
+/*
+ * The order of the sched class addresses are important, as they are
+ * used to determine the order of the priority of each sched class in
+ * relation to each other.
+ */
+#define SCHED_DATA				\
+	STRUCT_ALIGN();				\
+	__begin_sched_classes = .;		\
+	*(__idle_sched_class)			\
+	*(__fair_sched_class)			\
+	*(__rt_sched_class)			\
+	*(__dl_sched_class)			\
+	*(__stop_sched_class)			\
+	__end_sched_classes = .;
+
+>>>>>>> upstream/android-13
 /* The actual configuration determine if the init/exit sections
  * are handled as text/data or they can be discarded (which
  * often happens at runtime)
@@ -112,12 +190,37 @@
 #endif
 
 #ifdef CONFIG_FTRACE_MCOUNT_RECORD
+<<<<<<< HEAD
 #define MCOUNT_REC()	. = ALIGN(8);				\
 			__start_mcount_loc = .;			\
 			KEEP(*(__mcount_loc))			\
 			__stop_mcount_loc = .;
 #else
 #define MCOUNT_REC()
+=======
+/*
+ * The ftrace call sites are logged to a section whose name depends on the
+ * compiler option used. A given kernel image will only use one, AKA
+ * FTRACE_CALLSITE_SECTION. We capture all of them here to avoid header
+ * dependencies for FTRACE_CALLSITE_SECTION's definition.
+ *
+ * Need to also make ftrace_stub_graph point to ftrace_stub
+ * so that the same stub location may have different protocols
+ * and not mess up with C verifiers.
+ */
+#define MCOUNT_REC()	. = ALIGN(8);				\
+			__start_mcount_loc = .;			\
+			KEEP(*(__mcount_loc))			\
+			KEEP(*(__patchable_function_entries))	\
+			__stop_mcount_loc = .;			\
+			ftrace_stub_graph = ftrace_stub;
+#else
+# ifdef CONFIG_FUNCTION_TRACER
+#  define MCOUNT_REC()	ftrace_stub_graph = ftrace_stub;
+# else
+#  define MCOUNT_REC()
+# endif
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_TRACE_BRANCH_PROFILING
@@ -205,6 +308,23 @@
 #define EARLYCON_TABLE()
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SECURITY
+#define LSM_TABLE()	. = ALIGN(8);					\
+			__start_lsm_info = .;				\
+			KEEP(*(.lsm_info.init))				\
+			__end_lsm_info = .;
+#define EARLY_LSM_TABLE()	. = ALIGN(8);				\
+			__start_early_lsm_info = .;			\
+			KEEP(*(.early_lsm_info.init))			\
+			__end_early_lsm_info = .;
+#else
+#define LSM_TABLE()
+#define EARLY_LSM_TABLE()
+#endif
+
+>>>>>>> upstream/android-13
 #define ___OF_TABLE(cfg, name)	_OF_TABLE_##cfg(name)
 #define __OF_TABLE(cfg, name)	___OF_TABLE(cfg, name)
 #define OF_TABLE(cfg, name)	__OF_TABLE(IS_ENABLED(cfg), name)
@@ -232,6 +352,29 @@
 #define ACPI_PROBE_TABLE(name)
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_THERMAL
+#define THERMAL_TABLE(name)						\
+	. = ALIGN(8);							\
+	__##name##_thermal_table = .;					\
+	KEEP(*(__##name##_thermal_table))				\
+	__##name##_thermal_table_end = .;
+#else
+#define THERMAL_TABLE(name)
+#endif
+
+#ifdef CONFIG_DTPM
+#define DTPM_TABLE()							\
+	. = ALIGN(8);							\
+	__dtpm_table = .;						\
+	KEEP(*(__dtpm_table))						\
+	__dtpm_table_end = .;
+#else
+#define DTPM_TABLE()
+#endif
+
+>>>>>>> upstream/android-13
 #define KERNEL_DTB()							\
 	STRUCT_ALIGN();							\
 	__dtb_start = .;						\
@@ -255,6 +398,7 @@
 	STRUCT_ALIGN();							\
 	*(__tracepoints)						\
 	/* implement dynamic printk debug */				\
+<<<<<<< HEAD
 	. = ALIGN(8);                                                   \
 	__start___jump_table = .;					\
 	KEEP(*(__jump_table))                                           \
@@ -263,6 +407,12 @@
 	__start___verbose = .;						\
 	KEEP(*(__verbose))                                              \
 	__stop___verbose = .;						\
+=======
+	. = ALIGN(8);							\
+	__start___dyndbg = .;						\
+	KEEP(*(__dyndbg))						\
+	__stop___dyndbg = .;						\
+>>>>>>> upstream/android-13
 	LIKELY_PROFILE()		       				\
 	BRANCH_PROFILE()						\
 	TRACE_PRINTKS()							\
@@ -303,6 +453,24 @@
 	. = __start_init_task + THREAD_SIZE;				\
 	__end_init_task = .;
 
+<<<<<<< HEAD
+=======
+#define JUMP_TABLE_DATA							\
+	. = ALIGN(8);							\
+	__start___jump_table = .;					\
+	KEEP(*(__jump_table))						\
+	__stop___jump_table = .;
+
+#define STATIC_CALL_DATA						\
+	. = ALIGN(8);							\
+	__start_static_call_sites = .;					\
+	KEEP(*(.static_call_sites))					\
+	__stop_static_call_sites = .;					\
+	__start_static_call_tramp_key = .;				\
+	KEEP(*(.static_call_tramp_key))					\
+	__stop_static_call_tramp_key = .;
+
+>>>>>>> upstream/android-13
 /*
  * Allow architectures to handle ro_after_init data on their
  * own by defining an empty RO_AFTER_INIT_DATA.
@@ -312,6 +480,7 @@
 	. = ALIGN(8);							\
 	__start_ro_after_init = .;					\
 	*(.data..ro_after_init)						\
+<<<<<<< HEAD
 	__end_ro_after_init = .;
 #endif
 
@@ -335,12 +504,28 @@
  * Read only Data
  */
 #define RO_DATA_SECTION(align)						\
+=======
+	JUMP_TABLE_DATA							\
+	STATIC_CALL_DATA						\
+	__end_ro_after_init = .;
+#endif
+
+/*
+ * Read only Data
+ */
+#define RO_DATA(align)							\
+>>>>>>> upstream/android-13
 	. = ALIGN((align));						\
 	.rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {		\
 		__start_rodata = .;					\
 		*(.rodata) *(.rodata.*)					\
+<<<<<<< HEAD
 		RO_AFTER_INIT_DATA	/* Read only after init */	\
 		KEEP(*(__vermagic))	/* Kernel version magic */	\
+=======
+		SCHED_DATA						\
+		RO_AFTER_INIT_DATA	/* Read only after init */	\
+>>>>>>> upstream/android-13
 		. = ALIGN(8);						\
 		__start___tracepoints_ptrs = .;				\
 		KEEP(*(__tracepoints_ptrs)) /* Tracepoints: pointer array */ \
@@ -352,9 +537,12 @@
 		*(.rodata1)						\
 	}								\
 									\
+<<<<<<< HEAD
 	/* UH */							\
 	UH_RO_SECTION						\
 									\
+=======
+>>>>>>> upstream/android-13
 	/* PCI quirks */						\
 	.pci_fixup        : AT(ADDR(.pci_fixup) - LOAD_OFFSET) {	\
 		__start_pci_fixups_early = .;				\
@@ -392,6 +580,11 @@
 									\
 	TRACEDATA							\
 									\
+<<<<<<< HEAD
+=======
+	PRINTK_INDEX							\
+									\
+>>>>>>> upstream/android-13
 	/* Kernel symbol table: Normal symbols */			\
 	__ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {		\
 		__start___ksymtab = .;					\
@@ -406,6 +599,7 @@
 		__stop___ksymtab_gpl = .;				\
 	}								\
 									\
+<<<<<<< HEAD
 	/* Kernel symbol table: Normal unused symbols */		\
 	__ksymtab_unused  : AT(ADDR(__ksymtab_unused) - LOAD_OFFSET) {	\
 		__start___ksymtab_unused = .;				\
@@ -427,6 +621,8 @@
 		__stop___ksymtab_gpl_future = .;			\
 	}								\
 									\
+=======
+>>>>>>> upstream/android-13
 	/* Kernel symbol table: Normal symbols */			\
 	__kcrctab         : AT(ADDR(__kcrctab) - LOAD_OFFSET) {		\
 		__start___kcrctab = .;					\
@@ -441,6 +637,7 @@
 		__stop___kcrctab_gpl = .;				\
 	}								\
 									\
+<<<<<<< HEAD
 	/* Kernel symbol table: Normal unused symbols */		\
 	__kcrctab_unused  : AT(ADDR(__kcrctab_unused) - LOAD_OFFSET) {	\
 		__start___kcrctab_unused = .;				\
@@ -462,11 +659,18 @@
 		__stop___kcrctab_gpl_future = .;			\
 	}								\
 									\
+=======
+>>>>>>> upstream/android-13
 	/* Kernel symbol table: strings */				\
         __ksymtab_strings : AT(ADDR(__ksymtab_strings) - LOAD_OFFSET) {	\
 		*(__ksymtab_strings)					\
 	}								\
 									\
+<<<<<<< HEAD
+=======
+	SECDBG_MEMBERS							\
+									\
+>>>>>>> upstream/android-13
 	/* __*init sections */						\
 	__init_rodata : AT(ADDR(__init_rodata) - LOAD_OFFSET) {		\
 		*(.ref.rodata)						\
@@ -486,6 +690,7 @@
 		__start___modver = .;					\
 		KEEP(*(__modver))					\
 		__stop___modver = .;					\
+<<<<<<< HEAD
 		. = ALIGN((align));					\
 		__end_rodata = .;					\
 	}								\
@@ -502,6 +707,32 @@
 		KEEP(*(.security_initcall.init))			\
 		__security_initcall_end = .;				\
 	}
+=======
+	}								\
+									\
+	RO_EXCEPTION_TABLE						\
+	NOTES								\
+	BTF								\
+									\
+	. = ALIGN((align));						\
+	__end_rodata = .;
+
+
+/*
+ * .text..L.cfi.jumptable.* contain Control-Flow Integrity (CFI)
+ * jump table entries.
+ */
+#ifdef CONFIG_CFI_CLANG
+#define TEXT_CFI_JT							\
+		. = ALIGN(PMD_SIZE);					\
+		__cfi_jt_start = .;					\
+		*(.text..L.cfi.jumptable .text..L.cfi.jumptable.*)	\
+		. = ALIGN(PMD_SIZE);					\
+		__cfi_jt_end = .;
+#else
+#define TEXT_CFI_JT
+#endif
+>>>>>>> upstream/android-13
 
 /*
  * Non-instrumentable text section
@@ -526,11 +757,19 @@
 		*(TEXT_MAIN .text.fixup)				\
 		*(.text.unlikely .text.unlikely.*)			\
 		*(.text.unknown .text.unknown.*)			\
+<<<<<<< HEAD
 		*(TEXT_CFI_MAIN) 					\
 		NOINSTR_TEXT						\
 		*(.text..refcount)					\
 		*(.text..ftrace)					\
 		*(.ref.text)						\
+=======
+		NOINSTR_TEXT						\
+		*(.text..refcount)					\
+		*(.ref.text)						\
+		*(.text.asan.* .text.tsan.*)				\
+		TEXT_CFI_JT						\
+>>>>>>> upstream/android-13
 	MEM_KEEP(init.text*)						\
 	MEM_KEEP(exit.text*)						\
 
@@ -581,6 +820,15 @@
 		*(.softirqentry.text)					\
 		__softirqentry_text_end = .;
 
+<<<<<<< HEAD
+=======
+#define STATIC_CALL_TEXT						\
+		ALIGN_FUNCTION();					\
+		__static_call_text_start = .;				\
+		*(.static_call.text)					\
+		__static_call_text_end = .;
+
+>>>>>>> upstream/android-13
 /* Section used for early init (in .S files) */
 #define HEAD_TEXT  KEEP(*(.head.text))
 
@@ -601,6 +849,27 @@
 	}
 
 /*
+<<<<<<< HEAD
+=======
+ * .BTF
+ */
+#ifdef CONFIG_DEBUG_INFO_BTF
+#define BTF								\
+	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {				\
+		__start_BTF = .;					\
+		KEEP(*(.BTF))						\
+		__stop_BTF = .;						\
+	}								\
+	. = ALIGN(4);							\
+	.BTF_ids : AT(ADDR(.BTF_ids) - LOAD_OFFSET) {			\
+		*(.BTF_ids)						\
+	}
+#else
+#define BTF
+#endif
+
+/*
+>>>>>>> upstream/android-13
  * Init task
  */
 #define INIT_TASK_DATA_SECTION(align)					\
@@ -612,6 +881,10 @@
 #ifdef CONFIG_CONSTRUCTORS
 #define KERNEL_CTORS()	. = ALIGN(8);			   \
 			__ctors_start = .;		   \
+<<<<<<< HEAD
+=======
+			KEEP(*(SORT(.ctors.*)))		   \
+>>>>>>> upstream/android-13
 			KEEP(*(.ctors))			   \
 			KEEP(*(SORT(.init_array.*)))	   \
 			KEEP(*(.init_array))		   \
@@ -642,7 +915,16 @@
 	IRQCHIP_OF_MATCH_TABLE()					\
 	ACPI_PROBE_TABLE(irqchip)					\
 	ACPI_PROBE_TABLE(timer)						\
+<<<<<<< HEAD
 	EARLYCON_TABLE()
+=======
+	THERMAL_TABLE(governor)						\
+	DTPM_TABLE()							\
+	EARLYCON_TABLE()						\
+	LSM_TABLE()							\
+	EARLY_LSM_TABLE()						\
+	KUNIT_TABLE()
+>>>>>>> upstream/android-13
 
 #define INIT_TEXT							\
 	*(.init.text .init.text.*)					\
@@ -742,15 +1024,30 @@
 		.debug_rnglists	0 : { *(.debug_rnglists) }		\
 		.debug_str_offsets	0 : { *(.debug_str_offsets) }
 
+<<<<<<< HEAD
 		/* Stabs debugging sections.  */
+=======
+/* Stabs debugging sections. */
+>>>>>>> upstream/android-13
 #define STABS_DEBUG							\
 		.stab 0 : { *(.stab) }					\
 		.stabstr 0 : { *(.stabstr) }				\
 		.stab.excl 0 : { *(.stab.excl) }			\
 		.stab.exclstr 0 : { *(.stab.exclstr) }			\
 		.stab.index 0 : { *(.stab.index) }			\
+<<<<<<< HEAD
 		.stab.indexstr 0 : { *(.stab.indexstr) }		\
 		.comment 0 : { *(.comment) }
+=======
+		.stab.indexstr 0 : { *(.stab.indexstr) }
+
+/* Required sections not related to debugging. */
+#define ELF_DETAILS							\
+		.comment 0 : { *(.comment) }				\
+		.symtab 0 : { *(.symtab) }				\
+		.strtab 0 : { *(.strtab) }				\
+		.shstrtab 0 : { *(.shstrtab) }
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_GENERIC_BUG
 #define BUG_TABLE							\
@@ -789,6 +1086,22 @@
 #define ORC_UNWIND_TABLE
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SEC_DEBUG_MEMTAB
+#define SECDBG_MEMBERS							\
+	/* Secdbg member table: offsets */				\
+	. = ALIGN(8);							\
+	__secdbg_member_table : AT(ADDR(__secdbg_member_table) - LOAD_OFFSET) { \
+		__start__secdbg_member_table = .;			\
+		KEEP(*(SORT(.secdbg_mbtab.*)))				\
+		__stop__secdbg_member_table = .;			\
+	}
+#else
+#define SECDBG_MEMBERS
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_TRACE
 #define TRACEDATA							\
 	. = ALIGN(4);							\
@@ -801,12 +1114,31 @@
 #define TRACEDATA
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PRINTK_INDEX
+#define PRINTK_INDEX							\
+	.printk_index : AT(ADDR(.printk_index) - LOAD_OFFSET) {		\
+		__start_printk_index = .;				\
+		*(.printk_index)					\
+		__stop_printk_index = .;				\
+	}
+#else
+#define PRINTK_INDEX
+#endif
+
+>>>>>>> upstream/android-13
 #define NOTES								\
 	.notes : AT(ADDR(.notes) - LOAD_OFFSET) {			\
 		__start_notes = .;					\
 		KEEP(*(.note.*))					\
 		__stop_notes = .;					\
+<<<<<<< HEAD
 	}
+=======
+	} NOTES_HEADERS							\
+	NOTES_HEADERS_RESTORE
+>>>>>>> upstream/android-13
 
 #define INIT_SETUP(initsetup_align)					\
 		. = ALIGN(initsetup_align);				\
@@ -838,10 +1170,19 @@
 		KEEP(*(.con_initcall.init))				\
 		__con_initcall_end = .;
 
+<<<<<<< HEAD
 #define SECURITY_INITCALL						\
 		__security_initcall_start = .;				\
 		KEEP(*(.security_initcall.init))			\
 		__security_initcall_end = .;
+=======
+/* Alignment must be consistent with (kunit_suite *) in include/kunit/test.h */
+#define KUNIT_TABLE()							\
+		. = ALIGN(8);						\
+		__kunit_suites_start = .;				\
+		KEEP(*(.kunit_test_suites))				\
+		__kunit_suites_end = .;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_BLK_DEV_INITRD
 #define INIT_RAM_FS							\
@@ -865,6 +1206,10 @@
 #ifdef CONFIG_AMD_MEM_ENCRYPT
 #define PERCPU_DECRYPTED_SECTION					\
 	. = ALIGN(PAGE_SIZE);						\
+<<<<<<< HEAD
+=======
+	*(.data..decrypted)						\
+>>>>>>> upstream/android-13
 	*(.data..percpu..decrypted)					\
 	. = ALIGN(PAGE_SIZE);
 #else
@@ -881,6 +1226,7 @@
  * section definitions so that such archs put those in earlier section
  * definitions.
  */
+<<<<<<< HEAD
 #define DISCARDS							\
 	/DISCARD/ : {							\
 	EXIT_TEXT							\
@@ -888,6 +1234,50 @@
 	EXIT_CALL							\
 	*(.discard)							\
 	*(.discard.*)							\
+=======
+#ifdef RUNTIME_DISCARD_EXIT
+#define EXIT_DISCARDS
+#else
+#define EXIT_DISCARDS							\
+	EXIT_TEXT							\
+	EXIT_DATA
+#endif
+
+/*
+ * Clang's -fprofile-arcs, -fsanitize=kernel-address, and
+ * -fsanitize=thread produce unwanted sections (.eh_frame
+ * and .init_array.*), but CONFIG_CONSTRUCTORS wants to
+ * keep any .init_array.* sections.
+ * https://bugs.llvm.org/show_bug.cgi?id=46478
+ */
+#if defined(CONFIG_GCOV_KERNEL) || defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KCSAN) || \
+	defined(CONFIG_CFI_CLANG)
+# ifdef CONFIG_CONSTRUCTORS
+#  define SANITIZER_DISCARDS						\
+	*(.eh_frame)
+# else
+#  define SANITIZER_DISCARDS						\
+	*(.init_array) *(.init_array.*)					\
+	*(.eh_frame)
+# endif
+#else
+# define SANITIZER_DISCARDS
+#endif
+
+#define COMMON_DISCARDS							\
+	SANITIZER_DISCARDS						\
+	*(.discard)							\
+	*(.discard.*)							\
+	*(.modinfo)							\
+	/* ld.bfd warns about .gnu.version* even when not emitted */	\
+	*(.gnu.version*)						\
+
+#define DISCARDS							\
+	/DISCARD/ : {							\
+	EXIT_DISCARDS							\
+	EXIT_CALL							\
+	COMMON_DISCARDS							\
+>>>>>>> upstream/android-13
 	}
 
 /**
@@ -982,7 +1372,11 @@
  * matches the requirement of PAGE_ALIGNED_DATA.
  *
  * use 0 as page_align if page_aligned data is not used */
+<<<<<<< HEAD
 #define RW_DATA_SECTION(cacheline, pagealigned, inittask)		\
+=======
+#define RW_DATA(cacheline, pagealigned, inittask)			\
+>>>>>>> upstream/android-13
 	. = ALIGN(PAGE_SIZE);						\
 	.data : AT(ADDR(.data) - LOAD_OFFSET) {				\
 		INIT_TASK_DATA(inittask)				\
@@ -1009,7 +1403,10 @@
 		INIT_SETUP(initsetup_align)				\
 		INIT_CALLS						\
 		CON_INITCALL						\
+<<<<<<< HEAD
 		SECURITY_INITCALL					\
+=======
+>>>>>>> upstream/android-13
 		INIT_RAM_FS						\
 	}
 

@@ -20,24 +20,43 @@ choice
 
 config M68KCLASSIC
 	bool "Classic M68K CPU family support"
+<<<<<<< HEAD
+=======
+	select HAVE_ARCH_PFN_VALID
+>>>>>>> upstream/android-13
 
 config COLDFIRE
 	bool "Coldfire CPU family support"
 	select ARCH_HAVE_CUSTOM_GPIO_H
 	select CPU_HAS_NO_BITFIELDS
+<<<<<<< HEAD
 	select CPU_HAS_NO_MULDIV64
 	select GENERIC_CSUM
 	select GPIOLIB
 	select HAVE_CLK
+=======
+	select CPU_HAS_NO_CAS
+	select CPU_HAS_NO_MULDIV64
+	select GENERIC_CSUM
+	select GPIOLIB
+	select HAVE_LEGACY_CLK
+>>>>>>> upstream/android-13
 
 endchoice
 
 if M68KCLASSIC
 
 config M68000
+<<<<<<< HEAD
 	bool "MC68000"
 	depends on !MMU
 	select CPU_HAS_NO_BITFIELDS
+=======
+	bool
+	depends on !MMU
+	select CPU_HAS_NO_BITFIELDS
+	select CPU_HAS_NO_CAS
+>>>>>>> upstream/android-13
 	select CPU_HAS_NO_MULDIV64
 	select CPU_HAS_NO_UNALIGNED
 	select GENERIC_CSUM
@@ -53,6 +72,10 @@ config M68000
 config MCPU32
 	bool
 	select CPU_HAS_NO_BITFIELDS
+<<<<<<< HEAD
+=======
+	select CPU_HAS_NO_CAS
+>>>>>>> upstream/android-13
 	select CPU_HAS_NO_UNALIGNED
 	select CPU_NO_EFFICIENT_FFS
 	help
@@ -102,22 +125,40 @@ config M68060
 	  processor, say Y. Otherwise, say N.
 
 config M68328
+<<<<<<< HEAD
 	bool "MC68328"
 	depends on !MMU
+=======
+	bool
+	depends on !MMU
+	select LEGACY_TIMER_TICK
+>>>>>>> upstream/android-13
 	select M68000
 	help
 	  Motorola 68328 processor support.
 
 config M68EZ328
+<<<<<<< HEAD
 	bool "MC68EZ328"
 	depends on !MMU
+=======
+	bool
+	depends on !MMU
+	select LEGACY_TIMER_TICK
+>>>>>>> upstream/android-13
 	select M68000
 	help
 	  Motorola 68EX328 processor support.
 
 config M68VZ328
+<<<<<<< HEAD
 	bool "MC68VZ328"
 	depends on !MMU
+=======
+	bool
+	depends on !MMU
+	select LEGACY_TIMER_TICK
+>>>>>>> upstream/android-13
 	select M68000
 	help
 	  Motorola 68VZ328 processor support.
@@ -137,6 +178,10 @@ config M5206
 	bool "MCF5206"
 	depends on !MMU
 	select COLDFIRE_SW_A7
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select HAVE_MBAR
 	select CPU_NO_EFFICIENT_FFS
 	help
@@ -146,6 +191,10 @@ config M5206e
 	bool "MCF5206e"
 	depends on !MMU
 	select COLDFIRE_SW_A7
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select HAVE_MBAR
 	select CPU_NO_EFFICIENT_FFS
 	help
@@ -154,7 +203,11 @@ config M5206e
 config M520x
 	bool "MCF520x"
 	depends on !MMU
+<<<<<<< HEAD
 	select GENERIC_CLOCKEVENTS
+=======
+	select COLDFIRE_PIT_TIMER
+>>>>>>> upstream/android-13
 	select HAVE_CACHE_SPLIT
 	help
 	   Freescale Coldfire 5207/5208 processor support.
@@ -162,7 +215,11 @@ config M520x
 config M523x
 	bool "MCF523x"
 	depends on !MMU
+<<<<<<< HEAD
 	select GENERIC_CLOCKEVENTS
+=======
+	select COLDFIRE_PIT_TIMER
+>>>>>>> upstream/android-13
 	select HAVE_CACHE_SPLIT
 	select HAVE_IPSBAR
 	help
@@ -172,6 +229,10 @@ config M5249
 	bool "MCF5249"
 	depends on !MMU
 	select COLDFIRE_SW_A7
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select HAVE_MBAR
 	select CPU_NO_EFFICIENT_FFS
 	help
@@ -181,6 +242,10 @@ config M525x
 	bool "MCF525x"
 	depends on !MMU
 	select COLDFIRE_SW_A7
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select HAVE_MBAR
 	select CPU_NO_EFFICIENT_FFS
 	help
@@ -189,10 +254,17 @@ config M525x
 config M5271
 	bool "MCF5271"
 	depends on !MMU
+<<<<<<< HEAD
 	select M527x
 	select HAVE_CACHE_SPLIT
 	select HAVE_IPSBAR
 	select GENERIC_CLOCKEVENTS
+=======
+	select COLDFIRE_PIT_TIMER
+	select M527x
+	select HAVE_CACHE_SPLIT
+	select HAVE_IPSBAR
+>>>>>>> upstream/android-13
 	help
 	  Freescale (Motorola) ColdFire 5270/5271 processor support.
 
@@ -200,6 +272,10 @@ config M5272
 	bool "MCF5272"
 	depends on !MMU
 	select COLDFIRE_SW_A7
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select HAVE_MBAR
 	select CPU_NO_EFFICIENT_FFS
 	help
@@ -208,17 +284,28 @@ config M5272
 config M5275
 	bool "MCF5275"
 	depends on !MMU
+<<<<<<< HEAD
 	select M527x
 	select HAVE_CACHE_SPLIT
 	select HAVE_IPSBAR
 	select GENERIC_CLOCKEVENTS
+=======
+	select COLDFIRE_PIT_TIMER
+	select M527x
+	select HAVE_CACHE_SPLIT
+	select HAVE_IPSBAR
+>>>>>>> upstream/android-13
 	help
 	  Freescale (Motorola) ColdFire 5274/5275 processor support.
 
 config M528x
 	bool "MCF528x"
 	depends on !MMU
+<<<<<<< HEAD
 	select GENERIC_CLOCKEVENTS
+=======
+	select COLDFIRE_PIT_TIMER
+>>>>>>> upstream/android-13
 	select HAVE_CACHE_SPLIT
 	select HAVE_IPSBAR
 	help
@@ -227,6 +314,10 @@ config M528x
 config M5307
 	bool "MCF5307"
 	depends on !MMU
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select COLDFIRE_SW_A7
 	select HAVE_CACHE_CB
 	select HAVE_MBAR
@@ -237,6 +328,10 @@ config M5307
 config M532x
 	bool "MCF532x"
 	depends on !MMU
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select M53xx
 	select HAVE_CACHE_CB
 	help
@@ -245,6 +340,10 @@ config M532x
 config M537x
 	bool "MCF537x"
 	depends on !MMU
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select M53xx
 	select HAVE_CACHE_CB
 	help
@@ -254,6 +353,10 @@ config M5407
 	bool "MCF5407"
 	depends on !MMU
 	select COLDFIRE_SW_A7
+<<<<<<< HEAD
+=======
+	select COLDFIRE_TIMERS
+>>>>>>> upstream/android-13
 	select HAVE_CACHE_CB
 	select HAVE_MBAR
 	select CPU_NO_EFFICIENT_FFS
@@ -263,6 +366,10 @@ config M5407
 config M547x
 	bool "MCF547x"
 	select M54xx
+<<<<<<< HEAD
+=======
+	select COLDFIRE_SLTIMERS
+>>>>>>> upstream/android-13
 	select MMU_COLDFIRE if MMU
 	select FPU if MMU
 	select HAVE_CACHE_CB
@@ -273,6 +380,10 @@ config M547x
 
 config M548x
 	bool "MCF548x"
+<<<<<<< HEAD
+=======
+	select COLDFIRE_SLTIMERS
+>>>>>>> upstream/android-13
 	select MMU_COLDFIRE if MMU
 	select FPU if MMU
 	select M54xx
@@ -284,8 +395,13 @@ config M548x
 
 config M5441x
 	bool "MCF5441x"
+<<<<<<< HEAD
 	select MMU_COLDFIRE if MMU
 	select GENERIC_CLOCKEVENTS
+=======
+	select COLDFIRE_PIT_TIMER
+	select MMU_COLDFIRE if MMU
+>>>>>>> upstream/android-13
 	select HAVE_CACHE_CB
 	help
 	  Freescale Coldfire 54410/54415/54416/54417/54418 processor support.
@@ -299,8 +415,25 @@ config M53xx
 	bool
 
 config M54xx
+<<<<<<< HEAD
 	bool
 
+=======
+	select HAVE_PCI
+	bool
+
+config COLDFIRE_PIT_TIMER
+	bool
+
+config COLDFIRE_TIMERS
+	bool
+	select LEGACY_TIMER_TICK
+
+config COLDFIRE_SLTIMERS
+	bool
+	select LEGACY_TIMER_TICK
+
+>>>>>>> upstream/android-13
 endif # COLDFIRE
 
 
@@ -342,7 +475,11 @@ config M68KFPU_EMU_ONLY
 config ADVANCED
 	bool "Advanced configuration options"
 	depends on MMU
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  This gives you access to some advanced options for the CPU. The
 	  defaults should be fine for most users, but these options may make
 	  it possible for you to improve performance somewhat if you know what
@@ -356,8 +493,13 @@ config ADVANCED
 
 config RMW_INSNS
 	bool "Use read-modify-write instructions"
+<<<<<<< HEAD
 	depends on ADVANCED
 	---help---
+=======
+	depends on ADVANCED && !CPU_HAS_NO_CAS
+	help
+>>>>>>> upstream/android-13
 	  This allows to use certain instructions that work with indivisible
 	  read-modify-write bus cycles. While this is faster than the
 	  workaround of disabling interrupts, it can conflict with DMA
@@ -372,6 +514,7 @@ config RMW_INSNS
 config SINGLE_MEMORY_CHUNK
 	bool "Use one physical chunk of memory only" if ADVANCED && !SUN3
 	depends on MMU
+<<<<<<< HEAD
 	default y if SUN3
 	select NEED_MULTIPLE_NODES
 	help
@@ -381,11 +524,44 @@ config SINGLE_MEMORY_CHUNK
 
 config ARCH_DISCONTIGMEM_ENABLE
 	def_bool MMU && !SINGLE_MEMORY_CHUNK
+=======
+	default y if SUN3 || MMU_COLDFIRE
+	help
+	  Ignore all but the first contiguous chunk of physical memory for VM
+	  purposes.  This will save a few bytes kernel size and may speed up
+	  some operations.
+	  When this option os set to N, you may want to lower "Maximum zone
+	  order" to save memory that could be wasted for unused memory map.
+	  Say N if not sure.
+
+config FORCE_MAX_ZONEORDER
+	int "Maximum zone order" if ADVANCED
+	depends on !SINGLE_MEMORY_CHUNK
+	default "11"
+	help
+	  The kernel memory allocator divides physically contiguous memory
+	  blocks into "zones", where each zone is a power of two number of
+	  pages.  This option selects the largest power of two that the kernel
+	  keeps in the memory allocator.  If you need to allocate very large
+	  blocks of physically contiguous memory, then you may need to
+	  increase this value.
+
+	  For systems that have holes in their physical address space this
+	  value also defines the minimal size of the hole that allows
+	  freeing unused memory map.
+
+	  This config option is actually maximum order plus one. For example,
+	  a value of 11 means that the largest free memory block is 2^10 pages.
+>>>>>>> upstream/android-13
 
 config 060_WRITETHROUGH
 	bool "Use write-through caching for 68060 supervisor accesses"
 	depends on ADVANCED && M68060
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  The 68060 generally uses copyback caching of recently accessed data.
 	  Copyback caching means that memory writes will be held in an on-chip
 	  cache and only written back to memory some time later.  Saying Y
@@ -402,6 +578,7 @@ config M68K_L2_CACHE
 	depends on MAC
 	default y
 
+<<<<<<< HEAD
 config NODES_SHIFT
 	int
 	default "3"
@@ -410,6 +587,14 @@ config NODES_SHIFT
 config CPU_HAS_NO_BITFIELDS
 	bool
 
+=======
+config CPU_HAS_NO_BITFIELDS
+	bool
+
+config CPU_HAS_NO_CAS
+	bool
+
+>>>>>>> upstream/android-13
 config CPU_HAS_NO_MULDIV64
 	bool
 
@@ -504,4 +689,7 @@ config CACHE_COPYBACK
 	  The ColdFire CPU cache is set into Copy-back mode.
 endchoice
 endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

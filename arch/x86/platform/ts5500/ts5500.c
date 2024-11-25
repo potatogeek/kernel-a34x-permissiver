@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Technologic Systems TS-5500 Single Board Computer support
  *
  * Copyright (C) 2013-2014 Savoir-faire Linux Inc.
  *	Vivien Didelot <vivien.didelot@savoirfairelinux.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
  *
  *
+=======
+>>>>>>> upstream/android-13
  * This driver registers the Technologic Systems TS-5500 Single Board Computer
  * (SBC) and its devices, and exposes information to userspace such as jumpers'
  * state or available options. For further information about sysfs entries, see
@@ -24,7 +31,10 @@
 #include <linux/kernel.h>
 #include <linux/leds.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/platform_data/gpio-ts5500.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_data/max197.h>
 #include <linux/platform_device.h>
 #include <linux/slab.h>

@@ -385,8 +385,13 @@ static int delta_querycap(struct file *file, void *priv,
 	struct delta_ctx *ctx = to_ctx(file->private_data);
 	struct delta_dev *delta = ctx->dev;
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, DELTA_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, delta->vdev->name, sizeof(cap->card));
+=======
+	strscpy(cap->driver, DELTA_NAME, sizeof(cap->driver));
+	strscpy(cap->card, delta->vdev->name, sizeof(cap->card));
+>>>>>>> upstream/android-13
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
 		 delta->pdev->name);
 
@@ -954,10 +959,15 @@ static void delta_run_work(struct work_struct *work)
 	/* enable the hardware */
 	if (!dec->pm) {
 		ret = delta_get_sync(ctx);
+<<<<<<< HEAD
 		if (ret) {
 			delta_put_autosuspend(ctx);
 			goto err;
 		}
+=======
+		if (ret)
+			goto err;
+>>>>>>> upstream/android-13
 	}
 
 	/* decode this access unit */
@@ -1009,7 +1019,10 @@ static void delta_run_work(struct work_struct *work)
 			dev_err(delta->dev,
 				"%s  NULL decoded frame\n",
 				ctx->name);
+<<<<<<< HEAD
 			ret = -EIO;
+=======
+>>>>>>> upstream/android-13
 			goto out;
 		}
 
@@ -1277,9 +1290,15 @@ int delta_get_sync(struct delta_ctx *ctx)
 	int ret = 0;
 
 	/* enable the hardware */
+<<<<<<< HEAD
 	ret = pm_runtime_get_sync(delta->dev);
 	if (ret < 0) {
 		dev_err(delta->dev, "%s pm_runtime_get_sync failed (%d)\n",
+=======
+	ret = pm_runtime_resume_and_get(delta->dev);
+	if (ret < 0) {
+		dev_err(delta->dev, "%s pm_runtime_resume_and_get failed (%d)\n",
+>>>>>>> upstream/android-13
 			__func__, ret);
 		return ret;
 	}
@@ -1783,7 +1802,11 @@ static int delta_register_device(struct delta_dev *delta)
 	snprintf(vdev->name, sizeof(vdev->name), "%s-%s",
 		 DELTA_NAME, DELTA_FW_VERSION);
 
+<<<<<<< HEAD
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(delta->dev, "%s failed to register video device\n",
 			DELTA_PREFIX);

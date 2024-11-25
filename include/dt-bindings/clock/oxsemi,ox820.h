@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Neil Armstrong <narmstrong@baylibre.com>
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2016 Neil Armstrong <narmstrong@baylibre.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef DT_CLOCK_OXSEMI_OX820_H

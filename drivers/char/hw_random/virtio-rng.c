@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Randomness driver for virtio
  *  Copyright (C) 2007, 2008 Rusty Russell IBM Corporation
@@ -15,6 +16,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Randomness driver for virtio
+ *  Copyright (C) 2007, 2008 Rusty Russell IBM Corporation
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -24,6 +31,10 @@
 #include <linux/virtio.h>
 #include <linux/virtio_rng.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 static DEFINE_IDA(rng_index_ida);
 
@@ -207,7 +218,11 @@ static int virtrng_restore(struct virtio_device *vdev)
 }
 #endif
 
+<<<<<<< HEAD
 static struct virtio_device_id id_table[] = {
+=======
+static const struct virtio_device_id id_table[] = {
+>>>>>>> upstream/android-13
 	{ VIRTIO_ID_RNG, VIRTIO_DEV_ANY_ID },
 	{ 0 },
 };

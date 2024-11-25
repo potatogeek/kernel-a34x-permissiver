@@ -14,24 +14,44 @@
 #include <linux/delay.h>
 #include <linux/freezer.h>
 #include <linux/sched/signal.h>
+<<<<<<< HEAD
+=======
+#include <linux/random.h>
+>>>>>>> upstream/android-13
 
 #include "f2fs.h"
 #include "node.h"
 #include "segment.h"
 #include "gc.h"
+<<<<<<< HEAD
 #include <trace/events/f2fs.h>
 
+=======
+#include "iostat.h"
+#include <trace/events/f2fs.h>
+
+static struct kmem_cache *victim_entry_slab;
+
+static unsigned int count_bits(const unsigned long *addr,
+				unsigned int offset, unsigned int len);
+
+>>>>>>> upstream/android-13
 static int gc_thread_func(void *data)
 {
 	struct f2fs_sb_info *sbi = data;
 	struct f2fs_gc_kthread *gc_th = sbi->gc_thread;
 	wait_queue_head_t *wq = &sbi->gc_thread->gc_wait_queue_head;
+<<<<<<< HEAD
+=======
+	wait_queue_head_t *fggc_wq = &sbi->gc_thread->fggc_wq;
+>>>>>>> upstream/android-13
 	unsigned int wait_ms;
 
 	wait_ms = gc_th->min_sleep_time;
 
 	set_freezable();
 	do {
+<<<<<<< HEAD
 		bool sync_mode;
 
 		wait_event_interruptible_timeout(*wq,
@@ -39,6 +59,19 @@ static int gc_thread_func(void *data)
 				gc_th->gc_wake,
 				msecs_to_jiffies(wait_ms));
 
+=======
+		bool sync_mode, foreground = false;
+
+		wait_event_interruptible_timeout(*wq,
+				kthread_should_stop() || freezing(current) ||
+				waitqueue_active(fggc_wq) ||
+				gc_th->gc_wake,
+				msecs_to_jiffies(wait_ms));
+
+		if (test_opt(sbi, GC_MERGE) && waitqueue_active(fggc_wq))
+			foreground = true;
+
+>>>>>>> upstream/android-13
 		/* give it a try one time */
 		if (gc_th->gc_wake)
 			gc_th->gc_wake = 0;
@@ -79,6 +112,7 @@ static int gc_thread_func(void *data)
 		 * invalidated soon after by user update or deletion.
 		 * So, I'd like to wait some time to collect dirty segments.
 		 */
+<<<<<<< HEAD
 		if (sbi->gc_mode == GC_URGENT) {
 			wait_ms = gc_th->urgent_sleep_time;
 			down_write(&sbi->gc_lock);
@@ -86,13 +120,44 @@ static int gc_thread_func(void *data)
 		}
 
 		if (!down_write_trylock(&sbi->gc_lock)) {
+=======
+		if (sbi->gc_mode == GC_URGENT_HIGH) {
+			spin_lock(&sbi->gc_urgent_high_lock);
+			if (sbi->gc_urgent_high_limited) {
+				if (!sbi->gc_urgent_high_remaining) {
+					sbi->gc_urgent_high_limited = false;
+					spin_unlock(&sbi->gc_urgent_high_lock);
+					sbi->gc_mode = GC_NORMAL;
+					continue;
+				}
+				sbi->gc_urgent_high_remaining--;
+			}
+			spin_unlock(&sbi->gc_urgent_high_lock);
+		}
+
+		if (sbi->gc_mode == GC_URGENT_HIGH ||
+				sbi->gc_mode == GC_URGENT_MID) {
+			wait_ms = gc_th->urgent_sleep_time;
+			f2fs_down_write(&sbi->gc_lock);
+			goto do_gc;
+		}
+
+		if (foreground) {
+			f2fs_down_write(&sbi->gc_lock);
+			goto do_gc;
+		} else if (!f2fs_down_write_trylock(&sbi->gc_lock)) {
+>>>>>>> upstream/android-13
 			stat_other_skip_bggc_count(sbi);
 			goto next;
 		}
 
 		if (!is_idle(sbi, GC_TIME)) {
 			increase_sleep_time(gc_th, &wait_ms);
+<<<<<<< HEAD
 			up_write(&sbi->gc_lock);
+=======
+			f2fs_up_write(&sbi->gc_lock);
+>>>>>>> upstream/android-13
 			stat_io_skip_bggc_count(sbi);
 			goto next;
 		}
@@ -102,6 +167,7 @@ static int gc_thread_func(void *data)
 		else
 			increase_sleep_time(gc_th, &wait_ms);
 do_gc:
+<<<<<<< HEAD
 		stat_inc_bggc_count(sbi->stat_info);
 
 		sync_mode = F2FS_OPTION(sbi).bggc_mode == BGGC_MODE_SYNC;
@@ -110,6 +176,24 @@ do_gc:
 		if (f2fs_gc(sbi, sync_mode, true, NULL_SEGNO))
 			wait_ms = gc_th->no_gc_sleep_time;
 
+=======
+		if (!foreground)
+			stat_inc_bggc_count(sbi->stat_info);
+
+		sync_mode = F2FS_OPTION(sbi).bggc_mode == BGGC_MODE_SYNC;
+
+		/* foreground GC was been triggered via f2fs_balance_fs() */
+		if (foreground)
+			sync_mode = false;
+
+		/* if return value is not zero, no victim was selected */
+		if (f2fs_gc(sbi, sync_mode, !foreground, false, NULL_SEGNO))
+			wait_ms = gc_th->no_gc_sleep_time;
+
+		if (foreground)
+			wake_up_all(&gc_th->fggc_wq);
+
+>>>>>>> upstream/android-13
 		trace_f2fs_background_gc(sbi->sb, wait_ms,
 				prefree_segments(sbi), free_segments(sbi));
 
@@ -139,15 +223,27 @@ int f2fs_start_gc_thread(struct f2fs_sb_info *sbi)
 	gc_th->max_sleep_time = DEF_GC_THREAD_MAX_SLEEP_TIME;
 	gc_th->no_gc_sleep_time = DEF_GC_THREAD_NOGC_SLEEP_TIME;
 
+<<<<<<< HEAD
 	gc_th->gc_wake= 0;
 
 	sbi->gc_thread = gc_th;
 	init_waitqueue_head(&sbi->gc_thread->gc_wait_queue_head);
+=======
+	gc_th->gc_wake = 0;
+
+	sbi->gc_thread = gc_th;
+	init_waitqueue_head(&sbi->gc_thread->gc_wait_queue_head);
+	init_waitqueue_head(&sbi->gc_thread->fggc_wq);
+>>>>>>> upstream/android-13
 	sbi->gc_thread->f2fs_gc_task = kthread_run(gc_thread_func, sbi,
 			"f2fs_gc-%u:%u", MAJOR(dev), MINOR(dev));
 	if (IS_ERR(gc_th->f2fs_gc_task)) {
 		err = PTR_ERR(gc_th->f2fs_gc_task);
+<<<<<<< HEAD
 		kvfree(gc_th);
+=======
+		kfree(gc_th);
+>>>>>>> upstream/android-13
 		sbi->gc_thread = NULL;
 	}
 out:
@@ -157,26 +253,59 @@ out:
 void f2fs_stop_gc_thread(struct f2fs_sb_info *sbi)
 {
 	struct f2fs_gc_kthread *gc_th = sbi->gc_thread;
+<<<<<<< HEAD
 	if (!gc_th)
 		return;
 	kthread_stop(gc_th->f2fs_gc_task);
 	kvfree(gc_th);
+=======
+
+	if (!gc_th)
+		return;
+	kthread_stop(gc_th->f2fs_gc_task);
+	wake_up_all(&gc_th->fggc_wq);
+	kfree(gc_th);
+>>>>>>> upstream/android-13
 	sbi->gc_thread = NULL;
 }
 
 static int select_gc_type(struct f2fs_sb_info *sbi, int gc_type)
 {
+<<<<<<< HEAD
 	int gc_mode = (gc_type == BG_GC) ? GC_CB : GC_GREEDY;
+=======
+	int gc_mode;
+
+	if (gc_type == BG_GC) {
+		if (sbi->am.atgc_enabled)
+			gc_mode = GC_AT;
+		else
+			gc_mode = GC_CB;
+	} else {
+		gc_mode = GC_GREEDY;
+	}
+>>>>>>> upstream/android-13
 
 	switch (sbi->gc_mode) {
 	case GC_IDLE_CB:
 		gc_mode = GC_CB;
 		break;
 	case GC_IDLE_GREEDY:
+<<<<<<< HEAD
 	case GC_URGENT:
 		gc_mode = GC_GREEDY;
 		break;
 	}
+=======
+	case GC_URGENT_HIGH:
+		gc_mode = GC_GREEDY;
+		break;
+	case GC_IDLE_AT:
+		gc_mode = GC_AT;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	return gc_mode;
 }
 
@@ -187,14 +316,35 @@ static void select_policy(struct f2fs_sb_info *sbi, int gc_type,
 
 	if (p->alloc_mode == SSR) {
 		p->gc_mode = GC_GREEDY;
+<<<<<<< HEAD
 		p->dirty_segmap = dirty_i->dirty_segmap[type];
+=======
+		p->dirty_bitmap = dirty_i->dirty_segmap[type];
+		p->max_search = dirty_i->nr_dirty[type];
+		p->ofs_unit = 1;
+	} else if (p->alloc_mode == AT_SSR) {
+		p->gc_mode = GC_GREEDY;
+		p->dirty_bitmap = dirty_i->dirty_segmap[type];
+>>>>>>> upstream/android-13
 		p->max_search = dirty_i->nr_dirty[type];
 		p->ofs_unit = 1;
 	} else {
 		p->gc_mode = select_gc_type(sbi, gc_type);
+<<<<<<< HEAD
 		p->dirty_segmap = dirty_i->dirty_segmap[DIRTY];
 		p->max_search = dirty_i->nr_dirty[DIRTY];
 		p->ofs_unit = sbi->segs_per_sec;
+=======
+		p->ofs_unit = sbi->segs_per_sec;
+		if (__is_large_section(sbi)) {
+			p->dirty_bitmap = dirty_i->dirty_secmap;
+			p->max_search = count_bits(p->dirty_bitmap,
+						0, MAIN_SECS(sbi));
+		} else {
+			p->dirty_bitmap = dirty_i->dirty_segmap[DIRTY];
+			p->max_search = dirty_i->nr_dirty[DIRTY];
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -202,12 +352,23 @@ static void select_policy(struct f2fs_sb_info *sbi, int gc_type,
 	 * foreground GC and urgent GC cases.
 	 */
 	if (gc_type != FG_GC &&
+<<<<<<< HEAD
 			(sbi->gc_mode != GC_URGENT) &&
+=======
+			(sbi->gc_mode != GC_URGENT_HIGH) &&
+			(p->gc_mode != GC_AT && p->alloc_mode != AT_SSR) &&
+>>>>>>> upstream/android-13
 			p->max_search > sbi->max_victim_search)
 		p->max_search = sbi->max_victim_search;
 
 	/* let's select beginning hot/small space first in no_heap mode*/
+<<<<<<< HEAD
 	if (test_opt(sbi, NOHEAP) &&
+=======
+	if (f2fs_need_rand_seg(sbi))
+		p->offset = prandom_u32() % (MAIN_SECS(sbi) * sbi->segs_per_sec);
+	else if (test_opt(sbi, NOHEAP) &&
+>>>>>>> upstream/android-13
 		(type == CURSEG_HOT_DATA || IS_NODESEG(type)))
 		p->offset = 0;
 	else
@@ -220,10 +381,22 @@ static unsigned int get_max_cost(struct f2fs_sb_info *sbi,
 	/* SSR allocates in a segment unit */
 	if (p->alloc_mode == SSR)
 		return sbi->blocks_per_seg;
+<<<<<<< HEAD
+=======
+	else if (p->alloc_mode == AT_SSR)
+		return UINT_MAX;
+
+	/* LFS */
+>>>>>>> upstream/android-13
 	if (p->gc_mode == GC_GREEDY)
 		return 2 * sbi->blocks_per_seg * p->ofs_unit;
 	else if (p->gc_mode == GC_CB)
 		return UINT_MAX;
+<<<<<<< HEAD
+=======
+	else if (p->gc_mode == GC_AT)
+		return UINT_MAX;
+>>>>>>> upstream/android-13
 	else /* No other gc_mode */
 		return 0;
 }
@@ -257,6 +430,7 @@ static unsigned int get_cb_cost(struct f2fs_sb_info *sbi, unsigned int segno)
 	unsigned char age = 0;
 	unsigned char u;
 	unsigned int i;
+<<<<<<< HEAD
 
 	for (i = 0; i < sbi->segs_per_sec; i++)
 		mtime += get_seg_entry(sbi, start + i)->mtime;
@@ -264,6 +438,16 @@ static unsigned int get_cb_cost(struct f2fs_sb_info *sbi, unsigned int segno)
 
 	mtime = div_u64(mtime, sbi->segs_per_sec);
 	vblocks = div_u64(vblocks, sbi->segs_per_sec);
+=======
+	unsigned int usable_segs_per_sec = f2fs_usable_segs_in_sec(sbi, segno);
+
+	for (i = 0; i < usable_segs_per_sec; i++)
+		mtime += get_seg_entry(sbi, start + i)->mtime;
+	vblocks = get_valid_blocks(sbi, segno, true);
+
+	mtime = div_u64(mtime, usable_segs_per_sec);
+	vblocks = div_u64(vblocks, usable_segs_per_sec);
+>>>>>>> upstream/android-13
 
 	u = (vblocks * 100) >> sbi->log_blocks_per_seg;
 
@@ -288,8 +472,16 @@ static inline unsigned int get_gc_cost(struct f2fs_sb_info *sbi,
 	/* alloc_mode == LFS */
 	if (p->gc_mode == GC_GREEDY)
 		return get_valid_blocks(sbi, segno, true);
+<<<<<<< HEAD
 	else
 		return get_cb_cost(sbi, segno);
+=======
+	else if (p->gc_mode == GC_CB)
+		return get_cb_cost(sbi, segno);
+
+	f2fs_bug_on(sbi, 1);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int count_bits(const unsigned long *addr,
@@ -304,6 +496,273 @@ static unsigned int count_bits(const unsigned long *addr,
 	return sum;
 }
 
+<<<<<<< HEAD
+=======
+static struct victim_entry *attach_victim_entry(struct f2fs_sb_info *sbi,
+				unsigned long long mtime, unsigned int segno,
+				struct rb_node *parent, struct rb_node **p,
+				bool left_most)
+{
+	struct atgc_management *am = &sbi->am;
+	struct victim_entry *ve;
+
+	ve =  f2fs_kmem_cache_alloc(victim_entry_slab,
+				GFP_NOFS, true, NULL);
+
+	ve->mtime = mtime;
+	ve->segno = segno;
+
+	rb_link_node(&ve->rb_node, parent, p);
+	rb_insert_color_cached(&ve->rb_node, &am->root, left_most);
+
+	list_add_tail(&ve->list, &am->victim_list);
+
+	am->victim_count++;
+
+	return ve;
+}
+
+static void insert_victim_entry(struct f2fs_sb_info *sbi,
+				unsigned long long mtime, unsigned int segno)
+{
+	struct atgc_management *am = &sbi->am;
+	struct rb_node **p;
+	struct rb_node *parent = NULL;
+	bool left_most = true;
+
+	p = f2fs_lookup_rb_tree_ext(sbi, &am->root, &parent, mtime, &left_most);
+	attach_victim_entry(sbi, mtime, segno, parent, p, left_most);
+}
+
+static void add_victim_entry(struct f2fs_sb_info *sbi,
+				struct victim_sel_policy *p, unsigned int segno)
+{
+	struct sit_info *sit_i = SIT_I(sbi);
+	unsigned int secno = GET_SEC_FROM_SEG(sbi, segno);
+	unsigned int start = GET_SEG_FROM_SEC(sbi, secno);
+	unsigned long long mtime = 0;
+	unsigned int i;
+
+	if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED))) {
+		if (p->gc_mode == GC_AT &&
+			get_valid_blocks(sbi, segno, true) == 0)
+			return;
+	}
+
+	for (i = 0; i < sbi->segs_per_sec; i++)
+		mtime += get_seg_entry(sbi, start + i)->mtime;
+	mtime = div_u64(mtime, sbi->segs_per_sec);
+
+	/* Handle if the system time has changed by the user */
+	if (mtime < sit_i->min_mtime)
+		sit_i->min_mtime = mtime;
+	if (mtime > sit_i->max_mtime)
+		sit_i->max_mtime = mtime;
+	if (mtime < sit_i->dirty_min_mtime)
+		sit_i->dirty_min_mtime = mtime;
+	if (mtime > sit_i->dirty_max_mtime)
+		sit_i->dirty_max_mtime = mtime;
+
+	/* don't choose young section as candidate */
+	if (sit_i->dirty_max_mtime - mtime < p->age_threshold)
+		return;
+
+	insert_victim_entry(sbi, mtime, segno);
+}
+
+static struct rb_node *lookup_central_victim(struct f2fs_sb_info *sbi,
+						struct victim_sel_policy *p)
+{
+	struct atgc_management *am = &sbi->am;
+	struct rb_node *parent = NULL;
+	bool left_most;
+
+	f2fs_lookup_rb_tree_ext(sbi, &am->root, &parent, p->age, &left_most);
+
+	return parent;
+}
+
+static void atgc_lookup_victim(struct f2fs_sb_info *sbi,
+						struct victim_sel_policy *p)
+{
+	struct sit_info *sit_i = SIT_I(sbi);
+	struct atgc_management *am = &sbi->am;
+	struct rb_root_cached *root = &am->root;
+	struct rb_node *node;
+	struct rb_entry *re;
+	struct victim_entry *ve;
+	unsigned long long total_time;
+	unsigned long long age, u, accu;
+	unsigned long long max_mtime = sit_i->dirty_max_mtime;
+	unsigned long long min_mtime = sit_i->dirty_min_mtime;
+	unsigned int sec_blocks = BLKS_PER_SEC(sbi);
+	unsigned int vblocks;
+	unsigned int dirty_threshold = max(am->max_candidate_count,
+					am->candidate_ratio *
+					am->victim_count / 100);
+	unsigned int age_weight = am->age_weight;
+	unsigned int cost;
+	unsigned int iter = 0;
+
+	if (max_mtime < min_mtime)
+		return;
+
+	max_mtime += 1;
+	total_time = max_mtime - min_mtime;
+
+	accu = div64_u64(ULLONG_MAX, total_time);
+	accu = min_t(unsigned long long, div_u64(accu, 100),
+					DEFAULT_ACCURACY_CLASS);
+
+	node = rb_first_cached(root);
+next:
+	re = rb_entry_safe(node, struct rb_entry, rb_node);
+	if (!re)
+		return;
+
+	ve = (struct victim_entry *)re;
+
+	if (ve->mtime >= max_mtime || ve->mtime < min_mtime)
+		goto skip;
+
+	/* age = 10000 * x% * 60 */
+	age = div64_u64(accu * (max_mtime - ve->mtime), total_time) *
+								age_weight;
+
+	vblocks = get_valid_blocks(sbi, ve->segno, true);
+	f2fs_bug_on(sbi, !vblocks || vblocks == sec_blocks);
+
+	/* u = 10000 * x% * 40 */
+	u = div64_u64(accu * (sec_blocks - vblocks), sec_blocks) *
+							(100 - age_weight);
+
+	f2fs_bug_on(sbi, age + u >= UINT_MAX);
+
+	cost = UINT_MAX - (age + u);
+	iter++;
+
+	if (cost < p->min_cost ||
+			(cost == p->min_cost && age > p->oldest_age)) {
+		p->min_cost = cost;
+		p->oldest_age = age;
+		p->min_segno = ve->segno;
+	}
+skip:
+	if (iter < dirty_threshold) {
+		node = rb_next(node);
+		goto next;
+	}
+}
+
+/*
+ * select candidates around source section in range of
+ * [target - dirty_threshold, target + dirty_threshold]
+ */
+static void atssr_lookup_victim(struct f2fs_sb_info *sbi,
+						struct victim_sel_policy *p)
+{
+	struct sit_info *sit_i = SIT_I(sbi);
+	struct atgc_management *am = &sbi->am;
+	struct rb_node *node;
+	struct rb_entry *re;
+	struct victim_entry *ve;
+	unsigned long long age;
+	unsigned long long max_mtime = sit_i->dirty_max_mtime;
+	unsigned long long min_mtime = sit_i->dirty_min_mtime;
+	unsigned int seg_blocks = sbi->blocks_per_seg;
+	unsigned int vblocks;
+	unsigned int dirty_threshold = max(am->max_candidate_count,
+					am->candidate_ratio *
+					am->victim_count / 100);
+	unsigned int cost;
+	unsigned int iter = 0;
+	int stage = 0;
+
+	if (max_mtime < min_mtime)
+		return;
+	max_mtime += 1;
+next_stage:
+	node = lookup_central_victim(sbi, p);
+next_node:
+	re = rb_entry_safe(node, struct rb_entry, rb_node);
+	if (!re) {
+		if (stage == 0)
+			goto skip_stage;
+		return;
+	}
+
+	ve = (struct victim_entry *)re;
+
+	if (ve->mtime >= max_mtime || ve->mtime < min_mtime)
+		goto skip_node;
+
+	age = max_mtime - ve->mtime;
+
+	vblocks = get_seg_entry(sbi, ve->segno)->ckpt_valid_blocks;
+	f2fs_bug_on(sbi, !vblocks);
+
+	/* rare case */
+	if (vblocks == seg_blocks)
+		goto skip_node;
+
+	iter++;
+
+	age = max_mtime - abs(p->age - age);
+	cost = UINT_MAX - vblocks;
+
+	if (cost < p->min_cost ||
+			(cost == p->min_cost && age > p->oldest_age)) {
+		p->min_cost = cost;
+		p->oldest_age = age;
+		p->min_segno = ve->segno;
+	}
+skip_node:
+	if (iter < dirty_threshold) {
+		if (stage == 0)
+			node = rb_prev(node);
+		else if (stage == 1)
+			node = rb_next(node);
+		goto next_node;
+	}
+skip_stage:
+	if (stage < 1) {
+		stage++;
+		iter = 0;
+		goto next_stage;
+	}
+}
+static void lookup_victim_by_age(struct f2fs_sb_info *sbi,
+						struct victim_sel_policy *p)
+{
+	f2fs_bug_on(sbi, !f2fs_check_rb_tree_consistence(sbi,
+						&sbi->am.root, true));
+
+	if (p->gc_mode == GC_AT)
+		atgc_lookup_victim(sbi, p);
+	else if (p->alloc_mode == AT_SSR)
+		atssr_lookup_victim(sbi, p);
+	else
+		f2fs_bug_on(sbi, 1);
+}
+
+static void release_victim_entry(struct f2fs_sb_info *sbi)
+{
+	struct atgc_management *am = &sbi->am;
+	struct victim_entry *ve, *tmp;
+
+	list_for_each_entry_safe(ve, tmp, &am->victim_list, list) {
+		list_del(&ve->list);
+		kmem_cache_free(victim_entry_slab, ve);
+		am->victim_count--;
+	}
+
+	am->root = RB_ROOT_CACHED;
+
+	f2fs_bug_on(sbi, am->victim_count);
+	f2fs_bug_on(sbi, !list_empty(&am->victim_list));
+}
+
+>>>>>>> upstream/android-13
 /*
  * This function is called from two paths.
  * One is garbage collection and the other is SSR segment selection.
@@ -313,19 +772,31 @@ static unsigned int count_bits(const unsigned long *addr,
  * which has minimum valid blocks and removes it from dirty seglist.
  */
 static int get_victim_by_default(struct f2fs_sb_info *sbi,
+<<<<<<< HEAD
 		unsigned int *result, int gc_type, int type, char alloc_mode)
+=======
+			unsigned int *result, int gc_type, int type,
+			char alloc_mode, unsigned long long age)
+>>>>>>> upstream/android-13
 {
 	struct dirty_seglist_info *dirty_i = DIRTY_I(sbi);
 	struct sit_info *sm = SIT_I(sbi);
 	struct victim_sel_policy p;
 	unsigned int secno, last_victim;
 	unsigned int last_segment;
+<<<<<<< HEAD
 	unsigned int nsearched = 0;
+=======
+	unsigned int nsearched;
+	bool is_atgc;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	mutex_lock(&dirty_i->seglist_lock);
 	last_segment = MAIN_SECS(sbi) * sbi->segs_per_sec;
 
 	p.alloc_mode = alloc_mode;
+<<<<<<< HEAD
 	select_policy(sbi, gc_type, type, &p);
 
 	p.min_segno = NULL_SEGNO;
@@ -334,10 +805,40 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 	if (*result != NULL_SEGNO) {
 		if (get_valid_blocks(sbi, *result, false) &&
 			!sec_usage_check(sbi, GET_SEC_FROM_SEG(sbi, *result)))
+=======
+	p.age = age;
+	p.age_threshold = sbi->am.age_threshold;
+
+retry:
+	select_policy(sbi, gc_type, type, &p);
+	p.min_segno = NULL_SEGNO;
+	p.oldest_age = 0;
+	p.min_cost = get_max_cost(sbi, &p);
+
+	is_atgc = (p.gc_mode == GC_AT || p.alloc_mode == AT_SSR);
+	nsearched = 0;
+
+	if (is_atgc)
+		SIT_I(sbi)->dirty_min_mtime = ULLONG_MAX;
+
+	if (*result != NULL_SEGNO) {
+		if (!get_valid_blocks(sbi, *result, false)) {
+			ret = -ENODATA;
+			goto out;
+		}
+
+		if (sec_usage_check(sbi, GET_SEC_FROM_SEG(sbi, *result)))
+			ret = -EBUSY;
+		else
+>>>>>>> upstream/android-13
 			p.min_segno = *result;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = -ENODATA;
+>>>>>>> upstream/android-13
 	if (p.max_search == 0)
 		goto out;
 
@@ -365,10 +866,21 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 	}
 
 	while (1) {
+<<<<<<< HEAD
 		unsigned long cost;
 		unsigned int segno;
 
 		segno = find_next_bit(p.dirty_segmap, last_segment, p.offset);
+=======
+		unsigned long cost, *dirty_bitmap;
+		unsigned int unit_no, segno;
+
+		dirty_bitmap = p.dirty_bitmap;
+		unit_no = find_next_bit(dirty_bitmap,
+				last_segment / p.ofs_unit,
+				p.offset / p.ofs_unit);
+		segno = unit_no * p.ofs_unit;
+>>>>>>> upstream/android-13
 		if (segno >= last_segment) {
 			if (sm->last_victim[p.gc_mode]) {
 				last_segment =
@@ -381,6 +893,7 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 		}
 
 		p.offset = segno + p.ofs_unit;
+<<<<<<< HEAD
 		if (p.ofs_unit > 1) {
 			p.offset -= segno % p.ofs_unit;
 			nsearched += count_bits(p.dirty_segmap,
@@ -389,6 +902,9 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 		} else {
 			nsearched++;
 		}
+=======
+		nsearched++;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_F2FS_CHECK_FS
 		/*
@@ -404,6 +920,7 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 
 		if (sec_usage_check(sbi, secno))
 			goto next;
+<<<<<<< HEAD
 		/* Don't touch checkpointed data */
 		if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED) &&
 					get_ckpt_valid_blocks(sbi, segno) &&
@@ -412,6 +929,37 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 		if (gc_type == BG_GC && test_bit(secno, dirty_i->victim_secmap))
 			goto next;
 
+=======
+
+		/* Don't touch checkpointed data */
+		if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED))) {
+			if (p.alloc_mode == LFS) {
+				/*
+				 * LFS is set to find source section during GC.
+				 * The victim should have no checkpointed data.
+				 */
+				if (get_ckpt_valid_blocks(sbi, segno, true))
+					goto next;
+			} else {
+				/*
+				 * SSR | AT_SSR are set to find target segment
+				 * for writes which can be full by checkpointed
+				 * and newly written blocks.
+				 */
+				if (!f2fs_segment_has_free_slot(sbi, segno))
+					goto next;
+			}
+		}
+
+		if (gc_type == BG_GC && test_bit(secno, dirty_i->victim_secmap))
+			goto next;
+
+		if (is_atgc) {
+			add_victim_entry(sbi, &p, segno);
+			goto next;
+		}
+
+>>>>>>> upstream/android-13
 		/* W/A for FG_GC failure due to Atomic Write File and Pinned File */
 		if (!(p.alloc_mode == SSR) &&
 				test_bit(secno, dirty_i->unable_victim_secmap))
@@ -426,14 +974,37 @@ static int get_victim_by_default(struct f2fs_sb_info *sbi,
 next:
 		if (nsearched >= p.max_search) {
 			if (!sm->last_victim[p.gc_mode] && segno <= last_victim)
+<<<<<<< HEAD
 				sm->last_victim[p.gc_mode] = last_victim + 1;
 			else
 				sm->last_victim[p.gc_mode] = segno + 1;
+=======
+				sm->last_victim[p.gc_mode] =
+					last_victim + p.ofs_unit;
+			else
+				sm->last_victim[p.gc_mode] = segno + p.ofs_unit;
+>>>>>>> upstream/android-13
 			sm->last_victim[p.gc_mode] %=
 				(MAIN_SECS(sbi) * sbi->segs_per_sec);
 			break;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	/* get victim for GC_AT/AT_SSR */
+	if (is_atgc) {
+		lookup_victim_by_age(sbi, &p);
+		release_victim_entry(sbi);
+	}
+
+	if (is_atgc && p.min_segno == NULL_SEGNO &&
+			sm->elapsed_time < p.age_threshold) {
+		p.age_threshold = 0;
+		goto retry;
+	}
+
+>>>>>>> upstream/android-13
 	if (p.min_segno != NULL_SEGNO) {
 got_it:
 		*result = (p.min_segno / p.ofs_unit) * p.ofs_unit;
@@ -445,6 +1016,10 @@ got_result:
 			else
 				set_bit(secno, dirty_i->victim_secmap);
 		}
+<<<<<<< HEAD
+=======
+		ret = 0;
+>>>>>>> upstream/android-13
 
 	}
 out:
@@ -454,7 +1029,11 @@ out:
 				prefree_segments(sbi), free_segments(sbi));
 	mutex_unlock(&dirty_i->seglist_lock);
 
+<<<<<<< HEAD
 	return (p.min_segno == NULL_SEGNO) ? 0 : 1;
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static const struct victim_selection default_v_ops = {
@@ -479,7 +1058,12 @@ static void add_gc_inode(struct gc_inode_list *gc_list, struct inode *inode)
 		iput(inode);
 		return;
 	}
+<<<<<<< HEAD
 	new_ie = f2fs_kmem_cache_alloc(f2fs_inode_entry_slab, GFP_NOFS);
+=======
+	new_ie = f2fs_kmem_cache_alloc(f2fs_inode_entry_slab,
+					GFP_NOFS, true, NULL);
+>>>>>>> upstream/android-13
 	new_ie->inode = inode;
 
 	f2fs_radix_tree_insert(&gc_list->iroot, inode->i_ino, new_ie);
@@ -489,6 +1073,10 @@ static void add_gc_inode(struct gc_inode_list *gc_list, struct inode *inode)
 static void put_gc_inode(struct gc_inode_list *gc_list)
 {
 	struct inode_entry *ie, *next_ie;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	list_for_each_entry_safe(ie, next_ie, &gc_list->ilist, list) {
 		radix_tree_delete(&gc_list->iroot, ie->inode->i_ino);
 		iput(ie->inode);
@@ -525,6 +1113,10 @@ static int gc_node_segment(struct f2fs_sb_info *sbi,
 	int phase = 0;
 	bool fggc = (gc_type == FG_GC);
 	int submitted = 0;
+<<<<<<< HEAD
+=======
+	unsigned int usable_blks_in_seg = f2fs_usable_blks_in_seg(sbi, segno);
+>>>>>>> upstream/android-13
 
 	start_addr = START_BLOCK(sbi, segno);
 
@@ -534,7 +1126,11 @@ next_step:
 	if (fggc && phase == 2)
 		atomic_inc(&sbi->wb_sync_req[NODE]);
 
+<<<<<<< HEAD
 	for (off = 0; off < sbi->blocks_per_seg; off++, entry++) {
+=======
+	for (off = 0; off < usable_blks_in_seg; off++, entry++) {
+>>>>>>> upstream/android-13
 		nid_t nid = le32_to_cpu(entry->nid);
 		struct page *node_page;
 		struct node_info ni;
@@ -569,7 +1165,11 @@ next_step:
 			continue;
 		}
 
+<<<<<<< HEAD
 		if (f2fs_get_node_info(sbi, nid, &ni)) {
+=======
+		if (f2fs_get_node_info(sbi, nid, &ni, false)) {
+>>>>>>> upstream/android-13
 			f2fs_put_page(node_page, 1);
 			continue;
 		}
@@ -613,9 +1213,17 @@ block_t f2fs_start_bidx_of_node(unsigned int node_ofs, struct inode *inode)
 		bidx = node_ofs - 1;
 	} else if (node_ofs <= indirect_blks) {
 		int dec = (node_ofs - 4) / (NIDS_PER_BLOCK + 1);
+<<<<<<< HEAD
 		bidx = node_ofs - 2 - dec;
 	} else {
 		int dec = (node_ofs - indirect_blks - 3) / (NIDS_PER_BLOCK + 1);
+=======
+
+		bidx = node_ofs - 2 - dec;
+	} else {
+		int dec = (node_ofs - indirect_blks - 3) / (NIDS_PER_BLOCK + 1);
+
+>>>>>>> upstream/android-13
 		bidx = node_ofs - 5 - dec;
 	}
 	return bidx * ADDRS_PER_BLOCK(inode) + ADDRS_PER_INODE(inode);
@@ -636,7 +1244,11 @@ static bool is_alive(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
 	if (IS_ERR(node_page))
 		return false;
 
+<<<<<<< HEAD
 	if (f2fs_get_node_info(sbi, nid, dni)) {
+=======
+	if (f2fs_get_node_info(sbi, nid, dni, false)) {
+>>>>>>> upstream/android-13
 		f2fs_put_page(node_page, 1);
 		return false;
 	}
@@ -647,6 +1259,14 @@ static bool is_alive(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
 		set_sbi_flag(sbi, SBI_NEED_FSCK);
 	}
 
+<<<<<<< HEAD
+=======
+	if (f2fs_check_nid_range(sbi, dni->ino)) {
+		f2fs_put_page(node_page, 1);
+		return false;
+	}
+
+>>>>>>> upstream/android-13
 	*nofs = ofs_of_node(node_page);
 	source_blkaddr = data_blkaddr(NULL, node_page, ofs_in_node);
 	f2fs_put_page(node_page, 1);
@@ -658,9 +1278,15 @@ static bool is_alive(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
 
 		if (unlikely(check_valid_map(sbi, segno, offset))) {
 			if (!test_and_set_bit(segno, SIT_I(sbi)->invalid_segmap)) {
+<<<<<<< HEAD
 				f2fs_err(sbi, "mismatched blkaddr %u (source_blkaddr %u) in seg %u\n",
 						blkaddr, source_blkaddr, segno);
 				f2fs_bug_on(sbi, 1);
+=======
+				f2fs_err(sbi, "mismatched blkaddr %u (source_blkaddr %u) in seg %u",
+					 blkaddr, source_blkaddr, segno);
+				set_sbi_flag(sbi, SBI_NEED_FSCK);
+>>>>>>> upstream/android-13
 			}
 		}
 #endif
@@ -781,6 +1407,14 @@ static int move_data_block(struct inode *inode, block_t bidx,
 	block_t newaddr;
 	int err = 0;
 	bool lfs_mode = f2fs_lfs_mode(fio.sbi);
+<<<<<<< HEAD
+=======
+	int type = fio.sbi->am.atgc_enabled && (gc_type == BG_GC) &&
+				(fio.sbi->gc_mode != GC_URGENT_HIGH) ?
+				CURSEG_ALL_DATA_ATGC : CURSEG_COLD_DATA;
+
+	f2fs_cond_set_fua(&fio);
+>>>>>>> upstream/android-13
 
 	/* do not read out */
 	page = f2fs_grab_cache_page(inode->i_mapping, bidx, false);
@@ -806,6 +1440,10 @@ static int move_data_block(struct inode *inode, block_t bidx,
 		/* W/A for GC failure due to Pinned File */
 		set_bit(GET_SEC_FROM_SEG(F2FS_I_SB(inode), segno),
 			DIRTY_I(F2FS_I_SB(inode))->unable_victim_secmap);
+<<<<<<< HEAD
+=======
+		f2fs_pin_file_control(inode, true);
+>>>>>>> upstream/android-13
 		err = -EAGAIN;
 		goto out;
 	}
@@ -829,23 +1467,41 @@ static int move_data_block(struct inode *inode, block_t bidx,
 
 	f2fs_wait_on_block_writeback(inode, dn.data_blkaddr);
 
+<<<<<<< HEAD
 	err = f2fs_get_node_info(fio.sbi, dn.nid, &ni);
 	if (err)
 		goto put_out;
 
 	set_summary(&sum, dn.nid, dn.ofs_in_node, ni.version);
 
+=======
+	err = f2fs_get_node_info(fio.sbi, dn.nid, &ni, false);
+	if (err)
+		goto put_out;
+
+>>>>>>> upstream/android-13
 	/* read page */
 	fio.page = page;
 	fio.new_blkaddr = fio.old_blkaddr = dn.data_blkaddr;
 
 	if (lfs_mode)
+<<<<<<< HEAD
 		down_write(&fio.sbi->io_order_lock);
 
 	mpage = f2fs_grab_cache_page(META_MAPPING(fio.sbi),
 					fio.old_blkaddr, false);
 	if (!mpage)
 		goto up_out;
+=======
+		f2fs_down_write(&fio.sbi->io_order_lock);
+
+	mpage = f2fs_grab_cache_page(META_MAPPING(fio.sbi),
+					fio.old_blkaddr, false);
+	if (!mpage) {
+		err = -ENOMEM;
+		goto up_out;
+	}
+>>>>>>> upstream/android-13
 
 	fio.encrypted_page = mpage;
 
@@ -869,8 +1525,16 @@ static int move_data_block(struct inode *inode, block_t bidx,
 		}
 	}
 
+<<<<<<< HEAD
 	f2fs_allocate_data_block(fio.sbi, NULL, fio.old_blkaddr, &newaddr,
 					&sum, CURSEG_COLD_DATA, NULL, false);
+=======
+	set_summary(&sum, dn.nid, dn.ofs_in_node, ni.version);
+
+	/* allocate block address */
+	f2fs_allocate_data_block(fio.sbi, NULL, fio.old_blkaddr, &newaddr,
+				&sum, type, NULL);
+>>>>>>> upstream/android-13
 
 	fio.encrypted_page = f2fs_pagecache_get_page(META_MAPPING(fio.sbi),
 				newaddr, FGP_LOCK | FGP_CREAT, GFP_NOFS);
@@ -887,6 +1551,10 @@ static int move_data_block(struct inode *inode, block_t bidx,
 	f2fs_put_page(mpage, 1);
 	invalidate_mapping_pages(META_MAPPING(fio.sbi),
 				fio.old_blkaddr, fio.old_blkaddr);
+<<<<<<< HEAD
+=======
+	f2fs_invalidate_compress_page(fio.sbi, fio.old_blkaddr);
+>>>>>>> upstream/android-13
 
 	set_page_dirty(fio.encrypted_page);
 	if (clear_page_dirty_for_io(fio.encrypted_page))
@@ -895,6 +1563,7 @@ static int move_data_block(struct inode *inode, block_t bidx,
 	set_page_writeback(fio.encrypted_page);
 	ClearPageError(page);
 
+<<<<<<< HEAD
 	/* allocate block address */
 	f2fs_wait_on_page_writeback(dn.node_page, NODE, true, true);
 
@@ -902,6 +1571,11 @@ static int move_data_block(struct inode *inode, block_t bidx,
 	fio.op_flags = REQ_SYNC;
 	fio.new_blkaddr = newaddr;
 	f2fs_cond_set_fua(&fio);
+=======
+	fio.op = REQ_OP_WRITE;
+	fio.op_flags = REQ_SYNC;
+	fio.new_blkaddr = newaddr;
+>>>>>>> upstream/android-13
 	f2fs_submit_page_write(&fio);
 	if (fio.retry) {
 		err = -EAGAIN;
@@ -921,10 +1595,17 @@ put_page_out:
 recover_block:
 	if (err)
 		f2fs_do_replace_block(fio.sbi, &sum, newaddr, fio.old_blkaddr,
+<<<<<<< HEAD
 								true, true);
 up_out:
 	if (lfs_mode)
 		up_write(&fio.sbi->io_order_lock);
+=======
+							true, true, true);
+up_out:
+	if (lfs_mode)
+		f2fs_up_write(&fio.sbi->io_order_lock);
+>>>>>>> upstream/android-13
 put_out:
 	f2fs_put_dnode(&dn);
 out:
@@ -972,7 +1653,11 @@ static int move_data_page(struct inode *inode, block_t bidx, int gc_type,
 			goto out;
 		}
 		set_page_dirty(page);
+<<<<<<< HEAD
 		set_cold_data(page);
+=======
+		set_page_private_gcing(page);
+>>>>>>> upstream/android-13
 	} else {
 		struct f2fs_io_info fio = {
 			.sbi = F2FS_I_SB(inode),
@@ -999,11 +1684,19 @@ retry:
 			f2fs_remove_dirty_inode(inode);
 		}
 
+<<<<<<< HEAD
 		set_cold_data(page);
 
 		err = f2fs_do_write_data_page(&fio);
 		if (err) {
 			clear_cold_data(page);
+=======
+		set_page_private_gcing(page);
+
+		err = f2fs_do_write_data_page(&fio);
+		if (err) {
+			clear_page_private_gcing(page);
+>>>>>>> upstream/android-13
 			if (err == -ENOMEM) {
 				congestion_wait(BLK_RW_ASYNC,
 						DEFAULT_IO_TIMEOUT);
@@ -1026,7 +1719,12 @@ out:
  * the victim data block is ignored.
  */
 static int gc_data_segment(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
+<<<<<<< HEAD
 		struct gc_inode_list *gc_list, unsigned int segno, int gc_type)
+=======
+		struct gc_inode_list *gc_list, unsigned int segno, int gc_type,
+		bool force_migrate)
+>>>>>>> upstream/android-13
 {
 	struct super_block *sb = sbi->sb;
 	struct f2fs_summary *entry;
@@ -1034,13 +1732,21 @@ static int gc_data_segment(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
 	int off;
 	int phase = 0;
 	int submitted = 0;
+<<<<<<< HEAD
+=======
+	unsigned int usable_blks_in_seg = f2fs_usable_blks_in_seg(sbi, segno);
+>>>>>>> upstream/android-13
 
 	start_addr = START_BLOCK(sbi, segno);
 
 next_step:
 	entry = sum;
 
+<<<<<<< HEAD
 	for (off = 0; off < sbi->blocks_per_seg; off++, entry++) {
+=======
+	for (off = 0; off < usable_blks_in_seg; off++, entry++) {
+>>>>>>> upstream/android-13
 		struct page *data_page;
 		struct inode *inode;
 		struct node_info dni; /* dnode info for the data */
@@ -1054,8 +1760,13 @@ next_step:
 		 * race condition along with SSR block allocation.
 		 */
 		if ((gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0)) ||
+<<<<<<< HEAD
 				get_valid_blocks(sbi, segno, true) ==
 							BLKS_PER_SEC(sbi))
+=======
+			(!force_migrate && get_valid_blocks(sbi, segno, true) ==
+							BLKS_PER_SEC(sbi)))
+>>>>>>> upstream/android-13
 			return submitted;
 
 		if (check_valid_map(sbi, segno, off) == 0)
@@ -1085,12 +1796,20 @@ next_step:
 
 		if (phase == 3) {
 			inode = f2fs_iget(sb, dni.ino);
+<<<<<<< HEAD
 			if (IS_ERR(inode) || is_bad_inode(inode)) {
 				set_sbi_flag(sbi, SBI_NEED_FSCK);
 				continue;
 			}
 
 			if (!down_write_trylock(
+=======
+			if (IS_ERR(inode) || is_bad_inode(inode) ||
+					special_file(inode->i_mode))
+				continue;
+
+			if (!f2fs_down_write_trylock(
+>>>>>>> upstream/android-13
 				&F2FS_I(inode)->i_gc_rwsem[WRITE])) {
 				iput(inode);
 				sbi->skipped_gc_rwsem++;
@@ -1103,7 +1822,11 @@ next_step:
 			if (f2fs_post_read_required(inode)) {
 				int err = ra_data_block(inode, start_bidx);
 
+<<<<<<< HEAD
 				up_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
+=======
+				f2fs_up_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
+>>>>>>> upstream/android-13
 				if (err) {
 					iput(inode);
 					continue;
@@ -1114,7 +1837,11 @@ next_step:
 
 			data_page = f2fs_get_read_data_page(inode,
 						start_bidx, REQ_RAHEAD, true);
+<<<<<<< HEAD
 			up_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
+=======
+			f2fs_up_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
+>>>>>>> upstream/android-13
 			if (IS_ERR(data_page)) {
 				iput(inode);
 				continue;
@@ -1133,12 +1860,23 @@ next_step:
 			int err;
 
 			if (S_ISREG(inode->i_mode)) {
+<<<<<<< HEAD
 				if (!down_write_trylock(&fi->i_gc_rwsem[READ]))
 					continue;
 				if (!down_write_trylock(
 						&fi->i_gc_rwsem[WRITE])) {
 					sbi->skipped_gc_rwsem++;
 					up_write(&fi->i_gc_rwsem[READ]);
+=======
+				if (!f2fs_down_write_trylock(&fi->i_gc_rwsem[READ])) {
+					sbi->skipped_gc_rwsem++;
+					continue;
+				}
+				if (!f2fs_down_write_trylock(
+						&fi->i_gc_rwsem[WRITE])) {
+					sbi->skipped_gc_rwsem++;
+					f2fs_up_write(&fi->i_gc_rwsem[READ]);
+>>>>>>> upstream/android-13
 					continue;
 				}
 				locked = true;
@@ -1161,8 +1899,13 @@ next_step:
 				submitted++;
 
 			if (locked) {
+<<<<<<< HEAD
 				up_write(&fi->i_gc_rwsem[WRITE]);
 				up_write(&fi->i_gc_rwsem[READ]);
+=======
+				f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
+				f2fs_up_write(&fi->i_gc_rwsem[READ]);
+>>>>>>> upstream/android-13
 			}
 
 			stat_inc_data_blk_count(sbi, 1, gc_type);
@@ -1184,14 +1927,23 @@ static int __get_victim(struct f2fs_sb_info *sbi, unsigned int *victim,
 
 	down_write(&sit_i->sentry_lock);
 	ret = DIRTY_I(sbi)->v_ops->get_victim(sbi, victim, gc_type,
+<<<<<<< HEAD
 					      NO_CHECK_TYPE, LFS);
+=======
+					      NO_CHECK_TYPE, LFS, 0);
+>>>>>>> upstream/android-13
 	up_write(&sit_i->sentry_lock);
 	return ret;
 }
 
 static int do_garbage_collect(struct f2fs_sb_info *sbi,
 				unsigned int start_segno,
+<<<<<<< HEAD
 				struct gc_inode_list *gc_list, int gc_type)
+=======
+				struct gc_inode_list *gc_list, int gc_type,
+				bool force_migrate)
+>>>>>>> upstream/android-13
 {
 	struct page *sum_page;
 	struct f2fs_summary_block *sum;
@@ -1206,6 +1958,20 @@ static int do_garbage_collect(struct f2fs_sb_info *sbi,
 	if (__is_large_section(sbi))
 		end_segno = rounddown(end_segno, sbi->segs_per_sec);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * zone-capacity can be less than zone-size in zoned devices,
+	 * resulting in less than expected usable segments in the zone,
+	 * calculate the end segno in the zone which can be garbage collected
+	 */
+	if (f2fs_sb_has_blkzoned(sbi))
+		end_segno -= sbi->segs_per_sec -
+					f2fs_usable_segs_in_sec(sbi, segno);
+
+	sanity_check_seg_type(sbi, get_seg_entry(sbi, segno)->type);
+
+>>>>>>> upstream/android-13
 	/* readahead multi ssa blocks those have contiguous address */
 	if (__is_large_section(sbi))
 		f2fs_ra_meta_pages(sbi, GET_SUM_BLOCK(sbi, segno),
@@ -1268,10 +2034,20 @@ static int do_garbage_collect(struct f2fs_sb_info *sbi,
 			sbi->sec_stat.gc_node_seg_count[gc_type]++;
 		} else {
 			submitted += gc_data_segment(sbi, sum->entries, gc_list,
+<<<<<<< HEAD
 							segno, gc_type);
 			sbi->sec_stat.gc_data_seg_count[gc_type]++;
 		}
 		stat_inc_seg_count(sbi, type, gc_type);
+=======
+							segno, gc_type,
+							force_migrate);
+			sbi->sec_stat.gc_data_seg_count[gc_type]++;
+		}
+
+		stat_inc_seg_count(sbi, type, gc_type);
+		sbi->gc_reclaimed_segs[sbi->gc_mode]++;
+>>>>>>> upstream/android-13
 		migrated++;
 
 freed:
@@ -1309,7 +2085,11 @@ static void f2fs_update_gc_total_time(struct f2fs_sb_info *sbi,
 
 /* @fs.sec -- 83e29a36b9fb739ea211c0c67aefc4c8 -- */
 int __f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
+<<<<<<< HEAD
 			bool background, unsigned int segno,
+=======
+			bool background, bool force, unsigned int segno,
+>>>>>>> upstream/android-13
 			bool init_unable_victim_map)
 {
 	int gc_type = sync ? FG_GC : BG_GC;
@@ -1353,7 +2133,11 @@ gc_more:
 		goto stop;
 	}
 
+<<<<<<< HEAD
 	if (gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0)) {
+=======
+	if (has_not_enough_free_secs(sbi, (gc_type == BG_GC) ? 0 : sec_freed, 0)) {
+>>>>>>> upstream/android-13
 		/*
 		 * For example, if there are many prefree_segments below given
 		 * threshold, we can make them free by checkpoint. Then, we
@@ -1365,7 +2149,11 @@ gc_more:
 			if (ret)
 				goto stop;
 		}
+<<<<<<< HEAD
 		if (has_not_enough_free_secs(sbi, 0, 0))
+=======
+		if (gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0))
+>>>>>>> upstream/android-13
 			gc_type = FG_GC;
 	}
 
@@ -1374,6 +2162,7 @@ gc_more:
 		ret = -EINVAL;
 		goto stop;
 	}
+<<<<<<< HEAD
 	if (!__get_victim(sbi, &segno, gc_type)) {
 		ret = -ENODATA;
 		goto stop;
@@ -1381,6 +2170,15 @@ gc_more:
 
 	seg_freed = do_garbage_collect(sbi, segno, &gc_list, gc_type);
 	if (gc_type == FG_GC && seg_freed == sbi->segs_per_sec)
+=======
+	ret = __get_victim(sbi, &segno, gc_type);
+	if (ret)
+		goto stop;
+
+	seg_freed = do_garbage_collect(sbi, segno, &gc_list, gc_type, force);
+	if (gc_type == FG_GC &&
+		seg_freed == f2fs_usable_segs_in_sec(sbi, segno))
+>>>>>>> upstream/android-13
 		sec_freed++;
 	total_freed += seg_freed;
 
@@ -1392,7 +2190,11 @@ gc_more:
 		round++;
 	}
 
+<<<<<<< HEAD
 	if (gc_type == FG_GC && seg_freed)
+=======
+	if (gc_type == FG_GC)
+>>>>>>> upstream/android-13
 		sbi->cur_victim_sec = NULL_SEGNO;
 
 	if (sync)
@@ -1431,7 +2233,12 @@ stop:
 
 	sbi->sec_stat.gc_count[gc_type]++;
 	f2fs_update_gc_total_time(sbi, gc_start_time, gc_end_time, gc_type);
+<<<<<<< HEAD
 	up_write(&sbi->gc_lock);
+=======
+
+	f2fs_up_write(&sbi->gc_lock);
+>>>>>>> upstream/android-13
 
 	put_gc_inode(&gc_list);
 
@@ -1440,6 +2247,41 @@ stop:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+int __init f2fs_create_garbage_collection_cache(void)
+{
+	victim_entry_slab = f2fs_kmem_cache_create("f2fs_victim_entry",
+					sizeof(struct victim_entry));
+	if (!victim_entry_slab)
+		return -ENOMEM;
+	return 0;
+}
+
+void f2fs_destroy_garbage_collection_cache(void)
+{
+	kmem_cache_destroy(victim_entry_slab);
+}
+
+static void init_atgc_management(struct f2fs_sb_info *sbi)
+{
+	struct atgc_management *am = &sbi->am;
+
+	if (test_opt(sbi, ATGC) &&
+		SIT_I(sbi)->elapsed_time >= DEF_GC_THREAD_AGE_THRESHOLD)
+		am->atgc_enabled = true;
+
+	am->root = RB_ROOT_CACHED;
+	INIT_LIST_HEAD(&am->victim_list);
+	am->victim_count = 0;
+
+	am->candidate_ratio = DEF_GC_THREAD_CANDIDATE_RATIO;
+	am->max_candidate_count = DEF_GC_THREAD_MAX_CANDIDATE_COUNT;
+	am->age_weight = DEF_GC_THREAD_AGE_WEIGHT;
+	am->age_threshold = DEF_GC_THREAD_AGE_THRESHOLD;
+}
+
+>>>>>>> upstream/android-13
 void f2fs_build_gc_manager(struct f2fs_sb_info *sbi)
 {
 	DIRTY_I(sbi)->v_ops = &default_v_ops;
@@ -1450,6 +2292,11 @@ void f2fs_build_gc_manager(struct f2fs_sb_info *sbi)
 	if (f2fs_is_multi_device(sbi) && !__is_large_section(sbi))
 		SIT_I(sbi)->last_victim[ALLOC_NEXT] =
 				GET_SEGNO(sbi, FDEV(0).end_blk) + 1;
+<<<<<<< HEAD
+=======
+
+	init_atgc_management(sbi);
+>>>>>>> upstream/android-13
 }
 
 static int free_segment_range(struct f2fs_sb_info *sbi,
@@ -1477,8 +2324,13 @@ static int free_segment_range(struct f2fs_sb_info *sbi,
 	mutex_unlock(&DIRTY_I(sbi)->seglist_lock);
 
 	/* Move out cursegs from the target range */
+<<<<<<< HEAD
 	for (type = CURSEG_HOT_DATA; type < NR_CURSEG_TYPE; type++)
 		allocate_segment_for_resize(sbi, type, start, end);
+=======
+	for (type = CURSEG_HOT_DATA; type < NR_CURSEG_PERSIST_TYPE; type++)
+		f2fs_allocate_segment_for_resize(sbi, type, start, end);
+>>>>>>> upstream/android-13
 
 	/* do GC to move out valid blocks in the range */
 	for (segno = start; segno <= end; segno += sbi->segs_per_sec) {
@@ -1487,7 +2339,11 @@ static int free_segment_range(struct f2fs_sb_info *sbi,
 			.iroot = RADIX_TREE_INIT(gc_list.iroot, GFP_NOFS),
 		};
 
+<<<<<<< HEAD
 		do_garbage_collect(sbi, segno, &gc_list, FG_GC);
+=======
+		do_garbage_collect(sbi, segno, &gc_list, FG_GC, true);
+>>>>>>> upstream/android-13
 		put_gc_inode(&gc_list);
 
 		if (!gc_only && get_valid_blocks(sbi, segno, true)) {
@@ -1526,7 +2382,11 @@ static void update_sb_metadata(struct f2fs_sb_info *sbi, int secs)
 	long long block_count;
 	int segs = secs * sbi->segs_per_sec;
 
+<<<<<<< HEAD
 	down_write(&sbi->sb_lock);
+=======
+	f2fs_down_write(&sbi->sb_lock);
+>>>>>>> upstream/android-13
 
 	section_count = le32_to_cpu(raw_sb->section_count);
 	segment_count = le32_to_cpu(raw_sb->segment_count);
@@ -1547,7 +2407,11 @@ static void update_sb_metadata(struct f2fs_sb_info *sbi, int secs)
 						cpu_to_le32(dev_segs + segs);
 	}
 
+<<<<<<< HEAD
 	up_write(&sbi->sb_lock);
+=======
+	f2fs_up_write(&sbi->sb_lock);
+>>>>>>> upstream/android-13
 }
 
 static void update_fs_metadata(struct f2fs_sb_info *sbi, int secs)
@@ -1621,22 +2485,50 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
 	secs = div_u64(shrunk_blocks, BLKS_PER_SEC(sbi));
 
 	/* stop other GC */
+<<<<<<< HEAD
 	if (!down_write_trylock(&sbi->gc_lock))
+=======
+	if (!f2fs_down_write_trylock(&sbi->gc_lock))
+>>>>>>> upstream/android-13
 		return -EAGAIN;
 
 	/* stop CP to protect MAIN_SEC in free_segment_range */
 	f2fs_lock_op(sbi);
+<<<<<<< HEAD
 	err = free_segment_range(sbi, secs, true);
 	f2fs_unlock_op(sbi);
 	up_write(&sbi->gc_lock);
+=======
+
+	spin_lock(&sbi->stat_lock);
+	if (shrunk_blocks + valid_user_blocks(sbi) +
+		sbi->current_reserved_blocks + sbi->unusable_block_count +
+		F2FS_OPTION(sbi).root_reserved_blocks > sbi->user_block_count)
+		err = -ENOSPC;
+	spin_unlock(&sbi->stat_lock);
+
+	if (err)
+		goto out_unlock;
+
+	err = free_segment_range(sbi, secs, true);
+
+out_unlock:
+	f2fs_unlock_op(sbi);
+	f2fs_up_write(&sbi->gc_lock);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
 	set_sbi_flag(sbi, SBI_IS_RESIZEFS);
 
 	freeze_super(sbi->sb);
+<<<<<<< HEAD
 	down_write(&sbi->gc_lock);
 	mutex_lock(&sbi->cp_mutex);
+=======
+	f2fs_down_write(&sbi->gc_lock);
+	f2fs_down_write(&sbi->cp_global_sem);
+>>>>>>> upstream/android-13
 
 	spin_lock(&sbi->stat_lock);
 	if (shrunk_blocks + valid_user_blocks(sbi) +
@@ -1681,8 +2573,13 @@ recover_out:
 		spin_unlock(&sbi->stat_lock);
 	}
 out_err:
+<<<<<<< HEAD
 	mutex_unlock(&sbi->cp_mutex);
 	up_write(&sbi->gc_lock);
+=======
+	f2fs_up_write(&sbi->cp_global_sem);
+	f2fs_up_write(&sbi->gc_lock);
+>>>>>>> upstream/android-13
 	thaw_super(sbi->sb);
 	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
 	return err;

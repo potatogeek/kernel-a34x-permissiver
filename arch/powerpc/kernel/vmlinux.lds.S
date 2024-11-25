@@ -4,20 +4,49 @@
 #else
 #define PROVIDE32(x)	PROVIDE(x)
 #endif
+<<<<<<< HEAD
+=======
+
+#define BSS_FIRST_SECTIONS *(.bss.prominit)
+#define EMITS_PT_NOTE
+#define RO_EXCEPTION_TABLE_ALIGN	0
+
+#define SOFT_MASK_TABLE(align)						\
+	. = ALIGN(align);						\
+	__soft_mask_table : AT(ADDR(__soft_mask_table) - LOAD_OFFSET) {	\
+		__start___soft_mask_table = .;				\
+		KEEP(*(__soft_mask_table))				\
+		__stop___soft_mask_table = .;				\
+	}
+
+#define RESTART_TABLE(align)						\
+	. = ALIGN(align);						\
+	__restart_table : AT(ADDR(__restart_table) - LOAD_OFFSET) {	\
+		__start___restart_table = .;				\
+		KEEP(*(__restart_table))				\
+		__stop___restart_table = .;				\
+	}
+
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm-generic/vmlinux.lds.h>
 #include <asm/cache.h>
 #include <asm/thread_info.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_STRICT_KERNEL_RWX) && !defined(CONFIG_PPC32)
 #define STRICT_ALIGN_SIZE	(1 << 24)
 #else
 #define STRICT_ALIGN_SIZE	PAGE_SIZE
 #endif
+=======
+#define STRICT_ALIGN_SIZE	(1 << CONFIG_DATA_SHIFT)
+>>>>>>> upstream/android-13
 
 ENTRY(_stext)
 
 PHDRS {
+<<<<<<< HEAD
 	kernel PT_LOAD FLAGS(7); /* RWX */
 	notes PT_NOTE FLAGS(0);
 	dummy PT_NOTE FLAGS(0);
@@ -34,6 +63,10 @@ PHDRS {
 	   non-zero load address.  It's not enough to always create the
 	   "notes" segment, since if nothing gets assigned to it, its load
 	   address will be zero.  */
+=======
+	text PT_LOAD FLAGS(7); /* RWX */
+	note PT_NOTE FLAGS(0);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_PPC64
@@ -77,17 +110,29 @@ SECTIONS
 #else /* !CONFIG_PPC64 */
 		HEAD_TEXT
 #endif
+<<<<<<< HEAD
 	} :kernel
+=======
+	} :text
+>>>>>>> upstream/android-13
 
 	__head_end = .;
 
 #ifdef CONFIG_PPC64
 	/*
+<<<<<<< HEAD
 	 * BLOCK(0) overrides the default output section alignment because
 	 * this needs to start right after .head.text in order for fixed
 	 * section placement to work.
 	 */
 	.text BLOCK(0) : AT(ADDR(.text) - LOAD_OFFSET) {
+=======
+	 * ALIGN(0) overrides the default output section alignment because
+	 * this needs to start right after .head.text in order for fixed
+	 * section placement to work.
+	 */
+	.text ALIGN(0) : AT(ADDR(.text) - LOAD_OFFSET) {
+>>>>>>> upstream/android-13
 #ifdef CONFIG_LD_HEAD_STUB_CATCH
 		KEEP(*(.linker_stub_catch));
 		. = . ;
@@ -98,7 +143,14 @@ SECTIONS
 		ALIGN_FUNCTION();
 #endif
 		/* careful! __ftr_alt_* sections need to be close to .text */
+<<<<<<< HEAD
 		*(.text.hot TEXT_MAIN .text.fixup .text.unlikely .fixup __ftr_alt_* .ref.text);
+=======
+		*(.text.hot .text.hot.* TEXT_MAIN .text.fixup .text.unlikely .text.unlikely.* .fixup __ftr_alt_* .ref.text);
+#ifdef CONFIG_PPC64
+		*(.tramp.ftrace.text);
+#endif
+>>>>>>> upstream/android-13
 		NOINSTR_TEXT
 		SCHED_TEXT
 		CPUIDLE_TEXT
@@ -124,7 +176,11 @@ SECTIONS
 		__got2_end = .;
 #endif /* CONFIG_PPC32 */
 
+<<<<<<< HEAD
 	} :kernel
+=======
+	} :text
+>>>>>>> upstream/android-13
 
 	. = ALIGN(PAGE_SIZE);
 	_etext = .;
@@ -134,6 +190,12 @@ SECTIONS
 	RO_DATA(PAGE_SIZE)
 
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
+=======
+	SOFT_MASK_TABLE(8)
+	RESTART_TABLE(8)
+
+>>>>>>> upstream/android-13
 	. = ALIGN(8);
 	__stf_entry_barrier_fixup : AT(ADDR(__stf_entry_barrier_fixup) - LOAD_OFFSET) {
 		__start___stf_entry_barrier_fixup = .;
@@ -156,6 +218,16 @@ SECTIONS
 	}
 
 	. = ALIGN(8);
+<<<<<<< HEAD
+=======
+	__scv_entry_flush_fixup : AT(ADDR(__scv_entry_flush_fixup) - LOAD_OFFSET) {
+		__start___scv_entry_flush_fixup = .;
+		*(__scv_entry_flush_fixup)
+		__stop___scv_entry_flush_fixup = .;
+	}
+
+	. = ALIGN(8);
+>>>>>>> upstream/android-13
 	__stf_exit_barrier_fixup : AT(ADDR(__stf_exit_barrier_fixup) - LOAD_OFFSET) {
 		__start___stf_exit_barrier_fixup = .;
 		*(__stf_exit_barrier_fixup)
@@ -187,6 +259,7 @@ SECTIONS
 		__stop__btb_flush_fixup = .;
 	}
 #endif
+<<<<<<< HEAD
 	EXCEPTION_TABLE(0)
 
 	NOTES :kernel :notes
@@ -198,13 +271,33 @@ SECTIONS
 		LONG(0)
 		LONG(0)
 	} :kernel :dummy
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Init sections discarded at runtime
  */
 	. = ALIGN(STRICT_ALIGN_SIZE);
 	__init_begin = .;
+<<<<<<< HEAD
 	INIT_TEXT_SECTION(PAGE_SIZE) :kernel
+=======
+	. = ALIGN(PAGE_SIZE);
+	.init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
+		_sinittext = .;
+		INIT_TEXT
+
+		/*
+		 *.init.text might be RO so we must ensure this section ends on
+		 * a page boundary.
+		 */
+		. = ALIGN(PAGE_SIZE);
+		_einittext = .;
+#ifdef CONFIG_PPC64
+		*(.tramp.ftrace.init);
+#endif
+	} :text
+>>>>>>> upstream/android-13
 
 	/* .exit.text is discarded at runtime, not link time,
 	 * to deal with references from __bug_table
@@ -213,6 +306,7 @@ SECTIONS
 		EXIT_TEXT
 	}
 
+<<<<<<< HEAD
 	.init.data : AT(ADDR(.init.data) - LOAD_OFFSET) {
 		INIT_DATA
 		__vtop_table_begin = .;
@@ -236,6 +330,11 @@ SECTIONS
 	}
 
 	SECURITY_INIT
+=======
+	. = ALIGN(PAGE_SIZE);
+
+	INIT_DATA_SECTION(16)
+>>>>>>> upstream/android-13
 
 	. = ALIGN(8);
 	__ftr_fixup : AT(ADDR(__ftr_fixup) - LOAD_OFFSET) {
@@ -263,9 +362,12 @@ SECTIONS
 		__stop___fw_ftr_fixup = .;
 	}
 #endif
+<<<<<<< HEAD
 	.init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) {
 		INIT_RAM_FS
 	}
+=======
+>>>>>>> upstream/android-13
 
 	PERCPU_SECTION(L1_CACHE_BYTES)
 
@@ -279,9 +381,13 @@ SECTIONS
 	. = ALIGN(8);
 	.dynsym : AT(ADDR(.dynsym) - LOAD_OFFSET)
 	{
+<<<<<<< HEAD
 #ifdef CONFIG_PPC32
 		__dynamic_symtab = .;
 #endif
+=======
+		__dynamic_symtab = .;
+>>>>>>> upstream/android-13
 		*(.dynsym)
 	}
 	.dynstr : AT(ADDR(.dynstr) - LOAD_OFFSET) { *(.dynstr) }
@@ -291,6 +397,10 @@ SECTIONS
 		*(.dynamic)
 	}
 	.hash : AT(ADDR(.hash) - LOAD_OFFSET) { *(.hash) }
+<<<<<<< HEAD
+=======
+	.gnu.hash : AT(ADDR(.gnu.hash) - LOAD_OFFSET) { *(.gnu.hash) }
+>>>>>>> upstream/android-13
 	.interp : AT(ADDR(.interp) - LOAD_OFFSET) { *(.interp) }
 	.rela.dyn : AT(ADDR(.rela.dyn) - LOAD_OFFSET)
 	{
@@ -328,21 +438,35 @@ SECTIONS
 		*(.sdata2)
 		*(.got.plt) *(.got)
 		*(.plt)
+<<<<<<< HEAD
+=======
+		*(.branch_lt)
+>>>>>>> upstream/android-13
 	}
 #else
 	.data : AT(ADDR(.data) - LOAD_OFFSET) {
 		DATA_DATA
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_UBSAN
+		*(.data..Lubsan_data*)
+		*(.data..Lubsan_type*)
+#endif
+>>>>>>> upstream/android-13
 		*(.data.rel*)
 		*(.toc1)
 		*(.branch_lt)
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_INFO_BTF
 	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {
 		*(.BTF)
 	}
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	.opd : AT(ADDR(.opd) - LOAD_OFFSET) {
 		__start_opd = .;
 		KEEP(*(.opd))
@@ -363,7 +487,11 @@ SECTIONS
 #endif
 
 	/* The initial task and kernel stack */
+<<<<<<< HEAD
 	INIT_TASK_DATA_SECTION(THREAD_SIZE)
+=======
+	INIT_TASK_DATA_SECTION(THREAD_ALIGN)
+>>>>>>> upstream/android-13
 
 	.data..page_aligned : AT(ADDR(.data..page_aligned) - LOAD_OFFSET) {
 		PAGE_ALIGNED_DATA(PAGE_SIZE)
@@ -399,8 +527,13 @@ SECTIONS
 	PROVIDE32 (end = .);
 
 	STABS_DEBUG
+<<<<<<< HEAD
 
 	DWARF_DEBUG
+=======
+	DWARF_DEBUG
+	ELF_DETAILS
+>>>>>>> upstream/android-13
 
 	DISCARDS
 	/DISCARD/ : {

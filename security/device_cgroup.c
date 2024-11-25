@@ -15,6 +15,11 @@
 #include <linux/rcupdate.h>
 #include <linux/mutex.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_CGROUP_DEVICE
+
+>>>>>>> upstream/android-13
 static DEFINE_MUTEX(devcgroup_mutex);
 
 enum devcg_behavior {
@@ -352,7 +357,12 @@ static bool match_exception_partial(struct list_head *exceptions, short type,
 {
 	struct dev_exception_item *ex;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(ex, exceptions, list) {
+=======
+	list_for_each_entry_rcu(ex, exceptions, list,
+				lockdep_is_held(&devcgroup_mutex)) {
+>>>>>>> upstream/android-13
 		if ((type & DEVCG_DEV_BLOCK) && !(ex->type & DEVCG_DEV_BLOCK))
 			continue;
 		if ((type & DEVCG_DEV_CHAR) && !(ex->type & DEVCG_DEV_CHAR))
@@ -509,7 +519,11 @@ static inline int may_allow_all(struct dev_cgroup *parent)
  * This is one of the three key functions for hierarchy implementation.
  * This function is responsible for re-evaluating all the cgroup's active
  * exceptions due to a parent's exception change.
+<<<<<<< HEAD
  * Refer to Documentation/cgroup-v1/devices.txt for more details.
+=======
+ * Refer to Documentation/admin-guide/cgroup-v1/devices.rst for more details.
+>>>>>>> upstream/android-13
  */
 static void revalidate_active_exceptions(struct dev_cgroup *devcg)
 {
@@ -792,7 +806,11 @@ struct cgroup_subsys devices_cgrp_subsys = {
 };
 
 /**
+<<<<<<< HEAD
  * __devcgroup_check_permission - checks if an inode operation is permitted
+=======
+ * devcgroup_legacy_check_permission - checks if an inode operation is permitted
+>>>>>>> upstream/android-13
  * @dev_cgroup: the dev cgroup to be tested against
  * @type: device type
  * @major: device major number
@@ -801,8 +819,13 @@ struct cgroup_subsys devices_cgrp_subsys = {
  *
  * returns 0 on success, -EPERM case the operation is not permitted
  */
+<<<<<<< HEAD
 int __devcgroup_check_permission(short type, u32 major, u32 minor,
 				 short access)
+=======
+static int devcgroup_legacy_check_permission(short type, u32 major, u32 minor,
+					short access)
+>>>>>>> upstream/android-13
 {
 	struct dev_cgroup *dev_cgroup;
 	bool rc;
@@ -824,3 +847,28 @@ int __devcgroup_check_permission(short type, u32 major, u32 minor,
 
 	return 0;
 }
+<<<<<<< HEAD
+=======
+
+#endif /* CONFIG_CGROUP_DEVICE */
+
+#if defined(CONFIG_CGROUP_DEVICE) || defined(CONFIG_CGROUP_BPF)
+
+int devcgroup_check_permission(short type, u32 major, u32 minor, short access)
+{
+	int rc = BPF_CGROUP_RUN_PROG_DEVICE_CGROUP(type, major, minor, access);
+
+	if (rc)
+		return -EPERM;
+
+	#ifdef CONFIG_CGROUP_DEVICE
+	return devcgroup_legacy_check_permission(type, major, minor, access);
+
+	#else /* CONFIG_CGROUP_DEVICE */
+	return 0;
+
+	#endif /* CONFIG_CGROUP_DEVICE */
+}
+EXPORT_SYMBOL(devcgroup_check_permission);
+#endif /* defined(CONFIG_CGROUP_DEVICE) || defined(CONFIG_CGROUP_BPF) */
+>>>>>>> upstream/android-13

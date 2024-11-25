@@ -42,6 +42,7 @@ static struct rc_map_table videomate_tv_pvr[] = {
 
 	{ 0x04, KEY_RECORD },
 
+<<<<<<< HEAD
 	{ 0x16, KEY_1 },
 	{ 0x17, KEY_2 },
 	{ 0x18, KEY_3 },
@@ -52,6 +53,18 @@ static struct rc_map_table videomate_tv_pvr[] = {
 	{ 0x1d, KEY_8 },
 	{ 0x1e, KEY_9 },
 	{ 0x1f, KEY_0 },
+=======
+	{ 0x16, KEY_NUMERIC_1 },
+	{ 0x17, KEY_NUMERIC_2 },
+	{ 0x18, KEY_NUMERIC_3 },
+	{ 0x19, KEY_NUMERIC_4 },
+	{ 0x1a, KEY_NUMERIC_5 },
+	{ 0x1b, KEY_NUMERIC_6 },
+	{ 0x1c, KEY_NUMERIC_7 },
+	{ 0x1d, KEY_NUMERIC_8 },
+	{ 0x1e, KEY_NUMERIC_9 },
+	{ 0x1f, KEY_NUMERIC_0 },
+>>>>>>> upstream/android-13
 
 	{ 0x20, KEY_LANGUAGE },
 	{ 0x21, KEY_SLEEP },

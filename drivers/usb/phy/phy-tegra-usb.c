@@ -9,6 +9,7 @@
  *	Venu Byravarasu <vbyravarasu@nvidia.com>
  */
 
+<<<<<<< HEAD
 #include <linux/resource.h>
 #include <linux/delay.h>
 #include <linux/slab.h>
@@ -39,10 +40,44 @@
 #define TEGRA_USB_HOSTPC1_DEVLC		0x1b4
 #define TEGRA_USB_HOSTPC1_DEVLC_PTS(x)	(((x) & 0x7) << 29)
 #define TEGRA_USB_HOSTPC1_DEVLC_PHCD	(1 << 22)
+=======
+#include <linux/delay.h>
+#include <linux/err.h>
+#include <linux/export.h>
+#include <linux/gpio/consumer.h>
+#include <linux/iopoll.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
+#include <linux/resource.h>
+#include <linux/slab.h>
+#include <linux/spinlock.h>
+
+#include <linux/regulator/consumer.h>
+
+#include <linux/usb/ehci_def.h>
+#include <linux/usb/of.h>
+#include <linux/usb/tegra_usb_phy.h>
+#include <linux/usb/ulpi.h>
+
+#define ULPI_VIEWPORT				0x170
+
+/* PORTSC PTS/PHCD bits, Tegra20 only */
+#define TEGRA_USB_PORTSC1			0x184
+#define TEGRA_USB_PORTSC1_PTS(x)		(((x) & 0x3) << 30)
+#define TEGRA_USB_PORTSC1_PHCD			BIT(23)
+
+/* HOSTPC1 PTS/PHCD bits, Tegra30 and above */
+#define TEGRA_USB_HOSTPC1_DEVLC			0x1b4
+#define TEGRA_USB_HOSTPC1_DEVLC_PTS(x)		(((x) & 0x7) << 29)
+#define TEGRA_USB_HOSTPC1_DEVLC_PHCD		BIT(22)
+>>>>>>> upstream/android-13
 
 /* Bits of PORTSC1, which will get cleared by writing 1 into them */
 #define TEGRA_PORTSC1_RWC_BITS	(PORT_CSC | PORT_PEC | PORT_OCC)
 
+<<<<<<< HEAD
 #define USB_SUSP_CTRL		0x400
 #define   USB_WAKE_ON_CNNT_EN_DEV	(1 << 3)
 #define   USB_WAKE_ON_DISCON_EN_DEV	(1 << 4)
@@ -57,6 +92,32 @@
 
 #define USB1_LEGACY_CTRL	0x410
 #define   USB1_NO_LEGACY_MODE			(1 << 0)
+=======
+#define USB_SUSP_CTRL				0x400
+#define   USB_WAKE_ON_RESUME_EN			BIT(2)
+#define   USB_WAKE_ON_CNNT_EN_DEV		BIT(3)
+#define   USB_WAKE_ON_DISCON_EN_DEV		BIT(4)
+#define   USB_SUSP_CLR				BIT(5)
+#define   USB_PHY_CLK_VALID			BIT(7)
+#define   UTMIP_RESET				BIT(11)
+#define   UHSIC_RESET				BIT(11)
+#define   UTMIP_PHY_ENABLE			BIT(12)
+#define   ULPI_PHY_ENABLE			BIT(13)
+#define   USB_SUSP_SET				BIT(14)
+#define   USB_WAKEUP_DEBOUNCE_COUNT(x)		(((x) & 0x7) << 16)
+
+#define USB_PHY_VBUS_SENSORS			0x404
+#define   B_SESS_VLD_WAKEUP_EN			BIT(14)
+#define   A_SESS_VLD_WAKEUP_EN			BIT(22)
+#define   A_VBUS_VLD_WAKEUP_EN			BIT(30)
+
+#define USB_PHY_VBUS_WAKEUP_ID			0x408
+#define   VBUS_WAKEUP_STS			BIT(10)
+#define   VBUS_WAKEUP_WAKEUP_EN			BIT(30)
+
+#define USB1_LEGACY_CTRL			0x410
+#define   USB1_NO_LEGACY_MODE			BIT(0)
+>>>>>>> upstream/android-13
 #define   USB1_VBUS_SENSE_CTL_MASK		(3 << 1)
 #define   USB1_VBUS_SENSE_CTL_VBUS_WAKEUP	(0 << 1)
 #define   USB1_VBUS_SENSE_CTL_AB_SESS_VLD_OR_VBUS_WAKEUP \
@@ -64,6 +125,7 @@
 #define   USB1_VBUS_SENSE_CTL_AB_SESS_VLD	(2 << 1)
 #define   USB1_VBUS_SENSE_CTL_A_SESS_VLD	(3 << 1)
 
+<<<<<<< HEAD
 #define ULPI_TIMING_CTRL_0	0x424
 #define   ULPI_OUTPUT_PINMUX_BYP	(1 << 10)
 #define   ULPI_CLKOUT_PINMUX_BYP	(1 << 11)
@@ -81,10 +143,30 @@
 #define   UTMIP_PLLU_ENABLE_DLY_COUNT(x)	(((x) & 0x1f) << 27)
 
 #define UTMIP_XCVR_CFG0		0x808
+=======
+#define ULPI_TIMING_CTRL_0			0x424
+#define   ULPI_OUTPUT_PINMUX_BYP		BIT(10)
+#define   ULPI_CLKOUT_PINMUX_BYP		BIT(11)
+
+#define ULPI_TIMING_CTRL_1			0x428
+#define   ULPI_DATA_TRIMMER_LOAD		BIT(0)
+#define   ULPI_DATA_TRIMMER_SEL(x)		(((x) & 0x7) << 1)
+#define   ULPI_STPDIRNXT_TRIMMER_LOAD		BIT(16)
+#define   ULPI_STPDIRNXT_TRIMMER_SEL(x)		(((x) & 0x7) << 17)
+#define   ULPI_DIR_TRIMMER_LOAD			BIT(24)
+#define   ULPI_DIR_TRIMMER_SEL(x)		(((x) & 0x7) << 25)
+
+#define UTMIP_PLL_CFG1				0x804
+#define   UTMIP_XTAL_FREQ_COUNT(x)		(((x) & 0xfff) << 0)
+#define   UTMIP_PLLU_ENABLE_DLY_COUNT(x)	(((x) & 0x1f) << 27)
+
+#define UTMIP_XCVR_CFG0				0x808
+>>>>>>> upstream/android-13
 #define   UTMIP_XCVR_SETUP(x)			(((x) & 0xf) << 0)
 #define   UTMIP_XCVR_SETUP_MSB(x)		((((x) & 0x70) >> 4) << 22)
 #define   UTMIP_XCVR_LSRSLEW(x)			(((x) & 0x3) << 8)
 #define   UTMIP_XCVR_LSFSLEW(x)			(((x) & 0x3) << 10)
+<<<<<<< HEAD
 #define   UTMIP_FORCE_PD_POWERDOWN		(1 << 14)
 #define   UTMIP_FORCE_PD2_POWERDOWN		(1 << 16)
 #define   UTMIP_FORCE_PDZI_POWERDOWN		(1 << 18)
@@ -152,6 +234,75 @@ static int utmip_pad_count;
 
 struct tegra_xtal_freq {
 	int freq;
+=======
+#define   UTMIP_FORCE_PD_POWERDOWN		BIT(14)
+#define   UTMIP_FORCE_PD2_POWERDOWN		BIT(16)
+#define   UTMIP_FORCE_PDZI_POWERDOWN		BIT(18)
+#define   UTMIP_XCVR_LSBIAS_SEL			BIT(21)
+#define   UTMIP_XCVR_HSSLEW(x)			(((x) & 0x3) << 4)
+#define   UTMIP_XCVR_HSSLEW_MSB(x)		((((x) & 0x1fc) >> 2) << 25)
+
+#define UTMIP_BIAS_CFG0				0x80c
+#define   UTMIP_OTGPD				BIT(11)
+#define   UTMIP_BIASPD				BIT(10)
+#define   UTMIP_HSSQUELCH_LEVEL(x)		(((x) & 0x3) << 0)
+#define   UTMIP_HSDISCON_LEVEL(x)		(((x) & 0x3) << 2)
+#define   UTMIP_HSDISCON_LEVEL_MSB(x)		((((x) & 0x4) >> 2) << 24)
+
+#define UTMIP_HSRX_CFG0				0x810
+#define   UTMIP_ELASTIC_LIMIT(x)		(((x) & 0x1f) << 10)
+#define   UTMIP_IDLE_WAIT(x)			(((x) & 0x1f) << 15)
+
+#define UTMIP_HSRX_CFG1				0x814
+#define   UTMIP_HS_SYNC_START_DLY(x)		(((x) & 0x1f) << 1)
+
+#define UTMIP_TX_CFG0				0x820
+#define   UTMIP_FS_PREABMLE_J			BIT(19)
+#define   UTMIP_HS_DISCON_DISABLE		BIT(8)
+
+#define UTMIP_MISC_CFG0				0x824
+#define   UTMIP_DPDM_OBSERVE			BIT(26)
+#define   UTMIP_DPDM_OBSERVE_SEL(x)		(((x) & 0xf) << 27)
+#define   UTMIP_DPDM_OBSERVE_SEL_FS_J		UTMIP_DPDM_OBSERVE_SEL(0xf)
+#define   UTMIP_DPDM_OBSERVE_SEL_FS_K		UTMIP_DPDM_OBSERVE_SEL(0xe)
+#define   UTMIP_DPDM_OBSERVE_SEL_FS_SE1		UTMIP_DPDM_OBSERVE_SEL(0xd)
+#define   UTMIP_DPDM_OBSERVE_SEL_FS_SE0		UTMIP_DPDM_OBSERVE_SEL(0xc)
+#define   UTMIP_SUSPEND_EXIT_ON_EDGE		BIT(22)
+
+#define UTMIP_MISC_CFG1				0x828
+#define   UTMIP_PLL_ACTIVE_DLY_COUNT(x)		(((x) & 0x1f) << 18)
+#define   UTMIP_PLLU_STABLE_COUNT(x)		(((x) & 0xfff) << 6)
+
+#define UTMIP_DEBOUNCE_CFG0			0x82c
+#define   UTMIP_BIAS_DEBOUNCE_A(x)		(((x) & 0xffff) << 0)
+
+#define UTMIP_BAT_CHRG_CFG0			0x830
+#define   UTMIP_PD_CHRG				BIT(0)
+
+#define UTMIP_SPARE_CFG0			0x834
+#define   FUSE_SETUP_SEL			BIT(3)
+
+#define UTMIP_XCVR_CFG1				0x838
+#define   UTMIP_FORCE_PDDISC_POWERDOWN		BIT(0)
+#define   UTMIP_FORCE_PDCHRP_POWERDOWN		BIT(2)
+#define   UTMIP_FORCE_PDDR_POWERDOWN		BIT(4)
+#define   UTMIP_XCVR_TERM_RANGE_ADJ(x)		(((x) & 0xf) << 18)
+
+#define UTMIP_BIAS_CFG1				0x83c
+#define   UTMIP_BIAS_PDTRK_COUNT(x)		(((x) & 0x1f) << 3)
+
+/* For Tegra30 and above only, the address is different in Tegra20 */
+#define USB_USBMODE				0x1f8
+#define   USB_USBMODE_MASK			(3 << 0)
+#define   USB_USBMODE_HOST			(3 << 0)
+#define   USB_USBMODE_DEVICE			(2 << 0)
+
+static DEFINE_SPINLOCK(utmip_pad_lock);
+static unsigned int utmip_pad_count;
+
+struct tegra_xtal_freq {
+	unsigned int freq;
+>>>>>>> upstream/android-13
 	u8 enable_delay;
 	u8 stable_count;
 	u8 active_delay;
@@ -194,6 +345,7 @@ static const struct tegra_xtal_freq tegra_freq_table[] = {
 	},
 };
 
+<<<<<<< HEAD
 static void set_pts(struct tegra_usb_phy *phy, u8 pts_val)
 {
 	void __iomem *base = phy->regs;
@@ -209,28 +361,68 @@ static void set_pts(struct tegra_usb_phy *phy, u8 pts_val)
 		val &= ~TEGRA_USB_PORTSC1_PTS(~0);
 		val |= TEGRA_USB_PORTSC1_PTS(pts_val);
 		writel(val, base + TEGRA_USB_PORTSC1);
+=======
+static inline struct tegra_usb_phy *to_tegra_usb_phy(struct usb_phy *u_phy)
+{
+	return container_of(u_phy, struct tegra_usb_phy, u_phy);
+}
+
+static void set_pts(struct tegra_usb_phy *phy, u8 pts_val)
+{
+	void __iomem *base = phy->regs;
+	u32 val;
+
+	if (phy->soc_config->has_hostpc) {
+		val = readl_relaxed(base + TEGRA_USB_HOSTPC1_DEVLC);
+		val &= ~TEGRA_USB_HOSTPC1_DEVLC_PTS(~0);
+		val |= TEGRA_USB_HOSTPC1_DEVLC_PTS(pts_val);
+		writel_relaxed(val, base + TEGRA_USB_HOSTPC1_DEVLC);
+	} else {
+		val = readl_relaxed(base + TEGRA_USB_PORTSC1);
+		val &= ~TEGRA_PORTSC1_RWC_BITS;
+		val &= ~TEGRA_USB_PORTSC1_PTS(~0);
+		val |= TEGRA_USB_PORTSC1_PTS(pts_val);
+		writel_relaxed(val, base + TEGRA_USB_PORTSC1);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void set_phcd(struct tegra_usb_phy *phy, bool enable)
 {
 	void __iomem *base = phy->regs;
+<<<<<<< HEAD
 	unsigned long val;
 
 	if (phy->soc_config->has_hostpc) {
 		val = readl(base + TEGRA_USB_HOSTPC1_DEVLC);
+=======
+	u32 val;
+
+	if (phy->soc_config->has_hostpc) {
+		val = readl_relaxed(base + TEGRA_USB_HOSTPC1_DEVLC);
+>>>>>>> upstream/android-13
 		if (enable)
 			val |= TEGRA_USB_HOSTPC1_DEVLC_PHCD;
 		else
 			val &= ~TEGRA_USB_HOSTPC1_DEVLC_PHCD;
+<<<<<<< HEAD
 		writel(val, base + TEGRA_USB_HOSTPC1_DEVLC);
 	} else {
 		val = readl(base + TEGRA_USB_PORTSC1) & ~PORT_RWC_BITS;
+=======
+		writel_relaxed(val, base + TEGRA_USB_HOSTPC1_DEVLC);
+	} else {
+		val = readl_relaxed(base + TEGRA_USB_PORTSC1) & ~PORT_RWC_BITS;
+>>>>>>> upstream/android-13
 		if (enable)
 			val |= TEGRA_USB_PORTSC1_PHCD;
 		else
 			val &= ~TEGRA_USB_PORTSC1_PHCD;
+<<<<<<< HEAD
 		writel(val, base + TEGRA_USB_PORTSC1);
+=======
+		writel_relaxed(val, base + TEGRA_USB_PORTSC1);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -238,6 +430,7 @@ static int utmip_pad_open(struct tegra_usb_phy *phy)
 {
 	int ret;
 
+<<<<<<< HEAD
 	phy->pad_clk = devm_clk_get(phy->u_phy.dev, "utmi-pads");
 	if (IS_ERR(phy->pad_clk)) {
 		ret = PTR_ERR(phy->pad_clk);
@@ -255,6 +448,8 @@ static int utmip_pad_open(struct tegra_usb_phy *phy)
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	ret = clk_prepare_enable(phy->pad_clk);
 	if (ret) {
 		dev_err(phy->u_phy.dev,
@@ -315,6 +510,7 @@ static int utmip_pad_close(struct tegra_usb_phy *phy)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void utmip_pad_power_on(struct tegra_usb_phy *phy)
 {
 	unsigned long val, flags;
@@ -327,6 +523,23 @@ static void utmip_pad_power_on(struct tegra_usb_phy *phy)
 
 	if (utmip_pad_count++ == 0) {
 		val = readl(base + UTMIP_BIAS_CFG0);
+=======
+static int utmip_pad_power_on(struct tegra_usb_phy *phy)
+{
+	struct tegra_utmip_config *config = phy->config;
+	void __iomem *base = phy->pad_regs;
+	u32 val;
+	int err;
+
+	err = clk_prepare_enable(phy->pad_clk);
+	if (err)
+		return err;
+
+	spin_lock(&utmip_pad_lock);
+
+	if (utmip_pad_count++ == 0) {
+		val = readl_relaxed(base + UTMIP_BIAS_CFG0);
+>>>>>>> upstream/android-13
 		val &= ~(UTMIP_OTGPD | UTMIP_BIASPD);
 
 		if (phy->soc_config->requires_extra_tuning_parameters) {
@@ -338,6 +551,7 @@ static void utmip_pad_power_on(struct tegra_usb_phy *phy)
 			val |= UTMIP_HSDISCON_LEVEL(config->hsdiscon_level);
 			val |= UTMIP_HSDISCON_LEVEL_MSB(config->hsdiscon_level);
 		}
+<<<<<<< HEAD
 		writel(val, base + UTMIP_BIAS_CFG0);
 	}
 
@@ -367,24 +581,90 @@ static int utmip_pad_power_off(struct tegra_usb_phy *phy)
 	}
 
 	spin_unlock_irqrestore(&utmip_pad_lock, flags);
+=======
+		writel_relaxed(val, base + UTMIP_BIAS_CFG0);
+	}
+
+	if (phy->pad_wakeup) {
+		phy->pad_wakeup = false;
+		utmip_pad_count--;
+	}
+
+	spin_unlock(&utmip_pad_lock);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(phy->pad_clk);
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int utmip_pad_power_off(struct tegra_usb_phy *phy)
+{
+	void __iomem *base = phy->pad_regs;
+	u32 val;
+	int ret;
+
+	ret = clk_prepare_enable(phy->pad_clk);
+	if (ret)
+		return ret;
+
+	spin_lock(&utmip_pad_lock);
+
+	if (!utmip_pad_count) {
+		dev_err(phy->u_phy.dev, "UTMIP pad already powered off\n");
+		ret = -EINVAL;
+		goto ulock;
+	}
+
+	/*
+	 * In accordance to TRM, OTG and Bias pad circuits could be turned off
+	 * to save power if wake is enabled, but the VBUS-change detection
+	 * method is board-specific and these circuits may need to be enabled
+	 * to generate wakeup event, hence we will just keep them both enabled.
+	 */
+	if (phy->wakeup_enabled) {
+		phy->pad_wakeup = true;
+		utmip_pad_count++;
+	}
+
+	if (--utmip_pad_count == 0) {
+		val = readl_relaxed(base + UTMIP_BIAS_CFG0);
+		val |= UTMIP_OTGPD | UTMIP_BIASPD;
+		writel_relaxed(val, base + UTMIP_BIAS_CFG0);
+	}
+ulock:
+	spin_unlock(&utmip_pad_lock);
+
+	clk_disable_unprepare(phy->pad_clk);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int utmi_wait_register(void __iomem *reg, u32 mask, u32 result)
 {
 	u32 tmp;
 
+<<<<<<< HEAD
 	return readl_poll_timeout(reg, tmp, (tmp & mask) == result,
 				  2000, 6000);
+=======
+	return readl_relaxed_poll_timeout(reg, tmp, (tmp & mask) == result,
+					  2000, 6000);
+>>>>>>> upstream/android-13
 }
 
 static void utmi_phy_clk_disable(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The USB driver may have already initiated the phy clock
@@ -395,6 +675,7 @@ static void utmi_phy_clk_disable(struct tegra_usb_phy *phy)
 		return;
 
 	if (phy->is_legacy_phy) {
+<<<<<<< HEAD
 		val = readl(base + USB_SUSP_CTRL);
 		val |= USB_SUSP_SET;
 		writel(val, base + USB_SUSP_CTRL);
@@ -408,14 +689,35 @@ static void utmi_phy_clk_disable(struct tegra_usb_phy *phy)
 		set_phcd(phy, true);
 
 	if (utmi_wait_register(base + USB_SUSP_CTRL, USB_PHY_CLK_VALID, 0) < 0)
+=======
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val |= USB_SUSP_SET;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+
+		usleep_range(10, 100);
+
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val &= ~USB_SUSP_SET;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+	} else {
+		set_phcd(phy, true);
+	}
+
+	if (utmi_wait_register(base + USB_SUSP_CTRL, USB_PHY_CLK_VALID, 0))
+>>>>>>> upstream/android-13
 		dev_err(phy->u_phy.dev,
 			"Timeout waiting for PHY to stabilize on disable\n");
 }
 
 static void utmi_phy_clk_enable(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The USB driver may have already initiated the phy clock
@@ -427,6 +729,7 @@ static void utmi_phy_clk_enable(struct tegra_usb_phy *phy)
 		return;
 
 	if (phy->is_legacy_phy) {
+<<<<<<< HEAD
 		val = readl(base + USB_SUSP_CTRL);
 		val |= USB_SUSP_CLR;
 		writel(val, base + USB_SUSP_CTRL);
@@ -441,12 +744,30 @@ static void utmi_phy_clk_enable(struct tegra_usb_phy *phy)
 
 	if (utmi_wait_register(base + USB_SUSP_CTRL, USB_PHY_CLK_VALID,
 						     USB_PHY_CLK_VALID))
+=======
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val |= USB_SUSP_CLR;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+
+		usleep_range(10, 100);
+
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val &= ~USB_SUSP_CLR;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+	} else {
+		set_phcd(phy, false);
+	}
+
+	if (utmi_wait_register(base + USB_SUSP_CTRL, USB_PHY_CLK_VALID,
+			       USB_PHY_CLK_VALID))
+>>>>>>> upstream/android-13
 		dev_err(phy->u_phy.dev,
 			"Timeout waiting for PHY to stabilize on enable\n");
 }
 
 static int utmi_phy_power_on(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
 	struct tegra_utmip_config *config = phy->config;
@@ -487,17 +808,67 @@ static int utmi_phy_power_on(struct tegra_usb_phy *phy)
 
 	if (!phy->soc_config->utmi_pll_config_in_car_module) {
 		val = readl(base + UTMIP_MISC_CFG1);
+=======
+	struct tegra_utmip_config *config = phy->config;
+	void __iomem *base = phy->regs;
+	u32 val;
+	int err;
+
+	val = readl_relaxed(base + USB_SUSP_CTRL);
+	val |= UTMIP_RESET;
+	writel_relaxed(val, base + USB_SUSP_CTRL);
+
+	if (phy->is_legacy_phy) {
+		val = readl_relaxed(base + USB1_LEGACY_CTRL);
+		val |= USB1_NO_LEGACY_MODE;
+		writel_relaxed(val, base + USB1_LEGACY_CTRL);
+	}
+
+	val = readl_relaxed(base + UTMIP_TX_CFG0);
+	val |= UTMIP_FS_PREABMLE_J;
+	writel_relaxed(val, base + UTMIP_TX_CFG0);
+
+	val = readl_relaxed(base + UTMIP_HSRX_CFG0);
+	val &= ~(UTMIP_IDLE_WAIT(~0) | UTMIP_ELASTIC_LIMIT(~0));
+	val |= UTMIP_IDLE_WAIT(config->idle_wait_delay);
+	val |= UTMIP_ELASTIC_LIMIT(config->elastic_limit);
+	writel_relaxed(val, base + UTMIP_HSRX_CFG0);
+
+	val = readl_relaxed(base + UTMIP_HSRX_CFG1);
+	val &= ~UTMIP_HS_SYNC_START_DLY(~0);
+	val |= UTMIP_HS_SYNC_START_DLY(config->hssync_start_delay);
+	writel_relaxed(val, base + UTMIP_HSRX_CFG1);
+
+	val = readl_relaxed(base + UTMIP_DEBOUNCE_CFG0);
+	val &= ~UTMIP_BIAS_DEBOUNCE_A(~0);
+	val |= UTMIP_BIAS_DEBOUNCE_A(phy->freq->debounce);
+	writel_relaxed(val, base + UTMIP_DEBOUNCE_CFG0);
+
+	val = readl_relaxed(base + UTMIP_MISC_CFG0);
+	val &= ~UTMIP_SUSPEND_EXIT_ON_EDGE;
+	writel_relaxed(val, base + UTMIP_MISC_CFG0);
+
+	if (!phy->soc_config->utmi_pll_config_in_car_module) {
+		val = readl_relaxed(base + UTMIP_MISC_CFG1);
+>>>>>>> upstream/android-13
 		val &= ~(UTMIP_PLL_ACTIVE_DLY_COUNT(~0) |
 			UTMIP_PLLU_STABLE_COUNT(~0));
 		val |= UTMIP_PLL_ACTIVE_DLY_COUNT(phy->freq->active_delay) |
 			UTMIP_PLLU_STABLE_COUNT(phy->freq->stable_count);
+<<<<<<< HEAD
 		writel(val, base + UTMIP_MISC_CFG1);
 
 		val = readl(base + UTMIP_PLL_CFG1);
+=======
+		writel_relaxed(val, base + UTMIP_MISC_CFG1);
+
+		val = readl_relaxed(base + UTMIP_PLL_CFG1);
+>>>>>>> upstream/android-13
 		val &= ~(UTMIP_XTAL_FREQ_COUNT(~0) |
 			UTMIP_PLLU_ENABLE_DLY_COUNT(~0));
 		val |= UTMIP_XTAL_FREQ_COUNT(phy->freq->xtal_freq_count) |
 			UTMIP_PLLU_ENABLE_DLY_COUNT(phy->freq->enable_delay);
+<<<<<<< HEAD
 		writel(val, base + UTMIP_PLL_CFG1);
 	}
 
@@ -518,6 +889,43 @@ static int utmi_phy_power_on(struct tegra_usb_phy *phy)
 	utmip_pad_power_on(phy);
 
 	val = readl(base + UTMIP_XCVR_CFG0);
+=======
+		writel_relaxed(val, base + UTMIP_PLL_CFG1);
+	}
+
+	val = readl_relaxed(base + USB_SUSP_CTRL);
+	val &= ~USB_WAKE_ON_RESUME_EN;
+	writel_relaxed(val, base + USB_SUSP_CTRL);
+
+	if (phy->mode == USB_DR_MODE_PERIPHERAL) {
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val &= ~(USB_WAKE_ON_CNNT_EN_DEV | USB_WAKE_ON_DISCON_EN_DEV);
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+
+		val = readl_relaxed(base + USB_PHY_VBUS_WAKEUP_ID);
+		val &= ~VBUS_WAKEUP_WAKEUP_EN;
+		writel_relaxed(val, base + USB_PHY_VBUS_WAKEUP_ID);
+
+		val = readl_relaxed(base + USB_PHY_VBUS_SENSORS);
+		val &= ~(A_VBUS_VLD_WAKEUP_EN | A_SESS_VLD_WAKEUP_EN);
+		val &= ~(B_SESS_VLD_WAKEUP_EN);
+		writel_relaxed(val, base + USB_PHY_VBUS_SENSORS);
+
+		val = readl_relaxed(base + UTMIP_BAT_CHRG_CFG0);
+		val &= ~UTMIP_PD_CHRG;
+		writel_relaxed(val, base + UTMIP_BAT_CHRG_CFG0);
+	} else {
+		val = readl_relaxed(base + UTMIP_BAT_CHRG_CFG0);
+		val |= UTMIP_PD_CHRG;
+		writel_relaxed(val, base + UTMIP_BAT_CHRG_CFG0);
+	}
+
+	err = utmip_pad_power_on(phy);
+	if (err)
+		return err;
+
+	val = readl_relaxed(base + UTMIP_XCVR_CFG0);
+>>>>>>> upstream/android-13
 	val &= ~(UTMIP_FORCE_PD_POWERDOWN | UTMIP_FORCE_PD2_POWERDOWN |
 		 UTMIP_FORCE_PDZI_POWERDOWN | UTMIP_XCVR_LSBIAS_SEL |
 		 UTMIP_XCVR_SETUP(~0) | UTMIP_XCVR_SETUP_MSB(~0) |
@@ -535,6 +943,7 @@ static int utmi_phy_power_on(struct tegra_usb_phy *phy)
 		val |= UTMIP_XCVR_HSSLEW(config->xcvr_hsslew);
 		val |= UTMIP_XCVR_HSSLEW_MSB(config->xcvr_hsslew);
 	}
+<<<<<<< HEAD
 	writel(val, base + UTMIP_XCVR_CFG0);
 
 	val = readl(base + UTMIP_XCVR_CFG1);
@@ -549,10 +958,27 @@ static int utmi_phy_power_on(struct tegra_usb_phy *phy)
 	writel(val, base + UTMIP_BIAS_CFG1);
 
 	val = readl(base + UTMIP_SPARE_CFG0);
+=======
+	writel_relaxed(val, base + UTMIP_XCVR_CFG0);
+
+	val = readl_relaxed(base + UTMIP_XCVR_CFG1);
+	val &= ~(UTMIP_FORCE_PDDISC_POWERDOWN | UTMIP_FORCE_PDCHRP_POWERDOWN |
+		 UTMIP_FORCE_PDDR_POWERDOWN | UTMIP_XCVR_TERM_RANGE_ADJ(~0));
+	val |= UTMIP_XCVR_TERM_RANGE_ADJ(config->term_range_adj);
+	writel_relaxed(val, base + UTMIP_XCVR_CFG1);
+
+	val = readl_relaxed(base + UTMIP_BIAS_CFG1);
+	val &= ~UTMIP_BIAS_PDTRK_COUNT(~0);
+	val |= UTMIP_BIAS_PDTRK_COUNT(0x5);
+	writel_relaxed(val, base + UTMIP_BIAS_CFG1);
+
+	val = readl_relaxed(base + UTMIP_SPARE_CFG0);
+>>>>>>> upstream/android-13
 	if (config->xcvr_setup_use_fuses)
 		val |= FUSE_SETUP_SEL;
 	else
 		val &= ~FUSE_SETUP_SEL;
+<<<<<<< HEAD
 	writel(val, base + UTMIP_SPARE_CFG0);
 
 	if (!phy->is_legacy_phy) {
@@ -574,18 +1000,49 @@ static int utmi_phy_power_on(struct tegra_usb_phy *phy)
 		val = readl(base + USB_SUSP_CTRL);
 		val &= ~USB_SUSP_SET;
 		writel(val, base + USB_SUSP_CTRL);
+=======
+	writel_relaxed(val, base + UTMIP_SPARE_CFG0);
+
+	if (!phy->is_legacy_phy) {
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val |= UTMIP_PHY_ENABLE;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+	}
+
+	val = readl_relaxed(base + USB_SUSP_CTRL);
+	val &= ~UTMIP_RESET;
+	writel_relaxed(val, base + USB_SUSP_CTRL);
+
+	if (phy->is_legacy_phy) {
+		val = readl_relaxed(base + USB1_LEGACY_CTRL);
+		val &= ~USB1_VBUS_SENSE_CTL_MASK;
+		val |= USB1_VBUS_SENSE_CTL_A_SESS_VLD;
+		writel_relaxed(val, base + USB1_LEGACY_CTRL);
+
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val &= ~USB_SUSP_SET;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+>>>>>>> upstream/android-13
 	}
 
 	utmi_phy_clk_enable(phy);
 
 	if (phy->soc_config->requires_usbmode_setup) {
+<<<<<<< HEAD
 		val = readl(base + USB_USBMODE);
+=======
+		val = readl_relaxed(base + USB_USBMODE);
+>>>>>>> upstream/android-13
 		val &= ~USB_USBMODE_MASK;
 		if (phy->mode == USB_DR_MODE_HOST)
 			val |= USB_USBMODE_HOST;
 		else
 			val |= USB_USBMODE_DEVICE;
+<<<<<<< HEAD
 		writel(val, base + USB_USBMODE);
+=======
+		writel_relaxed(val, base + USB_USBMODE);
+>>>>>>> upstream/android-13
 	}
 
 	if (!phy->is_legacy_phy)
@@ -596,6 +1053,7 @@ static int utmi_phy_power_on(struct tegra_usb_phy *phy)
 
 static int utmi_phy_power_off(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
 
@@ -625,42 +1083,128 @@ static int utmi_phy_power_off(struct tegra_usb_phy *phy)
 	val |= UTMIP_FORCE_PDDISC_POWERDOWN | UTMIP_FORCE_PDCHRP_POWERDOWN |
 	       UTMIP_FORCE_PDDR_POWERDOWN;
 	writel(val, base + UTMIP_XCVR_CFG1);
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+
+	/*
+	 * Give hardware time to settle down after VBUS disconnection,
+	 * otherwise PHY will immediately wake up from suspend.
+	 */
+	if (phy->wakeup_enabled && phy->mode != USB_DR_MODE_HOST)
+		readl_relaxed_poll_timeout(base + USB_PHY_VBUS_WAKEUP_ID,
+					   val, !(val & VBUS_WAKEUP_STS),
+					   5000, 100000);
+
+	utmi_phy_clk_disable(phy);
+
+	/* PHY won't resume if reset is asserted */
+	if (!phy->wakeup_enabled) {
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val |= UTMIP_RESET;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+	}
+
+	val = readl_relaxed(base + UTMIP_BAT_CHRG_CFG0);
+	val |= UTMIP_PD_CHRG;
+	writel_relaxed(val, base + UTMIP_BAT_CHRG_CFG0);
+
+	if (!phy->wakeup_enabled) {
+		val = readl_relaxed(base + UTMIP_XCVR_CFG0);
+		val |= UTMIP_FORCE_PD_POWERDOWN | UTMIP_FORCE_PD2_POWERDOWN |
+		       UTMIP_FORCE_PDZI_POWERDOWN;
+		writel_relaxed(val, base + UTMIP_XCVR_CFG0);
+	}
+
+	val = readl_relaxed(base + UTMIP_XCVR_CFG1);
+	val |= UTMIP_FORCE_PDDISC_POWERDOWN | UTMIP_FORCE_PDCHRP_POWERDOWN |
+	       UTMIP_FORCE_PDDR_POWERDOWN;
+	writel_relaxed(val, base + UTMIP_XCVR_CFG1);
+
+	if (phy->wakeup_enabled) {
+		val = readl_relaxed(base + USB_SUSP_CTRL);
+		val &= ~USB_WAKEUP_DEBOUNCE_COUNT(~0);
+		val |= USB_WAKEUP_DEBOUNCE_COUNT(5);
+		val |= USB_WAKE_ON_RESUME_EN;
+		writel_relaxed(val, base + USB_SUSP_CTRL);
+
+		/*
+		 * Ask VBUS sensor to generate wake event once cable is
+		 * connected.
+		 */
+		if (phy->mode == USB_DR_MODE_PERIPHERAL) {
+			val = readl_relaxed(base + USB_PHY_VBUS_WAKEUP_ID);
+			val |= VBUS_WAKEUP_WAKEUP_EN;
+			writel_relaxed(val, base + USB_PHY_VBUS_WAKEUP_ID);
+
+			val = readl_relaxed(base + USB_PHY_VBUS_SENSORS);
+			val |= A_VBUS_VLD_WAKEUP_EN;
+			writel_relaxed(val, base + USB_PHY_VBUS_SENSORS);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	return utmip_pad_power_off(phy);
 }
 
 static void utmi_phy_preresume(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
 
 	val = readl(base + UTMIP_TX_CFG0);
 	val |= UTMIP_HS_DISCON_DISABLE;
 	writel(val, base + UTMIP_TX_CFG0);
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+
+	val = readl_relaxed(base + UTMIP_TX_CFG0);
+	val |= UTMIP_HS_DISCON_DISABLE;
+	writel_relaxed(val, base + UTMIP_TX_CFG0);
+>>>>>>> upstream/android-13
 }
 
 static void utmi_phy_postresume(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
 
 	val = readl(base + UTMIP_TX_CFG0);
 	val &= ~UTMIP_HS_DISCON_DISABLE;
 	writel(val, base + UTMIP_TX_CFG0);
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+
+	val = readl_relaxed(base + UTMIP_TX_CFG0);
+	val &= ~UTMIP_HS_DISCON_DISABLE;
+	writel_relaxed(val, base + UTMIP_TX_CFG0);
+>>>>>>> upstream/android-13
 }
 
 static void utmi_phy_restore_start(struct tegra_usb_phy *phy,
 				   enum tegra_usb_phy_port_speed port_speed)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
 
 	val = readl(base + UTMIP_MISC_CFG0);
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+
+	val = readl_relaxed(base + UTMIP_MISC_CFG0);
+>>>>>>> upstream/android-13
 	val &= ~UTMIP_DPDM_OBSERVE_SEL(~0);
 	if (port_speed == TEGRA_USB_PHY_PORT_SPEED_LOW)
 		val |= UTMIP_DPDM_OBSERVE_SEL_FS_K;
 	else
 		val |= UTMIP_DPDM_OBSERVE_SEL_FS_J;
+<<<<<<< HEAD
 	writel(val, base + UTMIP_MISC_CFG0);
 	udelay(1);
 
@@ -668,10 +1212,20 @@ static void utmi_phy_restore_start(struct tegra_usb_phy *phy,
 	val |= UTMIP_DPDM_OBSERVE;
 	writel(val, base + UTMIP_MISC_CFG0);
 	udelay(10);
+=======
+	writel_relaxed(val, base + UTMIP_MISC_CFG0);
+	usleep_range(1, 10);
+
+	val = readl_relaxed(base + UTMIP_MISC_CFG0);
+	val |= UTMIP_DPDM_OBSERVE;
+	writel_relaxed(val, base + UTMIP_MISC_CFG0);
+	usleep_range(10, 100);
+>>>>>>> upstream/android-13
 }
 
 static void utmi_phy_restore_end(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	unsigned long val;
 	void __iomem *base = phy->regs;
 
@@ -679,10 +1233,20 @@ static void utmi_phy_restore_end(struct tegra_usb_phy *phy)
 	val &= ~UTMIP_DPDM_OBSERVE;
 	writel(val, base + UTMIP_MISC_CFG0);
 	udelay(10);
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+
+	val = readl_relaxed(base + UTMIP_MISC_CFG0);
+	val &= ~UTMIP_DPDM_OBSERVE;
+	writel_relaxed(val, base + UTMIP_MISC_CFG0);
+	usleep_range(10, 100);
+>>>>>>> upstream/android-13
 }
 
 static int ulpi_phy_power_on(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	int ret;
 	unsigned long val;
 	void __iomem *base = phy->regs;
@@ -718,16 +1282,54 @@ static int ulpi_phy_power_on(struct tegra_usb_phy *phy)
 
 	val = 0;
 	writel(val, base + ULPI_TIMING_CTRL_1);
+=======
+	void __iomem *base = phy->regs;
+	u32 val;
+	int err;
+
+	gpiod_set_value_cansleep(phy->reset_gpio, 1);
+
+	err = clk_prepare_enable(phy->clk);
+	if (err)
+		return err;
+
+	usleep_range(5000, 6000);
+
+	gpiod_set_value_cansleep(phy->reset_gpio, 0);
+
+	usleep_range(1000, 2000);
+
+	val = readl_relaxed(base + USB_SUSP_CTRL);
+	val |= UHSIC_RESET;
+	writel_relaxed(val, base + USB_SUSP_CTRL);
+
+	val = readl_relaxed(base + ULPI_TIMING_CTRL_0);
+	val |= ULPI_OUTPUT_PINMUX_BYP | ULPI_CLKOUT_PINMUX_BYP;
+	writel_relaxed(val, base + ULPI_TIMING_CTRL_0);
+
+	val = readl_relaxed(base + USB_SUSP_CTRL);
+	val |= ULPI_PHY_ENABLE;
+	writel_relaxed(val, base + USB_SUSP_CTRL);
+
+	val = 0;
+	writel_relaxed(val, base + ULPI_TIMING_CTRL_1);
+>>>>>>> upstream/android-13
 
 	val |= ULPI_DATA_TRIMMER_SEL(4);
 	val |= ULPI_STPDIRNXT_TRIMMER_SEL(4);
 	val |= ULPI_DIR_TRIMMER_SEL(4);
+<<<<<<< HEAD
 	writel(val, base + ULPI_TIMING_CTRL_1);
 	udelay(10);
+=======
+	writel_relaxed(val, base + ULPI_TIMING_CTRL_1);
+	usleep_range(10, 100);
+>>>>>>> upstream/android-13
 
 	val |= ULPI_DATA_TRIMMER_LOAD;
 	val |= ULPI_STPDIRNXT_TRIMMER_LOAD;
 	val |= ULPI_DIR_TRIMMER_LOAD;
+<<<<<<< HEAD
 	writel(val, base + ULPI_TIMING_CTRL_1);
 
 	/* Fix VbusInvalid due to floating VBUS */
@@ -753,10 +1355,43 @@ static int ulpi_phy_power_on(struct tegra_usb_phy *phy)
 	writel(val, base + USB_SUSP_CTRL);
 
 	return 0;
+=======
+	writel_relaxed(val, base + ULPI_TIMING_CTRL_1);
+
+	/* Fix VbusInvalid due to floating VBUS */
+	err = usb_phy_io_write(phy->ulpi, 0x40, 0x08);
+	if (err) {
+		dev_err(phy->u_phy.dev, "ULPI write failed: %d\n", err);
+		goto disable_clk;
+	}
+
+	err = usb_phy_io_write(phy->ulpi, 0x80, 0x0B);
+	if (err) {
+		dev_err(phy->u_phy.dev, "ULPI write failed: %d\n", err);
+		goto disable_clk;
+	}
+
+	val = readl_relaxed(base + USB_SUSP_CTRL);
+	val |= USB_SUSP_CLR;
+	writel_relaxed(val, base + USB_SUSP_CTRL);
+	usleep_range(100, 1000);
+
+	val = readl_relaxed(base + USB_SUSP_CTRL);
+	val &= ~USB_SUSP_CLR;
+	writel_relaxed(val, base + USB_SUSP_CTRL);
+
+	return 0;
+
+disable_clk:
+	clk_disable_unprepare(phy->clk);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int ulpi_phy_power_off(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	clk_disable(phy->clk);
 	return gpio_direction_output(phy->reset_gpio, 0);
 }
@@ -770,18 +1405,56 @@ static void tegra_usb_phy_close(struct tegra_usb_phy *phy)
 		utmip_pad_close(phy);
 
 	clk_disable_unprepare(phy->pll_u);
+=======
+	gpiod_set_value_cansleep(phy->reset_gpio, 1);
+	usleep_range(5000, 6000);
+	clk_disable_unprepare(phy->clk);
+
+	/*
+	 * Wakeup currently unimplemented for ULPI, thus PHY needs to be
+	 * force-resumed.
+	 */
+	if (WARN_ON_ONCE(phy->wakeup_enabled)) {
+		ulpi_phy_power_on(phy);
+		return -EOPNOTSUPP;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int tegra_usb_phy_power_on(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	if (phy->is_ulpi_phy)
 		return ulpi_phy_power_on(phy);
 	else
 		return utmi_phy_power_on(phy);
+=======
+	int err;
+
+	if (phy->powered_on)
+		return 0;
+
+	if (phy->is_ulpi_phy)
+		err = ulpi_phy_power_on(phy);
+	else
+		err = utmi_phy_power_on(phy);
+	if (err)
+		return err;
+
+	phy->powered_on = true;
+
+	/* Let PHY settle down */
+	usleep_range(2000, 2500);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int tegra_usb_phy_power_off(struct tegra_usb_phy *phy)
 {
+<<<<<<< HEAD
 	if (phy->is_ulpi_phy)
 		return ulpi_phy_power_off(phy);
 	else
@@ -791,12 +1464,66 @@ static int tegra_usb_phy_power_off(struct tegra_usb_phy *phy)
 static int	tegra_usb_phy_suspend(struct usb_phy *x, int suspend)
 {
 	struct tegra_usb_phy *phy = container_of(x, struct tegra_usb_phy, u_phy);
+=======
+	int err;
+
+	if (!phy->powered_on)
+		return 0;
+
+	if (phy->is_ulpi_phy)
+		err = ulpi_phy_power_off(phy);
+	else
+		err = utmi_phy_power_off(phy);
+	if (err)
+		return err;
+
+	phy->powered_on = false;
+
+	return 0;
+}
+
+static void tegra_usb_phy_shutdown(struct usb_phy *u_phy)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+
+	if (WARN_ON(!phy->freq))
+		return;
+
+	tegra_usb_phy_power_off(phy);
+
+	if (!phy->is_ulpi_phy)
+		utmip_pad_close(phy);
+
+	regulator_disable(phy->vbus);
+	clk_disable_unprepare(phy->pll_u);
+
+	phy->freq = NULL;
+}
+
+static int tegra_usb_phy_set_wakeup(struct usb_phy *u_phy, bool enable)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+
+	phy->wakeup_enabled = enable;
+
+	return 0;
+}
+
+static int tegra_usb_phy_set_suspend(struct usb_phy *u_phy, int suspend)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+
+	if (WARN_ON(!phy->freq))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (suspend)
 		return tegra_usb_phy_power_off(phy);
 	else
 		return tegra_usb_phy_power_on(phy);
 }
 
+<<<<<<< HEAD
 static int ulpi_open(struct tegra_usb_phy *phy)
 {
 	int err;
@@ -848,6 +1575,17 @@ static int tegra_usb_phy_init(struct tegra_usb_phy *phy)
 			"Failed to get pll_u clock: %d\n", err);
 		return err;
 	}
+=======
+static int tegra_usb_phy_init(struct usb_phy *u_phy)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+	unsigned long parent_rate;
+	unsigned int i;
+	int err;
+
+	if (WARN_ON(phy->freq))
+		return 0;
+>>>>>>> upstream/android-13
 
 	err = clk_prepare_enable(phy->pll_u);
 	if (err)
@@ -864,6 +1602,7 @@ static int tegra_usb_phy_init(struct tegra_usb_phy *phy)
 		dev_err(phy->u_phy.dev, "Invalid pll_u parent rate %ld\n",
 			parent_rate);
 		err = -EINVAL;
+<<<<<<< HEAD
 		goto fail;
 	}
 
@@ -894,34 +1633,95 @@ fail:
 void tegra_usb_phy_preresume(struct usb_phy *x)
 {
 	struct tegra_usb_phy *phy = container_of(x, struct tegra_usb_phy, u_phy);
+=======
+		goto disable_clk;
+	}
+
+	err = regulator_enable(phy->vbus);
+	if (err) {
+		dev_err(phy->u_phy.dev,
+			"Failed to enable USB VBUS regulator: %d\n", err);
+		goto disable_clk;
+	}
+
+	if (!phy->is_ulpi_phy) {
+		err = utmip_pad_open(phy);
+		if (err)
+			goto disable_vbus;
+	}
+
+	err = tegra_usb_phy_power_on(phy);
+	if (err)
+		goto close_phy;
+
+	return 0;
+
+close_phy:
+	if (!phy->is_ulpi_phy)
+		utmip_pad_close(phy);
+
+disable_vbus:
+	regulator_disable(phy->vbus);
+
+disable_clk:
+	clk_disable_unprepare(phy->pll_u);
+
+	phy->freq = NULL;
+
+	return err;
+}
+
+void tegra_usb_phy_preresume(struct usb_phy *u_phy)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+>>>>>>> upstream/android-13
 
 	if (!phy->is_ulpi_phy)
 		utmi_phy_preresume(phy);
 }
 EXPORT_SYMBOL_GPL(tegra_usb_phy_preresume);
 
+<<<<<<< HEAD
 void tegra_usb_phy_postresume(struct usb_phy *x)
 {
 	struct tegra_usb_phy *phy = container_of(x, struct tegra_usb_phy, u_phy);
+=======
+void tegra_usb_phy_postresume(struct usb_phy *u_phy)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+>>>>>>> upstream/android-13
 
 	if (!phy->is_ulpi_phy)
 		utmi_phy_postresume(phy);
 }
 EXPORT_SYMBOL_GPL(tegra_usb_phy_postresume);
 
+<<<<<<< HEAD
 void tegra_ehci_phy_restore_start(struct usb_phy *x,
 				 enum tegra_usb_phy_port_speed port_speed)
 {
 	struct tegra_usb_phy *phy = container_of(x, struct tegra_usb_phy, u_phy);
+=======
+void tegra_ehci_phy_restore_start(struct usb_phy *u_phy,
+				  enum tegra_usb_phy_port_speed port_speed)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+>>>>>>> upstream/android-13
 
 	if (!phy->is_ulpi_phy)
 		utmi_phy_restore_start(phy, port_speed);
 }
 EXPORT_SYMBOL_GPL(tegra_ehci_phy_restore_start);
 
+<<<<<<< HEAD
 void tegra_ehci_phy_restore_end(struct usb_phy *x)
 {
 	struct tegra_usb_phy *phy = container_of(x, struct tegra_usb_phy, u_phy);
+=======
+void tegra_ehci_phy_restore_end(struct usb_phy *u_phy)
+{
+	struct tegra_usb_phy *phy = to_tegra_usb_phy(u_phy);
+>>>>>>> upstream/android-13
 
 	if (!phy->is_ulpi_phy)
 		utmi_phy_restore_end(phy);
@@ -932,21 +1732,40 @@ static int read_utmi_param(struct platform_device *pdev, const char *param,
 			   u8 *dest)
 {
 	u32 value;
+<<<<<<< HEAD
 	int err = of_property_read_u32(pdev->dev.of_node, param, &value);
 	*dest = (u8)value;
 	if (err < 0)
 		dev_err(&pdev->dev,
 			"Failed to read USB UTMI parameter %s: %d\n",
 			param, err);
+=======
+	int err;
+
+	err = of_property_read_u32(pdev->dev.of_node, param, &value);
+	if (err)
+		dev_err(&pdev->dev,
+			"Failed to read USB UTMI parameter %s: %d\n",
+			param, err);
+	else
+		*dest = value;
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
 static int utmi_phy_probe(struct tegra_usb_phy *tegra_phy,
 			  struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
 	int err;
 	struct tegra_utmip_config *config;
+=======
+	struct tegra_utmip_config *config;
+	struct resource *res;
+	int err;
+>>>>>>> upstream/android-13
 
 	tegra_phy->is_ulpi_phy = false;
 
@@ -956,8 +1775,17 @@ static int utmi_phy_probe(struct tegra_usb_phy *tegra_phy,
 		return  -ENXIO;
 	}
 
+<<<<<<< HEAD
 	tegra_phy->pad_regs = devm_ioremap(&pdev->dev, res->start,
 		resource_size(res));
+=======
+	/*
+	 * Note that UTMI pad registers are shared by all PHYs, therefore
+	 * devm_platform_ioremap_resource() can't be used here.
+	 */
+	tegra_phy->pad_regs = devm_ioremap(&pdev->dev, res->start,
+					   resource_size(res));
+>>>>>>> upstream/android-13
 	if (!tegra_phy->pad_regs) {
 		dev_err(&pdev->dev, "Failed to remap UTMI pad regs\n");
 		return -ENOMEM;
@@ -971,6 +1799,7 @@ static int utmi_phy_probe(struct tegra_usb_phy *tegra_phy,
 	config = tegra_phy->config;
 
 	err = read_utmi_param(pdev, "nvidia,hssync-start-delay",
+<<<<<<< HEAD
 		&config->hssync_start_delay);
 	if (err < 0)
 		return err;
@@ -998,10 +1827,40 @@ static int utmi_phy_probe(struct tegra_usb_phy *tegra_phy,
 	err = read_utmi_param(pdev, "nvidia,xcvr-lsrslew",
 		&config->xcvr_lsrslew);
 	if (err < 0)
+=======
+			      &config->hssync_start_delay);
+	if (err)
+		return err;
+
+	err = read_utmi_param(pdev, "nvidia,elastic-limit",
+			      &config->elastic_limit);
+	if (err)
+		return err;
+
+	err = read_utmi_param(pdev, "nvidia,idle-wait-delay",
+			      &config->idle_wait_delay);
+	if (err)
+		return err;
+
+	err = read_utmi_param(pdev, "nvidia,term-range-adj",
+			      &config->term_range_adj);
+	if (err)
+		return err;
+
+	err = read_utmi_param(pdev, "nvidia,xcvr-lsfslew",
+			      &config->xcvr_lsfslew);
+	if (err)
+		return err;
+
+	err = read_utmi_param(pdev, "nvidia,xcvr-lsrslew",
+			      &config->xcvr_lsrslew);
+	if (err)
+>>>>>>> upstream/android-13
 		return err;
 
 	if (tegra_phy->soc_config->requires_extra_tuning_parameters) {
 		err = read_utmi_param(pdev, "nvidia,xcvr-hsslew",
+<<<<<<< HEAD
 			&config->xcvr_hsslew);
 		if (err < 0)
 			return err;
@@ -1014,6 +1873,20 @@ static int utmi_phy_probe(struct tegra_usb_phy *tegra_phy,
 		err = read_utmi_param(pdev, "nvidia,hsdiscon-level",
 			&config->hsdiscon_level);
 		if (err < 0)
+=======
+				      &config->xcvr_hsslew);
+		if (err)
+			return err;
+
+		err = read_utmi_param(pdev, "nvidia,hssquelch-level",
+				      &config->hssquelch_level);
+		if (err)
+			return err;
+
+		err = read_utmi_param(pdev, "nvidia,hsdiscon-level",
+				      &config->hsdiscon_level);
+		if (err)
+>>>>>>> upstream/android-13
 			return err;
 	}
 
@@ -1022,8 +1895,13 @@ static int utmi_phy_probe(struct tegra_usb_phy *tegra_phy,
 
 	if (!config->xcvr_setup_use_fuses) {
 		err = read_utmi_param(pdev, "nvidia,xcvr-setup",
+<<<<<<< HEAD
 			&config->xcvr_setup);
 		if (err < 0)
+=======
+				      &config->xcvr_setup);
+		if (err)
+>>>>>>> upstream/android-13
 			return err;
 	}
 
@@ -1053,23 +1931,37 @@ MODULE_DEVICE_TABLE(of, tegra_usb_phy_id_table);
 
 static int tegra_usb_phy_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const struct of_device_id *match;
 	struct resource *res;
 	struct tegra_usb_phy *tegra_phy = NULL;
 	struct device_node *np = pdev->dev.of_node;
 	enum usb_phy_interface phy_type;
+=======
+	struct device_node *np = pdev->dev.of_node;
+	struct tegra_usb_phy *tegra_phy;
+	enum usb_phy_interface phy_type;
+	struct reset_control *reset;
+	struct gpio_desc *gpiod;
+	struct resource *res;
+	struct usb_phy *phy;
+>>>>>>> upstream/android-13
 	int err;
 
 	tegra_phy = devm_kzalloc(&pdev->dev, sizeof(*tegra_phy), GFP_KERNEL);
 	if (!tegra_phy)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	match = of_match_device(tegra_usb_phy_id_table, &pdev->dev);
 	if (!match) {
 		dev_err(&pdev->dev, "Error: No device match found\n");
 		return -ENODEV;
 	}
 	tegra_phy->soc_config = match->data;
+=======
+	tegra_phy->soc_config = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
@@ -1077,8 +1969,17 @@ static int tegra_usb_phy_probe(struct platform_device *pdev)
 		return  -ENXIO;
 	}
 
+<<<<<<< HEAD
 	tegra_phy->regs = devm_ioremap(&pdev->dev, res->start,
 		resource_size(res));
+=======
+	/*
+	 * Note that PHY and USB controller are using shared registers,
+	 * therefore devm_platform_ioremap_resource() can't be used here.
+	 */
+	tegra_phy->regs = devm_ioremap(&pdev->dev, res->start,
+				       resource_size(res));
+>>>>>>> upstream/android-13
 	if (!tegra_phy->regs) {
 		dev_err(&pdev->dev, "Failed to remap I/O memory\n");
 		return -ENOMEM;
@@ -1087,6 +1988,7 @@ static int tegra_usb_phy_probe(struct platform_device *pdev)
 	tegra_phy->is_legacy_phy =
 		of_property_read_bool(np, "nvidia,has-legacy-mode");
 
+<<<<<<< HEAD
 	phy_type = of_usb_get_phy_mode(np);
 	switch (phy_type) {
 	case USBPHY_INTERFACE_MODE_UTMI:
@@ -1114,6 +2016,8 @@ static int tegra_usb_phy_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (of_find_property(np, "dr_mode", NULL))
 		tegra_phy->mode = usb_get_dr_mode(&pdev->dev);
 	else
@@ -1125,6 +2029,7 @@ static int tegra_usb_phy_probe(struct platform_device *pdev)
 	}
 
 	/* On some boards, the VBUS regulator doesn't need to be controlled */
+<<<<<<< HEAD
 	if (of_find_property(np, "vbus-supply", NULL)) {
 		tegra_phy->vbus = devm_regulator_get(&pdev->dev, "vbus");
 		if (IS_ERR(tegra_phy->vbus))
@@ -1150,6 +2055,94 @@ static int tegra_usb_phy_probe(struct platform_device *pdev)
 	}
 
 	return 0;
+=======
+	tegra_phy->vbus = devm_regulator_get(&pdev->dev, "vbus");
+	if (IS_ERR(tegra_phy->vbus))
+		return PTR_ERR(tegra_phy->vbus);
+
+	tegra_phy->pll_u = devm_clk_get(&pdev->dev, "pll_u");
+	err = PTR_ERR_OR_ZERO(tegra_phy->pll_u);
+	if (err) {
+		dev_err(&pdev->dev, "Failed to get pll_u clock: %d\n", err);
+		return err;
+	}
+
+	phy_type = of_usb_get_phy_mode(np);
+	switch (phy_type) {
+	case USBPHY_INTERFACE_MODE_UTMI:
+		err = utmi_phy_probe(tegra_phy, pdev);
+		if (err)
+			return err;
+
+		tegra_phy->pad_clk = devm_clk_get(&pdev->dev, "utmi-pads");
+		err = PTR_ERR_OR_ZERO(tegra_phy->pad_clk);
+		if (err) {
+			dev_err(&pdev->dev,
+				"Failed to get UTMIP pad clock: %d\n", err);
+			return err;
+		}
+
+		reset = devm_reset_control_get_optional_shared(&pdev->dev,
+							       "utmi-pads");
+		err = PTR_ERR_OR_ZERO(reset);
+		if (err) {
+			dev_err(&pdev->dev,
+				"Failed to get UTMI-pads reset: %d\n", err);
+			return err;
+		}
+		tegra_phy->pad_rst = reset;
+		break;
+
+	case USBPHY_INTERFACE_MODE_ULPI:
+		tegra_phy->is_ulpi_phy = true;
+
+		tegra_phy->clk = devm_clk_get(&pdev->dev, "ulpi-link");
+		err = PTR_ERR_OR_ZERO(tegra_phy->clk);
+		if (err) {
+			dev_err(&pdev->dev,
+				"Failed to get ULPI clock: %d\n", err);
+			return err;
+		}
+
+		gpiod = devm_gpiod_get_from_of_node(&pdev->dev, np,
+						    "nvidia,phy-reset-gpio",
+						    0, GPIOD_OUT_HIGH,
+						    "ulpi_phy_reset_b");
+		err = PTR_ERR_OR_ZERO(gpiod);
+		if (err) {
+			dev_err(&pdev->dev,
+				"Request failed for reset GPIO: %d\n", err);
+			return err;
+		}
+		tegra_phy->reset_gpio = gpiod;
+
+		phy = devm_otg_ulpi_create(&pdev->dev,
+					   &ulpi_viewport_access_ops, 0);
+		if (!phy) {
+			dev_err(&pdev->dev, "Failed to create ULPI OTG\n");
+			return -ENOMEM;
+		}
+
+		tegra_phy->ulpi = phy;
+		tegra_phy->ulpi->io_priv = tegra_phy->regs + ULPI_VIEWPORT;
+		break;
+
+	default:
+		dev_err(&pdev->dev, "phy_type %u is invalid or unsupported\n",
+			phy_type);
+		return -EINVAL;
+	}
+
+	tegra_phy->u_phy.dev = &pdev->dev;
+	tegra_phy->u_phy.init = tegra_usb_phy_init;
+	tegra_phy->u_phy.shutdown = tegra_usb_phy_shutdown;
+	tegra_phy->u_phy.set_wakeup = tegra_usb_phy_set_wakeup;
+	tegra_phy->u_phy.set_suspend = tegra_usb_phy_set_suspend;
+
+	platform_set_drvdata(pdev, tegra_phy);
+
+	return usb_add_phy_dev(&tegra_phy->u_phy);
+>>>>>>> upstream/android-13
 }
 
 static int tegra_usb_phy_remove(struct platform_device *pdev)
@@ -1157,7 +2150,10 @@ static int tegra_usb_phy_remove(struct platform_device *pdev)
 	struct tegra_usb_phy *tegra_phy = platform_get_drvdata(pdev);
 
 	usb_remove_phy(&tegra_phy->u_phy);
+<<<<<<< HEAD
 	tegra_usb_phy_close(tegra_phy);
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ST M48T59 RTC driver
  *
  * Copyright (c) 2007 Wind River Systems, Inc.
  *
  * Author: Mark Zhan <rongkai.zhan@windriver.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -99,9 +106,13 @@ static int m48t59_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
 	spin_unlock_irqrestore(&m48t59->lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "RTC read time %04d-%02d-%02d %02d/%02d/%02d\n",
 		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "RTC read time %ptR\n", tm);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -188,9 +199,13 @@ static int m48t59_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
 	M48T59_CLEAR_BITS(M48T59_CNTL_READ, M48T59_CNTL);
 	spin_unlock_irqrestore(&m48t59->lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "RTC read alarm time %04d-%02d-%02d %02d/%02d/%02d\n",
 		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
+=======
+	dev_dbg(dev, "RTC read alarm time %ptR\n", tm);
+>>>>>>> upstream/android-13
 	return rtc_valid_tm(tm);
 }
 
@@ -320,11 +335,14 @@ static const struct rtc_class_ops m48t59_rtc_ops = {
 	.alarm_irq_enable = m48t59_rtc_alarm_irq_enable,
 };
 
+<<<<<<< HEAD
 static const struct rtc_class_ops m48t02_rtc_ops = {
 	.read_time	= m48t59_rtc_read_time,
 	.set_time	= m48t59_rtc_set_time,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int m48t59_nvram_read(void *priv, unsigned int offset, void *val,
 			     size_t size)
 {
@@ -373,7 +391,10 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
 	struct m48t59_private *m48t59 = NULL;
 	struct resource *res;
 	int ret = -ENOMEM;
+<<<<<<< HEAD
 	const struct rtc_class_ops *ops;
+=======
+>>>>>>> upstream/android-13
 	struct nvmem_config nvmem_cfg = {
 		.name = "m48t59-",
 		.word_size = 1,
@@ -434,7 +455,11 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
 	/* Try to get irq number. We also can work in
 	 * the mode without IRQ.
 	 */
+<<<<<<< HEAD
 	m48t59->irq = platform_get_irq(pdev, 0);
+=======
+	m48t59->irq = platform_get_irq_optional(pdev, 0);
+>>>>>>> upstream/android-13
 	if (m48t59->irq <= 0)
 		m48t59->irq = NO_IRQ;
 
@@ -445,6 +470,7 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
 		if (ret)
 			return ret;
 	}
+<<<<<<< HEAD
 	switch (pdata->type) {
 	case M48T59RTC_TYPE_M48T59:
 		ops = &m48t59_rtc_ops;
@@ -456,6 +482,23 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
 		break;
 	case M48T59RTC_TYPE_M48T08:
 		ops = &m48t02_rtc_ops;
+=======
+
+	m48t59->rtc = devm_rtc_allocate_device(&pdev->dev);
+	if (IS_ERR(m48t59->rtc))
+		return PTR_ERR(m48t59->rtc);
+
+	switch (pdata->type) {
+	case M48T59RTC_TYPE_M48T59:
+		pdata->offset = 0x1ff0;
+		break;
+	case M48T59RTC_TYPE_M48T02:
+		clear_bit(RTC_FEATURE_ALARM, m48t59->rtc->features);
+		pdata->offset = 0x7f0;
+		break;
+	case M48T59RTC_TYPE_M48T08:
+		clear_bit(RTC_FEATURE_ALARM, m48t59->rtc->features);
+>>>>>>> upstream/android-13
 		pdata->offset = 0x1ff0;
 		break;
 	default:
@@ -466,6 +509,7 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
 	spin_lock_init(&m48t59->lock);
 	platform_set_drvdata(pdev, m48t59);
 
+<<<<<<< HEAD
 	m48t59->rtc = devm_rtc_allocate_device(&pdev->dev);
 	if (IS_ERR(m48t59->rtc))
 		return PTR_ERR(m48t59->rtc);
@@ -479,6 +523,16 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
 		return ret;
 
 	ret = rtc_register_device(m48t59->rtc);
+=======
+	m48t59->rtc->ops = &m48t59_rtc_ops;
+
+	nvmem_cfg.size = pdata->offset;
+	ret = devm_rtc_nvmem_register(m48t59->rtc, &nvmem_cfg);
+	if (ret)
+		return ret;
+
+	ret = devm_rtc_register_device(m48t59->rtc);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 

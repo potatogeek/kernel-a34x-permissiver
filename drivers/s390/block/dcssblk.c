@@ -17,7 +17,10 @@
 #include <linux/blkdev.h>
 #include <linux/completion.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/pfn_t.h>
 #include <linux/uio.h>
 #include <linux/dax.h>
@@ -31,8 +34,12 @@
 
 static int dcssblk_open(struct block_device *bdev, fmode_t mode);
 static void dcssblk_release(struct gendisk *disk, fmode_t mode);
+<<<<<<< HEAD
 static blk_qc_t dcssblk_make_request(struct request_queue *q,
 						struct bio *bio);
+=======
+static blk_qc_t dcssblk_submit_bio(struct bio *bio);
+>>>>>>> upstream/android-13
 static long dcssblk_dax_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
 		long nr_pages, void **kaddr, pfn_t *pfn);
 
@@ -41,6 +48,10 @@ static char dcssblk_segments[DCSSBLK_PARM_LEN] = "\0";
 static int dcssblk_major;
 static const struct block_device_operations dcssblk_devops = {
 	.owner   	= THIS_MODULE,
+<<<<<<< HEAD
+=======
+	.submit_bio	= dcssblk_submit_bio,
+>>>>>>> upstream/android-13
 	.open    	= dcssblk_open,
 	.release 	= dcssblk_release,
 };
@@ -57,10 +68,33 @@ static size_t dcssblk_dax_copy_to_iter(struct dax_device *dax_dev,
 	return copy_to_iter(addr, bytes, i);
 }
 
+<<<<<<< HEAD
 static const struct dax_operations dcssblk_dax_ops = {
 	.direct_access = dcssblk_dax_direct_access,
 	.copy_from_iter = dcssblk_dax_copy_from_iter,
 	.copy_to_iter = dcssblk_dax_copy_to_iter,
+=======
+static int dcssblk_dax_zero_page_range(struct dax_device *dax_dev,
+				       pgoff_t pgoff, size_t nr_pages)
+{
+	long rc;
+	void *kaddr;
+
+	rc = dax_direct_access(dax_dev, pgoff, nr_pages, &kaddr, NULL);
+	if (rc < 0)
+		return rc;
+	memset(kaddr, 0, nr_pages << PAGE_SHIFT);
+	dax_flush(dax_dev, kaddr, nr_pages << PAGE_SHIFT);
+	return 0;
+}
+
+static const struct dax_operations dcssblk_dax_ops = {
+	.direct_access = dcssblk_dax_direct_access,
+	.dax_supported = generic_fsdax_supported,
+	.copy_from_iter = dcssblk_dax_copy_from_iter,
+	.copy_to_iter = dcssblk_dax_copy_to_iter,
+	.zero_page_range = dcssblk_dax_zero_page_range,
+>>>>>>> upstream/android-13
 };
 
 struct dcssblk_dev_info {
@@ -74,7 +108,10 @@ struct dcssblk_dev_info {
 	int segment_type;
 	unsigned char save_pending;
 	unsigned char is_shared;
+<<<<<<< HEAD
 	struct request_queue *dcssblk_queue;
+=======
+>>>>>>> upstream/android-13
 	int num_of_segments;
 	struct list_head seg_list;
 	struct dax_device *dax_dev;
@@ -413,9 +450,13 @@ removeseg:
 	kill_dax(dev_info->dax_dev);
 	put_dax(dev_info->dax_dev);
 	del_gendisk(dev_info->gd);
+<<<<<<< HEAD
 	blk_cleanup_queue(dev_info->dcssblk_queue);
 	dev_info->gd->queue = NULL;
 	put_disk(dev_info->gd);
+=======
+	blk_cleanup_disk(dev_info->gd);
+>>>>>>> upstream/android-13
 	up_write(&dcssblk_devices_sem);
 
 	if (device_remove_file_self(dev, attr)) {
@@ -628,12 +669,17 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char 
 	dev_info->dev.release = dcssblk_release_segment;
 	dev_info->dev.groups = dcssblk_dev_attr_groups;
 	INIT_LIST_HEAD(&dev_info->lh);
+<<<<<<< HEAD
 	dev_info->gd = alloc_disk(DCSSBLK_MINORS_PER_DISK);
+=======
+	dev_info->gd = blk_alloc_disk(NUMA_NO_NODE);
+>>>>>>> upstream/android-13
 	if (dev_info->gd == NULL) {
 		rc = -ENOMEM;
 		goto seg_list_del;
 	}
 	dev_info->gd->major = dcssblk_major;
+<<<<<<< HEAD
 	dev_info->gd->fops = &dcssblk_devops;
 	dev_info->dcssblk_queue = blk_alloc_queue(GFP_KERNEL);
 	dev_info->gd->queue = dev_info->dcssblk_queue;
@@ -641,6 +687,13 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char 
 	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
 	blk_queue_logical_block_size(dev_info->dcssblk_queue, 4096);
 	blk_queue_flag_set(QUEUE_FLAG_DAX, dev_info->dcssblk_queue);
+=======
+	dev_info->gd->minors = DCSSBLK_MINORS_PER_DISK;
+	dev_info->gd->fops = &dcssblk_devops;
+	dev_info->gd->private_data = dev_info;
+	blk_queue_logical_block_size(dev_info->gd->queue, 4096);
+	blk_queue_flag_set(QUEUE_FLAG_DAX, dev_info->gd->queue);
+>>>>>>> upstream/android-13
 
 	seg_byte_size = (dev_info->end - dev_info->start + 1);
 	set_capacity(dev_info->gd, seg_byte_size >> 9); // size in sectors
@@ -678,14 +731,25 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char 
 		goto put_dev;
 
 	dev_info->dax_dev = alloc_dax(dev_info, dev_info->gd->disk_name,
+<<<<<<< HEAD
 			&dcssblk_dax_ops);
 	if (!dev_info->dax_dev) {
 		rc = -ENOMEM;
+=======
+			&dcssblk_dax_ops, DAXDEV_F_SYNC);
+	if (IS_ERR(dev_info->dax_dev)) {
+		rc = PTR_ERR(dev_info->dax_dev);
+		dev_info->dax_dev = NULL;
+>>>>>>> upstream/android-13
 		goto put_dev;
 	}
 
 	get_device(&dev_info->dev);
+<<<<<<< HEAD
 	device_add_disk(&dev_info->dev, dev_info->gd);
+=======
+	device_add_disk(&dev_info->dev, dev_info->gd, NULL);
+>>>>>>> upstream/android-13
 
 	switch (dev_info->segment_type) {
 		case SEG_TYPE_SR:
@@ -703,9 +767,13 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char 
 
 put_dev:
 	list_del(&dev_info->lh);
+<<<<<<< HEAD
 	blk_cleanup_queue(dev_info->dcssblk_queue);
 	dev_info->gd->queue = NULL;
 	put_disk(dev_info->gd);
+=======
+	blk_cleanup_disk(dev_info->gd);
+>>>>>>> upstream/android-13
 	list_for_each_entry(seg_info, &dev_info->seg_list, lh) {
 		segment_unload(seg_info->segment_name);
 	}
@@ -715,9 +783,13 @@ put_dev:
 dev_list_del:
 	list_del(&dev_info->lh);
 release_gd:
+<<<<<<< HEAD
 	blk_cleanup_queue(dev_info->dcssblk_queue);
 	dev_info->gd->queue = NULL;
 	put_disk(dev_info->gd);
+=======
+	blk_cleanup_disk(dev_info->gd);
+>>>>>>> upstream/android-13
 	up_write(&dcssblk_devices_sem);
 seg_list_del:
 	if (dev_info == NULL)
@@ -785,9 +857,13 @@ dcssblk_remove_store(struct device *dev, struct device_attribute *attr, const ch
 	kill_dax(dev_info->dax_dev);
 	put_dax(dev_info->dax_dev);
 	del_gendisk(dev_info->gd);
+<<<<<<< HEAD
 	blk_cleanup_queue(dev_info->dcssblk_queue);
 	dev_info->gd->queue = NULL;
 	put_disk(dev_info->gd);
+=======
+	blk_cleanup_disk(dev_info->gd);
+>>>>>>> upstream/android-13
 
 	/* unload all related segments */
 	list_for_each_entry(entry, &dev_info->seg_list, lh)
@@ -816,7 +892,10 @@ dcssblk_open(struct block_device *bdev, fmode_t mode)
 		goto out;
 	}
 	atomic_inc(&dev_info->use_count);
+<<<<<<< HEAD
 	bdev->bd_block_size = 4096;
+=======
+>>>>>>> upstream/android-13
 	rc = 0;
 out:
 	return rc;
@@ -851,7 +930,11 @@ dcssblk_release(struct gendisk *disk, fmode_t mode)
 }
 
 static blk_qc_t
+<<<<<<< HEAD
 dcssblk_make_request(struct request_queue *q, struct bio *bio)
+=======
+dcssblk_submit_bio(struct bio *bio)
+>>>>>>> upstream/android-13
 {
 	struct dcssblk_dev_info *dev_info;
 	struct bio_vec bvec;
@@ -861,20 +944,30 @@ dcssblk_make_request(struct request_queue *q, struct bio *bio)
 	unsigned long source_addr;
 	unsigned long bytes_done;
 
+<<<<<<< HEAD
 	blk_queue_split(q, &bio);
 
 	bytes_done = 0;
 	dev_info = bio->bi_disk->private_data;
+=======
+	blk_queue_split(&bio);
+
+	bytes_done = 0;
+	dev_info = bio->bi_bdev->bd_disk->private_data;
+>>>>>>> upstream/android-13
 	if (dev_info == NULL)
 		goto fail;
 	if ((bio->bi_iter.bi_sector & 7) != 0 ||
 	    (bio->bi_iter.bi_size & 4095) != 0)
 		/* Request is not page-aligned. */
 		goto fail;
+<<<<<<< HEAD
 	if (bio_end_sector(bio) > get_capacity(bio->bi_disk)) {
 		/* Request beyond end of DCSS segment. */
 		goto fail;
 	}
+=======
+>>>>>>> upstream/android-13
 	/* verify data transfer direction */
 	if (dev_info->is_shared) {
 		switch (dev_info->segment_type) {
@@ -892,8 +985,12 @@ dcssblk_make_request(struct request_queue *q, struct bio *bio)
 
 	index = (bio->bi_iter.bi_sector >> 3);
 	bio_for_each_segment(bvec, bio, iter) {
+<<<<<<< HEAD
 		page_addr = (unsigned long)
 			page_address(bvec.bv_page) + bvec.bv_offset;
+=======
+		page_addr = (unsigned long)bvec_virt(&bvec);
+>>>>>>> upstream/android-13
 		source_addr = dev_info->start + (index<<12) + bytes_done;
 		if (unlikely((page_addr & 4095) != 0) || (bvec.bv_len & 4095) != 0)
 			// More paranoia.
@@ -983,6 +1080,7 @@ dcssblk_check_params(void)
 }
 
 /*
+<<<<<<< HEAD
  * Suspend / Resume
  */
 static int dcssblk_freeze(struct device *dev)
@@ -1064,13 +1162,18 @@ static struct platform_device *dcssblk_pdev;
 
 
 /*
+=======
+>>>>>>> upstream/android-13
  * The init/exit functions.
  */
 static void __exit
 dcssblk_exit(void)
 {
+<<<<<<< HEAD
 	platform_device_unregister(dcssblk_pdev);
 	platform_driver_unregister(&dcssblk_pdrv);
+=======
+>>>>>>> upstream/android-13
 	root_device_unregister(dcssblk_root_dev);
 	unregister_blkdev(dcssblk_major, DCSSBLK_NAME);
 }
@@ -1080,6 +1183,7 @@ dcssblk_init(void)
 {
 	int rc;
 
+<<<<<<< HEAD
 	rc = platform_driver_register(&dcssblk_pdrv);
 	if (rc)
 		return rc;
@@ -1096,6 +1200,11 @@ dcssblk_init(void)
 		rc = PTR_ERR(dcssblk_root_dev);
 		goto out_pdev;
 	}
+=======
+	dcssblk_root_dev = root_device_register("dcssblk");
+	if (IS_ERR(dcssblk_root_dev))
+		return PTR_ERR(dcssblk_root_dev);
+>>>>>>> upstream/android-13
 	rc = device_create_file(dcssblk_root_dev, &dev_attr_add);
 	if (rc)
 		goto out_root;
@@ -1113,10 +1222,14 @@ dcssblk_init(void)
 
 out_root:
 	root_device_unregister(dcssblk_root_dev);
+<<<<<<< HEAD
 out_pdev:
 	platform_device_unregister(dcssblk_pdev);
 out_pdrv:
 	platform_driver_unregister(&dcssblk_pdrv);
+=======
+
+>>>>>>> upstream/android-13
 	return rc;
 }
 

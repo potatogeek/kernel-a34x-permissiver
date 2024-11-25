@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Atmel AT45xxx DataFlash MTD driver for lightweight SPI framework
  *
  * Largely derived from at91_dataflash.c:
  *  Copyright (C) 2003-2005 SAN People (Pty) Ltd
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
 */
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -100,6 +107,16 @@ struct dataflash {
 	struct mtd_info		mtd;
 };
 
+<<<<<<< HEAD
+=======
+static const struct spi_device_id dataflash_dev_ids[] = {
+	{ "at45" },
+	{ "dataflash" },
+	{ },
+};
+MODULE_DEVICE_TABLE(spi, dataflash_dev_ids);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_OF
 static const struct of_device_id dataflash_dt_ids[] = {
 	{ .compatible = "atmel,at45", },
@@ -531,7 +548,11 @@ static int dataflash_read_user_otp(struct mtd_info *mtd,
 }
 
 static int dataflash_write_user_otp(struct mtd_info *mtd,
+<<<<<<< HEAD
 		loff_t from, size_t len, size_t *retlen, u_char *buf)
+=======
+		loff_t from, size_t len, size_t *retlen, const u_char *buf)
+>>>>>>> upstream/android-13
 {
 	struct spi_message	m;
 	const size_t		l = 4 + 64;
@@ -931,6 +952,10 @@ static struct spi_driver dataflash_driver = {
 		.name		= "mtd_dataflash",
 		.of_match_table = of_match_ptr(dataflash_dt_ids),
 	},
+<<<<<<< HEAD
+=======
+	.id_table = dataflash_dev_ids,
+>>>>>>> upstream/android-13
 
 	.probe		= dataflash_probe,
 	.remove		= dataflash_remove,

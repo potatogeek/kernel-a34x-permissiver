@@ -43,6 +43,12 @@ static struct rdma_cm_id *rds_rdma_listen_id;
 static struct rdma_cm_id *rds6_rdma_listen_id;
 #endif
 
+<<<<<<< HEAD
+=======
+/* Per IB specification 7.7.3, service level is a 4-bit field. */
+#define TOS_TO_SL(tos)		((tos) & 0xF)
+
+>>>>>>> upstream/android-13
 static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
 					 struct rdma_cm_event *event,
 					 bool isv6)
@@ -51,6 +57,11 @@ static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
 	struct rds_connection *conn = cm_id->context;
 	struct rds_transport *trans;
 	int ret = 0;
+<<<<<<< HEAD
+=======
+	int *err;
+	u8 len;
+>>>>>>> upstream/android-13
 
 	rdsdebug("conn %p id %p handling event %u (%s)\n", conn, cm_id,
 		 event->event, rdma_event_msg(event->event));
@@ -81,6 +92,11 @@ static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
 		break;
 
 	case RDMA_CM_EVENT_ADDR_RESOLVED:
+<<<<<<< HEAD
+=======
+		rdma_set_service_type(cm_id, conn->c_tos);
+		rdma_set_min_rnr_timer(cm_id, IB_RNR_TIMER_000_32);
+>>>>>>> upstream/android-13
 		/* XXX do we need to clean up if this fails? */
 		ret = rdma_resolve_route(cm_id,
 					 RDS_RDMA_RESOLVE_TIMEOUT_MS);
@@ -94,14 +110,25 @@ static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
 			struct rds_ib_connection *ibic;
 
 			ibic = conn->c_transport_data;
+<<<<<<< HEAD
 			if (ibic && ibic->i_cm_id == cm_id)
 				ret = trans->cm_initiate_connect(cm_id, isv6);
 			else
 				rds_conn_drop(conn);
+=======
+			if (ibic && ibic->i_cm_id == cm_id) {
+				cm_id->route.path_rec[0].sl =
+					TOS_TO_SL(conn->c_tos);
+				ret = trans->cm_initiate_connect(cm_id, isv6);
+			} else {
+				rds_conn_drop(conn);
+			}
+>>>>>>> upstream/android-13
 		}
 		break;
 
 	case RDMA_CM_EVENT_ESTABLISHED:
+<<<<<<< HEAD
 		trans->cm_connect_complete(conn, event);
 		break;
 
@@ -109,6 +136,30 @@ static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
 		rdsdebug("Connection rejected: %s\n",
 			 rdma_reject_msg(cm_id, event->status));
 		/* FALLTHROUGH */
+=======
+		if (conn)
+			trans->cm_connect_complete(conn, event);
+		break;
+
+	case RDMA_CM_EVENT_REJECTED:
+		if (!conn)
+			break;
+		err = (int *)rdma_consumer_reject_data(cm_id, event, &len);
+		if (!err ||
+		    (err && len >= sizeof(*err) &&
+		     ((*err) <= RDS_RDMA_REJ_INCOMPAT))) {
+			pr_warn("RDS/RDMA: conn <%pI6c, %pI6c> rejected, dropping connection\n",
+				&conn->c_laddr, &conn->c_faddr);
+
+			if (!conn->c_tos)
+				conn->c_proposed_version = RDS_PROTOCOL_COMPAT_VERSION;
+
+			rds_conn_drop(conn);
+		}
+		rdsdebug("Connection rejected: %s\n",
+			 rdma_reject_msg(cm_id, event->status));
+		break;
+>>>>>>> upstream/android-13
 	case RDMA_CM_EVENT_ADDR_ERROR:
 	case RDMA_CM_EVENT_ROUTE_ERROR:
 	case RDMA_CM_EVENT_CONNECT_ERROR:
@@ -120,6 +171,11 @@ static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
 		break;
 
 	case RDMA_CM_EVENT_DISCONNECTED:
+<<<<<<< HEAD
+=======
+		if (!conn)
+			break;
+>>>>>>> upstream/android-13
 		rdsdebug("DISCONNECT event - dropping connection "
 			 "%pI6c->%pI6c\n", &conn->c_laddr,
 			 &conn->c_faddr);

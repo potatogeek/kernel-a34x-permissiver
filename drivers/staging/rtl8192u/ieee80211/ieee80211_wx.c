@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /******************************************************************************
 
   Copyright(c) 2004 Intel Corporation. All rights reserved.
@@ -8,6 +12,7 @@
   <jkmaline@cc.hut.fi>
   Copyright (c) 2002-2003, Jouni Malinen <jkmaline@cc.hut.fi>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms of version 2 of the GNU General Public License as
   published by the Free Software Foundation.
@@ -24,6 +29,8 @@
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
 
+=======
+>>>>>>> upstream/android-13
   Contact Information:
   James P. Ketrenos <ipw2100-admin@linux.intel.com>
   Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -85,10 +92,17 @@ static inline char *rtl819x_translate_scan(struct ieee80211_device *ieee,
 	}
 	/* Add the protocol name */
 	iwe.cmd = SIOCGIWNAME;
+<<<<<<< HEAD
 	for(i=0; i<ARRAY_SIZE(ieee80211_modes); i++) {
 		if(network->mode&(1<<i)) {
 			sprintf(pname,ieee80211_modes[i].mode_string,ieee80211_modes[i].mode_size);
 			pname +=ieee80211_modes[i].mode_size;
+=======
+	for (i = 0; i < ARRAY_SIZE(ieee80211_modes); i++) {
+		if (network->mode & BIT(i)) {
+			sprintf(pname, ieee80211_modes[i].mode_string, ieee80211_modes[i].mode_size);
+			pname += ieee80211_modes[i].mode_size;
+>>>>>>> upstream/android-13
 		}
 	}
 	*pname = '\0';
@@ -124,7 +138,11 @@ static inline char *rtl819x_translate_scan(struct ieee80211_device *ieee,
 	/* Add basic and extended rates */
 	max_rate = 0;
 	p = custom;
+<<<<<<< HEAD
 	p += snprintf(p, MAX_CUSTOM_LEN - (p - custom), " Rates (Mb/s): ");
+=======
+	p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom), " Rates (Mb/s): ");
+>>>>>>> upstream/android-13
 	for (i = 0, j = 0; i < network->rates_len; ) {
 		if (j < network->rates_ex_len &&
 		    ((network->rates_ex[j] & 0x7F) <
@@ -134,17 +152,26 @@ static inline char *rtl819x_translate_scan(struct ieee80211_device *ieee,
 			rate = network->rates[i++] & 0x7F;
 		if (rate > max_rate)
 			max_rate = rate;
+<<<<<<< HEAD
 		p += snprintf(p, MAX_CUSTOM_LEN - (p - custom),
+=======
+		p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom),
+>>>>>>> upstream/android-13
 			      "%d%s ", rate >> 1, (rate & 1) ? ".5" : "");
 	}
 	for (; j < network->rates_ex_len; j++) {
 		rate = network->rates_ex[j] & 0x7F;
+<<<<<<< HEAD
 		p += snprintf(p, MAX_CUSTOM_LEN - (p - custom),
+=======
+		p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom),
+>>>>>>> upstream/android-13
 			      "%d%s ", rate >> 1, (rate & 1) ? ".5" : "");
 		if (rate > max_rate)
 			max_rate = rate;
 	}
 
+<<<<<<< HEAD
 	if (network->mode >= IEEE_N_24G)//add N rate here;
 	{
 		PHT_CAPABILITY_ELE ht_cap = NULL;
@@ -161,6 +188,23 @@ static inline char *rtl819x_translate_scan(struct ieee80211_device *ieee,
 
 		max_mcs = HTGetHighestMCSRate(ieee, ht_cap->MCS, MCS_FILTER_ALL);
 		rate = MCS_DATA_RATE[is40M][isShortGI][max_mcs&0x7f];
+=======
+	if (network->mode >= IEEE_N_24G) /* add N rate here */ {
+		struct ht_capability_ele *ht_cap = NULL;
+		bool is40M = false, isShortGI = false;
+		u8 max_mcs = 0;
+		if (!memcmp(network->bssht.bdHTCapBuf, EWC11NHTCap, 4))
+			ht_cap = (struct ht_capability_ele *)&network->bssht.bdHTCapBuf[4];
+		else
+			ht_cap = (struct ht_capability_ele *)&network->bssht.bdHTCapBuf[0];
+		is40M = (ht_cap->ChlWidth) ? 1 : 0;
+		isShortGI = (ht_cap->ChlWidth) ?
+					((ht_cap->ShortGI40Mhz) ? 1 : 0) :
+					((ht_cap->ShortGI20Mhz) ? 1 : 0);
+
+		max_mcs = HTGetHighestMCSRate(ieee, ht_cap->MCS, MCS_FILTER_ALL);
+		rate = MCS_DATA_RATE[is40M][isShortGI][max_mcs & 0x7f];
+>>>>>>> upstream/android-13
 		if (rate > max_rate)
 			max_rate = rate;
 	}
@@ -193,16 +237,27 @@ static inline char *rtl819x_translate_scan(struct ieee80211_device *ieee,
 
 	iwe.u.data.length = p - custom;
 	if (iwe.u.data.length)
+<<<<<<< HEAD
 	    start = iwe_stream_add_point(info, start, stop, &iwe, custom);
 
 	if (ieee->wpa_enabled && network->wpa_ie_len){
+=======
+		start = iwe_stream_add_point(info, start, stop, &iwe, custom);
+
+	if (ieee->wpa_enabled && network->wpa_ie_len) {
+>>>>>>> upstream/android-13
 		char buf[MAX_WPA_IE_LEN * 2 + 30];
 	//	printk("WPA IE\n");
 		u8 *p = buf;
 		p += sprintf(p, "wpa_ie=");
+<<<<<<< HEAD
 		for (i = 0; i < network->wpa_ie_len; i++) {
 			p += sprintf(p, "%02x", network->wpa_ie[i]);
 		}
+=======
+		for (i = 0; i < network->wpa_ie_len; i++)
+			p += sprintf(p, "%02x", network->wpa_ie[i]);
+>>>>>>> upstream/android-13
 
 		memset(&iwe, 0, sizeof(iwe));
 		iwe.cmd = IWEVCUSTOM;
@@ -210,14 +265,23 @@ static inline char *rtl819x_translate_scan(struct ieee80211_device *ieee,
 		start = iwe_stream_add_point(info, start, stop, &iwe, buf);
 	}
 
+<<<<<<< HEAD
 	if (ieee->wpa_enabled && network->rsn_ie_len){
+=======
+	if (ieee->wpa_enabled && network->rsn_ie_len) {
+>>>>>>> upstream/android-13
 		char buf[MAX_WPA_IE_LEN * 2 + 30];
 
 		u8 *p = buf;
 		p += sprintf(p, "rsn_ie=");
+<<<<<<< HEAD
 		for (i = 0; i < network->rsn_ie_len; i++) {
 			p += sprintf(p, "%02x", network->rsn_ie[i]);
 		}
+=======
+		for (i = 0; i < network->rsn_ie_len; i++)
+			p += sprintf(p, "%02x", network->rsn_ie[i]);
+>>>>>>> upstream/android-13
 
 		memset(&iwe, 0, sizeof(iwe));
 		iwe.cmd = IWEVCUSTOM;
@@ -230,11 +294,19 @@ static inline char *rtl819x_translate_scan(struct ieee80211_device *ieee,
 	 * for given network. */
 	iwe.cmd = IWEVCUSTOM;
 	p = custom;
+<<<<<<< HEAD
 	p += snprintf(p, MAX_CUSTOM_LEN - (p - custom),
 		      " Last beacon: %lums ago", (jiffies - network->last_scanned) / (HZ / 100));
 	iwe.u.data.length = p - custom;
 	if (iwe.u.data.length)
 	    start = iwe_stream_add_point(info, start, stop, &iwe, custom);
+=======
+	p += scnprintf(p, MAX_CUSTOM_LEN - (p - custom),
+		      " Last beacon: %lums ago", (jiffies - network->last_scanned) / (HZ / 100));
+	iwe.u.data.length = p - custom;
+	if (iwe.u.data.length)
+		start = iwe_stream_add_point(info, start, stop, &iwe, custom);
+>>>>>>> upstream/android-13
 
 	return start;
 }
@@ -258,8 +330,12 @@ int ieee80211_wx_get_scan(struct ieee80211_device *ieee,
 
 	list_for_each_entry(network, &ieee->network_list, list) {
 		i++;
+<<<<<<< HEAD
 		if((stop-ev)<200)
 		{
+=======
+		if ((stop - ev) < 200) {
+>>>>>>> upstream/android-13
 			err = -E2BIG;
 			break;
 		}
@@ -327,7 +403,11 @@ int ieee80211_wx_set_encode(struct ieee80211_device *ieee,
 		/* Check all the keys to see if any are still configured,
 		 * and if no key index was provided, de-init them all */
 		for (i = 0; i < WEP_KEYS; i++) {
+<<<<<<< HEAD
 			if (ieee->crypt[i] != NULL) {
+=======
+			if (ieee->crypt[i]) {
+>>>>>>> upstream/android-13
 				if (key_provided)
 					break;
 				ieee80211_crypt_delayed_deinit(
@@ -349,14 +429,22 @@ int ieee80211_wx_set_encode(struct ieee80211_device *ieee,
 	sec.enabled = 1;
 	sec.flags |= SEC_ENABLED;
 
+<<<<<<< HEAD
 	if (*crypt != NULL && (*crypt)->ops != NULL &&
+=======
+	if (*crypt && (*crypt)->ops &&
+>>>>>>> upstream/android-13
 	    strcmp((*crypt)->ops->name, "WEP") != 0) {
 		/* changing to use WEP; deinit previously used algorithm
 		 * on this key */
 		ieee80211_crypt_delayed_deinit(ieee, crypt);
 	}
 
+<<<<<<< HEAD
 	if (*crypt == NULL) {
+=======
+	if (!*crypt) {
+>>>>>>> upstream/android-13
 		struct ieee80211_crypt_data *new_crypt;
 
 		/* take WEP into use */
@@ -373,9 +461,14 @@ int ieee80211_wx_set_encode(struct ieee80211_device *ieee,
 			kfree(new_crypt);
 			new_crypt = NULL;
 
+<<<<<<< HEAD
 			printk(KERN_WARNING "%s: could not initialize WEP: "
 			       "load module ieee80211_crypt_wep\n",
 			       dev->name);
+=======
+			netdev_warn(dev, "could not initialize WEP: "
+				    "load module ieee80211_crypt_wep\n");
+>>>>>>> upstream/android-13
 			return -EOPNOTSUPP;
 		}
 		*crypt = new_crypt;
@@ -394,9 +487,16 @@ int ieee80211_wx_set_encode(struct ieee80211_device *ieee,
 		sec.key_sizes[key] = len;
 		(*crypt)->ops->set_key(sec.keys[key], len, NULL,
 				       (*crypt)->priv);
+<<<<<<< HEAD
 		sec.flags |= (1 << key);
 		/* This ensures a key will be activated if no key is
 		 * explicitely set */
+=======
+		sec.flags |= BIT(key);
+		/* This ensures a key will be activated if no key is
+		 * explicitly set
+		 */
+>>>>>>> upstream/android-13
 		if (key == sec.active_key)
 			sec.flags |= SEC_ACTIVE_KEY;
 		ieee->tx_keyidx = key;
@@ -415,7 +515,11 @@ int ieee80211_wx_set_encode(struct ieee80211_device *ieee,
 			(*crypt)->ops->set_key(sec.keys[key], 13, NULL,
 					       (*crypt)->priv);
 			sec.key_sizes[key] = 13;
+<<<<<<< HEAD
 			sec.flags |= (1 << key);
+=======
+			sec.flags |= BIT(key);
+>>>>>>> upstream/android-13
 		}
 
 		/* No key data - just set the default TX key index */
@@ -452,7 +556,11 @@ int ieee80211_wx_set_encode(struct ieee80211_device *ieee,
 	if (ieee->reset_on_keychange &&
 	    ieee->iw_mode != IW_MODE_INFRA &&
 	    ieee->reset_port && ieee->reset_port(dev)) {
+<<<<<<< HEAD
 		printk(KERN_DEBUG "%s: reset_port failed\n", dev->name);
+=======
+		netdev_dbg(ieee->dev, "reset_port failed\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	return 0;
@@ -469,7 +577,11 @@ int ieee80211_wx_get_encode(struct ieee80211_device *ieee,
 
 	IEEE80211_DEBUG_WX("GET_ENCODE\n");
 
+<<<<<<< HEAD
 	if(ieee->iw_mode == IW_MODE_MONITOR)
+=======
+	if (ieee->iw_mode == IW_MODE_MONITOR)
+>>>>>>> upstream/android-13
 		return -1;
 
 	key = erq->flags & IW_ENCODE_INDEX;
@@ -483,7 +595,11 @@ int ieee80211_wx_get_encode(struct ieee80211_device *ieee,
 	crypt = ieee->crypt[key];
 	erq->flags = key + 1;
 
+<<<<<<< HEAD
 	if (crypt == NULL || crypt->ops == NULL) {
+=======
+	if (!crypt || !crypt->ops) {
+>>>>>>> upstream/android-13
 		erq->length = 0;
 		erq->flags |= IW_ENCODE_DISABLED;
 		return 0;
@@ -552,7 +668,11 @@ int ieee80211_wx_set_encode_ext(struct ieee80211_device *ieee,
 
 		for (i = 0; i < WEP_KEYS; i++)
 
+<<<<<<< HEAD
 			if (ieee->crypt[i] != NULL)
+=======
+			if (ieee->crypt[i])
+>>>>>>> upstream/android-13
 
 				break;
 
@@ -586,7 +706,11 @@ int ieee80211_wx_set_encode_ext(struct ieee80211_device *ieee,
 		ret = -EINVAL;
 		goto done;
 	}
+<<<<<<< HEAD
 	printk("alg name:%s\n",alg);
+=======
+	printk("alg name:%s\n", alg);
+>>>>>>> upstream/android-13
 
 	ops = try_then_request_module(ieee80211_get_crypto_ops(alg), module);
 	if (!ops) {
@@ -597,7 +721,11 @@ int ieee80211_wx_set_encode_ext(struct ieee80211_device *ieee,
 		goto done;
 	}
 
+<<<<<<< HEAD
 	if (*crypt == NULL || (*crypt)->ops != ops) {
+=======
+	if (!*crypt || (*crypt)->ops != ops) {
+>>>>>>> upstream/android-13
 		struct ieee80211_crypt_data *new_crypt;
 
 		ieee80211_crypt_delayed_deinit(ieee, crypt);
@@ -610,7 +738,11 @@ int ieee80211_wx_set_encode_ext(struct ieee80211_device *ieee,
 		new_crypt->ops = ops;
 		if (new_crypt->ops && try_module_get(new_crypt->ops->owner))
 			new_crypt->priv = new_crypt->ops->init(idx);
+<<<<<<< HEAD
 		if (new_crypt->priv == NULL) {
+=======
+		if (!new_crypt->priv) {
+>>>>>>> upstream/android-13
 			kfree(new_crypt);
 			ret = -EINVAL;
 			goto done;
@@ -636,7 +768,11 @@ int ieee80211_wx_set_encode_ext(struct ieee80211_device *ieee,
 	if (ext->alg != IW_ENCODE_ALG_NONE) {
 		//memcpy(sec.keys[idx], ext->key, ext->key_len);
 		sec.key_sizes[idx] = ext->key_len;
+<<<<<<< HEAD
 		sec.flags |= (1 << idx);
+=======
+		sec.flags |= BIT(idx);
+>>>>>>> upstream/android-13
 		if (ext->alg == IW_ENCODE_ALG_WEP) {
 		      //  sec.encode_alg[idx] = SEC_ALG_WEP;
 			sec.flags |= SEC_LEVEL;
@@ -698,12 +834,20 @@ int ieee80211_wx_get_encode_ext(struct ieee80211_device *ieee,
 	encoding->flags = idx + 1;
 	memset(ext, 0, sizeof(*ext));
 
+<<<<<<< HEAD
 	if (crypt == NULL || crypt->ops == NULL ) {
+=======
+	if (!crypt || !crypt->ops) {
+>>>>>>> upstream/android-13
 		ext->alg = IW_ENCODE_ALG_NONE;
 		ext->key_len = 0;
 		encoding->flags |= IW_ENCODE_DISABLED;
 	} else {
+<<<<<<< HEAD
 		if (strcmp(crypt->ops->name, "WEP") == 0 )
+=======
+		if (strcmp(crypt->ops->name, "WEP") == 0)
+>>>>>>> upstream/android-13
 			ext->alg = IW_ENCODE_ALG_WEP;
 		else if (strcmp(crypt->ops->name, "TKIP"))
 			ext->alg = IW_ENCODE_ALG_TKIP;
@@ -727,7 +871,11 @@ int ieee80211_wx_set_mlme(struct ieee80211_device *ieee,
 			       struct iw_request_info *info,
 			       union iwreq_data *wrqu, char *extra)
 {
+<<<<<<< HEAD
 	struct iw_mlme *mlme = (struct iw_mlme *) extra;
+=======
+	struct iw_mlme *mlme = (struct iw_mlme *)extra;
+>>>>>>> upstream/android-13
 	switch (mlme->cmd) {
 	case IW_MLME_DEAUTH:
 	case IW_MLME_DISASSOC:
@@ -766,6 +914,7 @@ int ieee80211_wx_set_auth(struct ieee80211_device *ieee,
 	case IW_AUTH_80211_AUTH_ALG:
 		//printk("======>%s():data->value is %d\n",__func__,data->value);
 	//	ieee->open_wep = (data->value&IW_AUTH_ALG_OPEN_SYSTEM)?1:0;
+<<<<<<< HEAD
 		if(data->value & IW_AUTH_ALG_SHARED_KEY){
 			ieee->open_wep = 0;
 			ieee->auth_mode = 1;
@@ -779,11 +928,27 @@ int ieee80211_wx_set_auth(struct ieee80211_device *ieee,
 			ieee->auth_mode = 2;
 		}
 		else
+=======
+		if (data->value & IW_AUTH_ALG_SHARED_KEY) {
+			ieee->open_wep = 0;
+			ieee->auth_mode = 1;
+		} else if (data->value & IW_AUTH_ALG_OPEN_SYSTEM) {
+			ieee->open_wep = 1;
+			ieee->auth_mode = 0;
+		} else if (data->value & IW_AUTH_ALG_LEAP) {
+			ieee->open_wep = 1;
+			ieee->auth_mode = 2;
+		} else
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		break;
 
 	case IW_AUTH_WPA_ENABLED:
+<<<<<<< HEAD
 		ieee->wpa_enabled = (data->value)?1:0;
+=======
+		ieee->wpa_enabled = (data->value) ? 1 : 0;
+>>>>>>> upstream/android-13
 		break;
 
 	case IW_AUTH_RX_UNENCRYPTED_EAPOL:
@@ -803,6 +968,7 @@ int ieee80211_wx_set_gen_ie(struct ieee80211_device *ieee, u8 *ie, size_t len)
 {
 	u8 *buf;
 
+<<<<<<< HEAD
 	if (len>MAX_WPA_IE_LEN || (len && ie == NULL))
 	{
 	//	printk("return error out, len:%d\n", len);
@@ -814,17 +980,35 @@ int ieee80211_wx_set_gen_ie(struct ieee80211_device *ieee, u8 *ie, size_t len)
 	{
 		if (len != ie[1]+2)
 		{
+=======
+	if (len > MAX_WPA_IE_LEN || (len && !ie)) {
+		//printk("return error out, len:%d\n", len);
+		return -EINVAL;
+	}
+
+
+	if (len) {
+		if (len != ie[1] + 2) {
+>>>>>>> upstream/android-13
 			printk("len:%zu, ie:%d\n", len, ie[1]);
 			return -EINVAL;
 		}
 		buf = kmemdup(ie, len, GFP_KERNEL);
+<<<<<<< HEAD
 		if (buf == NULL)
+=======
+		if (!buf)
+>>>>>>> upstream/android-13
 			return -ENOMEM;
 		kfree(ieee->wpa_ie);
 		ieee->wpa_ie = buf;
 		ieee->wpa_ie_len = len;
+<<<<<<< HEAD
 	}
 	else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		kfree(ieee->wpa_ie);
 		ieee->wpa_ie = NULL;
 		ieee->wpa_ie_len = 0;

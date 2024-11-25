@@ -111,7 +111,11 @@ struct visorinput_devdata {
 	/* size of following array */
 	unsigned int keycode_table_bytes;
 	/* for keyboard devices: visorkbd_keycode[] + visorkbd_ext_keycode[] */
+<<<<<<< HEAD
 	unsigned char keycode_table[0];
+=======
+	unsigned char keycode_table[];
+>>>>>>> upstream/android-13
 };
 
 static const guid_t visor_keyboard_channel_guid = VISOR_KEYBOARD_CHANNEL_GUID;
@@ -556,7 +560,10 @@ static void handle_locking_key(struct input_dev *visorinput_dev, int keycode,
 		led = LED_NUML;
 		break;
 	default:
+<<<<<<< HEAD
 		led = -1;
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 	if (test_bit(led, visorinput_dev->led) != desired_state) {

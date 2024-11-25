@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: BSD-3-Clause */
+>>>>>>> upstream/android-13
 /*
 	usa67msg.h
 

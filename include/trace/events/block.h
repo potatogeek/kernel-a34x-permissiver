@@ -64,7 +64,10 @@ DEFINE_EVENT(block_buffer, block_dirty_buffer,
 
 /**
  * block_rq_requeue - place block IO request back on a queue
+<<<<<<< HEAD
  * @q: queue holding operation
+=======
+>>>>>>> upstream/android-13
  * @rq: block IO operation request
  *
  * The block operation request @rq is being placed back into queue
@@ -73,9 +76,15 @@ DEFINE_EVENT(block_buffer, block_dirty_buffer,
  */
 TRACE_EVENT(block_rq_requeue,
 
+<<<<<<< HEAD
 	TP_PROTO(struct request_queue *q, struct request *rq),
 
 	TP_ARGS(q, rq),
+=======
+	TP_PROTO(struct request *rq),
+
+	TP_ARGS(rq),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field(  dev_t,	dev			)
@@ -90,7 +99,11 @@ TRACE_EVENT(block_rq_requeue,
 		__entry->sector    = blk_rq_trace_sector(rq);
 		__entry->nr_sector = blk_rq_trace_nr_sectors(rq);
 
+<<<<<<< HEAD
 		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags, blk_rq_bytes(rq));
+=======
+		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags);
+>>>>>>> upstream/android-13
 		__get_str(cmd)[0] = '\0';
 	),
 
@@ -134,7 +147,11 @@ TRACE_EVENT(block_rq_complete,
 		__entry->nr_sector = nr_bytes >> 9;
 		__entry->error     = error;
 
+<<<<<<< HEAD
 		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags, nr_bytes);
+=======
+		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags);
+>>>>>>> upstream/android-13
 		__get_str(cmd)[0] = '\0';
 	),
 
@@ -147,9 +164,15 @@ TRACE_EVENT(block_rq_complete,
 
 DECLARE_EVENT_CLASS(block_rq,
 
+<<<<<<< HEAD
 	TP_PROTO(struct request_queue *q, struct request *rq),
 
 	TP_ARGS(q, rq),
+=======
+	TP_PROTO(struct request *rq),
+
+	TP_ARGS(rq),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field(  dev_t,	dev			)
@@ -167,7 +190,11 @@ DECLARE_EVENT_CLASS(block_rq,
 		__entry->nr_sector = blk_rq_trace_nr_sectors(rq);
 		__entry->bytes     = blk_rq_bytes(rq);
 
+<<<<<<< HEAD
 		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags, blk_rq_bytes(rq));
+=======
+		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags);
+>>>>>>> upstream/android-13
 		__get_str(cmd)[0] = '\0';
 		memcpy(__entry->comm, current->comm, TASK_COMM_LEN);
 	),
@@ -181,7 +208,10 @@ DECLARE_EVENT_CLASS(block_rq,
 
 /**
  * block_rq_insert - insert block operation request into queue
+<<<<<<< HEAD
  * @q: target queue
+=======
+>>>>>>> upstream/android-13
  * @rq: block IO operation request
  *
  * Called immediately before block operation request @rq is inserted
@@ -191,21 +221,32 @@ DECLARE_EVENT_CLASS(block_rq,
  */
 DEFINE_EVENT(block_rq, block_rq_insert,
 
+<<<<<<< HEAD
 	TP_PROTO(struct request_queue *q, struct request *rq),
 
 	TP_ARGS(q, rq)
+=======
+	TP_PROTO(struct request *rq),
+
+	TP_ARGS(rq)
+>>>>>>> upstream/android-13
 );
 
 /**
  * block_rq_issue - issue pending block IO request operation to device driver
+<<<<<<< HEAD
  * @q: queue holding operation
  * @rq: block IO operation operation request
+=======
+ * @rq: block IO operation request
+>>>>>>> upstream/android-13
  *
  * Called when block operation request @rq from queue @q is sent to a
  * device driver for processing.
  */
 DEFINE_EVENT(block_rq, block_rq_issue,
 
+<<<<<<< HEAD
 	TP_PROTO(struct request_queue *q, struct request *rq),
 
 	TP_ARGS(q, rq)
@@ -248,22 +289,50 @@ TRACE_EVENT(block_bio_bounce,
 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->rwbs,
 		  (unsigned long long)__entry->sector,
 		  __entry->nr_sector, __entry->comm)
+=======
+	TP_PROTO(struct request *rq),
+
+	TP_ARGS(rq)
+);
+
+/**
+ * block_rq_merge - merge request with another one in the elevator
+ * @rq: block IO operation request
+ *
+ * Called when block operation request @rq from queue @q is merged to another
+ * request queued in the elevator.
+ */
+DEFINE_EVENT(block_rq, block_rq_merge,
+
+	TP_PROTO(struct request *rq),
+
+	TP_ARGS(rq)
+>>>>>>> upstream/android-13
 );
 
 /**
  * block_bio_complete - completed all work on the block operation
  * @q: queue holding the block operation
  * @bio: block operation completed
+<<<<<<< HEAD
  * @error: io error value
+=======
+>>>>>>> upstream/android-13
  *
  * This tracepoint indicates there is no further work to do on this
  * block IO operation @bio.
  */
 TRACE_EVENT(block_bio_complete,
 
+<<<<<<< HEAD
 	TP_PROTO(struct request_queue *q, struct bio *bio, int error),
 
 	TP_ARGS(q, bio, error),
+=======
+	TP_PROTO(struct request_queue *q, struct bio *bio),
+
+	TP_ARGS(q, bio),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field( dev_t,		dev		)
@@ -277,8 +346,13 @@ TRACE_EVENT(block_bio_complete,
 		__entry->dev		= bio_dev(bio);
 		__entry->sector		= bio->bi_iter.bi_sector;
 		__entry->nr_sector	= bio_sectors(bio);
+<<<<<<< HEAD
 		__entry->error		= error;
 		blk_fill_rwbs(__entry->rwbs, bio->bi_opf, bio->bi_iter.bi_size);
+=======
+		__entry->error		= blk_status_to_errno(bio->bi_status);
+		blk_fill_rwbs(__entry->rwbs, bio->bi_opf);
+>>>>>>> upstream/android-13
 	),
 
 	TP_printk("%d,%d %s %llu + %u [%d]",
@@ -287,11 +361,19 @@ TRACE_EVENT(block_bio_complete,
 		  __entry->nr_sector, __entry->error)
 );
 
+<<<<<<< HEAD
 DECLARE_EVENT_CLASS(block_bio_merge,
 
 	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
 
 	TP_ARGS(q, rq, bio),
+=======
+DECLARE_EVENT_CLASS(block_bio,
+
+	TP_PROTO(struct bio *bio),
+
+	TP_ARGS(bio),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field( dev_t,		dev			)
@@ -305,7 +387,11 @@ DECLARE_EVENT_CLASS(block_bio_merge,
 		__entry->dev		= bio_dev(bio);
 		__entry->sector		= bio->bi_iter.bi_sector;
 		__entry->nr_sector	= bio_sectors(bio);
+<<<<<<< HEAD
 		blk_fill_rwbs(__entry->rwbs, bio->bi_opf, bio->bi_iter.bi_size);
+=======
+		blk_fill_rwbs(__entry->rwbs, bio->bi_opf);
+>>>>>>> upstream/android-13
 		memcpy(__entry->comm, current->comm, TASK_COMM_LEN);
 	),
 
@@ -316,6 +402,7 @@ DECLARE_EVENT_CLASS(block_bio_merge,
 );
 
 /**
+<<<<<<< HEAD
  * block_bio_backmerge - merging block operation to the end of an existing operation
  * @q: queue holding operation
  * @rq: request bio is being merged into
@@ -329,10 +416,36 @@ DEFINE_EVENT(block_bio_merge, block_bio_backmerge,
 	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
 
 	TP_ARGS(q, rq, bio)
+=======
+ * block_bio_bounce - used bounce buffer when processing block operation
+ * @bio: block operation
+ *
+ * A bounce buffer was used to handle the block operation @bio in @q.
+ * This occurs when hardware limitations prevent a direct transfer of
+ * data between the @bio data memory area and the IO device.  Use of a
+ * bounce buffer requires extra copying of data and decreases
+ * performance.
+ */
+DEFINE_EVENT(block_bio, block_bio_bounce,
+	TP_PROTO(struct bio *bio),
+	TP_ARGS(bio)
+);
+
+/**
+ * block_bio_backmerge - merging block operation to the end of an existing operation
+ * @bio: new block operation to merge
+ *
+ * Merging block request @bio to the end of an existing block request.
+ */
+DEFINE_EVENT(block_bio, block_bio_backmerge,
+	TP_PROTO(struct bio *bio),
+	TP_ARGS(bio)
+>>>>>>> upstream/android-13
 );
 
 /**
  * block_bio_frontmerge - merging block operation to the beginning of an existing operation
+<<<<<<< HEAD
  * @q: queue holding operation
  * @rq: request bio is being merged into
  * @bio: new block operation to merge
@@ -345,15 +458,28 @@ DEFINE_EVENT(block_bio_merge, block_bio_frontmerge,
 	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
 
 	TP_ARGS(q, rq, bio)
+=======
+ * @bio: new block operation to merge
+ *
+ * Merging block IO operation @bio to the beginning of an existing block request.
+ */
+DEFINE_EVENT(block_bio, block_bio_frontmerge,
+	TP_PROTO(struct bio *bio),
+	TP_ARGS(bio)
+>>>>>>> upstream/android-13
 );
 
 /**
  * block_bio_queue - putting new block IO operation in queue
+<<<<<<< HEAD
  * @q: queue holding operation
+=======
+>>>>>>> upstream/android-13
  * @bio: new block operation
  *
  * About to place the block IO operation @bio into queue @q.
  */
+<<<<<<< HEAD
 TRACE_EVENT(block_bio_queue,
 
 	TP_PROTO(struct request_queue *q, struct bio *bio),
@@ -409,10 +535,16 @@ DECLARE_EVENT_CLASS(block_get_rq,
 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->rwbs,
 		  (unsigned long long)__entry->sector,
 		  __entry->nr_sector, __entry->comm)
+=======
+DEFINE_EVENT(block_bio, block_bio_queue,
+	TP_PROTO(struct bio *bio),
+	TP_ARGS(bio)
+>>>>>>> upstream/android-13
 );
 
 /**
  * block_getrq - get a free request entry in queue for block IO operations
+<<<<<<< HEAD
  * @q: queue for operations
  * @bio: pending block IO operation (can be %NULL)
  * @rw: low bit indicates a read (%0) or a write (%1)
@@ -443,6 +575,15 @@ DEFINE_EVENT(block_get_rq, block_sleeprq,
 	TP_PROTO(struct request_queue *q, struct bio *bio, int rw),
 
 	TP_ARGS(q, bio, rw)
+=======
+ * @bio: pending block IO operation (can be %NULL)
+ *
+ * A request struct has been allocated to handle the block IO operation @bio.
+ */
+DEFINE_EVENT(block_bio, block_getrq,
+	TP_PROTO(struct bio *bio),
+	TP_ARGS(bio)
+>>>>>>> upstream/android-13
 );
 
 /**
@@ -507,6 +648,7 @@ DEFINE_EVENT(block_unplug, block_unplug,
 
 /**
  * block_split - split a single bio struct into two bio structs
+<<<<<<< HEAD
  * @q: queue containing the bio
  * @bio: block operation being split
  * @new_sector: The starting sector for the new bio
@@ -522,6 +664,21 @@ TRACE_EVENT(block_split,
 		 unsigned int new_sector),
 
 	TP_ARGS(q, bio, new_sector),
+=======
+ * @bio: block operation being split
+ * @new_sector: The starting sector for the new bio
+ *
+ * The bio request @bio needs to be split into two bio requests.  The newly
+ * created @bio request starts at @new_sector. This split may be required due to
+ * hardware limitations such as operation crossing device boundaries in a RAID
+ * system.
+ */
+TRACE_EVENT(block_split,
+
+	TP_PROTO(struct bio *bio, unsigned int new_sector),
+
+	TP_ARGS(bio, new_sector),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field( dev_t,		dev				)
@@ -535,7 +692,11 @@ TRACE_EVENT(block_split,
 		__entry->dev		= bio_dev(bio);
 		__entry->sector		= bio->bi_iter.bi_sector;
 		__entry->new_sector	= new_sector;
+<<<<<<< HEAD
 		blk_fill_rwbs(__entry->rwbs, bio->bi_opf, bio->bi_iter.bi_size);
+=======
+		blk_fill_rwbs(__entry->rwbs, bio->bi_opf);
+>>>>>>> upstream/android-13
 		memcpy(__entry->comm, current->comm, TASK_COMM_LEN);
 	),
 
@@ -548,9 +709,14 @@ TRACE_EVENT(block_split,
 
 /**
  * block_bio_remap - map request for a logical device to the raw device
+<<<<<<< HEAD
  * @q: queue holding the operation
  * @bio: revised operation
  * @dev: device for the operation
+=======
+ * @bio: revised operation
+ * @dev: original device for the operation
+>>>>>>> upstream/android-13
  * @from: original sector for the operation
  *
  * An operation for a logical device has been mapped to the
@@ -558,10 +724,16 @@ TRACE_EVENT(block_split,
  */
 TRACE_EVENT(block_bio_remap,
 
+<<<<<<< HEAD
 	TP_PROTO(struct request_queue *q, struct bio *bio, dev_t dev,
 		 sector_t from),
 
 	TP_ARGS(q, bio, dev, from),
+=======
+	TP_PROTO(struct bio *bio, dev_t dev, sector_t from),
+
+	TP_ARGS(bio, dev, from),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field( dev_t,		dev		)
@@ -578,7 +750,11 @@ TRACE_EVENT(block_bio_remap,
 		__entry->nr_sector	= bio_sectors(bio);
 		__entry->old_dev	= dev;
 		__entry->old_sector	= from;
+<<<<<<< HEAD
 		blk_fill_rwbs(__entry->rwbs, bio->bi_opf, bio->bi_iter.bi_size);
+=======
+		blk_fill_rwbs(__entry->rwbs, bio->bi_opf);
+>>>>>>> upstream/android-13
 	),
 
 	TP_printk("%d,%d %s %llu + %u <- (%d,%d) %llu",
@@ -591,7 +767,10 @@ TRACE_EVENT(block_bio_remap,
 
 /**
  * block_rq_remap - map request for a block operation request
+<<<<<<< HEAD
  * @q: queue holding the operation
+=======
+>>>>>>> upstream/android-13
  * @rq: block IO operation request
  * @dev: device for the operation
  * @from: original sector for the operation
@@ -602,10 +781,16 @@ TRACE_EVENT(block_bio_remap,
  */
 TRACE_EVENT(block_rq_remap,
 
+<<<<<<< HEAD
 	TP_PROTO(struct request_queue *q, struct request *rq, dev_t dev,
 		 sector_t from),
 
 	TP_ARGS(q, rq, dev, from),
+=======
+	TP_PROTO(struct request *rq, dev_t dev, sector_t from),
+
+	TP_ARGS(rq, dev, from),
+>>>>>>> upstream/android-13
 
 	TP_STRUCT__entry(
 		__field( dev_t,		dev		)
@@ -624,7 +809,11 @@ TRACE_EVENT(block_rq_remap,
 		__entry->old_dev	= dev;
 		__entry->old_sector	= from;
 		__entry->nr_bios	= blk_rq_count_bios(rq);
+<<<<<<< HEAD
 		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags, blk_rq_bytes(rq));
+=======
+		blk_fill_rwbs(__entry->rwbs, rq->cmd_flags);
+>>>>>>> upstream/android-13
 	),
 
 	TP_printk("%d,%d %s %llu + %u <- (%d,%d) %llu %u",

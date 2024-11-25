@@ -7,6 +7,7 @@ static inline void init_kio(void)
 {
 }
 
+<<<<<<< HEAD
 static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {
 }
@@ -32,3 +33,6 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 static inline void deactivate_mm(struct task_struct *tsk, struct mm_struct *mm)
 {
 }
+=======
+#include <asm-generic/nommu_context.h>
+>>>>>>> upstream/android-13

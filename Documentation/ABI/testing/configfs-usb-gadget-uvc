@@ -3,15 +3,34 @@ Date:		Dec 2014
 KernelVersion:	4.0
 Description:	UVC function directory
 
+<<<<<<< HEAD
 		streaming_maxburst	- 0..15 (ss only)
 		streaming_maxpacket	- 1..1023 (fs), 1..3072 (hs/ss)
 		streaming_interval	- 1..16
+=======
+		===================	=============================
+		streaming_maxburst	0..15 (ss only)
+		streaming_maxpacket	1..1023 (fs), 1..3072 (hs/ss)
+		streaming_interval	1..16
+		function_name		string [32]
+		===================	=============================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/control
 Date:		Dec 2014
 KernelVersion:	4.0
 Description:	Control descriptors
 
+<<<<<<< HEAD
+=======
+		All attributes read only:
+
+		================	=============================
+		bInterfaceNumber	USB interface number for this
+					streaming interface
+		================	=============================
+
+>>>>>>> upstream/android-13
 What:		/config/usb-gadget/gadget/functions/uvc.name/control/class
 Date:		Dec 2014
 KernelVersion:	4.0
@@ -43,6 +62,7 @@ KernelVersion:	4.0
 Description:	Default output terminal descriptors
 
 		All attributes read only:
+<<<<<<< HEAD
 		iTerminal	- index of string descriptor
 		bSourceID 	- id of the terminal to which this terminal
 				is connected
@@ -50,6 +70,18 @@ Description:	Default output terminal descriptors
 				terminal is associated
 		wTerminalType	- terminal type
 		bTerminalID	- a non-zero id of this terminal
+=======
+
+		==============	=============================================
+		iTerminal	index of string descriptor
+		bSourceID	id of the terminal to which this terminal
+				is connected
+		bAssocTerminal	id of the input terminal to which this output
+				terminal is associated
+		wTerminalType	terminal type
+		bTerminalID	a non-zero id of this terminal
+		==============	=============================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/control/terminal/camera
 Date:		Dec 2014
@@ -62,6 +94,7 @@ KernelVersion:	4.0
 Description:	Default camera terminal descriptors
 
 		All attributes read only:
+<<<<<<< HEAD
 		bmControls		- bitmap specifying which controls are
 					supported for the video stream
 		wOcularFocalLength	- the value of Locular
@@ -72,6 +105,21 @@ Description:	Default camera terminal descriptors
 					this terminal is connected
 		wTerminalType		- terminal type
 		bTerminalID		- a non-zero id of this terminal
+=======
+
+		========================  ====================================
+		bmControls		  bitmap specifying which controls are
+					  supported for the video stream
+		wOcularFocalLength	  the value of Locular
+		wObjectiveFocalLengthMax  the value of Lmin
+		wObjectiveFocalLengthMin  the value of Lmax
+		iTerminal		  index of string descriptor
+		bAssocTerminal		  id of the output terminal to which
+					  this terminal is connected
+		wTerminalType		  terminal type
+		bTerminalID		  a non-zero id of this terminal
+		========================  ====================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/control/processing
 Date:		Dec 2014
@@ -84,6 +132,7 @@ KernelVersion:	4.0
 Description:	Default processing unit descriptors
 
 		All attributes read only:
+<<<<<<< HEAD
 		iProcessing	- index of string descriptor
 		bmControls	- bitmap specifying which controls are
 				supported for the video stream
@@ -91,6 +140,18 @@ Description:	Default processing unit descriptors
 		bSourceID	- id of the terminal to which this unit is
 				connected
 		bUnitID		- a non-zero id of this unit
+=======
+
+		===============	========================================
+		iProcessing	index of string descriptor
+		bmControls	bitmap specifying which controls are
+				supported for the video stream
+		wMaxMultiplier	maximum digital magnification x100
+		bSourceID	id of the terminal to which this unit is
+				connected
+		bUnitID		a non-zero id of this unit
+		===============	========================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/control/header
 Date:		Dec 2014
@@ -109,6 +170,16 @@ Date:		Dec 2014
 KernelVersion:	4.0
 Description:	Streaming descriptors
 
+<<<<<<< HEAD
+=======
+		All attributes read only:
+
+		================	=============================
+		bInterfaceNumber	USB interface number for this
+					streaming interface
+		================	=============================
+
+>>>>>>> upstream/android-13
 What:		/config/usb-gadget/gadget/functions/uvc.name/streaming/class
 Date:		Dec 2014
 KernelVersion:	4.0
@@ -140,6 +211,7 @@ KernelVersion:	4.0
 Description:	Default color matching descriptors
 
 		All attributes read only:
+<<<<<<< HEAD
 		bMatrixCoefficients	- matrix used to compute luma and
 					chroma values from the color primaries
 		bTransferCharacteristics- optoelectronic transfer
@@ -147,6 +219,18 @@ Description:	Default color matching descriptors
 					also called the gamma function
 		bColorPrimaries		- color primaries and the reference
 					white
+=======
+
+		========================  ======================================
+		bMatrixCoefficients	  matrix used to compute luma and
+					  chroma values from the color primaries
+		bTransferCharacteristics  optoelectronic transfer
+					  characteristic of the source picture,
+					  also called the gamma function
+		bColorPrimaries		  color primaries and the reference
+					  white
+		========================  ======================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/streaming/mjpeg
 Date:		Dec 2014
@@ -160,6 +244,7 @@ Description:	Specific MJPEG format descriptors
 
 		All attributes read only,
 		except bmaControls and bDefaultFrameIndex:
+<<<<<<< HEAD
 		bmaControls		- this format's data for bmaControls in
 					the streaming header
 		bmInterfaceFlags	- specifies interlace information,
@@ -171,12 +256,33 @@ Description:	Specific MJPEG format descriptors
 		bmFlags			- characteristics of this format,
 					read-only
 		bDefaultFrameIndex	- optimum frame index for this stream
+=======
+
+		===================	=====================================
+		bFormatIndex		unique id for this format descriptor;
+					only defined after parent header is
+					linked into the streaming class;
+					read-only
+		bmaControls		this format's data for bmaControls in
+					the streaming header
+		bmInterfaceFlags	specifies interlace information,
+					read-only
+		bAspectRatioY		the X dimension of the picture aspect
+					ratio, read-only
+		bAspectRatioX		the Y dimension of the picture aspect
+					ratio, read-only
+		bmFlags			characteristics of this format,
+					read-only
+		bDefaultFrameIndex	optimum frame index for this stream
+		===================	=====================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/streaming/mjpeg/name/name
 Date:		Dec 2014
 KernelVersion:	4.0
 Description:	Specific MJPEG frame descriptors
 
+<<<<<<< HEAD
 		dwFrameInterval		- indicates how frame interval can be
 					programmed; a number of values
 					separated by newline can be specified
@@ -193,6 +299,30 @@ Description:	Specific MJPEG frame descriptors
 		wWidth			- width of decoded bitmam frame in px
 		bmCapabilities		- still image support, fixed frame-rate
 					support
+=======
+		=========================  =====================================
+		bFrameIndex		   unique id for this framedescriptor;
+					   only defined after parent format is
+					   linked into the streaming header;
+					   read-only
+		dwFrameInterval		   indicates how frame interval can be
+					   programmed; a number of values
+					   separated by newline can be specified
+		dwDefaultFrameInterval	   the frame interval the device would
+					   like to use as default
+		dwMaxVideoFrameBufferSize  the maximum number of bytes the
+					   compressor will produce for a video
+					   frame or still image
+		dwMaxBitRate		   the maximum bit rate at the shortest
+					   frame interval in bps
+		dwMinBitRate		   the minimum bit rate at the longest
+					   frame interval in bps
+		wHeight			   height of decoded bitmap frame in px
+		wWidth			   width of decoded bitmam frame in px
+		bmCapabilities		   still image support, fixed frame-rate
+					   support
+		=========================  =====================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/streaming/uncompressed
 Date:		Dec 2014
@@ -204,6 +334,7 @@ Date:		Dec 2014
 KernelVersion:	4.0
 Description:	Specific uncompressed format descriptors
 
+<<<<<<< HEAD
 		bmaControls		- this format's data for bmaControls in
 					the streaming header
 		bmInterfaceFlags	- specifies interlace information,
@@ -218,12 +349,35 @@ Description:	Specific uncompressed format descriptors
 					frame
 		guidFormat		- globally unique id used to identify
 					stream-encoding format
+=======
+		==================	=======================================
+		bFormatIndex		unique id for this format descriptor;
+					only defined after parent header is
+					linked into the streaming class;
+					read-only
+		bmaControls		this format's data for bmaControls in
+					the streaming header
+		bmInterfaceFlags	specifies interlace information,
+					read-only
+		bAspectRatioY		the X dimension of the picture aspect
+					ratio, read-only
+		bAspectRatioX		the Y dimension of the picture aspect
+					ratio, read-only
+		bDefaultFrameIndex	optimum frame index for this stream
+		bBitsPerPixel		number of bits per pixel used to
+					specify color in the decoded video
+					frame
+		guidFormat		globally unique id used to identify
+					stream-encoding format
+		==================	=======================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/streaming/uncompressed/name/name
 Date:		Dec 2014
 KernelVersion:	4.0
 Description:	Specific uncompressed frame descriptors
 
+<<<<<<< HEAD
 		dwFrameInterval		- indicates how frame interval can be
 					programmed; a number of values
 					separated by newline can be specified
@@ -240,6 +394,30 @@ Description:	Specific uncompressed frame descriptors
 		wWidth			- width of decoded bitmam frame in px
 		bmCapabilities		- still image support, fixed frame-rate
 					support
+=======
+		=========================  =====================================
+		bFrameIndex		   unique id for this framedescriptor;
+					   only defined after parent format is
+					   linked into the streaming header;
+					   read-only
+		dwFrameInterval		   indicates how frame interval can be
+					   programmed; a number of values
+					   separated by newline can be specified
+		dwDefaultFrameInterval	   the frame interval the device would
+					   like to use as default
+		dwMaxVideoFrameBufferSize  the maximum number of bytes the
+					   compressor will produce for a video
+					   frame or still image
+		dwMaxBitRate		   the maximum bit rate at the shortest
+					   frame interval in bps
+		dwMinBitRate		   the minimum bit rate at the longest
+					   frame interval in bps
+		wHeight			   height of decoded bitmap frame in px
+		wWidth			   width of decoded bitmam frame in px
+		bmCapabilities		   still image support, fixed frame-rate
+					   support
+		=========================  =====================================
+>>>>>>> upstream/android-13
 
 What:		/config/usb-gadget/gadget/functions/uvc.name/streaming/header
 Date:		Dec 2014
@@ -252,6 +430,7 @@ KernelVersion:	4.0
 Description:	Specific streaming header descriptors
 
 		All attributes read only:
+<<<<<<< HEAD
 		bTriggerUsage		- how the host software will respond to
 					a hardware trigger interrupt event
 		bTriggerSupport		- flag specifying if hardware
@@ -263,6 +442,22 @@ Description:	Specific streaming header descriptors
 					is connected
 		bmInfo			- capabilities of this video streaming
 					interface
+=======
+
+		====================	=====================================
+		bTriggerUsage		how the host software will respond to
+					a hardware trigger interrupt event
+		bTriggerSupport		flag specifying if hardware
+					triggering is supported
+		bStillCaptureMethod	method of still image capture
+					supported
+		bTerminalLink		id of the output terminal to which
+					the video endpoint of this interface
+					is connected
+		bmInfo			capabilities of this video streaming
+					interface
+		====================	=====================================
+>>>>>>> upstream/android-13
 
 What:		/sys/class/udc/udc.name/device/gadget/video4linux/video.name/function_name
 Date:		May 2018

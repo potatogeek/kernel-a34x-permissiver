@@ -145,14 +145,21 @@ static int upd78f0730_send_ctl(struct usb_serial_port *port,
 
 	kfree(buf);
 
+<<<<<<< HEAD
 	if (res != size) {
+=======
+	if (res < 0) {
+>>>>>>> upstream/android-13
 		struct device *dev = &port->dev;
 
 		dev_err(dev, "failed to send control request %02x: %d\n",
 			*(u8 *)data, res);
+<<<<<<< HEAD
 		/* The maximum expected length of a transfer is 6 bytes */
 		if (res >= 0)
 			res = -EIO;
+=======
+>>>>>>> upstream/android-13
 
 		return res;
 	}
@@ -174,20 +181,30 @@ static int upd78f0730_port_probe(struct usb_serial_port *port)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int upd78f0730_port_remove(struct usb_serial_port *port)
+=======
+static void upd78f0730_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct upd78f0730_port_private *private;
 
 	private = usb_get_serial_port_data(port);
 	mutex_destroy(&private->lock);
 	kfree(private);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int upd78f0730_tiocmget(struct tty_struct *tty)
 {
+<<<<<<< HEAD
 	struct device *dev = tty->dev;
+=======
+>>>>>>> upstream/android-13
 	struct upd78f0730_port_private *private;
 	struct usb_serial_port *port = tty->driver_data;
 	int signals;
@@ -202,7 +219,11 @@ static int upd78f0730_tiocmget(struct tty_struct *tty)
 	res = ((signals & UPD78F0730_DTR) ? TIOCM_DTR : 0) |
 		((signals & UPD78F0730_RTS) ? TIOCM_RTS : 0);
 
+<<<<<<< HEAD
 	dev_dbg(dev, "%s - res = %x\n", __func__, res);
+=======
+	dev_dbg(&port->dev, "%s - res = %x\n", __func__, res);
+>>>>>>> upstream/android-13
 
 	return res;
 }
@@ -210,10 +231,17 @@ static int upd78f0730_tiocmget(struct tty_struct *tty)
 static int upd78f0730_tiocmset(struct tty_struct *tty,
 			unsigned int set, unsigned int clear)
 {
+<<<<<<< HEAD
 	struct device *dev = tty->dev;
 	struct usb_serial_port *port = tty->driver_data;
 	struct upd78f0730_port_private *private;
 	struct upd78f0730_set_dtr_rts request;
+=======
+	struct usb_serial_port *port = tty->driver_data;
+	struct upd78f0730_port_private *private;
+	struct upd78f0730_set_dtr_rts request;
+	struct device *dev = &port->dev;
+>>>>>>> upstream/android-13
 	int res;
 
 	private = usb_get_serial_port_data(port);
@@ -246,10 +274,17 @@ static int upd78f0730_tiocmset(struct tty_struct *tty,
 
 static void upd78f0730_break_ctl(struct tty_struct *tty, int break_state)
 {
+<<<<<<< HEAD
 	struct device *dev = tty->dev;
 	struct upd78f0730_port_private *private;
 	struct usb_serial_port *port = tty->driver_data;
 	struct upd78f0730_set_dtr_rts request;
+=======
+	struct upd78f0730_port_private *private;
+	struct usb_serial_port *port = tty->driver_data;
+	struct upd78f0730_set_dtr_rts request;
+	struct device *dev = &port->dev;
+>>>>>>> upstream/android-13
 
 	private = usb_get_serial_port_data(port);
 
@@ -332,7 +367,11 @@ static void upd78f0730_set_termios(struct tty_struct *tty,
 		tty->termios.c_cflag &= ~CSIZE;
 		tty->termios.c_cflag |= CS8;
 		dev_warn(dev, "data size is not supported, using 8 bits\n");
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case CS8:
 		request.params |= UPD78F0730_DATA_SIZE_8_BITS;
 		dev_dbg(dev, "%s - 8 data bits\n", __func__);

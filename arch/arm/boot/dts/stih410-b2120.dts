@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 STMicroelectronics (R&D) Limited.
  * Author: Peter Griffin <peter.griffin@linaro.org>
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 STMicroelectronics (R&D) Limited.
+ * Author: Peter Griffin <peter.griffin@linaro.org>
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "stih410.dtsi"
@@ -14,7 +21,10 @@
 	compatible = "st,stih410-b2120", "st,stih410";
 
 	chosen {
+<<<<<<< HEAD
 		bootargs = "clk_ignore_unused";
+=======
+>>>>>>> upstream/android-13
 		stdout-path = &sbc_serial0;
 	};
 

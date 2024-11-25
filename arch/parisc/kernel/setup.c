@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *    Initial setup-routines for HP 9000 based hardware.
  *
@@ -9,6 +13,7 @@
  *    Modifications copyright 2001 Ryan Bradetich <rbradetich@uswest.net>
  *
  *    Initial PA-RISC Version: 04-23-1999 by Helge Deller
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -40,6 +47,10 @@
 #include <linux/sched/clock.h>
 #include <linux/start_kernel.h>
 
+<<<<<<< HEAD
+=======
+#include <asm/cacheflush.h>
+>>>>>>> upstream/android-13
 #include <asm/processor.h>
 #include <asm/sections.h>
 #include <asm/pdc.h>
@@ -99,10 +110,13 @@ void __init dma_ops_init(void)
 
 	case pcxl2:
 		pa7300lc_init();
+<<<<<<< HEAD
 	case pcxl: /* falls through */
 	case pcxs:
 	case pcxt:
 		hppa_dma_ops = &dma_noncoherent_ops;
+=======
+>>>>>>> upstream/android-13
 		break;
 	default:
 		break;
@@ -168,10 +182,13 @@ void __init setup_arch(char **cmdline_p)
 	dma_ops_init();
 #endif
 
+<<<<<<< HEAD
 #if defined(CONFIG_VT) && defined(CONFIG_DUMMY_CONSOLE)
 	conswitchp = &dummy_con;	/* we use do_take_over_console() later ! */
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	clear_sched_clock_stable();
 }
 
@@ -289,7 +306,11 @@ static int __init parisc_init_resources(void)
 	result = request_resource(&iomem_resource, &local_broadcast);
 	if (result < 0) {
 		printk(KERN_ERR 
+<<<<<<< HEAD
 		       "%s: failed to claim %saddress space!\n", 
+=======
+		       "%s: failed to claim %s address space!\n",
+>>>>>>> upstream/android-13
 		       __FILE__, local_broadcast.name);
 		return result;
 	}
@@ -346,6 +367,16 @@ static int __init parisc_init(void)
 			boot_cpu_data.cpu_hz / 1000000,
 			boot_cpu_data.cpu_hz % 1000000	);
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_64BIT) && defined(CONFIG_SMP)
+	/* Don't serialize TLB flushes if we run on one CPU only. */
+	if (num_online_cpus() == 1)
+		pa_serialize_tlb_flushes = 0;
+#endif
+
+	apply_alternatives_all();
+>>>>>>> upstream/android-13
 	parisc_setup_cache_timing();
 
 	/* These are in a non-obvious order, will fix when we have an iotree */

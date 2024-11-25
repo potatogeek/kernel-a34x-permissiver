@@ -20,7 +20,11 @@ int s390_sha_update(struct shash_desc *desc, const u8 *data, unsigned int len)
 	unsigned int index, n;
 
 	/* how much is already in the buffer? */
+<<<<<<< HEAD
 	index = ctx->count & (bsize - 1);
+=======
+	index = ctx->count % bsize;
+>>>>>>> upstream/android-13
 	ctx->count += len;
 
 	if ((index + len) < bsize)
@@ -37,7 +41,11 @@ int s390_sha_update(struct shash_desc *desc, const u8 *data, unsigned int len)
 
 	/* process as many blocks as possible */
 	if (len >= bsize) {
+<<<<<<< HEAD
 		n = len & ~(bsize - 1);
+=======
+		n = (len / bsize) * bsize;
+>>>>>>> upstream/android-13
 		cpacf_kimd(ctx->func, ctx->state, data, n);
 		data += n;
 		len -= n;
@@ -50,11 +58,34 @@ store:
 }
 EXPORT_SYMBOL_GPL(s390_sha_update);
 
+<<<<<<< HEAD
+=======
+static int s390_crypto_shash_parmsize(int func)
+{
+	switch (func) {
+	case CPACF_KLMD_SHA_1:
+		return 20;
+	case CPACF_KLMD_SHA_256:
+		return 32;
+	case CPACF_KLMD_SHA_512:
+		return 64;
+	case CPACF_KLMD_SHA3_224:
+	case CPACF_KLMD_SHA3_256:
+	case CPACF_KLMD_SHA3_384:
+	case CPACF_KLMD_SHA3_512:
+		return 200;
+	default:
+		return -EINVAL;
+	}
+}
+
+>>>>>>> upstream/android-13
 int s390_sha_final(struct shash_desc *desc, u8 *out)
 {
 	struct s390_sha_ctx *ctx = shash_desc_ctx(desc);
 	unsigned int bsize = crypto_shash_blocksize(desc->tfm);
 	u64 bits;
+<<<<<<< HEAD
 	unsigned int index, end, plen;
 
 	/* SHA-512 uses 128 bit padding length */
@@ -78,6 +109,44 @@ int s390_sha_final(struct shash_desc *desc, u8 *out)
 	bits = ctx->count * 8;
 	memcpy(ctx->buf + end - 8, &bits, sizeof(bits));
 	cpacf_kimd(ctx->func, ctx->state, ctx->buf, end);
+=======
+	unsigned int n;
+	int mbl_offset;
+
+	n = ctx->count % bsize;
+	bits = ctx->count * 8;
+	mbl_offset = s390_crypto_shash_parmsize(ctx->func);
+	if (mbl_offset < 0)
+		return -EINVAL;
+
+	mbl_offset = mbl_offset / sizeof(u32);
+
+	/* set total msg bit length (mbl) in CPACF parmblock */
+	switch (ctx->func) {
+	case CPACF_KLMD_SHA_1:
+	case CPACF_KLMD_SHA_256:
+		memcpy(ctx->state + mbl_offset, &bits, sizeof(bits));
+		break;
+	case CPACF_KLMD_SHA_512:
+		/*
+		 * the SHA512 parmblock has a 128-bit mbl field, clear
+		 * high-order u64 field, copy bits to low-order u64 field
+		 */
+		memset(ctx->state + mbl_offset, 0x00, sizeof(bits));
+		mbl_offset += sizeof(u64) / sizeof(u32);
+		memcpy(ctx->state + mbl_offset, &bits, sizeof(bits));
+		break;
+	case CPACF_KLMD_SHA3_224:
+	case CPACF_KLMD_SHA3_256:
+	case CPACF_KLMD_SHA3_384:
+	case CPACF_KLMD_SHA3_512:
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	cpacf_klmd(ctx->func, ctx->state, ctx->buf, n);
+>>>>>>> upstream/android-13
 
 	/* copy digest to out */
 	memcpy(out, ctx->state, crypto_shash_digestsize(desc->tfm));

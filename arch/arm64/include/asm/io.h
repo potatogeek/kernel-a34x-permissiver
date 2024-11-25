@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/include/asm/io.h
  *
  * Copyright (C) 1996-2000 Russell King
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,24 +20,37 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ASM_IO_H
 #define __ASM_IO_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
 #include <linux/types.h>
+=======
+#include <linux/types.h>
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/byteorder.h>
 #include <asm/barrier.h>
 #include <asm/memory.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/early_ioremap.h>
 #include <asm/alternative.h>
 #include <asm/cpufeature.h>
 
+<<<<<<< HEAD
 #include <xen/xen.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Generic IO read/write.  These perform native-endian accesses.
  */
@@ -49,7 +67,11 @@ static inline void __raw_writew(u16 val, volatile void __iomem *addr)
 }
 
 #define __raw_writel __raw_writel
+<<<<<<< HEAD
 static inline void __raw_writel(u32 val, volatile void __iomem *addr)
+=======
+static __always_inline void __raw_writel(u32 val, volatile void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	asm volatile("str %w0, [%1]" : : "rZ" (val), "r" (addr));
 }
@@ -84,7 +106,11 @@ static inline u16 __raw_readw(const volatile void __iomem *addr)
 }
 
 #define __raw_readl __raw_readl
+<<<<<<< HEAD
 static inline u32 __raw_readl(const volatile void __iomem *addr)
+=======
+static __always_inline u32 __raw_readl(const volatile void __iomem *addr)
+>>>>>>> upstream/android-13
 {
 	u32 val;
 	asm volatile(ALTERNATIVE("ldr %w0, [%1]",
@@ -110,7 +136,11 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
 ({									\
 	unsigned long tmp;						\
 									\
+<<<<<<< HEAD
 	rmb();								\
+=======
+	dma_rmb();								\
+>>>>>>> upstream/android-13
 									\
 	/*								\
 	 * Create a dummy control dependency from the IO read to any	\
@@ -123,9 +153,15 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
 		     : "memory");					\
 })
 
+<<<<<<< HEAD
 #define __iowmb()		wmb()
 
 #define mmiowb()		do { } while (0)
+=======
+#define __io_par(v)		__iormb(v)
+#define __iowmb()		dma_wmb()
+#define __iomb()		dma_mb()
+>>>>>>> upstream/android-13
 
 /*
  * Relaxed I/O memory access primitives. These follow the Device memory
@@ -179,6 +215,7 @@ extern void __memset_io(volatile void __iomem *, int, size_t);
  * I/O memory mapping functions.
  */
 extern void __iomem *__ioremap(phys_addr_t phys_addr, size_t size, pgprot_t prot);
+<<<<<<< HEAD
 extern void __iounmap(volatile void __iomem *addr);
 extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
 
@@ -197,6 +234,14 @@ extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
  * Architecture reference manual Issue A.k B2.8.2 "Device memory".
  */
 #define pci_remap_cfgspace(addr, size) __ioremap((addr), (size), __pgprot(PROT_DEVICE_nGnRnE))
+=======
+extern void iounmap(volatile void __iomem *addr);
+extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
+
+#define ioremap(addr, size)		__ioremap((addr), (size), __pgprot(PROT_DEVICE_nGnRE))
+#define ioremap_wc(addr, size)		__ioremap((addr), (size), __pgprot(PROT_NORMAL_NC))
+#define ioremap_np(addr, size)		__ioremap((addr), (size), __pgprot(PROT_DEVICE_nGnRnE))
+>>>>>>> upstream/android-13
 
 /*
  * io{read,write}{16,32,64}be() macros
@@ -219,6 +264,7 @@ extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
 extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
 extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
 
+<<<<<<< HEAD
 extern int devmem_is_allowed(unsigned long pfn);
 
 struct bio_vec;
@@ -229,4 +275,10 @@ extern bool xen_biovec_phys_mergeable(const struct bio_vec *vec1,
 	 (!xen_domain() || xen_biovec_phys_mergeable(vec1, vec2)))
 
 #endif	/* __KERNEL__ */
+=======
+extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
+					unsigned long flags);
+#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
+
+>>>>>>> upstream/android-13
 #endif	/* __ASM_IO_H */

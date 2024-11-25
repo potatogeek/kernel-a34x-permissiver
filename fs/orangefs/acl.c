@@ -10,12 +10,22 @@
 #include "orangefs-bufmap.h"
 #include <linux/posix_acl_xattr.h>
 
+<<<<<<< HEAD
 struct posix_acl *orangefs_get_acl(struct inode *inode, int type)
+=======
+struct posix_acl *orangefs_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	struct posix_acl *acl;
 	int ret;
 	char *key = NULL, *value = NULL;
 
+<<<<<<< HEAD
+=======
+	if (rcu)
+		return ERR_PTR(-ECHILD);
+
+>>>>>>> upstream/android-13
 	switch (type) {
 	case ACL_TYPE_ACCESS:
 		key = XATTR_NAME_POSIX_ACL_ACCESS;
@@ -116,12 +126,22 @@ out:
 	return error;
 }
 
+<<<<<<< HEAD
 int orangefs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+=======
+int orangefs_set_acl(struct user_namespace *mnt_userns, struct inode *inode,
+		     struct posix_acl *acl, int type)
+>>>>>>> upstream/android-13
 {
 	int error;
 	struct iattr iattr;
 	int rc;
 
+<<<<<<< HEAD
+=======
+	memset(&iattr, 0, sizeof iattr);
+
+>>>>>>> upstream/android-13
 	if (type == ACL_TYPE_ACCESS && acl) {
 		/*
 		 * posix_acl_update_mode checks to see if the permissions
@@ -130,7 +150,12 @@ int orangefs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 		 * and "mode" to the new desired value. It is up to
 		 * us to propagate the new mode back to the server...
 		 */
+<<<<<<< HEAD
 		error = posix_acl_update_mode(inode, &iattr.ia_mode, &acl);
+=======
+		error = posix_acl_update_mode(&init_user_ns, inode,
+					      &iattr.ia_mode, &acl);
+>>>>>>> upstream/android-13
 		if (error) {
 			gossip_err("%s: posix_acl_update_mode err: %d\n",
 				   __func__,
@@ -138,6 +163,7 @@ int orangefs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 			return error;
 		}
 
+<<<<<<< HEAD
 		if (acl) {
 			rc = __orangefs_set_acl(inode, acl, type);
 		} else {
@@ -150,6 +176,19 @@ int orangefs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 	} else {
 		return -EINVAL;
 	}
+=======
+		if (inode->i_mode != iattr.ia_mode)
+			iattr.ia_valid = ATTR_MODE;
+
+	}
+
+	rc = __orangefs_set_acl(inode, acl, type);
+
+	if (!rc && (iattr.ia_valid == ATTR_MODE))
+		rc = __orangefs_setattr(inode, &iattr);
+
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 int orangefs_init_acl(struct inode *inode, struct inode *dir)
@@ -167,12 +206,22 @@ int orangefs_init_acl(struct inode *inode, struct inode *dir)
 		error = __orangefs_set_acl(inode, default_acl,
 					   ACL_TYPE_DEFAULT);
 		posix_acl_release(default_acl);
+<<<<<<< HEAD
+=======
+	} else {
+		inode->i_default_acl = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	if (acl) {
 		if (!error)
 			error = __orangefs_set_acl(inode, acl, ACL_TYPE_ACCESS);
 		posix_acl_release(acl);
+<<<<<<< HEAD
+=======
+	} else {
+		inode->i_acl = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	/* If mode of the inode was changed, then do a forcible ->setattr */
@@ -181,7 +230,11 @@ int orangefs_init_acl(struct inode *inode, struct inode *dir)
 		inode->i_mode = mode;
 		iattr.ia_mode = mode;
 		iattr.ia_valid |= ATTR_MODE;
+<<<<<<< HEAD
 		orangefs_inode_setattr(inode, &iattr);
+=======
+		__orangefs_setattr(inode, &iattr);
+>>>>>>> upstream/android-13
 	}
 
 	return error;

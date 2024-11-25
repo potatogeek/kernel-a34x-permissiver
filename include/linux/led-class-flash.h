@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * LED Flash class interface
  *
  * Copyright (C) 2015 Samsung Electronics Co., Ltd.
  * Author: Jacek Anaszewski <j.anaszewski@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_FLASH_LEDS_H_INCLUDED
 #define __LINUX_FLASH_LEDS_H_INCLUDED
@@ -89,6 +96,7 @@ static inline struct led_classdev_flash *lcdev_to_flcdev(
 	return container_of(lcdev, struct led_classdev_flash, led_cdev);
 }
 
+<<<<<<< HEAD
 /**
  * led_classdev_flash_register - register a new object of led_classdev class
  *				 with support for flash LEDs
@@ -99,6 +107,21 @@ static inline struct led_classdev_flash *lcdev_to_flcdev(
  */
 extern int led_classdev_flash_register(struct device *parent,
 				struct led_classdev_flash *fled_cdev);
+=======
+#if IS_ENABLED(CONFIG_LEDS_CLASS_FLASH)
+/**
+ * led_classdev_flash_register_ext - register a new object of LED class with
+ *				     init data and with support for flash LEDs
+ * @parent: LED flash controller device this flash LED is driven by
+ * @fled_cdev: the led_classdev_flash structure for this device
+ * @init_data: the LED class flash device initialization data
+ *
+ * Returns: 0 on success or negative error value on failure
+ */
+int led_classdev_flash_register_ext(struct device *parent,
+				    struct led_classdev_flash *fled_cdev,
+				    struct led_init_data *init_data);
+>>>>>>> upstream/android-13
 
 /**
  * led_classdev_flash_unregister - unregisters an object of led_classdev class
@@ -107,7 +130,54 @@ extern int led_classdev_flash_register(struct device *parent,
  *
  * Unregister a previously registered via led_classdev_flash_register object
  */
+<<<<<<< HEAD
 extern void led_classdev_flash_unregister(struct led_classdev_flash *fled_cdev);
+=======
+void led_classdev_flash_unregister(struct led_classdev_flash *fled_cdev);
+
+int devm_led_classdev_flash_register_ext(struct device *parent,
+				     struct led_classdev_flash *fled_cdev,
+				     struct led_init_data *init_data);
+
+
+void devm_led_classdev_flash_unregister(struct device *parent,
+					struct led_classdev_flash *fled_cdev);
+
+#else
+
+static inline int led_classdev_flash_register_ext(struct device *parent,
+				    struct led_classdev_flash *fled_cdev,
+				    struct led_init_data *init_data)
+{
+	return 0;
+}
+
+static inline void led_classdev_flash_unregister(struct led_classdev_flash *fled_cdev) {};
+static inline int devm_led_classdev_flash_register_ext(struct device *parent,
+				     struct led_classdev_flash *fled_cdev,
+				     struct led_init_data *init_data)
+{
+	return 0;
+}
+
+static inline void devm_led_classdev_flash_unregister(struct device *parent,
+					struct led_classdev_flash *fled_cdev)
+{};
+
+#endif  /* IS_ENABLED(CONFIG_LEDS_CLASS_FLASH) */
+
+static inline int led_classdev_flash_register(struct device *parent,
+					   struct led_classdev_flash *fled_cdev)
+{
+	return led_classdev_flash_register_ext(parent, fled_cdev, NULL);
+}
+
+static inline int devm_led_classdev_flash_register(struct device *parent,
+				     struct led_classdev_flash *fled_cdev)
+{
+	return devm_led_classdev_flash_register_ext(parent, fled_cdev, NULL);
+}
+>>>>>>> upstream/android-13
 
 /**
  * led_set_flash_strobe - setup flash strobe
@@ -155,8 +225,13 @@ static inline int led_get_flash_strobe(struct led_classdev_flash *fled_cdev,
  *
  * Returns: 0 on success or negative error value on failure
  */
+<<<<<<< HEAD
 extern int led_set_flash_brightness(struct led_classdev_flash *fled_cdev,
 					u32 brightness);
+=======
+int led_set_flash_brightness(struct led_classdev_flash *fled_cdev,
+			     u32 brightness);
+>>>>>>> upstream/android-13
 
 /**
  * led_update_flash_brightness - update flash LED brightness
@@ -167,7 +242,11 @@ extern int led_set_flash_brightness(struct led_classdev_flash *fled_cdev,
  *
  * Returns: 0 on success or negative error value on failure
  */
+<<<<<<< HEAD
 extern int led_update_flash_brightness(struct led_classdev_flash *fled_cdev);
+=======
+int led_update_flash_brightness(struct led_classdev_flash *fled_cdev);
+>>>>>>> upstream/android-13
 
 /**
  * led_set_flash_timeout - set flash LED timeout
@@ -178,8 +257,12 @@ extern int led_update_flash_brightness(struct led_classdev_flash *fled_cdev);
  *
  * Returns: 0 on success or negative error value on failure
  */
+<<<<<<< HEAD
 extern int led_set_flash_timeout(struct led_classdev_flash *fled_cdev,
 					u32 timeout);
+=======
+int led_set_flash_timeout(struct led_classdev_flash *fled_cdev, u32 timeout);
+>>>>>>> upstream/android-13
 
 /**
  * led_get_flash_fault - get the flash LED fault
@@ -190,7 +273,11 @@ extern int led_set_flash_timeout(struct led_classdev_flash *fled_cdev,
  *
  * Returns: 0 on success or negative error value on failure
  */
+<<<<<<< HEAD
 extern int led_get_flash_fault(struct led_classdev_flash *fled_cdev,
 					u32 *fault);
+=======
+int led_get_flash_fault(struct led_classdev_flash *fled_cdev, u32 *fault);
+>>>>>>> upstream/android-13
 
 #endif	/* __LINUX_FLASH_LEDS_H_INCLUDED */

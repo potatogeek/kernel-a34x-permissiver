@@ -124,13 +124,18 @@ static int ipoib_mcg_seq_show(struct seq_file *file, void *iter_ptr)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct seq_operations ipoib_mcg_seq_ops = {
+=======
+static const struct seq_operations ipoib_mcg_sops = {
+>>>>>>> upstream/android-13
 	.start = ipoib_mcg_seq_start,
 	.next  = ipoib_mcg_seq_next,
 	.stop  = ipoib_mcg_seq_stop,
 	.show  = ipoib_mcg_seq_show,
 };
 
+<<<<<<< HEAD
 static int ipoib_mcg_open(struct inode *inode, struct file *file)
 {
 	struct seq_file *seq;
@@ -153,6 +158,9 @@ static const struct file_operations ipoib_mcg_fops = {
 	.llseek  = seq_lseek,
 	.release = seq_release
 };
+=======
+DEFINE_SEQ_ATTRIBUTE(ipoib_mcg);
+>>>>>>> upstream/android-13
 
 static void *ipoib_path_seq_start(struct seq_file *file, loff_t *pos)
 {
@@ -229,13 +237,18 @@ static int ipoib_path_seq_show(struct seq_file *file, void *iter_ptr)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct seq_operations ipoib_path_seq_ops = {
+=======
+static const struct seq_operations ipoib_path_sops = {
+>>>>>>> upstream/android-13
 	.start = ipoib_path_seq_start,
 	.next  = ipoib_path_seq_next,
 	.stop  = ipoib_path_seq_stop,
 	.show  = ipoib_path_seq_show,
 };
 
+<<<<<<< HEAD
 static int ipoib_path_open(struct inode *inode, struct file *file)
 {
 	struct seq_file *seq;
@@ -258,6 +271,9 @@ static const struct file_operations ipoib_path_fops = {
 	.llseek  = seq_lseek,
 	.release = seq_release
 };
+=======
+DEFINE_SEQ_ATTRIBUTE(ipoib_path);
+>>>>>>> upstream/android-13
 
 void ipoib_create_debug_files(struct net_device *dev)
 {
@@ -267,14 +283,20 @@ void ipoib_create_debug_files(struct net_device *dev)
 	snprintf(name, sizeof(name), "%s_mcg", dev->name);
 	priv->mcg_dentry = debugfs_create_file(name, S_IFREG | S_IRUGO,
 					       ipoib_root, dev, &ipoib_mcg_fops);
+<<<<<<< HEAD
 	if (!priv->mcg_dentry)
 		ipoib_warn(priv, "failed to create mcg debug file\n");
+=======
+>>>>>>> upstream/android-13
 
 	snprintf(name, sizeof(name), "%s_path", dev->name);
 	priv->path_dentry = debugfs_create_file(name, S_IFREG | S_IRUGO,
 						ipoib_root, dev, &ipoib_path_fops);
+<<<<<<< HEAD
 	if (!priv->path_dentry)
 		ipoib_warn(priv, "failed to create path debug file\n");
+=======
+>>>>>>> upstream/android-13
 }
 
 void ipoib_delete_debug_files(struct net_device *dev)
@@ -286,10 +308,16 @@ void ipoib_delete_debug_files(struct net_device *dev)
 	priv->mcg_dentry = priv->path_dentry = NULL;
 }
 
+<<<<<<< HEAD
 int ipoib_register_debugfs(void)
 {
 	ipoib_root = debugfs_create_dir("ipoib", NULL);
 	return ipoib_root ? 0 : -ENOMEM;
+=======
+void ipoib_register_debugfs(void)
+{
+	ipoib_root = debugfs_create_dir("ipoib", NULL);
+>>>>>>> upstream/android-13
 }
 
 void ipoib_unregister_debugfs(void)

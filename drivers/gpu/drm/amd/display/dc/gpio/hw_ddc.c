@@ -23,8 +23,17 @@
  *
  */
 
+<<<<<<< HEAD
 #include "dm_services.h"
 
+=======
+#include <linux/delay.h>
+#include <linux/slab.h>
+
+#include "dm_services.h"
+
+#include "include/gpio_interface.h"
+>>>>>>> upstream/android-13
 #include "include/gpio_types.h"
 #include "hw_gpio.h"
 #include "hw_ddc.h"
@@ -42,18 +51,32 @@
 #define REG(reg)\
 	(ddc->regs->reg)
 
+<<<<<<< HEAD
 static void destruct(
+=======
+struct gpio;
+
+static void dal_hw_ddc_destruct(
+>>>>>>> upstream/android-13
 	struct hw_ddc *pin)
 {
 	dal_hw_gpio_destruct(&pin->base);
 }
 
+<<<<<<< HEAD
 static void destroy(
+=======
+static void dal_hw_ddc_destroy(
+>>>>>>> upstream/android-13
 	struct hw_gpio_pin **ptr)
 {
 	struct hw_ddc *pin = HW_DDC_FROM_BASE(*ptr);
 
+<<<<<<< HEAD
 	destruct(pin);
+=======
+	dal_hw_ddc_destruct(pin);
+>>>>>>> upstream/android-13
 
 	kfree(pin);
 
@@ -101,6 +124,7 @@ static enum gpio_result set_config(
 					msleep(3);
 			}
 		} else {
+<<<<<<< HEAD
 			uint32_t reg2;
 			uint32_t sda_pd_dis = 0;
 			uint32_t scl_pd_dis = 0;
@@ -108,6 +132,14 @@ static enum gpio_result set_config(
 			reg2 = REG_GET_2(gpio.MASK_reg,
 					DC_GPIO_SDA_PD_DIS, &sda_pd_dis,
 					DC_GPIO_SCL_PD_DIS, &scl_pd_dis);
+=======
+			uint32_t sda_pd_dis = 0;
+			uint32_t scl_pd_dis = 0;
+
+			REG_GET_2(gpio.MASK_reg,
+				  DC_GPIO_SDA_PD_DIS, &sda_pd_dis,
+				  DC_GPIO_SCL_PD_DIS, &scl_pd_dis);
+>>>>>>> upstream/android-13
 
 			if (sda_pd_dis) {
 				REG_SET(gpio.MASK_reg, regval,
@@ -144,6 +176,16 @@ static enum gpio_result set_config(
 					AUX_PAD1_MODE, 0);
 		}
 
+<<<<<<< HEAD
+=======
+		if (ddc->regs->dc_gpio_aux_ctrl_5 != 0) {
+				REG_UPDATE(dc_gpio_aux_ctrl_5, DDC_PAD_I2CMODE, 1);
+		}
+		//set  DC_IO_aux_rxsel = 2'b01
+		if (ddc->regs->phy_aux_cntl != 0) {
+				REG_UPDATE(phy_aux_cntl, AUX_PAD_RXSEL, 1);
+		}
+>>>>>>> upstream/android-13
 		return GPIO_RESULT_OK;
 	case GPIO_DDC_CONFIG_TYPE_MODE_AUX:
 		/* set the AUX pad mode */
@@ -151,6 +193,13 @@ static enum gpio_result set_config(
 			REG_SET(gpio.MASK_reg, regval,
 					AUX_PAD1_MODE, 1);
 		}
+<<<<<<< HEAD
+=======
+		if (ddc->regs->dc_gpio_aux_ctrl_5 != 0) {
+			REG_UPDATE(dc_gpio_aux_ctrl_5,
+					DDC_PAD_I2CMODE, 0);
+		}
+>>>>>>> upstream/android-13
 
 		return GPIO_RESULT_OK;
 	case GPIO_DDC_CONFIG_TYPE_POLL_FOR_CONNECT:
@@ -190,7 +239,11 @@ static enum gpio_result set_config(
 }
 
 static const struct hw_gpio_pin_funcs funcs = {
+<<<<<<< HEAD
 	.destroy = destroy,
+=======
+	.destroy = dal_hw_ddc_destroy,
+>>>>>>> upstream/android-13
 	.open = dal_hw_gpio_open,
 	.get_value = dal_hw_gpio_get_value,
 	.set_value = dal_hw_gpio_set_value,
@@ -199,7 +252,11 @@ static const struct hw_gpio_pin_funcs funcs = {
 	.close = dal_hw_gpio_close,
 };
 
+<<<<<<< HEAD
 static void construct(
+=======
+static void dal_hw_ddc_construct(
+>>>>>>> upstream/android-13
 	struct hw_ddc *ddc,
 	enum gpio_id id,
 	uint32_t en,
@@ -209,11 +266,17 @@ static void construct(
 	ddc->base.base.funcs = &funcs;
 }
 
+<<<<<<< HEAD
 struct hw_gpio_pin *dal_hw_ddc_create(
+=======
+void dal_hw_ddc_init(
+	struct hw_ddc **hw_ddc,
+>>>>>>> upstream/android-13
 	struct dc_context *ctx,
 	enum gpio_id id,
 	uint32_t en)
 {
+<<<<<<< HEAD
 	struct hw_ddc *pin;
 
 	if ((en < GPIO_DDC_LINE_MIN) || (en > GPIO_DDC_LINE_MAX)) {
@@ -229,4 +292,25 @@ struct hw_gpio_pin *dal_hw_ddc_create(
 
 	construct(pin, id, en, ctx);
 	return &pin->base.base;
+=======
+	if ((en < GPIO_DDC_LINE_MIN) || (en > GPIO_DDC_LINE_MAX)) {
+		ASSERT_CRITICAL(false);
+		*hw_ddc = NULL;
+	}
+
+	*hw_ddc = kzalloc(sizeof(struct hw_ddc), GFP_KERNEL);
+	if (!*hw_ddc) {
+		ASSERT_CRITICAL(false);
+		return;
+	}
+
+	dal_hw_ddc_construct(*hw_ddc, id, en, ctx);
+}
+
+struct hw_gpio_pin *dal_hw_ddc_get_pin(struct gpio *gpio)
+{
+	struct hw_ddc *hw_ddc = dal_gpio_get_ddc(gpio);
+
+	return &hw_ddc->base.base;
+>>>>>>> upstream/android-13
 }

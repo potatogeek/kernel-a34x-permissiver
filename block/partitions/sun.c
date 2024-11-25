@@ -9,7 +9,18 @@
  */
 
 #include "check.h"
+<<<<<<< HEAD
 #include "sun.h"
+=======
+
+#define SUN_LABEL_MAGIC          0xDABE
+#define SUN_VTOC_SANITY          0x600DDEEE
+
+enum {
+	SUN_WHOLE_DISK = 5,
+	LINUX_RAID_PARTITION = 0xfd,	/* autodetect RAID partition */
+};
+>>>>>>> upstream/android-13
 
 int sun_partition(struct parsed_partitions *state)
 {
@@ -58,7 +69,10 @@ int sun_partition(struct parsed_partitions *state)
 	} * label;
 	struct sun_partition *p;
 	unsigned long spc;
+<<<<<<< HEAD
 	char b[BDEVNAME_SIZE];
+=======
+>>>>>>> upstream/android-13
 	int use_vtoc;
 	int nparts;
 
@@ -69,7 +83,11 @@ int sun_partition(struct parsed_partitions *state)
 	p = label->partitions;
 	if (be16_to_cpu(label->magic) != SUN_LABEL_MAGIC) {
 /*		printk(KERN_INFO "Dev %s Sun disklabel: bad magic %04x\n",
+<<<<<<< HEAD
 		       bdevname(bdev, b), be16_to_cpu(label->magic)); */
+=======
+		       state->disk->disk_name, be16_to_cpu(label->magic)); */
+>>>>>>> upstream/android-13
 		put_dev_sector(sect);
 		return 0;
 	}
@@ -79,7 +97,11 @@ int sun_partition(struct parsed_partitions *state)
 		csum ^= *ush--;
 	if (csum) {
 		printk("Dev %s Sun disklabel: Csum bad, label corrupted\n",
+<<<<<<< HEAD
 		       bdevname(state->bdev, b));
+=======
+		       state->disk->disk_name);
+>>>>>>> upstream/android-13
 		put_dev_sector(sect);
 		return 0;
 	}

@@ -23,9 +23,13 @@ EXPORT_SYMBOL(__stack_chk_guard);
  */
 int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_SUPERH32
 	unlazy_fpu(src, task_pt_regs(src));
 #endif
+=======
+	unlazy_fpu(src, task_pt_regs(src));
+>>>>>>> upstream/android-13
 	*dst = *src;
 
 	if (src->thread.xstate) {

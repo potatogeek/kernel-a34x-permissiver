@@ -7,7 +7,11 @@
  */
 
 #ifdef CONFIG_MMU
+<<<<<<< HEAD
 #error need to prove a real asm/page.h
+=======
+#error need to provide a real asm/page.h
+>>>>>>> upstream/android-13
 #endif
 
 
@@ -63,11 +67,15 @@ extern unsigned long memory_end;
 
 #endif /* !__ASSEMBLY__ */
 
+<<<<<<< HEAD
 #ifdef CONFIG_KERNEL_RAM_BASE_ADDRESS
 #define PAGE_OFFSET		(CONFIG_KERNEL_RAM_BASE_ADDRESS)
 #else
 #define PAGE_OFFSET		(0)
 #endif
+=======
+#define PAGE_OFFSET		(0)
+>>>>>>> upstream/android-13
 
 #ifndef ARCH_PFN_OFFSET
 #define ARCH_PFN_OFFSET		(PAGE_OFFSET >> PAGE_SHIFT)

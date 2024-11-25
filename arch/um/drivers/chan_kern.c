@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2000 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -247,12 +253,15 @@ void deactivate_chan(struct chan *chan, int irq)
 		deactivate_fd(chan->fd, irq);
 }
 
+<<<<<<< HEAD
 void reactivate_chan(struct chan *chan, int irq)
 {
 	if (chan && chan->enabled)
 		reactivate_fd(chan->fd, irq);
 }
 
+=======
+>>>>>>> upstream/android-13
 int write_chan(struct chan *chan, const char *buf, int len,
 	       int write_irq)
 {
@@ -264,8 +273,11 @@ int write_chan(struct chan *chan, const char *buf, int len,
 	n = chan->ops->write(chan->fd, buf, len, chan->data);
 	if (chan->primary) {
 		ret = n;
+<<<<<<< HEAD
 		if ((ret == -EAGAIN) || ((ret >= 0) && (ret < len)))
 			reactivate_fd(chan->fd, write_irq);
+=======
+>>>>>>> upstream/android-13
 	}
 	return ret;
 }
@@ -563,8 +575,11 @@ void chan_interrupt(struct line *line, int irq)
 			tty_insert_flip_char(port, c, TTY_NORMAL);
 	} while (err > 0);
 
+<<<<<<< HEAD
 	if (err == 0)
 		reactivate_fd(chan->fd, irq);
+=======
+>>>>>>> upstream/android-13
 	if (err == -EIO) {
 		if (chan->primary) {
 			tty_port_tty_hangup(&line->port, false);

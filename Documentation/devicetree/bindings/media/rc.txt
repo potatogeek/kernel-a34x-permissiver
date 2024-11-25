@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 The following properties are common to the infrared remote controllers:
 
 - linux,rc-map-name: string, specifies the scancode/key mapping table
@@ -115,3 +116,6 @@ The following properties are common to the infrared remote controllers:
   * "rc-winfast"
   * "rc-winfast-usbii-deluxe"
   * "rc-su3000"
+=======
+This file has been moved to rc.yaml.
+>>>>>>> upstream/android-13

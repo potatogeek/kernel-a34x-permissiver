@@ -4,7 +4,11 @@
  *
  * Debug traces for zfcp.
  *
+<<<<<<< HEAD
  * Copyright IBM Corp. 2002, 2018
+=======
+ * Copyright IBM Corp. 2002, 2020
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "zfcp"
@@ -63,7 +67,12 @@ void zfcp_dbf_pl_write(struct zfcp_dbf *dbf, void *data, u16 length, char *area,
 
 /**
  * zfcp_dbf_hba_fsf_res - trace event for fsf responses
+<<<<<<< HEAD
  * @tag: tag indicating which kind of unsolicited status has been received
+=======
+ * @tag: tag indicating which kind of FSF response has been received
+ * @level: trace level to be used for event
+>>>>>>> upstream/android-13
  * @req: request for which a response was received
  */
 void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
@@ -81,8 +90,13 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
 	rec->id = ZFCP_DBF_HBA_RES;
 	rec->fsf_req_id = req->req_id;
 	rec->fsf_req_status = req->status;
+<<<<<<< HEAD
 	rec->fsf_cmd = req->fsf_command;
 	rec->fsf_seq_no = req->seq_no;
+=======
+	rec->fsf_cmd = q_head->fsf_command;
+	rec->fsf_seq_no = q_pref->req_seq_no;
+>>>>>>> upstream/android-13
 	rec->u.res.req_issued = req->issued;
 	rec->u.res.prot_status = q_pref->prot_status;
 	rec->u.res.fsf_status = q_head->fsf_status;
@@ -103,6 +117,51 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * zfcp_dbf_hba_fsf_fces - trace event for fsf responses related to
+ *			   FC Endpoint Security (FCES)
+ * @tag: tag indicating which kind of FC Endpoint Security event has occurred
+ * @req: request for which a response was received
+ * @wwpn: remote port or ZFCP_DBF_INVALID_WWPN
+ * @fc_security_old: old FC Endpoint Security of FCP device or connection
+ * @fc_security_new: new FC Endpoint Security of FCP device or connection
+ */
+void zfcp_dbf_hba_fsf_fces(char *tag, const struct zfcp_fsf_req *req, u64 wwpn,
+			   u32 fc_security_old, u32 fc_security_new)
+{
+	struct zfcp_dbf *dbf = req->adapter->dbf;
+	struct fsf_qtcb_prefix *q_pref = &req->qtcb->prefix;
+	struct fsf_qtcb_header *q_head = &req->qtcb->header;
+	struct zfcp_dbf_hba *rec = &dbf->hba_buf;
+	static int const level = 3;
+	unsigned long flags;
+
+	if (unlikely(!debug_level_enabled(dbf->hba, level)))
+		return;
+
+	spin_lock_irqsave(&dbf->hba_lock, flags);
+	memset(rec, 0, sizeof(*rec));
+
+	memcpy(rec->tag, tag, ZFCP_DBF_TAG_LEN);
+	rec->id = ZFCP_DBF_HBA_FCES;
+	rec->fsf_req_id = req->req_id;
+	rec->fsf_req_status = req->status;
+	rec->fsf_cmd = q_head->fsf_command;
+	rec->fsf_seq_no = q_pref->req_seq_no;
+	rec->u.fces.req_issued = req->issued;
+	rec->u.fces.fsf_status = q_head->fsf_status;
+	rec->u.fces.port_handle = q_head->port_handle;
+	rec->u.fces.wwpn = wwpn;
+	rec->u.fces.fc_security_old = fc_security_old;
+	rec->u.fces.fc_security_new = fc_security_new;
+
+	debug_event(dbf->hba, level, rec, sizeof(*rec));
+	spin_unlock_irqrestore(&dbf->hba_lock, flags);
+}
+
+/**
+>>>>>>> upstream/android-13
  * zfcp_dbf_hba_fsf_uss - trace event for an unsolicited status buffer
  * @tag: tag indicating which kind of unsolicited status has been received
  * @req: request providing the unsolicited status
@@ -125,7 +184,11 @@ void zfcp_dbf_hba_fsf_uss(char *tag, struct zfcp_fsf_req *req)
 	rec->id = ZFCP_DBF_HBA_USS;
 	rec->fsf_req_id = req->req_id;
 	rec->fsf_req_status = req->status;
+<<<<<<< HEAD
 	rec->fsf_cmd = req->fsf_command;
+=======
+	rec->fsf_cmd = FSF_QTCB_UNSOLICITED_STATUS;
+>>>>>>> upstream/android-13
 
 	if (!srb)
 		goto log;
@@ -151,7 +214,11 @@ log:
 
 /**
  * zfcp_dbf_hba_bit_err - trace event for bit error conditions
+<<<<<<< HEAD
  * @tag: tag indicating which kind of unsolicited status has been received
+=======
+ * @tag: tag indicating which kind of bit error unsolicited status was received
+>>>>>>> upstream/android-13
  * @req: request which caused the bit_error condition
  */
 void zfcp_dbf_hba_bit_err(char *tag, struct zfcp_fsf_req *req)
@@ -172,7 +239,11 @@ void zfcp_dbf_hba_bit_err(char *tag, struct zfcp_fsf_req *req)
 	rec->id = ZFCP_DBF_HBA_BIT;
 	rec->fsf_req_id = req->req_id;
 	rec->fsf_req_status = req->status;
+<<<<<<< HEAD
 	rec->fsf_cmd = req->fsf_command;
+=======
+	rec->fsf_cmd = FSF_QTCB_UNSOLICITED_STATUS;
+>>>>>>> upstream/android-13
 	memcpy(&rec->u.be, &sr_buf->payload.bit_error,
 	       sizeof(struct fsf_bit_error_payload));
 
@@ -220,6 +291,7 @@ void zfcp_dbf_hba_def_err(struct zfcp_adapter *adapter, u64 req_id, u16 scount,
 	spin_unlock_irqrestore(&dbf->pay_lock, flags);
 }
 
+<<<<<<< HEAD
 /**
  * zfcp_dbf_hba_basic - trace event for basic adapter events
  * @adapter: pointer to struct zfcp_adapter
@@ -244,6 +316,8 @@ void zfcp_dbf_hba_basic(char *tag, struct zfcp_adapter *adapter)
 	spin_unlock_irqrestore(&dbf->hba_lock, flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void zfcp_dbf_set_common(struct zfcp_dbf_rec *rec,
 				struct zfcp_adapter *adapter,
 				struct zfcp_port *port,
@@ -355,7 +429,11 @@ void zfcp_dbf_rec_run_lvl(int level, char *tag, struct zfcp_erp_action *erp)
 	rec->u.run.fsf_req_id = erp->fsf_req_id;
 	rec->u.run.rec_status = erp->status;
 	rec->u.run.rec_step = erp->step;
+<<<<<<< HEAD
 	rec->u.run.rec_action = erp->action;
+=======
+	rec->u.run.rec_action = erp->type;
+>>>>>>> upstream/android-13
 
 	if (erp->sdev)
 		rec->u.run.rec_count =
@@ -476,7 +554,12 @@ out:
 /**
  * zfcp_dbf_san_req - trace event for issued SAN request
  * @tag: identifier for event
+<<<<<<< HEAD
  * @fsf_req: request containing issued CT data
+=======
+ * @fsf: request containing issued CT or ELS data
+ * @d_id: N_Port_ID where SAN request is sent to
+>>>>>>> upstream/android-13
  * d_id: destination ID
  */
 void zfcp_dbf_san_req(char *tag, struct zfcp_fsf_req *fsf, u32 d_id)
@@ -558,7 +641,11 @@ static u16 zfcp_dbf_san_res_cap_len_if_gpn_ft(char *tag,
 /**
  * zfcp_dbf_san_res - trace event for received SAN request
  * @tag: identifier for event
+<<<<<<< HEAD
  * @fsf_req: request containing issued CT data
+=======
+ * @fsf: request containing received CT or ELS data
+>>>>>>> upstream/android-13
  */
 void zfcp_dbf_san_res(char *tag, struct zfcp_fsf_req *fsf)
 {
@@ -578,7 +665,11 @@ void zfcp_dbf_san_res(char *tag, struct zfcp_fsf_req *fsf)
 /**
  * zfcp_dbf_san_in_els - trace event for incoming ELS
  * @tag: identifier for event
+<<<<<<< HEAD
  * @fsf_req: request containing issued CT data
+=======
+ * @fsf: request containing received ELS data
+>>>>>>> upstream/android-13
  */
 void zfcp_dbf_san_in_els(char *tag, struct zfcp_fsf_req *fsf)
 {
@@ -746,7 +837,11 @@ static void zfcp_dbf_unregister(struct zfcp_dbf *dbf)
 }
 
 /**
+<<<<<<< HEAD
  * zfcp_adapter_debug_register - registers debug feature for an adapter
+=======
+ * zfcp_dbf_adapter_register - registers debug feature for an adapter
+>>>>>>> upstream/android-13
  * @adapter: pointer to adapter for which debug features should be registered
  * return: -ENOMEM on error, 0 otherwise
  */
@@ -804,7 +899,11 @@ err_out:
 }
 
 /**
+<<<<<<< HEAD
  * zfcp_adapter_debug_unregister - unregisters debug feature for an adapter
+=======
+ * zfcp_dbf_adapter_unregister - unregisters debug feature for an adapter
+>>>>>>> upstream/android-13
  * @adapter: pointer to adapter for which debug features should be unregistered
  */
 void zfcp_dbf_adapter_unregister(struct zfcp_adapter *adapter)

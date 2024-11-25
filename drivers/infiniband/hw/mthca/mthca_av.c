@@ -91,7 +91,11 @@ static enum ib_rate tavor_rate_to_ib(u8 mthca_rate, u8 port_rate)
 	}
 }
 
+<<<<<<< HEAD
 enum ib_rate mthca_rate_to_ib(struct mthca_dev *dev, u8 mthca_rate, u8 port)
+=======
+enum ib_rate mthca_rate_to_ib(struct mthca_dev *dev, u8 mthca_rate, u32 port)
+>>>>>>> upstream/android-13
 {
 	if (mthca_is_memfree(dev)) {
 		/* Handle old Arbel FW */
@@ -115,7 +119,11 @@ static u8 ib_rate_to_memfree(u8 req_rate, u8 cur_rate)
 	switch ((cur_rate - 1) / req_rate) {
 	case 0:	 return MTHCA_RATE_MEMFREE_FULL;
 	case 1:	 return MTHCA_RATE_MEMFREE_HALF;
+<<<<<<< HEAD
 	case 2:	 /* fall through */
+=======
+	case 2:
+>>>>>>> upstream/android-13
 	case 3:	 return MTHCA_RATE_MEMFREE_QUARTER;
 	default: return MTHCA_RATE_MEMFREE_EIGHTH;
 	}
@@ -131,7 +139,11 @@ static u8 ib_rate_to_tavor(u8 static_rate)
 	}
 }
 
+<<<<<<< HEAD
 u8 mthca_get_rate(struct mthca_dev *dev, int static_rate, u8 port)
+=======
+u8 mthca_get_rate(struct mthca_dev *dev, int static_rate, u32 port)
+>>>>>>> upstream/android-13
 {
 	u8 rate;
 
@@ -293,7 +305,11 @@ int mthca_ah_query(struct ib_ah *ibah, struct rdma_ah_attr *attr)
 {
 	struct mthca_ah *ah   = to_mah(ibah);
 	struct mthca_dev *dev = to_mdev(ibah->device);
+<<<<<<< HEAD
 	u8 port_num = be32_to_cpu(ah->av->port_pd) >> 24;
+=======
+	u32 port_num = be32_to_cpu(ah->av->port_pd) >> 24;
+>>>>>>> upstream/android-13
 
 	/* Only implement for MAD and memfree ah for now. */
 	if (ah->type == MTHCA_AH_ON_HCA)

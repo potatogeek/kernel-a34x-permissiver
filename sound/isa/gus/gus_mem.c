@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *  GUS's memory allocation routines / bottom layer
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+ *  GUS's memory allocation routines / bottom layer
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -225,7 +232,12 @@ int snd_gf1_mem_free(struct snd_gf1_mem * alloc, unsigned int address)
 	struct snd_gf1_mem_block *block;
 
 	snd_gf1_mem_lock(alloc, 0);
+<<<<<<< HEAD
 	if ((block = snd_gf1_mem_look(alloc, address)) != NULL) {
+=======
+	block = snd_gf1_mem_look(alloc, address);
+	if (block) {
+>>>>>>> upstream/android-13
 		result = snd_gf1_mem_xfree(alloc, block);
 		snd_gf1_mem_lock(alloc, 1);
 		return result;
@@ -238,9 +250,12 @@ int snd_gf1_mem_init(struct snd_gus_card * gus)
 {
 	struct snd_gf1_mem *alloc;
 	struct snd_gf1_mem_block block;
+<<<<<<< HEAD
 #ifdef CONFIG_SND_DEBUG
 	struct snd_info_entry *entry;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	alloc = &gus->gf1.mem_alloc;
 	mutex_init(&alloc->memory_mutex);
@@ -263,8 +278,12 @@ int snd_gf1_mem_init(struct snd_gus_card * gus)
 	if (snd_gf1_mem_xalloc(alloc, &block) == NULL)
 		return -ENOMEM;
 #ifdef CONFIG_SND_DEBUG
+<<<<<<< HEAD
 	if (! snd_card_proc_new(gus->card, "gusmem", &entry))
 		snd_info_set_text_ops(entry, gus, snd_gf1_mem_info_read);
+=======
+	snd_card_ro_proc_new(gus->card, "gusmem", gus, snd_gf1_mem_info_read);
+>>>>>>> upstream/android-13
 #endif
 	return 0;
 }
@@ -310,7 +329,11 @@ static void snd_gf1_mem_info_read(struct snd_info_entry *entry,
 	used = 0;
 	for (block = alloc->first, i = 0; block; block = block->next, i++) {
 		used += block->size;
+<<<<<<< HEAD
 		snd_iprintf(buffer, "Block %i at 0x%lx onboard 0x%x size %i (0x%x):\n", i, (long) block, block->ptr, block->size, block->size);
+=======
+		snd_iprintf(buffer, "Block %i onboard 0x%x size %i (0x%x):\n", i, block->ptr, block->size, block->size);
+>>>>>>> upstream/android-13
 		if (block->share ||
 		    block->share_id[0] || block->share_id[1] ||
 		    block->share_id[2] || block->share_id[3])

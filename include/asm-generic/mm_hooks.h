@@ -18,16 +18,22 @@ static inline void arch_exit_mmap(struct mm_struct *mm)
 }
 
 static inline void arch_unmap(struct mm_struct *mm,
+<<<<<<< HEAD
 			struct vm_area_struct *vma,
+=======
+>>>>>>> upstream/android-13
 			unsigned long start, unsigned long end)
 {
 }
 
+<<<<<<< HEAD
 static inline void arch_bprm_mm_init(struct mm_struct *mm,
 				     struct vm_area_struct *vma)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline bool arch_vma_access_permitted(struct vm_area_struct *vma,
 		bool write, bool execute, bool foreign)
 {

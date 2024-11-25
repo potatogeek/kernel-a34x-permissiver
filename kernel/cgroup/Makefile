@@ -5,4 +5,8 @@ obj-$(CONFIG_CGROUP_FREEZER) += legacy_freezer.o
 obj-$(CONFIG_CGROUP_PIDS) += pids.o
 obj-$(CONFIG_CGROUP_RDMA) += rdma.o
 obj-$(CONFIG_CPUSETS) += cpuset.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_CGROUP_MISC) += misc.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_CGROUP_DEBUG) += debug.o

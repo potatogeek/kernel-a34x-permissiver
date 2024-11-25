@@ -9,7 +9,14 @@
 #
 abandonning||abandoning
 abigious||ambiguous
+<<<<<<< HEAD
 abitrate||arbitrate
+=======
+abitrary||arbitrary
+abitrate||arbitrate
+abnornally||abnormally
+abnrormal||abnormal
+>>>>>>> upstream/android-13
 abord||abort
 aboslute||absolute
 abov||above
@@ -19,6 +26,10 @@ absolut||absolute
 absoulte||absolute
 acccess||access
 acceess||access
+<<<<<<< HEAD
+=======
+accelaration||acceleration
+>>>>>>> upstream/android-13
 acceleratoin||acceleration
 accelleration||acceleration
 accesing||accessing
@@ -37,8 +48,16 @@ accout||account
 accquire||acquire
 accquired||acquired
 accross||across
+<<<<<<< HEAD
 acessable||accessible
 acess||access
+=======
+accumalate||accumulate
+accumalator||accumulator
+acessable||accessible
+acess||access
+acessing||accessing
+>>>>>>> upstream/android-13
 achitecture||architecture
 acient||ancient
 acitions||actions
@@ -52,7 +71,13 @@ activete||activate
 actived||activated
 actualy||actually
 acumulating||accumulating
+<<<<<<< HEAD
 acumulator||accumulator
+=======
+acumulative||accumulative
+acumulator||accumulator
+acutally||actually
+>>>>>>> upstream/android-13
 adapater||adapter
 addional||additional
 additionaly||additionally
@@ -76,6 +101,10 @@ againt||against
 agaist||against
 aggreataon||aggregation
 aggreation||aggregation
+<<<<<<< HEAD
+=======
+ajust||adjust
+>>>>>>> upstream/android-13
 albumns||albums
 alegorical||allegorical
 algined||aligned
@@ -83,6 +112,10 @@ algorith||algorithm
 algorithmical||algorithmically
 algoritm||algorithm
 algoritms||algorithms
+<<<<<<< HEAD
+=======
+algorithmn||algorithm
+>>>>>>> upstream/android-13
 algorrithm||algorithm
 algorritm||algorithm
 aligment||alignment
@@ -94,6 +127,10 @@ alloated||allocated
 allocatote||allocate
 allocatrd||allocated
 allocte||allocate
+<<<<<<< HEAD
+=======
+allocted||allocated
+>>>>>>> upstream/android-13
 allpication||application
 alocate||allocate
 alogirhtms||algorithms
@@ -101,12 +138,25 @@ alogrithm||algorithm
 alot||a lot
 alow||allow
 alows||allows
+<<<<<<< HEAD
 altough||although
 alue||value
 ambigious||ambiguous
 amoung||among
 amout||amount
 amplifer||amplifier
+=======
+alreay||already
+alredy||already
+altough||although
+alue||value
+ambigious||ambiguous
+ambigous||ambiguous
+amoung||among
+amout||amount
+amplifer||amplifier
+amplifyer||amplifier
+>>>>>>> upstream/android-13
 an union||a union
 an user||a user
 an userspace||a userspace
@@ -137,6 +187,10 @@ arbitary||arbitrary
 architechture||architecture
 arguement||argument
 arguements||arguments
+<<<<<<< HEAD
+=======
+arithmatic||arithmetic
+>>>>>>> upstream/android-13
 aritmetic||arithmetic
 arne't||aren't
 arraival||arrival
@@ -145,10 +199,20 @@ artillary||artillery
 asign||assign
 asser||assert
 assertation||assertion
+<<<<<<< HEAD
+=======
+assertting||asserting
+assgined||assigned
+>>>>>>> upstream/android-13
 assiged||assigned
 assigment||assignment
 assigments||assignments
 assistent||assistant
+<<<<<<< HEAD
+=======
+assocaited||associated
+assocating||associating
+>>>>>>> upstream/android-13
 assocation||association
 associcated||associated
 assotiated||associated
@@ -161,6 +225,7 @@ asynchnous||asynchronous
 asynchromous||asynchronous
 asymetric||asymmetric
 asymmeric||asymmetric
+<<<<<<< HEAD
 atomatically||automatically
 atomicly||atomically
 atempt||attempt
@@ -170,6 +235,24 @@ attemps||attempts
 attemping||attempting
 attruibutes||attributes
 authentification||authentication
+=======
+atleast||at least
+atomatically||automatically
+atomicly||atomically
+atempt||attempt
+atrributes||attributes
+attachement||attachment
+attatch||attach
+attched||attached
+attemp||attempt
+attemps||attempts
+attemping||attempting
+attepmpt||attempt
+attnetion||attention
+attruibutes||attributes
+authentification||authentication
+authenicated||authenticated
+>>>>>>> upstream/android-13
 automaticaly||automatically
 automaticly||automatically
 automatize||automate
@@ -217,23 +300,48 @@ boardcast||broadcast
 borad||board
 boundry||boundary
 brievely||briefly
+<<<<<<< HEAD
 broadcat||broadcast
+=======
+brigde||bridge
+broadcase||broadcast
+broadcat||broadcast
+bufer||buffer
+>>>>>>> upstream/android-13
 bufufer||buffer
 cacluated||calculated
 caculate||calculate
 caculation||calculation
 cadidate||candidate
+<<<<<<< HEAD
+=======
+cahces||caches
+>>>>>>> upstream/android-13
 calender||calendar
 calescing||coalescing
 calle||called
 callibration||calibration
+<<<<<<< HEAD
+=======
+callled||called
+callser||caller
+>>>>>>> upstream/android-13
 calucate||calculate
 calulate||calculate
 cancelation||cancellation
 cancle||cancel
+<<<<<<< HEAD
 capabilites||capabilities
 capabilty||capability
 capabitilies||capabilities
+=======
+canot||cannot
+capabilites||capabilities
+capabilties||capabilities
+capabilty||capability
+capabitilies||capabilities
+capablity||capability
+>>>>>>> upstream/android-13
 capatibilities||capabilities
 capapbilities||capabilities
 caputure||capture
@@ -273,7 +381,13 @@ claread||cleared
 clared||cleared
 closeing||closing
 clustred||clustered
+<<<<<<< HEAD
 coexistance||coexistence
+=======
+cnfiguration||configuration
+coexistance||coexistence
+colescing||coalescing
+>>>>>>> upstream/android-13
 collapsable||collapsible
 colorfull||colorful
 comand||command
@@ -284,14 +398,25 @@ comminucation||communication
 commited||committed
 commiting||committing
 committ||commit
+<<<<<<< HEAD
+=======
+commnunication||communication
+>>>>>>> upstream/android-13
 commoditiy||commodity
 comsume||consume
 comsumer||consumer
 comsuming||consuming
 compability||compatibility
 compaibility||compatibility
+<<<<<<< HEAD
 compatability||compatibility
 compatable||compatible
+=======
+comparsion||comparison
+compatability||compatibility
+compatable||compatible
+compatibililty||compatibility
+>>>>>>> upstream/android-13
 compatibiliy||compatibility
 compatibilty||compatibility
 compatiblity||compatibility
@@ -303,6 +428,7 @@ completly||completely
 complient||compliant
 componnents||components
 compoment||component
+<<<<<<< HEAD
 compres||compress
 compresion||compression
 comression||compression
@@ -314,13 +440,38 @@ conector||connector
 connecetd||connected
 configuartion||configuration
 configuation||configuration
+=======
+comppatible||compatible
+compres||compress
+compresion||compression
+comression||compression
+comunicate||communicate
+comunication||communication
+conbination||combination
+conditionaly||conditionally
+conditon||condition
+condtion||condition
+conected||connected
+conector||connector
+configration||configuration
+configred||configured
+configuartion||configuration
+configuation||configuration
+configued||configured
+>>>>>>> upstream/android-13
 configuratoin||configuration
 configuraton||configuration
 configuretion||configuration
 configutation||configuration
 conider||consider
 conjuction||conjunction
+<<<<<<< HEAD
 connectinos||connections
+=======
+connecetd||connected
+connectinos||connections
+connetor||connector
+>>>>>>> upstream/android-13
 connnection||connection
 connnections||connections
 consistancy||consistency
@@ -330,6 +481,10 @@ containts||contains
 contaisn||contains
 contant||contact
 contence||contents
+<<<<<<< HEAD
+=======
+contiguos||contiguous
+>>>>>>> upstream/android-13
 continious||continuous
 continous||continuous
 continously||continuously
@@ -361,16 +516,34 @@ cunter||counter
 curently||currently
 cylic||cyclic
 dafault||default
+<<<<<<< HEAD
 deafult||default
 deamon||daemon
+=======
+deactive||deactivate
+deafult||default
+deamon||daemon
+debouce||debounce
+decendant||descendant
+decendants||descendants
+>>>>>>> upstream/android-13
 decompres||decompress
 decsribed||described
 decription||description
 dectected||detected
 defailt||default
+<<<<<<< HEAD
 defferred||deferred
 definate||definite
 definately||definitely
+=======
+deferal||deferral
+deffered||deferred
+defferred||deferred
+definate||definite
+definately||definitely
+definiation||definition
+>>>>>>> upstream/android-13
 defintion||definition
 defintions||definitions
 defualt||default
@@ -384,22 +557,38 @@ delare||declare
 delares||declares
 delaring||declaring
 delemiter||delimiter
+<<<<<<< HEAD
+=======
+delievered||delivered
+>>>>>>> upstream/android-13
 demodualtor||demodulator
 demension||dimension
 dependancies||dependencies
 dependancy||dependency
 dependant||dependent
+<<<<<<< HEAD
+=======
+dependend||dependent
+>>>>>>> upstream/android-13
 depreacted||deprecated
 depreacte||deprecate
 desactivate||deactivate
 desciptor||descriptor
 desciptors||descriptors
+<<<<<<< HEAD
+=======
+descripto||descriptor
+>>>>>>> upstream/android-13
 descripton||description
 descrition||description
 descritptor||descriptor
 desctiptor||descriptor
 desriptor||descriptor
 desriptors||descriptors
+<<<<<<< HEAD
+=======
+desination||destination
+>>>>>>> upstream/android-13
 destionation||destination
 destoried||destroyed
 destory||destroy
@@ -408,6 +597,10 @@ destorys||destroys
 destroied||destroyed
 detabase||database
 deteced||detected
+<<<<<<< HEAD
+=======
+detectt||detect
+>>>>>>> upstream/android-13
 develope||develop
 developement||development
 developped||developed
@@ -417,7 +610,14 @@ developpment||development
 deveolpment||development
 devided||divided
 deviece||device
+<<<<<<< HEAD
 diable||disable
+=======
+devision||division
+diable||disable
+diabled||disabled
+dicline||decline
+>>>>>>> upstream/android-13
 dictionnary||dictionary
 didnt||didn't
 diferent||different
@@ -426,9 +626,24 @@ diffrent||different
 differenciate||differentiate
 diffrentiate||differentiate
 difinition||definition
+<<<<<<< HEAD
 dimesions||dimensions
 diplay||display
 directon||direction
+=======
+digial||digital
+dimention||dimension
+dimesions||dimensions
+diconnected||disconnected
+disabed||disabled
+disble||disable
+disgest||digest
+disired||desired
+dispalying||displaying
+diplay||display
+directon||direction
+direcly||directly
+>>>>>>> upstream/android-13
 direectly||directly
 diregard||disregard
 disassocation||disassociation
@@ -442,8 +657,15 @@ disbled||disabled
 disconnet||disconnect
 discontinous||discontinuous
 disharge||discharge
+<<<<<<< HEAD
 dispertion||dispersion
 dissapears||disappears
+=======
+disnabled||disabled
+dispertion||dispersion
+dissapears||disappears
+dissconect||disconnect
+>>>>>>> upstream/android-13
 distiction||distinction
 divisable||divisible
 divsiors||divisors
@@ -452,18 +674,37 @@ documantation||documentation
 documentaion||documentation
 documment||document
 doesnt||doesn't
+<<<<<<< HEAD
+=======
+donwload||download
+donwloading||downloading
+>>>>>>> upstream/android-13
 dorp||drop
 dosen||doesn
 downlad||download
 downlads||downloads
+<<<<<<< HEAD
 druing||during
 dynmaic||dynamic
 eanable||enable
+=======
+droped||dropped
+droput||dropout
+druing||during
+dyanmic||dynamic
+dynmaic||dynamic
+eanable||enable
+eanble||enable
+>>>>>>> upstream/android-13
 easilly||easily
 ecspecially||especially
 edditable||editable
 editting||editing
 efective||effective
+<<<<<<< HEAD
+=======
+effectivness||effectiveness
+>>>>>>> upstream/android-13
 efficently||efficiently
 ehther||ether
 eigth||eight
@@ -471,16 +712,33 @@ elementry||elementary
 eletronic||electronic
 embeded||embedded
 enabledi||enabled
+<<<<<<< HEAD
+=======
+enbale||enable
+enble||enable
+>>>>>>> upstream/android-13
 enchanced||enhanced
 encorporating||incorporating
 encrupted||encrypted
 encrypiton||encryption
 encryptio||encryption
 endianess||endianness
+<<<<<<< HEAD
 enhaced||enhanced
 enlightnment||enlightenment
 entrys||entries
 enocded||encoded
+=======
+enpoint||endpoint
+enhaced||enhanced
+enlightnment||enlightenment
+enqueing||enqueuing
+entires||entries
+entites||entities
+entrys||entries
+enocded||encoded
+enought||enough
+>>>>>>> upstream/android-13
 enterily||entirely
 enviroiment||environment
 enviroment||environment
@@ -492,6 +750,7 @@ equivelant||equivalent
 equivilant||equivalent
 eror||error
 errorr||error
+<<<<<<< HEAD
 estbalishment||establishment
 etsablishment||establishment
 etsbalishment||establishment
@@ -499,6 +758,25 @@ excecutable||executable
 exceded||exceeded
 excellant||excellent
 exeed||exceed
+=======
+errror||error
+estbalishment||establishment
+etsablishment||establishment
+etsbalishment||establishment
+evalute||evaluate
+evalutes||evaluates
+evalution||evaluation
+excecutable||executable
+exceded||exceeded
+exceds||exceeds
+exceeed||exceed
+excellant||excellent
+execeeded||exceeded
+execeeds||exceeds
+exeed||exceed
+exeeds||exceeds
+exeuction||execution
+>>>>>>> upstream/android-13
 existance||existence
 existant||existent
 exixt||exist
@@ -506,6 +784,10 @@ exlcude||exclude
 exlcusive||exclusive
 exmaple||example
 expecially||especially
+<<<<<<< HEAD
+=======
+experies||expires
+>>>>>>> upstream/android-13
 explicite||explicit
 explicitely||explicitly
 explict||explicit
@@ -514,13 +796,24 @@ explictly||explicitly
 expresion||expression
 exprimental||experimental
 extened||extended
+<<<<<<< HEAD
+=======
+exteneded||extended
+>>>>>>> upstream/android-13
 extensability||extensibility
 extention||extension
 extenstion||extension
 extracter||extractor
+<<<<<<< HEAD
 faield||failed
 falied||failed
 faild||failed
+=======
+faied||failed
+faield||failed
+faild||failed
+failded||failed
+>>>>>>> upstream/android-13
 failer||failure
 faill||fail
 failied||failed
@@ -539,8 +832,17 @@ feautures||features
 fetaure||feature
 fetaures||features
 fileystem||filesystem
+<<<<<<< HEAD
 fimware||firmware
 firware||firmware
+=======
+fimrware||firmware
+fimware||firmware
+firmare||firmware
+firmaware||firmware
+firware||firmware
+firwmare||firmware
+>>>>>>> upstream/android-13
 finanize||finalize
 findn||find
 finilizes||finalizes
@@ -558,11 +860,21 @@ forwardig||forwarding
 frambuffer||framebuffer
 framming||framing
 framwork||framework
+<<<<<<< HEAD
 frequncy||frequency
+=======
+frequence||frequency
+frequncy||frequency
+frequancy||frequency
+>>>>>>> upstream/android-13
 frome||from
 fucntion||function
 fuction||function
 fuctions||functions
+<<<<<<< HEAD
+=======
+fullill||fulfill
+>>>>>>> upstream/android-13
 funcation||function
 funcion||function
 functionallity||functionality
@@ -574,6 +886,12 @@ funtions||functions
 furthur||further
 futhermore||furthermore
 futrue||future
+<<<<<<< HEAD
+=======
+gatable||gateable
+gateing||gating
+gauage||gauge
+>>>>>>> upstream/android-13
 gaurenteed||guaranteed
 generiously||generously
 genereate||generate
@@ -583,6 +901,10 @@ globel||global
 grabing||grabbing
 grahical||graphical
 grahpical||graphical
+<<<<<<< HEAD
+=======
+granularty||granularity
+>>>>>>> upstream/android-13
 grapic||graphic
 grranted||granted
 guage||gauge
@@ -594,9 +916,21 @@ handfull||handful
 hanlde||handle
 hanled||handled
 happend||happened
+<<<<<<< HEAD
 harware||hardware
 heirarchically||hierarchically
 helpfull||helpful
+=======
+hardare||hardware
+harware||hardware
+havind||having
+heirarchically||hierarchically
+heirarchy||hierarchy
+helpfull||helpful
+hearbeat||heartbeat
+heterogenous||heterogeneous
+hexdecimal||hexadecimal
+>>>>>>> upstream/android-13
 hybernate||hibernate
 hierachy||hierarchy
 hierarchie||hierarchy
@@ -613,9 +947,17 @@ iomaped||iomapped
 imblance||imbalance
 immeadiately||immediately
 immedaite||immediate
+<<<<<<< HEAD
 immediatelly||immediately
 immediatly||immediately
 immidiate||immediate
+=======
+immedate||immediate
+immediatelly||immediately
+immediatly||immediately
+immidiate||immediate
+immutible||immutable
+>>>>>>> upstream/android-13
 impelentation||implementation
 impementated||implemented
 implemantation||implementation
@@ -633,10 +975,19 @@ incative||inactive
 incomming||incoming
 incompatabilities||incompatibilities
 incompatable||incompatible
+<<<<<<< HEAD
+=======
+incompatble||incompatible
+>>>>>>> upstream/android-13
 inconsistant||inconsistent
 increas||increase
 incremeted||incremented
 incrment||increment
+<<<<<<< HEAD
+=======
+incuding||including
+inculde||include
+>>>>>>> upstream/android-13
 indendation||indentation
 indended||intended
 independant||independent
@@ -645,6 +996,11 @@ independed||independent
 indiate||indicate
 indicat||indicate
 inexpect||inexpected
+<<<<<<< HEAD
+=======
+inferface||interface
+infinit||infinite
+>>>>>>> upstream/android-13
 infomation||information
 informatiom||information
 informations||information
@@ -659,6 +1015,7 @@ initalize||initialize
 initation||initiation
 initators||initiators
 initialiazation||initialization
+<<<<<<< HEAD
 initializiation||initialization
 initialze||initialize
 initialzed||initialized
@@ -670,6 +1027,26 @@ insititute||institute
 instal||install
 instanciate||instantiate
 instanciated||instantiated
+=======
+initializationg||initialization
+initializiation||initialization
+initialze||initialize
+initialzed||initialized
+initialzing||initializing
+initilization||initialization
+initilize||initialize
+initliaze||initialize
+initilized||initialized
+inofficial||unofficial
+inrerface||interface
+insititute||institute
+instace||instance
+instal||install
+instanciate||instantiate
+instanciated||instantiated
+instuments||instruments
+insufficent||insufficient
+>>>>>>> upstream/android-13
 inteface||interface
 integreated||integrated
 integrety||integrity
@@ -680,17 +1057,30 @@ interanl||internal
 interchangable||interchangeable
 interferring||interfering
 interger||integer
+<<<<<<< HEAD
+=======
+intergrated||integrated
+>>>>>>> upstream/android-13
 intermittant||intermittent
 internel||internal
 interoprability||interoperability
 interuupt||interrupt
+<<<<<<< HEAD
+=======
+interupt||interrupt
+interupts||interrupts
+>>>>>>> upstream/android-13
 interrface||interface
 interrrupt||interrupt
 interrup||interrupt
 interrups||interrupts
 interruptted||interrupted
 interupted||interrupted
+<<<<<<< HEAD
 interupt||interrupt
+=======
+intiailized||initialized
+>>>>>>> upstream/android-13
 intial||initial
 intialisation||initialisation
 intialised||initialised
@@ -699,11 +1089,20 @@ intialization||initialization
 intialized||initialized
 intialize||initialize
 intregral||integral
+<<<<<<< HEAD
+=======
+intrerrupt||interrupt
+>>>>>>> upstream/android-13
 intrrupt||interrupt
 intterrupt||interrupt
 intuative||intuitive
 inavlid||invalid
 invaid||invalid
+<<<<<<< HEAD
+=======
+invaild||invalid
+invailid||invalid
+>>>>>>> upstream/android-13
 invald||invalid
 invalde||invalid
 invalide||invalid
@@ -712,14 +1111,27 @@ invalud||invalid
 invididual||individual
 invokation||invocation
 invokations||invocations
+<<<<<<< HEAD
 irrelevent||irrelevant
 isnt||isn't
 isssue||issue
+=======
+ireelevant||irrelevant
+irrelevent||irrelevant
+isnt||isn't
+isssue||issue
+issus||issues
+iteraions||iterations
+>>>>>>> upstream/android-13
 iternations||iterations
 itertation||iteration
 itslef||itself
 jave||java
 jeffies||jiffies
+<<<<<<< HEAD
+=======
+jumpimng||jumping
+>>>>>>> upstream/android-13
 juse||just
 jus||just
 kown||known
@@ -740,13 +1152,24 @@ libary||library
 librairies||libraries
 libraris||libraries
 licenceing||licencing
+<<<<<<< HEAD
+=======
+limted||limited
+logaritmic||logarithmic
+>>>>>>> upstream/android-13
 loggging||logging
 loggin||login
 logile||logfile
 loobpack||loopback
 loosing||losing
 losted||lost
+<<<<<<< HEAD
 machinary||machinery
+=======
+maangement||management
+machinary||machinery
+maibox||mailbox
+>>>>>>> upstream/android-13
 maintainance||maintenance
 maintainence||maintenance
 maintan||maintain
@@ -755,17 +1178,39 @@ mailformed||malformed
 malplaced||misplaced
 malplace||misplace
 managable||manageable
+<<<<<<< HEAD
 managment||management
 mangement||management
 manoeuvering||maneuvering
 mappping||mapping
+=======
+managament||management
+managment||management
+mangement||management
+manger||manager
+manoeuvering||maneuvering
+manufaucturing||manufacturing
+mappping||mapping
+maping||mapping
+>>>>>>> upstream/android-13
 matchs||matches
 mathimatical||mathematical
 mathimatic||mathematic
 mathimatics||mathematics
+<<<<<<< HEAD
 maxium||maximum
 mechamism||mechanism
 meetign||meeting
+=======
+maximium||maximum
+maxium||maximum
+mechamism||mechanism
+meetign||meeting
+memeory||memory
+memmber||member
+memoery||memory
+memroy||memory
+>>>>>>> upstream/android-13
 ment||meant
 mergable||mergeable
 mesage||message
@@ -773,12 +1218,20 @@ messags||messages
 messgaes||messages
 messsage||message
 messsages||messages
+<<<<<<< HEAD
+=======
+metdata||metadata
+>>>>>>> upstream/android-13
 micropone||microphone
 microprocesspr||microprocessor
 migrateable||migratable
 milliseonds||milliseconds
 minium||minimum
 minimam||minimum
+<<<<<<< HEAD
+=======
+miniumum||minimum
+>>>>>>> upstream/android-13
 minumum||minimum
 misalinged||misaligned
 miscelleneous||miscellaneous
@@ -787,22 +1240,44 @@ mispelled||misspelled
 mispelt||misspelt
 mising||missing
 mismactch||mismatch
+<<<<<<< HEAD
 missmanaged||mismanaged
 missmatch||mismatch
+=======
+missign||missing
+missmanaged||mismanaged
+missmatch||mismatch
+misssing||missing
+>>>>>>> upstream/android-13
 miximum||maximum
 mmnemonic||mnemonic
 mnay||many
 modfiy||modify
+<<<<<<< HEAD
 modulues||modules
 momery||memory
 memomry||memory
+=======
+modifer||modifier
+modulues||modules
+momery||memory
+memomry||memory
+monitring||monitoring
+>>>>>>> upstream/android-13
 monochorome||monochrome
 monochromo||monochrome
 monocrome||monochrome
 mopdule||module
 mroe||more
+<<<<<<< HEAD
 mulitplied||multiplied
 multidimensionnal||multidimensional
+=======
+multipler||multiplier
+mulitplied||multiplied
+multidimensionnal||multidimensional
+multipe||multiple
+>>>>>>> upstream/android-13
 multple||multiple
 mumber||number
 muticast||multicast
@@ -824,8 +1299,17 @@ nerver||never
 nescessary||necessary
 nessessary||necessary
 noticable||noticeable
+<<<<<<< HEAD
 notications||notifications
 notifed||notified
+=======
+notication||notification
+notications||notifications
+notifcations||notifications
+notifed||notified
+notity||notify
+nubmer||number
+>>>>>>> upstream/android-13
 numebr||number
 numner||number
 obtaion||obtain
@@ -834,6 +1318,7 @@ occassionally||occasionally
 occationally||occasionally
 occurance||occurrence
 occurances||occurrences
+<<<<<<< HEAD
 occured||occurred
 occurence||occurrence
 occure||occurred
@@ -841,6 +1326,18 @@ occured||occurred
 occuring||occurring
 offet||offset
 offloded||offloaded
+=======
+occurd||occurred
+occured||occurred
+occurence||occurrence
+occure||occurred
+occuring||occurring
+offser||offset
+offet||offset
+offlaod||offload
+offloded||offloaded
+offseting||offsetting
+>>>>>>> upstream/android-13
 omited||omitted
 omiting||omitting
 omitt||omit
@@ -848,22 +1345,42 @@ ommiting||omitting
 ommitted||omitted
 onself||oneself
 ony||only
+<<<<<<< HEAD
 operatione||operation
 opertaions||operations
+=======
+openning||opening
+operatione||operation
+opertaions||operations
+opportunies||opportunities
+>>>>>>> upstream/android-13
 optionnal||optional
 optmizations||optimizations
 orientatied||orientated
 orientied||oriented
 orignal||original
+<<<<<<< HEAD
+=======
+originial||original
+>>>>>>> upstream/android-13
 otherise||otherwise
 ouput||output
 oustanding||outstanding
 overaall||overall
 overhread||overhead
 overlaping||overlapping
+<<<<<<< HEAD
 overide||override
 overrided||overridden
 overriden||overridden
+=======
+overflw||overflow
+overlfow||overflow
+overide||override
+overrided||overridden
+overriden||overridden
+overrrun||overrun
+>>>>>>> upstream/android-13
 overun||overrun
 overwritting||overwriting
 overwriten||overwritten
@@ -874,6 +1391,10 @@ packege||package
 packge||package
 packtes||packets
 pakage||package
+<<<<<<< HEAD
+=======
+paket||packet
+>>>>>>> upstream/android-13
 pallette||palette
 paln||plan
 paramameters||parameters
@@ -886,21 +1407,42 @@ paramters||parameters
 parmaters||parameters
 particuarly||particularly
 particularily||particularly
+<<<<<<< HEAD
+=======
+partion||partition
+partions||partitions
+>>>>>>> upstream/android-13
 partiton||partition
 pased||passed
 passin||passing
 pathes||paths
+<<<<<<< HEAD
+=======
+pattrns||patterns
+>>>>>>> upstream/android-13
 pecularities||peculiarities
 peformance||performance
 peforming||performing
 peice||piece
 pendantic||pedantic
 peprocessor||preprocessor
+<<<<<<< HEAD
 perfoming||performing
+=======
+perfomance||performance
+perfoming||performing
+perfomring||performing
+periperal||peripheral
+peripherial||peripheral
+>>>>>>> upstream/android-13
 permissons||permissions
 peroid||period
 persistance||persistence
 persistant||persistent
+<<<<<<< HEAD
+=======
+phoneticly||phonetically
+>>>>>>> upstream/android-13
 plalform||platform
 platfoem||platform
 platfrom||platform
@@ -914,7 +1456,13 @@ poiter||pointer
 posible||possible
 positon||position
 possibilites||possibilities
+<<<<<<< HEAD
 powerfull||powerful
+=======
+potocol||protocol
+powerfull||powerful
+pramater||parameter
+>>>>>>> upstream/android-13
 preamle||preamble
 preample||preamble
 preapre||prepare
@@ -926,10 +1474,23 @@ precission||precision
 preemptable||preemptible
 prefered||preferred
 prefferably||preferably
+<<<<<<< HEAD
 premption||preemption
 prepaired||prepared
 preperation||preparation
 pressre||pressure
+=======
+prefitler||prefilter
+preform||perform
+premption||preemption
+prepaired||prepared
+prepate||prepare
+preperation||preparation
+preprare||prepare
+pressre||pressure
+presuambly||presumably
+previosuly||previously
+>>>>>>> upstream/android-13
 primative||primitive
 princliple||principle
 priorty||priority
@@ -937,6 +1498,10 @@ privilaged||privileged
 privilage||privilege
 priviledge||privilege
 priviledges||privileges
+<<<<<<< HEAD
+=======
+privleges||privileges
+>>>>>>> upstream/android-13
 probaly||probably
 procceed||proceed
 proccesors||processors
@@ -950,12 +1515,24 @@ processsed||processed
 processsing||processing
 procteted||protected
 prodecure||procedure
+<<<<<<< HEAD
 progams||programs
 progess||progress
+=======
+progamming||programming
+progams||programs
+progess||progress
+programable||programmable
+>>>>>>> upstream/android-13
 programers||programmers
 programm||program
 programms||programs
 progresss||progress
+<<<<<<< HEAD
+=======
+prohibitted||prohibited
+prohibitting||prohibiting
+>>>>>>> upstream/android-13
 promiscous||promiscuous
 promps||prompts
 pronnounced||pronounced
@@ -965,29 +1542,57 @@ pronunce||pronounce
 propery||property
 propigate||propagate
 propigation||propagation
+<<<<<<< HEAD
+=======
+propogation||propagation
+>>>>>>> upstream/android-13
 propogate||propagate
 prosess||process
 protable||portable
 protcol||protocol
 protecion||protection
+<<<<<<< HEAD
+=======
+protedcted||protected
+>>>>>>> upstream/android-13
 protocoll||protocol
 promixity||proximity
 psudo||pseudo
 psuedo||pseudo
 psychadelic||psychedelic
+<<<<<<< HEAD
 pwoer||power
 quering||querying
+=======
+purgable||purgeable
+pwoer||power
+queing||queuing
+quering||querying
+queus||queues
+>>>>>>> upstream/android-13
 randomally||randomly
 raoming||roaming
 reasearcher||researcher
 reasearchers||researchers
 reasearch||research
+<<<<<<< HEAD
 recepient||recipient
 receving||receiving
+=======
+receieve||receive
+recepient||recipient
+recevied||received
+receving||receiving
+recievd||received
+>>>>>>> upstream/android-13
 recieved||received
 recieve||receive
 reciever||receiver
 recieves||receives
+<<<<<<< HEAD
+=======
+recieving||receiving
+>>>>>>> upstream/android-13
 recogniced||recognised
 recognizeable||recognizable
 recommanded||recommended
@@ -1004,6 +1609,10 @@ refering||referring
 refernces||references
 refernnce||reference
 refrence||reference
+<<<<<<< HEAD
+=======
+registed||registered
+>>>>>>> upstream/android-13
 registerd||registered
 registeration||registration
 registeresd||registered
@@ -1018,6 +1627,10 @@ regulamentations||regulations
 reigstration||registration
 releated||related
 relevent||relevant
+<<<<<<< HEAD
+=======
+reloade||reload
+>>>>>>> upstream/android-13
 remoote||remote
 remore||remote
 removeable||removable
@@ -1028,28 +1641,56 @@ replys||replies
 reponse||response
 representaion||representation
 reqeust||request
+<<<<<<< HEAD
+=======
+reqister||register
+requed||requeued
+>>>>>>> upstream/android-13
 requestied||requested
 requiere||require
 requirment||requirement
 requred||required
 requried||required
 requst||request
+<<<<<<< HEAD
 reregisteration||reregistration
 reseting||resetting
+=======
+requsted||requested
+reregisteration||reregistration
+reseting||resetting
+reseved||reserved
+>>>>>>> upstream/android-13
 reseverd||reserved
 resizeable||resizable
 resouce||resource
 resouces||resources
 resoures||resources
 responce||response
+<<<<<<< HEAD
+=======
+resrouce||resource
+>>>>>>> upstream/android-13
 ressizes||resizes
 ressource||resource
 ressources||resources
 restesting||retesting
+<<<<<<< HEAD
 retransmited||retransmitted
 retreived||retrieved
 retreive||retrieve
 retrive||retrieve
+=======
+resumbmitting||resubmitting
+retransmited||retransmitted
+retreived||retrieved
+retreive||retrieve
+retreiving||retrieving
+retrive||retrieve
+retrived||retrieved
+retrun||return
+retun||return
+>>>>>>> upstream/android-13
 retuned||returned
 reudce||reduce
 reuest||request
@@ -1074,18 +1715,32 @@ scaleing||scaling
 scaned||scanned
 scaning||scanning
 scarch||search
+<<<<<<< HEAD
 seach||search
 searchs||searches
 secquence||sequence
 secund||second
 segement||segment
+=======
+schdule||schedule
+seach||search
+searchs||searches
+secion||section
+secquence||sequence
+secund||second
+segement||segment
+seleted||selected
+>>>>>>> upstream/android-13
 semaphone||semaphore
 senario||scenario
 senarios||scenarios
 sentivite||sensitive
 separatly||separately
 sepcify||specify
+<<<<<<< HEAD
 sepc||spec
+=======
+>>>>>>> upstream/android-13
 seperated||separated
 seperately||separately
 seperate||separate
@@ -1096,11 +1751,21 @@ seqeunce||sequence
 seqeuncer||sequencer
 seqeuencer||sequencer
 sequece||sequence
+<<<<<<< HEAD
 sequencial||sequential
+=======
+sequemce||sequence
+sequencial||sequential
+serivce||service
+>>>>>>> upstream/android-13
 serveral||several
 servive||service
 setts||sets
 settting||setting
+<<<<<<< HEAD
+=======
+shapshot||snapshot
+>>>>>>> upstream/android-13
 shotdown||shutdown
 shoud||should
 shouldnt||shouldn't
@@ -1108,6 +1773,10 @@ shoule||should
 shrinked||shrunk
 siginificantly||significantly
 signabl||signal
+<<<<<<< HEAD
+=======
+significanly||significantly
+>>>>>>> upstream/android-13
 similary||similarly
 similiar||similar
 simlar||similar
@@ -1117,15 +1786,32 @@ singaled||signaled
 singal||signal
 singed||signed
 sleeped||slept
+<<<<<<< HEAD
 softwares||software
 speach||speech
 specfic||specific
+=======
+sliped||slipped
+softwade||software
+softwares||software
+soley||solely
+souce||source
+speach||speech
+specfic||specific
+specfield||specified
+>>>>>>> upstream/android-13
 speciefied||specified
 specifc||specific
 specifed||specified
 specificatin||specification
 specificaton||specification
+<<<<<<< HEAD
 specifing||specifying
+=======
+specificed||specified
+specifing||specifying
+specifiy||specify
+>>>>>>> upstream/android-13
 specifiying||specifying
 speficied||specified
 speicify||specify
@@ -1142,7 +1828,14 @@ staion||station
 standardss||standards
 standartization||standardization
 standart||standard
+<<<<<<< HEAD
 staticly||statically
+=======
+standy||standby
+stardard||standard
+staticly||statically
+statuss||status
+>>>>>>> upstream/android-13
 stoped||stopped
 stoping||stopping
 stoppped||stopped
@@ -1156,7 +1849,13 @@ sturcture||structure
 subdirectoires||subdirectories
 suble||subtle
 substract||subtract
+<<<<<<< HEAD
 submition||submission
+=======
+submited||submitted
+submition||submission
+succeded||succeeded
+>>>>>>> upstream/android-13
 suceed||succeed
 succesfully||successfully
 succesful||successful
@@ -1164,6 +1863,10 @@ successed||succeeded
 successfull||successful
 successfuly||successfully
 sucessfully||successfully
+<<<<<<< HEAD
+=======
+sucessful||successful
+>>>>>>> upstream/android-13
 sucess||success
 superflous||superfluous
 superseeded||superseded
@@ -1176,6 +1879,10 @@ supportin||supporting
 suppoted||supported
 suppported||supported
 suppport||support
+<<<<<<< HEAD
+=======
+supprot||support
+>>>>>>> upstream/android-13
 supress||suppress
 surpressed||suppressed
 surpresses||suppresses
@@ -1193,6 +1900,10 @@ swithcing||switching
 swithed||switched
 swithing||switching
 swtich||switch
+<<<<<<< HEAD
+=======
+syfs||sysfs
+>>>>>>> upstream/android-13
 symetric||symmetric
 synax||syntax
 synchonized||synchronized
@@ -1212,14 +1923,28 @@ taskelt||tasklet
 teh||the
 temorary||temporary
 temproarily||temporarily
+<<<<<<< HEAD
+=======
+temperture||temperature
+>>>>>>> upstream/android-13
 thead||thread
 therfore||therefore
 thier||their
 threds||threads
+<<<<<<< HEAD
 threshhold||threshold
 thresold||threshold
 throught||through
 troughput||throughput
+=======
+threee||three
+threshhold||threshold
+thresold||threshold
+throught||through
+trackling||tracking
+troughput||throughput
+trys||tries
+>>>>>>> upstream/android-13
 thses||these
 tiggers||triggers
 tiggered||triggered
@@ -1227,12 +1952,25 @@ tipically||typically
 timeing||timing
 timout||timeout
 tmis||this
+<<<<<<< HEAD
 torerable||tolerable
+=======
+toogle||toggle
+torerable||tolerable
+traget||target
+>>>>>>> upstream/android-13
 traking||tracking
 tramsmitted||transmitted
 tramsmit||transmit
 tranasction||transaction
+<<<<<<< HEAD
 tranfer||transfer
+=======
+tranceiver||transceiver
+tranfer||transfer
+tranmission||transmission
+transcevier||transceiver
+>>>>>>> upstream/android-13
 transciever||transceiver
 transferd||transferred
 transfered||transferred
@@ -1243,6 +1981,10 @@ transormed||transformed
 trasfer||transfer
 trasmission||transmission
 treshold||threshold
+<<<<<<< HEAD
+=======
+triggerd||triggered
+>>>>>>> upstream/android-13
 trigerred||triggered
 trigerring||triggering
 trun||turn
@@ -1252,9 +1994,17 @@ tyep||type
 udpate||update
 uesd||used
 uknown||unknown
+<<<<<<< HEAD
 usupported||unsupported
 uncommited||uncommitted
 unconditionaly||unconditionally
+=======
+usccess||success
+uncommited||uncommitted
+uncompatible||incompatible
+unconditionaly||unconditionally
+undeflow||underflow
+>>>>>>> upstream/android-13
 underun||underrun
 unecessary||unnecessary
 unexecpted||unexpected
@@ -1267,8 +2017,15 @@ unfortunatelly||unfortunately
 unifiy||unify
 uniterrupted||uninterrupted
 unintialized||uninitialized
+<<<<<<< HEAD
 unkmown||unknown
 unknonw||unknown
+=======
+unitialized||uninitialized
+unkmown||unknown
+unknonw||unknown
+unknouwn||unknown
+>>>>>>> upstream/android-13
 unknow||unknown
 unkown||unknown
 unamed||unnamed
@@ -1281,6 +2038,10 @@ unnecesary||unnecessary
 unneedingly||unnecessarily
 unnsupported||unsupported
 unmached||unmatched
+<<<<<<< HEAD
+=======
+unprecise||imprecise
+>>>>>>> upstream/android-13
 unregester||unregister
 unresgister||unregister
 unrgesiter||unregister
@@ -1290,8 +2051,16 @@ unsolicitied||unsolicited
 unsuccessfull||unsuccessful
 unsuported||unsupported
 untill||until
+<<<<<<< HEAD
 unuseful||useless
 upate||update
+=======
+ununsed||unused
+unuseful||useless
+unvalid||invalid
+upate||update
+upsupported||unsupported
+>>>>>>> upstream/android-13
 usefule||useful
 usefull||useful
 usege||usage
@@ -1312,6 +2081,11 @@ varible||variable
 varient||variant
 vaule||value
 verbse||verbose
+<<<<<<< HEAD
+=======
+veify||verify
+veriosn||version
+>>>>>>> upstream/android-13
 verisons||versions
 verison||version
 verson||version
@@ -1337,8 +2111,16 @@ wiil||will
 wirte||write
 withing||within
 wnat||want
+<<<<<<< HEAD
 workarould||workaround
 writeing||writing
 writting||writing
+=======
+wont||won't
+workarould||workaround
+writeing||writing
+writting||writing
+wtih||with
+>>>>>>> upstream/android-13
 zombe||zombie
 zomebie||zombie

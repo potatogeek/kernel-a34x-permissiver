@@ -29,12 +29,18 @@ MODULE_AUTHOR
 MODULE_DESCRIPTION ("Linux for S/390 IUCV special message driver");
 
 static struct iucv_path *smsg_path;
+<<<<<<< HEAD
 /* dummy device used as trigger for PM functions */
 static struct device *smsg_dev;
 
 static DEFINE_SPINLOCK(smsg_list_lock);
 static LIST_HEAD(smsg_list);
 static int iucv_path_connected;
+=======
+
+static DEFINE_SPINLOCK(smsg_list_lock);
+static LIST_HEAD(smsg_list);
+>>>>>>> upstream/android-13
 
 static int smsg_path_pending(struct iucv_path *, u8 *, u8 *);
 static void smsg_message_pending(struct iucv_path *, struct iucv_message *);
@@ -124,6 +130,7 @@ void smsg_unregister_callback(const char *prefix,
 	kfree(cb);
 }
 
+<<<<<<< HEAD
 static int smsg_pm_freeze(struct device *dev)
 {
 #ifdef CONFIG_PM_DEBUG
@@ -167,17 +174,25 @@ static const struct dev_pm_ops smsg_pm_ops = {
 	.restore = smsg_pm_restore_thaw,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct device_driver smsg_driver = {
 	.owner = THIS_MODULE,
 	.name = SMSGIUCV_DRV_NAME,
 	.bus  = &iucv_bus,
+<<<<<<< HEAD
 	.pm = &smsg_pm_ops,
+=======
+>>>>>>> upstream/android-13
 };
 
 static void __exit smsg_exit(void)
 {
 	cpcmd("SET SMSG OFF", NULL, 0, NULL);
+<<<<<<< HEAD
 	device_unregister(smsg_dev);
+=======
+>>>>>>> upstream/android-13
 	iucv_unregister(&smsg_handler, 1);
 	driver_unregister(&smsg_driver);
 }
@@ -205,6 +220,7 @@ static int __init smsg_init(void)
 			       NULL, NULL, NULL);
 	if (rc)
 		goto out_free_path;
+<<<<<<< HEAD
 	else
 		iucv_path_connected = 1;
 	smsg_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
@@ -220,12 +236,17 @@ static int __init smsg_init(void)
 	rc = device_register(smsg_dev);
 	if (rc)
 		goto out_put;
+=======
+>>>>>>> upstream/android-13
 
 	cpcmd("SET SMSG IUCV", NULL, 0, NULL);
 	return 0;
 
+<<<<<<< HEAD
 out_put:
 	put_device(smsg_dev);
+=======
+>>>>>>> upstream/android-13
 out_free_path:
 	iucv_path_free(smsg_path);
 	smsg_path = NULL;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef SQUASHFS_FS_SB
 #define SQUASHFS_FS_SB
 /*
@@ -6,6 +10,7 @@
  * Copyright (c) 2002, 2003, 2004, 2005, 2006, 2007, 2008
  * Phillip Lougher <phillip@squashfs.org.uk>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2,
@@ -20,6 +25,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * squashfs_fs_sb.h
  */
 
@@ -78,5 +85,9 @@ struct squashfs_sb_info {
 	unsigned int				fragments;
 	int					xattr_ids;
 	unsigned int				ids;
+<<<<<<< HEAD
+=======
+	bool					panic_on_errors;
+>>>>>>> upstream/android-13
 };
 #endif

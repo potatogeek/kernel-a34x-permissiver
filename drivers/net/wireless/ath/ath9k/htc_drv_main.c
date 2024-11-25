@@ -1251,6 +1251,10 @@ out:
 	FIF_OTHER_BSS |				\
 	FIF_BCN_PRBRESP_PROMISC |		\
 	FIF_PROBE_REQ |				\
+<<<<<<< HEAD
+=======
+	FIF_MCAST_ACTION |			\
+>>>>>>> upstream/android-13
 	FIF_FCSFAIL)
 
 static void ath9k_htc_configure_filter(struct ieee80211_hw *hw,
@@ -1460,7 +1464,11 @@ static int ath9k_htc_set_key(struct ieee80211_hw *hw,
 		}
 		break;
 	case DISABLE_KEY:
+<<<<<<< HEAD
 		ath_key_delete(common, key);
+=======
+		ath_key_delete(common, key->hw_key_idx);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
@@ -1674,7 +1682,11 @@ static int ath9k_htc_ampdu_action(struct ieee80211_hw *hw,
 	case IEEE80211_AMPDU_TX_START:
 		ret = ath9k_htc_tx_aggr_oper(priv, vif, sta, action, tid);
 		if (!ret)
+<<<<<<< HEAD
 			ieee80211_start_tx_ba_cb_irqsafe(vif, sta->addr, tid);
+=======
+			ret = IEEE80211_AMPDU_TX_START_IMMEDIATE;
+>>>>>>> upstream/android-13
 		break;
 	case IEEE80211_AMPDU_TX_STOP_CONT:
 	case IEEE80211_AMPDU_TX_STOP_FLUSH:

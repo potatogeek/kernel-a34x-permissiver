@@ -42,7 +42,14 @@
 #include <linux/io.h>
 #include <linux/module.h>
 #include <linux/of.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
+=======
+#include <linux/of_device.h>
+#include <linux/platform_device.h>
+#include <linux/pm_runtime.h>
+#include <linux/reset.h>
+>>>>>>> upstream/android-13
 
 #define RIIC_ICCR1	0x00
 #define RIIC_ICCR2	0x04
@@ -85,6 +92,14 @@
 
 #define RIIC_INIT_MSG	-1
 
+<<<<<<< HEAD
+=======
+enum riic_type {
+	RIIC_RZ_A,
+	RIIC_RZ_G2L,
+};
+
+>>>>>>> upstream/android-13
 struct riic_dev {
 	void __iomem *base;
 	u8 *buf;
@@ -112,12 +127,19 @@ static int riic_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 {
 	struct riic_dev *riic = i2c_get_adapdata(adap);
 	unsigned long time_left;
+<<<<<<< HEAD
 	int i, ret;
 	u8 start_bit;
 
 	ret = clk_prepare_enable(riic->clk);
 	if (ret)
 		return ret;
+=======
+	int i;
+	u8 start_bit;
+
+	pm_runtime_get_sync(adap->dev.parent);
+>>>>>>> upstream/android-13
 
 	if (readb(riic->base + RIIC_ICCR2) & ICCR2_BBSY) {
 		riic->err = -EBUSY;
@@ -150,7 +172,11 @@ static int riic_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	}
 
  out:
+<<<<<<< HEAD
 	clk_disable_unprepare(riic->clk);
+=======
+	pm_runtime_put(adap->dev.parent);
+>>>>>>> upstream/android-13
 
 	return riic->err ?: num;
 }
@@ -282,6 +308,7 @@ static const struct i2c_algorithm riic_algo = {
 
 static int riic_init_hw(struct riic_dev *riic, struct i2c_timings *t)
 {
+<<<<<<< HEAD
 	int ret;
 	unsigned long rate;
 	int total_ticks, cks, brl, brh;
@@ -296,6 +323,20 @@ static int riic_init_hw(struct riic_dev *riic, struct i2c_timings *t)
 			t->bus_freq_hz);
 		clk_disable_unprepare(riic->clk);
 		return -EINVAL;
+=======
+	int ret = 0;
+	unsigned long rate;
+	int total_ticks, cks, brl, brh;
+
+	pm_runtime_get_sync(riic->adapter.dev.parent);
+
+	if (t->bus_freq_hz > I2C_MAX_FAST_MODE_FREQ) {
+		dev_err(&riic->adapter.dev,
+			"unsupported bus speed (%dHz). %d max\n",
+			t->bus_freq_hz, I2C_MAX_FAST_MODE_FREQ);
+		ret = -EINVAL;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	rate = clk_get_rate(riic->clk);
@@ -333,8 +374,13 @@ static int riic_init_hw(struct riic_dev *riic, struct i2c_timings *t)
 	if (brl > (0x1F + 3)) {
 		dev_err(&riic->adapter.dev, "invalid speed (%lu). Too slow.\n",
 			(unsigned long)t->bus_freq_hz);
+<<<<<<< HEAD
 		clk_disable_unprepare(riic->clk);
 		return -EINVAL;
+=======
+		ret = -EINVAL;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	brh = total_ticks - brl;
@@ -379,9 +425,15 @@ static int riic_init_hw(struct riic_dev *riic, struct i2c_timings *t)
 
 	riic_clear_set_bit(riic, ICCR1_IICRST, 0, RIIC_ICCR1);
 
+<<<<<<< HEAD
 	clk_disable_unprepare(riic->clk);
 
 	return 0;
+=======
+out:
+	pm_runtime_put(riic->adapter.dev.parent);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static struct riic_irq_desc riic_irqs[] = {
@@ -398,7 +450,13 @@ static int riic_i2c_probe(struct platform_device *pdev)
 	struct i2c_adapter *adap;
 	struct resource *res;
 	struct i2c_timings i2c_t;
+<<<<<<< HEAD
 	int i, ret;
+=======
+	struct reset_control *rstc;
+	int i, ret;
+	enum riic_type type;
+>>>>>>> upstream/android-13
 
 	riic = devm_kzalloc(&pdev->dev, sizeof(*riic), GFP_KERNEL);
 	if (!riic)
@@ -415,6 +473,20 @@ static int riic_i2c_probe(struct platform_device *pdev)
 		return PTR_ERR(riic->clk);
 	}
 
+<<<<<<< HEAD
+=======
+	type = (enum riic_type)of_device_get_match_data(&pdev->dev);
+	if (type == RIIC_RZ_G2L) {
+		rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+		if (IS_ERR(rstc)) {
+			dev_err(&pdev->dev, "Error: missing reset ctrl\n");
+			return PTR_ERR(rstc);
+		}
+
+		reset_control_deassert(rstc);
+	}
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < ARRAY_SIZE(riic_irqs); i++) {
 		res = platform_get_resource(pdev, IORESOURCE_IRQ, riic_irqs[i].res_num);
 		if (!res)
@@ -440,6 +512,7 @@ static int riic_i2c_probe(struct platform_device *pdev)
 
 	i2c_parse_fw_timings(&pdev->dev, &i2c_t, true);
 
+<<<<<<< HEAD
 	ret = riic_init_hw(riic, &i2c_t);
 	if (ret)
 		return ret;
@@ -448,26 +521,57 @@ static int riic_i2c_probe(struct platform_device *pdev)
 	ret = i2c_add_adapter(adap);
 	if (ret)
 		return ret;
+=======
+	pm_runtime_enable(&pdev->dev);
+
+	ret = riic_init_hw(riic, &i2c_t);
+	if (ret)
+		goto out;
+
+	ret = i2c_add_adapter(adap);
+	if (ret)
+		goto out;
+>>>>>>> upstream/android-13
 
 	platform_set_drvdata(pdev, riic);
 
 	dev_info(&pdev->dev, "registered with %dHz bus speed\n",
 		 i2c_t.bus_freq_hz);
 	return 0;
+<<<<<<< HEAD
+=======
+
+out:
+	pm_runtime_disable(&pdev->dev);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static int riic_i2c_remove(struct platform_device *pdev)
 {
 	struct riic_dev *riic = platform_get_drvdata(pdev);
 
+<<<<<<< HEAD
 	writeb(0, riic->base + RIIC_ICIER);
 	i2c_del_adapter(&riic->adapter);
+=======
+	pm_runtime_get_sync(&pdev->dev);
+	writeb(0, riic->base + RIIC_ICIER);
+	pm_runtime_put(&pdev->dev);
+	i2c_del_adapter(&riic->adapter);
+	pm_runtime_disable(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 static const struct of_device_id riic_i2c_dt_ids[] = {
+<<<<<<< HEAD
 	{ .compatible = "renesas,riic-rz" },
+=======
+	{ .compatible = "renesas,riic-r9a07g044", .data = (void *)RIIC_RZ_G2L },
+	{ .compatible = "renesas,riic-rz", .data = (void *)RIIC_RZ_A },
+>>>>>>> upstream/android-13
 	{ /* Sentinel */ },
 };
 

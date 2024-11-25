@@ -119,7 +119,11 @@ static long iproc_asiu_clk_round_rate(struct clk_hw *hw, unsigned long rate,
 	if (rate == *parent_rate)
 		return *parent_rate;
 
+<<<<<<< HEAD
 	div = DIV_ROUND_UP(*parent_rate, rate);
+=======
+	div = DIV_ROUND_CLOSEST(*parent_rate, rate);
+>>>>>>> upstream/android-13
 	if (div < 2)
 		return *parent_rate;
 
@@ -145,7 +149,11 @@ static int iproc_asiu_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 		return 0;
 	}
 
+<<<<<<< HEAD
 	div = DIV_ROUND_UP(parent_rate, rate);
+=======
+	div = DIV_ROUND_CLOSEST(parent_rate, rate);
+>>>>>>> upstream/android-13
 	if (div < 2)
 		return -EINVAL;
 
@@ -216,7 +224,11 @@ void __init iproc_asiu_setup(struct device_node *node,
 		goto err_iomap_gate;
 
 	for (i = 0; i < num_clks; i++) {
+<<<<<<< HEAD
 		struct clk_init_data init = {};
+=======
+		struct clk_init_data init;
+>>>>>>> upstream/android-13
 		const char *parent_name;
 		struct iproc_asiu_clk *asiu_clk;
 		const char *clk_name;

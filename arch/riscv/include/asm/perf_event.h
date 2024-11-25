@@ -12,12 +12,17 @@
 #include <linux/ptrace.h>
 #include <linux/interrupt.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_RISCV_BASE_PMU
+>>>>>>> upstream/android-13
 #define RISCV_BASE_COUNTERS	2
 
 /*
  * The RISCV_MAX_COUNTERS parameter should be specified.
  */
 
+<<<<<<< HEAD
 #ifdef CONFIG_RISCV_BASE_PMU
 #define RISCV_MAX_COUNTERS	2
 #endif
@@ -25,6 +30,9 @@
 #ifndef RISCV_MAX_COUNTERS
 #error "Please provide a valid RISCV_MAX_COUNTERS for the PMU."
 #endif
+=======
+#define RISCV_MAX_COUNTERS	2
+>>>>>>> upstream/android-13
 
 /*
  * These are the indexes of bits in counteren register *minus* 1,
@@ -82,4 +90,12 @@ struct riscv_pmu {
 	int		irq;
 };
 
+<<<<<<< HEAD
+=======
+#endif
+#ifdef CONFIG_PERF_EVENTS
+#define perf_arch_bpf_user_pt_regs(regs) (struct user_regs_struct *)regs
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* _ASM_RISCV_PERF_EVENT_H */

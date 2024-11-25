@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2016 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #ifndef HFI1_SDMA_TXREQ_H
@@ -91,6 +97,10 @@ struct sdma_desc {
 #define SDMA_TXREQ_F_URGENT       0x0001
 #define SDMA_TXREQ_F_AHG_COPY     0x0002
 #define SDMA_TXREQ_F_USE_AHG      0x0004
+<<<<<<< HEAD
+=======
+#define SDMA_TXREQ_F_VIP          0x0010
+>>>>>>> upstream/android-13
 
 struct sdma_txreq;
 typedef void (*callback_t)(struct sdma_txreq *, int);

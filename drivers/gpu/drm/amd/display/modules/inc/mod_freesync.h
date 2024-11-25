@@ -54,15 +54,22 @@
 #ifndef MOD_FREESYNC_H_
 #define MOD_FREESYNC_H_
 
+<<<<<<< HEAD
 #include "dm_services.h"
 
 struct mod_freesync *mod_freesync_create(struct dc *dc);
 void mod_freesync_destroy(struct mod_freesync *mod_freesync);
 
+=======
+#include "mod_shared.h"
+
+// Access structures
+>>>>>>> upstream/android-13
 struct mod_freesync {
 	int dummy;
 };
 
+<<<<<<< HEAD
 enum mod_freesync_state {
 	FREESYNC_STATE_NONE,
 	FREESYNC_STATE_FULLSCREEN,
@@ -82,10 +89,14 @@ struct mod_freesync_user_enable {
 	bool enable_for_gaming;
 };
 
+=======
+// TODO: References to this should be removed
+>>>>>>> upstream/android-13
 struct mod_freesync_caps {
 	bool supported;
 	unsigned int min_refresh_in_micro_hz;
 	unsigned int max_refresh_in_micro_hz;
+<<<<<<< HEAD
 
 	bool btr_supported;
 };
@@ -146,6 +157,70 @@ bool mod_freesync_get_min_max(struct mod_freesync *mod_freesync,
 
 bool mod_freesync_get_vmin_vmax(struct mod_freesync *mod_freesync,
 		struct dc_stream_state *stream,
+=======
+};
+
+enum mod_vrr_state {
+	VRR_STATE_UNSUPPORTED = 0,
+	VRR_STATE_DISABLED,
+	VRR_STATE_INACTIVE,
+	VRR_STATE_ACTIVE_VARIABLE,
+	VRR_STATE_ACTIVE_FIXED
+};
+
+struct mod_freesync_config {
+	enum mod_vrr_state state;
+	bool vsif_supported;
+	bool ramping;
+	bool btr;
+	unsigned int min_refresh_in_uhz;
+	unsigned int max_refresh_in_uhz;
+	unsigned int fixed_refresh_in_uhz;
+
+};
+
+struct mod_vrr_params_btr {
+	bool btr_enabled;
+	bool btr_active;
+	uint32_t mid_point_in_us;
+	uint32_t inserted_duration_in_us;
+	uint32_t frames_to_insert;
+	uint32_t frame_counter;
+	uint32_t margin_in_us;
+};
+
+struct mod_vrr_params_fixed_refresh {
+	bool fixed_active;
+	bool ramping_active;
+	bool ramping_done;
+	uint32_t target_refresh_in_uhz;
+	uint32_t frame_counter;
+};
+
+struct mod_vrr_params {
+	bool supported;
+	bool send_info_frame;
+	enum mod_vrr_state state;
+
+	uint32_t min_refresh_in_uhz;
+	uint32_t max_duration_in_us;
+	uint32_t max_refresh_in_uhz;
+	uint32_t min_duration_in_us;
+	uint32_t fixed_refresh_in_uhz;
+
+	struct dc_crtc_timing_adjust adjust;
+
+	struct mod_vrr_params_fixed_refresh fixed;
+
+	struct mod_vrr_params_btr btr;
+};
+
+struct mod_freesync *mod_freesync_create(struct dc *dc);
+void mod_freesync_destroy(struct mod_freesync *mod_freesync);
+
+bool mod_freesync_get_vmin_vmax(struct mod_freesync *mod_freesync,
+		const struct dc_stream_state *stream,
+>>>>>>> upstream/android-13
 		unsigned int *vmin,
 		unsigned int *vmax);
 
@@ -154,6 +229,7 @@ bool mod_freesync_get_v_position(struct mod_freesync *mod_freesync,
 		unsigned int *nom_v_pos,
 		unsigned int *v_pos);
 
+<<<<<<< HEAD
 void mod_freesync_handle_v_update(struct mod_freesync *mod_freesync,
 		struct dc_stream_state **streams, int num_streams);
 
@@ -166,6 +242,10 @@ void mod_freesync_pre_update_plane_addresses(struct mod_freesync *mod_freesync,
 
 void mod_freesync_get_settings(struct mod_freesync *mod_freesync,
 		struct dc_stream_state **streams, int num_streams,
+=======
+void mod_freesync_get_settings(struct mod_freesync *mod_freesync,
+		const struct mod_vrr_params *vrr,
+>>>>>>> upstream/android-13
 		unsigned int *v_total_min, unsigned int *v_total_max,
 		unsigned int *event_triggers,
 		unsigned int *window_min, unsigned int *window_max,
@@ -173,4 +253,44 @@ void mod_freesync_get_settings(struct mod_freesync *mod_freesync,
 		unsigned int *inserted_frames,
 		unsigned int *inserted_duration_in_us);
 
+<<<<<<< HEAD
+=======
+void mod_freesync_build_vrr_infopacket(struct mod_freesync *mod_freesync,
+		const struct dc_stream_state *stream,
+		const struct mod_vrr_params *vrr,
+		enum vrr_packet_type packet_type,
+		enum color_transfer_func app_tf,
+		struct dc_info_packet *infopacket,
+		bool pack_sdp_v1_3);
+
+void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+		const struct dc_stream_state *stream,
+		struct mod_freesync_config *in_config,
+		struct mod_vrr_params *in_out_vrr);
+
+void mod_freesync_handle_preflip(struct mod_freesync *mod_freesync,
+		const struct dc_plane_state *plane,
+		const struct dc_stream_state *stream,
+		unsigned int curr_time_stamp_in_us,
+		struct mod_vrr_params *in_out_vrr);
+
+void mod_freesync_handle_v_update(struct mod_freesync *mod_freesync,
+		const struct dc_stream_state *stream,
+		struct mod_vrr_params *in_out_vrr);
+
+unsigned long long mod_freesync_calc_nominal_field_rate(
+			const struct dc_stream_state *stream);
+
+unsigned long long mod_freesync_calc_field_rate_from_timing(
+		unsigned int vtotal, unsigned int htotal, unsigned int pix_clk);
+
+bool mod_freesync_is_valid_range(uint32_t min_refresh_cap_in_uhz,
+		uint32_t max_refresh_cap_in_uhz,
+		uint32_t nominal_field_rate_in_uhz);
+
+unsigned int mod_freesync_calc_v_total_from_refresh(
+		const struct dc_stream_state *stream,
+		unsigned int refresh_in_uhz);
+
+>>>>>>> upstream/android-13
 #endif

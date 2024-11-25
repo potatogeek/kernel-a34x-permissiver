@@ -71,6 +71,10 @@ gk104_vmm_17 = {
 	.aper = gf100_vmm_aper,
 	.valid = gf100_vmm_valid,
 	.flush = gf100_vmm_flush,
+<<<<<<< HEAD
+=======
+	.invalidate_pdb = gf100_vmm_invalidate_pdb,
+>>>>>>> upstream/android-13
 	.page = {
 		{ 17, &gk104_vmm_desc_17_17[0], NVKM_VMM_PAGE_xVxC },
 		{ 12, &gk104_vmm_desc_17_12[0], NVKM_VMM_PAGE_xVHx },
@@ -85,6 +89,10 @@ gk104_vmm_16 = {
 	.aper = gf100_vmm_aper,
 	.valid = gf100_vmm_valid,
 	.flush = gf100_vmm_flush,
+<<<<<<< HEAD
+=======
+	.invalidate_pdb = gf100_vmm_invalidate_pdb,
+>>>>>>> upstream/android-13
 	.page = {
 		{ 16, &gk104_vmm_desc_16_16[0], NVKM_VMM_PAGE_xVxC },
 		{ 12, &gk104_vmm_desc_16_12[0], NVKM_VMM_PAGE_xVHx },
@@ -93,10 +101,18 @@ gk104_vmm_16 = {
 };
 
 int
+<<<<<<< HEAD
 gk104_vmm_new(struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	      struct lock_class_key *key, const char *name,
 	      struct nvkm_vmm **pvmm)
 {
 	return gf100_vmm_new_(&gk104_vmm_16, &gk104_vmm_17, mmu, addr,
+=======
+gk104_vmm_new(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	      void *argv, u32 argc, struct lock_class_key *key,
+	      const char *name, struct nvkm_vmm **pvmm)
+{
+	return gf100_vmm_new_(&gk104_vmm_16, &gk104_vmm_17, mmu, managed, addr,
+>>>>>>> upstream/android-13
 			      size, argv, argc, key, name, pvmm);
 }

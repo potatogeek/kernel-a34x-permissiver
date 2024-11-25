@@ -24,6 +24,7 @@
  */
 
 #include <linux/module.h>
+<<<<<<< HEAD
 
 #include <drm/drmP.h>
 #include <drm/savage_drm.h>
@@ -31,6 +32,16 @@
 
 #include <drm/drm_pciids.h>
 
+=======
+#include <linux/pci.h>
+
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+#include <drm/drm_pciids.h>
+
+#include "savage_drv.h"
+
+>>>>>>> upstream/android-13
 static struct pci_device_id pciidlist[] = {
 	savage_PCI_IDS
 };

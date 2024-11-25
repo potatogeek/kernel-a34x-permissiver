@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * max8907.c - mfd driver for MAX8907
  *
  * Copyright (C) 2010 Gyungoh Yoo <jack.yoo@maxim-ic.com>
  * Copyright (C) 2010-2012, NVIDIA CORPORATION. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -217,9 +224,15 @@ static int max8907_i2c_probe(struct i2c_client *i2c,
 		goto err_regmap_gen;
 	}
 
+<<<<<<< HEAD
 	max8907->i2c_rtc = i2c_new_dummy(i2c->adapter, MAX8907_RTC_I2C_ADDR);
 	if (!max8907->i2c_rtc) {
 		ret = -ENOMEM;
+=======
+	max8907->i2c_rtc = i2c_new_dummy_device(i2c->adapter, MAX8907_RTC_I2C_ADDR);
+	if (IS_ERR(max8907->i2c_rtc)) {
+		ret = PTR_ERR(max8907->i2c_rtc);
+>>>>>>> upstream/android-13
 		goto err_dummy_rtc;
 	}
 	i2c_set_clientdata(max8907->i2c_rtc, max8907);
@@ -231,11 +244,17 @@ static int max8907_i2c_probe(struct i2c_client *i2c,
 		goto err_regmap_rtc;
 	}
 
+<<<<<<< HEAD
 	irq_set_status_flags(max8907->i2c_gen->irq, IRQ_NOAUTOEN);
 
 	ret = regmap_add_irq_chip(max8907->regmap_gen, max8907->i2c_gen->irq,
 				  IRQF_ONESHOT | IRQF_SHARED, -1,
 				  &max8907_chg_irq_chip,
+=======
+	ret = regmap_add_irq_chip(max8907->regmap_gen, max8907->i2c_gen->irq,
+				  IRQF_ONESHOT | IRQF_SHARED,
+				  -1, &max8907_chg_irq_chip,
+>>>>>>> upstream/android-13
 				  &max8907->irqc_chg);
 	if (ret != 0) {
 		dev_err(&i2c->dev, "failed to add chg irq chip: %d\n", ret);
@@ -258,8 +277,11 @@ static int max8907_i2c_probe(struct i2c_client *i2c,
 		goto err_irqc_rtc;
 	}
 
+<<<<<<< HEAD
 	enable_irq(max8907->i2c_gen->irq);
 
+=======
+>>>>>>> upstream/android-13
 	ret = mfd_add_devices(max8907->dev, -1, max8907_cells,
 			      ARRAY_SIZE(max8907_cells), NULL, 0, NULL);
 	if (ret != 0) {

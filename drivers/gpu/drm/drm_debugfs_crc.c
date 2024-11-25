@@ -29,7 +29,18 @@
 #include <linux/circ_buf.h>
 #include <linux/ctype.h>
 #include <linux/debugfs.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <linux/poll.h>
+#include <linux/uaccess.h>
+
+#include <drm/drm_crtc.h>
+#include <drm/drm_debugfs_crc.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_print.h>
+
+>>>>>>> upstream/android-13
 #include "drm_internal.h"
 
 /**
@@ -39,10 +50,17 @@
  * it reached a given hardware component (a CRC sampling "source").
  *
  * Userspace can control generation of CRCs in a given CRTC by writing to the
+<<<<<<< HEAD
  * file dri/0/crtc-N/crc/control in debugfs, with N being the index of the CRTC.
  * Accepted values are source names (which are driver-specific) and the "auto"
  * keyword, which will let the driver select a default source of frame CRCs
  * for this CRTC.
+=======
+ * file dri/0/crtc-N/crc/control in debugfs, with N being the :ref:`index of
+ * the CRTC<crtc_index>`. Accepted values are source names (which are
+ * driver-specific) and the "auto" keyword, which will let the driver select a
+ * default source of frame CRCs for this CRTC.
+>>>>>>> upstream/android-13
  *
  * Once frame CRC generation is enabled, userspace can capture them by reading
  * the dri/0/crtc-N/crc/data file. Each line in that file contains the frame
@@ -59,17 +77,58 @@
  * the reported CRCs of frames that should have the same contents.
  *
  * On the driver side the implementation effort is minimal, drivers only need to
+<<<<<<< HEAD
  * implement &drm_crtc_funcs.set_crc_source. The debugfs files are automatically
  * set up if that vfunc is set. CRC samples need to be captured in the driver by
  * calling drm_crtc_add_crc_entry().
+=======
+ * implement &drm_crtc_funcs.set_crc_source and &drm_crtc_funcs.verify_crc_source.
+ * The debugfs files are automatically set up if those vfuncs are set. CRC samples
+ * need to be captured in the driver by calling drm_crtc_add_crc_entry().
+ * Depending on the driver and HW requirements, &drm_crtc_funcs.set_crc_source
+ * may result in a commit (even a full modeset).
+ *
+ * CRC results must be reliable across non-full-modeset atomic commits, so if a
+ * commit via DRM_IOCTL_MODE_ATOMIC would disable or otherwise interfere with
+ * CRC generation, then the driver must mark that commit as a full modeset
+ * (drm_atomic_crtc_needs_modeset() should return true). As a result, to ensure
+ * consistent results, generic userspace must re-setup CRC generation after a
+ * legacy SETCRTC or an atomic commit with DRM_MODE_ATOMIC_ALLOW_MODESET.
+>>>>>>> upstream/android-13
  */
 
 static int crc_control_show(struct seq_file *m, void *data)
 {
 	struct drm_crtc *crtc = m->private;
 
+<<<<<<< HEAD
 	seq_printf(m, "%s\n", crtc->crc.source);
 
+=======
+	if (crtc->funcs->get_crc_sources) {
+		size_t count;
+		const char *const *sources = crtc->funcs->get_crc_sources(crtc,
+									&count);
+		size_t values_cnt;
+		int i;
+
+		if (count == 0 || !sources)
+			goto out;
+
+		for (i = 0; i < count; i++)
+			if (!crtc->funcs->verify_crc_source(crtc, sources[i],
+							    &values_cnt)) {
+				if (strcmp(sources[i], crtc->crc.source))
+					seq_printf(m, "%s\n", sources[i]);
+				else
+					seq_printf(m, "%s*\n", sources[i]);
+			}
+	}
+	return 0;
+
+out:
+	seq_printf(m, "%s*\n", crtc->crc.source);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -87,6 +146,11 @@ static ssize_t crc_control_write(struct file *file, const char __user *ubuf,
 	struct drm_crtc *crtc = m->private;
 	struct drm_crtc_crc *crc = &crtc->crc;
 	char *source;
+<<<<<<< HEAD
+=======
+	size_t values_cnt;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (len == 0)
 		return 0;
@@ -104,6 +168,15 @@ static ssize_t crc_control_write(struct file *file, const char __user *ubuf,
 	if (source[len - 1] == '\n')
 		source[len - 1] = '\0';
 
+<<<<<<< HEAD
+=======
+	ret = crtc->funcs->verify_crc_source(crtc, source, &values_cnt);
+	if (ret) {
+		kfree(source);
+		return ret;
+	}
+
+>>>>>>> upstream/android-13
 	spin_lock_irq(&crc->lock);
 
 	if (crc->opened) {
@@ -168,6 +241,7 @@ static int crtc_crc_open(struct inode *inode, struct file *filep)
 			return ret;
 	}
 
+<<<<<<< HEAD
 	spin_lock_irq(&crc->lock);
 	if (!crc->opened)
 		crc->opened = true;
@@ -219,6 +293,43 @@ static int crtc_crc_open(struct inode *inode, struct file *filep)
 
 err_disable:
 	crtc->funcs->set_crc_source(crtc, NULL, &values_cnt);
+=======
+	ret = crtc->funcs->verify_crc_source(crtc, crc->source, &values_cnt);
+	if (ret)
+		return ret;
+
+	if (WARN_ON(values_cnt > DRM_MAX_CRC_NR))
+		return -EINVAL;
+
+	if (WARN_ON(values_cnt == 0))
+		return -EINVAL;
+
+	entries = kcalloc(DRM_CRC_ENTRIES_NR, sizeof(*entries), GFP_KERNEL);
+	if (!entries)
+		return -ENOMEM;
+
+	spin_lock_irq(&crc->lock);
+	if (!crc->opened) {
+		crc->opened = true;
+		crc->entries = entries;
+		crc->values_cnt = values_cnt;
+	} else {
+		ret = -EBUSY;
+	}
+	spin_unlock_irq(&crc->lock);
+
+	if (ret) {
+		kfree(entries);
+		return ret;
+	}
+
+	ret = crtc->funcs->set_crc_source(crtc, crc->source);
+	if (ret)
+		goto err;
+
+	return 0;
+
+>>>>>>> upstream/android-13
 err:
 	spin_lock_irq(&crc->lock);
 	crtc_crc_cleanup(crc);
@@ -230,9 +341,19 @@ static int crtc_crc_release(struct inode *inode, struct file *filep)
 {
 	struct drm_crtc *crtc = filep->f_inode->i_private;
 	struct drm_crtc_crc *crc = &crtc->crc;
+<<<<<<< HEAD
 	size_t values_cnt;
 
 	crtc->funcs->set_crc_source(crtc, NULL, &values_cnt);
+=======
+
+	/* terminate the infinite while loop if 'drm_dp_aux_crc_work' running */
+	spin_lock_irq(&crc->lock);
+	crc->opened = false;
+	spin_unlock_irq(&crc->lock);
+
+	crtc->funcs->set_crc_source(crtc, NULL);
+>>>>>>> upstream/android-13
 
 	spin_lock_irq(&crc->lock);
 	crtc_crc_cleanup(crc);
@@ -308,19 +429,31 @@ static ssize_t crtc_crc_read(struct file *filep, char __user *user_buf,
 	return LINE_LEN(crc->values_cnt);
 }
 
+<<<<<<< HEAD
 static unsigned int crtc_crc_poll(struct file *file, poll_table *wait)
 {
 	struct drm_crtc *crtc = file->f_inode->i_private;
 	struct drm_crtc_crc *crc = &crtc->crc;
 	unsigned ret;
+=======
+static __poll_t crtc_crc_poll(struct file *file, poll_table *wait)
+{
+	struct drm_crtc *crtc = file->f_inode->i_private;
+	struct drm_crtc_crc *crc = &crtc->crc;
+	__poll_t ret = 0;
+>>>>>>> upstream/android-13
 
 	poll_wait(file, &crc->wq, wait);
 
 	spin_lock_irq(&crc->lock);
 	if (crc->source && crtc_crc_data_count(crc))
+<<<<<<< HEAD
 		ret = POLLIN | POLLRDNORM;
 	else
 		ret = 0;
+=======
+		ret |= EPOLLIN | EPOLLRDNORM;
+>>>>>>> upstream/android-13
 	spin_unlock_irq(&crc->lock);
 
 	return ret;
@@ -334,6 +467,7 @@ static const struct file_operations drm_crtc_crc_data_fops = {
 	.release = crtc_crc_release,
 };
 
+<<<<<<< HEAD
 int drm_debugfs_crtc_crc_add(struct drm_crtc *crtc)
 {
 	struct dentry *crc_ent, *ent;
@@ -361,6 +495,21 @@ error:
 	debugfs_remove_recursive(crc_ent);
 
 	return -ENOMEM;
+=======
+void drm_debugfs_crtc_crc_add(struct drm_crtc *crtc)
+{
+	struct dentry *crc_ent;
+
+	if (!crtc->funcs->set_crc_source || !crtc->funcs->verify_crc_source)
+		return;
+
+	crc_ent = debugfs_create_dir("crc", crtc->debugfs_entry);
+
+	debugfs_create_file("control", S_IRUGO | S_IWUSR, crc_ent, crtc,
+			    &drm_crtc_crc_control_fops);
+	debugfs_create_file("data", S_IRUGO, crc_ent, crtc,
+			    &drm_crtc_crc_data_fops);
+>>>>>>> upstream/android-13
 }
 
 /**

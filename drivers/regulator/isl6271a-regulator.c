@@ -31,7 +31,10 @@
 /* PMIC details */
 struct isl_pmic {
 	struct i2c_client	*client;
+<<<<<<< HEAD
 	struct regulator_dev	*rdev[3];
+=======
+>>>>>>> upstream/android-13
 	struct mutex		mtx;
 };
 
@@ -66,14 +69,22 @@ static int isl6271a_set_voltage_sel(struct regulator_dev *dev,
 	return err;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops isl_core_ops = {
+=======
+static const struct regulator_ops isl_core_ops = {
+>>>>>>> upstream/android-13
 	.get_voltage_sel = isl6271a_get_voltage_sel,
 	.set_voltage_sel = isl6271a_set_voltage_sel,
 	.list_voltage	= regulator_list_voltage_linear,
 	.map_voltage	= regulator_map_voltage_linear,
 };
 
+<<<<<<< HEAD
 static struct regulator_ops isl_fixed_ops = {
+=======
+static const struct regulator_ops isl_fixed_ops = {
+>>>>>>> upstream/android-13
 	.list_voltage	= regulator_list_voltage_linear,
 };
 
@@ -109,6 +120,10 @@ static const struct regulator_desc isl_rd[] = {
 static int isl6271a_probe(struct i2c_client *i2c,
 				     const struct i2c_device_id *id)
 {
+<<<<<<< HEAD
+=======
+	struct regulator_dev *rdev;
+>>>>>>> upstream/android-13
 	struct regulator_config config = { };
 	struct regulator_init_data *init_data	= dev_get_platdata(&i2c->dev);
 	struct isl_pmic *pmic;
@@ -133,11 +148,18 @@ static int isl6271a_probe(struct i2c_client *i2c,
 			config.init_data = NULL;
 		config.driver_data = pmic;
 
+<<<<<<< HEAD
 		pmic->rdev[i] = devm_regulator_register(&i2c->dev, &isl_rd[i],
 							&config);
 		if (IS_ERR(pmic->rdev[i])) {
 			dev_err(&i2c->dev, "failed to register %s\n", id->name);
 			return PTR_ERR(pmic->rdev[i]);
+=======
+		rdev = devm_regulator_register(&i2c->dev, &isl_rd[i], &config);
+		if (IS_ERR(rdev)) {
+			dev_err(&i2c->dev, "failed to register %s\n", id->name);
+			return PTR_ERR(rdev);
+>>>>>>> upstream/android-13
 		}
 	}
 

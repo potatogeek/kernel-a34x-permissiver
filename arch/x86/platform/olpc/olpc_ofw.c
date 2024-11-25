@@ -1,13 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/export.h>
 #include <linux/spinlock_types.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 #include <asm/page.h>
 #include <asm/setup.h>
 #include <asm/io.h>
 #include <asm/cpufeature.h>
 #include <asm/special_insns.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/olpc_ofw.h>
 
 /* address of OFW callback interface; will be NULL if OFW isn't found */

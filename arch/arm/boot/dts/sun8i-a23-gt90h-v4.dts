@@ -63,7 +63,11 @@
 };
 
 &lradc {
+<<<<<<< HEAD
 	button@600 {
+=======
+	button-600 {
+>>>>>>> upstream/android-13
 		label = "Back";
 		linux,code = <KEY_BACK>;
 		channel = <0>;

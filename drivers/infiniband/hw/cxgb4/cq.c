@@ -30,18 +30,33 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include "iw_cxgb4.h"
 
 static int destroy_cq(struct c4iw_rdev *rdev, struct t4_cq *cq,
 		      struct c4iw_dev_ucontext *uctx, struct sk_buff *skb,
 		      struct c4iw_wr_wait *wr_waitp)
+=======
+#include <rdma/uverbs_ioctl.h>
+
+#include "iw_cxgb4.h"
+
+static void destroy_cq(struct c4iw_rdev *rdev, struct t4_cq *cq,
+		       struct c4iw_dev_ucontext *uctx, struct sk_buff *skb,
+		       struct c4iw_wr_wait *wr_waitp)
+>>>>>>> upstream/android-13
 {
 	struct fw_ri_res_wr *res_wr;
 	struct fw_ri_res *res;
 	int wr_len;
+<<<<<<< HEAD
 	int ret;
 
 	wr_len = sizeof *res_wr + sizeof *res;
+=======
+
+	wr_len = sizeof(*res_wr) + sizeof(*res);
+>>>>>>> upstream/android-13
 	set_wr_txq(skb, CPL_PRIORITY_CONTROL, 0);
 
 	res_wr = __skb_put_zero(skb, wr_len);
@@ -57,14 +72,21 @@ static int destroy_cq(struct c4iw_rdev *rdev, struct t4_cq *cq,
 	res->u.cq.iqid = cpu_to_be32(cq->cqid);
 
 	c4iw_init_wr_wait(wr_waitp);
+<<<<<<< HEAD
 	ret = c4iw_ref_send_wait(rdev, skb, wr_waitp, 0, 0, __func__);
+=======
+	c4iw_ref_send_wait(rdev, skb, wr_waitp, 0, 0, __func__);
+>>>>>>> upstream/android-13
 
 	kfree(cq->sw_queue);
 	dma_free_coherent(&(rdev->lldi.pdev->dev),
 			  cq->memsize, cq->queue,
 			  dma_unmap_addr(cq, mapping));
 	c4iw_put_cqid(rdev, cq->cqid, uctx);
+<<<<<<< HEAD
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int create_cq(struct c4iw_rdev *rdev, struct t4_cq *cq,
@@ -102,7 +124,10 @@ static int create_cq(struct c4iw_rdev *rdev, struct t4_cq *cq,
 		goto err3;
 	}
 	dma_unmap_addr_set(cq, mapping, cq->dma_addr);
+<<<<<<< HEAD
 	memset(cq->queue, 0, cq->memsize);
+=======
+>>>>>>> upstream/android-13
 
 	if (user && ucontext->is_32b_cqe) {
 		cq->qp_errp = &((struct t4_status_page *)
@@ -115,7 +140,11 @@ static int create_cq(struct c4iw_rdev *rdev, struct t4_cq *cq,
 	}
 
 	/* build fw_ri_res_wr */
+<<<<<<< HEAD
 	wr_len = sizeof *res_wr + sizeof *res;
+=======
+	wr_len = sizeof(*res_wr) + sizeof(*res);
+>>>>>>> upstream/android-13
 
 	skb = alloc_skb(wr_len, GFP_KERNEL);
 	if (!skb) {
@@ -755,7 +784,11 @@ skip_cqe:
 static int __c4iw_poll_cq_one(struct c4iw_cq *chp, struct c4iw_qp *qhp,
 			      struct ib_wc *wc, struct c4iw_srq *srq)
 {
+<<<<<<< HEAD
 	struct t4_cqe uninitialized_var(cqe);
+=======
+	struct t4_cqe cqe;
+>>>>>>> upstream/android-13
 	struct t4_wq *wq = qhp ? &qhp->wq : NULL;
 	u32 credit = 0;
 	u8 cqe_flushed;
@@ -968,7 +1001,17 @@ int c4iw_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
 	return !err || err == -ENODATA ? npolled : err;
 }
 
+<<<<<<< HEAD
 int c4iw_destroy_cq(struct ib_cq *ib_cq)
+=======
+void c4iw_cq_rem_ref(struct c4iw_cq *chp)
+{
+	if (refcount_dec_and_test(&chp->refcnt))
+		complete(&chp->cq_rel_comp);
+}
+
+int c4iw_destroy_cq(struct ib_cq *ib_cq, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct c4iw_cq *chp;
 	struct c4iw_ucontext *ucontext;
@@ -976,16 +1019,26 @@ int c4iw_destroy_cq(struct ib_cq *ib_cq)
 	pr_debug("ib_cq %p\n", ib_cq);
 	chp = to_c4iw_cq(ib_cq);
 
+<<<<<<< HEAD
 	remove_handle(chp->rhp, &chp->rhp->cqidr, chp->cq.cqid);
 	atomic_dec(&chp->refcnt);
 	wait_event(chp->wait, !atomic_read(&chp->refcnt));
 
 	ucontext = ib_cq->uobject ? to_c4iw_ucontext(ib_cq->uobject->context)
 				  : NULL;
+=======
+	xa_erase_irq(&chp->rhp->cqs, chp->cq.cqid);
+	c4iw_cq_rem_ref(chp);
+	wait_for_completion(&chp->cq_rel_comp);
+
+	ucontext = rdma_udata_to_drv_context(udata, struct c4iw_ucontext,
+					     ibucontext);
+>>>>>>> upstream/android-13
 	destroy_cq(&chp->rhp->rdev, &chp->cq,
 		   ucontext ? &ucontext->uctx : &chp->cq.rdev->uctx,
 		   chp->destroy_skb, chp->wr_waitp);
 	c4iw_put_wr_wait(chp->wr_waitp);
+<<<<<<< HEAD
 	kfree(chp);
 	return 0;
 }
@@ -1020,14 +1073,49 @@ struct ib_cq *c4iw_create_cq(struct ib_device *ibdev,
 
 	if (ib_context) {
 		ucontext = to_c4iw_ucontext(ib_context);
+=======
+	return 0;
+}
+
+int c4iw_create_cq(struct ib_cq *ibcq, const struct ib_cq_init_attr *attr,
+		   struct ib_udata *udata)
+{
+	struct ib_device *ibdev = ibcq->device;
+	int entries = attr->cqe;
+	int vector = attr->comp_vector;
+	struct c4iw_dev *rhp = to_c4iw_dev(ibcq->device);
+	struct c4iw_cq *chp = to_c4iw_cq(ibcq);
+	struct c4iw_create_cq ucmd;
+	struct c4iw_create_cq_resp uresp;
+	int ret, wr_len;
+	size_t memsize, hwentries;
+	struct c4iw_mm_entry *mm, *mm2;
+	struct c4iw_ucontext *ucontext = rdma_udata_to_drv_context(
+		udata, struct c4iw_ucontext, ibucontext);
+
+	pr_debug("ib_dev %p entries %d\n", ibdev, entries);
+	if (attr->flags)
+		return -EOPNOTSUPP;
+
+	if (entries < 1 || entries > ibdev->attrs.max_cqe)
+		return -EINVAL;
+
+	if (vector >= rhp->rdev.lldi.nciq)
+		return -EINVAL;
+
+	if (udata) {
+>>>>>>> upstream/android-13
 		if (udata->inlen < sizeof(ucmd))
 			ucontext->is_32b_cqe = 1;
 	}
 
+<<<<<<< HEAD
 	chp = kzalloc(sizeof(*chp), GFP_KERNEL);
 	if (!chp)
 		return ERR_PTR(-ENOMEM);
 
+=======
+>>>>>>> upstream/android-13
 	chp->wr_waitp = c4iw_alloc_wr_wait(GFP_KERNEL);
 	if (!chp->wr_waitp) {
 		ret = -ENOMEM;
@@ -1071,7 +1159,11 @@ struct ib_cq *c4iw_create_cq(struct ib_device *ibdev,
 	/*
 	 * memsize must be a multiple of the page size if its a user cq.
 	 */
+<<<<<<< HEAD
 	if (ucontext)
+=======
+	if (udata)
+>>>>>>> upstream/android-13
 		memsize = roundup(memsize, PAGE_SIZE);
 
 	chp->cq.size = hwentries;
@@ -1089,18 +1181,31 @@ struct ib_cq *c4iw_create_cq(struct ib_device *ibdev,
 	chp->ibcq.cqe = entries - 2;
 	spin_lock_init(&chp->lock);
 	spin_lock_init(&chp->comp_handler_lock);
+<<<<<<< HEAD
 	atomic_set(&chp->refcnt, 1);
 	init_waitqueue_head(&chp->wait);
 	ret = insert_handle(rhp, &rhp->cqidr, chp, chp->cq.cqid);
+=======
+	refcount_set(&chp->refcnt, 1);
+	init_completion(&chp->cq_rel_comp);
+	ret = xa_insert_irq(&rhp->cqs, chp->cq.cqid, chp, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_destroy_cq;
 
 	if (ucontext) {
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		mm = kmalloc(sizeof *mm, GFP_KERNEL);
 		if (!mm)
 			goto err_remove_handle;
 		mm2 = kmalloc(sizeof *mm2, GFP_KERNEL);
+=======
+		mm = kmalloc(sizeof(*mm), GFP_KERNEL);
+		if (!mm)
+			goto err_remove_handle;
+		mm2 = kmalloc(sizeof(*mm2), GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (!mm2)
 			goto err_free_mm;
 
@@ -1137,16 +1242,28 @@ struct ib_cq *c4iw_create_cq(struct ib_device *ibdev,
 		mm2->len = PAGE_SIZE;
 		insert_mmap(ucontext, mm2);
 	}
+<<<<<<< HEAD
 	pr_debug("cqid 0x%0x chp %p size %u memsize %zu, dma_addr 0x%0llx\n",
 		 chp->cq.cqid, chp, chp->cq.size,
 		 chp->cq.memsize, (unsigned long long)chp->cq.dma_addr);
 	return &chp->ibcq;
+=======
+
+	pr_debug("cqid 0x%0x chp %p size %u memsize %zu, dma_addr %pad\n",
+		 chp->cq.cqid, chp, chp->cq.size, chp->cq.memsize,
+		 &chp->cq.dma_addr);
+	return 0;
+>>>>>>> upstream/android-13
 err_free_mm2:
 	kfree(mm2);
 err_free_mm:
 	kfree(mm);
 err_remove_handle:
+<<<<<<< HEAD
 	remove_handle(rhp, &rhp->cqidr, chp->cq.cqid);
+=======
+	xa_erase_irq(&rhp->cqs, chp->cq.cqid);
+>>>>>>> upstream/android-13
 err_destroy_cq:
 	destroy_cq(&chp->rhp->rdev, &chp->cq,
 		   ucontext ? &ucontext->uctx : &rhp->rdev.uctx,
@@ -1156,8 +1273,12 @@ err_free_skb:
 err_free_wr_wait:
 	c4iw_put_wr_wait(chp->wr_waitp);
 err_free_chp:
+<<<<<<< HEAD
 	kfree(chp);
 	return ERR_PTR(ret);
+=======
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int c4iw_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify_flags flags)

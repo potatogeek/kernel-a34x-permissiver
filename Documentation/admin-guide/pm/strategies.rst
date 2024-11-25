@@ -1,10 +1,23 @@
+<<<<<<< HEAD
+=======
+.. SPDX-License-Identifier: GPL-2.0
+.. include:: <isonum.txt>
+
+>>>>>>> upstream/android-13
 ===========================
 Power Management Strategies
 ===========================
 
+<<<<<<< HEAD
 ::
 
  Copyright (c) 2017 Intel Corp., Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+=======
+:Copyright: |copy| 2017 Intel Corporation
+
+:Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+>>>>>>> upstream/android-13
 
 The Linux kernel supports two major high-level power management strategies.
 

@@ -11,6 +11,11 @@
  *
  * (c) 2011 Arvid Brodin <arvid.brodin@enea.com>
  *
+<<<<<<< HEAD
+=======
+ * Copyright 2021 Linaro, Rui Miguel Silva <rui.silva@linaro.org>
+ *
+>>>>>>> upstream/android-13
  */
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
@@ -22,6 +27,10 @@
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/timer.h>
 #include <asm/unaligned.h>
@@ -43,6 +52,12 @@ static inline struct isp1760_hcd *hcd_to_priv(struct usb_hcd *hcd)
 	return *(struct isp1760_hcd **)hcd->hcd_priv;
 }
 
+<<<<<<< HEAD
+=======
+#define dw_to_le32(x)	(cpu_to_le32((__force u32)x))
+#define le32_to_dw(x)	((__force __dw)(le32_to_cpu(x)))
+
+>>>>>>> upstream/android-13
 /* urb state*/
 #define DELETE_URB		(0x0008)
 #define NO_TRANSFER_ACTIVE	(0xffffffff)
@@ -59,12 +74,28 @@ struct ptd {
 	__dw dw6;
 	__dw dw7;
 };
+<<<<<<< HEAD
+=======
+
+struct ptd_le32 {
+	__le32 dw0;
+	__le32 dw1;
+	__le32 dw2;
+	__le32 dw3;
+	__le32 dw4;
+	__le32 dw5;
+	__le32 dw6;
+	__le32 dw7;
+};
+
+>>>>>>> upstream/android-13
 #define PTD_OFFSET		0x0400
 #define ISO_PTD_OFFSET		0x0400
 #define INT_PTD_OFFSET		0x0800
 #define ATL_PTD_OFFSET		0x0c00
 #define PAYLOAD_OFFSET		0x1000
 
+<<<<<<< HEAD
 
 /* ATL */
 /* DW0 */
@@ -103,6 +134,53 @@ struct ptd {
 #define DW3_HALT_BIT			(1 << 30)
 #define DW3_ACTIVE_BIT			(1 << 31)
 #define FROM_DW3_ACTIVE(x)		(((x) >> 31) & 0x01)
+=======
+#define ISP_BANK_0		0x00
+#define ISP_BANK_1		0x01
+#define ISP_BANK_2		0x02
+#define ISP_BANK_3		0x03
+
+#define TO_DW(x)	((__force __dw)x)
+#define TO_U32(x)	((__force u32)x)
+
+ /* ATL */
+ /* DW0 */
+#define DW0_VALID_BIT			TO_DW(1)
+#define FROM_DW0_VALID(x)		(TO_U32(x) & 0x01)
+#define TO_DW0_LENGTH(x)		TO_DW((((u32)x) << 3))
+#define TO_DW0_MAXPACKET(x)		TO_DW((((u32)x) << 18))
+#define TO_DW0_MULTI(x)			TO_DW((((u32)x) << 29))
+#define TO_DW0_ENDPOINT(x)		TO_DW((((u32)x) << 31))
+/* DW1 */
+#define TO_DW1_DEVICE_ADDR(x)		TO_DW((((u32)x) << 3))
+#define TO_DW1_PID_TOKEN(x)		TO_DW((((u32)x) << 10))
+#define DW1_TRANS_BULK			TO_DW(((u32)2 << 12))
+#define DW1_TRANS_INT			TO_DW(((u32)3 << 12))
+#define DW1_TRANS_SPLIT			TO_DW(((u32)1 << 14))
+#define DW1_SE_USB_LOSPEED		TO_DW(((u32)2 << 16))
+#define TO_DW1_PORT_NUM(x)		TO_DW((((u32)x) << 18))
+#define TO_DW1_HUB_NUM(x)		TO_DW((((u32)x) << 25))
+/* DW2 */
+#define TO_DW2_DATA_START_ADDR(x)	TO_DW((((u32)x) << 8))
+#define TO_DW2_RL(x)			TO_DW(((x) << 25))
+#define FROM_DW2_RL(x)			((TO_U32(x) >> 25) & 0xf)
+/* DW3 */
+#define FROM_DW3_NRBYTESTRANSFERRED(x)		TO_U32((x) & 0x3fff)
+#define FROM_DW3_SCS_NRBYTESTRANSFERRED(x)	TO_U32((x) & 0x07ff)
+#define TO_DW3_NAKCOUNT(x)		TO_DW(((x) << 19))
+#define FROM_DW3_NAKCOUNT(x)		((TO_U32(x) >> 19) & 0xf)
+#define TO_DW3_CERR(x)			TO_DW(((x) << 23))
+#define FROM_DW3_CERR(x)		((TO_U32(x) >> 23) & 0x3)
+#define TO_DW3_DATA_TOGGLE(x)		TO_DW(((x) << 25))
+#define FROM_DW3_DATA_TOGGLE(x)		((TO_U32(x) >> 25) & 0x1)
+#define TO_DW3_PING(x)			TO_DW(((x) << 26))
+#define FROM_DW3_PING(x)		((TO_U32(x) >> 26) & 0x1)
+#define DW3_ERROR_BIT			TO_DW((1 << 28))
+#define DW3_BABBLE_BIT			TO_DW((1 << 29))
+#define DW3_HALT_BIT			TO_DW((1 << 30))
+#define DW3_ACTIVE_BIT			TO_DW((1 << 31))
+#define FROM_DW3_ACTIVE(x)		((TO_U32(x) >> 31) & 0x01)
+>>>>>>> upstream/android-13
 
 #define INT_UNDERRUN			(1 << 2)
 #define INT_BABBLE			(1 << 1)
@@ -115,7 +193,11 @@ struct ptd {
 /* Errata 1 */
 #define RL_COUNTER	(0)
 #define NAK_COUNTER	(0)
+<<<<<<< HEAD
 #define ERR_COUNTER	(2)
+=======
+#define ERR_COUNTER	(3)
+>>>>>>> upstream/android-13
 
 struct isp1760_qtd {
 	u8 packet_type;
@@ -157,6 +239,7 @@ struct urb_listitem {
 	struct urb *urb;
 };
 
+<<<<<<< HEAD
 /*
  * Access functions for isp176x registers (addresses 0..0x03FF).
  */
@@ -168,6 +251,127 @@ static u32 reg_read32(void __iomem *base, u32 reg)
 static void reg_write32(void __iomem *base, u32 reg, u32 val)
 {
 	isp1760_write32(base, reg, val);
+=======
+static const u32 isp176x_hc_portsc1_fields[] = {
+	[PORT_OWNER]		= BIT(13),
+	[PORT_POWER]		= BIT(12),
+	[PORT_LSTATUS]		= BIT(10),
+	[PORT_RESET]		= BIT(8),
+	[PORT_SUSPEND]		= BIT(7),
+	[PORT_RESUME]		= BIT(6),
+	[PORT_PE]		= BIT(2),
+	[PORT_CSC]		= BIT(1),
+	[PORT_CONNECT]		= BIT(0),
+};
+
+/*
+ * Access functions for isp176x registers regmap fields
+ */
+static u32 isp1760_hcd_read(struct usb_hcd *hcd, u32 field)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	return isp1760_field_read(priv->fields, field);
+}
+
+/*
+ * We need, in isp176x, to write directly the values to the portsc1
+ * register so it will make the other values to trigger.
+ */
+static void isp1760_hcd_portsc1_set_clear(struct isp1760_hcd *priv, u32 field,
+					  u32 val)
+{
+	u32 bit = isp176x_hc_portsc1_fields[field];
+	u16 portsc1_reg = priv->is_isp1763 ? ISP1763_HC_PORTSC1 :
+		ISP176x_HC_PORTSC1;
+	u32 port_status = readl(priv->base + portsc1_reg);
+
+	if (val)
+		writel(port_status | bit, priv->base + portsc1_reg);
+	else
+		writel(port_status & ~bit, priv->base + portsc1_reg);
+}
+
+static void isp1760_hcd_write(struct usb_hcd *hcd, u32 field, u32 val)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	if (unlikely((field >= PORT_OWNER && field <= PORT_CONNECT)))
+		return isp1760_hcd_portsc1_set_clear(priv, field, val);
+
+	isp1760_field_write(priv->fields, field, val);
+}
+
+static void isp1760_hcd_set(struct usb_hcd *hcd, u32 field)
+{
+	isp1760_hcd_write(hcd, field, 0xFFFFFFFF);
+}
+
+static void isp1760_hcd_clear(struct usb_hcd *hcd, u32 field)
+{
+	isp1760_hcd_write(hcd, field, 0);
+}
+
+static int isp1760_hcd_set_and_wait(struct usb_hcd *hcd, u32 field,
+				    u32 timeout_us)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+	u32 val;
+
+	isp1760_hcd_set(hcd, field);
+
+	return regmap_field_read_poll_timeout(priv->fields[field], val,
+					      val, 0, timeout_us);
+}
+
+static int isp1760_hcd_set_and_wait_swap(struct usb_hcd *hcd, u32 field,
+					 u32 timeout_us)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+	u32 val;
+
+	isp1760_hcd_set(hcd, field);
+
+	return regmap_field_read_poll_timeout(priv->fields[field], val,
+					      !val, 0, timeout_us);
+}
+
+static int isp1760_hcd_clear_and_wait(struct usb_hcd *hcd, u32 field,
+				      u32 timeout_us)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+	u32 val;
+
+	isp1760_hcd_clear(hcd, field);
+
+	return regmap_field_read_poll_timeout(priv->fields[field], val,
+					      !val, 0, timeout_us);
+}
+
+static bool isp1760_hcd_is_set(struct usb_hcd *hcd, u32 field)
+{
+	return !!isp1760_hcd_read(hcd, field);
+}
+
+static bool isp1760_hcd_ppc_is_set(struct usb_hcd *hcd)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	if (priv->is_isp1763)
+		return true;
+
+	return isp1760_hcd_is_set(hcd, HCS_PPC);
+}
+
+static u32 isp1760_hcd_n_ports(struct usb_hcd *hcd)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	if (priv->is_isp1763)
+		return 1;
+
+	return isp1760_hcd_read(hcd, HCS_N_PORTS);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -175,7 +379,11 @@ static void reg_write32(void __iomem *base, u32 reg, u32 val)
  *
  * bank_reads8() reads memory locations prefetched by an earlier write to
  * HC_MEMORY_REG (see isp176x datasheet). Unless you want to do fancy multi-
+<<<<<<< HEAD
  * bank optimizations, you should use the more generic mem_reads8() below.
+=======
+ * bank optimizations, you should use the more generic mem_read() below.
+>>>>>>> upstream/android-13
  *
  * For access to ptd memory, use the specialized ptd_read() and ptd_write()
  * below.
@@ -195,7 +403,11 @@ static void bank_reads8(void __iomem *src_base, u32 src_offset, u32 bank_addr,
 
 	if (src_offset < PAYLOAD_OFFSET) {
 		while (bytes >= 4) {
+<<<<<<< HEAD
 			*dst = le32_to_cpu(__raw_readl(src));
+=======
+			*dst = readl_relaxed(src);
+>>>>>>> upstream/android-13
 			bytes -= 4;
 			src++;
 			dst++;
@@ -216,7 +428,11 @@ static void bank_reads8(void __iomem *src_base, u32 src_offset, u32 bank_addr,
 	 * allocated.
 	 */
 	if (src_offset < PAYLOAD_OFFSET)
+<<<<<<< HEAD
 		val = le32_to_cpu(__raw_readl(src));
+=======
+		val = readl_relaxed(src);
+>>>>>>> upstream/android-13
 	else
 		val = __raw_readl(src);
 
@@ -230,6 +446,7 @@ static void bank_reads8(void __iomem *src_base, u32 src_offset, u32 bank_addr,
 	}
 }
 
+<<<<<<< HEAD
 static void mem_reads8(void __iomem *src_base, u32 src_offset, void *dst,
 								u32 bytes)
 {
@@ -240,6 +457,60 @@ static void mem_reads8(void __iomem *src_base, u32 src_offset, void *dst,
 
 static void mem_writes8(void __iomem *dst_base, u32 dst_offset,
 						__u32 const *src, u32 bytes)
+=======
+static void isp1760_mem_read(struct usb_hcd *hcd, u32 src_offset, void *dst,
+			     u32 bytes)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	isp1760_reg_write(priv->regs, ISP176x_HC_MEMORY, src_offset);
+	ndelay(100);
+
+	bank_reads8(priv->base, src_offset, ISP_BANK_0, dst, bytes);
+}
+
+/*
+ * ISP1763 does not have the banks direct host controller memory access,
+ * needs to use the HC_DATA register. Add data read/write according to this,
+ * and also adjust 16bit access.
+ */
+static void isp1763_mem_read(struct usb_hcd *hcd, u16 srcaddr,
+			     u16 *dstptr, u32 bytes)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	/* Write the starting device address to the hcd memory register */
+	isp1760_reg_write(priv->regs, ISP1763_HC_MEMORY, srcaddr);
+	ndelay(100); /* Delay between consecutive access */
+
+	/* As long there are at least 16-bit to read ... */
+	while (bytes >= 2) {
+		*dstptr = __raw_readw(priv->base + ISP1763_HC_DATA);
+		bytes -= 2;
+		dstptr++;
+	}
+
+	/* If there are no more bytes to read, return */
+	if (bytes <= 0)
+		return;
+
+	*((u8 *)dstptr) = (u8)(readw(priv->base + ISP1763_HC_DATA) & 0xFF);
+}
+
+static void mem_read(struct usb_hcd *hcd, u32 src_offset, __u32 *dst,
+		     u32 bytes)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	if (!priv->is_isp1763)
+		return isp1760_mem_read(hcd, src_offset, (u16 *)dst, bytes);
+
+	isp1763_mem_read(hcd, (u16)src_offset, (u16 *)dst, bytes);
+}
+
+static void isp1760_mem_write(void __iomem *dst_base, u32 dst_offset,
+			      __u32 const *src, u32 bytes)
+>>>>>>> upstream/android-13
 {
 	__u32 __iomem *dst;
 
@@ -247,7 +518,11 @@ static void mem_writes8(void __iomem *dst_base, u32 dst_offset,
 
 	if (dst_offset < PAYLOAD_OFFSET) {
 		while (bytes >= 4) {
+<<<<<<< HEAD
 			__raw_writel(cpu_to_le32(*src), dst);
+=======
+			writel_relaxed(*src, dst);
+>>>>>>> upstream/android-13
 			bytes -= 4;
 			src++;
 			dst++;
@@ -268,15 +543,61 @@ static void mem_writes8(void __iomem *dst_base, u32 dst_offset,
 	 */
 
 	if (dst_offset < PAYLOAD_OFFSET)
+<<<<<<< HEAD
 		__raw_writel(cpu_to_le32(*src), dst);
+=======
+		writel_relaxed(*src, dst);
+>>>>>>> upstream/android-13
 	else
 		__raw_writel(*src, dst);
 }
 
+<<<<<<< HEAD
+=======
+static void isp1763_mem_write(struct usb_hcd *hcd, u16 dstaddr, u16 *src,
+			      u32 bytes)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	/* Write the starting device address to the hcd memory register */
+	isp1760_reg_write(priv->regs, ISP1763_HC_MEMORY, dstaddr);
+	ndelay(100); /* Delay between consecutive access */
+
+	while (bytes >= 2) {
+		/* Get and write the data; then adjust the data ptr and len */
+		__raw_writew(*src, priv->base + ISP1763_HC_DATA);
+		bytes -= 2;
+		src++;
+	}
+
+	/* If there are no more bytes to process, return */
+	if (bytes <= 0)
+		return;
+
+	/*
+	 * The only way to get here is if there is a single byte left,
+	 * get it and write it to the data reg;
+	 */
+	writew(*((u8 *)src), priv->base + ISP1763_HC_DATA);
+}
+
+static void mem_write(struct usb_hcd *hcd, u32 dst_offset, __u32 *src,
+		      u32 bytes)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	if (!priv->is_isp1763)
+		return isp1760_mem_write(priv->base, dst_offset, src, bytes);
+
+	isp1763_mem_write(hcd, dst_offset, (u16 *)src, bytes);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Read and write ptds. 'ptd_offset' should be one of ISO_PTD_OFFSET,
  * INT_PTD_OFFSET, and ATL_PTD_OFFSET. 'slot' should be less than 32.
  */
+<<<<<<< HEAD
 static void ptd_read(void __iomem *base, u32 ptd_offset, u32 slot,
 								struct ptd *ptd)
 {
@@ -299,10 +620,100 @@ static void ptd_write(void __iomem *base, u32 ptd_offset, u32 slot,
 							sizeof(ptd->dw0));
 }
 
+=======
+static void isp1760_ptd_read(struct usb_hcd *hcd, u32 ptd_offset, u32 slot,
+			     struct ptd *ptd)
+{
+	u16 src_offset = ptd_offset + slot * sizeof(*ptd);
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	isp1760_reg_write(priv->regs, ISP176x_HC_MEMORY, src_offset);
+	ndelay(90);
+
+	bank_reads8(priv->base, src_offset, ISP_BANK_0, (void *)ptd,
+		    sizeof(*ptd));
+}
+
+static void isp1763_ptd_read(struct usb_hcd *hcd, u32 ptd_offset, u32 slot,
+			     struct ptd *ptd)
+{
+	u16 src_offset = ptd_offset + slot * sizeof(*ptd);
+	struct ptd_le32 le32_ptd;
+
+	isp1763_mem_read(hcd, src_offset, (u16 *)&le32_ptd, sizeof(le32_ptd));
+	/* Normalize the data obtained */
+	ptd->dw0 = le32_to_dw(le32_ptd.dw0);
+	ptd->dw1 = le32_to_dw(le32_ptd.dw1);
+	ptd->dw2 = le32_to_dw(le32_ptd.dw2);
+	ptd->dw3 = le32_to_dw(le32_ptd.dw3);
+	ptd->dw4 = le32_to_dw(le32_ptd.dw4);
+	ptd->dw5 = le32_to_dw(le32_ptd.dw5);
+	ptd->dw6 = le32_to_dw(le32_ptd.dw6);
+	ptd->dw7 = le32_to_dw(le32_ptd.dw7);
+}
+
+static void ptd_read(struct usb_hcd *hcd, u32 ptd_offset, u32 slot,
+		     struct ptd *ptd)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	if (!priv->is_isp1763)
+		return isp1760_ptd_read(hcd, ptd_offset, slot, ptd);
+
+	isp1763_ptd_read(hcd, ptd_offset, slot, ptd);
+}
+
+static void isp1763_ptd_write(struct usb_hcd *hcd, u32 ptd_offset, u32 slot,
+			      struct ptd *cpu_ptd)
+{
+	u16 dst_offset = ptd_offset + slot * sizeof(*cpu_ptd);
+	struct ptd_le32 ptd;
+
+	ptd.dw0 = dw_to_le32(cpu_ptd->dw0);
+	ptd.dw1 = dw_to_le32(cpu_ptd->dw1);
+	ptd.dw2 = dw_to_le32(cpu_ptd->dw2);
+	ptd.dw3 = dw_to_le32(cpu_ptd->dw3);
+	ptd.dw4 = dw_to_le32(cpu_ptd->dw4);
+	ptd.dw5 = dw_to_le32(cpu_ptd->dw5);
+	ptd.dw6 = dw_to_le32(cpu_ptd->dw6);
+	ptd.dw7 = dw_to_le32(cpu_ptd->dw7);
+
+	isp1763_mem_write(hcd, dst_offset,  (u16 *)&ptd.dw0,
+			  8 * sizeof(ptd.dw0));
+}
+
+static void isp1760_ptd_write(void __iomem *base, u32 ptd_offset, u32 slot,
+			      struct ptd *ptd)
+{
+	u32 dst_offset = ptd_offset + slot * sizeof(*ptd);
+
+	/*
+	 * Make sure dw0 gets written last (after other dw's and after payload)
+	 *  since it contains the enable bit
+	 */
+	isp1760_mem_write(base, dst_offset + sizeof(ptd->dw0),
+			  (__force u32 *)&ptd->dw1, 7 * sizeof(ptd->dw1));
+	wmb();
+	isp1760_mem_write(base, dst_offset, (__force u32 *)&ptd->dw0,
+			  sizeof(ptd->dw0));
+}
+
+static void ptd_write(struct usb_hcd *hcd, u32 ptd_offset, u32 slot,
+		      struct ptd *ptd)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+
+	if (!priv->is_isp1763)
+		return isp1760_ptd_write(priv->base, ptd_offset, slot, ptd);
+
+	isp1763_ptd_write(hcd, ptd_offset, slot, ptd);
+}
+>>>>>>> upstream/android-13
 
 /* memory management of the 60kb on the chip from 0x1000 to 0xffff */
 static void init_memory(struct isp1760_hcd *priv)
 {
+<<<<<<< HEAD
 	int i, curr;
 	u32 payload_addr;
 
@@ -331,11 +742,34 @@ static void init_memory(struct isp1760_hcd *priv)
 	}
 
 	WARN_ON(payload_addr - priv->memory_pool[0].start > PAYLOAD_AREA_SIZE);
+=======
+	const struct isp1760_memory_layout *mem = priv->memory_layout;
+	int i, j, curr;
+	u32 payload_addr;
+
+	payload_addr = PAYLOAD_OFFSET;
+
+	for (i = 0, curr = 0; i < ARRAY_SIZE(mem->blocks); i++, curr += j) {
+		for (j = 0; j < mem->blocks[i]; j++) {
+			priv->memory_pool[curr + j].start = payload_addr;
+			priv->memory_pool[curr + j].size = mem->blocks_size[i];
+			priv->memory_pool[curr + j].free = 1;
+			payload_addr += priv->memory_pool[curr + j].size;
+		}
+	}
+
+	WARN_ON(payload_addr - priv->memory_pool[0].start >
+		mem->payload_area_size);
+>>>>>>> upstream/android-13
 }
 
 static void alloc_mem(struct usb_hcd *hcd, struct isp1760_qtd *qtd)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
+=======
+	const struct isp1760_memory_layout *mem = priv->memory_layout;
+>>>>>>> upstream/android-13
 	int i;
 
 	WARN_ON(qtd->payload_addr);
@@ -343,7 +777,11 @@ static void alloc_mem(struct usb_hcd *hcd, struct isp1760_qtd *qtd)
 	if (!qtd->length)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < BLOCKS; i++) {
+=======
+	for (i = 0; i < mem->payload_blocks; i++) {
+>>>>>>> upstream/android-13
 		if (priv->memory_pool[i].size >= qtd->length &&
 				priv->memory_pool[i].free) {
 			priv->memory_pool[i].free = 0;
@@ -356,12 +794,20 @@ static void alloc_mem(struct usb_hcd *hcd, struct isp1760_qtd *qtd)
 static void free_mem(struct usb_hcd *hcd, struct isp1760_qtd *qtd)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
+=======
+	const struct isp1760_memory_layout *mem = priv->memory_layout;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!qtd->payload_addr)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < BLOCKS; i++) {
+=======
+	for (i = 0; i < mem->payload_blocks; i++) {
+>>>>>>> upstream/android-13
 		if (priv->memory_pool[i].start == qtd->payload_addr) {
 			WARN_ON(priv->memory_pool[i].free);
 			priv->memory_pool[i].free = 1;
@@ -376,6 +822,7 @@ static void free_mem(struct usb_hcd *hcd, struct isp1760_qtd *qtd)
 	qtd->payload_addr = 0;
 }
 
+<<<<<<< HEAD
 static int handshake(struct usb_hcd *hcd, u32 reg,
 		      u32 mask, u32 done, int usec)
 {
@@ -394,11 +841,14 @@ static int handshake(struct usb_hcd *hcd, u32 reg,
 	return -ETIMEDOUT;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* reset a non-running (STS_HALT == 1) controller */
 static int ehci_reset(struct usb_hcd *hcd)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
 
+<<<<<<< HEAD
 	u32 command = reg_read32(hcd->regs, HC_USBCMD);
 
 	command |= CMD_RESET;
@@ -407,6 +857,12 @@ static int ehci_reset(struct usb_hcd *hcd)
 	priv->next_statechange = jiffies;
 
 	return handshake(hcd, HC_USBCMD, CMD_RESET, 0, 250 * 1000);
+=======
+	hcd->state = HC_STATE_HALT;
+	priv->next_statechange = jiffies;
+
+	return isp1760_hcd_set_and_wait_swap(hcd, CMD_RESET, 250 * 1000);
+>>>>>>> upstream/android-13
 }
 
 static struct isp1760_qh *qh_alloc(gfp_t flags)
@@ -434,8 +890,14 @@ static void qh_free(struct isp1760_qh *qh)
 /* one-time init, only for memory state */
 static int priv_init(struct usb_hcd *hcd)
 {
+<<<<<<< HEAD
 	struct isp1760_hcd		*priv = hcd_to_priv(hcd);
 	u32			hcc_params;
+=======
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+	u32 isoc_cache;
+	u32 isoc_thres;
+>>>>>>> upstream/android-13
 	int i;
 
 	spin_lock_init(&priv->lock);
@@ -449,6 +911,7 @@ static int priv_init(struct usb_hcd *hcd)
 	 */
 	priv->periodic_size = DEFAULT_I_TDPS;
 
+<<<<<<< HEAD
 	/* controllers may cache some of the periodic schedule ... */
 	hcc_params = reg_read32(hcd->regs, HC_HCCPARAMS);
 	/* full frame cache */
@@ -456,6 +919,22 @@ static int priv_init(struct usb_hcd *hcd)
 		priv->i_thresh = 8;
 	else /* N microframes cached */
 		priv->i_thresh = 2 + HCC_ISOC_THRES(hcc_params);
+=======
+	if (priv->is_isp1763) {
+		priv->i_thresh = 2;
+		return 0;
+	}
+
+	/* controllers may cache some of the periodic schedule ... */
+	isoc_cache = isp1760_hcd_read(hcd, HCC_ISOC_CACHE);
+	isoc_thres = isp1760_hcd_read(hcd, HCC_ISOC_THRES);
+
+	/* full frame cache */
+	if (isoc_cache)
+		priv->i_thresh = 8;
+	else /* N microframes cached */
+		priv->i_thresh = 2 + isoc_thres;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -463,6 +942,7 @@ static int priv_init(struct usb_hcd *hcd)
 static int isp1760_hc_setup(struct usb_hcd *hcd)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
 	int result;
 	u32 scratch, hwmode;
 
@@ -472,6 +952,29 @@ static int isp1760_hc_setup(struct usb_hcd *hcd)
 	scratch = reg_read32(hcd->regs, HC_SCRATCH_REG);
 	if (scratch != 0xdeadbabe) {
 		dev_err(hcd->self.controller, "Scratch test failed.\n");
+=======
+	u32 atx_reset;
+	int result;
+	u32 scratch;
+	u32 pattern;
+
+	if (priv->is_isp1763)
+		pattern = 0xcafe;
+	else
+		pattern = 0xdeadcafe;
+
+	isp1760_hcd_write(hcd, HC_SCRATCH, pattern);
+
+	/*
+	 * we do not care about the read value here we just want to
+	 * change bus pattern.
+	 */
+	isp1760_hcd_read(hcd, HC_CHIP_ID_HIGH);
+	scratch = isp1760_hcd_read(hcd, HC_SCRATCH);
+	if (scratch != pattern) {
+		dev_err(hcd->self.controller, "Scratch test failed. 0x%08x\n",
+			scratch);
+>>>>>>> upstream/android-13
 		return -ENODEV;
 	}
 
@@ -483,10 +986,20 @@ static int isp1760_hc_setup(struct usb_hcd *hcd)
 	 * the host controller through the EHCI USB Command register. The device
 	 * has been reset in core code anyway, so this shouldn't matter.
 	 */
+<<<<<<< HEAD
 	reg_write32(hcd->regs, HC_BUFFER_STATUS_REG, 0);
 	reg_write32(hcd->regs, HC_ATL_PTD_SKIPMAP_REG, NO_TRANSFER_ACTIVE);
 	reg_write32(hcd->regs, HC_INT_PTD_SKIPMAP_REG, NO_TRANSFER_ACTIVE);
 	reg_write32(hcd->regs, HC_ISO_PTD_SKIPMAP_REG, NO_TRANSFER_ACTIVE);
+=======
+	isp1760_hcd_clear(hcd, ISO_BUF_FILL);
+	isp1760_hcd_clear(hcd, INT_BUF_FILL);
+	isp1760_hcd_clear(hcd, ATL_BUF_FILL);
+
+	isp1760_hcd_set(hcd, HC_ATL_PTD_SKIPMAP);
+	isp1760_hcd_set(hcd, HC_INT_PTD_SKIPMAP);
+	isp1760_hcd_set(hcd, HC_ISO_PTD_SKIPMAP);
+>>>>>>> upstream/android-13
 
 	result = ehci_reset(hcd);
 	if (result)
@@ -495,6 +1008,7 @@ static int isp1760_hc_setup(struct usb_hcd *hcd)
 	/* Step 11 passed */
 
 	/* ATL reset */
+<<<<<<< HEAD
 	hwmode = reg_read32(hcd->regs, HC_HW_MODE_CTRL) & ~ALL_ATX_RESET;
 	reg_write32(hcd->regs, HC_HW_MODE_CTRL, hwmode | ALL_ATX_RESET);
 	mdelay(10);
@@ -503,6 +1017,28 @@ static int isp1760_hc_setup(struct usb_hcd *hcd)
 	reg_write32(hcd->regs, HC_INTERRUPT_ENABLE, INTERRUPT_ENABLE_MASK);
 
 	priv->hcs_params = reg_read32(hcd->regs, HC_HCSPARAMS);
+=======
+	if (priv->is_isp1763)
+		atx_reset = SW_RESET_RESET_ATX;
+	else
+		atx_reset = ALL_ATX_RESET;
+
+	isp1760_hcd_set(hcd, atx_reset);
+	mdelay(10);
+	isp1760_hcd_clear(hcd, atx_reset);
+
+	if (priv->is_isp1763) {
+		isp1760_hcd_set(hcd, HW_OTG_DISABLE);
+		isp1760_hcd_set(hcd, HW_SW_SEL_HC_DC_CLEAR);
+		isp1760_hcd_set(hcd, HW_HC_2_DIS_CLEAR);
+		mdelay(10);
+
+		isp1760_hcd_set(hcd, HW_INTF_LOCK);
+	}
+
+	isp1760_hcd_set(hcd, HC_INT_IRQ_ENABLE);
+	isp1760_hcd_set(hcd, HC_ATL_IRQ_ENABLE);
+>>>>>>> upstream/android-13
 
 	return priv_init(hcd);
 }
@@ -555,7 +1091,11 @@ static void create_ptd_atl(struct isp1760_qh *qh,
 	ptd->dw0 |= TO_DW0_ENDPOINT(usb_pipeendpoint(qtd->urb->pipe));
 
 	/* DW1 */
+<<<<<<< HEAD
 	ptd->dw1 = usb_pipeendpoint(qtd->urb->pipe) >> 1;
+=======
+	ptd->dw1 = TO_DW((usb_pipeendpoint(qtd->urb->pipe) >> 1));
+>>>>>>> upstream/android-13
 	ptd->dw1 |= TO_DW1_DEVICE_ADDR(usb_pipedevice(qtd->urb->pipe));
 	ptd->dw1 |= TO_DW1_PID_TOKEN(qtd->packet_type);
 
@@ -577,7 +1117,11 @@ static void create_ptd_atl(struct isp1760_qh *qh,
 		/* SE bit for Split INT transfers */
 		if (usb_pipeint(qtd->urb->pipe) &&
 				(qtd->urb->dev->speed == USB_SPEED_LOW))
+<<<<<<< HEAD
 			ptd->dw1 |= 2 << 16;
+=======
+			ptd->dw1 |= DW1_SE_USB_LOSPEED;
+>>>>>>> upstream/android-13
 
 		rl = 0;
 		nak = 0;
@@ -649,14 +1193,23 @@ static void transform_add_int(struct isp1760_qh *qh,
 		 * that number come from? 0xff seems to work fine...
 		 */
 		/* ptd->dw5 = 0x1c; */
+<<<<<<< HEAD
 		ptd->dw5 = 0xff; /* Execute Complete Split on any uFrame */
+=======
+		ptd->dw5 = TO_DW(0xff); /* Execute Complete Split on any uFrame */
+>>>>>>> upstream/android-13
 	}
 
 	period = period >> 1;/* Ensure equal or shorter period than requested */
 	period &= 0xf8; /* Mask off too large values and lowest unused 3 bits */
 
+<<<<<<< HEAD
 	ptd->dw2 |= period;
 	ptd->dw4 = usof;
+=======
+	ptd->dw2 |= TO_DW(period);
+	ptd->dw4 = TO_DW(usof);
+>>>>>>> upstream/android-13
 }
 
 static void create_ptd_int(struct isp1760_qh *qh,
@@ -722,14 +1275,22 @@ static void start_bus_transfer(struct usb_hcd *hcd, u32 ptd_offset, int slot,
 				struct ptd *ptd)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
 	int skip_map;
 
 	WARN_ON((slot < 0) || (slot > 31));
+=======
+	const struct isp1760_memory_layout *mem = priv->memory_layout;
+	int skip_map;
+
+	WARN_ON((slot < 0) || (slot > mem->slot_num - 1));
+>>>>>>> upstream/android-13
 	WARN_ON(qtd->length && !qtd->payload_addr);
 	WARN_ON(slots[slot].qtd);
 	WARN_ON(slots[slot].qh);
 	WARN_ON(qtd->status != QTD_PAYLOAD_ALLOC);
 
+<<<<<<< HEAD
 	/* Make sure done map has not triggered from some unlinked transfer */
 	if (ptd_offset == ATL_PTD_OFFSET) {
 		priv->atl_done_map |= reg_read32(hcd->regs,
@@ -741,11 +1302,33 @@ static void start_bus_transfer(struct usb_hcd *hcd, u32 ptd_offset, int slot,
 		priv->int_done_map &= ~(1 << slot);
 	}
 
+=======
+	if (priv->is_isp1763)
+		ndelay(100);
+
+	/* Make sure done map has not triggered from some unlinked transfer */
+	if (ptd_offset == ATL_PTD_OFFSET) {
+		skip_map = isp1760_hcd_read(hcd, HC_ATL_PTD_SKIPMAP);
+		isp1760_hcd_write(hcd, HC_ATL_PTD_SKIPMAP,
+				  skip_map | (1 << slot));
+		priv->atl_done_map |= isp1760_hcd_read(hcd, HC_ATL_PTD_DONEMAP);
+		priv->atl_done_map &= ~(1 << slot);
+	} else {
+		skip_map = isp1760_hcd_read(hcd, HC_INT_PTD_SKIPMAP);
+		isp1760_hcd_write(hcd, HC_INT_PTD_SKIPMAP,
+				  skip_map | (1 << slot));
+		priv->int_done_map |= isp1760_hcd_read(hcd, HC_INT_PTD_DONEMAP);
+		priv->int_done_map &= ~(1 << slot);
+	}
+
+	skip_map &= ~(1 << slot);
+>>>>>>> upstream/android-13
 	qh->slot = slot;
 	qtd->status = QTD_XFER_STARTED;
 	slots[slot].timestamp = jiffies;
 	slots[slot].qtd = qtd;
 	slots[slot].qh = qh;
+<<<<<<< HEAD
 	ptd_write(hcd->regs, ptd_offset, slot, ptd);
 
 	if (ptd_offset == ATL_PTD_OFFSET) {
@@ -757,6 +1340,14 @@ static void start_bus_transfer(struct usb_hcd *hcd, u32 ptd_offset, int slot,
 		skip_map &= ~(1 << qh->slot);
 		reg_write32(hcd->regs, HC_INT_PTD_SKIPMAP_REG, skip_map);
 	}
+=======
+	ptd_write(hcd, ptd_offset, slot, ptd);
+
+	if (ptd_offset == ATL_PTD_OFFSET)
+		isp1760_hcd_write(hcd, HC_ATL_PTD_SKIPMAP, skip_map);
+	else
+		isp1760_hcd_write(hcd, HC_INT_PTD_SKIPMAP, skip_map);
+>>>>>>> upstream/android-13
 }
 
 static int is_short_bulk(struct isp1760_qtd *qtd)
@@ -768,9 +1359,15 @@ static int is_short_bulk(struct isp1760_qtd *qtd)
 static void collect_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh,
 						struct list_head *urb_list)
 {
+<<<<<<< HEAD
 	int last_qtd;
 	struct isp1760_qtd *qtd, *qtd_next;
 	struct urb_listitem *urb_listitem;
+=======
+	struct isp1760_qtd *qtd, *qtd_next;
+	struct urb_listitem *urb_listitem;
+	int last_qtd;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry_safe(qtd, qtd_next, &qh->qtd_list, qtd_list) {
 		if (qtd->status < QTD_XFER_COMPLETE)
@@ -785,6 +1382,7 @@ static void collect_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh,
 			if (qtd->actual_length) {
 				switch (qtd->packet_type) {
 				case IN_PID:
+<<<<<<< HEAD
 					mem_reads8(hcd->regs, qtd->payload_addr,
 							qtd->data_buffer,
 							qtd->actual_length);
@@ -793,6 +1391,16 @@ static void collect_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh,
 					qtd->urb->actual_length +=
 							qtd->actual_length;
 					/* Fall through ... */
+=======
+					mem_read(hcd, qtd->payload_addr,
+						 qtd->data_buffer,
+						 qtd->actual_length);
+					fallthrough;
+				case OUT_PID:
+					qtd->urb->actual_length +=
+							qtd->actual_length;
+					fallthrough;
+>>>>>>> upstream/android-13
 				case SETUP_PID:
 					break;
 				}
@@ -831,6 +1439,11 @@ static void collect_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh,
 static void enqueue_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
+=======
+	const struct isp1760_memory_layout *mem = priv->memory_layout;
+	int slot_num = mem->slot_num;
+>>>>>>> upstream/android-13
 	int ptd_offset;
 	struct isp1760_slotinfo *slots;
 	int curr_slot, free_slot;
@@ -857,7 +1470,11 @@ static void enqueue_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh)
 	}
 
 	free_slot = -1;
+<<<<<<< HEAD
 	for (curr_slot = 0; curr_slot < 32; curr_slot++) {
+=======
+	for (curr_slot = 0; curr_slot < slot_num; curr_slot++) {
+>>>>>>> upstream/android-13
 		if ((free_slot == -1) && (slots[curr_slot].qtd == NULL))
 			free_slot = curr_slot;
 		if (slots[curr_slot].qh == qh)
@@ -872,11 +1489,18 @@ static void enqueue_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh)
 			if ((qtd->length) && (!qtd->payload_addr))
 				break;
 
+<<<<<<< HEAD
 			if ((qtd->length) &&
 			    ((qtd->packet_type == SETUP_PID) ||
 			     (qtd->packet_type == OUT_PID))) {
 				mem_writes8(hcd->regs, qtd->payload_addr,
 						qtd->data_buffer, qtd->length);
+=======
+			if (qtd->length && (qtd->packet_type == SETUP_PID ||
+					    qtd->packet_type == OUT_PID)) {
+				mem_write(hcd, qtd->payload_addr,
+					  qtd->data_buffer, qtd->length);
+>>>>>>> upstream/android-13
 			}
 
 			qtd->status = QTD_PAYLOAD_ALLOC;
@@ -889,7 +1513,11 @@ static void enqueue_qtds(struct usb_hcd *hcd, struct isp1760_qh *qh)
 					"available for transfer\n", __func__);
 */
 			/* Start xfer for this endpoint if not already done */
+<<<<<<< HEAD
 			if ((curr_slot > 31) && (free_slot > -1)) {
+=======
+			if ((curr_slot > slot_num - 1) && (free_slot > -1)) {
+>>>>>>> upstream/android-13
 				if (usb_pipeint(qtd->urb->pipe))
 					create_ptd_int(qh, qtd, &ptd);
 				else
@@ -979,10 +1607,17 @@ static void schedule_ptds(struct usb_hcd *hcd)
 static int check_int_transfer(struct usb_hcd *hcd, struct ptd *ptd,
 								struct urb *urb)
 {
+<<<<<<< HEAD
 	__dw dw4;
 	int i;
 
 	dw4 = ptd->dw4;
+=======
+	u32 dw4;
+	int i;
+
+	dw4 = TO_U32(ptd->dw4);
+>>>>>>> upstream/android-13
 	dw4 >>= 8;
 
 	/* FIXME: ISP1761 datasheet does not say what to do with these. Do we
@@ -1032,8 +1667,11 @@ static int check_atl_transfer(struct usb_hcd *hcd, struct ptd *ptd,
 			urb->status = -EOVERFLOW;
 		else if (FROM_DW3_CERR(ptd->dw3))
 			urb->status = -EPIPE;  /* Stall */
+<<<<<<< HEAD
 		else if (ptd->dw3 & DW3_ERROR_BIT)
 			urb->status = -EPROTO; /* XactErr */
+=======
+>>>>>>> upstream/android-13
 		else
 			urb->status = -EPROTO; /* Unknown */
 /*
@@ -1078,9 +1716,15 @@ static void handle_done_ptds(struct usb_hcd *hcd)
 	int modified;
 	int skip_map;
 
+<<<<<<< HEAD
 	skip_map = reg_read32(hcd->regs, HC_INT_PTD_SKIPMAP_REG);
 	priv->int_done_map &= ~skip_map;
 	skip_map = reg_read32(hcd->regs, HC_ATL_PTD_SKIPMAP_REG);
+=======
+	skip_map = isp1760_hcd_read(hcd, HC_INT_PTD_SKIPMAP);
+	priv->int_done_map &= ~skip_map;
+	skip_map = isp1760_hcd_read(hcd, HC_ATL_PTD_SKIPMAP);
+>>>>>>> upstream/android-13
 	priv->atl_done_map &= ~skip_map;
 
 	modified = priv->int_done_map || priv->atl_done_map;
@@ -1098,7 +1742,11 @@ static void handle_done_ptds(struct usb_hcd *hcd)
 				continue;
 			}
 			ptd_offset = INT_PTD_OFFSET;
+<<<<<<< HEAD
 			ptd_read(hcd->regs, INT_PTD_OFFSET, slot, &ptd);
+=======
+			ptd_read(hcd, INT_PTD_OFFSET, slot, &ptd);
+>>>>>>> upstream/android-13
 			state = check_int_transfer(hcd, &ptd,
 							slots[slot].qtd->urb);
 		} else {
@@ -1113,7 +1761,11 @@ static void handle_done_ptds(struct usb_hcd *hcd)
 				continue;
 			}
 			ptd_offset = ATL_PTD_OFFSET;
+<<<<<<< HEAD
 			ptd_read(hcd->regs, ATL_PTD_OFFSET, slot, &ptd);
+=======
+			ptd_read(hcd, ATL_PTD_OFFSET, slot, &ptd);
+>>>>>>> upstream/android-13
 			state = check_atl_transfer(hcd, &ptd,
 							slots[slot].qtd->urb);
 		}
@@ -1138,7 +1790,11 @@ static void handle_done_ptds(struct usb_hcd *hcd)
 
 			qtd->status = QTD_XFER_COMPLETE;
 			if (list_is_last(&qtd->qtd_list, &qh->qtd_list) ||
+<<<<<<< HEAD
 							is_short_bulk(qtd))
+=======
+			    is_short_bulk(qtd))
+>>>>>>> upstream/android-13
 				qtd = NULL;
 			else
 				qtd = list_entry(qtd->qtd_list.next,
@@ -1206,14 +1862,21 @@ static void handle_done_ptds(struct usb_hcd *hcd)
 static irqreturn_t isp1760_irq(struct usb_hcd *hcd)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
 	u32 imask;
 	irqreturn_t irqret = IRQ_NONE;
+=======
+	irqreturn_t irqret = IRQ_NONE;
+	u32 int_reg;
+	u32 imask;
+>>>>>>> upstream/android-13
 
 	spin_lock(&priv->lock);
 
 	if (!(hcd->state & HC_STATE_RUNNING))
 		goto leave;
 
+<<<<<<< HEAD
 	imask = reg_read32(hcd->regs, HC_INTERRUPT_REG);
 	if (unlikely(!imask))
 		goto leave;
@@ -1221,10 +1884,26 @@ static irqreturn_t isp1760_irq(struct usb_hcd *hcd)
 
 	priv->int_done_map |= reg_read32(hcd->regs, HC_INT_PTD_DONEMAP_REG);
 	priv->atl_done_map |= reg_read32(hcd->regs, HC_ATL_PTD_DONEMAP_REG);
+=======
+	imask = isp1760_hcd_read(hcd, HC_INTERRUPT);
+	if (unlikely(!imask))
+		goto leave;
+
+	int_reg = priv->is_isp1763 ? ISP1763_HC_INTERRUPT :
+		ISP176x_HC_INTERRUPT;
+	isp1760_reg_write(priv->regs, int_reg, imask);
+
+	priv->int_done_map |= isp1760_hcd_read(hcd, HC_INT_PTD_DONEMAP);
+	priv->atl_done_map |= isp1760_hcd_read(hcd, HC_ATL_PTD_DONEMAP);
+>>>>>>> upstream/android-13
 
 	handle_done_ptds(hcd);
 
 	irqret = IRQ_HANDLED;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 leave:
 	spin_unlock(&priv->lock);
 
@@ -1265,17 +1944,29 @@ static void errata2_function(struct timer_list *unused)
 {
 	struct usb_hcd *hcd = errata2_timer_hcd;
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
+=======
+	const struct isp1760_memory_layout *mem = priv->memory_layout;
+>>>>>>> upstream/android-13
 	int slot;
 	struct ptd ptd;
 	unsigned long spinflags;
 
 	spin_lock_irqsave(&priv->lock, spinflags);
 
+<<<<<<< HEAD
 	for (slot = 0; slot < 32; slot++)
 		if (priv->atl_slots[slot].qh && time_after(jiffies,
 					priv->atl_slots[slot].timestamp +
 					msecs_to_jiffies(SLOT_TIMEOUT))) {
 			ptd_read(hcd->regs, ATL_PTD_OFFSET, slot, &ptd);
+=======
+	for (slot = 0; slot < mem->slot_num; slot++)
+		if (priv->atl_slots[slot].qh && time_after(jiffies,
+					priv->atl_slots[slot].timestamp +
+					msecs_to_jiffies(SLOT_TIMEOUT))) {
+			ptd_read(hcd, ATL_PTD_OFFSET, slot, &ptd);
+>>>>>>> upstream/android-13
 			if (!FROM_DW0_VALID(ptd.dw0) &&
 					!FROM_DW3_ACTIVE(ptd.dw3))
 				priv->atl_done_map |= 1 << slot;
@@ -1290,18 +1981,114 @@ static void errata2_function(struct timer_list *unused)
 	add_timer(&errata2_timer);
 }
 
+<<<<<<< HEAD
 static int isp1760_run(struct usb_hcd *hcd)
 {
 	int retval;
 	u32 temp;
 	u32 command;
 	u32 chipid;
+=======
+static int isp1763_run(struct usb_hcd *hcd)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+	int retval;
+	u32 chipid_h;
+	u32 chipid_l;
+	u32 chip_rev;
+	u32 ptd_atl_int;
+	u32 ptd_iso;
+
+	hcd->uses_new_polling = 1;
+	hcd->state = HC_STATE_RUNNING;
+
+	chipid_h = isp1760_hcd_read(hcd, HC_CHIP_ID_HIGH);
+	chipid_l = isp1760_hcd_read(hcd, HC_CHIP_ID_LOW);
+	chip_rev = isp1760_hcd_read(hcd, HC_CHIP_REV);
+	dev_info(hcd->self.controller, "USB ISP %02x%02x HW rev. %d started\n",
+		 chipid_h, chipid_l, chip_rev);
+
+	isp1760_hcd_clear(hcd, ISO_BUF_FILL);
+	isp1760_hcd_clear(hcd, INT_BUF_FILL);
+	isp1760_hcd_clear(hcd, ATL_BUF_FILL);
+
+	isp1760_hcd_set(hcd, HC_ATL_PTD_SKIPMAP);
+	isp1760_hcd_set(hcd, HC_INT_PTD_SKIPMAP);
+	isp1760_hcd_set(hcd, HC_ISO_PTD_SKIPMAP);
+	ndelay(100);
+	isp1760_hcd_clear(hcd, HC_ATL_PTD_DONEMAP);
+	isp1760_hcd_clear(hcd, HC_INT_PTD_DONEMAP);
+	isp1760_hcd_clear(hcd, HC_ISO_PTD_DONEMAP);
+
+	isp1760_hcd_set(hcd, HW_OTG_DISABLE);
+	isp1760_reg_write(priv->regs, ISP1763_HC_OTG_CTRL_CLEAR, BIT(7));
+	isp1760_reg_write(priv->regs, ISP1763_HC_OTG_CTRL_CLEAR, BIT(15));
+	mdelay(10);
+
+	isp1760_hcd_set(hcd, HC_INT_IRQ_ENABLE);
+	isp1760_hcd_set(hcd, HC_ATL_IRQ_ENABLE);
+
+	isp1760_hcd_set(hcd, HW_GLOBAL_INTR_EN);
+
+	isp1760_hcd_clear(hcd, HC_ATL_IRQ_MASK_AND);
+	isp1760_hcd_clear(hcd, HC_INT_IRQ_MASK_AND);
+	isp1760_hcd_clear(hcd, HC_ISO_IRQ_MASK_AND);
+
+	isp1760_hcd_set(hcd, HC_ATL_IRQ_MASK_OR);
+	isp1760_hcd_set(hcd, HC_INT_IRQ_MASK_OR);
+	isp1760_hcd_set(hcd, HC_ISO_IRQ_MASK_OR);
+
+	ptd_atl_int = 0x8000;
+	ptd_iso = 0x0001;
+
+	isp1760_hcd_write(hcd, HC_ATL_PTD_LASTPTD, ptd_atl_int);
+	isp1760_hcd_write(hcd, HC_INT_PTD_LASTPTD, ptd_atl_int);
+	isp1760_hcd_write(hcd, HC_ISO_PTD_LASTPTD, ptd_iso);
+
+	isp1760_hcd_set(hcd, ATL_BUF_FILL);
+	isp1760_hcd_set(hcd, INT_BUF_FILL);
+
+	isp1760_hcd_clear(hcd, CMD_LRESET);
+	isp1760_hcd_clear(hcd, CMD_RESET);
+
+	retval = isp1760_hcd_set_and_wait(hcd, CMD_RUN, 250 * 1000);
+	if (retval)
+		return retval;
+
+	down_write(&ehci_cf_port_reset_rwsem);
+	retval = isp1760_hcd_set_and_wait(hcd, FLAG_CF, 250 * 1000);
+	up_write(&ehci_cf_port_reset_rwsem);
+	if (retval)
+		return retval;
+
+	return 0;
+}
+
+static int isp1760_run(struct usb_hcd *hcd)
+{
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+	int retval;
+	u32 chipid_h;
+	u32 chipid_l;
+	u32 chip_rev;
+	u32 ptd_atl_int;
+	u32 ptd_iso;
+
+	/*
+	 * ISP1763 have some differences in the setup and order to enable
+	 * the ports, disable otg, setup buffers, and ATL, INT, ISO status.
+	 * So, just handle it a separate sequence.
+	 */
+	if (priv->is_isp1763)
+		return isp1763_run(hcd);
+>>>>>>> upstream/android-13
 
 	hcd->uses_new_polling = 1;
 
 	hcd->state = HC_STATE_RUNNING;
 
 	/* Set PTD interrupt AND & OR maps */
+<<<<<<< HEAD
 	reg_write32(hcd->regs, HC_ATL_IRQ_MASK_AND_REG, 0);
 	reg_write32(hcd->regs, HC_ATL_IRQ_MASK_OR_REG, 0xffffffff);
 	reg_write32(hcd->regs, HC_INT_IRQ_MASK_AND_REG, 0);
@@ -1319,6 +2106,24 @@ static int isp1760_run(struct usb_hcd *hcd)
 	reg_write32(hcd->regs, HC_USBCMD, command);
 
 	retval = handshake(hcd, HC_USBCMD, CMD_RUN, CMD_RUN, 250 * 1000);
+=======
+	isp1760_hcd_clear(hcd, HC_ATL_IRQ_MASK_AND);
+	isp1760_hcd_clear(hcd, HC_INT_IRQ_MASK_AND);
+	isp1760_hcd_clear(hcd, HC_ISO_IRQ_MASK_AND);
+
+	isp1760_hcd_set(hcd, HC_ATL_IRQ_MASK_OR);
+	isp1760_hcd_set(hcd, HC_INT_IRQ_MASK_OR);
+	isp1760_hcd_set(hcd, HC_ISO_IRQ_MASK_OR);
+
+	/* step 23 passed */
+
+	isp1760_hcd_set(hcd, HW_GLOBAL_INTR_EN);
+
+	isp1760_hcd_clear(hcd, CMD_LRESET);
+	isp1760_hcd_clear(hcd, CMD_RESET);
+
+	retval = isp1760_hcd_set_and_wait(hcd, CMD_RUN, 250 * 1000);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 
@@ -1328,9 +2133,14 @@ static int isp1760_run(struct usb_hcd *hcd)
 	 * the semaphore while doing so.
 	 */
 	down_write(&ehci_cf_port_reset_rwsem);
+<<<<<<< HEAD
 	reg_write32(hcd->regs, HC_CONFIGFLAG, FLAG_CF);
 
 	retval = handshake(hcd, HC_CONFIGFLAG, FLAG_CF, FLAG_CF, 250 * 1000);
+=======
+
+	retval = isp1760_hcd_set_and_wait(hcd, FLAG_CF, 250 * 1000);
+>>>>>>> upstream/android-13
 	up_write(&ehci_cf_port_reset_rwsem);
 	if (retval)
 		return retval;
@@ -1340,13 +2150,22 @@ static int isp1760_run(struct usb_hcd *hcd)
 	errata2_timer.expires = jiffies + msecs_to_jiffies(SLOT_CHECK_PERIOD);
 	add_timer(&errata2_timer);
 
+<<<<<<< HEAD
 	chipid = reg_read32(hcd->regs, HC_CHIP_ID_REG);
 	dev_info(hcd->self.controller, "USB ISP %04x HW rev. %d started\n",
 					chipid & 0xffff, chipid >> 16);
+=======
+	chipid_h = isp1760_hcd_read(hcd, HC_CHIP_ID_HIGH);
+	chipid_l = isp1760_hcd_read(hcd, HC_CHIP_ID_LOW);
+	chip_rev = isp1760_hcd_read(hcd, HC_CHIP_REV);
+	dev_info(hcd->self.controller, "USB ISP %02x%02x HW rev. %d started\n",
+		 chipid_h, chipid_l, chip_rev);
+>>>>>>> upstream/android-13
 
 	/* PTD Register Init Part 2, Step 28 */
 
 	/* Setup registers controlling PTD checking */
+<<<<<<< HEAD
 	reg_write32(hcd->regs, HC_ATL_PTD_LASTPTD_REG, 0x80000000);
 	reg_write32(hcd->regs, HC_INT_PTD_LASTPTD_REG, 0x80000000);
 	reg_write32(hcd->regs, HC_ISO_PTD_LASTPTD_REG, 0x00000001);
@@ -1355,6 +2174,21 @@ static int isp1760_run(struct usb_hcd *hcd)
 	reg_write32(hcd->regs, HC_ISO_PTD_SKIPMAP_REG, 0xffffffff);
 	reg_write32(hcd->regs, HC_BUFFER_STATUS_REG,
 						ATL_BUF_FILL | INT_BUF_FILL);
+=======
+	ptd_atl_int = 0x80000000;
+	ptd_iso = 0x00000001;
+
+	isp1760_hcd_write(hcd, HC_ATL_PTD_LASTPTD, ptd_atl_int);
+	isp1760_hcd_write(hcd, HC_INT_PTD_LASTPTD, ptd_atl_int);
+	isp1760_hcd_write(hcd, HC_ISO_PTD_LASTPTD, ptd_iso);
+
+	isp1760_hcd_set(hcd, HC_ATL_PTD_SKIPMAP);
+	isp1760_hcd_set(hcd, HC_INT_PTD_SKIPMAP);
+	isp1760_hcd_set(hcd, HC_ISO_PTD_SKIPMAP);
+
+	isp1760_hcd_set(hcd, ATL_BUF_FILL);
+	isp1760_hcd_set(hcd, INT_BUF_FILL);
+>>>>>>> upstream/android-13
 
 	/* GRR this is run-once init(), being done every time the HC starts.
 	 * So long as they're part of class devices, we can't do it init()
@@ -1367,8 +2201,11 @@ static int qtd_fill(struct isp1760_qtd *qtd, void *databuffer, size_t len)
 {
 	qtd->data_buffer = databuffer;
 
+<<<<<<< HEAD
 	if (len > MAX_PAYLOAD_SIZE)
 		len = MAX_PAYLOAD_SIZE;
+=======
+>>>>>>> upstream/android-13
 	qtd->length = len;
 
 	return qtd->length;
@@ -1392,6 +2229,11 @@ static void qtd_list_free(struct list_head *qtd_list)
 static void packetize_urb(struct usb_hcd *hcd,
 		struct urb *urb, struct list_head *head, gfp_t flags)
 {
+<<<<<<< HEAD
+=======
+	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+	const struct isp1760_memory_layout *mem = priv->memory_layout;
+>>>>>>> upstream/android-13
 	struct isp1760_qtd *qtd;
 	void *buf;
 	int len, maxpacketsize;
@@ -1444,7 +2286,17 @@ static void packetize_urb(struct usb_hcd *hcd,
 		qtd = qtd_alloc(flags, urb, packet_type);
 		if (!qtd)
 			goto cleanup;
+<<<<<<< HEAD
 		this_qtd_len = qtd_fill(qtd, buf, len);
+=======
+
+		if (len > mem->blocks_size[ISP176x_BLOCK_NUM - 1])
+			this_qtd_len = mem->blocks_size[ISP176x_BLOCK_NUM - 1];
+		else
+			this_qtd_len = len;
+
+		this_qtd_len = qtd_fill(qtd, buf, this_qtd_len);
+>>>>>>> upstream/android-13
 		list_add_tail(&qtd->qtd_list, head);
 
 		len -= this_qtd_len;
@@ -1467,7 +2319,11 @@ static void packetize_urb(struct usb_hcd *hcd,
 				packet_type = OUT_PID;
 			else
 				packet_type = IN_PID;
+<<<<<<< HEAD
 		} else if (usb_pipebulk(urb->pipe)
+=======
+		} else if (usb_pipebulk(urb->pipe) && maxpacketsize
+>>>>>>> upstream/android-13
 				&& (urb->transfer_flags & URB_ZERO_PACKET)
 				&& !(urb->transfer_buffer_length %
 							maxpacketsize)) {
@@ -1532,7 +2388,10 @@ static int isp1760_urb_enqueue(struct usb_hcd *hcd, struct urb *urb,
 	if (list_empty(&new_qtds))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	retval = 0;
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&priv->lock, spinflags);
 
 	if (!test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags)) {
@@ -1588,6 +2447,7 @@ static void kill_transfer(struct usb_hcd *hcd, struct urb *urb,
 	/* We need to forcefully reclaim the slot since some transfers never
 	   return, e.g. interrupt transfers and NAKed bulk transfers. */
 	if (usb_pipecontrol(urb->pipe) || usb_pipebulk(urb->pipe)) {
+<<<<<<< HEAD
 		skip_map = reg_read32(hcd->regs, HC_ATL_PTD_SKIPMAP_REG);
 		skip_map |= (1 << qh->slot);
 		reg_write32(hcd->regs, HC_ATL_PTD_SKIPMAP_REG, skip_map);
@@ -1597,6 +2457,22 @@ static void kill_transfer(struct usb_hcd *hcd, struct urb *urb,
 		skip_map = reg_read32(hcd->regs, HC_INT_PTD_SKIPMAP_REG);
 		skip_map |= (1 << qh->slot);
 		reg_write32(hcd->regs, HC_INT_PTD_SKIPMAP_REG, skip_map);
+=======
+		if (qh->slot != -1) {
+			skip_map = isp1760_hcd_read(hcd, HC_ATL_PTD_SKIPMAP);
+			skip_map |= (1 << qh->slot);
+			isp1760_hcd_write(hcd, HC_ATL_PTD_SKIPMAP, skip_map);
+			ndelay(100);
+		}
+		priv->atl_slots[qh->slot].qh = NULL;
+		priv->atl_slots[qh->slot].qtd = NULL;
+	} else {
+		if (qh->slot != -1) {
+			skip_map = isp1760_hcd_read(hcd, HC_INT_PTD_SKIPMAP);
+			skip_map |= (1 << qh->slot);
+			isp1760_hcd_write(hcd, HC_INT_PTD_SKIPMAP, skip_map);
+		}
+>>>>>>> upstream/android-13
 		priv->int_slots[qh->slot].qh = NULL;
 		priv->int_slots[qh->slot].qtd = NULL;
 	}
@@ -1709,8 +2585,12 @@ out:
 static int isp1760_hub_status_data(struct usb_hcd *hcd, char *buf)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
 	u32 temp, status = 0;
 	u32 mask;
+=======
+	u32 status = 0;
+>>>>>>> upstream/android-13
 	int retval = 1;
 	unsigned long flags;
 
@@ -1720,6 +2600,7 @@ static int isp1760_hub_status_data(struct usb_hcd *hcd, char *buf)
 
 	/* init status to no-changes */
 	buf[0] = 0;
+<<<<<<< HEAD
 	mask = PORT_CSC;
 
 	spin_lock_irqsave(&priv->lock, flags);
@@ -1731,6 +2612,15 @@ static int isp1760_hub_status_data(struct usb_hcd *hcd, char *buf)
 			reg_write32(hcd->regs, HC_PORTSC1, temp);
 			goto done;
 		}
+=======
+
+	spin_lock_irqsave(&priv->lock, flags);
+
+	if (isp1760_hcd_is_set(hcd, PORT_OWNER) &&
+	    isp1760_hcd_is_set(hcd, PORT_CSC)) {
+		isp1760_hcd_clear(hcd, PORT_CSC);
+		goto done;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1739,11 +2629,17 @@ static int isp1760_hub_status_data(struct usb_hcd *hcd, char *buf)
 	 * high-speed device is switched over to the companion
 	 * controller by the user.
 	 */
+<<<<<<< HEAD
 
 	if ((temp & mask) != 0
 			|| ((temp & PORT_RESUME) != 0
 				&& time_after_eq(jiffies,
 					priv->reset_done))) {
+=======
+	if (isp1760_hcd_is_set(hcd, PORT_CSC) ||
+	    (isp1760_hcd_is_set(hcd, PORT_RESUME) &&
+	     time_after_eq(jiffies, priv->reset_done))) {
+>>>>>>> upstream/android-13
 		buf [0] |= 1 << (0 + 1);
 		status = STS_PCD;
 	}
@@ -1756,9 +2652,17 @@ done:
 static void isp1760_hub_descriptor(struct isp1760_hcd *priv,
 		struct usb_hub_descriptor *desc)
 {
+<<<<<<< HEAD
 	int ports = HCS_N_PORTS(priv->hcs_params);
 	u16 temp;
 
+=======
+	int ports;
+	u16 temp;
+
+	ports = isp1760_hcd_n_ports(priv->hcd);
+
+>>>>>>> upstream/android-13
 	desc->bDescriptorType = USB_DT_HUB;
 	/* priv 1.0, 2.3.9 says 20ms max */
 	desc->bPwrOn2PwrGood = 10;
@@ -1774,7 +2678,11 @@ static void isp1760_hub_descriptor(struct isp1760_hcd *priv,
 
 	/* per-port overcurrent reporting */
 	temp = HUB_CHAR_INDV_PORT_OCPM;
+<<<<<<< HEAD
 	if (HCS_PPC(priv->hcs_params))
+=======
+	if (isp1760_hcd_ppc_is_set(priv->hcd))
+>>>>>>> upstream/android-13
 		/* per-port power control */
 		temp |= HUB_CHAR_INDV_PORT_LPSM;
 	else
@@ -1785,6 +2693,7 @@ static void isp1760_hub_descriptor(struct isp1760_hcd *priv,
 
 #define	PORT_WAKE_BITS	(PORT_WKOC_E|PORT_WKDISC_E|PORT_WKCONN_E)
 
+<<<<<<< HEAD
 static int check_reset_complete(struct usb_hcd *hcd, int index,
 		int port_status)
 {
@@ -1807,16 +2716,46 @@ static int check_reset_complete(struct usb_hcd *hcd, int index,
 								index + 1);
 
 	return port_status;
+=======
+static void check_reset_complete(struct usb_hcd *hcd, int index)
+{
+	if (!(isp1760_hcd_is_set(hcd, PORT_CONNECT)))
+		return;
+
+	/* if reset finished and it's still not enabled -- handoff */
+	if (!isp1760_hcd_is_set(hcd, PORT_PE)) {
+		dev_info(hcd->self.controller,
+			 "port %d full speed --> companion\n", index + 1);
+
+		isp1760_hcd_set(hcd, PORT_OWNER);
+
+		isp1760_hcd_clear(hcd, PORT_CSC);
+	} else {
+		dev_info(hcd->self.controller, "port %d high speed\n",
+			 index + 1);
+	}
+
+	return;
+>>>>>>> upstream/android-13
 }
 
 static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 		u16 wValue, u16 wIndex, char *buf, u16 wLength)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
 	int ports = HCS_N_PORTS(priv->hcs_params);
 	u32 temp, status;
 	unsigned long flags;
 	int retval = 0;
+=======
+	u32 status;
+	unsigned long flags;
+	int retval = 0;
+	int ports;
+
+	ports = isp1760_hcd_n_ports(hcd);
+>>>>>>> upstream/android-13
 
 	/*
 	 * FIXME:  support SetPortFeatures USB_PORT_FEAT_INDICATOR.
@@ -1841,7 +2780,10 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 		if (!wIndex || wIndex > ports)
 			goto error;
 		wIndex--;
+<<<<<<< HEAD
 		temp = reg_read32(hcd->regs, HC_PORTSC1);
+=======
+>>>>>>> upstream/android-13
 
 		/*
 		 * Even if OWNER is set, so the port is owned by the
@@ -1852,12 +2794,17 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 
 		switch (wValue) {
 		case USB_PORT_FEAT_ENABLE:
+<<<<<<< HEAD
 			reg_write32(hcd->regs, HC_PORTSC1, temp & ~PORT_PE);
+=======
+			isp1760_hcd_clear(hcd, PORT_PE);
+>>>>>>> upstream/android-13
 			break;
 		case USB_PORT_FEAT_C_ENABLE:
 			/* XXX error? */
 			break;
 		case USB_PORT_FEAT_SUSPEND:
+<<<<<<< HEAD
 			if (temp & PORT_RESET)
 				goto error;
 
@@ -1868,6 +2815,18 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 				temp &= ~(PORT_RWC_BITS);
 				reg_write32(hcd->regs, HC_PORTSC1,
 							temp | PORT_RESUME);
+=======
+			if (isp1760_hcd_is_set(hcd, PORT_RESET))
+				goto error;
+
+			if (isp1760_hcd_is_set(hcd, PORT_SUSPEND)) {
+				if (!isp1760_hcd_is_set(hcd, PORT_PE))
+					goto error;
+				/* resume signaling for 20 msec */
+				isp1760_hcd_clear(hcd, PORT_CSC);
+				isp1760_hcd_set(hcd, PORT_RESUME);
+
+>>>>>>> upstream/android-13
 				priv->reset_done = jiffies +
 					msecs_to_jiffies(USB_RESUME_TIMEOUT);
 			}
@@ -1876,12 +2835,20 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 			/* we auto-clear this feature */
 			break;
 		case USB_PORT_FEAT_POWER:
+<<<<<<< HEAD
 			if (HCS_PPC(priv->hcs_params))
 				reg_write32(hcd->regs, HC_PORTSC1,
 							temp & ~PORT_POWER);
 			break;
 		case USB_PORT_FEAT_C_CONNECTION:
 			reg_write32(hcd->regs, HC_PORTSC1, temp | PORT_CSC);
+=======
+			if (isp1760_hcd_ppc_is_set(hcd))
+				isp1760_hcd_clear(hcd, PORT_POWER);
+			break;
+		case USB_PORT_FEAT_C_CONNECTION:
+			isp1760_hcd_set(hcd, PORT_CSC);
+>>>>>>> upstream/android-13
 			break;
 		case USB_PORT_FEAT_C_OVER_CURRENT:
 			/* XXX error ?*/
@@ -1892,7 +2859,11 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 		default:
 			goto error;
 		}
+<<<<<<< HEAD
 		reg_read32(hcd->regs, HC_USBCMD);
+=======
+		isp1760_hcd_read(hcd, CMD_RUN);
+>>>>>>> upstream/android-13
 		break;
 	case GetHubDescriptor:
 		isp1760_hub_descriptor(priv, (struct usb_hub_descriptor *)
@@ -1907,6 +2878,7 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 			goto error;
 		wIndex--;
 		status = 0;
+<<<<<<< HEAD
 		temp = reg_read32(hcd->regs, HC_PORTSC1);
 
 		/* wPortChange bits */
@@ -1916,6 +2888,15 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 
 		/* whoever resumes must GetPortStatus to complete it!! */
 		if (temp & PORT_RESUME) {
+=======
+
+		/* wPortChange bits */
+		if (isp1760_hcd_is_set(hcd, PORT_CSC))
+			status |= USB_PORT_STAT_C_CONNECTION << 16;
+
+		/* whoever resumes must GetPortStatus to complete it!! */
+		if (isp1760_hcd_is_set(hcd, PORT_RESUME)) {
+>>>>>>> upstream/android-13
 			dev_err(hcd->self.controller, "Port resume should be skipped.\n");
 
 			/* Remote Wakeup received? */
@@ -1934,29 +2915,45 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 				priv->reset_done = 0;
 
 				/* stop resume signaling */
+<<<<<<< HEAD
 				temp = reg_read32(hcd->regs, HC_PORTSC1);
 				reg_write32(hcd->regs, HC_PORTSC1,
 					temp & ~(PORT_RWC_BITS | PORT_RESUME));
 				retval = handshake(hcd, HC_PORTSC1,
 					   PORT_RESUME, 0, 2000 /* 2msec */);
+=======
+				isp1760_hcd_clear(hcd, PORT_CSC);
+
+				retval = isp1760_hcd_clear_and_wait(hcd,
+							  PORT_RESUME, 2000);
+>>>>>>> upstream/android-13
 				if (retval != 0) {
 					dev_err(hcd->self.controller,
 						"port %d resume error %d\n",
 						wIndex + 1, retval);
 					goto error;
 				}
+<<<<<<< HEAD
 				temp &= ~(PORT_SUSPEND|PORT_RESUME|(3<<10));
+=======
+>>>>>>> upstream/android-13
 			}
 		}
 
 		/* whoever resets must GetPortStatus to complete it!! */
+<<<<<<< HEAD
 		if ((temp & PORT_RESET)
 				&& time_after_eq(jiffies,
 					priv->reset_done)) {
+=======
+		if (isp1760_hcd_is_set(hcd, PORT_RESET) &&
+		    time_after_eq(jiffies, priv->reset_done)) {
+>>>>>>> upstream/android-13
 			status |= USB_PORT_STAT_C_RESET << 16;
 			priv->reset_done = 0;
 
 			/* force reset to complete */
+<<<<<<< HEAD
 			reg_write32(hcd->regs, HC_PORTSC1, temp & ~PORT_RESET);
 			/* REVISIT:  some hardware needs 550+ usec to clear
 			 * this bit; seems too long to spin routinely...
@@ -1966,12 +2963,26 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 			if (retval != 0) {
 				dev_err(hcd->self.controller, "port %d reset error %d\n",
 						wIndex + 1, retval);
+=======
+			/* REVISIT:  some hardware needs 550+ usec to clear
+			 * this bit; seems too long to spin routinely...
+			 */
+			retval = isp1760_hcd_clear_and_wait(hcd, PORT_RESET,
+							    750);
+			if (retval != 0) {
+				dev_err(hcd->self.controller, "port %d reset error %d\n",
+					wIndex + 1, retval);
+>>>>>>> upstream/android-13
 				goto error;
 			}
 
 			/* see what we found out */
+<<<<<<< HEAD
 			temp = check_reset_complete(hcd, wIndex,
 					reg_read32(hcd->regs, HC_PORTSC1));
+=======
+			check_reset_complete(hcd, wIndex);
+>>>>>>> upstream/android-13
 		}
 		/*
 		 * Even if OWNER is set, there's no harm letting hub_wq
@@ -1979,14 +2990,22 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 		 * for PORT_POWER anyway).
 		 */
 
+<<<<<<< HEAD
 		if (temp & PORT_OWNER)
 			dev_err(hcd->self.controller, "PORT_OWNER is set\n");
 
 		if (temp & PORT_CONNECT) {
+=======
+		if (isp1760_hcd_is_set(hcd, PORT_OWNER))
+			dev_err(hcd->self.controller, "PORT_OWNER is set\n");
+
+		if (isp1760_hcd_is_set(hcd, PORT_CONNECT)) {
+>>>>>>> upstream/android-13
 			status |= USB_PORT_STAT_CONNECTION;
 			/* status may be from integrated TT */
 			status |= USB_PORT_STAT_HIGH_SPEED;
 		}
+<<<<<<< HEAD
 		if (temp & PORT_PE)
 			status |= USB_PORT_STAT_ENABLE;
 		if (temp & (PORT_SUSPEND|PORT_RESUME))
@@ -1994,6 +3013,16 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 		if (temp & PORT_RESET)
 			status |= USB_PORT_STAT_RESET;
 		if (temp & PORT_POWER)
+=======
+		if (isp1760_hcd_is_set(hcd, PORT_PE))
+			status |= USB_PORT_STAT_ENABLE;
+		if (isp1760_hcd_is_set(hcd, PORT_SUSPEND) &&
+		    isp1760_hcd_is_set(hcd, PORT_RESUME))
+			status |= USB_PORT_STAT_SUSPEND;
+		if (isp1760_hcd_is_set(hcd, PORT_RESET))
+			status |= USB_PORT_STAT_RESET;
+		if (isp1760_hcd_is_set(hcd, PORT_POWER))
+>>>>>>> upstream/android-13
 			status |= USB_PORT_STAT_POWER;
 
 		put_unaligned(cpu_to_le32(status), (__le32 *) buf);
@@ -2013,6 +3042,7 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 		if (!wIndex || wIndex > ports)
 			goto error;
 		wIndex--;
+<<<<<<< HEAD
 		temp = reg_read32(hcd->regs, HC_PORTSC1);
 		if (temp & PORT_OWNER)
 			break;
@@ -2037,17 +3067,51 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 			break;
 		case USB_PORT_FEAT_RESET:
 			if (temp & PORT_RESUME)
+=======
+
+		if (isp1760_hcd_is_set(hcd, PORT_OWNER))
+			break;
+
+		switch (wValue) {
+		case USB_PORT_FEAT_ENABLE:
+			isp1760_hcd_set(hcd, PORT_PE);
+			break;
+
+		case USB_PORT_FEAT_SUSPEND:
+			if (!isp1760_hcd_is_set(hcd, PORT_PE) ||
+			    isp1760_hcd_is_set(hcd, PORT_RESET))
+				goto error;
+
+			isp1760_hcd_set(hcd, PORT_SUSPEND);
+			break;
+		case USB_PORT_FEAT_POWER:
+			if (isp1760_hcd_ppc_is_set(hcd))
+				isp1760_hcd_set(hcd, PORT_POWER);
+			break;
+		case USB_PORT_FEAT_RESET:
+			if (isp1760_hcd_is_set(hcd, PORT_RESUME))
+>>>>>>> upstream/android-13
 				goto error;
 			/* line status bits may report this as low speed,
 			 * which can be fine if this root hub has a
 			 * transaction translator built in.
 			 */
+<<<<<<< HEAD
 			if ((temp & (PORT_PE|PORT_CONNECT)) == PORT_CONNECT
 					&& PORT_USB11(temp)) {
 				temp |= PORT_OWNER;
 			} else {
 				temp |= PORT_RESET;
 				temp &= ~PORT_PE;
+=======
+			if ((isp1760_hcd_is_set(hcd, PORT_CONNECT) &&
+			     !isp1760_hcd_is_set(hcd, PORT_PE)) &&
+			    (isp1760_hcd_read(hcd, PORT_LSTATUS) == 1)) {
+				isp1760_hcd_set(hcd, PORT_OWNER);
+			} else {
+				isp1760_hcd_set(hcd, PORT_RESET);
+				isp1760_hcd_clear(hcd, PORT_PE);
+>>>>>>> upstream/android-13
 
 				/*
 				 * caller must wait, then call GetPortStatus
@@ -2056,12 +3120,18 @@ static int isp1760_hub_control(struct usb_hcd *hcd, u16 typeReq,
 				priv->reset_done = jiffies +
 					msecs_to_jiffies(50);
 			}
+<<<<<<< HEAD
 			reg_write32(hcd->regs, HC_PORTSC1, temp);
+=======
+>>>>>>> upstream/android-13
 			break;
 		default:
 			goto error;
 		}
+<<<<<<< HEAD
 		reg_read32(hcd->regs, HC_USBCMD);
+=======
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -2078,14 +3148,21 @@ static int isp1760_get_frame(struct usb_hcd *hcd)
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
 	u32 fr;
 
+<<<<<<< HEAD
 	fr = reg_read32(hcd->regs, HC_FRINDEX);
+=======
+	fr = isp1760_hcd_read(hcd, HC_FRINDEX);
+>>>>>>> upstream/android-13
 	return (fr >> 3) % priv->periodic_size;
 }
 
 static void isp1760_stop(struct usb_hcd *hcd)
 {
 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+<<<<<<< HEAD
 	u32 temp;
+=======
+>>>>>>> upstream/android-13
 
 	del_timer(&errata2_timer);
 
@@ -2096,15 +3173,23 @@ static void isp1760_stop(struct usb_hcd *hcd)
 	spin_lock_irq(&priv->lock);
 	ehci_reset(hcd);
 	/* Disable IRQ */
+<<<<<<< HEAD
 	temp = reg_read32(hcd->regs, HC_HW_MODE_CTRL);
 	reg_write32(hcd->regs, HC_HW_MODE_CTRL, temp &= ~HW_GLOBAL_INTR_EN);
 	spin_unlock_irq(&priv->lock);
 
 	reg_write32(hcd->regs, HC_CONFIGFLAG, 0);
+=======
+	isp1760_hcd_clear(hcd, HW_GLOBAL_INTR_EN);
+	spin_unlock_irq(&priv->lock);
+
+	isp1760_hcd_clear(hcd, FLAG_CF);
+>>>>>>> upstream/android-13
 }
 
 static void isp1760_shutdown(struct usb_hcd *hcd)
 {
+<<<<<<< HEAD
 	u32 command, temp;
 
 	isp1760_stop(hcd);
@@ -2114,6 +3199,13 @@ static void isp1760_shutdown(struct usb_hcd *hcd)
 	command = reg_read32(hcd->regs, HC_USBCMD);
 	command &= ~CMD_RUN;
 	reg_write32(hcd->regs, HC_USBCMD, command);
+=======
+	isp1760_stop(hcd);
+
+	isp1760_hcd_clear(hcd, HW_GLOBAL_INTR_EN);
+
+	isp1760_hcd_clear(hcd, CMD_RUN);
+>>>>>>> upstream/android-13
 }
 
 static void isp1760_clear_tt_buffer_complete(struct usb_hcd *hcd,
@@ -2166,17 +3258,36 @@ int __init isp1760_init_kmem_once(void)
 			SLAB_MEM_SPREAD, NULL);
 
 	if (!qtd_cachep)
+<<<<<<< HEAD
 		return -ENOMEM;
+=======
+		goto destroy_urb_listitem;
+>>>>>>> upstream/android-13
 
 	qh_cachep = kmem_cache_create("isp1760_qh", sizeof(struct isp1760_qh),
 			0, SLAB_TEMPORARY | SLAB_MEM_SPREAD, NULL);
 
+<<<<<<< HEAD
 	if (!qh_cachep) {
 		kmem_cache_destroy(qtd_cachep);
 		return -ENOMEM;
 	}
 
 	return 0;
+=======
+	if (!qh_cachep)
+		goto destroy_qtd;
+
+	return 0;
+
+destroy_qtd:
+	kmem_cache_destroy(qtd_cachep);
+
+destroy_urb_listitem:
+	kmem_cache_destroy(urb_listitem_cachep);
+
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 void isp1760_deinit_kmem_cache(void)
@@ -2186,10 +3297,18 @@ void isp1760_deinit_kmem_cache(void)
 	kmem_cache_destroy(urb_listitem_cachep);
 }
 
+<<<<<<< HEAD
 int isp1760_hcd_register(struct isp1760_hcd *priv, void __iomem *regs,
 			 struct resource *mem, int irq, unsigned long irqflags,
 			 struct device *dev)
 {
+=======
+int isp1760_hcd_register(struct isp1760_hcd *priv, struct resource *mem,
+			 int irq, unsigned long irqflags,
+			 struct device *dev)
+{
+	const struct isp1760_memory_layout *mem_layout = priv->memory_layout;
+>>>>>>> upstream/android-13
 	struct usb_hcd *hcd;
 	int ret;
 
@@ -2201,10 +3320,30 @@ int isp1760_hcd_register(struct isp1760_hcd *priv, void __iomem *regs,
 
 	priv->hcd = hcd;
 
+<<<<<<< HEAD
 	init_memory(priv);
 
 	hcd->irq = irq;
 	hcd->regs = regs;
+=======
+	priv->atl_slots = kcalloc(mem_layout->slot_num,
+				  sizeof(struct isp1760_slotinfo), GFP_KERNEL);
+	if (!priv->atl_slots) {
+		ret = -ENOMEM;
+		goto put_hcd;
+	}
+
+	priv->int_slots = kcalloc(mem_layout->slot_num,
+				  sizeof(struct isp1760_slotinfo), GFP_KERNEL);
+	if (!priv->int_slots) {
+		ret = -ENOMEM;
+		goto free_atl_slots;
+	}
+
+	init_memory(priv);
+
+	hcd->irq = irq;
+>>>>>>> upstream/android-13
 	hcd->rsrc_start = mem->start;
 	hcd->rsrc_len = resource_size(mem);
 
@@ -2213,13 +3352,25 @@ int isp1760_hcd_register(struct isp1760_hcd *priv, void __iomem *regs,
 
 	ret = usb_add_hcd(hcd, irq, irqflags);
 	if (ret)
+<<<<<<< HEAD
 		goto error;
+=======
+		goto free_int_slots;
+>>>>>>> upstream/android-13
 
 	device_wakeup_enable(hcd->self.controller);
 
 	return 0;
 
+<<<<<<< HEAD
 error:
+=======
+free_int_slots:
+	kfree(priv->int_slots);
+free_atl_slots:
+	kfree(priv->atl_slots);
+put_hcd:
+>>>>>>> upstream/android-13
 	usb_put_hcd(hcd);
 	return ret;
 }
@@ -2231,4 +3382,9 @@ void isp1760_hcd_unregister(struct isp1760_hcd *priv)
 
 	usb_remove_hcd(priv->hcd);
 	usb_put_hcd(priv->hcd);
+<<<<<<< HEAD
+=======
+	kfree(priv->atl_slots);
+	kfree(priv->int_slots);
+>>>>>>> upstream/android-13
 }

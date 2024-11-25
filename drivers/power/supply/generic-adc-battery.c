@@ -12,7 +12,11 @@
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
 #include <linux/power_supply.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/timer.h>
 #include <linux/jiffies.h>
@@ -52,6 +56,10 @@ struct gab {
 	int	level;
 	int	status;
 	bool cable_plugged;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *charge_finished;
+>>>>>>> upstream/android-13
 };
 
 static struct gab *to_generic_bat(struct power_supply *psy)
@@ -91,6 +99,7 @@ static const enum power_supply_property gab_dyn_props[] = {
 
 static bool gab_charge_finished(struct gab *adc_bat)
 {
+<<<<<<< HEAD
 	struct gab_platform_data *pdata = adc_bat->pdata;
 	bool ret = gpio_get_value(pdata->gpio_charge_finished);
 	bool inv = pdata->gpio_inverted;
@@ -98,6 +107,11 @@ static bool gab_charge_finished(struct gab *adc_bat)
 	if (!gpio_is_valid(pdata->gpio_charge_finished))
 		return false;
 	return ret ^ inv;
+=======
+	if (!adc_bat->charge_finished)
+		return false;
+	return gpiod_get_value(adc_bat->charge_finished);
+>>>>>>> upstream/android-13
 }
 
 static int gab_get_status(struct gab *adc_bat)
@@ -241,6 +255,10 @@ static int gab_probe(struct platform_device *pdev)
 	struct power_supply_desc *psy_desc;
 	struct power_supply_config psy_cfg = {};
 	struct gab_platform_data *pdata = pdev->dev.platform_data;
+<<<<<<< HEAD
+=======
+	enum power_supply_property *properties;
+>>>>>>> upstream/android-13
 	int ret = 0;
 	int chan;
 	int index = ARRAY_SIZE(gab_props);
@@ -268,16 +286,28 @@ static int gab_probe(struct platform_device *pdev)
 	 * copying the static properties and allocating extra memory for holding
 	 * the extra configurable properties received from platform data.
 	 */
+<<<<<<< HEAD
 	psy_desc->properties = kcalloc(ARRAY_SIZE(gab_props) +
 					ARRAY_SIZE(gab_chan_name),
 					sizeof(*psy_desc->properties),
 					GFP_KERNEL);
 	if (!psy_desc->properties) {
+=======
+	properties = kcalloc(ARRAY_SIZE(gab_props) +
+			     ARRAY_SIZE(gab_chan_name),
+			     sizeof(*properties),
+			     GFP_KERNEL);
+	if (!properties) {
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto first_mem_fail;
 	}
 
+<<<<<<< HEAD
 	memcpy(psy_desc->properties, gab_props, sizeof(gab_props));
+=======
+	memcpy(properties, gab_props, sizeof(gab_props));
+>>>>>>> upstream/android-13
 
 	/*
 	 * getting channel from iio and copying the battery properties
@@ -294,6 +324,7 @@ static int gab_probe(struct platform_device *pdev)
 			int index2;
 
 			for (index2 = 0; index2 < index; index2++) {
+<<<<<<< HEAD
 				if (psy_desc->properties[index2] ==
 				    gab_dyn_props[chan])
 					break;	/* already known */
@@ -301,6 +332,13 @@ static int gab_probe(struct platform_device *pdev)
 			if (index2 == index)	/* really new */
 				psy_desc->properties[index++] =
 					gab_dyn_props[chan];
+=======
+				if (properties[index2] == gab_dyn_props[chan])
+					break;	/* already known */
+			}
+			if (index2 == index)	/* really new */
+				properties[index++] = gab_dyn_props[chan];
+>>>>>>> upstream/android-13
 			any = true;
 		}
 	}
@@ -317,6 +355,10 @@ static int gab_probe(struct platform_device *pdev)
 	 * as come channels may be not be supported by the device.So
 	 * we need to take care of that.
 	 */
+<<<<<<< HEAD
+=======
+	psy_desc->properties = properties;
+>>>>>>> upstream/android-13
 	psy_desc->num_properties = index;
 
 	adc_bat->psy = power_supply_register(&pdev->dev, psy_desc, &psy_cfg);
@@ -327,6 +369,7 @@ static int gab_probe(struct platform_device *pdev)
 
 	INIT_DELAYED_WORK(&adc_bat->bat_work, gab_work);
 
+<<<<<<< HEAD
 	if (gpio_is_valid(pdata->gpio_charge_finished)) {
 		int irq;
 		ret = gpio_request(pdata->gpio_charge_finished, "charged");
@@ -334,11 +377,23 @@ static int gab_probe(struct platform_device *pdev)
 			goto gpio_req_fail;
 
 		irq = gpio_to_irq(pdata->gpio_charge_finished);
+=======
+	adc_bat->charge_finished = devm_gpiod_get_optional(&pdev->dev,
+							   "charged", GPIOD_IN);
+	if (adc_bat->charge_finished) {
+		int irq;
+
+		irq = gpiod_to_irq(adc_bat->charge_finished);
+>>>>>>> upstream/android-13
 		ret = request_any_context_irq(irq, gab_charged,
 				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
 				"battery charged", adc_bat);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto err_gpio;
+=======
+			goto gpio_req_fail;
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, adc_bat);
@@ -348,8 +403,11 @@ static int gab_probe(struct platform_device *pdev)
 			msecs_to_jiffies(0));
 	return 0;
 
+<<<<<<< HEAD
 err_gpio:
 	gpio_free(pdata->gpio_charge_finished);
+=======
+>>>>>>> upstream/android-13
 gpio_req_fail:
 	power_supply_unregister(adc_bat->psy);
 err_reg_fail:
@@ -358,7 +416,11 @@ err_reg_fail:
 			iio_channel_release(adc_bat->channel[chan]);
 	}
 second_mem_fail:
+<<<<<<< HEAD
 	kfree(psy_desc->properties);
+=======
+	kfree(properties);
+>>>>>>> upstream/android-13
 first_mem_fail:
 	return ret;
 }
@@ -367,6 +429,7 @@ static int gab_remove(struct platform_device *pdev)
 {
 	int chan;
 	struct gab *adc_bat = platform_get_drvdata(pdev);
+<<<<<<< HEAD
 	struct gab_platform_data *pdata = adc_bat->pdata;
 
 	power_supply_unregister(adc_bat->psy);
@@ -375,6 +438,13 @@ static int gab_remove(struct platform_device *pdev)
 		free_irq(gpio_to_irq(pdata->gpio_charge_finished), adc_bat);
 		gpio_free(pdata->gpio_charge_finished);
 	}
+=======
+
+	power_supply_unregister(adc_bat->psy);
+
+	if (adc_bat->charge_finished)
+		free_irq(gpiod_to_irq(adc_bat->charge_finished), adc_bat);
+>>>>>>> upstream/android-13
 
 	for (chan = 0; chan < ARRAY_SIZE(gab_chan_name); chan++) {
 		if (adc_bat->channel[chan])

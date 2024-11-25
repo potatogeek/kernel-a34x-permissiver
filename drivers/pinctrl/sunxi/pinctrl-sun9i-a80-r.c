@@ -153,6 +153,10 @@ static const struct sunxi_pinctrl_desc sun9i_a80_r_pinctrl_data = {
 	.pin_base = PL_BASE,
 	.irq_banks = 2,
 	.disable_strict_mode = true,
+<<<<<<< HEAD
+=======
+	.io_bias_cfg_variant = BIAS_VOLTAGE_GRP_CONFIG,
+>>>>>>> upstream/android-13
 };
 
 static int sun9i_a80_r_pinctrl_probe(struct platform_device *pdev)

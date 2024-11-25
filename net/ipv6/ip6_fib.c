@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Linux INET6 implementation
  *	Forwarding Information Database
@@ -5,11 +9,14 @@
  *	Authors:
  *	Pedro Roque		<roque@di.fc.ul.pt>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Changes:
  *	Yuji SEKIYA @USAGI:	Support default route on router node;
  *				remove ip6_null_entry from the top of
@@ -29,12 +36,20 @@
 #include <linux/list.h>
 #include <linux/slab.h>
 
+<<<<<<< HEAD
+=======
+#include <net/ip.h>
+>>>>>>> upstream/android-13
 #include <net/ipv6.h>
 #include <net/ndisc.h>
 #include <net/addrconf.h>
 #include <net/lwtunnel.h>
 #include <net/fib_notifier.h>
 
+<<<<<<< HEAD
+=======
+#include <net/ip_fib.h>
+>>>>>>> upstream/android-13
 #include <net/ip6_fib.h>
 #include <net/ip6_route.h>
 
@@ -46,6 +61,10 @@ struct fib6_cleaner {
 	int (*func)(struct fib6_info *, void *arg);
 	int sernum;
 	void *arg;
+<<<<<<< HEAD
+=======
+	bool skip_notify;
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_IPV6_SUBTREES
@@ -112,7 +131,11 @@ void fib6_update_sernum(struct net *net, struct fib6_info *f6i)
 	fn = rcu_dereference_protected(f6i->fib6_node,
 			lockdep_is_held(&f6i->fib6_table->tb6_lock));
 	if (fn)
+<<<<<<< HEAD
 		fn->fn_sernum = fib6_new_sernum(net);
+=======
+		WRITE_ONCE(fn->fn_sernum, fib6_new_sernum(net));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -145,6 +168,7 @@ static __be32 addr_bit_set(const void *token, int fn_bit)
 	       addr[fn_bit >> 5];
 }
 
+<<<<<<< HEAD
 struct fib6_info *fib6_info_alloc(gfp_t gfp_flags)
 {
 	struct fib6_info *f6i;
@@ -163,6 +187,23 @@ struct fib6_info *fib6_info_alloc(gfp_t gfp_flags)
 	f6i->fib6_metrics = (struct dst_metrics *)&dst_default_metrics;
 
 	atomic_inc(&f6i->fib6_ref);
+=======
+struct fib6_info *fib6_info_alloc(gfp_t gfp_flags, bool with_fib6_nh)
+{
+	struct fib6_info *f6i;
+	size_t sz = sizeof(*f6i);
+
+	if (with_fib6_nh)
+		sz += sizeof(struct fib6_nh);
+
+	f6i = kzalloc(sz, gfp_flags);
+	if (!f6i)
+		return NULL;
+
+	/* fib6_siblings is a union with nh_list, so this initializes both */
+	INIT_LIST_HEAD(&f6i->fib6_siblings);
+	refcount_set(&f6i->fib6_ref, 1);
+>>>>>>> upstream/android-13
 
 	return f6i;
 }
@@ -170,6 +211,7 @@ struct fib6_info *fib6_info_alloc(gfp_t gfp_flags)
 void fib6_info_destroy_rcu(struct rcu_head *head)
 {
 	struct fib6_info *f6i = container_of(head, struct fib6_info, rcu);
+<<<<<<< HEAD
 	struct rt6_exception_bucket *bucket;
 	struct dst_metrics *m;
 
@@ -209,6 +251,17 @@ void fib6_info_destroy_rcu(struct rcu_head *head)
 	if (m != &dst_default_metrics && refcount_dec_and_test(&m->refcnt))
 		kfree(m);
 
+=======
+
+	WARN_ON(f6i->fib6_node);
+
+	if (f6i->nh)
+		nexthop_put(f6i->nh);
+	else
+		fib6_nh_release(f6i->fib6_nh);
+
+	ip_fib_metrics_put(f6i->fib6_metrics);
+>>>>>>> upstream/android-13
 	kfree(f6i);
 }
 EXPORT_SYMBOL_GPL(fib6_info_destroy_rcu);
@@ -349,21 +402,39 @@ struct dst_entry *fib6_rule_lookup(struct net *net, struct flowi6 *fl6,
 {
 	struct rt6_info *rt;
 
+<<<<<<< HEAD
 	rt = lookup(net, net->ipv6.fib6_main_tbl, fl6, skb, flags);
 	if (rt->dst.error == -EAGAIN) {
 		ip6_rt_put(rt);
 		rt = net->ipv6.ip6_null_entry;
 		dst_hold(&rt->dst);
+=======
+	rt = pol_lookup_func(lookup,
+			net, net->ipv6.fib6_main_tbl, fl6, skb, flags);
+	if (rt->dst.error == -EAGAIN) {
+		ip6_rt_put_flags(rt, flags);
+		rt = net->ipv6.ip6_null_entry;
+		if (!(flags & RT6_LOOKUP_F_DST_NOREF))
+			dst_hold(&rt->dst);
+>>>>>>> upstream/android-13
 	}
 
 	return &rt->dst;
 }
 
 /* called with rcu lock held; no reference taken on fib6_info */
+<<<<<<< HEAD
 struct fib6_info *fib6_lookup(struct net *net, int oif, struct flowi6 *fl6,
 			      int flags)
 {
 	return fib6_table_lookup(net, net->ipv6.fib6_main_tbl, oif, fl6, flags);
+=======
+int fib6_lookup(struct net *net, int oif, struct flowi6 *fl6,
+		struct fib6_result *res, int flags)
+{
+	return fib6_table_lookup(net, net->ipv6.fib6_main_tbl, oif, fl6,
+				 res, flags);
+>>>>>>> upstream/android-13
 }
 
 static void __net_init fib6_tables_init(struct net *net)
@@ -390,6 +461,7 @@ unsigned int fib6_tables_seq_read(struct net *net)
 	return fib_seq;
 }
 
+<<<<<<< HEAD
 static int call_fib6_entry_notifier(struct notifier_block *nb, struct net *net,
 				    enum fib_event_type event_type,
 				    struct fib6_info *rt)
@@ -405,6 +477,40 @@ static int call_fib6_entry_notifiers(struct net *net,
 				     enum fib_event_type event_type,
 				     struct fib6_info *rt,
 				     struct netlink_ext_ack *extack)
+=======
+static int call_fib6_entry_notifier(struct notifier_block *nb,
+				    enum fib_event_type event_type,
+				    struct fib6_info *rt,
+				    struct netlink_ext_ack *extack)
+{
+	struct fib6_entry_notifier_info info = {
+		.info.extack = extack,
+		.rt = rt,
+	};
+
+	return call_fib6_notifier(nb, event_type, &info.info);
+}
+
+static int call_fib6_multipath_entry_notifier(struct notifier_block *nb,
+					      enum fib_event_type event_type,
+					      struct fib6_info *rt,
+					      unsigned int nsiblings,
+					      struct netlink_ext_ack *extack)
+{
+	struct fib6_entry_notifier_info info = {
+		.info.extack = extack,
+		.rt = rt,
+		.nsiblings = nsiblings,
+	};
+
+	return call_fib6_notifier(nb, event_type, &info.info);
+}
+
+int call_fib6_entry_notifiers(struct net *net,
+			      enum fib_event_type event_type,
+			      struct fib6_info *rt,
+			      struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct fib6_entry_notifier_info info = {
 		.info.extack = extack,
@@ -415,6 +521,7 @@ static int call_fib6_entry_notifiers(struct net *net,
 	return call_fib6_notifiers(net, event_type, &info.info);
 }
 
+<<<<<<< HEAD
 struct fib6_dump_arg {
 	struct net *net;
 	struct notifier_block *nb;
@@ -425,10 +532,64 @@ static void fib6_rt_dump(struct fib6_info *rt, struct fib6_dump_arg *arg)
 	if (rt == arg->net->ipv6.fib6_null_entry)
 		return;
 	call_fib6_entry_notifier(arg->nb, arg->net, FIB_EVENT_ENTRY_ADD, rt);
+=======
+int call_fib6_multipath_entry_notifiers(struct net *net,
+					enum fib_event_type event_type,
+					struct fib6_info *rt,
+					unsigned int nsiblings,
+					struct netlink_ext_ack *extack)
+{
+	struct fib6_entry_notifier_info info = {
+		.info.extack = extack,
+		.rt = rt,
+		.nsiblings = nsiblings,
+	};
+
+	rt->fib6_table->fib_seq++;
+	return call_fib6_notifiers(net, event_type, &info.info);
+}
+
+int call_fib6_entry_notifiers_replace(struct net *net, struct fib6_info *rt)
+{
+	struct fib6_entry_notifier_info info = {
+		.rt = rt,
+		.nsiblings = rt->fib6_nsiblings,
+	};
+
+	rt->fib6_table->fib_seq++;
+	return call_fib6_notifiers(net, FIB_EVENT_ENTRY_REPLACE, &info.info);
+}
+
+struct fib6_dump_arg {
+	struct net *net;
+	struct notifier_block *nb;
+	struct netlink_ext_ack *extack;
+};
+
+static int fib6_rt_dump(struct fib6_info *rt, struct fib6_dump_arg *arg)
+{
+	enum fib_event_type fib_event = FIB_EVENT_ENTRY_REPLACE;
+	int err;
+
+	if (!rt || rt == arg->net->ipv6.fib6_null_entry)
+		return 0;
+
+	if (rt->fib6_nsiblings)
+		err = call_fib6_multipath_entry_notifier(arg->nb, fib_event,
+							 rt,
+							 rt->fib6_nsiblings,
+							 arg->extack);
+	else
+		err = call_fib6_entry_notifier(arg->nb, fib_event, rt,
+					       arg->extack);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static int fib6_node_dump(struct fib6_walker *w)
 {
+<<<<<<< HEAD
 	struct fib6_info *rt;
 
 	for_each_fib6_walker_rt(w)
@@ -448,10 +609,38 @@ static void fib6_table_dump(struct net *net, struct fib6_table *tb,
 
 /* Called with rcu_read_lock() */
 int fib6_tables_dump(struct net *net, struct notifier_block *nb)
+=======
+	int err;
+
+	err = fib6_rt_dump(w->leaf, w->args);
+	w->leaf = NULL;
+	return err;
+}
+
+static int fib6_table_dump(struct net *net, struct fib6_table *tb,
+			   struct fib6_walker *w)
+{
+	int err;
+
+	w->root = &tb->tb6_root;
+	spin_lock_bh(&tb->tb6_lock);
+	err = fib6_walk(net, w);
+	spin_unlock_bh(&tb->tb6_lock);
+	return err;
+}
+
+/* Called with rcu_read_lock() */
+int fib6_tables_dump(struct net *net, struct notifier_block *nb,
+		     struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct fib6_dump_arg arg;
 	struct fib6_walker *w;
 	unsigned int h;
+<<<<<<< HEAD
+=======
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	w = kzalloc(sizeof(*w), GFP_ATOMIC);
 	if (!w)
@@ -460,12 +649,17 @@ int fib6_tables_dump(struct net *net, struct notifier_block *nb)
 	w->func = fib6_node_dump;
 	arg.net = net;
 	arg.nb = nb;
+<<<<<<< HEAD
+=======
+	arg.extack = extack;
+>>>>>>> upstream/android-13
 	w->args = &arg;
 
 	for (h = 0; h < FIB6_TABLE_HASHSZ; h++) {
 		struct hlist_head *head = &net->ipv6.fib_table_hash[h];
 		struct fib6_table *tb;
 
+<<<<<<< HEAD
 		hlist_for_each_entry_rcu(tb, head, tb6_hlist)
 			fib6_table_dump(net, tb, w);
 	}
@@ -473,6 +667,20 @@ int fib6_tables_dump(struct net *net, struct notifier_block *nb)
 	kfree(w);
 
 	return 0;
+=======
+		hlist_for_each_entry_rcu(tb, head, tb6_hlist) {
+			err = fib6_table_dump(net, tb, w);
+			if (err)
+				goto out;
+		}
+	}
+
+out:
+	kfree(w);
+
+	/* The tree traversal function should never return a positive value. */
+	return err > 0 ? -EINVAL : err;
+>>>>>>> upstream/android-13
 }
 
 static int fib6_dump_node(struct fib6_walker *w)
@@ -481,12 +689,28 @@ static int fib6_dump_node(struct fib6_walker *w)
 	struct fib6_info *rt;
 
 	for_each_fib6_walker_rt(w) {
+<<<<<<< HEAD
 		res = rt6_dump_route(rt, w->args);
 		if (res < 0) {
 			/* Frame is full, suspend walking */
 			w->leaf = rt;
 			return 1;
 		}
+=======
+		res = rt6_dump_route(rt, w->args, w->skip_in_node);
+		if (res >= 0) {
+			/* Frame is full, suspend walking */
+			w->leaf = rt;
+
+			/* We'll restart from this node, so if some routes were
+			 * already dumped, skip them next time.
+			 */
+			w->skip_in_node += res;
+
+			return 1;
+		}
+		w->skip_in_node = 0;
+>>>>>>> upstream/android-13
 
 		/* Multipath routes are dumped in one route with the
 		 * RTA_MULTIPATH attribute. Jump 'rt' to point to the
@@ -538,12 +762,17 @@ static int fib6_dump_table(struct fib6_table *table, struct sk_buff *skb,
 	if (cb->args[4] == 0) {
 		w->count = 0;
 		w->skip = 0;
+<<<<<<< HEAD
+=======
+		w->skip_in_node = 0;
+>>>>>>> upstream/android-13
 
 		spin_lock_bh(&table->tb6_lock);
 		res = fib6_walk(net, w);
 		spin_unlock_bh(&table->tb6_lock);
 		if (res > 0) {
 			cb->args[4] = 1;
+<<<<<<< HEAD
 			cb->args[5] = w->root->fn_sernum;
 		}
 	} else {
@@ -553,6 +782,19 @@ static int fib6_dump_table(struct fib6_table *table, struct sk_buff *skb,
 			w->state = FWS_INIT;
 			w->node = w->root;
 			w->skip = w->count;
+=======
+			cb->args[5] = READ_ONCE(w->root->fn_sernum);
+		}
+	} else {
+		int sernum = READ_ONCE(w->root->fn_sernum);
+		if (cb->args[5] != sernum) {
+			/* Begin at the root if the tree changed */
+			cb->args[5] = sernum;
+			w->state = FWS_INIT;
+			w->node = w->root;
+			w->skip = w->count;
+			w->skip_in_node = 0;
+>>>>>>> upstream/android-13
 		} else
 			w->skip = 0;
 
@@ -570,17 +812,41 @@ static int fib6_dump_table(struct fib6_table *table, struct sk_buff *skb,
 
 static int inet6_dump_fib(struct sk_buff *skb, struct netlink_callback *cb)
 {
+<<<<<<< HEAD
 	struct net *net = sock_net(skb->sk);
 	unsigned int h, s_h;
 	unsigned int e = 0, s_e;
 	struct rt6_rtnl_dump_arg arg;
+=======
+	struct rt6_rtnl_dump_arg arg = { .filter.dump_exceptions = true,
+					 .filter.dump_routes = true };
+	const struct nlmsghdr *nlh = cb->nlh;
+	struct net *net = sock_net(skb->sk);
+	unsigned int h, s_h;
+	unsigned int e = 0, s_e;
+>>>>>>> upstream/android-13
 	struct fib6_walker *w;
 	struct fib6_table *tb;
 	struct hlist_head *head;
 	int res = 0;
 
+<<<<<<< HEAD
 	s_h = cb->args[0];
 	s_e = cb->args[1];
+=======
+	if (cb->strict_check) {
+		int err;
+
+		err = ip_valid_fib_dump_req(net, nlh, &arg.filter, cb);
+		if (err < 0)
+			return err;
+	} else if (nlmsg_len(nlh) >= sizeof(struct rtmsg)) {
+		struct rtmsg *rtm = nlmsg_data(nlh);
+
+		if (rtm->rtm_flags & RTM_F_PREFIX)
+			arg.filter.flags = RTM_F_PREFIX;
+	}
+>>>>>>> upstream/android-13
 
 	w = (void *)cb->args[2];
 	if (!w) {
@@ -606,6 +872,30 @@ static int inet6_dump_fib(struct sk_buff *skb, struct netlink_callback *cb)
 	arg.net = net;
 	w->args = &arg;
 
+<<<<<<< HEAD
+=======
+	if (arg.filter.table_id) {
+		tb = fib6_get_table(net, arg.filter.table_id);
+		if (!tb) {
+			if (rtnl_msg_family(cb->nlh) != PF_INET6)
+				goto out;
+
+			NL_SET_ERR_MSG_MOD(cb->extack, "FIB table does not exist");
+			return -ENOENT;
+		}
+
+		if (!cb->args[0]) {
+			res = fib6_dump_table(tb, skb, cb);
+			if (!res)
+				cb->args[0] = 1;
+		}
+		goto out;
+	}
+
+	s_h = cb->args[0];
+	s_e = cb->args[1];
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	for (h = s_h; h < FIB6_TABLE_HASHSZ; h++, s_e = 0) {
 		e = 0;
@@ -615,16 +905,28 @@ static int inet6_dump_fib(struct sk_buff *skb, struct netlink_callback *cb)
 				goto next;
 			res = fib6_dump_table(tb, skb, cb);
 			if (res != 0)
+<<<<<<< HEAD
 				goto out;
+=======
+				goto out_unlock;
+>>>>>>> upstream/android-13
 next:
 			e++;
 		}
 	}
+<<<<<<< HEAD
 out:
 	rcu_read_unlock();
 	cb->args[1] = e;
 	cb->args[0] = h;
 
+=======
+out_unlock:
+	rcu_read_unlock();
+	cb->args[1] = e;
+	cb->args[0] = h;
+out:
+>>>>>>> upstream/android-13
 	res = res < 0 ? res : skb->len;
 	if (res <= 0)
 		fib6_dump_end(cb);
@@ -819,8 +1121,13 @@ insert_above:
 
 		RCU_INIT_POINTER(in->parent, pn);
 		in->leaf = fn->leaf;
+<<<<<<< HEAD
 		atomic_inc(&rcu_dereference_protected(in->leaf,
 				lockdep_is_held(&table->tb6_lock))->fib6_ref);
+=======
+		fib6_info_hold(rcu_dereference_protected(in->leaf,
+				lockdep_is_held(&table->tb6_lock)));
+>>>>>>> upstream/android-13
 
 		/* update parent pointer */
 		if (dir)
@@ -872,6 +1179,7 @@ insert_above:
 	return ln;
 }
 
+<<<<<<< HEAD
 static void fib6_drop_pcpu_from(struct fib6_info *f6i,
 				const struct fib6_table *table)
 {
@@ -882,6 +1190,16 @@ static void fib6_drop_pcpu_from(struct fib6_info *f6i,
 	 */
 	f6i->fib6_destroying = 1;
 	mb(); /* paired with the cmpxchg() in rt6_make_pcpu_route() */
+=======
+static void __fib6_drop_pcpu_from(struct fib6_nh *fib6_nh,
+				  const struct fib6_info *match,
+				  const struct fib6_table *table)
+{
+	int cpu;
+
+	if (!fib6_nh->rt6i_pcpu)
+		return;
+>>>>>>> upstream/android-13
 
 	/* release the reference to this fib entry from
 	 * all of its cached pcpu routes
@@ -890,9 +1208,21 @@ static void fib6_drop_pcpu_from(struct fib6_info *f6i,
 		struct rt6_info **ppcpu_rt;
 		struct rt6_info *pcpu_rt;
 
+<<<<<<< HEAD
 		ppcpu_rt = per_cpu_ptr(f6i->rt6i_pcpu, cpu);
 		pcpu_rt = *ppcpu_rt;
 		if (pcpu_rt) {
+=======
+		ppcpu_rt = per_cpu_ptr(fib6_nh->rt6i_pcpu, cpu);
+		pcpu_rt = *ppcpu_rt;
+
+		/* only dropping the 'from' reference if the cached route
+		 * is using 'match'. The cached pcpu_rt->from only changes
+		 * from a fib6_info to NULL (ip6_dst_destroy); it can never
+		 * change from one fib6_info reference to another
+		 */
+		if (pcpu_rt && rcu_access_pointer(pcpu_rt->from) == match) {
+>>>>>>> upstream/android-13
 			struct fib6_info *from;
 
 			from = xchg((__force struct fib6_info **)&pcpu_rt->from, NULL);
@@ -901,6 +1231,47 @@ static void fib6_drop_pcpu_from(struct fib6_info *f6i,
 	}
 }
 
+<<<<<<< HEAD
+=======
+struct fib6_nh_pcpu_arg {
+	struct fib6_info	*from;
+	const struct fib6_table *table;
+};
+
+static int fib6_nh_drop_pcpu_from(struct fib6_nh *nh, void *_arg)
+{
+	struct fib6_nh_pcpu_arg *arg = _arg;
+
+	__fib6_drop_pcpu_from(nh, arg->from, arg->table);
+	return 0;
+}
+
+static void fib6_drop_pcpu_from(struct fib6_info *f6i,
+				const struct fib6_table *table)
+{
+	/* Make sure rt6_make_pcpu_route() wont add other percpu routes
+	 * while we are cleaning them here.
+	 */
+	f6i->fib6_destroying = 1;
+	mb(); /* paired with the cmpxchg() in rt6_make_pcpu_route() */
+
+	if (f6i->nh) {
+		struct fib6_nh_pcpu_arg arg = {
+			.from = f6i,
+			.table = table
+		};
+
+		nexthop_for_each_fib6_nh(f6i->nh, fib6_nh_drop_pcpu_from,
+					 &arg);
+	} else {
+		struct fib6_nh *fib6_nh;
+
+		fib6_nh = f6i->fib6_nh;
+		__fib6_drop_pcpu_from(fib6_nh, f6i, table);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void fib6_purge_rt(struct fib6_info *rt, struct fib6_node *fn,
 			  struct net *net)
 {
@@ -908,10 +1279,19 @@ static void fib6_purge_rt(struct fib6_info *rt, struct fib6_node *fn,
 
 	/* Flush all cached dst in exception table */
 	rt6_flush_exceptions(rt);
+<<<<<<< HEAD
 	if (rt->rt6i_pcpu)
 		fib6_drop_pcpu_from(rt, table);
 
 	if (atomic_read(&rt->fib6_ref) != 1) {
+=======
+	fib6_drop_pcpu_from(rt, table);
+
+	if (rt->nh && !list_empty(&rt->nh_list))
+		list_del_init(&rt->nh_list);
+
+	if (refcount_read(&rt->fib6_ref) != 1) {
+>>>>>>> upstream/android-13
 		/* This route is used as dummy address holder in some split
 		 * nodes. It is not leaked, but it still holds other resources,
 		 * which must be released in time. So, scan ascendant nodes
@@ -924,7 +1304,11 @@ static void fib6_purge_rt(struct fib6_info *rt, struct fib6_node *fn,
 			struct fib6_info *new_leaf;
 			if (!(fn->fn_flags & RTN_RTINFO) && leaf == rt) {
 				new_leaf = fib6_find_prefix(net, table, fn);
+<<<<<<< HEAD
 				atomic_inc(&new_leaf->fib6_ref);
+=======
+				fib6_info_hold(new_leaf);
+>>>>>>> upstream/android-13
 
 				rcu_assign_pointer(fn->leaf, new_leaf);
 				fib6_info_release(rt);
@@ -954,6 +1338,10 @@ static int fib6_add_rt2node(struct fib6_node *fn, struct fib6_info *rt,
 		   (info->nlh->nlmsg_flags & NLM_F_CREATE));
 	int found = 0;
 	bool rt_can_ecmp = rt6_qualify_for_ecmp(rt);
+<<<<<<< HEAD
+=======
+	bool notify_sibling_rt = false;
+>>>>>>> upstream/android-13
 	u16 nlflags = NLM_F_EXCL;
 	int err;
 
@@ -1046,6 +1434,10 @@ next_iter:
 
 		/* Find the first route that have the same metric */
 		sibling = leaf;
+<<<<<<< HEAD
+=======
+		notify_sibling_rt = true;
+>>>>>>> upstream/android-13
 		while (sibling) {
 			if (sibling->fib6_metric == rt->fib6_metric &&
 			    rt6_qualify_for_ecmp(sibling)) {
@@ -1055,6 +1447,10 @@ next_iter:
 			}
 			sibling = rcu_dereference_protected(sibling->fib6_next,
 				    lockdep_is_held(&rt->fib6_table->tb6_lock));
+<<<<<<< HEAD
+=======
+			notify_sibling_rt = false;
+>>>>>>> upstream/android-13
 		}
 		/* For each sibling in the list, increment the counter of
 		 * siblings. BUG() if counters does not match, list of siblings
@@ -1081,6 +1477,7 @@ next_iter:
 add:
 		nlflags |= NLM_F_CREATE;
 
+<<<<<<< HEAD
 		err = call_fib6_entry_notifiers(info->nl_net,
 						FIB_EVENT_ENTRY_ADD,
 						rt, extack);
@@ -1105,6 +1502,45 @@ add:
 
 		rcu_assign_pointer(rt->fib6_next, iter);
 		atomic_inc(&rt->fib6_ref);
+=======
+		/* The route should only be notified if it is the first
+		 * route in the node or if it is added as a sibling
+		 * route to the first route in the node.
+		 */
+		if (!info->skip_notify_kernel &&
+		    (notify_sibling_rt || ins == &fn->leaf)) {
+			enum fib_event_type fib_event;
+
+			if (notify_sibling_rt)
+				fib_event = FIB_EVENT_ENTRY_APPEND;
+			else
+				fib_event = FIB_EVENT_ENTRY_REPLACE;
+			err = call_fib6_entry_notifiers(info->nl_net,
+							fib_event, rt,
+							extack);
+			if (err) {
+				struct fib6_info *sibling, *next_sibling;
+
+				/* If the route has siblings, then it first
+				 * needs to be unlinked from them.
+				 */
+				if (!rt->fib6_nsiblings)
+					return err;
+
+				list_for_each_entry_safe(sibling, next_sibling,
+							 &rt->fib6_siblings,
+							 fib6_siblings)
+					sibling->fib6_nsiblings--;
+				rt->fib6_nsiblings = 0;
+				list_del_init(&rt->fib6_siblings);
+				rt6_multipath_rebalance(next_sibling);
+				return err;
+			}
+		}
+
+		rcu_assign_pointer(rt->fib6_next, iter);
+		fib6_info_hold(rt);
+>>>>>>> upstream/android-13
 		rcu_assign_pointer(rt->fib6_node, fn);
 		rcu_assign_pointer(*ins, rt);
 		if (!info->skip_notify)
@@ -1126,6 +1562,7 @@ add:
 			return -ENOENT;
 		}
 
+<<<<<<< HEAD
 		err = call_fib6_entry_notifiers(info->nl_net,
 						FIB_EVENT_ENTRY_REPLACE,
 						rt, extack);
@@ -1133,6 +1570,17 @@ add:
 			return err;
 
 		atomic_inc(&rt->fib6_ref);
+=======
+		if (!info->skip_notify_kernel && ins == &fn->leaf) {
+			err = call_fib6_entry_notifiers(info->nl_net,
+							FIB_EVENT_ENTRY_REPLACE,
+							rt, extack);
+			if (err)
+				return err;
+		}
+
+		fib6_info_hold(rt);
+>>>>>>> upstream/android-13
 		rcu_assign_pointer(rt->fib6_node, fn);
 		rt->fib6_next = iter->fib6_next;
 		rcu_assign_pointer(*ins, rt);
@@ -1200,10 +1648,17 @@ static void __fib6_update_sernum_upto_root(struct fib6_info *rt,
 	struct fib6_node *fn = rcu_dereference_protected(rt->fib6_node,
 				lockdep_is_held(&rt->fib6_table->tb6_lock));
 
+<<<<<<< HEAD
 	/* paired with smp_rmb() in rt6_get_cookie_safe() */
 	smp_wmb();
 	while (fn) {
 		fn->fn_sernum = sernum;
+=======
+	/* paired with smp_rmb() in fib6_get_cookie_safe() */
+	smp_wmb();
+	while (fn) {
+		WRITE_ONCE(fn->fn_sernum, sernum);
+>>>>>>> upstream/android-13
 		fn = rcu_dereference_protected(fn->parent,
 				lockdep_is_held(&rt->fib6_table->tb6_lock));
 	}
@@ -1214,6 +1669,17 @@ void fib6_update_sernum_upto_root(struct net *net, struct fib6_info *rt)
 	__fib6_update_sernum_upto_root(rt, fib6_new_sernum(net));
 }
 
+<<<<<<< HEAD
+=======
+/* allow ipv4 to update sernum via ipv6_stub */
+void fib6_update_sernum_stub(struct net *net, struct fib6_info *f6i)
+{
+	spin_lock_bh(&f6i->fib6_table->tb6_lock);
+	fib6_update_sernum_upto_root(net, f6i);
+	spin_unlock_bh(&f6i->fib6_table->tb6_lock);
+}
+
+>>>>>>> upstream/android-13
 /*
  *	Add routing information to the routing tree.
  *	<destination addr>/<source addr>
@@ -1229,7 +1695,10 @@ int fib6_add(struct fib6_node *root, struct fib6_info *rt,
 	int err = -ENOMEM;
 	int allow_create = 1;
 	int replace_required = 0;
+<<<<<<< HEAD
 	int sernum = fib6_new_sernum(info->nl_net);
+=======
+>>>>>>> upstream/android-13
 
 	if (info->nlh) {
 		if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
@@ -1274,7 +1743,11 @@ int fib6_add(struct fib6_node *root, struct fib6_info *rt,
 			if (!sfn)
 				goto failure;
 
+<<<<<<< HEAD
 			atomic_inc(&info->nl_net->ipv6.fib6_null_entry->fib6_ref);
+=======
+			fib6_info_hold(info->nl_net->ipv6.fib6_null_entry);
+>>>>>>> upstream/android-13
 			rcu_assign_pointer(sfn->leaf,
 					   info->nl_net->ipv6.fib6_null_entry);
 			sfn->fn_flags = RTN_ROOT;
@@ -1317,7 +1790,11 @@ int fib6_add(struct fib6_node *root, struct fib6_info *rt,
 				rcu_assign_pointer(fn->leaf,
 					    info->nl_net->ipv6.fib6_null_entry);
 			} else {
+<<<<<<< HEAD
 				atomic_inc(&rt->fib6_ref);
+=======
+				fib6_info_hold(rt);
+>>>>>>> upstream/android-13
 				rcu_assign_pointer(fn->leaf, rt);
 			}
 		}
@@ -1327,7 +1804,13 @@ int fib6_add(struct fib6_node *root, struct fib6_info *rt,
 
 	err = fib6_add_rt2node(fn, rt, info, extack);
 	if (!err) {
+<<<<<<< HEAD
 		__fib6_update_sernum_upto_root(rt, sernum);
+=======
+		if (rt->nh)
+			list_add(&rt->nh_list, &rt->nh->f6i_list);
+		__fib6_update_sernum_upto_root(rt, fib6_new_sernum(info->nl_net));
+>>>>>>> upstream/android-13
 		fib6_start_gc(info->nl_net, rt);
 	}
 
@@ -1363,6 +1846,11 @@ out:
 		}
 #endif
 		goto failure;
+<<<<<<< HEAD
+=======
+	} else if (fib6_requires_src(rt)) {
+		fib6_routes_require_src_inc(info->nl_net);
+>>>>>>> upstream/android-13
 	}
 	return err;
 
@@ -1663,10 +2151,21 @@ static struct fib6_node *fib6_repair_tree(struct net *net,
 
 		children = 0;
 		child = NULL;
+<<<<<<< HEAD
 		if (fn_r)
 			child = fn_r, children |= 1;
 		if (fn_l)
 			child = fn_l, children |= 2;
+=======
+		if (fn_r) {
+			child = fn_r;
+			children |= 1;
+		}
+		if (fn_l) {
+			child = fn_l;
+			children |= 2;
+		}
+>>>>>>> upstream/android-13
 
 		if (children == 3 || FIB6_SUBTREE(fn)
 #ifdef CONFIG_IPV6_SUBTREES
@@ -1745,13 +2244,38 @@ static struct fib6_node *fib6_repair_tree(struct net *net,
 static void fib6_del_route(struct fib6_table *table, struct fib6_node *fn,
 			   struct fib6_info __rcu **rtp, struct nl_info *info)
 {
+<<<<<<< HEAD
+=======
+	struct fib6_info *leaf, *replace_rt = NULL;
+>>>>>>> upstream/android-13
 	struct fib6_walker *w;
 	struct fib6_info *rt = rcu_dereference_protected(*rtp,
 				    lockdep_is_held(&table->tb6_lock));
 	struct net *net = info->nl_net;
+<<<<<<< HEAD
 
 	RT6_TRACE("fib6_del_route\n");
 
+=======
+	bool notify_del = false;
+
+	RT6_TRACE("fib6_del_route\n");
+
+	/* If the deleted route is the first in the node and it is not part of
+	 * a multipath route, then we need to replace it with the next route
+	 * in the node, if exists.
+	 */
+	leaf = rcu_dereference_protected(fn->leaf,
+					 lockdep_is_held(&table->tb6_lock));
+	if (leaf == rt && !rt->fib6_nsiblings) {
+		if (rcu_access_pointer(rt->fib6_next))
+			replace_rt = rcu_dereference_protected(rt->fib6_next,
+					    lockdep_is_held(&table->tb6_lock));
+		else
+			notify_del = true;
+	}
+
+>>>>>>> upstream/android-13
 	/* Unlink it */
 	*rtp = rt->fib6_next;
 	rt->fib6_node = NULL;
@@ -1766,6 +2290,17 @@ static void fib6_del_route(struct fib6_table *table, struct fib6_node *fn,
 	if (rt->fib6_nsiblings) {
 		struct fib6_info *sibling, *next_sibling;
 
+<<<<<<< HEAD
+=======
+		/* The route is deleted from a multipath route. If this
+		 * multipath route is the first route in the node, then we need
+		 * to emit a delete notification. Otherwise, we need to skip
+		 * the notification.
+		 */
+		if (rt->fib6_metric == leaf->fib6_metric &&
+		    rt6_qualify_for_ecmp(leaf))
+			notify_del = true;
+>>>>>>> upstream/android-13
 		list_for_each_entry_safe(sibling, next_sibling,
 					 &rt->fib6_siblings, fib6_siblings)
 			sibling->fib6_nsiblings--;
@@ -1801,9 +2336,22 @@ static void fib6_del_route(struct fib6_table *table, struct fib6_node *fn,
 
 	fib6_purge_rt(rt, fn, net);
 
+<<<<<<< HEAD
 	call_fib6_entry_notifiers(net, FIB_EVENT_ENTRY_DEL, rt, NULL);
 	if (!info->skip_notify)
 		inet6_rt_notify(RTM_DELROUTE, rt, info, 0);
+=======
+	if (!info->skip_notify_kernel) {
+		if (notify_del)
+			call_fib6_entry_notifiers(net, FIB_EVENT_ENTRY_DEL,
+						  rt, NULL);
+		else if (replace_rt)
+			call_fib6_entry_notifiers_replace(net, replace_rt);
+	}
+	if (!info->skip_notify)
+		inet6_rt_notify(RTM_DELROUTE, rt, info, 0);
+
+>>>>>>> upstream/android-13
 	fib6_info_release(rt);
 }
 
@@ -1835,6 +2383,11 @@ int fib6_del(struct fib6_info *rt, struct nl_info *info)
 		struct fib6_info *cur = rcu_dereference_protected(*rtp,
 					lockdep_is_held(&table->tb6_lock));
 		if (rt == cur) {
+<<<<<<< HEAD
+=======
+			if (fib6_requires_src(cur))
+				fib6_routes_require_src_dec(info->nl_net);
+>>>>>>> upstream/android-13
 			fib6_del_route(table, fn, rtp, info);
 			return 0;
 		}
@@ -1889,8 +2442,13 @@ static int fib6_walk_continue(struct fib6_walker *w)
 				continue;
 			}
 			w->state = FWS_L;
+<<<<<<< HEAD
 #endif
 			/* fall through */
+=======
+			fallthrough;
+#endif
+>>>>>>> upstream/android-13
 		case FWS_L:
 			left = rcu_dereference_protected(fn->left, 1);
 			if (left) {
@@ -1899,7 +2457,11 @@ static int fib6_walk_continue(struct fib6_walker *w)
 				continue;
 			}
 			w->state = FWS_R;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case FWS_R:
 			right = rcu_dereference_protected(fn->right, 1);
 			if (right) {
@@ -1909,7 +2471,11 @@ static int fib6_walk_continue(struct fib6_walker *w)
 			}
 			w->state = FWS_C;
 			w->leaf = rcu_dereference_protected(fn->leaf, 1);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case FWS_C:
 			if (w->leaf && fn->fn_flags & RTN_RTINFO) {
 				int err;
@@ -1928,7 +2494,11 @@ static int fib6_walk_continue(struct fib6_walker *w)
 			}
 skip:
 			w->state = FWS_U;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case FWS_U:
 			if (fn == w->root)
 				return 0;
@@ -1980,11 +2550,20 @@ static int fib6_clean_node(struct fib6_walker *w)
 	struct fib6_cleaner *c = container_of(w, struct fib6_cleaner, w);
 	struct nl_info info = {
 		.nl_net = c->net,
+<<<<<<< HEAD
 	};
 
 	if (c->sernum != FIB6_NO_SERNUM_CHANGE &&
 	    w->node->fn_sernum != c->sernum)
 		w->node->fn_sernum = c->sernum;
+=======
+		.skip_notify = c->skip_notify,
+	};
+
+	if (c->sernum != FIB6_NO_SERNUM_CHANGE &&
+	    READ_ONCE(w->node->fn_sernum) != c->sernum)
+		WRITE_ONCE(w->node->fn_sernum, c->sernum);
+>>>>>>> upstream/android-13
 
 	if (!c->func) {
 		WARN_ON_ONCE(c->sernum == FIB6_NO_SERNUM_CHANGE);
@@ -2031,7 +2610,11 @@ static int fib6_clean_node(struct fib6_walker *w)
 
 static void fib6_clean_tree(struct net *net, struct fib6_node *root,
 			    int (*func)(struct fib6_info *, void *arg),
+<<<<<<< HEAD
 			    int sernum, void *arg)
+=======
+			    int sernum, void *arg, bool skip_notify)
+>>>>>>> upstream/android-13
 {
 	struct fib6_cleaner c;
 
@@ -2039,17 +2622,29 @@ static void fib6_clean_tree(struct net *net, struct fib6_node *root,
 	c.w.func = fib6_clean_node;
 	c.w.count = 0;
 	c.w.skip = 0;
+<<<<<<< HEAD
+=======
+	c.w.skip_in_node = 0;
+>>>>>>> upstream/android-13
 	c.func = func;
 	c.sernum = sernum;
 	c.arg = arg;
 	c.net = net;
+<<<<<<< HEAD
+=======
+	c.skip_notify = skip_notify;
+>>>>>>> upstream/android-13
 
 	fib6_walk(net, &c.w);
 }
 
 static void __fib6_clean_all(struct net *net,
 			     int (*func)(struct fib6_info *, void *),
+<<<<<<< HEAD
 			     int sernum, void *arg)
+=======
+			     int sernum, void *arg, bool skip_notify)
+>>>>>>> upstream/android-13
 {
 	struct fib6_table *table;
 	struct hlist_head *head;
@@ -2061,7 +2656,11 @@ static void __fib6_clean_all(struct net *net,
 		hlist_for_each_entry_rcu(table, head, tb6_hlist) {
 			spin_lock_bh(&table->tb6_lock);
 			fib6_clean_tree(net, &table->tb6_root,
+<<<<<<< HEAD
 					func, sernum, arg);
+=======
+					func, sernum, arg, skip_notify);
+>>>>>>> upstream/android-13
 			spin_unlock_bh(&table->tb6_lock);
 		}
 	}
@@ -2071,14 +2670,29 @@ static void __fib6_clean_all(struct net *net,
 void fib6_clean_all(struct net *net, int (*func)(struct fib6_info *, void *),
 		    void *arg)
 {
+<<<<<<< HEAD
 	__fib6_clean_all(net, func, FIB6_NO_SERNUM_CHANGE, arg);
+=======
+	__fib6_clean_all(net, func, FIB6_NO_SERNUM_CHANGE, arg, false);
+}
+
+void fib6_clean_all_skip_notify(struct net *net,
+				int (*func)(struct fib6_info *, void *),
+				void *arg)
+{
+	__fib6_clean_all(net, func, FIB6_NO_SERNUM_CHANGE, arg, true);
+>>>>>>> upstream/android-13
 }
 
 static void fib6_flush_trees(struct net *net)
 {
 	int new_sernum = fib6_new_sernum(net);
 
+<<<<<<< HEAD
 	__fib6_clean_all(net, NULL, new_sernum, NULL);
+=======
+	__fib6_clean_all(net, NULL, new_sernum, NULL, false);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2156,6 +2770,13 @@ static int __net_init fib6_net_init(struct net *net)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
+=======
+	/* Default to 3-tuple */
+	net->ipv6.sysctl.multipath_hash_fields =
+		FIB_MULTIPATH_HASH_FIELD_DEFAULT_MASK;
+
+>>>>>>> upstream/android-13
 	spin_lock_init(&net->ipv6.fib6_gc_lock);
 	rwlock_init(&net->ipv6.fib6_walker_lock);
 	INIT_LIST_HEAD(&net->ipv6.fib6_walkers);
@@ -2163,7 +2784,11 @@ static int __net_init fib6_net_init(struct net *net)
 
 	net->ipv6.rt6_stats = kzalloc(sizeof(*net->ipv6.rt6_stats), GFP_KERNEL);
 	if (!net->ipv6.rt6_stats)
+<<<<<<< HEAD
 		goto out_timer;
+=======
+		goto out_notifier;
+>>>>>>> upstream/android-13
 
 	/* Avoid false sharing : Use at least a full cache line */
 	size = max_t(size_t, size, L1_CACHE_BYTES);
@@ -2208,7 +2833,11 @@ out_fib_table_hash:
 	kfree(net->ipv6.fib_table_hash);
 out_rt6_stats:
 	kfree(net->ipv6.rt6_stats);
+<<<<<<< HEAD
 out_timer:
+=======
+out_notifier:
+>>>>>>> upstream/android-13
 	fib6_notifier_exit(net);
 	return -ENOMEM;
 }
@@ -2245,8 +2874,13 @@ int __init fib6_init(void)
 	int ret = -ENOMEM;
 
 	fib6_node_kmem = kmem_cache_create("fib6_nodes",
+<<<<<<< HEAD
 					   sizeof(struct fib6_node),
 					   0, SLAB_HWCACHE_ALIGN,
+=======
+					   sizeof(struct fib6_node), 0,
+					   SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT,
+>>>>>>> upstream/android-13
 					   NULL);
 	if (!fib6_node_kmem)
 		goto out;
@@ -2278,12 +2912,26 @@ void fib6_gc_cleanup(void)
 }
 
 #ifdef CONFIG_PROC_FS
+<<<<<<< HEAD
 static int ipv6_route_seq_show(struct seq_file *seq, void *v)
 {
 	struct fib6_info *rt = v;
 	struct ipv6_route_iter *iter = seq->private;
 	const struct net_device *dev;
 
+=======
+static int ipv6_route_native_seq_show(struct seq_file *seq, void *v)
+{
+	struct fib6_info *rt = v;
+	struct ipv6_route_iter *iter = seq->private;
+	struct fib6_nh *fib6_nh = rt->fib6_nh;
+	unsigned int flags = rt->fib6_flags;
+	const struct net_device *dev;
+
+	if (rt->nh)
+		fib6_nh = nexthop_fib6_nh_bh(rt->nh);
+
+>>>>>>> upstream/android-13
 	seq_printf(seq, "%pi6 %02x ", &rt->fib6_dst.addr, rt->fib6_dst.plen);
 
 #ifdef CONFIG_IPV6_SUBTREES
@@ -2291,6 +2939,7 @@ static int ipv6_route_seq_show(struct seq_file *seq, void *v)
 #else
 	seq_puts(seq, "00000000000000000000000000000000 00 ");
 #endif
+<<<<<<< HEAD
 	if (rt->fib6_flags & RTF_GATEWAY)
 		seq_printf(seq, "%pi6", &rt->fib6_nh.nh_gw);
 	else
@@ -2300,6 +2949,19 @@ static int ipv6_route_seq_show(struct seq_file *seq, void *v)
 	seq_printf(seq, " %08x %08x %08x %08x %8s\n",
 		   rt->fib6_metric, atomic_read(&rt->fib6_ref), 0,
 		   rt->fib6_flags, dev ? dev->name : "");
+=======
+	if (fib6_nh->fib_nh_gw_family) {
+		flags |= RTF_GATEWAY;
+		seq_printf(seq, "%pi6", &fib6_nh->fib_nh_gw6);
+	} else {
+		seq_puts(seq, "00000000000000000000000000000000");
+	}
+
+	dev = fib6_nh->fib_nh_dev;
+	seq_printf(seq, " %08x %08x %08x %08x %8s\n",
+		   rt->fib6_metric, refcount_read(&rt->fib6_ref), 0,
+		   flags, dev ? dev->name : "");
+>>>>>>> upstream/android-13
 	iter->w.leaf = NULL;
 	return 0;
 }
@@ -2332,7 +2994,11 @@ static void ipv6_route_seq_setup_walk(struct ipv6_route_iter *iter,
 	iter->w.state = FWS_INIT;
 	iter->w.node = iter->w.root;
 	iter->w.args = iter;
+<<<<<<< HEAD
 	iter->sernum = iter->w.root->fn_sernum;
+=======
+	iter->sernum = READ_ONCE(iter->w.root->fn_sernum);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&iter->w.lh);
 	fib6_walker_link(net, &iter->w);
 }
@@ -2360,8 +3026,15 @@ static struct fib6_table *ipv6_route_seq_next_table(struct fib6_table *tbl,
 
 static void ipv6_route_check_sernum(struct ipv6_route_iter *iter)
 {
+<<<<<<< HEAD
 	if (iter->sernum != iter->w.root->fn_sernum) {
 		iter->sernum = iter->w.root->fn_sernum;
+=======
+	int sernum = READ_ONCE(iter->w.root->fn_sernum);
+
+	if (iter->sernum != sernum) {
+		iter->sernum = sernum;
+>>>>>>> upstream/android-13
 		iter->w.state = FWS_INIT;
 		iter->w.node = iter->w.root;
 		WARN_ON(iter->w.skip);
@@ -2431,7 +3104,11 @@ static bool ipv6_route_iter_active(struct ipv6_route_iter *iter)
 	return w->node && !(w->state == FWS_U && w->node == w->root);
 }
 
+<<<<<<< HEAD
 static void ipv6_route_seq_stop(struct seq_file *seq, void *v)
+=======
+static void ipv6_route_native_seq_stop(struct seq_file *seq, void *v)
+>>>>>>> upstream/android-13
 	__releases(RCU_BH)
 {
 	struct net *net = seq_file_net(seq);
@@ -2443,6 +3120,65 @@ static void ipv6_route_seq_stop(struct seq_file *seq, void *v)
 	rcu_read_unlock_bh();
 }
 
+<<<<<<< HEAD
+=======
+#if IS_BUILTIN(CONFIG_IPV6) && defined(CONFIG_BPF_SYSCALL)
+static int ipv6_route_prog_seq_show(struct bpf_prog *prog,
+				    struct bpf_iter_meta *meta,
+				    void *v)
+{
+	struct bpf_iter__ipv6_route ctx;
+
+	ctx.meta = meta;
+	ctx.rt = v;
+	return bpf_iter_run_prog(prog, &ctx);
+}
+
+static int ipv6_route_seq_show(struct seq_file *seq, void *v)
+{
+	struct ipv6_route_iter *iter = seq->private;
+	struct bpf_iter_meta meta;
+	struct bpf_prog *prog;
+	int ret;
+
+	meta.seq = seq;
+	prog = bpf_iter_get_info(&meta, false);
+	if (!prog)
+		return ipv6_route_native_seq_show(seq, v);
+
+	ret = ipv6_route_prog_seq_show(prog, &meta, v);
+	iter->w.leaf = NULL;
+
+	return ret;
+}
+
+static void ipv6_route_seq_stop(struct seq_file *seq, void *v)
+{
+	struct bpf_iter_meta meta;
+	struct bpf_prog *prog;
+
+	if (!v) {
+		meta.seq = seq;
+		prog = bpf_iter_get_info(&meta, true);
+		if (prog)
+			(void)ipv6_route_prog_seq_show(prog, &meta, v);
+	}
+
+	ipv6_route_native_seq_stop(seq, v);
+}
+#else
+static int ipv6_route_seq_show(struct seq_file *seq, void *v)
+{
+	return ipv6_route_native_seq_show(seq, v);
+}
+
+static void ipv6_route_seq_stop(struct seq_file *seq, void *v)
+{
+	ipv6_route_native_seq_stop(seq, v);
+}
+#endif
+
+>>>>>>> upstream/android-13
 const struct seq_operations ipv6_route_seq_ops = {
 	.start	= ipv6_route_seq_start,
 	.next	= ipv6_route_seq_next,

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Dallas Semiconductor DS1682 Elapsed Time Recorder device driver
  *
  * Written by: Grant Likely <grant.likely@secretlab.ca>
  *
  * Copyright (C) 2007 Secret Lab Technologies Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*

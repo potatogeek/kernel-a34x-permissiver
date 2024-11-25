@@ -51,7 +51,12 @@
 
 /*
  * IS_MODULE(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'm', 0
+<<<<<<< HEAD
  * otherwise.
+=======
+ * otherwise.  CONFIG_FOO=m results in "#define CONFIG_FOO_MODULE 1" in
+ * autoconf.h.
+>>>>>>> upstream/android-13
  */
 #define IS_MODULE(option) __is_defined(option##_MODULE)
 
@@ -66,7 +71,12 @@
 
 /*
  * IS_ENABLED(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'y' or 'm',
+<<<<<<< HEAD
  * 0 otherwise.
+=======
+ * 0 otherwise.  Note that CONFIG_FOO=y results in "#define CONFIG_FOO 1" in
+ * autoconf.h, while CONFIG_FOO=m results in "#define CONFIG_FOO_MODULE 1".
+>>>>>>> upstream/android-13
  */
 #define IS_ENABLED(option) __or(IS_BUILTIN(option), IS_MODULE(option))
 

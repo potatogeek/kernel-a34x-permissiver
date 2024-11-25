@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
@@ -16,6 +17,16 @@
  */
 
 #include <drm/drm_print.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2013 Red Hat
+ * Author: Rob Clark <robdclark@gmail.com>
+ */
+
+#include <drm/drm_print.h>
+#include <drm/drm_vblank.h>
+>>>>>>> upstream/android-13
 
 #include "msm_drv.h"
 #include "mdp4_kms.h"

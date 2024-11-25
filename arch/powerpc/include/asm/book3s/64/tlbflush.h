@@ -31,7 +31,11 @@ static inline void tlbiel_all(void)
 		hash__tlbiel_all(TLB_INVAL_SCOPE_GLOBAL);
 }
 #else
+<<<<<<< HEAD
 static inline void tlbiel_all(void) { BUG(); };
+=======
+static inline void tlbiel_all(void) { BUG(); }
+>>>>>>> upstream/android-13
 #endif
 
 static inline void tlbiel_all_lpid(bool radix)
@@ -147,6 +151,7 @@ static inline void flush_tlb_fix_spurious_fault(struct vm_area_struct *vma,
 		flush_tlb_page(vma, address);
 }
 
+<<<<<<< HEAD
 /*
  * flush the page walk cache for the address
  */
@@ -162,4 +167,14 @@ static inline void flush_tlb_pgtable(struct mmu_gather *tlb, unsigned long addre
 
 	radix__flush_tlb_pwc(tlb, address);
 }
+=======
+extern bool tlbie_capable;
+extern bool tlbie_enabled;
+
+static inline bool cputlb_use_tlbie(void)
+{
+	return tlbie_enabled;
+}
+
+>>>>>>> upstream/android-13
 #endif /*  _ASM_POWERPC_BOOK3S_64_TLBFLUSH_H */

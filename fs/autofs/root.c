@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 1997-1998 Transmeta Corporation -- All Rights Reserved
  * Copyright 1999-2000 Jeremy Fitzhardinge <jeremy@goop.org>
  * Copyright 2001-2006 Ian Kent <raven@themaw.net>
+<<<<<<< HEAD
  *
  * This file is part of the Linux kernel and is made available under
  * the terms of the GNU General Public License, version 2, or at your
  * option, any later version, incorporated herein by reference.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/capability.h>
@@ -13,10 +20,19 @@
 
 #include "autofs_i.h"
 
+<<<<<<< HEAD
 static int autofs_dir_symlink(struct inode *, struct dentry *, const char *);
 static int autofs_dir_unlink(struct inode *, struct dentry *);
 static int autofs_dir_rmdir(struct inode *, struct dentry *);
 static int autofs_dir_mkdir(struct inode *, struct dentry *, umode_t);
+=======
+static int autofs_dir_symlink(struct user_namespace *, struct inode *,
+			      struct dentry *, const char *);
+static int autofs_dir_unlink(struct inode *, struct dentry *);
+static int autofs_dir_rmdir(struct inode *, struct dentry *);
+static int autofs_dir_mkdir(struct user_namespace *, struct inode *,
+			    struct dentry *, umode_t);
+>>>>>>> upstream/android-13
 static long autofs_root_ioctl(struct file *, unsigned int, unsigned long);
 #ifdef CONFIG_COMPAT
 static long autofs_root_compat_ioctl(struct file *,
@@ -63,6 +79,7 @@ const struct dentry_operations autofs_dentry_operations = {
 	.d_release	= autofs_dentry_release,
 };
 
+<<<<<<< HEAD
 static void autofs_add_active(struct dentry *dentry)
 {
 	struct autofs_sb_info *sbi = autofs_sbi(dentry->d_sb);
@@ -80,12 +97,15 @@ static void autofs_add_active(struct dentry *dentry)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void autofs_del_active(struct dentry *dentry)
 {
 	struct autofs_sb_info *sbi = autofs_sbi(dentry->d_sb);
 	struct autofs_info *ino;
 
 	ino = autofs_dentry_ino(dentry);
+<<<<<<< HEAD
 	if (ino) {
 		spin_lock(&sbi->lookup_lock);
 		ino->active_count--;
@@ -95,6 +115,11 @@ static void autofs_del_active(struct dentry *dentry)
 		}
 		spin_unlock(&sbi->lookup_lock);
 	}
+=======
+	spin_lock(&sbi->lookup_lock);
+	list_del_init(&ino->active);
+	spin_unlock(&sbi->lookup_lock);
+>>>>>>> upstream/android-13
 }
 
 static int autofs_dir_open(struct inode *inode, struct file *file)
@@ -275,8 +300,16 @@ static int autofs_mount_wait(const struct path *path, bool rcu_walk)
 		pr_debug("waiting for mount name=%pd\n", path->dentry);
 		status = autofs_wait(sbi, path, NFY_MOUNT);
 		pr_debug("mount wait done status=%d\n", status);
+<<<<<<< HEAD
 	}
 	ino->last_used = jiffies;
+=======
+		ino->last_used = jiffies;
+		return status;
+	}
+	if (!(sbi->flags & AUTOFS_SBI_STRICTEXPIRE))
+		ino->last_used = jiffies;
+>>>>>>> upstream/android-13
 	return status;
 }
 
@@ -510,7 +543,12 @@ static struct dentry *autofs_lookup(struct inode *dir,
 	sbi = autofs_sbi(dir->i_sb);
 
 	pr_debug("pid = %u, pgrp = %u, catatonic = %d, oz_mode = %d\n",
+<<<<<<< HEAD
 		 current->pid, task_pgrp_nr(current), sbi->catatonic,
+=======
+		 current->pid, task_pgrp_nr(current),
+		 sbi->flags & AUTOFS_SBI_CATATONIC,
+>>>>>>> upstream/android-13
 		 autofs_oz_mode(sbi));
 
 	active = autofs_lookup_active(dentry);
@@ -526,26 +564,50 @@ static struct dentry *autofs_lookup(struct inode *dir,
 		if (!autofs_oz_mode(sbi) && !IS_ROOT(dentry->d_parent))
 			return ERR_PTR(-ENOENT);
 
+<<<<<<< HEAD
 		/* Mark entries in the root as mount triggers */
 		if (IS_ROOT(dentry->d_parent) &&
 		    autofs_type_indirect(sbi->type))
 			__managed_dentry_set_managed(dentry);
 
+=======
+>>>>>>> upstream/android-13
 		ino = autofs_new_ino(sbi);
 		if (!ino)
 			return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 		dentry->d_fsdata = ino;
 		ino->dentry = dentry;
 
 		autofs_add_active(dentry);
+=======
+		spin_lock(&sbi->lookup_lock);
+		spin_lock(&dentry->d_lock);
+		/* Mark entries in the root as mount triggers */
+		if (IS_ROOT(dentry->d_parent) &&
+		    autofs_type_indirect(sbi->type))
+			__managed_dentry_set_managed(dentry);
+		dentry->d_fsdata = ino;
+		ino->dentry = dentry;
+
+		list_add(&ino->active, &sbi->active_list);
+		spin_unlock(&sbi->lookup_lock);
+		spin_unlock(&dentry->d_lock);
+>>>>>>> upstream/android-13
 	}
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int autofs_dir_symlink(struct inode *dir,
 			       struct dentry *dentry,
 			       const char *symname)
+=======
+static int autofs_dir_symlink(struct user_namespace *mnt_userns,
+			      struct inode *dir, struct dentry *dentry,
+			      const char *symname)
+>>>>>>> upstream/android-13
 {
 	struct autofs_sb_info *sbi = autofs_sbi(dir->i_sb);
 	struct autofs_info *ino = autofs_dentry_ino(dentry);
@@ -563,7 +625,11 @@ static int autofs_dir_symlink(struct inode *dir,
 	 * autofs mount is catatonic but the state of an autofs
 	 * file system needs to be preserved over restarts.
 	 */
+<<<<<<< HEAD
 	if (sbi->catatonic)
+=======
+	if (sbi->flags & AUTOFS_SBI_CATATONIC)
+>>>>>>> upstream/android-13
 		return -EACCES;
 
 	BUG_ON(!ino);
@@ -588,10 +654,16 @@ static int autofs_dir_symlink(struct inode *dir,
 	d_add(dentry, inode);
 
 	dget(dentry);
+<<<<<<< HEAD
 	atomic_inc(&ino->count);
 	p_ino = autofs_dentry_ino(dentry->d_parent);
 	if (p_ino && !IS_ROOT(dentry))
 		atomic_inc(&p_ino->count);
+=======
+	ino->count++;
+	p_ino = autofs_dentry_ino(dentry->d_parent);
+	p_ino->count++;
+>>>>>>> upstream/android-13
 
 	dir->i_mtime = current_time(dir);
 
@@ -626,6 +698,7 @@ static int autofs_dir_unlink(struct inode *dir, struct dentry *dentry)
 	 * autofs mount is catatonic but the state of an autofs
 	 * file system needs to be preserved over restarts.
 	 */
+<<<<<<< HEAD
 	if (sbi->catatonic)
 		return -EACCES;
 
@@ -634,6 +707,14 @@ static int autofs_dir_unlink(struct inode *dir, struct dentry *dentry)
 		if (p_ino && !IS_ROOT(dentry))
 			atomic_dec(&p_ino->count);
 	}
+=======
+	if (sbi->flags & AUTOFS_SBI_CATATONIC)
+		return -EACCES;
+
+	ino->count--;
+	p_ino = autofs_dentry_ino(dentry->d_parent);
+	p_ino->count--;
+>>>>>>> upstream/android-13
 	dput(ino->dentry);
 
 	d_inode(dentry)->i_size = 0;
@@ -679,7 +760,10 @@ static void autofs_set_leaf_automount_flags(struct dentry *dentry)
 
 static void autofs_clear_leaf_automount_flags(struct dentry *dentry)
 {
+<<<<<<< HEAD
 	struct list_head *d_child;
+=======
+>>>>>>> upstream/android-13
 	struct dentry *parent;
 
 	/* flags for dentrys in the root are handled elsewhere */
@@ -692,10 +776,14 @@ static void autofs_clear_leaf_automount_flags(struct dentry *dentry)
 	/* only consider parents below dentrys in the root */
 	if (IS_ROOT(parent->d_parent))
 		return;
+<<<<<<< HEAD
 	d_child = &dentry->d_child;
 	/* Set parent managed if it's becoming empty */
 	if (d_child->next == &parent->d_subdirs &&
 	    d_child->prev == &parent->d_subdirs)
+=======
+	if (autofs_dentry_ino(parent)->count == 2)
+>>>>>>> upstream/android-13
 		managed_dentry_set_managed(parent);
 }
 
@@ -714,6 +802,7 @@ static int autofs_dir_rmdir(struct inode *dir, struct dentry *dentry)
 	 * autofs mount is catatonic but the state of an autofs
 	 * file system needs to be preserved over restarts.
 	 */
+<<<<<<< HEAD
 	if (sbi->catatonic)
 		return -EACCES;
 
@@ -722,6 +811,15 @@ static int autofs_dir_rmdir(struct inode *dir, struct dentry *dentry)
 		spin_unlock(&sbi->lookup_lock);
 		return -ENOTEMPTY;
 	}
+=======
+	if (sbi->flags & AUTOFS_SBI_CATATONIC)
+		return -EACCES;
+
+	if (ino->count != 1)
+		return -ENOTEMPTY;
+
+	spin_lock(&sbi->lookup_lock);
+>>>>>>> upstream/android-13
 	__autofs_add_expiring(dentry);
 	d_drop(dentry);
 	spin_unlock(&sbi->lookup_lock);
@@ -729,11 +827,17 @@ static int autofs_dir_rmdir(struct inode *dir, struct dentry *dentry)
 	if (sbi->version < 5)
 		autofs_clear_leaf_automount_flags(dentry);
 
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&ino->count)) {
 		p_ino = autofs_dentry_ino(dentry->d_parent);
 		if (p_ino && dentry->d_parent != dentry)
 			atomic_dec(&p_ino->count);
 	}
+=======
+	ino->count--;
+	p_ino = autofs_dentry_ino(dentry->d_parent);
+	p_ino->count--;
+>>>>>>> upstream/android-13
 	dput(ino->dentry);
 	d_inode(dentry)->i_size = 0;
 	clear_nlink(d_inode(dentry));
@@ -744,8 +848,14 @@ static int autofs_dir_rmdir(struct inode *dir, struct dentry *dentry)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int autofs_dir_mkdir(struct inode *dir,
 			    struct dentry *dentry, umode_t mode)
+=======
+static int autofs_dir_mkdir(struct user_namespace *mnt_userns,
+			    struct inode *dir, struct dentry *dentry,
+			    umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct autofs_sb_info *sbi = autofs_sbi(dir->i_sb);
 	struct autofs_info *ino = autofs_dentry_ino(dentry);
@@ -759,7 +869,11 @@ static int autofs_dir_mkdir(struct inode *dir,
 	 * autofs mount is catatonic but the state of an autofs
 	 * file system needs to be preserved over restarts.
 	 */
+<<<<<<< HEAD
 	if (sbi->catatonic)
+=======
+	if (sbi->flags & AUTOFS_SBI_CATATONIC)
+>>>>>>> upstream/android-13
 		return -EACCES;
 
 	pr_debug("dentry %p, creating %pd\n", dentry, dentry);
@@ -779,10 +893,16 @@ static int autofs_dir_mkdir(struct inode *dir,
 		autofs_set_leaf_automount_flags(dentry);
 
 	dget(dentry);
+<<<<<<< HEAD
 	atomic_inc(&ino->count);
 	p_ino = autofs_dentry_ino(dentry->d_parent);
 	if (p_ino && !IS_ROOT(dentry))
 		atomic_inc(&p_ino->count);
+=======
+	ino->count++;
+	p_ino = autofs_dentry_ino(dentry->d_parent);
+	p_ino->count++;
+>>>>>>> upstream/android-13
 	inc_nlink(dir);
 	dir->i_mtime = current_time(dir);
 

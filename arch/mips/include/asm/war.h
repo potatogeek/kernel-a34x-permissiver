@@ -9,8 +9,11 @@
 #ifndef _ASM_WAR_H
 #define _ASM_WAR_H
 
+<<<<<<< HEAD
 #include <war.h>
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Work around certain R4000 CPU errata (as implemented by GCC):
  *
@@ -72,6 +75,7 @@
 #define DADDI_WAR 0
 #endif
 
+<<<<<<< HEAD
 /*
  * Another R4600 erratum.  Due to the lack of errata information the exact
  * technical details aren't known.  I've experimentally found that disabling
@@ -233,4 +237,6 @@
 #error Check setting of MIPS34K_MISSED_ITLB_WAR for your platform
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _ASM_WAR_H */

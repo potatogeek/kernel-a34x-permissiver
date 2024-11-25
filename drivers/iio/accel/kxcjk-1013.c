@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * KXCJK-1013 3-axis accelerometer driver
  * Copyright (c) 2014, Intel Corporation.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * KXCJK-1013 3-axis accelerometer driver
+ * Copyright (c) 2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -22,6 +29,10 @@
 #include <linux/acpi.h>
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
+<<<<<<< HEAD
+=======
+#include <linux/regulator/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
 #include <linux/iio/buffer.h>
@@ -58,13 +69,23 @@
 #define KXTF9_REG_TILT_POS_CUR		0x10
 #define KXTF9_REG_TILT_POS_PREV		0x11
 #define KXTF9_REG_INT_SRC1		0x15
+<<<<<<< HEAD
 #define KXCJK1013_REG_INT_SRC1		0x16	/* compatible, but called INT_SRC2 in KXTF9 ds */
+=======
+#define KXTF9_REG_INT_SRC2		0x16
+#define KXCJK1013_REG_INT_SRC1		0x16
+>>>>>>> upstream/android-13
 #define KXCJK1013_REG_INT_SRC2		0x17
 #define KXCJK1013_REG_STATUS_REG	0x18
 #define KXCJK1013_REG_INT_REL		0x1A
 #define KXCJK1013_REG_CTRL1		0x1B
 #define KXTF9_REG_CTRL2			0x1C
+<<<<<<< HEAD
 #define KXCJK1013_REG_CTRL2		0x1D	/* mostly compatible, CTRL_REG3 in KTXF9 ds */
+=======
+#define KXTF9_REG_CTRL3			0x1D
+#define KXCJK1013_REG_CTRL2		0x1D
+>>>>>>> upstream/android-13
 #define KXCJK1013_REG_INT_CTRL1		0x1E
 #define KXCJK1013_REG_INT_CTRL2		0x1F
 #define KXTF9_REG_INT_CTRL3		0x20
@@ -84,6 +105,48 @@
 #define KXTF9_REG_HYST_SET		0x5F
 #define KXCJK1013_REG_WAKE_THRES	0x6A
 
+<<<<<<< HEAD
+=======
+/* Everything up to 0x11 is equal to KXCJK1013/KXTF9 above */
+#define KX023_REG_INS1			0x12
+#define KX023_REG_INS2			0x13
+#define KX023_REG_INS3			0x14
+#define KX023_REG_STAT			0x15
+#define KX023_REG_INT_REL		0x17
+#define KX023_REG_CNTL1			0x18
+#define KX023_REG_CNTL2			0x19
+#define KX023_REG_CNTL3			0x1A
+#define KX023_REG_ODCNTL		0x1B
+#define KX023_REG_INC1			0x1C
+#define KX023_REG_INC2			0x1D
+#define KX023_REG_INC3			0x1E
+#define KX023_REG_INC4			0x1F
+#define KX023_REG_INC5			0x20
+#define KX023_REG_INC6			0x21
+#define KX023_REG_TILT_TIMER		0x22
+#define KX023_REG_WUFC			0x23
+#define KX023_REG_TDTRC			0x24
+#define KX023_REG_TDTC			0x25
+#define KX023_REG_TTH			0x26
+#define KX023_REG_TTL			0x27
+#define KX023_REG_FTD			0x28
+#define KX023_REG_STD			0x29
+#define KX023_REG_TLT			0x2A
+#define KX023_REG_TWS			0x2B
+#define KX023_REG_ATH			0x30
+#define KX023_REG_TILT_ANGLE_LL		0x32
+#define KX023_REG_TILT_ANGLE_HL		0x33
+#define KX023_REG_HYST_SET		0x34
+#define KX023_REG_LP_CNTL		0x35
+#define KX023_REG_BUF_CNTL1		0x3A
+#define KX023_REG_BUF_CNTL2		0x3B
+#define KX023_REG_BUF_STATUS_1		0x3C
+#define KX023_REG_BUF_STATUS_2		0x3D
+#define KX023_REG_BUF_CLEAR		0x3E
+#define KX023_REG_BUF_READ		0x3F
+#define KX023_REG_SELF_TEST		0x60
+
+>>>>>>> upstream/android-13
 #define KXCJK1013_REG_CTRL1_BIT_PC1	BIT(7)
 #define KXCJK1013_REG_CTRL1_BIT_RES	BIT(6)
 #define KXCJK1013_REG_CTRL1_BIT_DRDY	BIT(5)
@@ -124,6 +187,17 @@
 #define KXCJK1013_REG_INT_SRC2_BIT_XP	BIT(4)
 #define KXCJK1013_REG_INT_SRC2_BIT_XN	BIT(5)
 
+<<<<<<< HEAD
+=======
+/* KX023 interrupt routing to INT1. INT2 can be configured with INC6 */
+#define KX023_REG_INC4_BFI1		BIT(6)
+#define KX023_REG_INC4_WMI1		BIT(5)
+#define KX023_REG_INC4_DRDY1		BIT(4)
+#define KX023_REG_INC4_TDTI1		BIT(2)
+#define KX023_REG_INC4_WUFI1		BIT(1)
+#define KX023_REG_INC4_TPI1		BIT(0)
+
+>>>>>>> upstream/android-13
 #define KXCJK1013_DEFAULT_WAKE_THRES	1
 
 enum kx_chipset {
@@ -131,6 +205,10 @@ enum kx_chipset {
 	KXCJ91008,
 	KXTJ21009,
 	KXTF9,
+<<<<<<< HEAD
+=======
+	KX0231025,
+>>>>>>> upstream/android-13
 	KX_MAX_CHIPS /* this must be last */
 };
 
@@ -140,12 +218,84 @@ enum kx_acpi_type {
 	ACPI_KIOX010A,
 };
 
+<<<<<<< HEAD
 struct kxcjk1013_data {
 	struct i2c_client *client;
 	struct iio_trigger *dready_trig;
 	struct iio_trigger *motion_trig;
 	struct mutex mutex;
 	s16 buffer[8];
+=======
+struct kx_chipset_regs {
+	u8 int_src1;
+	u8 int_src2;
+	u8 int_rel;
+	u8 ctrl1;
+	u8 wuf_ctrl;
+	u8 int_ctrl1;
+	u8 data_ctrl;
+	u8 wake_timer;
+	u8 wake_thres;
+};
+
+static const struct kx_chipset_regs kxcjk1013_regs = {
+	.int_src1	= KXCJK1013_REG_INT_SRC1,
+	.int_src2	= KXCJK1013_REG_INT_SRC2,
+	.int_rel	= KXCJK1013_REG_INT_REL,
+	.ctrl1		= KXCJK1013_REG_CTRL1,
+	.wuf_ctrl	= KXCJK1013_REG_CTRL2,
+	.int_ctrl1	= KXCJK1013_REG_INT_CTRL1,
+	.data_ctrl	= KXCJK1013_REG_DATA_CTRL,
+	.wake_timer	= KXCJK1013_REG_WAKE_TIMER,
+	.wake_thres	= KXCJK1013_REG_WAKE_THRES,
+};
+
+static const struct kx_chipset_regs kxtf9_regs = {
+	/* .int_src1 was moved to INT_SRC2 on KXTF9 */
+	.int_src1	= KXTF9_REG_INT_SRC2,
+	/* .int_src2 is not available */
+	.int_rel	= KXCJK1013_REG_INT_REL,
+	.ctrl1		= KXCJK1013_REG_CTRL1,
+	.wuf_ctrl	= KXTF9_REG_CTRL3,
+	.int_ctrl1	= KXCJK1013_REG_INT_CTRL1,
+	.data_ctrl	= KXCJK1013_REG_DATA_CTRL,
+	.wake_timer	= KXCJK1013_REG_WAKE_TIMER,
+	.wake_thres	= KXTF9_REG_WAKE_THRESH,
+};
+
+/* The registers have totally different names but the bits are compatible */
+static const struct kx_chipset_regs kx0231025_regs = {
+	.int_src1	= KX023_REG_INS2,
+	.int_src2	= KX023_REG_INS3,
+	.int_rel	= KX023_REG_INT_REL,
+	.ctrl1		= KX023_REG_CNTL1,
+	.wuf_ctrl	= KX023_REG_CNTL3,
+	.int_ctrl1	= KX023_REG_INC1,
+	.data_ctrl	= KX023_REG_ODCNTL,
+	.wake_timer	= KX023_REG_WUFC,
+	.wake_thres	= KX023_REG_ATH,
+};
+
+enum kxcjk1013_axis {
+	AXIS_X,
+	AXIS_Y,
+	AXIS_Z,
+	AXIS_MAX
+};
+
+struct kxcjk1013_data {
+	struct regulator_bulk_data regulators[2];
+	struct i2c_client *client;
+	struct iio_trigger *dready_trig;
+	struct iio_trigger *motion_trig;
+	struct iio_mount_matrix orientation;
+	struct mutex mutex;
+	/* Ensure timestamp naturally aligned */
+	struct {
+		s16 chans[AXIS_MAX];
+		s64 timestamp __aligned(8);
+	} scan;
+>>>>>>> upstream/android-13
 	u8 odr_bits;
 	u8 range;
 	int wake_thres;
@@ -157,6 +307,7 @@ struct kxcjk1013_data {
 	int64_t timestamp;
 	enum kx_chipset chipset;
 	enum kx_acpi_type acpi_type;
+<<<<<<< HEAD
 };
 
 enum kxcjk1013_axis {
@@ -164,6 +315,9 @@ enum kxcjk1013_axis {
 	AXIS_Y,
 	AXIS_Z,
 	AXIS_MAX,
+=======
+	const struct kx_chipset_regs *regs;
+>>>>>>> upstream/android-13
 };
 
 enum kxcjk1013_mode {
@@ -273,6 +427,25 @@ static const struct {
 		{0x05, 5100},
 		{0x06, 2700},
 	},
+<<<<<<< HEAD
+=======
+	/* KX023-1025 */
+	{
+		/* First 4 are not in datasheet, taken from KXCTJ2-1009 */
+		{0x08, 1240000},
+		{0x09, 621000},
+		{0x0A, 309000},
+		{0x0B, 151000},
+		{0, 81000},
+		{0x01, 40000},
+		{0x02, 22000},
+		{0x03, 12000},
+		{0x04, 7000},
+		{0x05, 4400},
+		{0x06, 3000},
+		{0x07, 3000},
+	},
+>>>>>>> upstream/android-13
 };
 
 static const struct {
@@ -314,7 +487,11 @@ static int kxcjk1013_set_mode(struct kxcjk1013_data *data,
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_ctrl1\n");
 		return ret;
@@ -325,8 +502,12 @@ static int kxcjk1013_set_mode(struct kxcjk1013_data *data,
 	else
 		ret |= KXCJK1013_REG_CTRL1_BIT_PC1;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client,
 					KXCJK1013_REG_CTRL1, ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_ctrl1\n");
 		return ret;
@@ -340,7 +521,11 @@ static int kxcjk1013_get_mode(struct kxcjk1013_data *data,
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_ctrl1\n");
 		return ret;
@@ -358,7 +543,11 @@ static int kxcjk1013_set_range(struct kxcjk1013_data *data, int range_index)
 {
 	int ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_ctrl1\n");
 		return ret;
@@ -369,9 +558,13 @@ static int kxcjk1013_set_range(struct kxcjk1013_data *data, int range_index)
 	ret |= (KXCJK1013_scale_table[range_index].gsel_0 << 3);
 	ret |= (KXCJK1013_scale_table[range_index].gsel_1 << 4);
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client,
 					KXCJK1013_REG_CTRL1,
 					ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_ctrl1\n");
 		return ret;
@@ -405,7 +598,11 @@ static int kxcjk1013_chip_init(struct kxcjk1013_data *data)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_ctrl1\n");
 		return ret;
@@ -414,8 +611,12 @@ static int kxcjk1013_chip_init(struct kxcjk1013_data *data)
 	/* Set 12 bit mode */
 	ret |= KXCJK1013_REG_CTRL1_BIT_RES;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, KXCJK1013_REG_CTRL1,
 					ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_ctrl\n");
 		return ret;
@@ -426,7 +627,11 @@ static int kxcjk1013_chip_init(struct kxcjk1013_data *data)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_DATA_CTRL);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->data_ctrl);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_data_ctrl\n");
 		return ret;
@@ -435,7 +640,11 @@ static int kxcjk1013_chip_init(struct kxcjk1013_data *data)
 	data->odr_bits = ret;
 
 	/* Set up INT polarity */
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_INT_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->int_ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_int_ctrl1\n");
 		return ret;
@@ -446,13 +655,31 @@ static int kxcjk1013_chip_init(struct kxcjk1013_data *data)
 	else
 		ret &= ~KXCJK1013_REG_INT_CTRL1_BIT_IEA;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, KXCJK1013_REG_INT_CTRL1,
 					ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->int_ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_int_ctrl1\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	/* On KX023, route all used interrupts to INT1 for now */
+	if (data->chipset == KX0231025 && data->client->irq > 0) {
+		ret = i2c_smbus_write_byte_data(data->client, KX023_REG_INC4,
+						KX023_REG_INC4_DRDY1 |
+						KX023_REG_INC4_WUFI1);
+		if (ret < 0) {
+			dev_err(&data->client->dev, "Error writing reg_inc4\n");
+			return ret;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	ret = kxcjk1013_set_mode(data, OPERATION);
 	if (ret < 0)
 		return ret;
@@ -483,16 +710,24 @@ static int kxcjk1013_set_power_state(struct kxcjk1013_data *data, bool on)
 	int ret;
 
 	if (on)
+<<<<<<< HEAD
 		ret = pm_runtime_get_sync(&data->client->dev);
+=======
+		ret = pm_runtime_resume_and_get(&data->client->dev);
+>>>>>>> upstream/android-13
 	else {
 		pm_runtime_mark_last_busy(&data->client->dev);
 		ret = pm_runtime_put_autosuspend(&data->client->dev);
 	}
 	if (ret < 0) {
 		dev_err(&data->client->dev,
+<<<<<<< HEAD
 			"Failed: kxcjk1013_set_power_state for %d\n", on);
 		if (on)
 			pm_runtime_put_noidle(&data->client->dev);
+=======
+			"Failed: %s for %d\n", __func__, on);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 #endif
@@ -502,10 +737,16 @@ static int kxcjk1013_set_power_state(struct kxcjk1013_data *data, bool on)
 
 static int kxcjk1013_chip_update_thresholds(struct kxcjk1013_data *data)
 {
+<<<<<<< HEAD
 	int waketh_reg, ret;
 
 	ret = i2c_smbus_write_byte_data(data->client,
 					KXCJK1013_REG_WAKE_TIMER,
+=======
+	int ret;
+
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->wake_timer,
+>>>>>>> upstream/android-13
 					data->wake_dur);
 	if (ret < 0) {
 		dev_err(&data->client->dev,
@@ -513,9 +754,13 @@ static int kxcjk1013_chip_update_thresholds(struct kxcjk1013_data *data)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	waketh_reg = data->chipset == KXTF9 ?
 		KXTF9_REG_WAKE_THRESH : KXCJK1013_REG_WAKE_THRES;
 	ret = i2c_smbus_write_byte_data(data->client, waketh_reg,
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->wake_thres,
+>>>>>>> upstream/android-13
 					data->wake_thres);
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_wake_thres\n");
@@ -544,7 +789,11 @@ static int kxcjk1013_setup_any_motion_interrupt(struct kxcjk1013_data *data,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_INT_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->int_ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_int_ctrl1\n");
 		return ret;
@@ -555,14 +804,22 @@ static int kxcjk1013_setup_any_motion_interrupt(struct kxcjk1013_data *data,
 	else
 		ret &= ~KXCJK1013_REG_INT_CTRL1_BIT_IEN;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, KXCJK1013_REG_INT_CTRL1,
 					ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->int_ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_int_ctrl1\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_ctrl1\n");
 		return ret;
@@ -573,8 +830,12 @@ static int kxcjk1013_setup_any_motion_interrupt(struct kxcjk1013_data *data,
 	else
 		ret &= ~KXCJK1013_REG_CTRL1_BIT_WUFE;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client,
 					KXCJK1013_REG_CTRL1, ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_ctrl1\n");
 		return ret;
@@ -604,7 +865,11 @@ static int kxcjk1013_setup_new_data_interrupt(struct kxcjk1013_data *data,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_INT_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->int_ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_int_ctrl1\n");
 		return ret;
@@ -615,14 +880,22 @@ static int kxcjk1013_setup_new_data_interrupt(struct kxcjk1013_data *data,
 	else
 		ret &= ~KXCJK1013_REG_INT_CTRL1_BIT_IEN;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, KXCJK1013_REG_INT_CTRL1,
 					ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->int_ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_int_ctrl1\n");
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_CTRL1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->ctrl1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_ctrl1\n");
 		return ret;
@@ -633,8 +906,12 @@ static int kxcjk1013_setup_new_data_interrupt(struct kxcjk1013_data *data,
 	else
 		ret &= ~KXCJK1013_REG_CTRL1_BIT_DRDY;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client,
 					KXCJK1013_REG_CTRL1, ret);
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->ctrl1, ret);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_ctrl1\n");
 		return ret;
@@ -706,7 +983,11 @@ static int kxcjk1013_set_odr(struct kxcjk1013_data *data, int val, int val2)
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, KXCJK1013_REG_DATA_CTRL,
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->data_ctrl,
+>>>>>>> upstream/android-13
 					odr_setting->odr_bits);
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing data_ctrl\n");
@@ -715,7 +996,11 @@ static int kxcjk1013_set_odr(struct kxcjk1013_data *data, int val, int val2)
 
 	data->odr_bits = odr_setting->odr_bits;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_write_byte_data(data->client, KXCJK1013_REG_CTRL2,
+=======
+	ret = i2c_smbus_write_byte_data(data->client, data->regs->wuf_ctrl,
+>>>>>>> upstream/android-13
 					odr_setting->wuf_bits);
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error writing reg_ctrl2\n");
@@ -1030,6 +1315,23 @@ static const struct iio_event_spec kxcjk1013_event = {
 				 BIT(IIO_EV_INFO_PERIOD)
 };
 
+<<<<<<< HEAD
+=======
+static const struct iio_mount_matrix *
+kxcjk1013_get_mount_matrix(const struct iio_dev *indio_dev,
+			   const struct iio_chan_spec *chan)
+{
+	struct kxcjk1013_data *data = iio_priv(indio_dev);
+
+	return &data->orientation;
+}
+
+static const struct iio_chan_spec_ext_info kxcjk1013_ext_info[] = {
+	IIO_MOUNT_MATRIX(IIO_SHARED_BY_TYPE, kxcjk1013_get_mount_matrix),
+	{ }
+};
+
+>>>>>>> upstream/android-13
 #define KXCJK1013_CHANNEL(_axis) {					\
 	.type = IIO_ACCEL,						\
 	.modified = 1,							\
@@ -1046,6 +1348,10 @@ static const struct iio_event_spec kxcjk1013_event = {
 		.endianness = IIO_LE,					\
 	},								\
 	.event_spec = &kxcjk1013_event,				\
+<<<<<<< HEAD
+=======
+	.ext_info = kxcjk1013_ext_info,					\
+>>>>>>> upstream/android-13
 	.num_event_specs = 1						\
 }
 
@@ -1058,9 +1364,13 @@ static const struct iio_chan_spec kxcjk1013_channels[] = {
 
 static const struct iio_buffer_setup_ops kxcjk1013_buffer_setup_ops = {
 	.preenable		= kxcjk1013_buffer_preenable,
+<<<<<<< HEAD
 	.postenable		= iio_triggered_buffer_postenable,
 	.postdisable		= kxcjk1013_buffer_postdisable,
 	.predisable		= iio_triggered_buffer_predisable,
+=======
+	.postdisable		= kxcjk1013_buffer_postdisable,
+>>>>>>> upstream/android-13
 };
 
 static const struct iio_info kxcjk1013_info = {
@@ -1086,12 +1396,20 @@ static irqreturn_t kxcjk1013_trigger_handler(int irq, void *p)
 	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
 							KXCJK1013_REG_XOUT_L,
 							AXIS_MAX * 2,
+<<<<<<< HEAD
 							(u8 *)data->buffer);
+=======
+							(u8 *)data->scan.chans);
+>>>>>>> upstream/android-13
 	mutex_unlock(&data->mutex);
 	if (ret < 0)
 		goto err;
 
+<<<<<<< HEAD
 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+=======
+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+>>>>>>> upstream/android-13
 					   data->timestamp);
 err:
 	iio_trigger_notify_done(indio_dev->trig);
@@ -1099,12 +1417,17 @@ err:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int kxcjk1013_trig_try_reen(struct iio_trigger *trig)
+=======
+static void kxcjk1013_trig_reen(struct iio_trigger *trig)
+>>>>>>> upstream/android-13
 {
 	struct iio_dev *indio_dev = iio_trigger_get_drvdata(trig);
 	struct kxcjk1013_data *data = iio_priv(indio_dev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_INT_REL);
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_int_rel\n");
@@ -1112,6 +1435,11 @@ static int kxcjk1013_trig_try_reen(struct iio_trigger *trig)
 	}
 
 	return 0;
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->int_rel);
+	if (ret < 0)
+		dev_err(&data->client->dev, "Error reading reg_int_rel\n");
+>>>>>>> upstream/android-13
 }
 
 static int kxcjk1013_data_rdy_trigger_set_state(struct iio_trigger *trig,
@@ -1155,15 +1483,23 @@ static int kxcjk1013_data_rdy_trigger_set_state(struct iio_trigger *trig,
 
 static const struct iio_trigger_ops kxcjk1013_trigger_ops = {
 	.set_trigger_state = kxcjk1013_data_rdy_trigger_set_state,
+<<<<<<< HEAD
 	.try_reenable = kxcjk1013_trig_try_reen,
+=======
+	.reenable = kxcjk1013_trig_reen,
+>>>>>>> upstream/android-13
 };
 
 static void kxcjk1013_report_motion_event(struct iio_dev *indio_dev)
 {
 	struct kxcjk1013_data *data = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	int ret = i2c_smbus_read_byte_data(data->client,
 					   KXCJK1013_REG_INT_SRC2);
+=======
+	int ret = i2c_smbus_read_byte_data(data->client, data->regs->int_src2);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_int_src2\n");
 		return;
@@ -1230,7 +1566,11 @@ static irqreturn_t kxcjk1013_event_handler(int irq, void *private)
 	struct kxcjk1013_data *data = iio_priv(indio_dev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_INT_SRC1);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->int_src1);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		dev_err(&data->client->dev, "Error reading reg_int_src1\n");
 		goto ack_intr;
@@ -1253,7 +1593,11 @@ ack_intr:
 	if (data->dready_trigger_on)
 		return IRQ_HANDLED;
 
+<<<<<<< HEAD
 	ret = i2c_smbus_read_byte_data(data->client, KXCJK1013_REG_INT_REL);
+=======
+	ret = i2c_smbus_read_byte_data(data->client, data->regs->int_rel);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		dev_err(&data->client->dev, "Error reading reg_int_rel\n");
 
@@ -1280,7 +1624,12 @@ static irqreturn_t kxcjk1013_data_rdy_trig_poll(int irq, void *private)
 
 static const char *kxcjk1013_match_acpi_device(struct device *dev,
 					       enum kx_chipset *chipset,
+<<<<<<< HEAD
 					       enum kx_acpi_type *acpi_type)
+=======
+					       enum kx_acpi_type *acpi_type,
+					       const char **label)
+>>>>>>> upstream/android-13
 {
 	const struct acpi_device_id *id;
 
@@ -1288,16 +1637,37 @@ static const char *kxcjk1013_match_acpi_device(struct device *dev,
 	if (!id)
 		return NULL;
 
+<<<<<<< HEAD
 	if (strcmp(id->id, "SMO8500") == 0)
 		*acpi_type = ACPI_SMO8500;
 	else if (strcmp(id->id, "KIOX010A") == 0)
 		*acpi_type = ACPI_KIOX010A;
+=======
+	if (strcmp(id->id, "SMO8500") == 0) {
+		*acpi_type = ACPI_SMO8500;
+	} else if (strcmp(id->id, "KIOX010A") == 0) {
+		*acpi_type = ACPI_KIOX010A;
+		*label = "accel-display";
+	} else if (strcmp(id->id, "KIOX020A") == 0) {
+		*label = "accel-base";
+	}
+>>>>>>> upstream/android-13
 
 	*chipset = (enum kx_chipset)id->driver_data;
 
 	return dev_name(dev);
 }
 
+<<<<<<< HEAD
+=======
+static void kxcjk1013_disable_regulators(void *d)
+{
+	struct kxcjk1013_data *data = d;
+
+	regulator_bulk_disable(ARRAY_SIZE(data->regulators), data->regulators);
+}
+
+>>>>>>> upstream/android-13
 static int kxcjk1013_probe(struct i2c_client *client,
 			   const struct i2c_device_id *id)
 {
@@ -1316,28 +1686,92 @@ static int kxcjk1013_probe(struct i2c_client *client,
 	data->client = client;
 
 	pdata = dev_get_platdata(&client->dev);
+<<<<<<< HEAD
 	if (pdata)
 		data->active_high_intr = pdata->active_high_intr;
 	else
 		data->active_high_intr = true; /* default polarity */
 
+=======
+	if (pdata) {
+		data->active_high_intr = pdata->active_high_intr;
+		data->orientation = pdata->orientation;
+	} else {
+		data->active_high_intr = true; /* default polarity */
+
+		ret = iio_read_mount_matrix(&client->dev, &data->orientation);
+		if (ret)
+			return ret;
+	}
+
+	data->regulators[0].supply = "vdd";
+	data->regulators[1].supply = "vddio";
+	ret = devm_regulator_bulk_get(&client->dev, ARRAY_SIZE(data->regulators),
+				      data->regulators);
+	if (ret)
+		return dev_err_probe(&client->dev, ret, "Failed to get regulators\n");
+
+	ret = regulator_bulk_enable(ARRAY_SIZE(data->regulators),
+				    data->regulators);
+	if (ret)
+		return ret;
+
+	ret = devm_add_action_or_reset(&client->dev, kxcjk1013_disable_regulators, data);
+	if (ret)
+		return ret;
+
+	/*
+	 * A typical delay of 10ms is required for powering up
+	 * according to the data sheets of supported chips.
+	 * Hence double that to play safe.
+	 */
+	msleep(20);
+
+>>>>>>> upstream/android-13
 	if (id) {
 		data->chipset = (enum kx_chipset)(id->driver_data);
 		name = id->name;
 	} else if (ACPI_HANDLE(&client->dev)) {
 		name = kxcjk1013_match_acpi_device(&client->dev,
 						   &data->chipset,
+<<<<<<< HEAD
 						   &data->acpi_type);
 	} else
 		return -ENODEV;
 
+=======
+						   &data->acpi_type,
+						   &indio_dev->label);
+	} else
+		return -ENODEV;
+
+	switch (data->chipset) {
+	case KXCJK1013:
+	case KXCJ91008:
+	case KXTJ21009:
+		data->regs = &kxcjk1013_regs;
+		break;
+	case KXTF9:
+		data->regs = &kxtf9_regs;
+		break;
+	case KX0231025:
+		data->regs = &kx0231025_regs;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	ret = kxcjk1013_chip_init(data);
 	if (ret < 0)
 		return ret;
 
 	mutex_init(&data->mutex);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = kxcjk1013_channels;
 	indio_dev->num_channels = ARRAY_SIZE(kxcjk1013_channels);
 	indio_dev->available_scan_masks = kxcjk1013_scan_masks;
@@ -1358,7 +1792,11 @@ static int kxcjk1013_probe(struct i2c_client *client,
 		data->dready_trig = devm_iio_trigger_alloc(&client->dev,
 							   "%s-dev%d",
 							   indio_dev->name,
+<<<<<<< HEAD
 							   indio_dev->id);
+=======
+							   iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!data->dready_trig) {
 			ret = -ENOMEM;
 			goto err_poweroff;
@@ -1367,13 +1805,20 @@ static int kxcjk1013_probe(struct i2c_client *client,
 		data->motion_trig = devm_iio_trigger_alloc(&client->dev,
 							  "%s-any-motion-dev%d",
 							  indio_dev->name,
+<<<<<<< HEAD
 							  indio_dev->id);
+=======
+							  iio_device_id(indio_dev));
+>>>>>>> upstream/android-13
 		if (!data->motion_trig) {
 			ret = -ENOMEM;
 			goto err_poweroff;
 		}
 
+<<<<<<< HEAD
 		data->dready_trig->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 		data->dready_trig->ops = &kxcjk1013_trigger_ops;
 		iio_trigger_set_drvdata(data->dready_trig, indio_dev);
 		indio_dev->trig = data->dready_trig;
@@ -1382,7 +1827,10 @@ static int kxcjk1013_probe(struct i2c_client *client,
 		if (ret)
 			goto err_poweroff;
 
+<<<<<<< HEAD
 		data->motion_trig->dev.parent = &client->dev;
+=======
+>>>>>>> upstream/android-13
 		data->motion_trig->ops = &kxcjk1013_trigger_ops;
 		iio_trigger_set_drvdata(data->motion_trig, indio_dev);
 		ret = iio_trigger_register(data->motion_trig);
@@ -1413,14 +1861,26 @@ static int kxcjk1013_probe(struct i2c_client *client,
 	ret = iio_device_register(indio_dev);
 	if (ret < 0) {
 		dev_err(&client->dev, "unable to register iio device\n");
+<<<<<<< HEAD
 		goto err_buffer_cleanup;
+=======
+		goto err_pm_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
+<<<<<<< HEAD
 err_buffer_cleanup:
 	if (data->dready_trig)
 		iio_triggered_buffer_cleanup(indio_dev);
+=======
+err_pm_cleanup:
+	pm_runtime_dont_use_autosuspend(&client->dev);
+	pm_runtime_disable(&client->dev);
+err_buffer_cleanup:
+	iio_triggered_buffer_cleanup(indio_dev);
+>>>>>>> upstream/android-13
 err_trigger_unregister:
 	if (data->dready_trig)
 		iio_trigger_unregister(data->dready_trig);
@@ -1441,10 +1901,16 @@ static int kxcjk1013_remove(struct i2c_client *client)
 
 	pm_runtime_disable(&client->dev);
 	pm_runtime_set_suspended(&client->dev);
+<<<<<<< HEAD
 	pm_runtime_put_noidle(&client->dev);
 
 	if (data->dready_trig) {
 		iio_triggered_buffer_cleanup(indio_dev);
+=======
+
+	iio_triggered_buffer_cleanup(indio_dev);
+	if (data->dready_trig) {
+>>>>>>> upstream/android-13
 		iio_trigger_unregister(data->dready_trig);
 		iio_trigger_unregister(data->motion_trig);
 	}
@@ -1532,9 +1998,19 @@ static const struct acpi_device_id kx_acpi_match[] = {
 	{"KXCJ1013", KXCJK1013},
 	{"KXCJ1008", KXCJ91008},
 	{"KXCJ9000", KXCJ91008},
+<<<<<<< HEAD
 	{"KIOX000A", KXCJ91008},
 	{"KIOX010A", KXCJ91008}, /* KXCJ91008 inside the display of a 2-in-1 */
 	{"KXTJ1009", KXTJ21009},
+=======
+	{"KIOX0008", KXCJ91008},
+	{"KIOX0009", KXTJ21009},
+	{"KIOX000A", KXCJ91008},
+	{"KIOX010A", KXCJ91008}, /* KXCJ91008 in the display of a yoga 2-in-1 */
+	{"KIOX020A", KXCJ91008}, /* KXCJ91008 in the base of a yoga 2-in-1 */
+	{"KXTJ1009", KXTJ21009},
+	{"KXJ2109",  KXTJ21009},
+>>>>>>> upstream/android-13
 	{"SMO8500",  KXCJ91008},
 	{ },
 };
@@ -1545,16 +2021,37 @@ static const struct i2c_device_id kxcjk1013_id[] = {
 	{"kxcj91008", KXCJ91008},
 	{"kxtj21009", KXTJ21009},
 	{"kxtf9",     KXTF9},
+<<<<<<< HEAD
+=======
+	{"kx023-1025", KX0231025},
+>>>>>>> upstream/android-13
 	{"SMO8500",   KXCJ91008},
 	{}
 };
 
 MODULE_DEVICE_TABLE(i2c, kxcjk1013_id);
 
+<<<<<<< HEAD
+=======
+static const struct of_device_id kxcjk1013_of_match[] = {
+	{ .compatible = "kionix,kxcjk1013", },
+	{ .compatible = "kionix,kxcj91008", },
+	{ .compatible = "kionix,kxtj21009", },
+	{ .compatible = "kionix,kxtf9", },
+	{ .compatible = "kionix,kx023-1025", },
+	{ }
+};
+MODULE_DEVICE_TABLE(of, kxcjk1013_of_match);
+
+>>>>>>> upstream/android-13
 static struct i2c_driver kxcjk1013_driver = {
 	.driver = {
 		.name	= KXCJK1013_DRV_NAME,
 		.acpi_match_table = ACPI_PTR(kx_acpi_match),
+<<<<<<< HEAD
+=======
+		.of_match_table = kxcjk1013_of_match,
+>>>>>>> upstream/android-13
 		.pm	= &kxcjk1013_pm_ops,
 	},
 	.probe		= kxcjk1013_probe,

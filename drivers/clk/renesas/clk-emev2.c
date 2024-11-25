@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * EMMA Mobile EV2 common clock framework support
  *
  * Copyright (C) 2013 Takashi Yoshii <takashi.yoshii.ze@renesas.com>
  * Copyright (C) 2012 Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
@@ -86,8 +93,13 @@ static void __init emev2_smu_clkdiv_init(struct device_node *np)
 	clk = clk_register_divider(NULL, np->name, parent_name, 0,
 				   smu_base + reg[0], reg[1], 8, 0, &lock);
 	of_clk_add_provider(np, of_clk_src_simple_get, clk);
+<<<<<<< HEAD
 	clk_register_clkdev(clk, np->name, NULL);
 	pr_debug("## %s %s %p\n", __func__, np->name, clk);
+=======
+	clk_register_clkdev(clk, np->full_name, NULL);
+	pr_debug("## %s %pOFn %p\n", __func__, np, clk);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(emev2_smu_clkdiv, "renesas,emev2-smu-clkdiv",
 		emev2_smu_clkdiv_init);
@@ -104,7 +116,12 @@ static void __init emev2_smu_gclk_init(struct device_node *np)
 	clk = clk_register_gate(NULL, np->name, parent_name, 0,
 				smu_base + reg[0], reg[1], 0, &lock);
 	of_clk_add_provider(np, of_clk_src_simple_get, clk);
+<<<<<<< HEAD
 	clk_register_clkdev(clk, np->name, NULL);
 	pr_debug("## %s %s %p\n", __func__, np->name, clk);
+=======
+	clk_register_clkdev(clk, np->full_name, NULL);
+	pr_debug("## %s %pOFn %p\n", __func__, np, clk);
+>>>>>>> upstream/android-13
 }
 CLK_OF_DECLARE(emev2_smu_gclk, "renesas,emev2-smu-gclk", emev2_smu_gclk_init);

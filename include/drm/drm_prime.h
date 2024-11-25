@@ -42,7 +42,10 @@
  * This just contains the internal &struct dma_buf and handle caches for each
  * &struct drm_file used by the PRIME core code.
  */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 struct drm_prime_file_private {
 /* private: */
 	struct mutex lock;
@@ -55,6 +58,10 @@ struct device;
 struct dma_buf_export_info;
 struct dma_buf;
 struct dma_buf_attachment;
+<<<<<<< HEAD
+=======
+struct dma_buf_map;
+>>>>>>> upstream/android-13
 
 enum dma_data_direction;
 
@@ -62,6 +69,7 @@ struct drm_device;
 struct drm_gem_object;
 struct drm_file;
 
+<<<<<<< HEAD
 struct device;
 
 struct dma_buf *drm_gem_prime_export(struct drm_device *dev,
@@ -83,6 +91,20 @@ int drm_gem_prime_fd_to_handle(struct drm_device *dev,
 struct dma_buf *drm_gem_dmabuf_export(struct drm_device *dev,
 				      struct dma_buf_export_info *exp_info);
 void drm_gem_dmabuf_release(struct dma_buf *dma_buf);
+=======
+/* core prime functions */
+struct dma_buf *drm_gem_dmabuf_export(struct drm_device *dev,
+				      struct dma_buf_export_info *exp_info);
+void drm_gem_dmabuf_release(struct dma_buf *dma_buf);
+
+int drm_gem_prime_fd_to_handle(struct drm_device *dev,
+			       struct drm_file *file_priv, int prime_fd, uint32_t *handle);
+int drm_gem_prime_handle_to_fd(struct drm_device *dev,
+			       struct drm_file *file_priv, uint32_t handle, uint32_t flags,
+			       int *prime_fd);
+
+/* helper functions for exporting */
+>>>>>>> upstream/android-13
 int drm_gem_map_attach(struct dma_buf *dma_buf,
 		       struct dma_buf_attachment *attach);
 void drm_gem_map_detach(struct dma_buf *dma_buf,
@@ -92,6 +114,7 @@ struct sg_table *drm_gem_map_dma_buf(struct dma_buf_attachment *attach,
 void drm_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
 			   struct sg_table *sgt,
 			   enum dma_data_direction dir);
+<<<<<<< HEAD
 void *drm_gem_dmabuf_vmap(struct dma_buf *dma_buf);
 void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, void *vaddr);
 void *drm_gem_dmabuf_kmap(struct dma_buf *dma_buf, unsigned long page_num);
@@ -105,5 +128,33 @@ struct sg_table *drm_prime_pages_to_sg(struct page **pages, unsigned int nr_page
 void drm_prime_gem_destroy(struct drm_gem_object *obj, struct sg_table *sg);
 
 int drm_gem_dmabuf_get_uuid(struct dma_buf *dma_buf, uuid_t *uuid);
+=======
+int drm_gem_dmabuf_vmap(struct dma_buf *dma_buf, struct dma_buf_map *map);
+void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct dma_buf_map *map);
+
+int drm_gem_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
+int drm_gem_dmabuf_mmap(struct dma_buf *dma_buf, struct vm_area_struct *vma);
+
+struct sg_table *drm_prime_pages_to_sg(struct drm_device *dev,
+				       struct page **pages, unsigned int nr_pages);
+struct dma_buf *drm_gem_prime_export(struct drm_gem_object *obj,
+				     int flags);
+
+unsigned long drm_prime_get_contiguous_size(struct sg_table *sgt);
+
+/* helper functions for importing */
+struct drm_gem_object *drm_gem_prime_import_dev(struct drm_device *dev,
+						struct dma_buf *dma_buf,
+						struct device *attach_dev);
+struct drm_gem_object *drm_gem_prime_import(struct drm_device *dev,
+					    struct dma_buf *dma_buf);
+
+void drm_prime_gem_destroy(struct drm_gem_object *obj, struct sg_table *sg);
+
+int drm_prime_sg_to_page_array(struct sg_table *sgt, struct page **pages,
+			       int max_pages);
+int drm_prime_sg_to_dma_addr_array(struct sg_table *sgt, dma_addr_t *addrs,
+				   int max_pages);
+>>>>>>> upstream/android-13
 
 #endif /* __DRM_PRIME_H__ */

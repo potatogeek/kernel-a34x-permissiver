@@ -2,12 +2,16 @@
 #ifndef __BARRIER_H
 #define __BARRIER_H
 
+<<<<<<< HEAD
 #include <asm/compiler.h>
 
+=======
+>>>>>>> upstream/android-13
 #define mb()	__asm__ __volatile__("mb": : :"memory")
 #define rmb()	__asm__ __volatile__("mb": : :"memory")
 #define wmb()	__asm__ __volatile__("wmb": : :"memory")
 
+<<<<<<< HEAD
 /**
  * read_barrier_depends - Flush all pending reads that subsequents reads
  * depend on.
@@ -60,6 +64,13 @@
  * in cases like this where there are no data dependencies.
  */
 #define read_barrier_depends() __asm__ __volatile__("mb": : :"memory")
+=======
+#define __smp_load_acquire(p)						\
+({									\
+	compiletime_assert_atomic_type(*p);				\
+	__READ_ONCE(*p);						\
+})
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 #define __ASM_SMP_MB	"\tmb\n"

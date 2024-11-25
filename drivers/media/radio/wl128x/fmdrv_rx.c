@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  FM Driver for Connectivity chip of Texas Instruments.
  *  This sub-module of FM driver implements FM RX functionality.
@@ -5,6 +9,7 @@
  *  Copyright (C) 2011 Texas Instruments
  *  Author: Raja Mani <raja_mani@ti.com>
  *  Author: Manjunatha Halli <manjunatha_halli@ti.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -15,6 +20,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "fmdrv.h"

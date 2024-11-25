@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * arch/xtensa/platform/xtavnet/setup.c
@@ -8,16 +12,23 @@
  *		Joe Taylor <joe@tensilica.com>
  *
  * Copyright 2001 - 2006 Tensilica Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/stddef.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/errno.h>
 #include <linux/reboot.h>
 #include <linux/kdev_t.h>
@@ -28,6 +39,10 @@
 #include <linux/of.h>
 #include <linux/clk-provider.h>
 #include <linux/of_address.h>
+<<<<<<< HEAD
+=======
+#include <linux/slab.h>
+>>>>>>> upstream/android-13
 
 #include <asm/timex.h>
 #include <asm/processor.h>
@@ -54,12 +69,22 @@ void platform_power_off(void)
 
 void platform_restart(void)
 {
+<<<<<<< HEAD
 	/* Flush and reset the mmu, simulate a processor reset, and
 	 * jump to the reset vector. */
+=======
+	/* Try software reset first. */
+	WRITE_ONCE(*(u32 *)XTFPGA_SWRST_VADDR, 0xdead);
+
+	/* If software reset did not work, flush and reset the mmu,
+	 * simulate a processor reset, and jump to the reset vector.
+	 */
+>>>>>>> upstream/android-13
 	cpu_reset();
 	/* control never gets here */
 }
 
+<<<<<<< HEAD
 void __init platform_setup(char **cmdline)
 {
 }
@@ -76,6 +101,8 @@ void platform_heartbeat(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_XTENSA_CALIBRATE_CCOUNT
 
 void __init platform_calibrate_ccount(void)
@@ -85,7 +112,11 @@ void __init platform_calibrate_ccount(void)
 
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+#ifdef CONFIG_USE_OF
+>>>>>>> upstream/android-13
 
 static void __init xtfpga_clk_setup(struct device_node *np)
 {
@@ -94,7 +125,11 @@ static void __init xtfpga_clk_setup(struct device_node *np)
 	u32 freq;
 
 	if (!base) {
+<<<<<<< HEAD
 		pr_err("%s: invalid address\n", np->name);
+=======
+		pr_err("%pOFn: invalid address\n", np);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -103,12 +138,20 @@ static void __init xtfpga_clk_setup(struct device_node *np)
 	clk = clk_register_fixed_rate(NULL, np->name, NULL, 0, freq);
 
 	if (IS_ERR(clk)) {
+<<<<<<< HEAD
 		pr_err("%s: clk registration failed\n", np->name);
+=======
+		pr_err("%pOFn: clk registration failed\n", np);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (of_clk_add_provider(np, of_clk_src_simple_get, clk)) {
+<<<<<<< HEAD
 		pr_err("%s: clk provider registration failed\n", np->name);
+=======
+		pr_err("%pOFn: clk provider registration failed\n", np);
+>>>>>>> upstream/android-13
 		return;
 	}
 }
@@ -303,4 +346,8 @@ static int __init xtavnet_init(void)
  */
 arch_initcall(xtavnet_init);
 
+<<<<<<< HEAD
 #endif /* CONFIG_OF */
+=======
+#endif /* CONFIG_USE_OF */
+>>>>>>> upstream/android-13

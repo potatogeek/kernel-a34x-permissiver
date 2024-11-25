@@ -31,9 +31,20 @@
 #include <linux/usb.h>
 #include <linux/usb/quirks.h>
 #include <linux/usb/hcd.h>
+<<<<<<< HEAD
 
 #include "usb.h"
 
+=======
+#include <linux/phy/phy-usb.h>
+
+#include "usb.h"
+#include "../host/xhci-exynos-audio.h"
+
+extern struct xhci_exynos_audio *g_xhci_exynos_audio;
+#define PHY_MODE_SUSPEND_BYPASS		0x35
+#define PHY_MODE_RESUME_BYPASS		0x36
+>>>>>>> upstream/android-13
 
 /*
  * Adds a new dynamic USBdevice ID to this driver,
@@ -261,9 +272,47 @@ static int usb_probe_device(struct device *dev)
 	 */
 	if (!udriver->supports_autosuspend)
 		error = usb_autoresume_device(udev);
+<<<<<<< HEAD
 
 	if (!error)
 		error = udriver->probe(udev);
+=======
+	if (error)
+		return error;
+
+	if (udriver->generic_subclass)
+		error = usb_generic_driver_probe(udev);
+	if (error)
+		return error;
+
+	/* Probe the USB device with the driver in hand, but only
+	 * defer to a generic driver in case the current USB
+	 * device driver has an id_table or a match function; i.e.,
+	 * when the device driver was explicitly matched against
+	 * a device.
+	 *
+	 * If the device driver does not have either of these,
+	 * then we assume that it can bind to any device and is
+	 * not truly a more specialized/non-generic driver, so a
+	 * return value of -ENODEV should not force the device
+	 * to be handled by the generic USB driver, as there
+	 * can still be another, more specialized, device driver.
+	 *
+	 * This accommodates the usbip driver.
+	 *
+	 * TODO: What if, in the future, there are multiple
+	 * specialized USB device drivers for a particular device?
+	 * In such cases, there is a need to try all matching
+	 * specialised device drivers prior to setting the
+	 * use_generic_driver bit.
+	 */
+	error = udriver->probe(udev);
+	if (error == -ENODEV && udriver != &usb_generic_driver &&
+	    (udriver->id_table || udriver->match)) {
+		udev->use_generic_driver = 1;
+		return -EPROBE_DEFER;
+	}
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -273,7 +322,14 @@ static int usb_unbind_device(struct device *dev)
 	struct usb_device *udev = to_usb_device(dev);
 	struct usb_device_driver *udriver = to_usb_device_driver(dev->driver);
 
+<<<<<<< HEAD
 	udriver->disconnect(udev);
+=======
+	if (udriver->disconnect)
+		udriver->disconnect(udev);
+	if (udriver->generic_subclass)
+		usb_generic_driver_disconnect(udev);
+>>>>>>> upstream/android-13
 	if (!udriver->supports_autosuspend)
 		usb_autosuspend_device(udev);
 	return 0;
@@ -484,17 +540,24 @@ static int usb_unbind_interface(struct device *dev)
  * @driver: the driver to be bound
  * @iface: the interface to which it will be bound; must be in the
  *	usb device's active configuration
+<<<<<<< HEAD
  * @priv: driver data associated with that interface
+=======
+ * @data: driver data associated with that interface
+>>>>>>> upstream/android-13
  *
  * This is used by usb device drivers that need to claim more than one
  * interface on a device when probing (audio and acm are current examples).
  * No device driver should directly modify internal usb_interface or
  * usb_device structure members.
  *
+<<<<<<< HEAD
  * Few drivers should need to use this routine, since the most natural
  * way to bind to an interface is to return the private data from
  * the driver's probe() method.
  *
+=======
+>>>>>>> upstream/android-13
  * Callers must own the device lock, so driver probe() entries don't need
  * extra locking, but other call contexts may need to explicitly claim that
  * lock.
@@ -502,10 +565,16 @@ static int usb_unbind_interface(struct device *dev)
  * Return: 0 on success.
  */
 int usb_driver_claim_interface(struct usb_driver *driver,
+<<<<<<< HEAD
 				struct usb_interface *iface, void *priv)
 {
 	struct device *dev;
 	struct usb_device *udev;
+=======
+				struct usb_interface *iface, void *data)
+{
+	struct device *dev;
+>>>>>>> upstream/android-13
 	int retval = 0;
 
 	if (!iface)
@@ -519,10 +588,15 @@ int usb_driver_claim_interface(struct usb_driver *driver,
 	if (!iface->authorized)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	udev = interface_to_usbdev(iface);
 
 	dev->driver = &driver->drvwrap.driver;
 	usb_set_intfdata(iface, priv);
+=======
+	dev->driver = &driver->drvwrap.driver;
+	usb_set_intfdata(iface, data);
+>>>>>>> upstream/android-13
 	iface->needs_binding = 0;
 
 	iface->condition = USB_INTERFACE_BOUND;
@@ -793,17 +867,69 @@ const struct usb_device_id *usb_match_id(struct usb_interface *interface,
 }
 EXPORT_SYMBOL_GPL(usb_match_id);
 
+<<<<<<< HEAD
+=======
+const struct usb_device_id *usb_device_match_id(struct usb_device *udev,
+				const struct usb_device_id *id)
+{
+	if (!id)
+		return NULL;
+
+	for (; id->idVendor || id->idProduct ; id++) {
+		if (usb_match_device(udev, id))
+			return id;
+	}
+
+	return NULL;
+}
+
+bool usb_driver_applicable(struct usb_device *udev,
+			   struct usb_device_driver *udrv)
+{
+	if (udrv->id_table && udrv->match)
+		return usb_device_match_id(udev, udrv->id_table) != NULL &&
+		       udrv->match(udev);
+
+	if (udrv->id_table)
+		return usb_device_match_id(udev, udrv->id_table) != NULL;
+
+	if (udrv->match)
+		return udrv->match(udev);
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static int usb_device_match(struct device *dev, struct device_driver *drv)
 {
 	/* devices and interfaces are handled separately */
 	if (is_usb_device(dev)) {
+<<<<<<< HEAD
+=======
+		struct usb_device *udev;
+		struct usb_device_driver *udrv;
+>>>>>>> upstream/android-13
 
 		/* interface drivers never match devices */
 		if (!is_usb_device_driver(drv))
 			return 0;
 
+<<<<<<< HEAD
 		/* TODO: Add real matching code */
 		return 1;
+=======
+		udev = to_usb_device(dev);
+		udrv = to_usb_device_driver(drv);
+
+		/* If the device driver under consideration does not have a
+		 * id_table or a match function, then let the driver's probe
+		 * function decide.
+		 */
+		if (!udrv->id_table && !udrv->match)
+			return 1;
+
+		return usb_driver_applicable(udev, udrv);
+>>>>>>> upstream/android-13
 
 	} else if (is_usb_interface(dev)) {
 		struct usb_interface *intf;
@@ -875,6 +1001,29 @@ static int usb_uevent(struct device *dev, struct kobj_uevent_env *env)
 			   usb_dev->descriptor.bDeviceSubClass,
 			   usb_dev->descriptor.bDeviceProtocol);
 #endif
+<<<<<<< HEAD
+=======
+	return 0;
+}
+
+static int __usb_bus_reprobe_drivers(struct device *dev, void *data)
+{
+	struct usb_device_driver *new_udriver = data;
+	struct usb_device *udev;
+	int ret;
+
+	/* Don't reprobe if current driver isn't usb_generic_driver */
+	if (dev->driver != &usb_generic_driver.drvwrap.driver)
+		return 0;
+
+	udev = to_usb_device(dev);
+	if (!usb_driver_applicable(udev, new_udriver))
+		return 0;
+
+	ret = device_reprobe(dev);
+	if (ret && ret != -EPROBE_DEFER)
+		dev_err(dev, "Failed to reprobe device (error %d)\n", ret);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -904,6 +1053,7 @@ int usb_register_device_driver(struct usb_device_driver *new_udriver,
 	new_udriver->drvwrap.driver.probe = usb_probe_device;
 	new_udriver->drvwrap.driver.remove = usb_unbind_device;
 	new_udriver->drvwrap.driver.owner = owner;
+<<<<<<< HEAD
 
 	retval = driver_register(&new_udriver->drvwrap.driver);
 
@@ -914,6 +1064,25 @@ int usb_register_device_driver(struct usb_device_driver *new_udriver,
 		printk(KERN_ERR "%s: error %d registering device "
 			"	driver %s\n",
 			usbcore_name, retval, new_udriver->name);
+=======
+	new_udriver->drvwrap.driver.dev_groups = new_udriver->dev_groups;
+
+	retval = driver_register(&new_udriver->drvwrap.driver);
+
+	if (!retval) {
+		pr_info("%s: registered new device driver %s\n",
+			usbcore_name, new_udriver->name);
+		/*
+		 * Check whether any device could be better served with
+		 * this new driver
+		 */
+		bus_for_each_dev(&usb_bus_type, NULL, new_udriver,
+				 __usb_bus_reprobe_drivers);
+	} else {
+		pr_err("%s: error %d registering device driver %s\n",
+			usbcore_name, retval, new_udriver->name);
+	}
+>>>>>>> upstream/android-13
 
 	return retval;
 }
@@ -966,6 +1135,10 @@ int usb_register_driver(struct usb_driver *new_driver, struct module *owner,
 	new_driver->drvwrap.driver.remove = usb_unbind_interface;
 	new_driver->drvwrap.driver.owner = owner;
 	new_driver->drvwrap.driver.mod_name = mod_name;
+<<<<<<< HEAD
+=======
+	new_driver->drvwrap.driver.dev_groups = new_driver->dev_groups;
+>>>>>>> upstream/android-13
 	spin_lock_init(&new_driver->dynids.lock);
 	INIT_LIST_HEAD(&new_driver->dynids.list);
 
@@ -986,9 +1159,14 @@ out:
 out_newid:
 	driver_unregister(&new_driver->drvwrap.driver);
 
+<<<<<<< HEAD
 	printk(KERN_ERR "%s: error %d registering interface "
 			"	driver %s\n",
 			usbcore_name, retval, new_driver->name);
+=======
+	pr_err("%s: error %d registering interface driver %s\n",
+		usbcore_name, retval, new_driver->name);
+>>>>>>> upstream/android-13
 	goto out;
 }
 EXPORT_SYMBOL_GPL(usb_register_driver);
@@ -1159,7 +1337,14 @@ static int usb_suspend_device(struct usb_device *udev, pm_message_t msg)
 		udev->do_remote_wakeup = 0;
 		udriver = &usb_generic_driver;
 	}
+<<<<<<< HEAD
 	status = udriver->suspend(udev, msg);
+=======
+	if (udriver->suspend)
+		status = udriver->suspend(udev, msg);
+	if (status == 0 && udriver->generic_subclass)
+		status = usb_generic_driver_suspend(udev, msg);
+>>>>>>> upstream/android-13
 
  done:
 	dev_vdbg(&udev->dev, "%s: status %d\n", __func__, status);
@@ -1191,7 +1376,14 @@ static int usb_resume_device(struct usb_device *udev, pm_message_t msg)
 		udev->reset_resume = 1;
 
 	udriver = to_usb_device_driver(udev->dev.driver);
+<<<<<<< HEAD
 	status = udriver->resume(udev, msg);
+=======
+	if (udriver->generic_subclass)
+		status = usb_generic_driver_resume(udev, msg);
+	if (status == 0 && udriver->resume)
+		status = udriver->resume(udev, msg);
+>>>>>>> upstream/android-13
 
  done:
 	dev_vdbg(&udev->dev, "%s: status %d\n", __func__, status);
@@ -1305,11 +1497,44 @@ static int usb_suspend_both(struct usb_device *udev, pm_message_t msg)
 	int			status = 0;
 	int			i = 0, n = 0;
 	struct usb_interface	*intf;
+<<<<<<< HEAD
+=======
+	struct usb_device	*hdev;
+	int			bypass;
+
+	if (!udev || !udev->bus || !udev->bus->root_hub) {
+		pr_info("%s: bypass udev 0\n", __func__);
+		goto main;
+	}
+>>>>>>> upstream/android-13
 
 	if (udev->state == USB_STATE_NOTATTACHED ||
 			udev->state == USB_STATE_SUSPENDED)
 		goto done;
 
+<<<<<<< HEAD
+=======
+	hdev = udev->bus->root_hub;
+
+	if (!g_xhci_exynos_audio->hcd) {
+		pr_info("%s: hcd 0\n", __func__);
+		goto main;
+	}
+
+	/* check main hcd */
+	if (g_xhci_exynos_audio->hcd->self.root_hub != hdev)
+		goto main;
+
+	bypass = phy_set_mode_ext(g_xhci_exynos_audio->phy,
+			 PHY_MODE_SUSPEND_BYPASS, 0);
+
+	pr_info("%s: bypass = %d\n", __func__, bypass);
+
+	if (bypass)
+		goto done;
+
+main:
+>>>>>>> upstream/android-13
 	/* Suspend all the interfaces and then udev itself */
 	if (udev->actconfig) {
 		n = udev->actconfig->desc.bNumInterfaces;
@@ -1406,18 +1631,53 @@ static int usb_resume_both(struct usb_device *udev, pm_message_t msg)
 	int			status = 0;
 	int			i;
 	struct usb_interface	*intf;
+<<<<<<< HEAD
 
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 	if (!udev || udev->state == USB_STATE_NOTATTACHED) {
 #else
 	if (udev->state == USB_STATE_NOTATTACHED) {
 #endif
+=======
+	struct usb_device	*hdev;
+	int			bypass;
+
+	if (!udev || !udev->bus || !udev->bus->root_hub) {
+		pr_info("%s: bypass udev 0\n", __func__);
+		goto main;
+	}
+
+	if (udev->state == USB_STATE_NOTATTACHED) {
+>>>>>>> upstream/android-13
 		status = -ENODEV;
 #if defined(CONFIG_USB_DEBUG_DETAILED_LOG)
 		pr_err("%s: status %d\n", __func__, status);
 #endif
 		goto done;
 	}
+<<<<<<< HEAD
+=======
+
+	hdev = udev->bus->root_hub;
+
+	if (!g_xhci_exynos_audio->hcd) {
+		pr_info("%s: hcd 0\n", __func__);
+		goto main;
+	}
+
+	if (g_xhci_exynos_audio->hcd->self.root_hub != hdev)
+		goto main;
+
+	bypass = phy_set_mode_ext(g_xhci_exynos_audio->phy,
+			 PHY_MODE_RESUME_BYPASS, 0);
+
+	pr_info("%s: bypass = %d\n", __func__, bypass);
+
+	if (bypass)
+		goto done;
+
+main:
+>>>>>>> upstream/android-13
 	udev->can_submit = 1;
 
 	/* Resume the device */
@@ -1432,10 +1692,22 @@ static int usb_resume_both(struct usb_device *udev, pm_message_t msg)
 					udev->reset_resume);
 		}
 	}
+<<<<<<< HEAD
 	usb_mark_last_busy(udev);
 
  done:
 	dev_vdbg(&udev->dev, "%s: status %d\n", __func__, status);
+=======
+#if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
+	if (!udev)
+		goto done;
+#endif
+	usb_mark_last_busy(udev);
+#if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
+	dev_vdbg(&udev->dev, "%s: status %d\n", __func__, status);
+#endif
+done:
+>>>>>>> upstream/android-13
 	if (!status)
 		udev->reset_resume = 0;
 	return status;
@@ -1474,9 +1746,12 @@ int usb_suspend(struct device *dev, pm_message_t msg)
 	struct usb_device	*udev = to_usb_device(dev);
 	int r;
 
+<<<<<<< HEAD
 	if (udev->bus->skip_resume && udev->state == USB_STATE_SUSPENDED)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	unbind_no_pm_drivers_interfaces(udev);
 
 	/* From now on we are sure all drivers support suspend/resume
@@ -1513,6 +1788,7 @@ int usb_resume(struct device *dev, pm_message_t msg)
 	struct usb_device	*udev = to_usb_device(dev);
 	int			status;
 
+<<<<<<< HEAD
 	/*
 	 * Some buses would like to keep their devices in suspend
 	 * state after system resume.  Their resume happen when
@@ -1522,6 +1798,8 @@ int usb_resume(struct device *dev, pm_message_t msg)
 	if (udev->bus->skip_resume)
 		return 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* For all calls, take the device back to full power and
 	 * tell the PM core in case it was autosuspended previously.
 	 * Unbind the interfaces that will need rebinding later,

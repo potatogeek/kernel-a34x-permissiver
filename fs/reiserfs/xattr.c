@@ -66,14 +66,22 @@
 static int xattr_create(struct inode *dir, struct dentry *dentry, int mode)
 {
 	BUG_ON(!inode_is_locked(dir));
+<<<<<<< HEAD
 	return dir->i_op->create(dir, dentry, mode, true);
+=======
+	return dir->i_op->create(&init_user_ns, dir, dentry, mode, true);
+>>>>>>> upstream/android-13
 }
 #endif
 
 static int xattr_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
 	BUG_ON(!inode_is_locked(dir));
+<<<<<<< HEAD
 	return dir->i_op->mkdir(dir, dentry, mode);
+=======
+	return dir->i_op->mkdir(&init_user_ns, dir, dentry, mode);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -352,7 +360,11 @@ static int chown_one_xattr(struct dentry *dentry, void *data)
 	 * ATTR_MODE is set.
 	 */
 	attrs->ia_valid &= (ATTR_UID|ATTR_GID);
+<<<<<<< HEAD
 	err = reiserfs_setattr(dentry, attrs);
+=======
+	err = reiserfs_setattr(&init_user_ns, dentry, attrs);
+>>>>>>> upstream/android-13
 	attrs->ia_valid = ia_valid;
 
 	return err;
@@ -454,6 +466,18 @@ fail:
 
 static inline __u32 xattr_hash(const char *msg, int len)
 {
+<<<<<<< HEAD
+=======
+	/*
+	 * csum_partial() gives different results for little-endian and
+	 * big endian hosts. Images created on little-endian hosts and
+	 * mounted on big-endian hosts(and vice versa) will see csum mismatches
+	 * when trying to fetch xattrs. Treating the hash as __wsum_t would
+	 * lower the frequency of mismatch.  This is an endianness bug in
+	 * reiserfs.  The return statement would result in a sparse warning. Do
+	 * not fix the sparse warning so as to not hide a reminder of the bug.
+	 */
+>>>>>>> upstream/android-13
 	return csum_partial(msg, len, 0);
 }
 
@@ -595,7 +619,11 @@ reiserfs_xattr_set_handle(struct reiserfs_transaction_handle *th,
 		inode_lock_nested(d_inode(dentry), I_MUTEX_XATTR);
 		inode_dio_wait(d_inode(dentry));
 
+<<<<<<< HEAD
 		err = reiserfs_setattr(dentry, &newattrs);
+=======
+		err = reiserfs_setattr(&init_user_ns, dentry, &newattrs);
+>>>>>>> upstream/android-13
 		inode_unlock(d_inode(dentry));
 	} else
 		update_ctime(inode);
@@ -939,7 +967,12 @@ static int xattr_mount_check(struct super_block *s)
 	return 0;
 }
 
+<<<<<<< HEAD
 int reiserfs_permission(struct inode *inode, int mask)
+=======
+int reiserfs_permission(struct user_namespace *mnt_userns, struct inode *inode,
+			int mask)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * We don't do permission checks on the internal objects.
@@ -948,7 +981,11 @@ int reiserfs_permission(struct inode *inode, int mask)
 	if (IS_PRIVATE(inode))
 		return 0;
 
+<<<<<<< HEAD
 	return generic_permission(inode, mask);
+=======
+	return generic_permission(&init_user_ns, inode, mask);
+>>>>>>> upstream/android-13
 }
 
 static int xattr_hide_revalidate(struct dentry *dentry, unsigned int flags)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2009-2011, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* Copyright (c) 2009-2011, Code Aurora Forum. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -84,6 +89,7 @@
 
 /**
  * struct pmic8xxx_kp - internal keypad data structure
+<<<<<<< HEAD
  * @num_cols - number of columns of keypad
  * @num_rows - number of row of keypad
  * @input - input device pointer for keypad
@@ -95,6 +101,19 @@
  * @keystate - present key press/release state
  * @stuckstate - present state when key stuck irq
  * @ctrl_reg - control register value
+=======
+ * @num_cols: number of columns of keypad
+ * @num_rows: number of row of keypad
+ * @input: input device pointer for keypad
+ * @regmap: regmap handle
+ * @key_sense_irq: key press/release irq number
+ * @key_stuck_irq: key stuck notification irq number
+ * @keycodes: array to hold the key codes
+ * @dev: parent device pointer
+ * @keystate: present key press/release state
+ * @stuckstate: present state when key stuck irq
+ * @ctrl_reg: control register value
+>>>>>>> upstream/android-13
  */
 struct pmic8xxx_kp {
 	unsigned int num_rows;
@@ -552,6 +571,7 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
 	}
 
 	kp->key_sense_irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (kp->key_sense_irq < 0) {
 		dev_err(&pdev->dev, "unable to get keypad sense irq\n");
 		return kp->key_sense_irq;
@@ -562,6 +582,14 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "unable to get keypad stuck irq\n");
 		return kp->key_stuck_irq;
 	}
+=======
+	if (kp->key_sense_irq < 0)
+		return kp->key_sense_irq;
+
+	kp->key_stuck_irq = platform_get_irq(pdev, 1);
+	if (kp->key_stuck_irq < 0)
+		return kp->key_stuck_irq;
+>>>>>>> upstream/android-13
 
 	kp->input->name = "PMIC8XXX keypad";
 	kp->input->phys = "pmic8xxx_keypad/input0";
@@ -645,7 +673,11 @@ static int pmic8xxx_kp_suspend(struct device *dev)
 	} else {
 		mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 		if (input_dev->users)
+=======
+		if (input_device_enabled(input_dev))
+>>>>>>> upstream/android-13
 			pmic8xxx_kp_disable(kp);
 
 		mutex_unlock(&input_dev->mutex);
@@ -665,7 +697,11 @@ static int pmic8xxx_kp_resume(struct device *dev)
 	} else {
 		mutex_lock(&input_dev->mutex);
 
+<<<<<<< HEAD
 		if (input_dev->users)
+=======
+		if (input_device_enabled(input_dev))
+>>>>>>> upstream/android-13
 			pmic8xxx_kp_enable(kp);
 
 		mutex_unlock(&input_dev->mutex);

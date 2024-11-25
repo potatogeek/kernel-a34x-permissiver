@@ -34,10 +34,18 @@
 static int debug;
 module_param(debug, int, 0644);
 
+<<<<<<< HEAD
 #define dprintk(level, fmt, arg...)				\
 	do {							\
 		if (debug >= level)				\
 			pr_info("%s: " fmt, __func__, ## arg);	\
+=======
+#define dprintk(q, level, fmt, arg...)					\
+	do {								\
+		if (debug >= level)					\
+			pr_info("[%s] %s: " fmt, (q)->name, __func__,	\
+				## arg);				\
+>>>>>>> upstream/android-13
 	} while (0)
 
 #ifdef CONFIG_VIDEO_ADV_DEBUG
@@ -51,8 +59,13 @@ module_param(debug, int, 0644);
  */
 
 #define log_memop(vb, op)						\
+<<<<<<< HEAD
 	dprintk(2, "call_memop(%p, %d, %s)%s\n",			\
 		(vb)->vb2_queue, (vb)->index, #op,			\
+=======
+	dprintk((vb)->vb2_queue, 2, "call_memop(%d, %s)%s\n",		\
+		(vb)->index, #op,					\
+>>>>>>> upstream/android-13
 		(vb)->vb2_queue->mem_ops->op ? "" : " (nop)")
 
 #define call_memop(vb, op, args...)					\
@@ -67,13 +80,21 @@ module_param(debug, int, 0644);
 	err;								\
 })
 
+<<<<<<< HEAD
 #define call_ptr_memop(vb, op, args...)					\
+=======
+#define call_ptr_memop(op, vb, args...)					\
+>>>>>>> upstream/android-13
 ({									\
 	struct vb2_queue *_q = (vb)->vb2_queue;				\
 	void *ptr;							\
 									\
 	log_memop(vb, op);						\
+<<<<<<< HEAD
 	ptr = _q->mem_ops->op ? _q->mem_ops->op(args) : NULL;		\
+=======
+	ptr = _q->mem_ops->op ? _q->mem_ops->op(vb, args) : NULL;	\
+>>>>>>> upstream/android-13
 	if (!IS_ERR_OR_NULL(ptr))					\
 		(vb)->cnt_mem_ ## op++;					\
 	ptr;								\
@@ -90,7 +111,11 @@ module_param(debug, int, 0644);
 })
 
 #define log_qop(q, op)							\
+<<<<<<< HEAD
 	dprintk(2, "call_qop(%p, %s)%s\n", q, #op,			\
+=======
+	dprintk(q, 2, "call_qop(%s)%s\n", #op,				\
+>>>>>>> upstream/android-13
 		(q)->ops->op ? "" : " (nop)")
 
 #define call_qop(q, op, args...)					\
@@ -113,8 +138,13 @@ module_param(debug, int, 0644);
 })
 
 #define log_vb_qop(vb, op, args...)					\
+<<<<<<< HEAD
 	dprintk(2, "call_vb_qop(%p, %d, %s)%s\n",			\
 		(vb)->vb2_queue, (vb)->index, #op,			\
+=======
+	dprintk((vb)->vb2_queue, 2, "call_vb_qop(%d, %s)%s\n",		\
+		(vb)->index, #op,					\
+>>>>>>> upstream/android-13
 		(vb)->vb2_queue->ops->op ? "" : " (nop)")
 
 #define call_vb_qop(vb, op, args...)					\
@@ -143,9 +173,15 @@ module_param(debug, int, 0644);
 	((vb)->vb2_queue->mem_ops->op ?					\
 		(vb)->vb2_queue->mem_ops->op(args) : 0)
 
+<<<<<<< HEAD
 #define call_ptr_memop(vb, op, args...)					\
 	((vb)->vb2_queue->mem_ops->op ?					\
 		(vb)->vb2_queue->mem_ops->op(args) : NULL)
+=======
+#define call_ptr_memop(op, vb, args...)					\
+	((vb)->vb2_queue->mem_ops->op ?					\
+		(vb)->vb2_queue->mem_ops->op(vb, args) : NULL)
+>>>>>>> upstream/android-13
 
 #define call_void_memop(vb, op, args...)				\
 	do {								\
@@ -190,6 +226,26 @@ module_param(debug, int, 0644);
 static void __vb2_queue_cancel(struct vb2_queue *q);
 static void __enqueue_in_driver(struct vb2_buffer *vb);
 
+<<<<<<< HEAD
+=======
+static const char *vb2_state_name(enum vb2_buffer_state s)
+{
+	static const char * const state_names[] = {
+		[VB2_BUF_STATE_DEQUEUED] = "dequeued",
+		[VB2_BUF_STATE_IN_REQUEST] = "in request",
+		[VB2_BUF_STATE_PREPARING] = "preparing",
+		[VB2_BUF_STATE_QUEUED] = "queued",
+		[VB2_BUF_STATE_ACTIVE] = "active",
+		[VB2_BUF_STATE_DONE] = "done",
+		[VB2_BUF_STATE_ERROR] = "error",
+	};
+
+	if ((unsigned int)(s) < ARRAY_SIZE(state_names))
+		return state_names[s];
+	return "unknown";
+}
+
+>>>>>>> upstream/android-13
 /*
  * __vb2_buf_mem_alloc() - allocate video memory for the given buffer
  */
@@ -205,15 +261,26 @@ static int __vb2_buf_mem_alloc(struct vb2_buffer *vb)
 	 * NOTE: mmapped areas should be page aligned
 	 */
 	for (plane = 0; plane < vb->num_planes; ++plane) {
+<<<<<<< HEAD
+=======
+		/* Memops alloc requires size to be page aligned. */
+>>>>>>> upstream/android-13
 		unsigned long size = PAGE_ALIGN(vb->planes[plane].length);
 
 		/* Did it wrap around? */
 		if (size < vb->planes[plane].length)
 			goto free;
 
+<<<<<<< HEAD
 		mem_priv = call_ptr_memop(vb, alloc,
 				q->alloc_devs[plane] ? : q->dev,
 				q->dma_attrs, size, q->dma_dir, q->gfp_flags);
+=======
+		mem_priv = call_ptr_memop(alloc,
+					  vb,
+					  q->alloc_devs[plane] ? : q->dev,
+					  size);
+>>>>>>> upstream/android-13
 		if (IS_ERR_OR_NULL(mem_priv)) {
 			if (mem_priv)
 				ret = PTR_ERR(mem_priv);
@@ -245,7 +312,12 @@ static void __vb2_buf_mem_free(struct vb2_buffer *vb)
 	for (plane = 0; plane < vb->num_planes; ++plane) {
 		call_void_memop(vb, put, vb->planes[plane].mem_priv);
 		vb->planes[plane].mem_priv = NULL;
+<<<<<<< HEAD
 		dprintk(3, "freed plane %d of buffer %d\n", plane, vb->index);
+=======
+		dprintk(vb->vb2_queue, 3, "freed plane %d of buffer %d\n",
+			plane, vb->index);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -296,6 +368,47 @@ static void __vb2_buf_dmabuf_put(struct vb2_buffer *vb)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * __vb2_buf_mem_prepare() - call ->prepare() on buffer's private memory
+ * to sync caches
+ */
+static void __vb2_buf_mem_prepare(struct vb2_buffer *vb)
+{
+	unsigned int plane;
+
+	if (vb->synced)
+		return;
+
+	if (vb->need_cache_sync_on_prepare) {
+		for (plane = 0; plane < vb->num_planes; ++plane)
+			call_void_memop(vb, prepare,
+					vb->planes[plane].mem_priv);
+	}
+	vb->synced = 1;
+}
+
+/*
+ * __vb2_buf_mem_finish() - call ->finish on buffer's private memory
+ * to sync caches
+ */
+static void __vb2_buf_mem_finish(struct vb2_buffer *vb)
+{
+	unsigned int plane;
+
+	if (!vb->synced)
+		return;
+
+	if (vb->need_cache_sync_on_finish) {
+		for (plane = 0; plane < vb->num_planes; ++plane)
+			call_void_memop(vb, finish,
+					vb->planes[plane].mem_priv);
+	}
+	vb->synced = 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * __setup_offsets() - setup unique offsets ("cookies") for every plane in
  * the buffer.
  */
@@ -315,7 +428,11 @@ static void __setup_offsets(struct vb2_buffer *vb)
 	for (plane = 0; plane < vb->num_planes; ++plane) {
 		vb->planes[plane].m.offset = off;
 
+<<<<<<< HEAD
 		dprintk(3, "buffer %d, plane %d offset 0x%08lx\n",
+=======
+		dprintk(q, 3, "buffer %d, plane %d offset 0x%08lx\n",
+>>>>>>> upstream/android-13
 				vb->index, plane, off);
 
 		off += vb->planes[plane].length;
@@ -346,7 +463,11 @@ static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 		/* Allocate videobuf buffer structures */
 		vb = kzalloc(q->buf_struct_size, GFP_KERNEL);
 		if (!vb) {
+<<<<<<< HEAD
 			dprintk(1, "memory alloc for buffer struct failed\n");
+=======
+			dprintk(q, 1, "memory alloc for buffer struct failed\n");
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -356,6 +477,20 @@ static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 		vb->index = q->num_buffers + buffer;
 		vb->type = q->type;
 		vb->memory = memory;
+<<<<<<< HEAD
+=======
+		/*
+		 * We need to set these flags here so that the videobuf2 core
+		 * will call ->prepare()/->finish() cache sync/flush on vb2
+		 * buffers when appropriate. However, we can avoid explicit
+		 * ->prepare() and ->finish() cache sync for DMABUF buffers,
+		 * because DMA exporter takes care of it.
+		 */
+		if (q->memory != VB2_MEMORY_DMABUF) {
+			vb->need_cache_sync_on_prepare = 1;
+			vb->need_cache_sync_on_finish = 1;
+		}
+>>>>>>> upstream/android-13
 		for (plane = 0; plane < num_planes; ++plane) {
 			vb->planes[plane].length = plane_sizes[plane];
 			vb->planes[plane].min_length = plane_sizes[plane];
@@ -368,7 +503,11 @@ static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 		if (memory == VB2_MEMORY_MMAP) {
 			ret = __vb2_buf_mem_alloc(vb);
 			if (ret) {
+<<<<<<< HEAD
 				dprintk(1, "failed allocating memory for buffer %d\n",
+=======
+				dprintk(q, 1, "failed allocating memory for buffer %d\n",
+>>>>>>> upstream/android-13
 					buffer);
 				q->bufs[vb->index] = NULL;
 				kfree(vb);
@@ -382,7 +521,11 @@ static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 			 */
 			ret = call_vb_qop(vb, buf_init, vb);
 			if (ret) {
+<<<<<<< HEAD
 				dprintk(1, "buffer %d %p initialization failed\n",
+=======
+				dprintk(q, 1, "buffer %d %p initialization failed\n",
+>>>>>>> upstream/android-13
 					buffer, vb);
 				__vb2_buf_mem_free(vb);
 				q->bufs[vb->index] = NULL;
@@ -392,8 +535,13 @@ static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 		}
 	}
 
+<<<<<<< HEAD
 	dprintk(1, "allocated %d buffers, %d plane(s) each\n",
 			buffer, num_planes);
+=======
+	dprintk(q, 3, "allocated %d buffers, %d plane(s) each\n",
+		buffer, num_planes);
+>>>>>>> upstream/android-13
 
 	return buffer;
 }
@@ -444,7 +592,11 @@ static int __vb2_queue_free(struct vb2_queue *q, unsigned int buffers)
 		if (q->bufs[buffer] == NULL)
 			continue;
 		if (q->bufs[buffer]->state == VB2_BUF_STATE_PREPARING) {
+<<<<<<< HEAD
 			dprintk(1, "preparing buffers, cannot free\n");
+=======
+			dprintk(q, 1, "preparing buffers, cannot free\n");
+>>>>>>> upstream/android-13
 			return -EAGAIN;
 		}
 	}
@@ -503,9 +655,15 @@ static int __vb2_queue_free(struct vb2_queue *q, unsigned int buffers)
 			pr_info("     buf_init: %u buf_cleanup: %u buf_prepare: %u buf_finish: %u\n",
 				vb->cnt_buf_init, vb->cnt_buf_cleanup,
 				vb->cnt_buf_prepare, vb->cnt_buf_finish);
+<<<<<<< HEAD
 			pr_info("     buf_queue: %u buf_done: %u buf_request_complete: %u\n",
 				vb->cnt_buf_queue, vb->cnt_buf_done,
 				vb->cnt_buf_request_complete);
+=======
+			pr_info("     buf_out_validate: %u buf_queue: %u buf_done: %u buf_request_complete: %u\n",
+				vb->cnt_buf_out_validate, vb->cnt_buf_queue,
+				vb->cnt_buf_done, vb->cnt_buf_request_complete);
+>>>>>>> upstream/android-13
 			pr_info("     alloc: %u put: %u prepare: %u finish: %u mmap: %u\n",
 				vb->cnt_mem_alloc, vb->cnt_mem_put,
 				vb->cnt_mem_prepare, vb->cnt_mem_finish,
@@ -557,6 +715,23 @@ bool vb2_buffer_in_use(struct vb2_queue *q, struct vb2_buffer *vb)
 }
 EXPORT_SYMBOL(vb2_buffer_in_use);
 
+<<<<<<< HEAD
+=======
+/*
+ * __buffers_in_use() - return true if any buffers on the queue are in use and
+ * the queue cannot be freed (by the means of REQBUFS(0)) call
+ */
+static bool __buffers_in_use(struct vb2_queue *q)
+{
+	unsigned int buffer;
+	for (buffer = 0; buffer < q->num_buffers; ++buffer) {
+		if (vb2_buffer_in_use(q, q->bufs[buffer]))
+			return true;
+	}
+	return false;
+}
+
+>>>>>>> upstream/android-13
 void vb2_core_querybuf(struct vb2_queue *q, unsigned int index, void *pb)
 {
 	call_void_bufop(q, fill_user_buffer, q->bufs[index], pb);
@@ -608,12 +783,20 @@ int vb2_verify_memory_type(struct vb2_queue *q,
 {
 	if (memory != VB2_MEMORY_MMAP && memory != VB2_MEMORY_USERPTR &&
 	    memory != VB2_MEMORY_DMABUF) {
+<<<<<<< HEAD
 		dprintk(1, "unsupported memory type\n");
+=======
+		dprintk(q, 1, "unsupported memory type\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (type != q->type) {
+<<<<<<< HEAD
 		dprintk(1, "requested type is incorrect\n");
+=======
+		dprintk(q, 1, "requested type is incorrect\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -622,17 +805,29 @@ int vb2_verify_memory_type(struct vb2_queue *q,
 	 * are available.
 	 */
 	if (memory == VB2_MEMORY_MMAP && __verify_mmap_ops(q)) {
+<<<<<<< HEAD
 		dprintk(1, "MMAP for current setup unsupported\n");
+=======
+		dprintk(q, 1, "MMAP for current setup unsupported\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (memory == VB2_MEMORY_USERPTR && __verify_userptr_ops(q)) {
+<<<<<<< HEAD
 		dprintk(1, "USERPTR for current setup unsupported\n");
+=======
+		dprintk(q, 1, "USERPTR for current setup unsupported\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (memory == VB2_MEMORY_DMABUF && __verify_dmabuf_ops(q)) {
+<<<<<<< HEAD
 		dprintk(1, "DMABUF for current setup unsupported\n");
+=======
+		dprintk(q, 1, "DMABUF for current setup unsupported\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -642,7 +837,11 @@ int vb2_verify_memory_type(struct vb2_queue *q,
 	 * do the memory and type validation.
 	 */
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "file io in progress\n");
+=======
+		dprintk(q, 1, "file io in progress\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 	return 0;
@@ -650,6 +849,7 @@ int vb2_verify_memory_type(struct vb2_queue *q,
 EXPORT_SYMBOL(vb2_verify_memory_type);
 
 int vb2_core_reqbufs(struct vb2_queue *q, enum vb2_memory memory,
+<<<<<<< HEAD
 		unsigned int *count)
 {
 	unsigned int num_buffers, allocated_buffers, num_planes = 0;
@@ -658,17 +858,44 @@ int vb2_core_reqbufs(struct vb2_queue *q, enum vb2_memory memory,
 
 	if (q->streaming) {
 		dprintk(1, "streaming active\n");
+=======
+		     unsigned int *count)
+{
+	unsigned int num_buffers, allocated_buffers, num_planes = 0;
+	unsigned plane_sizes[VB2_MAX_PLANES] = { };
+	unsigned int i;
+	int ret;
+
+	if (q->streaming) {
+		dprintk(q, 1, "streaming active\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
 	if (q->waiting_in_dqbuf && *count) {
+<<<<<<< HEAD
 		dprintk(1, "another dup()ped fd is waiting for a buffer\n");
+=======
+		dprintk(q, 1, "another dup()ped fd is waiting for a buffer\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
 	if (*count == 0 || q->num_buffers != 0 ||
 	    (q->memory != VB2_MEMORY_UNKNOWN && q->memory != memory)) {
+<<<<<<< HEAD
 		mutex_lock(&q->mmap_lock);
+=======
+		/*
+		 * We already have buffers allocated, so first check if they
+		 * are not in use and can be freed.
+		 */
+		mutex_lock(&q->mmap_lock);
+		if (debug && q->memory == VB2_MEMORY_MMAP &&
+		    __buffers_in_use(q))
+			dprintk(q, 1, "memory in use, orphaning buffers\n");
+
+>>>>>>> upstream/android-13
 		/*
 		 * Call queue_cancel to clean up any buffers in the
 		 * QUEUED state which is possible if buffers were prepared or
@@ -706,11 +933,26 @@ int vb2_core_reqbufs(struct vb2_queue *q, enum vb2_memory memory,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	/* Check that driver has set sane values */
+	if (WARN_ON(!num_planes))
+		return -EINVAL;
+
+	for (i = 0; i < num_planes; i++)
+		if (WARN_ON(!plane_sizes[i]))
+			return -EINVAL;
+
+>>>>>>> upstream/android-13
 	/* Finally, allocate buffers and video memory */
 	allocated_buffers =
 		__vb2_queue_alloc(q, memory, num_buffers, num_planes, plane_sizes);
 	if (allocated_buffers == 0) {
+<<<<<<< HEAD
 		dprintk(1, "memory allocation failed\n");
+=======
+		dprintk(q, 1, "memory allocation failed\n");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -772,29 +1014,51 @@ int vb2_core_reqbufs(struct vb2_queue *q, enum vb2_memory memory,
 EXPORT_SYMBOL_GPL(vb2_core_reqbufs);
 
 int vb2_core_create_bufs(struct vb2_queue *q, enum vb2_memory memory,
+<<<<<<< HEAD
 		unsigned int *count, unsigned requested_planes,
 		const unsigned requested_sizes[])
+=======
+			 unsigned int *count,
+			 unsigned int requested_planes,
+			 const unsigned int requested_sizes[])
+>>>>>>> upstream/android-13
 {
 	unsigned int num_planes = 0, num_buffers, allocated_buffers;
 	unsigned plane_sizes[VB2_MAX_PLANES] = { };
 	int ret;
 
 	if (q->num_buffers == VB2_MAX_FRAME) {
+<<<<<<< HEAD
 		dprintk(1, "maximum number of buffers already allocated\n");
+=======
+		dprintk(q, 1, "maximum number of buffers already allocated\n");
+>>>>>>> upstream/android-13
 		return -ENOBUFS;
 	}
 
 	if (!q->num_buffers) {
 		if (q->waiting_in_dqbuf && *count) {
+<<<<<<< HEAD
 			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
+=======
+			dprintk(q, 1, "another dup()ped fd is waiting for a buffer\n");
+>>>>>>> upstream/android-13
 			return -EBUSY;
 		}
 		memset(q->alloc_devs, 0, sizeof(q->alloc_devs));
 		q->memory = memory;
 		q->waiting_for_buffers = !q->is_output;
+<<<<<<< HEAD
 	} else if (q->memory != memory) {
 		dprintk(1, "memory model mismatch\n");
 		return -EINVAL;
+=======
+	} else {
+		if (q->memory != memory) {
+			dprintk(q, 1, "memory model mismatch\n");
+			return -EINVAL;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	num_buffers = min(*count, VB2_MAX_FRAME - q->num_buffers);
@@ -817,7 +1081,11 @@ int vb2_core_create_bufs(struct vb2_queue *q, enum vb2_memory memory,
 	allocated_buffers = __vb2_queue_alloc(q, memory, num_buffers,
 				num_planes, plane_sizes);
 	if (allocated_buffers == 0) {
+<<<<<<< HEAD
 		dprintk(1, "memory allocation failed\n");
+=======
+		dprintk(q, 1, "memory allocation failed\n");
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 	}
 
@@ -872,7 +1140,11 @@ void *vb2_plane_vaddr(struct vb2_buffer *vb, unsigned int plane_no)
 	if (plane_no >= vb->num_planes || !vb->planes[plane_no].mem_priv)
 		return NULL;
 
+<<<<<<< HEAD
 	return call_ptr_memop(vb, vaddr, vb->planes[plane_no].mem_priv);
+=======
+	return call_ptr_memop(vaddr, vb, vb->planes[plane_no].mem_priv);
+>>>>>>> upstream/android-13
 
 }
 EXPORT_SYMBOL_GPL(vb2_plane_vaddr);
@@ -882,7 +1154,11 @@ void *vb2_plane_cookie(struct vb2_buffer *vb, unsigned int plane_no)
 	if (plane_no >= vb->num_planes || !vb->planes[plane_no].mem_priv)
 		return NULL;
 
+<<<<<<< HEAD
 	return call_ptr_memop(vb, cookie, vb->planes[plane_no].mem_priv);
+=======
+	return call_ptr_memop(cookie, vb, vb->planes[plane_no].mem_priv);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(vb2_plane_cookie);
 
@@ -896,8 +1172,12 @@ void vb2_buffer_done(struct vb2_buffer *vb, enum vb2_buffer_state state)
 
 	if (WARN_ON(state != VB2_BUF_STATE_DONE &&
 		    state != VB2_BUF_STATE_ERROR &&
+<<<<<<< HEAD
 		    state != VB2_BUF_STATE_QUEUED &&
 		    state != VB2_BUF_STATE_REQUEUEING))
+=======
+		    state != VB2_BUF_STATE_QUEUED))
+>>>>>>> upstream/android-13
 		state = VB2_BUF_STATE_ERROR;
 
 #ifdef CONFIG_VIDEO_ADV_DEBUG
@@ -907,12 +1187,23 @@ void vb2_buffer_done(struct vb2_buffer *vb, enum vb2_buffer_state state)
 	 */
 	vb->cnt_buf_done++;
 #endif
+<<<<<<< HEAD
 	dprintk(4, "done processing on buffer %d, state: %d\n",
 			vb->index, state);
 
 	spin_lock_irqsave(&q->done_lock, flags);
 	if (state == VB2_BUF_STATE_QUEUED ||
 	    state == VB2_BUF_STATE_REQUEUEING) {
+=======
+	dprintk(q, 4, "done processing on buffer %d, state: %s\n",
+		vb->index, vb2_state_name(state));
+
+	if (state != VB2_BUF_STATE_QUEUED)
+		__vb2_buf_mem_finish(vb);
+
+	spin_lock_irqsave(&q->done_lock, flags);
+	if (state == VB2_BUF_STATE_QUEUED) {
+>>>>>>> upstream/android-13
 		vb->state = VB2_BUF_STATE_QUEUED;
 	} else {
 		/* Add the buffer to the done buffers list */
@@ -922,8 +1213,11 @@ void vb2_buffer_done(struct vb2_buffer *vb, enum vb2_buffer_state state)
 	atomic_dec(&q->owned_by_drv_count);
 
 	if (state != VB2_BUF_STATE_QUEUED && vb->req_obj.req) {
+<<<<<<< HEAD
 		/* This is not supported at the moment */
 		WARN_ON(state == VB2_BUF_STATE_REQUEUEING);
+=======
+>>>>>>> upstream/android-13
 		media_request_object_unbind(&vb->req_obj);
 		media_request_object_put(&vb->req_obj);
 	}
@@ -935,10 +1229,13 @@ void vb2_buffer_done(struct vb2_buffer *vb, enum vb2_buffer_state state)
 	switch (state) {
 	case VB2_BUF_STATE_QUEUED:
 		return;
+<<<<<<< HEAD
 	case VB2_BUF_STATE_REQUEUEING:
 		if (q->start_streaming_called)
 			__enqueue_in_driver(vb);
 		return;
+=======
+>>>>>>> upstream/android-13
 	default:
 		/* Inform any processes that may be waiting for buffers */
 		wake_up(&q->done_wq);
@@ -981,6 +1278,10 @@ static int __prepare_userptr(struct vb2_buffer *vb)
 	void *mem_priv;
 	unsigned int plane;
 	int ret = 0;
+<<<<<<< HEAD
+=======
+	bool reacquired = vb->planes[0].mem_priv == NULL;
+>>>>>>> upstream/android-13
 
 	memset(planes, 0, sizeof(planes[0]) * vb->num_planes);
 	/* Copy relevant information provided by the userspace */
@@ -990,11 +1291,26 @@ static int __prepare_userptr(struct vb2_buffer *vb)
 		return ret;
 
 	for (plane = 0; plane < vb->num_planes; ++plane) {
+<<<<<<< HEAD
 		WARN_ON(vb->planes[plane].mem_priv != NULL);
 
 		/* Check if the provided plane buffer is large enough */
 		if (planes[plane].length < vb->planes[plane].min_length) {
 			dprintk(1, "provided buffer size %u is less than setup size %u for plane %d\n",
+=======
+		/* Skip the plane if already verified */
+		if (vb->planes[plane].m.userptr &&
+			vb->planes[plane].m.userptr == planes[plane].m.userptr
+			&& vb->planes[plane].length == planes[plane].length)
+			continue;
+
+		dprintk(q, 3, "userspace address for plane %d changed, reacquiring memory\n",
+			plane);
+
+		/* Check if the provided plane buffer is large enough */
+		if (planes[plane].length < vb->planes[plane].min_length) {
+			dprintk(q, 1, "provided buffer size %u is less than setup size %u for plane %d\n",
+>>>>>>> upstream/android-13
 						planes[plane].length,
 						vb->planes[plane].min_length,
 						plane);
@@ -1002,6 +1318,7 @@ static int __prepare_userptr(struct vb2_buffer *vb)
 			goto err;
 		}
 
+<<<<<<< HEAD
 		/* Acquire each plane's memory */
 		mem_priv = call_ptr_memop(vb, get_userptr,
 				q->alloc_devs[plane] ? : q->dev,
@@ -1009,6 +1326,32 @@ static int __prepare_userptr(struct vb2_buffer *vb)
 				planes[plane].length, q->dma_dir, q->dma_attrs);
 		if (IS_ERR(mem_priv)) {
 			dprintk(1, "failed acquiring userspace memory for plane %d\n",
+=======
+		/* Release previously acquired memory if present */
+		if (vb->planes[plane].mem_priv) {
+			if (!reacquired) {
+				reacquired = true;
+				vb->copied_timestamp = 0;
+				call_void_vb_qop(vb, buf_cleanup, vb);
+			}
+			call_void_memop(vb, put_userptr, vb->planes[plane].mem_priv);
+		}
+
+		vb->planes[plane].mem_priv = NULL;
+		vb->planes[plane].bytesused = 0;
+		vb->planes[plane].length = 0;
+		vb->planes[plane].m.userptr = 0;
+		vb->planes[plane].data_offset = 0;
+
+		/* Acquire each plane's memory */
+		mem_priv = call_ptr_memop(get_userptr,
+					  vb,
+					  q->alloc_devs[plane] ? : q->dev,
+					  planes[plane].m.userptr,
+					  planes[plane].length);
+		if (IS_ERR(mem_priv)) {
+			dprintk(q, 1, "failed acquiring userspace memory for plane %d\n",
+>>>>>>> upstream/android-13
 				plane);
 			ret = PTR_ERR(mem_priv);
 			goto err;
@@ -1027,6 +1370,7 @@ static int __prepare_userptr(struct vb2_buffer *vb)
 		vb->planes[plane].data_offset = planes[plane].data_offset;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Call buf_init to do driver-specific initialization on the newly
 	 * acquired buffer, if provided.
@@ -1035,11 +1379,28 @@ static int __prepare_userptr(struct vb2_buffer *vb)
 	if (ret) {
 		dprintk(1, "buffer initialization failed\n");
 		goto err;
+=======
+	if (reacquired) {
+		/*
+		 * One or more planes changed, so we must call buf_init to do
+		 * the driver-specific initialization on the newly acquired
+		 * buffer, if provided.
+		 */
+		ret = call_vb_qop(vb, buf_init, vb);
+		if (ret) {
+			dprintk(q, 1, "buffer initialization failed\n");
+			goto err;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	ret = call_vb_qop(vb, buf_prepare, vb);
 	if (ret) {
+<<<<<<< HEAD
 		dprintk(1, "buffer preparation failed\n");
+=======
+		dprintk(q, 1, "buffer preparation failed\n");
+>>>>>>> upstream/android-13
 		call_void_vb_qop(vb, buf_cleanup, vb);
 		goto err;
 	}
@@ -1082,7 +1443,11 @@ static int __prepare_dmabuf(struct vb2_buffer *vb)
 		struct dma_buf *dbuf = dma_buf_get(planes[plane].m.fd);
 
 		if (IS_ERR_OR_NULL(dbuf)) {
+<<<<<<< HEAD
 			dprintk(1, "invalid dmabuf fd for plane %d\n",
+=======
+			dprintk(q, 1, "invalid dmabuf fd for plane %d\n",
+>>>>>>> upstream/android-13
 				plane);
 			ret = -EINVAL;
 			goto err;
@@ -1093,7 +1458,11 @@ static int __prepare_dmabuf(struct vb2_buffer *vb)
 			planes[plane].length = dbuf->size;
 
 		if (planes[plane].length < vb->planes[plane].min_length) {
+<<<<<<< HEAD
 			dprintk(1, "invalid dmabuf length %u for plane %d, minimum length %u\n",
+=======
+			dprintk(q, 1, "invalid dmabuf length %u for plane %d, minimum length %u\n",
+>>>>>>> upstream/android-13
 				planes[plane].length, plane,
 				vb->planes[plane].min_length);
 			dma_buf_put(dbuf);
@@ -1108,10 +1477,18 @@ static int __prepare_dmabuf(struct vb2_buffer *vb)
 			continue;
 		}
 
+<<<<<<< HEAD
 		dprintk(3, "buffer for plane %d changed\n", plane);
 
 		if (!reacquired) {
 			reacquired = true;
+=======
+		dprintk(q, 3, "buffer for plane %d changed\n", plane);
+
+		if (!reacquired) {
+			reacquired = true;
+			vb->copied_timestamp = 0;
+>>>>>>> upstream/android-13
 			call_void_vb_qop(vb, buf_cleanup, vb);
 		}
 
@@ -1123,11 +1500,21 @@ static int __prepare_dmabuf(struct vb2_buffer *vb)
 		vb->planes[plane].data_offset = 0;
 
 		/* Acquire each plane's memory */
+<<<<<<< HEAD
 		mem_priv = call_ptr_memop(vb, attach_dmabuf,
 				q->alloc_devs[plane] ? : q->dev,
 				dbuf, planes[plane].length, q->dma_dir);
 		if (IS_ERR(mem_priv)) {
 			dprintk(1, "failed to attach dmabuf\n");
+=======
+		mem_priv = call_ptr_memop(attach_dmabuf,
+					  vb,
+					  q->alloc_devs[plane] ? : q->dev,
+					  dbuf,
+					  planes[plane].length);
+		if (IS_ERR(mem_priv)) {
+			dprintk(q, 1, "failed to attach dmabuf\n");
+>>>>>>> upstream/android-13
 			ret = PTR_ERR(mem_priv);
 			dma_buf_put(dbuf);
 			goto err;
@@ -1143,11 +1530,20 @@ static int __prepare_dmabuf(struct vb2_buffer *vb)
 	 * userspace knows sooner rather than later if the dma-buf map fails.
 	 */
 	for (plane = 0; plane < vb->num_planes; ++plane) {
+<<<<<<< HEAD
 		if (vb->planes[plane].dbuf_mapped == 1)
 			continue;
 		ret = call_memop(vb, map_dmabuf, vb->planes[plane].mem_priv);
 		if (ret) {
 			dprintk(1, "failed to map dmabuf for plane %d\n",
+=======
+		if (vb->planes[plane].dbuf_mapped)
+			continue;
+
+		ret = call_memop(vb, map_dmabuf, vb->planes[plane].mem_priv);
+		if (ret) {
+			dprintk(q, 1, "failed to map dmabuf for plane %d\n",
+>>>>>>> upstream/android-13
 				plane);
 			goto err;
 		}
@@ -1172,14 +1568,22 @@ static int __prepare_dmabuf(struct vb2_buffer *vb)
 		 */
 		ret = call_vb_qop(vb, buf_init, vb);
 		if (ret) {
+<<<<<<< HEAD
 			dprintk(1, "buffer initialization failed\n");
+=======
+			dprintk(q, 1, "buffer initialization failed\n");
+>>>>>>> upstream/android-13
 			goto err;
 		}
 	}
 
 	ret = call_vb_qop(vb, buf_prepare, vb);
 	if (ret) {
+<<<<<<< HEAD
 		dprintk(1, "buffer preparation failed\n");
+=======
+		dprintk(q, 1, "buffer preparation failed\n");
+>>>>>>> upstream/android-13
 		call_void_vb_qop(vb, buf_cleanup, vb);
 		goto err;
 	}
@@ -1211,11 +1615,18 @@ static int __buf_prepare(struct vb2_buffer *vb)
 {
 	struct vb2_queue *q = vb->vb2_queue;
 	enum vb2_buffer_state orig_state = vb->state;
+<<<<<<< HEAD
 	unsigned int plane;
 	int ret;
 
 	if (q->error) {
 		dprintk(1, "fatal error occurred on queue\n");
+=======
+	int ret;
+
+	if (q->error) {
+		dprintk(q, 1, "fatal error occurred on queue\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -1223,6 +1634,17 @@ static int __buf_prepare(struct vb2_buffer *vb)
 		return 0;
 	WARN_ON(vb->synced);
 
+<<<<<<< HEAD
+=======
+	if (q->is_output) {
+		ret = call_vb_qop(vb, buf_out_validate, vb);
+		if (ret) {
+			dprintk(q, 1, "buffer validation failed\n");
+			return ret;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	vb->state = VB2_BUF_STATE_PREPARING;
 
 	switch (q->memory) {
@@ -1242,17 +1664,26 @@ static int __buf_prepare(struct vb2_buffer *vb)
 	}
 
 	if (ret) {
+<<<<<<< HEAD
 		dprintk(1, "buffer preparation failed: %d\n", ret);
+=======
+		dprintk(q, 1, "buffer preparation failed: %d\n", ret);
+>>>>>>> upstream/android-13
 		vb->state = orig_state;
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/* sync buffers */
 	for (plane = 0; plane < vb->num_planes; ++plane)
 		call_void_memop(vb, prepare, vb->planes[plane].mem_priv);
 
 	vb->synced = true;
 	vb->prepared = true;
+=======
+	__vb2_buf_mem_prepare(vb);
+	vb->prepared = 1;
+>>>>>>> upstream/android-13
 	vb->state = orig_state;
 
 	return 0;
@@ -1354,12 +1785,21 @@ int vb2_core_prepare_buf(struct vb2_queue *q, unsigned int index, void *pb)
 
 	vb = q->bufs[index];
 	if (vb->state != VB2_BUF_STATE_DEQUEUED) {
+<<<<<<< HEAD
 		dprintk(1, "invalid buffer state %d\n",
 			vb->state);
 		return -EINVAL;
 	}
 	if (vb->prepared) {
 		dprintk(1, "buffer already prepared\n");
+=======
+		dprintk(q, 1, "invalid buffer state %s\n",
+			vb2_state_name(vb->state));
+		return -EINVAL;
+	}
+	if (vb->prepared) {
+		dprintk(q, 1, "buffer already prepared\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1370,7 +1810,11 @@ int vb2_core_prepare_buf(struct vb2_queue *q, unsigned int index, void *pb)
 	/* Fill buffer information for the userspace */
 	call_void_bufop(q, fill_user_buffer, vb, pb);
 
+<<<<<<< HEAD
 	dprintk(2, "prepare of buffer %d succeeded\n", vb->index);
+=======
+	dprintk(q, 2, "prepare of buffer %d succeeded\n", vb->index);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1408,7 +1852,11 @@ static int vb2_start_streaming(struct vb2_queue *q)
 
 	q->start_streaming_called = 0;
 
+<<<<<<< HEAD
 	dprintk(1, "driver refused to start streaming\n");
+=======
+	dprintk(q, 1, "driver refused to start streaming\n");
+>>>>>>> upstream/android-13
 	/*
 	 * If you see this warning, then the driver isn't cleaning up properly
 	 * after a failed start_streaming(). See the start_streaming()
@@ -1443,19 +1891,40 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
 		  struct media_request *req)
 {
 	struct vb2_buffer *vb;
+<<<<<<< HEAD
 	int ret;
 
 	if (q->error) {
 		dprintk(1, "fatal error occurred on queue\n");
+=======
+	enum vb2_buffer_state orig_state;
+	int ret;
+
+	if (q->error) {
+		dprintk(q, 1, "fatal error occurred on queue\n");
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
 	vb = q->bufs[index];
 
+<<<<<<< HEAD
 	if ((req && q->uses_qbuf) ||
 	    (!req && vb->state != VB2_BUF_STATE_IN_REQUEST &&
 	     q->uses_requests)) {
 		dprintk(1, "queue in wrong mode (qbuf vs requests)\n");
+=======
+	if (!req && vb->state != VB2_BUF_STATE_IN_REQUEST &&
+	    q->requires_requests) {
+		dprintk(q, 1, "qbuf requires a request\n");
+		return -EBADR;
+	}
+
+	if ((req && q->uses_qbuf) ||
+	    (!req && vb->state != VB2_BUF_STATE_IN_REQUEST &&
+	     q->uses_requests)) {
+		dprintk(q, 1, "queue in wrong mode (qbuf vs requests)\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
@@ -1464,11 +1933,26 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
 
 		q->uses_requests = 1;
 		if (vb->state != VB2_BUF_STATE_DEQUEUED) {
+<<<<<<< HEAD
 			dprintk(1, "buffer %d not in dequeued state\n",
+=======
+			dprintk(q, 1, "buffer %d not in dequeued state\n",
+>>>>>>> upstream/android-13
 				vb->index);
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
+=======
+		if (q->is_output && !vb->prepared) {
+			ret = call_vb_qop(vb, buf_out_validate, vb);
+			if (ret) {
+				dprintk(q, 1, "buffer validation failed\n");
+				return ret;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		media_request_object_init(&vb->req_obj);
 
 		/* Make sure the request is in a safe state for updating. */
@@ -1500,7 +1984,11 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
 			call_void_bufop(q, fill_user_buffer, vb, pb);
 		}
 
+<<<<<<< HEAD
 		dprintk(2, "qbuf of buffer %d succeeded\n", vb->index);
+=======
+		dprintk(q, 2, "qbuf of buffer %d succeeded\n", vb->index);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -1517,10 +2005,18 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
 		}
 		break;
 	case VB2_BUF_STATE_PREPARING:
+<<<<<<< HEAD
 		dprintk(1, "buffer still being prepared\n");
 		return -EINVAL;
 	default:
 		dprintk(1, "invalid buffer state %d\n", vb->state);
+=======
+		dprintk(q, 1, "buffer still being prepared\n");
+		return -EINVAL;
+	default:
+		dprintk(q, 1, "invalid buffer state %s\n",
+			vb2_state_name(vb->state));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1528,6 +2024,10 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
 	 * Add to the queued buffers list, a buffer will stay on it until
 	 * dequeued in dqbuf.
 	 */
+<<<<<<< HEAD
+=======
+	orig_state = vb->state;
+>>>>>>> upstream/android-13
 	list_add_tail(&vb->queued_entry, &q->queued_list);
 	q->queued_count++;
 	q->waiting_for_buffers = false;
@@ -1558,11 +2058,28 @@ int vb2_core_qbuf(struct vb2_queue *q, unsigned int index, void *pb,
 	if (q->streaming && !q->start_streaming_called &&
 	    q->queued_count >= q->min_buffers_needed) {
 		ret = vb2_start_streaming(q);
+<<<<<<< HEAD
 		if (ret)
 			return ret;
 	}
 
 	dprintk(2, "qbuf of buffer %d succeeded\n", vb->index);
+=======
+		if (ret) {
+			/*
+			 * Since vb2_core_qbuf will return with an error,
+			 * we should return it to state DEQUEUED since
+			 * the error indicates that the buffer wasn't queued.
+			 */
+			list_del(&vb->queued_entry);
+			q->queued_count--;
+			vb->state = orig_state;
+			return ret;
+		}
+	}
+
+	dprintk(q, 2, "qbuf of buffer %d succeeded\n", vb->index);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(vb2_core_qbuf);
@@ -1588,22 +2105,38 @@ static int __vb2_wait_for_done_vb(struct vb2_queue *q, int nonblocking)
 		int ret;
 
 		if (q->waiting_in_dqbuf) {
+<<<<<<< HEAD
 			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
+=======
+			dprintk(q, 1, "another dup()ped fd is waiting for a buffer\n");
+>>>>>>> upstream/android-13
 			return -EBUSY;
 		}
 
 		if (!q->streaming) {
+<<<<<<< HEAD
 			dprintk(1, "streaming off, will not wait for buffers\n");
+=======
+			dprintk(q, 1, "streaming off, will not wait for buffers\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 
 		if (q->error) {
+<<<<<<< HEAD
 			dprintk(1, "Queue in error state, will not wait for buffers\n");
+=======
+			dprintk(q, 1, "Queue in error state, will not wait for buffers\n");
+>>>>>>> upstream/android-13
 			return -EIO;
 		}
 
 		if (q->last_buffer_dequeued) {
+<<<<<<< HEAD
 			dprintk(3, "last buffer dequeued already, will not wait for buffers\n");
+=======
+			dprintk(q, 3, "last buffer dequeued already, will not wait for buffers\n");
+>>>>>>> upstream/android-13
 			return -EPIPE;
 		}
 
@@ -1615,7 +2148,11 @@ static int __vb2_wait_for_done_vb(struct vb2_queue *q, int nonblocking)
 		}
 
 		if (nonblocking) {
+<<<<<<< HEAD
 			dprintk(3, "nonblocking and no buffers to dequeue, will not wait\n");
+=======
+			dprintk(q, 3, "nonblocking and no buffers to dequeue, will not wait\n");
+>>>>>>> upstream/android-13
 			return -EAGAIN;
 		}
 
@@ -1630,7 +2167,11 @@ static int __vb2_wait_for_done_vb(struct vb2_queue *q, int nonblocking)
 		/*
 		 * All locks have been released, it is safe to sleep now.
 		 */
+<<<<<<< HEAD
 		dprintk(3, "will sleep waiting for buffers\n");
+=======
+		dprintk(q, 3, "will sleep waiting for buffers\n");
+>>>>>>> upstream/android-13
 		ret = wait_event_interruptible(q->done_wq,
 				!list_empty(&q->done_list) || !q->streaming ||
 				q->error);
@@ -1642,7 +2183,11 @@ static int __vb2_wait_for_done_vb(struct vb2_queue *q, int nonblocking)
 		call_void_qop(q, wait_finish, q);
 		q->waiting_in_dqbuf = 0;
 		if (ret) {
+<<<<<<< HEAD
 			dprintk(1, "sleep was interrupted\n");
+=======
+			dprintk(q, 1, "sleep was interrupted\n");
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -1690,7 +2235,11 @@ static int __vb2_get_done_vb(struct vb2_queue *q, struct vb2_buffer **vb,
 int vb2_wait_for_all_buffers(struct vb2_queue *q)
 {
 	if (!q->streaming) {
+<<<<<<< HEAD
 		dprintk(1, "streaming off, will not wait for buffers\n");
+=======
+		dprintk(q, 1, "streaming off, will not wait for buffers\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1706,7 +2255,10 @@ EXPORT_SYMBOL_GPL(vb2_wait_for_all_buffers);
 static void __vb2_dqbuf(struct vb2_buffer *vb)
 {
 	struct vb2_queue *q = vb->vb2_queue;
+<<<<<<< HEAD
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 
 	/* nothing to do if the buffer is already dequeued */
 	if (vb->state == VB2_BUF_STATE_DEQUEUED)
@@ -1714,6 +2266,7 @@ static void __vb2_dqbuf(struct vb2_buffer *vb)
 
 	vb->state = VB2_BUF_STATE_DEQUEUED;
 
+<<<<<<< HEAD
 	/* sync buffers */
 	for (i = 0; i < vb->num_planes; ++i)
 		call_void_memop(vb, finish, vb->planes[i].mem_priv);
@@ -1733,6 +2286,8 @@ static void __vb2_dqbuf(struct vb2_buffer *vb)
 			vb->planes[i].data_offset = 0;
 		}
 	}
+=======
+>>>>>>> upstream/android-13
 	call_void_bufop(q, init_buffer, vb);
 }
 
@@ -1748,6 +2303,7 @@ int vb2_core_dqbuf(struct vb2_queue *q, unsigned int *pindex, void *pb,
 
 	switch (vb->state) {
 	case VB2_BUF_STATE_DONE:
+<<<<<<< HEAD
 		dprintk(3, "returning done buffer\n");
 		break;
 	case VB2_BUF_STATE_ERROR:
@@ -1755,11 +2311,25 @@ int vb2_core_dqbuf(struct vb2_queue *q, unsigned int *pindex, void *pb,
 		break;
 	default:
 		dprintk(1, "invalid buffer state\n");
+=======
+		dprintk(q, 3, "returning done buffer\n");
+		break;
+	case VB2_BUF_STATE_ERROR:
+		dprintk(q, 3, "returning done buffer with errors\n");
+		break;
+	default:
+		dprintk(q, 1, "invalid buffer state %s\n",
+			vb2_state_name(vb->state));
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	call_void_vb_qop(vb, buf_finish, vb);
+<<<<<<< HEAD
 	vb->prepared = false;
+=======
+	vb->prepared = 0;
+>>>>>>> upstream/android-13
 
 	if (pindex)
 		*pindex = vb->index;
@@ -1785,8 +2355,13 @@ int vb2_core_dqbuf(struct vb2_queue *q, unsigned int *pindex, void *pb,
 		media_request_put(vb->request);
 	vb->request = NULL;
 
+<<<<<<< HEAD
 	dprintk(2, "dqbuf of buffer %d, with state %d\n",
 			vb->index, vb->state);
+=======
+	dprintk(q, 2, "dqbuf of buffer %d, state: %s\n",
+		vb->index, vb2_state_name(vb->state));
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -1877,6 +2452,7 @@ static void __vb2_queue_cancel(struct vb2_queue *q)
 				call_void_vb_qop(vb, buf_request_complete, vb);
 		}
 
+<<<<<<< HEAD
 		if (vb->synced) {
 			unsigned int plane;
 
@@ -1889,6 +2465,13 @@ static void __vb2_queue_cancel(struct vb2_queue *q)
 		if (vb->prepared) {
 			call_void_vb_qop(vb, buf_finish, vb);
 			vb->prepared = false;
+=======
+		__vb2_buf_mem_finish(vb);
+
+		if (vb->prepared) {
+			call_void_vb_qop(vb, buf_finish, vb);
+			vb->prepared = 0;
+>>>>>>> upstream/android-13
 		}
 		__vb2_dqbuf(vb);
 
@@ -1899,6 +2482,10 @@ static void __vb2_queue_cancel(struct vb2_queue *q)
 		if (vb->request)
 			media_request_put(vb->request);
 		vb->request = NULL;
+<<<<<<< HEAD
+=======
+		vb->copied_timestamp = 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1907,22 +2494,38 @@ int vb2_core_streamon(struct vb2_queue *q, unsigned int type)
 	int ret;
 
 	if (type != q->type) {
+<<<<<<< HEAD
 		dprintk(1, "invalid stream type\n");
+=======
+		dprintk(q, 1, "invalid stream type\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (q->streaming) {
+<<<<<<< HEAD
 		dprintk(3, "already streaming\n");
+=======
+		dprintk(q, 3, "already streaming\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	if (!q->num_buffers) {
+<<<<<<< HEAD
 		dprintk(1, "no buffers have been allocated\n");
+=======
+		dprintk(q, 1, "no buffers have been allocated\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (q->num_buffers < q->min_buffers_needed) {
+<<<<<<< HEAD
 		dprintk(1, "need at least %u allocated buffers\n",
+=======
+		dprintk(q, 1, "need at least %u allocated buffers\n",
+>>>>>>> upstream/android-13
 				q->min_buffers_needed);
 		return -EINVAL;
 	}
@@ -1942,7 +2545,11 @@ int vb2_core_streamon(struct vb2_queue *q, unsigned int type)
 
 	q->streaming = 1;
 
+<<<<<<< HEAD
 	dprintk(3, "successful\n");
+=======
+	dprintk(q, 3, "successful\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(vb2_core_streamon);
@@ -1958,7 +2565,11 @@ EXPORT_SYMBOL_GPL(vb2_queue_error);
 int vb2_core_streamoff(struct vb2_queue *q, unsigned int type)
 {
 	if (type != q->type) {
+<<<<<<< HEAD
 		dprintk(1, "invalid stream type\n");
+=======
+		dprintk(q, 1, "invalid stream type\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1975,7 +2586,11 @@ int vb2_core_streamoff(struct vb2_queue *q, unsigned int type)
 	q->waiting_for_buffers = !q->is_output;
 	q->last_buffer_dequeued = false;
 
+<<<<<<< HEAD
 	dprintk(3, "successful\n");
+=======
+	dprintk(q, 3, "successful\n");
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(vb2_core_streamoff);
@@ -2018,61 +2633,106 @@ int vb2_core_expbuf(struct vb2_queue *q, int *fd, unsigned int type,
 	struct dma_buf *dbuf;
 
 	if (q->memory != VB2_MEMORY_MMAP) {
+<<<<<<< HEAD
 		dprintk(1, "queue is not currently set up for mmap\n");
+=======
+		dprintk(q, 1, "queue is not currently set up for mmap\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (!q->mem_ops->get_dmabuf) {
+<<<<<<< HEAD
 		dprintk(1, "queue does not support DMA buffer exporting\n");
+=======
+		dprintk(q, 1, "queue does not support DMA buffer exporting\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (flags & ~(O_CLOEXEC | O_ACCMODE)) {
+<<<<<<< HEAD
 		dprintk(1, "queue does support only O_CLOEXEC and access mode flags\n");
+=======
+		dprintk(q, 1, "queue does support only O_CLOEXEC and access mode flags\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (type != q->type) {
+<<<<<<< HEAD
 		dprintk(1, "invalid buffer type\n");
+=======
+		dprintk(q, 1, "invalid buffer type\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (index >= q->num_buffers) {
+<<<<<<< HEAD
 		dprintk(1, "buffer index out of range\n");
+=======
+		dprintk(q, 1, "buffer index out of range\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	vb = q->bufs[index];
 
 	if (plane >= vb->num_planes) {
+<<<<<<< HEAD
 		dprintk(1, "buffer plane out of range\n");
+=======
+		dprintk(q, 1, "buffer plane out of range\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "expbuf: file io in progress\n");
+=======
+		dprintk(q, 1, "expbuf: file io in progress\n");
+>>>>>>> upstream/android-13
 		return -EBUSY;
 	}
 
 	vb_plane = &vb->planes[plane];
 
+<<<<<<< HEAD
 	dbuf = call_ptr_memop(vb, get_dmabuf, vb_plane->mem_priv,
 				flags & O_ACCMODE);
 	if (IS_ERR_OR_NULL(dbuf)) {
 		dprintk(1, "failed to export buffer %d, plane %d\n",
+=======
+	dbuf = call_ptr_memop(get_dmabuf,
+			      vb,
+			      vb_plane->mem_priv,
+			      flags & O_ACCMODE);
+	if (IS_ERR_OR_NULL(dbuf)) {
+		dprintk(q, 1, "failed to export buffer %d, plane %d\n",
+>>>>>>> upstream/android-13
 			index, plane);
 		return -EINVAL;
 	}
 
 	ret = dma_buf_fd(dbuf, flags & ~O_ACCMODE);
 	if (ret < 0) {
+<<<<<<< HEAD
 		dprintk(3, "buffer %d, plane %d failed to export (%d)\n",
+=======
+		dprintk(q, 3, "buffer %d, plane %d failed to export (%d)\n",
+>>>>>>> upstream/android-13
 			index, plane, ret);
 		dma_buf_put(dbuf);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	dprintk(3, "buffer %d, plane %d exported as %d descriptor\n",
+=======
+	dprintk(q, 3, "buffer %d, plane %d exported as %d descriptor\n",
+>>>>>>> upstream/android-13
 		index, plane, ret);
 	*fd = ret;
 
@@ -2089,7 +2749,11 @@ int vb2_mmap(struct vb2_queue *q, struct vm_area_struct *vma)
 	unsigned long length;
 
 	if (q->memory != VB2_MEMORY_MMAP) {
+<<<<<<< HEAD
 		dprintk(1, "queue is not currently set up for mmap\n");
+=======
+		dprintk(q, 1, "queue is not currently set up for mmap\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2097,17 +2761,29 @@ int vb2_mmap(struct vb2_queue *q, struct vm_area_struct *vma)
 	 * Check memory area access mode.
 	 */
 	if (!(vma->vm_flags & VM_SHARED)) {
+<<<<<<< HEAD
 		dprintk(1, "invalid vma flags, VM_SHARED needed\n");
+=======
+		dprintk(q, 1, "invalid vma flags, VM_SHARED needed\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	if (q->is_output) {
 		if (!(vma->vm_flags & VM_WRITE)) {
+<<<<<<< HEAD
 			dprintk(1, "invalid vma flags, VM_WRITE needed\n");
+=======
+			dprintk(q, 1, "invalid vma flags, VM_WRITE needed\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	} else {
 		if (!(vma->vm_flags & VM_READ)) {
+<<<<<<< HEAD
 			dprintk(1, "invalid vma flags, VM_READ needed\n");
+=======
+			dprintk(q, 1, "invalid vma flags, VM_READ needed\n");
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		}
 	}
@@ -2115,7 +2791,11 @@ int vb2_mmap(struct vb2_queue *q, struct vm_area_struct *vma)
 	mutex_lock(&q->mmap_lock);
 
 	if (vb2_fileio_is_active(q)) {
+<<<<<<< HEAD
 		dprintk(1, "mmap: file io in progress\n");
+=======
+		dprintk(q, 1, "mmap: file io in progress\n");
+>>>>>>> upstream/android-13
 		ret = -EBUSY;
 		goto unlock;
 	}
@@ -2136,12 +2816,26 @@ int vb2_mmap(struct vb2_queue *q, struct vm_area_struct *vma)
 	 */
 	length = PAGE_ALIGN(vb->planes[plane].length);
 	if (length < (vma->vm_end - vma->vm_start)) {
+<<<<<<< HEAD
 		dprintk(1,
+=======
+		dprintk(q, 1,
+>>>>>>> upstream/android-13
 			"MMAP invalid, as it would overflow buffer length\n");
 		ret = -EINVAL;
 		goto unlock;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * vm_pgoff is treated in V4L2 API as a 'cookie' to select a buffer,
+	 * not as a in-buffer offset. We always want to mmap a whole buffer
+	 * from its beginning.
+	 */
+	vma->vm_pgoff = 0;
+
+>>>>>>> upstream/android-13
 	ret = call_memop(vb, mmap, vb->planes[plane].mem_priv, vma);
 
 unlock:
@@ -2149,7 +2843,11 @@ unlock:
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	dprintk(3, "buffer %d, plane %d successfully mapped\n", buffer, plane);
+=======
+	dprintk(q, 3, "buffer %d, plane %d successfully mapped\n", buffer, plane);
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(vb2_mmap);
@@ -2168,7 +2866,11 @@ unsigned long vb2_get_unmapped_area(struct vb2_queue *q,
 	int ret;
 
 	if (q->memory != VB2_MEMORY_MMAP) {
+<<<<<<< HEAD
 		dprintk(1, "queue is not currently set up for mmap\n");
+=======
+		dprintk(q, 1, "queue is not currently set up for mmap\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -2201,6 +2903,12 @@ int vb2_core_queue_init(struct vb2_queue *q)
 	    WARN_ON(!q->ops->buf_queue))
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(q->requires_requests && !q->supports_requests))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&q->queued_list);
 	INIT_LIST_HEAD(&q->done_list);
 	spin_lock_init(&q->done_lock);
@@ -2217,6 +2925,13 @@ int vb2_core_queue_init(struct vb2_queue *q)
 	else
 		q->dma_dir = q->is_output ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
 
+<<<<<<< HEAD
+=======
+	if (q->name[0] == '\0')
+		snprintf(q->name, sizeof(q->name), "%s-%p",
+			 q->is_output ? "out" : "cap", q);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 EXPORT_SYMBOL_GPL(vb2_core_queue_init);
@@ -2240,6 +2955,18 @@ __poll_t vb2_core_poll(struct vb2_queue *q, struct file *file,
 	struct vb2_buffer *vb = NULL;
 	unsigned long flags;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * poll_wait() MUST be called on the first invocation on all the
+	 * potential queues of interest, even if we are not interested in their
+	 * events during this first call. Failure to do so will result in
+	 * queue's events to be ignored because the poll_table won't be capable
+	 * of adding new wait queues thereafter.
+	 */
+	poll_wait(file, &q->done_wq, wait);
+
+>>>>>>> upstream/android-13
 	if (!q->is_output && !(req_events & (EPOLLIN | EPOLLRDNORM)))
 		return 0;
 	if (q->is_output && !(req_events & (EPOLLOUT | EPOLLWRNORM)))
@@ -2296,8 +3023,11 @@ __poll_t vb2_core_poll(struct vb2_queue *q, struct file *file,
 		 */
 		if (q->last_buffer_dequeued)
 			return EPOLLIN | EPOLLRDNORM;
+<<<<<<< HEAD
 
 		poll_wait(file, &q->done_wq, wait);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -2405,7 +3135,11 @@ static int __vb2_init_fileio(struct vb2_queue *q, int read)
 	 */
 	count = 1;
 
+<<<<<<< HEAD
 	dprintk(3, "setting up file io: mode %s, count %d, read_once %d, write_immediately %d\n",
+=======
+	dprintk(q, 3, "setting up file io: mode %s, count %d, read_once %d, write_immediately %d\n",
+>>>>>>> upstream/android-13
 		(read) ? "read" : "write", count, q->fileio_read_once,
 		q->fileio_write_immediately);
 
@@ -2503,7 +3237,11 @@ static int __vb2_cleanup_fileio(struct vb2_queue *q)
 		fileio->count = 0;
 		vb2_core_reqbufs(q, fileio->memory, &fileio->count);
 		kfree(fileio);
+<<<<<<< HEAD
 		dprintk(3, "file io emulator closed\n");
+=======
+		dprintk(q, 3, "file io emulator closed\n");
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
@@ -2532,7 +3270,11 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 	unsigned index;
 	int ret;
 
+<<<<<<< HEAD
 	dprintk(3, "mode %s, offset %ld, count %zd, %sblocking\n",
+=======
+	dprintk(q, 3, "mode %s, offset %ld, count %zd, %sblocking\n",
+>>>>>>> upstream/android-13
 		read ? "read" : "write", (long)*ppos, count,
 		nonblock ? "non" : "");
 
@@ -2540,7 +3282,11 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 		return -EINVAL;
 
 	if (q->waiting_in_dqbuf) {
+<<<<<<< HEAD
 		dprintk(3, "another dup()ped fd is %s\n",
+=======
+		dprintk(q, 3, "another dup()ped fd is %s\n",
+>>>>>>> upstream/android-13
 			read ? "reading" : "writing");
 		return -EBUSY;
 	}
@@ -2550,7 +3296,11 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 	 */
 	if (!vb2_fileio_is_active(q)) {
 		ret = __vb2_init_fileio(q, read);
+<<<<<<< HEAD
 		dprintk(3, "vb2_init_fileio result: %d\n", ret);
+=======
+		dprintk(q, 3, "vb2_init_fileio result: %d\n", ret);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
@@ -2567,7 +3317,11 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 		 * Call vb2_dqbuf to get buffer back.
 		 */
 		ret = vb2_core_dqbuf(q, &index, NULL, nonblock);
+<<<<<<< HEAD
 		dprintk(5, "vb2_dqbuf result: %d\n", ret);
+=======
+		dprintk(q, 5, "vb2_dqbuf result: %d\n", ret);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 		fileio->dq_count += 1;
@@ -2598,20 +3352,32 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 	 */
 	if (buf->pos + count > buf->size) {
 		count = buf->size - buf->pos;
+<<<<<<< HEAD
 		dprintk(5, "reducing read count: %zd\n", count);
+=======
+		dprintk(q, 5, "reducing read count: %zd\n", count);
+>>>>>>> upstream/android-13
 	}
 
 	/*
 	 * Transfer data to userspace.
 	 */
+<<<<<<< HEAD
 	dprintk(3, "copying %zd bytes - buffer %d, offset %u\n",
+=======
+	dprintk(q, 3, "copying %zd bytes - buffer %d, offset %u\n",
+>>>>>>> upstream/android-13
 		count, index, buf->pos);
 	if (read)
 		ret = copy_to_user(data, buf->vaddr + buf->pos, count);
 	else
 		ret = copy_from_user(buf->vaddr + buf->pos, data, count);
 	if (ret) {
+<<<<<<< HEAD
 		dprintk(3, "error copying data\n");
+=======
+		dprintk(q, 3, "error copying data\n");
+>>>>>>> upstream/android-13
 		return -EFAULT;
 	}
 
@@ -2631,7 +3397,11 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 		 * Check if this is the last buffer to read.
 		 */
 		if (read && fileio->read_once && fileio->dq_count == 1) {
+<<<<<<< HEAD
 			dprintk(3, "read limit reached\n");
+=======
+			dprintk(q, 3, "read limit reached\n");
+>>>>>>> upstream/android-13
 			return __vb2_cleanup_fileio(q);
 		}
 
@@ -2643,7 +3413,11 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 		if (copy_timestamp)
 			b->timestamp = ktime_get_ns();
 		ret = vb2_core_qbuf(q, index, NULL, NULL);
+<<<<<<< HEAD
 		dprintk(5, "vb2_dbuf result: %d\n", ret);
+=======
+		dprintk(q, 5, "vb2_dbuf result: %d\n", ret);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 
@@ -2730,7 +3504,11 @@ static int vb2_thread(void *data)
 			if (!threadio->stop)
 				ret = vb2_core_dqbuf(q, &index, NULL, 0);
 			call_void_qop(q, wait_prepare, q);
+<<<<<<< HEAD
 			dprintk(5, "file io: vb2_dqbuf result: %d\n", ret);
+=======
+			dprintk(q, 5, "file io: vb2_dqbuf result: %d\n", ret);
+>>>>>>> upstream/android-13
 			if (!ret)
 				vb = q->bufs[index];
 		}
@@ -2784,7 +3562,11 @@ int vb2_thread_start(struct vb2_queue *q, vb2_thread_fnc fnc, void *priv,
 	threadio->priv = priv;
 
 	ret = __vb2_init_fileio(q, !q->is_output);
+<<<<<<< HEAD
 	dprintk(3, "file io: vb2_init_fileio result: %d\n", ret);
+=======
+	dprintk(q, 3, "file io: vb2_init_fileio result: %d\n", ret);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto nomem;
 	q->threadio = threadio;

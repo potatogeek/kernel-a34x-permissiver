@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Optimized RAID-5 checksumming functions for IA-64.
  *
@@ -9,6 +10,11 @@
  * You should have received a copy of the GNU General Public License
  * (for example /usr/src/linux/COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Optimized RAID-5 checksumming functions for IA-64.
+>>>>>>> upstream/android-13
  */
 
 

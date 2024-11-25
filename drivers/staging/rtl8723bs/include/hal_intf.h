@@ -8,14 +8,22 @@
 #define __HAL_INTF_H__
 
 
+<<<<<<< HEAD
 enum RTL871X_HCI_TYPE {
+=======
+enum {
+>>>>>>> upstream/android-13
 	RTW_PCIE	= BIT0,
 	RTW_USB		= BIT1,
 	RTW_SDIO	= BIT2,
 	RTW_GSPI	= BIT3,
 };
 
+<<<<<<< HEAD
 enum HW_VARIABLES {
+=======
+enum {
+>>>>>>> upstream/android-13
 	HW_VAR_MEDIA_STATUS,
 	HW_VAR_MEDIA_STATUS1,
 	HW_VAR_SET_OPMODE,
@@ -85,6 +93,7 @@ enum HW_VARIABLES {
 	HW_VAR_APFM_ON_MAC, /* Auto FSM to Turn On, include clock, isolation, power control for MAC only */
 	/*  The valid upper nav range for the HW updating, if the true value is larger than the upper range, the HW won't update it. */
 	/*  Unit in microsecond. 0 means disable this function. */
+<<<<<<< HEAD
 #ifdef CONFIG_WOWLAN
 	HW_VAR_WOWLAN,
 	HW_VAR_WAKEUP_REASON,
@@ -93,6 +102,8 @@ enum HW_VARIABLES {
 #ifdef CONFIG_AP_WOWLAN
 	HW_VAR_AP_WOWLAN,
 #endif
+=======
+>>>>>>> upstream/android-13
 	HW_VAR_SYS_CLKR,
 	HW_VAR_NAV_UPPER,
 	HW_VAR_C2H_HANDLE,
@@ -120,7 +131,11 @@ enum HW_VARIABLES {
 	HW_VAR_MACID_WAKEUP,
 };
 
+<<<<<<< HEAD
 enum HAL_DEF_VARIABLE {
+=======
+enum hal_def_variable {
+>>>>>>> upstream/android-13
 	HAL_DEF_UNDERCORATEDSMOOTHEDPWDB,
 	HAL_DEF_IS_SUPPORT_ANT_DIV,
 	HAL_DEF_CURRENT_ANTENNA,
@@ -155,14 +170,22 @@ enum HAL_DEF_VARIABLE {
 	HAL_DEF_DBG_RX_INFO_DUMP,
 };
 
+<<<<<<< HEAD
 enum HAL_ODM_VARIABLE {
+=======
+enum hal_odm_variable {
+>>>>>>> upstream/android-13
 	HAL_ODM_STA_INFO,
 	HAL_ODM_P2P_STATE,
 	HAL_ODM_WIFI_DISPLAY_STATE,
 	HAL_ODM_NOISE_MONITOR,
 };
 
+<<<<<<< HEAD
 enum HAL_INTF_PS_FUNC {
+=======
+enum hal_intf_ps_func {
+>>>>>>> upstream/android-13
 	HAL_USB_SELECT_SUSPEND,
 	HAL_MAX_ID,
 };
@@ -202,9 +225,15 @@ struct hal_ops {
 	u8 (*check_ips_status)(struct adapter *padapter);
 	s32		(*interrupt_handler)(struct adapter *padapter);
 	void    (*clear_interrupt)(struct adapter *padapter);
+<<<<<<< HEAD
 	void (*set_bwmode_handler)(struct adapter *padapter, enum CHANNEL_WIDTH Bandwidth, u8 Offset);
 	void (*set_channel_handler)(struct adapter *padapter, u8 channel);
 	void (*set_chnl_bw_handler)(struct adapter *padapter, u8 channel, enum CHANNEL_WIDTH Bandwidth, u8 Offset40, u8 Offset80);
+=======
+	void (*set_bwmode_handler)(struct adapter *padapter, enum channel_width Bandwidth, u8 Offset);
+	void (*set_channel_handler)(struct adapter *padapter, u8 channel);
+	void (*set_chnl_bw_handler)(struct adapter *padapter, u8 channel, enum channel_width Bandwidth, u8 Offset40, u8 Offset80);
+>>>>>>> upstream/android-13
 
 	void (*set_tx_power_level_handler)(struct adapter *padapter, u8 channel);
 	void (*get_tx_power_level_handler)(struct adapter *padapter, s32 *powerlevel);
@@ -218,11 +247,19 @@ struct hal_ops {
 
 	void (*SetHwRegHandlerWithBuf)(struct adapter *padapter, u8 variable, u8 *pbuf, int len);
 
+<<<<<<< HEAD
 	u8 (*GetHalDefVarHandler)(struct adapter *padapter, enum HAL_DEF_VARIABLE eVariable, void *pValue);
 	u8 (*SetHalDefVarHandler)(struct adapter *padapter, enum HAL_DEF_VARIABLE eVariable, void *pValue);
 
 	void (*GetHalODMVarHandler)(struct adapter *padapter, enum HAL_ODM_VARIABLE eVariable, void *pValue1, void *pValue2);
 	void (*SetHalODMVarHandler)(struct adapter *padapter, enum HAL_ODM_VARIABLE eVariable, void *pValue1, bool bSet);
+=======
+	u8 (*GetHalDefVarHandler)(struct adapter *padapter, enum hal_def_variable eVariable, void *pValue);
+	u8 (*SetHalDefVarHandler)(struct adapter *padapter, enum hal_def_variable eVariable, void *pValue);
+
+	void (*GetHalODMVarHandler)(struct adapter *padapter, enum hal_odm_variable eVariable, void *pValue1, void *pValue2);
+	void (*SetHalODMVarHandler)(struct adapter *padapter, enum hal_odm_variable eVariable, void *pValue1, bool bSet);
+>>>>>>> upstream/android-13
 
 	void (*UpdateRAMaskHandler)(struct adapter *padapter, u32 mac_id, u8 rssi_level);
 	void (*SetBeaconRelatedRegistersHandler)(struct adapter *padapter);
@@ -232,7 +269,11 @@ struct hal_ops {
 	void (*run_thread)(struct adapter *padapter);
 	void (*cancel_thread)(struct adapter *padapter);
 
+<<<<<<< HEAD
 	u8 (*interface_ps_func)(struct adapter *padapter, enum HAL_INTF_PS_FUNC efunc_id, u8 *val);
+=======
+	u8 (*interface_ps_func)(struct adapter *padapter, enum hal_intf_ps_func efunc_id, u8 *val);
+>>>>>>> upstream/android-13
 
 	s32	(*hal_xmit)(struct adapter *padapter, struct xmit_frame *pxmitframe);
 	/*
@@ -257,20 +298,28 @@ struct hal_ops {
 	bool	(*Efuse_PgPacketWrite_BT)(struct adapter *padapter, u8 offset, u8 word_en, u8 *data, bool bPseudoTest);
 
 	s32 (*xmit_thread_handler)(struct adapter *padapter);
+<<<<<<< HEAD
 	void (*hal_notch_filter)(struct adapter * adapter, bool enable);
 	void (*hal_reset_security_engine)(struct adapter * adapter);
+=======
+	void (*hal_notch_filter)(struct adapter *adapter, bool enable);
+	void (*hal_reset_security_engine)(struct adapter *adapter);
+>>>>>>> upstream/android-13
 	s32 (*c2h_handler)(struct adapter *padapter, u8 *c2h_evt);
 	c2h_id_filter c2h_id_filter_ccx;
 
 	s32 (*fill_h2c_cmd)(struct adapter *, u8 ElementID, u32 CmdLen, u8 *pCmdBuffer);
 };
 
+<<<<<<< HEAD
 enum RT_EEPROM_TYPE {
 	EEPROM_93C46,
 	EEPROM_93C56,
 	EEPROM_BOOT_EFUSE,
 };
 
+=======
+>>>>>>> upstream/android-13
 #define RF_CHANGE_BY_INIT	0
 #define RF_CHANGE_BY_IPS	BIT28
 #define RF_CHANGE_BY_PS		BIT29
@@ -280,6 +329,7 @@ enum RT_EEPROM_TYPE {
 #define GET_EEPROM_EFUSE_PRIV(adapter) (&adapter->eeprompriv)
 #define is_boot_from_eeprom(adapter) (adapter->eeprompriv.EepromOrEfuse)
 
+<<<<<<< HEAD
 enum wowlan_subcode {
 	WOWLAN_PATTERN_MATCH	= 1,
 	WOWLAN_MAGIC_PACKET		= 2,
@@ -304,6 +354,8 @@ struct wowlan_ioctl_param{
 	unsigned char pattern[0];
 };
 
+=======
+>>>>>>> upstream/android-13
 #define Rx_Pairwisekey			0x01
 #define Rx_GTK					0x02
 #define Rx_DisAssoc				0x04
@@ -335,11 +387,19 @@ void rtw_hal_chip_configure(struct adapter *padapter);
 void rtw_hal_read_chip_info(struct adapter *padapter);
 void rtw_hal_read_chip_version(struct adapter *padapter);
 
+<<<<<<< HEAD
 u8 rtw_hal_set_def_var(struct adapter *padapter, enum HAL_DEF_VARIABLE eVariable, void *pValue);
 u8 rtw_hal_get_def_var(struct adapter *padapter, enum HAL_DEF_VARIABLE eVariable, void *pValue);
 
 void rtw_hal_set_odm_var(struct adapter *padapter, enum HAL_ODM_VARIABLE eVariable, void *pValue1, bool bSet);
 void rtw_hal_get_odm_var(struct adapter *padapter, enum HAL_ODM_VARIABLE eVariable, void *pValue1, void *pValue2);
+=======
+u8 rtw_hal_set_def_var(struct adapter *padapter, enum hal_def_variable eVariable, void *pValue);
+u8 rtw_hal_get_def_var(struct adapter *padapter, enum hal_def_variable eVariable, void *pValue);
+
+void rtw_hal_set_odm_var(struct adapter *padapter, enum hal_odm_variable eVariable, void *pValue1, bool bSet);
+void rtw_hal_get_odm_var(struct adapter *padapter, enum hal_odm_variable eVariable, void *pValue1, void *pValue2);
+>>>>>>> upstream/android-13
 
 void rtw_hal_enable_interrupt(struct adapter *padapter);
 void rtw_hal_disable_interrupt(struct adapter *padapter);
@@ -362,7 +422,11 @@ void rtw_hal_add_ra_tid(struct adapter *padapter, u32 bitmap, u8 *arg, u8 rssi_l
 void rtw_hal_start_thread(struct adapter *padapter);
 void rtw_hal_stop_thread(struct adapter *padapter);
 
+<<<<<<< HEAD
 void rtw_hal_bcn_related_reg_setting(struct adapter *padapter);
+=======
+void beacon_timing_control(struct adapter *padapter);
+>>>>>>> upstream/android-13
 
 u32 rtw_hal_read_bbreg(struct adapter *padapter, u32 RegAddr, u32 BitMask);
 void rtw_hal_write_bbreg(struct adapter *padapter, u32 RegAddr, u32 BitMask, u32 Data);
@@ -378,17 +442,28 @@ void rtw_hal_write_rfreg(struct adapter *padapter, u32 eRFPath, u32 RegAddr, u32
 #define PHY_QueryMacReg PHY_QueryBBReg
 
 void rtw_hal_set_chan(struct adapter *padapter, u8 channel);
+<<<<<<< HEAD
 void rtw_hal_set_chnl_bw(struct adapter *padapter, u8 channel, enum CHANNEL_WIDTH Bandwidth, u8 Offset40, u8 Offset80);
+=======
+void rtw_hal_set_chnl_bw(struct adapter *padapter, u8 channel, enum channel_width Bandwidth, u8 Offset40, u8 Offset80);
+>>>>>>> upstream/android-13
 void rtw_hal_dm_watchdog(struct adapter *padapter);
 void rtw_hal_dm_watchdog_in_lps(struct adapter *padapter);
 
 s32 rtw_hal_xmit_thread_handler(struct adapter *padapter);
 
+<<<<<<< HEAD
 void rtw_hal_notch_filter(struct adapter * adapter, bool enable);
 void rtw_hal_reset_security_engine(struct adapter * adapter);
 
 bool rtw_hal_c2h_valid(struct adapter *adapter, u8 *buf);
 s32 rtw_hal_c2h_evt_read(struct adapter *adapter, u8 *buf);
+=======
+void rtw_hal_notch_filter(struct adapter *adapter, bool enable);
+void rtw_hal_reset_security_engine(struct adapter *adapter);
+
+bool rtw_hal_c2h_valid(struct adapter *adapter, u8 *buf);
+>>>>>>> upstream/android-13
 s32 rtw_hal_c2h_handler(struct adapter *adapter, u8 *c2h_evt);
 c2h_id_filter rtw_hal_c2h_id_filter_ccx(struct adapter *adapter);
 

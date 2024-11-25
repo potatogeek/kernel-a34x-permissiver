@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -24,7 +30,11 @@
  */
 #include <linux/types.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 /*
  * For clear_user(), exploit previously defined copy_to_user function
@@ -51,7 +61,11 @@ __kernel_size_t __clear_user_hexagon(void __user *dest, unsigned long count)
 
 unsigned long clear_user_hexagon(void __user *dest, unsigned long count)
 {
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, dest, count))
+=======
+	if (!access_ok(dest, count))
+>>>>>>> upstream/android-13
 		return count;
 	else
 		return __clear_user_hexagon(dest, count);

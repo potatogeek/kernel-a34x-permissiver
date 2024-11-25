@@ -2,17 +2,27 @@
 /*
  * Driver for the ADB controller in the Mac I/O (Hydra) chip.
  */
+<<<<<<< HEAD
 #include <stdarg.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/delay.h>
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <asm/prom.h>
 #include <linux/adb.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/prom.h>
+#include <linux/adb.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/hydra.h>
 #include <asm/irq.h>
 #include <linux/init.h>

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SH7760/SH7763 LCDC Framebuffer driver.
  *
@@ -5,11 +9,15 @@
  *             Manuel Lauss <mano@roarinelk.homelinux.net>
  * (c) 2008 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
  *
+<<<<<<< HEAD
  *  This file is subject to the terms and conditions of the GNU General
  *  Public License.  See the file COPYING in the main directory of this
  *  archive for more details.
  *
  * PLEASE HAVE A LOOK AT Documentation/fb/sh7760fb.txt!
+=======
+ * PLEASE HAVE A LOOK AT Documentation/fb/sh7760fb.rst!
+>>>>>>> upstream/android-13
  *
  * Thanks to Siegfried Schaefer <s.schaefer at schaefer-edv.de>
  *     for his original source and testing!
@@ -344,7 +352,11 @@ static int sh7760fb_set_par(struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops sh7760fb_ops = {
+=======
+static const struct fb_ops sh7760fb_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_blank = sh7760fb_blank,
 	.fb_check_var = sh7760fb_check_var,
@@ -466,7 +478,11 @@ static int sh7760fb_probe(struct platform_device *pdev)
 		goto out_fb;
 	}
 
+<<<<<<< HEAD
 	par->base = ioremap_nocache(res->start, resource_size(res));
+=======
+	par->base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!par->base) {
 		dev_err(&pdev->dev, "cannot remap\n");
 		ret = -ENODEV;
@@ -587,4 +603,8 @@ module_platform_driver(sh7760_lcdc_driver);
 
 MODULE_AUTHOR("Nobuhiro Iwamatsu, Manuel Lauss");
 MODULE_DESCRIPTION("FBdev for SH7760/63 integrated LCD Controller");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL");
+=======
+MODULE_LICENSE("GPL v2");
+>>>>>>> upstream/android-13

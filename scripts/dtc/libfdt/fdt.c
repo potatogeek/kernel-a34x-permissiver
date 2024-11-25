@@ -15,6 +15,7 @@
  * that the given buffer contains what appears to be a flattened
  * device tree with sane information in its header.
  */
+<<<<<<< HEAD
 int fdt_ro_probe_(const void *fdt)
 {
 	if (fdt_magic(fdt) == FDT_MAGIC) {
@@ -26,12 +27,44 @@ int fdt_ro_probe_(const void *fdt)
 	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
 		/* Unfinished sequential-write blob */
 		if (fdt_size_dt_struct(fdt) == 0)
+=======
+int32_t fdt_ro_probe_(const void *fdt)
+{
+	uint32_t totalsize = fdt_totalsize(fdt);
+
+	if (can_assume(VALID_DTB))
+		return totalsize;
+
+	/* The device tree must be at an 8-byte aligned address */
+	if ((uintptr_t)fdt & 7)
+		return -FDT_ERR_ALIGNMENT;
+
+	if (fdt_magic(fdt) == FDT_MAGIC) {
+		/* Complete tree */
+		if (!can_assume(LATEST)) {
+			if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
+				return -FDT_ERR_BADVERSION;
+			if (fdt_last_comp_version(fdt) >
+					FDT_LAST_SUPPORTED_VERSION)
+				return -FDT_ERR_BADVERSION;
+		}
+	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		/* Unfinished sequential-write blob */
+		if (!can_assume(VALID_INPUT) && fdt_size_dt_struct(fdt) == 0)
+>>>>>>> upstream/android-13
 			return -FDT_ERR_BADSTATE;
 	} else {
 		return -FDT_ERR_BADMAGIC;
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	if (totalsize < INT32_MAX)
+		return totalsize;
+	else
+		return -FDT_ERR_TRUNCATED;
+>>>>>>> upstream/android-13
 }
 
 static int check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
@@ -65,12 +98,22 @@ size_t fdt_header_size_(uint32_t version)
 		return FDT_V17_SIZE;
 }
 
+<<<<<<< HEAD
+=======
+size_t fdt_header_size(const void *fdt)
+{
+	return can_assume(LATEST) ? FDT_V17_SIZE :
+		fdt_header_size_(fdt_version(fdt));
+}
+
+>>>>>>> upstream/android-13
 int fdt_check_header(const void *fdt)
 {
 	size_t hdrsize;
 
 	if (fdt_magic(fdt) != FDT_MAGIC)
 		return -FDT_ERR_BADMAGIC;
+<<<<<<< HEAD
 	hdrsize = fdt_header_size(fdt);
 	if ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
 	    || (fdt_last_comp_version(fdt) > FDT_LAST_SUPPORTED_VERSION))
@@ -102,12 +145,55 @@ int fdt_check_header(const void *fdt)
 	if (!check_block_(hdrsize, fdt_totalsize(fdt),
 			  fdt_off_dt_strings(fdt), fdt_size_dt_strings(fdt)))
 		return -FDT_ERR_TRUNCATED;
+=======
+	if (!can_assume(LATEST)) {
+		if ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
+		    || (fdt_last_comp_version(fdt) >
+			FDT_LAST_SUPPORTED_VERSION))
+			return -FDT_ERR_BADVERSION;
+		if (fdt_version(fdt) < fdt_last_comp_version(fdt))
+			return -FDT_ERR_BADVERSION;
+	}
+	hdrsize = fdt_header_size(fdt);
+	if (!can_assume(VALID_DTB)) {
+
+		if ((fdt_totalsize(fdt) < hdrsize)
+		    || (fdt_totalsize(fdt) > INT_MAX))
+			return -FDT_ERR_TRUNCATED;
+
+		/* Bounds check memrsv block */
+		if (!check_off_(hdrsize, fdt_totalsize(fdt),
+				fdt_off_mem_rsvmap(fdt)))
+			return -FDT_ERR_TRUNCATED;
+	}
+
+	if (!can_assume(VALID_DTB)) {
+		/* Bounds check structure block */
+		if (!can_assume(LATEST) && fdt_version(fdt) < 17) {
+			if (!check_off_(hdrsize, fdt_totalsize(fdt),
+					fdt_off_dt_struct(fdt)))
+				return -FDT_ERR_TRUNCATED;
+		} else {
+			if (!check_block_(hdrsize, fdt_totalsize(fdt),
+					  fdt_off_dt_struct(fdt),
+					  fdt_size_dt_struct(fdt)))
+				return -FDT_ERR_TRUNCATED;
+		}
+
+		/* Bounds check strings block */
+		if (!check_block_(hdrsize, fdt_totalsize(fdt),
+				  fdt_off_dt_strings(fdt),
+				  fdt_size_dt_strings(fdt)))
+			return -FDT_ERR_TRUNCATED;
+	}
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
 {
+<<<<<<< HEAD
 	unsigned absoffset = offset + fdt_off_dt_struct(fdt);
 
 	if ((absoffset < offset)
@@ -117,6 +203,22 @@ const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
 
 	if (fdt_version(fdt) >= 0x11)
 		if (((offset + len) < offset)
+=======
+	unsigned int uoffset = offset;
+	unsigned int absoffset = offset + fdt_off_dt_struct(fdt);
+
+	if (offset < 0)
+		return NULL;
+
+	if (!can_assume(VALID_INPUT))
+		if ((absoffset < uoffset)
+		    || ((absoffset + len) < absoffset)
+		    || (absoffset + len) > fdt_totalsize(fdt))
+			return NULL;
+
+	if (can_assume(LATEST) || fdt_version(fdt) >= 0x11)
+		if (((uoffset + len) < uoffset)
+>>>>>>> upstream/android-13
 		    || ((offset + len) > fdt_size_dt_struct(fdt)))
 			return NULL;
 
@@ -132,7 +234,11 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 
 	*nextoffset = -FDT_ERR_TRUNCATED;
 	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
+<<<<<<< HEAD
 	if (!tagp)
+=======
+	if (!can_assume(VALID_DTB) && !tagp)
+>>>>>>> upstream/android-13
 		return FDT_END; /* premature end */
 	tag = fdt32_to_cpu(*tagp);
 	offset += FDT_TAGSIZE;
@@ -144,18 +250,31 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 		do {
 			p = fdt_offset_ptr(fdt, offset++, 1);
 		} while (p && (*p != '\0'));
+<<<<<<< HEAD
 		if (!p)
+=======
+		if (!can_assume(VALID_DTB) && !p)
+>>>>>>> upstream/android-13
 			return FDT_END; /* premature end */
 		break;
 
 	case FDT_PROP:
 		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
+<<<<<<< HEAD
 		if (!lenp)
+=======
+		if (!can_assume(VALID_DTB) && !lenp)
+>>>>>>> upstream/android-13
 			return FDT_END; /* premature end */
 		/* skip-name offset, length and value */
 		offset += sizeof(struct fdt_property) - FDT_TAGSIZE
 			+ fdt32_to_cpu(*lenp);
+<<<<<<< HEAD
 		if (fdt_version(fdt) < 0x10 && fdt32_to_cpu(*lenp) >= 8 &&
+=======
+		if (!can_assume(LATEST) &&
+		    fdt_version(fdt) < 0x10 && fdt32_to_cpu(*lenp) >= 8 &&
+>>>>>>> upstream/android-13
 		    ((offset - fdt32_to_cpu(*lenp)) % 8) != 0)
 			offset += 4;
 		break;
@@ -178,8 +297,16 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 
 int fdt_check_node_offset_(const void *fdt, int offset)
 {
+<<<<<<< HEAD
 	if ((offset < 0) || (offset % FDT_TAGSIZE)
 	    || (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE))
+=======
+	if (!can_assume(VALID_INPUT)
+	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
+		return -FDT_ERR_BADOFFSET;
+
+	if (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE)
+>>>>>>> upstream/android-13
 		return -FDT_ERR_BADOFFSET;
 
 	return offset;
@@ -187,8 +314,16 @@ int fdt_check_node_offset_(const void *fdt, int offset)
 
 int fdt_check_prop_offset_(const void *fdt, int offset)
 {
+<<<<<<< HEAD
 	if ((offset < 0) || (offset % FDT_TAGSIZE)
 	    || (fdt_next_tag(fdt, offset, &offset) != FDT_PROP))
+=======
+	if (!can_assume(VALID_INPUT)
+	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
+		return -FDT_ERR_BADOFFSET;
+
+	if (fdt_next_tag(fdt, offset, &offset) != FDT_PROP)
+>>>>>>> upstream/android-13
 		return -FDT_ERR_BADOFFSET;
 
 	return offset;
@@ -276,9 +411,18 @@ const char *fdt_find_string_(const char *strtab, int tabsize, const char *s)
 
 int fdt_move(const void *fdt, void *buf, int bufsize)
 {
+<<<<<<< HEAD
 	FDT_RO_PROBE(fdt);
 
 	if (fdt_totalsize(fdt) > bufsize)
+=======
+	if (!can_assume(VALID_INPUT) && bufsize < 0)
+		return -FDT_ERR_NOSPACE;
+
+	FDT_RO_PROBE(fdt);
+
+	if (fdt_totalsize(fdt) > (unsigned int)bufsize)
+>>>>>>> upstream/android-13
 		return -FDT_ERR_NOSPACE;
 
 	memmove(buf, fdt, fdt_totalsize(fdt));

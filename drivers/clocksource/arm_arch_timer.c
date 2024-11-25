@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/drivers/clocksource/arm_arch_timer.c
  *
  *  Copyright (C) 2011 ARM Ltd.
  *  All Rights Reserved
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,6 +15,11 @@
  */
 
 #define pr_fmt(fmt)	"arm_arch_timer: " fmt
+=======
+ */
+
+#define pr_fmt(fmt) 	"arch_timer: " fmt
+>>>>>>> upstream/android-13
 
 #include <linux/init.h>
 #include <linux/kernel.h>
@@ -19,6 +29,10 @@
 #include <linux/cpu_pm.h>
 #include <linux/clockchips.h>
 #include <linux/clocksource.h>
+<<<<<<< HEAD
+=======
+#include <linux/clocksource_ids.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/of_irq.h>
 #include <linux/of_address.h>
@@ -27,15 +41,23 @@
 #include <linux/sched/clock.h>
 #include <linux/sched_clock.h>
 #include <linux/acpi.h>
+<<<<<<< HEAD
+=======
+#include <linux/arm-smccc.h>
+#include <linux/ptp_kvm.h>
+>>>>>>> upstream/android-13
 
 #include <asm/arch_timer.h>
 #include <asm/virt.h>
 
 #include <clocksource/arm_arch_timer.h>
 
+<<<<<<< HEAD
 #undef pr_fmt
 #define pr_fmt(fmt) "arch_timer: " fmt
 
+=======
+>>>>>>> upstream/android-13
 #define CNTTIDR		0x08
 #define CNTTIDR_VIRT(n)	(BIT(1) << ((n) * 4))
 
@@ -52,14 +74,21 @@
 #define CNTFRQ		0x10
 #define CNTP_TVAL	0x28
 #define CNTP_CTL	0x2c
+<<<<<<< HEAD
 #define CNTCVAL_LO	0x30
 #define CNTCVAL_HI	0x34
+=======
+>>>>>>> upstream/android-13
 #define CNTV_TVAL	0x38
 #define CNTV_CTL	0x3c
 
 static unsigned arch_timers_present __initdata;
 
+<<<<<<< HEAD
 static void __iomem *arch_counter_base;
+=======
+static void __iomem *arch_counter_base __ro_after_init;
+>>>>>>> upstream/android-13
 
 struct arch_timer {
 	void __iomem *base;
@@ -68,6 +97,7 @@ struct arch_timer {
 
 #define to_arch_timer(e) container_of(e, struct arch_timer, evt)
 
+<<<<<<< HEAD
 static u32 arch_timer_rate;
 static int arch_timer_ppi[ARCH_TIMER_MAX_TIMER_PPI];
 
@@ -81,6 +111,33 @@ static bool vdso_default = true;
 
 static cpumask_t evtstrm_available = CPU_MASK_NONE;
 static bool evtstrm_enable = IS_ENABLED(CONFIG_ARM_ARCH_TIMER_EVTSTREAM);
+=======
+static u32 arch_timer_rate __ro_after_init;
+static int arch_timer_ppi[ARCH_TIMER_MAX_TIMER_PPI] __ro_after_init;
+
+static const char *arch_timer_ppi_names[ARCH_TIMER_MAX_TIMER_PPI] = {
+	[ARCH_TIMER_PHYS_SECURE_PPI]	= "sec-phys",
+	[ARCH_TIMER_PHYS_NONSECURE_PPI]	= "phys",
+	[ARCH_TIMER_VIRT_PPI]		= "virt",
+	[ARCH_TIMER_HYP_PPI]		= "hyp-phys",
+	[ARCH_TIMER_HYP_VIRT_PPI]	= "hyp-virt",
+};
+
+static struct clock_event_device __percpu *arch_timer_evt;
+
+static enum arch_timer_ppi_nr arch_timer_uses_ppi __ro_after_init = ARCH_TIMER_VIRT_PPI;
+static bool arch_timer_c3stop __ro_after_init;
+static bool arch_timer_mem_use_virtual __ro_after_init;
+static bool arch_counter_suspend_stop __ro_after_init;
+#ifdef CONFIG_GENERIC_GETTIMEOFDAY
+static enum vdso_clock_mode vdso_default = VDSO_CLOCKMODE_ARCHTIMER;
+#else
+static enum vdso_clock_mode vdso_default = VDSO_CLOCKMODE_NONE;
+#endif /* CONFIG_GENERIC_GETTIMEOFDAY */
+
+static cpumask_t evtstrm_available = CPU_MASK_NONE;
+static bool evtstrm_enable __ro_after_init = IS_ENABLED(CONFIG_ARM_ARCH_TIMER_EVTSTREAM);
+>>>>>>> upstream/android-13
 
 static int __init early_evtstrm_cfg(char *buf)
 {
@@ -154,13 +211,40 @@ u32 arch_timer_reg_read(int access, enum arch_timer_reg reg,
 	return val;
 }
 
+<<<<<<< HEAD
+=======
+static notrace u64 arch_counter_get_cntpct_stable(void)
+{
+	return __arch_counter_get_cntpct_stable();
+}
+
+static notrace u64 arch_counter_get_cntpct(void)
+{
+	return __arch_counter_get_cntpct();
+}
+
+static notrace u64 arch_counter_get_cntvct_stable(void)
+{
+	return __arch_counter_get_cntvct_stable();
+}
+
+static notrace u64 arch_counter_get_cntvct(void)
+{
+	return __arch_counter_get_cntvct();
+}
+
+>>>>>>> upstream/android-13
 /*
  * Default to cp15 based access because arm64 uses this function for
  * sched_clock() before DT is probed and the cp15 method is guaranteed
  * to exist on arm64. arm doesn't use this before DT is probed so even
  * if we don't have the cp15 accessors we won't have a problem.
  */
+<<<<<<< HEAD
 u64 (*arch_timer_read_counter)(void) = arch_counter_get_cntvct;
+=======
+u64 (*arch_timer_read_counter)(void) __ro_after_init = arch_counter_get_cntvct;
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL_GPL(arch_timer_read_counter);
 
 static u64 arch_counter_read(struct clocksource *cs)
@@ -175,6 +259,10 @@ static u64 arch_counter_read_cc(const struct cyclecounter *cc)
 
 static struct clocksource clocksource_counter = {
 	.name	= "arch_sys_counter",
+<<<<<<< HEAD
+=======
+	.id	= CSID_ARM_ARCH_COUNTER,
+>>>>>>> upstream/android-13
 	.rating	= 400,
 	.read	= arch_counter_read,
 	.mask	= CLOCKSOURCE_MASK(56),
@@ -336,7 +424,11 @@ static u64 notrace arm64_858921_read_cntvct_el0(void)
 	do {								\
 		_val = read_sysreg(reg);				\
 		_retries--;						\
+<<<<<<< HEAD
 	} while (((_val + 1) & GENMASK(9, 0)) <= 1 && _retries);	\
+=======
+	} while (((_val + 1) & GENMASK(8, 0)) <= 1 && _retries);	\
+>>>>>>> upstream/android-13
 									\
 	WARN_ON_ONCE(!_retries);					\
 	_val;								\
@@ -367,8 +459,12 @@ static u32 notrace sun50i_a64_read_cntv_tval_el0(void)
 DEFINE_PER_CPU(const struct arch_timer_erratum_workaround *, timer_unstable_counter_workaround);
 EXPORT_SYMBOL_GPL(timer_unstable_counter_workaround);
 
+<<<<<<< HEAD
 DEFINE_STATIC_KEY_FALSE(arch_timer_read_ool_enabled);
 EXPORT_SYMBOL_GPL(arch_timer_read_ool_enabled);
+=======
+static atomic_t timer_unstable_counter_workaround_in_use = ATOMIC_INIT(0);
+>>>>>>> upstream/android-13
 
 static void erratum_set_next_event_tval_generic(const int access, unsigned long evt,
 						struct clock_event_device *clk)
@@ -381,10 +477,17 @@ static void erratum_set_next_event_tval_generic(const int access, unsigned long 
 	ctrl &= ~ARCH_TIMER_CTRL_IT_MASK;
 
 	if (access == ARCH_TIMER_PHYS_ACCESS) {
+<<<<<<< HEAD
 		cval = evt + arch_counter_get_cntpct();
 		write_sysreg(cval, cntp_cval_el0);
 	} else {
 		cval = evt + arch_counter_get_cntvct();
+=======
+		cval = evt + arch_counter_get_cntpct_stable();
+		write_sysreg(cval, cntp_cval_el0);
+	} else {
+		cval = evt + arch_counter_get_cntvct_stable();
+>>>>>>> upstream/android-13
 		write_sysreg(cval, cntv_cval_el0);
 	}
 
@@ -465,6 +568,17 @@ static const struct arch_timer_erratum_workaround ool_workarounds[] = {
 		.set_next_event_virt = erratum_set_next_event_tval_virt,
 	},
 #endif
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARM64_ERRATUM_1418040
+	{
+		.match_type = ate_match_local_cap_id,
+		.id = (void *)ARM64_WORKAROUND_1418040,
+		.desc = "ARM erratum 1418040",
+		.disable_compat_vdso = true,
+	},
+#endif
+>>>>>>> upstream/android-13
 };
 
 typedef bool (*ate_match_fn_t)(const struct arch_timer_erratum_workaround *,
@@ -539,11 +653,16 @@ void arch_timer_enable_workaround(const struct arch_timer_erratum_workaround *wa
 			per_cpu(timer_unstable_counter_workaround, i) = wa;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Use the locked version, as we're called from the CPU
 	 * hotplug framework. Otherwise, we end-up in deadlock-land.
 	 */
 	static_branch_enable_cpuslocked(&arch_timer_read_ool_enabled);
+=======
+	if (wa->read_cntvct_el0 || wa->read_cntpct_el0)
+		atomic_set(&timer_unstable_counter_workaround_in_use, 1);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Don't use the vdso fastpath if errata require using the
@@ -552,15 +671,27 @@ void arch_timer_enable_workaround(const struct arch_timer_erratum_workaround *wa
 	 * change both the default value and the vdso itself.
 	 */
 	if (wa->read_cntvct_el0) {
+<<<<<<< HEAD
 		clocksource_counter.archdata.vdso_direct = false;
 		vdso_default = false;
+=======
+		clocksource_counter.vdso_clock_mode = VDSO_CLOCKMODE_NONE;
+		vdso_default = VDSO_CLOCKMODE_NONE;
+	} else if (wa->disable_compat_vdso && vdso_default != VDSO_CLOCKMODE_NONE) {
+		vdso_default = VDSO_CLOCKMODE_ARCHTIMER_NOCOMPAT;
+		clocksource_counter.vdso_clock_mode = vdso_default;
+>>>>>>> upstream/android-13
 	}
 }
 
 static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type type,
 					    void *arg)
 {
+<<<<<<< HEAD
 	const struct arch_timer_erratum_workaround *wa;
+=======
+	const struct arch_timer_erratum_workaround *wa, *__wa;
+>>>>>>> upstream/android-13
 	ate_match_fn_t match_fn = NULL;
 	bool local = false;
 
@@ -584,6 +715,7 @@ static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type t
 	if (!wa)
 		return;
 
+<<<<<<< HEAD
 	if (needs_unstable_timer_counter_workaround()) {
 		const struct arch_timer_erratum_workaround *__wa;
 		__wa = __this_cpu_read(timer_unstable_counter_workaround);
@@ -594,12 +726,22 @@ static void arch_timer_check_ool_workaround(enum arch_timer_erratum_match_type t
 		if (__wa)
 			return;
 	}
+=======
+	__wa = __this_cpu_read(timer_unstable_counter_workaround);
+	if (__wa && wa != __wa)
+		pr_warn("Can't enable workaround for %s (clashes with %s\n)",
+			wa->desc, __wa->desc);
+
+	if (__wa)
+		return;
+>>>>>>> upstream/android-13
 
 	arch_timer_enable_workaround(wa, local);
 	pr_info("Enabling %s workaround for %s\n",
 		local ? "local" : "global", wa->desc);
 }
 
+<<<<<<< HEAD
 #define erratum_handler(fn, r, ...)					\
 ({									\
 	bool __val;							\
@@ -631,6 +773,21 @@ static bool arch_timer_this_cpu_has_cntvct_wa(void)
 #define erratum_set_next_event_tval_phys(...)		({BUG(); 0;})
 #define erratum_handler(fn, r, ...)			({false;})
 #define arch_timer_this_cpu_has_cntvct_wa()		({false;})
+=======
+static bool arch_timer_this_cpu_has_cntvct_wa(void)
+{
+	return has_erratum_handler(read_cntvct_el0);
+}
+
+static bool arch_timer_counter_has_wa(void)
+{
+	return atomic_read(&timer_unstable_counter_workaround_in_use);
+}
+#else
+#define arch_timer_check_ool_workaround(t,a)		do { } while(0)
+#define arch_timer_this_cpu_has_cntvct_wa()		({false;})
+#define arch_timer_counter_has_wa()			({false;})
+>>>>>>> upstream/android-13
 #endif /* CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND */
 
 static __always_inline irqreturn_t timer_handler(const int access,
@@ -723,11 +880,14 @@ static __always_inline void set_next_event(const int access, unsigned long evt,
 static int arch_timer_set_next_event_virt(unsigned long evt,
 					  struct clock_event_device *clk)
 {
+<<<<<<< HEAD
 	int ret;
 
 	if (erratum_handler(set_next_event_virt, ret, evt, clk))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	set_next_event(ARCH_TIMER_VIRT_ACCESS, evt, clk);
 	return 0;
 }
@@ -735,11 +895,14 @@ static int arch_timer_set_next_event_virt(unsigned long evt,
 static int arch_timer_set_next_event_phys(unsigned long evt,
 					  struct clock_event_device *clk)
 {
+<<<<<<< HEAD
 	int ret;
 
 	if (erratum_handler(set_next_event_phys, ret, evt, clk))
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	set_next_event(ARCH_TIMER_PHYS_ACCESS, evt, clk);
 	return 0;
 }
@@ -764,6 +927,13 @@ static void __arch_timer_setup(unsigned type,
 	clk->features = CLOCK_EVT_FEAT_ONESHOT;
 
 	if (type == ARCH_TIMER_TYPE_CP15) {
+<<<<<<< HEAD
+=======
+		typeof(clk->set_next_event) sne;
+
+		arch_timer_check_ool_workaround(ate_match_local_cap_id, NULL);
+
+>>>>>>> upstream/android-13
 		if (arch_timer_c3stop)
 			clk->features |= CLOCK_EVT_FEAT_C3STOP;
 		clk->name = "arch_sys_timer";
@@ -774,20 +944,32 @@ static void __arch_timer_setup(unsigned type,
 		case ARCH_TIMER_VIRT_PPI:
 			clk->set_state_shutdown = arch_timer_shutdown_virt;
 			clk->set_state_oneshot_stopped = arch_timer_shutdown_virt;
+<<<<<<< HEAD
 			clk->set_next_event = arch_timer_set_next_event_virt;
+=======
+			sne = erratum_handler(set_next_event_virt);
+>>>>>>> upstream/android-13
 			break;
 		case ARCH_TIMER_PHYS_SECURE_PPI:
 		case ARCH_TIMER_PHYS_NONSECURE_PPI:
 		case ARCH_TIMER_HYP_PPI:
 			clk->set_state_shutdown = arch_timer_shutdown_phys;
 			clk->set_state_oneshot_stopped = arch_timer_shutdown_phys;
+<<<<<<< HEAD
 			clk->set_next_event = arch_timer_set_next_event_phys;
+=======
+			sne = erratum_handler(set_next_event_phys);
+>>>>>>> upstream/android-13
 			break;
 		default:
 			BUG();
 		}
 
+<<<<<<< HEAD
 		arch_timer_check_ool_workaround(ate_match_local_cap_id, NULL);
+=======
+		clk->set_next_event = sne;
+>>>>>>> upstream/android-13
 	} else {
 		clk->features |= CLOCK_EVT_FEAT_DYNIRQ;
 		clk->name = "arch_mem_timer";
@@ -820,10 +1002,14 @@ static void arch_timer_evtstrm_enable(int divider)
 	cntkctl |= (divider << ARCH_TIMER_EVT_TRIGGER_SHIFT)
 			| ARCH_TIMER_VIRT_EVT_EN;
 	arch_timer_set_cntkctl(cntkctl);
+<<<<<<< HEAD
 	elf_hwcap |= HWCAP_EVTSTRM;
 #ifdef CONFIG_COMPAT
 	compat_elf_hwcap |= COMPAT_HWCAP_EVTSTRM;
 #endif
+=======
+	arch_timer_set_evtstrm_feature();
+>>>>>>> upstream/android-13
 	cpumask_set_cpu(smp_processor_id(), &evtstrm_available);
 }
 
@@ -916,12 +1102,30 @@ static int arch_timer_starting_cpu(unsigned int cpu)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int validate_timer_rate(void)
+{
+	if (!arch_timer_rate)
+		return -EINVAL;
+
+	/* Arch timer frequency < 1MHz can cause trouble */
+	WARN_ON(arch_timer_rate < 1000000);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  * For historical reasons, when probing with DT we use whichever (non-zero)
  * rate was probed first, and don't verify that others match. If the first node
  * probed has a clock-frequency property, this overrides the HW register.
  */
+<<<<<<< HEAD
 static void arch_timer_of_configure_rate(u32 rate, struct device_node *np)
+=======
+static void __init arch_timer_of_configure_rate(u32 rate, struct device_node *np)
+>>>>>>> upstream/android-13
 {
 	/* Who has more than one independent system counter? */
 	if (arch_timer_rate)
@@ -931,11 +1135,19 @@ static void arch_timer_of_configure_rate(u32 rate, struct device_node *np)
 		arch_timer_rate = rate;
 
 	/* Check the timer frequency. */
+<<<<<<< HEAD
 	if (arch_timer_rate == 0)
 		pr_warn("frequency not available\n");
 }
 
 static void arch_timer_banner(unsigned type)
+=======
+	if (validate_timer_rate())
+		pr_warn("frequency not available\n");
+}
+
+static void __init arch_timer_banner(unsigned type)
+>>>>>>> upstream/android-13
 {
 	pr_info("%s%s%s timer(s) running at %lu.%02luMHz (%s%s%s).\n",
 		type & ARCH_TIMER_TYPE_CP15 ? "cp15" : "",
@@ -957,7 +1169,10 @@ u32 arch_timer_get_rate(void)
 {
 	return arch_timer_rate;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(arch_timer_get_rate);
+=======
+>>>>>>> upstream/android-13
 
 bool arch_timer_evtstrm_available(void)
 {
@@ -969,6 +1184,7 @@ bool arch_timer_evtstrm_available(void)
 	return cpumask_test_cpu(raw_smp_processor_id(), &evtstrm_available);
 }
 
+<<<<<<< HEAD
 void arch_timer_mem_get_cval(u32 *lo, u32 *hi)
 {
 	u32 ctrl;
@@ -987,6 +1203,8 @@ void arch_timer_mem_get_cval(u32 *lo, u32 *hi)
 }
 EXPORT_SYMBOL_GPL(arch_timer_mem_get_cval);
 
+=======
+>>>>>>> upstream/android-13
 static u64 arch_counter_get_cntvct_mem(void)
 {
 	u32 vct_lo, vct_hi, tmp_hi;
@@ -1013,6 +1231,7 @@ static void __init arch_counter_register(unsigned type)
 
 	/* Register the CP15 based counter if we have one */
 	if (type & ARCH_TIMER_TYPE_CP15) {
+<<<<<<< HEAD
 		if ((IS_ENABLED(CONFIG_ARM64) && !is_hyp_mode_available()) ||
 		    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI)
 			arch_timer_read_counter = arch_counter_get_cntvct;
@@ -1020,6 +1239,25 @@ static void __init arch_counter_register(unsigned type)
 			arch_timer_read_counter = arch_counter_get_cntpct;
 
 		clocksource_counter.archdata.vdso_direct = vdso_default;
+=======
+		u64 (*rd)(void);
+
+		if ((IS_ENABLED(CONFIG_ARM64) && !is_hyp_mode_available()) ||
+		    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI) {
+			if (arch_timer_counter_has_wa())
+				rd = arch_counter_get_cntvct_stable;
+			else
+				rd = arch_counter_get_cntvct;
+		} else {
+			if (arch_timer_counter_has_wa())
+				rd = arch_counter_get_cntpct_stable;
+			else
+				rd = arch_counter_get_cntpct;
+		}
+
+		arch_timer_read_counter = rd;
+		clocksource_counter.vdso_clock_mode = vdso_default;
+>>>>>>> upstream/android-13
 	} else {
 		arch_timer_read_counter = arch_counter_get_cntvct_mem;
 	}
@@ -1070,7 +1308,11 @@ static int arch_timer_cpu_pm_notify(struct notifier_block *self,
 	} else if (action == CPU_PM_ENTER_FAILED || action == CPU_PM_EXIT) {
 		arch_timer_set_cntkctl(__this_cpu_read(saved_cntkctl));
 
+<<<<<<< HEAD
 		if (elf_hwcap & HWCAP_EVTSTRM)
+=======
+		if (arch_timer_have_evtstrm_feature())
+>>>>>>> upstream/android-13
 			cpumask_set_cpu(smp_processor_id(), &evtstrm_available);
 	}
 	return NOTIFY_OK;
@@ -1276,10 +1518,25 @@ static enum arch_timer_ppi_nr __init arch_timer_select_ppi(void)
 	return ARCH_TIMER_PHYS_SECURE_PPI;
 }
 
+<<<<<<< HEAD
 static int __init arch_timer_of_init(struct device_node *np)
 {
 	int i, ret;
 	u32 rate;
+=======
+static void __init arch_timer_populate_kvm_info(void)
+{
+	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[ARCH_TIMER_VIRT_PPI];
+	if (is_kernel_in_hyp_mode())
+		arch_timer_kvm_info.physical_irq = arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI];
+}
+
+static int __init arch_timer_of_init(struct device_node *np)
+{
+	int i, irq, ret;
+	u32 rate;
+	bool has_names;
+>>>>>>> upstream/android-13
 
 	if (arch_timers_present & ARCH_TIMER_TYPE_CP15) {
 		pr_warn("multiple nodes in dt, skipping\n");
@@ -1287,10 +1544,26 @@ static int __init arch_timer_of_init(struct device_node *np)
 	}
 
 	arch_timers_present |= ARCH_TIMER_TYPE_CP15;
+<<<<<<< HEAD
 	for (i = ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; i++)
 		arch_timer_ppi[i] = irq_of_parse_and_map(np, i);
 
 	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[ARCH_TIMER_VIRT_PPI];
+=======
+
+	has_names = of_property_read_bool(np, "interrupt-names");
+
+	for (i = ARCH_TIMER_PHYS_SECURE_PPI; i < ARCH_TIMER_MAX_TIMER_PPI; i++) {
+		if (has_names)
+			irq = of_irq_get_byname(np, arch_timer_ppi_names[i]);
+		else
+			irq = of_irq_get(np, i);
+		if (irq > 0)
+			arch_timer_ppi[i] = irq;
+	}
+
+	arch_timer_populate_kvm_info();
+>>>>>>> upstream/android-13
 
 	rate = arch_timer_get_cntfrq();
 	arch_timer_of_configure_rate(rate, np);
@@ -1606,10 +1879,15 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
 	arch_timers_present |= ARCH_TIMER_TYPE_CP15;
 
 	ret = acpi_gtdt_init(table, &platform_timer_count);
+<<<<<<< HEAD
 	if (ret) {
 		pr_err("Failed to init GTDT table.\n");
 		return ret;
 	}
+=======
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	arch_timer_ppi[ARCH_TIMER_PHYS_NONSECURE_PPI] =
 		acpi_gtdt_map_ppi(ARCH_TIMER_PHYS_NONSECURE_PPI);
@@ -1620,16 +1898,27 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
 	arch_timer_ppi[ARCH_TIMER_HYP_PPI] =
 		acpi_gtdt_map_ppi(ARCH_TIMER_HYP_PPI);
 
+<<<<<<< HEAD
 	arch_timer_kvm_info.virtual_irq = arch_timer_ppi[ARCH_TIMER_VIRT_PPI];
+=======
+	arch_timer_populate_kvm_info();
+>>>>>>> upstream/android-13
 
 	/*
 	 * When probing via ACPI, we have no mechanism to override the sysreg
 	 * CNTFRQ value. This *must* be correct.
 	 */
 	arch_timer_rate = arch_timer_get_cntfrq();
+<<<<<<< HEAD
 	if (!arch_timer_rate) {
 		pr_err(FW_BUG "frequency not available.\n");
 		return -EINVAL;
+=======
+	ret = validate_timer_rate();
+	if (ret) {
+		pr_err(FW_BUG "frequency not available.\n");
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	arch_timer_uses_ppi = arch_timer_select_ppi();
@@ -1656,3 +1945,38 @@ static int __init arch_timer_acpi_init(struct acpi_table_header *table)
 }
 TIMER_ACPI_DECLARE(arch_timer, ACPI_SIG_GTDT, arch_timer_acpi_init);
 #endif
+<<<<<<< HEAD
+=======
+
+int kvm_arch_ptp_get_crosststamp(u64 *cycle, struct timespec64 *ts,
+				 struct clocksource **cs)
+{
+	struct arm_smccc_res hvc_res;
+	u32 ptp_counter;
+	ktime_t ktime;
+
+	if (!IS_ENABLED(CONFIG_HAVE_ARM_SMCCC_DISCOVERY))
+		return -EOPNOTSUPP;
+
+	if (arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI)
+		ptp_counter = KVM_PTP_VIRT_COUNTER;
+	else
+		ptp_counter = KVM_PTP_PHYS_COUNTER;
+
+	arm_smccc_1_1_invoke(ARM_SMCCC_VENDOR_HYP_KVM_PTP_FUNC_ID,
+			     ptp_counter, &hvc_res);
+
+	if ((int)(hvc_res.a0) < 0)
+		return -EOPNOTSUPP;
+
+	ktime = (u64)hvc_res.a0 << 32 | hvc_res.a1;
+	*ts = ktime_to_timespec64(ktime);
+	if (cycle)
+		*cycle = (u64)hvc_res.a2 << 32 | hvc_res.a3;
+	if (cs)
+		*cs = &clocksource_counter;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(kvm_arch_ptp_get_crosststamp);
+>>>>>>> upstream/android-13

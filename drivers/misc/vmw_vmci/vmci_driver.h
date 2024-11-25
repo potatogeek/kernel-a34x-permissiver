@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * VMware VMCI Driver
  *
  * Copyright (C) 2012 VMware, Inc. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,6 +16,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _VMCI_DRIVER_H_
@@ -44,14 +51,27 @@ extern struct pci_dev *vmci_pdev;
 
 u32 vmci_get_context_id(void);
 int vmci_send_datagram(struct vmci_datagram *dg);
+<<<<<<< HEAD
+=======
+void vmci_call_vsock_callback(bool is_host);
+>>>>>>> upstream/android-13
 
 int vmci_host_init(void);
 void vmci_host_exit(void);
 bool vmci_host_code_active(void);
+<<<<<<< HEAD
+=======
+int vmci_host_users(void);
+>>>>>>> upstream/android-13
 
 int vmci_guest_init(void);
 void vmci_guest_exit(void);
 bool vmci_guest_code_active(void);
 u32 vmci_get_vm_context_id(void);
 
+<<<<<<< HEAD
+=======
+bool vmci_use_ppn64(void);
+
+>>>>>>> upstream/android-13
 #endif /* _VMCI_DRIVER_H_ */

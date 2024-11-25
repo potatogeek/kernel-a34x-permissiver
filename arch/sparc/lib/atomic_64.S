@@ -19,7 +19,11 @@
 	 */
 
 #define ATOMIC_OP(op)							\
+<<<<<<< HEAD
 ENTRY(atomic_##op) /* %o0 = increment, %o1 = atomic_ptr */		\
+=======
+ENTRY(arch_atomic_##op) /* %o0 = increment, %o1 = atomic_ptr */		\
+>>>>>>> upstream/android-13
 	BACKOFF_SETUP(%o2);						\
 1:	lduw	[%o1], %g1;						\
 	op	%g1, %o0, %g7;						\
@@ -30,11 +34,19 @@ ENTRY(atomic_##op) /* %o0 = increment, %o1 = atomic_ptr */		\
 	retl;								\
 	 nop;								\
 2:	BACKOFF_SPIN(%o2, %o3, 1b);					\
+<<<<<<< HEAD
 ENDPROC(atomic_##op);							\
 EXPORT_SYMBOL(atomic_##op);
 
 #define ATOMIC_OP_RETURN(op)						\
 ENTRY(atomic_##op##_return) /* %o0 = increment, %o1 = atomic_ptr */	\
+=======
+ENDPROC(arch_atomic_##op);						\
+EXPORT_SYMBOL(arch_atomic_##op);
+
+#define ATOMIC_OP_RETURN(op)						\
+ENTRY(arch_atomic_##op##_return) /* %o0 = increment, %o1 = atomic_ptr */\
+>>>>>>> upstream/android-13
 	BACKOFF_SETUP(%o2);						\
 1:	lduw	[%o1], %g1;						\
 	op	%g1, %o0, %g7;						\
@@ -45,11 +57,19 @@ ENTRY(atomic_##op##_return) /* %o0 = increment, %o1 = atomic_ptr */	\
 	retl;								\
 	 sra	%g1, 0, %o0;						\
 2:	BACKOFF_SPIN(%o2, %o3, 1b);					\
+<<<<<<< HEAD
 ENDPROC(atomic_##op##_return);						\
 EXPORT_SYMBOL(atomic_##op##_return);
 
 #define ATOMIC_FETCH_OP(op)						\
 ENTRY(atomic_fetch_##op) /* %o0 = increment, %o1 = atomic_ptr */	\
+=======
+ENDPROC(arch_atomic_##op##_return);					\
+EXPORT_SYMBOL(arch_atomic_##op##_return);
+
+#define ATOMIC_FETCH_OP(op)						\
+ENTRY(arch_atomic_fetch_##op) /* %o0 = increment, %o1 = atomic_ptr */	\
+>>>>>>> upstream/android-13
 	BACKOFF_SETUP(%o2);						\
 1:	lduw	[%o1], %g1;						\
 	op	%g1, %o0, %g7;						\
@@ -60,8 +80,13 @@ ENTRY(atomic_fetch_##op) /* %o0 = increment, %o1 = atomic_ptr */	\
 	retl;								\
 	 sra	%g1, 0, %o0;						\
 2:	BACKOFF_SPIN(%o2, %o3, 1b);					\
+<<<<<<< HEAD
 ENDPROC(atomic_fetch_##op);						\
 EXPORT_SYMBOL(atomic_fetch_##op);
+=======
+ENDPROC(arch_atomic_fetch_##op);					\
+EXPORT_SYMBOL(arch_atomic_fetch_##op);
+>>>>>>> upstream/android-13
 
 ATOMIC_OP(add)
 ATOMIC_OP_RETURN(add)
@@ -85,7 +110,11 @@ ATOMIC_FETCH_OP(xor)
 #undef ATOMIC_OP
 
 #define ATOMIC64_OP(op)							\
+<<<<<<< HEAD
 ENTRY(atomic64_##op) /* %o0 = increment, %o1 = atomic_ptr */		\
+=======
+ENTRY(arch_atomic64_##op) /* %o0 = increment, %o1 = atomic_ptr */	\
+>>>>>>> upstream/android-13
 	BACKOFF_SETUP(%o2);						\
 1:	ldx	[%o1], %g1;						\
 	op	%g1, %o0, %g7;						\
@@ -96,11 +125,19 @@ ENTRY(atomic64_##op) /* %o0 = increment, %o1 = atomic_ptr */		\
 	retl;								\
 	 nop;								\
 2:	BACKOFF_SPIN(%o2, %o3, 1b);					\
+<<<<<<< HEAD
 ENDPROC(atomic64_##op);							\
 EXPORT_SYMBOL(atomic64_##op);
 
 #define ATOMIC64_OP_RETURN(op)						\
 ENTRY(atomic64_##op##_return) /* %o0 = increment, %o1 = atomic_ptr */	\
+=======
+ENDPROC(arch_atomic64_##op);						\
+EXPORT_SYMBOL(arch_atomic64_##op);
+
+#define ATOMIC64_OP_RETURN(op)						\
+ENTRY(arch_atomic64_##op##_return) /* %o0 = increment, %o1 = atomic_ptr */	\
+>>>>>>> upstream/android-13
 	BACKOFF_SETUP(%o2);						\
 1:	ldx	[%o1], %g1;						\
 	op	%g1, %o0, %g7;						\
@@ -111,11 +148,19 @@ ENTRY(atomic64_##op##_return) /* %o0 = increment, %o1 = atomic_ptr */	\
 	retl;								\
 	 op	%g1, %o0, %o0;						\
 2:	BACKOFF_SPIN(%o2, %o3, 1b);					\
+<<<<<<< HEAD
 ENDPROC(atomic64_##op##_return);					\
 EXPORT_SYMBOL(atomic64_##op##_return);
 
 #define ATOMIC64_FETCH_OP(op)						\
 ENTRY(atomic64_fetch_##op) /* %o0 = increment, %o1 = atomic_ptr */	\
+=======
+ENDPROC(arch_atomic64_##op##_return);					\
+EXPORT_SYMBOL(arch_atomic64_##op##_return);
+
+#define ATOMIC64_FETCH_OP(op)						\
+ENTRY(arch_atomic64_fetch_##op) /* %o0 = increment, %o1 = atomic_ptr */	\
+>>>>>>> upstream/android-13
 	BACKOFF_SETUP(%o2);						\
 1:	ldx	[%o1], %g1;						\
 	op	%g1, %o0, %g7;						\
@@ -126,8 +171,13 @@ ENTRY(atomic64_fetch_##op) /* %o0 = increment, %o1 = atomic_ptr */	\
 	retl;								\
 	 mov	%g1, %o0;						\
 2:	BACKOFF_SPIN(%o2, %o3, 1b);					\
+<<<<<<< HEAD
 ENDPROC(atomic64_fetch_##op);						\
 EXPORT_SYMBOL(atomic64_fetch_##op);
+=======
+ENDPROC(arch_atomic64_fetch_##op);					\
+EXPORT_SYMBOL(arch_atomic64_fetch_##op);
+>>>>>>> upstream/android-13
 
 ATOMIC64_OP(add)
 ATOMIC64_OP_RETURN(add)
@@ -150,7 +200,11 @@ ATOMIC64_FETCH_OP(xor)
 #undef ATOMIC64_OP_RETURN
 #undef ATOMIC64_OP
 
+<<<<<<< HEAD
 ENTRY(atomic64_dec_if_positive) /* %o0 = atomic_ptr */
+=======
+ENTRY(arch_atomic64_dec_if_positive) /* %o0 = atomic_ptr */
+>>>>>>> upstream/android-13
 	BACKOFF_SETUP(%o2)
 1:	ldx	[%o0], %g1
 	brlez,pn %g1, 3f
@@ -162,5 +216,10 @@ ENTRY(atomic64_dec_if_positive) /* %o0 = atomic_ptr */
 3:	retl
 	 sub	%g1, 1, %o0
 2:	BACKOFF_SPIN(%o2, %o3, 1b)
+<<<<<<< HEAD
 ENDPROC(atomic64_dec_if_positive)
 EXPORT_SYMBOL(atomic64_dec_if_positive)
+=======
+ENDPROC(arch_atomic64_dec_if_positive)
+EXPORT_SYMBOL(arch_atomic64_dec_if_positive)
+>>>>>>> upstream/android-13

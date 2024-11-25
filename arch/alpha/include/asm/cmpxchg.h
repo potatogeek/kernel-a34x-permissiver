@@ -17,7 +17,11 @@
 				       sizeof(*(ptr)));			\
 })
 
+<<<<<<< HEAD
 #define cmpxchg_local(ptr, o, n)					\
+=======
+#define arch_cmpxchg_local(ptr, o, n)					\
+>>>>>>> upstream/android-13
 ({									\
 	__typeof__(*(ptr)) _o_ = (o);					\
 	__typeof__(*(ptr)) _n_ = (n);					\
@@ -26,7 +30,11 @@
 					  sizeof(*(ptr)));		\
 })
 
+<<<<<<< HEAD
 #define cmpxchg64_local(ptr, o, n)					\
+=======
+#define arch_cmpxchg64_local(ptr, o, n)					\
+>>>>>>> upstream/android-13
 ({									\
 	BUILD_BUG_ON(sizeof(*(ptr)) != 8);				\
 	cmpxchg_local((ptr), (o), (n));					\
@@ -42,7 +50,11 @@
  * The leading and the trailing memory barriers guarantee that these
  * operations are fully ordered.
  */
+<<<<<<< HEAD
 #define xchg(ptr, x)							\
+=======
+#define arch_xchg(ptr, x)						\
+>>>>>>> upstream/android-13
 ({									\
 	__typeof__(*(ptr)) __ret;					\
 	__typeof__(*(ptr)) _x_ = (x);					\
@@ -53,7 +65,11 @@
 	__ret;								\
 })
 
+<<<<<<< HEAD
 #define cmpxchg(ptr, o, n)						\
+=======
+#define arch_cmpxchg(ptr, o, n)						\
+>>>>>>> upstream/android-13
 ({									\
 	__typeof__(*(ptr)) __ret;					\
 	__typeof__(*(ptr)) _o_ = (o);					\
@@ -65,10 +81,17 @@
 	__ret;								\
 })
 
+<<<<<<< HEAD
 #define cmpxchg64(ptr, o, n)						\
 ({									\
 	BUILD_BUG_ON(sizeof(*(ptr)) != 8);				\
 	cmpxchg((ptr), (o), (n));					\
+=======
+#define arch_cmpxchg64(ptr, o, n)					\
+({									\
+	BUILD_BUG_ON(sizeof(*(ptr)) != 8);				\
+	arch_cmpxchg((ptr), (o), (n));					\
+>>>>>>> upstream/android-13
 })
 
 #undef ____cmpxchg

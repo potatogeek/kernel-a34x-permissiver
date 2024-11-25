@@ -1,16 +1,27 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPV6 GSO/GRO offload support
  *	Linux INET6 implementation
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *      UDPv6 GSO support
  */
 #include <linux/skbuff.h>
 #include <linux/netdevice.h>
+<<<<<<< HEAD
+=======
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 #include <net/protocol.h>
 #include <net/ipv6.h>
 #include <net/udp.h>
@@ -31,10 +42,13 @@ static struct sk_buff *udp6_ufo_fragment(struct sk_buff *skb,
 	int tnl_hlen;
 	int err;
 
+<<<<<<< HEAD
 	mss = skb_shinfo(skb)->gso_size;
 	if (unlikely(skb->len <= mss))
 		goto out;
 
+=======
+>>>>>>> upstream/android-13
 	if (skb->encapsulation && skb_shinfo(skb)->gso_type &
 	    (SKB_GSO_UDP_TUNNEL|SKB_GSO_UDP_TUNNEL_CSUM))
 		segs = skb_udp_tunnel_segment(skb, features, true);
@@ -49,7 +63,15 @@ static struct sk_buff *udp6_ufo_fragment(struct sk_buff *skb,
 			goto out;
 
 		if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4)
+<<<<<<< HEAD
 			return __udp_gso_segment(skb, features);
+=======
+			return __udp_gso_segment(skb, features, true);
+
+		mss = skb_shinfo(skb)->gso_size;
+		if (unlikely(skb->len <= mss))
+			goto out;
+>>>>>>> upstream/android-13
 
 		/* Do software UFO. Complete and fill in the UDP checksum as HW cannot
 		 * do checksum of UDP packets sent as multiple IP fragments.
@@ -114,6 +136,7 @@ out:
 	return segs;
 }
 
+<<<<<<< HEAD
 static struct sk_buff *udp6_gro_receive(struct list_head *head,
 					struct sk_buff *skb)
 {
@@ -122,6 +145,26 @@ static struct sk_buff *udp6_gro_receive(struct list_head *head,
 	struct sock *sk;
 
 	if (unlikely(!uh) || !static_branch_unlikely(&udpv6_encap_needed_key))
+=======
+static struct sock *udp6_gro_lookup_skb(struct sk_buff *skb, __be16 sport,
+					__be16 dport)
+{
+	const struct ipv6hdr *iph = skb_gro_network_header(skb);
+
+	return __udp6_lib_lookup(dev_net(skb->dev), &iph->saddr, sport,
+				 &iph->daddr, dport, inet6_iif(skb),
+				 inet6_sdif(skb), &udp_table, NULL);
+}
+
+INDIRECT_CALLABLE_SCOPE
+struct sk_buff *udp6_gro_receive(struct list_head *head, struct sk_buff *skb)
+{
+	struct udphdr *uh = udp_gro_udphdr(skb);
+	struct sock *sk = NULL;
+	struct sk_buff *pp;
+
+	if (unlikely(!uh))
+>>>>>>> upstream/android-13
 		goto flush;
 
 	/* Don't bother verifying checksum if we're going to flush anyway. */
@@ -132,13 +175,24 @@ static struct sk_buff *udp6_gro_receive(struct list_head *head,
 						 ip6_gro_compute_pseudo))
 		goto flush;
 	else if (uh->check)
+<<<<<<< HEAD
 		skb_gro_checksum_try_convert(skb, IPPROTO_UDP, uh->check,
+=======
+		skb_gro_checksum_try_convert(skb, IPPROTO_UDP,
+>>>>>>> upstream/android-13
 					     ip6_gro_compute_pseudo);
 
 skip:
 	NAPI_GRO_CB(skb)->is_ipv6 = 1;
 	rcu_read_lock();
+<<<<<<< HEAD
 	sk = static_branch_unlikely(&udp_encap_needed_key) ? udp6_lib_lookup_skb(skb, uh->source, uh->dest) : NULL;
+=======
+
+	if (static_branch_unlikely(&udpv6_encap_needed_key))
+		sk = udp6_gro_lookup_skb(skb, uh->source, uh->dest);
+
+>>>>>>> upstream/android-13
 	pp = udp_gro_receive(head, skb, uh, sk);
 	rcu_read_unlock();
 	return pp;
@@ -148,11 +202,36 @@ flush:
 	return NULL;
 }
 
+<<<<<<< HEAD
 static int udp6_gro_complete(struct sk_buff *skb, int nhoff)
+=======
+INDIRECT_CALLABLE_SCOPE int udp6_gro_complete(struct sk_buff *skb, int nhoff)
+>>>>>>> upstream/android-13
 {
 	const struct ipv6hdr *ipv6h = ipv6_hdr(skb);
 	struct udphdr *uh = (struct udphdr *)(skb->data + nhoff);
 
+<<<<<<< HEAD
+=======
+	/* do fraglist only if there is no outer UDP encap (or we already processed it) */
+	if (NAPI_GRO_CB(skb)->is_flist && !NAPI_GRO_CB(skb)->encap_mark) {
+		uh->len = htons(skb->len - nhoff);
+
+		skb_shinfo(skb)->gso_type |= (SKB_GSO_FRAGLIST|SKB_GSO_UDP_L4);
+		skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
+
+		if (skb->ip_summed == CHECKSUM_UNNECESSARY) {
+			if (skb->csum_level < SKB_MAX_CSUM_LEVEL)
+				skb->csum_level++;
+		} else {
+			skb->ip_summed = CHECKSUM_UNNECESSARY;
+			skb->csum_level = 0;
+		}
+
+		return 0;
+	}
+
+>>>>>>> upstream/android-13
 	if (uh->check)
 		uh->check = ~udp_v6_check(skb->len - nhoff, &ipv6h->saddr,
 					  &ipv6h->daddr, 0);

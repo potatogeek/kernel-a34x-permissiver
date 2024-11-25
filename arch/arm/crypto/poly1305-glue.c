@@ -12,6 +12,10 @@
 #include <crypto/algapi.h>
 #include <crypto/internal/hash.h>
 #include <crypto/internal/poly1305.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <linux/cpufeature.h>
 #include <linux/crypto.h>
 #include <linux/jump_label.h>
@@ -28,7 +32,11 @@ void __weak poly1305_blocks_neon(void *state, const u8 *src, u32 len, u32 hibit)
 
 static __ro_after_init DEFINE_STATIC_KEY_FALSE(have_neon);
 
+<<<<<<< HEAD
 void poly1305_init_arch(struct poly1305_desc_ctx *dctx, const u8 *key)
+=======
+void poly1305_init_arch(struct poly1305_desc_ctx *dctx, const u8 key[POLY1305_KEY_SIZE])
+>>>>>>> upstream/android-13
 {
 	poly1305_init_arm(&dctx->h, key);
 	dctx->s[0] = get_unaligned_le32(key + 16);
@@ -125,7 +133,11 @@ static int __maybe_unused arm_poly1305_update_neon(struct shash_desc *desc,
 						   unsigned int srclen)
 {
 	struct poly1305_desc_ctx *dctx = shash_desc_ctx(desc);
+<<<<<<< HEAD
 	bool do_neon = may_use_simd() && srclen > 128;
+=======
+	bool do_neon = crypto_simd_usable() && srclen > 128;
+>>>>>>> upstream/android-13
 
 	if (static_branch_likely(&have_neon) && do_neon)
 		kernel_neon_begin();
@@ -139,7 +151,11 @@ void poly1305_update_arch(struct poly1305_desc_ctx *dctx, const u8 *src,
 			  unsigned int nbytes)
 {
 	bool do_neon = IS_ENABLED(CONFIG_KERNEL_MODE_NEON) &&
+<<<<<<< HEAD
 		       may_use_simd();
+=======
+		       crypto_simd_usable();
+>>>>>>> upstream/android-13
 
 	if (unlikely(dctx->buflen)) {
 		u32 bytes = min(nbytes, POLY1305_BLOCK_SIZE - dctx->buflen);

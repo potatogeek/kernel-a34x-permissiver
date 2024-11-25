@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009, Steven Rostedt <srostedt@redhat.com>
  *
@@ -17,22 +18,35 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2009, Steven Rostedt <srostedt@redhat.com>
+>>>>>>> upstream/android-13
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
+<<<<<<< HEAD
 #include "../perf.h"
 #include "debug.h"
 #include "trace-event.h"
 
 #include "sane_ctype.h"
+=======
+#include "debug.h"
+#include "trace-event.h"
+
+#include <linux/ctype.h>
+>>>>>>> upstream/android-13
 
 static int get_common_field(struct scripting_context *context,
 			    int *offset, int *size, const char *type)
 {
 	struct tep_handle *pevent = context->pevent;
+<<<<<<< HEAD
 	struct event_format *event;
 	struct format_field *field;
 
@@ -41,6 +55,17 @@ static int get_common_field(struct scripting_context *context,
 			return 0;
 
 		event = pevent->events[0];
+=======
+	struct tep_event *event;
+	struct tep_format_field *field;
+
+	if (!*size) {
+
+		event = tep_get_first_event(pevent);
+		if (!event)
+			return 0;
+
+>>>>>>> upstream/android-13
 		field = tep_find_common_field(event, type);
 		if (!field)
 			return 0;
@@ -94,9 +119,15 @@ int common_pc(struct scripting_context *context)
 }
 
 unsigned long long
+<<<<<<< HEAD
 raw_field_value(struct event_format *event, const char *name, void *data)
 {
 	struct format_field *field;
+=======
+raw_field_value(struct tep_event *event, const char *name, void *data)
+{
+	struct tep_format_field *field;
+>>>>>>> upstream/android-13
 	unsigned long long val;
 
 	field = tep_find_any_field(event, name);
@@ -108,12 +139,21 @@ raw_field_value(struct event_format *event, const char *name, void *data)
 	return val;
 }
 
+<<<<<<< HEAD
 unsigned long long read_size(struct event_format *event, void *ptr, int size)
 {
 	return tep_read_number(event->pevent, ptr, size);
 }
 
 void event_format__fprintf(struct event_format *event,
+=======
+unsigned long long read_size(struct tep_event *event, void *ptr, int size)
+{
+	return tep_read_number(event->tep, ptr, size);
+}
+
+void event_format__fprintf(struct tep_event *event,
+>>>>>>> upstream/android-13
 			   int cpu, void *data, int size, FILE *fp)
 {
 	struct tep_record record;
@@ -125,12 +165,20 @@ void event_format__fprintf(struct event_format *event,
 	record.data = data;
 
 	trace_seq_init(&s);
+<<<<<<< HEAD
 	tep_event_info(&s, event, &record);
+=======
+	tep_print_event(event->tep, &s, &record, "%s", TEP_PRINT_INFO);
+>>>>>>> upstream/android-13
 	trace_seq_do_fprintf(&s, fp);
 	trace_seq_destroy(&s);
 }
 
+<<<<<<< HEAD
 void event_format__print(struct event_format *event,
+=======
+void event_format__print(struct tep_event *event,
+>>>>>>> upstream/android-13
 			 int cpu, void *data, int size)
 {
 	return event_format__fprintf(event, cpu, data, size, stdout);
@@ -189,6 +237,7 @@ int parse_event_file(struct tep_handle *pevent,
 	return tep_parse_event(pevent, buf, size, sys);
 }
 
+<<<<<<< HEAD
 struct event_format *trace_find_next_event(struct tep_handle *pevent,
 					   struct event_format *event)
 {
@@ -216,6 +265,8 @@ struct event_format *trace_find_next_event(struct tep_handle *pevent,
 	return NULL;
 }
 
+=======
+>>>>>>> upstream/android-13
 struct flag {
 	const char *name;
 	unsigned long long value;

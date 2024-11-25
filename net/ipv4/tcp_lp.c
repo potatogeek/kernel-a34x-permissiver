@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TCP Low Priority (TCP-LP)
  *
@@ -62,7 +66,11 @@ enum tcp_lp_state {
  * @sowd: smoothed OWD << 3
  * @owd_min: min OWD
  * @owd_max: max OWD
+<<<<<<< HEAD
  * @owd_max_rsv: resrved max owd
+=======
+ * @owd_max_rsv: reserved max owd
+>>>>>>> upstream/android-13
  * @remote_hz: estimated remote HZ
  * @remote_ref_time: remote reference time
  * @local_ref_time: local reference time
@@ -88,6 +96,10 @@ struct lp {
 
 /**
  * tcp_lp_init
+<<<<<<< HEAD
+=======
+ * @sk: socket to initialize congestion control algorithm for
+>>>>>>> upstream/android-13
  *
  * Init all required variables.
  * Clone the handling from Vegas module implementation.
@@ -110,6 +122,10 @@ static void tcp_lp_init(struct sock *sk)
 
 /**
  * tcp_lp_cong_avoid
+<<<<<<< HEAD
+=======
+ * @sk: socket to avoid congesting
+>>>>>>> upstream/android-13
  *
  * Implementation of cong_avoid.
  * Will only call newReno CA when away from inference.
@@ -125,6 +141,10 @@ static void tcp_lp_cong_avoid(struct sock *sk, u32 ack, u32 acked)
 
 /**
  * tcp_lp_remote_hz_estimator
+<<<<<<< HEAD
+=======
+ * @sk: socket which needs an estimate for the remote HZs
+>>>>>>> upstream/android-13
  *
  * Estimate remote HZ.
  * We keep on updating the estimated value, where original TCP-LP
@@ -175,6 +195,10 @@ static u32 tcp_lp_remote_hz_estimator(struct sock *sk)
 
 /**
  * tcp_lp_owd_calculator
+<<<<<<< HEAD
+=======
+ * @sk: socket to calculate one way delay for
+>>>>>>> upstream/android-13
  *
  * Calculate one way delay (in relative format).
  * Original implement OWD as minus of remote time difference to local time
@@ -209,6 +233,11 @@ static u32 tcp_lp_owd_calculator(struct sock *sk)
 
 /**
  * tcp_lp_rtt_sample
+<<<<<<< HEAD
+=======
+ * @sk: socket to add a rtt sample to
+ * @rtt: round trip time, which is ignored!
+>>>>>>> upstream/android-13
  *
  * Implementation or rtt_sample.
  * Will take the following action,
@@ -253,6 +282,10 @@ static void tcp_lp_rtt_sample(struct sock *sk, u32 rtt)
 
 /**
  * tcp_lp_pkts_acked
+<<<<<<< HEAD
+=======
+ * @sk: socket requiring congestion avoidance calculations
+>>>>>>> upstream/android-13
  *
  * Implementation of pkts_acked.
  * Deal with active drop under Early Congestion Indication.
@@ -297,7 +330,11 @@ static void tcp_lp_pkts_acked(struct sock *sk, const struct ack_sample *sample)
 
 	/* FIXME: try to reset owd_min and owd_max here
 	 * so decrease the chance the min/max is no longer suitable
+<<<<<<< HEAD
 	 * and will usually within threshold when whithin inference */
+=======
+	 * and will usually within threshold when within inference */
+>>>>>>> upstream/android-13
 	lp->owd_min = lp->sowd >> 3;
 	lp->owd_max = lp->sowd >> 2;
 	lp->owd_max_rsv = lp->sowd >> 2;

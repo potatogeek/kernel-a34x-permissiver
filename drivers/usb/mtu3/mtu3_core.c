@@ -16,6 +16,7 @@
 #include <linux/platform_device.h>
 
 #include "mtu3.h"
+<<<<<<< HEAD
 #include "mtu3_debug.h"
 #include "mtu3_trace.h"
 
@@ -69,6 +70,12 @@ skip:
 }
 #endif
 
+=======
+#include "mtu3_dr.h"
+#include "mtu3_debug.h"
+#include "mtu3_trace.h"
+
+>>>>>>> upstream/android-13
 static int ep_fifo_alloc(struct mtu3_ep *mep, u32 seg_size)
 {
 	struct mtu3_fifo_info *fifo = mep->fifo;
@@ -142,7 +149,11 @@ static inline void mtu3_hs_softconn_set(struct mtu3 *mtu, bool enable)
 }
 
 /* only port0 of U2/U3 supports device mode */
+<<<<<<< HEAD
 int mtu3_device_enable(struct mtu3 *mtu)
+=======
+static int mtu3_device_enable(struct mtu3 *mtu)
+>>>>>>> upstream/android-13
 {
 	void __iomem *ibase = mtu->ippc_base;
 	u32 check_clk = 0;
@@ -169,7 +180,11 @@ int mtu3_device_enable(struct mtu3 *mtu)
 	return ssusb_check_clocks(mtu->ssusb, check_clk);
 }
 
+<<<<<<< HEAD
 void mtu3_device_disable(struct mtu3 *mtu)
+=======
+static void mtu3_device_disable(struct mtu3 *mtu)
+>>>>>>> upstream/android-13
 {
 	void __iomem *ibase = mtu->ippc_base;
 
@@ -190,6 +205,31 @@ void mtu3_device_disable(struct mtu3 *mtu)
 	mtu3_setbits(ibase, U3D_SSUSB_IP_PW_CTRL2, SSUSB_IP_DEV_PDN);
 }
 
+<<<<<<< HEAD
+=======
+static void mtu3_dev_power_on(struct mtu3 *mtu)
+{
+	void __iomem *ibase = mtu->ippc_base;
+
+	mtu3_clrbits(ibase, U3D_SSUSB_IP_PW_CTRL2, SSUSB_IP_DEV_PDN);
+	if (mtu->is_u3_ip)
+		mtu3_clrbits(ibase, SSUSB_U3_CTRL(0), SSUSB_U3_PORT_PDN);
+
+	mtu3_clrbits(ibase, SSUSB_U2_CTRL(0), SSUSB_U2_PORT_PDN);
+}
+
+static void mtu3_dev_power_down(struct mtu3 *mtu)
+{
+	void __iomem *ibase = mtu->ippc_base;
+
+	if (mtu->is_u3_ip)
+		mtu3_setbits(ibase, SSUSB_U3_CTRL(0), SSUSB_U3_PORT_PDN);
+
+	mtu3_setbits(ibase, SSUSB_U2_CTRL(0), SSUSB_U2_PORT_PDN);
+	mtu3_setbits(ibase, U3D_SSUSB_IP_PW_CTRL2, SSUSB_IP_DEV_PDN);
+}
+
+>>>>>>> upstream/android-13
 /* reset U3D's device module. */
 static void mtu3_device_reset(struct mtu3 *mtu)
 {
@@ -200,6 +240,7 @@ static void mtu3_device_reset(struct mtu3 *mtu)
 	mtu3_clrbits(ibase, U3D_SSUSB_DEV_RST_CTRL, SSUSB_DEV_SW_RST);
 }
 
+<<<<<<< HEAD
 /* disable all interrupts */
 static void mtu3_intr_disable(struct mtu3 *mtu)
 {
@@ -211,6 +252,8 @@ static void mtu3_intr_disable(struct mtu3 *mtu)
 	mtu3_writel(mbase, U3D_EPIECR, ~0x0);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void mtu3_intr_status_clear(struct mtu3 *mtu)
 {
 	void __iomem *mbase = mtu->mac_base;
@@ -223,6 +266,21 @@ static void mtu3_intr_status_clear(struct mtu3 *mtu)
 	mtu3_writel(mbase, U3D_LTSSM_INTR, ~0x0);
 	/* Clear speed change interrupt status */
 	mtu3_writel(mbase, U3D_DEV_LINK_INTR, ~0x0);
+<<<<<<< HEAD
+=======
+	/* Clear QMU interrupt status */
+	mtu3_writel(mbase, U3D_QISAR0, ~0x0);
+}
+
+/* disable all interrupts */
+static void mtu3_intr_disable(struct mtu3 *mtu)
+{
+	/* Disable level 1 interrupts */
+	mtu3_writel(mtu->mac_base, U3D_LV1IECR, ~0x0);
+	/* Disable endpoint interrupts */
+	mtu3_writel(mtu->mac_base, U3D_EPIECR, ~0x0);
+	mtu3_intr_status_clear(mtu);
+>>>>>>> upstream/android-13
 }
 
 /* enable system global interrupt */
@@ -236,7 +294,11 @@ static void mtu3_intr_enable(struct mtu3 *mtu)
 	mtu3_writel(mbase, U3D_LV1IESR, value);
 
 	/* Enable U2 common USB interrupts */
+<<<<<<< HEAD
 	value = SUSPEND_INTR | RESUME_INTR | RESET_INTR | LPM_RESUME_INTR;
+=======
+	value = SUSPEND_INTR | RESUME_INTR | RESET_INTR;
+>>>>>>> upstream/android-13
 	mtu3_writel(mbase, U3D_COMMON_USB_INTR_ENABLE, value);
 
 	if (mtu->is_u3_ip) {
@@ -255,6 +317,7 @@ static void mtu3_intr_enable(struct mtu3 *mtu)
 	mtu3_writel(mbase, U3D_DEV_LINK_INTR_ENABLE, SSUSB_DEV_SPEED_CHG_INTR);
 }
 
+<<<<<<< HEAD
 
 static void mtu3_set_speed(struct mtu3 *mtu)
 {
@@ -264,10 +327,22 @@ static void mtu3_set_speed(struct mtu3 *mtu)
 		mtu->max_speed = USB_SPEED_HIGH;
 
 	if (mtu->max_speed == USB_SPEED_FULL) {
+=======
+static void mtu3_set_speed(struct mtu3 *mtu, enum usb_device_speed speed)
+{
+	void __iomem *mbase = mtu->mac_base;
+
+	if (speed > mtu->max_speed)
+		speed = mtu->max_speed;
+
+	switch (speed) {
+	case USB_SPEED_FULL:
+>>>>>>> upstream/android-13
 		/* disable U3 SS function */
 		mtu3_clrbits(mbase, U3D_USB3_CONFIG, USB3_EN);
 		/* disable HS function */
 		mtu3_clrbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
+<<<<<<< HEAD
 	} else if (mtu->max_speed == USB_SPEED_HIGH) {
 		mtu3_clrbits(mbase, U3D_USB3_CONFIG, USB3_EN);
 		/* HS/FS detected by HW */
@@ -290,6 +365,39 @@ static void mtu3_regs_init(struct mtu3 *mtu)
 	mtu3_intr_disable(mtu);
 	mtu3_intr_status_clear(mtu);
 
+=======
+		break;
+	case USB_SPEED_HIGH:
+		mtu3_clrbits(mbase, U3D_USB3_CONFIG, USB3_EN);
+		/* HS/FS detected by HW */
+		mtu3_setbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
+		break;
+	case USB_SPEED_SUPER:
+		mtu3_setbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
+		mtu3_clrbits(mtu->ippc_base, SSUSB_U3_CTRL(0),
+			     SSUSB_U3_PORT_SSP_SPEED);
+		break;
+	case USB_SPEED_SUPER_PLUS:
+		mtu3_setbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
+		mtu3_setbits(mtu->ippc_base, SSUSB_U3_CTRL(0),
+			     SSUSB_U3_PORT_SSP_SPEED);
+		break;
+	default:
+		dev_err(mtu->dev, "invalid speed: %s\n",
+			usb_speed_string(speed));
+		return;
+	}
+
+	mtu->speed = speed;
+	dev_dbg(mtu->dev, "set speed: %s\n", usb_speed_string(speed));
+}
+
+/* CSR registers will be reset to default value if port is disabled */
+static void mtu3_csr_init(struct mtu3 *mtu)
+{
+	void __iomem *mbase = mtu->mac_base;
+
+>>>>>>> upstream/android-13
 	if (mtu->is_u3_ip) {
 		/* disable LGO_U1/U2 by default */
 		mtu3_clrbits(mbase, U3D_LINK_POWER_CONTROL,
@@ -297,10 +405,13 @@ static void mtu3_regs_init(struct mtu3 *mtu)
 		/* enable accept LGO_U1/U2 link command from host */
 		mtu3_setbits(mbase, U3D_LINK_POWER_CONTROL,
 				SW_U1_ACCEPT_ENABLE | SW_U2_ACCEPT_ENABLE);
+<<<<<<< HEAD
 		mtu3_setbits(mbase, U3D_MAC_U1_EN_CTRL,
 				ACCEPT_BMU_RX_EMPTY_HCK);
 		mtu3_setbits(mbase, U3D_MAC_U2_EN_CTRL,
 				ACCEPT_BMU_RX_EMPTY_HCK);
+=======
+>>>>>>> upstream/android-13
 		/* device responses to u3_exit from host automatically */
 		mtu3_clrbits(mbase, U3D_LTSSM_CTRL, SOFT_U3_EXIT_EN);
 		/* automatically build U2 link when U3 detect fail */
@@ -309,6 +420,7 @@ static void mtu3_regs_init(struct mtu3 *mtu)
 		mtu3_setbits(mbase, U3D_U3U2_SWITCH_CTRL, SOFTCON_CLR_AUTO_EN);
 	}
 
+<<<<<<< HEAD
 	mtu3_set_speed(mtu);
 
 	/* delay about 0.1us from detecting reset to send chirp-K */
@@ -326,6 +438,12 @@ static void mtu3_regs_init(struct mtu3 *mtu)
 	/* use new QMU format when HW version >= 0x1003 */
 	if (mtu->gen2cp)
 		mtu3_writel(mbase, U3D_QFCR, ~0x0);
+=======
+	/* delay about 0.1us from detecting reset to send chirp-K */
+	mtu3_clrbits(mbase, U3D_LINK_RESET_INFO, WTCHRP_MSK);
+	/* enable automatical HWRW from L1 */
+	mtu3_setbits(mbase, U3D_POWER_MANAGEMENT, LPM_HRWE);
+>>>>>>> upstream/android-13
 }
 
 /* reset: u2 - data toggle, u3 - SeqN, flow control status etc */
@@ -363,10 +481,15 @@ void mtu3_ep_stall_set(struct mtu3_ep *mep, bool set)
 	}
 
 	if (!set) {
+<<<<<<< HEAD
 		mtu3_qmu_stop(mep);
 		mtu3_ep_reset(mep);
 		mep->flags &= ~MTU3_EP_STALL;
 		mtu3_qmu_resume(mep);
+=======
+		mtu3_ep_reset(mep);
+		mep->flags &= ~MTU3_EP_STALL;
+>>>>>>> upstream/android-13
 	} else {
 		mep->flags |= MTU3_EP_STALL;
 	}
@@ -377,6 +500,7 @@ void mtu3_ep_stall_set(struct mtu3_ep *mep, bool set)
 
 void mtu3_dev_on_off(struct mtu3 *mtu, int is_on)
 {
+<<<<<<< HEAD
 	if (is_on) {
 		if (mtu->is_u3_ip && mtu->max_speed >= USB_SPEED_SUPER)
 			mtu3_ss_func_set(mtu, true);
@@ -416,6 +540,15 @@ static void mtu3_gadget_set_ready(struct mtu3 *mtu)
 			return;
 		}
 	}
+=======
+	if (mtu->is_u3_ip && mtu->speed >= USB_SPEED_SUPER)
+		mtu3_ss_func_set(mtu, is_on);
+	else
+		mtu3_hs_softconn_set(mtu, is_on);
+
+	dev_info(mtu->dev, "gadget (%s) pullup D%s\n",
+		usb_speed_string(mtu->speed), is_on ? "+" : "-");
+>>>>>>> upstream/android-13
 }
 
 void mtu3_start(struct mtu3 *mtu)
@@ -425,6 +558,7 @@ void mtu3_start(struct mtu3 *mtu)
 	dev_dbg(mtu->dev, "%s devctl 0x%x\n", __func__,
 		mtu3_readl(mbase, U3D_DEVICE_CONTROL));
 
+<<<<<<< HEAD
 	mtu3_clrbits(mtu->ippc_base, U3D_SSUSB_IP_PW_CTRL2, SSUSB_IP_DEV_PDN);
 
 	mtu3_regs_init(mtu);
@@ -436,11 +570,17 @@ void mtu3_start(struct mtu3 *mtu)
 	 */
 	if (mtu->max_speed == USB_SPEED_FULL)
 		mtu3_clrbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
+=======
+	mtu3_dev_power_on(mtu);
+	mtu3_csr_init(mtu);
+	mtu3_set_speed(mtu, mtu->speed);
+>>>>>>> upstream/android-13
 
 	/* Initialize the default interrupts */
 	mtu3_intr_enable(mtu);
 	mtu->is_active = 1;
 
+<<<<<<< HEAD
 	if (mtu->softconnect) {
 		mtu3_dev_on_off(mtu, 1);
 #if defined(CONFIG_USB_NOTIFY_PROC_LOG)
@@ -449,6 +589,10 @@ void mtu3_start(struct mtu3 *mtu)
 #endif
 	} else if (!mtu->is_gadget_ready)
 		ssusb_phy_dp_pullup(mtu->ssusb);
+=======
+	if (mtu->softconnect)
+		mtu3_dev_on_off(mtu, 1);
+>>>>>>> upstream/android-13
 }
 
 void mtu3_stop(struct mtu3 *mtu)
@@ -456,6 +600,7 @@ void mtu3_stop(struct mtu3 *mtu)
 	dev_dbg(mtu->dev, "%s\n", __func__);
 
 	mtu3_intr_disable(mtu);
+<<<<<<< HEAD
 	mtu3_intr_status_clear(mtu);
 
 	if (mtu->softconnect) {
@@ -468,6 +613,32 @@ void mtu3_stop(struct mtu3 *mtu)
 
 	mtu->is_active = 0;
 	mtu3_setbits(mtu->ippc_base, U3D_SSUSB_IP_PW_CTRL2, SSUSB_IP_DEV_PDN);
+=======
+
+	if (mtu->softconnect)
+		mtu3_dev_on_off(mtu, 0);
+
+	mtu->is_active = 0;
+	mtu3_dev_power_down(mtu);
+}
+
+static void mtu3_dev_suspend(struct mtu3 *mtu)
+{
+	if (!mtu->is_active)
+		return;
+
+	mtu3_intr_disable(mtu);
+	mtu3_dev_power_down(mtu);
+}
+
+static void mtu3_dev_resume(struct mtu3 *mtu)
+{
+	if (!mtu->is_active)
+		return;
+
+	mtu3_dev_power_on(mtu);
+	mtu3_intr_enable(mtu);
+>>>>>>> upstream/android-13
 }
 
 /* for non-ep0 */
@@ -564,6 +735,7 @@ int mtu3_config_ep(struct mtu3 *mtu, struct mtu3_ep *mep,
 			mtu3_readl(mbase, MU3D_EP_RXCR2(epnum)));
 	}
 
+<<<<<<< HEAD
 	/* L1 Exit Check Enable except ISOC OUT EP*/
 	if (!((mep->type == USB_ENDPOINT_XFER_ISOC) && !(mep->is_in)))
 		mtu3_setbits(mbase, U3D_USB2_EPCTL_LPM,
@@ -574,6 +746,8 @@ int mtu3_config_ep(struct mtu3 *mtu, struct mtu3_ep *mep,
 		mtu3_setbits(mbase, U3D_USB2_EPCTL_LPM_FC_CHK,
 				L1_EXIT_EP_FC_CHK(mep->is_in, epnum));
 
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(mtu->dev, "csr0:%#x, csr1:%#x, csr2:%#x\n", csr0, csr1, csr2);
 	dev_dbg(mtu->dev, "%s: %s, fifo-addr:%#x, fifo-size:%#x(%#x/%#x)\n",
 		__func__, mep->name, mep->fifo_addr, mep->fifo_size,
@@ -657,7 +831,11 @@ static void get_ep_fifo_config(struct mtu3 *mtu)
 		rx_fifo->base, rx_fifo->limit);
 }
 
+<<<<<<< HEAD
 void mtu3_ep0_setup(struct mtu3 *mtu)
+=======
+static void mtu3_ep0_setup(struct mtu3 *mtu)
+>>>>>>> upstream/android-13
 {
 	u32 maxpacket = mtu->g.ep0->maxpacket;
 	u32 csr;
@@ -728,6 +906,27 @@ static void mtu3_mem_free(struct mtu3 *mtu)
 	kfree(mtu->ep_array);
 }
 
+<<<<<<< HEAD
+=======
+static void mtu3_regs_init(struct mtu3 *mtu)
+{
+	void __iomem *mbase = mtu->mac_base;
+
+	/* be sure interrupts are disabled before registration of ISR */
+	mtu3_intr_disable(mtu);
+
+	mtu3_csr_init(mtu);
+
+	/* U2/U3 detected by HW */
+	mtu3_writel(mbase, U3D_DEVICE_CONF, 0);
+	/* vbus detected by HW */
+	mtu3_clrbits(mbase, U3D_MISC_CTRL, VBUS_FRC_EN | VBUS_ON);
+	/* use new QMU format when HW version >= 0x1003 */
+	if (mtu->gen2cp)
+		mtu3_writel(mbase, U3D_QFCR, ~0x0);
+}
+
+>>>>>>> upstream/android-13
 static irqreturn_t mtu3_link_isr(struct mtu3 *mtu)
 {
 	void __iomem *mbase = mtu->mac_base;
@@ -782,6 +981,7 @@ static irqreturn_t mtu3_link_isr(struct mtu3 *mtu)
 	mtu->g.speed = udev_speed;
 	mtu->g.ep0->maxpacket = maxpkt;
 	mtu->ep0_state = MU3D_EP0_STATE_SETUP;
+<<<<<<< HEAD
 
 	if (udev_speed >= MTU3_SPEED_SUPER)
 		ssusb_phy_dp_pullup(mtu->ssusb);
@@ -790,6 +990,17 @@ static irqreturn_t mtu3_link_isr(struct mtu3 *mtu)
 		mtu3_gadget_disconnect(mtu);
 	else
 		mtu3_ep0_setup(mtu);
+=======
+	mtu->connected = !!(udev_speed != USB_SPEED_UNKNOWN);
+
+	if (udev_speed == USB_SPEED_UNKNOWN) {
+		mtu3_gadget_disconnect(mtu);
+		pm_runtime_put(mtu->dev);
+	} else {
+		pm_runtime_get(mtu->dev);
+		mtu3_ep0_setup(mtu);
+	}
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -852,7 +1063,11 @@ static irqreturn_t mtu3_irq(int irq, void *data)
 {
 	struct mtu3 *mtu = (struct mtu3 *)data;
 	unsigned long flags;
+<<<<<<< HEAD
 	u32 level1, u2comm, int_status;
+=======
+	u32 level1;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&mtu->lock, flags);
 
@@ -860,6 +1075,7 @@ static irqreturn_t mtu3_irq(int irq, void *data)
 	level1 = mtu3_readl(mtu->mac_base, U3D_LV1ISR);
 	level1 &= mtu3_readl(mtu->mac_base, U3D_LV1IER);
 
+<<<<<<< HEAD
 	if (unlikely(!mtu->softconnect) && (level1 & MAC2_INTR)) {
 		dev_info(mtu->dev, "%s !softconnect MAC2_INTR\n", __func__);
 		u2comm = mtu3_readl(mtu->mac_base, U3D_COMMON_USB_INTR);
@@ -876,6 +1092,8 @@ static irqreturn_t mtu3_irq(int irq, void *data)
 		goto done;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (level1 & EP_CTRL_INTR)
 		mtu3_link_isr(mtu);
 
@@ -891,12 +1109,46 @@ static irqreturn_t mtu3_irq(int irq, void *data)
 	if (level1 & QMU_INTR)
 		mtu3_qmu_isr(mtu);
 
+<<<<<<< HEAD
 done:
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&mtu->lock, flags);
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static void mtu3_check_params(struct mtu3 *mtu)
+{
+	/* check the max_speed parameter */
+	switch (mtu->max_speed) {
+	case USB_SPEED_FULL:
+	case USB_SPEED_HIGH:
+	case USB_SPEED_SUPER:
+	case USB_SPEED_SUPER_PLUS:
+		break;
+	default:
+		dev_err(mtu->dev, "invalid max_speed: %s\n",
+			usb_speed_string(mtu->max_speed));
+		fallthrough;
+	case USB_SPEED_UNKNOWN:
+		/* default as SSP */
+		mtu->max_speed = USB_SPEED_SUPER_PLUS;
+		break;
+	}
+
+	if (!mtu->is_u3_ip && (mtu->max_speed > USB_SPEED_HIGH))
+		mtu->max_speed = USB_SPEED_HIGH;
+
+	mtu->speed = mtu->max_speed;
+
+	dev_info(mtu->dev, "max_speed: %s\n",
+		 usb_speed_string(mtu->max_speed));
+}
+
+>>>>>>> upstream/android-13
 static int mtu3_hw_init(struct mtu3 *mtu)
 {
 	u32 value;
@@ -905,17 +1157,26 @@ static int mtu3_hw_init(struct mtu3 *mtu)
 	value = mtu3_readl(mtu->ippc_base, U3D_SSUSB_IP_TRUNK_VERS);
 	mtu->hw_version = IP_TRUNK_VERS(value);
 	mtu->gen2cp = !!(mtu->hw_version >= MTU3_TRUNK_VERS_1003);
+<<<<<<< HEAD
 #if defined(CONFIG_MACH_MT6877) || defined(CONFIG_MACH_MT6853) \
 	|| defined(CONFIG_MACH_MT6873)
 	mtu->gen2cp = 0;
 	dev_info(mtu->dev, "force gen2cp to be 0 ");
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	value = mtu3_readl(mtu->ippc_base, U3D_SSUSB_IP_DEV_CAP);
 	mtu->is_u3_ip = !!SSUSB_IP_DEV_U3_PORT_NUM(value);
 
 	dev_info(mtu->dev, "IP version 0x%x(%s IP)\n", mtu->hw_version,
 		mtu->is_u3_ip ? "U3" : "U2");
 
+<<<<<<< HEAD
+=======
+	mtu3_check_params(mtu);
+
+>>>>>>> upstream/android-13
 	mtu3_device_reset(mtu);
 
 	ret = mtu3_device_enable(mtu);
@@ -930,8 +1191,11 @@ static int mtu3_hw_init(struct mtu3 *mtu)
 
 	mtu3_regs_init(mtu);
 
+<<<<<<< HEAD
 	mtu3_gadget_set_ready(mtu);
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -941,7 +1205,11 @@ static void mtu3_hw_exit(struct mtu3 *mtu)
 	mtu3_mem_free(mtu);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * we set 32-bit DMA mask by default, here check whether the controller
  * supports 36-bit DMA or not, if it does, set 36-bit DMA mask.
  */
@@ -972,13 +1240,17 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 	struct device *dev = ssusb->dev;
 	struct platform_device *pdev = to_platform_device(dev);
 	struct mtu3 *mtu = NULL;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	int ret = -ENOMEM;
 
 	mtu = devm_kzalloc(dev, sizeof(struct mtu3), GFP_KERNEL);
 	if (mtu == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mtu->irq = platform_get_irq(pdev, 0);
 	if (mtu->irq < 0) {
 		dev_err(dev, "fail to get irq number\n");
@@ -988,6 +1260,21 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "mac");
 	mtu->mac_base = devm_ioremap_resource(dev, res);
+=======
+	mtu->irq = platform_get_irq_byname_optional(pdev, "device");
+	if (mtu->irq < 0) {
+		if (mtu->irq == -EPROBE_DEFER)
+			return mtu->irq;
+
+		/* for backward compatibility */
+		mtu->irq = platform_get_irq(pdev, 0);
+		if (mtu->irq < 0)
+			return mtu->irq;
+	}
+	dev_info(dev, "irq %d\n", mtu->irq);
+
+	mtu->mac_base = devm_platform_ioremap_resource_byname(pdev, "mac");
+>>>>>>> upstream/android-13
 	if (IS_ERR(mtu->mac_base)) {
 		dev_err(dev, "error mapping memory for dev mac\n");
 		return PTR_ERR(mtu->mac_base);
@@ -1001,6 +1288,7 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 	mtu->ssusb = ssusb;
 	mtu->max_speed = usb_get_maximum_speed(dev);
 
+<<<<<<< HEAD
 
 #if defined(CONFIG_BATTERY_SAMSUNG)
 	INIT_WORK(&mtu->set_vbus_current_work, musb_set_vbus_current_work);
@@ -1023,6 +1311,8 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 		break;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "mac_base=0x%p, ippc_base=0x%p\n",
 		mtu->mac_base, mtu->ippc_base);
 
@@ -1046,16 +1336,25 @@ int ssusb_gadget_init(struct ssusb_mtk *ssusb)
 
 	device_init_wakeup(dev, true);
 
+<<<<<<< HEAD
+=======
+	/* power down device IP for power saving by default */
+	mtu3_stop(mtu);
+
+>>>>>>> upstream/android-13
 	ret = mtu3_gadget_setup(mtu);
 	if (ret) {
 		dev_err(dev, "mtu3 gadget init failed:%d\n", ret);
 		goto gadget_err;
 	}
 
+<<<<<<< HEAD
 	/* init as host mode, power down device IP for power saving */
 	if (mtu->ssusb->dr_mode == USB_DR_MODE_OTG)
 		mtu3_stop(mtu);
 
+=======
+>>>>>>> upstream/android-13
 	ssusb_dev_debugfs_init(ssusb);
 
 	dev_dbg(dev, " %s() done...\n", __func__);
@@ -1082,3 +1381,50 @@ void ssusb_gadget_exit(struct ssusb_mtk *ssusb)
 	device_init_wakeup(ssusb->dev, false);
 	mtu3_hw_exit(mtu);
 }
+<<<<<<< HEAD
+=======
+
+bool ssusb_gadget_ip_sleep_check(struct ssusb_mtk *ssusb)
+{
+	struct mtu3 *mtu = ssusb->u3d;
+
+	/* host only, should wait for ip sleep */
+	if (!mtu)
+		return true;
+
+	/* device is started and pullup D+, ip can sleep */
+	if (mtu->is_active && mtu->softconnect)
+		return true;
+
+	/* ip can't sleep if not pullup D+ when support device mode */
+	return false;
+}
+
+int ssusb_gadget_suspend(struct ssusb_mtk *ssusb, pm_message_t msg)
+{
+	struct mtu3 *mtu = ssusb->u3d;
+
+	if (!mtu->gadget_driver)
+		return 0;
+
+	if (mtu->connected)
+		return -EBUSY;
+
+	mtu3_dev_suspend(mtu);
+	synchronize_irq(mtu->irq);
+
+	return 0;
+}
+
+int ssusb_gadget_resume(struct ssusb_mtk *ssusb, pm_message_t msg)
+{
+	struct mtu3 *mtu = ssusb->u3d;
+
+	if (!mtu->gadget_driver)
+		return 0;
+
+	mtu3_dev_resume(mtu);
+
+	return 0;
+}
+>>>>>>> upstream/android-13

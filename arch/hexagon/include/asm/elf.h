@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * ELF definitions for the Hexagon architecture
  *
  * Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_ELF_H
@@ -23,11 +30,15 @@
 
 #include <asm/ptrace.h>
 #include <asm/user.h>
+<<<<<<< HEAD
 
 /*
  * This should really be in linux/elf-em.h.
  */
 #define EM_HEXAGON	164   /* QUALCOMM Hexagon */
+=======
+#include <linux/elf-em.h>
+>>>>>>> upstream/android-13
 
 struct elf32_hdr;
 
@@ -198,7 +209,10 @@ do {					\
  */
 #define ELF_PLAT_INIT(regs, load_addr) do { } while (0)
 
+<<<<<<< HEAD
 #define USE_ELF_CORE_DUMP
+=======
+>>>>>>> upstream/android-13
 #define CORE_DUMP_USE_REGSET
 
 /* Hrm is this going to cause problems for changing PAGE_SIZE?  */

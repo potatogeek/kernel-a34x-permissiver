@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * isl6421.h - driver for lnb supply and control ic ISL6421
  *
  * Copyright (C) 2006 Andrew de Quincey
  * Copyright (C) 2006 Oliver Endriss
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -19,6 +24,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  *
+=======
+>>>>>>> upstream/android-13
  * the project's page is at https://linuxtv.org
  */
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/types.h>
@@ -59,12 +64,29 @@
 #include "adf_transport_access_macros.h"
 #include "adf_transport_internal.h"
 
+<<<<<<< HEAD
+=======
+#define ADF_MAX_NUM_VFS	32
+#define ADF_ERRSOU3	(0x3A000 + 0x0C)
+#define ADF_ERRSOU5	(0x3A000 + 0xD8)
+#define ADF_ERRMSK3	(0x3A000 + 0x1C)
+#define ADF_ERRMSK5	(0x3A000 + 0xDC)
+#define ADF_ERR_REG_VF2PF_L(vf_src)	(((vf_src) & 0x01FFFE00) >> 9)
+#define ADF_ERR_REG_VF2PF_U(vf_src)	(((vf_src) & 0x0000FFFF) << 16)
+
+>>>>>>> upstream/android-13
 static int adf_enable_msix(struct adf_accel_dev *accel_dev)
 {
 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
 	u32 msix_num_entries = 1;
 
+<<<<<<< HEAD
+=======
+	if (hw_data->set_msix_rttable)
+		hw_data->set_msix_rttable(accel_dev);
+
+>>>>>>> upstream/android-13
 	/* If SR-IOV is disabled, add entries for each bank */
 	if (!accel_dev->pf.vf_info) {
 		int i;
@@ -94,8 +116,15 @@ static void adf_disable_msix(struct adf_accel_pci *pci_dev_info)
 static irqreturn_t adf_msix_isr_bundle(int irq, void *bank_ptr)
 {
 	struct adf_etr_bank_data *bank = bank_ptr;
+<<<<<<< HEAD
 
 	WRITE_CSR_INT_FLAG_AND_COL(bank->csr_addr, bank->bank_number, 0);
+=======
+	struct adf_hw_csr_ops *csr_ops = GET_CSR_OPS(bank->accel_dev);
+
+	csr_ops->write_csr_int_flag_and_col(bank->csr_addr, bank->bank_number,
+					    0);
+>>>>>>> upstream/android-13
 	tasklet_hi_schedule(&bank->resp_handler);
 	return IRQ_HANDLED;
 }
@@ -110,6 +139,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
 		struct adf_hw_device_data *hw_data = accel_dev->hw_device;
 		struct adf_bar *pmisc =
 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
+<<<<<<< HEAD
 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
 		u32 vf_mask;
 
@@ -118,6 +148,25 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
 			    0x0000FFFF) << 16) |
 			  ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU3) &
 			    0x01FFFE00) >> 9);
+=======
+		void __iomem *pmisc_addr = pmisc->virt_addr;
+		u32 errsou3, errsou5, errmsk3, errmsk5;
+		unsigned long vf_mask;
+
+		/* Get the interrupt sources triggered by VFs */
+		errsou3 = ADF_CSR_RD(pmisc_addr, ADF_ERRSOU3);
+		errsou5 = ADF_CSR_RD(pmisc_addr, ADF_ERRSOU5);
+		vf_mask = ADF_ERR_REG_VF2PF_L(errsou3);
+		vf_mask |= ADF_ERR_REG_VF2PF_U(errsou5);
+
+		/* To avoid adding duplicate entries to work queue, clear
+		 * vf_int_mask_sets bits that are already masked in ERRMSK register.
+		 */
+		errmsk3 = ADF_CSR_RD(pmisc_addr, ADF_ERRMSK3);
+		errmsk5 = ADF_CSR_RD(pmisc_addr, ADF_ERRMSK5);
+		vf_mask &= ~ADF_ERR_REG_VF2PF_L(errmsk3);
+		vf_mask &= ~ADF_ERR_REG_VF2PF_U(errmsk5);
+>>>>>>> upstream/android-13
 
 		if (vf_mask) {
 			struct adf_accel_vf_info *vf_info;
@@ -125,6 +174,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
 			int i;
 
 			/* Disable VF2PF interrupts for VFs with pending ints */
+<<<<<<< HEAD
 			adf_disable_vf2pf_interrupts(accel_dev, vf_mask);
 
 			/*
@@ -134,6 +184,15 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
 			 */
 			for_each_set_bit(i, (const unsigned long *)&vf_mask,
 					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
+=======
+			adf_disable_vf2pf_interrupts_irq(accel_dev, vf_mask);
+
+			/*
+			 * Handle VF2PF interrupt unless the VF is malicious and
+			 * is attempting to flood the host OS with VF2PF interrupts.
+			 */
+			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
+>>>>>>> upstream/android-13
 				vf_info = accel_dev->pf.vf_info + i;
 
 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
@@ -143,8 +202,12 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
 					continue;
 				}
 
+<<<<<<< HEAD
 				/* Tasklet will re-enable ints from this VF */
 				tasklet_hi_schedule(&vf_info->vf2pf_bh_tasklet);
+=======
+				adf_schedule_vf2pf_handler(vf_info);
+>>>>>>> upstream/android-13
 				irq_handled = true;
 			}
 

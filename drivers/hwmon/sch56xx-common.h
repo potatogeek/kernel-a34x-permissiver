@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***************************************************************************
  *   Copyright (C) 2010-2012 Hans de Goede <hdegoede@redhat.com>           *
  *                                                                         *
@@ -15,6 +16,12 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/***************************************************************************
+ *   Copyright (C) 2010-2012 Hans de Goede <hdegoede@redhat.com>           *
+ *                                                                         *
+>>>>>>> upstream/android-13
  ***************************************************************************/
 
 #include <linux/mutex.h>
@@ -27,6 +34,11 @@ int sch56xx_read_virtual_reg16(u16 addr, u16 reg);
 int sch56xx_read_virtual_reg12(u16 addr, u16 msb_reg, u16 lsn_reg,
 			       int high_nibble);
 
+<<<<<<< HEAD
 struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
 	u16 addr, u32 revision, struct mutex *io_lock, int check_enabled);
+=======
+void sch56xx_watchdog_register(struct device *parent, u16 addr, u32 revision,
+			       struct mutex *io_lock, int check_enabled);
+>>>>>>> upstream/android-13
 void sch56xx_watchdog_unregister(struct sch56xx_watchdog_data *data);

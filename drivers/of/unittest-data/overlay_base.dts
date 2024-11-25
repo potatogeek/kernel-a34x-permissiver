@@ -2,6 +2,7 @@
 /dts-v1/;
 /plugin/;
 
+<<<<<<< HEAD
 /*
  * Base device tree that overlays will be applied against.
  *
@@ -90,3 +91,6 @@
 	};
 };
 
+=======
+#include "overlay_common.dtsi"
+>>>>>>> upstream/android-13

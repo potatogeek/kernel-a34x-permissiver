@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/boards/mach-landisk/irq.c
  *
@@ -8,10 +12,13 @@
  *
  * Copyright (C) 2001  Ian da Silva, Jeremy Siegel
  * Based largely on io_se.c.
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>

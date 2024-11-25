@@ -34,8 +34,13 @@ struct parisc_driver {
 	struct parisc_driver *next;
 	char *name; 
 	const struct parisc_device_id *id_table;
+<<<<<<< HEAD
 	int (*probe) (struct parisc_device *dev); /* New device discovered */
 	int (*remove) (struct parisc_device *dev);
+=======
+	int (*probe)(struct parisc_device *dev); /* New device discovered */
+	void (*remove)(struct parisc_device *dev);
+>>>>>>> upstream/android-13
 	struct device_driver drv;
 };
 

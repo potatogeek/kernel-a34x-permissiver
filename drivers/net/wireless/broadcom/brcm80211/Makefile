@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #
 # Makefile fragment for Broadcom 802.11n Networking Device Driver
 #
@@ -14,6 +15,14 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
 # OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+# SPDX-License-Identifier: ISC
+#
+# Makefile fragment for Broadcom 802.11 Networking Device Driver
+#
+# Copyright (c) 2010 Broadcom Corporation
+#
+>>>>>>> upstream/android-13
 
 # common flags
 subdir-ccflags-$(CONFIG_BRCMDBG)	+= -DDEBUG

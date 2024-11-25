@@ -157,7 +157,13 @@ static int ar9003_hw_set_channel(struct ath_hw *ah, struct ath9k_channel *chan)
 	freq = centers.synth_center;
 
 	if (freq < 4800) {     /* 2 GHz, fractional mode */
+<<<<<<< HEAD
 		if (AR_SREV_9330(ah)) {
+=======
+		if (AR_SREV_9330(ah) || AR_SREV_9485(ah) ||
+		    AR_SREV_9531(ah) || AR_SREV_9550(ah) ||
+		    AR_SREV_9561(ah) || AR_SREV_9565(ah)) {
+>>>>>>> upstream/android-13
 			if (ah->is_clk_25mhz)
 				div = 75;
 			else
@@ -166,6 +172,7 @@ static int ar9003_hw_set_channel(struct ath_hw *ah, struct ath9k_channel *chan)
 			channelSel = (freq * 4) / div;
 			chan_frac = (((freq * 4) % div) * 0x20000) / div;
 			channelSel = (channelSel << 17) | chan_frac;
+<<<<<<< HEAD
 		} else if (AR_SREV_9485(ah) || AR_SREV_9565(ah)) {
 			/*
 			 * freq_ref = 40 / (refdiva >> amoderefsel);
@@ -176,6 +183,8 @@ static int ar9003_hw_set_channel(struct ath_hw *ah, struct ath9k_channel *chan)
 			channelSel = (freq * 4) / 120;
 			chan_frac = (((freq * 4) % 120) * 0x20000) / 120;
 			channelSel = (channelSel << 17) | chan_frac;
+=======
+>>>>>>> upstream/android-13
 		} else if (AR_SREV_9340(ah)) {
 			if (ah->is_clk_25mhz) {
 				channelSel = (freq * 2) / 75;
@@ -184,6 +193,7 @@ static int ar9003_hw_set_channel(struct ath_hw *ah, struct ath9k_channel *chan)
 			} else {
 				channelSel = CHANSEL_2G(freq) >> 1;
 			}
+<<<<<<< HEAD
 		} else if (AR_SREV_9550(ah) || AR_SREV_9531(ah) ||
 			   AR_SREV_9561(ah)) {
 			if (ah->is_clk_25mhz)
@@ -194,6 +204,8 @@ static int ar9003_hw_set_channel(struct ath_hw *ah, struct ath9k_channel *chan)
 			channelSel = (freq * 4) / div;
 			chan_frac = (((freq * 4) % div) * 0x20000) / div;
 			channelSel = (channelSel << 17) | chan_frac;
+=======
+>>>>>>> upstream/android-13
 		} else {
 			channelSel = CHANSEL_2G(freq);
 		}

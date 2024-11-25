@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright SUSE Linux Products GmbH 2009
  *
@@ -36,7 +41,10 @@
 #define OP_31_XOP_MTSR		210
 #define OP_31_XOP_MTSRIN	242
 #define OP_31_XOP_TLBIEL	274
+<<<<<<< HEAD
 #define OP_31_XOP_TLBIE		306
+=======
+>>>>>>> upstream/android-13
 /* Opcode is officially reserved, reuse it as sc 1 when sc 1 doesn't trap */
 #define OP_31_XOP_FAKE_SC1	308
 #define OP_31_XOP_SLBMTE	402
@@ -48,6 +56,10 @@
 #define OP_31_XOP_SLBMFEV	851
 #define OP_31_XOP_EIOIO		854
 #define OP_31_XOP_SLBMFEE	915
+<<<<<<< HEAD
+=======
+#define OP_31_XOP_SLBFEE	979
+>>>>>>> upstream/android-13
 
 #define OP_31_XOP_TBEGIN	654
 #define OP_31_XOP_TABORT	910
@@ -72,10 +84,13 @@
 #define SPRN_GQR6		918
 #define SPRN_GQR7		919
 
+<<<<<<< HEAD
 /* Book3S_32 defines mfsrin(v) - but that messes up our abstract
  * function pointers, so let's just disable the define. */
 #undef mfsrin
 
+=======
+>>>>>>> upstream/android-13
 enum priv_level {
 	PRIV_PROBLEM = 0,
 	PRIV_SUPER = 1,
@@ -246,7 +261,11 @@ void kvmppc_emulate_tabort(struct kvm_vcpu *vcpu, int ra_val)
 
 #endif
 
+<<<<<<< HEAD
 int kvmppc_core_emulate_op_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_core_emulate_op_pr(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 			      unsigned int inst, int *advance)
 {
 	int emulated = EMULATE_DONE;
@@ -382,6 +401,7 @@ int kvmppc_core_emulate_op_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			if (kvmppc_h_pr(vcpu, cmd) == EMULATE_DONE)
 				break;
 
+<<<<<<< HEAD
 			run->papr_hcall.nr = cmd;
 			for (i = 0; i < 9; ++i) {
 				ulong gpr = kvmppc_get_gpr(vcpu, 4 + i);
@@ -389,6 +409,15 @@ int kvmppc_core_emulate_op_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 			}
 
 			run->exit_reason = KVM_EXIT_PAPR_HCALL;
+=======
+			vcpu->run->papr_hcall.nr = cmd;
+			for (i = 0; i < 9; ++i) {
+				ulong gpr = kvmppc_get_gpr(vcpu, 4 + i);
+				vcpu->run->papr_hcall.args[i] = gpr;
+			}
+
+			vcpu->run->exit_reason = KVM_EXIT_PAPR_HCALL;
+>>>>>>> upstream/android-13
 			vcpu->arch.hcall_needed = 1;
 			emulated = EMULATE_EXIT_USER;
 			break;
@@ -417,6 +446,26 @@ int kvmppc_core_emulate_op_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 
 			vcpu->arch.mmu.slbia(vcpu);
 			break;
+<<<<<<< HEAD
+=======
+		case OP_31_XOP_SLBFEE:
+			if (!(inst & 1) || !vcpu->arch.mmu.slbfee) {
+				return EMULATE_FAIL;
+			} else {
+				ulong b, t;
+				ulong cr = kvmppc_get_cr(vcpu) & ~CR0_MASK;
+
+				b = kvmppc_get_gpr(vcpu, rb);
+				if (!vcpu->arch.mmu.slbfee(vcpu, b, &t))
+					cr |= 2 << CR0_SHIFT;
+				kvmppc_set_gpr(vcpu, rt, t);
+				/* copy XER[SO] bit to CR0[SO] */
+				cr |= (vcpu->arch.regs.xer & 0x80000000) >>
+					(31 - CR0_SHIFT);
+				kvmppc_set_cr(vcpu, cr);
+			}
+			break;
+>>>>>>> upstream/android-13
 		case OP_31_XOP_SLBMFEE:
 			if (!vcpu->arch.mmu.slbmfee) {
 				emulated = EMULATE_FAIL;
@@ -623,7 +672,11 @@ int kvmppc_core_emulate_op_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
 	}
 
 	if (emulated == EMULATE_FAIL)
+<<<<<<< HEAD
 		emulated = kvmppc_emulate_paired_single(run, vcpu);
+=======
+		emulated = kvmppc_emulate_paired_single(vcpu);
+>>>>>>> upstream/android-13
 
 	return emulated;
 }
@@ -834,6 +887,12 @@ int kvmppc_core_emulate_mtspr_pr(struct kvm_vcpu *vcpu, int sprn, ulong spr_val)
 	case SPRN_MMCR1:
 	case SPRN_MMCR2:
 	case SPRN_UMMCR2:
+<<<<<<< HEAD
+=======
+	case SPRN_UAMOR:
+	case SPRN_IAMR:
+	case SPRN_AMR:
+>>>>>>> upstream/android-13
 #endif
 		break;
 unprivileged:
@@ -998,6 +1057,12 @@ int kvmppc_core_emulate_mfspr_pr(struct kvm_vcpu *vcpu, int sprn, ulong *spr_val
 	case SPRN_MMCR2:
 	case SPRN_UMMCR2:
 	case SPRN_TIR:
+<<<<<<< HEAD
+=======
+	case SPRN_UAMOR:
+	case SPRN_IAMR:
+	case SPRN_AMR:
+>>>>>>> upstream/android-13
 #endif
 		*spr_val = 0;
 		break;

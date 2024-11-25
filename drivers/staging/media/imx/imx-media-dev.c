@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * V4L2 Media Controller Driver for Freescale i.MX5/6 SOC
  *
@@ -24,11 +25,25 @@
 #include <media/v4l2-ioctl.h>
 #include <media/v4l2-mc.h>
 #include <video/imx-ipu-v3.h>
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * V4L2 Media Controller Driver for Freescale i.MX5/6 SOC
+ *
+ * Copyright (c) 2016-2019 Mentor Graphics Inc.
+ */
+#include <linux/fs.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+#include <media/v4l2-async.h>
+#include <media/v4l2-event.h>
+>>>>>>> upstream/android-13
 #include <media/imx.h>
 #include "imx-media.h"
 
 static inline struct imx_media_dev *notifier2dev(struct v4l2_async_notifier *n)
 {
+<<<<<<< HEAD
 	return container_of(n, struct imx_media_dev, subdev_notifier);
 }
 
@@ -150,6 +165,9 @@ static int imx_media_get_ipu(struct imx_media_dev *imxmd,
 		imxmd->ipu[ipu_id] = ipu;
 
 	return 0;
+=======
+	return container_of(n, struct imx_media_dev, notifier);
+>>>>>>> upstream/android-13
 }
 
 /* async subdev bound notifier */
@@ -158,6 +176,7 @@ static int imx_media_subdev_bound(struct v4l2_async_notifier *notifier,
 				  struct v4l2_async_subdev *asd)
 {
 	struct imx_media_dev *imxmd = notifier2dev(notifier);
+<<<<<<< HEAD
 	int ret = 0;
 
 	mutex_lock(&imxmd->mutex);
@@ -335,19 +354,36 @@ static int imx_media_create_pad_vdev_lists(struct imx_media_dev *imxmd)
 		link = list_first_entry(&vdev->vfd->entity.links,
 					struct media_link, list);
 		ret = imx_media_add_vdev_to_pad(imxmd, vdev, link->source);
+=======
+	int ret;
+
+	if (sd->grp_id & IMX_MEDIA_GRP_ID_IPU_CSI) {
+		/* register the IPU internal subdevs */
+		ret = imx_media_register_ipu_internal_subdevs(imxmd, sd);
+>>>>>>> upstream/android-13
 		if (ret)
 			return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	dev_dbg(imxmd->md.dev, "subdev %s bound\n", sd->name);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /* async subdev complete notifier */
+<<<<<<< HEAD
 static int imx_media_probe_complete(struct v4l2_async_notifier *notifier)
+=======
+static int imx6_media_probe_complete(struct v4l2_async_notifier *notifier)
+>>>>>>> upstream/android-13
 {
 	struct imx_media_dev *imxmd = notifier2dev(notifier);
 	int ret;
 
+<<<<<<< HEAD
 	mutex_lock(&imxmd->mutex);
 
 	ret = imx_media_create_links(notifier);
@@ -481,12 +517,39 @@ static int imx_media_link_notify(struct media_link *link, u32 flags,
 
 static const struct media_device_ops imx_media_md_ops = {
 	.link_notify = imx_media_link_notify,
+=======
+	/* call the imx5/6/7 common probe completion handler */
+	ret = imx_media_probe_complete(notifier);
+	if (ret)
+		return ret;
+
+	mutex_lock(&imxmd->mutex);
+
+	imxmd->m2m_vdev = imx_media_csc_scaler_device_init(imxmd);
+	if (IS_ERR(imxmd->m2m_vdev)) {
+		ret = PTR_ERR(imxmd->m2m_vdev);
+		imxmd->m2m_vdev = NULL;
+		goto unlock;
+	}
+
+	ret = imx_media_csc_scaler_device_register(imxmd->m2m_vdev);
+unlock:
+	mutex_unlock(&imxmd->mutex);
+	return ret;
+}
+
+/* async subdev complete notifier */
+static const struct v4l2_async_notifier_operations imx_media_notifier_ops = {
+	.bound = imx_media_subdev_bound,
+	.complete = imx6_media_probe_complete,
+>>>>>>> upstream/android-13
 };
 
 static int imx_media_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *node = dev->of_node;
+<<<<<<< HEAD
 	struct imx_media_async_subdev *imxasd;
 	struct v4l2_async_subdev **subdevs;
 	struct imx_media_dev *imxmd;
@@ -521,11 +584,20 @@ static int imx_media_probe(struct platform_device *pdev)
 
 	INIT_LIST_HEAD(&imxmd->asd_list);
 	INIT_LIST_HEAD(&imxmd->vdev_list);
+=======
+	struct imx_media_dev *imxmd;
+	int ret;
+
+	imxmd = imx_media_dev_init(dev, NULL);
+	if (IS_ERR(imxmd))
+		return PTR_ERR(imxmd);
+>>>>>>> upstream/android-13
 
 	ret = imx_media_add_of_subdevs(imxmd, node);
 	if (ret) {
 		v4l2_err(&imxmd->v4l2_dev,
 			 "add_of_subdevs failed with %d\n", ret);
+<<<<<<< HEAD
 		goto unreg_dev;
 	}
 
@@ -574,6 +646,22 @@ unreg_dev:
 	v4l2_device_unregister(&imxmd->v4l2_dev);
 cleanup:
 	media_device_cleanup(&imxmd->md);
+=======
+		goto cleanup;
+	}
+
+	ret = imx_media_dev_notifier_register(imxmd, &imx_media_notifier_ops);
+	if (ret)
+		goto cleanup;
+
+	return 0;
+
+cleanup:
+	v4l2_async_notifier_cleanup(&imxmd->notifier);
+	v4l2_device_unregister(&imxmd->v4l2_dev);
+	media_device_cleanup(&imxmd->md);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -584,10 +672,23 @@ static int imx_media_remove(struct platform_device *pdev)
 
 	v4l2_info(&imxmd->v4l2_dev, "Removing imx-media\n");
 
+<<<<<<< HEAD
 	v4l2_async_notifier_unregister(&imxmd->subdev_notifier);
 	imx_media_remove_internal_subdevs(imxmd);
 	v4l2_device_unregister(&imxmd->v4l2_dev);
 	media_device_unregister(&imxmd->md);
+=======
+	if (imxmd->m2m_vdev) {
+		imx_media_csc_scaler_device_unregister(imxmd->m2m_vdev);
+		imxmd->m2m_vdev = NULL;
+	}
+
+	v4l2_async_notifier_unregister(&imxmd->notifier);
+	imx_media_unregister_ipu_internal_subdevs(imxmd);
+	v4l2_async_notifier_cleanup(&imxmd->notifier);
+	media_device_unregister(&imxmd->md);
+	v4l2_device_unregister(&imxmd->v4l2_dev);
+>>>>>>> upstream/android-13
 	media_device_cleanup(&imxmd->md);
 
 	return 0;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Implementation of the security services.
  *
@@ -35,9 +39,12 @@
  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
  * Copyright (C) 2003 - 2004, 2006 Tresys Technology, LLC
  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -48,10 +55,15 @@
 #include <linux/in.h>
 #include <linux/sched.h>
 #include <linux/audit.h>
+<<<<<<< HEAD
 #include <linux/mutex.h>
 #include <linux/selinux.h>
 #include <linux/flex_array.h>
 #include <linux/vmalloc.h>
+=======
+#include <linux/vmalloc.h>
+#include <linux/lsm_hooks.h>
+>>>>>>> upstream/android-13
 #include <net/netlabel.h>
 
 #include "flask.h"
@@ -69,6 +81,7 @@
 #include "xfrm.h"
 #include "ebitmap.h"
 #include "audit.h"
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_CRED
 #include <linux/uh.h>
 #include <linux/kdp.h>
@@ -97,6 +110,23 @@ void selinux_ss_init(struct selinux_ss **ss)
 	mutex_init(&selinux_ss.status_lock);
 	*ss = &selinux_ss;
 }
+=======
+#include "policycap_names.h"
+#include "ima.h"
+
+#include <trace/hooks/selinux.h>
+
+struct convert_context_args {
+	struct selinux_state *state;
+	struct policydb *oldp;
+	struct policydb *newp;
+};
+
+struct selinux_policy_convert_data {
+	struct convert_context_args args;
+	struct sidtab_convert_params sidtab_params;
+};
+>>>>>>> upstream/android-13
 
 /* Forward declaration. */
 static int context_struct_to_string(struct policydb *policydb,
@@ -104,6 +134,15 @@ static int context_struct_to_string(struct policydb *policydb,
 				    char **scontext,
 				    u32 *scontext_len);
 
+<<<<<<< HEAD
+=======
+static int sidtab_entry_to_string(struct policydb *policydb,
+				  struct sidtab *sidtab,
+				  struct sidtab_entry *entry,
+				  char **scontext,
+				  u32 *scontext_len);
+
+>>>>>>> upstream/android-13
 static void context_struct_compute_av(struct policydb *policydb,
 				      struct context *scontext,
 				      struct context *tcontext,
@@ -256,9 +295,23 @@ static void map_decision(struct selinux_map *map,
 
 int security_mls_enabled(struct selinux_state *state)
 {
+<<<<<<< HEAD
 	struct policydb *p = &state->ss->policydb;
 
 	return p->mls_enabled;
+=======
+	int mls_enabled;
+	struct selinux_policy *policy;
+
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	mls_enabled = policy->policydb.mls_enabled;
+	rcu_read_unlock();
+	return mls_enabled;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -490,11 +543,19 @@ static void security_dump_masked_av(struct policydb *policydb,
 
 	/* init permission_names */
 	if (common_dat &&
+<<<<<<< HEAD
 	    hashtab_map(common_dat->permissions.table,
 			dump_masked_av_helper, permission_names) < 0)
 		goto out;
 
 	if (hashtab_map(tclass_dat->permissions.table,
+=======
+	    hashtab_map(&common_dat->permissions.table,
+			dump_masked_av_helper, permission_names) < 0)
+		goto out;
+
+	if (hashtab_map(&tclass_dat->permissions.table,
+>>>>>>> upstream/android-13
 			dump_masked_av_helper, permission_names) < 0)
 		goto out;
 
@@ -555,15 +616,23 @@ static void type_attribute_bounds_av(struct policydb *policydb,
 	struct type_datum *target;
 	u32 masked = 0;
 
+<<<<<<< HEAD
 	source = flex_array_get_ptr(policydb->type_val_to_struct_array,
 				    scontext->type - 1);
+=======
+	source = policydb->type_val_to_struct[scontext->type - 1];
+>>>>>>> upstream/android-13
 	BUG_ON(!source);
 
 	if (!source->bounds)
 		return;
 
+<<<<<<< HEAD
 	target = flex_array_get_ptr(policydb->type_val_to_struct_array,
 				    tcontext->type - 1);
+=======
+	target = policydb->type_val_to_struct[tcontext->type - 1];
+>>>>>>> upstream/android-13
 	BUG_ON(!target);
 
 	memset(&lo_avd, 0, sizeof(lo_avd));
@@ -616,9 +685,13 @@ void services_compute_xperms_drivers(
 					node->datum.u.xperms->driver);
 	}
 
+<<<<<<< HEAD
 	/* If no ioctl commands are allowed, ignore auditallow and auditdeny */
 	if (node->key.specified & AVTAB_XPERMS_ALLOWED)
 		xperms->len = 1;
+=======
+	xperms->len = 1;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -663,12 +736,17 @@ static void context_struct_compute_av(struct policydb *policydb,
 	 */
 	avkey.target_class = tclass;
 	avkey.specified = AVTAB_AV | AVTAB_XPERMS;
+<<<<<<< HEAD
 	sattr = flex_array_get(policydb->type_attr_map_array,
 			       scontext->type - 1);
 	BUG_ON(!sattr);
 	tattr = flex_array_get(policydb->type_attr_map_array,
 			       tcontext->type - 1);
 	BUG_ON(!tattr);
+=======
+	sattr = &policydb->type_attr_map_array[scontext->type - 1];
+	tattr = &policydb->type_attr_map_array[tcontext->type - 1];
+>>>>>>> upstream/android-13
 	ebitmap_for_each_positive_bit(sattr, snode, i) {
 		ebitmap_for_each_positive_bit(tattr, tnode, j) {
 			avkey.source_type = i + 1;
@@ -735,6 +813,7 @@ static void context_struct_compute_av(struct policydb *policydb,
 }
 
 static int security_validtrans_handle_fail(struct selinux_state *state,
+<<<<<<< HEAD
 					   struct context *ocontext,
 					   struct context *ncontext,
 					   struct context *tcontext,
@@ -749,6 +828,24 @@ static int security_validtrans_handle_fail(struct selinux_state *state,
 	if (context_struct_to_string(p, ncontext, &n, &nlen))
 		goto out;
 	if (context_struct_to_string(p, tcontext, &t, &tlen))
+=======
+					struct selinux_policy *policy,
+					struct sidtab_entry *oentry,
+					struct sidtab_entry *nentry,
+					struct sidtab_entry *tentry,
+					u16 tclass)
+{
+	struct policydb *p = &policy->policydb;
+	struct sidtab *sidtab = policy->sidtab;
+	char *o = NULL, *n = NULL, *t = NULL;
+	u32 olen, nlen, tlen;
+
+	if (sidtab_entry_to_string(p, sidtab, oentry, &o, &olen))
+		goto out;
+	if (sidtab_entry_to_string(p, sidtab, nentry, &n, &nlen))
+		goto out;
+	if (sidtab_entry_to_string(p, sidtab, tentry, &t, &tlen))
+>>>>>>> upstream/android-13
 		goto out;
 	audit_log(audit_context(), GFP_ATOMIC, AUDIT_SELINUX_ERR,
 		  "op=security_validate_transition seresult=denied"
@@ -758,6 +855,7 @@ out:
 	kfree(o);
 	kfree(n);
 	kfree(t);
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
 #if (defined CONFIG_KDP_CRED && defined CONFIG_SAMSUNG_PRODUCT_SHIP)
@@ -769,6 +867,11 @@ out:
 	if (!selinux_enforcing) // SEC_SELINUX_PORTING_COMMON Change to use RKP 
 		return 0;
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+
+	if (!enforcing_enabled(state))
+		return 0;
+>>>>>>> upstream/android-13
 	return -EPERM;
 }
 
@@ -776,17 +879,27 @@ static int security_compute_validatetrans(struct selinux_state *state,
 					  u32 oldsid, u32 newsid, u32 tasksid,
 					  u16 orig_tclass, bool user)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct context *ocontext;
 	struct context *ncontext;
 	struct context *tcontext;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	struct sidtab_entry *oentry;
+	struct sidtab_entry *nentry;
+	struct sidtab_entry *tentry;
+>>>>>>> upstream/android-13
 	struct class_datum *tclass_datum;
 	struct constraint_node *constraint;
 	u16 tclass;
 	int rc = 0;
 
 
+<<<<<<< HEAD
 	if (!ss_initialized) // SEC_SELINUX_PORTING_COMMON Change to use RKP 
 		return 0;
 
@@ -797,6 +910,19 @@ static int security_compute_validatetrans(struct selinux_state *state,
 
 	if (!user)
 		tclass = unmap_class(&state->ss->map, orig_tclass);
+=======
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+
+	if (!user)
+		tclass = unmap_class(&policy->map, orig_tclass);
+>>>>>>> upstream/android-13
 	else
 		tclass = orig_tclass;
 
@@ -806,24 +932,39 @@ static int security_compute_validatetrans(struct selinux_state *state,
 	}
 	tclass_datum = policydb->class_val_to_struct[tclass - 1];
 
+<<<<<<< HEAD
 	ocontext = sidtab_search(sidtab, oldsid);
 	if (!ocontext) {
+=======
+	oentry = sidtab_search_entry(sidtab, oldsid);
+	if (!oentry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s:  unrecognized SID %d\n",
 			__func__, oldsid);
 		rc = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ncontext = sidtab_search(sidtab, newsid);
 	if (!ncontext) {
+=======
+	nentry = sidtab_search_entry(sidtab, newsid);
+	if (!nentry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s:  unrecognized SID %d\n",
 			__func__, newsid);
 		rc = -EINVAL;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tcontext = sidtab_search(sidtab, tasksid);
 	if (!tcontext) {
+=======
+	tentry = sidtab_search_entry(sidtab, tasksid);
+	if (!tentry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s:  unrecognized SID %d\n",
 			__func__, tasksid);
 		rc = -EINVAL;
@@ -832,23 +973,41 @@ static int security_compute_validatetrans(struct selinux_state *state,
 
 	constraint = tclass_datum->validatetrans;
 	while (constraint) {
+<<<<<<< HEAD
 		if (!constraint_expr_eval(policydb, ocontext, ncontext,
 					  tcontext, constraint->expr)) {
+=======
+		if (!constraint_expr_eval(policydb, &oentry->context,
+					  &nentry->context, &tentry->context,
+					  constraint->expr)) {
+>>>>>>> upstream/android-13
 			if (user)
 				rc = -EPERM;
 			else
 				rc = security_validtrans_handle_fail(state,
+<<<<<<< HEAD
 								     ocontext,
 								     ncontext,
 								     tcontext,
 								     tclass);
+=======
+								policy,
+								oentry,
+								nentry,
+								tentry,
+								tclass);
+>>>>>>> upstream/android-13
 			goto out;
 		}
 		constraint = constraint->next;
 	}
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -874,19 +1033,31 @@ int security_validate_transition(struct selinux_state *state,
  * It returns 0, if @newsid is bounded by @oldsid.
  * Otherwise, it returns error code.
  *
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @oldsid : current security identifier
  * @newsid : destinated security identifier
  */
 int security_bounded_transition(struct selinux_state *state,
 				u32 old_sid, u32 new_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct context *old_context, *new_context;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	struct sidtab_entry *old_entry, *new_entry;
+>>>>>>> upstream/android-13
 	struct type_datum *type;
 	int index;
 	int rc;
 
+<<<<<<< HEAD
 	if (!ss_initialized) // SEC_SELINUX_PORTING_COMMON Change to use RKP
 		return 0;
 
@@ -898,14 +1069,32 @@ int security_bounded_transition(struct selinux_state *state,
 	rc = -EINVAL;
 	old_context = sidtab_search(sidtab, old_sid);
 	if (!old_context) {
+=======
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+
+	rc = -EINVAL;
+	old_entry = sidtab_search_entry(sidtab, old_sid);
+	if (!old_entry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s: unrecognized SID %u\n",
 		       __func__, old_sid);
 		goto out;
 	}
 
 	rc = -EINVAL;
+<<<<<<< HEAD
 	new_context = sidtab_search(sidtab, new_sid);
 	if (!new_context) {
+=======
+	new_entry = sidtab_search_entry(sidtab, new_sid);
+	if (!new_entry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s: unrecognized SID %u\n",
 		       __func__, new_sid);
 		goto out;
@@ -913,6 +1102,7 @@ int security_bounded_transition(struct selinux_state *state,
 
 	rc = 0;
 	/* type/domain unchanged */
+<<<<<<< HEAD
 	if (old_context->type == new_context->type)
 		goto out;
 
@@ -920,6 +1110,14 @@ int security_bounded_transition(struct selinux_state *state,
 	while (true) {
 		type = flex_array_get_ptr(policydb->type_val_to_struct_array,
 					  index - 1);
+=======
+	if (old_entry->context.type == new_entry->context.type)
+		goto out;
+
+	index = new_entry->context.type;
+	while (true) {
+		type = policydb->type_val_to_struct[index - 1];
+>>>>>>> upstream/android-13
 		BUG_ON(!type);
 
 		/* not bounded anymore */
@@ -929,7 +1127,11 @@ int security_bounded_transition(struct selinux_state *state,
 
 		/* @newsid is bounded by @oldsid */
 		rc = 0;
+<<<<<<< HEAD
 		if (type->bounds == old_context->type)
+=======
+		if (type->bounds == old_entry->context.type)
+>>>>>>> upstream/android-13
 			break;
 
 		index = type->bounds;
@@ -940,10 +1142,17 @@ int security_bounded_transition(struct selinux_state *state,
 		char *new_name = NULL;
 		u32 length;
 
+<<<<<<< HEAD
 		if (!context_struct_to_string(policydb, old_context,
 					      &old_name, &length) &&
 		    !context_struct_to_string(policydb, new_context,
 					      &new_name, &length)) {
+=======
+		if (!sidtab_entry_to_string(policydb, sidtab, old_entry,
+					    &old_name, &length) &&
+		    !sidtab_entry_to_string(policydb, sidtab, new_entry,
+					    &new_name, &length)) {
+>>>>>>> upstream/android-13
 			audit_log(audit_context(),
 				  GFP_ATOMIC, AUDIT_SELINUX_ERR,
 				  "op=security_bounded_transition "
@@ -955,17 +1164,32 @@ int security_bounded_transition(struct selinux_state *state,
 		kfree(old_name);
 	}
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	return rc;
 }
 
+<<<<<<< HEAD
 static void avd_init(struct selinux_state *state, struct av_decision *avd)
+=======
+static void avd_init(struct selinux_policy *policy, struct av_decision *avd)
+>>>>>>> upstream/android-13
 {
 	avd->allowed = 0;
 	avd->auditallow = 0;
 	avd->auditdeny = 0xffffffff;
+<<<<<<< HEAD
 	avd->seqno = state->ss->latest_granting;
+=======
+	if (policy)
+		avd->seqno = policy->latest_granting;
+	else
+		avd->seqno = 0;
+>>>>>>> upstream/android-13
 	avd->flags = 0;
 }
 
@@ -1030,6 +1254,10 @@ void security_compute_xperms_decision(struct selinux_state *state,
 				      u8 driver,
 				      struct extended_perms_decision *xpermd)
 {
+<<<<<<< HEAD
+=======
+	struct selinux_policy *policy;
+>>>>>>> upstream/android-13
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	u16 tclass;
@@ -1046,12 +1274,22 @@ void security_compute_xperms_decision(struct selinux_state *state,
 	memset(xpermd->auditallow->p, 0, sizeof(xpermd->auditallow->p));
 	memset(xpermd->dontaudit->p, 0, sizeof(xpermd->dontaudit->p));
 
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
 	if (!ss_initialized) // SEC_SELINUX_PORTING_COMMON Change to use RKP
 		goto allow;
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	rcu_read_lock();
+	if (!selinux_initialized(state))
+		goto allow;
+
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	scontext = sidtab_search(sidtab, ssid);
 	if (!scontext) {
@@ -1067,7 +1305,11 @@ void security_compute_xperms_decision(struct selinux_state *state,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tclass = unmap_class(&state->ss->map, orig_tclass);
+=======
+	tclass = unmap_class(&policy->map, orig_tclass);
+>>>>>>> upstream/android-13
 	if (unlikely(orig_tclass && !tclass)) {
 		if (policydb->allow_unknown)
 			goto allow;
@@ -1082,12 +1324,17 @@ void security_compute_xperms_decision(struct selinux_state *state,
 
 	avkey.target_class = tclass;
 	avkey.specified = AVTAB_XPERMS;
+<<<<<<< HEAD
 	sattr = flex_array_get(policydb->type_attr_map_array,
 				scontext->type - 1);
 	BUG_ON(!sattr);
 	tattr = flex_array_get(policydb->type_attr_map_array,
 				tcontext->type - 1);
 	BUG_ON(!tattr);
+=======
+	sattr = &policydb->type_attr_map_array[scontext->type - 1];
+	tattr = &policydb->type_attr_map_array[tcontext->type - 1];
+>>>>>>> upstream/android-13
 	ebitmap_for_each_positive_bit(sattr, snode, i) {
 		ebitmap_for_each_positive_bit(tattr, tnode, j) {
 			avkey.source_type = i + 1;
@@ -1103,7 +1350,11 @@ void security_compute_xperms_decision(struct selinux_state *state,
 		}
 	}
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return;
 allow:
 	memset(xpermd->allowed->p, 0xff, sizeof(xpermd->allowed->p));
@@ -1112,6 +1363,10 @@ allow:
 
 /**
  * security_compute_av - Compute access vector decisions.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @ssid: source security identifier
  * @tsid: target security identifier
  * @tclass: target security class
@@ -1128,11 +1383,16 @@ void security_compute_av(struct selinux_state *state,
 			 struct av_decision *avd,
 			 struct extended_perms *xperms)
 {
+<<<<<<< HEAD
+=======
+	struct selinux_policy *policy;
+>>>>>>> upstream/android-13
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	u16 tclass;
 	struct context *scontext = NULL, *tcontext = NULL;
 
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
 	avd_init(state, avd);
 	xperms->len = 0;
@@ -1141,6 +1401,17 @@ void security_compute_av(struct selinux_state *state,
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	avd_init(policy, avd);
+	xperms->len = 0;
+	if (!selinux_initialized(state))
+		goto allow;
+
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	scontext = sidtab_search(sidtab, ssid);
 	if (!scontext) {
@@ -1160,7 +1431,11 @@ void security_compute_av(struct selinux_state *state,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	tclass = unmap_class(&state->ss->map, orig_tclass);
+=======
+	tclass = unmap_class(&policy->map, orig_tclass);
+>>>>>>> upstream/android-13
 	if (unlikely(orig_tclass && !tclass)) {
 		if (policydb->allow_unknown)
 			goto allow;
@@ -1168,10 +1443,17 @@ void security_compute_av(struct selinux_state *state,
 	}
 	context_struct_compute_av(policydb, scontext, tcontext, tclass, avd,
 				  xperms);
+<<<<<<< HEAD
 	map_decision(&state->ss->map, orig_tclass, avd,
 		     policydb->allow_unknown);
 out:
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	map_decision(&policy->map, orig_tclass, avd,
+		     policydb->allow_unknown);
+out:
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return;
 allow:
 	avd->allowed = 0xffffffff;
@@ -1184,10 +1466,15 @@ void security_compute_av_user(struct selinux_state *state,
 			      u16 tclass,
 			      struct av_decision *avd)
 {
+<<<<<<< HEAD
+=======
+	struct selinux_policy *policy;
+>>>>>>> upstream/android-13
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct context *scontext = NULL, *tcontext = NULL;
 
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
 	avd_init(state, avd);
 	if (!ss_initialized) // SEC_SELINUX_PORTING_COMMON Change to use RKP
@@ -1195,6 +1482,16 @@ void security_compute_av_user(struct selinux_state *state,
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	avd_init(policy, avd);
+	if (!selinux_initialized(state))
+		goto allow;
+
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	scontext = sidtab_search(sidtab, ssid);
 	if (!scontext) {
@@ -1223,7 +1520,11 @@ void security_compute_av_user(struct selinux_state *state,
 	context_struct_compute_av(policydb, scontext, tcontext, tclass, avd,
 				  NULL);
  out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return;
 allow:
 	avd->allowed = 0xffffffff;
@@ -1241,9 +1542,12 @@ static int context_struct_to_string(struct policydb *p,
 				    struct context *context,
 				    char **scontext, u32 *scontext_len)
 {
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON 
 	gfp_t kmalloc_flag = GFP_ATOMIC;
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+>>>>>>> upstream/android-13
 	char *scontextp;
 
 	if (scontext)
@@ -1270,11 +1574,15 @@ static int context_struct_to_string(struct policydb *p,
 		return 0;
 
 	/* Allocate space for the context; caller must free this space. */
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON 
 	if (!in_interrupt() && !in_atomic())
 		kmalloc_flag = GFP_KERNEL;
 	scontextp = kmalloc(*scontext_len, kmalloc_flag);
 // ] SEC_SELINUX_PORTING_COMMON 
+=======
+	scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (!scontextp)
 		return -ENOMEM;
 	*scontext = scontextp;
@@ -1294,21 +1602,55 @@ static int context_struct_to_string(struct policydb *p,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int sidtab_entry_to_string(struct policydb *p,
+				  struct sidtab *sidtab,
+				  struct sidtab_entry *entry,
+				  char **scontext, u32 *scontext_len)
+{
+	int rc = sidtab_sid2str_get(sidtab, entry, scontext, scontext_len);
+
+	if (rc != -ENOENT)
+		return rc;
+
+	rc = context_struct_to_string(p, &entry->context, scontext,
+				      scontext_len);
+	if (!rc && scontext)
+		sidtab_sid2str_put(sidtab, entry, *scontext, *scontext_len);
+	return rc;
+}
+
+>>>>>>> upstream/android-13
 #include "initial_sid_to_string.h"
 
 int security_sidtab_hash_stats(struct selinux_state *state, char *page)
 {
+<<<<<<< HEAD
 	int rc;
 
 	if (!ss_initialized) { // SEC_SELINUX_PORTING_COMMON Change to use RKP 
+=======
+	struct selinux_policy *policy;
+	int rc;
+
+	if (!selinux_initialized(state)) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s:  called before initial load_policy\n",
 		       __func__);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
 	rc = sidtab_hash_stats(state->ss->sidtab, page);
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	rc = sidtab_hash_stats(policy->sidtab, page);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -1322,17 +1664,28 @@ const char *security_get_initial_sid_context(u32 sid)
 
 static int security_sid_to_context_core(struct selinux_state *state,
 					u32 sid, char **scontext,
+<<<<<<< HEAD
 					u32 *scontext_len, int force)
 {
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct context *context;
+=======
+					u32 *scontext_len, int force,
+					int only_invalid)
+{
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	struct sidtab_entry *entry;
+>>>>>>> upstream/android-13
 	int rc = 0;
 
 	if (scontext)
 		*scontext = NULL;
 	*scontext_len  = 0;
 
+<<<<<<< HEAD
 	if (!ss_initialized) { // SEC_SELINUX_PORTING_COMMON Change to use RKP 
 		if (sid <= SECINITSID_NUM) {
 			char *scontextp;
@@ -1362,22 +1715,69 @@ static int security_sid_to_context_core(struct selinux_state *state,
 	else
 		context = sidtab_search(sidtab, sid);
 	if (!context) {
+=======
+	if (!selinux_initialized(state)) {
+		if (sid <= SECINITSID_NUM) {
+			char *scontextp;
+			const char *s = initial_sid_to_string[sid];
+
+			if (!s)
+				return -EINVAL;
+			*scontext_len = strlen(s) + 1;
+			if (!scontext)
+				return 0;
+			scontextp = kmemdup(s, *scontext_len, GFP_ATOMIC);
+			if (!scontextp)
+				return -ENOMEM;
+			*scontext = scontextp;
+			return 0;
+		}
+		pr_err("SELinux: %s:  called before initial "
+		       "load_policy on unknown SID %d\n", __func__, sid);
+		return -EINVAL;
+	}
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+
+	if (force)
+		entry = sidtab_search_entry_force(sidtab, sid);
+	else
+		entry = sidtab_search_entry(sidtab, sid);
+	if (!entry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s:  unrecognized SID %d\n",
 			__func__, sid);
 		rc = -EINVAL;
 		goto out_unlock;
 	}
+<<<<<<< HEAD
 	rc = context_struct_to_string(policydb, context, scontext,
 				      scontext_len);
 out_unlock:
 	read_unlock(&state->ss->policy_rwlock);
 out:
+=======
+	if (only_invalid && !entry->context.len)
+		goto out_unlock;
+
+	rc = sidtab_entry_to_string(policydb, sidtab, entry, scontext,
+				    scontext_len);
+
+out_unlock:
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 
 }
 
 /**
  * security_sid_to_context - Obtain a context for a given SID.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @sid: security identifier, SID
  * @scontext: security context
  * @scontext_len: length in bytes
@@ -1390,14 +1790,43 @@ int security_sid_to_context(struct selinux_state *state,
 			    u32 sid, char **scontext, u32 *scontext_len)
 {
 	return security_sid_to_context_core(state, sid, scontext,
+<<<<<<< HEAD
 					    scontext_len, 0);
+=======
+					    scontext_len, 0, 0);
+>>>>>>> upstream/android-13
 }
 
 int security_sid_to_context_force(struct selinux_state *state, u32 sid,
 				  char **scontext, u32 *scontext_len)
 {
 	return security_sid_to_context_core(state, sid, scontext,
+<<<<<<< HEAD
 					    scontext_len, 1);
+=======
+					    scontext_len, 1, 0);
+}
+
+/**
+ * security_sid_to_context_inval - Obtain a context for a given SID if it
+ *                                 is invalid.
+ * @state: SELinux state
+ * @sid: security identifier, SID
+ * @scontext: security context
+ * @scontext_len: length in bytes
+ *
+ * Write the string representation of the context associated with @sid
+ * into a dynamically allocated string of the correct size, but only if the
+ * context is invalid in the current policy.  Set @scontext to point to
+ * this string (or NULL if the context is valid) and set @scontext_len to
+ * the length of the string (or 0 if the context is valid).
+ */
+int security_sid_to_context_inval(struct selinux_state *state, u32 sid,
+				  char **scontext, u32 *scontext_len)
+{
+	return security_sid_to_context_core(state, sid, scontext,
+					    scontext_len, 1, 1);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1432,7 +1861,11 @@ static int string_to_context_struct(struct policydb *pol,
 
 	*p++ = 0;
 
+<<<<<<< HEAD
 	usrdatum = hashtab_search(pol->p_users.table, scontextp);
+=======
+	usrdatum = symtab_search(&pol->p_users, scontextp);
+>>>>>>> upstream/android-13
 	if (!usrdatum)
 		goto out;
 
@@ -1448,7 +1881,11 @@ static int string_to_context_struct(struct policydb *pol,
 
 	*p++ = 0;
 
+<<<<<<< HEAD
 	role = hashtab_search(pol->p_roles.table, scontextp);
+=======
+	role = symtab_search(&pol->p_roles, scontextp);
+>>>>>>> upstream/android-13
 	if (!role)
 		goto out;
 	ctx->role = role->value;
@@ -1460,7 +1897,11 @@ static int string_to_context_struct(struct policydb *pol,
 	oldc = *p;
 	*p++ = 0;
 
+<<<<<<< HEAD
 	typdatum = hashtab_search(pol->p_types.table, scontextp);
+=======
+	typdatum = symtab_search(&pol->p_types, scontextp);
+>>>>>>> upstream/android-13
 	if (!typdatum || typdatum->attribute)
 		goto out;
 
@@ -1481,6 +1922,7 @@ out:
 	return rc;
 }
 
+<<<<<<< HEAD
 int context_add_hash(struct policydb *policydb,
 		     struct context *context)
 {
@@ -1517,11 +1959,17 @@ static int context_struct_to_sid(struct selinux_state *state,
 	return sidtab_context_to_sid(sidtab, context, sid);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int security_context_to_sid_core(struct selinux_state *state,
 					const char *scontext, u32 scontext_len,
 					u32 *sid, u32 def_sid, gfp_t gfp_flags,
 					int force)
 {
+<<<<<<< HEAD
+=======
+	struct selinux_policy *policy;
+>>>>>>> upstream/android-13
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	char *scontext2, *str = NULL;
@@ -1537,11 +1985,21 @@ static int security_context_to_sid_core(struct selinux_state *state,
 	if (!scontext2)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (!ss_initialized) { // SEC_SELINUX_PORTING_COMMON Change to use RKP 
 		int i;
 
 		for (i = 1; i < SECINITSID_NUM; i++) {
 			if (!strcmp(initial_sid_to_string[i], scontext2)) {
+=======
+	if (!selinux_initialized(state)) {
+		int i;
+
+		for (i = 1; i < SECINITSID_NUM; i++) {
+			const char *s = initial_sid_to_string[i];
+
+			if (s && !strcmp(s, scontext2)) {
+>>>>>>> upstream/android-13
 				*sid = i;
 				goto out;
 			}
@@ -1558,9 +2016,17 @@ static int security_context_to_sid_core(struct selinux_state *state,
 		if (!str)
 			goto out;
 	}
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+retry:
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 	rc = string_to_context_struct(policydb, sidtab, scontext2,
 				      &context, def_sid);
 	if (rc == -EINVAL && force) {
@@ -1569,10 +2035,26 @@ static int security_context_to_sid_core(struct selinux_state *state,
 		str = NULL;
 	} else if (rc)
 		goto out_unlock;
+<<<<<<< HEAD
 	rc = context_struct_to_sid(state, &context, sid);
 	context_destroy(&context);
 out_unlock:
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rc = sidtab_context_to_sid(sidtab, &context, sid);
+	if (rc == -ESTALE) {
+		rcu_read_unlock();
+		if (context.str) {
+			str = context.str;
+			context.str = NULL;
+		}
+		context_destroy(&context);
+		goto retry;
+	}
+	context_destroy(&context);
+out_unlock:
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 out:
 	kfree(scontext2);
 	kfree(str);
@@ -1581,6 +2063,10 @@ out:
 
 /**
  * security_context_to_sid - Obtain a SID for a given security context.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @scontext: security context
  * @scontext_len: length in bytes
  * @sid: security identifier, SID
@@ -1610,6 +2096,10 @@ int security_context_str_to_sid(struct selinux_state *state,
  * security_context_to_sid_default - Obtain a SID for a given security context,
  * falling back to specified default if needed.
  *
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @scontext: security context
  * @scontext_len: length in bytes
  * @sid: security identifier, SID
@@ -1642,6 +2132,7 @@ int security_context_to_sid_force(struct selinux_state *state,
 
 static int compute_sid_handle_invalid_context(
 	struct selinux_state *state,
+<<<<<<< HEAD
 	struct context *scontext,
 	struct context *tcontext,
 	u16 tclass,
@@ -1663,10 +2154,41 @@ static int compute_sid_handle_invalid_context(
 		  " tcontext=%s"
 		  " tclass=%s",
 		  n, s, t, sym_name(policydb, SYM_CLASSES, tclass-1));
+=======
+	struct selinux_policy *policy,
+	struct sidtab_entry *sentry,
+	struct sidtab_entry *tentry,
+	u16 tclass,
+	struct context *newcontext)
+{
+	struct policydb *policydb = &policy->policydb;
+	struct sidtab *sidtab = policy->sidtab;
+	char *s = NULL, *t = NULL, *n = NULL;
+	u32 slen, tlen, nlen;
+	struct audit_buffer *ab;
+
+	if (sidtab_entry_to_string(policydb, sidtab, sentry, &s, &slen))
+		goto out;
+	if (sidtab_entry_to_string(policydb, sidtab, tentry, &t, &tlen))
+		goto out;
+	if (context_struct_to_string(policydb, newcontext, &n, &nlen))
+		goto out;
+	ab = audit_log_start(audit_context(), GFP_ATOMIC, AUDIT_SELINUX_ERR);
+	if (!ab)
+		goto out;
+	audit_log_format(ab,
+			 "op=security_compute_sid invalid_context=");
+	/* no need to record the NUL with untrusted strings */
+	audit_log_n_untrustedstring(ab, n, nlen - 1);
+	audit_log_format(ab, " scontext=%s tcontext=%s tclass=%s",
+			 s, t, sym_name(policydb, SYM_CLASSES, tclass-1));
+	audit_log_end(ab);
+>>>>>>> upstream/android-13
 out:
 	kfree(s);
 	kfree(t);
 	kfree(n);
+<<<<<<< HEAD
 // [ SEC_SELINUX_PORTING_COMMON
 #ifdef CONFIG_ALWAYS_ENFORCE
 #if (defined CONFIG_KDP_CRED && defined CONFIG_SAMSUNG_PRODUCT_SHIP)
@@ -1678,6 +2200,10 @@ out:
 	if (!selinux_enforcing) // SEC_SELINUX_PORTING_COMMON Change to use RKP
 		return 0;
 // ] SEC_SELINUX_PORTING_COMMON
+=======
+	if (!enforcing_enabled(state))
+		return 0;
+>>>>>>> upstream/android-13
 	return -EACCES;
 }
 
@@ -1686,8 +2212,13 @@ static void filename_compute_type(struct policydb *policydb,
 				  u32 stype, u32 ttype, u16 tclass,
 				  const char *objname)
 {
+<<<<<<< HEAD
 	struct filename_trans ft;
 	struct filename_trans_datum *otype;
+=======
+	struct filename_trans_key ft;
+	struct filename_trans_datum *datum;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Most filename trans rules are going to live in specific directories
@@ -1697,14 +2228,28 @@ static void filename_compute_type(struct policydb *policydb,
 	if (!ebitmap_get_bit(&policydb->filename_trans_ttypes, ttype))
 		return;
 
+<<<<<<< HEAD
 	ft.stype = stype;
+=======
+>>>>>>> upstream/android-13
 	ft.ttype = ttype;
 	ft.tclass = tclass;
 	ft.name = objname;
 
+<<<<<<< HEAD
 	otype = hashtab_search(policydb->filename_trans, &ft);
 	if (otype)
 		newcontext->type = otype->otype;
+=======
+	datum = policydb_filenametr_search(policydb, &ft);
+	while (datum) {
+		if (ebitmap_get_bit(&datum->stypes, stype - 1)) {
+			newcontext->type = datum->otype;
+			return;
+		}
+		datum = datum->next;
+	}
+>>>>>>> upstream/android-13
 }
 
 static int security_compute_sid(struct selinux_state *state,
@@ -1716,11 +2261,20 @@ static int security_compute_sid(struct selinux_state *state,
 				u32 *out_sid,
 				bool kern)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct class_datum *cladatum = NULL;
 	struct context *scontext = NULL, *tcontext = NULL, newcontext;
 	struct role_trans *roletr = NULL;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	struct class_datum *cladatum;
+	struct context *scontext, *tcontext, newcontext;
+	struct sidtab_entry *sentry, *tentry;
+>>>>>>> upstream/android-13
 	struct avtab_key avkey;
 	struct avtab_datum *avdatum;
 	struct avtab_node *node;
@@ -1728,7 +2282,11 @@ static int security_compute_sid(struct selinux_state *state,
 	int rc = 0;
 	bool sock;
 
+<<<<<<< HEAD
 	if (!ss_initialized) { // SEC_SELINUX_PORTING_COMMON Change to use RKP 
+=======
+	if (!selinux_initialized(state)) {
+>>>>>>> upstream/android-13
 		switch (orig_tclass) {
 		case SECCLASS_PROCESS: /* kernel value */
 			*out_sid = ssid;
@@ -1740,6 +2298,7 @@ static int security_compute_sid(struct selinux_state *state,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	context_init(&newcontext);
 
 	read_lock(&state->ss->policy_rwlock);
@@ -1758,19 +2317,54 @@ static int security_compute_sid(struct selinux_state *state,
 
 	scontext = sidtab_search(sidtab, ssid);
 	if (!scontext) {
+=======
+retry:
+	cladatum = NULL;
+	context_init(&newcontext);
+
+	rcu_read_lock();
+
+	policy = rcu_dereference(state->policy);
+
+	if (kern) {
+		tclass = unmap_class(&policy->map, orig_tclass);
+		sock = security_is_socket_class(orig_tclass);
+	} else {
+		tclass = orig_tclass;
+		sock = security_is_socket_class(map_class(&policy->map,
+							  tclass));
+	}
+
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+
+	sentry = sidtab_search_entry(sidtab, ssid);
+	if (!sentry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s:  unrecognized SID %d\n",
 		       __func__, ssid);
 		rc = -EINVAL;
 		goto out_unlock;
 	}
+<<<<<<< HEAD
 	tcontext = sidtab_search(sidtab, tsid);
 	if (!tcontext) {
+=======
+	tentry = sidtab_search_entry(sidtab, tsid);
+	if (!tentry) {
+>>>>>>> upstream/android-13
 		pr_err("SELinux: %s:  unrecognized SID %d\n",
 		       __func__, tsid);
 		rc = -EINVAL;
 		goto out_unlock;
 	}
 
+<<<<<<< HEAD
+=======
+	scontext = &sentry->context;
+	tcontext = &tentry->context;
+
+>>>>>>> upstream/android-13
 	if (tclass && tclass <= policydb->p_classes.nprim)
 		cladatum = policydb->class_val_to_struct[tclass - 1];
 
@@ -1798,7 +2392,11 @@ static int security_compute_sid(struct selinux_state *state,
 	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
 		newcontext.role = tcontext->role;
 	} else {
+<<<<<<< HEAD
 		if ((tclass == policydb->process_class) || (sock == true))
+=======
+		if ((tclass == policydb->process_class) || sock)
+>>>>>>> upstream/android-13
 			newcontext.role = scontext->role;
 		else
 			newcontext.role = OBJECT_R_VAL;
@@ -1810,7 +2408,11 @@ static int security_compute_sid(struct selinux_state *state,
 	} else if (cladatum && cladatum->default_type == DEFAULT_TARGET) {
 		newcontext.type = tcontext->type;
 	} else {
+<<<<<<< HEAD
 		if ((tclass == policydb->process_class) || (sock == true)) {
+=======
+		if ((tclass == policydb->process_class) || sock) {
+>>>>>>> upstream/android-13
 			/* Use the type of process. */
 			newcontext.type = scontext->type;
 		} else {
@@ -1850,6 +2452,7 @@ static int security_compute_sid(struct selinux_state *state,
 	/* Check for class-specific changes. */
 	if (specified & AVTAB_TRANSITION) {
 		/* Look for a role transition rule. */
+<<<<<<< HEAD
 		for (roletr = policydb->role_tr; roletr;
 		     roletr = roletr->next) {
 			if ((roletr->role == scontext->role) &&
@@ -1860,6 +2463,18 @@ static int security_compute_sid(struct selinux_state *state,
 				break;
 			}
 		}
+=======
+		struct role_trans_datum *rtd;
+		struct role_trans_key rtk = {
+			.role = scontext->role,
+			.type = tcontext->type,
+			.tclass = tclass,
+		};
+
+		rtd = policydb_roletr_search(policydb, &rtk);
+		if (rtd)
+			newcontext.role = rtd->new_role;
+>>>>>>> upstream/android-13
 	}
 
 	/* Set the MLS attributes.
@@ -1871,17 +2486,33 @@ static int security_compute_sid(struct selinux_state *state,
 
 	/* Check the validity of the context. */
 	if (!policydb_context_isvalid(policydb, &newcontext)) {
+<<<<<<< HEAD
 		rc = compute_sid_handle_invalid_context(state, scontext,
 							tcontext,
 							tclass,
+=======
+		rc = compute_sid_handle_invalid_context(state, policy, sentry,
+							tentry, tclass,
+>>>>>>> upstream/android-13
 							&newcontext);
 		if (rc)
 			goto out_unlock;
 	}
 	/* Obtain the sid for the context. */
+<<<<<<< HEAD
 	rc = context_struct_to_sid(state, &newcontext, out_sid);
 out_unlock:
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
+	if (rc == -ESTALE) {
+		rcu_read_unlock();
+		context_destroy(&newcontext);
+		goto retry;
+	}
+out_unlock:
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	context_destroy(&newcontext);
 out:
 	return rc;
@@ -1889,6 +2520,10 @@ out:
 
 /**
  * security_transition_sid - Compute the SID for a new subject/object.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @ssid: source security identifier
  * @tsid: target security identifier
  * @tclass: target security class
@@ -1944,6 +2579,10 @@ int security_member_sid(struct selinux_state *state,
 
 /**
  * security_change_sid - Compute the SID for object relabeling.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @ssid: source security identifier
  * @tsid: target security identifier
  * @tclass: target security class
@@ -1968,6 +2607,7 @@ int security_change_sid(struct selinux_state *state,
 
 static inline int convert_context_handle_invalid_context(
 	struct selinux_state *state,
+<<<<<<< HEAD
 	struct context *context)
 {
 	struct policydb *policydb = &state->ss->policydb;
@@ -1985,6 +2625,16 @@ static inline int convert_context_handle_invalid_context(
 	if (!selinux_enforcing) // SEC_SELINUX_PORTING_COMMON Change to use RKP
 		return -EINVAL;
 		// ] SEC_SELINUX_PORTING_COMMON
+=======
+	struct policydb *policydb,
+	struct context *context)
+{
+	char *s;
+	u32 len;
+
+	if (enforcing_enabled(state))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	if (!context_struct_to_string(policydb, context, &s, &len)) {
 		pr_warn("SELinux:  Context %s would be invalid if enforcing\n",
@@ -1994,12 +2644,15 @@ static inline int convert_context_handle_invalid_context(
 	return 0;
 }
 
+<<<<<<< HEAD
 struct convert_context_args {
 	struct selinux_state *state;
 	struct policydb *oldp;
 	struct policydb *newp;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Convert the values in the security context
  * structure `oldc' from the values specified
@@ -2040,7 +2693,10 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
 			context_init(newc);
 			newc->str = s;
 			newc->len = oldc->len;
+<<<<<<< HEAD
 			newc->hash = oldc->hash;
+=======
+>>>>>>> upstream/android-13
 			return 0;
 		}
 		kfree(s);
@@ -2058,27 +2714,44 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
 	context_init(newc);
 
 	/* Convert the user. */
+<<<<<<< HEAD
 	rc = -EINVAL;
 	usrdatum = hashtab_search(args->newp->p_users.table,
 				  sym_name(args->oldp,
 					   SYM_USERS, oldc->user - 1));
+=======
+	usrdatum = symtab_search(&args->newp->p_users,
+				 sym_name(args->oldp,
+					  SYM_USERS, oldc->user - 1));
+>>>>>>> upstream/android-13
 	if (!usrdatum)
 		goto bad;
 	newc->user = usrdatum->value;
 
 	/* Convert the role. */
+<<<<<<< HEAD
 	rc = -EINVAL;
 	role = hashtab_search(args->newp->p_roles.table,
 			      sym_name(args->oldp, SYM_ROLES, oldc->role - 1));
+=======
+	role = symtab_search(&args->newp->p_roles,
+			     sym_name(args->oldp, SYM_ROLES, oldc->role - 1));
+>>>>>>> upstream/android-13
 	if (!role)
 		goto bad;
 	newc->role = role->value;
 
 	/* Convert the type. */
+<<<<<<< HEAD
 	rc = -EINVAL;
 	typdatum = hashtab_search(args->newp->p_types.table,
 				  sym_name(args->oldp,
 					   SYM_TYPES, oldc->type - 1));
+=======
+	typdatum = symtab_search(&args->newp->p_types,
+				 sym_name(args->oldp,
+					  SYM_TYPES, oldc->type - 1));
+>>>>>>> upstream/android-13
 	if (!typdatum)
 		goto bad;
 	newc->type = typdatum->value;
@@ -2099,7 +2772,10 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
 		oc = args->newp->ocontexts[OCON_ISID];
 		while (oc && oc->sid[0] != SECINITSID_UNLABELED)
 			oc = oc->next;
+<<<<<<< HEAD
 		rc = -EINVAL;
+=======
+>>>>>>> upstream/android-13
 		if (!oc) {
 			pr_err("SELinux:  unable to look up"
 				" the initial SIDs list\n");
@@ -2112,15 +2788,24 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
 
 	/* Check the validity of the new context. */
 	if (!policydb_context_isvalid(args->newp, newc)) {
+<<<<<<< HEAD
 		rc = convert_context_handle_invalid_context(args->state, oldc);
+=======
+		rc = convert_context_handle_invalid_context(args->state,
+							args->oldp,
+							oldc);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto bad;
 	}
 
+<<<<<<< HEAD
 	rc = context_add_hash(args->newp, newc);
 	if (rc)
 		goto bad;
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 bad:
 	/* Map old representation to string and save it. */
@@ -2130,12 +2815,16 @@ bad:
 	context_destroy(newc);
 	newc->str = s;
 	newc->len = len;
+<<<<<<< HEAD
 	newc->hash = context_compute_hash(s);
+=======
+>>>>>>> upstream/android-13
 	pr_info("SELinux:  Context %s became invalid (unmapped).\n",
 		newc->str);
 	return 0;
 }
 
+<<<<<<< HEAD
 static void security_load_policycaps(struct selinux_state *state)
 {
 	struct policydb *p = &state->ss->policydb;
@@ -2144,6 +2833,20 @@ static void security_load_policycaps(struct selinux_state *state)
 
 	for (i = 0; i < ARRAY_SIZE(state->policycap); i++)
 		state->policycap[i] = ebitmap_get_bit(&p->policycaps, i);
+=======
+static void security_load_policycaps(struct selinux_state *state,
+				struct selinux_policy *policy)
+{
+	struct policydb *p;
+	unsigned int i;
+	struct ebitmap_node *node;
+
+	p = &policy->policydb;
+
+	for (i = 0; i < ARRAY_SIZE(state->policycap); i++)
+		WRITE_ONCE(state->policycap[i],
+			ebitmap_get_bit(&p->policycaps, i));
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
 		pr_info("SELinux:  policy capability %s=%d\n",
@@ -2161,11 +2864,120 @@ static void security_load_policycaps(struct selinux_state *state)
 	selinux_nlmsg_init();
 }
 
+<<<<<<< HEAD
 static int security_preserve_bools(struct selinux_state *state,
 				   struct policydb *newpolicydb);
 
 /**
  * security_load_policy - Load a security policy configuration.
+=======
+static int security_preserve_bools(struct selinux_policy *oldpolicy,
+				struct selinux_policy *newpolicy);
+
+static void selinux_policy_free(struct selinux_policy *policy)
+{
+	if (!policy)
+		return;
+
+	sidtab_destroy(policy->sidtab);
+	kfree(policy->map.mapping);
+	policydb_destroy(&policy->policydb);
+	kfree(policy->sidtab);
+	kfree(policy);
+}
+
+static void selinux_policy_cond_free(struct selinux_policy *policy)
+{
+	cond_policydb_destroy_dup(&policy->policydb);
+	kfree(policy);
+}
+
+void selinux_policy_cancel(struct selinux_state *state,
+			   struct selinux_load_state *load_state)
+{
+	struct selinux_policy *oldpolicy;
+
+	oldpolicy = rcu_dereference_protected(state->policy,
+					lockdep_is_held(&state->policy_mutex));
+
+	sidtab_cancel_convert(oldpolicy->sidtab);
+	selinux_policy_free(load_state->policy);
+	kfree(load_state->convert_data);
+}
+
+static void selinux_notify_policy_change(struct selinux_state *state,
+					u32 seqno)
+{
+	/* Flush external caches and notify userspace of policy load */
+	avc_ss_reset(state->avc, seqno);
+	selnl_notify_policyload(seqno);
+	selinux_status_update_policyload(state, seqno);
+	selinux_netlbl_cache_invalidate();
+	selinux_xfrm_notify_policyload();
+	selinux_ima_measure_state_locked(state);
+}
+
+void selinux_policy_commit(struct selinux_state *state,
+			   struct selinux_load_state *load_state)
+{
+	struct selinux_policy *oldpolicy, *newpolicy = load_state->policy;
+	unsigned long flags;
+	u32 seqno;
+
+	oldpolicy = rcu_dereference_protected(state->policy,
+					lockdep_is_held(&state->policy_mutex));
+
+	/* If switching between different policy types, log MLS status */
+	if (oldpolicy) {
+		if (oldpolicy->policydb.mls_enabled && !newpolicy->policydb.mls_enabled)
+			pr_info("SELinux: Disabling MLS support...\n");
+		else if (!oldpolicy->policydb.mls_enabled && newpolicy->policydb.mls_enabled)
+			pr_info("SELinux: Enabling MLS support...\n");
+	}
+
+	/* Set latest granting seqno for new policy. */
+	if (oldpolicy)
+		newpolicy->latest_granting = oldpolicy->latest_granting + 1;
+	else
+		newpolicy->latest_granting = 1;
+	seqno = newpolicy->latest_granting;
+
+	/* Install the new policy. */
+	if (oldpolicy) {
+		sidtab_freeze_begin(oldpolicy->sidtab, &flags);
+		rcu_assign_pointer(state->policy, newpolicy);
+		sidtab_freeze_end(oldpolicy->sidtab, &flags);
+	} else {
+		rcu_assign_pointer(state->policy, newpolicy);
+	}
+
+	/* Load the policycaps from the new policy */
+	security_load_policycaps(state, newpolicy);
+
+	if (!selinux_initialized(state)) {
+		/*
+		 * After first policy load, the security server is
+		 * marked as initialized and ready to handle requests and
+		 * any objects created prior to policy load are then labeled.
+		 */
+		selinux_mark_initialized(state);
+		selinux_complete_init();
+		trace_android_rvh_selinux_is_initialized(state);
+	}
+
+	/* Free the old policy */
+	synchronize_rcu();
+	selinux_policy_free(oldpolicy);
+	kfree(load_state->convert_data);
+
+	/* Notify others of the policy change */
+	selinux_notify_policy_change(state, seqno);
+}
+
+/**
+ * security_load_policy - Load a security policy configuration.
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @data: binary policy data
  * @len: length of data in bytes
  *
@@ -2174,6 +2986,7 @@ static int security_preserve_bools(struct selinux_state *state,
  * This function will flush the access vector cache after
  * loading the new policy.
  */
+<<<<<<< HEAD
 int security_load_policy(struct selinux_state *state, void *data, size_t len)
 {
 	struct policydb *policydb;
@@ -2274,11 +3087,70 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
 	}
 
 	oldsidtab = state->ss->sidtab;
+=======
+int security_load_policy(struct selinux_state *state, void *data, size_t len,
+			 struct selinux_load_state *load_state)
+{
+	struct selinux_policy *newpolicy, *oldpolicy;
+	struct selinux_policy_convert_data *convert_data;
+	int rc = 0;
+	struct policy_file file = { data, len }, *fp = &file;
+
+	newpolicy = kzalloc(sizeof(*newpolicy), GFP_KERNEL);
+	if (!newpolicy)
+		return -ENOMEM;
+
+	newpolicy->sidtab = kzalloc(sizeof(*newpolicy->sidtab), GFP_KERNEL);
+	if (!newpolicy->sidtab) {
+		rc = -ENOMEM;
+		goto err_policy;
+	}
+
+	rc = policydb_read(&newpolicy->policydb, fp);
+	if (rc)
+		goto err_sidtab;
+
+	newpolicy->policydb.len = len;
+	rc = selinux_set_mapping(&newpolicy->policydb, secclass_map,
+				&newpolicy->map);
+	if (rc)
+		goto err_policydb;
+
+	rc = policydb_load_isids(&newpolicy->policydb, newpolicy->sidtab);
+	if (rc) {
+		pr_err("SELinux:  unable to load the initial SIDs\n");
+		goto err_mapping;
+	}
+
+	if (!selinux_initialized(state)) {
+		/* First policy load, so no need to preserve state from old policy */
+		load_state->policy = newpolicy;
+		load_state->convert_data = NULL;
+		return 0;
+	}
+
+	oldpolicy = rcu_dereference_protected(state->policy,
+					lockdep_is_held(&state->policy_mutex));
+
+	/* Preserve active boolean values from the old policy */
+	rc = security_preserve_bools(oldpolicy, newpolicy);
+	if (rc) {
+		pr_err("SELinux:  unable to preserve booleans\n");
+		goto err_free_isids;
+	}
+
+	convert_data = kmalloc(sizeof(*convert_data), GFP_KERNEL);
+	if (!convert_data) {
+		rc = -ENOMEM;
+		goto err_free_isids;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Convert the internal representations of contexts
 	 * in the new SID table.
 	 */
+<<<<<<< HEAD
 	args.state = state;
 	args.oldp = policydb;
 	args.newp = newpolicydb;
@@ -2288,10 +3160,22 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
 	convert_params.target = newsidtab;
 
 	rc = sidtab_convert(oldsidtab, &convert_params);
+=======
+	convert_data->args.state = state;
+	convert_data->args.oldp = &oldpolicy->policydb;
+	convert_data->args.newp = &newpolicy->policydb;
+
+	convert_data->sidtab_params.func = convert_context;
+	convert_data->sidtab_params.args = &convert_data->args;
+	convert_data->sidtab_params.target = newpolicy->sidtab;
+
+	rc = sidtab_convert(oldpolicy->sidtab, &convert_data->sidtab_params);
+>>>>>>> upstream/android-13
 	if (rc) {
 		pr_err("SELinux:  unable to convert the internal"
 			" representation of contexts in the new SID"
 			" table\n");
+<<<<<<< HEAD
 		goto err;
 	}
 
@@ -2345,10 +3229,74 @@ size_t security_policydb_len(struct selinux_state *state)
 	read_unlock(&state->ss->policy_rwlock);
 
 	return len;
+=======
+		goto err_free_convert_data;
+	}
+
+	load_state->policy = newpolicy;
+	load_state->convert_data = convert_data;
+	return 0;
+
+err_free_convert_data:
+	kfree(convert_data);
+err_free_isids:
+	sidtab_destroy(newpolicy->sidtab);
+err_mapping:
+	kfree(newpolicy->map.mapping);
+err_policydb:
+	policydb_destroy(&newpolicy->policydb);
+err_sidtab:
+	kfree(newpolicy->sidtab);
+err_policy:
+	kfree(newpolicy);
+
+	return rc;
+}
+
+/**
+ * ocontext_to_sid - Helper to safely get sid for an ocontext
+ * @sidtab: SID table
+ * @c: ocontext structure
+ * @index: index of the context entry (0 or 1)
+ * @out_sid: pointer to the resulting SID value
+ *
+ * For all ocontexts except OCON_ISID the SID fields are populated
+ * on-demand when needed. Since updating the SID value is an SMP-sensitive
+ * operation, this helper must be used to do that safely.
+ *
+ * WARNING: This function may return -ESTALE, indicating that the caller
+ * must retry the operation after re-acquiring the policy pointer!
+ */
+static int ocontext_to_sid(struct sidtab *sidtab, struct ocontext *c,
+			   size_t index, u32 *out_sid)
+{
+	int rc;
+	u32 sid;
+
+	/* Ensure the associated sidtab entry is visible to this thread. */
+	sid = smp_load_acquire(&c->sid[index]);
+	if (!sid) {
+		rc = sidtab_context_to_sid(sidtab, &c->context[index], &sid);
+		if (rc)
+			return rc;
+
+		/*
+		 * Ensure the new sidtab entry is visible to other threads
+		 * when they see the SID.
+		 */
+		smp_store_release(&c->sid[index], sid);
+	}
+	*out_sid = sid;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  * security_port_sid - Obtain the SID for a port.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @protocol: protocol number
  * @port: port number
  * @out_sid: security identifier
@@ -2356,6 +3304,7 @@ size_t security_policydb_len(struct selinux_state *state)
 int security_port_sid(struct selinux_state *state,
 		      u8 protocol, u16 port, u32 *out_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct ocontext *c;
@@ -2365,6 +3314,25 @@ int security_port_sid(struct selinux_state *state,
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	struct ocontext *c;
+	int rc;
+
+	if (!selinux_initialized(state)) {
+		*out_sid = SECINITSID_PORT;
+		return 0;
+	}
+
+retry:
+	rc = 0;
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	c = policydb->ocontexts[OCON_PORT];
 	while (c) {
@@ -2376,6 +3344,7 @@ int security_port_sid(struct selinux_state *state,
 	}
 
 	if (c) {
+<<<<<<< HEAD
 		if (!c->sid[0]) {
 			rc = context_struct_to_sid(state, &c->context[0],
 						   &c->sid[0]);
@@ -2383,17 +3352,35 @@ int security_port_sid(struct selinux_state *state,
 				goto out;
 		}
 		*out_sid = c->sid[0];
+=======
+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+		if (rc)
+			goto out;
+>>>>>>> upstream/android-13
 	} else {
 		*out_sid = SECINITSID_PORT;
 	}
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 /**
+<<<<<<< HEAD
  * security_pkey_sid - Obtain the SID for a pkey.
+=======
+ * security_ib_pkey_sid - Obtain the SID for a pkey.
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @subnet_prefix: Subnet Prefix
  * @pkey_num: pkey number
  * @out_sid: security identifier
@@ -2401,6 +3388,7 @@ out:
 int security_ib_pkey_sid(struct selinux_state *state,
 			 u64 subnet_prefix, u16 pkey_num, u32 *out_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct ocontext *c;
 	int rc = 0;
@@ -2408,6 +3396,25 @@ int security_ib_pkey_sid(struct selinux_state *state,
 	read_lock(&state->ss->policy_rwlock);
 
 	policydb = &state->ss->policydb;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	struct ocontext *c;
+	int rc;
+
+	if (!selinux_initialized(state)) {
+		*out_sid = SECINITSID_UNLABELED;
+		return 0;
+	}
+
+retry:
+	rc = 0;
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	c = policydb->ocontexts[OCON_IBPKEY];
 	while (c) {
@@ -2420,6 +3427,7 @@ int security_ib_pkey_sid(struct selinux_state *state,
 	}
 
 	if (c) {
+<<<<<<< HEAD
 		if (!c->sid[0]) {
 			rc = context_struct_to_sid(state,
 						   &c->context[0],
@@ -2428,16 +3436,33 @@ int security_ib_pkey_sid(struct selinux_state *state,
 				goto out;
 		}
 		*out_sid = c->sid[0];
+=======
+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+		if (rc)
+			goto out;
+>>>>>>> upstream/android-13
 	} else
 		*out_sid = SECINITSID_UNLABELED;
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 /**
  * security_ib_endport_sid - Obtain the SID for a subnet management interface.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @dev_name: device name
  * @port: port number
  * @out_sid: security identifier
@@ -2445,6 +3470,7 @@ out:
 int security_ib_endport_sid(struct selinux_state *state,
 			    const char *dev_name, u8 port_num, u32 *out_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct ocontext *c;
@@ -2454,6 +3480,25 @@ int security_ib_endport_sid(struct selinux_state *state,
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	struct ocontext *c;
+	int rc;
+
+	if (!selinux_initialized(state)) {
+		*out_sid = SECINITSID_UNLABELED;
+		return 0;
+	}
+
+retry:
+	rc = 0;
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	c = policydb->ocontexts[OCON_IBENDPORT];
 	while (c) {
@@ -2467,6 +3512,7 @@ int security_ib_endport_sid(struct selinux_state *state,
 	}
 
 	if (c) {
+<<<<<<< HEAD
 		if (!c->sid[0]) {
 			rc = context_struct_to_sid(state, &c->context[0],
 						   &c->sid[0]);
@@ -2474,22 +3520,40 @@ int security_ib_endport_sid(struct selinux_state *state,
 				goto out;
 		}
 		*out_sid = c->sid[0];
+=======
+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+		if (rc)
+			goto out;
+>>>>>>> upstream/android-13
 	} else
 		*out_sid = SECINITSID_UNLABELED;
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 /**
  * security_netif_sid - Obtain the SID for a network interface.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @name: interface name
  * @if_sid: interface SID
  */
 int security_netif_sid(struct selinux_state *state,
 		       char *name, u32 *if_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	int rc = 0;
@@ -2499,6 +3563,25 @@ int security_netif_sid(struct selinux_state *state,
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	int rc;
+	struct ocontext *c;
+
+	if (!selinux_initialized(state)) {
+		*if_sid = SECINITSID_NETIF;
+		return 0;
+	}
+
+retry:
+	rc = 0;
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	c = policydb->ocontexts[OCON_NETIF];
 	while (c) {
@@ -2508,6 +3591,7 @@ int security_netif_sid(struct selinux_state *state,
 	}
 
 	if (c) {
+<<<<<<< HEAD
 		if (!c->sid[0] || !c->sid[1]) {
 			rc = context_struct_to_sid(state, &c->context[0],
 						   &c->sid[0]);
@@ -2519,11 +3603,24 @@ int security_netif_sid(struct selinux_state *state,
 				goto out;
 		}
 		*if_sid = c->sid[0];
+=======
+		rc = ocontext_to_sid(sidtab, c, 0, if_sid);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+		if (rc)
+			goto out;
+>>>>>>> upstream/android-13
 	} else
 		*if_sid = SECINITSID_NETIF;
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2542,6 +3639,10 @@ static int match_ipv6_addrmask(u32 *input, u32 *addr, u32 *mask)
 
 /**
  * security_node_sid - Obtain the SID for a node (host).
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @domain: communication domain aka address family
  * @addrp: address
  * @addrlen: address length in bytes
@@ -2553,6 +3654,7 @@ int security_node_sid(struct selinux_state *state,
 		      u32 addrlen,
 		      u32 *out_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	int rc;
 	struct ocontext *c;
@@ -2560,6 +3662,24 @@ int security_node_sid(struct selinux_state *state,
 	read_lock(&state->ss->policy_rwlock);
 
 	policydb = &state->ss->policydb;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	int rc;
+	struct ocontext *c;
+
+	if (!selinux_initialized(state)) {
+		*out_sid = SECINITSID_NODE;
+		return 0;
+	}
+
+retry:
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	switch (domain) {
 	case AF_INET: {
@@ -2600,6 +3720,7 @@ int security_node_sid(struct selinux_state *state,
 	}
 
 	if (c) {
+<<<<<<< HEAD
 		if (!c->sid[0]) {
 			rc = context_struct_to_sid(state,
 						   &c->context[0],
@@ -2608,13 +3729,26 @@ int security_node_sid(struct selinux_state *state,
 				goto out;
 		}
 		*out_sid = c->sid[0];
+=======
+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+		if (rc)
+			goto out;
+>>>>>>> upstream/android-13
 	} else {
 		*out_sid = SECINITSID_NODE;
 	}
 
 	rc = 0;
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -2622,6 +3756,10 @@ out:
 
 /**
  * security_get_user_sids - Obtain reachable SIDs for a user.
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @fromsid: starting SID
  * @username: username
  * @sids: array of reachable SIDs for user
@@ -2640,19 +3778,32 @@ int security_get_user_sids(struct selinux_state *state,
 			   u32 **sids,
 			   u32 *nel)
 {
+<<<<<<< HEAD
+=======
+	struct selinux_policy *policy;
+>>>>>>> upstream/android-13
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	struct context *fromcon, usercon;
 	u32 *mysids = NULL, *mysids2, sid;
+<<<<<<< HEAD
 	u32 mynel = 0, maxnel = SIDS_NEL;
 	struct user_datum *user;
 	struct role_datum *role;
 	struct ebitmap_node *rnode, *tnode;
 	int rc = 0, i, j;
+=======
+	u32 i, j, mynel, maxnel = SIDS_NEL;
+	struct user_datum *user;
+	struct role_datum *role;
+	struct ebitmap_node *rnode, *tnode;
+	int rc;
+>>>>>>> upstream/android-13
 
 	*sids = NULL;
 	*nel = 0;
 
+<<<<<<< HEAD
 	if (!ss_initialized)  // SEC_SELINUX_PORTING_COMMON Change to use RKP
 		goto out;
 
@@ -2660,6 +3811,21 @@ int security_get_user_sids(struct selinux_state *state,
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	if (!selinux_initialized(state))
+		return 0;
+
+	mysids = kcalloc(maxnel, sizeof(*mysids), GFP_KERNEL);
+	if (!mysids)
+		return -ENOMEM;
+
+retry:
+	mynel = 0;
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	context_init(&usercon);
 
@@ -2669,33 +3835,51 @@ int security_get_user_sids(struct selinux_state *state,
 		goto out_unlock;
 
 	rc = -EINVAL;
+<<<<<<< HEAD
 	user = hashtab_search(policydb->p_users.table, username);
+=======
+	user = symtab_search(&policydb->p_users, username);
+>>>>>>> upstream/android-13
 	if (!user)
 		goto out_unlock;
 
 	usercon.user = user->value;
 
+<<<<<<< HEAD
 	rc = -ENOMEM;
 	mysids = kcalloc(maxnel, sizeof(*mysids), GFP_ATOMIC);
 	if (!mysids)
 		goto out_unlock;
 
+=======
+>>>>>>> upstream/android-13
 	ebitmap_for_each_positive_bit(&user->roles, rnode, i) {
 		role = policydb->role_val_to_struct[i];
 		usercon.role = i + 1;
 		ebitmap_for_each_positive_bit(&role->types, tnode, j) {
 			usercon.type = j + 1;
+<<<<<<< HEAD
 			/*
 			 * The same context struct is reused here so the hash
 			 * must be reset.
 			 */
 			usercon.hash = 0;
+=======
+>>>>>>> upstream/android-13
 
 			if (mls_setup_user_range(policydb, fromcon, user,
 						 &usercon))
 				continue;
 
+<<<<<<< HEAD
 			rc = context_struct_to_sid(state, &usercon, &sid);
+=======
+			rc = sidtab_context_to_sid(sidtab, &usercon, &sid);
+			if (rc == -ESTALE) {
+				rcu_read_unlock();
+				goto retry;
+			}
+>>>>>>> upstream/android-13
 			if (rc)
 				goto out_unlock;
 			if (mynel < maxnel) {
@@ -2715,17 +3899,28 @@ int security_get_user_sids(struct selinux_state *state,
 	}
 	rc = 0;
 out_unlock:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
 	if (rc || !mynel) {
 		kfree(mysids);
 		goto out;
+=======
+	rcu_read_unlock();
+	if (rc || !mynel) {
+		kfree(mysids);
+		return rc;
+>>>>>>> upstream/android-13
 	}
 
 	rc = -ENOMEM;
 	mysids2 = kcalloc(mynel, sizeof(*mysids2), GFP_KERNEL);
 	if (!mysids2) {
 		kfree(mysids);
+<<<<<<< HEAD
 		goto out;
+=======
+		return rc;
+>>>>>>> upstream/android-13
 	}
 	for (i = 0, j = 0; i < mynel; i++) {
 		struct av_decision dummy_avd;
@@ -2738,12 +3933,19 @@ out_unlock:
 			mysids2[j++] = mysids[i];
 		cond_resched();
 	}
+<<<<<<< HEAD
 	rc = 0;
 	kfree(mysids);
 	*sids = mysids2;
 	*nel = j;
 out:
 	return rc;
+=======
+	kfree(mysids);
+	*sids = mysids2;
+	*nel = j;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2757,25 +3959,45 @@ out:
  * cannot support xattr or use a fixed labeling behavior like
  * transition SIDs or task SIDs.
  *
+<<<<<<< HEAD
  * The caller must acquire the policy_rwlock before calling this function.
  */
 static inline int __security_genfs_sid(struct selinux_state *state,
+=======
+ * WARNING: This function may return -ESTALE, indicating that the caller
+ * must retry the operation after re-acquiring the policy pointer!
+ */
+static inline int __security_genfs_sid(struct selinux_policy *policy,
+>>>>>>> upstream/android-13
 				       const char *fstype,
 				       char *path,
 				       u16 orig_sclass,
 				       u32 *sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
+=======
+	struct policydb *policydb = &policy->policydb;
+	struct sidtab *sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 	int len;
 	u16 sclass;
 	struct genfs *genfs;
 	struct ocontext *c;
+<<<<<<< HEAD
 	int rc, cmp = 0;
+=======
+	int cmp = 0;
+>>>>>>> upstream/android-13
 
 	while (path[0] == '/' && path[1] == '/')
 		path++;
 
+<<<<<<< HEAD
 	sclass = unmap_class(&state->ss->map, orig_sclass);
+=======
+	sclass = unmap_class(&policy->map, orig_sclass);
+>>>>>>> upstream/android-13
 	*sid = SECINITSID_UNLABELED;
 
 	for (genfs = policydb->genfs; genfs; genfs = genfs->next) {
@@ -2784,9 +4006,14 @@ static inline int __security_genfs_sid(struct selinux_state *state,
 			break;
 	}
 
+<<<<<<< HEAD
 	rc = -ENOENT;
 	if (!genfs || cmp)
 		goto out;
+=======
+	if (!genfs || cmp)
+		return -ENOENT;
+>>>>>>> upstream/android-13
 
 	for (c = genfs->head; c; c = c->next) {
 		len = strlen(c->u.name);
@@ -2795,6 +4022,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
 			break;
 	}
 
+<<<<<<< HEAD
 	rc = -ENOENT;
 	if (!c)
 		goto out;
@@ -2809,10 +4037,20 @@ static inline int __security_genfs_sid(struct selinux_state *state,
 	rc = 0;
 out:
 	return rc;
+=======
+	if (!c)
+		return -ENOENT;
+
+	return ocontext_to_sid(sidtab, c, 0, sid);
+>>>>>>> upstream/android-13
 }
 
 /**
  * security_genfs_sid - Obtain a SID for a file in a filesystem
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @fstype: filesystem type
  * @path: path from root of mount
  * @sclass: file security class
@@ -2827,6 +4065,7 @@ int security_genfs_sid(struct selinux_state *state,
 		       u16 orig_sclass,
 		       u32 *sid)
 {
+<<<<<<< HEAD
 	int retval;
 
 	read_lock(&state->ss->policy_rwlock);
@@ -2837,10 +4076,44 @@ int security_genfs_sid(struct selinux_state *state,
 
 /**
  * security_fs_use - Determine how to handle labeling for a filesystem.
+=======
+	struct selinux_policy *policy;
+	int retval;
+
+	if (!selinux_initialized(state)) {
+		*sid = SECINITSID_UNLABELED;
+		return 0;
+	}
+
+	do {
+		rcu_read_lock();
+		policy = rcu_dereference(state->policy);
+		retval = __security_genfs_sid(policy, fstype, path,
+					      orig_sclass, sid);
+		rcu_read_unlock();
+	} while (retval == -ESTALE);
+	return retval;
+}
+
+int selinux_policy_genfs_sid(struct selinux_policy *policy,
+			const char *fstype,
+			char *path,
+			u16 orig_sclass,
+			u32 *sid)
+{
+	/* no lock required, policy is not yet accessible by other threads */
+	return __security_genfs_sid(policy, fstype, path, orig_sclass, sid);
+}
+
+/**
+ * security_fs_use - Determine how to handle labeling for a filesystem.
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @sb: superblock in question
  */
 int security_fs_use(struct selinux_state *state, struct super_block *sb)
 {
+<<<<<<< HEAD
 	struct policydb *policydb;
 	struct sidtab *sidtab;
 	int rc = 0;
@@ -2852,6 +4125,28 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
 
 	policydb = &state->ss->policydb;
 	sidtab = state->ss->sidtab;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+	int rc;
+	struct ocontext *c;
+	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+	const char *fstype = sb->s_type->name;
+
+	if (!selinux_initialized(state)) {
+		sbsec->behavior = SECURITY_FS_USE_NONE;
+		sbsec->sid = SECINITSID_UNLABELED;
+		return 0;
+	}
+
+retry:
+	rc = 0;
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	c = policydb->ocontexts[OCON_FSUSE];
 	while (c) {
@@ -2862,6 +4157,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
 
 	if (c) {
 		sbsec->behavior = c->v.behavior;
+<<<<<<< HEAD
 		if (!c->sid[0]) {
 			rc = context_struct_to_sid(state, &c->context[0],
 						   &c->sid[0]);
@@ -2872,6 +4168,22 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
 	} else {
 		rc = __security_genfs_sid(state, fstype, "/", SECCLASS_DIR,
 					  &sbsec->sid);
+=======
+		rc = ocontext_to_sid(sidtab, c, 0, &sbsec->sid);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+		if (rc)
+			goto out;
+	} else {
+		rc = __security_genfs_sid(policy, fstype, "/",
+					SECCLASS_DIR, &sbsec->sid);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+>>>>>>> upstream/android-13
 		if (rc) {
 			sbsec->behavior = SECURITY_FS_USE_NONE;
 			rc = 0;
@@ -2881,6 +4193,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
 	}
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
 	return rc;
 }
@@ -2901,6 +4214,20 @@ int security_get_bools(struct selinux_state *state,
 	read_lock(&state->ss->policy_rwlock);
 
 	policydb = &state->ss->policydb;
+=======
+	rcu_read_unlock();
+	return rc;
+}
+
+int security_get_bools(struct selinux_policy *policy,
+		       u32 *len, char ***names, int **values)
+{
+	struct policydb *policydb;
+	u32 i;
+	int rc;
+
+	policydb = &policy->policydb;
+>>>>>>> upstream/android-13
 
 	*names = NULL;
 	*values = NULL;
@@ -2931,7 +4258,10 @@ int security_get_bools(struct selinux_state *state,
 	}
 	rc = 0;
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+>>>>>>> upstream/android-13
 	return rc;
 err:
 	if (*names) {
@@ -2947,6 +4277,7 @@ err:
 }
 
 
+<<<<<<< HEAD
 int security_set_bools(struct selinux_state *state, int len, int *values)
 {
 	struct policydb *policydb;
@@ -3009,6 +4340,93 @@ int security_get_bool_value(struct selinux_state *state,
 	read_lock(&state->ss->policy_rwlock);
 
 	policydb = &state->ss->policydb;
+=======
+int security_set_bools(struct selinux_state *state, u32 len, int *values)
+{
+	struct selinux_policy *newpolicy, *oldpolicy;
+	int rc;
+	u32 i, seqno = 0;
+
+	if (!selinux_initialized(state))
+		return -EINVAL;
+
+	oldpolicy = rcu_dereference_protected(state->policy,
+					lockdep_is_held(&state->policy_mutex));
+
+	/* Consistency check on number of booleans, should never fail */
+	if (WARN_ON(len != oldpolicy->policydb.p_bools.nprim))
+		return -EINVAL;
+
+	newpolicy = kmemdup(oldpolicy, sizeof(*newpolicy), GFP_KERNEL);
+	if (!newpolicy)
+		return -ENOMEM;
+
+	/*
+	 * Deep copy only the parts of the policydb that might be
+	 * modified as a result of changing booleans.
+	 */
+	rc = cond_policydb_dup(&newpolicy->policydb, &oldpolicy->policydb);
+	if (rc) {
+		kfree(newpolicy);
+		return -ENOMEM;
+	}
+
+	/* Update the boolean states in the copy */
+	for (i = 0; i < len; i++) {
+		int new_state = !!values[i];
+		int old_state = newpolicy->policydb.bool_val_to_struct[i]->state;
+
+		if (new_state != old_state) {
+			audit_log(audit_context(), GFP_ATOMIC,
+				AUDIT_MAC_CONFIG_CHANGE,
+				"bool=%s val=%d old_val=%d auid=%u ses=%u",
+				sym_name(&newpolicy->policydb, SYM_BOOLS, i),
+				new_state,
+				old_state,
+				from_kuid(&init_user_ns, audit_get_loginuid(current)),
+				audit_get_sessionid(current));
+			newpolicy->policydb.bool_val_to_struct[i]->state = new_state;
+		}
+	}
+
+	/* Re-evaluate the conditional rules in the copy */
+	evaluate_cond_nodes(&newpolicy->policydb);
+
+	/* Set latest granting seqno for new policy */
+	newpolicy->latest_granting = oldpolicy->latest_granting + 1;
+	seqno = newpolicy->latest_granting;
+
+	/* Install the new policy */
+	rcu_assign_pointer(state->policy, newpolicy);
+
+	/*
+	 * Free the conditional portions of the old policydb
+	 * that were copied for the new policy, and the oldpolicy
+	 * structure itself but not what it references.
+	 */
+	synchronize_rcu();
+	selinux_policy_cond_free(oldpolicy);
+
+	/* Notify others of the policy change */
+	selinux_notify_policy_change(state, seqno);
+	return 0;
+}
+
+int security_get_bool_value(struct selinux_state *state,
+			    u32 index)
+{
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	int rc;
+	u32 len;
+
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+>>>>>>> upstream/android-13
 
 	rc = -EFAULT;
 	len = policydb->p_bools.nprim;
@@ -3017,6 +4435,7 @@ int security_get_bool_value(struct selinux_state *state,
 
 	rc = policydb->bool_val_to_struct[index]->state;
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
 	return rc;
 }
@@ -3042,6 +4461,30 @@ static int security_preserve_bools(struct selinux_state *state,
 		if (rc)
 			goto out;
 	}
+=======
+	rcu_read_unlock();
+	return rc;
+}
+
+static int security_preserve_bools(struct selinux_policy *oldpolicy,
+				struct selinux_policy *newpolicy)
+{
+	int rc, *bvalues = NULL;
+	char **bnames = NULL;
+	struct cond_bool_datum *booldatum;
+	u32 i, nbools = 0;
+
+	rc = security_get_bools(oldpolicy, &nbools, &bnames, &bvalues);
+	if (rc)
+		goto out;
+	for (i = 0; i < nbools; i++) {
+		booldatum = symtab_search(&newpolicy->policydb.p_bools,
+					bnames[i]);
+		if (booldatum)
+			booldatum->state = bvalues[i];
+	}
+	evaluate_cond_nodes(&newpolicy->policydb);
+>>>>>>> upstream/android-13
 
 out:
 	if (bnames) {
@@ -3060,8 +4503,14 @@ out:
 int security_sid_mls_copy(struct selinux_state *state,
 			  u32 sid, u32 mls_sid, u32 *new_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
 	struct sidtab *sidtab = state->ss->sidtab;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+>>>>>>> upstream/android-13
 	struct context *context1;
 	struct context *context2;
 	struct context newcon;
@@ -3069,6 +4518,7 @@ int security_sid_mls_copy(struct selinux_state *state,
 	u32 len;
 	int rc;
 
+<<<<<<< HEAD
 	rc = 0;
 	if (!ss_initialized || !policydb->mls_enabled) {  // SEC_SELINUX_PORTING_COMMON Change to use RKP
 		*new_sid = sid;
@@ -3078,6 +4528,26 @@ int security_sid_mls_copy(struct selinux_state *state,
 	context_init(&newcon);
 
 	read_lock(&state->ss->policy_rwlock);
+=======
+	if (!selinux_initialized(state)) {
+		*new_sid = sid;
+		return 0;
+	}
+
+retry:
+	rc = 0;
+	context_init(&newcon);
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+
+	if (!policydb->mls_enabled) {
+		*new_sid = sid;
+		goto out_unlock;
+	}
+>>>>>>> upstream/android-13
 
 	rc = -EINVAL;
 	context1 = sidtab_search(sidtab, sid);
@@ -3104,6 +4574,7 @@ int security_sid_mls_copy(struct selinux_state *state,
 
 	/* Check the validity of the new context. */
 	if (!policydb_context_isvalid(policydb, &newcon)) {
+<<<<<<< HEAD
 		rc = convert_context_handle_invalid_context(state, &newcon);
 		if (rc) {
 			if (!context_struct_to_string(policydb, &newcon, &s,
@@ -3112,21 +4583,54 @@ int security_sid_mls_copy(struct selinux_state *state,
 					  GFP_ATOMIC, AUDIT_SELINUX_ERR,
 					  "op=security_sid_mls_copy "
 					  "invalid_context=%s", s);
+=======
+		rc = convert_context_handle_invalid_context(state, policydb,
+							&newcon);
+		if (rc) {
+			if (!context_struct_to_string(policydb, &newcon, &s,
+						      &len)) {
+				struct audit_buffer *ab;
+
+				ab = audit_log_start(audit_context(),
+						     GFP_ATOMIC,
+						     AUDIT_SELINUX_ERR);
+				audit_log_format(ab,
+						 "op=security_sid_mls_copy invalid_context=");
+				/* don't record NUL with untrusted strings */
+				audit_log_n_untrustedstring(ab, s, len - 1);
+				audit_log_end(ab);
+>>>>>>> upstream/android-13
 				kfree(s);
 			}
 			goto out_unlock;
 		}
 	}
+<<<<<<< HEAD
 	rc = context_struct_to_sid(state, &newcon, new_sid);
 out_unlock:
 	read_unlock(&state->ss->policy_rwlock);
 	context_destroy(&newcon);
 out:
+=======
+	rc = sidtab_context_to_sid(sidtab, &newcon, new_sid);
+	if (rc == -ESTALE) {
+		rcu_read_unlock();
+		context_destroy(&newcon);
+		goto retry;
+	}
+out_unlock:
+	rcu_read_unlock();
+	context_destroy(&newcon);
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 /**
  * security_net_peersid_resolve - Compare and resolve two network peer SIDs
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @nlbl_sid: NetLabel SID
  * @nlbl_type: NetLabel labeling protocol type
  * @xfrm_sid: XFRM SID
@@ -3150,8 +4654,14 @@ int security_net_peersid_resolve(struct selinux_state *state,
 				 u32 xfrm_sid,
 				 u32 *peer_sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
 	struct sidtab *sidtab = state->ss->sidtab;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+>>>>>>> upstream/android-13
 	int rc;
 	struct context *nlbl_ctx;
 	struct context *xfrm_ctx;
@@ -3173,15 +4683,33 @@ int security_net_peersid_resolve(struct selinux_state *state,
 		return 0;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We don't need to check initialized here since the only way both
 	 * nlbl_sid and xfrm_sid are not equal to SECSID_NULL would be if the
 	 * security server was initialized and state->initialized was true.
 	 */
+<<<<<<< HEAD
 	if (!policydb->mls_enabled)
 		return 0;
 
 	read_lock(&state->ss->policy_rwlock);
+=======
+	if (!policydb->mls_enabled) {
+		rc = 0;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 
 	rc = -EINVAL;
 	nlbl_ctx = sidtab_search(sidtab, nlbl_sid);
@@ -3208,7 +4736,11 @@ int security_net_peersid_resolve(struct selinux_state *state,
 	 * expressive */
 	*peer_sid = xfrm_sid;
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -3225,6 +4757,7 @@ static int get_classes_callback(void *k, void *d, void *args)
 	return 0;
 }
 
+<<<<<<< HEAD
 int security_get_classes(struct selinux_state *state,
 			 char ***classes, int *nclasses)
 {
@@ -3238,6 +4771,15 @@ int security_get_classes(struct selinux_state *state,
 	}
 
 	read_lock(&state->ss->policy_rwlock);
+=======
+int security_get_classes(struct selinux_policy *policy,
+			 char ***classes, int *nclasses)
+{
+	struct policydb *policydb;
+	int rc;
+
+	policydb = &policy->policydb;
+>>>>>>> upstream/android-13
 
 	rc = -ENOMEM;
 	*nclasses = policydb->p_classes.nprim;
@@ -3245,8 +4787,13 @@ int security_get_classes(struct selinux_state *state,
 	if (!*classes)
 		goto out;
 
+<<<<<<< HEAD
 	rc = hashtab_map(policydb->p_classes.table, get_classes_callback,
 			*classes);
+=======
+	rc = hashtab_map(&policydb->p_classes.table, get_classes_callback,
+			 *classes);
+>>>>>>> upstream/android-13
 	if (rc) {
 		int i;
 		for (i = 0; i < *nclasses; i++)
@@ -3255,7 +4802,10 @@ int security_get_classes(struct selinux_state *state,
 	}
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+>>>>>>> upstream/android-13
 	return rc;
 }
 
@@ -3272,6 +4822,7 @@ static int get_permissions_callback(void *k, void *d, void *args)
 	return 0;
 }
 
+<<<<<<< HEAD
 int security_get_permissions(struct selinux_state *state,
 			     char *class, char ***perms, int *nperms)
 {
@@ -3283,6 +4834,19 @@ int security_get_permissions(struct selinux_state *state,
 
 	rc = -EINVAL;
 	match = hashtab_search(policydb->p_classes.table, class);
+=======
+int security_get_permissions(struct selinux_policy *policy,
+			     char *class, char ***perms, int *nperms)
+{
+	struct policydb *policydb;
+	int rc, i;
+	struct class_datum *match;
+
+	policydb = &policy->policydb;
+
+	rc = -EINVAL;
+	match = symtab_search(&policydb->p_classes, class);
+>>>>>>> upstream/android-13
 	if (!match) {
 		pr_err("SELinux: %s:  unrecognized class %s\n",
 			__func__, class);
@@ -3296,23 +4860,39 @@ int security_get_permissions(struct selinux_state *state,
 		goto out;
 
 	if (match->comdatum) {
+<<<<<<< HEAD
 		rc = hashtab_map(match->comdatum->permissions.table,
 				get_permissions_callback, *perms);
+=======
+		rc = hashtab_map(&match->comdatum->permissions.table,
+				 get_permissions_callback, *perms);
+>>>>>>> upstream/android-13
 		if (rc)
 			goto err;
 	}
 
+<<<<<<< HEAD
 	rc = hashtab_map(match->permissions.table, get_permissions_callback,
 			*perms);
+=======
+	rc = hashtab_map(&match->permissions.table, get_permissions_callback,
+			 *perms);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto err;
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
 	return rc;
 
 err:
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	return rc;
+
+err:
+>>>>>>> upstream/android-13
 	for (i = 0; i < *nperms; i++)
 		kfree((*perms)[i]);
 	kfree(*perms);
@@ -3321,16 +4901,48 @@ err:
 
 int security_get_reject_unknown(struct selinux_state *state)
 {
+<<<<<<< HEAD
 	return state->ss->policydb.reject_unknown;
+=======
+	struct selinux_policy *policy;
+	int value;
+
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	value = policy->policydb.reject_unknown;
+	rcu_read_unlock();
+	return value;
+>>>>>>> upstream/android-13
 }
 
 int security_get_allow_unknown(struct selinux_state *state)
 {
+<<<<<<< HEAD
 	return state->ss->policydb.allow_unknown;
+=======
+	struct selinux_policy *policy;
+	int value;
+
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	value = policy->policydb.allow_unknown;
+	rcu_read_unlock();
+	return value;
+>>>>>>> upstream/android-13
 }
 
 /**
  * security_policycap_supported - Check for a specific policy capability
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @req_cap: capability
  *
  * Description:
@@ -3342,12 +4954,25 @@ int security_get_allow_unknown(struct selinux_state *state)
 int security_policycap_supported(struct selinux_state *state,
 				 unsigned int req_cap)
 {
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
 	int rc;
 
 	read_lock(&state->ss->policy_rwlock);
 	rc = ebitmap_get_bit(&policydb->policycaps, req_cap);
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	struct selinux_policy *policy;
+	int rc;
+
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	rc = ebitmap_get_bit(&policy->policydb.policycaps, req_cap);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	return rc;
 }
@@ -3370,7 +4995,12 @@ void selinux_audit_rule_free(void *vrule)
 int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
 {
 	struct selinux_state *state = &selinux_state;
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+>>>>>>> upstream/android-13
 	struct selinux_audit_rule *tmprule;
 	struct role_datum *roledatum;
 	struct type_datum *typedatum;
@@ -3380,7 +5010,11 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
 
 	*rule = NULL;
 
+<<<<<<< HEAD
 	if (!ss_initialized)  // SEC_SELINUX_PORTING_COMMON Change to use RKP
+=======
+	if (!selinux_initialized(state))
+>>>>>>> upstream/android-13
 		return -EOPNOTSUPP;
 
 	switch (field) {
@@ -3413,15 +5047,27 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
 
 	context_init(&tmprule->au_ctxt);
 
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
 
 	tmprule->au_seqno = state->ss->latest_granting;
+=======
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+
+	tmprule->au_seqno = policy->latest_granting;
+>>>>>>> upstream/android-13
 
 	switch (field) {
 	case AUDIT_SUBJ_USER:
 	case AUDIT_OBJ_USER:
 		rc = -EINVAL;
+<<<<<<< HEAD
 		userdatum = hashtab_search(policydb->p_users.table, rulestr);
+=======
+		userdatum = symtab_search(&policydb->p_users, rulestr);
+>>>>>>> upstream/android-13
 		if (!userdatum)
 			goto out;
 		tmprule->au_ctxt.user = userdatum->value;
@@ -3429,7 +5075,11 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
 	case AUDIT_SUBJ_ROLE:
 	case AUDIT_OBJ_ROLE:
 		rc = -EINVAL;
+<<<<<<< HEAD
 		roledatum = hashtab_search(policydb->p_roles.table, rulestr);
+=======
+		roledatum = symtab_search(&policydb->p_roles, rulestr);
+>>>>>>> upstream/android-13
 		if (!roledatum)
 			goto out;
 		tmprule->au_ctxt.role = roledatum->value;
@@ -3437,7 +5087,11 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
 	case AUDIT_SUBJ_TYPE:
 	case AUDIT_OBJ_TYPE:
 		rc = -EINVAL;
+<<<<<<< HEAD
 		typedatum = hashtab_search(policydb->p_types.table, rulestr);
+=======
+		typedatum = symtab_search(&policydb->p_types, rulestr);
+>>>>>>> upstream/android-13
 		if (!typedatum)
 			goto out;
 		tmprule->au_ctxt.type = typedatum->value;
@@ -3454,7 +5108,11 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
 	}
 	rc = 0;
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	if (rc) {
 		selinux_audit_rule_free(tmprule);
@@ -3491,10 +5149,17 @@ int selinux_audit_rule_known(struct audit_krule *rule)
 	return 0;
 }
 
+<<<<<<< HEAD
 int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
 			     struct audit_context *actx)
 {
 	struct selinux_state *state = &selinux_state;
+=======
+int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
+{
+	struct selinux_state *state = &selinux_state;
+	struct selinux_policy *policy;
+>>>>>>> upstream/android-13
 	struct context *ctxt;
 	struct mls_level *level;
 	struct selinux_audit_rule *rule = vrule;
@@ -3505,14 +5170,29 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
 
 	if (rule->au_seqno < state->ss->latest_granting) {
+=======
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+
+	policy = rcu_dereference(state->policy);
+
+	if (rule->au_seqno < policy->latest_granting) {
+>>>>>>> upstream/android-13
 		match = -ESTALE;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ctxt = sidtab_search(state->ss->sidtab, sid);
+=======
+	ctxt = sidtab_search(policy->sidtab, sid);
+>>>>>>> upstream/android-13
 	if (unlikely(!ctxt)) {
 		WARN_ONCE(1, "selinux_audit_rule_match: unrecognized SID %d\n",
 			  sid);
@@ -3596,6 +5276,7 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
 	}
 
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
 	return match;
 }
@@ -3609,6 +5290,17 @@ static int aurule_avc_callback(u32 event)
 	if (event == AVC_CALLBACK_RESET && aurule_callback)
 		err = aurule_callback();
 	return err;
+=======
+	rcu_read_unlock();
+	return match;
+}
+
+static int aurule_avc_callback(u32 event)
+{
+	if (event == AVC_CALLBACK_RESET)
+		return audit_update_lsm_rules();
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int __init aurule_init(void)
@@ -3657,6 +5349,10 @@ static void security_netlbl_cache_add(struct netlbl_lsm_secattr *secattr,
 
 /**
  * security_netlbl_secattr_to_sid - Convert a NetLabel secattr to a SELinux SID
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @secattr: the NetLabel packet security attributes
  * @sid: the SELinux SID
  *
@@ -3674,18 +5370,37 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
 				   struct netlbl_lsm_secattr *secattr,
 				   u32 *sid)
 {
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
 	struct sidtab *sidtab = state->ss->sidtab;
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	struct sidtab *sidtab;
+>>>>>>> upstream/android-13
 	int rc;
 	struct context *ctx;
 	struct context ctx_new;
 
+<<<<<<< HEAD
 	if (!ss_initialized) {  // SEC_SELINUX_PORTING_COMMON Change to use RKP
+=======
+	if (!selinux_initialized(state)) {
+>>>>>>> upstream/android-13
 		*sid = SECSID_NULL;
 		return 0;
 	}
 
+<<<<<<< HEAD
 	read_lock(&state->ss->policy_rwlock);
+=======
+retry:
+	rc = 0;
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+	sidtab = policy->sidtab;
+>>>>>>> upstream/android-13
 
 	if (secattr->flags & NETLBL_SECATTR_CACHE)
 		*sid = *(u32 *)secattr->cache->data;
@@ -3708,6 +5423,7 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
 				goto out;
 		}
 		rc = -EIDRM;
+<<<<<<< HEAD
 		if (!mls_context_isvalid(policydb, &ctx_new))
 			goto out_free;
 
@@ -3727,11 +5443,37 @@ out_free:
 	ebitmap_destroy(&ctx_new.range.level[0].cat);
 out:
 	read_unlock(&state->ss->policy_rwlock);
+=======
+		if (!mls_context_isvalid(policydb, &ctx_new)) {
+			ebitmap_destroy(&ctx_new.range.level[0].cat);
+			goto out;
+		}
+
+		rc = sidtab_context_to_sid(sidtab, &ctx_new, sid);
+		ebitmap_destroy(&ctx_new.range.level[0].cat);
+		if (rc == -ESTALE) {
+			rcu_read_unlock();
+			goto retry;
+		}
+		if (rc)
+			goto out;
+
+		security_netlbl_cache_add(secattr, *sid);
+	} else
+		*sid = SECSID_NULL;
+
+out:
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 
 /**
  * security_netlbl_sid_to_secattr - Convert a SELinux SID to a NetLabel secattr
+<<<<<<< HEAD
+=======
+ * @state: SELinux state
+>>>>>>> upstream/android-13
  * @sid: the SELinux SID
  * @secattr: the NetLabel packet security attributes
  *
@@ -3743,6 +5485,7 @@ out:
 int security_netlbl_sid_to_secattr(struct selinux_state *state,
 				   u32 sid, struct netlbl_lsm_secattr *secattr)
 {
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
 	int rc;
 	struct context *ctx;
@@ -3754,6 +5497,22 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
 
 	rc = -ENOENT;
 	ctx = sidtab_search(state->ss->sidtab, sid);
+=======
+	struct selinux_policy *policy;
+	struct policydb *policydb;
+	int rc;
+	struct context *ctx;
+
+	if (!selinux_initialized(state))
+		return 0;
+
+	rcu_read_lock();
+	policy = rcu_dereference(state->policy);
+	policydb = &policy->policydb;
+
+	rc = -ENOENT;
+	ctx = sidtab_search(policy->sidtab, sid);
+>>>>>>> upstream/android-13
 	if (ctx == NULL)
 		goto out;
 
@@ -3768,13 +5527,46 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
 	mls_export_netlbl_lvl(policydb, ctx, secattr);
 	rc = mls_export_netlbl_cat(policydb, ctx, secattr);
 out:
+<<<<<<< HEAD
 	read_unlock(&state->ss->policy_rwlock);
+=======
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return rc;
 }
 #endif /* CONFIG_NETLABEL */
 
 /**
+<<<<<<< HEAD
  * security_read_policy - read the policy.
+=======
+ * __security_read_policy - read the policy.
+ * @policy: SELinux policy
+ * @data: binary policy data
+ * @len: length of data in bytes
+ *
+ */
+static int __security_read_policy(struct selinux_policy *policy,
+				  void *data, size_t *len)
+{
+	int rc;
+	struct policy_file fp;
+
+	fp.data = data;
+	fp.len = *len;
+
+	rc = policydb_write(&policy->policydb, &fp);
+	if (rc)
+		return rc;
+
+	*len = (unsigned long)fp.data - (unsigned long)data;
+	return 0;
+}
+
+/**
+ * security_read_policy - read the policy.
+ * @state: selinux_state
+>>>>>>> upstream/android-13
  * @data: binary policy data
  * @len: length of data in bytes
  *
@@ -3782,6 +5574,7 @@ out:
 int security_read_policy(struct selinux_state *state,
 			 void **data, size_t *len)
 {
+<<<<<<< HEAD
 	struct policydb *policydb = &state->ss->policydb;
 	int rc;
 	struct policy_file fp;
@@ -3791,10 +5584,21 @@ int security_read_policy(struct selinux_state *state,
 
 	*len = security_policydb_len(state);
 
+=======
+	struct selinux_policy *policy;
+
+	policy = rcu_dereference_protected(
+			state->policy, lockdep_is_held(&state->policy_mutex));
+	if (!policy)
+		return -EINVAL;
+
+	*len = policy->policydb.len;
+>>>>>>> upstream/android-13
 	*data = vmalloc_user(*len);
 	if (!*data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	fp.data = *data;
 	fp.len = *len;
 
@@ -3808,4 +5612,37 @@ int security_read_policy(struct selinux_state *state,
 	*len = (unsigned long)fp.data - (unsigned long)*data;
 	return 0;
 
+=======
+	return __security_read_policy(policy, *data, len);
+}
+
+/**
+ * security_read_state_kernel - read the policy.
+ * @state: selinux_state
+ * @data: binary policy data
+ * @len: length of data in bytes
+ *
+ * Allocates kernel memory for reading SELinux policy.
+ * This function is for internal use only and should not
+ * be used for returning data to user space.
+ *
+ * This function must be called with policy_mutex held.
+ */
+int security_read_state_kernel(struct selinux_state *state,
+			       void **data, size_t *len)
+{
+	struct selinux_policy *policy;
+
+	policy = rcu_dereference_protected(
+			state->policy, lockdep_is_held(&state->policy_mutex));
+	if (!policy)
+		return -EINVAL;
+
+	*len = policy->policydb.len;
+	*data = vmalloc(*len);
+	if (!*data)
+		return -ENOMEM;
+
+	return __security_read_policy(policy, *data, len);
+>>>>>>> upstream/android-13
 }

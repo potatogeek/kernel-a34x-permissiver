@@ -2,6 +2,7 @@
 #ifndef __ASM_UM_HARDIRQ_H
 #define __ASM_UM_HARDIRQ_H
 
+<<<<<<< HEAD
 #include <linux/cache.h>
 #include <linux/threads.h>
 
@@ -18,6 +19,9 @@ static inline void ack_bad_irq(unsigned int irq)
 	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
 }
 #endif
+=======
+#include <asm-generic/hardirq.h>
+>>>>>>> upstream/android-13
 
 #define __ARCH_IRQ_EXIT_IRQS_DISABLED 1
 

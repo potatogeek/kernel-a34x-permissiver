@@ -76,6 +76,11 @@ SECTIONS
     SCHED_TEXT
     CPUIDLE_TEXT
     LOCK_TEXT
+<<<<<<< HEAD
+=======
+    IRQENTRY_TEXT
+    SOFTIRQENTRY_TEXT
+>>>>>>> upstream/android-13
     *(.fixup)
     *(.stub .text.* .gnu.linkonce.t.*)
     /* .gnu.warning sections are handled specially by elf32.em.  */
@@ -168,8 +173,13 @@ SECTIONS
   PROVIDE (end = .);
 
   STABS_DEBUG
+<<<<<<< HEAD
 
   DWARF_DEBUG
+=======
+  DWARF_DEBUG
+  ELF_DETAILS
+>>>>>>> upstream/android-13
 
   DISCARDS
 }

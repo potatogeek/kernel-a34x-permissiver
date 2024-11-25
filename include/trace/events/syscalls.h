@@ -28,7 +28,11 @@ TRACE_EVENT_FN(sys_enter,
 
 	TP_fast_assign(
 		__entry->id	= id;
+<<<<<<< HEAD
 		syscall_get_arguments(current, regs, 0, 6, __entry->args);
+=======
+		syscall_get_arguments(current, regs, __entry->args);
+>>>>>>> upstream/android-13
 	),
 
 	TP_printk("NR %ld (%lx, %lx, %lx, %lx, %lx, %lx)",

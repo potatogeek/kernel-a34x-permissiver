@@ -13,8 +13,11 @@
 #include <asm/mach/map.h>
 #include <asm/system_misc.h>
 
+<<<<<<< HEAD
 #include <plat/map-base.h>
 
+=======
+>>>>>>> upstream/android-13
 #include "common.h"
 #include "regs-clock.h"
 

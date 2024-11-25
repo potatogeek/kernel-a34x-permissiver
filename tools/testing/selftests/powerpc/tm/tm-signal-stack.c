@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Michael Neuling, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015, Michael Neuling, IBM Corp.
+>>>>>>> upstream/android-13
  *
  * Test the kernel's signal delievery code to ensure that we don't
  * trelaim twice in the kernel signal delivery code.  This can happen
@@ -35,6 +41,10 @@ int tm_signal_stack()
 	int pid;
 
 	SKIP_IF(!have_htm());
+<<<<<<< HEAD
+=======
+	SKIP_IF(htm_is_synthetic());
+>>>>>>> upstream/android-13
 
 	pid = fork();
 	if (pid < 0)

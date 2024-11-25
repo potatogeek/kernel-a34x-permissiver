@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SCSI low-level driver for the MESH (Macintosh Enhanced SCSI Hardware)
  * bus adaptor found on Power Macintosh computers.
@@ -30,9 +34,15 @@
 #include <linux/reboot.h>
 #include <linux/spinlock.h>
 #include <linux/pci.h>
+<<<<<<< HEAD
 #include <asm/dbdma.h>
 #include <asm/io.h>
 #include <asm/pgtable.h>
+=======
+#include <linux/pgtable.h>
+#include <asm/dbdma.h>
+#include <asm/io.h>
+>>>>>>> upstream/android-13
 #include <asm/prom.h>
 #include <asm/irq.h>
 #include <asm/hydra.h>
@@ -594,9 +604,16 @@ static void mesh_done(struct mesh_state *ms, int start_next)
 	ms->current_req = NULL;
 	tp->current_req = NULL;
 	if (cmd) {
+<<<<<<< HEAD
 		cmd->result = (ms->stat << 16) | cmd->SCp.Status;
 		if (ms->stat == DID_OK)
 			cmd->result |= cmd->SCp.Message << 8;
+=======
+		set_host_byte(cmd, ms->stat);
+		set_status_byte(cmd, cmd->SCp.Status);
+		if (ms->stat == DID_OK)
+			scsi_msg_to_host_byte(cmd, cmd->SCp.Message);
+>>>>>>> upstream/android-13
 		if (DEBUG_TARGET(cmd)) {
 			printk(KERN_DEBUG "mesh_done: result = %x, data_ptr=%d, buflen=%d\n",
 			       cmd->result, ms->data_ptr, scsi_bufflen(cmd));
@@ -992,7 +1009,11 @@ static void handle_reset(struct mesh_state *ms)
 	for (tgt = 0; tgt < 8; ++tgt) {
 		tp = &ms->tgts[tgt];
 		if ((cmd = tp->current_req) != NULL) {
+<<<<<<< HEAD
 			cmd->result = DID_RESET << 16;
+=======
+			set_host_byte(cmd, DID_RESET);
+>>>>>>> upstream/android-13
 			tp->current_req = NULL;
 			mesh_completed(ms, cmd);
 		}
@@ -1002,7 +1023,11 @@ static void handle_reset(struct mesh_state *ms)
 	ms->current_req = NULL;
 	while ((cmd = ms->request_q) != NULL) {
 		ms->request_q = (struct scsi_cmnd *) cmd->host_scribble;
+<<<<<<< HEAD
 		cmd->result = DID_RESET << 16;
+=======
+		set_host_byte(cmd, DID_RESET);
+>>>>>>> upstream/android-13
 		mesh_completed(ms, cmd);
 	}
 	ms->phase = idle;
@@ -1456,7 +1481,11 @@ static void cmd_complete(struct mesh_state *ms)
 		/* huh?  we expected a phase mismatch */
 		ms->n_msgin = 0;
 		ms->msgphase = msg_in;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case msg_in:
 		/* should have some message bytes in fifo */
@@ -1844,7 +1873,11 @@ static struct scsi_host_template mesh_template = {
 	.this_id			= 7,
 	.sg_tablesize			= SG_ALL,
 	.cmd_per_lun			= 2,
+<<<<<<< HEAD
 	.use_clustering			= DISABLE_CLUSTERING,
+=======
+	.max_segment_size		= 65535,
+>>>>>>> upstream/android-13
 };
 
 static int mesh_probe(struct macio_dev *mdev, const struct of_device_id *match)
@@ -1921,8 +1954,14 @@ static int mesh_probe(struct macio_dev *mdev, const struct of_device_id *match)
 	/* We use the PCI APIs for now until the generic one gets fixed
 	 * enough or until we get some macio-specific versions
 	 */
+<<<<<<< HEAD
 	dma_cmd_space = pci_zalloc_consistent(macio_get_pci_dev(mdev),
 					      ms->dma_cmd_size, &dma_cmd_bus);
+=======
+	dma_cmd_space = dma_alloc_coherent(&macio_get_pci_dev(mdev)->dev,
+					   ms->dma_cmd_size, &dma_cmd_bus,
+					   GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (dma_cmd_space == NULL) {
 		printk(KERN_ERR "mesh: can't allocate DMA table\n");
 		goto out_unmap;
@@ -1980,7 +2019,11 @@ static int mesh_probe(struct macio_dev *mdev, const struct of_device_id *match)
 	 */
 	mesh_shutdown(mdev);
 	set_mesh_power(ms, 0);
+<<<<<<< HEAD
 	pci_free_consistent(macio_get_pci_dev(mdev), ms->dma_cmd_size,
+=======
+	dma_free_coherent(&macio_get_pci_dev(mdev)->dev, ms->dma_cmd_size,
+>>>>>>> upstream/android-13
 			    ms->dma_cmd_space, ms->dma_cmd_bus);
  out_unmap:
 	iounmap(ms->dma);
@@ -2013,7 +2056,11 @@ static int mesh_remove(struct macio_dev *mdev)
        	iounmap(ms->dma);
 
 	/* Free DMA commands memory */
+<<<<<<< HEAD
 	pci_free_consistent(macio_get_pci_dev(mdev), ms->dma_cmd_size,
+=======
+	dma_free_coherent(&macio_get_pci_dev(mdev)->dev, ms->dma_cmd_size,
+>>>>>>> upstream/android-13
 			    ms->dma_cmd_space, ms->dma_cmd_bus);
 
 	/* Release memory resources */

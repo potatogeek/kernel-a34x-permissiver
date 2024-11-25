@@ -1,7 +1,11 @@
 /*
  * TI Touch Screen / ADC MFD driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -175,6 +179,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
 	tscadc->dev = &pdev->dev;
 
 	err = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (err < 0) {
 		dev_err(&pdev->dev, "no irq ID is specified.\n");
 		goto ret;
@@ -183,10 +188,22 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	tscadc->tscadc_phys_base = res->start;
+=======
+	if (err < 0)
+		goto ret;
+	else
+		tscadc->irq = err;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>>>>>> upstream/android-13
 	tscadc->tscadc_base = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(tscadc->tscadc_base))
 		return PTR_ERR(tscadc->tscadc_base);
 
+<<<<<<< HEAD
+=======
+	tscadc->tscadc_phys_base = res->start;
+>>>>>>> upstream/android-13
 	tscadc->regmap = devm_regmap_init_mmio(&pdev->dev,
 			tscadc->tscadc_base, &tscadc_regmap_config);
 	if (IS_ERR(tscadc->regmap)) {
@@ -270,7 +287,10 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
 	if (err < 0)
 		goto err_disable_clk;
 
+<<<<<<< HEAD
 	device_init_wakeup(&pdev->dev, true);
+=======
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, tscadc);
 	return 0;
 

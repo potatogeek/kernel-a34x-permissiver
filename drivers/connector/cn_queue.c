@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	cn_queue.c
  *
  * 2004+ Copyright (c) Evgeniy Polyakov <zbr@ioremap.net>
  * All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -33,7 +40,11 @@
 
 static struct cn_callback_entry *
 cn_queue_alloc_callback_entry(struct cn_queue_dev *dev, const char *name,
+<<<<<<< HEAD
 			      struct cb_id *id,
+=======
+			      const struct cb_id *id,
+>>>>>>> upstream/android-13
 			      void (*callback)(struct cn_msg *,
 					       struct netlink_skb_parms *))
 {
@@ -65,13 +76,21 @@ void cn_queue_release_callback(struct cn_callback_entry *cbq)
 	kfree(cbq);
 }
 
+<<<<<<< HEAD
 int cn_cb_equal(struct cb_id *i1, struct cb_id *i2)
+=======
+int cn_cb_equal(const struct cb_id *i1, const struct cb_id *i2)
+>>>>>>> upstream/android-13
 {
 	return ((i1->idx == i2->idx) && (i1->val == i2->val));
 }
 
 int cn_queue_add_callback(struct cn_queue_dev *dev, const char *name,
+<<<<<<< HEAD
 			  struct cb_id *id,
+=======
+			  const struct cb_id *id,
+>>>>>>> upstream/android-13
 			  void (*callback)(struct cn_msg *,
 					   struct netlink_skb_parms *))
 {
@@ -104,7 +123,11 @@ int cn_queue_add_callback(struct cn_queue_dev *dev, const char *name,
 	return 0;
 }
 
+<<<<<<< HEAD
 void cn_queue_del_callback(struct cn_queue_dev *dev, struct cb_id *id)
+=======
+void cn_queue_del_callback(struct cn_queue_dev *dev, const struct cb_id *id)
+>>>>>>> upstream/android-13
 {
 	struct cn_callback_entry *cbq, *n;
 	int found = 0;

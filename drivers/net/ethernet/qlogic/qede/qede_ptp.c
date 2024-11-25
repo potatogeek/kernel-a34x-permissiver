@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qede NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -30,6 +31,16 @@
  * SOFTWARE.
  */
 #include "qede_ptp.h"
+=======
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+/* QLogic qede NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+#include "qede_ptp.h"
+#define QEDE_PTP_TX_TIMEOUT (2 * HZ)
+>>>>>>> upstream/android-13
 
 struct qede_ptp {
 	const struct qed_eth_ptp_ops	*ops;
@@ -38,6 +49,10 @@ struct qede_ptp {
 	struct timecounter		tc;
 	struct ptp_clock		*clock;
 	struct work_struct		work;
+<<<<<<< HEAD
+=======
+	unsigned long			ptp_tx_start;
+>>>>>>> upstream/android-13
 	struct qede_dev			*edev;
 	struct sk_buff			*tx_skb;
 
@@ -51,12 +66,21 @@ struct qede_ptp {
 };
 
 /**
+<<<<<<< HEAD
  * qede_ptp_adjfreq
  * @ptp: the ptp clock structure
  * @ppb: parts per billion adjustment from base
  *
  * Adjust the frequency of the ptp cycle counter by the
  * indicated ppb from the base frequency.
+=======
+ * qede_ptp_adjfreq() - Adjust the frequency of the PTP cycle counter.
+ *
+ * @info: The PTP clock info structure.
+ * @ppb: Parts per billion adjustment from base.
+ *
+ * Return: Zero on success, negative errno otherwise.
+>>>>>>> upstream/android-13
  */
 static int qede_ptp_adjfreq(struct ptp_clock_info *info, s32 ppb)
 {
@@ -160,18 +184,41 @@ static void qede_ptp_task(struct work_struct *work)
 	struct qede_dev *edev;
 	struct qede_ptp *ptp;
 	u64 timestamp, ns;
+<<<<<<< HEAD
+=======
+	bool timedout;
+>>>>>>> upstream/android-13
 	int rc;
 
 	ptp = container_of(work, struct qede_ptp, work);
 	edev = ptp->edev;
+<<<<<<< HEAD
+=======
+	timedout = time_is_before_jiffies(ptp->ptp_tx_start +
+					  QEDE_PTP_TX_TIMEOUT);
+>>>>>>> upstream/android-13
 
 	/* Read Tx timestamp registers */
 	spin_lock_bh(&ptp->lock);
 	rc = ptp->ops->read_tx_ts(edev->cdev, &timestamp);
 	spin_unlock_bh(&ptp->lock);
 	if (rc) {
+<<<<<<< HEAD
 		/* Reschedule to keep checking for a valid timestamp value */
 		schedule_work(&ptp->work);
+=======
+		if (unlikely(timedout)) {
+			DP_INFO(edev, "Tx timestamp is not recorded\n");
+			dev_kfree_skb_any(ptp->tx_skb);
+			ptp->tx_skb = NULL;
+			clear_bit_unlock(QEDE_FLAGS_PTP_TX_IN_PRORGESS,
+					 &edev->flags);
+			edev->ptp_skip_txts++;
+		} else {
+			/* Reschedule to keep checking for a valid TS value */
+			schedule_work(&ptp->work);
+		}
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -223,16 +270,28 @@ static int qede_ptp_cfg_filters(struct qede_dev *edev)
 
 	switch (ptp->tx_type) {
 	case HWTSTAMP_TX_ON:
+<<<<<<< HEAD
 		edev->flags |= QEDE_TX_TIMESTAMPING_EN;
+=======
+		set_bit(QEDE_FLAGS_TX_TIMESTAMPING_EN, &edev->flags);
+>>>>>>> upstream/android-13
 		tx_type = QED_PTP_HWTSTAMP_TX_ON;
 		break;
 
 	case HWTSTAMP_TX_OFF:
+<<<<<<< HEAD
 		edev->flags &= ~QEDE_TX_TIMESTAMPING_EN;
+=======
+		clear_bit(QEDE_FLAGS_TX_TIMESTAMPING_EN, &edev->flags);
+>>>>>>> upstream/android-13
 		tx_type = QED_PTP_HWTSTAMP_TX_OFF;
 		break;
 
 	case HWTSTAMP_TX_ONESTEP_SYNC:
+<<<<<<< HEAD
+=======
+	case HWTSTAMP_TX_ONESTEP_P2P:
+>>>>>>> upstream/android-13
 		DP_ERR(edev, "One-step timestamping is not supported\n");
 		return -ERANGE;
 	}
@@ -397,6 +456,10 @@ void qede_ptp_disable(struct qede_dev *edev)
 	if (ptp->tx_skb) {
 		dev_kfree_skb_any(ptp->tx_skb);
 		ptp->tx_skb = NULL;
+<<<<<<< HEAD
+=======
+		clear_bit_unlock(QEDE_FLAGS_PTP_TX_IN_PRORGESS, &edev->flags);
+>>>>>>> upstream/android-13
 	}
 
 	/* Disable PTP in HW */
@@ -408,7 +471,11 @@ void qede_ptp_disable(struct qede_dev *edev)
 	edev->ptp = NULL;
 }
 
+<<<<<<< HEAD
 static int qede_ptp_init(struct qede_dev *edev, bool init_tc)
+=======
+static int qede_ptp_init(struct qede_dev *edev)
+>>>>>>> upstream/android-13
 {
 	struct qede_ptp *ptp;
 	int rc;
@@ -429,6 +496,7 @@ static int qede_ptp_init(struct qede_dev *edev, bool init_tc)
 	/* Init work queue for Tx timestamping */
 	INIT_WORK(&ptp->work, qede_ptp_task);
 
+<<<<<<< HEAD
 	/* Init cyclecounter and timecounter. This is done only in the first
 	 * load. If done in every load, PTP application will fail when doing
 	 * unload / load (e.g. MTU change) while it is running.
@@ -448,6 +516,21 @@ static int qede_ptp_init(struct qede_dev *edev, bool init_tc)
 }
 
 int qede_ptp_enable(struct qede_dev *edev, bool init_tc)
+=======
+	/* Init cyclecounter and timecounter */
+	memset(&ptp->cc, 0, sizeof(ptp->cc));
+	ptp->cc.read = qede_ptp_read_cc;
+	ptp->cc.mask = CYCLECOUNTER_MASK(64);
+	ptp->cc.shift = 0;
+	ptp->cc.mult = 1;
+
+	timecounter_init(&ptp->tc, &ptp->cc, ktime_to_ns(ktime_get_real()));
+
+	return 0;
+}
+
+int qede_ptp_enable(struct qede_dev *edev)
+>>>>>>> upstream/android-13
 {
 	struct qede_ptp *ptp;
 	int rc;
@@ -468,7 +551,11 @@ int qede_ptp_enable(struct qede_dev *edev, bool init_tc)
 
 	edev->ptp = ptp;
 
+<<<<<<< HEAD
 	rc = qede_ptp_init(edev, init_tc);
+=======
+	rc = qede_ptp_init(edev);
+>>>>>>> upstream/android-13
 	if (rc)
 		goto err1;
 
@@ -514,6 +601,7 @@ void qede_ptp_tx_ts(struct qede_dev *edev, struct sk_buff *skb)
 	if (!ptp)
 		return;
 
+<<<<<<< HEAD
 	if (test_and_set_bit_lock(QEDE_FLAGS_PTP_TX_IN_PRORGESS, &edev->flags))
 		return;
 
@@ -523,10 +611,33 @@ void qede_ptp_tx_ts(struct qede_dev *edev, struct sk_buff *skb)
 	} else if (unlikely(ptp->tx_skb)) {
 		DP_NOTICE(edev,
 			  "The device supports only a single outstanding packet to timestamp, this packet will not be timestamped\n");
+=======
+	if (test_and_set_bit_lock(QEDE_FLAGS_PTP_TX_IN_PRORGESS,
+				  &edev->flags)) {
+		DP_ERR(edev, "Timestamping in progress\n");
+		edev->ptp_skip_txts++;
+		return;
+	}
+
+	if (unlikely(!test_bit(QEDE_FLAGS_TX_TIMESTAMPING_EN, &edev->flags))) {
+		DP_ERR(edev,
+		       "Tx timestamping was not enabled, this packet will not be timestamped\n");
+		clear_bit_unlock(QEDE_FLAGS_PTP_TX_IN_PRORGESS, &edev->flags);
+		edev->ptp_skip_txts++;
+	} else if (unlikely(ptp->tx_skb)) {
+		DP_ERR(edev,
+		       "The device supports only a single outstanding packet to timestamp, this packet will not be timestamped\n");
+		clear_bit_unlock(QEDE_FLAGS_PTP_TX_IN_PRORGESS, &edev->flags);
+		edev->ptp_skip_txts++;
+>>>>>>> upstream/android-13
 	} else {
 		skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
 		/* schedule check for Tx timestamp */
 		ptp->tx_skb = skb_get(skb);
+<<<<<<< HEAD
+=======
+		ptp->ptp_tx_start = jiffies;
+>>>>>>> upstream/android-13
 		schedule_work(&ptp->work);
 	}
 }

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ISHTP client driver for HID (ISH)
  *
  * Copyright (c) 2014-2016, Intel Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -11,21 +16,42 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
 #include <linux/hid.h>
+<<<<<<< HEAD
 #include <linux/sched.h>
 #include "ishtp/ishtp-dev.h"
 #include "ishtp/client.h"
 #include "ishtp-hid.h"
 
+=======
+#include <linux/intel-ish-client-if.h>
+#include <linux/sched.h>
+#include "ishtp-hid.h"
+
+/* ISH Transport protocol (ISHTP in short) GUID */
+static const guid_t hid_ishtp_guid =
+	GUID_INIT(0x33AECD58, 0xB679, 0x4E54,
+		  0x9B, 0xD9, 0xA0, 0x4D, 0x34, 0xF0, 0xC2, 0x26);
+
+>>>>>>> upstream/android-13
 /* Rx ring buffer pool size */
 #define HID_CL_RX_RING_SIZE	32
 #define HID_CL_TX_RING_SIZE	16
 
+<<<<<<< HEAD
 /**
  * report_bad_packets() - Report bad packets
+=======
+#define cl_data_to_dev(client_data) ishtp_device(client_data->cl_device)
+
+/**
+ * report_bad_packet() - Report bad packets
+>>>>>>> upstream/android-13
  * @hid_ishtp_cl:	Client instance to get stats
  * @recv_buf:		Raw received host interface message
  * @cur_pos:		Current position index in payload
@@ -37,9 +63,15 @@ static void report_bad_packet(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 			      size_t cur_pos,  size_t payload_len)
 {
 	struct hostif_msg *recv_msg = recv_buf;
+<<<<<<< HEAD
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
 
 	dev_err(&client_data->cl_device->dev, "[hid-ish]: BAD packet %02X\n"
+=======
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+
+	dev_err(cl_data_to_dev(client_data), "[hid-ish]: BAD packet %02X\n"
+>>>>>>> upstream/android-13
 		"total_bad=%u cur_pos=%u\n"
 		"[%02X %02X %02X %02X]\n"
 		"payload_len=%u\n"
@@ -69,13 +101,24 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 	unsigned char *payload;
 	struct device_info *dev_info;
 	int i, j;
+<<<<<<< HEAD
 	size_t	payload_len, total_len, cur_pos;
+=======
+	size_t	payload_len, total_len, cur_pos, raw_len;
+>>>>>>> upstream/android-13
 	int report_type;
 	struct report_list *reports_list;
 	char *reports;
 	size_t report_len;
+<<<<<<< HEAD
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
 	int curr_hid_dev = client_data->cur_hid_dev;
+=======
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+	int curr_hid_dev = client_data->cur_hid_dev;
+	struct ishtp_hid_data *hid_data = NULL;
+	struct hid_device *hid = NULL;
+>>>>>>> upstream/android-13
 
 	payload = recv_buf + sizeof(struct hostif_msg_hdr);
 	total_len = data_len;
@@ -83,12 +126,20 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 
 	do {
 		if (cur_pos + sizeof(struct hostif_msg) > total_len) {
+<<<<<<< HEAD
 			dev_err(&client_data->cl_device->dev,
+=======
+			dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 				"[hid-ish]: error, received %u which is less than data header %u\n",
 				(unsigned int)data_len,
 				(unsigned int)sizeof(struct hostif_msg_hdr));
 			++client_data->bad_recv_cnt;
+<<<<<<< HEAD
 			ish_hw_reset(hid_ishtp_cl->dev);
+=======
+			ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -101,7 +152,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 			++client_data->bad_recv_cnt;
 			report_bad_packet(hid_ishtp_cl, recv_msg, cur_pos,
 					  payload_len);
+<<<<<<< HEAD
 			ish_hw_reset(hid_ishtp_cl->dev);
+=======
+			ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -116,18 +171,30 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 				report_bad_packet(hid_ishtp_cl, recv_msg,
 						  cur_pos,
 						  payload_len);
+<<<<<<< HEAD
 				ish_hw_reset(hid_ishtp_cl->dev);
+=======
+				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+>>>>>>> upstream/android-13
 				break;
 			}
 			client_data->hid_dev_count = (unsigned int)*payload;
 			if (!client_data->hid_devices)
 				client_data->hid_devices = devm_kcalloc(
+<<<<<<< HEAD
 						&client_data->cl_device->dev,
+=======
+						cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 						client_data->hid_dev_count,
 						sizeof(struct device_info),
 						GFP_KERNEL);
 			if (!client_data->hid_devices) {
+<<<<<<< HEAD
 				dev_err(&client_data->cl_device->dev,
+=======
+				dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 				"Mem alloc failed for hid device info\n");
 				wake_up_interruptible(&client_data->init_wait);
 				break;
@@ -135,7 +202,11 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 			for (i = 0; i < client_data->hid_dev_count; ++i) {
 				if (1 + sizeof(struct device_info) * i >=
 						payload_len) {
+<<<<<<< HEAD
 					dev_err(&client_data->cl_device->dev,
+=======
+					dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 						"[hid-ish]: [ENUM_DEVICES]: content size %zu is bigger than payload_len %zu\n",
 						1 + sizeof(struct device_info)
 						* i, payload_len);
@@ -165,12 +236,20 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 				report_bad_packet(hid_ishtp_cl, recv_msg,
 						  cur_pos,
 						  payload_len);
+<<<<<<< HEAD
 				ish_hw_reset(hid_ishtp_cl->dev);
+=======
+				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+>>>>>>> upstream/android-13
 				break;
 			}
 			if (!client_data->hid_descr[curr_hid_dev])
 				client_data->hid_descr[curr_hid_dev] =
+<<<<<<< HEAD
 				devm_kmalloc(&client_data->cl_device->dev,
+=======
+				devm_kmalloc(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 					     payload_len, GFP_KERNEL);
 			if (client_data->hid_descr[curr_hid_dev]) {
 				memcpy(client_data->hid_descr[curr_hid_dev],
@@ -190,12 +269,20 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
 				report_bad_packet(hid_ishtp_cl, recv_msg,
 						  cur_pos,
 						  payload_len);
+<<<<<<< HEAD
 				ish_hw_reset(hid_ishtp_cl->dev);
+=======
+				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+>>>>>>> upstream/android-13
 				break;
 			}
 			if (!client_data->report_descr[curr_hid_dev])
 				client_data->report_descr[curr_hid_dev] =
+<<<<<<< HEAD
 				devm_kmalloc(&client_data->cl_device->dev,
+=======
+				devm_kmalloc(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 					     payload_len, GFP_KERNEL);
 			if (client_data->report_descr[curr_hid_dev])  {
 				memcpy(client_data->report_descr[curr_hid_dev],
@@ -219,6 +306,7 @@ do_get_report:
 			/* Get index of device that matches this id */
 			for (i = 0; i < client_data->num_hid_devices; ++i) {
 				if (recv_msg->hdr.device_id ==
+<<<<<<< HEAD
 					client_data->hid_devices[i].dev_id)
 					if (client_data->hid_sensor_hubs[i]) {
 						hid_input_report(
@@ -231,6 +319,33 @@ do_get_report:
 							i]);
 						break;
 					}
+=======
+					  client_data->hid_devices[i].dev_id) {
+					hid = client_data->hid_sensor_hubs[i];
+					if (!hid)
+						break;
+
+					hid_data = hid->driver_data;
+					if (hid_data->raw_get_req) {
+						raw_len =
+						  (hid_data->raw_buf_size <
+								payload_len) ?
+						  hid_data->raw_buf_size :
+						  payload_len;
+
+						memcpy(hid_data->raw_buf,
+						       payload, raw_len);
+					} else {
+						hid_input_report
+							(hid, report_type,
+							 payload, payload_len,
+							 0);
+					}
+
+					ishtp_hid_wakeup(hid);
+					break;
+				}
+>>>>>>> upstream/android-13
 			}
 			break;
 
@@ -295,7 +410,11 @@ do_get_report:
 			++client_data->bad_recv_cnt;
 			report_bad_packet(hid_ishtp_cl, recv_msg, cur_pos,
 					  payload_len);
+<<<<<<< HEAD
 			ish_hw_reset(hid_ishtp_cl->dev);
+=======
+			ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+>>>>>>> upstream/android-13
 			break;
 
 		}
@@ -320,14 +439,21 @@ do_get_report:
  */
 static void ish_cl_event_cb(struct ishtp_cl_device *device)
 {
+<<<<<<< HEAD
 	struct ishtp_cl	*hid_ishtp_cl = device->driver_data;
 	struct ishtp_cl_rb *rb_in_proc;
 	size_t r_length;
 	unsigned long flags;
+=======
+	struct ishtp_cl	*hid_ishtp_cl = ishtp_get_drvdata(device);
+	struct ishtp_cl_rb *rb_in_proc;
+	size_t r_length;
+>>>>>>> upstream/android-13
 
 	if (!hid_ishtp_cl)
 		return;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&hid_ishtp_cl->in_process_spinlock, flags);
 	while (!list_empty(&hid_ishtp_cl->in_process_list.list)) {
 		rb_in_proc = list_entry(
@@ -337,6 +463,9 @@ static void ish_cl_event_cb(struct ishtp_cl_device *device)
 		spin_unlock_irqrestore(&hid_ishtp_cl->in_process_spinlock,
 			flags);
 
+=======
+	while ((rb_in_proc = ishtp_cl_rx_get_rb(hid_ishtp_cl)) != NULL) {
+>>>>>>> upstream/android-13
 		if (!rb_in_proc->buffer.data)
 			return;
 
@@ -346,9 +475,13 @@ static void ish_cl_event_cb(struct ishtp_cl_device *device)
 		process_recv(hid_ishtp_cl, rb_in_proc->buffer.data, r_length);
 
 		ishtp_cl_io_rb_recycle(rb_in_proc);
+<<<<<<< HEAD
 		spin_lock_irqsave(&hid_ishtp_cl->in_process_spinlock, flags);
 	}
 	spin_unlock_irqrestore(&hid_ishtp_cl->in_process_spinlock, flags);
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -486,7 +619,11 @@ int ishtp_hid_link_ready_wait(struct ishtp_cl_data *client_data)
 static int ishtp_enum_enum_devices(struct ishtp_cl *hid_ishtp_cl)
 {
 	struct hostif_msg msg;
+<<<<<<< HEAD
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+=======
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+>>>>>>> upstream/android-13
 	int retry_count;
 	int rv;
 
@@ -512,18 +649,30 @@ static int ishtp_enum_enum_devices(struct ishtp_cl *hid_ishtp_cl)
 					   sizeof(struct hostif_msg));
 	}
 	if (!client_data->enum_devices_done) {
+<<<<<<< HEAD
 		dev_err(&client_data->cl_device->dev,
+=======
+		dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 			"[hid-ish]: timed out waiting for enum_devices\n");
 		return -ETIMEDOUT;
 	}
 	if (!client_data->hid_devices) {
+<<<<<<< HEAD
 		dev_err(&client_data->cl_device->dev,
+=======
+		dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 			"[hid-ish]: failed to allocate HID dev structures\n");
 		return -ENOMEM;
 	}
 
 	client_data->num_hid_devices = client_data->hid_dev_count;
+<<<<<<< HEAD
 	dev_info(&hid_ishtp_cl->device->dev,
+=======
+	dev_info(ishtp_device(client_data->cl_device),
+>>>>>>> upstream/android-13
 		"[hid-ish]: enum_devices_done OK, num_hid_devices=%d\n",
 		client_data->num_hid_devices);
 
@@ -542,7 +691,11 @@ static int ishtp_enum_enum_devices(struct ishtp_cl *hid_ishtp_cl)
 static int ishtp_get_hid_descriptor(struct ishtp_cl *hid_ishtp_cl, int index)
 {
 	struct hostif_msg msg;
+<<<<<<< HEAD
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+=======
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+>>>>>>> upstream/android-13
 	int rv;
 
 	/* Get HID descriptor */
@@ -560,13 +713,21 @@ static int ishtp_get_hid_descriptor(struct ishtp_cl *hid_ishtp_cl, int index)
 						 client_data->hid_descr_done,
 						 3 * HZ);
 		if (!client_data->hid_descr_done) {
+<<<<<<< HEAD
 			dev_err(&client_data->cl_device->dev,
+=======
+			dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 				"[hid-ish]: timed out for hid_descr_done\n");
 			return -EIO;
 		}
 
 		if (!client_data->hid_descr[index]) {
+<<<<<<< HEAD
 			dev_err(&client_data->cl_device->dev,
+=======
+			dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 				"[hid-ish]: allocation HID desc fail\n");
 			return -ENOMEM;
 		}
@@ -589,7 +750,11 @@ static int ishtp_get_report_descriptor(struct ishtp_cl *hid_ishtp_cl,
 				       int index)
 {
 	struct hostif_msg msg;
+<<<<<<< HEAD
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+=======
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+>>>>>>> upstream/android-13
 	int rv;
 
 	/* Get report descriptor */
@@ -607,12 +772,20 @@ static int ishtp_get_report_descriptor(struct ishtp_cl *hid_ishtp_cl,
 					 client_data->report_descr_done,
 					 3 * HZ);
 	if (!client_data->report_descr_done) {
+<<<<<<< HEAD
 		dev_err(&client_data->cl_device->dev,
+=======
+		dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 				"[hid-ish]: timed out for report descr\n");
 		return -EIO;
 	}
 	if (!client_data->report_descr[index]) {
+<<<<<<< HEAD
 		dev_err(&client_data->cl_device->dev,
+=======
+		dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 			"[hid-ish]: failed to alloc report descr\n");
 		return -ENOMEM;
 	}
@@ -637,6 +810,7 @@ static int ishtp_get_report_descriptor(struct ishtp_cl *hid_ishtp_cl,
 static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
 {
 	struct ishtp_device *dev;
+<<<<<<< HEAD
 	unsigned long flags;
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
 	int i;
@@ -648,12 +822,26 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
 	rv = ishtp_cl_link(hid_ishtp_cl, ISHTP_HOST_CLIENT_ID_ANY);
 	if (rv) {
 		dev_err(&client_data->cl_device->dev,
+=======
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+	struct ishtp_fw_client *fw_client;
+	int i;
+	int rv;
+
+	dev_dbg(cl_data_to_dev(client_data), "%s\n", __func__);
+	hid_ishtp_trace(client_data,  "%s reset flag: %d\n", __func__, reset);
+
+	rv = ishtp_cl_link(hid_ishtp_cl);
+	if (rv) {
+		dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 			"ishtp_cl_link failed\n");
 		return	-ENOMEM;
 	}
 
 	client_data->init_done = 0;
 
+<<<<<<< HEAD
 	dev = hid_ishtp_cl->dev;
 
 	/* Connect to FW client */
@@ -675,6 +863,27 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
 	rv = ishtp_cl_connect(hid_ishtp_cl);
 	if (rv) {
 		dev_err(&client_data->cl_device->dev,
+=======
+	dev = ishtp_get_ishtp_device(hid_ishtp_cl);
+
+	/* Connect to FW client */
+	ishtp_set_tx_ring_size(hid_ishtp_cl, HID_CL_TX_RING_SIZE);
+	ishtp_set_rx_ring_size(hid_ishtp_cl, HID_CL_RX_RING_SIZE);
+
+	fw_client = ishtp_fw_cl_get_client(dev, &hid_ishtp_guid);
+	if (!fw_client) {
+		dev_err(cl_data_to_dev(client_data),
+			"ish client uuid not found\n");
+		return -ENOENT;
+	}
+	ishtp_cl_set_fw_client_id(hid_ishtp_cl,
+				  ishtp_get_fw_client_id(fw_client));
+	ishtp_set_connection_state(hid_ishtp_cl, ISHTP_CL_CONNECTING);
+
+	rv = ishtp_cl_connect(hid_ishtp_cl);
+	if (rv) {
+		dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 			"client connect fail\n");
 		goto err_cl_unlink;
 	}
@@ -682,7 +891,11 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
 	hid_ishtp_trace(client_data,  "%s client connected\n", __func__);
 
 	/* Register read callback */
+<<<<<<< HEAD
 	ishtp_register_event_cb(hid_ishtp_cl->device, ish_cl_event_cb);
+=======
+	ishtp_register_event_cb(client_data->cl_device, ish_cl_event_cb);
+>>>>>>> upstream/android-13
 
 	rv = ishtp_enum_enum_devices(hid_ishtp_cl);
 	if (rv)
@@ -705,7 +918,11 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
 		if (!reset) {
 			rv = ishtp_hid_probe(i, client_data);
 			if (rv) {
+<<<<<<< HEAD
 				dev_err(&client_data->cl_device->dev,
+=======
+				dev_err(cl_data_to_dev(client_data),
+>>>>>>> upstream/android-13
 				"[hid-ish]: HID probe for #%u failed: %d\n",
 				i, rv);
 				goto err_cl_disconnect;
@@ -720,7 +937,11 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
 	return 0;
 
 err_cl_disconnect:
+<<<<<<< HEAD
 	hid_ishtp_cl->state = ISHTP_CL_DISCONNECTING;
+=======
+	ishtp_set_connection_state(hid_ishtp_cl, ISHTP_CL_DISCONNECTING);
+>>>>>>> upstream/android-13
 	ishtp_cl_disconnect(hid_ishtp_cl);
 err_cl_unlink:
 	ishtp_cl_unlink(hid_ishtp_cl);
@@ -757,6 +978,7 @@ static void hid_ishtp_cl_reset_handler(struct work_struct *work)
 
 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
 			hid_ishtp_cl);
+<<<<<<< HEAD
 	dev_dbg(&cl_device->dev, "%s\n", __func__);
 
 	hid_ishtp_cl_deinit(hid_ishtp_cl);
@@ -767,6 +989,18 @@ static void hid_ishtp_cl_reset_handler(struct work_struct *work)
 
 	cl_device->driver_data = hid_ishtp_cl;
 	hid_ishtp_cl->client_data = client_data;
+=======
+	dev_dbg(ishtp_device(client_data->cl_device), "%s\n", __func__);
+
+	hid_ishtp_cl_deinit(hid_ishtp_cl);
+
+	hid_ishtp_cl = ishtp_cl_allocate(cl_device);
+	if (!hid_ishtp_cl)
+		return;
+
+	ishtp_set_drvdata(cl_device, hid_ishtp_cl);
+	ishtp_set_client_data(hid_ishtp_cl, client_data);
+>>>>>>> upstream/android-13
 	client_data->hid_ishtp_cl = hid_ishtp_cl;
 
 	client_data->num_hid_devices = 0;
@@ -775,15 +1009,38 @@ static void hid_ishtp_cl_reset_handler(struct work_struct *work)
 		rv = hid_ishtp_cl_init(hid_ishtp_cl, 1);
 		if (!rv)
 			break;
+<<<<<<< HEAD
 		dev_err(&client_data->cl_device->dev, "Retry reset init\n");
 	}
 	if (rv) {
 		dev_err(&client_data->cl_device->dev, "Reset Failed\n");
+=======
+		dev_err(cl_data_to_dev(client_data), "Retry reset init\n");
+	}
+	if (rv) {
+		dev_err(cl_data_to_dev(client_data), "Reset Failed\n");
+>>>>>>> upstream/android-13
 		hid_ishtp_trace(client_data, "%s Failed hid_ishtp_cl %p\n",
 				__func__, hid_ishtp_cl);
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void hid_ishtp_cl_resume_handler(struct work_struct *work)
+{
+	struct ishtp_cl_data *client_data = container_of(work, struct ishtp_cl_data, resume_work);
+	struct ishtp_cl *hid_ishtp_cl = client_data->hid_ishtp_cl;
+
+	if (ishtp_wait_resume(ishtp_get_ishtp_device(hid_ishtp_cl))) {
+		client_data->suspended = false;
+		wake_up_interruptible(&client_data->ishtp_resume_wait);
+	}
+}
+
+ishtp_print_log ishtp_hid_print_trace;
+
+>>>>>>> upstream/android-13
 /**
  * hid_ishtp_cl_probe() - ISHTP client driver probe
  * @cl_device:		ISHTP client device instance
@@ -801,21 +1058,35 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
 	if (!cl_device)
 		return	-ENODEV;
 
+<<<<<<< HEAD
 	if (uuid_le_cmp(hid_ishtp_guid,
 			cl_device->fw_client->props.protocol_name) != 0)
 		return	-ENODEV;
 
 	client_data = devm_kzalloc(&cl_device->dev, sizeof(*client_data),
+=======
+	client_data = devm_kzalloc(ishtp_device(cl_device),
+				   sizeof(*client_data),
+>>>>>>> upstream/android-13
 				   GFP_KERNEL);
 	if (!client_data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	hid_ishtp_cl = ishtp_cl_allocate(cl_device->ishtp_dev);
 	if (!hid_ishtp_cl)
 		return -ENOMEM;
 
 	cl_device->driver_data = hid_ishtp_cl;
 	hid_ishtp_cl->client_data = client_data;
+=======
+	hid_ishtp_cl = ishtp_cl_allocate(cl_device);
+	if (!hid_ishtp_cl)
+		return -ENOMEM;
+
+	ishtp_set_drvdata(cl_device, hid_ishtp_cl);
+	ishtp_set_client_data(hid_ishtp_cl, client_data);
+>>>>>>> upstream/android-13
 	client_data->hid_ishtp_cl = hid_ishtp_cl;
 	client_data->cl_device = cl_device;
 
@@ -823,6 +1094,13 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
 	init_waitqueue_head(&client_data->ishtp_resume_wait);
 
 	INIT_WORK(&client_data->work, hid_ishtp_cl_reset_handler);
+<<<<<<< HEAD
+=======
+	INIT_WORK(&client_data->resume_work, hid_ishtp_cl_resume_handler);
+
+
+	ishtp_hid_print_trace = ishtp_trace_callback(cl_device);
+>>>>>>> upstream/android-13
 
 	rv = hid_ishtp_cl_init(hid_ishtp_cl, 0);
 	if (rv) {
@@ -842,16 +1120,28 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
  *
  * Return: 0
  */
+<<<<<<< HEAD
 static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
 {
 	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+=======
+static void hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
+{
+	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+>>>>>>> upstream/android-13
 
 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
 			hid_ishtp_cl);
 
+<<<<<<< HEAD
 	dev_dbg(&cl_device->dev, "%s\n", __func__);
 	hid_ishtp_cl->state = ISHTP_CL_DISCONNECTING;
+=======
+	dev_dbg(ishtp_device(cl_device), "%s\n", __func__);
+	ishtp_set_connection_state(hid_ishtp_cl, ISHTP_CL_DISCONNECTING);
+>>>>>>> upstream/android-13
 	ishtp_cl_disconnect(hid_ishtp_cl);
 	ishtp_put_device(cl_device);
 	ishtp_hid_remove(client_data);
@@ -860,8 +1150,11 @@ static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
 	hid_ishtp_cl = NULL;
 
 	client_data->num_hid_devices = 0;
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -874,8 +1167,13 @@ static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
  */
 static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
 {
+<<<<<<< HEAD
 	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+=======
+	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+>>>>>>> upstream/android-13
 
 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
 			hid_ishtp_cl);
@@ -885,8 +1183,11 @@ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define to_ishtp_cl_device(d) container_of(d, struct ishtp_cl_device, dev)
 
+=======
+>>>>>>> upstream/android-13
 /**
  * hid_ishtp_cl_suspend() - ISHTP client driver suspend
  * @device:	device instance
@@ -897,9 +1198,15 @@ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
  */
 static int hid_ishtp_cl_suspend(struct device *device)
 {
+<<<<<<< HEAD
 	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
 	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+=======
+	struct ishtp_cl_device *cl_device = ishtp_dev_to_cl_device(device);
+	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+>>>>>>> upstream/android-13
 
 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
 			hid_ishtp_cl);
@@ -918,6 +1225,7 @@ static int hid_ishtp_cl_suspend(struct device *device)
  */
 static int hid_ishtp_cl_resume(struct device *device)
 {
+<<<<<<< HEAD
 	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
 	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
@@ -925,6 +1233,15 @@ static int hid_ishtp_cl_resume(struct device *device)
 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
 			hid_ishtp_cl);
 	client_data->suspended = false;
+=======
+	struct ishtp_cl_device *cl_device = ishtp_dev_to_cl_device(device);
+	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+
+	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+			hid_ishtp_cl);
+	schedule_work(&client_data->resume_work);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -935,6 +1252,10 @@ static const struct dev_pm_ops hid_ishtp_pm_ops = {
 
 static struct ishtp_cl_driver	hid_ishtp_cl_driver = {
 	.name = "ish-hid",
+<<<<<<< HEAD
+=======
+	.guid = &hid_ishtp_guid,
+>>>>>>> upstream/android-13
 	.probe = hid_ishtp_cl_probe,
 	.remove = hid_ishtp_cl_remove,
 	.reset = hid_ishtp_cl_reset,
@@ -946,7 +1267,11 @@ static int __init ish_hid_init(void)
 	int	rv;
 
 	/* Register ISHTP client device driver with ISHTP Bus */
+<<<<<<< HEAD
 	rv = ishtp_cl_driver_register(&hid_ishtp_cl_driver);
+=======
+	rv = ishtp_cl_driver_register(&hid_ishtp_cl_driver, THIS_MODULE);
+>>>>>>> upstream/android-13
 
 	return rv;
 

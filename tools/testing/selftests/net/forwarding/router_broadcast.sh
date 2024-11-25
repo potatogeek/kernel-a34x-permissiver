@@ -145,16 +145,28 @@ bc_forwarding_disable()
 {
 	sysctl_set net.ipv4.conf.all.bc_forwarding 0
 	sysctl_set net.ipv4.conf.$rp1.bc_forwarding 0
+<<<<<<< HEAD
+=======
+	sysctl_set net.ipv4.conf.$rp2.bc_forwarding 0
+>>>>>>> upstream/android-13
 }
 
 bc_forwarding_enable()
 {
 	sysctl_set net.ipv4.conf.all.bc_forwarding 1
 	sysctl_set net.ipv4.conf.$rp1.bc_forwarding 1
+<<<<<<< HEAD
+=======
+	sysctl_set net.ipv4.conf.$rp2.bc_forwarding 1
+>>>>>>> upstream/android-13
 }
 
 bc_forwarding_restore()
 {
+<<<<<<< HEAD
+=======
+	sysctl_restore net.ipv4.conf.$rp2.bc_forwarding
+>>>>>>> upstream/android-13
 	sysctl_restore net.ipv4.conf.$rp1.bc_forwarding
 	sysctl_restore net.ipv4.conf.all.bc_forwarding
 }
@@ -170,7 +182,12 @@ ping_test_from()
 
 	log_info "ping $dip, expected reply from $from"
 	ip vrf exec $(master_name_get $oif) \
+<<<<<<< HEAD
 	$PING -I $oif $dip -c 10 -i 0.1 -w 2 -b 2>&1 | grep $from &> /dev/null
+=======
+		$PING -I $oif $dip -c 10 -i 0.1 -w $PING_TIMEOUT -b 2>&1 \
+		| grep "bytes from $from" > /dev/null
+>>>>>>> upstream/android-13
 	check_err_fail $fail $?
 }
 

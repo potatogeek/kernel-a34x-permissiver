@@ -21,7 +21,11 @@
  *   LVS	Lawrence V. Stefani <lstefani@yahoo.com>
  *
  * Maintainers:
+<<<<<<< HEAD
  *   macro	Maciej W. Rozycki <macro@linux-mips.org>
+=======
+ *   macro	Maciej W. Rozycki <macro@orcam.me.uk>
+>>>>>>> upstream/android-13
  *
  * Credits:
  *   I'd like to thank Patricia Cross for helping me get started with
@@ -197,6 +201,10 @@
  *		23 Oct 2006	macro		Big-endian host support.
  *		14 Dec 2006	macro		TURBOchannel support.
  *		01 Jul 2014	macro		Fixes for DMA on 64-bit hosts.
+<<<<<<< HEAD
+=======
+ *		10 Mar 2021	macro		Dynamic MMIO vs port I/O.
+>>>>>>> upstream/android-13
  */
 
 /* Include files */
@@ -225,8 +233,13 @@
 
 /* Version information string should be updated prior to each new release!  */
 #define DRV_NAME "defxx"
+<<<<<<< HEAD
 #define DRV_VERSION "v1.11"
 #define DRV_RELDATE "2014/07/01"
+=======
+#define DRV_VERSION "v1.12"
+#define DRV_RELDATE "2021/03/10"
+>>>>>>> upstream/android-13
 
 static const char version[] =
 	DRV_NAME ": " DRV_VERSION " " DRV_RELDATE
@@ -253,10 +266,17 @@ static const char version[] =
 #define DFX_BUS_TC(dev) 0
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEFXX_MMIO
 #define DFX_MMIO 1
 #else
 #define DFX_MMIO 0
+=======
+#if defined(CONFIG_EISA) || defined(CONFIG_PCI)
+#define dfx_use_mmio bp->mmio
+#else
+#define dfx_use_mmio true
+>>>>>>> upstream/android-13
 #endif
 
 /* Define module-wide (static) routines */
@@ -374,8 +394,11 @@ static inline void dfx_outl(DFX_board_t *bp, int offset, u32 data)
 static void dfx_port_write_long(DFX_board_t *bp, int offset, u32 data)
 {
 	struct device __maybe_unused *bdev = bp->bus_dev;
+<<<<<<< HEAD
 	int dfx_bus_tc = DFX_BUS_TC(bdev);
 	int dfx_use_mmio = DFX_MMIO || dfx_bus_tc;
+=======
+>>>>>>> upstream/android-13
 
 	if (dfx_use_mmio)
 		dfx_writel(bp, offset, data);
@@ -398,8 +421,11 @@ static inline void dfx_inl(DFX_board_t *bp, int offset, u32 *data)
 static void dfx_port_read_long(DFX_board_t *bp, int offset, u32 *data)
 {
 	struct device __maybe_unused *bdev = bp->bus_dev;
+<<<<<<< HEAD
 	int dfx_bus_tc = DFX_BUS_TC(bdev);
 	int dfx_use_mmio = DFX_MMIO || dfx_bus_tc;
+=======
+>>>>>>> upstream/android-13
 
 	if (dfx_use_mmio)
 		dfx_readl(bp, offset, data);
@@ -421,7 +447,11 @@ static void dfx_port_read_long(DFX_board_t *bp, int offset, u32 *data)
  *   None
  *
  * Arguments:
+<<<<<<< HEAD
  *   bdev	- pointer to device information
+=======
+ *   bp		- pointer to board information
+>>>>>>> upstream/android-13
  *   bar_start	- pointer to store the start addresses
  *   bar_len	- pointer to store the lengths of the areas
  *
@@ -431,6 +461,7 @@ static void dfx_port_read_long(DFX_board_t *bp, int offset, u32 *data)
  * Side Effects:
  *   None
  */
+<<<<<<< HEAD
 static void dfx_get_bars(struct device *bdev,
 			 resource_size_t *bar_start, resource_size_t *bar_len)
 {
@@ -438,6 +469,15 @@ static void dfx_get_bars(struct device *bdev,
 	int dfx_bus_eisa = DFX_BUS_EISA(bdev);
 	int dfx_bus_tc = DFX_BUS_TC(bdev);
 	int dfx_use_mmio = DFX_MMIO || dfx_bus_tc;
+=======
+static void dfx_get_bars(DFX_board_t *bp,
+			 resource_size_t *bar_start, resource_size_t *bar_len)
+{
+	struct device *bdev = bp->bus_dev;
+	int dfx_bus_pci = dev_is_pci(bdev);
+	int dfx_bus_eisa = DFX_BUS_EISA(bdev);
+	int dfx_bus_tc = DFX_BUS_TC(bdev);
+>>>>>>> upstream/android-13
 
 	if (dfx_bus_pci) {
 		int num = dfx_use_mmio ? 0 : 1;
@@ -495,6 +535,7 @@ static const struct net_device_ops dfx_netdev_ops = {
 	.ndo_set_mac_address	= dfx_ctl_set_mac_address,
 };
 
+<<<<<<< HEAD
 static void dfx_register_res_alloc_err(const char *print_name, bool mmio,
 				       bool eisa)
 {
@@ -507,6 +548,8 @@ static void dfx_register_res_alloc_err(const char *print_name, bool mmio,
 		       print_name);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dfx_register_res_err(const char *print_name, bool mmio,
 				 unsigned long start, unsigned long len)
 {
@@ -547,8 +590,11 @@ static int dfx_register(struct device *bdev)
 	static int version_disp;
 	int dfx_bus_pci = dev_is_pci(bdev);
 	int dfx_bus_eisa = DFX_BUS_EISA(bdev);
+<<<<<<< HEAD
 	int dfx_bus_tc = DFX_BUS_TC(bdev);
 	int dfx_use_mmio = DFX_MMIO || dfx_bus_tc;
+=======
+>>>>>>> upstream/android-13
 	const char *print_name = dev_name(bdev);
 	struct net_device *dev;
 	DFX_board_t	  *bp;			/* board pointer */
@@ -586,6 +632,7 @@ static int dfx_register(struct device *bdev)
 	bp->bus_dev = bdev;
 	dev_set_drvdata(bdev, dev);
 
+<<<<<<< HEAD
 	dfx_get_bars(bdev, bar_start, bar_len);
 	if (bar_len[0] == 0 ||
 	    (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0)) {
@@ -600,6 +647,28 @@ static int dfx_register(struct device *bdev)
 					    print_name);
 	else
 		region = request_region(bar_start[0], bar_len[0], print_name);
+=======
+	bp->mmio = true;
+
+	dfx_get_bars(bp, bar_start, bar_len);
+	if (bar_len[0] == 0 ||
+	    (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0)) {
+		bp->mmio = false;
+		dfx_get_bars(bp, bar_start, bar_len);
+	}
+
+	if (dfx_use_mmio) {
+		region = request_mem_region(bar_start[0], bar_len[0],
+					    bdev->driver->name);
+		if (!region && (dfx_bus_eisa || dfx_bus_pci)) {
+			bp->mmio = false;
+			dfx_get_bars(bp, bar_start, bar_len);
+		}
+	}
+	if (!dfx_use_mmio)
+		region = request_region(bar_start[0], bar_len[0],
+					bdev->driver->name);
+>>>>>>> upstream/android-13
 	if (!region) {
 		dfx_register_res_err(print_name, dfx_use_mmio,
 				     bar_start[0], bar_len[0]);
@@ -607,7 +676,12 @@ static int dfx_register(struct device *bdev)
 		goto err_out_disable;
 	}
 	if (bar_start[1] != 0) {
+<<<<<<< HEAD
 		region = request_region(bar_start[1], bar_len[1], print_name);
+=======
+		region = request_region(bar_start[1], bar_len[1],
+					bdev->driver->name);
+>>>>>>> upstream/android-13
 		if (!region) {
 			dfx_register_res_err(print_name, 0,
 					     bar_start[1], bar_len[1]);
@@ -616,7 +690,12 @@ static int dfx_register(struct device *bdev)
 		}
 	}
 	if (bar_start[2] != 0) {
+<<<<<<< HEAD
 		region = request_region(bar_start[2], bar_len[2], print_name);
+=======
+		region = request_region(bar_start[2], bar_len[2],
+					bdev->driver->name);
+>>>>>>> upstream/android-13
 		if (!region) {
 			dfx_register_res_err(print_name, 0,
 					     bar_start[2], bar_len[2]);
@@ -627,7 +706,11 @@ static int dfx_register(struct device *bdev)
 
 	/* Set up I/O base address. */
 	if (dfx_use_mmio) {
+<<<<<<< HEAD
 		bp->base.mem = ioremap_nocache(bar_start[0], bar_len[0]);
+=======
+		bp->base.mem = ioremap(bar_start[0], bar_len[0]);
+>>>>>>> upstream/android-13
 		if (!bp->base.mem) {
 			printk(KERN_ERR "%s: Cannot map MMIO\n", print_name);
 			err = -ENOMEM;
@@ -734,7 +817,10 @@ static void dfx_bus_init(struct net_device *dev)
 	int dfx_bus_pci = dev_is_pci(bdev);
 	int dfx_bus_eisa = DFX_BUS_EISA(bdev);
 	int dfx_bus_tc = DFX_BUS_TC(bdev);
+<<<<<<< HEAD
 	int dfx_use_mmio = DFX_MMIO || dfx_bus_tc;
+=======
+>>>>>>> upstream/android-13
 	u8 val;
 
 	DBG_printk("In dfx_bus_init...\n");
@@ -1054,7 +1140,10 @@ static int dfx_driver_init(struct net_device *dev, const char *print_name,
 	int dfx_bus_pci = dev_is_pci(bdev);
 	int dfx_bus_eisa = DFX_BUS_EISA(bdev);
 	int dfx_bus_tc = DFX_BUS_TC(bdev);
+<<<<<<< HEAD
 	int dfx_use_mmio = DFX_MMIO || dfx_bus_tc;
+=======
+>>>>>>> upstream/android-13
 	int alloc_size;			/* total buffer size needed */
 	char *top_v, *curr_v;		/* virtual addrs into memory block */
 	dma_addr_t top_p, curr_p;	/* physical addrs into memory block */
@@ -1152,9 +1241,15 @@ static int dfx_driver_init(struct net_device *dev, const char *print_name,
 #endif
 					sizeof(PI_CONSUMER_BLOCK) +
 					(PI_ALIGN_K_DESC_BLK - 1);
+<<<<<<< HEAD
 	bp->kmalloced = top_v = dma_zalloc_coherent(bp->bus_dev, alloc_size,
 						    &bp->kmalloced_dma,
 						    GFP_ATOMIC);
+=======
+	bp->kmalloced = top_v = dma_alloc_coherent(bp->bus_dev, alloc_size,
+						   &bp->kmalloced_dma,
+						   GFP_ATOMIC);
+>>>>>>> upstream/android-13
 	if (top_v == NULL)
 		return DFX_K_FAILURE;
 
@@ -3525,7 +3620,11 @@ static int dfx_xmt_done(DFX_board_t *bp)
 				 bp->descr_block_virt->xmt_data[comp].long_1,
 				 p_xmt_drv_descr->p_skb->len,
 				 DMA_TO_DEVICE);
+<<<<<<< HEAD
 		dev_kfree_skb_irq(p_xmt_drv_descr->p_skb);
+=======
+		dev_consume_skb_irq(p_xmt_drv_descr->p_skb);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Move to start of next packet by updating completion index
@@ -3708,8 +3807,11 @@ static void dfx_unregister(struct device *bdev)
 	struct net_device *dev = dev_get_drvdata(bdev);
 	DFX_board_t *bp = netdev_priv(dev);
 	int dfx_bus_pci = dev_is_pci(bdev);
+<<<<<<< HEAD
 	int dfx_bus_tc = DFX_BUS_TC(bdev);
 	int dfx_use_mmio = DFX_MMIO || dfx_bus_tc;
+=======
+>>>>>>> upstream/android-13
 	resource_size_t bar_start[3] = {0};	/* pointers to ports */
 	resource_size_t bar_len[3] = {0};	/* resource lengths */
 	int		alloc_size;		/* total buffer size used */
@@ -3729,7 +3831,11 @@ static void dfx_unregister(struct device *bdev)
 
 	dfx_bus_uninit(dev);
 
+<<<<<<< HEAD
 	dfx_get_bars(bdev, bar_start, bar_len);
+=======
+	dfx_get_bars(bp, bar_start, bar_len);
+>>>>>>> upstream/android-13
 	if (bar_start[2] != 0)
 		release_region(bar_start[2], bar_len[2]);
 	if (bar_start[1] != 0)
@@ -3761,7 +3867,11 @@ static const struct pci_device_id dfx_pci_table[] = {
 MODULE_DEVICE_TABLE(pci, dfx_pci_table);
 
 static struct pci_driver dfx_pci_driver = {
+<<<<<<< HEAD
 	.name		= "defxx",
+=======
+	.name		= DRV_NAME,
+>>>>>>> upstream/android-13
 	.id_table	= dfx_pci_table,
 	.probe		= dfx_pci_register,
 	.remove		= dfx_pci_unregister,
@@ -3792,7 +3902,11 @@ MODULE_DEVICE_TABLE(eisa, dfx_eisa_table);
 static struct eisa_driver dfx_eisa_driver = {
 	.id_table	= dfx_eisa_table,
 	.driver		= {
+<<<<<<< HEAD
 		.name	= "defxx",
+=======
+		.name	= DRV_NAME,
+>>>>>>> upstream/android-13
 		.bus	= &eisa_bus_type,
 		.probe	= dfx_dev_register,
 		.remove	= dfx_dev_unregister,
@@ -3813,7 +3927,11 @@ MODULE_DEVICE_TABLE(tc, dfx_tc_table);
 static struct tc_driver dfx_tc_driver = {
 	.id_table	= dfx_tc_table,
 	.driver		= {
+<<<<<<< HEAD
 		.name	= "defxx",
+=======
+		.name	= DRV_NAME,
+>>>>>>> upstream/android-13
 		.bus	= &tc_bus_type,
 		.probe	= dfx_dev_register,
 		.remove	= dfx_dev_unregister,

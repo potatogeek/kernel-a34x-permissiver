@@ -19,6 +19,10 @@
 #include <linux/console.h>
 #include <linux/interrupt.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/panic_notifier.h>
+>>>>>>> upstream/android-13
 #include <linux/reboot.h>
 #include <linux/serial.h> /* ASYNC_* flags */
 #include <linux/slab.h>
@@ -85,7 +89,10 @@ struct raw3215_info {
 	int written;		      /* number of bytes in write requests */
 	struct raw3215_req *queued_read; /* pointer to queued read requests */
 	struct raw3215_req *queued_write;/* pointer to queued write requests */
+<<<<<<< HEAD
 	struct tasklet_struct tlet;   /* tasklet to invoke tty_wakeup */
+=======
+>>>>>>> upstream/android-13
 	wait_queue_head_t empty_wait; /* wait queue for flushing */
 	struct timer_list timer;      /* timer for delayed output */
 	int line_pos;		      /* position on the line (for tabs) */
@@ -99,7 +106,11 @@ static DEFINE_SPINLOCK(raw3215_device_lock);
 /* list of free request structures */
 static struct raw3215_req *raw3215_freelist;
 /* spinlock to protect free list */
+<<<<<<< HEAD
 static spinlock_t raw3215_freelist_lock;
+=======
+static DEFINE_SPINLOCK(raw3215_freelist_lock);
+>>>>>>> upstream/android-13
 
 static struct tty_driver *tty3215_driver;
 
@@ -289,6 +300,7 @@ static void raw3215_timeout(struct timer_list *t)
 
 	spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
 	raw->flags &= ~RAW3215_TIMER_RUNS;
+<<<<<<< HEAD
 	if (!tty_port_suspended(&raw->port)) {
 		raw3215_mk_write_req(raw);
 		raw3215_start_io(raw);
@@ -299,6 +311,16 @@ static void raw3215_timeout(struct timer_list *t)
 			add_timer(&raw->timer);
 			raw->flags |= RAW3215_TIMER_RUNS;
 		}
+=======
+	raw3215_mk_write_req(raw);
+	raw3215_start_io(raw);
+	if ((raw->queued_read || raw->queued_write) &&
+	    !(raw->flags & RAW3215_WORKING) &&
+	    !(raw->flags & RAW3215_TIMER_RUNS)) {
+		raw->timer.expires = RAW3215_TIMEOUT + jiffies;
+		add_timer(&raw->timer);
+		raw->flags |= RAW3215_TIMER_RUNS;
+>>>>>>> upstream/android-13
 	}
 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
 }
@@ -311,7 +333,11 @@ static void raw3215_timeout(struct timer_list *t)
  */
 static inline void raw3215_try_io(struct raw3215_info *raw)
 {
+<<<<<<< HEAD
 	if (!tty_port_initialized(&raw->port) || tty_port_suspended(&raw->port))
+=======
+	if (!tty_port_initialized(&raw->port))
+>>>>>>> upstream/android-13
 		return;
 	if (raw->queued_read != NULL)
 		raw3215_start_io(raw);
@@ -332,6 +358,7 @@ static inline void raw3215_try_io(struct raw3215_info *raw)
 }
 
 /*
+<<<<<<< HEAD
  * Call tty_wakeup from tasklet context
  */
 static void raw3215_wakeup(unsigned long data)
@@ -347,6 +374,8 @@ static void raw3215_wakeup(unsigned long data)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Try to start the next IO and wake up processes waiting on the tty.
  */
 static void raw3215_next_io(struct raw3215_info *raw, struct tty_struct *tty)
@@ -354,7 +383,11 @@ static void raw3215_next_io(struct raw3215_info *raw, struct tty_struct *tty)
 	raw3215_mk_write_req(raw);
 	raw3215_try_io(raw);
 	if (tty && RAW3215_BUFFER_SIZE - raw->count >= RAW3215_MIN_SPACE)
+<<<<<<< HEAD
 		tasklet_schedule(&raw->tlet);
+=======
+		tty_wakeup(tty);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -398,6 +431,10 @@ static void raw3215_irq(struct ccw_device *cdev, unsigned long intparm,
 		}
 		if (dstat == 0x08)
 			break;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 0x04:
 		/* Device end interrupt. */
 		if ((raw = req->info) == NULL)
@@ -463,6 +500,7 @@ put_tty:
 }
 
 /*
+<<<<<<< HEAD
  * Drop the oldest line from the output buffer.
  */
 static void raw3215_drop_line(struct raw3215_info *raw)
@@ -483,6 +521,8 @@ static void raw3215_drop_line(struct raw3215_info *raw)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Wait until length bytes are available int the output buffer.
  * Has to be called with the s390irq lock held. Can be called
  * disabled.
@@ -490,6 +530,7 @@ static void raw3215_drop_line(struct raw3215_info *raw)
 static void raw3215_make_room(struct raw3215_info *raw, unsigned int length)
 {
 	while (RAW3215_BUFFER_SIZE - raw->count < length) {
+<<<<<<< HEAD
 		/* While console is frozen for suspend we have no other
 		 * choice but to drop message from the buffer to make
 		 * room for even more messages. */
@@ -497,6 +538,8 @@ static void raw3215_make_room(struct raw3215_info *raw, unsigned int length)
 			raw3215_drop_line(raw);
 			continue;
 		}
+=======
+>>>>>>> upstream/android-13
 		/* there might be a request pending */
 		raw->flags |= RAW3215_FLUSHING;
 		raw3215_mk_write_req(raw);
@@ -672,7 +715,10 @@ static struct raw3215_info *raw3215_alloc_info(void)
 
 	timer_setup(&info->timer, raw3215_timeout, 0);
 	init_waitqueue_head(&info->empty_wait);
+<<<<<<< HEAD
 	tasklet_init(&info->tlet, raw3215_wakeup, (unsigned long)info);
+=======
+>>>>>>> upstream/android-13
 	tty_port_init(&info->port);
 
 	return info;
@@ -762,6 +808,7 @@ static int raw3215_set_offline (struct ccw_device *cdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int raw3215_pm_stop(struct ccw_device *cdev)
 {
 	struct raw3215_info *raw;
@@ -792,6 +839,8 @@ static int raw3215_pm_start(struct ccw_device *cdev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct ccw_device_id raw3215_id[] = {
 	{ CCW_DEVICE(0x3215, 0) },
 	{ /* end of list */ },
@@ -807,9 +856,12 @@ static struct ccw_driver raw3215_ccw_driver = {
 	.remove		= &raw3215_remove,
 	.set_online	= &raw3215_set_online,
 	.set_offline	= &raw3215_set_offline,
+<<<<<<< HEAD
 	.freeze		= &raw3215_pm_stop,
 	.thaw		= &raw3215_pm_start,
 	.restore	= &raw3215_pm_start,
+=======
+>>>>>>> upstream/android-13
 	.int_class	= IRQIO_C15,
 };
 
@@ -857,11 +909,14 @@ static void con3215_flush(void)
 	unsigned long flags;
 
 	raw = raw3215[0];  /* console 3215 is the first one */
+<<<<<<< HEAD
 	if (tty_port_suspended(&raw->port))
 		/* The console is still frozen for suspend. */
 		if (ccw_device_force_console(raw->cdev))
 			/* Forcing didn't work, no panic message .. */
 			return;
+=======
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
 	raw3215_make_room(raw, RAW3215_BUFFER_SIZE);
 	spin_unlock_irqrestore(get_ccwdev_lock(raw->cdev), flags);
@@ -916,7 +971,10 @@ static int __init con3215_init(void)
 
 	/* allocate 3215 request structures */
 	raw3215_freelist = NULL;
+<<<<<<< HEAD
 	spin_lock_init(&raw3215_freelist_lock);
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < NR_3215_REQ; i++) {
 		req = kzalloc(sizeof(struct raw3215_req), GFP_KERNEL | GFP_DMA);
 		if (!req)
@@ -977,6 +1035,7 @@ static int tty3215_install(struct tty_driver *driver, struct tty_struct *tty)
 static int tty3215_open(struct tty_struct *tty, struct file * filp)
 {
 	struct raw3215_info *raw = tty->driver_data;
+<<<<<<< HEAD
 	int retval;
 
 	tty_port_tty_set(&raw->port, tty);
@@ -990,6 +1049,15 @@ static int tty3215_open(struct tty_struct *tty, struct file * filp)
 		return retval;
 
 	return 0;
+=======
+
+	tty_port_tty_set(&raw->port, tty);
+
+	/*
+	 * Start up 3215 device
+	 */
+	return raw3215_startup(raw);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1000,15 +1068,23 @@ static int tty3215_open(struct tty_struct *tty, struct file * filp)
  */
 static void tty3215_close(struct tty_struct *tty, struct file * filp)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+	struct raw3215_info *raw = tty->driver_data;
+
+>>>>>>> upstream/android-13
 	if (raw == NULL || tty->count > 1)
 		return;
 	tty->closing = 1;
 	/* Shutdown the terminal */
 	raw3215_shutdown(raw);
+<<<<<<< HEAD
 	tasklet_kill(&raw->tlet);
+=======
+>>>>>>> upstream/android-13
 	tty->closing = 0;
 	tty_port_tty_set(&raw->port, NULL);
 }
@@ -1016,11 +1092,17 @@ static void tty3215_close(struct tty_struct *tty, struct file * filp)
 /*
  * Returns the amount of free space in the output buffer.
  */
+<<<<<<< HEAD
 static int tty3215_write_room(struct tty_struct *tty)
 {
 	struct raw3215_info *raw;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+static unsigned int tty3215_write_room(struct tty_struct *tty)
+{
+	struct raw3215_info *raw = tty->driver_data;
+>>>>>>> upstream/android-13
 
 	/* Subtract TAB_STOP_SIZE to allow for a tab, 8 <<< 64K */
 	if ((RAW3215_BUFFER_SIZE - raw->count - TAB_STOP_SIZE) >= 0)
@@ -1035,12 +1117,18 @@ static int tty3215_write_room(struct tty_struct *tty)
 static int tty3215_write(struct tty_struct * tty,
 			 const unsigned char *buf, int count)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 	int i, written;
 
 	if (!tty)
 		return 0;
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+	struct raw3215_info *raw = tty->driver_data;
+	int i, written;
+
+>>>>>>> upstream/android-13
 	written = count;
 	while (count > 0) {
 		for (i = 0; i < count; i++)
@@ -1063,12 +1151,19 @@ static int tty3215_write(struct tty_struct * tty,
  */
 static int tty3215_put_char(struct tty_struct *tty, unsigned char ch)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 
 	if (!tty)
 		return 0;
 	raw = (struct raw3215_info *) tty->driver_data;
 	raw3215_putchar(raw, ch);
+=======
+	struct raw3215_info *raw = tty->driver_data;
+
+	raw3215_putchar(raw, ch);
+
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -1079,19 +1174,31 @@ static void tty3215_flush_chars(struct tty_struct *tty)
 /*
  * Returns the number of characters in the output buffer
  */
+<<<<<<< HEAD
 static int tty3215_chars_in_buffer(struct tty_struct *tty)
 {
 	struct raw3215_info *raw;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+static unsigned int tty3215_chars_in_buffer(struct tty_struct *tty)
+{
+	struct raw3215_info *raw = tty->driver_data;
+
+>>>>>>> upstream/android-13
 	return raw->count;
 }
 
 static void tty3215_flush_buffer(struct tty_struct *tty)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+	struct raw3215_info *raw = tty->driver_data;
+
+>>>>>>> upstream/android-13
 	raw3215_flush_buffer(raw);
 	tty_wakeup(tty);
 }
@@ -1101,9 +1208,14 @@ static void tty3215_flush_buffer(struct tty_struct *tty)
  */
 static void tty3215_throttle(struct tty_struct * tty)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+	struct raw3215_info *raw = tty->driver_data;
+
+>>>>>>> upstream/android-13
 	raw->flags |= RAW3215_THROTTLED;
 }
 
@@ -1112,10 +1224,16 @@ static void tty3215_throttle(struct tty_struct * tty)
  */
 static void tty3215_unthrottle(struct tty_struct * tty)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 	unsigned long flags;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+	struct raw3215_info *raw = tty->driver_data;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	if (raw->flags & RAW3215_THROTTLED) {
 		spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
 		raw->flags &= ~RAW3215_THROTTLED;
@@ -1129,9 +1247,14 @@ static void tty3215_unthrottle(struct tty_struct * tty)
  */
 static void tty3215_stop(struct tty_struct *tty)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+	struct raw3215_info *raw = tty->driver_data;
+
+>>>>>>> upstream/android-13
 	raw->flags |= RAW3215_STOPPED;
 }
 
@@ -1140,10 +1263,16 @@ static void tty3215_stop(struct tty_struct *tty)
  */
 static void tty3215_start(struct tty_struct *tty)
 {
+<<<<<<< HEAD
 	struct raw3215_info *raw;
 	unsigned long flags;
 
 	raw = (struct raw3215_info *) tty->driver_data;
+=======
+	struct raw3215_info *raw = tty->driver_data;
+	unsigned long flags;
+
+>>>>>>> upstream/android-13
 	if (raw->flags & RAW3215_STOPPED) {
 		spin_lock_irqsave(get_ccwdev_lock(raw->cdev), flags);
 		raw->flags &= ~RAW3215_STOPPED;
@@ -1180,6 +1309,7 @@ static int __init tty3215_init(void)
 	if (!CONSOLE_IS_3215)
 		return 0;
 
+<<<<<<< HEAD
 	driver = alloc_tty_driver(NR_3215);
 	if (!driver)
 		return -ENOMEM;
@@ -1187,6 +1317,15 @@ static int __init tty3215_init(void)
 	ret = ccw_driver_register(&raw3215_ccw_driver);
 	if (ret) {
 		put_tty_driver(driver);
+=======
+	driver = tty_alloc_driver(NR_3215, TTY_DRIVER_REAL_RAW);
+	if (IS_ERR(driver))
+		return PTR_ERR(driver);
+
+	ret = ccw_driver_register(&raw3215_ccw_driver);
+	if (ret) {
+		tty_driver_kref_put(driver);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	/*
@@ -1205,11 +1344,18 @@ static int __init tty3215_init(void)
 	driver->init_termios.c_iflag = IGNBRK | IGNPAR;
 	driver->init_termios.c_oflag = ONLCR;
 	driver->init_termios.c_lflag = ISIG;
+<<<<<<< HEAD
 	driver->flags = TTY_DRIVER_REAL_RAW;
 	tty_set_operations(driver, &tty3215_ops);
 	ret = tty_register_driver(driver);
 	if (ret) {
 		put_tty_driver(driver);
+=======
+	tty_set_operations(driver, &tty3215_ops);
+	ret = tty_register_driver(driver);
+	if (ret) {
+		tty_driver_kref_put(driver);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 	tty3215_driver = driver;

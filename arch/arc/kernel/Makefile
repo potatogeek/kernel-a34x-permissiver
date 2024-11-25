@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #
 # Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
 #
@@ -7,6 +8,12 @@
 
 # Pass UTS_MACHINE for user_regset definition
 CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Copyright (C) 2004, 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
+#
+>>>>>>> upstream/android-13
 
 obj-y	:= arcksyms.o setup.o irq.o reset.o ptrace.o process.o devtree.o
 obj-y	+= signal.o traps.o sys.o troubleshoot.o stacktrace.o disasm.o
@@ -22,9 +29,18 @@ obj-$(CONFIG_ARC_EMUL_UNALIGNED) 	+= unaligned.o
 obj-$(CONFIG_KGDB)			+= kgdb.o
 obj-$(CONFIG_ARC_METAWARE_HLINK)	+= arc_hostlink.o
 obj-$(CONFIG_PERF_EVENTS)		+= perf_event.o
+<<<<<<< HEAD
 
 obj-$(CONFIG_ARC_FPU_SAVE_RESTORE)	+= fpu.o
 CFLAGS_fpu.o   += -mdpfp
+=======
+obj-$(CONFIG_JUMP_LABEL)		+= jump_label.o
+
+obj-$(CONFIG_ARC_FPU_SAVE_RESTORE)	+= fpu.o
+ifdef CONFIG_ISA_ARCOMPACT
+CFLAGS_fpu.o   += -mdpfp
+endif
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_ARC_DW2_UNWIND
 CFLAGS_ctx_sw.o += -fno-omit-frame-pointer

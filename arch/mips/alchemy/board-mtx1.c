@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MTX-1 platform devices registration (Au1500)
  *
  * Copyright (C) 2007-2009, Florian Fainelli <florian@openwrt.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -24,6 +31,10 @@
 #include <linux/platform_device.h>
 #include <linux/leds.h>
 #include <linux/gpio.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/gpio_keys.h>
 #include <linux/input.h>
 #include <linux/mtd/partitions.h>
@@ -42,6 +53,7 @@ const char *get_system_type(void)
 	return "MTX-1";
 }
 
+<<<<<<< HEAD
 void __init prom_init(void)
 {
 	unsigned char *memsize_str;
@@ -59,6 +71,8 @@ void __init prom_init(void)
 	add_memory_region(0, memsize, BOOT_MEM_RAM);
 }
 
+=======
+>>>>>>> upstream/android-13
 void prom_putchar(char c)
 {
 	alchemy_uart_putchar(AU1000_UART0_PHYS_ADDR, c);
@@ -130,6 +144,7 @@ static struct platform_device mtx1_button = {
 	}
 };
 
+<<<<<<< HEAD
 static struct resource mtx1_wdt_res[] = {
 	[0] = {
 		.start	= 215,
@@ -137,13 +152,25 @@ static struct resource mtx1_wdt_res[] = {
 		.name	= "mtx1-wdt-gpio",
 		.flags	= IORESOURCE_IRQ,
 	}
+=======
+static struct gpiod_lookup_table mtx1_wdt_gpio_table = {
+	.dev_id = "mtx1-wdt.0",
+	.table = {
+		/* Global number 215 is offset 15 on Alchemy GPIO 2 */
+		GPIO_LOOKUP("alchemy-gpio2", 15, NULL, GPIO_ACTIVE_HIGH),
+		{ },
+	},
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device mtx1_wdt = {
 	.name = "mtx1-wdt",
 	.id = 0,
+<<<<<<< HEAD
 	.num_resources = ARRAY_SIZE(mtx1_wdt_res),
 	.resource = mtx1_wdt_res,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct gpio_led default_leds[] = {
@@ -310,6 +337,10 @@ static int __init mtx1_register_devices(void)
 	}
 	gpio_direction_input(mtx1_gpio_button[0].gpio);
 out:
+<<<<<<< HEAD
+=======
+	gpiod_add_lookup_table(&mtx1_wdt_gpio_table);
+>>>>>>> upstream/android-13
 	return platform_add_devices(mtx1_devs, ARRAY_SIZE(mtx1_devs));
 }
 arch_initcall(mtx1_register_devices);

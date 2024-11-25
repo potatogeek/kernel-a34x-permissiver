@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * debugfs file to track time spent in suspend
  *
  * Copyright (c) 2011, Google, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -28,7 +35,11 @@
 
 static unsigned int sleep_time_bin[NUM_BINS] = {0};
 
+<<<<<<< HEAD
 static int tk_debug_show_sleep_time(struct seq_file *s, void *data)
+=======
+static int tk_debug_sleep_time_show(struct seq_file *s, void *data)
+>>>>>>> upstream/android-13
 {
 	unsigned int bin;
 	seq_puts(s, "      time (secs)        count\n");
@@ -42,6 +53,7 @@ static int tk_debug_show_sleep_time(struct seq_file *s, void *data)
 	}
 	return 0;
 }
+<<<<<<< HEAD
 
 static int tk_debug_sleep_time_open(struct inode *inode, struct file *file)
 {
@@ -66,6 +78,14 @@ static int __init tk_debug_sleep_time_init(void)
 		return -ENOMEM;
 	}
 
+=======
+DEFINE_SHOW_ATTRIBUTE(tk_debug_sleep_time);
+
+static int __init tk_debug_sleep_time_init(void)
+{
+	debugfs_create_file("sleep_time", 0444, NULL, NULL,
+			    &tk_debug_sleep_time_fops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 late_initcall(tk_debug_sleep_time_init);

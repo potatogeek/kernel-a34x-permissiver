@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * OMAP54XX Clock domains framework
  *
@@ -12,10 +16,13 @@
  * with the public linux-omap@vger.kernel.org mailing list and the
  * authors above to ensure that the autogeneration scripts are kept
  * up-to-date with the file contents.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -173,7 +180,11 @@ static struct clockdomain l4sec_54xx_clkdm = {
 	.dep_bit	  = OMAP54XX_L4SEC_STATDEP_SHIFT,
 	.wkdep_srcs	  = l4sec_wkup_sleep_deps,
 	.sleepdep_srcs	  = l4sec_wkup_sleep_deps,
+<<<<<<< HEAD
 	.flags		  = CLKDM_CAN_HWSUP_SWSUP,
+=======
+	.flags		  = CLKDM_CAN_SWSUP,
+>>>>>>> upstream/android-13
 };
 
 static struct clockdomain iva_54xx_clkdm = {

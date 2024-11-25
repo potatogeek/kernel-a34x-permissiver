@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
@@ -7,11 +11,14 @@
  *
  * Authors:	Many, reorganised here by
  * 		Arnaldo Carvalho de Melo <acme@mandriva.com>
+<<<<<<< HEAD
  *
  *		This program is free software; you can redistribute it and/or
  *		modify it under the terms of the GNU General Public License
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _INET_SOCK_H
 #define _INET_SOCK_H
@@ -56,7 +63,11 @@ struct ip_options {
 	unsigned char	router_alert;
 	unsigned char	cipso;
 	unsigned char	__pad2;
+<<<<<<< HEAD
 	unsigned char	__data[0];
+=======
+	unsigned char	__data[];
+>>>>>>> upstream/android-13
 };
 
 struct ip_options_rcu {
@@ -130,6 +141,30 @@ static inline int inet_request_bound_dev_if(const struct sock *sk,
 	return sk->sk_bound_dev_if;
 }
 
+<<<<<<< HEAD
+=======
+static inline int inet_sk_bound_l3mdev(const struct sock *sk)
+{
+#ifdef CONFIG_NET_L3_MASTER_DEV
+	struct net *net = sock_net(sk);
+
+	if (!net->ipv4.sysctl_tcp_l3mdev_accept)
+		return l3mdev_master_ifindex_by_index(net,
+						      sk->sk_bound_dev_if);
+#endif
+
+	return 0;
+}
+
+static inline bool inet_bound_dev_eq(bool l3mdev_accept, int bound_dev_if,
+				     int dif, int sdif)
+{
+	if (!bound_dev_if)
+		return !sdif || l3mdev_accept;
+	return bound_dev_if == dif || bound_dev_if == sdif;
+}
+
+>>>>>>> upstream/android-13
 struct inet_cork {
 	unsigned int		flags;
 	__be32			addr;
@@ -143,6 +178,10 @@ struct inet_cork {
 	char			priority;
 	__u16			gso_size;
 	u64			transmit_time;
+<<<<<<< HEAD
+=======
+	u32			mark;
+>>>>>>> upstream/android-13
 };
 
 struct inet_cork_full {
@@ -189,11 +228,18 @@ struct inet_sock {
 	__be32			inet_saddr;
 	__s16			uc_ttl;
 	__u16			cmsg_flags;
+<<<<<<< HEAD
 	__be16			inet_sport;
 	__u16			inet_id;
 
 	struct ip_options_rcu __rcu	*inet_opt;
 	int			rx_dst_ifindex;
+=======
+	struct ip_options_rcu __rcu	*inet_opt;
+	__be16			inet_sport;
+	__u16			inet_id;
+
+>>>>>>> upstream/android-13
 	__u8			tos;
 	__u8			min_ttl;
 	__u8			mc_ttl;
@@ -207,6 +253,10 @@ struct inet_sock {
 				mc_all:1,
 				nodefrag:1;
 	__u8			bind_address_no_port:1,
+<<<<<<< HEAD
+=======
+				recverr_rfc4884:1,
+>>>>>>> upstream/android-13
 				defer_connect:1; /* Indicates that fastopen_connect is set
 						  * and cookie exists so we defer connect
 						  * until first data frame is written
@@ -277,6 +327,7 @@ static inline void __inet_sk_copy_descendant(struct sock *sk_to,
 	memcpy(inet_sk(sk_to) + 1, inet_sk(sk_from) + 1,
 	       sk_from->sk_prot->obj_size - ancestor_size);
 }
+<<<<<<< HEAD
 #if !(IS_ENABLED(CONFIG_IPV6))
 static inline void inet_sk_copy_descendant(struct sock *sk_to,
 					   const struct sock *sk_from)
@@ -284,6 +335,8 @@ static inline void inet_sk_copy_descendant(struct sock *sk_to,
 	__inet_sk_copy_descendant(sk_to, sk_from, sizeof(struct inet_sock));
 }
 #endif
+=======
+>>>>>>> upstream/android-13
 
 int inet_sk_rebuild_header(struct sock *sk);
 

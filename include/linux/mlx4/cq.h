@@ -130,6 +130,14 @@ enum {
 	MLX4_CQE_STATUS_IPOK		= 1 << 12,
 };
 
+<<<<<<< HEAD
+=======
+/* L4_CSUM is logically part of status, but has to checked against badfcs_enc */
+enum {
+	MLX4_CQE_STATUS_L4_CSUM		= 1 << 2,
+};
+
+>>>>>>> upstream/android-13
 enum {
 	MLX4_CQE_LLC                     = 1,
 	MLX4_CQE_SNAP                    = 1 << 1,

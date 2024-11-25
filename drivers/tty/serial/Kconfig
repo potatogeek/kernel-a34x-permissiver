@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # Serial device configuration
 #
 
+<<<<<<< HEAD
 if TTY
 
+=======
+>>>>>>> upstream/android-13
 menu "Serial drivers"
 	depends on HAS_IOMEM
 
@@ -21,7 +28,11 @@ comment "Non-8250 serial port support"
 
 config SERIAL_AMBA_PL010
 	tristate "ARM AMBA PL010 serial port support"
+<<<<<<< HEAD
 	depends on ARM_AMBA
+=======
+	depends on ARM_AMBA || COMPILE_TEST
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 	help
 	  This selects the ARM(R) AMBA(R) PrimeCell PL010 UART.  If you have
@@ -34,7 +45,11 @@ config SERIAL_AMBA_PL010_CONSOLE
 	bool "Support for console on AMBA serial port"
 	depends on SERIAL_AMBA_PL010=y
 	select SERIAL_CORE_CONSOLE
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you wish to use an AMBA PrimeCell UART as the system
 	  console (the system console is the device which receives all kernel
 	  messages and warnings and which allows logins in single user mode).
@@ -62,7 +77,11 @@ config SERIAL_AMBA_PL011_CONSOLE
 	depends on SERIAL_AMBA_PL011=y
 	select SERIAL_CORE_CONSOLE
 	select SERIAL_EARLYCON
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Say Y here if you wish to use an AMBA PrimeCell UART as the system
 	  console (the system console is the device which receives all kernel
 	  messages and warnings and which allows logins in single user mode).
@@ -86,12 +105,31 @@ config SERIAL_EARLYCON_ARM_SEMIHOST
 	  with "earlycon=smh" on the kernel command line. The console is
 	  enabled when early_param is processed.
 
+<<<<<<< HEAD
+=======
+config SERIAL_EARLYCON_RISCV_SBI
+	bool "Early console using RISC-V SBI"
+	depends on RISCV_SBI_V01
+	select SERIAL_CORE
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	help
+	  Support for early debug console using RISC-V SBI. This enables
+	  the console before standard serial driver is probed. This is enabled
+	  with "earlycon=sbi" on the kernel command line. The console is
+	  enabled when early_param is processed.
+
+>>>>>>> upstream/android-13
 config SERIAL_SB1250_DUART
 	tristate "BCM1xxx on-chip DUART serial support"
 	depends on SIBYTE_SB1xxx_SOC=y
 	select SERIAL_CORE
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Support for the asynchronous serial interface (DUART) included in
 	  the BCM1250 and derived System-On-a-Chip (SOC) devices.  Note that
 	  the letter D in DUART stands for "dual", which is how the device
@@ -106,7 +144,11 @@ config SERIAL_SB1250_DUART_CONSOLE
 	depends on SERIAL_SB1250_DUART=y
 	select SERIAL_CORE_CONSOLE
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, it will be possible to use a serial port as the
 	  system console (the system console is the device which receives all
 	  kernel messages and warnings and which allows logins in single user
@@ -119,6 +161,10 @@ config SERIAL_ATMEL
 	depends on ARCH_AT91 || COMPILE_TEST
 	select SERIAL_CORE
 	select SERIAL_MCTRL_GPIO if GPIOLIB
+<<<<<<< HEAD
+=======
+	select MFD_AT91_USART
+>>>>>>> upstream/android-13
 	help
 	  This enables the driver for the on-chip UARTs of the Atmel
 	  AT91 processors.
@@ -184,6 +230,7 @@ config SERIAL_KGDB_NMI
 
 	  If unsure, say N.
 
+<<<<<<< HEAD
 config SERIAL_KS8695
 	bool "Micrel KS8695 (Centaur) serial port support"
 	depends on ARCH_KS8695
@@ -204,6 +251,11 @@ config SERIAL_KS8695_CONSOLE
 config SERIAL_MESON
 	tristate "Meson serial port support"
 	depends on ARCH_MESON
+=======
+config SERIAL_MESON
+	tristate "Meson serial port support"
+	depends on ARCH_MESON || COMPILE_TEST
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 	help
 	  This enables the driver for the on-chip UARTs of the Amlogic
@@ -211,7 +263,11 @@ config SERIAL_MESON
 
 config SERIAL_MESON_CONSOLE
 	bool "Support for console on meson"
+<<<<<<< HEAD
 	depends on SERIAL_MESON=y
+=======
+	depends on SERIAL_MESON
+>>>>>>> upstream/android-13
 	select SERIAL_CORE_CONSOLE
 	select SERIAL_EARLYCON
 	help
@@ -241,7 +297,10 @@ config SERIAL_CLPS711X_CONSOLE
 
 config SERIAL_SAMSUNG
 	tristate "Samsung SoC serial support"
+<<<<<<< HEAD
 	depends on PLAT_SAMSUNG || ARCH_EXYNOS
+=======
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 	help
 	  Support for the on-chip UARTs on the Samsung S3C24XX series CPUs,
@@ -264,6 +323,7 @@ config SERIAL_SAMSUNG_UARTS
 	help
 	  Select the number of available UART ports for the Samsung S3C
 	  serial driver
+<<<<<<< HEAD
 	
 config SERIAL_SAMSUNG_DEBUG
 	bool "Samsung SoC serial debug"
@@ -273,6 +333,8 @@ config SERIAL_SAMSUNG_DEBUG
 	  generally being used as a console, we use our own output
 	  routines that go via the low-level debug printascii()
 	  function.
+=======
+>>>>>>> upstream/android-13
 
 config SERIAL_SAMSUNG_CONSOLE
 	bool "Support for console on Samsung SoC serial port"
@@ -290,6 +352,7 @@ config SERIAL_SAMSUNG_CONSOLE
 	  your boot loader about how to pass options to the kernel at
 	  boot time.)
 
+<<<<<<< HEAD
 config SERIAL_SIRFSOC
         tristate "SiRF SoC Platform Serial port support"
         depends on ARCH_SIRF
@@ -315,6 +378,46 @@ config SERIAL_SIRFSOC_CONSOLE
 config SERIAL_TEGRA
 	tristate "NVIDIA Tegra20/30 SoC serial controller"
 	depends on ARCH_TEGRA && TEGRA20_APB_DMA
+=======
+config S3C_LOWLEVEL_UART_PORT
+	int "S3C UART to use for low-level messages"
+	default 0
+	help
+	  Choice of which UART port to use for the low-level messages,
+	  such as the `Uncompressing...` at start time. The value of
+	  this configuration should be between zero and two. The port
+	  must have been initialised by the boot-loader before use.
+
+config SERIAL_SAMSUNG_HWACG
+	bool "HWACG(HW Auto Clock Gating) support for Samsung UART port"
+	default y
+	help
+	  If HWACG is enabled on UART, System power mode will goes into
+	  suspend state only when UART UCON Tx, Rx bit was disabled.
+	  To support HWACG on UART, this configuration should be selected.
+
+config SERIAL_EXYNOS
+	tristate "Exynos SoC serial support"
+	depends on PLAT_SAMSUNG || ARCH_EXYNOS
+	select SERIAL_CORE
+	help
+	  Support for the on-chip UARTs on the Samsung Exynos series CPUs,
+	  providing /dev/ttySAC0, 1 and 2 (note, some machines may not
+	  provide all of these ports, depending on how the serial port
+	  pins are configured.
+
+config SERIAL_EXYNOS_UARTS
+	int
+	depends on SERIAL_EXYNOS
+	default 16
+	help
+	  Select the number of available UART ports for the Samsung
+	  Exynos serial driver
+
+config SERIAL_TEGRA
+	tristate "NVIDIA Tegra20/30 SoC serial controller"
+	depends on (ARCH_TEGRA && TEGRA20_APB_DMA) || COMPILE_TEST
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 	help
 	  Support for the on-chip UARTs on the NVIDIA Tegra series SOCs
@@ -323,6 +426,32 @@ config SERIAL_TEGRA
 	  are enabled). This driver uses the APB DMA to achieve higher baudrate
 	  and better performance.
 
+<<<<<<< HEAD
+=======
+config SERIAL_TEGRA_TCU
+	tristate "NVIDIA Tegra Combined UART"
+	depends on MAILBOX
+	depends on (ARCH_TEGRA && TEGRA_HSP_MBOX) || COMPILE_TEST
+	select SERIAL_CORE
+	help
+	  Support for the mailbox-based TCU (Tegra Combined UART) serial port.
+	  TCU is a virtual serial port that allows multiplexing multiple data
+	  streams into a single hardware serial port.
+
+config SERIAL_TEGRA_TCU_CONSOLE
+	bool "Support for console on a Tegra TCU serial port"
+	depends on SERIAL_TEGRA_TCU=y
+	select SERIAL_CORE_CONSOLE
+	default y
+	help
+	  If you say Y here, it will be possible to use a the Tegra TCU as the
+	  system console (the system console is the device which receives all
+	  kernel messages and warnings and which allows logins in single user
+	  mode).
+
+	  If unsure, say Y.
+
+>>>>>>> upstream/android-13
 config SERIAL_MAX3100
 	tristate "MAX3100 support"
 	depends on SPI
@@ -335,7 +464,10 @@ config SERIAL_MAX310X
 	depends on SPI_MASTER
 	select SERIAL_CORE
 	select REGMAP_SPI if SPI_MASTER
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  This selects support for an advanced UART from Maxim (Dallas).
 	  Supported ICs are MAX3107, MAX3108, MAX3109, MAX14830.
@@ -349,7 +481,11 @@ config SERIAL_DZ
 	depends on MACH_DECSTATION && 32BIT
 	select SERIAL_CORE
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  DZ11-family serial controllers for DECstations and VAXstations,
 	  including the DC7085, M7814, and M7819.
 
@@ -358,7 +494,11 @@ config SERIAL_DZ_CONSOLE
 	depends on SERIAL_DZ=y
 	select SERIAL_CORE_CONSOLE
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, it will be possible to use a serial port as the
 	  system console (the system console is the device which receives all
 	  kernel messages and warnings and which allows logins in single user
@@ -374,7 +514,11 @@ config SERIAL_ZS
 	depends on MACH_DECSTATION
 	select SERIAL_CORE
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Support for the Zilog 85C350 serial communications controller used
 	  for serial ports in newer DECstation systems.  These include the
 	  DECsystem 5900 and all models of the DECstation and DECsystem 5000
@@ -388,7 +532,11 @@ config SERIAL_ZS_CONSOLE
 	depends on SERIAL_ZS=y
 	select SERIAL_CORE_CONSOLE
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you say Y here, it will be possible to use a serial port as the
 	  system console (the system console is the device which receives all
 	  kernel messages and warnings and which allows logins in single user
@@ -423,6 +571,7 @@ config SERIAL_21285_CONSOLE
 	  your boot loader (lilo or loadlin) about how to pass options to the
 	  kernel at boot time.)
 
+<<<<<<< HEAD
 config SERIAL_MPSC
 	bool "Marvell MPSC serial port support"
 	depends on MV64X60
@@ -437,6 +586,8 @@ config SERIAL_MPSC_CONSOLE
 	help
 	  Say Y here if you want to support a serial console on a Marvell MPSC.
 
+=======
+>>>>>>> upstream/android-13
 config SERIAL_PXA
 	bool "PXA serial port support (DEPRECATED)"
 	depends on ARCH_PXA || ARCH_MMP
@@ -477,10 +628,18 @@ config SERIAL_SA1100
 	bool "SA1100 serial port support"
 	depends on ARCH_SA1100
 	select SERIAL_CORE
+<<<<<<< HEAD
 	help
 	  If you have a machine based on a SA1100/SA1110 StrongARM(R) CPU you
 	  can enable its onboard serial port by enabling this option.
 	  Please read <file:Documentation/arm/SA1100/serial_UART> for further
+=======
+	select SERIAL_MCTRL_GPIO if GPIOLIB
+	help
+	  If you have a machine based on a SA1100/SA1110 StrongARM(R) CPU you
+	  can enable its onboard serial port by enabling this option.
+	  Please read <file:Documentation/arm/sa1100/serial_uart.rst> for further
+>>>>>>> upstream/android-13
 	  info.
 
 config SERIAL_SA1100_CONSOLE
@@ -509,6 +668,7 @@ config SERIAL_IMX
 	  can enable its onboard serial port by enabling this option.
 
 config SERIAL_IMX_CONSOLE
+<<<<<<< HEAD
 	bool "Console on IMX serial port"
 	depends on SERIAL_IMX=y
 	select SERIAL_CORE_CONSOLE
@@ -518,11 +678,36 @@ config SERIAL_IMX_CONSOLE
 	  CPU you can make it the console by answering Y to this option.
 
 	  Even if you say Y here, the currently visible virtual console
+=======
+	tristate "Console on IMX serial port"
+	depends on SERIAL_IMX
+	select SERIAL_CORE_CONSOLE
+	help
+	  If you have enabled the serial port on the Freescale IMX
+	  CPU you can make it the console by answering Y/M to this option.
+
+	  Even if you say Y/M here, the currently visible virtual console
+>>>>>>> upstream/android-13
 	  (/dev/tty0) will still be used as the system console by default, but
 	  you can alter that using a kernel command line option such as
 	  "console=ttymxc0". (Try "man bootparam" or see the documentation of
 	  your bootloader about how to pass options to the kernel at boot time.)
 
+<<<<<<< HEAD
+=======
+config SERIAL_IMX_EARLYCON
+	bool "Earlycon on IMX serial port"
+	depends on ARCH_MXC || COMPILE_TEST
+	depends on OF
+	select SERIAL_CORE
+	select SERIAL_EARLYCON
+	select SERIAL_CORE_CONSOLE
+	default y if SERIAL_IMX_CONSOLE
+	help
+	  If you have enabled the earlycon on the Freescale IMX
+	  CPU you can make it the earlycon by answering Y to this option.
+
+>>>>>>> upstream/android-13
 config SERIAL_UARTLITE
 	tristate "Xilinx uartlite serial port support"
 	depends on HAS_IOMEM
@@ -595,7 +780,11 @@ config SERIAL_MUX
 	depends on GSC
 	select SERIAL_CORE
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Saying Y here will enable the hardware MUX serial driver for
 	  the Nova, K class systems and D class with a 'remote control card'.
 	  The hardware MUX is not 8250/16550 compatible therefore the
@@ -618,7 +807,10 @@ config SERIAL_MUX_CONSOLE
 config PDC_CONSOLE
 	bool "PDC software console support"
 	depends on PARISC && !SERIAL_MUX && VT
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  Saying Y here will enable the software based PDC console to be 
 	  used as the system console.  This is useful for machines in 
@@ -701,6 +893,7 @@ config SERIAL_SH_SCI_DMA
 	depends on SERIAL_SH_SCI && DMA_ENGINE
 	default ARCH_RENESAS
 
+<<<<<<< HEAD
 config SERIAL_PNX8XXX
 	bool "Enable PNX8XXX SoCs' UART Support"
 	depends on SOC_PNX833X
@@ -720,6 +913,12 @@ config SERIAL_PNX8XXX_CONSOLE
 config SERIAL_HS_LPC32XX
 	tristate "LPC32XX high speed serial port support"
 	depends on ARCH_LPC32XX && OF
+=======
+config SERIAL_HS_LPC32XX
+	tristate "LPC32XX high speed serial port support"
+	depends on ARCH_LPC32XX || COMPILE_TEST
+	depends on OF
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 	help
 	  Support for the LPC32XX high speed serial ports (up to 900kbps).
@@ -835,6 +1034,7 @@ config SERIAL_CPM_CONSOLE
 	  your boot loader (lilo or loadlin) about how to pass options to the
 	  kernel at boot time.)
 
+<<<<<<< HEAD
 config SERIAL_SGI_L1_CONSOLE
 	bool "SGI Altix L1 serial console support"
 	depends on IA64_GENERIC || IA64_SGI_SN2
@@ -845,6 +1045,8 @@ config SERIAL_SGI_L1_CONSOLE
 		controller serial port as your console (you want this!),
 		say Y.  Otherwise, say N.
 
+=======
+>>>>>>> upstream/android-13
 config SERIAL_PIC32
 	tristate "Microchip PIC32 serial support"
 	depends on MACH_PIC32
@@ -895,7 +1097,12 @@ config SERIAL_MPC52xx_CONSOLE_BAUD
 
 config SERIAL_ICOM
 	tristate "IBM Multiport Serial Adapter"
+<<<<<<< HEAD
 	depends on PCI && PPC_PSERIES
+=======
+	depends on PCI
+	depends on PPC_PSERIES || COMPILE_TEST
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 	select FW_LOADER
 	help
@@ -962,6 +1169,7 @@ config SERIAL_JSM
 	  To compile this driver as a module, choose M here: the
 	  module will be called jsm.
 
+<<<<<<< HEAD
 config SERIAL_SGI_IOC4
 	tristate "SGI IOC4 controller serial support"
 	depends on (IA64_GENERIC || IA64_SGI_SN2) && SGI_IOC4
@@ -982,6 +1190,11 @@ config SERIAL_SGI_IOC3
 config SERIAL_MSM
 	tristate "MSM on-chip serial port support"
 	depends on ARCH_QCOM
+=======
+config SERIAL_MSM
+	tristate "MSM on-chip serial port support"
+	depends on ARCH_QCOM || COMPILE_TEST
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 
 config SERIAL_MSM_CONSOLE
@@ -990,6 +1203,7 @@ config SERIAL_MSM_CONSOLE
 	select SERIAL_CORE_CONSOLE
 	select SERIAL_EARLYCON
 
+<<<<<<< HEAD
 config SERIAL_MSM_GENI_HALF_SAMPLING
 	bool "Changes clock divider which impacts sampling rate for QUP HW ver greater than 2.5.0"
 	help
@@ -1005,15 +1219,35 @@ config SERIAL_MSM_GENI_EARLY_CONSOLE
 	  Serial early console driver for Qualcomm Technologies Inc's GENI
 	  based QUP hardware.
 
+=======
+>>>>>>> upstream/android-13
 config SERIAL_QCOM_GENI
 	tristate "QCOM on-chip GENI based serial port support"
 	depends on ARCH_QCOM || COMPILE_TEST
 	depends on QCOM_GENI_SE
 	select SERIAL_CORE
 
+<<<<<<< HEAD
 config SERIAL_QCOM_GENI_CONSOLE
 	bool "QCOM GENI Serial Console support"
 	depends on SERIAL_QCOM_GENI=y
+=======
+config SERIAL_QCOM_GENI_CONSOLE_DEFAULT_ENABLED
+	bool "Enable QCOM on-chip GENI serial port for kernel console usage"
+	default y
+	depends on SERIAL_QCOM_GENI
+	help
+	  Runtime enablement of serial HW for kernel can be controlled using
+	  qcom_geni_serial.con_enabled=1. This is useful for kernels that should
+	  have serial driver compiled, but not used for performance.
+	  This option controls the default value for con_enabled.
+
+	  If unsure, say Y.
+
+config SERIAL_QCOM_GENI_CONSOLE
+	bool "QCOM GENI Serial Console support"
+	depends on SERIAL_QCOM_GENI
+>>>>>>> upstream/android-13
 	select SERIAL_CORE_CONSOLE
 	select SERIAL_EARLYCON
 	help
@@ -1022,7 +1256,11 @@ config SERIAL_QCOM_GENI_CONSOLE
 
 config SERIAL_VT8500
 	bool "VIA VT8500 on-chip serial port support"
+<<<<<<< HEAD
 	depends on ARCH_VT8500
+=======
+	depends on ARCH_VT8500 || COMPILE_TEST
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 
 config SERIAL_VT8500_CONSOLE
@@ -1030,6 +1268,7 @@ config SERIAL_VT8500_CONSOLE
 	depends on SERIAL_VT8500=y
 	select SERIAL_CORE_CONSOLE
 
+<<<<<<< HEAD
 config SERIAL_NETX
 	tristate "NetX serial port support"
 	depends on ARCH_NETX
@@ -1052,6 +1291,11 @@ config SERIAL_NETX_CONSOLE
 config SERIAL_OMAP
 	tristate "OMAP serial port support"
 	depends on ARCH_OMAP2PLUS
+=======
+config SERIAL_OMAP
+	tristate "OMAP serial port support"
+	depends on (ARCH_OMAP2PLUS && !SERIAL_8250_OMAP) || COMPILE_TEST
+>>>>>>> upstream/android-13
 	select SERIAL_CORE
 	help
 	  If you have a machine based on an Texas Instruments OMAP CPU you
@@ -1076,6 +1320,7 @@ config SERIAL_OMAP_CONSOLE
 	  your boot loader about how to pass options to the kernel at
 	  boot time.)
 
+<<<<<<< HEAD
 config SERIAL_LANTIQ
 	bool "Lantiq serial driver"
 	depends on LANTIQ
@@ -1084,13 +1329,60 @@ config SERIAL_LANTIQ
 	select SERIAL_EARLYCON
 	help
 	  Support for console and UART on Lantiq SoCs.
+=======
+config SERIAL_SIFIVE
+	tristate "SiFive UART support"
+	depends on OF
+	select SERIAL_CORE
+	help
+	  Select this option if you are building a kernel for a device that
+	  contains a SiFive UART IP block.  This type of UART is present on
+	  SiFive FU540 SoCs, among others.
+
+config SERIAL_SIFIVE_CONSOLE
+	bool "Console on SiFive UART"
+	depends on SERIAL_SIFIVE=y
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	help
+	  Select this option if you would like to use a SiFive UART as the
+	  system console.
+
+	  Even if you say Y here, the currently visible virtual console
+	  (/dev/tty0) will still be used as the system console by default, but
+	  you can alter that using a kernel command line option such as
+	  "console=ttySIFx". (Try "man bootparam" or see the documentation of
+	  your boot loader about how to pass options to the kernel at
+	  boot time.)
+
+config SERIAL_LANTIQ
+	tristate "Lantiq serial driver"
+	depends on (LANTIQ || X86) || COMPILE_TEST
+	select SERIAL_CORE
+	help
+	  Support for UART on Lantiq and Intel SoCs.
+	  To compile this driver as a module, select M here. The
+	  module will be called lantiq.
+
+config SERIAL_LANTIQ_CONSOLE
+	bool "Console on Lantiq UART"
+	depends on SERIAL_LANTIQ=y
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	help
+	  Select this option if you would like to use a Lantiq UART as the
+	  system console.
+>>>>>>> upstream/android-13
 
 config SERIAL_QE
 	tristate "Freescale QUICC Engine serial port support"
 	depends on QUICC_ENGINE
 	select SERIAL_CORE
 	select FW_LOADER
+<<<<<<< HEAD
 	default n
+=======
+>>>>>>> upstream/android-13
 	help
 	  This driver supports the QE serial ports on Freescale embedded
 	  PowerPC that contain a QUICC Engine.
@@ -1111,6 +1403,7 @@ config SERIAL_SCCNXP_CONSOLE
 	  Support for console on SCCNXP serial ports.
 
 config SERIAL_SC16IS7XX_CORE
+<<<<<<< HEAD
         tristate
 
 config SERIAL_SC16IS7XX
@@ -1146,18 +1439,63 @@ config SERIAL_SC16IS7XX_SPI
           If required say y, and say n to spi if not required,
           This is additional support to exsisting driver.
           You must select at least one bus for the driver to be built.
+=======
+	tristate
+
+config SERIAL_SC16IS7XX
+	tristate "SC16IS7xx serial support"
+	select SERIAL_CORE
+	depends on (SPI_MASTER && !I2C) || I2C
+	help
+	  This selects support for SC16IS7xx serial ports.
+	  Supported ICs are SC16IS740, SC16IS741, SC16IS750, SC16IS752,
+	  SC16IS760 and SC16IS762. Select supported buses using options below.
+
+config SERIAL_SC16IS7XX_I2C
+	bool "SC16IS7xx for I2C interface"
+	depends on SERIAL_SC16IS7XX
+	depends on I2C
+	select SERIAL_SC16IS7XX_CORE if SERIAL_SC16IS7XX
+	select REGMAP_I2C if I2C
+	default y
+	help
+	  Enable SC16IS7xx driver on I2C bus,
+	  If required say y, and say n to i2c if not required,
+	  Enabled by default to support oldconfig.
+	  You must select at least one bus for the driver to be built.
+
+config SERIAL_SC16IS7XX_SPI
+	bool "SC16IS7xx for spi interface"
+	depends on SERIAL_SC16IS7XX
+	depends on SPI_MASTER
+	select SERIAL_SC16IS7XX_CORE if SERIAL_SC16IS7XX
+	select REGMAP_SPI if SPI_MASTER
+	help
+	  Enable SC16IS7xx driver on SPI bus,
+	  If required say y, and say n to spi if not required,
+	  This is additional support to existing driver.
+	  You must select at least one bus for the driver to be built.
+>>>>>>> upstream/android-13
 
 config SERIAL_TIMBERDALE
 	tristate "Support for timberdale UART"
 	select SERIAL_CORE
 	depends on X86_32 || COMPILE_TEST
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	Add support for UART controller on timberdale.
 
 config SERIAL_BCM63XX
 	tristate "Broadcom BCM63xx/BCM33xx UART support"
 	select SERIAL_CORE
+<<<<<<< HEAD
 	depends on MIPS || ARM || COMPILE_TEST
+=======
+	depends on COMMON_CLK
+>>>>>>> upstream/android-13
 	help
 	  This enables the driver for the onchip UART core found on
 	  the following chipsets:
@@ -1180,7 +1518,11 @@ config SERIAL_GRLIB_GAISLER_APBUART
 	tristate "GRLIB APBUART serial support"
 	depends on OF && SPARC
 	select SERIAL_CORE
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	Add support for the GRLIB APBUART serial port.
 
 config SERIAL_GRLIB_GAISLER_APBUART_CONSOLE
@@ -1244,6 +1586,7 @@ config SERIAL_ALTERA_UART_CONSOLE
 	help
 	  Enable a Altera UART port to be the system console.
 
+<<<<<<< HEAD
 config SERIAL_IFX6X60
         tristate "SPI protocol driver for Infineon 6x60 modem (EXPERIMENTAL)"
 	depends on GPIOLIB || COMPILE_TEST
@@ -1251,6 +1594,8 @@ config SERIAL_IFX6X60
 	help
 	  Support for the IFX6x60 modem devices on Intel MID platforms.
 
+=======
+>>>>>>> upstream/android-13
 config SERIAL_PCH_UART
 	tristate "Intel EG20T PCH/LAPIS Semicon IOH(ML7213/ML7223/ML7831) UART"
 	depends on PCI && (X86_32 || MIPS ||  COMPILE_TEST)
@@ -1312,6 +1657,10 @@ config SERIAL_AR933X
 	tristate "AR933X serial port support"
 	depends on HAVE_CLK && ATH79
 	select SERIAL_CORE
+<<<<<<< HEAD
+=======
+	select SERIAL_MCTRL_GPIO if GPIOLIB
+>>>>>>> upstream/android-13
 	help
 	  If you have an Atheros AR933X SOC based board and want to use the
 	  built-in UART of the SoC, say Y to this option.
@@ -1334,6 +1683,7 @@ config SERIAL_AR933X_NR_UARTS
 	  Set this to the number of serial ports you want the driver
 	  to support.
 
+<<<<<<< HEAD
 config SERIAL_EFM32_UART
 	tristate "EFM32 UART/USART port"
 	depends on ARM && (ARCH_EFM32 || COMPILE_TEST)
@@ -1342,6 +1692,8 @@ config SERIAL_EFM32_UART
 	  This driver support the USART and UART ports on
 	  Energy Micro's efm32 SoCs.
 
+=======
+>>>>>>> upstream/android-13
 config SERIAL_MPS2_UART_CONSOLE
 	bool "MPS2 UART console support"
 	depends on SERIAL_MPS2_UART
@@ -1355,11 +1707,14 @@ config SERIAL_MPS2_UART
 	help
 	  This driver support the UART ports on ARM MPS2.
 
+<<<<<<< HEAD
 config SERIAL_EFM32_UART_CONSOLE
 	bool "EFM32 UART/USART console support"
 	depends on SERIAL_EFM32_UART=y
 	select SERIAL_CORE_CONSOLE
 
+=======
+>>>>>>> upstream/android-13
 config SERIAL_ARC
 	tristate "ARC UART driver support"
 	select SERIAL_CORE
@@ -1424,6 +1779,25 @@ config SERIAL_FSL_LPUART_CONSOLE
 	  If you have enabled the lpuart serial port on the Freescale SoCs,
 	  you can make it the console by answering Y to this option.
 
+<<<<<<< HEAD
+=======
+config SERIAL_FSL_LINFLEXUART
+	tristate "Freescale LINFlexD UART serial port support"
+	depends on PRINTK
+	select SERIAL_CORE
+	help
+	  Support for the on-chip LINFlexD UART on some Freescale SOCs.
+
+config SERIAL_FSL_LINFLEXUART_CONSOLE
+	bool "Console on Freescale LINFlexD UART serial port"
+	depends on SERIAL_FSL_LINFLEXUART=y
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	help
+	  If you have enabled the LINFlexD UART serial port on the Freescale
+	  SoCs, you can make it the console by answering Y to this option.
+
+>>>>>>> upstream/android-13
 config SERIAL_CONEXANT_DIGICOLOR
 	tristate "Conexant Digicolor CX92xxx USART serial port support"
 	depends on OF
@@ -1444,7 +1818,11 @@ config SERIAL_ST_ASC
 	select SERIAL_CORE
 	depends on ARM || COMPILE_TEST
 	help
+<<<<<<< HEAD
 	  This driver is for the on-chip Asychronous Serial Controller on
+=======
+	  This driver is for the on-chip Asynchronous Serial Controller on
+>>>>>>> upstream/android-13
 	  STMicroelectronics STi SoCs.
 	  ASC is embedded in ST COMMS IP block. It supports Rx & Tx functionality.
 	  It support all industry standard baud rates.
@@ -1469,8 +1847,13 @@ config SERIAL_MEN_Z135
 
 config SERIAL_SPRD
 	tristate "Support for Spreadtrum serial"
+<<<<<<< HEAD
 	depends on ARCH_SPRD
 	select SERIAL_CORE
+=======
+	select SERIAL_CORE
+	depends on COMMON_CLK
+>>>>>>> upstream/android-13
 	help
 	  This enables the driver for the Spreadtrum's serial.
 
@@ -1489,6 +1872,10 @@ config SERIAL_STM32
 	tristate "STMicroelectronics STM32 serial port support"
 	select SERIAL_CORE
 	depends on ARCH_STM32 || COMPILE_TEST
+<<<<<<< HEAD
+=======
+	select SERIAL_MCTRL_GPIO if GPIOLIB
+>>>>>>> upstream/android-13
 	help
 	  This driver is for the on-chip Serial Controller on
 	  STMicroelectronics STM32 MCUs.
@@ -1544,9 +1931,93 @@ config SERIAL_OWL_CONSOLE
 	  Say 'Y' here if you wish to use Actions Semiconductor S500/S900 UART
 	  as the system console.
 
+<<<<<<< HEAD
+=======
+config SERIAL_RDA
+	bool "RDA Micro serial port support"
+	depends on ARCH_RDA || COMPILE_TEST
+	select SERIAL_CORE
+	help
+	  This driver is for RDA8810PL SoC's UART.
+	  Say 'Y' here if you wish to use the on-board serial port.
+	  Otherwise, say 'N'.
+
+config SERIAL_RDA_CONSOLE
+	bool "Console on RDA Micro serial port"
+	depends on SERIAL_RDA=y
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	default y
+	help
+	  Say 'Y' here if you wish to use the RDA8810PL UART as the system
+	  console. Only earlycon is implemented currently.
+
+config SERIAL_MILBEAUT_USIO
+	tristate "Milbeaut USIO/UART serial port support"
+	depends on ARCH_MILBEAUT || (COMPILE_TEST && OF)
+	default ARCH_MILBEAUT
+	select SERIAL_CORE
+	help
+	  This selects the USIO/UART IP found in Socionext Milbeaut SoCs.
+
+config SERIAL_MILBEAUT_USIO_PORTS
+	int "Maximum number of CSIO/UART ports (1-8)"
+	range 1 8
+	depends on SERIAL_MILBEAUT_USIO
+	default "4"
+
+config SERIAL_MILBEAUT_USIO_CONSOLE
+	bool "Support for console on MILBEAUT USIO/UART serial port"
+	depends on SERIAL_MILBEAUT_USIO=y
+	default y
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	help
+	  Say 'Y' here if you wish to use a USIO/UART of Socionext Milbeaut
+	  SoCs as the system console (the system console is the device which
+	  receives all kernel messages and warnings and which allows logins in
+	  single user mode).
+
+config SERIAL_LITEUART
+	tristate "LiteUART serial port support"
+	depends on HAS_IOMEM
+	depends on OF || COMPILE_TEST
+	depends on LITEX
+	select SERIAL_CORE
+	help
+	  This driver is for the FPGA-based LiteUART serial controller from LiteX
+	  SoC builder.
+
+	  Say 'Y' or 'M' here if you wish to use the LiteUART serial controller.
+	  Otherwise, say 'N'.
+
+config SERIAL_LITEUART_MAX_PORTS
+	int "Maximum number of LiteUART ports"
+	depends on SERIAL_LITEUART
+	default "1"
+	help
+	  Set this to the maximum number of serial ports you want the driver
+	  to support.
+
+config SERIAL_LITEUART_CONSOLE
+	bool "LiteUART serial port console support"
+	depends on SERIAL_LITEUART=y
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	help
+	  Say 'Y' or 'M' here if you wish to use the FPGA-based LiteUART serial
+	  controller from LiteX SoC builder as the system console
+	  (the system console is the device which receives all kernel messages
+	  and warnings and which allows logins in single user mode).
+	  Otherwise, say 'N'.
+
+>>>>>>> upstream/android-13
 endmenu
 
 config SERIAL_MCTRL_GPIO
 	tristate
+<<<<<<< HEAD
 
 endif # TTY
+=======
+>>>>>>> upstream/android-13

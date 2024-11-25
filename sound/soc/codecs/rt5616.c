@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt5616.c  --  RT5616 ALSA SoC audio codec driver
  *
  * Copyright 2015 Realtek Semiconductor Corp.
  * Author: Bard Liao <bardliao@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -351,7 +358,11 @@ static int is_sys_clk_from_pll(struct snd_soc_dapm_widget *source,
 {
 	unsigned int val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(snd_soc_dapm_to_component(source->dapm), RT5616_GLB_CLK);
+=======
+	val = snd_soc_component_read(snd_soc_dapm_to_component(source->dapm), RT5616_GLB_CLK);
+>>>>>>> upstream/android-13
 	val &= RT5616_SCLK_SRC_MASK;
 	if (val == RT5616_SCLK_SRC_PLL1)
 		return 1;
@@ -1313,7 +1324,12 @@ static const struct snd_soc_component_driver soc_component_dev_rt5616 = {
 static const struct regmap_config rt5616_regmap = {
 	.reg_bits = 8,
 	.val_bits = 16,
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 	.max_register = RT5616_DEVICE_ID + 1 + (ARRAY_SIZE(rt5616_ranges) *
 					       RT5616_PR_SPACING),
 	.volatile_reg = rt5616_volatile_register,

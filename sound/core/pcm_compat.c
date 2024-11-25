@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *   32bit -> 64bit ioctl wrapper for PCM API
  *   Copyright (c) by Takashi Iwai <tiwai@suse.de>
@@ -16,6 +17,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *   32bit -> 64bit ioctl wrapper for PCM API
+ *   Copyright (c) by Takashi Iwai <tiwai@suse.de>
+>>>>>>> upstream/android-13
  */
 
 /* This file included from pcm_native.c */
@@ -97,6 +104,7 @@ struct snd_pcm_sw_params32 {
 	unsigned char reserved[56];
 };
 
+<<<<<<< HEAD
 /* recalcuate the boundary within 32bit */
 static snd_pcm_uframes_t recalculate_boundary(struct snd_pcm_runtime *runtime)
 {
@@ -110,6 +118,8 @@ static snd_pcm_uframes_t recalculate_boundary(struct snd_pcm_runtime *runtime)
 	return boundary;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_pcm_ioctl_sw_params_compat(struct snd_pcm_substream *substream,
 					  struct snd_pcm_sw_params32 __user *src)
 {
@@ -182,16 +192,27 @@ static int snd_pcm_channel_info_user(struct snd_pcm_substream *substream,
 	snd_pcm_channel_info_user(s, p)
 #endif /* CONFIG_X86_X32 */
 
+<<<<<<< HEAD
 struct snd_pcm_status32 {
 	s32 state;
 	struct compat_timespec trigger_tstamp;
 	struct compat_timespec tstamp;
+=======
+struct compat_snd_pcm_status64 {
+	snd_pcm_state_t state;
+	u8 rsvd[4]; /* alignment */
+	s64 trigger_tstamp_sec;
+	s64 trigger_tstamp_nsec;
+	s64 tstamp_sec;
+	s64 tstamp_nsec;
+>>>>>>> upstream/android-13
 	u32 appl_ptr;
 	u32 hw_ptr;
 	s32 delay;
 	u32 avail;
 	u32 avail_max;
 	u32 overrange;
+<<<<<<< HEAD
 	s32 suspended_state;
 	u32 audio_tstamp_data;
 	struct compat_timespec audio_tstamp;
@@ -273,6 +294,28 @@ static int snd_pcm_status_user_x32(struct snd_pcm_substream *substream,
 	int err;
 
 	memset(&status, 0, sizeof(status));
+=======
+	snd_pcm_state_t suspended_state;
+	u32 audio_tstamp_data;
+	s64 audio_tstamp_sec;
+	s64 audio_tstamp_nsec;
+	s64 driver_tstamp_sec;
+	s64 driver_tstamp_nsec;
+	u32 audio_tstamp_accuracy;
+	unsigned char reserved[52-4*sizeof(s64)];
+} __packed;
+
+static int snd_pcm_status_user_compat64(struct snd_pcm_substream *substream,
+					struct compat_snd_pcm_status64 __user *src,
+					bool ext)
+{
+	struct snd_pcm_status64 status;
+	struct compat_snd_pcm_status64 compat_status64;
+	int err;
+
+	memset(&status, 0, sizeof(status));
+	memset(&compat_status64, 0, sizeof(compat_status64));
+>>>>>>> upstream/android-13
 	/*
 	 * with extension, parameters are read/write,
 	 * get audio_tstamp_data from user,
@@ -281,12 +324,17 @@ static int snd_pcm_status_user_x32(struct snd_pcm_substream *substream,
 	if (ext && get_user(status.audio_tstamp_data,
 				(u32 __user *)(&src->audio_tstamp_data)))
 		return -EFAULT;
+<<<<<<< HEAD
 	err = snd_pcm_status(substream, &status);
+=======
+	err = snd_pcm_status64(substream, &status);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
 	if (clear_user(src, sizeof(*src)))
 		return -EFAULT;
+<<<<<<< HEAD
 	if (put_user(status.state, &src->state) ||
 	    put_timespec(&status.trigger_tstamp, &src->trigger_tstamp) ||
 	    put_timespec(&status.tstamp, &src->tstamp) ||
@@ -301,11 +349,39 @@ static int snd_pcm_status_user_x32(struct snd_pcm_substream *substream,
 	    put_timespec(&status.audio_tstamp, &src->audio_tstamp) ||
 	    put_timespec(&status.driver_tstamp, &src->driver_tstamp) ||
 	    put_user(status.audio_tstamp_accuracy, &src->audio_tstamp_accuracy))
+=======
+
+	compat_status64 = (struct compat_snd_pcm_status64) {
+		.state = status.state,
+		.trigger_tstamp_sec = status.trigger_tstamp_sec,
+		.trigger_tstamp_nsec = status.trigger_tstamp_nsec,
+		.tstamp_sec = status.tstamp_sec,
+		.tstamp_nsec = status.tstamp_nsec,
+		.appl_ptr = status.appl_ptr,
+		.hw_ptr = status.hw_ptr,
+		.delay = status.delay,
+		.avail = status.avail,
+		.avail_max = status.avail_max,
+		.overrange = status.overrange,
+		.suspended_state = status.suspended_state,
+		.audio_tstamp_data = status.audio_tstamp_data,
+		.audio_tstamp_sec = status.audio_tstamp_sec,
+		.audio_tstamp_nsec = status.audio_tstamp_nsec,
+		.driver_tstamp_sec = status.audio_tstamp_sec,
+		.driver_tstamp_nsec = status.audio_tstamp_nsec,
+		.audio_tstamp_accuracy = status.audio_tstamp_accuracy,
+	};
+
+	if (copy_to_user(src, &compat_status64, sizeof(compat_status64)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	return err;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_X86_X32 */
+=======
+>>>>>>> upstream/android-13
 
 /* both for HW_PARAMS and HW_REFINE */
 static int snd_pcm_ioctl_hw_params_compat(struct snd_pcm_substream *substream,
@@ -316,7 +392,12 @@ static int snd_pcm_ioctl_hw_params_compat(struct snd_pcm_substream *substream,
 	struct snd_pcm_runtime *runtime;
 	int err;
 
+<<<<<<< HEAD
 	if (! (runtime = substream->runtime))
+=======
+	runtime = substream->runtime;
+	if (!runtime)
+>>>>>>> upstream/android-13
 		return -ENOTTY;
 
 	data = kmalloc(sizeof(*data), GFP_KERNEL);
@@ -420,7 +501,12 @@ static int snd_pcm_ioctl_xfern_compat(struct snd_pcm_substream *substream,
 	if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN)
 		return -EBADFD;
 
+<<<<<<< HEAD
 	if ((ch = substream->runtime->channels) > 128)
+=======
+	ch = substream->runtime->channels;
+	if (ch > 128)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	if (get_user(buf, &data32->bufs) ||
 	    get_user(frames, &data32->frames))
@@ -450,6 +536,7 @@ static int snd_pcm_ioctl_xfern_compat(struct snd_pcm_substream *substream,
 	return err;
 }
 
+<<<<<<< HEAD
 
 struct snd_pcm_mmap_status32 {
 	s32 state;
@@ -546,6 +633,21 @@ struct snd_pcm_mmap_status_x32 {
 	s32 suspended_state;
 	s32 pad3;
 	struct timespec audio_tstamp;
+=======
+#ifdef CONFIG_X86_X32
+/* X32 ABI has 64bit timespec and 64bit alignment */
+struct snd_pcm_mmap_status_x32 {
+	snd_pcm_state_t state;
+	s32 pad1;
+	u32 hw_ptr;
+	u32 pad2; /* alignment */
+	s64 tstamp_sec;
+	s64 tstamp_nsec;
+	snd_pcm_state_t suspended_state;
+	s32 pad3;
+	s64 audio_tstamp_sec;
+	s64 audio_tstamp_nsec;
+>>>>>>> upstream/android-13
 } __packed;
 
 struct snd_pcm_mmap_control_x32 {
@@ -613,9 +715,17 @@ static int snd_pcm_ioctl_sync_ptr_x32(struct snd_pcm_substream *substream,
 	snd_pcm_stream_unlock_irq(substream);
 	if (put_user(sstatus.state, &src->s.status.state) ||
 	    put_user(sstatus.hw_ptr, &src->s.status.hw_ptr) ||
+<<<<<<< HEAD
 	    put_timespec(&sstatus.tstamp, &src->s.status.tstamp) ||
 	    put_user(sstatus.suspended_state, &src->s.status.suspended_state) ||
 	    put_timespec(&sstatus.audio_tstamp, &src->s.status.audio_tstamp) ||
+=======
+	    put_user(sstatus.tstamp.tv_sec, &src->s.status.tstamp_sec) ||
+	    put_user(sstatus.tstamp.tv_nsec, &src->s.status.tstamp_nsec) ||
+	    put_user(sstatus.suspended_state, &src->s.status.suspended_state) ||
+	    put_user(sstatus.audio_tstamp.tv_sec, &src->s.status.audio_tstamp_sec) ||
+	    put_user(sstatus.audio_tstamp.tv_nsec, &src->s.status.audio_tstamp_nsec) ||
+>>>>>>> upstream/android-13
 	    put_user(scontrol.appl_ptr, &src->c.control.appl_ptr) ||
 	    put_user(scontrol.avail_min, &src->c.control.avail_min))
 		return -EFAULT;
@@ -624,14 +734,92 @@ static int snd_pcm_ioctl_sync_ptr_x32(struct snd_pcm_substream *substream,
 }
 #endif /* CONFIG_X86_X32 */
 
+<<<<<<< HEAD
+=======
+#ifdef __BIG_ENDIAN
+typedef char __pad_before_u32[4];
+typedef char __pad_after_u32[0];
+#else
+typedef char __pad_before_u32[0];
+typedef char __pad_after_u32[4];
+#endif
+
+/* PCM 2.0.15 API definition had a bug in mmap control; it puts the avail_min
+ * at the wrong offset due to a typo in padding type.
+ * The bug hits only 32bit.
+ * A workaround for incorrect read/write is needed only in 32bit compat mode.
+ */
+struct __snd_pcm_mmap_control64_buggy {
+	__pad_before_u32 __pad1;
+	__u32 appl_ptr;
+	__pad_before_u32 __pad2;	/* SiC! here is the bug */
+	__pad_before_u32 __pad3;
+	__u32 avail_min;
+	__pad_after_uframe __pad4;
+};
+
+static int snd_pcm_ioctl_sync_ptr_buggy(struct snd_pcm_substream *substream,
+					struct snd_pcm_sync_ptr __user *_sync_ptr)
+{
+	struct snd_pcm_runtime *runtime = substream->runtime;
+	struct snd_pcm_sync_ptr sync_ptr;
+	struct __snd_pcm_mmap_control64_buggy *sync_cp;
+	volatile struct snd_pcm_mmap_status *status;
+	volatile struct snd_pcm_mmap_control *control;
+	int err;
+
+	memset(&sync_ptr, 0, sizeof(sync_ptr));
+	sync_cp = (struct __snd_pcm_mmap_control64_buggy *)&sync_ptr.c.control;
+	if (get_user(sync_ptr.flags, (unsigned __user *)&(_sync_ptr->flags)))
+		return -EFAULT;
+	if (copy_from_user(sync_cp, &(_sync_ptr->c.control), sizeof(*sync_cp)))
+		return -EFAULT;
+	status = runtime->status;
+	control = runtime->control;
+	if (sync_ptr.flags & SNDRV_PCM_SYNC_PTR_HWSYNC) {
+		err = snd_pcm_hwsync(substream);
+		if (err < 0)
+			return err;
+	}
+	snd_pcm_stream_lock_irq(substream);
+	if (!(sync_ptr.flags & SNDRV_PCM_SYNC_PTR_APPL)) {
+		err = pcm_lib_apply_appl_ptr(substream, sync_cp->appl_ptr);
+		if (err < 0) {
+			snd_pcm_stream_unlock_irq(substream);
+			return err;
+		}
+	} else {
+		sync_cp->appl_ptr = control->appl_ptr;
+	}
+	if (!(sync_ptr.flags & SNDRV_PCM_SYNC_PTR_AVAIL_MIN))
+		control->avail_min = sync_cp->avail_min;
+	else
+		sync_cp->avail_min = control->avail_min;
+	sync_ptr.s.status.state = status->state;
+	sync_ptr.s.status.hw_ptr = status->hw_ptr;
+	sync_ptr.s.status.tstamp = status->tstamp;
+	sync_ptr.s.status.suspended_state = status->suspended_state;
+	sync_ptr.s.status.audio_tstamp = status->audio_tstamp;
+	snd_pcm_stream_unlock_irq(substream);
+	if (copy_to_user(_sync_ptr, &sync_ptr, sizeof(sync_ptr)))
+		return -EFAULT;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /*
  */
 enum {
 	SNDRV_PCM_IOCTL_HW_REFINE32 = _IOWR('A', 0x10, struct snd_pcm_hw_params32),
 	SNDRV_PCM_IOCTL_HW_PARAMS32 = _IOWR('A', 0x11, struct snd_pcm_hw_params32),
 	SNDRV_PCM_IOCTL_SW_PARAMS32 = _IOWR('A', 0x13, struct snd_pcm_sw_params32),
+<<<<<<< HEAD
 	SNDRV_PCM_IOCTL_STATUS32 = _IOR('A', 0x20, struct snd_pcm_status32),
 	SNDRV_PCM_IOCTL_STATUS_EXT32 = _IOWR('A', 0x24, struct snd_pcm_status32),
+=======
+	SNDRV_PCM_IOCTL_STATUS_COMPAT32 = _IOR('A', 0x20, struct snd_pcm_status32),
+	SNDRV_PCM_IOCTL_STATUS_EXT_COMPAT32 = _IOWR('A', 0x24, struct snd_pcm_status32),
+>>>>>>> upstream/android-13
 	SNDRV_PCM_IOCTL_DELAY32 = _IOR('A', 0x21, s32),
 	SNDRV_PCM_IOCTL_CHANNEL_INFO32 = _IOR('A', 0x32, struct snd_pcm_channel_info32),
 	SNDRV_PCM_IOCTL_REWIND32 = _IOW('A', 0x46, u32),
@@ -640,11 +828,18 @@ enum {
 	SNDRV_PCM_IOCTL_READI_FRAMES32 = _IOR('A', 0x51, struct snd_xferi32),
 	SNDRV_PCM_IOCTL_WRITEN_FRAMES32 = _IOW('A', 0x52, struct snd_xfern32),
 	SNDRV_PCM_IOCTL_READN_FRAMES32 = _IOR('A', 0x53, struct snd_xfern32),
+<<<<<<< HEAD
 	SNDRV_PCM_IOCTL_SYNC_PTR32 = _IOWR('A', 0x23, struct snd_pcm_sync_ptr32),
 #ifdef CONFIG_X86_X32
 	SNDRV_PCM_IOCTL_CHANNEL_INFO_X32 = _IOR('A', 0x32, struct snd_pcm_channel_info),
 	SNDRV_PCM_IOCTL_STATUS_X32 = _IOR('A', 0x20, struct snd_pcm_status_x32),
 	SNDRV_PCM_IOCTL_STATUS_EXT_X32 = _IOWR('A', 0x24, struct snd_pcm_status_x32),
+=======
+	SNDRV_PCM_IOCTL_STATUS_COMPAT64 = _IOR('A', 0x20, struct compat_snd_pcm_status64),
+	SNDRV_PCM_IOCTL_STATUS_EXT_COMPAT64 = _IOWR('A', 0x24, struct compat_snd_pcm_status64),
+#ifdef CONFIG_X86_X32
+	SNDRV_PCM_IOCTL_CHANNEL_INFO_X32 = _IOR('A', 0x32, struct snd_pcm_channel_info),
+>>>>>>> upstream/android-13
 	SNDRV_PCM_IOCTL_SYNC_PTR_X32 = _IOWR('A', 0x23, struct snd_pcm_sync_ptr_x32),
 #endif /* CONFIG_X86_X32 */
 };
@@ -664,8 +859,13 @@ static long snd_pcm_ioctl_compat(struct file *file, unsigned int cmd, unsigned l
 
 	/*
 	 * When PCM is used on 32bit mode, we need to disable
+<<<<<<< HEAD
 	 * mmap of PCM status/control records because of the size
 	 * incompatibility.
+=======
+	 * mmap of the old PCM status/control records because
+	 * of the size incompatibility.
+>>>>>>> upstream/android-13
 	 */
 	pcm_file->no_compat_mmap = 1;
 
@@ -687,19 +887,37 @@ static long snd_pcm_ioctl_compat(struct file *file, unsigned int cmd, unsigned l
 	case SNDRV_PCM_IOCTL_XRUN:
 	case SNDRV_PCM_IOCTL_LINK:
 	case SNDRV_PCM_IOCTL_UNLINK:
+<<<<<<< HEAD
 		return snd_pcm_common_ioctl(file, substream, cmd, argp);
+=======
+	case __SNDRV_PCM_IOCTL_SYNC_PTR32:
+		return snd_pcm_common_ioctl(file, substream, cmd, argp);
+	case __SNDRV_PCM_IOCTL_SYNC_PTR64:
+#ifdef CONFIG_X86_X32
+		if (in_x32_syscall())
+			return snd_pcm_ioctl_sync_ptr_x32(substream, argp);
+#endif /* CONFIG_X86_X32 */
+		return snd_pcm_ioctl_sync_ptr_buggy(substream, argp);
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_IOCTL_HW_REFINE32:
 		return snd_pcm_ioctl_hw_params_compat(substream, 1, argp);
 	case SNDRV_PCM_IOCTL_HW_PARAMS32:
 		return snd_pcm_ioctl_hw_params_compat(substream, 0, argp);
 	case SNDRV_PCM_IOCTL_SW_PARAMS32:
 		return snd_pcm_ioctl_sw_params_compat(substream, argp);
+<<<<<<< HEAD
 	case SNDRV_PCM_IOCTL_STATUS32:
 		return snd_pcm_status_user_compat(substream, argp, false);
 	case SNDRV_PCM_IOCTL_STATUS_EXT32:
 		return snd_pcm_status_user_compat(substream, argp, true);
 	case SNDRV_PCM_IOCTL_SYNC_PTR32:
 		return snd_pcm_ioctl_sync_ptr_compat(substream, argp);
+=======
+	case SNDRV_PCM_IOCTL_STATUS_COMPAT32:
+		return snd_pcm_status_user32(substream, argp, false);
+	case SNDRV_PCM_IOCTL_STATUS_EXT_COMPAT32:
+		return snd_pcm_status_user32(substream, argp, true);
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_IOCTL_CHANNEL_INFO32:
 		return snd_pcm_ioctl_channel_info_compat(substream, argp);
 	case SNDRV_PCM_IOCTL_WRITEI_FRAMES32:
@@ -716,6 +934,7 @@ static long snd_pcm_ioctl_compat(struct file *file, unsigned int cmd, unsigned l
 		return snd_pcm_ioctl_rewind_compat(substream, argp);
 	case SNDRV_PCM_IOCTL_FORWARD32:
 		return snd_pcm_ioctl_forward_compat(substream, argp);
+<<<<<<< HEAD
 #ifdef CONFIG_X86_X32
 	case SNDRV_PCM_IOCTL_STATUS_X32:
 		return snd_pcm_status_user_x32(substream, argp, false);
@@ -723,6 +942,13 @@ static long snd_pcm_ioctl_compat(struct file *file, unsigned int cmd, unsigned l
 		return snd_pcm_status_user_x32(substream, argp, true);
 	case SNDRV_PCM_IOCTL_SYNC_PTR_X32:
 		return snd_pcm_ioctl_sync_ptr_x32(substream, argp);
+=======
+	case SNDRV_PCM_IOCTL_STATUS_COMPAT64:
+		return snd_pcm_status_user_compat64(substream, argp, false);
+	case SNDRV_PCM_IOCTL_STATUS_EXT_COMPAT64:
+		return snd_pcm_status_user_compat64(substream, argp, true);
+#ifdef CONFIG_X86_X32
+>>>>>>> upstream/android-13
 	case SNDRV_PCM_IOCTL_CHANNEL_INFO_X32:
 		return snd_pcm_ioctl_channel_info_x32(substream, argp);
 #endif /* CONFIG_X86_X32 */

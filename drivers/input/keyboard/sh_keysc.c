@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * SuperH KEYSC Keypad Driver
  *
  * Copyright (C) 2008 Magnus Damm
  *
  * Based on gpio_keys.c, Copyright 2005 Phil Blundell
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -184,10 +191,15 @@ static int sh_keysc_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "failed to get irq\n");
 		goto err0;
 	}
+=======
+	if (irq < 0)
+		goto err0;
+>>>>>>> upstream/android-13
 
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if (priv == NULL) {
@@ -200,7 +212,11 @@ static int sh_keysc_probe(struct platform_device *pdev)
 	memcpy(&priv->pdata, dev_get_platdata(&pdev->dev), sizeof(priv->pdata));
 	pdata = &priv->pdata;
 
+<<<<<<< HEAD
 	priv->iomem_base = ioremap_nocache(res->start, resource_size(res));
+=======
+	priv->iomem_base = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (priv->iomem_base == NULL) {
 		dev_err(&pdev->dev, "failed to remap I/O memory\n");
 		error = -ENXIO;

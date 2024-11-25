@@ -112,8 +112,12 @@ static int usb4604_i2c_probe(struct i2c_client *i2c,
 	return usb4604_probe(hub);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static int usb4604_i2c_suspend(struct device *dev)
+=======
+static int __maybe_unused usb4604_i2c_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct usb4604 *hub = i2c_get_clientdata(client);
@@ -123,7 +127,11 @@ static int usb4604_i2c_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int usb4604_i2c_resume(struct device *dev)
+=======
+static int __maybe_unused usb4604_i2c_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct i2c_client *client = to_i2c_client(dev);
 	struct usb4604 *hub = i2c_get_clientdata(client);
@@ -132,7 +140,10 @@ static int usb4604_i2c_resume(struct device *dev)
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static SIMPLE_DEV_PM_OPS(usb4604_i2c_pm_ops, usb4604_i2c_suspend,
 		usb4604_i2c_resume);
@@ -154,7 +165,11 @@ MODULE_DEVICE_TABLE(of, usb4604_of_match);
 static struct i2c_driver usb4604_i2c_driver = {
 	.driver = {
 		.name = "usb4604",
+<<<<<<< HEAD
 		.pm = &usb4604_i2c_pm_ops,
+=======
+		.pm = pm_ptr(&usb4604_i2c_pm_ops),
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(usb4604_of_match),
 	},
 	.probe		= usb4604_i2c_probe,

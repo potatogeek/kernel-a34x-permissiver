@@ -8,10 +8,13 @@
  * Copyright (C) 2004 Pengutronix
  */
 
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_IMX_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
 #define SUPPORT_SYSRQ
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/ioport.h>
 #include <linux/init.h>
@@ -24,6 +27,11 @@
 #include <linux/serial.h>
 #include <linux/clk.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/ktime.h>
+#include <linux/pinctrl/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/rational.h>
 #include <linux/slab.h>
 #include <linux/of.h>
@@ -32,7 +40,10 @@
 #include <linux/dma-mapping.h>
 
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <linux/platform_data/serial-imx.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/platform_data/dma-imx.h>
 
 #include "serial_mctrl_gpio.h"
@@ -191,6 +202,16 @@ struct imx_uart_data {
 	enum imx_uart_type devtype;
 };
 
+<<<<<<< HEAD
+=======
+enum imx_tx_state {
+	OFF,
+	WAIT_AFTER_RTS,
+	SEND,
+	WAIT_AFTER_SEND,
+};
+
+>>>>>>> upstream/android-13
 struct imx_port {
 	struct uart_port	port;
 	struct timer_list	timer;
@@ -198,6 +219,11 @@ struct imx_port {
 	unsigned int		have_rtscts:1;
 	unsigned int		have_rtsgpio:1;
 	unsigned int		dte_mode:1;
+<<<<<<< HEAD
+=======
+	unsigned int		inverted_tx:1;
+	unsigned int		inverted_rx:1;
+>>>>>>> upstream/android-13
 	struct clk		*clk_ipg;
 	struct clk		*clk_per;
 	const struct imx_uart_data *devdata;
@@ -219,12 +245,24 @@ struct imx_port {
 	struct scatterlist	rx_sgl, tx_sgl[2];
 	void			*rx_buf;
 	struct circ_buf		rx_ring;
+<<<<<<< HEAD
+=======
+	unsigned int		rx_buf_size;
+	unsigned int		rx_period_length;
+>>>>>>> upstream/android-13
 	unsigned int		rx_periods;
 	dma_cookie_t		rx_cookie;
 	unsigned int		tx_bytes;
 	unsigned int		dma_tx_nents;
 	unsigned int            saved_reg[10];
 	bool			context_saved;
+<<<<<<< HEAD
+=======
+
+	enum imx_tx_state	tx_state;
+	struct hrtimer		trigger_start_tx;
+	struct hrtimer		trigger_stop_tx;
+>>>>>>> upstream/android-13
 };
 
 struct imx_port_ucrs {
@@ -252,6 +290,7 @@ static struct imx_uart_data imx_uart_devdata[] = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct platform_device_id imx_uart_devtype[] = {
 	{
 		.name = "imx1-uart",
@@ -271,6 +310,8 @@ static const struct platform_device_id imx_uart_devtype[] = {
 };
 MODULE_DEVICE_TABLE(platform, imx_uart_devtype);
 
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id imx_uart_dt_ids[] = {
 	{ .compatible = "fsl,imx6q-uart", .data = &imx_uart_devdata[IMX6Q_UART], },
 	{ .compatible = "fsl,imx53-uart", .data = &imx_uart_devdata[IMX53_UART], },
@@ -362,7 +403,11 @@ static inline int imx_uart_is_imx6q(struct imx_port *sport)
 /*
  * Save and restore functions for UCR1, UCR2 and UCR3 registers
  */
+<<<<<<< HEAD
 #if defined(CONFIG_SERIAL_IMX_CONSOLE)
+=======
+#if IS_ENABLED(CONFIG_SERIAL_IMX_CONSOLE)
+>>>>>>> upstream/android-13
 static void imx_uart_ucrs_save(struct imx_port *sport,
 			       struct imx_port_ucrs *ucr)
 {
@@ -401,10 +446,16 @@ static void imx_uart_rts_inactive(struct imx_port *sport, u32 *ucr2)
 	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
 }
 
+<<<<<<< HEAD
 /* called with port.lock taken and irqs caller dependent */
 static void imx_uart_rts_auto(struct imx_port *sport, u32 *ucr2)
 {
 	*ucr2 |= UCR2_CTSC;
+=======
+static void start_hrtimer_ms(struct hrtimer *hrt, unsigned long msec)
+{
+       hrtimer_start(hrt, ms_to_ktime(msec), HRTIMER_MODE_REL);
+>>>>>>> upstream/android-13
 }
 
 /* called with port.lock taken and irqs off */
@@ -434,7 +485,14 @@ static void imx_uart_start_rx(struct uart_port *port)
 static void imx_uart_stop_tx(struct uart_port *port)
 {
 	struct imx_port *sport = (struct imx_port *)port;
+<<<<<<< HEAD
 	u32 ucr1;
+=======
+	u32 ucr1, ucr4, usr2;
+
+	if (sport->tx_state == OFF)
+		return;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We are maybe in the SMP context, so if the DMA TX thread is running
@@ -444,6 +502,7 @@ static void imx_uart_stop_tx(struct uart_port *port)
 		return;
 
 	ucr1 = imx_uart_readl(sport, UCR1);
+<<<<<<< HEAD
 	imx_uart_writel(sport, ucr1 & ~UCR1_TXMPTYEN, UCR1);
 
 	/* in rs485 mode disable transmitter if shifter is empty */
@@ -461,6 +520,48 @@ static void imx_uart_stop_tx(struct uart_port *port)
 		ucr4 = imx_uart_readl(sport, UCR4);
 		ucr4 &= ~UCR4_TCEN;
 		imx_uart_writel(sport, ucr4, UCR4);
+=======
+	imx_uart_writel(sport, ucr1 & ~UCR1_TRDYEN, UCR1);
+
+	usr2 = imx_uart_readl(sport, USR2);
+	if (!(usr2 & USR2_TXDC)) {
+		/* The shifter is still busy, so retry once TC triggers */
+		return;
+	}
+
+	ucr4 = imx_uart_readl(sport, UCR4);
+	ucr4 &= ~UCR4_TCEN;
+	imx_uart_writel(sport, ucr4, UCR4);
+
+	/* in rs485 mode disable transmitter */
+	if (port->rs485.flags & SER_RS485_ENABLED) {
+		if (sport->tx_state == SEND) {
+			sport->tx_state = WAIT_AFTER_SEND;
+			start_hrtimer_ms(&sport->trigger_stop_tx,
+					 port->rs485.delay_rts_after_send);
+			return;
+		}
+
+		if (sport->tx_state == WAIT_AFTER_RTS ||
+		    sport->tx_state == WAIT_AFTER_SEND) {
+			u32 ucr2;
+
+			hrtimer_try_to_cancel(&sport->trigger_start_tx);
+
+			ucr2 = imx_uart_readl(sport, UCR2);
+			if (port->rs485.flags & SER_RS485_RTS_AFTER_SEND)
+				imx_uart_rts_active(sport, &ucr2);
+			else
+				imx_uart_rts_inactive(sport, &ucr2);
+			imx_uart_writel(sport, ucr2, UCR2);
+
+			imx_uart_start_rx(port);
+
+			sport->tx_state = OFF;
+		}
+	} else {
+		sport->tx_state = OFF;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -468,18 +569,33 @@ static void imx_uart_stop_tx(struct uart_port *port)
 static void imx_uart_stop_rx(struct uart_port *port)
 {
 	struct imx_port *sport = (struct imx_port *)port;
+<<<<<<< HEAD
 	u32 ucr1, ucr2;
 
 	ucr1 = imx_uart_readl(sport, UCR1);
 	ucr2 = imx_uart_readl(sport, UCR2);
+=======
+	u32 ucr1, ucr2, ucr4;
+
+	ucr1 = imx_uart_readl(sport, UCR1);
+	ucr2 = imx_uart_readl(sport, UCR2);
+	ucr4 = imx_uart_readl(sport, UCR4);
+>>>>>>> upstream/android-13
 
 	if (sport->dma_is_enabled) {
 		ucr1 &= ~(UCR1_RXDMAEN | UCR1_ATDMAEN);
 	} else {
 		ucr1 &= ~UCR1_RRDYEN;
 		ucr2 &= ~UCR2_ATEN;
+<<<<<<< HEAD
 	}
 	imx_uart_writel(sport, ucr1, UCR1);
+=======
+		ucr4 &= ~UCR4_OREN;
+	}
+	imx_uart_writel(sport, ucr1, UCR1);
+	imx_uart_writel(sport, ucr4, UCR4);
+>>>>>>> upstream/android-13
 
 	ucr2 &= ~UCR2_RXEN;
 	imx_uart_writel(sport, ucr2, UCR2);
@@ -522,7 +638,11 @@ static inline void imx_uart_transmit_buffer(struct imx_port *sport)
 		 * and the TX IRQ is disabled.
 		 **/
 		ucr1 = imx_uart_readl(sport, UCR1);
+<<<<<<< HEAD
 		ucr1 &= ~UCR1_TXMPTYEN;
+=======
+		ucr1 &= ~UCR1_TRDYEN;
+>>>>>>> upstream/android-13
 		if (sport->dma_is_txing) {
 			ucr1 |= UCR1_TXDMAEN;
 			imx_uart_writel(sport, ucr1, UCR1);
@@ -658,6 +778,7 @@ static void imx_uart_start_tx(struct uart_port *port)
 	if (!sport->port.x_char && uart_circ_empty(&port->state->xmit))
 		return;
 
+<<<<<<< HEAD
 	if (port->rs485.flags & SER_RS485_ENABLED) {
 		u32 ucr2;
 
@@ -680,11 +801,61 @@ static void imx_uart_start_tx(struct uart_port *port)
 			ucr4 |= UCR4_TCEN;
 			imx_uart_writel(sport, ucr4, UCR4);
 		}
+=======
+	/*
+	 * We cannot simply do nothing here if sport->tx_state == SEND already
+	 * because UCR1_TXMPTYEN might already have been cleared in
+	 * imx_uart_stop_tx(), but tx_state is still SEND.
+	 */
+
+	if (port->rs485.flags & SER_RS485_ENABLED) {
+		if (sport->tx_state == OFF) {
+			u32 ucr2 = imx_uart_readl(sport, UCR2);
+			if (port->rs485.flags & SER_RS485_RTS_ON_SEND)
+				imx_uart_rts_active(sport, &ucr2);
+			else
+				imx_uart_rts_inactive(sport, &ucr2);
+			imx_uart_writel(sport, ucr2, UCR2);
+
+			if (!(port->rs485.flags & SER_RS485_RX_DURING_TX))
+				imx_uart_stop_rx(port);
+
+			sport->tx_state = WAIT_AFTER_RTS;
+			start_hrtimer_ms(&sport->trigger_start_tx,
+					 port->rs485.delay_rts_before_send);
+			return;
+		}
+
+		if (sport->tx_state == WAIT_AFTER_SEND
+		    || sport->tx_state == WAIT_AFTER_RTS) {
+
+			hrtimer_try_to_cancel(&sport->trigger_stop_tx);
+
+			/*
+			 * Enable transmitter and shifter empty irq only if DMA
+			 * is off.  In the DMA case this is done in the
+			 * tx-callback.
+			 */
+			if (!sport->dma_is_enabled) {
+				u32 ucr4 = imx_uart_readl(sport, UCR4);
+				ucr4 |= UCR4_TCEN;
+				imx_uart_writel(sport, ucr4, UCR4);
+			}
+
+			sport->tx_state = SEND;
+		}
+	} else {
+		sport->tx_state = SEND;
+>>>>>>> upstream/android-13
 	}
 
 	if (!sport->dma_is_enabled) {
 		ucr1 = imx_uart_readl(sport, UCR1);
+<<<<<<< HEAD
 		imx_uart_writel(sport, ucr1 | UCR1_TXMPTYEN, UCR1);
+=======
+		imx_uart_writel(sport, ucr1 | UCR1_TRDYEN, UCR1);
+>>>>>>> upstream/android-13
 	}
 
 	if (sport->dma_is_enabled) {
@@ -693,7 +864,11 @@ static void imx_uart_start_tx(struct uart_port *port)
 			 * disable TX DMA to let TX interrupt to send X-char */
 			ucr1 = imx_uart_readl(sport, UCR1);
 			ucr1 &= ~UCR1_TXDMAEN;
+<<<<<<< HEAD
 			ucr1 |= UCR1_TXMPTYEN;
+=======
+			ucr1 |= UCR1_TRDYEN;
+>>>>>>> upstream/android-13
 			imx_uart_writel(sport, ucr1, UCR1);
 			return;
 		}
@@ -705,6 +880,7 @@ static void imx_uart_start_tx(struct uart_port *port)
 	}
 }
 
+<<<<<<< HEAD
 static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
 {
 	struct imx_port *sport = dev_id;
@@ -712,12 +888,19 @@ static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
 	unsigned long flags;
 
 	spin_lock_irqsave(&sport->port.lock, flags);
+=======
+static irqreturn_t __imx_uart_rtsint(int irq, void *dev_id)
+{
+	struct imx_port *sport = dev_id;
+	u32 usr1;
+>>>>>>> upstream/android-13
 
 	imx_uart_writel(sport, USR1_RTSD, USR1);
 	usr1 = imx_uart_readl(sport, USR1) & USR1_RTSS;
 	uart_handle_cts_change(&sport->port, !!usr1);
 	wake_up_interruptible(&sport->port.state->port.delta_msr_wait);
 
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 	return IRQ_HANDLED;
 }
@@ -734,13 +917,46 @@ static irqreturn_t imx_uart_txint(int irq, void *dev_id)
 }
 
 static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
+=======
+	return IRQ_HANDLED;
+}
+
+static irqreturn_t imx_uart_rtsint(int irq, void *dev_id)
+{
+	struct imx_port *sport = dev_id;
+	irqreturn_t ret;
+
+	spin_lock(&sport->port.lock);
+
+	ret = __imx_uart_rtsint(irq, dev_id);
+
+	spin_unlock(&sport->port.lock);
+
+	return ret;
+}
+
+static irqreturn_t imx_uart_txint(int irq, void *dev_id)
+{
+	struct imx_port *sport = dev_id;
+
+	spin_lock(&sport->port.lock);
+	imx_uart_transmit_buffer(sport);
+	spin_unlock(&sport->port.lock);
+	return IRQ_HANDLED;
+}
+
+static irqreturn_t __imx_uart_rxint(int irq, void *dev_id)
+>>>>>>> upstream/android-13
 {
 	struct imx_port *sport = dev_id;
 	unsigned int rx, flg, ignored = 0;
 	struct tty_port *port = &sport->port.state->port;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	spin_lock_irqsave(&sport->port.lock, flags);
+=======
+>>>>>>> upstream/android-13
 
 	while (imx_uart_readl(sport, USR2) & USR2_RDR) {
 		u32 usr2;
@@ -787,9 +1003,13 @@ static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
 			if (rx & URXD_OVRRUN)
 				flg = TTY_OVERRUN;
 
+<<<<<<< HEAD
 #ifdef SUPPORT_SYSRQ
 			sport->port.sysrq = 0;
 #endif
+=======
+			sport->port.sysrq = 0;
+>>>>>>> upstream/android-13
 		}
 
 		if (sport->port.ignore_status_mask & URXD_DUMMY_READ)
@@ -800,11 +1020,33 @@ static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
 	}
 
 out:
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 	tty_flip_buffer_push(port);
 	return IRQ_HANDLED;
 }
 
+=======
+	tty_flip_buffer_push(port);
+
+	return IRQ_HANDLED;
+}
+
+static irqreturn_t imx_uart_rxint(int irq, void *dev_id)
+{
+	struct imx_port *sport = dev_id;
+	irqreturn_t ret;
+
+	spin_lock(&sport->port.lock);
+
+	ret = __imx_uart_rxint(irq, dev_id);
+
+	spin_unlock(&sport->port.lock);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static void imx_uart_clear_rx_errors(struct imx_port *sport);
 
 /*
@@ -863,6 +1105,11 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
 	unsigned int usr1, usr2, ucr1, ucr2, ucr3, ucr4;
 	irqreturn_t ret = IRQ_NONE;
 
+<<<<<<< HEAD
+=======
+	spin_lock(&sport->port.lock);
+
+>>>>>>> upstream/android-13
 	usr1 = imx_uart_readl(sport, USR1);
 	usr2 = imx_uart_readl(sport, USR2);
 	ucr1 = imx_uart_readl(sport, UCR1);
@@ -882,7 +1129,11 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
 		usr1 &= ~USR1_RRDY;
 	if ((ucr2 & UCR2_ATEN) == 0)
 		usr1 &= ~USR1_AGTIM;
+<<<<<<< HEAD
 	if ((ucr1 & UCR1_TXMPTYEN) == 0)
+=======
+	if ((ucr1 & UCR1_TRDYEN) == 0)
+>>>>>>> upstream/android-13
 		usr1 &= ~USR1_TRDY;
 	if ((ucr4 & UCR4_TCEN) == 0)
 		usr2 &= ~USR2_TXDC;
@@ -896,16 +1147,27 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
 		usr2 &= ~USR2_ORE;
 
 	if (usr1 & (USR1_RRDY | USR1_AGTIM)) {
+<<<<<<< HEAD
 		imx_uart_rxint(irq, dev_id);
+=======
+		imx_uart_writel(sport, USR1_AGTIM, USR1);
+
+		__imx_uart_rxint(irq, dev_id);
+>>>>>>> upstream/android-13
 		ret = IRQ_HANDLED;
 	}
 
 	if ((usr1 & USR1_TRDY) || (usr2 & USR2_TXDC)) {
+<<<<<<< HEAD
 		imx_uart_txint(irq, dev_id);
+=======
+		imx_uart_transmit_buffer(sport);
+>>>>>>> upstream/android-13
 		ret = IRQ_HANDLED;
 	}
 
 	if (usr1 & USR1_DTRD) {
+<<<<<<< HEAD
 		unsigned long flags;
 
 		imx_uart_writel(sport, USR1_DTRD, USR1);
@@ -913,12 +1175,21 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
 		spin_lock_irqsave(&sport->port.lock, flags);
 		imx_uart_mctrl_check(sport);
 		spin_unlock_irqrestore(&sport->port.lock, flags);
+=======
+		imx_uart_writel(sport, USR1_DTRD, USR1);
+
+		imx_uart_mctrl_check(sport);
+>>>>>>> upstream/android-13
 
 		ret = IRQ_HANDLED;
 	}
 
 	if (usr1 & USR1_RTSD) {
+<<<<<<< HEAD
 		imx_uart_rtsint(irq, dev_id);
+=======
+		__imx_uart_rtsint(irq, dev_id);
+>>>>>>> upstream/android-13
 		ret = IRQ_HANDLED;
 	}
 
@@ -933,6 +1204,11 @@ static irqreturn_t imx_uart_int(int irq, void *dev_id)
 		ret = IRQ_HANDLED;
 	}
 
+<<<<<<< HEAD
+=======
+	spin_unlock(&sport->port.lock);
+
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -973,10 +1249,29 @@ static void imx_uart_set_mctrl(struct uart_port *port, unsigned int mctrl)
 	if (!(port->rs485.flags & SER_RS485_ENABLED)) {
 		u32 ucr2;
 
+<<<<<<< HEAD
 		ucr2 = imx_uart_readl(sport, UCR2);
 		ucr2 &= ~(UCR2_CTS | UCR2_CTSC);
 		if (mctrl & TIOCM_RTS)
 			ucr2 |= UCR2_CTS | UCR2_CTSC;
+=======
+		/*
+		 * Turn off autoRTS if RTS is lowered and restore autoRTS
+		 * setting if RTS is raised.
+		 */
+		ucr2 = imx_uart_readl(sport, UCR2);
+		ucr2 &= ~(UCR2_CTS | UCR2_CTSC);
+		if (mctrl & TIOCM_RTS) {
+			ucr2 |= UCR2_CTS;
+			/*
+			 * UCR2_IRTS is unset if and only if the port is
+			 * configured for CRTSCTS, so we use inverted UCR2_IRTS
+			 * to get the state to restore to.
+			 */
+			if (!(ucr2 & UCR2_IRTS))
+				ucr2 |= UCR2_CTSC;
+		}
+>>>>>>> upstream/android-13
 		imx_uart_writel(sport, ucr2, UCR2);
 	}
 
@@ -1032,8 +1327,11 @@ static void imx_uart_timeout(struct timer_list *t)
 	}
 }
 
+<<<<<<< HEAD
 #define RX_BUF_SIZE	(PAGE_SIZE)
 
+=======
+>>>>>>> upstream/android-13
 /*
  * There are two kinds of RX DMA interrupts(such as in the MX6Q):
  *   [1] the RX DMA buffer is full.
@@ -1115,9 +1413,12 @@ static void imx_uart_dma_rx_callback(void *data)
 	}
 }
 
+<<<<<<< HEAD
 /* RX DMA buffer periods */
 #define RX_DMA_PERIODS 4
 
+=======
+>>>>>>> upstream/android-13
 static int imx_uart_start_rx_dma(struct imx_port *sport)
 {
 	struct scatterlist *sgl = &sport->rx_sgl;
@@ -1128,9 +1429,14 @@ static int imx_uart_start_rx_dma(struct imx_port *sport)
 
 	sport->rx_ring.head = 0;
 	sport->rx_ring.tail = 0;
+<<<<<<< HEAD
 	sport->rx_periods = RX_DMA_PERIODS;
 
 	sg_init_one(sgl, sport->rx_buf, RX_BUF_SIZE);
+=======
+
+	sg_init_one(sgl, sport->rx_buf, sport->rx_buf_size);
+>>>>>>> upstream/android-13
 	ret = dma_map_sg(dev, sgl, 1, DMA_FROM_DEVICE);
 	if (ret == 0) {
 		dev_err(dev, "DMA mapping error for RX.\n");
@@ -1172,7 +1478,10 @@ static void imx_uart_clear_rx_errors(struct imx_port *sport)
 			sport->port.icount.buf_overrun++;
 		tty_flip_buffer_push(port);
 	} else {
+<<<<<<< HEAD
 		dev_err(sport->port.dev, "DMA transaction error.\n");
+=======
+>>>>>>> upstream/android-13
 		if (usr1 & USR1_FRAMERR) {
 			sport->port.icount.frame++;
 			imx_uart_writel(sport, USR1_FRAMERR, USR1);
@@ -1248,7 +1557,12 @@ static int imx_uart_dma_init(struct imx_port *sport)
 		goto err;
 	}
 
+<<<<<<< HEAD
 	sport->rx_buf = kzalloc(RX_BUF_SIZE, GFP_KERNEL);
+=======
+	sport->rx_buf_size = sport->rx_period_length * sport->rx_periods;
+	sport->rx_buf = kzalloc(sport->rx_buf_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sport->rx_buf) {
 		ret = -ENOMEM;
 		goto err;
@@ -1316,7 +1630,11 @@ static int imx_uart_startup(struct uart_port *port)
 	int retval, i;
 	unsigned long flags;
 	int dma_is_inited = 0;
+<<<<<<< HEAD
 	u32 ucr1, ucr2, ucr4;
+=======
+	u32 ucr1, ucr2, ucr3, ucr4;
+>>>>>>> upstream/android-13
 
 	retval = clk_prepare_enable(sport->clk_per);
 	if (retval)
@@ -1368,11 +1686,37 @@ static int imx_uart_startup(struct uart_port *port)
 
 	imx_uart_writel(sport, ucr1, UCR1);
 
+<<<<<<< HEAD
 	ucr4 = imx_uart_readl(sport, UCR4) & ~UCR4_OREN;
 	if (!sport->dma_is_enabled)
 		ucr4 |= UCR4_OREN;
 	imx_uart_writel(sport, ucr4, UCR4);
 
+=======
+	ucr4 = imx_uart_readl(sport, UCR4) & ~(UCR4_OREN | UCR4_INVR);
+	if (!dma_is_inited)
+		ucr4 |= UCR4_OREN;
+	if (sport->inverted_rx)
+		ucr4 |= UCR4_INVR;
+	imx_uart_writel(sport, ucr4, UCR4);
+
+	ucr3 = imx_uart_readl(sport, UCR3) & ~UCR3_INVT;
+	/*
+	 * configure tx polarity before enabling tx
+	 */
+	if (sport->inverted_tx)
+		ucr3 |= UCR3_INVT;
+
+	if (!imx_uart_is_imx1(sport)) {
+		ucr3 |= UCR3_DTRDEN | UCR3_RI | UCR3_DCD;
+
+		if (sport->dte_mode)
+			/* disable broken interrupts */
+			ucr3 &= ~(UCR3_RI | UCR3_DCD);
+	}
+	imx_uart_writel(sport, ucr3, UCR3);
+
+>>>>>>> upstream/android-13
 	ucr2 = imx_uart_readl(sport, UCR2) & ~UCR2_ATEN;
 	ucr2 |= (UCR2_RXEN | UCR2_TXEN);
 	if (!sport->have_rtscts)
@@ -1385,6 +1729,7 @@ static int imx_uart_startup(struct uart_port *port)
 		ucr2 &= ~UCR2_RTSEN;
 	imx_uart_writel(sport, ucr2, UCR2);
 
+<<<<<<< HEAD
 	if (!imx_uart_is_imx1(sport)) {
 		u32 ucr3;
 
@@ -1399,6 +1744,8 @@ static int imx_uart_startup(struct uart_port *port)
 		imx_uart_writel(sport, ucr3, UCR3);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Enable modem status interrupts
 	 */
@@ -1456,10 +1803,13 @@ static void imx_uart_shutdown(struct uart_port *port)
 	ucr2 = imx_uart_readl(sport, UCR2);
 	ucr2 &= ~(UCR2_TXEN | UCR2_ATEN);
 	imx_uart_writel(sport, ucr2, UCR2);
+<<<<<<< HEAD
 
 	ucr4 = imx_uart_readl(sport, UCR4);
 	ucr4 &= ~UCR4_OREN;
 	imx_uart_writel(sport, ucr4, UCR4);
+=======
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 
 	/*
@@ -1472,10 +1822,22 @@ static void imx_uart_shutdown(struct uart_port *port)
 	 */
 
 	spin_lock_irqsave(&sport->port.lock, flags);
+<<<<<<< HEAD
 	ucr1 = imx_uart_readl(sport, UCR1);
 	ucr1 &= ~(UCR1_TXMPTYEN | UCR1_RRDYEN | UCR1_RTSDEN | UCR1_UARTEN | UCR1_RXDMAEN | UCR1_ATDMAEN);
 
 	imx_uart_writel(sport, ucr1, UCR1);
+=======
+
+	ucr1 = imx_uart_readl(sport, UCR1);
+	ucr1 &= ~(UCR1_TRDYEN | UCR1_RRDYEN | UCR1_RTSDEN | UCR1_UARTEN | UCR1_RXDMAEN | UCR1_ATDMAEN);
+	imx_uart_writel(sport, ucr1, UCR1);
+
+	ucr4 = imx_uart_readl(sport, UCR4);
+	ucr4 &= ~UCR4_TCEN;
+	imx_uart_writel(sport, ucr4, UCR4);
+
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&sport->port.lock, flags);
 
 	clk_disable_unprepare(sport->clk_per);
@@ -1540,11 +1902,19 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
 {
 	struct imx_port *sport = (struct imx_port *)port;
 	unsigned long flags;
+<<<<<<< HEAD
 	u32 ucr2, old_ucr1, old_ucr2, ufcr;
 	unsigned int baud, quot;
 	unsigned int old_csize = old ? old->c_cflag & CSIZE : CS8;
 	unsigned long div;
 	unsigned long num, denom;
+=======
+	u32 ucr2, old_ucr2, ufcr;
+	unsigned int baud, quot;
+	unsigned int old_csize = old ? old->c_cflag & CSIZE : CS8;
+	unsigned long div;
+	unsigned long num, denom, old_ubir, old_ubmr;
+>>>>>>> upstream/android-13
 	uint64_t tdiv64;
 
 	/*
@@ -1567,6 +1937,7 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
 
 	spin_lock_irqsave(&sport->port.lock, flags);
 
+<<<<<<< HEAD
 	if ((termios->c_cflag & CSIZE) == CS8)
 		ucr2 = UCR2_WS | UCR2_SRST | UCR2_IRTS;
 	else
@@ -1595,13 +1966,50 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
 		}
 	} else if (port->rs485.flags & SER_RS485_ENABLED) {
 		/* disable transmitter */
+=======
+	/*
+	 * Read current UCR2 and save it for future use, then clear all the bits
+	 * except those we will or may need to preserve.
+	 */
+	old_ucr2 = imx_uart_readl(sport, UCR2);
+	ucr2 = old_ucr2 & (UCR2_TXEN | UCR2_RXEN | UCR2_ATEN | UCR2_CTS);
+
+	ucr2 |= UCR2_SRST | UCR2_IRTS;
+	if ((termios->c_cflag & CSIZE) == CS8)
+		ucr2 |= UCR2_WS;
+
+	if (!sport->have_rtscts)
+		termios->c_cflag &= ~CRTSCTS;
+
+	if (port->rs485.flags & SER_RS485_ENABLED) {
+		/*
+		 * RTS is mandatory for rs485 operation, so keep
+		 * it under manual control and keep transmitter
+		 * disabled.
+		 */
+>>>>>>> upstream/android-13
 		if (port->rs485.flags & SER_RS485_RTS_AFTER_SEND)
 			imx_uart_rts_active(sport, &ucr2);
 		else
 			imx_uart_rts_inactive(sport, &ucr2);
+<<<<<<< HEAD
 	}
 
 
+=======
+
+	} else if (termios->c_cflag & CRTSCTS) {
+		/*
+		 * Only let receiver control RTS output if we were not requested
+		 * to have RTS inactive (which then should take precedence).
+		 */
+		if (ucr2 & UCR2_CTS)
+			ucr2 |= UCR2_CTSC;
+	}
+
+	if (termios->c_cflag & CRTSCTS)
+		ucr2 &= ~UCR2_IRTS;
+>>>>>>> upstream/android-13
 	if (termios->c_cflag & CSTOPB)
 		ucr2 |= UCR2_STPB;
 	if (termios->c_cflag & PARENB) {
@@ -1640,6 +2048,7 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
 	 */
 	uart_update_timeout(port, termios->c_cflag, baud);
 
+<<<<<<< HEAD
 	/*
 	 * disable interrupts and drain transmitter
 	 */
@@ -1657,6 +2066,8 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
 	imx_uart_writel(sport, old_ucr2 & ~(UCR2_TXEN | UCR2_RXEN | UCR2_ATEN), UCR2);
 	old_ucr2 &= (UCR2_TXEN | UCR2_RXEN | UCR2_ATEN);
 
+=======
+>>>>>>> upstream/android-13
 	/* custom-baudrate handling */
 	div = sport->port.uartclk / (baud * 16);
 	if (baud == 38400 && quot != div)
@@ -1684,17 +2095,39 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
 	ufcr = (ufcr & (~UFCR_RFDIV)) | UFCR_RFDIV_REG(div);
 	imx_uart_writel(sport, ufcr, UFCR);
 
+<<<<<<< HEAD
 	imx_uart_writel(sport, num, UBIR);
 	imx_uart_writel(sport, denom, UBMR);
+=======
+	/*
+	 *  Two registers below should always be written both and in this
+	 *  particular order. One consequence is that we need to check if any of
+	 *  them changes and then update both. We do need the check for change
+	 *  as even writing the same values seem to "restart"
+	 *  transmission/receiving logic in the hardware, that leads to data
+	 *  breakage even when rate doesn't in fact change. E.g., user switches
+	 *  RTS/CTS handshake and suddenly gets broken bytes.
+	 */
+	old_ubir = imx_uart_readl(sport, UBIR);
+	old_ubmr = imx_uart_readl(sport, UBMR);
+	if (old_ubir != num || old_ubmr != denom) {
+		imx_uart_writel(sport, num, UBIR);
+		imx_uart_writel(sport, denom, UBMR);
+	}
+>>>>>>> upstream/android-13
 
 	if (!imx_uart_is_imx1(sport))
 		imx_uart_writel(sport, sport->port.uartclk / div / 1000,
 				IMX21_ONEMS);
 
+<<<<<<< HEAD
 	imx_uart_writel(sport, old_ucr1, UCR1);
 
 	/* set the parity, stop bits and data size */
 	imx_uart_writel(sport, ucr2 | old_ucr2, UCR2);
+=======
+	imx_uart_writel(sport, ucr2, UCR2);
+>>>>>>> upstream/android-13
 
 	if (UART_ENABLE_MS(&sport->port, termios->c_cflag))
 		imx_uart_enable_ms(&sport->port);
@@ -1782,9 +2215,15 @@ static int imx_uart_poll_init(struct uart_port *port)
 		ucr1 |= IMX1_UCR1_UARTCLKEN;
 
 	ucr1 |= UCR1_UARTEN;
+<<<<<<< HEAD
 	ucr1 &= ~(UCR1_TXMPTYEN | UCR1_RTSDEN | UCR1_RRDYEN);
 
 	ucr2 |= UCR2_RXEN;
+=======
+	ucr1 &= ~(UCR1_TRDYEN | UCR1_RTSDEN | UCR1_RRDYEN);
+
+	ucr2 |= UCR2_RXEN | UCR2_TXEN;
+>>>>>>> upstream/android-13
 	ucr2 &= ~UCR2_ATEN;
 
 	imx_uart_writel(sport, ucr1, UCR1);
@@ -1835,10 +2274,13 @@ static int imx_uart_rs485_config(struct uart_port *port,
 	struct imx_port *sport = (struct imx_port *)port;
 	u32 ucr2;
 
+<<<<<<< HEAD
 	/* unimplemented */
 	rs485conf->delay_rts_before_send = 0;
 	rs485conf->delay_rts_after_send = 0;
 
+=======
+>>>>>>> upstream/android-13
 	/* RTS is required to control the transmitter */
 	if (!sport->have_rtscts && !sport->have_rtsgpio)
 		rs485conf->flags &= ~SER_RS485_ENABLED;
@@ -1893,7 +2335,11 @@ static const struct uart_ops imx_uart_pops = {
 
 static struct imx_port *imx_uart_ports[UART_NR];
 
+<<<<<<< HEAD
 #ifdef CONFIG_SERIAL_IMX_CONSOLE
+=======
+#if IS_ENABLED(CONFIG_SERIAL_IMX_CONSOLE)
+>>>>>>> upstream/android-13
 static void imx_uart_console_putchar(struct uart_port *port, int ch)
 {
 	struct imx_port *sport = (struct imx_port *)port;
@@ -1912,8 +2358,13 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
 {
 	struct imx_port *sport = imx_uart_ports[co->index];
 	struct imx_port_ucrs old_ucr;
+<<<<<<< HEAD
 	unsigned int ucr1;
 	unsigned long flags = 0;
+=======
+	unsigned long flags;
+	unsigned int ucr1;
+>>>>>>> upstream/android-13
 	int locked = 1;
 
 	if (sport->port.sysrq)
@@ -1932,7 +2383,11 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
 	if (imx_uart_is_imx1(sport))
 		ucr1 |= IMX1_UCR1_UARTCLKEN;
 	ucr1 |= UCR1_UARTEN;
+<<<<<<< HEAD
 	ucr1 &= ~(UCR1_TXMPTYEN | UCR1_RRDYEN | UCR1_RTSDEN);
+=======
+	ucr1 &= ~(UCR1_TRDYEN | UCR1_RRDYEN | UCR1_RTSDEN);
+>>>>>>> upstream/android-13
 
 	imx_uart_writel(sport, ucr1, UCR1);
 
@@ -1956,7 +2411,11 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
  * If the port was already initialised (eg, by a boot loader),
  * try to determine the current setup.
  */
+<<<<<<< HEAD
 static void __init
+=======
+static void
+>>>>>>> upstream/android-13
 imx_uart_console_get_options(struct imx_port *sport, int *baud,
 			     int *parity, int *bits)
 {
@@ -2010,12 +2469,20 @@ imx_uart_console_get_options(struct imx_port *sport, int *baud,
 		}
 
 		if (*baud != baud_raw)
+<<<<<<< HEAD
 			pr_info("Console IMX rounded baud rate from %d to %d\n",
+=======
+			dev_info(sport->port.dev, "Console IMX rounded baud rate from %d to %d\n",
+>>>>>>> upstream/android-13
 				baud_raw, *baud);
 	}
 }
 
+<<<<<<< HEAD
 static int __init
+=======
+static int
+>>>>>>> upstream/android-13
 imx_uart_console_setup(struct console *co, char *options)
 {
 	struct imx_port *sport;
@@ -2076,6 +2543,7 @@ static struct console imx_uart_console = {
 
 #define IMX_CONSOLE	&imx_uart_console
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static void imx_uart_console_early_putchar(struct uart_port *port, int ch)
 {
@@ -2109,6 +2577,8 @@ OF_EARLYCON_DECLARE(ec_imx6q, "fsl,imx6q-uart", imx_console_early_setup);
 OF_EARLYCON_DECLARE(ec_imx21, "fsl,imx21-uart", imx_console_early_setup);
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #else
 #define IMX_CONSOLE	NULL
 #endif
@@ -2123,6 +2593,7 @@ static struct uart_driver imx_uart_uart_driver = {
 	.cons           = IMX_CONSOLE,
 };
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 /*
  * This function returns 1 iff pdev isn't a device instatiated by dt, 0 iff it
@@ -2138,6 +2609,54 @@ static int imx_uart_probe_dt(struct imx_port *sport,
 	if (!sport->devdata)
 		/* no device tree device */
 		return 1;
+=======
+static enum hrtimer_restart imx_trigger_start_tx(struct hrtimer *t)
+{
+	struct imx_port *sport = container_of(t, struct imx_port, trigger_start_tx);
+	unsigned long flags;
+
+	spin_lock_irqsave(&sport->port.lock, flags);
+	if (sport->tx_state == WAIT_AFTER_RTS)
+		imx_uart_start_tx(&sport->port);
+	spin_unlock_irqrestore(&sport->port.lock, flags);
+
+	return HRTIMER_NORESTART;
+}
+
+static enum hrtimer_restart imx_trigger_stop_tx(struct hrtimer *t)
+{
+	struct imx_port *sport = container_of(t, struct imx_port, trigger_stop_tx);
+	unsigned long flags;
+
+	spin_lock_irqsave(&sport->port.lock, flags);
+	if (sport->tx_state == WAIT_AFTER_SEND)
+		imx_uart_stop_tx(&sport->port);
+	spin_unlock_irqrestore(&sport->port.lock, flags);
+
+	return HRTIMER_NORESTART;
+}
+
+/* Default RX DMA buffer configuration */
+#define RX_DMA_PERIODS		16
+#define RX_DMA_PERIOD_LEN	(PAGE_SIZE / 4)
+
+static int imx_uart_probe(struct platform_device *pdev)
+{
+	struct device_node *np = pdev->dev.of_node;
+	struct imx_port *sport;
+	void __iomem *base;
+	u32 dma_buf_conf[2];
+	int ret = 0;
+	u32 ucr1;
+	struct resource *res;
+	int txirq, rxirq, rtsirq;
+
+	sport = devm_kzalloc(&pdev->dev, sizeof(*sport), GFP_KERNEL);
+	if (!sport)
+		return -ENOMEM;
+
+	sport->devdata = of_device_get_match_data(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	ret = of_alias_get_id(np, "serial");
 	if (ret < 0) {
@@ -2156,6 +2675,7 @@ static int imx_uart_probe_dt(struct imx_port *sport,
 	if (of_get_property(np, "rts-gpios", NULL))
 		sport->have_rtsgpio = 1;
 
+<<<<<<< HEAD
 	return 0;
 }
 #else
@@ -2199,6 +2719,21 @@ static int imx_uart_probe(struct platform_device *pdev)
 		imx_uart_probe_pdata(sport, pdev);
 	else if (ret < 0)
 		return ret;
+=======
+	if (of_get_property(np, "fsl,inverted-tx", NULL))
+		sport->inverted_tx = 1;
+
+	if (of_get_property(np, "fsl,inverted-rx", NULL))
+		sport->inverted_rx = 1;
+
+	if (!of_property_read_u32_array(np, "fsl,dma-info", dma_buf_conf, 2)) {
+		sport->rx_period_length = dma_buf_conf[0];
+		sport->rx_periods = dma_buf_conf[1];
+	} else {
+		sport->rx_period_length = RX_DMA_PERIOD_LEN;
+		sport->rx_periods = RX_DMA_PERIODS;
+	}
+>>>>>>> upstream/android-13
 
 	if (sport->port.line >= ARRAY_SIZE(imx_uart_ports)) {
 		dev_err(&pdev->dev, "serial%d out of range\n",
@@ -2212,16 +2747,31 @@ static int imx_uart_probe(struct platform_device *pdev)
 		return PTR_ERR(base);
 
 	rxirq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	txirq = platform_get_irq(pdev, 1);
 	rtsirq = platform_get_irq(pdev, 2);
+=======
+	if (rxirq < 0)
+		return rxirq;
+	txirq = platform_get_irq_optional(pdev, 1);
+	rtsirq = platform_get_irq_optional(pdev, 2);
+>>>>>>> upstream/android-13
 
 	sport->port.dev = &pdev->dev;
 	sport->port.mapbase = res->start;
 	sport->port.membase = base;
+<<<<<<< HEAD
 	sport->port.type = PORT_IMX,
 	sport->port.iotype = UPIO_MEM;
 	sport->port.irq = rxirq;
 	sport->port.fifosize = 32;
+=======
+	sport->port.type = PORT_IMX;
+	sport->port.iotype = UPIO_MEM;
+	sport->port.irq = rxirq;
+	sport->port.fifosize = 32;
+	sport->port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_IMX_CONSOLE);
+>>>>>>> upstream/android-13
 	sport->port.ops = &imx_uart_pops;
 	sport->port.rs485_config = imx_uart_rs485_config;
 	sport->port.flags = UPF_BOOT_AUTOCONF;
@@ -2261,7 +2811,15 @@ static int imx_uart_probe(struct platform_device *pdev)
 	sport->ucr4 = readl(sport->port.membase + UCR4);
 	sport->ufcr = readl(sport->port.membase + UFCR);
 
+<<<<<<< HEAD
 	uart_get_rs485_mode(&pdev->dev, &sport->port.rs485);
+=======
+	ret = uart_get_rs485_mode(&sport->port);
+	if (ret) {
+		clk_disable_unprepare(sport->clk_ipg);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	if (sport->port.rs485.flags & SER_RS485_ENABLED &&
 	    (!sport->have_rtscts && !sport->have_rtsgpio))
@@ -2283,8 +2841,12 @@ static int imx_uart_probe(struct platform_device *pdev)
 
 	/* Disable interrupts before requesting them */
 	ucr1 = imx_uart_readl(sport, UCR1);
+<<<<<<< HEAD
 	ucr1 &= ~(UCR1_ADEN | UCR1_TRDYEN | UCR1_IDEN | UCR1_RRDYEN |
 		 UCR1_TXMPTYEN | UCR1_RTSDEN);
+=======
+	ucr1 &= ~(UCR1_ADEN | UCR1_TRDYEN | UCR1_IDEN | UCR1_RRDYEN | UCR1_RTSDEN);
+>>>>>>> upstream/android-13
 	imx_uart_writel(sport, ucr1, UCR1);
 
 	if (!imx_uart_is_imx1(sport) && sport->dte_mode) {
@@ -2320,6 +2882,14 @@ static int imx_uart_probe(struct platform_device *pdev)
 
 	clk_disable_unprepare(sport->clk_ipg);
 
+<<<<<<< HEAD
+=======
+	hrtimer_init(&sport->trigger_start_tx, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	hrtimer_init(&sport->trigger_stop_tx, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	sport->trigger_start_tx.function = imx_trigger_start_tx;
+	sport->trigger_stop_tx.function = imx_trigger_stop_tx;
+
+>>>>>>> upstream/android-13
 	/*
 	 * Allocate the IRQ(s) i.MX1 has three interrupts whereas later
 	 * chips only have one interrupt.
@@ -2373,8 +2943,18 @@ static int imx_uart_remove(struct platform_device *pdev)
 
 static void imx_uart_restore_context(struct imx_port *sport)
 {
+<<<<<<< HEAD
 	if (!sport->context_saved)
 		return;
+=======
+	unsigned long flags;
+
+	spin_lock_irqsave(&sport->port.lock, flags);
+	if (!sport->context_saved) {
+		spin_unlock_irqrestore(&sport->port.lock, flags);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	imx_uart_writel(sport, sport->saved_reg[4], UFCR);
 	imx_uart_writel(sport, sport->saved_reg[5], UESC);
@@ -2387,11 +2967,22 @@ static void imx_uart_restore_context(struct imx_port *sport)
 	imx_uart_writel(sport, sport->saved_reg[2], UCR3);
 	imx_uart_writel(sport, sport->saved_reg[3], UCR4);
 	sport->context_saved = false;
+<<<<<<< HEAD
+=======
+	spin_unlock_irqrestore(&sport->port.lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static void imx_uart_save_context(struct imx_port *sport)
 {
+<<<<<<< HEAD
 	/* Save necessary regs */
+=======
+	unsigned long flags;
+
+	/* Save necessary regs */
+	spin_lock_irqsave(&sport->port.lock, flags);
+>>>>>>> upstream/android-13
 	sport->saved_reg[0] = imx_uart_readl(sport, UCR1);
 	sport->saved_reg[1] = imx_uart_readl(sport, UCR2);
 	sport->saved_reg[2] = imx_uart_readl(sport, UCR3);
@@ -2403,6 +2994,10 @@ static void imx_uart_save_context(struct imx_port *sport)
 	sport->saved_reg[8] = imx_uart_readl(sport, UBMR);
 	sport->saved_reg[9] = imx_uart_readl(sport, IMX21_UTS);
 	sport->context_saved = true;
+<<<<<<< HEAD
+=======
+	spin_unlock_irqrestore(&sport->port.lock, flags);
+>>>>>>> upstream/android-13
 }
 
 static void imx_uart_enable_wakeup(struct imx_port *sport, bool on)
@@ -2436,6 +3031,11 @@ static int imx_uart_suspend_noirq(struct device *dev)
 
 	clk_disable(sport->clk_ipg);
 
+<<<<<<< HEAD
+=======
+	pinctrl_pm_select_sleep_state(dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2444,6 +3044,11 @@ static int imx_uart_resume_noirq(struct device *dev)
 	struct imx_port *sport = dev_get_drvdata(dev);
 	int ret;
 
+<<<<<<< HEAD
+=======
+	pinctrl_pm_select_default_state(dev);
+
+>>>>>>> upstream/android-13
 	ret = clk_enable(sport->clk_ipg);
 	if (ret)
 		return ret;
@@ -2522,7 +3127,10 @@ static struct platform_driver imx_uart_platform_driver = {
 	.probe = imx_uart_probe,
 	.remove = imx_uart_remove,
 
+<<<<<<< HEAD
 	.id_table = imx_uart_devtype,
+=======
+>>>>>>> upstream/android-13
 	.driver = {
 		.name = "imx-uart",
 		.of_match_table = imx_uart_dt_ids,

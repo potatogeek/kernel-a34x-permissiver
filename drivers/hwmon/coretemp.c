@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * coretemp.c - Linux kernel module for hardware monitoring
  *
  * Copyright (C) 2007 Rudolf Marek <r.marek@assembler.cz>
  *
  * Inspired from many hwmon drivers
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -109,10 +116,17 @@ struct platform_data {
 	struct device_attribute name_attr;
 };
 
+<<<<<<< HEAD
 /* Keep track of how many package pointers we allocated in init() */
 static int max_packages __read_mostly;
 /* Array of package pointers. Serialized by cpu hotplug lock */
 static struct platform_device **pkg_devices;
+=======
+/* Keep track of how many zone pointers we allocated in init() */
+static int max_zones __read_mostly;
+/* Array of zone pointers. Serialized by cpu hotplug lock */
+static struct platform_device **zone_devices;
+>>>>>>> upstream/android-13
 
 static ssize_t show_label(struct device *dev,
 				struct device_attribute *devattr, char *buf)
@@ -407,7 +421,11 @@ static int create_core_attrs(struct temp_data *tdata, struct device *dev,
 			 "temp%d_%s", attr_no, suffixes[i]);
 		sysfs_attr_init(&tdata->sd_attrs[i].dev_attr.attr);
 		tdata->sd_attrs[i].dev_attr.attr.name = tdata->attr_name[i];
+<<<<<<< HEAD
 		tdata->sd_attrs[i].dev_attr.attr.mode = S_IRUGO;
+=======
+		tdata->sd_attrs[i].dev_attr.attr.mode = 0444;
+>>>>>>> upstream/android-13
 		tdata->sd_attrs[i].dev_attr.show = rd_ptr[i];
 		tdata->sd_attrs[i].index = attr_no;
 		tdata->attrs[i] = &tdata->sd_attrs[i].dev_attr.attr;
@@ -435,10 +453,17 @@ static int chk_ucode_version(unsigned int cpu)
 
 static struct platform_device *coretemp_get_pdev(unsigned int cpu)
 {
+<<<<<<< HEAD
 	int pkgid = topology_logical_package_id(cpu);
 
 	if (pkgid >= 0 && pkgid < max_packages)
 		return pkg_devices[pkgid];
+=======
+	int id = topology_logical_die_id(cpu);
+
+	if (id >= 0 && id < max_zones)
+		return zone_devices[id];
+>>>>>>> upstream/android-13
 	return NULL;
 }
 
@@ -544,7 +569,11 @@ static int coretemp_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct platform_data *pdata;
 
+<<<<<<< HEAD
 	/* Initialize the per-package data structures */
+=======
+	/* Initialize the per-zone data structures */
+>>>>>>> upstream/android-13
 	pdata = devm_kzalloc(dev, sizeof(struct platform_data), GFP_KERNEL);
 	if (!pdata)
 		return -ENOMEM;
@@ -579,6 +608,7 @@ static struct platform_driver coretemp_driver = {
 
 static struct platform_device *coretemp_device_add(unsigned int cpu)
 {
+<<<<<<< HEAD
 	int err, pkgid = topology_logical_package_id(cpu);
 	struct platform_device *pdev;
 
@@ -586,6 +616,15 @@ static struct platform_device *coretemp_device_add(unsigned int cpu)
 		return ERR_PTR(-ENOMEM);
 
 	pdev = platform_device_alloc(DRVNAME, pkgid);
+=======
+	int err, zoneid = topology_logical_die_id(cpu);
+	struct platform_device *pdev;
+
+	if (zoneid < 0)
+		return ERR_PTR(-ENOMEM);
+
+	pdev = platform_device_alloc(DRVNAME, zoneid);
+>>>>>>> upstream/android-13
 	if (!pdev)
 		return ERR_PTR(-ENOMEM);
 
@@ -595,7 +634,11 @@ static struct platform_device *coretemp_device_add(unsigned int cpu)
 		return ERR_PTR(err);
 	}
 
+<<<<<<< HEAD
 	pkg_devices[pkgid] = pdev;
+=======
+	zone_devices[zoneid] = pdev;
+>>>>>>> upstream/android-13
 	return pdev;
 }
 
@@ -703,7 +746,11 @@ static int coretemp_cpu_offline(unsigned int cpu)
 	 * the rest.
 	 */
 	if (cpumask_empty(&pd->cpumask)) {
+<<<<<<< HEAD
 		pkg_devices[topology_logical_package_id(cpu)] = NULL;
+=======
+		zone_devices[topology_logical_die_id(cpu)] = NULL;
+>>>>>>> upstream/android-13
 		platform_device_unregister(pdev);
 		return 0;
 	}
@@ -722,7 +769,11 @@ static int coretemp_cpu_offline(unsigned int cpu)
 	return 0;
 }
 static const struct x86_cpu_id __initconst coretemp_ids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_INTEL, X86_FAMILY_ANY, X86_MODEL_ANY, X86_FEATURE_DTHERM },
+=======
+	X86_MATCH_VENDOR_FEATURE(INTEL, X86_FEATURE_DTHERM, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, coretemp_ids);
@@ -741,15 +792,26 @@ static int __init coretemp_init(void)
 	if (!x86_match_cpu(coretemp_ids))
 		return -ENODEV;
 
+<<<<<<< HEAD
 	max_packages = topology_max_packages();
 	pkg_devices = kcalloc(max_packages, sizeof(struct platform_device *),
 			      GFP_KERNEL);
 	if (!pkg_devices)
+=======
+	max_zones = topology_max_packages() * topology_max_die_per_package();
+	zone_devices = kcalloc(max_zones, sizeof(struct platform_device *),
+			      GFP_KERNEL);
+	if (!zone_devices)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	err = platform_driver_register(&coretemp_driver);
 	if (err)
+<<<<<<< HEAD
 		return err;
+=======
+		goto outzone;
+>>>>>>> upstream/android-13
 
 	err = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "hwmon/coretemp:online",
 				coretemp_cpu_online, coretemp_cpu_offline);
@@ -760,7 +822,12 @@ static int __init coretemp_init(void)
 
 outdrv:
 	platform_driver_unregister(&coretemp_driver);
+<<<<<<< HEAD
 	kfree(pkg_devices);
+=======
+outzone:
+	kfree(zone_devices);
+>>>>>>> upstream/android-13
 	return err;
 }
 module_init(coretemp_init)
@@ -769,7 +836,11 @@ static void __exit coretemp_exit(void)
 {
 	cpuhp_remove_state(coretemp_hp_online);
 	platform_driver_unregister(&coretemp_driver);
+<<<<<<< HEAD
 	kfree(pkg_devices);
+=======
+	kfree(zone_devices);
+>>>>>>> upstream/android-13
 }
 module_exit(coretemp_exit)
 

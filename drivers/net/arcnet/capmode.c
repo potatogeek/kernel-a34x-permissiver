@@ -44,7 +44,11 @@ static void rx(struct net_device *dev, int bufnum,
 {
 	struct arcnet_local *lp = netdev_priv(dev);
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	struct archdr *pkt = pkthdr;
+=======
+	struct archdr *pkt;
+>>>>>>> upstream/android-13
 	char *pktbuf, *pkthdrbuf;
 	int ofs;
 

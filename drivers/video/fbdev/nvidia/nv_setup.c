@@ -89,9 +89,14 @@ u8 NVReadSeq(struct nvidia_par *par, u8 index)
 }
 void NVWriteAttr(struct nvidia_par *par, u8 index, u8 value)
 {
+<<<<<<< HEAD
 	volatile u8 tmp;
 
 	tmp = VGA_RD08(par->PCIO, par->IOBase + 0x0a);
+=======
+
+	VGA_RD08(par->PCIO, par->IOBase + 0x0a);
+>>>>>>> upstream/android-13
 	if (par->paletteEnabled)
 		index &= ~0x20;
 	else
@@ -101,9 +106,13 @@ void NVWriteAttr(struct nvidia_par *par, u8 index, u8 value)
 }
 u8 NVReadAttr(struct nvidia_par *par, u8 index)
 {
+<<<<<<< HEAD
 	volatile u8 tmp;
 
 	tmp = VGA_RD08(par->PCIO, par->IOBase + 0x0a);
+=======
+	VGA_RD08(par->PCIO, par->IOBase + 0x0a);
+>>>>>>> upstream/android-13
 	if (par->paletteEnabled)
 		index &= ~0x20;
 	else
@@ -119,6 +128,7 @@ u8 NVReadMiscOut(struct nvidia_par *par)
 {
 	return (VGA_RD08(par->PVIO, VGA_MIS_R));
 }
+<<<<<<< HEAD
 #if 0
 void NVEnablePalette(struct nvidia_par *par)
 {
@@ -137,16 +147,21 @@ void NVDisablePalette(struct nvidia_par *par)
 	par->paletteEnabled = 0;
 }
 #endif  /*  0  */
+=======
+>>>>>>> upstream/android-13
 void NVWriteDacMask(struct nvidia_par *par, u8 value)
 {
 	VGA_WR08(par->PDIO, VGA_PEL_MSK, value);
 }
+<<<<<<< HEAD
 #if 0
 u8 NVReadDacMask(struct nvidia_par *par)
 {
 	return (VGA_RD08(par->PDIO, VGA_PEL_MSK));
 }
 #endif  /*  0  */
+=======
+>>>>>>> upstream/android-13
 void NVWriteDacReadAddr(struct nvidia_par *par, u8 value)
 {
 	VGA_WR08(par->PDIO, VGA_PEL_IR, value);

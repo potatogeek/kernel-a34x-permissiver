@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+<<<<<<< HEAD
  * Maintained by: Jim Gill <jgill@vmware.com>
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -335,7 +338,11 @@ static void pvscsi_create_sg(struct pvscsi_ctx *ctx,
 	BUG_ON(count > PVSCSI_MAX_NUM_SG_ENTRIES_PER_SEGMENT);
 
 	sge = &ctx->sgl->sge[0];
+<<<<<<< HEAD
 	for (i = 0; i < count; i++, sg++) {
+=======
+	for (i = 0; i < count; i++, sg = sg_next(sg)) {
+>>>>>>> upstream/android-13
 		sge[i].addr   = sg_dma_address(sg);
 		sge[i].length = sg_dma_len(sg);
 		sge[i].flags  = 0;
@@ -365,16 +372,26 @@ static int pvscsi_map_buffers(struct pvscsi_adapter *adapter,
 		int segs = scsi_dma_map(cmd);
 
 		if (segs == -ENOMEM) {
+<<<<<<< HEAD
 			scmd_printk(KERN_ERR, cmd,
+=======
+			scmd_printk(KERN_DEBUG, cmd,
+>>>>>>> upstream/android-13
 				    "vmw_pvscsi: Failed to map cmd sglist for DMA.\n");
 			return -ENOMEM;
 		} else if (segs > 1) {
 			pvscsi_create_sg(ctx, sg, segs);
 
 			e->flags |= PVSCSI_FLAG_CMD_WITH_SG_LIST;
+<<<<<<< HEAD
 			ctx->sglPA = pci_map_single(adapter->dev, ctx->sgl,
 						    SGL_SIZE, PCI_DMA_TODEVICE);
 			if (pci_dma_mapping_error(adapter->dev, ctx->sglPA)) {
+=======
+			ctx->sglPA = dma_map_single(&adapter->dev->dev,
+					ctx->sgl, SGL_SIZE, DMA_TO_DEVICE);
+			if (dma_mapping_error(&adapter->dev->dev, ctx->sglPA)) {
+>>>>>>> upstream/android-13
 				scmd_printk(KERN_ERR, cmd,
 					    "vmw_pvscsi: Failed to map ctx sglist for DMA.\n");
 				scsi_dma_unmap(cmd);
@@ -389,10 +406,17 @@ static int pvscsi_map_buffers(struct pvscsi_adapter *adapter,
 		 * In case there is no S/G list, scsi_sglist points
 		 * directly to the buffer.
 		 */
+<<<<<<< HEAD
 		ctx->dataPA = pci_map_single(adapter->dev, sg, bufflen,
 					     cmd->sc_data_direction);
 		if (pci_dma_mapping_error(adapter->dev, ctx->dataPA)) {
 			scmd_printk(KERN_ERR, cmd,
+=======
+		ctx->dataPA = dma_map_single(&adapter->dev->dev, sg, bufflen,
+					     cmd->sc_data_direction);
+		if (dma_mapping_error(&adapter->dev->dev, ctx->dataPA)) {
+			scmd_printk(KERN_DEBUG, cmd,
+>>>>>>> upstream/android-13
 				    "vmw_pvscsi: Failed to map direct data buffer for DMA.\n");
 			return -ENOMEM;
 		}
@@ -402,6 +426,20 @@ static int pvscsi_map_buffers(struct pvscsi_adapter *adapter,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * The device incorrectly doesn't clear the first byte of the sense
+ * buffer in some cases. We have to do it ourselves.
+ * Otherwise we run into trouble when SWIOTLB is forced.
+ */
+static void pvscsi_patch_sense(struct scsi_cmnd *cmd)
+{
+	if (cmd->sense_buffer)
+		cmd->sense_buffer[0] = 0;
+}
+
+>>>>>>> upstream/android-13
 static void pvscsi_unmap_buffers(const struct pvscsi_adapter *adapter,
 				 struct pvscsi_ctx *ctx)
 {
@@ -417,6 +455,7 @@ static void pvscsi_unmap_buffers(const struct pvscsi_adapter *adapter,
 		if (count != 0) {
 			scsi_dma_unmap(cmd);
 			if (ctx->sglPA) {
+<<<<<<< HEAD
 				pci_unmap_single(adapter->dev, ctx->sglPA,
 						 SGL_SIZE, PCI_DMA_TODEVICE);
 				ctx->sglPA = 0;
@@ -428,12 +467,30 @@ static void pvscsi_unmap_buffers(const struct pvscsi_adapter *adapter,
 	if (cmd->sense_buffer)
 		pci_unmap_single(adapter->dev, ctx->sensePA,
 				 SCSI_SENSE_BUFFERSIZE, PCI_DMA_FROMDEVICE);
+=======
+				dma_unmap_single(&adapter->dev->dev, ctx->sglPA,
+						 SGL_SIZE, DMA_TO_DEVICE);
+				ctx->sglPA = 0;
+			}
+		} else
+			dma_unmap_single(&adapter->dev->dev, ctx->dataPA,
+					 bufflen, cmd->sc_data_direction);
+	}
+	if (cmd->sense_buffer)
+		dma_unmap_single(&adapter->dev->dev, ctx->sensePA,
+				 SCSI_SENSE_BUFFERSIZE, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 }
 
 static int pvscsi_allocate_rings(struct pvscsi_adapter *adapter)
 {
+<<<<<<< HEAD
 	adapter->rings_state = pci_alloc_consistent(adapter->dev, PAGE_SIZE,
 						    &adapter->ringStatePA);
+=======
+	adapter->rings_state = dma_alloc_coherent(&adapter->dev->dev, PAGE_SIZE,
+			&adapter->ringStatePA, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!adapter->rings_state)
 		return -ENOMEM;
 
@@ -441,17 +498,29 @@ static int pvscsi_allocate_rings(struct pvscsi_adapter *adapter)
 				 pvscsi_ring_pages);
 	adapter->req_depth = adapter->req_pages
 					* PVSCSI_MAX_NUM_REQ_ENTRIES_PER_PAGE;
+<<<<<<< HEAD
 	adapter->req_ring = pci_alloc_consistent(adapter->dev,
 						 adapter->req_pages * PAGE_SIZE,
 						 &adapter->reqRingPA);
+=======
+	adapter->req_ring = dma_alloc_coherent(&adapter->dev->dev,
+			adapter->req_pages * PAGE_SIZE, &adapter->reqRingPA,
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!adapter->req_ring)
 		return -ENOMEM;
 
 	adapter->cmp_pages = min(PVSCSI_MAX_NUM_PAGES_CMP_RING,
 				 pvscsi_ring_pages);
+<<<<<<< HEAD
 	adapter->cmp_ring = pci_alloc_consistent(adapter->dev,
 						 adapter->cmp_pages * PAGE_SIZE,
 						 &adapter->cmpRingPA);
+=======
+	adapter->cmp_ring = dma_alloc_coherent(&adapter->dev->dev,
+			adapter->cmp_pages * PAGE_SIZE, &adapter->cmpRingPA,
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!adapter->cmp_ring)
 		return -ENOMEM;
 
@@ -464,9 +533,15 @@ static int pvscsi_allocate_rings(struct pvscsi_adapter *adapter)
 
 	adapter->msg_pages = min(PVSCSI_MAX_NUM_PAGES_MSG_RING,
 				 pvscsi_msg_ring_pages);
+<<<<<<< HEAD
 	adapter->msg_ring = pci_alloc_consistent(adapter->dev,
 						 adapter->msg_pages * PAGE_SIZE,
 						 &adapter->msgRingPA);
+=======
+	adapter->msg_ring = dma_alloc_coherent(&adapter->dev->dev,
+			adapter->msg_pages * PAGE_SIZE, &adapter->msgRingPA,
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!adapter->msg_ring)
 		return -ENOMEM;
 	BUG_ON(!IS_ALIGNED(adapter->msgRingPA, PAGE_SIZE));
@@ -544,6 +619,11 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
 	cmd = ctx->cmd;
 	abort_cmp = ctx->abort_cmp;
 	pvscsi_unmap_buffers(adapter, ctx);
+<<<<<<< HEAD
+=======
+	if (sdstat != SAM_STAT_CHECK_CONDITION)
+		pvscsi_patch_sense(cmd);
+>>>>>>> upstream/android-13
 	pvscsi_release_context(adapter, ctx);
 	if (abort_cmp) {
 		/*
@@ -565,16 +645,32 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
 			cmd->result = (DID_RESET << 16);
 		} else {
 			cmd->result = (DID_OK << 16) | sdstat;
+<<<<<<< HEAD
 			if (sdstat == SAM_STAT_CHECK_CONDITION &&
 			    cmd->sense_buffer)
 				cmd->result |= (DRIVER_SENSE << 24);
+=======
+>>>>>>> upstream/android-13
 		}
 	} else
 		switch (btstat) {
 		case BTSTAT_SUCCESS:
 		case BTSTAT_LINKED_COMMAND_COMPLETED:
 		case BTSTAT_LINKED_COMMAND_COMPLETED_WITH_FLAG:
+<<<<<<< HEAD
 			/* If everything went fine, let's move on..  */
+=======
+			/*
+			 * Commands like INQUIRY may transfer less data than
+			 * requested by the initiator via bufflen. Set residual
+			 * count to make upper layer aware of the actual amount
+			 * of data returned. There are cases when controller
+			 * returns zero dataLen with non zero data - do not set
+			 * residual count in that case.
+			 */
+			if (e->dataLen && (e->dataLen < scsi_bufflen(cmd)))
+				scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
+>>>>>>> upstream/android-13
 			cmd->result = (DID_OK << 16);
 			break;
 
@@ -593,9 +689,12 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
 		case BTSTAT_LUNMISMATCH:
 		case BTSTAT_TAGREJECT:
 		case BTSTAT_BADMSG:
+<<<<<<< HEAD
 			cmd->result = (DRIVER_INVALID << 24);
 			/* fall through */
 
+=======
+>>>>>>> upstream/android-13
 		case BTSTAT_HAHARDWARE:
 		case BTSTAT_INVPHASE:
 		case BTSTAT_HATIMEOUT:
@@ -708,11 +807,19 @@ static int pvscsi_queue_ring(struct pvscsi_adapter *adapter,
 	e->lun[1] = sdev->lun;
 
 	if (cmd->sense_buffer) {
+<<<<<<< HEAD
 		ctx->sensePA = pci_map_single(adapter->dev, cmd->sense_buffer,
 					      SCSI_SENSE_BUFFERSIZE,
 					      PCI_DMA_FROMDEVICE);
 		if (pci_dma_mapping_error(adapter->dev, ctx->sensePA)) {
 			scmd_printk(KERN_ERR, cmd,
+=======
+		ctx->sensePA = dma_map_single(&adapter->dev->dev,
+				cmd->sense_buffer, SCSI_SENSE_BUFFERSIZE,
+				DMA_FROM_DEVICE);
+		if (dma_mapping_error(&adapter->dev->dev, ctx->sensePA)) {
+			scmd_printk(KERN_DEBUG, cmd,
+>>>>>>> upstream/android-13
 				    "vmw_pvscsi: Failed to map sense buffer for DMA.\n");
 			ctx->sensePA = 0;
 			return -ENOMEM;
@@ -740,9 +847,15 @@ static int pvscsi_queue_ring(struct pvscsi_adapter *adapter,
 
 	if (pvscsi_map_buffers(adapter, ctx, cmd, e) != 0) {
 		if (cmd->sense_buffer) {
+<<<<<<< HEAD
 			pci_unmap_single(adapter->dev, ctx->sensePA,
 					 SCSI_SENSE_BUFFERSIZE,
 					 PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&adapter->dev->dev, ctx->sensePA,
+					 SCSI_SENSE_BUFFERSIZE,
+					 DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 			ctx->sensePA = 0;
 		}
 		return -ENOMEM;
@@ -873,6 +986,10 @@ static void pvscsi_reset_all(struct pvscsi_adapter *adapter)
 			scmd_printk(KERN_ERR, cmd,
 				    "Forced reset on cmd %p\n", cmd);
 			pvscsi_unmap_buffers(adapter, ctx);
+<<<<<<< HEAD
+=======
+			pvscsi_patch_sense(cmd);
+>>>>>>> upstream/android-13
 			pvscsi_release_context(adapter, ctx);
 			cmd->result = (DID_RESET << 16);
 			cmd->scsi_done(cmd);
@@ -894,7 +1011,11 @@ static int pvscsi_host_reset(struct scsi_cmnd *cmd)
 	use_msg = adapter->use_msg;
 
 	if (use_msg) {
+<<<<<<< HEAD
 		adapter->use_msg = 0;
+=======
+		adapter->use_msg = false;
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&adapter->hw_lock, flags);
 
 		/*
@@ -1009,7 +1130,10 @@ static struct scsi_host_template pvscsi_template = {
 	.sg_tablesize			= PVSCSI_MAX_NUM_SG_ENTRIES_PER_SEGMENT,
 	.dma_boundary			= UINT_MAX,
 	.max_sectors			= 0xffff,
+<<<<<<< HEAD
 	.use_clustering			= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.change_queue_depth		= pvscsi_change_queue_depth,
 	.eh_abort_handler		= pvscsi_abort,
 	.eh_device_reset_handler	= pvscsi_device_reset,
@@ -1218,21 +1342,37 @@ static void pvscsi_release_resources(struct pvscsi_adapter *adapter)
 	}
 
 	if (adapter->rings_state)
+<<<<<<< HEAD
 		pci_free_consistent(adapter->dev, PAGE_SIZE,
 				    adapter->rings_state, adapter->ringStatePA);
 
 	if (adapter->req_ring)
 		pci_free_consistent(adapter->dev,
+=======
+		dma_free_coherent(&adapter->dev->dev, PAGE_SIZE,
+				    adapter->rings_state, adapter->ringStatePA);
+
+	if (adapter->req_ring)
+		dma_free_coherent(&adapter->dev->dev,
+>>>>>>> upstream/android-13
 				    adapter->req_pages * PAGE_SIZE,
 				    adapter->req_ring, adapter->reqRingPA);
 
 	if (adapter->cmp_ring)
+<<<<<<< HEAD
 		pci_free_consistent(adapter->dev,
+=======
+		dma_free_coherent(&adapter->dev->dev,
+>>>>>>> upstream/android-13
 				    adapter->cmp_pages * PAGE_SIZE,
 				    adapter->cmp_ring, adapter->cmpRingPA);
 
 	if (adapter->msg_ring)
+<<<<<<< HEAD
 		pci_free_consistent(adapter->dev,
+=======
+		dma_free_coherent(&adapter->dev->dev,
+>>>>>>> upstream/android-13
 				    adapter->msg_pages * PAGE_SIZE,
 				    adapter->msg_ring, adapter->msgRingPA);
 }
@@ -1291,8 +1431,13 @@ static u32 pvscsi_get_max_targets(struct pvscsi_adapter *adapter)
 	u32 numPhys = 16;
 
 	dev = pvscsi_dev(adapter);
+<<<<<<< HEAD
 	config_page = pci_alloc_consistent(adapter->dev, PAGE_SIZE,
 					   &configPagePA);
+=======
+	config_page = dma_alloc_coherent(&adapter->dev->dev, PAGE_SIZE,
+			&configPagePA, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!config_page) {
 		dev_warn(dev, "vmw_pvscsi: failed to allocate memory for config page\n");
 		goto exit;
@@ -1326,7 +1471,12 @@ static u32 pvscsi_get_max_targets(struct pvscsi_adapter *adapter)
 	} else
 		dev_warn(dev, "vmw_pvscsi: PVSCSI_CMD_CONFIG failed. hostStatus = 0x%x, scsiStatus = 0x%x\n",
 			 header->hostStatus, header->scsiStatus);
+<<<<<<< HEAD
 	pci_free_consistent(adapter->dev, PAGE_SIZE, config_page, configPagePA);
+=======
+	dma_free_coherent(&adapter->dev->dev, PAGE_SIZE, config_page,
+			  configPagePA);
+>>>>>>> upstream/android-13
 exit:
 	return numPhys;
 }
@@ -1346,11 +1496,17 @@ static int pvscsi_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (pci_enable_device(pdev))
 		return error;
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) == 0 &&
 	    pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64)) == 0) {
 		printk(KERN_INFO "vmw_pvscsi: using 64bit dma\n");
 	} else if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) == 0 &&
 		   pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)) == 0) {
+=======
+	if (!dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64))) {
+		printk(KERN_INFO "vmw_pvscsi: using 64bit dma\n");
+	} else if (!dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		printk(KERN_INFO "vmw_pvscsi: using 32bit dma\n");
 	} else {
 		printk(KERN_ERR "vmw_pvscsi: failed to set DMA mask\n");

@@ -28,6 +28,10 @@
 #include <linux/slab.h>
 #include <linux/sched/mm.h>
 #include "amdgpu_amdkfd.h"
+<<<<<<< HEAD
+=======
+#include "kfd_svm.h"
+>>>>>>> upstream/android-13
 
 static const struct dma_fence_ops amdkfd_fence_ops;
 static atomic_t fence_seq = ATOMIC_INIT(0);
@@ -40,6 +44,7 @@ static atomic_t fence_seq = ATOMIC_INIT(0);
  * All the BOs in a process share an eviction fence. When process X wants
  * to map VRAM memory but TTM can't find enough space, TTM will attempt to
  * evict BOs from its LRU list. TTM checks if the BO is valuable to evict
+<<<<<<< HEAD
  * by calling ttm_bo_driver->eviction_valuable().
  *
  * ttm_bo_driver->eviction_valuable() - will return false if the BO belongs
@@ -47,6 +52,15 @@ static atomic_t fence_seq = ATOMIC_INIT(0);
  *  evicted by TTM.
  *
  * If ttm_bo_driver->eviction_valuable returns true, then TTM will continue
+=======
+ * by calling ttm_device_funcs->eviction_valuable().
+ *
+ * ttm_device_funcs->eviction_valuable() - will return false if the BO belongs
+ *  to process X. Otherwise, it will return true to indicate BO can be
+ *  evicted by TTM.
+ *
+ * If ttm_device_funcs->eviction_valuable returns true, then TTM will continue
+>>>>>>> upstream/android-13
  * the evcition process for that BO by calling ttm_bo_evict --> amdgpu_bo_move
  * --> amdgpu_copy_buffer(). This sets up job in GPU scheduler.
  *
@@ -60,7 +74,12 @@ static atomic_t fence_seq = ATOMIC_INIT(0);
  */
 
 struct amdgpu_amdkfd_fence *amdgpu_amdkfd_fence_create(u64 context,
+<<<<<<< HEAD
 						       struct mm_struct *mm)
+=======
+				struct mm_struct *mm,
+				struct svm_range_bo *svm_bo)
+>>>>>>> upstream/android-13
 {
 	struct amdgpu_amdkfd_fence *fence;
 
@@ -73,7 +92,11 @@ struct amdgpu_amdkfd_fence *amdgpu_amdkfd_fence_create(u64 context,
 	fence->mm = mm;
 	get_task_comm(fence->timeline_name, current);
 	spin_lock_init(&fence->lock);
+<<<<<<< HEAD
 
+=======
+	fence->svm_bo = svm_bo;
+>>>>>>> upstream/android-13
 	dma_fence_init(&fence->base, &amdkfd_fence_ops, &fence->lock,
 		   context, atomic_inc_return(&fence_seq));
 
@@ -111,6 +134,11 @@ static const char *amdkfd_fence_get_timeline_name(struct dma_fence *f)
  *  a KFD BO and schedules a job to move the BO.
  *  If fence is already signaled return true.
  *  If fence is not signaled schedule a evict KFD process work item.
+<<<<<<< HEAD
+=======
+ *
+ *  @f: dma_fence
+>>>>>>> upstream/android-13
  */
 static bool amdkfd_fence_enable_signaling(struct dma_fence *f)
 {
@@ -122,16 +150,30 @@ static bool amdkfd_fence_enable_signaling(struct dma_fence *f)
 	if (dma_fence_is_signaled(f))
 		return true;
 
+<<<<<<< HEAD
 	if (!kgd2kfd->schedule_evict_and_restore_process(fence->mm, f))
 		return true;
 
+=======
+	if (!fence->svm_bo) {
+		if (!kgd2kfd_schedule_evict_and_restore_process(fence->mm, f))
+			return true;
+	} else {
+		if (!svm_range_schedule_evict_svm_bo(fence))
+			return true;
+	}
+>>>>>>> upstream/android-13
 	return false;
 }
 
 /**
  * amdkfd_fence_release - callback that fence can be freed
  *
+<<<<<<< HEAD
  * @fence: fence
+=======
+ * @f: dma_fence
+>>>>>>> upstream/android-13
  *
  * This function is called when the reference count becomes zero.
  * Drops the mm_struct reference and RCU schedules freeing up the fence.

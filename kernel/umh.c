@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * umh - the kernel usermode helper
  */
@@ -26,8 +30,12 @@
 #include <linux/ptrace.h>
 #include <linux/async.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <linux/shmem_fs.h>
 #include <linux/pipe_fs_i.h>
+=======
+#include <linux/initrd.h>
+>>>>>>> upstream/android-13
 
 #include <trace/events/module.h>
 
@@ -108,6 +116,7 @@ static int call_usermodehelper_exec_async(void *data)
 
 	commit_creds(new);
 
+<<<<<<< HEAD
 	sub_info->pid = task_pid_nr(current);
 	if (sub_info->file)
 		retval = do_execve_file(sub_info->file,
@@ -116,6 +125,12 @@ static int call_usermodehelper_exec_async(void *data)
 		retval = do_execve(getname_kernel(sub_info->path),
 				   (const char __user *const __user *)sub_info->argv,
 				   (const char __user *const __user *)sub_info->envp);
+=======
+	wait_for_initramfs();
+	retval = kernel_execve(sub_info->path,
+			       (const char *const *)sub_info->argv,
+			       (const char *const *)sub_info->envp);
+>>>>>>> upstream/android-13
 out:
 	sub_info->retval = retval;
 	/*
@@ -134,6 +149,7 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
 {
 	pid_t pid;
 
+<<<<<<< HEAD
 	/* If SIGCLD is ignored kernel_wait4 won't populate the status. */
 	kernel_sigaction(SIGCHLD, SIG_DFL);
 	pid = kernel_thread(call_usermodehelper_exec_async, sub_info, SIGCHLD);
@@ -165,6 +181,18 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
 	/* Restore default kernel sig handler */
 	kernel_sigaction(SIGCHLD, SIG_IGN);
 
+=======
+	/* If SIGCLD is ignored do_wait won't populate the status. */
+	kernel_sigaction(SIGCHLD, SIG_DFL);
+	pid = kernel_thread(call_usermodehelper_exec_async, sub_info, SIGCHLD);
+	if (pid < 0)
+		sub_info->retval = pid;
+	else
+		kernel_wait(pid, &sub_info->retval);
+
+	/* Restore default kernel sig handler */
+	kernel_sigaction(SIGCHLD, SIG_IGN);
+>>>>>>> upstream/android-13
 	umh_complete(sub_info);
 }
 
@@ -363,8 +391,13 @@ static void helper_unlock(void)
  * @argv: arg vector for process
  * @envp: environment for process
  * @gfp_mask: gfp mask for memory allocation
+<<<<<<< HEAD
  * @cleanup: a cleanup function
  * @init: an init function
+=======
+ * @init: an init function
+ * @cleanup: a cleanup function
+>>>>>>> upstream/android-13
  * @data: arbitrary context sensitive data
  *
  * Returns either %NULL on allocation failure, or a subprocess_info
@@ -375,7 +408,11 @@ static void helper_unlock(void)
  * exec.  A non-zero return code causes the process to error out, exit,
  * and return the failure to the calling process
  *
+<<<<<<< HEAD
  * The cleanup function is just before ethe subprocess_info is about to
+=======
+ * The cleanup function is just before the subprocess_info is about to
+>>>>>>> upstream/android-13
  * be freed.  This can be used for freeing the argv and envp.  The
  * Function must be runnable in either a process context or the
  * context in which call_usermodehelper_exec is called.
@@ -409,6 +446,7 @@ struct subprocess_info *call_usermodehelper_setup(const char *path, char **argv,
 }
 EXPORT_SYMBOL(call_usermodehelper_setup);
 
+<<<<<<< HEAD
 struct subprocess_info *call_usermodehelper_setup_file(struct file *file,
 		int (*init)(struct subprocess_info *info, struct cred *new),
 		void (*cleanup)(struct subprocess_info *info), void *data)
@@ -523,6 +561,11 @@ EXPORT_SYMBOL_GPL(fork_usermode_blob);
 /**
  * call_usermodehelper_exec - start a usermode application
  * @sub_info: information about the subprocessa
+=======
+/**
+ * call_usermodehelper_exec - start a usermode application
+ * @sub_info: information about the subprocess
+>>>>>>> upstream/android-13
  * @wait: wait for the application to finish and return status.
  *        when UMH_NO_WAIT don't wait at all, but you get no useful error back
  *        when the program couldn't be exec'ed. This makes it safe to call
@@ -622,7 +665,11 @@ int call_usermodehelper(const char *path, char **argv, char **envp, int wait)
 EXPORT_SYMBOL(call_usermodehelper);
 
 static int proc_cap_handler(struct ctl_table *table, int write,
+<<<<<<< HEAD
 			 void __user *buffer, size_t *lenp, loff_t *ppos)
+=======
+			 void *buffer, size_t *lenp, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct ctl_table t;
 	unsigned long cap_array[_KERNEL_CAPABILITY_U32S];

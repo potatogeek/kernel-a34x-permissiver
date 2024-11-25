@@ -29,18 +29,29 @@ struct ath_dfs_pool_stats global_dfs_pool_stats = {};
 	(MIN + PRI_TOLERANCE == MAX - PRI_TOLERANCE ? \
 	MIN + PRI_TOLERANCE : RUNTIME)
 
+<<<<<<< HEAD
 /**
  * struct pulse_elem - elements in pulse queue
  * @ts: time stamp in usecs
+=======
+/*
+ * struct pulse_elem - elements in pulse queue
+>>>>>>> upstream/android-13
  */
 struct pulse_elem {
 	struct list_head head;
 	u64 ts;
 };
 
+<<<<<<< HEAD
 /**
  * pde_get_multiple() - get number of multiples considering a given tolerance
  * @return factor if abs(val - factor*fraction) <= tolerance, 0 otherwise
+=======
+/*
+ * pde_get_multiple() - get number of multiples considering a given tolerance
+ * Return value: factor if abs(val - factor*fraction) <= tolerance, 0 otherwise
+>>>>>>> upstream/android-13
  */
 static u32 pde_get_multiple(u32 val, u32 fraction, u32 tolerance)
 {
@@ -70,7 +81,11 @@ static u32 pde_get_multiple(u32 val, u32 fraction, u32 tolerance)
 	return factor;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * DOC: Singleton Pulse and Sequence Pools
  *
  * Instances of pri_sequence and pulse_elem are kept in singleton pools to

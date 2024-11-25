@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 #include <linux/debugfs.h>
 #include <linux/netdevice.h>
@@ -58,6 +64,7 @@ struct dentry *brcmf_debugfs_get_devdir(struct brcmf_pub *drvr)
 	return drvr->wiphy->debugfsdir;
 }
 
+<<<<<<< HEAD
 int brcmf_debugfs_add_entry(struct brcmf_pub *drvr, const char *fn,
 			    int (*read_fn)(struct seq_file *seq, void *data))
 {
@@ -67,4 +74,12 @@ int brcmf_debugfs_add_entry(struct brcmf_pub *drvr, const char *fn,
 	e = debugfs_create_devm_seqfile(drvr->bus_if->dev, fn,
 					drvr->wiphy->debugfsdir, read_fn);
 	return PTR_ERR_OR_ZERO(e);
+=======
+void brcmf_debugfs_add_entry(struct brcmf_pub *drvr, const char *fn,
+			    int (*read_fn)(struct seq_file *seq, void *data))
+{
+	WARN(!drvr->wiphy->debugfsdir, "wiphy not (yet) registered\n");
+	debugfs_create_devm_seqfile(drvr->bus_if->dev, fn,
+				    drvr->wiphy->debugfsdir, read_fn);
+>>>>>>> upstream/android-13
 }

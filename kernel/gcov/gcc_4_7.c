@@ -15,8 +15,12 @@
 #include <linux/errno.h>
 #include <linux/slab.h>
 #include <linux/string.h>
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 #include <linux/vmalloc.h>
+=======
+#include <linux/mm.h>
+>>>>>>> upstream/android-13
 #include "gcov.h"
 
 #if (__GNUC__ >= 10)
@@ -25,10 +29,15 @@
 #define GCOV_COUNTERS			9
 #elif (__GNUC__ > 5) || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1)
 #define GCOV_COUNTERS			10
+<<<<<<< HEAD
 #elif __GNUC__ == 4 && __GNUC_MINOR__ >= 9
 #define GCOV_COUNTERS			9
 #else
 #define GCOV_COUNTERS			8
+=======
+#else
+#define GCOV_COUNTERS			9
+>>>>>>> upstream/android-13
 #endif
 
 #define GCOV_TAG_FUNCTION_LENGTH	3
@@ -70,7 +79,11 @@ struct gcov_fn_info {
 	unsigned int ident;
 	unsigned int lineno_checksum;
 	unsigned int cfg_checksum;
+<<<<<<< HEAD
 	struct gcov_ctr_info ctrs[0];
+=======
+	struct gcov_ctr_info ctrs[];
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -229,10 +242,17 @@ int gcov_info_is_compatible(struct gcov_info *info1, struct gcov_info *info2)
 
 /**
  * gcov_info_add - add up profiling data
+<<<<<<< HEAD
  * @dest: profiling data set to which data is added
  * @source: profiling data set which is added
  *
  * Adds profiling counts of @source to @dest.
+=======
+ * @dst: profiling data set to which data is added
+ * @src: profiling data set which is added
+ *
+ * Adds profiling counts of @src to @dst.
+>>>>>>> upstream/android-13
  */
 void gcov_info_add(struct gcov_info *dst, struct gcov_info *src)
 {
@@ -312,7 +332,11 @@ struct gcov_info *gcov_info_dup(struct gcov_info *info)
 
 			cv_size = sizeof(gcov_type) * sci_ptr->num;
 
+<<<<<<< HEAD
 			dci_ptr->values = vmalloc(cv_size);
+=======
+			dci_ptr->values = kvmalloc(cv_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 			if (!dci_ptr->values)
 				goto err_free;
@@ -354,7 +378,11 @@ void gcov_info_free(struct gcov_info *info)
 		ci_ptr = info->functions[fi_idx]->ctrs;
 
 		for (ct_idx = 0; ct_idx < active; ct_idx++, ci_ptr++)
+<<<<<<< HEAD
 			vfree(ci_ptr->values);
+=======
+			kvfree(ci_ptr->values);
+>>>>>>> upstream/android-13
 
 		kfree(info->functions[fi_idx]);
 	}
@@ -365,6 +393,7 @@ free_info:
 	kfree(info);
 }
 
+<<<<<<< HEAD
 #define ITER_STRIDE	PAGE_SIZE
 
 /**
@@ -430,6 +459,8 @@ static size_t store_gcov_u64(void *buffer, size_t off, u64 v)
 	return sizeof(*data) * 2;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * convert_to_gcda - convert profiling data set to gcda file format
  * @buffer: the buffer to store file data or %NULL if no data should be stored
@@ -437,7 +468,11 @@ static size_t store_gcov_u64(void *buffer, size_t off, u64 v)
  *
  * Returns the number of bytes that were/would have been stored into the buffer.
  */
+<<<<<<< HEAD
 static size_t convert_to_gcda(char *buffer, struct gcov_info *info)
+=======
+size_t convert_to_gcda(char *buffer, struct gcov_info *info)
+>>>>>>> upstream/android-13
 {
 	struct gcov_fn_info *fi_ptr;
 	struct gcov_ctr_info *ci_ptr;
@@ -483,6 +518,7 @@ static size_t convert_to_gcda(char *buffer, struct gcov_info *info)
 
 	return pos;
 }
+<<<<<<< HEAD
 
 /**
  * gcov_iter_new - allocate and initialize profiling data iterator
@@ -582,3 +618,5 @@ int gcov_iter_write(struct gcov_iterator *iter, struct seq_file *seq)
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13

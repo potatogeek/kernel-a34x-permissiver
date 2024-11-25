@@ -118,11 +118,29 @@ struct vbg_dev {
 	u32 event_filter_host;
 
 	/**
+<<<<<<< HEAD
 	 * Usage counters for guest capabilities. Indexed by capability bit
 	 * number, one count per session using a capability.
 	 * Protected by session_mutex.
 	 */
 	struct vbg_bit_usage_tracker guest_caps_tracker;
+=======
+	 * Guest capabilities which have been switched to acquire_mode.
+	 */
+	u32 acquire_mode_guest_caps;
+	/**
+	 * Guest capabilities acquired by vbg_acquire_session_capabilities().
+	 * Only one session can acquire a capability at a time.
+	 */
+	u32 acquired_guest_caps;
+	/**
+	 * Usage counters for guest capabilities requested through
+	 * vbg_set_session_capabilities(). Indexed by capability bit
+	 * number, one count per session using a capability.
+	 * Protected by session_mutex.
+	 */
+	struct vbg_bit_usage_tracker set_guest_caps_tracker;
+>>>>>>> upstream/android-13
 	/**
 	 * The guest capabilities last reported to the host (or UINT32_MAX).
 	 * Protected by session_mutex.
@@ -164,6 +182,7 @@ struct vbg_session {
 	 */
 	u32 event_filter;
 	/**
+<<<<<<< HEAD
 	 * Guest capabilities for this session.
 	 * A capability claimed by any guest session will be reported to the
 	 * host. Protected by vbg_gdev.session_mutex.
@@ -171,13 +190,31 @@ struct vbg_session {
 	u32 guest_caps;
 	/** Does this session belong to a root process or a user one? */
 	bool user_session;
+=======
+	 * Guest capabilities acquired by vbg_acquire_session_capabilities().
+	 * Only one session can acquire a capability at a time.
+	 */
+	u32 acquired_guest_caps;
+	/**
+	 * Guest capabilities set through vbg_set_session_capabilities().
+	 * A capability claimed by any guest session will be reported to the
+	 * host. Protected by vbg_gdev.session_mutex.
+	 */
+	u32 set_guest_caps;
+	/** VMMDEV_REQUESTOR_* flags */
+	u32 requestor;
+>>>>>>> upstream/android-13
 	/** Set on CANCEL_ALL_WAITEVENTS, protected by vbg_devevent_spinlock. */
 	bool cancel_waiters;
 };
 
 int  vbg_core_init(struct vbg_dev *gdev, u32 fixed_events);
 void vbg_core_exit(struct vbg_dev *gdev);
+<<<<<<< HEAD
 struct vbg_session *vbg_core_open_session(struct vbg_dev *gdev, bool user);
+=======
+struct vbg_session *vbg_core_open_session(struct vbg_dev *gdev, u32 requestor);
+>>>>>>> upstream/android-13
 void vbg_core_close_session(struct vbg_session *session);
 int  vbg_core_ioctl(struct vbg_session *session, unsigned int req, void *data);
 int  vbg_core_set_mouse_status(struct vbg_dev *gdev, u32 features);
@@ -187,6 +224,7 @@ irqreturn_t vbg_core_isr(int irq, void *dev_id);
 void vbg_linux_mouse_event(struct vbg_dev *gdev);
 
 /* Private (non exported) functions form vboxguest_utils.c */
+<<<<<<< HEAD
 void *vbg_req_alloc(size_t len, enum vmmdev_request_type req_type);
 void vbg_req_free(void *req, size_t len);
 int vbg_req_perform(struct vbg_dev *gdev, void *req);
@@ -194,5 +232,15 @@ int vbg_hgcm_call32(
 	struct vbg_dev *gdev, u32 client_id, u32 function, u32 timeout_ms,
 	struct vmmdev_hgcm_function_parameter32 *parm32, u32 parm_count,
 	int *vbox_status);
+=======
+void *vbg_req_alloc(size_t len, enum vmmdev_request_type req_type,
+		    u32 requestor);
+void vbg_req_free(void *req, size_t len);
+int vbg_req_perform(struct vbg_dev *gdev, void *req);
+int vbg_hgcm_call32(
+	struct vbg_dev *gdev, u32 requestor, u32 client_id, u32 function,
+	u32 timeout_ms, struct vmmdev_hgcm_function_parameter32 *parm32,
+	u32 parm_count, int *vbox_status);
+>>>>>>> upstream/android-13
 
 #endif

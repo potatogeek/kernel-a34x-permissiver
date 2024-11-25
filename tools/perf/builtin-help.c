@@ -4,8 +4,14 @@
  *
  * Builtin help command
  */
+<<<<<<< HEAD
 #include "perf.h"
 #include "util/config.h"
+=======
+#include "util/cache.h"
+#include "util/config.h"
+#include "util/strbuf.h"
+>>>>>>> upstream/android-13
 #include "builtin.h"
 #include <subcmd/exec-cmd.h>
 #include "common-cmds.h"
@@ -14,8 +20,17 @@
 #include <subcmd/help.h>
 #include "util/debug.h"
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <errno.h>
 #include <stdio.h>
+=======
+#include <linux/string.h>
+#include <linux/zalloc.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+>>>>>>> upstream/android-13
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>

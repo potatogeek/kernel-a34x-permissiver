@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
   drbd.h
   Kernel module for 2.6.x Kernels
@@ -8,6 +12,7 @@
   Copyright (C) 2001-2008, Philipp Reisner <philipp.reisner@linbit.com>.
   Copyright (C) 2001-2008, Lars Ellenberg <lars.ellenberg@linbit.com>.
 
+<<<<<<< HEAD
   drbd is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2, or (at your option)
@@ -21,6 +26,8 @@
   You should have received a copy of the GNU General Public License
   along with drbd; see the file COPYING.  If not, write to
   the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 #ifndef DRBD_H
@@ -51,7 +58,11 @@
 #endif
 
 extern const char *drbd_buildtag(void);
+<<<<<<< HEAD
 #define REL_VERSION "8.4.10"
+=======
+#define REL_VERSION "8.4.11"
+>>>>>>> upstream/android-13
 #define API_VERSION 1
 #define PRO_VERSION_MIN 86
 #define PRO_VERSION_MAX 101

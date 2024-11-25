@@ -1,15 +1,26 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * bebob_stream.c - a part of driver for BeBoB based devices
  *
  * Copyright (c) 2013-2014 Takashi Sakamoto
+<<<<<<< HEAD
  *
  * Licensed under the terms of the GNU General Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "./bebob.h"
 
+<<<<<<< HEAD
 #define CALLBACK_TIMEOUT	2000
 #define FW_ISO_RESOURCE_DELAY	1000
+=======
+#define READY_TIMEOUT_MS	4000
+>>>>>>> upstream/android-13
 
 /*
  * NOTE;
@@ -376,6 +387,7 @@ end:
 }
 
 static int
+<<<<<<< HEAD
 init_both_connections(struct snd_bebob *bebob)
 {
 	int err;
@@ -394,6 +406,8 @@ end:
 }
 
 static int
+=======
+>>>>>>> upstream/android-13
 check_connection_used_by_others(struct snd_bebob *bebob, struct amdtp_stream *s)
 {
 	struct cmp_connection *conn;
@@ -417,6 +431,7 @@ check_connection_used_by_others(struct snd_bebob *bebob, struct amdtp_stream *s)
 	return err;
 }
 
+<<<<<<< HEAD
 static int
 make_both_connections(struct snd_bebob *bebob, unsigned int rate)
 {
@@ -485,6 +500,15 @@ destroy_both_connections(struct snd_bebob *bebob)
 static int
 start_stream(struct snd_bebob *bebob, struct amdtp_stream *stream,
 	     unsigned int rate)
+=======
+static void break_both_connections(struct snd_bebob *bebob)
+{
+	cmp_connection_break(&bebob->in_conn);
+	cmp_connection_break(&bebob->out_conn);
+}
+
+static int start_stream(struct snd_bebob *bebob, struct amdtp_stream *stream)
+>>>>>>> upstream/android-13
 {
 	struct cmp_connection *conn;
 	int err = 0;
@@ -494,6 +518,7 @@ start_stream(struct snd_bebob *bebob, struct amdtp_stream *stream,
 	else
 		conn = &bebob->out_conn;
 
+<<<<<<< HEAD
 	/* channel mapping */
 	if (bebob->maudio_special_quirk == NULL) {
 		err = map_data_channels(bebob, stream);
@@ -507,12 +532,74 @@ start_stream(struct snd_bebob *bebob, struct amdtp_stream *stream,
 				 conn->speed);
 end:
 	return err;
+=======
+	// channel mapping.
+	if (bebob->maudio_special_quirk == NULL) {
+		err = map_data_channels(bebob, stream);
+		if (err < 0)
+			return err;
+	}
+
+	err = cmp_connection_establish(conn);
+	if (err < 0)
+		return err;
+
+	return amdtp_domain_add_stream(&bebob->domain, stream,
+				       conn->resources.channel, conn->speed);
+}
+
+static int init_stream(struct snd_bebob *bebob, struct amdtp_stream *stream)
+{
+	unsigned int flags = CIP_BLOCKING;
+	enum amdtp_stream_direction dir_stream;
+	struct cmp_connection *conn;
+	enum cmp_direction dir_conn;
+	int err;
+
+	if (stream == &bebob->tx_stream) {
+		dir_stream = AMDTP_IN_STREAM;
+		conn = &bebob->out_conn;
+		dir_conn = CMP_OUTPUT;
+	} else {
+		dir_stream = AMDTP_OUT_STREAM;
+		conn = &bebob->in_conn;
+		dir_conn = CMP_INPUT;
+	}
+
+	if (stream == &bebob->tx_stream) {
+		if (bebob->quirks & SND_BEBOB_QUIRK_WRONG_DBC)
+			flags |= CIP_EMPTY_HAS_WRONG_DBC;
+	}
+
+	err = cmp_connection_init(conn, bebob->unit, dir_conn, 0);
+	if (err < 0)
+		return err;
+
+	err = amdtp_am824_init(stream, bebob->unit, dir_stream, flags);
+	if (err < 0) {
+		cmp_connection_destroy(conn);
+		return err;
+	}
+
+	return 0;
+}
+
+static void destroy_stream(struct snd_bebob *bebob, struct amdtp_stream *stream)
+{
+	amdtp_stream_destroy(stream);
+
+	if (stream == &bebob->tx_stream)
+		cmp_connection_destroy(&bebob->out_conn);
+	else
+		cmp_connection_destroy(&bebob->in_conn);
+>>>>>>> upstream/android-13
 }
 
 int snd_bebob_stream_init_duplex(struct snd_bebob *bebob)
 {
 	int err;
 
+<<<<<<< HEAD
 	err = init_both_connections(bebob);
 	if (err < 0)
 		goto end;
@@ -639,10 +726,185 @@ int snd_bebob_stream_start_duplex(struct snd_bebob *bebob, unsigned int rate)
 		 */
 		if (bebob->maudio_special_quirk != NULL) {
 			err = rate_spec->set(bebob, rate);
+=======
+	err = init_stream(bebob, &bebob->tx_stream);
+	if (err < 0)
+		return err;
+
+	err = init_stream(bebob, &bebob->rx_stream);
+	if (err < 0) {
+		destroy_stream(bebob, &bebob->tx_stream);
+		return err;
+	}
+
+	err = amdtp_domain_init(&bebob->domain);
+	if (err < 0) {
+		destroy_stream(bebob, &bebob->tx_stream);
+		destroy_stream(bebob, &bebob->rx_stream);
+	}
+
+	return err;
+}
+
+static int keep_resources(struct snd_bebob *bebob, struct amdtp_stream *stream,
+			  unsigned int rate, unsigned int index)
+{
+	unsigned int pcm_channels;
+	unsigned int midi_ports;
+	struct cmp_connection *conn;
+	int err;
+
+	if (stream == &bebob->tx_stream) {
+		pcm_channels = bebob->tx_stream_formations[index].pcm;
+		midi_ports = bebob->midi_input_ports;
+		conn = &bebob->out_conn;
+	} else {
+		pcm_channels = bebob->rx_stream_formations[index].pcm;
+		midi_ports = bebob->midi_output_ports;
+		conn = &bebob->in_conn;
+	}
+
+	err = amdtp_am824_set_parameters(stream, rate, pcm_channels, midi_ports, false);
+	if (err < 0)
+		return err;
+
+	return cmp_connection_reserve(conn, amdtp_stream_get_max_payload(stream));
+}
+
+int snd_bebob_stream_reserve_duplex(struct snd_bebob *bebob, unsigned int rate,
+				    unsigned int frames_per_period,
+				    unsigned int frames_per_buffer)
+{
+	unsigned int curr_rate;
+	int err;
+
+	// Considering JACK/FFADO streaming:
+	// TODO: This can be removed hwdep functionality becomes popular.
+	err = check_connection_used_by_others(bebob, &bebob->rx_stream);
+	if (err < 0)
+		return err;
+
+	err = bebob->spec->rate->get(bebob, &curr_rate);
+	if (err < 0)
+		return err;
+	if (rate == 0)
+		rate = curr_rate;
+	if (curr_rate != rate) {
+		amdtp_domain_stop(&bebob->domain);
+		break_both_connections(bebob);
+
+		cmp_connection_release(&bebob->out_conn);
+		cmp_connection_release(&bebob->in_conn);
+	}
+
+	if (bebob->substreams_counter == 0 || curr_rate != rate) {
+		unsigned int index;
+
+		// NOTE:
+		// If establishing connections at first, Yamaha GO46
+		// (and maybe Terratec X24) don't generate sound.
+		//
+		// For firmware customized by M-Audio, refer to next NOTE.
+		err = bebob->spec->rate->set(bebob, rate);
+		if (err < 0) {
+			dev_err(&bebob->unit->device,
+				"fail to set sampling rate: %d\n",
+				err);
+			return err;
+		}
+
+		err = get_formation_index(rate, &index);
+		if (err < 0)
+			return err;
+
+		err = keep_resources(bebob, &bebob->tx_stream, rate, index);
+		if (err < 0)
+			return err;
+
+		err = keep_resources(bebob, &bebob->rx_stream, rate, index);
+		if (err < 0) {
+			cmp_connection_release(&bebob->out_conn);
+			return err;
+		}
+
+		err = amdtp_domain_set_events_per_period(&bebob->domain,
+					frames_per_period, frames_per_buffer);
+		if (err < 0) {
+			cmp_connection_release(&bebob->out_conn);
+			cmp_connection_release(&bebob->in_conn);
+			return err;
+		}
+	}
+
+	return 0;
+}
+
+int snd_bebob_stream_start_duplex(struct snd_bebob *bebob)
+{
+	int err;
+
+	// Need no substreams.
+	if (bebob->substreams_counter == 0)
+		return -EIO;
+
+	// packet queueing error or detecting discontinuity
+	if (amdtp_streaming_error(&bebob->rx_stream) ||
+	    amdtp_streaming_error(&bebob->tx_stream)) {
+		amdtp_domain_stop(&bebob->domain);
+		break_both_connections(bebob);
+	}
+
+	if (!amdtp_stream_running(&bebob->rx_stream)) {
+		enum snd_bebob_clock_type src;
+		unsigned int curr_rate;
+		unsigned int tx_init_skip_cycles;
+
+		if (bebob->maudio_special_quirk) {
+			err = bebob->spec->rate->get(bebob, &curr_rate);
+			if (err < 0)
+				return err;
+		}
+
+		err = snd_bebob_stream_get_clock_src(bebob, &src);
+		if (err < 0)
+			return err;
+
+		err = start_stream(bebob, &bebob->rx_stream);
+		if (err < 0)
+			goto error;
+
+		err = start_stream(bebob, &bebob->tx_stream);
+		if (err < 0)
+			goto error;
+
+		if (!(bebob->quirks & SND_BEBOB_QUIRK_INITIAL_DISCONTINUOUS_DBC))
+			tx_init_skip_cycles = 0;
+		else
+			tx_init_skip_cycles = 16000;
+
+		// MEMO: Some devices start packet transmission long enough after establishment of
+		// CMP connection. In the early stage of packet streaming, any device transfers
+		// NODATA packets. After several hundred cycles, it begins to multiplex event into
+		// the packet with adequate value of syt field in CIP header. Some devices are
+		// strictly to generate any discontinuity in the sequence of tx packet when they
+		// receives inadequate sequence of value in syt field of CIP header. In the case,
+		// the request to break CMP connection is often corrupted, then any transaction
+		// results in unrecoverable error, sometimes generate bus-reset.
+		err = amdtp_domain_start(&bebob->domain, tx_init_skip_cycles, true, false);
+		if (err < 0)
+			goto error;
+
+		// NOTE:
+		// The firmware customized by M-Audio uses these commands to
+		// start transmitting stream. This is not usual way.
+		if (bebob->maudio_special_quirk) {
+			err = bebob->spec->rate->set(bebob, curr_rate);
+>>>>>>> upstream/android-13
 			if (err < 0) {
 				dev_err(&bebob->unit->device,
 					"fail to ensure sampling rate: %d\n",
 					err);
+<<<<<<< HEAD
 				amdtp_stream_stop(&bebob->rx_stream);
 				break_both_connections(bebob);
 				goto end;
@@ -680,12 +942,31 @@ int snd_bebob_stream_start_duplex(struct snd_bebob *bebob, unsigned int rate)
 		}
 	}
 end:
+=======
+				goto error;
+			}
+		}
+
+		// Some devices postpone start of transmission mostly for 1 sec after receives
+		// packets firstly.
+		if (!amdtp_domain_wait_ready(&bebob->domain, READY_TIMEOUT_MS)) {
+			err = -ETIMEDOUT;
+			goto error;
+		}
+	}
+
+	return 0;
+error:
+	amdtp_domain_stop(&bebob->domain);
+	break_both_connections(bebob);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 void snd_bebob_stream_stop_duplex(struct snd_bebob *bebob)
 {
 	if (bebob->substreams_counter == 0) {
+<<<<<<< HEAD
 		amdtp_stream_pcm_abort(&bebob->rx_stream);
 		amdtp_stream_stop(&bebob->rx_stream);
 
@@ -693,6 +974,13 @@ void snd_bebob_stream_stop_duplex(struct snd_bebob *bebob)
 		amdtp_stream_stop(&bebob->tx_stream);
 
 		break_both_connections(bebob);
+=======
+		amdtp_domain_stop(&bebob->domain);
+		break_both_connections(bebob);
+
+		cmp_connection_release(&bebob->out_conn);
+		cmp_connection_release(&bebob->in_conn);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -702,10 +990,17 @@ void snd_bebob_stream_stop_duplex(struct snd_bebob *bebob)
  */
 void snd_bebob_stream_destroy_duplex(struct snd_bebob *bebob)
 {
+<<<<<<< HEAD
 	amdtp_stream_destroy(&bebob->rx_stream);
 	amdtp_stream_destroy(&bebob->tx_stream);
 
 	destroy_both_connections(bebob);
+=======
+	amdtp_domain_destroy(&bebob->domain);
+
+	destroy_stream(bebob, &bebob->tx_stream);
+	destroy_stream(bebob, &bebob->rx_stream);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -783,6 +1078,7 @@ parse_stream_formation(u8 *buf, unsigned int len,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int
 fill_stream_formations(struct snd_bebob *bebob, enum avc_bridgeco_plug_dir dir,
 		       unsigned short pid)
@@ -793,10 +1089,32 @@ fill_stream_formations(struct snd_bebob *bebob, enum avc_bridgeco_plug_dir dir,
 	u8 addr[AVC_BRIDGECO_ADDR_BYTES];
 	int err;
 
+=======
+static int fill_stream_formations(struct snd_bebob *bebob, u8 addr[AVC_BRIDGECO_ADDR_BYTES],
+				  enum avc_bridgeco_plug_dir plug_dir, unsigned int plug_id,
+				  struct snd_bebob_stream_formation *formations)
+{
+	enum avc_bridgeco_plug_type plug_type;
+	u8 *buf;
+	unsigned int len, eid;
+	int err;
+
+	avc_bridgeco_fill_unit_addr(addr, plug_dir, AVC_BRIDGECO_PLUG_UNIT_ISOC, plug_id);
+
+	err = avc_bridgeco_get_plug_type(bebob->unit, addr, &plug_type);
+	if (err < 0) {
+		dev_err(&bebob->unit->device,
+			"Fail to get type for isoc %d plug 0: %d\n", plug_dir, err);
+		return err;
+	} else if (plug_type != AVC_BRIDGECO_PLUG_TYPE_ISOC)
+		return -ENXIO;
+
+>>>>>>> upstream/android-13
 	buf = kmalloc(FORMAT_MAXIMUM_LENGTH, GFP_KERNEL);
 	if (buf == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (dir == AVC_BRIDGECO_PLUG_DIR_IN)
 		formations = bebob->rx_stream_formations;
 	else
@@ -809,16 +1127,29 @@ fill_stream_formations(struct snd_bebob *bebob, enum avc_bridgeco_plug_dir dir,
 		err = avc_bridgeco_get_plug_strm_fmt(bebob->unit, addr, buf,
 						     &len, eid);
 		/* No entries remained. */
+=======
+	for (eid = 0; eid < SND_BEBOB_STRM_FMT_ENTRIES; ++eid) {
+		avc_bridgeco_fill_unit_addr(addr, plug_dir, AVC_BRIDGECO_PLUG_UNIT_ISOC, plug_id);
+
+		len = FORMAT_MAXIMUM_LENGTH;
+		err = avc_bridgeco_get_plug_strm_fmt(bebob->unit, addr, buf, &len, eid);
+		// No entries remained.
+>>>>>>> upstream/android-13
 		if (err == -EINVAL && eid > 0) {
 			err = 0;
 			break;
 		} else if (err < 0) {
 			dev_err(&bebob->unit->device,
+<<<<<<< HEAD
 			"fail to get stream format %d for isoc %s plug %d:%d\n",
 				eid,
 				(dir == AVC_BRIDGECO_PLUG_DIR_IN) ? "in" :
 								    "out",
 				pid, err);
+=======
+				"fail to get stream format %d for isoc %d plug %d:%d\n",
+				eid, plug_dir, plug_id, err);
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -831,6 +1162,57 @@ fill_stream_formations(struct snd_bebob *bebob, enum avc_bridgeco_plug_dir dir,
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int detect_midi_ports(struct snd_bebob *bebob,
+			     const struct snd_bebob_stream_formation *formats,
+			     u8 addr[AVC_BRIDGECO_ADDR_BYTES], enum avc_bridgeco_plug_dir plug_dir,
+			     unsigned int plug_count, unsigned int *midi_ports)
+{
+	int i;
+	int err = 0;
+
+	*midi_ports = 0;
+
+	/// Detect the number of available MIDI ports when packet has MIDI conformant data channel.
+	for (i = 0; i < SND_BEBOB_STRM_FMT_ENTRIES; ++i) {
+		if (formats[i].midi > 0)
+			break;
+	}
+	if (i >= SND_BEBOB_STRM_FMT_ENTRIES)
+		return 0;
+
+	for (i = 0; i < plug_count; ++i) {
+		enum avc_bridgeco_plug_type plug_type;
+		unsigned int ch_count;
+
+		avc_bridgeco_fill_unit_addr(addr, plug_dir, AVC_BRIDGECO_PLUG_UNIT_EXT, i);
+
+		err = avc_bridgeco_get_plug_type(bebob->unit, addr, &plug_type);
+		if (err < 0) {
+			dev_err(&bebob->unit->device,
+				"fail to get type for external %d plug %d: %d\n",
+				plug_dir, i, err);
+			break;
+		} else if (plug_type != AVC_BRIDGECO_PLUG_TYPE_MIDI) {
+			continue;
+		}
+
+		err = avc_bridgeco_get_plug_ch_count(bebob->unit, addr, &ch_count);
+		if (err < 0)
+			break;
+		// Yamaha GO44, GO46, Terratec Phase 24, Phase x24 reports 0 for the number of
+		// channels in external output plug 3 (MIDI type) even if it has a pair of physical
+		// MIDI jacks. As a workaround, assume it as one.
+		if (ch_count == 0)
+			ch_count = 1;
+		*midi_ports += ch_count;
+	}
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int
 seek_msu_sync_input_plug(struct snd_bebob *bebob)
 {
@@ -873,8 +1255,11 @@ int snd_bebob_stream_discover(struct snd_bebob *bebob)
 {
 	const struct snd_bebob_clock_spec *clk_spec = bebob->spec->clock;
 	u8 plugs[AVC_PLUG_INFO_BUF_BYTES], addr[AVC_BRIDGECO_ADDR_BYTES];
+<<<<<<< HEAD
 	enum avc_bridgeco_plug_type type;
 	unsigned int i;
+=======
+>>>>>>> upstream/android-13
 	int err;
 
 	/* the number of plugs for isoc in/out, ext in/out  */
@@ -895,6 +1280,7 @@ int snd_bebob_stream_discover(struct snd_bebob *bebob)
 		goto end;
 	}
 
+<<<<<<< HEAD
 	avc_bridgeco_fill_unit_addr(addr, AVC_BRIDGECO_PLUG_DIR_IN,
 				    AVC_BRIDGECO_PLUG_UNIT_ISOC, 0);
 	err = avc_bridgeco_get_plug_type(bebob->unit, addr, &type);
@@ -956,6 +1342,27 @@ int snd_bebob_stream_discover(struct snd_bebob *bebob)
 			bebob->midi_output_ports++;
 		}
 	}
+=======
+	err = fill_stream_formations(bebob, addr, AVC_BRIDGECO_PLUG_DIR_IN, 0,
+				     bebob->rx_stream_formations);
+	if (err < 0)
+		goto end;
+
+	err = fill_stream_formations(bebob, addr, AVC_BRIDGECO_PLUG_DIR_OUT, 0,
+				     bebob->tx_stream_formations);
+	if (err < 0)
+		goto end;
+
+	err = detect_midi_ports(bebob, bebob->tx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_IN,
+				plugs[2], &bebob->midi_input_ports);
+	if (err < 0)
+		goto end;
+
+	err = detect_midi_ports(bebob, bebob->rx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_OUT,
+				plugs[3], &bebob->midi_output_ports);
+	if (err < 0)
+		goto end;
+>>>>>>> upstream/android-13
 
 	/* for check source of clock later */
 	if (!clk_spec)

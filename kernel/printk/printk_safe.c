@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * printk_safe.c - Safe printk for printk-deadlock-prone contexts
  *
@@ -365,6 +366,24 @@ static __printf(1, 0) int vprintk_safe(const char *fmt, va_list args)
 	return printk_safe_log_store(s, fmt, args);
 }
 
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * printk_safe.c - Safe printk for printk-deadlock-prone contexts
+ */
+
+#include <linux/preempt.h>
+#include <linux/kdb.h>
+#include <linux/smp.h>
+#include <linux/cpumask.h>
+#include <linux/printk.h>
+#include <linux/kprobes.h>
+
+#include "internal.h"
+
+static DEFINE_PER_CPU(int, printk_context);
+
+>>>>>>> upstream/android-13
 /* Can be preempted by NMI. */
 void __printk_safe_enter(void)
 {
@@ -377,6 +396,7 @@ void __printk_safe_exit(void)
 	this_cpu_dec(printk_context);
 }
 
+<<<<<<< HEAD
 __printf(1, 0) int vprintk_func(const char *fmt, va_list args)
 {
 	/*
@@ -389,10 +409,29 @@ __printf(1, 0) int vprintk_func(const char *fmt, va_list args)
 
 		len = vprintk_store(0, LOGLEVEL_DEFAULT, NULL, 0, fmt, args);
 		raw_spin_unlock(&logbuf_lock);
+=======
+asmlinkage int vprintk(const char *fmt, va_list args)
+{
+#ifdef CONFIG_KGDB_KDB
+	/* Allow to pass printk() to kdb but avoid a recursion. */
+	if (unlikely(kdb_trap_printk && kdb_printf_cpu < 0))
+		return vkdb_printf(KDB_MSGSRC_PRINTK, fmt, args);
+#endif
+
+	/*
+	 * Use the main logbuf even in NMI. But avoid calling console
+	 * drivers that might have their own locks.
+	 */
+	if (this_cpu_read(printk_context) || in_nmi()) {
+		int len;
+
+		len = vprintk_store(0, LOGLEVEL_DEFAULT, NULL, fmt, args);
+>>>>>>> upstream/android-13
 		defer_console_output();
 		return len;
 	}
 
+<<<<<<< HEAD
 	/* Use extra buffer in NMI when logbuf_lock is taken or in safe mode. */
 	if (this_cpu_read(printk_context) & PRINTK_NMI_CONTEXT_MASK)
 		return vprintk_nmi(fmt, args);
@@ -424,3 +463,9 @@ void __init printk_safe_init(void)
 	/* Flush pending messages that did not have scheduled IRQ works. */
 	printk_safe_flush();
 }
+=======
+	/* No obstacles. */
+	return vprintk_default(fmt, args);
+}
+EXPORT_SYMBOL(vprintk);
+>>>>>>> upstream/android-13

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Intel I/OAT DMA Linux driver
  * Copyright(c) 2007 - 2009 Intel Corporation.
@@ -14,6 +15,12 @@
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Intel I/OAT DMA Linux driver
+ * Copyright(c) 2007 - 2009 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -52,6 +59,7 @@
 #define DCA2_TAG_MAP_BYTE3 0x82
 #define DCA2_TAG_MAP_BYTE4 0x82
 
+<<<<<<< HEAD
 /* verify if tag map matches expected values */
 static inline int dca2_tag_map_valid(u8 *tag_map)
 {
@@ -62,6 +70,8 @@ static inline int dca2_tag_map_valid(u8 *tag_map)
 		(tag_map[4] == DCA2_TAG_MAP_BYTE4));
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * "Legacy" DCA systems do not implement the DCA register set in the
  * I/OAT device.  Software needs direct support for their tag mappings.
@@ -114,7 +124,11 @@ struct ioat_dca_priv {
 	int			 max_requesters;
 	int			 requester_count;
 	u8			 tag_map[IOAT_TAG_MAP_LEN];
+<<<<<<< HEAD
 	struct ioat_dca_slot 	 req_slots[0];
+=======
+	struct ioat_dca_slot	 req_slots[];
+>>>>>>> upstream/android-13
 };
 
 static int ioat_dca_dev_managed(struct dca_provider *dca,
@@ -298,8 +312,12 @@ struct dca_provider *ioat_dca_init(struct pci_dev *pdev, void __iomem *iobase)
 		return NULL;
 
 	dca = alloc_dca_provider(&ioat_dca_ops,
+<<<<<<< HEAD
 				 sizeof(*ioatdca)
 				      + (sizeof(struct ioat_dca_slot) * slots));
+=======
+				 struct_size(ioatdca, req_slots, slots));
+>>>>>>> upstream/android-13
 	if (!dca)
 		return NULL;
 

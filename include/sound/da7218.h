@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * da7218.h - DA7218 ASoC Codec Driver Platform Data
  *
  * Copyright (c) 2015 Dialog Semiconductor
  *
  * Author: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DA7218_PDATA_H

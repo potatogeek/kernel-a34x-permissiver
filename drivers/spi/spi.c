@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * SPI init/core code
  *
@@ -14,6 +15,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPI init/core code
+//
+// Copyright (C) 2005 David Brownell
+// Copyright (C) 2008 Secret Lab Technologies Ltd.
+>>>>>>> upstream/android-13
 
 #include <linux/kernel.h>
 #include <linux/device.h>
@@ -30,6 +38,10 @@
 #include <linux/spi/spi.h>
 #include <linux/spi/spi-mem.h>
 #include <linux/of_gpio.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/pm_runtime.h>
 #include <linux/pm_domain.h>
 #include <linux/property.h>
@@ -46,6 +58,11 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/spi.h>
+<<<<<<< HEAD
+=======
+EXPORT_TRACEPOINT_SYMBOL(spi_transfer_start);
+EXPORT_TRACEPOINT_SYMBOL(spi_transfer_stop);
+>>>>>>> upstream/android-13
 
 #include "internals.h"
 
@@ -55,11 +72,16 @@ static void spidev_release(struct device *dev)
 {
 	struct spi_device	*spi = to_spi_device(dev);
 
+<<<<<<< HEAD
 	/* spi controllers may cleanup for released devices */
 	if (spi->controller->cleanup)
 		spi->controller->cleanup(spi);
 
 	spi_controller_put(spi->controller);
+=======
+	spi_controller_put(spi->controller);
+	kfree(spi->driver_override);
+>>>>>>> upstream/android-13
 	kfree(spi);
 }
 
@@ -77,6 +99,54 @@ modalias_show(struct device *dev, struct device_attribute *a, char *buf)
 }
 static DEVICE_ATTR_RO(modalias);
 
+<<<<<<< HEAD
+=======
+static ssize_t driver_override_store(struct device *dev,
+				     struct device_attribute *a,
+				     const char *buf, size_t count)
+{
+	struct spi_device *spi = to_spi_device(dev);
+	const char *end = memchr(buf, '\n', count);
+	const size_t len = end ? end - buf : count;
+	const char *driver_override, *old;
+
+	/* We need to keep extra room for a newline when displaying value */
+	if (len >= (PAGE_SIZE - 1))
+		return -EINVAL;
+
+	driver_override = kstrndup(buf, len, GFP_KERNEL);
+	if (!driver_override)
+		return -ENOMEM;
+
+	device_lock(dev);
+	old = spi->driver_override;
+	if (len) {
+		spi->driver_override = driver_override;
+	} else {
+		/* Empty string, disable driver override */
+		spi->driver_override = NULL;
+		kfree(driver_override);
+	}
+	device_unlock(dev);
+	kfree(old);
+
+	return count;
+}
+
+static ssize_t driver_override_show(struct device *dev,
+				    struct device_attribute *a, char *buf)
+{
+	const struct spi_device *spi = to_spi_device(dev);
+	ssize_t len;
+
+	device_lock(dev);
+	len = snprintf(buf, PAGE_SIZE, "%s\n", spi->driver_override ? : "");
+	device_unlock(dev);
+	return len;
+}
+static DEVICE_ATTR_RW(driver_override);
+
+>>>>>>> upstream/android-13
 #define SPI_STATISTICS_ATTRS(field, file)				\
 static ssize_t spi_controller_##field##_show(struct device *dev,	\
 					     struct device_attribute *attr, \
@@ -158,6 +228,10 @@ SPI_STATISTICS_SHOW(transfers_split_maxsize, "%lu");
 
 static struct attribute *spi_dev_attrs[] = {
 	&dev_attr_modalias.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_driver_override.attr,
+>>>>>>> upstream/android-13
 	NULL,
 };
 
@@ -305,6 +379,13 @@ static int spi_match_device(struct device *dev, struct device_driver *drv)
 	const struct spi_device	*spi = to_spi_device(dev);
 	const struct spi_driver	*sdrv = to_spi_driver(drv);
 
+<<<<<<< HEAD
+=======
+	/* Check override first, and if set, only use the named driver */
+	if (spi->driver_override)
+		return strcmp(spi->driver_override, drv->name) == 0;
+
+>>>>>>> upstream/android-13
 	/* Attempt an OF style match */
 	if (of_driver_match_device(dev, drv))
 		return 1;
@@ -331,6 +412,7 @@ static int spi_uevent(struct device *dev, struct kobj_uevent_env *env)
 	return add_uevent_var(env, "MODALIAS=%s%s", SPI_MODULE_PREFIX, spi->modalias);
 }
 
+<<<<<<< HEAD
 struct bus_type spi_bus_type = {
 	.name		= "spi",
 	.dev_groups	= spi_dev_groups,
@@ -341,6 +423,9 @@ EXPORT_SYMBOL_GPL(spi_bus_type);
 
 
 static int spi_drv_probe(struct device *dev)
+=======
+static int spi_probe(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
 	struct spi_device		*spi = to_spi_device(dev);
@@ -371,6 +456,7 @@ static int spi_drv_probe(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int spi_drv_remove(struct device *dev)
 {
 	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
@@ -390,6 +476,46 @@ static void spi_drv_shutdown(struct device *dev)
 	sdrv->shutdown(to_spi_device(dev));
 }
 
+=======
+static void spi_remove(struct device *dev)
+{
+	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
+
+	if (sdrv->remove) {
+		int ret;
+
+		ret = sdrv->remove(to_spi_device(dev));
+		if (ret)
+			dev_warn(dev,
+				 "Failed to unbind driver (%pe), ignoring\n",
+				 ERR_PTR(ret));
+	}
+
+	dev_pm_domain_detach(dev, true);
+}
+
+static void spi_shutdown(struct device *dev)
+{
+	if (dev->driver) {
+		const struct spi_driver	*sdrv = to_spi_driver(dev->driver);
+
+		if (sdrv->shutdown)
+			sdrv->shutdown(to_spi_device(dev));
+	}
+}
+
+struct bus_type spi_bus_type = {
+	.name		= "spi",
+	.dev_groups	= spi_dev_groups,
+	.match		= spi_match_device,
+	.uevent		= spi_uevent,
+	.probe		= spi_probe,
+	.remove		= spi_remove,
+	.shutdown	= spi_shutdown,
+};
+EXPORT_SYMBOL_GPL(spi_bus_type);
+
+>>>>>>> upstream/android-13
 /**
  * __spi_register_driver - register a SPI driver
  * @owner: owner module of the driver to register
@@ -402,10 +528,54 @@ int __spi_register_driver(struct module *owner, struct spi_driver *sdrv)
 {
 	sdrv->driver.owner = owner;
 	sdrv->driver.bus = &spi_bus_type;
+<<<<<<< HEAD
 	sdrv->driver.probe = spi_drv_probe;
 	sdrv->driver.remove = spi_drv_remove;
 	if (sdrv->shutdown)
 		sdrv->driver.shutdown = spi_drv_shutdown;
+=======
+
+	/*
+	 * For Really Good Reasons we use spi: modaliases not of:
+	 * modaliases for DT so module autoloading won't work if we
+	 * don't have a spi_device_id as well as a compatible string.
+	 */
+	if (sdrv->driver.of_match_table) {
+		const struct of_device_id *of_id;
+
+		for (of_id = sdrv->driver.of_match_table; of_id->compatible[0];
+		     of_id++) {
+			const char *of_name;
+
+			/* Strip off any vendor prefix */
+			of_name = strnchr(of_id->compatible,
+					  sizeof(of_id->compatible), ',');
+			if (of_name)
+				of_name++;
+			else
+				of_name = of_id->compatible;
+
+			if (sdrv->id_table) {
+				const struct spi_device_id *spi_id;
+
+				for (spi_id = sdrv->id_table; spi_id->name[0];
+				     spi_id++)
+					if (strcmp(spi_id->name, of_name) == 0)
+						break;
+
+				if (spi_id->name[0])
+					continue;
+			} else {
+				if (strcmp(sdrv->driver.name, of_name) == 0)
+					continue;
+			}
+
+			pr_warn("SPI driver %s has no spi_device_id for %s\n",
+				sdrv->driver.name, of_id->compatible);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return driver_register(&sdrv->driver);
 }
 EXPORT_SYMBOL_GPL(__spi_register_driver);
@@ -427,18 +597,25 @@ static LIST_HEAD(board_list);
 static LIST_HEAD(spi_controller_list);
 
 /*
+<<<<<<< HEAD
  * Used to protect add/del opertion for board_info list and
+=======
+ * Used to protect add/del operation for board_info list and
+>>>>>>> upstream/android-13
  * spi_controller list, and their matching process
  * also used to protect object of type struct idr
  */
 static DEFINE_MUTEX(board_lock);
 
+<<<<<<< HEAD
 /*
  * Prevents addition of devices with same chip select and
  * addition of devices below an unregistering controller.
  */
 static DEFINE_MUTEX(spi_add_lock);
 
+=======
+>>>>>>> upstream/android-13
 /**
  * spi_alloc_device - Allocate a new SPI device
  * @ctlr: Controller to which device is connected
@@ -474,6 +651,10 @@ struct spi_device *spi_alloc_device(struct spi_controller *ctlr)
 	spi->dev.bus = &spi_bus_type;
 	spi->dev.release = spidev_release;
 	spi->cs_gpio = -ENOENT;
+<<<<<<< HEAD
+=======
+	spi->mode = ctlr->buswidth_override_bits;
+>>>>>>> upstream/android-13
 
 	spin_lock_init(&spi->statistics.lock);
 
@@ -506,6 +687,64 @@ static int spi_dev_check(struct device *dev, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void spi_cleanup(struct spi_device *spi)
+{
+	if (spi->controller->cleanup)
+		spi->controller->cleanup(spi);
+}
+
+static int __spi_add_device(struct spi_device *spi)
+{
+	struct spi_controller *ctlr = spi->controller;
+	struct device *dev = ctlr->dev.parent;
+	int status;
+
+	status = bus_for_each_dev(&spi_bus_type, NULL, spi, spi_dev_check);
+	if (status) {
+		dev_err(dev, "chipselect %d already in use\n",
+				spi->chip_select);
+		return status;
+	}
+
+	/* Controller may unregister concurrently */
+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC) &&
+	    !device_is_registered(&ctlr->dev)) {
+		return -ENODEV;
+	}
+
+	/* Descriptors take precedence */
+	if (ctlr->cs_gpiods)
+		spi->cs_gpiod = ctlr->cs_gpiods[spi->chip_select];
+	else if (ctlr->cs_gpios)
+		spi->cs_gpio = ctlr->cs_gpios[spi->chip_select];
+
+	/* Drivers may modify this initial i/o setup, but will
+	 * normally rely on the device being setup.  Devices
+	 * using SPI_CS_HIGH can't coexist well otherwise...
+	 */
+	status = spi_setup(spi);
+	if (status < 0) {
+		dev_err(dev, "can't setup %s, status %d\n",
+				dev_name(&spi->dev), status);
+		return status;
+	}
+
+	/* Device may be bound to an active driver when this returns */
+	status = device_add(&spi->dev);
+	if (status < 0) {
+		dev_err(dev, "can't add %s, status %d\n",
+				dev_name(&spi->dev), status);
+		spi_cleanup(spi);
+	} else {
+		dev_dbg(dev, "registered child %s\n", dev_name(&spi->dev));
+	}
+
+	return status;
+}
+
+>>>>>>> upstream/android-13
 /**
  * spi_add_device - Add spi_device allocated with spi_alloc_device
  * @spi: spi_device to register
@@ -535,6 +774,7 @@ int spi_add_device(struct spi_device *spi)
 	 * chipselect **BEFORE** we call setup(), else we'll trash
 	 * its configuration.  Lock against concurrent add() calls.
 	 */
+<<<<<<< HEAD
 	mutex_lock(&spi_add_lock);
 
 	status = bus_for_each_dev(&spi_bus_type, NULL, spi, spi_dev_check);
@@ -575,10 +815,37 @@ int spi_add_device(struct spi_device *spi)
 
 done:
 	mutex_unlock(&spi_add_lock);
+=======
+	mutex_lock(&ctlr->add_lock);
+	status = __spi_add_device(spi);
+	mutex_unlock(&ctlr->add_lock);
+>>>>>>> upstream/android-13
 	return status;
 }
 EXPORT_SYMBOL_GPL(spi_add_device);
 
+<<<<<<< HEAD
+=======
+static int spi_add_device_locked(struct spi_device *spi)
+{
+	struct spi_controller *ctlr = spi->controller;
+	struct device *dev = ctlr->dev.parent;
+
+	/* Chipselects are numbered 0..max; validate. */
+	if (spi->chip_select >= ctlr->num_chipselect) {
+		dev_err(dev, "cs%d >= max %d\n", spi->chip_select,
+			ctlr->num_chipselect);
+		return -EINVAL;
+	}
+
+	/* Set the bus ID string */
+	spi_dev_set_name(spi);
+
+	WARN_ON(!mutex_is_locked(&ctlr->add_lock));
+	return __spi_add_device(spi);
+}
+
+>>>>>>> upstream/android-13
 /**
  * spi_new_device - instantiate one new SPI device
  * @ctlr: Controller to which device is connected
@@ -621,11 +888,18 @@ struct spi_device *spi_new_device(struct spi_controller *ctlr,
 	proxy->controller_data = chip->controller_data;
 	proxy->controller_state = NULL;
 
+<<<<<<< HEAD
 	if (chip->properties) {
 		status = device_add_properties(&proxy->dev, chip->properties);
 		if (status) {
 			dev_err(&ctlr->dev,
 				"failed to add properties to '%s': %d\n",
+=======
+	if (chip->swnode) {
+		status = device_add_software_node(&proxy->dev, chip->swnode);
+		if (status) {
+			dev_err(&ctlr->dev, "failed to add software node to '%s': %d\n",
+>>>>>>> upstream/android-13
 				chip->modalias, status);
 			goto err_dev_put;
 		}
@@ -633,6 +907,7 @@ struct spi_device *spi_new_device(struct spi_controller *ctlr,
 
 	status = spi_add_device(proxy);
 	if (status < 0)
+<<<<<<< HEAD
 		goto err_remove_props;
 
 	return proxy;
@@ -641,6 +916,14 @@ err_remove_props:
 	if (chip->properties)
 		device_remove_properties(&proxy->dev);
 err_dev_put:
+=======
+		goto err_dev_put;
+
+	return proxy;
+
+err_dev_put:
+	device_remove_software_node(&proxy->dev);
+>>>>>>> upstream/android-13
 	spi_dev_put(proxy);
 	return NULL;
 }
@@ -664,7 +947,14 @@ void spi_unregister_device(struct spi_device *spi)
 	}
 	if (ACPI_COMPANION(&spi->dev))
 		acpi_device_clear_enumerated(ACPI_COMPANION(&spi->dev));
+<<<<<<< HEAD
 	device_unregister(&spi->dev);
+=======
+	device_remove_software_node(&spi->dev);
+	device_del(&spi->dev);
+	spi_cleanup(spi);
+	put_device(&spi->dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(spi_unregister_device);
 
@@ -700,7 +990,10 @@ static void spi_match_controller_to_boardinfo(struct spi_controller *ctlr,
  *
  * The board info passed can safely be __initdata ... but be careful of
  * any embedded pointers (platform_data, etc), they're copied as-is.
+<<<<<<< HEAD
  * Device properties are deep-copied though.
+=======
+>>>>>>> upstream/android-13
  *
  * Return: zero on success, else a negative error code.
  */
@@ -720,12 +1013,15 @@ int spi_register_board_info(struct spi_board_info const *info, unsigned n)
 		struct spi_controller *ctlr;
 
 		memcpy(&bi->board_info, info, sizeof(*info));
+<<<<<<< HEAD
 		if (info->properties) {
 			bi->board_info.properties =
 					property_entries_dup(info->properties);
 			if (IS_ERR(bi->board_info.properties))
 				return PTR_ERR(bi->board_info.properties);
 		}
+=======
+>>>>>>> upstream/android-13
 
 		mutex_lock(&board_lock);
 		list_add_tail(&bi->list, &board_list);
@@ -740,6 +1036,7 @@ int spi_register_board_info(struct spi_board_info const *info, unsigned n)
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 static void spi_set_cs(struct spi_device *spi, bool enable)
 {
 	if (spi->mode & SPI_CS_HIGH)
@@ -747,6 +1044,59 @@ static void spi_set_cs(struct spi_device *spi, bool enable)
 
 	if (gpio_is_valid(spi->cs_gpio)) {
 		gpio_set_value(spi->cs_gpio, !enable);
+=======
+static void spi_set_cs(struct spi_device *spi, bool enable, bool force)
+{
+	bool activate = enable;
+
+	/*
+	 * Avoid calling into the driver (or doing delays) if the chip select
+	 * isn't actually changing from the last time this was called.
+	 */
+	if (!force && (spi->controller->last_cs_enable == enable) &&
+	    (spi->controller->last_cs_mode_high == (spi->mode & SPI_CS_HIGH)))
+		return;
+
+	trace_spi_set_cs(spi, activate);
+
+	spi->controller->last_cs_enable = enable;
+	spi->controller->last_cs_mode_high = spi->mode & SPI_CS_HIGH;
+
+	if ((spi->cs_gpiod || gpio_is_valid(spi->cs_gpio) ||
+	    !spi->controller->set_cs_timing) && !activate) {
+		spi_delay_exec(&spi->cs_hold, NULL);
+	}
+
+	if (spi->mode & SPI_CS_HIGH)
+		enable = !enable;
+
+	if (spi->cs_gpiod || gpio_is_valid(spi->cs_gpio)) {
+		if (!(spi->mode & SPI_NO_CS)) {
+			if (spi->cs_gpiod) {
+				/*
+				 * Historically ACPI has no means of the GPIO polarity and
+				 * thus the SPISerialBus() resource defines it on the per-chip
+				 * basis. In order to avoid a chain of negations, the GPIO
+				 * polarity is considered being Active High. Even for the cases
+				 * when _DSD() is involved (in the updated versions of ACPI)
+				 * the GPIO CS polarity must be defined Active High to avoid
+				 * ambiguity. That's why we use enable, that takes SPI_CS_HIGH
+				 * into account.
+				 */
+				if (has_acpi_companion(&spi->dev))
+					gpiod_set_value_cansleep(spi->cs_gpiod, !enable);
+				else
+					/* Polarity handled by GPIO library */
+					gpiod_set_value_cansleep(spi->cs_gpiod, activate);
+			} else {
+				/*
+				 * invert the enable line, as active low is
+				 * default for SPI.
+				 */
+				gpio_set_value_cansleep(spi->cs_gpio, !enable);
+			}
+		}
+>>>>>>> upstream/android-13
 		/* Some SPI masters need both GPIO CS & slave_select */
 		if ((spi->controller->flags & SPI_MASTER_GPIO_SS) &&
 		    spi->controller->set_cs)
@@ -754,6 +1104,17 @@ static void spi_set_cs(struct spi_device *spi, bool enable)
 	} else if (spi->controller->set_cs) {
 		spi->controller->set_cs(spi, !enable);
 	}
+<<<<<<< HEAD
+=======
+
+	if (spi->cs_gpiod || gpio_is_valid(spi->cs_gpio) ||
+	    !spi->controller->set_cs_timing) {
+		if (activate)
+			spi_delay_exec(&spi->cs_setup, NULL);
+		else
+			spi_delay_exec(&spi->cs_inactive, NULL);
+	}
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_HAS_DMA
@@ -779,10 +1140,17 @@ int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
 	int i, ret;
 
 	if (vmalloced_buf || kmap_buf) {
+<<<<<<< HEAD
 		desc_len = min_t(int, max_seg_size, PAGE_SIZE);
 		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
 	} else if (virt_addr_valid(buf)) {
 		desc_len = min_t(int, max_seg_size, ctlr->max_dma_len);
+=======
+		desc_len = min_t(unsigned long, max_seg_size, PAGE_SIZE);
+		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
+	} else if (virt_addr_valid(buf)) {
+		desc_len = min_t(size_t, max_seg_size, ctlr->max_dma_len);
+>>>>>>> upstream/android-13
 		sgs = DIV_ROUND_UP(len, desc_len);
 	} else {
 		return -EINVAL;
@@ -858,11 +1226,21 @@ static int __spi_map_msg(struct spi_controller *ctlr, struct spi_message *msg)
 
 	if (ctlr->dma_tx)
 		tx_dev = ctlr->dma_tx->device->dev;
+<<<<<<< HEAD
+=======
+	else if (ctlr->dma_map_dev)
+		tx_dev = ctlr->dma_map_dev;
+>>>>>>> upstream/android-13
 	else
 		tx_dev = ctlr->dev.parent;
 
 	if (ctlr->dma_rx)
 		rx_dev = ctlr->dma_rx->device->dev;
+<<<<<<< HEAD
+=======
+	else if (ctlr->dma_map_dev)
+		rx_dev = ctlr->dma_map_dev;
+>>>>>>> upstream/android-13
 	else
 		rx_dev = ctlr->dev.parent;
 
@@ -905,11 +1283,21 @@ static int __spi_unmap_msg(struct spi_controller *ctlr, struct spi_message *msg)
 
 	if (ctlr->dma_tx)
 		tx_dev = ctlr->dma_tx->device->dev;
+<<<<<<< HEAD
+=======
+	else if (ctlr->dma_map_dev)
+		tx_dev = ctlr->dma_map_dev;
+>>>>>>> upstream/android-13
 	else
 		tx_dev = ctlr->dev.parent;
 
 	if (ctlr->dma_rx)
 		rx_dev = ctlr->dma_rx->device->dev;
+<<<<<<< HEAD
+=======
+	else if (ctlr->dma_map_dev)
+		rx_dev = ctlr->dma_map_dev;
+>>>>>>> upstream/android-13
 	else
 		rx_dev = ctlr->dev.parent;
 
@@ -921,6 +1309,11 @@ static int __spi_unmap_msg(struct spi_controller *ctlr, struct spi_message *msg)
 		spi_unmap_buf(ctlr, tx_dev, &xfer->tx_sg, DMA_TO_DEVICE);
 	}
 
+<<<<<<< HEAD
+=======
+	ctlr->cur_msg_mapped = false;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 #else /* !CONFIG_HAS_DMA */
@@ -962,7 +1355,12 @@ static int spi_map_msg(struct spi_controller *ctlr, struct spi_message *msg)
 	void *tmp;
 	unsigned int max_tx, max_rx;
 
+<<<<<<< HEAD
 	if (ctlr->flags & (SPI_CONTROLLER_MUST_RX | SPI_CONTROLLER_MUST_TX)) {
+=======
+	if ((ctlr->flags & (SPI_CONTROLLER_MUST_RX | SPI_CONTROLLER_MUST_TX))
+		&& !(msg->spi->mode & SPI_3WIRE)) {
+>>>>>>> upstream/android-13
 		max_tx = 0;
 		max_rx = 0;
 
@@ -1008,6 +1406,157 @@ static int spi_map_msg(struct spi_controller *ctlr, struct spi_message *msg)
 	return __spi_map_msg(ctlr, msg);
 }
 
+<<<<<<< HEAD
+=======
+static int spi_transfer_wait(struct spi_controller *ctlr,
+			     struct spi_message *msg,
+			     struct spi_transfer *xfer)
+{
+	struct spi_statistics *statm = &ctlr->statistics;
+	struct spi_statistics *stats = &msg->spi->statistics;
+	u32 speed_hz = xfer->speed_hz;
+	unsigned long long ms;
+
+	if (spi_controller_is_slave(ctlr)) {
+		if (wait_for_completion_interruptible(&ctlr->xfer_completion)) {
+			dev_dbg(&msg->spi->dev, "SPI transfer interrupted\n");
+			return -EINTR;
+		}
+	} else {
+		if (!speed_hz)
+			speed_hz = 100000;
+
+		/*
+		 * For each byte we wait for 8 cycles of the SPI clock.
+		 * Since speed is defined in Hz and we want milliseconds,
+		 * use respective multiplier, but before the division,
+		 * otherwise we may get 0 for short transfers.
+		 */
+		ms = 8LL * MSEC_PER_SEC * xfer->len;
+		do_div(ms, speed_hz);
+
+		/*
+		 * Increase it twice and add 200 ms tolerance, use
+		 * predefined maximum in case of overflow.
+		 */
+		ms += ms + 200;
+		if (ms > UINT_MAX)
+			ms = UINT_MAX;
+
+		ms = wait_for_completion_timeout(&ctlr->xfer_completion,
+						 msecs_to_jiffies(ms));
+
+		if (ms == 0) {
+			SPI_STATISTICS_INCREMENT_FIELD(statm, timedout);
+			SPI_STATISTICS_INCREMENT_FIELD(stats, timedout);
+			dev_err(&msg->spi->dev,
+				"SPI transfer timed out\n");
+			return -ETIMEDOUT;
+		}
+	}
+
+	return 0;
+}
+
+static void _spi_transfer_delay_ns(u32 ns)
+{
+	if (!ns)
+		return;
+	if (ns <= NSEC_PER_USEC) {
+		ndelay(ns);
+	} else {
+		u32 us = DIV_ROUND_UP(ns, NSEC_PER_USEC);
+
+		if (us <= 10)
+			udelay(us);
+		else
+			usleep_range(us, us + DIV_ROUND_UP(us, 10));
+	}
+}
+
+int spi_delay_to_ns(struct spi_delay *_delay, struct spi_transfer *xfer)
+{
+	u32 delay = _delay->value;
+	u32 unit = _delay->unit;
+	u32 hz;
+
+	if (!delay)
+		return 0;
+
+	switch (unit) {
+	case SPI_DELAY_UNIT_USECS:
+		delay *= NSEC_PER_USEC;
+		break;
+	case SPI_DELAY_UNIT_NSECS:
+		/* Nothing to do here */
+		break;
+	case SPI_DELAY_UNIT_SCK:
+		/* clock cycles need to be obtained from spi_transfer */
+		if (!xfer)
+			return -EINVAL;
+		/*
+		 * If there is unknown effective speed, approximate it
+		 * by underestimating with half of the requested hz.
+		 */
+		hz = xfer->effective_speed_hz ?: xfer->speed_hz / 2;
+		if (!hz)
+			return -EINVAL;
+
+		/* Convert delay to nanoseconds */
+		delay *= DIV_ROUND_UP(NSEC_PER_SEC, hz);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return delay;
+}
+EXPORT_SYMBOL_GPL(spi_delay_to_ns);
+
+int spi_delay_exec(struct spi_delay *_delay, struct spi_transfer *xfer)
+{
+	int delay;
+
+	might_sleep();
+
+	if (!_delay)
+		return -EINVAL;
+
+	delay = spi_delay_to_ns(_delay, xfer);
+	if (delay < 0)
+		return delay;
+
+	_spi_transfer_delay_ns(delay);
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(spi_delay_exec);
+
+static void _spi_transfer_cs_change_delay(struct spi_message *msg,
+					  struct spi_transfer *xfer)
+{
+	u32 default_delay_ns = 10 * NSEC_PER_USEC;
+	u32 delay = xfer->cs_change_delay.value;
+	u32 unit = xfer->cs_change_delay.unit;
+	int ret;
+
+	/* return early on "fast" mode - for everything but USECS */
+	if (!delay) {
+		if (unit == SPI_DELAY_UNIT_USECS)
+			_spi_transfer_delay_ns(default_delay_ns);
+		return;
+	}
+
+	ret = spi_delay_exec(&xfer->cs_change_delay, xfer);
+	if (ret) {
+		dev_err_once(&msg->spi->dev,
+			     "Use of unsupported delay unit %i, using default of %luus\n",
+			     unit, default_delay_ns / NSEC_PER_USEC);
+		_spi_transfer_delay_ns(default_delay_ns);
+	}
+}
+
+>>>>>>> upstream/android-13
 /*
  * spi_transfer_one_message - Default implementation of transfer_one_message()
  *
@@ -1021,11 +1570,18 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
 	struct spi_transfer *xfer;
 	bool keep_cs = false;
 	int ret = 0;
+<<<<<<< HEAD
 	unsigned long long ms = 1;
 	struct spi_statistics *statm = &ctlr->statistics;
 	struct spi_statistics *stats = &msg->spi->statistics;
 
 	spi_set_cs(msg->spi, true);
+=======
+	struct spi_statistics *statm = &ctlr->statistics;
+	struct spi_statistics *stats = &msg->spi->statistics;
+
+	spi_set_cs(msg->spi, true, false);
+>>>>>>> upstream/android-13
 
 	SPI_STATISTICS_INCREMENT_FIELD(statm, messages);
 	SPI_STATISTICS_INCREMENT_FIELD(stats, messages);
@@ -1036,11 +1592,33 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
 		spi_statistics_add_transfer_stats(statm, xfer, ctlr);
 		spi_statistics_add_transfer_stats(stats, xfer, ctlr);
 
+<<<<<<< HEAD
 		if (xfer->tx_buf || xfer->rx_buf) {
 			reinit_completion(&ctlr->xfer_completion);
 
 			ret = ctlr->transfer_one(ctlr, msg->spi, xfer);
 			if (ret < 0) {
+=======
+		if (!ctlr->ptp_sts_supported) {
+			xfer->ptp_sts_word_pre = 0;
+			ptp_read_system_prets(xfer->ptp_sts);
+		}
+
+		if ((xfer->tx_buf || xfer->rx_buf) && xfer->len) {
+			reinit_completion(&ctlr->xfer_completion);
+
+fallback_pio:
+			ret = ctlr->transfer_one(ctlr, msg->spi, xfer);
+			if (ret < 0) {
+				if (ctlr->cur_msg_mapped &&
+				   (xfer->error & SPI_TRANS_FAIL_NO_START)) {
+					__spi_unmap_msg(ctlr, msg);
+					ctlr->fallback = true;
+					xfer->error &= ~SPI_TRANS_FAIL_NO_START;
+					goto fallback_pio;
+				}
+
+>>>>>>> upstream/android-13
 				SPI_STATISTICS_INCREMENT_FIELD(statm,
 							       errors);
 				SPI_STATISTICS_INCREMENT_FIELD(stats,
@@ -1051,6 +1629,7 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
 			}
 
 			if (ret > 0) {
+<<<<<<< HEAD
 				ret = 0;
 				ms = 8LL * 1000LL * xfer->len;
 				do_div(ms, xfer->speed_hz);
@@ -1073,6 +1652,11 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
 				dev_err(&msg->spi->dev,
 					"SPI transfer timed out\n");
 				msg->status = -ETIMEDOUT;
+=======
+				ret = spi_transfer_wait(ctlr, msg, xfer);
+				if (ret < 0)
+					msg->status = ret;
+>>>>>>> upstream/android-13
 			}
 		} else {
 			if (xfer->len)
@@ -1081,11 +1665,20 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
 					xfer->len);
 		}
 
+<<<<<<< HEAD
+=======
+		if (!ctlr->ptp_sts_supported) {
+			ptp_read_system_postts(xfer->ptp_sts);
+			xfer->ptp_sts_word_post = xfer->len;
+		}
+
+>>>>>>> upstream/android-13
 		trace_spi_transfer_stop(msg, xfer);
 
 		if (msg->status != -EINPROGRESS)
 			goto out;
 
+<<<<<<< HEAD
 		if (xfer->delay_usecs) {
 			u16 us = xfer->delay_usecs;
 
@@ -1094,15 +1687,24 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
 			else
 				usleep_range(us, us + DIV_ROUND_UP(us, 10));
 		}
+=======
+		spi_transfer_delay_exec(xfer);
+>>>>>>> upstream/android-13
 
 		if (xfer->cs_change) {
 			if (list_is_last(&xfer->transfer_list,
 					 &msg->transfers)) {
 				keep_cs = true;
 			} else {
+<<<<<<< HEAD
 				spi_set_cs(msg->spi, false);
 				udelay(10);
 				spi_set_cs(msg->spi, true);
+=======
+				spi_set_cs(msg->spi, false, false);
+				_spi_transfer_cs_change_delay(msg, xfer);
+				spi_set_cs(msg->spi, true, false);
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -1111,7 +1713,11 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
 
 out:
 	if (ret != 0 || !keep_cs)
+<<<<<<< HEAD
 		spi_set_cs(msg->spi, false);
+=======
+		spi_set_cs(msg->spi, false, false);
+>>>>>>> upstream/android-13
 
 	if (msg->status == -EINPROGRESS)
 		msg->status = ret;
@@ -1138,6 +1744,17 @@ void spi_finalize_current_transfer(struct spi_controller *ctlr)
 }
 EXPORT_SYMBOL_GPL(spi_finalize_current_transfer);
 
+<<<<<<< HEAD
+=======
+static void spi_idle_runtime_pm(struct spi_controller *ctlr)
+{
+	if (ctlr->auto_runtime_pm) {
+		pm_runtime_mark_last_busy(ctlr->dev.parent);
+		pm_runtime_put_autosuspend(ctlr->dev.parent);
+	}
+}
+
+>>>>>>> upstream/android-13
 /**
  * __spi_pump_messages - function which processes spi message queue
  * @ctlr: controller to process queue for
@@ -1153,8 +1770,15 @@ EXPORT_SYMBOL_GPL(spi_finalize_current_transfer);
  */
 static void __spi_pump_messages(struct spi_controller *ctlr, bool in_kthread)
 {
+<<<<<<< HEAD
 	unsigned long flags;
 	bool was_busy = false;
+=======
+	struct spi_transfer *xfer;
+	struct spi_message *msg;
+	bool was_busy = false;
+	unsigned long flags;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Lock queue */
@@ -1168,7 +1792,11 @@ static void __spi_pump_messages(struct spi_controller *ctlr, bool in_kthread)
 
 	/* If another context is idling the device then defer */
 	if (ctlr->idling) {
+<<<<<<< HEAD
 		kthread_queue_work(&ctlr->kworker, &ctlr->pump_messages);
+=======
+		kthread_queue_work(ctlr->kworker, &ctlr->pump_messages);
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&ctlr->queue_lock, flags);
 		return;
 	}
@@ -1180,10 +1808,24 @@ static void __spi_pump_messages(struct spi_controller *ctlr, bool in_kthread)
 			return;
 		}
 
+<<<<<<< HEAD
 		/* Only do teardown in the thread */
 		if (!in_kthread) {
 			kthread_queue_work(&ctlr->kworker,
 					   &ctlr->pump_messages);
+=======
+		/* Defer any non-atomic teardown to the thread */
+		if (!in_kthread) {
+			if (!ctlr->dummy_rx && !ctlr->dummy_tx &&
+			    !ctlr->unprepare_transfer_hardware) {
+				spi_idle_runtime_pm(ctlr);
+				ctlr->busy = false;
+				trace_spi_controller_idle(ctlr);
+			} else {
+				kthread_queue_work(ctlr->kworker,
+						   &ctlr->pump_messages);
+			}
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&ctlr->queue_lock, flags);
 			return;
 		}
@@ -1200,10 +1842,14 @@ static void __spi_pump_messages(struct spi_controller *ctlr, bool in_kthread)
 		    ctlr->unprepare_transfer_hardware(ctlr))
 			dev_err(&ctlr->dev,
 				"failed to unprepare transfer hardware\n");
+<<<<<<< HEAD
 		if (ctlr->auto_runtime_pm) {
 			pm_runtime_mark_last_busy(ctlr->dev.parent);
 			pm_runtime_put_autosuspend(ctlr->dev.parent);
 		}
+=======
+		spi_idle_runtime_pm(ctlr);
+>>>>>>> upstream/android-13
 		trace_spi_controller_idle(ctlr);
 
 		spin_lock_irqsave(&ctlr->queue_lock, flags);
@@ -1213,10 +1859,17 @@ static void __spi_pump_messages(struct spi_controller *ctlr, bool in_kthread)
 	}
 
 	/* Extract head of queue */
+<<<<<<< HEAD
 	ctlr->cur_msg =
 		list_first_entry(&ctlr->queue, struct spi_message, queue);
 
 	list_del_init(&ctlr->cur_msg->queue);
+=======
+	msg = list_first_entry(&ctlr->queue, struct spi_message, queue);
+	ctlr->cur_msg = msg;
+
+	list_del_init(&msg->queue);
+>>>>>>> upstream/android-13
 	if (ctlr->busy)
 		was_busy = true;
 	else
@@ -1243,15 +1896,28 @@ static void __spi_pump_messages(struct spi_controller *ctlr, bool in_kthread)
 		ret = ctlr->prepare_transfer_hardware(ctlr);
 		if (ret) {
 			dev_err(&ctlr->dev,
+<<<<<<< HEAD
 				"failed to prepare transfer hardware\n");
 
 			if (ctlr->auto_runtime_pm)
 				pm_runtime_put(ctlr->dev.parent);
+=======
+				"failed to prepare transfer hardware: %d\n",
+				ret);
+
+			if (ctlr->auto_runtime_pm)
+				pm_runtime_put(ctlr->dev.parent);
+
+			msg->status = ret;
+			spi_finalize_current_message(ctlr);
+
+>>>>>>> upstream/android-13
 			mutex_unlock(&ctlr->io_mutex);
 			return;
 		}
 	}
 
+<<<<<<< HEAD
 	trace_spi_message_start(ctlr->cur_msg);
 
 	if (ctlr->prepare_message) {
@@ -1260,20 +1926,47 @@ static void __spi_pump_messages(struct spi_controller *ctlr, bool in_kthread)
 			dev_err(&ctlr->dev, "failed to prepare message: %d\n",
 				ret);
 			ctlr->cur_msg->status = ret;
+=======
+	trace_spi_message_start(msg);
+
+	if (ctlr->prepare_message) {
+		ret = ctlr->prepare_message(ctlr, msg);
+		if (ret) {
+			dev_err(&ctlr->dev, "failed to prepare message: %d\n",
+				ret);
+			msg->status = ret;
+>>>>>>> upstream/android-13
 			spi_finalize_current_message(ctlr);
 			goto out;
 		}
 		ctlr->cur_msg_prepared = true;
 	}
 
+<<<<<<< HEAD
 	ret = spi_map_msg(ctlr, ctlr->cur_msg);
 	if (ret) {
 		ctlr->cur_msg->status = ret;
+=======
+	ret = spi_map_msg(ctlr, msg);
+	if (ret) {
+		msg->status = ret;
+>>>>>>> upstream/android-13
 		spi_finalize_current_message(ctlr);
 		goto out;
 	}
 
+<<<<<<< HEAD
 	ret = ctlr->transfer_one_message(ctlr, ctlr->cur_msg);
+=======
+	if (!ctlr->ptp_sts_supported && !ctlr->transfer_one) {
+		list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+			xfer->ptp_sts_word_pre = 0;
+			ptp_read_system_prets(xfer->ptp_sts);
+		}
+	}
+
+	ret = ctlr->transfer_one_message(ctlr, msg);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&ctlr->dev,
 			"failed to transfer one message from queue\n");
@@ -1300,6 +1993,7 @@ static void spi_pump_messages(struct kthread_work *work)
 	__spi_pump_messages(ctlr, true);
 }
 
+<<<<<<< HEAD
 static int spi_init_queue(struct spi_controller *ctlr)
 {
 	struct sched_param param = { .sched_priority = MAX_RT_PRIO - 1 };
@@ -1314,6 +2008,126 @@ static int spi_init_queue(struct spi_controller *ctlr)
 		dev_err(&ctlr->dev, "failed to create message pump task\n");
 		return PTR_ERR(ctlr->kworker_task);
 	}
+=======
+/**
+ * spi_take_timestamp_pre - helper for drivers to collect the beginning of the
+ *			    TX timestamp for the requested byte from the SPI
+ *			    transfer. The frequency with which this function
+ *			    must be called (once per word, once for the whole
+ *			    transfer, once per batch of words etc) is arbitrary
+ *			    as long as the @tx buffer offset is greater than or
+ *			    equal to the requested byte at the time of the
+ *			    call. The timestamp is only taken once, at the
+ *			    first such call. It is assumed that the driver
+ *			    advances its @tx buffer pointer monotonically.
+ * @ctlr: Pointer to the spi_controller structure of the driver
+ * @xfer: Pointer to the transfer being timestamped
+ * @progress: How many words (not bytes) have been transferred so far
+ * @irqs_off: If true, will disable IRQs and preemption for the duration of the
+ *	      transfer, for less jitter in time measurement. Only compatible
+ *	      with PIO drivers. If true, must follow up with
+ *	      spi_take_timestamp_post or otherwise system will crash.
+ *	      WARNING: for fully predictable results, the CPU frequency must
+ *	      also be under control (governor).
+ */
+void spi_take_timestamp_pre(struct spi_controller *ctlr,
+			    struct spi_transfer *xfer,
+			    size_t progress, bool irqs_off)
+{
+	if (!xfer->ptp_sts)
+		return;
+
+	if (xfer->timestamped)
+		return;
+
+	if (progress > xfer->ptp_sts_word_pre)
+		return;
+
+	/* Capture the resolution of the timestamp */
+	xfer->ptp_sts_word_pre = progress;
+
+	if (irqs_off) {
+		local_irq_save(ctlr->irq_flags);
+		preempt_disable();
+	}
+
+	ptp_read_system_prets(xfer->ptp_sts);
+}
+EXPORT_SYMBOL_GPL(spi_take_timestamp_pre);
+
+/**
+ * spi_take_timestamp_post - helper for drivers to collect the end of the
+ *			     TX timestamp for the requested byte from the SPI
+ *			     transfer. Can be called with an arbitrary
+ *			     frequency: only the first call where @tx exceeds
+ *			     or is equal to the requested word will be
+ *			     timestamped.
+ * @ctlr: Pointer to the spi_controller structure of the driver
+ * @xfer: Pointer to the transfer being timestamped
+ * @progress: How many words (not bytes) have been transferred so far
+ * @irqs_off: If true, will re-enable IRQs and preemption for the local CPU.
+ */
+void spi_take_timestamp_post(struct spi_controller *ctlr,
+			     struct spi_transfer *xfer,
+			     size_t progress, bool irqs_off)
+{
+	if (!xfer->ptp_sts)
+		return;
+
+	if (xfer->timestamped)
+		return;
+
+	if (progress < xfer->ptp_sts_word_post)
+		return;
+
+	ptp_read_system_postts(xfer->ptp_sts);
+
+	if (irqs_off) {
+		local_irq_restore(ctlr->irq_flags);
+		preempt_enable();
+	}
+
+	/* Capture the resolution of the timestamp */
+	xfer->ptp_sts_word_post = progress;
+
+	xfer->timestamped = true;
+}
+EXPORT_SYMBOL_GPL(spi_take_timestamp_post);
+
+/**
+ * spi_set_thread_rt - set the controller to pump at realtime priority
+ * @ctlr: controller to boost priority of
+ *
+ * This can be called because the controller requested realtime priority
+ * (by setting the ->rt value before calling spi_register_controller()) or
+ * because a device on the bus said that its transfers needed realtime
+ * priority.
+ *
+ * NOTE: at the moment if any device on a bus says it needs realtime then
+ * the thread will be at realtime priority for all transfers on that
+ * controller.  If this eventually becomes a problem we may see if we can
+ * find a way to boost the priority only temporarily during relevant
+ * transfers.
+ */
+static void spi_set_thread_rt(struct spi_controller *ctlr)
+{
+	dev_info(&ctlr->dev,
+		"will run message pump with realtime priority\n");
+	sched_set_fifo(ctlr->kworker->task);
+}
+
+static int spi_init_queue(struct spi_controller *ctlr)
+{
+	ctlr->running = false;
+	ctlr->busy = false;
+
+	ctlr->kworker = kthread_create_worker(0, dev_name(&ctlr->dev));
+	if (IS_ERR(ctlr->kworker)) {
+		dev_err(&ctlr->dev, "failed to create message pump kworker\n");
+		return PTR_ERR(ctlr->kworker);
+	}
+
+>>>>>>> upstream/android-13
 	kthread_init_work(&ctlr->pump_messages, spi_pump_messages);
 
 	/*
@@ -1323,11 +2137,16 @@ static int spi_init_queue(struct spi_controller *ctlr)
 	 * request and the scheduling of the message pump thread. Without this
 	 * setting the message pump thread will remain at default priority.
 	 */
+<<<<<<< HEAD
 	if (ctlr->rt) {
 		dev_info(&ctlr->dev,
 			"will run message pump with realtime priority\n");
 		sched_setscheduler(ctlr->kworker_task, SCHED_FIFO, &param);
 	}
+=======
+	if (ctlr->rt)
+		spi_set_thread_rt(ctlr);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1366,6 +2185,10 @@ EXPORT_SYMBOL_GPL(spi_get_next_queued_message);
  */
 void spi_finalize_current_message(struct spi_controller *ctlr)
 {
+<<<<<<< HEAD
+=======
+	struct spi_transfer *xfer;
+>>>>>>> upstream/android-13
 	struct spi_message *mesg;
 	unsigned long flags;
 	int ret;
@@ -1374,6 +2197,20 @@ void spi_finalize_current_message(struct spi_controller *ctlr)
 	mesg = ctlr->cur_msg;
 	spin_unlock_irqrestore(&ctlr->queue_lock, flags);
 
+<<<<<<< HEAD
+=======
+	if (!ctlr->ptp_sts_supported && !ctlr->transfer_one) {
+		list_for_each_entry(xfer, &mesg->transfers, transfer_list) {
+			ptp_read_system_postts(xfer->ptp_sts);
+			xfer->ptp_sts_word_post = xfer->len;
+		}
+	}
+
+	if (unlikely(ctlr->ptp_sts_supported))
+		list_for_each_entry(xfer, &mesg->transfers, transfer_list)
+			WARN_ON_ONCE(xfer->ptp_sts && !xfer->timestamped);
+
+>>>>>>> upstream/android-13
 	spi_unmap_msg(ctlr, mesg);
 
 	/* In the prepare_messages callback the spi bus has the opportunity to
@@ -1394,7 +2231,12 @@ void spi_finalize_current_message(struct spi_controller *ctlr)
 	spin_lock_irqsave(&ctlr->queue_lock, flags);
 	ctlr->cur_msg = NULL;
 	ctlr->cur_msg_prepared = false;
+<<<<<<< HEAD
 	kthread_queue_work(&ctlr->kworker, &ctlr->pump_messages);
+=======
+	ctlr->fallback = false;
+	kthread_queue_work(ctlr->kworker, &ctlr->pump_messages);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&ctlr->queue_lock, flags);
 
 	trace_spi_message_done(mesg);
@@ -1420,7 +2262,11 @@ static int spi_start_queue(struct spi_controller *ctlr)
 	ctlr->cur_msg = NULL;
 	spin_unlock_irqrestore(&ctlr->queue_lock, flags);
 
+<<<<<<< HEAD
 	kthread_queue_work(&ctlr->kworker, &ctlr->pump_messages);
+=======
+	kthread_queue_work(ctlr->kworker, &ctlr->pump_messages);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1476,8 +2322,12 @@ static int spi_destroy_queue(struct spi_controller *ctlr)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	kthread_flush_worker(&ctlr->kworker);
 	kthread_stop(ctlr->kworker_task);
+=======
+	kthread_destroy_worker(ctlr->kworker);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1500,7 +2350,11 @@ static int __spi_queued_transfer(struct spi_device *spi,
 
 	list_add_tail(&msg->queue, &ctlr->queue);
 	if (!ctlr->busy && need_pump)
+<<<<<<< HEAD
 		kthread_queue_work(&ctlr->kworker, &ctlr->pump_messages);
+=======
+		kthread_queue_work(ctlr->kworker, &ctlr->pump_messages);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&ctlr->queue_lock, flags);
 	return 0;
@@ -1577,16 +2431,30 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
 		spi->mode |= SPI_CPHA;
 	if (of_property_read_bool(nc, "spi-cpol"))
 		spi->mode |= SPI_CPOL;
+<<<<<<< HEAD
 	if (of_property_read_bool(nc, "spi-cs-high"))
 		spi->mode |= SPI_CS_HIGH;
+=======
+>>>>>>> upstream/android-13
 	if (of_property_read_bool(nc, "spi-3wire"))
 		spi->mode |= SPI_3WIRE;
 	if (of_property_read_bool(nc, "spi-lsb-first"))
 		spi->mode |= SPI_LSB_FIRST;
+<<<<<<< HEAD
+=======
+	if (of_property_read_bool(nc, "spi-cs-high"))
+		spi->mode |= SPI_CS_HIGH;
+>>>>>>> upstream/android-13
 
 	/* Device DUAL/QUAD mode */
 	if (!of_property_read_u32(nc, "spi-tx-bus-width", &value)) {
 		switch (value) {
+<<<<<<< HEAD
+=======
+		case 0:
+			spi->mode |= SPI_NO_TX;
+			break;
+>>>>>>> upstream/android-13
 		case 1:
 			break;
 		case 2:
@@ -1595,6 +2463,12 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
 		case 4:
 			spi->mode |= SPI_TX_QUAD;
 			break;
+<<<<<<< HEAD
+=======
+		case 8:
+			spi->mode |= SPI_TX_OCTAL;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			dev_warn(&ctlr->dev,
 				"spi-tx-bus-width %d not supported\n",
@@ -1605,6 +2479,12 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
 
 	if (!of_property_read_u32(nc, "spi-rx-bus-width", &value)) {
 		switch (value) {
+<<<<<<< HEAD
+=======
+		case 0:
+			spi->mode |= SPI_NO_RX;
+			break;
+>>>>>>> upstream/android-13
 		case 1:
 			break;
 		case 2:
@@ -1613,6 +2493,12 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
 		case 4:
 			spi->mode |= SPI_RX_QUAD;
 			break;
+<<<<<<< HEAD
+=======
+		case 8:
+			spi->mode |= SPI_RX_OCTAL;
+			break;
+>>>>>>> upstream/android-13
 		default:
 			dev_warn(&ctlr->dev,
 				"spi-rx-bus-width %d not supported\n",
@@ -1622,7 +2508,11 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
 	}
 
 	if (spi_controller_is_slave(ctlr)) {
+<<<<<<< HEAD
 		if (strcmp(nc->name, "slave")) {
+=======
+		if (!of_node_name_eq(nc, "slave")) {
+>>>>>>> upstream/android-13
 			dev_err(&ctlr->dev, "%pOF is not called 'slave'\n",
 				nc);
 			return -EINVAL;
@@ -1640,6 +2530,7 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
 	spi->chip_select = value;
 
 	/* Device speed */
+<<<<<<< HEAD
 	rc = of_property_read_u32(nc, "spi-max-frequency", &value);
 	if (rc) {
 		dev_err(&ctlr->dev,
@@ -1647,6 +2538,10 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
 		return rc;
 	}
 	spi->max_speed_hz = value;
+=======
+	if (!of_property_read_u32(nc, "spi-max-frequency", &value))
+		spi->max_speed_hz = value;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1680,6 +2575,10 @@ of_register_spi_device(struct spi_controller *ctlr, struct device_node *nc)
 	/* Store a pointer to the node in the device structure */
 	of_node_get(nc);
 	spi->dev.of_node = nc;
+<<<<<<< HEAD
+=======
+	spi->dev.fwnode = of_fwnode_handle(nc);
+>>>>>>> upstream/android-13
 
 	/* Register the new device */
 	rc = spi_add_device(spi);
@@ -1727,10 +2626,75 @@ static void of_register_spi_devices(struct spi_controller *ctlr)
 static void of_register_spi_devices(struct spi_controller *ctlr) { }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_ACPI
 static void acpi_spi_parse_apple_properties(struct spi_device *spi)
 {
 	struct acpi_device *dev = ACPI_COMPANION(&spi->dev);
+=======
+/**
+ * spi_new_ancillary_device() - Register ancillary SPI device
+ * @spi:         Pointer to the main SPI device registering the ancillary device
+ * @chip_select: Chip Select of the ancillary device
+ *
+ * Register an ancillary SPI device; for example some chips have a chip-select
+ * for normal device usage and another one for setup/firmware upload.
+ *
+ * This may only be called from main SPI device's probe routine.
+ *
+ * Return: 0 on success; negative errno on failure
+ */
+struct spi_device *spi_new_ancillary_device(struct spi_device *spi,
+					     u8 chip_select)
+{
+	struct spi_device *ancillary;
+	int rc = 0;
+
+	/* Alloc an spi_device */
+	ancillary = spi_alloc_device(spi->controller);
+	if (!ancillary) {
+		rc = -ENOMEM;
+		goto err_out;
+	}
+
+	strlcpy(ancillary->modalias, "dummy", sizeof(ancillary->modalias));
+
+	/* Use provided chip-select for ancillary device */
+	ancillary->chip_select = chip_select;
+
+	/* Take over SPI mode/speed from SPI main device */
+	ancillary->max_speed_hz = spi->max_speed_hz;
+	ancillary->mode = spi->mode;
+
+	/* Register the new device */
+	rc = spi_add_device_locked(ancillary);
+	if (rc) {
+		dev_err(&spi->dev, "failed to register ancillary device\n");
+		goto err_out;
+	}
+
+	return ancillary;
+
+err_out:
+	spi_dev_put(ancillary);
+	return ERR_PTR(rc);
+}
+EXPORT_SYMBOL_GPL(spi_new_ancillary_device);
+
+#ifdef CONFIG_ACPI
+struct acpi_spi_lookup {
+	struct spi_controller 	*ctlr;
+	u32			max_speed_hz;
+	u32			mode;
+	int			irq;
+	u8			bits_per_word;
+	u8			chip_select;
+};
+
+static void acpi_spi_parse_apple_properties(struct acpi_device *dev,
+					    struct acpi_spi_lookup *lookup)
+{
+>>>>>>> upstream/android-13
 	const union acpi_object *obj;
 
 	if (!x86_apple_machine)
@@ -1738,6 +2702,7 @@ static void acpi_spi_parse_apple_properties(struct spi_device *spi)
 
 	if (!acpi_dev_get_property(dev, "spiSclkPeriod", ACPI_TYPE_BUFFER, &obj)
 	    && obj->buffer.length >= 4)
+<<<<<<< HEAD
 		spi->max_speed_hz  = NSEC_PER_SEC / *(u32 *)obj->buffer.pointer;
 
 	if (!acpi_dev_get_property(dev, "spiWordSize", ACPI_TYPE_BUFFER, &obj)
@@ -1755,10 +2720,30 @@ static void acpi_spi_parse_apple_properties(struct spi_device *spi)
 	if (!acpi_dev_get_property(dev, "spiSPH", ACPI_TYPE_BUFFER, &obj)
 	    && obj->buffer.length == 8 &&  *(u64 *)obj->buffer.pointer)
 		spi->mode |= SPI_CPHA;
+=======
+		lookup->max_speed_hz  = NSEC_PER_SEC / *(u32 *)obj->buffer.pointer;
+
+	if (!acpi_dev_get_property(dev, "spiWordSize", ACPI_TYPE_BUFFER, &obj)
+	    && obj->buffer.length == 8)
+		lookup->bits_per_word = *(u64 *)obj->buffer.pointer;
+
+	if (!acpi_dev_get_property(dev, "spiBitOrder", ACPI_TYPE_BUFFER, &obj)
+	    && obj->buffer.length == 8 && !*(u64 *)obj->buffer.pointer)
+		lookup->mode |= SPI_LSB_FIRST;
+
+	if (!acpi_dev_get_property(dev, "spiSPO", ACPI_TYPE_BUFFER, &obj)
+	    && obj->buffer.length == 8 &&  *(u64 *)obj->buffer.pointer)
+		lookup->mode |= SPI_CPOL;
+
+	if (!acpi_dev_get_property(dev, "spiSPH", ACPI_TYPE_BUFFER, &obj)
+	    && obj->buffer.length == 8 &&  *(u64 *)obj->buffer.pointer)
+		lookup->mode |= SPI_CPHA;
+>>>>>>> upstream/android-13
 }
 
 static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
 {
+<<<<<<< HEAD
 	struct spi_device *spi = data;
 	struct spi_controller *ctlr = spi->controller;
 
@@ -1767,6 +2752,27 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
 
 		sb = &ares->data.spi_serial_bus;
 		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_SPI) {
+=======
+	struct acpi_spi_lookup *lookup = data;
+	struct spi_controller *ctlr = lookup->ctlr;
+
+	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+		struct acpi_resource_spi_serialbus *sb;
+		acpi_handle parent_handle;
+		acpi_status status;
+
+		sb = &ares->data.spi_serial_bus;
+		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_SPI) {
+
+			status = acpi_get_handle(NULL,
+						 sb->resource_source.string_ptr,
+						 &parent_handle);
+
+			if (ACPI_FAILURE(status) ||
+			    ACPI_HANDLE(ctlr->dev.parent) != parent_handle)
+				return -ENODEV;
+
+>>>>>>> upstream/android-13
 			/*
 			 * ACPI DeviceSelection numbering is handled by the
 			 * host controller driver in Windows and can vary
@@ -1779,6 +2785,7 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
 						sb->device_selection);
 				if (cs < 0)
 					return cs;
+<<<<<<< HEAD
 				spi->chip_select = cs;
 			} else {
 				spi->chip_select = sb->device_selection;
@@ -1798,6 +2805,28 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
 
 		if (acpi_dev_resource_interrupt(ares, 0, &r))
 			spi->irq = r.start;
+=======
+				lookup->chip_select = cs;
+			} else {
+				lookup->chip_select = sb->device_selection;
+			}
+
+			lookup->max_speed_hz = sb->connection_speed;
+			lookup->bits_per_word = sb->data_bit_length;
+
+			if (sb->clock_phase == ACPI_SPI_SECOND_PHASE)
+				lookup->mode |= SPI_CPHA;
+			if (sb->clock_polarity == ACPI_SPI_START_HIGH)
+				lookup->mode |= SPI_CPOL;
+			if (sb->device_polarity == ACPI_SPI_ACTIVE_HIGH)
+				lookup->mode |= SPI_CS_HIGH;
+		}
+	} else if (lookup->irq < 0) {
+		struct resource r;
+
+		if (acpi_dev_resource_interrupt(ares, 0, &r))
+			lookup->irq = r.start;
+>>>>>>> upstream/android-13
 	}
 
 	/* Always tell the ACPI core to skip this resource */
@@ -1807,7 +2836,13 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
 static acpi_status acpi_register_spi_device(struct spi_controller *ctlr,
 					    struct acpi_device *adev)
 {
+<<<<<<< HEAD
 	struct list_head resource_list;
+=======
+	acpi_handle parent_handle = NULL;
+	struct list_head resource_list;
+	struct acpi_spi_lookup lookup = {};
+>>>>>>> upstream/android-13
 	struct spi_device *spi;
 	int ret;
 
@@ -1815,6 +2850,31 @@ static acpi_status acpi_register_spi_device(struct spi_controller *ctlr,
 	    acpi_device_enumerated(adev))
 		return AE_OK;
 
+<<<<<<< HEAD
+=======
+	lookup.ctlr		= ctlr;
+	lookup.irq		= -1;
+
+	INIT_LIST_HEAD(&resource_list);
+	ret = acpi_dev_get_resources(adev, &resource_list,
+				     acpi_spi_add_resource, &lookup);
+	acpi_dev_free_resource_list(&resource_list);
+
+	if (ret < 0)
+		/* found SPI in _CRS but it points to another controller */
+		return AE_OK;
+
+	if (!lookup.max_speed_hz &&
+	    ACPI_SUCCESS(acpi_get_parent(adev->handle, &parent_handle)) &&
+	    ACPI_HANDLE(ctlr->dev.parent) == parent_handle) {
+		/* Apple does not use _CRS but nested devices for SPI slaves */
+		acpi_spi_parse_apple_properties(adev, &lookup);
+	}
+
+	if (!lookup.max_speed_hz)
+		return AE_OK;
+
+>>>>>>> upstream/android-13
 	spi = spi_alloc_device(ctlr);
 	if (!spi) {
 		dev_err(&ctlr->dev, "failed to allocate SPI device for %s\n",
@@ -1822,6 +2882,7 @@ static acpi_status acpi_register_spi_device(struct spi_controller *ctlr,
 		return AE_NO_MEMORY;
 	}
 
+<<<<<<< HEAD
 	ACPI_COMPANION_SET(&spi->dev, adev);
 	spi->irq = -1;
 
@@ -1836,6 +2897,15 @@ static acpi_status acpi_register_spi_device(struct spi_controller *ctlr,
 		spi_dev_put(spi);
 		return AE_OK;
 	}
+=======
+
+	ACPI_COMPANION_SET(&spi->dev, adev);
+	spi->max_speed_hz	= lookup.max_speed_hz;
+	spi->mode		|= lookup.mode;
+	spi->irq		= lookup.irq;
+	spi->bits_per_word	= lookup.bits_per_word;
+	spi->chip_select	= lookup.chip_select;
+>>>>>>> upstream/android-13
 
 	acpi_set_modalias(adev, acpi_device_hid(adev), spi->modalias,
 			  sizeof(spi->modalias));
@@ -1868,6 +2938,11 @@ static acpi_status acpi_spi_add_device(acpi_handle handle, u32 level,
 	return acpi_register_spi_device(ctlr, adev);
 }
 
+<<<<<<< HEAD
+=======
+#define SPI_ACPI_ENUMERATE_MAX_DEPTH		32
+
+>>>>>>> upstream/android-13
 static void acpi_register_spi_devices(struct spi_controller *ctlr)
 {
 	acpi_status status;
@@ -1877,7 +2952,12 @@ static void acpi_register_spi_devices(struct spi_controller *ctlr)
 	if (!handle)
 		return;
 
+<<<<<<< HEAD
 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+=======
+	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+				     SPI_ACPI_ENUMERATE_MAX_DEPTH,
+>>>>>>> upstream/android-13
 				     acpi_spi_add_device, NULL, ctlr, NULL);
 	if (ACPI_FAILURE(status))
 		dev_warn(&ctlr->dev, "failed to enumerate SPI slaves\n");
@@ -1923,8 +3003,13 @@ static int match_true(struct device *dev, void *data)
 	return 1;
 }
 
+<<<<<<< HEAD
 static ssize_t spi_slave_show(struct device *dev,
 			      struct device_attribute *attr, char *buf)
+=======
+static ssize_t slave_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
+>>>>>>> upstream/android-13
 {
 	struct spi_controller *ctlr = container_of(dev, struct spi_controller,
 						   dev);
@@ -1935,9 +3020,14 @@ static ssize_t spi_slave_show(struct device *dev,
 		       child ? to_spi_device(child)->modalias : NULL);
 }
 
+<<<<<<< HEAD
 static ssize_t spi_slave_store(struct device *dev,
 			       struct device_attribute *attr, const char *buf,
 			       size_t count)
+=======
+static ssize_t slave_store(struct device *dev, struct device_attribute *attr,
+			   const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct spi_controller *ctlr = container_of(dev, struct spi_controller,
 						   dev);
@@ -1975,7 +3065,11 @@ static ssize_t spi_slave_store(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(slave, 0644, spi_slave_show, spi_slave_store);
+=======
+static DEVICE_ATTR_RW(slave);
+>>>>>>> upstream/android-13
 
 static struct attribute *spi_slave_attrs[] = {
 	&dev_attr_slave.attr,
@@ -2006,8 +3100,15 @@ extern struct class spi_slave_class;	/* dummy */
  * __spi_alloc_controller - allocate an SPI master or slave controller
  * @dev: the controller, possibly using the platform_bus
  * @size: how much zeroed driver-private data to allocate; the pointer to this
+<<<<<<< HEAD
  *	memory is in the driver_data field of the returned device,
  *	accessible with spi_controller_get_devdata().
+=======
+ *	memory is in the driver_data field of the returned device, accessible
+ *	with spi_controller_get_devdata(); the memory is cacheline aligned;
+ *	drivers granting DMA access to portions of their private data need to
+ *	round up @size using ALIGN(size, dma_get_cache_alignment()).
+>>>>>>> upstream/android-13
  * @slave: flag indicating whether to allocate an SPI master (false) or SPI
  *	slave (true) controller
  * Context: can sleep
@@ -2029,15 +3130,32 @@ struct spi_controller *__spi_alloc_controller(struct device *dev,
 					      unsigned int size, bool slave)
 {
 	struct spi_controller	*ctlr;
+<<<<<<< HEAD
+=======
+	size_t ctlr_size = ALIGN(sizeof(*ctlr), dma_get_cache_alignment());
+>>>>>>> upstream/android-13
 
 	if (!dev)
 		return NULL;
 
+<<<<<<< HEAD
 	ctlr = kzalloc(size + sizeof(*ctlr), GFP_KERNEL);
+=======
+	ctlr = kzalloc(size + ctlr_size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctlr)
 		return NULL;
 
 	device_initialize(&ctlr->dev);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&ctlr->queue);
+	spin_lock_init(&ctlr->queue_lock);
+	spin_lock_init(&ctlr->bus_lock_spinlock);
+	mutex_init(&ctlr->bus_lock_mutex);
+	mutex_init(&ctlr->io_mutex);
+	mutex_init(&ctlr->add_lock);
+>>>>>>> upstream/android-13
 	ctlr->bus_num = -1;
 	ctlr->num_chipselect = 1;
 	ctlr->slave = slave;
@@ -2047,7 +3165,11 @@ struct spi_controller *__spi_alloc_controller(struct device *dev,
 		ctlr->dev.class = &spi_master_class;
 	ctlr->dev.parent = dev;
 	pm_suspend_ignore_children(&ctlr->dev, true);
+<<<<<<< HEAD
 	spi_controller_set_devdata(ctlr, &ctlr[1]);
+=======
+	spi_controller_set_devdata(ctlr, (void *)ctlr + ctlr_size);
+>>>>>>> upstream/android-13
 
 	return ctlr;
 }
@@ -2098,7 +3220,11 @@ struct spi_controller *__devm_spi_alloc_controller(struct device *dev,
 EXPORT_SYMBOL_GPL(__devm_spi_alloc_controller);
 
 #ifdef CONFIG_OF
+<<<<<<< HEAD
 static int of_spi_register_master(struct spi_controller *ctlr)
+=======
+static int of_spi_get_gpio_numbers(struct spi_controller *ctlr)
+>>>>>>> upstream/android-13
 {
 	int nb, i, *cs;
 	struct device_node *np = ctlr->dev.of_node;
@@ -2131,12 +3257,94 @@ static int of_spi_register_master(struct spi_controller *ctlr)
 	return 0;
 }
 #else
+<<<<<<< HEAD
 static int of_spi_register_master(struct spi_controller *ctlr)
+=======
+static int of_spi_get_gpio_numbers(struct spi_controller *ctlr)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 #endif
 
+<<<<<<< HEAD
+=======
+/**
+ * spi_get_gpio_descs() - grab chip select GPIOs for the master
+ * @ctlr: The SPI master to grab GPIO descriptors for
+ */
+static int spi_get_gpio_descs(struct spi_controller *ctlr)
+{
+	int nb, i;
+	struct gpio_desc **cs;
+	struct device *dev = &ctlr->dev;
+	unsigned long native_cs_mask = 0;
+	unsigned int num_cs_gpios = 0;
+
+	nb = gpiod_count(dev, "cs");
+	if (nb < 0) {
+		/* No GPIOs at all is fine, else return the error */
+		if (nb == -ENOENT)
+			return 0;
+		return nb;
+	}
+
+	ctlr->num_chipselect = max_t(int, nb, ctlr->num_chipselect);
+
+	cs = devm_kcalloc(dev, ctlr->num_chipselect, sizeof(*cs),
+			  GFP_KERNEL);
+	if (!cs)
+		return -ENOMEM;
+	ctlr->cs_gpiods = cs;
+
+	for (i = 0; i < nb; i++) {
+		/*
+		 * Most chipselects are active low, the inverted
+		 * semantics are handled by special quirks in gpiolib,
+		 * so initializing them GPIOD_OUT_LOW here means
+		 * "unasserted", in most cases this will drive the physical
+		 * line high.
+		 */
+		cs[i] = devm_gpiod_get_index_optional(dev, "cs", i,
+						      GPIOD_OUT_LOW);
+		if (IS_ERR(cs[i]))
+			return PTR_ERR(cs[i]);
+
+		if (cs[i]) {
+			/*
+			 * If we find a CS GPIO, name it after the device and
+			 * chip select line.
+			 */
+			char *gpioname;
+
+			gpioname = devm_kasprintf(dev, GFP_KERNEL, "%s CS%d",
+						  dev_name(dev), i);
+			if (!gpioname)
+				return -ENOMEM;
+			gpiod_set_consumer_name(cs[i], gpioname);
+			num_cs_gpios++;
+			continue;
+		}
+
+		if (ctlr->max_native_cs && i >= ctlr->max_native_cs) {
+			dev_err(dev, "Invalid native chip select %d\n", i);
+			return -EINVAL;
+		}
+		native_cs_mask |= BIT(i);
+	}
+
+	ctlr->unused_native_cs = ffs(~native_cs_mask) - 1;
+
+	if ((ctlr->flags & SPI_MASTER_GPIO_SS) && num_cs_gpios &&
+	    ctlr->max_native_cs && ctlr->unused_native_cs >= ctlr->max_native_cs) {
+		dev_err(dev, "No unused native chip select available\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int spi_controller_check_ops(struct spi_controller *ctlr)
 {
 	/*
@@ -2184,7 +3392,11 @@ int spi_register_controller(struct spi_controller *ctlr)
 {
 	struct device		*dev = ctlr->dev.parent;
 	struct boardinfo	*bi;
+<<<<<<< HEAD
 	int			status = -ENODEV;
+=======
+	int			status;
+>>>>>>> upstream/android-13
 	int			id, first_dynamic;
 
 	if (!dev)
@@ -2198,6 +3410,7 @@ int spi_register_controller(struct spi_controller *ctlr)
 	if (status)
 		return status;
 
+<<<<<<< HEAD
 	if (!spi_controller_is_slave(ctlr)) {
 		status = of_spi_register_master(ctlr);
 		if (status)
@@ -2209,6 +3422,8 @@ int spi_register_controller(struct spi_controller *ctlr)
 	 */
 	if (ctlr->num_chipselect == 0)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 	if (ctlr->bus_num >= 0) {
 		/* devices with a fixed bus num must check-in with the num */
 		mutex_lock(&board_lock);
@@ -2246,11 +3461,14 @@ int spi_register_controller(struct spi_controller *ctlr)
 			return id;
 		ctlr->bus_num = id;
 	}
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&ctlr->queue);
 	spin_lock_init(&ctlr->queue_lock);
 	spin_lock_init(&ctlr->bus_lock_spinlock);
 	mutex_init(&ctlr->bus_lock_mutex);
 	mutex_init(&ctlr->io_mutex);
+=======
+>>>>>>> upstream/android-13
 	ctlr->bus_lock_flag = 0;
 	init_completion(&ctlr->xfer_completion);
 	if (!ctlr->max_dma_len)
@@ -2260,6 +3478,7 @@ int spi_register_controller(struct spi_controller *ctlr)
 	 * registration fails if the bus ID is in use.
 	 */
 	dev_set_name(&ctlr->dev, "spi%u", ctlr->bus_num);
+<<<<<<< HEAD
 	status = device_add(&ctlr->dev);
 	if (status < 0) {
 		/* free bus id */
@@ -2268,6 +3487,39 @@ int spi_register_controller(struct spi_controller *ctlr)
 		mutex_unlock(&board_lock);
 		goto done;
 	}
+=======
+
+	if (!spi_controller_is_slave(ctlr)) {
+		if (ctlr->use_gpio_descriptors) {
+			status = spi_get_gpio_descs(ctlr);
+			if (status)
+				goto free_bus_id;
+			/*
+			 * A controller using GPIO descriptors always
+			 * supports SPI_CS_HIGH if need be.
+			 */
+			ctlr->mode_bits |= SPI_CS_HIGH;
+		} else {
+			/* Legacy code path for GPIOs from DT */
+			status = of_spi_get_gpio_numbers(ctlr);
+			if (status)
+				goto free_bus_id;
+		}
+	}
+
+	/*
+	 * Even if it's just one always-selected device, there must
+	 * be at least one chipselect.
+	 */
+	if (!ctlr->num_chipselect) {
+		status = -EINVAL;
+		goto free_bus_id;
+	}
+
+	status = device_add(&ctlr->dev);
+	if (status < 0)
+		goto free_bus_id;
+>>>>>>> upstream/android-13
 	dev_dbg(dev, "registered %s %s\n",
 			spi_controller_is_slave(ctlr) ? "slave" : "master",
 			dev_name(&ctlr->dev));
@@ -2283,11 +3535,15 @@ int spi_register_controller(struct spi_controller *ctlr)
 		status = spi_controller_initialize_queue(ctlr);
 		if (status) {
 			device_del(&ctlr->dev);
+<<<<<<< HEAD
 			/* free bus id */
 			mutex_lock(&board_lock);
 			idr_remove(&spi_master_idr, ctlr->bus_num);
 			mutex_unlock(&board_lock);
 			goto done;
+=======
+			goto free_bus_id;
+>>>>>>> upstream/android-13
 		}
 	}
 	/* add statistics */
@@ -2302,14 +3558,29 @@ int spi_register_controller(struct spi_controller *ctlr)
 	/* Register devices from the device tree and ACPI */
 	of_register_spi_devices(ctlr);
 	acpi_register_spi_devices(ctlr);
+<<<<<<< HEAD
 done:
+=======
+	return status;
+
+free_bus_id:
+	mutex_lock(&board_lock);
+	idr_remove(&spi_master_idr, ctlr->bus_num);
+	mutex_unlock(&board_lock);
+>>>>>>> upstream/android-13
 	return status;
 }
 EXPORT_SYMBOL_GPL(spi_register_controller);
 
+<<<<<<< HEAD
 static void devm_spi_unregister(struct device *dev, void *res)
 {
 	spi_unregister_controller(*(struct spi_controller **)res);
+=======
+static void devm_spi_unregister(void *ctlr)
+{
+	spi_unregister_controller(ctlr);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2328,6 +3599,7 @@ static void devm_spi_unregister(struct device *dev, void *res)
 int devm_spi_register_controller(struct device *dev,
 				 struct spi_controller *ctlr)
 {
+<<<<<<< HEAD
 	struct spi_controller **ptr;
 	int ret;
 
@@ -2344,6 +3616,15 @@ int devm_spi_register_controller(struct device *dev,
 	}
 
 	return ret;
+=======
+	int ret;
+
+	ret = spi_register_controller(ctlr);
+	if (ret)
+		return ret;
+
+	return devm_add_action_or_reset(dev, devm_spi_unregister, ctlr);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(devm_spi_register_controller);
 
@@ -2372,7 +3653,11 @@ void spi_unregister_controller(struct spi_controller *ctlr)
 
 	/* Prevent addition of new devices, unregister existing ones */
 	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
+<<<<<<< HEAD
 		mutex_lock(&spi_add_lock);
+=======
+		mutex_lock(&ctlr->add_lock);
+>>>>>>> upstream/android-13
 
 	device_for_each_child(&ctlr->dev, NULL, __unregister);
 
@@ -2390,12 +3675,15 @@ void spi_unregister_controller(struct spi_controller *ctlr)
 
 	device_del(&ctlr->dev);
 
+<<<<<<< HEAD
 	/* Release the last reference on the controller if its driver
 	 * has not yet been converted to devm_spi_alloc_master/slave().
 	 */
 	if (!ctlr->devm_allocated)
 		put_device(&ctlr->dev);
 
+=======
+>>>>>>> upstream/android-13
 	/* free bus id */
 	mutex_lock(&board_lock);
 	if (found == ctlr)
@@ -2403,7 +3691,17 @@ void spi_unregister_controller(struct spi_controller *ctlr)
 	mutex_unlock(&board_lock);
 
 	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
+<<<<<<< HEAD
 		mutex_unlock(&spi_add_lock);
+=======
+		mutex_unlock(&ctlr->add_lock);
+
+	/* Release the last reference on the controller if its driver
+	 * has not yet been converted to devm_spi_alloc_master/slave().
+	 */
+	if (!ctlr->devm_allocated)
+		put_device(&ctlr->dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(spi_unregister_controller);
 
@@ -2546,12 +3844,18 @@ EXPORT_SYMBOL_GPL(spi_res_add);
  */
 void spi_res_release(struct spi_controller *ctlr, struct spi_message *message)
 {
+<<<<<<< HEAD
 	struct spi_res *res;
 
 	while (!list_empty(&message->resources)) {
 		res = list_last_entry(&message->resources,
 				      struct spi_res, entry);
 
+=======
+	struct spi_res *res, *tmp;
+
+	list_for_each_entry_safe_reverse(res, tmp, &message->resources, entry) {
+>>>>>>> upstream/android-13
 		if (res->release)
 			res->release(ctlr, message, res->data);
 
@@ -2615,8 +3919,12 @@ struct spi_replaced_transfers *spi_replace_transfers(
 
 	/* allocate the structure using spi_res */
 	rxfer = spi_res_alloc(msg->spi, __spi_replace_transfers_release,
+<<<<<<< HEAD
 			      insert * sizeof(struct spi_transfer)
 			      + sizeof(struct spi_replaced_transfers)
+=======
+			      struct_size(rxfer, inserted_transfers, insert)
+>>>>>>> upstream/android-13
 			      + extradatasize,
 			      gfp);
 	if (!rxfer)
@@ -2678,10 +3986,17 @@ struct spi_replaced_transfers *spi_replace_transfers(
 		/* add to list */
 		list_add(&xfer->transfer_list, rxfer->replaced_after);
 
+<<<<<<< HEAD
 		/* clear cs_change and delay_usecs for all but the last */
 		if (i) {
 			xfer->cs_change = false;
 			xfer->delay_usecs = 0;
+=======
+		/* clear cs_change and delay for all but the last */
+		if (i) {
+			xfer->cs_change = false;
+			xfer->delay.value = 0;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -2706,11 +4021,14 @@ static int __spi_split_transfer_maxsize(struct spi_controller *ctlr,
 	size_t offset;
 	size_t count, i;
 
+<<<<<<< HEAD
 	/* warn once about this fact that we are splitting a transfer */
 	dev_warn_once(&msg->spi->dev,
 		      "spi_transfer of length %i exceed max length of %zu - needed to split transfers\n",
 		      xfer->len, maxsize);
 
+=======
+>>>>>>> upstream/android-13
 	/* calculate how many we have to replace */
 	count = DIV_ROUND_UP(xfer->len, maxsize);
 
@@ -2766,9 +4084,15 @@ static int __spi_split_transfer_maxsize(struct spi_controller *ctlr,
 }
 
 /**
+<<<<<<< HEAD
  * spi_split_tranfers_maxsize - split spi transfers into multiple transfers
  *                              when an individual transfer exceeds a
  *                              certain size
+=======
+ * spi_split_transfers_maxsize - split spi transfers into multiple transfers
+ *                               when an individual transfer exceeds a
+ *                               certain size
+>>>>>>> upstream/android-13
  * @ctlr:    the @spi_controller for this transfer
  * @msg:   the @spi_message to transform
  * @maxsize:  the maximum when to apply this
@@ -2848,17 +4172,31 @@ int spi_setup(struct spi_device *spi)
 	unsigned	bad_bits, ugly_bits;
 	int		status;
 
+<<<<<<< HEAD
 	/* check mode to prevent that DUAL and QUAD set at the same time
 	 */
 	if (((spi->mode & SPI_TX_DUAL) && (spi->mode & SPI_TX_QUAD)) ||
 		((spi->mode & SPI_RX_DUAL) && (spi->mode & SPI_RX_QUAD))) {
 		dev_err(&spi->dev,
 		"setup: can not select dual and quad at the same time\n");
+=======
+	/*
+	 * check mode to prevent that any two of DUAL, QUAD and NO_MOSI/MISO
+	 * are set at the same time
+	 */
+	if ((hweight_long(spi->mode &
+		(SPI_TX_DUAL | SPI_TX_QUAD | SPI_NO_TX)) > 1) ||
+	    (hweight_long(spi->mode &
+		(SPI_RX_DUAL | SPI_RX_QUAD | SPI_NO_RX)) > 1)) {
+		dev_err(&spi->dev,
+		"setup: can not select any two of dual, quad and no-rx/tx at the same time\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 	/* if it is SPI_3WIRE mode, DUAL and QUAD should be forbidden
 	 */
 	if ((spi->mode & SPI_3WIRE) && (spi->mode &
+<<<<<<< HEAD
 		(SPI_TX_DUAL | SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD)))
 		return -EINVAL;
 	/* help drivers fail *cleanly* when they need options
@@ -2867,6 +4205,26 @@ int spi_setup(struct spi_device *spi)
 	bad_bits = spi->mode & ~spi->controller->mode_bits;
 	ugly_bits = bad_bits &
 		    (SPI_TX_DUAL | SPI_TX_QUAD | SPI_RX_DUAL | SPI_RX_QUAD);
+=======
+		(SPI_TX_DUAL | SPI_TX_QUAD | SPI_TX_OCTAL |
+		 SPI_RX_DUAL | SPI_RX_QUAD | SPI_RX_OCTAL)))
+		return -EINVAL;
+	/* help drivers fail *cleanly* when they need options
+	 * that aren't supported with their current controller
+	 * SPI_CS_WORD has a fallback software implementation,
+	 * so it is ignored here.
+	 */
+	bad_bits = spi->mode & ~(spi->controller->mode_bits | SPI_CS_WORD |
+				 SPI_NO_TX | SPI_NO_RX);
+	/* nothing prevents from working with active-high CS in case if it
+	 * is driven by GPIO.
+	 */
+	if (gpio_is_valid(spi->cs_gpio))
+		bad_bits &= ~SPI_CS_HIGH;
+	ugly_bits = bad_bits &
+		    (SPI_TX_DUAL | SPI_TX_QUAD | SPI_TX_OCTAL |
+		     SPI_RX_DUAL | SPI_RX_QUAD | SPI_RX_OCTAL);
+>>>>>>> upstream/android-13
 	if (ugly_bits) {
 		dev_warn(&spi->dev,
 			 "setup: ignoring unsupported mode bits %x\n",
@@ -2888,6 +4246,7 @@ int spi_setup(struct spi_device *spi)
 	if (status)
 		return status;
 
+<<<<<<< HEAD
 	if (!spi->max_speed_hz)
 		spi->max_speed_hz = spi->controller->max_speed_hz;
 
@@ -2911,6 +4270,61 @@ int spi_setup(struct spi_device *spi)
 
 	dev_dbg(&spi->dev, "setup mode %d, %s%s%s%s%u bits/w, %u Hz max --> %d\n",
 			(int) (spi->mode & (SPI_CPOL | SPI_CPHA)),
+=======
+	if (spi->controller->max_speed_hz &&
+	    (!spi->max_speed_hz ||
+	     spi->max_speed_hz > spi->controller->max_speed_hz))
+		spi->max_speed_hz = spi->controller->max_speed_hz;
+
+	mutex_lock(&spi->controller->io_mutex);
+
+	if (spi->controller->setup) {
+		status = spi->controller->setup(spi);
+		if (status) {
+			mutex_unlock(&spi->controller->io_mutex);
+			dev_err(&spi->controller->dev, "Failed to setup device: %d\n",
+				status);
+			return status;
+		}
+	}
+
+	if (spi->controller->auto_runtime_pm && spi->controller->set_cs) {
+		status = pm_runtime_get_sync(spi->controller->dev.parent);
+		if (status < 0) {
+			mutex_unlock(&spi->controller->io_mutex);
+			pm_runtime_put_noidle(spi->controller->dev.parent);
+			dev_err(&spi->controller->dev, "Failed to power device: %d\n",
+				status);
+			return status;
+		}
+
+		/*
+		 * We do not want to return positive value from pm_runtime_get,
+		 * there are many instances of devices calling spi_setup() and
+		 * checking for a non-zero return value instead of a negative
+		 * return value.
+		 */
+		status = 0;
+
+		spi_set_cs(spi, false, true);
+		pm_runtime_mark_last_busy(spi->controller->dev.parent);
+		pm_runtime_put_autosuspend(spi->controller->dev.parent);
+	} else {
+		spi_set_cs(spi, false, true);
+	}
+
+	mutex_unlock(&spi->controller->io_mutex);
+
+	if (spi->rt && !spi->controller->rt) {
+		spi->controller->rt = true;
+		spi_set_thread_rt(spi->controller);
+	}
+
+	trace_spi_setup(spi, status);
+
+	dev_dbg(&spi->dev, "setup mode %lu, %s%s%s%s%u bits/w, %u Hz max --> %d\n",
+			spi->mode & SPI_MODE_X_MASK,
+>>>>>>> upstream/android-13
 			(spi->mode & SPI_CS_HIGH) ? "cs_high, " : "",
 			(spi->mode & SPI_LSB_FIRST) ? "lsb, " : "",
 			(spi->mode & SPI_3WIRE) ? "3wire, " : "",
@@ -2922,6 +4336,29 @@ int spi_setup(struct spi_device *spi)
 }
 EXPORT_SYMBOL_GPL(spi_setup);
 
+<<<<<<< HEAD
+=======
+static int _spi_xfer_word_delay_update(struct spi_transfer *xfer,
+				       struct spi_device *spi)
+{
+	int delay1, delay2;
+
+	delay1 = spi_delay_to_ns(&xfer->word_delay, xfer);
+	if (delay1 < 0)
+		return delay1;
+
+	delay2 = spi_delay_to_ns(&spi->word_delay, xfer);
+	if (delay2 < 0)
+		return delay2;
+
+	if (delay1 < delay2)
+		memcpy(&xfer->word_delay, &spi->word_delay,
+		       sizeof(xfer->word_delay));
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 {
 	struct spi_controller *ctlr = spi->controller;
@@ -2931,6 +4368,39 @@ static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 	if (list_empty(&message->transfers))
 		return -EINVAL;
 
+<<<<<<< HEAD
+=======
+	/* If an SPI controller does not support toggling the CS line on each
+	 * transfer (indicated by the SPI_CS_WORD flag) or we are using a GPIO
+	 * for the CS line, we can emulate the CS-per-word hardware function by
+	 * splitting transfers into one-word transfers and ensuring that
+	 * cs_change is set for each transfer.
+	 */
+	if ((spi->mode & SPI_CS_WORD) && (!(ctlr->mode_bits & SPI_CS_WORD) ||
+					  spi->cs_gpiod ||
+					  gpio_is_valid(spi->cs_gpio))) {
+		size_t maxsize;
+		int ret;
+
+		maxsize = (spi->bits_per_word + 7) / 8;
+
+		/* spi_split_transfers_maxsize() requires message->spi */
+		message->spi = spi;
+
+		ret = spi_split_transfers_maxsize(ctlr, message, maxsize,
+						  GFP_KERNEL);
+		if (ret)
+			return ret;
+
+		list_for_each_entry(xfer, &message->transfers, transfer_list) {
+			/* don't change cs_change on the last entry in the list */
+			if (list_is_last(&xfer->transfer_list, &message->transfers))
+				break;
+			xfer->cs_change = 1;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	/* Half-duplex links include original MicroWire, and ones with
 	 * only one data pin like SPI_3WIRE (switches direction) or where
 	 * either MOSI or MISO is missing.  They can also be caused by
@@ -2955,17 +4425,29 @@ static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 	 * it is not set for this transfer.
 	 * Set transfer tx_nbits and rx_nbits as single transfer default
 	 * (SPI_NBITS_SINGLE) if it is not set for this transfer.
+<<<<<<< HEAD
 	 */
 	message->frame_length = 0;
 	list_for_each_entry(xfer, &message->transfers, transfer_list) {
+=======
+	 * Ensure transfer word_delay is at least as long as that required by
+	 * device itself.
+	 */
+	message->frame_length = 0;
+	list_for_each_entry(xfer, &message->transfers, transfer_list) {
+		xfer->effective_speed_hz = 0;
+>>>>>>> upstream/android-13
 		message->frame_length += xfer->len;
 		if (!xfer->bits_per_word)
 			xfer->bits_per_word = spi->bits_per_word;
 
 		if (!xfer->speed_hz)
 			xfer->speed_hz = spi->max_speed_hz;
+<<<<<<< HEAD
 		if (!xfer->speed_hz)
 			xfer->speed_hz = ctlr->max_speed_hz;
+=======
+>>>>>>> upstream/android-13
 
 		if (ctlr->max_speed_hz && xfer->speed_hz > ctlr->max_speed_hz)
 			xfer->speed_hz = ctlr->max_speed_hz;
@@ -3001,6 +4483,11 @@ static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 		 * 2. check tx/rx_nbits match the mode in spi_device
 		 */
 		if (xfer->tx_buf) {
+<<<<<<< HEAD
+=======
+			if (spi->mode & SPI_NO_TX)
+				return -EINVAL;
+>>>>>>> upstream/android-13
 			if (xfer->tx_nbits != SPI_NBITS_SINGLE &&
 				xfer->tx_nbits != SPI_NBITS_DUAL &&
 				xfer->tx_nbits != SPI_NBITS_QUAD)
@@ -3014,6 +4501,11 @@ static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 		}
 		/* check transfer rx_nbits */
 		if (xfer->rx_buf) {
+<<<<<<< HEAD
+=======
+			if (spi->mode & SPI_NO_RX)
+				return -EINVAL;
+>>>>>>> upstream/android-13
 			if (xfer->rx_nbits != SPI_NBITS_SINGLE &&
 				xfer->rx_nbits != SPI_NBITS_DUAL &&
 				xfer->rx_nbits != SPI_NBITS_QUAD)
@@ -3025,6 +4517,12 @@ static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 				!(spi->mode & SPI_RX_QUAD))
 				return -EINVAL;
 		}
+<<<<<<< HEAD
+=======
+
+		if (_spi_xfer_word_delay_update(xfer, spi))
+			return -EINVAL;
+>>>>>>> upstream/android-13
 	}
 
 	message->status = -EINPROGRESS;
@@ -3035,6 +4533,10 @@ static int __spi_validate(struct spi_device *spi, struct spi_message *message)
 static int __spi_async(struct spi_device *spi, struct spi_message *message)
 {
 	struct spi_controller *ctlr = spi->controller;
+<<<<<<< HEAD
+=======
+	struct spi_transfer *xfer;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Some controllers do not support doing regular SPI transfers. Return
@@ -3050,6 +4552,16 @@ static int __spi_async(struct spi_device *spi, struct spi_message *message)
 
 	trace_spi_message_submit(message);
 
+<<<<<<< HEAD
+=======
+	if (!ctlr->ptp_sts_supported) {
+		list_for_each_entry(xfer, &message->transfers, transfer_list) {
+			xfer->ptp_sts_word_pre = 0;
+			ptp_read_system_prets(xfer->ptp_sts);
+		}
+	}
+
+>>>>>>> upstream/android-13
 	return ctlr->transfer(spi, message);
 }
 
@@ -3353,8 +4865,12 @@ static u8	*buf;
  * is zero for success, else a negative errno status code.
  * This call may only be used from a context that may sleep.
  *
+<<<<<<< HEAD
  * Parameters to this routine are always copied using a small buffer;
  * portable code should never use this for more than 32 bytes.
+=======
+ * Parameters to this routine are always copied using a small buffer.
+>>>>>>> upstream/android-13
  * Performance-sensitive or bulk transfer code should instead use
  * spi_{async,sync}() calls with dma-safe buffers.
  *
@@ -3416,6 +4932,7 @@ EXPORT_SYMBOL_GPL(spi_write_then_read);
 
 /*-------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_OF_DYNAMIC)
 static int __spi_of_device_match(struct device *dev, void *data)
 {
@@ -3435,16 +4952,36 @@ static int __spi_of_controller_match(struct device *dev, const void *data)
 	return dev->of_node == data;
 }
 
+=======
+#if IS_ENABLED(CONFIG_OF)
+/* must call put_device() when done with returned spi_device device */
+struct spi_device *of_find_spi_device_by_node(struct device_node *node)
+{
+	struct device *dev = bus_find_device_by_of_node(&spi_bus_type, node);
+
+	return dev ? to_spi_device(dev) : NULL;
+}
+EXPORT_SYMBOL_GPL(of_find_spi_device_by_node);
+#endif /* IS_ENABLED(CONFIG_OF) */
+
+#if IS_ENABLED(CONFIG_OF_DYNAMIC)
+>>>>>>> upstream/android-13
 /* the spi controllers are not using spi_bus, so we find it with another way */
 static struct spi_controller *of_find_spi_controller_by_node(struct device_node *node)
 {
 	struct device *dev;
 
+<<<<<<< HEAD
 	dev = class_find_device(&spi_master_class, NULL, node,
 				__spi_of_controller_match);
 	if (!dev && IS_ENABLED(CONFIG_SPI_SLAVE))
 		dev = class_find_device(&spi_slave_class, NULL, node,
 					__spi_of_controller_match);
+=======
+	dev = class_find_device_by_of_node(&spi_master_class, node);
+	if (!dev && IS_ENABLED(CONFIG_SPI_SLAVE))
+		dev = class_find_device_by_of_node(&spi_slave_class, node);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return NULL;
 
@@ -3515,11 +5052,14 @@ static int spi_acpi_controller_match(struct device *dev, const void *data)
 	return ACPI_COMPANION(dev->parent) == data;
 }
 
+<<<<<<< HEAD
 static int spi_acpi_device_match(struct device *dev, void *data)
 {
 	return ACPI_COMPANION(dev) == data;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct spi_controller *acpi_spi_find_controller_by_adev(struct acpi_device *adev)
 {
 	struct device *dev;
@@ -3539,9 +5079,14 @@ static struct spi_device *acpi_spi_find_device_by_adev(struct acpi_device *adev)
 {
 	struct device *dev;
 
+<<<<<<< HEAD
 	dev = bus_find_device(&spi_bus_type, NULL, adev, spi_acpi_device_match);
 
 	return dev ? to_spi_device(dev) : NULL;
+=======
+	dev = bus_find_device_by_acpi_dev(&spi_bus_type, adev);
+	return to_spi_device(dev);
+>>>>>>> upstream/android-13
 }
 
 static int acpi_spi_notify(struct notifier_block *nb, unsigned long value,
@@ -3633,4 +5178,7 @@ err0:
  * include needing to have boardinfo data structures be much more public.
  */
 postcore_initcall(spi_init);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Ralink RT3662/RT3883 specific CPU feature overrides
  *
@@ -6,11 +10,14 @@
  * This file was derived from: include/asm-mips/cpu-features.h
  *	Copyright (C) 2003, 2004 Ralf Baechle
  *	Copyright (C) 2004 Maciej W. Rozycki
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _RT3883_CPU_FEATURE_OVERRIDES_H
 #define _RT3883_CPU_FEATURE_OVERRIDES_H
@@ -47,7 +54,10 @@
 #define cpu_has_64bits		0
 #define cpu_has_64bit_zero_reg	0
 #define cpu_has_64bit_gp_regs	0
+<<<<<<< HEAD
 #define cpu_has_64bit_addresses	0
+=======
+>>>>>>> upstream/android-13
 
 #define cpu_dcache_line_size()	32
 #define cpu_icache_line_size()	32

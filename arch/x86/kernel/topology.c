@@ -25,12 +25,20 @@
  *
  * Send feedback to <colpatch@us.ibm.com>
  */
+<<<<<<< HEAD
+=======
+#include <linux/interrupt.h>
+>>>>>>> upstream/android-13
 #include <linux/nodemask.h>
 #include <linux/export.h>
 #include <linux/mmzone.h>
 #include <linux/init.h>
 #include <linux/smp.h>
 #include <linux/irq.h>
+<<<<<<< HEAD
+=======
+#include <asm/io_apic.h>
+>>>>>>> upstream/android-13
 #include <asm/cpu.h>
 
 static DEFINE_PER_CPU(struct x86_cpu, cpu_devices);
@@ -59,12 +67,16 @@ __setup("cpu0_hotplug", enable_cpu0_hotplug);
  */
 int _debug_hotplug_cpu(int cpu, int action)
 {
+<<<<<<< HEAD
 	struct device *dev = get_cpu_device(cpu);
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!cpu_is_hotpluggable(cpu))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	lock_device_hotplug();
 
 	switch (action) {
@@ -85,13 +97,31 @@ int _debug_hotplug_cpu(int cpu, int action)
 		} else {
 			pr_debug("Can't online CPU%d.\n", cpu);
 		}
+=======
+	switch (action) {
+	case 0:
+		ret = remove_cpu(cpu);
+		if (!ret)
+			pr_info("DEBUG_HOTPLUG_CPU0: CPU %u is now offline\n", cpu);
+		else
+			pr_debug("Can't offline CPU%d.\n", cpu);
+		break;
+	case 1:
+		ret = add_cpu(cpu);
+		if (ret)
+			pr_debug("Can't online CPU%d.\n", cpu);
+
+>>>>>>> upstream/android-13
 		break;
 	default:
 		ret = -EINVAL;
 	}
 
+<<<<<<< HEAD
 	unlock_device_hotplug();
 
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -121,7 +151,11 @@ int arch_register_cpu(int num)
 	 * Two known BSP/CPU0 dependencies: Resume from suspend/hibernate
 	 * depends on BSP. PIC interrupts depend on BSP.
 	 *
+<<<<<<< HEAD
 	 * If the BSP depencies are under control, one can tell kernel to
+=======
+	 * If the BSP dependencies are under control, one can tell kernel to
+>>>>>>> upstream/android-13
 	 * enable BSP hotplug. This basically adds a control file and
 	 * one can attempt to offline BSP.
 	 */

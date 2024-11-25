@@ -4,11 +4,15 @@
  * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 #define _RTW_IOCTL_SET_C_
+=======
+>>>>>>> upstream/android-13
 
 #include <drv_types.h>
 #include <rtw_debug.h>
 
+<<<<<<< HEAD
 #define IS_MAC_ADDRESS_BROADCAST(addr) \
 (\
 	((addr[0] == 0xff) && (addr[1] == 0xff) && \
@@ -16,6 +20,8 @@
 		(addr[4] == 0xff) && (addr[5] == 0xff))  ? true : false \
 )
 
+=======
+>>>>>>> upstream/android-13
 u8 rtw_validate_bssid(u8 *bssid)
 {
 	u8 ret = true;
@@ -34,12 +40,17 @@ u8 rtw_validate_ssid(struct ndis_802_11_ssid *ssid)
 {
 	u8 ret = true;
 
+<<<<<<< HEAD
 	if (ssid->SsidLength > 32) {
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("ssid length >32\n"));
+=======
+	if (ssid->ssid_length > 32) {
+>>>>>>> upstream/android-13
 		ret = false;
 		goto exit;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_VALIDATE_SSID
 	for (i = 0; i < ssid->SsidLength; i++) {
 		/* wifi, printable ascii code must be supported */
@@ -51,11 +62,16 @@ u8 rtw_validate_ssid(struct ndis_802_11_ssid *ssid)
 	}
 #endif /* CONFIG_VALIDATE_SSID */
 
+=======
+>>>>>>> upstream/android-13
 exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 u8 rtw_do_join(struct adapter *padapter);
+=======
+>>>>>>> upstream/android-13
 u8 rtw_do_join(struct adapter *padapter)
 {
 	struct list_head	*plist, *phead;
@@ -68,8 +84,11 @@ u8 rtw_do_join(struct adapter *padapter)
 	phead = get_list_head(queue);
 	plist = get_next(phead);
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("\n rtw_do_join: phead = %p; plist = %p\n\n\n", phead, plist));
 
+=======
+>>>>>>> upstream/android-13
 	pmlmepriv->cur_network.join_res = -2;
 
 	set_fwstate(pmlmepriv, _FW_UNDER_LINKING);
@@ -88,6 +107,7 @@ u8 rtw_do_join(struct adapter *padapter)
 		if (pmlmepriv->LinkDetectInfo.bBusyTraffic == false
 			|| rtw_to_roam(padapter) > 0
 		) {
+<<<<<<< HEAD
 			RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("rtw_do_join(): site survey if scanned_queue is empty\n."));
 			/*  submit site_survey_cmd */
 			ret = rtw_sitesurvey_cmd(padapter, &pmlmepriv->assoc_ssid, 1, NULL, 0);
@@ -96,19 +116,35 @@ u8 rtw_do_join(struct adapter *padapter)
 				RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("rtw_do_join(): site survey return error\n."));
 			}
 		} else{
+=======
+			/*  submit site_survey_cmd */
+			ret = rtw_sitesurvey_cmd(padapter, &pmlmepriv->assoc_ssid, 1, NULL, 0);
+			if (ret != _SUCCESS)
+				pmlmepriv->to_join = false;
+
+		} else {
+>>>>>>> upstream/android-13
 			pmlmepriv->to_join = false;
 			ret = _FAIL;
 		}
 
 		goto exit;
+<<<<<<< HEAD
 	} else{
+=======
+	} else {
+>>>>>>> upstream/android-13
 		int select_ret;
 		spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
 		select_ret = rtw_select_and_join_from_scanned_queue(pmlmepriv);
 		if (select_ret == _SUCCESS) {
 			pmlmepriv->to_join = false;
 			_set_timer(&pmlmepriv->assoc_timer, MAX_JOIN_TIMEOUT);
+<<<<<<< HEAD
 		} else{
+=======
+		} else {
+>>>>>>> upstream/android-13
 			if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true) {
 				/*  submit createbss_cmd to change to a ADHOC_MASTER */
 
@@ -117,25 +153,38 @@ u8 rtw_do_join(struct adapter *padapter)
 
 				pmlmepriv->fw_state = WIFI_ADHOC_MASTER_STATE;
 
+<<<<<<< HEAD
 				pibss = padapter->registrypriv.dev_network.MacAddress;
 
 				memcpy(&pdev_network->Ssid, &pmlmepriv->assoc_ssid, sizeof(struct ndis_802_11_ssid));
+=======
+				pibss = padapter->registrypriv.dev_network.mac_address;
+
+				memcpy(&pdev_network->ssid, &pmlmepriv->assoc_ssid, sizeof(struct ndis_802_11_ssid));
+>>>>>>> upstream/android-13
 
 				rtw_update_registrypriv_dev_network(padapter);
 
 				rtw_generate_random_ibss(pibss);
 
 				if (rtw_createbss_cmd(padapter) != _SUCCESS) {
+<<<<<<< HEAD
 					RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("***Error =>do_goin: rtw_createbss_cmd status FAIL***\n "));
+=======
+>>>>>>> upstream/android-13
 					ret =  false;
 					goto exit;
 				}
 
 				pmlmepriv->to_join = false;
 
+<<<<<<< HEAD
 				RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("***Error => rtw_select_and_join_from_scanned_queue FAIL under STA_Mode***\n "));
 
 			} else{
+=======
+			} else {
+>>>>>>> upstream/android-13
 				/*  can't associate ; reset under-linking */
 				_clr_fwstate_(pmlmepriv, _FW_UNDER_LINKING);
 
@@ -144,6 +193,7 @@ u8 rtw_do_join(struct adapter *padapter)
 				if (pmlmepriv->LinkDetectInfo.bBusyTraffic == false
 					|| rtw_to_roam(padapter) > 0
 				) {
+<<<<<<< HEAD
 					/* DBG_871X("rtw_do_join() when   no desired bss in scanning queue\n"); */
 					ret = rtw_sitesurvey_cmd(padapter, &pmlmepriv->assoc_ssid, 1, NULL, 0);
 					if (_SUCCESS != ret) {
@@ -151,6 +201,13 @@ u8 rtw_do_join(struct adapter *padapter)
 						RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("do_join(): site survey return error\n."));
 					}
 				} else{
+=======
+					ret = rtw_sitesurvey_cmd(padapter, &pmlmepriv->assoc_ssid, 1, NULL, 0);
+					if (ret != _SUCCESS)
+						pmlmepriv->to_join = false;
+
+				} else {
+>>>>>>> upstream/android-13
 					ret = _FAIL;
 					pmlmepriv->to_join = false;
 				}
@@ -164,6 +221,7 @@ exit:
 	return ret;
 }
 
+<<<<<<< HEAD
 u8 rtw_set_802_11_bssid(struct adapter *padapter, u8 *bssid)
 {
 	u8 status = _SUCCESS;
@@ -239,6 +297,8 @@ exit:
 	return status;
 }
 
+=======
+>>>>>>> upstream/android-13
 u8 rtw_set_802_11_ssid(struct adapter *padapter, struct ndis_802_11_ssid *ssid)
 {
 	u8 status = _SUCCESS;
@@ -246,18 +306,26 @@ u8 rtw_set_802_11_ssid(struct adapter *padapter, struct ndis_802_11_ssid *ssid)
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct wlan_network *pnetwork = &pmlmepriv->cur_network;
 
+<<<<<<< HEAD
 	DBG_871X_LEVEL(_drv_always_, "set ssid [%s] fw_state = 0x%08x\n",
 			ssid->Ssid, get_fwstate(pmlmepriv));
 
 	if (padapter->hw_init_completed == false) {
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_,
 			 ("set_ssid: hw_init_completed ==false =>exit!!!\n"));
+=======
+	netdev_dbg(padapter->pnetdev, "set ssid [%s] fw_state = 0x%08x\n",
+		   ssid->ssid, get_fwstate(pmlmepriv));
+
+	if (padapter->hw_init_completed == false) {
+>>>>>>> upstream/android-13
 		status = _FAIL;
 		goto exit;
 	}
 
 	spin_lock_bh(&pmlmepriv->lock);
 
+<<<<<<< HEAD
 	DBG_871X("Set SSID under fw_state = 0x%08x\n", get_fwstate(pmlmepriv));
 	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == true) {
 		goto handle_tkip_countermeasure;
@@ -276,6 +344,17 @@ u8 rtw_set_802_11_ssid(struct adapter *padapter, struct ndis_802_11_ssid *ssid)
 					 ("Set SSID is the same ssid, fw_state = 0x%08x\n",
 					  get_fwstate(pmlmepriv)));
 
+=======
+	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == true)
+		goto handle_tkip_countermeasure;
+	else if (check_fwstate(pmlmepriv, _FW_UNDER_LINKING) == true)
+		goto release_mlme_lock;
+
+	if (check_fwstate(pmlmepriv, _FW_LINKED|WIFI_ADHOC_MASTER_STATE) == true) {
+		if ((pmlmepriv->assoc_ssid.ssid_length == ssid->ssid_length) &&
+		    (!memcmp(&pmlmepriv->assoc_ssid.ssid, ssid->ssid, ssid->ssid_length))) {
+			if ((check_fwstate(pmlmepriv, WIFI_STATION_STATE) == false)) {
+>>>>>>> upstream/android-13
 				if (rtw_is_same_ibss(padapter, pnetwork) == false) {
 					/* if in WIFI_ADHOC_MASTER_STATE | WIFI_ADHOC_STATE, create bss or rejoin again */
 					rtw_disassoc_cmd(padapter, 0, true);
@@ -289,17 +368,25 @@ u8 rtw_set_802_11_ssid(struct adapter *padapter, struct ndis_802_11_ssid *ssid)
 						_clr_fwstate_(pmlmepriv, WIFI_ADHOC_MASTER_STATE);
 						set_fwstate(pmlmepriv, WIFI_ADHOC_STATE);
 					}
+<<<<<<< HEAD
 				} else{
+=======
+				} else {
+>>>>>>> upstream/android-13
 					goto release_mlme_lock;/* it means driver is in WIFI_ADHOC_MASTER_STATE, we needn't create bss again. */
 				}
 			} else {
 				rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_JOINBSS, 1);
 			}
+<<<<<<< HEAD
 		} else{
 			RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("Set SSID not the same ssid\n"));
 			RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("set_ssid =[%s] len = 0x%x\n", ssid->Ssid, (unsigned int)ssid->SsidLength));
 			RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("assoc_ssid =[%s] len = 0x%x\n", pmlmepriv->assoc_ssid.Ssid, (unsigned int)pmlmepriv->assoc_ssid.SsidLength));
 
+=======
+		} else {
+>>>>>>> upstream/android-13
 			rtw_disassoc_cmd(padapter, 0, true);
 
 			if (check_fwstate(pmlmepriv, _FW_LINKED) == true)
@@ -328,18 +415,28 @@ handle_tkip_countermeasure:
 	memcpy(&pmlmepriv->assoc_ssid, ssid, sizeof(struct ndis_802_11_ssid));
 	pmlmepriv->assoc_by_bssid = false;
 
+<<<<<<< HEAD
 	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == true) {
 		pmlmepriv->to_join = true;
 	} else {
 		status = rtw_do_join(padapter);
 	}
+=======
+	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == true)
+		pmlmepriv->to_join = true;
+	else
+		status = rtw_do_join(padapter);
+>>>>>>> upstream/android-13
 
 release_mlme_lock:
 	spin_unlock_bh(&pmlmepriv->lock);
 
 exit:
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_,
 		("-rtw_set_802_11_ssid: status =%d\n", status));
+=======
+>>>>>>> upstream/android-13
 
 	return status;
 }
@@ -357,22 +454,30 @@ u8 rtw_set_802_11_connect(struct adapter *padapter, u8 *bssid, struct ndis_802_1
 	if (!bssid || rtw_validate_bssid(bssid) == false)
 		bssid_valid = false;
 
+<<<<<<< HEAD
 	if (ssid_valid == false && bssid_valid == false) {
 		DBG_871X(FUNC_ADPT_FMT" ssid:%p, ssid_valid:%d, bssid:%p, bssid_valid:%d\n",
 			FUNC_ADPT_ARG(padapter), ssid, ssid_valid, bssid, bssid_valid);
+=======
+	if (!ssid_valid && !bssid_valid) {
+>>>>>>> upstream/android-13
 		status = _FAIL;
 		goto exit;
 	}
 
 	if (padapter->hw_init_completed == false) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_,
 			 ("set_ssid: hw_init_completed ==false =>exit!!!\n"));
+=======
+>>>>>>> upstream/android-13
 		status = _FAIL;
 		goto exit;
 	}
 
 	spin_lock_bh(&pmlmepriv->lock);
 
+<<<<<<< HEAD
 	DBG_871X_LEVEL(_drv_always_, FUNC_ADPT_FMT"  fw_state = 0x%08x\n",
 		FUNC_ADPT_ARG(padapter), get_fwstate(pmlmepriv));
 
@@ -381,6 +486,15 @@ u8 rtw_set_802_11_connect(struct adapter *padapter, u8 *bssid, struct ndis_802_1
 	} else if (check_fwstate(pmlmepriv, _FW_UNDER_LINKING) == true) {
 		goto release_mlme_lock;
 	}
+=======
+	netdev_dbg(padapter->pnetdev, FUNC_ADPT_FMT "  fw_state = 0x%08x\n",
+		   FUNC_ADPT_ARG(padapter), get_fwstate(pmlmepriv));
+
+	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == true)
+		goto handle_tkip_countermeasure;
+	else if (check_fwstate(pmlmepriv, _FW_UNDER_LINKING) == true)
+		goto release_mlme_lock;
+>>>>>>> upstream/android-13
 
 handle_tkip_countermeasure:
 	if (rtw_handle_tkip_countermeasure(padapter, __func__) == _FAIL) {
@@ -400,11 +514,18 @@ handle_tkip_countermeasure:
 		pmlmepriv->assoc_by_bssid = false;
 	}
 
+<<<<<<< HEAD
 	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == true) {
 		pmlmepriv->to_join = true;
 	} else {
 		status = rtw_do_join(padapter);
 	}
+=======
+	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == true)
+		pmlmepriv->to_join = true;
+	else
+		status = rtw_do_join(padapter);
+>>>>>>> upstream/android-13
 
 release_mlme_lock:
 	spin_unlock_bh(&pmlmepriv->lock);
@@ -414,6 +535,7 @@ exit:
 }
 
 u8 rtw_set_802_11_infrastructure_mode(struct adapter *padapter,
+<<<<<<< HEAD
 	enum NDIS_802_11_NETWORK_INFRASTRUCTURE networktype)
 {
 	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -428,6 +550,15 @@ u8 rtw_set_802_11_infrastructure_mode(struct adapter *padapter,
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, (" change mode!"));
 		/* DBG_871X("change mode, old_mode =%d, new_mode =%d, fw_state = 0x%x\n", *pold_state, networktype, get_fwstate(pmlmepriv)); */
 
+=======
+	enum ndis_802_11_network_infrastructure networktype)
+{
+	struct	mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	struct	wlan_network	*cur_network = &pmlmepriv->cur_network;
+	enum ndis_802_11_network_infrastructure *pold_state = &(cur_network->network.infrastructure_mode);
+
+	if (*pold_state != networktype) {
+>>>>>>> upstream/android-13
 		if (*pold_state == Ndis802_11APMode) {
 			/* change to other mode from Ndis802_11APMode */
 			cur_network->join_res = -1;
@@ -445,9 +576,14 @@ u8 rtw_set_802_11_infrastructure_mode(struct adapter *padapter,
 			rtw_free_assoc_resources(padapter, 1);
 
 		if ((*pold_state == Ndis802_11Infrastructure) || (*pold_state == Ndis802_11IBSS)) {
+<<<<<<< HEAD
 			if (check_fwstate(pmlmepriv, _FW_LINKED) == true) {
 				rtw_indicate_disconnect(padapter); /* will clr Linked_state; before this function, we must have chked whether  issue dis-assoc_cmd or not */
 			}
+=======
+			if (check_fwstate(pmlmepriv, _FW_LINKED) == true)
+				rtw_indicate_disconnect(padapter); /* will clr Linked_state; before this function, we must have checked whether issue dis-assoc_cmd or not */
+>>>>>>> upstream/android-13
 	       }
 
 		*pold_state = networktype;
@@ -477,9 +613,12 @@ u8 rtw_set_802_11_infrastructure_mode(struct adapter *padapter,
 
 		/* SecClearAllKeys(adapter); */
 
+<<<<<<< HEAD
 		/* RT_TRACE(COMP_OID_SET, DBG_LOUD, ("set_infrastructure: fw_state:%x after changing mode\n", */
 		/* 									get_fwstate(pmlmepriv))); */
 
+=======
+>>>>>>> upstream/android-13
 		spin_unlock_bh(&pmlmepriv->lock);
 	}
 	return true;
@@ -493,14 +632,21 @@ u8 rtw_set_802_11_disassociate(struct adapter *padapter)
 	spin_lock_bh(&pmlmepriv->lock);
 
 	if (check_fwstate(pmlmepriv, _FW_LINKED) == true) {
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("MgntActrtw_set_802_11_disassociate: rtw_indicate_disconnect\n"));
 
+=======
+>>>>>>> upstream/android-13
 		rtw_disassoc_cmd(padapter, 0, true);
 		rtw_indicate_disconnect(padapter);
 		/* modify for CONFIG_IEEE80211W, none 11w can use it */
 		rtw_free_assoc_resources_cmd(padapter);
+<<<<<<< HEAD
 		if (_FAIL == rtw_pwr_wakeup(padapter))
 			DBG_871X("%s(): rtw_pwr_wakeup fail !!!\n", __func__);
+=======
+		rtw_pwr_wakeup(padapter);
+>>>>>>> upstream/android-13
 	}
 
 	spin_unlock_bh(&pmlmepriv->lock);
@@ -513,21 +659,28 @@ u8 rtw_set_802_11_bssid_list_scan(struct adapter *padapter, struct ndis_802_11_s
 	struct	mlme_priv 	*pmlmepriv = &padapter->mlmepriv;
 	u8 res = true;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("+rtw_set_802_11_bssid_list_scan(), fw_state =%x\n", get_fwstate(pmlmepriv)));
 
+=======
+>>>>>>> upstream/android-13
 	if (padapter == NULL) {
 		res = false;
 		goto exit;
 	}
 	if (padapter->hw_init_completed == false) {
 		res = false;
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("\n ===rtw_set_802_11_bssid_list_scan:hw_init_completed ==false ===\n"));
+=======
+>>>>>>> upstream/android-13
 		goto exit;
 	}
 
 	if ((check_fwstate(pmlmepriv, _FW_UNDER_SURVEY|_FW_UNDER_LINKING) == true) ||
 		(pmlmepriv->LinkDetectInfo.bBusyTraffic == true)) {
 		/*  Scan or linking is in progress, do nothing. */
+<<<<<<< HEAD
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("rtw_set_802_11_bssid_list_scan fail since fw_state = %x\n", get_fwstate(pmlmepriv)));
 		res = true;
 
@@ -542,6 +695,13 @@ u8 rtw_set_802_11_bssid_list_scan(struct adapter *padapter, struct ndis_802_11_s
 			indicate_wx_scan_complete_event(padapter);
 			return _SUCCESS;
 		}
+=======
+		res = true;
+
+	} else {
+		if (rtw_is_scan_deny(padapter))
+			return _SUCCESS;
+>>>>>>> upstream/android-13
 
 		spin_lock_bh(&pmlmepriv->lock);
 
@@ -554,18 +714,27 @@ exit:
 	return res;
 }
 
+<<<<<<< HEAD
 u8 rtw_set_802_11_authentication_mode(struct adapter *padapter, enum NDIS_802_11_AUTHENTICATION_MODE authmode)
+=======
+u8 rtw_set_802_11_authentication_mode(struct adapter *padapter, enum ndis_802_11_authentication_mode authmode)
+>>>>>>> upstream/android-13
 {
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
 	int res;
 	u8 ret;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("set_802_11_auth.mode(): mode =%x\n", authmode));
 
 	psecuritypriv->ndisauthtype = authmode;
 
 	RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_info_, ("rtw_set_802_11_authentication_mode:psecuritypriv->ndisauthtype =%d", psecuritypriv->ndisauthtype));
 
+=======
+	psecuritypriv->ndisauthtype = authmode;
+
+>>>>>>> upstream/android-13
 	if (psecuritypriv->ndisauthtype > 3)
 		psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
 
@@ -582,6 +751,7 @@ u8 rtw_set_802_11_authentication_mode(struct adapter *padapter, enum NDIS_802_11
 u8 rtw_set_802_11_add_wep(struct adapter *padapter, struct ndis_802_11_wep *wep)
 {
 
+<<<<<<< HEAD
 	sint		keyid, res;
 	struct security_priv *psecuritypriv = &(padapter->securitypriv);
 	u8 ret = _SUCCESS;
@@ -590,10 +760,20 @@ u8 rtw_set_802_11_add_wep(struct adapter *padapter, struct ndis_802_11_wep *wep)
 
 	if (keyid >= 4) {
 		RT_TRACE(_module_rtl871x_ioctl_set_c_, _drv_err_, ("MgntActrtw_set_802_11_add_wep:keyid>4 =>fail\n"));
+=======
+	signed int		keyid, res;
+	struct security_priv *psecuritypriv = &(padapter->securitypriv);
+	u8 ret = _SUCCESS;
+
+	keyid = wep->key_index & 0x3fffffff;
+
+	if (keyid >= 4) {
+>>>>>>> upstream/android-13
 		ret = false;
 		goto exit;
 	}
 
+<<<<<<< HEAD
 	switch (wep->KeyLength) {
 	case 5:
 		psecuritypriv->dot11PrivacyAlgrthm = _WEP40_;
@@ -626,6 +806,26 @@ u8 rtw_set_802_11_add_wep(struct adapter *padapter, struct ndis_802_11_wep *wep)
 		psecuritypriv->dot11DefKey[keyid].skey[9], psecuritypriv->dot11DefKey[keyid].skey[10], psecuritypriv->dot11DefKey[keyid].skey[11],
 		psecuritypriv->dot11DefKey[keyid].skey[12]));
 
+=======
+	switch (wep->key_length) {
+	case 5:
+		psecuritypriv->dot11PrivacyAlgrthm = _WEP40_;
+		break;
+	case 13:
+		psecuritypriv->dot11PrivacyAlgrthm = _WEP104_;
+		break;
+	default:
+		psecuritypriv->dot11PrivacyAlgrthm = _NO_PRIVACY_;
+		break;
+	}
+
+	memcpy(&(psecuritypriv->dot11DefKey[keyid].skey[0]), &(wep->key_material), wep->key_length);
+
+	psecuritypriv->dot11DefKeylen[keyid] = wep->key_length;
+
+	psecuritypriv->dot11PrivacyKeyIndex = keyid;
+
+>>>>>>> upstream/android-13
 	res = rtw_set_key(padapter, psecuritypriv, keyid, 1, true);
 
 	if (res == _FAIL)
@@ -649,7 +849,10 @@ u16 rtw_get_cur_max_rate(struct adapter *adapter)
 	struct wlan_bssid_ex	*pcur_bss = &pmlmepriv->cur_network.network;
 	struct sta_info *psta = NULL;
 	u8 short_GI = 0;
+<<<<<<< HEAD
 	u8 rf_type = 0;
+=======
+>>>>>>> upstream/android-13
 
 	if ((check_fwstate(pmlmepriv, _FW_LINKED) != true)
 		&& (check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) != true))
@@ -661,6 +864,7 @@ u16 rtw_get_cur_max_rate(struct adapter *adapter)
 
 	short_GI = query_ra_short_GI(psta);
 
+<<<<<<< HEAD
 	if (IsSupportedHT(psta->wireless_mode)) {
 		rtw_hal_get_hwreg(adapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
 
@@ -673,6 +877,15 @@ u16 rtw_get_cur_max_rate(struct adapter *adapter)
 	} else{
 		while ((pcur_bss->SupportedRates[i] != 0) && (pcur_bss->SupportedRates[i] != 0xFF)) {
 			rate = pcur_bss->SupportedRates[i]&0x7F;
+=======
+	if (is_supported_ht(psta->wireless_mode)) {
+		max_rate = rtw_mcs_rate(psta->bw_mode == CHANNEL_WIDTH_40 ? 1 : 0,
+					short_GI,
+					psta->htpriv.ht_cap.mcs.rx_mask);
+	} else {
+		while ((pcur_bss->supported_rates[i] != 0) && (pcur_bss->supported_rates[i] != 0xFF)) {
+			rate = pcur_bss->supported_rates[i]&0x7F;
+>>>>>>> upstream/android-13
 			if (rate > max_rate)
 				max_rate = rate;
 			i++;

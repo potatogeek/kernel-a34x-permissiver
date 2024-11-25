@@ -353,7 +353,10 @@ static int spu_process_callback(struct spu_context *ctx)
 long spufs_run_spu(struct spu_context *ctx, u32 *npc, u32 *event)
 {
 	int ret;
+<<<<<<< HEAD
 	struct spu *spu;
+=======
+>>>>>>> upstream/android-13
 	u32 status;
 
 	if (mutex_lock_interruptible(&ctx->run_mutex))
@@ -386,6 +389,7 @@ long spufs_run_spu(struct spu_context *ctx, u32 *npc, u32 *event)
 			mutex_lock(&ctx->state_mutex);
 			break;
 		}
+<<<<<<< HEAD
 		spu = ctx->spu;
 		if (unlikely(test_and_clear_bit(SPU_SCHED_NOTIFY_ACTIVE,
 						&ctx->sched_flags))) {
@@ -393,6 +397,12 @@ long spufs_run_spu(struct spu_context *ctx, u32 *npc, u32 *event)
 				spu_switch_notify(spu, ctx);
 				continue;
 			}
+=======
+		if (unlikely(test_and_clear_bit(SPU_SCHED_NOTIFY_ACTIVE,
+						&ctx->sched_flags))) {
+			if (!(status & SPU_STATUS_STOPPED_BY_STOP))
+				continue;
+>>>>>>> upstream/android-13
 		}
 
 		spuctx_switch_state(ctx, SPU_UTIL_SYSTEM);
@@ -443,7 +453,11 @@ long spufs_run_spu(struct spu_context *ctx, u32 *npc, u32 *event)
 
 	else if (unlikely((status & SPU_STATUS_STOPPED_BY_STOP)
 	    && (status >> SPU_STOP_STATUS_SHIFT) == 0x3fff)) {
+<<<<<<< HEAD
 		force_sig(SIGTRAP, current);
+=======
+		force_sig(SIGTRAP);
+>>>>>>> upstream/android-13
 		ret = -ERESTARTSYS;
 	}
 

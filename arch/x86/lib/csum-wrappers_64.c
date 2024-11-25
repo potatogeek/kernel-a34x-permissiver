@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2002, 2003 Andi Kleen, SuSE Labs.
  * Subject to the GNU Public License v.2
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2002, 2003 Andi Kleen, SuSE Labs.
+>>>>>>> upstream/android-13
  *
  * Wrappers of assembly checksum functions for x86-64.
  */
@@ -10,7 +16,11 @@
 #include <asm/smap.h>
 
 /**
+<<<<<<< HEAD
  * csum_partial_copy_from_user - Copy and checksum from user space.
+=======
+ * csum_and_copy_from_user - Copy and checksum from user space.
+>>>>>>> upstream/android-13
  * @src: source address (user space)
  * @dst: destination address
  * @len: number of bytes to be copied.
@@ -21,6 +31,7 @@
  * src and dst are best aligned to 64bits.
  */
 __wsum
+<<<<<<< HEAD
 csum_partial_copy_from_user(const void __user *src, void *dst,
 			    int len, __wsum isum, int *errp)
 {
@@ -72,6 +83,23 @@ EXPORT_SYMBOL(csum_partial_copy_from_user);
 
 /**
  * csum_partial_copy_to_user - Copy and checksum to user space.
+=======
+csum_and_copy_from_user(const void __user *src, void *dst, int len)
+{
+	__wsum sum;
+
+	might_sleep();
+	if (!user_access_begin(src, len))
+		return 0;
+	sum = csum_partial_copy_generic((__force const void *)src, dst, len);
+	user_access_end();
+	return sum;
+}
+EXPORT_SYMBOL(csum_and_copy_from_user);
+
+/**
+ * csum_and_copy_to_user - Copy and checksum to user space.
+>>>>>>> upstream/android-13
  * @src: source address
  * @dst: destination address (user space)
  * @len: number of bytes to be copied.
@@ -82,6 +110,7 @@ EXPORT_SYMBOL(csum_partial_copy_from_user);
  * src and dst are best aligned to 64bits.
  */
 __wsum
+<<<<<<< HEAD
 csum_partial_copy_to_user(const void *src, void __user *dst,
 			  int len, __wsum isum, int *errp)
 {
@@ -117,6 +146,20 @@ csum_partial_copy_to_user(const void *src, void __user *dst,
 	return ret;
 }
 EXPORT_SYMBOL(csum_partial_copy_to_user);
+=======
+csum_and_copy_to_user(const void *src, void __user *dst, int len)
+{
+	__wsum sum;
+
+	might_sleep();
+	if (!user_access_begin(dst, len))
+		return 0;
+	sum = csum_partial_copy_generic(src, (void __force *)dst, len);
+	user_access_end();
+	return sum;
+}
+EXPORT_SYMBOL(csum_and_copy_to_user);
+>>>>>>> upstream/android-13
 
 /**
  * csum_partial_copy_nocheck - Copy and checksum.
@@ -128,9 +171,15 @@ EXPORT_SYMBOL(csum_partial_copy_to_user);
  * Returns an 32bit unfolded checksum of the buffer.
  */
 __wsum
+<<<<<<< HEAD
 csum_partial_copy_nocheck(const void *src, void *dst, int len, __wsum sum)
 {
 	return csum_partial_copy_generic(src, dst, len, sum, NULL, NULL);
+=======
+csum_partial_copy_nocheck(const void *src, void *dst, int len)
+{
+	return csum_partial_copy_generic(src, dst, len);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(csum_partial_copy_nocheck);
 

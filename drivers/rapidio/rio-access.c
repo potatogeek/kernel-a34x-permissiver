@@ -1,18 +1,30 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * RapidIO configuration space access support
  *
  * Copyright 2005 MontaVista Software, Inc.
  * Matt Porter <mporter@kernel.crashing.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/rio.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
+=======
+#include <linux/rio_drv.h>
+
+>>>>>>> upstream/android-13
 /*
  *  Wrappers for all RIO configuration access functions.  They just check
  *  alignment and call the low-level functions pointed to by rio_mport->ops.

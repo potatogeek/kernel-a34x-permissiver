@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  ISA Plug & Play support
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,6 +22,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  *  Changelog:
  *  2000-01-01	Added quirks handling for buggy hardware
  *		Peter Denison <peterd@pnd-pc.demon.co.uk>
@@ -761,6 +768,7 @@ __skip:
 }
 
 /*
+<<<<<<< HEAD
  *  Compute ISA PnP checksum for first eight bytes.
  */
 static unsigned char __init isapnp_checksum(unsigned char *data)
@@ -783,12 +791,18 @@ static unsigned char __init isapnp_checksum(unsigned char *data)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  *  Build device list for all present ISA PnP devices.
  */
 static int __init isapnp_build_device_list(void)
 {
 	int csn;
+<<<<<<< HEAD
 	unsigned char header[9], checksum;
+=======
+	unsigned char header[9];
+>>>>>>> upstream/android-13
 	struct pnp_card *card;
 	u32 eisa_id;
 	char id[8];
@@ -798,7 +812,10 @@ static int __init isapnp_build_device_list(void)
 	for (csn = 1; csn <= isapnp_csn_count; csn++) {
 		isapnp_wake(csn);
 		isapnp_peek(header, 9);
+<<<<<<< HEAD
 		checksum = isapnp_checksum(header);
+=======
+>>>>>>> upstream/android-13
 		eisa_id = header[0] | header[1] << 8 |
 			  header[2] << 16 | header[3] << 24;
 		pnp_eisa_id_to_string(eisa_id, id);

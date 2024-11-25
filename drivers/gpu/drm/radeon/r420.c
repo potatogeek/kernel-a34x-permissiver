@@ -25,6 +25,7 @@
  *          Alex Deucher
  *          Jerome Glisse
  */
+<<<<<<< HEAD
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <drm/drmP.h>
@@ -35,6 +36,23 @@
 #include "r100d.h"
 #include "r420d.h"
 #include "r420_reg_safe.h"
+=======
+
+#include <linux/pci.h>
+#include <linux/seq_file.h>
+#include <linux/slab.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_file.h>
+
+#include "atom.h"
+#include "r100d.h"
+#include "r420_reg_safe.h"
+#include "r420d.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+#include "radeon_reg.h"
+>>>>>>> upstream/android-13
 
 void r420_pm_init_profile(struct radeon_device *rdev)
 {
@@ -109,6 +127,10 @@ void r420_pipes_init(struct radeon_device *rdev)
 	default:
 		/* force to 1 pipe */
 		num_pipes = 1;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1:
 		tmp = (0 << 1);
 		break;
@@ -180,12 +202,17 @@ void r420_mc_wreg(struct radeon_device *rdev, u32 reg, u32 v)
 
 static void r420_debugfs(struct radeon_device *rdev)
 {
+<<<<<<< HEAD
 	if (r100_debugfs_rbbm_init(rdev)) {
 		DRM_ERROR("Failed to register debugfs file for RBBM !\n");
 	}
 	if (r420_debugfs_pipes_info_init(rdev)) {
 		DRM_ERROR("Failed to register debugfs file for pipes !\n");
 	}
+=======
+	r100_debugfs_rbbm_init(rdev);
+	r420_debugfs_pipes_info_init(rdev);
+>>>>>>> upstream/android-13
 }
 
 static void r420_clock_resume(struct radeon_device *rdev)
@@ -423,10 +450,14 @@ int r420_init(struct radeon_device *rdev)
 	r300_mc_init(rdev);
 	r420_debugfs(rdev);
 	/* Fence driver */
+<<<<<<< HEAD
 	r = radeon_fence_driver_init(rdev);
 	if (r) {
 		return r;
 	}
+=======
+	radeon_fence_driver_init(rdev);
+>>>>>>> upstream/android-13
 	/* Memory manager */
 	r = radeon_bo_init(rdev);
 	if (r) {
@@ -473,11 +504,17 @@ int r420_init(struct radeon_device *rdev)
  * Debugfs info
  */
 #if defined(CONFIG_DEBUG_FS)
+<<<<<<< HEAD
 static int r420_debugfs_pipes_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
 	struct drm_device *dev = node->minor->dev;
 	struct radeon_device *rdev = dev->dev_private;
+=======
+static int r420_debugfs_pipes_info_show(struct seq_file *m, void *unused)
+{
+	struct radeon_device *rdev = (struct radeon_device *)m->private;
+>>>>>>> upstream/android-13
 	uint32_t tmp;
 
 	tmp = RREG32(R400_GB_PIPE_SELECT);
@@ -489,6 +526,7 @@ static int r420_debugfs_pipes_info(struct seq_file *m, void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct drm_info_list r420_pipes_info_list[] = {
 	{"r420_pipes_info", r420_debugfs_pipes_info, 0, NULL},
 };
@@ -500,5 +538,17 @@ int r420_debugfs_pipes_info_init(struct radeon_device *rdev)
 	return radeon_debugfs_add_files(rdev, r420_pipes_info_list, 1);
 #else
 	return 0;
+=======
+DEFINE_SHOW_ATTRIBUTE(r420_debugfs_pipes_info);
+#endif
+
+void r420_debugfs_pipes_info_init(struct radeon_device *rdev)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct dentry *root = rdev->ddev->primary->debugfs_root;
+
+	debugfs_create_file("r420_pipes_info", 0444, root, rdev,
+			    &r420_debugfs_pipes_info_fops);
+>>>>>>> upstream/android-13
 #endif
 }

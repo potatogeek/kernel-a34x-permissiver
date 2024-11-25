@@ -78,7 +78,11 @@ static int vfb_pan_display(struct fb_var_screeninfo *var,
 static int vfb_mmap(struct fb_info *info,
 		    struct vm_area_struct *vma);
 
+<<<<<<< HEAD
 static struct fb_ops vfb_ops = {
+=======
+static const struct fb_ops vfb_ops = {
+>>>>>>> upstream/android-13
 	.fb_read        = fb_sys_read,
 	.fb_write       = fb_sys_write,
 	.fb_check_var	= vfb_check_var,

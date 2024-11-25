@@ -29,6 +29,10 @@
 #include <linux/file.h>
 #include <linux/ioctl.h>
 #include <linux/compat.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 #undef TTY_DEBUG_HANGUP
 #ifdef TTY_DEBUG_HANGUP
@@ -45,7 +49,10 @@ static DEFINE_MUTEX(devpts_mutex);
 
 static void pty_close(struct tty_struct *tty, struct file *filp)
 {
+<<<<<<< HEAD
 	BUG_ON(!tty);
+=======
+>>>>>>> upstream/android-13
 	if (tty->driver->subtype == PTY_TYPE_MASTER)
 		WARN_ON(tty->count > 1);
 	else {
@@ -57,9 +64,15 @@ static void pty_close(struct tty_struct *tty, struct file *filp)
 	set_bit(TTY_IO_ERROR, &tty->flags);
 	wake_up_interruptible(&tty->read_wait);
 	wake_up_interruptible(&tty->write_wait);
+<<<<<<< HEAD
 	spin_lock_irq(&tty->ctrl_lock);
 	tty->packet = 0;
 	spin_unlock_irq(&tty->ctrl_lock);
+=======
+	spin_lock_irq(&tty->ctrl.lock);
+	tty->ctrl.packet = false;
+	spin_unlock_irq(&tty->ctrl.lock);
+>>>>>>> upstream/android-13
 	/* Review - krefs on tty_link ?? */
 	if (!tty->link)
 		return;
@@ -100,7 +113,11 @@ static void pty_unthrottle(struct tty_struct *tty)
  *	pty_write		-	write to a pty
  *	@tty: the tty we write from
  *	@buf: kernel buffer of data
+<<<<<<< HEAD
  *	@count: bytes to write
+=======
+ *	@c: bytes to write
+>>>>>>> upstream/android-13
  *
  *	Our "hardware" write method. Data is coming from the ldisc which
  *	may be in a non sleeping state. We simply throw this at the other
@@ -113,7 +130,11 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
 	struct tty_struct *to = tty->link;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (tty->stopped)
+=======
+	if (tty->flow.stopped)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (c > 0) {
@@ -136,13 +157,20 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
  *	the other device.
  */
 
+<<<<<<< HEAD
 static int pty_write_room(struct tty_struct *tty)
 {
 	if (tty->stopped)
+=======
+static unsigned int pty_write_room(struct tty_struct *tty)
+{
+	if (tty->flow.stopped)
+>>>>>>> upstream/android-13
 		return 0;
 	return tty_buffer_space_avail(tty->link->port);
 }
 
+<<<<<<< HEAD
 /**
  *	pty_chars_in_buffer	-	characters currently in our tx queue
  *	@tty: our tty
@@ -156,10 +184,16 @@ static int pty_chars_in_buffer(struct tty_struct *tty)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Set the lock flag on a pty */
 static int pty_set_lock(struct tty_struct *tty, int __user *arg)
 {
 	int val;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (get_user(val, arg))
 		return -EFAULT;
 	if (val)
@@ -172,6 +206,10 @@ static int pty_set_lock(struct tty_struct *tty, int __user *arg)
 static int pty_get_lock(struct tty_struct *tty, int __user *arg)
 {
 	int locked = test_bit(TTY_PTY_LOCK, &tty->flags);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return put_user(locked, arg);
 }
 
@@ -183,6 +221,7 @@ static int pty_set_pktmode(struct tty_struct *tty, int __user *arg)
 	if (get_user(pktmode, arg))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	spin_lock_irq(&tty->ctrl_lock);
 	if (pktmode) {
 		if (!tty->packet) {
@@ -193,6 +232,18 @@ static int pty_set_pktmode(struct tty_struct *tty, int __user *arg)
 	} else
 		tty->packet = 0;
 	spin_unlock_irq(&tty->ctrl_lock);
+=======
+	spin_lock_irq(&tty->ctrl.lock);
+	if (pktmode) {
+		if (!tty->ctrl.packet) {
+			tty->link->ctrl.pktstatus = 0;
+			smp_mb();
+			tty->ctrl.packet = true;
+		}
+	} else
+		tty->ctrl.packet = false;
+	spin_unlock_irq(&tty->ctrl.lock);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -200,7 +251,12 @@ static int pty_set_pktmode(struct tty_struct *tty, int __user *arg)
 /* Get the packet mode of a pty */
 static int pty_get_pktmode(struct tty_struct *tty, int __user *arg)
 {
+<<<<<<< HEAD
 	int pktmode = tty->packet;
+=======
+	int pktmode = tty->ctrl.packet;
+
+>>>>>>> upstream/android-13
 	return put_user(pktmode, arg);
 }
 
@@ -229,11 +285,19 @@ static void pty_flush_buffer(struct tty_struct *tty)
 		return;
 
 	tty_buffer_flush(to, NULL);
+<<<<<<< HEAD
 	if (to->packet) {
 		spin_lock_irq(&tty->ctrl_lock);
 		tty->ctrl_status |= TIOCPKT_FLUSHWRITE;
 		wake_up_interruptible(&to->read_wait);
 		spin_unlock_irq(&tty->ctrl_lock);
+=======
+	if (to->ctrl.packet) {
+		spin_lock_irq(&tty->ctrl.lock);
+		tty->ctrl.pktstatus |= TIOCPKT_FLUSHWRITE;
+		wake_up_interruptible(&to->read_wait);
+		spin_unlock_irq(&tty->ctrl.lock);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -263,7 +327,11 @@ static void pty_set_termios(struct tty_struct *tty,
 					struct ktermios *old_termios)
 {
 	/* See if packet mode change of state. */
+<<<<<<< HEAD
 	if (tty->link && tty->link->packet) {
+=======
+	if (tty->link && tty->link->ctrl.packet) {
+>>>>>>> upstream/android-13
 		int extproc = (old_termios->c_lflag & EXTPROC) | L_EXTPROC(tty);
 		int old_flow = ((old_termios->c_iflag & IXON) &&
 				(old_termios->c_cc[VSTOP] == '\023') &&
@@ -272,6 +340,7 @@ static void pty_set_termios(struct tty_struct *tty,
 				STOP_CHAR(tty) == '\023' &&
 				START_CHAR(tty) == '\021');
 		if ((old_flow != new_flow) || extproc) {
+<<<<<<< HEAD
 			spin_lock_irq(&tty->ctrl_lock);
 			if (old_flow != new_flow) {
 				tty->ctrl_status &= ~(TIOCPKT_DOSTOP | TIOCPKT_NOSTOP);
@@ -283,6 +352,19 @@ static void pty_set_termios(struct tty_struct *tty,
 			if (extproc)
 				tty->ctrl_status |= TIOCPKT_IOCTL;
 			spin_unlock_irq(&tty->ctrl_lock);
+=======
+			spin_lock_irq(&tty->ctrl.lock);
+			if (old_flow != new_flow) {
+				tty->ctrl.pktstatus &= ~(TIOCPKT_DOSTOP | TIOCPKT_NOSTOP);
+				if (new_flow)
+					tty->ctrl.pktstatus |= TIOCPKT_DOSTOP;
+				else
+					tty->ctrl.pktstatus |= TIOCPKT_NOSTOP;
+			}
+			if (extproc)
+				tty->ctrl.pktstatus |= TIOCPKT_IOCTL;
+			spin_unlock_irq(&tty->ctrl.lock);
+>>>>>>> upstream/android-13
 			wake_up_interruptible(&tty->link->read_wait);
 		}
 	}
@@ -292,7 +374,11 @@ static void pty_set_termios(struct tty_struct *tty,
 }
 
 /**
+<<<<<<< HEAD
  *	pty_do_resize		-	resize event
+=======
+ *	pty_resize		-	resize event
+>>>>>>> upstream/android-13
  *	@tty: tty being resized
  *	@ws: window size being set.
  *
@@ -343,11 +429,19 @@ static void pty_start(struct tty_struct *tty)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (tty->link && tty->link->packet) {
 		spin_lock_irqsave(&tty->ctrl_lock, flags);
 		tty->ctrl_status &= ~TIOCPKT_STOP;
 		tty->ctrl_status |= TIOCPKT_START;
 		spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+	if (tty->link && tty->link->ctrl.packet) {
+		spin_lock_irqsave(&tty->ctrl.lock, flags);
+		tty->ctrl.pktstatus &= ~TIOCPKT_STOP;
+		tty->ctrl.pktstatus |= TIOCPKT_START;
+		spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 		wake_up_interruptible_poll(&tty->link->read_wait, EPOLLIN);
 	}
 }
@@ -356,11 +450,19 @@ static void pty_stop(struct tty_struct *tty)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (tty->link && tty->link->packet) {
 		spin_lock_irqsave(&tty->ctrl_lock, flags);
 		tty->ctrl_status &= ~TIOCPKT_START;
 		tty->ctrl_status |= TIOCPKT_STOP;
 		spin_unlock_irqrestore(&tty->ctrl_lock, flags);
+=======
+	if (tty->link && tty->link->ctrl.packet) {
+		spin_lock_irqsave(&tty->ctrl.lock, flags);
+		tty->ctrl.pktstatus &= ~TIOCPKT_START;
+		tty->ctrl.pktstatus |= TIOCPKT_STOP;
+		spin_unlock_irqrestore(&tty->ctrl.lock, flags);
+>>>>>>> upstream/android-13
 		wake_up_interruptible_poll(&tty->link->read_wait, EPOLLIN);
 	}
 }
@@ -464,6 +566,10 @@ static int pty_install(struct tty_driver *driver, struct tty_struct *tty)
 static void pty_remove(struct tty_driver *driver, struct tty_struct *tty)
 {
 	struct tty_struct *pair = tty->link;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	driver->ttys[tty->index] = NULL;
 	if (pair)
 		pair->driver->ttys[pair->index] = NULL;
@@ -521,7 +627,10 @@ static const struct tty_operations master_pty_ops_bsd = {
 	.write = pty_write,
 	.write_room = pty_write_room,
 	.flush_buffer = pty_flush_buffer,
+<<<<<<< HEAD
 	.chars_in_buffer = pty_chars_in_buffer,
+=======
+>>>>>>> upstream/android-13
 	.unthrottle = pty_unthrottle,
 	.ioctl = pty_bsd_ioctl,
 	.compat_ioctl = pty_bsd_compat_ioctl,
@@ -537,7 +646,10 @@ static const struct tty_operations slave_pty_ops_bsd = {
 	.write = pty_write,
 	.write_room = pty_write_room,
 	.flush_buffer = pty_flush_buffer,
+<<<<<<< HEAD
 	.chars_in_buffer = pty_chars_in_buffer,
+=======
+>>>>>>> upstream/android-13
 	.unthrottle = pty_unthrottle,
 	.set_termios = pty_set_termios,
 	.cleanup = pty_cleanup,
@@ -622,7 +734,11 @@ static struct cdev ptmx_cdev;
  */
 int ptm_open_peer(struct file *master, struct tty_struct *tty, int flags)
 {
+<<<<<<< HEAD
 	int fd = -1;
+=======
+	int fd;
+>>>>>>> upstream/android-13
 	struct file *filp;
 	int retval = -EINVAL;
 	struct path path;
@@ -699,6 +815,10 @@ static long pty_unix98_compat_ioctl(struct tty_struct *tty,
 /**
  *	ptm_unix98_lookup	-	find a pty master
  *	@driver: ptm driver
+<<<<<<< HEAD
+=======
+ *	@file: unused
+>>>>>>> upstream/android-13
  *	@idx: tty index
  *
  *	Look up a pty master device. Called under the tty_mutex for now.
@@ -715,6 +835,10 @@ static struct tty_struct *ptm_unix98_lookup(struct tty_driver *driver,
 /**
  *	pts_unix98_lookup	-	find a pty slave
  *	@driver: pts driver
+<<<<<<< HEAD
+=======
+ *	@file: file pointer to tty
+>>>>>>> upstream/android-13
  *	@idx: tty index
  *
  *	Look up a pty master device. Called under the tty_mutex for now.
@@ -770,7 +894,10 @@ static const struct tty_operations ptm_unix98_ops = {
 	.write = pty_write,
 	.write_room = pty_write_room,
 	.flush_buffer = pty_flush_buffer,
+<<<<<<< HEAD
 	.chars_in_buffer = pty_chars_in_buffer,
+=======
+>>>>>>> upstream/android-13
 	.unthrottle = pty_unthrottle,
 	.ioctl = pty_unix98_ioctl,
 	.compat_ioctl = pty_unix98_compat_ioctl,
@@ -788,7 +915,10 @@ static const struct tty_operations pty_unix98_ops = {
 	.write = pty_write,
 	.write_room = pty_write_room,
 	.flush_buffer = pty_flush_buffer,
+<<<<<<< HEAD
 	.chars_in_buffer = pty_chars_in_buffer,
+=======
+>>>>>>> upstream/android-13
 	.unthrottle = pty_unthrottle,
 	.set_termios = pty_set_termios,
 	.start = pty_start,

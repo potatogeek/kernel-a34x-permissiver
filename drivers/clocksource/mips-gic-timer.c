@@ -16,6 +16,10 @@
 #include <linux/notifier.h>
 #include <linux/of_irq.h>
 #include <linux/percpu.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched_clock.h>
+>>>>>>> upstream/android-13
 #include <linux/smp.h>
 #include <linux/time.h>
 #include <asm/mips-cps.h>
@@ -23,6 +27,7 @@
 static DEFINE_PER_CPU(struct clock_event_device, gic_clockevent_device);
 static int gic_timer_irq;
 static unsigned int gic_frequency;
+<<<<<<< HEAD
 
 static u64 notrace gic_read_count(void)
 {
@@ -31,6 +36,16 @@ static u64 notrace gic_read_count(void)
 	if (mips_cm_is64)
 		return read_gic_counter();
 
+=======
+static bool __read_mostly gic_clock_unstable;
+
+static void gic_clocksource_unstable(char *reason);
+
+static u64 notrace gic_read_count_2x32(void)
+{
+	unsigned int hi, hi2, lo;
+
+>>>>>>> upstream/android-13
 	do {
 		hi = read_gic_counter_32h();
 		lo = read_gic_counter_32l();
@@ -40,6 +55,22 @@ static u64 notrace gic_read_count(void)
 	return (((u64) hi) << 32) + lo;
 }
 
+<<<<<<< HEAD
+=======
+static u64 notrace gic_read_count_64(void)
+{
+	return read_gic_counter();
+}
+
+static u64 notrace gic_read_count(void)
+{
+	if (mips_cm_is64)
+		return gic_read_count_64();
+
+	return gic_read_count_2x32();
+}
+
+>>>>>>> upstream/android-13
 static int gic_next_event(unsigned long delta, struct clock_event_device *evt)
 {
 	int cpu = cpumask_first(evt->cpumask);
@@ -67,7 +98,11 @@ static irqreturn_t gic_compare_interrupt(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 struct irqaction gic_compare_irqaction = {
+=======
+static struct irqaction gic_compare_irqaction = {
+>>>>>>> upstream/android-13
 	.handler = gic_compare_interrupt,
 	.percpu_dev_id = &gic_clockevent_device,
 	.flags = IRQF_PERCPU | IRQF_TIMER,
@@ -114,8 +149,15 @@ static int gic_clk_notifier(struct notifier_block *nb, unsigned long action,
 {
 	struct clk_notifier_data *cnd = data;
 
+<<<<<<< HEAD
 	if (action == POST_RATE_CHANGE)
 		on_each_cpu(gic_update_frequency, (void *)cnd->new_rate, 1);
+=======
+	if (action == POST_RATE_CHANGE) {
+		gic_clocksource_unstable("ref clock rate change");
+		on_each_cpu(gic_update_frequency, (void *)cnd->new_rate, 1);
+	}
+>>>>>>> upstream/android-13
 
 	return NOTIFY_OK;
 }
@@ -155,12 +197,33 @@ static u64 gic_hpt_read(struct clocksource *cs)
 }
 
 static struct clocksource gic_clocksource = {
+<<<<<<< HEAD
 	.name		= "GIC",
 	.read		= gic_hpt_read,
 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
 	.archdata	= { .vdso_clock_mode = VDSO_CLOCK_GIC },
 };
 
+=======
+	.name			= "GIC",
+	.read			= gic_hpt_read,
+	.flags			= CLOCK_SOURCE_IS_CONTINUOUS,
+	.vdso_clock_mode	= VDSO_CLOCKMODE_GIC,
+};
+
+static void gic_clocksource_unstable(char *reason)
+{
+	if (gic_clock_unstable)
+		return;
+
+	gic_clock_unstable = true;
+
+	pr_info("GIC timer is unstable due to %s\n", reason);
+
+	clocksource_mark_unstable(&gic_clocksource);
+}
+
+>>>>>>> upstream/android-13
 static int __init __gic_clocksource_init(void)
 {
 	unsigned int count_width;
@@ -228,6 +291,21 @@ static int __init gic_clocksource_of_init(struct device_node *node)
 	/* And finally start the counter */
 	clear_gic_config(GIC_CONFIG_COUNTSTOP);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * It's safe to use the MIPS GIC timer as a sched clock source only if
+	 * its ticks are stable, which is true on either the platforms with
+	 * stable CPU frequency or on the platforms with CM3 and CPU frequency
+	 * change performed by the CPC core clocks divider.
+	 */
+	if (mips_cm_revision() >= CM_REV_CM3 || !IS_ENABLED(CONFIG_CPU_FREQ)) {
+		sched_clock_register(mips_cm_is64 ?
+				     gic_read_count_64 : gic_read_count_2x32,
+				     64, gic_frequency);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 TIMER_OF_DECLARE(mips_gic_timer, "mti,gic-timer",

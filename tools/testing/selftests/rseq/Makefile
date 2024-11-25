@@ -1,5 +1,15 @@
 # SPDX-License-Identifier: GPL-2.0+ OR MIT
+<<<<<<< HEAD
 CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L./ -Wl,-rpath=./
+=======
+
+ifneq ($(shell $(CC) --version 2>&1 | head -n 1 | grep clang),)
+CLANG_FLAGS += -no-integrated-as
+endif
+
+CFLAGS += -O2 -Wall -g -I./ -I../../../../usr/include/ -L$(OUTPUT) -Wl,-rpath=./ \
+	  $(CLANG_FLAGS)
+>>>>>>> upstream/android-13
 LDLIBS += -lpthread
 
 # Own dependencies because we only want to build against 1st prerequisite, but
@@ -13,6 +23,11 @@ TEST_GEN_PROGS_EXTENDED = librseq.so
 
 TEST_PROGS = run_param_test.sh
 
+<<<<<<< HEAD
+=======
+TEST_FILES := settings
+
+>>>>>>> upstream/android-13
 include ../lib.mk
 
 $(OUTPUT)/librseq.so: rseq.c rseq.h rseq-*.h

@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2007-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #ifndef _NET_BATMAN_ADV_TVLV_H_
@@ -22,8 +28,12 @@
 #include "main.h"
 
 #include <linux/types.h>
+<<<<<<< HEAD
 
 struct batadv_ogm_packet;
+=======
+#include <uapi/linux/batadv_packet.h>
+>>>>>>> upstream/android-13
 
 void batadv_tvlv_container_register(struct batadv_priv *bat_priv,
 				    u8 type, u8 version,

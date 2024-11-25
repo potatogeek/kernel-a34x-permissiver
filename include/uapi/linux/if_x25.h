@@ -18,7 +18,11 @@
 
 #include <linux/types.h>
 
+<<<<<<< HEAD
 /* Documentation/networking/x25-iface.txt */
+=======
+/* Documentation/networking/x25-iface.rst */
+>>>>>>> upstream/android-13
 #define X25_IFACE_DATA		0x00
 #define X25_IFACE_CONNECT	0x01
 #define X25_IFACE_DISCONNECT	0x02

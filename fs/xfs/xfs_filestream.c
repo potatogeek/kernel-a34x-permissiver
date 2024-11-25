@@ -5,6 +5,7 @@
  * All Rights Reserved.
  */
 #include "xfs.h"
+<<<<<<< HEAD
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
@@ -21,6 +22,22 @@
 #include "xfs_ag_resv.h"
 #include "xfs_trans.h"
 #include "xfs_shared.h"
+=======
+#include "xfs_shared.h"
+#include "xfs_format.h"
+#include "xfs_log_format.h"
+#include "xfs_trans_resv.h"
+#include "xfs_mount.h"
+#include "xfs_inode.h"
+#include "xfs_bmap.h"
+#include "xfs_alloc.h"
+#include "xfs_mru_cache.h"
+#include "xfs_trace.h"
+#include "xfs_ag.h"
+#include "xfs_ag_resv.h"
+#include "xfs_trans.h"
+#include "xfs_filestream.h"
+>>>>>>> upstream/android-13
 
 struct xfs_fstrm_item {
 	struct xfs_mru_cache_elem	mru;
@@ -35,6 +52,7 @@ enum xfs_fstrm_alloc {
 /*
  * Allocation group filestream associations are tracked with per-ag atomic
  * counters.  These counters allow xfs_filestream_pick_ag() to tell whether a
+<<<<<<< HEAD
  * particular AG already has active filestreams associated with it. The mount
  * point's m_peraglock is used to protect these counters from per-ag array
  * re-allocation during a growfs operation.  When xfs_growfs_data_private() is
@@ -68,6 +86,9 @@ enum xfs_fstrm_alloc {
  * Combined, these locking rules ensure that no associations will ever exist in
  * the cache that reference per-ag array elements that have since been
  * reallocated.
+=======
+ * particular AG already has active filestreams associated with it.
+>>>>>>> upstream/android-13
  */
 int
 xfs_filestream_peek_ag(
@@ -161,6 +182,7 @@ xfs_filestream_pick_ag(
 
 		if (!pag->pagf_init) {
 			err = xfs_alloc_pagf_init(mp, NULL, ag, trylock);
+<<<<<<< HEAD
 			if (err && !trylock) {
 				xfs_perag_put(pag);
 				return err;
@@ -171,6 +193,17 @@ xfs_filestream_pick_ag(
 		if (!pag->pagf_init)
 			goto next_ag;
 
+=======
+			if (err) {
+				xfs_perag_put(pag);
+				if (err != -EAGAIN)
+					return err;
+				/* Couldn't lock the AGF, skip this AG. */
+				continue;
+			}
+		}
+
+>>>>>>> upstream/android-13
 		/* Keep track of the AG with the most free blocks. */
 		if (pag->pagf_freeblks > maxfree) {
 			maxfree = pag->pagf_freeblks;
@@ -330,7 +363,11 @@ xfs_filestream_lookup_ag(
 	 * Set the starting AG using the rotor for inode32, otherwise
 	 * use the directory inode's AG.
 	 */
+<<<<<<< HEAD
 	if (mp->m_flags & XFS_MOUNT_32BITINODES) {
+=======
+	if (xfs_is_inode32(mp)) {
+>>>>>>> upstream/android-13
 		xfs_agnumber_t	 rotorstep = xfs_rotorstep;
 		startag = (mp->m_agfrotor / rotorstep) % mp->m_sb.sb_agcount;
 		mp->m_agfrotor = (mp->m_agfrotor + 1) %
@@ -377,7 +414,11 @@ xfs_filestream_new_ag(
 		startag = (item->ag + 1) % mp->m_sb.sb_agcount;
 	}
 
+<<<<<<< HEAD
 	if (xfs_alloc_is_userdata(ap->datatype))
+=======
+	if (ap->datatype & XFS_ALLOC_USERDATA)
+>>>>>>> upstream/android-13
 		flags |= XFS_PICK_USERDATA;
 	if (ap->tp->t_flags & XFS_TRANS_LOWMODE)
 		flags |= XFS_PICK_LOWSPACE;

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * wm831x-on.c - WM831X ON pin driver
  *
  * Copyright (C) 2009 Wolfson Microelectronics plc

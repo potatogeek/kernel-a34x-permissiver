@@ -4,6 +4,11 @@
 # from userspace.
 #
 
+<<<<<<< HEAD
+=======
+pound := \#
+
+>>>>>>> upstream/android-13
 CC	 = gcc
 OPTFLAGS = -O2			# Adjust as desired
 CFLAGS	 = -I.. -I ../../../include -g $(OPTFLAGS)
@@ -34,17 +39,27 @@ endif
 
 ifeq ($(IS_X86),yes)
         OBJS   += mmx.o sse1.o sse2.o avx2.o recov_ssse3.o recov_avx2.o avx512.o recov_avx512.o
+<<<<<<< HEAD
         CFLAGS += $(shell echo "vpbroadcastb %xmm0, %ymm1" |	\
                     gcc -c -x assembler - >&/dev/null &&	\
                     rm ./-.o && echo -DCONFIG_AS_AVX2=1)
 	CFLAGS += $(shell echo "vpmovm2b %k1, %zmm5" |          \
 		    gcc -c -x assembler - >&/dev/null &&        \
+=======
+        CFLAGS += -DCONFIG_X86
+	CFLAGS += $(shell echo "vpmovm2b %k1, %zmm5" |          \
+		    gcc -c -x assembler - >/dev/null 2>&1 &&	\
+>>>>>>> upstream/android-13
 		    rm ./-.o && echo -DCONFIG_AS_AVX512=1)
 else ifeq ($(HAS_NEON),yes)
         OBJS   += neon.o neon1.o neon2.o neon4.o neon8.o recov_neon.o recov_neon_inner.o
         CFLAGS += -DCONFIG_KERNEL_MODE_NEON=1
 else
+<<<<<<< HEAD
         HAS_ALTIVEC := $(shell printf '\#include <altivec.h>\nvector int a;\n' |\
+=======
+        HAS_ALTIVEC := $(shell printf '$(pound)include <altivec.h>\nvector int a;\n' |\
+>>>>>>> upstream/android-13
                          gcc -c -x c - >/dev/null && rm ./-.o && echo yes)
         ifeq ($(HAS_ALTIVEC),yes)
                 CFLAGS += -I../../../arch/powerpc/include

@@ -34,7 +34,11 @@
 #include <linux/ceph/cls_lock_client.h>
 #include <linux/ceph/striper.h>
 #include <linux/ceph/decode.h>
+<<<<<<< HEAD
 #include <linux/parser.h>
+=======
+#include <linux/fs_parser.h>
+>>>>>>> upstream/android-13
 #include <linux/bsearch.h>
 
 #include <linux/kernel.h>
@@ -115,12 +119,24 @@ static int atomic_dec_return_safe(atomic_t *v)
 #define RBD_FEATURE_LAYERING		(1ULL<<0)
 #define RBD_FEATURE_STRIPINGV2		(1ULL<<1)
 #define RBD_FEATURE_EXCLUSIVE_LOCK	(1ULL<<2)
+<<<<<<< HEAD
+=======
+#define RBD_FEATURE_OBJECT_MAP		(1ULL<<3)
+#define RBD_FEATURE_FAST_DIFF		(1ULL<<4)
+#define RBD_FEATURE_DEEP_FLATTEN	(1ULL<<5)
+>>>>>>> upstream/android-13
 #define RBD_FEATURE_DATA_POOL		(1ULL<<7)
 #define RBD_FEATURE_OPERATIONS		(1ULL<<8)
 
 #define RBD_FEATURES_ALL	(RBD_FEATURE_LAYERING |		\
 				 RBD_FEATURE_STRIPINGV2 |	\
 				 RBD_FEATURE_EXCLUSIVE_LOCK |	\
+<<<<<<< HEAD
+=======
+				 RBD_FEATURE_OBJECT_MAP |	\
+				 RBD_FEATURE_FAST_DIFF |	\
+				 RBD_FEATURE_DEEP_FLATTEN |	\
+>>>>>>> upstream/android-13
 				 RBD_FEATURE_DATA_POOL |	\
 				 RBD_FEATURE_OPERATIONS)
 
@@ -201,6 +217,14 @@ struct rbd_client {
 	struct list_head	node;
 };
 
+<<<<<<< HEAD
+=======
+struct pending_result {
+	int			result;		/* first nonzero result */
+	int			num_pending;
+};
+
+>>>>>>> upstream/android-13
 struct rbd_img_request;
 
 enum obj_request_type {
@@ -214,12 +238,29 @@ enum obj_operation_type {
 	OBJ_OP_READ = 1,
 	OBJ_OP_WRITE,
 	OBJ_OP_DISCARD,
+<<<<<<< HEAD
+=======
+	OBJ_OP_ZEROOUT,
+};
+
+#define RBD_OBJ_FLAG_DELETION			(1U << 0)
+#define RBD_OBJ_FLAG_COPYUP_ENABLED		(1U << 1)
+#define RBD_OBJ_FLAG_COPYUP_ZEROS		(1U << 2)
+#define RBD_OBJ_FLAG_MAY_EXIST			(1U << 3)
+#define RBD_OBJ_FLAG_NOOP_FOR_NONEXISTENT	(1U << 4)
+
+enum rbd_obj_read_state {
+	RBD_OBJ_READ_START = 1,
+	RBD_OBJ_READ_OBJECT,
+	RBD_OBJ_READ_PARENT,
+>>>>>>> upstream/android-13
 };
 
 /*
  * Writes go through the following state machine to deal with
  * layering:
  *
+<<<<<<< HEAD
  *                       need copyup
  * RBD_OBJ_WRITE_GUARD ---------------> RBD_OBJ_WRITE_COPYUP
  *        |     ^                              |
@@ -236,12 +277,57 @@ enum rbd_obj_write_state {
 	RBD_OBJ_WRITE_FLAT = 1,
 	RBD_OBJ_WRITE_GUARD,
 	RBD_OBJ_WRITE_COPYUP,
+=======
+ *            . . . . . RBD_OBJ_WRITE_GUARD. . . . . . . . . . . . . .
+ *            .                 |                                    .
+ *            .                 v                                    .
+ *            .    RBD_OBJ_WRITE_READ_FROM_PARENT. . .               .
+ *            .                 |                    .               .
+ *            .                 v                    v (deep-copyup  .
+ *    (image  .   RBD_OBJ_WRITE_COPYUP_EMPTY_SNAPC   .  not needed)  .
+ * flattened) v                 |                    .               .
+ *            .                 v                    .               .
+ *            . . . .RBD_OBJ_WRITE_COPYUP_OPS. . . . .      (copyup  .
+ *                              |                        not needed) v
+ *                              v                                    .
+ *                            done . . . . . . . . . . . . . . . . . .
+ *                              ^
+ *                              |
+ *                     RBD_OBJ_WRITE_FLAT
+ *
+ * Writes start in RBD_OBJ_WRITE_GUARD or _FLAT, depending on whether
+ * assert_exists guard is needed or not (in some cases it's not needed
+ * even if there is a parent).
+ */
+enum rbd_obj_write_state {
+	RBD_OBJ_WRITE_START = 1,
+	RBD_OBJ_WRITE_PRE_OBJECT_MAP,
+	RBD_OBJ_WRITE_OBJECT,
+	__RBD_OBJ_WRITE_COPYUP,
+	RBD_OBJ_WRITE_COPYUP,
+	RBD_OBJ_WRITE_POST_OBJECT_MAP,
+};
+
+enum rbd_obj_copyup_state {
+	RBD_OBJ_COPYUP_START = 1,
+	RBD_OBJ_COPYUP_READ_PARENT,
+	__RBD_OBJ_COPYUP_OBJECT_MAPS,
+	RBD_OBJ_COPYUP_OBJECT_MAPS,
+	__RBD_OBJ_COPYUP_WRITE_OBJECT,
+	RBD_OBJ_COPYUP_WRITE_OBJECT,
+>>>>>>> upstream/android-13
 };
 
 struct rbd_obj_request {
 	struct ceph_object_extent ex;
+<<<<<<< HEAD
 	union {
 		bool			tried_parent;	/* for reads */
+=======
+	unsigned int		flags;	/* RBD_OBJ_FLAG_* */
+	union {
+		enum rbd_obj_read_state	 read_state;	/* for reads */
+>>>>>>> upstream/android-13
 		enum rbd_obj_write_state write_state;	/* for writes */
 	};
 
@@ -257,6 +343,7 @@ struct rbd_obj_request {
 			u32			bvec_idx;
 		};
 	};
+<<<<<<< HEAD
 	struct bio_vec		*copyup_bvecs;
 	u32			copyup_bvec_count;
 
@@ -265,6 +352,17 @@ struct rbd_obj_request {
 	u64			xferred;	/* bytes transferred */
 	int			result;
 
+=======
+
+	enum rbd_obj_copyup_state copyup_state;
+	struct bio_vec		*copyup_bvecs;
+	u32			copyup_bvec_count;
+
+	struct list_head	osd_reqs;	/* w/ r_private_item */
+
+	struct mutex		state_mutex;
+	struct pending_result	pending;
+>>>>>>> upstream/android-13
 	struct kref		kref;
 };
 
@@ -273,15 +371,30 @@ enum img_req_flags {
 	IMG_REQ_LAYERED,	/* ENOENT handling: normal = 0, layered = 1 */
 };
 
+<<<<<<< HEAD
+=======
+enum rbd_img_state {
+	RBD_IMG_START = 1,
+	RBD_IMG_EXCLUSIVE_LOCK,
+	__RBD_IMG_OBJECT_REQUESTS,
+	RBD_IMG_OBJECT_REQUESTS,
+};
+
+>>>>>>> upstream/android-13
 struct rbd_img_request {
 	struct rbd_device	*rbd_dev;
 	enum obj_operation_type	op_type;
 	enum obj_request_type	data_type;
 	unsigned long		flags;
+<<<<<<< HEAD
+=======
+	enum rbd_img_state	state;
+>>>>>>> upstream/android-13
 	union {
 		u64			snap_id;	/* for reads */
 		struct ceph_snap_context *snapc;	/* for writes */
 	};
+<<<<<<< HEAD
 	union {
 		struct request		*rq;		/* block request */
 		struct rbd_obj_request	*obj_request;	/* obj req initiator */
@@ -295,6 +408,17 @@ struct rbd_img_request {
 	u32			pending_count;
 
 	struct kref		kref;
+=======
+	struct rbd_obj_request	*obj_request;	/* obj req initiator */
+
+	struct list_head	lock_item;
+	struct list_head	object_extents;	/* obj_req.ex structs */
+
+	struct mutex		state_mutex;
+	struct pending_result	pending;
+	struct work_struct	work;
+	int			work_result;
+>>>>>>> upstream/android-13
 };
 
 #define for_each_obj_request(ireq, oreq) \
@@ -322,7 +446,10 @@ struct rbd_client_id {
 
 struct rbd_mapping {
 	u64                     size;
+<<<<<<< HEAD
 	u64                     features;
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -367,7 +494,21 @@ struct rbd_device {
 	struct work_struct	released_lock_work;
 	struct delayed_work	lock_dwork;
 	struct work_struct	unlock_work;
+<<<<<<< HEAD
 	wait_queue_head_t	lock_waitq;
+=======
+	spinlock_t		lock_lists_lock;
+	struct list_head	acquiring_list;
+	struct list_head	running_list;
+	struct completion	acquire_wait;
+	int			acquire_err;
+	struct completion	releasing_wait;
+
+	spinlock_t		object_map_lock;
+	u8			*object_map;
+	u64			object_map_size;	/* in objects */
+	u64			object_map_flags;
+>>>>>>> upstream/android-13
 
 	struct workqueue_struct	*task_wq;
 
@@ -395,12 +536,20 @@ struct rbd_device {
  * Flag bits for rbd_dev->flags:
  * - REMOVING (which is coupled with rbd_dev->open_count) is protected
  *   by rbd_dev->lock
+<<<<<<< HEAD
  * - BLACKLISTED is protected by rbd_dev->lock_rwsem
  */
 enum rbd_dev_flags {
 	RBD_DEV_FLAG_EXISTS,	/* mapped snapshot has not been deleted */
 	RBD_DEV_FLAG_REMOVING,	/* this mapping is being removed */
 	RBD_DEV_FLAG_BLACKLISTED, /* our ceph_client is blacklisted */
+=======
+ */
+enum rbd_dev_flags {
+	RBD_DEV_FLAG_EXISTS,	/* rbd_dev_device_setup() ran */
+	RBD_DEV_FLAG_REMOVING,	/* this mapping is being removed */
+	RBD_DEV_FLAG_READONLY,  /* -o ro or snapshot */
+>>>>>>> upstream/android-13
 };
 
 static DEFINE_MUTEX(client_mutex);	/* Serialize client creation */
@@ -421,6 +570,13 @@ static DEFINE_IDA(rbd_dev_id_ida);
 
 static struct workqueue_struct *rbd_wq;
 
+<<<<<<< HEAD
+=======
+static struct ceph_snap_context rbd_empty_snapc = {
+	.nref = REFCOUNT_INIT(1),
+};
+
+>>>>>>> upstream/android-13
 /*
  * single-major requires >= 0.75 version of userspace rbd utility.
  */
@@ -428,6 +584,7 @@ static bool single_major = true;
 module_param(single_major, bool, 0444);
 MODULE_PARM_DESC(single_major, "Use a single major number for all rbd devices (default: true)");
 
+<<<<<<< HEAD
 static ssize_t rbd_add(struct bus_type *bus, const char *buf,
 		       size_t count);
 static ssize_t rbd_remove(struct bus_type *bus, const char *buf,
@@ -436,6 +593,15 @@ static ssize_t rbd_add_single_major(struct bus_type *bus, const char *buf,
 				    size_t count);
 static ssize_t rbd_remove_single_major(struct bus_type *bus, const char *buf,
 				       size_t count);
+=======
+static ssize_t add_store(struct bus_type *bus, const char *buf, size_t count);
+static ssize_t remove_store(struct bus_type *bus, const char *buf,
+			    size_t count);
+static ssize_t add_single_major_store(struct bus_type *bus, const char *buf,
+				      size_t count);
+static ssize_t remove_single_major_store(struct bus_type *bus, const char *buf,
+					 size_t count);
+>>>>>>> upstream/android-13
 static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth);
 
 static int rbd_dev_id_to_minor(int dev_id)
@@ -448,8 +614,25 @@ static int minor_to_rbd_dev_id(int minor)
 	return minor >> RBD_SINGLE_MAJOR_PART_SHIFT;
 }
 
+<<<<<<< HEAD
 static bool __rbd_is_lock_owner(struct rbd_device *rbd_dev)
 {
+=======
+static bool rbd_is_ro(struct rbd_device *rbd_dev)
+{
+	return test_bit(RBD_DEV_FLAG_READONLY, &rbd_dev->flags);
+}
+
+static bool rbd_is_snap(struct rbd_device *rbd_dev)
+{
+	return rbd_dev->spec->snap_id != CEPH_NOSNAP;
+}
+
+static bool __rbd_is_lock_owner(struct rbd_device *rbd_dev)
+{
+	lockdep_assert_held(&rbd_dev->lock_rwsem);
+
+>>>>>>> upstream/android-13
 	return rbd_dev->lock_state == RBD_LOCK_STATE_LOCKED ||
 	       rbd_dev->lock_state == RBD_LOCK_STATE_RELEASING;
 }
@@ -464,16 +647,28 @@ static bool rbd_is_lock_owner(struct rbd_device *rbd_dev)
 	return is_lock_owner;
 }
 
+<<<<<<< HEAD
 static ssize_t rbd_supported_features_show(struct bus_type *bus, char *buf)
+=======
+static ssize_t supported_features_show(struct bus_type *bus, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "0x%llx\n", RBD_FEATURES_SUPPORTED);
 }
 
+<<<<<<< HEAD
 static BUS_ATTR(add, 0200, NULL, rbd_add);
 static BUS_ATTR(remove, 0200, NULL, rbd_remove);
 static BUS_ATTR(add_single_major, 0200, NULL, rbd_add_single_major);
 static BUS_ATTR(remove_single_major, 0200, NULL, rbd_remove_single_major);
 static BUS_ATTR(supported_features, 0444, rbd_supported_features_show, NULL);
+=======
+static BUS_ATTR_WO(add);
+static BUS_ATTR_WO(remove);
+static BUS_ATTR_WO(add_single_major);
+static BUS_ATTR_WO(remove_single_major);
+static BUS_ATTR_RO(supported_features);
+>>>>>>> upstream/android-13
 
 static struct attribute *rbd_bus_attrs[] = {
 	&bus_attr_add.attr,
@@ -565,8 +760,31 @@ static const char *rbd_dev_v2_snap_name(struct rbd_device *rbd_dev,
 					u64 snap_id);
 static int _rbd_dev_v2_snap_size(struct rbd_device *rbd_dev, u64 snap_id,
 				u8 *order, u64 *snap_size);
+<<<<<<< HEAD
 static int _rbd_dev_v2_snap_features(struct rbd_device *rbd_dev, u64 snap_id,
 		u64 *snap_features);
+=======
+static int rbd_dev_v2_get_flags(struct rbd_device *rbd_dev);
+
+static void rbd_obj_handle_request(struct rbd_obj_request *obj_req, int result);
+static void rbd_img_handle_request(struct rbd_img_request *img_req, int result);
+
+/*
+ * Return true if nothing else is pending.
+ */
+static bool pending_result_dec(struct pending_result *pending, int *result)
+{
+	rbd_assert(pending->num_pending > 0);
+
+	if (*result && !pending->result)
+		pending->result = *result;
+	if (--pending->num_pending)
+		return false;
+
+	*result = pending->result;
+	return true;
+}
+>>>>>>> upstream/android-13
 
 static int rbd_open(struct block_device *bdev, fmode_t mode)
 {
@@ -600,6 +818,7 @@ static void rbd_release(struct gendisk *disk, fmode_t mode)
 	put_device(&rbd_dev->dev);
 }
 
+<<<<<<< HEAD
 static int rbd_ioctl_set_ro(struct rbd_device *rbd_dev, unsigned long arg)
 {
 	int ro;
@@ -640,14 +859,19 @@ static int rbd_compat_ioctl(struct block_device *bdev, fmode_t mode,
 }
 #endif /* CONFIG_COMPAT */
 
+=======
+>>>>>>> upstream/android-13
 static const struct block_device_operations rbd_bd_ops = {
 	.owner			= THIS_MODULE,
 	.open			= rbd_open,
 	.release		= rbd_release,
+<<<<<<< HEAD
 	.ioctl			= rbd_ioctl,
 #ifdef CONFIG_COMPAT
 	.compat_ioctl		= rbd_compat_ioctl,
 #endif
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -733,17 +957,26 @@ static struct rbd_client *rbd_client_find(struct ceph_options *ceph_opts)
  */
 enum {
 	Opt_queue_depth,
+<<<<<<< HEAD
 	Opt_lock_timeout,
 	Opt_last_int,
 	/* int args above */
 	Opt_pool_ns,
 	Opt_last_string,
+=======
+	Opt_alloc_size,
+	Opt_lock_timeout,
+	/* int args above */
+	Opt_pool_ns,
+	Opt_compression_hint,
+>>>>>>> upstream/android-13
 	/* string args above */
 	Opt_read_only,
 	Opt_read_write,
 	Opt_lock_on_read,
 	Opt_exclusive,
 	Opt_notrim,
+<<<<<<< HEAD
 	Opt_err
 };
 
@@ -761,24 +994,70 @@ static match_table_t rbd_opts_tokens = {
 	{Opt_exclusive, "exclusive"},
 	{Opt_notrim, "notrim"},
 	{Opt_err, NULL}
+=======
+};
+
+enum {
+	Opt_compression_hint_none,
+	Opt_compression_hint_compressible,
+	Opt_compression_hint_incompressible,
+};
+
+static const struct constant_table rbd_param_compression_hint[] = {
+	{"none",		Opt_compression_hint_none},
+	{"compressible",	Opt_compression_hint_compressible},
+	{"incompressible",	Opt_compression_hint_incompressible},
+	{}
+};
+
+static const struct fs_parameter_spec rbd_parameters[] = {
+	fsparam_u32	("alloc_size",			Opt_alloc_size),
+	fsparam_enum	("compression_hint",		Opt_compression_hint,
+			 rbd_param_compression_hint),
+	fsparam_flag	("exclusive",			Opt_exclusive),
+	fsparam_flag	("lock_on_read",		Opt_lock_on_read),
+	fsparam_u32	("lock_timeout",		Opt_lock_timeout),
+	fsparam_flag	("notrim",			Opt_notrim),
+	fsparam_string	("_pool_ns",			Opt_pool_ns),
+	fsparam_u32	("queue_depth",			Opt_queue_depth),
+	fsparam_flag	("read_only",			Opt_read_only),
+	fsparam_flag	("read_write",			Opt_read_write),
+	fsparam_flag	("ro",				Opt_read_only),
+	fsparam_flag	("rw",				Opt_read_write),
+	{}
+>>>>>>> upstream/android-13
 };
 
 struct rbd_options {
 	int	queue_depth;
+<<<<<<< HEAD
+=======
+	int	alloc_size;
+>>>>>>> upstream/android-13
 	unsigned long	lock_timeout;
 	bool	read_only;
 	bool	lock_on_read;
 	bool	exclusive;
 	bool	trim;
+<<<<<<< HEAD
 };
 
 #define RBD_QUEUE_DEPTH_DEFAULT	BLKDEV_MAX_RQ
+=======
+
+	u32 alloc_hint_flags;  /* CEPH_OSD_OP_ALLOC_HINT_FLAG_* */
+};
+
+#define RBD_QUEUE_DEPTH_DEFAULT	BLKDEV_MAX_RQ
+#define RBD_ALLOC_SIZE_DEFAULT	(64 * 1024)
+>>>>>>> upstream/android-13
 #define RBD_LOCK_TIMEOUT_DEFAULT 0  /* no timeout */
 #define RBD_READ_ONLY_DEFAULT	false
 #define RBD_LOCK_ON_READ_DEFAULT false
 #define RBD_EXCLUSIVE_DEFAULT	false
 #define RBD_TRIM_DEFAULT	true
 
+<<<<<<< HEAD
 struct parse_rbd_opts_ctx {
 	struct rbd_spec		*spec;
 	struct rbd_options	*opts;
@@ -849,6 +1128,14 @@ static int parse_rbd_opts_token(char *c, void *private)
 	return 0;
 }
 
+=======
+struct rbd_parse_opts_ctx {
+	struct rbd_spec		*spec;
+	struct ceph_options	*copts;
+	struct rbd_options	*opts;
+};
+
+>>>>>>> upstream/android-13
 static char* obj_op_name(enum obj_operation_type op_type)
 {
 	switch (op_type) {
@@ -858,6 +1145,11 @@ static char* obj_op_name(enum obj_operation_type op_type)
 		return "write";
 	case OBJ_OP_DISCARD:
 		return "discard";
+<<<<<<< HEAD
+=======
+	case OBJ_OP_ZEROOUT:
+		return "zeroout";
+>>>>>>> upstream/android-13
 	default:
 		return "???";
 	}
@@ -891,6 +1183,7 @@ static void rbd_put_client(struct rbd_client *rbdc)
 		kref_put(&rbdc->kref, rbd_client_release);
 }
 
+<<<<<<< HEAD
 static int wait_for_latest_osdmap(struct ceph_client *client)
 {
 	u64 newest_epoch;
@@ -908,6 +1201,8 @@ static int wait_for_latest_osdmap(struct ceph_client *client)
 				     client->options->mount_timeout);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Get a ceph client with specific addr and configuration, if one does
  * not exist create it.  Either way, ceph_opts is consumed by this
@@ -918,7 +1213,11 @@ static struct rbd_client *rbd_get_client(struct ceph_options *ceph_opts)
 	struct rbd_client *rbdc;
 	int ret;
 
+<<<<<<< HEAD
 	mutex_lock_nested(&client_mutex, SINGLE_DEPTH_NESTING);
+=======
+	mutex_lock(&client_mutex);
+>>>>>>> upstream/android-13
 	rbdc = rbd_client_find(ceph_opts);
 	if (rbdc) {
 		ceph_destroy_options(ceph_opts);
@@ -927,7 +1226,12 @@ static struct rbd_client *rbd_get_client(struct ceph_options *ceph_opts)
 		 * Using an existing client.  Make sure ->pg_pools is up to
 		 * date before we look up the pool id in do_rbd_add().
 		 */
+<<<<<<< HEAD
 		ret = wait_for_latest_osdmap(rbdc->client);
+=======
+		ret = ceph_wait_for_latest_osdmap(rbdc->client,
+					rbdc->client->options->mount_timeout);
+>>>>>>> upstream/android-13
 		if (ret) {
 			rbd_warn(NULL, "failed to get latest osdmap: %d", ret);
 			rbd_put_client(rbdc);
@@ -1213,6 +1517,7 @@ static int rbd_snap_size(struct rbd_device *rbd_dev, u64 snap_id,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rbd_snap_features(struct rbd_device *rbd_dev, u64 snap_id,
 			u64 *snap_features)
 {
@@ -1234,16 +1539,22 @@ static int rbd_snap_features(struct rbd_device *rbd_dev, u64 snap_id,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int rbd_dev_mapping_set(struct rbd_device *rbd_dev)
 {
 	u64 snap_id = rbd_dev->spec->snap_id;
 	u64 size = 0;
+<<<<<<< HEAD
 	u64 features = 0;
+=======
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = rbd_snap_size(rbd_dev, snap_id, &size);
 	if (ret)
 		return ret;
+<<<<<<< HEAD
 	ret = rbd_snap_features(rbd_dev, snap_id, &features);
 	if (ret)
 		return ret;
@@ -1251,12 +1562,17 @@ static int rbd_dev_mapping_set(struct rbd_device *rbd_dev)
 	rbd_dev->mapping.size = size;
 	rbd_dev->mapping.features = features;
 
+=======
+
+	rbd_dev->mapping.size = size;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static void rbd_dev_mapping_clear(struct rbd_device *rbd_dev)
 {
 	rbd_dev->mapping.size = 0;
+<<<<<<< HEAD
 	rbd_dev->mapping.features = 0;
 }
 
@@ -1269,6 +1585,8 @@ static void zero_bvec(struct bio_vec *bv)
 	memset(buf, 0, bv->bv_len);
 	flush_dcache_page(bv->bv_page);
 	bvec_kunmap_irq(buf, &flags);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void zero_bios(struct ceph_bio_iter *bio_pos, u32 off, u32 bytes)
@@ -1277,7 +1595,11 @@ static void zero_bios(struct ceph_bio_iter *bio_pos, u32 off, u32 bytes)
 
 	ceph_bio_iter_advance(&it, off);
 	ceph_bio_iter_advance_step(&it, bytes, ({
+<<<<<<< HEAD
 		zero_bvec(&bv);
+=======
+		memzero_bvec(&bv);
+>>>>>>> upstream/android-13
 	}));
 }
 
@@ -1287,7 +1609,11 @@ static void zero_bvecs(struct ceph_bvec_iter *bvec_pos, u32 off, u32 bytes)
 
 	ceph_bvec_iter_advance(&it, off);
 	ceph_bvec_iter_advance_step(&it, bytes, ({
+<<<<<<< HEAD
 		zero_bvec(&bv);
+=======
+		memzero_bvec(&bv);
+>>>>>>> upstream/android-13
 	}));
 }
 
@@ -1300,6 +1626,11 @@ static void zero_bvecs(struct ceph_bvec_iter *bvec_pos, u32 off, u32 bytes)
 static void rbd_obj_zero_range(struct rbd_obj_request *obj_req, u32 off,
 			       u32 bytes)
 {
+<<<<<<< HEAD
+=======
+	dout("%s %p data buf %u~%u\n", __func__, obj_req, off, bytes);
+
+>>>>>>> upstream/android-13
 	switch (obj_req->img_request->data_type) {
 	case OBJ_REQUEST_BIO:
 		zero_bios(&obj_req->bio_pos, off, bytes);
@@ -1309,7 +1640,11 @@ static void rbd_obj_zero_range(struct rbd_obj_request *obj_req, u32 off,
 		zero_bvecs(&obj_req->bvec_pos, off, bytes);
 		break;
 	default:
+<<<<<<< HEAD
 		rbd_assert(0);
+=======
+		BUG();
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -1322,6 +1657,7 @@ static void rbd_obj_request_put(struct rbd_obj_request *obj_request)
 	kref_put(&obj_request->kref, rbd_obj_request_destroy);
 }
 
+<<<<<<< HEAD
 static void rbd_img_request_get(struct rbd_img_request *img_request)
 {
 	dout("%s: img %p (was %d)\n", __func__, img_request,
@@ -1338,6 +1674,8 @@ static void rbd_img_request_put(struct rbd_img_request *img_request)
 	kref_put(&img_request->kref, rbd_img_request_destroy);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void rbd_img_obj_request_add(struct rbd_img_request *img_request,
 					struct rbd_obj_request *obj_request)
 {
@@ -1345,8 +1683,11 @@ static inline void rbd_img_obj_request_add(struct rbd_img_request *img_request,
 
 	/* Image request now owns object's original reference */
 	obj_request->img_request = img_request;
+<<<<<<< HEAD
 	img_request->obj_request_count++;
 	img_request->pending_count++;
+=======
+>>>>>>> upstream/android-13
 	dout("%s: img %p obj %p\n", __func__, img_request, obj_request);
 }
 
@@ -1355,12 +1696,16 @@ static inline void rbd_img_obj_request_del(struct rbd_img_request *img_request,
 {
 	dout("%s: img %p obj %p\n", __func__, img_request, obj_request);
 	list_del(&obj_request->ex.oe_item);
+<<<<<<< HEAD
 	rbd_assert(img_request->obj_request_count > 0);
 	img_request->obj_request_count--;
+=======
+>>>>>>> upstream/android-13
 	rbd_assert(obj_request->img_request == img_request);
 	rbd_obj_request_put(obj_request);
 }
 
+<<<<<<< HEAD
 static void rbd_obj_request_submit(struct rbd_obj_request *obj_request)
 {
 	struct ceph_osd_request *osd_req = obj_request->osd_req;
@@ -1368,6 +1713,15 @@ static void rbd_obj_request_submit(struct rbd_obj_request *obj_request)
 	dout("%s %p object_no %016llx %llu~%llu osd_req %p\n", __func__,
 	     obj_request, obj_request->ex.oe_objno, obj_request->ex.oe_off,
 	     obj_request->ex.oe_len, osd_req);
+=======
+static void rbd_osd_submit(struct ceph_osd_request *osd_req)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+
+	dout("%s osd_req %p for obj_req %p objno %llu %llu~%llu\n",
+	     __func__, osd_req, obj_req, obj_req->ex.oe_objno,
+	     obj_req->ex.oe_off, obj_req->ex.oe_len);
+>>>>>>> upstream/android-13
 	ceph_osdc_start_request(osd_req->r_osdc, osd_req, false);
 }
 
@@ -1379,6 +1733,7 @@ static void rbd_obj_request_submit(struct rbd_obj_request *obj_request)
 static void img_request_layered_set(struct rbd_img_request *img_request)
 {
 	set_bit(IMG_REQ_LAYERED, &img_request->flags);
+<<<<<<< HEAD
 	smp_mb();
 }
 
@@ -1386,11 +1741,16 @@ static void img_request_layered_clear(struct rbd_img_request *img_request)
 {
 	clear_bit(IMG_REQ_LAYERED, &img_request->flags);
 	smp_mb();
+=======
+>>>>>>> upstream/android-13
 }
 
 static bool img_request_layered_test(struct rbd_img_request *img_request)
 {
+<<<<<<< HEAD
 	smp_mb();
+=======
+>>>>>>> upstream/android-13
 	return test_bit(IMG_REQ_LAYERED, &img_request->flags) != 0;
 }
 
@@ -1410,6 +1770,22 @@ static bool rbd_obj_is_tail(struct rbd_obj_request *obj_req)
 					rbd_dev->layout.object_size;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Must be called after rbd_obj_calc_img_extents().
+ */
+static bool rbd_obj_copyup_enabled(struct rbd_obj_request *obj_req)
+{
+	if (!obj_req->num_img_extents ||
+	    (rbd_obj_is_entire(obj_req) &&
+	     !obj_req->img_request->snapc->num_snaps))
+		return false;
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 static u64 rbd_obj_img_extents_bytes(struct rbd_obj_request *obj_req)
 {
 	return ceph_file_extents_bytes(obj_req->img_extents,
@@ -1423,12 +1799,17 @@ static bool rbd_img_is_write(struct rbd_img_request *img_req)
 		return false;
 	case OBJ_OP_WRITE:
 	case OBJ_OP_DISCARD:
+<<<<<<< HEAD
+=======
+	case OBJ_OP_ZEROOUT:
+>>>>>>> upstream/android-13
 		return true;
 	default:
 		BUG();
 	}
 }
 
+<<<<<<< HEAD
 static void rbd_obj_handle_request(struct rbd_obj_request *obj_req);
 
 static void rbd_osd_req_callback(struct ceph_osd_request *osd_req)
@@ -1464,6 +1845,42 @@ static void rbd_osd_req_format_read(struct rbd_obj_request *obj_request)
 static void rbd_osd_req_format_write(struct rbd_obj_request *obj_request)
 {
 	struct ceph_osd_request *osd_req = obj_request->osd_req;
+=======
+static void rbd_osd_req_callback(struct ceph_osd_request *osd_req)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+	int result;
+
+	dout("%s osd_req %p result %d for obj_req %p\n", __func__, osd_req,
+	     osd_req->r_result, obj_req);
+
+	/*
+	 * Writes aren't allowed to return a data payload.  In some
+	 * guarded write cases (e.g. stat + zero on an empty object)
+	 * a stat response makes it through, but we don't care.
+	 */
+	if (osd_req->r_result > 0 && rbd_img_is_write(obj_req->img_request))
+		result = 0;
+	else
+		result = osd_req->r_result;
+
+	rbd_obj_handle_request(obj_req, result);
+}
+
+static void rbd_osd_format_read(struct ceph_osd_request *osd_req)
+{
+	struct rbd_obj_request *obj_request = osd_req->r_priv;
+	struct rbd_device *rbd_dev = obj_request->img_request->rbd_dev;
+	struct ceph_options *opt = rbd_dev->rbd_client->client->options;
+
+	osd_req->r_flags = CEPH_OSD_FLAG_READ | opt->read_from_replica;
+	osd_req->r_snapid = obj_request->img_request->snap_id;
+}
+
+static void rbd_osd_format_write(struct ceph_osd_request *osd_req)
+{
+	struct rbd_obj_request *obj_request = osd_req->r_priv;
+>>>>>>> upstream/android-13
 
 	osd_req->r_flags = CEPH_OSD_FLAG_WRITE;
 	ktime_get_real_ts64(&osd_req->r_mtime);
@@ -1471,14 +1888,22 @@ static void rbd_osd_req_format_write(struct rbd_obj_request *obj_request)
 }
 
 static struct ceph_osd_request *
+<<<<<<< HEAD
 rbd_osd_req_create(struct rbd_obj_request *obj_req, unsigned int num_ops)
 {
 	struct rbd_img_request *img_req = obj_req->img_request;
 	struct rbd_device *rbd_dev = img_req->rbd_dev;
+=======
+__rbd_obj_add_osd_request(struct rbd_obj_request *obj_req,
+			  struct ceph_snap_context *snapc, int num_ops)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+>>>>>>> upstream/android-13
 	struct ceph_osd_client *osdc = &rbd_dev->rbd_client->client->osdc;
 	struct ceph_osd_request *req;
 	const char *name_format = rbd_dev->image_format == 1 ?
 				      RBD_V1_DATA_FORMAT : RBD_V2_DATA_FORMAT;
+<<<<<<< HEAD
 
 	req = ceph_osdc_alloc_request(osdc,
 			(rbd_img_is_write(img_req) ? img_req->snapc : NULL),
@@ -1486,6 +1911,15 @@ rbd_osd_req_create(struct rbd_obj_request *obj_req, unsigned int num_ops)
 	if (!req)
 		return NULL;
 
+=======
+	int ret;
+
+	req = ceph_osdc_alloc_request(osdc, snapc, num_ops, false, GFP_NOIO);
+	if (!req)
+		return ERR_PTR(-ENOMEM);
+
+	list_add_tail(&req->r_private_item, &obj_req->osd_reqs);
+>>>>>>> upstream/android-13
 	req->r_callback = rbd_osd_req_callback;
 	req->r_priv = obj_req;
 
@@ -1496,6 +1930,7 @@ rbd_osd_req_create(struct rbd_obj_request *obj_req, unsigned int num_ops)
 	ceph_oloc_copy(&req->r_base_oloc, &rbd_dev->header_oloc);
 	req->r_base_oloc.pool = rbd_dev->layout.pool_id;
 
+<<<<<<< HEAD
 	if (ceph_oid_aprintf(&req->r_base_oid, GFP_NOIO, name_format,
 			rbd_dev->header.object_prefix, obj_req->ex.oe_objno))
 		goto err_req;
@@ -1513,6 +1948,22 @@ err_req:
 static void rbd_osd_req_destroy(struct ceph_osd_request *osd_req)
 {
 	ceph_osdc_put_request(osd_req);
+=======
+	ret = ceph_oid_aprintf(&req->r_base_oid, GFP_NOIO, name_format,
+			       rbd_dev->header.object_prefix,
+			       obj_req->ex.oe_objno);
+	if (ret)
+		return ERR_PTR(ret);
+
+	return req;
+}
+
+static struct ceph_osd_request *
+rbd_obj_add_osd_request(struct rbd_obj_request *obj_req, int num_ops)
+{
+	return __rbd_obj_add_osd_request(obj_req, obj_req->img_request->snapc,
+					 num_ops);
+>>>>>>> upstream/android-13
 }
 
 static struct rbd_obj_request *rbd_obj_request_create(void)
@@ -1524,6 +1975,11 @@ static struct rbd_obj_request *rbd_obj_request_create(void)
 		return NULL;
 
 	ceph_object_extent_init(&obj_request->ex);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&obj_request->osd_reqs);
+	mutex_init(&obj_request->state_mutex);
+>>>>>>> upstream/android-13
 	kref_init(&obj_request->kref);
 
 	dout("%s %p\n", __func__, obj_request);
@@ -1533,14 +1989,27 @@ static struct rbd_obj_request *rbd_obj_request_create(void)
 static void rbd_obj_request_destroy(struct kref *kref)
 {
 	struct rbd_obj_request *obj_request;
+<<<<<<< HEAD
+=======
+	struct ceph_osd_request *osd_req;
+>>>>>>> upstream/android-13
 	u32 i;
 
 	obj_request = container_of(kref, struct rbd_obj_request, kref);
 
 	dout("%s: obj %p\n", __func__, obj_request);
 
+<<<<<<< HEAD
 	if (obj_request->osd_req)
 		rbd_osd_req_destroy(obj_request->osd_req);
+=======
+	while (!list_empty(&obj_request->osd_reqs)) {
+		osd_req = list_first_entry(&obj_request->osd_reqs,
+				    struct ceph_osd_request, r_private_item);
+		list_del_init(&osd_req->r_private_item);
+		ceph_osdc_put_request(osd_req);
+	}
+>>>>>>> upstream/android-13
 
 	switch (obj_request->img_request->data_type) {
 	case OBJ_REQUEST_NODATA:
@@ -1551,7 +2020,11 @@ static void rbd_obj_request_destroy(struct kref *kref)
 		kfree(obj_request->bvec_pos.bvecs);
 		break;
 	default:
+<<<<<<< HEAD
 		rbd_assert(0);
+=======
+		BUG();
+>>>>>>> upstream/android-13
 	}
 
 	kfree(obj_request->img_extents);
@@ -1617,10 +2090,15 @@ static bool rbd_dev_parent_get(struct rbd_device *rbd_dev)
 	if (!rbd_dev->parent_spec)
 		return false;
 
+<<<<<<< HEAD
 	down_read(&rbd_dev->header_rwsem);
 	if (rbd_dev->parent_overlap)
 		counter = atomic_inc_return_safe(&rbd_dev->parent_ref);
 	up_read(&rbd_dev->header_rwsem);
+=======
+	if (rbd_dev->parent_overlap)
+		counter = atomic_inc_return_safe(&rbd_dev->parent_ref);
+>>>>>>> upstream/android-13
 
 	if (counter < 0)
 		rbd_warn(rbd_dev, "parent reference overflow");
@@ -1628,6 +2106,7 @@ static bool rbd_dev_parent_get(struct rbd_device *rbd_dev)
 	return counter > 0;
 }
 
+<<<<<<< HEAD
 /*
  * Caller is responsible for filling in the list of object requests
  * that comprises the image request, and the Linux request pointer
@@ -1681,11 +2160,531 @@ static void rbd_img_request_destroy(struct kref *kref)
 		img_request_layered_clear(img_request);
 		rbd_dev_parent_put(img_request->rbd_dev);
 	}
+=======
+static void rbd_img_request_init(struct rbd_img_request *img_request,
+				 struct rbd_device *rbd_dev,
+				 enum obj_operation_type op_type)
+{
+	memset(img_request, 0, sizeof(*img_request));
+
+	img_request->rbd_dev = rbd_dev;
+	img_request->op_type = op_type;
+
+	INIT_LIST_HEAD(&img_request->lock_item);
+	INIT_LIST_HEAD(&img_request->object_extents);
+	mutex_init(&img_request->state_mutex);
+}
+
+static void rbd_img_capture_header(struct rbd_img_request *img_req)
+{
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+
+	lockdep_assert_held(&rbd_dev->header_rwsem);
+
+	if (rbd_img_is_write(img_req))
+		img_req->snapc = ceph_get_snap_context(rbd_dev->header.snapc);
+	else
+		img_req->snap_id = rbd_dev->spec->snap_id;
+
+	if (rbd_dev_parent_get(rbd_dev))
+		img_request_layered_set(img_req);
+}
+
+static void rbd_img_request_destroy(struct rbd_img_request *img_request)
+{
+	struct rbd_obj_request *obj_request;
+	struct rbd_obj_request *next_obj_request;
+
+	dout("%s: img %p\n", __func__, img_request);
+
+	WARN_ON(!list_empty(&img_request->lock_item));
+	for_each_obj_request_safe(img_request, obj_request, next_obj_request)
+		rbd_img_obj_request_del(img_request, obj_request);
+
+	if (img_request_layered_test(img_request))
+		rbd_dev_parent_put(img_request->rbd_dev);
+>>>>>>> upstream/android-13
 
 	if (rbd_img_is_write(img_request))
 		ceph_put_snap_context(img_request->snapc);
 
+<<<<<<< HEAD
 	kmem_cache_free(rbd_img_request_cache, img_request);
+=======
+	if (test_bit(IMG_REQ_CHILD, &img_request->flags))
+		kmem_cache_free(rbd_img_request_cache, img_request);
+}
+
+#define BITS_PER_OBJ	2
+#define OBJS_PER_BYTE	(BITS_PER_BYTE / BITS_PER_OBJ)
+#define OBJ_MASK	((1 << BITS_PER_OBJ) - 1)
+
+static void __rbd_object_map_index(struct rbd_device *rbd_dev, u64 objno,
+				   u64 *index, u8 *shift)
+{
+	u32 off;
+
+	rbd_assert(objno < rbd_dev->object_map_size);
+	*index = div_u64_rem(objno, OBJS_PER_BYTE, &off);
+	*shift = (OBJS_PER_BYTE - off - 1) * BITS_PER_OBJ;
+}
+
+static u8 __rbd_object_map_get(struct rbd_device *rbd_dev, u64 objno)
+{
+	u64 index;
+	u8 shift;
+
+	lockdep_assert_held(&rbd_dev->object_map_lock);
+	__rbd_object_map_index(rbd_dev, objno, &index, &shift);
+	return (rbd_dev->object_map[index] >> shift) & OBJ_MASK;
+}
+
+static void __rbd_object_map_set(struct rbd_device *rbd_dev, u64 objno, u8 val)
+{
+	u64 index;
+	u8 shift;
+	u8 *p;
+
+	lockdep_assert_held(&rbd_dev->object_map_lock);
+	rbd_assert(!(val & ~OBJ_MASK));
+
+	__rbd_object_map_index(rbd_dev, objno, &index, &shift);
+	p = &rbd_dev->object_map[index];
+	*p = (*p & ~(OBJ_MASK << shift)) | (val << shift);
+}
+
+static u8 rbd_object_map_get(struct rbd_device *rbd_dev, u64 objno)
+{
+	u8 state;
+
+	spin_lock(&rbd_dev->object_map_lock);
+	state = __rbd_object_map_get(rbd_dev, objno);
+	spin_unlock(&rbd_dev->object_map_lock);
+	return state;
+}
+
+static bool use_object_map(struct rbd_device *rbd_dev)
+{
+	/*
+	 * An image mapped read-only can't use the object map -- it isn't
+	 * loaded because the header lock isn't acquired.  Someone else can
+	 * write to the image and update the object map behind our back.
+	 *
+	 * A snapshot can't be written to, so using the object map is always
+	 * safe.
+	 */
+	if (!rbd_is_snap(rbd_dev) && rbd_is_ro(rbd_dev))
+		return false;
+
+	return ((rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP) &&
+		!(rbd_dev->object_map_flags & RBD_FLAG_OBJECT_MAP_INVALID));
+}
+
+static bool rbd_object_map_may_exist(struct rbd_device *rbd_dev, u64 objno)
+{
+	u8 state;
+
+	/* fall back to default logic if object map is disabled or invalid */
+	if (!use_object_map(rbd_dev))
+		return true;
+
+	state = rbd_object_map_get(rbd_dev, objno);
+	return state != OBJECT_NONEXISTENT;
+}
+
+static void rbd_object_map_name(struct rbd_device *rbd_dev, u64 snap_id,
+				struct ceph_object_id *oid)
+{
+	if (snap_id == CEPH_NOSNAP)
+		ceph_oid_printf(oid, "%s%s", RBD_OBJECT_MAP_PREFIX,
+				rbd_dev->spec->image_id);
+	else
+		ceph_oid_printf(oid, "%s%s.%016llx", RBD_OBJECT_MAP_PREFIX,
+				rbd_dev->spec->image_id, snap_id);
+}
+
+static int rbd_object_map_lock(struct rbd_device *rbd_dev)
+{
+	struct ceph_osd_client *osdc = &rbd_dev->rbd_client->client->osdc;
+	CEPH_DEFINE_OID_ONSTACK(oid);
+	u8 lock_type;
+	char *lock_tag;
+	struct ceph_locker *lockers;
+	u32 num_lockers;
+	bool broke_lock = false;
+	int ret;
+
+	rbd_object_map_name(rbd_dev, CEPH_NOSNAP, &oid);
+
+again:
+	ret = ceph_cls_lock(osdc, &oid, &rbd_dev->header_oloc, RBD_LOCK_NAME,
+			    CEPH_CLS_LOCK_EXCLUSIVE, "", "", "", 0);
+	if (ret != -EBUSY || broke_lock) {
+		if (ret == -EEXIST)
+			ret = 0; /* already locked by myself */
+		if (ret)
+			rbd_warn(rbd_dev, "failed to lock object map: %d", ret);
+		return ret;
+	}
+
+	ret = ceph_cls_lock_info(osdc, &oid, &rbd_dev->header_oloc,
+				 RBD_LOCK_NAME, &lock_type, &lock_tag,
+				 &lockers, &num_lockers);
+	if (ret) {
+		if (ret == -ENOENT)
+			goto again;
+
+		rbd_warn(rbd_dev, "failed to get object map lockers: %d", ret);
+		return ret;
+	}
+
+	kfree(lock_tag);
+	if (num_lockers == 0)
+		goto again;
+
+	rbd_warn(rbd_dev, "breaking object map lock owned by %s%llu",
+		 ENTITY_NAME(lockers[0].id.name));
+
+	ret = ceph_cls_break_lock(osdc, &oid, &rbd_dev->header_oloc,
+				  RBD_LOCK_NAME, lockers[0].id.cookie,
+				  &lockers[0].id.name);
+	ceph_free_lockers(lockers, num_lockers);
+	if (ret) {
+		if (ret == -ENOENT)
+			goto again;
+
+		rbd_warn(rbd_dev, "failed to break object map lock: %d", ret);
+		return ret;
+	}
+
+	broke_lock = true;
+	goto again;
+}
+
+static void rbd_object_map_unlock(struct rbd_device *rbd_dev)
+{
+	struct ceph_osd_client *osdc = &rbd_dev->rbd_client->client->osdc;
+	CEPH_DEFINE_OID_ONSTACK(oid);
+	int ret;
+
+	rbd_object_map_name(rbd_dev, CEPH_NOSNAP, &oid);
+
+	ret = ceph_cls_unlock(osdc, &oid, &rbd_dev->header_oloc, RBD_LOCK_NAME,
+			      "");
+	if (ret && ret != -ENOENT)
+		rbd_warn(rbd_dev, "failed to unlock object map: %d", ret);
+}
+
+static int decode_object_map_header(void **p, void *end, u64 *object_map_size)
+{
+	u8 struct_v;
+	u32 struct_len;
+	u32 header_len;
+	void *header_end;
+	int ret;
+
+	ceph_decode_32_safe(p, end, header_len, e_inval);
+	header_end = *p + header_len;
+
+	ret = ceph_start_decoding(p, end, 1, "BitVector header", &struct_v,
+				  &struct_len);
+	if (ret)
+		return ret;
+
+	ceph_decode_64_safe(p, end, *object_map_size, e_inval);
+
+	*p = header_end;
+	return 0;
+
+e_inval:
+	return -EINVAL;
+}
+
+static int __rbd_object_map_load(struct rbd_device *rbd_dev)
+{
+	struct ceph_osd_client *osdc = &rbd_dev->rbd_client->client->osdc;
+	CEPH_DEFINE_OID_ONSTACK(oid);
+	struct page **pages;
+	void *p, *end;
+	size_t reply_len;
+	u64 num_objects;
+	u64 object_map_bytes;
+	u64 object_map_size;
+	int num_pages;
+	int ret;
+
+	rbd_assert(!rbd_dev->object_map && !rbd_dev->object_map_size);
+
+	num_objects = ceph_get_num_objects(&rbd_dev->layout,
+					   rbd_dev->mapping.size);
+	object_map_bytes = DIV_ROUND_UP_ULL(num_objects * BITS_PER_OBJ,
+					    BITS_PER_BYTE);
+	num_pages = calc_pages_for(0, object_map_bytes) + 1;
+	pages = ceph_alloc_page_vector(num_pages, GFP_KERNEL);
+	if (IS_ERR(pages))
+		return PTR_ERR(pages);
+
+	reply_len = num_pages * PAGE_SIZE;
+	rbd_object_map_name(rbd_dev, rbd_dev->spec->snap_id, &oid);
+	ret = ceph_osdc_call(osdc, &oid, &rbd_dev->header_oloc,
+			     "rbd", "object_map_load", CEPH_OSD_FLAG_READ,
+			     NULL, 0, pages, &reply_len);
+	if (ret)
+		goto out;
+
+	p = page_address(pages[0]);
+	end = p + min(reply_len, (size_t)PAGE_SIZE);
+	ret = decode_object_map_header(&p, end, &object_map_size);
+	if (ret)
+		goto out;
+
+	if (object_map_size != num_objects) {
+		rbd_warn(rbd_dev, "object map size mismatch: %llu vs %llu",
+			 object_map_size, num_objects);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	if (offset_in_page(p) + object_map_bytes > reply_len) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	rbd_dev->object_map = kvmalloc(object_map_bytes, GFP_KERNEL);
+	if (!rbd_dev->object_map) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	rbd_dev->object_map_size = object_map_size;
+	ceph_copy_from_page_vector(pages, rbd_dev->object_map,
+				   offset_in_page(p), object_map_bytes);
+
+out:
+	ceph_release_page_vector(pages, num_pages);
+	return ret;
+}
+
+static void rbd_object_map_free(struct rbd_device *rbd_dev)
+{
+	kvfree(rbd_dev->object_map);
+	rbd_dev->object_map = NULL;
+	rbd_dev->object_map_size = 0;
+}
+
+static int rbd_object_map_load(struct rbd_device *rbd_dev)
+{
+	int ret;
+
+	ret = __rbd_object_map_load(rbd_dev);
+	if (ret)
+		return ret;
+
+	ret = rbd_dev_v2_get_flags(rbd_dev);
+	if (ret) {
+		rbd_object_map_free(rbd_dev);
+		return ret;
+	}
+
+	if (rbd_dev->object_map_flags & RBD_FLAG_OBJECT_MAP_INVALID)
+		rbd_warn(rbd_dev, "object map is invalid");
+
+	return 0;
+}
+
+static int rbd_object_map_open(struct rbd_device *rbd_dev)
+{
+	int ret;
+
+	ret = rbd_object_map_lock(rbd_dev);
+	if (ret)
+		return ret;
+
+	ret = rbd_object_map_load(rbd_dev);
+	if (ret) {
+		rbd_object_map_unlock(rbd_dev);
+		return ret;
+	}
+
+	return 0;
+}
+
+static void rbd_object_map_close(struct rbd_device *rbd_dev)
+{
+	rbd_object_map_free(rbd_dev);
+	rbd_object_map_unlock(rbd_dev);
+}
+
+/*
+ * This function needs snap_id (or more precisely just something to
+ * distinguish between HEAD and snapshot object maps), new_state and
+ * current_state that were passed to rbd_object_map_update().
+ *
+ * To avoid allocating and stashing a context we piggyback on the OSD
+ * request.  A HEAD update has two ops (assert_locked).  For new_state
+ * and current_state we decode our own object_map_update op, encoded in
+ * rbd_cls_object_map_update().
+ */
+static int rbd_object_map_update_finish(struct rbd_obj_request *obj_req,
+					struct ceph_osd_request *osd_req)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	struct ceph_osd_data *osd_data;
+	u64 objno;
+	u8 state, new_state, current_state;
+	bool has_current_state;
+	void *p;
+
+	if (osd_req->r_result)
+		return osd_req->r_result;
+
+	/*
+	 * Nothing to do for a snapshot object map.
+	 */
+	if (osd_req->r_num_ops == 1)
+		return 0;
+
+	/*
+	 * Update in-memory HEAD object map.
+	 */
+	rbd_assert(osd_req->r_num_ops == 2);
+	osd_data = osd_req_op_data(osd_req, 1, cls, request_data);
+	rbd_assert(osd_data->type == CEPH_OSD_DATA_TYPE_PAGES);
+
+	p = page_address(osd_data->pages[0]);
+	objno = ceph_decode_64(&p);
+	rbd_assert(objno == obj_req->ex.oe_objno);
+	rbd_assert(ceph_decode_64(&p) == objno + 1);
+	new_state = ceph_decode_8(&p);
+	has_current_state = ceph_decode_8(&p);
+	if (has_current_state)
+		current_state = ceph_decode_8(&p);
+
+	spin_lock(&rbd_dev->object_map_lock);
+	state = __rbd_object_map_get(rbd_dev, objno);
+	if (!has_current_state || current_state == state ||
+	    (current_state == OBJECT_EXISTS && state == OBJECT_EXISTS_CLEAN))
+		__rbd_object_map_set(rbd_dev, objno, new_state);
+	spin_unlock(&rbd_dev->object_map_lock);
+
+	return 0;
+}
+
+static void rbd_object_map_callback(struct ceph_osd_request *osd_req)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+	int result;
+
+	dout("%s osd_req %p result %d for obj_req %p\n", __func__, osd_req,
+	     osd_req->r_result, obj_req);
+
+	result = rbd_object_map_update_finish(obj_req, osd_req);
+	rbd_obj_handle_request(obj_req, result);
+}
+
+static bool update_needed(struct rbd_device *rbd_dev, u64 objno, u8 new_state)
+{
+	u8 state = rbd_object_map_get(rbd_dev, objno);
+
+	if (state == new_state ||
+	    (new_state == OBJECT_PENDING && state == OBJECT_NONEXISTENT) ||
+	    (new_state == OBJECT_NONEXISTENT && state != OBJECT_PENDING))
+		return false;
+
+	return true;
+}
+
+static int rbd_cls_object_map_update(struct ceph_osd_request *req,
+				     int which, u64 objno, u8 new_state,
+				     const u8 *current_state)
+{
+	struct page **pages;
+	void *p, *start;
+	int ret;
+
+	ret = osd_req_op_cls_init(req, which, "rbd", "object_map_update");
+	if (ret)
+		return ret;
+
+	pages = ceph_alloc_page_vector(1, GFP_NOIO);
+	if (IS_ERR(pages))
+		return PTR_ERR(pages);
+
+	p = start = page_address(pages[0]);
+	ceph_encode_64(&p, objno);
+	ceph_encode_64(&p, objno + 1);
+	ceph_encode_8(&p, new_state);
+	if (current_state) {
+		ceph_encode_8(&p, 1);
+		ceph_encode_8(&p, *current_state);
+	} else {
+		ceph_encode_8(&p, 0);
+	}
+
+	osd_req_op_cls_request_data_pages(req, which, pages, p - start, 0,
+					  false, true);
+	return 0;
+}
+
+/*
+ * Return:
+ *   0 - object map update sent
+ *   1 - object map update isn't needed
+ *  <0 - error
+ */
+static int rbd_object_map_update(struct rbd_obj_request *obj_req, u64 snap_id,
+				 u8 new_state, const u8 *current_state)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	struct ceph_osd_client *osdc = &rbd_dev->rbd_client->client->osdc;
+	struct ceph_osd_request *req;
+	int num_ops = 1;
+	int which = 0;
+	int ret;
+
+	if (snap_id == CEPH_NOSNAP) {
+		if (!update_needed(rbd_dev, obj_req->ex.oe_objno, new_state))
+			return 1;
+
+		num_ops++; /* assert_locked */
+	}
+
+	req = ceph_osdc_alloc_request(osdc, NULL, num_ops, false, GFP_NOIO);
+	if (!req)
+		return -ENOMEM;
+
+	list_add_tail(&req->r_private_item, &obj_req->osd_reqs);
+	req->r_callback = rbd_object_map_callback;
+	req->r_priv = obj_req;
+
+	rbd_object_map_name(rbd_dev, snap_id, &req->r_base_oid);
+	ceph_oloc_copy(&req->r_base_oloc, &rbd_dev->header_oloc);
+	req->r_flags = CEPH_OSD_FLAG_WRITE;
+	ktime_get_real_ts64(&req->r_mtime);
+
+	if (snap_id == CEPH_NOSNAP) {
+		/*
+		 * Protect against possible race conditions during lock
+		 * ownership transitions.
+		 */
+		ret = ceph_cls_assert_locked(req, which++, RBD_LOCK_NAME,
+					     CEPH_CLS_LOCK_EXCLUSIVE, "", "");
+		if (ret)
+			return ret;
+	}
+
+	ret = rbd_cls_object_map_update(req, which, obj_req->ex.oe_objno,
+					new_state, current_state);
+	if (ret)
+		return ret;
+
+	ret = ceph_osdc_alloc_messages(req, GFP_NOIO);
+	if (ret)
+		return ret;
+
+	ceph_osdc_start_request(osdc, req, false);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void prune_extents(struct ceph_file_extent *img_extents,
@@ -1735,11 +2734,21 @@ static int rbd_obj_calc_img_extents(struct rbd_obj_request *obj_req,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void rbd_osd_req_setup_data(struct rbd_obj_request *obj_req, u32 which)
 {
 	switch (obj_req->img_request->data_type) {
 	case OBJ_REQUEST_BIO:
 		osd_req_op_extent_osd_data_bio(obj_req->osd_req, which,
+=======
+static void rbd_osd_setup_data(struct ceph_osd_request *osd_req, int which)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+
+	switch (obj_req->img_request->data_type) {
+	case OBJ_REQUEST_BIO:
+		osd_req_op_extent_osd_data_bio(osd_req, which,
+>>>>>>> upstream/android-13
 					       &obj_req->bio_pos,
 					       obj_req->ex.oe_len);
 		break;
@@ -1748,6 +2757,7 @@ static void rbd_osd_req_setup_data(struct rbd_obj_request *obj_req, u32 which)
 		rbd_assert(obj_req->bvec_pos.iter.bi_size ==
 							obj_req->ex.oe_len);
 		rbd_assert(obj_req->bvec_idx == obj_req->bvec_count);
+<<<<<<< HEAD
 		osd_req_op_extent_osd_data_bvec_pos(obj_req->osd_req, which,
 						    &obj_req->bvec_pos);
 		break;
@@ -1772,6 +2782,17 @@ static int rbd_obj_setup_read(struct rbd_obj_request *obj_req)
 
 static int __rbd_obj_setup_stat(struct rbd_obj_request *obj_req,
 				unsigned int which)
+=======
+		osd_req_op_extent_osd_data_bvec_pos(osd_req, which,
+						    &obj_req->bvec_pos);
+		break;
+	default:
+		BUG();
+	}
+}
+
+static int rbd_osd_setup_stat(struct ceph_osd_request *osd_req, int which)
+>>>>>>> upstream/android-13
 {
 	struct page **pages;
 
@@ -1787,13 +2808,19 @@ static int __rbd_obj_setup_stat(struct rbd_obj_request *obj_req,
 	if (IS_ERR(pages))
 		return PTR_ERR(pages);
 
+<<<<<<< HEAD
 	osd_req_op_init(obj_req->osd_req, which, CEPH_OSD_OP_STAT, 0);
 	osd_req_op_raw_data_in_pages(obj_req->osd_req, which, pages,
+=======
+	osd_req_op_init(osd_req, which, CEPH_OSD_OP_STAT, 0);
+	osd_req_op_raw_data_in_pages(osd_req, which, pages,
+>>>>>>> upstream/android-13
 				     8 + sizeof(struct ceph_timespec),
 				     0, false, true);
 	return 0;
 }
 
+<<<<<<< HEAD
 static void __rbd_obj_setup_write(struct rbd_obj_request *obj_req,
 				  unsigned int which)
 {
@@ -1803,12 +2830,50 @@ static void __rbd_obj_setup_write(struct rbd_obj_request *obj_req,
 	osd_req_op_alloc_hint_init(obj_req->osd_req, which++,
 				   rbd_dev->layout.object_size,
 				   rbd_dev->layout.object_size);
+=======
+static int rbd_osd_setup_copyup(struct ceph_osd_request *osd_req, int which,
+				u32 bytes)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+	int ret;
+
+	ret = osd_req_op_cls_init(osd_req, which, "rbd", "copyup");
+	if (ret)
+		return ret;
+
+	osd_req_op_cls_request_data_bvecs(osd_req, which, obj_req->copyup_bvecs,
+					  obj_req->copyup_bvec_count, bytes);
+	return 0;
+}
+
+static int rbd_obj_init_read(struct rbd_obj_request *obj_req)
+{
+	obj_req->read_state = RBD_OBJ_READ_START;
+	return 0;
+}
+
+static void __rbd_osd_setup_write_ops(struct ceph_osd_request *osd_req,
+				      int which)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	u16 opcode;
+
+	if (!use_object_map(rbd_dev) ||
+	    !(obj_req->flags & RBD_OBJ_FLAG_MAY_EXIST)) {
+		osd_req_op_alloc_hint_init(osd_req, which++,
+					   rbd_dev->layout.object_size,
+					   rbd_dev->layout.object_size,
+					   rbd_dev->opts->alloc_hint_flags);
+	}
+>>>>>>> upstream/android-13
 
 	if (rbd_obj_is_entire(obj_req))
 		opcode = CEPH_OSD_OP_WRITEFULL;
 	else
 		opcode = CEPH_OSD_OP_WRITE;
 
+<<<<<<< HEAD
 	osd_req_op_extent_init(obj_req->osd_req, which, opcode,
 			       obj_req->ex.oe_off, obj_req->ex.oe_len, 0, 0);
 	rbd_osd_req_setup_data(obj_req, which++);
@@ -1820,6 +2885,15 @@ static void __rbd_obj_setup_write(struct rbd_obj_request *obj_req,
 static int rbd_obj_setup_write(struct rbd_obj_request *obj_req)
 {
 	unsigned int num_osd_ops, which = 0;
+=======
+	osd_req_op_extent_init(osd_req, which, opcode,
+			       obj_req->ex.oe_off, obj_req->ex.oe_len, 0, 0);
+	rbd_osd_setup_data(osd_req, which);
+}
+
+static int rbd_obj_init_write(struct rbd_obj_request *obj_req)
+{
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* reverse map the entire object onto the parent */
@@ -1827,6 +2901,7 @@ static int rbd_obj_setup_write(struct rbd_obj_request *obj_req)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (obj_req->num_img_extents) {
 		obj_req->write_state = RBD_OBJ_WRITE_GUARD;
 		num_osd_ops = 3; /* stat + setallochint + write/writefull */
@@ -1852,10 +2927,88 @@ static int rbd_obj_setup_write(struct rbd_obj_request *obj_req)
 static void __rbd_obj_setup_discard(struct rbd_obj_request *obj_req,
 				    unsigned int which)
 {
+=======
+	if (rbd_obj_copyup_enabled(obj_req))
+		obj_req->flags |= RBD_OBJ_FLAG_COPYUP_ENABLED;
+
+	obj_req->write_state = RBD_OBJ_WRITE_START;
+	return 0;
+}
+
+static u16 truncate_or_zero_opcode(struct rbd_obj_request *obj_req)
+{
+	return rbd_obj_is_tail(obj_req) ? CEPH_OSD_OP_TRUNCATE :
+					  CEPH_OSD_OP_ZERO;
+}
+
+static void __rbd_osd_setup_discard_ops(struct ceph_osd_request *osd_req,
+					int which)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+
+	if (rbd_obj_is_entire(obj_req) && !obj_req->num_img_extents) {
+		rbd_assert(obj_req->flags & RBD_OBJ_FLAG_DELETION);
+		osd_req_op_init(osd_req, which, CEPH_OSD_OP_DELETE, 0);
+	} else {
+		osd_req_op_extent_init(osd_req, which,
+				       truncate_or_zero_opcode(obj_req),
+				       obj_req->ex.oe_off, obj_req->ex.oe_len,
+				       0, 0);
+	}
+}
+
+static int rbd_obj_init_discard(struct rbd_obj_request *obj_req)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	u64 off, next_off;
+	int ret;
+
+	/*
+	 * Align the range to alloc_size boundary and punt on discards
+	 * that are too small to free up any space.
+	 *
+	 * alloc_size == object_size && is_tail() is a special case for
+	 * filestore with filestore_punch_hole = false, needed to allow
+	 * truncate (in addition to delete).
+	 */
+	if (rbd_dev->opts->alloc_size != rbd_dev->layout.object_size ||
+	    !rbd_obj_is_tail(obj_req)) {
+		off = round_up(obj_req->ex.oe_off, rbd_dev->opts->alloc_size);
+		next_off = round_down(obj_req->ex.oe_off + obj_req->ex.oe_len,
+				      rbd_dev->opts->alloc_size);
+		if (off >= next_off)
+			return 1;
+
+		dout("%s %p %llu~%llu -> %llu~%llu\n", __func__,
+		     obj_req, obj_req->ex.oe_off, obj_req->ex.oe_len,
+		     off, next_off - off);
+		obj_req->ex.oe_off = off;
+		obj_req->ex.oe_len = next_off - off;
+	}
+
+	/* reverse map the entire object onto the parent */
+	ret = rbd_obj_calc_img_extents(obj_req, true);
+	if (ret)
+		return ret;
+
+	obj_req->flags |= RBD_OBJ_FLAG_NOOP_FOR_NONEXISTENT;
+	if (rbd_obj_is_entire(obj_req) && !obj_req->num_img_extents)
+		obj_req->flags |= RBD_OBJ_FLAG_DELETION;
+
+	obj_req->write_state = RBD_OBJ_WRITE_START;
+	return 0;
+}
+
+static void __rbd_osd_setup_zeroout_ops(struct ceph_osd_request *osd_req,
+					int which)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+>>>>>>> upstream/android-13
 	u16 opcode;
 
 	if (rbd_obj_is_entire(obj_req)) {
 		if (obj_req->num_img_extents) {
+<<<<<<< HEAD
 			osd_req_op_init(obj_req->osd_req, which++,
 					CEPH_OSD_OP_CREATE, 0);
 			opcode = CEPH_OSD_OP_TRUNCATE;
@@ -1882,6 +3035,30 @@ static void __rbd_obj_setup_discard(struct rbd_obj_request *obj_req,
 static int rbd_obj_setup_discard(struct rbd_obj_request *obj_req)
 {
 	unsigned int num_osd_ops, which = 0;
+=======
+			if (!(obj_req->flags & RBD_OBJ_FLAG_COPYUP_ENABLED))
+				osd_req_op_init(osd_req, which++,
+						CEPH_OSD_OP_CREATE, 0);
+			opcode = CEPH_OSD_OP_TRUNCATE;
+		} else {
+			rbd_assert(obj_req->flags & RBD_OBJ_FLAG_DELETION);
+			osd_req_op_init(osd_req, which++,
+					CEPH_OSD_OP_DELETE, 0);
+			opcode = 0;
+		}
+	} else {
+		opcode = truncate_or_zero_opcode(obj_req);
+	}
+
+	if (opcode)
+		osd_req_op_extent_init(osd_req, which, opcode,
+				       obj_req->ex.oe_off, obj_req->ex.oe_len,
+				       0, 0);
+}
+
+static int rbd_obj_init_zeroout(struct rbd_obj_request *obj_req)
+{
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* reverse map the entire object onto the parent */
@@ -1889,6 +3066,7 @@ static int rbd_obj_setup_discard(struct rbd_obj_request *obj_req)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (rbd_obj_is_entire(obj_req)) {
 		obj_req->write_state = RBD_OBJ_WRITE_FLAT;
 		if (obj_req->num_img_extents)
@@ -1947,6 +3125,100 @@ static int __rbd_img_fill_request(struct rbd_img_request *img_req)
 			return ret;
 	}
 
+=======
+	if (rbd_obj_copyup_enabled(obj_req))
+		obj_req->flags |= RBD_OBJ_FLAG_COPYUP_ENABLED;
+	if (!obj_req->num_img_extents) {
+		obj_req->flags |= RBD_OBJ_FLAG_NOOP_FOR_NONEXISTENT;
+		if (rbd_obj_is_entire(obj_req))
+			obj_req->flags |= RBD_OBJ_FLAG_DELETION;
+	}
+
+	obj_req->write_state = RBD_OBJ_WRITE_START;
+	return 0;
+}
+
+static int count_write_ops(struct rbd_obj_request *obj_req)
+{
+	struct rbd_img_request *img_req = obj_req->img_request;
+
+	switch (img_req->op_type) {
+	case OBJ_OP_WRITE:
+		if (!use_object_map(img_req->rbd_dev) ||
+		    !(obj_req->flags & RBD_OBJ_FLAG_MAY_EXIST))
+			return 2; /* setallochint + write/writefull */
+
+		return 1; /* write/writefull */
+	case OBJ_OP_DISCARD:
+		return 1; /* delete/truncate/zero */
+	case OBJ_OP_ZEROOUT:
+		if (rbd_obj_is_entire(obj_req) && obj_req->num_img_extents &&
+		    !(obj_req->flags & RBD_OBJ_FLAG_COPYUP_ENABLED))
+			return 2; /* create + truncate */
+
+		return 1; /* delete/truncate/zero */
+	default:
+		BUG();
+	}
+}
+
+static void rbd_osd_setup_write_ops(struct ceph_osd_request *osd_req,
+				    int which)
+{
+	struct rbd_obj_request *obj_req = osd_req->r_priv;
+
+	switch (obj_req->img_request->op_type) {
+	case OBJ_OP_WRITE:
+		__rbd_osd_setup_write_ops(osd_req, which);
+		break;
+	case OBJ_OP_DISCARD:
+		__rbd_osd_setup_discard_ops(osd_req, which);
+		break;
+	case OBJ_OP_ZEROOUT:
+		__rbd_osd_setup_zeroout_ops(osd_req, which);
+		break;
+	default:
+		BUG();
+	}
+}
+
+/*
+ * Prune the list of object requests (adjust offset and/or length, drop
+ * redundant requests).  Prepare object request state machines and image
+ * request state machine for execution.
+ */
+static int __rbd_img_fill_request(struct rbd_img_request *img_req)
+{
+	struct rbd_obj_request *obj_req, *next_obj_req;
+	int ret;
+
+	for_each_obj_request_safe(img_req, obj_req, next_obj_req) {
+		switch (img_req->op_type) {
+		case OBJ_OP_READ:
+			ret = rbd_obj_init_read(obj_req);
+			break;
+		case OBJ_OP_WRITE:
+			ret = rbd_obj_init_write(obj_req);
+			break;
+		case OBJ_OP_DISCARD:
+			ret = rbd_obj_init_discard(obj_req);
+			break;
+		case OBJ_OP_ZEROOUT:
+			ret = rbd_obj_init_zeroout(obj_req);
+			break;
+		default:
+			BUG();
+		}
+		if (ret < 0)
+			return ret;
+		if (ret > 0) {
+			rbd_img_obj_request_del(img_req, obj_req);
+			continue;
+		}
+	}
+
+	img_req->state = RBD_IMG_START;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2235,6 +3507,7 @@ static int rbd_img_fill_from_bvecs(struct rbd_img_request *img_req,
 					 &it);
 }
 
+<<<<<<< HEAD
 static void rbd_img_request_submit(struct rbd_img_request *img_request)
 {
 	struct rbd_obj_request *obj_request;
@@ -2246,11 +3519,63 @@ static void rbd_img_request_submit(struct rbd_img_request *img_request)
 		rbd_obj_request_submit(obj_request);
 
 	rbd_img_request_put(img_request);
+=======
+static void rbd_img_handle_request_work(struct work_struct *work)
+{
+	struct rbd_img_request *img_req =
+	    container_of(work, struct rbd_img_request, work);
+
+	rbd_img_handle_request(img_req, img_req->work_result);
+}
+
+static void rbd_img_schedule(struct rbd_img_request *img_req, int result)
+{
+	INIT_WORK(&img_req->work, rbd_img_handle_request_work);
+	img_req->work_result = result;
+	queue_work(rbd_wq, &img_req->work);
+}
+
+static bool rbd_obj_may_exist(struct rbd_obj_request *obj_req)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+
+	if (rbd_object_map_may_exist(rbd_dev, obj_req->ex.oe_objno)) {
+		obj_req->flags |= RBD_OBJ_FLAG_MAY_EXIST;
+		return true;
+	}
+
+	dout("%s %p objno %llu assuming dne\n", __func__, obj_req,
+	     obj_req->ex.oe_objno);
+	return false;
+}
+
+static int rbd_obj_read_object(struct rbd_obj_request *obj_req)
+{
+	struct ceph_osd_request *osd_req;
+	int ret;
+
+	osd_req = __rbd_obj_add_osd_request(obj_req, NULL, 1);
+	if (IS_ERR(osd_req))
+		return PTR_ERR(osd_req);
+
+	osd_req_op_extent_init(osd_req, 0, CEPH_OSD_OP_READ,
+			       obj_req->ex.oe_off, obj_req->ex.oe_len, 0, 0);
+	rbd_osd_setup_data(osd_req, 0);
+	rbd_osd_format_read(osd_req);
+
+	ret = ceph_osdc_alloc_messages(osd_req, GFP_NOIO);
+	if (ret)
+		return ret;
+
+	rbd_osd_submit(osd_req);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int rbd_obj_read_from_parent(struct rbd_obj_request *obj_req)
 {
 	struct rbd_img_request *img_req = obj_req->img_request;
+<<<<<<< HEAD
 	struct rbd_img_request *child_img_req;
 	int ret;
 
@@ -2262,6 +3587,27 @@ static int rbd_obj_read_from_parent(struct rbd_obj_request *obj_req)
 	__set_bit(IMG_REQ_CHILD, &child_img_req->flags);
 	child_img_req->obj_request = obj_req;
 
+=======
+	struct rbd_device *parent = img_req->rbd_dev->parent;
+	struct rbd_img_request *child_img_req;
+	int ret;
+
+	child_img_req = kmem_cache_alloc(rbd_img_request_cache, GFP_NOIO);
+	if (!child_img_req)
+		return -ENOMEM;
+
+	rbd_img_request_init(child_img_req, parent, OBJ_OP_READ);
+	__set_bit(IMG_REQ_CHILD, &child_img_req->flags);
+	child_img_req->obj_request = obj_req;
+
+	down_read(&parent->header_rwsem);
+	rbd_img_capture_header(child_img_req);
+	up_read(&parent->header_rwsem);
+
+	dout("%s child_img_req %p for obj_req %p\n", __func__, child_img_req,
+	     obj_req);
+
+>>>>>>> upstream/android-13
 	if (!rbd_img_is_write(img_req)) {
 		switch (img_req->data_type) {
 		case OBJ_REQUEST_BIO:
@@ -2278,7 +3624,11 @@ static int rbd_obj_read_from_parent(struct rbd_obj_request *obj_req)
 						      &obj_req->bvec_pos);
 			break;
 		default:
+<<<<<<< HEAD
 			rbd_assert(0);
+=======
+			BUG();
+>>>>>>> upstream/android-13
 		}
 	} else {
 		ret = rbd_img_fill_from_bvecs(child_img_req,
@@ -2287,6 +3637,7 @@ static int rbd_obj_read_from_parent(struct rbd_obj_request *obj_req)
 					      obj_req->copyup_bvecs);
 	}
 	if (ret) {
+<<<<<<< HEAD
 		rbd_img_request_put(child_img_req);
 		return ret;
 	}
@@ -2296,10 +3647,23 @@ static int rbd_obj_read_from_parent(struct rbd_obj_request *obj_req)
 }
 
 static bool rbd_obj_handle_read(struct rbd_obj_request *obj_req)
+=======
+		rbd_img_request_destroy(child_img_req);
+		return ret;
+	}
+
+	/* avoid parent chain recursion */
+	rbd_img_schedule(child_img_req, 0);
+	return 0;
+}
+
+static bool rbd_obj_advance_read(struct rbd_obj_request *obj_req, int *result)
+>>>>>>> upstream/android-13
 {
 	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
 	int ret;
 
+<<<<<<< HEAD
 	if (obj_req->result == -ENOENT &&
 	    rbd_dev->parent_overlap && !obj_req->tried_parent) {
 		/* reverse map this object extent onto the parent */
@@ -2336,6 +3700,147 @@ static bool rbd_obj_handle_read(struct rbd_obj_request *obj_req)
 	}
 
 	return true;
+=======
+again:
+	switch (obj_req->read_state) {
+	case RBD_OBJ_READ_START:
+		rbd_assert(!*result);
+
+		if (!rbd_obj_may_exist(obj_req)) {
+			*result = -ENOENT;
+			obj_req->read_state = RBD_OBJ_READ_OBJECT;
+			goto again;
+		}
+
+		ret = rbd_obj_read_object(obj_req);
+		if (ret) {
+			*result = ret;
+			return true;
+		}
+		obj_req->read_state = RBD_OBJ_READ_OBJECT;
+		return false;
+	case RBD_OBJ_READ_OBJECT:
+		if (*result == -ENOENT && rbd_dev->parent_overlap) {
+			/* reverse map this object extent onto the parent */
+			ret = rbd_obj_calc_img_extents(obj_req, false);
+			if (ret) {
+				*result = ret;
+				return true;
+			}
+			if (obj_req->num_img_extents) {
+				ret = rbd_obj_read_from_parent(obj_req);
+				if (ret) {
+					*result = ret;
+					return true;
+				}
+				obj_req->read_state = RBD_OBJ_READ_PARENT;
+				return false;
+			}
+		}
+
+		/*
+		 * -ENOENT means a hole in the image -- zero-fill the entire
+		 * length of the request.  A short read also implies zero-fill
+		 * to the end of the request.
+		 */
+		if (*result == -ENOENT) {
+			rbd_obj_zero_range(obj_req, 0, obj_req->ex.oe_len);
+			*result = 0;
+		} else if (*result >= 0) {
+			if (*result < obj_req->ex.oe_len)
+				rbd_obj_zero_range(obj_req, *result,
+						obj_req->ex.oe_len - *result);
+			else
+				rbd_assert(*result == obj_req->ex.oe_len);
+			*result = 0;
+		}
+		return true;
+	case RBD_OBJ_READ_PARENT:
+		/*
+		 * The parent image is read only up to the overlap -- zero-fill
+		 * from the overlap to the end of the request.
+		 */
+		if (!*result) {
+			u32 obj_overlap = rbd_obj_img_extents_bytes(obj_req);
+
+			if (obj_overlap < obj_req->ex.oe_len)
+				rbd_obj_zero_range(obj_req, obj_overlap,
+					    obj_req->ex.oe_len - obj_overlap);
+		}
+		return true;
+	default:
+		BUG();
+	}
+}
+
+static bool rbd_obj_write_is_noop(struct rbd_obj_request *obj_req)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+
+	if (rbd_object_map_may_exist(rbd_dev, obj_req->ex.oe_objno))
+		obj_req->flags |= RBD_OBJ_FLAG_MAY_EXIST;
+
+	if (!(obj_req->flags & RBD_OBJ_FLAG_MAY_EXIST) &&
+	    (obj_req->flags & RBD_OBJ_FLAG_NOOP_FOR_NONEXISTENT)) {
+		dout("%s %p noop for nonexistent\n", __func__, obj_req);
+		return true;
+	}
+
+	return false;
+}
+
+/*
+ * Return:
+ *   0 - object map update sent
+ *   1 - object map update isn't needed
+ *  <0 - error
+ */
+static int rbd_obj_write_pre_object_map(struct rbd_obj_request *obj_req)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	u8 new_state;
+
+	if (!(rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP))
+		return 1;
+
+	if (obj_req->flags & RBD_OBJ_FLAG_DELETION)
+		new_state = OBJECT_PENDING;
+	else
+		new_state = OBJECT_EXISTS;
+
+	return rbd_object_map_update(obj_req, CEPH_NOSNAP, new_state, NULL);
+}
+
+static int rbd_obj_write_object(struct rbd_obj_request *obj_req)
+{
+	struct ceph_osd_request *osd_req;
+	int num_ops = count_write_ops(obj_req);
+	int which = 0;
+	int ret;
+
+	if (obj_req->flags & RBD_OBJ_FLAG_COPYUP_ENABLED)
+		num_ops++; /* stat */
+
+	osd_req = rbd_obj_add_osd_request(obj_req, num_ops);
+	if (IS_ERR(osd_req))
+		return PTR_ERR(osd_req);
+
+	if (obj_req->flags & RBD_OBJ_FLAG_COPYUP_ENABLED) {
+		ret = rbd_osd_setup_stat(osd_req, which++);
+		if (ret)
+			return ret;
+	}
+
+	rbd_osd_setup_write_ops(osd_req, which);
+	rbd_osd_format_write(osd_req);
+
+	ret = ceph_osdc_alloc_messages(osd_req, GFP_NOIO);
+	if (ret)
+		return ret;
+
+	rbd_osd_submit(osd_req);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2349,13 +3854,18 @@ static bool is_zero_bvecs(struct bio_vec *bvecs, u32 bytes)
 	};
 
 	ceph_bvec_iter_advance_step(&it, bytes, ({
+<<<<<<< HEAD
 		if (memchr_inv(page_address(bv.bv_page) + bv.bv_offset, 0,
 			       bv.bv_len))
+=======
+		if (memchr_inv(bvec_virt(&bv), 0, bv.bv_len))
+>>>>>>> upstream/android-13
 			return false;
 	}));
 	return true;
 }
 
+<<<<<<< HEAD
 static int rbd_obj_issue_copyup(struct rbd_obj_request *obj_req, u32 bytes)
 {
 	unsigned int num_osd_ops = obj_req->osd_req->r_num_ops;
@@ -2406,6 +3916,68 @@ static int rbd_obj_issue_copyup(struct rbd_obj_request *obj_req, u32 bytes)
 	}
 
 	rbd_obj_request_submit(obj_req);
+=======
+#define MODS_ONLY	U32_MAX
+
+static int rbd_obj_copyup_empty_snapc(struct rbd_obj_request *obj_req,
+				      u32 bytes)
+{
+	struct ceph_osd_request *osd_req;
+	int ret;
+
+	dout("%s obj_req %p bytes %u\n", __func__, obj_req, bytes);
+	rbd_assert(bytes > 0 && bytes != MODS_ONLY);
+
+	osd_req = __rbd_obj_add_osd_request(obj_req, &rbd_empty_snapc, 1);
+	if (IS_ERR(osd_req))
+		return PTR_ERR(osd_req);
+
+	ret = rbd_osd_setup_copyup(osd_req, 0, bytes);
+	if (ret)
+		return ret;
+
+	rbd_osd_format_write(osd_req);
+
+	ret = ceph_osdc_alloc_messages(osd_req, GFP_NOIO);
+	if (ret)
+		return ret;
+
+	rbd_osd_submit(osd_req);
+	return 0;
+}
+
+static int rbd_obj_copyup_current_snapc(struct rbd_obj_request *obj_req,
+					u32 bytes)
+{
+	struct ceph_osd_request *osd_req;
+	int num_ops = count_write_ops(obj_req);
+	int which = 0;
+	int ret;
+
+	dout("%s obj_req %p bytes %u\n", __func__, obj_req, bytes);
+
+	if (bytes != MODS_ONLY)
+		num_ops++; /* copyup */
+
+	osd_req = rbd_obj_add_osd_request(obj_req, num_ops);
+	if (IS_ERR(osd_req))
+		return PTR_ERR(osd_req);
+
+	if (bytes != MODS_ONLY) {
+		ret = rbd_osd_setup_copyup(osd_req, which++, bytes);
+		if (ret)
+			return ret;
+	}
+
+	rbd_osd_setup_write_ops(osd_req, which);
+	rbd_osd_format_write(osd_req);
+
+	ret = ceph_osdc_alloc_messages(osd_req, GFP_NOIO);
+	if (ret)
+		return ret;
+
+	rbd_osd_submit(osd_req);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2437,7 +4009,16 @@ static int setup_copyup_bvecs(struct rbd_obj_request *obj_req, u64 obj_overlap)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rbd_obj_handle_write_guard(struct rbd_obj_request *obj_req)
+=======
+/*
+ * The target object doesn't exist.  Read the data for the entire
+ * target object up to the overlap point (if any) from the parent,
+ * so we can use it for a copyup.
+ */
+static int rbd_obj_copyup_read_parent(struct rbd_obj_request *obj_req)
+>>>>>>> upstream/android-13
 {
 	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
 	int ret;
@@ -2448,6 +4029,7 @@ static int rbd_obj_handle_write_guard(struct rbd_obj_request *obj_req)
 	if (!obj_req->num_img_extents) {
 		/*
 		 * The overlap has become 0 (most likely because the
+<<<<<<< HEAD
 		 * image has been flattened).  Use rbd_obj_issue_copyup()
 		 * to re-submit the original write request -- the copyup
 		 * operation itself will be a no-op, since someone must
@@ -2457,12 +4039,20 @@ static int rbd_obj_handle_write_guard(struct rbd_obj_request *obj_req)
 		 */
 		obj_req->write_state = RBD_OBJ_WRITE_FLAT;
 		return rbd_obj_issue_copyup(obj_req, 0);
+=======
+		 * image has been flattened).  Re-submit the original write
+		 * request -- pass MODS_ONLY since the copyup isn't needed
+		 * anymore.
+		 */
+		return rbd_obj_copyup_current_snapc(obj_req, MODS_ONLY);
+>>>>>>> upstream/android-13
 	}
 
 	ret = setup_copyup_bvecs(obj_req, rbd_obj_img_extents_bytes(obj_req));
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	obj_req->write_state = RBD_OBJ_WRITE_COPYUP;
 	return rbd_obj_read_from_parent(obj_req);
 }
@@ -2510,12 +4100,157 @@ again:
 			return true;
 		}
 		return false;
+=======
+	return rbd_obj_read_from_parent(obj_req);
+}
+
+static void rbd_obj_copyup_object_maps(struct rbd_obj_request *obj_req)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	struct ceph_snap_context *snapc = obj_req->img_request->snapc;
+	u8 new_state;
+	u32 i;
+	int ret;
+
+	rbd_assert(!obj_req->pending.result && !obj_req->pending.num_pending);
+
+	if (!(rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP))
+		return;
+
+	if (obj_req->flags & RBD_OBJ_FLAG_COPYUP_ZEROS)
+		return;
+
+	for (i = 0; i < snapc->num_snaps; i++) {
+		if ((rbd_dev->header.features & RBD_FEATURE_FAST_DIFF) &&
+		    i + 1 < snapc->num_snaps)
+			new_state = OBJECT_EXISTS_CLEAN;
+		else
+			new_state = OBJECT_EXISTS;
+
+		ret = rbd_object_map_update(obj_req, snapc->snaps[i],
+					    new_state, NULL);
+		if (ret < 0) {
+			obj_req->pending.result = ret;
+			return;
+		}
+
+		rbd_assert(!ret);
+		obj_req->pending.num_pending++;
+	}
+}
+
+static void rbd_obj_copyup_write_object(struct rbd_obj_request *obj_req)
+{
+	u32 bytes = rbd_obj_img_extents_bytes(obj_req);
+	int ret;
+
+	rbd_assert(!obj_req->pending.result && !obj_req->pending.num_pending);
+
+	/*
+	 * Only send non-zero copyup data to save some I/O and network
+	 * bandwidth -- zero copyup data is equivalent to the object not
+	 * existing.
+	 */
+	if (obj_req->flags & RBD_OBJ_FLAG_COPYUP_ZEROS)
+		bytes = 0;
+
+	if (obj_req->img_request->snapc->num_snaps && bytes > 0) {
+		/*
+		 * Send a copyup request with an empty snapshot context to
+		 * deep-copyup the object through all existing snapshots.
+		 * A second request with the current snapshot context will be
+		 * sent for the actual modification.
+		 */
+		ret = rbd_obj_copyup_empty_snapc(obj_req, bytes);
+		if (ret) {
+			obj_req->pending.result = ret;
+			return;
+		}
+
+		obj_req->pending.num_pending++;
+		bytes = MODS_ONLY;
+	}
+
+	ret = rbd_obj_copyup_current_snapc(obj_req, bytes);
+	if (ret) {
+		obj_req->pending.result = ret;
+		return;
+	}
+
+	obj_req->pending.num_pending++;
+}
+
+static bool rbd_obj_advance_copyup(struct rbd_obj_request *obj_req, int *result)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	int ret;
+
+again:
+	switch (obj_req->copyup_state) {
+	case RBD_OBJ_COPYUP_START:
+		rbd_assert(!*result);
+
+		ret = rbd_obj_copyup_read_parent(obj_req);
+		if (ret) {
+			*result = ret;
+			return true;
+		}
+		if (obj_req->num_img_extents)
+			obj_req->copyup_state = RBD_OBJ_COPYUP_READ_PARENT;
+		else
+			obj_req->copyup_state = RBD_OBJ_COPYUP_WRITE_OBJECT;
+		return false;
+	case RBD_OBJ_COPYUP_READ_PARENT:
+		if (*result)
+			return true;
+
+		if (is_zero_bvecs(obj_req->copyup_bvecs,
+				  rbd_obj_img_extents_bytes(obj_req))) {
+			dout("%s %p detected zeros\n", __func__, obj_req);
+			obj_req->flags |= RBD_OBJ_FLAG_COPYUP_ZEROS;
+		}
+
+		rbd_obj_copyup_object_maps(obj_req);
+		if (!obj_req->pending.num_pending) {
+			*result = obj_req->pending.result;
+			obj_req->copyup_state = RBD_OBJ_COPYUP_OBJECT_MAPS;
+			goto again;
+		}
+		obj_req->copyup_state = __RBD_OBJ_COPYUP_OBJECT_MAPS;
+		return false;
+	case __RBD_OBJ_COPYUP_OBJECT_MAPS:
+		if (!pending_result_dec(&obj_req->pending, result))
+			return false;
+		fallthrough;
+	case RBD_OBJ_COPYUP_OBJECT_MAPS:
+		if (*result) {
+			rbd_warn(rbd_dev, "snap object map update failed: %d",
+				 *result);
+			return true;
+		}
+
+		rbd_obj_copyup_write_object(obj_req);
+		if (!obj_req->pending.num_pending) {
+			*result = obj_req->pending.result;
+			obj_req->copyup_state = RBD_OBJ_COPYUP_WRITE_OBJECT;
+			goto again;
+		}
+		obj_req->copyup_state = __RBD_OBJ_COPYUP_WRITE_OBJECT;
+		return false;
+	case __RBD_OBJ_COPYUP_WRITE_OBJECT:
+		if (!pending_result_dec(&obj_req->pending, result))
+			return false;
+		fallthrough;
+	case RBD_OBJ_COPYUP_WRITE_OBJECT:
+		return true;
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 	}
 }
 
 /*
+<<<<<<< HEAD
  * Returns true if @obj_req is completed, or false otherwise.
  */
 static bool __rbd_obj_handle_request(struct rbd_obj_request *obj_req)
@@ -2538,11 +4273,112 @@ static bool __rbd_obj_handle_request(struct rbd_obj_request *obj_req)
 			return true;
 		}
 		return false;
+=======
+ * Return:
+ *   0 - object map update sent
+ *   1 - object map update isn't needed
+ *  <0 - error
+ */
+static int rbd_obj_write_post_object_map(struct rbd_obj_request *obj_req)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	u8 current_state = OBJECT_PENDING;
+
+	if (!(rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP))
+		return 1;
+
+	if (!(obj_req->flags & RBD_OBJ_FLAG_DELETION))
+		return 1;
+
+	return rbd_object_map_update(obj_req, CEPH_NOSNAP, OBJECT_NONEXISTENT,
+				     &current_state);
+}
+
+static bool rbd_obj_advance_write(struct rbd_obj_request *obj_req, int *result)
+{
+	struct rbd_device *rbd_dev = obj_req->img_request->rbd_dev;
+	int ret;
+
+again:
+	switch (obj_req->write_state) {
+	case RBD_OBJ_WRITE_START:
+		rbd_assert(!*result);
+
+		if (rbd_obj_write_is_noop(obj_req))
+			return true;
+
+		ret = rbd_obj_write_pre_object_map(obj_req);
+		if (ret < 0) {
+			*result = ret;
+			return true;
+		}
+		obj_req->write_state = RBD_OBJ_WRITE_PRE_OBJECT_MAP;
+		if (ret > 0)
+			goto again;
+		return false;
+	case RBD_OBJ_WRITE_PRE_OBJECT_MAP:
+		if (*result) {
+			rbd_warn(rbd_dev, "pre object map update failed: %d",
+				 *result);
+			return true;
+		}
+		ret = rbd_obj_write_object(obj_req);
+		if (ret) {
+			*result = ret;
+			return true;
+		}
+		obj_req->write_state = RBD_OBJ_WRITE_OBJECT;
+		return false;
+	case RBD_OBJ_WRITE_OBJECT:
+		if (*result == -ENOENT) {
+			if (obj_req->flags & RBD_OBJ_FLAG_COPYUP_ENABLED) {
+				*result = 0;
+				obj_req->copyup_state = RBD_OBJ_COPYUP_START;
+				obj_req->write_state = __RBD_OBJ_WRITE_COPYUP;
+				goto again;
+			}
+			/*
+			 * On a non-existent object:
+			 *   delete - -ENOENT, truncate/zero - 0
+			 */
+			if (obj_req->flags & RBD_OBJ_FLAG_DELETION)
+				*result = 0;
+		}
+		if (*result)
+			return true;
+
+		obj_req->write_state = RBD_OBJ_WRITE_COPYUP;
+		goto again;
+	case __RBD_OBJ_WRITE_COPYUP:
+		if (!rbd_obj_advance_copyup(obj_req, result))
+			return false;
+		fallthrough;
+	case RBD_OBJ_WRITE_COPYUP:
+		if (*result) {
+			rbd_warn(rbd_dev, "copyup failed: %d", *result);
+			return true;
+		}
+		ret = rbd_obj_write_post_object_map(obj_req);
+		if (ret < 0) {
+			*result = ret;
+			return true;
+		}
+		obj_req->write_state = RBD_OBJ_WRITE_POST_OBJECT_MAP;
+		if (ret > 0)
+			goto again;
+		return false;
+	case RBD_OBJ_WRITE_POST_OBJECT_MAP:
+		if (*result)
+			rbd_warn(rbd_dev, "post object map update failed: %d",
+				 *result);
+		return true;
+>>>>>>> upstream/android-13
 	default:
 		BUG();
 	}
 }
 
+<<<<<<< HEAD
 static void rbd_obj_end_request(struct rbd_obj_request *obj_req)
 {
 	struct rbd_img_request *img_req = obj_req->img_request;
@@ -2616,6 +4452,236 @@ again:
 		goto again;
 	}
 	rbd_img_end_request(img_req);
+=======
+/*
+ * Return true if @obj_req is completed.
+ */
+static bool __rbd_obj_handle_request(struct rbd_obj_request *obj_req,
+				     int *result)
+{
+	struct rbd_img_request *img_req = obj_req->img_request;
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+	bool done;
+
+	mutex_lock(&obj_req->state_mutex);
+	if (!rbd_img_is_write(img_req))
+		done = rbd_obj_advance_read(obj_req, result);
+	else
+		done = rbd_obj_advance_write(obj_req, result);
+	mutex_unlock(&obj_req->state_mutex);
+
+	if (done && *result) {
+		rbd_assert(*result < 0);
+		rbd_warn(rbd_dev, "%s at objno %llu %llu~%llu result %d",
+			 obj_op_name(img_req->op_type), obj_req->ex.oe_objno,
+			 obj_req->ex.oe_off, obj_req->ex.oe_len, *result);
+	}
+	return done;
+}
+
+/*
+ * This is open-coded in rbd_img_handle_request() to avoid parent chain
+ * recursion.
+ */
+static void rbd_obj_handle_request(struct rbd_obj_request *obj_req, int result)
+{
+	if (__rbd_obj_handle_request(obj_req, &result))
+		rbd_img_handle_request(obj_req->img_request, result);
+}
+
+static bool need_exclusive_lock(struct rbd_img_request *img_req)
+{
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+
+	if (!(rbd_dev->header.features & RBD_FEATURE_EXCLUSIVE_LOCK))
+		return false;
+
+	if (rbd_is_ro(rbd_dev))
+		return false;
+
+	rbd_assert(!test_bit(IMG_REQ_CHILD, &img_req->flags));
+	if (rbd_dev->opts->lock_on_read ||
+	    (rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP))
+		return true;
+
+	return rbd_img_is_write(img_req);
+}
+
+static bool rbd_lock_add_request(struct rbd_img_request *img_req)
+{
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+	bool locked;
+
+	lockdep_assert_held(&rbd_dev->lock_rwsem);
+	locked = rbd_dev->lock_state == RBD_LOCK_STATE_LOCKED;
+	spin_lock(&rbd_dev->lock_lists_lock);
+	rbd_assert(list_empty(&img_req->lock_item));
+	if (!locked)
+		list_add_tail(&img_req->lock_item, &rbd_dev->acquiring_list);
+	else
+		list_add_tail(&img_req->lock_item, &rbd_dev->running_list);
+	spin_unlock(&rbd_dev->lock_lists_lock);
+	return locked;
+}
+
+static void rbd_lock_del_request(struct rbd_img_request *img_req)
+{
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+	bool need_wakeup;
+
+	lockdep_assert_held(&rbd_dev->lock_rwsem);
+	spin_lock(&rbd_dev->lock_lists_lock);
+	rbd_assert(!list_empty(&img_req->lock_item));
+	list_del_init(&img_req->lock_item);
+	need_wakeup = (rbd_dev->lock_state == RBD_LOCK_STATE_RELEASING &&
+		       list_empty(&rbd_dev->running_list));
+	spin_unlock(&rbd_dev->lock_lists_lock);
+	if (need_wakeup)
+		complete(&rbd_dev->releasing_wait);
+}
+
+static int rbd_img_exclusive_lock(struct rbd_img_request *img_req)
+{
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+
+	if (!need_exclusive_lock(img_req))
+		return 1;
+
+	if (rbd_lock_add_request(img_req))
+		return 1;
+
+	if (rbd_dev->opts->exclusive) {
+		WARN_ON(1); /* lock got released? */
+		return -EROFS;
+	}
+
+	/*
+	 * Note the use of mod_delayed_work() in rbd_acquire_lock()
+	 * and cancel_delayed_work() in wake_lock_waiters().
+	 */
+	dout("%s rbd_dev %p queueing lock_dwork\n", __func__, rbd_dev);
+	queue_delayed_work(rbd_dev->task_wq, &rbd_dev->lock_dwork, 0);
+	return 0;
+}
+
+static void rbd_img_object_requests(struct rbd_img_request *img_req)
+{
+	struct rbd_obj_request *obj_req;
+
+	rbd_assert(!img_req->pending.result && !img_req->pending.num_pending);
+
+	for_each_obj_request(img_req, obj_req) {
+		int result = 0;
+
+		if (__rbd_obj_handle_request(obj_req, &result)) {
+			if (result) {
+				img_req->pending.result = result;
+				return;
+			}
+		} else {
+			img_req->pending.num_pending++;
+		}
+	}
+}
+
+static bool rbd_img_advance(struct rbd_img_request *img_req, int *result)
+{
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+	int ret;
+
+again:
+	switch (img_req->state) {
+	case RBD_IMG_START:
+		rbd_assert(!*result);
+
+		ret = rbd_img_exclusive_lock(img_req);
+		if (ret < 0) {
+			*result = ret;
+			return true;
+		}
+		img_req->state = RBD_IMG_EXCLUSIVE_LOCK;
+		if (ret > 0)
+			goto again;
+		return false;
+	case RBD_IMG_EXCLUSIVE_LOCK:
+		if (*result)
+			return true;
+
+		rbd_assert(!need_exclusive_lock(img_req) ||
+			   __rbd_is_lock_owner(rbd_dev));
+
+		rbd_img_object_requests(img_req);
+		if (!img_req->pending.num_pending) {
+			*result = img_req->pending.result;
+			img_req->state = RBD_IMG_OBJECT_REQUESTS;
+			goto again;
+		}
+		img_req->state = __RBD_IMG_OBJECT_REQUESTS;
+		return false;
+	case __RBD_IMG_OBJECT_REQUESTS:
+		if (!pending_result_dec(&img_req->pending, result))
+			return false;
+		fallthrough;
+	case RBD_IMG_OBJECT_REQUESTS:
+		return true;
+	default:
+		BUG();
+	}
+}
+
+/*
+ * Return true if @img_req is completed.
+ */
+static bool __rbd_img_handle_request(struct rbd_img_request *img_req,
+				     int *result)
+{
+	struct rbd_device *rbd_dev = img_req->rbd_dev;
+	bool done;
+
+	if (need_exclusive_lock(img_req)) {
+		down_read(&rbd_dev->lock_rwsem);
+		mutex_lock(&img_req->state_mutex);
+		done = rbd_img_advance(img_req, result);
+		if (done)
+			rbd_lock_del_request(img_req);
+		mutex_unlock(&img_req->state_mutex);
+		up_read(&rbd_dev->lock_rwsem);
+	} else {
+		mutex_lock(&img_req->state_mutex);
+		done = rbd_img_advance(img_req, result);
+		mutex_unlock(&img_req->state_mutex);
+	}
+
+	if (done && *result) {
+		rbd_assert(*result < 0);
+		rbd_warn(rbd_dev, "%s%s result %d",
+		      test_bit(IMG_REQ_CHILD, &img_req->flags) ? "child " : "",
+		      obj_op_name(img_req->op_type), *result);
+	}
+	return done;
+}
+
+static void rbd_img_handle_request(struct rbd_img_request *img_req, int result)
+{
+again:
+	if (!__rbd_img_handle_request(img_req, &result))
+		return;
+
+	if (test_bit(IMG_REQ_CHILD, &img_req->flags)) {
+		struct rbd_obj_request *obj_req = img_req->obj_request;
+
+		rbd_img_request_destroy(img_req);
+		if (__rbd_obj_handle_request(obj_req, &result)) {
+			img_req = obj_req->img_request;
+			goto again;
+		}
+	} else {
+		struct request *rq = blk_mq_rq_from_pdu(img_req);
+
+		rbd_img_request_destroy(img_req);
+		blk_mq_end_request(rq, errno_to_blk_status(result));
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct rbd_client_id rbd_empty_cid;
@@ -2660,6 +4726,10 @@ static void __rbd_lock(struct rbd_device *rbd_dev, const char *cookie)
 {
 	struct rbd_client_id cid = rbd_get_cid(rbd_dev);
 
+<<<<<<< HEAD
+=======
+	rbd_dev->lock_state = RBD_LOCK_STATE_LOCKED;
+>>>>>>> upstream/android-13
 	strcpy(rbd_dev->lock_cookie, cookie);
 	rbd_set_owner_cid(rbd_dev, &cid);
 	queue_work(rbd_dev->task_wq, &rbd_dev->acquired_lock_work);
@@ -2684,7 +4754,10 @@ static int rbd_lock(struct rbd_device *rbd_dev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	rbd_dev->lock_state = RBD_LOCK_STATE_LOCKED;
+=======
+>>>>>>> upstream/android-13
 	__rbd_lock(rbd_dev, cookie);
 	return 0;
 }
@@ -2703,7 +4776,11 @@ static void rbd_unlock(struct rbd_device *rbd_dev)
 	ret = ceph_cls_unlock(osdc, &rbd_dev->header_oid, &rbd_dev->header_oloc,
 			      RBD_LOCK_NAME, rbd_dev->lock_cookie);
 	if (ret && ret != -ENOENT)
+<<<<<<< HEAD
 		rbd_warn(rbd_dev, "failed to unlock: %d", ret);
+=======
+		rbd_warn(rbd_dev, "failed to unlock header: %d", ret);
+>>>>>>> upstream/android-13
 
 	/* treat errors as the image is unlocked */
 	rbd_dev->lock_state = RBD_LOCK_STATE_UNLOCKED;
@@ -2739,11 +4816,15 @@ static int __rbd_notify_op_lock(struct rbd_device *rbd_dev,
 static void rbd_notify_op_lock(struct rbd_device *rbd_dev,
 			       enum rbd_notify_op notify_op)
 {
+<<<<<<< HEAD
 	struct page **reply_pages;
 	size_t reply_len;
 
 	__rbd_notify_op_lock(rbd_dev, notify_op, &reply_pages, &reply_len);
 	ceph_release_page_vector(reply_pages, calc_pages_for(0, reply_len));
+=======
+	__rbd_notify_op_lock(rbd_dev, notify_op, NULL, NULL);
+>>>>>>> upstream/android-13
 }
 
 static void rbd_notify_acquired_lock(struct work_struct *work)
@@ -2830,6 +4911,7 @@ e_inval:
 	goto out;
 }
 
+<<<<<<< HEAD
 static void wake_requests(struct rbd_device *rbd_dev, bool wake_all)
 {
 	dout("%s rbd_dev %p wake_all %d\n", __func__, rbd_dev, wake_all);
@@ -2839,6 +4921,36 @@ static void wake_requests(struct rbd_device *rbd_dev, bool wake_all)
 		wake_up_all(&rbd_dev->lock_waitq);
 	else
 		wake_up(&rbd_dev->lock_waitq);
+=======
+/*
+ * Either image request state machine(s) or rbd_add_acquire_lock()
+ * (i.e. "rbd map").
+ */
+static void wake_lock_waiters(struct rbd_device *rbd_dev, int result)
+{
+	struct rbd_img_request *img_req;
+
+	dout("%s rbd_dev %p result %d\n", __func__, rbd_dev, result);
+	lockdep_assert_held_write(&rbd_dev->lock_rwsem);
+
+	cancel_delayed_work(&rbd_dev->lock_dwork);
+	if (!completion_done(&rbd_dev->acquire_wait)) {
+		rbd_assert(list_empty(&rbd_dev->acquiring_list) &&
+			   list_empty(&rbd_dev->running_list));
+		rbd_dev->acquire_err = result;
+		complete_all(&rbd_dev->acquire_wait);
+		return;
+	}
+
+	list_for_each_entry(img_req, &rbd_dev->acquiring_list, lock_item) {
+		mutex_lock(&img_req->state_mutex);
+		rbd_assert(img_req->state == RBD_IMG_EXCLUSIVE_LOCK);
+		rbd_img_schedule(img_req, result);
+		mutex_unlock(&img_req->state_mutex);
+	}
+
+	list_splice_tail_init(&rbd_dev->acquiring_list, &rbd_dev->running_list);
+>>>>>>> upstream/android-13
 }
 
 static int get_lock_owner_info(struct rbd_device *rbd_dev,
@@ -2906,8 +5018,17 @@ static int find_watcher(struct rbd_device *rbd_dev,
 
 	sscanf(locker->id.cookie, RBD_LOCK_COOKIE_PREFIX " %llu", &cookie);
 	for (i = 0; i < num_watchers; i++) {
+<<<<<<< HEAD
 		if (!memcmp(&watchers[i].addr, &locker->info.addr,
 			    sizeof(locker->info.addr)) &&
+=======
+		/*
+		 * Ignore addr->type while comparing.  This mimics
+		 * entity_addr_t::get_legacy_str() + strcmp().
+		 */
+		if (ceph_addr_equal_no_type(&watchers[i].addr,
+					    &locker->info.addr) &&
+>>>>>>> upstream/android-13
 		    watchers[i].cookie == cookie) {
 			struct rbd_client_id cid = {
 				.gid = le64_to_cpu(watchers[i].name.num),
@@ -2953,6 +5074,7 @@ static int rbd_try_lock(struct rbd_device *rbd_dev)
 			goto again;
 
 		ret = find_watcher(rbd_dev, lockers);
+<<<<<<< HEAD
 		if (ret) {
 			if (ret > 0)
 				ret = 0; /* have to request lock */
@@ -2966,6 +5088,18 @@ static int rbd_try_lock(struct rbd_device *rbd_dev)
 					      &lockers[0].info.addr);
 		if (ret) {
 			rbd_warn(rbd_dev, "blacklist of %s%llu failed: %d",
+=======
+		if (ret)
+			goto out; /* request lock or error */
+
+		rbd_warn(rbd_dev, "breaking header lock owned by %s%llu",
+			 ENTITY_NAME(lockers[0].id.name));
+
+		ret = ceph_monc_blocklist_add(&client->monc,
+					      &lockers[0].info.addr);
+		if (ret) {
+			rbd_warn(rbd_dev, "blocklist of %s%llu failed: %d",
+>>>>>>> upstream/android-13
 				 ENTITY_NAME(lockers[0].id.name), ret);
 			goto out;
 		}
@@ -2986,6 +5120,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * ret is set only if lock_state is RBD_LOCK_STATE_UNLOCKED
  */
@@ -2993,20 +5128,50 @@ static enum rbd_lock_state rbd_try_acquire_lock(struct rbd_device *rbd_dev,
 						int *pret)
 {
 	enum rbd_lock_state lock_state;
+=======
+static int rbd_post_acquire_action(struct rbd_device *rbd_dev)
+{
+	int ret;
+
+	if (rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP) {
+		ret = rbd_object_map_open(rbd_dev);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+/*
+ * Return:
+ *   0 - lock acquired
+ *   1 - caller should call rbd_request_lock()
+ *  <0 - error
+ */
+static int rbd_try_acquire_lock(struct rbd_device *rbd_dev)
+{
+	int ret;
+>>>>>>> upstream/android-13
 
 	down_read(&rbd_dev->lock_rwsem);
 	dout("%s rbd_dev %p read lock_state %d\n", __func__, rbd_dev,
 	     rbd_dev->lock_state);
 	if (__rbd_is_lock_owner(rbd_dev)) {
+<<<<<<< HEAD
 		lock_state = rbd_dev->lock_state;
 		up_read(&rbd_dev->lock_rwsem);
 		return lock_state;
+=======
+		up_read(&rbd_dev->lock_rwsem);
+		return 0;
+>>>>>>> upstream/android-13
 	}
 
 	up_read(&rbd_dev->lock_rwsem);
 	down_write(&rbd_dev->lock_rwsem);
 	dout("%s rbd_dev %p write lock_state %d\n", __func__, rbd_dev,
 	     rbd_dev->lock_state);
+<<<<<<< HEAD
 	if (!__rbd_is_lock_owner(rbd_dev)) {
 		*pret = rbd_try_lock(rbd_dev);
 		if (*pret)
@@ -3016,12 +5181,51 @@ static enum rbd_lock_state rbd_try_acquire_lock(struct rbd_device *rbd_dev,
 	lock_state = rbd_dev->lock_state;
 	up_write(&rbd_dev->lock_rwsem);
 	return lock_state;
+=======
+	if (__rbd_is_lock_owner(rbd_dev)) {
+		up_write(&rbd_dev->lock_rwsem);
+		return 0;
+	}
+
+	ret = rbd_try_lock(rbd_dev);
+	if (ret < 0) {
+		rbd_warn(rbd_dev, "failed to lock header: %d", ret);
+		if (ret == -EBLOCKLISTED)
+			goto out;
+
+		ret = 1; /* request lock anyway */
+	}
+	if (ret > 0) {
+		up_write(&rbd_dev->lock_rwsem);
+		return ret;
+	}
+
+	rbd_assert(rbd_dev->lock_state == RBD_LOCK_STATE_LOCKED);
+	rbd_assert(list_empty(&rbd_dev->running_list));
+
+	ret = rbd_post_acquire_action(rbd_dev);
+	if (ret) {
+		rbd_warn(rbd_dev, "post-acquire action failed: %d", ret);
+		/*
+		 * Can't stay in RBD_LOCK_STATE_LOCKED because
+		 * rbd_lock_add_request() would let the request through,
+		 * assuming that e.g. object map is locked and loaded.
+		 */
+		rbd_unlock(rbd_dev);
+	}
+
+out:
+	wake_lock_waiters(rbd_dev, ret);
+	up_write(&rbd_dev->lock_rwsem);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void rbd_acquire_lock(struct work_struct *work)
 {
 	struct rbd_device *rbd_dev = container_of(to_delayed_work(work),
 					    struct rbd_device, lock_dwork);
+<<<<<<< HEAD
 	enum rbd_lock_state lock_state;
 	int ret = 0;
 
@@ -3033,6 +5237,15 @@ again:
 			wake_requests(rbd_dev, true);
 		dout("%s rbd_dev %p lock_state %d ret %d - done\n", __func__,
 		     rbd_dev, lock_state, ret);
+=======
+	int ret;
+
+	dout("%s rbd_dev %p\n", __func__, rbd_dev);
+again:
+	ret = rbd_try_acquire_lock(rbd_dev);
+	if (ret <= 0) {
+		dout("%s rbd_dev %p ret %d - done\n", __func__, rbd_dev, ret);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -3041,6 +5254,7 @@ again:
 		goto again; /* treat this as a dead client */
 	} else if (ret == -EROFS) {
 		rbd_warn(rbd_dev, "peer will not release lock");
+<<<<<<< HEAD
 		/*
 		 * If this is rbd_add_acquire_lock(), we want to fail
 		 * immediately -- reuse BLACKLISTED flag.  Otherwise we
@@ -3051,6 +5265,11 @@ again:
 			/* wake "rbd map --exclusive" process */
 			wake_requests(rbd_dev, false);
 		}
+=======
+		down_write(&rbd_dev->lock_rwsem);
+		wake_lock_waiters(rbd_dev, ret);
+		up_write(&rbd_dev->lock_rwsem);
+>>>>>>> upstream/android-13
 	} else if (ret < 0) {
 		rbd_warn(rbd_dev, "error requesting lock: %d", ret);
 		mod_delayed_work(rbd_dev->task_wq, &rbd_dev->lock_dwork,
@@ -3060,13 +5279,18 @@ again:
 		 * lock owner acked, but resend if we don't see them
 		 * release the lock
 		 */
+<<<<<<< HEAD
 		dout("%s rbd_dev %p requeueing lock_dwork\n", __func__,
+=======
+		dout("%s rbd_dev %p requeuing lock_dwork\n", __func__,
+>>>>>>> upstream/android-13
 		     rbd_dev);
 		mod_delayed_work(rbd_dev->task_wq, &rbd_dev->lock_dwork,
 		    msecs_to_jiffies(2 * RBD_NOTIFY_TIMEOUT * MSEC_PER_SEC));
 	}
 }
 
+<<<<<<< HEAD
 /*
  * lock_rwsem must be held for write
  */
@@ -3104,6 +5328,67 @@ static bool rbd_release_lock(struct rbd_device *rbd_dev)
 	 */
 	cancel_delayed_work(&rbd_dev->lock_dwork);
 	return true;
+=======
+static bool rbd_quiesce_lock(struct rbd_device *rbd_dev)
+{
+	dout("%s rbd_dev %p\n", __func__, rbd_dev);
+	lockdep_assert_held_write(&rbd_dev->lock_rwsem);
+
+	if (rbd_dev->lock_state != RBD_LOCK_STATE_LOCKED)
+		return false;
+
+	/*
+	 * Ensure that all in-flight IO is flushed.
+	 */
+	rbd_dev->lock_state = RBD_LOCK_STATE_RELEASING;
+	rbd_assert(!completion_done(&rbd_dev->releasing_wait));
+	if (list_empty(&rbd_dev->running_list))
+		return true;
+
+	up_write(&rbd_dev->lock_rwsem);
+	wait_for_completion(&rbd_dev->releasing_wait);
+
+	down_write(&rbd_dev->lock_rwsem);
+	if (rbd_dev->lock_state != RBD_LOCK_STATE_RELEASING)
+		return false;
+
+	rbd_assert(list_empty(&rbd_dev->running_list));
+	return true;
+}
+
+static void rbd_pre_release_action(struct rbd_device *rbd_dev)
+{
+	if (rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP)
+		rbd_object_map_close(rbd_dev);
+}
+
+static void __rbd_release_lock(struct rbd_device *rbd_dev)
+{
+	rbd_assert(list_empty(&rbd_dev->running_list));
+
+	rbd_pre_release_action(rbd_dev);
+	rbd_unlock(rbd_dev);
+}
+
+/*
+ * lock_rwsem must be held for write
+ */
+static void rbd_release_lock(struct rbd_device *rbd_dev)
+{
+	if (!rbd_quiesce_lock(rbd_dev))
+		return;
+
+	__rbd_release_lock(rbd_dev);
+
+	/*
+	 * Give others a chance to grab the lock - we would re-acquire
+	 * almost immediately if we got new IO while draining the running
+	 * list otherwise.  We need to ack our own notifications, so this
+	 * lock_dwork will be requeued from rbd_handle_released_lock() by
+	 * way of maybe_kick_acquire().
+	 */
+	cancel_delayed_work(&rbd_dev->lock_dwork);
+>>>>>>> upstream/android-13
 }
 
 static void rbd_release_lock_work(struct work_struct *work)
@@ -3116,6 +5401,26 @@ static void rbd_release_lock_work(struct work_struct *work)
 	up_write(&rbd_dev->lock_rwsem);
 }
 
+<<<<<<< HEAD
+=======
+static void maybe_kick_acquire(struct rbd_device *rbd_dev)
+{
+	bool have_requests;
+
+	dout("%s rbd_dev %p\n", __func__, rbd_dev);
+	if (__rbd_is_lock_owner(rbd_dev))
+		return;
+
+	spin_lock(&rbd_dev->lock_lists_lock);
+	have_requests = !list_empty(&rbd_dev->acquiring_list);
+	spin_unlock(&rbd_dev->lock_lists_lock);
+	if (have_requests || delayed_work_pending(&rbd_dev->lock_dwork)) {
+		dout("%s rbd_dev %p kicking lock_dwork\n", __func__, rbd_dev);
+		mod_delayed_work(rbd_dev->task_wq, &rbd_dev->lock_dwork, 0);
+	}
+}
+
+>>>>>>> upstream/android-13
 static void rbd_handle_acquired_lock(struct rbd_device *rbd_dev, u8 struct_v,
 				     void **p)
 {
@@ -3131,6 +5436,7 @@ static void rbd_handle_acquired_lock(struct rbd_device *rbd_dev, u8 struct_v,
 	if (!rbd_cid_equal(&cid, &rbd_empty_cid)) {
 		down_write(&rbd_dev->lock_rwsem);
 		if (rbd_cid_equal(&cid, &rbd_dev->owner_cid)) {
+<<<<<<< HEAD
 			/*
 			 * we already know that the remote client is
 			 * the owner
@@ -3140,13 +5446,24 @@ static void rbd_handle_acquired_lock(struct rbd_device *rbd_dev, u8 struct_v,
 		}
 
 		rbd_set_owner_cid(rbd_dev, &cid);
+=======
+			dout("%s rbd_dev %p cid %llu-%llu == owner_cid\n",
+			     __func__, rbd_dev, cid.gid, cid.handle);
+		} else {
+			rbd_set_owner_cid(rbd_dev, &cid);
+		}
+>>>>>>> upstream/android-13
 		downgrade_write(&rbd_dev->lock_rwsem);
 	} else {
 		down_read(&rbd_dev->lock_rwsem);
 	}
 
+<<<<<<< HEAD
 	if (!__rbd_is_lock_owner(rbd_dev))
 		wake_requests(rbd_dev, false);
+=======
+	maybe_kick_acquire(rbd_dev);
+>>>>>>> upstream/android-13
 	up_read(&rbd_dev->lock_rwsem);
 }
 
@@ -3165,6 +5482,7 @@ static void rbd_handle_released_lock(struct rbd_device *rbd_dev, u8 struct_v,
 	if (!rbd_cid_equal(&cid, &rbd_empty_cid)) {
 		down_write(&rbd_dev->lock_rwsem);
 		if (!rbd_cid_equal(&cid, &rbd_dev->owner_cid)) {
+<<<<<<< HEAD
 			dout("%s rbd_dev %p unexpected owner, cid %llu-%llu != owner_cid %llu-%llu\n",
 			     __func__, rbd_dev, cid.gid, cid.handle,
 			     rbd_dev->owner_cid.gid, rbd_dev->owner_cid.handle);
@@ -3173,13 +5491,25 @@ static void rbd_handle_released_lock(struct rbd_device *rbd_dev, u8 struct_v,
 		}
 
 		rbd_set_owner_cid(rbd_dev, &rbd_empty_cid);
+=======
+			dout("%s rbd_dev %p cid %llu-%llu != owner_cid %llu-%llu\n",
+			     __func__, rbd_dev, cid.gid, cid.handle,
+			     rbd_dev->owner_cid.gid, rbd_dev->owner_cid.handle);
+		} else {
+			rbd_set_owner_cid(rbd_dev, &rbd_empty_cid);
+		}
+>>>>>>> upstream/android-13
 		downgrade_write(&rbd_dev->lock_rwsem);
 	} else {
 		down_read(&rbd_dev->lock_rwsem);
 	}
 
+<<<<<<< HEAD
 	if (!__rbd_is_lock_owner(rbd_dev))
 		wake_requests(rbd_dev, false);
+=======
+	maybe_kick_acquire(rbd_dev);
+>>>>>>> upstream/android-13
 	up_read(&rbd_dev->lock_rwsem);
 }
 
@@ -3433,7 +5763,10 @@ static void cancel_tasks_sync(struct rbd_device *rbd_dev)
  */
 static void rbd_unregister_watch(struct rbd_device *rbd_dev)
 {
+<<<<<<< HEAD
 	WARN_ON(waitqueue_active(&rbd_dev->lock_waitq));
+=======
+>>>>>>> upstream/android-13
 	cancel_tasks_sync(rbd_dev);
 
 	mutex_lock(&rbd_dev->watch_mutex);
@@ -3455,7 +5788,12 @@ static void rbd_reacquire_lock(struct rbd_device *rbd_dev)
 	char cookie[32];
 	int ret;
 
+<<<<<<< HEAD
 	WARN_ON(rbd_dev->lock_state != RBD_LOCK_STATE_LOCKED);
+=======
+	if (!rbd_quiesce_lock(rbd_dev))
+		return;
+>>>>>>> upstream/android-13
 
 	format_lock_cookie(rbd_dev, cookie);
 	ret = ceph_cls_set_cookie(osdc, &rbd_dev->header_oid,
@@ -3471,11 +5809,19 @@ static void rbd_reacquire_lock(struct rbd_device *rbd_dev)
 		 * Lock cookie cannot be updated on older OSDs, so do
 		 * a manual release and queue an acquire.
 		 */
+<<<<<<< HEAD
 		if (rbd_release_lock(rbd_dev))
 			queue_delayed_work(rbd_dev->task_wq,
 					   &rbd_dev->lock_dwork, 0);
 	} else {
 		__rbd_lock(rbd_dev, cookie);
+=======
+		__rbd_release_lock(rbd_dev);
+		queue_delayed_work(rbd_dev->task_wq, &rbd_dev->lock_dwork, 0);
+	} else {
+		__rbd_lock(rbd_dev, cookie);
+		wake_lock_waiters(rbd_dev, 0);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3496,6 +5842,7 @@ static void rbd_reregister_watch(struct work_struct *work)
 	ret = __rbd_register_watch(rbd_dev);
 	if (ret) {
 		rbd_warn(rbd_dev, "failed to reregister watch: %d", ret);
+<<<<<<< HEAD
 		if (ret == -EBLACKLISTED || ret == -ENOENT) {
 			set_bit(RBD_DEV_FLAG_BLACKLISTED, &rbd_dev->flags);
 			wake_requests(rbd_dev, true);
@@ -3505,6 +5852,20 @@ static void rbd_reregister_watch(struct work_struct *work)
 					   RBD_RETRY_DELAY);
 		}
 		mutex_unlock(&rbd_dev->watch_mutex);
+=======
+		if (ret != -EBLOCKLISTED && ret != -ENOENT) {
+			queue_delayed_work(rbd_dev->task_wq,
+					   &rbd_dev->watch_dwork,
+					   RBD_RETRY_DELAY);
+			mutex_unlock(&rbd_dev->watch_mutex);
+			return;
+		}
+
+		mutex_unlock(&rbd_dev->watch_mutex);
+		down_write(&rbd_dev->lock_rwsem);
+		wake_lock_waiters(rbd_dev, ret);
+		up_write(&rbd_dev->lock_rwsem);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -3567,7 +5928,11 @@ static int rbd_obj_method_sync(struct rbd_device *rbd_dev,
 
 	ret = ceph_osdc_call(osdc, oid, oloc, RBD_DRV_NAME, method_name,
 			     CEPH_OSD_FLAG_READ, req_page, outbound_size,
+<<<<<<< HEAD
 			     reply_page, &inbound_size);
+=======
+			     &reply_page, &inbound_size);
+>>>>>>> upstream/android-13
 	if (!ret) {
 		memcpy(inbound, page_address(reply_page), inbound_size);
 		ret = inbound_size;
@@ -3579,6 +5944,7 @@ static int rbd_obj_method_sync(struct rbd_device *rbd_dev,
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * lock_rwsem must be held for read
  */
@@ -3645,6 +6011,77 @@ static void rbd_queue_workfn(struct work_struct *work)
 	case REQ_OP_WRITE_ZEROES:
 		op_type = OBJ_OP_DISCARD;
 		break;
+=======
+static void rbd_queue_workfn(struct work_struct *work)
+{
+	struct rbd_img_request *img_request =
+	    container_of(work, struct rbd_img_request, work);
+	struct rbd_device *rbd_dev = img_request->rbd_dev;
+	enum obj_operation_type op_type = img_request->op_type;
+	struct request *rq = blk_mq_rq_from_pdu(img_request);
+	u64 offset = (u64)blk_rq_pos(rq) << SECTOR_SHIFT;
+	u64 length = blk_rq_bytes(rq);
+	u64 mapping_size;
+	int result;
+
+	/* Ignore/skip any zero-length requests */
+	if (!length) {
+		dout("%s: zero-length request\n", __func__);
+		result = 0;
+		goto err_img_request;
+	}
+
+	blk_mq_start_request(rq);
+
+	down_read(&rbd_dev->header_rwsem);
+	mapping_size = rbd_dev->mapping.size;
+	rbd_img_capture_header(img_request);
+	up_read(&rbd_dev->header_rwsem);
+
+	if (offset + length > mapping_size) {
+		rbd_warn(rbd_dev, "beyond EOD (%llu~%llu > %llu)", offset,
+			 length, mapping_size);
+		result = -EIO;
+		goto err_img_request;
+	}
+
+	dout("%s rbd_dev %p img_req %p %s %llu~%llu\n", __func__, rbd_dev,
+	     img_request, obj_op_name(op_type), offset, length);
+
+	if (op_type == OBJ_OP_DISCARD || op_type == OBJ_OP_ZEROOUT)
+		result = rbd_img_fill_nodata(img_request, offset, length);
+	else
+		result = rbd_img_fill_from_bio(img_request, offset, length,
+					       rq->bio);
+	if (result)
+		goto err_img_request;
+
+	rbd_img_handle_request(img_request, 0);
+	return;
+
+err_img_request:
+	rbd_img_request_destroy(img_request);
+	if (result)
+		rbd_warn(rbd_dev, "%s %llx at %llx result %d",
+			 obj_op_name(op_type), length, offset, result);
+	blk_mq_end_request(rq, errno_to_blk_status(result));
+}
+
+static blk_status_t rbd_queue_rq(struct blk_mq_hw_ctx *hctx,
+		const struct blk_mq_queue_data *bd)
+{
+	struct rbd_device *rbd_dev = hctx->queue->queuedata;
+	struct rbd_img_request *img_req = blk_mq_rq_to_pdu(bd->rq);
+	enum obj_operation_type op_type;
+
+	switch (req_op(bd->rq)) {
+	case REQ_OP_DISCARD:
+		op_type = OBJ_OP_DISCARD;
+		break;
+	case REQ_OP_WRITE_ZEROES:
+		op_type = OBJ_OP_ZEROOUT;
+		break;
+>>>>>>> upstream/android-13
 	case REQ_OP_WRITE:
 		op_type = OBJ_OP_WRITE;
 		break;
@@ -3652,6 +6089,7 @@ static void rbd_queue_workfn(struct work_struct *work)
 		op_type = OBJ_OP_READ;
 		break;
 	default:
+<<<<<<< HEAD
 		dout("%s: non-fs request type %d\n", __func__, req_op(rq));
 		result = -EIO;
 		goto err;
@@ -3758,14 +6196,38 @@ static blk_status_t rbd_queue_rq(struct blk_mq_hw_ctx *hctx,
 	struct work_struct *work = blk_mq_rq_to_pdu(rq);
 
 	queue_work(rbd_wq, work);
+=======
+		rbd_warn(rbd_dev, "unknown req_op %d", req_op(bd->rq));
+		return BLK_STS_IOERR;
+	}
+
+	rbd_img_request_init(img_req, rbd_dev, op_type);
+
+	if (rbd_img_is_write(img_req)) {
+		if (rbd_is_ro(rbd_dev)) {
+			rbd_warn(rbd_dev, "%s on read-only mapping",
+				 obj_op_name(img_req->op_type));
+			return BLK_STS_IOERR;
+		}
+		rbd_assert(!rbd_is_snap(rbd_dev));
+	}
+
+	INIT_WORK(&img_req->work, rbd_queue_workfn);
+	queue_work(rbd_wq, &img_req->work);
+>>>>>>> upstream/android-13
 	return BLK_STS_OK;
 }
 
 static void rbd_free_disk(struct rbd_device *rbd_dev)
 {
+<<<<<<< HEAD
 	blk_cleanup_queue(rbd_dev->disk->queue);
 	blk_mq_free_tag_set(&rbd_dev->tag_set);
 	put_disk(rbd_dev->disk);
+=======
+	blk_cleanup_disk(rbd_dev->disk);
+	blk_mq_free_tag_set(&rbd_dev->tag_set);
+>>>>>>> upstream/android-13
 	rbd_dev->disk = NULL;
 }
 
@@ -3789,10 +6251,13 @@ static int rbd_obj_read_sync(struct rbd_device *rbd_dev,
 	ceph_oloc_copy(&req->r_base_oloc, oloc);
 	req->r_flags = CEPH_OSD_FLAG_READ;
 
+<<<<<<< HEAD
 	ret = ceph_osdc_alloc_messages(req, GFP_KERNEL);
 	if (ret)
 		goto out_req;
 
+=======
+>>>>>>> upstream/android-13
 	pages = ceph_alloc_page_vector(num_pages, GFP_KERNEL);
 	if (IS_ERR(pages)) {
 		ret = PTR_ERR(pages);
@@ -3803,6 +6268,13 @@ static int rbd_obj_read_sync(struct rbd_device *rbd_dev,
 	osd_req_op_extent_osd_data_pages(req, 0, pages, buf_len, 0, false,
 					 true);
 
+<<<<<<< HEAD
+=======
+	ret = ceph_osdc_alloc_messages(req, GFP_KERNEL);
+	if (ret)
+		goto out_req;
+
+>>>>>>> upstream/android-13
 	ceph_osdc_start_request(osdc, req, false);
 	ret = ceph_osdc_wait_request(osdc, req);
 	if (ret >= 0)
@@ -3873,6 +6345,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * Clear the rbd device's EXISTS flag if the snapshot it's mapped to
  * has disappeared from the (just updated) snapshot context.
@@ -3892,6 +6365,8 @@ static void rbd_exists_validate(struct rbd_device *rbd_dev)
 		clear_bit(RBD_DEV_FLAG_EXISTS, &rbd_dev->flags);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void rbd_dev_update_size(struct rbd_device *rbd_dev)
 {
 	sector_t size;
@@ -3905,8 +6380,12 @@ static void rbd_dev_update_size(struct rbd_device *rbd_dev)
 	    !test_bit(RBD_DEV_FLAG_REMOVING, &rbd_dev->flags)) {
 		size = (sector_t)rbd_dev->mapping.size / SECTOR_SIZE;
 		dout("setting size to %llu sectors", (unsigned long long)size);
+<<<<<<< HEAD
 		set_capacity(rbd_dev->disk, size);
 		revalidate_disk(rbd_dev->disk);
+=======
+		set_capacity_and_notify(rbd_dev->disk, size);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -3932,12 +6411,17 @@ static int rbd_dev_refresh(struct rbd_device *rbd_dev)
 			goto out;
 	}
 
+<<<<<<< HEAD
 	if (rbd_dev->spec->snap_id == CEPH_NOSNAP) {
 		rbd_dev->mapping.size = rbd_dev->header.image_size;
 	} else {
 		/* validate mapped snapshot's EXISTS flag */
 		rbd_exists_validate(rbd_dev);
 	}
+=======
+	rbd_assert(!rbd_is_snap(rbd_dev));
+	rbd_dev->mapping.size = rbd_dev->header.image_size;
+>>>>>>> upstream/android-13
 
 out:
 	up_write(&rbd_dev->header_rwsem);
@@ -3947,6 +6431,7 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int rbd_init_request(struct blk_mq_tag_set *set, struct request *rq,
 		unsigned int hctx_idx, unsigned int numa_node)
 {
@@ -3959,6 +6444,10 @@ static int rbd_init_request(struct blk_mq_tag_set *set, struct request *rq,
 static const struct blk_mq_ops rbd_mq_ops = {
 	.queue_rq	= rbd_queue_rq,
 	.init_request	= rbd_init_request,
+=======
+static const struct blk_mq_ops rbd_mq_ops = {
+	.queue_rq	= rbd_queue_rq,
+>>>>>>> upstream/android-13
 };
 
 static int rbd_init_disk(struct rbd_device *rbd_dev)
@@ -3969,17 +6458,39 @@ static int rbd_init_disk(struct rbd_device *rbd_dev)
 	    rbd_dev->layout.object_size * rbd_dev->layout.stripe_count;
 	int err;
 
+<<<<<<< HEAD
 	/* create gendisk info */
 	disk = alloc_disk(single_major ?
 			  (1 << RBD_SINGLE_MAJOR_PART_SHIFT) :
 			  RBD_MINORS_PER_MAJOR);
 	if (!disk)
 		return -ENOMEM;
+=======
+	memset(&rbd_dev->tag_set, 0, sizeof(rbd_dev->tag_set));
+	rbd_dev->tag_set.ops = &rbd_mq_ops;
+	rbd_dev->tag_set.queue_depth = rbd_dev->opts->queue_depth;
+	rbd_dev->tag_set.numa_node = NUMA_NO_NODE;
+	rbd_dev->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+	rbd_dev->tag_set.nr_hw_queues = num_present_cpus();
+	rbd_dev->tag_set.cmd_size = sizeof(struct rbd_img_request);
+
+	err = blk_mq_alloc_tag_set(&rbd_dev->tag_set);
+	if (err)
+		return err;
+
+	disk = blk_mq_alloc_disk(&rbd_dev->tag_set, rbd_dev);
+	if (IS_ERR(disk)) {
+		err = PTR_ERR(disk);
+		goto out_tag_set;
+	}
+	q = disk->queue;
+>>>>>>> upstream/android-13
 
 	snprintf(disk->disk_name, sizeof(disk->disk_name), RBD_DRV_NAME "%d",
 		 rbd_dev->dev_id);
 	disk->major = rbd_dev->major;
 	disk->first_minor = rbd_dev->minor;
+<<<<<<< HEAD
 	if (single_major)
 		disk->flags |= GENHD_FL_EXT_DEVT;
 	disk->fops = &rbd_bd_ops;
@@ -4003,6 +6514,17 @@ static int rbd_init_disk(struct rbd_device *rbd_dev)
 		goto out_tag_set;
 	}
 
+=======
+	if (single_major) {
+		disk->minors = (1 << RBD_SINGLE_MAJOR_PART_SHIFT);
+		disk->flags |= GENHD_FL_EXT_DEVT;
+	} else {
+		disk->minors = RBD_MINORS_PER_MAJOR;
+	}
+	disk->fops = &rbd_bd_ops;
+	disk->private_data = rbd_dev;
+
+>>>>>>> upstream/android-13
 	blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
 	/* QUEUE_FLAG_ADD_RANDOM is off by default for blk-mq */
 
@@ -4010,17 +6532,27 @@ static int rbd_init_disk(struct rbd_device *rbd_dev)
 	q->limits.max_sectors = queue_max_hw_sectors(q);
 	blk_queue_max_segments(q, USHRT_MAX);
 	blk_queue_max_segment_size(q, UINT_MAX);
+<<<<<<< HEAD
 	blk_queue_io_min(q, objset_bytes);
 	blk_queue_io_opt(q, objset_bytes);
 
 	if (rbd_dev->opts->trim) {
 		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
 		q->limits.discard_granularity = objset_bytes;
+=======
+	blk_queue_io_min(q, rbd_dev->opts->alloc_size);
+	blk_queue_io_opt(q, rbd_dev->opts->alloc_size);
+
+	if (rbd_dev->opts->trim) {
+		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
+		q->limits.discard_granularity = rbd_dev->opts->alloc_size;
+>>>>>>> upstream/android-13
 		blk_queue_max_discard_sectors(q, objset_bytes >> SECTOR_SHIFT);
 		blk_queue_max_write_zeroes_sectors(q, objset_bytes >> SECTOR_SHIFT);
 	}
 
 	if (!ceph_test_opt(rbd_dev->rbd_client->client, NOCRC))
+<<<<<<< HEAD
 		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
 
 	/*
@@ -4030,14 +6562,20 @@ static int rbd_init_disk(struct rbd_device *rbd_dev)
 	WARN_ON(!blk_get_queue(q));
 	disk->queue = q;
 	q->queuedata = rbd_dev;
+=======
+		blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, q);
+>>>>>>> upstream/android-13
 
 	rbd_dev->disk = disk;
 
 	return 0;
 out_tag_set:
 	blk_mq_free_tag_set(&rbd_dev->tag_set);
+<<<<<<< HEAD
 out_disk:
 	put_disk(disk);
+=======
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -4059,17 +6597,24 @@ static ssize_t rbd_size_show(struct device *dev,
 		(unsigned long long)rbd_dev->mapping.size);
 }
 
+<<<<<<< HEAD
 /*
  * Note this shows the features for whatever's mapped, which is not
  * necessarily the base image.
  */
+=======
+>>>>>>> upstream/android-13
 static ssize_t rbd_features_show(struct device *dev,
 			     struct device_attribute *attr, char *buf)
 {
 	struct rbd_device *rbd_dev = dev_to_rbd_dev(dev);
 
+<<<<<<< HEAD
 	return sprintf(buf, "0x%016llx\n",
 			(unsigned long long)rbd_dev->mapping.features);
+=======
+	return sprintf(buf, "0x%016llx\n", rbd_dev->header.features);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t rbd_major_show(struct device *dev,
@@ -4414,7 +6959,17 @@ static struct rbd_device *__rbd_dev_create(struct rbd_client *rbdc,
 	INIT_WORK(&rbd_dev->released_lock_work, rbd_notify_released_lock);
 	INIT_DELAYED_WORK(&rbd_dev->lock_dwork, rbd_acquire_lock);
 	INIT_WORK(&rbd_dev->unlock_work, rbd_release_lock_work);
+<<<<<<< HEAD
 	init_waitqueue_head(&rbd_dev->lock_waitq);
+=======
+	spin_lock_init(&rbd_dev->lock_lists_lock);
+	INIT_LIST_HEAD(&rbd_dev->acquiring_list);
+	INIT_LIST_HEAD(&rbd_dev->running_list);
+	init_completion(&rbd_dev->acquire_wait);
+	init_completion(&rbd_dev->releasing_wait);
+
+	spin_lock_init(&rbd_dev->object_map_lock);
+>>>>>>> upstream/android-13
 
 	rbd_dev->dev.bus = &rbd_bus_type;
 	rbd_dev->dev.type = &rbd_device_type;
@@ -4521,17 +7076,31 @@ static int rbd_dev_v2_image_size(struct rbd_device *rbd_dev)
 
 static int rbd_dev_v2_object_prefix(struct rbd_device *rbd_dev)
 {
+<<<<<<< HEAD
+=======
+	size_t size;
+>>>>>>> upstream/android-13
 	void *reply_buf;
 	int ret;
 	void *p;
 
+<<<<<<< HEAD
 	reply_buf = kzalloc(RBD_OBJ_PREFIX_LEN_MAX, GFP_KERNEL);
+=======
+	/* Response will be an encoded string, which includes a length */
+	size = sizeof(__le32) + RBD_OBJ_PREFIX_LEN_MAX;
+	reply_buf = kzalloc(size, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!reply_buf)
 		return -ENOMEM;
 
 	ret = rbd_obj_method_sync(rbd_dev, &rbd_dev->header_oid,
 				  &rbd_dev->header_oloc, "get_object_prefix",
+<<<<<<< HEAD
 				  NULL, 0, reply_buf, RBD_OBJ_PREFIX_LEN_MAX);
+=======
+				  NULL, 0, reply_buf, size);
+>>>>>>> upstream/android-13
 	dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
 	if (ret < 0)
 		goto out;
@@ -4554,9 +7123,18 @@ out:
 }
 
 static int _rbd_dev_v2_snap_features(struct rbd_device *rbd_dev, u64 snap_id,
+<<<<<<< HEAD
 		u64 *snap_features)
 {
 	__le64 snapid = cpu_to_le64(snap_id);
+=======
+				     bool read_only, u64 *snap_features)
+{
+	struct {
+		__le64 snap_id;
+		u8 read_only;
+	} features_in;
+>>>>>>> upstream/android-13
 	struct {
 		__le64 features;
 		__le64 incompat;
@@ -4564,9 +7142,18 @@ static int _rbd_dev_v2_snap_features(struct rbd_device *rbd_dev, u64 snap_id,
 	u64 unsup;
 	int ret;
 
+<<<<<<< HEAD
 	ret = rbd_obj_method_sync(rbd_dev, &rbd_dev->header_oid,
 				  &rbd_dev->header_oloc, "get_features",
 				  &snapid, sizeof(snapid),
+=======
+	features_in.snap_id = cpu_to_le64(snap_id);
+	features_in.read_only = read_only;
+
+	ret = rbd_obj_method_sync(rbd_dev, &rbd_dev->header_oid,
+				  &rbd_dev->header_oloc, "get_features",
+				  &features_in, sizeof(features_in),
+>>>>>>> upstream/android-13
 				  &features_buf, sizeof(features_buf));
 	dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
 	if (ret < 0)
@@ -4594,7 +7181,38 @@ static int _rbd_dev_v2_snap_features(struct rbd_device *rbd_dev, u64 snap_id,
 static int rbd_dev_v2_features(struct rbd_device *rbd_dev)
 {
 	return _rbd_dev_v2_snap_features(rbd_dev, CEPH_NOSNAP,
+<<<<<<< HEAD
 						&rbd_dev->header.features);
+=======
+					 rbd_is_ro(rbd_dev),
+					 &rbd_dev->header.features);
+}
+
+/*
+ * These are generic image flags, but since they are used only for
+ * object map, store them in rbd_dev->object_map_flags.
+ *
+ * For the same reason, this function is called only on object map
+ * (re)load and not on header refresh.
+ */
+static int rbd_dev_v2_get_flags(struct rbd_device *rbd_dev)
+{
+	__le64 snapid = cpu_to_le64(rbd_dev->spec->snap_id);
+	__le64 flags;
+	int ret;
+
+	ret = rbd_obj_method_sync(rbd_dev, &rbd_dev->header_oid,
+				  &rbd_dev->header_oloc, "get_flags",
+				  &snapid, sizeof(snapid),
+				  &flags, sizeof(flags));
+	if (ret < 0)
+		return ret;
+	if (ret < sizeof(flags))
+		return -EBADMSG;
+
+	rbd_dev->object_map_flags = le64_to_cpu(flags);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 struct parent_image_info {
@@ -4654,7 +7272,11 @@ static int __get_parent_info(struct rbd_device *rbd_dev,
 
 	ret = ceph_osdc_call(osdc, &rbd_dev->header_oid, &rbd_dev->header_oloc,
 			     "rbd", "parent_get", CEPH_OSD_FLAG_READ,
+<<<<<<< HEAD
 			     req_page, sizeof(u64), reply_page, &reply_len);
+=======
+			     req_page, sizeof(u64), &reply_page, &reply_len);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret == -EOPNOTSUPP ? 1 : ret;
 
@@ -4666,7 +7288,11 @@ static int __get_parent_info(struct rbd_device *rbd_dev,
 
 	ret = ceph_osdc_call(osdc, &rbd_dev->header_oid, &rbd_dev->header_oloc,
 			     "rbd", "parent_overlap_get", CEPH_OSD_FLAG_READ,
+<<<<<<< HEAD
 			     req_page, sizeof(u64), reply_page, &reply_len);
+=======
+			     req_page, sizeof(u64), &reply_page, &reply_len);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -4697,7 +7323,11 @@ static int __get_parent_info_legacy(struct rbd_device *rbd_dev,
 
 	ret = ceph_osdc_call(osdc, &rbd_dev->header_oid, &rbd_dev->header_oloc,
 			     "rbd", "get_parent", CEPH_OSD_FLAG_READ,
+<<<<<<< HEAD
 			     req_page, sizeof(u64), reply_page, &reply_len);
+=======
+			     req_page, sizeof(u64), &reply_page, &reply_len);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -5275,6 +7905,144 @@ static inline char *dup_token(const char **buf, size_t *lenp)
 	return dup;
 }
 
+<<<<<<< HEAD
+=======
+static int rbd_parse_param(struct fs_parameter *param,
+			    struct rbd_parse_opts_ctx *pctx)
+{
+	struct rbd_options *opt = pctx->opts;
+	struct fs_parse_result result;
+	struct p_log log = {.prefix = "rbd"};
+	int token, ret;
+
+	ret = ceph_parse_param(param, pctx->copts, NULL);
+	if (ret != -ENOPARAM)
+		return ret;
+
+	token = __fs_parse(&log, rbd_parameters, param, &result);
+	dout("%s fs_parse '%s' token %d\n", __func__, param->key, token);
+	if (token < 0) {
+		if (token == -ENOPARAM)
+			return inval_plog(&log, "Unknown parameter '%s'",
+					  param->key);
+		return token;
+	}
+
+	switch (token) {
+	case Opt_queue_depth:
+		if (result.uint_32 < 1)
+			goto out_of_range;
+		opt->queue_depth = result.uint_32;
+		break;
+	case Opt_alloc_size:
+		if (result.uint_32 < SECTOR_SIZE)
+			goto out_of_range;
+		if (!is_power_of_2(result.uint_32))
+			return inval_plog(&log, "alloc_size must be a power of 2");
+		opt->alloc_size = result.uint_32;
+		break;
+	case Opt_lock_timeout:
+		/* 0 is "wait forever" (i.e. infinite timeout) */
+		if (result.uint_32 > INT_MAX / 1000)
+			goto out_of_range;
+		opt->lock_timeout = msecs_to_jiffies(result.uint_32 * 1000);
+		break;
+	case Opt_pool_ns:
+		kfree(pctx->spec->pool_ns);
+		pctx->spec->pool_ns = param->string;
+		param->string = NULL;
+		break;
+	case Opt_compression_hint:
+		switch (result.uint_32) {
+		case Opt_compression_hint_none:
+			opt->alloc_hint_flags &=
+			    ~(CEPH_OSD_ALLOC_HINT_FLAG_COMPRESSIBLE |
+			      CEPH_OSD_ALLOC_HINT_FLAG_INCOMPRESSIBLE);
+			break;
+		case Opt_compression_hint_compressible:
+			opt->alloc_hint_flags |=
+			    CEPH_OSD_ALLOC_HINT_FLAG_COMPRESSIBLE;
+			opt->alloc_hint_flags &=
+			    ~CEPH_OSD_ALLOC_HINT_FLAG_INCOMPRESSIBLE;
+			break;
+		case Opt_compression_hint_incompressible:
+			opt->alloc_hint_flags |=
+			    CEPH_OSD_ALLOC_HINT_FLAG_INCOMPRESSIBLE;
+			opt->alloc_hint_flags &=
+			    ~CEPH_OSD_ALLOC_HINT_FLAG_COMPRESSIBLE;
+			break;
+		default:
+			BUG();
+		}
+		break;
+	case Opt_read_only:
+		opt->read_only = true;
+		break;
+	case Opt_read_write:
+		opt->read_only = false;
+		break;
+	case Opt_lock_on_read:
+		opt->lock_on_read = true;
+		break;
+	case Opt_exclusive:
+		opt->exclusive = true;
+		break;
+	case Opt_notrim:
+		opt->trim = false;
+		break;
+	default:
+		BUG();
+	}
+
+	return 0;
+
+out_of_range:
+	return inval_plog(&log, "%s out of range", param->key);
+}
+
+/*
+ * This duplicates most of generic_parse_monolithic(), untying it from
+ * fs_context and skipping standard superblock and security options.
+ */
+static int rbd_parse_options(char *options, struct rbd_parse_opts_ctx *pctx)
+{
+	char *key;
+	int ret = 0;
+
+	dout("%s '%s'\n", __func__, options);
+	while ((key = strsep(&options, ",")) != NULL) {
+		if (*key) {
+			struct fs_parameter param = {
+				.key	= key,
+				.type	= fs_value_is_flag,
+			};
+			char *value = strchr(key, '=');
+			size_t v_len = 0;
+
+			if (value) {
+				if (value == key)
+					continue;
+				*value++ = 0;
+				v_len = strlen(value);
+				param.string = kmemdup_nul(value, v_len,
+							   GFP_KERNEL);
+				if (!param.string)
+					return -ENOMEM;
+				param.type = fs_value_is_string;
+			}
+			param.size = v_len;
+
+			ret = rbd_parse_param(&param, pctx);
+			kfree(param.string);
+			if (ret)
+				break;
+		}
+	}
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /*
  * Parse the options provided for an "rbd add" (i.e., rbd image
  * mapping) request.  These arrive via a write to /sys/bus/rbd/add,
@@ -5326,8 +8094,12 @@ static int rbd_add_parse_args(const char *buf,
 	const char *mon_addrs;
 	char *snap_name;
 	size_t mon_addrs_size;
+<<<<<<< HEAD
 	struct parse_rbd_opts_ctx pctx = { 0 };
 	struct ceph_options *copts;
+=======
+	struct rbd_parse_opts_ctx pctx = { 0 };
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* The first four tokens are required */
@@ -5338,7 +8110,11 @@ static int rbd_add_parse_args(const char *buf,
 		return -EINVAL;
 	}
 	mon_addrs = buf;
+<<<<<<< HEAD
 	mon_addrs_size = len + 1;
+=======
+	mon_addrs_size = len;
+>>>>>>> upstream/android-13
 	buf += len;
 
 	ret = -EINVAL;
@@ -5388,6 +8164,13 @@ static int rbd_add_parse_args(const char *buf,
 	*(snap_name + len) = '\0';
 	pctx.spec->snap_name = snap_name;
 
+<<<<<<< HEAD
+=======
+	pctx.copts = ceph_alloc_options();
+	if (!pctx.copts)
+		goto out_mem;
+
+>>>>>>> upstream/android-13
 	/* Initialize all rbd options to the defaults */
 
 	pctx.opts = kzalloc(sizeof(*pctx.opts), GFP_KERNEL);
@@ -5396,11 +8179,16 @@ static int rbd_add_parse_args(const char *buf,
 
 	pctx.opts->read_only = RBD_READ_ONLY_DEFAULT;
 	pctx.opts->queue_depth = RBD_QUEUE_DEPTH_DEFAULT;
+<<<<<<< HEAD
+=======
+	pctx.opts->alloc_size = RBD_ALLOC_SIZE_DEFAULT;
+>>>>>>> upstream/android-13
 	pctx.opts->lock_timeout = RBD_LOCK_TIMEOUT_DEFAULT;
 	pctx.opts->lock_on_read = RBD_LOCK_ON_READ_DEFAULT;
 	pctx.opts->exclusive = RBD_EXCLUSIVE_DEFAULT;
 	pctx.opts->trim = RBD_TRIM_DEFAULT;
 
+<<<<<<< HEAD
 	copts = ceph_parse_options(options, mon_addrs,
 				   mon_addrs + mon_addrs_size - 1,
 				   parse_rbd_opts_token, &pctx);
@@ -5415,13 +8203,35 @@ static int rbd_add_parse_args(const char *buf,
 	*rbd_spec = pctx.spec;
 
 	return 0;
+=======
+	ret = ceph_parse_mon_ips(mon_addrs, mon_addrs_size, pctx.copts, NULL);
+	if (ret)
+		goto out_err;
+
+	ret = rbd_parse_options(options, &pctx);
+	if (ret)
+		goto out_err;
+
+	*ceph_opts = pctx.copts;
+	*opts = pctx.opts;
+	*rbd_spec = pctx.spec;
+	kfree(options);
+	return 0;
+
+>>>>>>> upstream/android-13
 out_mem:
 	ret = -ENOMEM;
 out_err:
 	kfree(pctx.opts);
+<<<<<<< HEAD
 	rbd_spec_put(pctx.spec);
 	kfree(options);
 
+=======
+	ceph_destroy_options(pctx.copts);
+	rbd_spec_put(pctx.spec);
+	kfree(options);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -5429,6 +8239,7 @@ static void rbd_dev_image_unlock(struct rbd_device *rbd_dev)
 {
 	down_write(&rbd_dev->lock_rwsem);
 	if (__rbd_is_lock_owner(rbd_dev))
+<<<<<<< HEAD
 		rbd_unlock(rbd_dev);
 	up_write(&rbd_dev->lock_rwsem);
 }
@@ -5438,10 +8249,30 @@ static int rbd_add_acquire_lock(struct rbd_device *rbd_dev)
 	int ret;
 
 	if (!(rbd_dev->header.features & RBD_FEATURE_EXCLUSIVE_LOCK)) {
+=======
+		__rbd_release_lock(rbd_dev);
+	up_write(&rbd_dev->lock_rwsem);
+}
+
+/*
+ * If the wait is interrupted, an error is returned even if the lock
+ * was successfully acquired.  rbd_dev_image_unlock() will release it
+ * if needed.
+ */
+static int rbd_add_acquire_lock(struct rbd_device *rbd_dev)
+{
+	long ret;
+
+	if (!(rbd_dev->header.features & RBD_FEATURE_EXCLUSIVE_LOCK)) {
+		if (!rbd_dev->opts->exclusive && !rbd_dev->opts->lock_on_read)
+			return 0;
+
+>>>>>>> upstream/android-13
 		rbd_warn(rbd_dev, "exclusive-lock feature is not enabled");
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	/* FIXME: "rbd map --exclusive" should be in interruptible */
 	down_read(&rbd_dev->lock_rwsem);
 	ret = rbd_wait_state_locked(rbd_dev, true);
@@ -5451,6 +8282,33 @@ static int rbd_add_acquire_lock(struct rbd_device *rbd_dev)
 		return -EROFS;
 	}
 
+=======
+	if (rbd_is_ro(rbd_dev))
+		return 0;
+
+	rbd_assert(!rbd_is_lock_owner(rbd_dev));
+	queue_delayed_work(rbd_dev->task_wq, &rbd_dev->lock_dwork, 0);
+	ret = wait_for_completion_killable_timeout(&rbd_dev->acquire_wait,
+			    ceph_timeout_jiffies(rbd_dev->opts->lock_timeout));
+	if (ret > 0) {
+		ret = rbd_dev->acquire_err;
+	} else {
+		cancel_delayed_work_sync(&rbd_dev->lock_dwork);
+		if (!ret)
+			ret = -ETIMEDOUT;
+	}
+
+	if (ret) {
+		rbd_warn(rbd_dev, "failed to acquire exclusive lock: %ld", ret);
+		return ret;
+	}
+
+	/*
+	 * The lock may have been released by now, unless automatic lock
+	 * transitions are disabled.
+	 */
+	rbd_assert(!rbd_dev->opts->exclusive || rbd_is_lock_owner(rbd_dev));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -5500,7 +8358,10 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
 	dout("rbd id object name is %s\n", oid.name);
 
 	/* Response will be an encoded string, which includes a length */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	size = sizeof (__le32) + RBD_IMAGE_ID_LEN_MAX;
 	response = kzalloc(size, GFP_NOIO);
 	if (!response) {
@@ -5512,7 +8373,11 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
 
 	ret = rbd_obj_method_sync(rbd_dev, &oid, &rbd_dev->header_oloc,
 				  "get_id", NULL, 0,
+<<<<<<< HEAD
 				  response, RBD_IMAGE_ID_LEN_MAX);
+=======
+				  response, size);
+>>>>>>> upstream/android-13
 	dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
 	if (ret == -ENOENT) {
 		image_id = kstrdup("", GFP_KERNEL);
@@ -5548,6 +8413,11 @@ static void rbd_dev_unprobe(struct rbd_device *rbd_dev)
 	struct rbd_image_header	*header;
 
 	rbd_dev_parent_put(rbd_dev);
+<<<<<<< HEAD
+=======
+	rbd_object_map_free(rbd_dev);
+	rbd_dev_mapping_clear(rbd_dev);
+>>>>>>> upstream/android-13
 
 	/* Free dynamic fields from the header, then zero it out */
 
@@ -5631,6 +8501,11 @@ static int rbd_dev_probe_parent(struct rbd_device *rbd_dev, int depth)
 	__rbd_get_client(rbd_dev->rbd_client);
 	rbd_spec_get(rbd_dev->parent_spec);
 
+<<<<<<< HEAD
+=======
+	__set_bit(RBD_DEV_FLAG_READONLY, &parent->flags);
+
+>>>>>>> upstream/android-13
 	ret = rbd_dev_image_probe(parent, depth);
 	if (ret < 0)
 		goto out_err;
@@ -5648,7 +8523,10 @@ out_err:
 static void rbd_dev_device_release(struct rbd_device *rbd_dev)
 {
 	clear_bit(RBD_DEV_FLAG_EXISTS, &rbd_dev->flags);
+<<<<<<< HEAD
 	rbd_dev_mapping_clear(rbd_dev);
+=======
+>>>>>>> upstream/android-13
 	rbd_free_disk(rbd_dev);
 	if (!single_major)
 		unregister_blkdev(rbd_dev->major, rbd_dev->name);
@@ -5682,6 +8560,7 @@ static int rbd_dev_device_setup(struct rbd_device *rbd_dev)
 	if (ret)
 		goto err_out_blkdev;
 
+<<<<<<< HEAD
 	ret = rbd_dev_mapping_set(rbd_dev);
 	if (ret)
 		goto err_out_disk;
@@ -5692,13 +8571,24 @@ static int rbd_dev_device_setup(struct rbd_device *rbd_dev)
 	ret = dev_set_name(&rbd_dev->dev, "%d", rbd_dev->dev_id);
 	if (ret)
 		goto err_out_mapping;
+=======
+	set_capacity(rbd_dev->disk, rbd_dev->mapping.size / SECTOR_SIZE);
+	set_disk_ro(rbd_dev->disk, rbd_is_ro(rbd_dev));
+
+	ret = dev_set_name(&rbd_dev->dev, "%d", rbd_dev->dev_id);
+	if (ret)
+		goto err_out_disk;
+>>>>>>> upstream/android-13
 
 	set_bit(RBD_DEV_FLAG_EXISTS, &rbd_dev->flags);
 	up_write(&rbd_dev->header_rwsem);
 	return 0;
 
+<<<<<<< HEAD
 err_out_mapping:
 	rbd_dev_mapping_clear(rbd_dev);
+=======
+>>>>>>> upstream/android-13
 err_out_disk:
 	rbd_free_disk(rbd_dev);
 err_out_blkdev:
@@ -5727,9 +8617,33 @@ static int rbd_dev_header_name(struct rbd_device *rbd_dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void rbd_dev_image_release(struct rbd_device *rbd_dev)
 {
 	if (rbd_dev->opts)
+=======
+static void rbd_print_dne(struct rbd_device *rbd_dev, bool is_snap)
+{
+	if (!is_snap) {
+		pr_info("image %s/%s%s%s does not exist\n",
+			rbd_dev->spec->pool_name,
+			rbd_dev->spec->pool_ns ?: "",
+			rbd_dev->spec->pool_ns ? "/" : "",
+			rbd_dev->spec->image_name);
+	} else {
+		pr_info("snap %s/%s%s%s@%s does not exist\n",
+			rbd_dev->spec->pool_name,
+			rbd_dev->spec->pool_ns ?: "",
+			rbd_dev->spec->pool_ns ? "/" : "",
+			rbd_dev->spec->image_name,
+			rbd_dev->spec->snap_name);
+	}
+}
+
+static void rbd_dev_image_release(struct rbd_device *rbd_dev)
+{
+	if (!rbd_is_ro(rbd_dev))
+>>>>>>> upstream/android-13
 		rbd_unregister_watch(rbd_dev);
 
 	rbd_dev_unprobe(rbd_dev);
@@ -5749,6 +8663,10 @@ static void rbd_dev_image_release(struct rbd_device *rbd_dev)
  */
 static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 {
+<<<<<<< HEAD
+=======
+	bool need_watch = !rbd_is_ro(rbd_dev);
+>>>>>>> upstream/android-13
 	int ret;
 
 	/*
@@ -5765,6 +8683,7 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 	if (ret)
 		goto err_out_format;
 
+<<<<<<< HEAD
 	if (!depth) {
 		ret = rbd_register_watch(rbd_dev);
 		if (ret) {
@@ -5774,6 +8693,13 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 					rbd_dev->spec->pool_ns ?: "",
 					rbd_dev->spec->pool_ns ? "/" : "",
 					rbd_dev->spec->image_name);
+=======
+	if (need_watch) {
+		ret = rbd_register_watch(rbd_dev);
+		if (ret) {
+			if (ret == -ENOENT)
+				rbd_print_dne(rbd_dev, false);
+>>>>>>> upstream/android-13
 			goto err_out_format;
 		}
 	}
@@ -5782,8 +8708,16 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 		down_write(&rbd_dev->header_rwsem);
 
 	ret = rbd_dev_header_info(rbd_dev);
+<<<<<<< HEAD
 	if (ret)
 		goto err_out_probe;
+=======
+	if (ret) {
+		if (ret == -ENOENT && !need_watch)
+			rbd_print_dne(rbd_dev, false);
+		goto err_out_probe;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * If this image is the one being mapped, we have pool name and
@@ -5797,6 +8731,7 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 		ret = rbd_spec_fill_names(rbd_dev);
 	if (ret) {
 		if (ret == -ENOENT)
+<<<<<<< HEAD
 			pr_info("snap %s/%s%s%s@%s does not exist\n",
 				rbd_dev->spec->pool_name,
 				rbd_dev->spec->pool_ns ?: "",
@@ -5806,10 +8741,28 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 		goto err_out_probe;
 	}
 
+=======
+			rbd_print_dne(rbd_dev, true);
+		goto err_out_probe;
+	}
+
+	ret = rbd_dev_mapping_set(rbd_dev);
+	if (ret)
+		goto err_out_probe;
+
+	if (rbd_is_snap(rbd_dev) &&
+	    (rbd_dev->header.features & RBD_FEATURE_OBJECT_MAP)) {
+		ret = rbd_object_map_load(rbd_dev);
+		if (ret)
+			goto err_out_probe;
+	}
+
+>>>>>>> upstream/android-13
 	if (rbd_dev->header.features & RBD_FEATURE_LAYERING) {
 		ret = rbd_dev_v2_parent_info(rbd_dev);
 		if (ret)
 			goto err_out_probe;
+<<<<<<< HEAD
 
 		/*
 		 * Need to warn users if this image is the one being
@@ -5818,6 +8771,8 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 		if (!depth && rbd_dev->parent_spec)
 			rbd_warn(rbd_dev,
 				 "WARNING: kernel layering is EXPERIMENTAL!");
+=======
+>>>>>>> upstream/android-13
 	}
 
 	ret = rbd_dev_probe_parent(rbd_dev, depth);
@@ -5831,7 +8786,11 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
 err_out_probe:
 	if (!depth)
 		up_write(&rbd_dev->header_rwsem);
+<<<<<<< HEAD
 	if (!depth)
+=======
+	if (need_watch)
+>>>>>>> upstream/android-13
 		rbd_unregister_watch(rbd_dev);
 	rbd_dev_unprobe(rbd_dev);
 err_out_format:
@@ -5887,6 +8846,14 @@ static ssize_t do_rbd_add(struct bus_type *bus,
 	spec = NULL;		/* rbd_dev now owns this */
 	rbd_opts = NULL;	/* rbd_dev now owns this */
 
+<<<<<<< HEAD
+=======
+	/* if we are mapping a snapshot it will be a read-only mapping */
+	if (rbd_dev->opts->read_only ||
+	    strcmp(rbd_dev->spec->snap_name, RBD_SNAP_HEAD_NAME))
+		__set_bit(RBD_DEV_FLAG_READONLY, &rbd_dev->flags);
+
+>>>>>>> upstream/android-13
 	rbd_dev->config_info = kstrdup(buf, GFP_KERNEL);
 	if (!rbd_dev->config_info) {
 		rc = -ENOMEM;
@@ -5897,19 +8864,33 @@ static ssize_t do_rbd_add(struct bus_type *bus,
 	if (rc < 0)
 		goto err_out_rbd_dev;
 
+<<<<<<< HEAD
 	/* If we are mapping a snapshot it must be marked read-only */
 	if (rbd_dev->spec->snap_id != CEPH_NOSNAP)
 		rbd_dev->opts->read_only = true;
+=======
+	if (rbd_dev->opts->alloc_size > rbd_dev->layout.object_size) {
+		rbd_warn(rbd_dev, "alloc_size adjusted to %u",
+			 rbd_dev->layout.object_size);
+		rbd_dev->opts->alloc_size = rbd_dev->layout.object_size;
+	}
+>>>>>>> upstream/android-13
 
 	rc = rbd_dev_device_setup(rbd_dev);
 	if (rc)
 		goto err_out_image_probe;
 
+<<<<<<< HEAD
 	if (rbd_dev->opts->exclusive) {
 		rc = rbd_add_acquire_lock(rbd_dev);
 		if (rc)
 			goto err_out_device_setup;
 	}
+=======
+	rc = rbd_add_acquire_lock(rbd_dev);
+	if (rc)
+		goto err_out_image_lock;
+>>>>>>> upstream/android-13
 
 	/* Everything's ready.  Announce the disk to the world. */
 
@@ -5917,9 +8898,13 @@ static ssize_t do_rbd_add(struct bus_type *bus,
 	if (rc)
 		goto err_out_image_lock;
 
+<<<<<<< HEAD
 	add_disk(rbd_dev->disk);
 	/* see rbd_init_disk() */
 	blk_put_queue(rbd_dev->disk->queue);
+=======
+	device_add_disk(&rbd_dev->dev, rbd_dev->disk, NULL);
+>>>>>>> upstream/android-13
 
 	spin_lock(&rbd_dev_list_lock);
 	list_add_tail(&rbd_dev->node, &rbd_dev_list);
@@ -5935,7 +8920,10 @@ out:
 
 err_out_image_lock:
 	rbd_dev_image_unlock(rbd_dev);
+<<<<<<< HEAD
 err_out_device_setup:
+=======
+>>>>>>> upstream/android-13
 	rbd_dev_device_release(rbd_dev);
 err_out_image_probe:
 	rbd_dev_image_release(rbd_dev);
@@ -5949,9 +8937,13 @@ err_out_args:
 	goto out;
 }
 
+<<<<<<< HEAD
 static ssize_t rbd_add(struct bus_type *bus,
 		       const char *buf,
 		       size_t count)
+=======
+static ssize_t add_store(struct bus_type *bus, const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	if (single_major)
 		return -EINVAL;
@@ -5959,9 +8951,14 @@ static ssize_t rbd_add(struct bus_type *bus,
 	return do_rbd_add(bus, buf, count);
 }
 
+<<<<<<< HEAD
 static ssize_t rbd_add_single_major(struct bus_type *bus,
 				    const char *buf,
 				    size_t count)
+=======
+static ssize_t add_single_major_store(struct bus_type *bus, const char *buf,
+				      size_t count)
+>>>>>>> upstream/android-13
 {
 	return do_rbd_add(bus, buf, count);
 }
@@ -6051,7 +9048,11 @@ static ssize_t do_rbd_remove(struct bus_type *bus,
 		 * IO to complete/fail.
 		 */
 		blk_mq_freeze_queue(rbd_dev->disk->queue);
+<<<<<<< HEAD
 		blk_set_queue_dying(rbd_dev->disk->queue);
+=======
+		blk_mark_disk_dead(rbd_dev->disk);
+>>>>>>> upstream/android-13
 	}
 
 	del_gendisk(rbd_dev->disk);
@@ -6067,9 +9068,13 @@ static ssize_t do_rbd_remove(struct bus_type *bus,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t rbd_remove(struct bus_type *bus,
 			  const char *buf,
 			  size_t count)
+=======
+static ssize_t remove_store(struct bus_type *bus, const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	if (single_major)
 		return -EINVAL;
@@ -6077,9 +9082,14 @@ static ssize_t rbd_remove(struct bus_type *bus,
 	return do_rbd_remove(bus, buf, count);
 }
 
+<<<<<<< HEAD
 static ssize_t rbd_remove_single_major(struct bus_type *bus,
 				       const char *buf,
 				       size_t count)
+=======
+static ssize_t remove_single_major_store(struct bus_type *bus, const char *buf,
+					 size_t count)
+>>>>>>> upstream/android-13
 {
 	return do_rbd_remove(bus, buf, count);
 }
@@ -6088,7 +9098,11 @@ static ssize_t rbd_remove_single_major(struct bus_type *bus,
  * create control files in sysfs
  * /sys/bus/rbd/...
  */
+<<<<<<< HEAD
 static int rbd_sysfs_init(void)
+=======
+static int __init rbd_sysfs_init(void)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -6103,13 +9117,21 @@ static int rbd_sysfs_init(void)
 	return ret;
 }
 
+<<<<<<< HEAD
 static void rbd_sysfs_cleanup(void)
+=======
+static void __exit rbd_sysfs_cleanup(void)
+>>>>>>> upstream/android-13
 {
 	bus_unregister(&rbd_bus_type);
 	device_unregister(&rbd_root_dev);
 }
 
+<<<<<<< HEAD
 static int rbd_slab_init(void)
+=======
+static int __init rbd_slab_init(void)
+>>>>>>> upstream/android-13
 {
 	rbd_assert(!rbd_img_request_cache);
 	rbd_img_request_cache = KMEM_CACHE(rbd_img_request, 0);

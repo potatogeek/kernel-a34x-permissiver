@@ -1,4 +1,8 @@
 #include <linux/dcache.h>
+<<<<<<< HEAD
+=======
+#include "internal.h"
+>>>>>>> upstream/android-13
 
 unsigned name_to_int(const struct qstr *qstr)
 {

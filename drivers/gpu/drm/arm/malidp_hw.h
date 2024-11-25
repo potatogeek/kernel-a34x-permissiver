@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *
  * (C) COPYRIGHT 2013-2016 ARM Limited. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software and is provided to you under the terms of the
  * GNU General Public License version 2 as published by the Free Software
  * Foundation, and any use by you of this program is subject to the terms
  * of such GNU licence.
  *
+=======
+>>>>>>> upstream/android-13
  * ARM Mali DP hardware manipulation routines.
  */
 
@@ -36,6 +43,15 @@ enum {
 	SE_MEMWRITE = BIT(5),
 };
 
+<<<<<<< HEAD
+=======
+enum rotation_features {
+	ROTATE_NONE,		/* does not support rotation at all */
+	ROTATE_ANY,		/* supports rotation on any buffers */
+	ROTATE_COMPRESSED,	/* supports rotation only on compressed buffers */
+};
+
+>>>>>>> upstream/android-13
 struct malidp_format_id {
 	u32 format;		/* DRM fourcc */
 	u8 layer;		/* bitmask of layers supporting it */
@@ -62,6 +78,13 @@ struct malidp_layer {
 	u16 ptr;		/* address offset for the pointer register */
 	u16 stride_offset;	/* offset to the first stride register. */
 	s16 yuv2rgb_offset;	/* offset to the YUV->RGB matrix entries */
+<<<<<<< HEAD
+=======
+	u16 mmu_ctrl_offset;    /* offset to the MMU control register */
+	enum rotation_features rot;	/* type of rotation supported */
+	/* address offset for the AFBC decoder registers */
+	u16 afbc_decoder_offset;
+>>>>>>> upstream/android-13
 };
 
 enum malidp_scaling_coeff_set {
@@ -85,7 +108,14 @@ struct malidp_se_config {
 };
 
 /* regmap features */
+<<<<<<< HEAD
 #define MALIDP_REGMAP_HAS_CLEARIRQ	(1 << 0)
+=======
+#define MALIDP_REGMAP_HAS_CLEARIRQ				BIT(0)
+#define MALIDP_DEVICE_AFBC_SUPPORT_SPLIT			BIT(1)
+#define MALIDP_DEVICE_AFBC_YUV_420_10_SUPPORT_SPLIT		BIT(2)
+#define MALIDP_DEVICE_AFBC_YUYV_USE_422_P2			BIT(3)
+>>>>>>> upstream/android-13
 
 struct malidp_hw_regmap {
 	/* address offset of the DE register bank */
@@ -171,7 +201,12 @@ struct malidp_hw {
 	 * Calculate the required rotation memory given the active area
 	 * and the buffer format.
 	 */
+<<<<<<< HEAD
 	int (*rotmem_required)(struct malidp_hw_device *hwdev, u16 w, u16 h, u32 fmt);
+=======
+	int (*rotmem_required)(struct malidp_hw_device *hwdev, u16 w, u16 h,
+			       u32 fmt, bool has_modifier);
+>>>>>>> upstream/android-13
 
 	int (*se_set_scaling_coeffs)(struct malidp_hw_device *hwdev,
 				     struct malidp_se_config *se_config,
@@ -241,6 +276,12 @@ struct malidp_hw_device {
 
 	/* size of memory used for rotating layers, up to two banks available */
 	u32 rotation_memory[2];
+<<<<<<< HEAD
+=======
+
+	/* priority level of RQOS register used for driven the ARQOS signal */
+	u32 arqos_value;
+>>>>>>> upstream/android-13
 };
 
 static inline u32 malidp_hw_read(struct malidp_hw_device *hwdev, u32 reg)
@@ -311,7 +352,13 @@ int malidp_se_irq_init(struct drm_device *drm, int irq);
 void malidp_se_irq_fini(struct malidp_hw_device *hwdev);
 
 u8 malidp_hw_get_format_id(const struct malidp_hw_regmap *map,
+<<<<<<< HEAD
 			   u8 layer_id, u32 format);
+=======
+			   u8 layer_id, u32 format, bool has_modifier);
+
+int malidp_format_get_bpp(u32 fmt);
+>>>>>>> upstream/android-13
 
 static inline u8 malidp_hw_get_pitch_align(struct malidp_hw_device *hwdev, bool rotated)
 {
@@ -380,4 +427,21 @@ static inline void malidp_se_set_enh_coeffs(struct malidp_hw_device *hwdev)
 
 #define MALIDP_GAMMA_LUT_SIZE		4096
 
+<<<<<<< HEAD
+=======
+#define AFBC_SIZE_MASK		AFBC_FORMAT_MOD_BLOCK_SIZE_MASK
+#define AFBC_SIZE_16X16		AFBC_FORMAT_MOD_BLOCK_SIZE_16x16
+#define AFBC_YTR		AFBC_FORMAT_MOD_YTR
+#define AFBC_SPARSE		AFBC_FORMAT_MOD_SPARSE
+#define AFBC_CBR		AFBC_FORMAT_MOD_CBR
+#define AFBC_SPLIT		AFBC_FORMAT_MOD_SPLIT
+#define AFBC_TILED		AFBC_FORMAT_MOD_TILED
+#define AFBC_SC			AFBC_FORMAT_MOD_SC
+
+#define AFBC_MOD_VALID_BITS	(AFBC_SIZE_MASK | AFBC_YTR | AFBC_SPLIT | \
+				 AFBC_SPARSE | AFBC_CBR | AFBC_TILED | AFBC_SC)
+
+extern const u64 malidp_format_modifiers[];
+
+>>>>>>> upstream/android-13
 #endif  /* __MALIDP_HW_H__ */

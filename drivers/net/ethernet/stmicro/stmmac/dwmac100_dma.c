@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*******************************************************************************
   This is the driver for the MAC 10/100 on-chip Ethernet controller
   currently tested on all the ST boards based on STb7109 and stx7200 SoCs.
@@ -9,6 +13,7 @@
 
   Copyright (C) 2007-2009  STMicroelectronics Ltd
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify it
   under the terms and conditions of the GNU General Public License,
   version 2, as published by the Free Software Foundation.
@@ -20,6 +25,8 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -41,18 +48,32 @@ static void dwmac100_dma_init(void __iomem *ioaddr,
 
 static void dwmac100_dma_init_rx(void __iomem *ioaddr,
 				 struct stmmac_dma_cfg *dma_cfg,
+<<<<<<< HEAD
 				 u32 dma_rx_phy, u32 chan)
 {
 	/* RX descriptor base addr lists must be written into DMA CSR3 */
 	writel(dma_rx_phy, ioaddr + DMA_RCV_BASE_ADDR);
+=======
+				 dma_addr_t dma_rx_phy, u32 chan)
+{
+	/* RX descriptor base addr lists must be written into DMA CSR3 */
+	writel(lower_32_bits(dma_rx_phy), ioaddr + DMA_RCV_BASE_ADDR);
+>>>>>>> upstream/android-13
 }
 
 static void dwmac100_dma_init_tx(void __iomem *ioaddr,
 				 struct stmmac_dma_cfg *dma_cfg,
+<<<<<<< HEAD
 				 u32 dma_tx_phy, u32 chan)
 {
 	/* TX descriptor base addr lists must be written into DMA CSR4 */
 	writel(dma_tx_phy, ioaddr + DMA_TX_BASE_ADDR);
+=======
+				 dma_addr_t dma_tx_phy, u32 chan)
+{
+	/* TX descriptor base addr lists must be written into DMA CSR4 */
+	writel(lower_32_bits(dma_tx_phy), ioaddr + DMA_TX_BASE_ADDR);
+>>>>>>> upstream/android-13
 }
 
 /* Store and Forward capability is not used at all.

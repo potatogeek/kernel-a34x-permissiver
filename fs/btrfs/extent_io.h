@@ -5,6 +5,7 @@
 
 #include <linux/rbtree.h>
 #include <linux/refcount.h>
+<<<<<<< HEAD
 #include "ulist.h"
 
 /* bits for the extent state */
@@ -30,6 +31,12 @@
 				 EXTENT_CLEAR_DATA_RESV)
 #define EXTENT_CTLBITS		(EXTENT_DO_ACCOUNTING | EXTENT_FIRST_DELALLOC)
 
+=======
+#include <linux/fiemap.h>
+#include <linux/btrfs_tree.h>
+#include "ulist.h"
+
+>>>>>>> upstream/android-13
 /*
  * flags for bio submission. The high bits indicate the compression
  * type for this bio
@@ -37,6 +44,7 @@
 #define EXTENT_BIO_COMPRESSED 1
 #define EXTENT_BIO_FLAG_SHIFT 16
 
+<<<<<<< HEAD
 /* these are bit numbers for test/set bit */
 #define EXTENT_BUFFER_UPTODATE 0
 #define EXTENT_BUFFER_DIRTY 2
@@ -58,6 +66,34 @@
 #define PAGE_SET_PRIVATE2	(1 << 4)
 #define PAGE_SET_ERROR		(1 << 5)
 #define PAGE_LOCK		(1 << 6)
+=======
+enum {
+	EXTENT_BUFFER_UPTODATE,
+	EXTENT_BUFFER_DIRTY,
+	EXTENT_BUFFER_CORRUPT,
+	/* this got triggered by readahead */
+	EXTENT_BUFFER_READAHEAD,
+	EXTENT_BUFFER_TREE_REF,
+	EXTENT_BUFFER_STALE,
+	EXTENT_BUFFER_WRITEBACK,
+	/* read IO error */
+	EXTENT_BUFFER_READ_ERR,
+	EXTENT_BUFFER_UNMAPPED,
+	EXTENT_BUFFER_IN_TREE,
+	/* write IO error */
+	EXTENT_BUFFER_WRITE_ERR,
+	EXTENT_BUFFER_NO_CHECK,
+};
+
+/* these are flags for __process_pages_contig */
+#define PAGE_UNLOCK		(1 << 0)
+/* Page starts writeback, clear dirty bit and set writeback bit */
+#define PAGE_START_WRITEBACK	(1 << 1)
+#define PAGE_END_WRITEBACK	(1 << 2)
+#define PAGE_SET_ORDERED	(1 << 3)
+#define PAGE_SET_ERROR		(1 << 4)
+#define PAGE_LOCK		(1 << 5)
+>>>>>>> upstream/android-13
 
 /*
  * page->private values.  Every page that is controlled by the extent
@@ -79,6 +115,7 @@
 #define BITMAP_LAST_BYTE_MASK(nbits) \
 	(BYTE_MASK >> (-(nbits) & (BITS_PER_BYTE - 1)))
 
+<<<<<<< HEAD
 struct extent_state;
 struct btrfs_root;
 struct btrfs_inode;
@@ -151,6 +188,23 @@ struct extent_state {
 
 #define INLINE_EXTENT_BUFFER_PAGES 16
 #define MAX_INLINE_EXTENT_BUFFER_SIZE (INLINE_EXTENT_BUFFER_PAGES * PAGE_SIZE)
+=======
+struct btrfs_root;
+struct btrfs_inode;
+struct btrfs_io_bio;
+struct btrfs_fs_info;
+struct io_failure_record;
+struct extent_io_tree;
+
+typedef blk_status_t (submit_bio_hook_t)(struct inode *inode, struct bio *bio,
+					 int mirror_num,
+					 unsigned long bio_flags);
+
+typedef blk_status_t (extent_submit_bio_start_t)(struct inode *inode,
+		struct bio *bio, u64 dio_file_offset);
+
+#define INLINE_EXTENT_BUFFER_PAGES     (BTRFS_MAX_METADATA_BLOCKSIZE / PAGE_SIZE)
+>>>>>>> upstream/android-13
 struct extent_buffer {
 	u64 start;
 	unsigned long len;
@@ -162,6 +216,7 @@ struct extent_buffer {
 	int read_mirror;
 	struct rcu_head rcu_head;
 	pid_t lock_owner;
+<<<<<<< HEAD
 
 	/* count of read lock holders on the extent buffer */
 	atomic_t write_locks;
@@ -187,17 +242,44 @@ struct extent_buffer {
 	 */
 	wait_queue_head_t read_lock_wq;
 	struct page *pages[INLINE_EXTENT_BUFFER_PAGES];
+=======
+	/* >= 0 if eb belongs to a log tree, -1 otherwise */
+	s8 log_index;
+
+	struct rw_semaphore lock;
+
+	struct page *pages[INLINE_EXTENT_BUFFER_PAGES];
+	struct list_head release_list;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BTRFS_DEBUG
 	struct list_head leak_list;
 #endif
 };
 
 /*
+<<<<<<< HEAD
+=======
+ * Structure to record info about the bio being assembled, and other info like
+ * how many bytes are there before stripe/ordered extent boundary.
+ */
+struct btrfs_bio_ctrl {
+	struct bio *bio;
+	unsigned long bio_flags;
+	u32 len_to_stripe_boundary;
+	u32 len_to_oe_boundary;
+};
+
+/*
+>>>>>>> upstream/android-13
  * Structure to record how many bytes and which ranges are set/cleared
  */
 struct extent_changeset {
 	/* How many bytes are set/cleared in this operation */
+<<<<<<< HEAD
 	unsigned int bytes_changed;
+=======
+	u64 bytes_changed;
+>>>>>>> upstream/android-13
 
 	/* Changed ranges */
 	struct ulist range_changed;
@@ -251,6 +333,7 @@ static inline int extent_compress_type(unsigned long bio_flags)
 struct extent_map_tree;
 
 typedef struct extent_map *(get_extent_t)(struct btrfs_inode *inode,
+<<<<<<< HEAD
 					  struct page *page,
 					  size_t pg_offset,
 					  u64 start, u64 len,
@@ -395,6 +478,19 @@ int find_first_extent_bit(struct extent_io_tree *tree, u64 start,
 			  struct extent_state **cached_state);
 int extent_invalidatepage(struct extent_io_tree *tree,
 			  struct page *page, unsigned long offset);
+=======
+					  struct page *page, size_t pg_offset,
+					  u64 start, u64 len);
+
+int try_release_extent_mapping(struct page *page, gfp_t mask);
+int try_release_extent_buffer(struct page *page);
+
+int __must_check submit_one_bio(struct bio *bio, int mirror_num,
+				unsigned long bio_flags);
+int btrfs_do_readpage(struct page *page, struct extent_map **em_cached,
+		      struct btrfs_bio_ctrl *bio_ctrl,
+		      unsigned int read_flags, u64 *prev_em_start);
+>>>>>>> upstream/android-13
 int extent_write_full_page(struct page *page, struct writeback_control *wbc);
 int extent_write_locked_range(struct inode *inode, u64 start, u64 end,
 			      int mode);
@@ -402,6 +498,7 @@ int extent_writepages(struct address_space *mapping,
 		      struct writeback_control *wbc);
 int btree_write_cache_pages(struct address_space *mapping,
 			    struct writeback_control *wbc);
+<<<<<<< HEAD
 int extent_readpages(struct address_space *mapping, struct list_head *pages,
 		     unsigned nr_pages);
 int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
@@ -410,11 +507,25 @@ void set_page_extent_mapped(struct page *page);
 
 struct extent_buffer *alloc_extent_buffer(struct btrfs_fs_info *fs_info,
 					  u64 start);
+=======
+void extent_readahead(struct readahead_control *rac);
+int extent_fiemap(struct btrfs_inode *inode, struct fiemap_extent_info *fieinfo,
+		  u64 start, u64 len);
+int set_page_extent_mapped(struct page *page);
+void clear_page_extent_mapped(struct page *page);
+
+struct extent_buffer *alloc_extent_buffer(struct btrfs_fs_info *fs_info,
+					  u64 start, u64 owner_root, int level);
+>>>>>>> upstream/android-13
 struct extent_buffer *__alloc_dummy_extent_buffer(struct btrfs_fs_info *fs_info,
 						  u64 start, unsigned long len);
 struct extent_buffer *alloc_dummy_extent_buffer(struct btrfs_fs_info *fs_info,
 						u64 start);
+<<<<<<< HEAD
 struct extent_buffer *btrfs_clone_extent_buffer(struct extent_buffer *src);
+=======
+struct extent_buffer *btrfs_clone_extent_buffer(const struct extent_buffer *src);
+>>>>>>> upstream/android-13
 struct extent_buffer *find_extent_buffer(struct btrfs_fs_info *fs_info,
 					 u64 start);
 void free_extent_buffer(struct extent_buffer *eb);
@@ -422,6 +533,7 @@ void free_extent_buffer_stale(struct extent_buffer *eb);
 #define WAIT_NONE	0
 #define WAIT_COMPLETE	1
 #define WAIT_PAGE_LOCK	2
+<<<<<<< HEAD
 int read_extent_buffer_pages(struct extent_io_tree *tree,
 			     struct extent_buffer *eb, int wait,
 			     int mirror_num);
@@ -439,6 +551,28 @@ static inline void extent_buffer_get(struct extent_buffer *eb)
 }
 
 static inline int extent_buffer_uptodate(struct extent_buffer *eb)
+=======
+int read_extent_buffer_pages(struct extent_buffer *eb, int wait,
+			     int mirror_num);
+void wait_on_extent_buffer_writeback(struct extent_buffer *eb);
+void btrfs_readahead_tree_block(struct btrfs_fs_info *fs_info,
+				u64 bytenr, u64 owner_root, u64 gen, int level);
+void btrfs_readahead_node_child(struct extent_buffer *node, int slot);
+
+static inline int num_extent_pages(const struct extent_buffer *eb)
+{
+	/*
+	 * For sectorsize == PAGE_SIZE case, since nodesize is always aligned to
+	 * sectorsize, it's just eb->len >> PAGE_SHIFT.
+	 *
+	 * For sectorsize < PAGE_SIZE case, we could have nodesize < PAGE_SIZE,
+	 * thus have to ensure we get at least one page.
+	 */
+	return (eb->len >> PAGE_SHIFT) ?: 1;
+}
+
+static inline int extent_buffer_uptodate(const struct extent_buffer *eb)
+>>>>>>> upstream/android-13
 {
 	return test_bit(EXTENT_BUFFER_UPTODATE, &eb->bflags);
 }
@@ -451,6 +585,7 @@ void read_extent_buffer(const struct extent_buffer *eb, void *dst,
 int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
 				       void __user *dst, unsigned long start,
 				       unsigned long len);
+<<<<<<< HEAD
 void write_extent_buffer_fsid(struct extent_buffer *eb, const void *src);
 void write_extent_buffer_chunk_tree_uuid(struct extent_buffer *eb,
 		const void *src);
@@ -495,10 +630,53 @@ struct bio *btrfs_bio_clone_partial(struct bio *orig, int offset, int size);
 
 struct btrfs_fs_info;
 struct btrfs_inode;
+=======
+void write_extent_buffer_fsid(const struct extent_buffer *eb, const void *src);
+void write_extent_buffer_chunk_tree_uuid(const struct extent_buffer *eb,
+		const void *src);
+void write_extent_buffer(const struct extent_buffer *eb, const void *src,
+			 unsigned long start, unsigned long len);
+void copy_extent_buffer_full(const struct extent_buffer *dst,
+			     const struct extent_buffer *src);
+void copy_extent_buffer(const struct extent_buffer *dst,
+			const struct extent_buffer *src,
+			unsigned long dst_offset, unsigned long src_offset,
+			unsigned long len);
+void memcpy_extent_buffer(const struct extent_buffer *dst,
+			  unsigned long dst_offset, unsigned long src_offset,
+			  unsigned long len);
+void memmove_extent_buffer(const struct extent_buffer *dst,
+			   unsigned long dst_offset, unsigned long src_offset,
+			   unsigned long len);
+void memzero_extent_buffer(const struct extent_buffer *eb, unsigned long start,
+			   unsigned long len);
+int extent_buffer_test_bit(const struct extent_buffer *eb, unsigned long start,
+			   unsigned long pos);
+void extent_buffer_bitmap_set(const struct extent_buffer *eb, unsigned long start,
+			      unsigned long pos, unsigned long len);
+void extent_buffer_bitmap_clear(const struct extent_buffer *eb,
+				unsigned long start, unsigned long pos,
+				unsigned long len);
+void clear_extent_buffer_dirty(const struct extent_buffer *eb);
+bool set_extent_buffer_dirty(struct extent_buffer *eb);
+void set_extent_buffer_uptodate(struct extent_buffer *eb);
+void clear_extent_buffer_uptodate(struct extent_buffer *eb);
+int extent_buffer_under_io(const struct extent_buffer *eb);
+void extent_range_clear_dirty_for_io(struct inode *inode, u64 start, u64 end);
+void extent_range_redirty_for_io(struct inode *inode, u64 start, u64 end);
+void extent_clear_unlock_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
+				  struct page *locked_page,
+				  u32 bits_to_clear, unsigned long page_ops);
+struct bio *btrfs_bio_alloc(u64 first_byte);
+struct bio *btrfs_io_bio_alloc(unsigned int nr_iovecs);
+struct bio *btrfs_bio_clone(struct bio *bio);
+struct bio *btrfs_bio_clone_partial(struct bio *orig, u64 offset, u64 size);
+>>>>>>> upstream/android-13
 
 int repair_io_failure(struct btrfs_fs_info *fs_info, u64 ino, u64 start,
 		      u64 length, u64 logical, struct page *page,
 		      unsigned int pg_offset, int mirror_num);
+<<<<<<< HEAD
 int clean_io_failure(struct btrfs_fs_info *fs_info,
 		     struct extent_io_tree *failure_tree,
 		     struct extent_io_tree *io_tree, u64 start,
@@ -506,12 +684,20 @@ int clean_io_failure(struct btrfs_fs_info *fs_info,
 void end_extent_writepage(struct page *page, int err, u64 start, u64 end);
 int repair_eb_io_failure(struct btrfs_fs_info *fs_info,
 			 struct extent_buffer *eb, int mirror_num);
+=======
+void end_extent_writepage(struct page *page, int err, u64 start, u64 end);
+int btrfs_repair_eb_io_failure(const struct extent_buffer *eb, int mirror_num);
+>>>>>>> upstream/android-13
 
 /*
  * When IO fails, either with EIO or csum verification fails, we
  * try other mirrors that might have a good copy of the data.  This
  * io_failure_record is used to record state as we go through all the
+<<<<<<< HEAD
  * mirrors.  If another mirror has good data, the page is set up to date
+=======
+ * mirrors.  If another mirror has good data, the sector is set up to date
+>>>>>>> upstream/android-13
  * and things continue.  If a good mirror can't be found, the original
  * bio end_io callback is called to indicate things have failed.
  */
@@ -523,6 +709,7 @@ struct io_failure_record {
 	unsigned long bio_flags;
 	int this_mirror;
 	int failed_mirror;
+<<<<<<< HEAD
 	int in_validation;
 };
 
@@ -545,8 +732,31 @@ noinline u64 find_lock_delalloc_range(struct inode *inode,
 				      struct extent_io_tree *tree,
 				      struct page *locked_page, u64 *start,
 				      u64 *end, u64 max_bytes);
+=======
+};
+
+int btrfs_repair_one_sector(struct inode *inode,
+			    struct bio *failed_bio, u32 bio_offset,
+			    struct page *page, unsigned int pgoff,
+			    u64 start, int failed_mirror,
+			    submit_bio_hook_t *submit_bio_hook);
+
+#ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
+bool find_lock_delalloc_range(struct inode *inode,
+			     struct page *locked_page, u64 *start,
+			     u64 *end);
+>>>>>>> upstream/android-13
 #endif
 struct extent_buffer *alloc_test_extent_buffer(struct btrfs_fs_info *fs_info,
 					       u64 start);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_BTRFS_DEBUG
+void btrfs_extent_buffer_leak_debug_check(struct btrfs_fs_info *fs_info);
+#else
+#define btrfs_extent_buffer_leak_debug_check(fs_info)	do {} while (0)
+#endif
+
+>>>>>>> upstream/android-13
 #endif

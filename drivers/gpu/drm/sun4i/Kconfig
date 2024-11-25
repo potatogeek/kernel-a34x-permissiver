@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 config DRM_SUN4I
 	tristate "DRM Support for Allwinner A10 Display Engine"
 	depends on DRM && (ARM || ARM64) && COMMON_CLK
@@ -16,18 +20,32 @@ config DRM_SUN4I
 if DRM_SUN4I
 
 config DRM_SUN4I_HDMI
+<<<<<<< HEAD
        tristate "Allwinner A10 HDMI Controller Support"
        default DRM_SUN4I
        help
+=======
+	tristate "Allwinner A10 HDMI Controller Support"
+	default DRM_SUN4I
+	help
+>>>>>>> upstream/android-13
 	  Choose this option if you have an Allwinner SoC with an HDMI
 	  controller.
 
 config DRM_SUN4I_HDMI_CEC
+<<<<<<< HEAD
        bool "Allwinner A10 HDMI CEC Support"
        depends on DRM_SUN4I_HDMI
        select CEC_CORE
        select CEC_PIN
        help
+=======
+	bool "Allwinner A10 HDMI CEC Support"
+	depends on DRM_SUN4I_HDMI
+	select CEC_CORE
+	select CEC_PIN
+	help
+>>>>>>> upstream/android-13
 	  Choose this option if you have an Allwinner SoC with an HDMI
 	  controller and want to use CEC.
 
@@ -45,10 +63,19 @@ config DRM_SUN6I_DSI
 	default MACH_SUN8I
 	select CRC_CCITT
 	select DRM_MIPI_DSI
+<<<<<<< HEAD
 	help
 	  Choose this option if you want have an Allwinner SoC with
 	  MIPI-DSI support. If M is selected the module will be called
 	  sun6i-dsi
+=======
+	select RESET_CONTROLLER
+	select PHY_SUN6I_MIPI_DPHY
+	help
+	  Choose this option if you want have an Allwinner SoC with
+	  MIPI-DSI support. If M is selected the module will be called
+	  sun6i_mipi_dsi.
+>>>>>>> upstream/android-13
 
 config DRM_SUN8I_DW_HDMI
 	tristate "Support for Allwinner version of DesignWare HDMI"

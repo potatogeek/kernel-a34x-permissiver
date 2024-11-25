@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * sha512-glue.c - accelerated SHA-384/512 for ARM
  *
  * Copyright (C) 2015 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -10,6 +15,12 @@
 
 #include <crypto/internal/hash.h>
 #include <crypto/sha.h>
+=======
+ */
+
+#include <crypto/internal/hash.h>
+#include <crypto/sha2.h>
+>>>>>>> upstream/android-13
 #include <crypto/sha512_base.h>
 #include <linux/crypto.h>
 #include <linux/module.h>
@@ -37,7 +48,11 @@ int sha512_arm_update(struct shash_desc *desc, const u8 *data,
 		(sha512_block_fn *)sha512_block_data_order);
 }
 
+<<<<<<< HEAD
 int sha512_arm_final(struct shash_desc *desc, u8 *out)
+=======
+static int sha512_arm_final(struct shash_desc *desc, u8 *out)
+>>>>>>> upstream/android-13
 {
 	sha512_base_do_finalize(desc,
 		(sha512_block_fn *)sha512_block_data_order);

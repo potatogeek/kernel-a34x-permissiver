@@ -8,10 +8,17 @@
 
 #define pr_fmt(fmt)	"OF: fdt: " fmt
 
+<<<<<<< HEAD
 #include <linux/crc32.h>
 #include <linux/kernel.h>
 #include <linux/initrd.h>
 #include <linux/bootmem.h>
+=======
+#include <linux/crash_dump.h>
+#include <linux/crc32.h>
+#include <linux/kernel.h>
+#include <linux/initrd.h>
+>>>>>>> upstream/android-13
 #include <linux/memblock.h>
 #include <linux/mutex.h>
 #include <linux/of.h>
@@ -40,7 +47,11 @@
  * memory entries in the /memory node. This function may be called
  * any time after initial_boot_param is set.
  */
+<<<<<<< HEAD
 void of_fdt_limit_memory(int limit)
+=======
+void __init of_fdt_limit_memory(int limit)
+>>>>>>> upstream/android-13
 {
 	int memory;
 	int len;
@@ -80,6 +91,7 @@ void of_fdt_limit_memory(int limit)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * of_fdt_get_ddrhbb - Return the highest bank bit of ddr on the current device
  *
@@ -223,6 +235,8 @@ bool of_fdt_is_big_endian(const void *blob, unsigned long node)
 	return false;
 }
 
+=======
+>>>>>>> upstream/android-13
 static bool of_fdt_device_is_available(const void *blob, unsigned long node)
 {
 	const char *status = fdt_getprop(blob, node, "status", NULL);
@@ -236,6 +250,7 @@ static bool of_fdt_device_is_available(const void *blob, unsigned long node)
 	return false;
 }
 
+<<<<<<< HEAD
 /**
  * of_fdt_match - Return true if node matches a list of compatible values
  */
@@ -257,6 +272,8 @@ int of_fdt_match(const void *blob, unsigned long node,
 	return score;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void *unflatten_dt_alloc(void **mem, unsigned long size,
 				       unsigned long align)
 {
@@ -358,19 +375,28 @@ static void populate_properties(const void *blob,
 			pp->length = len;
 			pp->value  = pp + 1;
 			*pprev     = pp;
+<<<<<<< HEAD
 			pprev      = &pp->next;
+=======
+>>>>>>> upstream/android-13
 			memcpy(pp->value, ps, len - 1);
 			((char *)pp->value)[len - 1] = 0;
 			pr_debug("fixed up name for %s -> %s\n",
 				 nodename, (char *)pp->value);
 		}
 	}
+<<<<<<< HEAD
 
 	if (!dryrun)
 		*pprev = NULL;
 }
 
 static bool populate_node(const void *blob,
+=======
+}
+
+static int populate_node(const void *blob,
+>>>>>>> upstream/android-13
 			  int offset,
 			  void **mem,
 			  struct device_node *dad,
@@ -379,6 +405,7 @@ static bool populate_node(const void *blob,
 {
 	struct device_node *np;
 	const char *pathp;
+<<<<<<< HEAD
 	unsigned int l, allocl;
 
 	pathp = fdt_get_name(blob, offset, &l);
@@ -390,13 +417,30 @@ static bool populate_node(const void *blob,
 	allocl = ++l;
 
 	np = unflatten_dt_alloc(mem, sizeof(struct device_node) + allocl,
+=======
+	int len;
+
+	pathp = fdt_get_name(blob, offset, &len);
+	if (!pathp) {
+		*pnp = NULL;
+		return len;
+	}
+
+	len++;
+
+	np = unflatten_dt_alloc(mem, sizeof(struct device_node) + len,
+>>>>>>> upstream/android-13
 				__alignof__(struct device_node));
 	if (!dryrun) {
 		char *fn;
 		of_node_init(np);
 		np->full_name = fn = ((char *)np) + sizeof(*np);
 
+<<<<<<< HEAD
 		memcpy(fn, pathp, l);
+=======
+		memcpy(fn, pathp, len);
+>>>>>>> upstream/android-13
 
 		if (dad != NULL) {
 			np->parent = dad;
@@ -408,12 +452,17 @@ static bool populate_node(const void *blob,
 	populate_properties(blob, offset, mem, np, pathp, dryrun);
 	if (!dryrun) {
 		np->name = of_get_property(np, "name", NULL);
+<<<<<<< HEAD
 		np->type = of_get_property(np, "device_type", NULL);
 
 		if (!np->name)
 			np->name = "<NULL>";
 		if (!np->type)
 			np->type = "<NULL>";
+=======
+		if (!np->name)
+			np->name = "<NULL>";
+>>>>>>> upstream/android-13
 	}
 
 	*pnp = np;
@@ -451,7 +500,11 @@ static void reverse_nodes(struct device_node *parent)
  * @dad: Parent struct device_node
  * @nodepp: The device_node tree created by the call
  *
+<<<<<<< HEAD
  * It returns the size of unflattened device tree or error code
+=======
+ * Return: The size of unflattened device tree or error code
+>>>>>>> upstream/android-13
  */
 static int unflatten_dt_nodes(const void *blob,
 			      void *mem,
@@ -464,6 +517,10 @@ static int unflatten_dt_nodes(const void *blob,
 	struct device_node *nps[FDT_MAX_DEPTH];
 	void *base = mem;
 	bool dryrun = !base;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (nodepp)
 		*nodepp = NULL;
@@ -491,9 +548,16 @@ static int unflatten_dt_nodes(const void *blob,
 		    !of_fdt_device_is_available(blob, offset))
 			continue;
 
+<<<<<<< HEAD
 		if (!populate_node(blob, offset, &mem, nps[depth],
 				   &nps[depth+1], dryrun))
 			return mem - base;
+=======
+		ret = populate_node(blob, offset, &mem, nps[depth],
+				   &nps[depth+1], dryrun);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 
 		if (!dryrun && nodepp && !*nodepp)
 			*nodepp = nps[depth+1];
@@ -518,11 +582,14 @@ static int unflatten_dt_nodes(const void *blob,
 
 /**
  * __unflatten_device_tree - create tree of device_nodes from flat blob
+<<<<<<< HEAD
  *
  * unflattens a device-tree, creating the
  * tree of struct device_node. It also fills the "name" and "type"
  * pointers of the nodes so the normal device-tree walking functions
  * can be used.
+=======
+>>>>>>> upstream/android-13
  * @blob: The blob to expand
  * @dad: Parent device node
  * @mynodes: The device_node tree created by the call
@@ -530,7 +597,15 @@ static int unflatten_dt_nodes(const void *blob,
  * for the resulting tree
  * @detached: if true set OF_DETACHED on @mynodes
  *
+<<<<<<< HEAD
  * Returns NULL on failure or the memory chunk containing the unflattened
+=======
+ * unflattens a device-tree, creating the tree of struct device_node. It also
+ * fills the "name" and "type" pointers of the nodes so the normal device-tree
+ * walking functions can be used.
+ *
+ * Return: NULL on failure or the memory chunk containing the unflattened
+>>>>>>> upstream/android-13
  * device tree on success.
  */
 void *__unflatten_device_tree(const void *blob,
@@ -541,6 +616,13 @@ void *__unflatten_device_tree(const void *blob,
 {
 	int size;
 	void *mem;
+<<<<<<< HEAD
+=======
+	int ret;
+
+	if (mynodes)
+		*mynodes = NULL;
+>>>>>>> upstream/android-13
 
 	pr_debug(" -> unflatten_device_tree()\n");
 
@@ -561,7 +643,11 @@ void *__unflatten_device_tree(const void *blob,
 
 	/* First pass, scan for size */
 	size = unflatten_dt_nodes(blob, NULL, dad, NULL);
+<<<<<<< HEAD
 	if (size < 0)
+=======
+	if (size <= 0)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	size = ALIGN(size, 4);
@@ -579,12 +665,25 @@ void *__unflatten_device_tree(const void *blob,
 	pr_debug("  unflattening %p...\n", mem);
 
 	/* Second pass, do actual unflattening */
+<<<<<<< HEAD
 	unflatten_dt_nodes(blob, mem, dad, mynodes);
 	if (be32_to_cpup(mem + size) != 0xdeadbeef)
 		pr_warning("End of tree marker overwritten: %08x\n",
 			   be32_to_cpup(mem + size));
 
 	if (detached && mynodes) {
+=======
+	ret = unflatten_dt_nodes(blob, mem, dad, mynodes);
+
+	if (be32_to_cpup(mem + size) != 0xdeadbeef)
+		pr_warn("End of tree marker overwritten: %08x\n",
+			be32_to_cpup(mem + size));
+
+	if (ret <= 0)
+		return NULL;
+
+	if (detached && mynodes && *mynodes) {
+>>>>>>> upstream/android-13
 		of_node_set_flag(*mynodes, OF_DETACHED);
 		pr_debug("unflattened tree is detached\n");
 	}
@@ -611,7 +710,11 @@ static DEFINE_MUTEX(of_fdt_unflatten_mutex);
  * pointers of the nodes so the normal device-tree walking functions
  * can be used.
  *
+<<<<<<< HEAD
  * Returns NULL on failure or the memory chunk containing the unflattened
+=======
+ * Return: NULL on failure or the memory chunk containing the unflattened
+>>>>>>> upstream/android-13
  * device tree on success.
  */
 void *of_fdt_unflatten_tree(const unsigned long *blob,
@@ -633,14 +736,41 @@ EXPORT_SYMBOL_GPL(of_fdt_unflatten_tree);
 int __initdata dt_root_addr_cells;
 int __initdata dt_root_size_cells;
 
+<<<<<<< HEAD
 void *initial_boot_params;
+=======
+void *initial_boot_params __ro_after_init;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_OF_EARLY_FLATTREE
 
 static u32 of_fdt_crc32;
 
+<<<<<<< HEAD
 /**
  * res_mem_reserve_reg() - reserve all memory described in 'reg' property
+=======
+static int __init early_init_dt_reserve_memory_arch(phys_addr_t base,
+					phys_addr_t size, bool nomap)
+{
+	if (nomap) {
+		/*
+		 * If the memory is already reserved (by another region), we
+		 * should not allow it to be marked nomap, but don't worry
+		 * if the region isn't memory as it won't be mapped.
+		 */
+		if (memblock_overlaps_region(&memblock.memory, base, size) &&
+		    memblock_is_region_reserved(base, size))
+			return -EBUSY;
+
+		return memblock_mark_nomap(base, size);
+	}
+	return memblock_reserve(base, size);
+}
+
+/*
+ * __reserved_mem_reserve_reg() - reserve all memory described in 'reg' property
+>>>>>>> upstream/android-13
  */
 static int __init __reserved_mem_reserve_reg(unsigned long node,
 					     const char *uname)
@@ -649,7 +779,12 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
 	phys_addr_t base, size;
 	int len;
 	const __be32 *prop;
+<<<<<<< HEAD
 	int nomap, first = 1;
+=======
+	int first = 1;
+	bool nomap;
+>>>>>>> upstream/android-13
 
 	prop = of_get_flat_dt_prop(node, "reg", &len);
 	if (!prop)
@@ -669,11 +804,19 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
 
 		if (size &&
 		    early_init_dt_reserve_memory_arch(base, size, nomap) == 0)
+<<<<<<< HEAD
 			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %ld MiB\n",
 				uname, &base, (unsigned long)size / SZ_1M);
 		else
 			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %ld MiB\n",
 				uname, &base, (unsigned long)size / SZ_1M);
+=======
+			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
+				uname, &base, (unsigned long)(size / SZ_1M));
+		else
+			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
+				uname, &base, (unsigned long)(size / SZ_1M));
+>>>>>>> upstream/android-13
 
 		len -= t_len;
 		if (first) {
@@ -684,7 +827,11 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * __reserved_mem_check_root() - check if #size-cells, #address-cells provided
  * in /reserved-memory matches the values supported by the current implementation,
  * also check if ranges property has been provided
@@ -707,8 +854,13 @@ static int __init __reserved_mem_check_root(unsigned long node)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * fdt_scan_reserved_mem() - scan a single FDT node for reserved memory
+=======
+/*
+ * __fdt_scan_reserved_mem() - scan a single FDT node for reserved memory
+>>>>>>> upstream/android-13
  */
 static int __init __fdt_scan_reserved_mem(unsigned long node, const char *uname,
 					  int depth, void *data)
@@ -744,6 +896,34 @@ static int __init __fdt_scan_reserved_mem(unsigned long node, const char *uname,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * fdt_reserve_elfcorehdr() - reserves memory for elf core header
+ *
+ * This function reserves the memory occupied by an elf core header
+ * described in the device tree. This region contains all the
+ * information about primary kernel's core image and is used by a dump
+ * capture kernel to access the system memory on primary kernel.
+ */
+static void __init fdt_reserve_elfcorehdr(void)
+{
+	if (!IS_ENABLED(CONFIG_CRASH_DUMP) || !elfcorehdr_size)
+		return;
+
+	if (memblock_is_region_reserved(elfcorehdr_addr, elfcorehdr_size)) {
+		pr_warn("elfcorehdr is overlapped\n");
+		return;
+	}
+
+	memblock_reserve(elfcorehdr_addr, elfcorehdr_size);
+	memblock_memsize_record("elfcorehdr", elfcorehdr_addr, elfcorehdr_size, false, false);
+
+	pr_info("Reserving %llu KiB of memory at 0x%llx for elfcorehdr\n",
+		elfcorehdr_size >> 10, elfcorehdr_addr);
+}
+
+>>>>>>> upstream/android-13
 /**
  * early_init_fdt_scan_reserved_mem() - create reserved memory regions
  *
@@ -759,17 +939,32 @@ void __init early_init_fdt_scan_reserved_mem(void)
 	if (!initial_boot_params)
 		return;
 
+<<<<<<< HEAD
+=======
+	memblock_memsize_disable_tracking();
+
+>>>>>>> upstream/android-13
 	/* Process header /memreserve/ fields */
 	for (n = 0; ; n++) {
 		fdt_get_mem_rsv(initial_boot_params, n, &base, &size);
 		if (!size)
 			break;
+<<<<<<< HEAD
 		early_init_dt_reserve_memory_arch(base, size, 0);
 		record_memsize_reserved(NULL, base, size, 0, 0);
+=======
+		early_init_dt_reserve_memory_arch(base, size, false);
+		memblock_memsize_record("memreserve", base, size, false, false);
+>>>>>>> upstream/android-13
 	}
 
 	of_scan_flat_dt(__fdt_scan_reserved_mem, NULL);
 	fdt_init_reserved_mem();
+<<<<<<< HEAD
+=======
+	fdt_reserve_elfcorehdr();
+	memblock_memsize_enable_tracking();
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -783,7 +978,11 @@ void __init early_init_fdt_reserve_self(void)
 	/* Reserve the dtb region */
 	early_init_dt_reserve_memory_arch(__pa(initial_boot_params),
 					  fdt_totalsize(initial_boot_params),
+<<<<<<< HEAD
 					  0);
+=======
+					  false);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -812,8 +1011,11 @@ int __init of_scan_flat_dt(int (*it)(unsigned long node,
 	     offset = fdt_next_node(blob, offset, &depth)) {
 
 		pathp = fdt_get_name(blob, offset, NULL);
+<<<<<<< HEAD
 		if (*pathp == '/')
 			pathp = kbasename(pathp);
+=======
+>>>>>>> upstream/android-13
 		rc = it(offset, pathp, depth, data);
 	}
 	return rc;
@@ -821,6 +1023,10 @@ int __init of_scan_flat_dt(int (*it)(unsigned long node,
 
 /**
  * of_scan_flat_dt_subnodes - scan sub-nodes of a node call callback on each.
+<<<<<<< HEAD
+=======
+ * @parent: parent node
+>>>>>>> upstream/android-13
  * @it: callback function
  * @data: context data pointer
  *
@@ -840,8 +1046,11 @@ int __init of_scan_flat_dt_subnodes(unsigned long parent,
 		int rc;
 
 		pathp = fdt_get_name(blob, node, NULL);
+<<<<<<< HEAD
 		if (*pathp == '/')
 			pathp = kbasename(pathp);
+=======
+>>>>>>> upstream/android-13
 		rc = it(node, pathp, data);
 		if (rc)
 			return rc;
@@ -857,12 +1066,20 @@ int __init of_scan_flat_dt_subnodes(unsigned long parent,
  * @return offset of the subnode, or -FDT_ERR_NOTFOUND if there is none
  */
 
+<<<<<<< HEAD
 int of_get_flat_dt_subnode_by_name(unsigned long node, const char *uname)
+=======
+int __init of_get_flat_dt_subnode_by_name(unsigned long node, const char *uname)
+>>>>>>> upstream/android-13
 {
 	return fdt_subnode_offset(initial_boot_params, node, uname);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * of_get_flat_dt_root - find the root node in the flat blob
  */
 unsigned long __init of_get_flat_dt_root(void)
@@ -870,6 +1087,7 @@ unsigned long __init of_get_flat_dt_root(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
  * of_get_flat_dt_size - Return the total size of the FDT
  */
@@ -879,6 +1097,9 @@ int __init of_get_flat_dt_size(void)
 }
 
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * of_get_flat_dt_prop - Given a node in the flat blob, return the property ptr
  *
  * This function can be used within scan_flattened_dt callback to get
@@ -891,6 +1112,41 @@ const void *__init of_get_flat_dt_prop(unsigned long node, const char *name,
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * of_fdt_is_compatible - Return true if given node from the given blob has
+ * compat in its compatible list
+ * @blob: A device tree blob
+ * @node: node to test
+ * @compat: compatible string to compare with compatible list.
+ *
+ * Return: a non-zero value on match with smaller values returned for more
+ * specific compatible values.
+ */
+static int of_fdt_is_compatible(const void *blob,
+		      unsigned long node, const char *compat)
+{
+	const char *cp;
+	int cplen;
+	unsigned long l, score = 0;
+
+	cp = fdt_getprop(blob, node, "compatible", &cplen);
+	if (cp == NULL)
+		return 0;
+	while (cplen > 0) {
+		score++;
+		if (of_compat_cmp(cp, compat, strlen(compat)) == 0)
+			return score;
+		l = strlen(cp) + 1;
+		cp += l;
+		cplen -= l;
+	}
+
+	return 0;
+}
+
+/**
+>>>>>>> upstream/android-13
  * of_flat_dt_is_compatible - Return true if given node has compat in compatible list
  * @node: node to test
  * @compat: compatible string to compare with compatible list.
@@ -900,6 +1156,7 @@ int __init of_flat_dt_is_compatible(unsigned long node, const char *compat)
 	return of_fdt_is_compatible(initial_boot_params, node, compat);
 }
 
+<<<<<<< HEAD
 /**
  * of_flat_dt_match - Return true if node matches a list of compatible values
  */
@@ -910,6 +1167,30 @@ int __init of_flat_dt_match(unsigned long node, const char *const *compat)
 
 /**
  * of_get_flat_dt_prop - Given a node in the flat blob, return the phandle
+=======
+/*
+ * of_flat_dt_match - Return true if node matches a list of compatible values
+ */
+static int __init of_flat_dt_match(unsigned long node, const char *const *compat)
+{
+	unsigned int tmp, score = 0;
+
+	if (!compat)
+		return 0;
+
+	while (*compat) {
+		tmp = of_fdt_is_compatible(initial_boot_params, node, *compat);
+		if (tmp && (score == 0 || (tmp < score)))
+			score = tmp;
+		compat++;
+	}
+
+	return score;
+}
+
+/*
+ * of_get_flat_dt_phandle - Given a node in the flat blob, return the phandle
+>>>>>>> upstream/android-13
  */
 uint32_t __init of_get_flat_dt_phandle(unsigned long node)
 {
@@ -985,6 +1266,7 @@ const void * __init of_flat_dt_match_machine(const void *default_match,
 	return best_data;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BLK_DEV_INITRD
 #ifndef __early_init_dt_declare_initrd
 static void __early_init_dt_declare_initrd(unsigned long start,
@@ -995,6 +1277,22 @@ static void __early_init_dt_declare_initrd(unsigned long start,
 	initrd_below_start_ok = 1;
 }
 #endif
+=======
+static void __early_init_dt_declare_initrd(unsigned long start,
+					   unsigned long end)
+{
+	/* ARM64 would cause a BUG to occur here when CONFIG_DEBUG_VM is
+	 * enabled since __va() is called too early. ARM64 does make use
+	 * of phys_initrd_start/phys_initrd_size so we can skip this
+	 * conversion.
+	 */
+	if (!IS_ENABLED(CONFIG_ARM64)) {
+		initrd_start = (unsigned long)__va(start);
+		initrd_end = (unsigned long)__va(end);
+		initrd_below_start_ok = 1;
+	}
+}
+>>>>>>> upstream/android-13
 
 /**
  * early_init_dt_check_for_initrd - Decode initrd location from flat tree
@@ -1006,6 +1304,12 @@ static void __init early_init_dt_check_for_initrd(unsigned long node)
 	int len;
 	const __be32 *prop;
 
+<<<<<<< HEAD
+=======
+	if (!IS_ENABLED(CONFIG_BLK_DEV_INITRD))
+		return;
+
+>>>>>>> upstream/android-13
 	pr_debug("Looking for initrd properties... ");
 
 	prop = of_get_flat_dt_prop(node, "linux,initrd-start", &len);
@@ -1019,6 +1323,7 @@ static void __init early_init_dt_check_for_initrd(unsigned long node)
 	end = of_read_number(prop, len/4);
 
 	__early_init_dt_declare_initrd(start, end);
+<<<<<<< HEAD
 
 	pr_debug("initrd_start=0x%llx  initrd_end=0x%llx\n",
 		 (unsigned long long)start, (unsigned long long)end);
@@ -1028,6 +1333,71 @@ static inline void early_init_dt_check_for_initrd(unsigned long node)
 {
 }
 #endif /* CONFIG_BLK_DEV_INITRD */
+=======
+	phys_initrd_start = start;
+	phys_initrd_size = end - start;
+
+	pr_debug("initrd_start=0x%llx  initrd_end=0x%llx\n", start, end);
+}
+
+/**
+ * early_init_dt_check_for_elfcorehdr - Decode elfcorehdr location from flat
+ * tree
+ * @node: reference to node containing elfcorehdr location ('chosen')
+ */
+static void __init early_init_dt_check_for_elfcorehdr(unsigned long node)
+{
+	const __be32 *prop;
+	int len;
+
+	if (!IS_ENABLED(CONFIG_CRASH_DUMP))
+		return;
+
+	pr_debug("Looking for elfcorehdr property... ");
+
+	prop = of_get_flat_dt_prop(node, "linux,elfcorehdr", &len);
+	if (!prop || (len < (dt_root_addr_cells + dt_root_size_cells)))
+		return;
+
+	elfcorehdr_addr = dt_mem_next_cell(dt_root_addr_cells, &prop);
+	elfcorehdr_size = dt_mem_next_cell(dt_root_size_cells, &prop);
+
+	pr_debug("elfcorehdr_start=0x%llx elfcorehdr_size=0x%llx\n",
+		 elfcorehdr_addr, elfcorehdr_size);
+}
+
+static unsigned long chosen_node_offset = -FDT_ERR_NOTFOUND;
+
+/**
+ * early_init_dt_check_for_usable_mem_range - Decode usable memory range
+ * location from flat tree
+ */
+void __init early_init_dt_check_for_usable_mem_range(void)
+{
+	const __be32 *prop;
+	int len;
+	phys_addr_t cap_mem_addr;
+	phys_addr_t cap_mem_size;
+	unsigned long node = chosen_node_offset;
+
+	if ((long)node < 0)
+		return;
+
+	pr_debug("Looking for usable-memory-range property... ");
+
+	prop = of_get_flat_dt_prop(node, "linux,usable-memory-range", &len);
+	if (!prop || (len < (dt_root_addr_cells + dt_root_size_cells)))
+		return;
+
+	cap_mem_addr = dt_mem_next_cell(dt_root_addr_cells, &prop);
+	cap_mem_size = dt_mem_next_cell(dt_root_size_cells, &prop);
+
+	pr_debug("cap_mem_start=%pa cap_mem_size=%pa\n", &cap_mem_addr,
+		 &cap_mem_size);
+
+	memblock_cap_memory_range(cap_mem_addr, cap_mem_size);
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SERIAL_EARLYCON
 
@@ -1036,7 +1406,11 @@ int __init early_init_dt_scan_chosen_stdout(void)
 	int offset;
 	const char *p, *q, *options = NULL;
 	int l;
+<<<<<<< HEAD
 	const struct earlycon_id **p_match;
+=======
+	const struct earlycon_id *match;
+>>>>>>> upstream/android-13
 	const void *fdt = initial_boot_params;
 
 	offset = fdt_path_offset(fdt, "/chosen");
@@ -1063,24 +1437,37 @@ int __init early_init_dt_scan_chosen_stdout(void)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	for (p_match = __earlycon_table; p_match < __earlycon_table_end;
 	     p_match++) {
 		const struct earlycon_id *match = *p_match;
 
+=======
+	for (match = __earlycon_table; match < __earlycon_table_end; match++) {
+>>>>>>> upstream/android-13
 		if (!match->compatible[0])
 			continue;
 
 		if (fdt_node_check_compatible(fdt, offset, match->compatible))
 			continue;
 
+<<<<<<< HEAD
 		of_setup_earlycon(match, offset, options);
 		return 0;
+=======
+		if (of_setup_earlycon(match, offset, options) == 0)
+			return 0;
+>>>>>>> upstream/android-13
 	}
 	return -ENODEV;
 }
 #endif
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * early_init_dt_scan_root - fetch the top level address and size cells
  */
 int __init early_init_dt_scan_root(unsigned long node, const char *uname,
@@ -1116,7 +1503,11 @@ u64 __init dt_mem_next_cell(int s, const __be32 **cellp)
 	return of_read_number(p, s);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * early_init_dt_scan_memory - Look for and parse memory nodes
  */
 int __init early_init_dt_scan_memory(unsigned long node, const char *uname,
@@ -1150,15 +1541,23 @@ int __init early_init_dt_scan_memory(unsigned long node, const char *uname,
 
 		if (size == 0)
 			continue;
+<<<<<<< HEAD
 		pr_debug(" - %llx ,  %llx\n", (unsigned long long)base,
 		    (unsigned long long)size);
+=======
+		pr_debug(" - %llx, %llx\n", base, size);
+>>>>>>> upstream/android-13
 
 		early_init_dt_add_memory_arch(base, size);
 
 		if (!hotpluggable)
 			continue;
 
+<<<<<<< HEAD
 		if (early_init_dt_mark_hotplug_memory_arch(base, size))
+=======
+		if (memblock_mark_hotplug(base, size))
+>>>>>>> upstream/android-13
 			pr_warn("failed to mark hotplug range 0x%llx - 0x%llx\n",
 				base, base + size);
 	}
@@ -1194,8 +1593,13 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
 {
 	int l = 0;
 	const char *p = NULL;
+<<<<<<< HEAD
 	char *cmdline = data;
 	const void *rng_seed;
+=======
+	const void *rng_seed;
+	char *cmdline = data;
+>>>>>>> upstream/android-13
 
 	pr_debug("search \"chosen\", depth: %d, uname: %s\n", depth, uname);
 
@@ -1203,7 +1607,14 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
 	    (strcmp(uname, "chosen") != 0 && strcmp(uname, "chosen@0") != 0))
 		return 0;
 
+<<<<<<< HEAD
 	early_init_dt_check_for_initrd(node);
+=======
+	chosen_node_offset = node;
+
+	early_init_dt_check_for_initrd(node);
+	early_init_dt_check_for_elfcorehdr(node);
+>>>>>>> upstream/android-13
 
 	/* Put CONFIG_CMDLINE in if forced or if data had nothing in it to start */
 	if (overwrite_incoming_cmdline || !cmdline[0])
@@ -1224,11 +1635,19 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
 			strncpy(cmdline + cmdline_len, p, copy_len);
 			cmdline[cmdline_len + copy_len] = '\0';
 		} else {
+<<<<<<< HEAD
 			strlcpy(cmdline, p, min((int)l, COMMAND_LINE_SIZE));
 		}
 	}
 
 	pr_debug("Command line is: %s\n", (char*)data);
+=======
+			strlcpy(cmdline, p, min(l, COMMAND_LINE_SIZE));
+		}
+	}
+
+	pr_debug("Command line is: %s\n", (char *)data);
+>>>>>>> upstream/android-13
 
 	rng_seed = of_get_flat_dt_prop(node, "rng-seed", &l);
 	if (rng_seed && l > 0) {
@@ -1246,7 +1665,10 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
 	return 1;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_HAVE_MEMBLOCK
+=======
+>>>>>>> upstream/android-13
 #ifndef MIN_MEMBLOCK_ADDR
 #define MIN_MEMBLOCK_ADDR	__pa(PAGE_OFFSET)
 #endif
@@ -1258,30 +1680,51 @@ void __init __weak early_init_dt_add_memory_arch(u64 base, u64 size)
 {
 	const u64 phys_offset = MIN_MEMBLOCK_ADDR;
 
+<<<<<<< HEAD
 	if (!PAGE_ALIGNED(base)) {
 		if (size < PAGE_SIZE - (base & ~PAGE_MASK)) {
 			pr_warn("Ignoring memory block 0x%llx - 0x%llx\n",
 				base, base + size);
 			return;
 		}
+=======
+	if (size < PAGE_SIZE - (base & ~PAGE_MASK)) {
+		pr_warn("Ignoring memory block 0x%llx - 0x%llx\n",
+			base, base + size);
+		return;
+	}
+
+	if (!PAGE_ALIGNED(base)) {
+>>>>>>> upstream/android-13
 		size -= PAGE_SIZE - (base & ~PAGE_MASK);
 		base = PAGE_ALIGN(base);
 	}
 	size &= PAGE_MASK;
 
 	if (base > MAX_MEMBLOCK_ADDR) {
+<<<<<<< HEAD
 		pr_warning("Ignoring memory block 0x%llx - 0x%llx\n",
 				base, base + size);
+=======
+		pr_warn("Ignoring memory block 0x%llx - 0x%llx\n",
+			base, base + size);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (base + size - 1 > MAX_MEMBLOCK_ADDR) {
+<<<<<<< HEAD
 		pr_warning("Ignoring memory range 0x%llx - 0x%llx\n",
 				((u64)MAX_MEMBLOCK_ADDR) + 1, base + size);
+=======
+		pr_warn("Ignoring memory range 0x%llx - 0x%llx\n",
+			((u64)MAX_MEMBLOCK_ADDR) + 1, base + size);
+>>>>>>> upstream/android-13
 		size = MAX_MEMBLOCK_ADDR - base + 1;
 	}
 
 	if (base + size < phys_offset) {
+<<<<<<< HEAD
 		pr_warning("Ignoring memory block 0x%llx - 0x%llx\n",
 			   base, base + size);
 		return;
@@ -1289,12 +1732,22 @@ void __init __weak early_init_dt_add_memory_arch(u64 base, u64 size)
 	if (base < phys_offset) {
 		pr_warning("Ignoring memory range 0x%llx - 0x%llx\n",
 			   base, phys_offset);
+=======
+		pr_warn("Ignoring memory block 0x%llx - 0x%llx\n",
+			base, base + size);
+		return;
+	}
+	if (base < phys_offset) {
+		pr_warn("Ignoring memory range 0x%llx - 0x%llx\n",
+			base, phys_offset);
+>>>>>>> upstream/android-13
 		size -= phys_offset - base;
 		base = phys_offset;
 	}
 	memblock_add(base, size);
 }
 
+<<<<<<< HEAD
 int __init __weak early_init_dt_mark_hotplug_memory_arch(u64 base, u64 size)
 {
 	return memblock_mark_hotplug(base, size);
@@ -1331,6 +1784,17 @@ int __init __weak early_init_dt_reserve_memory_arch(phys_addr_t base,
 static void * __init early_init_dt_alloc_memory_arch(u64 size, u64 align)
 {
 	return memblock_virt_alloc(size, align);
+=======
+static void * __init early_init_dt_alloc_memory_arch(u64 size, u64 align)
+{
+	void *ptr = memblock_alloc(size, align);
+
+	if (!ptr)
+		panic("%s: Failed to allocate %llu bytes align=0x%llx\n",
+		      __func__, size, align);
+
+	return ptr;
+>>>>>>> upstream/android-13
 }
 
 bool __init early_init_dt_verify(void *params)
@@ -1352,15 +1816,36 @@ bool __init early_init_dt_verify(void *params)
 
 void __init early_init_dt_scan_nodes(void)
 {
+<<<<<<< HEAD
 	/* Retrieve various information from the /chosen node */
 	of_scan_flat_dt(early_init_dt_scan_chosen, boot_command_line);
+=======
+	int rc = 0;
+>>>>>>> upstream/android-13
 
 	/* Initialize {size,address}-cells info */
 	of_scan_flat_dt(early_init_dt_scan_root, NULL);
 
+<<<<<<< HEAD
 	/* Setup memory, calling early_init_dt_add_memory_arch */
 	of_scan_flat_dt(early_init_dt_scan_memory, NULL);
 	record_memsize_memory_hole();
+=======
+	/* Retrieve various information from the /chosen node */
+	rc = of_scan_flat_dt(early_init_dt_scan_chosen, boot_command_line);
+	if (!rc)
+		pr_warn("No chosen node found, continuing without\n");
+
+	memblock_memsize_disable_tracking();
+
+	/* Setup memory, calling early_init_dt_add_memory_arch */
+	of_scan_flat_dt(early_init_dt_scan_memory, NULL);
+
+	/* Handle linux,usable-memory-range property */
+	early_init_dt_check_for_usable_mem_range();
+	memblock_memsize_enable_tracking();
+	memblock_memsize_detect_hole();
+>>>>>>> upstream/android-13
 }
 
 bool __init early_init_dt_scan(void *params)

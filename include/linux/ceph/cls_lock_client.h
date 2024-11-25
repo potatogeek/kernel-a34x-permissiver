@@ -52,4 +52,10 @@ int ceph_cls_lock_info(struct ceph_osd_client *osdc,
 		       char *lock_name, u8 *type, char **tag,
 		       struct ceph_locker **lockers, u32 *num_lockers);
 
+<<<<<<< HEAD
+=======
+int ceph_cls_assert_locked(struct ceph_osd_request *req, int which,
+			   char *lock_name, u8 type, char *cookie, char *tag);
+
+>>>>>>> upstream/android-13
 #endif

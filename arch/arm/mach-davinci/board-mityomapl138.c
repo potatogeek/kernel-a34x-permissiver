@@ -1,7 +1,11 @@
 /*
  * Critical Link MityOMAP-L138 SoM
  *
+<<<<<<< HEAD
  * Copyright (C) 2010 Critical Link LLC - http://www.criticallink.com
+=======
+ * Copyright (C) 2010 Critical Link LLC - https://www.criticallink.com
+>>>>>>> upstream/android-13
  *
  * This file is licensed under the terms of the GNU General Public License
  * version 2. This program is licensed "as is" without any warranty of
@@ -14,10 +18,20 @@
 #include <linux/init.h>
 #include <linux/console.h>
 #include <linux/platform_device.h>
+<<<<<<< HEAD
 #include <linux/mtd/partitions.h>
 #include <linux/regulator/machine.h>
 #include <linux/i2c.h>
 #include <linux/platform_data/at24.h>
+=======
+#include <linux/property.h>
+#include <linux/mtd/partitions.h>
+#include <linux/notifier.h>
+#include <linux/nvmem-consumer.h>
+#include <linux/nvmem-provider.h>
+#include <linux/regulator/machine.h>
+#include <linux/i2c.h>
+>>>>>>> upstream/android-13
 #include <linux/etherdevice.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/flash.h>
@@ -26,7 +40,10 @@
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 #include <mach/common.h>
+<<<<<<< HEAD
 #include "cp_intc.h"
+=======
+>>>>>>> upstream/android-13
 #include <mach/da8xx.h>
 #include <linux/platform_data/mtd-davinci.h>
 #include <linux/platform_data/mtd-davinci-aemif.h>
@@ -116,11 +133,23 @@ static void mityomapl138_cpufreq_init(const char *partnum)
 static void mityomapl138_cpufreq_init(const char *partnum) { }
 #endif
 
+<<<<<<< HEAD
 static void read_factory_config(struct nvmem_device *nvmem, void *context)
 {
 	int ret;
 	const char *partnum = NULL;
 	struct davinci_soc_info *soc_info = &davinci_soc_info;
+=======
+static int read_factory_config(struct notifier_block *nb,
+			       unsigned long event, void *data)
+{
+	int ret;
+	const char *partnum = NULL;
+	struct nvmem_device *nvmem = data;
+
+	if (strcmp(nvmem_dev_name(nvmem), "1-00500") != 0)
+		return NOTIFY_DONE;
+>>>>>>> upstream/android-13
 
 	if (!IS_BUILTIN(CONFIG_NVMEM)) {
 		pr_warn("Factory Config not available without CONFIG_NVMEM\n");
@@ -146,6 +175,7 @@ static void read_factory_config(struct nvmem_device *nvmem, void *context)
 		goto bad_config;
 	}
 
+<<<<<<< HEAD
 	pr_info("Found MAC = %pM\n", factory_config.mac);
 	if (is_valid_ether_addr(factory_config.mac))
 		memcpy(soc_info->emac_pdata->mac_addr,
@@ -153,12 +183,15 @@ static void read_factory_config(struct nvmem_device *nvmem, void *context)
 	else
 		pr_warn("Invalid MAC found in factory config block\n");
 
+=======
+>>>>>>> upstream/android-13
 	partnum = factory_config.partnum;
 	pr_info("Part Number = %s\n", partnum);
 
 bad_config:
 	/* default maximum speed is valid for all platforms */
 	mityomapl138_cpufreq_init(partnum);
+<<<<<<< HEAD
 }
 
 static struct at24_platform_data mityomapl138_fd_chip = {
@@ -167,6 +200,49 @@ static struct at24_platform_data mityomapl138_fd_chip = {
 	.flags		= AT24_FLAG_READONLY | AT24_FLAG_IRUGO,
 	.setup		= read_factory_config,
 	.context	= NULL,
+=======
+
+	return NOTIFY_STOP;
+}
+
+static struct notifier_block mityomapl138_nvmem_notifier = {
+	.notifier_call = read_factory_config,
+};
+
+/*
+ * We don't define a cell for factory config as it will be accessed from the
+ * board file using the nvmem notifier chain.
+ */
+static struct nvmem_cell_info mityomapl138_nvmem_cells[] = {
+	{
+		.name		= "macaddr",
+		.offset		= 0x64,
+		.bytes		= ETH_ALEN,
+	}
+};
+
+static struct nvmem_cell_table mityomapl138_nvmem_cell_table = {
+	.nvmem_name	= "1-00500",
+	.cells		= mityomapl138_nvmem_cells,
+	.ncells		= ARRAY_SIZE(mityomapl138_nvmem_cells),
+};
+
+static struct nvmem_cell_lookup mityomapl138_nvmem_cell_lookup = {
+	.nvmem_name	= "1-00500",
+	.cell_name	= "macaddr",
+	.dev_id		= "davinci_emac.1",
+	.con_id		= "mac-address",
+};
+
+static const struct property_entry mityomapl138_fd_chip_properties[] = {
+	PROPERTY_ENTRY_U32("pagesize", 8),
+	PROPERTY_ENTRY_BOOL("read-only"),
+	{ }
+};
+
+static const struct software_node mityomapl138_fd_chip_node = {
+	.properties = mityomapl138_fd_chip_properties,
+>>>>>>> upstream/android-13
 };
 
 static struct davinci_i2c_platform_data mityomap_i2c_0_pdata = {
@@ -295,7 +371,11 @@ static struct i2c_board_info __initdata mityomap_tps65023_info[] = {
 	},
 	{
 		I2C_BOARD_INFO("24c02", 0x50),
+<<<<<<< HEAD
 		.platform_data = &mityomapl138_fd_chip,
+=======
+		.swnode = &mityomapl138_fd_chip_node,
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -404,7 +484,11 @@ static struct davinci_nand_pdata mityomapl138_nandflash_data = {
 	.core_chipsel	= 1,
 	.parts		= mityomapl138_nandflash_partition,
 	.nr_parts	= ARRAY_SIZE(mityomapl138_nandflash_partition),
+<<<<<<< HEAD
 	.ecc_mode	= NAND_ECC_HW,
+=======
+	.engine_type	= NAND_ECC_ENGINE_TYPE_ON_HOST,
+>>>>>>> upstream/android-13
 	.bbt_options	= NAND_BBT_USE_FLASH,
 	.options	= NAND_BUSWIDTH_16,
 	.ecc_bits	= 1, /* 4 bit mode is not supported with 16 bit NAND */
@@ -543,6 +627,13 @@ static void __init mityomapl138_init(void)
 
 	davinci_serial_init(da8xx_serial_device);
 
+<<<<<<< HEAD
+=======
+	nvmem_register_notifier(&mityomapl138_nvmem_notifier);
+	nvmem_add_cell_table(&mityomapl138_nvmem_cell_table);
+	nvmem_add_cell_lookups(&mityomapl138_nvmem_cell_lookup, 1);
+
+>>>>>>> upstream/android-13
 	ret = da8xx_register_i2c(0, &mityomap_i2c_0_pdata);
 	if (ret)
 		pr_warn("i2c0 registration failed: %d\n", ret);
@@ -595,7 +686,11 @@ static void __init mityomapl138_map_io(void)
 MACHINE_START(MITYOMAPL138, "MityDSP-L138/MityARM-1808")
 	.atag_offset	= 0x100,
 	.map_io		= mityomapl138_map_io,
+<<<<<<< HEAD
 	.init_irq	= cp_intc_init,
+=======
+	.init_irq	= da850_init_irq,
+>>>>>>> upstream/android-13
 	.init_time	= da850_init_time,
 	.init_machine	= mityomapl138_init,
 	.init_late	= davinci_init_late,

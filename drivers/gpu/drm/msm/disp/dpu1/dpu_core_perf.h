@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -8,6 +9,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _DPU_CORE_PERF_H_
@@ -19,19 +24,43 @@
 #include <drm/drm_crtc.h>
 
 #include "dpu_hw_catalog.h"
+<<<<<<< HEAD
 #include "dpu_power_handle.h"
+=======
+>>>>>>> upstream/android-13
 
 #define	DPU_PERF_DEFAULT_MAX_CORE_CLK_RATE	412500000
 
 /**
+<<<<<<< HEAD
+=======
+ * enum dpu_core_perf_data_bus_id - data bus identifier
+ * @DPU_CORE_PERF_DATA_BUS_ID_MNOC: DPU/MNOC data bus
+ * @DPU_CORE_PERF_DATA_BUS_ID_LLCC: MNOC/LLCC data bus
+ * @DPU_CORE_PERF_DATA_BUS_ID_EBI: LLCC/EBI data bus
+ */
+enum dpu_core_perf_data_bus_id {
+	DPU_CORE_PERF_DATA_BUS_ID_MNOC,
+	DPU_CORE_PERF_DATA_BUS_ID_LLCC,
+	DPU_CORE_PERF_DATA_BUS_ID_EBI,
+	DPU_CORE_PERF_DATA_BUS_ID_MAX,
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct dpu_core_perf_params - definition of performance parameters
  * @max_per_pipe_ib: maximum instantaneous bandwidth request
  * @bw_ctl: arbitrated bandwidth request
  * @core_clk_rate: core clock rate request
  */
 struct dpu_core_perf_params {
+<<<<<<< HEAD
 	u64 max_per_pipe_ib[DPU_POWER_HANDLE_DBUS_ID_MAX];
 	u64 bw_ctl[DPU_POWER_HANDLE_DBUS_ID_MAX];
+=======
+	u64 max_per_pipe_ib;
+	u64 bw_ctl;
+>>>>>>> upstream/android-13
 	u64 core_clk_rate;
 };
 
@@ -52,7 +81,10 @@ struct dpu_core_perf_tune {
  * @dev: Pointer to drm device
  * @debugfs_root: top level debug folder
  * @catalog: Pointer to catalog configuration
+<<<<<<< HEAD
  * @phandle: Pointer to power handler
+=======
+>>>>>>> upstream/android-13
  * @core_clk: Pointer to core clock structure
  * @core_clk_rate: current core clock rate
  * @max_core_clk_rate: maximum allowable core clock rate
@@ -66,7 +98,10 @@ struct dpu_core_perf {
 	struct drm_device *dev;
 	struct dentry *debugfs_root;
 	struct dpu_mdss_cfg *catalog;
+<<<<<<< HEAD
 	struct dpu_power_handle *phandle;
+=======
+>>>>>>> upstream/android-13
 	struct dss_clk *core_clk;
 	u64 core_clk_rate;
 	u64 max_core_clk_rate;
@@ -113,12 +148,16 @@ void dpu_core_perf_destroy(struct dpu_core_perf *perf);
  * @perf: Pointer to core performance context
  * @dev: Pointer to drm device
  * @catalog: Pointer to catalog
+<<<<<<< HEAD
  * @phandle: Pointer to power handle
+=======
+>>>>>>> upstream/android-13
  * @core_clk: pointer to core clock
  */
 int dpu_core_perf_init(struct dpu_core_perf *perf,
 		struct drm_device *dev,
 		struct dpu_mdss_cfg *catalog,
+<<<<<<< HEAD
 		struct dpu_power_handle *phandle,
 		struct dss_clk *core_clk);
 
@@ -129,5 +168,17 @@ int dpu_core_perf_init(struct dpu_core_perf *perf,
  */
 int dpu_core_perf_debugfs_init(struct dpu_core_perf *perf,
 		struct dentry *parent);
+=======
+		struct dss_clk *core_clk);
+
+struct dpu_kms;
+
+/**
+ * dpu_core_perf_debugfs_init - initialize debugfs for core performance context
+ * @dpu_kms: Pointer to the dpu_kms struct
+ * @debugfs_parent: Pointer to parent debugfs
+ */
+int dpu_core_perf_debugfs_init(struct dpu_kms *dpu_kms, struct dentry *parent);
+>>>>>>> upstream/android-13
 
 #endif /* _DPU_CORE_PERF_H_ */

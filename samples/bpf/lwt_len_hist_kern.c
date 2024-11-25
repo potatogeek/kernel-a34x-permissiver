@@ -14,6 +14,7 @@
 #include <uapi/linux/if_ether.h>
 #include <uapi/linux/ip.h>
 #include <uapi/linux/in.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 
 # define printk(fmt, ...)						\
@@ -22,6 +23,9 @@
 			bpf_trace_printk(____fmt, sizeof(____fmt),	\
 				     ##__VA_ARGS__);			\
 		})
+=======
+#include <bpf/bpf_helpers.h>
+>>>>>>> upstream/android-13
 
 struct bpf_elf_map {
 	__u32 type;

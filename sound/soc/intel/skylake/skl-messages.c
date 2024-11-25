@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  skl-message.c - HDA DSP interface for FW registration, Pipe and Module
  *  configurations
@@ -6,6 +10,7 @@
  *  Author:Rafal Redzimski <rafal.f.redzimski@intel.com>
  *	   Jeeja KP <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as version 2, as
@@ -15,6 +20,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -33,16 +40,21 @@
 static int skl_alloc_dma_buf(struct device *dev,
 		struct snd_dma_buffer *dmab, size_t size)
 {
+<<<<<<< HEAD
 	struct hdac_bus *bus = dev_get_drvdata(dev);
 
 	if (!bus)
 		return -ENODEV;
 
 	return  bus->io_ops->dma_alloc_pages(bus, SNDRV_DMA_TYPE_DEV, size, dmab);
+=======
+	return snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, dev, size, dmab);
+>>>>>>> upstream/android-13
 }
 
 static int skl_free_dma_buf(struct device *dev, struct snd_dma_buffer *dmab)
 {
+<<<<<<< HEAD
 	struct hdac_bus *bus = dev_get_drvdata(dev);
 
 	if (!bus)
@@ -50,12 +62,19 @@ static int skl_free_dma_buf(struct device *dev, struct snd_dma_buffer *dmab)
 
 	bus->io_ops->dma_free_pages(bus, dmab);
 
+=======
+	snd_dma_free_pages(dmab);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 #define SKL_ASTATE_PARAM_ID	4
 
+<<<<<<< HEAD
 void skl_dsp_set_astate_cfg(struct skl_sst *ctx, u32 cnt, void *data)
+=======
+void skl_dsp_set_astate_cfg(struct skl_dev *skl, u32 cnt, void *data)
+>>>>>>> upstream/android-13
 {
 	struct skl_ipc_large_config_msg	msg = {0};
 
@@ -63,6 +82,7 @@ void skl_dsp_set_astate_cfg(struct skl_sst *ctx, u32 cnt, void *data)
 	msg.param_data_size = (cnt * sizeof(struct skl_astate_param) +
 				sizeof(cnt));
 
+<<<<<<< HEAD
 	skl_ipc_set_large_config(&ctx->ipc, &msg, data);
 }
 
@@ -82,6 +102,9 @@ void skl_dsp_enable_notification(struct skl_sst *ctx, bool enable)
 	msg.param_data_size = sizeof(mask);
 
 	skl_ipc_set_large_config(&ctx->ipc, &msg, (u32 *)&mask);
+=======
+	skl_ipc_set_large_config(&skl->ipc, &msg, data);
+>>>>>>> upstream/android-13
 }
 
 static int skl_dsp_setup_spib(struct device *dev, unsigned int size,
@@ -247,6 +270,33 @@ static const struct skl_dsp_ops dsp_ops[] = {
 		.init_fw = cnl_sst_init_fw,
 		.cleanup = cnl_sst_dsp_cleanup
 	},
+<<<<<<< HEAD
+=======
+	{
+		.id = 0xa348,
+		.num_cores = 4,
+		.loader_ops = bxt_get_loader_ops,
+		.init = cnl_sst_dsp_init,
+		.init_fw = cnl_sst_init_fw,
+		.cleanup = cnl_sst_dsp_cleanup
+	},
+	{
+		.id = 0x02c8,
+		.num_cores = 4,
+		.loader_ops = bxt_get_loader_ops,
+		.init = cnl_sst_dsp_init,
+		.init_fw = cnl_sst_init_fw,
+		.cleanup = cnl_sst_dsp_cleanup
+	},
+	{
+		.id = 0x06c8,
+		.num_cores = 4,
+		.loader_ops = bxt_get_loader_ops,
+		.init = cnl_sst_dsp_init,
+		.init_fw = cnl_sst_init_fw,
+		.cleanup = cnl_sst_dsp_cleanup
+	},
+>>>>>>> upstream/android-13
 };
 
 const struct skl_dsp_ops *skl_get_dsp_ops(int pci_id)
@@ -261,7 +311,11 @@ const struct skl_dsp_ops *skl_get_dsp_ops(int pci_id)
 	return NULL;
 }
 
+<<<<<<< HEAD
 int skl_init_dsp(struct skl *skl)
+=======
+int skl_init_dsp(struct skl_dev *skl)
+>>>>>>> upstream/android-13
 {
 	void __iomem *mmio_base;
 	struct hdac_bus *bus = skl_to_bus(skl);
@@ -291,13 +345,22 @@ int skl_init_dsp(struct skl *skl)
 	loader_ops = ops->loader_ops();
 	ret = ops->init(bus->dev, mmio_base, irq,
 				skl->fw_name, loader_ops,
+<<<<<<< HEAD
 				&skl->skl_sst);
+=======
+				&skl);
+>>>>>>> upstream/android-13
 
 	if (ret < 0)
 		goto unmap_mmio;
 
+<<<<<<< HEAD
 	skl->skl_sst->dsp_ops = ops;
 	cores = &skl->skl_sst->cores;
+=======
+	skl->dsp_ops = ops;
+	cores = &skl->cores;
+>>>>>>> upstream/android-13
 	cores->count = ops->num_cores;
 
 	cores->state = kcalloc(cores->count, sizeof(*cores->state), GFP_KERNEL);
@@ -326,14 +389,21 @@ unmap_mmio:
 	return ret;
 }
 
+<<<<<<< HEAD
 int skl_free_dsp(struct skl *skl)
 {
 	struct hdac_bus *bus = skl_to_bus(skl);
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+int skl_free_dsp(struct skl_dev *skl)
+{
+	struct hdac_bus *bus = skl_to_bus(skl);
+>>>>>>> upstream/android-13
 
 	/* disable  ppcap interrupt */
 	snd_hdac_ext_bus_ppcap_int_enable(bus, false);
 
+<<<<<<< HEAD
 	ctx->dsp_ops->cleanup(bus->dev, ctx);
 
 	kfree(ctx->cores.state);
@@ -341,6 +411,15 @@ int skl_free_dsp(struct skl *skl)
 
 	if (ctx->dsp->addr.lpe)
 		iounmap(ctx->dsp->addr.lpe);
+=======
+	skl->dsp_ops->cleanup(bus->dev, skl);
+
+	kfree(skl->cores.state);
+	kfree(skl->cores.usage_count);
+
+	if (skl->dsp->addr.lpe)
+		iounmap(skl->dsp->addr.lpe);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -352,6 +431,7 @@ int skl_free_dsp(struct skl *skl)
  * mode during system suspend. In the case of normal suspend, cancel
  * any pending D0i3 work.
  */
+<<<<<<< HEAD
 int skl_suspend_late_dsp(struct skl *skl)
 {
 	struct skl_sst *ctx = skl->skl_sst;
@@ -361,6 +441,16 @@ int skl_suspend_late_dsp(struct skl *skl)
 		return 0;
 
 	dwork = &ctx->d0i3.work;
+=======
+int skl_suspend_late_dsp(struct skl_dev *skl)
+{
+	struct delayed_work *dwork;
+
+	if (!skl)
+		return 0;
+
+	dwork = &skl->d0i3.work;
+>>>>>>> upstream/android-13
 
 	if (dwork->work.func) {
 		if (skl->supend_active)
@@ -372,9 +462,14 @@ int skl_suspend_late_dsp(struct skl *skl)
 	return 0;
 }
 
+<<<<<<< HEAD
 int skl_suspend_dsp(struct skl *skl)
 {
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+int skl_suspend_dsp(struct skl_dev *skl)
+{
+>>>>>>> upstream/android-13
 	struct hdac_bus *bus = skl_to_bus(skl);
 	int ret;
 
@@ -382,7 +477,11 @@ int skl_suspend_dsp(struct skl *skl)
 	if (!bus->ppcap)
 		return 0;
 
+<<<<<<< HEAD
 	ret = skl_dsp_sleep(ctx->dsp);
+=======
+	ret = skl_dsp_sleep(skl->dsp);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -393,9 +492,14 @@ int skl_suspend_dsp(struct skl *skl)
 	return 0;
 }
 
+<<<<<<< HEAD
 int skl_resume_dsp(struct skl *skl)
 {
 	struct skl_sst *ctx = skl->skl_sst;
+=======
+int skl_resume_dsp(struct skl_dev *skl)
+{
+>>>>>>> upstream/android-13
 	struct hdac_bus *bus = skl_to_bus(skl);
 	int ret;
 
@@ -408,13 +512,18 @@ int skl_resume_dsp(struct skl *skl)
 	snd_hdac_ext_bus_ppcap_int_enable(bus, true);
 
 	/* check if DSP 1st boot is done */
+<<<<<<< HEAD
 	if (skl->skl_sst->is_first_boot == true)
+=======
+	if (skl->is_first_boot)
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
 	 * Disable dynamic clock and power gating during firmware
 	 * and library download
 	 */
+<<<<<<< HEAD
 	ctx->enable_miscbdcge(ctx->dev, false);
 	ctx->clock_power_gating(ctx->dev, false);
 
@@ -428,6 +537,19 @@ int skl_resume_dsp(struct skl *skl)
 
 	if (skl->cfg.astate_cfg != NULL) {
 		skl_dsp_set_astate_cfg(skl->skl_sst, skl->cfg.astate_cfg->count,
+=======
+	skl->enable_miscbdcge(skl->dev, false);
+	skl->clock_power_gating(skl->dev, false);
+
+	ret = skl_dsp_wake(skl->dsp);
+	skl->enable_miscbdcge(skl->dev, true);
+	skl->clock_power_gating(skl->dev, true);
+	if (ret < 0)
+		return ret;
+
+	if (skl->cfg.astate_cfg != NULL) {
+		skl_dsp_set_astate_cfg(skl, skl->cfg.astate_cfg->count,
+>>>>>>> upstream/android-13
 					skl->cfg.astate_cfg);
 	}
 	return ret;
@@ -460,7 +582,11 @@ enum skl_bitdepth skl_get_bit_depth(int params)
  * which are read from widget information passed through topology binary
  * This is send when we create a module with INIT_INSTANCE IPC msg
  */
+<<<<<<< HEAD
 static void skl_set_base_module_format(struct skl_sst *ctx,
+=======
+static void skl_set_base_module_format(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig,
 			struct skl_base_cfg *base_cfg)
 {
@@ -475,8 +601,14 @@ static void skl_set_base_module_format(struct skl_sst *ctx,
 	base_cfg->audio_fmt.bit_depth = format->bit_depth;
 	base_cfg->audio_fmt.valid_bit_depth = format->valid_bit_depth;
 	base_cfg->audio_fmt.ch_cfg = format->ch_cfg;
+<<<<<<< HEAD
 
 	dev_dbg(ctx->dev, "bit_depth=%x valid_bd=%x ch_config=%x\n",
+=======
+	base_cfg->audio_fmt.sample_type = format->sample_type;
+
+	dev_dbg(skl->dev, "bit_depth=%x valid_bd=%x ch_config=%x\n",
+>>>>>>> upstream/android-13
 			format->bit_depth, format->valid_bit_depth,
 			format->ch_cfg);
 
@@ -484,12 +616,88 @@ static void skl_set_base_module_format(struct skl_sst *ctx,
 
 	base_cfg->audio_fmt.interleaving = format->interleaving_style;
 
+<<<<<<< HEAD
 	base_cfg->cps = res->cps;
+=======
+	base_cfg->cpc = res->cpc;
+>>>>>>> upstream/android-13
 	base_cfg->ibs = res->ibs;
 	base_cfg->obs = res->obs;
 	base_cfg->is_pages = res->is_pages;
 }
 
+<<<<<<< HEAD
+=======
+static void fill_pin_params(struct skl_audio_data_format *pin_fmt,
+			    struct skl_module_fmt *format)
+{
+	pin_fmt->number_of_channels = format->channels;
+	pin_fmt->s_freq = format->s_freq;
+	pin_fmt->bit_depth = format->bit_depth;
+	pin_fmt->valid_bit_depth = format->valid_bit_depth;
+	pin_fmt->ch_cfg = format->ch_cfg;
+	pin_fmt->sample_type = format->sample_type;
+	pin_fmt->channel_map = format->ch_map;
+	pin_fmt->interleaving = format->interleaving_style;
+}
+
+/*
+ * Any module configuration begins with a base module configuration but
+ * can be followed by a generic extension containing audio format for all
+ * module's pins that are in use.
+ */
+static void skl_set_base_ext_module_format(struct skl_dev *skl,
+					   struct skl_module_cfg *mconfig,
+					   struct skl_base_cfg_ext *base_cfg_ext)
+{
+	struct skl_module *module = mconfig->module;
+	struct skl_module_pin_resources *pin_res;
+	struct skl_module_iface *fmt = &module->formats[mconfig->fmt_idx];
+	struct skl_module_res *res = &module->resources[mconfig->res_idx];
+	struct skl_module_fmt *format;
+	struct skl_pin_format *pin_fmt;
+	char *params;
+	int i;
+
+	base_cfg_ext->nr_input_pins = res->nr_input_pins;
+	base_cfg_ext->nr_output_pins = res->nr_output_pins;
+	base_cfg_ext->priv_param_length =
+		mconfig->formats_config[SKL_PARAM_INIT].caps_size;
+
+	for (i = 0; i < res->nr_input_pins; i++) {
+		pin_res = &res->input[i];
+		pin_fmt = &base_cfg_ext->pins_fmt[i];
+
+		pin_fmt->pin_idx = pin_res->pin_index;
+		pin_fmt->buf_size = pin_res->buf_size;
+
+		format = &fmt->inputs[pin_res->pin_index].fmt;
+		fill_pin_params(&pin_fmt->audio_fmt, format);
+	}
+
+	for (i = 0; i < res->nr_output_pins; i++) {
+		pin_res = &res->output[i];
+		pin_fmt = &base_cfg_ext->pins_fmt[res->nr_input_pins + i];
+
+		pin_fmt->pin_idx = pin_res->pin_index;
+		pin_fmt->buf_size = pin_res->buf_size;
+
+		format = &fmt->outputs[pin_res->pin_index].fmt;
+		fill_pin_params(&pin_fmt->audio_fmt, format);
+	}
+
+	if (!base_cfg_ext->priv_param_length)
+		return;
+
+	params = (char *)base_cfg_ext + sizeof(struct skl_base_cfg_ext);
+	params += (base_cfg_ext->nr_input_pins + base_cfg_ext->nr_output_pins) *
+		  sizeof(struct skl_pin_format);
+
+	memcpy(params, mconfig->formats_config[SKL_PARAM_INIT].caps,
+	       mconfig->formats_config[SKL_PARAM_INIT].caps_size);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Copies copier capabilities into copier module and updates copier module
  * config size.
@@ -497,6 +705,7 @@ static void skl_set_base_module_format(struct skl_sst *ctx,
 static void skl_copy_copier_caps(struct skl_module_cfg *mconfig,
 				struct skl_cpr_cfg *cpr_mconfig)
 {
+<<<<<<< HEAD
 	if (mconfig->formats_config.caps_size == 0)
 		return;
 
@@ -506,6 +715,17 @@ static void skl_copy_copier_caps(struct skl_module_cfg *mconfig,
 
 	cpr_mconfig->gtw_cfg.config_length =
 			(mconfig->formats_config.caps_size) / 4;
+=======
+	if (mconfig->formats_config[SKL_PARAM_INIT].caps_size == 0)
+		return;
+
+	memcpy(cpr_mconfig->gtw_cfg.config_data,
+			mconfig->formats_config[SKL_PARAM_INIT].caps,
+			mconfig->formats_config[SKL_PARAM_INIT].caps_size);
+
+	cpr_mconfig->gtw_cfg.config_length =
+			(mconfig->formats_config[SKL_PARAM_INIT].caps_size) / 4;
+>>>>>>> upstream/android-13
 }
 
 #define SKL_NON_GATEWAY_CPR_NODE_ID 0xFFFFFFFF
@@ -513,7 +733,11 @@ static void skl_copy_copier_caps(struct skl_module_cfg *mconfig,
  * Calculate the gatewat settings required for copier module, type of
  * gateway and index of gateway to use
  */
+<<<<<<< HEAD
 static u32 skl_get_node_id(struct skl_sst *ctx,
+=======
+static u32 skl_get_node_id(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig)
 {
 	union skl_connector_node_id node_id = {0};
@@ -570,16 +794,25 @@ static u32 skl_get_node_id(struct skl_sst *ctx,
 	return node_id.val;
 }
 
+<<<<<<< HEAD
 static void skl_setup_cpr_gateway_cfg(struct skl_sst *ctx,
+=======
+static void skl_setup_cpr_gateway_cfg(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig,
 			struct skl_cpr_cfg *cpr_mconfig)
 {
 	u32 dma_io_buf;
 	struct skl_module_res *res;
 	int res_idx = mconfig->res_idx;
+<<<<<<< HEAD
 	struct skl *skl = get_skl_ctx(ctx->dev);
 
 	cpr_mconfig->gtw_cfg.node_id = skl_get_node_id(ctx, mconfig);
+=======
+
+	cpr_mconfig->gtw_cfg.node_id = skl_get_node_id(skl, mconfig);
+>>>>>>> upstream/android-13
 
 	if (cpr_mconfig->gtw_cfg.node_id == SKL_NON_GATEWAY_CPR_NODE_ID) {
 		cpr_mconfig->cpr_feature_mask = 0;
@@ -610,7 +843,11 @@ static void skl_setup_cpr_gateway_cfg(struct skl_sst *ctx,
 		break;
 
 	default:
+<<<<<<< HEAD
 		dev_warn(ctx->dev, "wrong connection type: %d\n",
+=======
+		dev_warn(skl->dev, "wrong connection type: %d\n",
+>>>>>>> upstream/android-13
 				mconfig->hw_conn_type);
 		return;
 	}
@@ -636,7 +873,11 @@ skip_buf_size_calc:
 #define DMA_CONTROL_ID 5
 #define DMA_I2S_BLOB_SIZE 21
 
+<<<<<<< HEAD
 int skl_dsp_set_dma_control(struct skl_sst *ctx, u32 *caps,
+=======
+int skl_dsp_set_dma_control(struct skl_dev *skl, u32 *caps,
+>>>>>>> upstream/android-13
 				u32 caps_size, u32 node_id)
 {
 	struct skl_dma_control *dma_ctrl;
@@ -669,14 +910,22 @@ int skl_dsp_set_dma_control(struct skl_sst *ctx, u32 *caps,
 
 	memcpy(dma_ctrl->config_data, caps, caps_size);
 
+<<<<<<< HEAD
 	err = skl_ipc_set_large_config(&ctx->ipc, &msg, (u32 *)dma_ctrl);
+=======
+	err = skl_ipc_set_large_config(&skl->ipc, &msg, (u32 *)dma_ctrl);
+>>>>>>> upstream/android-13
 
 	kfree(dma_ctrl);
 	return err;
 }
 EXPORT_SYMBOL_GPL(skl_dsp_set_dma_control);
 
+<<<<<<< HEAD
 static void skl_setup_out_format(struct skl_sst *ctx,
+=======
+static void skl_setup_out_format(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig,
 			struct skl_audio_data_format *out_fmt)
 {
@@ -694,7 +943,11 @@ static void skl_setup_out_format(struct skl_sst *ctx,
 	out_fmt->interleaving = format->interleaving_style;
 	out_fmt->sample_type = format->sample_type;
 
+<<<<<<< HEAD
 	dev_dbg(ctx->dev, "copier out format chan=%d fre=%d bitdepth=%d\n",
+=======
+	dev_dbg(skl->dev, "copier out format chan=%d fre=%d bitdepth=%d\n",
+>>>>>>> upstream/android-13
 		out_fmt->number_of_channels, format->s_freq, format->bit_depth);
 }
 
@@ -703,7 +956,11 @@ static void skl_setup_out_format(struct skl_sst *ctx,
  * configuration and the target frequency as extra parameter passed as src
  * config
  */
+<<<<<<< HEAD
 static void skl_set_src_format(struct skl_sst *ctx,
+=======
+static void skl_set_src_format(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig,
 			struct skl_src_module_cfg *src_mconfig)
 {
@@ -711,7 +968,11 @@ static void skl_set_src_format(struct skl_sst *ctx,
 	struct skl_module_iface *iface = &module->formats[mconfig->fmt_idx];
 	struct skl_module_fmt *fmt = &iface->outputs[0].fmt;
 
+<<<<<<< HEAD
 	skl_set_base_module_format(ctx, mconfig,
+=======
+	skl_set_base_module_format(skl, mconfig,
+>>>>>>> upstream/android-13
 		(struct skl_base_cfg *)src_mconfig);
 
 	src_mconfig->src_cfg = fmt->s_freq;
@@ -722,7 +983,11 @@ static void skl_set_src_format(struct skl_sst *ctx,
  * module configuration and channel configuration
  * It also take coefficients and now we have defaults applied here
  */
+<<<<<<< HEAD
 static void skl_set_updown_mixer_format(struct skl_sst *ctx,
+=======
+static void skl_set_updown_mixer_format(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig,
 			struct skl_up_down_mixer_cfg *mixer_mconfig)
 {
@@ -730,7 +995,11 @@ static void skl_set_updown_mixer_format(struct skl_sst *ctx,
 	struct skl_module_iface *iface = &module->formats[mconfig->fmt_idx];
 	struct skl_module_fmt *fmt = &iface->outputs[0].fmt;
 
+<<<<<<< HEAD
 	skl_set_base_module_format(ctx,	mconfig,
+=======
+	skl_set_base_module_format(skl,	mconfig,
+>>>>>>> upstream/android-13
 		(struct skl_base_cfg *)mixer_mconfig);
 	mixer_mconfig->out_ch_cfg = fmt->ch_cfg;
 	mixer_mconfig->ch_map = fmt->ch_map;
@@ -743,13 +1012,18 @@ static void skl_set_updown_mixer_format(struct skl_sst *ctx,
  * format, gateway settings
  * copier_module_config is sent as input buffer with INIT_INSTANCE IPC msg
  */
+<<<<<<< HEAD
 static void skl_set_copier_format(struct skl_sst *ctx,
+=======
+static void skl_set_copier_format(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig,
 			struct skl_cpr_cfg *cpr_mconfig)
 {
 	struct skl_audio_data_format *out_fmt = &cpr_mconfig->out_fmt;
 	struct skl_base_cfg *base_cfg = (struct skl_base_cfg *)cpr_mconfig;
 
+<<<<<<< HEAD
 	skl_set_base_module_format(ctx, mconfig, base_cfg);
 
 	skl_setup_out_format(ctx, mconfig, out_fmt);
@@ -776,6 +1050,12 @@ static void skl_set_algo_format(struct skl_sst *ctx,
 			mconfig->formats_config.caps,
 			mconfig->formats_config.caps_size);
 
+=======
+	skl_set_base_module_format(skl, mconfig, base_cfg);
+
+	skl_setup_out_format(skl, mconfig, out_fmt);
+	skl_setup_cpr_gateway_cfg(skl, mconfig, cpr_mconfig);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -785,7 +1065,11 @@ static void skl_set_algo_format(struct skl_sst *ctx,
  * Mic select module take base module configuration and out-format
  * configuration
  */
+<<<<<<< HEAD
 static void skl_set_base_outfmt_format(struct skl_sst *ctx,
+=======
+static void skl_set_base_outfmt_format(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig,
 			struct skl_base_outfmt_cfg *base_outfmt_mcfg)
 {
@@ -793,6 +1077,7 @@ static void skl_set_base_outfmt_format(struct skl_sst *ctx,
 	struct skl_base_cfg *base_cfg =
 				(struct skl_base_cfg *)base_outfmt_mcfg;
 
+<<<<<<< HEAD
 	skl_set_base_module_format(ctx, mconfig, base_cfg);
 	skl_setup_out_format(ctx, mconfig, out_fmt);
 }
@@ -800,12 +1085,27 @@ static void skl_set_base_outfmt_format(struct skl_sst *ctx,
 static u16 skl_get_module_param_size(struct skl_sst *ctx,
 			struct skl_module_cfg *mconfig)
 {
+=======
+	skl_set_base_module_format(skl, mconfig, base_cfg);
+	skl_setup_out_format(skl, mconfig, out_fmt);
+}
+
+static u16 skl_get_module_param_size(struct skl_dev *skl,
+			struct skl_module_cfg *mconfig)
+{
+	struct skl_module_res *res;
+	struct skl_module *module = mconfig->module;
+>>>>>>> upstream/android-13
 	u16 param_size;
 
 	switch (mconfig->m_type) {
 	case SKL_MODULE_TYPE_COPIER:
 		param_size = sizeof(struct skl_cpr_cfg);
+<<<<<<< HEAD
 		param_size += mconfig->formats_config.caps_size;
+=======
+		param_size += mconfig->formats_config[SKL_PARAM_INIT].caps_size;
+>>>>>>> upstream/android-13
 		return param_size;
 
 	case SKL_MODULE_TYPE_SRCINT:
@@ -814,6 +1114,7 @@ static u16 skl_get_module_param_size(struct skl_sst *ctx,
 	case SKL_MODULE_TYPE_UPDWMIX:
 		return sizeof(struct skl_up_down_mixer_cfg);
 
+<<<<<<< HEAD
 	case SKL_MODULE_TYPE_ALGO:
 		param_size = sizeof(struct skl_base_cfg);
 		param_size += mconfig->formats_config.caps_size;
@@ -830,6 +1131,26 @@ static u16 skl_get_module_param_size(struct skl_sst *ctx,
 		 * specified
 		 */
 		return sizeof(struct skl_base_cfg);
+=======
+	case SKL_MODULE_TYPE_BASE_OUTFMT:
+	case SKL_MODULE_TYPE_MIC_SELECT:
+		return sizeof(struct skl_base_outfmt_cfg);
+
+	case SKL_MODULE_TYPE_MIXER:
+	case SKL_MODULE_TYPE_KPB:
+		return sizeof(struct skl_base_cfg);
+
+	case SKL_MODULE_TYPE_ALGO:
+	default:
+		res = &module->resources[mconfig->res_idx];
+
+		param_size = sizeof(struct skl_base_cfg) + sizeof(struct skl_base_cfg_ext);
+		param_size += (res->nr_input_pins + res->nr_output_pins) *
+			      sizeof(struct skl_pin_format);
+		param_size += mconfig->formats_config[SKL_PARAM_INIT].caps_size;
+
+		return param_size;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -842,14 +1163,22 @@ static u16 skl_get_module_param_size(struct skl_sst *ctx,
  * base module format configuration
  */
 
+<<<<<<< HEAD
 static int skl_set_module_format(struct skl_sst *ctx,
+=======
+static int skl_set_module_format(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *module_config,
 			u16 *module_config_size,
 			void **param_data)
 {
 	u16 param_size;
 
+<<<<<<< HEAD
 	param_size  = skl_get_module_param_size(ctx, module_config);
+=======
+	param_size  = skl_get_module_param_size(skl, module_config);
+>>>>>>> upstream/android-13
 
 	*param_data = kzalloc(param_size, GFP_KERNEL);
 	if (NULL == *param_data)
@@ -859,6 +1188,7 @@ static int skl_set_module_format(struct skl_sst *ctx,
 
 	switch (module_config->m_type) {
 	case SKL_MODULE_TYPE_COPIER:
+<<<<<<< HEAD
 		skl_set_copier_format(ctx, module_config, *param_data);
 		break;
 
@@ -872,10 +1202,22 @@ static int skl_set_module_format(struct skl_sst *ctx,
 
 	case SKL_MODULE_TYPE_ALGO:
 		skl_set_algo_format(ctx, module_config, *param_data);
+=======
+		skl_set_copier_format(skl, module_config, *param_data);
+		break;
+
+	case SKL_MODULE_TYPE_SRCINT:
+		skl_set_src_format(skl, module_config, *param_data);
+		break;
+
+	case SKL_MODULE_TYPE_UPDWMIX:
+		skl_set_updown_mixer_format(skl, module_config, *param_data);
+>>>>>>> upstream/android-13
 		break;
 
 	case SKL_MODULE_TYPE_BASE_OUTFMT:
 	case SKL_MODULE_TYPE_MIC_SELECT:
+<<<<<<< HEAD
 	case SKL_MODULE_TYPE_KPB:
 		skl_set_base_outfmt_format(ctx, module_config, *param_data);
 		break;
@@ -888,6 +1230,28 @@ static int skl_set_module_format(struct skl_sst *ctx,
 
 	dev_dbg(ctx->dev, "Module type=%d config size: %d bytes\n",
 			module_config->id.module_id, param_size);
+=======
+		skl_set_base_outfmt_format(skl, module_config, *param_data);
+		break;
+
+	case SKL_MODULE_TYPE_MIXER:
+	case SKL_MODULE_TYPE_KPB:
+		skl_set_base_module_format(skl, module_config, *param_data);
+		break;
+
+	case SKL_MODULE_TYPE_ALGO:
+	default:
+		skl_set_base_module_format(skl, module_config, *param_data);
+		skl_set_base_ext_module_format(skl, module_config,
+					       *param_data +
+					       sizeof(struct skl_base_cfg));
+		break;
+	}
+
+	dev_dbg(skl->dev, "Module type=%d id=%d config size: %d bytes\n",
+			module_config->m_type, module_config->id.module_id,
+			param_size);
+>>>>>>> upstream/android-13
 	print_hex_dump_debug("Module params:", DUMP_PREFIX_OFFSET, 8, 4,
 			*param_data, param_size, false);
 	return 0;
@@ -987,7 +1351,11 @@ static void skl_clear_module_state(struct skl_module_pin *mpin, int max,
  * We first calculate the module format, based on module type and then
  * invoke the DSP by sending IPC INIT_INSTANCE using ipc helper
  */
+<<<<<<< HEAD
 int skl_init_module(struct skl_sst *ctx,
+=======
+int skl_init_module(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *mconfig)
 {
 	u16 module_config_size = 0;
@@ -995,19 +1363,34 @@ int skl_init_module(struct skl_sst *ctx,
 	int ret;
 	struct skl_ipc_init_instance_msg msg;
 
+<<<<<<< HEAD
 	dev_dbg(ctx->dev, "%s: module_id = %d instance=%d\n", __func__,
 		 mconfig->id.module_id, mconfig->id.pvt_id);
 
 	if (mconfig->pipe->state != SKL_PIPE_CREATED) {
 		dev_err(ctx->dev, "Pipe not created state= %d pipe_id= %d\n",
+=======
+	dev_dbg(skl->dev, "%s: module_id = %d instance=%d\n", __func__,
+		 mconfig->id.module_id, mconfig->id.pvt_id);
+
+	if (mconfig->pipe->state != SKL_PIPE_CREATED) {
+		dev_err(skl->dev, "Pipe not created state= %d pipe_id= %d\n",
+>>>>>>> upstream/android-13
 				 mconfig->pipe->state, mconfig->pipe->ppl_id);
 		return -EIO;
 	}
 
+<<<<<<< HEAD
 	ret = skl_set_module_format(ctx, mconfig,
 			&module_config_size, &param_data);
 	if (ret < 0) {
 		dev_err(ctx->dev, "Failed to set module format ret=%d\n", ret);
+=======
+	ret = skl_set_module_format(skl, mconfig,
+			&module_config_size, &param_data);
+	if (ret < 0) {
+		dev_err(skl->dev, "Failed to set module format ret=%d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -1018,9 +1401,15 @@ int skl_init_module(struct skl_sst *ctx,
 	msg.core_id = mconfig->core_id;
 	msg.domain = mconfig->domain;
 
+<<<<<<< HEAD
 	ret = skl_ipc_init_instance(&ctx->ipc, &msg, param_data);
 	if (ret < 0) {
 		dev_err(ctx->dev, "Failed to init instance ret=%d\n", ret);
+=======
+	ret = skl_ipc_init_instance(&skl->ipc, &msg, param_data);
+	if (ret < 0) {
+		dev_err(skl->dev, "Failed to init instance ret=%d\n", ret);
+>>>>>>> upstream/android-13
 		kfree(param_data);
 		return ret;
 	}
@@ -1029,6 +1418,7 @@ int skl_init_module(struct skl_sst *ctx,
 	return ret;
 }
 
+<<<<<<< HEAD
 static void skl_dump_bind_info(struct skl_sst *ctx, struct skl_module_cfg
 	*src_module, struct skl_module_cfg *dst_module)
 {
@@ -1038,6 +1428,17 @@ static void skl_dump_bind_info(struct skl_sst *ctx, struct skl_module_cfg
 		 dst_module->id.module_id, dst_module->id.pvt_id);
 
 	dev_dbg(ctx->dev, "src_module state = %d dst module state = %d\n",
+=======
+static void skl_dump_bind_info(struct skl_dev *skl, struct skl_module_cfg
+	*src_module, struct skl_module_cfg *dst_module)
+{
+	dev_dbg(skl->dev, "%s: src module_id = %d  src_instance=%d\n",
+		__func__, src_module->id.module_id, src_module->id.pvt_id);
+	dev_dbg(skl->dev, "%s: dst_module=%d dst_instance=%d\n", __func__,
+		 dst_module->id.module_id, dst_module->id.pvt_id);
+
+	dev_dbg(skl->dev, "src_module state = %d dst module state = %d\n",
+>>>>>>> upstream/android-13
 		src_module->m_state, dst_module->m_state);
 }
 
@@ -1046,7 +1447,11 @@ static void skl_dump_bind_info(struct skl_sst *ctx, struct skl_module_cfg
  * it is already bind.
  * Find the pin allocated and unbind then using bind_unbind IPC
  */
+<<<<<<< HEAD
 int skl_unbind_modules(struct skl_sst *ctx,
+=======
+int skl_unbind_modules(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *src_mcfg,
 			struct skl_module_cfg *dst_mcfg)
 {
@@ -1058,7 +1463,11 @@ int skl_unbind_modules(struct skl_sst *ctx,
 	int out_max = src_mcfg->module->max_output_pins;
 	int src_index, dst_index, src_pin_state, dst_pin_state;
 
+<<<<<<< HEAD
 	skl_dump_bind_info(ctx, src_mcfg, dst_mcfg);
+=======
+	skl_dump_bind_info(skl, src_mcfg, dst_mcfg);
+>>>>>>> upstream/android-13
 
 	/* get src queue index */
 	src_index = skl_get_queue_index(src_mcfg->m_out_pin, dst_id, out_max);
@@ -1087,7 +1496,11 @@ int skl_unbind_modules(struct skl_sst *ctx,
 	msg.dst_instance_id = dst_mcfg->id.pvt_id;
 	msg.bind = false;
 
+<<<<<<< HEAD
 	ret = skl_ipc_bind_unbind(&ctx->ipc, &msg);
+=======
+	ret = skl_ipc_bind_unbind(&skl->ipc, &msg);
+>>>>>>> upstream/android-13
 	if (!ret) {
 		/* free queue only if unbind is success */
 		skl_free_queue(src_mcfg->m_out_pin, src_index);
@@ -1103,6 +1516,7 @@ int skl_unbind_modules(struct skl_sst *ctx,
 	return ret;
 }
 
+<<<<<<< HEAD
 static void fill_pin_params(struct skl_audio_data_format *pin_fmt,
 				struct skl_module_fmt *format)
 {
@@ -1116,6 +1530,8 @@ static void fill_pin_params(struct skl_audio_data_format *pin_fmt,
 	pin_fmt->interleaving = format->interleaving_style;
 }
 
+=======
+>>>>>>> upstream/android-13
 #define CPR_SINK_FMT_PARAM_ID 2
 
 /*
@@ -1125,7 +1541,11 @@ static void fill_pin_params(struct skl_audio_data_format *pin_fmt,
  * This function finds the pins and then sends bund_unbind IPC message to
  * DSP using IPC helper
  */
+<<<<<<< HEAD
 int skl_bind_modules(struct skl_sst *ctx,
+=======
+int skl_bind_modules(struct skl_dev *skl,
+>>>>>>> upstream/android-13
 			struct skl_module_cfg *src_mcfg,
 			struct skl_module_cfg *dst_mcfg)
 {
@@ -1139,7 +1559,11 @@ int skl_bind_modules(struct skl_sst *ctx,
 	struct skl_module *module;
 	struct skl_module_iface *fmt;
 
+<<<<<<< HEAD
 	skl_dump_bind_info(ctx, src_mcfg, dst_mcfg);
+=======
+	skl_dump_bind_info(skl, src_mcfg, dst_mcfg);
+>>>>>>> upstream/android-13
 
 	if (src_mcfg->m_state < SKL_MODULE_INIT_DONE ||
 		dst_mcfg->m_state < SKL_MODULE_INIT_DONE)
@@ -1171,7 +1595,11 @@ int skl_bind_modules(struct skl_sst *ctx,
 
 		format = &fmt->outputs[src_index].fmt;
 		fill_pin_params(&(pin_fmt.dst_fmt), format);
+<<<<<<< HEAD
 		ret = skl_set_module_params(ctx, (void *)&pin_fmt,
+=======
+		ret = skl_set_module_params(skl, (void *)&pin_fmt,
+>>>>>>> upstream/android-13
 					sizeof(struct skl_cpr_pin_fmt),
 					CPR_SINK_FMT_PARAM_ID, src_mcfg);
 
@@ -1181,7 +1609,11 @@ int skl_bind_modules(struct skl_sst *ctx,
 
 	msg.dst_queue = dst_index;
 
+<<<<<<< HEAD
 	dev_dbg(ctx->dev, "src queue = %d dst queue =%d\n",
+=======
+	dev_dbg(skl->dev, "src queue = %d dst queue =%d\n",
+>>>>>>> upstream/android-13
 			 msg.src_queue, msg.dst_queue);
 
 	msg.module_id = src_mcfg->id.module_id;
@@ -1190,7 +1622,11 @@ int skl_bind_modules(struct skl_sst *ctx,
 	msg.dst_instance_id = dst_mcfg->id.pvt_id;
 	msg.bind = true;
 
+<<<<<<< HEAD
 	ret = skl_ipc_bind_unbind(&ctx->ipc, &msg);
+=======
+	ret = skl_ipc_bind_unbind(&skl->ipc, &msg);
+>>>>>>> upstream/android-13
 
 	if (!ret) {
 		src_mcfg->m_state = SKL_MODULE_BIND_DONE;
@@ -1206,12 +1642,21 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int skl_set_pipe_state(struct skl_sst *ctx, struct skl_pipe *pipe,
 	enum skl_ipc_pipeline_state state)
 {
 	dev_dbg(ctx->dev, "%s: pipe_state = %d\n", __func__, state);
 
 	return skl_ipc_set_pipeline_state(&ctx->ipc, pipe->ppl_id, state);
+=======
+static int skl_set_pipe_state(struct skl_dev *skl, struct skl_pipe *pipe,
+	enum skl_ipc_pipeline_state state)
+{
+	dev_dbg(skl->dev, "%s: pipe_state = %d\n", __func__, state);
+
+	return skl_ipc_set_pipeline_state(&skl->ipc, pipe->ppl_id, state);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1220,6 +1665,7 @@ static int skl_set_pipe_state(struct skl_sst *ctx, struct skl_pipe *pipe,
  * This function creates pipeline, by sending create pipeline IPC messages
  * to FW
  */
+<<<<<<< HEAD
 int skl_create_pipeline(struct skl_sst *ctx, struct skl_pipe *pipe)
 {
 	int ret;
@@ -1231,6 +1677,19 @@ int skl_create_pipeline(struct skl_sst *ctx, struct skl_pipe *pipe)
 				pipe->lp_mode);
 	if (ret < 0) {
 		dev_err(ctx->dev, "Failed to create pipeline\n");
+=======
+int skl_create_pipeline(struct skl_dev *skl, struct skl_pipe *pipe)
+{
+	int ret;
+
+	dev_dbg(skl->dev, "%s: pipe_id = %d\n", __func__, pipe->ppl_id);
+
+	ret = skl_ipc_create_pipeline(&skl->ipc, pipe->memory_pages,
+				pipe->pipe_priority, pipe->ppl_id,
+				pipe->lp_mode);
+	if (ret < 0) {
+		dev_err(skl->dev, "Failed to create pipeline\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -1240,6 +1699,7 @@ int skl_create_pipeline(struct skl_sst *ctx, struct skl_pipe *pipe)
 }
 
 /*
+<<<<<<< HEAD
  * A pipeline needs to be deleted on cleanup. If a pipeline is running, then
  * pause the pipeline first and then delete it
  * The pipe delete is done by sending delete pipeline IPC. DSP will stop the
@@ -1256,12 +1716,35 @@ int skl_delete_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
 		ret = skl_set_pipe_state(ctx, pipe, PPL_PAUSED);
 		if (ret < 0) {
 			dev_err(ctx->dev, "Failed to stop pipeline\n");
+=======
+ * A pipeline needs to be deleted on cleanup. If a pipeline is running,
+ * then pause it first. Before actual deletion, pipeline should enter
+ * reset state. Finish the procedure by sending delete pipeline IPC.
+ * DSP will stop the DMA engines and release resources
+ */
+int skl_delete_pipe(struct skl_dev *skl, struct skl_pipe *pipe)
+{
+	int ret;
+
+	dev_dbg(skl->dev, "%s: pipe = %d\n", __func__, pipe->ppl_id);
+
+	/* If pipe was not created in FW, do not try to delete it */
+	if (pipe->state < SKL_PIPE_CREATED)
+		return 0;
+
+	/* If pipe is started, do stop the pipe in FW. */
+	if (pipe->state >= SKL_PIPE_STARTED) {
+		ret = skl_set_pipe_state(skl, pipe, PPL_PAUSED);
+		if (ret < 0) {
+			dev_err(skl->dev, "Failed to stop pipeline\n");
+>>>>>>> upstream/android-13
 			return ret;
 		}
 
 		pipe->state = SKL_PIPE_PAUSED;
 	}
 
+<<<<<<< HEAD
 	/* If pipe was not created in FW, do not try to delete it */
 	if (pipe->state < SKL_PIPE_CREATED)
 		return 0;
@@ -1269,6 +1752,20 @@ int skl_delete_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
 	ret = skl_ipc_delete_pipeline(&ctx->ipc, pipe->ppl_id);
 	if (ret < 0) {
 		dev_err(ctx->dev, "Failed to delete pipeline\n");
+=======
+	/* reset pipe state before deletion */
+	ret = skl_set_pipe_state(skl, pipe, PPL_RESET);
+	if (ret < 0) {
+		dev_err(skl->dev, "Failed to reset pipe ret=%d\n", ret);
+		return ret;
+	}
+
+	pipe->state = SKL_PIPE_RESET;
+
+	ret = skl_ipc_delete_pipeline(&skl->ipc, pipe->ppl_id);
+	if (ret < 0) {
+		dev_err(skl->dev, "Failed to delete pipeline\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -1282,28 +1779,48 @@ int skl_delete_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
  * For processing data the pipe need to be run by sending IPC set pipe state
  * to DSP
  */
+<<<<<<< HEAD
 int skl_run_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
 {
 	int ret;
 
 	dev_dbg(ctx->dev, "%s: pipe = %d\n", __func__, pipe->ppl_id);
+=======
+int skl_run_pipe(struct skl_dev *skl, struct skl_pipe *pipe)
+{
+	int ret;
+
+	dev_dbg(skl->dev, "%s: pipe = %d\n", __func__, pipe->ppl_id);
+>>>>>>> upstream/android-13
 
 	/* If pipe was not created in FW, do not try to pause or delete */
 	if (pipe->state < SKL_PIPE_CREATED)
 		return 0;
 
 	/* Pipe has to be paused before it is started */
+<<<<<<< HEAD
 	ret = skl_set_pipe_state(ctx, pipe, PPL_PAUSED);
 	if (ret < 0) {
 		dev_err(ctx->dev, "Failed to pause pipe\n");
+=======
+	ret = skl_set_pipe_state(skl, pipe, PPL_PAUSED);
+	if (ret < 0) {
+		dev_err(skl->dev, "Failed to pause pipe\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	pipe->state = SKL_PIPE_PAUSED;
 
+<<<<<<< HEAD
 	ret = skl_set_pipe_state(ctx, pipe, PPL_RUNNING);
 	if (ret < 0) {
 		dev_err(ctx->dev, "Failed to start pipe\n");
+=======
+	ret = skl_set_pipe_state(skl, pipe, PPL_RUNNING);
+	if (ret < 0) {
+		dev_err(skl->dev, "Failed to start pipe\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -1316,19 +1833,33 @@ int skl_run_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
  * Stop the pipeline by sending set pipe state IPC
  * DSP doesnt implement stop so we always send pause message
  */
+<<<<<<< HEAD
 int skl_stop_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
 {
 	int ret;
 
 	dev_dbg(ctx->dev, "In %s pipe=%d\n", __func__, pipe->ppl_id);
+=======
+int skl_stop_pipe(struct skl_dev *skl, struct skl_pipe *pipe)
+{
+	int ret;
+
+	dev_dbg(skl->dev, "In %s pipe=%d\n", __func__, pipe->ppl_id);
+>>>>>>> upstream/android-13
 
 	/* If pipe was not created in FW, do not try to pause or delete */
 	if (pipe->state < SKL_PIPE_PAUSED)
 		return 0;
 
+<<<<<<< HEAD
 	ret = skl_set_pipe_state(ctx, pipe, PPL_PAUSED);
 	if (ret < 0) {
 		dev_dbg(ctx->dev, "Failed to stop pipe\n");
+=======
+	ret = skl_set_pipe_state(skl, pipe, PPL_PAUSED);
+	if (ret < 0) {
+		dev_dbg(skl->dev, "Failed to stop pipe\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -1341,7 +1872,11 @@ int skl_stop_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
  * Reset the pipeline by sending set pipe state IPC this will reset the DMA
  * from the DSP side
  */
+<<<<<<< HEAD
 int skl_reset_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
+=======
+int skl_reset_pipe(struct skl_dev *skl, struct skl_pipe *pipe)
+>>>>>>> upstream/android-13
 {
 	int ret;
 
@@ -1349,9 +1884,15 @@ int skl_reset_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
 	if (pipe->state < SKL_PIPE_PAUSED)
 		return 0;
 
+<<<<<<< HEAD
 	ret = skl_set_pipe_state(ctx, pipe, PPL_RESET);
 	if (ret < 0) {
 		dev_dbg(ctx->dev, "Failed to reset pipe ret=%d\n", ret);
+=======
+	ret = skl_set_pipe_state(skl, pipe, PPL_RESET);
+	if (ret < 0) {
+		dev_dbg(skl->dev, "Failed to reset pipe ret=%d\n", ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -1361,7 +1902,11 @@ int skl_reset_pipe(struct skl_sst *ctx, struct skl_pipe *pipe)
 }
 
 /* Algo parameter set helper function */
+<<<<<<< HEAD
 int skl_set_module_params(struct skl_sst *ctx, u32 *params, int size,
+=======
+int skl_set_module_params(struct skl_dev *skl, u32 *params, int size,
+>>>>>>> upstream/android-13
 				u32 param_id, struct skl_module_cfg *mcfg)
 {
 	struct skl_ipc_large_config_msg msg;
@@ -1371,6 +1916,7 @@ int skl_set_module_params(struct skl_sst *ctx, u32 *params, int size,
 	msg.param_data_size = size;
 	msg.large_param_id = param_id;
 
+<<<<<<< HEAD
 	return skl_ipc_set_large_config(&ctx->ipc, &msg, params);
 }
 
@@ -1378,11 +1924,25 @@ int skl_get_module_params(struct skl_sst *ctx, u32 *params, int size,
 			  u32 param_id, struct skl_module_cfg *mcfg)
 {
 	struct skl_ipc_large_config_msg msg;
+=======
+	return skl_ipc_set_large_config(&skl->ipc, &msg, params);
+}
+
+int skl_get_module_params(struct skl_dev *skl, u32 *params, int size,
+			  u32 param_id, struct skl_module_cfg *mcfg)
+{
+	struct skl_ipc_large_config_msg msg;
+	size_t bytes = size;
+>>>>>>> upstream/android-13
 
 	msg.module_id = mcfg->id.module_id;
 	msg.instance_id = mcfg->id.pvt_id;
 	msg.param_data_size = size;
 	msg.large_param_id = param_id;
 
+<<<<<<< HEAD
 	return skl_ipc_get_large_config(&ctx->ipc, &msg, params);
+=======
+	return skl_ipc_get_large_config(&skl->ipc, &msg, &params, &bytes);
+>>>>>>> upstream/android-13
 }

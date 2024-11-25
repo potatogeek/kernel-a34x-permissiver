@@ -24,6 +24,10 @@
 #define ARCH_SLAB_MINALIGN 8
 #endif
 
+<<<<<<< HEAD
 #define __read_mostly __attribute__((__section__(".data..read_mostly")))
+=======
+#define __read_mostly __section(".data..read_mostly")
+>>>>>>> upstream/android-13
 
 #endif

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /******************************************************************************
 **  Device driver for the PCI-SCSI NCR538XX controller family.
 **
 **  Copyright (C) 1994  Wolfgang Stanglmeier
 **  Copyright (C) 1998-2001  Gerard Roudier <groudier@free.fr>
 **
+<<<<<<< HEAD
 **  This program is free software; you can redistribute it and/or modify
 **  it under the terms of the GNU General Public License as published by
 **  the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
 **  You should have received a copy of the GNU General Public License
 **  along with this program; if not, write to the Free Software
 **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 **
 **-----------------------------------------------------------------------------
 **
@@ -1251,6 +1258,7 @@ struct scr_tblsel {
 */
 
 /*
+<<<<<<< HEAD
 **	Status
 */
 
@@ -1267,6 +1275,8 @@ struct scr_tblsel {
 #define	S_SENSE		(0x80)
 
 /*
+=======
+>>>>>>> upstream/android-13
  * End of ncrreg from FreeBSD
  */
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -11,6 +12,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright IBM Corp. 2008
  *
@@ -81,7 +86,11 @@ void kvmppc_set_tcr(struct kvm_vcpu *vcpu, u32 new_tcr);
 void kvmppc_set_tsr_bits(struct kvm_vcpu *vcpu, u32 tsr_bits);
 void kvmppc_clr_tsr_bits(struct kvm_vcpu *vcpu, u32 tsr_bits);
 
+<<<<<<< HEAD
 int kvmppc_booke_emulate_op(struct kvm_run *run, struct kvm_vcpu *vcpu,
+=======
+int kvmppc_booke_emulate_op(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
                             unsigned int inst, int *advance);
 int kvmppc_booke_emulate_mfspr(struct kvm_vcpu *vcpu, int sprn, ulong *spr_val);
 int kvmppc_booke_emulate_mtspr(struct kvm_vcpu *vcpu, int sprn, ulong spr_val);
@@ -105,18 +114,25 @@ enum int_class {
 
 void kvmppc_set_pending_interrupt(struct kvm_vcpu *vcpu, enum int_class type);
 
+<<<<<<< HEAD
 extern void kvmppc_mmu_destroy_e500(struct kvm_vcpu *vcpu);
 extern int kvmppc_core_emulate_op_e500(struct kvm_run *run,
 				       struct kvm_vcpu *vcpu,
+=======
+extern int kvmppc_core_emulate_op_e500(struct kvm_vcpu *vcpu,
+>>>>>>> upstream/android-13
 				       unsigned int inst, int *advance);
 extern int kvmppc_core_emulate_mtspr_e500(struct kvm_vcpu *vcpu, int sprn,
 					  ulong spr_val);
 extern int kvmppc_core_emulate_mfspr_e500(struct kvm_vcpu *vcpu, int sprn,
 					  ulong *spr_val);
+<<<<<<< HEAD
 extern void kvmppc_mmu_destroy_e500(struct kvm_vcpu *vcpu);
 extern int kvmppc_core_emulate_op_e500(struct kvm_run *run,
 				       struct kvm_vcpu *vcpu,
 				       unsigned int inst, int *advance);
+=======
+>>>>>>> upstream/android-13
 extern int kvmppc_core_emulate_mtspr_e500(struct kvm_vcpu *vcpu, int sprn,
 					  ulong spr_val);
 extern int kvmppc_core_emulate_mfspr_e500(struct kvm_vcpu *vcpu, int sprn,

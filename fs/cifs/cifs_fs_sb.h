@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  *   fs/cifs/cifs_fs_sb.h
+=======
+/* SPDX-License-Identifier: LGPL-2.1 */
+/*
+>>>>>>> upstream/android-13
  *
  *   Copyright (c) International Business Machines  Corp., 2002,2004
  *   Author(s): Steve French (sfrench@us.ibm.com)
  *
+<<<<<<< HEAD
  *   This library is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published
  *   by the Free Software Foundation; either version 2.1 of the License, or
@@ -14,6 +20,8 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
  *   the GNU Lesser General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/rbtree.h>
 
@@ -51,12 +59,21 @@
 					      */
 #define CIFS_MOUNT_UID_FROM_ACL 0x2000000 /* try to get UID via special SID */
 #define CIFS_MOUNT_NO_HANDLE_CACHE 0x4000000 /* disable caching dir handles */
+<<<<<<< HEAD
+=======
+#define CIFS_MOUNT_NO_DFS 0x8000000 /* disable DFS resolving */
+#define CIFS_MOUNT_MODE_FROM_SID 0x10000000 /* retrieve mode from special ACE */
+#define CIFS_MOUNT_RO_CACHE	0x20000000  /* assumes share will not change */
+#define CIFS_MOUNT_RW_CACHE	0x40000000  /* assumes only client accessing */
+#define CIFS_MOUNT_SHUTDOWN	0x80000000
+>>>>>>> upstream/android-13
 
 struct cifs_sb_info {
 	struct rb_root tlink_tree;
 	spinlock_t tlink_tree_lock;
 	struct tcon_link *master_tlink;
 	struct nls_table *local_nls;
+<<<<<<< HEAD
 	unsigned int rsize;
 	unsigned int wsize;
 	unsigned long actimeo; /* attribute cache timeout (jiffies) */
@@ -72,10 +89,35 @@ struct cifs_sb_info {
 	struct delayed_work prune_tlinks;
 	struct rcu_head rcu;
 	char *prepath;
+=======
+	struct smb3_fs_context *ctx;
+	atomic_t active;
+	unsigned int mnt_cifs_flags;
+	struct delayed_work prune_tlinks;
+	struct rcu_head rcu;
+
+	/* only used when CIFS_MOUNT_USE_PREFIX_PATH is set */
+	char *prepath;
+
+	/*
+	 * Canonical DFS path initially provided by the mount call. We might connect to something
+	 * different via DFS but we want to keep it to do failover properly.
+	 */
+	char *origin_fullpath; /* \\HOST\SHARE\[OPTIONAL PATH] */
+	/* randomly generated 128-bit number for indexing dfs mount groups in referral cache */
+	uuid_t dfs_mount_id;
+>>>>>>> upstream/android-13
 	/*
 	 * Indicate whether serverino option was turned off later
 	 * (cifs_autodisable_serverino) in order to match new mounts.
 	 */
 	bool mnt_cifs_serverino_autodisabled;
+<<<<<<< HEAD
+=======
+	/*
+	 * Available once the mount has completed.
+	 */
+	struct dentry *root;
+>>>>>>> upstream/android-13
 };
 #endif				/* _CIFS_FS_SB_H */

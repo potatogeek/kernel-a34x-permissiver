@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * {read,write}{b,w,l,q} based on arch/arm64/include/asm/io.h
  *   which was based on arch/arm/include/io.h
@@ -5,6 +9,7 @@
  * Copyright (C) 1996-2000 Russell King
  * Copyright (C) 2012 ARM Ltd.
  * Copyright (C) 2014 Regents of the University of California
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
@@ -14,12 +19,15 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ASM_RISCV_IO_H
 #define _ASM_RISCV_IO_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 
 extern void __iomem *ioremap(phys_addr_t offset, unsigned long size);
 
@@ -179,6 +187,25 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
 #define readq(c)	({ u64 __v; __io_br(); __v = readq_cpu(c); __io_ar(); __v; })
 #define writeq(v,c)	({ __io_bw(); writeq_cpu((v),(c)); __io_aw(); })
 #endif
+=======
+#include <linux/pgtable.h>
+#include <asm/mmiowb.h>
+#include <asm/early_ioremap.h>
+
+/*
+ * MMIO access functions are separated out to break dependency cycles
+ * when using {read,write}* fns in low-level headers
+ */
+#include <asm/mmio.h>
+
+/*
+ *  I/O port access constants.
+ */
+#ifdef CONFIG_MMU
+#define IO_SPACE_LIMIT		(PCI_IO_SIZE - 1)
+#define PCI_IOBASE		((void __iomem *)PCI_IO_START)
+#endif /* CONFIG_MMU */
+>>>>>>> upstream/android-13
 
 /*
  * Emulation routines for the port-mapped IO space used by some PCI drivers.
@@ -198,6 +225,7 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
  * writes.
  */
 #define __io_pbr()	__asm__ __volatile__ ("fence io,i"  : : : "memory");
+<<<<<<< HEAD
 #define __io_par()	__asm__ __volatile__ ("fence i,ior" : : : "memory");
 #define __io_pbw()	__asm__ __volatile__ ("fence iow,o" : : : "memory");
 #define __io_paw()	__asm__ __volatile__ ("fence o,io"  : : : "memory");
@@ -215,6 +243,12 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
 #define outq(v,c)	({ __io_pbw(); writeq_cpu((v),(void*)(c)); __io_paw(); })
 #endif
 
+=======
+#define __io_par(v)	__asm__ __volatile__ ("fence i,ior" : : : "memory");
+#define __io_pbw()	__asm__ __volatile__ ("fence iow,o" : : : "memory");
+#define __io_paw()	__asm__ __volatile__ ("fence o,io"  : : : "memory");
+
+>>>>>>> upstream/android-13
 /*
  * Accesses from a single hart to a single I/O address must be ordered.  This
  * allows us to use the raw read macros, but we still need to fence before and
@@ -254,16 +288,28 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
 		afence;								\
 	}
 
+<<<<<<< HEAD
 __io_reads_ins(reads,  u8, b, __io_br(), __io_ar())
 __io_reads_ins(reads, u16, w, __io_br(), __io_ar())
 __io_reads_ins(reads, u32, l, __io_br(), __io_ar())
+=======
+__io_reads_ins(reads,  u8, b, __io_br(), __io_ar(addr))
+__io_reads_ins(reads, u16, w, __io_br(), __io_ar(addr))
+__io_reads_ins(reads, u32, l, __io_br(), __io_ar(addr))
+>>>>>>> upstream/android-13
 #define readsb(addr, buffer, count) __readsb(addr, buffer, count)
 #define readsw(addr, buffer, count) __readsw(addr, buffer, count)
 #define readsl(addr, buffer, count) __readsl(addr, buffer, count)
 
+<<<<<<< HEAD
 __io_reads_ins(ins,  u8, b, __io_pbr(), __io_par())
 __io_reads_ins(ins, u16, w, __io_pbr(), __io_par())
 __io_reads_ins(ins, u32, l, __io_pbr(), __io_par())
+=======
+__io_reads_ins(ins,  u8, b, __io_pbr(), __io_par(addr))
+__io_reads_ins(ins, u16, w, __io_pbr(), __io_par(addr))
+__io_reads_ins(ins, u32, l, __io_pbr(), __io_par(addr))
+>>>>>>> upstream/android-13
 #define insb(addr, buffer, count) __insb((void __iomem *)(long)addr, buffer, count)
 #define insw(addr, buffer, count) __insw((void __iomem *)(long)addr, buffer, count)
 #define insl(addr, buffer, count) __insl((void __iomem *)(long)addr, buffer, count)
@@ -283,10 +329,17 @@ __io_writes_outs(outs, u32, l, __io_pbw(), __io_paw())
 #define outsl(addr, buffer, count) __outsl((void __iomem *)(long)addr, buffer, count)
 
 #ifdef CONFIG_64BIT
+<<<<<<< HEAD
 __io_reads_ins(reads, u64, q, __io_br(), __io_ar())
 #define readsq(addr, buffer, count) __readsq(addr, buffer, count)
 
 __io_reads_ins(ins, u64, q, __io_pbr(), __io_par())
+=======
+__io_reads_ins(reads, u64, q, __io_br(), __io_ar(addr))
+#define readsq(addr, buffer, count) __readsq(addr, buffer, count)
+
+__io_reads_ins(ins, u64, q, __io_pbr(), __io_par(addr))
+>>>>>>> upstream/android-13
 #define insq(addr, buffer, count) __insq((void __iomem *)addr, buffer, count)
 
 __io_writes_outs(writes, u64, q, __io_bw(), __io_aw())

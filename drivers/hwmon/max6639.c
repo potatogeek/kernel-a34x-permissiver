@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * max6639.c - Support for Maxim MAX6639
  *
@@ -7,6 +11,7 @@
  *
  * based on the initial MAX6639 support from semptian.net
  * by He Changqing <hechangqing@semptian.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -162,7 +169,11 @@ abort:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_input(struct device *dev,
+=======
+static ssize_t temp_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *dev_attr, char *buf)
 {
 	long temp;
@@ -176,7 +187,11 @@ static ssize_t show_temp_input(struct device *dev,
 	return sprintf(buf, "%ld\n", temp);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_fault(struct device *dev,
+=======
+static ssize_t temp_fault_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *dev_attr, char *buf)
 {
 	struct max6639_data *data = max6639_update_device(dev);
@@ -188,7 +203,11 @@ static ssize_t show_temp_fault(struct device *dev,
 	return sprintf(buf, "%d\n", data->temp_fault[attr->index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev,
+=======
+static ssize_t temp_max_show(struct device *dev,
+>>>>>>> upstream/android-13
 			     struct device_attribute *dev_attr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
@@ -197,9 +216,15 @@ static ssize_t show_temp_max(struct device *dev,
 	return sprintf(buf, "%d\n", (data->temp_therm[attr->index] * 1000));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_max(struct device *dev,
 			    struct device_attribute *dev_attr,
 			    const char *buf, size_t count)
+=======
+static ssize_t temp_max_store(struct device *dev,
+			      struct device_attribute *dev_attr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 	struct max6639_data *data = dev_get_drvdata(dev);
@@ -220,7 +245,11 @@ static ssize_t set_temp_max(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_crit(struct device *dev,
+=======
+static ssize_t temp_crit_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *dev_attr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
@@ -229,9 +258,15 @@ static ssize_t show_temp_crit(struct device *dev,
 	return sprintf(buf, "%d\n", (data->temp_alert[attr->index] * 1000));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_crit(struct device *dev,
 			     struct device_attribute *dev_attr,
 			     const char *buf, size_t count)
+=======
+static ssize_t temp_crit_store(struct device *dev,
+			       struct device_attribute *dev_attr,
+			       const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 	struct max6639_data *data = dev_get_drvdata(dev);
@@ -252,7 +287,11 @@ static ssize_t set_temp_crit(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_emergency(struct device *dev,
+=======
+static ssize_t temp_emergency_show(struct device *dev,
+>>>>>>> upstream/android-13
 				   struct device_attribute *dev_attr,
 				   char *buf)
 {
@@ -262,9 +301,15 @@ static ssize_t show_temp_emergency(struct device *dev,
 	return sprintf(buf, "%d\n", (data->temp_ot[attr->index] * 1000));
 }
 
+<<<<<<< HEAD
 static ssize_t set_temp_emergency(struct device *dev,
 				  struct device_attribute *dev_attr,
 				  const char *buf, size_t count)
+=======
+static ssize_t temp_emergency_store(struct device *dev,
+				    struct device_attribute *dev_attr,
+				    const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 	struct max6639_data *data = dev_get_drvdata(dev);
@@ -285,8 +330,13 @@ static ssize_t set_temp_emergency(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm(struct device *dev,
 			struct device_attribute *dev_attr, char *buf)
+=======
+static ssize_t pwm_show(struct device *dev, struct device_attribute *dev_attr,
+			char *buf)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 	struct max6639_data *data = dev_get_drvdata(dev);
@@ -294,9 +344,15 @@ static ssize_t show_pwm(struct device *dev,
 	return sprintf(buf, "%d\n", data->pwm[attr->index] * 255 / 120);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev,
 		       struct device_attribute *dev_attr,
 		       const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev,
+			 struct device_attribute *dev_attr, const char *buf,
+			 size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 	struct max6639_data *data = dev_get_drvdata(dev);
@@ -319,7 +375,11 @@ static ssize_t set_pwm(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_input(struct device *dev,
+=======
+static ssize_t fan_input_show(struct device *dev,
+>>>>>>> upstream/android-13
 			      struct device_attribute *dev_attr, char *buf)
 {
 	struct max6639_data *data = max6639_update_device(dev);
@@ -332,7 +392,11 @@ static ssize_t show_fan_input(struct device *dev,
 		       data->rpm_range));
 }
 
+<<<<<<< HEAD
 static ssize_t show_alarm(struct device *dev,
+=======
+static ssize_t alarm_show(struct device *dev,
+>>>>>>> upstream/android-13
 			  struct device_attribute *dev_attr, char *buf)
 {
 	struct max6639_data *data = max6639_update_device(dev);
@@ -344,6 +408,7 @@ static ssize_t show_alarm(struct device *dev,
 	return sprintf(buf, "%d\n", !!(data->status & (1 << attr->index)));
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temp_input, NULL, 0);
 static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, show_temp_input, NULL, 1);
 static SENSOR_DEVICE_ATTR(temp1_fault, S_IRUGO, show_temp_fault, NULL, 0);
@@ -372,6 +437,30 @@ static SENSOR_DEVICE_ATTR(temp1_crit_alarm, S_IRUGO, show_alarm, NULL, 7);
 static SENSOR_DEVICE_ATTR(temp2_crit_alarm, S_IRUGO, show_alarm, NULL, 6);
 static SENSOR_DEVICE_ATTR(temp1_emergency_alarm, S_IRUGO, show_alarm, NULL, 5);
 static SENSOR_DEVICE_ATTR(temp2_emergency_alarm, S_IRUGO, show_alarm, NULL, 4);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_input, temp_input, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_input, temp_input, 1);
+static SENSOR_DEVICE_ATTR_RO(temp1_fault, temp_fault, 0);
+static SENSOR_DEVICE_ATTR_RO(temp2_fault, temp_fault, 1);
+static SENSOR_DEVICE_ATTR_RW(temp1_max, temp_max, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_max, temp_max, 1);
+static SENSOR_DEVICE_ATTR_RW(temp1_crit, temp_crit, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_crit, temp_crit, 1);
+static SENSOR_DEVICE_ATTR_RW(temp1_emergency, temp_emergency, 0);
+static SENSOR_DEVICE_ATTR_RW(temp2_emergency, temp_emergency, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2, pwm, 1);
+static SENSOR_DEVICE_ATTR_RO(fan1_input, fan_input, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, fan_input, 1);
+static SENSOR_DEVICE_ATTR_RO(fan1_fault, alarm, 1);
+static SENSOR_DEVICE_ATTR_RO(fan2_fault, alarm, 0);
+static SENSOR_DEVICE_ATTR_RO(temp1_max_alarm, alarm, 3);
+static SENSOR_DEVICE_ATTR_RO(temp2_max_alarm, alarm, 2);
+static SENSOR_DEVICE_ATTR_RO(temp1_crit_alarm, alarm, 7);
+static SENSOR_DEVICE_ATTR_RO(temp2_crit_alarm, alarm, 6);
+static SENSOR_DEVICE_ATTR_RO(temp1_emergency_alarm, alarm, 5);
+static SENSOR_DEVICE_ATTR_RO(temp2_emergency_alarm, alarm, 4);
+>>>>>>> upstream/android-13
 
 
 static struct attribute *max6639_attrs[] = {
@@ -535,8 +624,12 @@ static int max6639_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int max6639_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
+=======
+static int max6639_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct max6639_data *data;
@@ -600,7 +693,11 @@ static struct i2c_driver max6639_driver = {
 		   .name = "max6639",
 		   .pm = &max6639_pm_ops,
 		   },
+<<<<<<< HEAD
 	.probe = max6639_probe,
+=======
+	.probe_new = max6639_probe,
+>>>>>>> upstream/android-13
 	.id_table = max6639_id,
 	.detect = max6639_detect,
 	.address_list = normal_i2c,

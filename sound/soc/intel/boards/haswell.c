@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Intel Haswell Lynxpoint SST Audio
  *
  * Copyright (C) 2013, Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -19,11 +26,17 @@
 #include <sound/core.h>
 #include <sound/pcm.h>
 #include <sound/soc.h>
+<<<<<<< HEAD
 #include <sound/pcm_params.h>
 
 #include "../common/sst-dsp.h"
 #include "../haswell/sst-haswell-ipc.h"
 
+=======
+#include <sound/soc-acpi.h>
+#include <sound/pcm_params.h>
+
+>>>>>>> upstream/android-13
 #include "../../codecs/rt5640.h"
 
 /* Haswell ULT platforms have a Headphone and Mic jack */
@@ -63,8 +76,13 @@ static int haswell_ssp0_fixup(struct snd_soc_pcm_runtime *rtd,
 static int haswell_rt5640_hw_params(struct snd_pcm_substream *substream,
 	struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = snd_soc_dai_set_sysclk(codec_dai, RT5640_SCLK_S_MCLK, 12288000,
@@ -85,6 +103,7 @@ static const struct snd_soc_ops haswell_rt5640_ops = {
 	.hw_params = haswell_rt5640_hw_params,
 };
 
+<<<<<<< HEAD
 static int haswell_rtd_init(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_soc_component *component = snd_soc_rtdcom_lookup(rtd, DRV_NAME);
@@ -103,12 +122,38 @@ static int haswell_rtd_init(struct snd_soc_pcm_runtime *rtd)
 
 	return 0;
 }
+=======
+SND_SOC_DAILINK_DEF(dummy,
+	DAILINK_COMP_ARRAY(COMP_DUMMY()));
+
+SND_SOC_DAILINK_DEF(system,
+	DAILINK_COMP_ARRAY(COMP_CPU("System Pin")));
+
+SND_SOC_DAILINK_DEF(offload0,
+	DAILINK_COMP_ARRAY(COMP_CPU("Offload0 Pin")));
+
+SND_SOC_DAILINK_DEF(offload1,
+	DAILINK_COMP_ARRAY(COMP_CPU("Offload1 Pin")));
+
+SND_SOC_DAILINK_DEF(loopback,
+	DAILINK_COMP_ARRAY(COMP_CPU("Loopback Pin")));
+
+SND_SOC_DAILINK_DEF(codec,
+	DAILINK_COMP_ARRAY(COMP_CODEC("i2c-INT33CA:00", "rt5640-aif1")));
+
+SND_SOC_DAILINK_DEF(platform,
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("haswell-pcm-audio")));
+
+SND_SOC_DAILINK_DEF(ssp0_port,
+	    DAILINK_COMP_ARRAY(COMP_CPU("ssp0-port")));
+>>>>>>> upstream/android-13
 
 static struct snd_soc_dai_link haswell_rt5640_dais[] = {
 	/* Front End DAI links */
 	{
 		.name = "System",
 		.stream_name = "System Playback/Capture",
+<<<<<<< HEAD
 		.cpu_dai_name = "System Pin",
 		.platform_name = "haswell-pcm-audio",
 		.dynamic = 1,
@@ -118,10 +163,19 @@ static struct snd_soc_dai_link haswell_rt5640_dais[] = {
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
+=======
+		.nonatomic = 1,
+		.dynamic = 1,
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dpcm_playback = 1,
+		.dpcm_capture = 1,
+		SND_SOC_DAILINK_REG(system, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "Offload0",
 		.stream_name = "Offload0 Playback",
+<<<<<<< HEAD
 		.cpu_dai_name = "Offload0 Pin",
 		.platform_name = "haswell-pcm-audio",
 		.dynamic = 1,
@@ -129,10 +183,18 @@ static struct snd_soc_dai_link haswell_rt5640_dais[] = {
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dpcm_playback = 1,
+=======
+		.nonatomic = 1,
+		.dynamic = 1,
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dpcm_playback = 1,
+		SND_SOC_DAILINK_REG(offload0, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "Offload1",
 		.stream_name = "Offload1 Playback",
+<<<<<<< HEAD
 		.cpu_dai_name = "Offload1 Pin",
 		.platform_name = "haswell-pcm-audio",
 		.dynamic = 1,
@@ -140,10 +202,18 @@ static struct snd_soc_dai_link haswell_rt5640_dais[] = {
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dpcm_playback = 1,
+=======
+		.nonatomic = 1,
+		.dynamic = 1,
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dpcm_playback = 1,
+		SND_SOC_DAILINK_REG(offload1, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 	{
 		.name = "Loopback",
 		.stream_name = "Loopback",
+<<<<<<< HEAD
 		.cpu_dai_name = "Loopback Pin",
 		.platform_name = "haswell-pcm-audio",
 		.dynamic = 1,
@@ -151,6 +221,13 @@ static struct snd_soc_dai_link haswell_rt5640_dais[] = {
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
 		.dpcm_capture = 1,
+=======
+		.nonatomic = 1,
+		.dynamic = 1,
+		.trigger = {SND_SOC_DPCM_TRIGGER_POST, SND_SOC_DPCM_TRIGGER_POST},
+		.dpcm_capture = 1,
+		SND_SOC_DAILINK_REG(loopback, dummy, platform),
+>>>>>>> upstream/android-13
 	},
 
 	/* Back End DAI links */
@@ -158,6 +235,7 @@ static struct snd_soc_dai_link haswell_rt5640_dais[] = {
 		/* SSP0 - Codec */
 		.name = "Codec",
 		.id = 0,
+<<<<<<< HEAD
 		.cpu_dai_name = "snd-soc-dummy-dai",
 		.platform_name = "snd-soc-dummy",
 		.no_pcm = 1,
@@ -166,11 +244,20 @@ static struct snd_soc_dai_link haswell_rt5640_dais[] = {
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
 			SND_SOC_DAIFMT_CBS_CFS,
 		.ignore_suspend = 1,
+=======
+		.no_pcm = 1,
+		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+			SND_SOC_DAIFMT_CBS_CFS,
+>>>>>>> upstream/android-13
 		.ignore_pmdown_time = 1,
 		.be_hw_params_fixup = haswell_ssp0_fixup,
 		.ops = &haswell_rt5640_ops,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
+<<<<<<< HEAD
+=======
+		SND_SOC_DAILINK_REG(ssp0_port, codec, platform),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -189,8 +276,23 @@ static struct snd_soc_card haswell_rt5640 = {
 
 static int haswell_audio_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	haswell_rt5640.dev = &pdev->dev;
 
+=======
+	struct snd_soc_acpi_mach *mach;
+	int ret;
+
+	haswell_rt5640.dev = &pdev->dev;
+
+	/* override plaform name, if required */
+	mach = pdev->dev.platform_data;
+	ret = snd_soc_fixup_dai_links_platform_name(&haswell_rt5640,
+						    mach->mach_params.platform);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	return devm_snd_soc_register_card(&pdev->dev, &haswell_rt5640);
 }
 

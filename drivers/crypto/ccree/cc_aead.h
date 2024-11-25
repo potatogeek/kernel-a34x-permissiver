@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
 /* Copyright (C) 2012-2018 ARM Limited or its affiliates. */
+=======
+/* Copyright (C) 2012-2019 ARM Limited (or its affiliates). */
+>>>>>>> upstream/android-13
 
 /* \file cc_aead.h
  * ARM CryptoCell AEAD Crypto API
@@ -65,9 +69,14 @@ struct aead_req_ctx {
 	unsigned int hw_iv_size ____cacheline_aligned;
 	/* used to prevent cache coherence problem */
 	u8 backup_mac[MAX_MAC_SIZE];
+<<<<<<< HEAD
 	u8 *backup_iv; /*store iv for generated IV flow*/
 	u8 *backup_giv; /*store iv for rfc3686(ctr) flow*/
 	u32 assoclen; /* internal assoclen */
+=======
+	u8 *backup_iv; /* store orig iv */
+	u32 assoclen; /* size of AAD buffer to authenticate */
+>>>>>>> upstream/android-13
 	dma_addr_t mac_buf_dma_addr; /* internal ICV DMA buffer */
 	/* buffer for internal ccm configurations */
 	dma_addr_t ccm_iv0_dma_addr;
@@ -80,7 +89,10 @@ struct aead_req_ctx {
 	dma_addr_t gcm_iv_inc2_dma_addr;
 	dma_addr_t hkey_dma_addr; /* Phys. address of hkey */
 	dma_addr_t gcm_block_len_dma_addr; /* Phys. address of gcm block len */
+<<<<<<< HEAD
 	bool is_gcm4543;
+=======
+>>>>>>> upstream/android-13
 
 	u8 *icv_virt_addr; /* Virt. address of ICV */
 	struct async_gen_req_ctx gen_ctx;

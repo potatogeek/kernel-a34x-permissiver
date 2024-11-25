@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * AMD Platform Security Processor (PSP) interface
  *
@@ -48,6 +49,26 @@ MODULE_PARM_DESC(psp_probe_timeout, " default timeout value, in seconds, during 
 
 static bool psp_dead;
 static int psp_timeout;
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * AMD Platform Security Processor (PSP) interface
+ *
+ * Copyright (C) 2016,2019 Advanced Micro Devices, Inc.
+ *
+ * Author: Brijesh Singh <brijesh.singh@amd.com>
+ */
+
+#include <linux/kernel.h>
+#include <linux/irqreturn.h>
+
+#include "sp-dev.h"
+#include "psp-dev.h"
+#include "sev-dev.h"
+#include "tee-dev.h"
+
+struct psp_device *psp_master;
+>>>>>>> upstream/android-13
 
 static struct psp_device *psp_alloc_struct(struct sp_device *sp)
 {
@@ -70,11 +91,15 @@ static irqreturn_t psp_irq_handler(int irq, void *data)
 {
 	struct psp_device *psp = data;
 	unsigned int status;
+<<<<<<< HEAD
 	int reg;
+=======
+>>>>>>> upstream/android-13
 
 	/* Read the interrupt status: */
 	status = ioread32(psp->io_regs + psp->vdata->intsts_reg);
 
+<<<<<<< HEAD
 	/* Check if it is command completion: */
 	if (!(status & PSP_CMD_COMPLETE))
 		goto done;
@@ -87,12 +112,24 @@ static irqreturn_t psp_irq_handler(int irq, void *data)
 	}
 
 done:
+=======
+	/* invoke subdevice interrupt handlers */
+	if (status) {
+		if (psp->sev_irq_handler)
+			psp->sev_irq_handler(irq, psp->sev_irq_data, status);
+
+		if (psp->tee_irq_handler)
+			psp->tee_irq_handler(irq, psp->tee_irq_data, status);
+	}
+
+>>>>>>> upstream/android-13
 	/* Clear the interrupt status by writing the same value we read. */
 	iowrite32(status, psp->io_regs + psp->vdata->intsts_reg);
 
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static int sev_wait_cmd_ioc(struct psp_device *psp,
 			    unsigned int *reg, unsigned int timeout)
 {
@@ -829,12 +866,91 @@ static int sev_init(struct psp_device *psp)
 	}
 
 	return sev_misc_init(psp);
+=======
+static unsigned int psp_get_capability(struct psp_device *psp)
+{
+	unsigned int val = ioread32(psp->io_regs + psp->vdata->feature_reg);
+
+	/*
+	 * Check for a access to the registers.  If this read returns
+	 * 0xffffffff, it's likely that the system is running a broken
+	 * BIOS which disallows access to the device. Stop here and
+	 * fail the PSP initialization (but not the load, as the CCP
+	 * could get properly initialized).
+	 */
+	if (val == 0xffffffff) {
+		dev_notice(psp->dev, "psp: unable to access the device: you might be running a broken BIOS.\n");
+		return 0;
+	}
+
+	return val;
+}
+
+static int psp_check_sev_support(struct psp_device *psp,
+				 unsigned int capability)
+{
+	/* Check if device supports SEV feature */
+	if (!(capability & 1)) {
+		dev_dbg(psp->dev, "psp does not support SEV\n");
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
+static int psp_check_tee_support(struct psp_device *psp,
+				 unsigned int capability)
+{
+	/* Check if device supports TEE feature */
+	if (!(capability & 2)) {
+		dev_dbg(psp->dev, "psp does not support TEE\n");
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
+static int psp_check_support(struct psp_device *psp,
+			     unsigned int capability)
+{
+	int sev_support = psp_check_sev_support(psp, capability);
+	int tee_support = psp_check_tee_support(psp, capability);
+
+	/* Return error if device neither supports SEV nor TEE */
+	if (sev_support && tee_support)
+		return -ENODEV;
+
+	return 0;
+}
+
+static int psp_init(struct psp_device *psp, unsigned int capability)
+{
+	int ret;
+
+	if (!psp_check_sev_support(psp, capability)) {
+		ret = sev_dev_init(psp);
+		if (ret)
+			return ret;
+	}
+
+	if (!psp_check_tee_support(psp, capability)) {
+		ret = tee_dev_init(psp);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 int psp_dev_init(struct sp_device *sp)
 {
 	struct device *dev = sp->dev;
 	struct psp_device *psp;
+<<<<<<< HEAD
+=======
+	unsigned int capability;
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = -ENOMEM;
@@ -853,6 +969,17 @@ int psp_dev_init(struct sp_device *sp)
 
 	psp->io_regs = sp->io_map;
 
+<<<<<<< HEAD
+=======
+	capability = psp_get_capability(psp);
+	if (!capability)
+		goto e_disable;
+
+	ret = psp_check_support(psp, capability);
+	if (ret)
+		goto e_disable;
+
+>>>>>>> upstream/android-13
 	/* Disable and clear interrupts until ready */
 	iowrite32(0, psp->io_regs + psp->vdata->inten_reg);
 	iowrite32(-1, psp->io_regs + psp->vdata->intsts_reg);
@@ -864,7 +991,11 @@ int psp_dev_init(struct sp_device *sp)
 		goto e_err;
 	}
 
+<<<<<<< HEAD
 	ret = sev_init(psp);
+=======
+	ret = psp_init(psp, capability);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto e_irq;
 
@@ -886,6 +1017,14 @@ e_err:
 	dev_notice(dev, "psp initialization failed\n");
 
 	return ret;
+<<<<<<< HEAD
+=======
+
+e_disable:
+	sp->psp_data = NULL;
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 void psp_dev_destroy(struct sp_device *sp)
@@ -895,6 +1034,7 @@ void psp_dev_destroy(struct sp_device *sp)
 	if (!psp)
 		return;
 
+<<<<<<< HEAD
 	if (psp->sev_misc)
 		kref_put(&misc_dev->refcount, sev_exit);
 
@@ -945,6 +1085,57 @@ void psp_pci_init(void)
 
 err:
 	psp_master = NULL;
+=======
+	sev_dev_destroy(psp);
+
+	tee_dev_destroy(psp);
+
+	sp_free_psp_irq(sp, psp);
+
+	if (sp->clear_psp_master_device)
+		sp->clear_psp_master_device(sp);
+}
+
+void psp_set_sev_irq_handler(struct psp_device *psp, psp_irq_handler_t handler,
+			     void *data)
+{
+	psp->sev_irq_data = data;
+	psp->sev_irq_handler = handler;
+}
+
+void psp_clear_sev_irq_handler(struct psp_device *psp)
+{
+	psp_set_sev_irq_handler(psp, NULL, NULL);
+}
+
+void psp_set_tee_irq_handler(struct psp_device *psp, psp_irq_handler_t handler,
+			     void *data)
+{
+	psp->tee_irq_data = data;
+	psp->tee_irq_handler = handler;
+}
+
+void psp_clear_tee_irq_handler(struct psp_device *psp)
+{
+	psp_set_tee_irq_handler(psp, NULL, NULL);
+}
+
+struct psp_device *psp_get_master_device(void)
+{
+	struct sp_device *sp = sp_get_psp_master_device();
+
+	return sp ? sp->psp_data : NULL;
+}
+
+void psp_pci_init(void)
+{
+	psp_master = psp_get_master_device();
+
+	if (!psp_master)
+		return;
+
+	sev_pci_init();
+>>>>>>> upstream/android-13
 }
 
 void psp_pci_exit(void)
@@ -952,5 +1143,9 @@ void psp_pci_exit(void)
 	if (!psp_master)
 		return;
 
+<<<<<<< HEAD
 	sev_platform_shutdown(NULL);
+=======
+	sev_pci_exit();
+>>>>>>> upstream/android-13
 }

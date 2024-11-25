@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    cx231xx-core.c - driver for Conexant Cx23100/101/102
 				USB video capture devices
@@ -5,6 +9,7 @@
    Copyright (C) 2008 <srinivasa.deevi at conexant dot com>
 				Based on em28xx driver
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -18,6 +23,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "cx231xx.h"
@@ -65,7 +72,11 @@ static DEFINE_MUTEX(cx231xx_devlist_mutex);
 /*
  * cx231xx_realease_resources()
  * unregisters the v4l2,i2c and usb devices
+<<<<<<< HEAD
  * called when the device gets disconected or at module unload
+=======
+ * called when the device gets disconnected or at module unload
+>>>>>>> upstream/android-13
 */
 void cx231xx_remove_from_devlist(struct cx231xx *dev)
 {
@@ -127,11 +138,17 @@ void cx231xx_init_extension(struct cx231xx *dev)
 	struct cx231xx_ops *ops = NULL;
 
 	mutex_lock(&cx231xx_devlist_mutex);
+<<<<<<< HEAD
 	if (!list_empty(&cx231xx_extension_devlist)) {
 		list_for_each_entry(ops, &cx231xx_extension_devlist, next) {
 			if (ops->init)
 				ops->init(dev);
 		}
+=======
+	list_for_each_entry(ops, &cx231xx_extension_devlist, next) {
+		if (ops->init)
+			ops->init(dev);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&cx231xx_devlist_mutex);
 }
@@ -141,11 +158,17 @@ void cx231xx_close_extension(struct cx231xx *dev)
 	struct cx231xx_ops *ops = NULL;
 
 	mutex_lock(&cx231xx_devlist_mutex);
+<<<<<<< HEAD
 	if (!list_empty(&cx231xx_extension_devlist)) {
 		list_for_each_entry(ops, &cx231xx_extension_devlist, next) {
 			if (ops->fini)
 				ops->fini(dev);
 		}
+=======
+	list_for_each_entry(ops, &cx231xx_extension_devlist, next) {
+		if (ops->fini)
+			ops->fini(dev);
+>>>>>>> upstream/android-13
 	}
 	mutex_unlock(&cx231xx_devlist_mutex);
 }
@@ -1077,9 +1100,14 @@ int cx231xx_init_isoc(struct cx231xx *dev, int max_packets,
 				       &urb->transfer_dma);
 		if (!dev->video_mode.isoc_ctl.transfer_buffer[i]) {
 			dev_err(dev->dev,
+<<<<<<< HEAD
 				"unable to allocate %i bytes for transfer buffer %i%s\n",
 				sb_size, i,
 				in_interrupt() ? " while in int" : "");
+=======
+				"unable to allocate %i bytes for transfer buffer %i\n",
+				sb_size, i);
+>>>>>>> upstream/android-13
 			cx231xx_uninit_isoc(dev);
 			return -ENOMEM;
 		}
@@ -1213,9 +1241,14 @@ int cx231xx_init_bulk(struct cx231xx *dev, int max_packets,
 				     &urb->transfer_dma);
 		if (!dev->video_mode.bulk_ctl.transfer_buffer[i]) {
 			dev_err(dev->dev,
+<<<<<<< HEAD
 				"unable to allocate %i bytes for transfer buffer %i%s\n",
 				sb_size, i,
 				in_interrupt() ? " while in int" : "");
+=======
+				"unable to allocate %i bytes for transfer buffer %i\n",
+				sb_size, i);
+>>>>>>> upstream/android-13
 			cx231xx_uninit_bulk(dev);
 			return -ENOMEM;
 		}

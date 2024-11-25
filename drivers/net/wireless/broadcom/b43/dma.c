@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43 wireless driver
@@ -10,6 +14,7 @@
   Copyright (C) 2002 David S. Miller
   Copyright (C) Pekka Pietikainen
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +29,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -50,7 +57,11 @@
 static u32 b43_dma_address(struct b43_dma *dma, dma_addr_t dmaaddr,
 			   enum b43_addrtype addrtype)
 {
+<<<<<<< HEAD
 	u32 uninitialized_var(addr);
+=======
+	u32 addr;
+>>>>>>> upstream/android-13
 
 	switch (addrtype) {
 	case B43_DMA_ADDR_LOW:
@@ -431,9 +442,15 @@ static int alloc_ringmemory(struct b43_dmaring *ring)
 	u16 ring_mem_size = (ring->type == B43_DMA_64BIT) ?
 				B43_DMA64_RINGMEMSIZE : B43_DMA32_RINGMEMSIZE;
 
+<<<<<<< HEAD
 	ring->descbase = dma_zalloc_coherent(ring->dev->dev->dma_dev,
 					     ring_mem_size, &(ring->dmabase),
 					     GFP_KERNEL);
+=======
+	ring->descbase = dma_alloc_coherent(ring->dev->dev->dma_dev,
+					    ring_mem_size, &(ring->dmabase),
+					    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ring->descbase)
 		return -ENOMEM;
 
@@ -810,7 +827,11 @@ static void free_all_descbuffers(struct b43_dmaring *ring)
 	}
 }
 
+<<<<<<< HEAD
 static u64 supported_dma_mask(struct b43_wldev *dev)
+=======
+static enum b43_dmatype b43_engine_type(struct b43_wldev *dev)
+>>>>>>> upstream/android-13
 {
 	u32 tmp;
 	u16 mmio_base;
@@ -820,14 +841,22 @@ static u64 supported_dma_mask(struct b43_wldev *dev)
 	case B43_BUS_BCMA:
 		tmp = bcma_aread32(dev->dev->bdev, BCMA_IOST);
 		if (tmp & BCMA_IOST_DMA64)
+<<<<<<< HEAD
 			return DMA_BIT_MASK(64);
+=======
+			return B43_DMA_64BIT;
+>>>>>>> upstream/android-13
 		break;
 #endif
 #ifdef CONFIG_B43_SSB
 	case B43_BUS_SSB:
 		tmp = ssb_read32(dev->dev->sdev, SSB_TMSHIGH);
 		if (tmp & SSB_TMSHIGH_DMA64)
+<<<<<<< HEAD
 			return DMA_BIT_MASK(64);
+=======
+			return B43_DMA_64BIT;
+>>>>>>> upstream/android-13
 		break;
 #endif
 	}
@@ -836,6 +865,7 @@ static u64 supported_dma_mask(struct b43_wldev *dev)
 	b43_write32(dev, mmio_base + B43_DMA32_TXCTL, B43_DMA32_TXADDREXT_MASK);
 	tmp = b43_read32(dev, mmio_base + B43_DMA32_TXCTL);
 	if (tmp & B43_DMA32_TXADDREXT_MASK)
+<<<<<<< HEAD
 		return DMA_BIT_MASK(32);
 
 	return DMA_BIT_MASK(30);
@@ -850,6 +880,9 @@ static enum b43_dmatype dma_mask_to_engine_type(u64 dmamask)
 	if (dmamask == DMA_BIT_MASK(64))
 		return B43_DMA_64BIT;
 	B43_WARN_ON(1);
+=======
+		return B43_DMA_32BIT;
+>>>>>>> upstream/android-13
 	return B43_DMA_30BIT;
 }
 
@@ -1056,6 +1089,7 @@ void b43_dma_free(struct b43_wldev *dev)
 	destroy_ring(dma, tx_ring_mcast);
 }
 
+<<<<<<< HEAD
 static int b43_dma_set_mask(struct b43_wldev *dev, u64 mask)
 {
 	u64 orig_mask = mask;
@@ -1092,6 +1126,8 @@ static int b43_dma_set_mask(struct b43_wldev *dev, u64 mask)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Some hardware with 64-bit DMA seems to be bugged and looks for translation
  * bit in low address word instead of high one.
  */
@@ -1114,6 +1150,7 @@ static bool b43_dma_translation_in_low_word(struct b43_wldev *dev,
 int b43_dma_init(struct b43_wldev *dev)
 {
 	struct b43_dma *dma = &dev->dma;
+<<<<<<< HEAD
 	int err;
 	u64 dmamask;
 	enum b43_dmatype type;
@@ -1123,6 +1160,17 @@ int b43_dma_init(struct b43_wldev *dev)
 	err = b43_dma_set_mask(dev, dmamask);
 	if (err)
 		return err;
+=======
+	enum b43_dmatype type = b43_engine_type(dev);
+	int err;
+
+	err = dma_set_mask_and_coherent(dev->dev->dma_dev, DMA_BIT_MASK(type));
+	if (err) {
+		b43err(dev->wl, "The machine/kernel does not support "
+		       "the required %u-bit DMA mask\n", type);
+		return err;
+	}
+>>>>>>> upstream/android-13
 
 	switch (dev->dev->bus_type) {
 #ifdef CONFIG_B43_BCMA
@@ -1379,7 +1427,11 @@ static struct b43_dmaring *select_ring_by_priority(struct b43_wldev *dev,
 		switch (queue_prio) {
 		default:
 			B43_WARN_ON(1);
+<<<<<<< HEAD
 			/* fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0:
 			ring = dev->dma.tx_ring_AC_VO;
 			break;
@@ -1432,7 +1484,11 @@ int b43_dma_tx(struct b43_wldev *dev, struct sk_buff *skb)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(WARN_ON(free_slots(ring) < TX_SLOTS_PER_FRAME))) {
+=======
+	if (WARN_ON(free_slots(ring) < TX_SLOTS_PER_FRAME)) {
+>>>>>>> upstream/android-13
 		/* If we get here, we have a real error with the queue
 		 * full, but queues not stopped. */
 		b43err(dev->wl, "DMA queue overflow\n");
@@ -1462,7 +1518,11 @@ int b43_dma_tx(struct b43_wldev *dev, struct sk_buff *skb)
 		/* This TX ring is full. */
 		unsigned int skb_mapping = skb_get_queue_mapping(skb);
 		ieee80211_stop_queue(dev->wl->hw, skb_mapping);
+<<<<<<< HEAD
 		dev->wl->tx_queue_stopped[skb_mapping] = 1;
+=======
+		dev->wl->tx_queue_stopped[skb_mapping] = true;
+>>>>>>> upstream/android-13
 		ring->stopped = true;
 		if (b43_debug(dev, B43_DBG_DMAVERBOSE)) {
 			b43dbg(dev->wl, "Stopped TX ring %d\n", ring->index);
@@ -1628,7 +1688,11 @@ void b43_dma_handle_txstatus(struct b43_wldev *dev,
 	}
 
 	if (dev->wl->tx_queue_stopped[ring->queue_prio]) {
+<<<<<<< HEAD
 		dev->wl->tx_queue_stopped[ring->queue_prio] = 0;
+=======
+		dev->wl->tx_queue_stopped[ring->queue_prio] = false;
+>>>>>>> upstream/android-13
 	} else {
 		/* If the driver queue is running wake the corresponding
 		 * mac80211 queue. */
@@ -1826,7 +1890,11 @@ void b43_dma_direct_fifo_rx(struct b43_wldev *dev,
 	enum b43_dmatype type;
 	u16 mmio_base;
 
+<<<<<<< HEAD
 	type = dma_mask_to_engine_type(supported_dma_mask(dev));
+=======
+	type = b43_engine_type(dev);
+>>>>>>> upstream/android-13
 
 	mmio_base = b43_dmacontroller_base(type, engine_index);
 	direct_fifo_rx(dev, type, mmio_base, enable);

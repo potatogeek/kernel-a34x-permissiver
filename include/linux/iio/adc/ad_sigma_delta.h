@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Support code for Analog Devices Sigma-Delta ADCs
  *
  * Copyright 2012 Analog Devices Inc.
  *  Author: Lars-Peter Clausen <lars@metafoo.de>
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __AD_SIGMA_DELTA_H__
 #define __AD_SIGMA_DELTA_H__
@@ -27,6 +34,10 @@ struct ad_sd_calib_data {
 };
 
 struct ad_sigma_delta;
+<<<<<<< HEAD
+=======
+struct device;
+>>>>>>> upstream/android-13
 struct iio_dev;
 
 /**
@@ -39,6 +50,12 @@ struct iio_dev;
  *		if there is just one read-only sample data shift register.
  * @addr_shift: Shift of the register address in the communications register.
  * @read_mask: Mask for the communications register having the read bit set.
+<<<<<<< HEAD
+=======
+ * @data_reg: Address of the data register, if 0 the default address of 0x3 will
+ *   be used.
+ * @irq_flags: flags for the interrupt used by the triggered buffer
+>>>>>>> upstream/android-13
  */
 struct ad_sigma_delta_info {
 	int (*set_channel)(struct ad_sigma_delta *, unsigned int channel);
@@ -47,6 +64,11 @@ struct ad_sigma_delta_info {
 	bool has_registers;
 	unsigned int addr_shift;
 	unsigned int read_mask;
+<<<<<<< HEAD
+=======
+	unsigned int data_reg;
+	unsigned long irq_flags;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -75,8 +97,17 @@ struct ad_sigma_delta {
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
 	 * transfer buffers to live in their own cache lines.
+<<<<<<< HEAD
 	 */
 	uint8_t				data[4] ____cacheline_aligned;
+=======
+	 * 'tx_buf' is up to 32 bits.
+	 * 'rx_buf' is up to 32 bits per sample + 64 bit timestamp,
+	 * rounded to 16 bytes to take into account padding.
+	 */
+	uint8_t				tx_buf[4] ____cacheline_aligned;
+	uint8_t				rx_buf[16] __aligned(8);
+>>>>>>> upstream/android-13
 };
 
 static inline int ad_sigma_delta_set_channel(struct ad_sigma_delta *sd,
@@ -117,11 +148,17 @@ int ad_sd_reset(struct ad_sigma_delta *sigma_delta,
 
 int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
 	const struct iio_chan_spec *chan, int *val);
+<<<<<<< HEAD
+=======
+int ad_sd_calibrate(struct ad_sigma_delta *sigma_delta,
+	unsigned int mode, unsigned int channel);
+>>>>>>> upstream/android-13
 int ad_sd_calibrate_all(struct ad_sigma_delta *sigma_delta,
 	const struct ad_sd_calib_data *cd, unsigned int n);
 int ad_sd_init(struct ad_sigma_delta *sigma_delta, struct iio_dev *indio_dev,
 	struct spi_device *spi, const struct ad_sigma_delta_info *info);
 
+<<<<<<< HEAD
 int ad_sd_setup_buffer_and_trigger(struct iio_dev *indio_dev);
 void ad_sd_cleanup_buffer_and_trigger(struct iio_dev *indio_dev);
 
@@ -185,4 +222,10 @@ int ad_sd_validate_trigger(struct iio_dev *indio_dev, struct iio_trigger *trig);
 		_storagebits, _shift, "supply", IIO_VOLTAGE, \
 		BIT(IIO_CHAN_INFO_SAMP_FREQ))
 
+=======
+int devm_ad_sd_setup_buffer_and_trigger(struct device *dev, struct iio_dev *indio_dev);
+
+int ad_sd_validate_trigger(struct iio_dev *indio_dev, struct iio_trigger *trig);
+
+>>>>>>> upstream/android-13
 #endif

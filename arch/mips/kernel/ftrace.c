@@ -37,10 +37,13 @@ void arch_ftrace_update_code(int command)
 	ftrace_modify_all_code(command);
 }
 
+<<<<<<< HEAD
 #endif
 
 #ifdef CONFIG_DYNAMIC_FTRACE
 
+=======
+>>>>>>> upstream/android-13
 #define JAL 0x0c000000		/* jump & link: ip --> ra, jump to target */
 #define ADDR_MASK 0x03ffffff	/*  op_code|addr : 31...26|25 ....0 */
 #define JUMP_RANGE_MASK ((1UL << 28) - 1)
@@ -77,7 +80,10 @@ static inline void ftrace_dyn_arch_init_insns(void)
 static int ftrace_modify_code(unsigned long ip, unsigned int new_code)
 {
 	int faulted;
+<<<<<<< HEAD
 	mm_segment_t old_fs;
+=======
+>>>>>>> upstream/android-13
 
 	/* *(unsigned int *)ip = new_code; */
 	safe_store_code(new_code, ip, faulted);
@@ -85,10 +91,14 @@ static int ftrace_modify_code(unsigned long ip, unsigned int new_code)
 	if (unlikely(faulted))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	old_fs = get_fs();
 	set_fs(get_ds());
 	flush_icache_range(ip, ip + 8);
 	set_fs(old_fs);
+=======
+	flush_icache_range(ip, ip + 8);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -98,7 +108,10 @@ static int ftrace_modify_code_2(unsigned long ip, unsigned int new_code1,
 				unsigned int new_code2)
 {
 	int faulted;
+<<<<<<< HEAD
 	mm_segment_t old_fs;
+=======
+>>>>>>> upstream/android-13
 
 	safe_store_code(new_code1, ip, faulted);
 	if (unlikely(faulted))
@@ -110,10 +123,14 @@ static int ftrace_modify_code_2(unsigned long ip, unsigned int new_code1,
 		return -EFAULT;
 
 	ip -= 4;
+<<<<<<< HEAD
 	old_fs = get_fs();
 	set_fs(get_ds());
 	flush_icache_range(ip, ip + 8);
 	set_fs(old_fs);
+=======
+	flush_icache_range(ip, ip + 8);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -122,7 +139,10 @@ static int ftrace_modify_code_2r(unsigned long ip, unsigned int new_code1,
 				 unsigned int new_code2)
 {
 	int faulted;
+<<<<<<< HEAD
 	mm_segment_t old_fs;
+=======
+>>>>>>> upstream/android-13
 
 	ip += 4;
 	safe_store_code(new_code2, ip, faulted);
@@ -134,10 +154,14 @@ static int ftrace_modify_code_2r(unsigned long ip, unsigned int new_code1,
 	if (unlikely(faulted))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	old_fs = get_fs();
 	set_fs(get_ds());
 	flush_icache_range(ip, ip + 8);
 	set_fs(old_fs);
+=======
+	flush_icache_range(ip, ip + 8);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -333,6 +357,7 @@ void prepare_ftrace_return(unsigned long *parent_ra_addr, unsigned long self_ra,
 		return;
 
 	/*
+<<<<<<< HEAD
 	 * "parent_ra_addr" is the stack address saved the return address of
 	 * the caller of _mcount.
 	 *
@@ -347,6 +372,23 @@ void prepare_ftrace_return(unsigned long *parent_ra_addr, unsigned long self_ra,
 	 * non-leaf function, the location of the return address will be saved
 	 * to $12 for us, and for a leaf function, only put a zero into $12. we
 	 * do it in ftrace_graph_caller of mcount.S.
+=======
+	 * "parent_ra_addr" is the stack address where the return address of
+	 * the caller of _mcount is saved.
+	 *
+	 * If gcc < 4.5, a leaf function does not save the return address
+	 * in the stack address, so we "emulate" one in _mcount's stack space,
+	 * and hijack it directly.
+	 * For a non-leaf function, it does save the return address to its own
+	 * stack space, so we can not hijack it directly, but need to find the
+	 * real stack address, which is done by ftrace_get_parent_addr().
+	 *
+	 * If gcc >= 4.5, with the new -mmcount-ra-address option, for a
+	 * non-leaf function, the location of the return address will be saved
+	 * to $12 for us.
+	 * For a leaf function, it just puts a zero into $12, so we handle
+	 * it in ftrace_graph_caller() of mcount.S.
+>>>>>>> upstream/android-13
 	 */
 
 	/* old_parent_ra = *parent_ra_addr; */
@@ -400,6 +442,7 @@ unsigned long __init arch_syscall_addr(int nr)
 unsigned long __init arch_syscall_addr(int nr)
 {
 #ifdef CONFIG_MIPS32_N32
+<<<<<<< HEAD
 	if (nr >= __NR_N32_Linux && nr <= __NR_N32_Linux + __NR_N32_Linux_syscalls)
 		return (unsigned long)sysn32_call_table[nr - __NR_N32_Linux];
 #endif
@@ -407,6 +450,15 @@ unsigned long __init arch_syscall_addr(int nr)
 		return (unsigned long)sys_call_table[nr - __NR_64_Linux];
 #ifdef CONFIG_MIPS32_O32
 	if (nr >= __NR_O32_Linux && nr <= __NR_O32_Linux + __NR_O32_Linux_syscalls)
+=======
+	if (nr >= __NR_N32_Linux && nr < __NR_N32_Linux + __NR_N32_Linux_syscalls)
+		return (unsigned long)sysn32_call_table[nr - __NR_N32_Linux];
+#endif
+	if (nr >= __NR_64_Linux  && nr < __NR_64_Linux + __NR_64_Linux_syscalls)
+		return (unsigned long)sys_call_table[nr - __NR_64_Linux];
+#ifdef CONFIG_MIPS32_O32
+	if (nr >= __NR_O32_Linux && nr < __NR_O32_Linux + __NR_O32_Linux_syscalls)
+>>>>>>> upstream/android-13
 		return (unsigned long)sys32_call_table[nr - __NR_O32_Linux];
 #endif
 

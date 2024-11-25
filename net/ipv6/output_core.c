@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * IPv6 library code, needed by static components when full IPv6 support is
  * not configured or static.  These functions are needed by GSO/GRO implementation.
@@ -14,6 +18,7 @@ static u32 __ipv6_select_ident(struct net *net,
 			       const struct in6_addr *dst,
 			       const struct in6_addr *src)
 {
+<<<<<<< HEAD
 	const struct {
 		struct in6_addr dst;
 		struct in6_addr src;
@@ -37,6 +42,13 @@ static u32 __ipv6_select_ident(struct net *net,
 	id = ip_idents_reserve(hash, 1);
 	if (unlikely(!id))
 		id = 1 << 31;
+=======
+	u32 id;
+
+	do {
+		id = prandom_u32();
+	} while (!id);
+>>>>>>> upstream/android-13
 
 	return id;
 }

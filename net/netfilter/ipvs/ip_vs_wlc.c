@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IPVS:        Weighted Least-Connection Scheduling module
  *
  * Authors:     Wensong Zhang <wensong@linuxvirtualserver.org>
  *              Peter Kese <peter.kese@ijs.si>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
  *              2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Changes:
  *     Wensong Zhang            :     changed the ip_vs_wlc_schedule to return dest
  *     Wensong Zhang            :     changed to use the inactconns in scheduling
@@ -16,7 +23,10 @@
  *     Wensong Zhang            :     changed for the d-linked destination list
  *     Wensong Zhang            :     added the ip_vs_wlc_update_svc
  *     Wensong Zhang            :     added any dest with weight=0 is quiesced
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"

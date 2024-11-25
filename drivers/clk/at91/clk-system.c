@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
  *
@@ -6,6 +7,11 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -39,7 +45,11 @@ static inline bool clk_system_ready(struct regmap *regmap, int id)
 
 	regmap_read(regmap, AT91_PMC_SR, &status);
 
+<<<<<<< HEAD
 	return status & (1 << id) ? 1 : 0;
+=======
+	return !!(status & (1 << id));
+>>>>>>> upstream/android-13
 }
 
 static int clk_system_prepare(struct clk_hw *hw)
@@ -79,7 +89,11 @@ static int clk_system_is_prepared(struct clk_hw *hw)
 
 	regmap_read(sys->regmap, AT91_PMC_SR, &status);
 
+<<<<<<< HEAD
 	return status & (1 << sys->id) ? 1 : 0;
+=======
+	return !!(status & (1 << sys->id));
+>>>>>>> upstream/android-13
 }
 
 static const struct clk_ops system_ops = {
@@ -88,13 +102,21 @@ static const struct clk_ops system_ops = {
 	.is_prepared = clk_system_is_prepared,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91_clk_register_system(struct regmap *regmap, const char *name,
 			 const char *parent_name, u8 id)
 {
 	struct clk_system *sys;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (!parent_name || id > SYSTEM_MAX_ID)
@@ -123,6 +145,7 @@ at91_clk_register_system(struct regmap *regmap, const char *name,
 
 	return hw;
 }
+<<<<<<< HEAD
 
 static void __init of_at91rm9200_clk_sys_setup(struct device_node *np)
 {
@@ -160,3 +183,5 @@ static void __init of_at91rm9200_clk_sys_setup(struct device_node *np)
 }
 CLK_OF_DECLARE(at91rm9200_clk_sys, "atmel,at91rm9200-clk-system",
 	       of_at91rm9200_clk_sys_setup);
+=======
+>>>>>>> upstream/android-13

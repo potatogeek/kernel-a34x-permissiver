@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * v4l2-fh.h
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2009--2010 Nokia Corporation.
  *
  * Contact: Sakari Ailus <sakari.ailus@iki.fi>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +21,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef V4L2_FH_H
@@ -61,9 +68,13 @@ struct v4l2_fh {
 	unsigned int		navailable;
 	u32			sequence;
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_V4L2_MEM2MEM_DEV)
 	struct v4l2_m2m_ctx	*m2m_ctx;
 #endif
+=======
+	struct v4l2_m2m_ctx	*m2m_ctx;
+>>>>>>> upstream/android-13
 };
 
 /**

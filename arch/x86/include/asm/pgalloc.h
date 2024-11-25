@@ -6,9 +6,19 @@
 #include <linux/mm.h>		/* for struct page */
 #include <linux/pagemap.h>
 
+<<<<<<< HEAD
 static inline int  __paravirt_pgd_alloc(struct mm_struct *mm) { return 0; }
 
 #ifdef CONFIG_PARAVIRT
+=======
+#define __HAVE_ARCH_PTE_ALLOC_ONE
+#define __HAVE_ARCH_PGD_FREE
+#include <asm-generic/pgalloc.h>
+
+static inline int  __paravirt_pgd_alloc(struct mm_struct *mm) { return 0; }
+
+#ifdef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 #include <asm/paravirt.h>
 #else
 #define paravirt_pgd_alloc(mm)	__paravirt_pgd_alloc(mm)
@@ -47,6 +57,7 @@ extern gfp_t __userpte_alloc_gfp;
 extern pgd_t *pgd_alloc(struct mm_struct *);
 extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
 
+<<<<<<< HEAD
 extern pte_t *pte_alloc_one_kernel(struct mm_struct *, unsigned long);
 extern pgtable_t pte_alloc_one(struct mm_struct *, unsigned long);
 
@@ -64,6 +75,9 @@ static inline void pte_free(struct mm_struct *mm, struct page *pte)
 	pgtable_page_dtor(pte);
 	__free_page(pte);
 }
+=======
+extern pgtable_t pte_alloc_one(struct mm_struct *);
+>>>>>>> upstream/android-13
 
 extern void ___pte_free_tlb(struct mmu_gather *tlb, struct page *pte);
 
@@ -80,6 +94,16 @@ static inline void pmd_populate_kernel(struct mm_struct *mm,
 	set_pmd(pmd, __pmd(__pa(pte) | _PAGE_TABLE));
 }
 
+<<<<<<< HEAD
+=======
+static inline void pmd_populate_kernel_safe(struct mm_struct *mm,
+				       pmd_t *pmd, pte_t *pte)
+{
+	paravirt_alloc_pte(mm, __pa(pte) >> PAGE_SHIFT);
+	set_pmd_safe(pmd, __pmd(__pa(pte) | _PAGE_TABLE));
+}
+
+>>>>>>> upstream/android-13
 static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
 				struct page *pte)
 {
@@ -89,6 +113,7 @@ static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd,
 	set_pmd(pmd, __pmd(((pteval_t)pfn << PAGE_SHIFT) | _PAGE_TABLE));
 }
 
+<<<<<<< HEAD
 #define pmd_pgtable(pmd) pmd_page(pmd)
 
 #if CONFIG_PGTABLE_LEVELS > 2
@@ -116,6 +141,9 @@ static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
 	free_page((unsigned long)pmd);
 }
 
+=======
+#if CONFIG_PGTABLE_LEVELS > 2
+>>>>>>> upstream/android-13
 extern void ___pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd);
 
 static inline void __pmd_free_tlb(struct mmu_gather *tlb, pmd_t *pmd,
@@ -132,6 +160,15 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
 	paravirt_alloc_pmd(mm, __pa(pmd) >> PAGE_SHIFT);
 	set_pud(pud, __pud(_PAGE_TABLE | __pa(pmd)));
 }
+<<<<<<< HEAD
+=======
+
+static inline void pud_populate_safe(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
+{
+	paravirt_alloc_pmd(mm, __pa(pmd) >> PAGE_SHIFT);
+	set_pud_safe(pud, __pud(_PAGE_TABLE | __pa(pmd)));
+}
+>>>>>>> upstream/android-13
 #endif	/* CONFIG_X86_PAE */
 
 #if CONFIG_PGTABLE_LEVELS > 3
@@ -141,6 +178,7 @@ static inline void p4d_populate(struct mm_struct *mm, p4d_t *p4d, pud_t *pud)
 	set_p4d(p4d, __p4d(_PAGE_TABLE | __pa(pud)));
 }
 
+<<<<<<< HEAD
 static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
 	gfp_t gfp = GFP_KERNEL_ACCOUNT;
@@ -154,6 +192,12 @@ static inline void pud_free(struct mm_struct *mm, pud_t *pud)
 {
 	BUG_ON((unsigned long)pud & (PAGE_SIZE-1));
 	free_page((unsigned long)pud);
+=======
+static inline void p4d_populate_safe(struct mm_struct *mm, p4d_t *p4d, pud_t *pud)
+{
+	paravirt_alloc_pud(mm, __pa(pud) >> PAGE_SHIFT);
+	set_p4d_safe(p4d, __p4d(_PAGE_TABLE | __pa(pud)));
+>>>>>>> upstream/android-13
 }
 
 extern void ___pud_free_tlb(struct mmu_gather *tlb, pud_t *pud);
@@ -173,6 +217,17 @@ static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgd, p4d_t *p4d)
 	set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(p4d)));
 }
 
+<<<<<<< HEAD
+=======
+static inline void pgd_populate_safe(struct mm_struct *mm, pgd_t *pgd, p4d_t *p4d)
+{
+	if (!pgtable_l5_enabled())
+		return;
+	paravirt_alloc_p4d(mm, __pa(p4d) >> PAGE_SHIFT);
+	set_pgd_safe(pgd, __pgd(_PAGE_TABLE | __pa(p4d)));
+}
+
+>>>>>>> upstream/android-13
 static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long addr)
 {
 	gfp_t gfp = GFP_KERNEL_ACCOUNT;

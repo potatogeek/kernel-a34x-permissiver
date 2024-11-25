@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0
 #include "comm.h"
+<<<<<<< HEAD
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <linux/refcount.h>
+<<<<<<< HEAD
+=======
+#include <linux/rbtree.h>
+#include <linux/zalloc.h>
+>>>>>>> upstream/android-13
 #include "rwsem.h"
 
 struct comm_str {

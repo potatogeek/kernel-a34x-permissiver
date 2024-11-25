@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat/$(MTK_PLATFORM)/include/
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat
@@ -10,6 +11,10 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/apusys/mnoc/1.0/
 ccflags-y += -I$(srctree)/drivers/clk/mediatek/
 ccflags-$(CONFIG_MTK_IOMMU_MISC_DBG) += -I$(srctree)/drivers/misc/mediatek/iommu/
 
+=======
+obj-y += amd/ intel/ arm/
+obj-y += samsung/
+>>>>>>> upstream/android-13
 obj-$(CONFIG_IOMMU_API) += iommu.o
 obj-$(CONFIG_IOMMU_API) += iommu-traces.o
 obj-$(CONFIG_IOMMU_API) += iommu-sysfs.o
@@ -18,6 +23,7 @@ obj-$(CONFIG_IOMMU_DMA) += dma-iommu.o
 obj-$(CONFIG_IOMMU_IO_PGTABLE) += io-pgtable.o
 obj-$(CONFIG_IOMMU_IO_PGTABLE_ARMV7S) += io-pgtable-arm-v7s.o
 obj-$(CONFIG_IOMMU_IO_PGTABLE_LPAE) += io-pgtable-arm.o
+<<<<<<< HEAD
 obj-$(CONFIG_IOMMU_IOVA) += iova.o
 obj-$(CONFIG_IOMMU_IO_PGTABLE_FAST) += io-pgtable-fast.o dma-mapping-fast.o
 obj-$(CONFIG_OF_IOMMU)	+= of_iommu.o
@@ -39,9 +45,34 @@ obj-$(CONFIG_MTK_IOMMU_V2) += mtk_iommu_ext.o
 obj-$(CONFIG_OMAP_IOMMU) += omap-iommu.o
 obj-$(CONFIG_OMAP_IOMMU_DEBUG) += omap-iommu-debug.o
 obj-$(CONFIG_ROCKCHIP_IOMMU) += rockchip-iommu.o
+=======
+obj-$(CONFIG_IOASID) += ioasid.o
+obj-$(CONFIG_IOMMU_IOVA) += iova.o
+obj-$(CONFIG_OF_IOMMU)	+= of_iommu.o
+obj-$(CONFIG_MSM_IOMMU) += msm_iommu.o
+obj-$(CONFIG_IPMMU_VMSA) += ipmmu-vmsa.o
+obj-$(CONFIG_IRQ_REMAP) += irq_remapping.o
+obj-$(CONFIG_MTK_IOMMU) += mtk_iommu.o
+obj-$(CONFIG_MTK_IOMMU_V1) += mtk_iommu_v1.o
+obj-$(CONFIG_OMAP_IOMMU) += omap-iommu.o
+obj-$(CONFIG_OMAP_IOMMU_DEBUG) += omap-iommu-debug.o
+obj-$(CONFIG_ROCKCHIP_IOMMU) += rockchip-iommu.o
+obj-$(CONFIG_SUN50I_IOMMU) += sun50i-iommu.o
+>>>>>>> upstream/android-13
 obj-$(CONFIG_TEGRA_IOMMU_GART) += tegra-gart.o
 obj-$(CONFIG_TEGRA_IOMMU_SMMU) += tegra-smmu.o
 obj-$(CONFIG_EXYNOS_IOMMU) += exynos-iommu.o
 obj-$(CONFIG_FSL_PAMU) += fsl_pamu.o fsl_pamu_domain.o
 obj-$(CONFIG_S390_IOMMU) += s390-iommu.o
+<<<<<<< HEAD
 obj-$(CONFIG_QCOM_IOMMU) += qcom_iommu.o
+=======
+obj-$(CONFIG_HYPERV_IOMMU) += hyperv-iommu.o
+obj-$(CONFIG_VIRTIO_IOMMU) += virtio-iommu.o
+obj-$(CONFIG_IOMMU_SVA_LIB) += iommu-sva-lib.o io-pgfault.o
+obj-$(CONFIG_SPRD_IOMMU) += sprd-iommu.o
+obj-$(CONFIG_APPLE_DART) += apple-dart.o
+obj-$(CONFIG_EXYNOS_CPIF_IOMMU) += exynos-cpif-iommu.o
+obj-$(CONFIG_EXYNOS_CPIF_IOMMU_V9) += exynos-cpif-iommu_v9.o
+obj-$(CONFIG_EXYNOS_PCIE_IOMMU) += exynos-pcie-iommu.o
+>>>>>>> upstream/android-13

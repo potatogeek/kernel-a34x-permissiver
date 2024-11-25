@@ -36,7 +36,11 @@
 #ifndef __ASM_ARCH_OMAP_HARDWARE_H
 #define __ASM_ARCH_OMAP_HARDWARE_H
 
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #ifndef __ASSEMBLER__
 #include <asm/types.h>
 #include <mach/soc.h>

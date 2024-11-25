@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _QED_RDMA_H
 #define _QED_RDMA_H
 #include <linux/types.h>
@@ -45,7 +54,10 @@
 #include "qed_iwarp.h"
 #include "qed_roce.h"
 
+<<<<<<< HEAD
 #define QED_RDMA_MAX_FMR                    (RDMA_MAX_TIDS)
+=======
+>>>>>>> upstream/android-13
 #define QED_RDMA_MAX_P_KEY                  (1)
 #define QED_RDMA_MAX_WQE                    (0x7FFF)
 #define QED_RDMA_MAX_SRQ_WQE_ELEM           (0x7FFF)
@@ -63,6 +75,14 @@
 #define QED_RDMA_MAX_CQE_32_BIT             (0x7FFFFFFF - 1)
 #define QED_RDMA_MAX_CQE_16_BIT             (0x7FFF - 1)
 
+<<<<<<< HEAD
+=======
+/* Up to 2^16 XRC Domains are supported, but the actual number of supported XRC
+ * SRQs is much smaller so there's no need to have that many domains.
+ */
+#define QED_RDMA_MAX_XRCDS      (roundup_pow_of_two(RDMA_MAX_XRC_SRQS))
+
+>>>>>>> upstream/android-13
 enum qed_rdma_toggle_bit {
 	QED_RDMA_TOGGLE_BIT_CLEAR = 0,
 	QED_RDMA_TOGGLE_BIT_SET = 1
@@ -81,9 +101,17 @@ struct qed_rdma_info {
 
 	struct qed_bmap cq_map;
 	struct qed_bmap pd_map;
+<<<<<<< HEAD
 	struct qed_bmap tid_map;
 	struct qed_bmap qp_map;
 	struct qed_bmap srq_map;
+=======
+	struct qed_bmap xrcd_map;
+	struct qed_bmap tid_map;
+	struct qed_bmap qp_map;
+	struct qed_bmap srq_map;
+	struct qed_bmap xrc_srq_map;
+>>>>>>> upstream/android-13
 	struct qed_bmap cid_map;
 	struct qed_bmap tcp_cid_map;
 	struct qed_bmap real_cid_map;
@@ -111,6 +139,10 @@ struct qed_rdma_qp {
 	u32 qpid;
 	u16 icid;
 	enum qed_roce_qp_state cur_state;
+<<<<<<< HEAD
+=======
+	enum qed_rdma_qp_type qp_type;
+>>>>>>> upstream/android-13
 	enum qed_iwarp_qp_state iwarp_state;
 	bool use_srq;
 	bool signal_all;
@@ -153,18 +185,30 @@ struct qed_rdma_qp {
 	dma_addr_t orq_phys_addr;
 	u8 orq_num_pages;
 	bool req_offloaded;
+<<<<<<< HEAD
+=======
+	bool has_req;
+>>>>>>> upstream/android-13
 
 	/* responder */
 	u8 max_rd_atomic_resp;
 	u32 rq_psn;
 	u16 rq_cq_id;
 	u16 rq_num_pages;
+<<<<<<< HEAD
+=======
+	u16 xrcd_id;
+>>>>>>> upstream/android-13
 	dma_addr_t rq_pbl_ptr;
 	void *irq;
 	dma_addr_t irq_phys_addr;
 	u8 irq_num_pages;
 	bool resp_offloaded;
 	u32 cq_prod;
+<<<<<<< HEAD
+=======
+	bool has_resp;
+>>>>>>> upstream/android-13
 
 	u8 remote_mac_addr[6];
 	u8 local_mac_addr[6];
@@ -172,8 +216,22 @@ struct qed_rdma_qp {
 	void *shared_queue;
 	dma_addr_t shared_queue_phys_addr;
 	struct qed_iwarp_ep *ep;
+<<<<<<< HEAD
 };
 
+=======
+	u8 edpm_mode;
+};
+
+static inline bool qed_rdma_is_xrc_qp(struct qed_rdma_qp *qp)
+{
+	if (qp->qp_type == QED_RDMA_QP_TYPE_XRC_TGT ||
+	    qp->qp_type == QED_RDMA_QP_TYPE_XRC_INI)
+		return true;
+
+	return false;
+}
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_QED_RDMA)
 void qed_rdma_dpm_bar(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt);
 void qed_rdma_dpm_conf(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt);
@@ -207,7 +265,11 @@ qed_bmap_release_id(struct qed_hwfn *p_hwfn, struct qed_bmap *bmap, u32 id_num);
 int
 qed_bmap_test_id(struct qed_hwfn *p_hwfn, struct qed_bmap *bmap, u32 id_num);
 
+<<<<<<< HEAD
 void qed_rdma_set_fw_mac(u16 *p_fw_mac, u8 *p_qed_mac);
+=======
+void qed_rdma_set_fw_mac(__le16 *p_fw_mac, const u8 *p_qed_mac);
+>>>>>>> upstream/android-13
 
 bool qed_rdma_allocated_qps(struct qed_hwfn *p_hwfn);
 #endif

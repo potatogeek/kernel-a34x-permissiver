@@ -6,10 +6,21 @@
  *
  * NFSv4 callback procedures
  */
+<<<<<<< HEAD
+=======
+
+#include <linux/errno.h>
+#include <linux/math.h>
+>>>>>>> upstream/android-13
 #include <linux/nfs4.h>
 #include <linux/nfs_fs.h>
 #include <linux/slab.h>
 #include <linux/rcupdate.h>
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+
+>>>>>>> upstream/android-13
 #include "nfs4_fs.h"
 #include "callback.h"
 #include "delegation.h"
@@ -26,7 +37,10 @@ __be32 nfs4_callback_getattr(void *argp, void *resp,
 	struct cb_getattrargs *args = argp;
 	struct cb_getattrres *res = resp;
 	struct nfs_delegation *delegation;
+<<<<<<< HEAD
 	struct nfs_inode *nfsi;
+=======
+>>>>>>> upstream/android-13
 	struct inode *inode;
 
 	res->status = htonl(NFS4ERR_OP_NOT_IN_SESSION);
@@ -47,17 +61,27 @@ __be32 nfs4_callback_getattr(void *argp, void *resp,
 				-ntohl(res->status));
 		goto out;
 	}
+<<<<<<< HEAD
 	nfsi = NFS_I(inode);
 	rcu_read_lock();
 	delegation = rcu_dereference(nfsi->delegation);
+=======
+	rcu_read_lock();
+	delegation = nfs4_get_valid_delegation(inode);
+>>>>>>> upstream/android-13
 	if (delegation == NULL || (delegation->type & FMODE_WRITE) == 0)
 		goto out_iput;
 	res->size = i_size_read(inode);
 	res->change_attr = delegation->change_attr;
 	if (nfs_have_writebacks(inode))
 		res->change_attr++;
+<<<<<<< HEAD
 	res->ctime = timespec64_to_timespec(inode->i_ctime);
 	res->mtime = timespec64_to_timespec(inode->i_mtime);
+=======
+	res->ctime = inode->i_ctime;
+	res->mtime = inode->i_mtime;
+>>>>>>> upstream/android-13
 	res->bitmap[0] = (FATTR4_WORD0_CHANGE|FATTR4_WORD0_SIZE) &
 		args->bitmap[0];
 	res->bitmap[1] = (FATTR4_WORD1_TIME_METADATA|FATTR4_WORD1_TIME_MODIFY) &
@@ -123,11 +147,16 @@ out:
  */
 static struct inode *nfs_layout_find_inode_by_stateid(struct nfs_client *clp,
 		const nfs4_stateid *stateid)
+<<<<<<< HEAD
+=======
+	__must_hold(RCU)
+>>>>>>> upstream/android-13
 {
 	struct nfs_server *server;
 	struct inode *inode;
 	struct pnfs_layout_hdr *lo;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
 		list_for_each_entry(lo, &server->layouts, plh_layouts) {
 			if (!pnfs_layout_is_valid(lo))
@@ -150,6 +179,27 @@ static struct inode *nfs_layout_find_inode_by_stateid(struct nfs_client *clp,
 		}
 	}
 
+=======
+	rcu_read_lock();
+	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+		list_for_each_entry_rcu(lo, &server->layouts, plh_layouts) {
+			if (!pnfs_layout_is_valid(lo))
+				continue;
+			if (!nfs4_stateid_match_other(stateid, &lo->plh_stateid))
+				continue;
+			if (nfs_sb_active(server->super))
+				inode = igrab(lo->plh_inode);
+			else
+				inode = ERR_PTR(-EAGAIN);
+			rcu_read_unlock();
+			if (inode)
+				return inode;
+			nfs_sb_deactive(server->super);
+			return ERR_PTR(-EAGAIN);
+		}
+	}
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return ERR_PTR(-ENOENT);
 }
 
@@ -167,13 +217,20 @@ static struct inode *nfs_layout_find_inode_by_fh(struct nfs_client *clp,
 	struct inode *inode;
 	struct pnfs_layout_hdr *lo;
 
+<<<<<<< HEAD
 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
 		list_for_each_entry(lo, &server->layouts, plh_layouts) {
+=======
+	rcu_read_lock();
+	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+		list_for_each_entry_rcu(lo, &server->layouts, plh_layouts) {
+>>>>>>> upstream/android-13
 			nfsi = NFS_I(lo->plh_inode);
 			if (nfs_compare_fh(fh, &nfsi->fh))
 				continue;
 			if (nfsi->layout != lo)
 				continue;
+<<<<<<< HEAD
 			inode = igrab(lo->plh_inode);
 			if (!inode)
 				return ERR_PTR(-EAGAIN);
@@ -189,6 +246,20 @@ static struct inode *nfs_layout_find_inode_by_fh(struct nfs_client *clp,
 		}
 	}
 
+=======
+			if (nfs_sb_active(server->super))
+				inode = igrab(lo->plh_inode);
+			else
+				inode = ERR_PTR(-EAGAIN);
+			rcu_read_unlock();
+			if (inode)
+				return inode;
+			nfs_sb_deactive(server->super);
+			return ERR_PTR(-EAGAIN);
+		}
+	}
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 	return ERR_PTR(-ENOENT);
 }
 
@@ -198,6 +269,7 @@ static struct inode *nfs_layout_find_inode(struct nfs_client *clp,
 {
 	struct inode *inode;
 
+<<<<<<< HEAD
 	spin_lock(&clp->cl_lock);
 	rcu_read_lock();
 	inode = nfs_layout_find_inode_by_stateid(clp, stateid);
@@ -206,6 +278,11 @@ static struct inode *nfs_layout_find_inode(struct nfs_client *clp,
 	rcu_read_unlock();
 	spin_unlock(&clp->cl_lock);
 
+=======
+	inode = nfs_layout_find_inode_by_stateid(clp, stateid);
+	if (inode == ERR_PTR(-ENOENT))
+		inode = nfs_layout_find_inode_by_fh(clp, fh);
+>>>>>>> upstream/android-13
 	return inode;
 }
 
@@ -284,7 +361,11 @@ static u32 initiate_file_draining(struct nfs_client *clp,
 		goto unlock;
 	}
 
+<<<<<<< HEAD
 	pnfs_set_layout_stateid(lo, &args->cbl_stateid, true);
+=======
+	pnfs_set_layout_stateid(lo, &args->cbl_stateid, NULL, true);
+>>>>>>> upstream/android-13
 	switch (pnfs_mark_matching_lsegs_return(lo, &free_me_list,
 				&args->cbl_range,
 				be32_to_cpu(args->cbl_stateid.seqid))) {
@@ -364,12 +445,20 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
 				  struct cb_process_state *cps)
 {
 	struct cb_devicenotifyargs *args = argp;
+<<<<<<< HEAD
 	int i;
 	__be32 res = 0;
 	struct nfs_client *clp = cps->clp;
 	struct nfs_server *server = NULL;
 
 	if (!clp) {
+=======
+	const struct pnfs_layoutdriver_type *ld = NULL;
+	uint32_t i;
+	__be32 res = 0;
+
+	if (!cps->clp) {
+>>>>>>> upstream/android-13
 		res = cpu_to_be32(NFS4ERR_OP_NOT_IN_SESSION);
 		goto out;
 	}
@@ -377,6 +466,7 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
 	for (i = 0; i < args->ndevs; i++) {
 		struct cb_devicenotifyitem *dev = &args->devs[i];
 
+<<<<<<< HEAD
 		if (!server ||
 		    server->pnfs_curr_ld->id != dev->cbd_layout_type) {
 			rcu_read_lock();
@@ -394,6 +484,17 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
 		nfs4_delete_deviceid(server->pnfs_curr_ld, clp, &dev->cbd_dev_id);
 	}
 
+=======
+		if (!ld || ld->id != dev->cbd_layout_type) {
+			pnfs_put_layoutdriver(ld);
+			ld = pnfs_find_layoutdriver(dev->cbd_layout_type);
+			if (!ld)
+				continue;
+		}
+		nfs4_delete_deviceid(ld, cps->clp, &dev->cbd_dev_id);
+	}
+	pnfs_put_layoutdriver(ld);
+>>>>>>> upstream/android-13
 out:
 	kfree(args->devs);
 	return res;
@@ -416,6 +517,7 @@ static __be32
 validate_seqid(const struct nfs4_slot_table *tbl, const struct nfs4_slot *slot,
 		const struct cb_sequenceargs * args)
 {
+<<<<<<< HEAD
 	if (args->csa_slotid > tbl->server_highest_slotid)
 		return htonl(NFS4ERR_BADSLOT);
 
@@ -437,6 +539,41 @@ validate_seqid(const struct nfs4_slot_table *tbl, const struct nfs4_slot *slot,
 
 	/* Misordered request */
 	return htonl(NFS4ERR_SEQ_MISORDERED);
+=======
+	__be32 ret;
+
+	ret = cpu_to_be32(NFS4ERR_BADSLOT);
+	if (args->csa_slotid > tbl->server_highest_slotid)
+		goto out_err;
+
+	/* Replay */
+	if (args->csa_sequenceid == slot->seq_nr) {
+		ret = cpu_to_be32(NFS4ERR_DELAY);
+		if (nfs4_test_locked_slot(tbl, slot->slot_nr))
+			goto out_err;
+
+		/* Signal process_op to set this error on next op */
+		ret = cpu_to_be32(NFS4ERR_RETRY_UNCACHED_REP);
+		if (args->csa_cachethis == 0)
+			goto out_err;
+
+		/* Liar! We never allowed you to set csa_cachethis != 0 */
+		ret = cpu_to_be32(NFS4ERR_SEQ_FALSE_RETRY);
+		goto out_err;
+	}
+
+	/* Note: wraparound relies on seq_nr being of type u32 */
+	/* Misordered request */
+	ret = cpu_to_be32(NFS4ERR_SEQ_MISORDERED);
+	if (args->csa_sequenceid != slot->seq_nr + 1)
+		goto out_err;
+
+	return cpu_to_be32(NFS4_OK);
+
+out_err:
+	trace_nfs4_cb_seqid_err(args, ret);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -597,6 +734,10 @@ __be32 nfs4_callback_recallany(void *argp, void *resp,
 	struct cb_recallanyargs *args = argp;
 	__be32 status;
 	fmode_t flags = 0;
+<<<<<<< HEAD
+=======
+	bool schedule_manager = false;
+>>>>>>> upstream/android-13
 
 	status = cpu_to_be32(NFS4ERR_OP_NOT_IN_SESSION);
 	if (!cps->clp) /* set in cb_sequence */
@@ -619,6 +760,21 @@ __be32 nfs4_callback_recallany(void *argp, void *resp,
 
 	if (args->craa_type_mask & BIT(RCA4_TYPE_MASK_FILE_LAYOUT))
 		pnfs_recall_all_layouts(cps->clp);
+<<<<<<< HEAD
+=======
+
+	if (args->craa_type_mask & BIT(PNFS_FF_RCA4_TYPE_MASK_READ)) {
+		set_bit(NFS4CLNT_RECALL_ANY_LAYOUT_READ, &cps->clp->cl_state);
+		schedule_manager = true;
+	}
+	if (args->craa_type_mask & BIT(PNFS_FF_RCA4_TYPE_MASK_RW)) {
+		set_bit(NFS4CLNT_RECALL_ANY_LAYOUT_RW, &cps->clp->cl_state);
+		schedule_manager = true;
+	}
+	if (schedule_manager)
+		nfs4_schedule_state_manager(cps->clp);
+
+>>>>>>> upstream/android-13
 out:
 	dprintk("%s: exit with status = %d\n", __func__, ntohl(status));
 	return status;

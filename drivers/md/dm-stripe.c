@@ -41,7 +41,11 @@ struct stripe_c {
 	/* Work struct used for triggering events*/
 	struct work_struct trigger_event;
 
+<<<<<<< HEAD
 	struct stripe stripe[0];
+=======
+	struct stripe stripe[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -55,6 +59,7 @@ static void trigger_event(struct work_struct *work)
 	dm_table_event(sc->ti->table);
 }
 
+<<<<<<< HEAD
 static inline struct stripe_c *alloc_context(unsigned int stripes)
 {
 	size_t len;
@@ -68,6 +73,8 @@ static inline struct stripe_c *alloc_context(unsigned int stripes)
 	return kmalloc(len, GFP_KERNEL);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Parse a single <dev> <sector> pair
  */
@@ -142,7 +149,11 @@ static int stripe_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	sc = alloc_context(stripes);
+=======
+	sc = kmalloc(struct_size(sc, stripe, stripes), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sc) {
 		ti->error = "Memory allocation for striped context "
 		    "failed";
@@ -373,10 +384,38 @@ static size_t stripe_dax_copy_to_iter(struct dm_target *ti, pgoff_t pgoff,
 	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
 }
 
+<<<<<<< HEAD
+=======
+static int stripe_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
+				      size_t nr_pages)
+{
+	int ret;
+	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+	struct stripe_c *sc = ti->private;
+	struct dax_device *dax_dev;
+	struct block_device *bdev;
+	uint32_t stripe;
+
+	stripe_map_sector(sc, sector, &stripe, &dev_sector);
+	dev_sector += sc->stripe[stripe].physical_start;
+	dax_dev = sc->stripe[stripe].dev->dax_dev;
+	bdev = sc->stripe[stripe].dev->bdev;
+
+	ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages << PAGE_SHIFT, &pgoff);
+	if (ret)
+		return ret;
+	return dax_zero_page_range(dax_dev, pgoff, nr_pages);
+}
+
+>>>>>>> upstream/android-13
 #else
 #define stripe_dax_direct_access NULL
 #define stripe_dax_copy_from_iter NULL
 #define stripe_dax_copy_to_iter NULL
+<<<<<<< HEAD
+=======
+#define stripe_dax_zero_page_range NULL
+>>>>>>> upstream/android-13
 #endif
 
 /*
@@ -419,6 +458,24 @@ static void stripe_status(struct dm_target *ti, status_type_t type,
 			DMEMIT(" %s %llu", sc->stripe[i].dev->name,
 			    (unsigned long long)sc->stripe[i].physical_start);
 		break;
+<<<<<<< HEAD
+=======
+
+	case STATUSTYPE_IMA:
+		DMEMIT_TARGET_NAME_VERSION(ti->type);
+		DMEMIT(",stripes=%d,chunk_size=%llu", sc->stripes,
+		       (unsigned long long)sc->chunk_size);
+
+		for (i = 0; i < sc->stripes; i++) {
+			DMEMIT(",stripe_%d_device_name=%s", i, sc->stripe[i].dev->name);
+			DMEMIT(",stripe_%d_physical_start=%llu", i,
+			       (unsigned long long)sc->stripe[i].physical_start);
+			DMEMIT(",stripe_%d_status=%c", i,
+			       atomic_read(&(sc->stripe[i].error_count)) ? 'D' : 'A');
+		}
+		DMEMIT(";");
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -487,7 +544,11 @@ static void stripe_io_hints(struct dm_target *ti,
 static struct target_type stripe_target = {
 	.name   = "striped",
 	.version = {1, 6, 0},
+<<<<<<< HEAD
 	.features = DM_TARGET_PASSES_INTEGRITY,
+=======
+	.features = DM_TARGET_PASSES_INTEGRITY | DM_TARGET_NOWAIT,
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 	.ctr    = stripe_ctr,
 	.dtr    = stripe_dtr,
@@ -499,6 +560,10 @@ static struct target_type stripe_target = {
 	.direct_access = stripe_dax_direct_access,
 	.dax_copy_from_iter = stripe_dax_copy_from_iter,
 	.dax_copy_to_iter = stripe_dax_copy_to_iter,
+<<<<<<< HEAD
+=======
+	.dax_zero_page_range = stripe_dax_zero_page_range,
+>>>>>>> upstream/android-13
 };
 
 int __init dm_stripe_init(void)

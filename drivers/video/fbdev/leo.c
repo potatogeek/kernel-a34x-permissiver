@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* leo.c: LEO frame buffer driver
  *
  * Copyright (C) 2003, 2006 David S. Miller (davem@davemloft.net)
@@ -38,7 +42,11 @@ static int leo_pan_display(struct fb_var_screeninfo *, struct fb_info *);
  *  Frame buffer operations
  */
 
+<<<<<<< HEAD
 static struct fb_ops leo_ops = {
+=======
+static const struct fb_ops leo_ops = {
+>>>>>>> upstream/android-13
 	.owner			= THIS_MODULE,
 	.fb_setcolreg		= leo_setcolreg,
 	.fb_blank		= leo_blank,
@@ -307,7 +315,11 @@ static int leo_setcolreg(unsigned regno,
 
 /**
  *      leo_blank - Optional function.  Blanks the display.
+<<<<<<< HEAD
  *      @blank_mode: the blank mode we want.
+=======
+ *      @blank: the blank mode we want.
+>>>>>>> upstream/android-13
  *      @info: frame buffer structure that represents a single frame buffer
  */
 static int leo_blank(int blank, struct fb_info *info)
@@ -434,7 +446,11 @@ static int leo_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg)
 static void
 leo_init_fix(struct fb_info *info, struct device_node *dp)
 {
+<<<<<<< HEAD
 	strlcpy(info->fix.id, dp->name, sizeof(info->fix.id));
+=======
+	snprintf(info->fix.id, sizeof(info->fix.id), "%pOFn", dp);
+>>>>>>> upstream/android-13
 
 	info->fix.type = FB_TYPE_PACKED_PIXELS;
 	info->fix.visual = FB_VISUAL_TRUECOLOR;

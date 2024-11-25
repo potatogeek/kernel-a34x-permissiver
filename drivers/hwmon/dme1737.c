@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * dme1737.c - Driver for the SMSC DME1737, Asus A8000, SMSC SCH311x, SCH5027,
  *             and SCH5127 Super-I/O chips integrated hardware monitoring
@@ -9,6 +13,7 @@
  * if a SCH311x or SCH5127 chip is found. Both types of chips have very
  * similar hardware monitoring capabilities but differ in the way they can be
  * accessed.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -2474,8 +2481,14 @@ static int dme1737_i2c_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dme1737_i2c_probe(struct i2c_client *client,
 			     const struct i2c_device_id *id)
+=======
+static const struct i2c_device_id dme1737_id[];
+
+static int dme1737_i2c_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct dme1737_data *data;
 	struct device *dev = &client->dev;
@@ -2486,7 +2499,11 @@ static int dme1737_i2c_probe(struct i2c_client *client,
 		return -ENOMEM;
 
 	i2c_set_clientdata(client, data);
+<<<<<<< HEAD
 	data->type = id->driver_data;
+=======
+	data->type = i2c_match_id(dme1737_id, client)->driver_data;
+>>>>>>> upstream/android-13
 	data->client = client;
 	data->name = client->name;
 	mutex_init(&data->update_lock);
@@ -2542,7 +2559,11 @@ static struct i2c_driver dme1737_i2c_driver = {
 	.driver = {
 		.name = "dme1737",
 	},
+<<<<<<< HEAD
 	.probe = dme1737_i2c_probe,
+=======
+	.probe_new = dme1737_i2c_probe,
+>>>>>>> upstream/android-13
 	.remove = dme1737_i2c_remove,
 	.id_table = dme1737_id,
 	.detect = dme1737_i2c_detect,

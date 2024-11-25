@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -120,6 +121,14 @@
 		enable-active-high;
 	};
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/dts-v1/;
+
+#include "motorola-mapphone-common.dtsi"
+
+/ {
+>>>>>>> upstream/android-13
 	gpio_keys {
 		compatible = "gpio-keys";
 
@@ -132,8 +141,18 @@
 			debounce-interval = <10>;
 		};
 
+<<<<<<< HEAD
 		slider {
 			label = "Keypad Slide";
+=======
+		/*
+		 * We use pad 0x4a100116 abe_dmic_din3.gpio_122 as the irq instead
+		 * of the gpio interrupt to avoid lost events in deeper idle states.
+		*/
+		slider {
+			label = "Keypad Slide";
+			interrupts-extended = <&omap4_pmx_core 0xd6>;
+>>>>>>> upstream/android-13
 			gpios = <&gpio4 26 GPIO_ACTIVE_HIGH>; /* gpio122 */
 			linux,input-type = <EV_SW>;
 			linux,code = <SW_KEYPAD_SLIDE>;
@@ -142,6 +161,7 @@
 			debounce-interval = <10>;
 		};
 	};
+<<<<<<< HEAD
 
 	soundcard {
 		compatible = "audio-graph-card";
@@ -269,6 +289,13 @@
 		interrupt-names = "irq", "wakeup";
 		wakeup-source;
 	};
+=======
+};
+
+/ {
+	model = "Motorola Droid 4 XT894";
+	compatible = "motorola,droid4", "ti,omap4430", "ti,omap4";
+>>>>>>> upstream/android-13
 };
 
 &keypad {
@@ -345,6 +372,7 @@
 	>;
 };
 
+<<<<<<< HEAD
 &mmc1 {
 	vmmc-supply = <&vwlan2>;
 	bus-width = <4>;
@@ -381,10 +409,18 @@
 &i2c1 {
 	lm3532@38 {
 		compatible = "ti,lm3532";
+=======
+&i2c1 {
+	led-controller@38 {
+		compatible = "ti,lm3532";
+		#address-cells = <1>;
+		#size-cells = <0>;
+>>>>>>> upstream/android-13
 		reg = <0x38>;
 
 		enable-gpios = <&gpio6 12 GPIO_ACTIVE_HIGH>;
 
+<<<<<<< HEAD
 		lcd_backlight: backlight {
 			compatible = "ti,lm3532-backlight";
 
@@ -393,10 +429,28 @@
 				ramp-up-msec = <1>;
 				ramp-down-msec = <0>;
 			};
+=======
+		ramp-up-us = <1024>;
+		ramp-down-us = <8193>;
+
+		backlight_led: led@0 {
+			reg = <0>;
+			led-sources = <2>;
+			ti,led-mode = <0>;
+			label = ":backlight";
+		};
+
+		led@1 {
+			reg = <1>;
+			led-sources = <1>;
+			ti,led-mode = <0>;
+			label = ":kbd_backlight";
+>>>>>>> upstream/android-13
 		};
 	};
 };
 
+<<<<<<< HEAD
 &i2c2 {
 	touchscreen@4a {
 		compatible = "atmel,maxtouch";
@@ -719,6 +773,9 @@
 
 	};
 
+=======
+&i2c4 {
+>>>>>>> upstream/android-13
 	lis3dh: accelerometer@18 {
 		compatible = "st,lis3dh-accel";
 		reg = <0x18>;
@@ -733,6 +790,7 @@
 				  "0", "0", "1";
 	};
 };
+<<<<<<< HEAD
 
 &mcbsp2 {
 	#sound-dai-cells = <0>;
@@ -773,3 +831,5 @@
 &cpcap_audio_codec1 {
 	remote-endpoint = <&cpu_dai3>;
 };
+=======
+>>>>>>> upstream/android-13

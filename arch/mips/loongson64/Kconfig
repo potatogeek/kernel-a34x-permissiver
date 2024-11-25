@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 if MACH_LOONGSON64
 
+<<<<<<< HEAD
 choice
 	prompt "Machine Type"
 
@@ -115,10 +116,17 @@ config CS5536_MFGPT
 config RS780_HPET
 	bool "RS780/SBX00 HPET Timer"
 	depends on LOONGSON_MACH3X
+=======
+config RS780_HPET
+	bool "RS780/SBX00 HPET Timer"
+	depends on MACH_LOONGSON64
+	depends on BROKEN
+>>>>>>> upstream/android-13
 	select MIPS_EXTERNAL_TIMER
 	help
 	  This option enables the hpet timer of AMD RS780/SBX00.
 
+<<<<<<< HEAD
 	  If you want to enable the Loongson3 CPUFreq Driver, Please enable
 	  this option at first, otherwise, You will get wrong system time.
 
@@ -135,5 +143,9 @@ config LOONGSON_MC146818
 
 config LEFI_FIRMWARE_INTERFACE
 	bool
+=======
+	  Note: This driver is doing some dangerous hack. Please only enable
+	  it on RS780E systems.
+>>>>>>> upstream/android-13
 
 endif # MACH_LOONGSON64

@@ -100,10 +100,13 @@ static int irq_affinity_hint_proc_show(struct seq_file *m, void *v)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifndef is_affinity_mask_valid
 #define is_affinity_mask_valid(val) 1
 #endif
 
+=======
+>>>>>>> upstream/android-13
 int no_irq_affinity;
 static int irq_affinity_proc_show(struct seq_file *m, void *v)
 {
@@ -148,7 +151,11 @@ static ssize_t write_irq_affinity(int type, struct file *file,
 	if (!irq_can_set_affinity_usr(irq) || no_irq_affinity)
 		return -EIO;
 
+<<<<<<< HEAD
 	if (!alloc_cpumask_var(&new_value, GFP_KERNEL))
+=======
+	if (!zalloc_cpumask_var(&new_value, GFP_KERNEL))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	if (type)
@@ -158,11 +165,14 @@ static ssize_t write_irq_affinity(int type, struct file *file,
 	if (err)
 		goto free_cpumask;
 
+<<<<<<< HEAD
 	if (!is_affinity_mask_valid(new_value)) {
 		err = -EINVAL;
 		goto free_cpumask;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Do not allow disabling IRQs completely - it's a too easy
 	 * way to make the system unusable accidentally :-) At least
@@ -207,6 +217,7 @@ static int irq_affinity_list_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, irq_affinity_list_proc_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations irq_affinity_proc_fops = {
 	.open		= irq_affinity_proc_open,
 	.read		= seq_read,
@@ -221,6 +232,22 @@ static const struct file_operations irq_affinity_list_proc_fops = {
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= irq_affinity_list_proc_write,
+=======
+static const struct proc_ops irq_affinity_proc_ops = {
+	.proc_open	= irq_affinity_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= irq_affinity_proc_write,
+};
+
+static const struct proc_ops irq_affinity_list_proc_ops = {
+	.proc_open	= irq_affinity_list_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= irq_affinity_list_proc_write,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK
@@ -247,18 +274,25 @@ static ssize_t default_affinity_write(struct file *file,
 	cpumask_var_t new_value;
 	int err;
 
+<<<<<<< HEAD
 	if (!alloc_cpumask_var(&new_value, GFP_KERNEL))
+=======
+	if (!zalloc_cpumask_var(&new_value, GFP_KERNEL))
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	err = cpumask_parse_user(buffer, count, new_value);
 	if (err)
 		goto out;
 
+<<<<<<< HEAD
 	if (!is_affinity_mask_valid(new_value)) {
 		err = -EINVAL;
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Do not allow disabling IRQs completely - it's a too easy
 	 * way to make the system unusable accidentally :-) At least
@@ -282,12 +316,21 @@ static int default_affinity_open(struct inode *inode, struct file *file)
 	return single_open(file, default_affinity_show, PDE_DATA(inode));
 }
 
+<<<<<<< HEAD
 static const struct file_operations default_affinity_proc_fops = {
 	.open		= default_affinity_open,
 	.read		= seq_read,
 	.llseek		= seq_lseek,
 	.release	= single_release,
 	.write		= default_affinity_write,
+=======
+static const struct proc_ops default_affinity_proc_ops = {
+	.proc_open	= default_affinity_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
+	.proc_write	= default_affinity_write,
+>>>>>>> upstream/android-13
 };
 
 static int irq_node_proc_show(struct seq_file *m, void *v)
@@ -378,7 +421,11 @@ void register_irq_proc(unsigned int irq, struct irq_desc *desc)
 #ifdef CONFIG_SMP
 	/* create /proc/irq/<irq>/smp_affinity */
 	proc_create_data("smp_affinity", 0644, desc->dir,
+<<<<<<< HEAD
 			 &irq_affinity_proc_fops, irqp);
+=======
+			 &irq_affinity_proc_ops, irqp);
+>>>>>>> upstream/android-13
 
 	/* create /proc/irq/<irq>/affinity_hint */
 	proc_create_single_data("affinity_hint", 0444, desc->dir,
@@ -386,7 +433,11 @@ void register_irq_proc(unsigned int irq, struct irq_desc *desc)
 
 	/* create /proc/irq/<irq>/smp_affinity_list */
 	proc_create_data("smp_affinity_list", 0644, desc->dir,
+<<<<<<< HEAD
 			 &irq_affinity_list_proc_fops, irqp);
+=======
+			 &irq_affinity_list_proc_ops, irqp);
+>>>>>>> upstream/android-13
 
 	proc_create_single_data("node", 0444, desc->dir, irq_node_proc_show,
 			irqp);
@@ -437,7 +488,11 @@ static void register_default_affinity_proc(void)
 {
 #ifdef CONFIG_SMP
 	proc_create("irq/default_smp_affinity", 0644, NULL,
+<<<<<<< HEAD
 		    &default_affinity_proc_fops);
+=======
+		    &default_affinity_proc_ops);
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -499,12 +554,22 @@ int show_interrupts(struct seq_file *p, void *v)
 
 	rcu_read_lock();
 	desc = irq_to_desc(i);
+<<<<<<< HEAD
 	if (!desc)
 		goto outsparse;
 
 	if (desc->kstat_irqs)
 		for_each_online_cpu(j)
 			any_count |= *per_cpu_ptr(desc->kstat_irqs, j);
+=======
+	if (!desc || irq_settings_is_hidden(desc))
+		goto outsparse;
+
+	if (desc->kstat_irqs) {
+		for_each_online_cpu(j)
+			any_count |= data_race(*per_cpu_ptr(desc->kstat_irqs, j));
+	}
+>>>>>>> upstream/android-13
 
 	if ((!desc->action || irq_desc_is_chained(desc)) && !any_count)
 		goto outsparse;
@@ -526,7 +591,11 @@ int show_interrupts(struct seq_file *p, void *v)
 		seq_printf(p, " %8s", "None");
 	}
 	if (desc->irq_data.domain)
+<<<<<<< HEAD
 		seq_printf(p, " %*d", prec, (int) desc->irq_data.hwirq);
+=======
+		seq_printf(p, " %*lu", prec, desc->irq_data.hwirq);
+>>>>>>> upstream/android-13
 	else
 		seq_printf(p, " %*s", prec, "");
 #ifdef CONFIG_GENERIC_IRQ_SHOW_LEVEL

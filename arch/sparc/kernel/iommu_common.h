@@ -48,6 +48,9 @@ static inline int is_span_boundary(unsigned long entry,
 	return iommu_is_span_boundary(entry, nr, shift, boundary_size);
 }
 
+<<<<<<< HEAD
 #define SPARC_MAPPING_ERROR	(~(dma_addr_t)0x0)
 
+=======
+>>>>>>> upstream/android-13
 #endif /* _IOMMU_COMMON_H */

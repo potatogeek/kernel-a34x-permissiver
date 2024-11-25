@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * WSM host interface (HI) interface for ST-Ericsson CW1200 mac80211 drivers
  *
@@ -7,10 +11,13 @@
  * Based on CW1200 UMAC WSM API, which is
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Stewart Mathers <stewart.mathers@stericsson.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef CW1200_WSM_H_INCLUDED
@@ -788,8 +795,11 @@ struct wsm_tx_confirm {
 };
 
 /* 3.15 */
+<<<<<<< HEAD
 typedef void (*wsm_tx_confirm_cb) (struct cw1200_common *priv,
 				   struct wsm_tx_confirm *arg);
+=======
+>>>>>>> upstream/android-13
 
 /* Note that ideology of wsm_tx struct is different against the rest of
  * WSM API. wsm_hdr is /not/ a caller-adapted struct to be used as an input
@@ -865,9 +875,12 @@ struct wsm_rx {
 /* = sizeof(generic hi hdr) + sizeof(wsm hdr) */
 #define WSM_RX_EXTRA_HEADROOM (16)
 
+<<<<<<< HEAD
 typedef void (*wsm_rx_cb) (struct cw1200_common *priv, struct wsm_rx *arg,
 			   struct sk_buff **skb_p);
 
+=======
+>>>>>>> upstream/android-13
 /* 3.17 */
 struct wsm_event {
 	/* WSM_STATUS_... */
@@ -1183,8 +1196,11 @@ struct wsm_switch_channel {
 int wsm_switch_channel(struct cw1200_common *priv,
 		       const struct wsm_switch_channel *arg);
 
+<<<<<<< HEAD
 typedef void (*wsm_channel_switch_cb) (struct cw1200_common *priv);
 
+=======
+>>>>>>> upstream/android-13
 #define WSM_START_REQ_ID 0x0017
 #define WSM_START_RESP_ID 0x0417
 
@@ -1243,8 +1259,11 @@ int wsm_start_find(struct cw1200_common *priv);
 
 int wsm_stop_find(struct cw1200_common *priv);
 
+<<<<<<< HEAD
 typedef void (*wsm_find_complete_cb) (struct cw1200_common *priv, u32 status);
 
+=======
+>>>>>>> upstream/android-13
 struct wsm_suspend_resume {
 	/* See 3.52 */
 	/* Link ID */
@@ -1259,9 +1278,12 @@ struct wsm_suspend_resume {
 	/* [out] */ int queue;
 };
 
+<<<<<<< HEAD
 typedef void (*wsm_suspend_resume_cb) (struct cw1200_common *priv,
 				       struct wsm_suspend_resume *arg);
 
+=======
+>>>>>>> upstream/android-13
 /* 3.54 Update-IE request. */
 struct wsm_update_ie {
 	/* WSM_UPDATE_IE_... */
@@ -1626,7 +1648,11 @@ struct wsm_p2p_device_info {
 	u8 local_devname[D11_MAX_SSID_LEN];
 	u8 reserved2[3];
 	u8 num_secdev_supported;
+<<<<<<< HEAD
 	struct wsm_p2p_device_type secdevs[0];
+=======
+	struct wsm_p2p_device_type secdevs[];
+>>>>>>> upstream/android-13
 } __packed;
 
 /* 4.36 SetWCDMABand - WO */

@@ -24,9 +24,21 @@
  */
 
 #include "dm_services.h"
+<<<<<<< HEAD
 #include "include/gpio_types.h"
 #include "../hw_factory.h"
 
+=======
+
+#include "include/gpio_types.h"
+#include "../hw_factory.h"
+
+#include "../hw_gpio.h"
+#include "../hw_ddc.h"
+#include "../hw_hpd.h"
+#include "../hw_generic.h"
+
+>>>>>>> upstream/android-13
 #include "hw_factory_dce110.h"
 
 #include "dce/dce_11_0_d.h"
@@ -42,10 +54,13 @@
 #define REGI(reg_name, block, id)\
 	mm ## block ## id ## _ ## reg_name
 
+<<<<<<< HEAD
 #include "../hw_gpio.h"
 #include "../hw_ddc.h"
 #include "../hw_hpd.h"
 
+=======
+>>>>>>> upstream/android-13
 #include "reg_helper.h"
 #include "../hpd_regs.h"
 
@@ -143,12 +158,21 @@ static void define_hpd_registers(struct hw_gpio_pin *pin, uint32_t en)
 }
 
 static const struct hw_factory_funcs funcs = {
+<<<<<<< HEAD
 	.create_ddc_data = dal_hw_ddc_create,
 	.create_ddc_clock = dal_hw_ddc_create,
 	.create_generic = NULL,
 	.create_hpd = dal_hw_hpd_create,
 	.create_sync = NULL,
 	.create_gsl = NULL,
+=======
+	.init_ddc_data = dal_hw_ddc_init,
+	.init_generic = NULL,
+	.init_hpd = dal_hw_hpd_init,
+	.get_ddc_pin = dal_hw_ddc_get_pin,
+	.get_hpd_pin = dal_hw_hpd_get_pin,
+	.get_generic_pin = NULL,
+>>>>>>> upstream/android-13
 	.define_hpd_registers = define_hpd_registers,
 	.define_ddc_registers = define_ddc_registers
 };

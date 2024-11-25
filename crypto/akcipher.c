@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Public Key Encryption
  *
  * Copyright (c) 2015, Intel Corporation
  * Authors: Tadeusz Struk <tadeusz.struk@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/errno.h>
 #include <linux/kernel.h>
@@ -30,6 +37,7 @@ static int crypto_akcipher_report(struct sk_buff *skb, struct crypto_alg *alg)
 {
 	struct crypto_report_akcipher rakcipher;
 
+<<<<<<< HEAD
 	strncpy(rakcipher.type, "akcipher", sizeof(rakcipher.type));
 
 	if (nla_put(skb, CRYPTOCFGA_REPORT_AKCIPHER,
@@ -39,6 +47,14 @@ static int crypto_akcipher_report(struct sk_buff *skb, struct crypto_alg *alg)
 
 nla_put_failure:
 	return -EMSGSIZE;
+=======
+	memset(&rakcipher, 0, sizeof(rakcipher));
+
+	strscpy(rakcipher.type, "akcipher", sizeof(rakcipher.type));
+
+	return nla_put(skb, CRYPTOCFGA_REPORT_AKCIPHER,
+		       sizeof(rakcipher), &rakcipher);
+>>>>>>> upstream/android-13
 }
 #else
 static int crypto_akcipher_report(struct sk_buff *skb, struct crypto_alg *alg)
@@ -98,11 +114,20 @@ static const struct crypto_type crypto_akcipher_type = {
 	.tfmsize = offsetof(struct crypto_akcipher, base),
 };
 
+<<<<<<< HEAD
 int crypto_grab_akcipher(struct crypto_akcipher_spawn *spawn, const char *name,
 			 u32 type, u32 mask)
 {
 	spawn->base.frontend = &crypto_akcipher_type;
 	return crypto_grab_spawn(&spawn->base, name, type, mask);
+=======
+int crypto_grab_akcipher(struct crypto_akcipher_spawn *spawn,
+			 struct crypto_instance *inst,
+			 const char *name, u32 type, u32 mask)
+{
+	spawn->base.frontend = &crypto_akcipher_type;
+	return crypto_grab_spawn(&spawn->base, inst, name, type, mask);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_grab_akcipher);
 
@@ -122,10 +147,30 @@ static void akcipher_prepare_alg(struct akcipher_alg *alg)
 	base->cra_flags |= CRYPTO_ALG_TYPE_AKCIPHER;
 }
 
+<<<<<<< HEAD
+=======
+static int akcipher_default_op(struct akcipher_request *req)
+{
+	return -ENOSYS;
+}
+
+>>>>>>> upstream/android-13
 int crypto_register_akcipher(struct akcipher_alg *alg)
 {
 	struct crypto_alg *base = &alg->base;
 
+<<<<<<< HEAD
+=======
+	if (!alg->sign)
+		alg->sign = akcipher_default_op;
+	if (!alg->verify)
+		alg->verify = akcipher_default_op;
+	if (!alg->encrypt)
+		alg->encrypt = akcipher_default_op;
+	if (!alg->decrypt)
+		alg->decrypt = akcipher_default_op;
+
+>>>>>>> upstream/android-13
 	akcipher_prepare_alg(alg);
 	return crypto_register_alg(base);
 }
@@ -140,6 +185,11 @@ EXPORT_SYMBOL_GPL(crypto_unregister_akcipher);
 int akcipher_register_instance(struct crypto_template *tmpl,
 			       struct akcipher_instance *inst)
 {
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!inst->free))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	akcipher_prepare_alg(&inst->alg);
 	return crypto_register_instance(tmpl, akcipher_crypto_instance(inst));
 }

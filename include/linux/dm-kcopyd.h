@@ -51,6 +51,10 @@ MODULE_PARM_DESC(name, description)
 struct dm_kcopyd_client;
 struct dm_kcopyd_client *dm_kcopyd_client_create(struct dm_kcopyd_throttle *throttle);
 void dm_kcopyd_client_destroy(struct dm_kcopyd_client *kc);
+<<<<<<< HEAD
+=======
+void dm_kcopyd_client_flush(struct dm_kcopyd_client *kc);
+>>>>>>> upstream/android-13
 
 /*
  * Submit a copy job to kcopyd.  This is built on top of the

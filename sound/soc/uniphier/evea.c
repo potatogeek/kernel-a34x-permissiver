@@ -451,7 +451,10 @@ static const struct regmap_config evea_regmap_config = {
 static int evea_probe(struct platform_device *pdev)
 {
 	struct evea_priv *evea;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *preg;
 	int ret;
 
@@ -475,8 +478,12 @@ static int evea_probe(struct platform_device *pdev)
 	if (IS_ERR(evea->rst_exiv))
 		return PTR_ERR(evea->rst_exiv);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	preg = devm_ioremap_resource(&pdev->dev, res);
+=======
+	preg = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(preg))
 		return PTR_ERR(preg);
 
@@ -553,7 +560,11 @@ static int evea_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id evea_of_match[] = {
+=======
+static const struct of_device_id evea_of_match[] __maybe_unused = {
+>>>>>>> upstream/android-13
 	{ .compatible = "socionext,uniphier-evea", },
 	{}
 };

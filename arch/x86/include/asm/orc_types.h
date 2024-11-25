@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 Josh Poimboeuf <jpoimboe@redhat.com>
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2017 Josh Poimboeuf <jpoimboe@redhat.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef _ORC_TYPES_H
@@ -51,6 +57,7 @@
 #define ORC_REG_SP_INDIRECT		9
 #define ORC_REG_MAX			15
 
+<<<<<<< HEAD
 /*
  * ORC_TYPE_CALL: Indicates that sp_reg+sp_offset resolves to PREV_SP (the
  * caller's SP right before it made the call).  Used for all callable
@@ -74,6 +81,11 @@
 #define UNWIND_HINT_TYPE_RESTORE	4
 
 #ifndef __ASSEMBLY__
+=======
+#ifndef __ASSEMBLY__
+#include <asm/byteorder.h>
+
+>>>>>>> upstream/android-13
 /*
  * This struct is more or less a vastly simplified version of the DWARF Call
  * Frame Information standard.  It contains only the necessary parts of DWARF
@@ -85,10 +97,15 @@
 struct orc_entry {
 	s16		sp_offset;
 	s16		bp_offset;
+<<<<<<< HEAD
+=======
+#if defined(__LITTLE_ENDIAN_BITFIELD)
+>>>>>>> upstream/android-13
 	unsigned	sp_reg:4;
 	unsigned	bp_reg:4;
 	unsigned	type:2;
 	unsigned	end:1;
+<<<<<<< HEAD
 } __packed;
 
 /*
@@ -104,6 +121,17 @@ struct unwind_hint {
 	u8		type;
 	u8		end;
 };
+=======
+#elif defined(__BIG_ENDIAN_BITFIELD)
+	unsigned	bp_reg:4;
+	unsigned	sp_reg:4;
+	unsigned	unused:5;
+	unsigned	end:1;
+	unsigned	type:2;
+#endif
+} __packed;
+
+>>>>>>> upstream/android-13
 #endif /* __ASSEMBLY__ */
 
 #endif /* _ORC_TYPES_H */

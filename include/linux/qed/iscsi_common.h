@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qed NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -28,6 +29,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qed NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ISCSI_COMMON__
@@ -896,7 +903,11 @@ struct e4_ustorm_iscsi_task_ag_ctx {
 	__le32 exp_cont_len;
 	__le32 total_data_acked;
 	__le32 exp_data_acked;
+<<<<<<< HEAD
 	u8 next_tid_valid;
+=======
+	u8 byte2;
+>>>>>>> upstream/android-13
 	u8 byte3;
 	__le16 word1;
 	__le16 next_tid;
@@ -999,7 +1010,10 @@ struct iscsi_conn_offload_params {
 	struct regpair r2tq_pbl_addr;
 	struct regpair xhq_pbl_addr;
 	struct regpair uhq_pbl_addr;
+<<<<<<< HEAD
 	__le32 initial_ack;
+=======
+>>>>>>> upstream/android-13
 	__le16 physical_q0;
 	__le16 physical_q1;
 	u8 flags;
@@ -1011,10 +1025,17 @@ struct iscsi_conn_offload_params {
 #define ISCSI_CONN_OFFLOAD_PARAMS_RESTRICTED_MODE_SHIFT	2
 #define ISCSI_CONN_OFFLOAD_PARAMS_RESERVED1_MASK	0x1F
 #define ISCSI_CONN_OFFLOAD_PARAMS_RESERVED1_SHIFT	3
+<<<<<<< HEAD
 	u8 pbl_page_size_log;
 	u8 pbe_page_size_log;
 	u8 default_cq;
 	__le32 stat_sn;
+=======
+	u8 default_cq;
+	__le16 reserved0;
+	__le32 stat_sn;
+	__le32 initial_ack;
+>>>>>>> upstream/android-13
 };
 
 /* iSCSI connection statistics */
@@ -1029,6 +1050,7 @@ struct iscsi_conn_stats_params {
 	__le32 reserved;
 };
 
+<<<<<<< HEAD
 /* spe message header */
 struct iscsi_slow_path_hdr {
 	u8 op_code;
@@ -1040,14 +1062,22 @@ struct iscsi_slow_path_hdr {
 #define ISCSI_SLOW_PATH_HDR_RESERVED1_MASK	0x1
 #define ISCSI_SLOW_PATH_HDR_RESERVED1_SHIFT	7
 };
+=======
+>>>>>>> upstream/android-13
 
 /* iSCSI connection update params passed by driver to FW in ISCSI update
  *ramrod.
  */
 struct iscsi_conn_update_ramrod_params {
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr hdr;
 	__le16 conn_id;
 	__le32 fw_cid;
+=======
+	__le16 reserved0;
+	__le16 conn_id;
+	__le32 reserved1;
+>>>>>>> upstream/android-13
 	u8 flags;
 #define ISCSI_CONN_UPDATE_RAMROD_PARAMS_HD_EN_MASK		0x1
 #define ISCSI_CONN_UPDATE_RAMROD_PARAMS_HD_EN_SHIFT		0
@@ -1065,7 +1095,11 @@ struct iscsi_conn_update_ramrod_params {
 #define ISCSI_CONN_UPDATE_RAMROD_PARAMS_DIF_ON_IMM_EN_SHIFT	6
 #define ISCSI_CONN_UPDATE_RAMROD_PARAMS_LUN_MAPPER_EN_MASK	0x1
 #define ISCSI_CONN_UPDATE_RAMROD_PARAMS_LUN_MAPPER_EN_SHIFT	7
+<<<<<<< HEAD
 	u8 reserved0[3];
+=======
+	u8 reserved3[3];
+>>>>>>> upstream/android-13
 	__le32 max_seq_size;
 	__le32 max_send_pdu_length;
 	__le32 max_recv_pdu_length;
@@ -1251,6 +1285,7 @@ enum iscsi_ramrod_cmd_id {
 
 /* iSCSI connection termination request */
 struct iscsi_spe_conn_mac_update {
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr hdr;
 	__le16 conn_id;
 	__le32 fw_cid;
@@ -1258,15 +1293,30 @@ struct iscsi_spe_conn_mac_update {
 	__le16 remote_mac_addr_mid;
 	__le16 remote_mac_addr_hi;
 	u8 reserved0[2];
+=======
+	__le16 reserved0;
+	__le16 conn_id;
+	__le32 reserved1;
+	__le16 remote_mac_addr_lo;
+	__le16 remote_mac_addr_mid;
+	__le16 remote_mac_addr_hi;
+	u8 reserved2[2];
+>>>>>>> upstream/android-13
 };
 
 /* iSCSI and TCP connection (Option 1) offload params passed by driver to FW in
  * iSCSI offload ramrod.
  */
 struct iscsi_spe_conn_offload {
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr hdr;
 	__le16 conn_id;
 	__le32 fw_cid;
+=======
+	__le16 reserved0;
+	__le16 conn_id;
+	__le32 reserved1;
+>>>>>>> upstream/android-13
 	struct iscsi_conn_offload_params iscsi;
 	struct tcp_offload_params tcp;
 };
@@ -1275,34 +1325,57 @@ struct iscsi_spe_conn_offload {
  * iSCSI offload ramrod.
  */
 struct iscsi_spe_conn_offload_option2 {
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr hdr;
 	__le16 conn_id;
 	__le32 fw_cid;
+=======
+	__le16 reserved0;
+	__le16 conn_id;
+	__le32 reserved1;
+>>>>>>> upstream/android-13
 	struct iscsi_conn_offload_params iscsi;
 	struct tcp_offload_params_opt2 tcp;
 };
 
 /* iSCSI collect connection statistics request */
 struct iscsi_spe_conn_statistics {
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr hdr;
 	__le16 conn_id;
 	__le32 fw_cid;
 	u8 reset_stats;
 	u8 reserved0[7];
+=======
+	__le16 reserved0;
+	__le16 conn_id;
+	__le32 reserved1;
+	u8 reset_stats;
+	u8 reserved2[7];
+>>>>>>> upstream/android-13
 	struct regpair stats_cnts_addr;
 };
 
 /* iSCSI connection termination request */
 struct iscsi_spe_conn_termination {
+<<<<<<< HEAD
 	struct iscsi_slow_path_hdr hdr;
 	__le16 conn_id;
 	__le32 fw_cid;
 	u8 abortive;
 	u8 reserved0[7];
+=======
+	__le16 reserved0;
+	__le16 conn_id;
+	__le32 reserved1;
+	u8 abortive;
+	u8 reserved2[7];
+>>>>>>> upstream/android-13
 	struct regpair queue_cnts_addr;
 	struct regpair query_params_addr;
 };
 
+<<<<<<< HEAD
 /* iSCSI firmware function destroy parameters */
 struct iscsi_spe_func_dstry {
 	struct iscsi_slow_path_hdr hdr;
@@ -1313,6 +1386,10 @@ struct iscsi_spe_func_dstry {
 /* iSCSI firmware function init parameters */
 struct iscsi_spe_func_init {
 	struct iscsi_slow_path_hdr hdr;
+=======
+/* iSCSI firmware function init parameters */
+struct iscsi_spe_func_init {
+>>>>>>> upstream/android-13
 	__le16 half_way_close_timeout;
 	u8 num_sq_pages_in_ring;
 	u8 num_r2tq_pages_in_ring;
@@ -1324,8 +1401,17 @@ struct iscsi_spe_func_init {
 #define ISCSI_SPE_FUNC_INIT_RESERVED0_MASK	0x7F
 #define ISCSI_SPE_FUNC_INIT_RESERVED0_SHIFT	1
 	struct iscsi_debug_modes debug_mode;
+<<<<<<< HEAD
 	__le16 reserved1;
 	__le32 reserved2;
+=======
+	u8 params;
+#define ISCSI_SPE_FUNC_INIT_MAX_SYN_RT_MASK	0xF
+#define ISCSI_SPE_FUNC_INIT_MAX_SYN_RT_SHIFT	0
+#define ISCSI_SPE_FUNC_INIT_RESERVED1_MASK	0xF
+#define ISCSI_SPE_FUNC_INIT_RESERVED1_SHIFT	4
+	u8 reserved2[7];
+>>>>>>> upstream/android-13
 	struct scsi_init_func_params func_params;
 	struct scsi_init_func_queues q_params;
 };

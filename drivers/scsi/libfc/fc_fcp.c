@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright(c) 2007 Intel Corporation. All rights reserved.
  * Copyright(c) 2008 Red Hat, Inc.  All rights reserved.
  * Copyright(c) 2008 Mike Christie
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Maintained at www.Open-FCoE.org
  */
 
@@ -38,8 +45,13 @@
 #include <scsi/fc/fc_fc2.h>
 
 #include <scsi/libfc.h>
+<<<<<<< HEAD
 #include <scsi/fc_encode.h>
 
+=======
+
+#include "fc_encode.h"
+>>>>>>> upstream/android-13
 #include "fc_libfc.h"
 
 static struct kmem_cache *scsi_pkt_cachep;
@@ -301,6 +313,10 @@ static int fc_fcp_send_abort(struct fc_fcp_pkt *fsp)
 /**
  * fc_fcp_retry_cmd() - Retry a fcp_pkt
  * @fsp: The FCP packet to be retried
+<<<<<<< HEAD
+=======
+ * @status_code: The FCP status code to set
+>>>>>>> upstream/android-13
  *
  * Sets the status code to be FC_ERROR and then calls
  * fc_fcp_complete_locked() which in turn calls fc_io_compl().
@@ -592,7 +608,11 @@ err:
 /**
  * fc_fcp_send_data() - Send SCSI data to a target
  * @fsp:      The FCP packet the data is on
+<<<<<<< HEAD
  * @sp:	      The sequence the data is to be sent on
+=======
+ * @seq:      The sequence the data is to be sent on
+>>>>>>> upstream/android-13
  * @offset:   The starting offset for this data request
  * @seq_blen: The burst length for this data request
  *
@@ -763,7 +783,11 @@ static void fc_fcp_abts_resp(struct fc_fcp_pkt *fsp, struct fc_frame *fp)
 		brp = fc_frame_payload_get(fp, sizeof(*brp));
 		if (brp && brp->br_reason == FC_BA_RJT_LOG_ERR)
 			break;
+<<<<<<< HEAD
 		/* fall thru */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/*
 		 * we will let the command timeout
@@ -1295,7 +1319,11 @@ static int fc_fcp_pkt_abort(struct fc_fcp_pkt *fsp)
 
 /**
  * fc_lun_reset_send() - Send LUN reset command
+<<<<<<< HEAD
  * @data: The FCP packet that identifies the LUN to be reset
+=======
+ * @t: Timer context used to fetch the FSP packet
+>>>>>>> upstream/android-13
  */
 static void fc_lun_reset_send(struct timer_list *t)
 {
@@ -1421,7 +1449,11 @@ static void fc_fcp_cleanup(struct fc_lport *lport)
 
 /**
  * fc_fcp_timeout() - Handler for fcp_pkt timeouts
+<<<<<<< HEAD
  * @data: The FCP packet that has timed out
+=======
+ * @t: Timer context used to fetch the FSP packet
+>>>>>>> upstream/android-13
  *
  * If REC is supported then just issue it and return. The REC exchange will
  * complete or time out and recovery can continue at that point. Otherwise,
@@ -1547,7 +1579,11 @@ static void fc_fcp_rec_resp(struct fc_seq *seq, struct fc_frame *fp, void *arg)
 				   "device %x invalid REC reject %d/%d\n",
 				   fsp->rport->port_id, rjt->er_reason,
 				   rjt->er_explan);
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case ELS_RJT_UNSUP:
 			FC_FCP_DBG(fsp, "device does not support REC\n");
 			rpriv = fsp->rport->dd_data;
@@ -1679,7 +1715,11 @@ static void fc_fcp_rec_error(struct fc_fcp_pkt *fsp, struct fc_frame *fp)
 		FC_FCP_DBG(fsp, "REC %p fid %6.6x error unexpected error %d\n",
 			   fsp, fsp->rport->port_id, error);
 		fsp->status_code = FC_CMD_PLOGO;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case -FC_EX_TIMEOUT:
 		/*
@@ -1703,6 +1743,10 @@ out:
 /**
  * fc_fcp_recovery() - Handler for fcp_pkt recovery
  * @fsp: The FCP pkt that needs to be aborted
+<<<<<<< HEAD
+=======
+ * @code: The FCP status code to set
+>>>>>>> upstream/android-13
  */
 static void fc_fcp_recovery(struct fc_fcp_pkt *fsp, u8 code)
 {
@@ -1721,6 +1765,10 @@ static void fc_fcp_recovery(struct fc_fcp_pkt *fsp, u8 code)
  * fc_fcp_srr() - Send a SRR request (Sequence Retransmission Request)
  * @fsp:   The FCP packet the SRR is to be sent on
  * @r_ctl: The R_CTL field for the SRR request
+<<<<<<< HEAD
+=======
+ * @offset: The SRR relative offset
+>>>>>>> upstream/android-13
  * This is called after receiving status but insufficient data, or
  * when expecting status but the request has timed out.
  */
@@ -1839,7 +1887,11 @@ static void fc_fcp_srr_error(struct fc_fcp_pkt *fsp, struct fc_frame *fp)
 		break;
 	case -FC_EX_CLOSED:			/* e.g., link failure */
 		FC_FCP_DBG(fsp, "SRR error, exchange closed\n");
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		fc_fcp_retry_cmd(fsp, FC_ERROR);
 		break;
@@ -1863,7 +1915,11 @@ static inline int fc_fcp_lport_queue_ready(struct fc_lport *lport)
 /**
  * fc_queuecommand() - The queuecommand function of the SCSI template
  * @shost: The Scsi_Host that the command was issued to
+<<<<<<< HEAD
  * @cmd:   The scsi_cmnd to be executed
+=======
+ * @sc_cmd:   The scsi_cmnd to be executed
+>>>>>>> upstream/android-13
  *
  * This is the i/o strategy routine, called by the SCSI layer.
  */
@@ -1872,7 +1928,10 @@ int fc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *sc_cmd)
 	struct fc_lport *lport = shost_priv(shost);
 	struct fc_rport *rport = starget_to_rport(scsi_target(sc_cmd->device));
 	struct fc_fcp_pkt *fsp;
+<<<<<<< HEAD
 	struct fc_rport_libfc_priv *rpriv;
+=======
+>>>>>>> upstream/android-13
 	int rval;
 	int rc = 0;
 	struct fc_stats *stats;
@@ -1894,8 +1953,11 @@ int fc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *sc_cmd)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	rpriv = rport->dd_data;
 
+=======
+>>>>>>> upstream/android-13
 	if (!fc_fcp_lport_queue_ready(lport)) {
 		if (lport->qfull) {
 			if (fc_fcp_can_queue_ramp_down(lport))
@@ -2260,7 +2322,11 @@ int fc_slave_alloc(struct scsi_device *sdev)
 EXPORT_SYMBOL(fc_slave_alloc);
 
 /**
+<<<<<<< HEAD
  * fc_fcp_destory() - Tear down the FCP layer for a given local port
+=======
+ * fc_fcp_destroy() - Tear down the FCP layer for a given local port
+>>>>>>> upstream/android-13
  * @lport: The local port that no longer needs the FCP layer
  */
 void fc_fcp_destroy(struct fc_lport *lport)
@@ -2295,8 +2361,12 @@ int fc_setup_fcp(void)
 
 void fc_destroy_fcp(void)
 {
+<<<<<<< HEAD
 	if (scsi_pkt_cachep)
 		kmem_cache_destroy(scsi_pkt_cachep);
+=======
+	kmem_cache_destroy(scsi_pkt_cachep);
+>>>>>>> upstream/android-13
 }
 
 /**

@@ -5,7 +5,11 @@
  */
 
 #include <linux/hdreg.h>
+<<<<<<< HEAD
 #include <linux/blkdev.h>
+=======
+#include <linux/blk-mq.h>
+>>>>>>> upstream/android-13
 #include <linux/netdevice.h>
 #include <linux/delay.h>
 #include <linux/slab.h>
@@ -160,6 +164,7 @@ static void
 aoe_failip(struct aoedev *d)
 {
 	struct request *rq;
+<<<<<<< HEAD
 	struct bio *bio;
 	unsigned long n;
 
@@ -175,6 +180,24 @@ aoe_failip(struct aoedev *d)
 		rq->special = (void *) --n;
 	}
 	if ((unsigned long) rq->special == 0)
+=======
+	struct aoe_req *req;
+	struct bio *bio;
+
+	aoe_failbuf(d, d->ip.buf);
+	rq = d->ip.rq;
+	if (rq == NULL)
+		return;
+
+	req = blk_mq_rq_to_pdu(rq);
+	while ((bio = d->ip.nxbio)) {
+		bio->bi_status = BLK_STS_IOERR;
+		d->ip.nxbio = bio->bi_next;
+		req->nr_bios--;
+	}
+
+	if (!req->nr_bios)
+>>>>>>> upstream/android-13
 		aoe_end_request(d, rq, 0);
 }
 
@@ -197,7 +220,10 @@ aoedev_downdev(struct aoedev *d)
 {
 	struct aoetgt *t, **tt, **te;
 	struct list_head *head, *pos, *nx;
+<<<<<<< HEAD
 	struct request *rq;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	d->flags &= ~DEVFL_UP;
@@ -225,10 +251,18 @@ aoedev_downdev(struct aoedev *d)
 
 	/* fast fail all pending I/O */
 	if (d->blkq) {
+<<<<<<< HEAD
 		while ((rq = blk_peek_request(d->blkq))) {
 			blk_start_request(rq);
 			aoe_end_request(d, rq, 1);
 		}
+=======
+		/* UP is cleared, freeze+quiesce to insure all are errored */
+		blk_mq_freeze_queue(d->blkq);
+		blk_mq_quiesce_queue(d->blkq);
+		blk_mq_unquiesce_queue(d->blkq);
+		blk_mq_unfreeze_queue(d->blkq);
+>>>>>>> upstream/android-13
 	}
 
 	if (d->gd)
@@ -275,10 +309,16 @@ freedev(struct aoedev *d)
 	del_timer_sync(&d->timer);
 	if (d->gd) {
 		aoedisk_rm_debugfs(d);
+<<<<<<< HEAD
 		aoedisk_rm_sysfs(d);
 		del_gendisk(d->gd);
 		put_disk(d->gd);
 		blk_cleanup_queue(d->blkq);
+=======
+		del_gendisk(d->gd);
+		blk_cleanup_disk(d->gd);
+		blk_mq_free_tag_set(&d->tag_set);
+>>>>>>> upstream/android-13
 	}
 	t = d->targets;
 	e = t + d->ntargets;
@@ -322,10 +362,21 @@ flush(const char __user *str, size_t cnt, int exiting)
 	}
 
 	flush_scheduled_work();
+<<<<<<< HEAD
 	/* pass one: without sleeping, do aoedev_downdev */
 	spin_lock_irqsave(&devlist_lock, flags);
 	for (d = devlist; d; d = d->next) {
 		spin_lock(&d->lock);
+=======
+	/* pass one: do aoedev_downdev, which might sleep */
+restart1:
+	spin_lock_irqsave(&devlist_lock, flags);
+	for (d = devlist; d; d = d->next) {
+		spin_lock(&d->lock);
+		if (d->flags & DEVFL_TKILL)
+			goto cont;
+
+>>>>>>> upstream/android-13
 		if (exiting) {
 			/* unconditionally take each device down */
 		} else if (specified) {
@@ -337,8 +388,16 @@ flush(const char __user *str, size_t cnt, int exiting)
 		|| d->ref)
 			goto cont;
 
+<<<<<<< HEAD
 		aoedev_downdev(d);
 		d->flags |= DEVFL_TKILL;
+=======
+		spin_unlock(&d->lock);
+		spin_unlock_irqrestore(&devlist_lock, flags);
+		aoedev_downdev(d);
+		d->flags |= DEVFL_TKILL;
+		goto restart1;
+>>>>>>> upstream/android-13
 cont:
 		spin_unlock(&d->lock);
 	}
@@ -347,7 +406,11 @@ cont:
 	/* pass two: call freedev, which might sleep,
 	 * for aoedevs marked with DEVFL_TKILL
 	 */
+<<<<<<< HEAD
 restart:
+=======
+restart2:
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&devlist_lock, flags);
 	for (d = devlist; d; d = d->next) {
 		spin_lock(&d->lock);
@@ -356,7 +419,11 @@ restart:
 			spin_unlock(&d->lock);
 			spin_unlock_irqrestore(&devlist_lock, flags);
 			freedev(d);
+<<<<<<< HEAD
 			goto restart;
+=======
+			goto restart2;
+>>>>>>> upstream/android-13
 		}
 		spin_unlock(&d->lock);
 	}
@@ -464,6 +531,10 @@ aoedev_by_aoeaddr(ulong maj, int min, int do_alloc)
 	d->ntargets = NTARGETS;
 	INIT_WORK(&d->work, aoecmd_sleepwork);
 	spin_lock_init(&d->lock);
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&d->rq_list);
+>>>>>>> upstream/android-13
 	skb_queue_head_init(&d->skbpool);
 	timer_setup(&d->timer, dummy_timer, 0);
 	d->timer.expires = jiffies + HZ;

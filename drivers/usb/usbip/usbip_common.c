@@ -309,7 +309,11 @@ int usbip_recv(struct socket *sock, void *buf, int size)
 	if (!sock || !buf || !size)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	iov_iter_kvec(&msg.msg_iter, READ|ITER_KVEC, &iov, 1, size);
+=======
+	iov_iter_kvec(&msg.msg_iter, READ, &iov, 1, size);
+>>>>>>> upstream/android-13
 
 	usbip_dbg_xmit("enter\n");
 
@@ -324,11 +328,14 @@ int usbip_recv(struct socket *sock, void *buf, int size)
 	} while (msg_data_left(&msg));
 
 	if (usbip_dbg_flag_xmit) {
+<<<<<<< HEAD
 		if (!in_interrupt())
 			pr_debug("%-10s:", current->comm);
 		else
 			pr_debug("interrupt  :");
 
+=======
+>>>>>>> upstream/android-13
 		pr_debug("receiving....\n");
 		usbip_dump_buffer(buf, size);
 		pr_debug("received, osize %d ret %d size %zd total %d\n",
@@ -755,6 +762,7 @@ EXPORT_SYMBOL_GPL(usbip_recv_xbuff);
 
 static int __init usbip_core_init(void)
 {
+<<<<<<< HEAD
 	int ret;
 
 	ret = usbip_init_eh();
@@ -762,6 +770,9 @@ static int __init usbip_core_init(void)
 		return ret;
 
 	return 0;
+=======
+	return usbip_init_eh();
+>>>>>>> upstream/android-13
 }
 
 static void __exit usbip_core_exit(void)

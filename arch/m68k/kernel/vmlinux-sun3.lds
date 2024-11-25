@@ -24,16 +24,26 @@ SECTIONS
 	*(.fixup)
 	*(.gnu.warning)
 	} :text = 0x4e75
+<<<<<<< HEAD
 	RODATA
+=======
+	RO_DATA(4096)
+>>>>>>> upstream/android-13
 
   _etext = .;			/* End of text section */
 
   EXCEPTION_TABLE(16) :data
   _sdata = .;			/* Start of rw data section */
+<<<<<<< HEAD
   RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE) :data
   /* End of data goes *here* so that freeing init code works properly. */
   _edata = .;
   NOTES
+=======
+  RW_DATA(16, PAGE_SIZE, THREAD_SIZE) :data
+  /* End of data goes *here* so that freeing init code works properly. */
+  _edata = .;
+>>>>>>> upstream/android-13
 
   /* will be freed after init */
   . = ALIGN(PAGE_SIZE);	/* Init code and data */
@@ -53,6 +63,10 @@ __init_begin = .;
   _end = . ;
 
   STABS_DEBUG
+<<<<<<< HEAD
+=======
+  ELF_DETAILS
+>>>>>>> upstream/android-13
 
   /* Sections to be discarded */
   DISCARDS

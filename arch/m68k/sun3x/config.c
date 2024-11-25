@@ -44,12 +44,18 @@ void __init config_sun3x(void)
 
 	sun3x_prom_init();
 
+<<<<<<< HEAD
 	mach_max_dma_address = 0xffffffff; /* we can DMA anywhere, whee */
 
 	mach_sched_init      = sun3x_sched_init;
 	mach_init_IRQ        = sun3_init_IRQ;
 
 	arch_gettimeoffset   = sun3x_gettimeoffset;
+=======
+	mach_sched_init      = sun3x_sched_init;
+	mach_init_IRQ        = sun3_init_IRQ;
+
+>>>>>>> upstream/android-13
 	mach_reset           = sun3x_reboot;
 
 	mach_hwclk           = sun3x_hwclk;
@@ -71,7 +77,10 @@ void __init config_sun3x(void)
 		break;
 	default:
 		serial_console = 0;
+<<<<<<< HEAD
 		conswitchp = &dummy_con;
+=======
+>>>>>>> upstream/android-13
 		break;
 	}
 #endif

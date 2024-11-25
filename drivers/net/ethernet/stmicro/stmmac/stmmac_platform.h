@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*******************************************************************************
   Copyright (C) 2007-2009  STMicroelectronics Ltd
 
@@ -12,6 +13,12 @@
 
   The full GNU General Public License is included in this distribution in
   the file called "COPYING".
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*******************************************************************************
+  Copyright (C) 2007-2009  STMicroelectronics Ltd
+
+>>>>>>> upstream/android-13
 
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
@@ -22,7 +29,11 @@
 #include "stmmac.h"
 
 struct plat_stmmacenet_data *
+<<<<<<< HEAD
 stmmac_probe_config_dt(struct platform_device *pdev, const char **mac);
+=======
+stmmac_probe_config_dt(struct platform_device *pdev, u8 *mac);
+>>>>>>> upstream/android-13
 void stmmac_remove_config_dt(struct platform_device *pdev,
 			     struct plat_stmmacenet_data *plat);
 

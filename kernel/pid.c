@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic pidhash and scalable, time-bounded PID allocator
  *
@@ -31,20 +35,36 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 #include <linux/rculist.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
 #include <linux/hash.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/pid_namespace.h>
 #include <linux/init_task.h>
 #include <linux/syscalls.h>
 #include <linux/proc_ns.h>
+<<<<<<< HEAD
 #include <linux/proc_fs.h>
+=======
+#include <linux/refcount.h>
+>>>>>>> upstream/android-13
 #include <linux/anon_inodes.h>
 #include <linux/sched/signal.h>
 #include <linux/sched/task.h>
 #include <linux/idr.h>
+<<<<<<< HEAD
 
 struct pid init_struct_pid = {
 	.count 		= ATOMIC_INIT(1),
+=======
+#include <net/sock.h>
+#include <uapi/linux/pidfd.h>
+
+struct pid init_struct_pid = {
+	.count		= REFCOUNT_INIT(1),
+>>>>>>> upstream/android-13
 	.tasks		= {
 		{ .first = NULL },
 		{ .first = NULL },
@@ -71,7 +91,11 @@ int pid_max_max = PID_MAX_LIMIT;
  * the scheme scales to up to 4 million PIDs, runtime.
  */
 struct pid_namespace init_pid_ns = {
+<<<<<<< HEAD
 	.kref = KREF_INIT(2),
+=======
+	.ns.count = REFCOUNT_INIT(2),
+>>>>>>> upstream/android-13
 	.idr = IDR_INIT(init_pid_ns.idr),
 	.pid_allocated = PIDNS_ADDING,
 	.level = 0,
@@ -108,8 +132,12 @@ void put_pid(struct pid *pid)
 		return;
 
 	ns = pid->numbers[pid->level].ns;
+<<<<<<< HEAD
 	if ((atomic_read(&pid->count) == 1) ||
 	     atomic_dec_and_test(&pid->count)) {
+=======
+	if (refcount_dec_and_test(&pid->count)) {
+>>>>>>> upstream/android-13
 		kmem_cache_free(ns->pid_cachep, pid);
 		put_pid_ns(ns);
 	}
@@ -145,9 +173,12 @@ void free_pid(struct pid *pid)
 			/* Handle a fork failure of the first process */
 			WARN_ON(ns->child_reaper);
 			ns->pid_allocated = 0;
+<<<<<<< HEAD
 			/* fall through */
 		case 0:
 			schedule_work(&ns->proc_work);
+=======
+>>>>>>> upstream/android-13
 			break;
 		}
 
@@ -158,7 +189,12 @@ void free_pid(struct pid *pid)
 	call_rcu(&pid->rcu, delayed_put_pid);
 }
 
+<<<<<<< HEAD
 struct pid *alloc_pid(struct pid_namespace *ns)
+=======
+struct pid *alloc_pid(struct pid_namespace *ns, pid_t *set_tid,
+		      size_t set_tid_size)
+>>>>>>> upstream/android-13
 {
 	struct pid *pid;
 	enum pid_type type;
@@ -167,6 +203,20 @@ struct pid *alloc_pid(struct pid_namespace *ns)
 	struct upid *upid;
 	int retval = -ENOMEM;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * set_tid_size contains the size of the set_tid array. Starting at
+	 * the most nested currently active PID namespace it tells alloc_pid()
+	 * which PID to set for a process in that most nested PID namespace
+	 * up to set_tid_size PID namespaces. It does not have to set the PID
+	 * for a process in all nested PID namespaces but set_tid_size must
+	 * never be greater than the current ns->level + 1.
+	 */
+	if (set_tid_size > ns->level + 1)
+		return ERR_PTR(-EINVAL);
+
+>>>>>>> upstream/android-13
 	pid = kmem_cache_alloc(ns->pid_cachep, GFP_KERNEL);
 	if (!pid)
 		return ERR_PTR(retval);
@@ -175,11 +225,34 @@ struct pid *alloc_pid(struct pid_namespace *ns)
 	pid->level = ns->level;
 
 	for (i = ns->level; i >= 0; i--) {
+<<<<<<< HEAD
 		int pid_min = 1;
+=======
+		int tid = 0;
+
+		if (set_tid_size) {
+			tid = set_tid[ns->level - i];
+
+			retval = -EINVAL;
+			if (tid < 1 || tid >= pid_max)
+				goto out_free;
+			/*
+			 * Also fail if a PID != 1 is requested and
+			 * no PID 1 exists.
+			 */
+			if (tid != 1 && !tmp->child_reaper)
+				goto out_free;
+			retval = -EPERM;
+			if (!checkpoint_restore_ns_capable(tmp->user_ns))
+				goto out_free;
+			set_tid_size--;
+		}
+>>>>>>> upstream/android-13
 
 		idr_preload(GFP_KERNEL);
 		spin_lock_irq(&pidmap_lock);
 
+<<<<<<< HEAD
 		/*
 		 * init really needs pid 1, but after reaching the maximum
 		 * wrap back to RESERVED_PIDS
@@ -193,6 +266,33 @@ struct pid *alloc_pid(struct pid_namespace *ns)
 		 */
 		nr = idr_alloc_cyclic(&tmp->idr, NULL, pid_min,
 				      pid_max, GFP_ATOMIC);
+=======
+		if (tid) {
+			nr = idr_alloc(&tmp->idr, NULL, tid,
+				       tid + 1, GFP_ATOMIC);
+			/*
+			 * If ENOSPC is returned it means that the PID is
+			 * alreay in use. Return EEXIST in that case.
+			 */
+			if (nr == -ENOSPC)
+				nr = -EEXIST;
+		} else {
+			int pid_min = 1;
+			/*
+			 * init really needs pid 1, but after reaching the
+			 * maximum wrap back to RESERVED_PIDS
+			 */
+			if (idr_get_cursor(&tmp->idr) > RESERVED_PIDS)
+				pid_min = RESERVED_PIDS;
+
+			/*
+			 * Store a null pointer so find_pid_ns does not find
+			 * a partially initialized PID (see below).
+			 */
+			nr = idr_alloc_cyclic(&tmp->idr, NULL, pid_min,
+					      pid_max, GFP_ATOMIC);
+		}
+>>>>>>> upstream/android-13
 		spin_unlock_irq(&pidmap_lock);
 		idr_preload_end();
 
@@ -206,6 +306,7 @@ struct pid *alloc_pid(struct pid_namespace *ns)
 		tmp = tmp->parent;
 	}
 
+<<<<<<< HEAD
 	if (unlikely(is_child_reaper(pid))) {
 		if (pid_ns_prepare_proc(ns))
 			goto out_free;
@@ -213,10 +314,29 @@ struct pid *alloc_pid(struct pid_namespace *ns)
 
 	get_pid_ns(ns);
 	atomic_set(&pid->count, 1);
+=======
+	/*
+	 * ENOMEM is not the most obvious choice especially for the case
+	 * where the child subreaper has already exited and the pid
+	 * namespace denies the creation of any new processes. But ENOMEM
+	 * is what we have exposed to userspace for a long time and it is
+	 * documented behavior for pid namespaces. So we can't easily
+	 * change it even if there were an error code better suited.
+	 */
+	retval = -ENOMEM;
+
+	get_pid_ns(ns);
+	refcount_set(&pid->count, 1);
+	spin_lock_init(&pid->lock);
+>>>>>>> upstream/android-13
 	for (type = 0; type < PIDTYPE_MAX; ++type)
 		INIT_HLIST_HEAD(&pid->tasks[type]);
 
 	init_waitqueue_head(&pid->wait_pidfd);
+<<<<<<< HEAD
+=======
+	INIT_HLIST_HEAD(&pid->inodes);
+>>>>>>> upstream/android-13
 
 	upid = pid->numbers + ns->level;
 	spin_lock_irq(&pidmap_lock);
@@ -300,7 +420,11 @@ static void __change_pid(struct task_struct *task, enum pid_type type,
 	*pid_ptr = new;
 
 	for (tmp = PIDTYPE_MAX; --tmp >= 0; )
+<<<<<<< HEAD
 		if (!hlist_empty(&pid->tasks[tmp]))
+=======
+		if (pid_has_task(pid, tmp))
+>>>>>>> upstream/android-13
 			return;
 
 	free_pid(pid);
@@ -318,6 +442,28 @@ void change_pid(struct task_struct *task, enum pid_type type,
 	attach_pid(task, type);
 }
 
+<<<<<<< HEAD
+=======
+void exchange_tids(struct task_struct *left, struct task_struct *right)
+{
+	struct pid *pid1 = left->thread_pid;
+	struct pid *pid2 = right->thread_pid;
+	struct hlist_head *head1 = &pid1->tasks[PIDTYPE_PID];
+	struct hlist_head *head2 = &pid2->tasks[PIDTYPE_PID];
+
+	/* Swap the single entry tid lists */
+	hlists_swap_heads_rcu(head1, head2);
+
+	/* Swap the per task_struct pid */
+	rcu_assign_pointer(left->thread_pid, pid2);
+	rcu_assign_pointer(right->thread_pid, pid1);
+
+	/* Swap the cached value */
+	WRITE_ONCE(left->pid, pid_nr(pid2));
+	WRITE_ONCE(right->pid, pid_nr(pid1));
+}
+
+>>>>>>> upstream/android-13
 /* transfer_pid is an optimization of attach_pid(new), detach_pid(old) */
 void transfer_pid(struct task_struct *old, struct task_struct *new,
 			   enum pid_type type)
@@ -355,6 +501,10 @@ struct task_struct *find_task_by_vpid(pid_t vnr)
 {
 	return find_task_by_pid_ns(vnr, task_active_pid_ns(current));
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(find_task_by_vpid);
+>>>>>>> upstream/android-13
 
 struct task_struct *find_get_task_by_vpid(pid_t nr)
 {
@@ -431,8 +581,12 @@ pid_t __task_pid_nr_ns(struct task_struct *task, enum pid_type type,
 	rcu_read_lock();
 	if (!ns)
 		ns = task_active_pid_ns(current);
+<<<<<<< HEAD
 	if (likely(pid_alive(task)))
 		nr = pid_nr_ns(rcu_dereference(*task_pid_ptr(task, type)), ns);
+=======
+	nr = pid_nr_ns(rcu_dereference(*task_pid_ptr(task, type)), ns);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	return nr;
@@ -455,16 +609,44 @@ struct pid *find_ge_pid(int nr, struct pid_namespace *ns)
 	return idr_get_next(&ns->idr, &nr);
 }
 
+<<<<<<< HEAD
 /**
  * pidfd_create() - Create a new pid file descriptor.
  *
  * @pid:  struct pid that the pidfd will reference
+=======
+struct pid *pidfd_get_pid(unsigned int fd, unsigned int *flags)
+{
+	struct fd f;
+	struct pid *pid;
+
+	f = fdget(fd);
+	if (!f.file)
+		return ERR_PTR(-EBADF);
+
+	pid = pidfd_pid(f.file);
+	if (!IS_ERR(pid)) {
+		get_pid(pid);
+		*flags = f.file->f_flags;
+	}
+
+	fdput(f);
+	return pid;
+}
+
+/**
+ * pidfd_create() - Create a new pid file descriptor.
+ *
+ * @pid:   struct pid that the pidfd will reference
+ * @flags: flags to pass
+>>>>>>> upstream/android-13
  *
  * This creates a new pid file descriptor with the O_CLOEXEC flag set.
  *
  * Note, that this function can only be called after the fd table has
  * been unshared to avoid leaking the pidfd to the new process.
  *
+<<<<<<< HEAD
  * Return: On success, a cloexec pidfd is returned.
  *         On error, a negative errno number will be returned.
  */
@@ -474,6 +656,25 @@ static int pidfd_create(struct pid *pid)
 
 	fd = anon_inode_getfd("[pidfd]", &pidfd_fops, get_pid(pid),
 			      O_RDWR | O_CLOEXEC);
+=======
+ * This symbol should not be explicitly exported to loadable modules.
+ *
+ * Return: On success, a cloexec pidfd is returned.
+ *         On error, a negative errno number will be returned.
+ */
+int pidfd_create(struct pid *pid, unsigned int flags)
+{
+	int fd;
+
+	if (!pid || !pid_has_task(pid, PIDTYPE_TGID))
+		return -EINVAL;
+
+	if (flags & ~(O_NONBLOCK | O_RDWR | O_CLOEXEC))
+		return -EINVAL;
+
+	fd = anon_inode_getfd("[pidfd]", &pidfd_fops, get_pid(pid),
+			      flags | O_RDWR | O_CLOEXEC);
+>>>>>>> upstream/android-13
 	if (fd < 0)
 		put_pid(pid);
 
@@ -498,10 +699,17 @@ static int pidfd_create(struct pid *pid)
  */
 SYSCALL_DEFINE2(pidfd_open, pid_t, pid, unsigned int, flags)
 {
+<<<<<<< HEAD
 	int fd, ret;
 	struct pid *p;
 
 	if (flags)
+=======
+	int fd;
+	struct pid *p;
+
+	if (flags & ~PIDFD_NONBLOCK)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	if (pid <= 0)
@@ -511,6 +719,7 @@ SYSCALL_DEFINE2(pidfd_open, pid_t, pid, unsigned int, flags)
 	if (!p)
 		return -ESRCH;
 
+<<<<<<< HEAD
 	ret = 0;
 	rcu_read_lock();
 	if (!pid_task(p, PIDTYPE_TGID))
@@ -518,6 +727,10 @@ SYSCALL_DEFINE2(pidfd_open, pid_t, pid, unsigned int, flags)
 	rcu_read_unlock();
 
 	fd = ret ?: pidfd_create(p);
+=======
+	fd = pidfd_create(p, flags);
+
+>>>>>>> upstream/android-13
 	put_pid(p);
 	return fd;
 }
@@ -539,3 +752,87 @@ void __init pid_idr_init(void)
 	init_pid_ns.pid_cachep = KMEM_CACHE(pid,
 			SLAB_HWCACHE_ALIGN | SLAB_PANIC | SLAB_ACCOUNT);
 }
+<<<<<<< HEAD
+=======
+
+static struct file *__pidfd_fget(struct task_struct *task, int fd)
+{
+	struct file *file;
+	int ret;
+
+	ret = down_read_killable(&task->signal->exec_update_lock);
+	if (ret)
+		return ERR_PTR(ret);
+
+	if (ptrace_may_access(task, PTRACE_MODE_ATTACH_REALCREDS))
+		file = fget_task(task, fd);
+	else
+		file = ERR_PTR(-EPERM);
+
+	up_read(&task->signal->exec_update_lock);
+
+	return file ?: ERR_PTR(-EBADF);
+}
+
+static int pidfd_getfd(struct pid *pid, int fd)
+{
+	struct task_struct *task;
+	struct file *file;
+	int ret;
+
+	task = get_pid_task(pid, PIDTYPE_PID);
+	if (!task)
+		return -ESRCH;
+
+	file = __pidfd_fget(task, fd);
+	put_task_struct(task);
+	if (IS_ERR(file))
+		return PTR_ERR(file);
+
+	ret = receive_fd(file, O_CLOEXEC);
+	fput(file);
+
+	return ret;
+}
+
+/**
+ * sys_pidfd_getfd() - Get a file descriptor from another process
+ *
+ * @pidfd:	the pidfd file descriptor of the process
+ * @fd:		the file descriptor number to get
+ * @flags:	flags on how to get the fd (reserved)
+ *
+ * This syscall gets a copy of a file descriptor from another process
+ * based on the pidfd, and file descriptor number. It requires that
+ * the calling process has the ability to ptrace the process represented
+ * by the pidfd. The process which is having its file descriptor copied
+ * is otherwise unaffected.
+ *
+ * Return: On success, a cloexec file descriptor is returned.
+ *         On error, a negative errno number will be returned.
+ */
+SYSCALL_DEFINE3(pidfd_getfd, int, pidfd, int, fd,
+		unsigned int, flags)
+{
+	struct pid *pid;
+	struct fd f;
+	int ret;
+
+	/* flags is currently unused - make sure it's unset */
+	if (flags)
+		return -EINVAL;
+
+	f = fdget(pidfd);
+	if (!f.file)
+		return -EBADF;
+
+	pid = pidfd_pid(f.file);
+	if (IS_ERR(pid))
+		ret = PTR_ERR(pid);
+	else
+		ret = pidfd_getfd(pid, fd);
+
+	fdput(f);
+	return ret;
+}
+>>>>>>> upstream/android-13

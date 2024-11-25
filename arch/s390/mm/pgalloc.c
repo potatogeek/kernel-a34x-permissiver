@@ -17,8 +17,11 @@
 
 #ifdef CONFIG_PGSTE
 
+<<<<<<< HEAD
 static int page_table_allocate_pgste_min = 0;
 static int page_table_allocate_pgste_max = 1;
+=======
+>>>>>>> upstream/android-13
 int page_table_allocate_pgste = 0;
 EXPORT_SYMBOL(page_table_allocate_pgste);
 
@@ -29,8 +32,13 @@ static struct ctl_table page_table_sysctl[] = {
 		.maxlen		= sizeof(int),
 		.mode		= S_IRUGO | S_IWUSR,
 		.proc_handler	= proc_dointvec_minmax,
+<<<<<<< HEAD
 		.extra1		= &page_table_allocate_pgste_min,
 		.extra2		= &page_table_allocate_pgste_max,
+=======
+		.extra1		= SYSCTL_ZERO,
+		.extra2		= SYSCTL_ONE,
+>>>>>>> upstream/android-13
 	},
 	{ }
 };
@@ -60,7 +68,11 @@ unsigned long *crst_table_alloc(struct mm_struct *mm)
 	if (!page)
 		return NULL;
 	arch_set_page_dat(page, 2);
+<<<<<<< HEAD
 	return (unsigned long *) page_to_phys(page);
+=======
+	return (unsigned long *) page_to_virt(page);
+>>>>>>> upstream/android-13
 }
 
 void crst_table_free(struct mm_struct *mm, unsigned long *table)
@@ -72,6 +84,7 @@ static void __crst_table_upgrade(void *arg)
 {
 	struct mm_struct *mm = arg;
 
+<<<<<<< HEAD
 	/* we must change all active ASCEs to avoid the creation of new TLBs */
 	if (current->active_mm == mm) {
 		S390_lowcore.user_asce = mm->context.asce;
@@ -85,12 +98,19 @@ static void __crst_table_upgrade(void *arg)
 			/* enable_sacf_uaccess does all or nothing */
 			WARN_ON(!test_cpu_flag(CIF_ASCE_SECONDARY));
 		}
+=======
+	/* change all active ASCEs to avoid the creation of new TLBs */
+	if (current->active_mm == mm) {
+		S390_lowcore.user_asce = mm->context.asce;
+		__ctl_load(S390_lowcore.user_asce, 7, 7);
+>>>>>>> upstream/android-13
 	}
 	__tlb_flush_local();
 }
 
 int crst_table_upgrade(struct mm_struct *mm, unsigned long end)
 {
+<<<<<<< HEAD
 	unsigned long *table, *pgd;
 	int rc, notify;
 
@@ -151,6 +171,67 @@ void crst_table_downgrade(struct mm_struct *mm)
 
 	if (current->active_mm == mm)
 		set_user_asce(mm);
+=======
+	unsigned long *pgd = NULL, *p4d = NULL, *__pgd;
+	unsigned long asce_limit = mm->context.asce_limit;
+
+	/* upgrade should only happen from 3 to 4, 3 to 5, or 4 to 5 levels */
+	VM_BUG_ON(asce_limit < _REGION2_SIZE);
+
+	if (end <= asce_limit)
+		return 0;
+
+	if (asce_limit == _REGION2_SIZE) {
+		p4d = crst_table_alloc(mm);
+		if (unlikely(!p4d))
+			goto err_p4d;
+		crst_table_init(p4d, _REGION2_ENTRY_EMPTY);
+	}
+	if (end > _REGION1_SIZE) {
+		pgd = crst_table_alloc(mm);
+		if (unlikely(!pgd))
+			goto err_pgd;
+		crst_table_init(pgd, _REGION1_ENTRY_EMPTY);
+	}
+
+	spin_lock_bh(&mm->page_table_lock);
+
+	/*
+	 * This routine gets called with mmap_lock lock held and there is
+	 * no reason to optimize for the case of otherwise. However, if
+	 * that would ever change, the below check will let us know.
+	 */
+	VM_BUG_ON(asce_limit != mm->context.asce_limit);
+
+	if (p4d) {
+		__pgd = (unsigned long *) mm->pgd;
+		p4d_populate(mm, (p4d_t *) p4d, (pud_t *) __pgd);
+		mm->pgd = (pgd_t *) p4d;
+		mm->context.asce_limit = _REGION1_SIZE;
+		mm->context.asce = __pa(mm->pgd) | _ASCE_TABLE_LENGTH |
+			_ASCE_USER_BITS | _ASCE_TYPE_REGION2;
+		mm_inc_nr_puds(mm);
+	}
+	if (pgd) {
+		__pgd = (unsigned long *) mm->pgd;
+		pgd_populate(mm, (pgd_t *) pgd, (p4d_t *) __pgd);
+		mm->pgd = (pgd_t *) pgd;
+		mm->context.asce_limit = TASK_SIZE_MAX;
+		mm->context.asce = __pa(mm->pgd) | _ASCE_TABLE_LENGTH |
+			_ASCE_USER_BITS | _ASCE_TYPE_REGION1;
+	}
+
+	spin_unlock_bh(&mm->page_table_lock);
+
+	on_each_cpu(__crst_table_upgrade, mm, 0);
+
+	return 0;
+
+err_pgd:
+	crst_table_free(mm, p4d);
+err_p4d:
+	return -ENOMEM;
+>>>>>>> upstream/android-13
 }
 
 static inline unsigned int atomic_xor_bits(atomic_t *v, unsigned int bits)
@@ -173,7 +254,11 @@ struct page *page_table_alloc_pgste(struct mm_struct *mm)
 
 	page = alloc_page(GFP_KERNEL);
 	if (page) {
+<<<<<<< HEAD
 		table = (u64 *)page_to_phys(page);
+=======
+		table = (u64 *)page_to_virt(page);
+>>>>>>> upstream/android-13
 		memset64(table, _PAGE_INVALID, PTRS_PER_PTE);
 		memset64(table + PTRS_PER_PTE, 0, PTRS_PER_PTE);
 	}
@@ -206,7 +291,11 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
 			mask = atomic_read(&page->_refcount) >> 24;
 			mask = (mask | (mask >> 4)) & 3;
 			if (mask != 3) {
+<<<<<<< HEAD
 				table = (unsigned long *) page_to_phys(page);
+=======
+				table = (unsigned long *) page_to_virt(page);
+>>>>>>> upstream/android-13
 				bit = mask & 1;		/* =1 -> second 2K */
 				if (bit)
 					table += PTRS_PER_PTE;
@@ -223,13 +312,21 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
 	page = alloc_page(GFP_KERNEL);
 	if (!page)
 		return NULL;
+<<<<<<< HEAD
 	if (!pgtable_page_ctor(page)) {
+=======
+	if (!pgtable_pte_page_ctor(page)) {
+>>>>>>> upstream/android-13
 		__free_page(page);
 		return NULL;
 	}
 	arch_set_page_dat(page, 0);
 	/* Initialize page table */
+<<<<<<< HEAD
 	table = (unsigned long *) page_to_phys(page);
+=======
+	table = (unsigned long *) page_to_virt(page);
+>>>>>>> upstream/android-13
 	if (mm_alloc_pgste(mm)) {
 		/* Return 4K page table with PGSTEs */
 		atomic_xor_bits(&page->_refcount, 3 << 24);
@@ -251,25 +348,43 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
 	struct page *page;
 	unsigned int bit, mask;
 
+<<<<<<< HEAD
 	page = pfn_to_page(__pa(table) >> PAGE_SHIFT);
 	if (!mm_alloc_pgste(mm)) {
 		/* Free 2K page table fragment of a 4K page */
 		bit = (__pa(table) & ~PAGE_MASK)/(PTRS_PER_PTE*sizeof(pte_t));
 		spin_lock_bh(&mm->context.lock);
 		mask = atomic_xor_bits(&page->_refcount, 1U << (bit + 24));
+=======
+	page = virt_to_page(table);
+	if (!mm_alloc_pgste(mm)) {
+		/* Free 2K page table fragment of a 4K page */
+		bit = ((unsigned long) table & ~PAGE_MASK)/(PTRS_PER_PTE*sizeof(pte_t));
+		spin_lock_bh(&mm->context.lock);
+		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+>>>>>>> upstream/android-13
 		mask >>= 24;
 		if (mask & 3)
 			list_add(&page->lru, &mm->context.pgtable_list);
 		else
 			list_del(&page->lru);
 		spin_unlock_bh(&mm->context.lock);
+<<<<<<< HEAD
+=======
+		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
+		mask >>= 24;
+>>>>>>> upstream/android-13
 		if (mask != 0)
 			return;
 	} else {
 		atomic_xor_bits(&page->_refcount, 3U << 24);
 	}
 
+<<<<<<< HEAD
 	pgtable_page_dtor(page);
+=======
+	pgtable_pte_page_dtor(page);
+>>>>>>> upstream/android-13
 	__free_page(page);
 }
 
@@ -281,6 +396,7 @@ void page_table_free_rcu(struct mmu_gather *tlb, unsigned long *table,
 	unsigned int bit, mask;
 
 	mm = tlb->mm;
+<<<<<<< HEAD
 	page = pfn_to_page(__pa(table) >> PAGE_SHIFT);
 	if (mm_alloc_pgste(mm)) {
 		gmap_unlink(mm, table, vmaddr);
@@ -289,6 +405,16 @@ void page_table_free_rcu(struct mmu_gather *tlb, unsigned long *table,
 		return;
 	}
 	bit = (__pa(table) & ~PAGE_MASK) / (PTRS_PER_PTE*sizeof(pte_t));
+=======
+	page = virt_to_page(table);
+	if (mm_alloc_pgste(mm)) {
+		gmap_unlink(mm, table, vmaddr);
+		table = (unsigned long *) ((unsigned long)table | 3);
+		tlb_remove_table(tlb, table);
+		return;
+	}
+	bit = ((unsigned long) table & ~PAGE_MASK) / (PTRS_PER_PTE*sizeof(pte_t));
+>>>>>>> upstream/android-13
 	spin_lock_bh(&mm->context.lock);
 	mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
 	mask >>= 24;
@@ -297,6 +423,7 @@ void page_table_free_rcu(struct mmu_gather *tlb, unsigned long *table,
 	else
 		list_del(&page->lru);
 	spin_unlock_bh(&mm->context.lock);
+<<<<<<< HEAD
 	table = (unsigned long *) (__pa(table) | (1U << bit));
 	tlb_remove_table(tlb, table);
 }
@@ -306,6 +433,17 @@ static void __tlb_remove_table(void *_table)
 	unsigned int mask = (unsigned long) _table & 3;
 	void *table = (void *)((unsigned long) _table ^ mask);
 	struct page *page = pfn_to_page(__pa(table) >> PAGE_SHIFT);
+=======
+	table = (unsigned long *) ((unsigned long) table | (1U << bit));
+	tlb_remove_table(tlb, table);
+}
+
+void __tlb_remove_table(void *_table)
+{
+	unsigned int mask = (unsigned long) _table & 3;
+	void *table = (void *)((unsigned long) _table ^ mask);
+	struct page *page = virt_to_page(table);
+>>>>>>> upstream/android-13
 
 	switch (mask) {
 	case 0:		/* pmd, pud, or p4d */
@@ -317,16 +455,25 @@ static void __tlb_remove_table(void *_table)
 		mask >>= 24;
 		if (mask != 0)
 			break;
+<<<<<<< HEAD
 		/* fallthrough */
 	case 3:		/* 4K page table with pgstes */
 		if (mask & 3)
 			atomic_xor_bits(&page->_refcount, 3 << 24);
 		pgtable_page_dtor(page);
+=======
+		fallthrough;
+	case 3:		/* 4K page table with pgstes */
+		if (mask & 3)
+			atomic_xor_bits(&page->_refcount, 3 << 24);
+		pgtable_pte_page_dtor(page);
+>>>>>>> upstream/android-13
 		__free_page(page);
 		break;
 	}
 }
 
+<<<<<<< HEAD
 static void tlb_remove_table_smp_sync(void *arg)
 {
 	/* Simply deliver the interrupt */
@@ -388,6 +535,8 @@ void tlb_remove_table(struct mmu_gather *tlb, void *table)
 		tlb_flush_mmu(tlb);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Base infrastructure required to generate basic asces, region, segment,
  * and page tables that do not make use of enhanced features like EDAT1.
@@ -603,7 +752,11 @@ void base_asce_free(unsigned long asce)
 		base_region2_walk(table, 0, _REGION1_SIZE, 0);
 		break;
 	case _ASCE_TYPE_REGION1:
+<<<<<<< HEAD
 		base_region1_walk(table, 0, -_PAGE_SIZE, 0);
+=======
+		base_region1_walk(table, 0, TASK_SIZE_MAX, 0);
+>>>>>>> upstream/android-13
 		break;
 	}
 	base_crst_free(table);

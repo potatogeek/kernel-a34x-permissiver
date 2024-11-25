@@ -121,10 +121,16 @@ static void pic32_sdhci_shared_bus(struct platform_device *pdev)
 	writel(bus, host->ioaddr + SDH_SHARED_BUS_CTRL);
 }
 
+<<<<<<< HEAD
 static int pic32_sdhci_probe_platform(struct platform_device *pdev,
 				      struct pic32_sdhci_priv *pdata)
 {
 	int ret = 0;
+=======
+static void pic32_sdhci_probe_platform(struct platform_device *pdev,
+				      struct pic32_sdhci_priv *pdata)
+{
+>>>>>>> upstream/android-13
 	u32 caps_slot_type;
 	struct sdhci_host *host = platform_get_drvdata(pdev);
 
@@ -133,8 +139,11 @@ static int pic32_sdhci_probe_platform(struct platform_device *pdev,
 	caps_slot_type = (host->caps & SDH_CAPS_SDH_SLOT_TYPE_MASK) >> 30;
 	if (caps_slot_type == SDH_SLOT_TYPE_SHARED_BUS)
 		pic32_sdhci_shared_bus(pdev);
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int pic32_sdhci_probe(struct platform_device *pdev)
@@ -193,11 +202,15 @@ static int pic32_sdhci_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_base_clk;
 
+<<<<<<< HEAD
 	ret = pic32_sdhci_probe_platform(pdev, sdhci_pdata);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to probe platform!\n");
 		goto err_base_clk;
 	}
+=======
+	pic32_sdhci_probe_platform(pdev, sdhci_pdata);
+>>>>>>> upstream/android-13
 
 	ret = sdhci_add_host(host);
 	if (ret)
@@ -241,6 +254,10 @@ MODULE_DEVICE_TABLE(of, pic32_sdhci_id_table);
 static struct platform_driver pic32_sdhci_driver = {
 	.driver = {
 		.name	= "pic32-sdhci",
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 		.of_match_table = of_match_ptr(pic32_sdhci_id_table),
 	},
 	.probe		= pic32_sdhci_probe,

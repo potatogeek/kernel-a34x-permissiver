@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * sha2-ce-core.S - core SHA-224/SHA-256 transform using v8 Crypto Extensions
  *
  * Copyright (C) 2014 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -78,6 +85,7 @@
 	 *			  int blocks)
 	 */
 	.text
+<<<<<<< HEAD
 ENTRY(sha2_ce_transform)
 	frame_push	3
 
@@ -87,12 +95,18 @@ ENTRY(sha2_ce_transform)
 
 	/* load round constants */
 0:	adr_l		x8, .Lsha2_rcon
+=======
+SYM_FUNC_START(sha2_ce_transform)
+	/* load round constants */
+	adr_l		x8, .Lsha2_rcon
+>>>>>>> upstream/android-13
 	ld1		{ v0.4s- v3.4s}, [x8], #64
 	ld1		{ v4.4s- v7.4s}, [x8], #64
 	ld1		{ v8.4s-v11.4s}, [x8], #64
 	ld1		{v12.4s-v15.4s}, [x8]
 
 	/* load state */
+<<<<<<< HEAD
 	ld1		{dgav.4s, dgbv.4s}, [x19]
 
 	/* load sha256_ce_state::finalize */
@@ -102,13 +116,28 @@ ENTRY(sha2_ce_transform)
 	/* load input */
 1:	ld1		{v16.4s-v19.4s}, [x20], #64
 	sub		w21, w21, #1
+=======
+	ld1		{dgav.4s, dgbv.4s}, [x0]
+
+	/* load sha256_ce_state::finalize */
+	ldr_l		w4, sha256_ce_offsetof_finalize, x4
+	ldr		w4, [x0, x4]
+
+	/* load input */
+0:	ld1		{v16.4s-v19.4s}, [x1], #64
+	sub		w2, w2, #1
+>>>>>>> upstream/android-13
 
 CPU_LE(	rev32		v16.16b, v16.16b	)
 CPU_LE(	rev32		v17.16b, v17.16b	)
 CPU_LE(	rev32		v18.16b, v18.16b	)
 CPU_LE(	rev32		v19.16b, v19.16b	)
 
+<<<<<<< HEAD
 2:	add		t0.4s, v16.4s, v0.4s
+=======
+1:	add		t0.4s, v16.4s, v0.4s
+>>>>>>> upstream/android-13
 	mov		dg0v.16b, dgav.16b
 	mov		dg1v.16b, dgbv.16b
 
@@ -137,6 +166,7 @@ CPU_LE(	rev32		v19.16b, v19.16b	)
 	add		dgbv.4s, dgbv.4s, dg1v.4s
 
 	/* handled all input blocks? */
+<<<<<<< HEAD
 	cbz		w21, 3f
 
 	if_will_cond_yield_neon
@@ -146,15 +176,26 @@ CPU_LE(	rev32		v19.16b, v19.16b	)
 	endif_yield_neon
 
 	b		1b
+=======
+	cbz		w2, 2f
+	cond_yield	3f, x5, x6
+	b		0b
+>>>>>>> upstream/android-13
 
 	/*
 	 * Final block: add padding and total bit count.
 	 * Skip if the input size was not a round multiple of the block size,
 	 * the padding is handled by the C code in that case.
 	 */
+<<<<<<< HEAD
 3:	cbz		x4, 4f
 	ldr_l		w4, sha256_ce_offsetof_count, x4
 	ldr		x4, [x19, x4]
+=======
+2:	cbz		x4, 3f
+	ldr_l		w4, sha256_ce_offsetof_count, x4
+	ldr		x4, [x0, x4]
+>>>>>>> upstream/android-13
 	movi		v17.2d, #0
 	mov		x8, #0x80000000
 	movi		v18.2d, #0
@@ -163,6 +204,7 @@ CPU_LE(	rev32		v19.16b, v19.16b	)
 	mov		x4, #0
 	mov		v19.d[0], xzr
 	mov		v19.d[1], x7
+<<<<<<< HEAD
 	b		2b
 
 	/* store new state */
@@ -170,3 +212,12 @@ CPU_LE(	rev32		v19.16b, v19.16b	)
 	frame_pop
 	ret
 ENDPROC(sha2_ce_transform)
+=======
+	b		1b
+
+	/* store new state */
+3:	st1		{dgav.4s, dgbv.4s}, [x0]
+	mov		w0, w2
+	ret
+SYM_FUNC_END(sha2_ce_transform)
+>>>>>>> upstream/android-13

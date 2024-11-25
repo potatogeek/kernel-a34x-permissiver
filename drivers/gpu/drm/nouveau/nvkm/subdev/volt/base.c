@@ -281,12 +281,20 @@ nvkm_volt = {
 
 void
 nvkm_volt_ctor(const struct nvkm_volt_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	       int index, struct nvkm_volt *volt)
+=======
+	       enum nvkm_subdev_type type, int inst, struct nvkm_volt *volt)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_bios *bios = device->bios;
 	int i;
 
+<<<<<<< HEAD
 	nvkm_subdev_ctor(&nvkm_volt, device, index, &volt->subdev);
+=======
+	nvkm_subdev_ctor(&nvkm_volt, device, type, inst, &volt->subdev);
+>>>>>>> upstream/android-13
 	volt->func = func;
 
 	/* Assuming the non-bios device should build the voltage table later */
@@ -319,10 +327,18 @@ nvkm_volt_ctor(const struct nvkm_volt_func *func, struct nvkm_device *device,
 
 int
 nvkm_volt_new_(const struct nvkm_volt_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	       int index, struct nvkm_volt **pvolt)
 {
 	if (!(*pvolt = kzalloc(sizeof(**pvolt), GFP_KERNEL)))
 		return -ENOMEM;
 	nvkm_volt_ctor(func, device, index, *pvolt);
+=======
+	       enum nvkm_subdev_type type, int inst, struct nvkm_volt **pvolt)
+{
+	if (!(*pvolt = kzalloc(sizeof(**pvolt), GFP_KERNEL)))
+		return -ENOMEM;
+	nvkm_volt_ctor(func, device, type, inst, *pvolt);
+>>>>>>> upstream/android-13
 	return 0;
 }

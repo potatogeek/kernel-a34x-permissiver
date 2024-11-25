@@ -31,10 +31,19 @@
 #include <linux/ratelimit.h>
 #include <linux/export.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "drm_legacy.h"
 #include "drm_internal.h"
 #include "drm_crtc_internal.h"
+=======
+#include <drm/drm_file.h>
+#include <drm/drm_print.h>
+
+#include "drm_crtc_internal.h"
+#include "drm_internal.h"
+#include "drm_legacy.h"
+>>>>>>> upstream/android-13
 
 #define DRM_IOCTL_VERSION32		DRM_IOWR(0x00, drm_version32_t)
 #define DRM_IOCTL_GET_UNIQUE32		DRM_IOWR(0x01, drm_unique32_t)
@@ -107,7 +116,11 @@ static int compat_drm_version(struct file *file, unsigned int cmd,
 		.desc = compat_ptr(v32.desc),
 	};
 	err = drm_ioctl_kernel(file, drm_version, &v,
+<<<<<<< HEAD
 			       DRM_UNLOCKED|DRM_RENDER_ALLOW);
+=======
+			       DRM_RENDER_ALLOW);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -144,7 +157,11 @@ static int compat_drm_getunique(struct file *file, unsigned int cmd,
 		.unique = compat_ptr(uq32.unique),
 	};
 
+<<<<<<< HEAD
 	err = drm_ioctl_kernel(file, drm_getunique, &uq, DRM_UNLOCKED);
+=======
+	err = drm_ioctl_kernel(file, drm_getunique, &uq, 0);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -161,6 +178,10 @@ static int compat_drm_setunique(struct file *file, unsigned int cmd,
 	return -EINVAL;
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+>>>>>>> upstream/android-13
 typedef struct drm_map32 {
 	u32 offset;		/* Requested physical address (0 for SAREA) */
 	u32 size;		/* Requested physical size (bytes) */
@@ -182,7 +203,11 @@ static int compat_drm_getmap(struct file *file, unsigned int cmd,
 		return -EFAULT;
 
 	map.offset = m32.offset;
+<<<<<<< HEAD
 	err = drm_ioctl_kernel(file, drm_legacy_getmap_ioctl, &map, DRM_UNLOCKED);
+=======
+	err = drm_ioctl_kernel(file, drm_legacy_getmap_ioctl, &map, 0);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -244,6 +269,10 @@ static int compat_drm_rmmap(struct file *file, unsigned int cmd,
 	map.handle = compat_ptr(handle);
 	return drm_ioctl_kernel(file, drm_legacy_rmmap_ioctl, &map, DRM_AUTH);
 }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 typedef struct drm_client32 {
 	int idx;	/* Which client desired? */
@@ -269,7 +298,11 @@ static int compat_drm_getclient(struct file *file, unsigned int cmd,
 
 	client.idx = c32.idx;
 
+<<<<<<< HEAD
 	err = drm_ioctl_kernel(file, drm_getclient, &client, DRM_UNLOCKED);
+=======
+	err = drm_ioctl_kernel(file, drm_getclient, &client, 0);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -297,17 +330,26 @@ static int compat_drm_getstats(struct file *file, unsigned int cmd,
 			       unsigned long arg)
 {
 	drm_stats32_t __user *argp = (void __user *)arg;
+<<<<<<< HEAD
 	int err;
 
 	err = drm_ioctl_kernel(file, drm_noop, NULL, DRM_UNLOCKED);
 	if (err)
 		return err;
 
+=======
+
+	/* getstats is defunct, just clear */
+>>>>>>> upstream/android-13
 	if (clear_user(argp, sizeof(drm_stats32_t)))
 		return -EFAULT;
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+>>>>>>> upstream/android-13
 typedef struct drm_buf_desc32 {
 	int count;		 /* Number of buffers of this size */
 	int size;		 /* Size in bytes */
@@ -389,6 +431,10 @@ static int drm_legacy_infobufs32(struct drm_device *dev, void *data,
 			struct drm_file *file_priv)
 {
 	drm_buf_info32_t *request = data;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return __drm_legacy_infobufs(dev, data, &request->count, copy_one_buf32);
 }
 
@@ -614,7 +660,13 @@ static int compat_drm_dma(struct file *file, unsigned int cmd,
 
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+#endif
+
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_AGP)
 typedef struct drm_agp_mode32 {
 	u32 mode;	/**< AGP mode */
@@ -629,7 +681,11 @@ static int compat_drm_agp_enable(struct file *file, unsigned int cmd,
 	if (get_user(mode.mode, &argp->mode))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	return drm_ioctl_kernel(file,  drm_agp_enable_ioctl, &mode,
+=======
+	return drm_ioctl_kernel(file,  drm_legacy_agp_enable_ioctl, &mode,
+>>>>>>> upstream/android-13
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
 }
 
@@ -655,7 +711,11 @@ static int compat_drm_agp_info(struct file *file, unsigned int cmd,
 	struct drm_agp_info info;
 	int err;
 
+<<<<<<< HEAD
 	err = drm_ioctl_kernel(file, drm_agp_info_ioctl, &info, DRM_AUTH);
+=======
+	err = drm_ioctl_kernel(file, drm_legacy_agp_info_ioctl, &info, DRM_AUTH);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -694,7 +754,11 @@ static int compat_drm_agp_alloc(struct file *file, unsigned int cmd,
 
 	request.size = req32.size;
 	request.type = req32.type;
+<<<<<<< HEAD
 	err = drm_ioctl_kernel(file, drm_agp_alloc_ioctl, &request,
+=======
+	err = drm_ioctl_kernel(file, drm_legacy_agp_alloc_ioctl, &request,
+>>>>>>> upstream/android-13
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
 	if (err)
 		return err;
@@ -702,7 +766,11 @@ static int compat_drm_agp_alloc(struct file *file, unsigned int cmd,
 	req32.handle = request.handle;
 	req32.physical = request.physical;
 	if (copy_to_user(argp, &req32, sizeof(req32))) {
+<<<<<<< HEAD
 		drm_ioctl_kernel(file, drm_agp_free_ioctl, &request,
+=======
+		drm_ioctl_kernel(file, drm_legacy_agp_free_ioctl, &request,
+>>>>>>> upstream/android-13
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
 		return -EFAULT;
 	}
@@ -719,7 +787,11 @@ static int compat_drm_agp_free(struct file *file, unsigned int cmd,
 	if (get_user(request.handle, &argp->handle))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	return drm_ioctl_kernel(file, drm_agp_free_ioctl, &request,
+=======
+	return drm_ioctl_kernel(file, drm_legacy_agp_free_ioctl, &request,
+>>>>>>> upstream/android-13
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
 }
 
@@ -740,7 +812,11 @@ static int compat_drm_agp_bind(struct file *file, unsigned int cmd,
 
 	request.handle = req32.handle;
 	request.offset = req32.offset;
+<<<<<<< HEAD
 	return drm_ioctl_kernel(file, drm_agp_bind_ioctl, &request,
+=======
+	return drm_ioctl_kernel(file, drm_legacy_agp_bind_ioctl, &request,
+>>>>>>> upstream/android-13
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
 }
 
@@ -753,7 +829,11 @@ static int compat_drm_agp_unbind(struct file *file, unsigned int cmd,
 	if (get_user(request.handle, &argp->handle))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	return drm_ioctl_kernel(file, drm_agp_unbind_ioctl, &request,
+=======
+	return drm_ioctl_kernel(file, drm_legacy_agp_unbind_ioctl, &request,
+>>>>>>> upstream/android-13
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
 }
 #endif /* CONFIG_AGP */
@@ -798,7 +878,11 @@ static int compat_drm_sg_free(struct file *file, unsigned int cmd,
 	return drm_ioctl_kernel(file, drm_legacy_sg_free, &request,
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
 }
+<<<<<<< HEAD
 
+=======
+#endif
+>>>>>>> upstream/android-13
 #if defined(CONFIG_X86)
 typedef struct drm_update_draw32 {
 	drm_drawable_t handle;
@@ -811,12 +895,17 @@ typedef struct drm_update_draw32 {
 static int compat_drm_update_draw(struct file *file, unsigned int cmd,
 				  unsigned long arg)
 {
+<<<<<<< HEAD
 	drm_update_draw32_t update32;
 	if (copy_from_user(&update32, (void __user *)arg, sizeof(update32)))
 		return -EFAULT;
 
 	return drm_ioctl_kernel(file, drm_noop, NULL,
 				DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY);
+=======
+	/* update_draw is defunct */
+	return 0;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -855,8 +944,11 @@ static int compat_drm_wait_vblank(struct file *file, unsigned int cmd,
 	req.request.sequence = req32.request.sequence;
 	req.request.signal = req32.request.signal;
 	err = drm_ioctl_kernel(file, drm_wait_vblank_ioctl, &req, DRM_UNLOCKED);
+<<<<<<< HEAD
 	if (err)
 		return err;
+=======
+>>>>>>> upstream/android-13
 
 	req32.reply.type = req.reply.type;
 	req32.reply.sequence = req.reply.sequence;
@@ -865,7 +957,11 @@ static int compat_drm_wait_vblank(struct file *file, unsigned int cmd,
 	if (copy_to_user(argp, &req32, sizeof(req32)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	return 0;
+=======
+	return err;
+>>>>>>> upstream/android-13
 }
 
 #if defined(CONFIG_X86)
@@ -898,8 +994,12 @@ static int compat_drm_mode_addfb2(struct file *file, unsigned int cmd,
 			   sizeof(req64.modifier)))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	err = drm_ioctl_kernel(file, drm_mode_addfb2, &req64,
 			       DRM_UNLOCKED);
+=======
+	err = drm_ioctl_kernel(file, drm_mode_addfb2, &req64, 0);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 
@@ -917,10 +1017,20 @@ static struct {
 #define DRM_IOCTL32_DEF(n, f) [DRM_IOCTL_NR(n##32)] = {.fn = f, .name = #n}
 	DRM_IOCTL32_DEF(DRM_IOCTL_VERSION, compat_drm_version),
 	DRM_IOCTL32_DEF(DRM_IOCTL_GET_UNIQUE, compat_drm_getunique),
+<<<<<<< HEAD
 	DRM_IOCTL32_DEF(DRM_IOCTL_GET_MAP, compat_drm_getmap),
 	DRM_IOCTL32_DEF(DRM_IOCTL_GET_CLIENT, compat_drm_getclient),
 	DRM_IOCTL32_DEF(DRM_IOCTL_GET_STATS, compat_drm_getstats),
 	DRM_IOCTL32_DEF(DRM_IOCTL_SET_UNIQUE, compat_drm_setunique),
+=======
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+	DRM_IOCTL32_DEF(DRM_IOCTL_GET_MAP, compat_drm_getmap),
+#endif
+	DRM_IOCTL32_DEF(DRM_IOCTL_GET_CLIENT, compat_drm_getclient),
+	DRM_IOCTL32_DEF(DRM_IOCTL_GET_STATS, compat_drm_getstats),
+	DRM_IOCTL32_DEF(DRM_IOCTL_SET_UNIQUE, compat_drm_setunique),
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+>>>>>>> upstream/android-13
 	DRM_IOCTL32_DEF(DRM_IOCTL_ADD_MAP, compat_drm_addmap),
 	DRM_IOCTL32_DEF(DRM_IOCTL_ADD_BUFS, compat_drm_addbufs),
 	DRM_IOCTL32_DEF(DRM_IOCTL_MARK_BUFS, compat_drm_markbufs),
@@ -940,8 +1050,16 @@ static struct {
 	DRM_IOCTL32_DEF(DRM_IOCTL_AGP_BIND, compat_drm_agp_bind),
 	DRM_IOCTL32_DEF(DRM_IOCTL_AGP_UNBIND, compat_drm_agp_unbind),
 #endif
+<<<<<<< HEAD
 	DRM_IOCTL32_DEF(DRM_IOCTL_SG_ALLOC, compat_drm_sg_alloc),
 	DRM_IOCTL32_DEF(DRM_IOCTL_SG_FREE, compat_drm_sg_free),
+=======
+#endif
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+	DRM_IOCTL32_DEF(DRM_IOCTL_SG_ALLOC, compat_drm_sg_alloc),
+	DRM_IOCTL32_DEF(DRM_IOCTL_SG_FREE, compat_drm_sg_free),
+#endif
+>>>>>>> upstream/android-13
 #if defined(CONFIG_X86) || defined(CONFIG_IA64)
 	DRM_IOCTL32_DEF(DRM_IOCTL_UPDATE_DRAW, compat_drm_update_draw),
 #endif
@@ -983,8 +1101,13 @@ long drm_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	if (!fn)
 		return drm_ioctl(filp, cmd, arg);
 
+<<<<<<< HEAD
 	DRM_DEBUG("pid=%d, dev=0x%lx, auth=%d, %s\n",
 		  task_pid_nr(current),
+=======
+	DRM_DEBUG("comm=\"%s\", pid=%d, dev=0x%lx, auth=%d, %s\n",
+		  current->comm, task_pid_nr(current),
+>>>>>>> upstream/android-13
 		  (long)old_encode_dev(file_priv->minor->kdev->devt),
 		  file_priv->authenticated,
 		  drm_compat_ioctls[nr].name);

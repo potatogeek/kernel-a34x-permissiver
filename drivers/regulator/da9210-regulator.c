@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * da9210-regulator.c - Regulator device driver for DA9210
  * Copyright (C) 2013  Dialog Semiconductor Ltd.
@@ -17,6 +18,12 @@
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// da9210-regulator.c - Regulator device driver for DA9210
+// Copyright (C) 2013  Dialog Semiconductor Ltd.
+>>>>>>> upstream/android-13
 
 #include <linux/err.h>
 #include <linux/i2c.h>
@@ -41,10 +48,13 @@ static const struct regmap_config da9210_regmap_config = {
 	.val_bits = 8,
 };
 
+<<<<<<< HEAD
 static int da9210_set_current_limit(struct regulator_dev *rdev, int min_uA,
 				    int max_uA);
 static int da9210_get_current_limit(struct regulator_dev *rdev);
 
+=======
+>>>>>>> upstream/android-13
 static const struct regulator_ops da9210_buck_ops = {
 	.enable = regulator_enable_regmap,
 	.disable = regulator_disable_regmap,
@@ -52,8 +62,13 @@ static const struct regulator_ops da9210_buck_ops = {
 	.set_voltage_sel = regulator_set_voltage_sel_regmap,
 	.get_voltage_sel = regulator_get_voltage_sel_regmap,
 	.list_voltage = regulator_list_voltage_linear,
+<<<<<<< HEAD
 	.set_current_limit = da9210_set_current_limit,
 	.get_current_limit = da9210_get_current_limit,
+=======
+	.set_current_limit = regulator_set_current_limit_regmap,
+	.get_current_limit = regulator_get_current_limit_regmap,
+>>>>>>> upstream/android-13
 };
 
 /* Default limits measured in millivolts and milliamps */
@@ -62,7 +77,11 @@ static const struct regulator_ops da9210_buck_ops = {
 #define DA9210_STEP_MV		10
 
 /* Current limits for buck (uA) indices corresponds with register values */
+<<<<<<< HEAD
 static const int da9210_buck_limits[] = {
+=======
+static const unsigned int da9210_buck_limits[] = {
+>>>>>>> upstream/android-13
 	1600000, 1800000, 2000000, 2200000, 2400000, 2600000, 2800000, 3000000,
 	3200000, 3400000, 3600000, 3800000, 4000000, 4200000, 4400000, 4600000
 };
@@ -80,6 +99,7 @@ static const struct regulator_desc da9210_reg = {
 	.enable_reg = DA9210_REG_BUCK_CONT,
 	.enable_mask = DA9210_BUCK_EN,
 	.owner = THIS_MODULE,
+<<<<<<< HEAD
 };
 
 static int da9210_set_current_limit(struct regulator_dev *rdev, int min_uA,
@@ -121,6 +141,14 @@ static int da9210_get_current_limit(struct regulator_dev *rdev)
 	return da9210_buck_limits[sel];
 }
 
+=======
+	.curr_table = da9210_buck_limits,
+	.n_current_limits = ARRAY_SIZE(da9210_buck_limits),
+	.csel_reg = DA9210_REG_BUCK_ILIM,
+	.csel_mask = DA9210_BUCK_ILIM_MASK,
+};
+
+>>>>>>> upstream/android-13
 static irqreturn_t da9210_irq_handler(int irq, void *data)
 {
 	struct da9210 *chip = data;
@@ -131,8 +159,11 @@ static irqreturn_t da9210_irq_handler(int irq, void *data)
 	if (error < 0)
 		goto error_i2c;
 
+<<<<<<< HEAD
 	mutex_lock(&chip->rdev->mutex);
 
+=======
+>>>>>>> upstream/android-13
 	if (val & DA9210_E_OVCURR) {
 		regulator_notifier_call_chain(chip->rdev,
 					      REGULATOR_EVENT_OVER_CURRENT,
@@ -157,8 +188,11 @@ static irqreturn_t da9210_irq_handler(int irq, void *data)
 		handled |= DA9210_E_VMAX;
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&chip->rdev->mutex);
 
+=======
+>>>>>>> upstream/android-13
 	if (handled) {
 		/* Clear handled events */
 		error = regmap_write(chip->regmap, DA9210_REG_EVENT_B, handled);
@@ -179,14 +213,22 @@ error_i2c:
  * I2C driver interface functions
  */
 
+<<<<<<< HEAD
 static const struct of_device_id da9210_dt_ids[] = {
+=======
+static const struct of_device_id __maybe_unused da9210_dt_ids[] = {
+>>>>>>> upstream/android-13
 	{ .compatible = "dlg,da9210", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, da9210_dt_ids);
 
+<<<<<<< HEAD
 static int da9210_i2c_probe(struct i2c_client *i2c,
 			    const struct i2c_device_id *id)
+=======
+static int da9210_i2c_probe(struct i2c_client *i2c)
+>>>>>>> upstream/android-13
 {
 	struct da9210 *chip;
 	struct device *dev = &i2c->dev;
@@ -282,7 +324,11 @@ static struct i2c_driver da9210_regulator_driver = {
 		.name = "da9210",
 		.of_match_table = of_match_ptr(da9210_dt_ids),
 	},
+<<<<<<< HEAD
 	.probe = da9210_i2c_probe,
+=======
+	.probe_new = da9210_i2c_probe,
+>>>>>>> upstream/android-13
 	.id_table = da9210_i2c_id,
 };
 

@@ -177,6 +177,7 @@ struct fotg210_hcd {			/* one per controller */
 	/* irq statistics */
 #ifdef FOTG210_STATS
 	struct fotg210_stats	stats;
+<<<<<<< HEAD
 #	define COUNT(x) ((x)++)
 #else
 #	define COUNT(x)
@@ -184,6 +185,15 @@ struct fotg210_hcd {			/* one per controller */
 
 	/* debug files */
 	struct dentry		*debug_dir;
+=======
+#	define INCR(x) ((x)++)
+#else
+#	define INCR(x) do {} while (0)
+#endif
+
+	/* silicon clock */
+	struct clk		*pclk;
+>>>>>>> upstream/android-13
 };
 
 /* convert between an HCD pointer and the corresponding FOTG210_HCD */
@@ -487,7 +497,11 @@ struct fotg210_iso_packet {
 struct fotg210_iso_sched {
 	struct list_head	td_list;
 	unsigned		span;
+<<<<<<< HEAD
 	struct fotg210_iso_packet	packet[0];
+=======
+	struct fotg210_iso_packet	packet[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -683,11 +697,14 @@ static inline unsigned fotg210_read_frame_index(struct fotg210_hcd *fotg210)
 	return fotg210_readl(fotg210, &fotg210->regs->frame_index);
 }
 
+<<<<<<< HEAD
 #define fotg210_itdlen(urb, desc, t) ({			\
 	usb_pipein((urb)->pipe) ?				\
 	(desc)->length - FOTG210_ITD_LENGTH(t) :			\
 	FOTG210_ITD_LENGTH(t);					\
 })
+=======
+>>>>>>> upstream/android-13
 /*-------------------------------------------------------------------------*/
 
 #endif /* __LINUX_FOTG210_H */

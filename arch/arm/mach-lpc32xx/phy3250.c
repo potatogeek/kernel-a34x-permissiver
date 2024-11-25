@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Platform support for LPC32xx SoC
  *
@@ -5,6 +9,7 @@
  *
  * Copyright (C) 2012 Roland Stigge <stigge@antcom.de>
  * Copyright (C) 2010 NXP Semiconductors
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,6 +117,18 @@ static struct clcd_board lpc32xx_clcd_data = {
 	.remove		= lpc32xx_clcd_remove,
 };
 
+=======
+ */
+
+#include <linux/amba/pl08x.h>
+#include <linux/mtd/lpc32xx_mlc.h>
+#include <linux/mtd/lpc32xx_slc.h>
+#include <linux/of_platform.h>
+
+#include <asm/mach/arch.h>
+#include "common.h"
+
+>>>>>>> upstream/android-13
 static struct pl08x_channel_data pl08x_slave_channels[] = {
 	{
 		.bus_id = "nand-slc",
@@ -148,11 +165,14 @@ static struct pl08x_platform_data pl08x_pd = {
 	.mem_buses = PL08X_AHB1,
 };
 
+<<<<<<< HEAD
 static struct mmci_platform_data lpc32xx_mmci_data = {
 	.ocr_mask	= MMC_VDD_30_31 | MMC_VDD_31_32 |
 			  MMC_VDD_32_33 | MMC_VDD_33_34,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct lpc32xx_slc_platform_data lpc32xx_slc_data = {
 	.dma_filter = pl08x_filter_id,
 };
@@ -162,12 +182,16 @@ static struct lpc32xx_mlc_platform_data lpc32xx_mlc_data = {
 };
 
 static const struct of_dev_auxdata lpc32xx_auxdata_lookup[] __initconst = {
+<<<<<<< HEAD
 	OF_DEV_AUXDATA("arm,pl022", 0x20084000, "dev:ssp0", NULL),
 	OF_DEV_AUXDATA("arm,pl022", 0x2008C000, "dev:ssp1", NULL),
 	OF_DEV_AUXDATA("arm,pl110", 0x31040000, "dev:clcd", &lpc32xx_clcd_data),
 	OF_DEV_AUXDATA("arm,pl080", 0x31000000, "pl08xdmac", &pl08x_pd),
 	OF_DEV_AUXDATA("arm,pl18x", 0x20098000, "20098000.sd",
 		       &lpc32xx_mmci_data),
+=======
+	OF_DEV_AUXDATA("arm,pl080", 0x31000000, "pl08xdmac", &pl08x_pd),
+>>>>>>> upstream/android-13
 	OF_DEV_AUXDATA("nxp,lpc3220-slc", 0x20020000, "20020000.flash",
 		       &lpc32xx_slc_data),
 	OF_DEV_AUXDATA("nxp,lpc3220-mlc", 0x200a8000, "200a8000.flash",
@@ -177,6 +201,7 @@ static const struct of_dev_auxdata lpc32xx_auxdata_lookup[] __initconst = {
 
 static void __init lpc3250_machine_init(void)
 {
+<<<<<<< HEAD
 	u32 tmp;
 
 	/* Setup LCD muxing to RGB565 */
@@ -193,6 +218,10 @@ static void __init lpc3250_machine_init(void)
 		LPC32XX_CLKPWR_TESTCLK_TESTCLK2_EN,
 		LPC32XX_CLKPWR_TEST_CLK_SEL);
 
+=======
+	lpc32xx_serial_init();
+
+>>>>>>> upstream/android-13
 	of_platform_default_populate(NULL, lpc32xx_auxdata_lookup, NULL);
 }
 

@@ -22,6 +22,10 @@
 		serial0 = &serial0;
 		serial1 = &serial1;
 		serial2 = &serial2;
+<<<<<<< HEAD
+=======
+		serial3 = &serialsc;
+>>>>>>> upstream/android-13
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
@@ -29,6 +33,10 @@
 		i2c4 = &i2c4;
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
+<<<<<<< HEAD
+=======
+		ethernet0 = &eth;
+>>>>>>> upstream/android-13
 	};
 
 	memory@80000000 {
@@ -41,6 +49,13 @@
 	interrupts = <4 8>;
 };
 
+<<<<<<< HEAD
+=======
+&serialsc {
+	interrupts = <4 8>;
+};
+
+>>>>>>> upstream/android-13
 &serial0 {
 	status = "okay";
 };
@@ -65,17 +80,46 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&sd {
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &eth {
 	status = "okay";
 	phy-handle = <&ethphy>;
 };
 
 &mdio {
+<<<<<<< HEAD
 	ethphy: ethphy@0 {
+=======
+	ethphy: ethernet-phy@0 {
+>>>>>>> upstream/android-13
 		reg = <0>;
 	};
 };
 
+<<<<<<< HEAD
 &nand {
 	status = "okay";
 };
+=======
+&usb0 {
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
+};
+
+&nand {
+	status = "okay";
+
+	nand@0 {
+		reg = <0>;
+	};
+};
+>>>>>>> upstream/android-13

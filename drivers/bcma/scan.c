@@ -141,8 +141,12 @@ static const char *bcma_device_name(const struct bcma_device_id *id)
 	return "UNKNOWN";
 }
 
+<<<<<<< HEAD
 static u32 bcma_scan_read32(struct bcma_bus *bus, u8 current_coreidx,
 		       u16 offset)
+=======
+static u32 bcma_scan_read32(struct bcma_bus *bus, u16 offset)
+>>>>>>> upstream/android-13
 {
 	return readl(bus->mmio + offset);
 }
@@ -219,7 +223,11 @@ static s32 bcma_erom_get_mst_port(struct bcma_bus *bus, u32 __iomem **eromptr)
 static u32 bcma_erom_get_addr_desc(struct bcma_bus *bus, u32 __iomem **eromptr,
 				  u32 type, u8 port)
 {
+<<<<<<< HEAD
 	u32 addrl, addrh, sizel, sizeh = 0;
+=======
+	u32 addrl;
+>>>>>>> upstream/android-13
 	u32 size;
 
 	u32 ent = bcma_erom_get_ent(bus, eromptr);
@@ -233,6 +241,7 @@ static u32 bcma_erom_get_addr_desc(struct bcma_bus *bus, u32 __iomem **eromptr,
 
 	addrl = ent & SCAN_ADDR_ADDR;
 	if (ent & SCAN_ADDR_AG32)
+<<<<<<< HEAD
 		addrh = bcma_erom_get_ent(bus, eromptr);
 	else
 		addrh = 0;
@@ -245,6 +254,15 @@ static u32 bcma_erom_get_addr_desc(struct bcma_bus *bus, u32 __iomem **eromptr,
 	} else
 		sizel = SCAN_ADDR_SZ_BASE <<
 				((ent & SCAN_ADDR_SZ) >> SCAN_ADDR_SZ_SHIFT);
+=======
+		bcma_erom_get_ent(bus, eromptr);
+
+	if ((ent & SCAN_ADDR_SZ) == SCAN_ADDR_SZ_SZD) {
+		size = bcma_erom_get_ent(bus, eromptr);
+		if (size & SCAN_SIZE_SG32)
+			bcma_erom_get_ent(bus, eromptr);
+	}
+>>>>>>> upstream/android-13
 
 	return addrl;
 }
@@ -425,11 +443,19 @@ static int bcma_get_next_core(struct bcma_bus *bus, u32 __iomem **eromptr,
 		}
 	}
 	if (bus->hosttype == BCMA_HOSTTYPE_SOC) {
+<<<<<<< HEAD
 		core->io_addr = ioremap_nocache(core->addr, BCMA_CORE_SIZE);
 		if (!core->io_addr)
 			return -ENOMEM;
 		if (core->wrap) {
 			core->io_wrap = ioremap_nocache(core->wrap,
+=======
+		core->io_addr = ioremap(core->addr, BCMA_CORE_SIZE);
+		if (!core->io_addr)
+			return -ENOMEM;
+		if (core->wrap) {
+			core->io_wrap = ioremap(core->wrap,
+>>>>>>> upstream/android-13
 							BCMA_CORE_SIZE);
 			if (!core->io_wrap) {
 				iounmap(core->io_addr);
@@ -448,7 +474,11 @@ void bcma_detect_chip(struct bcma_bus *bus)
 
 	bcma_scan_switch_core(bus, BCMA_ADDR_BASE);
 
+<<<<<<< HEAD
 	tmp = bcma_scan_read32(bus, 0, BCMA_CC_ID);
+=======
+	tmp = bcma_scan_read32(bus, BCMA_CC_ID);
+>>>>>>> upstream/android-13
 	chipinfo->id = (tmp & BCMA_CC_ID_ID) >> BCMA_CC_ID_ID_SHIFT;
 	chipinfo->rev = (tmp & BCMA_CC_ID_REV) >> BCMA_CC_ID_REV_SHIFT;
 	chipinfo->pkg = (tmp & BCMA_CC_ID_PKG) >> BCMA_CC_ID_PKG_SHIFT;
@@ -470,9 +500,15 @@ int bcma_bus_scan(struct bcma_bus *bus)
 	if (bus->nr_cores)
 		return 0;
 
+<<<<<<< HEAD
 	erombase = bcma_scan_read32(bus, 0, BCMA_CC_EROM);
 	if (bus->hosttype == BCMA_HOSTTYPE_SOC) {
 		eromptr = ioremap_nocache(erombase, BCMA_CORE_SIZE);
+=======
+	erombase = bcma_scan_read32(bus, BCMA_CC_EROM);
+	if (bus->hosttype == BCMA_HOSTTYPE_SOC) {
+		eromptr = ioremap(erombase, BCMA_CORE_SIZE);
+>>>>>>> upstream/android-13
 		if (!eromptr)
 			return -ENOMEM;
 	} else {

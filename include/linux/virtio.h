@@ -9,7 +9,10 @@
 #include <linux/device.h>
 #include <linux/mod_devicetable.h>
 #include <linux/gfp.h>
+<<<<<<< HEAD
 #include <linux/vringh.h>
+=======
+>>>>>>> upstream/android-13
 
 /**
  * virtqueue - a queue to register buffers for sending or receiving.
@@ -90,6 +93,7 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
 dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
 dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
 
+<<<<<<< HEAD
 /*
  * Legacy accessors -- in almost all cases, these are the wrong functions
  * to use.
@@ -107,6 +111,8 @@ static inline void *virtqueue_get_used(struct virtqueue *vq)
 	return virtqueue_get_vring(vq)->used;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * virtio_device - representation of a device using virtio
  * @index: unique position on the virtio bus
@@ -128,6 +134,10 @@ struct virtio_device {
 	bool config_enabled;
 	bool config_change_pending;
 	spinlock_t config_lock;
+<<<<<<< HEAD
+=======
+	spinlock_t vqs_list_lock; /* Protects VQs list access */
+>>>>>>> upstream/android-13
 	struct device dev;
 	struct virtio_device_id id;
 	const struct virtio_config_ops *config;
@@ -145,18 +155,30 @@ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
 void virtio_add_status(struct virtio_device *dev, unsigned int status);
 int register_virtio_device(struct virtio_device *dev);
 void unregister_virtio_device(struct virtio_device *dev);
+<<<<<<< HEAD
+=======
+bool is_virtio_device(struct device *dev);
+>>>>>>> upstream/android-13
 
 void virtio_break_device(struct virtio_device *dev);
 
 void virtio_config_changed(struct virtio_device *dev);
+<<<<<<< HEAD
 void virtio_config_disable(struct virtio_device *dev);
 void virtio_config_enable(struct virtio_device *dev);
 int virtio_finalize_features(struct virtio_device *dev);
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM_SLEEP
 int virtio_device_freeze(struct virtio_device *dev);
 int virtio_device_restore(struct virtio_device *dev);
 #endif
 
+<<<<<<< HEAD
+=======
+size_t virtio_max_dma_size(struct virtio_device *vdev);
+
+>>>>>>> upstream/android-13
 #define virtio_device_for_each_vq(vdev, vq) \
 	list_for_each_entry(vq, &vdev->vqs, list)
 

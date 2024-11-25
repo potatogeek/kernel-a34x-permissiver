@@ -18,7 +18,11 @@
 #include <asm/compiler.h>
 #include <asm/hazards.h>
 
+<<<<<<< HEAD
 #if defined(CONFIG_CPU_MIPSR2) || defined (CONFIG_CPU_MIPSR6)
+=======
+#if defined(CONFIG_CPU_HAS_DIEI)
+>>>>>>> upstream/android-13
 
 static inline void arch_local_irq_disable(void)
 {
@@ -41,7 +45,11 @@ static inline unsigned long arch_local_irq_save(void)
 	"	.set	push						\n"
 	"	.set	reorder						\n"
 	"	.set	noat						\n"
+<<<<<<< HEAD
 #if defined(CONFIG_CPU_LOONGSON3)
+=======
+#if defined(CONFIG_CPU_LOONGSON64) || defined(CONFIG_CPU_LOONGSON32)
+>>>>>>> upstream/android-13
 	"	mfc0	%[flags], $12					\n"
 	"	di							\n"
 #else
@@ -94,7 +102,11 @@ static inline void arch_local_irq_restore(unsigned long flags)
 void arch_local_irq_disable(void);
 unsigned long arch_local_irq_save(void);
 void arch_local_irq_restore(unsigned long flags);
+<<<<<<< HEAD
 #endif /* CONFIG_CPU_MIPSR2 || CONFIG_CPU_MIPSR6 */
+=======
+#endif /* CONFIG_CPU_HAS_DIEI */
+>>>>>>> upstream/android-13
 
 static inline void arch_local_irq_enable(void)
 {
@@ -102,7 +114,11 @@ static inline void arch_local_irq_enable(void)
 	"	.set	push						\n"
 	"	.set	reorder						\n"
 	"	.set	noat						\n"
+<<<<<<< HEAD
 #if   defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR6)
+=======
+#if defined(CONFIG_CPU_HAS_DIEI)
+>>>>>>> upstream/android-13
 	"	ei							\n"
 #else
 	"	mfc0	$1,$12						\n"
@@ -137,6 +153,14 @@ static inline int arch_irqs_disabled_flags(unsigned long flags)
 	return !(flags & 1);
 }
 
+<<<<<<< HEAD
+=======
+static inline int arch_irqs_disabled(void)
+{
+	return arch_irqs_disabled_flags(arch_local_save_flags());
+}
+
+>>>>>>> upstream/android-13
 #endif /* #ifndef __ASSEMBLY__ */
 
 /*

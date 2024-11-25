@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  *   This program is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU General Public License
  *   as published by the Free Software Foundation; either version
  *   2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  *   Robert Olsson <robert.olsson@its.uu.se> Uppsala Universitet
  *     & Swedish University of Agricultural Sciences.
@@ -16,22 +21,32 @@
  *
  * An experimental study of compression methods for dynamic tries
  * Stefan Nilsson and Matti Tikkanen. Algorithmica, 33(1):19-33, 2002.
+<<<<<<< HEAD
  * http://www.csc.kth.se/~snilsson/software/dyntrie2/
  *
+=======
+ * https://www.csc.kth.se/~snilsson/software/dyntrie2/
+>>>>>>> upstream/android-13
  *
  * IP-address lookup using LC-tries. Stefan Nilsson and Gunnar Karlsson
  * IEEE Journal on Selected Areas in Communications, 17(6):1083-1092, June 1999
  *
+<<<<<<< HEAD
  *
  * Code from fib_hash has been reused which includes the following header:
  *
  *
+=======
+ * Code from fib_hash has been reused which includes the following header:
+ *
+>>>>>>> upstream/android-13
  * INET		An implementation of the TCP/IP protocol suite for the LINUX
  *		operating system.  INET is implemented using the  BSD Socket
  *		interface as the means of communication with the user level.
  *
  *		IPv4 FIB: lookup engine and maintenance routines.
  *
+<<<<<<< HEAD
  *
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *
@@ -40,6 +55,10 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+ * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
+ *
+>>>>>>> upstream/android-13
  * Substantial contributions to this work comes from:
  *
  *		David S. Miller, <davem@davemloft.net>
@@ -47,9 +66,12 @@
  *		Paul E. McKenney <paulmck@us.ibm.com>
  *		Patrick McHardy <kaber@trash.net>
  */
+<<<<<<< HEAD
 
 #define VERSION "0.409"
 
+=======
+>>>>>>> upstream/android-13
 #include <linux/cache.h>
 #include <linux/uaccess.h>
 #include <linux/bitops.h>
@@ -86,11 +108,21 @@
 #include <trace/events/fib.h>
 #include "fib_lookup.h"
 
+<<<<<<< HEAD
 static int call_fib_entry_notifier(struct notifier_block *nb, struct net *net,
 				   enum fib_event_type event_type, u32 dst,
 				   int dst_len, struct fib_alias *fa)
 {
 	struct fib_entry_notifier_info info = {
+=======
+static int call_fib_entry_notifier(struct notifier_block *nb,
+				   enum fib_event_type event_type, u32 dst,
+				   int dst_len, struct fib_alias *fa,
+				   struct netlink_ext_ack *extack)
+{
+	struct fib_entry_notifier_info info = {
+		.info.extack = extack,
+>>>>>>> upstream/android-13
 		.dst = dst,
 		.dst_len = dst_len,
 		.fi = fa->fa_info,
@@ -98,7 +130,11 @@ static int call_fib_entry_notifier(struct notifier_block *nb, struct net *net,
 		.type = fa->fa_type,
 		.tb_id = fa->tb_id,
 	};
+<<<<<<< HEAD
 	return call_fib4_notifier(nb, net, event_type, &info.info);
+=======
+	return call_fib4_notifier(nb, event_type, &info.info);
+>>>>>>> upstream/android-13
 }
 
 static int call_fib_entry_notifiers(struct net *net,
@@ -183,6 +219,7 @@ struct trie {
 };
 
 static struct key_vector *resize(struct trie *t, struct key_vector *tn);
+<<<<<<< HEAD
 static size_t tnode_free_size;
 
 /*
@@ -191,6 +228,18 @@ static size_t tnode_free_size;
  * obtained experimentally, aiming to avoid visible slowdown.
  */
 static const int sync_pages = 128;
+=======
+static unsigned int tnode_free_size;
+
+/*
+ * synchronize_rcu after call_rcu for outstanding dirty memory; it should be
+ * especially useful before resizing the root node with PREEMPT_NONE configs;
+ * the value was obtained experimentally, aiming to avoid visible slowdown.
+ */
+unsigned int sysctl_fib_sync_mem = 512 * 1024;
+unsigned int sysctl_fib_sync_mem_min = 64 * 1024;
+unsigned int sysctl_fib_sync_mem_max = 64 * 1024 * 1024;
+>>>>>>> upstream/android-13
 
 static struct kmem_cache *fn_alias_kmem __ro_after_init;
 static struct kmem_cache *trie_leaf_kmem __ro_after_init;
@@ -312,8 +361,11 @@ static inline void alias_free_mem_rcu(struct fib_alias *fa)
 	call_rcu(&fa->rcu, __alias_free_mem);
 }
 
+<<<<<<< HEAD
 #define TNODE_KMALLOC_MAX \
 	ilog2((PAGE_SIZE - TNODE_SIZE(0)) / sizeof(struct key_vector *))
+=======
+>>>>>>> upstream/android-13
 #define TNODE_VMALLOC_MAX \
 	ilog2((SIZE_MAX - TNODE_SIZE(0)) / sizeof(struct key_vector *))
 
@@ -348,12 +400,26 @@ static struct tnode *tnode_alloc(int bits)
 
 static inline void empty_child_inc(struct key_vector *n)
 {
+<<<<<<< HEAD
 	++tn_info(n)->empty_children ? : ++tn_info(n)->full_children;
+=======
+	tn_info(n)->empty_children++;
+
+	if (!tn_info(n)->empty_children)
+		tn_info(n)->full_children++;
+>>>>>>> upstream/android-13
 }
 
 static inline void empty_child_dec(struct key_vector *n)
 {
+<<<<<<< HEAD
 	tn_info(n)->empty_children-- ? : tn_info(n)->full_children--;
+=======
+	if (!tn_info(n)->empty_children)
+		tn_info(n)->full_children--;
+
+	tn_info(n)->empty_children--;
+>>>>>>> upstream/android-13
 }
 
 static struct key_vector *leaf_new(t_key key, struct fib_alias *fa)
@@ -504,7 +570,11 @@ static void tnode_free(struct key_vector *tn)
 		tn = container_of(head, struct tnode, rcu)->kv;
 	}
 
+<<<<<<< HEAD
 	if (tnode_free_size >= PAGE_SIZE * sync_pages) {
+=======
+	if (tnode_free_size >= sysctl_fib_sync_mem) {
+>>>>>>> upstream/android-13
 		tnode_free_size = 0;
 		synchronize_rcu();
 	}
@@ -982,9 +1052,18 @@ static struct key_vector *fib_find_node(struct trie *t,
 
 /* Return the first fib alias matching TOS with
  * priority less than or equal to PRIO.
+<<<<<<< HEAD
  */
 static struct fib_alias *fib_find_alias(struct hlist_head *fah, u8 slen,
 					u8 tos, u32 prio, u32 tb_id)
+=======
+ * If 'find_first' is set, return the first matching
+ * fib alias, regardless of TOS and priority.
+ */
+static struct fib_alias *fib_find_alias(struct hlist_head *fah, u8 slen,
+					u8 tos, u32 prio, u32 tb_id,
+					bool find_first)
+>>>>>>> upstream/android-13
 {
 	struct fib_alias *fa;
 
@@ -1000,6 +1079,11 @@ static struct fib_alias *fib_find_alias(struct hlist_head *fah, u8 slen,
 			continue;
 		if (fa->tb_id != tb_id)
 			break;
+<<<<<<< HEAD
+=======
+		if (find_first)
+			return fa;
+>>>>>>> upstream/android-13
 		if (fa->fa_tos > tos)
 			continue;
 		if (fa->fa_info->fib_priority >= prio || fa->fa_tos < tos)
@@ -1009,6 +1093,94 @@ static struct fib_alias *fib_find_alias(struct hlist_head *fah, u8 slen,
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
+static struct fib_alias *
+fib_find_matching_alias(struct net *net, const struct fib_rt_info *fri)
+{
+	u8 slen = KEYLENGTH - fri->dst_len;
+	struct key_vector *l, *tp;
+	struct fib_table *tb;
+	struct fib_alias *fa;
+	struct trie *t;
+
+	tb = fib_get_table(net, fri->tb_id);
+	if (!tb)
+		return NULL;
+
+	t = (struct trie *)tb->tb_data;
+	l = fib_find_node(t, &tp, be32_to_cpu(fri->dst));
+	if (!l)
+		return NULL;
+
+	hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
+		if (fa->fa_slen == slen && fa->tb_id == fri->tb_id &&
+		    fa->fa_tos == fri->tos && fa->fa_info == fri->fi &&
+		    fa->fa_type == fri->type)
+			return fa;
+	}
+
+	return NULL;
+}
+
+void fib_alias_hw_flags_set(struct net *net, const struct fib_rt_info *fri)
+{
+	struct fib_alias *fa_match;
+	struct sk_buff *skb;
+	int err;
+
+	rcu_read_lock();
+
+	fa_match = fib_find_matching_alias(net, fri);
+	if (!fa_match)
+		goto out;
+
+	/* These are paired with the WRITE_ONCE() happening in this function.
+	 * The reason is that we are only protected by RCU at this point.
+	 */
+	if (READ_ONCE(fa_match->offload) == fri->offload &&
+	    READ_ONCE(fa_match->trap) == fri->trap &&
+	    READ_ONCE(fa_match->offload_failed) == fri->offload_failed)
+		goto out;
+
+	WRITE_ONCE(fa_match->offload, fri->offload);
+	WRITE_ONCE(fa_match->trap, fri->trap);
+
+	/* 2 means send notifications only if offload_failed was changed. */
+	if (net->ipv4.sysctl_fib_notify_on_flag_change == 2 &&
+	    READ_ONCE(fa_match->offload_failed) == fri->offload_failed)
+		goto out;
+
+	WRITE_ONCE(fa_match->offload_failed, fri->offload_failed);
+
+	if (!net->ipv4.sysctl_fib_notify_on_flag_change)
+		goto out;
+
+	skb = nlmsg_new(fib_nlmsg_size(fa_match->fa_info), GFP_ATOMIC);
+	if (!skb) {
+		err = -ENOBUFS;
+		goto errout;
+	}
+
+	err = fib_dump_info(skb, 0, 0, RTM_NEWROUTE, fri, 0);
+	if (err < 0) {
+		/* -EMSGSIZE implies BUG in fib_nlmsg_size() */
+		WARN_ON(err == -EMSGSIZE);
+		kfree_skb(skb);
+		goto errout;
+	}
+
+	rtnl_notify(skb, net, 0, RTNLGRP_IPV4_ROUTE, NULL, GFP_ATOMIC);
+	goto out;
+
+errout:
+	rtnl_set_sk_err(net, RTNLGRP_IPV4_ROUTE, err);
+out:
+	rcu_read_unlock();
+}
+EXPORT_SYMBOL_GPL(fib_alias_hw_flags_set);
+
+>>>>>>> upstream/android-13
 static void trie_rebalance(struct trie *t, struct key_vector *tn)
 {
 	while (!IS_TRIE(tn))
@@ -1065,9 +1237,12 @@ noleaf:
 	return -ENOMEM;
 }
 
+<<<<<<< HEAD
 /* fib notifier for ADD is sent before calling fib_insert_alias with
  * the expectation that the only possible failure ENOMEM
  */
+=======
+>>>>>>> upstream/android-13
 static int fib_insert_alias(struct trie *t, struct key_vector *tp,
 			    struct key_vector *l, struct fib_alias *new,
 			    struct fib_alias *fa, t_key key)
@@ -1120,11 +1295,20 @@ static bool fib_valid_key_len(u32 key, u8 plen, struct netlink_ext_ack *extack)
 	return true;
 }
 
+<<<<<<< HEAD
+=======
+static void fib_remove_alias(struct trie *t, struct key_vector *tp,
+			     struct key_vector *l, struct fib_alias *old);
+
+>>>>>>> upstream/android-13
 /* Caller must hold RTNL. */
 int fib_table_insert(struct net *net, struct fib_table *tb,
 		     struct fib_config *cfg, struct netlink_ext_ack *extack)
 {
+<<<<<<< HEAD
 	enum fib_event_type event = FIB_EVENT_ENTRY_ADD;
+=======
+>>>>>>> upstream/android-13
 	struct trie *t = (struct trie *)tb->tb_data;
 	struct fib_alias *fa, *new_fa;
 	struct key_vector *l, *tp;
@@ -1151,7 +1335,11 @@ int fib_table_insert(struct net *net, struct fib_table *tb,
 
 	l = fib_find_node(t, &tp, key);
 	fa = l ? fib_find_alias(&l->leaf, slen, tos, fi->fib_priority,
+<<<<<<< HEAD
 				tb->tb_id) : NULL;
+=======
+				tb->tb_id, false) : NULL;
+>>>>>>> upstream/android-13
 
 	/* Now fa, if non-NULL, points to the first fib alias
 	 * with the same keys [prefix,tos,priority], if such key already
@@ -1218,6 +1406,7 @@ int fib_table_insert(struct net *net, struct fib_table *tb,
 			new_fa->fa_slen = fa->fa_slen;
 			new_fa->tb_id = tb->tb_id;
 			new_fa->fa_default = -1;
+<<<<<<< HEAD
 
 			err = call_fib_entry_notifiers(net,
 						       FIB_EVENT_ENTRY_REPLACE,
@@ -1225,12 +1414,37 @@ int fib_table_insert(struct net *net, struct fib_table *tb,
 						       extack);
 			if (err)
 				goto out_free_new_fa;
+=======
+			new_fa->offload = 0;
+			new_fa->trap = 0;
+			new_fa->offload_failed = 0;
+
+			hlist_replace_rcu(&fa->fa_list, &new_fa->fa_list);
+
+			if (fib_find_alias(&l->leaf, fa->fa_slen, 0, 0,
+					   tb->tb_id, true) == new_fa) {
+				enum fib_event_type fib_event;
+
+				fib_event = FIB_EVENT_ENTRY_REPLACE;
+				err = call_fib_entry_notifiers(net, fib_event,
+							       key, plen,
+							       new_fa, extack);
+				if (err) {
+					hlist_replace_rcu(&new_fa->fa_list,
+							  &fa->fa_list);
+					goto out_free_new_fa;
+				}
+			}
+>>>>>>> upstream/android-13
 
 			rtmsg_fib(RTM_NEWROUTE, htonl(key), new_fa, plen,
 				  tb->tb_id, &cfg->fc_nlinfo, nlflags);
 
+<<<<<<< HEAD
 			hlist_replace_rcu(&fa->fa_list, &new_fa->fa_list);
 
+=======
+>>>>>>> upstream/android-13
 			alias_free_mem_rcu(fa);
 
 			fib_release_info(fi_drop);
@@ -1246,12 +1460,19 @@ int fib_table_insert(struct net *net, struct fib_table *tb,
 		if (fa_match)
 			goto out;
 
+<<<<<<< HEAD
 		if (cfg->fc_nlflags & NLM_F_APPEND) {
 			event = FIB_EVENT_ENTRY_APPEND;
 			nlflags |= NLM_F_APPEND;
 		} else {
 			fa = fa_first;
 		}
+=======
+		if (cfg->fc_nlflags & NLM_F_APPEND)
+			nlflags |= NLM_F_APPEND;
+		else
+			fa = fa_first;
+>>>>>>> upstream/android-13
 	}
 	err = -ENOENT;
 	if (!(cfg->fc_nlflags & NLM_F_CREATE))
@@ -1270,15 +1491,41 @@ int fib_table_insert(struct net *net, struct fib_table *tb,
 	new_fa->fa_slen = slen;
 	new_fa->tb_id = tb->tb_id;
 	new_fa->fa_default = -1;
+<<<<<<< HEAD
 
 	err = call_fib_entry_notifiers(net, event, key, plen, new_fa, extack);
 	if (err)
 		goto out_free_new_fa;
+=======
+	new_fa->offload = 0;
+	new_fa->trap = 0;
+	new_fa->offload_failed = 0;
+>>>>>>> upstream/android-13
 
 	/* Insert new entry to the list. */
 	err = fib_insert_alias(t, tp, l, new_fa, fa, key);
 	if (err)
+<<<<<<< HEAD
 		goto out_fib_notif;
+=======
+		goto out_free_new_fa;
+
+	/* The alias was already inserted, so the node must exist. */
+	l = l ? l : fib_find_node(t, &tp, key);
+	if (WARN_ON_ONCE(!l))
+		goto out_free_new_fa;
+
+	if (fib_find_alias(&l->leaf, new_fa->fa_slen, 0, 0, tb->tb_id, true) ==
+	    new_fa) {
+		enum fib_event_type fib_event;
+
+		fib_event = FIB_EVENT_ENTRY_REPLACE;
+		err = call_fib_entry_notifiers(net, fib_event, key, plen,
+					       new_fa, extack);
+		if (err)
+			goto out_remove_new_fa;
+	}
+>>>>>>> upstream/android-13
 
 	if (!plen)
 		tb->tb_num_default++;
@@ -1289,6 +1536,7 @@ int fib_table_insert(struct net *net, struct fib_table *tb,
 succeeded:
 	return 0;
 
+<<<<<<< HEAD
 out_fib_notif:
 	/* notifier was sent that entry would be added to trie, but
 	 * the add failed and need to recover. Only failure for
@@ -1297,6 +1545,10 @@ out_fib_notif:
 	NL_SET_ERR_MSG(extack, "Failed to insert route into trie");
 	call_fib_entry_notifiers(net, FIB_EVENT_ENTRY_DEL, key,
 				 plen, new_fa, NULL);
+=======
+out_remove_new_fa:
+	fib_remove_alias(t, tp, l, new_fa);
+>>>>>>> upstream/android-13
 out_free_new_fa:
 	kmem_cache_free(fn_alias_kmem, new_fa);
 out:
@@ -1312,6 +1564,29 @@ static inline t_key prefix_mismatch(t_key key, struct key_vector *n)
 	return (key ^ prefix) & (prefix | -prefix);
 }
 
+<<<<<<< HEAD
+=======
+bool fib_lookup_good_nhc(const struct fib_nh_common *nhc, int fib_flags,
+			 const struct flowi4 *flp)
+{
+	if (nhc->nhc_flags & RTNH_F_DEAD)
+		return false;
+
+	if (ip_ignore_linkdown(nhc->nhc_dev) &&
+	    nhc->nhc_flags & RTNH_F_LINKDOWN &&
+	    !(fib_flags & FIB_LOOKUP_IGNORE_LINKSTATE))
+		return false;
+
+	if (!(flp->flowi4_flags & FLOWI_FLAG_SKIP_NH_OIF)) {
+		if (flp->flowi4_oif &&
+		    flp->flowi4_oif != nhc->nhc_oif)
+			return false;
+	}
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /* should be called with rcu_read_lock */
 int fib_table_lookup(struct fib_table *tb, const struct flowi4 *flp,
 		     struct fib_result *res, int fib_flags)
@@ -1444,6 +1719,10 @@ found:
 	/* Step 3: Process the leaf, if that fails fall back to backtracing */
 	hlist_for_each_entry_rcu(fa, &n->leaf, fa_list) {
 		struct fib_info *fi = fa->fa_info;
+<<<<<<< HEAD
+=======
+		struct fib_nh_common *nhc;
+>>>>>>> upstream/android-13
 		int nhsel, err;
 
 		if ((BITS_PER_LONG > KEYLENGTH) || (fa->fa_slen < KEYLENGTH)) {
@@ -1459,6 +1738,10 @@ found:
 		fib_alias_accessed(fa);
 		err = fib_props[fa->fa_type].error;
 		if (unlikely(err < 0)) {
+<<<<<<< HEAD
+=======
+out_reject:
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IP_FIB_TRIE_STATS
 			this_cpu_inc(stats->semantic_match_passed);
 #endif
@@ -1467,6 +1750,7 @@ found:
 		}
 		if (fi->fib_flags & RTNH_F_DEAD)
 			continue;
+<<<<<<< HEAD
 		for (nhsel = 0; nhsel < fi->fib_nhs; nhsel++) {
 			const struct fib_nh *nh = &fi->fib_nh[nhsel];
 			struct in_device *in_dev = __in_dev_get_rcu(nh->nh_dev);
@@ -1484,12 +1768,38 @@ found:
 					continue;
 			}
 
+=======
+
+		if (unlikely(fi->nh)) {
+			if (nexthop_is_blackhole(fi->nh)) {
+				err = fib_props[RTN_BLACKHOLE].error;
+				goto out_reject;
+			}
+
+			nhc = nexthop_get_nhc_lookup(fi->nh, fib_flags, flp,
+						     &nhsel);
+			if (nhc)
+				goto set_result;
+			goto miss;
+		}
+
+		for (nhsel = 0; nhsel < fib_info_num_path(fi); nhsel++) {
+			nhc = fib_info_nhc(fi, nhsel);
+
+			if (!fib_lookup_good_nhc(nhc, fib_flags, flp))
+				continue;
+set_result:
+>>>>>>> upstream/android-13
 			if (!(fib_flags & FIB_LOOKUP_NOREF))
 				refcount_inc(&fi->fib_clntref);
 
 			res->prefix = htonl(n->key);
 			res->prefixlen = KEYLENGTH - fa->fa_slen;
 			res->nh_sel = nhsel;
+<<<<<<< HEAD
+=======
+			res->nhc = nhc;
+>>>>>>> upstream/android-13
 			res->type = fa->fa_type;
 			res->scope = fi->fib_scope;
 			res->fi = fi;
@@ -1498,11 +1808,19 @@ found:
 #ifdef CONFIG_IP_FIB_TRIE_STATS
 			this_cpu_inc(stats->semantic_match_passed);
 #endif
+<<<<<<< HEAD
 			trace_fib_table_lookup(tb->tb_id, flp, nh, err);
+=======
+			trace_fib_table_lookup(tb->tb_id, flp, nhc, err);
+>>>>>>> upstream/android-13
 
 			return err;
 		}
 	}
+<<<<<<< HEAD
+=======
+miss:
+>>>>>>> upstream/android-13
 #ifdef CONFIG_IP_FIB_TRIE_STATS
 	this_cpu_inc(stats->semantic_match_miss);
 #endif
@@ -1541,6 +1859,39 @@ static void fib_remove_alias(struct trie *t, struct key_vector *tp,
 	node_pull_suffix(tp, fa->fa_slen);
 }
 
+<<<<<<< HEAD
+=======
+static void fib_notify_alias_delete(struct net *net, u32 key,
+				    struct hlist_head *fah,
+				    struct fib_alias *fa_to_delete,
+				    struct netlink_ext_ack *extack)
+{
+	struct fib_alias *fa_next, *fa_to_notify;
+	u32 tb_id = fa_to_delete->tb_id;
+	u8 slen = fa_to_delete->fa_slen;
+	enum fib_event_type fib_event;
+
+	/* Do not notify if we do not care about the route. */
+	if (fib_find_alias(fah, slen, 0, 0, tb_id, true) != fa_to_delete)
+		return;
+
+	/* Determine if the route should be replaced by the next route in the
+	 * list.
+	 */
+	fa_next = hlist_entry_safe(fa_to_delete->fa_list.next,
+				   struct fib_alias, fa_list);
+	if (fa_next && fa_next->fa_slen == slen && fa_next->tb_id == tb_id) {
+		fib_event = FIB_EVENT_ENTRY_REPLACE;
+		fa_to_notify = fa_next;
+	} else {
+		fib_event = FIB_EVENT_ENTRY_DEL;
+		fa_to_notify = fa_to_delete;
+	}
+	call_fib_entry_notifiers(net, fib_event, key, KEYLENGTH - slen,
+				 fa_to_notify, extack);
+}
+
+>>>>>>> upstream/android-13
 /* Caller must hold RTNL. */
 int fib_table_delete(struct net *net, struct fib_table *tb,
 		     struct fib_config *cfg, struct netlink_ext_ack *extack)
@@ -1562,7 +1913,11 @@ int fib_table_delete(struct net *net, struct fib_table *tb,
 	if (!l)
 		return -ESRCH;
 
+<<<<<<< HEAD
 	fa = fib_find_alias(&l->leaf, slen, tos, 0, tb->tb_id);
+=======
+	fa = fib_find_alias(&l->leaf, slen, tos, 0, tb->tb_id, false);
+>>>>>>> upstream/android-13
 	if (!fa)
 		return -ESRCH;
 
@@ -1584,7 +1939,11 @@ int fib_table_delete(struct net *net, struct fib_table *tb,
 		     fi->fib_prefsrc == cfg->fc_prefsrc) &&
 		    (!cfg->fc_protocol ||
 		     fi->fib_protocol == cfg->fc_protocol) &&
+<<<<<<< HEAD
 		    fib_nh_match(cfg, fi, extack) == 0 &&
+=======
+		    fib_nh_match(net, cfg, fi, extack) == 0 &&
+>>>>>>> upstream/android-13
 		    fib_metrics_match(cfg, fi)) {
 			fa_to_delete = fa;
 			break;
@@ -1594,8 +1953,12 @@ int fib_table_delete(struct net *net, struct fib_table *tb,
 	if (!fa_to_delete)
 		return -ESRCH;
 
+<<<<<<< HEAD
 	call_fib_entry_notifiers(net, FIB_EVENT_ENTRY_DEL, key, plen,
 				 fa_to_delete, extack);
+=======
+	fib_notify_alias_delete(net, key, &l->leaf, fa_to_delete, extack);
+>>>>>>> upstream/android-13
 	rtmsg_fib(RTM_DELROUTE, htonl(key), fa_to_delete, plen, tb->tb_id,
 		  &cfg->fc_nlinfo, 0);
 
@@ -1919,10 +2282,15 @@ int fib_table_flush(struct net *net, struct fib_table *tb, bool flush_all)
 				continue;
 			}
 
+<<<<<<< HEAD
 			call_fib_entry_notifiers(net, FIB_EVENT_ENTRY_DEL,
 						 n->key,
 						 KEYLENGTH - fa->fa_slen, fa,
 						 NULL);
+=======
+			fib_notify_alias_delete(net, n->key, &n->leaf, fa,
+						NULL);
+>>>>>>> upstream/android-13
 			hlist_del_rcu(&fa->fa_list);
 			fib_release_info(fa->fa_info);
 			alias_free_mem_rcu(fa);
@@ -1942,10 +2310,83 @@ int fib_table_flush(struct net *net, struct fib_table *tb, bool flush_all)
 	return found;
 }
 
+<<<<<<< HEAD
 static void fib_leaf_notify(struct net *net, struct key_vector *l,
 			    struct fib_table *tb, struct notifier_block *nb)
 {
 	struct fib_alias *fa;
+=======
+/* derived from fib_trie_free */
+static void __fib_info_notify_update(struct net *net, struct fib_table *tb,
+				     struct nl_info *info)
+{
+	struct trie *t = (struct trie *)tb->tb_data;
+	struct key_vector *pn = t->kv;
+	unsigned long cindex = 1;
+	struct fib_alias *fa;
+
+	for (;;) {
+		struct key_vector *n;
+
+		if (!(cindex--)) {
+			t_key pkey = pn->key;
+
+			if (IS_TRIE(pn))
+				break;
+
+			pn = node_parent(pn);
+			cindex = get_index(pkey, pn);
+			continue;
+		}
+
+		/* grab the next available node */
+		n = get_child(pn, cindex);
+		if (!n)
+			continue;
+
+		if (IS_TNODE(n)) {
+			/* record pn and cindex for leaf walking */
+			pn = n;
+			cindex = 1ul << n->bits;
+
+			continue;
+		}
+
+		hlist_for_each_entry(fa, &n->leaf, fa_list) {
+			struct fib_info *fi = fa->fa_info;
+
+			if (!fi || !fi->nh_updated || fa->tb_id != tb->tb_id)
+				continue;
+
+			rtmsg_fib(RTM_NEWROUTE, htonl(n->key), fa,
+				  KEYLENGTH - fa->fa_slen, tb->tb_id,
+				  info, NLM_F_REPLACE);
+		}
+	}
+}
+
+void fib_info_notify_update(struct net *net, struct nl_info *info)
+{
+	unsigned int h;
+
+	for (h = 0; h < FIB_TABLE_HASHSZ; h++) {
+		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
+		struct fib_table *tb;
+
+		hlist_for_each_entry_rcu(tb, head, tb_hlist,
+					 lockdep_rtnl_is_held())
+			__fib_info_notify_update(net, tb, info);
+	}
+}
+
+static int fib_leaf_notify(struct key_vector *l, struct fib_table *tb,
+			   struct notifier_block *nb,
+			   struct netlink_ext_ack *extack)
+{
+	struct fib_alias *fa;
+	int last_slen = -1;
+	int err;
+>>>>>>> upstream/android-13
 
 	hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
 		struct fib_info *fi = fa->fa_info;
@@ -1959,6 +2400,7 @@ static void fib_leaf_notify(struct net *net, struct key_vector *l,
 		if (tb->tb_id != fa->tb_id)
 			continue;
 
+<<<<<<< HEAD
 		call_fib_entry_notifier(nb, net, FIB_EVENT_ENTRY_ADD, l->key,
 					KEYLENGTH - fa->fa_slen, fa);
 	}
@@ -1966,32 +2408,79 @@ static void fib_leaf_notify(struct net *net, struct key_vector *l,
 
 static void fib_table_notify(struct net *net, struct fib_table *tb,
 			     struct notifier_block *nb)
+=======
+		if (fa->fa_slen == last_slen)
+			continue;
+
+		last_slen = fa->fa_slen;
+		err = call_fib_entry_notifier(nb, FIB_EVENT_ENTRY_REPLACE,
+					      l->key, KEYLENGTH - fa->fa_slen,
+					      fa, extack);
+		if (err)
+			return err;
+	}
+	return 0;
+}
+
+static int fib_table_notify(struct fib_table *tb, struct notifier_block *nb,
+			    struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct trie *t = (struct trie *)tb->tb_data;
 	struct key_vector *l, *tp = t->kv;
 	t_key key = 0;
+<<<<<<< HEAD
 
 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
 		fib_leaf_notify(net, l, tb, nb);
+=======
+	int err;
+
+	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
+		err = fib_leaf_notify(l, tb, nb, extack);
+		if (err)
+			return err;
+>>>>>>> upstream/android-13
 
 		key = l->key + 1;
 		/* stop in case of wrap around */
 		if (key < l->key)
 			break;
 	}
+<<<<<<< HEAD
 }
 
 void fib_notify(struct net *net, struct notifier_block *nb)
 {
 	unsigned int h;
+=======
+	return 0;
+}
+
+int fib_notify(struct net *net, struct notifier_block *nb,
+	       struct netlink_ext_ack *extack)
+{
+	unsigned int h;
+	int err;
+>>>>>>> upstream/android-13
 
 	for (h = 0; h < FIB_TABLE_HASHSZ; h++) {
 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
 		struct fib_table *tb;
 
+<<<<<<< HEAD
 		hlist_for_each_entry_rcu(tb, head, tb_hlist)
 			fib_table_notify(net, tb, nb);
 	}
+=======
+		hlist_for_each_entry_rcu(tb, head, tb_hlist) {
+			err = fib_table_notify(tb, nb, extack);
+			if (err)
+				return err;
+		}
+	}
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void __trie_free_rcu(struct rcu_head *head)
@@ -2012,6 +2501,7 @@ void fib_free_table(struct fib_table *tb)
 }
 
 static int fn_trie_dump_leaf(struct key_vector *l, struct fib_table *tb,
+<<<<<<< HEAD
 			     struct sk_buff *skb, struct netlink_callback *cb)
 {
 	__be32 xkey = htonl(l->key);
@@ -2019,10 +2509,27 @@ static int fn_trie_dump_leaf(struct key_vector *l, struct fib_table *tb,
 	int i, s_i;
 
 	s_i = cb->args[4];
+=======
+			     struct sk_buff *skb, struct netlink_callback *cb,
+			     struct fib_dump_filter *filter)
+{
+	unsigned int flags = NLM_F_MULTI;
+	__be32 xkey = htonl(l->key);
+	int i, s_i, i_fa, s_fa, err;
+	struct fib_alias *fa;
+
+	if (filter->filter_set ||
+	    !filter->dump_exceptions || !filter->dump_routes)
+		flags |= NLM_F_DUMP_FILTERED;
+
+	s_i = cb->args[4];
+	s_fa = cb->args[5];
+>>>>>>> upstream/android-13
 	i = 0;
 
 	/* rcu_read_lock is hold by caller */
 	hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
+<<<<<<< HEAD
 		int err;
 
 		if (i < s_i) {
@@ -2044,16 +2551,85 @@ static int fn_trie_dump_leaf(struct key_vector *l, struct fib_table *tb,
 			cb->args[4] = i;
 			return err;
 		}
+=======
+		struct fib_info *fi = fa->fa_info;
+
+		if (i < s_i)
+			goto next;
+
+		i_fa = 0;
+
+		if (tb->tb_id != fa->tb_id)
+			goto next;
+
+		if (filter->filter_set) {
+			if (filter->rt_type && fa->fa_type != filter->rt_type)
+				goto next;
+
+			if ((filter->protocol &&
+			     fi->fib_protocol != filter->protocol))
+				goto next;
+
+			if (filter->dev &&
+			    !fib_info_nh_uses_dev(fi, filter->dev))
+				goto next;
+		}
+
+		if (filter->dump_routes) {
+			if (!s_fa) {
+				struct fib_rt_info fri;
+
+				fri.fi = fi;
+				fri.tb_id = tb->tb_id;
+				fri.dst = xkey;
+				fri.dst_len = KEYLENGTH - fa->fa_slen;
+				fri.tos = fa->fa_tos;
+				fri.type = fa->fa_type;
+				fri.offload = READ_ONCE(fa->offload);
+				fri.trap = READ_ONCE(fa->trap);
+				fri.offload_failed = READ_ONCE(fa->offload_failed);
+				err = fib_dump_info(skb,
+						    NETLINK_CB(cb->skb).portid,
+						    cb->nlh->nlmsg_seq,
+						    RTM_NEWROUTE, &fri, flags);
+				if (err < 0)
+					goto stop;
+			}
+
+			i_fa++;
+		}
+
+		if (filter->dump_exceptions) {
+			err = fib_dump_info_fnhe(skb, cb, tb->tb_id, fi,
+						 &i_fa, s_fa, flags);
+			if (err < 0)
+				goto stop;
+		}
+
+next:
+>>>>>>> upstream/android-13
 		i++;
 	}
 
 	cb->args[4] = i;
 	return skb->len;
+<<<<<<< HEAD
+=======
+
+stop:
+	cb->args[4] = i;
+	cb->args[5] = i_fa;
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /* rcu_read_lock needs to be hold by caller from readside */
 int fib_table_dump(struct fib_table *tb, struct sk_buff *skb,
+<<<<<<< HEAD
 		   struct netlink_callback *cb)
+=======
+		   struct netlink_callback *cb, struct fib_dump_filter *filter)
+>>>>>>> upstream/android-13
 {
 	struct trie *t = (struct trie *)tb->tb_data;
 	struct key_vector *l, *tp = t->kv;
@@ -2063,10 +2639,23 @@ int fib_table_dump(struct fib_table *tb, struct sk_buff *skb,
 	int count = cb->args[2];
 	t_key key = cb->args[3];
 
+<<<<<<< HEAD
 	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
 		int err;
 
 		err = fn_trie_dump_leaf(l, tb, skb, cb);
+=======
+	/* First time here, count and key are both always 0. Count > 0
+	 * and key == 0 means the dump has wrapped around and we are done.
+	 */
+	if (count && !key)
+		return skb->len;
+
+	while ((l = leaf_walk_rcu(&tp, key)) != NULL) {
+		int err;
+
+		err = fn_trie_dump_leaf(l, tb, skb, cb, filter);
+>>>>>>> upstream/android-13
 		if (err < 0) {
 			cb->args[3] = key;
 			cb->args[2] = count;
@@ -2094,11 +2683,19 @@ void __init fib_trie_init(void)
 {
 	fn_alias_kmem = kmem_cache_create("ip_fib_alias",
 					  sizeof(struct fib_alias),
+<<<<<<< HEAD
 					  0, SLAB_PANIC, NULL);
 
 	trie_leaf_kmem = kmem_cache_create("ip_fib_trie",
 					   LEAF_SIZE,
 					   0, SLAB_PANIC, NULL);
+=======
+					  0, SLAB_PANIC | SLAB_ACCOUNT, NULL);
+
+	trie_leaf_kmem = kmem_cache_create("ip_fib_trie",
+					   LEAF_SIZE,
+					   0, SLAB_PANIC | SLAB_ACCOUNT, NULL);
+>>>>>>> upstream/android-13
 }
 
 struct fib_table *fib_trie_table(u32 id, struct fib_table *alias)
@@ -2633,14 +3230,27 @@ static void fib_route_seq_stop(struct seq_file *seq, void *v)
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 static unsigned int fib_flag_trans(int type, __be32 mask, const struct fib_info *fi)
+=======
+static unsigned int fib_flag_trans(int type, __be32 mask, struct fib_info *fi)
+>>>>>>> upstream/android-13
 {
 	unsigned int flags = 0;
 
 	if (type == RTN_UNREACHABLE || type == RTN_PROHIBIT)
 		flags = RTF_REJECT;
+<<<<<<< HEAD
 	if (fi && fi->fib_nh->nh_gw)
 		flags |= RTF_GATEWAY;
+=======
+	if (fi) {
+		const struct fib_nh_common *nhc = fib_info_nhc(fi, 0);
+
+		if (nhc->nhc_gw.ipv4)
+			flags |= RTF_GATEWAY;
+	}
+>>>>>>> upstream/android-13
 	if (mask == htonl(0xFFFFFFFF))
 		flags |= RTF_HOST;
 	flags |= RTF_UP;
@@ -2671,7 +3281,11 @@ static int fib_route_seq_show(struct seq_file *seq, void *v)
 	prefix = htonl(l->key);
 
 	hlist_for_each_entry_rcu(fa, &l->leaf, fa_list) {
+<<<<<<< HEAD
 		const struct fib_info *fi = fa->fa_info;
+=======
+		struct fib_info *fi = fa->fa_info;
+>>>>>>> upstream/android-13
 		__be32 mask = inet_make_mask(KEYLENGTH - fa->fa_slen);
 		unsigned int flags = fib_flag_trans(fa->fa_type, mask, fi);
 
@@ -2684,6 +3298,7 @@ static int fib_route_seq_show(struct seq_file *seq, void *v)
 
 		seq_setwidth(seq, 127);
 
+<<<<<<< HEAD
 		if (fi)
 			seq_printf(seq,
 				   "%s\t%08X\t%08X\t%04X\t%d\t%u\t"
@@ -2691,19 +3306,41 @@ static int fib_route_seq_show(struct seq_file *seq, void *v)
 				   fi->fib_dev ? fi->fib_dev->name : "*",
 				   prefix,
 				   fi->fib_nh->nh_gw, flags, 0, 0,
+=======
+		if (fi) {
+			struct fib_nh_common *nhc = fib_info_nhc(fi, 0);
+			__be32 gw = 0;
+
+			if (nhc->nhc_gw_family == AF_INET)
+				gw = nhc->nhc_gw.ipv4;
+
+			seq_printf(seq,
+				   "%s\t%08X\t%08X\t%04X\t%d\t%u\t"
+				   "%d\t%08X\t%d\t%u\t%u",
+				   nhc->nhc_dev ? nhc->nhc_dev->name : "*",
+				   prefix, gw, flags, 0, 0,
+>>>>>>> upstream/android-13
 				   fi->fib_priority,
 				   mask,
 				   (fi->fib_advmss ?
 				    fi->fib_advmss + 40 : 0),
 				   fi->fib_window,
 				   fi->fib_rtt >> 3);
+<<<<<<< HEAD
 		else
+=======
+		} else {
+>>>>>>> upstream/android-13
 			seq_printf(seq,
 				   "*\t%08X\t%08X\t%04X\t%d\t%u\t"
 				   "%d\t%08X\t%d\t%u\t%u",
 				   prefix, 0, flags, 0, 0, 0,
 				   mask, 0, 0, 0);
+<<<<<<< HEAD
 
+=======
+		}
+>>>>>>> upstream/android-13
 		seq_pad(seq, '\n');
 	}
 

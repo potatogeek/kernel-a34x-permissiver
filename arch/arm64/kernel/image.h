@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Linker script macros to generate Image header fields.
  *
  * Copyright (C) 2014 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -17,11 +22,21 @@
  */
 #ifndef __ASM_IMAGE_H
 #define __ASM_IMAGE_H
+=======
+ */
+#ifndef __ARM64_KERNEL_IMAGE_H
+#define __ARM64_KERNEL_IMAGE_H
+>>>>>>> upstream/android-13
 
 #ifndef LINKER_SCRIPT
 #error This file should only be included in vmlinux.lds.S
 #endif
 
+<<<<<<< HEAD
+=======
+#include <asm/image.h>
+
+>>>>>>> upstream/android-13
 /*
  * There aren't any ELF relocations we can use to endian-swap values known only
  * at link time (e.g. the subtraction of two symbol addresses), so we must get
@@ -47,19 +62,35 @@
 	sym##_lo32 = DATA_LE32((data) & 0xffffffff);		\
 	sym##_hi32 = DATA_LE32((data) >> 32)
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_BIG_ENDIAN
 #define __HEAD_FLAG_BE		1
 #else
 #define __HEAD_FLAG_BE		0
+=======
+#define __HEAD_FLAG(field)	(__HEAD_FLAG_##field << \
+					ARM64_IMAGE_FLAG_##field##_SHIFT)
+
+#ifdef CONFIG_CPU_BIG_ENDIAN
+#define __HEAD_FLAG_BE		ARM64_IMAGE_FLAG_BE
+#else
+#define __HEAD_FLAG_BE		ARM64_IMAGE_FLAG_LE
+>>>>>>> upstream/android-13
 #endif
 
 #define __HEAD_FLAG_PAGE_SIZE	((PAGE_SHIFT - 10) / 2)
 
 #define __HEAD_FLAG_PHYS_BASE	1
 
+<<<<<<< HEAD
 #define __HEAD_FLAGS		((__HEAD_FLAG_BE << 0) |	\
 				 (__HEAD_FLAG_PAGE_SIZE << 1) |	\
 				 (__HEAD_FLAG_PHYS_BASE << 3))
+=======
+#define __HEAD_FLAGS		(__HEAD_FLAG(BE)	| \
+				 __HEAD_FLAG(PAGE_SIZE) | \
+				 __HEAD_FLAG(PHYS_BASE))
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PROCA
 #define PROCA_CONF_OFFSET_IMAGE_LE64 \
@@ -75,6 +106,7 @@
  */
 #define HEAD_SYMBOLS						\
 	DEFINE_IMAGE_LE64(_kernel_size_le, _end - _text);	\
+<<<<<<< HEAD
 	DEFINE_IMAGE_LE64(_kernel_offset_le, TEXT_OFFSET);	\
 	DEFINE_IMAGE_LE64(_kernel_flags_le, __HEAD_FLAGS);	\
 	PROCA_CONF_OFFSET_IMAGE_LE64
@@ -122,3 +154,9 @@ __efistub_screen_info		= screen_info;
 #endif
 
 #endif /* __ASM_IMAGE_H */
+=======
+	DEFINE_IMAGE_LE64(_kernel_flags_le, __HEAD_FLAGS);	\
+	PROCA_CONF_OFFSET_IMAGE_LE64
+
+#endif /* __ARM64_KERNEL_IMAGE_H */
+>>>>>>> upstream/android-13

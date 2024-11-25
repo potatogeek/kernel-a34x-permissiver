@@ -42,7 +42,11 @@
 
 /*
  * Align JPEG header end to cache line to make sure we will not have any issues
+<<<<<<< HEAD
  * with cache; additionally to requerment (33.3.27 R01UH0501EJ0100 Rev.1.00)
+=======
+ * with cache; additionally to requirement (33.3.27 R01UH0501EJ0100 Rev.1.00)
+>>>>>>> upstream/android-13
  */
 #define JPU_JPEG_HDR_SIZE		(ALIGN(0x258, L1_CACHE_BYTES))
 #define JPU_JPEG_MAX_BYTES_PER_PIXEL	2	/* 16 bit precision format */
@@ -121,7 +125,11 @@
 #define JCCMD_JEND	(1 << 2)
 #define JCCMD_JSRT	(1 << 0)
 
+<<<<<<< HEAD
 /* JPEG code quantanization table number register */
+=======
+/* JPEG code quantization table number register */
+>>>>>>> upstream/android-13
 #define JCQTN	0x0c
 #define JCQTN_SHIFT(t)		(((t) - 1) << 1)
 
@@ -648,6 +656,10 @@ static u8 jpu_parse_hdr(void *buffer, unsigned long size, unsigned int *width,
 			if (get_word_be(&jpeg_buffer, &word))
 				return 0;
 			skip(&jpeg_buffer, (long)word - 2);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		case 0:
 			break;
 		default:
@@ -664,6 +676,7 @@ static int jpu_querycap(struct file *file, void *priv,
 	struct jpu_ctx *ctx = fh_to_ctx(priv);
 
 	if (ctx->encoder)
+<<<<<<< HEAD
 		strlcpy(cap->card, DRV_NAME " encoder", sizeof(cap->card));
 	else
 		strlcpy(cap->card, DRV_NAME " decoder", sizeof(cap->card));
@@ -673,6 +686,15 @@ static int jpu_querycap(struct file *file, void *priv,
 		 dev_name(ctx->jpu->dev));
 	cap->device_caps |= V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_M2M_MPLANE;
 	cap->capabilities = V4L2_CAP_DEVICE_CAPS | cap->device_caps;
+=======
+		strscpy(cap->card, DRV_NAME " encoder", sizeof(cap->card));
+	else
+		strscpy(cap->card, DRV_NAME " decoder", sizeof(cap->card));
+
+	strscpy(cap->driver, DRV_NAME, sizeof(cap->driver));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
+		 dev_name(ctx->jpu->dev));
+>>>>>>> upstream/android-13
 	memset(cap->reserved, 0, sizeof(cap->reserved));
 
 	return 0;
@@ -795,7 +817,10 @@ static int __jpu_try_fmt(struct jpu_ctx *ctx, struct jpu_fmt **fmtinfo,
 	pix->colorspace = fmt->colorspace;
 	pix->field = V4L2_FIELD_NONE;
 	pix->num_planes = fmt->num_planes;
+<<<<<<< HEAD
 	memset(pix->reserved, 0, sizeof(pix->reserved));
+=======
+>>>>>>> upstream/android-13
 
 	jpu_bound_align_image(&pix->width, JPU_WIDTH_MIN, JPU_WIDTH_MAX,
 			      fmt->h_align, &pix->height, JPU_HEIGHT_MIN,
@@ -810,8 +835,11 @@ static int __jpu_try_fmt(struct jpu_ctx *ctx, struct jpu_fmt **fmtinfo,
 			pix->plane_fmt[0].sizeimage = JPU_JPEG_HDR_SIZE +
 				(JPU_JPEG_MAX_BYTES_PER_PIXEL * w * h);
 		pix->plane_fmt[0].bytesperline = 0;
+<<<<<<< HEAD
 		memset(pix->plane_fmt[0].reserved, 0,
 		       sizeof(pix->plane_fmt[0].reserved));
+=======
+>>>>>>> upstream/android-13
 	} else {
 		unsigned int i, bpl = 0;
 
@@ -824,8 +852,11 @@ static int __jpu_try_fmt(struct jpu_ctx *ctx, struct jpu_fmt **fmtinfo,
 		for (i = 0; i < pix->num_planes; ++i) {
 			pix->plane_fmt[i].bytesperline = bpl;
 			pix->plane_fmt[i].sizeimage = bpl * h * fmt->bpp[i] / 8;
+<<<<<<< HEAD
 			memset(pix->plane_fmt[i].reserved, 0,
 			       sizeof(pix->plane_fmt[i].reserved));
+=======
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -948,8 +979,13 @@ static int jpu_streamon(struct file *file, void *priv, enum v4l2_buf_type type)
 static const struct v4l2_ioctl_ops jpu_ioctl_ops = {
 	.vidioc_querycap		= jpu_querycap,
 
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane = jpu_enum_fmt_cap,
 	.vidioc_enum_fmt_vid_out_mplane = jpu_enum_fmt_out,
+=======
+	.vidioc_enum_fmt_vid_cap	= jpu_enum_fmt_cap,
+	.vidioc_enum_fmt_vid_out	= jpu_enum_fmt_out,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_cap_mplane	= jpu_g_fmt,
 	.vidioc_g_fmt_vid_out_mplane	= jpu_g_fmt,
 	.vidioc_try_fmt_vid_cap_mplane	= jpu_try_fmt,
@@ -1068,7 +1104,11 @@ static int jpu_buf_prepare(struct vb2_buffer *vb)
 		}
 
 		/* decoder capture queue */
+<<<<<<< HEAD
 		if (!ctx->encoder && !V4L2_TYPE_IS_OUTPUT(vb->vb2_queue->type))
+=======
+		if (!ctx->encoder && V4L2_TYPE_IS_CAPTURE(vb->vb2_queue->type))
+>>>>>>> upstream/android-13
 			vb2_set_plane_payload(vb, i, size);
 	}
 
@@ -1650,11 +1690,19 @@ static int jpu_probe(struct platform_device *pdev)
 		goto device_register_rollback;
 	}
 
+<<<<<<< HEAD
 	/* fill in qantization and Huffman tables for encoder */
 	for (i = 0; i < JPU_MAX_QUALITY; i++)
 		jpu_generate_hdr(i, (unsigned char *)jpeg_hdrs[i]);
 
 	strlcpy(jpu->vfd_encoder.name, DRV_NAME, sizeof(jpu->vfd_encoder.name));
+=======
+	/* fill in quantization and Huffman tables for encoder */
+	for (i = 0; i < JPU_MAX_QUALITY; i++)
+		jpu_generate_hdr(i, (unsigned char *)jpeg_hdrs[i]);
+
+	strscpy(jpu->vfd_encoder.name, DRV_NAME, sizeof(jpu->vfd_encoder.name));
+>>>>>>> upstream/android-13
 	jpu->vfd_encoder.fops		= &jpu_fops;
 	jpu->vfd_encoder.ioctl_ops	= &jpu_ioctl_ops;
 	jpu->vfd_encoder.minor		= -1;
@@ -1662,8 +1710,15 @@ static int jpu_probe(struct platform_device *pdev)
 	jpu->vfd_encoder.lock		= &jpu->mutex;
 	jpu->vfd_encoder.v4l2_dev	= &jpu->v4l2_dev;
 	jpu->vfd_encoder.vfl_dir	= VFL_DIR_M2M;
+<<<<<<< HEAD
 
 	ret = video_register_device(&jpu->vfd_encoder, VFL_TYPE_GRABBER, -1);
+=======
+	jpu->vfd_encoder.device_caps	= V4L2_CAP_STREAMING |
+					  V4L2_CAP_VIDEO_M2M_MPLANE;
+
+	ret = video_register_device(&jpu->vfd_encoder, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		v4l2_err(&jpu->v4l2_dev, "Failed to register video device\n");
 		goto m2m_init_rollback;
@@ -1671,7 +1726,11 @@ static int jpu_probe(struct platform_device *pdev)
 
 	video_set_drvdata(&jpu->vfd_encoder, jpu);
 
+<<<<<<< HEAD
 	strlcpy(jpu->vfd_decoder.name, DRV_NAME, sizeof(jpu->vfd_decoder.name));
+=======
+	strscpy(jpu->vfd_decoder.name, DRV_NAME, sizeof(jpu->vfd_decoder.name));
+>>>>>>> upstream/android-13
 	jpu->vfd_decoder.fops		= &jpu_fops;
 	jpu->vfd_decoder.ioctl_ops	= &jpu_ioctl_ops;
 	jpu->vfd_decoder.minor		= -1;
@@ -1679,8 +1738,15 @@ static int jpu_probe(struct platform_device *pdev)
 	jpu->vfd_decoder.lock		= &jpu->mutex;
 	jpu->vfd_decoder.v4l2_dev	= &jpu->v4l2_dev;
 	jpu->vfd_decoder.vfl_dir	= VFL_DIR_M2M;
+<<<<<<< HEAD
 
 	ret = video_register_device(&jpu->vfd_decoder, VFL_TYPE_GRABBER, -1);
+=======
+	jpu->vfd_decoder.device_caps	= V4L2_CAP_STREAMING |
+					  V4L2_CAP_VIDEO_M2M_MPLANE;
+
+	ret = video_register_device(&jpu->vfd_decoder, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		v4l2_err(&jpu->v4l2_dev, "Failed to register video device\n");
 		goto enc_vdev_register_rollback;

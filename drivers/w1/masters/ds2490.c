@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	ds2490.c  USB to one wire bridge
  *
  * Copyright (c) 2004 Evgeniy Polyakov <zbr@ioremap.net>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -702,12 +709,29 @@ static void ds9490r_search(void *data, struct w1_master *master,
 	 * packet size.
 	 */
 	const size_t bufsize = 2 * 64;
+<<<<<<< HEAD
 	u64 *buf;
+=======
+	u64 *buf, *found_ids;
+>>>>>>> upstream/android-13
 
 	buf = kmalloc(bufsize, GFP_KERNEL);
 	if (!buf)
 		return;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * We are holding the bus mutex during the scan, but adding devices via the
+	 * callback needs the bus to be unlocked. So we queue up found ids here.
+	 */
+	found_ids = kmalloc_array(master->max_slave_count, sizeof(u64), GFP_KERNEL);
+	if (!found_ids) {
+		kfree(buf);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	mutex_lock(&master->bus_mutex);
 
 	/* address to start searching at */
@@ -743,6 +767,7 @@ static void ds9490r_search(void *data, struct w1_master *master,
 			if (err < 0)
 				break;
 			for (i = 0; i < err/8; ++i) {
+<<<<<<< HEAD
 				++found;
 				if (found <= search_limit)
 					callback(master, buf[i]);
@@ -750,6 +775,15 @@ static void ds9490r_search(void *data, struct w1_master *master,
 				 * value after until the next id */
 				if (found == search_limit)
 					master->search_id = buf[i];
+=======
+				found_ids[found++] = buf[i];
+				/* can't know if there will be a discrepancy
+				 * value after until the next id */
+				if (found == search_limit) {
+					master->search_id = buf[i];
+					break;
+				}
+>>>>>>> upstream/android-13
 			}
 		}
 
@@ -773,9 +807,20 @@ static void ds9490r_search(void *data, struct w1_master *master,
 			master->max_slave_count);
 		set_bit(W1_WARN_MAX_COUNT, &master->flags);
 	}
+<<<<<<< HEAD
 search_out:
 	mutex_unlock(&master->bus_mutex);
 	kfree(buf);
+=======
+
+search_out:
+	mutex_unlock(&master->bus_mutex);
+	kfree(buf);
+
+	for (i = 0; i < found; i++) /* run callback for all queued up IDs */
+		callback(master, found_ids[i]);
+	kfree(found_ids);
+>>>>>>> upstream/android-13
 }
 
 #if 0

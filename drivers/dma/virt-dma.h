@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Virtual DMA channel support for DMAengine
  *
  * Copyright (C) 2012 Russell King
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef VIRT_DMA_H
 #define VIRT_DMA_H
@@ -17,6 +24,10 @@
 
 struct virt_dma_desc {
 	struct dma_async_tx_descriptor tx;
+<<<<<<< HEAD
+=======
+	struct dmaengine_result tx_result;
+>>>>>>> upstream/android-13
 	/* protected by vc.lock */
 	struct list_head node;
 };
@@ -33,9 +44,15 @@ struct virt_dma_chan {
 	struct list_head desc_submitted;
 	struct list_head desc_issued;
 	struct list_head desc_completed;
+<<<<<<< HEAD
 
 	struct virt_dma_desc *cyclic;
 	struct virt_dma_desc *vd_terminated;
+=======
+	struct list_head desc_terminated;
+
+	struct virt_dma_desc *cyclic;
+>>>>>>> upstream/android-13
 };
 
 static inline struct virt_dma_chan *to_virt_chan(struct dma_chan *chan)
@@ -65,6 +82,12 @@ static inline struct dma_async_tx_descriptor *vchan_tx_prep(struct virt_dma_chan
 	vd->tx.tx_submit = vchan_tx_submit;
 	vd->tx.desc_free = vchan_tx_desc_free;
 
+<<<<<<< HEAD
+=======
+	vd->tx_result.result = DMA_TRANS_NOERROR;
+	vd->tx_result.residue = 0;
+
+>>>>>>> upstream/android-13
 	spin_lock_irqsave(&vc->lock, flags);
 	list_add_tail(&vd->node, &vc->desc_allocated);
 	spin_unlock_irqrestore(&vc->lock, flags);
@@ -112,10 +135,22 @@ static inline void vchan_vdesc_fini(struct virt_dma_desc *vd)
 {
 	struct virt_dma_chan *vc = to_virt_chan(vd->tx.chan);
 
+<<<<<<< HEAD
 	if (dmaengine_desc_test_reuse(&vd->tx))
 		list_add(&vd->node, &vc->desc_allocated);
 	else
 		vc->desc_free(vd);
+=======
+	if (dmaengine_desc_test_reuse(&vd->tx)) {
+		unsigned long flags;
+
+		spin_lock_irqsave(&vc->lock, flags);
+		list_add(&vd->node, &vc->desc_allocated);
+		spin_unlock_irqrestore(&vc->lock, flags);
+	} else {
+		vc->desc_free(vd);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -140,11 +175,16 @@ static inline void vchan_terminate_vdesc(struct virt_dma_desc *vd)
 {
 	struct virt_dma_chan *vc = to_virt_chan(vd->tx.chan);
 
+<<<<<<< HEAD
 	/* free up stuck descriptor */
 	if (vc->vd_terminated)
 		vchan_vdesc_fini(vc->vd_terminated);
 
 	vc->vd_terminated = vd;
+=======
+	list_add_tail(&vd->node, &vc->desc_terminated);
+
+>>>>>>> upstream/android-13
 	if (vc->cyclic == vd)
 		vc->cyclic = NULL;
 }
@@ -178,6 +218,10 @@ static inline void vchan_get_all_descriptors(struct virt_dma_chan *vc,
 	list_splice_tail_init(&vc->desc_submitted, head);
 	list_splice_tail_init(&vc->desc_issued, head);
 	list_splice_tail_init(&vc->desc_completed, head);
+<<<<<<< HEAD
+=======
+	list_splice_tail_init(&vc->desc_terminated, head);
+>>>>>>> upstream/android-13
 }
 
 static inline void vchan_free_chan_resources(struct virt_dma_chan *vc)
@@ -206,16 +250,29 @@ static inline void vchan_free_chan_resources(struct virt_dma_chan *vc)
  */
 static inline void vchan_synchronize(struct virt_dma_chan *vc)
 {
+<<<<<<< HEAD
+=======
+	LIST_HEAD(head);
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	tasklet_kill(&vc->task);
 
 	spin_lock_irqsave(&vc->lock, flags);
+<<<<<<< HEAD
 	if (vc->vd_terminated) {
 		vchan_vdesc_fini(vc->vd_terminated);
 		vc->vd_terminated = NULL;
 	}
 	spin_unlock_irqrestore(&vc->lock, flags);
+=======
+
+	list_splice_tail_init(&vc->desc_terminated, &head);
+
+	spin_unlock_irqrestore(&vc->lock, flags);
+
+	vchan_dma_desc_free_list(vc, &head);
+>>>>>>> upstream/android-13
 }
 
 #endif

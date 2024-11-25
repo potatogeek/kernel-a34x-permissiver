@@ -243,7 +243,10 @@ struct vfs_ns_cap_data {
 /* Allow examination and configuration of disk quotas */
 /* Allow setting the domainname */
 /* Allow setting the hostname */
+<<<<<<< HEAD
 /* Allow calling bdflush() */
+=======
+>>>>>>> upstream/android-13
 /* Allow mount() and umount(), setting up new smb connection */
 /* Allow some autofs root ioctls */
 /* Allow nfsservctl */
@@ -274,6 +277,10 @@ struct vfs_ns_cap_data {
    arbitrary SCSI commands */
 /* Allow setting encryption key on loopback filesystem */
 /* Allow setting zone reclaim policy */
+<<<<<<< HEAD
+=======
+/* Allow everything under CAP_BPF and CAP_PERFMON for backward compatibility */
+>>>>>>> upstream/android-13
 
 #define CAP_SYS_ADMIN        21
 
@@ -287,6 +294,11 @@ struct vfs_ns_cap_data {
    processes and setting the scheduling algorithm used by another
    process. */
 /* Allow setting cpu affinity on other processes */
+<<<<<<< HEAD
+=======
+/* Allow setting realtime ioprio class */
+/* Allow setting ioprio class on other processes */
+>>>>>>> upstream/android-13
 
 #define CAP_SYS_NICE         23
 
@@ -301,6 +313,10 @@ struct vfs_ns_cap_data {
 /* Allow more than 64hz interrupts from the real-time clock */
 /* Override max number of consoles on console allocation */
 /* Override max number of keymaps */
+<<<<<<< HEAD
+=======
+/* Control memory reclaim behavior */
+>>>>>>> upstream/android-13
 
 #define CAP_SYS_RESOURCE     24
 
@@ -331,6 +347,12 @@ struct vfs_ns_cap_data {
 
 #define CAP_AUDIT_CONTROL    30
 
+<<<<<<< HEAD
+=======
+/* Set or remove capabilities on files.
+   Map uid=0 into a child user namespace. */
+
+>>>>>>> upstream/android-13
 #define CAP_SETFCAP	     31
 
 /* Override MAC access.
@@ -366,8 +388,57 @@ struct vfs_ns_cap_data {
 
 #define CAP_AUDIT_READ		37
 
+<<<<<<< HEAD
 
 #define CAP_LAST_CAP         CAP_AUDIT_READ
+=======
+/*
+ * Allow system performance and observability privileged operations
+ * using perf_events, i915_perf and other kernel subsystems
+ */
+
+#define CAP_PERFMON		38
+
+/*
+ * CAP_BPF allows the following BPF operations:
+ * - Creating all types of BPF maps
+ * - Advanced verifier features
+ *   - Indirect variable access
+ *   - Bounded loops
+ *   - BPF to BPF function calls
+ *   - Scalar precision tracking
+ *   - Larger complexity limits
+ *   - Dead code elimination
+ *   - And potentially other features
+ * - Loading BPF Type Format (BTF) data
+ * - Retrieve xlated and JITed code of BPF programs
+ * - Use bpf_spin_lock() helper
+ *
+ * CAP_PERFMON relaxes the verifier checks further:
+ * - BPF progs can use of pointer-to-integer conversions
+ * - speculation attack hardening measures are bypassed
+ * - bpf_probe_read to read arbitrary kernel memory is allowed
+ * - bpf_trace_printk to print kernel memory is allowed
+ *
+ * CAP_SYS_ADMIN is required to use bpf_probe_write_user.
+ *
+ * CAP_SYS_ADMIN is required to iterate system wide loaded
+ * programs, maps, links, BTFs and convert their IDs to file descriptors.
+ *
+ * CAP_PERFMON and CAP_BPF are required to load tracing programs.
+ * CAP_NET_ADMIN and CAP_BPF are required to load networking programs.
+ */
+#define CAP_BPF			39
+
+
+/* Allow checkpoint/restore related operations */
+/* Allow PID selection during clone3() */
+/* Allow writing to ns_last_pid */
+
+#define CAP_CHECKPOINT_RESTORE	40
+
+#define CAP_LAST_CAP         CAP_CHECKPOINT_RESTORE
+>>>>>>> upstream/android-13
 
 #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
 

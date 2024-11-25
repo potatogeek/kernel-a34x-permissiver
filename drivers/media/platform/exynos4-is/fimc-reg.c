@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Register interface file for Samsung Camera Interface (FIMC) driver
  *
  * Copyright (C) 2010 - 2013 Samsung Electronics Co., Ltd.
  * Sylwester Nawrocki <s.nawrocki@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #include <linux/delay.h>
@@ -529,21 +536,32 @@ void fimc_hw_set_output_path(struct fimc_ctx *ctx)
 	writel(cfg, dev->regs + FIMC_REG_CISCCTRL);
 }
 
+<<<<<<< HEAD
 void fimc_hw_set_input_addr(struct fimc_dev *dev, struct fimc_addr *paddr)
+=======
+void fimc_hw_set_input_addr(struct fimc_dev *dev, struct fimc_addr *addr)
+>>>>>>> upstream/android-13
 {
 	u32 cfg = readl(dev->regs + FIMC_REG_CIREAL_ISIZE);
 	cfg |= FIMC_REG_CIREAL_ISIZE_ADDR_CH_DIS;
 	writel(cfg, dev->regs + FIMC_REG_CIREAL_ISIZE);
 
+<<<<<<< HEAD
 	writel(paddr->y, dev->regs + FIMC_REG_CIIYSA(0));
 	writel(paddr->cb, dev->regs + FIMC_REG_CIICBSA(0));
 	writel(paddr->cr, dev->regs + FIMC_REG_CIICRSA(0));
+=======
+	writel(addr->y, dev->regs + FIMC_REG_CIIYSA(0));
+	writel(addr->cb, dev->regs + FIMC_REG_CIICBSA(0));
+	writel(addr->cr, dev->regs + FIMC_REG_CIICRSA(0));
+>>>>>>> upstream/android-13
 
 	cfg &= ~FIMC_REG_CIREAL_ISIZE_ADDR_CH_DIS;
 	writel(cfg, dev->regs + FIMC_REG_CIREAL_ISIZE);
 }
 
 void fimc_hw_set_output_addr(struct fimc_dev *dev,
+<<<<<<< HEAD
 			     struct fimc_addr *paddr, int index)
 {
 	int i = (index == -1) ? 0 : index;
@@ -553,6 +571,17 @@ void fimc_hw_set_output_addr(struct fimc_dev *dev,
 		writel(paddr->cr, dev->regs + FIMC_REG_CIOCRSA(i));
 		dbg("dst_buf[%d]: 0x%X, cb: 0x%X, cr: 0x%X",
 		    i, paddr->y, paddr->cb, paddr->cr);
+=======
+			     struct fimc_addr *addr, int index)
+{
+	int i = (index == -1) ? 0 : index;
+	do {
+		writel(addr->y, dev->regs + FIMC_REG_CIOYSA(i));
+		writel(addr->cb, dev->regs + FIMC_REG_CIOCBSA(i));
+		writel(addr->cr, dev->regs + FIMC_REG_CIOCRSA(i));
+		dbg("dst_buf[%d]: 0x%X, cb: 0x%X, cr: 0x%X",
+		    i, addr->y, addr->cb, addr->cr);
+>>>>>>> upstream/android-13
 	} while (index == -1 && ++i < FIMC_MAX_OUT_BUFS);
 }
 
@@ -609,6 +638,14 @@ int fimc_hw_set_camera_source(struct fimc_dev *fimc,
 	switch (source->fimc_bus_type) {
 	case FIMC_BUS_TYPE_ITU_601:
 	case FIMC_BUS_TYPE_ITU_656:
+<<<<<<< HEAD
+=======
+		if (fimc_fmt_is_user_defined(f->fmt->color)) {
+			cfg |= FIMC_REG_CISRCFMT_ITU601_8BIT;
+			break;
+		}
+
+>>>>>>> upstream/android-13
 		for (i = 0; i < ARRAY_SIZE(pix_desc); i++) {
 			if (vc->ci_fmt.code == pix_desc[i].pixelcode) {
 				cfg = pix_desc[i].cisrcfmt;
@@ -710,10 +747,19 @@ int fimc_hw_set_camera_type(struct fimc_dev *fimc,
 	case FIMC_BUS_TYPE_ITU_601...FIMC_BUS_TYPE_ITU_656:
 		if (source->mux_id == 0) /* ITU-A, ITU-B: 0, 1 */
 			cfg |= FIMC_REG_CIGCTRL_SELCAM_ITU_A;
+<<<<<<< HEAD
 		break;
 	case FIMC_BUS_TYPE_LCD_WRITEBACK_A:
 		cfg |= FIMC_REG_CIGCTRL_CAMIF_SELWB;
 		/* fall through */
+=======
+		if (vid_cap->ci_fmt.code == MEDIA_BUS_FMT_JPEG_1X8)
+			cfg |= FIMC_REG_CIGCTRL_CAM_JPEG;
+		break;
+	case FIMC_BUS_TYPE_LCD_WRITEBACK_A:
+		cfg |= FIMC_REG_CIGCTRL_CAMIF_SELWB;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case FIMC_BUS_TYPE_ISP_WRITEBACK:
 		if (fimc->variant->has_isp_wb)
 			cfg |= FIMC_REG_CIGCTRL_CAMIF_SELWB;

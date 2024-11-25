@@ -183,13 +183,21 @@ nvkm_pci_func = {
 
 int
 nvkm_pci_new_(const struct nvkm_pci_func *func, struct nvkm_device *device,
+<<<<<<< HEAD
 	      int index, struct nvkm_pci **ppci)
+=======
+	      enum nvkm_subdev_type type, int inst, struct nvkm_pci **ppci)
+>>>>>>> upstream/android-13
 {
 	struct nvkm_pci *pci;
 
 	if (!(pci = *ppci = kzalloc(sizeof(**ppci), GFP_KERNEL)))
 		return -ENOMEM;
+<<<<<<< HEAD
 	nvkm_subdev_ctor(&nvkm_pci_func, device, index, &pci->subdev);
+=======
+	nvkm_subdev_ctor(&nvkm_pci_func, device, type, inst, &pci->subdev);
+>>>>>>> upstream/android-13
 	pci->func = func;
 	pci->pdev = device->func->pci(device)->pdev;
 	pci->irq = -1;

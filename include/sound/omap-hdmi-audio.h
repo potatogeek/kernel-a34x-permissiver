@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * hdmi-audio.c -- OMAP4+ DSS HDMI audio support library
  *
@@ -14,6 +15,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * hdmi-audio.c -- OMAP4+ DSS HDMI audio support library
+ *
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com
+ *
+ * Author: Jyri Sarha <jsarha@ti.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OMAP_HDMI_AUDIO_H__

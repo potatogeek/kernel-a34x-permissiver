@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/mmc/host/au1xmmc.c - AU1XX0 MMC driver
  *
@@ -16,9 +20,12 @@
  *     All Rights Reserved.
  *
 
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Why don't we use the SD controllers' carddetect feature?
@@ -255,6 +262,7 @@ static void au1xmmc_finish_request(struct au1xmmc_host *host)
 	mmc_request_done(host->mmc, mrq);
 }
 
+<<<<<<< HEAD
 static void au1xmmc_tasklet_finish(unsigned long param)
 {
 	struct au1xmmc_host *host = (struct au1xmmc_host *) param;
@@ -262,6 +270,15 @@ static void au1xmmc_tasklet_finish(unsigned long param)
 }
 
 static int au1xmmc_send_command(struct au1xmmc_host *host, int wait,
+=======
+static void au1xmmc_tasklet_finish(struct tasklet_struct *t)
+{
+	struct au1xmmc_host *host = from_tasklet(host, t, finish_task);
+	au1xmmc_finish_request(host);
+}
+
+static int au1xmmc_send_command(struct au1xmmc_host *host,
+>>>>>>> upstream/android-13
 				struct mmc_command *cmd, struct mmc_data *data)
 {
 	u32 mmccmd = (cmd->opcode << SD_CMD_CI_SHIFT);
@@ -304,9 +321,12 @@ static int au1xmmc_send_command(struct au1xmmc_host *host, int wait,
 	__raw_writel(cmd->arg, HOST_CMDARG(host));
 	wmb(); /* drain writebuffer */
 
+<<<<<<< HEAD
 	if (wait)
 		IRQ_OFF(host, SD_CONFIG_CR);
 
+=======
+>>>>>>> upstream/android-13
 	__raw_writel((mmccmd | SD_CMD_GO), HOST_CMD(host));
 	wmb(); /* drain writebuffer */
 
@@ -314,6 +334,7 @@ static int au1xmmc_send_command(struct au1xmmc_host *host, int wait,
 	while (__raw_readl(HOST_CMD(host)) & SD_CMD_GO)
 		/* nop */;
 
+<<<<<<< HEAD
 	/* Wait for the command to come back */
 	if (wait) {
 		u32 status = __raw_readl(HOST_STATUS(host));
@@ -327,6 +348,8 @@ static int au1xmmc_send_command(struct au1xmmc_host *host, int wait,
 		IRQ_ON(host, SD_CONFIG_CR);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -381,9 +404,15 @@ static void au1xmmc_data_complete(struct au1xmmc_host *host, u32 status)
 	au1xmmc_finish_request(host);
 }
 
+<<<<<<< HEAD
 static void au1xmmc_tasklet_data(unsigned long param)
 {
 	struct au1xmmc_host *host = (struct au1xmmc_host *)param;
+=======
+static void au1xmmc_tasklet_data(struct tasklet_struct *t)
+{
+	struct au1xmmc_host *host = from_tasklet(host, t, data_task);
+>>>>>>> upstream/android-13
 
 	u32 status = __raw_readl(HOST_STATUS(host));
 	au1xmmc_data_complete(host, status);
@@ -713,7 +742,11 @@ static void au1xmmc_request(struct mmc_host* mmc, struct mmc_request* mrq)
 	}
 
 	if (!ret)
+<<<<<<< HEAD
 		ret = au1xmmc_send_command(host, 0, mrq->cmd, mrq->data);
+=======
+		ret = au1xmmc_send_command(host, mrq->cmd, mrq->data);
+>>>>>>> upstream/android-13
 
 	if (ret) {
 		mrq->cmd->error = ret;
@@ -986,12 +1019,18 @@ static int au1xmmc_probe(struct platform_device *pdev)
 		goto out2;
 	}
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (!r) {
 		dev_err(&pdev->dev, "no IRQ defined\n");
 		goto out3;
 	}
 	host->irq = r->start;
+=======
+	host->irq = platform_get_irq(pdev, 0);
+	if (host->irq < 0)
+		goto out3;
+>>>>>>> upstream/android-13
 
 	mmc->ops = &au1xmmc_ops;
 
@@ -1058,11 +1097,17 @@ static int au1xmmc_probe(struct platform_device *pdev)
 	if (host->platdata)
 		mmc->caps &= ~(host->platdata->mask_host_caps);
 
+<<<<<<< HEAD
 	tasklet_init(&host->data_task, au1xmmc_tasklet_data,
 			(unsigned long)host);
 
 	tasklet_init(&host->finish_task, au1xmmc_tasklet_finish,
 			(unsigned long)host);
+=======
+	tasklet_setup(&host->data_task, au1xmmc_tasklet_data);
+
+	tasklet_setup(&host->finish_task, au1xmmc_tasklet_finish);
+>>>>>>> upstream/android-13
 
 	if (has_dbdma()) {
 		ret = au1xmmc_dbdma_init(host);
@@ -1210,6 +1255,10 @@ static struct platform_driver au1xmmc_driver = {
 	.resume        = au1xmmc_resume,
 	.driver        = {
 		.name  = DRIVER_NAME,
+<<<<<<< HEAD
+=======
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+>>>>>>> upstream/android-13
 	},
 };
 

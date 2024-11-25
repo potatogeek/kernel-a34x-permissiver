@@ -15,13 +15,20 @@
 
 #include <linux/wait.h>
 #include <linux/time.h>
+<<<<<<< HEAD
+=======
+#include <linux/completion.h>
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/init.h>
 #include <linux/mutex.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <linux/semaphore.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/kthread.h>
 #include "ibmphp.h"
 
@@ -88,10 +95,17 @@ static int to_debug = 0;
 //----------------------------------------------------------------------------
 // global variables
 //----------------------------------------------------------------------------
+<<<<<<< HEAD
 static struct mutex sem_hpcaccess;	// lock access to HPC
 static struct semaphore semOperations;	// lock all operations and
 					// access to data structures
 static struct semaphore sem_exit;	// make sure polling thread goes away
+=======
+static DEFINE_MUTEX(sem_hpcaccess);	// lock access to HPC
+static DEFINE_MUTEX(operations_mutex);	// lock all operations and
+					// access to data structures
+static DECLARE_COMPLETION(exit_complete); // make sure polling thread goes away
+>>>>>>> upstream/android-13
 static struct task_struct *ibmphp_poll_thread;
 //----------------------------------------------------------------------------
 // local function prototypes
@@ -110,6 +124,7 @@ static int hpc_wait_ctlr_notworking(int, struct controller *, void __iomem *, u8
 
 
 /*----------------------------------------------------------------------
+<<<<<<< HEAD
 * Name:    ibmphp_hpc_initvars
 *
 * Action:  initialize semaphores and variables
@@ -127,6 +142,8 @@ void __init ibmphp_hpc_initvars(void)
 }
 
 /*----------------------------------------------------------------------
+=======
+>>>>>>> upstream/android-13
 * Name:    i2c_ctrl_read
 *
 * Action:  read from HPC over I2C
@@ -780,7 +797,11 @@ void free_hpc_access(void)
 *---------------------------------------------------------------------*/
 void ibmphp_lock_operations(void)
 {
+<<<<<<< HEAD
 	down(&semOperations);
+=======
+	mutex_lock(&operations_mutex);
+>>>>>>> upstream/android-13
 	to_debug = 1;
 }
 
@@ -790,7 +811,11 @@ void ibmphp_lock_operations(void)
 void ibmphp_unlock_operations(void)
 {
 	debug("%s - Entry\n", __func__);
+<<<<<<< HEAD
 	up(&semOperations);
+=======
+	mutex_unlock(&operations_mutex);
+>>>>>>> upstream/android-13
 	to_debug = 0;
 	debug("%s - Exit\n", __func__);
 }
@@ -816,7 +841,11 @@ static int poll_hpc(void *data)
 
 	while (!kthread_should_stop()) {
 		/* try to get the lock to do some kind of hardware access */
+<<<<<<< HEAD
 		down(&semOperations);
+=======
+		mutex_lock(&operations_mutex);
+>>>>>>> upstream/android-13
 
 		switch (poll_state) {
 		case POLL_LATCH_REGISTER:
@@ -871,13 +900,21 @@ static int poll_hpc(void *data)
 			break;
 		case POLL_SLEEP:
 			/* don't sleep with a lock on the hardware */
+<<<<<<< HEAD
 			up(&semOperations);
+=======
+			mutex_unlock(&operations_mutex);
+>>>>>>> upstream/android-13
 			msleep(POLL_INTERVAL_SEC * 1000);
 
 			if (kthread_should_stop())
 				goto out_sleep;
 
+<<<<<<< HEAD
 			down(&semOperations);
+=======
+			mutex_lock(&operations_mutex);
+>>>>>>> upstream/android-13
 
 			if (poll_count >= POLL_LATCH_CNT) {
 				poll_count = 0;
@@ -887,12 +924,20 @@ static int poll_hpc(void *data)
 			break;
 		}
 		/* give up the hardware semaphore */
+<<<<<<< HEAD
 		up(&semOperations);
+=======
+		mutex_unlock(&operations_mutex);
+>>>>>>> upstream/android-13
 		/* sleep for a short time just for good measure */
 out_sleep:
 		msleep(100);
 	}
+<<<<<<< HEAD
 	up(&sem_exit);
+=======
+	complete(&exit_complete);
+>>>>>>> upstream/android-13
 	debug("%s - Exit\n", __func__);
 	return 0;
 }
@@ -1060,9 +1105,15 @@ void __exit ibmphp_hpc_stop_poll_thread(void)
 	debug("after locking operations\n");
 
 	// wait for poll thread to exit
+<<<<<<< HEAD
 	debug("before sem_exit down\n");
 	down(&sem_exit);
 	debug("after sem_exit down\n");
+=======
+	debug("before exit_complete down\n");
+	wait_for_completion(&exit_complete);
+	debug("after exit_completion down\n");
+>>>>>>> upstream/android-13
 
 	// cleanup
 	debug("before free_hpc_access\n");
@@ -1070,8 +1121,11 @@ void __exit ibmphp_hpc_stop_poll_thread(void)
 	debug("after free_hpc_access\n");
 	ibmphp_unlock_operations();
 	debug("after unlock operations\n");
+<<<<<<< HEAD
 	up(&sem_exit);
 	debug("after sem exit up\n");
+=======
+>>>>>>> upstream/android-13
 
 	debug("%s - Exit\n", __func__);
 }

@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * OMFS (as used by RIO Karma) file operations.
  * Copyright (C) 2005 Bob Copeland <me@bobcopeland.com>
  * Released under GPL v2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * OMFS (as used by RIO Karma) file operations.
+ * Copyright (C) 2005 Bob Copeland <me@bobcopeland.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -220,7 +227,11 @@ static int omfs_get_block(struct inode *inode, sector_t block,
 	struct buffer_head *bh;
 	sector_t next, offset;
 	int ret;
+<<<<<<< HEAD
 	u64 uninitialized_var(new_block);
+=======
+	u64 new_block;
+>>>>>>> upstream/android-13
 	u32 max_extents;
 	int extent_count;
 	struct omfs_extent *oe;
@@ -289,10 +300,16 @@ static int omfs_readpage(struct file *file, struct page *page)
 	return block_read_full_page(page, omfs_get_block);
 }
 
+<<<<<<< HEAD
 static int omfs_readpages(struct file *file, struct address_space *mapping,
 		struct list_head *pages, unsigned nr_pages)
 {
 	return mpage_readpages(mapping, pages, nr_pages, omfs_get_block);
+=======
+static void omfs_readahead(struct readahead_control *rac)
+{
+	mpage_readahead(rac, omfs_get_block);
+>>>>>>> upstream/android-13
 }
 
 static int omfs_writepage(struct page *page, struct writeback_control *wbc)
@@ -344,12 +361,21 @@ const struct file_operations omfs_file_operations = {
 	.splice_read = generic_file_splice_read,
 };
 
+<<<<<<< HEAD
 static int omfs_setattr(struct dentry *dentry, struct iattr *attr)
+=======
+static int omfs_setattr(struct user_namespace *mnt_userns,
+			struct dentry *dentry, struct iattr *attr)
+>>>>>>> upstream/android-13
 {
 	struct inode *inode = d_inode(dentry);
 	int error;
 
+<<<<<<< HEAD
 	error = setattr_prepare(dentry, attr);
+=======
+	error = setattr_prepare(&init_user_ns, dentry, attr);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -362,7 +388,11 @@ static int omfs_setattr(struct dentry *dentry, struct iattr *attr)
 		omfs_truncate(inode);
 	}
 
+<<<<<<< HEAD
 	setattr_copy(inode, attr);
+=======
+	setattr_copy(&init_user_ns, inode, attr);
+>>>>>>> upstream/android-13
 	mark_inode_dirty(inode);
 	return 0;
 }
@@ -372,8 +402,14 @@ const struct inode_operations omfs_file_inops = {
 };
 
 const struct address_space_operations omfs_aops = {
+<<<<<<< HEAD
 	.readpage = omfs_readpage,
 	.readpages = omfs_readpages,
+=======
+	.set_page_dirty = __set_page_dirty_buffers,
+	.readpage = omfs_readpage,
+	.readahead = omfs_readahead,
+>>>>>>> upstream/android-13
 	.writepage = omfs_writepage,
 	.writepages = omfs_writepages,
 	.write_begin = omfs_write_begin,

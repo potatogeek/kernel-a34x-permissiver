@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Acorn RiscPC mouse driver for Linux/ARM
  *
  *  Copyright (c) 2000-2002 Vojtech Pavlik
  *  Copyright (C) 1996-2002 Russell King
+<<<<<<< HEAD
  *
  */
 
@@ -10,6 +15,11 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+ */
+
+/*
+>>>>>>> upstream/android-13
  *
  * This handles the Acorn RiscPCs mouse.  We basically have a couple of
  * hardware registers that track the sensor count for the X-Y movement and

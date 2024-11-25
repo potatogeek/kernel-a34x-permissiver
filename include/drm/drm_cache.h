@@ -35,17 +35,30 @@
 
 #include <linux/scatterlist.h>
 
+<<<<<<< HEAD
 void drm_clflush_pages(struct page *pages[], unsigned long num_pages);
 void drm_clflush_sg(struct sg_table *st);
 void drm_clflush_virt_range(void *addr, unsigned long length);
 u64 drm_get_max_iomem(void);
+=======
+struct dma_buf_map;
+
+void drm_clflush_pages(struct page *pages[], unsigned long num_pages);
+void drm_clflush_sg(struct sg_table *st);
+void drm_clflush_virt_range(void *addr, unsigned long length);
+bool drm_need_swiotlb(int dma_bits);
+>>>>>>> upstream/android-13
 
 
 static inline bool drm_arch_can_wc_memory(void)
 {
 #if defined(CONFIG_PPC) && !defined(CONFIG_NOT_COHERENT_CACHE)
 	return false;
+<<<<<<< HEAD
 #elif defined(CONFIG_MIPS) && defined(CONFIG_CPU_LOONGSON3)
+=======
+#elif defined(CONFIG_MIPS) && defined(CONFIG_CPU_LOONGSON64)
+>>>>>>> upstream/android-13
 	return false;
 #elif defined(CONFIG_ARM) || defined(CONFIG_ARM64)
 	/*
@@ -70,4 +83,12 @@ static inline bool drm_arch_can_wc_memory(void)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+void drm_memcpy_init_early(void);
+
+void drm_memcpy_from_wc(struct dma_buf_map *dst,
+			const struct dma_buf_map *src,
+			unsigned long len);
+>>>>>>> upstream/android-13
 #endif

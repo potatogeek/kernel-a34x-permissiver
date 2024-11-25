@@ -548,8 +548,11 @@ static void __init p1022_ds_setup_arch(void)
 
 machine_arch_initcall(p1022_ds, mpc85xx_common_publish_devices);
 
+<<<<<<< HEAD
 machine_arch_initcall(p1022_ds, swiotlb_setup_bus_notifier);
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Called very early, device-tree isn't unflattened
  */

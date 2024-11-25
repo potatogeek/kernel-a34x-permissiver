@@ -37,6 +37,10 @@
 /* Vendor and product ids */
 #define TI_VENDOR_ID			0x0451
 #define IBM_VENDOR_ID			0x04b3
+<<<<<<< HEAD
+=======
+#define STARTECH_VENDOR_ID		0x14b0
+>>>>>>> upstream/android-13
 #define TI_3410_PRODUCT_ID		0x3410
 #define IBM_4543_PRODUCT_ID		0x4543
 #define IBM_454B_PRODUCT_ID		0x454b
@@ -121,6 +125,10 @@
 #define TI_LSR_ERROR			0x0F
 #define TI_LSR_RX_FULL			0x10
 #define TI_LSR_TX_EMPTY			0x20
+<<<<<<< HEAD
+=======
+#define TI_LSR_TX_EMPTY_BOTH		0x40
+>>>>>>> upstream/android-13
 
 /* Line control */
 #define TI_LCR_BREAK			0x40
@@ -183,7 +191,11 @@ struct ti_uart_config {
 	char	cXon;
 	char	cXoff;
 	u8	bUartMode;
+<<<<<<< HEAD
 } __packed;
+=======
+};
+>>>>>>> upstream/android-13
 
 /* Get port status */
 struct ti_port_status {
@@ -192,7 +204,11 @@ struct ti_port_status {
 	u8 bErrorCode;
 	u8 bMSR;
 	u8 bLSR;
+<<<<<<< HEAD
 } __packed;
+=======
+};
+>>>>>>> upstream/android-13
 
 /* Purge modes */
 #define TI_PURGE_OUTPUT			0x00
@@ -219,6 +235,7 @@ struct ti_write_data_bytes {
 	u8	bDataCounter;
 	__be16	wBaseAddrHi;
 	__be16	wBaseAddrLo;
+<<<<<<< HEAD
 	u8	bData[0];
 } __packed;
 
@@ -226,11 +243,21 @@ struct ti_read_data_request {
 	__u8	bAddrType;
 	__u8	bDataType;
 	__u8	bDataCounter;
+=======
+	u8	bData[];
+} __packed;
+
+struct ti_read_data_request {
+	u8	bAddrType;
+	u8	bDataType;
+	u8	bDataCounter;
+>>>>>>> upstream/android-13
 	__be16	wBaseAddrHi;
 	__be16	wBaseAddrLo;
 } __packed;
 
 struct ti_read_data_bytes {
+<<<<<<< HEAD
 	__u8	bCmdCode;
 	__u8	bModuleId;
 	__u8	bErrorCode;
@@ -242,6 +269,19 @@ struct ti_interrupt {
 	__u8	bICode;
 	__u8	bIInfo;
 } __packed;
+=======
+	u8	bCmdCode;
+	u8	bModuleId;
+	u8	bErrorCode;
+	u8	bData[];
+};
+
+/* Interrupt struct */
+struct ti_interrupt {
+	u8	bICode;
+	u8	bIInfo;
+};
+>>>>>>> upstream/android-13
 
 /* Interrupt codes */
 #define TI_CODE_HARDWARE_ERROR		0xFF
@@ -270,8 +310,11 @@ struct ti_firmware_header {
 
 #define TI_TRANSFER_TIMEOUT	2
 
+<<<<<<< HEAD
 #define TI_DEFAULT_CLOSING_WAIT	4000		/* in .01 secs */
 
+=======
+>>>>>>> upstream/android-13
 /* read urb states */
 #define TI_READ_URB_RUNNING	0
 #define TI_READ_URB_STOPPING	1
@@ -303,11 +346,16 @@ struct ti_device {
 static int ti_startup(struct usb_serial *serial);
 static void ti_release(struct usb_serial *serial);
 static int ti_port_probe(struct usb_serial_port *port);
+<<<<<<< HEAD
 static int ti_port_remove(struct usb_serial_port *port);
+=======
+static void ti_port_remove(struct usb_serial_port *port);
+>>>>>>> upstream/android-13
 static int ti_open(struct tty_struct *tty, struct usb_serial_port *port);
 static void ti_close(struct usb_serial_port *port);
 static int ti_write(struct tty_struct *tty, struct usb_serial_port *port,
 		const unsigned char *data, int count);
+<<<<<<< HEAD
 static int ti_write_room(struct tty_struct *tty);
 static int ti_chars_in_buffer(struct tty_struct *tty);
 static bool ti_tx_empty(struct usb_serial_port *port);
@@ -315,6 +363,13 @@ static void ti_throttle(struct tty_struct *tty);
 static void ti_unthrottle(struct tty_struct *tty);
 static int ti_ioctl(struct tty_struct *tty,
 		unsigned int cmd, unsigned long arg);
+=======
+static unsigned int ti_write_room(struct tty_struct *tty);
+static unsigned int ti_chars_in_buffer(struct tty_struct *tty);
+static bool ti_tx_empty(struct usb_serial_port *port);
+static void ti_throttle(struct tty_struct *tty);
+static void ti_unthrottle(struct tty_struct *tty);
+>>>>>>> upstream/android-13
 static void ti_set_termios(struct tty_struct *tty,
 		struct usb_serial_port *port, struct ktermios *old_termios);
 static int ti_tiocmget(struct tty_struct *tty);
@@ -330,27 +385,45 @@ static void ti_recv(struct usb_serial_port *port, unsigned char *data,
 static void ti_send(struct ti_port *tport);
 static int ti_set_mcr(struct ti_port *tport, unsigned int mcr);
 static int ti_get_lsr(struct ti_port *tport, u8 *lsr);
+<<<<<<< HEAD
 static int ti_get_serial_info(struct ti_port *tport,
 	struct serial_struct __user *ret_arg);
 static int ti_set_serial_info(struct tty_struct *tty, struct ti_port *tport,
 	struct serial_struct __user *new_arg);
+=======
+static void ti_get_serial_info(struct tty_struct *tty, struct serial_struct *ss);
+>>>>>>> upstream/android-13
 static void ti_handle_new_msr(struct ti_port *tport, u8 msr);
 
 static void ti_stop_read(struct ti_port *tport, struct tty_struct *tty);
 static int ti_restart_read(struct ti_port *tport, struct tty_struct *tty);
 
+<<<<<<< HEAD
 static int ti_command_out_sync(struct ti_device *tdev, __u8 command,
 	__u16 moduleid, __u16 value, __u8 *data, int size);
 static int ti_command_in_sync(struct ti_device *tdev, __u8 command,
 	__u16 moduleid, __u16 value, __u8 *data, int size);
+=======
+static int ti_command_out_sync(struct usb_device *udev, u8 command,
+		u16 moduleid, u16 value, void *data, int size);
+static int ti_command_in_sync(struct usb_device *udev, u8 command,
+		u16 moduleid, u16 value, void *data, int size);
+static int ti_port_cmd_out(struct usb_serial_port *port, u8 command,
+		u16 value, void *data, int size);
+static int ti_port_cmd_in(struct usb_serial_port *port, u8 command,
+		u16 value, void *data, int size);
+>>>>>>> upstream/android-13
 
 static int ti_write_byte(struct usb_serial_port *port, struct ti_device *tdev,
 			 unsigned long addr, u8 mask, u8 byte);
 
 static int ti_download_firmware(struct ti_device *tdev);
 
+<<<<<<< HEAD
 static int closing_wait = TI_DEFAULT_CLOSING_WAIT;
 
+=======
+>>>>>>> upstream/android-13
 static const struct usb_device_id ti_id_table_3410[] = {
 	{ USB_DEVICE(TI_VENDOR_ID, TI_3410_PRODUCT_ID) },
 	{ USB_DEVICE(TI_VENDOR_ID, TI_3410_EZ430_ID) },
@@ -374,6 +447,10 @@ static const struct usb_device_id ti_id_table_3410[] = {
 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
+>>>>>>> upstream/android-13
 	{ }	/* terminator */
 };
 
@@ -412,6 +489,10 @@ static const struct usb_device_id ti_id_table_combined[] = {
 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
+<<<<<<< HEAD
+=======
+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
+>>>>>>> upstream/android-13
 	{ }	/* terminator */
 };
 
@@ -436,7 +517,11 @@ static struct usb_serial_driver ti_1port_device = {
 	.tx_empty		= ti_tx_empty,
 	.throttle		= ti_throttle,
 	.unthrottle		= ti_unthrottle,
+<<<<<<< HEAD
 	.ioctl			= ti_ioctl,
+=======
+	.get_serial		= ti_get_serial_info,
+>>>>>>> upstream/android-13
 	.set_termios		= ti_set_termios,
 	.tiocmget		= ti_tiocmget,
 	.tiocmset		= ti_tiocmset,
@@ -469,7 +554,11 @@ static struct usb_serial_driver ti_2port_device = {
 	.tx_empty		= ti_tx_empty,
 	.throttle		= ti_throttle,
 	.unthrottle		= ti_unthrottle,
+<<<<<<< HEAD
 	.ioctl			= ti_ioctl,
+=======
+	.get_serial		= ti_get_serial_info,
+>>>>>>> upstream/android-13
 	.set_termios		= ti_set_termios,
 	.tiocmget		= ti_tiocmget,
 	.tiocmset		= ti_tiocmset,
@@ -502,10 +591,13 @@ MODULE_FIRMWARE("moxa/moxa-1131.fw");
 MODULE_FIRMWARE("moxa/moxa-1150.fw");
 MODULE_FIRMWARE("moxa/moxa-1151.fw");
 
+<<<<<<< HEAD
 module_param(closing_wait, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(closing_wait,
     "Maximum wait for data to drain in close, in .01 secs, default is 4000");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_DEVICE_TABLE(usb, ti_id_table_combined);
 
 module_usb_serial_driver(serial_drivers, ti_id_table_combined);
@@ -613,7 +705,10 @@ static int ti_port_probe(struct usb_serial_port *port)
 		tport->tp_uart_base_addr = TI_UART1_BASE_ADDR;
 	else
 		tport->tp_uart_base_addr = TI_UART2_BASE_ADDR;
+<<<<<<< HEAD
 	port->port.closing_wait = msecs_to_jiffies(10 * closing_wait);
+=======
+>>>>>>> upstream/android-13
 	tport->tp_port = port;
 	tport->tp_tdev = usb_get_serial_data(port->serial);
 
@@ -624,19 +719,35 @@ static int ti_port_probe(struct usb_serial_port *port)
 
 	usb_set_serial_port_data(port, tport);
 
+<<<<<<< HEAD
 	port->port.drain_delay = 3;
+=======
+	/*
+	 * The TUSB5052 LSR does not tell when the transmitter shift register
+	 * has emptied so add a one-character drain delay.
+	 */
+	if (!tport->tp_tdev->td_is_3410)
+		port->port.drain_delay = 1;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int ti_port_remove(struct usb_serial_port *port)
+=======
+static void ti_port_remove(struct usb_serial_port *port)
+>>>>>>> upstream/android-13
 {
 	struct ti_port *tport;
 
 	tport = usb_get_serial_port_data(port);
 	kfree(tport);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int ti_open(struct tty_struct *tty, struct usb_serial_port *port)
@@ -645,7 +756,10 @@ static int ti_open(struct tty_struct *tty, struct usb_serial_port *port)
 	struct ti_device *tdev;
 	struct usb_device *dev;
 	struct urb *urb;
+<<<<<<< HEAD
 	int port_number;
+=======
+>>>>>>> upstream/android-13
 	int status;
 	u16 open_settings;
 
@@ -660,8 +774,11 @@ static int ti_open(struct tty_struct *tty, struct usb_serial_port *port)
 	if (mutex_lock_interruptible(&tdev->td_open_close_lock))
 		return -ERESTARTSYS;
 
+<<<<<<< HEAD
 	port_number = port->port_number;
 
+=======
+>>>>>>> upstream/android-13
 	tport->tp_msr = 0;
 	tport->tp_shadow_mcr |= (TI_MCR_RTS | TI_MCR_DTR);
 
@@ -685,31 +802,47 @@ static int ti_open(struct tty_struct *tty, struct usb_serial_port *port)
 	if (tty)
 		ti_set_termios(tty, port, &tty->termios);
 
+<<<<<<< HEAD
 	status = ti_command_out_sync(tdev, TI_OPEN_PORT,
 		(__u8)(TI_UART1_PORT + port_number), open_settings, NULL, 0);
+=======
+	status = ti_port_cmd_out(port, TI_OPEN_PORT, open_settings, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot send open command, %d\n",
 			__func__, status);
 		goto unlink_int_urb;
 	}
 
+<<<<<<< HEAD
 	status = ti_command_out_sync(tdev, TI_START_PORT,
 		(__u8)(TI_UART1_PORT + port_number), 0, NULL, 0);
+=======
+	status = ti_port_cmd_out(port, TI_START_PORT, 0, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot send start command, %d\n",
 							__func__, status);
 		goto unlink_int_urb;
 	}
 
+<<<<<<< HEAD
 	status = ti_command_out_sync(tdev, TI_PURGE_PORT,
 		(__u8)(TI_UART1_PORT + port_number), TI_PURGE_INPUT, NULL, 0);
+=======
+	status = ti_port_cmd_out(port, TI_PURGE_PORT, TI_PURGE_INPUT, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot clear input buffers, %d\n",
 							__func__, status);
 		goto unlink_int_urb;
 	}
+<<<<<<< HEAD
 	status = ti_command_out_sync(tdev, TI_PURGE_PORT,
 		(__u8)(TI_UART1_PORT + port_number), TI_PURGE_OUTPUT, NULL, 0);
+=======
+	status = ti_port_cmd_out(port, TI_PURGE_PORT, TI_PURGE_OUTPUT, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot clear output buffers, %d\n",
 							__func__, status);
@@ -724,16 +857,24 @@ static int ti_open(struct tty_struct *tty, struct usb_serial_port *port)
 	if (tty)
 		ti_set_termios(tty, port, &tty->termios);
 
+<<<<<<< HEAD
 	status = ti_command_out_sync(tdev, TI_OPEN_PORT,
 		(__u8)(TI_UART1_PORT + port_number), open_settings, NULL, 0);
+=======
+	status = ti_port_cmd_out(port, TI_OPEN_PORT, open_settings, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot send open command (2), %d\n",
 							__func__, status);
 		goto unlink_int_urb;
 	}
 
+<<<<<<< HEAD
 	status = ti_command_out_sync(tdev, TI_START_PORT,
 		(__u8)(TI_UART1_PORT + port_number), 0, NULL, 0);
+=======
+	status = ti_port_cmd_out(port, TI_START_PORT, 0, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev, "%s - cannot send start command (2), %d\n",
 							__func__, status);
@@ -774,7 +915,10 @@ static void ti_close(struct usb_serial_port *port)
 {
 	struct ti_device *tdev;
 	struct ti_port *tport;
+<<<<<<< HEAD
 	int port_number;
+=======
+>>>>>>> upstream/android-13
 	int status;
 	unsigned long flags;
 
@@ -790,18 +934,27 @@ static void ti_close(struct usb_serial_port *port)
 	kfifo_reset_out(&port->write_fifo);
 	spin_unlock_irqrestore(&tport->tp_lock, flags);
 
+<<<<<<< HEAD
 	port_number = port->port_number;
 
 	status = ti_command_out_sync(tdev, TI_CLOSE_PORT,
 		     (__u8)(TI_UART1_PORT + port_number), 0, NULL, 0);
+=======
+	status = ti_port_cmd_out(port, TI_CLOSE_PORT, 0, NULL, 0);
+>>>>>>> upstream/android-13
 	if (status)
 		dev_err(&port->dev,
 			"%s - cannot send close port command, %d\n"
 							, __func__, status);
 
 	mutex_lock(&tdev->td_open_close_lock);
+<<<<<<< HEAD
 	--tport->tp_tdev->td_open_port_count;
 	if (tport->tp_tdev->td_open_port_count == 0) {
+=======
+	--tdev->td_open_port_count;
+	if (tdev->td_open_port_count == 0) {
+>>>>>>> upstream/android-13
 		/* last port is closed, shut down interrupt urb */
 		usb_kill_urb(port->serial->port[0]->interrupt_in_urb);
 	}
@@ -829,45 +982,86 @@ static int ti_write(struct tty_struct *tty, struct usb_serial_port *port,
 }
 
 
+<<<<<<< HEAD
 static int ti_write_room(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct ti_port *tport = usb_get_serial_port_data(port);
 	int room = 0;
+=======
+static unsigned int ti_write_room(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct ti_port *tport = usb_get_serial_port_data(port);
+	unsigned int room;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&tport->tp_lock, flags);
 	room = kfifo_avail(&port->write_fifo);
 	spin_unlock_irqrestore(&tport->tp_lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, room);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, room);
+>>>>>>> upstream/android-13
 	return room;
 }
 
 
+<<<<<<< HEAD
 static int ti_chars_in_buffer(struct tty_struct *tty)
 {
 	struct usb_serial_port *port = tty->driver_data;
 	struct ti_port *tport = usb_get_serial_port_data(port);
 	int chars = 0;
+=======
+static unsigned int ti_chars_in_buffer(struct tty_struct *tty)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct ti_port *tport = usb_get_serial_port_data(port);
+	unsigned int chars;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 
 	spin_lock_irqsave(&tport->tp_lock, flags);
 	chars = kfifo_len(&port->write_fifo);
 	spin_unlock_irqrestore(&tport->tp_lock, flags);
 
+<<<<<<< HEAD
 	dev_dbg(&port->dev, "%s - returns %d\n", __func__, chars);
+=======
+	dev_dbg(&port->dev, "%s - returns %u\n", __func__, chars);
+>>>>>>> upstream/android-13
 	return chars;
 }
 
 static bool ti_tx_empty(struct usb_serial_port *port)
 {
 	struct ti_port *tport = usb_get_serial_port_data(port);
+<<<<<<< HEAD
 	int ret;
 	u8 lsr;
 
 	ret = ti_get_lsr(tport, &lsr);
 	if (!ret && !(lsr & TI_LSR_TX_EMPTY))
+=======
+	u8 lsr, mask;
+	int ret;
+
+	/*
+	 * TUSB5052 does not have the TEMT bit to tell if the shift register
+	 * is empty.
+	 */
+	if (tport->tp_tdev->td_is_3410)
+		mask = TI_LSR_TX_EMPTY_BOTH;
+	else
+		mask = TI_LSR_TX_EMPTY;
+
+	ret = ti_get_lsr(tport, &lsr);
+	if (!ret && !(lsr & mask))
+>>>>>>> upstream/android-13
 		return false;
 
 	return true;
@@ -898,6 +1092,7 @@ static void ti_unthrottle(struct tty_struct *tty)
 	}
 }
 
+<<<<<<< HEAD
 static int ti_ioctl(struct tty_struct *tty,
 	unsigned int cmd, unsigned long arg)
 {
@@ -916,6 +1111,8 @@ static int ti_ioctl(struct tty_struct *tty,
 }
 
 
+=======
+>>>>>>> upstream/android-13
 static void ti_set_termios(struct tty_struct *tty,
 		struct usb_serial_port *port, struct ktermios *old_termios)
 {
@@ -923,7 +1120,10 @@ static void ti_set_termios(struct tty_struct *tty,
 	struct ti_uart_config *config;
 	int baud;
 	int status;
+<<<<<<< HEAD
 	int port_number = port->port_number;
+=======
+>>>>>>> upstream/android-13
 	unsigned int mcr;
 	u16 wbaudrate;
 	u16 wflags = 0;
@@ -939,6 +1139,7 @@ static void ti_set_termios(struct tty_struct *tty,
 
 	switch (C_CSIZE(tty)) {
 	case CS5:
+<<<<<<< HEAD
 		    config->bDataBits = TI_UART_5_DATA_BITS;
 		    break;
 	case CS6:
@@ -951,6 +1152,20 @@ static void ti_set_termios(struct tty_struct *tty,
 	case CS8:
 		    config->bDataBits = TI_UART_8_DATA_BITS;
 		    break;
+=======
+		config->bDataBits = TI_UART_5_DATA_BITS;
+		break;
+	case CS6:
+		config->bDataBits = TI_UART_6_DATA_BITS;
+		break;
+	case CS7:
+		config->bDataBits = TI_UART_7_DATA_BITS;
+		break;
+	default:
+	case CS8:
+		config->bDataBits = TI_UART_8_DATA_BITS;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	/* CMSPAR isn't supported by this driver */
@@ -1017,12 +1232,20 @@ static void ti_set_termios(struct tty_struct *tty,
 	config->wBaudRate = cpu_to_be16(wbaudrate);
 	config->wFlags = cpu_to_be16(wflags);
 
+<<<<<<< HEAD
 	status = ti_command_out_sync(tport->tp_tdev, TI_SET_CONFIG,
 		(__u8)(TI_UART1_PORT + port_number), 0, (__u8 *)config,
 		sizeof(*config));
 	if (status)
 		dev_err(&port->dev, "%s - cannot set config on port %d, %d\n",
 					__func__, port_number, status);
+=======
+	status = ti_port_cmd_out(port, TI_SET_CONFIG, 0, config,
+			sizeof(*config));
+	if (status)
+		dev_err(&port->dev, "%s - cannot set config on port %d, %d\n",
+				__func__, port->port_number, status);
+>>>>>>> upstream/android-13
 
 	/* SET_CONFIG asserts RTS and DTR, reset them correctly */
 	mcr = tport->tp_shadow_mcr;
@@ -1031,9 +1254,14 @@ static void ti_set_termios(struct tty_struct *tty,
 		mcr &= ~(TI_MCR_DTR | TI_MCR_RTS);
 	status = ti_set_mcr(tport, mcr);
 	if (status)
+<<<<<<< HEAD
 		dev_err(&port->dev,
 			"%s - cannot set modem control on port %d, %d\n",
 						__func__, port_number, status);
+=======
+		dev_err(&port->dev, "%s - cannot set modem control on port %d, %d\n",
+				__func__, port->port_number, status);
+>>>>>>> upstream/android-13
 
 	kfree(config);
 }
@@ -1384,9 +1612,13 @@ static int ti_set_mcr(struct ti_port *tport, unsigned int mcr)
 static int ti_get_lsr(struct ti_port *tport, u8 *lsr)
 {
 	int size, status;
+<<<<<<< HEAD
 	struct ti_device *tdev = tport->tp_tdev;
 	struct usb_serial_port *port = tport->tp_port;
 	int port_number = port->port_number;
+=======
+	struct usb_serial_port *port = tport->tp_port;
+>>>>>>> upstream/android-13
 	struct ti_port_status *data;
 
 	size = sizeof(struct ti_port_status);
@@ -1394,8 +1626,12 @@ static int ti_get_lsr(struct ti_port *tport, u8 *lsr)
 	if (!data)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	status = ti_command_in_sync(tdev, TI_GET_PORT_STATUS,
 		(__u8)(TI_UART1_PORT+port_number), 0, (__u8 *)data, size);
+=======
+	status = ti_port_cmd_in(port, TI_GET_PORT_STATUS, 0, data, size);
+>>>>>>> upstream/android-13
 	if (status) {
 		dev_err(&port->dev,
 			"%s - get port status command failed, %d\n",
@@ -1413,6 +1649,7 @@ free_data:
 }
 
 
+<<<<<<< HEAD
 static int ti_get_serial_info(struct ti_port *tport,
 	struct serial_struct __user *ret_arg)
 {
@@ -1456,6 +1693,14 @@ static int ti_set_serial_info(struct tty_struct *tty, struct ti_port *tport,
 	tport->tp_port->port.closing_wait = cwait;
 
 	return 0;
+=======
+static void ti_get_serial_info(struct tty_struct *tty, struct serial_struct *ss)
+{
+	struct usb_serial_port *port = tty->driver_data;
+	struct ti_port *tport = usb_get_serial_port_data(port);
+
+	ss->baud_base = tport->tp_tdev->td_is_3410 ? 921600 : 460800;
+>>>>>>> upstream/android-13
 }
 
 
@@ -1529,6 +1774,7 @@ static int ti_restart_read(struct ti_port *tport, struct tty_struct *tty)
 	return status;
 }
 
+<<<<<<< HEAD
 
 static int ti_command_out_sync(struct ti_device *tdev, __u8 command,
 	__u16 moduleid, __u16 value, __u8 *data, int size)
@@ -1540,12 +1786,23 @@ static int ti_command_out_sync(struct ti_device *tdev, __u8 command,
 		(USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT),
 		value, moduleid, data, size, 1000);
 
+=======
+static int ti_command_out_sync(struct usb_device *udev, u8 command,
+		u16 moduleid, u16 value, void *data, int size)
+{
+	int status;
+
+	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0), command,
+			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+			value, moduleid, data, size, 1000);
+>>>>>>> upstream/android-13
 	if (status < 0)
 		return status;
 
 	return 0;
 }
 
+<<<<<<< HEAD
 
 static int ti_command_in_sync(struct ti_device *tdev, __u8 command,
 	__u16 moduleid, __u16 value, __u8 *data, int size)
@@ -1557,6 +1814,16 @@ static int ti_command_in_sync(struct ti_device *tdev, __u8 command,
 		(USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN),
 		value, moduleid, data, size, 1000);
 
+=======
+static int ti_command_in_sync(struct usb_device *udev, u8 command,
+		u16 moduleid, u16 value, void *data, int size)
+{
+	int status;
+
+	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0), command,
+			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+			value, moduleid, data, size, 1000);
+>>>>>>> upstream/android-13
 	if (status == size)
 		status = 0;
 	else if (status >= 0)
@@ -1565,6 +1832,24 @@ static int ti_command_in_sync(struct ti_device *tdev, __u8 command,
 	return status;
 }
 
+<<<<<<< HEAD
+=======
+static int ti_port_cmd_out(struct usb_serial_port *port, u8 command,
+		u16 value, void *data, int size)
+{
+	return ti_command_out_sync(port->serial->dev, command,
+			TI_UART1_PORT + port->port_number,
+			value, data, size);
+}
+
+static int ti_port_cmd_in(struct usb_serial_port *port, u8 command,
+		u16 value, void *data, int size)
+{
+	return ti_command_in_sync(port->serial->dev, command,
+			TI_UART1_PORT + port->port_number,
+			value, data, size);
+}
+>>>>>>> upstream/android-13
 
 static int ti_write_byte(struct usb_serial_port *port,
 			 struct ti_device *tdev, unsigned long addr,
@@ -1590,9 +1875,14 @@ static int ti_write_byte(struct usb_serial_port *port,
 	data->bData[0] = mask;
 	data->bData[1] = byte;
 
+<<<<<<< HEAD
 	status = ti_command_out_sync(tdev, TI_WRITE_DATA, TI_RAM_PORT, 0,
 		(__u8 *)data, size);
 
+=======
+	status = ti_command_out_sync(port->serial->dev, TI_WRITE_DATA,
+			TI_RAM_PORT, 0, data, size);
+>>>>>>> upstream/android-13
 	if (status < 0)
 		dev_err(&port->dev, "%s - failed, %d\n", __func__, status);
 

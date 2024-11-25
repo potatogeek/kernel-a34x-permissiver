@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OpenRISC Linux
  *
@@ -9,6 +13,7 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
  * et al.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +22,11 @@
  */
 
 /* or32 pgtable.h - macros and functions to manipulate page tables
+=======
+ */
+
+/* or1k pgtable.h - macros and functions to manipulate page tables
+>>>>>>> upstream/android-13
  *
  * Based on:
  * include/asm-cris/pgtable.h
@@ -25,7 +35,10 @@
 #ifndef __ASM_OPENRISC_PGTABLE_H
 #define __ASM_OPENRISC_PGTABLE_H
 
+<<<<<<< HEAD
 #define __ARCH_USE_5LEVEL_HACK
+=======
+>>>>>>> upstream/android-13
 #include <asm-generic/pgtable-nopmd.h>
 
 #ifndef __ASSEMBLY__
@@ -34,14 +47,22 @@
 
 /*
  * The Linux memory management assumes a three-level page table setup. On
+<<<<<<< HEAD
  * or32, we use that, but "fold" the mid level into the top-level page
+=======
+ * or1k, we use that, but "fold" the mid level into the top-level page
+>>>>>>> upstream/android-13
  * table. Since the MMU TLB is software loaded through an interrupt, it
  * supports any page table structure, so we could have used a three-level
  * setup, but for the amounts of memory we normally use, a two-level is
  * probably more efficient.
  *
  * This file contains the functions and defines necessary to modify and use
+<<<<<<< HEAD
  * the or32 page table tree.
+=======
+ * the or1k page table tree.
+>>>>>>> upstream/android-13
  */
 
 extern void paging_init(void);
@@ -78,7 +99,10 @@ extern void paging_init(void);
  */
 
 #define USER_PTRS_PER_PGD       (TASK_SIZE/PGDIR_SIZE)
+<<<<<<< HEAD
 #define FIRST_USER_ADDRESS      0UL
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Kernels own virtual memory area.
@@ -101,7 +125,11 @@ extern void paging_init(void);
 /* Define some higher level generic page attributes.
  *
  * If you change _PAGE_CI definition be sure to change it in
+<<<<<<< HEAD
  * io.h for ioremap_nocache() too.
+=======
+ * io.h for ioremap() too.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -240,8 +268,11 @@ static inline int pte_write(pte_t pte) { return pte_val(pte) & _PAGE_WRITE; }
 static inline int pte_exec(pte_t pte)  { return pte_val(pte) & _PAGE_EXEC; }
 static inline int pte_dirty(pte_t pte) { return pte_val(pte) & _PAGE_DIRTY; }
 static inline int pte_young(pte_t pte) { return pte_val(pte) & _PAGE_ACCESSED; }
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte) { return 0; }
 static inline pte_t pte_mkspecial(pte_t pte) { return pte; }
+=======
+>>>>>>> upstream/android-13
 
 static inline pte_t pte_wrprotect(pte_t pte)
 {
@@ -370,6 +401,7 @@ static inline void pmd_set(pmd_t *pmdp, pte_t *ptep)
 }
 
 #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+<<<<<<< HEAD
 #define pmd_page_kernel(pmd)    ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
 
 /* to find an entry in a page-table-directory. */
@@ -381,10 +413,18 @@ static inline void pmd_set(pmd_t *pmdp, pte_t *ptep)
 
 /* to find an entry in a kernel page-table-directory */
 #define pgd_offset_k(address) pgd_offset(&init_mm, address)
+=======
+
+static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+{
+	return ((unsigned long) __va(pmd_val(pmd) & PAGE_MASK));
+}
+>>>>>>> upstream/android-13
 
 #define __pmd_offset(address) \
 	(((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
 
+<<<<<<< HEAD
 /*
  * the pte page can be thought of an array like this: pte_t[PTRS_PER_PTE]
  *
@@ -402,6 +442,8 @@ static inline void pmd_set(pmd_t *pmdp, pte_t *ptep)
 
 #define pte_unmap(pte)          do { } while (0)
 #define pte_unmap_nested(pte)   do { } while (0)
+=======
+>>>>>>> upstream/android-13
 #define pte_pfn(x)		((unsigned long)(((x).pte)) >> PAGE_SHIFT)
 #define pfn_pte(pfn, prot)  __pte((((pfn) << PAGE_SHIFT)) | pgprot_val(prot))
 
@@ -445,6 +487,7 @@ static inline void update_mmu_cache(struct vm_area_struct *vma,
 
 #define kern_addr_valid(addr)           (1)
 
+<<<<<<< HEAD
 #include <asm-generic/pgtable.h>
 
 /*
@@ -452,6 +495,8 @@ static inline void update_mmu_cache(struct vm_area_struct *vma,
  */
 #define pgtable_cache_init()		do { } while (0)
 
+=======
+>>>>>>> upstream/android-13
 typedef pte_t *pte_addr_t;
 
 #endif /* __ASSEMBLY__ */

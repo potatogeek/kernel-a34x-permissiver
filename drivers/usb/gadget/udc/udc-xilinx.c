@@ -791,7 +791,11 @@ static int xudc_ep_set_halt(struct usb_ep *_ep, int value)
 }
 
 /**
+<<<<<<< HEAD
  * xudc_ep_enable - Enables the given endpoint.
+=======
+ * __xudc_ep_enable - Enables the given endpoint.
+>>>>>>> upstream/android-13
  * @ep: pointer to the xusb endpoint structure.
  * @desc: pointer to usb endpoint descriptor.
  *
@@ -843,8 +847,13 @@ static int __xudc_ep_enable(struct xusb_ep *ep,
 		break;
 	}
 
+<<<<<<< HEAD
 	ep->buffer0ready = 0;
 	ep->buffer1ready = 0;
+=======
+	ep->buffer0ready = false;
+	ep->buffer1ready = false;
+>>>>>>> upstream/android-13
 	ep->curbufnum = 0;
 	ep->rambase = rambase[ep->epnumber];
 	xudc_epconfig(ep, udc);
@@ -868,11 +877,19 @@ static int __xudc_ep_enable(struct xusb_ep *ep,
 	if (ep->epnumber && !ep->is_in) {
 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET,
 			      1 << ep->epnumber);
+<<<<<<< HEAD
 		ep->buffer0ready = 1;
 		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET,
 			     (1 << (ep->epnumber +
 			      XUSB_STATUS_EP_BUFF2_SHIFT)));
 		ep->buffer1ready = 1;
+=======
+		ep->buffer0ready = true;
+		udc->write_fn(udc->addr, XUSB_BUFFREADY_OFFSET,
+			     (1 << (ep->epnumber +
+			      XUSB_STATUS_EP_BUFF2_SHIFT)));
+		ep->buffer1ready = true;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -987,7 +1004,11 @@ static void xudc_free_request(struct usb_ep *_ep, struct usb_request *_req)
 }
 
 /**
+<<<<<<< HEAD
  * xudc_ep0_queue - Adds the request to endpoint 0 queue.
+=======
+ * __xudc_ep0_queue - Adds the request to endpoint 0 queue.
+>>>>>>> upstream/android-13
  * @ep0: pointer to the xusb endpoint 0 structure.
  * @req: pointer to the xusb request structure.
  *
@@ -1078,7 +1099,11 @@ static int xudc_ep_queue(struct usb_ep *_ep, struct usb_request *_req,
 	unsigned long flags;
 
 	if (!ep->desc) {
+<<<<<<< HEAD
 		dev_dbg(udc->dev, "%s:queing request to disabled %s\n",
+=======
+		dev_dbg(udc->dev, "%s: queuing request to disabled %s\n",
+>>>>>>> upstream/android-13
 			__func__, ep->name);
 		return -ESHUTDOWN;
 	}
@@ -1399,7 +1424,10 @@ err:
 /**
  * xudc_stop - stops the device.
  * @gadget: pointer to the usb gadget structure
+<<<<<<< HEAD
  * @driver: pointer to usb gadget driver structure
+=======
+>>>>>>> upstream/android-13
  *
  * Return: zero always
  */
@@ -1613,6 +1641,11 @@ static void xudc_getstatus(struct xusb_udc *udc)
 		break;
 	case USB_RECIP_ENDPOINT:
 		epnum = udc->setup.wIndex & USB_ENDPOINT_NUMBER_MASK;
+<<<<<<< HEAD
+=======
+		if (epnum >= XUSB_MAX_ENDPOINTS)
+			goto stall;
+>>>>>>> upstream/android-13
 		target_ep = &udc->ep[epnum];
 		epcfgreg = udc->read_fn(udc->addr + target_ep->offset);
 		halt = epcfgreg & XUSB_EP_CFG_STALL_MASK;
@@ -1680,6 +1713,13 @@ static void xudc_set_clear_feature(struct xusb_udc *udc)
 	case USB_RECIP_ENDPOINT:
 		if (!udc->setup.wValue) {
 			endpoint = udc->setup.wIndex & USB_ENDPOINT_NUMBER_MASK;
+<<<<<<< HEAD
+=======
+			if (endpoint >= XUSB_MAX_ENDPOINTS) {
+				xudc_ep0_stall(udc);
+				return;
+			}
+>>>>>>> upstream/android-13
 			target_ep = &udc->ep[endpoint];
 			outinbit = udc->setup.wIndex & USB_ENDPOINT_DIR_MASK;
 			outinbit = outinbit >> 7;
@@ -1733,6 +1773,10 @@ static void xudc_set_clear_feature(struct xusb_udc *udc)
  * Process setup packet and delegate to gadget layer.
  */
 static void xudc_handle_setup(struct xusb_udc *udc)
+<<<<<<< HEAD
+=======
+	__must_hold(&udc->lock)
+>>>>>>> upstream/android-13
 {
 	struct xusb_ep *ep0 = &udc->ep[0];
 	struct usb_ctrlrequest setup;
@@ -1954,7 +1998,11 @@ static void xudc_nonctrl_ep_handler(struct xusb_udc *udc, u8 epnum,
 	if (intrstatus & (XUSB_STATUS_EP0_BUFF1_COMP_MASK << epnum))
 		ep->buffer0ready = 0;
 	if (intrstatus & (XUSB_STATUS_EP0_BUFF2_COMP_MASK << epnum))
+<<<<<<< HEAD
 		ep->buffer1ready = 0;
+=======
+		ep->buffer1ready = false;
+>>>>>>> upstream/android-13
 
 	if (list_empty(&ep->queue))
 		return;
@@ -2074,10 +2122,15 @@ static int xudc_probe(struct platform_device *pdev)
 		return PTR_ERR(udc->addr);
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "unable to get irq\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 	ret = devm_request_irq(&pdev->dev, irq, xudc_irq, 0,
 			       dev_name(&pdev->dev), udc);
 	if (ret < 0) {
@@ -2099,9 +2152,15 @@ static int xudc_probe(struct platform_device *pdev)
 	/* Check for IP endianness */
 	udc->write_fn = xudc_write32_be;
 	udc->read_fn = xudc_read32_be;
+<<<<<<< HEAD
 	udc->write_fn(udc->addr, XUSB_TESTMODE_OFFSET, TEST_J);
 	if ((udc->read_fn(udc->addr + XUSB_TESTMODE_OFFSET))
 			!= TEST_J) {
+=======
+	udc->write_fn(udc->addr, XUSB_TESTMODE_OFFSET, USB_TEST_J);
+	if ((udc->read_fn(udc->addr + XUSB_TESTMODE_OFFSET))
+			!= USB_TEST_J) {
+>>>>>>> upstream/android-13
 		udc->write_fn = xudc_write32;
 		udc->read_fn = xudc_read32;
 	}

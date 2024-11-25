@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Routines providing a simple monitor for use on the PowerMac.
  *
  * Copyright (C) 1996-2005 Paul Mackerras.
  * Copyright (C) 2001 PPC64 Team, IBM Corp
  * Copyrignt (C) 2006 Michael Ellerman, IBM Corp
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -29,8 +36,14 @@
 #include <linux/nmi.h>
 #include <linux/ctype.h>
 #include <linux/highmem.h>
+<<<<<<< HEAD
 
 #include <asm/debugfs.h>
+=======
+#include <linux/security.h>
+#include <linux/debugfs.h>
+
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include <asm/smp.h>
 #include <asm/string.h>
@@ -38,7 +51,10 @@
 #include <asm/machdep.h>
 #include <asm/xmon.h>
 #include <asm/processor.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mmu.h>
 #include <asm/mmu_context.h>
 #include <asm/plpar_wrappers.h>
@@ -57,6 +73,11 @@
 #include <asm/firmware.h>
 #include <asm/code-patching.h>
 #include <asm/sections.h>
+<<<<<<< HEAD
+=======
+#include <asm/inst.h>
+#include <asm/interrupt.h>
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC64
 #include <asm/hvcall.h>
@@ -65,12 +86,22 @@
 
 #include "nonstdio.h"
 #include "dis-asm.h"
+<<<<<<< HEAD
+=======
+#include "xmon_bpts.h"
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_SMP
 static cpumask_t cpus_in_xmon = CPU_MASK_NONE;
 static unsigned long xmon_taken = 1;
 static int xmon_owner;
 static int xmon_gate;
+<<<<<<< HEAD
+=======
+static int xmon_batch;
+static unsigned long xmon_batch_start_cpu;
+static cpumask_t xmon_batch_cpus = CPU_MASK_NONE;
+>>>>>>> upstream/android-13
 #else
 #define xmon_owner 0
 #endif /* CONFIG_SMP */
@@ -80,11 +111,21 @@ static int set_indicator_token = RTAS_UNKNOWN_SERVICE;
 #endif
 static unsigned long in_xmon __read_mostly = 0;
 static int xmon_on = IS_ENABLED(CONFIG_XMON_DEFAULT);
+<<<<<<< HEAD
 
 static unsigned long adrs;
 static int size = 1;
 #define MAX_DUMP (128 * 1024)
 static unsigned long ndump = 64;
+=======
+static bool xmon_is_ro = IS_ENABLED(CONFIG_XMON_DEFAULT_RO_MODE);
+
+static unsigned long adrs;
+static int size = 1;
+#define MAX_DUMP (64 * 1024)
+static unsigned long ndump = 64;
+#define MAX_IDUMP (MAX_DUMP >> 2)
+>>>>>>> upstream/android-13
 static unsigned long nidump = 16;
 static unsigned long ncsum = 4096;
 static int termch;
@@ -99,7 +140,11 @@ static long *xmon_fault_jmp[NR_CPUS];
 /* Breakpoint stuff */
 struct bpt {
 	unsigned long	address;
+<<<<<<< HEAD
 	unsigned int	instr[2];
+=======
+	u32		*instr;
+>>>>>>> upstream/android-13
 	atomic_t	ref_count;
 	int		enabled;
 	unsigned long	pad;
@@ -110,9 +155,14 @@ struct bpt {
 #define BP_TRAP		2
 #define BP_DABR		4
 
+<<<<<<< HEAD
 #define NBPTS	256
 static struct bpt bpts[NBPTS];
 static struct bpt dabr;
+=======
+static struct bpt bpts[NBPTS];
+static struct bpt dabr[HBP_NUM_MAX];
+>>>>>>> upstream/android-13
 static struct bpt *iabr;
 static unsigned bpinstr = 0x7fe00008;	/* trap */
 
@@ -122,6 +172,10 @@ static unsigned bpinstr = 0x7fe00008;	/* trap */
 static int cmds(struct pt_regs *);
 static int mread(unsigned long, void *, int);
 static int mwrite(unsigned long, void *, int);
+<<<<<<< HEAD
+=======
+static int mread_instr(unsigned long, struct ppc_inst *);
+>>>>>>> upstream/android-13
 static int handle_fault(struct pt_regs *);
 static void byterev(unsigned char *, int);
 static void memex(void);
@@ -132,6 +186,15 @@ static void prdump(unsigned long, long);
 static int ppc_inst_dump(unsigned long, long, int);
 static void dump_log_buf(void);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SMP
+static int xmon_switch_cpu(unsigned long);
+static int xmon_batch_next_cpu(void);
+static int batch_cmds(struct pt_regs *);
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_POWERNV
 static void dump_opal_msglog(void);
 #else
@@ -190,6 +253,11 @@ static void dump_tlb_44x(void);
 static void dump_tlb_book3e(void);
 #endif
 
+<<<<<<< HEAD
+=======
+static void clear_all_bpt(void);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC64
 #define REG		"%.16lx"
 #else
@@ -202,6 +270,11 @@ static void dump_tlb_book3e(void);
 #define GETWORD(v)	(((v)[0] << 24) + ((v)[1] << 16) + ((v)[2] << 8) + (v)[3])
 #endif
 
+<<<<<<< HEAD
+=======
+static const char *xmon_ro_msg = "Operation disabled: xmon in read-only mode\n";
+
+>>>>>>> upstream/android-13
 static char *help_string = "\
 Commands:\n\
   b	show breakpoints\n\
@@ -211,7 +284,12 @@ Commands:\n\
 #ifdef CONFIG_SMP
   "\
   c	print cpus stopped in xmon\n\
+<<<<<<< HEAD
   c#	try to switch to cpu number h (in hex)\n"
+=======
+  c#	try to switch to cpu number h (in hex)\n\
+  c# $	run command '$' (one of 'r','S' or 't') on all cpus in xmon\n"
+>>>>>>> upstream/android-13
 #endif
   "\
   C	checksum\n\
@@ -276,7 +354,11 @@ Commands:\n\
   X	exit monitor and don't recover\n"
 #if defined(CONFIG_PPC64) && !defined(CONFIG_PPC_BOOK3E)
 "  u	dump segment table or SLB\n"
+<<<<<<< HEAD
 #elif defined(CONFIG_PPC_STD_MMU_32)
+=======
+#elif defined(CONFIG_PPC_BOOK3S_32)
+>>>>>>> upstream/android-13
 "  u	dump segment registers\n"
 #elif defined(CONFIG_44x) || defined(CONFIG_PPC_BOOK3E)
 "  u	dump TLB\n"
@@ -284,10 +366,45 @@ Commands:\n\
 "  U	show uptime information\n"
 "  ?	help\n"
 "  # n	limit output to n lines per page (for dp, dpa, dl)\n"
+<<<<<<< HEAD
 "  zr	reboot\n\
   zh	halt\n"
 ;
 
+=======
+"  zr	reboot\n"
+"  zh	halt\n"
+;
+
+#ifdef CONFIG_SECURITY
+static bool xmon_is_locked_down(void)
+{
+	static bool lockdown;
+
+	if (!lockdown) {
+		lockdown = !!security_locked_down(LOCKDOWN_XMON_RW);
+		if (lockdown) {
+			printf("xmon: Disabled due to kernel lockdown\n");
+			xmon_is_ro = true;
+		}
+	}
+
+	if (!xmon_is_ro) {
+		xmon_is_ro = !!security_locked_down(LOCKDOWN_XMON_WR);
+		if (xmon_is_ro)
+			printf("xmon: Read-only due to kernel lockdown\n");
+	}
+
+	return lockdown;
+}
+#else /* CONFIG_SECURITY */
+static inline bool xmon_is_locked_down(void)
+{
+	return false;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static struct pt_regs *xmon_regs;
 
 static inline void sync(void)
@@ -295,11 +412,14 @@ static inline void sync(void)
 	asm volatile("sync; isync");
 }
 
+<<<<<<< HEAD
 static inline void store_inst(void *p)
 {
 	asm volatile ("dcbst 0,%0; sync; icbi 0,%0; isync" : : "r" (p));
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void cflush(void *p)
 {
 	asm volatile ("dcbf 0,%0; icbi 0,%0" : : "r" (p));
@@ -439,6 +559,7 @@ static bool wait_for_other_cpus(int ncpus)
 
 	return false;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_SMP */
 
 static inline int unrecoverable_excp(struct pt_regs *regs)
@@ -456,6 +577,26 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 	int cmd = 0;
 	struct bpt *bp;
 	long recurse_jmp[JMP_BUF_LEN];
+=======
+#else /* CONFIG_SMP */
+static inline void get_output_lock(void) {}
+static inline void release_output_lock(void) {}
+#endif
+
+static void xmon_touch_watchdogs(void)
+{
+	touch_softlockup_watchdog_sync();
+	rcu_cpu_stall_reset();
+	touch_nmi_watchdog();
+}
+
+static int xmon_core(struct pt_regs *regs, volatile int fromipi)
+{
+	volatile int cmd = 0;
+	struct bpt *volatile bp;
+	long recurse_jmp[JMP_BUF_LEN];
+	bool locked_down;
+>>>>>>> upstream/android-13
 	unsigned long offset;
 	unsigned long flags;
 #ifdef CONFIG_SMP
@@ -466,6 +607,11 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 	local_irq_save(flags);
 	hard_irq_disable();
 
+<<<<<<< HEAD
+=======
+	locked_down = xmon_is_locked_down();
+
+>>>>>>> upstream/android-13
 	if (!fromipi) {
 		tracing_enabled = tracing_is_on();
 		tracing_off();
@@ -473,7 +619,11 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 
 	bp = in_breakpoint_table(regs->nip, &offset);
 	if (bp != NULL) {
+<<<<<<< HEAD
 		regs->nip = bp->address + offset;
+=======
+		regs_set_return_ip(regs, bp->address + offset);
+>>>>>>> upstream/android-13
 		atomic_dec(&bp->ref_count);
 	}
 
@@ -514,18 +664,31 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 	bp = NULL;
 	if ((regs->msr & (MSR_IR|MSR_PR|MSR_64BIT)) == (MSR_IR|MSR_64BIT))
 		bp = at_breakpoint(regs->nip);
+<<<<<<< HEAD
 	if (bp || unrecoverable_excp(regs))
+=======
+	if (bp || regs_is_unrecoverable(regs))
+>>>>>>> upstream/android-13
 		fromipi = 0;
 
 	if (!fromipi) {
 		get_output_lock();
+<<<<<<< HEAD
 		excprint(regs);
+=======
+		if (!locked_down)
+			excprint(regs);
+>>>>>>> upstream/android-13
 		if (bp) {
 			printf("cpu 0x%x stopped at breakpoint 0x%tx (",
 			       cpu, BP_NUM(bp));
 			xmon_print_symbol(regs->nip, " ", ")\n");
 		}
+<<<<<<< HEAD
 		if (unrecoverable_excp(regs))
+=======
+		if (regs_is_unrecoverable(regs))
+>>>>>>> upstream/android-13
 			printf("WARNING: exception is not recoverable, "
 			       "can't continue\n");
 		release_output_lock();
@@ -564,17 +727,32 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 			 * debugger break (IPI). This is similar to
 			 * crash_kexec_secondary().
 			 */
+<<<<<<< HEAD
 			if (TRAP(regs) != 0x100 || !wait_for_other_cpus(ncpus))
+=======
+			if (TRAP(regs) !=  INTERRUPT_SYSTEM_RESET || !wait_for_other_cpus(ncpus))
+>>>>>>> upstream/android-13
 				smp_send_debugger_break();
 
 			wait_for_other_cpus(ncpus);
 		}
 		remove_bpts();
 		disable_surveillance();
+<<<<<<< HEAD
 		/* for breakpoint or single step, print the current instr. */
 		if (bp || TRAP(regs) == 0xd00)
 			ppc_inst_dump(regs->nip, 1, 0);
 		printf("enter ? for help\n");
+=======
+
+		if (!locked_down) {
+			/* for breakpoint or single step, print curr insn */
+			if (bp || TRAP(regs) == INTERRUPT_TRACE)
+				ppc_inst_dump(regs->nip, 1, 0);
+			printf("enter ? for help\n");
+		}
+
+>>>>>>> upstream/android-13
 		mb();
 		xmon_gate = 1;
 		barrier();
@@ -598,8 +776,19 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 			spin_cpu_relax();
 			touch_nmi_watchdog();
 		} else {
+<<<<<<< HEAD
 			cmd = cmds(regs);
 			if (cmd != 0) {
+=======
+			cmd = 1;
+#ifdef CONFIG_SMP
+			if (xmon_batch)
+				cmd = batch_cmds(regs);
+#endif
+			if (!locked_down && cmd)
+				cmd = cmds(regs);
+			if (locked_down || cmd != 0) {
+>>>>>>> upstream/android-13
 				/* exiting xmon */
 				insert_bpts();
 				xmon_gate = 0;
@@ -631,11 +820,16 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 			printf("Stopped at breakpoint %tx (", BP_NUM(bp));
 			xmon_print_symbol(regs->nip, " ", ")\n");
 		}
+<<<<<<< HEAD
 		if (unrecoverable_excp(regs))
+=======
+		if (regs_is_unrecoverable(regs))
+>>>>>>> upstream/android-13
 			printf("WARNING: exception is not recoverable, "
 			       "can't continue\n");
 		remove_bpts();
 		disable_surveillance();
+<<<<<<< HEAD
 		/* for breakpoint or single step, print the current instr. */
 		if (bp || TRAP(regs) == 0xd00)
 			ppc_inst_dump(regs->nip, 1, 0);
@@ -643,6 +837,18 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 	}
 
 	cmd = cmds(regs);
+=======
+		if (!locked_down) {
+			/* for breakpoint or single step, print current insn */
+			if (bp || TRAP(regs) == INTERRUPT_TRACE)
+				ppc_inst_dump(regs->nip, 1, 0);
+			printf("enter ? for help\n");
+		}
+	}
+
+	if (!locked_down)
+		cmd = cmds(regs);
+>>>>>>> upstream/android-13
 
 	insert_bpts();
 	in_xmon = 0;
@@ -652,7 +858,11 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 	if (regs->msr & MSR_DE) {
 		bp = at_breakpoint(regs->nip);
 		if (bp != NULL) {
+<<<<<<< HEAD
 			regs->nip = (unsigned long) &bp->instr[0];
+=======
+			regs_set_return_ip(regs, (unsigned long) &bp->instr[0]);
+>>>>>>> upstream/android-13
 			atomic_inc(&bp->ref_count);
 		}
 	}
@@ -660,6 +870,7 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 	if ((regs->msr & (MSR_IR|MSR_PR|MSR_64BIT)) == (MSR_IR|MSR_64BIT)) {
 		bp = at_breakpoint(regs->nip);
 		if (bp != NULL) {
+<<<<<<< HEAD
 			int stepped = emulate_step(regs, bp->instr[0]);
 			if (stepped == 0) {
 				regs->nip = (unsigned long) &bp->instr[0];
@@ -667,13 +878,31 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
 			} else if (stepped < 0) {
 				printf("Couldn't single-step %s instruction\n",
 				    (IS_RFID(bp->instr[0])? "rfid": "mtmsrd"));
+=======
+			int stepped = emulate_step(regs, ppc_inst_read(bp->instr));
+			if (stepped == 0) {
+				regs_set_return_ip(regs, (unsigned long) &bp->instr[0]);
+				atomic_inc(&bp->ref_count);
+			} else if (stepped < 0) {
+				printf("Couldn't single-step %s instruction\n",
+				    IS_RFID(ppc_inst_read(bp->instr))? "rfid": "mtmsrd");
+>>>>>>> upstream/android-13
 			}
 		}
 	}
 #endif
+<<<<<<< HEAD
 	insert_cpu_bpts();
 
 	touch_nmi_watchdog();
+=======
+	if (locked_down)
+		clear_all_bpt();
+	else
+		insert_cpu_bpts();
+
+	xmon_touch_watchdogs();
+>>>>>>> upstream/android-13
 	local_irq_restore(flags);
 
 	return cmd != 'X' && cmd != EOF;
@@ -712,8 +941,13 @@ static int xmon_bpt(struct pt_regs *regs)
 
 	/* Are we at the trap at bp->instr[1] for some bp? */
 	bp = in_breakpoint_table(regs->nip, &offset);
+<<<<<<< HEAD
 	if (bp != NULL && offset == 4) {
 		regs->nip = bp->address + 4;
+=======
+	if (bp != NULL && (offset == 4 || offset == 8)) {
+		regs_set_return_ip(regs, bp->address + offset);
+>>>>>>> upstream/android-13
 		atomic_dec(&bp->ref_count);
 		return 1;
 	}
@@ -738,10 +972,24 @@ static int xmon_sstep(struct pt_regs *regs)
 
 static int xmon_break_match(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	if ((regs->msr & (MSR_IR|MSR_PR|MSR_64BIT)) != (MSR_IR|MSR_64BIT))
 		return 0;
 	if (dabr.enabled == 0)
 		return 0;
+=======
+	int i;
+
+	if ((regs->msr & (MSR_IR|MSR_PR|MSR_64BIT)) != (MSR_IR|MSR_64BIT))
+		return 0;
+	for (i = 0; i < nr_wp_slots(); i++) {
+		if (dabr[i].enabled)
+			goto found;
+	}
+	return 0;
+
+found:
+>>>>>>> upstream/android-13
 	xmon_core(regs, 0);
 	return 1;
 }
@@ -776,7 +1024,11 @@ static int xmon_fault_handler(struct pt_regs *regs)
 	if ((regs->msr & (MSR_IR|MSR_PR|MSR_64BIT)) == (MSR_IR|MSR_64BIT)) {
 		bp = in_breakpoint_table(regs->nip, &offset);
 		if (bp != NULL) {
+<<<<<<< HEAD
 			regs->nip = bp->address + offset;
+=======
+			regs_set_return_ip(regs, bp->address + offset);
+>>>>>>> upstream/android-13
 			atomic_dec(&bp->ref_count);
 		}
 	}
@@ -797,7 +1049,11 @@ static inline void force_enable_xmon(void)
 static struct bpt *at_breakpoint(unsigned long pc)
 {
 	int i;
+<<<<<<< HEAD
 	struct bpt *bp;
+=======
+	struct bpt *volatile bp;
+>>>>>>> upstream/android-13
 
 	bp = bpts;
 	for (i = 0; i < NBPTS; ++i, ++bp)
@@ -810,6 +1066,7 @@ static struct bpt *in_breakpoint_table(unsigned long nip, unsigned long *offp)
 {
 	unsigned long off;
 
+<<<<<<< HEAD
 	off = nip - (unsigned long) bpts;
 	if (off >= sizeof(bpts))
 		return NULL;
@@ -819,6 +1076,15 @@ static struct bpt *in_breakpoint_table(unsigned long nip, unsigned long *offp)
 		return NULL;
 	*offp = off - offsetof(struct bpt, instr[0]);
 	return (struct bpt *) (nip - off);
+=======
+	off = nip - (unsigned long)bpt_table;
+	if (off >= sizeof(bpt_table))
+		return NULL;
+	*offp = off & (BPT_SIZE - 1);
+	if (off & 3)
+		return NULL;
+	return bpts + (off / BPT_SIZE);
+>>>>>>> upstream/android-13
 }
 
 static struct bpt *new_breakpoint(unsigned long a)
@@ -833,8 +1099,12 @@ static struct bpt *new_breakpoint(unsigned long a)
 	for (bp = bpts; bp < &bpts[NBPTS]; ++bp) {
 		if (!bp->enabled && atomic_read(&bp->ref_count) == 0) {
 			bp->address = a;
+<<<<<<< HEAD
 			bp->instr[1] = bpinstr;
 			store_inst(&bp->instr[1]);
+=======
+			bp->instr = (void *)(bpt_table + ((bp - bpts) * BPT_WORDS));
+>>>>>>> upstream/android-13
 			return bp;
 		}
 	}
@@ -846,40 +1116,90 @@ static struct bpt *new_breakpoint(unsigned long a)
 static void insert_bpts(void)
 {
 	int i;
+<<<<<<< HEAD
 	struct bpt *bp;
+=======
+	struct ppc_inst instr, instr2;
+	struct bpt *bp, *bp2;
+>>>>>>> upstream/android-13
 
 	bp = bpts;
 	for (i = 0; i < NBPTS; ++i, ++bp) {
 		if ((bp->enabled & (BP_TRAP|BP_CIABR)) == 0)
 			continue;
+<<<<<<< HEAD
 		if (mread(bp->address, &bp->instr[0], 4) != 4) {
+=======
+		if (!mread_instr(bp->address, &instr)) {
+>>>>>>> upstream/android-13
 			printf("Couldn't read instruction at %lx, "
 			       "disabling breakpoint there\n", bp->address);
 			bp->enabled = 0;
 			continue;
 		}
+<<<<<<< HEAD
 		if (IS_MTMSRD(bp->instr[0]) || IS_RFID(bp->instr[0])) {
+=======
+		if (IS_MTMSRD(instr) || IS_RFID(instr)) {
+>>>>>>> upstream/android-13
 			printf("Breakpoint at %lx is on an mtmsrd or rfid "
 			       "instruction, disabling it\n", bp->address);
 			bp->enabled = 0;
 			continue;
 		}
+<<<<<<< HEAD
 		store_inst(&bp->instr[0]);
 		if (bp->enabled & BP_CIABR)
 			continue;
 		if (patch_instruction((unsigned int *)bp->address,
 							bpinstr) != 0) {
+=======
+		/*
+		 * Check the address is not a suffix by looking for a prefix in
+		 * front of it.
+		 */
+		if (mread_instr(bp->address - 4, &instr2) == 8) {
+			printf("Breakpoint at %lx is on the second word of a prefixed instruction, disabling it\n",
+			       bp->address);
+			bp->enabled = 0;
+			continue;
+		}
+		/*
+		 * We might still be a suffix - if the prefix has already been
+		 * replaced by a breakpoint we won't catch it with the above
+		 * test.
+		 */
+		bp2 = at_breakpoint(bp->address - 4);
+		if (bp2 && ppc_inst_prefixed(ppc_inst_read(bp2->instr))) {
+			printf("Breakpoint at %lx is on the second word of a prefixed instruction, disabling it\n",
+			       bp->address);
+			bp->enabled = 0;
+			continue;
+		}
+
+		patch_instruction(bp->instr, instr);
+		patch_instruction(ppc_inst_next(bp->instr, bp->instr),
+				  ppc_inst(bpinstr));
+		if (bp->enabled & BP_CIABR)
+			continue;
+		if (patch_instruction((u32 *)bp->address,
+				      ppc_inst(bpinstr)) != 0) {
+>>>>>>> upstream/android-13
 			printf("Couldn't write instruction at %lx, "
 			       "disabling breakpoint there\n", bp->address);
 			bp->enabled &= ~BP_TRAP;
 			continue;
 		}
+<<<<<<< HEAD
 		store_inst((void *)bp->address);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
 static void insert_cpu_bpts(void)
 {
+<<<<<<< HEAD
 	struct arch_hw_breakpoint brk;
 
 	if (dabr.enabled) {
@@ -887,6 +1207,19 @@ static void insert_cpu_bpts(void)
 		brk.type = (dabr.enabled & HW_BRK_TYPE_DABR) | HW_BRK_TYPE_PRIV_ALL;
 		brk.len = 8;
 		__set_breakpoint(&brk);
+=======
+	int i;
+	struct arch_hw_breakpoint brk;
+
+	for (i = 0; i < nr_wp_slots(); i++) {
+		if (dabr[i].enabled) {
+			brk.address = dabr[i].address;
+			brk.type = (dabr[i].enabled & HW_BRK_TYPE_DABR) | HW_BRK_TYPE_PRIV_ALL;
+			brk.len = 8;
+			brk.hw_len = 8;
+			__set_breakpoint(i, &brk);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	if (iabr)
@@ -897,12 +1230,17 @@ static void remove_bpts(void)
 {
 	int i;
 	struct bpt *bp;
+<<<<<<< HEAD
 	unsigned instr;
+=======
+	struct ppc_inst instr;
+>>>>>>> upstream/android-13
 
 	bp = bpts;
 	for (i = 0; i < NBPTS; ++i, ++bp) {
 		if ((bp->enabled & (BP_TRAP|BP_CIABR)) != BP_TRAP)
 			continue;
+<<<<<<< HEAD
 		if (mread(bp->address, &instr, 4) == 4
 		    && instr == bpinstr
 		    && patch_instruction(
@@ -911,6 +1249,14 @@ static void remove_bpts(void)
 			       bp->address);
 		else
 			store_inst((void *)bp->address);
+=======
+		if (mread_instr(bp->address, &instr)
+		    && ppc_inst_equal(instr, ppc_inst(bpinstr))
+		    && patch_instruction(
+			(u32 *)bp->address, ppc_inst_read(bp->instr)) != 0)
+			printf("Couldn't remove breakpoint at %lx\n",
+			       bp->address);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -991,6 +1337,13 @@ cmds(struct pt_regs *excp)
 				memlocate();
 				break;
 			case 'z':
+<<<<<<< HEAD
+=======
+				if (xmon_is_ro) {
+					printf(xmon_ro_msg);
+					break;
+				}
+>>>>>>> upstream/android-13
 				memzcan();
 				break;
 			case 'i':
@@ -1057,12 +1410,23 @@ cmds(struct pt_regs *excp)
 			bootcmds();
 			break;
 		case 'p':
+<<<<<<< HEAD
+=======
+			if (xmon_is_ro) {
+				printf(xmon_ro_msg);
+				break;
+			}
+>>>>>>> upstream/android-13
 			proccall();
 			break;
 		case 'P':
 			show_tasks();
 			break;
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_STD_MMU
+=======
+#ifdef CONFIG_PPC_BOOK3S
+>>>>>>> upstream/android-13
 		case 'u':
 			dump_segments();
 			break;
@@ -1096,7 +1460,11 @@ cmds(struct pt_regs *excp)
 #ifdef CONFIG_BOOKE
 static int do_step(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	regs->msr |= MSR_DE;
+=======
+	regs_set_return_msr(regs, regs->msr | MSR_DE);
+>>>>>>> upstream/android-13
 	mtspr(SPRN_DBCR0, mfspr(SPRN_DBCR0) | DBCR0_IC | DBCR0_IDM);
 	return 1;
 }
@@ -1107,13 +1475,21 @@ static int do_step(struct pt_regs *regs)
  */
 static int do_step(struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	unsigned int instr;
+=======
+	struct ppc_inst instr;
+>>>>>>> upstream/android-13
 	int stepped;
 
 	force_enable_xmon();
 	/* check we are in 64-bit kernel mode, translation enabled */
 	if ((regs->msr & (MSR_64BIT|MSR_PR|MSR_IR)) == (MSR_64BIT|MSR_IR)) {
+<<<<<<< HEAD
 		if (mread(regs->nip, &instr, 4) == 4) {
+=======
+		if (mread_instr(regs->nip, &instr)) {
+>>>>>>> upstream/android-13
 			stepped = emulate_step(regs, instr);
 			if (stepped < 0) {
 				printf("Couldn't single-step %s instruction\n",
@@ -1121,7 +1497,11 @@ static int do_step(struct pt_regs *regs)
 				return 0;
 			}
 			if (stepped > 0) {
+<<<<<<< HEAD
 				regs->trap = 0xd00 | (regs->trap & 1);
+=======
+				set_trap(regs, 0xd00);
+>>>>>>> upstream/android-13
 				printf("stepped to ");
 				xmon_print_symbol(regs->nip, " ", "\n");
 				ppc_inst_dump(regs->nip, 1, 0);
@@ -1129,13 +1509,18 @@ static int do_step(struct pt_regs *regs)
 			}
 		}
 	}
+<<<<<<< HEAD
 	regs->msr |= MSR_SE;
+=======
+	regs_set_return_msr(regs, regs->msr | MSR_SE);
+>>>>>>> upstream/android-13
 	return 1;
 }
 #endif
 
 static void bootcmds(void)
 {
+<<<<<<< HEAD
 	int cmd;
 
 	cmd = inchar();
@@ -1146,13 +1531,135 @@ static void bootcmds(void)
 	else if (cmd == 'p')
 		if (pm_power_off)
 			pm_power_off();
+=======
+	char tmp[64];
+	int cmd;
+
+	cmd = inchar();
+	if (cmd == 'r') {
+		getstring(tmp, 64);
+		ppc_md.restart(tmp);
+	} else if (cmd == 'h') {
+		ppc_md.halt();
+	} else if (cmd == 'p') {
+		if (pm_power_off)
+			pm_power_off();
+	}
+}
+
+#ifdef CONFIG_SMP
+static int xmon_switch_cpu(unsigned long cpu)
+{
+	int timeout;
+
+	xmon_taken = 0;
+	mb();
+	xmon_owner = cpu;
+	timeout = 10000000;
+	while (!xmon_taken) {
+		if (--timeout == 0) {
+			if (test_and_set_bit(0, &xmon_taken))
+				break;
+			/* take control back */
+			mb();
+			xmon_owner = smp_processor_id();
+			printf("cpu 0x%lx didn't take control\n", cpu);
+			return 0;
+		}
+		barrier();
+	}
+	return 1;
+}
+
+static int xmon_batch_next_cpu(void)
+{
+	unsigned long cpu;
+
+	while (!cpumask_empty(&xmon_batch_cpus)) {
+		cpu = cpumask_next_wrap(smp_processor_id(), &xmon_batch_cpus,
+					xmon_batch_start_cpu, true);
+		if (cpu == nr_cpumask_bits)
+			break;
+		if (xmon_batch_start_cpu == -1)
+			xmon_batch_start_cpu = cpu;
+		if (xmon_switch_cpu(cpu))
+			return 0;
+		cpumask_clear_cpu(cpu, &xmon_batch_cpus);
+	}
+
+	xmon_batch = 0;
+	printf("%x:mon> \n", smp_processor_id());
+	return 1;
+}
+
+static int batch_cmds(struct pt_regs *excp)
+{
+	int cmd;
+
+	/* simulate command entry */
+	cmd = xmon_batch;
+	termch = '\n';
+
+	last_cmd = NULL;
+	xmon_regs = excp;
+
+	printf("%x:", smp_processor_id());
+	printf("mon> ");
+	printf("%c\n", (char)cmd);
+
+	switch (cmd) {
+	case 'r':
+		prregs(excp);	/* print regs */
+		break;
+	case 'S':
+		super_regs();
+		break;
+	case 't':
+		backtrace(excp);
+		break;
+	}
+
+	cpumask_clear_cpu(smp_processor_id(), &xmon_batch_cpus);
+
+	return xmon_batch_next_cpu();
+>>>>>>> upstream/android-13
 }
 
 static int cpu_cmd(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_SMP
 	unsigned long cpu, first_cpu, last_cpu;
 	int timeout;
+=======
+	unsigned long cpu, first_cpu, last_cpu;
+
+	cpu = skipbl();
+	if (cpu == '#') {
+		xmon_batch = skipbl();
+		if (xmon_batch) {
+			switch (xmon_batch) {
+			case 'r':
+			case 'S':
+			case 't':
+				cpumask_copy(&xmon_batch_cpus, &cpus_in_xmon);
+				if (cpumask_weight(&xmon_batch_cpus) <= 1) {
+					printf("There are no other cpus in xmon\n");
+					break;
+				}
+				xmon_batch_start_cpu = -1;
+				if (!xmon_batch_next_cpu())
+					return 1;
+				break;
+			default:
+				printf("c# only supports 'r', 'S' and 't' commands\n");
+			}
+			xmon_batch = 0;
+			return 0;
+		}
+	}
+	termch = cpu;
+>>>>>>> upstream/android-13
 
 	if (!scanhex(&cpu)) {
 		/* print cpus waiting or in xmon */
@@ -1184,6 +1691,7 @@ static int cpu_cmd(void)
 #endif
 		return 0;
 	}
+<<<<<<< HEAD
 	xmon_taken = 0;
 	mb();
 	xmon_owner = cpu;
@@ -1205,6 +1713,17 @@ static int cpu_cmd(void)
 	return 0;
 #endif /* CONFIG_SMP */
 }
+=======
+
+	return xmon_switch_cpu(cpu);
+}
+#else
+static int cpu_cmd(void)
+{
+	return 0;
+}
+#endif /* CONFIG_SMP */
+>>>>>>> upstream/android-13
 
 static unsigned short fcstab[256] = {
 	0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
@@ -1270,14 +1789,22 @@ csum(void)
  */
 static long check_bp_loc(unsigned long addr)
 {
+<<<<<<< HEAD
 	unsigned int instr;
+=======
+	struct ppc_inst instr;
+>>>>>>> upstream/android-13
 
 	addr &= ~3;
 	if (!is_kernel_addr(addr)) {
 		printf("Breakpoints may only be placed at kernel addresses\n");
 		return 0;
 	}
+<<<<<<< HEAD
 	if (!mread(addr, &instr, sizeof(instr))) {
+=======
+	if (!mread_instr(addr, &instr)) {
+>>>>>>> upstream/android-13
 		printf("Can't read instruction at address %lx\n", addr);
 		return 0;
 	}
@@ -1289,6 +1816,38 @@ static long check_bp_loc(unsigned long addr)
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+static int find_free_data_bpt(void)
+{
+	int i;
+
+	for (i = 0; i < nr_wp_slots(); i++) {
+		if (!dabr[i].enabled)
+			return i;
+	}
+	printf("Couldn't find free breakpoint register\n");
+	return -1;
+}
+
+static void print_data_bpts(void)
+{
+	int i;
+
+	for (i = 0; i < nr_wp_slots(); i++) {
+		if (!dabr[i].enabled)
+			continue;
+
+		printf("   data   "REG"  [", dabr[i].address);
+		if (dabr[i].enabled & 1)
+			printf("r");
+		if (dabr[i].enabled & 2)
+			printf("w");
+		printf("]\n");
+	}
+}
+
+>>>>>>> upstream/android-13
 static char *breakpoint_help_string =
     "Breakpoint command usage:\n"
     "b                show breakpoints\n"
@@ -1308,15 +1867,33 @@ bpt_cmds(void)
 	struct bpt *bp;
 
 	cmd = inchar();
+<<<<<<< HEAD
 	switch (cmd) {
 #ifndef CONFIG_PPC_8xx
 	static const char badaddr[] = "Only kernel addresses are permitted for breakpoints\n";
 	int mode;
 	case 'd':	/* bd - hardware data breakpoint */
+=======
+
+	switch (cmd) {
+	static const char badaddr[] = "Only kernel addresses are permitted for breakpoints\n";
+	int mode;
+	case 'd':	/* bd - hardware data breakpoint */
+		if (xmon_is_ro) {
+			printf(xmon_ro_msg);
+			break;
+		}
+>>>>>>> upstream/android-13
 		if (!ppc_breakpoint_available()) {
 			printf("Hardware data breakpoint not supported on this cpu\n");
 			break;
 		}
+<<<<<<< HEAD
+=======
+		i = find_free_data_bpt();
+		if (i < 0)
+			break;
+>>>>>>> upstream/android-13
 		mode = 7;
 		cmd = inchar();
 		if (cmd == 'r')
@@ -1325,6 +1902,7 @@ bpt_cmds(void)
 			mode = 6;
 		else
 			termch = cmd;
+<<<<<<< HEAD
 		dabr.address = 0;
 		dabr.enabled = 0;
 		if (scanhex(&dabr.address)) {
@@ -1334,12 +1912,30 @@ bpt_cmds(void)
 			}
 			dabr.address &= ~HW_BRK_TYPE_DABR;
 			dabr.enabled = mode | BP_DABR;
+=======
+		dabr[i].address = 0;
+		dabr[i].enabled = 0;
+		if (scanhex(&dabr[i].address)) {
+			if (!is_kernel_addr(dabr[i].address)) {
+				printf(badaddr);
+				break;
+			}
+			dabr[i].address &= ~HW_BRK_TYPE_DABR;
+			dabr[i].enabled = mode | BP_DABR;
+>>>>>>> upstream/android-13
 		}
 
 		force_enable_xmon();
 		break;
 
 	case 'i':	/* bi - hardware instr breakpoint */
+<<<<<<< HEAD
+=======
+		if (xmon_is_ro) {
+			printf(xmon_ro_msg);
+			break;
+		}
+>>>>>>> upstream/android-13
 		if (!cpu_has_feature(CPU_FTR_ARCH_207S)) {
 			printf("Hardware instruction breakpoint "
 			       "not supported on this cpu\n");
@@ -1360,7 +1956,10 @@ bpt_cmds(void)
 			force_enable_xmon();
 		}
 		break;
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 	case 'c':
 		if (!scanhex(&a)) {
@@ -1368,7 +1967,13 @@ bpt_cmds(void)
 			for (i = 0; i < NBPTS; ++i)
 				bpts[i].enabled = 0;
 			iabr = NULL;
+<<<<<<< HEAD
 			dabr.enabled = 0;
+=======
+			for (i = 0; i < nr_wp_slots(); i++)
+				dabr[i].enabled = 0;
+
+>>>>>>> upstream/android-13
 			printf("All breakpoints cleared\n");
 			break;
 		}
@@ -1398,6 +2003,7 @@ bpt_cmds(void)
 			break;
 		}
 		termch = cmd;
+<<<<<<< HEAD
 		if (!scanhex(&a)) {
 			/* print all breakpoints */
 			printf("   type            address\n");
@@ -1409,6 +2015,13 @@ bpt_cmds(void)
 					printf("w");
 				printf("]\n");
 			}
+=======
+
+		if (xmon_is_ro || !scanhex(&a)) {
+			/* print all breakpoints */
+			printf("   type            address\n");
+			print_data_bpts();
+>>>>>>> upstream/android-13
 			for (bp = bpts; bp < &bpts[NBPTS]; ++bp) {
 				if (!bp->enabled)
 					continue;
@@ -1470,6 +2083,10 @@ const char *getvecname(unsigned long vec)
 	case 0x1300:	ret = "(Instruction Breakpoint)"; break;
 	case 0x1500:	ret = "(Denormalisation)"; break;
 	case 0x1700:	ret = "(Altivec Assist)"; break;
+<<<<<<< HEAD
+=======
+	case 0x3000:	ret = "(System Call Vectored)"; break;
+>>>>>>> upstream/android-13
 	default: ret = "";
 	}
 	return ret;
@@ -1613,9 +2230,15 @@ static void print_bug_trap(struct pt_regs *regs)
 
 #ifdef CONFIG_DEBUG_BUGVERBOSE
 	printf("kernel BUG at %s:%u!\n",
+<<<<<<< HEAD
 	       bug->file, bug->line);
 #else
 	printf("kernel BUG at %px!\n", (void *)bug->bug_addr);
+=======
+	       (char *)bug + bug->file_disp, bug->line);
+#else
+	printf("kernel BUG at %px!\n", (void *)bug + bug->bug_addr_disp);
+>>>>>>> upstream/android-13
 #endif
 #endif /* CONFIG_BUG */
 }
@@ -1639,9 +2262,18 @@ static void excprint(struct pt_regs *fp)
 	printf("    sp: %lx\n", fp->gpr[1]);
 	printf("   msr: %lx\n", fp->msr);
 
+<<<<<<< HEAD
 	if (trap == 0x300 || trap == 0x380 || trap == 0x600 || trap == 0x200) {
 		printf("   dar: %lx\n", fp->dar);
 		if (trap != 0x380)
+=======
+	if (trap == INTERRUPT_DATA_STORAGE ||
+	    trap == INTERRUPT_DATA_SEGMENT ||
+	    trap == INTERRUPT_ALIGNMENT ||
+	    trap == INTERRUPT_MACHINE_CHECK) {
+		printf("   dar: %lx\n", fp->dar);
+		if (trap != INTERRUPT_DATA_SEGMENT)
+>>>>>>> upstream/android-13
 			printf(" dsisr: %lx\n", fp->dsisr);
 	}
 
@@ -1655,7 +2287,11 @@ static void excprint(struct pt_regs *fp)
 		       current->pid, current->comm);
 	}
 
+<<<<<<< HEAD
 	if (trap == 0x700)
+=======
+	if (trap == INTERRUPT_PROGRAM)
+>>>>>>> upstream/android-13
 		print_bug_trap(fp);
 
 	printf(linux_banner);
@@ -1685,6 +2321,7 @@ static void prregs(struct pt_regs *fp)
 	}
 
 #ifdef CONFIG_PPC64
+<<<<<<< HEAD
 	if (FULL_REGS(fp)) {
 		for (n = 0; n < 16; ++n)
 			printf("R%.2d = "REG"   R%.2d = "REG"\n",
@@ -1707,6 +2344,21 @@ static void prregs(struct pt_regs *fp)
 	printf("pc  = ");
 	xmon_print_symbol(fp->nip, " ", "\n");
 	if (TRAP(fp) != 0xc00 && cpu_has_feature(CPU_FTR_CFAR)) {
+=======
+#define R_PER_LINE 2
+#else
+#define R_PER_LINE 4
+#endif
+
+	for (n = 0; n < 32; ++n) {
+		printf("R%.2d = "REG"%s", n, fp->gpr[n],
+			(n % R_PER_LINE) == R_PER_LINE - 1 ? "\n" : "   ");
+	}
+
+	printf("pc  = ");
+	xmon_print_symbol(fp->nip, " ", "\n");
+	if (!trap_is_syscall(fp) && cpu_has_feature(CPU_FTR_CFAR)) {
+>>>>>>> upstream/android-13
 		printf("cfar= ");
 		xmon_print_symbol(fp->orig_gpr3, " ", "\n");
 	}
@@ -1716,7 +2368,13 @@ static void prregs(struct pt_regs *fp)
 	printf("ctr = "REG"   xer = "REG"   trap = %4lx\n",
 	       fp->ctr, fp->xer, fp->trap);
 	trap = TRAP(fp);
+<<<<<<< HEAD
 	if (trap == 0x300 || trap == 0x380 || trap == 0x600)
+=======
+	if (trap == INTERRUPT_DATA_STORAGE ||
+	    trap == INTERRUPT_DATA_SEGMENT ||
+	    trap == INTERRUPT_ALIGNMENT)
+>>>>>>> upstream/android-13
 		printf("dar = "REG"   dsisr = %.8lx\n", fp->dar, fp->dsisr);
 }
 
@@ -1738,7 +2396,11 @@ static void cacheflush(void)
 		catch_memory_errors = 1;
 		sync();
 
+<<<<<<< HEAD
 		if (cmd != 'i') {
+=======
+		if (cmd != 'i' || IS_ENABLED(CONFIG_PPC_BOOK3S_64)) {
+>>>>>>> upstream/android-13
 			for (; nflush > 0; --nflush, adrs += L1_CACHE_BYTES)
 				cflush((void *) adrs);
 		} else {
@@ -1779,6 +2441,14 @@ read_spr(int n, unsigned long *vp)
 static void
 write_spr(int n, unsigned long val)
 {
+<<<<<<< HEAD
+=======
+	if (xmon_is_ro) {
+		printf(xmon_ro_msg);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	if (setjmp(bus_error_jmp) == 0) {
 		catch_spr_faults = 1;
 		sync();
@@ -1863,8 +2533,18 @@ static void dump_207_sprs(void)
 
 	printf("hfscr  = %.16lx  dhdes = %.16lx rpr    = %.16lx\n",
 		mfspr(SPRN_HFSCR), mfspr(SPRN_DHDES), mfspr(SPRN_RPR));
+<<<<<<< HEAD
 	printf("dawr   = %.16lx  dawrx = %.16lx ciabr  = %.16lx\n",
 		mfspr(SPRN_DAWR), mfspr(SPRN_DAWRX), mfspr(SPRN_CIABR));
+=======
+	printf("dawr0  = %.16lx dawrx0 = %.16lx\n",
+	       mfspr(SPRN_DAWR0), mfspr(SPRN_DAWRX0));
+	if (nr_wp_slots() > 1) {
+		printf("dawr1  = %.16lx dawrx1 = %.16lx\n",
+		       mfspr(SPRN_DAWR1), mfspr(SPRN_DAWRX1));
+	}
+	printf("ciabr  = %.16lx\n", mfspr(SPRN_CIABR));
+>>>>>>> upstream/android-13
 #endif
 }
 
@@ -1889,6 +2569,21 @@ static void dump_300_sprs(void)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static void dump_310_sprs(void)
+{
+#ifdef CONFIG_PPC64
+	if (!cpu_has_feature(CPU_FTR_ARCH_31))
+		return;
+
+	printf("mmcr3  = %.16lx, sier2  = %.16lx, sier3  = %.16lx\n",
+		mfspr(SPRN_MMCR3), mfspr(SPRN_SIER2), mfspr(SPRN_SIER3));
+
+#endif
+}
+
+>>>>>>> upstream/android-13
 static void dump_one_spr(int spr, bool show_unimplemented)
 {
 	unsigned long val;
@@ -1943,6 +2638,10 @@ static void super_regs(void)
 		dump_206_sprs();
 		dump_207_sprs();
 		dump_300_sprs();
+<<<<<<< HEAD
+=======
+		dump_310_sprs();
+>>>>>>> upstream/android-13
 
 		return;
 	}
@@ -2017,6 +2716,15 @@ mwrite(unsigned long adrs, void *buf, int size)
 	char *p, *q;
 
 	n = 0;
+<<<<<<< HEAD
+=======
+
+	if (xmon_is_ro) {
+		printf(xmon_ro_msg);
+		return n;
+	}
+
+>>>>>>> upstream/android-13
 	if (setjmp(bus_error_jmp) == 0) {
 		catch_memory_errors = 1;
 		sync();
@@ -2049,6 +2757,28 @@ mwrite(unsigned long adrs, void *buf, int size)
 	return n;
 }
 
+<<<<<<< HEAD
+=======
+static int
+mread_instr(unsigned long adrs, struct ppc_inst *instr)
+{
+	volatile int n;
+
+	n = 0;
+	if (setjmp(bus_error_jmp) == 0) {
+		catch_memory_errors = 1;
+		sync();
+		*instr = ppc_inst_read((u32 *)adrs);
+		sync();
+		/* wait a little while to see if we get a machine check */
+		__delay(200);
+		n = ppc_inst_len(*instr);
+	}
+	catch_memory_errors = 0;
+	return n;
+}
+
+>>>>>>> upstream/android-13
 static int fault_type;
 static int fault_except;
 static char *fault_chars[] = { "--", "**", "##" };
@@ -2381,6 +3111,7 @@ static void dump_one_paca(int cpu)
 	DUMP(p, cpu_start, "%#-*x");
 	DUMP(p, kexec_state, "%#-*x");
 #ifdef CONFIG_PPC_BOOK3S_64
+<<<<<<< HEAD
 	for (i = 0; i < SLB_NUM_BOLTED; i++) {
 		u64 esid, vsid;
 
@@ -2400,6 +3131,35 @@ static void dump_one_paca(int cpu)
 	for (i = 0; i < SLB_CACHE_ENTRIES; i++)
 		printf(" %-*s[%d] = 0x%016x\n",
 		       22, "slb_cache", i, p->slb_cache[i]);
+=======
+	if (!early_radix_enabled()) {
+		for (i = 0; i < SLB_NUM_BOLTED; i++) {
+			u64 esid, vsid;
+
+			if (!p->slb_shadow_ptr)
+				continue;
+
+			esid = be64_to_cpu(p->slb_shadow_ptr->save_area[i].esid);
+			vsid = be64_to_cpu(p->slb_shadow_ptr->save_area[i].vsid);
+
+			if (esid || vsid) {
+				printf(" %-*s[%d] = 0x%016llx 0x%016llx\n",
+				       22, "slb_shadow", i, esid, vsid);
+			}
+		}
+		DUMP(p, vmalloc_sllp, "%#-*x");
+		DUMP(p, stab_rr, "%#-*x");
+		DUMP(p, slb_used_bitmap, "%#-*x");
+		DUMP(p, slb_kern_bitmap, "%#-*x");
+
+		if (!early_cpu_has_feature(CPU_FTR_ARCH_300)) {
+			DUMP(p, slb_cache_ptr, "%#-*x");
+			for (i = 0; i < SLB_CACHE_ENTRIES; i++)
+				printf(" %-*s[%d] = 0x%016x\n",
+				       22, "slb_cache", i, p->slb_cache[i]);
+		}
+	}
+>>>>>>> upstream/android-13
 
 	DUMP(p, rfi_flush_fallback_area, "%-*px");
 #endif
@@ -2415,6 +3175,7 @@ static void dump_one_paca(int cpu)
 	DUMP(p, __current, "%-*px");
 	DUMP(p, kstack, "%#-*llx");
 	printf(" %-*s = 0x%016llx\n", 25, "kstack_base", p->kstack & ~(THREAD_SIZE - 1));
+<<<<<<< HEAD
 	DUMP(p, stab_rr, "%#-*llx");
 	DUMP(p, saved_r1, "%#-*llx");
 	DUMP(p, trap_save, "%#-*x");
@@ -2423,6 +3184,22 @@ static void dump_one_paca(int cpu)
 	DUMP(p, io_sync, "%#-*x");
 	DUMP(p, irq_work_pending, "%#-*x");
 	DUMP(p, nap_state_lost, "%#-*x");
+=======
+#ifdef CONFIG_STACKPROTECTOR
+	DUMP(p, canary, "%#-*lx");
+#endif
+	DUMP(p, saved_r1, "%#-*llx");
+#ifdef CONFIG_PPC_BOOK3E
+	DUMP(p, trap_save, "%#-*x");
+#endif
+	DUMP(p, irq_soft_mask, "%#-*x");
+	DUMP(p, irq_happened, "%#-*x");
+#ifdef CONFIG_MMIOWB
+	DUMP(p, mmiowb_state.nesting_count, "%#-*x");
+	DUMP(p, mmiowb_state.mmiowb_pending, "%#-*x");
+#endif
+	DUMP(p, irq_work_pending, "%#-*x");
+>>>>>>> upstream/android-13
 	DUMP(p, sprg_vdso, "%#-*llx");
 
 #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
@@ -2430,6 +3207,7 @@ static void dump_one_paca(int cpu)
 #endif
 
 #ifdef CONFIG_PPC_POWERNV
+<<<<<<< HEAD
 	DUMP(p, core_idle_state_ptr, "%-*px");
 	DUMP(p, thread_idle_state, "%#-*x");
 	DUMP(p, thread_mask, "%#-*x");
@@ -2443,15 +3221,39 @@ static void dump_one_paca(int cpu)
 	DUMP(p, stop_sprs.mmcr2, "%#-*llx");
 	DUMP(p, stop_sprs.mmcra, "%#-*llx");
 	DUMP(p, dont_stop.counter, "%#-*x");
+=======
+	DUMP(p, idle_state, "%#-*lx");
+	if (!early_cpu_has_feature(CPU_FTR_ARCH_300)) {
+		DUMP(p, thread_idle_state, "%#-*x");
+		DUMP(p, subcore_sibling_mask, "%#-*x");
+	} else {
+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
+		DUMP(p, requested_psscr, "%#-*llx");
+		DUMP(p, dont_stop.counter, "%#-*x");
+#endif
+	}
+>>>>>>> upstream/android-13
 #endif
 
 	DUMP(p, accounting.utime, "%#-*lx");
 	DUMP(p, accounting.stime, "%#-*lx");
+<<<<<<< HEAD
 	DUMP(p, accounting.utime_scaled, "%#-*lx");
 	DUMP(p, accounting.starttime, "%#-*lx");
 	DUMP(p, accounting.starttime_user, "%#-*lx");
 	DUMP(p, accounting.startspurr, "%#-*lx");
 	DUMP(p, accounting.utime_sspurr, "%#-*lx");
+=======
+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+	DUMP(p, accounting.utime_scaled, "%#-*lx");
+#endif
+	DUMP(p, accounting.starttime, "%#-*lx");
+	DUMP(p, accounting.starttime_user, "%#-*lx");
+#ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
+	DUMP(p, accounting.startspurr, "%#-*lx");
+	DUMP(p, accounting.utime_sspurr, "%#-*lx");
+#endif
+>>>>>>> upstream/android-13
 	DUMP(p, accounting.steal_time, "%#-*lx");
 #undef DUMP
 
@@ -2534,6 +3336,7 @@ static void dump_all_xives(void)
 		dump_one_xive(cpu);
 }
 
+<<<<<<< HEAD
 static void dump_one_xive_irq(u32 num)
 {
 	s64 rc;
@@ -2546,6 +3349,8 @@ static void dump_one_xive_irq(u32 num)
 		    num, be64_to_cpu(vp), prio, be32_to_cpu(lirq), rc);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void dump_xives(void)
 {
 	unsigned long num;
@@ -2562,7 +3367,13 @@ static void dump_xives(void)
 		return;
 	} else if (c == 'i') {
 		if (scanhex(&num))
+<<<<<<< HEAD
 			dump_one_xive_irq(num);
+=======
+			xmon_xive_get_irq_config(num, NULL);
+		else
+			xmon_xive_get_irq_all();
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2603,7 +3414,16 @@ static void dump_by_size(unsigned long addr, long count, int size)
 
 			printf("%0*llx", size * 2, val);
 		}
+<<<<<<< HEAD
 		printf("\n");
+=======
+		printf("  |");
+		for (j = 0; j < 16; ++j) {
+			val = temp[j];
+			putchar(' ' <= val && val <= '~' ? val : '.');
+		}
+		printf("|\n");
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2647,8 +3467,13 @@ dump(void)
 		scanhex(&nidump);
 		if (nidump == 0)
 			nidump = 16;
+<<<<<<< HEAD
 		else if (nidump > MAX_DUMP)
 			nidump = MAX_DUMP;
+=======
+		else if (nidump > MAX_IDUMP)
+			nidump = MAX_IDUMP;
+>>>>>>> upstream/android-13
 		adrs += ppc_inst_dump(adrs, nidump, 1);
 		last_cmd = "di\n";
 	} else if (c == 'l') {
@@ -2741,12 +3566,20 @@ generic_inst_dump(unsigned long adr, long count, int praddr,
 {
 	int nr, dotted;
 	unsigned long first_adr;
+<<<<<<< HEAD
 	unsigned int inst, last_inst = 0;
 	unsigned char val[4];
 
 	dotted = 0;
 	for (first_adr = adr; count > 0; --count, adr += 4) {
 		nr = mread(adr, val, 4);
+=======
+	struct ppc_inst inst, last_inst = ppc_inst(0);
+
+	dotted = 0;
+	for (first_adr = adr; count > 0; --count, adr += ppc_inst_len(inst)) {
+		nr = mread_instr(adr, &inst);
+>>>>>>> upstream/android-13
 		if (nr == 0) {
 			if (praddr) {
 				const char *x = fault_chars[fault_type];
@@ -2754,8 +3587,12 @@ generic_inst_dump(unsigned long adr, long count, int praddr,
 			}
 			break;
 		}
+<<<<<<< HEAD
 		inst = GETWORD(val);
 		if (adr > first_adr && inst == last_inst) {
+=======
+		if (adr > first_adr && ppc_inst_equal(inst, last_inst)) {
+>>>>>>> upstream/android-13
 			if (!dotted) {
 				printf(" ...\n");
 				dotted = 1;
@@ -2765,9 +3602,18 @@ generic_inst_dump(unsigned long adr, long count, int praddr,
 		dotted = 0;
 		last_inst = inst;
 		if (praddr)
+<<<<<<< HEAD
 			printf(REG"  %.8x", adr, inst);
 		printf("\t");
 		dump_func(inst, adr);
+=======
+			printf(REG"  %s", adr, ppc_inst_as_str(inst));
+		printf("\t");
+		if (!ppc_inst_prefixed(inst))
+			dump_func(ppc_inst_val(inst), adr);
+		else
+			dump_func(ppc_inst_as_ulong(inst), adr);
+>>>>>>> upstream/android-13
 		printf("\n");
 	}
 	return adr - first_adr;
@@ -2785,11 +3631,19 @@ print_address(unsigned long addr)
 	xmon_print_symbol(addr, "\t# ", "");
 }
 
+<<<<<<< HEAD
 void
 dump_log_buf(void)
 {
 	struct kmsg_dumper dumper = { .active = 1 };
 	unsigned char buf[128];
+=======
+static void
+dump_log_buf(void)
+{
+	struct kmsg_dump_iter iter;
+	static unsigned char buf[1024];
+>>>>>>> upstream/android-13
 	size_t len;
 
 	if (setjmp(bus_error_jmp) != 0) {
@@ -2800,9 +3654,15 @@ dump_log_buf(void)
 	catch_memory_errors = 1;
 	sync();
 
+<<<<<<< HEAD
 	kmsg_dump_rewind_nolock(&dumper);
 	xmon_start_pagination();
 	while (kmsg_dump_get_line_nolock(&dumper, false, buf, sizeof(buf), &len)) {
+=======
+	kmsg_dump_rewind(&iter);
+	xmon_start_pagination();
+	while (kmsg_dump_get_line(&iter, false, buf, sizeof(buf), &len)) {
+>>>>>>> upstream/android-13
 		buf[len] = '\0';
 		printf("%s", buf);
 	}
@@ -2819,7 +3679,11 @@ static void dump_opal_msglog(void)
 {
 	unsigned char buf[128];
 	ssize_t res;
+<<<<<<< HEAD
 	loff_t pos = 0;
+=======
+	volatile loff_t pos = 0;
+>>>>>>> upstream/android-13
 
 	if (!firmware_has_feature(FW_FEATURE_OPAL)) {
 		printf("Machine is not running OPAL firmware.\n");
@@ -2874,9 +3738,23 @@ memops(int cmd)
 	scanhex((void *)&mcount);
 	switch( cmd ){
 	case 'm':
+<<<<<<< HEAD
 		memmove((void *)mdest, (void *)msrc, mcount);
 		break;
 	case 's':
+=======
+		if (xmon_is_ro) {
+			printf(xmon_ro_msg);
+			break;
+		}
+		memmove((void *)mdest, (void *)msrc, mcount);
+		break;
+	case 's':
+		if (xmon_is_ro) {
+			printf(xmon_ro_msg);
+			break;
+		}
+>>>>>>> upstream/android-13
 		memset((void *)mdest, mval, mcount);
 		break;
 	case 'd':
@@ -2966,8 +3844,14 @@ memzcan(void)
 		printf("%.8lx\n", a - mskip);
 }
 
+<<<<<<< HEAD
 static void show_task(struct task_struct *tsk)
 {
+=======
+static void show_task(struct task_struct *volatile tsk)
+{
+	unsigned int p_state = READ_ONCE(tsk->__state);
+>>>>>>> upstream/android-13
 	char state;
 
 	/*
@@ -2975,6 +3859,7 @@ static void show_task(struct task_struct *tsk)
 	 * appropriate for calling from xmon. This could be moved
 	 * to a common, generic, routine used by both.
 	 */
+<<<<<<< HEAD
 	state = (tsk->state == 0) ? 'R' :
 		(tsk->state < 0) ? 'U' :
 		(tsk->state & TASK_UNINTERRUPTIBLE) ? 'D' :
@@ -2988,29 +3873,65 @@ static void show_task(struct task_struct *tsk)
 		tsk->thread.ksp,
 		tsk->pid, tsk->parent->pid,
 		state, task_thread_info(tsk)->cpu,
+=======
+	state = (p_state == TASK_RUNNING) ? 'R' :
+		(p_state & TASK_UNINTERRUPTIBLE) ? 'D' :
+		(p_state & TASK_STOPPED) ? 'T' :
+		(p_state & TASK_TRACED) ? 'C' :
+		(tsk->exit_state & EXIT_ZOMBIE) ? 'Z' :
+		(tsk->exit_state & EXIT_DEAD) ? 'E' :
+		(p_state & TASK_INTERRUPTIBLE) ? 'S' : '?';
+
+	printf("%16px %16lx %16px %6d %6d %c %2d %s\n", tsk,
+		tsk->thread.ksp, tsk->thread.regs,
+		tsk->pid, rcu_dereference(tsk->parent)->pid,
+		state, task_cpu(tsk),
+>>>>>>> upstream/android-13
 		tsk->comm);
 }
 
 #ifdef CONFIG_PPC_BOOK3S_64
+<<<<<<< HEAD
 void format_pte(void *ptep, unsigned long pte)
 {
+=======
+static void format_pte(void *ptep, unsigned long pte)
+{
+	pte_t entry = __pte(pte);
+
+>>>>>>> upstream/android-13
 	printf("ptep @ 0x%016lx = 0x%016lx\n", (unsigned long)ptep, pte);
 	printf("Maps physical address = 0x%016lx\n", pte & PTE_RPN_MASK);
 
 	printf("Flags = %s%s%s%s%s\n",
+<<<<<<< HEAD
 	       (pte & _PAGE_ACCESSED) ? "Accessed " : "",
 	       (pte & _PAGE_DIRTY)    ? "Dirty " : "",
 	       (pte & _PAGE_READ)     ? "Read " : "",
 	       (pte & _PAGE_WRITE)    ? "Write " : "",
 	       (pte & _PAGE_EXEC)     ? "Exec " : "");
+=======
+	       pte_young(entry) ? "Accessed " : "",
+	       pte_dirty(entry) ? "Dirty " : "",
+	       pte_read(entry)  ? "Read " : "",
+	       pte_write(entry) ? "Write " : "",
+	       pte_exec(entry)  ? "Exec " : "");
+>>>>>>> upstream/android-13
 }
 
 static void show_pte(unsigned long addr)
 {
 	unsigned long tskv = 0;
+<<<<<<< HEAD
 	struct task_struct *tsk = NULL;
 	struct mm_struct *mm;
 	pgd_t *pgdp, *pgdir;
+=======
+	struct task_struct *volatile tsk = NULL;
+	struct mm_struct *mm;
+	pgd_t *pgdp;
+	p4d_t *p4dp;
+>>>>>>> upstream/android-13
 	pud_t *pudp;
 	pmd_t *pmdp;
 	pte_t *ptep;
@@ -3034,6 +3955,7 @@ static void show_pte(unsigned long addr)
 	catch_memory_errors = 1;
 	sync();
 
+<<<<<<< HEAD
 	if (mm == &init_mm) {
 		pgdp = pgd_offset_k(addr);
 		pgdir = pgd_offset_k(0);
@@ -3056,13 +3978,39 @@ static void show_pte(unsigned long addr)
 	printf("pgdp @ 0x%px = 0x%016lx\n", pgdp, pgd_val(*pgdp));
 
 	pudp = pud_offset(pgdp, addr);
+=======
+	if (mm == &init_mm)
+		pgdp = pgd_offset_k(addr);
+	else
+		pgdp = pgd_offset(mm, addr);
+
+	p4dp = p4d_offset(pgdp, addr);
+
+	if (p4d_none(*p4dp)) {
+		printf("No valid P4D\n");
+		return;
+	}
+
+	if (p4d_is_leaf(*p4dp)) {
+		format_pte(p4dp, p4d_val(*p4dp));
+		return;
+	}
+
+	printf("p4dp @ 0x%px = 0x%016lx\n", p4dp, p4d_val(*p4dp));
+
+	pudp = pud_offset(p4dp, addr);
+>>>>>>> upstream/android-13
 
 	if (pud_none(*pudp)) {
 		printf("No valid PUD\n");
 		return;
 	}
 
+<<<<<<< HEAD
 	if (pud_huge(*pudp)) {
+=======
+	if (pud_is_leaf(*pudp)) {
+>>>>>>> upstream/android-13
 		format_pte(pudp, pud_val(*pudp));
 		return;
 	}
@@ -3076,7 +4024,11 @@ static void show_pte(unsigned long addr)
 		return;
 	}
 
+<<<<<<< HEAD
 	if (pmd_huge(*pmdp)) {
+=======
+	if (pmd_is_leaf(*pmdp)) {
+>>>>>>> upstream/android-13
 		format_pte(pmdp, pmd_val(*pmdp));
 		return;
 	}
@@ -3104,9 +4056,15 @@ static void show_pte(unsigned long addr)
 static void show_tasks(void)
 {
 	unsigned long tskv;
+<<<<<<< HEAD
 	struct task_struct *tsk = NULL;
 
 	printf("     task_struct     ->thread.ksp    PID   PPID S  P CMD\n");
+=======
+	struct task_struct *volatile tsk = NULL;
+
+	printf("     task_struct     ->thread.ksp    ->thread.regs    PID   PPID S  P CMD\n");
+>>>>>>> upstream/android-13
 
 	if (scanhex(&tskv))
 		tsk = (struct task_struct *)tskv;
@@ -3316,6 +4274,14 @@ getstring(char *s, int size)
 	int c;
 
 	c = skipbl();
+<<<<<<< HEAD
+=======
+	if (c == '\n') {
+		*s = 0;
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	do {
 		if( size > 1 ){
 			*s++ = c;
@@ -3422,7 +4388,11 @@ static void xmon_print_symbol(unsigned long address, const char *mid,
 			      const char *after)
 {
 	char *modname;
+<<<<<<< HEAD
 	const char *name = NULL;
+=======
+	const char *volatile name = NULL;
+>>>>>>> upstream/android-13
 	unsigned long offset, size;
 
 	printf(REG, address);
@@ -3485,14 +4455,22 @@ void dump_segments(void)
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_STD_MMU_32
+=======
+#ifdef CONFIG_PPC_BOOK3S_32
+>>>>>>> upstream/android-13
 void dump_segments(void)
 {
 	int i;
 
 	printf("sr0-15 =");
 	for (i = 0; i < 16; ++i)
+<<<<<<< HEAD
 		printf(" %x", mfsrin(i << 28));
+=======
+		printf(" %x", mfsr(i << 28));
+>>>>>>> upstream/android-13
 	printf("\n");
 }
 #endif
@@ -3700,6 +4678,14 @@ static void xmon_init(int enable)
 #ifdef CONFIG_MAGIC_SYSRQ
 static void sysrq_handle_xmon(int key)
 {
+<<<<<<< HEAD
+=======
+	if (xmon_is_locked_down()) {
+		clear_all_bpt();
+		xmon_init(0);
+		return;
+	}
+>>>>>>> upstream/android-13
 	/* ensure xmon is enabled */
 	xmon_init(1);
 	debugger(get_irq_regs());
@@ -3707,7 +4693,11 @@ static void sysrq_handle_xmon(int key)
 		xmon_init(0);
 }
 
+<<<<<<< HEAD
 static struct sysrq_key_op sysrq_xmon_op = {
+=======
+static const struct sysrq_key_op sysrq_xmon_op = {
+>>>>>>> upstream/android-13
 	.handler =	sysrq_handle_xmon,
 	.help_msg =	"xmon(x)",
 	.action_msg =	"Entering xmon",
@@ -3721,7 +4711,10 @@ static int __init setup_xmon_sysrq(void)
 device_initcall(setup_xmon_sysrq);
 #endif /* CONFIG_MAGIC_SYSRQ */
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_FS
+=======
+>>>>>>> upstream/android-13
 static void clear_all_bpt(void)
 {
 	int i;
@@ -3735,6 +4728,7 @@ static void clear_all_bpt(void)
 		bpts[i].enabled = 0;
 
 	/* Clear any data or iabr breakpoints */
+<<<<<<< HEAD
 	if (iabr || dabr.enabled) {
 		iabr = NULL;
 		dabr.enabled = 0;
@@ -3743,14 +4737,32 @@ static void clear_all_bpt(void)
 	printf("xmon: All breakpoints cleared\n");
 }
 
+=======
+	iabr = NULL;
+	for (i = 0; i < nr_wp_slots(); i++)
+		dabr[i].enabled = 0;
+}
+
+#ifdef CONFIG_DEBUG_FS
+>>>>>>> upstream/android-13
 static int xmon_dbgfs_set(void *data, u64 val)
 {
 	xmon_on = !!val;
 	xmon_init(xmon_on);
 
 	/* make sure all breakpoints removed when disabling */
+<<<<<<< HEAD
 	if (!xmon_on)
 		clear_all_bpt();
+=======
+	if (!xmon_on) {
+		clear_all_bpt();
+		get_output_lock();
+		printf("xmon: All breakpoints cleared\n");
+		release_output_lock();
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3765,8 +4777,13 @@ DEFINE_SIMPLE_ATTRIBUTE(xmon_dbgfs_ops, xmon_dbgfs_get,
 
 static int __init setup_xmon_dbgfs(void)
 {
+<<<<<<< HEAD
 	debugfs_create_file("xmon", 0600, powerpc_debugfs_root, NULL,
 				&xmon_dbgfs_ops);
+=======
+	debugfs_create_file("xmon", 0600, arch_debugfs_dir, NULL,
+			    &xmon_dbgfs_ops);
+>>>>>>> upstream/android-13
 	return 0;
 }
 device_initcall(setup_xmon_dbgfs);
@@ -3776,7 +4793,15 @@ static int xmon_early __initdata;
 
 static int __init early_parse_xmon(char *p)
 {
+<<<<<<< HEAD
 	if (!p || strncmp(p, "early", 5) == 0) {
+=======
+	if (xmon_is_locked_down()) {
+		xmon_init(0);
+		xmon_early = 0;
+		xmon_on = 0;
+	} else if (!p || strncmp(p, "early", 5) == 0) {
+>>>>>>> upstream/android-13
 		/* just "xmon" is equivalent to "xmon=early" */
 		xmon_init(1);
 		xmon_early = 1;
@@ -3784,6 +4809,17 @@ static int __init early_parse_xmon(char *p)
 	} else if (strncmp(p, "on", 2) == 0) {
 		xmon_init(1);
 		xmon_on = 1;
+<<<<<<< HEAD
+=======
+	} else if (strncmp(p, "rw", 2) == 0) {
+		xmon_init(1);
+		xmon_on = 1;
+		xmon_is_ro = false;
+	} else if (strncmp(p, "ro", 2) == 0) {
+		xmon_init(1);
+		xmon_on = 1;
+		xmon_is_ro = true;
+>>>>>>> upstream/android-13
 	} else if (strncmp(p, "off", 3) == 0)
 		xmon_on = 0;
 	else
@@ -3835,7 +4871,11 @@ void xmon_register_spus(struct list_head *list)
 static void stop_spus(void)
 {
 	struct spu *spu;
+<<<<<<< HEAD
 	int i;
+=======
+	volatile int i;
+>>>>>>> upstream/android-13
 	u64 tmp;
 
 	for (i = 0; i < XMON_NUM_SPUS; i++) {
@@ -3876,7 +4916,11 @@ static void stop_spus(void)
 static void restart_spus(void)
 {
 	struct spu *spu;
+<<<<<<< HEAD
 	int i;
+=======
+	volatile int i;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < XMON_NUM_SPUS; i++) {
 		if (!spu_info[i].spu)
@@ -3966,8 +5010,12 @@ static void dump_spu_fields(struct spu *spu)
 	DUMP_FIELD(spu, "0x%p", pdata);
 }
 
+<<<<<<< HEAD
 int
 spu_inst_dump(unsigned long adr, long count, int praddr)
+=======
+static int spu_inst_dump(unsigned long adr, long count, int praddr)
+>>>>>>> upstream/android-13
 {
 	return generic_inst_dump(adr, count, praddr, print_insn_spu);
 }
@@ -4031,6 +5079,10 @@ static int do_spu_cmd(void)
 		subcmd = inchar();
 		if (isxdigit(subcmd) || subcmd == '\n')
 			termch = subcmd;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 'f':
 		scanhex(&num);
 		if (num >= XMON_NUM_SPUS || !spu_info[num].spu) {

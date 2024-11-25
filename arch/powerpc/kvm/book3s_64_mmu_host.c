@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2009 SUSE Linux Products GmbH. All rights reserved.
  *
  * Authors:
  *     Alexander Graf <agraf@suse.de>
  *     Kevin Wolf <mail@kevin-wolf.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -20,6 +25,12 @@
  */
 
 #include <linux/kvm_host.h>
+=======
+ */
+
+#include <linux/kvm_host.h>
+#include <linux/pkeys.h>
+>>>>>>> upstream/android-13
 
 #include <asm/kvm_ppc.h>
 #include <asm/kvm_book3s.h>
@@ -145,6 +156,10 @@ int kvmppc_mmu_map_page(struct kvm_vcpu *vcpu, struct kvmppc_pte *orig_pte,
 	else
 		kvmppc_mmu_flush_icache(pfn);
 
+<<<<<<< HEAD
+=======
+	rflags |= pte_to_hpte_pkey_bits(0, HPTE_USE_KERNEL_KEY);
+>>>>>>> upstream/android-13
 	rflags = (rflags & ~HPTE_R_WIMG) | orig_pte->wimg;
 
 	/*
@@ -396,7 +411,11 @@ void kvmppc_mmu_destroy_pr(struct kvm_vcpu *vcpu)
 	__destroy_context(to_book3s(vcpu)->context_id[0]);
 }
 
+<<<<<<< HEAD
 int kvmppc_mmu_init(struct kvm_vcpu *vcpu)
+=======
+int kvmppc_mmu_init_pr(struct kvm_vcpu *vcpu)
+>>>>>>> upstream/android-13
 {
 	struct kvmppc_vcpu_book3s *vcpu3s = to_book3s(vcpu);
 	int err;

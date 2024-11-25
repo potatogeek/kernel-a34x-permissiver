@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 //
 // OWL common clock driver
 //
@@ -26,6 +30,12 @@ struct owl_clk_desc {
 	struct owl_clk_common		**clks;
 	unsigned long			num_clks;
 	struct clk_hw_onecell_data	*hw_clks;
+<<<<<<< HEAD
+=======
+	const struct owl_reset_map	*resets;
+	unsigned long			num_resets;
+	struct regmap			*regmap;
+>>>>>>> upstream/android-13
 };
 
 static inline struct owl_clk_common *
@@ -35,7 +45,11 @@ static inline struct owl_clk_common *
 }
 
 int owl_clk_regmap_init(struct platform_device *pdev,
+<<<<<<< HEAD
 			 const struct owl_clk_desc *desc);
+=======
+			struct owl_clk_desc *desc);
+>>>>>>> upstream/android-13
 int owl_clk_probe(struct device *dev, struct clk_hw_onecell_data *hw_clks);
 
 #endif /* _OWL_COMMON_H_ */

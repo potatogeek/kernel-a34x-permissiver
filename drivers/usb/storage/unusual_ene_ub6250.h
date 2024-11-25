@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 #if defined(CONFIG_USB_STORAGE_ENE_UB6250) || \
 		defined(CONFIG_USB_STORAGE_ENE_UB6250_MODULE)
 

@@ -57,7 +57,14 @@ gm200_ltc = {
 };
 
 int
+<<<<<<< HEAD
 gm200_ltc_new(struct nvkm_device *device, int index, struct nvkm_ltc **pltc)
 {
 	return nvkm_ltc_new_(&gm200_ltc, device, index, pltc);
+=======
+gm200_ltc_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+	      struct nvkm_ltc **pltc)
+{
+	return nvkm_ltc_new_(&gm200_ltc, device, type, inst, pltc);
+>>>>>>> upstream/android-13
 }

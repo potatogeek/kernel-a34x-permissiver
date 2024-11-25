@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_pt_insn_decoder.c: Intel Processor Trace support
  * Copyright (c) 2013-2014, Intel Corporation.
@@ -13,10 +14,20 @@
  *
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * intel_pt_insn_decoder.c: Intel Processor Trace support
+ * Copyright (c) 2013-2014, Intel Corporation.
+ */
+
+#include <linux/kernel.h>
+>>>>>>> upstream/android-13
 #include <stdio.h>
 #include <string.h>
 #include <endian.h>
 #include <byteswap.h>
+<<<<<<< HEAD
 
 #include "event.h"
 
@@ -25,6 +36,15 @@
 #include "inat.c"
 #include "insn.c"
 
+=======
+#include "../../../arch/x86/include/asm/insn.h"
+
+#include "../../../arch/x86/lib/inat.c"
+#include "../../../arch/x86/lib/insn.c"
+
+#include "event.h"
+
+>>>>>>> upstream/android-13
 #include "intel-pt-insn-decoder.h"
 #include "dump-insn.h"
 
@@ -52,6 +72,20 @@ static void intel_pt_insn_decoder(struct insn *insn,
 	switch (insn->opcode.bytes[0]) {
 	case 0xf:
 		switch (insn->opcode.bytes[1]) {
+<<<<<<< HEAD
+=======
+		case 0x01:
+			switch (insn->modrm.bytes[0]) {
+			case 0xc2: /* vmlaunch */
+			case 0xc3: /* vmresume */
+				op = INTEL_PT_OP_VMENTRY;
+				branch = INTEL_PT_BR_INDIRECT;
+				break;
+			default:
+				break;
+			}
+			break;
+>>>>>>> upstream/android-13
 		case 0x05: /* syscall */
 		case 0x34: /* sysenter */
 			op = INTEL_PT_OP_SYSCALL;
@@ -167,11 +201,21 @@ int intel_pt_get_insn(const unsigned char *buf, size_t len, int x86_64,
 		      struct intel_pt_insn *intel_pt_insn)
 {
 	struct insn insn;
+<<<<<<< HEAD
 
 	insn_init(&insn, buf, len, x86_64);
 	insn_get_length(&insn);
 	if (!insn_complete(&insn) || insn.length > len)
 		return -1;
+=======
+	int ret;
+
+	ret = insn_decode(&insn, buf, len,
+			  x86_64 ? INSN_MODE_64 : INSN_MODE_32);
+	if (ret < 0 || insn.length > len)
+		return -1;
+
+>>>>>>> upstream/android-13
 	intel_pt_insn_decoder(&insn, intel_pt_insn);
 	if (insn.length < INTEL_PT_INSN_BUF_SZ)
 		memcpy(intel_pt_insn->buf, buf, insn.length);
@@ -180,16 +224,37 @@ int intel_pt_get_insn(const unsigned char *buf, size_t len, int x86_64,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int arch_is_branch(const unsigned char *buf, size_t len, int x86_64)
+{
+	struct intel_pt_insn in;
+	if (intel_pt_get_insn(buf, len, x86_64, &in) < 0)
+		return -1;
+	return in.branch != INTEL_PT_BR_NO_BRANCH;
+}
+
+>>>>>>> upstream/android-13
 const char *dump_insn(struct perf_insn *x, uint64_t ip __maybe_unused,
 		      u8 *inbuf, int inlen, int *lenp)
 {
 	struct insn insn;
+<<<<<<< HEAD
 	int n, i;
 	int left;
 
 	insn_init(&insn, inbuf, inlen, x->is64bit);
 	insn_get_length(&insn);
 	if (!insn_complete(&insn) || insn.length > inlen)
+=======
+	int n, i, ret;
+	int left;
+
+	ret = insn_decode(&insn, inbuf, inlen,
+			  x->is64bit ? INSN_MODE_64 : INSN_MODE_32);
+
+	if (ret < 0 || insn.length > inlen)
+>>>>>>> upstream/android-13
 		return "<bad>";
 	if (lenp)
 		*lenp = insn.length;
@@ -214,6 +279,10 @@ const char *branch_name[] = {
 	[INTEL_PT_OP_INT]	= "Int",
 	[INTEL_PT_OP_SYSCALL]	= "Syscall",
 	[INTEL_PT_OP_SYSRET]	= "Sysret",
+<<<<<<< HEAD
+=======
+	[INTEL_PT_OP_VMENTRY]	= "VMentry",
+>>>>>>> upstream/android-13
 };
 
 const char *intel_pt_insn_name(enum intel_pt_insn_op op)
@@ -268,6 +337,12 @@ int intel_pt_insn_type(enum intel_pt_insn_op op)
 	case INTEL_PT_OP_SYSRET:
 		return PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_RETURN |
 		       PERF_IP_FLAG_SYSCALLRET;
+<<<<<<< HEAD
+=======
+	case INTEL_PT_OP_VMENTRY:
+		return PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_CALL |
+		       PERF_IP_FLAG_VMENTRY;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}

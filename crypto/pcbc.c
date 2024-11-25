@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * PCBC: Propagating Cipher Block Chaining mode
  *
@@ -6,6 +10,7 @@
  *
  * Derived from cbc.c
  * - Copyright (c) 2006 Herbert Xu <herbert@gondor.apana.org.au>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,11 +20,18 @@
  */
 
 #include <crypto/algapi.h>
+=======
+ */
+
+#include <crypto/algapi.h>
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/compiler.h>
 
@@ -42,6 +54,8 @@ static int crypto_pcbc_setkey(struct crypto_skcipher *parent, const u8 *key,
 					  CRYPTO_TFM_RES_MASK);
 	return err;
 }
+=======
+>>>>>>> upstream/android-13
 
 static int crypto_pcbc_encrypt_segment(struct skcipher_request *req,
 				       struct skcipher_walk *walk,
@@ -90,8 +104,12 @@ static int crypto_pcbc_encrypt_inplace(struct skcipher_request *req,
 static int crypto_pcbc_encrypt(struct skcipher_request *req)
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+<<<<<<< HEAD
 	struct crypto_pcbc_ctx *ctx = crypto_skcipher_ctx(tfm);
 	struct crypto_cipher *child = ctx->child;
+=======
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+>>>>>>> upstream/android-13
 	struct skcipher_walk walk;
 	unsigned int nbytes;
 	int err;
@@ -101,10 +119,17 @@ static int crypto_pcbc_encrypt(struct skcipher_request *req)
 	while ((nbytes = walk.nbytes)) {
 		if (walk.src.virt.addr == walk.dst.virt.addr)
 			nbytes = crypto_pcbc_encrypt_inplace(req, &walk,
+<<<<<<< HEAD
 							     child);
 		else
 			nbytes = crypto_pcbc_encrypt_segment(req, &walk,
 							     child);
+=======
+							     cipher);
+		else
+			nbytes = crypto_pcbc_encrypt_segment(req, &walk,
+							     cipher);
+>>>>>>> upstream/android-13
 		err = skcipher_walk_done(&walk, nbytes);
 	}
 
@@ -158,8 +183,12 @@ static int crypto_pcbc_decrypt_inplace(struct skcipher_request *req,
 static int crypto_pcbc_decrypt(struct skcipher_request *req)
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+<<<<<<< HEAD
 	struct crypto_pcbc_ctx *ctx = crypto_skcipher_ctx(tfm);
 	struct crypto_cipher *child = ctx->child;
+=======
+	struct crypto_cipher *cipher = skcipher_cipher_simple(tfm);
+>>>>>>> upstream/android-13
 	struct skcipher_walk walk;
 	unsigned int nbytes;
 	int err;
@@ -169,16 +198,24 @@ static int crypto_pcbc_decrypt(struct skcipher_request *req)
 	while ((nbytes = walk.nbytes)) {
 		if (walk.src.virt.addr == walk.dst.virt.addr)
 			nbytes = crypto_pcbc_decrypt_inplace(req, &walk,
+<<<<<<< HEAD
 							     child);
 		else
 			nbytes = crypto_pcbc_decrypt_segment(req, &walk,
 							     child);
+=======
+							     cipher);
+		else
+			nbytes = crypto_pcbc_decrypt_segment(req, &walk,
+							     cipher);
+>>>>>>> upstream/android-13
 		err = skcipher_walk_done(&walk, nbytes);
 	}
 
 	return err;
 }
 
+<<<<<<< HEAD
 static int crypto_pcbc_init_tfm(struct crypto_skcipher *tfm)
 {
 	struct skcipher_instance *inst = skcipher_alg_instance(tfm);
@@ -280,6 +317,25 @@ err_put_alg:
 err_free_inst:
 	kfree(inst);
 	goto out;
+=======
+static int crypto_pcbc_create(struct crypto_template *tmpl, struct rtattr **tb)
+{
+	struct skcipher_instance *inst;
+	int err;
+
+	inst = skcipher_alloc_instance_simple(tmpl, tb);
+	if (IS_ERR(inst))
+		return PTR_ERR(inst);
+
+	inst->alg.encrypt = crypto_pcbc_encrypt;
+	inst->alg.decrypt = crypto_pcbc_decrypt;
+
+	err = skcipher_register_instance(tmpl, inst);
+	if (err)
+		inst->free(inst);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template crypto_pcbc_tmpl = {
@@ -298,9 +354,19 @@ static void __exit crypto_pcbc_module_exit(void)
 	crypto_unregister_template(&crypto_pcbc_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_pcbc_module_init);
 module_exit(crypto_pcbc_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("PCBC block cipher algorithm");
 MODULE_ALIAS_CRYPTO("pcbc");
+=======
+subsys_initcall(crypto_pcbc_module_init);
+module_exit(crypto_pcbc_module_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("PCBC block cipher mode of operation");
+MODULE_ALIAS_CRYPTO("pcbc");
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

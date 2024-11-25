@@ -7,7 +7,11 @@
  *            ------------------
  *
  * You can find a subset of the documentation in 
+<<<<<<< HEAD
  * Documentation/networking/z8530drv.txt.
+=======
+ * Documentation/networking/device_drivers/hamradio/z8530drv.rst.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -210,7 +214,12 @@ static int scc_net_close(struct net_device *dev);
 static void scc_net_rx(struct scc_channel *scc, struct sk_buff *skb);
 static netdev_tx_t scc_net_tx(struct sk_buff *skb,
 			      struct net_device *dev);
+<<<<<<< HEAD
 static int scc_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd);
+=======
+static int scc_net_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+				  void __user *data, int cmd);
+>>>>>>> upstream/android-13
 static int scc_net_set_mac_address(struct net_device *dev, void *addr);
 static struct net_device_stats * scc_net_get_stats(struct net_device *dev);
 
@@ -1192,6 +1201,7 @@ static void t_tail(struct timer_list *t)
 	unsigned long flags;
 	
 	spin_lock_irqsave(&scc->lock, flags); 
+<<<<<<< HEAD
  	del_timer(&scc->tx_wdog);	
  	scc_key_trx(scc, TX_OFF);
 	spin_unlock_irqrestore(&scc->lock, flags);
@@ -1204,6 +1214,20 @@ static void t_tail(struct timer_list *t)
  	}
  	
  	scc->stat.tx_state = TXS_IDLE;
+=======
+	del_timer(&scc->tx_wdog);
+	scc_key_trx(scc, TX_OFF);
+	spin_unlock_irqrestore(&scc->lock, flags);
+
+	if (scc->stat.tx_state == TXS_TIMEOUT)		/* we had a timeout? */
+	{
+		scc->stat.tx_state = TXS_WAIT;
+		scc_start_tx_timer(scc, t_dwait, scc->kiss.mintime*100);
+		return;
+	}
+
+	scc->stat.tx_state = TXS_IDLE;
+>>>>>>> upstream/android-13
 	netif_wake_queue(scc->dev);
 }
 
@@ -1550,7 +1574,11 @@ static const struct net_device_ops scc_netdev_ops = {
 	.ndo_start_xmit	     = scc_net_tx,
 	.ndo_set_mac_address = scc_net_set_mac_address,
 	.ndo_get_stats       = scc_net_get_stats,
+<<<<<<< HEAD
 	.ndo_do_ioctl        = scc_net_ioctl,
+=======
+	.ndo_siocdevprivate  = scc_net_siocdevprivate,
+>>>>>>> upstream/android-13
 };
 
 /* ----> Initialize device <----- */
@@ -1580,7 +1608,11 @@ static int scc_net_open(struct net_device *dev)
 {
 	struct scc_channel *scc = (struct scc_channel *) dev->ml_priv;
 
+<<<<<<< HEAD
  	if (!scc->init)
+=======
+	if (!scc->init)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	scc->tx_buff = NULL;
@@ -1703,7 +1735,12 @@ static netdev_tx_t scc_net_tx(struct sk_buff *skb, struct net_device *dev)
  * SIOCSCCCAL		- send calib. pattern	arg: (struct scc_calibrate *) arg
  */
 
+<<<<<<< HEAD
 static int scc_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+=======
+static int scc_net_siocdevprivate(struct net_device *dev,
+				  struct ifreq *ifr, void __user *arg, int cmd)
+>>>>>>> upstream/android-13
 {
 	struct scc_kiss_cmd kiss_cmd;
 	struct scc_mem_config memcfg;
@@ -1712,8 +1749,11 @@ static int scc_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	struct scc_channel *scc = (struct scc_channel *) dev->ml_priv;
 	int chan;
 	unsigned char device_name[IFNAMSIZ];
+<<<<<<< HEAD
 	void __user *arg = ifr->ifr_data;
 	
+=======
+>>>>>>> upstream/android-13
 	
 	if (!Driver_Initialized)
 	{
@@ -1722,6 +1762,12 @@ static int scc_net_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 			int found = 1;
 
 			if (!capable(CAP_SYS_RAWIO)) return -EPERM;
+<<<<<<< HEAD
+=======
+			if (in_compat_syscall())
+				return -EOPNOTSUPP;
+
+>>>>>>> upstream/android-13
 			if (!arg) return -EFAULT;
 
 			if (Nchips >= SCC_MAXCHIPS) 
@@ -2167,7 +2213,10 @@ static void __exit scc_cleanup_driver(void)
 
 MODULE_AUTHOR("Joerg Reuter <jreuter@yaina.de>");
 MODULE_DESCRIPTION("AX.25 Device Driver for Z8530 based HDLC cards");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Z8530 based SCC cards for Amateur Radio");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");
 module_init(scc_init_driver);
 module_exit(scc_cleanup_driver);

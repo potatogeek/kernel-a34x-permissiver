@@ -34,10 +34,26 @@
  * delayed on that resource such that nobody is advancing and the CPU
  * goes idle. This leaves both workload and CPU unproductive.
  *
+<<<<<<< HEAD
  * (Naturally, the FULL state doesn't exist for the CPU resource.)
  *
  *	SOME = nr_delayed_tasks != 0
  *	FULL = nr_delayed_tasks != 0 && nr_running_tasks == 0
+=======
+ *	SOME = nr_delayed_tasks != 0
+ *	FULL = nr_delayed_tasks != 0 && nr_productive_tasks == 0
+ *
+ * What it means for a task to be productive is defined differently
+ * for each resource. For IO, productive means a running task. For
+ * memory, productive means a running task that isn't a reclaimer. For
+ * CPU, productive means an oncpu task.
+ *
+ * Naturally, the FULL state doesn't exist for the CPU resource at the
+ * system level, but exist at the cgroup level. At the cgroup level,
+ * FULL means all non-idle tasks in the cgroup are delayed on the CPU
+ * resource which is being used by others outside of the cgroup or
+ * throttled by the cgroup cpu.max configuration.
+>>>>>>> upstream/android-13
  *
  * The percentage of wallclock time spent in those compound stall
  * states gives pressure numbers between 0 and 100 for each resource,
@@ -59,7 +75,11 @@
  * states, we would have to conclude a CPU SOME pressure number of
  * 100%, since *somebody* is waiting on a runqueue at all
  * times. However, that is clearly not the amount of contention the
+<<<<<<< HEAD
  * workload is experiencing: only one out of 256 possible exceution
+=======
+ * workload is experiencing: only one out of 256 possible execution
+>>>>>>> upstream/android-13
  * threads will be contended at any given time, or about 0.4%.
  *
  * Conversely, consider a scenario of 4 tasks and 4 CPUs where at any
@@ -73,18 +93,30 @@
  * we have to base our calculation on the number of non-idle tasks in
  * conjunction with the number of available CPUs, which is the number
  * of potential execution threads. SOME becomes then the proportion of
+<<<<<<< HEAD
  * delayed tasks to possibe threads, and FULL is the share of possible
+=======
+ * delayed tasks to possible threads, and FULL is the share of possible
+>>>>>>> upstream/android-13
  * threads that are unproductive due to delays:
  *
  *	threads = min(nr_nonidle_tasks, nr_cpus)
  *	   SOME = min(nr_delayed_tasks / threads, 1)
+<<<<<<< HEAD
  *	   FULL = (threads - min(nr_running_tasks, threads)) / threads
+=======
+ *	   FULL = (threads - min(nr_productive_tasks, threads)) / threads
+>>>>>>> upstream/android-13
  *
  * For the 257 number crunchers on 256 CPUs, this yields:
  *
  *	threads = min(257, 256)
  *	   SOME = min(1 / 256, 1)             = 0.4%
+<<<<<<< HEAD
  *	   FULL = (256 - min(257, 256)) / 256 = 0%
+=======
+ *	   FULL = (256 - min(256, 256)) / 256 = 0%
+>>>>>>> upstream/android-13
  *
  * For the 1 out of 4 memory-delayed tasks, this yields:
  *
@@ -109,7 +141,11 @@
  * For each runqueue, we track:
  *
  *	   tSOME[cpu] = time(nr_delayed_tasks[cpu] != 0)
+<<<<<<< HEAD
  *	   tFULL[cpu] = time(nr_delayed_tasks[cpu] && !nr_running_tasks[cpu])
+=======
+ *	   tFULL[cpu] = time(nr_delayed_tasks[cpu] && !nr_productive_tasks[cpu])
+>>>>>>> upstream/android-13
  *	tNONIDLE[cpu] = time(nr_nonidle_tasks[cpu] != 0)
  *
  * and then periodically aggregate:
@@ -145,6 +181,10 @@
 static int psi_bug __read_mostly;
 
 DEFINE_STATIC_KEY_FALSE(psi_disabled);
+<<<<<<< HEAD
+=======
+DEFINE_STATIC_KEY_TRUE(psi_cgroups_enabled);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PSI_DEFAULT_DISABLED
 static bool psi_enable;
@@ -173,12 +213,21 @@ static u64 psi_period __read_mostly;
 
 /* System-level pressure and stall tracking */
 static DEFINE_PER_CPU(struct psi_group_cpu, system_group_pcpu);
+<<<<<<< HEAD
 static struct psi_group psi_system = {
+=======
+struct psi_group psi_system = {
+>>>>>>> upstream/android-13
 	.pcpu = &system_group_pcpu,
 };
 
 static void psi_avgs_work(struct work_struct *work);
 
+<<<<<<< HEAD
+=======
+static void poll_timer_fn(struct timer_list *t);
+
+>>>>>>> upstream/android-13
 static void group_init(struct psi_group *group)
 {
 	int cpu;
@@ -190,7 +239,10 @@ static void group_init(struct psi_group *group)
 	INIT_DELAYED_WORK(&group->avgs_work, psi_avgs_work);
 	mutex_init(&group->avgs_lock);
 	/* Init trigger-related members */
+<<<<<<< HEAD
 	atomic_set(&group->poll_scheduled, 0);
+=======
+>>>>>>> upstream/android-13
 	mutex_init(&group->trigger_lock);
 	INIT_LIST_HEAD(&group->triggers);
 	memset(group->nr_triggers, 0, sizeof(group->nr_triggers));
@@ -199,7 +251,13 @@ static void group_init(struct psi_group *group)
 	memset(group->polling_total, 0, sizeof(group->polling_total));
 	group->polling_next_update = ULLONG_MAX;
 	group->polling_until = 0;
+<<<<<<< HEAD
 	rcu_assign_pointer(group->poll_kworker, NULL);
+=======
+	init_waitqueue_head(&group->poll_wait);
+	timer_setup(&group->poll_timer, poll_timer_fn, 0);
+	rcu_assign_pointer(group->poll_task, NULL);
+>>>>>>> upstream/android-13
 }
 
 void __init psi_init(void)
@@ -209,6 +267,12 @@ void __init psi_init(void)
 		return;
 	}
 
+<<<<<<< HEAD
+=======
+	if (!cgroup_psi_enabled())
+		static_branch_disable(&psi_cgroups_enabled);
+
+>>>>>>> upstream/android-13
 	psi_period = jiffies_to_nsecs(PSI_FREQ);
 	group_init(&psi_system);
 }
@@ -217,6 +281,7 @@ static bool test_state(unsigned int *tasks, enum psi_states state)
 {
 	switch (state) {
 	case PSI_IO_SOME:
+<<<<<<< HEAD
 		return tasks[NR_IOWAIT];
 	case PSI_IO_FULL:
 		return tasks[NR_IOWAIT] && !tasks[NR_RUNNING];
@@ -226,6 +291,20 @@ static bool test_state(unsigned int *tasks, enum psi_states state)
 		return tasks[NR_MEMSTALL] && !tasks[NR_RUNNING];
 	case PSI_CPU_SOME:
 		return tasks[NR_RUNNING] > 1;
+=======
+		return unlikely(tasks[NR_IOWAIT]);
+	case PSI_IO_FULL:
+		return unlikely(tasks[NR_IOWAIT] && !tasks[NR_RUNNING]);
+	case PSI_MEM_SOME:
+		return unlikely(tasks[NR_MEMSTALL]);
+	case PSI_MEM_FULL:
+		return unlikely(tasks[NR_MEMSTALL] &&
+			tasks[NR_RUNNING] == tasks[NR_MEMSTALL_RUNNING]);
+	case PSI_CPU_SOME:
+		return unlikely(tasks[NR_RUNNING] > tasks[NR_ONCPU]);
+	case PSI_CPU_FULL:
+		return unlikely(tasks[NR_RUNNING] && !tasks[NR_ONCPU]);
+>>>>>>> upstream/android-13
 	case PSI_NONIDLE:
 		return tasks[NR_IOWAIT] || tasks[NR_MEMSTALL] ||
 			tasks[NR_RUNNING];
@@ -442,7 +521,11 @@ static void psi_avgs_work(struct work_struct *work)
 	mutex_unlock(&group->avgs_lock);
 }
 
+<<<<<<< HEAD
 /* Trigger tracking window manupulations */
+=======
+/* Trigger tracking window manipulations */
+>>>>>>> upstream/android-13
 static void window_reset(struct psi_window *win, u64 now, u64 value,
 			 u64 prev_growth)
 {
@@ -547,6 +630,7 @@ static u64 update_triggers(struct psi_group *group, u64 now)
 	return now + group->poll_min_period;
 }
 
+<<<<<<< HEAD
 /*
  * Schedule polling if it's not already scheduled. It's safe to call even from
  * hotpath because even though kthread_queue_delayed_work takes worker->lock
@@ -559,15 +643,34 @@ static void psi_schedule_poll_work(struct psi_group *group, unsigned long delay)
 
 	/* Do not reschedule if already scheduled */
 	if (atomic_cmpxchg(&group->poll_scheduled, 0, 1) != 0)
+=======
+/* Schedule polling if it's not already scheduled. */
+static void psi_schedule_poll_work(struct psi_group *group, unsigned long delay)
+{
+	struct task_struct *task;
+
+	/*
+	 * Do not reschedule if already scheduled.
+	 * Possible race with a timer scheduled after this check but before
+	 * mod_timer below can be tolerated because group->polling_next_update
+	 * will keep updates on schedule.
+	 */
+	if (timer_pending(&group->poll_timer))
+>>>>>>> upstream/android-13
 		return;
 
 	rcu_read_lock();
 
+<<<<<<< HEAD
 	kworker = rcu_dereference(group->poll_kworker);
+=======
+	task = rcu_dereference(group->poll_task);
+>>>>>>> upstream/android-13
 	/*
 	 * kworker might be NULL in case psi_trigger_destroy races with
 	 * psi_task_change (hotpath) which can't use locks
 	 */
+<<<<<<< HEAD
 	if (likely(kworker)) {
 		lockdep_off();
 		kthread_queue_delayed_work(kworker, &group->poll_work, delay);
@@ -575,10 +678,15 @@ static void psi_schedule_poll_work(struct psi_group *group, unsigned long delay)
 	}
 	else
 		atomic_set(&group->poll_scheduled, 0);
+=======
+	if (likely(task))
+		mod_timer(&group->poll_timer, jiffies + delay);
+>>>>>>> upstream/android-13
 
 	rcu_read_unlock();
 }
 
+<<<<<<< HEAD
 static void psi_poll_work(struct kthread_work *work)
 {
 	struct kthread_delayed_work *dwork;
@@ -591,6 +699,13 @@ static void psi_poll_work(struct kthread_work *work)
 
 	atomic_set(&group->poll_scheduled, 0);
 
+=======
+static void psi_poll_work(struct psi_group *group)
+{
+	u32 changed_states;
+	u64 now;
+
+>>>>>>> upstream/android-13
 	mutex_lock(&group->trigger_lock);
 
 	now = sched_clock();
@@ -626,6 +741,7 @@ out:
 	mutex_unlock(&group->trigger_lock);
 }
 
+<<<<<<< HEAD
 static void record_times(struct psi_group_cpu *groupc, int cpu,
 			 bool memstall_tick)
 {
@@ -633,6 +749,38 @@ static void record_times(struct psi_group_cpu *groupc, int cpu,
 	u64 now;
 
 	now = cpu_clock(cpu);
+=======
+static int psi_poll_worker(void *data)
+{
+	struct psi_group *group = (struct psi_group *)data;
+
+	sched_set_fifo_low(current);
+
+	while (true) {
+		wait_event_interruptible(group->poll_wait,
+				atomic_cmpxchg(&group->poll_wakeup, 1, 0) ||
+				kthread_should_stop());
+		if (kthread_should_stop())
+			break;
+
+		psi_poll_work(group);
+	}
+	return 0;
+}
+
+static void poll_timer_fn(struct timer_list *t)
+{
+	struct psi_group *group = from_timer(group, t, poll_timer);
+
+	atomic_set(&group->poll_wakeup, 1);
+	wake_up_interruptible(&group->poll_wait);
+}
+
+static void record_times(struct psi_group_cpu *groupc, u64 now)
+{
+	u32 delta;
+
+>>>>>>> upstream/android-13
 	delta = now - groupc->state_start;
 	groupc->state_start = now;
 
@@ -646,6 +794,7 @@ static void record_times(struct psi_group_cpu *groupc, int cpu,
 		groupc->times[PSI_MEM_SOME] += delta;
 		if (groupc->state_mask & (1 << PSI_MEM_FULL))
 			groupc->times[PSI_MEM_FULL] += delta;
+<<<<<<< HEAD
 		else if (memstall_tick) {
 			u32 sample;
 			/*
@@ -667,11 +816,21 @@ static void record_times(struct psi_group_cpu *groupc, int cpu,
 
 	if (groupc->state_mask & (1 << PSI_CPU_SOME))
 		groupc->times[PSI_CPU_SOME] += delta;
+=======
+	}
+
+	if (groupc->state_mask & (1 << PSI_CPU_SOME)) {
+		groupc->times[PSI_CPU_SOME] += delta;
+		if (groupc->state_mask & (1 << PSI_CPU_FULL))
+			groupc->times[PSI_CPU_FULL] += delta;
+	}
+>>>>>>> upstream/android-13
 
 	if (groupc->state_mask & (1 << PSI_NONIDLE))
 		groupc->times[PSI_NONIDLE] += delta;
 }
 
+<<<<<<< HEAD
 static u32 psi_group_change(struct psi_group *group, int cpu,
 			    unsigned int clear, unsigned int set)
 {
@@ -679,6 +838,16 @@ static u32 psi_group_change(struct psi_group *group, int cpu,
 	unsigned int t, m;
 	enum psi_states s;
 	u32 state_mask = 0;
+=======
+static void psi_group_change(struct psi_group *group, int cpu,
+			     unsigned int clear, unsigned int set, u64 now,
+			     bool wake_clock)
+{
+	struct psi_group_cpu *groupc;
+	u32 state_mask = 0;
+	unsigned int t, m;
+	enum psi_states s;
+>>>>>>> upstream/android-13
 
 	groupc = per_cpu_ptr(group->pcpu, cpu);
 
@@ -692,11 +861,16 @@ static u32 psi_group_change(struct psi_group *group, int cpu,
 	 */
 	write_seqcount_begin(&groupc->seq);
 
+<<<<<<< HEAD
 	record_times(groupc, cpu, false);
+=======
+	record_times(groupc, now);
+>>>>>>> upstream/android-13
 
 	for (t = 0, m = clear; m; m &= ~(1 << t), t++) {
 		if (!(m & (1 << t)))
 			continue;
+<<<<<<< HEAD
 		if (groupc->tasks[t] == 0 && !psi_bug) {
 			printk_deferred(KERN_ERR "psi: task underflow! cpu=%d t=%d tasks=[%u %u %u] clear=%x set=%x\n",
 					cpu, t, groupc->tasks[0],
@@ -705,6 +879,18 @@ static u32 psi_group_change(struct psi_group *group, int cpu,
 			psi_bug = 1;
 		}
 		groupc->tasks[t]--;
+=======
+		if (groupc->tasks[t]) {
+			groupc->tasks[t]--;
+		} else if (!psi_bug) {
+			printk_deferred(KERN_ERR "psi: task underflow! cpu=%d t=%d tasks=[%u %u %u %u %u] clear=%x set=%x\n",
+					cpu, t, groupc->tasks[0],
+					groupc->tasks[1], groupc->tasks[2],
+					groupc->tasks[3], groupc->tasks[4],
+					clear, set);
+			psi_bug = 1;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	for (t = 0; set; set &= ~(1 << t), t++)
@@ -716,15 +902,39 @@ static u32 psi_group_change(struct psi_group *group, int cpu,
 		if (test_state(groupc->tasks, s))
 			state_mask |= (1 << s);
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Since we care about lost potential, a memstall is FULL
+	 * when there are no other working tasks, but also when
+	 * the CPU is actively reclaiming and nothing productive
+	 * could run even if it were runnable. So when the current
+	 * task in a cgroup is in_memstall, the corresponding groupc
+	 * on that cpu is in PSI_MEM_FULL state.
+	 */
+	if (unlikely(groupc->tasks[NR_ONCPU] && cpu_curr(cpu)->in_memstall))
+		state_mask |= (1 << PSI_MEM_FULL);
+
+>>>>>>> upstream/android-13
 	groupc->state_mask = state_mask;
 
 	write_seqcount_end(&groupc->seq);
 
+<<<<<<< HEAD
 	return state_mask;
+=======
+	if (state_mask & group->poll_states)
+		psi_schedule_poll_work(group, 1);
+
+	if (wake_clock && !delayed_work_pending(&group->avgs_work))
+		schedule_delayed_work(&group->avgs_work, PSI_FREQ);
+>>>>>>> upstream/android-13
 }
 
 static struct psi_group *iterate_groups(struct task_struct *task, void **iter)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_CGROUPS
 	struct cgroup *cgroup = NULL;
 
@@ -742,21 +952,63 @@ static struct psi_group *iterate_groups(struct task_struct *task, void **iter)
 #else
 	if (*iter)
 		return NULL;
+=======
+	if (*iter == &psi_system)
+		return NULL;
+
+#ifdef CONFIG_CGROUPS
+	if (static_branch_likely(&psi_cgroups_enabled)) {
+		struct cgroup *cgroup = NULL;
+
+		if (!*iter)
+			cgroup = task->cgroups->dfl_cgrp;
+		else
+			cgroup = cgroup_parent(*iter);
+
+		if (cgroup && cgroup_parent(cgroup)) {
+			*iter = cgroup;
+			return cgroup_psi(cgroup);
+		}
+	}
+>>>>>>> upstream/android-13
 #endif
 	*iter = &psi_system;
 	return &psi_system;
 }
 
+<<<<<<< HEAD
+=======
+static void psi_flags_change(struct task_struct *task, int clear, int set)
+{
+	if (((task->psi_flags & set) ||
+	     (task->psi_flags & clear) != clear) &&
+	    !psi_bug) {
+		printk_deferred(KERN_ERR "psi: inconsistent task state! task=%d:%s cpu=%d psi_flags=%x clear=%x set=%x\n",
+				task->pid, task->comm, task_cpu(task),
+				task->psi_flags, clear, set);
+		psi_bug = 1;
+	}
+
+	task->psi_flags &= ~clear;
+	task->psi_flags |= set;
+}
+
+>>>>>>> upstream/android-13
 void psi_task_change(struct task_struct *task, int clear, int set)
 {
 	int cpu = task_cpu(task);
 	struct psi_group *group;
 	bool wake_clock = true;
 	void *iter = NULL;
+<<<<<<< HEAD
+=======
+	u64 now;
+>>>>>>> upstream/android-13
 
 	if (!task->pid)
 		return;
 
+<<<<<<< HEAD
 	if (((task->psi_flags & set) ||
 	     (task->psi_flags & clear) != clear) &&
 	    !psi_bug) {
@@ -769,6 +1021,11 @@ void psi_task_change(struct task_struct *task, int clear, int set)
 	task->psi_flags &= ~clear;
 	task->psi_flags |= set;
 
+=======
+	psi_flags_change(task, clear, set);
+
+	now = cpu_clock(cpu);
+>>>>>>> upstream/android-13
 	/*
 	 * Periodic aggregation shuts off if there is a period of no
 	 * task changes, so we wake it back up if necessary. However,
@@ -780,6 +1037,7 @@ void psi_task_change(struct task_struct *task, int clear, int set)
 		     wq_worker_last_func(task) == psi_avgs_work))
 		wake_clock = false;
 
+<<<<<<< HEAD
 	while ((group = iterate_groups(task, &iter))) {
 		u32 state_mask = psi_group_change(group, cpu, clear, set);
 
@@ -803,6 +1061,76 @@ void psi_memstall_tick(struct task_struct *task, int cpu)
 		write_seqcount_begin(&groupc->seq);
 		record_times(groupc, cpu, true);
 		write_seqcount_end(&groupc->seq);
+=======
+	while ((group = iterate_groups(task, &iter)))
+		psi_group_change(group, cpu, clear, set, now, wake_clock);
+}
+
+void psi_task_switch(struct task_struct *prev, struct task_struct *next,
+		     bool sleep)
+{
+	struct psi_group *group, *common = NULL;
+	int cpu = task_cpu(prev);
+	void *iter;
+	u64 now = cpu_clock(cpu);
+
+	if (next->pid) {
+		bool identical_state;
+
+		psi_flags_change(next, 0, TSK_ONCPU);
+		/*
+		 * When switching between tasks that have an identical
+		 * runtime state, the cgroup that contains both tasks
+		 * runtime state, the cgroup that contains both tasks
+		 * we reach the first common ancestor. Iterate @next's
+		 * ancestors only until we encounter @prev's ONCPU.
+		 */
+		identical_state = prev->psi_flags == next->psi_flags;
+		iter = NULL;
+		while ((group = iterate_groups(next, &iter))) {
+			if (identical_state &&
+			    per_cpu_ptr(group->pcpu, cpu)->tasks[NR_ONCPU]) {
+				common = group;
+				break;
+			}
+
+			psi_group_change(group, cpu, 0, TSK_ONCPU, now, true);
+		}
+	}
+
+	if (prev->pid) {
+		int clear = TSK_ONCPU, set = 0;
+
+		/*
+		 * When we're going to sleep, psi_dequeue() lets us
+		 * handle TSK_RUNNING, TSK_MEMSTALL_RUNNING and
+		 * TSK_IOWAIT here, where we can combine it with
+		 * TSK_ONCPU and save walking common ancestors twice.
+		 */
+		if (sleep) {
+			clear |= TSK_RUNNING;
+			if (prev->in_memstall)
+				clear |= TSK_MEMSTALL_RUNNING;
+			if (prev->in_iowait)
+				set |= TSK_IOWAIT;
+		}
+
+		psi_flags_change(prev, clear, set);
+
+		iter = NULL;
+		while ((group = iterate_groups(prev, &iter)) && group != common)
+			psi_group_change(group, cpu, clear, set, now, true);
+
+		/*
+		 * TSK_ONCPU is handled up to the common ancestor. If we're tasked
+		 * with dequeuing too, finish that for the rest of the hierarchy.
+		 */
+		if (sleep) {
+			clear &= ~TSK_ONCPU;
+			for (; group; group = iterate_groups(prev, &iter))
+				psi_group_change(group, cpu, clear, set, now, true);
+		}
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -821,18 +1149,31 @@ void psi_memstall_enter(unsigned long *flags)
 	if (static_branch_likely(&psi_disabled))
 		return;
 
+<<<<<<< HEAD
 	*flags = current->flags & PF_MEMSTALL;
 	if (*flags)
 		return;
 	/*
 	 * PF_MEMSTALL setting & accounting needs to be atomic wrt
+=======
+	*flags = current->in_memstall;
+	if (*flags)
+		return;
+	/*
+	 * in_memstall setting & accounting needs to be atomic wrt
+>>>>>>> upstream/android-13
 	 * changes to the task's scheduling state, otherwise we can
 	 * race with CPU migration.
 	 */
 	rq = this_rq_lock_irq(&rf);
 
+<<<<<<< HEAD
 	current->flags |= PF_MEMSTALL;
 	psi_task_change(current, 0, TSK_MEMSTALL);
+=======
+	current->in_memstall = 1;
+	psi_task_change(current, 0, TSK_MEMSTALL | TSK_MEMSTALL_RUNNING);
+>>>>>>> upstream/android-13
 
 	rq_unlock_irq(rq, &rf);
 }
@@ -854,14 +1195,23 @@ void psi_memstall_leave(unsigned long *flags)
 	if (*flags)
 		return;
 	/*
+<<<<<<< HEAD
 	 * PF_MEMSTALL clearing & accounting needs to be atomic wrt
+=======
+	 * in_memstall clearing & accounting needs to be atomic wrt
+>>>>>>> upstream/android-13
 	 * changes to the task's scheduling state, otherwise we could
 	 * race with CPU migration.
 	 */
 	rq = this_rq_lock_irq(&rf);
 
+<<<<<<< HEAD
 	current->flags &= ~PF_MEMSTALL;
 	psi_task_change(current, TSK_MEMSTALL, 0);
+=======
+	current->in_memstall = 0;
+	psi_task_change(current, TSK_MEMSTALL | TSK_MEMSTALL_RUNNING, 0);
+>>>>>>> upstream/android-13
 
 	rq_unlock_irq(rq, &rf);
 }
@@ -904,7 +1254,11 @@ void psi_cgroup_free(struct cgroup *cgroup)
  */
 void cgroup_move_task(struct task_struct *task, struct css_set *to)
 {
+<<<<<<< HEAD
 	unsigned int task_flags = 0;
+=======
+	unsigned int task_flags;
+>>>>>>> upstream/android-13
 	struct rq_flags rf;
 	struct rq *rq;
 
@@ -919,6 +1273,7 @@ void cgroup_move_task(struct task_struct *task, struct css_set *to)
 
 	rq = task_rq_lock(task, &rf);
 
+<<<<<<< HEAD
 	if (task_on_rq_queued(task))
 		task_flags = TSK_RUNNING;
 	else if (task->in_iowait)
@@ -926,6 +1281,33 @@ void cgroup_move_task(struct task_struct *task, struct css_set *to)
 
 	if (task->flags & PF_MEMSTALL)
 		task_flags |= TSK_MEMSTALL;
+=======
+	/*
+	 * We may race with schedule() dropping the rq lock between
+	 * deactivating prev and switching to next. Because the psi
+	 * updates from the deactivation are deferred to the switch
+	 * callback to save cgroup tree updates, the task's scheduling
+	 * state here is not coherent with its psi state:
+	 *
+	 * schedule()                   cgroup_move_task()
+	 *   rq_lock()
+	 *   deactivate_task()
+	 *     p->on_rq = 0
+	 *     psi_dequeue() // defers TSK_RUNNING & TSK_IOWAIT updates
+	 *   pick_next_task()
+	 *     rq_unlock()
+	 *                                rq_lock()
+	 *                                psi_task_change() // old cgroup
+	 *                                task->cgroups = to
+	 *                                psi_task_change() // new cgroup
+	 *                                rq_unlock()
+	 *     rq_lock()
+	 *   psi_sched_switch() // does deferred updates in new cgroup
+	 *
+	 * Don't rely on the scheduling state. Use psi_flags instead.
+	 */
+	task_flags = task->psi_flags;
+>>>>>>> upstream/android-13
 
 	if (task_flags)
 		psi_task_change(task, task_flags, 0);
@@ -956,7 +1338,11 @@ int psi_show(struct seq_file *m, struct psi_group *group, enum psi_res res)
 		group->avg_next_update = update_averages(group, now);
 	mutex_unlock(&group->avgs_lock);
 
+<<<<<<< HEAD
 	for (full = 0; full < 2 - (res == PSI_CPU); full++) {
+=======
+	for (full = 0; full < 2; full++) {
+>>>>>>> upstream/android-13
 		unsigned long avg[3];
 		u64 total;
 		int w;
@@ -977,6 +1363,7 @@ int psi_show(struct seq_file *m, struct psi_group *group, enum psi_res res)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int psi_io_show(struct seq_file *m, void *v)
 {
 	return psi_show(m, &psi_system, PSI_IO);
@@ -1007,6 +1394,8 @@ static int psi_cpu_open(struct inode *inode, struct file *file)
 	return single_open(file, psi_cpu_show, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct psi_trigger *psi_trigger_create(struct psi_group *group,
 			char *buf, size_t nbytes, enum psi_res res)
 {
@@ -1049,6 +1438,7 @@ struct psi_trigger *psi_trigger_create(struct psi_group *group,
 	t->event = 0;
 	t->last_event_time = 0;
 	init_waitqueue_head(&t->event_wait);
+<<<<<<< HEAD
 	kref_init(&t->refcount);
 
 	mutex_lock(&group->trigger_lock);
@@ -1069,6 +1459,23 @@ struct psi_trigger *psi_trigger_create(struct psi_group *group,
 		kthread_init_delayed_work(&group->poll_work,
 				psi_poll_work);
 		rcu_assign_pointer(group->poll_kworker, kworker);
+=======
+
+	mutex_lock(&group->trigger_lock);
+
+	if (!rcu_access_pointer(group->poll_task)) {
+		struct task_struct *task;
+
+		task = kthread_create(psi_poll_worker, group, "psimon");
+		if (IS_ERR(task)) {
+			kfree(t);
+			mutex_unlock(&group->trigger_lock);
+			return ERR_CAST(task);
+		}
+		atomic_set(&group->poll_wakeup, 0);
+		wake_up_process(task);
+		rcu_assign_pointer(group->poll_task, task);
+>>>>>>> upstream/android-13
 	}
 
 	list_add(&t->node, &group->triggers);
@@ -1082,6 +1489,7 @@ struct psi_trigger *psi_trigger_create(struct psi_group *group,
 	return t;
 }
 
+<<<<<<< HEAD
 static void psi_trigger_destroy(struct kref *ref)
 {
 	struct psi_trigger *t = container_of(ref, struct psi_trigger, refcount);
@@ -1091,6 +1499,21 @@ static void psi_trigger_destroy(struct kref *ref)
 	if (static_branch_likely(&psi_disabled))
 		return;
 
+=======
+void psi_trigger_destroy(struct psi_trigger *t)
+{
+	struct psi_group *group;
+	struct task_struct *task_to_destroy = NULL;
+
+	/*
+	 * We do not check psi_disabled since it might have been disabled after
+	 * the trigger got created.
+	 */
+	if (!t)
+		return;
+
+	group = t->group;
+>>>>>>> upstream/android-13
 	/*
 	 * Wakeup waiters to stop polling. Can happen if cgroup is deleted
 	 * from under a polling process.
@@ -1112,6 +1535,7 @@ static void psi_trigger_destroy(struct kref *ref)
 			period = min(period, div_u64(tmp->win.size,
 					UPDATES_PER_WINDOW));
 		group->poll_min_period = period;
+<<<<<<< HEAD
 		/* Destroy poll_kworker when the last trigger is destroyed */
 		if (group->poll_states == 0) {
 			group->polling_until = 0;
@@ -1119,12 +1543,23 @@ static void psi_trigger_destroy(struct kref *ref)
 					group->poll_kworker,
 					lockdep_is_held(&group->trigger_lock));
 			rcu_assign_pointer(group->poll_kworker, NULL);
+=======
+		/* Destroy poll_task when the last trigger is destroyed */
+		if (group->poll_states == 0) {
+			group->polling_until = 0;
+			task_to_destroy = rcu_dereference_protected(
+					group->poll_task,
+					lockdep_is_held(&group->trigger_lock));
+			rcu_assign_pointer(group->poll_task, NULL);
+			del_timer(&group->poll_timer);
+>>>>>>> upstream/android-13
 		}
 	}
 
 	mutex_unlock(&group->trigger_lock);
 
 	/*
+<<<<<<< HEAD
 	 * Wait for both *trigger_ptr from psi_trigger_replace and
 	 * poll_kworker RCUs to complete their read-side critical sections
 	 * before destroying the trigger and optionally the poll_kworker
@@ -1145,10 +1580,28 @@ static void psi_trigger_destroy(struct kref *ref)
 		atomic_set(&group->poll_scheduled, 0);
 
 		kthread_destroy_worker(kworker_to_destroy);
+=======
+	 * Wait for psi_schedule_poll_work RCU to complete its read-side
+	 * critical section before destroying the trigger and optionally the
+	 * poll_task.
+	 */
+	synchronize_rcu();
+	/*
+	 * Stop kthread 'psimon' after releasing trigger_lock to prevent a
+	 * deadlock while waiting for psi_poll_work to acquire trigger_lock
+	 */
+	if (task_to_destroy) {
+		/*
+		 * After the RCU grace period has expired, the worker
+		 * can no longer be found through group->poll_task.
+		 */
+		kthread_stop(task_to_destroy);
+>>>>>>> upstream/android-13
 	}
 	kfree(t);
 }
 
+<<<<<<< HEAD
 void psi_trigger_replace(void **trigger_ptr, struct psi_trigger *new)
 {
 	struct psi_trigger *old = *trigger_ptr;
@@ -1161,6 +1614,8 @@ void psi_trigger_replace(void **trigger_ptr, struct psi_trigger *new)
 		kref_put(&old->refcount, psi_trigger_destroy);
 }
 
+=======
+>>>>>>> upstream/android-13
 __poll_t psi_trigger_poll(void **trigger_ptr,
 				struct file *file, poll_table *wait)
 {
@@ -1170,6 +1625,7 @@ __poll_t psi_trigger_poll(void **trigger_ptr,
 	if (static_branch_likely(&psi_disabled))
 		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 
 	t = rcu_dereference(*(void __rcu __force **)trigger_ptr);
@@ -1180,17 +1636,67 @@ __poll_t psi_trigger_poll(void **trigger_ptr,
 	kref_get(&t->refcount);
 
 	rcu_read_unlock();
+=======
+	t = smp_load_acquire(trigger_ptr);
+	if (!t)
+		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
+>>>>>>> upstream/android-13
 
 	poll_wait(file, &t->event_wait, wait);
 
 	if (cmpxchg(&t->event, 1, 0) == 1)
 		ret |= EPOLLPRI;
 
+<<<<<<< HEAD
 	kref_put(&t->refcount, psi_trigger_destroy);
 
 	return ret;
 }
 
+=======
+	return ret;
+}
+
+#ifdef CONFIG_PROC_FS
+static int psi_io_show(struct seq_file *m, void *v)
+{
+	return psi_show(m, &psi_system, PSI_IO);
+}
+
+static int psi_memory_show(struct seq_file *m, void *v)
+{
+	return psi_show(m, &psi_system, PSI_MEM);
+}
+
+static int psi_cpu_show(struct seq_file *m, void *v)
+{
+	return psi_show(m, &psi_system, PSI_CPU);
+}
+
+static int psi_open(struct file *file, int (*psi_show)(struct seq_file *, void *))
+{
+	if (file->f_mode & FMODE_WRITE && !capable(CAP_SYS_RESOURCE))
+		return -EPERM;
+
+	return single_open(file, psi_show, NULL);
+}
+
+static int psi_io_open(struct inode *inode, struct file *file)
+{
+	return psi_open(file, psi_io_show);
+}
+
+static int psi_memory_open(struct inode *inode, struct file *file)
+{
+	return psi_open(file, psi_memory_show);
+}
+
+static int psi_cpu_open(struct inode *inode, struct file *file)
+{
+	return psi_open(file, psi_cpu_show);
+}
+
+>>>>>>> upstream/android-13
 static ssize_t psi_write(struct file *file, const char __user *user_buf,
 			 size_t nbytes, enum psi_res res)
 {
@@ -1211,6 +1717,7 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
 
 	buf[buf_size - 1] = '\0';
 
+<<<<<<< HEAD
 	new = psi_trigger_create(&psi_system, buf, nbytes, res);
 	if (IS_ERR(new))
 		return PTR_ERR(new);
@@ -1219,6 +1726,26 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
 	/* Take seq->lock to protect seq->private from concurrent writes */
 	mutex_lock(&seq->lock);
 	psi_trigger_replace(&seq->private, new);
+=======
+	seq = file->private_data;
+
+	/* Take seq->lock to protect seq->private from concurrent writes */
+	mutex_lock(&seq->lock);
+
+	/* Allow only one trigger per file descriptor */
+	if (seq->private) {
+		mutex_unlock(&seq->lock);
+		return -EBUSY;
+	}
+
+	new = psi_trigger_create(&psi_system, buf, nbytes, res);
+	if (IS_ERR(new)) {
+		mutex_unlock(&seq->lock);
+		return PTR_ERR(new);
+	}
+
+	smp_store_release(&seq->private, new);
+>>>>>>> upstream/android-13
 	mutex_unlock(&seq->lock);
 
 	return nbytes;
@@ -1253,6 +1780,7 @@ static int psi_fop_release(struct inode *inode, struct file *file)
 {
 	struct seq_file *seq = file->private_data;
 
+<<<<<<< HEAD
 	psi_trigger_replace(&seq->private, NULL);
 	return single_release(inode, file);
 }
@@ -1282,10 +1810,42 @@ static const struct file_operations psi_cpu_fops = {
 	.write          = psi_cpu_write,
 	.poll           = psi_fop_poll,
 	.release        = psi_fop_release,
+=======
+	psi_trigger_destroy(seq->private);
+	return single_release(inode, file);
+}
+
+static const struct proc_ops psi_io_proc_ops = {
+	.proc_open	= psi_io_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= psi_io_write,
+	.proc_poll	= psi_fop_poll,
+	.proc_release	= psi_fop_release,
+};
+
+static const struct proc_ops psi_memory_proc_ops = {
+	.proc_open	= psi_memory_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= psi_memory_write,
+	.proc_poll	= psi_fop_poll,
+	.proc_release	= psi_fop_release,
+};
+
+static const struct proc_ops psi_cpu_proc_ops = {
+	.proc_open	= psi_cpu_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_write	= psi_cpu_write,
+	.proc_poll	= psi_fop_poll,
+	.proc_release	= psi_fop_release,
+>>>>>>> upstream/android-13
 };
 
 static int __init psi_proc_init(void)
 {
+<<<<<<< HEAD
 	proc_mkdir("pressure", NULL);
 	proc_create("pressure/io", 0, NULL, &psi_io_fops);
 	proc_create("pressure/memory", 0, NULL, &psi_memory_fops);
@@ -1293,3 +1853,16 @@ static int __init psi_proc_init(void)
 	return 0;
 }
 module_init(psi_proc_init);
+=======
+	if (psi_enable) {
+		proc_mkdir("pressure", NULL);
+		proc_create("pressure/io", 0666, NULL, &psi_io_proc_ops);
+		proc_create("pressure/memory", 0666, NULL, &psi_memory_proc_ops);
+		proc_create("pressure/cpu", 0666, NULL, &psi_cpu_proc_ops);
+	}
+	return 0;
+}
+module_init(psi_proc_init);
+
+#endif /* CONFIG_PROC_FS */
+>>>>>>> upstream/android-13

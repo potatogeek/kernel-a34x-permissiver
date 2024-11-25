@@ -1,4 +1,18 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+<<<<<<< HEAD
+=======
+/*
+ * Copyright (c) 2001-2003 Patrick Mochel <mochel@osdl.org>
+ * Copyright (c) 2004-2009 Greg Kroah-Hartman <gregkh@suse.de>
+ * Copyright (c) 2008-2012 Novell Inc.
+ * Copyright (c) 2012-2019 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ * Copyright (c) 2012-2019 Linux Foundation
+ *
+ * Core driver model functions and structures that should not be
+ * shared outside of the drivers/base/ directory.
+ *
+ */
+>>>>>>> upstream/android-13
 #include <linux/notifier.h>
 
 /**
@@ -60,10 +74,18 @@ struct driver_private {
  * @knode_parent - node in sibling list
  * @knode_driver - node in driver list
  * @knode_bus - node in bus list
+<<<<<<< HEAD
+=======
+ * @knode_class - node in class list
+>>>>>>> upstream/android-13
  * @deferred_probe - entry in deferred_probe_list which is used to retry the
  *	binding of drivers which were unable to get all the resources needed by
  *	the device; typically because it depends on another driver getting
  *	probed first.
+<<<<<<< HEAD
+=======
+ * @async_driver - pointer to device driver awaiting probe via async_probe
+>>>>>>> upstream/android-13
  * @device - pointer back to the struct device that this structure is
  * associated with.
  * @dead - This device is currently either in the process of or has been
@@ -77,7 +99,14 @@ struct device_private {
 	struct klist_node knode_parent;
 	struct klist_node knode_driver;
 	struct klist_node knode_bus;
+<<<<<<< HEAD
 	struct list_head deferred_probe;
+=======
+	struct klist_node knode_class;
+	struct list_head deferred_probe;
+	struct device_driver *async_driver;
+	char *deferred_probe_reason;
+>>>>>>> upstream/android-13
 	struct device *device;
 	u8 dead:1;
 };
@@ -87,6 +116,11 @@ struct device_private {
 	container_of(obj, struct device_private, knode_driver)
 #define to_device_private_bus(obj)	\
 	container_of(obj, struct device_private, knode_bus)
+<<<<<<< HEAD
+=======
+#define to_device_private_class(obj)	\
+	container_of(obj, struct device_private, knode_class)
+>>>>>>> upstream/android-13
 
 /* initialisation functions */
 extern int devices_init(void);
@@ -101,6 +135,14 @@ static inline int hypervisor_init(void) { return 0; }
 extern int platform_bus_init(void);
 extern void cpu_dev_init(void);
 extern void container_dev_init(void);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_AUXILIARY_BUS
+extern void auxiliary_bus_init(void);
+#else
+static inline void auxiliary_bus_init(void) { }
+#endif
+>>>>>>> upstream/android-13
 
 struct kobject *virtual_device_parent(struct device *dev);
 
@@ -115,8 +157,14 @@ extern void device_release_driver_internal(struct device *dev,
 					   struct device *parent);
 
 extern void driver_detach(struct device_driver *drv);
+<<<<<<< HEAD
 extern int driver_probe_device(struct device_driver *drv, struct device *dev);
 extern void driver_deferred_probe_del(struct device *dev);
+=======
+extern void driver_deferred_probe_del(struct device *dev);
+extern void device_set_deferred_probe_reason(const struct device *dev,
+					     struct va_format *vaf);
+>>>>>>> upstream/android-13
 static inline int driver_match_device(struct device_driver *drv,
 				      struct device *dev)
 {
@@ -128,6 +176,10 @@ extern int driver_add_groups(struct device_driver *drv,
 			     const struct attribute_group **groups);
 extern void driver_remove_groups(struct device_driver *drv,
 				 const struct attribute_group **groups);
+<<<<<<< HEAD
+=======
+void device_driver_detach(struct device *dev);
+>>>>>>> upstream/android-13
 
 extern char *make_class_name(const char *name, struct kobject *kobj);
 
@@ -157,12 +209,36 @@ static inline int devtmpfs_init(void) { return 0; }
 /* Device links support */
 extern int device_links_read_lock(void);
 extern void device_links_read_unlock(int idx);
+<<<<<<< HEAD
 extern int device_links_check_suppliers(struct device *dev);
+=======
+extern int device_links_read_lock_held(void);
+extern int device_links_check_suppliers(struct device *dev);
+extern void device_links_force_bind(struct device *dev);
+>>>>>>> upstream/android-13
 extern void device_links_driver_bound(struct device *dev);
 extern void device_links_driver_cleanup(struct device *dev);
 extern void device_links_no_driver(struct device *dev);
 extern bool device_links_busy(struct device *dev);
 extern void device_links_unbind_consumers(struct device *dev);
+<<<<<<< HEAD
 
 /* device pm support */
 void device_pm_move_to_tail(struct device *dev);
+=======
+extern void fw_devlink_drivers_done(void);
+
+/* device pm support */
+void device_pm_move_to_tail(struct device *dev);
+
+#ifdef CONFIG_DEVTMPFS
+int devtmpfs_create_node(struct device *dev);
+int devtmpfs_delete_node(struct device *dev);
+#else
+static inline int devtmpfs_create_node(struct device *dev) { return 0; }
+static inline int devtmpfs_delete_node(struct device *dev) { return 0; }
+#endif
+
+void software_node_notify(struct device *dev);
+void software_node_notify_remove(struct device *dev);
+>>>>>>> upstream/android-13

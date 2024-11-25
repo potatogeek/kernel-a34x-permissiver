@@ -7,6 +7,13 @@
 
 #include "cpu.h"
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_VMX_FEATURE_NAMES
+extern const char * const x86_vmx_flags[NVMXINTS*32];
+#endif
+
+>>>>>>> upstream/android-13
 /*
  *	Get CPU information for use by the procfs.
  */
@@ -35,11 +42,19 @@ static void show_cpuinfo_misc(struct seq_file *m, struct cpuinfo_x86 *c)
 		   "fpu_exception\t: %s\n"
 		   "cpuid level\t: %d\n"
 		   "wp\t\t: yes\n",
+<<<<<<< HEAD
 		   static_cpu_has_bug(X86_BUG_FDIV) ? "yes" : "no",
 		   static_cpu_has_bug(X86_BUG_F00F) ? "yes" : "no",
 		   static_cpu_has_bug(X86_BUG_COMA) ? "yes" : "no",
 		   static_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
 		   static_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
+=======
+		   boot_cpu_has_bug(X86_BUG_FDIV) ? "yes" : "no",
+		   boot_cpu_has_bug(X86_BUG_F00F) ? "yes" : "no",
+		   boot_cpu_has_bug(X86_BUG_COMA) ? "yes" : "no",
+		   boot_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
+		   boot_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
+>>>>>>> upstream/android-13
 		   c->cpuid_level);
 }
 #else
@@ -102,6 +117,20 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 		if (cpu_has(c, i) && x86_cap_flags[i] != NULL)
 			seq_printf(m, " %s", x86_cap_flags[i]);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_VMX_FEATURE_NAMES
+	if (cpu_has(c, X86_FEATURE_VMX) && c->vmx_capability[0]) {
+		seq_puts(m, "\nvmx flags\t:");
+		for (i = 0; i < 32*NVMXINTS; i++) {
+			if (test_bit(i, (unsigned long *)c->vmx_capability) &&
+			    x86_vmx_flags[i] != NULL)
+				seq_printf(m, " %s", x86_vmx_flags[i]);
+		}
+	}
+#endif
+
+>>>>>>> upstream/android-13
 	seq_puts(m, "\nbugs\t\t:");
 	for (i = 0; i < 32*NBUGINTS; i++) {
 		unsigned int bug_bit = 32*NCAPINTS + i;

@@ -60,6 +60,7 @@ typedef unsigned long sigset_t;
 #define SIGRTMIN	32
 #define SIGRTMAX	_NSIG
 
+<<<<<<< HEAD
 /*
  * SA_FLAGS values:
  *
@@ -74,6 +75,8 @@ typedef unsigned long sigset_t;
  * Unix names RESETHAND and NODEFER respectively.
  */
 
+=======
+>>>>>>> upstream/android-13
 #define SA_ONSTACK	0x00000001
 #define SA_RESTART	0x00000002
 #define SA_NOCLDSTOP	0x00000004

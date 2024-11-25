@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Oki MSM6242 RTC Driver
  *
@@ -87,6 +91,7 @@ static inline void msm6242_write(struct msm6242_priv *priv, unsigned int val,
 	__raw_writel(val, &priv->regs[reg]);
 }
 
+<<<<<<< HEAD
 static inline void msm6242_set(struct msm6242_priv *priv, unsigned int val,
 			       unsigned int reg)
 {
@@ -99,16 +104,27 @@ static inline void msm6242_clear(struct msm6242_priv *priv, unsigned int val,
 	msm6242_write(priv, msm6242_read(priv, reg) & ~val, reg);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void msm6242_lock(struct msm6242_priv *priv)
 {
 	int cnt = 5;
 
+<<<<<<< HEAD
 	msm6242_set(priv, MSM6242_CD_HOLD, MSM6242_CD);
 
 	while ((msm6242_read(priv, MSM6242_CD) & MSM6242_CD_BUSY) && cnt) {
 		msm6242_clear(priv, MSM6242_CD_HOLD, MSM6242_CD);
 		udelay(70);
 		msm6242_set(priv, MSM6242_CD_HOLD, MSM6242_CD);
+=======
+	msm6242_write(priv, MSM6242_CD_HOLD|MSM6242_CD_IRQ_FLAG, MSM6242_CD);
+
+	while ((msm6242_read(priv, MSM6242_CD) & MSM6242_CD_BUSY) && cnt) {
+		msm6242_write(priv, MSM6242_CD_IRQ_FLAG, MSM6242_CD);
+		udelay(70);
+		msm6242_write(priv, MSM6242_CD_HOLD|MSM6242_CD_IRQ_FLAG, MSM6242_CD);
+>>>>>>> upstream/android-13
 		cnt--;
 	}
 
@@ -119,7 +135,11 @@ static void msm6242_lock(struct msm6242_priv *priv)
 
 static void msm6242_unlock(struct msm6242_priv *priv)
 {
+<<<<<<< HEAD
 	msm6242_clear(priv, MSM6242_CD_HOLD, MSM6242_CD);
+=======
+	msm6242_write(priv, MSM6242_CD_IRQ_FLAG, MSM6242_CD);
+>>>>>>> upstream/android-13
 }
 
 static int msm6242_read_time(struct device *dev, struct rtc_time *tm)

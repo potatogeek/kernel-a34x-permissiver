@@ -5,6 +5,10 @@
  */
 
 #include <linux/uaccess.h>
+<<<<<<< HEAD
+=======
+#include <linux/elf.h>
+>>>>>>> upstream/android-13
 #include <asm/unaligned.h>
 #include <asm/page.h>
 #include "sizes.h"
@@ -25,7 +29,11 @@
 extern char input_data[];
 extern int input_len;
 /* output_len is inserted by the linker possibly at an unaligned address */
+<<<<<<< HEAD
 extern __le32 output_len __aligned(1);
+=======
+extern char output_len;
+>>>>>>> upstream/android-13
 extern char _text, _end;
 extern char _bss, _ebss;
 extern char _startcode_end;
@@ -144,14 +152,23 @@ static int putchar(int c)
 
 void __noreturn error(char *x)
 {
+<<<<<<< HEAD
 	puts("\n\n");
 	puts(x);
 	puts("\n\n -- System halted");
+=======
+	if (x) puts(x);
+	puts("\n -- System halted\n");
+>>>>>>> upstream/android-13
 	while (1)	/* wait forever */
 		;
 }
 
+<<<<<<< HEAD
 static int print_hex(unsigned long num)
+=======
+static int print_num(unsigned long num, int base)
+>>>>>>> upstream/android-13
 {
 	const char hex[] = "0123456789abcdef";
 	char str[40];
@@ -159,12 +176,23 @@ static int print_hex(unsigned long num)
 
 	str[i--] = '\0';
 	do {
+<<<<<<< HEAD
 		str[i--] = hex[num & 0x0f];
 		num >>= 4;
 	} while (num);
 
 	str[i--] = 'x';
 	str[i] = '0';
+=======
+		str[i--] = hex[num % base];
+		num = num / base;
+	} while (num);
+
+	if (base == 16) {
+		str[i--] = 'x';
+		str[i] = '0';
+	} else i++;
+>>>>>>> upstream/android-13
 	puts(&str[i]);
 
 	return 0;
@@ -186,8 +214,14 @@ put:
 
 		if (fmt[++i] == '%')
 			goto put;
+<<<<<<< HEAD
 		++i;
 		print_hex(va_arg(args, unsigned long));
+=======
+		print_num(va_arg(args, unsigned long),
+			fmt[i] == 'x' ? 16:10);
+		++i;
+>>>>>>> upstream/android-13
 	}
 
 	va_end(args);
@@ -227,13 +261,69 @@ static void flush_data_cache(char *start, unsigned long length)
 	asm ("sync");
 }
 
+<<<<<<< HEAD
+=======
+static void parse_elf(void *output)
+{
+#ifdef CONFIG_64BIT
+	Elf64_Ehdr ehdr;
+	Elf64_Phdr *phdrs, *phdr;
+#else
+	Elf32_Ehdr ehdr;
+	Elf32_Phdr *phdrs, *phdr;
+#endif
+	void *dest;
+	int i;
+
+	memcpy(&ehdr, output, sizeof(ehdr));
+	if (ehdr.e_ident[EI_MAG0] != ELFMAG0 ||
+	   ehdr.e_ident[EI_MAG1] != ELFMAG1 ||
+	   ehdr.e_ident[EI_MAG2] != ELFMAG2 ||
+	   ehdr.e_ident[EI_MAG3] != ELFMAG3) {
+		error("Kernel is not a valid ELF file");
+		return;
+	}
+
+#ifdef DEBUG
+	printf("Parsing ELF... ");
+#endif
+
+	phdrs = malloc(sizeof(*phdrs) * ehdr.e_phnum);
+	if (!phdrs)
+		error("Failed to allocate space for phdrs");
+
+	memcpy(phdrs, output + ehdr.e_phoff, sizeof(*phdrs) * ehdr.e_phnum);
+
+	for (i = 0; i < ehdr.e_phnum; i++) {
+		phdr = &phdrs[i];
+
+		switch (phdr->p_type) {
+		case PT_LOAD:
+			dest = (void *)((unsigned long) phdr->p_paddr &
+					(__PAGE_OFFSET_DEFAULT-1));
+			memmove(dest, output + phdr->p_offset, phdr->p_filesz);
+			break;
+		default:
+			break;
+		}
+	}
+
+	free(phdrs);
+}
+
+>>>>>>> upstream/android-13
 unsigned long decompress_kernel(unsigned int started_wide,
 		unsigned int command_line,
 		const unsigned int rd_start,
 		const unsigned int rd_end)
 {
 	char *output;
+<<<<<<< HEAD
 	unsigned long len, len_all;
+=======
+	unsigned long vmlinux_addr, vmlinux_len;
+	unsigned long kernel_addr, kernel_len;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_64BIT
 	parisc_narrow_firmware = 0;
@@ -241,6 +331,7 @@ unsigned long decompress_kernel(unsigned int started_wide,
 
 	set_firmware_width_unlocked();
 
+<<<<<<< HEAD
 	putchar('U');	/* if you get this p and no more, string storage */
 			/* in $GLOBAL$ is wrong or %dp is wrong */
 	puts("ncompressing ...\n");
@@ -256,12 +347,36 @@ unsigned long decompress_kernel(unsigned int started_wide,
 		error("Output len too big.");
 	else
 		memset(&output[len], 0, len_all - len);
+=======
+	putchar('D');	/* if you get this D and no more, string storage */
+			/* in $GLOBAL$ is wrong or %dp is wrong */
+	puts("ecompressing Linux... ");
+
+	/* where the final bits are stored */
+	kernel_addr = KERNEL_BINARY_TEXT_START;
+	kernel_len = __pa(SZ_end) - __pa(SZparisc_kernel_start);
+	if ((unsigned long) &_startcode_end > kernel_addr)
+		error("Bootcode overlaps kernel code");
+
+	/*
+	 * Calculate addr to where the vmlinux ELF file shall be decompressed.
+	 * Assembly code in head.S positioned the stack directly behind bss, so
+	 * leave 2 MB for the stack.
+	 */
+	vmlinux_addr = (unsigned long) &_ebss + 2*1024*1024;
+	vmlinux_len = get_unaligned_le32(&output_len);
+	output = (char *) vmlinux_addr;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Initialize free_mem_ptr and free_mem_end_ptr.
 	 */
+<<<<<<< HEAD
 	free_mem_ptr = (unsigned long) &_ebss;
 	free_mem_ptr += 2*1024*1024;	/* leave 2 MB for stack */
+=======
+	free_mem_ptr = vmlinux_addr + vmlinux_len;
+>>>>>>> upstream/android-13
 
 	/* Limit memory for bootoader to 1GB */
 	#define ARTIFICIAL_LIMIT (1*1024*1024*1024)
@@ -275,7 +390,22 @@ unsigned long decompress_kernel(unsigned int started_wide,
 		free_mem_end_ptr = rd_start;
 #endif
 
+<<<<<<< HEAD
 #ifdef DEBUG
+=======
+	if (free_mem_ptr >= free_mem_end_ptr) {
+		int free_ram;
+		free_ram = (free_mem_ptr >> 20) + 1;
+		if (free_ram < 32)
+			free_ram = 32;
+		printf("\nKernel requires at least %d MB RAM.\n",
+			free_ram);
+		error(NULL);
+	}
+
+#ifdef DEBUG
+	printf("\n");
+>>>>>>> upstream/android-13
 	printf("startcode_end = %x\n", &_startcode_end);
 	printf("commandline   = %x\n", command_line);
 	printf("rd_start      = %x\n", rd_start);
@@ -287,16 +417,31 @@ unsigned long decompress_kernel(unsigned int started_wide,
 	printf("input_data    = %x\n", input_data);
 	printf("input_len     = %x\n", input_len);
 	printf("output        = %x\n", output);
+<<<<<<< HEAD
 	printf("output_len    = %x\n", len);
 	printf("output_max    = %x\n", len_all);
+=======
+	printf("output_len    = %x\n", vmlinux_len);
+	printf("kernel_addr   = %x\n", kernel_addr);
+	printf("kernel_len    = %x\n", kernel_len);
+>>>>>>> upstream/android-13
 #endif
 
 	__decompress(input_data, input_len, NULL, NULL,
 			output, 0, NULL, error);
+<<<<<<< HEAD
 
 	flush_data_cache(output, len);
 
 	printf("Booting kernel ...\n\n");
+=======
+	parse_elf(output);
+
+	output = (char *) kernel_addr;
+	flush_data_cache(output, kernel_len);
+
+	printf("done.\nBooting the kernel.\n");
+>>>>>>> upstream/android-13
 
 	return (unsigned long) output;
 }

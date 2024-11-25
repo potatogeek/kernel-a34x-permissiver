@@ -3,7 +3,10 @@
 #define PERF_UTIL_CLANG_C_H
 
 #include <stddef.h>	/* for size_t */
+<<<<<<< HEAD
 #include <util-cxx.h>	/* for __maybe_unused */
+=======
+>>>>>>> upstream/android-13
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +25,10 @@ extern int perf_clang__compile_bpf(const char *filename,
 #else
 
 #include <errno.h>
+<<<<<<< HEAD
+=======
+#include <linux/compiler.h>	/* for __maybe_unused */
+>>>>>>> upstream/android-13
 
 static inline void perf_clang__init(void) { }
 static inline void perf_clang__cleanup(void) { }

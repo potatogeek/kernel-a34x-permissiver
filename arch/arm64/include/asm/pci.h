@@ -1,7 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __ASM_PCI_H
 #define __ASM_PCI_H
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+>>>>>>> upstream/android-13
 
 #include <linux/types.h>
 #include <linux/slab.h>
@@ -18,6 +21,10 @@
 #define pcibios_assign_all_busses() \
 	(pci_has_flag(PCI_REASSIGN_ALL_BUS))
 
+<<<<<<< HEAD
+=======
+#define arch_can_pci_mmap_wc() 1
+>>>>>>> upstream/android-13
 #define ARCH_GENERIC_PCI_MMAP_RESOURCE	1
 
 extern int isa_dma_bridge_buggy;
@@ -35,5 +42,8 @@ static inline int pci_proc_domain(struct pci_bus *bus)
 }
 #endif  /* CONFIG_PCI */
 
+<<<<<<< HEAD
 #endif  /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif  /* __ASM_PCI_H */

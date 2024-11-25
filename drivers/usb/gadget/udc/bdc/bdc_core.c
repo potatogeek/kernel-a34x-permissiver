@@ -12,6 +12,10 @@
 #include <linux/spinlock.h>
 #include <linux/platform_device.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/iopoll.h>
+>>>>>>> upstream/android-13
 #include <linux/ioport.h>
 #include <linux/io.h>
 #include <linux/list.h>
@@ -29,6 +33,7 @@
 #include "bdc_dbg.h"
 
 /* Poll till controller status is not OIP */
+<<<<<<< HEAD
 static int poll_oip(struct bdc *bdc, int usec)
 {
 	u32 status;
@@ -47,6 +52,21 @@ static int poll_oip(struct bdc *bdc, int usec)
 	dev_err(bdc->dev, "Err: operation timedout BDCSC: 0x%08x\n", status);
 
 	return -ETIMEDOUT;
+=======
+static int poll_oip(struct bdc *bdc, u32 usec)
+{
+	u32 status;
+	int ret;
+
+	ret = readl_poll_timeout(bdc->regs + BDC_BDCSC, status,
+				 (BDC_CSTS(status) != BDC_OIP), 10, usec);
+	if (ret)
+		dev_err(bdc->dev, "operation timedout BDCSC: 0x%08x\n", status);
+	else
+		dev_dbg(bdc->dev, "%s complete status=%d", __func__, BDC_CSTS(status));
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /* Stop the BDC controller */
@@ -172,8 +192,14 @@ static int scratchpad_setup(struct bdc *bdc)
 	/* Refer to BDC spec, Table 4 for description of SPB */
 	sp_buff_size = 1 << (sp_buff_size + 5);
 	dev_dbg(bdc->dev, "Allocating %d bytes for scratchpad\n", sp_buff_size);
+<<<<<<< HEAD
 	bdc->scratchpad.buff  =  dma_zalloc_coherent(bdc->dev, sp_buff_size,
 					&bdc->scratchpad.sp_dma, GFP_KERNEL);
+=======
+	bdc->scratchpad.buff  =  dma_alloc_coherent(bdc->dev, sp_buff_size,
+						    &bdc->scratchpad.sp_dma,
+						    GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!bdc->scratchpad.buff)
 		goto fail;
@@ -202,11 +228,17 @@ static int setup_srr(struct bdc *bdc, int interrupter)
 	bdc_writel(bdc->regs, BDC_SRRINT(0), BDC_SRR_RWS | BDC_SRR_RST);
 	bdc->srr.dqp_index = 0;
 	/* allocate the status report descriptors */
+<<<<<<< HEAD
 	bdc->srr.sr_bds = dma_zalloc_coherent(
 					bdc->dev,
 					NUM_SR_ENTRIES * sizeof(struct bdc_bd),
 					&bdc->srr.dma_addr,
 					GFP_KERNEL);
+=======
+	bdc->srr.sr_bds = dma_alloc_coherent(bdc->dev,
+					     NUM_SR_ENTRIES * sizeof(struct bdc_bd),
+					     &bdc->srr.dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!bdc->srr.sr_bds)
 		return -ENOMEM;
 
@@ -293,9 +325,19 @@ static void bdc_mem_init(struct bdc *bdc, bool reinit)
 		/* Initialize SRR to 0 */
 		memset(bdc->srr.sr_bds, 0,
 					NUM_SR_ENTRIES * sizeof(struct bdc_bd));
+<<<<<<< HEAD
 		/* clear ep flags to avoid post disconnect stops/deconfigs */
 		for (i = 1; i < bdc->num_eps; ++i)
 			bdc->bdc_ep_array[i]->flags = 0;
+=======
+		/*
+		 * clear ep flags to avoid post disconnect stops/deconfigs but
+		 * not during S2 exit
+		 */
+		if (!bdc->gadget.speed)
+			for (i = 1; i < bdc->num_eps; ++i)
+				bdc->bdc_ep_array[i]->flags = 0;
+>>>>>>> upstream/android-13
 	} else {
 		/* One time initiaization only */
 		/* Enable status report function pointers */
@@ -485,16 +527,24 @@ static void bdc_phy_exit(struct bdc *bdc)
 static int bdc_probe(struct platform_device *pdev)
 {
 	struct bdc *bdc;
+<<<<<<< HEAD
 	struct resource *res;
 	int ret = -ENOMEM;
 	int irq;
 	u32 temp;
 	struct device *dev = &pdev->dev;
 	struct clk *clk;
+=======
+	int ret;
+	int irq;
+	u32 temp;
+	struct device *dev = &pdev->dev;
+>>>>>>> upstream/android-13
 	int phy_num;
 
 	dev_dbg(dev, "%s()\n", __func__);
 
+<<<<<<< HEAD
 	clk = devm_clk_get(dev, "sw_usbd");
 	if (IS_ERR(clk)) {
 		dev_info(dev, "Clock not found in Device Tree\n");
@@ -507,10 +557,13 @@ static int bdc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	bdc = devm_kzalloc(dev, sizeof(*bdc), GFP_KERNEL);
 	if (!bdc)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	bdc->clk = clk;
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
@@ -524,6 +577,15 @@ static int bdc_probe(struct platform_device *pdev)
 		dev_err(dev, "platform_get_irq failed:%d\n", irq);
 		return irq;
 	}
+=======
+	bdc->regs = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(bdc->regs))
+		return PTR_ERR(bdc->regs);
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 	spin_lock_init(&bdc->lock);
 	platform_set_drvdata(pdev, bdc);
 	bdc->irq = irq;
@@ -553,10 +615,27 @@ static int bdc_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	ret = bdc_phy_init(bdc);
 	if (ret) {
 		dev_err(bdc->dev, "BDC phy init failure:%d\n", ret);
 		return ret;
+=======
+	bdc->clk = devm_clk_get_optional(dev, "sw_usbd");
+	if (IS_ERR(bdc->clk))
+		return PTR_ERR(bdc->clk);
+
+	ret = clk_prepare_enable(bdc->clk);
+	if (ret) {
+		dev_err(dev, "could not enable clock\n");
+		return ret;
+	}
+
+	ret = bdc_phy_init(bdc);
+	if (ret) {
+		dev_err(bdc->dev, "BDC phy init failure:%d\n", ret);
+		goto disable_clk;
+>>>>>>> upstream/android-13
 	}
 
 	temp = bdc_readl(bdc->regs, BDC_BDCCAP1);
@@ -568,7 +647,12 @@ static int bdc_probe(struct platform_device *pdev)
 		if (ret) {
 			dev_err(dev,
 				"No suitable DMA config available, abort\n");
+<<<<<<< HEAD
 			return -ENOTSUPP;
+=======
+			ret = -ENOTSUPP;
+			goto phycleanup;
+>>>>>>> upstream/android-13
 		}
 		dev_dbg(dev, "Using 32-bit address\n");
 	}
@@ -588,6 +672,11 @@ cleanup:
 	bdc_hw_exit(bdc);
 phycleanup:
 	bdc_phy_exit(bdc);
+<<<<<<< HEAD
+=======
+disable_clk:
+	clk_disable_unprepare(bdc->clk);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -643,7 +732,11 @@ static SIMPLE_DEV_PM_OPS(bdc_pm_ops, bdc_suspend,
 		bdc_resume);
 
 static const struct of_device_id bdc_of_match[] = {
+<<<<<<< HEAD
 	{ .compatible = "brcm,bdc-v0.16" },
+=======
+	{ .compatible = "brcm,bdc-udc-v2" },
+>>>>>>> upstream/android-13
 	{ .compatible = "brcm,bdc" },
 	{ /* sentinel */ }
 };

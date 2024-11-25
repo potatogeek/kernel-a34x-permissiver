@@ -11,10 +11,17 @@
 #include <dt-bindings/gpio/gpio.h>
 
 / {
+<<<<<<< HEAD
 	pwmleds {
 		compatible = "pwm-leds";
 
 		greenled {
+=======
+	led-controller-1 {
+		compatible = "pwm-leds";
+
+		led-1 {
+>>>>>>> upstream/android-13
 			label = "green:mmc0";
 			pwms = <&pwm 1 2000000 0>;
 			pwm-names = "pwm1";
@@ -22,6 +29,7 @@
 			 * Green LED is much brighter than the others
 			 * so limit its max brightness
 			 */
+<<<<<<< HEAD
 			max_brightness = <127>;
 			linux,default-trigger = "mmc0";
 		};
@@ -31,13 +39,31 @@
 			pwms = <&pwm 2 2000000 0>;
 			pwm-names = "pwm2";
 			max_brightness = <255>;
+=======
+			max-brightness = <127>;
+			linux,default-trigger = "mmc0";
+		};
+
+		led-2 {
+			label = "blue:heartbeat";
+			pwms = <&pwm 2 2000000 0>;
+			pwm-names = "pwm2";
+			max-brightness = <255>;
+>>>>>>> upstream/android-13
 			linux,default-trigger = "heartbeat";
 		};
 	};
 
+<<<<<<< HEAD
 	gpioleds {
 		compatible = "gpio-leds";
 		redled {
+=======
+	led-controller-2 {
+		compatible = "gpio-leds";
+
+		led-3 {
+>>>>>>> upstream/android-13
 			label = "red:microSD";
 			gpios = <&gpx2 3 GPIO_ACTIVE_HIGH>;
 			default-state = "off";

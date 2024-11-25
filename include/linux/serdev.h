@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016-2017 Linaro Ltd., Rob Herring <robh@kernel.org>
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2016-2017 Linaro Ltd., Rob Herring <robh@kernel.org>
+>>>>>>> upstream/android-13
  */
 #ifndef _LINUX_SERDEV_H
 #define _LINUX_SERDEV_H
@@ -173,6 +179,7 @@ int serdev_device_add(struct serdev_device *);
 void serdev_device_remove(struct serdev_device *);
 
 struct serdev_controller *serdev_controller_alloc(struct device *, size_t);
+<<<<<<< HEAD
 int serdev_controller_add_platform(struct serdev_controller *, bool);
 void serdev_controller_remove(struct serdev_controller *);
 
@@ -188,6 +195,11 @@ static inline int serdev_controller_add(struct serdev_controller *ctrl)
 	return serdev_controller_add_platform(ctrl, false);
 }
 
+=======
+int serdev_controller_add(struct serdev_controller *);
+void serdev_controller_remove(struct serdev_controller *);
+
+>>>>>>> upstream/android-13
 static inline void serdev_controller_write_wakeup(struct serdev_controller *ctrl)
 {
 	struct serdev_device *serdev = ctrl->serdev;
@@ -222,7 +234,11 @@ void serdev_device_wait_until_sent(struct serdev_device *, long);
 int serdev_device_get_tiocm(struct serdev_device *);
 int serdev_device_set_tiocm(struct serdev_device *, int, int);
 void serdev_device_write_wakeup(struct serdev_device *);
+<<<<<<< HEAD
 int serdev_device_write(struct serdev_device *, const unsigned char *, size_t, unsigned long);
+=======
+int serdev_device_write(struct serdev_device *, const unsigned char *, size_t, long);
+>>>>>>> upstream/android-13
 void serdev_device_write_flush(struct serdev_device *);
 int serdev_device_write_room(struct serdev_device *);
 
@@ -347,4 +363,21 @@ static inline int serdev_tty_port_unregister(struct tty_port *port)
 }
 #endif /* CONFIG_SERIAL_DEV_CTRL_TTYPORT */
 
+<<<<<<< HEAD
+=======
+struct acpi_resource;
+struct acpi_resource_uart_serialbus;
+
+#ifdef CONFIG_ACPI
+bool serdev_acpi_get_uart_resource(struct acpi_resource *ares,
+				   struct acpi_resource_uart_serialbus **uart);
+#else
+static inline bool serdev_acpi_get_uart_resource(struct acpi_resource *ares,
+						 struct acpi_resource_uart_serialbus **uart)
+{
+	return false;
+}
+#endif /* CONFIG_ACPI */
+
+>>>>>>> upstream/android-13
 #endif /*_LINUX_SERDEV_H */

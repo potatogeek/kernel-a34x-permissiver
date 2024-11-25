@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LPC32xx built-in touchscreen driver
  *
  * Copyright (C) 2010 NXP Semiconductors
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_device.h>
@@ -43,18 +50,30 @@
 #define LPC32XX_TSC_AUX_MIN			0x38
 #define LPC32XX_TSC_AUX_MAX			0x3C
 
+<<<<<<< HEAD
 #define LPC32XX_TSC_STAT_FIFO_OVRRN		(1 << 8)
 #define LPC32XX_TSC_STAT_FIFO_EMPTY		(1 << 7)
+=======
+#define LPC32XX_TSC_STAT_FIFO_OVRRN		BIT(8)
+#define LPC32XX_TSC_STAT_FIFO_EMPTY		BIT(7)
+>>>>>>> upstream/android-13
 
 #define LPC32XX_TSC_SEL_DEFVAL			0x0284
 
 #define LPC32XX_TSC_ADCCON_IRQ_TO_FIFO_4	(0x1 << 11)
 #define LPC32XX_TSC_ADCCON_X_SAMPLE_SIZE(s)	((10 - (s)) << 7)
 #define LPC32XX_TSC_ADCCON_Y_SAMPLE_SIZE(s)	((10 - (s)) << 4)
+<<<<<<< HEAD
 #define LPC32XX_TSC_ADCCON_POWER_UP		(1 << 2)
 #define LPC32XX_TSC_ADCCON_AUTO_EN		(1 << 0)
 
 #define LPC32XX_TSC_FIFO_TS_P_LEVEL		(1 << 31)
+=======
+#define LPC32XX_TSC_ADCCON_POWER_UP		BIT(2)
+#define LPC32XX_TSC_ADCCON_AUTO_EN		BIT(0)
+
+#define LPC32XX_TSC_FIFO_TS_P_LEVEL		BIT(31)
+>>>>>>> upstream/android-13
 #define LPC32XX_TSC_FIFO_NORMALIZE_X_VAL(x)	(((x) & 0x03FF0000) >> 16)
 #define LPC32XX_TSC_FIFO_NORMALIZE_Y_VAL(y)	((y) & 0x000003FF)
 
@@ -221,10 +240,15 @@ static int lpc32xx_ts_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&pdev->dev, "Can't get interrupt resource\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	tsc = kzalloc(sizeof(*tsc), GFP_KERNEL);
 	input = input_allocate_device();
@@ -345,7 +369,11 @@ static int lpc32xx_ts_suspend(struct device *dev)
 	 */
 	mutex_lock(&input->mutex);
 
+<<<<<<< HEAD
 	if (input->users) {
+=======
+	if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		if (device_may_wakeup(dev))
 			enable_irq_wake(tsc->irq);
 		else
@@ -364,7 +392,11 @@ static int lpc32xx_ts_resume(struct device *dev)
 
 	mutex_lock(&input->mutex);
 
+<<<<<<< HEAD
 	if (input->users) {
+=======
+	if (input_device_enabled(input)) {
+>>>>>>> upstream/android-13
 		if (device_may_wakeup(dev))
 			disable_irq_wake(tsc->irq);
 		else

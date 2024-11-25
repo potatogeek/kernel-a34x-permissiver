@@ -14,16 +14,26 @@
 #include <linux/types.h>
 #include <linux/irqflags.h>
 
+<<<<<<< HEAD
 #ifndef xchg
 
+=======
+>>>>>>> upstream/android-13
 /*
  * This function doesn't exist, so you'll get a linker error if
  * something tries to do an invalidly-sized xchg().
  */
+<<<<<<< HEAD
 extern void __xchg_called_with_bad_pointer(void);
 
 static inline
 unsigned long __xchg(unsigned long x, volatile void *ptr, int size)
+=======
+extern void __generic_xchg_called_with_bad_pointer(void);
+
+static inline
+unsigned long __generic_xchg(unsigned long x, volatile void *ptr, int size)
+>>>>>>> upstream/android-13
 {
 	unsigned long ret, flags;
 
@@ -75,11 +85,16 @@ unsigned long __xchg(unsigned long x, volatile void *ptr, int size)
 #endif /* CONFIG_64BIT */
 
 	default:
+<<<<<<< HEAD
 		__xchg_called_with_bad_pointer();
+=======
+		__generic_xchg_called_with_bad_pointer();
+>>>>>>> upstream/android-13
 		return x;
 	}
 }
 
+<<<<<<< HEAD
 #define xchg(ptr, x) ({							\
 	((__typeof__(*(ptr)))						\
 		__xchg((unsigned long)(x), (ptr), sizeof(*(ptr))));	\
@@ -87,11 +102,19 @@ unsigned long __xchg(unsigned long x, volatile void *ptr, int size)
 
 #endif /* xchg */
 
+=======
+#define generic_xchg(ptr, x) ({							\
+	((__typeof__(*(ptr)))							\
+		__generic_xchg((unsigned long)(x), (ptr), sizeof(*(ptr))));	\
+})
+
+>>>>>>> upstream/android-13
 /*
  * Atomic compare and exchange.
  */
 #include <asm-generic/cmpxchg-local.h>
 
+<<<<<<< HEAD
 #ifndef cmpxchg_local
 #define cmpxchg_local(ptr, o, n) ({					       \
 	((__typeof__(*(ptr)))__cmpxchg_local_generic((ptr), (unsigned long)(o),\
@@ -105,5 +128,30 @@ unsigned long __xchg(unsigned long x, volatile void *ptr, int size)
 
 #define cmpxchg(ptr, o, n)	cmpxchg_local((ptr), (o), (n))
 #define cmpxchg64(ptr, o, n)	cmpxchg64_local((ptr), (o), (n))
+=======
+#define generic_cmpxchg_local(ptr, o, n) ({					\
+	((__typeof__(*(ptr)))__generic_cmpxchg_local((ptr), (unsigned long)(o),	\
+			(unsigned long)(n), sizeof(*(ptr))));			\
+})
+
+#define generic_cmpxchg64_local(ptr, o, n) \
+	__generic_cmpxchg64_local((ptr), (o), (n))
+
+
+#ifndef arch_xchg
+#define arch_xchg		generic_xchg
+#endif
+
+#ifndef arch_cmpxchg_local
+#define arch_cmpxchg_local	generic_cmpxchg_local
+#endif
+
+#ifndef arch_cmpxchg64_local
+#define arch_cmpxchg64_local	generic_cmpxchg64_local
+#endif
+
+#define arch_cmpxchg		arch_cmpxchg_local
+#define arch_cmpxchg64		arch_cmpxchg64_local
+>>>>>>> upstream/android-13
 
 #endif /* __ASM_GENERIC_CMPXCHG_H */

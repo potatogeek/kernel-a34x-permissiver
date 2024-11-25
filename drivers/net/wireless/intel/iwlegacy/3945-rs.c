@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /******************************************************************************
  *
  * Copyright(c) 2005 - 2011 Intel Corporation. All rights reserved.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -18,6 +23,8 @@
  * The full GNU General Public License is included in this distribution in the
  * file called LICENSE.
  *
+=======
+>>>>>>> upstream/android-13
  * Contact Information:
  *  Intel Linux Wireless <ilw@linux.intel.com>
  * Intel Corporation, 5200 N.E. Elam Young Parkway, Hillsboro, OR 97124-6497
@@ -139,7 +146,11 @@ il3945_clear_win(struct il3945_rate_scale_data *win)
 	win->stamp = 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il3945_rate_scale_flush_wins - flush out the rate scale wins
  *
  * Returns the number of wins that have gathered data but were
@@ -244,7 +255,11 @@ il3945_bg_rate_scale_flush(struct timer_list *t)
 	D_RATE("leave\n");
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il3945_collect_tx_data - Update the success/failure sliding win
  *
  * We keep a sliding win of the last 64 packets transmitted
@@ -389,7 +404,11 @@ out:
 }
 
 static void *
+<<<<<<< HEAD
 il3945_rs_alloc(struct ieee80211_hw *hw, struct dentry *debugfsdir)
+=======
+il3945_rs_alloc(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	return hw->priv;
 }
@@ -431,7 +450,11 @@ il3945_rs_free_sta(void *il_priv, struct ieee80211_sta *sta, void *il_sta)
 	del_timer_sync(&rs_sta->rate_scale_flush);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il3945_rs_tx_status - Update rate control values based on Tx results
  *
  * NOTE: Uses il_priv->retry_rate for the # of retries attempted by
@@ -599,7 +622,11 @@ il3945_get_adjacent_rate(struct il3945_rs_sta *rs_sta, u8 idx, u16 rate_mask,
 	return (high << 8) | low;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * il3945_rs_get_rate - find the rate for the requested packet
  *
  * Returns the ieee80211_rate structure allocated by the driver.
@@ -646,9 +673,12 @@ il3945_rs_get_rate(void *il_r, struct ieee80211_sta *sta, void *il_sta,
 		il_sta = NULL;
 	}
 
+<<<<<<< HEAD
 	if (rate_control_send_low(sta, il_sta, txrc))
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	rate_mask = sta->supp_rates[sband->band];
 
 	/* get user max rate if set */
@@ -781,7 +811,11 @@ il3945_rs_get_rate(void *il_r, struct ieee80211_sta *sta, void *il_sta,
 
 	switch (scale_action) {
 	case -1:
+<<<<<<< HEAD
 		/* Decrese rate */
+=======
+		/* Decrease rate */
+>>>>>>> upstream/android-13
 		if (low != RATE_INVALID)
 			idx = low;
 		break;
@@ -861,6 +895,7 @@ il3945_add_debugfs(void *il, void *il_sta, struct dentry *dir)
 {
 	struct il3945_rs_sta *lq_sta = il_sta;
 
+<<<<<<< HEAD
 	lq_sta->rs_sta_dbgfs_stats_table_file =
 	    debugfs_create_file("rate_stats_table", 0600, dir, lq_sta,
 				&rs_sta_dbgfs_stats_table_ops);
@@ -872,6 +907,10 @@ il3945_remove_debugfs(void *il, void *il_sta)
 {
 	struct il3945_rs_sta *lq_sta = il_sta;
 	debugfs_remove(lq_sta->rs_sta_dbgfs_stats_table_file);
+=======
+	debugfs_create_file("rate_stats_table", 0600, dir, lq_sta,
+			    &rs_sta_dbgfs_stats_table_ops);
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -898,7 +937,10 @@ static const struct rate_control_ops rs_ops = {
 	.free_sta = il3945_rs_free_sta,
 #ifdef CONFIG_MAC80211_DEBUGFS
 	.add_sta_debugfs = il3945_add_debugfs,
+<<<<<<< HEAD
 	.remove_sta_debugfs = il3945_remove_debugfs,
+=======
+>>>>>>> upstream/android-13
 #endif
 
 };

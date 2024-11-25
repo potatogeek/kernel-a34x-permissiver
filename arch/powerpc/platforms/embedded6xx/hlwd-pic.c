@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * arch/powerpc/platforms/embedded6xx/hlwd-pic.c
  *
  * Nintendo Wii "Hollywood" interrupt controller support.
  * Copyright (C) 2009 The GameCube Linux Team
  * Copyright (C) 2009 Albert Herranz
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define DRV_MODULE_NAME "hlwd-pic"
 #define pr_fmt(fmt) DRV_MODULE_NAME ": " fmt
@@ -113,7 +120,10 @@ static const struct irq_domain_ops hlwd_irq_domain_ops = {
 static unsigned int __hlwd_pic_get_irq(struct irq_domain *h)
 {
 	void __iomem *io_base = h->host_data;
+<<<<<<< HEAD
 	int irq;
+=======
+>>>>>>> upstream/android-13
 	u32 irq_status;
 
 	irq_status = in_be32(io_base + HW_BROADWAY_ICR) &
@@ -121,23 +131,37 @@ static unsigned int __hlwd_pic_get_irq(struct irq_domain *h)
 	if (irq_status == 0)
 		return 0;	/* no more IRQs pending */
 
+<<<<<<< HEAD
 	irq = __ffs(irq_status);
 	return irq_linear_revmap(h, irq);
+=======
+	return __ffs(irq_status);
+>>>>>>> upstream/android-13
 }
 
 static void hlwd_pic_irq_cascade(struct irq_desc *desc)
 {
 	struct irq_chip *chip = irq_desc_get_chip(desc);
 	struct irq_domain *irq_domain = irq_desc_get_handler_data(desc);
+<<<<<<< HEAD
 	unsigned int virq;
+=======
+	unsigned int hwirq;
+>>>>>>> upstream/android-13
 
 	raw_spin_lock(&desc->lock);
 	chip->irq_mask(&desc->irq_data); /* IRQ_LEVEL */
 	raw_spin_unlock(&desc->lock);
 
+<<<<<<< HEAD
 	virq = __hlwd_pic_get_irq(irq_domain);
 	if (virq)
 		generic_handle_irq(virq);
+=======
+	hwirq = __hlwd_pic_get_irq(irq_domain);
+	if (hwirq)
+		generic_handle_domain_irq(irq_domain, hwirq);
+>>>>>>> upstream/android-13
 	else
 		pr_err("spurious interrupt!\n");
 
@@ -195,7 +219,12 @@ static struct irq_domain *hlwd_pic_init(struct device_node *np)
 
 unsigned int hlwd_pic_get_irq(void)
 {
+<<<<<<< HEAD
 	return __hlwd_pic_get_irq(hlwd_irq_host);
+=======
+	unsigned int hwirq = __hlwd_pic_get_irq(hlwd_irq_host);
+	return hwirq ? irq_linear_revmap(hlwd_irq_host, hwirq) : 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -220,6 +249,10 @@ void hlwd_pic_probe(void)
 			irq_set_chained_handler(cascade_virq,
 						hlwd_pic_irq_cascade);
 			hlwd_irq_host = host;
+<<<<<<< HEAD
+=======
+			of_node_put(np);
+>>>>>>> upstream/android-13
 			break;
 		}
 	}

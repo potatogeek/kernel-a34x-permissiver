@@ -113,8 +113,12 @@ ENTRY(privcmd_call)
 
 	/*
 	 * Disable userspace access from kernel. This is fine to do it
+<<<<<<< HEAD
 	 * unconditionally as no set_fs(KERNEL_DS)/set_fs(get_ds()) is
 	 * called before.
+=======
+	 * unconditionally as no set_fs(KERNEL_DS) is called before.
+>>>>>>> upstream/android-13
 	 */
 	uaccess_disable r4
 

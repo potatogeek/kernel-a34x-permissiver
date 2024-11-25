@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * mcp3422.c - driver for the Microchip mcp3421/2/3/4/5/6/7/8 chip family
  *
@@ -5,6 +9,7 @@
  * Author: Angelo Compagnucci <angelo.compagnucci@gmail.com>
  *
  * Datasheet: http://ww1.microchip.com/downloads/en/devicedoc/22088b.pdf
+<<<<<<< HEAD
  *            http://ww1.microchip.com/downloads/en/DeviceDoc/22226a.pdf
  *            http://ww1.microchip.com/downloads/en/DeviceDoc/22072b.pdf
  *
@@ -15,14 +20,28 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+ *            https://ww1.microchip.com/downloads/en/DeviceDoc/22226a.pdf
+ *            https://ww1.microchip.com/downloads/en/DeviceDoc/22072b.pdf
+ *
+ * This driver exports the value of analog input voltage to sysfs, the
+ * voltage unit is nV.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
 #include <linux/i2c.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/delay.h>
 #include <linux/sysfs.h>
 #include <linux/of.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/delay.h>
+#include <linux/sysfs.h>
+#include <asm/unaligned.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/sysfs.h>
@@ -117,11 +136,19 @@ static int mcp3422_read(struct mcp3422 *adc, int *value, u8 *config)
 
 	if (sample_rate == MCP3422_SRATE_3) {
 		ret = i2c_master_recv(adc->i2c, buf, 4);
+<<<<<<< HEAD
 		temp = buf[0] << 16 | buf[1] << 8 | buf[2];
 		*config = buf[3];
 	} else {
 		ret = i2c_master_recv(adc->i2c, buf, 3);
 		temp = buf[0] << 8 | buf[1];
+=======
+		temp = get_unaligned_be24(&buf[0]);
+		*config = buf[3];
+	} else {
+		ret = i2c_master_recv(adc->i2c, buf, 3);
+		temp = get_unaligned_be16(&buf[0]);
+>>>>>>> upstream/android-13
 		*config = buf[2];
 	}
 
@@ -354,8 +381,11 @@ static int mcp3422_probe(struct i2c_client *client,
 
 	mutex_init(&adc->lock);
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &client->dev;
 	indio_dev->dev.of_node = client->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = dev_name(&client->dev);
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &mcp3422_info;
@@ -411,18 +441,28 @@ static const struct i2c_device_id mcp3422_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, mcp3422_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id mcp3422_of_match[] = {
 	{ .compatible = "mcp3422" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, mcp3422_of_match);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct i2c_driver mcp3422_driver = {
 	.driver = {
 		.name = "mcp3422",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(mcp3422_of_match),
+=======
+		.of_match_table = mcp3422_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = mcp3422_probe,
 	.id_table = mcp3422_id,

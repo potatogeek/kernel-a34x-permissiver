@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * AppArmor security module
  *
@@ -5,17 +9,23 @@
  *
  * Copyright (C) 1998-2008 Novell/SUSE
  * Copyright 2009-2010 Canonical Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 2 of the
  * License.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __AA_PATH_H
 #define __AA_PATH_H
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 enum path_flags {
 	PATH_IS_DIR = 0x1,		/* path is a directory */
 	PATH_CONNECT_PATH = 0x4,	/* connect disconnected paths to / */
@@ -30,6 +40,7 @@ int aa_path_name(const struct path *path, int flags, char *buffer,
 		 const char **name, const char **info,
 		 const char *disconnected);
 
+<<<<<<< HEAD
 #define MAX_PATH_BUFFERS 2
 
 /* Per cpu buffers used during mediation */
@@ -76,5 +87,10 @@ do {					\
 	__put_buffers(X, Y);		\
 	put_cpu_ptr(&aa_buffers);	\
 } while (0)
+=======
+#define IN_ATOMIC true
+char *aa_get_buffer(bool in_atomic);
+void aa_put_buffer(char *buf);
+>>>>>>> upstream/android-13
 
 #endif /* __AA_PATH_H */

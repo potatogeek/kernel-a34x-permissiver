@@ -117,8 +117,13 @@ int __init vpe_module_init(void)
 	}
 
 	device_initialize(&vpe_device);
+<<<<<<< HEAD
 	vpe_device.class	= &vpe_class,
 	vpe_device.parent	= NULL,
+=======
+	vpe_device.class	= &vpe_class;
+	vpe_device.parent	= NULL;
+>>>>>>> upstream/android-13
 	dev_set_name(&vpe_device, "vpe_sp");
 	vpe_device.devt = MKDEV(major, VPE_MODULE_MINOR);
 	err = device_add(&vpe_device);

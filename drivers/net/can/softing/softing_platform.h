@@ -19,7 +19,11 @@ struct softing_platform_data {
 	 * 16bit, shared interrupt
 	 */
 	int generation;
+<<<<<<< HEAD
 	int nbus; /* # busses on device */
+=======
+	int nbus; /* # buses on device */
+>>>>>>> upstream/android-13
 	unsigned int freq; /* operating frequency in Hz */
 	unsigned int max_brp;
 	unsigned int max_sjw;

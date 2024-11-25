@@ -11,6 +11,7 @@ KernelVersion:	2.6.20
 Contact:	Thomas Maier <balagi@justmail.de>
 Description:
 
+<<<<<<< HEAD
 		add:		(WO) Write a block device id (major:minor) to
 				create a new pktcdvd device and map it to the
 				block device.
@@ -20,6 +21,19 @@ Description:
 
 		device_map:	(RO) Shows the device mapping in format:
 				pktcdvd[0-7] <pktdevid> <blkdevid>
+=======
+		==========	==============================================
+		add		(WO) Write a block device id (major:minor) to
+				create a new pktcdvd device and map it to the
+				block device.
+
+		remove		(WO) Write the pktcdvd device id (major:minor)
+				to remove the pktcdvd device.
+
+		device_map	(RO) Shows the device mapping in format:
+				pktcdvd[0-7] <pktdevid> <blkdevid>
+		==========	==============================================
+>>>>>>> upstream/android-13
 
 
 What:		/sys/class/pktcdvd/pktcdvd[0-7]/dev
@@ -65,21 +79,36 @@ Date:		Oct. 2006
 KernelVersion:	2.6.20
 Contact:	Thomas Maier <balagi@justmail.de>
 Description:
+<<<<<<< HEAD
 		size:		(RO) Contains the size of the bio write queue.
 
 		congestion_off:	(RW) If bio write queue size is below this mark,
 				accept new bio requests from the block layer.
 
 		congestion_on:	(RW) If bio write queue size is higher as this
+=======
+		==============	================================================
+		size		(RO) Contains the size of the bio write queue.
+
+		congestion_off	(RW) If bio write queue size is below this mark,
+				accept new bio requests from the block layer.
+
+		congestion_on	(RW) If bio write queue size is higher as this
+>>>>>>> upstream/android-13
 				mark, do no longer accept bio write requests
 				from the block layer and wait till the pktcdvd
 				device has processed enough bio's so that bio
 				write queue size is below congestion off mark.
 				A value of <= 0 disables congestion control.
+<<<<<<< HEAD
+=======
+		==============	================================================
+>>>>>>> upstream/android-13
 
 
 Example:
 --------
+<<<<<<< HEAD
 To use the pktcdvd sysfs interface directly, you can do:
 
 # create a new pktcdvd device mapped to /dev/hdc
@@ -91,3 +120,16 @@ cat /sys/class/pktcdvd/pktcdvd0/stat/kb_written
 fgrep pktcdvd0 /sys/class/pktcdvd/device_map
 # remove device, using pktcdvd0 device id   253:0
 echo "253:0" >/sys/class/pktcdvd/remove
+=======
+To use the pktcdvd sysfs interface directly, you can do::
+
+    # create a new pktcdvd device mapped to /dev/hdc
+    echo "22:0" >/sys/class/pktcdvd/add
+    cat /sys/class/pktcdvd/device_map
+    # assuming device pktcdvd0 was created, look at stat's
+    cat /sys/class/pktcdvd/pktcdvd0/stat/kb_written
+    # print the device id of the mapped block device
+    fgrep pktcdvd0 /sys/class/pktcdvd/device_map
+    # remove device, using pktcdvd0 device id   253:0
+    echo "253:0" >/sys/class/pktcdvd/remove
+>>>>>>> upstream/android-13

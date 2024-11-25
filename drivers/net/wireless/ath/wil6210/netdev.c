@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018, The Linux Foundation. All rights reserved.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
+ * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -27,7 +34,11 @@ bool wil_has_other_active_ifaces(struct wil6210_priv *wil,
 	struct wil6210_vif *vif;
 	struct net_device *ndev_i;
 
+<<<<<<< HEAD
 	for (i = 0; i < wil->max_vifs; i++) {
+=======
+	for (i = 0; i < GET_MAX_VIFS(wil); i++) {
+>>>>>>> upstream/android-13
 		vif = wil->vifs[i];
 		if (vif) {
 			ndev_i = vif_to_ndev(vif);
@@ -155,7 +166,11 @@ static int wil6210_netdev_poll_tx(struct napi_struct *napi, int budget)
 		struct wil6210_vif *vif;
 
 		if (!ring->va || !txdata->enabled ||
+<<<<<<< HEAD
 		    txdata->mid >= wil->max_vifs)
+=======
+		    txdata->mid >= GET_MAX_VIFS(wil))
+>>>>>>> upstream/android-13
 			continue;
 
 		vif = wil->vifs[txdata->mid];
@@ -218,6 +233,10 @@ static void wil_vif_deinit(struct wil6210_vif *vif)
 	cancel_work_sync(&vif->p2p.delayed_listen_work);
 	wil_probe_client_flush(vif);
 	cancel_work_sync(&vif->probe_client_worker);
+<<<<<<< HEAD
+=======
+	cancel_work_sync(&vif->enable_tx_key_worker);
+>>>>>>> upstream/android-13
 }
 
 void wil_vif_free(struct wil6210_vif *vif)
@@ -283,7 +302,13 @@ static void wil_vif_init(struct wil6210_vif *vif)
 
 	INIT_WORK(&vif->probe_client_worker, wil_probe_client_worker);
 	INIT_WORK(&vif->disconnect_worker, wil_disconnect_worker);
+<<<<<<< HEAD
 	INIT_WORK(&vif->p2p.delayed_listen_work, wil_p2p_delayed_listen_work);
+=======
+	INIT_WORK(&vif->p2p.discovery_expired_work, wil_p2p_listen_expired);
+	INIT_WORK(&vif->p2p.delayed_listen_work, wil_p2p_delayed_listen_work);
+	INIT_WORK(&vif->enable_tx_key_worker, wil_enable_tx_key_worker);
+>>>>>>> upstream/android-13
 
 	INIT_LIST_HEAD(&vif->probe_client_pending);
 
@@ -294,7 +319,11 @@ static u8 wil_vif_find_free_mid(struct wil6210_priv *wil)
 {
 	u8 i;
 
+<<<<<<< HEAD
 	for (i = 0; i < wil->max_vifs; i++) {
+=======
+	for (i = 0; i < GET_MAX_VIFS(wil); i++) {
+>>>>>>> upstream/android-13
 		if (!wil->vifs[i])
 			return i;
 	}
@@ -345,8 +374,12 @@ wil_vif_alloc(struct wil6210_priv *wil, const char *name,
 	ndev->ieee80211_ptr = wdev;
 	ndev->hw_features = NETIF_F_HW_CSUM | NETIF_F_RXCSUM |
 			    NETIF_F_SG | NETIF_F_GRO |
+<<<<<<< HEAD
 			    NETIF_F_TSO | NETIF_F_TSO6 |
 			    NETIF_F_RXHASH;
+=======
+			    NETIF_F_TSO | NETIF_F_TSO6;
+>>>>>>> upstream/android-13
 
 	ndev->features |= ndev->hw_features;
 	SET_NETDEV_DEV(ndev, wiphy_dev(wdev->wiphy));
@@ -433,7 +466,11 @@ int wil_vif_add(struct wil6210_priv *wil, struct wil6210_vif *vif)
 		if (rc)
 			return rc;
 	}
+<<<<<<< HEAD
 	rc = register_netdevice(ndev);
+=======
+	rc = cfg80211_register_netdevice(ndev);
+>>>>>>> upstream/android-13
 	if (rc < 0) {
 		dev_err(&ndev->dev, "Failed to register netdev: %d\n", rc);
 		if (any_active && vif->mid != 0)
@@ -482,7 +519,13 @@ int wil_if_add(struct wil6210_priv *wil)
 	wil_update_net_queues_bh(wil, vif, NULL, true);
 
 	rtnl_lock();
+<<<<<<< HEAD
 	rc = wil_vif_add(wil, vif);
+=======
+	wiphy_lock(wiphy);
+	rc = wil_vif_add(wil, vif);
+	wiphy_unlock(wiphy);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 	if (rc < 0)
 		goto out_wiphy;
@@ -501,7 +544,11 @@ void wil_vif_remove(struct wil6210_priv *wil, u8 mid)
 	bool any_active = wil_has_active_ifaces(wil, true, false);
 
 	ASSERT_RTNL();
+<<<<<<< HEAD
 	if (mid >= wil->max_vifs) {
+=======
+	if (mid >= GET_MAX_VIFS(wil)) {
+>>>>>>> upstream/android-13
 		wil_err(wil, "invalid MID: %d\n", mid);
 		return;
 	}
@@ -513,14 +560,22 @@ void wil_vif_remove(struct wil6210_priv *wil, u8 mid)
 	}
 
 	mutex_lock(&wil->mutex);
+<<<<<<< HEAD
 	wil6210_disconnect(vif, NULL, WLAN_REASON_DEAUTH_LEAVING, false);
+=======
+	wil6210_disconnect(vif, NULL, WLAN_REASON_DEAUTH_LEAVING);
+>>>>>>> upstream/android-13
 	mutex_unlock(&wil->mutex);
 
 	ndev = vif_to_ndev(vif);
 	/* during unregister_netdevice cfg80211_leave may perform operations
 	 * such as stop AP, disconnect, so we only clear the VIF afterwards
 	 */
+<<<<<<< HEAD
 	unregister_netdevice(ndev);
+=======
+	cfg80211_unregister_netdevice(ndev);
+>>>>>>> upstream/android-13
 
 	if (any_active && vif->mid != 0)
 		wmi_port_delete(wil, vif->mid);
@@ -541,6 +596,10 @@ void wil_vif_remove(struct wil6210_priv *wil, u8 mid)
 	cancel_work_sync(&vif->disconnect_worker);
 	wil_probe_client_flush(vif);
 	cancel_work_sync(&vif->probe_client_worker);
+<<<<<<< HEAD
+=======
+	cancel_work_sync(&vif->enable_tx_key_worker);
+>>>>>>> upstream/android-13
 	/* for VIFs, ndev will be freed by destructor after RTNL is unlocked.
 	 * the main interface will be freed in wil_if_free, we need to keep it
 	 * a bit longer so logging macros will work.
@@ -551,15 +610,29 @@ void wil_if_remove(struct wil6210_priv *wil)
 {
 	struct net_device *ndev = wil->main_ndev;
 	struct wireless_dev *wdev = ndev->ieee80211_ptr;
+<<<<<<< HEAD
+=======
+	struct wiphy *wiphy = wdev->wiphy;
+>>>>>>> upstream/android-13
 
 	wil_dbg_misc(wil, "if_remove\n");
 
 	rtnl_lock();
+<<<<<<< HEAD
 	wil_vif_remove(wil, 0);
+=======
+	wiphy_lock(wiphy);
+	wil_vif_remove(wil, 0);
+	wiphy_unlock(wiphy);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 
 	netif_napi_del(&wil->napi_tx);
 	netif_napi_del(&wil->napi_rx);
 
+<<<<<<< HEAD
 	wiphy_unregister(wdev->wiphy);
+=======
+	wiphy_unregister(wiphy);
+>>>>>>> upstream/android-13
 }

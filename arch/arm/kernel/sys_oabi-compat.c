@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  arch/arm/kernel/sys_oabi-compat.c
  *
@@ -7,10 +11,13 @@
  *  Author:	Nicolas Pitre
  *  Created:	Oct 7, 2005
  *  Copyright:	MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -83,9 +90,18 @@
 #include <linux/socket.h>
 #include <linux/net.h>
 #include <linux/ipc.h>
+<<<<<<< HEAD
 #include <linux/uaccess.h>
 #include <linux/slab.h>
 
+=======
+#include <linux/ipc_namespace.h>
+#include <linux/uaccess.h>
+#include <linux/slab.h>
+
+#include <asm/syscall.h>
+
+>>>>>>> upstream/android-13
 struct oldabi_stat64 {
 	unsigned long long st_dev;
 	unsigned int	__pad1;
@@ -194,6 +210,7 @@ struct oabi_flock64 {
 	pid_t	l_pid;
 } __attribute__ ((packed,aligned(4)));
 
+<<<<<<< HEAD
 static long do_locks(unsigned int fd, unsigned int cmd,
 				 unsigned long arg)
 {
@@ -201,10 +218,16 @@ static long do_locks(unsigned int fd, unsigned int cmd,
 	struct oabi_flock64 user;
 	mm_segment_t fs;
 	long ret;
+=======
+static int get_oabi_flock(struct flock64 *kernel, struct oabi_flock64 __user *arg)
+{
+	struct oabi_flock64 user;
+>>>>>>> upstream/android-13
 
 	if (copy_from_user(&user, (struct oabi_flock64 __user *)arg,
 			   sizeof(user)))
 		return -EFAULT;
+<<<<<<< HEAD
 	kernel.l_type	= user.l_type;
 	kernel.l_whence	= user.l_whence;
 	kernel.l_start	= user.l_start;
@@ -227,11 +250,39 @@ static long do_locks(unsigned int fd, unsigned int cmd,
 			ret = -EFAULT;
 	}
 	return ret;
+=======
+
+	kernel->l_type	 = user.l_type;
+	kernel->l_whence = user.l_whence;
+	kernel->l_start	 = user.l_start;
+	kernel->l_len	 = user.l_len;
+	kernel->l_pid	 = user.l_pid;
+
+	return 0;
+}
+
+static int put_oabi_flock(struct flock64 *kernel, struct oabi_flock64 __user *arg)
+{
+	struct oabi_flock64 user;
+
+	user.l_type	= kernel->l_type;
+	user.l_whence	= kernel->l_whence;
+	user.l_start	= kernel->l_start;
+	user.l_len	= kernel->l_len;
+	user.l_pid	= kernel->l_pid;
+
+	if (copy_to_user((struct oabi_flock64 __user *)arg,
+			 &user, sizeof(user)))
+		return -EFAULT;
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 asmlinkage long sys_oabi_fcntl64(unsigned int fd, unsigned int cmd,
 				 unsigned long arg)
 {
+<<<<<<< HEAD
 	switch (cmd) {
 	case F_OFD_GETLK:
 	case F_OFD_SETLK:
@@ -251,11 +302,62 @@ struct oabi_epoll_event {
 	__u64 data;
 } __attribute__ ((packed,aligned(4)));
 
+=======
+	void __user *argp = (void __user *)arg;
+	struct fd f = fdget_raw(fd);
+	struct flock64 flock;
+	long err = -EBADF;
+
+	if (!f.file)
+		goto out;
+
+	switch (cmd) {
+	case F_GETLK64:
+	case F_OFD_GETLK:
+		err = security_file_fcntl(f.file, cmd, arg);
+		if (err)
+			break;
+		err = get_oabi_flock(&flock, argp);
+		if (err)
+			break;
+		err = fcntl_getlk64(f.file, cmd, &flock);
+		if (!err)
+		       err = put_oabi_flock(&flock, argp);
+		break;
+	case F_SETLK64:
+	case F_SETLKW64:
+	case F_OFD_SETLK:
+	case F_OFD_SETLKW:
+		err = security_file_fcntl(f.file, cmd, arg);
+		if (err)
+			break;
+		err = get_oabi_flock(&flock, argp);
+		if (err)
+			break;
+		err = fcntl_setlk64(fd, f.file, cmd, &flock);
+		break;
+	default:
+		err = sys_fcntl64(fd, cmd, arg);
+		break;
+	}
+	fdput(f);
+out:
+	return err;
+}
+
+struct oabi_epoll_event {
+	__poll_t events;
+	__u64 data;
+} __attribute__ ((packed,aligned(4)));
+
+#ifdef CONFIG_EPOLL
+>>>>>>> upstream/android-13
 asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
 				   struct oabi_epoll_event __user *event)
 {
 	struct oabi_epoll_event user;
 	struct epoll_event kernel;
+<<<<<<< HEAD
 	mm_segment_t fs;
 	long ret;
 
@@ -305,6 +407,45 @@ asmlinkage long sys_oabi_epoll_wait(int epfd,
 	}
 	kfree(kbuf);
 	return err ? -EFAULT : ret;
+=======
+
+	if (ep_op_has_event(op) &&
+	    copy_from_user(&user, event, sizeof(user)))
+		return -EFAULT;
+
+	kernel.events = user.events;
+	kernel.data   = user.data;
+
+	return do_epoll_ctl(epfd, op, fd, &kernel, false);
+}
+#else
+asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
+				   struct oabi_epoll_event __user *event)
+{
+	return -EINVAL;
+}
+#endif
+
+struct epoll_event __user *
+epoll_put_uevent(__poll_t revents, __u64 data,
+		 struct epoll_event __user *uevent)
+{
+	if (in_oabi_syscall()) {
+		struct oabi_epoll_event __user *oevent = (void __user *)uevent;
+
+		if (__put_user(revents, &oevent->events) ||
+		    __put_user(data, &oevent->data))
+			return NULL;
+
+		return (void __user *)(oevent+1);
+	}
+
+	if (__put_user(revents, &uevent->events) ||
+	    __put_user(data, &uevent->data))
+		return NULL;
+
+	return uevent+1;
+>>>>>>> upstream/android-13
 }
 
 struct oabi_sembuf {
@@ -314,6 +455,7 @@ struct oabi_sembuf {
 	unsigned short	__pad;
 };
 
+<<<<<<< HEAD
 asmlinkage long sys_oabi_semtimedop(int semid,
 				    struct oabi_sembuf __user *tsops,
 				    unsigned nsops,
@@ -329,17 +471,43 @@ asmlinkage long sys_oabi_semtimedop(int semid,
 	if (!access_ok(VERIFY_READ, tsops, sizeof(*tsops) * nsops))
 		return -EFAULT;
 	sops = kmalloc_array(nsops, sizeof(*sops), GFP_KERNEL);
+=======
+#define sc_semopm     sem_ctls[2]
+
+#ifdef CONFIG_SYSVIPC
+asmlinkage long sys_oabi_semtimedop(int semid,
+				    struct oabi_sembuf __user *tsops,
+				    unsigned nsops,
+				    const struct old_timespec32 __user *timeout)
+{
+	struct ipc_namespace *ns;
+	struct sembuf *sops;
+	long err;
+	int i;
+
+	ns = current->nsproxy->ipc_ns;
+	if (nsops > ns->sc_semopm)
+		return -E2BIG;
+	if (nsops < 1 || nsops > SEMOPM)
+		return -EINVAL;
+	sops = kvmalloc_array(nsops, sizeof(*sops), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sops)
 		return -ENOMEM;
 	err = 0;
 	for (i = 0; i < nsops; i++) {
 		struct oabi_sembuf osb;
+<<<<<<< HEAD
 		err |= __copy_from_user(&osb, tsops, sizeof(osb));
+=======
+		err |= copy_from_user(&osb, tsops, sizeof(osb));
+>>>>>>> upstream/android-13
 		sops[i].sem_num = osb.sem_num;
 		sops[i].sem_op = osb.sem_op;
 		sops[i].sem_flg = osb.sem_flg;
 		tsops++;
 	}
+<<<<<<< HEAD
 	if (timeout) {
 		/* copy this as well before changing domain protection */
 		err |= copy_from_user(&local_timeout, timeout, sizeof(*timeout));
@@ -354,6 +522,24 @@ asmlinkage long sys_oabi_semtimedop(int semid,
 		set_fs(fs);
 	}
 	kfree(sops);
+=======
+	if (err) {
+		err = -EFAULT;
+		goto out;
+	}
+
+	if (timeout) {
+		struct timespec64 ts;
+		err = get_old_timespec32(&ts, timeout);
+		if (err)
+			goto out;
+		err = __do_semtimedop(semid, sops, nsops, &ts, ns);
+		goto out;
+	}
+	err = __do_semtimedop(semid, sops, nsops, NULL, ns);
+out:
+	kvfree(sops);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -375,11 +561,39 @@ asmlinkage int sys_oabi_ipc(uint call, int first, int second, int third,
 		return  sys_oabi_semtimedop(first,
 					    (struct oabi_sembuf __user *)ptr,
 					    second,
+<<<<<<< HEAD
 					    (const struct timespec __user *)fifth);
+=======
+					    (const struct old_timespec32 __user *)fifth);
+>>>>>>> upstream/android-13
 	default:
 		return sys_ipc(call, first, second, third, ptr, fifth);
 	}
 }
+<<<<<<< HEAD
+=======
+#else
+asmlinkage long sys_oabi_semtimedop(int semid,
+				    struct oabi_sembuf __user *tsops,
+				    unsigned nsops,
+				    const struct old_timespec32 __user *timeout)
+{
+	return -ENOSYS;
+}
+
+asmlinkage long sys_oabi_semop(int semid, struct oabi_sembuf __user *tsops,
+			       unsigned nsops)
+{
+	return -ENOSYS;
+}
+
+asmlinkage int sys_oabi_ipc(uint call, int first, int second, int third,
+			    void __user *ptr, long fifth)
+{
+	return -ENOSYS;
+}
+#endif
+>>>>>>> upstream/android-13
 
 asmlinkage long sys_oabi_bind(int fd, struct sockaddr __user *addr, int addrlen)
 {

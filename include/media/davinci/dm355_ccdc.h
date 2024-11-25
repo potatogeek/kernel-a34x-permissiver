@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005-2009 Texas Instruments Inc
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2005-2009 Texas Instruments Inc
+>>>>>>> upstream/android-13
  */
 #ifndef _DM355_CCDC_H
 #define _DM355_CCDC_H
@@ -228,7 +234,11 @@ struct ccdc_config_params_raw {
 	/* Threshold of median filter */
 	int med_filt_thres;
 	/*
+<<<<<<< HEAD
 	 * horz and vertical data offset. Appliable for defect correction
+=======
+	 * horz and vertical data offset. Applicable for defect correction
+>>>>>>> upstream/android-13
 	 * and lsc
 	 */
 	struct ccdc_data_offset data_offset;
@@ -238,7 +248,11 @@ struct ccdc_config_params_raw {
 	struct ccdc_black_clamp blk_clamp;
 	/* Structure for Black Compensation */
 	struct ccdc_black_compensation blk_comp;
+<<<<<<< HEAD
 	/* struture for vertical Defect Correction Module Configuration */
+=======
+	/* structure for vertical Defect Correction Module Configuration */
+>>>>>>> upstream/android-13
 	struct ccdc_vertical_dft vertical_dft;
 	/* structure for color space converter Module Configuration */
 	struct ccdc_csc csc;

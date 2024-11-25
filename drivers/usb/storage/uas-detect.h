@@ -120,7 +120,11 @@ static int uas_use_uas_driver(struct usb_interface *intf,
 
 	if (flags & US_FL_IGNORE_UAS) {
 		dev_warn(&udev->dev,
+<<<<<<< HEAD
 			"UAS is blacklisted for this device, using usb-storage instead\n");
+=======
+			"UAS is ignored for this device, using usb-storage instead\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 

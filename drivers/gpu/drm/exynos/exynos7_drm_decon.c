@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* drivers/gpu/drm/exynos/exynos7_drm_decon.c
  *
  * Copyright (C) 2014 Samsung Electronics Co.Ltd
  * Authors:
  *	Akshu Agarwal <akshua@gmail.com>
  *	Ajay Kumar <ajaykumar.rs@samsung.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -13,6 +18,9 @@
  */
 #include <drm/drmP.h>
 #include <drm/exynos_drm.h>
+=======
+ */
+>>>>>>> upstream/android-13
 
 #include <linux/clk.h>
 #include <linux/component.h>
@@ -26,11 +34,22 @@
 #include <video/of_display_timing.h>
 #include <video/of_videomode.h>
 
+<<<<<<< HEAD
 #include "exynos_drm_crtc.h"
 #include "exynos_drm_plane.h"
 #include "exynos_drm_drv.h"
 #include "exynos_drm_fb.h"
 #include "exynos_drm_iommu.h"
+=======
+#include <drm/drm_fourcc.h>
+#include <drm/drm_vblank.h>
+#include <drm/exynos_drm.h>
+
+#include "exynos_drm_crtc.h"
+#include "exynos_drm_drv.h"
+#include "exynos_drm_fb.h"
+#include "exynos_drm_plane.h"
+>>>>>>> upstream/android-13
 #include "regs-decon7.h"
 
 /*
@@ -44,6 +63,10 @@
 struct decon_context {
 	struct device			*dev;
 	struct drm_device		*drm_dev;
+<<<<<<< HEAD
+=======
+	void				*dma_priv;
+>>>>>>> upstream/android-13
 	struct exynos_drm_crtc		*crtc;
 	struct exynos_drm_plane		planes[WINDOWS_NR];
 	struct exynos_drm_plane_config	configs[WINDOWS_NR];
@@ -100,7 +123,11 @@ static void decon_wait_for_vblank(struct exynos_drm_crtc *crtc)
 	if (!wait_event_timeout(ctx->wait_vsync_queue,
 				!atomic_read(&ctx->wait_vsync_event),
 				HZ/20))
+<<<<<<< HEAD
 		DRM_DEBUG_KMS("vblank wait timed out.\n");
+=======
+		DRM_DEV_DEBUG_KMS(ctx->dev, "vblank wait timed out.\n");
+>>>>>>> upstream/android-13
 }
 
 static void decon_clear_channels(struct exynos_drm_crtc *crtc)
@@ -108,8 +135,11 @@ static void decon_clear_channels(struct exynos_drm_crtc *crtc)
 	struct decon_context *ctx = crtc->ctx;
 	unsigned int win, ch_enabled = 0;
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("%s\n", __FILE__);
 
+=======
+>>>>>>> upstream/android-13
 	/* Check if any channel is enabled. */
 	for (win = 0; win < WINDOWS_NR; win++) {
 		u32 val = readl(ctx->regs + WINCON(win));
@@ -133,19 +163,31 @@ static int decon_ctx_initialize(struct decon_context *ctx,
 
 	decon_clear_channels(ctx->crtc);
 
+<<<<<<< HEAD
 	return drm_iommu_attach_device(drm_dev, ctx->dev);
+=======
+	return exynos_drm_register_dma(drm_dev, ctx->dev, &ctx->dma_priv);
+>>>>>>> upstream/android-13
 }
 
 static void decon_ctx_remove(struct decon_context *ctx)
 {
 	/* detach this sub driver from iommu mapping if supported. */
+<<<<<<< HEAD
 	drm_iommu_detach_device(ctx->drm_dev, ctx->dev);
+=======
+	exynos_drm_unregister_dma(ctx->drm_dev, ctx->dev, &ctx->dma_priv);
+>>>>>>> upstream/android-13
 }
 
 static u32 decon_calc_clkdiv(struct decon_context *ctx,
 		const struct drm_display_mode *mode)
 {
+<<<<<<< HEAD
 	unsigned long ideal_clk = mode->htotal * mode->vtotal * mode->vrefresh;
+=======
+	unsigned long ideal_clk = mode->clock;
+>>>>>>> upstream/android-13
 	u32 clkdiv;
 
 	/* Find the clock divider value that gets us closest to ideal_clk */
@@ -316,7 +358,11 @@ static void decon_win_set_pixfmt(struct decon_context *ctx, unsigned int win,
 		break;
 	}
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("cpp = %d\n", fb->format->cpp[0]);
+=======
+	DRM_DEV_DEBUG_KMS(ctx->dev, "cpp = %d\n", fb->format->cpp[0]);
+>>>>>>> upstream/android-13
 
 	/*
 	 * In case of exynos, setting dma-burst to 16Word causes permanent
@@ -349,8 +395,14 @@ static void decon_win_set_colkey(struct decon_context *ctx, unsigned int win)
 }
 
 /**
+<<<<<<< HEAD
  * shadow_protect_win() - disable updating values from shadow registers at vsync
  *
+=======
+ * decon_shadow_protect_win() - disable updating values from shadow registers at vsync
+ *
+ * @ctx: display and enhancement controller context
+>>>>>>> upstream/android-13
  * @win: window to protect registers for
  * @protect: 1 to protect (disable updates)
  */
@@ -423,9 +475,15 @@ static void decon_update_plane(struct exynos_drm_crtc *crtc,
 	writel(state->src.x, ctx->regs + VIDW_OFFSET_X(win));
 	writel(state->src.y, ctx->regs + VIDW_OFFSET_Y(win));
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("start addr = 0x%lx\n",
 			(unsigned long)val);
 	DRM_DEBUG_KMS("ovl_width = %d, ovl_height = %d\n",
+=======
+	DRM_DEV_DEBUG_KMS(ctx->dev, "start addr = 0x%lx\n",
+			(unsigned long)val);
+	DRM_DEV_DEBUG_KMS(ctx->dev, "ovl_width = %d, ovl_height = %d\n",
+>>>>>>> upstream/android-13
 			state->crtc.w, state->crtc.h);
 
 	val = VIDOSDxA_TOPLEFT_X(state->crtc.x) |
@@ -443,7 +501,11 @@ static void decon_update_plane(struct exynos_drm_crtc *crtc,
 
 	writel(val, ctx->regs + VIDOSD_B(win));
 
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("osd pos: tx = %d, ty = %d, bx = %d, by = %d\n",
+=======
+	DRM_DEV_DEBUG_KMS(ctx->dev, "osd pos: tx = %d, ty = %d, bx = %d, by = %d\n",
+>>>>>>> upstream/android-13
 			state->crtc.x, state->crtc.y, last_x, last_y);
 
 	/* OSD alpha */
@@ -532,14 +594,29 @@ static void decon_init(struct decon_context *ctx)
 		writel(VIDCON1_VCLK_HOLD, ctx->regs + VIDCON1(0));
 }
 
+<<<<<<< HEAD
 static void decon_enable(struct exynos_drm_crtc *crtc)
 {
 	struct decon_context *ctx = crtc->ctx;
+=======
+static void decon_atomic_enable(struct exynos_drm_crtc *crtc)
+{
+	struct decon_context *ctx = crtc->ctx;
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!ctx->suspended)
 		return;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(ctx->dev);
+=======
+	ret = pm_runtime_resume_and_get(ctx->dev);
+	if (ret < 0) {
+		DRM_DEV_ERROR(ctx->dev, "failed to enable DECON device.\n");
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	decon_init(ctx);
 
@@ -552,7 +629,11 @@ static void decon_enable(struct exynos_drm_crtc *crtc)
 	ctx->suspended = false;
 }
 
+<<<<<<< HEAD
 static void decon_disable(struct exynos_drm_crtc *crtc)
+=======
+static void decon_atomic_disable(struct exynos_drm_crtc *crtc)
+>>>>>>> upstream/android-13
 {
 	struct decon_context *ctx = crtc->ctx;
 	int i;
@@ -574,8 +655,13 @@ static void decon_disable(struct exynos_drm_crtc *crtc)
 }
 
 static const struct exynos_drm_crtc_ops decon_crtc_ops = {
+<<<<<<< HEAD
 	.enable = decon_enable,
 	.disable = decon_disable,
+=======
+	.atomic_enable = decon_atomic_enable,
+	.atomic_disable = decon_atomic_disable,
+>>>>>>> upstream/android-13
 	.enable_vblank = decon_enable_vblank,
 	.disable_vblank = decon_disable_vblank,
 	.atomic_begin = decon_atomic_begin,
@@ -623,7 +709,11 @@ static int decon_bind(struct device *dev, struct device *master, void *data)
 
 	ret = decon_ctx_initialize(ctx, drm_dev);
 	if (ret) {
+<<<<<<< HEAD
 		DRM_ERROR("decon_ctx_initialize failed.\n");
+=======
+		DRM_DEV_ERROR(dev, "decon_ctx_initialize failed.\n");
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -659,7 +749,11 @@ static void decon_unbind(struct device *dev, struct device *master,
 {
 	struct decon_context *ctx = dev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	decon_disable(ctx->crtc);
+=======
+	decon_atomic_disable(ctx->crtc);
+>>>>>>> upstream/android-13
 
 	if (ctx->encoder)
 		exynos_dpi_remove(ctx->encoder);
@@ -803,25 +897,45 @@ static int exynos7_decon_resume(struct device *dev)
 
 	ret = clk_prepare_enable(ctx->pclk);
 	if (ret < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("Failed to prepare_enable the pclk [%d]\n", ret);
+=======
+		DRM_DEV_ERROR(dev, "Failed to prepare_enable the pclk [%d]\n",
+			      ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	ret = clk_prepare_enable(ctx->aclk);
 	if (ret < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("Failed to prepare_enable the aclk [%d]\n", ret);
+=======
+		DRM_DEV_ERROR(dev, "Failed to prepare_enable the aclk [%d]\n",
+			      ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	ret = clk_prepare_enable(ctx->eclk);
 	if  (ret < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("Failed to prepare_enable the eclk [%d]\n", ret);
+=======
+		DRM_DEV_ERROR(dev, "Failed to prepare_enable the eclk [%d]\n",
+			      ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
 	ret = clk_prepare_enable(ctx->vclk);
 	if  (ret < 0) {
+<<<<<<< HEAD
 		DRM_ERROR("Failed to prepare_enable the vclk [%d]\n", ret);
+=======
+		DRM_DEV_ERROR(dev, "Failed to prepare_enable the vclk [%d]\n",
+			      ret);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

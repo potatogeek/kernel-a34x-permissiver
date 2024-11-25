@@ -1,15 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI tlc4541 ADC Driver
  *
  * Copyright (C) 2017 Phil Reid
  *
  * Datasheets can be found here:
+<<<<<<< HEAD
  * http://www.ti.com/lit/gpn/tlc3541
  * http://www.ti.com/lit/gpn/tlc4541
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+ * https://www.ti.com/lit/gpn/tlc3541
+ * https://www.ti.com/lit/gpn/tlc4541
+>>>>>>> upstream/android-13
  *
  * The tlc4541 requires 24 clock cycles to start a transfer.
  * Conversion then takes 2.94us to complete before data is ready
@@ -27,6 +36,10 @@
 #include <linux/iio/triggered_buffer.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/mod_devicetable.h>
+>>>>>>> upstream/android-13
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
 #include <linux/spi/spi.h>
@@ -180,7 +193,10 @@ static int tlc4541_probe(struct spi_device *spi)
 	info = &tlc4541_chip_info[spi_get_device_id(spi)->driver_data];
 
 	indio_dev->name = spi_get_device_id(spi)->name;
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = info->channels;
 	indio_dev->num_channels = info->num_channels;
@@ -192,7 +208,12 @@ static int tlc4541_probe(struct spi_device *spi)
 	/* Setup default message */
 	st->scan_single_xfer[0].rx_buf = &st->rx_buf[0];
 	st->scan_single_xfer[0].len = 3;
+<<<<<<< HEAD
 	st->scan_single_xfer[1].delay_usecs = 3;
+=======
+	st->scan_single_xfer[1].delay.value = 3;
+	st->scan_single_xfer[1].delay.unit = SPI_DELAY_UNIT_NSECS;
+>>>>>>> upstream/android-13
 	st->scan_single_xfer[2].rx_buf = &st->rx_buf[0];
 	st->scan_single_xfer[2].len = 2;
 
@@ -238,14 +259,20 @@ static int tlc4541_remove(struct spi_device *spi)
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
+=======
+>>>>>>> upstream/android-13
 static const struct of_device_id tlc4541_dt_ids[] = {
 	{ .compatible = "ti,tlc3541", },
 	{ .compatible = "ti,tlc4541", },
 	{}
 };
 MODULE_DEVICE_TABLE(of, tlc4541_dt_ids);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static const struct spi_device_id tlc4541_id[] = {
 	{"tlc3541", TLC3541},
@@ -257,7 +284,11 @@ MODULE_DEVICE_TABLE(spi, tlc4541_id);
 static struct spi_driver tlc4541_driver = {
 	.driver = {
 		.name   = "tlc4541",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(tlc4541_dt_ids),
+=======
+		.of_match_table = tlc4541_dt_ids,
+>>>>>>> upstream/android-13
 	},
 	.probe          = tlc4541_probe,
 	.remove         = tlc4541_remove,

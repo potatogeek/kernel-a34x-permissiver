@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * FSI hub master driver
  *
  * Copyright (C) IBM Corporation 2016
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -21,6 +28,7 @@
 
 #include "fsi-master.h"
 
+<<<<<<< HEAD
 /* Control Registers */
 #define FSI_MMODE		0x0		/* R/W: mode */
 #define FSI_MDLYR		0x4		/* R/W: delay */
@@ -68,6 +76,9 @@
 #define FSI_HUB_LINK_OFFSET		0x80000
 #define FSI_HUB_LINK_SIZE		0x80000
 #define FSI_HUB_MASTER_MAX_LINKS	8
+=======
+#define FSI_ENGID_HUB_MASTER		0x1c
+>>>>>>> upstream/android-13
 
 #define FSI_LINK_ENABLE_SETUP_TIME	10	/* in mS */
 
@@ -131,7 +142,12 @@ static int hub_master_break(struct fsi_master *master, int link)
 	return hub_master_write(master, link, 0, addr, &cmd, sizeof(cmd));
 }
 
+<<<<<<< HEAD
 static int hub_master_link_enable(struct fsi_master *master, int link)
+=======
+static int hub_master_link_enable(struct fsi_master *master, int link,
+				  bool enable)
+>>>>>>> upstream/android-13
 {
 	struct fsi_master_hub *hub = to_fsi_master_hub(master);
 	int idx, bit;
@@ -143,6 +159,7 @@ static int hub_master_link_enable(struct fsi_master *master, int link)
 
 	reg = cpu_to_be32(0x80000000 >> bit);
 
+<<<<<<< HEAD
 	rc = fsi_device_write(hub->upstream, FSI_MSENP0 + (4 * idx), &reg, 4);
 
 	mdelay(FSI_LINK_ENABLE_SETUP_TIME);
@@ -150,6 +167,19 @@ static int hub_master_link_enable(struct fsi_master *master, int link)
 	fsi_device_read(hub->upstream, FSI_MENP0 + (4 * idx), &reg, 4);
 
 	return rc;
+=======
+	if (!enable)
+		return fsi_device_write(hub->upstream, FSI_MCENP0 + (4 * idx),
+					&reg, 4);
+
+	rc = fsi_device_write(hub->upstream, FSI_MSENP0 + (4 * idx), &reg, 4);
+	if (rc)
+		return rc;
+
+	mdelay(FSI_LINK_ENABLE_SETUP_TIME);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void hub_master_release(struct device *dev)
@@ -325,7 +355,11 @@ static int hub_master_remove(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fsi_device_id hub_master_ids[] = {
+=======
+static const struct fsi_device_id hub_master_ids[] = {
+>>>>>>> upstream/android-13
 	{
 		.engine_type = FSI_ENGID_HUB_MASTER,
 		.version = FSI_VERSION_ANY,

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 MediaTek Inc.
  * Author: Hongzhou.Yang <hongzhou.yang@mediatek.com>
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014 MediaTek Inc.
+ * Author: Hongzhou.Yang <hongzhou.yang@mediatek.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PINCTRL_MTK_COMMON_H
@@ -262,6 +269,12 @@ struct mtk_pinctrl_devdata {
 	unsigned char  port_align;
 	struct mtk_eint_hw eint_hw;
 	struct mtk_eint_regs *eint_regs;
+<<<<<<< HEAD
+=======
+	unsigned int mode_mask;
+	unsigned int mode_per_reg;
+	unsigned int mode_shf;
+>>>>>>> upstream/android-13
 };
 
 struct mtk_pinctrl {

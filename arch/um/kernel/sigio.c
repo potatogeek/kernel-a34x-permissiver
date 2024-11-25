@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
  * Licensed under the GPL
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2002 - 2007 Jeff Dike (jdike@{linux.intel,addtoit}.com)
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -16,7 +22,10 @@ static irqreturn_t sigio_interrupt(int irq, void *data)
 	char c;
 
 	os_read_file(sigio_irq_fd, &c, sizeof(c));
+<<<<<<< HEAD
 	reactivate_fd(sigio_irq_fd, SIGIO_WRITE_IRQ);
+=======
+>>>>>>> upstream/android-13
 	return IRQ_HANDLED;
 }
 
@@ -26,7 +35,11 @@ int write_sigio_irq(int fd)
 
 	err = um_request_irq(SIGIO_WRITE_IRQ, fd, IRQ_READ, sigio_interrupt,
 			     0, "write sigio", NULL);
+<<<<<<< HEAD
 	if (err) {
+=======
+	if (err < 0) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "write_sigio_irq : um_request_irq failed, "
 		       "err = %d\n", err);
 		return -1;

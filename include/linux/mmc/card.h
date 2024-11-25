@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  linux/include/linux/mmc/card.h
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ *  linux/include/linux/mmc/card.h
+ *
+>>>>>>> upstream/android-13
  *  Card driver specific definitions.
  */
 #ifndef LINUX_MMC_CARD_H
@@ -12,6 +19,7 @@
 
 #include <linux/device.h>
 #include <linux/mod_devicetable.h>
+<<<<<<< HEAD
 
 #define MAX_CNT_U64		0xFFFFFFFFFF
 #define MAX_CNT_U32		0x7FFFFFFF
@@ -31,6 +39,9 @@
 #define MAX_ERR_LOG_INDEX	(MAX_REQ_TYPE_INDEX * MAX_ERR_TYPE_INDEX)
 
 struct mmc_blk_request;
+=======
+#include <linux/android_kabi.h>
+>>>>>>> upstream/android-13
 
 struct mmc_cid {
 	unsigned int		manfid;
@@ -54,7 +65,10 @@ struct mmc_csd {
 	unsigned int		r2w_factor;
 	unsigned int		max_dtr;
 	unsigned int		erase_size;		/* In sectors */
+<<<<<<< HEAD
 	unsigned int		wp_grp_size;
+=======
+>>>>>>> upstream/android-13
 	unsigned int		read_blkbits;
 	unsigned int		write_blkbits;
 	unsigned int		capacity;
@@ -71,6 +85,10 @@ struct mmc_ext_csd {
 	u8			sec_feature_support;
 	u8			rel_sectors;
 	u8			rel_param;
+<<<<<<< HEAD
+=======
+	bool			enhanced_rpmb_supported;
+>>>>>>> upstream/android-13
 	u8			part_config;
 	u8			cache_ctrl;
 	u8			rst_n_function;
@@ -131,6 +149,10 @@ struct mmc_ext_csd {
 	u8			raw_hc_erase_gap_size;	/* 221 */
 	u8			raw_erase_timeout_mult;	/* 223 */
 	u8			raw_hc_erase_grp_size;	/* 224 */
+<<<<<<< HEAD
+=======
+	u8			raw_boot_mult;		/* 226 */
+>>>>>>> upstream/android-13
 	u8			raw_sec_trim_mult;	/* 229 */
 	u8			raw_sec_erase_mult;	/* 230 */
 	u8			raw_sec_feature_support;/* 231 */
@@ -153,12 +175,22 @@ struct mmc_ext_csd {
 struct sd_scr {
 	unsigned char		sda_vsn;
 	unsigned char		sda_spec3;
+<<<<<<< HEAD
+=======
+	unsigned char		sda_spec4;
+	unsigned char		sda_specx;
+>>>>>>> upstream/android-13
 	unsigned char		bus_widths;
 #define SD_SCR_BUS_WIDTH_1	(1<<0)
 #define SD_SCR_BUS_WIDTH_4	(1<<2)
 	unsigned char		cmds;
 #define SD_SCR_CMD20_SUPPORT   (1<<0)
 #define SD_SCR_CMD23_SUPPORT   (1<<1)
+<<<<<<< HEAD
+=======
+#define SD_SCR_CMD48_SUPPORT   (1<<2)
+#define SD_SCR_CMD58_SUPPORT   (1<<3)
+>>>>>>> upstream/android-13
 };
 
 struct sd_ssr {
@@ -209,6 +241,28 @@ struct sd_switch_caps {
 #define SD_MAX_CURRENT_800	(1 << SD_SET_CURRENT_LIMIT_800)
 };
 
+<<<<<<< HEAD
+=======
+struct sd_ext_reg {
+	u8			fno;
+	u8			page;
+	u16			offset;
+	u8			rev;
+	u8			feature_enabled;
+	u8			feature_support;
+/* Power Management Function. */
+#define SD_EXT_POWER_OFF_NOTIFY	(1<<0)
+#define SD_EXT_POWER_SUSTENANCE	(1<<1)
+#define SD_EXT_POWER_DOWN_MODE	(1<<2)
+/* Performance Enhancement Function. */
+#define SD_EXT_PERF_FX_EVENT	(1<<0)
+#define SD_EXT_PERF_CARD_MAINT	(1<<1)
+#define SD_EXT_PERF_HOST_MAINT	(1<<2)
+#define SD_EXT_PERF_CACHE	(1<<3)
+#define SD_EXT_PERF_CMD_QUEUE	(1<<4)
+};
+
+>>>>>>> upstream/android-13
 struct sdio_cccr {
 	unsigned int		sdio_vsn;
 	unsigned int		sd_vsn;
@@ -256,6 +310,7 @@ struct mmc_part {
 #define MMC_BLK_DATA_AREA_BOOT	(1<<1)
 #define MMC_BLK_DATA_AREA_GP	(1<<2)
 #define MMC_BLK_DATA_AREA_RPMB	(1<<3)
+<<<<<<< HEAD
 };
 
 struct mmc_card_error_log {
@@ -275,6 +330,10 @@ struct mmc_card_error_log {
 	u32	cq_cnt;		// cq enable / disable fail
 	u32	rpmb_cnt;	// RPMB switch fail
 	u32	hw_rst_cnt;	// reset count
+=======
+
+	ANDROID_KABI_RESERVE(1);
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -316,8 +375,13 @@ struct mmc_card {
  	unsigned int		erase_shift;	/* if erase unit is power 2 */
  	unsigned int		pref_erase;	/* in sectors */
 	unsigned int		eg_boundary;	/* don't cross erase-group boundaries */
+<<<<<<< HEAD
  	u8			erased_byte;	/* value of erased bytes */
 	unsigned int		wp_grp_size; /* write group size in sectors */
+=======
+	unsigned int		erase_arg;	/* erase / trim / discard */
+ 	u8			erased_byte;	/* value of erased bytes */
+>>>>>>> upstream/android-13
 
 	u32			raw_cid[4];	/* raw card CID */
 	u32			raw_csd[4];	/* raw card CSD */
@@ -329,12 +393,25 @@ struct mmc_card {
 	struct sd_scr		scr;		/* extra SD information */
 	struct sd_ssr		ssr;		/* yet more SD information */
 	struct sd_switch_caps	sw_caps;	/* switch (CMD6) caps */
+<<<<<<< HEAD
 
 	unsigned int		sdio_funcs;	/* number of SDIO functions */
+=======
+	struct sd_ext_reg	ext_power;	/* SD extension reg for PM */
+	struct sd_ext_reg	ext_perf;	/* SD extension reg for PERF */
+
+	unsigned int		sdio_funcs;	/* number of SDIO functions */
+	atomic_t		sdio_funcs_probed; /* number of probed SDIO funcs */
+>>>>>>> upstream/android-13
 	struct sdio_cccr	cccr;		/* common card info */
 	struct sdio_cis		cis;		/* common tuple info */
 	struct sdio_func	*sdio_func[SDIO_MAX_FUNCS]; /* SDIO functions (devices) */
 	struct sdio_func	*sdio_single_irq; /* SDIO function when only one IRQ active */
+<<<<<<< HEAD
+=======
+	u8			major_rev;	/* major revision number */
+	u8			minor_rev;	/* minor revision number */
+>>>>>>> upstream/android-13
 	unsigned		num_info;	/* number of info strings */
 	const char		**info;		/* info strings */
 	struct sdio_func_tuple	*tuples;	/* unknown common tuples */
@@ -346,6 +423,7 @@ struct mmc_card {
 	struct dentry		*debugfs_root;
 	struct mmc_part	part[MMC_NUM_PHY_PARTITION]; /* physical partitions */
 	unsigned int    nr_parts;
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_EMMC_HW_CQ
 	unsigned int	part_curr;
 	bool cqe_init;
@@ -355,6 +433,13 @@ struct mmc_card {
 	struct workqueue_struct *complete_wq;	/* Private workqueue */
 	struct mmc_card_error_log err_log[MAX_ERR_LOG_INDEX];
 	struct mmc_card_error_log err_log_backup[MAX_ERR_LOG_INDEX];
+=======
+
+	struct workqueue_struct *complete_wq;	/* Private workqueue */
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+>>>>>>> upstream/android-13
 };
 
 static inline bool mmc_large_sector(struct mmc_card *card)
@@ -363,7 +448,10 @@ static inline bool mmc_large_sector(struct mmc_card *card)
 }
 
 bool mmc_card_is_blockaddr(struct mmc_card *card);
+<<<<<<< HEAD
 void mmc_card_error_logging(struct mmc_card *card, struct mmc_blk_request *brq, u32 status);
+=======
+>>>>>>> upstream/android-13
 
 #define mmc_card_mmc(c)		((c)->type == MMC_TYPE_MMC)
 #define mmc_card_sd(c)		((c)->type == MMC_TYPE_SD)

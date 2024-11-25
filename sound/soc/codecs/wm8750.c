@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8750.c -- WM8750 ALSA SoC audio driver
  *
@@ -6,10 +10,13 @@
  * Author: Richard Purdie <richard@openedhand.com>
  *
  * Based on WM8753.c
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -581,8 +588,13 @@ static int wm8750_pcm_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_soc_component *component = dai->component;
 	struct wm8750_priv *wm8750 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8750_IFACE) & 0x1f3;
 	u16 srate = snd_soc_component_read32(component, WM8750_SRATE) & 0x1c0;
+=======
+	u16 iface = snd_soc_component_read(component, WM8750_IFACE) & 0x1f3;
+	u16 srate = snd_soc_component_read(component, WM8750_SRATE) & 0x1c0;
+>>>>>>> upstream/android-13
 	int coeff = get_coeff(wm8750->sysclk, params_rate(params));
 
 	/* bit size */
@@ -609,10 +621,17 @@ static int wm8750_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8750_mute(struct snd_soc_dai *dai, int mute)
 {
 	struct snd_soc_component *component = dai->component;
 	u16 mute_reg = snd_soc_component_read32(component, WM8750_ADCDAC) & 0xfff7;
+=======
+static int wm8750_mute(struct snd_soc_dai *dai, int mute, int direction)
+{
+	struct snd_soc_component *component = dai->component;
+	u16 mute_reg = snd_soc_component_read(component, WM8750_ADCDAC) & 0xfff7;
+>>>>>>> upstream/android-13
 
 	if (mute)
 		snd_soc_component_write(component, WM8750_ADCDAC, mute_reg | 0x8);
@@ -624,7 +643,11 @@ static int wm8750_mute(struct snd_soc_dai *dai, int mute)
 static int wm8750_set_bias_level(struct snd_soc_component *component,
 				 enum snd_soc_bias_level level)
 {
+<<<<<<< HEAD
 	u16 pwr_reg = snd_soc_component_read32(component, WM8750_PWR1) & 0xfe3e;
+=======
+	u16 pwr_reg = snd_soc_component_read(component, WM8750_PWR1) & 0xfe3e;
+>>>>>>> upstream/android-13
 
 	switch (level) {
 	case SND_SOC_BIAS_ON:
@@ -663,9 +686,16 @@ static int wm8750_set_bias_level(struct snd_soc_component *component,
 
 static const struct snd_soc_dai_ops wm8750_dai_ops = {
 	.hw_params	= wm8750_pcm_hw_params,
+<<<<<<< HEAD
 	.digital_mute	= wm8750_mute,
 	.set_fmt	= wm8750_set_dai_fmt,
 	.set_sysclk	= wm8750_set_dai_sysclk,
+=======
+	.mute_stream	= wm8750_mute,
+	.set_fmt	= wm8750_set_dai_fmt,
+	.set_sysclk	= wm8750_set_dai_sysclk,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8750_dai = {

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * VFIO platform driver specialized for AMD xgbe reset
  * reset code is inherited from AMD xgbe native driver
  *
  * Copyright (c) 2015 Linaro Ltd.
  *              www.linaro.org
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -16,6 +21,8 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -25,7 +32,11 @@
 #include <uapi/linux/mdio.h>
 #include <linux/delay.h>
 
+<<<<<<< HEAD
 #include "vfio_platform_private.h"
+=======
+#include "../vfio_platform_private.h"
+>>>>>>> upstream/android-13
 
 #define DMA_MR			0x3000
 #define MAC_VR			0x0110
@@ -35,7 +46,11 @@
 #define MDIO_AN_INT		0x8002
 #define MDIO_AN_INTMASK		0x8001
 
+<<<<<<< HEAD
 static unsigned int xmdio_read(void *ioaddr, unsigned int mmd,
+=======
+static unsigned int xmdio_read(void __iomem *ioaddr, unsigned int mmd,
+>>>>>>> upstream/android-13
 			       unsigned int reg)
 {
 	unsigned int mmd_address, value;
@@ -46,7 +61,11 @@ static unsigned int xmdio_read(void *ioaddr, unsigned int mmd,
 	return value;
 }
 
+<<<<<<< HEAD
 static void xmdio_write(void *ioaddr, unsigned int mmd,
+=======
+static void xmdio_write(void __iomem *ioaddr, unsigned int mmd,
+>>>>>>> upstream/android-13
 			unsigned int reg, unsigned int value)
 {
 	unsigned int mmd_address;
@@ -65,13 +84,21 @@ static int vfio_platform_amdxgbe_reset(struct vfio_platform_device *vdev)
 
 	if (!xgmac_regs->ioaddr) {
 		xgmac_regs->ioaddr =
+<<<<<<< HEAD
 			ioremap_nocache(xgmac_regs->addr, xgmac_regs->size);
+=======
+			ioremap(xgmac_regs->addr, xgmac_regs->size);
+>>>>>>> upstream/android-13
 		if (!xgmac_regs->ioaddr)
 			return -ENOMEM;
 	}
 	if (!xpcs_regs->ioaddr) {
 		xpcs_regs->ioaddr =
+<<<<<<< HEAD
 			ioremap_nocache(xpcs_regs->addr, xpcs_regs->size);
+=======
+			ioremap(xpcs_regs->addr, xpcs_regs->size);
+>>>>>>> upstream/android-13
 		if (!xpcs_regs->ioaddr)
 			return -ENOMEM;
 	}
@@ -89,7 +116,12 @@ static int vfio_platform_amdxgbe_reset(struct vfio_platform_device *vdev)
 	} while ((pcs_value & MDIO_CTRL1_RESET) && --count);
 
 	if (pcs_value & MDIO_CTRL1_RESET)
+<<<<<<< HEAD
 		pr_warn("%s XGBE PHY reset timeout\n", __func__);
+=======
+		dev_warn(vdev->device, "%s: XGBE PHY reset timeout\n",
+			 __func__);
+>>>>>>> upstream/android-13
 
 	/* disable auto-negotiation */
 	value = xmdio_read(xpcs_regs->ioaddr, MDIO_MMD_AN, MDIO_CTRL1);
@@ -114,7 +146,11 @@ static int vfio_platform_amdxgbe_reset(struct vfio_platform_device *vdev)
 		usleep_range(500, 600);
 
 	if (!count)
+<<<<<<< HEAD
 		pr_warn("%s MAC SW reset failed\n", __func__);
+=======
+		dev_warn(vdev->device, "%s: MAC SW reset failed\n", __func__);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

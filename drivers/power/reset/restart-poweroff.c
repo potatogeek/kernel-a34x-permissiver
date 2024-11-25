@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Power off by restarting and let u-boot keep hold of the machine
  * until the user presses a button for example.
@@ -5,10 +9,13 @@
  * Andrew Lunn <andrew@lunn.ch>
  *
  * Copyright (C) 2012 Andrew Lunn
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -48,6 +55,10 @@ static const struct of_device_id of_restart_poweroff_match[] = {
 	{ .compatible = "restart-poweroff", },
 	{},
 };
+<<<<<<< HEAD
+=======
+MODULE_DEVICE_TABLE(of, of_restart_poweroff_match);
+>>>>>>> upstream/android-13
 
 static struct platform_driver restart_poweroff_driver = {
 	.probe = restart_poweroff_probe,

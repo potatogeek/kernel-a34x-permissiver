@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 Google, Inc.
  * Author: Erik Gilling <konkers@android.com>
  *
  * Copyright (C) 2011-2013 NVIDIA Corporation
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -13,6 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/debugfs.h>
@@ -78,6 +85,10 @@ static int show_channel(struct host1x_channel *ch, void *data, bool show_fifo)
 
 static void show_syncpts(struct host1x *m, struct output *o)
 {
+<<<<<<< HEAD
+=======
+	struct list_head *pos;
+>>>>>>> upstream/android-13
 	unsigned int i;
 
 	host1x_debug_output(o, "---- syncpts ----\n");
@@ -85,12 +96,28 @@ static void show_syncpts(struct host1x *m, struct output *o)
 	for (i = 0; i < host1x_syncpt_nb_pts(m); i++) {
 		u32 max = host1x_syncpt_read_max(m->syncpt + i);
 		u32 min = host1x_syncpt_load(m->syncpt + i);
+<<<<<<< HEAD
 
 		if (!min && !max)
 			continue;
 
 		host1x_debug_output(o, "id %u (%s) min %d max %d\n",
 				    i, m->syncpt[i].name, min, max);
+=======
+		unsigned int waiters = 0;
+
+		spin_lock(&m->syncpt[i].intr.lock);
+		list_for_each(pos, &m->syncpt[i].intr.wait_head)
+			waiters++;
+		spin_unlock(&m->syncpt[i].intr.lock);
+
+		if (!min && !max && !waiters)
+			continue;
+
+		host1x_debug_output(o,
+				    "id %u (%s) min %d max %d (%d waiters)\n",
+				    i, m->syncpt[i].name, min, max, waiters);
+>>>>>>> upstream/android-13
 	}
 
 	for (i = 0; i < host1x_syncpt_nb_bases(m); i++) {
@@ -175,9 +202,12 @@ static void host1x_debugfs_init(struct host1x *host1x)
 {
 	struct dentry *de = debugfs_create_dir("tegra-host1x", NULL);
 
+<<<<<<< HEAD
 	if (!de)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	/* Store the created entry */
 	host1x->debugfs = de;
 

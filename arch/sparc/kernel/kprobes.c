@@ -346,6 +346,7 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 	case KPROBE_HIT_ACTIVE:
 	case KPROBE_HIT_SSDONE:
 		/*
+<<<<<<< HEAD
 		 * We increment the nmissed count for accounting,
 		 * we can also use npre/npostfault count for accounting
 		 * these specific fault cases.
@@ -363,6 +364,8 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, int trapnr)
 			return 1;
 
 		/*
+=======
+>>>>>>> upstream/android-13
 		 * In case the user-specified fault handler returned
 		 * zero, try to fix up.
 		 */
@@ -453,6 +456,10 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 				      struct pt_regs *regs)
 {
 	ri->ret_addr = (kprobe_opcode_t *)(regs->u_regs[UREG_RETPC] + 8);
+<<<<<<< HEAD
+=======
+	ri->fp = NULL;
+>>>>>>> upstream/android-13
 
 	/* Replace the return addr with trampoline addr */
 	regs->u_regs[UREG_RETPC] =
@@ -465,6 +472,7 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
 static int __kprobes trampoline_probe_handler(struct kprobe *p,
 					      struct pt_regs *regs)
 {
+<<<<<<< HEAD
 	struct kretprobe_instance *ri = NULL;
 	struct hlist_head *head, empty_rp;
 	struct hlist_node *tmp;
@@ -517,6 +525,14 @@ static int __kprobes trampoline_probe_handler(struct kprobe *p,
 		hlist_del(&ri->hlist);
 		kfree(ri);
 	}
+=======
+	unsigned long orig_ret_address = 0;
+
+	orig_ret_address = __kretprobe_trampoline_handler(regs, &kretprobe_trampoline, NULL);
+	regs->tpc = orig_ret_address;
+	regs->tnpc = orig_ret_address + 4;
+
+>>>>>>> upstream/android-13
 	/*
 	 * By returning a non-zero value, we are telling
 	 * kprobe_handler() that we don't want the post_handler

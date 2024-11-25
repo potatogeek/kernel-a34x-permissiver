@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/hwmon/nsa320-hwmon.c
  *
@@ -7,6 +11,7 @@
  * Copyright (C) 2016 Adam Baker <linux@baker-net.org.uk>
  * based on a board file driver
  * Copyright (C) 2012 Peter Schildmann <linux@schildmann.info>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License v2 as published by the
@@ -16,6 +21,8 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
@@ -114,8 +121,13 @@ static s32 nsa320_hwmon_update(struct device *dev)
 	return mcu_data;
 }
 
+<<<<<<< HEAD
 static ssize_t show_label(struct device *dev,
 			  struct device_attribute *attr, char *buf)
+=======
+static ssize_t label_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
+>>>>>>> upstream/android-13
 {
 	int channel = to_sensor_dev_attr(attr)->index;
 
@@ -144,9 +156,15 @@ static ssize_t fan1_input_show(struct device *dev,
 	return sprintf(buf, "%d\n", ((mcu_data & 0xff0000) >> 16) * 100);
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(temp1_label, S_IRUGO, show_label, NULL, NSA320_TEMP);
 static DEVICE_ATTR_RO(temp1_input);
 static SENSOR_DEVICE_ATTR(fan1_label, S_IRUGO, show_label, NULL, NSA320_FAN);
+=======
+static SENSOR_DEVICE_ATTR_RO(temp1_label, label, NSA320_TEMP);
+static DEVICE_ATTR_RO(temp1_input);
+static SENSOR_DEVICE_ATTR_RO(fan1_label, label, NSA320_FAN);
+>>>>>>> upstream/android-13
 static DEVICE_ATTR_RO(fan1_input);
 
 static struct attribute *nsa320_attrs[] = {

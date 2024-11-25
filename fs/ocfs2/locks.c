@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * locks.c
  *
  * Userspace file locking support
  *
  * Copyright (C) 2007 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,6 +27,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/fs.h>
@@ -52,6 +60,10 @@ static int ocfs2_do_flock(struct file *file, struct inode *inode,
 	if (lockres->l_flags & OCFS2_LOCK_ATTACHED &&
 	    lockres->l_level > LKM_NLMODE) {
 		int old_level = 0;
+<<<<<<< HEAD
+=======
+		struct file_lock request;
+>>>>>>> upstream/android-13
 
 		if (lockres->l_level == LKM_EXMODE)
 			old_level = 1;
@@ -66,11 +78,18 @@ static int ocfs2_do_flock(struct file *file, struct inode *inode,
 		 * level.
 		 */
 
+<<<<<<< HEAD
 		locks_lock_file_wait(file,
 				&(struct file_lock) {
 					.fl_type = F_UNLCK,
 					.fl_flags = FL_FLOCK
 				});
+=======
+		locks_init_lock(&request);
+		request.fl_type = F_UNLCK;
+		request.fl_flags = FL_FLOCK;
+		locks_lock_file_wait(file, &request);
+>>>>>>> upstream/android-13
 
 		ocfs2_file_unlock(file);
 	}
@@ -117,8 +136,11 @@ int ocfs2_flock(struct file *file, int cmd, struct file_lock *fl)
 
 	if (!(fl->fl_flags & FL_FLOCK))
 		return -ENOLCK;
+<<<<<<< HEAD
 	if (__mandatory_lock(inode))
 		return -ENOLCK;
+=======
+>>>>>>> upstream/android-13
 
 	if ((osb->s_mount_opt & OCFS2_MOUNT_LOCALFLOCKS) ||
 	    ocfs2_mount_local(osb))
@@ -137,8 +159,11 @@ int ocfs2_lock(struct file *file, int cmd, struct file_lock *fl)
 
 	if (!(fl->fl_flags & FL_POSIX))
 		return -ENOLCK;
+<<<<<<< HEAD
 	if (__mandatory_lock(inode) && fl->fl_type != F_UNLCK)
 		return -ENOLCK;
+=======
+>>>>>>> upstream/android-13
 
 	return ocfs2_plock(osb->cconn, OCFS2_I(inode)->ip_blkno, file, cmd, fl);
 }

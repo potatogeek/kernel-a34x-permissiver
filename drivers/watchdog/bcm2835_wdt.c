@@ -12,6 +12,10 @@
 
 #include <linux/delay.h>
 #include <linux/types.h>
+<<<<<<< HEAD
+=======
+#include <linux/mfd/bcm2835-pm.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/io.h>
 #include <linux/watchdog.h>
@@ -47,6 +51,11 @@ struct bcm2835_wdt {
 	spinlock_t		lock;
 };
 
+<<<<<<< HEAD
+=======
+static struct bcm2835_wdt *bcm2835_power_off_wdt;
+
+>>>>>>> upstream/android-13
 static unsigned int heartbeat;
 static bool nowayout = WATCHDOG_NOWAYOUT;
 
@@ -148,10 +157,14 @@ static struct watchdog_device bcm2835_wdt_wdd = {
  */
 static void bcm2835_power_off(void)
 {
+<<<<<<< HEAD
 	struct device_node *np =
 		of_find_compatible_node(NULL, NULL, "brcm,bcm2835-pm-wdt");
 	struct platform_device *pdev = of_find_device_by_node(np);
 	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
+=======
+	struct bcm2835_wdt *wdt = bcm2835_power_off_wdt;
+>>>>>>> upstream/android-13
 	u32 val;
 
 	/*
@@ -169,7 +182,11 @@ static void bcm2835_power_off(void)
 
 static int bcm2835_wdt_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct resource *res;
+=======
+	struct bcm2835_pm *pm = dev_get_drvdata(pdev->dev.parent);
+>>>>>>> upstream/android-13
 	struct device *dev = &pdev->dev;
 	struct bcm2835_wdt *wdt;
 	int err;
@@ -177,6 +194,7 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
 	wdt = devm_kzalloc(dev, sizeof(struct bcm2835_wdt), GFP_KERNEL);
 	if (!wdt)
 		return -ENOMEM;
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, wdt);
 
 	spin_lock_init(&wdt->lock);
@@ -185,6 +203,12 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
 	wdt->base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(wdt->base))
 		return PTR_ERR(wdt->base);
+=======
+
+	spin_lock_init(&wdt->lock);
+
+	wdt->base = pm->base;
+>>>>>>> upstream/android-13
 
 	watchdog_set_drvdata(&bcm2835_wdt_wdd, wdt);
 	watchdog_init_timeout(&bcm2835_wdt_wdd, heartbeat, dev);
@@ -206,6 +230,7 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
 
 	watchdog_stop_on_reboot(&bcm2835_wdt_wdd);
 	err = devm_watchdog_register_device(dev, &bcm2835_wdt_wdd);
+<<<<<<< HEAD
 	if (err) {
 		dev_err(dev, "Failed to register watchdog device");
 		return err;
@@ -213,6 +238,19 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
 
 	if (pm_power_off == NULL)
 		pm_power_off = bcm2835_power_off;
+=======
+	if (err)
+		return err;
+
+	if (of_device_is_system_power_controller(pdev->dev.parent->of_node)) {
+		if (!pm_power_off) {
+			pm_power_off = bcm2835_power_off;
+			bcm2835_power_off_wdt = wdt;
+		} else {
+			dev_info(dev, "Poweroff handler already present!\n");
+		}
+	}
+>>>>>>> upstream/android-13
 
 	dev_info(dev, "Broadcom BCM2835 watchdog timer");
 	return 0;
@@ -226,18 +264,24 @@ static int bcm2835_wdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id bcm2835_wdt_of_match[] = {
 	{ .compatible = "brcm,bcm2835-pm-wdt", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, bcm2835_wdt_of_match);
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver bcm2835_wdt_driver = {
 	.probe		= bcm2835_wdt_probe,
 	.remove		= bcm2835_wdt_remove,
 	.driver = {
 		.name =		"bcm2835-wdt",
+<<<<<<< HEAD
 		.of_match_table = bcm2835_wdt_of_match,
+=======
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(bcm2835_wdt_driver);

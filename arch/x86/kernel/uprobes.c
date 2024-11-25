@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * User-space Probes (UProbes) for x86
  *
@@ -15,6 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * User-space Probes (UProbes) for x86
+ *
+>>>>>>> upstream/android-13
  * Copyright (C) IBM Corporation, 2008-2011
  * Authors:
  *	Srikar Dronamraju
@@ -289,12 +296,21 @@ static bool is_prefix_bad(struct insn *insn)
 
 static int uprobe_init_insn(struct arch_uprobe *auprobe, struct insn *insn, bool x86_64)
 {
+<<<<<<< HEAD
 	u32 volatile *good_insns;
 
 	insn_init(insn, auprobe->insn, sizeof(auprobe->insn), x86_64);
 	/* has the side-effect of processing the entire instruction */
 	insn_get_length(insn);
 	if (!insn_complete(insn))
+=======
+	enum insn_mode m = x86_64 ? INSN_MODE_64 : INSN_MODE_32;
+	u32 volatile *good_insns;
+	int ret;
+
+	ret = insn_decode(insn, auprobe->insn, sizeof(auprobe->insn), m);
+	if (ret < 0)
+>>>>>>> upstream/android-13
 		return -ENOEXEC;
 
 	if (is_prefix_bad(insn))
@@ -750,6 +766,10 @@ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
 		 * OPCODE1() of the "short" jmp which checks the same condition.
 		 */
 		opc1 = OPCODE2(insn) - 0x10;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		if (!is_cond_jmp_opcode(opc1))
 			return -ENOSYS;
@@ -856,8 +876,13 @@ static int push_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
 
 /**
  * arch_uprobe_analyze_insn - instruction analysis including validity and fixups.
+<<<<<<< HEAD
  * @mm: the probed address space.
  * @arch_uprobe: the probepoint information.
+=======
+ * @auprobe: the probepoint information.
+ * @mm: the probed address space.
+>>>>>>> upstream/android-13
  * @addr: virtual address at which to install the probepoint
  * Return 0 on success or a -ve number on error.
  */
@@ -906,7 +931,11 @@ int arch_uprobe_analyze_insn(struct arch_uprobe *auprobe, struct mm_struct *mm, 
 			fix_ip_or_call = 0;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		riprel_analyze(auprobe, &insn);
 	}
@@ -1029,6 +1058,11 @@ int arch_uprobe_exception_notify(struct notifier_block *self, unsigned long val,
 		if (uprobe_post_sstep_notifier(regs))
 			ret = NOTIFY_STOP;
 
+<<<<<<< HEAD
+=======
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1091,7 +1125,11 @@ arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs
 		pr_err("return address clobbered: pid=%d, %%sp=%#lx, %%ip=%#lx\n",
 		       current->pid, regs->sp, regs->ip);
 
+<<<<<<< HEAD
 		force_sig(SIGSEGV, current);
+=======
+		force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 	}
 
 	return -1;

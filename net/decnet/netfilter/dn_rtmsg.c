@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DECnet       An implementation of the DECnet protocol suite for the LINUX
  *              operating system.  DECnet is implemented using the  BSD Socket
@@ -5,12 +9,18 @@
  *
  *              DECnet Routing Message Grabulator
  *
+<<<<<<< HEAD
  *              (C) 2000 ChyGwyn Limited  -  http://www.chygwyn.com/
  *              This code may be copied under the GPL v.2 or at your option
  *              any later version.
  *
  * Author:      Steven Whitehouse <steve@chygwyn.com>
  *
+=======
+ *              (C) 2000 ChyGwyn Limited  -  https://www.chygwyn.com/
+ *
+ * Author:      Steven Whitehouse <steve@chygwyn.com>
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/skbuff.h>

@@ -61,6 +61,7 @@ static int kcmp_ptr(void *v1, void *v2, enum kcmp_type type)
 static struct file *
 get_file_raw_ptr(struct task_struct *task, unsigned int idx)
 {
+<<<<<<< HEAD
 	struct file *file = NULL;
 
 	task_lock(task);
@@ -71,10 +72,18 @@ get_file_raw_ptr(struct task_struct *task, unsigned int idx)
 
 	rcu_read_unlock();
 	task_unlock(task);
+=======
+	struct file *file;
+
+	rcu_read_lock();
+	file = task_lookup_fd_rcu(task, idx);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 
 	return file;
 }
 
+<<<<<<< HEAD
 static void kcmp_unlock(struct mutex *m1, struct mutex *m2)
 {
 	if (likely(m2 != m1))
@@ -94,6 +103,27 @@ static int kcmp_lock(struct mutex *m1, struct mutex *m2)
 		err = mutex_lock_killable_nested(m2, SINGLE_DEPTH_NESTING);
 		if (err)
 			mutex_unlock(m1);
+=======
+static void kcmp_unlock(struct rw_semaphore *l1, struct rw_semaphore *l2)
+{
+	if (likely(l2 != l1))
+		up_read(l2);
+	up_read(l1);
+}
+
+static int kcmp_lock(struct rw_semaphore *l1, struct rw_semaphore *l2)
+{
+	int err;
+
+	if (l2 > l1)
+		swap(l1, l2);
+
+	err = down_read_killable(l1);
+	if (!err && likely(l1 != l2)) {
+		err = down_read_killable_nested(l2, SINGLE_DEPTH_NESTING);
+		if (err)
+			up_read(l1);
+>>>>>>> upstream/android-13
 	}
 
 	return err;
@@ -107,7 +137,10 @@ static int kcmp_epoll_target(struct task_struct *task1,
 {
 	struct file *filp, *filp_epoll, *filp_tgt;
 	struct kcmp_epoll_slot slot;
+<<<<<<< HEAD
 	struct files_struct *files;
+=======
+>>>>>>> upstream/android-13
 
 	if (copy_from_user(&slot, uslot, sizeof(slot)))
 		return -EFAULT;
@@ -116,6 +149,7 @@ static int kcmp_epoll_target(struct task_struct *task1,
 	if (!filp)
 		return -EBADF;
 
+<<<<<<< HEAD
 	files = get_files_struct(task2);
 	if (!files)
 		return -EBADF;
@@ -133,6 +167,14 @@ static int kcmp_epoll_target(struct task_struct *task1,
 		filp_tgt = get_epoll_tfile_raw_ptr(filp_epoll, slot.tfd, slot.toff);
 		fput(filp_epoll);
 	}
+=======
+	filp_epoll = fget_task(task2, slot.efd);
+	if (!filp_epoll)
+		return -EBADF;
+
+	filp_tgt = get_epoll_tfile_raw_ptr(filp_epoll, slot.tfd, slot.toff);
+	fput(filp_epoll);
+>>>>>>> upstream/android-13
 
 	if (IS_ERR(filp_tgt))
 		return PTR_ERR(filp_tgt);
@@ -173,8 +215,13 @@ SYSCALL_DEFINE5(kcmp, pid_t, pid1, pid_t, pid2, int, type,
 	/*
 	 * One should have enough rights to inspect task details.
 	 */
+<<<<<<< HEAD
 	ret = kcmp_lock(&task1->signal->cred_guard_mutex,
 			&task2->signal->cred_guard_mutex);
+=======
+	ret = kcmp_lock(&task1->signal->exec_update_lock,
+			&task2->signal->exec_update_lock);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err;
 	if (!ptrace_may_access(task1, PTRACE_MODE_READ_REALCREDS) ||
@@ -229,8 +276,13 @@ SYSCALL_DEFINE5(kcmp, pid_t, pid1, pid_t, pid2, int, type,
 	}
 
 err_unlock:
+<<<<<<< HEAD
 	kcmp_unlock(&task1->signal->cred_guard_mutex,
 		    &task2->signal->cred_guard_mutex);
+=======
+	kcmp_unlock(&task1->signal->exec_update_lock,
+		    &task2->signal->exec_update_lock);
+>>>>>>> upstream/android-13
 err:
 	put_task_struct(task1);
 	put_task_struct(task2);

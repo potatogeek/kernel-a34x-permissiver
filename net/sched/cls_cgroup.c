@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/cls_cgroup.c	Control Group Classifier
  *
@@ -6,6 +7,12 @@
  *		as published by the Free Software Foundation; either version
  *		2 of the License, or (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/cls_cgroup.c	Control Group Classifier
+ *
+>>>>>>> upstream/android-13
  * Authors:	Thomas Graf <tgraf@suug.ch>
  */
 
@@ -32,6 +39,11 @@ static int cls_cgroup_classify(struct sk_buff *skb, const struct tcf_proto *tp,
 	struct cls_cgroup_head *head = rcu_dereference_bh(tp->root);
 	u32 classid = task_get_classid(skb);
 
+<<<<<<< HEAD
+=======
+	if (unlikely(!head))
+		return -1;
+>>>>>>> upstream/android-13
 	if (!classid)
 		return -1;
 	if (!tcf_em_tree_match(skb, &head->ematches, NULL))
@@ -78,7 +90,11 @@ static void cls_cgroup_destroy_work(struct work_struct *work)
 static int cls_cgroup_change(struct net *net, struct sk_buff *in_skb,
 			     struct tcf_proto *tp, unsigned long base,
 			     u32 handle, struct nlattr **tca,
+<<<<<<< HEAD
 			     void **arg, bool ovr,
+=======
+			     void **arg, u32 flags,
+>>>>>>> upstream/android-13
 			     struct netlink_ext_ack *extack)
 {
 	struct nlattr *tb[TCA_CGROUP_MAX + 1];
@@ -99,17 +115,31 @@ static int cls_cgroup_change(struct net *net, struct sk_buff *in_skb,
 	if (!new)
 		return -ENOBUFS;
 
+<<<<<<< HEAD
 	err = tcf_exts_init(&new->exts, TCA_CGROUP_ACT, TCA_CGROUP_POLICE);
+=======
+	err = tcf_exts_init(&new->exts, net, TCA_CGROUP_ACT, TCA_CGROUP_POLICE);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto errout;
 	new->handle = handle;
 	new->tp = tp;
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_CGROUP_MAX, tca[TCA_OPTIONS],
 			       cgroup_policy, NULL);
 	if (err < 0)
 		goto errout;
 
 	err = tcf_exts_validate(net, tp, tb, tca[TCA_RATE], &new->exts, ovr,
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_CGROUP_MAX,
+					  tca[TCA_OPTIONS], cgroup_policy,
+					  NULL);
+	if (err < 0)
+		goto errout;
+
+	err = tcf_exts_validate(net, tp, tb, tca[TCA_RATE], &new->exts, flags,
+>>>>>>> upstream/android-13
 				extack);
 	if (err < 0)
 		goto errout;
@@ -130,7 +160,11 @@ errout:
 	return err;
 }
 
+<<<<<<< HEAD
 static void cls_cgroup_destroy(struct tcf_proto *tp,
+=======
+static void cls_cgroup_destroy(struct tcf_proto *tp, bool rtnl_held,
+>>>>>>> upstream/android-13
 			       struct netlink_ext_ack *extack)
 {
 	struct cls_cgroup_head *head = rtnl_dereference(tp->root);
@@ -145,18 +179,32 @@ static void cls_cgroup_destroy(struct tcf_proto *tp,
 }
 
 static int cls_cgroup_delete(struct tcf_proto *tp, void *arg, bool *last,
+<<<<<<< HEAD
 			     struct netlink_ext_ack *extack)
+=======
+			     bool rtnl_held, struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	return -EOPNOTSUPP;
 }
 
+<<<<<<< HEAD
 static void cls_cgroup_walk(struct tcf_proto *tp, struct tcf_walker *arg)
+=======
+static void cls_cgroup_walk(struct tcf_proto *tp, struct tcf_walker *arg,
+			    bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct cls_cgroup_head *head = rtnl_dereference(tp->root);
 
 	if (arg->count < arg->skip)
 		goto skip;
 
+<<<<<<< HEAD
+=======
+	if (!head)
+		return;
+>>>>>>> upstream/android-13
 	if (arg->fn(tp, head, arg) < 0) {
 		arg->stop = 1;
 		return;
@@ -166,14 +214,22 @@ skip:
 }
 
 static int cls_cgroup_dump(struct net *net, struct tcf_proto *tp, void *fh,
+<<<<<<< HEAD
 			   struct sk_buff *skb, struct tcmsg *t)
+=======
+			   struct sk_buff *skb, struct tcmsg *t, bool rtnl_held)
+>>>>>>> upstream/android-13
 {
 	struct cls_cgroup_head *head = rtnl_dereference(tp->root);
 	struct nlattr *nest;
 
 	t->tcm_handle = head->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 

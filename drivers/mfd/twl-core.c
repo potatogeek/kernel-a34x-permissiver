@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * twl_core.c - driver for TWL4030/TWL5030/TWL60X0/TPS659x0 PM
  * and audio CODEC devices
@@ -12,6 +16,7 @@
  *
  * Code cleanup and modifications to IRQ handler.
  * by syed khasim <x0khasim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +31,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -498,7 +505,11 @@ int twl_i2c_read(u8 mod_no, u8 *value, u8 reg, unsigned num_bytes)
 EXPORT_SYMBOL(twl_i2c_read);
 
 /**
+<<<<<<< HEAD
  * twl_regcache_bypass - Configure the regcache bypass for the regmap associated
+=======
+ * twl_set_regcache_bypass - Configure the regcache bypass for the regmap associated
+>>>>>>> upstream/android-13
  *			 with the module
  * @mod_no: module number
  * @enable: Regcache bypass state
@@ -1154,12 +1165,21 @@ twl_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		if (i == 0) {
 			twl->client = client;
 		} else {
+<<<<<<< HEAD
 			twl->client = i2c_new_dummy(client->adapter,
 						    client->addr + i);
 			if (!twl->client) {
 				dev_err(&client->dev,
 					"can't attach client %d\n", i);
 				status = -ENOMEM;
+=======
+			twl->client = i2c_new_dummy_device(client->adapter,
+						    client->addr + i);
+			if (IS_ERR(twl->client)) {
+				dev_err(&client->dev,
+					"can't attach client %d\n", i);
+				status = PTR_ERR(twl->client);
+>>>>>>> upstream/android-13
 				goto fail;
 			}
 		}

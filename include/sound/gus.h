@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef __SOUND_GUS_H
 #define __SOUND_GUS_H
 
 /*
  *  Global structures used for GUS part of ALSA driver
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+<<<<<<< HEAD
  *
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <sound/pcm.h>
@@ -628,4 +635,11 @@ int snd_gus_dram_write(struct snd_gus_card *gus, char __user *ptr,
 int snd_gus_dram_read(struct snd_gus_card *gus, char __user *ptr,
 		      unsigned int addr, unsigned int size, int rom);
 
+<<<<<<< HEAD
+=======
+/* gus_timer.c */
+void snd_gf1_timers_init(struct snd_gus_card *gus);
+void snd_gf1_timers_done(struct snd_gus_card *gus);
+
+>>>>>>> upstream/android-13
 #endif /* __SOUND_GUS_H */

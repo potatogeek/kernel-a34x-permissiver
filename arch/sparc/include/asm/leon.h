@@ -225,7 +225,10 @@ void leon_update_virq_handling(unsigned int virq,
 			       irq_flow_handler_t flow_handler,
 			       const char *name, int do_ack);
 void leon_init_timers(void);
+<<<<<<< HEAD
 void leon_trans_init(struct device_node *dp);
+=======
+>>>>>>> upstream/android-13
 void leon_node_init(struct device_node *dp, struct device_node ***nextp);
 void init_leon(void);
 void poke_leonsparc(void);
@@ -255,4 +258,16 @@ extern int leon_ipi_irq;
 #define _pfn_valid(pfn)	 ((pfn < last_valid_pfn) && (pfn >= PFN(phys_base)))
 #define _SRMMU_PTE_PMASK_LEON 0xffffffff
 
+<<<<<<< HEAD
+=======
+/*
+ * On LEON PCI Memory space is mapped 1:1 with physical address space.
+ *
+ * I/O space is located at low 64Kbytes in PCI I/O space. The I/O addresses
+ * are converted into CPU addresses to virtual addresses that are mapped with
+ * MMU to the PCI Host PCI I/O space window which are translated to the low
+ * 64Kbytes by the Host controller.
+ */
+
+>>>>>>> upstream/android-13
 #endif

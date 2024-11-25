@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * LED driver for Marvell 88PM860x
  *
  * Copyright (C) 2009 Marvell International Ltd.
  *	Haojian Zhuang <haojian.zhuang@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -122,15 +129,26 @@ static int pm860x_led_dt_init(struct platform_device *pdev,
 	struct device_node *nproot, *np;
 	int iset = 0;
 
+<<<<<<< HEAD
 	if (!pdev->dev.parent->of_node)
 		return -ENODEV;
 	nproot = of_get_child_by_name(pdev->dev.parent->of_node, "leds");
+=======
+	if (!dev_of_node(pdev->dev.parent))
+		return -ENODEV;
+	nproot = of_get_child_by_name(dev_of_node(pdev->dev.parent), "leds");
+>>>>>>> upstream/android-13
 	if (!nproot) {
 		dev_err(&pdev->dev, "failed to find leds node\n");
 		return -ENODEV;
 	}
+<<<<<<< HEAD
 	for_each_child_of_node(nproot, np) {
 		if (!of_node_cmp(np->name, data->name)) {
+=======
+	for_each_available_child_of_node(nproot, np) {
+		if (of_node_name_eq(np, data->name)) {
+>>>>>>> upstream/android-13
 			of_property_read_u32(np, "marvell,88pm860x-iset",
 					     &iset);
 			data->iset = PM8606_LED_CURRENT(iset);

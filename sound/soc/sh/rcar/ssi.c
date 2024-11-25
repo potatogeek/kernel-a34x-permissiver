@@ -11,7 +11,11 @@
 /*
  * you can enable below define if you don't need
  * SSI interrupt status debug message when debugging
+<<<<<<< HEAD
  * see rsnd_dbg_irq_status()
+=======
+ * see rsnd_print_irq_status()
+>>>>>>> upstream/android-13
  *
  * #define RSND_DEBUG_NO_IRQ_STATUS 1
  */
@@ -24,6 +28,7 @@
 /*
  * SSICR
  */
+<<<<<<< HEAD
 #define	FORCE		(1 << 31)	/* Fixed */
 #define	DMEN		(1 << 28)	/* DMA Enable */
 #define	UIEN		(1 << 27)	/* Underflow Interrupt Enable */
@@ -43,6 +48,33 @@
 #define	DWL_32		(6 << 19)	/* Data Word Length */
 
 #define	SWL_32		(3 << 16)	/* R/W System Word Length */
+=======
+#define	FORCE		(1u << 31)	/* Fixed */
+#define	DMEN		(1u << 28)	/* DMA Enable */
+#define	UIEN		(1u << 27)	/* Underflow Interrupt Enable */
+#define	OIEN		(1u << 26)	/* Overflow Interrupt Enable */
+#define	IIEN		(1u << 25)	/* Idle Mode Interrupt Enable */
+#define	DIEN		(1u << 24)	/* Data Interrupt Enable */
+#define	CHNL_4		(1u << 22)	/* Channels */
+#define	CHNL_6		(2u << 22)	/* Channels */
+#define	CHNL_8		(3u << 22)	/* Channels */
+#define DWL_MASK	(7u << 19)	/* Data Word Length mask */
+#define	DWL_8		(0u << 19)	/* Data Word Length */
+#define	DWL_16		(1u << 19)	/* Data Word Length */
+#define	DWL_18		(2u << 19)	/* Data Word Length */
+#define	DWL_20		(3u << 19)	/* Data Word Length */
+#define	DWL_22		(4u << 19)	/* Data Word Length */
+#define	DWL_24		(5u << 19)	/* Data Word Length */
+#define	DWL_32		(6u << 19)	/* Data Word Length */
+
+/*
+ * System word length
+ */
+#define	SWL_16		(1 << 16)	/* R/W System Word Length */
+#define	SWL_24		(2 << 16)	/* R/W System Word Length */
+#define	SWL_32		(3 << 16)	/* R/W System Word Length */
+
+>>>>>>> upstream/android-13
 #define	SCKD		(1 << 15)	/* Serial Bit Clock Direction */
 #define	SWSD		(1 << 14)	/* Serial WS Direction */
 #define	SCKP		(1 << 13)	/* Serial Bit Clock Polarity */
@@ -93,9 +125,13 @@ struct rsnd_ssi {
 /* flags */
 #define RSND_SSI_CLK_PIN_SHARE		(1 << 0)
 #define RSND_SSI_NO_BUSIF		(1 << 1) /* SSI+DMA without BUSIF */
+<<<<<<< HEAD
 #define RSND_SSI_HDMI0			(1 << 2) /* for HDMI0 */
 #define RSND_SSI_HDMI1			(1 << 3) /* for HDMI1 */
 #define RSND_SSI_PROBED			(1 << 4)
+=======
+#define RSND_SSI_PROBED			(1 << 2)
+>>>>>>> upstream/android-13
 
 #define for_each_rsnd_ssi(pos, priv, i)					\
 	for (i = 0;							\
@@ -107,12 +143,18 @@ struct rsnd_ssi {
 #define rsnd_ssi_nr(priv) ((priv)->ssi_nr)
 #define rsnd_mod_to_ssi(_mod) container_of((_mod), struct rsnd_ssi, mod)
 #define rsnd_ssi_is_parent(ssi, io) ((ssi) == rsnd_io_to_mod_ssip(io))
+<<<<<<< HEAD
 #define rsnd_ssi_is_multi_slave(mod, io) \
 	(rsnd_ssi_multi_slaves(io) & (1 << rsnd_mod_id(mod)))
+=======
+#define rsnd_ssi_is_multi_secondary(mod, io)				\
+	(rsnd_ssi_multi_secondaries(io) & (1 << rsnd_mod_id(mod)))
+>>>>>>> upstream/android-13
 #define rsnd_ssi_is_run_mods(mod, io) \
 	(rsnd_ssi_run_mods(io) & (1 << rsnd_mod_id(mod)))
 #define rsnd_ssi_can_output_clk(mod) (!__rsnd_ssi_is_pin_sharing(mod))
 
+<<<<<<< HEAD
 int rsnd_ssi_hdmi_port(struct rsnd_dai_stream *io)
 {
 	struct rsnd_mod *mod = rsnd_io_to_mod_ssi(io);
@@ -127,6 +169,8 @@ int rsnd_ssi_hdmi_port(struct rsnd_dai_stream *io)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 int rsnd_ssi_use_busif(struct rsnd_dai_stream *io)
 {
 	struct rsnd_mod *mod = rsnd_io_to_mod_ssi(io);
@@ -170,6 +214,7 @@ static void rsnd_ssi_status_check(struct rsnd_mod *mod,
 		udelay(5);
 	}
 
+<<<<<<< HEAD
 	dev_warn(dev, "%s[%d] status check failed\n",
 		 rsnd_mod_name(mod), rsnd_mod_id(mod));
 }
@@ -178,6 +223,14 @@ static u32 rsnd_ssi_multi_slaves(struct rsnd_dai_stream *io)
 {
 	struct rsnd_mod *mod;
 	enum rsnd_mod_type types[] = {
+=======
+	dev_warn(dev, "%s status check failed\n", rsnd_mod_name(mod));
+}
+
+static u32 rsnd_ssi_multi_secondaries(struct rsnd_dai_stream *io)
+{
+	static const enum rsnd_mod_type types[] = {
+>>>>>>> upstream/android-13
 		RSND_MOD_SSIM1,
 		RSND_MOD_SSIM2,
 		RSND_MOD_SSIM3,
@@ -186,7 +239,12 @@ static u32 rsnd_ssi_multi_slaves(struct rsnd_dai_stream *io)
 
 	mask = 0;
 	for (i = 0; i < ARRAY_SIZE(types); i++) {
+<<<<<<< HEAD
 		mod = rsnd_io_to_mod(io, types[i]);
+=======
+		struct rsnd_mod *mod = rsnd_io_to_mod(io, types[i]);
+
+>>>>>>> upstream/android-13
 		if (!mod)
 			continue;
 
@@ -202,7 +260,11 @@ static u32 rsnd_ssi_run_mods(struct rsnd_dai_stream *io)
 	struct rsnd_mod *ssi_parent_mod = rsnd_io_to_mod_ssip(io);
 	u32 mods;
 
+<<<<<<< HEAD
 	mods = rsnd_ssi_multi_slaves_runtime(io) |
+=======
+	mods = rsnd_ssi_multi_secondaries_runtime(io) |
+>>>>>>> upstream/android-13
 		1 << rsnd_mod_id(ssi_mod);
 
 	if (ssi_parent_mod)
@@ -211,22 +273,57 @@ static u32 rsnd_ssi_run_mods(struct rsnd_dai_stream *io)
 	return mods;
 }
 
+<<<<<<< HEAD
 u32 rsnd_ssi_multi_slaves_runtime(struct rsnd_dai_stream *io)
 {
 	if (rsnd_runtime_is_ssi_multi(io))
 		return rsnd_ssi_multi_slaves(io);
+=======
+u32 rsnd_ssi_multi_secondaries_runtime(struct rsnd_dai_stream *io)
+{
+	if (rsnd_runtime_is_multi_ssi(io))
+		return rsnd_ssi_multi_secondaries(io);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 unsigned int rsnd_ssi_clk_query(struct rsnd_priv *priv,
 		       int param1, int param2, int *idx)
 {
 	int ssi_clk_mul_table[] = {
+=======
+static u32 rsnd_rdai_width_to_swl(struct rsnd_dai *rdai)
+{
+	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
+	struct device *dev = rsnd_priv_to_dev(priv);
+	int width = rsnd_rdai_width_get(rdai);
+
+	switch (width) {
+	case 32: return SWL_32;
+	case 24: return SWL_24;
+	case 16: return SWL_16;
+	}
+
+	dev_err(dev, "unsupported slot width value: %d\n", width);
+	return 0;
+}
+
+unsigned int rsnd_ssi_clk_query(struct rsnd_dai *rdai,
+		       int param1, int param2, int *idx)
+{
+	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
+	static const int ssi_clk_mul_table[] = {
+>>>>>>> upstream/android-13
 		1, 2, 4, 8, 16, 6, 12,
 	};
 	int j, ret;
 	unsigned int main_rate;
+<<<<<<< HEAD
+=======
+	int width = rsnd_rdai_width_get(rdai);
+>>>>>>> upstream/android-13
 
 	for (j = 0; j < ARRAY_SIZE(ssi_clk_mul_table); j++) {
 
@@ -239,12 +336,16 @@ unsigned int rsnd_ssi_clk_query(struct rsnd_priv *priv,
 		if (j == 0)
 			continue;
 
+<<<<<<< HEAD
 		/*
 		 * this driver is assuming that
 		 * system word is 32bit x chan
 		 * see rsnd_ssi_init()
 		 */
 		main_rate = 32 * param1 * param2 * ssi_clk_mul_table[j];
+=======
+		main_rate = width * param1 * param2 * ssi_clk_mul_table[j];
+>>>>>>> upstream/android-13
 
 		ret = rsnd_adg_clk_query(priv, main_rate);
 		if (ret < 0)
@@ -279,19 +380,42 @@ static int rsnd_ssi_master_clk_start(struct rsnd_mod *mod,
 	if (!rsnd_ssi_can_output_clk(mod))
 		return 0;
 
+<<<<<<< HEAD
 	if (rsnd_ssi_is_multi_slave(mod, io))
 		return 0;
 
+=======
+	if (rsnd_ssi_is_multi_secondary(mod, io))
+		return 0;
+
+	if (rsnd_runtime_is_tdm_split(io))
+		chan = rsnd_io_converted_chan(io);
+
+	chan = rsnd_channel_normalization(chan);
+
+>>>>>>> upstream/android-13
 	if (ssi->usrcnt > 0) {
 		if (ssi->rate != rate) {
 			dev_err(dev, "SSI parent/child should use same rate\n");
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		return 0;
 	}
 
 	main_rate = rsnd_ssi_clk_query(priv, rate, chan, &idx);
+=======
+		if (ssi->chan != chan) {
+			dev_err(dev, "SSI parent/child should use same chan\n");
+			return -EINVAL;
+		}
+
+		return 0;
+	}
+
+	main_rate = rsnd_ssi_clk_query(rdai, rate, chan, &idx);
+>>>>>>> upstream/android-13
 	if (!main_rate) {
 		dev_err(dev, "unsupported clock rate\n");
 		return -EIO;
@@ -311,6 +435,7 @@ static int rsnd_ssi_master_clk_start(struct rsnd_mod *mod,
 	 * SSICR  : FORCE, SCKD, SWSD
 	 * SSIWSR : CONT
 	 */
+<<<<<<< HEAD
 	ssi->cr_clk = FORCE | SWL_32 | SCKD | SWSD | CKDV(idx);
 	ssi->wsr = CONT;
 	ssi->rate = rate;
@@ -318,6 +443,16 @@ static int rsnd_ssi_master_clk_start(struct rsnd_mod *mod,
 	dev_dbg(dev, "%s[%d] outputs %u Hz\n",
 		rsnd_mod_name(mod),
 		rsnd_mod_id(mod), rate);
+=======
+	ssi->cr_clk = FORCE | rsnd_rdai_width_to_swl(rdai) |
+			SCKD | SWSD | CKDV(idx);
+	ssi->wsr = CONT;
+	ssi->rate = rate;
+	ssi->chan = chan;
+
+	dev_dbg(dev, "%s outputs %d chan %u Hz\n",
+		rsnd_mod_name(mod), chan, rate);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -339,6 +474,10 @@ static void rsnd_ssi_master_clk_stop(struct rsnd_mod *mod,
 
 	ssi->cr_clk	= 0;
 	ssi->rate	= 0;
+<<<<<<< HEAD
+=======
+	ssi->chan	= 0;
+>>>>>>> upstream/android-13
 
 	rsnd_adg_ssi_clk_stop(mod);
 }
@@ -347,11 +486,17 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
 				struct rsnd_dai_stream *io)
 {
 	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
+<<<<<<< HEAD
+=======
+	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
+	struct device *dev = rsnd_priv_to_dev(priv);
+>>>>>>> upstream/android-13
 	struct snd_pcm_runtime *runtime = rsnd_io_to_runtime(io);
 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
 	u32 cr_own	= ssi->cr_own;
 	u32 cr_mode	= ssi->cr_mode;
 	u32 wsr		= ssi->wsr;
+<<<<<<< HEAD
 	int is_tdm;
 
 	is_tdm = rsnd_runtime_is_ssi_tdm(io);
@@ -365,6 +510,24 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
 	if (rdai->bit_clk_inv)
 		cr_own |= SCKP;
 	if (rdai->frm_clk_inv ^ is_tdm)
+=======
+	int width;
+	int is_tdm, is_tdm_split;
+
+	is_tdm		= rsnd_runtime_is_tdm(io);
+	is_tdm_split	= rsnd_runtime_is_tdm_split(io);
+
+	if (is_tdm)
+		dev_dbg(dev, "TDM mode\n");
+	if (is_tdm_split)
+		dev_dbg(dev, "TDM Split mode\n");
+
+	cr_own |= FORCE | rsnd_rdai_width_to_swl(rdai);
+
+	if (rdai->bit_clk_inv)
+		cr_own |= SCKP;
+	if (rdai->frm_clk_inv && !is_tdm)
+>>>>>>> upstream/android-13
 		cr_own |= SWSP;
 	if (rdai->data_alignment)
 		cr_own |= SDTA;
@@ -372,6 +535,19 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
 		cr_own |= DEL;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * TDM Mode
+	 * see
+	 *	rsnd_ssiu_init_gen2()
+	 */
+	if (is_tdm || is_tdm_split) {
+		wsr	|= WS_MODE;
+		cr_own	|= CHNL_8;
+	}
+
+	/*
+>>>>>>> upstream/android-13
 	 * We shouldn't exchange SWSP after running.
 	 * This means, parent needs to care it.
 	 */
@@ -382,13 +558,37 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
 		cr_own |= TRMD;
 
 	cr_own &= ~DWL_MASK;
+<<<<<<< HEAD
 	switch (snd_pcm_format_width(runtime->format)) {
+=======
+	width = snd_pcm_format_width(runtime->format);
+	if (is_tdm_split) {
+		/*
+		 * The SWL and DWL bits in SSICR should be fixed at 32-bit
+		 * setting when TDM split mode.
+		 * see datasheet
+		 *	Operation :: TDM Format Split Function (TDM Split Mode)
+		 */
+		width = 32;
+	}
+
+	switch (width) {
+	case 8:
+		cr_own |= DWL_8;
+		break;
+>>>>>>> upstream/android-13
 	case 16:
 		cr_own |= DWL_16;
 		break;
 	case 24:
 		cr_own |= DWL_24;
 		break;
+<<<<<<< HEAD
+=======
+	case 32:
+		cr_own |= DWL_32;
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	if (rsnd_ssi_is_dma_mode(mod)) {
@@ -398,6 +598,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
 		cr_mode = DIEN;		/* PIO : enable Data interrupt */
 	}
 
+<<<<<<< HEAD
 	/*
 	 * TDM Extend Mode
 	 * see
@@ -408,6 +609,8 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
 		wsr	|= WS_MODE;
 		cr_own	|= CHNL_8;
 	}
+=======
+>>>>>>> upstream/android-13
 init_end:
 	ssi->cr_own	= cr_own;
 	ssi->cr_mode	= cr_mode;
@@ -433,10 +636,21 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
 			 struct rsnd_priv *priv)
 {
 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!rsnd_ssi_is_run_mods(mod, io))
 		return 0;
 
+<<<<<<< HEAD
+=======
+	ret = rsnd_ssi_master_clk_start(mod, io);
+	if (ret < 0)
+		return ret;
+
+>>>>>>> upstream/android-13
 	ssi->usrcnt++;
 
 	rsnd_mod_power_on(mod);
@@ -462,8 +676,12 @@ static int rsnd_ssi_quit(struct rsnd_mod *mod,
 		return 0;
 
 	if (!ssi->usrcnt) {
+<<<<<<< HEAD
 		dev_err(dev, "%s[%d] usrcnt error\n",
 			rsnd_mod_name(mod), rsnd_mod_id(mod));
+=======
+		dev_err(dev, "%s usrcnt error\n", rsnd_mod_name(mod));
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -487,6 +705,7 @@ static int rsnd_ssi_hw_params(struct rsnd_mod *mod,
 			      struct snd_pcm_substream *substream,
 			      struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
 	int chan = params_channels(params);
 
@@ -508,6 +727,19 @@ static int rsnd_ssi_hw_params(struct rsnd_mod *mod,
 
 	ssi->chan = chan;
 
+=======
+	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
+	unsigned int fmt_width = snd_pcm_format_width(params_format(params));
+
+	if (fmt_width > rdai->chan_width) {
+		struct rsnd_priv *priv = rsnd_io_to_priv(io);
+		struct device *dev = rsnd_priv_to_dev(priv);
+
+		dev_err(dev, "invalid combination of slot-width and format-data-width\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -524,7 +756,11 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
 	 * EN will be set via SSIU :: SSI_CONTROL
 	 * if Multi channel mode
 	 */
+<<<<<<< HEAD
 	if (rsnd_ssi_multi_slaves_runtime(io))
+=======
+	if (rsnd_ssi_multi_secondaries_runtime(io))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -573,7 +809,11 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
 	/* In multi-SSI mode, stop is performed by setting ssi0129 in
 	 * SSI_CONTROL to 0 (in rsnd_ssio_stop_gen2). Do nothing here.
 	 */
+<<<<<<< HEAD
 	if (rsnd_ssi_multi_slaves_runtime(io))
+=======
+	if (rsnd_ssi_multi_secondaries_runtime(io))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -594,6 +834,14 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
 			int enable)
 {
 	u32 val = 0;
+<<<<<<< HEAD
+=======
+	int is_tdm, is_tdm_split;
+	int id = rsnd_mod_id(mod);
+
+	is_tdm		= rsnd_runtime_is_tdm(io);
+	is_tdm_split	= rsnd_runtime_is_tdm_split(io);
+>>>>>>> upstream/android-13
 
 	if (rsnd_is_gen1(priv))
 		return 0;
@@ -607,6 +855,22 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
 	if (enable)
 		val = rsnd_ssi_is_dma_mode(mod) ? 0x0e000000 : 0x0f000000;
 
+<<<<<<< HEAD
+=======
+	if (is_tdm || is_tdm_split) {
+		switch (id) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 9:
+			val |= 0x0000ff00;
+			break;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	rsnd_mod_write(mod, SSI_INT_ENABLE, val);
 
 	return 0;
@@ -638,12 +902,22 @@ static void __rsnd_ssi_interrupt(struct rsnd_mod *mod,
 
 	/* DMA only */
 	if (is_dma && (status & (UIRQ | OIRQ))) {
+<<<<<<< HEAD
 		rsnd_dbg_irq_status(dev, "%s[%d] err status : 0x%08x\n",
 			rsnd_mod_name(mod), rsnd_mod_id(mod), status);
+=======
+		rsnd_print_irq_status(dev, "%s err status : 0x%08x\n",
+				      rsnd_mod_name(mod), status);
+>>>>>>> upstream/android-13
 
 		stop = true;
 	}
 
+<<<<<<< HEAD
+=======
+	stop |= rsnd_ssiu_busif_err_status_clear(mod);
+
+>>>>>>> upstream/android-13
 	rsnd_ssi_status_clear(mod);
 rsnd_ssi_interrupt_out:
 	spin_unlock(&priv->lock);
@@ -665,6 +939,44 @@ static irqreturn_t rsnd_ssi_interrupt(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static u32 *rsnd_ssi_get_status(struct rsnd_mod *mod,
+				struct rsnd_dai_stream *io,
+				enum rsnd_mod_type type)
+{
+	/*
+	 * SSIP (= SSI parent) needs to be special, otherwise,
+	 * 2nd SSI might doesn't start. see also rsnd_mod_call()
+	 *
+	 * We can't include parent SSI status on SSI, because we don't know
+	 * how many SSI requests parent SSI. Thus, it is localed on "io" now.
+	 * ex) trouble case
+	 *	Playback: SSI0
+	 *	Capture : SSI1 (needs SSI0)
+	 *
+	 * 1) start Capture  ->	SSI0/SSI1 are started.
+	 * 2) start Playback ->	SSI0 doesn't work, because it is already
+	 *			marked as "started" on 1)
+	 *
+	 * OTOH, using each mod's status is good for MUX case.
+	 * It doesn't need to start in 2nd start
+	 * ex)
+	 *	IO-0: SRC0 -> CTU1 -+-> MUX -> DVC -> SSIU -> SSI0
+	 *			    |
+	 *	IO-1: SRC1 -> CTU2 -+
+	 *
+	 * 1) start IO-0 ->	start SSI0
+	 * 2) start IO-1 ->	SSI0 doesn't need to start, because it is
+	 *			already started on 1)
+	 */
+	if (type == RSND_MOD_SSIP)
+		return &io->parent_ssi_status;
+
+	return rsnd_mod_get_status(mod, io, type);
+}
+
+>>>>>>> upstream/android-13
 /*
  *		SSI PIO
  */
@@ -680,12 +992,20 @@ static void rsnd_ssi_parent_attach(struct rsnd_mod *mod,
 	if (!rsnd_rdai_is_clk_master(rdai))
 		return;
 
+<<<<<<< HEAD
 	if (rsnd_ssi_is_multi_slave(mod, io))
+=======
+	if (rsnd_ssi_is_multi_secondary(mod, io))
+>>>>>>> upstream/android-13
 		return;
 
 	switch (rsnd_mod_id(mod)) {
 	case 1:
 	case 2:
+<<<<<<< HEAD
+=======
+	case 9:
+>>>>>>> upstream/android-13
 		rsnd_dai_connect(rsnd_ssi_mod_get(priv, 0), io, RSND_MOD_SSIP);
 		break;
 	case 4:
@@ -717,6 +1037,7 @@ static int rsnd_ssi_common_probe(struct rsnd_mod *mod,
 {
 	struct device *dev = rsnd_priv_to_dev(priv);
 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+<<<<<<< HEAD
 	int ret;
 
 	/*
@@ -724,6 +1045,15 @@ static int rsnd_ssi_common_probe(struct rsnd_mod *mod,
 	 * SSI Multi slaves
 	 */
 	if (rsnd_ssi_is_multi_slave(mod, io))
+=======
+	int ret = 0;
+
+	/*
+	 * SSIP/SSIU/IRQ are not needed on
+	 * SSI Multi secondaries
+	 */
+	if (rsnd_ssi_is_multi_secondary(mod, io))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -731,10 +1061,13 @@ static int rsnd_ssi_common_probe(struct rsnd_mod *mod,
 	 * see rsnd_ssi_pcm_new()
 	 */
 
+<<<<<<< HEAD
 	ret = rsnd_ssiu_attach(io, mod);
 	if (ret < 0)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * SSI might be called again as PIO fallback
 	 * It is easy to manual handling for IRQ request/free
@@ -855,6 +1188,7 @@ static int rsnd_ssi_pio_pointer(struct rsnd_mod *mod,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rsnd_ssi_prepare(struct rsnd_mod *mod,
 			    struct rsnd_dai_stream *io,
 			    struct rsnd_priv *priv)
@@ -875,6 +1209,21 @@ static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
 	.pcm_new = rsnd_ssi_pcm_new,
 	.hw_params = rsnd_ssi_hw_params,
 	.prepare = rsnd_ssi_prepare,
+=======
+static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
+	.name		= SSI_NAME,
+	.probe		= rsnd_ssi_common_probe,
+	.remove		= rsnd_ssi_common_remove,
+	.init		= rsnd_ssi_pio_init,
+	.quit		= rsnd_ssi_quit,
+	.start		= rsnd_ssi_start,
+	.stop		= rsnd_ssi_stop,
+	.irq		= rsnd_ssi_irq,
+	.pointer	= rsnd_ssi_pio_pointer,
+	.pcm_new	= rsnd_ssi_pcm_new,
+	.hw_params	= rsnd_ssi_hw_params,
+	.get_status	= rsnd_ssi_get_status,
+>>>>>>> upstream/android-13
 };
 
 static int rsnd_ssi_dma_probe(struct rsnd_mod *mod,
@@ -885,9 +1234,15 @@ static int rsnd_ssi_dma_probe(struct rsnd_mod *mod,
 
 	/*
 	 * SSIP/SSIU/IRQ/DMA are not needed on
+<<<<<<< HEAD
 	 * SSI Multi slaves
 	 */
 	if (rsnd_ssi_is_multi_slave(mod, io))
+=======
+	 * SSI Multi secondaries
+	 */
+	if (rsnd_ssi_is_multi_secondary(mod, io))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ret = rsnd_ssi_common_probe(mod, io, priv);
@@ -915,8 +1270,12 @@ static int rsnd_ssi_fallback(struct rsnd_mod *mod,
 	 */
 	mod->ops = &rsnd_ssi_pio_ops;
 
+<<<<<<< HEAD
 	dev_info(dev, "%s[%d] fallback to PIO mode\n",
 		 rsnd_mod_name(mod), rsnd_mod_id(mod));
+=======
+	dev_info(dev, "%s fallback to PIO mode\n", rsnd_mod_name(mod));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -928,12 +1287,27 @@ static struct dma_chan *rsnd_ssi_dma_req(struct rsnd_dai_stream *io,
 	int is_play = rsnd_io_is_play(io);
 	char *name;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * It should use "rcar_sound,ssiu" on DT.
+	 * But, we need to keep compatibility for old version.
+	 *
+	 * If it has "rcar_sound.ssiu", it will be used.
+	 * If not, "rcar_sound.ssi" will be used.
+	 * see
+	 *	rsnd_ssiu_dma_req()
+	 *	rsnd_dma_of_path()
+	 */
+
+>>>>>>> upstream/android-13
 	if (rsnd_ssi_use_busif(io))
 		name = is_play ? "rxu" : "txu";
 	else
 		name = is_play ? "rx" : "tx";
 
 	return rsnd_dma_request_channel(rsnd_ssi_of_node(priv),
+<<<<<<< HEAD
 					mod, name);
 }
 
@@ -951,6 +1325,54 @@ static struct rsnd_mod_ops rsnd_ssi_dma_ops = {
 	.fallback = rsnd_ssi_fallback,
 	.hw_params = rsnd_ssi_hw_params,
 	.prepare = rsnd_ssi_prepare,
+=======
+					SSI_NAME, mod, name);
+}
+
+#ifdef CONFIG_DEBUG_FS
+static void rsnd_ssi_debug_info(struct seq_file *m,
+				struct rsnd_dai_stream *io,
+				struct rsnd_mod *mod)
+{
+	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
+	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+
+	seq_printf(m, "clock:           %s\n",		rsnd_rdai_is_clk_master(rdai) ?
+								"provider" : "consumer");
+	seq_printf(m, "bit_clk_inv:     %d\n",		rdai->bit_clk_inv);
+	seq_printf(m, "frm_clk_inv:     %d\n",		rdai->frm_clk_inv);
+	seq_printf(m, "pin share:       %d\n",		__rsnd_ssi_is_pin_sharing(mod));
+	seq_printf(m, "can out clk:     %d\n",		rsnd_ssi_can_output_clk(mod));
+	seq_printf(m, "multi secondary: %d\n",		rsnd_ssi_is_multi_secondary(mod, io));
+	seq_printf(m, "tdm:             %d, %d\n",	rsnd_runtime_is_tdm(io),
+							rsnd_runtime_is_tdm_split(io));
+	seq_printf(m, "chan:            %d\n",		ssi->chan);
+	seq_printf(m, "user:            %d\n",		ssi->usrcnt);
+
+	rsnd_debugfs_mod_reg_show(m, mod, RSND_GEN2_SSI,
+				  rsnd_mod_id(mod) * 0x40, 0x40);
+}
+#define DEBUG_INFO .debug_info = rsnd_ssi_debug_info
+#else
+#define DEBUG_INFO
+#endif
+
+static struct rsnd_mod_ops rsnd_ssi_dma_ops = {
+	.name		= SSI_NAME,
+	.dma_req	= rsnd_ssi_dma_req,
+	.probe		= rsnd_ssi_dma_probe,
+	.remove		= rsnd_ssi_common_remove,
+	.init		= rsnd_ssi_init,
+	.quit		= rsnd_ssi_quit,
+	.start		= rsnd_ssi_start,
+	.stop		= rsnd_ssi_stop,
+	.irq		= rsnd_ssi_irq,
+	.pcm_new	= rsnd_ssi_pcm_new,
+	.fallback	= rsnd_ssi_fallback,
+	.hw_params	= rsnd_ssi_hw_params,
+	.get_status	= rsnd_ssi_get_status,
+	DEBUG_INFO
+>>>>>>> upstream/android-13
 };
 
 int rsnd_ssi_is_dma_mode(struct rsnd_mod *mod)
@@ -958,7 +1380,10 @@ int rsnd_ssi_is_dma_mode(struct rsnd_mod *mod)
 	return mod->ops == &rsnd_ssi_dma_ops;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  *		ssi mod function
  */
@@ -966,7 +1391,11 @@ static void rsnd_ssi_connect(struct rsnd_mod *mod,
 			     struct rsnd_dai_stream *io)
 {
 	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
+<<<<<<< HEAD
 	enum rsnd_mod_type types[] = {
+=======
+	static const enum rsnd_mod_type types[] = {
+>>>>>>> upstream/android-13
 		RSND_MOD_SSI,
 		RSND_MOD_SSIM1,
 		RSND_MOD_SSIM2,
@@ -994,7 +1423,10 @@ void rsnd_parse_connect_ssi(struct rsnd_dai *rdai,
 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
 	struct device_node *node;
 	struct device_node *np;
+<<<<<<< HEAD
 	struct rsnd_mod *mod;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	node = rsnd_ssi_of_node(priv);
@@ -1003,7 +1435,16 @@ void rsnd_parse_connect_ssi(struct rsnd_dai *rdai,
 
 	i = 0;
 	for_each_child_of_node(node, np) {
+<<<<<<< HEAD
 		mod = rsnd_ssi_mod_get(priv, i);
+=======
+		struct rsnd_mod *mod;
+
+		i = rsnd_node_fixed_index(np, SSI_NAME, i);
+
+		mod = rsnd_ssi_mod_get(priv, i);
+
+>>>>>>> upstream/android-13
 		if (np == playback)
 			rsnd_ssi_connect(mod, &rdai->playback);
 		if (np == capture)
@@ -1014,6 +1455,7 @@ void rsnd_parse_connect_ssi(struct rsnd_dai *rdai,
 	of_node_put(node);
 }
 
+<<<<<<< HEAD
 static void __rsnd_ssi_parse_hdmi_connection(struct rsnd_priv *priv,
 					     struct rsnd_dai_stream *io,
 					     struct device_node *remote_ep)
@@ -1062,6 +1504,8 @@ void rsnd_ssi_parse_hdmi_connection(struct rsnd_priv *priv,
 	__rsnd_ssi_parse_hdmi_connection(priv, &rdai->capture,  remote_ep);
 }
 
+=======
+>>>>>>> upstream/android-13
 struct rsnd_mod *rsnd_ssi_mod_get(struct rsnd_priv *priv, int id)
 {
 	if (WARN_ON(id < 0 || id >= rsnd_ssi_nr(priv)))
@@ -1078,6 +1522,7 @@ int __rsnd_ssi_is_pin_sharing(struct rsnd_mod *mod)
 	return !!(rsnd_flags_has(rsnd_mod_to_ssi(mod), RSND_SSI_CLK_PIN_SHARE));
 }
 
+<<<<<<< HEAD
 static u32 *rsnd_ssi_get_status(struct rsnd_dai_stream *io,
 				struct rsnd_mod *mod,
 				enum rsnd_mod_type type)
@@ -1113,6 +1558,8 @@ static u32 *rsnd_ssi_get_status(struct rsnd_dai_stream *io,
 	return rsnd_mod_get_status(io, mod, type);
 }
 
+=======
+>>>>>>> upstream/android-13
 int rsnd_ssi_probe(struct rsnd_priv *priv)
 {
 	struct device_node *node;
@@ -1128,7 +1575,11 @@ int rsnd_ssi_probe(struct rsnd_priv *priv)
 	if (!node)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	nr = of_get_child_count(node);
+=======
+	nr = rsnd_node_count(priv, node, SSI_NAME);
+>>>>>>> upstream/android-13
 	if (!nr) {
 		ret = -EINVAL;
 		goto rsnd_ssi_probe_done;
@@ -1148,6 +1599,11 @@ int rsnd_ssi_probe(struct rsnd_priv *priv)
 		if (!of_device_is_available(np))
 			goto skip;
 
+<<<<<<< HEAD
+=======
+		i = rsnd_node_fixed_index(np, SSI_NAME, i);
+
+>>>>>>> upstream/android-13
 		ssi = rsnd_ssi_get(priv, i);
 
 		snprintf(name, RSND_SSI_NAME_SIZE, "%s.%d",
@@ -1179,7 +1635,11 @@ int rsnd_ssi_probe(struct rsnd_priv *priv)
 			ops = &rsnd_ssi_dma_ops;
 
 		ret = rsnd_mod_init(priv, rsnd_mod_get(ssi), ops, clk,
+<<<<<<< HEAD
 				    rsnd_ssi_get_status, RSND_MOD_SSI, i);
+=======
+				    RSND_MOD_SSI, i);
+>>>>>>> upstream/android-13
 		if (ret) {
 			of_node_put(np);
 			goto rsnd_ssi_probe_done;

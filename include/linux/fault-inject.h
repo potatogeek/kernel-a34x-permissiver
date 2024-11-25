@@ -11,7 +11,11 @@
 
 /*
  * For explanation of the elements of this struct, see
+<<<<<<< HEAD
  * Documentation/fault-injection/fault-injection.txt
+=======
+ * Documentation/fault-injection/fault-injection.rst
+>>>>>>> upstream/android-13
  */
 struct fault_attr {
 	unsigned long probability;

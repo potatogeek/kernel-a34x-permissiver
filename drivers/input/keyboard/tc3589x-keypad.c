@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) ST-Ericsson SA 2010
  *
  * Author: Jayeeta Banerjee <jayeeta.banerjee@stericsson.com>
  * Author: Sundar Iyer <sundar.iyer@stericsson.com>
  *
+<<<<<<< HEAD
  * License Terms: GNU General Public License, version 2
  *
+=======
+>>>>>>> upstream/android-13
  * TC35893 MFD Keypad Controller driver
  */
 

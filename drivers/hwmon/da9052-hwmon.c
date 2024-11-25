@@ -1,15 +1,22 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * HWMON Driver for Dialog DA9052
  *
  * Copyright(c) 2012 Dialog Semiconductor Ltd.
  *
  * Author: David Dajun Chen <dchen@diasemi.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -87,7 +94,11 @@ static inline int da9052_disable_vddout_channel(struct da9052 *da9052)
 				 DA9052_ADCCONT_AUTOVDDEN, 0);
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_vddout(struct device *dev,
+=======
+static ssize_t da9052_vddout_show(struct device *dev,
+>>>>>>> upstream/android-13
 				  struct device_attribute *devattr, char *buf)
 {
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
@@ -119,7 +130,11 @@ hwmon_err:
 	return ret;
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_ich(struct device *dev,
+=======
+static ssize_t da9052_ich_show(struct device *dev,
+>>>>>>> upstream/android-13
 			       struct device_attribute *devattr, char *buf)
 {
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
@@ -133,7 +148,11 @@ static ssize_t da9052_read_ich(struct device *dev,
 	return sprintf(buf, "%d\n", DIV_ROUND_CLOSEST(ret * 39, 10));
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_tbat(struct device *dev,
+=======
+static ssize_t da9052_tbat_show(struct device *dev,
+>>>>>>> upstream/android-13
 				struct device_attribute *devattr, char *buf)
 {
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
@@ -141,7 +160,11 @@ static ssize_t da9052_read_tbat(struct device *dev,
 	return sprintf(buf, "%d\n", da9052_adc_read_temp(hwmon->da9052));
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_vbat(struct device *dev,
+=======
+static ssize_t da9052_vbat_show(struct device *dev,
+>>>>>>> upstream/android-13
 				struct device_attribute *devattr, char *buf)
 {
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
@@ -154,7 +177,11 @@ static ssize_t da9052_read_vbat(struct device *dev,
 	return sprintf(buf, "%d\n", volt_reg_to_mv(ret));
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_misc_channel(struct device *dev,
+=======
+static ssize_t da9052_misc_channel_show(struct device *dev,
+>>>>>>> upstream/android-13
 					struct device_attribute *devattr,
 					char *buf)
 {
@@ -242,9 +269,14 @@ static ssize_t __da9052_read_tsi(struct device *dev, int channel)
 	return da9052_get_tsi_result(hwmon, channel);
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_tsi(struct device *dev,
 			       struct device_attribute *devattr,
 			       char *buf)
+=======
+static ssize_t da9052_tsi_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
 	int channel = to_sensor_dev_attr(devattr)->index;
@@ -260,7 +292,11 @@ static ssize_t da9052_read_tsi(struct device *dev,
 		return sprintf(buf, "%d\n", input_tsireg_to_mv(hwmon, ret));
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_tjunc(struct device *dev,
+=======
+static ssize_t da9052_tjunc_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *devattr, char *buf)
 {
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
@@ -282,7 +318,11 @@ static ssize_t da9052_read_tjunc(struct device *dev,
 	return sprintf(buf, "%d\n", 1708 * (tjunc - toffset) - 108800);
 }
 
+<<<<<<< HEAD
 static ssize_t da9052_read_vbbat(struct device *dev,
+=======
+static ssize_t da9052_vbbat_show(struct device *dev,
+>>>>>>> upstream/android-13
 				 struct device_attribute *devattr, char *buf)
 {
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
@@ -295,7 +335,11 @@ static ssize_t da9052_read_vbbat(struct device *dev,
 	return sprintf(buf, "%d\n", vbbat_reg_to_mv(ret));
 }
 
+<<<<<<< HEAD
 static ssize_t show_label(struct device *dev,
+=======
+static ssize_t label_show(struct device *dev,
+>>>>>>> upstream/android-13
 			  struct device_attribute *devattr, char *buf)
 {
 	return sprintf(buf, "%s\n",
@@ -305,7 +349,11 @@ static ssize_t show_label(struct device *dev,
 static umode_t da9052_channel_is_visible(struct kobject *kobj,
 					 struct attribute *attr, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
 	struct device_attribute *dattr = container_of(attr,
 				struct device_attribute, attr);
@@ -324,6 +372,7 @@ static umode_t da9052_channel_is_visible(struct kobject *kobj,
 	return attr->mode;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(in0_input, 0444, da9052_read_vddout, NULL,
 			  DA9052_ADC_VDDOUT);
 static SENSOR_DEVICE_ATTR(in0_label, 0444, show_label, NULL,
@@ -379,6 +428,37 @@ static SENSOR_DEVICE_ATTR(temp8_input, 0444, da9052_read_tjunc, NULL,
 			  DA9052_ADC_TJUNC);
 static SENSOR_DEVICE_ATTR(temp8_label, 0444, show_label, NULL,
 			  DA9052_ADC_TJUNC);
+=======
+static SENSOR_DEVICE_ATTR_RO(in0_input, da9052_vddout, DA9052_ADC_VDDOUT);
+static SENSOR_DEVICE_ATTR_RO(in0_label, label, DA9052_ADC_VDDOUT);
+static SENSOR_DEVICE_ATTR_RO(in3_input, da9052_vbat, DA9052_ADC_VBAT);
+static SENSOR_DEVICE_ATTR_RO(in3_label, label, DA9052_ADC_VBAT);
+static SENSOR_DEVICE_ATTR_RO(in4_input, da9052_misc_channel, DA9052_ADC_IN4);
+static SENSOR_DEVICE_ATTR_RO(in4_label, label, DA9052_ADC_IN4);
+static SENSOR_DEVICE_ATTR_RO(in5_input, da9052_misc_channel, DA9052_ADC_IN5);
+static SENSOR_DEVICE_ATTR_RO(in5_label, label, DA9052_ADC_IN5);
+static SENSOR_DEVICE_ATTR_RO(in6_input, da9052_misc_channel, DA9052_ADC_IN6);
+static SENSOR_DEVICE_ATTR_RO(in6_label, label, DA9052_ADC_IN6);
+static SENSOR_DEVICE_ATTR_RO(in9_input, da9052_vbbat, DA9052_ADC_VBBAT);
+static SENSOR_DEVICE_ATTR_RO(in9_label, label, DA9052_ADC_VBBAT);
+
+static SENSOR_DEVICE_ATTR_RO(in70_input, da9052_tsi, DA9052_ADC_TSI_XP);
+static SENSOR_DEVICE_ATTR_RO(in70_label, label, DA9052_ADC_TSI_XP);
+static SENSOR_DEVICE_ATTR_RO(in71_input, da9052_tsi, DA9052_ADC_TSI_XN);
+static SENSOR_DEVICE_ATTR_RO(in71_label, label, DA9052_ADC_TSI_XN);
+static SENSOR_DEVICE_ATTR_RO(in72_input, da9052_tsi, DA9052_ADC_TSI_YP);
+static SENSOR_DEVICE_ATTR_RO(in72_label, label, DA9052_ADC_TSI_YP);
+static SENSOR_DEVICE_ATTR_RO(in73_input, da9052_tsi, DA9052_ADC_TSI_YN);
+static SENSOR_DEVICE_ATTR_RO(in73_label, label, DA9052_ADC_TSI_YN);
+
+static SENSOR_DEVICE_ATTR_RO(curr1_input, da9052_ich, DA9052_ADC_ICH);
+static SENSOR_DEVICE_ATTR_RO(curr1_label, label, DA9052_ADC_ICH);
+
+static SENSOR_DEVICE_ATTR_RO(temp2_input, da9052_tbat, DA9052_ADC_TBAT);
+static SENSOR_DEVICE_ATTR_RO(temp2_label, label, DA9052_ADC_TBAT);
+static SENSOR_DEVICE_ATTR_RO(temp8_input, da9052_tjunc, DA9052_ADC_TJUNC);
+static SENSOR_DEVICE_ATTR_RO(temp8_label, label, DA9052_ADC_TJUNC);
+>>>>>>> upstream/android-13
 
 static struct attribute *da9052_attrs[] = {
 	&sensor_dev_attr_in0_input.dev_attr.attr,

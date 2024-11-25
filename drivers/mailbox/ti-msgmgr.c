@@ -2,7 +2,11 @@
 /*
  * Texas Instruments' Message Manager Driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2015-2017 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2015-2017 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *	Nishanth Menon
  */
 
@@ -239,7 +243,11 @@ static irqreturn_t ti_msgmgr_queue_rx_interrupt(int irq, void *p)
 
 	/*
 	 * I have no idea about the protocol being used to communicate with the
+<<<<<<< HEAD
 	 * remote producer - 0 could be valid data, so I wont make a judgement
+=======
+	 * remote producer - 0 could be valid data, so I won't make a judgement
+>>>>>>> upstream/android-13
 	 * of how many bytes I should be reading. Let the client figure this
 	 * out.. I just read the full message and pass it on..
 	 */
@@ -560,8 +568,13 @@ static struct mbox_chan *ti_msgmgr_of_xlate(struct mbox_controller *mbox,
 	}
 
 err:
+<<<<<<< HEAD
 	dev_err(inst->dev, "Queue ID %d, Proxy ID %d is wrong on %s\n",
 		req_qid, req_pid, p->np->name);
+=======
+	dev_err(inst->dev, "Queue ID %d, Proxy ID %d is wrong on %pOFn\n",
+		req_qid, req_pid, p->np);
+>>>>>>> upstream/android-13
 	return ERR_PTR(-ENOENT);
 }
 
@@ -817,13 +830,18 @@ static int ti_msgmgr_probe(struct platform_device *pdev)
 	mbox->of_xlate = ti_msgmgr_of_xlate;
 
 	platform_set_drvdata(pdev, inst);
+<<<<<<< HEAD
 	ret = mbox_controller_register(mbox);
+=======
+	ret = devm_mbox_controller_register(dev, mbox);
+>>>>>>> upstream/android-13
 	if (ret)
 		dev_err(dev, "Failed to register mbox_controller(%d)\n", ret);
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int ti_msgmgr_remove(struct platform_device *pdev)
 {
 	struct ti_msgmgr_inst *inst;
@@ -837,6 +855,10 @@ static int ti_msgmgr_remove(struct platform_device *pdev)
 static struct platform_driver ti_msgmgr_driver = {
 	.probe = ti_msgmgr_probe,
 	.remove = ti_msgmgr_remove,
+=======
+static struct platform_driver ti_msgmgr_driver = {
+	.probe = ti_msgmgr_probe,
+>>>>>>> upstream/android-13
 	.driver = {
 		   .name = "ti-msgmgr",
 		   .of_match_table = of_match_ptr(ti_msgmgr_of_match),

@@ -17,12 +17,16 @@ static DEFINE_IDA(fpga_bridge_ida);
 static struct class *fpga_bridge_class;
 
 /* Lock for adding/removing bridges to linked lists*/
+<<<<<<< HEAD
 static spinlock_t bridge_list_lock;
 
 static int fpga_bridge_of_node_match(struct device *dev, const void *data)
 {
 	return dev->of_node == data;
 }
+=======
+static DEFINE_SPINLOCK(bridge_list_lock);
+>>>>>>> upstream/android-13
 
 /**
  * fpga_bridge_enable - Enable transactions on the bridge
@@ -90,22 +94,36 @@ err_dev:
 }
 
 /**
+<<<<<<< HEAD
  * of_fpga_bridge_get - get an exclusive reference to a fpga bridge
  *
  * @np: node pointer of a FPGA bridge
+=======
+ * of_fpga_bridge_get - get an exclusive reference to an fpga bridge
+ *
+ * @np: node pointer of an FPGA bridge
+>>>>>>> upstream/android-13
  * @info: fpga image specific information
  *
  * Return fpga_bridge struct if successful.
  * Return -EBUSY if someone already has a reference to the bridge.
+<<<<<<< HEAD
  * Return -ENODEV if @np is not a FPGA Bridge.
+=======
+ * Return -ENODEV if @np is not an FPGA Bridge.
+>>>>>>> upstream/android-13
  */
 struct fpga_bridge *of_fpga_bridge_get(struct device_node *np,
 				       struct fpga_image_info *info)
 {
 	struct device *dev;
 
+<<<<<<< HEAD
 	dev = class_find_device(fpga_bridge_class, NULL, np,
 				fpga_bridge_of_node_match);
+=======
+	dev = class_find_device_by_of_node(fpga_bridge_class, np);
+>>>>>>> upstream/android-13
 	if (!dev)
 		return ERR_PTR(-ENODEV);
 
@@ -119,11 +137,19 @@ static int fpga_bridge_dev_match(struct device *dev, const void *data)
 }
 
 /**
+<<<<<<< HEAD
  * fpga_bridge_get - get an exclusive reference to a fpga bridge
  * @dev:	parent device that fpga bridge was registered with
  * @info:	fpga manager info
  *
  * Given a device, get an exclusive reference to a fpga bridge.
+=======
+ * fpga_bridge_get - get an exclusive reference to an fpga bridge
+ * @dev:	parent device that fpga bridge was registered with
+ * @info:	fpga manager info
+ *
+ * Given a device, get an exclusive reference to an fpga bridge.
+>>>>>>> upstream/android-13
  *
  * Return: fpga bridge struct or IS_ERR() condition containing error code.
  */
@@ -230,6 +256,7 @@ EXPORT_SYMBOL_GPL(fpga_bridges_put);
 /**
  * of_fpga_bridge_get_to_list - get a bridge, add it to a list
  *
+<<<<<<< HEAD
  * @np: node pointer of a FPGA bridge
  * @info: fpga image specific information
  * @bridge_list: list of FPGA bridges
@@ -237,6 +264,15 @@ EXPORT_SYMBOL_GPL(fpga_bridges_put);
  * Get an exclusive reference to the bridge and and it to the list.
  *
  * Return 0 for success, error code from of_fpga_bridge_get() othewise.
+=======
+ * @np: node pointer of an FPGA bridge
+ * @info: fpga image specific information
+ * @bridge_list: list of FPGA bridges
+ *
+ * Get an exclusive reference to the bridge and it to the list.
+ *
+ * Return 0 for success, error code from of_fpga_bridge_get() otherwise.
+>>>>>>> upstream/android-13
  */
 int of_fpga_bridge_get_to_list(struct device_node *np,
 			       struct fpga_image_info *info,
@@ -264,9 +300,15 @@ EXPORT_SYMBOL_GPL(of_fpga_bridge_get_to_list);
  * @info: fpga image specific information
  * @bridge_list: list of FPGA bridges
  *
+<<<<<<< HEAD
  * Get an exclusive reference to the bridge and and it to the list.
  *
  * Return 0 for success, error code from fpga_bridge_get() othewise.
+=======
+ * Get an exclusive reference to the bridge and it to the list.
+ *
+ * Return 0 for success, error code from fpga_bridge_get() otherwise.
+>>>>>>> upstream/android-13
  */
 int fpga_bridge_get_to_list(struct device *dev,
 			    struct fpga_image_info *info,
@@ -319,22 +361,42 @@ ATTRIBUTE_GROUPS(fpga_bridge);
 
 /**
  * fpga_bridge_create - create and initialize a struct fpga_bridge
+<<<<<<< HEAD
  * @dev:	FPGA bridge device from pdev
+=======
+ * @parent:	FPGA bridge device from pdev
+>>>>>>> upstream/android-13
  * @name:	FPGA bridge name
  * @br_ops:	pointer to structure of fpga bridge ops
  * @priv:	FPGA bridge private data
  *
+<<<<<<< HEAD
  * Return: struct fpga_bridge or NULL
  */
 struct fpga_bridge *fpga_bridge_create(struct device *dev, const char *name,
+=======
+ * The caller of this function is responsible for freeing the bridge with
+ * fpga_bridge_free().  Using devm_fpga_bridge_create() instead is recommended.
+ *
+ * Return: struct fpga_bridge or NULL
+ */
+struct fpga_bridge *fpga_bridge_create(struct device *parent, const char *name,
+>>>>>>> upstream/android-13
 				       const struct fpga_bridge_ops *br_ops,
 				       void *priv)
 {
 	struct fpga_bridge *bridge;
+<<<<<<< HEAD
 	int id, ret = 0;
 
 	if (!name || !strlen(name)) {
 		dev_err(dev, "Attempt to register with no name!\n");
+=======
+	int id, ret;
+
+	if (!name || !strlen(name)) {
+		dev_err(parent, "Attempt to register with no name!\n");
+>>>>>>> upstream/android-13
 		return NULL;
 	}
 
@@ -343,10 +405,15 @@ struct fpga_bridge *fpga_bridge_create(struct device *dev, const char *name,
 		return NULL;
 
 	id = ida_simple_get(&fpga_bridge_ida, 0, 0, GFP_KERNEL);
+<<<<<<< HEAD
 	if (id < 0) {
 		ret = id;
 		goto error_kfree;
 	}
+=======
+	if (id < 0)
+		goto error_kfree;
+>>>>>>> upstream/android-13
 
 	mutex_init(&bridge->mutex);
 	INIT_LIST_HEAD(&bridge->node);
@@ -358,8 +425,13 @@ struct fpga_bridge *fpga_bridge_create(struct device *dev, const char *name,
 	device_initialize(&bridge->dev);
 	bridge->dev.groups = br_ops->groups;
 	bridge->dev.class = fpga_bridge_class;
+<<<<<<< HEAD
 	bridge->dev.parent = dev;
 	bridge->dev.of_node = dev->of_node;
+=======
+	bridge->dev.parent = parent;
+	bridge->dev.of_node = parent->of_node;
+>>>>>>> upstream/android-13
 	bridge->dev.id = id;
 
 	ret = dev_set_name(&bridge->dev, "br%d", id);
@@ -378,8 +450,13 @@ error_kfree:
 EXPORT_SYMBOL_GPL(fpga_bridge_create);
 
 /**
+<<<<<<< HEAD
  * fpga_bridge_free - free a fpga bridge and its id
  * @bridge:	FPGA bridge struct created by fpga_bridge_create
+=======
+ * fpga_bridge_free - free an fpga bridge created by fpga_bridge_create()
+ * @bridge:	FPGA bridge struct
+>>>>>>> upstream/android-13
  */
 void fpga_bridge_free(struct fpga_bridge *bridge)
 {
@@ -388,9 +465,62 @@ void fpga_bridge_free(struct fpga_bridge *bridge)
 }
 EXPORT_SYMBOL_GPL(fpga_bridge_free);
 
+<<<<<<< HEAD
 /**
  * fpga_bridge_register - register a fpga bridge
  * @bridge:	FPGA bridge struct created by fpga_bridge_create
+=======
+static void devm_fpga_bridge_release(struct device *dev, void *res)
+{
+	struct fpga_bridge *bridge = *(struct fpga_bridge **)res;
+
+	fpga_bridge_free(bridge);
+}
+
+/**
+ * devm_fpga_bridge_create - create and init a managed struct fpga_bridge
+ * @parent:	FPGA bridge device from pdev
+ * @name:	FPGA bridge name
+ * @br_ops:	pointer to structure of fpga bridge ops
+ * @priv:	FPGA bridge private data
+ *
+ * This function is intended for use in an FPGA bridge driver's probe function.
+ * After the bridge driver creates the struct with devm_fpga_bridge_create(), it
+ * should register the bridge with fpga_bridge_register().  The bridge driver's
+ * remove function should call fpga_bridge_unregister().  The bridge struct
+ * allocated with this function will be freed automatically on driver detach.
+ * This includes the case of a probe function returning error before calling
+ * fpga_bridge_register(), the struct will still get cleaned up.
+ *
+ *  Return: struct fpga_bridge or NULL
+ */
+struct fpga_bridge
+*devm_fpga_bridge_create(struct device *parent, const char *name,
+			 const struct fpga_bridge_ops *br_ops, void *priv)
+{
+	struct fpga_bridge **ptr, *bridge;
+
+	ptr = devres_alloc(devm_fpga_bridge_release, sizeof(*ptr), GFP_KERNEL);
+	if (!ptr)
+		return NULL;
+
+	bridge = fpga_bridge_create(parent, name, br_ops, priv);
+	if (!bridge) {
+		devres_free(ptr);
+	} else {
+		*ptr = bridge;
+		devres_add(parent, ptr);
+	}
+
+	return bridge;
+}
+EXPORT_SYMBOL_GPL(devm_fpga_bridge_create);
+
+/**
+ * fpga_bridge_register - register an FPGA bridge
+ *
+ * @bridge: FPGA bridge struct
+>>>>>>> upstream/android-13
  *
  * Return: 0 for success, error code otherwise.
  */
@@ -412,8 +542,16 @@ int fpga_bridge_register(struct fpga_bridge *bridge)
 EXPORT_SYMBOL_GPL(fpga_bridge_register);
 
 /**
+<<<<<<< HEAD
  * fpga_bridge_unregister - unregister and free a fpga bridge
  * @bridge:	FPGA bridge struct created by fpga_bridge_create
+=======
+ * fpga_bridge_unregister - unregister an FPGA bridge
+ *
+ * @bridge: FPGA bridge struct
+ *
+ * This function is intended for use in an FPGA bridge driver's remove function.
+>>>>>>> upstream/android-13
  */
 void fpga_bridge_unregister(struct fpga_bridge *bridge)
 {
@@ -430,15 +568,21 @@ EXPORT_SYMBOL_GPL(fpga_bridge_unregister);
 
 static void fpga_bridge_dev_release(struct device *dev)
 {
+<<<<<<< HEAD
 	struct fpga_bridge *bridge = to_fpga_bridge(dev);
 
 	fpga_bridge_free(bridge);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int __init fpga_bridge_dev_init(void)
 {
+<<<<<<< HEAD
 	spin_lock_init(&bridge_list_lock);
 
+=======
+>>>>>>> upstream/android-13
 	fpga_bridge_class = class_create(THIS_MODULE, "fpga_bridge");
 	if (IS_ERR(fpga_bridge_class))
 		return PTR_ERR(fpga_bridge_class);

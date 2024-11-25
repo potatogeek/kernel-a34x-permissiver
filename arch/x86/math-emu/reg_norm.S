@@ -22,7 +22,11 @@
 
 
 .text
+<<<<<<< HEAD
 ENTRY(FPU_normalize)
+=======
+SYM_FUNC_START(FPU_normalize)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 	pushl	%ebx
@@ -72,7 +76,11 @@ L_exit_valid:
 L_exit:
 	popl	%ebx
 	leave
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 
 L_zero:
@@ -95,12 +103,20 @@ L_overflow:
 	call	arith_overflow
 	pop	%ebx
 	jmp	L_exit
+<<<<<<< HEAD
 ENDPROC(FPU_normalize)
+=======
+SYM_FUNC_END(FPU_normalize)
+>>>>>>> upstream/android-13
 
 
 
 /* Normalise without reporting underflow or overflow */
+<<<<<<< HEAD
 ENTRY(FPU_normalize_nuo)
+=======
+SYM_FUNC_START(FPU_normalize_nuo)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 	pushl	%ebx
@@ -138,7 +154,11 @@ L_exit_nuo_valid:
 
 	popl	%ebx
 	leave
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 L_exit_nuo_zero:
 	movl	TAG_Zero,%eax
@@ -146,5 +166,10 @@ L_exit_nuo_zero:
 
 	popl	%ebx
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(FPU_normalize_nuo)
+=======
+	RET
+SYM_FUNC_END(FPU_normalize_nuo)
+>>>>>>> upstream/android-13

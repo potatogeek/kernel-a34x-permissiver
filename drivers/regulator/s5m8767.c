@@ -115,7 +115,11 @@ static const struct sec_voltage_desc *reg_voltage_map[] = {
 	[S5M8767_BUCK9] = &buck_voltage_val3,
 };
 
+<<<<<<< HEAD
 static unsigned int s5m8767_opmode_reg[][4] = {
+=======
+static const unsigned int s5m8767_opmode_reg[][4] = {
+>>>>>>> upstream/android-13
 	/* {OFF, ON, LOWPOWER, SUSPEND} */
 	/* LDO1 ... LDO28 */
 	{0x0, 0x3, 0x2, 0x1}, /* LDO1 */
@@ -339,6 +343,7 @@ static int s5m8767_set_voltage_time_sel(struct regulator_dev *rdev,
 					     unsigned int new_sel)
 {
 	struct s5m8767_info *s5m8767 = rdev_get_drvdata(rdev);
+<<<<<<< HEAD
 	const struct sec_voltage_desc *desc;
 	int reg_id = rdev_get_id(rdev);
 
@@ -346,6 +351,11 @@ static int s5m8767_set_voltage_time_sel(struct regulator_dev *rdev,
 
 	if ((old_sel < new_sel) && s5m8767->ramp_delay)
 		return DIV_ROUND_UP(desc->step * (new_sel - old_sel),
+=======
+
+	if ((old_sel < new_sel) && s5m8767->ramp_delay)
+		return DIV_ROUND_UP(rdev->desc->uV_step * (new_sel - old_sel),
+>>>>>>> upstream/android-13
 					s5m8767->ramp_delay * 1000);
 	return 0;
 }
@@ -447,15 +457,25 @@ static void s5m8767_regulator_config_ext_control(struct s5m8767_info *s5m8767,
 	}
 	if (mode != S5M8767_ENCTRL_USE_GPIO) {
 		dev_warn(s5m8767->dev,
+<<<<<<< HEAD
 				"ext-control for %s: mismatched op_mode (%x), ignoring\n",
 				rdata->reg_node->name, mode);
+=======
+				"ext-control for %pOFn: mismatched op_mode (%x), ignoring\n",
+				rdata->reg_node, mode);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (!rdata->ext_control_gpiod) {
 		dev_warn(s5m8767->dev,
+<<<<<<< HEAD
 				"ext-control for %s: GPIO not valid, ignoring\n",
 			 rdata->reg_node->name);
+=======
+				"ext-control for %pOFn: GPIO not valid, ignoring\n",
+			 rdata->reg_node);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -565,11 +585,16 @@ static int s5m8767_pmic_dt_parse_pdata(struct platform_device *pdev,
 	pdata->opmode = rmode;
 	for_each_child_of_node(regulators_np, reg_np) {
 		for (i = 0; i < ARRAY_SIZE(regulators); i++)
+<<<<<<< HEAD
 			if (!of_node_cmp(reg_np->name, regulators[i].name))
+=======
+			if (of_node_name_eq(reg_np, regulators[i].name))
+>>>>>>> upstream/android-13
 				break;
 
 		if (i == ARRAY_SIZE(regulators)) {
 			dev_warn(iodev->dev,
+<<<<<<< HEAD
 			"don't know how to configure regulator %s\n",
 			reg_np->name);
 			continue;
@@ -583,6 +608,26 @@ static int s5m8767_pmic_dt_parse_pdata(struct platform_device *pdev,
 								       "s5m8767");
 		if (IS_ERR(rdata->ext_control_gpiod))
 			return PTR_ERR(rdata->ext_control_gpiod);
+=======
+			"don't know how to configure regulator %pOFn\n",
+			reg_np);
+			continue;
+		}
+
+		rdata->ext_control_gpiod = devm_fwnode_gpiod_get(
+			&pdev->dev,
+			of_fwnode_handle(reg_np),
+			"s5m8767,pmic-ext-control",
+			GPIOD_OUT_HIGH | GPIOD_FLAGS_BIT_NONEXCLUSIVE,
+			"s5m8767");
+		if (PTR_ERR(rdata->ext_control_gpiod) == -ENOENT) {
+			rdata->ext_control_gpiod = NULL;
+		} else if (IS_ERR(rdata->ext_control_gpiod)) {
+			of_node_put(reg_np);
+			of_node_put(regulators_np);
+			return PTR_ERR(rdata->ext_control_gpiod);
+		}
+>>>>>>> upstream/android-13
 
 		rdata->id = i;
 		rdata->initdata = of_get_regulator_init_data(
@@ -594,7 +639,11 @@ static int s5m8767_pmic_dt_parse_pdata(struct platform_device *pdev,
 		if (of_property_read_u32(reg_np, "op_mode",
 				&rmode->mode)) {
 			dev_warn(iodev->dev,
+<<<<<<< HEAD
 				"no op_mode property property at %pOF\n",
+=======
+				"no op_mode property at %pOF\n",
+>>>>>>> upstream/android-13
 				reg_np);
 
 			rmode->mode = S5M8767_OPMODE_NORMAL_MODE;
@@ -849,6 +898,7 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
 	/* DS4 GPIO */
 	gpio_direction_output(pdata->buck_ds[2], 0x0);
 
+<<<<<<< HEAD
 	if (pdata->buck2_gpiodvs || pdata->buck3_gpiodvs ||
 	   pdata->buck4_gpiodvs) {
 		regmap_update_bits(s5m8767->iodev->regmap_pmic,
@@ -861,6 +911,17 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
 				S5M8767_REG_BUCK4CTRL, 1 << 1,
 				(pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
 	}
+=======
+	regmap_update_bits(s5m8767->iodev->regmap_pmic,
+			   S5M8767_REG_BUCK2CTRL, 1 << 1,
+			   (pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
+	regmap_update_bits(s5m8767->iodev->regmap_pmic,
+			   S5M8767_REG_BUCK3CTRL, 1 << 1,
+			   (pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
+	regmap_update_bits(s5m8767->iodev->regmap_pmic,
+			   S5M8767_REG_BUCK4CTRL, 1 << 1,
+			   (pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+>>>>>>> upstream/android-13
 
 	/* Initialize GPIO DVS registers */
 	for (i = 0; i < 8; i++) {
@@ -959,10 +1020,24 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
 		config.regmap = iodev->regmap_pmic;
 		config.of_node = pdata->regulators[i].reg_node;
 		config.ena_gpiod = NULL;
+<<<<<<< HEAD
 		if (pdata->regulators[i].ext_control_gpiod)
 			s5m8767_regulator_config_ext_control(s5m8767,
 					&pdata->regulators[i], &config);
 
+=======
+		if (pdata->regulators[i].ext_control_gpiod) {
+			/* Assigns config.ena_gpiod */
+			s5m8767_regulator_config_ext_control(s5m8767,
+					&pdata->regulators[i], &config);
+
+			/*
+			 * Hand the GPIO descriptor management over to the
+			 * regulator core, remove it from devres management.
+			 */
+			devm_gpiod_unhinge(s5m8767->dev, config.ena_gpiod);
+		}
+>>>>>>> upstream/android-13
 		rdev = devm_regulator_register(&pdev->dev, &regulators[id],
 						  &config);
 		if (IS_ERR(rdev)) {
@@ -999,6 +1074,7 @@ static struct platform_driver s5m8767_pmic_driver = {
 	.probe = s5m8767_pmic_probe,
 	.id_table = s5m8767_pmic_id,
 };
+<<<<<<< HEAD
 
 static int __init s5m8767_pmic_init(void)
 {
@@ -1015,4 +1091,11 @@ module_exit(s5m8767_pmic_exit);
 /* Module information */
 MODULE_AUTHOR("Sangbeom Kim <sbkim73@samsung.com>");
 MODULE_DESCRIPTION("SAMSUNG S5M8767 Regulator Driver");
+=======
+module_platform_driver(s5m8767_pmic_driver);
+
+/* Module information */
+MODULE_AUTHOR("Sangbeom Kim <sbkim73@samsung.com>");
+MODULE_DESCRIPTION("Samsung S5M8767 Regulator Driver");
+>>>>>>> upstream/android-13
 MODULE_LICENSE("GPL");

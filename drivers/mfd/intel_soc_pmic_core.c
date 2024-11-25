@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * intel_soc_pmic_core.c - Intel SoC PMIC MFD Driver
  *
@@ -12,10 +13,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Intel SoC PMIC MFD Driver
+ *
+ * Copyright (C) 2013, 2014 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * Author: Yang, Bin <bin.yang@intel.com>
  * Author: Zhu, Lejun <lejun.zhu@linux.intel.com>
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/mfd/core.h>
 #include <linux/i2c.h>
@@ -26,12 +36,24 @@
 #include <linux/mfd/intel_soc_pmic.h>
 #include <linux/gpio/machine.h>
 #include <linux/pwm.h>
+=======
+#include <linux/acpi.h>
+#include <linux/i2c.h>
+#include <linux/interrupt.h>
+#include <linux/module.h>
+#include <linux/mfd/core.h>
+#include <linux/mfd/intel_soc_pmic.h>
+#include <linux/pwm.h>
+#include <linux/regmap.h>
+
+>>>>>>> upstream/android-13
 #include "intel_soc_pmic_core.h"
 
 /* Crystal Cove PMIC shares same ACPI ID between different platforms */
 #define BYT_CRC_HRV		2
 #define CHT_CRC_HRV		3
 
+<<<<<<< HEAD
 /* Lookup table for the Panel Enable/Disable line as GPIO signals */
 static struct gpiod_lookup_table panel_gpio_table = {
 	/* Intel GFX is consumer */
@@ -46,6 +68,11 @@ static struct gpiod_lookup_table panel_gpio_table = {
 /* PWM consumed by the Intel GFX */
 static struct pwm_lookup crc_pwm_lookup[] = {
 	PWM_LOOKUP("crystal_cove_pwm", 0, "0000:00:02.0", "pwm_backlight", 0, PWM_POLARITY_NORMAL),
+=======
+/* PWM consumed by the Intel GFX */
+static struct pwm_lookup crc_pwm_lookup[] = {
+	PWM_LOOKUP("crystal_cove_pwm", 0, "0000:00:02.0", "pwm_pmic_backlight", 0, PWM_POLARITY_NORMAL),
+>>>>>>> upstream/android-13
 };
 
 static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
@@ -103,9 +130,12 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
 	if (ret)
 		dev_warn(dev, "Can't enable IRQ as wake source: %d\n", ret);
 
+<<<<<<< HEAD
 	/* Add lookup table binding for Panel Control to the GPIO Chip */
 	gpiod_add_lookup_table(&panel_gpio_table);
 
+=======
+>>>>>>> upstream/android-13
 	/* Add lookup table for crc-pwm */
 	pwm_add_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
 
@@ -128,9 +158,12 @@ static int intel_soc_pmic_i2c_remove(struct i2c_client *i2c)
 
 	regmap_del_irq_chip(pmic->irq, pmic->irq_chip_data);
 
+<<<<<<< HEAD
 	/* Remove lookup table for Panel Control from the GPIO Chip */
 	gpiod_remove_lookup_table(&panel_gpio_table);
 
+=======
+>>>>>>> upstream/android-13
 	/* remove crc-pwm lookup table */
 	pwm_remove_table(crc_pwm_lookup, ARRAY_SIZE(crc_pwm_lookup));
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	iPAQ h1930/h1940/rx1950 battery controller driver
  *	Copyright (c) Vasily Khoruzhick
@@ -8,12 +9,23 @@
  * more details.
  *
  */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// iPAQ h1930/h1940/rx1950 battery controller driver
+// Copyright (c) Vasily Khoruzhick
+// Based on h1940_battery.c by Arnaud Patard
+>>>>>>> upstream/android-13
 
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
 #include <linux/power_supply.h>
 #include <linux/leds.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/timer.h>
 #include <linux/jiffies.h>
@@ -22,7 +34,11 @@
 #include <linux/init.h>
 #include <linux/module.h>
 
+<<<<<<< HEAD
 #include <plat/adc.h>
+=======
+#include <linux/soc/samsung/s3c-adc.h>
+>>>>>>> upstream/android-13
 
 #define BAT_POLL_INTERVAL		10000 /* ms */
 #define JITTER_DELAY			500 /* ms */
@@ -31,6 +47,10 @@ struct s3c_adc_bat {
 	struct power_supply		*psy;
 	struct s3c_adc_client		*client;
 	struct s3c_adc_bat_pdata	*pdata;
+<<<<<<< HEAD
+=======
+	struct gpio_desc		*charge_finished;
+>>>>>>> upstream/android-13
 	int				volt_value;
 	int				cur_value;
 	unsigned int			timestamp;
@@ -132,9 +152,13 @@ static int calc_full_volt(int volt_val, int cur_val, int impedance)
 
 static int charge_finished(struct s3c_adc_bat *bat)
 {
+<<<<<<< HEAD
 	return bat->pdata->gpio_inverted ?
 		!gpio_get_value(bat->pdata->gpio_charge_finished) :
 		gpio_get_value(bat->pdata->gpio_charge_finished);
+=======
+	return gpiod_get_value(bat->charge_finished);
+>>>>>>> upstream/android-13
 }
 
 static int s3c_adc_bat_get_property(struct power_supply *psy,
@@ -169,7 +193,11 @@ static int s3c_adc_bat_get_property(struct power_supply *psy,
 	}
 
 	if (bat->cable_plugged &&
+<<<<<<< HEAD
 		((bat->pdata->gpio_charge_finished < 0) ||
+=======
+		(!bat->charge_finished ||
+>>>>>>> upstream/android-13
 		!charge_finished(bat))) {
 		lut = bat->pdata->lut_acin;
 		lut_size = bat->pdata->lut_acin_cnt;
@@ -206,7 +234,11 @@ static int s3c_adc_bat_get_property(struct power_supply *psy,
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
+<<<<<<< HEAD
 		if (bat->pdata->gpio_charge_finished < 0)
+=======
+		if (!bat->charge_finished)
+>>>>>>> upstream/android-13
 			val->intval = bat->level == 100000 ?
 				POWER_SUPPLY_STATUS_FULL : bat->status;
 		else
@@ -265,7 +297,11 @@ static void s3c_adc_bat_work(struct work_struct *work)
 			bat->status = POWER_SUPPLY_STATUS_DISCHARGING;
 		}
 	} else {
+<<<<<<< HEAD
 		if ((bat->pdata->gpio_charge_finished >= 0) && is_plugged) {
+=======
+		if (bat->charge_finished && is_plugged) {
+>>>>>>> upstream/android-13
 			is_charged = charge_finished(&main_bat);
 			if (is_charged) {
 				if (bat->pdata->disable_charger)
@@ -294,6 +330,10 @@ static int s3c_adc_bat_probe(struct platform_device *pdev)
 	struct s3c_adc_client	*client;
 	struct s3c_adc_bat_pdata *pdata = pdev->dev.platform_data;
 	struct power_supply_config psy_cfg = {};
+<<<<<<< HEAD
+=======
+	struct gpio_desc *gpiod;
+>>>>>>> upstream/android-13
 	int ret;
 
 	client = s3c_adc_register(pdev, NULL, NULL, 0);
@@ -304,8 +344,22 @@ static int s3c_adc_bat_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, client);
 
+<<<<<<< HEAD
 	main_bat.client = client;
 	main_bat.pdata = pdata;
+=======
+	gpiod = devm_gpiod_get_optional(&pdev->dev, "charge-status", GPIOD_IN);
+	if (IS_ERR(gpiod)) {
+		/* Could be probe deferral etc */
+		ret = PTR_ERR(gpiod);
+		dev_err(&pdev->dev, "no GPIO %d\n", ret);
+		return ret;
+	}
+
+	main_bat.client = client;
+	main_bat.pdata = pdata;
+	main_bat.charge_finished = gpiod;
+>>>>>>> upstream/android-13
 	main_bat.volt_value = -1;
 	main_bat.cur_value = -1;
 	main_bat.cable_plugged = 0;
@@ -323,6 +377,10 @@ static int s3c_adc_bat_probe(struct platform_device *pdev)
 
 		backup_bat.client = client;
 		backup_bat.pdata = pdev->dev.platform_data;
+<<<<<<< HEAD
+=======
+		backup_bat.charge_finished = gpiod;
+>>>>>>> upstream/android-13
 		backup_bat.volt_value = -1;
 		backup_bat.psy = power_supply_register(&pdev->dev,
 						       &backup_bat_desc,
@@ -335,12 +393,17 @@ static int s3c_adc_bat_probe(struct platform_device *pdev)
 
 	INIT_DELAYED_WORK(&bat_work, s3c_adc_bat_work);
 
+<<<<<<< HEAD
 	if (pdata->gpio_charge_finished >= 0) {
 		ret = gpio_request(pdata->gpio_charge_finished, "charged");
 		if (ret)
 			goto err_gpio;
 
 		ret = request_irq(gpio_to_irq(pdata->gpio_charge_finished),
+=======
+	if (gpiod) {
+		ret = request_irq(gpiod_to_irq(gpiod),
+>>>>>>> upstream/android-13
 				s3c_adc_bat_charged,
 				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
 				"battery charged", NULL);
@@ -364,12 +427,18 @@ static int s3c_adc_bat_probe(struct platform_device *pdev)
 	return 0;
 
 err_platform:
+<<<<<<< HEAD
 	if (pdata->gpio_charge_finished >= 0)
 		free_irq(gpio_to_irq(pdata->gpio_charge_finished), NULL);
 err_irq:
 	if (pdata->gpio_charge_finished >= 0)
 		gpio_free(pdata->gpio_charge_finished);
 err_gpio:
+=======
+	if (gpiod)
+		free_irq(gpiod_to_irq(gpiod), NULL);
+err_irq:
+>>>>>>> upstream/android-13
 	if (pdata->backup_volt_mult)
 		power_supply_unregister(backup_bat.psy);
 err_reg_backup:
@@ -389,10 +458,15 @@ static int s3c_adc_bat_remove(struct platform_device *pdev)
 
 	s3c_adc_release(client);
 
+<<<<<<< HEAD
 	if (pdata->gpio_charge_finished >= 0) {
 		free_irq(gpio_to_irq(pdata->gpio_charge_finished), NULL);
 		gpio_free(pdata->gpio_charge_finished);
 	}
+=======
+	if (main_bat.charge_finished)
+		free_irq(gpiod_to_irq(main_bat.charge_finished), NULL);
+>>>>>>> upstream/android-13
 
 	cancel_delayed_work_sync(&bat_work);
 
@@ -406,6 +480,7 @@ static int s3c_adc_bat_remove(struct platform_device *pdev)
 static int s3c_adc_bat_suspend(struct platform_device *pdev,
 	pm_message_t state)
 {
+<<<<<<< HEAD
 	struct s3c_adc_bat_pdata *pdata = pdev->dev.platform_data;
 
 	if (pdata->gpio_charge_finished >= 0) {
@@ -414,6 +489,14 @@ static int s3c_adc_bat_suspend(struct platform_device *pdev,
 				gpio_to_irq(pdata->gpio_charge_finished));
 		else {
 			disable_irq(gpio_to_irq(pdata->gpio_charge_finished));
+=======
+	if (main_bat.charge_finished) {
+		if (device_may_wakeup(&pdev->dev))
+			enable_irq_wake(
+				gpiod_to_irq(main_bat.charge_finished));
+		else {
+			disable_irq(gpiod_to_irq(main_bat.charge_finished));
+>>>>>>> upstream/android-13
 			main_bat.pdata->disable_charger();
 		}
 	}
@@ -423,6 +506,7 @@ static int s3c_adc_bat_suspend(struct platform_device *pdev,
 
 static int s3c_adc_bat_resume(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct s3c_adc_bat_pdata *pdata = pdev->dev.platform_data;
 
 	if (pdata->gpio_charge_finished >= 0) {
@@ -431,6 +515,14 @@ static int s3c_adc_bat_resume(struct platform_device *pdev)
 				gpio_to_irq(pdata->gpio_charge_finished));
 		else
 			enable_irq(gpio_to_irq(pdata->gpio_charge_finished));
+=======
+	if (main_bat.charge_finished) {
+		if (device_may_wakeup(&pdev->dev))
+			disable_irq_wake(
+				gpiod_to_irq(main_bat.charge_finished));
+		else
+			enable_irq(gpiod_to_irq(main_bat.charge_finished));
+>>>>>>> upstream/android-13
 	}
 
 	/* Schedule timer to check current status */

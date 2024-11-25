@@ -48,9 +48,16 @@ always allowed (by a user with admin privileges).
 How do I use the magic SysRq key?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+<<<<<<< HEAD
 On x86   - You press the key combo :kbd:`ALT-SysRq-<command key>`.
 
 .. note::
+=======
+On x86
+	You press the key combo :kbd:`ALT-SysRq-<command key>`.
+
+	.. note::
+>>>>>>> upstream/android-13
 	   Some
            keyboards may not have a key labeled 'SysRq'. The 'SysRq' key is
            also known as the 'Print Screen' key. Also some keyboards cannot
@@ -58,18 +65,28 @@ On x86   - You press the key combo :kbd:`ALT-SysRq-<command key>`.
 	   have better luck with press :kbd:`Alt`, press :kbd:`SysRq`,
 	   release :kbd:`SysRq`, press :kbd:`<command key>`, release everything.
 
+<<<<<<< HEAD
 On SPARC - You press :kbd:`ALT-STOP-<command key>`, I believe.
+=======
+On SPARC
+	You press :kbd:`ALT-STOP-<command key>`, I believe.
+>>>>>>> upstream/android-13
 
 On the serial console (PC style standard serial ports only)
         You send a ``BREAK``, then within 5 seconds a command key. Sending
         ``BREAK`` twice is interpreted as a normal BREAK.
 
 On PowerPC
+<<<<<<< HEAD
 	Press :kbd:`ALT - Print Screen` (or :kbd:`F13`) - :kbd:`<command key>`,
+=======
+	Press :kbd:`ALT - Print Screen` (or :kbd:`F13`) - :kbd:`<command key>`.
+>>>>>>> upstream/android-13
         :kbd:`Print Screen` (or :kbd:`F13`) - :kbd:`<command key>` may suffice.
 
 On other
 	If you know of the key combos for other architectures, please
+<<<<<<< HEAD
         let me know so I can add them to this section.
 
 On all
@@ -77,6 +94,17 @@ On all
 
 		echo t > /proc/sysrq-trigger
 
+=======
+	submit a patch to be included in this section.
+
+On all
+	Write a character to /proc/sysrq-trigger.  e.g.::
+
+		echo t > /proc/sysrq-trigger
+
+The :kbd:`<command key>` is case sensitive.
+
+>>>>>>> upstream/android-13
 What are the 'command' keys?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -86,8 +114,13 @@ Command	    Function
 ``b``	    Will immediately reboot the system without syncing or unmounting
             your disks.
 
+<<<<<<< HEAD
 ``c``	    Will perform a system crash by a NULL pointer dereference.
             A crashdump will be taken if configured.
+=======
+``c``	    Will perform a system crash and a crashdump will be taken
+            if configured.
+>>>>>>> upstream/android-13
 
 ``d``	    Shows all locks that are held.
 
@@ -171,12 +204,18 @@ It seems others find it useful as (System Attention Key) which is
 useful when you want to exit a program that will not let you switch consoles.
 (For example, X or a svgalib program.)
 
+<<<<<<< HEAD
 ``reboot(b)`` is good when you're unable to shut down. But you should also
 ``sync(s)`` and ``umount(u)`` first.
+=======
+``reboot(b)`` is good when you're unable to shut down, it is an equivalent
+of pressing the "reset" button.
+>>>>>>> upstream/android-13
 
 ``crash(c)`` can be used to manually trigger a crashdump when the system is hung.
 Note that this just triggers a crash if there is no dump mechanism available.
 
+<<<<<<< HEAD
 ``sync(s)`` is great when your system is locked up, it allows you to sync your
 disks and will certainly lessen the chance of data loss and fscking. Note
 that the sync hasn't taken place until you see the "OK" and "Done" appear
@@ -187,6 +226,16 @@ OK or Done message...)
 ``sync(s)``, ``umount(u)``, then ``reboot(b)`` when my system locks. It's saved
 me many a fsck. Again, the unmount (remount read-only) hasn't taken place until
 you see the "OK" and "Done" message appear on the screen.
+=======
+``sync(s)`` is handy before yanking removable medium or after using a rescue
+shell that provides no graceful shutdown -- it will ensure your data is
+safely written to the disk. Note that the sync hasn't taken place until you see
+the "OK" and "Done" appear on the screen.
+
+``umount(u)`` can be used to mark filesystems as properly unmounted. From the
+running system's point of view, they will be remounted read-only. The remount
+isn't complete until you see the "OK" and "Done" message appear on the screen.
+>>>>>>> upstream/android-13
 
 The loglevels ``0``-``9`` are useful when your console is being flooded with
 kernel messages you do not want to see. Selecting ``0`` will prevent all but
@@ -203,10 +252,19 @@ frozen (probably root) filesystem via the FIFREEZE ioctl.
 Sometimes SysRq seems to get 'stuck' after using it, what can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+<<<<<<< HEAD
 That happens to me, also. I've found that tapping shift, alt, and control
 on both sides of the keyboard, and hitting an invalid sysrq sequence again
 will fix the problem. (i.e., something like :kbd:`alt-sysrq-z`). Switching to
 another virtual console (:kbd:`ALT+Fn`) and then back again should also help.
+=======
+When this happens, try tapping shift, alt and control on both sides of the
+keyboard, and hitting an invalid sysrq sequence again. (i.e., something like
+:kbd:`alt-sysrq-z`).
+
+Switching to another virtual console (:kbd:`ALT+Fn`) and then back again
+should also help.
+>>>>>>> upstream/android-13
 
 I hit SysRq, but nothing seems to happen, what's wrong?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -231,6 +289,7 @@ prints help, and C) an action_msg string, that will print right before your
 handler is called. Your handler must conform to the prototype in 'sysrq.h'.
 
 After the ``sysrq_key_op`` is created, you can call the kernel function
+<<<<<<< HEAD
 ``register_sysrq_key(int key, struct sysrq_key_op *op_p);`` this will
 register the operation pointed to by ``op_p`` at table key 'key',
 if that slot in the table is blank. At module unload time, you must call
@@ -238,6 +297,15 @@ the function ``unregister_sysrq_key(int key, struct sysrq_key_op *op_p)``, which
 will remove the key op pointed to by 'op_p' from the key 'key', if and only if
 it is currently registered in that slot. This is in case the slot has been
 overwritten since you registered it.
+=======
+``register_sysrq_key(int key, const struct sysrq_key_op *op_p);`` this will
+register the operation pointed to by ``op_p`` at table key 'key',
+if that slot in the table is blank. At module unload time, you must call
+the function ``unregister_sysrq_key(int key, const struct sysrq_key_op *op_p)``,
+which will remove the key op pointed to by 'op_p' from the key 'key', if and
+only if it is currently registered in that slot. This is in case the slot has
+been overwritten since you registered it.
+>>>>>>> upstream/android-13
 
 The Magic SysRQ system works by registering key operations against a key op
 lookup table, which is defined in 'drivers/tty/sysrq.c'. This key table has
@@ -284,7 +352,14 @@ Just ask them on the linux-kernel mailing list:
 Credits
 ~~~~~~~
 
+<<<<<<< HEAD
 Written by Mydraal <vulpyne@vulpyne.net>
 Updated by Adam Sulmicki <adam@cfar.umd.edu>
 Updated by Jeremy M. Dolan <jmd@turbogeek.org> 2001/01/28 10:15:59
 Added to by Crutcher Dunnavant <crutcher+kernel@datastacks.com>
+=======
+- Written by Mydraal <vulpyne@vulpyne.net>
+- Updated by Adam Sulmicki <adam@cfar.umd.edu>
+- Updated by Jeremy M. Dolan <jmd@turbogeek.org> 2001/01/28 10:15:59
+- Added to by Crutcher Dunnavant <crutcher+kernel@datastacks.com>
+>>>>>>> upstream/android-13

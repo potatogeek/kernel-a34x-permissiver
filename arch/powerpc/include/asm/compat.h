@@ -8,6 +8,11 @@
 #include <linux/types.h>
 #include <linux/sched.h>
 
+<<<<<<< HEAD
+=======
+#include <asm-generic/compat.h>
+
+>>>>>>> upstream/android-13
 #define COMPAT_USER_HZ		100
 #ifdef __BIG_ENDIAN__
 #define COMPAT_UTS_MACHINE	"ppc\0\0"
@@ -15,6 +20,7 @@
 #define COMPAT_UTS_MACHINE	"ppcle\0\0"
 #endif
 
+<<<<<<< HEAD
 typedef u32		compat_size_t;
 typedef s32		compat_ssize_t;
 typedef s32		compat_clock_t;
@@ -43,6 +49,14 @@ typedef u32		compat_uint_t;
 typedef u32		compat_ulong_t;
 typedef u64		compat_u64;
 typedef u32		compat_uptr_t;
+=======
+typedef u32		__compat_uid_t;
+typedef u32		__compat_gid_t;
+typedef u32		compat_dev_t;
+typedef s16		compat_nlink_t;
+typedef u16		compat_ipc_pid_t;
+typedef __kernel_fsid_t	compat_fsid_t;
+>>>>>>> upstream/android-13
 
 struct compat_stat {
 	compat_dev_t	st_dev;
@@ -55,11 +69,19 @@ struct compat_stat {
 	compat_off_t	st_size;
 	compat_off_t	st_blksize;
 	compat_off_t	st_blocks;
+<<<<<<< HEAD
 	compat_time_t	st_atime;
 	u32		st_atime_nsec;
 	compat_time_t	st_mtime;
 	u32		st_mtime_nsec;
 	compat_time_t	st_ctime;
+=======
+	old_time32_t	st_atime;
+	u32		st_atime_nsec;
+	old_time32_t	st_mtime;
+	u32		st_mtime_nsec;
+	old_time32_t	st_ctime;
+>>>>>>> upstream/android-13
 	u32		st_ctime_nsec;
 	u32		__unused4[2];
 };
@@ -101,6 +123,7 @@ struct compat_statfs {
 
 #define COMPAT_RLIM_INFINITY		0xffffffff
 
+<<<<<<< HEAD
 typedef u32		compat_old_sigset_t;
 
 #define _COMPAT_NSIG		64
@@ -144,6 +167,11 @@ static inline void __user *arch_compat_alloc_user_space(long len)
 }
 
 /*
+=======
+#define COMPAT_OFF_T_MAX	0x7fffffff
+
+/*
+>>>>>>> upstream/android-13
  * ipc64_perm is actually 32/64bit clean but since the compat layer refers to
  * it we may as well define it.
  */

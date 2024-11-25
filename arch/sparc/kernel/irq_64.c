@@ -42,6 +42,10 @@
 #include <asm/head.h>
 #include <asm/hypervisor.h>
 #include <asm/cacheflush.h>
+<<<<<<< HEAD
+=======
+#include <asm/softirq_stack.h>
+>>>>>>> upstream/android-13
 
 #include "entry.h"
 #include "cpumap.h"
@@ -915,7 +919,11 @@ static void map_prom_timers(void)
 	dp = of_find_node_by_path("/");
 	dp = dp->child;
 	while (dp) {
+<<<<<<< HEAD
 		if (!strcmp(dp->name, "counter-timer"))
+=======
+		if (of_node_name_eq(dp, "counter-timer"))
+>>>>>>> upstream/android-13
 			break;
 		dp = dp->sibling;
 	}

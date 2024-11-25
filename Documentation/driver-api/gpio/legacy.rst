@@ -461,7 +461,11 @@ pin controller?
 
 This is done by registering "ranges" of pins, which are essentially
 cross-reference tables. These are described in
+<<<<<<< HEAD
 Documentation/driver-api/pinctl.rst
+=======
+Documentation/driver-api/pin-control.rst
+>>>>>>> upstream/android-13
 
 While the pin allocation is totally managed by the pinctrl subsystem,
 gpio (under gpiolib) is still maintained by gpio drivers. It may happen
@@ -690,11 +694,18 @@ and have the following read/write attributes:
 		and if it has been configured to generate interrupts (see the
 		description of "edge"), you can poll(2) on that file and
 		poll(2) will return whenever the interrupt was triggered. If
+<<<<<<< HEAD
 		you use poll(2), set the events POLLPRI and POLLERR. If you
 		use select(2), set the file descriptor in exceptfds. After
 		poll(2) returns, either lseek(2) to the beginning of the sysfs
 		file and read the new value or close the file and re-open it
 		to read the value.
+=======
+		you use poll(2), set the events POLLPRI. If you use select(2),
+		set the file descriptor in exceptfds. After poll(2) returns,
+		either lseek(2) to the beginning of the sysfs file and read the
+		new value or close the file and re-open it to read the value.
+>>>>>>> upstream/android-13
 
 	"edge" ... reads as either "none", "rising", "falling", or
 		"both". Write these strings to select the signal edge(s)

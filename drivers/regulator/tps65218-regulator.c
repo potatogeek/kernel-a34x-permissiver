@@ -3,7 +3,11 @@
  *
  * Regulator driver for TPS65218 PMIC
  *
+<<<<<<< HEAD
  * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2014 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2 as
@@ -29,7 +33,12 @@
 #include <linux/mfd/tps65218.h>
 
 #define TPS65218_REGULATOR(_name, _of, _id, _type, _ops, _n, _vr, _vm, _er, \
+<<<<<<< HEAD
 			   _em, _cr, _cm, _lr, _nlr, _delay, _fuv, _sr, _sm) \
+=======
+			   _em, _cr, _cm, _lr, _nlr, _delay, _fuv, _sr, _sm, \
+			   _ct, _ncl) \
+>>>>>>> upstream/android-13
 	{							\
 		.name			= _name,		\
 		.of_match		= _of,			\
@@ -42,6 +51,11 @@
 		.vsel_mask		= _vm,			\
 		.csel_reg		= _cr,			\
 		.csel_mask		= _cm,			\
+<<<<<<< HEAD
+=======
+		.curr_table		= _ct,			\
+		.n_current_limits	= _ncl,			\
+>>>>>>> upstream/android-13
 		.enable_reg		= _er,			\
 		.enable_mask		= _em,			\
 		.volt_table		= NULL,			\
@@ -53,17 +67,29 @@
 		.bypass_mask	= _sm,				\
 	}							\
 
+<<<<<<< HEAD
 static const struct regulator_linear_range dcdc1_dcdc2_ranges[] = {
+=======
+static const struct linear_range dcdc1_dcdc2_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(850000, 0x0, 0x32, 10000),
 	REGULATOR_LINEAR_RANGE(1375000, 0x33, 0x3f, 25000),
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range ldo1_dcdc3_ranges[] = {
+=======
+static const struct linear_range ldo1_dcdc3_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(900000, 0x0, 0x1a, 25000),
 	REGULATOR_LINEAR_RANGE(1600000, 0x1b, 0x3f, 50000),
 };
 
+<<<<<<< HEAD
 static const struct regulator_linear_range dcdc4_ranges[] = {
+=======
+static const struct linear_range dcdc4_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(1175000, 0x0, 0xf, 25000),
 	REGULATOR_LINEAR_RANGE(1600000, 0x10, 0x34, 50000),
 };
@@ -125,7 +151,11 @@ static int tps65218_pmic_set_suspend_enable(struct regulator_dev *dev)
 	struct tps65218 *tps = rdev_get_drvdata(dev);
 	unsigned int rid = rdev_get_id(dev);
 
+<<<<<<< HEAD
 	if (rid < TPS65218_DCDC_1 || rid > TPS65218_LDO_1)
+=======
+	if (rid > TPS65218_LDO_1)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	return tps65218_clear_bits(tps, dev->desc->bypass_reg,
@@ -138,7 +168,11 @@ static int tps65218_pmic_set_suspend_disable(struct regulator_dev *dev)
 	struct tps65218 *tps = rdev_get_drvdata(dev);
 	unsigned int rid = rdev_get_id(dev);
 
+<<<<<<< HEAD
 	if (rid < TPS65218_DCDC_1 || rid > TPS65218_LDO_1)
+=======
+	if (rid > TPS65218_LDO_1)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -162,7 +196,11 @@ static int tps65218_pmic_set_suspend_disable(struct regulator_dev *dev)
 }
 
 /* Operations permitted on DCDC1, DCDC2 */
+<<<<<<< HEAD
 static struct regulator_ops tps65218_dcdc12_ops = {
+=======
+static const struct regulator_ops tps65218_dcdc12_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= tps65218_pmic_enable,
 	.disable		= tps65218_pmic_disable,
@@ -176,7 +214,11 @@ static struct regulator_ops tps65218_dcdc12_ops = {
 };
 
 /* Operations permitted on DCDC3, DCDC4 and LDO1 */
+<<<<<<< HEAD
 static struct regulator_ops tps65218_ldo1_dcdc34_ops = {
+=======
+static const struct regulator_ops tps65218_ldo1_dcdc34_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= tps65218_pmic_enable,
 	.disable		= tps65218_pmic_disable,
@@ -188,7 +230,11 @@ static struct regulator_ops tps65218_ldo1_dcdc34_ops = {
 	.set_suspend_disable	= tps65218_pmic_set_suspend_disable,
 };
 
+<<<<<<< HEAD
 static const int ls3_currents[] = { 100, 200, 500, 1000 };
+=======
+static const unsigned int ls3_currents[] = { 100000, 200000, 500000, 1000000 };
+>>>>>>> upstream/android-13
 
 static int tps65218_pmic_set_input_current_lim(struct regulator_dev *dev,
 					       int lim_uA)
@@ -204,7 +250,12 @@ static int tps65218_pmic_set_input_current_lim(struct regulator_dev *dev,
 		return -EINVAL;
 
 	return tps65218_set_bits(tps, dev->desc->csel_reg, dev->desc->csel_mask,
+<<<<<<< HEAD
 				 index << 2, TPS65218_PROTECT_L1);
+=======
+				 index << __builtin_ctz(dev->desc->csel_mask),
+				 TPS65218_PROTECT_L1);
+>>>>>>> upstream/android-13
 }
 
 static int tps65218_pmic_set_current_limit(struct regulator_dev *dev,
@@ -214,7 +265,11 @@ static int tps65218_pmic_set_current_limit(struct regulator_dev *dev,
 	unsigned int num_currents = ARRAY_SIZE(ls3_currents);
 	struct tps65218 *tps = rdev_get_drvdata(dev);
 
+<<<<<<< HEAD
 	while (index < num_currents && ls3_currents[index] < max_uA)
+=======
+	while (index < num_currents && ls3_currents[index] <= max_uA)
+>>>>>>> upstream/android-13
 		index++;
 
 	index--;
@@ -223,6 +278,7 @@ static int tps65218_pmic_set_current_limit(struct regulator_dev *dev,
 		return -EINVAL;
 
 	return tps65218_set_bits(tps, dev->desc->csel_reg, dev->desc->csel_mask,
+<<<<<<< HEAD
 				 index << 2, TPS65218_PROTECT_L1);
 }
 
@@ -242,16 +298,31 @@ static int tps65218_pmic_get_current_limit(struct regulator_dev *dev)
 }
 
 static struct regulator_ops tps65218_ls3_ops = {
+=======
+				 index << __builtin_ctz(dev->desc->csel_mask),
+				 TPS65218_PROTECT_L1);
+}
+
+static const struct regulator_ops tps65218_ls23_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= tps65218_pmic_enable,
 	.disable		= tps65218_pmic_disable,
 	.set_input_current_limit = tps65218_pmic_set_input_current_lim,
 	.set_current_limit	= tps65218_pmic_set_current_limit,
+<<<<<<< HEAD
 	.get_current_limit	= tps65218_pmic_get_current_limit,
 };
 
 /* Operations permitted on DCDC5, DCDC6 */
 static struct regulator_ops tps65218_dcdc56_pmic_ops = {
+=======
+	.get_current_limit	= regulator_get_current_limit_regmap,
+};
+
+/* Operations permitted on DCDC5, DCDC6 */
+static const struct regulator_ops tps65218_dcdc56_pmic_ops = {
+>>>>>>> upstream/android-13
 	.is_enabled		= regulator_is_enabled_regmap,
 	.enable			= tps65218_pmic_enable,
 	.disable		= tps65218_pmic_disable,
@@ -266,48 +337,90 @@ static const struct regulator_desc regulators[] = {
 			   TPS65218_CONTROL_DCDC1_MASK, TPS65218_REG_ENABLE1,
 			   TPS65218_ENABLE1_DC1_EN, 0, 0, dcdc1_dcdc2_ranges,
 			   2, 4000, 0, TPS65218_REG_SEQ3,
+<<<<<<< HEAD
 			   TPS65218_SEQ3_DC1_SEQ_MASK),
+=======
+			   TPS65218_SEQ3_DC1_SEQ_MASK, NULL, 0),
+>>>>>>> upstream/android-13
 	TPS65218_REGULATOR("DCDC2", "regulator-dcdc2", TPS65218_DCDC_2,
 			   REGULATOR_VOLTAGE, tps65218_dcdc12_ops, 64,
 			   TPS65218_REG_CONTROL_DCDC2,
 			   TPS65218_CONTROL_DCDC2_MASK, TPS65218_REG_ENABLE1,
 			   TPS65218_ENABLE1_DC2_EN, 0, 0, dcdc1_dcdc2_ranges,
 			   2, 4000, 0, TPS65218_REG_SEQ3,
+<<<<<<< HEAD
 			   TPS65218_SEQ3_DC2_SEQ_MASK),
+=======
+			   TPS65218_SEQ3_DC2_SEQ_MASK, NULL, 0),
+>>>>>>> upstream/android-13
 	TPS65218_REGULATOR("DCDC3", "regulator-dcdc3", TPS65218_DCDC_3,
 			   REGULATOR_VOLTAGE, tps65218_ldo1_dcdc34_ops, 64,
 			   TPS65218_REG_CONTROL_DCDC3,
 			   TPS65218_CONTROL_DCDC3_MASK, TPS65218_REG_ENABLE1,
 			   TPS65218_ENABLE1_DC3_EN, 0, 0, ldo1_dcdc3_ranges, 2,
+<<<<<<< HEAD
 			   0, 0, TPS65218_REG_SEQ4, TPS65218_SEQ4_DC3_SEQ_MASK),
+=======
+			   0, 0, TPS65218_REG_SEQ4, TPS65218_SEQ4_DC3_SEQ_MASK,
+			   NULL, 0),
+>>>>>>> upstream/android-13
 	TPS65218_REGULATOR("DCDC4", "regulator-dcdc4", TPS65218_DCDC_4,
 			   REGULATOR_VOLTAGE, tps65218_ldo1_dcdc34_ops, 53,
 			   TPS65218_REG_CONTROL_DCDC4,
 			   TPS65218_CONTROL_DCDC4_MASK, TPS65218_REG_ENABLE1,
 			   TPS65218_ENABLE1_DC4_EN, 0, 0, dcdc4_ranges, 2,
+<<<<<<< HEAD
 			   0, 0, TPS65218_REG_SEQ4, TPS65218_SEQ4_DC4_SEQ_MASK),
+=======
+			   0, 0, TPS65218_REG_SEQ4, TPS65218_SEQ4_DC4_SEQ_MASK,
+			   NULL, 0),
+>>>>>>> upstream/android-13
 	TPS65218_REGULATOR("DCDC5", "regulator-dcdc5", TPS65218_DCDC_5,
 			   REGULATOR_VOLTAGE, tps65218_dcdc56_pmic_ops, 1, -1,
 			   -1, TPS65218_REG_ENABLE1, TPS65218_ENABLE1_DC5_EN, 0,
 			   0, NULL, 0, 0, 1000000, TPS65218_REG_SEQ5,
+<<<<<<< HEAD
 			   TPS65218_SEQ5_DC5_SEQ_MASK),
+=======
+			   TPS65218_SEQ5_DC5_SEQ_MASK, NULL, 0),
+>>>>>>> upstream/android-13
 	TPS65218_REGULATOR("DCDC6", "regulator-dcdc6", TPS65218_DCDC_6,
 			   REGULATOR_VOLTAGE, tps65218_dcdc56_pmic_ops, 1, -1,
 			   -1, TPS65218_REG_ENABLE1, TPS65218_ENABLE1_DC6_EN, 0,
 			   0, NULL, 0, 0, 1800000, TPS65218_REG_SEQ5,
+<<<<<<< HEAD
 			   TPS65218_SEQ5_DC6_SEQ_MASK),
+=======
+			   TPS65218_SEQ5_DC6_SEQ_MASK, NULL, 0),
+>>>>>>> upstream/android-13
 	TPS65218_REGULATOR("LDO1", "regulator-ldo1", TPS65218_LDO_1,
 			   REGULATOR_VOLTAGE, tps65218_ldo1_dcdc34_ops, 64,
 			   TPS65218_REG_CONTROL_LDO1,
 			   TPS65218_CONTROL_LDO1_MASK, TPS65218_REG_ENABLE2,
 			   TPS65218_ENABLE2_LDO1_EN, 0, 0, ldo1_dcdc3_ranges,
 			   2, 0, 0, TPS65218_REG_SEQ6,
+<<<<<<< HEAD
 			   TPS65218_SEQ6_LDO1_SEQ_MASK),
 	TPS65218_REGULATOR("LS3", "regulator-ls3", TPS65218_LS_3,
 			   REGULATOR_CURRENT, tps65218_ls3_ops, 0, 0, 0,
 			   TPS65218_REG_ENABLE2, TPS65218_ENABLE2_LS3_EN,
 			   TPS65218_REG_CONFIG2, TPS65218_CONFIG2_LS3ILIM_MASK,
 			   NULL, 0, 0, 0, 0, 0),
+=======
+			   TPS65218_SEQ6_LDO1_SEQ_MASK, NULL, 0),
+	TPS65218_REGULATOR("LS2", "regulator-ls2", TPS65218_LS_2,
+			   REGULATOR_CURRENT, tps65218_ls23_ops, 0, 0, 0,
+			   TPS65218_REG_ENABLE2, TPS65218_ENABLE2_LS2_EN,
+			   TPS65218_REG_CONFIG2, TPS65218_CONFIG2_LS2ILIM_MASK,
+			   NULL, 0, 0, 0, 0, 0, ls3_currents,
+			   ARRAY_SIZE(ls3_currents)),
+	TPS65218_REGULATOR("LS3", "regulator-ls3", TPS65218_LS_3,
+			   REGULATOR_CURRENT, tps65218_ls23_ops, 0, 0, 0,
+			   TPS65218_REG_ENABLE2, TPS65218_ENABLE2_LS3_EN,
+			   TPS65218_REG_CONFIG2, TPS65218_CONFIG2_LS3ILIM_MASK,
+			   NULL, 0, 0, 0, 0, 0, ls3_currents,
+			   ARRAY_SIZE(ls3_currents)),
+>>>>>>> upstream/android-13
 };
 
 static int tps65218_regulator_probe(struct platform_device *pdev)

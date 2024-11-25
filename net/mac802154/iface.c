@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2007-2012 Siemens AG
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2007-2012 Siemens AG
+ *
+>>>>>>> upstream/android-13
  * Written by:
  * Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
  * Sergey Lapin <slapin@ossfans.org>
@@ -625,7 +632,11 @@ ieee802154_if_add(struct ieee802154_local *local, const char *name,
 {
 	struct net_device *ndev = NULL;
 	struct ieee802154_sub_if_data *sdata = NULL;
+<<<<<<< HEAD
 	int ret = -ENOMEM;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	ASSERT_RTNL();
 

@@ -1,6 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # description: event trigger - test multiple histogram triggers
+<<<<<<< HEAD
 # flags: instance
 
 do_reset() {
@@ -11,10 +12,17 @@ do_reset() {
 
 fail() { #msg
     do_reset
+=======
+# requires: set_event events/sched/sched_process_fork/trigger events/sched/sched_process_fork/hist
+# flags: instance
+
+fail() { #msg
+>>>>>>> upstream/android-13
     echo $1
     exit_fail
 }
 
+<<<<<<< HEAD
 if [ ! -f set_event -o ! -d events/sched ]; then
     echo "event tracing is not supported"
     exit_unsupported
@@ -36,6 +44,9 @@ do_reset
 reset_trigger
 
 echo "Test histogram multiple tiggers"
+=======
+echo "Test histogram multiple triggers"
+>>>>>>> upstream/android-13
 
 echo 'hist:keys=parent_pid:vals=child_pid' > events/sched/sched_process_fork/trigger
 echo 'hist:keys=parent_comm:vals=child_pid' >> events/sched/sched_process_fork/trigger
@@ -67,8 +78,11 @@ grep test_hist events/sched/sched_process_exit/hist > /dev/null || \
 diffs=`diff events/sched/sched_process_exit/hist events/sched/sched_process_fork/hist | wc -l`
 test $diffs -eq 0 || fail "Same name histograms are not same"
 
+<<<<<<< HEAD
 reset_trigger
 
 do_reset
 
+=======
+>>>>>>> upstream/android-13
 exit 0

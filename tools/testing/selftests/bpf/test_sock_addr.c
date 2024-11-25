@@ -31,6 +31,13 @@
 #define CONNECT6_PROG_PATH	"./connect6_prog.o"
 #define SENDMSG4_PROG_PATH	"./sendmsg4_prog.o"
 #define SENDMSG6_PROG_PATH	"./sendmsg6_prog.o"
+<<<<<<< HEAD
+=======
+#define RECVMSG4_PROG_PATH	"./recvmsg4_prog.o"
+#define RECVMSG6_PROG_PATH	"./recvmsg6_prog.o"
+#define BIND4_PROG_PATH		"./bind4_prog.o"
+#define BIND6_PROG_PATH		"./bind6_prog.o"
+>>>>>>> upstream/android-13
 
 #define SERV4_IP		"192.168.1.254"
 #define SERV4_REWRITE_IP	"127.0.0.1"
@@ -76,6 +83,10 @@ struct sock_addr_test {
 	enum {
 		LOAD_REJECT,
 		ATTACH_REJECT,
+<<<<<<< HEAD
+=======
+		ATTACH_OKAY,
+>>>>>>> upstream/android-13
 		SYSCALL_EPERM,
 		SYSCALL_ENOTSUPP,
 		SUCCESS,
@@ -88,9 +99,19 @@ static int connect4_prog_load(const struct sock_addr_test *test);
 static int connect6_prog_load(const struct sock_addr_test *test);
 static int sendmsg_allow_prog_load(const struct sock_addr_test *test);
 static int sendmsg_deny_prog_load(const struct sock_addr_test *test);
+<<<<<<< HEAD
 static int sendmsg4_rw_asm_prog_load(const struct sock_addr_test *test);
 static int sendmsg4_rw_c_prog_load(const struct sock_addr_test *test);
 static int sendmsg6_rw_asm_prog_load(const struct sock_addr_test *test);
+=======
+static int recvmsg_allow_prog_load(const struct sock_addr_test *test);
+static int recvmsg_deny_prog_load(const struct sock_addr_test *test);
+static int sendmsg4_rw_asm_prog_load(const struct sock_addr_test *test);
+static int recvmsg4_rw_c_prog_load(const struct sock_addr_test *test);
+static int sendmsg4_rw_c_prog_load(const struct sock_addr_test *test);
+static int sendmsg6_rw_asm_prog_load(const struct sock_addr_test *test);
+static int recvmsg6_rw_c_prog_load(const struct sock_addr_test *test);
+>>>>>>> upstream/android-13
 static int sendmsg6_rw_c_prog_load(const struct sock_addr_test *test);
 static int sendmsg6_rw_v4mapped_prog_load(const struct sock_addr_test *test);
 static int sendmsg6_rw_wildcard_prog_load(const struct sock_addr_test *test);
@@ -507,6 +528,95 @@ static struct sock_addr_test tests[] = {
 		SRC6_REWRITE_IP,
 		SYSCALL_EPERM,
 	},
+<<<<<<< HEAD
+=======
+
+	/* recvmsg */
+	{
+		"recvmsg4: return code ok",
+		recvmsg_allow_prog_load,
+		BPF_CGROUP_UDP4_RECVMSG,
+		BPF_CGROUP_UDP4_RECVMSG,
+		AF_INET,
+		SOCK_DGRAM,
+		NULL,
+		0,
+		NULL,
+		0,
+		NULL,
+		ATTACH_OKAY,
+	},
+	{
+		"recvmsg4: return code !ok",
+		recvmsg_deny_prog_load,
+		BPF_CGROUP_UDP4_RECVMSG,
+		BPF_CGROUP_UDP4_RECVMSG,
+		AF_INET,
+		SOCK_DGRAM,
+		NULL,
+		0,
+		NULL,
+		0,
+		NULL,
+		LOAD_REJECT,
+	},
+	{
+		"recvmsg6: return code ok",
+		recvmsg_allow_prog_load,
+		BPF_CGROUP_UDP6_RECVMSG,
+		BPF_CGROUP_UDP6_RECVMSG,
+		AF_INET6,
+		SOCK_DGRAM,
+		NULL,
+		0,
+		NULL,
+		0,
+		NULL,
+		ATTACH_OKAY,
+	},
+	{
+		"recvmsg6: return code !ok",
+		recvmsg_deny_prog_load,
+		BPF_CGROUP_UDP6_RECVMSG,
+		BPF_CGROUP_UDP6_RECVMSG,
+		AF_INET6,
+		SOCK_DGRAM,
+		NULL,
+		0,
+		NULL,
+		0,
+		NULL,
+		LOAD_REJECT,
+	},
+	{
+		"recvmsg4: rewrite IP & port (C)",
+		recvmsg4_rw_c_prog_load,
+		BPF_CGROUP_UDP4_RECVMSG,
+		BPF_CGROUP_UDP4_RECVMSG,
+		AF_INET,
+		SOCK_DGRAM,
+		SERV4_REWRITE_IP,
+		SERV4_REWRITE_PORT,
+		SERV4_REWRITE_IP,
+		SERV4_REWRITE_PORT,
+		SERV4_IP,
+		SUCCESS,
+	},
+	{
+		"recvmsg6: rewrite IP & port (C)",
+		recvmsg6_rw_c_prog_load,
+		BPF_CGROUP_UDP6_RECVMSG,
+		BPF_CGROUP_UDP6_RECVMSG,
+		AF_INET6,
+		SOCK_DGRAM,
+		SERV6_REWRITE_IP,
+		SERV6_REWRITE_PORT,
+		SERV6_REWRITE_IP,
+		SERV6_REWRITE_PORT,
+		SERV6_IP,
+		SUCCESS,
+	},
+>>>>>>> upstream/android-13
 };
 
 static int mk_sockaddr(int domain, const char *ip, unsigned short port,
@@ -569,6 +679,7 @@ static int load_insns(const struct sock_addr_test *test,
 	return ret;
 }
 
+<<<<<<< HEAD
 /* [1] These testing programs try to read different context fields, including
  * narrow loads of different sizes from user_ip4 and user_ip6, and write to
  * those allowed to be overridden.
@@ -715,6 +826,8 @@ static int bind6_prog_load(const struct sock_addr_test *test)
 	return load_insns(test, insns, sizeof(insns) / sizeof(struct bpf_insn));
 }
 
+=======
+>>>>>>> upstream/android-13
 static int load_path(const struct sock_addr_test *test, const char *path)
 {
 	struct bpf_prog_load_attr attr;
@@ -725,6 +838,10 @@ static int load_path(const struct sock_addr_test *test, const char *path)
 	attr.file = path;
 	attr.prog_type = BPF_PROG_TYPE_CGROUP_SOCK_ADDR;
 	attr.expected_attach_type = test->expected_attach_type;
+<<<<<<< HEAD
+=======
+	attr.prog_flags = BPF_F_TEST_RND_HI32;
+>>>>>>> upstream/android-13
 
 	if (bpf_prog_load_xattr(&attr, &obj, &prog_fd)) {
 		if (test->expected_result != LOAD_REJECT)
@@ -735,6 +852,19 @@ static int load_path(const struct sock_addr_test *test, const char *path)
 	return prog_fd;
 }
 
+<<<<<<< HEAD
+=======
+static int bind4_prog_load(const struct sock_addr_test *test)
+{
+	return load_path(test, BIND4_PROG_PATH);
+}
+
+static int bind6_prog_load(const struct sock_addr_test *test)
+{
+	return load_path(test, BIND6_PROG_PATH);
+}
+
+>>>>>>> upstream/android-13
 static int connect4_prog_load(const struct sock_addr_test *test)
 {
 	return load_path(test, CONNECT4_PROG_PATH);
@@ -745,8 +875,13 @@ static int connect6_prog_load(const struct sock_addr_test *test)
 	return load_path(test, CONNECT6_PROG_PATH);
 }
 
+<<<<<<< HEAD
 static int sendmsg_ret_only_prog_load(const struct sock_addr_test *test,
 				      int32_t rc)
+=======
+static int xmsg_ret_only_prog_load(const struct sock_addr_test *test,
+				   int32_t rc)
+>>>>>>> upstream/android-13
 {
 	struct bpf_insn insns[] = {
 		/* return rc */
@@ -758,12 +893,30 @@ static int sendmsg_ret_only_prog_load(const struct sock_addr_test *test,
 
 static int sendmsg_allow_prog_load(const struct sock_addr_test *test)
 {
+<<<<<<< HEAD
 	return sendmsg_ret_only_prog_load(test, /*rc*/ 1);
+=======
+	return xmsg_ret_only_prog_load(test, /*rc*/ 1);
+>>>>>>> upstream/android-13
 }
 
 static int sendmsg_deny_prog_load(const struct sock_addr_test *test)
 {
+<<<<<<< HEAD
 	return sendmsg_ret_only_prog_load(test, /*rc*/ 0);
+=======
+	return xmsg_ret_only_prog_load(test, /*rc*/ 0);
+}
+
+static int recvmsg_allow_prog_load(const struct sock_addr_test *test)
+{
+	return xmsg_ret_only_prog_load(test, /*rc*/ 1);
+}
+
+static int recvmsg_deny_prog_load(const struct sock_addr_test *test)
+{
+	return xmsg_ret_only_prog_load(test, /*rc*/ 0);
+>>>>>>> upstream/android-13
 }
 
 static int sendmsg4_rw_asm_prog_load(const struct sock_addr_test *test)
@@ -818,6 +971,14 @@ static int sendmsg4_rw_asm_prog_load(const struct sock_addr_test *test)
 	return load_insns(test, insns, sizeof(insns) / sizeof(struct bpf_insn));
 }
 
+<<<<<<< HEAD
+=======
+static int recvmsg4_rw_c_prog_load(const struct sock_addr_test *test)
+{
+	return load_path(test, RECVMSG4_PROG_PATH);
+}
+
+>>>>>>> upstream/android-13
 static int sendmsg4_rw_c_prog_load(const struct sock_addr_test *test)
 {
 	return load_path(test, SENDMSG4_PROG_PATH);
@@ -881,6 +1042,14 @@ static int sendmsg6_rw_asm_prog_load(const struct sock_addr_test *test)
 	return sendmsg6_rw_dst_asm_prog_load(test, SERV6_REWRITE_IP);
 }
 
+<<<<<<< HEAD
+=======
+static int recvmsg6_rw_c_prog_load(const struct sock_addr_test *test)
+{
+	return load_path(test, RECVMSG6_PROG_PATH);
+}
+
+>>>>>>> upstream/android-13
 static int sendmsg6_rw_v4mapped_prog_load(const struct sock_addr_test *test)
 {
 	return sendmsg6_rw_dst_asm_prog_load(test, SERV6_V4MAPPED_IP);
@@ -1262,6 +1431,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int run_sendmsg_test_case(const struct sock_addr_test *test)
 {
 	socklen_t addr_len = sizeof(struct sockaddr_storage);
@@ -1269,6 +1439,15 @@ static int run_sendmsg_test_case(const struct sock_addr_test *test)
 	struct sockaddr_storage requested_addr;
 	struct sockaddr_storage expected_addr;
 	struct sockaddr_storage real_src_addr;
+=======
+static int run_xmsg_test_case(const struct sock_addr_test *test, int max_cmsg)
+{
+	socklen_t addr_len = sizeof(struct sockaddr_storage);
+	struct sockaddr_storage expected_addr;
+	struct sockaddr_storage server_addr;
+	struct sockaddr_storage sendmsg_addr;
+	struct sockaddr_storage recvmsg_addr;
+>>>>>>> upstream/android-13
 	int clientfd = -1;
 	int servfd = -1;
 	int set_cmsg;
@@ -1277,6 +1456,7 @@ static int run_sendmsg_test_case(const struct sock_addr_test *test)
 	if (test->type != SOCK_DGRAM)
 		goto err;
 
+<<<<<<< HEAD
 	if (init_addrs(test, &requested_addr, &expected_addr,
 		       &expected_src_addr))
 		goto err;
@@ -1291,6 +1471,21 @@ static int run_sendmsg_test_case(const struct sock_addr_test *test)
 			close(clientfd);
 
 		clientfd = sendmsg_to_server(test->type, &requested_addr,
+=======
+	if (init_addrs(test, &sendmsg_addr, &server_addr, &expected_addr))
+		goto err;
+
+	/* Prepare server to sendmsg to */
+	servfd = start_server(test->type, &server_addr, addr_len);
+	if (servfd == -1)
+		goto err;
+
+	for (set_cmsg = 0; set_cmsg <= max_cmsg; ++set_cmsg) {
+		if (clientfd >= 0)
+			close(clientfd);
+
+		clientfd = sendmsg_to_server(test->type, &sendmsg_addr,
+>>>>>>> upstream/android-13
 					     addr_len, set_cmsg, /*flags*/0,
 					     &err);
 		if (err)
@@ -1310,10 +1505,17 @@ static int run_sendmsg_test_case(const struct sock_addr_test *test)
 		 * specific packet may differ from the one used by default and
 		 * returned by getsockname(2).
 		 */
+<<<<<<< HEAD
 		if (recvmsg_from_client(servfd, &real_src_addr) == -1)
 			goto err;
 
 		if (cmp_addr(&real_src_addr, &expected_src_addr, /*cmp_port*/0))
+=======
+		if (recvmsg_from_client(servfd, &recvmsg_addr) == -1)
+			goto err;
+
+		if (cmp_addr(&recvmsg_addr, &expected_addr, /*cmp_port*/0))
+>>>>>>> upstream/android-13
 			goto err;
 	}
 
@@ -1346,6 +1548,12 @@ static int run_test_case(int cgfd, const struct sock_addr_test *test)
 		goto out;
 	} else if (test->expected_result == ATTACH_REJECT || err) {
 		goto err;
+<<<<<<< HEAD
+=======
+	} else if (test->expected_result == ATTACH_OKAY) {
+		err = 0;
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	switch (test->attach_type) {
@@ -1359,7 +1567,15 @@ static int run_test_case(int cgfd, const struct sock_addr_test *test)
 		break;
 	case BPF_CGROUP_UDP4_SENDMSG:
 	case BPF_CGROUP_UDP6_SENDMSG:
+<<<<<<< HEAD
 		err = run_sendmsg_test_case(test);
+=======
+		err = run_xmsg_test_case(test, 1);
+		break;
+	case BPF_CGROUP_UDP4_RECVMSG:
+	case BPF_CGROUP_UDP6_RECVMSG:
+		err = run_xmsg_test_case(test, 0);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		goto err;
@@ -1418,6 +1634,7 @@ int main(int argc, char **argv)
 		exit(err);
 	}
 
+<<<<<<< HEAD
 	if (setup_cgroup_environment())
 		goto err;
 
@@ -1426,6 +1643,10 @@ int main(int argc, char **argv)
 		goto err;
 
 	if (join_cgroup(CG_PATH))
+=======
+	cgfd = cgroup_setup_and_join(CG_PATH);
+	if (cgfd < 0)
+>>>>>>> upstream/android-13
 		goto err;
 
 	if (run_tests(cgfd))

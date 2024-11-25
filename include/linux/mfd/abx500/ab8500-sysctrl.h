@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) ST-Ericsson SA 2010
  * Author: Mattias Nilsson <mattias.i.nilsson@stericsson.com> for ST Ericsson.
  * License terms: GNU General Public License (GPL) version 2
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) ST-Ericsson SA 2010
+ * Author: Mattias Nilsson <mattias.i.nilsson@stericsson.com> for ST Ericsson.
+>>>>>>> upstream/android-13
  */
 #ifndef __AB8500_SYSCTRL_H
 #define __AB8500_SYSCTRL_H

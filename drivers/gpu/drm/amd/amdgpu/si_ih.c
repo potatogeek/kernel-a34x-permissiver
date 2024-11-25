@@ -20,11 +20,22 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include <linux/pci.h>
+
+>>>>>>> upstream/android-13
 #include "amdgpu.h"
 #include "amdgpu_ih.h"
 #include "sid.h"
 #include "si_ih.h"
+<<<<<<< HEAD
+=======
+#include "oss/oss_1_0_d.h"
+#include "oss/oss_1_0_sh_mask.h"
+>>>>>>> upstream/android-13
 
 static void si_ih_set_interrupt_funcs(struct amdgpu_device *adev);
 
@@ -39,7 +50,11 @@ static void si_ih_enable_interrupts(struct amdgpu_device *adev)
 	WREG32(IH_RB_CNTL, ih_rb_cntl);
 	adev->irq.ih.enabled = true;
 }
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> upstream/android-13
 static void si_ih_disable_interrupts(struct amdgpu_device *adev)
 {
 	u32 ih_rb_cntl = RREG32(IH_RB_CNTL);
@@ -57,9 +72,15 @@ static void si_ih_disable_interrupts(struct amdgpu_device *adev)
 
 static int si_ih_irq_init(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	int rb_bufsz;
 	u32 interrupt_cntl, ih_cntl, ih_rb_cntl;
 	u64 wptr_off;
+=======
+	struct amdgpu_ih_ring *ih = &adev->irq.ih;
+	int rb_bufsz;
+	u32 interrupt_cntl, ih_cntl, ih_rb_cntl;
+>>>>>>> upstream/android-13
 
 	si_ih_disable_interrupts(adev);
 	/* set dummy read address to dummy page address */
@@ -77,9 +98,14 @@ static int si_ih_irq_init(struct amdgpu_device *adev)
 		     (rb_bufsz << 1) |
 		     IH_WPTR_WRITEBACK_ENABLE;
 
+<<<<<<< HEAD
 	wptr_off = adev->wb.gpu_addr + (adev->irq.ih.wptr_offs * 4);
 	WREG32(IH_RB_WPTR_ADDR_LO, lower_32_bits(wptr_off));
 	WREG32(IH_RB_WPTR_ADDR_HI, upper_32_bits(wptr_off) & 0xFF);
+=======
+	WREG32(IH_RB_WPTR_ADDR_LO, lower_32_bits(ih->wptr_addr));
+	WREG32(IH_RB_WPTR_ADDR_HI, upper_32_bits(ih->wptr_addr) & 0xFF);
+>>>>>>> upstream/android-13
 	WREG32(IH_RB_CNTL, ih_rb_cntl);
 	WREG32(IH_RB_RPTR, 0);
 	WREG32(IH_RB_WPTR, 0);
@@ -101,21 +127,36 @@ static void si_ih_irq_disable(struct amdgpu_device *adev)
 	mdelay(1);
 }
 
+<<<<<<< HEAD
 static u32 si_ih_get_wptr(struct amdgpu_device *adev)
 {
 	u32 wptr, tmp;
 
 	wptr = le32_to_cpu(adev->wb.wb[adev->irq.ih.wptr_offs]);
+=======
+static u32 si_ih_get_wptr(struct amdgpu_device *adev,
+			  struct amdgpu_ih_ring *ih)
+{
+	u32 wptr, tmp;
+
+	wptr = le32_to_cpu(*ih->wptr_cpu);
+>>>>>>> upstream/android-13
 
 	if (wptr & IH_RB_WPTR__RB_OVERFLOW_MASK) {
 		wptr &= ~IH_RB_WPTR__RB_OVERFLOW_MASK;
 		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+<<<<<<< HEAD
 			wptr, adev->irq.ih.rptr, (wptr + 16) & adev->irq.ih.ptr_mask);
 		adev->irq.ih.rptr = (wptr + 16) & adev->irq.ih.ptr_mask;
+=======
+			wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+		ih->rptr = (wptr + 16) & ih->ptr_mask;
+>>>>>>> upstream/android-13
 		tmp = RREG32(IH_RB_CNTL);
 		tmp |= IH_RB_CNTL__WPTR_OVERFLOW_CLEAR_MASK;
 		WREG32(IH_RB_CNTL, tmp);
 	}
+<<<<<<< HEAD
 	return (wptr & adev->irq.ih.ptr_mask);
 }
 
@@ -144,17 +185,45 @@ static void si_ih_decode_iv(struct amdgpu_device *adev,
 	dw[3] = le32_to_cpu(adev->irq.ih.ring[ring_index + 3]);
 
 	entry->client_id = AMDGPU_IH_CLIENTID_LEGACY;
+=======
+	return (wptr & ih->ptr_mask);
+}
+
+static void si_ih_decode_iv(struct amdgpu_device *adev,
+			    struct amdgpu_ih_ring *ih,
+			    struct amdgpu_iv_entry *entry)
+{
+	u32 ring_index = ih->rptr >> 2;
+	uint32_t dw[4];
+
+	dw[0] = le32_to_cpu(ih->ring[ring_index + 0]);
+	dw[1] = le32_to_cpu(ih->ring[ring_index + 1]);
+	dw[2] = le32_to_cpu(ih->ring[ring_index + 2]);
+	dw[3] = le32_to_cpu(ih->ring[ring_index + 3]);
+
+	entry->client_id = AMDGPU_IRQ_CLIENTID_LEGACY;
+>>>>>>> upstream/android-13
 	entry->src_id = dw[0] & 0xff;
 	entry->src_data[0] = dw[1] & 0xfffffff;
 	entry->ring_id = dw[2] & 0xff;
 	entry->vmid = (dw[2] >> 8) & 0xff;
 
+<<<<<<< HEAD
 	adev->irq.ih.rptr += 16;
 }
 
 static void si_ih_set_rptr(struct amdgpu_device *adev)
 {
 	WREG32(IH_RB_RPTR, adev->irq.ih.rptr);
+=======
+	ih->rptr += 16;
+}
+
+static void si_ih_set_rptr(struct amdgpu_device *adev,
+			   struct amdgpu_ih_ring *ih)
+{
+	WREG32(IH_RB_RPTR, ih->rptr);
+>>>>>>> upstream/android-13
 }
 
 static int si_ih_early_init(void *handle)
@@ -171,7 +240,11 @@ static int si_ih_sw_init(void *handle)
 	int r;
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
+<<<<<<< HEAD
 	r = amdgpu_ih_ring_init(adev, 64 * 1024, false);
+=======
+	r = amdgpu_ih_ring_init(adev, &adev->irq.ih, 64 * 1024, false);
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
@@ -182,8 +255,12 @@ static int si_ih_sw_fini(void *handle)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
 
+<<<<<<< HEAD
 	amdgpu_irq_fini(adev);
 	amdgpu_ih_ring_fini(adev);
+=======
+	amdgpu_irq_fini_sw(adev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -302,15 +379,22 @@ static const struct amd_ip_funcs si_ih_ip_funcs = {
 
 static const struct amdgpu_ih_funcs si_ih_funcs = {
 	.get_wptr = si_ih_get_wptr,
+<<<<<<< HEAD
 	.prescreen_iv = si_ih_prescreen_iv,
+=======
+>>>>>>> upstream/android-13
 	.decode_iv = si_ih_decode_iv,
 	.set_rptr = si_ih_set_rptr
 };
 
 static void si_ih_set_interrupt_funcs(struct amdgpu_device *adev)
 {
+<<<<<<< HEAD
 	if (adev->irq.ih_funcs == NULL)
 		adev->irq.ih_funcs = &si_ih_funcs;
+=======
+	adev->irq.ih_funcs = &si_ih_funcs;
+>>>>>>> upstream/android-13
 }
 
 const struct amdgpu_ip_block_version si_ih_ip_block =

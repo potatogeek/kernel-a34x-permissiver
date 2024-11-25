@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  c 2001 PPC 64 Team, IBM Corp
  *
@@ -9,6 +10,13 @@
  * /dev/nvram driver for PPC64
  *
  * This perhaps should live in drivers/char
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  c 2001 PPC 64 Team, IBM Corp
+ *
+ * /dev/nvram driver for PPC64
+>>>>>>> upstream/android-13
  */
 
 

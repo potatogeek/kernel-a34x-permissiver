@@ -23,7 +23,11 @@
 # Makefile for the color sub-module of DAL.
 #
 
+<<<<<<< HEAD
 MOD_COLOR = color_gamma.o
+=======
+MOD_COLOR = color_gamma.o color_table.o
+>>>>>>> upstream/android-13
 
 AMD_DAL_MOD_COLOR = $(addprefix $(AMDDALPATH)/modules/color/,$(MOD_COLOR))
 #$(info ************  DAL COLOR MODULE MAKEFILE ************)

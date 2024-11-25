@@ -86,6 +86,7 @@ sys32_rt_sigreturn:
 	 * during system calls...
 	 */
 	.align	32
+<<<<<<< HEAD
 sys_vfork: /* Under Linux, vfork and fork are just special cases of clone. */
 	sethi	%hi(0x4000 | 0x0100 | SIGCHLD), %o0
 	or	%o0, %lo(0x4000 | 0x0100 | SIGCHLD), %o0
@@ -99,6 +100,24 @@ sys_clone:
 	mov	0, %o3
 	ba,pt	%xcc, sparc_do_fork
 	 add	%sp, PTREGS_OFF, %o2
+=======
+sys_vfork:
+	flushw
+	ba,pt	%xcc, sparc_vfork
+	 add	%sp, PTREGS_OFF, %o0
+
+	.align	32
+sys_fork:
+	flushw
+	ba,pt	%xcc, sparc_fork
+	 add	%sp, PTREGS_OFF, %o0
+
+	.align	32
+sys_clone:
+	flushw
+	ba,pt	%xcc, sparc_clone
+	 add	%sp, PTREGS_OFF, %o0
+>>>>>>> upstream/android-13
 
 	.globl	ret_from_fork
 ret_from_fork:

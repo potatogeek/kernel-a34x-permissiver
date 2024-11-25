@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***************************************************************************
  *   Copyright (C) 2010-2012 Hans de Goede <hdegoede@redhat.com>           *
  *                                                                         *
@@ -15,6 +16,12 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/***************************************************************************
+ *   Copyright (C) 2010-2012 Hans de Goede <hdegoede@redhat.com>           *
+ *                                                                         *
+>>>>>>> upstream/android-13
  ***************************************************************************/
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -33,8 +40,13 @@
 #include "sch56xx-common.h"
 
 /* Insmod parameters */
+<<<<<<< HEAD
 static int nowayout = WATCHDOG_NOWAYOUT;
 module_param(nowayout, int, 0);
+=======
+static bool nowayout = WATCHDOG_NOWAYOUT;
+module_param(nowayout, bool, 0);
+>>>>>>> upstream/android-13
 MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
 	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 
@@ -391,8 +403,13 @@ static const struct watchdog_ops watchdog_ops = {
 	.set_timeout	= watchdog_set_timeout,
 };
 
+<<<<<<< HEAD
 struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
 	u16 addr, u32 revision, struct mutex *io_lock, int check_enabled)
+=======
+void sch56xx_watchdog_register(struct device *parent, u16 addr, u32 revision,
+			       struct mutex *io_lock, int check_enabled)
+>>>>>>> upstream/android-13
 {
 	struct sch56xx_watchdog_data *data;
 	int err, control, output_enable;
@@ -406,6 +423,7 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
 	mutex_unlock(io_lock);
 
 	if (control < 0)
+<<<<<<< HEAD
 		return NULL;
 	if (output_enable < 0)
 		return NULL;
@@ -417,12 +435,29 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
 	data = kzalloc(sizeof(struct sch56xx_watchdog_data), GFP_KERNEL);
 	if (!data)
 		return NULL;
+=======
+		return;
+	if (output_enable < 0)
+		return;
+	if (check_enabled && !(output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)) {
+		pr_warn("Watchdog not enabled by BIOS, not registering\n");
+		return;
+	}
+
+	data = devm_kzalloc(parent, sizeof(struct sch56xx_watchdog_data), GFP_KERNEL);
+	if (!data)
+		return;
+>>>>>>> upstream/android-13
 
 	data->addr = addr;
 	data->io_lock = io_lock;
 
+<<<<<<< HEAD
 	strlcpy(data->wdinfo.identity, "sch56xx watchdog",
 		sizeof(data->wdinfo.identity));
+=======
+	strscpy(data->wdinfo.identity, "sch56xx watchdog", sizeof(data->wdinfo.identity));
+>>>>>>> upstream/android-13
 	data->wdinfo.firmware_version = revision;
 	data->wdinfo.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT;
 	if (!nowayout)
@@ -434,10 +469,16 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
 	data->wddev.timeout = 60;
 	data->wddev.min_timeout = 1;
 	data->wddev.max_timeout = 255 * 60;
+<<<<<<< HEAD
 	if (nowayout)
 		set_bit(WDOG_NO_WAY_OUT, &data->wddev.status);
 	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
 		set_bit(WDOG_ACTIVE, &data->wddev.status);
+=======
+	watchdog_set_nowayout(&data->wddev, nowayout);
+	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
+		set_bit(WDOG_HW_RUNNING, &data->wddev.status);
+>>>>>>> upstream/android-13
 
 	/* Since the watchdog uses a downcounter there is no register to read
 	   the BIOS set timeout from (if any was set at all) ->
@@ -451,6 +492,7 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
 	data->watchdog_output_enable = output_enable;
 
 	watchdog_set_drvdata(&data->wddev, data);
+<<<<<<< HEAD
 	err = watchdog_register_device(&data->wddev);
 	if (err) {
 		pr_err("Registering watchdog chardev: %d\n", err);
@@ -469,6 +511,16 @@ void sch56xx_watchdog_unregister(struct sch56xx_watchdog_data *data)
 }
 EXPORT_SYMBOL(sch56xx_watchdog_unregister);
 
+=======
+	err = devm_watchdog_register_device(parent, &data->wddev);
+	if (err) {
+		pr_err("Registering watchdog chardev: %d\n", err);
+		devm_kfree(parent, data);
+	}
+}
+EXPORT_SYMBOL(sch56xx_watchdog_register);
+
+>>>>>>> upstream/android-13
 /*
  * platform dev find, add and remove functions
  */
@@ -529,10 +581,15 @@ static int __init sch56xx_device_add(int address, const char *name)
 	struct resource res = {
 		.start	= address,
 		.end	= address + REGION_LENGTH - 1,
+<<<<<<< HEAD
+=======
+		.name	= name,
+>>>>>>> upstream/android-13
 		.flags	= IORESOURCE_IO,
 	};
 	int err;
 
+<<<<<<< HEAD
 	sch56xx_pdev = platform_device_alloc(name, address);
 	if (!sch56xx_pdev)
 		return -ENOMEM;
@@ -560,6 +617,15 @@ exit_device_put:
 	platform_device_put(sch56xx_pdev);
 
 	return err;
+=======
+	err = acpi_check_resource_conflict(&res);
+	if (err)
+		return err;
+
+	sch56xx_pdev = platform_device_register_simple(name, -1, &res, 1);
+
+	return PTR_ERR_OR_ZERO(sch56xx_pdev);
+>>>>>>> upstream/android-13
 }
 
 static int __init sch56xx_init(void)

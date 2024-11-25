@@ -10,6 +10,10 @@
 #include <linux/audit.h>
 #include <linux/slab.h>
 #include <linux/tty.h>
+<<<<<<< HEAD
+=======
+#include "tty.h"
+>>>>>>> upstream/android-13
 
 struct tty_audit_buf {
 	struct mutex mutex;	/* Protects all data below */
@@ -61,6 +65,7 @@ static void tty_audit_log(const char *description, dev_t dev,
 			  unsigned char *data, size_t size)
 {
 	struct audit_buffer *ab;
+<<<<<<< HEAD
 	struct task_struct *tsk = current;
 	pid_t pid = task_pid_nr(tsk);
 	uid_t uid = from_kuid(&init_user_ns, task_uid(tsk));
@@ -70,11 +75,25 @@ static void tty_audit_log(const char *description, dev_t dev,
 	ab = audit_log_start(NULL, GFP_KERNEL, AUDIT_TTY);
 	if (ab) {
 		char name[sizeof(tsk->comm)];
+=======
+	pid_t pid = task_pid_nr(current);
+	uid_t uid = from_kuid(&init_user_ns, task_uid(current));
+	uid_t loginuid = from_kuid(&init_user_ns, audit_get_loginuid(current));
+	unsigned int sessionid = audit_get_sessionid(current);
+
+	ab = audit_log_start(audit_context(), GFP_KERNEL, AUDIT_TTY);
+	if (ab) {
+		char name[sizeof(current->comm)];
+>>>>>>> upstream/android-13
 
 		audit_log_format(ab, "%s pid=%u uid=%u auid=%u ses=%u major=%d"
 				 " minor=%d comm=", description, pid, uid,
 				 loginuid, sessionid, MAJOR(dev), MINOR(dev));
+<<<<<<< HEAD
 		get_task_comm(name, tsk);
+=======
+		get_task_comm(name, current);
+>>>>>>> upstream/android-13
 		audit_log_untrustedstring(ab, name);
 		audit_log_format(ab, " data=");
 		audit_log_n_hex(ab, data, size);
@@ -82,7 +101,11 @@ static void tty_audit_log(const char *description, dev_t dev,
 	}
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	tty_audit_buf_push	-	Push buffered data out
  *
  *	Generate an audit message from the contents of @buf, which is owned by
@@ -121,7 +144,11 @@ void tty_audit_exit(void)
 	tty_audit_buf_free(buf);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	tty_audit_fork	-	Copy TTY audit state for a new task
  *
  *	Set up TTY audit state in @sig from current.  @sig needs no locking.
@@ -131,7 +158,11 @@ void tty_audit_fork(struct signal_struct *sig)
 	sig->audit_tty = current->signal->audit_tty;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	tty_audit_tiocsti	-	Log TIOCSTI
  */
 void tty_audit_tiocsti(struct tty_struct *tty, char ch)
@@ -146,7 +177,11 @@ void tty_audit_tiocsti(struct tty_struct *tty, char ch)
 		tty_audit_log("ioctl=TIOCSTI", dev, &ch, 1);
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	tty_audit_push	-	Flush current's pending audit data
  *
  *	Returns 0 if success, -EPERM if tty audit is disabled
@@ -167,7 +202,11 @@ int tty_audit_push(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	tty_audit_buf_get	-	Get an audit buffer.
  *
  *	Get an audit buffer, allocate it if necessary.  Return %NULL
@@ -194,7 +233,11 @@ static struct tty_audit_buf *tty_audit_buf_get(void)
 	return tty_audit_buf_ref();
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  *	tty_audit_add_data	-	Add data for TTY auditing.
  *
  *	Audit @data of @size from @tty, if necessary.

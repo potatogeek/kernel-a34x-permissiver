@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) Alan Cox GW4PTS (alan@lxorguk.ukuu.org.uk)
  * Copyright (C) Jonathan Naylor G4KLX (g4klx@g4klx.demon.co.uk)
@@ -359,7 +364,11 @@ static int ax25_rcv(struct sk_buff *skb, struct net_device *dev,
 
 		make->sk_state = TCP_ESTABLISHED;
 
+<<<<<<< HEAD
 		sk->sk_ack_backlog++;
+=======
+		sk_acceptq_added(sk);
+>>>>>>> upstream/android-13
 		bh_unlock_sock(sk);
 	} else {
 		if (!mine)

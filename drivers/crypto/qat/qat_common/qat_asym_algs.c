@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -45,6 +46,10 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+=======
+// SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <crypto/internal/rsa.h>
 #include <crypto/internal/akcipher.h>
@@ -246,12 +251,16 @@ static unsigned long qat_dh_fn_id(unsigned int len, bool g2)
 		return g2 ? PKE_DH_G2_4096 : PKE_DH_4096;
 	default:
 		return 0;
+<<<<<<< HEAD
 	};
 }
 
 static inline struct qat_dh_ctx *qat_dh_get_params(struct crypto_kpp *tfm)
 {
 	return kpp_tfm_ctx(tfm);
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static int qat_dh_compute_value(struct kpp_request *req)
@@ -332,10 +341,17 @@ static int qat_dh_compute_value(struct kpp_request *req)
 		} else {
 			int shift = ctx->p_size - req->src_len;
 
+<<<<<<< HEAD
 			qat_req->src_align = dma_zalloc_coherent(dev,
 								 ctx->p_size,
 								 &qat_req->in.dh.in.b,
 								 GFP_KERNEL);
+=======
+			qat_req->src_align = dma_alloc_coherent(dev,
+								ctx->p_size,
+								&qat_req->in.dh.in.b,
+								GFP_KERNEL);
+>>>>>>> upstream/android-13
 			if (unlikely(!qat_req->src_align))
 				return ret;
 
@@ -360,9 +376,15 @@ static int qat_dh_compute_value(struct kpp_request *req)
 			goto unmap_src;
 
 	} else {
+<<<<<<< HEAD
 		qat_req->dst_align = dma_zalloc_coherent(dev, ctx->p_size,
 							 &qat_req->out.dh.r,
 							 GFP_KERNEL);
+=======
+		qat_req->dst_align = dma_alloc_coherent(dev, ctx->p_size,
+							&qat_req->out.dh.r,
+							GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (unlikely(!qat_req->dst_align))
 			goto unmap_src;
 	}
@@ -371,25 +393,41 @@ static int qat_dh_compute_value(struct kpp_request *req)
 	qat_req->out.dh.out_tab[1] = 0;
 	/* Mapping in.in.b or in.in_g2.xa is the same */
 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.dh.in.b,
+<<<<<<< HEAD
 					 sizeof(struct qat_dh_input_params),
+=======
+					 sizeof(qat_req->in.dh.in.b),
+>>>>>>> upstream/android-13
 					 DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
 		goto unmap_dst;
 
 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.dh.r,
+<<<<<<< HEAD
 					  sizeof(struct qat_dh_output_params),
+=======
+					  sizeof(qat_req->out.dh.r),
+>>>>>>> upstream/android-13
 					  DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
 		goto unmap_in_params;
 
 	msg->pke_mid.src_data_addr = qat_req->phy_in;
 	msg->pke_mid.dest_data_addr = qat_req->phy_out;
+<<<<<<< HEAD
 	msg->pke_mid.opaque = (uint64_t)(__force long)qat_req;
+=======
+	msg->pke_mid.opaque = (u64)(__force long)qat_req;
+>>>>>>> upstream/android-13
 	msg->input_param_count = n_input_params;
 	msg->output_param_count = 1;
 
 	do {
+<<<<<<< HEAD
 		ret = adf_send_message(ctx->inst->pke_tx, (uint32_t *)msg);
+=======
+		ret = adf_send_message(ctx->inst->pke_tx, (u32 *)msg);
+>>>>>>> upstream/android-13
 	} while (ret == -EBUSY && ctr++ < 100);
 
 	if (!ret)
@@ -447,7 +485,11 @@ static int qat_dh_set_params(struct qat_dh_ctx *ctx, struct dh *params)
 		return -EINVAL;
 
 	ctx->p_size = params->p_size;
+<<<<<<< HEAD
 	ctx->p = dma_zalloc_coherent(dev, ctx->p_size, &ctx->dma_p, GFP_KERNEL);
+=======
+	ctx->p = dma_alloc_coherent(dev, ctx->p_size, &ctx->dma_p, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->p)
 		return -ENOMEM;
 	memcpy(ctx->p, params->p, ctx->p_size);
@@ -458,7 +500,11 @@ static int qat_dh_set_params(struct qat_dh_ctx *ctx, struct dh *params)
 		return 0;
 	}
 
+<<<<<<< HEAD
 	ctx->g = dma_zalloc_coherent(dev, ctx->p_size, &ctx->dma_g, GFP_KERNEL);
+=======
+	ctx->g = dma_alloc_coherent(dev, ctx->p_size, &ctx->dma_g, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->g)
 		return -ENOMEM;
 	memcpy(ctx->g + (ctx->p_size - params->g_size), params->g,
@@ -503,8 +549,13 @@ static int qat_dh_set_secret(struct crypto_kpp *tfm, const void *buf,
 	if (ret < 0)
 		goto err_clear_ctx;
 
+<<<<<<< HEAD
 	ctx->xa = dma_zalloc_coherent(dev, ctx->p_size, &ctx->dma_xa,
 				      GFP_KERNEL);
+=======
+	ctx->xa = dma_alloc_coherent(dev, ctx->p_size, &ctx->dma_xa,
+				     GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->xa) {
 		ret = -ENOMEM;
 		goto err_clear_ctx;
@@ -622,7 +673,11 @@ static unsigned long qat_rsa_enc_fn_id(unsigned int len)
 		return PKE_RSA_EP_4096;
 	default:
 		return 0;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 #define PKE_RSA_DP1_512 0x1c161b3c
@@ -651,7 +706,11 @@ static unsigned long qat_rsa_dec_fn_id(unsigned int len)
 		return PKE_RSA_DP1_4096;
 	default:
 		return 0;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 #define PKE_RSA_DP2_512 0x1c131b57
@@ -680,7 +739,11 @@ static unsigned long qat_rsa_dec_fn_id_crt(unsigned int len)
 		return PKE_RSA_DP2_4096;
 	default:
 		return 0;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 static int qat_rsa_enc(struct akcipher_request *req)
@@ -737,9 +800,15 @@ static int qat_rsa_enc(struct akcipher_request *req)
 	} else {
 		int shift = ctx->key_sz - req->src_len;
 
+<<<<<<< HEAD
 		qat_req->src_align = dma_zalloc_coherent(dev, ctx->key_sz,
 							 &qat_req->in.rsa.enc.m,
 							 GFP_KERNEL);
+=======
+		qat_req->src_align = dma_alloc_coherent(dev, ctx->key_sz,
+							&qat_req->in.rsa.enc.m,
+							GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (unlikely(!qat_req->src_align))
 			return ret;
 
@@ -756,9 +825,15 @@ static int qat_rsa_enc(struct akcipher_request *req)
 			goto unmap_src;
 
 	} else {
+<<<<<<< HEAD
 		qat_req->dst_align = dma_zalloc_coherent(dev, ctx->key_sz,
 							 &qat_req->out.rsa.enc.c,
 							 GFP_KERNEL);
+=======
+		qat_req->dst_align = dma_alloc_coherent(dev, ctx->key_sz,
+							&qat_req->out.rsa.enc.c,
+							GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (unlikely(!qat_req->dst_align))
 			goto unmap_src;
 
@@ -766,24 +841,40 @@ static int qat_rsa_enc(struct akcipher_request *req)
 	qat_req->in.rsa.in_tab[3] = 0;
 	qat_req->out.rsa.out_tab[1] = 0;
 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.enc.m,
+<<<<<<< HEAD
 					 sizeof(struct qat_rsa_input_params),
+=======
+					 sizeof(qat_req->in.rsa.enc.m),
+>>>>>>> upstream/android-13
 					 DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
 		goto unmap_dst;
 
 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.enc.c,
+<<<<<<< HEAD
 					  sizeof(struct qat_rsa_output_params),
+=======
+					  sizeof(qat_req->out.rsa.enc.c),
+>>>>>>> upstream/android-13
 					  DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
 		goto unmap_in_params;
 
 	msg->pke_mid.src_data_addr = qat_req->phy_in;
 	msg->pke_mid.dest_data_addr = qat_req->phy_out;
+<<<<<<< HEAD
 	msg->pke_mid.opaque = (uint64_t)(__force long)qat_req;
 	msg->input_param_count = 3;
 	msg->output_param_count = 1;
 	do {
 		ret = adf_send_message(ctx->inst->pke_tx, (uint32_t *)msg);
+=======
+	msg->pke_mid.opaque = (u64)(__force long)qat_req;
+	msg->input_param_count = 3;
+	msg->output_param_count = 1;
+	do {
+		ret = adf_send_message(ctx->inst->pke_tx, (u32 *)msg);
+>>>>>>> upstream/android-13
 	} while (ret == -EBUSY && ctr++ < 100);
 
 	if (!ret)
@@ -881,9 +972,15 @@ static int qat_rsa_dec(struct akcipher_request *req)
 	} else {
 		int shift = ctx->key_sz - req->src_len;
 
+<<<<<<< HEAD
 		qat_req->src_align = dma_zalloc_coherent(dev, ctx->key_sz,
 							 &qat_req->in.rsa.dec.c,
 							 GFP_KERNEL);
+=======
+		qat_req->src_align = dma_alloc_coherent(dev, ctx->key_sz,
+							&qat_req->in.rsa.dec.c,
+							GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (unlikely(!qat_req->src_align))
 			return ret;
 
@@ -900,9 +997,15 @@ static int qat_rsa_dec(struct akcipher_request *req)
 			goto unmap_src;
 
 	} else {
+<<<<<<< HEAD
 		qat_req->dst_align = dma_zalloc_coherent(dev, ctx->key_sz,
 							 &qat_req->out.rsa.dec.m,
 							 GFP_KERNEL);
+=======
+		qat_req->dst_align = dma_alloc_coherent(dev, ctx->key_sz,
+							&qat_req->out.rsa.dec.m,
+							GFP_KERNEL);
+>>>>>>> upstream/android-13
 		if (unlikely(!qat_req->dst_align))
 			goto unmap_src;
 
@@ -914,20 +1017,32 @@ static int qat_rsa_dec(struct akcipher_request *req)
 		qat_req->in.rsa.in_tab[3] = 0;
 	qat_req->out.rsa.out_tab[1] = 0;
 	qat_req->phy_in = dma_map_single(dev, &qat_req->in.rsa.dec.c,
+<<<<<<< HEAD
 					 sizeof(struct qat_rsa_input_params),
+=======
+					 sizeof(qat_req->in.rsa.dec.c),
+>>>>>>> upstream/android-13
 					 DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev, qat_req->phy_in)))
 		goto unmap_dst;
 
 	qat_req->phy_out = dma_map_single(dev, &qat_req->out.rsa.dec.m,
+<<<<<<< HEAD
 					  sizeof(struct qat_rsa_output_params),
+=======
+					  sizeof(qat_req->out.rsa.dec.m),
+>>>>>>> upstream/android-13
 					  DMA_TO_DEVICE);
 	if (unlikely(dma_mapping_error(dev, qat_req->phy_out)))
 		goto unmap_in_params;
 
 	msg->pke_mid.src_data_addr = qat_req->phy_in;
 	msg->pke_mid.dest_data_addr = qat_req->phy_out;
+<<<<<<< HEAD
 	msg->pke_mid.opaque = (uint64_t)(__force long)qat_req;
+=======
+	msg->pke_mid.opaque = (u64)(__force long)qat_req;
+>>>>>>> upstream/android-13
 	if (ctx->crt_mode)
 		msg->input_param_count = 6;
 	else
@@ -935,7 +1050,11 @@ static int qat_rsa_dec(struct akcipher_request *req)
 
 	msg->output_param_count = 1;
 	do {
+<<<<<<< HEAD
 		ret = adf_send_message(ctx->inst->pke_tx, (uint32_t *)msg);
+=======
+		ret = adf_send_message(ctx->inst->pke_tx, (u32 *)msg);
+>>>>>>> upstream/android-13
 	} while (ret == -EBUSY && ctr++ < 100);
 
 	if (!ret)
@@ -989,7 +1108,11 @@ static int qat_rsa_set_n(struct qat_rsa_ctx *ctx, const char *value,
 		goto err;
 
 	ret = -ENOMEM;
+<<<<<<< HEAD
 	ctx->n = dma_zalloc_coherent(dev, ctx->key_sz, &ctx->dma_n, GFP_KERNEL);
+=======
+	ctx->n = dma_alloc_coherent(dev, ctx->key_sz, &ctx->dma_n, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->n)
 		goto err;
 
@@ -1018,7 +1141,11 @@ static int qat_rsa_set_e(struct qat_rsa_ctx *ctx, const char *value,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	ctx->e = dma_zalloc_coherent(dev, ctx->key_sz, &ctx->dma_e, GFP_KERNEL);
+=======
+	ctx->e = dma_alloc_coherent(dev, ctx->key_sz, &ctx->dma_e, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->e)
 		return -ENOMEM;
 
@@ -1044,7 +1171,11 @@ static int qat_rsa_set_d(struct qat_rsa_ctx *ctx, const char *value,
 		goto err;
 
 	ret = -ENOMEM;
+<<<<<<< HEAD
 	ctx->d = dma_zalloc_coherent(dev, ctx->key_sz, &ctx->dma_d, GFP_KERNEL);
+=======
+	ctx->d = dma_alloc_coherent(dev, ctx->key_sz, &ctx->dma_d, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->d)
 		goto err;
 
@@ -1077,7 +1208,11 @@ static void qat_rsa_setkey_crt(struct qat_rsa_ctx *ctx, struct rsa_key *rsa_key)
 	qat_rsa_drop_leading_zeros(&ptr, &len);
 	if (!len)
 		goto err;
+<<<<<<< HEAD
 	ctx->p = dma_zalloc_coherent(dev, half_key_sz, &ctx->dma_p, GFP_KERNEL);
+=======
+	ctx->p = dma_alloc_coherent(dev, half_key_sz, &ctx->dma_p, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->p)
 		goto err;
 	memcpy(ctx->p + (half_key_sz - len), ptr, len);
@@ -1088,7 +1223,11 @@ static void qat_rsa_setkey_crt(struct qat_rsa_ctx *ctx, struct rsa_key *rsa_key)
 	qat_rsa_drop_leading_zeros(&ptr, &len);
 	if (!len)
 		goto free_p;
+<<<<<<< HEAD
 	ctx->q = dma_zalloc_coherent(dev, half_key_sz, &ctx->dma_q, GFP_KERNEL);
+=======
+	ctx->q = dma_alloc_coherent(dev, half_key_sz, &ctx->dma_q, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->q)
 		goto free_p;
 	memcpy(ctx->q + (half_key_sz - len), ptr, len);
@@ -1099,8 +1238,13 @@ static void qat_rsa_setkey_crt(struct qat_rsa_ctx *ctx, struct rsa_key *rsa_key)
 	qat_rsa_drop_leading_zeros(&ptr, &len);
 	if (!len)
 		goto free_q;
+<<<<<<< HEAD
 	ctx->dp = dma_zalloc_coherent(dev, half_key_sz, &ctx->dma_dp,
 				      GFP_KERNEL);
+=======
+	ctx->dp = dma_alloc_coherent(dev, half_key_sz, &ctx->dma_dp,
+				     GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->dp)
 		goto free_q;
 	memcpy(ctx->dp + (half_key_sz - len), ptr, len);
@@ -1111,8 +1255,13 @@ static void qat_rsa_setkey_crt(struct qat_rsa_ctx *ctx, struct rsa_key *rsa_key)
 	qat_rsa_drop_leading_zeros(&ptr, &len);
 	if (!len)
 		goto free_dp;
+<<<<<<< HEAD
 	ctx->dq = dma_zalloc_coherent(dev, half_key_sz, &ctx->dma_dq,
 				      GFP_KERNEL);
+=======
+	ctx->dq = dma_alloc_coherent(dev, half_key_sz, &ctx->dma_dq,
+				     GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->dq)
 		goto free_dp;
 	memcpy(ctx->dq + (half_key_sz - len), ptr, len);
@@ -1123,8 +1272,13 @@ static void qat_rsa_setkey_crt(struct qat_rsa_ctx *ctx, struct rsa_key *rsa_key)
 	qat_rsa_drop_leading_zeros(&ptr, &len);
 	if (!len)
 		goto free_dq;
+<<<<<<< HEAD
 	ctx->qinv = dma_zalloc_coherent(dev, half_key_sz, &ctx->dma_qinv,
 					GFP_KERNEL);
+=======
+	ctx->qinv = dma_alloc_coherent(dev, half_key_sz, &ctx->dma_qinv,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctx->qinv)
 		goto free_dq;
 	memcpy(ctx->qinv + (half_key_sz - len), ptr, len);
@@ -1300,8 +1454,11 @@ static void qat_rsa_exit_tfm(struct crypto_akcipher *tfm)
 static struct akcipher_alg rsa = {
 	.encrypt = qat_rsa_enc,
 	.decrypt = qat_rsa_dec,
+<<<<<<< HEAD
 	.sign = qat_rsa_dec,
 	.verify = qat_rsa_enc,
+=======
+>>>>>>> upstream/android-13
 	.set_pub_key = qat_rsa_setpubkey,
 	.set_priv_key = qat_rsa_setprivkey,
 	.max_size = qat_rsa_max_size,

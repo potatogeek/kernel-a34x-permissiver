@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -12,6 +13,12 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/errno.h>
@@ -316,6 +323,11 @@ static const struct pvr2_fx2cmd_descdef pvr2_fx2cmd_desc[] = {
 	{FX2CMD_ONAIR_DTV_STREAMING_OFF, "onair dtv stream off"},
 	{FX2CMD_ONAIR_DTV_POWER_ON, "onair dtv power on"},
 	{FX2CMD_ONAIR_DTV_POWER_OFF, "onair dtv power off"},
+<<<<<<< HEAD
+=======
+	{FX2CMD_HCW_DEMOD_RESET_PIN, "hcw demod reset pin"},
+	{FX2CMD_HCW_MAKO_SLEEP_PIN, "hcw mako sleep pin"},
+>>>>>>> upstream/android-13
 };
 
 
@@ -668,7 +680,11 @@ static int ctrl_check_input(struct pvr2_ctrl *cptr,int v)
 {
 	if (v < 0 || v > PVR2_CVAL_INPUT_MAX)
 		return 0;
+<<<<<<< HEAD
 	return ((1 << v) & cptr->hdw->input_allowed_mask) != 0;
+=======
+	return ((1UL << v) & cptr->hdw->input_allowed_mask) != 0;
+>>>>>>> upstream/android-13
 }
 
 static int ctrl_set_input(struct pvr2_ctrl *cptr,int m,int v)
@@ -792,7 +808,11 @@ static int ctrl_cx2341x_set(struct pvr2_ctrl *cptr,int m,int v)
 
 static unsigned int ctrl_cx2341x_getv4lflags(struct pvr2_ctrl *cptr)
 {
+<<<<<<< HEAD
 	struct v4l2_queryctrl qctrl;
+=======
+	struct v4l2_queryctrl qctrl = {};
+>>>>>>> upstream/android-13
 	struct pvr2_ctl_info *info;
 	qctrl.id = cptr->info->v4l_id;
 	cx2341x_ctrl_query(&cptr->hdw->enc_ctl_state,&qctrl);
@@ -872,10 +892,16 @@ static int ctrl_std_sym_to_val(struct pvr2_ctrl *cptr,
 			       const char *bufPtr,unsigned int bufSize,
 			       int *mskp,int *valp)
 {
+<<<<<<< HEAD
 	int ret;
 	v4l2_std_id id;
 	ret = pvr2_std_str_to_id(&id,bufPtr,bufSize);
 	if (ret < 0) return ret;
+=======
+	v4l2_std_id id;
+	if (!pvr2_std_str_to_id(&id, bufPtr, bufSize))
+		return -EINVAL;
+>>>>>>> upstream/android-13
 	if (mskp) *mskp = id;
 	if (valp) *valp = id;
 	return 0;
@@ -1476,7 +1502,11 @@ static int pvr2_upload_firmware1(struct pvr2_hdw *hdw)
 	for (address = 0; address < fwsize; address += 0x800) {
 		memcpy(fw_ptr, fw_entry->data + address, 0x800);
 		ret += usb_control_msg(hdw->usb_dev, pipe, 0xa0, 0x40, address,
+<<<<<<< HEAD
 				       0, fw_ptr, 0x800, HZ);
+=======
+				       0, fw_ptr, 0x800, 1000);
+>>>>>>> upstream/android-13
 	}
 
 	trace_firmware("Upload done, releasing device's CPU");
@@ -1614,7 +1644,11 @@ int pvr2_upload_firmware2(struct pvr2_hdw *hdw)
 			((u32 *)fw_ptr)[icnt] = swab32(((u32 *)fw_ptr)[icnt]);
 
 		ret |= usb_bulk_msg(hdw->usb_dev, pipe, fw_ptr,bcnt,
+<<<<<<< HEAD
 				    &actual_length, HZ);
+=======
+				    &actual_length, 1000);
+>>>>>>> upstream/android-13
 		ret |= (actual_length != bcnt);
 		if (ret) break;
 		fw_done += bcnt;
@@ -1700,7 +1734,11 @@ static int pvr2_hdw_untrip_unlocked(struct pvr2_hdw *hdw)
 	if (!hdw->flag_tripped) return 0;
 	hdw->flag_tripped = 0;
 	pvr2_trace(PVR2_TRACE_ERROR_LEGS,
+<<<<<<< HEAD
 		   "Clearing driver error statuss");
+=======
+		   "Clearing driver error status");
+>>>>>>> upstream/android-13
 	return !0;
 }
 
@@ -2139,10 +2177,35 @@ static void pvr2_hdw_setup_low(struct pvr2_hdw *hdw)
 				      ((0) << 16));
 	}
 
+<<<<<<< HEAD
 	// This step MUST happen after the earlier powerup step.
 	pvr2_i2c_core_init(hdw);
 	if (!pvr2_hdw_dev_ok(hdw)) return;
 
+=======
+	/* This step MUST happen after the earlier powerup step */
+	pvr2_i2c_core_init(hdw);
+	if (!pvr2_hdw_dev_ok(hdw)) return;
+
+	/* Reset demod only on Hauppauge 160xxx platform */
+	if (le16_to_cpu(hdw->usb_dev->descriptor.idVendor) == 0x2040 &&
+	    (le16_to_cpu(hdw->usb_dev->descriptor.idProduct) == 0x7502 ||
+	     le16_to_cpu(hdw->usb_dev->descriptor.idProduct) == 0x7510)) {
+		pr_info("%s(): resetting 160xxx demod\n", __func__);
+		/* TODO: not sure this is proper place to reset once only */
+		pvr2_issue_simple_cmd(hdw,
+				      FX2CMD_HCW_DEMOD_RESET_PIN |
+				      (1 << 8) |
+				      ((0) << 16));
+		usleep_range(10000, 10500);
+		pvr2_issue_simple_cmd(hdw,
+				      FX2CMD_HCW_DEMOD_RESET_PIN |
+				      (1 << 8) |
+				      ((1) << 16));
+		usleep_range(10000, 10500);
+	}
+
+>>>>>>> upstream/android-13
 	pvr2_hdw_load_modules(hdw);
 	if (!pvr2_hdw_dev_ok(hdw)) return;
 
@@ -2435,7 +2498,11 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
 	/* Ensure that default input choice is a valid one. */
 	m = hdw->input_avail_mask;
 	if (m) for (idx = 0; idx < (sizeof(m) << 3); idx++) {
+<<<<<<< HEAD
 		if (!((1 << idx) & m)) continue;
+=======
+		if (!((1UL << idx) & m)) continue;
+>>>>>>> upstream/android-13
 		hdw->input_val = idx;
 		break;
 	}
@@ -2461,9 +2528,14 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
 		if (!(qctrl.flags & V4L2_CTRL_FLAG_READ_ONLY)) {
 			ciptr->set_value = ctrl_cx2341x_set;
 		}
+<<<<<<< HEAD
 		strncpy(hdw->mpeg_ctrl_info[idx].desc,qctrl.name,
 			PVR2_CTLD_INFO_DESC_SIZE);
 		hdw->mpeg_ctrl_info[idx].desc[PVR2_CTLD_INFO_DESC_SIZE-1] = 0;
+=======
+		strscpy(hdw->mpeg_ctrl_info[idx].desc, qctrl.name,
+			sizeof(hdw->mpeg_ctrl_info[idx].desc));
+>>>>>>> upstream/android-13
 		ciptr->default_value = qctrl.default_value;
 		switch (qctrl.type) {
 		default:
@@ -2492,11 +2564,19 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
 	// Initialize control data regarding video standard masks
 	valid_std_mask = pvr2_std_get_usable();
 	for (idx = 0; idx < 32; idx++) {
+<<<<<<< HEAD
 		if (!(valid_std_mask & (1 << idx))) continue;
 		cnt1 = pvr2_std_id_to_str(
 			hdw->std_mask_names[idx],
 			sizeof(hdw->std_mask_names[idx])-1,
 			1 << idx);
+=======
+		if (!(valid_std_mask & (1UL << idx))) continue;
+		cnt1 = pvr2_std_id_to_str(
+			hdw->std_mask_names[idx],
+			sizeof(hdw->std_mask_names[idx])-1,
+			1UL << idx);
+>>>>>>> upstream/android-13
 		hdw->std_mask_names[idx][cnt1] = 0;
 	}
 	cptr = pvr2_hdw_get_ctrl_by_id(hdw,PVR2_CID_STDAVAIL);
@@ -2668,9 +2748,14 @@ void pvr2_hdw_destroy(struct pvr2_hdw *hdw)
 		pvr2_stream_destroy(hdw->vid_stream);
 		hdw->vid_stream = NULL;
 	}
+<<<<<<< HEAD
 	pvr2_i2c_core_done(hdw);
 	v4l2_device_unregister(&hdw->v4l2_dev);
 	pvr2_hdw_remove_usb_stuff(hdw);
+=======
+	v4l2_device_unregister(&hdw->v4l2_dev);
+	pvr2_hdw_disconnect(hdw);
+>>>>>>> upstream/android-13
 	mutex_lock(&pvr2_unit_mtx);
 	do {
 		if ((hdw->unit_number >= 0) &&
@@ -2697,6 +2782,10 @@ void pvr2_hdw_disconnect(struct pvr2_hdw *hdw)
 {
 	pvr2_trace(PVR2_TRACE_INIT,"pvr2_hdw_disconnect(hdw=%p)",hdw);
 	LOCK_TAKE(hdw->big_lock);
+<<<<<<< HEAD
+=======
+	pvr2_i2c_core_done(hdw);
+>>>>>>> upstream/android-13
 	LOCK_TAKE(hdw->ctl_lock);
 	pvr2_hdw_remove_usb_stuff(hdw);
 	LOCK_GIVE(hdw->ctl_lock);
@@ -3295,12 +3384,20 @@ void pvr2_hdw_trigger_module_log(struct pvr2_hdw *hdw)
 	int nr = pvr2_hdw_get_unit_number(hdw);
 	LOCK_TAKE(hdw->big_lock);
 	do {
+<<<<<<< HEAD
 		printk(KERN_INFO "pvrusb2: =================  START STATUS CARD #%d  =================\n", nr);
+=======
+		pr_info("pvrusb2: =================  START STATUS CARD #%d  =================\n", nr);
+>>>>>>> upstream/android-13
 		v4l2_device_call_all(&hdw->v4l2_dev, 0, core, log_status);
 		pvr2_trace(PVR2_TRACE_INFO,"cx2341x config:");
 		cx2341x_log_status(&hdw->enc_ctl_state, "pvrusb2");
 		pvr2_hdw_state_log_state(hdw);
+<<<<<<< HEAD
 		printk(KERN_INFO "pvrusb2: ==================  END STATUS CARD #%d  ==================\n", nr);
+=======
+		pr_info("pvrusb2: ==================  END STATUS CARD #%d  ==================\n", nr);
+>>>>>>> upstream/android-13
 	} while (0);
 	LOCK_GIVE(hdw->big_lock);
 }
@@ -3320,7 +3417,11 @@ static u8 *pvr2_full_eeprom_fetch(struct pvr2_hdw *hdw)
 	int ret;
 	int mode16 = 0;
 	unsigned pcnt,tcnt;
+<<<<<<< HEAD
 	eeprom = kmalloc(EEPROM_SIZE,GFP_KERNEL);
+=======
+	eeprom = kzalloc(EEPROM_SIZE, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!eeprom) {
 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
 			   "Failed to allocate memory required to read eeprom");
@@ -3355,7 +3456,10 @@ static u8 *pvr2_full_eeprom_fetch(struct pvr2_hdw *hdw)
 	   (1) we're only fetching part of the eeprom, and (2) if we were
 	   getting the whole thing our I2C driver can't grab it in one
 	   pass - which is what tveeprom is otherwise going to attempt */
+<<<<<<< HEAD
 	memset(eeprom,0,EEPROM_SIZE);
+=======
+>>>>>>> upstream/android-13
 	for (tcnt = 0; tcnt < EEPROM_SIZE; tcnt += pcnt) {
 		pcnt = 16;
 		if (pcnt + tcnt > EEPROM_SIZE) pcnt = EEPROM_SIZE-tcnt;
@@ -3431,7 +3535,11 @@ void pvr2_hdw_cpufw_set_enabled(struct pvr2_hdw *hdw,
 						      0xa0,0xc0,
 						      address,0,
 						      hdw->fw_buffer+address,
+<<<<<<< HEAD
 						      0x800,HZ);
+=======
+						      0x800,1000);
+>>>>>>> upstream/android-13
 				if (ret < 0) break;
 			}
 
@@ -3970,7 +4078,11 @@ void pvr2_hdw_cpureset_assert(struct pvr2_hdw *hdw,int val)
 	/* Write the CPUCS register on the 8051.  The lsb of the register
 	   is the reset bit; a 1 asserts reset while a 0 clears it. */
 	pipe = usb_sndctrlpipe(hdw->usb_dev, 0);
+<<<<<<< HEAD
 	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,HZ);
+=======
+	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,1000);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
 			   "cpureset_assert(%d) error=%d",val,ret);
@@ -4013,6 +4125,23 @@ int pvr2_hdw_cmd_decoder_reset(struct pvr2_hdw *hdw)
 static int pvr2_hdw_cmd_hcw_demod_reset(struct pvr2_hdw *hdw, int onoff)
 {
 	hdw->flag_ok = !0;
+<<<<<<< HEAD
+=======
+
+	/* Use this for Hauppauge 160xxx only */
+	if (le16_to_cpu(hdw->usb_dev->descriptor.idVendor) == 0x2040 &&
+	    (le16_to_cpu(hdw->usb_dev->descriptor.idProduct) == 0x7502 ||
+	     le16_to_cpu(hdw->usb_dev->descriptor.idProduct) == 0x7510)) {
+		pr_debug("%s(): resetting demod on Hauppauge 160xxx platform skipped\n",
+			 __func__);
+		/* Can't reset 160xxx or it will trash Demod tristate */
+		return pvr2_issue_simple_cmd(hdw,
+					     FX2CMD_HCW_MAKO_SLEEP_PIN |
+					     (1 << 8) |
+					     ((onoff ? 1 : 0) << 16));
+	}
+
+>>>>>>> upstream/android-13
 	return pvr2_issue_simple_cmd(hdw,
 				     FX2CMD_HCW_DEMOD_RESETIN |
 				     (1 << 8) |
@@ -4650,7 +4779,11 @@ static unsigned int print_input_mask(unsigned int msk,
 	unsigned int idx,ccnt;
 	unsigned int tcnt = 0;
 	for (idx = 0; idx < ARRAY_SIZE(control_values_input); idx++) {
+<<<<<<< HEAD
 		if (!((1 << idx) & msk)) continue;
+=======
+		if (!((1UL << idx) & msk)) continue;
+>>>>>>> upstream/android-13
 		ccnt = scnprintf(buf+tcnt,
 				 acnt-tcnt,
 				 "%s%s",
@@ -4853,7 +4986,11 @@ static void pvr2_hdw_state_log_state(struct pvr2_hdw *hdw)
 	for (idx = 0; ; idx++) {
 		ccnt = pvr2_hdw_report_unlocked(hdw,idx,buf,sizeof(buf));
 		if (!ccnt) break;
+<<<<<<< HEAD
 		printk(KERN_INFO "%s %.*s\n",hdw->name,ccnt,buf);
+=======
+		pr_info("%s %.*s\n", hdw->name, ccnt, buf);
+>>>>>>> upstream/android-13
 	}
 	ccnt = pvr2_hdw_report_clients(hdw, buf, sizeof(buf));
 	if (ccnt >= sizeof(buf))
@@ -4865,7 +5002,11 @@ static void pvr2_hdw_state_log_state(struct pvr2_hdw *hdw)
 		while ((lcnt + ucnt < ccnt) && (buf[lcnt + ucnt] != '\n')) {
 			lcnt++;
 		}
+<<<<<<< HEAD
 		printk(KERN_INFO "%s %.*s\n", hdw->name, lcnt, buf + ucnt);
+=======
+		pr_info("%s %.*s\n", hdw->name, lcnt, buf + ucnt);
+>>>>>>> upstream/android-13
 		ucnt += lcnt + 1;
 	}
 }
@@ -5077,7 +5218,11 @@ int pvr2_hdw_set_input_allowed(struct pvr2_hdw *hdw,
 			break;
 		}
 		hdw->input_allowed_mask = nv;
+<<<<<<< HEAD
 		if ((1 << hdw->input_val) & hdw->input_allowed_mask) {
+=======
+		if ((1UL << hdw->input_val) & hdw->input_allowed_mask) {
+>>>>>>> upstream/android-13
 			/* Current mode is still in the allowed mask, so
 			   we're done. */
 			break;
@@ -5090,7 +5235,11 @@ int pvr2_hdw_set_input_allowed(struct pvr2_hdw *hdw,
 		}
 		m = hdw->input_allowed_mask;
 		for (idx = 0; idx < (sizeof(m) << 3); idx++) {
+<<<<<<< HEAD
 			if (!((1 << idx) & m)) continue;
+=======
+			if (!((1UL << idx) & m)) continue;
+>>>>>>> upstream/android-13
 			pvr2_hdw_set_input(hdw,idx);
 			break;
 		}

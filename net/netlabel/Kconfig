@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # NetLabel configuration
 #
@@ -7,12 +11,20 @@ config NETLABEL
 	depends on SECURITY
 	select CRC_CCITT if IPV6
 	default n
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  NetLabel provides support for explicit network packet labeling
 	  protocols such as CIPSO and RIPSO.  For more information see
 	  Documentation/netlabel as well as the NetLabel SourceForge project
 	  for configuration tools and additional documentation.
 
+<<<<<<< HEAD
 	   * http://netlabel.sf.net
+=======
+	   * https://github.com/netlabel/netlabel_tools
+>>>>>>> upstream/android-13
 
 	  If you are unsure, say N.

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
    lru_cache.c
 
@@ -7,6 +11,7 @@
    Copyright (C) 2003-2008, Philipp Reisner <philipp.reisner@linbit.com>.
    Copyright (C) 2003-2008, Lars Ellenberg <lars.ellenberg@linbit.com>.
 
+<<<<<<< HEAD
    drbd is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
@@ -20,6 +25,8 @@
    You should have received a copy of the GNU General Public License
    along with drbd; see the file COPYING.  If not, write to
    the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
 
  */
 
@@ -88,6 +95,10 @@ int lc_try_lock(struct lru_cache *lc)
 /**
  * lc_create - prepares to track objects in an active set
  * @name: descriptive name only used in lc_seq_printf_stats and lc_seq_dump_details
+<<<<<<< HEAD
+=======
+ * @cache: cache root pointer
+>>>>>>> upstream/android-13
  * @max_pending_changes: maximum changes to accumulate until a transaction is required
  * @e_count: number of elements allowed to be active simultaneously
  * @e_size: size of the tracked objects
@@ -639,7 +650,11 @@ void lc_set(struct lru_cache *lc, unsigned int enr, int index)
 }
 
 /**
+<<<<<<< HEAD
  * lc_dump - Dump a complete LRU cache to seq in textual form.
+=======
+ * lc_seq_dump_details - Dump a complete LRU cache to seq in textual form.
+>>>>>>> upstream/android-13
  * @lc: the lru cache to operate on
  * @seq: the &struct seq_file pointer to seq_printf into
  * @utext: user supplied additional "heading" or other info

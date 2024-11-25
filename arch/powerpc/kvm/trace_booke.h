@@ -69,6 +69,7 @@ TRACE_EVENT(kvm_exit,
 		)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(kvm_unmap_hva,
 	TP_PROTO(unsigned long hva),
 	TP_ARGS(hva),
@@ -84,6 +85,8 @@ TRACE_EVENT(kvm_unmap_hva,
 	TP_printk("unmap hva 0x%lx\n", __entry->hva)
 );
 
+=======
+>>>>>>> upstream/android-13
 TRACE_EVENT(kvm_booke206_stlb_write,
 	TP_PROTO(__u32 mas0, __u32 mas8, __u32 mas1, __u64 mas2, __u64 mas7_3),
 	TP_ARGS(mas0, mas8, mas1, mas2, mas7_3),

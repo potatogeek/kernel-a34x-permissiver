@@ -563,7 +563,11 @@ static void tda1997x_delayed_work_enable_hpd(struct work_struct *work)
 						    delayed_work_enable_hpd);
 	struct v4l2_subdev *sd = &state->sd;
 
+<<<<<<< HEAD
 	v4l2_dbg(2, debug, sd, "%s:\n", __func__);
+=======
+	v4l2_dbg(2, debug, sd, "%s\n", __func__);
+>>>>>>> upstream/android-13
 
 	/* Set HPD high */
 	tda1997x_manual_hpd(sd, HPD_HIGH_OTHER);
@@ -908,7 +912,11 @@ tda1997x_configure_audout(struct v4l2_subdev *sd, u8 channel_assignment)
 {
 	struct tda1997x_state *state = to_state(sd);
 	struct tda1997x_platform_data *pdata = &state->pdata;
+<<<<<<< HEAD
 	bool sp_used_by_fifo = 1;
+=======
+	bool sp_used_by_fifo = true;
+>>>>>>> upstream/android-13
 	u8 reg;
 
 	if (!pdata->audout_format)
@@ -936,7 +944,11 @@ tda1997x_configure_audout(struct v4l2_subdev *sd, u8 channel_assignment)
 		break;
 	case AUDCFG_TYPE_DST:
 		reg |= AUDCFG_TYPE_DST << AUDCFG_TYPE_SHIFT;
+<<<<<<< HEAD
 		sp_used_by_fifo = 0;
+=======
+		sp_used_by_fifo = false;
+>>>>>>> upstream/android-13
 		break;
 	case AUDCFG_TYPE_HBR:
 		reg |= AUDCFG_TYPE_HBR << AUDCFG_TYPE_SHIFT;
@@ -944,7 +956,11 @@ tda1997x_configure_audout(struct v4l2_subdev *sd, u8 channel_assignment)
 			/* demuxed via AP0:AP3 */
 			reg |= AUDCFG_HBR_DEMUX << AUDCFG_HBR_SHIFT;
 			if (pdata->audout_format == AUDFMT_TYPE_SPDIF)
+<<<<<<< HEAD
 				sp_used_by_fifo = 0;
+=======
+				sp_used_by_fifo = false;
+>>>>>>> upstream/android-13
 		} else {
 			/* straight via AP0 */
 			reg |= AUDCFG_HBR_STRAIGHT << AUDCFG_HBR_SHIFT;
@@ -1107,7 +1123,12 @@ tda1997x_detect_std(struct tda1997x_state *state,
 	hper = io_read16(sd, REG_H_PER) & MASK_HPER;
 	hsper = io_read16(sd, REG_HS_WIDTH) & MASK_HSWIDTH;
 	v4l2_dbg(1, debug, sd, "Signal Timings: %u/%u/%u\n", vper, hper, hsper);
+<<<<<<< HEAD
 	if (!vper || !hper || !hsper)
+=======
+
+	if (!state->input_detect[0] && !state->input_detect[1])
+>>>>>>> upstream/android-13
 		return -ENOLINK;
 
 	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
@@ -1247,13 +1268,21 @@ tda1997x_parse_infoframe(struct tda1997x_state *state, u16 addr)
 {
 	struct v4l2_subdev *sd = &state->sd;
 	union hdmi_infoframe frame;
+<<<<<<< HEAD
 	u8 buffer[40];
+=======
+	u8 buffer[40] = { 0 };
+>>>>>>> upstream/android-13
 	u8 reg;
 	int len, err;
 
 	/* read data */
 	len = io_readn(sd, addr, sizeof(buffer), buffer);
+<<<<<<< HEAD
 	err = hdmi_infoframe_unpack(&frame, buffer);
+=======
+	err = hdmi_infoframe_unpack(&frame, buffer, len);
+>>>>>>> upstream/android-13
 	if (err) {
 		v4l_err(state->client,
 			"failed parsing %d byte infoframe: 0x%04x/0x%02x\n",
@@ -1695,14 +1724,25 @@ static int tda1997x_query_dv_timings(struct v4l2_subdev *sd,
 				     struct v4l2_dv_timings *timings)
 {
 	struct tda1997x_state *state = to_state(sd);
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	v4l_dbg(1, debug, state->client, "%s\n", __func__);
 	memset(timings, 0, sizeof(struct v4l2_dv_timings));
 	mutex_lock(&state->lock);
+<<<<<<< HEAD
 	tda1997x_detect_std(state, timings);
 	mutex_unlock(&state->lock);
 
 	return 0;
+=======
+	ret = tda1997x_detect_std(state, timings);
+	mutex_unlock(&state->lock);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static const struct v4l2_subdev_video_ops tda1997x_video_ops = {
@@ -1718,19 +1758,31 @@ static const struct v4l2_subdev_video_ops tda1997x_video_ops = {
  */
 
 static int tda1997x_init_cfg(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg)
+=======
+			     struct v4l2_subdev_state *sd_state)
+>>>>>>> upstream/android-13
 {
 	struct tda1997x_state *state = to_state(sd);
 	struct v4l2_mbus_framefmt *mf;
 
+<<<<<<< HEAD
 	mf = v4l2_subdev_get_try_format(sd, cfg, 0);
+=======
+	mf = v4l2_subdev_get_try_format(sd, sd_state, 0);
+>>>>>>> upstream/android-13
 	mf->code = state->mbus_codes[0];
 
 	return 0;
 }
 
 static int tda1997x_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct tda1997x_state *state = to_state(sd);
@@ -1762,7 +1814,11 @@ static void tda1997x_fill_format(struct tda1997x_state *state,
 }
 
 static int tda1997x_get_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
+=======
+			       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			       struct v4l2_subdev_format *format)
 {
 	struct tda1997x_state *state = to_state(sd);
@@ -1775,7 +1831,11 @@ static int tda1997x_get_format(struct v4l2_subdev *sd,
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 		struct v4l2_mbus_framefmt *fmt;
 
+<<<<<<< HEAD
 		fmt = v4l2_subdev_get_try_format(sd, cfg, format->pad);
+=======
+		fmt = v4l2_subdev_get_try_format(sd, sd_state, format->pad);
+>>>>>>> upstream/android-13
 		format->format.code = fmt->code;
 	} else
 		format->format.code = state->mbus_code;
@@ -1784,7 +1844,11 @@ static int tda1997x_get_format(struct v4l2_subdev *sd,
 }
 
 static int tda1997x_set_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
+=======
+			       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			       struct v4l2_subdev_format *format)
 {
 	struct tda1997x_state *state = to_state(sd);
@@ -1809,7 +1873,11 @@ static int tda1997x_set_format(struct v4l2_subdev *sd,
 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
 		struct v4l2_mbus_framefmt *fmt;
 
+<<<<<<< HEAD
 		fmt = v4l2_subdev_get_try_format(sd, cfg, format->pad);
+=======
+		fmt = v4l2_subdev_get_try_format(sd, sd_state, format->pad);
+>>>>>>> upstream/android-13
 		*fmt = format->format;
 	} else {
 		int ret = tda1997x_setup_format(state, format->format.code);
@@ -1884,6 +1952,13 @@ static int tda1997x_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
 	for (i = 0; i < 128; i++)
 		io_write(sd, REG_EDID_IN_BYTE128 + i, edid->edid[i+128]);
 
+<<<<<<< HEAD
+=======
+	/* store state */
+	memcpy(state->edid.edid, edid->edid, 256);
+	state->edid.blocks = edid->blocks;
+
+>>>>>>> upstream/android-13
 	tda1997x_enable_edid(sd);
 
 	return 0;
@@ -1922,13 +1997,21 @@ static int tda1997x_log_infoframe(struct v4l2_subdev *sd, int addr)
 {
 	struct tda1997x_state *state = to_state(sd);
 	union hdmi_infoframe frame;
+<<<<<<< HEAD
 	u8 buffer[40];
+=======
+	u8 buffer[40] = { 0 };
+>>>>>>> upstream/android-13
 	int len, err;
 
 	/* read data */
 	len = io_readn(sd, addr, sizeof(buffer), buffer);
 	v4l2_dbg(1, debug, sd, "infoframe: addr=%d len=%d\n", addr, len);
+<<<<<<< HEAD
 	err = hdmi_infoframe_unpack(&frame, buffer);
+=======
+	err = hdmi_infoframe_unpack(&frame, buffer, len);
+>>>>>>> upstream/android-13
 	if (err) {
 		v4l_err(state->client,
 			"failed parsing %d byte infoframe: 0x%04x/0x%02x\n",
@@ -2229,6 +2312,10 @@ static int tda1997x_core_init(struct v4l2_subdev *sd)
 	/* get initial HDMI status */
 	state->hdmi_status = io_read(sd, REG_HDMI_FLAGS);
 
+<<<<<<< HEAD
+=======
+	io_write(sd, REG_EDID_ENABLE, EDID_ENABLE_A_EN | EDID_ENABLE_B_EN);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2265,7 +2352,11 @@ MODULE_DEVICE_TABLE(of, tda1997x_of_id);
 static int tda1997x_parse_dt(struct tda1997x_state *state)
 {
 	struct tda1997x_platform_data *pdata = &state->pdata;
+<<<<<<< HEAD
 	struct v4l2_fwnode_endpoint bus_cfg;
+=======
+	struct v4l2_fwnode_endpoint bus_cfg = { .bus_type = 0 };
+>>>>>>> upstream/android-13
 	struct device_node *ep;
 	struct device_node *np;
 	unsigned int flags;
@@ -2584,7 +2675,11 @@ static int tda1997x_probe(struct i2c_client *client,
 			case 36:
 				mbus_codes[i++] = MEDIA_BUS_FMT_RGB121212_1X36;
 				mbus_codes[i++] = MEDIA_BUS_FMT_YUV12_1X36;
+<<<<<<< HEAD
 				/* fall-through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case 24:
 				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY12_1X24;
 				break;
@@ -2613,10 +2708,17 @@ static int tda1997x_probe(struct i2c_client *client,
 				mbus_codes[i++] = MEDIA_BUS_FMT_RGB888_1X24;
 				mbus_codes[i++] = MEDIA_BUS_FMT_YUV8_1X24;
 				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY12_1X24;
+<<<<<<< HEAD
 				/* fall through */
 			case 20:
 				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY10_1X20;
 				/* fall through */
+=======
+				fallthrough;
+			case 20:
+				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY10_1X20;
+				fallthrough;
+>>>>>>> upstream/android-13
 			case 16:
 				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY8_1X16;
 				break;
@@ -2629,10 +2731,17 @@ static int tda1997x_probe(struct i2c_client *client,
 			case 16:
 			case 12:
 				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY12_2X12;
+<<<<<<< HEAD
 				/* fall through */
 			case 10:
 				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY10_2X10;
 				/* fall through */
+=======
+				fallthrough;
+			case 10:
+				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY10_2X10;
+				fallthrough;
+>>>>>>> upstream/android-13
 			case 8:
 				mbus_codes[i++] = MEDIA_BUS_FMT_UYVY8_2X8;
 				break;
@@ -2687,7 +2796,17 @@ static int tda1997x_probe(struct i2c_client *client,
 	}
 
 	ret = 0x34 + ((io_read(sd, REG_SLAVE_ADDR)>>4) & 0x03);
+<<<<<<< HEAD
 	state->client_cec = i2c_new_dummy(client->adapter, ret);
+=======
+	state->client_cec = devm_i2c_new_dummy_device(&client->dev,
+						      client->adapter, ret);
+	if (IS_ERR(state->client_cec)) {
+		ret = PTR_ERR(state->client_cec);
+		goto err_free_mutex;
+	}
+
+>>>>>>> upstream/android-13
 	v4l_info(client, "CEC slave address 0x%02x\n", ret);
 
 	ret = tda1997x_core_init(sd);
@@ -2794,8 +2913,12 @@ static int tda1997x_remove(struct i2c_client *client)
 	media_entity_cleanup(&sd->entity);
 	v4l2_ctrl_handler_free(&state->hdl);
 	regulator_bulk_disable(TDA1997X_NUM_SUPPLIES, state->supplies);
+<<<<<<< HEAD
 	i2c_unregister_device(state->client_cec);
 	cancel_delayed_work(&state->delayed_work_enable_hpd);
+=======
+	cancel_delayed_work_sync(&state->delayed_work_enable_hpd);
+>>>>>>> upstream/android-13
 	mutex_destroy(&state->page_lock);
 	mutex_destroy(&state->lock);
 

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /***************************************************************************
  *   Copyright (C) 2006-2010 by Marin Mitov                                *
  *   mitov@issp.bas.bg                                                     *
  *                                                                         *
+<<<<<<< HEAD
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
@@ -11,6 +16,8 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   GNU General Public License for more details.                          *
+=======
+>>>>>>> upstream/android-13
  *                                                                         *
  ***************************************************************************/
 
@@ -46,7 +53,10 @@ static int read_i2c_reg(void __iomem *addr, u8 index, u8 *data)
 	u32 tmp = index;
 
 	iowrite32((tmp << 17) | IIC_READ, addr + IIC_CSR2);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	udelay(45); /* wait at least 43 usec for NEW_CYCLE to clear */
 	if (ioread32(addr + IIC_CSR2) & NEW_CYCLE)
 		return -EIO; /* error: NEW_CYCLE not cleared */
@@ -77,7 +87,10 @@ static int write_i2c_reg(void __iomem *addr, u8 index, u8 data)
 	u32 tmp = index;
 
 	iowrite32((tmp << 17) | IIC_WRITE | data, addr + IIC_CSR2);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	udelay(65); /* wait at least 63 usec for NEW_CYCLE to clear */
 	if (ioread32(addr + IIC_CSR2) & NEW_CYCLE)
 		return -EIO; /* error: NEW_CYCLE not cleared */
@@ -104,7 +117,10 @@ static void write_i2c_reg_nowait(void __iomem *addr, u8 index, u8 data)
 	u32 tmp = index;
 
 	iowrite32((tmp << 17) | IIC_WRITE | data, addr + IIC_CSR2);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -264,7 +280,10 @@ static irqreturn_t dt3155_irq_handler_even(int irq, void *dev_id)
 						FLD_DN_ODD | FLD_DN_EVEN |
 						CAP_CONT_EVEN | CAP_CONT_ODD,
 							ipd->regs + CSR1);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 
 	spin_lock(&ipd->lock);
@@ -282,7 +301,10 @@ static irqreturn_t dt3155_irq_handler_even(int irq, void *dev_id)
 		iowrite32(dma_addr + ipd->width, ipd->regs + ODD_DMA_START);
 		iowrite32(ipd->width, ipd->regs + EVEN_DMA_STRIDE);
 		iowrite32(ipd->width, ipd->regs + ODD_DMA_STRIDE);
+<<<<<<< HEAD
 		mmiowb();
+=======
+>>>>>>> upstream/android-13
 	}
 
 	/* enable interrupts, clear all irq flags */
@@ -307,12 +329,18 @@ static int dt3155_querycap(struct file *filp, void *p,
 {
 	struct dt3155_priv *pd = video_drvdata(filp);
 
+<<<<<<< HEAD
 	strcpy(cap->driver, DT3155_NAME);
 	strcpy(cap->card, DT3155_NAME " frame grabber");
 	sprintf(cap->bus_info, "PCI:%s", pci_name(pd->pdev));
 	cap->device_caps = V4L2_CAP_VIDEO_CAPTURE |
 		V4L2_CAP_STREAMING | V4L2_CAP_READWRITE;
 	cap->capabilities = cap->device_caps | V4L2_CAP_DEVICE_CAPS;
+=======
+	strscpy(cap->driver, DT3155_NAME, sizeof(cap->driver));
+	strscpy(cap->card, DT3155_NAME " frame grabber", sizeof(cap->card));
+	sprintf(cap->bus_info, "PCI:%s", pci_name(pd->pdev));
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -322,7 +350,10 @@ static int dt3155_enum_fmt_vid_cap(struct file *filp,
 	if (f->index)
 		return -EINVAL;
 	f->pixelformat = V4L2_PIX_FMT_GREY;
+<<<<<<< HEAD
 	strcpy(f->description, "8-bit Greyscale");
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -378,7 +409,11 @@ static int dt3155_enum_input(struct file *filp, void *p,
 		snprintf(input->name, sizeof(input->name), "VID%d",
 			 input->index);
 	else
+<<<<<<< HEAD
 		strlcpy(input->name, "J2/VID0", sizeof(input->name));
+=======
+		strscpy(input->name, "J2/VID0", sizeof(input->name));
+>>>>>>> upstream/android-13
 	input->type = V4L2_INPUT_TYPE_CAMERA;
 	input->std = V4L2_STD_ALL;
 	input->status = 0;
@@ -437,15 +472,24 @@ static int dt3155_init_board(struct dt3155_priv *pd)
 	/*  resetting the adapter  */
 	iowrite32(ADDR_ERR_ODD | ADDR_ERR_EVEN | FLD_CRPT_ODD | FLD_CRPT_EVEN |
 			FLD_DN_ODD | FLD_DN_EVEN, pd->regs + CSR1);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 	msleep(20);
 
 	/*  initializing adapter registers  */
 	iowrite32(FIFO_EN | SRST, pd->regs + CSR1);
+<<<<<<< HEAD
 	mmiowb();
 	iowrite32(0xEEEEEE01, pd->regs + EVEN_PIXEL_FMT);
 	iowrite32(0xEEEEEE01, pd->regs + ODD_PIXEL_FMT);
 	iowrite32(0x00000020, pd->regs + FIFO_TRIGER);
+=======
+	iowrite32(0xEEEEEE01, pd->regs + EVEN_PIXEL_FMT);
+	iowrite32(0xEEEEEE01, pd->regs + ODD_PIXEL_FMT);
+	iowrite32(0x00000020, pd->regs + FIFO_TRIGGER);
+>>>>>>> upstream/android-13
 	iowrite32(0x00000103, pd->regs + XFER_MODE);
 	iowrite32(0, pd->regs + RETRY_WAIT_CNT);
 	iowrite32(0, pd->regs + INT_CSR);
@@ -454,7 +498,10 @@ static int dt3155_init_board(struct dt3155_priv *pd)
 	iowrite32(0, pd->regs + MASK_LENGTH);
 	iowrite32(0x0005007C, pd->regs + FIFO_FLAG_CNT);
 	iowrite32(0x01010101, pd->regs + IIC_CLK_DUR);
+<<<<<<< HEAD
 	mmiowb();
+=======
+>>>>>>> upstream/android-13
 
 	/* verifying that we have a DT3155 board (not just a SAA7116 chip) */
 	read_i2c_reg(pd->regs, DT_ID, &tmp);
@@ -506,6 +553,11 @@ static const struct video_device dt3155_vdev = {
 	.minor = -1,
 	.release = video_device_release_empty,
 	.tvnorms = V4L2_STD_ALL,
+<<<<<<< HEAD
+=======
+	.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING |
+		       V4L2_CAP_READWRITE,
+>>>>>>> upstream/android-13
 };
 
 static int dt3155_probe(struct pci_dev *pdev, const struct pci_device_id *id)
@@ -568,7 +620,11 @@ static int dt3155_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 					IRQF_SHARED, DT3155_NAME, pd);
 	if (err)
 		goto err_iounmap;
+<<<<<<< HEAD
 	err = video_register_device(&pd->vdev, VFL_TYPE_GRABBER, -1);
+=======
+	err = video_register_device(&pd->vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_free_irq;
 	dev_info(&pdev->dev, "/dev/video%i is ready\n", pd->vdev.minor);
@@ -593,9 +649,14 @@ static void dt3155_remove(struct pci_dev *pdev)
 	struct dt3155_priv *pd = container_of(v4l2_dev, struct dt3155_priv,
 					      v4l2_dev);
 
+<<<<<<< HEAD
 	video_unregister_device(&pd->vdev);
 	free_irq(pd->pdev->irq, pd);
 	vb2_queue_release(&pd->vidq);
+=======
+	vb2_video_unregister_device(&pd->vdev);
+	free_irq(pd->pdev->irq, pd);
+>>>>>>> upstream/android-13
 	v4l2_device_unregister(&pd->v4l2_dev);
 	pci_iounmap(pdev, pd->regs);
 	pci_release_region(pdev, 0);

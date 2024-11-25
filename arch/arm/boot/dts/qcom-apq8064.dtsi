@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 
+<<<<<<< HEAD
 #include "skeleton.dtsi"
+=======
+>>>>>>> upstream/android-13
 #include <dt-bindings/clock/qcom,gcc-msm8960.h>
 #include <dt-bindings/reset/qcom,gcc-msm8960.h>
 #include <dt-bindings/clock/qcom,mmcc-msm8960.h>
@@ -10,6 +13,11 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 / {
+<<<<<<< HEAD
+=======
+	#address-cells = <1>;
+	#size-cells = <1>;
+>>>>>>> upstream/android-13
 	model = "Qualcomm APQ8064";
 	compatible = "qcom,apq8064";
 	interrupt-parent = <&intc>;
@@ -94,6 +102,14 @@
 		};
 	};
 
+<<<<<<< HEAD
+=======
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0>;
+	};
+
+>>>>>>> upstream/android-13
 	thermal-zones {
 		cpu-thermal0 {
 			polling-delay-passive = <250>;
@@ -192,7 +208,11 @@
 			clock-frequency = <19200000>;
 		};
 
+<<<<<<< HEAD
 		pxo_board {
+=======
+		pxo_board: pxo_board {
+>>>>>>> upstream/android-13
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <27000000>;
@@ -344,6 +364,10 @@
 			reg = <0x800000 0x4000>;
 
 			gpio-controller;
+<<<<<<< HEAD
+=======
+			gpio-ranges = <&tlmm_pinmux 0 0 90>;
+>>>>>>> upstream/android-13
 			#gpio-cells = <2>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
@@ -705,6 +729,7 @@
 					compatible = "qcom,pm8921-gpio",
 						     "qcom,ssbi-gpio";
 					reg = <0x150>;
+<<<<<<< HEAD
 					interrupts = <192 IRQ_TYPE_NONE>,
 						     <193 IRQ_TYPE_NONE>,
 						     <194 IRQ_TYPE_NONE>,
@@ -750,6 +775,12 @@
 						     <234 IRQ_TYPE_NONE>,
 						     <235 IRQ_TYPE_NONE>;
 					gpio-controller;
+=======
+					interrupt-controller;
+					#interrupt-cells = <2>;
+					gpio-controller;
+					gpio-ranges = <&pm8921_gpio 0 0 44>;
+>>>>>>> upstream/android-13
 					#gpio-cells = <2>;
 
 				};
@@ -800,6 +831,7 @@
 					#size-cells = <0>;
 					#io-channel-cells = <2>;
 
+<<<<<<< HEAD
 					vcoin: adc-channel@00 {
 						reg = <0x00 0x00>;
 					};
@@ -834,6 +866,42 @@
 						reg = <0x00 0x0e>;
 					};
 					ref_muxoff: adc-channel@0f {
+=======
+					vcoin: adc-channel@0 {
+						reg = <0x00 0x00>;
+					};
+					vbat: adc-channel@1 {
+						reg = <0x00 0x01>;
+					};
+					dcin: adc-channel@2 {
+						reg = <0x00 0x02>;
+					};
+					vph_pwr: adc-channel@4 {
+						reg = <0x00 0x04>;
+					};
+					batt_therm: adc-channel@8 {
+						reg = <0x00 0x08>;
+					};
+					batt_id: adc-channel@9 {
+						reg = <0x00 0x09>;
+					};
+					usb_vbus: adc-channel@a {
+						reg = <0x00 0x0a>;
+					};
+					die_temp: adc-channel@b {
+						reg = <0x00 0x0b>;
+					};
+					ref_625mv: adc-channel@c {
+						reg = <0x00 0x0c>;
+					};
+					ref_1250mv: adc-channel@d {
+						reg = <0x00 0x0d>;
+					};
+					chg_temp: adc-channel@e {
+						reg = <0x00 0x0e>;
+					};
+					ref_muxoff: adc-channel@f {
+>>>>>>> upstream/android-13
 						reg = <0x00 0x0f>;
 					};
 				};
@@ -1182,22 +1250,36 @@
 		};
 
 		gpu: adreno-3xx@4300000 {
+<<<<<<< HEAD
 			compatible = "qcom,adreno-3xx";
+=======
+			compatible = "qcom,adreno-320.2", "qcom,adreno";
+>>>>>>> upstream/android-13
 			reg = <0x04300000 0x20000>;
 			reg-names = "kgsl_3d0_reg_memory";
 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "kgsl_3d0_irq";
 			clock-names =
+<<<<<<< HEAD
 			    "core_clk",
 			    "iface_clk",
 			    "mem_clk",
 			    "mem_iface_clk";
+=======
+			    "core",
+			    "iface",
+			    "mem",
+			    "mem_iface";
+>>>>>>> upstream/android-13
 			clocks =
 			    <&mmcc GFX3D_CLK>,
 			    <&mmcc GFX3D_AHB_CLK>,
 			    <&mmcc GFX3D_AXI_CLK>,
 			    <&mmcc MMSS_IMEM_AHB_CLK>;
+<<<<<<< HEAD
 			qcom,chipid = <0x03020002>;
+=======
+>>>>>>> upstream/android-13
 
 			iommus = <&gfx3d 0
 				  &gfx3d 1
@@ -1296,9 +1378,15 @@
 				<&mmcc DSI1_BYTE_CLK>,
 				<&mmcc DSI_PIXEL_CLK>,
 				<&mmcc DSI1_ESC_CLK>;
+<<<<<<< HEAD
 			clock-names = "iface_clk", "bus_clk", "core_mmss_clk",
 					"src_clk", "byte_clk", "pixel_clk",
 					"core_clk";
+=======
+			clock-names = "iface", "bus", "core_mmss",
+					"src", "byte", "pixel",
+					"core";
+>>>>>>> upstream/android-13
 
 			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
 					<&mmcc DSI1_ESC_SRC>,
@@ -1338,8 +1426,14 @@
 				<0x04700300 0x200>,
 				<0x04700500 0x5c>;
 			reg-names = "dsi_pll", "dsi_phy", "dsi_phy_regulator";
+<<<<<<< HEAD
 			clock-names = "iface_clk";
 			clocks = <&mmcc DSI_M_AHB_CLK>;
+=======
+			clock-names = "iface_clk", "ref";
+			clocks = <&mmcc DSI_M_AHB_CLK>,
+				 <&pxo_board>;
+>>>>>>> upstream/android-13
 		};
 
 
@@ -1611,10 +1705,18 @@
 			clocks = <&rpmcc RPM_QDSS_CLK>;
 			clock-names = "apb_pclk";
 
+<<<<<<< HEAD
 			port {
 				etb_in: endpoint {
 					slave-mode;
 					remote-endpoint = <&replicator_out0>;
+=======
+			in-ports {
+				port {
+					etb_in: endpoint {
+						remote-endpoint = <&replicator_out0>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -1626,21 +1728,37 @@
 			clocks = <&rpmcc RPM_QDSS_CLK>;
 			clock-names = "apb_pclk";
 
+<<<<<<< HEAD
 			port {
 				tpiu_in: endpoint {
 					slave-mode;
 					remote-endpoint = <&replicator_out1>;
+=======
+			in-ports {
+				port {
+					tpiu_in: endpoint {
+						remote-endpoint = <&replicator_out1>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
 
 		replicator {
+<<<<<<< HEAD
 			compatible = "arm,coresight-replicator";
+=======
+			compatible = "arm,coresight-static-replicator";
+>>>>>>> upstream/android-13
 
 			clocks = <&rpmcc RPM_QDSS_CLK>;
 			clock-names = "apb_pclk";
 
+<<<<<<< HEAD
 			ports {
+=======
+			out-ports {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <0>;
 
@@ -1656,10 +1774,18 @@
 						remote-endpoint = <&tpiu_in>;
 					};
 				};
+<<<<<<< HEAD
 				port@2 {
 					reg = <0>;
 					replicator_in: endpoint {
 						slave-mode;
+=======
+			};
+
+			in-ports {
+				port {
+					replicator_in: endpoint {
+>>>>>>> upstream/android-13
 						remote-endpoint = <&funnel_out>;
 					};
 				};
@@ -1667,13 +1793,21 @@
 		};
 
 		funnel@1a04000 {
+<<<<<<< HEAD
 			compatible = "arm,coresight-funnel", "arm,primecell";
+=======
+			compatible = "arm,coresight-dynamic-funnel", "arm,primecell";
+>>>>>>> upstream/android-13
 			reg = <0x1a04000 0x1000>;
 
 			clocks = <&rpmcc RPM_QDSS_CLK>;
 			clock-names = "apb_pclk";
 
+<<<<<<< HEAD
 			ports {
+=======
+			in-ports {
+>>>>>>> upstream/android-13
 				#address-cells = <1>;
 				#size-cells = <0>;
 
@@ -1687,33 +1821,52 @@
 				port@0 {
 					reg = <0>;
 					funnel_in0: endpoint {
+<<<<<<< HEAD
 						slave-mode;
+=======
+>>>>>>> upstream/android-13
 						remote-endpoint = <&etm0_out>;
 					};
 				};
 				port@1 {
 					reg = <1>;
 					funnel_in1: endpoint {
+<<<<<<< HEAD
 						slave-mode;
+=======
+>>>>>>> upstream/android-13
 						remote-endpoint = <&etm1_out>;
 					};
 				};
 				port@4 {
 					reg = <4>;
 					funnel_in4: endpoint {
+<<<<<<< HEAD
 						slave-mode;
+=======
+>>>>>>> upstream/android-13
 						remote-endpoint = <&etm2_out>;
 					};
 				};
 				port@5 {
 					reg = <5>;
 					funnel_in5: endpoint {
+<<<<<<< HEAD
 						slave-mode;
 						remote-endpoint = <&etm3_out>;
 					};
 				};
 				port@8 {
 					reg = <0>;
+=======
+						remote-endpoint = <&etm3_out>;
+					};
+				};
+			};
+
+			out-ports {
+				port {
+>>>>>>> upstream/android-13
 					funnel_out: endpoint {
 						remote-endpoint = <&replicator_in>;
 					};
@@ -1730,9 +1883,17 @@
 
 			cpu = <&CPU0>;
 
+<<<<<<< HEAD
 			port {
 				etm0_out: endpoint {
 					remote-endpoint = <&funnel_in0>;
+=======
+			out-ports {
+				port {
+					etm0_out: endpoint {
+						remote-endpoint = <&funnel_in0>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -1746,9 +1907,17 @@
 
 			cpu = <&CPU1>;
 
+<<<<<<< HEAD
 			port {
 				etm1_out: endpoint {
 					remote-endpoint = <&funnel_in1>;
+=======
+			out-ports {
+				port {
+					etm1_out: endpoint {
+						remote-endpoint = <&funnel_in1>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -1762,9 +1931,17 @@
 
 			cpu = <&CPU2>;
 
+<<<<<<< HEAD
 			port {
 				etm2_out: endpoint {
 					remote-endpoint = <&funnel_in4>;
+=======
+			out-ports {
+				port {
+					etm2_out: endpoint {
+						remote-endpoint = <&funnel_in4>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};
@@ -1778,9 +1955,17 @@
 
 			cpu = <&CPU3>;
 
+<<<<<<< HEAD
 			port {
 				etm3_out: endpoint {
 					remote-endpoint = <&funnel_in5>;
+=======
+			out-ports {
+				port {
+					etm3_out: endpoint {
+						remote-endpoint = <&funnel_in5>;
+					};
+>>>>>>> upstream/android-13
 				};
 			};
 		};

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 obj-y := cpu.o system.o irq-common.o
 
+<<<<<<< HEAD
 obj-$(CONFIG_SOC_IMX21) += mm-imx21.o
 
 obj-$(CONFIG_SOC_IMX25) += cpu-imx25.o mach-imx25.o pm-imx25.o
@@ -10,13 +11,24 @@ obj-$(CONFIG_SOC_IMX27) += mm-imx27.o ehci-imx27.o
 
 obj-$(CONFIG_SOC_IMX31) += mm-imx3.o cpu-imx31.o iomux-imx31.o ehci-imx31.o
 obj-$(CONFIG_SOC_IMX35) += mm-imx3.o cpu-imx35.o ehci-imx35.o
+=======
+obj-$(CONFIG_SOC_IMX25) += cpu-imx25.o mach-imx25.o pm-imx25.o
+
+obj-$(CONFIG_SOC_IMX27) += cpu-imx27.o pm-imx27.o mach-imx27.o
+
+obj-$(CONFIG_SOC_IMX31) += mm-imx3.o cpu-imx31.o mach-imx31.o
+obj-$(CONFIG_SOC_IMX35) += mm-imx3.o cpu-imx35.o mach-imx35.o
+>>>>>>> upstream/android-13
 
 imx5-pm-$(CONFIG_PM) += pm-imx5.o
 obj-$(CONFIG_SOC_IMX5) += cpu-imx5.o $(imx5-pm-y)
 
+<<<<<<< HEAD
 obj-$(CONFIG_IMX_HAVE_IOMUX_V1) += iomux-v1.o
 obj-$(CONFIG_ARCH_MXC_IOMUX_V3) += iomux-v3.o
 
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_MXC_TZIC) += tzic.o
 obj-$(CONFIG_MXC_AVIC) += avic.o
 
@@ -29,13 +41,21 @@ obj-$(CONFIG_SOC_IMX6SL) += cpuidle-imx6sl.o
 obj-$(CONFIG_SOC_IMX6SLL) += cpuidle-imx6sx.o
 obj-$(CONFIG_SOC_IMX6SX) += cpuidle-imx6sx.o
 obj-$(CONFIG_SOC_IMX6UL) += cpuidle-imx6sx.o
+<<<<<<< HEAD
 endif
 
 ifdef CONFIG_SND_IMX_SOC
+=======
+obj-$(CONFIG_SOC_IMX7ULP) += cpuidle-imx7ulp.o
+endif
+
+ifdef CONFIG_SND_SOC_IMX_PCM_FIQ
+>>>>>>> upstream/android-13
 obj-y += ssi-fiq.o
 obj-y += ssi-fiq-ksym.o
 endif
 
+<<<<<<< HEAD
 # i.MX21 based machines
 obj-$(CONFIG_MACH_MX21ADS) += mach-mx21ads.o
 
@@ -67,11 +87,17 @@ obj-$(CONFIG_MACH_MX35_3DS) += mach-mx35_3ds.o
 obj-$(CONFIG_MACH_VPR200) += mach-vpr200.o
 obj-$(CONFIG_MACH_IMX35_DT) += imx35-dt.o
 
+=======
+>>>>>>> upstream/android-13
 obj-$(CONFIG_HAVE_IMX_ANATOP) += anatop.o
 obj-$(CONFIG_HAVE_IMX_GPC) += gpc.o
 obj-$(CONFIG_HAVE_IMX_MMDC) += mmdc.o
 obj-$(CONFIG_HAVE_IMX_SRC) += src.o
+<<<<<<< HEAD
 ifneq ($(CONFIG_SOC_IMX6)$(CONFIG_SOC_LS1021A),)
+=======
+ifneq ($(CONFIG_SOC_IMX6)$(CONFIG_SOC_IMX7D_CA7)$(CONFIG_SOC_LS1021A),)
+>>>>>>> upstream/android-13
 AFLAGS_headsmp.o :=-Wa,-march=armv7-a
 obj-$(CONFIG_SMP) += headsmp.o platsmp.o
 obj-$(CONFIG_HOTPLUG_CPU) += hotplug.o
@@ -83,6 +109,10 @@ obj-$(CONFIG_SOC_IMX6SX) += mach-imx6sx.o
 obj-$(CONFIG_SOC_IMX6UL) += mach-imx6ul.o
 obj-$(CONFIG_SOC_IMX7D_CA7) += mach-imx7d.o
 obj-$(CONFIG_SOC_IMX7D_CM4) += mach-imx7d-cm4.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_SOC_IMX7ULP) += mach-imx7ulp.o pm-imx7ulp.o
+>>>>>>> upstream/android-13
 
 ifeq ($(CONFIG_SUSPEND),y)
 AFLAGS_suspend-imx6.o :=-Wa,-march=armv7-a
@@ -103,5 +133,8 @@ obj-$(CONFIG_SOC_IMX53) += mach-imx53.o
 obj-$(CONFIG_SOC_VF610) += mach-vf610.o
 
 obj-$(CONFIG_SOC_LS1021A) += mach-ls1021a.o
+<<<<<<< HEAD
 
 obj-y += devices/
+=======
+>>>>>>> upstream/android-13

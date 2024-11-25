@@ -1,20 +1,31 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ROHM Semiconductor BD6107 LED Driver
  *
  * Copyright (C) 2013 Ideas on board SPRL
  *
  * Contact: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/backlight.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/fb.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/i2c.h>
 #include <linux/module.h>
 #include <linux/platform_data/bd6107.h>
@@ -74,6 +85,10 @@ struct bd6107 {
 	struct i2c_client *client;
 	struct backlight_device *backlight;
 	struct bd6107_platform_data *pdata;
+<<<<<<< HEAD
+=======
+	struct gpio_desc *reset;
+>>>>>>> upstream/android-13
 };
 
 static int bd6107_write(struct bd6107 *bd, u8 reg, u8 data)
@@ -84,12 +99,16 @@ static int bd6107_write(struct bd6107 *bd, u8 reg, u8 data)
 static int bd6107_backlight_update_status(struct backlight_device *backlight)
 {
 	struct bd6107 *bd = bl_get_data(backlight);
+<<<<<<< HEAD
 	int brightness = backlight->props.brightness;
 
 	if (backlight->props.power != FB_BLANK_UNBLANK ||
 	    backlight->props.fb_blank != FB_BLANK_UNBLANK ||
 	    backlight->props.state & (BL_CORE_SUSPENDED | BL_CORE_FBBLANK))
 		brightness = 0;
+=======
+	int brightness = backlight_get_brightness(backlight);
+>>>>>>> upstream/android-13
 
 	if (brightness) {
 		bd6107_write(bd, BD6107_PORTSEL, BD6107_PORTSEL_LEDM(2) |
@@ -97,9 +116,16 @@ static int bd6107_backlight_update_status(struct backlight_device *backlight)
 		bd6107_write(bd, BD6107_MAINCNT1, brightness);
 		bd6107_write(bd, BD6107_LEDCNT1, BD6107_LEDCNT1_LEDONOFF1);
 	} else {
+<<<<<<< HEAD
 		gpio_set_value(bd->pdata->reset, 0);
 		msleep(24);
 		gpio_set_value(bd->pdata->reset, 1);
+=======
+		/* Assert the reset line (gpiolib will handle active low) */
+		gpiod_set_value(bd->reset, 1);
+		msleep(24);
+		gpiod_set_value(bd->reset, 0);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -128,8 +154,13 @@ static int bd6107_probe(struct i2c_client *client,
 	struct bd6107 *bd;
 	int ret;
 
+<<<<<<< HEAD
 	if (pdata == NULL || !pdata->reset) {
 		dev_err(&client->dev, "No reset GPIO in platform data\n");
+=======
+	if (pdata == NULL) {
+		dev_err(&client->dev, "No platform data\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -147,10 +178,23 @@ static int bd6107_probe(struct i2c_client *client,
 	bd->client = client;
 	bd->pdata = pdata;
 
+<<<<<<< HEAD
 	ret = devm_gpio_request_one(&client->dev, pdata->reset,
 				    GPIOF_DIR_OUT | GPIOF_INIT_LOW, "reset");
 	if (ret < 0) {
 		dev_err(&client->dev, "unable to request reset GPIO\n");
+=======
+	/*
+	 * Request the reset GPIO line with GPIOD_OUT_HIGH meaning asserted,
+	 * so in the machine descriptor table (or other hardware description),
+	 * the line should be flagged as active low so this will assert
+	 * the reset.
+	 */
+	bd->reset = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_HIGH);
+	if (IS_ERR(bd->reset)) {
+		dev_err(&client->dev, "unable to request reset GPIO\n");
+		ret = PTR_ERR(bd->reset);
+>>>>>>> upstream/android-13
 		return ret;
 	}
 

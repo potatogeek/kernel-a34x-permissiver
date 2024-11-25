@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2011-2012 Calxeda, Inc.
  *
@@ -12,6 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2011-2012 Calxeda, Inc.
+>>>>>>> upstream/android-13
  */
 
 /dts-v1/;
@@ -24,7 +30,10 @@
 	compatible = "calxeda,highbank";
 	#address-cells = <1>;
 	#size-cells = <1>;
+<<<<<<< HEAD
 	clock-ranges;
+=======
+>>>>>>> upstream/android-13
 
 	cpus {
 		#address-cells = <1>;
@@ -107,7 +116,11 @@
 		};
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@0 {
+>>>>>>> upstream/android-13
 		name = "memory";
 		device_type = "memory";
 		reg = <0x00000000 0xff900000>;
@@ -139,14 +152,21 @@
 		intc: interrupt-controller@fff11000 {
 			compatible = "arm,cortex-a9-gic";
 			#interrupt-cells = <3>;
+<<<<<<< HEAD
 			#size-cells = <0>;
 			#address-cells = <1>;
+=======
+>>>>>>> upstream/android-13
 			interrupt-controller;
 			reg = <0xfff11000 0x1000>,
 			      <0xfff10100 0x100>;
 		};
 
+<<<<<<< HEAD
 		L2: l2-cache {
+=======
+		L2: cache-controller {
+>>>>>>> upstream/android-13
 			compatible = "arm,pl310-cache";
 			reg = <0xfff12000 0x1000>;
 			interrupts = <0 70 4>;
@@ -156,14 +176,22 @@
 
 		pmu {
 			compatible = "arm,cortex-a9-pmu";
+<<<<<<< HEAD
 			interrupts = <0 76 4  0 75 4  0 74 4  0 73 4>;
+=======
+			interrupts = <0 76 4>, <0 75 4>, <0 74 4>, <0 73 4>;
+>>>>>>> upstream/android-13
 		};
 
 
 		sregs@fff3c200 {
 			compatible = "calxeda,hb-sregs-l2-ecc";
 			reg = <0xfff3c200 0x100>;
+<<<<<<< HEAD
 			interrupts = <0 71 4  0 72 4>;
+=======
+			interrupts = <0 71 4>, <0 72 4>;
+>>>>>>> upstream/android-13
 		};
 
 	};

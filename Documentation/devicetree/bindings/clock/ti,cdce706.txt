@@ -1,7 +1,11 @@
 Bindings for Texas Instruments CDCE706 programmable 3-PLL clock
 synthesizer/multiplier/divider.
 
+<<<<<<< HEAD
 Reference: http://www.ti.com/lit/ds/symlink/cdce706.pdf
+=======
+Reference: https://www.ti.com/lit/ds/symlink/cdce706.pdf
+>>>>>>> upstream/android-13
 
 I2C device node required properties:
 - compatible: shall be "ti,cdce706".

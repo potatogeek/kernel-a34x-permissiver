@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Google, Inc
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 or later as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2016 Google, Inc
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -570,8 +576,13 @@ static int aspeed_get_fan_tach_ch_rpm(struct aspeed_pwm_tacho_data *priv,
 	return (clk_source * 60) / (2 * raw_data * tach_div);
 }
 
+<<<<<<< HEAD
 static ssize_t set_pwm(struct device *dev, struct device_attribute *attr,
 		       const char *buf, size_t count)
+=======
+static ssize_t pwm_store(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
 	int index = sensor_attr->index;
@@ -595,7 +606,11 @@ static ssize_t set_pwm(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_pwm(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t pwm_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
@@ -605,7 +620,11 @@ static ssize_t show_pwm(struct device *dev, struct device_attribute *attr,
 	return sprintf(buf, "%u\n", priv->pwm_port_fan_ctrl[index]);
 }
 
+<<<<<<< HEAD
 static ssize_t show_rpm(struct device *dev, struct device_attribute *attr,
+=======
+static ssize_t rpm_show(struct device *dev, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			char *buf)
 {
 	struct sensor_device_attribute *sensor_attr = to_sensor_dev_attr(attr);
@@ -623,7 +642,11 @@ static ssize_t show_rpm(struct device *dev, struct device_attribute *attr,
 static umode_t pwm_is_visible(struct kobject *kobj,
 			      struct attribute *a, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct aspeed_pwm_tacho_data *priv = dev_get_drvdata(dev);
 
 	if (!priv->pwm_present[index])
@@ -634,7 +657,11 @@ static umode_t pwm_is_visible(struct kobject *kobj,
 static umode_t fan_dev_is_visible(struct kobject *kobj,
 				  struct attribute *a, int index)
 {
+<<<<<<< HEAD
 	struct device *dev = container_of(kobj, struct device, kobj);
+=======
+	struct device *dev = kobj_to_dev(kobj);
+>>>>>>> upstream/android-13
 	struct aspeed_pwm_tacho_data *priv = dev_get_drvdata(dev);
 
 	if (!priv->fan_tach_present[index])
@@ -642,6 +669,7 @@ static umode_t fan_dev_is_visible(struct kobject *kobj,
 	return a->mode;
 }
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(pwm1, 0644,
 			show_pwm, set_pwm, 0);
 static SENSOR_DEVICE_ATTR(pwm2, 0644,
@@ -658,6 +686,16 @@ static SENSOR_DEVICE_ATTR(pwm7, 0644,
 			show_pwm, set_pwm, 6);
 static SENSOR_DEVICE_ATTR(pwm8, 0644,
 			show_pwm, set_pwm, 7);
+=======
+static SENSOR_DEVICE_ATTR_RW(pwm1, pwm, 0);
+static SENSOR_DEVICE_ATTR_RW(pwm2, pwm, 1);
+static SENSOR_DEVICE_ATTR_RW(pwm3, pwm, 2);
+static SENSOR_DEVICE_ATTR_RW(pwm4, pwm, 3);
+static SENSOR_DEVICE_ATTR_RW(pwm5, pwm, 4);
+static SENSOR_DEVICE_ATTR_RW(pwm6, pwm, 5);
+static SENSOR_DEVICE_ATTR_RW(pwm7, pwm, 6);
+static SENSOR_DEVICE_ATTR_RW(pwm8, pwm, 7);
+>>>>>>> upstream/android-13
 static struct attribute *pwm_dev_attrs[] = {
 	&sensor_dev_attr_pwm1.dev_attr.attr,
 	&sensor_dev_attr_pwm2.dev_attr.attr,
@@ -675,6 +713,7 @@ static const struct attribute_group pwm_dev_group = {
 	.is_visible = pwm_is_visible,
 };
 
+<<<<<<< HEAD
 static SENSOR_DEVICE_ATTR(fan1_input, 0444,
 		show_rpm, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan2_input, 0444,
@@ -707,6 +746,24 @@ static SENSOR_DEVICE_ATTR(fan15_input, 0444,
 		show_rpm, NULL, 14);
 static SENSOR_DEVICE_ATTR(fan16_input, 0444,
 		show_rpm, NULL, 15);
+=======
+static SENSOR_DEVICE_ATTR_RO(fan1_input, rpm, 0);
+static SENSOR_DEVICE_ATTR_RO(fan2_input, rpm, 1);
+static SENSOR_DEVICE_ATTR_RO(fan3_input, rpm, 2);
+static SENSOR_DEVICE_ATTR_RO(fan4_input, rpm, 3);
+static SENSOR_DEVICE_ATTR_RO(fan5_input, rpm, 4);
+static SENSOR_DEVICE_ATTR_RO(fan6_input, rpm, 5);
+static SENSOR_DEVICE_ATTR_RO(fan7_input, rpm, 6);
+static SENSOR_DEVICE_ATTR_RO(fan8_input, rpm, 7);
+static SENSOR_DEVICE_ATTR_RO(fan9_input, rpm, 8);
+static SENSOR_DEVICE_ATTR_RO(fan10_input, rpm, 9);
+static SENSOR_DEVICE_ATTR_RO(fan11_input, rpm, 10);
+static SENSOR_DEVICE_ATTR_RO(fan12_input, rpm, 11);
+static SENSOR_DEVICE_ATTR_RO(fan13_input, rpm, 12);
+static SENSOR_DEVICE_ATTR_RO(fan14_input, rpm, 13);
+static SENSOR_DEVICE_ATTR_RO(fan15_input, rpm, 14);
+static SENSOR_DEVICE_ATTR_RO(fan16_input, rpm, 15);
+>>>>>>> upstream/android-13
 static struct attribute *fan_dev_attrs[] = {
 	&sensor_dev_attr_fan1_input.dev_attr.attr,
 	&sensor_dev_attr_fan2_input.dev_attr.attr,
@@ -852,12 +909,19 @@ static int aspeed_create_pwm_cooling(struct device *dev,
 		dev_err(dev, "Property 'cooling-levels' cannot be read.\n");
 		return ret;
 	}
+<<<<<<< HEAD
 	snprintf(cdev->name, MAX_CDEV_NAME_LEN, "%s%d", child->name, pwm_port);
 
 	cdev->tcdev = thermal_of_cooling_device_register(child,
 							 cdev->name,
 							 cdev,
 							 &aspeed_pwm_cool_ops);
+=======
+	snprintf(cdev->name, MAX_CDEV_NAME_LEN, "%pOFn%d", child, pwm_port);
+
+	cdev->tcdev = devm_thermal_of_cooling_device_register(dev, child,
+					cdev->name, cdev, &aspeed_pwm_cool_ops);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cdev->tcdev))
 		return PTR_ERR(cdev->tcdev);
 
@@ -922,17 +986,24 @@ static int aspeed_pwm_tacho_probe(struct platform_device *pdev)
 	struct device_node *np, *child;
 	struct aspeed_pwm_tacho_data *priv;
 	void __iomem *regs;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct device *hwmon;
 	struct clk *clk;
 	int ret;
 
 	np = dev->of_node;
+<<<<<<< HEAD
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res)
 		return -ENOENT;
 	regs = devm_ioremap_resource(dev, res);
+=======
+	regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);

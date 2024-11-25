@@ -7,9 +7,14 @@
 #ifndef __HAL_VERSION_DEF_H__
 #define __HAL_VERSION_DEF_H__
 
+<<<<<<< HEAD
 /*  HAL_IC_TYPE_E */
 typedef enum tag_HAL_IC_Type_Definition
 {
+=======
+/*  hal_ic_type_e */
+enum hal_ic_type_e { /* tag_HAL_IC_Type_Definition */
+>>>>>>> upstream/android-13
 	CHIP_8192S	=	0,
 	CHIP_8188C	=	1,
 	CHIP_8192C	=	2,
@@ -20,6 +25,7 @@ typedef enum tag_HAL_IC_Type_Definition
 	CHIP_8821	=	7,
 	CHIP_8723B	=	8,
 	CHIP_8192E	=	9,
+<<<<<<< HEAD
 }HAL_IC_TYPE_E;
 
 /* HAL_CHIP_TYPE_E */
@@ -33,6 +39,19 @@ typedef enum tag_HAL_CHIP_Type_Definition
 /* HAL_CUT_VERSION_E */
 typedef enum tag_HAL_Cut_Version_Definition
 {
+=======
+};
+
+/* hal_chip_type_e */
+enum hal_chip_type_e { /* tag_HAL_CHIP_Type_Definition */
+	TEST_CHIP		=	0,
+	NORMAL_CHIP	=	1,
+	FPGA			=	2,
+};
+
+/* hal_cut_version_e */
+enum hal_cut_version_e { /* tag_HAL_Cut_Version_Definition */
+>>>>>>> upstream/android-13
 	A_CUT_VERSION		=	0,
 	B_CUT_VERSION		=	1,
 	C_CUT_VERSION		=	2,
@@ -44,6 +63,7 @@ typedef enum tag_HAL_Cut_Version_Definition
 	I_CUT_VERSION		=	8,
 	J_CUT_VERSION		=	9,
 	K_CUT_VERSION		=	10,
+<<<<<<< HEAD
 }HAL_CUT_VERSION_E;
 
 /*  HAL_Manufacturer */
@@ -85,11 +105,39 @@ typedef	struct tag_HAL_VERSION
 #define GET_CVID_RF_TYPE(version)			((HAL_RF_TYPE_E)((version).RFType))
 #define GET_CVID_MANUFACTUER(version)		((HAL_VENDOR_E)((version).VendorType))
 #define GET_CVID_CUT_VERSION(version)		((HAL_CUT_VERSION_E)((version).CUTVersion))
+=======
+};
+
+/*  HAL_Manufacturer */
+enum hal_vendor_e { /* tag_HAL_Manufacturer_Version_Definition */
+	CHIP_VENDOR_TSMC	=	0,
+	CHIP_VENDOR_UMC		=	1,
+	CHIP_VENDOR_SMIC	=	2,
+};
+
+struct hal_version { /* tag_HAL_VERSION */
+	enum hal_ic_type_e		ICType;
+	enum hal_chip_type_e		ChipType;
+	enum hal_cut_version_e	CUTVersion;
+	enum hal_vendor_e		VendorType;
+	u8 			ROMVer;
+};
+
+/* VERSION_8192C			VersionID; */
+/* hal_version			VersionID; */
+
+/*  Get element */
+#define GET_CVID_IC_TYPE(version)			((enum hal_ic_type_e)((version).ICType))
+#define GET_CVID_CHIP_TYPE(version)			((enum hal_chip_type_e)((version).ChipType))
+#define GET_CVID_MANUFACTUER(version)		((enum hal_vendor_e)((version).VendorType))
+#define GET_CVID_CUT_VERSION(version)		((enum hal_cut_version_e)((version).CUTVersion))
+>>>>>>> upstream/android-13
 #define GET_CVID_ROM_VERSION(version)		(((version).ROMVer) & ROM_VERSION_MASK)
 
 /*  */
 /* Common Macro. -- */
 /*  */
+<<<<<<< HEAD
 /* HAL_VERSION VersionID */
 
 /* HAL_CHIP_TYPE_E */
@@ -97,6 +145,15 @@ typedef	struct tag_HAL_VERSION
 #define IS_NORMAL_CHIP(version)			((GET_CVID_CHIP_TYPE(version) ==NORMAL_CHIP)? true: false)
 
 /* HAL_CUT_VERSION_E */
+=======
+/* hal_version VersionID */
+
+/* hal_chip_type_e */
+#define IS_TEST_CHIP(version)			((GET_CVID_CHIP_TYPE(version) == TEST_CHIP) ? true : false)
+#define IS_NORMAL_CHIP(version)			((GET_CVID_CHIP_TYPE(version) == NORMAL_CHIP) ? true : false)
+
+/* hal_cut_version_e */
+>>>>>>> upstream/android-13
 #define IS_A_CUT(version)				((GET_CVID_CUT_VERSION(version) == A_CUT_VERSION) ? true : false)
 #define IS_B_CUT(version)				((GET_CVID_CUT_VERSION(version) == B_CUT_VERSION) ? true : false)
 #define IS_C_CUT(version)				((GET_CVID_CUT_VERSION(version) == C_CUT_VERSION) ? true : false)
@@ -106,6 +163,7 @@ typedef	struct tag_HAL_VERSION
 #define IS_J_CUT(version)				((GET_CVID_CUT_VERSION(version) == J_CUT_VERSION) ? true : false)
 #define IS_K_CUT(version)				((GET_CVID_CUT_VERSION(version) == K_CUT_VERSION) ? true : false)
 
+<<<<<<< HEAD
 /* HAL_VENDOR_E */
 #define IS_CHIP_VENDOR_TSMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_TSMC)? true: false)
 #define IS_CHIP_VENDOR_UMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_UMC)? true: false)
@@ -115,5 +173,11 @@ typedef	struct tag_HAL_VERSION
 #define IS_1T1R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_1T1R)? true : false)
 #define IS_1T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_1T2R)? true : false)
 #define IS_2T2R(version)					((GET_CVID_RF_TYPE(version) == RF_TYPE_2T2R)? true : false)
+=======
+/* hal_vendor_e */
+#define IS_CHIP_VENDOR_TSMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_TSMC) ? true : false)
+#define IS_CHIP_VENDOR_UMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_UMC) ? true : false)
+#define IS_CHIP_VENDOR_SMIC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_SMIC) ? true : false)
+>>>>>>> upstream/android-13
 
 #endif

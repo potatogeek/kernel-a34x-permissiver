@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2008 Intel Corporation
  * Author: Matthew Wilcox <willy@linux.intel.com>
  *
+<<<<<<< HEAD
  * Distributed under the terms of the GNU GPL, version 2
  *
+=======
+>>>>>>> upstream/android-13
  * Please see kernel/locking/semaphore.c for documentation of these functions
  */
 #ifndef __LINUX_SEMAPHORE_H

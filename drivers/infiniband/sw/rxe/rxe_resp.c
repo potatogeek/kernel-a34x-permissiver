@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
  * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
@@ -29,6 +30,12 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+=======
+// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+/*
+ * Copyright (c) 2016 Mellanox Technologies Ltd. All rights reserved.
+ * Copyright (c) 2015 System Fabric Works, Inc. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/skbuff.h>
@@ -62,6 +69,10 @@ enum resp_states {
 	RESPST_ERR_TOO_MANY_RDMA_ATM_REQ,
 	RESPST_ERR_RNR,
 	RESPST_ERR_RKEY_VIOLATION,
+<<<<<<< HEAD
+=======
+	RESPST_ERR_INVALIDATE_RKEY,
+>>>>>>> upstream/android-13
 	RESPST_ERR_LENGTH,
 	RESPST_ERR_CQ_OVERFLOW,
 	RESPST_ERROR,
@@ -95,6 +106,10 @@ static char *resp_state_name[] = {
 	[RESPST_ERR_TOO_MANY_RDMA_ATM_REQ]	= "ERR_TOO_MANY_RDMA_ATM_REQ",
 	[RESPST_ERR_RNR]			= "ERR_RNR",
 	[RESPST_ERR_RKEY_VIOLATION]		= "ERR_RKEY_VIOLATION",
+<<<<<<< HEAD
+=======
+	[RESPST_ERR_INVALIDATE_RKEY]		= "ERR_INVALIDATE_RKEY_VIOLATION",
+>>>>>>> upstream/android-13
 	[RESPST_ERR_LENGTH]			= "ERR_LENGTH",
 	[RESPST_ERR_CQ_OVERFLOW]		= "ERR_CQ_OVERFLOW",
 	[RESPST_ERROR]				= "ERROR",
@@ -104,8 +119,12 @@ static char *resp_state_name[] = {
 };
 
 /* rxe_recv calls here to add a request packet to the input queue */
+<<<<<<< HEAD
 void rxe_resp_queue_pkt(struct rxe_dev *rxe, struct rxe_qp *qp,
 			struct sk_buff *skb)
+=======
+void rxe_resp_queue_pkt(struct rxe_qp *qp, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	int must_sched;
 	struct rxe_pkt_info *pkt = SKB_TO_PKT(skb);
@@ -124,12 +143,19 @@ static inline enum resp_states get_req(struct rxe_qp *qp,
 	struct sk_buff *skb;
 
 	if (qp->resp.state == QP_STATE_ERROR) {
+<<<<<<< HEAD
 		skb = skb_dequeue(&qp->req_pkts);
 		if (skb) {
 			/* drain request packet queue */
 			rxe_drop_ref(qp);
 			kfree_skb(skb);
 			return RESPST_GET_REQ;
+=======
+		while ((skb = skb_dequeue(&qp->req_pkts))) {
+			rxe_drop_ref(qp);
+			kfree_skb(skb);
+			ib_device_put(qp->ibqp.device);
+>>>>>>> upstream/android-13
 		}
 
 		/* go drain recv wr queue */
@@ -323,18 +349,31 @@ static enum resp_states get_srq_wqe(struct rxe_qp *qp)
 	struct rxe_queue *q = srq->rq.queue;
 	struct rxe_recv_wqe *wqe;
 	struct ib_event ev;
+<<<<<<< HEAD
+=======
+	unsigned int count;
+	size_t size;
+>>>>>>> upstream/android-13
 
 	if (srq->error)
 		return RESPST_ERR_RNR;
 
 	spin_lock_bh(&srq->rq.consumer_lock);
 
+<<<<<<< HEAD
 	wqe = queue_head(q);
+=======
+	if (qp->is_user)
+		wqe = queue_head(q, QUEUE_TYPE_FROM_USER);
+	else
+		wqe = queue_head(q, QUEUE_TYPE_KERNEL);
+>>>>>>> upstream/android-13
 	if (!wqe) {
 		spin_unlock_bh(&srq->rq.consumer_lock);
 		return RESPST_ERR_RNR;
 	}
 
+<<<<<<< HEAD
 	/* note kernel and user space recv wqes have same size */
 	memcpy(&qp->resp.srq_wqe, wqe, sizeof(qp->resp.srq_wqe));
 
@@ -343,6 +382,27 @@ static enum resp_states get_srq_wqe(struct rxe_qp *qp)
 
 	if (srq->limit && srq->ibsrq.event_handler &&
 	    (queue_count(q) < srq->limit)) {
+=======
+	/* don't trust user space data */
+	if (unlikely(wqe->dma.num_sge > srq->rq.max_sge)) {
+		spin_unlock_bh(&srq->rq.consumer_lock);
+		pr_warn("%s: invalid num_sge in SRQ entry\n", __func__);
+		return RESPST_ERR_MALFORMED_WQE;
+	}
+	size = sizeof(*wqe) + wqe->dma.num_sge*sizeof(struct rxe_sge);
+	memcpy(&qp->resp.srq_wqe, wqe, size);
+
+	qp->resp.wqe = &qp->resp.srq_wqe.wqe;
+	if (qp->is_user) {
+		advance_consumer(q, QUEUE_TYPE_FROM_USER);
+		count = queue_count(q, QUEUE_TYPE_FROM_USER);
+	} else {
+		advance_consumer(q, QUEUE_TYPE_KERNEL);
+		count = queue_count(q, QUEUE_TYPE_KERNEL);
+	}
+
+	if (srq->limit && srq->ibsrq.event_handler && (count < srq->limit)) {
+>>>>>>> upstream/android-13
 		srq->limit = 0;
 		goto event;
 	}
@@ -369,7 +429,16 @@ static enum resp_states check_resource(struct rxe_qp *qp,
 			qp->resp.status = IB_WC_WR_FLUSH_ERR;
 			return RESPST_COMPLETE;
 		} else if (!srq) {
+<<<<<<< HEAD
 			qp->resp.wqe = queue_head(qp->rq.queue);
+=======
+			if (qp->is_user)
+				qp->resp.wqe = queue_head(qp->rq.queue,
+						QUEUE_TYPE_FROM_USER);
+			else
+				qp->resp.wqe = queue_head(qp->rq.queue,
+						QUEUE_TYPE_KERNEL);
+>>>>>>> upstream/android-13
 			if (qp->resp.wqe) {
 				qp->resp.status = IB_WC_WR_FLUSH_ERR;
 				return RESPST_COMPLETE;
@@ -396,7 +465,16 @@ static enum resp_states check_resource(struct rxe_qp *qp,
 		if (srq)
 			return get_srq_wqe(qp);
 
+<<<<<<< HEAD
 		qp->resp.wqe = queue_head(qp->rq.queue);
+=======
+		if (qp->is_user)
+			qp->resp.wqe = queue_head(qp->rq.queue,
+					QUEUE_TYPE_FROM_USER);
+		else
+			qp->resp.wqe = queue_head(qp->rq.queue,
+					QUEUE_TYPE_KERNEL);
+>>>>>>> upstream/android-13
 		return (qp->resp.wqe) ? RESPST_CHK_LENGTH : RESPST_ERR_RNR;
 	}
 
@@ -421,7 +499,12 @@ static enum resp_states check_length(struct rxe_qp *qp,
 static enum resp_states check_rkey(struct rxe_qp *qp,
 				   struct rxe_pkt_info *pkt)
 {
+<<<<<<< HEAD
 	struct rxe_mem *mem = NULL;
+=======
+	struct rxe_mr *mr = NULL;
+	struct rxe_mw *mw = NULL;
+>>>>>>> upstream/android-13
 	u64 va;
 	u32 rkey;
 	u32 resid;
@@ -433,6 +516,10 @@ static enum resp_states check_rkey(struct rxe_qp *qp,
 	if (pkt->mask & (RXE_READ_MASK | RXE_WRITE_MASK)) {
 		if (pkt->mask & RXE_RETH_MASK) {
 			qp->resp.va = reth_va(pkt);
+<<<<<<< HEAD
+=======
+			qp->resp.offset = 0;
+>>>>>>> upstream/android-13
 			qp->resp.rkey = reth_rkey(pkt);
 			qp->resp.resid = reth_len(pkt);
 			qp->resp.length = reth_len(pkt);
@@ -441,6 +528,10 @@ static enum resp_states check_rkey(struct rxe_qp *qp,
 						     : IB_ACCESS_REMOTE_WRITE;
 	} else if (pkt->mask & RXE_ATOMIC_MASK) {
 		qp->resp.va = atmeth_va(pkt);
+<<<<<<< HEAD
+=======
+		qp->resp.offset = 0;
+>>>>>>> upstream/android-13
 		qp->resp.rkey = atmeth_rkey(pkt);
 		qp->resp.resid = sizeof(u64);
 		access = IB_ACCESS_REMOTE_ATOMIC;
@@ -460,6 +551,7 @@ static enum resp_states check_rkey(struct rxe_qp *qp,
 	resid	= qp->resp.resid;
 	pktlen	= payload_size(pkt);
 
+<<<<<<< HEAD
 	mem = lookup_mem(qp->pd, access, rkey, lookup_remote);
 	if (!mem) {
 		state = RESPST_ERR_RKEY_VIOLATION;
@@ -472,6 +564,38 @@ static enum resp_states check_rkey(struct rxe_qp *qp,
 	}
 
 	if (mem_check_range(mem, va, resid)) {
+=======
+	if (rkey_is_mw(rkey)) {
+		mw = rxe_lookup_mw(qp, access, rkey);
+		if (!mw) {
+			pr_err("%s: no MW matches rkey %#x\n", __func__, rkey);
+			state = RESPST_ERR_RKEY_VIOLATION;
+			goto err;
+		}
+
+		mr = mw->mr;
+		if (!mr) {
+			pr_err("%s: MW doesn't have an MR\n", __func__);
+			state = RESPST_ERR_RKEY_VIOLATION;
+			goto err;
+		}
+
+		if (mw->access & IB_ZERO_BASED)
+			qp->resp.offset = mw->addr;
+
+		rxe_drop_ref(mw);
+		rxe_add_ref(mr);
+	} else {
+		mr = lookup_mr(qp->pd, access, rkey, RXE_LOOKUP_REMOTE);
+		if (!mr) {
+			pr_err("%s: no MR matches rkey %#x\n", __func__, rkey);
+			state = RESPST_ERR_RKEY_VIOLATION;
+			goto err;
+		}
+	}
+
+	if (mr_check_range(mr, va + qp->resp.offset, resid)) {
+>>>>>>> upstream/android-13
 		state = RESPST_ERR_RKEY_VIOLATION;
 		goto err;
 	}
@@ -499,12 +623,24 @@ static enum resp_states check_rkey(struct rxe_qp *qp,
 
 	WARN_ON_ONCE(qp->resp.mr);
 
+<<<<<<< HEAD
 	qp->resp.mr = mem;
 	return RESPST_EXECUTE;
 
 err:
 	if (mem)
 		rxe_drop_ref(mem);
+=======
+	qp->resp.mr = mr;
+	return RESPST_EXECUTE;
+
+err:
+	if (mr)
+		rxe_drop_ref(mr);
+	if (mw)
+		rxe_drop_ref(mw);
+
+>>>>>>> upstream/android-13
 	return state;
 }
 
@@ -514,7 +650,11 @@ static enum resp_states send_data_in(struct rxe_qp *qp, void *data_addr,
 	int err;
 
 	err = copy_data(qp->pd, IB_ACCESS_LOCAL_WRITE, &qp->resp.wqe->dma,
+<<<<<<< HEAD
 			data_addr, data_len, to_mem_obj, NULL);
+=======
+			data_addr, data_len, RXE_TO_MR_OBJ);
+>>>>>>> upstream/android-13
 	if (unlikely(err))
 		return (err == -ENOSPC) ? RESPST_ERR_LENGTH
 					: RESPST_ERR_MALFORMED_WQE;
@@ -529,8 +669,13 @@ static enum resp_states write_data_in(struct rxe_qp *qp,
 	int	err;
 	int data_len = payload_size(pkt);
 
+<<<<<<< HEAD
 	err = rxe_mem_copy(qp->resp.mr, qp->resp.va, payload_addr(pkt),
 			   data_len, to_mem_obj, NULL);
+=======
+	err = rxe_mr_copy(qp->resp.mr, qp->resp.va + qp->resp.offset,
+			  payload_addr(pkt), data_len, RXE_TO_MR_OBJ);
+>>>>>>> upstream/android-13
 	if (err) {
 		rc = RESPST_ERR_RKEY_VIOLATION;
 		goto out;
@@ -549,17 +694,29 @@ static DEFINE_SPINLOCK(atomic_ops_lock);
 static enum resp_states process_atomic(struct rxe_qp *qp,
 				       struct rxe_pkt_info *pkt)
 {
+<<<<<<< HEAD
 	u64 iova = atmeth_va(pkt);
 	u64 *vaddr;
 	enum resp_states ret;
 	struct rxe_mem *mr = qp->resp.mr;
 
 	if (mr->state != RXE_MEM_STATE_VALID) {
+=======
+	u64 *vaddr;
+	enum resp_states ret;
+	struct rxe_mr *mr = qp->resp.mr;
+
+	if (mr->state != RXE_MR_STATE_VALID) {
+>>>>>>> upstream/android-13
 		ret = RESPST_ERR_RKEY_VIOLATION;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	vaddr = iova_to_vaddr(mr, iova, sizeof(u64));
+=======
+	vaddr = iova_to_vaddr(mr, qp->resp.va + qp->resp.offset, sizeof(u64));
+>>>>>>> upstream/android-13
 
 	/* check vaddr is 8 bytes aligned. */
 	if (!vaddr || (uintptr_t)vaddr & 7) {
@@ -592,6 +749,7 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
 					  int opcode,
 					  int payload,
 					  u32 psn,
+<<<<<<< HEAD
 					  u8 syndrome,
 					  u32 *crcp)
 {
@@ -599,6 +757,12 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
 	struct sk_buff *skb;
 	u32 crc = 0;
 	u32 *p;
+=======
+					  u8 syndrome)
+{
+	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
+	struct sk_buff *skb;
+>>>>>>> upstream/android-13
 	int paylen;
 	int pad;
 	int err;
@@ -616,6 +780,7 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
 	ack->qp = qp;
 	ack->opcode = opcode;
 	ack->mask = rxe_opcode[opcode].mask;
+<<<<<<< HEAD
 	ack->offset = pkt->offset;
 	ack->paylen = paylen;
 
@@ -630,6 +795,14 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
 	bth_set_ack(ack, 0);
 	ack->psn = psn;
 
+=======
+	ack->paylen = paylen;
+	ack->psn = psn;
+
+	bth_init(ack, opcode, 0, 0, pad, IB_DEFAULT_PKEY_FULL,
+		 qp->attr.dest_qp_num, 0, psn);
+
+>>>>>>> upstream/android-13
 	if (ack->mask & RXE_AETH_MASK) {
 		aeth_set_syn(ack, syndrome);
 		aeth_set_msn(ack, qp->resp.msn);
@@ -638,12 +811,17 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
 	if (ack->mask & RXE_ATMACK_MASK)
 		atmack_set_orig(ack, qp->resp.atomic_orig);
 
+<<<<<<< HEAD
 	err = rxe_prepare(rxe, ack, skb, &crc);
+=======
+	err = rxe_prepare(ack, skb);
+>>>>>>> upstream/android-13
 	if (err) {
 		kfree_skb(skb);
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	if (crcp) {
 		/* CRC computation will be continued by the caller */
 		*crcp = crc;
@@ -652,6 +830,8 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
 		*p = ~crc;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return skb;
 }
 
@@ -661,7 +841,10 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
 static enum resp_states read_reply(struct rxe_qp *qp,
 				   struct rxe_pkt_info *req_pkt)
 {
+<<<<<<< HEAD
 	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
+=======
+>>>>>>> upstream/android-13
 	struct rxe_pkt_info ack_pkt;
 	struct sk_buff *skb;
 	int mtu = qp->mtu;
@@ -670,8 +853,11 @@ static enum resp_states read_reply(struct rxe_qp *qp,
 	int opcode;
 	int err;
 	struct resp_res *res = qp->resp.res;
+<<<<<<< HEAD
 	u32 icrc;
 	u32 *p;
+=======
+>>>>>>> upstream/android-13
 
 	if (!res) {
 		/* This is the first time we process that request. Get a
@@ -685,8 +871,15 @@ static enum resp_states read_reply(struct rxe_qp *qp,
 		res->type		= RXE_READ_MASK;
 		res->replay		= 0;
 
+<<<<<<< HEAD
 		res->read.va		= qp->resp.va;
 		res->read.va_org	= qp->resp.va;
+=======
+		res->read.va		= qp->resp.va +
+					  qp->resp.offset;
+		res->read.va_org	= qp->resp.va +
+					  qp->resp.offset;
+>>>>>>> upstream/android-13
 
 		res->first_psn		= req_pkt->psn;
 
@@ -728,16 +921,26 @@ static enum resp_states read_reply(struct rxe_qp *qp,
 	payload = min_t(int, res->read.resid, mtu);
 
 	skb = prepare_ack_packet(qp, req_pkt, &ack_pkt, opcode, payload,
+<<<<<<< HEAD
 				 res->cur_psn, AETH_ACK_UNLIMITED, &icrc);
 	if (!skb)
 		return RESPST_ERR_RNR;
 
 	err = rxe_mem_copy(res->read.mr, res->read.va, payload_addr(&ack_pkt),
 			   payload, from_mem_obj, &icrc);
+=======
+				 res->cur_psn, AETH_ACK_UNLIMITED);
+	if (!skb)
+		return RESPST_ERR_RNR;
+
+	err = rxe_mr_copy(res->read.mr, res->read.va, payload_addr(&ack_pkt),
+			  payload, RXE_FROM_MR_OBJ);
+>>>>>>> upstream/android-13
 	if (err)
 		pr_err("Failed copying memory\n");
 
 	if (bth_pad(&ack_pkt)) {
+<<<<<<< HEAD
 		struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
 		u8 *pad = payload_addr(&ack_pkt) + payload;
 
@@ -748,6 +951,14 @@ static enum resp_states read_reply(struct rxe_qp *qp,
 	*p = ~icrc;
 
 	err = rxe_xmit_packet(rxe, qp, &ack_pkt, skb);
+=======
+		u8 *pad = payload_addr(&ack_pkt) + payload;
+
+		memset(pad, 0, bth_pad(&ack_pkt));
+	}
+
+	err = rxe_xmit_packet(qp, &ack_pkt, skb);
+>>>>>>> upstream/android-13
 	if (err) {
 		pr_err("Failed sending RDMA reply.\n");
 		return RESPST_ERR_RNR;
@@ -771,6 +982,7 @@ static enum resp_states read_reply(struct rxe_qp *qp,
 	return state;
 }
 
+<<<<<<< HEAD
 static void build_rdma_network_hdr(union rdma_network_hdr *hdr,
 				   struct rxe_pkt_info *pkt)
 {
@@ -781,6 +993,14 @@ static void build_rdma_network_hdr(union rdma_network_hdr *hdr,
 		memcpy(&hdr->roce4grh, ip_hdr(skb), sizeof(hdr->roce4grh));
 	else if (skb->protocol == htons(ETH_P_IPV6))
 		memcpy(&hdr->ibgrh, ipv6_hdr(skb), sizeof(hdr->ibgrh));
+=======
+static int invalidate_rkey(struct rxe_qp *qp, u32 rkey)
+{
+	if (rkey_is_mw(rkey))
+		return rxe_invalidate_mw(qp, rkey);
+	else
+		return rxe_invalidate_mr(qp, rkey);
+>>>>>>> upstream/android-13
 }
 
 /* Executes a new request. A retried request never reach that function (send
@@ -789,16 +1009,34 @@ static void build_rdma_network_hdr(union rdma_network_hdr *hdr,
 static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
 {
 	enum resp_states err;
+<<<<<<< HEAD
+=======
+	struct sk_buff *skb = PKT_TO_SKB(pkt);
+	union rdma_network_hdr hdr;
+>>>>>>> upstream/android-13
 
 	if (pkt->mask & RXE_SEND_MASK) {
 		if (qp_type(qp) == IB_QPT_UD ||
 		    qp_type(qp) == IB_QPT_SMI ||
 		    qp_type(qp) == IB_QPT_GSI) {
+<<<<<<< HEAD
 			union rdma_network_hdr hdr;
 
 			build_rdma_network_hdr(&hdr, pkt);
 
 			err = send_data_in(qp, &hdr, sizeof(hdr));
+=======
+			if (skb->protocol == htons(ETH_P_IP)) {
+				memset(&hdr.reserved, 0,
+						sizeof(hdr.reserved));
+				memcpy(&hdr.roce4grh, ip_hdr(skb),
+						sizeof(hdr.roce4grh));
+				err = send_data_in(qp, &hdr, sizeof(hdr));
+			} else {
+				err = send_data_in(qp, ipv6_hdr(skb),
+						sizeof(hdr));
+			}
+>>>>>>> upstream/android-13
 			if (err)
 				return err;
 		}
@@ -822,6 +1060,21 @@ static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
 		WARN_ON_ONCE(1);
 	}
 
+<<<<<<< HEAD
+=======
+	if (pkt->mask & RXE_IETH_MASK) {
+		u32 rkey = ieth_rkey(pkt);
+
+		err = invalidate_rkey(qp, rkey);
+		if (err)
+			return RESPST_ERR_INVALIDATE_RKEY;
+	}
+
+	if (pkt->mask & RXE_END_MASK)
+		/* We successfully processed this new request. */
+		qp->resp.msn++;
+
+>>>>>>> upstream/android-13
 	/* next expected psn, read handles this separately */
 	qp->resp.psn = (pkt->psn + 1) & BTH_PSN_MASK;
 	qp->resp.ack_psn = qp->resp.psn;
@@ -829,11 +1082,17 @@ static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
 	qp->resp.opcode = pkt->opcode;
 	qp->resp.status = IB_WC_SUCCESS;
 
+<<<<<<< HEAD
 	if (pkt->mask & RXE_COMP_MASK) {
 		/* We successfully processed this new request. */
 		qp->resp.msn++;
 		return RESPST_COMPLETE;
 	} else if (qp_type(qp) == IB_QPT_RC)
+=======
+	if (pkt->mask & RXE_COMP_MASK)
+		return RESPST_COMPLETE;
+	else if (qp_type(qp) == IB_QPT_RC)
+>>>>>>> upstream/android-13
 		return RESPST_ACKNOWLEDGE;
 	else
 		return RESPST_CLEANUP;
@@ -846,13 +1105,21 @@ static enum resp_states do_complete(struct rxe_qp *qp,
 	struct ib_wc *wc = &cqe.ibwc;
 	struct ib_uverbs_wc *uwc = &cqe.uibwc;
 	struct rxe_recv_wqe *wqe = qp->resp.wqe;
+<<<<<<< HEAD
 
 	if (unlikely(!wqe))
 		return RESPST_CLEANUP;
+=======
+	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
+
+	if (!wqe)
+		goto finish;
+>>>>>>> upstream/android-13
 
 	memset(&cqe, 0, sizeof(cqe));
 
 	if (qp->rcq->is_user) {
+<<<<<<< HEAD
 		uwc->status             = qp->resp.status;
 		uwc->qp_num             = qp->ibqp.qp_num;
 		uwc->wr_id              = wqe->wr_id;
@@ -863,6 +1130,19 @@ static enum resp_states do_complete(struct rxe_qp *qp,
 	}
 
 	if (wc->status == IB_WC_SUCCESS) {
+=======
+		uwc->status		= qp->resp.status;
+		uwc->qp_num		= qp->ibqp.qp_num;
+		uwc->wr_id		= wqe->wr_id;
+	} else {
+		wc->status		= qp->resp.status;
+		wc->qp			= &qp->ibqp;
+		wc->wr_id		= wqe->wr_id;
+	}
+
+	if (wc->status == IB_WC_SUCCESS) {
+		rxe_counter_inc(rxe, RXE_CNT_RDMA_RECV);
+>>>>>>> upstream/android-13
 		wc->opcode = (pkt->mask & RXE_IMMDT_MASK &&
 				pkt->mask & RXE_WRITE_MASK) ?
 					IB_WC_RECV_RDMA_WITH_IMM : IB_WC_RECV;
@@ -913,6 +1193,7 @@ static enum resp_states do_complete(struct rxe_qp *qp,
 			}
 
 			if (pkt->mask & RXE_IETH_MASK) {
+<<<<<<< HEAD
 				struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
 				struct rxe_mem *rmr;
 
@@ -935,25 +1216,53 @@ static enum resp_states do_complete(struct rxe_qp *qp,
 			if (pkt->mask & RXE_DETH_MASK)
 				wc->src_qp = deth_sqp(pkt);
 
+=======
+				wc->wc_flags |= IB_WC_WITH_INVALIDATE;
+				wc->ex.invalidate_rkey = ieth_rkey(pkt);
+			}
+
+			if (pkt->mask & RXE_DETH_MASK)
+				wc->src_qp = deth_sqp(pkt);
+
+			wc->qp			= &qp->ibqp;
+>>>>>>> upstream/android-13
 			wc->port_num		= qp->attr.port_num;
 		}
 	}
 
 	/* have copy for srq and reference for !srq */
+<<<<<<< HEAD
 	if (!qp->srq)
 		advance_consumer(qp->rq.queue);
+=======
+	if (!qp->srq) {
+		if (qp->is_user)
+			advance_consumer(qp->rq.queue, QUEUE_TYPE_FROM_USER);
+		else
+			advance_consumer(qp->rq.queue, QUEUE_TYPE_KERNEL);
+	}
+>>>>>>> upstream/android-13
 
 	qp->resp.wqe = NULL;
 
 	if (rxe_cq_post(qp->rcq, &cqe, pkt ? bth_se(pkt) : 1))
 		return RESPST_ERR_CQ_OVERFLOW;
 
+<<<<<<< HEAD
 	if (qp->resp.state == QP_STATE_ERROR)
 		return RESPST_CHK_RESOURCE;
 
 	if (!pkt)
 		return RESPST_DONE;
 	else if (qp_type(qp) == IB_QPT_RC)
+=======
+finish:
+	if (unlikely(qp->resp.state == QP_STATE_ERROR))
+		return RESPST_CHK_RESOURCE;
+	if (unlikely(!pkt))
+		return RESPST_DONE;
+	if (qp_type(qp) == IB_QPT_RC)
+>>>>>>> upstream/android-13
 		return RESPST_ACKNOWLEDGE;
 	else
 		return RESPST_CLEANUP;
@@ -965,16 +1274,26 @@ static int send_ack(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
 	int err = 0;
 	struct rxe_pkt_info ack_pkt;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
 
 	skb = prepare_ack_packet(qp, pkt, &ack_pkt, IB_OPCODE_RC_ACKNOWLEDGE,
 				 0, psn, syndrome, NULL);
+=======
+
+	skb = prepare_ack_packet(qp, pkt, &ack_pkt, IB_OPCODE_RC_ACKNOWLEDGE,
+				 0, psn, syndrome);
+>>>>>>> upstream/android-13
 	if (!skb) {
 		err = -ENOMEM;
 		goto err1;
 	}
 
+<<<<<<< HEAD
 	err = rxe_xmit_packet(rxe, qp, &ack_pkt, skb);
+=======
+	err = rxe_xmit_packet(qp, &ack_pkt, skb);
+>>>>>>> upstream/android-13
 	if (err)
 		pr_err_ratelimited("Failed sending ack\n");
 
@@ -988,27 +1307,40 @@ static int send_atomic_ack(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
 	int rc = 0;
 	struct rxe_pkt_info ack_pkt;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
+=======
+>>>>>>> upstream/android-13
 	struct resp_res *res;
 
 	skb = prepare_ack_packet(qp, pkt, &ack_pkt,
 				 IB_OPCODE_RC_ATOMIC_ACKNOWLEDGE, 0, pkt->psn,
+<<<<<<< HEAD
 				 syndrome, NULL);
+=======
+				 syndrome);
+>>>>>>> upstream/android-13
 	if (!skb) {
 		rc = -ENOMEM;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	rxe_add_ref(qp);
 
+=======
+>>>>>>> upstream/android-13
 	res = &qp->resp.resources[qp->resp.res_head];
 	free_rd_atomic_resource(qp, res);
 	rxe_advance_resp_resource(qp);
 
+<<<<<<< HEAD
 	memcpy(SKB_TO_PKT(skb), &ack_pkt, sizeof(ack_pkt));
 	memset((unsigned char *)SKB_TO_PKT(skb) + sizeof(ack_pkt), 0,
 	       sizeof(skb->cb) - sizeof(ack_pkt));
 
+=======
+>>>>>>> upstream/android-13
 	skb_get(skb);
 	res->type = RXE_ATOMIC_MASK;
 	res->atomic.skb = skb;
@@ -1016,7 +1348,11 @@ static int send_atomic_ack(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
 	res->last_psn  = ack_pkt.psn;
 	res->cur_psn   = ack_pkt.psn;
 
+<<<<<<< HEAD
 	rc = rxe_xmit_packet(rxe, qp, &ack_pkt, skb);
+=======
+	rc = rxe_xmit_packet(qp, &ack_pkt, skb);
+>>>>>>> upstream/android-13
 	if (rc) {
 		pr_err_ratelimited("Failed sending ack\n");
 		rxe_drop_ref(qp);
@@ -1050,6 +1386,10 @@ static enum resp_states cleanup(struct rxe_qp *qp,
 		skb = skb_dequeue(&qp->req_pkts);
 		rxe_drop_ref(qp);
 		kfree_skb(skb);
+<<<<<<< HEAD
+=======
+		ib_device_put(qp->ibqp.device);
+>>>>>>> upstream/android-13
 	}
 
 	if (qp->resp.mr) {
@@ -1088,10 +1428,15 @@ static enum resp_states duplicate_request(struct rxe_qp *qp,
 	if (pkt->mask & RXE_SEND_MASK ||
 	    pkt->mask & RXE_WRITE_MASK) {
 		/* SEND. Ack again and cleanup. C9-105. */
+<<<<<<< HEAD
 		if (bth_ack(pkt))
 			send_ack(qp, pkt, AETH_ACK_UNLIMITED, prev_psn);
 		rc = RESPST_CLEANUP;
 		goto out;
+=======
+		send_ack(qp, pkt, AETH_ACK_UNLIMITED, prev_psn);
+		return RESPST_CLEANUP;
+>>>>>>> upstream/android-13
 	} else if (pkt->mask & RXE_READ_MASK) {
 		struct resp_res *res;
 
@@ -1146,8 +1491,12 @@ static enum resp_states duplicate_request(struct rxe_qp *qp,
 		if (res) {
 			skb_get(res->atomic.skb);
 			/* Resend the result. */
+<<<<<<< HEAD
 			rc = rxe_xmit_packet(to_rdev(qp->ibqp.device), qp,
 					     pkt, res->atomic.skb);
+=======
+			rc = rxe_xmit_packet(qp, pkt, res->atomic.skb);
+>>>>>>> upstream/android-13
 			if (rc) {
 				pr_err("Failed resending result. This flow is not handled - skb ignored\n");
 				rc = RESPST_CLEANUP;
@@ -1211,17 +1560,30 @@ static enum resp_states do_class_d1e_error(struct rxe_qp *qp)
 static void rxe_drain_req_pkts(struct rxe_qp *qp, bool notify)
 {
 	struct sk_buff *skb;
+<<<<<<< HEAD
+=======
+	struct rxe_queue *q = qp->rq.queue;
+>>>>>>> upstream/android-13
 
 	while ((skb = skb_dequeue(&qp->req_pkts))) {
 		rxe_drop_ref(qp);
 		kfree_skb(skb);
+<<<<<<< HEAD
+=======
+		ib_device_put(qp->ibqp.device);
+>>>>>>> upstream/android-13
 	}
 
 	if (notify)
 		return;
 
+<<<<<<< HEAD
 	while (!qp->srq && qp->rq.queue && queue_head(qp->rq.queue))
 		advance_consumer(qp->rq.queue);
+=======
+	while (!qp->srq && q && queue_head(q, q->type))
+		advance_consumer(q, q->type);
+>>>>>>> upstream/android-13
 }
 
 int rxe_responder(void *arg)
@@ -1348,6 +1710,16 @@ int rxe_responder(void *arg)
 			}
 			break;
 
+<<<<<<< HEAD
+=======
+		case RESPST_ERR_INVALIDATE_RKEY:
+			/* RC - Class J. */
+			qp->resp.goto_error = 1;
+			qp->resp.status = IB_WC_REM_INV_REQ_ERR;
+			state = RESPST_COMPLETE;
+			break;
+
+>>>>>>> upstream/android-13
 		case RESPST_ERR_LENGTH:
 			if (qp_type(qp) == IB_QPT_RC) {
 				/* Class C */

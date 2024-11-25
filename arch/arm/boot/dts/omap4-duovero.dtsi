@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014 Florian Vaussard, EPFL Mobots group
  *
@@ -7,6 +8,15 @@
  */
 
 #include "omap443x.dtsi"
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014 Florian Vaussard, EPFL Mobots group
+ */
+
+#include "omap443x.dtsi"
+#include "omap4-mcpdm.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	model = "Gumstix Duovero";
@@ -82,6 +92,7 @@
 		>;
 	};
 
+<<<<<<< HEAD
 	mcpdm_pins: pinmux_mcpdm_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x106, PIN_INPUT_PULLDOWN | MUX_MODE0)	/* abe_pdm_ul_data.abe_pdm_ul_data */
@@ -92,6 +103,8 @@
 		>;
 	};
 
+=======
+>>>>>>> upstream/android-13
 	mcbsp1_pins: pinmux_mcbsp1_pins {
 		pinctrl-single,pins = <
 			OMAP4_IOPAD(0x0fe, PIN_INPUT | MUX_MODE0)		/* abe_mcbsp1_clkx.abe_mcbsp1_clkx */
@@ -210,6 +223,7 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
 &mcpdm {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcpdm_pins>;
@@ -220,6 +234,8 @@
 	status = "okay";
 };
 
+=======
+>>>>>>> upstream/android-13
 &mmc1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc1_pins>;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * SGI RTC clock/timer routines.
  *
@@ -15,6 +16,13 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * SGI RTC clock/timer routines.
+ *
+ *  (C) Copyright 2020 Hewlett Packard Enterprise Development LP
+>>>>>>> upstream/android-13
  *  Copyright (c) 2009-2013 Silicon Graphics, Inc.  All Rights Reserved.
  *  Copyright (c) Dimitri Sivanich
  */
@@ -65,7 +73,11 @@ struct uv_rtc_timer_head {
 	struct {
 		int	lcpu;		/* systemwide logical cpu number */
 		u64	expires;	/* next timer expiration for this cpu */
+<<<<<<< HEAD
 	} cpu[1];
+=======
+	} cpu[];
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -87,7 +99,10 @@ static void uv_rtc_send_IPI(int cpu)
 
 	apicid = cpu_physical_id(cpu);
 	pnode = uv_apicid_to_pnode(apicid);
+<<<<<<< HEAD
 	apicid |= uv_apicid_hibits;
+=======
+>>>>>>> upstream/android-13
 	val = (1UL << UVH_IPI_INT_SEND_SHFT) |
 	      (apicid << UVH_IPI_INT_APIC_ID_SHFT) |
 	      (X86_PLATFORM_IPI_VECTOR << UVH_IPI_INT_VECTOR_SHFT);
@@ -98,6 +113,7 @@ static void uv_rtc_send_IPI(int cpu)
 /* Check for an RTC interrupt pending */
 static int uv_intr_pending(int pnode)
 {
+<<<<<<< HEAD
 	if (is_uv1_hub())
 		return uv_read_global_mmr64(pnode, UVH_EVENT_OCCURRED0) &
 			UV1H_EVENT_OCCURRED0_RTC1_MASK;
@@ -105,25 +121,38 @@ static int uv_intr_pending(int pnode)
 		return uv_read_global_mmr64(pnode, UVXH_EVENT_OCCURRED2) &
 			UVXH_EVENT_OCCURRED2_RTC_1_MASK;
 	return 0;
+=======
+	return uv_read_global_mmr64(pnode, UVH_EVENT_OCCURRED2) &
+		UVH_EVENT_OCCURRED2_RTC_1_MASK;
+>>>>>>> upstream/android-13
 }
 
 /* Setup interrupt and return non-zero if early expiration occurred. */
 static int uv_setup_intr(int cpu, u64 expires)
 {
 	u64 val;
+<<<<<<< HEAD
 	unsigned long apicid = cpu_physical_id(cpu) | uv_apicid_hibits;
+=======
+	unsigned long apicid = cpu_physical_id(cpu);
+>>>>>>> upstream/android-13
 	int pnode = uv_cpu_to_pnode(cpu);
 
 	uv_write_global_mmr64(pnode, UVH_RTC1_INT_CONFIG,
 		UVH_RTC1_INT_CONFIG_M_MASK);
 	uv_write_global_mmr64(pnode, UVH_INT_CMPB, -1L);
 
+<<<<<<< HEAD
 	if (is_uv1_hub())
 		uv_write_global_mmr64(pnode, UVH_EVENT_OCCURRED0_ALIAS,
 				UV1H_EVENT_OCCURRED0_RTC1_MASK);
 	else
 		uv_write_global_mmr64(pnode, UVXH_EVENT_OCCURRED2_ALIAS,
 				UVXH_EVENT_OCCURRED2_RTC_1_MASK);
+=======
+	uv_write_global_mmr64(pnode, UVH_EVENT_OCCURRED2_ALIAS,
+			      UVH_EVENT_OCCURRED2_RTC_1_MASK);
+>>>>>>> upstream/android-13
 
 	val = (X86_PLATFORM_IPI_VECTOR << UVH_RTC1_INT_CONFIG_VECTOR_SHFT) |
 		((u64)apicid << UVH_RTC1_INT_CONFIG_APIC_ID_SHFT);
@@ -169,9 +198,14 @@ static __init int uv_rtc_allocate_timers(void)
 		struct uv_rtc_timer_head *head = blade_info[bid];
 
 		if (!head) {
+<<<<<<< HEAD
 			head = kmalloc_node(sizeof(struct uv_rtc_timer_head) +
 				(uv_blade_nr_possible_cpus(bid) *
 					2 * sizeof(u64)),
+=======
+			head = kmalloc_node(struct_size(head, cpu,
+				uv_blade_nr_possible_cpus(bid)),
+>>>>>>> upstream/android-13
 				GFP_KERNEL, nid);
 			if (!head) {
 				uv_rtc_deallocate_timers();

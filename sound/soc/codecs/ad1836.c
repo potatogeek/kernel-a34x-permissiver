@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
  /*
  * Audio Codec driver supporting:
  *  AD1835A, AD1836, AD1837A, AD1838A, AD1839A
  *
  * Copyright 2009-2011 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -306,8 +313,11 @@ static int ad1836_probe(struct snd_soc_component *component)
 		return ret;
 
 	ret = snd_soc_dapm_add_routes(dapm, ad183x_adc_routes, num_adcs);
+<<<<<<< HEAD
 	if (ret)
 		return ret;
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/arm/mach-ixp4xx/common-pci.c 
  *
@@ -8,11 +12,14 @@
  * Copyright (C) 2002 Intel Corporation.
  * Copyright (C) 2003 Greg Ungerer <gerg@snapgear.com>
  * Copyright (C) 2003-2004 MontaVista Software, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -31,7 +38,11 @@
 
 #include <asm/cputype.h>
 #include <asm/irq.h>
+<<<<<<< HEAD
 #include <asm/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/mach/pci.h>
 #include <mach/hardware.h>
 

@@ -37,8 +37,18 @@ struct pt_regs {
 	unsigned short __esh;
 	unsigned short fs;
 	unsigned short __fsh;
+<<<<<<< HEAD
 	unsigned short gs;
 	unsigned short __gsh;
+=======
+	/*
+	 * On interrupt, gs and __gsh store the vector number.  They never
+	 * store gs any more.
+	 */
+	unsigned short gs;
+	unsigned short __gsh;
+	/* On interrupt, this is the error code. */
+>>>>>>> upstream/android-13
 	unsigned long orig_ax;
 	unsigned long ip;
 	unsigned short cs;
@@ -92,16 +102,28 @@ struct pt_regs {
 #include <asm/paravirt_types.h>
 #endif
 
+<<<<<<< HEAD
+=======
+#include <asm/proto.h>
+
+>>>>>>> upstream/android-13
 struct cpuinfo_x86;
 struct task_struct;
 
 extern unsigned long profile_pc(struct pt_regs *regs);
+<<<<<<< HEAD
 #define profile_pc profile_pc
 
 extern unsigned long
 convert_ip_to_linear(struct task_struct *child, struct pt_regs *regs);
 extern void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs,
 			 int error_code, int si_code);
+=======
+
+extern unsigned long
+convert_ip_to_linear(struct task_struct *child, struct pt_regs *regs);
+extern void send_sigtrap(struct pt_regs *regs, int error_code, int si_code);
+>>>>>>> upstream/android-13
 
 
 static inline unsigned long regs_return_value(struct pt_regs *regs)
@@ -123,7 +145,11 @@ static inline void regs_set_return_value(struct pt_regs *regs, unsigned long rc)
  * On x86_64, vm86 mode is mercifully nonexistent, and we don't need
  * the extra check.
  */
+<<<<<<< HEAD
 static inline int user_mode(struct pt_regs *regs)
+=======
+static __always_inline int user_mode(struct pt_regs *regs)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_X86_32
 	return ((regs->cs & SEGMENT_RPL_MASK) | (regs->flags & X86_VM_MASK)) >= USER_RPL;
@@ -144,7 +170,11 @@ static inline int v8086_mode(struct pt_regs *regs)
 static inline bool user_64bit_mode(struct pt_regs *regs)
 {
 #ifdef CONFIG_X86_64
+<<<<<<< HEAD
 #ifndef CONFIG_PARAVIRT
+=======
+#ifndef CONFIG_PARAVIRT_XXL
+>>>>>>> upstream/android-13
 	/*
 	 * On non-paravirt systems, this is the only long mode CPL 3
 	 * selector.  We do not allow long mode selectors in the LDT.
@@ -159,6 +189,7 @@ static inline bool user_64bit_mode(struct pt_regs *regs)
 #endif
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_X86_64
 #define current_user_stack_pointer()	current_pt_regs()->sp
 #define compat_user_stack_pointer()	current_pt_regs()->sp
@@ -167,10 +198,44 @@ static inline bool user_64bit_mode(struct pt_regs *regs)
 #ifdef CONFIG_X86_32
 extern unsigned long kernel_stack_pointer(struct pt_regs *regs);
 #else
+=======
+/*
+ * Determine whether the register set came from any context that is running in
+ * 64-bit mode.
+ */
+static inline bool any_64bit_mode(struct pt_regs *regs)
+{
+#ifdef CONFIG_X86_64
+	return !user_mode(regs) || user_64bit_mode(regs);
+#else
+	return false;
+#endif
+}
+
+#ifdef CONFIG_X86_64
+#define current_user_stack_pointer()	current_pt_regs()->sp
+#define compat_user_stack_pointer()	current_pt_regs()->sp
+
+static inline bool ip_within_syscall_gap(struct pt_regs *regs)
+{
+	bool ret = (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
+		    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack);
+
+#ifdef CONFIG_IA32_EMULATION
+	ret = ret || (regs->ip >= (unsigned long)entry_SYSCALL_compat &&
+		      regs->ip <  (unsigned long)entry_SYSCALL_compat_safe_stack);
+#endif
+
+	return ret;
+}
+#endif
+
+>>>>>>> upstream/android-13
 static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
 {
 	return regs->sp;
 }
+<<<<<<< HEAD
 #endif
 
 #define GET_IP(regs) ((regs)->ip)
@@ -178,6 +243,40 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
 #define GET_USP(regs) ((regs)->sp)
 
 #include <asm-generic/ptrace.h>
+=======
+
+static inline unsigned long instruction_pointer(struct pt_regs *regs)
+{
+	return regs->ip;
+}
+
+static inline void instruction_pointer_set(struct pt_regs *regs,
+		unsigned long val)
+{
+	regs->ip = val;
+}
+
+static inline unsigned long frame_pointer(struct pt_regs *regs)
+{
+	return regs->bp;
+}
+
+static inline unsigned long user_stack_pointer(struct pt_regs *regs)
+{
+	return regs->sp;
+}
+
+static inline void user_stack_pointer_set(struct pt_regs *regs,
+		unsigned long val)
+{
+	regs->sp = val;
+}
+
+static __always_inline bool regs_irqs_disabled(struct pt_regs *regs)
+{
+	return !(regs->flags & X86_EFLAGS_IF);
+}
+>>>>>>> upstream/android-13
 
 /* Query offset/name of register from its name/offset */
 extern int regs_query_register_offset(const char *name);
@@ -199,6 +298,7 @@ static inline unsigned long regs_get_register(struct pt_regs *regs,
 	if (unlikely(offset > MAX_REG_OFFSET))
 		return 0;
 #ifdef CONFIG_X86_32
+<<<<<<< HEAD
 	/*
 	 * Traps from the kernel do not save sp and ss.
 	 * Use the helper function to retrieve sp.
@@ -207,6 +307,8 @@ static inline unsigned long regs_get_register(struct pt_regs *regs,
 	    regs->cs == __KERNEL_CS)
 		return kernel_stack_pointer(regs);
 
+=======
+>>>>>>> upstream/android-13
 	/* The selector fields are 16-bit. */
 	if (offset == offsetof(struct pt_regs, cs) ||
 	    offset == offsetof(struct pt_regs, ss) ||
@@ -232,8 +334,12 @@ static inline unsigned long regs_get_register(struct pt_regs *regs,
 static inline int regs_within_kernel_stack(struct pt_regs *regs,
 					   unsigned long addr)
 {
+<<<<<<< HEAD
 	return ((addr & ~(THREAD_SIZE - 1))  ==
 		(kernel_stack_pointer(regs) & ~(THREAD_SIZE - 1)));
+=======
+	return ((addr & ~(THREAD_SIZE - 1)) == (regs->sp & ~(THREAD_SIZE - 1)));
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -247,7 +353,11 @@ static inline int regs_within_kernel_stack(struct pt_regs *regs,
  */
 static inline unsigned long *regs_get_kernel_stack_nth_addr(struct pt_regs *regs, unsigned int n)
 {
+<<<<<<< HEAD
 	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
+=======
+	unsigned long *addr = (unsigned long *)regs->sp;
+>>>>>>> upstream/android-13
 
 	addr += n;
 	if (regs_within_kernel_stack(regs, (unsigned long)addr))
@@ -257,7 +367,11 @@ static inline unsigned long *regs_get_kernel_stack_nth_addr(struct pt_regs *regs
 }
 
 /* To avoid include hell, we can't include uaccess.h */
+<<<<<<< HEAD
 extern long probe_kernel_read(void *dst, const void *src, size_t size);
+=======
+extern long copy_from_kernel_nofault(void *dst, const void *src, size_t size);
+>>>>>>> upstream/android-13
 
 /**
  * regs_get_kernel_stack_nth() - get Nth entry of the stack
@@ -277,13 +391,58 @@ static inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
 
 	addr = regs_get_kernel_stack_nth_addr(regs, n);
 	if (addr) {
+<<<<<<< HEAD
 		ret = probe_kernel_read(&val, addr, sizeof(val));
+=======
+		ret = copy_from_kernel_nofault(&val, addr, sizeof(val));
+>>>>>>> upstream/android-13
 		if (!ret)
 			return val;
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * regs_get_kernel_argument() - get Nth function argument in kernel
+ * @regs:	pt_regs of that context
+ * @n:		function argument number (start from 0)
+ *
+ * regs_get_argument() returns @n th argument of the function call.
+ * Note that this chooses most probably assignment, in some case
+ * it can be incorrect.
+ * This is expected to be called from kprobes or ftrace with regs
+ * where the top of stack is the return address.
+ */
+static inline unsigned long regs_get_kernel_argument(struct pt_regs *regs,
+						     unsigned int n)
+{
+	static const unsigned int argument_offs[] = {
+#ifdef __i386__
+		offsetof(struct pt_regs, ax),
+		offsetof(struct pt_regs, dx),
+		offsetof(struct pt_regs, cx),
+#define NR_REG_ARGUMENTS 3
+#else
+		offsetof(struct pt_regs, di),
+		offsetof(struct pt_regs, si),
+		offsetof(struct pt_regs, dx),
+		offsetof(struct pt_regs, cx),
+		offsetof(struct pt_regs, r8),
+		offsetof(struct pt_regs, r9),
+#define NR_REG_ARGUMENTS 6
+#endif
+	};
+
+	if (n >= NR_REG_ARGUMENTS) {
+		n -= NR_REG_ARGUMENTS - 1;
+		return regs_get_kernel_stack_nth(regs, n);
+	} else
+		return regs_get_register(regs, argument_offs[n]);
+}
+
+>>>>>>> upstream/android-13
 #define arch_has_single_step()	(1)
 #ifdef CONFIG_X86_DEBUGCTLMSR
 #define arch_has_block_step()	(1)
@@ -291,6 +450,7 @@ static inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
 #define arch_has_block_step()	(boot_cpu_data.x86 >= 6)
 #endif
 
+<<<<<<< HEAD
 #define ARCH_HAS_USER_SINGLE_STEP_INFO
 
 /*
@@ -308,6 +468,9 @@ static inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
 	force_iret();							\
 	false;								\
 })
+=======
+#define ARCH_HAS_USER_SINGLE_STEP_REPORT
+>>>>>>> upstream/android-13
 
 struct user_desc;
 extern int do_get_thread_area(struct task_struct *p, int idx,
@@ -315,5 +478,14 @@ extern int do_get_thread_area(struct task_struct *p, int idx,
 extern int do_set_thread_area(struct task_struct *p, int idx,
 			      struct user_desc __user *info, int can_allocate);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_X86_64
+# define do_set_thread_area_64(p, s, t)	do_arch_prctl_64(p, s, t)
+#else
+# define do_set_thread_area_64(p, s, t)	(0)
+#endif
+
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 #endif /* _ASM_X86_PTRACE_H */

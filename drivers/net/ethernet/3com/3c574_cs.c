@@ -234,7 +234,11 @@ static void update_stats(struct net_device *dev);
 static struct net_device_stats *el3_get_stats(struct net_device *dev);
 static int el3_rx(struct net_device *dev, int worklimit);
 static int el3_close(struct net_device *dev);
+<<<<<<< HEAD
 static void el3_tx_timeout(struct net_device *dev);
+=======
+static void el3_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static int el3_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
 static void set_rx_mode(struct net_device *dev);
 static void set_multicast_list(struct net_device *dev);
@@ -252,7 +256,11 @@ static const struct net_device_ops el3_netdev_ops = {
 	.ndo_start_xmit		= el3_start_xmit,
 	.ndo_tx_timeout 	= el3_tx_timeout,
 	.ndo_get_stats		= el3_get_stats,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= el3_ioctl,
+=======
+	.ndo_eth_ioctl		= el3_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_rx_mode	= set_multicast_list,
 	.ndo_set_mac_address 	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
@@ -690,7 +698,11 @@ static int el3_open(struct net_device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void el3_tx_timeout(struct net_device *dev)
+=======
+static void el3_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	unsigned int ioaddr = dev->base_addr;
 	
@@ -951,7 +963,11 @@ static struct net_device_stats *el3_get_stats(struct net_device *dev)
 static void update_stats(struct net_device *dev)
 {
 	unsigned int ioaddr = dev->base_addr;
+<<<<<<< HEAD
 	u8 rx, tx, up;
+=======
+	u8 up;
+>>>>>>> upstream/android-13
 
 	pr_debug("%s: updating the statistics.\n", dev->name);
 
@@ -972,8 +988,13 @@ static void update_stats(struct net_device *dev)
 	dev->stats.tx_packets			+= (up&0x30) << 4;
 	/* Rx packets   */			   inb(ioaddr + 7);
 	/* Tx deferrals */			   inb(ioaddr + 8);
+<<<<<<< HEAD
 	rx		 			 = inw(ioaddr + 10);
 	tx					 = inw(ioaddr + 12);
+=======
+	/* rx */				   inw(ioaddr + 10);
+	/* tx */				   inw(ioaddr + 12);
+>>>>>>> upstream/android-13
 
 	EL3WINDOW(4);
 	/* BadSSD */				   inb(ioaddr + 12);
@@ -1046,7 +1067,11 @@ static int el3_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	switch(cmd) {
 	case SIOCGMIIPHY:		/* Get the address of the PHY in use. */
 		data->phy_id = phy;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case SIOCGMIIREG:		/* Read the specified MII register. */
 		{
 			int saved_window;

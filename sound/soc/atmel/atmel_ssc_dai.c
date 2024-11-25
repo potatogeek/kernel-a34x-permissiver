@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * atmel_ssc_dai.c  --  ALSA SoC ATMEL SSC Audio Layer Platform driver
  *
@@ -11,6 +15,7 @@
  * Frank Mandarino <fmandarino@endrelia.com>
  * Based on pxa2xx Platform drivers by
  * Liam Girdwood <lrg@slimlogic.co.uk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -129,19 +136,28 @@ static struct atmel_pcm_dma_params ssc_dma_params[NUM_SSC_DEVICES][2] = {
 static struct atmel_ssc_info ssc_info[NUM_SSC_DEVICES] = {
 	{
 	.name		= "ssc0",
+<<<<<<< HEAD
 	.lock		= __SPIN_LOCK_UNLOCKED(ssc_info[0].lock),
+=======
+>>>>>>> upstream/android-13
 	.dir_mask	= SSC_DIR_MASK_UNUSED,
 	.initialized	= 0,
 	},
 	{
 	.name		= "ssc1",
+<<<<<<< HEAD
 	.lock		= __SPIN_LOCK_UNLOCKED(ssc_info[1].lock),
+=======
+>>>>>>> upstream/android-13
 	.dir_mask	= SSC_DIR_MASK_UNUSED,
 	.initialized	= 0,
 	},
 	{
 	.name		= "ssc2",
+<<<<<<< HEAD
 	.lock		= __SPIN_LOCK_UNLOCKED(ssc_info[2].lock),
+=======
+>>>>>>> upstream/android-13
 	.dir_mask	= SSC_DIR_MASK_UNUSED,
 	.initialized	= 0,
 	},
@@ -296,7 +312,14 @@ static int atmel_ssc_startup(struct snd_pcm_substream *substream,
 
 	/* Enable PMC peripheral clock for this SSC */
 	pr_debug("atmel_ssc_dai: Starting clock\n");
+<<<<<<< HEAD
 	clk_enable(ssc_p->ssc->clk);
+=======
+	ret = clk_enable(ssc_p->ssc->clk);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	ssc_p->mck_rate = clk_get_rate(ssc_p->ssc->clk);
 
 	/* Reset the SSC unless initialized to keep it in a clean state */
@@ -330,6 +353,7 @@ static int atmel_ssc_startup(struct snd_pcm_substream *substream,
 
 	snd_soc_dai_set_dma_data(dai, substream, dma_params);
 
+<<<<<<< HEAD
 	spin_lock_irq(&ssc_p->lock);
 	if (ssc_p->dir_mask & dir_mask) {
 		spin_unlock_irq(&ssc_p->lock);
@@ -337,6 +361,12 @@ static int atmel_ssc_startup(struct snd_pcm_substream *substream,
 	}
 	ssc_p->dir_mask |= dir_mask;
 	spin_unlock_irq(&ssc_p->lock);
+=======
+	if (ssc_p->dir_mask & dir_mask)
+		return -EBUSY;
+
+	ssc_p->dir_mask |= dir_mask;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -368,7 +398,10 @@ static void atmel_ssc_shutdown(struct snd_pcm_substream *substream,
 
 	dir_mask = 1 << dir;
 
+<<<<<<< HEAD
 	spin_lock_irq(&ssc_p->lock);
+=======
+>>>>>>> upstream/android-13
 	ssc_p->dir_mask &= ~dir_mask;
 	if (!ssc_p->dir_mask) {
 		if (ssc_p->initialized) {
@@ -382,7 +415,10 @@ static void atmel_ssc_shutdown(struct snd_pcm_substream *substream,
 		ssc_p->cmr_div = ssc_p->tcmr_period = ssc_p->rcmr_period = 0;
 		ssc_p->forced_divider = 0;
 	}
+<<<<<<< HEAD
 	spin_unlock_irq(&ssc_p->lock);
+=======
+>>>>>>> upstream/android-13
 
 	/* Shutdown the SSC clock. */
 	pr_debug("atmel_ssc_dai: Stopping clock\n");
@@ -484,7 +520,11 @@ static int atmel_ssc_hw_params(struct snd_pcm_substream *substream,
 	int dir, channels, bits;
 	u32 tfmr, rfmr, tcmr, rcmr;
 	int ret;
+<<<<<<< HEAD
 	int fslen, fslen_ext;
+=======
+	int fslen, fslen_ext, fs_osync, fs_edge;
+>>>>>>> upstream/android-13
 	u32 cmr_div;
 	u32 tcmr_period;
 	u32 rcmr_period;
@@ -571,6 +611,7 @@ static int atmel_ssc_hw_params(struct snd_pcm_substream *substream,
 	/*
 	 * Compute SSC register settings.
 	 */
+<<<<<<< HEAD
 	switch (ssc_p->daifmt
 		& (SND_SOC_DAIFMT_FORMAT_MASK | SND_SOC_DAIFMT_MASTER_MASK)) {
 
@@ -754,11 +795,41 @@ static int atmel_ssc_hw_params(struct snd_pcm_substream *substream,
 	case SND_SOC_DAIFMT_DSP_A | SND_SOC_DAIFMT_CBM_CFM:
 		/*
 		 * DSP/PCM Mode A format, CODEC supplies BCLK and LRC clocks.
+=======
+
+	fslen_ext = (bits - 1) / 16;
+	fslen = (bits - 1) % 16;
+
+	switch (ssc_p->daifmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+
+	case SND_SOC_DAIFMT_LEFT_J:
+		fs_osync = SSC_FSOS_POSITIVE;
+		fs_edge = SSC_START_RISING_RF;
+
+		rcmr =	  SSC_BF(RCMR_STTDLY, 0);
+		tcmr =	  SSC_BF(TCMR_STTDLY, 0);
+
+		break;
+
+	case SND_SOC_DAIFMT_I2S:
+		fs_osync = SSC_FSOS_NEGATIVE;
+		fs_edge = SSC_START_FALLING_RF;
+
+		rcmr =	  SSC_BF(RCMR_STTDLY, 1);
+		tcmr =	  SSC_BF(TCMR_STTDLY, 1);
+
+		break;
+
+	case SND_SOC_DAIFMT_DSP_A:
+		/*
+		 * DSP/PCM Mode A format
+>>>>>>> upstream/android-13
 		 *
 		 * Data is transferred on first BCLK after LRC pulse rising
 		 * edge.If stereo, the right channel data is contiguous with
 		 * the left channel data.
 		 */
+<<<<<<< HEAD
 		rcmr =	  SSC_BF(RCMR_PERIOD, 0)
 			| SSC_BF(RCMR_STTDLY, START_DELAY)
 			| SSC_BF(RCMR_START, SSC_START_RISING_RF)
@@ -791,6 +862,15 @@ static int atmel_ssc_hw_params(struct snd_pcm_substream *substream,
 			| SSC_BIT(TFMR_MSBF)
 			| SSC_BF(TFMR_DATDEF, 0)
 			| SSC_BF(TFMR_DATLEN, (bits - 1));
+=======
+		fs_osync = SSC_FSOS_POSITIVE;
+		fs_edge = SSC_START_RISING_RF;
+		fslen = fslen_ext = 0;
+
+		rcmr =	  SSC_BF(RCMR_STTDLY, 1);
+		tcmr =	  SSC_BF(TCMR_STTDLY, 1);
+
+>>>>>>> upstream/android-13
 		break;
 
 	default:
@@ -798,6 +878,73 @@ static int atmel_ssc_hw_params(struct snd_pcm_substream *substream,
 			ssc_p->daifmt);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
+=======
+
+	if (!atmel_ssc_cfs(ssc_p)) {
+		fslen = fslen_ext = 0;
+		rcmr_period = tcmr_period = 0;
+		fs_osync = SSC_FSOS_NONE;
+	}
+
+	rcmr |=	  SSC_BF(RCMR_START, fs_edge);
+	tcmr |=	  SSC_BF(TCMR_START, fs_edge);
+
+	if (atmel_ssc_cbs(ssc_p)) {
+		/*
+		 * SSC provides BCLK
+		 *
+		 * The SSC transmit and receive clocks are generated from the
+		 * MCK divider, and the BCLK signal is output
+		 * on the SSC TK line.
+		 */
+		rcmr |=	  SSC_BF(RCMR_CKS, SSC_CKS_DIV)
+			| SSC_BF(RCMR_CKO, SSC_CKO_NONE);
+
+		tcmr |=	  SSC_BF(TCMR_CKS, SSC_CKS_DIV)
+			| SSC_BF(TCMR_CKO, SSC_CKO_CONTINUOUS);
+	} else {
+		rcmr |=	  SSC_BF(RCMR_CKS, ssc->clk_from_rk_pin ?
+					SSC_CKS_PIN : SSC_CKS_CLOCK)
+			| SSC_BF(RCMR_CKO, SSC_CKO_NONE);
+
+		tcmr |=	  SSC_BF(TCMR_CKS, ssc->clk_from_rk_pin ?
+					SSC_CKS_CLOCK : SSC_CKS_PIN)
+			| SSC_BF(TCMR_CKO, SSC_CKO_NONE);
+	}
+
+	rcmr |=	  SSC_BF(RCMR_PERIOD, rcmr_period)
+		| SSC_BF(RCMR_CKI, SSC_CKI_RISING);
+
+	tcmr |=   SSC_BF(TCMR_PERIOD, tcmr_period)
+		| SSC_BF(TCMR_CKI, SSC_CKI_FALLING);
+
+	rfmr =    SSC_BF(RFMR_FSLEN_EXT, fslen_ext)
+		| SSC_BF(RFMR_FSEDGE, SSC_FSEDGE_POSITIVE)
+		| SSC_BF(RFMR_FSOS, fs_osync)
+		| SSC_BF(RFMR_FSLEN, fslen)
+		| SSC_BF(RFMR_DATNB, (channels - 1))
+		| SSC_BIT(RFMR_MSBF)
+		| SSC_BF(RFMR_LOOP, 0)
+		| SSC_BF(RFMR_DATLEN, (bits - 1));
+
+	tfmr =    SSC_BF(TFMR_FSLEN_EXT, fslen_ext)
+		| SSC_BF(TFMR_FSEDGE, SSC_FSEDGE_POSITIVE)
+		| SSC_BF(TFMR_FSDEN, 0)
+		| SSC_BF(TFMR_FSOS, fs_osync)
+		| SSC_BF(TFMR_FSLEN, fslen)
+		| SSC_BF(TFMR_DATNB, (channels - 1))
+		| SSC_BIT(TFMR_MSBF)
+		| SSC_BF(TFMR_DATDEF, 0)
+		| SSC_BF(TFMR_DATLEN, (bits - 1));
+
+	if (fslen_ext && !ssc->pdata->has_fslen_ext) {
+		dev_err(dai->dev, "sample size %d is too large for SSC device\n",
+			bits);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	pr_debug("atmel_ssc_hw_params: "
 			"RCMR=%08x RFMR=%08x TCMR=%08x TFMR=%08x\n",
 			rcmr, rfmr, tcmr, tfmr);
@@ -898,12 +1045,21 @@ static int atmel_ssc_trigger(struct snd_pcm_substream *substream,
 }
 
 #ifdef CONFIG_PM
+<<<<<<< HEAD
 static int atmel_ssc_suspend(struct snd_soc_dai *cpu_dai)
 {
 	struct atmel_ssc_info *ssc_p;
 	struct platform_device *pdev = to_platform_device(cpu_dai->dev);
 
 	if (!cpu_dai->active)
+=======
+static int atmel_ssc_suspend(struct snd_soc_component *component)
+{
+	struct atmel_ssc_info *ssc_p;
+	struct platform_device *pdev = to_platform_device(component->dev);
+
+	if (!snd_soc_component_active(component))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ssc_p = &ssc_info[pdev->id];
@@ -925,6 +1081,7 @@ static int atmel_ssc_suspend(struct snd_soc_dai *cpu_dai)
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
 static int atmel_ssc_resume(struct snd_soc_dai *cpu_dai)
@@ -934,6 +1091,15 @@ static int atmel_ssc_resume(struct snd_soc_dai *cpu_dai)
 	u32 cr;
 
 	if (!cpu_dai->active)
+=======
+static int atmel_ssc_resume(struct snd_soc_component *component)
+{
+	struct atmel_ssc_info *ssc_p;
+	struct platform_device *pdev = to_platform_device(component->dev);
+	u32 cr;
+
+	if (!snd_soc_component_active(component))
+>>>>>>> upstream/android-13
 		return 0;
 
 	ssc_p = &ssc_info[pdev->id];
@@ -977,8 +1143,11 @@ static const struct snd_soc_dai_ops atmel_ssc_dai_ops = {
 };
 
 static struct snd_soc_dai_driver atmel_ssc_dai = {
+<<<<<<< HEAD
 		.suspend = atmel_ssc_suspend,
 		.resume = atmel_ssc_resume,
+=======
+>>>>>>> upstream/android-13
 		.playback = {
 			.channels_min = 1,
 			.channels_max = 2,
@@ -998,6 +1167,11 @@ static struct snd_soc_dai_driver atmel_ssc_dai = {
 
 static const struct snd_soc_component_driver atmel_ssc_component = {
 	.name		= "atmel-ssc",
+<<<<<<< HEAD
+=======
+	.suspend	= atmel_ssc_suspend,
+	.resume		= atmel_ssc_resume,
+>>>>>>> upstream/android-13
 };
 
 static int asoc_ssc_init(struct device *dev)
@@ -1005,11 +1179,19 @@ static int asoc_ssc_init(struct device *dev)
 	struct ssc_device *ssc = dev_get_drvdata(dev);
 	int ret;
 
+<<<<<<< HEAD
 	ret = snd_soc_register_component(dev, &atmel_ssc_component,
 					 &atmel_ssc_dai, 1);
 	if (ret) {
 		dev_err(dev, "Could not register DAI: %d\n", ret);
 		goto err;
+=======
+	ret = devm_snd_soc_register_component(dev, &atmel_ssc_component,
+					 &atmel_ssc_dai, 1);
+	if (ret) {
+		dev_err(dev, "Could not register DAI: %d\n", ret);
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	if (ssc->pdata->use_dma)
@@ -1019,6 +1201,7 @@ static int asoc_ssc_init(struct device *dev)
 
 	if (ret) {
 		dev_err(dev, "Could not register PCM: %d\n", ret);
+<<<<<<< HEAD
 		goto err_unregister_dai;
 	}
 
@@ -1040,10 +1223,20 @@ static void asoc_ssc_exit(struct device *dev)
 		atmel_pcm_pdc_platform_unregister(dev);
 
 	snd_soc_unregister_component(dev);
+=======
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
  * atmel_ssc_set_audio - Allocate the specified SSC for audio use.
+<<<<<<< HEAD
+=======
+ * @ssc_id: SSD ID in [0, NUM_SSC_DEVICES[
+>>>>>>> upstream/android-13
  */
 int atmel_ssc_set_audio(int ssc_id)
 {
@@ -1070,7 +1263,10 @@ void atmel_ssc_put_audio(int ssc_id)
 {
 	struct ssc_device *ssc = ssc_info[ssc_id].ssc;
 
+<<<<<<< HEAD
 	asoc_ssc_exit(&ssc->pdev->dev);
+=======
+>>>>>>> upstream/android-13
 	ssc_free(ssc);
 }
 EXPORT_SYMBOL_GPL(atmel_ssc_put_audio);

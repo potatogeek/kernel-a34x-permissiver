@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IOMMU implementation for Cell Broadband Processor Architecture
  *
  * (C) Copyright IBM Corporation 2006-2008
  *
  * Author: Jeremy Kerr <jk@ozlabs.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -499,7 +506,12 @@ cell_iommu_setup_window(struct cbe_iommu *iommu, struct device_node *np,
 	window->table.it_size = size >> window->table.it_page_shift;
 	window->table.it_ops = &cell_iommu_ops;
 
+<<<<<<< HEAD
 	iommu_init_table(&window->table, iommu->nid);
+=======
+	if (!iommu_init_table(&window->table, iommu->nid, 0, 0))
+		panic("Failed to initialize iommu table");
+>>>>>>> upstream/android-13
 
 	pr_debug("\tioid      %d\n", window->ioid);
 	pr_debug("\tblocksize %ld\n", window->table.it_blocksize);
@@ -544,9 +556,16 @@ static struct cbe_iommu *cell_iommu_for_node(int nid)
 static unsigned long cell_dma_nommu_offset;
 
 static unsigned long dma_iommu_fixed_base;
+<<<<<<< HEAD
 
 /* iommu_fixed_is_weak is set if booted with iommu_fixed=weak */
 static int iommu_fixed_is_weak;
+=======
+static bool cell_iommu_enabled;
+
+/* iommu_fixed_is_weak is set if booted with iommu_fixed=weak */
+bool iommu_fixed_is_weak;
+>>>>>>> upstream/android-13
 
 static struct iommu_table *cell_get_iommu_table(struct device *dev)
 {
@@ -568,6 +587,7 @@ static struct iommu_table *cell_get_iommu_table(struct device *dev)
 	return &window->table;
 }
 
+<<<<<<< HEAD
 /* A coherent allocation implies strong ordering */
 
 static void *dma_fixed_alloc_coherent(struct device *dev, size_t size,
@@ -665,6 +685,21 @@ static void cell_dma_dev_setup(struct device *dev)
 		set_dma_offset(dev, cell_dma_nommu_offset);
 	else
 		BUG();
+=======
+static u64 cell_iommu_get_fixed_address(struct device *dev);
+
+static void cell_dma_dev_setup(struct device *dev)
+{
+	if (cell_iommu_enabled) {
+		u64 addr = cell_iommu_get_fixed_address(dev);
+
+		if (addr != OF_BAD_ADDR)
+			dev->archdata.dma_offset = addr + dma_iommu_fixed_base;
+		set_iommu_table_base(dev, cell_get_iommu_table(dev));
+	} else {
+		dev->archdata.dma_offset = cell_dma_nommu_offset;
+	}
+>>>>>>> upstream/android-13
 }
 
 static void cell_pci_dma_dev_setup(struct pci_dev *dev)
@@ -681,11 +716,17 @@ static int cell_of_bus_notify(struct notifier_block *nb, unsigned long action,
 	if (action != BUS_NOTIFY_ADD_DEVICE)
 		return 0;
 
+<<<<<<< HEAD
 	/* We use the PCI DMA ops */
 	dev->dma_ops = get_pci_dma_ops();
 
 	cell_dma_dev_setup(dev);
 
+=======
+	if (cell_iommu_enabled)
+		dev->dma_ops = &dma_iommu_ops;
+	cell_dma_dev_setup(dev);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -810,7 +851,10 @@ static int __init cell_iommu_init_disabled(void)
 	unsigned long base = 0, size;
 
 	/* When no iommu is present, we use direct DMA ops */
+<<<<<<< HEAD
 	set_pci_dma_ops(&dma_nommu_ops);
+=======
+>>>>>>> upstream/android-13
 
 	/* First make sure all IOC translation is turned off */
 	cell_disable_iommus();
@@ -895,7 +939,15 @@ static u64 cell_iommu_get_fixed_address(struct device *dev)
 	const u32 *ranges = NULL;
 	int i, len, best, naddr, nsize, pna, range_size;
 
+<<<<<<< HEAD
 	np = of_node_get(dev->of_node);
+=======
+	/* We can be called for platform devices that have no of_node */
+	np = of_node_get(dev->of_node);
+	if (!np)
+		goto out;
+
+>>>>>>> upstream/android-13
 	while (1) {
 		naddr = of_n_addr_cells(np);
 		nsize = of_n_size_cells(np);
@@ -946,6 +998,7 @@ out:
 	return dev_addr;
 }
 
+<<<<<<< HEAD
 static int dma_suported_and_switch(struct device *dev, u64 dma_mask)
 {
 	if (dma_mask == DMA_BIT_MASK(64) &&
@@ -967,6 +1020,12 @@ static int dma_suported_and_switch(struct device *dev, u64 dma_mask)
 	}
 
 	return 0;
+=======
+static bool cell_pci_iommu_bypass_supported(struct pci_dev *pdev, u64 mask)
+{
+	return mask == DMA_BIT_MASK(64) &&
+		cell_iommu_get_fixed_address(&pdev->dev) != OF_BAD_ADDR;
+>>>>>>> upstream/android-13
 }
 
 static void insert_16M_pte(unsigned long addr, unsigned long *ptab,
@@ -1055,7 +1114,11 @@ static int __init cell_iommu_fixed_mapping_init(void)
 		fbase = max(fbase, dbase + dsize);
 	}
 
+<<<<<<< HEAD
 	fbase = _ALIGN_UP(fbase, 1 << IO_SEGMENT_SHIFT);
+=======
+	fbase = ALIGN(fbase, 1 << IO_SEGMENT_SHIFT);
+>>>>>>> upstream/android-13
 	fsize = memblock_phys_mem_size();
 
 	if ((fbase + fsize) <= 0x800000000ul)
@@ -1075,8 +1138,13 @@ static int __init cell_iommu_fixed_mapping_init(void)
 		hend  = hbase + htab_size_bytes;
 
 		/* The window must start and end on a segment boundary */
+<<<<<<< HEAD
 		if ((hbase != _ALIGN_UP(hbase, 1 << IO_SEGMENT_SHIFT)) ||
 		    (hend != _ALIGN_UP(hend, 1 << IO_SEGMENT_SHIFT))) {
+=======
+		if ((hbase != ALIGN(hbase, 1 << IO_SEGMENT_SHIFT)) ||
+		    (hend != ALIGN(hend, 1 << IO_SEGMENT_SHIFT))) {
+>>>>>>> upstream/android-13
 			pr_debug("iommu: hash window not segment aligned\n");
 			return -1;
 		}
@@ -1088,6 +1156,10 @@ static int __init cell_iommu_fixed_mapping_init(void)
 			if (hbase < dbase || (hend > (dbase + dsize))) {
 				pr_debug("iommu: hash window doesn't fit in"
 					 "real DMA window\n");
+<<<<<<< HEAD
+=======
+				of_node_put(np);
+>>>>>>> upstream/android-13
 				return -1;
 			}
 		}
@@ -1120,9 +1192,14 @@ static int __init cell_iommu_fixed_mapping_init(void)
 		cell_iommu_setup_window(iommu, np, dbase, dsize, 0);
 	}
 
+<<<<<<< HEAD
 	dma_iommu_ops.dma_supported = dma_suported_and_switch;
 	set_pci_dma_ops(&dma_iommu_ops);
 
+=======
+	cell_pci_controller_ops.iommu_bypass_supported =
+		cell_pci_iommu_bypass_supported;
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1143,7 +1220,11 @@ static int __init setup_iommu_fixed(char *str)
 	pciep = of_find_node_by_type(NULL, "pcie-endpoint");
 
 	if (strcmp(str, "weak") == 0 || (pciep && strcmp(str, "strong") != 0))
+<<<<<<< HEAD
 		iommu_fixed_is_weak = DMA_ATTR_WEAK_ORDERING;
+=======
+		iommu_fixed_is_weak = true;
+>>>>>>> upstream/android-13
 
 	of_node_put(pciep);
 
@@ -1151,6 +1232,7 @@ static int __init setup_iommu_fixed(char *str)
 }
 __setup("iommu_fixed=", setup_iommu_fixed);
 
+<<<<<<< HEAD
 static u64 cell_dma_get_required_mask(struct device *dev)
 {
 	const struct dma_map_ops *dma_ops;
@@ -1171,6 +1253,8 @@ static u64 cell_dma_get_required_mask(struct device *dev)
 	return DMA_BIT_MASK(64);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int __init cell_iommu_init(void)
 {
 	struct device_node *np;
@@ -1187,10 +1271,16 @@ static int __init cell_iommu_init(void)
 
 	/* Setup various callbacks */
 	cell_pci_controller_ops.dma_dev_setup = cell_pci_dma_dev_setup;
+<<<<<<< HEAD
 	ppc_md.dma_get_required_mask = cell_dma_get_required_mask;
 
 	if (!iommu_fixed_disabled && cell_iommu_fixed_mapping_init() == 0)
 		goto bail;
+=======
+
+	if (!iommu_fixed_disabled && cell_iommu_fixed_mapping_init() == 0)
+		goto done;
+>>>>>>> upstream/android-13
 
 	/* Create an iommu for each /axon node.  */
 	for_each_node_by_name(np, "axon") {
@@ -1207,10 +1297,17 @@ static int __init cell_iommu_init(void)
 			continue;
 		cell_iommu_init_one(np, SPIDER_DMA_OFFSET);
 	}
+<<<<<<< HEAD
 
 	/* Setup default PCI iommu ops */
 	set_pci_dma_ops(&dma_iommu_ops);
 
+=======
+ done:
+	/* Setup default PCI iommu ops */
+	set_pci_dma_ops(&dma_iommu_ops);
+	cell_iommu_enabled = true;
+>>>>>>> upstream/android-13
  bail:
 	/* Register callbacks on OF platform device addition/removal
 	 * to handle linking them to the right DMA operations

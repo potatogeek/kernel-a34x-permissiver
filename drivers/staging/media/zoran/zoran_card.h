@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Zoran zr36057/zr36067 PCI controller driver, for the
  * Pinnacle/Miro DC10/DC10+/DC30/DC30+, Iomega Buz, Linux
@@ -6,6 +10,7 @@
  * This part handles card-specific data and detection
  *
  * Copyright (C) 2000 Serguei Miridonov <mirsev@cicese.mx>
+<<<<<<< HEAD
  *
  * Currently maintained by:
  *   Ronald Bultje    <rbultje@ronald.bitfreak.net>
@@ -21,6 +26,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ZORAN_CARD_H__
@@ -28,12 +35,15 @@
 
 extern int zr36067_debug;
 
+<<<<<<< HEAD
 #define dprintk(num, format, args...) \
 	do { \
 		if (zr36067_debug >= num) \
 			printk(format, ##args); \
 	} while (0)
 
+=======
+>>>>>>> upstream/android-13
 /* Anybody who uses more than four? */
 #define BUZ_MAX 4
 

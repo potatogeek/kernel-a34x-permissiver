@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Generic Broadcom Set Top Box Level 2 Interrupt controller driver
  *
  * Copyright (C) 2014-2017 Broadcom
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt)	KBUILD_MODNAME	": " fmt
@@ -118,7 +125,11 @@ static void brcmstb_l2_intc_irq_handle(struct irq_desc *desc)
 	do {
 		irq = ffs(status) - 1;
 		status &= ~(1 << irq);
+<<<<<<< HEAD
 		generic_handle_irq(irq_linear_revmap(b->domain, irq));
+=======
+		generic_handle_domain_irq(b->domain, irq);
+>>>>>>> upstream/android-13
 	} while (status);
 out:
 	chained_irq_exit(chip, desc);
@@ -262,8 +273,16 @@ static int __init brcmstb_l2_intc_of_init(struct device_node *np,
 		 */
 		data->gc->wake_enabled = 0xffffffff;
 		ct->chip.irq_set_wake = irq_gc_set_wake;
+<<<<<<< HEAD
 	}
 
+=======
+		enable_irq_wake(parent_irq);
+	}
+
+	pr_info("registered L2 intc (%pOF, parent irq: %d)\n", np, parent_irq);
+
+>>>>>>> upstream/android-13
 	return 0;
 
 out_free_domain:
@@ -275,14 +294,27 @@ out_free:
 	return ret;
 }
 
+<<<<<<< HEAD
 int __init brcmstb_l2_edge_intc_of_init(struct device_node *np,
+=======
+static int __init brcmstb_l2_edge_intc_of_init(struct device_node *np,
+>>>>>>> upstream/android-13
 	struct device_node *parent)
 {
 	return brcmstb_l2_intc_of_init(np, parent, &l2_edge_intc_init);
 }
 IRQCHIP_DECLARE(brcmstb_l2_intc, "brcm,l2-intc", brcmstb_l2_edge_intc_of_init);
+<<<<<<< HEAD
 
 int __init brcmstb_l2_lvl_intc_of_init(struct device_node *np,
+=======
+IRQCHIP_DECLARE(brcmstb_hif_spi_l2_intc, "brcm,hif-spi-l2-intc",
+		brcmstb_l2_edge_intc_of_init);
+IRQCHIP_DECLARE(brcmstb_upg_aux_aon_l2_intc, "brcm,upg-aux-aon-l2-intc",
+		brcmstb_l2_edge_intc_of_init);
+
+static int __init brcmstb_l2_lvl_intc_of_init(struct device_node *np,
+>>>>>>> upstream/android-13
 	struct device_node *parent)
 {
 	return brcmstb_l2_intc_of_init(np, parent, &l2_lvl_intc_init);

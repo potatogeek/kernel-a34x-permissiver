@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Red Hat
  * based in parts on udlfb.c:
  * Copyright (C) 2009 Roberto De Ioris <roberto@unbit.it>
  * Copyright (C) 2009 Jaya Kumar <jayakumar.lkml@gmail.com>
  * Copyright (C) 2009 Bernie Thompson <bernie@plugable.com>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License v2. See the file COPYING in the main directory of this archive for
@@ -16,6 +21,12 @@
 #include <asm/unaligned.h>
 
 #include <drm/drmP.h>
+=======
+ */
+
+#include <asm/unaligned.h>
+
+>>>>>>> upstream/android-13
 #include "udl_drv.h"
 
 #define MAX_CMD_PIXELS		255
@@ -219,8 +230,12 @@ static void udl_compress_hline16(
 int udl_render_hline(struct drm_device *dev, int log_bpp, struct urb **urb_ptr,
 		     const char *front, char **urb_buf_ptr,
 		     u32 byte_offset, u32 device_byte_offset,
+<<<<<<< HEAD
 		     u32 byte_width,
 		     int *ident_ptr, int *sent_ptr)
+=======
+		     u32 byte_width)
+>>>>>>> upstream/android-13
 {
 	const u8 *line_start, *line_end, *next_pixel;
 	u32 base16 = 0 + (device_byte_offset >> log_bpp) * 2;
@@ -242,12 +257,21 @@ int udl_render_hline(struct drm_device *dev, int log_bpp, struct urb **urb_ptr,
 
 		if (cmd >= cmd_end) {
 			int len = cmd - (u8 *) urb->transfer_buffer;
+<<<<<<< HEAD
 			if (udl_submit_urb(dev, urb, len))
 				return 1; /* lost pixels is set */
 			*sent_ptr += len;
 			urb = udl_get_urb(dev);
 			if (!urb)
 				return 1; /* lost_pixels is set */
+=======
+			int ret = udl_submit_urb(dev, urb, len);
+			if (ret)
+				return ret;
+			urb = udl_get_urb(dev);
+			if (!urb)
+				return -EAGAIN;
+>>>>>>> upstream/android-13
 			*urb_ptr = urb;
 			cmd = urb->transfer_buffer;
 			cmd_end = &cmd[urb->transfer_buffer_length];
@@ -258,4 +282,7 @@ int udl_render_hline(struct drm_device *dev, int log_bpp, struct urb **urb_ptr,
 
 	return 0;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13

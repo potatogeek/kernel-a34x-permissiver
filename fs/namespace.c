@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/namespace.c
  *
  * (C) Copyright Al Viro 2000, 2001
+<<<<<<< HEAD
  *	Released under GPL v2.
+=======
+>>>>>>> upstream/android-13
  *
  * Based on code from fs/super.c, copyright Linus Torvalds and others.
  * Heavily rewritten.
@@ -20,6 +27,7 @@
 #include <linux/init.h>		/* init_rootfs */
 #include <linux/fs_struct.h>	/* get_fs_root et.al. */
 #include <linux/fsnotify.h>	/* fsnotify_vfsmount_delete */
+<<<<<<< HEAD
 #include <linux/uaccess.h>
 #include <linux/proc_ns.h>
 #include <linux/magic.h>
@@ -32,6 +40,21 @@
 #include <linux/kdp.h>
 #endif
 
+=======
+#include <linux/file.h>
+#include <linux/uaccess.h>
+#include <linux/proc_ns.h>
+#include <linux/magic.h>
+#include <linux/memblock.h>
+#include <linux/proc_fs.h>
+#include <linux/task_work.h>
+#include <linux/sched/task.h>
+#include <uapi/linux/mount.h>
+#include <linux/fs_context.h>
+#include <linux/shmem_fs.h>
+#include <linux/fslog.h>
+
+>>>>>>> upstream/android-13
 #include "pnode.h"
 #include "internal.h"
 
@@ -74,6 +97,20 @@ static struct hlist_head *mount_hashtable __read_mostly;
 static struct hlist_head *mountpoint_hashtable __read_mostly;
 static struct kmem_cache *mnt_cache __read_mostly;
 static DECLARE_RWSEM(namespace_sem);
+<<<<<<< HEAD
+=======
+static HLIST_HEAD(unmounted);	/* protected by namespace_sem */
+static LIST_HEAD(ex_mountpoints); /* protected by namespace_sem */
+
+struct mount_kattr {
+	unsigned int attr_set;
+	unsigned int attr_clr;
+	unsigned int propagation;
+	unsigned int lookup_flags;
+	bool recurse;
+	struct user_namespace *mnt_userns;
+};
+>>>>>>> upstream/android-13
 
 /* /sys/fs */
 struct kobject *fs_kobj;
@@ -89,6 +126,19 @@ EXPORT_SYMBOL_GPL(fs_kobj);
  */
 __cacheline_aligned_in_smp DEFINE_SEQLOCK(mount_lock);
 
+<<<<<<< HEAD
+=======
+static inline void lock_mount_hash(void)
+{
+	write_seqlock(&mount_lock);
+}
+
+static inline void unlock_mount_hash(void)
+{
+	write_sequnlock(&mount_lock);
+}
+
+>>>>>>> upstream/android-13
 static inline struct hlist_head *m_hash(struct vfsmount *mnt, struct dentry *dentry)
 {
 	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
@@ -132,6 +182,7 @@ static inline int is_exception(char *comm)
 
 static inline void sys_umount_trace_print(struct mount *mnt, int flags)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	struct super_block *sb = mnt->mnt->mnt_sb;
 	int mnt_flags = mnt->mnt->mnt_flags;
@@ -139,6 +190,10 @@ static inline void sys_umount_trace_print(struct mount *mnt, int flags)
 	struct super_block *sb = mnt->mnt.mnt_sb;
 	int mnt_flags = mnt->mnt.mnt_flags;
 #endif
+=======
+	struct super_block *sb = mnt->mnt.mnt_sb;
+	int mnt_flags = mnt->mnt.mnt_flags;
+>>>>>>> upstream/android-13
 
 #ifndef SDFAT_SUPER_MAGIC
 #define SDFAT_SUPER_MAGIC       (0x5EC5DFA4UL)
@@ -218,10 +273,17 @@ static inline void mnt_add_count(struct mount *mnt, int n)
 /*
  * vfsmount lock must be held for write
  */
+<<<<<<< HEAD
 unsigned int mnt_get_count(struct mount *mnt)
 {
 #ifdef CONFIG_SMP
 	unsigned int count = 0;
+=======
+int mnt_get_count(struct mount *mnt)
+{
+#ifdef CONFIG_SMP
+	int count = 0;
+>>>>>>> upstream/android-13
 	int cpu;
 
 	for_each_possible_cpu(cpu) {
@@ -234,6 +296,7 @@ unsigned int mnt_get_count(struct mount *mnt)
 #endif
 }
 
+<<<<<<< HEAD
 static void drop_mountpoint(struct fs_pin *p)
 {
 	struct mount *m = container_of(p, struct mount, mnt_umount);
@@ -246,6 +309,8 @@ static void drop_mountpoint(struct fs_pin *p)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct mount *alloc_vfsmnt(const char *name)
 {
 	struct mount *mnt = kmem_cache_zalloc(mnt_cache, GFP_KERNEL);
@@ -255,6 +320,7 @@ static struct mount *alloc_vfsmnt(const char *name)
 		err = mnt_alloc_id(mnt);
 		if (err)
 			goto out_free_cache;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		err = kdp_mnt_alloc_vfsmount(mnt);
 		if (err)
@@ -263,6 +329,12 @@ static struct mount *alloc_vfsmnt(const char *name)
 
 		if (name) {
 			mnt->mnt_devname = kstrdup_const(name, GFP_KERNEL);
+=======
+
+		if (name) {
+			mnt->mnt_devname = kstrdup_const(name,
+							 GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 			if (!mnt->mnt_devname)
 				goto out_free_id;
 		}
@@ -277,11 +349,14 @@ static struct mount *alloc_vfsmnt(const char *name)
 		mnt->mnt_count = 1;
 		mnt->mnt_writers = 0;
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		kdp_set_ns_data(mnt->mnt, NULL);
 #else
 		mnt->mnt.data = NULL;
 #endif
+=======
+>>>>>>> upstream/android-13
 
 		INIT_HLIST_NODE(&mnt->mnt_hash);
 		INIT_LIST_HEAD(&mnt->mnt_child);
@@ -293,7 +368,12 @@ static struct mount *alloc_vfsmnt(const char *name)
 		INIT_LIST_HEAD(&mnt->mnt_slave);
 		INIT_HLIST_NODE(&mnt->mnt_mp_list);
 		INIT_LIST_HEAD(&mnt->mnt_umounting);
+<<<<<<< HEAD
 		init_fs_pin(&mnt->mnt_umount, drop_mountpoint);
+=======
+		INIT_HLIST_HEAD(&mnt->mnt_stuck_children);
+		mnt->mnt.mnt_userns = &init_user_ns;
+>>>>>>> upstream/android-13
 	}
 	return mnt;
 
@@ -327,6 +407,7 @@ out_free_cache:
  * mnt_want/drop_write() will _keep_ the filesystem
  * r/w.
  */
+<<<<<<< HEAD
 int __mnt_is_readonly(struct vfsmount *mnt)
 {
 	if (mnt->mnt_flags & MNT_READONLY)
@@ -334,6 +415,11 @@ int __mnt_is_readonly(struct vfsmount *mnt)
 	if (sb_rdonly(mnt->mnt_sb))
 		return 1;
 	return 0;
+=======
+bool __mnt_is_readonly(struct vfsmount *mnt)
+{
+	return (mnt->mnt_flags & MNT_READONLY) || sb_rdonly(mnt->mnt_sb);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(__mnt_is_readonly);
 
@@ -409,11 +495,15 @@ int __mnt_want_write(struct vfsmount *m)
 	 * incremented count after it has set MNT_WRITE_HOLD.
 	 */
 	smp_mb();
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	while (READ_ONCE(mnt->mnt->mnt_flags) & MNT_WRITE_HOLD)
 #else
 	while (READ_ONCE(mnt->mnt.mnt_flags) & MNT_WRITE_HOLD)
 #endif
+=======
+	while (READ_ONCE(mnt->mnt.mnt_flags) & MNT_WRITE_HOLD)
+>>>>>>> upstream/android-13
 		cpu_relax();
 	/*
 	 * After the slowpath clears MNT_WRITE_HOLD, mnt_is_readonly will
@@ -452,6 +542,7 @@ int mnt_want_write(struct vfsmount *m)
 EXPORT_SYMBOL_GPL(mnt_want_write);
 
 /**
+<<<<<<< HEAD
  * mnt_clone_write - get write access to a mount
  * @mnt: the mount on which to take a write
  *
@@ -488,14 +579,43 @@ int __mnt_want_write_file(struct file *file)
 		return __mnt_want_write(file->f_path.mnt);
 	else
 		return mnt_clone_write(file->f_path.mnt);
+=======
+ * __mnt_want_write_file - get write access to a file's mount
+ * @file: the file who's mount on which to take a write
+ *
+ * This is like __mnt_want_write, but if the file is already open for writing it
+ * skips incrementing mnt_writers (since the open file already has a reference)
+ * and instead only does the check for emergency r/o remounts.  This must be
+ * paired with __mnt_drop_write_file.
+ */
+int __mnt_want_write_file(struct file *file)
+{
+	if (file->f_mode & FMODE_WRITER) {
+		/*
+		 * Superblock may have become readonly while there are still
+		 * writable fd's, e.g. due to a fs error with errors=remount-ro
+		 */
+		if (__mnt_is_readonly(file->f_path.mnt))
+			return -EROFS;
+		return 0;
+	}
+	return __mnt_want_write(file->f_path.mnt);
+>>>>>>> upstream/android-13
 }
 
 /**
  * mnt_want_write_file - get write access to a file's mount
  * @file: the file who's mount on which to take a write
  *
+<<<<<<< HEAD
  * This is like mnt_want_write, but it takes a file and can
  * do some optimisations if the file is open for write already
+=======
+ * This is like mnt_want_write, but if the file is already open for writing it
+ * skips incrementing mnt_writers (since the open file already has a reference)
+ * and instead only does the freeze protection and the check for emergency r/o
+ * remounts.  This must be paired with mnt_drop_write_file.
+>>>>>>> upstream/android-13
  */
 int mnt_want_write_file(struct file *file)
 {
@@ -507,7 +627,11 @@ int mnt_want_write_file(struct file *file)
 		sb_end_write(file_inode(file)->i_sb);
 	return ret;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(mnt_want_write_file);
+=======
+EXPORT_SYMBOL_NS_GPL(mnt_want_write_file, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * __mnt_drop_write - give up write access to a mount
@@ -541,7 +665,12 @@ EXPORT_SYMBOL_GPL(mnt_drop_write);
 
 void __mnt_drop_write_file(struct file *file)
 {
+<<<<<<< HEAD
 	__mnt_drop_write(file->f_path.mnt);
+=======
+	if (!(file->f_mode & FMODE_WRITER))
+		__mnt_drop_write(file->f_path.mnt);
+>>>>>>> upstream/android-13
 }
 
 void mnt_drop_write_file(struct file *file)
@@ -549,6 +678,7 @@ void mnt_drop_write_file(struct file *file)
 	__mnt_drop_write_file(file);
 	sb_end_write(file_inode(file)->i_sb);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(mnt_drop_write_file);
 
 static int mnt_make_readonly(struct mount *mnt)
@@ -561,6 +691,13 @@ static int mnt_make_readonly(struct mount *mnt)
 #else
 	mnt->mnt.mnt_flags |= MNT_WRITE_HOLD;
 #endif
+=======
+EXPORT_SYMBOL_NS(mnt_drop_write_file, ANDROID_GKI_VFS_EXPORT_ONLY);
+
+static inline int mnt_hold_writers(struct mount *mnt)
+{
+	mnt->mnt.mnt_flags |= MNT_WRITE_HOLD;
+>>>>>>> upstream/android-13
 	/*
 	 * After storing MNT_WRITE_HOLD, we'll read the counters. This store
 	 * should be visible before we do.
@@ -584,6 +721,7 @@ static int mnt_make_readonly(struct mount *mnt)
 	 * we're counting up here.
 	 */
 	if (mnt_get_writers(mnt) > 0)
+<<<<<<< HEAD
 		ret = -EBUSY;
 	else {
 #ifdef CONFIG_KDP_NS
@@ -592,11 +730,21 @@ static int mnt_make_readonly(struct mount *mnt)
 		mnt->mnt.mnt_flags |= MNT_READONLY;
 #endif
 	}
+=======
+		return -EBUSY;
+
+	return 0;
+}
+
+static inline void mnt_unhold_writers(struct mount *mnt)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * MNT_READONLY must become visible before ~MNT_WRITE_HOLD, so writers
 	 * that become unheld will see MNT_READONLY.
 	 */
 	smp_wmb();
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	kdp_clear_mnt_flags(mnt->mnt, MNT_WRITE_HOLD);
 #else
@@ -615,6 +763,20 @@ static void __mnt_unmake_readonly(struct mount *mnt)
 	mnt->mnt.mnt_flags &= ~MNT_READONLY;
 #endif
 	unlock_mount_hash();
+=======
+	mnt->mnt.mnt_flags &= ~MNT_WRITE_HOLD;
+}
+
+static int mnt_make_readonly(struct mount *mnt)
+{
+	int ret;
+
+	ret = mnt_hold_writers(mnt);
+	if (!ret)
+		mnt->mnt.mnt_flags |= MNT_READONLY;
+	mnt_unhold_writers(mnt);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 int sb_prepare_remount_readonly(struct super_block *sb)
@@ -628,6 +790,7 @@ int sb_prepare_remount_readonly(struct super_block *sb)
 
 	lock_mount_hash();
 	list_for_each_entry(mnt, &sb->s_mounts, mnt_instance) {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		if (!(mnt->mnt->mnt_flags & MNT_READONLY)) {
 			kdp_set_mnt_flags(mnt->mnt, MNT_WRITE_HOLD);
@@ -635,6 +798,10 @@ int sb_prepare_remount_readonly(struct super_block *sb)
 		if (!(mnt->mnt.mnt_flags & MNT_READONLY)) {
 			mnt->mnt.mnt_flags |= MNT_WRITE_HOLD;
 #endif
+=======
+		if (!(mnt->mnt.mnt_flags & MNT_READONLY)) {
+			mnt->mnt.mnt_flags |= MNT_WRITE_HOLD;
+>>>>>>> upstream/android-13
 			smp_mb();
 			if (mnt_get_writers(mnt) > 0) {
 				err = -EBUSY;
@@ -650,6 +817,7 @@ int sb_prepare_remount_readonly(struct super_block *sb)
 		smp_wmb();
 	}
 	list_for_each_entry(mnt, &sb->s_mounts, mnt_instance) {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		if (mnt->mnt->mnt_flags & MNT_WRITE_HOLD)
 			kdp_clear_mnt_flags(mnt->mnt, MNT_WRITE_HOLD);
@@ -657,6 +825,10 @@ int sb_prepare_remount_readonly(struct super_block *sb)
 		if (mnt->mnt.mnt_flags & MNT_WRITE_HOLD)
 			mnt->mnt.mnt_flags &= ~MNT_WRITE_HOLD;
 #endif
+=======
+		if (mnt->mnt.mnt_flags & MNT_WRITE_HOLD)
+			mnt->mnt.mnt_flags &= ~MNT_WRITE_HOLD;
+>>>>>>> upstream/android-13
 	}
 	unlock_mount_hash();
 
@@ -665,19 +837,30 @@ int sb_prepare_remount_readonly(struct super_block *sb)
 
 static void free_vfsmnt(struct mount *mnt)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	kfree(mnt->mnt->data);
 #else
 	kfree(mnt->mnt.data);
 #endif
+=======
+	struct user_namespace *mnt_userns;
+
+	mnt_userns = mnt_user_ns(&mnt->mnt);
+	if (mnt_userns != &init_user_ns)
+		put_user_ns(mnt_userns);
+>>>>>>> upstream/android-13
 	kfree_const(mnt->mnt_devname);
 #ifdef CONFIG_SMP
 	free_percpu(mnt->mnt_pcp);
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	if(mnt->mnt && is_kdp_vfsmnt_cache((unsigned long)mnt->mnt))
 		kdp_free_vfsmount(mnt->mnt);
 #endif
+=======
+>>>>>>> upstream/android-13
 	kmem_cache_free(mnt_cache, mnt);
 }
 
@@ -738,11 +921,15 @@ struct mount *__lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
 	struct mount *p;
 
 	hlist_for_each_entry_rcu(p, head, mnt_hash)
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		if (p->mnt_parent->mnt == mnt && p->mnt_mountpoint == dentry)
 #else
 		if (&p->mnt_parent->mnt == mnt && p->mnt_mountpoint == dentry)
 #endif
+=======
+		if (&p->mnt_parent->mnt == mnt && p->mnt_mountpoint == dentry)
+>>>>>>> upstream/android-13
 			return p;
 	return NULL;
 }
@@ -773,16 +960,38 @@ struct vfsmount *lookup_mnt(const struct path *path)
 	do {
 		seq = read_seqbegin(&mount_lock);
 		child_mnt = __lookup_mnt(path->mnt, path->dentry);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		m = child_mnt ? child_mnt->mnt : NULL;
 #else
 		m = child_mnt ? &child_mnt->mnt : NULL;
 #endif
+=======
+		m = child_mnt ? &child_mnt->mnt : NULL;
+>>>>>>> upstream/android-13
 	} while (!legitimize_mnt(m, seq));
 	rcu_read_unlock();
 	return m;
 }
 
+<<<<<<< HEAD
+=======
+static inline void lock_ns_list(struct mnt_namespace *ns)
+{
+	spin_lock(&ns->ns_lock);
+}
+
+static inline void unlock_ns_list(struct mnt_namespace *ns)
+{
+	spin_unlock(&ns->ns_lock);
+}
+
+static inline bool mnt_is_cursor(struct mount *mnt)
+{
+	return mnt->mnt.mnt_flags & MNT_CURSOR;
+}
+
+>>>>>>> upstream/android-13
 /*
  * __is_local_mountpoint - Test to see if dentry is a mountpoint in the
  *                         current mount namespace.
@@ -804,17 +1013,31 @@ bool __is_local_mountpoint(struct dentry *dentry)
 	struct mount *mnt;
 	bool is_covered = false;
 
+<<<<<<< HEAD
 	if (!d_mountpoint(dentry))
 		goto out;
 
 	down_read(&namespace_sem);
 	list_for_each_entry(mnt, &ns->list, mnt_list) {
+=======
+	down_read(&namespace_sem);
+	lock_ns_list(ns);
+	list_for_each_entry(mnt, &ns->list, mnt_list) {
+		if (mnt_is_cursor(mnt))
+			continue;
+>>>>>>> upstream/android-13
 		is_covered = (mnt->mnt_mountpoint == dentry);
 		if (is_covered)
 			break;
 	}
+<<<<<<< HEAD
 	up_read(&namespace_sem);
 out:
+=======
+	unlock_ns_list(ns);
+	up_read(&namespace_sem);
+
+>>>>>>> upstream/android-13
 	return is_covered;
 }
 
@@ -869,7 +1092,11 @@ mountpoint:
 
 	/* Add the new mountpoint to the hash table */
 	read_seqlock_excl(&mount_lock);
+<<<<<<< HEAD
 	new->m_dentry = dentry;
+=======
+	new->m_dentry = dget(dentry);
+>>>>>>> upstream/android-13
 	new->m_count = 1;
 	hlist_add_head(&new->m_hash, mp_hash(dentry));
 	INIT_HLIST_HEAD(&new->m_list);
@@ -882,7 +1109,15 @@ done:
 	return mp;
 }
 
+<<<<<<< HEAD
 static void put_mountpoint(struct mountpoint *mp)
+=======
+/*
+ * vfsmount lock must be held.  Additionally, the caller is responsible
+ * for serializing calls for given disposal list.
+ */
+static void __put_mountpoint(struct mountpoint *mp, struct list_head *list)
+>>>>>>> upstream/android-13
 {
 	if (!--mp->m_count) {
 		struct dentry *dentry = mp->m_dentry;
@@ -890,11 +1125,24 @@ static void put_mountpoint(struct mountpoint *mp)
 		spin_lock(&dentry->d_lock);
 		dentry->d_flags &= ~DCACHE_MOUNTED;
 		spin_unlock(&dentry->d_lock);
+<<<<<<< HEAD
+=======
+		dput_to_list(dentry, list);
+>>>>>>> upstream/android-13
 		hlist_del(&mp->m_hash);
 		kfree(mp);
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* called with namespace_lock and vfsmount lock */
+static void put_mountpoint(struct mountpoint *mp)
+{
+	__put_mountpoint(mp, &ex_mountpoints);
+}
+
+>>>>>>> upstream/android-13
 static inline int check_mnt(struct mount *mnt)
 {
 	return mnt->mnt_ns == current->nsproxy->mnt_ns;
@@ -925,6 +1173,7 @@ static void __touch_mnt_namespace(struct mnt_namespace *ns)
 /*
  * vfsmount lock must be held for write
  */
+<<<<<<< HEAD
 static void unhash_mnt(struct mount *mnt)
 {
 	mnt->mnt_parent = mnt;
@@ -952,6 +1201,19 @@ static void detach_mnt(struct mount *mnt, struct path *old_path)
 	old_path->mnt = &mnt->mnt_parent->mnt;
 #endif
 	unhash_mnt(mnt);
+=======
+static struct mountpoint *unhash_mnt(struct mount *mnt)
+{
+	struct mountpoint *mp;
+	mnt->mnt_parent = mnt;
+	mnt->mnt_mountpoint = mnt->mnt.mnt_root;
+	list_del_init(&mnt->mnt_child);
+	hlist_del_init_rcu(&mnt->mnt_hash);
+	hlist_del_init(&mnt->mnt_mp_list);
+	mp = mnt->mnt_mp;
+	mnt->mnt_mp = NULL;
+	return mp;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -959,9 +1221,13 @@ static void detach_mnt(struct mount *mnt, struct path *old_path)
  */
 static void umount_mnt(struct mount *mnt)
 {
+<<<<<<< HEAD
 	/* old mountpoint will be dropped when we can do that */
 	mnt->mnt_ex_mountpoint = mnt->mnt_mountpoint;
 	unhash_mnt(mnt);
+=======
+	put_mountpoint(unhash_mnt(mnt));
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -973,7 +1239,11 @@ void mnt_set_mountpoint(struct mount *mnt,
 {
 	mp->m_count++;
 	mnt_add_count(mnt, 1);	/* essentially, that's mntget */
+<<<<<<< HEAD
 	child_mnt->mnt_mountpoint = dget(mp->m_dentry);
+=======
+	child_mnt->mnt_mountpoint = mp->m_dentry;
+>>>>>>> upstream/android-13
 	child_mnt->mnt_parent = mnt;
 	child_mnt->mnt_mp = mp;
 	hlist_add_head(&child_mnt->mnt_mp_list, &mp->m_list);
@@ -981,6 +1251,7 @@ void mnt_set_mountpoint(struct mount *mnt,
 
 static void __attach_mnt(struct mount *mnt, struct mount *parent)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	hlist_add_head_rcu(&mnt->mnt_hash,
 			   m_hash(parent->mnt, mnt->mnt_mountpoint));
@@ -988,6 +1259,10 @@ static void __attach_mnt(struct mount *mnt, struct mount *parent)
 	hlist_add_head_rcu(&mnt->mnt_hash,
 			   m_hash(&parent->mnt, mnt->mnt_mountpoint));
 #endif
+=======
+	hlist_add_head_rcu(&mnt->mnt_hash,
+			   m_hash(&parent->mnt, mnt->mnt_mountpoint));
+>>>>>>> upstream/android-13
 	list_add_tail(&mnt->mnt_child, &parent->mnt_mounts);
 }
 
@@ -1005,7 +1280,10 @@ static void attach_mnt(struct mount *mnt,
 void mnt_change_mountpoint(struct mount *parent, struct mountpoint *mp, struct mount *mnt)
 {
 	struct mountpoint *old_mp = mnt->mnt_mp;
+<<<<<<< HEAD
 	struct dentry *old_mountpoint = mnt->mnt_mountpoint;
+=======
+>>>>>>> upstream/android-13
 	struct mount *old_parent = mnt->mnt_parent;
 
 	list_del_init(&mnt->mnt_child);
@@ -1015,6 +1293,7 @@ void mnt_change_mountpoint(struct mount *parent, struct mountpoint *mp, struct m
 	attach_mnt(mnt, parent, mp);
 
 	put_mountpoint(old_mp);
+<<<<<<< HEAD
 
 	/*
 	 * Safely avoid even the suggestion this code might sleep or
@@ -1031,6 +1310,8 @@ void mnt_change_mountpoint(struct mount *parent, struct mountpoint *mp, struct m
 	old_mountpoint->d_lockref.count--;
 	spin_unlock(&old_mountpoint->d_lock);
 
+=======
+>>>>>>> upstream/android-13
 	mnt_add_count(old_parent, -1);
 }
 
@@ -1085,6 +1366,7 @@ static struct mount *skip_mnt_tree(struct mount *p)
 	return p;
 }
 
+<<<<<<< HEAD
 struct vfsmount *
 vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void *data)
 {
@@ -1144,6 +1426,82 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 #else
 	return &mnt->mnt;
 #endif
+=======
+/**
+ * vfs_create_mount - Create a mount for a configured superblock
+ * @fc: The configuration context with the superblock attached
+ *
+ * Create a mount to an already configured superblock.  If necessary, the
+ * caller should invoke vfs_get_tree() before calling this.
+ *
+ * Note that this does not attach the mount to anything.
+ */
+struct vfsmount *vfs_create_mount(struct fs_context *fc)
+{
+	struct mount *mnt;
+
+	if (!fc->root)
+		return ERR_PTR(-EINVAL);
+
+	mnt = alloc_vfsmnt(fc->source ?: "none");
+	if (!mnt)
+		return ERR_PTR(-ENOMEM);
+
+	if (fc->sb_flags & SB_KERNMOUNT)
+		mnt->mnt.mnt_flags = MNT_INTERNAL;
+
+	atomic_inc(&fc->root->d_sb->s_active);
+	mnt->mnt.mnt_sb		= fc->root->d_sb;
+	mnt->mnt.mnt_root	= dget(fc->root);
+	mnt->mnt_mountpoint	= mnt->mnt.mnt_root;
+	mnt->mnt_parent		= mnt;
+
+	lock_mount_hash();
+	list_add_tail(&mnt->mnt_instance, &mnt->mnt.mnt_sb->s_mounts);
+	unlock_mount_hash();
+	return &mnt->mnt;
+}
+EXPORT_SYMBOL(vfs_create_mount);
+
+struct vfsmount *fc_mount(struct fs_context *fc)
+{
+	int err = vfs_get_tree(fc);
+	if (!err) {
+		up_write(&fc->root->d_sb->s_umount);
+		return vfs_create_mount(fc);
+	}
+	return ERR_PTR(err);
+}
+EXPORT_SYMBOL(fc_mount);
+
+struct vfsmount *vfs_kern_mount(struct file_system_type *type,
+				int flags, const char *name,
+				void *data)
+{
+	struct fs_context *fc;
+	struct vfsmount *mnt;
+	int ret = 0;
+
+	if (!type)
+		return ERR_PTR(-EINVAL);
+
+	fc = fs_context_for_mount(type, flags);
+	if (IS_ERR(fc))
+		return ERR_CAST(fc);
+
+	if (name)
+		ret = vfs_parse_fs_string(fc, "source",
+					  name, strlen(name));
+	if (!ret)
+		ret = parse_monolithic_mount_data(fc, data);
+	if (!ret)
+		mnt = fc_mount(fc);
+	else
+		mnt = ERR_PTR(ret);
+
+	put_fs_context(fc);
+	return mnt;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(vfs_kern_mount);
 
@@ -1165,12 +1523,16 @@ EXPORT_SYMBOL_GPL(vfs_submount);
 static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 					int flag)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	int ns_flags;
 	struct super_block *sb = old->mnt->mnt_sb;
 #else
 	struct super_block *sb = old->mnt.mnt_sb;
 #endif
+=======
+	struct super_block *sb = old->mnt.mnt_sb;
+>>>>>>> upstream/android-13
 	struct mount *mnt;
 	int err;
 
@@ -1178,6 +1540,7 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 	if (!mnt)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	if (sb->s_op->clone_mnt_data) {
 #ifdef CONFIG_KDP_NS
 		kdp_set_ns_data(mnt->mnt, sb->s_op->clone_mnt_data(old->mnt->data));
@@ -1191,6 +1554,8 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 		}
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (flag & (CL_SLAVE | CL_PRIVATE | CL_SHARED_TO_SLAVE))
 		mnt->mnt_group_id = 0; /* not a peer of original */
 	else
@@ -1202,6 +1567,7 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 			goto out_free;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	ns_flags = old->mnt->mnt_flags & ~(MNT_WRITE_HOLD|MNT_MARKED|MNT_INTERNAL);
 	/* Don't allow unprivileged users to change mount flags */
@@ -1259,6 +1625,18 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 	mnt->mnt.mnt_root = dget(root);
 	mnt->mnt_mountpoint = mnt->mnt.mnt_root;
 #endif
+=======
+	mnt->mnt.mnt_flags = old->mnt.mnt_flags;
+	mnt->mnt.mnt_flags &= ~(MNT_WRITE_HOLD|MNT_MARKED|MNT_INTERNAL);
+
+	atomic_inc(&sb->s_active);
+	mnt->mnt.mnt_userns = mnt_user_ns(&old->mnt);
+	if (mnt->mnt.mnt_userns != &init_user_ns)
+		mnt->mnt.mnt_userns = get_user_ns(mnt->mnt.mnt_userns);
+	mnt->mnt.mnt_sb = sb;
+	mnt->mnt.mnt_root = dget(root);
+	mnt->mnt_mountpoint = mnt->mnt.mnt_root;
+>>>>>>> upstream/android-13
 	mnt->mnt_parent = mnt;
 	lock_mount_hash();
 	list_add_tail(&mnt->mnt_instance, &sb->s_mounts);
@@ -1298,6 +1676,7 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 
 static void cleanup_mnt(struct mount *mnt)
 {
+<<<<<<< HEAD
 	/*
 	 * This probably indicates that somebody messed
 	 * up a mnt_want/drop_write() pair.  If this
@@ -1305,12 +1684,21 @@ static void cleanup_mnt(struct mount *mnt)
 	 * to make r/w->r/o transitions.
 	 */
 	/*
+=======
+	struct hlist_node *p;
+	struct mount *m;
+	/*
+	 * The warning here probably indicates that somebody messed
+	 * up a mnt_want/drop_write() pair.  If this happens, the
+	 * filesystem was probably unable to make r/w->r/o transitions.
+>>>>>>> upstream/android-13
 	 * The locking used to deal with mnt_count decrement provides barriers,
 	 * so mnt_get_writers() below is safe.
 	 */
 	WARN_ON(mnt_get_writers(mnt));
 	if (unlikely(mnt->mnt_pins.first))
 		mnt_pin_kill(mnt);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	fsnotify_vfsmount_delete(mnt->mnt);
 	dput(mnt->mnt->mnt_root);
@@ -1320,6 +1708,15 @@ static void cleanup_mnt(struct mount *mnt)
 	dput(mnt->mnt.mnt_root);
 	deactivate_super(mnt->mnt.mnt_sb);
 #endif
+=======
+	hlist_for_each_entry_safe(m, p, &mnt->mnt_stuck_children, mnt_umount) {
+		hlist_del(&m->mnt_umount);
+		mntput(&m->mnt);
+	}
+	fsnotify_vfsmount_delete(&mnt->mnt);
+	dput(mnt->mnt.mnt_root);
+	deactivate_super(mnt->mnt.mnt_sb);
+>>>>>>> upstream/android-13
 	mnt_free_id(mnt);
 	call_rcu(&mnt->mnt_rcu, delayed_free_vfsmnt);
 }
@@ -1342,6 +1739,12 @@ static DECLARE_DELAYED_WORK(delayed_mntput_work, delayed_mntput);
 
 static void mntput_no_expire(struct mount *mnt)
 {
+<<<<<<< HEAD
+=======
+	LIST_HEAD(list);
+	int count;
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	if (likely(READ_ONCE(mnt->mnt_ns))) {
 		/*
@@ -1365,26 +1768,40 @@ static void mntput_no_expire(struct mount *mnt)
 	 */
 	smp_mb();
 	mnt_add_count(mnt, -1);
+<<<<<<< HEAD
 	if (mnt_get_count(mnt)) {
+=======
+	count = mnt_get_count(mnt);
+	if (count != 0) {
+		WARN_ON(count < 0);
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		unlock_mount_hash();
 		sys_umount_trace_set_status(UMOUNT_STATUS_REMAIN_MNT_COUNT);
 		return;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	if (unlikely(mnt->mnt->mnt_flags & MNT_DOOMED)) {
 #else
 	if (unlikely(mnt->mnt.mnt_flags & MNT_DOOMED)) {
 #endif
+=======
+	if (unlikely(mnt->mnt.mnt_flags & MNT_DOOMED)) {
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		unlock_mount_hash();
 		return;
 	}
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	kdp_set_mnt_flags(mnt->mnt, MNT_DOOMED);
 #else
 	mnt->mnt.mnt_flags |= MNT_DOOMED;
 #endif
+=======
+	mnt->mnt.mnt_flags |= MNT_DOOMED;
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	list_del(&mnt->mnt_instance);
@@ -1392,6 +1809,7 @@ static void mntput_no_expire(struct mount *mnt)
 	if (unlikely(!list_empty(&mnt->mnt_mounts))) {
 		struct mount *p, *tmp;
 		list_for_each_entry_safe(p, tmp, &mnt->mnt_mounts,  mnt_child) {
+<<<<<<< HEAD
 			umount_mnt(p);
 		}
 	}
@@ -1406,6 +1824,20 @@ static void mntput_no_expire(struct mount *mnt)
 		if (likely(!(task->flags & PF_KTHREAD))) {
 			init_task_work(&mnt->mnt_rcu, __cleanup_mnt);
 			if (!task_work_add(task, &mnt->mnt_rcu, true)) {
+=======
+			__put_mountpoint(unhash_mnt(p), &list);
+			hlist_add_head(&p->mnt_umount, &mnt->mnt_stuck_children);
+		}
+	}
+	unlock_mount_hash();
+	shrink_dentry_list(&list);
+
+	if (likely(!(mnt->mnt.mnt_flags & MNT_INTERNAL))) {
+		struct task_struct *task = current;
+		if (likely(!(task->flags & PF_KTHREAD))) {
+			init_task_work(&mnt->mnt_rcu, __cleanup_mnt);
+			if (!task_work_add(task, &mnt->mnt_rcu, TWA_RESUME)) {
+>>>>>>> upstream/android-13
 				sys_umount_trace_set_status(UMOUNT_STATUS_ADD_TASK);
 				return;
 			}
@@ -1439,8 +1871,14 @@ struct vfsmount *mntget(struct vfsmount *mnt)
 }
 EXPORT_SYMBOL(mntget);
 
+<<<<<<< HEAD
 /* path_is_mountpoint() - Check if path is a mount in the current
  *                          namespace.
+=======
+/**
+ * path_is_mountpoint() - Check if path is a mount in the current namespace.
+ * @path: path to check
+>>>>>>> upstream/android-13
  *
  *  d_mountpoint() can only be used reliably to establish if a dentry is
  *  not mounted in any namespace and that common case is handled inline.
@@ -1474,6 +1912,7 @@ struct vfsmount *mnt_clone_internal(const struct path *path)
 	p = clone_mnt(real_mount(path->mnt), path->dentry, CL_PRIVATE);
 	if (IS_ERR(p))
 		return ERR_CAST(p);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	kdp_set_mnt_flags(p->mnt, MNT_INTERNAL);
 	return p->mnt;
@@ -1484,10 +1923,36 @@ struct vfsmount *mnt_clone_internal(const struct path *path)
 }
 
 #ifdef CONFIG_PROC_FS
+=======
+	p->mnt.mnt_flags |= MNT_INTERNAL;
+	return &p->mnt;
+}
+
+#ifdef CONFIG_PROC_FS
+static struct mount *mnt_list_next(struct mnt_namespace *ns,
+				   struct list_head *p)
+{
+	struct mount *mnt, *ret = NULL;
+
+	lock_ns_list(ns);
+	list_for_each_continue(p, &ns->list) {
+		mnt = list_entry(p, typeof(*mnt), mnt_list);
+		if (!mnt_is_cursor(mnt)) {
+			ret = mnt;
+			break;
+		}
+	}
+	unlock_ns_list(ns);
+
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /* iterator; we want it to have access to namespace_sem, thus here... */
 static void *m_start(struct seq_file *m, loff_t *pos)
 {
 	struct proc_mounts *p = m->private;
+<<<<<<< HEAD
 
 	down_read(&namespace_sem);
 	if (p->cached_event == p->ns->event) {
@@ -1504,31 +1969,71 @@ static void *m_start(struct seq_file *m, loff_t *pos)
 	p->cached_mount = seq_list_start(&p->ns->list, *pos);
 	p->cached_index = *pos;
 	return p->cached_mount;
+=======
+	struct list_head *prev;
+
+	down_read(&namespace_sem);
+	if (!*pos) {
+		prev = &p->ns->list;
+	} else {
+		prev = &p->cursor.mnt_list;
+
+		/* Read after we'd reached the end? */
+		if (list_empty(prev))
+			return NULL;
+	}
+
+	return mnt_list_next(p->ns, prev);
+>>>>>>> upstream/android-13
 }
 
 static void *m_next(struct seq_file *m, void *v, loff_t *pos)
 {
 	struct proc_mounts *p = m->private;
+<<<<<<< HEAD
 
 	p->cached_mount = seq_list_next(v, &p->ns->list, pos);
 	p->cached_index = *pos;
 	return p->cached_mount;
+=======
+	struct mount *mnt = v;
+
+	++*pos;
+	return mnt_list_next(p->ns, &mnt->mnt_list);
+>>>>>>> upstream/android-13
 }
 
 static void m_stop(struct seq_file *m, void *v)
 {
+<<<<<<< HEAD
+=======
+	struct proc_mounts *p = m->private;
+	struct mount *mnt = v;
+
+	lock_ns_list(p->ns);
+	if (mnt)
+		list_move_tail(&p->cursor.mnt_list, &mnt->mnt_list);
+	else
+		list_del_init(&p->cursor.mnt_list);
+	unlock_ns_list(p->ns);
+>>>>>>> upstream/android-13
 	up_read(&namespace_sem);
 }
 
 static int m_show(struct seq_file *m, void *v)
 {
 	struct proc_mounts *p = m->private;
+<<<<<<< HEAD
 	struct mount *r = list_entry(v, struct mount, mnt_list);
 #ifdef CONFIG_KDP_NS
 	return p->show(m, r->mnt);
 #else
 	return p->show(m, &r->mnt);
 #endif
+=======
+	struct mount *r = v;
+	return p->show(m, &r->mnt);
+>>>>>>> upstream/android-13
 }
 
 const struct seq_operations mounts_op = {
@@ -1537,11 +2042,27 @@ const struct seq_operations mounts_op = {
 	.stop	= m_stop,
 	.show	= m_show,
 };
+<<<<<<< HEAD
+=======
+
+void mnt_cursor_del(struct mnt_namespace *ns, struct mount *cursor)
+{
+	down_read(&namespace_sem);
+	lock_ns_list(ns);
+	list_del(&cursor->mnt_list);
+	unlock_ns_list(ns);
+	up_read(&namespace_sem);
+}
+>>>>>>> upstream/android-13
 #endif  /* CONFIG_PROC_FS */
 
 /**
  * may_umount_tree - check if a mount tree is busy
+<<<<<<< HEAD
  * @mnt: root of mount tree
+=======
+ * @m: root of mount tree
+>>>>>>> upstream/android-13
  *
  * This is called to check if a tree of mounts has any
  * open files, pwds, chroots or sub mounts that are
@@ -1598,6 +2119,7 @@ int may_umount(struct vfsmount *mnt)
 
 EXPORT_SYMBOL(may_umount);
 
+<<<<<<< HEAD
 static HLIST_HEAD(unmounted);	/* protected by namespace_sem */
 
 static void namespace_unlock(void)
@@ -1614,6 +2136,31 @@ static void namespace_unlock(void)
 	synchronize_rcu();
 
 	group_pin_kill(&head);
+=======
+static void namespace_unlock(void)
+{
+	struct hlist_head head;
+	struct hlist_node *p;
+	struct mount *m;
+	LIST_HEAD(list);
+
+	hlist_move_list(&unmounted, &head);
+	list_splice_init(&ex_mountpoints, &list);
+
+	up_write(&namespace_sem);
+
+	shrink_dentry_list(&list);
+
+	if (likely(hlist_empty(&head)))
+		return;
+
+	synchronize_rcu_expedited();
+
+	hlist_for_each_entry_safe(m, p, &head, mnt_umount) {
+		hlist_del(&m->mnt_umount);
+		mntput(&m->mnt);
+	}
+>>>>>>> upstream/android-13
 }
 
 static inline void namespace_lock(void)
@@ -1641,6 +2188,7 @@ static bool disconnect_mount(struct mount *mnt, enum umount_tree_flags how)
 	 * unmounted and connected, umounted mounts may not be
 	 * connected to mounted mounts.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	if (!(mnt->mnt_parent->mnt->mnt_flags & MNT_UMOUNT))
 		return true;
@@ -1648,6 +2196,10 @@ static bool disconnect_mount(struct mount *mnt, enum umount_tree_flags how)
 	if (!(mnt->mnt_parent->mnt.mnt_flags & MNT_UMOUNT))
 		return true;
 #endif
+=======
+	if (!(mnt->mnt_parent->mnt.mnt_flags & MNT_UMOUNT))
+		return true;
+>>>>>>> upstream/android-13
 
 	/* Has it been requested that the mount remain connected? */
 	if (how & UMOUNT_CONNECTED)
@@ -1675,11 +2227,15 @@ static void umount_tree(struct mount *mnt, enum umount_tree_flags how)
 
 	/* Gather the mounts to umount */
 	for (p = mnt; p; p = next_mnt(p, mnt)) {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		kdp_set_mnt_flags(p->mnt, MNT_UMOUNT);
 #else
 		p->mnt.mnt_flags |= MNT_UMOUNT;
 #endif
+=======
+		p->mnt.mnt_flags |= MNT_UMOUNT;
+>>>>>>> upstream/android-13
 		list_move(&p->mnt_list, &tmp_list);
 	}
 
@@ -1705,6 +2261,7 @@ static void umount_tree(struct mount *mnt, enum umount_tree_flags how)
 		}
 		p->mnt_ns = NULL;
 		if (how & UMOUNT_SYNC)
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 			kdp_set_mnt_flags(p->mnt, MNT_SYNC_UMOUNT);
 #else
@@ -1719,6 +2276,11 @@ static void umount_tree(struct mount *mnt, enum umount_tree_flags how)
 		pin_insert_group(&p->mnt_umount, &p->mnt_parent->mnt,
 #endif
 				 disconnect ? &unmounted : NULL);
+=======
+			p->mnt.mnt_flags |= MNT_SYNC_UMOUNT;
+
+		disconnect = disconnect_mount(p, how);
+>>>>>>> upstream/android-13
 		if (mnt_has_parent(p)) {
 			mnt_add_count(p->mnt_parent, -1);
 			if (!disconnect) {
@@ -1729,11 +2291,17 @@ static void umount_tree(struct mount *mnt, enum umount_tree_flags how)
 			}
 		}
 		change_mnt_propagation(p, MS_PRIVATE);
+<<<<<<< HEAD
+=======
+		if (disconnect)
+			hlist_add_head(&p->mnt_umount, &unmounted);
+>>>>>>> upstream/android-13
 	}
 }
 
 static void shrink_submounts(struct mount *mnt);
 
+<<<<<<< HEAD
 static int do_umount(struct mount *mnt, int flags)
 {
 #ifdef CONFIG_KDP_NS
@@ -1748,6 +2316,37 @@ static int do_umount(struct mount *mnt, int flags)
 #else
 	retval = security_sb_umount(&mnt->mnt, flags);
 #endif
+=======
+static int do_umount_root(struct super_block *sb)
+{
+	int ret = 0;
+
+	down_write(&sb->s_umount);
+	if (!sb_rdonly(sb)) {
+		struct fs_context *fc;
+
+		fc = fs_context_for_reconfigure(sb->s_root, SB_RDONLY,
+						SB_RDONLY);
+		if (IS_ERR(fc)) {
+			ret = PTR_ERR(fc);
+		} else {
+			ret = parse_monolithic_mount_data(fc, NULL);
+			if (!ret)
+				ret = reconfigure_super(fc);
+			put_fs_context(fc);
+		}
+	}
+	up_write(&sb->s_umount);
+	return ret;
+}
+
+static int do_umount(struct mount *mnt, int flags)
+{
+	struct super_block *sb = mnt->mnt.mnt_sb;
+	int retval;
+
+	retval = security_sb_umount(&mnt->mnt, flags);
+>>>>>>> upstream/android-13
 	if (retval)
 		return retval;
 
@@ -1758,11 +2357,15 @@ static int do_umount(struct mount *mnt, int flags)
 	 *  (2) the usage count == 1 [parent vfsmount] + 1 [sys_umount]
 	 */
 	if (flags & MNT_EXPIRE) {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		if (mnt->mnt == current->fs->root.mnt ||
 #else
 		if (&mnt->mnt == current->fs->root.mnt ||
 #endif
+=======
+		if (&mnt->mnt == current->fs->root.mnt ||
+>>>>>>> upstream/android-13
 		    flags & (MNT_FORCE | MNT_DETACH))
 			return -EINVAL;
 
@@ -1804,22 +2407,30 @@ static int do_umount(struct mount *mnt, int flags)
 	 * /reboot - static binary that would close all descriptors and
 	 * call reboot(9). Then init(8) could umount root and exec /reboot.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	if (mnt->mnt == current->fs->root.mnt && !(flags & MNT_DETACH)) {
 #else
 	if (&mnt->mnt == current->fs->root.mnt && !(flags & MNT_DETACH)) {
 #endif
+=======
+	if (&mnt->mnt == current->fs->root.mnt && !(flags & MNT_DETACH)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Special case for "unmounting" root ...
 		 * we just try to remount it readonly.
 		 */
 		if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
 			return -EPERM;
+<<<<<<< HEAD
 		down_write(&sb->s_umount);
 		if (!sb_rdonly(sb))
 			retval = do_remount_sb(sb, SB_RDONLY, NULL, 0);
 		up_write(&sb->s_umount);
 		return retval;
+=======
+		return do_umount_root(sb);
+>>>>>>> upstream/android-13
 	}
 
 	namespace_lock();
@@ -1827,11 +2438,15 @@ static int do_umount(struct mount *mnt, int flags)
 
 	/* Recheck MNT_LOCKED with the locks held */
 	retval = -EINVAL;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	if (mnt->mnt->mnt_flags & MNT_LOCKED)
 #else
 	if (mnt->mnt.mnt_flags & MNT_LOCKED)
 #endif
+=======
+	if (mnt->mnt.mnt_flags & MNT_LOCKED)
+>>>>>>> upstream/android-13
 		goto out;
 
 	event++;
@@ -1872,12 +2487,17 @@ void __detach_mounts(struct dentry *dentry)
 	namespace_lock();
 	lock_mount_hash();
 	mp = lookup_mountpoint(dentry);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(mp))
+=======
+	if (!mp)
+>>>>>>> upstream/android-13
 		goto out_unlock;
 
 	event++;
 	while (!hlist_empty(&mp->m_list)) {
 		mnt = hlist_entry(mp->m_list.first, struct mount, mnt_mp_list);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		if (mnt->mnt->mnt_flags & MNT_UMOUNT) {
 #else
@@ -1885,6 +2505,11 @@ void __detach_mounts(struct dentry *dentry)
 #endif
 			hlist_add_head(&mnt->mnt_umount.s_list, &unmounted);
 			umount_mnt(mnt);
+=======
+		if (mnt->mnt.mnt_flags & MNT_UMOUNT) {
+			umount_mnt(mnt);
+			hlist_add_head(&mnt->mnt_umount, &unmounted);
+>>>>>>> upstream/android-13
 		}
 		else umount_tree(mnt, UMOUNT_CONNECTED);
 	}
@@ -1902,6 +2527,7 @@ static inline bool may_mount(void)
 	return ns_capable(current->nsproxy->mnt_ns->user_ns, CAP_SYS_ADMIN);
 }
 
+<<<<<<< HEAD
 static inline bool may_mandlock(void)
 {
 #ifndef	CONFIG_MANDATORY_FILE_LOCKING
@@ -1917,11 +2543,57 @@ static inline bool may_mandlock(void)
  * We now support a flag for forced unmount like the other 'big iron'
  * unixes. Our API is identical to OSF/1 to avoid making a mess of AMD
  */
+=======
+static void warn_mandlock(void)
+{
+	pr_warn_once("=======================================================\n"
+		     "WARNING: The mand mount option has been deprecated and\n"
+		     "         and is ignored by this kernel. Remove the mand\n"
+		     "         option from the mount to silence this warning.\n"
+		     "=======================================================\n");
+}
+
+static int can_umount(const struct path *path, int flags)
+{
+	struct mount *mnt = real_mount(path->mnt);
+
+	if (!may_mount())
+		return -EPERM;
+	if (path->dentry != path->mnt->mnt_root)
+		return -EINVAL;
+	if (!check_mnt(mnt))
+		return -EINVAL;
+	if (mnt->mnt.mnt_flags & MNT_LOCKED) /* Check optimistically */
+		return -EINVAL;
+	if (flags & MNT_FORCE && !capable(CAP_SYS_ADMIN))
+		return -EPERM;
+	return 0;
+}
+
+// caller is responsible for flags being sane
+int path_umount(struct path *path, int flags)
+{
+	struct mount *mnt = real_mount(path->mnt);
+	int ret;
+
+	ret = can_umount(path, flags);
+	if (!ret)
+		ret = do_umount(mnt, flags);
+
+	/* we mustn't call path_put() as that would clear mnt_expiry_mark */
+	dput(path->dentry);
+	mntput_no_expire(mnt);
+	if (!ret)
+		sys_umount_trace_print(mnt, flags);
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PAGE_BOOST_RECORDING
 #include <linux/io_record.h>
 #endif
 
+<<<<<<< HEAD
 int ksys_umount(char __user *name, int flags)
 {
 	struct path path;
@@ -1935,11 +2607,24 @@ int ksys_umount(char __user *name, int flags)
 	if (!may_mount())
 		return -EPERM;
 
+=======
+static int ksys_umount(char __user *name, int flags)
+{
+	int lookup_flags = LOOKUP_MOUNTPOINT;
+	struct path path;
+	int ret;
+
+	// basic validity checks done first
+	if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PAGE_BOOST_RECORDING
 	forced_init_record();
 #endif
 	if (!(flags & UMOUNT_NOFOLLOW))
 		lookup_flags |= LOOKUP_FOLLOW;
+<<<<<<< HEAD
 
 	retval = user_path_mountpoint_at(AT_FDCWD, name, lookup_flags, &path);
 	if (retval)
@@ -1969,6 +2654,12 @@ dput_and_out:
 		sys_umount_trace_print(mnt, flags);
 out:
 	return retval;
+=======
+	ret = user_path_at(AT_FDCWD, name, lookup_flags, &path);
+	if (ret)
+		return ret;
+	return path_umount(&path, flags);
+>>>>>>> upstream/android-13
 }
 
 SYSCALL_DEFINE2(umount, char __user *, name, int, flags)
@@ -1995,11 +2686,23 @@ static bool is_mnt_ns_file(struct dentry *dentry)
 	       dentry->d_fsdata == &mntns_operations;
 }
 
+<<<<<<< HEAD
 struct mnt_namespace *to_mnt_ns(struct ns_common *ns)
+=======
+static struct mnt_namespace *to_mnt_ns(struct ns_common *ns)
+>>>>>>> upstream/android-13
 {
 	return container_of(ns, struct mnt_namespace, ns);
 }
 
+<<<<<<< HEAD
+=======
+struct ns_common *from_mnt_ns(struct mnt_namespace *mnt)
+{
+	return &mnt->ns;
+}
+
+>>>>>>> upstream/android-13
 static bool mnt_ns_loop(struct dentry *dentry)
 {
 	/* Could bind mounting the mount namespace inode cause a
@@ -2039,11 +2742,15 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 		for (s = r; s; s = next_mnt(s, r)) {
 			if (!(flag & CL_COPY_UNBINDABLE) &&
 			    IS_MNT_UNBINDABLE(s)) {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 				if (s->mnt->mnt_flags & MNT_LOCKED) {
 #else
 				if (s->mnt.mnt_flags & MNT_LOCKED) {
 #endif
+=======
+				if (s->mnt.mnt_flags & MNT_LOCKED) {
+>>>>>>> upstream/android-13
 					/* Both unbindable and locked. */
 					q = ERR_PTR(-EPERM);
 					goto out;
@@ -2053,11 +2760,15 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 				}
 			}
 			if (!(flag & CL_COPY_MNT_NS_FILE) &&
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 			    is_mnt_ns_file(s->mnt->mnt_root)) {
 #else
 			    is_mnt_ns_file(s->mnt.mnt_root)) {
 #endif
+=======
+			    is_mnt_ns_file(s->mnt.mnt_root)) {
+>>>>>>> upstream/android-13
 				s = skip_mnt_tree(s);
 				continue;
 			}
@@ -2067,11 +2778,15 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 			}
 			p = s;
 			parent = q;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 			q = clone_mnt(p, p->mnt->mnt_root, flag);
 #else
 			q = clone_mnt(p, p->mnt.mnt_root, flag);
 #endif
+=======
+			q = clone_mnt(p, p->mnt.mnt_root, flag);
+>>>>>>> upstream/android-13
 			if (IS_ERR(q))
 				goto out;
 			lock_mount_hash();
@@ -2104,11 +2819,36 @@ struct vfsmount *collect_mounts(const struct path *path)
 	namespace_unlock();
 	if (IS_ERR(tree))
 		return ERR_CAST(tree);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	return tree->mnt;
 #else
 	return &tree->mnt;
 #endif
+=======
+	return &tree->mnt;
+}
+
+static void free_mnt_ns(struct mnt_namespace *);
+static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *, bool);
+
+void dissolve_on_fput(struct vfsmount *mnt)
+{
+	struct mnt_namespace *ns;
+	namespace_lock();
+	lock_mount_hash();
+	ns = real_mount(mnt)->mnt_ns;
+	if (ns) {
+		if (is_anon_ns(ns))
+			umount_tree(real_mount(mnt), UMOUNT_CONNECTED);
+		else
+			ns = NULL;
+	}
+	unlock_mount_hash();
+	namespace_unlock();
+	if (ns)
+		free_mnt_ns(ns);
+>>>>>>> upstream/android-13
 }
 
 void drop_collected_mounts(struct vfsmount *mnt)
@@ -2120,12 +2860,36 @@ void drop_collected_mounts(struct vfsmount *mnt)
 	namespace_unlock();
 }
 
+<<<<<<< HEAD
 /**
  * clone_private_mount - create a private clone of a path
  *
  * This creates a new vfsmount, which will be the clone of @path.  The new will
  * not be attached anywhere in the namespace and will be private (i.e. changes
  * to the originating mount won't be propagated into this).
+=======
+static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
+{
+	struct mount *child;
+
+	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
+		if (!is_subdir(child->mnt_mountpoint, dentry))
+			continue;
+
+		if (child->mnt.mnt_flags & MNT_LOCKED)
+			return true;
+	}
+	return false;
+}
+
+/**
+ * clone_private_mount - create a private clone of a path
+ * @path: path to clone
+ *
+ * This creates a new vfsmount, which will be the clone of @path.  The new mount
+ * will not be attached anywhere in the namespace and will be private (i.e.
+ * changes to the originating mount won't be propagated into this).
+>>>>>>> upstream/android-13
  *
  * Release with mntput().
  */
@@ -2134,6 +2898,7 @@ struct vfsmount *clone_private_mount(const struct path *path)
 	struct mount *old_mnt = real_mount(path->mnt);
 	struct mount *new_mnt;
 
+<<<<<<< HEAD
 	if (IS_MNT_UNBINDABLE(old_mnt))
 		return ERR_PTR(-EINVAL);
 
@@ -2146,6 +2911,32 @@ struct vfsmount *clone_private_mount(const struct path *path)
 #else
 	return &new_mnt->mnt;
 #endif
+=======
+	down_read(&namespace_sem);
+	if (IS_MNT_UNBINDABLE(old_mnt))
+		goto invalid;
+
+	if (!check_mnt(old_mnt))
+		goto invalid;
+
+	if (has_locked_children(old_mnt, path->dentry))
+		goto invalid;
+
+	new_mnt = clone_mnt(old_mnt, path->dentry, CL_PRIVATE);
+	up_read(&namespace_sem);
+
+	if (IS_ERR(new_mnt))
+		return ERR_CAST(new_mnt);
+
+	/* Longterm mount to be removed by kern_unmount*() */
+	new_mnt->mnt_ns = MNT_NS_INTERNAL;
+
+	return &new_mnt->mnt;
+
+invalid:
+	up_read(&namespace_sem);
+	return ERR_PTR(-EINVAL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(clone_private_mount);
 
@@ -2157,17 +2948,51 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
 	if (res)
 		return res;
 	list_for_each_entry(mnt, &real_mount(root)->mnt_list, mnt_list) {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		res = f(mnt->mnt, arg);
 #else
 		res = f(&mnt->mnt, arg);
 #endif
+=======
+		res = f(&mnt->mnt, arg);
+>>>>>>> upstream/android-13
 		if (res)
 			return res;
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void lock_mnt_tree(struct mount *mnt)
+{
+	struct mount *p;
+
+	for (p = mnt; p; p = next_mnt(p, mnt)) {
+		int flags = p->mnt.mnt_flags;
+		/* Don't allow unprivileged users to change mount flags */
+		flags |= MNT_LOCK_ATIME;
+
+		if (flags & MNT_READONLY)
+			flags |= MNT_LOCK_READONLY;
+
+		if (flags & MNT_NODEV)
+			flags |= MNT_LOCK_NODEV;
+
+		if (flags & MNT_NOSUID)
+			flags |= MNT_LOCK_NOSUID;
+
+		if (flags & MNT_NOEXEC)
+			flags |= MNT_LOCK_NOEXEC;
+		/* Don't allow unprivileged users to reveal what is under a mount */
+		if (list_empty(&p->mnt_expire))
+			flags |= MNT_LOCKED;
+		p->mnt.mnt_flags = flags;
+	}
+}
+
+>>>>>>> upstream/android-13
 static void cleanup_group_ids(struct mount *mnt, struct mount *end)
 {
 	struct mount *p;
@@ -2283,8 +3108,14 @@ int count_mounts(struct mnt_namespace *ns, struct mount *mnt)
 static int attach_recursive_mnt(struct mount *source_mnt,
 			struct mount *dest_mnt,
 			struct mountpoint *dest_mp,
+<<<<<<< HEAD
 			struct path *parent_path)
 {
+=======
+			bool moving)
+{
+	struct user_namespace *user_ns = current->nsproxy->mnt_ns->user_ns;
+>>>>>>> upstream/android-13
 	HLIST_HEAD(tree_list);
 	struct mnt_namespace *ns = dest_mnt->mnt_ns;
 	struct mountpoint *smp;
@@ -2295,16 +3126,24 @@ static int attach_recursive_mnt(struct mount *source_mnt,
 	/* Preallocate a mountpoint in case the new mounts need
 	 * to be tucked under other mounts.
 	 */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	smp = get_mountpoint(source_mnt->mnt->mnt_root);
 #else
 	smp = get_mountpoint(source_mnt->mnt.mnt_root);
 #endif
+=======
+	smp = get_mountpoint(source_mnt->mnt.mnt_root);
+>>>>>>> upstream/android-13
 	if (IS_ERR(smp))
 		return PTR_ERR(smp);
 
 	/* Is there space to add these mounts to the mount namespace? */
+<<<<<<< HEAD
 	if (!parent_path) {
+=======
+	if (!moving) {
+>>>>>>> upstream/android-13
 		err = count_mounts(ns, source_mnt);
 		if (err)
 			goto out;
@@ -2323,11 +3162,23 @@ static int attach_recursive_mnt(struct mount *source_mnt,
 	} else {
 		lock_mount_hash();
 	}
+<<<<<<< HEAD
 	if (parent_path) {
 		detach_mnt(source_mnt, parent_path);
 		attach_mnt(source_mnt, dest_mnt, dest_mp);
 		touch_mnt_namespace(source_mnt->mnt_ns);
 	} else {
+=======
+	if (moving) {
+		unhash_mnt(source_mnt);
+		attach_mnt(source_mnt, dest_mnt, dest_mp);
+		touch_mnt_namespace(source_mnt->mnt_ns);
+	} else {
+		if (source_mnt->mnt_ns) {
+			/* move from anon - the caller will destroy */
+			list_del_init(&source_mnt->mnt_ns->list);
+		}
+>>>>>>> upstream/android-13
 		mnt_set_mountpoint(dest_mnt, dest_mp, source_mnt);
 		commit_tree(source_mnt);
 	}
@@ -2335,6 +3186,7 @@ static int attach_recursive_mnt(struct mount *source_mnt,
 	hlist_for_each_entry_safe(child, n, &tree_list, mnt_hash) {
 		struct mount *q;
 		hlist_del_init(&child->mnt_hash);
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		q = __lookup_mnt(child->mnt_parent->mnt,
 #else
@@ -2343,6 +3195,16 @@ static int attach_recursive_mnt(struct mount *source_mnt,
 				 child->mnt_mountpoint);
 		if (q)
 			mnt_change_mountpoint(child, smp, q);
+=======
+		q = __lookup_mnt(&child->mnt_parent->mnt,
+				 child->mnt_mountpoint);
+		if (q)
+			mnt_change_mountpoint(child, smp, q);
+		/* Notice when we are propagating across user namespaces */
+		if (child->mnt_parent->mnt_ns->user_ns != user_ns)
+			lock_mnt_tree(child);
+		child->mnt.mnt_flags &= ~MNT_LOCKED;
+>>>>>>> upstream/android-13
 		commit_tree(child);
 	}
 	put_mountpoint(smp);
@@ -2411,6 +3273,7 @@ static void unlock_mount(struct mountpoint *where)
 
 static int graft_tree(struct mount *mnt, struct mount *p, struct mountpoint *mp)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	if (mnt->mnt->mnt_sb->s_flags & SB_NOUSER)
 #else
@@ -2427,6 +3290,16 @@ static int graft_tree(struct mount *mnt, struct mount *p, struct mountpoint *mp)
 		return -ENOTDIR;
 
 	return attach_recursive_mnt(mnt, p, mp, NULL);
+=======
+	if (mnt->mnt.mnt_sb->s_flags & SB_NOUSER)
+		return -EINVAL;
+
+	if (d_is_dir(mp->m_dentry) !=
+	      d_is_dir(mnt->mnt.mnt_root))
+		return -ENOTDIR;
+
+	return attach_recursive_mnt(mnt, p, mp, false);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2481,6 +3354,7 @@ static int do_change_type(struct path *path, int ms_flags)
 	return err;
 }
 
+<<<<<<< HEAD
 static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
 {
 	struct mount *child;
@@ -2496,6 +3370,30 @@ static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
 			return true;
 	}
 	return false;
+=======
+static struct mount *__do_loopback(struct path *old_path, int recurse)
+{
+	struct mount *mnt = ERR_PTR(-EINVAL), *old = real_mount(old_path->mnt);
+
+	if (IS_MNT_UNBINDABLE(old))
+		return mnt;
+
+	if (!check_mnt(old) && old_path->dentry->d_op != &ns_dentry_operations)
+		return mnt;
+
+	if (!recurse && has_locked_children(old, old_path->dentry))
+		return mnt;
+
+	if (recurse)
+		mnt = copy_tree(old, old_path->dentry, CL_COPY_MNT_NS_FILE);
+	else
+		mnt = clone_mnt(old, old_path->dentry, 0);
+
+	if (!IS_ERR(mnt))
+		mnt->mnt.mnt_flags &= ~MNT_LOCKED;
+
+	return mnt;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2505,7 +3403,11 @@ static int do_loopback(struct path *path, const char *old_name,
 				int recurse)
 {
 	struct path old_path;
+<<<<<<< HEAD
 	struct mount *mnt = NULL, *old, *parent;
+=======
+	struct mount *mnt = NULL, *parent;
+>>>>>>> upstream/android-13
 	struct mountpoint *mp;
 	int err;
 	if (!old_name || !*old_name)
@@ -2519,6 +3421,7 @@ static int do_loopback(struct path *path, const char *old_name,
 		goto out;
 
 	mp = lock_mount(path);
+<<<<<<< HEAD
 	err = PTR_ERR(mp);
 	if (IS_ERR(mp))
 		goto out;
@@ -2544,17 +3447,32 @@ static int do_loopback(struct path *path, const char *old_name,
 	else
 		mnt = clone_mnt(old, old_path.dentry, 0);
 
+=======
+	if (IS_ERR(mp)) {
+		err = PTR_ERR(mp);
+		goto out;
+	}
+
+	parent = real_mount(path->mnt);
+	if (!check_mnt(parent))
+		goto out2;
+
+	mnt = __do_loopback(&old_path, recurse);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mnt)) {
 		err = PTR_ERR(mnt);
 		goto out2;
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	kdp_clear_mnt_flags(mnt->mnt, MNT_LOCKED);
 #else
 	mnt->mnt.mnt_flags &= ~MNT_LOCKED;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	err = graft_tree(mnt, parent, mp);
 	if (err) {
 		lock_mount_hash();
@@ -2568,6 +3486,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int change_mount_flags(struct vfsmount *mnt, int ms_flags)
 {
 	int error = 0;
@@ -2583,6 +3502,209 @@ static int change_mount_flags(struct vfsmount *mnt, int ms_flags)
 	else
 		__mnt_unmake_readonly(real_mount(mnt));
 	return error;
+=======
+static struct file *open_detached_copy(struct path *path, bool recursive)
+{
+	struct user_namespace *user_ns = current->nsproxy->mnt_ns->user_ns;
+	struct mnt_namespace *ns = alloc_mnt_ns(user_ns, true);
+	struct mount *mnt, *p;
+	struct file *file;
+
+	if (IS_ERR(ns))
+		return ERR_CAST(ns);
+
+	namespace_lock();
+	mnt = __do_loopback(path, recursive);
+	if (IS_ERR(mnt)) {
+		namespace_unlock();
+		free_mnt_ns(ns);
+		return ERR_CAST(mnt);
+	}
+
+	lock_mount_hash();
+	for (p = mnt; p; p = next_mnt(p, mnt)) {
+		p->mnt_ns = ns;
+		ns->mounts++;
+	}
+	ns->root = mnt;
+	list_add_tail(&ns->list, &mnt->mnt_list);
+	mntget(&mnt->mnt);
+	unlock_mount_hash();
+	namespace_unlock();
+
+	mntput(path->mnt);
+	path->mnt = &mnt->mnt;
+	file = dentry_open(path, O_PATH, current_cred());
+	if (IS_ERR(file))
+		dissolve_on_fput(path->mnt);
+	else
+		file->f_mode |= FMODE_NEED_UNMOUNT;
+	return file;
+}
+
+SYSCALL_DEFINE3(open_tree, int, dfd, const char __user *, filename, unsigned, flags)
+{
+	struct file *file;
+	struct path path;
+	int lookup_flags = LOOKUP_AUTOMOUNT | LOOKUP_FOLLOW;
+	bool detached = flags & OPEN_TREE_CLONE;
+	int error;
+	int fd;
+
+	BUILD_BUG_ON(OPEN_TREE_CLOEXEC != O_CLOEXEC);
+
+	if (flags & ~(AT_EMPTY_PATH | AT_NO_AUTOMOUNT | AT_RECURSIVE |
+		      AT_SYMLINK_NOFOLLOW | OPEN_TREE_CLONE |
+		      OPEN_TREE_CLOEXEC))
+		return -EINVAL;
+
+	if ((flags & (AT_RECURSIVE | OPEN_TREE_CLONE)) == AT_RECURSIVE)
+		return -EINVAL;
+
+	if (flags & AT_NO_AUTOMOUNT)
+		lookup_flags &= ~LOOKUP_AUTOMOUNT;
+	if (flags & AT_SYMLINK_NOFOLLOW)
+		lookup_flags &= ~LOOKUP_FOLLOW;
+	if (flags & AT_EMPTY_PATH)
+		lookup_flags |= LOOKUP_EMPTY;
+
+	if (detached && !may_mount())
+		return -EPERM;
+
+	fd = get_unused_fd_flags(flags & O_CLOEXEC);
+	if (fd < 0)
+		return fd;
+
+	error = user_path_at(dfd, filename, lookup_flags, &path);
+	if (unlikely(error)) {
+		file = ERR_PTR(error);
+	} else {
+		if (detached)
+			file = open_detached_copy(&path, flags & AT_RECURSIVE);
+		else
+			file = dentry_open(&path, O_PATH, current_cred());
+		path_put(&path);
+	}
+	if (IS_ERR(file)) {
+		put_unused_fd(fd);
+		return PTR_ERR(file);
+	}
+	fd_install(fd, file);
+	return fd;
+}
+
+/*
+ * Don't allow locked mount flags to be cleared.
+ *
+ * No locks need to be held here while testing the various MNT_LOCK
+ * flags because those flags can never be cleared once they are set.
+ */
+static bool can_change_locked_flags(struct mount *mnt, unsigned int mnt_flags)
+{
+	unsigned int fl = mnt->mnt.mnt_flags;
+
+	if ((fl & MNT_LOCK_READONLY) &&
+	    !(mnt_flags & MNT_READONLY))
+		return false;
+
+	if ((fl & MNT_LOCK_NODEV) &&
+	    !(mnt_flags & MNT_NODEV))
+		return false;
+
+	if ((fl & MNT_LOCK_NOSUID) &&
+	    !(mnt_flags & MNT_NOSUID))
+		return false;
+
+	if ((fl & MNT_LOCK_NOEXEC) &&
+	    !(mnt_flags & MNT_NOEXEC))
+		return false;
+
+	if ((fl & MNT_LOCK_ATIME) &&
+	    ((fl & MNT_ATIME_MASK) != (mnt_flags & MNT_ATIME_MASK)))
+		return false;
+
+	return true;
+}
+
+static int change_mount_ro_state(struct mount *mnt, unsigned int mnt_flags)
+{
+	bool readonly_request = (mnt_flags & MNT_READONLY);
+
+	if (readonly_request == __mnt_is_readonly(&mnt->mnt))
+		return 0;
+
+	if (readonly_request)
+		return mnt_make_readonly(mnt);
+
+	mnt->mnt.mnt_flags &= ~MNT_READONLY;
+	return 0;
+}
+
+static void set_mount_attributes(struct mount *mnt, unsigned int mnt_flags)
+{
+	mnt_flags |= mnt->mnt.mnt_flags & ~MNT_USER_SETTABLE_MASK;
+	mnt->mnt.mnt_flags = mnt_flags;
+	touch_mnt_namespace(mnt->mnt_ns);
+}
+
+static void mnt_warn_timestamp_expiry(struct path *mountpoint, struct vfsmount *mnt)
+{
+	struct super_block *sb = mnt->mnt_sb;
+
+	if (!__mnt_is_readonly(mnt) &&
+	   (ktime_get_real_seconds() + TIME_UPTIME_SEC_MAX > sb->s_time_max)) {
+		char *buf = (char *)__get_free_page(GFP_KERNEL);
+		char *mntpath = buf ? d_path(mountpoint, buf, PAGE_SIZE) : ERR_PTR(-ENOMEM);
+		struct tm tm;
+
+		time64_to_tm(sb->s_time_max, 0, &tm);
+
+		pr_warn("%s filesystem being %s at %s supports timestamps until %04ld (0x%llx)\n",
+			sb->s_type->name,
+			is_mounted(mnt) ? "remounted" : "mounted",
+			mntpath,
+			tm.tm_year+1900, (unsigned long long)sb->s_time_max);
+
+		free_page((unsigned long)buf);
+	}
+}
+
+/*
+ * Handle reconfiguration of the mountpoint only without alteration of the
+ * superblock it refers to.  This is triggered by specifying MS_REMOUNT|MS_BIND
+ * to mount(2).
+ */
+static int do_reconfigure_mnt(struct path *path, unsigned int mnt_flags)
+{
+	struct super_block *sb = path->mnt->mnt_sb;
+	struct mount *mnt = real_mount(path->mnt);
+	int ret;
+
+	if (!check_mnt(mnt))
+		return -EINVAL;
+
+	if (path->dentry != mnt->mnt.mnt_root)
+		return -EINVAL;
+
+	if (!can_change_locked_flags(mnt, mnt_flags))
+		return -EPERM;
+
+	/*
+	 * We're only checking whether the superblock is read-only not
+	 * changing it, so only take down_read(&sb->s_umount).
+	 */
+	down_read(&sb->s_umount);
+	lock_mount_hash();
+	ret = change_mount_ro_state(mnt, mnt_flags);
+	if (ret == 0)
+		set_mount_attributes(mnt, mnt_flags);
+	unlock_mount_hash();
+	up_read(&sb->s_umount);
+
+	mnt_warn_timestamp_expiry(path, &mnt->mnt);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2596,6 +3718,10 @@ static int do_remount(struct path *path, int ms_flags, int sb_flags,
 	int err;
 	struct super_block *sb = path->mnt->mnt_sb;
 	struct mount *mnt = real_mount(path->mnt);
+<<<<<<< HEAD
+=======
+	struct fs_context *fc;
+>>>>>>> upstream/android-13
 
 	if (!check_mnt(mnt))
 		return -EINVAL;
@@ -2603,6 +3729,7 @@ static int do_remount(struct path *path, int ms_flags, int sb_flags,
 	if (path->dentry != path->mnt->mnt_root)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Don't allow changing of locked mnt flags.
 	 *
 	 * No locks need to be held here while testing the various
@@ -2682,6 +3809,34 @@ static int do_remount(struct path *path, int ms_flags, int sb_flags,
 		unlock_mount_hash();
 	}
 	up_write(&sb->s_umount);
+=======
+	if (!can_change_locked_flags(mnt, mnt_flags))
+		return -EPERM;
+
+	fc = fs_context_for_reconfigure(path->dentry, sb_flags, MS_RMT_MASK);
+	if (IS_ERR(fc))
+		return PTR_ERR(fc);
+
+	fc->oldapi = true;
+	err = parse_monolithic_mount_data(fc, data);
+	if (!err) {
+		down_write(&sb->s_umount);
+		err = -EPERM;
+		if (ns_capable(sb->s_user_ns, CAP_SYS_ADMIN)) {
+			err = reconfigure_super(fc);
+			if (!err) {
+				lock_mount_hash();
+				set_mount_attributes(mnt, mnt_flags);
+				unlock_mount_hash();
+			}
+		}
+		up_write(&sb->s_umount);
+	}
+
+	mnt_warn_timestamp_expiry(path, &mnt->mnt);
+
+	put_fs_context(fc);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -2695,6 +3850,7 @@ static inline int tree_contains_unbindable(struct mount *mnt)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int do_move_mount(struct path *path, const char *old_name)
 {
 	struct path old_path, parent_path;
@@ -2742,11 +3898,156 @@ static int do_move_mount(struct path *path, const char *old_name)
 	 */
 	if (IS_MNT_SHARED(old->mnt_parent))
 		goto out1;
+=======
+/*
+ * Check that there aren't references to earlier/same mount namespaces in the
+ * specified subtree.  Such references can act as pins for mount namespaces
+ * that aren't checked by the mount-cycle checking code, thereby allowing
+ * cycles to be made.
+ */
+static bool check_for_nsfs_mounts(struct mount *subtree)
+{
+	struct mount *p;
+	bool ret = false;
+
+	lock_mount_hash();
+	for (p = subtree; p; p = next_mnt(p, subtree))
+		if (mnt_ns_loop(p->mnt.mnt_root))
+			goto out;
+
+	ret = true;
+out:
+	unlock_mount_hash();
+	return ret;
+}
+
+static int do_set_group(struct path *from_path, struct path *to_path)
+{
+	struct mount *from, *to;
+	int err;
+
+	from = real_mount(from_path->mnt);
+	to = real_mount(to_path->mnt);
+
+	namespace_lock();
+
+	err = -EINVAL;
+	/* To and From must be mounted */
+	if (!is_mounted(&from->mnt))
+		goto out;
+	if (!is_mounted(&to->mnt))
+		goto out;
+
+	err = -EPERM;
+	/* We should be allowed to modify mount namespaces of both mounts */
+	if (!ns_capable(from->mnt_ns->user_ns, CAP_SYS_ADMIN))
+		goto out;
+	if (!ns_capable(to->mnt_ns->user_ns, CAP_SYS_ADMIN))
+		goto out;
+
+	err = -EINVAL;
+	/* To and From paths should be mount roots */
+	if (from_path->dentry != from_path->mnt->mnt_root)
+		goto out;
+	if (to_path->dentry != to_path->mnt->mnt_root)
+		goto out;
+
+	/* Setting sharing groups is only allowed across same superblock */
+	if (from->mnt.mnt_sb != to->mnt.mnt_sb)
+		goto out;
+
+	/* From mount root should be wider than To mount root */
+	if (!is_subdir(to->mnt.mnt_root, from->mnt.mnt_root))
+		goto out;
+
+	/* From mount should not have locked children in place of To's root */
+	if (has_locked_children(from, to->mnt.mnt_root))
+		goto out;
+
+	/* Setting sharing groups is only allowed on private mounts */
+	if (IS_MNT_SHARED(to) || IS_MNT_SLAVE(to))
+		goto out;
+
+	/* From should not be private */
+	if (!IS_MNT_SHARED(from) && !IS_MNT_SLAVE(from))
+		goto out;
+
+	if (IS_MNT_SLAVE(from)) {
+		struct mount *m = from->mnt_master;
+
+		list_add(&to->mnt_slave, &m->mnt_slave_list);
+		to->mnt_master = m;
+	}
+
+	if (IS_MNT_SHARED(from)) {
+		to->mnt_group_id = from->mnt_group_id;
+		list_add(&to->mnt_share, &from->mnt_share);
+		lock_mount_hash();
+		set_mnt_shared(to);
+		unlock_mount_hash();
+	}
+
+	err = 0;
+out:
+	namespace_unlock();
+	return err;
+}
+
+static int do_move_mount(struct path *old_path, struct path *new_path)
+{
+	struct mnt_namespace *ns;
+	struct mount *p;
+	struct mount *old;
+	struct mount *parent;
+	struct mountpoint *mp, *old_mp;
+	int err;
+	bool attached;
+
+	mp = lock_mount(new_path);
+	if (IS_ERR(mp))
+		return PTR_ERR(mp);
+
+	old = real_mount(old_path->mnt);
+	p = real_mount(new_path->mnt);
+	parent = old->mnt_parent;
+	attached = mnt_has_parent(old);
+	old_mp = old->mnt_mp;
+	ns = old->mnt_ns;
+
+	err = -EINVAL;
+	/* The mountpoint must be in our namespace. */
+	if (!check_mnt(p))
+		goto out;
+
+	/* The thing moved must be mounted... */
+	if (!is_mounted(&old->mnt))
+		goto out;
+
+	/* ... and either ours or the root of anon namespace */
+	if (!(attached ? check_mnt(old) : is_anon_ns(ns)))
+		goto out;
+
+	if (old->mnt.mnt_flags & MNT_LOCKED)
+		goto out;
+
+	if (old_path->dentry != old_path->mnt->mnt_root)
+		goto out;
+
+	if (d_is_dir(new_path->dentry) !=
+	    d_is_dir(old_path->dentry))
+		goto out;
+	/*
+	 * Don't move a mount residing in a shared parent.
+	 */
+	if (attached && IS_MNT_SHARED(parent))
+		goto out;
+>>>>>>> upstream/android-13
 	/*
 	 * Don't move a mount tree containing unbindable mounts to a destination
 	 * mount which is shared.
 	 */
 	if (IS_MNT_SHARED(p) && tree_contains_unbindable(old))
+<<<<<<< HEAD
 		goto out1;
 	err = -ELOOP;
 	for (; mnt_has_parent(p); p = p->mnt_parent)
@@ -2756,10 +4057,25 @@ static int do_move_mount(struct path *path, const char *old_name)
 	err = attach_recursive_mnt(old, real_mount(path->mnt), mp, &parent_path);
 	if (err)
 		goto out1;
+=======
+		goto out;
+	err = -ELOOP;
+	if (!check_for_nsfs_mounts(old))
+		goto out;
+	for (; mnt_has_parent(p); p = p->mnt_parent)
+		if (p == old)
+			goto out;
+
+	err = attach_recursive_mnt(old, real_mount(new_path->mnt), mp,
+				   attached);
+	if (err)
+		goto out;
+>>>>>>> upstream/android-13
 
 	/* if the mount is moved, it should no longer be expire
 	 * automatically */
 	list_del_init(&old->mnt_expire);
+<<<<<<< HEAD
 out1:
 	unlock_mount(mp);
 out:
@@ -2790,11 +4106,42 @@ static struct vfsmount *fs_set_subtype(struct vfsmount *mnt, const char *fstype)
  err:
 	mntput(mnt);
 	return ERR_PTR(err);
+=======
+	if (attached)
+		put_mountpoint(old_mp);
+out:
+	unlock_mount(mp);
+	if (!err) {
+		if (attached)
+			mntput_no_expire(parent);
+		else
+			free_mnt_ns(ns);
+	}
+	return err;
+}
+
+static int do_move_mount_old(struct path *path, const char *old_name)
+{
+	struct path old_path;
+	int err;
+
+	if (!old_name || !*old_name)
+		return -EINVAL;
+
+	err = kern_path(old_name, LOOKUP_FOLLOW, &old_path);
+	if (err)
+		return err;
+
+	err = do_move_mount(&old_path, path);
+	path_put(&old_path);
+	return err;
+>>>>>>> upstream/android-13
 }
 
 /*
  * add a mount into a namespace's mount tree
  */
+<<<<<<< HEAD
 static int do_add_mount(struct mount *newmnt, struct path *path, int mnt_flags)
 {
 	struct mountpoint *mp;
@@ -2849,6 +4196,78 @@ unlock:
 }
 
 static bool mount_too_revealing(struct vfsmount *mnt, int *new_mnt_flags);
+=======
+static int do_add_mount(struct mount *newmnt, struct mountpoint *mp,
+			struct path *path, int mnt_flags)
+{
+	struct mount *parent = real_mount(path->mnt);
+
+	mnt_flags &= ~MNT_INTERNAL_FLAGS;
+
+	if (unlikely(!check_mnt(parent))) {
+		/* that's acceptable only for automounts done in private ns */
+		if (!(mnt_flags & MNT_SHRINKABLE))
+			return -EINVAL;
+		/* ... and for those we'd better have mountpoint still alive */
+		if (!parent->mnt_ns)
+			return -EINVAL;
+	}
+
+	/* Refuse the same filesystem on the same mount point */
+	if (path->mnt->mnt_sb == newmnt->mnt.mnt_sb &&
+	    path->mnt->mnt_root == path->dentry)
+		return -EBUSY;
+
+	if (d_is_symlink(newmnt->mnt.mnt_root))
+		return -EINVAL;
+
+	newmnt->mnt.mnt_flags = mnt_flags;
+	return graft_tree(newmnt, parent, mp);
+}
+
+static bool mount_too_revealing(const struct super_block *sb, int *new_mnt_flags);
+
+/*
+ * Create a new mount using a superblock configuration and request it
+ * be added to the namespace tree.
+ */
+static int do_new_mount_fc(struct fs_context *fc, struct path *mountpoint,
+			   unsigned int mnt_flags)
+{
+	struct vfsmount *mnt;
+	struct mountpoint *mp;
+	struct super_block *sb = fc->root->d_sb;
+	int error;
+
+	error = security_sb_kern_mount(sb);
+	if (!error && mount_too_revealing(sb, &mnt_flags))
+		error = -EPERM;
+
+	if (unlikely(error)) {
+		fc_drop_locked(fc);
+		return error;
+	}
+
+	up_write(&sb->s_umount);
+
+	mnt = vfs_create_mount(fc);
+	if (IS_ERR(mnt))
+		return PTR_ERR(mnt);
+
+	mnt_warn_timestamp_expiry(mountpoint, mnt);
+
+	mp = lock_mount(mountpoint);
+	if (IS_ERR(mp)) {
+		mntput(mnt);
+		return PTR_ERR(mp);
+	}
+	error = do_add_mount(real_mount(mnt), mp, mountpoint, mnt_flags);
+	unlock_mount(mp);
+	if (error < 0)
+		mntput(mnt);
+	return error;
+}
+>>>>>>> upstream/android-13
 
 /*
  * create a new mount for userspace and request it to be added into the
@@ -2858,8 +4277,14 @@ static int do_new_mount(struct path *path, const char *fstype, int sb_flags,
 			int mnt_flags, const char *name, void *data)
 {
 	struct file_system_type *type;
+<<<<<<< HEAD
 	struct vfsmount *mnt;
 	int err;
+=======
+	struct fs_context *fc;
+	const char *subtype = NULL;
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	if (!fstype)
 		return -EINVAL;
@@ -2868,6 +4293,7 @@ static int do_new_mount(struct path *path, const char *fstype, int sb_flags,
 	if (!type)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	mnt = vfs_kern_mount(type, sb_flags, name, data);
 	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE) &&
 	    !mnt->mnt_sb->s_subtype)
@@ -2892,19 +4318,67 @@ static int do_new_mount(struct path *path, const char *fstype, int sb_flags,
 		return err;
 #endif
 
+=======
+	if (type->fs_flags & FS_HAS_SUBTYPE) {
+		subtype = strchr(fstype, '.');
+		if (subtype) {
+			subtype++;
+			if (!*subtype) {
+				put_filesystem(type);
+				return -EINVAL;
+			}
+		}
+	}
+
+	fc = fs_context_for_mount(type, sb_flags);
+	put_filesystem(type);
+	if (IS_ERR(fc))
+		return PTR_ERR(fc);
+
+	if (subtype)
+		err = vfs_parse_fs_string(fc, "subtype",
+					  subtype, strlen(subtype));
+	if (!err && name)
+		err = vfs_parse_fs_string(fc, "source", name, strlen(name));
+	if (!err)
+		err = parse_monolithic_mount_data(fc, data);
+	if (!err && !mount_capable(fc))
+		err = -EPERM;
+	if (!err)
+		err = vfs_get_tree(fc);
+	if (!err)
+		err = do_new_mount_fc(fc, path, mnt_flags);
+
+	put_fs_context(fc);
+>>>>>>> upstream/android-13
 	return err;
 }
 
 int finish_automount(struct vfsmount *m, struct path *path)
 {
+<<<<<<< HEAD
 	struct mount *mnt = real_mount(m);
 	int err;
+=======
+	struct dentry *dentry = path->dentry;
+	struct mountpoint *mp;
+	struct mount *mnt;
+	int err;
+
+	if (!m)
+		return 0;
+	if (IS_ERR(m))
+		return PTR_ERR(m);
+
+	mnt = real_mount(m);
+>>>>>>> upstream/android-13
 	/* The new mount record should have at least 2 refs to prevent it being
 	 * expired before we get a chance to add it
 	 */
 	BUG_ON(mnt_get_count(mnt) < 2);
 
 	if (m->mnt_sb == path->mnt->mnt_sb &&
+<<<<<<< HEAD
 	    m->mnt_root == path->dentry) {
 		err = -ELOOP;
 		goto fail;
@@ -2914,6 +4388,48 @@ int finish_automount(struct vfsmount *m, struct path *path)
 	if (!err)
 		return 0;
 fail:
+=======
+	    m->mnt_root == dentry) {
+		err = -ELOOP;
+		goto discard;
+	}
+
+	/*
+	 * we don't want to use lock_mount() - in this case finding something
+	 * that overmounts our mountpoint to be means "quitely drop what we've
+	 * got", not "try to mount it on top".
+	 */
+	inode_lock(dentry->d_inode);
+	namespace_lock();
+	if (unlikely(cant_mount(dentry))) {
+		err = -ENOENT;
+		goto discard_locked;
+	}
+	rcu_read_lock();
+	if (unlikely(__lookup_mnt(path->mnt, dentry))) {
+		rcu_read_unlock();
+		err = 0;
+		goto discard_locked;
+	}
+	rcu_read_unlock();
+	mp = get_mountpoint(dentry);
+	if (IS_ERR(mp)) {
+		err = PTR_ERR(mp);
+		goto discard_locked;
+	}
+
+	err = do_add_mount(mnt, mp, path, path->mnt->mnt_flags | MNT_SHRINKABLE);
+	unlock_mount(mp);
+	if (unlikely(err))
+		goto discard;
+	mntput(m);
+	return 0;
+
+discard_locked:
+	namespace_unlock();
+	inode_unlock(dentry->d_inode);
+discard:
+>>>>>>> upstream/android-13
 	/* remove m from any expiration list it may be on */
 	if (!list_empty(&mnt->mnt_expire)) {
 		namespace_lock();
@@ -2999,11 +4515,15 @@ resume:
 		struct mount *mnt = list_entry(tmp, struct mount, mnt_child);
 
 		next = tmp->next;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		if (!(mnt->mnt->mnt_flags & MNT_SHRINKABLE))
 #else
 		if (!(mnt->mnt.mnt_flags & MNT_SHRINKABLE))
 #endif
+=======
+		if (!(mnt->mnt.mnt_flags & MNT_SHRINKABLE))
+>>>>>>> upstream/android-13
 			continue;
 		/*
 		 * Descend a level if the d_mounts list is non-empty.
@@ -3051,6 +4571,7 @@ static void shrink_submounts(struct mount *mnt)
 	}
 }
 
+<<<<<<< HEAD
 /*
  * Some copy_from_user() implementations do not return the exact number of
  * bytes remaining to copy on a fault.  But copy_mount_options() requires that.
@@ -3084,6 +4605,12 @@ void *copy_mount_options(const void __user * data)
 	int i;
 	unsigned long size;
 	char *copy;
+=======
+static void *copy_mount_options(const void __user * data)
+{
+	char *copy;
+	unsigned left, offset;
+>>>>>>> upstream/android-13
 
 	if (!data)
 		return NULL;
@@ -3092,6 +4619,7 @@ void *copy_mount_options(const void __user * data)
 	if (!copy)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	/* We only care that *some* data at the address the user
 	 * gave us is valid.  Just in case, we'll zero
 	 * the remainder of the page.
@@ -3114,6 +4642,35 @@ void *copy_mount_options(const void __user * data)
 char *copy_mount_string(const void __user *data)
 {
 	return data ? strndup_user(data, PAGE_SIZE) : NULL;
+=======
+	left = copy_from_user(copy, data, PAGE_SIZE);
+
+	/*
+	 * Not all architectures have an exact copy_from_user(). Resort to
+	 * byte at a time.
+	 */
+	offset = PAGE_SIZE - left;
+	while (left) {
+		char c;
+		if (get_user(c, (const char __user *)data + offset))
+			break;
+		copy[offset] = c;
+		left--;
+		offset++;
+	}
+
+	if (left == PAGE_SIZE) {
+		kfree(copy);
+		return ERR_PTR(-EFAULT);
+	}
+
+	return copy;
+}
+
+static char *copy_mount_string(const void __user *data)
+{
+	return data ? strndup_user(data, PATH_MAX) : NULL;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3130,12 +4687,20 @@ char *copy_mount_string(const void __user *data)
  * Therefore, if this magic number is present, it carries no information
  * and must be discarded.
  */
+<<<<<<< HEAD
 long do_mount(const char *dev_name, const char __user *dir_name,
 		const char *type_page, unsigned long flags, void *data_page)
 {
 	struct path path;
 	unsigned int mnt_flags = 0, sb_flags;
 	int retval = 0;
+=======
+int path_mount(const char *dev_name, struct path *path,
+		const char *type_page, unsigned long flags, void *data_page)
+{
+	unsigned int mnt_flags = 0, sb_flags;
+	int ret;
+>>>>>>> upstream/android-13
 
 	/* Discard magic */
 	if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
@@ -3148,6 +4713,7 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 	if (flags & MS_NOUSER)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* ... and get the mountpoint */
 	retval = user_path(dir_name, &path);
 	if (retval)
@@ -3161,6 +4727,15 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 		retval = -EPERM;
 	if (retval)
 		goto dput_out;
+=======
+	ret = security_sb_mount(dev_name, path, type_page, flags, data_page);
+	if (ret)
+		return ret;
+	if (!may_mount())
+		return -EPERM;
+	if (flags & SB_MANDLOCK)
+		warn_mandlock();
+>>>>>>> upstream/android-13
 
 	/* Default to relatime unless overriden */
 	if (!(flags & MS_NOATIME))
@@ -3181,13 +4756,22 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 		mnt_flags &= ~(MNT_RELATIME | MNT_NOATIME);
 	if (flags & MS_RDONLY)
 		mnt_flags |= MNT_READONLY;
+<<<<<<< HEAD
+=======
+	if (flags & MS_NOSYMFOLLOW)
+		mnt_flags |= MNT_NOSYMFOLLOW;
+>>>>>>> upstream/android-13
 
 	/* The default atime for remount is preservation */
 	if ((flags & MS_REMOUNT) &&
 	    ((flags & (MS_NOATIME | MS_NODIRATIME | MS_RELATIME |
 		       MS_STRICTATIME)) == 0)) {
 		mnt_flags &= ~MNT_ATIME_MASK;
+<<<<<<< HEAD
 		mnt_flags |= path.mnt->mnt_flags & MNT_ATIME_MASK;
+=======
+		mnt_flags |= path->mnt->mnt_flags & MNT_ATIME_MASK;
+>>>>>>> upstream/android-13
 	}
 
 	sb_flags = flags & (SB_RDONLY |
@@ -3199,6 +4783,7 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 			    SB_LAZYTIME |
 			    SB_I_VERSION);
 
+<<<<<<< HEAD
 	if (flags & MS_REMOUNT)
 		retval = do_remount(&path, flags, sb_flags, mnt_flags,
 				    data_page);
@@ -3214,6 +4799,35 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 dput_out:
 	path_put(&path);
 	return retval;
+=======
+	if ((flags & (MS_REMOUNT | MS_BIND)) == (MS_REMOUNT | MS_BIND))
+		return do_reconfigure_mnt(path, mnt_flags);
+	if (flags & MS_REMOUNT)
+		return do_remount(path, flags, sb_flags, mnt_flags, data_page);
+	if (flags & MS_BIND)
+		return do_loopback(path, dev_name, flags & MS_REC);
+	if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
+		return do_change_type(path, flags);
+	if (flags & MS_MOVE)
+		return do_move_mount_old(path, dev_name);
+
+	return do_new_mount(path, type_page, sb_flags, mnt_flags, dev_name,
+			    data_page);
+}
+
+long do_mount(const char *dev_name, const char __user *dir_name,
+		const char *type_page, unsigned long flags, void *data_page)
+{
+	struct path path;
+	int ret;
+
+	ret = user_path_at(AT_FDCWD, dir_name, LOOKUP_FOLLOW, &path);
+	if (ret)
+		return ret;
+	ret = path_mount(dev_name, &path, type_page, flags, data_page);
+	path_put(&path);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static struct ucounts *inc_mnt_namespaces(struct user_namespace *ns)
@@ -3228,7 +4842,12 @@ static void dec_mnt_namespaces(struct ucounts *ucounts)
 
 static void free_mnt_ns(struct mnt_namespace *ns)
 {
+<<<<<<< HEAD
 	ns_free_inum(&ns->ns);
+=======
+	if (!is_anon_ns(ns))
+		ns_free_inum(&ns->ns);
+>>>>>>> upstream/android-13
 	dec_mnt_namespaces(ns->ucounts);
 	put_user_ns(ns->user_ns);
 	kfree(ns);
@@ -3243,7 +4862,11 @@ static void free_mnt_ns(struct mnt_namespace *ns)
  */
 static atomic64_t mnt_ns_seq = ATOMIC64_INIT(1);
 
+<<<<<<< HEAD
 static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *user_ns)
+=======
+static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *user_ns, bool anon)
+>>>>>>> upstream/android-13
 {
 	struct mnt_namespace *new_ns;
 	struct ucounts *ucounts;
@@ -3253,11 +4876,16 @@ static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *user_ns)
 	if (!ucounts)
 		return ERR_PTR(-ENOSPC);
 
+<<<<<<< HEAD
 	new_ns = kmalloc(sizeof(struct mnt_namespace), GFP_KERNEL);
+=======
+	new_ns = kzalloc(sizeof(struct mnt_namespace), GFP_KERNEL_ACCOUNT);
+>>>>>>> upstream/android-13
 	if (!new_ns) {
 		dec_mnt_namespaces(ucounts);
 		return ERR_PTR(-ENOMEM);
 	}
+<<<<<<< HEAD
 	ret = ns_alloc_inum(&new_ns->ns);
 	if (ret) {
 		kfree(new_ns);
@@ -3275,6 +4903,25 @@ static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *user_ns)
 	new_ns->ucounts = ucounts;
 	new_ns->mounts = 0;
 	new_ns->pending_mounts = 0;
+=======
+	if (!anon) {
+		ret = ns_alloc_inum(&new_ns->ns);
+		if (ret) {
+			kfree(new_ns);
+			dec_mnt_namespaces(ucounts);
+			return ERR_PTR(ret);
+		}
+	}
+	new_ns->ns.ops = &mntns_operations;
+	if (!anon)
+		new_ns->seq = atomic64_add_return(1, &mnt_ns_seq);
+	refcount_set(&new_ns->ns.count, 1);
+	INIT_LIST_HEAD(&new_ns->list);
+	init_waitqueue_head(&new_ns->poll);
+	spin_lock_init(&new_ns->ns_lock);
+	new_ns->user_ns = get_user_ns(user_ns);
+	new_ns->ucounts = ucounts;
+>>>>>>> upstream/android-13
 	return new_ns;
 }
 
@@ -3298,7 +4945,11 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 
 	old = ns->root;
 
+<<<<<<< HEAD
 	new_ns = alloc_mnt_ns(user_ns);
+=======
+	new_ns = alloc_mnt_ns(user_ns, false);
+>>>>>>> upstream/android-13
 	if (IS_ERR(new_ns))
 		return new_ns;
 
@@ -3306,17 +4957,30 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 	/* First pass: copy the tree topology */
 	copy_flags = CL_COPY_UNBINDABLE | CL_EXPIRE;
 	if (user_ns != ns->user_ns)
+<<<<<<< HEAD
 		copy_flags |= CL_SHARED_TO_SLAVE | CL_UNPRIVILEGED;
 #ifdef CONFIG_KDP_NS
 	new = copy_tree(old, old->mnt->mnt_root, copy_flags);
 #else
 	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
 #endif
+=======
+		copy_flags |= CL_SHARED_TO_SLAVE;
+	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
+>>>>>>> upstream/android-13
 	if (IS_ERR(new)) {
 		namespace_unlock();
 		free_mnt_ns(new_ns);
 		return ERR_CAST(new);
 	}
+<<<<<<< HEAD
+=======
+	if (user_ns != ns->user_ns) {
+		lock_mount_hash();
+		lock_mnt_tree(new);
+		unlock_mount_hash();
+	}
+>>>>>>> upstream/android-13
 	new_ns->root = new;
 	list_add_tail(&new_ns->list, &new->mnt_list);
 
@@ -3331,6 +4995,7 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 		q->mnt_ns = new_ns;
 		new_ns->mounts++;
 		if (new_fs) {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 			if (p->mnt == new_fs->root.mnt) {
 				new_fs->root.mnt = mntget(q->mnt);
@@ -3350,17 +5015,30 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 				new_fs->pwd.mnt = mntget(&q->mnt);
 				pwdmnt = &p->mnt;
 #endif
+=======
+			if (&p->mnt == new_fs->root.mnt) {
+				new_fs->root.mnt = mntget(&q->mnt);
+				rootmnt = &p->mnt;
+			}
+			if (&p->mnt == new_fs->pwd.mnt) {
+				new_fs->pwd.mnt = mntget(&q->mnt);
+				pwdmnt = &p->mnt;
+>>>>>>> upstream/android-13
 			}
 		}
 		p = next_mnt(p, old);
 		q = next_mnt(q, new);
 		if (!q)
 			break;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 		while (p->mnt->mnt_root != q->mnt->mnt_root)
 #else
 		while (p->mnt.mnt_root != q->mnt.mnt_root)
 #endif
+=======
+		while (p->mnt.mnt_root != q->mnt.mnt_root)
+>>>>>>> upstream/android-13
 			p = next_mnt(p, old);
 	}
 	namespace_unlock();
@@ -3373,6 +5051,7 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 	return new_ns;
 }
 
+<<<<<<< HEAD
 /**
  * create_mnt_ns - creates a private namespace and adds a root filesystem
  * @mnt: pointer to the new root filesystem mountpoint
@@ -3394,16 +5073,35 @@ static struct mnt_namespace *create_mnt_ns(struct vfsmount *m)
 
 struct dentry *mount_subtree(struct vfsmount *mnt, const char *name)
 {
+=======
+struct dentry *mount_subtree(struct vfsmount *m, const char *name)
+{
+	struct mount *mnt = real_mount(m);
+>>>>>>> upstream/android-13
 	struct mnt_namespace *ns;
 	struct super_block *s;
 	struct path path;
 	int err;
 
+<<<<<<< HEAD
 	ns = create_mnt_ns(mnt);
 	if (IS_ERR(ns))
 		return ERR_CAST(ns);
 
 	err = vfs_path_lookup(mnt->mnt_root, mnt,
+=======
+	ns = alloc_mnt_ns(&init_user_ns, true);
+	if (IS_ERR(ns)) {
+		mntput(m);
+		return ERR_CAST(ns);
+	}
+	mnt->mnt_ns = ns;
+	ns->root = mnt;
+	ns->mounts++;
+	list_add(&mnt->mnt_list, &ns->list);
+
+	err = vfs_path_lookup(m->mnt_root, m,
+>>>>>>> upstream/android-13
 			name, LOOKUP_FOLLOW|LOOKUP_AUTOMOUNT, &path);
 
 	put_mnt_ns(ns);
@@ -3422,8 +5120,13 @@ struct dentry *mount_subtree(struct vfsmount *mnt, const char *name)
 }
 EXPORT_SYMBOL(mount_subtree);
 
+<<<<<<< HEAD
 int ksys_mount(char __user *dev_name, char __user *dir_name, char __user *type,
 	       unsigned long flags, void __user *data)
+=======
+SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
+		char __user *, type, unsigned long, flags, void __user *, data)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	char *kernel_type;
@@ -3456,10 +5159,227 @@ out_type:
 	return ret;
 }
 
+<<<<<<< HEAD
 SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 		char __user *, type, unsigned long, flags, void __user *, data)
 {
 	return ksys_mount(dev_name, dir_name, type, flags, data);
+=======
+#define FSMOUNT_VALID_FLAGS                                                    \
+	(MOUNT_ATTR_RDONLY | MOUNT_ATTR_NOSUID | MOUNT_ATTR_NODEV |            \
+	 MOUNT_ATTR_NOEXEC | MOUNT_ATTR__ATIME | MOUNT_ATTR_NODIRATIME |       \
+	 MOUNT_ATTR_NOSYMFOLLOW)
+
+#define MOUNT_SETATTR_VALID_FLAGS (FSMOUNT_VALID_FLAGS | MOUNT_ATTR_IDMAP)
+
+#define MOUNT_SETATTR_PROPAGATION_FLAGS \
+	(MS_UNBINDABLE | MS_PRIVATE | MS_SLAVE | MS_SHARED)
+
+static unsigned int attr_flags_to_mnt_flags(u64 attr_flags)
+{
+	unsigned int mnt_flags = 0;
+
+	if (attr_flags & MOUNT_ATTR_RDONLY)
+		mnt_flags |= MNT_READONLY;
+	if (attr_flags & MOUNT_ATTR_NOSUID)
+		mnt_flags |= MNT_NOSUID;
+	if (attr_flags & MOUNT_ATTR_NODEV)
+		mnt_flags |= MNT_NODEV;
+	if (attr_flags & MOUNT_ATTR_NOEXEC)
+		mnt_flags |= MNT_NOEXEC;
+	if (attr_flags & MOUNT_ATTR_NODIRATIME)
+		mnt_flags |= MNT_NODIRATIME;
+	if (attr_flags & MOUNT_ATTR_NOSYMFOLLOW)
+		mnt_flags |= MNT_NOSYMFOLLOW;
+
+	return mnt_flags;
+}
+
+/*
+ * Create a kernel mount representation for a new, prepared superblock
+ * (specified by fs_fd) and attach to an open_tree-like file descriptor.
+ */
+SYSCALL_DEFINE3(fsmount, int, fs_fd, unsigned int, flags,
+		unsigned int, attr_flags)
+{
+	struct mnt_namespace *ns;
+	struct fs_context *fc;
+	struct file *file;
+	struct path newmount;
+	struct mount *mnt;
+	struct fd f;
+	unsigned int mnt_flags = 0;
+	long ret;
+
+	if (!may_mount())
+		return -EPERM;
+
+	if ((flags & ~(FSMOUNT_CLOEXEC)) != 0)
+		return -EINVAL;
+
+	if (attr_flags & ~FSMOUNT_VALID_FLAGS)
+		return -EINVAL;
+
+	mnt_flags = attr_flags_to_mnt_flags(attr_flags);
+
+	switch (attr_flags & MOUNT_ATTR__ATIME) {
+	case MOUNT_ATTR_STRICTATIME:
+		break;
+	case MOUNT_ATTR_NOATIME:
+		mnt_flags |= MNT_NOATIME;
+		break;
+	case MOUNT_ATTR_RELATIME:
+		mnt_flags |= MNT_RELATIME;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	f = fdget(fs_fd);
+	if (!f.file)
+		return -EBADF;
+
+	ret = -EINVAL;
+	if (f.file->f_op != &fscontext_fops)
+		goto err_fsfd;
+
+	fc = f.file->private_data;
+
+	ret = mutex_lock_interruptible(&fc->uapi_mutex);
+	if (ret < 0)
+		goto err_fsfd;
+
+	/* There must be a valid superblock or we can't mount it */
+	ret = -EINVAL;
+	if (!fc->root)
+		goto err_unlock;
+
+	ret = -EPERM;
+	if (mount_too_revealing(fc->root->d_sb, &mnt_flags)) {
+		pr_warn("VFS: Mount too revealing\n");
+		goto err_unlock;
+	}
+
+	ret = -EBUSY;
+	if (fc->phase != FS_CONTEXT_AWAITING_MOUNT)
+		goto err_unlock;
+
+	if (fc->sb_flags & SB_MANDLOCK)
+		warn_mandlock();
+
+	newmount.mnt = vfs_create_mount(fc);
+	if (IS_ERR(newmount.mnt)) {
+		ret = PTR_ERR(newmount.mnt);
+		goto err_unlock;
+	}
+	newmount.dentry = dget(fc->root);
+	newmount.mnt->mnt_flags = mnt_flags;
+
+	/* We've done the mount bit - now move the file context into more or
+	 * less the same state as if we'd done an fspick().  We don't want to
+	 * do any memory allocation or anything like that at this point as we
+	 * don't want to have to handle any errors incurred.
+	 */
+	vfs_clean_context(fc);
+
+	ns = alloc_mnt_ns(current->nsproxy->mnt_ns->user_ns, true);
+	if (IS_ERR(ns)) {
+		ret = PTR_ERR(ns);
+		goto err_path;
+	}
+	mnt = real_mount(newmount.mnt);
+	mnt->mnt_ns = ns;
+	ns->root = mnt;
+	ns->mounts = 1;
+	list_add(&mnt->mnt_list, &ns->list);
+	mntget(newmount.mnt);
+
+	/* Attach to an apparent O_PATH fd with a note that we need to unmount
+	 * it, not just simply put it.
+	 */
+	file = dentry_open(&newmount, O_PATH, fc->cred);
+	if (IS_ERR(file)) {
+		dissolve_on_fput(newmount.mnt);
+		ret = PTR_ERR(file);
+		goto err_path;
+	}
+	file->f_mode |= FMODE_NEED_UNMOUNT;
+
+	ret = get_unused_fd_flags((flags & FSMOUNT_CLOEXEC) ? O_CLOEXEC : 0);
+	if (ret >= 0)
+		fd_install(ret, file);
+	else
+		fput(file);
+
+err_path:
+	path_put(&newmount);
+err_unlock:
+	mutex_unlock(&fc->uapi_mutex);
+err_fsfd:
+	fdput(f);
+	return ret;
+}
+
+/*
+ * Move a mount from one place to another.  In combination with
+ * fsopen()/fsmount() this is used to install a new mount and in combination
+ * with open_tree(OPEN_TREE_CLONE [| AT_RECURSIVE]) it can be used to copy
+ * a mount subtree.
+ *
+ * Note the flags value is a combination of MOVE_MOUNT_* flags.
+ */
+SYSCALL_DEFINE5(move_mount,
+		int, from_dfd, const char __user *, from_pathname,
+		int, to_dfd, const char __user *, to_pathname,
+		unsigned int, flags)
+{
+	struct path from_path, to_path;
+	unsigned int lflags;
+	int ret = 0;
+
+	if (!may_mount())
+		return -EPERM;
+
+	if (flags & ~MOVE_MOUNT__MASK)
+		return -EINVAL;
+
+	/* If someone gives a pathname, they aren't permitted to move
+	 * from an fd that requires unmount as we can't get at the flag
+	 * to clear it afterwards.
+	 */
+	lflags = 0;
+	if (flags & MOVE_MOUNT_F_SYMLINKS)	lflags |= LOOKUP_FOLLOW;
+	if (flags & MOVE_MOUNT_F_AUTOMOUNTS)	lflags |= LOOKUP_AUTOMOUNT;
+	if (flags & MOVE_MOUNT_F_EMPTY_PATH)	lflags |= LOOKUP_EMPTY;
+
+	ret = user_path_at(from_dfd, from_pathname, lflags, &from_path);
+	if (ret < 0)
+		return ret;
+
+	lflags = 0;
+	if (flags & MOVE_MOUNT_T_SYMLINKS)	lflags |= LOOKUP_FOLLOW;
+	if (flags & MOVE_MOUNT_T_AUTOMOUNTS)	lflags |= LOOKUP_AUTOMOUNT;
+	if (flags & MOVE_MOUNT_T_EMPTY_PATH)	lflags |= LOOKUP_EMPTY;
+
+	ret = user_path_at(to_dfd, to_pathname, lflags, &to_path);
+	if (ret < 0)
+		goto out_from;
+
+	ret = security_move_mount(&from_path, &to_path);
+	if (ret < 0)
+		goto out_to;
+
+	if (flags & MOVE_MOUNT_SET_GROUP)
+		ret = do_set_group(&from_path, &to_path);
+	else
+		ret = do_move_mount(&from_path, &to_path);
+
+out_to:
+	path_put(&to_path);
+out_from:
+	path_put(&from_path);
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -3470,6 +5390,7 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 bool is_path_reachable(struct mount *mnt, struct dentry *dentry,
 			 const struct path *root)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	while (mnt->mnt != root->mnt && mnt_has_parent(mnt)) {
 #else
@@ -3483,6 +5404,13 @@ bool is_path_reachable(struct mount *mnt, struct dentry *dentry,
 #else
 	return &mnt->mnt == root->mnt && is_subdir(dentry, root->dentry);
 #endif
+=======
+	while (&mnt->mnt != root->mnt && mnt_has_parent(mnt)) {
+		dentry = mnt->mnt_mountpoint;
+		mnt = mnt->mnt_parent;
+	}
+	return &mnt->mnt == root->mnt && is_subdir(dentry, root->dentry);
+>>>>>>> upstream/android-13
 }
 
 bool path_is_under(const struct path *path1, const struct path *path2)
@@ -3509,7 +5437,11 @@ EXPORT_SYMBOL(path_is_under);
  * file system may be mounted on put_old. After all, new_root is a mountpoint.
  *
  * Also, the current root cannot be on the 'rootfs' (initial ramfs) filesystem.
+<<<<<<< HEAD
  * See Documentation/filesystems/ramfs-rootfs-initramfs.txt for alternatives
+=======
+ * See Documentation/filesystems/ramfs-rootfs-initramfs.rst for alternatives
+>>>>>>> upstream/android-13
  * in this situation.
  *
  * Notes:
@@ -3523,19 +5455,34 @@ EXPORT_SYMBOL(path_is_under);
 SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 		const char __user *, put_old)
 {
+<<<<<<< HEAD
 	struct path new, old, parent_path, root_parent, root;
 	struct mount *new_mnt, *root_mnt, *old_mnt;
+=======
+	struct path new, old, root;
+	struct mount *new_mnt, *root_mnt, *old_mnt, *root_parent, *ex_parent;
+>>>>>>> upstream/android-13
 	struct mountpoint *old_mp, *root_mp;
 	int error;
 
 	if (!may_mount())
 		return -EPERM;
 
+<<<<<<< HEAD
 	error = user_path_dir(new_root, &new);
 	if (error)
 		goto out0;
 
 	error = user_path_dir(put_old, &old);
+=======
+	error = user_path_at(AT_FDCWD, new_root,
+			     LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &new);
+	if (error)
+		goto out0;
+
+	error = user_path_at(AT_FDCWD, put_old,
+			     LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &old);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out1;
 
@@ -3553,6 +5500,7 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 	new_mnt = real_mount(new.mnt);
 	root_mnt = real_mount(root.mnt);
 	old_mnt = real_mount(old.mnt);
+<<<<<<< HEAD
 	if (IS_MNT_SHARED(old_mnt) ||
 		IS_MNT_SHARED(new_mnt->mnt_parent) ||
 		IS_MNT_SHARED(root_mnt->mnt_parent))
@@ -3564,6 +5512,17 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 #else
 	if (new_mnt->mnt.mnt_flags & MNT_LOCKED)
 #endif
+=======
+	ex_parent = new_mnt->mnt_parent;
+	root_parent = root_mnt->mnt_parent;
+	if (IS_MNT_SHARED(old_mnt) ||
+		IS_MNT_SHARED(ex_parent) ||
+		IS_MNT_SHARED(root_parent))
+		goto out4;
+	if (!check_mnt(root_mnt) || !check_mnt(new_mnt))
+		goto out4;
+	if (new_mnt->mnt.mnt_flags & MNT_LOCKED)
+>>>>>>> upstream/android-13
 		goto out4;
 	error = -ENOENT;
 	if (d_unlinked(new.dentry))
@@ -3576,7 +5535,10 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 		goto out4; /* not a mountpoint */
 	if (!mnt_has_parent(root_mnt))
 		goto out4; /* not attached */
+<<<<<<< HEAD
 	root_mp = root_mnt->mnt_mp;
+=======
+>>>>>>> upstream/android-13
 	if (new.mnt->mnt_root != new.dentry)
 		goto out4; /* not a mountpoint */
 	if (!mnt_has_parent(new_mnt))
@@ -3588,6 +5550,7 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 	if (!is_path_reachable(new_mnt, new.dentry, &root))
 		goto out4;
 	lock_mount_hash();
+<<<<<<< HEAD
 	root_mp->m_count++; /* pin it so it won't go away */
 	detach_mnt(new_mnt, &parent_path);
 	detach_mnt(root_mnt, &root_parent);
@@ -3597,15 +5560,27 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 		kdp_clear_mnt_flags(root_mnt->mnt, MNT_LOCKED);
 	}
 #else
+=======
+	umount_mnt(new_mnt);
+	root_mp = unhash_mnt(root_mnt);  /* we'll need its mountpoint */
+>>>>>>> upstream/android-13
 	if (root_mnt->mnt.mnt_flags & MNT_LOCKED) {
 		new_mnt->mnt.mnt_flags |= MNT_LOCKED;
 		root_mnt->mnt.mnt_flags &= ~MNT_LOCKED;
 	}
+<<<<<<< HEAD
 #endif
 	/* mount old root on put_old */
 	attach_mnt(root_mnt, old_mnt, old_mp);
 	/* mount new_root on / */
 	attach_mnt(new_mnt, real_mount(root_parent.mnt), root_mp);
+=======
+	/* mount old root on put_old */
+	attach_mnt(root_mnt, old_mnt, old_mp);
+	/* mount new_root on / */
+	attach_mnt(new_mnt, root_parent, root_mp);
+	mnt_add_count(root_parent, -1);
+>>>>>>> upstream/android-13
 	touch_mnt_namespace(current->nsproxy->mnt_ns);
 	/* A moved mount should not expire automatically */
 	list_del_init(&new_mnt->mnt_expire);
@@ -3615,10 +5590,15 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 	error = 0;
 out4:
 	unlock_mount(old_mp);
+<<<<<<< HEAD
 	if (!error) {
 		path_put(&root_parent);
 		path_put(&parent_path);
 	}
+=======
+	if (!error)
+		mntput_no_expire(ex_parent);
+>>>>>>> upstream/android-13
 out3:
 	path_put(&root);
 out2:
@@ -3629,6 +5609,7 @@ out0:
 	return error;
 }
 
+<<<<<<< HEAD
 static void __init init_mount_tree(void)
 {
 	struct vfsmount *mnt;
@@ -3652,16 +5633,401 @@ static void __init init_mount_tree(void)
 	if (IS_ERR(ns))
 		panic("Can't allocate initial namespace");
 
+=======
+static unsigned int recalc_flags(struct mount_kattr *kattr, struct mount *mnt)
+{
+	unsigned int flags = mnt->mnt.mnt_flags;
+
+	/*  flags to clear */
+	flags &= ~kattr->attr_clr;
+	/* flags to raise */
+	flags |= kattr->attr_set;
+
+	return flags;
+}
+
+static int can_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
+{
+	struct vfsmount *m = &mnt->mnt;
+
+	if (!kattr->mnt_userns)
+		return 0;
+
+	/*
+	 * Once a mount has been idmapped we don't allow it to change its
+	 * mapping. It makes things simpler and callers can just create
+	 * another bind-mount they can idmap if they want to.
+	 */
+	if (mnt_user_ns(m) != &init_user_ns)
+		return -EPERM;
+
+	/* The underlying filesystem doesn't support idmapped mounts yet. */
+	if (!(m->mnt_sb->s_type->fs_flags & FS_ALLOW_IDMAP))
+		return -EINVAL;
+
+	/* Don't yet support filesystem mountable in user namespaces. */
+	if (m->mnt_sb->s_user_ns != &init_user_ns)
+		return -EINVAL;
+
+	/* We're not controlling the superblock. */
+	if (!capable(CAP_SYS_ADMIN))
+		return -EPERM;
+
+	/* Mount has already been visible in the filesystem hierarchy. */
+	if (!is_anon_ns(mnt->mnt_ns))
+		return -EINVAL;
+
+	return 0;
+}
+
+static struct mount *mount_setattr_prepare(struct mount_kattr *kattr,
+					   struct mount *mnt, int *err)
+{
+	struct mount *m = mnt, *last = NULL;
+
+	if (!is_mounted(&m->mnt)) {
+		*err = -EINVAL;
+		goto out;
+	}
+
+	if (!(mnt_has_parent(m) ? check_mnt(m) : is_anon_ns(m->mnt_ns))) {
+		*err = -EINVAL;
+		goto out;
+	}
+
+	do {
+		unsigned int flags;
+
+		flags = recalc_flags(kattr, m);
+		if (!can_change_locked_flags(m, flags)) {
+			*err = -EPERM;
+			goto out;
+		}
+
+		*err = can_idmap_mount(kattr, m);
+		if (*err)
+			goto out;
+
+		last = m;
+
+		if ((kattr->attr_set & MNT_READONLY) &&
+		    !(m->mnt.mnt_flags & MNT_READONLY)) {
+			*err = mnt_hold_writers(m);
+			if (*err)
+				goto out;
+		}
+	} while (kattr->recurse && (m = next_mnt(m, mnt)));
+
+out:
+	return last;
+}
+
+static void do_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
+{
+	struct user_namespace *mnt_userns;
+
+	if (!kattr->mnt_userns)
+		return;
+
+	mnt_userns = get_user_ns(kattr->mnt_userns);
+	/* Pairs with smp_load_acquire() in mnt_user_ns(). */
+	smp_store_release(&mnt->mnt.mnt_userns, mnt_userns);
+}
+
+static void mount_setattr_commit(struct mount_kattr *kattr,
+				 struct mount *mnt, struct mount *last,
+				 int err)
+{
+	struct mount *m = mnt;
+
+	do {
+		if (!err) {
+			unsigned int flags;
+
+			do_idmap_mount(kattr, m);
+			flags = recalc_flags(kattr, m);
+			WRITE_ONCE(m->mnt.mnt_flags, flags);
+		}
+
+		/*
+		 * We either set MNT_READONLY above so make it visible
+		 * before ~MNT_WRITE_HOLD or we failed to recursively
+		 * apply mount options.
+		 */
+		if ((kattr->attr_set & MNT_READONLY) &&
+		    (m->mnt.mnt_flags & MNT_WRITE_HOLD))
+			mnt_unhold_writers(m);
+
+		if (!err && kattr->propagation)
+			change_mnt_propagation(m, kattr->propagation);
+
+		/*
+		 * On failure, only cleanup until we found the first mount
+		 * we failed to handle.
+		 */
+		if (err && m == last)
+			break;
+	} while (kattr->recurse && (m = next_mnt(m, mnt)));
+
+	if (!err)
+		touch_mnt_namespace(mnt->mnt_ns);
+}
+
+static int do_mount_setattr(struct path *path, struct mount_kattr *kattr)
+{
+	struct mount *mnt = real_mount(path->mnt), *last = NULL;
+	int err = 0;
+
+	if (path->dentry != mnt->mnt.mnt_root)
+		return -EINVAL;
+
+	if (kattr->propagation) {
+		/*
+		 * Only take namespace_lock() if we're actually changing
+		 * propagation.
+		 */
+		namespace_lock();
+		if (kattr->propagation == MS_SHARED) {
+			err = invent_group_ids(mnt, kattr->recurse);
+			if (err) {
+				namespace_unlock();
+				return err;
+			}
+		}
+	}
+
+	lock_mount_hash();
+
+	/*
+	 * Get the mount tree in a shape where we can change mount
+	 * properties without failure.
+	 */
+	last = mount_setattr_prepare(kattr, mnt, &err);
+	if (last) /* Commit all changes or revert to the old state. */
+		mount_setattr_commit(kattr, mnt, last, err);
+
+	unlock_mount_hash();
+
+	if (kattr->propagation) {
+		namespace_unlock();
+		if (err)
+			cleanup_group_ids(mnt, NULL);
+	}
+
+	return err;
+}
+
+static int build_mount_idmapped(const struct mount_attr *attr, size_t usize,
+				struct mount_kattr *kattr, unsigned int flags)
+{
+	int err = 0;
+	struct ns_common *ns;
+	struct user_namespace *mnt_userns;
+	struct file *file;
+
+	if (!((attr->attr_set | attr->attr_clr) & MOUNT_ATTR_IDMAP))
+		return 0;
+
+	/*
+	 * We currently do not support clearing an idmapped mount. If this ever
+	 * is a use-case we can revisit this but for now let's keep it simple
+	 * and not allow it.
+	 */
+	if (attr->attr_clr & MOUNT_ATTR_IDMAP)
+		return -EINVAL;
+
+	if (attr->userns_fd > INT_MAX)
+		return -EINVAL;
+
+	file = fget(attr->userns_fd);
+	if (!file)
+		return -EBADF;
+
+	if (!proc_ns_file(file)) {
+		err = -EINVAL;
+		goto out_fput;
+	}
+
+	ns = get_proc_ns(file_inode(file));
+	if (ns->ops->type != CLONE_NEWUSER) {
+		err = -EINVAL;
+		goto out_fput;
+	}
+
+	/*
+	 * The init_user_ns is used to indicate that a vfsmount is not idmapped.
+	 * This is simpler than just having to treat NULL as unmapped. Users
+	 * wanting to idmap a mount to init_user_ns can just use a namespace
+	 * with an identity mapping.
+	 */
+	mnt_userns = container_of(ns, struct user_namespace, ns);
+	if (mnt_userns == &init_user_ns) {
+		err = -EPERM;
+		goto out_fput;
+	}
+	kattr->mnt_userns = get_user_ns(mnt_userns);
+
+out_fput:
+	fput(file);
+	return err;
+}
+
+static int build_mount_kattr(const struct mount_attr *attr, size_t usize,
+			     struct mount_kattr *kattr, unsigned int flags)
+{
+	unsigned int lookup_flags = LOOKUP_AUTOMOUNT | LOOKUP_FOLLOW;
+
+	if (flags & AT_NO_AUTOMOUNT)
+		lookup_flags &= ~LOOKUP_AUTOMOUNT;
+	if (flags & AT_SYMLINK_NOFOLLOW)
+		lookup_flags &= ~LOOKUP_FOLLOW;
+	if (flags & AT_EMPTY_PATH)
+		lookup_flags |= LOOKUP_EMPTY;
+
+	*kattr = (struct mount_kattr) {
+		.lookup_flags	= lookup_flags,
+		.recurse	= !!(flags & AT_RECURSIVE),
+	};
+
+	if (attr->propagation & ~MOUNT_SETATTR_PROPAGATION_FLAGS)
+		return -EINVAL;
+	if (hweight32(attr->propagation & MOUNT_SETATTR_PROPAGATION_FLAGS) > 1)
+		return -EINVAL;
+	kattr->propagation = attr->propagation;
+
+	if ((attr->attr_set | attr->attr_clr) & ~MOUNT_SETATTR_VALID_FLAGS)
+		return -EINVAL;
+
+	kattr->attr_set = attr_flags_to_mnt_flags(attr->attr_set);
+	kattr->attr_clr = attr_flags_to_mnt_flags(attr->attr_clr);
+
+	/*
+	 * Since the MOUNT_ATTR_<atime> values are an enum, not a bitmap,
+	 * users wanting to transition to a different atime setting cannot
+	 * simply specify the atime setting in @attr_set, but must also
+	 * specify MOUNT_ATTR__ATIME in the @attr_clr field.
+	 * So ensure that MOUNT_ATTR__ATIME can't be partially set in
+	 * @attr_clr and that @attr_set can't have any atime bits set if
+	 * MOUNT_ATTR__ATIME isn't set in @attr_clr.
+	 */
+	if (attr->attr_clr & MOUNT_ATTR__ATIME) {
+		if ((attr->attr_clr & MOUNT_ATTR__ATIME) != MOUNT_ATTR__ATIME)
+			return -EINVAL;
+
+		/*
+		 * Clear all previous time settings as they are mutually
+		 * exclusive.
+		 */
+		kattr->attr_clr |= MNT_RELATIME | MNT_NOATIME;
+		switch (attr->attr_set & MOUNT_ATTR__ATIME) {
+		case MOUNT_ATTR_RELATIME:
+			kattr->attr_set |= MNT_RELATIME;
+			break;
+		case MOUNT_ATTR_NOATIME:
+			kattr->attr_set |= MNT_NOATIME;
+			break;
+		case MOUNT_ATTR_STRICTATIME:
+			break;
+		default:
+			return -EINVAL;
+		}
+	} else {
+		if (attr->attr_set & MOUNT_ATTR__ATIME)
+			return -EINVAL;
+	}
+
+	return build_mount_idmapped(attr, usize, kattr, flags);
+}
+
+static void finish_mount_kattr(struct mount_kattr *kattr)
+{
+	put_user_ns(kattr->mnt_userns);
+	kattr->mnt_userns = NULL;
+}
+
+SYSCALL_DEFINE5(mount_setattr, int, dfd, const char __user *, path,
+		unsigned int, flags, struct mount_attr __user *, uattr,
+		size_t, usize)
+{
+	int err;
+	struct path target;
+	struct mount_attr attr;
+	struct mount_kattr kattr;
+
+	BUILD_BUG_ON(sizeof(struct mount_attr) != MOUNT_ATTR_SIZE_VER0);
+
+	if (flags & ~(AT_EMPTY_PATH |
+		      AT_RECURSIVE |
+		      AT_SYMLINK_NOFOLLOW |
+		      AT_NO_AUTOMOUNT))
+		return -EINVAL;
+
+	if (unlikely(usize > PAGE_SIZE))
+		return -E2BIG;
+	if (unlikely(usize < MOUNT_ATTR_SIZE_VER0))
+		return -EINVAL;
+
+	if (!may_mount())
+		return -EPERM;
+
+	err = copy_struct_from_user(&attr, sizeof(attr), uattr, usize);
+	if (err)
+		return err;
+
+	/* Don't bother walking through the mounts if this is a nop. */
+	if (attr.attr_set == 0 &&
+	    attr.attr_clr == 0 &&
+	    attr.propagation == 0)
+		return 0;
+
+	err = build_mount_kattr(&attr, usize, &kattr, flags);
+	if (err)
+		return err;
+
+	err = user_path_at(dfd, path, kattr.lookup_flags, &target);
+	if (!err) {
+		err = do_mount_setattr(&target, &kattr);
+		path_put(&target);
+	}
+	finish_mount_kattr(&kattr);
+	return err;
+}
+
+static void __init init_mount_tree(void)
+{
+	struct vfsmount *mnt;
+	struct mount *m;
+	struct mnt_namespace *ns;
+	struct path root;
+
+	mnt = vfs_kern_mount(&rootfs_fs_type, 0, "rootfs", NULL);
+	if (IS_ERR(mnt))
+		panic("Can't create rootfs");
+
+	ns = alloc_mnt_ns(&init_user_ns, false);
+	if (IS_ERR(ns))
+		panic("Can't allocate initial namespace");
+	m = real_mount(mnt);
+	m->mnt_ns = ns;
+	ns->root = m;
+	ns->mounts = 1;
+	list_add(&m->mnt_list, &ns->list);
+>>>>>>> upstream/android-13
 	init_task.nsproxy->mnt_ns = ns;
 	get_mnt_ns(ns);
 
 	root.mnt = mnt;
 	root.dentry = mnt->mnt_root;
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	kdp_set_mnt_flags(mnt, MNT_LOCKED);
 #else
 	mnt->mnt_flags |= MNT_LOCKED;
 #endif
+=======
+	mnt->mnt_flags |= MNT_LOCKED;
+
+>>>>>>> upstream/android-13
 	set_fs_pwd(current->fs, &root);
 	set_fs_root(current->fs, &root);
 }
@@ -3671,10 +6037,14 @@ void __init mnt_init(void)
 	int err;
 
 	mnt_cache = kmem_cache_create("mnt_cache", sizeof(struct mount),
+<<<<<<< HEAD
 			0, SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL);
 #ifdef CONFIG_KDP_NS
 	kdp_mnt_init();
 #endif
+=======
+			0, SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_ACCOUNT, NULL);
+>>>>>>> upstream/android-13
 
 	mount_hashtable = alloc_large_system_hash("Mount-cache",
 				sizeof(struct hlist_head),
@@ -3699,12 +6069,17 @@ void __init mnt_init(void)
 	fs_kobj = kobject_create_and_add("fs", NULL);
 	if (!fs_kobj)
 		printk(KERN_WARNING "%s: kobj create error\n", __func__);
+<<<<<<< HEAD
+=======
+	shmem_init();
+>>>>>>> upstream/android-13
 	init_rootfs();
 	init_mount_tree();
 }
 
 void put_mnt_ns(struct mnt_namespace *ns)
 {
+<<<<<<< HEAD
 	if (!atomic_dec_and_test(&ns->count))
 		return;
 #ifdef CONFIG_KDP_NS
@@ -3719,6 +6094,18 @@ struct vfsmount *kern_mount_data(struct file_system_type *type, void *data)
 {
 	struct vfsmount *mnt;
 	mnt = vfs_kern_mount(type, SB_KERNMOUNT, type->name, data);
+=======
+	if (!refcount_dec_and_test(&ns->ns.count))
+		return;
+	drop_collected_mounts(&ns->root->mnt);
+	free_mnt_ns(ns);
+}
+
+struct vfsmount *kern_mount(struct file_system_type *type)
+{
+	struct vfsmount *mnt;
+	mnt = vfs_kern_mount(type, SB_KERNMOUNT, type->name, NULL);
+>>>>>>> upstream/android-13
 	if (!IS_ERR(mnt)) {
 		/*
 		 * it is a longterm mount, don't release mnt until
@@ -3728,7 +6115,11 @@ struct vfsmount *kern_mount_data(struct file_system_type *type, void *data)
 	}
 	return mnt;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(kern_mount_data);
+=======
+EXPORT_SYMBOL_GPL(kern_mount);
+>>>>>>> upstream/android-13
 
 void kern_unmount(struct vfsmount *mnt)
 {
@@ -3741,6 +6132,22 @@ void kern_unmount(struct vfsmount *mnt)
 }
 EXPORT_SYMBOL(kern_unmount);
 
+<<<<<<< HEAD
+=======
+void kern_unmount_array(struct vfsmount *mnt[], unsigned int num)
+{
+	unsigned int i;
+
+	for (i = 0; i < num; i++)
+		if (mnt[i])
+			real_mount(mnt[i])->mnt_ns = NULL;
+	synchronize_rcu_expedited();
+	for (i = 0; i < num; i++)
+		mntput(mnt[i]);
+}
+EXPORT_SYMBOL(kern_unmount_array);
+
+>>>>>>> upstream/android-13
 bool our_mnt(struct vfsmount *mnt)
 {
 	return check_mnt(real_mount(mnt));
@@ -3754,11 +6161,15 @@ bool current_chrooted(void)
 	bool chrooted;
 
 	/* Find the namespace root */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	ns_root.mnt = current->nsproxy->mnt_ns->root->mnt;
 #else
 	ns_root.mnt = &current->nsproxy->mnt_ns->root->mnt;
 #endif
+=======
+	ns_root.mnt = &current->nsproxy->mnt_ns->root->mnt;
+>>>>>>> upstream/android-13
 	ns_root.dentry = ns_root.mnt->mnt_root;
 	path_get(&ns_root);
 	while (d_mountpoint(ns_root.dentry) && follow_down_one(&ns_root))
@@ -3774,7 +6185,12 @@ bool current_chrooted(void)
 	return chrooted;
 }
 
+<<<<<<< HEAD
 static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
+=======
+static bool mnt_already_visible(struct mnt_namespace *ns,
+				const struct super_block *sb,
+>>>>>>> upstream/android-13
 				int *new_mnt_flags)
 {
 	int new_flags = *new_mnt_flags;
@@ -3782,6 +6198,7 @@ static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
 	bool visible = false;
 
 	down_read(&namespace_sem);
+<<<<<<< HEAD
 	list_for_each_entry(mnt, &ns->list, mnt_list) {
 		struct mount *child;
 		int mnt_flags;
@@ -3803,6 +6220,17 @@ static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
 			mnt_flags |= MNT_LOCK_READONLY;
 #else
 		if (mnt->mnt.mnt_sb->s_type != new->mnt_sb->s_type)
+=======
+	lock_ns_list(ns);
+	list_for_each_entry(mnt, &ns->list, mnt_list) {
+		struct mount *child;
+		int mnt_flags;
+
+		if (mnt_is_cursor(mnt))
+			continue;
+
+		if (mnt->mnt.mnt_sb->s_type != sb->s_type)
+>>>>>>> upstream/android-13
 			continue;
 
 		/* This mount is not fully visible if it's root directory
@@ -3817,7 +6245,11 @@ static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
 		/* Don't miss readonly hidden in the superblock flags */
 		if (sb_rdonly(mnt->mnt.mnt_sb))
 			mnt_flags |= MNT_LOCK_READONLY;
+<<<<<<< HEAD
 #endif
+=======
+
+>>>>>>> upstream/android-13
 		/* Verify the mount flags are equal to or more permissive
 		 * than the proposed new mount.
 		 */
@@ -3835,6 +6267,7 @@ static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
 		list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
 			struct inode *inode = child->mnt_mountpoint->d_inode;
 			/* Only worry about locked mounts */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 			if (!(child->mnt->mnt_flags & MNT_LOCKED))
 				continue;
@@ -3842,6 +6275,10 @@ static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
 			if (!(child->mnt.mnt_flags & MNT_LOCKED))
 				continue;
 #endif
+=======
+			if (!(child->mnt.mnt_flags & MNT_LOCKED))
+				continue;
+>>>>>>> upstream/android-13
 			/* Is the directory permanetly empty? */
 			if (!is_empty_dir_inode(inode))
 				goto next;
@@ -3854,11 +6291,19 @@ static bool mnt_already_visible(struct mnt_namespace *ns, struct vfsmount *new,
 	next:	;
 	}
 found:
+<<<<<<< HEAD
+=======
+	unlock_ns_list(ns);
+>>>>>>> upstream/android-13
 	up_read(&namespace_sem);
 	return visible;
 }
 
+<<<<<<< HEAD
 static bool mount_too_revealing(struct vfsmount *mnt, int *new_mnt_flags)
+=======
+static bool mount_too_revealing(const struct super_block *sb, int *new_mnt_flags)
+>>>>>>> upstream/android-13
 {
 	const unsigned long required_iflags = SB_I_NOEXEC | SB_I_NODEV;
 	struct mnt_namespace *ns = current->nsproxy->mnt_ns;
@@ -3868,7 +6313,11 @@ static bool mount_too_revealing(struct vfsmount *mnt, int *new_mnt_flags)
 		return false;
 
 	/* Can this filesystem be too revealing? */
+<<<<<<< HEAD
 	s_iflags = mnt->mnt_sb->s_iflags;
+=======
+	s_iflags = sb->s_iflags;
+>>>>>>> upstream/android-13
 	if (!(s_iflags & SB_I_USERNS_VISIBLE))
 		return false;
 
@@ -3878,7 +6327,11 @@ static bool mount_too_revealing(struct vfsmount *mnt, int *new_mnt_flags)
 		return true;
 	}
 
+<<<<<<< HEAD
 	return !mnt_already_visible(ns, mnt, new_mnt_flags);
+=======
+	return !mnt_already_visible(ns, sb, new_mnt_flags);
+>>>>>>> upstream/android-13
 }
 
 bool mnt_may_suid(struct vfsmount *mnt)
@@ -3915,18 +6368,37 @@ static void mntns_put(struct ns_common *ns)
 	put_mnt_ns(to_mnt_ns(ns));
 }
 
+<<<<<<< HEAD
 static int mntns_install(struct nsproxy *nsproxy, struct ns_common *ns)
 {
 	struct fs_struct *fs = current->fs;
 	struct mnt_namespace *mnt_ns = to_mnt_ns(ns), *old_mnt_ns;
+=======
+static int mntns_install(struct nsset *nsset, struct ns_common *ns)
+{
+	struct nsproxy *nsproxy = nsset->nsproxy;
+	struct fs_struct *fs = nsset->fs;
+	struct mnt_namespace *mnt_ns = to_mnt_ns(ns), *old_mnt_ns;
+	struct user_namespace *user_ns = nsset->cred->user_ns;
+>>>>>>> upstream/android-13
 	struct path root;
 	int err;
 
 	if (!ns_capable(mnt_ns->user_ns, CAP_SYS_ADMIN) ||
+<<<<<<< HEAD
 	    !ns_capable(current_user_ns(), CAP_SYS_CHROOT) ||
 	    !ns_capable(current_user_ns(), CAP_SYS_ADMIN))
 		return -EPERM;
 
+=======
+	    !ns_capable(user_ns, CAP_SYS_CHROOT) ||
+	    !ns_capable(user_ns, CAP_SYS_ADMIN))
+		return -EPERM;
+
+	if (is_anon_ns(mnt_ns))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (fs->users != 1)
 		return -EINVAL;
 
@@ -3935,6 +6407,7 @@ static int mntns_install(struct nsproxy *nsproxy, struct ns_common *ns)
 	nsproxy->mnt_ns = mnt_ns;
 
 	/* Find the root */
+<<<<<<< HEAD
 #ifdef CONFIG_KDP_NS
 	err = vfs_path_lookup(mnt_ns->root->mnt->mnt_root, mnt_ns->root->mnt,
 				"/", LOOKUP_DOWN, &root);
@@ -3942,6 +6415,10 @@ static int mntns_install(struct nsproxy *nsproxy, struct ns_common *ns)
 	err = vfs_path_lookup(mnt_ns->root->mnt.mnt_root, &mnt_ns->root->mnt,
 				"/", LOOKUP_DOWN, &root);
 #endif
+=======
+	err = vfs_path_lookup(mnt_ns->root->mnt.mnt_root, &mnt_ns->root->mnt,
+				"/", LOOKUP_DOWN, &root);
+>>>>>>> upstream/android-13
 	if (err) {
 		/* revert to old namespace */
 		nsproxy->mnt_ns = old_mnt_ns;

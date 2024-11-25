@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 - 2017 Jes Sorensen <Jes.Sorensen@gmail.com>
  *
@@ -10,6 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014 - 2017 Jes Sorensen <Jes.Sorensen@gmail.com>
+ *
+>>>>>>> upstream/android-13
  * Register definitions taken from original Realtek rtl8723au driver
  */
 

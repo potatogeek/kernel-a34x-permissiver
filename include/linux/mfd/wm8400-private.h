@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * wm8400 private definitions.
  *
  * Copyright 2008 Wolfson Microelectronics plc
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_MFD_WM8400_PRIV_H
@@ -923,6 +930,7 @@ struct wm8400 {
 #define WM8400_LINE_CMP_VTHD_SHIFT                   0  /* LINE_CMP_VTHD - [3:0] */
 #define WM8400_LINE_CMP_VTHD_WIDTH                   4  /* LINE_CMP_VTHD - [3:0] */
 
+<<<<<<< HEAD
 int wm8400_block_read(struct wm8400 *wm8400, u8 reg, int count, u16 *data);
 
 static inline int wm8400_set_bits(struct wm8400 *wm8400, u8 reg,
@@ -931,4 +939,6 @@ static inline int wm8400_set_bits(struct wm8400 *wm8400, u8 reg,
 	return regmap_update_bits(wm8400->regmap, reg, mask, val);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif

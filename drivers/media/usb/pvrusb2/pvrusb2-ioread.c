@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  *
@@ -12,6 +13,12 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
+>>>>>>> upstream/android-13
  */
 
 #include "pvrusb2-ioread.h"

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2007-2018  B.A.T.M.A.N. contributors:
  *
  * Marek Lindner, Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Marek Lindner, Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #include "hard-interface.h"
@@ -21,14 +27,23 @@
 
 #include <linux/atomic.h>
 #include <linux/byteorder/generic.h>
+<<<<<<< HEAD
 #include <linux/errno.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/gfp.h>
 #include <linux/if.h>
 #include <linux/if_arp.h>
 #include <linux/if_ether.h>
 #include <linux/kernel.h>
 #include <linux/kref.h>
+<<<<<<< HEAD
 #include <linux/list.h>
+=======
+#include <linux/limits.h>
+#include <linux/list.h>
+#include <linux/minmax.h>
+>>>>>>> upstream/android-13
 #include <linux/mutex.h>
 #include <linux/netdevice.h>
 #include <linux/printk.h>
@@ -42,14 +57,20 @@
 
 #include "bat_v.h"
 #include "bridge_loop_avoidance.h"
+<<<<<<< HEAD
 #include "debugfs.h"
+=======
+>>>>>>> upstream/android-13
 #include "distributed-arp-table.h"
 #include "gateway_client.h"
 #include "log.h"
 #include "originator.h"
 #include "send.h"
 #include "soft-interface.h"
+<<<<<<< HEAD
 #include "sysfs.h"
+=======
+>>>>>>> upstream/android-13
 #include "translation-table.h"
 
 /**
@@ -149,10 +170,17 @@ static bool batadv_mutual_parents(const struct net_device *dev1,
  * @net_dev: the device to check
  *
  * If the user creates any virtual device on top of a batman-adv interface, it
+<<<<<<< HEAD
  * is important to prevent this new interface to be used to create a new mesh
  * network (this behaviour would lead to a batman-over-batman configuration).
  * This function recursively checks all the fathers of the device passed as
  * argument looking for a batman-adv soft interface.
+=======
+ * is important to prevent this new interface from being used to create a new
+ * mesh network (this behaviour would lead to a batman-over-batman
+ * configuration). This function recursively checks all the fathers of the
+ * device passed as argument looking for a batman-adv soft interface.
+>>>>>>> upstream/android-13
  *
  * Return: true if the device is descendant of a batman-adv mesh interface (or
  * if it is a batman-adv interface itself), false otherwise
@@ -162,22 +190,40 @@ static bool batadv_is_on_batman_iface(const struct net_device *net_dev)
 	struct net *net = dev_net(net_dev);
 	struct net_device *parent_dev;
 	struct net *parent_net;
+<<<<<<< HEAD
+=======
+	int iflink;
+>>>>>>> upstream/android-13
 	bool ret;
 
 	/* check if this is a batman-adv mesh interface */
 	if (batadv_softif_is_valid(net_dev))
 		return true;
 
+<<<<<<< HEAD
 	/* no more parents..stop recursion */
 	if (dev_get_iflink(net_dev) == 0 ||
 	    dev_get_iflink(net_dev) == net_dev->ifindex)
+=======
+	iflink = dev_get_iflink(net_dev);
+	if (iflink == 0)
+>>>>>>> upstream/android-13
 		return false;
 
 	parent_net = batadv_getlink_net(net_dev, net);
 
+<<<<<<< HEAD
 	/* recurse over the parent device */
 	parent_dev = __dev_get_by_index((struct net *)parent_net,
 					dev_get_iflink(net_dev));
+=======
+	/* iflink to itself, most likely physical device */
+	if (net == parent_net && iflink == net_dev->ifindex)
+		return false;
+
+	/* recurse over the parent device */
+	parent_dev = __dev_get_by_index((struct net *)parent_net, iflink);
+>>>>>>> upstream/android-13
 	/* if we got a NULL parent_dev there is something broken.. */
 	if (!parent_dev) {
 		pr_err("Cannot find parent device\n");
@@ -227,14 +273,23 @@ static struct net_device *batadv_get_real_netdevice(struct net_device *netdev)
 	struct net_device *real_netdev = NULL;
 	struct net *real_net;
 	struct net *net;
+<<<<<<< HEAD
 	int ifindex;
+=======
+	int iflink;
+>>>>>>> upstream/android-13
 
 	ASSERT_RTNL();
 
 	if (!netdev)
 		return NULL;
 
+<<<<<<< HEAD
 	if (netdev->ifindex == dev_get_iflink(netdev)) {
+=======
+	iflink = dev_get_iflink(netdev);
+	if (iflink == 0) {
+>>>>>>> upstream/android-13
 		dev_hold(netdev);
 		return netdev;
 	}
@@ -244,6 +299,7 @@ static struct net_device *batadv_get_real_netdevice(struct net_device *netdev)
 		goto out;
 
 	net = dev_net(hard_iface->soft_iface);
+<<<<<<< HEAD
 	ifindex = dev_get_iflink(netdev);
 	real_net = batadv_getlink_net(netdev, net);
 	real_netdev = dev_get_by_index(real_net, ifindex);
@@ -251,6 +307,21 @@ static struct net_device *batadv_get_real_netdevice(struct net_device *netdev)
 out:
 	if (hard_iface)
 		batadv_hardif_put(hard_iface);
+=======
+	real_net = batadv_getlink_net(netdev, net);
+
+	/* iflink to itself, most likely physical device */
+	if (net == real_net && netdev->ifindex == iflink) {
+		real_netdev = netdev;
+		dev_hold(real_netdev);
+		goto out;
+	}
+
+	real_netdev = dev_get_by_index(real_net, iflink);
+
+out:
+	batadv_hardif_put(hard_iface);
+>>>>>>> upstream/android-13
 	return real_netdev;
 }
 
@@ -415,7 +486,11 @@ int batadv_hardif_no_broadcast(struct batadv_hard_iface *if_outgoing,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	/* >1 neighbors -> (re)brodcast */
+=======
+	/* >1 neighbors -> (re)broadcast */
+>>>>>>> upstream/android-13
 	if (rcu_dereference(hlist_next_rcu(first)))
 		goto out;
 
@@ -470,8 +545,12 @@ static void batadv_primary_if_update_addr(struct batadv_priv *bat_priv,
 	batadv_dat_init_own_addr(bat_priv, primary_if);
 	batadv_bla_update_orig_address(bat_priv, primary_if, oldif);
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 }
 
 static void batadv_primary_if_select(struct batadv_priv *bat_priv,
@@ -484,8 +563,13 @@ static void batadv_primary_if_select(struct batadv_priv *bat_priv,
 	if (new_hard_iface)
 		kref_get(&new_hard_iface->refcount);
 
+<<<<<<< HEAD
 	curr_hard_iface = rcu_dereference_protected(bat_priv->primary_if, 1);
 	rcu_assign_pointer(bat_priv->primary_if, new_hard_iface);
+=======
+	curr_hard_iface = rcu_replace_pointer(bat_priv->primary_if,
+					      new_hard_iface, 1);
+>>>>>>> upstream/android-13
 
 	if (!new_hard_iface)
 		goto out;
@@ -494,8 +578,12 @@ static void batadv_primary_if_select(struct batadv_priv *bat_priv,
 	batadv_primary_if_update_addr(bat_priv, curr_hard_iface);
 
 out:
+<<<<<<< HEAD
 	if (curr_hard_iface)
 		batadv_hardif_put(curr_hard_iface);
+=======
+	batadv_hardif_put(curr_hard_iface);
+>>>>>>> upstream/android-13
 }
 
 static bool
@@ -565,6 +653,12 @@ static void batadv_hardif_recalc_extra_skbroom(struct net_device *soft_iface)
 	needed_headroom = lower_headroom + (lower_header_len - ETH_HLEN);
 	needed_headroom += batadv_max_header_len();
 
+<<<<<<< HEAD
+=======
+	/* fragmentation headers don't strip the unicast/... header */
+	needed_headroom += sizeof(struct batadv_frag_packet);
+
+>>>>>>> upstream/android-13
 	soft_iface->needed_headroom = needed_headroom;
 	soft_iface->needed_tailroom = lower_tailroom;
 }
@@ -610,7 +704,11 @@ out:
 	/* report to the other components the maximum amount of bytes that
 	 * batman-adv can send over the wire (without considering the payload
 	 * overhead). For example, this value is used by TT to compute the
+<<<<<<< HEAD
 	 * maximum local table table size
+=======
+	 * maximum local table size
+>>>>>>> upstream/android-13
 	 */
 	atomic_set(&bat_priv->packet_size_max, min_mtu);
 
@@ -667,8 +765,12 @@ batadv_hardif_activate_interface(struct batadv_hard_iface *hard_iface)
 		bat_priv->algo_ops->iface.activate(hard_iface);
 
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -687,6 +789,7 @@ batadv_hardif_deactivate_interface(struct batadv_hard_iface *hard_iface)
 }
 
 /**
+<<<<<<< HEAD
  * batadv_master_del_slave() - remove hard_iface from the current master iface
  * @slave: the interface enslaved in another master
  * @master: the master from which slave has to be removed
@@ -716,14 +819,25 @@ static int batadv_master_del_slave(struct batadv_hard_iface *slave,
  * @hard_iface: hard interface to add to soft interface
  * @net: the applicable net namespace
  * @iface_name: name of the soft interface
+=======
+ * batadv_hardif_enable_interface() - Enslave hard interface to soft interface
+ * @hard_iface: hard interface to add to soft interface
+ * @soft_iface: netdev struct of the mesh interface
+>>>>>>> upstream/android-13
  *
  * Return: 0 on success or negative error number in case of failure
  */
 int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
+<<<<<<< HEAD
 				   struct net *net, const char *iface_name)
 {
 	struct batadv_priv *bat_priv;
 	struct net_device *soft_iface, *master;
+=======
+				   struct net_device *soft_iface)
+{
+	struct batadv_priv *bat_priv;
+>>>>>>> upstream/android-13
 	__be16 ethertype = htons(ETH_P_BATMAN);
 	int max_header_len = batadv_max_header_len();
 	int ret;
@@ -733,6 +847,7 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
 
 	kref_get(&hard_iface->refcount);
 
+<<<<<<< HEAD
 	soft_iface = dev_get_by_name(net, iface_name);
 
 	if (!soft_iface) {
@@ -770,6 +885,12 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
 		goto err_dev;
 	}
 
+=======
+	dev_hold(soft_iface);
+	hard_iface->soft_iface = soft_iface;
+	bat_priv = netdev_priv(hard_iface->soft_iface);
+
+>>>>>>> upstream/android-13
 	ret = netdev_master_upper_dev_link(hard_iface->net_dev,
 					   soft_iface, NULL, NULL, NULL);
 	if (ret)
@@ -779,6 +900,7 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
 	if (ret < 0)
 		goto err_upper;
 
+<<<<<<< HEAD
 	hard_iface->if_num = bat_priv->num_ifaces;
 	bat_priv->num_ifaces++;
 	hard_iface->if_status = BATADV_IF_INACTIVE;
@@ -789,6 +911,9 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
 		hard_iface->if_status = BATADV_IF_NOT_IN_USE;
 		goto err_upper;
 	}
+=======
+	hard_iface->if_status = BATADV_IF_INACTIVE;
+>>>>>>> upstream/android-13
 
 	kref_get(&hard_iface->refcount);
 	hard_iface->batman_adv_ptype.type = ethertype;
@@ -833,12 +958,16 @@ err_upper:
 err_dev:
 	hard_iface->soft_iface = NULL;
 	dev_put(soft_iface);
+<<<<<<< HEAD
 err:
+=======
+>>>>>>> upstream/android-13
 	batadv_hardif_put(hard_iface);
 	return ret;
 }
 
 /**
+<<<<<<< HEAD
  * batadv_hardif_disable_interface() - Remove hard interface from soft interface
  * @hard_iface: hard interface to be removed
  * @autodel: whether to delete soft interface when it doesn't contain any other
@@ -846,6 +975,39 @@ err:
  */
 void batadv_hardif_disable_interface(struct batadv_hard_iface *hard_iface,
 				     enum batadv_hard_if_cleanup autodel)
+=======
+ * batadv_hardif_cnt() - get number of interfaces enslaved to soft interface
+ * @soft_iface: soft interface to check
+ *
+ * This function is only using RCU for locking - the result can therefore be
+ * off when another function is modifying the list at the same time. The
+ * caller can use the rtnl_lock to make sure that the count is accurate.
+ *
+ * Return: number of connected/enslaved hard interfaces
+ */
+static size_t batadv_hardif_cnt(const struct net_device *soft_iface)
+{
+	struct batadv_hard_iface *hard_iface;
+	size_t count = 0;
+
+	rcu_read_lock();
+	list_for_each_entry_rcu(hard_iface, &batadv_hardif_list, list) {
+		if (hard_iface->soft_iface != soft_iface)
+			continue;
+
+		count++;
+	}
+	rcu_read_unlock();
+
+	return count;
+}
+
+/**
+ * batadv_hardif_disable_interface() - Remove hard interface from soft interface
+ * @hard_iface: hard interface to be removed
+ */
+void batadv_hardif_disable_interface(struct batadv_hard_iface *hard_iface)
+>>>>>>> upstream/android-13
 {
 	struct batadv_priv *bat_priv = netdev_priv(hard_iface->soft_iface);
 	struct batadv_hard_iface *primary_if = NULL;
@@ -860,9 +1022,12 @@ void batadv_hardif_disable_interface(struct batadv_hard_iface *hard_iface,
 	dev_remove_pack(&hard_iface->batman_adv_ptype);
 	batadv_hardif_put(hard_iface);
 
+<<<<<<< HEAD
 	bat_priv->num_ifaces--;
 	batadv_orig_hash_del_if(hard_iface, bat_priv->num_ifaces);
 
+=======
+>>>>>>> upstream/android-13
 	primary_if = batadv_primary_if_get_selected(bat_priv);
 	if (hard_iface == primary_if) {
 		struct batadv_hard_iface *new_if;
@@ -870,8 +1035,12 @@ void batadv_hardif_disable_interface(struct batadv_hard_iface *hard_iface,
 		new_if = batadv_hardif_get_active(hard_iface->soft_iface);
 		batadv_primary_if_select(bat_priv, new_if);
 
+<<<<<<< HEAD
 		if (new_if)
 			batadv_hardif_put(new_if);
+=======
+		batadv_hardif_put(new_if);
+>>>>>>> upstream/android-13
 	}
 
 	bat_priv->algo_ops->iface.disable(hard_iface);
@@ -886,6 +1055,7 @@ void batadv_hardif_disable_interface(struct batadv_hard_iface *hard_iface,
 	batadv_hardif_recalc_extra_skbroom(hard_iface->soft_iface);
 
 	/* nobody uses this interface anymore */
+<<<<<<< HEAD
 	if (bat_priv->num_ifaces == 0) {
 		batadv_gw_check_client_stop(bat_priv);
 
@@ -893,19 +1063,31 @@ void batadv_hardif_disable_interface(struct batadv_hard_iface *hard_iface,
 			batadv_softif_destroy_sysfs(hard_iface->soft_iface);
 	}
 
+=======
+	if (batadv_hardif_cnt(hard_iface->soft_iface) <= 1)
+		batadv_gw_check_client_stop(bat_priv);
+
+>>>>>>> upstream/android-13
 	hard_iface->soft_iface = NULL;
 	batadv_hardif_put(hard_iface);
 
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 }
 
 static struct batadv_hard_iface *
 batadv_hardif_add_interface(struct net_device *net_dev)
 {
 	struct batadv_hard_iface *hard_iface;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	ASSERT_RTNL();
 
@@ -918,19 +1100,25 @@ batadv_hardif_add_interface(struct net_device *net_dev)
 	if (!hard_iface)
 		goto release_dev;
 
+<<<<<<< HEAD
 	ret = batadv_sysfs_add_hardif(&hard_iface->hardif_obj, net_dev);
 	if (ret)
 		goto free_if;
 
 	hard_iface->if_num = 0;
+=======
+>>>>>>> upstream/android-13
 	hard_iface->net_dev = net_dev;
 	hard_iface->soft_iface = NULL;
 	hard_iface->if_status = BATADV_IF_NOT_IN_USE;
 
+<<<<<<< HEAD
 	ret = batadv_debugfs_add_hardif(hard_iface);
 	if (ret)
 		goto free_sysfs;
 
+=======
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&hard_iface->list);
 	INIT_HLIST_HEAD(&hard_iface->neigh_list);
 
@@ -943,11 +1131,17 @@ batadv_hardif_add_interface(struct net_device *net_dev)
 	if (batadv_is_wifi_hardif(hard_iface))
 		hard_iface->num_bcasts = BATADV_NUM_BCASTS_WIRELESS;
 
+<<<<<<< HEAD
+=======
+	atomic_set(&hard_iface->hop_penalty, 0);
+
+>>>>>>> upstream/android-13
 	batadv_v_hardif_init(hard_iface);
 
 	batadv_check_known_mac_addr(hard_iface->net_dev);
 	kref_get(&hard_iface->refcount);
 	list_add_tail_rcu(&hard_iface->list, &batadv_hardif_list);
+<<<<<<< HEAD
 
 	return hard_iface;
 
@@ -955,6 +1149,12 @@ free_sysfs:
 	batadv_sysfs_del_hardif(&hard_iface->hardif_obj);
 free_if:
 	kfree(hard_iface);
+=======
+	batadv_hardif_generation++;
+
+	return hard_iface;
+
+>>>>>>> upstream/android-13
 release_dev:
 	dev_put(net_dev);
 out:
@@ -967,19 +1167,27 @@ static void batadv_hardif_remove_interface(struct batadv_hard_iface *hard_iface)
 
 	/* first deactivate interface */
 	if (hard_iface->if_status != BATADV_IF_NOT_IN_USE)
+<<<<<<< HEAD
 		batadv_hardif_disable_interface(hard_iface,
 						BATADV_IF_CLEANUP_KEEP);
+=======
+		batadv_hardif_disable_interface(hard_iface);
+>>>>>>> upstream/android-13
 
 	if (hard_iface->if_status != BATADV_IF_NOT_IN_USE)
 		return;
 
 	hard_iface->if_status = BATADV_IF_TO_BE_REMOVED;
+<<<<<<< HEAD
 	batadv_debugfs_del_hardif(hard_iface);
 	batadv_sysfs_del_hardif(&hard_iface->hardif_obj);
+=======
+>>>>>>> upstream/android-13
 	batadv_hardif_put(hard_iface);
 }
 
 /**
+<<<<<<< HEAD
  * batadv_hardif_remove_interfaces() - Remove all hard interfaces
  */
 void batadv_hardif_remove_interfaces(void)
@@ -996,6 +1204,8 @@ void batadv_hardif_remove_interfaces(void)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  * batadv_hard_if_event_softif() - Handle events for soft interfaces
  * @event: NETDEV_* event to handle
  * @net_dev: net_device which generated an event
@@ -1009,6 +1219,7 @@ static int batadv_hard_if_event_softif(unsigned long event,
 
 	switch (event) {
 	case NETDEV_REGISTER:
+<<<<<<< HEAD
 		batadv_sysfs_add_meshif(net_dev);
 		bat_priv = netdev_priv(net_dev);
 		batadv_softif_create_vlan(bat_priv, BATADV_NO_FLAGS);
@@ -1016,6 +1227,11 @@ static int batadv_hard_if_event_softif(unsigned long event,
 	case NETDEV_CHANGENAME:
 		batadv_debugfs_rename_meshif(net_dev);
 		break;
+=======
+		bat_priv = netdev_priv(net_dev);
+		batadv_softif_create_vlan(bat_priv, BATADV_NO_FLAGS);
+		break;
+>>>>>>> upstream/android-13
 	}
 
 	return NOTIFY_DONE;
@@ -1051,6 +1267,10 @@ static int batadv_hard_if_event(struct notifier_block *this,
 	case NETDEV_UNREGISTER:
 	case NETDEV_PRE_TYPE_CHANGE:
 		list_del_rcu(&hard_iface->list);
+<<<<<<< HEAD
+=======
+		batadv_hardif_generation++;
+>>>>>>> upstream/android-13
 
 		batadv_hardif_remove_interface(hard_iface);
 		break;
@@ -1079,9 +1299,12 @@ static int batadv_hard_if_event(struct notifier_block *this,
 		if (batadv_is_wifi_hardif(hard_iface))
 			hard_iface->num_bcasts = BATADV_NUM_BCASTS_WIRELESS;
 		break;
+<<<<<<< HEAD
 	case NETDEV_CHANGENAME:
 		batadv_debugfs_rename_hardif(hard_iface);
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -1089,8 +1312,12 @@ static int batadv_hard_if_event(struct notifier_block *this,
 hardif_put:
 	batadv_hardif_put(hard_iface);
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 	return NOTIFY_DONE;
 }
 

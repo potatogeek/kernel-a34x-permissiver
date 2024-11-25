@@ -1,20 +1,30 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  * Author: Mateusz Krawczuk <m.krawczuk@partner.samsung.com>
  *
  * Based on clock drivers for S3C64xx and Exynos4 SoCs.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Common Clock Framework support for all S5PC110/S5PV210 SoCs.
  */
 
 #include <linux/clk-provider.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
+<<<<<<< HEAD
 #include <linux/syscore_ops.h>
+=======
+>>>>>>> upstream/android-13
 
 #include "clk.h"
 #include "clk-pll.h"
@@ -83,9 +93,12 @@ enum {
 
 static void __iomem *reg_base;
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_SLEEP
 static struct samsung_clk_reg_dump *s5pv210_clk_dump;
 
+=======
+>>>>>>> upstream/android-13
 /* List of registers that need to be preserved across suspend/resume. */
 static unsigned long s5pv210_clk_regs[] __initdata = {
 	CLK_SRC0,
@@ -132,6 +145,7 @@ static unsigned long s5pv210_clk_regs[] __initdata = {
 	CLK_OUT,
 };
 
+<<<<<<< HEAD
 static int s5pv210_clk_suspend(void)
 {
 	samsung_clk_save(reg_base, s5pv210_clk_dump,
@@ -166,6 +180,8 @@ static void s5pv210_clk_sleep_init(void)
 static inline void s5pv210_clk_sleep_init(void) { }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /* Mux parent lists. */
 static const char *const fin_pll_p[] __initconst = {
 	"xxti",
@@ -822,7 +838,12 @@ static void __init __s5pv210_clk_init(struct device_node *np,
 	samsung_clk_register_alias(ctx, s5pv210_aliases,
 						ARRAY_SIZE(s5pv210_aliases));
 
+<<<<<<< HEAD
 	s5pv210_clk_sleep_init();
+=======
+	samsung_clk_sleep_init(reg_base, s5pv210_clk_regs,
+			       ARRAY_SIZE(s5pv210_clk_regs));
+>>>>>>> upstream/android-13
 
 	samsung_clk_of_add_provider(np, ctx);
 

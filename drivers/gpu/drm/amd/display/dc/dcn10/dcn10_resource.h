@@ -39,9 +39,20 @@ struct dcn10_resource_pool {
 	struct resource_pool base;
 };
 struct resource_pool *dcn10_create_resource_pool(
+<<<<<<< HEAD
 		uint8_t num_virtual_links,
 		struct dc *dc);
 
+=======
+		const struct dc_init_data *init_data,
+		struct dc *dc);
+
+struct stream_encoder *dcn10_find_first_free_match_stream_enc_for_link(
+		struct resource_context *res_ctx,
+		const struct resource_pool *pool,
+		struct dc_stream_state *stream);
+
+>>>>>>> upstream/android-13
 
 #endif /* __DC_RESOURCE_DCN10_H__ */
 

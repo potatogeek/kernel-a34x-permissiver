@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2014 IBM Corp.
  *
@@ -5,6 +6,11 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2014 IBM Corp.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -22,6 +28,10 @@
 #include <linux/sched/task.h>
 
 #include <asm/cputable.h>
+<<<<<<< HEAD
+=======
+#include <asm/mmu.h>
+>>>>>>> upstream/android-13
 #include <misc/cxl-base.h>
 
 #include "cxl.h"
@@ -319,6 +329,12 @@ static int __init init_cxl(void)
 {
 	int rc = 0;
 
+<<<<<<< HEAD
+=======
+	if (!tlbie_capable)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if ((rc = cxl_file_init()))
 		return rc;
 

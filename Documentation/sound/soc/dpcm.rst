@@ -13,7 +13,11 @@ drivers that expose several ALSA PCMs and can route to multiple DAIs.
 The DPCM runtime routing is determined by the ALSA mixer settings in the same
 way as the analog signal is routed in an ASoC codec driver. DPCM uses a DAPM
 graph representing the DSP internal audio paths and uses the mixer settings to
+<<<<<<< HEAD
 determine the patch used by each ALSA PCM.
+=======
+determine the path used by each ALSA PCM.
+>>>>>>> upstream/android-13
 
 DPCM re-uses all the existing component codec, platform and DAI drivers without
 any modifications.
@@ -101,7 +105,11 @@ The audio driver processes this as follows :-
 
 4. Machine driver or audio HAL enables the speaker path.
 
+<<<<<<< HEAD
 5. DPCM runs the PCM ops for startup(), hw_params(), prepapre() and
+=======
+5. DPCM runs the PCM ops for startup(), hw_params(), prepare() and
+>>>>>>> upstream/android-13
    trigger(start) for DAI1 Speakers since the path is enabled.
 
 In this example, the machine driver or userspace audio HAL can alter the routing
@@ -218,10 +226,17 @@ like a BT phone call :-
                       *           * <----DAI5-----> FM
                       *************
 
+<<<<<<< HEAD
 This allows the host CPU to sleep whilst the DSP, MODEM DAI and the BT DAI are
 still in operation.
 
 A BE DAI link can also set the codec to a dummy device if the code is a device
+=======
+This allows the host CPU to sleep while the DSP, MODEM DAI and the BT DAI are
+still in operation.
+
+A BE DAI link can also set the codec to a dummy device if the codec is a device
+>>>>>>> upstream/android-13
 that is managed externally.
 
 Likewise a BE DAI can also set a dummy cpu DAI if the CPU DAI is managed by the
@@ -249,7 +264,11 @@ configuration.
 	struct snd_interval *channels = hw_param_interval(params,
 						SNDRV_PCM_HW_PARAM_CHANNELS);
 
+<<<<<<< HEAD
 	/* The DSP will covert the FE rate to 48k, stereo */
+=======
+	/* The DSP will convert the FE rate to 48k, stereo */
+>>>>>>> upstream/android-13
 	rate->min = rate->max = 48000;
 	channels->min = channels->max = 2;
 
@@ -386,5 +405,8 @@ This means creating a new FE that is connected with a virtual path to both
 DAI links. The DAI links will be started when the FE PCM is started and stopped
 when the FE PCM is stopped. Note that the FE PCM cannot read or write data in
 this configuration.
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> upstream/android-13

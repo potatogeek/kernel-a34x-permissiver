@@ -603,10 +603,17 @@ acpi_walk_resources(acpi_handle device_handle,
 	/* Parameter validation */
 
 	if (!device_handle || !user_function || !name ||
+<<<<<<< HEAD
 	    (!ACPI_COMPARE_NAME(name, METHOD_NAME__CRS) &&
 	     !ACPI_COMPARE_NAME(name, METHOD_NAME__PRS) &&
 	     !ACPI_COMPARE_NAME(name, METHOD_NAME__AEI) &&
 	     !ACPI_COMPARE_NAME(name, METHOD_NAME__DMA))) {
+=======
+	    (!ACPI_COMPARE_NAMESEG(name, METHOD_NAME__CRS) &&
+	     !ACPI_COMPARE_NAMESEG(name, METHOD_NAME__PRS) &&
+	     !ACPI_COMPARE_NAMESEG(name, METHOD_NAME__AEI) &&
+	     !ACPI_COMPARE_NAMESEG(name, METHOD_NAME__DMA))) {
+>>>>>>> upstream/android-13
 		return_ACPI_STATUS(AE_BAD_PARAMETER);
 	}
 

@@ -104,11 +104,48 @@ static struct tipc_monitor *tipc_monitor(struct net *net, int bearer_id)
 
 const int tipc_max_domain_size = sizeof(struct tipc_mon_domain);
 
+<<<<<<< HEAD
+=======
+static inline u16 mon_cpu_to_le16(u16 val)
+{
+	return (__force __u16)htons(val);
+}
+
+static inline u32 mon_cpu_to_le32(u32 val)
+{
+	return (__force __u32)htonl(val);
+}
+
+static inline u64 mon_cpu_to_le64(u64 val)
+{
+	return (__force __u64)cpu_to_be64(val);
+}
+
+static inline u16 mon_le16_to_cpu(u16 val)
+{
+	return ntohs((__force __be16)val);
+}
+
+static inline u32 mon_le32_to_cpu(u32 val)
+{
+	return ntohl((__force __be32)val);
+}
+
+static inline u64 mon_le64_to_cpu(u64 val)
+{
+	return be64_to_cpu((__force __be64)val);
+}
+
+>>>>>>> upstream/android-13
 /* dom_rec_len(): actual length of domain record for transport
  */
 static int dom_rec_len(struct tipc_mon_domain *dom, u16 mcnt)
 {
+<<<<<<< HEAD
 	return ((void *)&dom->members - (void *)dom) + (mcnt * sizeof(u32));
+=======
+	return (offsetof(struct tipc_mon_domain, members)) + (mcnt * sizeof(u32));
+>>>>>>> upstream/android-13
 }
 
 /* dom_size() : calculate size of own domain based on number of peers
@@ -260,16 +297,27 @@ static void mon_update_local_domain(struct tipc_monitor *mon)
 		diff |= dom->members[i] != peer->addr;
 		dom->members[i] = peer->addr;
 		map_set(&dom->up_map, i, peer->is_up);
+<<<<<<< HEAD
 		cache->members[i] = htonl(peer->addr);
+=======
+		cache->members[i] = mon_cpu_to_le32(peer->addr);
+>>>>>>> upstream/android-13
 	}
 	diff |= dom->up_map != prev_up_map;
 	if (!diff)
 		return;
 	dom->gen = ++mon->dom_gen;
+<<<<<<< HEAD
 	cache->len = htons(dom->len);
 	cache->gen = htons(dom->gen);
 	cache->member_cnt = htons(member_cnt);
 	cache->up_map = cpu_to_be64(dom->up_map);
+=======
+	cache->len = mon_cpu_to_le16(dom->len);
+	cache->gen = mon_cpu_to_le16(dom->gen);
+	cache->member_cnt = mon_cpu_to_le16(member_cnt);
+	cache->up_map = mon_cpu_to_le64(dom->up_map);
+>>>>>>> upstream/android-13
 	mon_apply_domain(mon, self);
 }
 
@@ -322,9 +370,19 @@ static void mon_assign_roles(struct tipc_monitor *mon, struct tipc_peer *head)
 void tipc_mon_remove_peer(struct net *net, u32 addr, int bearer_id)
 {
 	struct tipc_monitor *mon = tipc_monitor(net, bearer_id);
+<<<<<<< HEAD
 	struct tipc_peer *self = get_self(net, bearer_id);
 	struct tipc_peer *peer, *prev, *head;
 
+=======
+	struct tipc_peer *self;
+	struct tipc_peer *peer, *prev, *head;
+
+	if (!mon)
+		return;
+
+	self = get_self(net, bearer_id);
+>>>>>>> upstream/android-13
 	write_lock_bh(&mon->lock);
 	peer = get_peer(mon, addr);
 	if (!peer)
@@ -407,11 +465,22 @@ exit:
 void tipc_mon_peer_down(struct net *net, u32 addr, int bearer_id)
 {
 	struct tipc_monitor *mon = tipc_monitor(net, bearer_id);
+<<<<<<< HEAD
 	struct tipc_peer *self = get_self(net, bearer_id);
+=======
+	struct tipc_peer *self;
+>>>>>>> upstream/android-13
 	struct tipc_peer *peer, *head;
 	struct tipc_mon_domain *dom;
 	int applied;
 
+<<<<<<< HEAD
+=======
+	if (!mon)
+		return;
+
+	self = get_self(net, bearer_id);
+>>>>>>> upstream/android-13
 	write_lock_bh(&mon->lock);
 	peer = get_peer(mon, addr);
 	if (!peer) {
@@ -447,21 +516,38 @@ void tipc_mon_rcv(struct net *net, void *data, u16 dlen, u32 addr,
 	struct tipc_mon_domain dom_bef;
 	struct tipc_mon_domain *dom;
 	struct tipc_peer *peer;
+<<<<<<< HEAD
 	u16 new_member_cnt = ntohs(arrv_dom->member_cnt);
 	int new_dlen = dom_rec_len(arrv_dom, new_member_cnt);
 	u16 new_gen = ntohs(arrv_dom->gen);
 	u16 acked_gen = ntohs(arrv_dom->ack_gen);
+=======
+	u16 new_member_cnt = mon_le16_to_cpu(arrv_dom->member_cnt);
+	int new_dlen = dom_rec_len(arrv_dom, new_member_cnt);
+	u16 new_gen = mon_le16_to_cpu(arrv_dom->gen);
+	u16 acked_gen = mon_le16_to_cpu(arrv_dom->ack_gen);
+	u16 arrv_dlen = mon_le16_to_cpu(arrv_dom->len);
+>>>>>>> upstream/android-13
 	bool probing = state->probing;
 	int i, applied_bef;
 
 	state->probing = false;
 
 	/* Sanity check received domain record */
+<<<<<<< HEAD
+=======
+	if (new_member_cnt > MAX_MON_DOMAIN)
+		return;
+>>>>>>> upstream/android-13
 	if (dlen < dom_rec_len(arrv_dom, 0))
 		return;
 	if (dlen != dom_rec_len(arrv_dom, new_member_cnt))
 		return;
+<<<<<<< HEAD
 	if ((dlen < new_dlen) || ntohs(arrv_dom->len) != new_dlen)
+=======
+	if (dlen < new_dlen || arrv_dlen != new_dlen)
+>>>>>>> upstream/android-13
 		return;
 
 	/* Synch generation numbers with peer if link just came up */
@@ -509,9 +595,15 @@ void tipc_mon_rcv(struct net *net, void *data, u16 dlen, u32 addr,
 	dom->len = new_dlen;
 	dom->gen = new_gen;
 	dom->member_cnt = new_member_cnt;
+<<<<<<< HEAD
 	dom->up_map = be64_to_cpu(arrv_dom->up_map);
 	for (i = 0; i < new_member_cnt; i++)
 		dom->members[i] = ntohl(arrv_dom->members[i]);
+=======
+	dom->up_map = mon_le64_to_cpu(arrv_dom->up_map);
+	for (i = 0; i < new_member_cnt; i++)
+		dom->members[i] = mon_le32_to_cpu(arrv_dom->members[i]);
+>>>>>>> upstream/android-13
 
 	/* Update peers affected by this domain record */
 	applied_bef = peer->applied;
@@ -540,19 +632,33 @@ void tipc_mon_prep(struct net *net, void *data, int *dlen,
 	if (likely(state->acked_gen == gen)) {
 		len = dom_rec_len(dom, 0);
 		*dlen = len;
+<<<<<<< HEAD
 		dom->len = htons(len);
 		dom->gen = htons(gen);
 		dom->ack_gen = htons(state->peer_gen);
+=======
+		dom->len = mon_cpu_to_le16(len);
+		dom->gen = mon_cpu_to_le16(gen);
+		dom->ack_gen = mon_cpu_to_le16(state->peer_gen);
+>>>>>>> upstream/android-13
 		dom->member_cnt = 0;
 		return;
 	}
 	/* Send the full record */
 	read_lock_bh(&mon->lock);
+<<<<<<< HEAD
 	len = ntohs(mon->cache.len);
 	*dlen = len;
 	memcpy(data, &mon->cache, len);
 	read_unlock_bh(&mon->lock);
 	dom->ack_gen = htons(state->peer_gen);
+=======
+	len = mon_le16_to_cpu(mon->cache.len);
+	*dlen = len;
+	memcpy(data, &mon->cache, len);
+	read_unlock_bh(&mon->lock);
+	dom->ack_gen = mon_cpu_to_le16(state->peer_gen);
+>>>>>>> upstream/android-13
 }
 
 void tipc_mon_get_state(struct net *net, u32 addr,
@@ -711,7 +817,11 @@ static int __tipc_nl_add_monitor_peer(struct tipc_peer *peer,
 	if (!hdr)
 		return -EMSGSIZE;
 
+<<<<<<< HEAD
 	attrs = nla_nest_start(msg->skb, TIPC_NLA_MON_PEER);
+=======
+	attrs = nla_nest_start_noflag(msg->skb, TIPC_NLA_MON_PEER);
+>>>>>>> upstream/android-13
 	if (!attrs)
 		goto msg_full;
 
@@ -800,7 +910,11 @@ int __tipc_nl_add_monitor(struct net *net, struct tipc_nl_msg *msg,
 	if (!hdr)
 		return -EMSGSIZE;
 
+<<<<<<< HEAD
 	attrs = nla_nest_start(msg->skb, TIPC_NLA_MON);
+=======
+	attrs = nla_nest_start_noflag(msg->skb, TIPC_NLA_MON);
+>>>>>>> upstream/android-13
 	if (!attrs)
 		goto msg_full;
 

@@ -391,9 +391,15 @@ static inline unsigned long __fls(unsigned long x)
 	return fls64(x) - 1;
 }
 
+<<<<<<< HEAD
 static inline int fls(int x)
 {
 	return fls64((unsigned int) x);
+=======
+static inline int fls(unsigned int x)
+{
+	return fls64(x);
+>>>>>>> upstream/android-13
 }
 
 /*

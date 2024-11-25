@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Huawei HiNIC PCI Express Linux driver
  * Copyright(c) 2017 Huawei Technologies Co., Ltd
@@ -11,6 +12,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Huawei HiNIC PCI Express Linux driver
+ * Copyright(c) 2017 Huawei Technologies Co., Ltd
+>>>>>>> upstream/android-13
  */
 
 #ifndef HINIC_HW_CSR_H
@@ -19,7 +26,11 @@
 /* HW interface registers */
 #define HINIC_CSR_FUNC_ATTR0_ADDR                       0x0
 #define HINIC_CSR_FUNC_ATTR1_ADDR                       0x4
+<<<<<<< HEAD
 
+=======
+#define HINIC_CSR_FUNC_ATTR2_ADDR			0x8
+>>>>>>> upstream/android-13
 #define HINIC_CSR_FUNC_ATTR4_ADDR                       0x10
 #define HINIC_CSR_FUNC_ATTR5_ADDR                       0x14
 

@@ -1,14 +1,22 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Xen Event Channels (internal header)
  *
  * Copyright (C) 2013 Citrix Systems R&D Ltd.
+<<<<<<< HEAD
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2 or later.  See the file COPYING for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __EVENTS_INTERNAL_H__
 #define __EVENTS_INTERNAL_H__
 
+<<<<<<< HEAD
 /* Interrupt types. */
 enum xen_irq_type {
 	IRQT_UNBOUND = 0,
@@ -66,12 +74,15 @@ struct irq_info {
 #define PIRQ_SHAREABLE	(1 << 1)
 #define PIRQ_MSI_GROUP	(1 << 2)
 
+=======
+>>>>>>> upstream/android-13
 struct evtchn_loop_ctrl;
 
 struct evtchn_ops {
 	unsigned (*max_channels)(void);
 	unsigned (*nr_channels)(void);
 
+<<<<<<< HEAD
 	int (*setup)(struct irq_info *info);
 	void (*remove)(evtchn_port_t port, unsigned int cpu);
 	void (*bind_to_cpu)(struct irq_info *info, unsigned cpu);
@@ -81,6 +92,18 @@ struct evtchn_ops {
 	bool (*is_pending)(unsigned port);
 	void (*mask)(unsigned port);
 	void (*unmask)(unsigned port);
+=======
+	int (*setup)(evtchn_port_t port);
+	void (*remove)(evtchn_port_t port, unsigned int cpu);
+	void (*bind_to_cpu)(evtchn_port_t evtchn, unsigned int cpu,
+			    unsigned int old_cpu);
+
+	void (*clear_pending)(evtchn_port_t port);
+	void (*set_pending)(evtchn_port_t port);
+	bool (*is_pending)(evtchn_port_t port);
+	void (*mask)(evtchn_port_t port);
+	void (*unmask)(evtchn_port_t port);
+>>>>>>> upstream/android-13
 
 	void (*handle_events)(unsigned cpu, struct evtchn_loop_ctrl *ctrl);
 	void (*resume)(void);
@@ -91,6 +114,7 @@ struct evtchn_ops {
 
 extern const struct evtchn_ops *evtchn_ops;
 
+<<<<<<< HEAD
 extern int **evtchn_to_irq;
 int get_evtchn_to_irq(unsigned int evtchn);
 void handle_irq_for_port(evtchn_port_t port, struct evtchn_loop_ctrl *ctrl);
@@ -98,6 +122,12 @@ void handle_irq_for_port(evtchn_port_t port, struct evtchn_loop_ctrl *ctrl);
 struct irq_info *info_for_irq(unsigned irq);
 unsigned cpu_from_irq(unsigned irq);
 unsigned cpu_from_evtchn(unsigned int evtchn);
+=======
+int get_evtchn_to_irq(evtchn_port_t evtchn);
+void handle_irq_for_port(evtchn_port_t port, struct evtchn_loop_ctrl *ctrl);
+
+unsigned int cpu_from_evtchn(evtchn_port_t evtchn);
+>>>>>>> upstream/android-13
 
 static inline unsigned xen_evtchn_max_channels(void)
 {
@@ -108,10 +138,17 @@ static inline unsigned xen_evtchn_max_channels(void)
  * Do any ABI specific setup for a bound event channel before it can
  * be unmasked and used.
  */
+<<<<<<< HEAD
 static inline int xen_evtchn_port_setup(struct irq_info *info)
 {
 	if (evtchn_ops->setup)
 		return evtchn_ops->setup(info);
+=======
+static inline int xen_evtchn_port_setup(evtchn_port_t evtchn)
+{
+	if (evtchn_ops->setup)
+		return evtchn_ops->setup(evtchn);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -122,6 +159,7 @@ static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
 		evtchn_ops->remove(evtchn, cpu);
 }
 
+<<<<<<< HEAD
 static inline void xen_evtchn_port_bind_to_cpu(struct irq_info *info,
 					       unsigned cpu)
 {
@@ -129,26 +167,52 @@ static inline void xen_evtchn_port_bind_to_cpu(struct irq_info *info,
 }
 
 static inline void clear_evtchn(unsigned port)
+=======
+static inline void xen_evtchn_port_bind_to_cpu(evtchn_port_t evtchn,
+					       unsigned int cpu,
+					       unsigned int old_cpu)
+{
+	evtchn_ops->bind_to_cpu(evtchn, cpu, old_cpu);
+}
+
+static inline void clear_evtchn(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	evtchn_ops->clear_pending(port);
 }
 
+<<<<<<< HEAD
 static inline void set_evtchn(unsigned port)
+=======
+static inline void set_evtchn(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	evtchn_ops->set_pending(port);
 }
 
+<<<<<<< HEAD
 static inline bool test_evtchn(unsigned port)
+=======
+static inline bool test_evtchn(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	return evtchn_ops->is_pending(port);
 }
 
+<<<<<<< HEAD
 static inline void mask_evtchn(unsigned port)
+=======
+static inline void mask_evtchn(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	return evtchn_ops->mask(port);
 }
 
+<<<<<<< HEAD
 static inline void unmask_evtchn(unsigned port)
+=======
+static inline void unmask_evtchn(evtchn_port_t port)
+>>>>>>> upstream/android-13
 {
 	return evtchn_ops->unmask(port);
 }

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* linux/arch/arm/mach-exynos4/mct.c
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * EXYNOS4 MCT(Multi-Core Timer) support
  *
  * This program is free software; you can redistribute it and/or modify
@@ -11,13 +16,21 @@
 */
 
 #include <linux/sched.h>
+=======
+ * Exynos4 MCT(Multi-Core Timer) support
+*/
+
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/err.h>
 #include <linux/clk.h>
 #include <linux/clockchips.h>
 #include <linux/cpu.h>
+<<<<<<< HEAD
 #include <linux/platform_device.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/delay.h>
 #include <linux/percpu.h>
 #include <linux/of.h>
@@ -25,6 +38,10 @@
 #include <linux/of_address.h>
 #include <linux/clocksource.h>
 #include <linux/sched_clock.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/clock.h>
+>>>>>>> upstream/android-13
 
 #define EXYNOS4_MCTREG(x)		(x)
 #define EXYNOS4_MCT_G_CNT_L		EXYNOS4_MCTREG(0x100)
@@ -56,6 +73,18 @@
 
 #define TICK_BASE_CNT	1
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_ARM
+/* Use values higher than ARM arch timer. See 6282edb72bed. */
+#define MCT_CLKSOURCE_RATING		450
+#define MCT_CLKEVENTS_RATING		500
+#else
+#define MCT_CLKSOURCE_RATING		350
+#define MCT_CLKEVENTS_RATING		350
+#endif
+
+>>>>>>> upstream/android-13
 enum {
 	MCT_INT_SPI,
 	MCT_INT_PPI
@@ -81,6 +110,10 @@ static void __iomem *reg_base;
 static unsigned long clk_rate;
 static unsigned int mct_int_type;
 static int mct_irqs[MCT_NR_IRQS];
+<<<<<<< HEAD
+=======
+static u64 exynos_mct_start;
+>>>>>>> upstream/android-13
 
 struct mct_clock_event_device {
 	struct clock_event_device evt;
@@ -88,6 +121,15 @@ struct mct_clock_event_device {
 	char name[10];
 };
 
+<<<<<<< HEAD
+=======
+u64 exynos_get_mct_start(void)
+{
+	return exynos_mct_start;
+}
+EXPORT_SYMBOL_GPL(exynos_get_mct_start);
+
+>>>>>>> upstream/android-13
 static void exynos4_mct_write(unsigned int value, unsigned long offset)
 {
 	unsigned long stat_addr;
@@ -211,7 +253,11 @@ static void exynos4_frc_resume(struct clocksource *cs)
 
 static struct clocksource mct_frc = {
 	.name		= "mct-frc",
+<<<<<<< HEAD
 	.rating		= 450,	/* use value higher than ARM arch timer */
+=======
+	.rating		= MCT_CLKSOURCE_RATING,
+>>>>>>> upstream/android-13
 	.read		= exynos4_frc_read,
 	.mask		= CLOCKSOURCE_MASK(32),
 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
@@ -334,6 +380,7 @@ static irqreturn_t exynos4_mct_comp_isr(int irq, void *dev_id)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 static struct irqaction mct_comp_event_irq = {
 	.name		= "mct_comp_irq",
 	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
@@ -341,12 +388,21 @@ static struct irqaction mct_comp_event_irq = {
 	.dev_id		= &mct_comp_device,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int exynos4_clockevent_init(void)
 {
 	mct_comp_device.cpumask = cpumask_of(0);
 	clockevents_config_and_register(&mct_comp_device, clk_rate,
 					0xf, 0xffffffff);
+<<<<<<< HEAD
 	setup_irq(mct_irqs[MCT_G0_IRQ], &mct_comp_event_irq);
+=======
+	if (request_irq(mct_irqs[MCT_G0_IRQ], exynos4_mct_comp_isr,
+			IRQF_TIMER | IRQF_IRQPOLL, "mct_comp_irq",
+			&mct_comp_device))
+		pr_err("%s: request_irq() failed\n", "mct_comp_irq");
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -465,8 +521,14 @@ static int exynos4_mct_starting_cpu(unsigned int cpu)
 	evt->set_state_oneshot = set_state_shutdown;
 	evt->set_state_oneshot_stopped = set_state_shutdown;
 	evt->tick_resume = set_state_shutdown;
+<<<<<<< HEAD
 	evt->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
 	evt->rating = 500;	/* use value higher than ARM arch timer */
+=======
+	evt->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT |
+			CLOCK_EVT_FEAT_PERCPU;
+	evt->rating = MCT_CLKEVENTS_RATING,
+>>>>>>> upstream/android-13
 
 	exynos4_mct_write(TICK_BASE_CNT, mevt->base + MCT_L_TCNTB_OFFSET);
 
@@ -503,6 +565,7 @@ static int exynos4_mct_dying_cpu(unsigned int cpu)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __init exynos4_timer_resources(struct device_node *np, void __iomem *base)
 {
 	int err, cpu;
@@ -510,18 +573,62 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
 
 	tick_clk = np ? of_clk_get_by_name(np, "fin_pll") :
 				clk_get(NULL, "fin_pll");
+=======
+static int __init exynos4_timer_resources(struct device_node *np)
+{
+	struct clk *mct_clk, *tick_clk;
+
+	reg_base = of_iomap(np, 0);
+	if (!reg_base)
+		panic("%s: unable to ioremap mct address space\n", __func__);
+
+	tick_clk = of_clk_get_by_name(np, "fin_pll");
+>>>>>>> upstream/android-13
 	if (IS_ERR(tick_clk))
 		panic("%s: unable to determine tick clock rate\n", __func__);
 	clk_rate = clk_get_rate(tick_clk);
 
+<<<<<<< HEAD
 	mct_clk = np ? of_clk_get_by_name(np, "mct") : clk_get(NULL, "mct");
+=======
+	mct_clk = of_clk_get_by_name(np, "mct");
+>>>>>>> upstream/android-13
 	if (IS_ERR(mct_clk))
 		panic("%s: unable to retrieve mct clock instance\n", __func__);
 	clk_prepare_enable(mct_clk);
 
+<<<<<<< HEAD
 	reg_base = base;
 	if (!reg_base)
 		panic("%s: unable to ioremap mct address space\n", __func__);
+=======
+	return 0;
+}
+
+static int __init exynos4_timer_interrupts(struct device_node *np,
+					   unsigned int int_type)
+{
+	int nr_irqs, i, err, cpu;
+
+	mct_int_type = int_type;
+
+	/* This driver uses only one global timer interrupt */
+	mct_irqs[MCT_G0_IRQ] = irq_of_parse_and_map(np, MCT_G0_IRQ);
+
+	/*
+	 * Find out the number of local irqs specified. The local
+	 * timer irqs are specified after the four global timer
+	 * irqs are specified.
+	 */
+	nr_irqs = of_irq_count(np);
+	if (nr_irqs > ARRAY_SIZE(mct_irqs)) {
+		pr_err("exynos-mct: too many (%d) interrupts configured in DT\n",
+			nr_irqs);
+		nr_irqs = ARRAY_SIZE(mct_irqs);
+	}
+	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
+		mct_irqs[i] = irq_of_parse_and_map(np, i);
+>>>>>>> upstream/android-13
 
 	if (mct_int_type == MCT_INT_PPI) {
 
@@ -532,11 +639,21 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
 		     mct_irqs[MCT_L0_IRQ], err);
 	} else {
 		for_each_possible_cpu(cpu) {
+<<<<<<< HEAD
 			int mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
+=======
+			int mct_irq;
+>>>>>>> upstream/android-13
 			struct mct_clock_event_device *pcpu_mevt =
 				per_cpu_ptr(&percpu_mct_tick, cpu);
 
 			pcpu_mevt->evt.irq = -1;
+<<<<<<< HEAD
+=======
+			if (MCT_L0_IRQ + cpu >= ARRAY_SIZE(mct_irqs))
+				break;
+			mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
+>>>>>>> upstream/android-13
 
 			irq_set_status_flags(mct_irq, IRQ_NOAUTOEN);
 			if (request_irq(mct_irq,
@@ -581,6 +698,7 @@ out_irq:
 
 static int __init mct_init_dt(struct device_node *np, unsigned int int_type)
 {
+<<<<<<< HEAD
 	u32 nr_irqs, i;
 	int ret;
 
@@ -603,6 +721,15 @@ static int __init mct_init_dt(struct device_node *np, unsigned int int_type)
 		mct_irqs[i] = irq_of_parse_and_map(np, i);
 
 	ret = exynos4_timer_resources(np, of_iomap(np, 0));
+=======
+	int ret;
+
+	ret = exynos4_timer_resources(np);
+	if (ret)
+		return ret;
+
+	ret = exynos4_timer_interrupts(np, int_type);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -610,6 +737,24 @@ static int __init mct_init_dt(struct device_node *np, unsigned int int_type)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_SEC_BOOTSTAT)) {
+		unsigned long __clk_rate;
+		u64 ts_msec;
+
+		exynos_mct_start = exynos4_read_count_64();
+		__clk_rate = clk_rate / 1000;
+		if (__clk_rate)
+			exynos_mct_start /= __clk_rate;
+
+		ts_msec = local_clock();
+		do_div(ts_msec, 1000000);
+
+		exynos_mct_start -= ts_msec;
+	}
+
+>>>>>>> upstream/android-13
 	return exynos4_clockevent_init();
 }
 

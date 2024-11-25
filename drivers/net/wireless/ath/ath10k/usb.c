@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: ISC
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2007-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2012,2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2016-2017 Erik Stromdahl <erik.stromdahl@gmail.com>
+<<<<<<< HEAD
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +19,8 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -536,7 +543,11 @@ static int ath10k_usb_submit_ctrl_in(struct ath10k *ar,
 			      req,
 			      USB_DIR_IN | USB_TYPE_VENDOR |
 			      USB_RECIP_DEVICE, value, index, buf,
+<<<<<<< HEAD
 			      size, 2 * HZ);
+=======
+			      size, 2000);
+>>>>>>> upstream/android-13
 
 	if (ret < 0) {
 		ath10k_warn(ar, "Failed to read usb control message: %d\n",
@@ -704,6 +715,7 @@ static int ath10k_usb_hif_map_service_to_pipe(struct ath10k *ar, u16 svc_id,
 	return 0;
 }
 
+<<<<<<< HEAD
 /* This op is currently only used by htc_wait_target if the HTC ready
  * message times out. It is not applicable for USB since there is nothing
  * we can do if the HTC ready message does not arrive in time.
@@ -716,6 +728,10 @@ static void ath10k_usb_hif_send_complete_check(struct ath10k *ar,
 }
 
 static int ath10k_usb_hif_power_up(struct ath10k *ar)
+=======
+static int ath10k_usb_hif_power_up(struct ath10k *ar,
+				   enum ath10k_firmware_mode fw_mode)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -747,7 +763,10 @@ static const struct ath10k_hif_ops ath10k_usb_hif_ops = {
 	.stop			= ath10k_usb_hif_stop,
 	.map_service_to_pipe	= ath10k_usb_hif_map_service_to_pipe,
 	.get_default_pipe	= ath10k_usb_hif_get_default_pipe,
+<<<<<<< HEAD
 	.send_complete_check	= ath10k_usb_hif_send_complete_check,
+=======
+>>>>>>> upstream/android-13
 	.get_free_queue_number	= ath10k_usb_hif_get_free_queue_number,
 	.power_up		= ath10k_usb_hif_power_up,
 	.power_down		= ath10k_usb_hif_power_down,
@@ -846,7 +865,11 @@ static int ath10k_usb_setup_pipe_resources(struct ath10k *ar,
 
 	ath10k_dbg(ar, ATH10K_DBG_USB, "usb setting up pipes using interface\n");
 
+<<<<<<< HEAD
 	/* walk decriptors and setup pipes */
+=======
+	/* walk descriptors and setup pipes */
+>>>>>>> upstream/android-13
 	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
 		endpoint = &iface_desc->endpoint[i].desc;
 
@@ -875,6 +898,14 @@ static int ath10k_usb_setup_pipe_resources(struct ath10k *ar,
 				   le16_to_cpu(endpoint->wMaxPacketSize),
 				   endpoint->bInterval);
 		}
+<<<<<<< HEAD
+=======
+
+		/* Ignore broken descriptors. */
+		if (usb_endpoint_maxp(endpoint) == 0)
+			continue;
+
+>>>>>>> upstream/android-13
 		urbcount = 0;
 
 		pipe_num =
@@ -992,7 +1023,11 @@ static int ath10k_usb_probe(struct usb_interface *interface,
 	struct usb_device *dev = interface_to_usbdev(interface);
 	int ret, vendor_id, product_id;
 	enum ath10k_hw_rev hw_rev;
+<<<<<<< HEAD
 	u32 chip_id;
+=======
+	struct ath10k_bus_params bus_params = {};
+>>>>>>> upstream/android-13
 
 	/* Assumption: All USB based chipsets (so far) are QCA9377 based.
 	 * If there will be newer chipsets that does not use the hw reg
@@ -1027,9 +1062,16 @@ static int ath10k_usb_probe(struct usb_interface *interface,
 	ar->id.vendor = vendor_id;
 	ar->id.device = product_id;
 
+<<<<<<< HEAD
 	/* TODO: don't know yet how to get chip_id with USB */
 	chip_id = 0;
 	ret = ath10k_core_register(ar, chip_id);
+=======
+	bus_params.dev_type = ATH10K_DEV_TYPE_HL;
+	/* TODO: don't know yet how to get chip_id with USB */
+	bus_params.chip_id = 0;
+	ret = ath10k_core_register(ar, &bus_params);
+>>>>>>> upstream/android-13
 	if (ret) {
 		ath10k_warn(ar, "failed to register driver core: %d\n", ret);
 		goto err_usb_destroy;

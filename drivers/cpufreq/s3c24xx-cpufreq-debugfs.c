@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2009 Simtec Electronics
  *	http://armlinux.simtec.co.uk/
  *	Ben Dooks <ben@simtec.co.uk>
  *
  * S3C24XX CPU Frequency scaling - debugfs status support
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
 */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -21,7 +28,11 @@
 #include <linux/seq_file.h>
 #include <linux/err.h>
 
+<<<<<<< HEAD
 #include <plat/cpu-freq-core.h>
+=======
+#include <linux/soc/samsung/s3c-cpufreq-core.h>
+>>>>>>> upstream/android-13
 
 static struct dentry *dbgfs_root;
 static struct dentry *dbgfs_file_io;
@@ -63,6 +74,7 @@ static int board_show(struct seq_file *seq, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fops_board_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, board_show, NULL);
@@ -75,6 +87,9 @@ static const struct file_operations fops_board = {
 	.release	= single_release,
 	.owner		= THIS_MODULE,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(board);
+>>>>>>> upstream/android-13
 
 static int info_show(struct seq_file *seq, void *p)
 {
@@ -105,6 +120,7 @@ static int info_show(struct seq_file *seq, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fops_info_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, info_show, NULL);
@@ -117,6 +133,9 @@ static const struct file_operations fops_info = {
 	.release	= single_release,
 	.owner		= THIS_MODULE,
 };
+=======
+DEFINE_SHOW_ATTRIBUTE(info);
+>>>>>>> upstream/android-13
 
 static int io_show(struct seq_file *seq, void *p)
 {
@@ -162,6 +181,7 @@ static int io_show(struct seq_file *seq, void *p)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fops_io_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, io_show, NULL);
@@ -175,6 +195,9 @@ static const struct file_operations fops_io = {
 	.owner		= THIS_MODULE,
 };
 
+=======
+DEFINE_SHOW_ATTRIBUTE(io);
+>>>>>>> upstream/android-13
 
 static int __init s3c_freq_debugfs_init(void)
 {
@@ -185,6 +208,7 @@ static int __init s3c_freq_debugfs_init(void)
 	}
 
 	dbgfs_file_io = debugfs_create_file("io-timing", S_IRUGO, dbgfs_root,
+<<<<<<< HEAD
 					    NULL, &fops_io);
 
 	dbgfs_file_info = debugfs_create_file("info", S_IRUGO, dbgfs_root,
@@ -192,6 +216,15 @@ static int __init s3c_freq_debugfs_init(void)
 
 	dbgfs_file_board = debugfs_create_file("board", S_IRUGO, dbgfs_root,
 					       NULL, &fops_board);
+=======
+					    NULL, &io_fops);
+
+	dbgfs_file_info = debugfs_create_file("info", S_IRUGO, dbgfs_root,
+					      NULL, &info_fops);
+
+	dbgfs_file_board = debugfs_create_file("board", S_IRUGO, dbgfs_root,
+					       NULL, &board_fops);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

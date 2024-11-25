@@ -25,11 +25,16 @@
  */
 
 #include <acpi/video.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include <drm/drm_atomic.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_fb_helper.h>
+<<<<<<< HEAD
 
 #include <nvif/class.h>
 
@@ -37,10 +42,20 @@
 #include "dispnv04/hw.h"
 #include "nouveau_crtc.h"
 #include "nouveau_dma.h"
+=======
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_framebuffer_helper.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_vblank.h>
+
+#include "nouveau_fbcon.h"
+#include "nouveau_crtc.h"
+>>>>>>> upstream/android-13
 #include "nouveau_gem.h"
 #include "nouveau_connector.h"
 #include "nv50_display.h"
 
+<<<<<<< HEAD
 #include "nouveau_fence.h"
 
 #include <nvif/cl0046.h>
@@ -65,6 +80,18 @@ nouveau_display_vblank_enable(struct drm_device *dev, unsigned int pipe)
 	if (!crtc)
 		return -EINVAL;
 
+=======
+#include <nvif/class.h>
+#include <nvif/cl0046.h>
+#include <nvif/event.h>
+#include <dispnv50/crc.h>
+
+int
+nouveau_display_vblank_enable(struct drm_crtc *crtc)
+{
+	struct nouveau_crtc *nv_crtc;
+
+>>>>>>> upstream/android-13
 	nv_crtc = nouveau_crtc(crtc);
 	nvif_notify_get(&nv_crtc->vblank);
 
@@ -72,6 +99,7 @@ nouveau_display_vblank_enable(struct drm_device *dev, unsigned int pipe)
 }
 
 void
+<<<<<<< HEAD
 nouveau_display_vblank_disable(struct drm_device *dev, unsigned int pipe)
 {
 	struct drm_crtc *crtc;
@@ -81,6 +109,12 @@ nouveau_display_vblank_disable(struct drm_device *dev, unsigned int pipe)
 	if (!crtc)
 		return;
 
+=======
+nouveau_display_vblank_disable(struct drm_crtc *crtc)
+{
+	struct nouveau_crtc *nv_crtc;
+
+>>>>>>> upstream/android-13
 	nv_crtc = nouveau_crtc(crtc);
 	nvif_notify_put(&nv_crtc->vblank);
 }
@@ -138,11 +172,16 @@ nouveau_display_scanoutpos_head(struct drm_crtc *crtc, int *vpos, int *hpos,
 }
 
 bool
+<<<<<<< HEAD
 nouveau_display_scanoutpos(struct drm_device *dev, unsigned int pipe,
+=======
+nouveau_display_scanoutpos(struct drm_crtc *crtc,
+>>>>>>> upstream/android-13
 			   bool in_vblank_irq, int *vpos, int *hpos,
 			   ktime_t *stime, ktime_t *etime,
 			   const struct drm_display_mode *mode)
 {
+<<<<<<< HEAD
 	struct drm_crtc *crtc;
 
 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
@@ -234,6 +273,193 @@ nouveau_framebuffer_new(struct drm_device *dev,
 {
 	struct nouveau_drm *drm = nouveau_drm(dev);
 	struct nouveau_framebuffer *fb;
+=======
+	return nouveau_display_scanoutpos_head(crtc, vpos, hpos,
+					       stime, etime);
+}
+
+static const struct drm_framebuffer_funcs nouveau_framebuffer_funcs = {
+	.destroy = drm_gem_fb_destroy,
+	.create_handle = drm_gem_fb_create_handle,
+};
+
+static void
+nouveau_decode_mod(struct nouveau_drm *drm,
+		   uint64_t modifier,
+		   uint32_t *tile_mode,
+		   uint8_t *kind)
+{
+	struct nouveau_display *disp = nouveau_display(drm->dev);
+	BUG_ON(!tile_mode || !kind);
+
+	if (modifier == DRM_FORMAT_MOD_LINEAR) {
+		/* tile_mode will not be used in this case */
+		*tile_mode = 0;
+		*kind = 0;
+	} else {
+		/*
+		 * Extract the block height and kind from the corresponding
+		 * modifier fields.  See drm_fourcc.h for details.
+		 */
+
+		if ((modifier & (0xffull << 12)) == 0ull) {
+			/* Legacy modifier.  Translate to this dev's 'kind.' */
+			modifier |= disp->format_modifiers[0] & (0xffull << 12);
+		}
+
+		*tile_mode = (uint32_t)(modifier & 0xF);
+		*kind = (uint8_t)((modifier >> 12) & 0xFF);
+
+		if (drm->client.device.info.chipset >= 0xc0)
+			*tile_mode <<= 4;
+	}
+}
+
+void
+nouveau_framebuffer_get_layout(struct drm_framebuffer *fb,
+			       uint32_t *tile_mode,
+			       uint8_t *kind)
+{
+	if (fb->flags & DRM_MODE_FB_MODIFIERS) {
+		struct nouveau_drm *drm = nouveau_drm(fb->dev);
+
+		nouveau_decode_mod(drm, fb->modifier, tile_mode, kind);
+	} else {
+		const struct nouveau_bo *nvbo = nouveau_gem_object(fb->obj[0]);
+
+		*tile_mode = nvbo->mode;
+		*kind = nvbo->kind;
+	}
+}
+
+static const u64 legacy_modifiers[] = {
+	DRM_FORMAT_MOD_NVIDIA_16BX2_BLOCK(0),
+	DRM_FORMAT_MOD_NVIDIA_16BX2_BLOCK(1),
+	DRM_FORMAT_MOD_NVIDIA_16BX2_BLOCK(2),
+	DRM_FORMAT_MOD_NVIDIA_16BX2_BLOCK(3),
+	DRM_FORMAT_MOD_NVIDIA_16BX2_BLOCK(4),
+	DRM_FORMAT_MOD_NVIDIA_16BX2_BLOCK(5),
+	DRM_FORMAT_MOD_INVALID
+};
+
+static int
+nouveau_validate_decode_mod(struct nouveau_drm *drm,
+			    uint64_t modifier,
+			    uint32_t *tile_mode,
+			    uint8_t *kind)
+{
+	struct nouveau_display *disp = nouveau_display(drm->dev);
+	int mod;
+
+	if (drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA) {
+		return -EINVAL;
+	}
+
+	BUG_ON(!disp->format_modifiers);
+
+	for (mod = 0;
+	     (disp->format_modifiers[mod] != DRM_FORMAT_MOD_INVALID) &&
+	     (disp->format_modifiers[mod] != modifier);
+	     mod++);
+
+	if (disp->format_modifiers[mod] == DRM_FORMAT_MOD_INVALID) {
+		for (mod = 0;
+		     (legacy_modifiers[mod] != DRM_FORMAT_MOD_INVALID) &&
+		     (legacy_modifiers[mod] != modifier);
+		     mod++);
+		if (legacy_modifiers[mod] == DRM_FORMAT_MOD_INVALID)
+			return -EINVAL;
+	}
+
+	nouveau_decode_mod(drm, modifier, tile_mode, kind);
+
+	return 0;
+}
+
+static inline uint32_t
+nouveau_get_width_in_blocks(uint32_t stride)
+{
+	/* GOBs per block in the x direction is always one, and GOBs are
+	 * 64 bytes wide
+	 */
+	static const uint32_t log_block_width = 6;
+
+	return (stride + (1 << log_block_width) - 1) >> log_block_width;
+}
+
+static inline uint32_t
+nouveau_get_height_in_blocks(struct nouveau_drm *drm,
+			     uint32_t height,
+			     uint32_t log_block_height_in_gobs)
+{
+	uint32_t log_gob_height;
+	uint32_t log_block_height;
+
+	BUG_ON(drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA);
+
+	if (drm->client.device.info.family < NV_DEVICE_INFO_V0_FERMI)
+		log_gob_height = 2;
+	else
+		log_gob_height = 3;
+
+	log_block_height = log_block_height_in_gobs + log_gob_height;
+
+	return (height + (1 << log_block_height) - 1) >> log_block_height;
+}
+
+static int
+nouveau_check_bl_size(struct nouveau_drm *drm, struct nouveau_bo *nvbo,
+		      uint32_t offset, uint32_t stride, uint32_t h,
+		      uint32_t tile_mode)
+{
+	uint32_t gob_size, bw, bh;
+	uint64_t bl_size;
+
+	BUG_ON(drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA);
+
+	if (drm->client.device.info.chipset >= 0xc0) {
+		if (tile_mode & 0xF)
+			return -EINVAL;
+		tile_mode >>= 4;
+	}
+
+	if (tile_mode & 0xFFFFFFF0)
+		return -EINVAL;
+
+	if (drm->client.device.info.family < NV_DEVICE_INFO_V0_FERMI)
+		gob_size = 256;
+	else
+		gob_size = 512;
+
+	bw = nouveau_get_width_in_blocks(stride);
+	bh = nouveau_get_height_in_blocks(drm, h, tile_mode);
+
+	bl_size = bw * bh * (1 << tile_mode) * gob_size;
+
+	DRM_DEBUG_KMS("offset=%u stride=%u h=%u tile_mode=0x%02x bw=%u bh=%u gob_size=%u bl_size=%llu size=%zu\n",
+		      offset, stride, h, tile_mode, bw, bh, gob_size, bl_size,
+		      nvbo->bo.base.size);
+
+	if (bl_size + offset > nvbo->bo.base.size)
+		return -ERANGE;
+
+	return 0;
+}
+
+int
+nouveau_framebuffer_new(struct drm_device *dev,
+			const struct drm_mode_fb_cmd2 *mode_cmd,
+			struct drm_gem_object *gem,
+			struct drm_framebuffer **pfb)
+{
+	struct nouveau_drm *drm = nouveau_drm(dev);
+	struct nouveau_bo *nvbo = nouveau_gem_object(gem);
+	struct drm_framebuffer *fb;
+	const struct drm_format_info *info;
+	unsigned int width, height, i;
+	uint32_t tile_mode;
+	uint8_t kind;
+>>>>>>> upstream/android-13
 	int ret;
 
         /* YUV overlays have special requirements pre-NV50 */
@@ -247,6 +473,7 @@ nouveau_framebuffer_new(struct drm_device *dev,
 	     mode_cmd->pitches[0] >= 0x10000 || /* at most 64k pitch */
 	     (mode_cmd->pitches[1] && /* pitches for planes must match */
 	      mode_cmd->pitches[0] != mode_cmd->pitches[1]))) {
+<<<<<<< HEAD
 		struct drm_format_name_buf format_name;
 		DRM_DEBUG_KMS("Unsuitable framebuffer: format: %s; pitches: 0x%x\n 0x%x\n",
 			      drm_get_format_name(mode_cmd->pixel_format,
@@ -263,6 +490,58 @@ nouveau_framebuffer_new(struct drm_device *dev,
 	fb->nvbo = nvbo;
 
 	ret = drm_framebuffer_init(dev, &fb->base, &nouveau_framebuffer_funcs);
+=======
+		DRM_DEBUG_KMS("Unsuitable framebuffer: format: %p4cc; pitches: 0x%x\n 0x%x\n",
+			      &mode_cmd->pixel_format,
+			      mode_cmd->pitches[0], mode_cmd->pitches[1]);
+		return -EINVAL;
+	}
+
+	if (mode_cmd->flags & DRM_MODE_FB_MODIFIERS) {
+		if (nouveau_validate_decode_mod(drm, mode_cmd->modifier[0],
+						&tile_mode, &kind)) {
+			DRM_DEBUG_KMS("Unsupported modifier: 0x%llx\n",
+				      mode_cmd->modifier[0]);
+			return -EINVAL;
+		}
+	} else {
+		tile_mode = nvbo->mode;
+		kind = nvbo->kind;
+	}
+
+	info = drm_get_format_info(dev, mode_cmd);
+
+	for (i = 0; i < info->num_planes; i++) {
+		width = drm_format_info_plane_width(info,
+						    mode_cmd->width,
+						    i);
+		height = drm_format_info_plane_height(info,
+						      mode_cmd->height,
+						      i);
+
+		if (kind) {
+			ret = nouveau_check_bl_size(drm, nvbo,
+						    mode_cmd->offsets[i],
+						    mode_cmd->pitches[i],
+						    height, tile_mode);
+			if (ret)
+				return ret;
+		} else {
+			uint32_t size = mode_cmd->pitches[i] * height;
+
+			if (size + mode_cmd->offsets[i] > nvbo->bo.base.size)
+				return -ERANGE;
+		}
+	}
+
+	if (!(fb = *pfb = kzalloc(sizeof(*fb), GFP_KERNEL)))
+		return -ENOMEM;
+
+	drm_helper_mode_fill_fb_struct(dev, fb, mode_cmd);
+	fb->obj[0] = gem;
+
+	ret = drm_framebuffer_init(dev, fb, &nouveau_framebuffer_funcs);
+>>>>>>> upstream/android-13
 	if (ret)
 		kfree(fb);
 	return ret;
@@ -273,14 +552,19 @@ nouveau_user_framebuffer_create(struct drm_device *dev,
 				struct drm_file *file_priv,
 				const struct drm_mode_fb_cmd2 *mode_cmd)
 {
+<<<<<<< HEAD
 	struct nouveau_framebuffer *fb;
 	struct nouveau_bo *nvbo;
+=======
+	struct drm_framebuffer *fb;
+>>>>>>> upstream/android-13
 	struct drm_gem_object *gem;
 	int ret;
 
 	gem = drm_gem_object_lookup(file_priv, mode_cmd->handles[0]);
 	if (!gem)
 		return ERR_PTR(-ENOENT);
+<<<<<<< HEAD
 	nvbo = nouveau_gem_object(gem);
 
 	ret = nouveau_framebuffer_new(dev, mode_cmd, nvbo, &fb);
@@ -288,6 +572,14 @@ nouveau_user_framebuffer_create(struct drm_device *dev,
 		return &fb->base;
 
 	drm_gem_object_put_unlocked(gem);
+=======
+
+	ret = nouveau_framebuffer_new(dev, mode_cmd, gem, &fb);
+	if (ret == 0)
+		return fb;
+
+	drm_gem_object_put(gem);
+>>>>>>> upstream/android-13
 	return ERR_PTR(ret);
 }
 
@@ -347,21 +639,88 @@ static struct nouveau_drm_prop_enum_list dither_depth[] = {
 	}                                                                      \
 } while(0)
 
+<<<<<<< HEAD
+=======
+void
+nouveau_display_hpd_resume(struct drm_device *dev)
+{
+	struct nouveau_drm *drm = nouveau_drm(dev);
+
+	mutex_lock(&drm->hpd_lock);
+	drm->hpd_pending = ~0;
+	mutex_unlock(&drm->hpd_lock);
+
+	schedule_work(&drm->hpd_work);
+}
+
+>>>>>>> upstream/android-13
 static void
 nouveau_display_hpd_work(struct work_struct *work)
 {
 	struct nouveau_drm *drm = container_of(work, typeof(*drm), hpd_work);
+<<<<<<< HEAD
 
 	pm_runtime_get_sync(drm->dev->dev);
 
 	drm_helper_hpd_irq_event(drm->dev);
 
 	pm_runtime_mark_last_busy(drm->dev->dev);
+=======
+	struct drm_device *dev = drm->dev;
+	struct drm_connector *connector;
+	struct drm_connector_list_iter conn_iter;
+	u32 pending;
+	bool changed = false;
+
+	pm_runtime_get_sync(dev->dev);
+
+	mutex_lock(&drm->hpd_lock);
+	pending = drm->hpd_pending;
+	drm->hpd_pending = 0;
+	mutex_unlock(&drm->hpd_lock);
+
+	/* Nothing to do, exit early without updating the last busy counter */
+	if (!pending)
+		goto noop;
+
+	mutex_lock(&dev->mode_config.mutex);
+	drm_connector_list_iter_begin(dev, &conn_iter);
+
+	nouveau_for_each_non_mst_connector_iter(connector, &conn_iter) {
+		enum drm_connector_status old_status = connector->status;
+		u64 old_epoch_counter = connector->epoch_counter;
+
+		if (!(pending & drm_connector_mask(connector)))
+			continue;
+
+		connector->status = drm_helper_probe_detect(connector, NULL,
+							    false);
+		if (old_epoch_counter == connector->epoch_counter)
+			continue;
+
+		changed = true;
+		drm_dbg_kms(dev, "[CONNECTOR:%d:%s] status updated from %s to %s (epoch counter %llu->%llu)\n",
+			    connector->base.id, connector->name,
+			    drm_get_connector_status_name(old_status),
+			    drm_get_connector_status_name(connector->status),
+			    old_epoch_counter, connector->epoch_counter);
+	}
+
+	drm_connector_list_iter_end(&conn_iter);
+	mutex_unlock(&dev->mode_config.mutex);
+
+	if (changed)
+		drm_kms_helper_hotplug_event(dev);
+
+	pm_runtime_mark_last_busy(drm->dev->dev);
+noop:
+>>>>>>> upstream/android-13
 	pm_runtime_put_sync(drm->dev->dev);
 }
 
 #ifdef CONFIG_ACPI
 
+<<<<<<< HEAD
 /*
  * Hans de Goede: This define belongs in acpi/video.h, I've submitted a patch
  * to the acpi subsys to move it there from drivers/acpi/acpi_video.c .
@@ -371,6 +730,8 @@ nouveau_display_hpd_work(struct work_struct *work)
 #define ACPI_VIDEO_NOTIFY_PROBE			0x81
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int
 nouveau_display_acpi_ntfy(struct notifier_block *nb, unsigned long val,
 			  void *data)
@@ -389,12 +750,20 @@ nouveau_display_acpi_ntfy(struct notifier_block *nb, unsigned long val,
 				 */
 				pm_runtime_put_autosuspend(drm->dev->dev);
 			} else if (ret == 0) {
+<<<<<<< HEAD
 				/* This may be the only indication we receive
 				 * of a connector hotplug on a runtime
 				 * suspended GPU, schedule hpd_work to check.
 				 */
 				NV_DEBUG(drm, "ACPI requested connector reprobe\n");
 				schedule_work(&drm->hpd_work);
+=======
+				/* We've started resuming the GPU already, so
+				 * it will handle scheduling a full reprobe
+				 * itself
+				 */
+				NV_DEBUG(drm, "ACPI requested connector reprobe\n");
+>>>>>>> upstream/android-13
 				pm_runtime_put_noidle(drm->dev->dev);
 			} else {
 				NV_WARN(drm, "Dropped ACPI reprobe event due to RPM error: %d\n",
@@ -411,15 +780,36 @@ nouveau_display_acpi_ntfy(struct notifier_block *nb, unsigned long val,
 #endif
 
 int
+<<<<<<< HEAD
 nouveau_display_init(struct drm_device *dev)
 {
 	struct nouveau_display *disp = nouveau_display(dev);
 	struct nouveau_drm *drm = nouveau_drm(dev);
+=======
+nouveau_display_init(struct drm_device *dev, bool resume, bool runtime)
+{
+	struct nouveau_display *disp = nouveau_display(dev);
+>>>>>>> upstream/android-13
 	struct drm_connector *connector;
 	struct drm_connector_list_iter conn_iter;
 	int ret;
 
+<<<<<<< HEAD
 	ret = disp->init(dev);
+=======
+	/*
+	 * Enable hotplug interrupts (done as early as possible, since we need
+	 * them for MST)
+	 */
+	drm_connector_list_iter_begin(dev, &conn_iter);
+	nouveau_for_each_non_mst_connector_iter(connector, &conn_iter) {
+		struct nouveau_connector *conn = nouveau_connector(connector);
+		nvif_notify_get(&conn->hpd);
+	}
+	drm_connector_list_iter_end(&conn_iter);
+
+	ret = disp->init(dev, resume, runtime);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
@@ -428,6 +818,7 @@ nouveau_display_init(struct drm_device *dev)
 	 */
 	drm_kms_helper_poll_enable(dev);
 
+<<<<<<< HEAD
 	/* enable hotplug interrupts */
 	drm_connector_list_iter_begin(dev, &conn_iter);
 	nouveau_for_each_non_mst_connector_iter(connector, &conn_iter) {
@@ -438,6 +829,8 @@ nouveau_display_init(struct drm_device *dev)
 
 	/* enable flip completion events */
 	nvif_notify_get(&drm->flip);
+=======
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -453,12 +846,18 @@ nouveau_display_fini(struct drm_device *dev, bool suspend, bool runtime)
 		if (drm_drv_uses_atomic_modeset(dev))
 			drm_atomic_helper_shutdown(dev);
 		else
+<<<<<<< HEAD
 			drm_crtc_force_disable_all(dev);
 	}
 
 	/* disable flip completion events */
 	nvif_notify_put(&drm->flip);
 
+=======
+			drm_helper_force_disable_all(dev);
+	}
+
+>>>>>>> upstream/android-13
 	/* disable hotplug interrupts */
 	drm_connector_list_iter_begin(dev, &conn_iter);
 	nouveau_for_each_non_mst_connector_iter(connector, &conn_iter) {
@@ -471,7 +870,11 @@ nouveau_display_fini(struct drm_device *dev, bool suspend, bool runtime)
 		cancel_work_sync(&drm->hpd_work);
 
 	drm_kms_helper_poll_disable(dev);
+<<<<<<< HEAD
 	disp->fini(dev);
+=======
+	disp->fini(dev, runtime, suspend);
+>>>>>>> upstream/android-13
 }
 
 static void
@@ -559,7 +962,12 @@ nouveau_display_create(struct drm_device *dev)
 	drm_kms_helper_poll_disable(dev);
 
 	if (nouveau_modeset != 2 && drm->vbios.dcb.entries) {
+<<<<<<< HEAD
 		ret = nvif_disp_ctor(&drm->client.device, 0, &disp->disp);
+=======
+		ret = nvif_disp_ctor(&drm->client.device, "kmsDisp", 0,
+				     &disp->disp);
+>>>>>>> upstream/android-13
 		if (ret == 0) {
 			nouveau_display_create_properties(dev);
 			if (disp->disp.object.oclass < NV50_DISP)
@@ -577,6 +985,7 @@ nouveau_display_create(struct drm_device *dev)
 	drm_mode_config_reset(dev);
 
 	if (dev->mode_config.num_crtc) {
+<<<<<<< HEAD
 		ret = nouveau_display_vblank_init(dev);
 		if (ret)
 			goto vblank_err;
@@ -584,6 +993,18 @@ nouveau_display_create(struct drm_device *dev)
 
 	nouveau_backlight_init(dev);
 	INIT_WORK(&drm->hpd_work, nouveau_display_hpd_work);
+=======
+		ret = drm_vblank_init(dev, dev->mode_config.num_crtc);
+		if (ret)
+			goto vblank_err;
+
+		if (disp->disp.object.oclass >= NV50_DISP)
+			nv50_crc_init(dev);
+	}
+
+	INIT_WORK(&drm->hpd_work, nouveau_display_hpd_work);
+	mutex_init(&drm->hpd_lock);
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ACPI
 	drm->acpi_nb.notifier_call = nouveau_display_acpi_ntfy;
 	register_acpi_notifier(&drm->acpi_nb);
@@ -603,12 +1024,20 @@ void
 nouveau_display_destroy(struct drm_device *dev)
 {
 	struct nouveau_display *disp = nouveau_display(dev);
+<<<<<<< HEAD
 
 #ifdef CONFIG_ACPI
 	unregister_acpi_notifier(&nouveau_drm(dev)->acpi_nb);
 #endif
 	nouveau_backlight_exit(dev);
 	nouveau_display_vblank_fini(dev);
+=======
+	struct nouveau_drm *drm = nouveau_drm(dev);
+
+#ifdef CONFIG_ACPI
+	unregister_acpi_notifier(&drm->acpi_nb);
+#endif
+>>>>>>> upstream/android-13
 
 	drm_kms_helper_poll_fini(dev);
 	drm_mode_config_cleanup(dev);
@@ -619,6 +1048,10 @@ nouveau_display_destroy(struct drm_device *dev)
 	nvif_disp_dtor(&disp->disp);
 
 	nouveau_drm(dev)->display = NULL;
+<<<<<<< HEAD
+=======
+	mutex_destroy(&drm->hpd_lock);
+>>>>>>> upstream/android-13
 	kfree(disp);
 }
 
@@ -626,7 +1059,10 @@ int
 nouveau_display_suspend(struct drm_device *dev, bool runtime)
 {
 	struct nouveau_display *disp = nouveau_display(dev);
+<<<<<<< HEAD
 	struct drm_crtc *crtc;
+=======
+>>>>>>> upstream/android-13
 
 	if (drm_drv_uses_atomic_modeset(dev)) {
 		if (!runtime) {
@@ -637,6 +1073,7 @@ nouveau_display_suspend(struct drm_device *dev, bool runtime)
 				return ret;
 			}
 		}
+<<<<<<< HEAD
 
 		nouveau_display_fini(dev, true, runtime);
 		return 0;
@@ -663,6 +1100,11 @@ nouveau_display_suspend(struct drm_device *dev, bool runtime)
 		}
 	}
 
+=======
+	}
+
+	nouveau_display_fini(dev, true, runtime);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -670,18 +1112,26 @@ void
 nouveau_display_resume(struct drm_device *dev, bool runtime)
 {
 	struct nouveau_display *disp = nouveau_display(dev);
+<<<<<<< HEAD
 	struct nouveau_drm *drm = nouveau_drm(dev);
 	struct drm_crtc *crtc;
 	int ret;
 
 	if (drm_drv_uses_atomic_modeset(dev)) {
 		nouveau_display_init(dev);
+=======
+
+	nouveau_display_init(dev, true, runtime);
+
+	if (drm_drv_uses_atomic_modeset(dev)) {
+>>>>>>> upstream/android-13
 		if (disp->suspend) {
 			drm_atomic_helper_resume(dev, disp->suspend);
 			disp->suspend = NULL;
 		}
 		return;
 	}
+<<<<<<< HEAD
 
 	/* re-pin fb/cursors */
 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
@@ -939,6 +1389,8 @@ nouveau_flip_complete(struct nvif_notify *notify)
 	}
 
 	return NVIF_NOTIFY_KEEP;
+=======
+>>>>>>> upstream/android-13
 }
 
 int
@@ -964,6 +1416,7 @@ nouveau_display_dumb_create(struct drm_file *file_priv, struct drm_device *dev,
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = drm_gem_handle_create(file_priv, &bo->gem, &args->handle);
 	drm_gem_object_put_unlocked(&bo->gem);
 	return ret;
@@ -986,3 +1439,9 @@ nouveau_display_dumb_map_offset(struct drm_file *file_priv,
 
 	return -ENOENT;
 }
+=======
+	ret = drm_gem_handle_create(file_priv, &bo->bo.base, &args->handle);
+	drm_gem_object_put(&bo->bo.base);
+	return ret;
+}
+>>>>>>> upstream/android-13

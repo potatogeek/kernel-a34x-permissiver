@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 Maxime Ripard
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,12 +25,32 @@
 #include <linux/clk.h>
 #include <linux/component.h>
 #include <linux/iopoll.h>
+=======
+ */
+
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/iopoll.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/regmap.h>
 #include <linux/reset.h>
 
+<<<<<<< HEAD
+=======
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_encoder.h>
+#include <drm/drm_of.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+
+>>>>>>> upstream/android-13
 #include "sun4i_backend.h"
 #include "sun4i_crtc.h"
 #include "sun4i_drv.h"
@@ -52,7 +77,12 @@ static int sun4i_hdmi_setup_avi_infoframes(struct sun4i_hdmi *hdmi,
 	u8 buffer[17];
 	int i, ret;
 
+<<<<<<< HEAD
 	ret = drm_hdmi_avi_infoframe_from_display_mode(&frame, mode, false);
+=======
+	ret = drm_hdmi_avi_infoframe_from_display_mode(&frame,
+						       &hdmi->connector, mode);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		DRM_ERROR("Failed to get infoframes from mode\n");
 		return ret;
@@ -206,17 +236,24 @@ static const struct drm_encoder_helper_funcs sun4i_hdmi_helper_funcs = {
 	.mode_valid	= sun4i_hdmi_mode_valid,
 };
 
+<<<<<<< HEAD
 static const struct drm_encoder_funcs sun4i_hdmi_funcs = {
 	.destroy	= drm_encoder_cleanup,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int sun4i_hdmi_get_modes(struct drm_connector *connector)
 {
 	struct sun4i_hdmi *hdmi = drm_connector_to_sun4i_hdmi(connector);
 	struct edid *edid;
 	int ret;
 
+<<<<<<< HEAD
 	edid = drm_get_edid(connector, hdmi->i2c);
+=======
+	edid = drm_get_edid(connector, hdmi->ddc_i2c ?: hdmi->i2c);
+>>>>>>> upstream/android-13
 	if (!edid)
 		return 0;
 
@@ -232,6 +269,31 @@ static int sun4i_hdmi_get_modes(struct drm_connector *connector)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static struct i2c_adapter *sun4i_hdmi_get_ddc(struct device *dev)
+{
+	struct device_node *phandle, *remote;
+	struct i2c_adapter *ddc;
+
+	remote = of_graph_get_remote_node(dev->of_node, 1, -1);
+	if (!remote)
+		return ERR_PTR(-EINVAL);
+
+	phandle = of_parse_phandle(remote, "ddc-i2c-bus", 0);
+	of_node_put(remote);
+	if (!phandle)
+		return ERR_PTR(-ENODEV);
+
+	ddc = of_get_i2c_adapter_by_node(phandle);
+	of_node_put(phandle);
+	if (!ddc)
+		return ERR_PTR(-EPROBE_DEFER);
+
+	return ddc;
+}
+
+>>>>>>> upstream/android-13
 static const struct drm_connector_helper_funcs sun4i_hdmi_connector_helper_funcs = {
 	.get_modes	= sun4i_hdmi_get_modes,
 };
@@ -261,7 +323,11 @@ static const struct drm_connector_funcs sun4i_hdmi_connector_funcs = {
 };
 
 #ifdef CONFIG_DRM_SUN4I_HDMI_CEC
+<<<<<<< HEAD
 static bool sun4i_hdmi_cec_pin_read(struct cec_adapter *adap)
+=======
+static int sun4i_hdmi_cec_pin_read(struct cec_adapter *adap)
+>>>>>>> upstream/android-13
 {
 	struct sun4i_hdmi *hdmi = cec_get_drvdata(adap);
 
@@ -469,6 +535,10 @@ static int sun4i_hdmi_bind(struct device *dev, struct device *master,
 {
 	struct platform_device *pdev = to_platform_device(dev);
 	struct drm_device *drm = data;
+<<<<<<< HEAD
+=======
+	struct cec_connector_info conn_info;
+>>>>>>> upstream/android-13
 	struct sun4i_drv *drv = drm->dev_private;
 	struct sun4i_hdmi *hdmi;
 	struct resource *res;
@@ -578,6 +648,7 @@ static int sun4i_hdmi_bind(struct device *dev, struct device *master,
 		goto err_disable_mod_clk;
 	}
 
+<<<<<<< HEAD
 	drm_encoder_helper_add(&hdmi->encoder,
 			       &sun4i_hdmi_helper_funcs);
 	ret = drm_encoder_init(drm,
@@ -588,19 +659,45 @@ static int sun4i_hdmi_bind(struct device *dev, struct device *master,
 	if (ret) {
 		dev_err(dev, "Couldn't initialise the HDMI encoder\n");
 		goto err_del_i2c_adapter;
+=======
+	hdmi->ddc_i2c = sun4i_hdmi_get_ddc(dev);
+	if (IS_ERR(hdmi->ddc_i2c)) {
+		ret = PTR_ERR(hdmi->ddc_i2c);
+		if (ret == -ENODEV)
+			hdmi->ddc_i2c = NULL;
+		else
+			goto err_del_i2c_adapter;
+	}
+
+	drm_encoder_helper_add(&hdmi->encoder,
+			       &sun4i_hdmi_helper_funcs);
+	ret = drm_simple_encoder_init(drm, &hdmi->encoder,
+				      DRM_MODE_ENCODER_TMDS);
+	if (ret) {
+		dev_err(dev, "Couldn't initialise the HDMI encoder\n");
+		goto err_put_ddc_i2c;
+>>>>>>> upstream/android-13
 	}
 
 	hdmi->encoder.possible_crtcs = drm_of_find_possible_crtcs(drm,
 								  dev->of_node);
 	if (!hdmi->encoder.possible_crtcs) {
 		ret = -EPROBE_DEFER;
+<<<<<<< HEAD
 		goto err_del_i2c_adapter;
+=======
+		goto err_put_ddc_i2c;
+>>>>>>> upstream/android-13
 	}
 
 #ifdef CONFIG_DRM_SUN4I_HDMI_CEC
 	hdmi->cec_adap = cec_pin_allocate_adapter(&sun4i_hdmi_cec_pin_ops,
+<<<<<<< HEAD
 		hdmi, "sun4i", CEC_CAP_TRANSMIT | CEC_CAP_LOG_ADDRS |
 		CEC_CAP_PASSTHROUGH | CEC_CAP_RC);
+=======
+		hdmi, "sun4i", CEC_CAP_DEFAULTS | CEC_CAP_CONNECTOR_INFO);
+>>>>>>> upstream/android-13
 	ret = PTR_ERR_OR_ZERO(hdmi->cec_adap);
 	if (ret < 0)
 		goto err_cleanup_connector;
@@ -610,14 +707,26 @@ static int sun4i_hdmi_bind(struct device *dev, struct device *master,
 
 	drm_connector_helper_add(&hdmi->connector,
 				 &sun4i_hdmi_connector_helper_funcs);
+<<<<<<< HEAD
 	ret = drm_connector_init(drm, &hdmi->connector,
 				 &sun4i_hdmi_connector_funcs,
 				 DRM_MODE_CONNECTOR_HDMIA);
+=======
+	ret = drm_connector_init_with_ddc(drm, &hdmi->connector,
+					  &sun4i_hdmi_connector_funcs,
+					  DRM_MODE_CONNECTOR_HDMIA,
+					  hdmi->ddc_i2c);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(dev,
 			"Couldn't initialise the HDMI connector\n");
 		goto err_cleanup_connector;
 	}
+<<<<<<< HEAD
+=======
+	cec_fill_conn_info_from_drm(&conn_info, &hdmi->connector);
+	cec_s_conn_info(hdmi->cec_adap, &conn_info);
+>>>>>>> upstream/android-13
 
 	/* There is no HPD interrupt, so we need to poll the controller */
 	hdmi->connector.polled = DRM_CONNECTOR_POLL_CONNECT |
@@ -633,6 +742,11 @@ static int sun4i_hdmi_bind(struct device *dev, struct device *master,
 err_cleanup_connector:
 	cec_delete_adapter(hdmi->cec_adap);
 	drm_encoder_cleanup(&hdmi->encoder);
+<<<<<<< HEAD
+=======
+err_put_ddc_i2c:
+	i2c_put_adapter(hdmi->ddc_i2c);
+>>>>>>> upstream/android-13
 err_del_i2c_adapter:
 	i2c_del_adapter(hdmi->i2c);
 err_disable_mod_clk:
@@ -651,6 +765,10 @@ static void sun4i_hdmi_unbind(struct device *dev, struct device *master,
 
 	cec_unregister_adapter(hdmi->cec_adap);
 	i2c_del_adapter(hdmi->i2c);
+<<<<<<< HEAD
+=======
+	i2c_put_adapter(hdmi->ddc_i2c);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(hdmi->mod_clk);
 	clk_disable_unprepare(hdmi->bus_clk);
 }

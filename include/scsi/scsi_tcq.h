@@ -23,10 +23,15 @@ static inline struct scsi_cmnd *scsi_host_find_tag(struct Scsi_Host *shost,
 		int tag)
 {
 	struct request *req = NULL;
+<<<<<<< HEAD
+=======
+	u16 hwq;
+>>>>>>> upstream/android-13
 
 	if (tag == SCSI_NO_TAG)
 		return NULL;
 
+<<<<<<< HEAD
 	if (shost_use_blk_mq(shost)) {
 		u16 hwq = blk_mq_unique_tag_to_hwq(tag);
 
@@ -39,6 +44,15 @@ static inline struct scsi_cmnd *scsi_host_find_tag(struct Scsi_Host *shost,
 	}
 
 	if (!req)
+=======
+	hwq = blk_mq_unique_tag_to_hwq(tag);
+	if (hwq < shost->tag_set.nr_hw_queues) {
+		req = blk_mq_tag_to_rq(shost->tag_set.tags[hwq],
+					blk_mq_unique_tag_to_tag(tag));
+	}
+
+	if (!req || !blk_mq_request_started(req))
+>>>>>>> upstream/android-13
 		return NULL;
 	return blk_mq_rq_to_pdu(req);
 }

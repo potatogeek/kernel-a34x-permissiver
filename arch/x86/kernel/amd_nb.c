@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 /*
  * Shared support code for AMD K8 northbridges and derivates.
  * Copyright 2006 Andi Kleen, SUSE Labs. Subject to GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Shared support code for AMD K8 northbridges and derivatives.
+ * Copyright 2006 Andi Kleen, SUSE Labs.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -17,11 +24,24 @@
 #define PCI_DEVICE_ID_AMD_17H_ROOT	0x1450
 #define PCI_DEVICE_ID_AMD_17H_M10H_ROOT	0x15d0
 #define PCI_DEVICE_ID_AMD_17H_M30H_ROOT	0x1480
+<<<<<<< HEAD
 #define PCI_DEVICE_ID_AMD_17H_DF_F4	0x1464
 #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F4 0x15ec
 #define PCI_DEVICE_ID_AMD_17H_M30H_DF_F4 0x1494
 #define PCI_DEVICE_ID_AMD_17H_M70H_DF_F4 0x1444
 #define PCI_DEVICE_ID_AMD_19H_DF_F4	0x1654
+=======
+#define PCI_DEVICE_ID_AMD_17H_M60H_ROOT	0x1630
+#define PCI_DEVICE_ID_AMD_17H_DF_F4	0x1464
+#define PCI_DEVICE_ID_AMD_17H_M10H_DF_F4 0x15ec
+#define PCI_DEVICE_ID_AMD_17H_M30H_DF_F4 0x1494
+#define PCI_DEVICE_ID_AMD_17H_M60H_DF_F4 0x144c
+#define PCI_DEVICE_ID_AMD_17H_M70H_DF_F4 0x1444
+#define PCI_DEVICE_ID_AMD_19H_DF_F4	0x1654
+#define PCI_DEVICE_ID_AMD_19H_M40H_ROOT	0x14b5
+#define PCI_DEVICE_ID_AMD_19H_M40H_DF_F4 0x167d
+#define PCI_DEVICE_ID_AMD_19H_M50H_DF_F4 0x166e
+>>>>>>> upstream/android-13
 
 /* Protect the PCI config register pairs used for SMN and DF indirect access. */
 static DEFINE_MUTEX(smn_mutex);
@@ -32,6 +52,7 @@ static const struct pci_device_id amd_root_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_ROOT) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_ROOT) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_ROOT) },
+<<<<<<< HEAD
 	{}
 };
 
@@ -39,6 +60,16 @@ static const struct pci_device_id amd_root_ids[] = {
 #define PCI_DEVICE_ID_AMD_CNB17H_F4     0x1704
 
 const struct pci_device_id amd_nb_misc_ids[] = {
+=======
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M60H_ROOT) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_M40H_ROOT) },
+	{}
+};
+
+#define PCI_DEVICE_ID_AMD_CNB17H_F4     0x1704
+
+static const struct pci_device_id amd_nb_misc_ids[] = {
+>>>>>>> upstream/android-13
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_K8_NB_MISC) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_10H_NB_MISC) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_15H_NB_F3) },
@@ -50,12 +81,23 @@ const struct pci_device_id amd_nb_misc_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_DF_F3) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
+<<<<<<< HEAD
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F3) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_DF_F3) },
 	{}
 };
 EXPORT_SYMBOL_GPL(amd_nb_misc_ids);
+=======
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M60H_DF_F3) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F3) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_DF_F3) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_M40H_DF_F3) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_M50H_DF_F3) },
+	{}
+};
+>>>>>>> upstream/android-13
 
 static const struct pci_device_id amd_nb_link_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_15H_NB_F4) },
@@ -66,12 +108,38 @@ static const struct pci_device_id amd_nb_link_ids[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_DF_F4) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F4) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F4) },
+<<<<<<< HEAD
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F4) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_DF_F4) },
+=======
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M60H_DF_F4) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F4) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_DF_F4) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_M40H_DF_F4) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_M50H_DF_F4) },
+>>>>>>> upstream/android-13
 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F4) },
 	{}
 };
 
+<<<<<<< HEAD
+=======
+static const struct pci_device_id hygon_root_ids[] = {
+	{ PCI_DEVICE(PCI_VENDOR_ID_HYGON, PCI_DEVICE_ID_AMD_17H_ROOT) },
+	{}
+};
+
+static const struct pci_device_id hygon_nb_misc_ids[] = {
+	{ PCI_DEVICE(PCI_VENDOR_ID_HYGON, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+	{}
+};
+
+static const struct pci_device_id hygon_nb_link_ids[] = {
+	{ PCI_DEVICE(PCI_VENDOR_ID_HYGON, PCI_DEVICE_ID_AMD_17H_DF_F4) },
+	{}
+};
+
+>>>>>>> upstream/android-13
 const struct amd_nb_bus_dev_range amd_nb_bus_dev_ranges[] __initconst = {
 	{ 0x00, 0x18, 0x20 },
 	{ 0xff, 0x00, 0x20 },
@@ -205,13 +273,26 @@ EXPORT_SYMBOL_GPL(amd_df_indirect_read);
 
 int amd_cache_northbridges(void)
 {
+<<<<<<< HEAD
 	u16 i = 0;
 	struct amd_northbridge *nb;
 	struct pci_dev *root, *misc, *link;
+=======
+	const struct pci_device_id *misc_ids = amd_nb_misc_ids;
+	const struct pci_device_id *link_ids = amd_nb_link_ids;
+	const struct pci_device_id *root_ids = amd_root_ids;
+	struct pci_dev *root, *misc, *link;
+	struct amd_northbridge *nb;
+	u16 roots_per_misc = 0;
+	u16 misc_count = 0;
+	u16 root_count = 0;
+	u16 i, j;
+>>>>>>> upstream/android-13
 
 	if (amd_northbridges.num)
 		return 0;
 
+<<<<<<< HEAD
 	misc = NULL;
 	while ((misc = next_northbridge(misc, amd_nb_misc_ids)) != NULL)
 		i++;
@@ -220,10 +301,44 @@ int amd_cache_northbridges(void)
 		return -ENODEV;
 
 	nb = kcalloc(i, sizeof(struct amd_northbridge), GFP_KERNEL);
+=======
+	if (boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
+		root_ids = hygon_root_ids;
+		misc_ids = hygon_nb_misc_ids;
+		link_ids = hygon_nb_link_ids;
+	}
+
+	misc = NULL;
+	while ((misc = next_northbridge(misc, misc_ids)) != NULL)
+		misc_count++;
+
+	if (!misc_count)
+		return -ENODEV;
+
+	root = NULL;
+	while ((root = next_northbridge(root, root_ids)) != NULL)
+		root_count++;
+
+	if (root_count) {
+		roots_per_misc = root_count / misc_count;
+
+		/*
+		 * There should be _exactly_ N roots for each DF/SMN
+		 * interface.
+		 */
+		if (!roots_per_misc || (root_count % roots_per_misc)) {
+			pr_info("Unsupported AMD DF/PCI configuration found\n");
+			return -ENODEV;
+		}
+	}
+
+	nb = kcalloc(misc_count, sizeof(struct amd_northbridge), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!nb)
 		return -ENOMEM;
 
 	amd_northbridges.nb = nb;
+<<<<<<< HEAD
 	amd_northbridges.num = i;
 
 	link = misc = root = NULL;
@@ -234,6 +349,30 @@ int amd_cache_northbridges(void)
 			next_northbridge(misc, amd_nb_misc_ids);
 		node_to_amd_nb(i)->link = link =
 			next_northbridge(link, amd_nb_link_ids);
+=======
+	amd_northbridges.num = misc_count;
+
+	link = misc = root = NULL;
+	for (i = 0; i < amd_northbridges.num; i++) {
+		node_to_amd_nb(i)->root = root =
+			next_northbridge(root, root_ids);
+		node_to_amd_nb(i)->misc = misc =
+			next_northbridge(misc, misc_ids);
+		node_to_amd_nb(i)->link = link =
+			next_northbridge(link, link_ids);
+
+		/*
+		 * If there are more PCI root devices than data fabric/
+		 * system management network interfaces, then the (N)
+		 * PCI roots per DF/SMN interface are functionally the
+		 * same (for DF/SMN access) and N-1 are redundant.  N-1
+		 * PCI roots should be skipped per DF/SMN interface so
+		 * the following DF/SMN interfaces get mapped to
+		 * correct PCI roots.
+		 */
+		for (j = 1; j < roots_per_misc; j++)
+			root = next_northbridge(root, root_ids);
+>>>>>>> upstream/android-13
 	}
 
 	if (amd_gart_present())
@@ -272,11 +411,27 @@ EXPORT_SYMBOL_GPL(amd_cache_northbridges);
  */
 bool __init early_is_amd_nb(u32 device)
 {
+<<<<<<< HEAD
 	const struct pci_device_id *id;
 	u32 vendor = device & 0xffff;
 
 	device >>= 16;
 	for (id = amd_nb_misc_ids; id->vendor; id++)
+=======
+	const struct pci_device_id *misc_ids = amd_nb_misc_ids;
+	const struct pci_device_id *id;
+	u32 vendor = device & 0xffff;
+
+	if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
+	    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
+		return false;
+
+	if (boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
+		misc_ids = hygon_nb_misc_ids;
+
+	device >>= 16;
+	for (id = misc_ids; id->vendor; id++)
+>>>>>>> upstream/android-13
 		if (vendor == id->vendor && device == id->device)
 			return true;
 	return false;
@@ -288,7 +443,12 @@ struct resource *amd_get_mmconfig_range(struct resource *res)
 	u64 base, msr;
 	unsigned int segn_busn_bits;
 
+<<<<<<< HEAD
 	if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD)
+=======
+	if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
+	    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
+>>>>>>> upstream/android-13
 		return NULL;
 
 	/* assume all cpus from fam10h have mmconfig */
@@ -315,7 +475,11 @@ struct resource *amd_get_mmconfig_range(struct resource *res)
 
 int amd_get_subcaches(int cpu)
 {
+<<<<<<< HEAD
 	struct pci_dev *link = node_to_amd_nb(amd_get_nb_id(cpu))->link;
+=======
+	struct pci_dev *link = node_to_amd_nb(topology_die_id(cpu))->link;
+>>>>>>> upstream/android-13
 	unsigned int mask;
 
 	if (!amd_nb_has_feature(AMD_NB_L3_PARTITIONING))
@@ -329,7 +493,11 @@ int amd_get_subcaches(int cpu)
 int amd_set_subcaches(int cpu, unsigned long mask)
 {
 	static unsigned int reset, ban;
+<<<<<<< HEAD
 	struct amd_northbridge *nb = node_to_amd_nb(amd_get_nb_id(cpu));
+=======
+	struct amd_northbridge *nb = node_to_amd_nb(topology_die_id(cpu));
+>>>>>>> upstream/android-13
 	unsigned int reg;
 	int cuid;
 

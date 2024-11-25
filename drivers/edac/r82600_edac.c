@@ -204,7 +204,10 @@ static void r82600_check(struct mem_ctl_info *mci)
 {
 	struct r82600_error_info info;
 
+<<<<<<< HEAD
 	edac_dbg(1, "MC%d\n", mci->mc_idx);
+=======
+>>>>>>> upstream/android-13
 	r82600_get_error_info(mci, &info);
 	r82600_process_error_info(mci, &info, 1);
 }

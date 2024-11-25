@@ -72,6 +72,7 @@ lboard_t *find_lboard_class(lboard_t *start, unsigned char brd_type)
 	/* Didn't find it. */
 	return (lboard_t *)NULL;
 }
+<<<<<<< HEAD
 
 cnodeid_t get_cpu_cnode(cpuid_t cpu)
 {
@@ -133,3 +134,5 @@ int get_cpu_slice(cpuid_t cpu)
 		return -1;
 	return acpu->cpu_info.physid;
 }
+=======
+>>>>>>> upstream/android-13

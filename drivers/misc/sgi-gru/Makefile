@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 ccflags-$(CONFIG_SGI_GRU_DEBUG)	:= -DDEBUG
 
 obj-$(CONFIG_SGI_GRU) := gru.o

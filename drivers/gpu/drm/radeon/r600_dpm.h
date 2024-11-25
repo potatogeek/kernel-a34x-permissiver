@@ -23,6 +23,11 @@
 #ifndef __R600_DPM_H__
 #define __R600_DPM_H__
 
+<<<<<<< HEAD
+=======
+#include "radeon.h"
+
+>>>>>>> upstream/android-13
 #define R600_ASI_DFLT                                10000
 #define R600_BSP_DFLT                                0x41EB
 #define R600_BSU_DFLT                                0x2

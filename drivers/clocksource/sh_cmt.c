@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * SuperH Timer Support - CMT
  *
  *  Copyright (C) 2008 Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -33,6 +40,13 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SUPERH
+#include <asm/platform_early.h>
+#endif
+
+>>>>>>> upstream/android-13
 struct sh_cmt_device;
 
 /*
@@ -239,6 +253,11 @@ static const struct sh_cmt_info sh_cmt_info[] = {
 #define CMCNT 1 /* channel register */
 #define CMCOR 2 /* channel register */
 
+<<<<<<< HEAD
+=======
+#define CMCLKE	0x1000	/* CLK Enable Register (R-Car Gen2) */
+
+>>>>>>> upstream/android-13
 static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
 {
 	if (ch->iostart)
@@ -323,7 +342,10 @@ static int sh_cmt_enable(struct sh_cmt_channel *ch)
 {
 	int k, ret;
 
+<<<<<<< HEAD
 	pm_runtime_get_sync(&ch->cmt->pdev->dev);
+=======
+>>>>>>> upstream/android-13
 	dev_pm_syscore_device(&ch->cmt->pdev->dev, true);
 
 	/* enable clock */
@@ -342,8 +364,14 @@ static int sh_cmt_enable(struct sh_cmt_channel *ch)
 		sh_cmt_write_cmcsr(ch, SH_CMT16_CMCSR_CMIE |
 				   SH_CMT16_CMCSR_CKS512);
 	} else {
+<<<<<<< HEAD
 		sh_cmt_write_cmcsr(ch, SH_CMT32_CMCSR_CMM |
 				   SH_CMT32_CMCSR_CMTOUT_IE |
+=======
+		u32 cmtout = ch->cmt->info->model <= SH_CMT_48BIT ?
+			      SH_CMT32_CMCSR_CMTOUT_IE : 0;
+		sh_cmt_write_cmcsr(ch, cmtout | SH_CMT32_CMCSR_CMM |
+>>>>>>> upstream/android-13
 				   SH_CMT32_CMCSR_CMR_IRQ |
 				   SH_CMT32_CMCSR_CKS_RCLK8);
 	}
@@ -353,7 +381,11 @@ static int sh_cmt_enable(struct sh_cmt_channel *ch)
 
 	/*
 	 * According to the sh73a0 user's manual, as CMCNT can be operated
+<<<<<<< HEAD
 	 * only by the RCLK (Pseudo 32 KHz), there's one restriction on
+=======
+	 * only by the RCLK (Pseudo 32 kHz), there's one restriction on
+>>>>>>> upstream/android-13
 	 * modifying CMCNT register; two RCLK cycles are necessary before
 	 * this register is either read or any modification of the value
 	 * it holds is reflected in the LSI's actual operation.
@@ -398,7 +430,10 @@ static void sh_cmt_disable(struct sh_cmt_channel *ch)
 	clk_disable(ch->cmt->clk);
 
 	dev_pm_syscore_device(&ch->cmt->pdev->dev, false);
+<<<<<<< HEAD
 	pm_runtime_put(&ch->cmt->pdev->dev);
+=======
+>>>>>>> upstream/android-13
 }
 
 /* private flags */
@@ -566,17 +601,35 @@ static int sh_cmt_start(struct sh_cmt_channel *ch, unsigned long flag)
 	int ret = 0;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	raw_spin_lock_irqsave(&ch->lock, flags);
 
 	if (!(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE)))
 		ret = sh_cmt_enable(ch);
+=======
+	if (flag & FLAG_CLOCKSOURCE)
+		pm_runtime_get_sync(&ch->cmt->pdev->dev);
+
+	raw_spin_lock_irqsave(&ch->lock, flags);
+
+	if (!(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE))) {
+		if (flag & FLAG_CLOCKEVENT)
+			pm_runtime_get_sync(&ch->cmt->pdev->dev);
+		ret = sh_cmt_enable(ch);
+	}
+>>>>>>> upstream/android-13
 
 	if (ret)
 		goto out;
 	ch->flags |= flag;
 
 	/* setup timeout if no clockevent */
+<<<<<<< HEAD
 	if ((flag == FLAG_CLOCKSOURCE) && (!(ch->flags & FLAG_CLOCKEVENT)))
+=======
+	if (ch->cmt->num_channels == 1 &&
+	    flag == FLAG_CLOCKSOURCE && (!(ch->flags & FLAG_CLOCKEVENT)))
+>>>>>>> upstream/android-13
 		__sh_cmt_set_next(ch, ch->max_match_value);
  out:
 	raw_spin_unlock_irqrestore(&ch->lock, flags);
@@ -594,14 +647,28 @@ static void sh_cmt_stop(struct sh_cmt_channel *ch, unsigned long flag)
 	f = ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE);
 	ch->flags &= ~flag;
 
+<<<<<<< HEAD
 	if (f && !(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE)))
 		sh_cmt_disable(ch);
+=======
+	if (f && !(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE))) {
+		sh_cmt_disable(ch);
+		if (flag & FLAG_CLOCKEVENT)
+			pm_runtime_put(&ch->cmt->pdev->dev);
+	}
+>>>>>>> upstream/android-13
 
 	/* adjust the timeout to maximum if only clocksource left */
 	if ((flag == FLAG_CLOCKEVENT) && (ch->flags & FLAG_CLOCKSOURCE))
 		__sh_cmt_set_next(ch, ch->max_match_value);
 
 	raw_spin_unlock_irqrestore(&ch->lock, flags);
+<<<<<<< HEAD
+=======
+
+	if (flag & FLAG_CLOCKSOURCE)
+		pm_runtime_put(&ch->cmt->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
@@ -612,6 +679,7 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
 static u64 sh_cmt_clocksource_read(struct clocksource *cs)
 {
 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
+<<<<<<< HEAD
 	unsigned long flags;
 	u32 has_wrapped;
 	u64 value;
@@ -626,6 +694,27 @@ static u64 sh_cmt_clocksource_read(struct clocksource *cs)
 	raw_spin_unlock_irqrestore(&ch->lock, flags);
 
 	return value + raw;
+=======
+	u32 has_wrapped;
+
+	if (ch->cmt->num_channels == 1) {
+		unsigned long flags;
+		u64 value;
+		u32 raw;
+
+		raw_spin_lock_irqsave(&ch->lock, flags);
+		value = ch->total_cycles;
+		raw = sh_cmt_get_counter(ch, &has_wrapped);
+
+		if (unlikely(has_wrapped))
+			raw += ch->match_value + 1;
+		raw_spin_unlock_irqrestore(&ch->lock, flags);
+
+		return value + raw;
+	}
+
+	return sh_cmt_get_counter(ch, &has_wrapped);
+>>>>>>> upstream/android-13
 }
 
 static int sh_cmt_clocksource_enable(struct clocksource *cs)
@@ -662,7 +751,11 @@ static void sh_cmt_clocksource_suspend(struct clocksource *cs)
 		return;
 
 	sh_cmt_stop(ch, FLAG_CLOCKSOURCE);
+<<<<<<< HEAD
 	pm_genpd_syscore_poweroff(&ch->cmt->pdev->dev);
+=======
+	dev_pm_genpd_suspend(&ch->cmt->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static void sh_cmt_clocksource_resume(struct clocksource *cs)
@@ -672,7 +765,11 @@ static void sh_cmt_clocksource_resume(struct clocksource *cs)
 	if (!ch->cs_enabled)
 		return;
 
+<<<<<<< HEAD
 	pm_genpd_syscore_poweron(&ch->cmt->pdev->dev);
+=======
+	dev_pm_genpd_resume(&ch->cmt->pdev->dev);
+>>>>>>> upstream/android-13
 	sh_cmt_start(ch, FLAG_CLOCKSOURCE);
 }
 
@@ -688,7 +785,11 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
 	cs->disable = sh_cmt_clocksource_disable;
 	cs->suspend = sh_cmt_clocksource_suspend;
 	cs->resume = sh_cmt_clocksource_resume;
+<<<<<<< HEAD
 	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
+=======
+	cs->mask = CLOCKSOURCE_MASK(ch->cmt->info->width);
+>>>>>>> upstream/android-13
 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
 
 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
@@ -764,7 +865,11 @@ static void sh_cmt_clock_event_suspend(struct clock_event_device *ced)
 {
 	struct sh_cmt_channel *ch = ced_to_sh_cmt(ced);
 
+<<<<<<< HEAD
 	pm_genpd_syscore_poweroff(&ch->cmt->pdev->dev);
+=======
+	dev_pm_genpd_suspend(&ch->cmt->pdev->dev);
+>>>>>>> upstream/android-13
 	clk_unprepare(ch->cmt->clk);
 }
 
@@ -773,7 +878,11 @@ static void sh_cmt_clock_event_resume(struct clock_event_device *ced)
 	struct sh_cmt_channel *ch = ced_to_sh_cmt(ced);
 
 	clk_prepare(ch->cmt->clk);
+<<<<<<< HEAD
 	pm_genpd_syscore_poweron(&ch->cmt->pdev->dev);
+=======
+	dev_pm_genpd_resume(&ch->cmt->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static int sh_cmt_register_clockevent(struct sh_cmt_channel *ch,
@@ -784,11 +893,16 @@ static int sh_cmt_register_clockevent(struct sh_cmt_channel *ch,
 	int ret;
 
 	irq = platform_get_irq(ch->cmt->pdev, ch->index);
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(&ch->cmt->pdev->dev, "ch%u: failed to get irq\n",
 			ch->index);
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	ret = request_irq(irq, sh_cmt_interrupt,
 			  IRQF_TIMER | IRQF_IRQPOLL | IRQF_NOBALANCING,
@@ -850,6 +964,10 @@ static int sh_cmt_setup_channel(struct sh_cmt_channel *ch, unsigned int index,
 				unsigned int hwidx, bool clockevent,
 				bool clocksource, struct sh_cmt_device *cmt)
 {
+<<<<<<< HEAD
+=======
+	u32 value;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Skip unused channels. */
@@ -879,6 +997,14 @@ static int sh_cmt_setup_channel(struct sh_cmt_channel *ch, unsigned int index,
 		ch->iostart = cmt->mapbase + ch->hwidx * 0x100;
 		ch->ioctrl = ch->iostart + 0x10;
 		ch->timer_bit = 0;
+<<<<<<< HEAD
+=======
+
+		/* Enable the clock supply to the channel */
+		value = ioread32(cmt->mapbase + CMCLKE);
+		value |= BIT(hwidx);
+		iowrite32(value, cmt->mapbase + CMCLKE);
+>>>>>>> upstream/android-13
 		break;
 	}
 
@@ -912,7 +1038,11 @@ static int sh_cmt_map_memory(struct sh_cmt_device *cmt)
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	cmt->mapbase = ioremap_nocache(mem->start, resource_size(mem));
+=======
+	cmt->mapbase = ioremap(mem->start, resource_size(mem));
+>>>>>>> upstream/android-13
 	if (cmt->mapbase == NULL) {
 		dev_err(&cmt->pdev->dev, "failed to remap I/O memory\n");
 		return -ENXIO;
@@ -929,14 +1059,49 @@ static const struct platform_device_id sh_cmt_id_table[] = {
 MODULE_DEVICE_TABLE(platform, sh_cmt_id_table);
 
 static const struct of_device_id sh_cmt_of_table[] __maybe_unused = {
+<<<<<<< HEAD
 	{ .compatible = "renesas,cmt-48", .data = &sh_cmt_info[SH_CMT_48BIT] },
+=======
+	{
+		/* deprecated, preserved for backward compatibility */
+		.compatible = "renesas,cmt-48",
+		.data = &sh_cmt_info[SH_CMT_48BIT]
+	},
+>>>>>>> upstream/android-13
 	{
 		/* deprecated, preserved for backward compatibility */
 		.compatible = "renesas,cmt-48-gen2",
 		.data = &sh_cmt_info[SH_CMT0_RCAR_GEN2]
 	},
+<<<<<<< HEAD
 	{ .compatible = "renesas,rcar-gen2-cmt0", .data = &sh_cmt_info[SH_CMT0_RCAR_GEN2] },
 	{ .compatible = "renesas,rcar-gen2-cmt1", .data = &sh_cmt_info[SH_CMT1_RCAR_GEN2] },
+=======
+	{
+		.compatible = "renesas,r8a7740-cmt1",
+		.data = &sh_cmt_info[SH_CMT_48BIT]
+	},
+	{
+		.compatible = "renesas,sh73a0-cmt1",
+		.data = &sh_cmt_info[SH_CMT_48BIT]
+	},
+	{
+		.compatible = "renesas,rcar-gen2-cmt0",
+		.data = &sh_cmt_info[SH_CMT0_RCAR_GEN2]
+	},
+	{
+		.compatible = "renesas,rcar-gen2-cmt1",
+		.data = &sh_cmt_info[SH_CMT1_RCAR_GEN2]
+	},
+	{
+		.compatible = "renesas,rcar-gen3-cmt0",
+		.data = &sh_cmt_info[SH_CMT0_RCAR_GEN2]
+	},
+	{
+		.compatible = "renesas,rcar-gen3-cmt1",
+		.data = &sh_cmt_info[SH_CMT1_RCAR_GEN2]
+	},
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(of, sh_cmt_of_table);
@@ -985,12 +1150,19 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
 	else
 		cmt->rate = clk_get_rate(cmt->clk) / 8;
 
+<<<<<<< HEAD
 	clk_disable(cmt->clk);
 
 	/* Map the memory resource(s). */
 	ret = sh_cmt_map_memory(cmt);
 	if (ret < 0)
 		goto err_clk_unprepare;
+=======
+	/* Map the memory resource(s). */
+	ret = sh_cmt_map_memory(cmt);
+	if (ret < 0)
+		goto err_clk_disable;
+>>>>>>> upstream/android-13
 
 	/* Allocate and setup the channels. */
 	cmt->num_channels = hweight8(cmt->hw_channels);
@@ -1018,6 +1190,11 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
 		mask &= ~(1 << hwidx);
 	}
 
+<<<<<<< HEAD
+=======
+	clk_disable(cmt->clk);
+
+>>>>>>> upstream/android-13
 	platform_set_drvdata(pdev, cmt);
 
 	return 0;
@@ -1025,6 +1202,11 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
 err_unmap:
 	kfree(cmt->channels);
 	iounmap(cmt->mapbase);
+<<<<<<< HEAD
+=======
+err_clk_disable:
+	clk_disable(cmt->clk);
+>>>>>>> upstream/android-13
 err_clk_unprepare:
 	clk_unprepare(cmt->clk);
 err_clk_put:
@@ -1037,7 +1219,11 @@ static int sh_cmt_probe(struct platform_device *pdev)
 	struct sh_cmt_device *cmt = platform_get_drvdata(pdev);
 	int ret;
 
+<<<<<<< HEAD
 	if (!is_early_platform_device(pdev)) {
+=======
+	if (!is_sh_early_platform_device(pdev)) {
+>>>>>>> upstream/android-13
 		pm_runtime_set_active(&pdev->dev);
 		pm_runtime_enable(&pdev->dev);
 	}
@@ -1057,7 +1243,11 @@ static int sh_cmt_probe(struct platform_device *pdev)
 		pm_runtime_idle(&pdev->dev);
 		return ret;
 	}
+<<<<<<< HEAD
 	if (is_early_platform_device(pdev))
+=======
+	if (is_sh_early_platform_device(pdev))
+>>>>>>> upstream/android-13
 		return 0;
 
  out:
@@ -1094,7 +1284,14 @@ static void __exit sh_cmt_exit(void)
 	platform_driver_unregister(&sh_cmt_device_driver);
 }
 
+<<<<<<< HEAD
 early_platform_init("earlytimer", &sh_cmt_device_driver);
+=======
+#ifdef CONFIG_SUPERH
+sh_early_platform_init("earlytimer", &sh_cmt_device_driver);
+#endif
+
+>>>>>>> upstream/android-13
 subsys_initcall(sh_cmt_init);
 module_exit(sh_cmt_exit);
 

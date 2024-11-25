@@ -81,7 +81,11 @@
 
 struct p80211ioctl_req {
 	char name[WLAN_DEVNAMELEN_MAX];
+<<<<<<< HEAD
 	caddr_t data;
+=======
+	char __user *data;
+>>>>>>> upstream/android-13
 	u32 magic;
 	u16 len;
 	u32 result;

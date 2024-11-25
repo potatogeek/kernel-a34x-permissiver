@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Texas Instruments
  * Author: Rob Clark <robdclark@gmail.com>
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Texas Instruments
+ * Author: Rob Clark <robdclark@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/component.h>
@@ -24,20 +31,53 @@
 #include <sound/asoundef.h>
 #include <sound/hdmi-codec.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_atomic_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_edid.h>
 #include <drm/drm_of.h>
+=======
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_of.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 #include <drm/i2c/tda998x.h>
 
 #include <media/cec-notifier.h>
 
 #define DBG(fmt, ...) DRM_DEBUG(fmt"\n", ##__VA_ARGS__)
 
+<<<<<<< HEAD
 struct tda998x_audio_port {
 	u8 format;		/* AFMT_xxx */
 	u8 config;		/* AP value */
+=======
+enum {
+	AUDIO_ROUTE_I2S,
+	AUDIO_ROUTE_SPDIF,
+	AUDIO_ROUTE_NUM
+};
+
+struct tda998x_audio_route {
+	u8 ena_aclk;
+	u8 mux_ap;
+	u8 aip_clksel;
+};
+
+struct tda998x_audio_settings {
+	const struct tda998x_audio_route *route;
+	struct hdmi_audio_infoframe cea;
+	unsigned int sample_rate;
+	u8 status[5];
+	u8 ena_ap;
+	u8 i2s_format;
+	u8 cts_n;
+>>>>>>> upstream/android-13
 };
 
 struct tda998x_priv {
@@ -50,11 +90,19 @@ struct tda998x_priv {
 	bool is_on;
 	bool supports_infoframes;
 	bool sink_has_audio;
+<<<<<<< HEAD
+=======
+	enum hdmi_quantization_range rgb_quant_range;
+>>>>>>> upstream/android-13
 	u8 vip_cntrl_0;
 	u8 vip_cntrl_1;
 	u8 vip_cntrl_2;
 	unsigned long tmds_clock;
+<<<<<<< HEAD
 	struct tda998x_audio_params audio_params;
+=======
+	struct tda998x_audio_settings audio;
+>>>>>>> upstream/android-13
 
 	struct platform_device *audio_pdev;
 	struct mutex audio_mutex;
@@ -72,7 +120,11 @@ struct tda998x_priv {
 	struct drm_bridge bridge;
 	struct drm_connector connector;
 
+<<<<<<< HEAD
 	struct tda998x_audio_port audio_port[2];
+=======
+	u8 audio_port_enable[AUDIO_ROUTE_NUM];
+>>>>>>> upstream/android-13
 	struct tda9950_glue cec_glue;
 	struct gpio_desc *calib;
 	struct cec_notifier *cec_notify;
@@ -241,8 +293,16 @@ struct tda998x_priv {
 # define HVF_CNTRL_1_PAD(x)       (((x) & 3) << 4)
 # define HVF_CNTRL_1_SEMI_PLANAR  (1 << 6)
 #define REG_RPT_CNTRL             REG(0x00, 0xf0)     /* write */
+<<<<<<< HEAD
 #define REG_I2S_FORMAT            REG(0x00, 0xfc)     /* read/write */
 # define I2S_FORMAT(x)            (((x) & 3) << 0)
+=======
+# define RPT_CNTRL_REPEAT(x)      ((x) & 15)
+#define REG_I2S_FORMAT            REG(0x00, 0xfc)     /* read/write */
+# define I2S_FORMAT_PHILIPS       (0 << 0)
+# define I2S_FORMAT_LEFT_J        (2 << 0)
+# define I2S_FORMAT_RIGHT_J       (3 << 0)
+>>>>>>> upstream/android-13
 #define REG_AIP_CLKSEL            REG(0x00, 0xfd)     /* write */
 # define AIP_CLKSEL_AIP_SPDIF	  (0 << 3)
 # define AIP_CLKSEL_AIP_I2S	  (1 << 3)
@@ -795,8 +855,13 @@ static irqreturn_t tda998x_irq_thread(int irq, void *data)
 				tda998x_edid_delay_start(priv);
 			} else {
 				schedule_work(&priv->detect_work);
+<<<<<<< HEAD
 				cec_notifier_set_phys_addr(priv->cec_notify,
 						   CEC_PHYS_ADDR_INVALID);
+=======
+				cec_notifier_phys_addr_invalidate(
+						priv->cec_notify);
+>>>>>>> upstream/android-13
 			}
 
 			handled = true;
@@ -832,14 +897,20 @@ tda998x_write_if(struct tda998x_priv *priv, u8 bit, u16 addr,
 	reg_set(priv, REG_DIP_IF_FLAGS, bit);
 }
 
+<<<<<<< HEAD
 static int tda998x_write_aif(struct tda998x_priv *priv,
 			     struct hdmi_audio_infoframe *cea)
+=======
+static void tda998x_write_aif(struct tda998x_priv *priv,
+			      const struct hdmi_audio_infoframe *cea)
+>>>>>>> upstream/android-13
 {
 	union hdmi_infoframe frame;
 
 	frame.audio = *cea;
 
 	tda998x_write_if(priv, DIP_IF_FLAGS_IF4, REG_IF4_HB0, &frame);
+<<<<<<< HEAD
 
 	return 0;
 }
@@ -851,12 +922,150 @@ tda998x_write_avi(struct tda998x_priv *priv, struct drm_display_mode *mode)
 
 	drm_hdmi_avi_infoframe_from_display_mode(&frame.avi, mode, false);
 	frame.avi.quantization_range = HDMI_QUANTIZATION_RANGE_FULL;
+=======
+}
+
+static void
+tda998x_write_avi(struct tda998x_priv *priv, const struct drm_display_mode *mode)
+{
+	union hdmi_infoframe frame;
+
+	drm_hdmi_avi_infoframe_from_display_mode(&frame.avi,
+						 &priv->connector, mode);
+	frame.avi.quantization_range = HDMI_QUANTIZATION_RANGE_FULL;
+	drm_hdmi_avi_infoframe_quant_range(&frame.avi, &priv->connector, mode,
+					   priv->rgb_quant_range);
+>>>>>>> upstream/android-13
 
 	tda998x_write_if(priv, DIP_IF_FLAGS_IF2, REG_IF2_HB0, &frame);
 }
 
+<<<<<<< HEAD
 /* Audio support */
 
+=======
+static void tda998x_write_vsi(struct tda998x_priv *priv,
+			      const struct drm_display_mode *mode)
+{
+	union hdmi_infoframe frame;
+
+	if (drm_hdmi_vendor_infoframe_from_display_mode(&frame.vendor.hdmi,
+							&priv->connector,
+							mode))
+		reg_clear(priv, REG_DIP_IF_FLAGS, DIP_IF_FLAGS_IF1);
+	else
+		tda998x_write_if(priv, DIP_IF_FLAGS_IF1, REG_IF1_HB0, &frame);
+}
+
+/* Audio support */
+
+static const struct tda998x_audio_route tda998x_audio_route[AUDIO_ROUTE_NUM] = {
+	[AUDIO_ROUTE_I2S] = {
+		.ena_aclk = 1,
+		.mux_ap = MUX_AP_SELECT_I2S,
+		.aip_clksel = AIP_CLKSEL_AIP_I2S | AIP_CLKSEL_FS_ACLK,
+	},
+	[AUDIO_ROUTE_SPDIF] = {
+		.ena_aclk = 0,
+		.mux_ap = MUX_AP_SELECT_SPDIF,
+		.aip_clksel = AIP_CLKSEL_AIP_SPDIF | AIP_CLKSEL_FS_FS64SPDIF,
+	},
+};
+
+/* Configure the TDA998x audio data and clock routing. */
+static int tda998x_derive_routing(struct tda998x_priv *priv,
+				  struct tda998x_audio_settings *s,
+				  unsigned int route)
+{
+	s->route = &tda998x_audio_route[route];
+	s->ena_ap = priv->audio_port_enable[route];
+	if (s->ena_ap == 0) {
+		dev_err(&priv->hdmi->dev, "no audio configuration found\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+/*
+ * The audio clock divisor register controls a divider producing Audio_Clk_Out
+ * from SERclk by dividing it by 2^n where 0 <= n <= 5.  We don't know what
+ * Audio_Clk_Out or SERclk are. We guess SERclk is the same as TMDS clock.
+ *
+ * It seems that Audio_Clk_Out must be the smallest value that is greater
+ * than 128*fs, otherwise audio does not function. There is some suggestion
+ * that 126*fs is a better value.
+ */
+static u8 tda998x_get_adiv(struct tda998x_priv *priv, unsigned int fs)
+{
+	unsigned long min_audio_clk = fs * 128;
+	unsigned long ser_clk = priv->tmds_clock * 1000;
+	u8 adiv;
+
+	for (adiv = AUDIO_DIV_SERCLK_32; adiv != AUDIO_DIV_SERCLK_1; adiv--)
+		if (ser_clk > min_audio_clk << adiv)
+			break;
+
+	dev_dbg(&priv->hdmi->dev,
+		"ser_clk=%luHz fs=%uHz min_aclk=%luHz adiv=%d\n",
+		ser_clk, fs, min_audio_clk, adiv);
+
+	return adiv;
+}
+
+/*
+ * In auto-CTS mode, the TDA998x uses a "measured time stamp" counter to
+ * generate the CTS value.  It appears that the "measured time stamp" is
+ * the number of TDMS clock cycles within a number of audio input clock
+ * cycles defined by the k and N parameters defined below, in a similar
+ * way to that which is set out in the CTS generation in the HDMI spec.
+ *
+ *  tmdsclk ----> mts -> /m ---> CTS
+ *                 ^
+ *  sclk -> /k -> /N
+ *
+ * CTS = mts / m, where m is 2^M.
+ * /k is a divider based on the K value below, K+1 for K < 4, or 8 for K >= 4
+ * /N is a divider based on the HDMI specified N value.
+ *
+ * This produces the following equation:
+ *  CTS = tmds_clock * k * N / (sclk * m)
+ *
+ * When combined with the sink-side equation, and realising that sclk is
+ * bclk_ratio * fs, we end up with:
+ *  k = m * bclk_ratio / 128.
+ *
+ * Note: S/PDIF always uses a bclk_ratio of 64.
+ */
+static int tda998x_derive_cts_n(struct tda998x_priv *priv,
+				struct tda998x_audio_settings *settings,
+				unsigned int ratio)
+{
+	switch (ratio) {
+	case 16:
+		settings->cts_n = CTS_N_M(3) | CTS_N_K(0);
+		break;
+	case 32:
+		settings->cts_n = CTS_N_M(3) | CTS_N_K(1);
+		break;
+	case 48:
+		settings->cts_n = CTS_N_M(3) | CTS_N_K(2);
+		break;
+	case 64:
+		settings->cts_n = CTS_N_M(3) | CTS_N_K(3);
+		break;
+	case 128:
+		settings->cts_n = CTS_N_M(0) | CTS_N_K(0);
+		break;
+	default:
+		dev_err(&priv->hdmi->dev, "unsupported bclk ratio %ufs\n",
+			ratio);
+		return -EINVAL;
+	}
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void tda998x_audio_mute(struct tda998x_priv *priv, bool on)
 {
 	if (on) {
@@ -868,6 +1077,7 @@ static void tda998x_audio_mute(struct tda998x_priv *priv, bool on)
 	}
 }
 
+<<<<<<< HEAD
 static int
 tda998x_configure_audio(struct tda998x_priv *priv,
 			struct tda998x_audio_params *params)
@@ -934,13 +1144,40 @@ tda998x_configure_audio(struct tda998x_priv *priv,
 	if (params->format == AFMT_SPDIF)
 		adiv++;			/* AUDIO_DIV_SERCLK_16 or _32 */
 
+=======
+static void tda998x_configure_audio(struct tda998x_priv *priv)
+{
+	const struct tda998x_audio_settings *settings = &priv->audio;
+	u8 buf[6], adiv;
+	u32 n;
+
+	/* If audio is not configured, there is nothing to do. */
+	if (settings->ena_ap == 0)
+		return;
+
+	adiv = tda998x_get_adiv(priv, settings->sample_rate);
+
+	/* Enable audio ports */
+	reg_write(priv, REG_ENA_AP, settings->ena_ap);
+	reg_write(priv, REG_ENA_ACLK, settings->route->ena_aclk);
+	reg_write(priv, REG_MUX_AP, settings->route->mux_ap);
+	reg_write(priv, REG_I2S_FORMAT, settings->i2s_format);
+	reg_write(priv, REG_AIP_CLKSEL, settings->route->aip_clksel);
+	reg_clear(priv, REG_AIP_CNTRL_0, AIP_CNTRL_0_LAYOUT |
+					AIP_CNTRL_0_ACR_MAN);	/* auto CTS */
+	reg_write(priv, REG_CTS_N, settings->cts_n);
+>>>>>>> upstream/android-13
 	reg_write(priv, REG_AUDIO_DIV, adiv);
 
 	/*
 	 * This is the approximate value of N, which happens to be
 	 * the recommended values for non-coherent clocks.
 	 */
+<<<<<<< HEAD
 	n = 128 * params->sample_rate / 1000;
+=======
+	n = 128 * settings->sample_rate / 1000;
+>>>>>>> upstream/android-13
 
 	/* Write the CTS and N values */
 	buf[0] = 0x44;
@@ -951,9 +1188,12 @@ tda998x_configure_audio(struct tda998x_priv *priv,
 	buf[5] = n >> 16;
 	reg_write_range(priv, REG_ACR_CTS_0, buf, 6);
 
+<<<<<<< HEAD
 	/* Set CTS clock reference */
 	reg_write(priv, REG_AIP_CLKSEL, clksel_aip | clksel_fs);
 
+=======
+>>>>>>> upstream/android-13
 	/* Reset CTS generator */
 	reg_set(priv, REG_AIP_CNTRL_0, AIP_CNTRL_0_RST_CTS);
 	reg_clear(priv, REG_AIP_CNTRL_0, AIP_CNTRL_0_RST_CTS);
@@ -962,17 +1202,28 @@ tda998x_configure_audio(struct tda998x_priv *priv,
 	 * The REG_CH_STAT_B-registers skip IEC958 AES2 byte, because
 	 * there is a separate register for each I2S wire.
 	 */
+<<<<<<< HEAD
 	buf[0] = params->status[0];
 	buf[1] = params->status[1];
 	buf[2] = params->status[3];
 	buf[3] = params->status[4];
+=======
+	buf[0] = settings->status[0];
+	buf[1] = settings->status[1];
+	buf[2] = settings->status[3];
+	buf[3] = settings->status[4];
+>>>>>>> upstream/android-13
 	reg_write_range(priv, REG_CH_STAT_B(0), buf, 4);
 
 	tda998x_audio_mute(priv, true);
 	msleep(20);
 	tda998x_audio_mute(priv, false);
 
+<<<<<<< HEAD
 	return tda998x_write_aif(priv, &params->cea);
+=======
+	tda998x_write_aif(priv, &settings->cea);
+>>>>>>> upstream/android-13
 }
 
 static int tda998x_audio_hw_params(struct device *dev, void *data,
@@ -980,9 +1231,16 @@ static int tda998x_audio_hw_params(struct device *dev, void *data,
 				   struct hdmi_codec_params *params)
 {
 	struct tda998x_priv *priv = dev_get_drvdata(dev);
+<<<<<<< HEAD
 	int i, ret;
 	struct tda998x_audio_params audio = {
 		.sample_width = params->sample_width,
+=======
+	unsigned int bclk_ratio;
+	bool spdif = daifmt->fmt == HDMI_SPDIF;
+	int ret;
+	struct tda998x_audio_settings audio = {
+>>>>>>> upstream/android-13
 		.sample_rate = params->sample_rate,
 		.cea = params->cea,
 	};
@@ -992,6 +1250,7 @@ static int tda998x_audio_hw_params(struct device *dev, void *data,
 
 	switch (daifmt->fmt) {
 	case HDMI_I2S:
+<<<<<<< HEAD
 		if (daifmt->bit_clk_inv || daifmt->frame_clk_inv ||
 		    daifmt->bit_clk_master || daifmt->frame_clk_master) {
 			dev_err(dev, "%s: Bad flags %d %d %d %d\n", __func__,
@@ -1010,12 +1269,25 @@ static int tda998x_audio_hw_params(struct device *dev, void *data,
 			if (priv->audio_port[i].format == AFMT_SPDIF)
 				audio.config = priv->audio_port[i].config;
 		audio.format = AFMT_SPDIF;
+=======
+		audio.i2s_format = I2S_FORMAT_PHILIPS;
+		break;
+	case HDMI_LEFT_J:
+		audio.i2s_format = I2S_FORMAT_LEFT_J;
+		break;
+	case HDMI_RIGHT_J:
+		audio.i2s_format = I2S_FORMAT_RIGHT_J;
+		break;
+	case HDMI_SPDIF:
+		audio.i2s_format = 0;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_err(dev, "%s: Invalid format %d\n", __func__, daifmt->fmt);
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (audio.config == 0) {
 		dev_err(dev, "%s: No audio configuration found\n", __func__);
 		return -EINVAL;
@@ -1032,6 +1304,34 @@ static int tda998x_audio_hw_params(struct device *dev, void *data,
 	mutex_unlock(&priv->audio_mutex);
 
 	return ret;
+=======
+	if (!spdif &&
+	    (daifmt->bit_clk_inv || daifmt->frame_clk_inv ||
+	     daifmt->bit_clk_master || daifmt->frame_clk_master)) {
+		dev_err(dev, "%s: Bad flags %d %d %d %d\n", __func__,
+			daifmt->bit_clk_inv, daifmt->frame_clk_inv,
+			daifmt->bit_clk_master,
+			daifmt->frame_clk_master);
+		return -EINVAL;
+	}
+
+	ret = tda998x_derive_routing(priv, &audio, AUDIO_ROUTE_I2S + spdif);
+	if (ret < 0)
+		return ret;
+
+	bclk_ratio = spdif ? 64 : params->sample_width * 2;
+	ret = tda998x_derive_cts_n(priv, &audio, bclk_ratio);
+	if (ret < 0)
+		return ret;
+
+	mutex_lock(&priv->audio_mutex);
+	priv->audio = audio;
+	if (priv->supports_infoframes && priv->sink_has_audio)
+		tda998x_configure_audio(priv);
+	mutex_unlock(&priv->audio_mutex);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void tda998x_audio_shutdown(struct device *dev, void *data)
@@ -1041,13 +1341,22 @@ static void tda998x_audio_shutdown(struct device *dev, void *data)
 	mutex_lock(&priv->audio_mutex);
 
 	reg_write(priv, REG_ENA_AP, 0);
+<<<<<<< HEAD
 
 	priv->audio_params.format = AFMT_UNUSED;
+=======
+	priv->audio.ena_ap = 0;
+>>>>>>> upstream/android-13
 
 	mutex_unlock(&priv->audio_mutex);
 }
 
+<<<<<<< HEAD
 int tda998x_audio_digital_mute(struct device *dev, void *data, bool enable)
+=======
+static int tda998x_audio_mute_stream(struct device *dev, void *data,
+				     bool enable, int direction)
+>>>>>>> upstream/android-13
 {
 	struct tda998x_priv *priv = dev_get_drvdata(dev);
 
@@ -1075,8 +1384,14 @@ static int tda998x_audio_get_eld(struct device *dev, void *data,
 static const struct hdmi_codec_ops audio_codec_ops = {
 	.hw_params = tda998x_audio_hw_params,
 	.audio_shutdown = tda998x_audio_shutdown,
+<<<<<<< HEAD
 	.digital_mute = tda998x_audio_digital_mute,
 	.get_eld = tda998x_audio_get_eld,
+=======
+	.mute_stream = tda998x_audio_mute_stream,
+	.get_eld = tda998x_audio_get_eld,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static int tda998x_audio_codec_init(struct tda998x_priv *priv,
@@ -1086,6 +1401,7 @@ static int tda998x_audio_codec_init(struct tda998x_priv *priv,
 		.ops = &audio_codec_ops,
 		.max_i2s_channels = 2,
 	};
+<<<<<<< HEAD
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(priv->audio_port); i++) {
@@ -1096,6 +1412,13 @@ static int tda998x_audio_codec_init(struct tda998x_priv *priv,
 		    priv->audio_port[i].config != 0)
 			codec_data.spdif = 1;
 	}
+=======
+
+	if (priv->audio_port_enable[AUDIO_ROUTE_I2S])
+		codec_data.i2s = 1;
+	if (priv->audio_port_enable[AUDIO_ROUTE_SPDIF])
+		codec_data.spdif = 1;
+>>>>>>> upstream/android-13
 
 	priv->audio_pdev = platform_device_register_data(
 		dev, HDMI_CODEC_DRV_NAME, PLATFORM_DEVID_AUTO,
@@ -1122,7 +1445,10 @@ static void tda998x_connector_destroy(struct drm_connector *connector)
 }
 
 static const struct drm_connector_funcs tda998x_connector_funcs = {
+<<<<<<< HEAD
 	.dpms = drm_helper_connector_dpms,
+=======
+>>>>>>> upstream/android-13
 	.reset = drm_atomic_helper_connector_reset,
 	.fill_modes = drm_helper_probe_single_connector_modes,
 	.detect = tda998x_connector_detect,
@@ -1277,10 +1603,23 @@ static int tda998x_connector_init(struct tda998x_priv *priv,
 
 /* DRM bridge functions */
 
+<<<<<<< HEAD
 static int tda998x_bridge_attach(struct drm_bridge *bridge)
 {
 	struct tda998x_priv *priv = bridge_to_tda998x_priv(bridge);
 
+=======
+static int tda998x_bridge_attach(struct drm_bridge *bridge,
+				 enum drm_bridge_attach_flags flags)
+{
+	struct tda998x_priv *priv = bridge_to_tda998x_priv(bridge);
+
+	if (flags & DRM_BRIDGE_ATTACH_NO_CONNECTOR) {
+		DRM_ERROR("Fix bridge driver to make connector optional!");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	return tda998x_connector_init(priv, bridge->dev);
 }
 
@@ -1292,6 +1631,10 @@ static void tda998x_bridge_detach(struct drm_bridge *bridge)
 }
 
 static enum drm_mode_status tda998x_bridge_mode_valid(struct drm_bridge *bridge,
+<<<<<<< HEAD
+=======
+				     const struct drm_display_info *info,
+>>>>>>> upstream/android-13
 				     const struct drm_display_mode *mode)
 {
 	/* TDA19988 dotclock can go up to 165MHz */
@@ -1339,8 +1682,13 @@ static void tda998x_bridge_disable(struct drm_bridge *bridge)
 }
 
 static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
+<<<<<<< HEAD
 				    struct drm_display_mode *mode,
 				    struct drm_display_mode *adjusted_mode)
+=======
+				    const struct drm_display_mode *mode,
+				    const struct drm_display_mode *adjusted_mode)
+>>>>>>> upstream/android-13
 {
 	struct tda998x_priv *priv = bridge_to_tda998x_priv(bridge);
 	unsigned long tmds_clock;
@@ -1351,7 +1699,21 @@ static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
 	u16 vwin1_line_s, vwin1_line_e;
 	u16 vwin2_line_s, vwin2_line_e;
 	u16 de_pix_s, de_pix_e;
+<<<<<<< HEAD
 	u8 reg, div, rep;
+=======
+	u8 reg, div, rep, sel_clk;
+
+	/*
+	 * Since we are "computer" like, our source invariably produces
+	 * full-range RGB.  If the monitor supports full-range, then use
+	 * it, otherwise reduce to limited-range.
+	 */
+	priv->rgb_quant_range =
+		priv->connector.display_info.rgb_quant_range_selectable ?
+		HDMI_QUANTIZATION_RANGE_FULL :
+		drm_default_rgb_quant_range(adjusted_mode);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Internally TDA998x is using ITU-R BT.656 style sync but
@@ -1414,7 +1776,20 @@ static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
 			       (mode->vsync_end - mode->vsync_start)/2;
 	}
 
+<<<<<<< HEAD
 	tmds_clock = mode->clock;
+=======
+	/*
+	 * Select pixel repeat depending on the double-clock flag
+	 * (which means we have to repeat each pixel once.)
+	 */
+	rep = mode->flags & DRM_MODE_FLAG_DBLCLK ? 1 : 0;
+	sel_clk = SEL_CLK_ENA_SC_CLK | SEL_CLK_SEL_CLK1 |
+		  SEL_CLK_SEL_VRF_CLK(rep ? 2 : 0);
+
+	/* the TMDS clock is scaled up by the pixel repeat */
+	tmds_clock = mode->clock * (1 + rep);
+>>>>>>> upstream/android-13
 
 	/*
 	 * The divisor is power-of-2. The TDA9983B datasheet gives
@@ -1430,6 +1805,11 @@ static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
 
 	mutex_lock(&priv->audio_mutex);
 
+<<<<<<< HEAD
+=======
+	priv->tmds_clock = tmds_clock;
+
+>>>>>>> upstream/android-13
 	/* mute the audio FIFO: */
 	reg_set(priv, REG_AIP_CNTRL_0, AIP_CNTRL_0_RST_FIFO);
 
@@ -1452,6 +1832,7 @@ static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
 	reg_write(priv, REG_SERIALIZER, 0);
 	reg_write(priv, REG_HVF_CNTRL_1, HVF_CNTRL_1_VQR(0));
 
+<<<<<<< HEAD
 	/* TODO enable pixel repeat for pixel rates less than 25Msamp/s */
 	rep = 0;
 	reg_write(priv, REG_RPT_CNTRL, 0);
@@ -1465,6 +1846,32 @@ static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
 	reg_write(priv, REG_MAT_CONTRL, MAT_CONTRL_MAT_BP |
 				MAT_CONTRL_MAT_SC(1));
 	reg_set(priv, REG_FEAT_POWERDOWN, FEAT_POWERDOWN_CSC);
+=======
+	reg_write(priv, REG_RPT_CNTRL, RPT_CNTRL_REPEAT(rep));
+	reg_write(priv, REG_SEL_CLK, sel_clk);
+	reg_write(priv, REG_PLL_SERIAL_2, PLL_SERIAL_2_SRL_NOSC(div) |
+			PLL_SERIAL_2_SRL_PR(rep));
+
+	/* set color matrix according to output rgb quant range */
+	if (priv->rgb_quant_range == HDMI_QUANTIZATION_RANGE_LIMITED) {
+		static u8 tda998x_full_to_limited_range[] = {
+			MAT_CONTRL_MAT_SC(2),
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x03, 0x6f, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x03, 0x6f, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x03, 0x6f,
+			0x00, 0x40, 0x00, 0x40, 0x00, 0x40
+		};
+		reg_clear(priv, REG_FEAT_POWERDOWN, FEAT_POWERDOWN_CSC);
+		reg_write_range(priv, REG_MAT_CONTRL,
+				tda998x_full_to_limited_range,
+				sizeof(tda998x_full_to_limited_range));
+	} else {
+		reg_write(priv, REG_MAT_CONTRL, MAT_CONTRL_MAT_BP |
+					MAT_CONTRL_MAT_SC(1));
+		reg_set(priv, REG_FEAT_POWERDOWN, FEAT_POWERDOWN_CSC);
+	}
+>>>>>>> upstream/android-13
 
 	/* set BIAS tmds value: */
 	reg_write(priv, REG_ANA_GENERAL, 0x09);
@@ -1525,8 +1932,11 @@ static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
 	/* must be last register set: */
 	reg_write(priv, REG_TBG_CNTRL_0, 0);
 
+<<<<<<< HEAD
 	priv->tmds_clock = adjusted_mode->clock;
 
+=======
+>>>>>>> upstream/android-13
 	/* CEA-861B section 6 says that:
 	 * CEA version 1 (CEA-861) has no support for infoframes.
 	 * CEA version 2 (CEA-861A) supports version 1 AVI infoframes,
@@ -1548,10 +1958,17 @@ static void tda998x_bridge_mode_set(struct drm_bridge *bridge,
 		reg_set(priv, REG_TX33, TX33_HDMI);
 
 		tda998x_write_avi(priv, adjusted_mode);
+<<<<<<< HEAD
 
 		if (priv->audio_params.format != AFMT_UNUSED &&
 		    priv->sink_has_audio)
 			tda998x_configure_audio(priv, &priv->audio_params);
+=======
+		tda998x_write_vsi(priv, adjusted_mode);
+
+		if (priv->sink_has_audio)
+			tda998x_configure_audio(priv);
+>>>>>>> upstream/android-13
 	}
 
 	mutex_unlock(&priv->audio_mutex);
@@ -1580,7 +1997,11 @@ static int tda998x_get_audio_ports(struct tda998x_priv *priv,
 		return 0;
 
 	size /= sizeof(u32);
+<<<<<<< HEAD
 	if (size > 2 * ARRAY_SIZE(priv->audio_port) || size % 2 != 0) {
+=======
+	if (size > 2 * ARRAY_SIZE(priv->audio_port_enable) || size % 2 != 0) {
+>>>>>>> upstream/android-13
 		dev_err(&priv->hdmi->dev,
 			"Bad number of elements in audio-ports dt-property\n");
 		return -EINVAL;
@@ -1589,15 +2010,31 @@ static int tda998x_get_audio_ports(struct tda998x_priv *priv,
 	size /= 2;
 
 	for (i = 0; i < size; i++) {
+<<<<<<< HEAD
 		u8 afmt = be32_to_cpup(&port_data[2*i]);
 		u8 ena_ap = be32_to_cpup(&port_data[2*i+1]);
 
 		if (afmt != AFMT_SPDIF && afmt != AFMT_I2S) {
+=======
+		unsigned int route;
+		u8 afmt = be32_to_cpup(&port_data[2*i]);
+		u8 ena_ap = be32_to_cpup(&port_data[2*i+1]);
+
+		switch (afmt) {
+		case AFMT_I2S:
+			route = AUDIO_ROUTE_I2S;
+			break;
+		case AFMT_SPDIF:
+			route = AUDIO_ROUTE_SPDIF;
+			break;
+		default:
+>>>>>>> upstream/android-13
 			dev_err(&priv->hdmi->dev,
 				"Bad audio format %u\n", afmt);
 			return -EINVAL;
 		}
 
+<<<<<<< HEAD
 		priv->audio_port[i].format = afmt;
 		priv->audio_port[i].config = ena_ap;
 	}
@@ -1606,12 +2043,32 @@ static int tda998x_get_audio_ports(struct tda998x_priv *priv,
 		dev_err(&priv->hdmi->dev,
 			"There can only be on I2S port and one SPDIF port\n");
 		return -EINVAL;
+=======
+		if (!ena_ap) {
+			dev_err(&priv->hdmi->dev, "invalid zero port config\n");
+			continue;
+		}
+
+		if (priv->audio_port_enable[route]) {
+			dev_err(&priv->hdmi->dev,
+				"%s format already configured\n",
+				route == AUDIO_ROUTE_SPDIF ? "SPDIF" : "I2S");
+			return -EINVAL;
+		}
+
+		priv->audio_port_enable[route] = ena_ap;
+>>>>>>> upstream/android-13
 	}
 	return 0;
 }
 
+<<<<<<< HEAD
 static void tda998x_set_config(struct tda998x_priv *priv,
 			       const struct tda998x_encoder_params *p)
+=======
+static int tda998x_set_config(struct tda998x_priv *priv,
+			      const struct tda998x_encoder_params *p)
+>>>>>>> upstream/android-13
 {
 	priv->vip_cntrl_0 = VIP_CNTRL_0_SWAP_A(p->swap_a) |
 			    (p->mirr_a ? VIP_CNTRL_0_MIRR_A : 0) |
@@ -1626,7 +2083,30 @@ static void tda998x_set_config(struct tda998x_priv *priv,
 			    VIP_CNTRL_2_SWAP_F(p->swap_f) |
 			    (p->mirr_f ? VIP_CNTRL_2_MIRR_F : 0);
 
+<<<<<<< HEAD
 	priv->audio_params = p->audio_params;
+=======
+	if (p->audio_params.format != AFMT_UNUSED) {
+		unsigned int ratio, route;
+		bool spdif = p->audio_params.format == AFMT_SPDIF;
+
+		route = AUDIO_ROUTE_I2S + spdif;
+
+		priv->audio.route = &tda998x_audio_route[route];
+		priv->audio.cea = p->audio_params.cea;
+		priv->audio.sample_rate = p->audio_params.sample_rate;
+		memcpy(priv->audio.status, p->audio_params.status,
+		       min(sizeof(priv->audio.status),
+			   sizeof(p->audio_params.status)));
+		priv->audio.ena_ap = p->audio_params.config;
+		priv->audio.i2s_format = I2S_FORMAT_PHILIPS;
+
+		ratio = spdif ? 64 : p->audio_params.sample_width * 2;
+		return tda998x_derive_cts_n(priv, &priv->audio, ratio);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void tda998x_destroy(struct device *dev)
@@ -1650,8 +2130,12 @@ static void tda998x_destroy(struct device *dev)
 
 	i2c_unregister_device(priv->cec);
 
+<<<<<<< HEAD
 	if (priv->cec_notify)
 		cec_notifier_put(priv->cec_notify);
+=======
+	cec_notifier_conn_unregister(priv->cec_notify);
+>>>>>>> upstream/android-13
 }
 
 static int tda998x_create(struct device *dev)
@@ -1776,7 +2260,11 @@ static int tda998x_create(struct device *dev)
 		cec_write(priv, REG_CEC_RXSHPDINTENA, CEC_RXSHPDLEV_HPD);
 	}
 
+<<<<<<< HEAD
 	priv->cec_notify = cec_notifier_get(dev);
+=======
+	priv->cec_notify = cec_notifier_conn_register(dev, NULL, NULL);
+>>>>>>> upstream/android-13
 	if (!priv->cec_notify) {
 		ret = -ENOMEM;
 		goto fail;
@@ -1803,9 +2291,15 @@ static int tda998x_create(struct device *dev)
 	cec_info.platform_data = &priv->cec_glue;
 	cec_info.irq = client->irq;
 
+<<<<<<< HEAD
 	priv->cec = i2c_new_device(client->adapter, &cec_info);
 	if (!priv->cec) {
 		ret = -ENODEV;
+=======
+	priv->cec = i2c_new_client_device(client->adapter, &cec_info);
+	if (IS_ERR(priv->cec)) {
+		ret = PTR_ERR(priv->cec);
+>>>>>>> upstream/android-13
 		goto fail;
 	}
 
@@ -1825,10 +2319,20 @@ static int tda998x_create(struct device *dev)
 		if (ret)
 			goto fail;
 
+<<<<<<< HEAD
 		if (priv->audio_port[0].format != AFMT_UNUSED)
 			tda998x_audio_codec_init(priv, &client->dev);
 	} else if (dev->platform_data) {
 		tda998x_set_config(priv, dev->platform_data);
+=======
+		if (priv->audio_port_enable[AUDIO_ROUTE_I2S] ||
+		    priv->audio_port_enable[AUDIO_ROUTE_SPDIF])
+			tda998x_audio_codec_init(priv, &client->dev);
+	} else if (dev->platform_data) {
+		ret = tda998x_set_config(priv, dev->platform_data);
+		if (ret)
+			goto fail;
+>>>>>>> upstream/android-13
 	}
 
 	priv->bridge.funcs = &tda998x_bridge_funcs;
@@ -1848,6 +2352,7 @@ err_irq:
 
 /* DRM encoder functions */
 
+<<<<<<< HEAD
 static void tda998x_encoder_destroy(struct drm_encoder *encoder)
 {
 	drm_encoder_cleanup(encoder);
@@ -1857,6 +2362,8 @@ static const struct drm_encoder_funcs tda998x_encoder_funcs = {
 	.destroy = tda998x_encoder_destroy,
 };
 
+=======
+>>>>>>> upstream/android-13
 static int tda998x_encoder_init(struct device *dev, struct drm_device *drm)
 {
 	struct tda998x_priv *priv = dev_get_drvdata(dev);
@@ -1874,12 +2381,21 @@ static int tda998x_encoder_init(struct device *dev, struct drm_device *drm)
 
 	priv->encoder.possible_crtcs = crtcs;
 
+<<<<<<< HEAD
 	ret = drm_encoder_init(drm, &priv->encoder, &tda998x_encoder_funcs,
 			       DRM_MODE_ENCODER_TMDS, NULL);
 	if (ret)
 		goto err_encoder;
 
 	ret = drm_bridge_attach(&priv->encoder, &priv->bridge, NULL);
+=======
+	ret = drm_simple_encoder_init(drm, &priv->encoder,
+				      DRM_MODE_ENCODER_TMDS);
+	if (ret)
+		goto err_encoder;
+
+	ret = drm_bridge_attach(&priv->encoder, &priv->bridge, NULL, 0);
+>>>>>>> upstream/android-13
 	if (ret)
 		goto err_bridge;
 

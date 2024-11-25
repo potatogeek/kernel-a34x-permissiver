@@ -45,6 +45,7 @@ void nv50_dma_push(struct nouveau_channel *, u64 addr, int length);
  */
 #define NOUVEAU_DMA_SKIPS (128 / 4)
 
+<<<<<<< HEAD
 /* Hardcoded object assignments to subchannels (subchannel id). */
 enum {
 	NvSubCtxSurf2D  = 0,
@@ -56,6 +57,8 @@ enum {
 	NvSubCopy	= 4, /* DO NOT CHANGE - hardcoded for kepler gr fifo */
 };
 
+=======
+>>>>>>> upstream/android-13
 /* Object handles - for stuff that's doesn't use handle == oclass. */
 enum {
 	NvDmaFB		= 0x80000002,
@@ -66,6 +69,7 @@ enum {
 	NvEvoSema1	= 0x80000011,
 };
 
+<<<<<<< HEAD
 #define NV_MEMORY_TO_MEMORY_FORMAT                                    0x00000039
 #define NV_MEMORY_TO_MEMORY_FORMAT_NAME                               0x00000000
 #define NV_MEMORY_TO_MEMORY_FORMAT_SET_REF                            0x00000050
@@ -83,6 +87,8 @@ enum {
 #define NV50_MEMORY_TO_MEMORY_FORMAT_OFFSET_IN_HIGH                   0x00000238
 #define NV50_MEMORY_TO_MEMORY_FORMAT_OFFSET_OUT_HIGH                  0x0000023c
 
+=======
+>>>>>>> upstream/android-13
 static __must_check inline int
 RING_SPACE(struct nouveau_channel *chan, int size)
 {
@@ -102,6 +108,7 @@ OUT_RING(struct nouveau_channel *chan, int data)
 	nouveau_bo_wr32(chan->push.buffer, chan->dma.cur++, data);
 }
 
+<<<<<<< HEAD
 extern void
 OUT_RINGp(struct nouveau_channel *chan, const void *data, unsigned nr_dwords);
 
@@ -135,6 +142,8 @@ BEGIN_IMC0(struct nouveau_channel *chan, int subc, int mthd, u16 data)
 	OUT_RING(chan, 0x80000000 | (data << 16) | (subc << 13) | (mthd >> 2));
 }
 
+=======
+>>>>>>> upstream/android-13
 #define WRITE_PUT(val) do {                                                    \
 	mb();                                                   \
 	nouveau_bo_rd32(chan->push.buffer, 0);                                 \
@@ -164,6 +173,7 @@ WIND_RING(struct nouveau_channel *chan)
 	chan->dma.cur = chan->dma.put;
 }
 
+<<<<<<< HEAD
 /* FIFO methods */
 #define NV01_SUBCHAN_OBJECT                                          0x00000000
 #define NV84_SUBCHAN_SEMAPHORE_ADDRESS_HIGH                          0x00000010
@@ -183,6 +193,8 @@ WIND_RING(struct nouveau_channel *chan)
 #define NV11_SUBCHAN_SEMAPHORE_RELEASE                               0x0000006c
 #define NV40_SUBCHAN_YIELD                                           0x00000080
 
+=======
+>>>>>>> upstream/android-13
 /* NV_SW object class */
 #define NV_SW_DMA_VBLSEM                                             0x0000018c
 #define NV_SW_VBLSEM_OFFSET                                          0x00000400

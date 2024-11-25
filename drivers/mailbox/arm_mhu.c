@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2013-2015 Fujitsu Semiconductor Ltd.
  * Copyright (C) 2015 Linaro Ltd.
  * Author: Jassi Brar <jaswinder.singh@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +28,17 @@
 #include <linux/module.h>
 #include <linux/amba/bus.h>
 #include <linux/mailbox_controller.h>
+=======
+ */
+
+#include <linux/amba/bus.h>
+#include <linux/device.h>
+#include <linux/err.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/mailbox_controller.h>
+#include <linux/module.h>
+>>>>>>> upstream/android-13
 
 #define INTR_STAT_OFS	0x0
 #define INTR_SET_OFS	0x8
@@ -124,16 +140,27 @@ static int mhu_probe(struct amba_device *adev, const struct amba_id *id)
 	struct device *dev = &adev->dev;
 	int mhu_reg[MHU_CHANS] = {MHU_LP_OFFSET, MHU_HP_OFFSET, MHU_SEC_OFFSET};
 
+<<<<<<< HEAD
+=======
+	if (!of_device_is_compatible(dev->of_node, "arm,mhu"))
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	/* Allocate memory for device */
 	mhu = devm_kzalloc(dev, sizeof(*mhu), GFP_KERNEL);
 	if (!mhu)
 		return -ENOMEM;
 
 	mhu->base = devm_ioremap_resource(dev, &adev->res);
+<<<<<<< HEAD
 	if (IS_ERR(mhu->base)) {
 		dev_err(dev, "ioremap failed\n");
 		return PTR_ERR(mhu->base);
 	}
+=======
+	if (IS_ERR(mhu->base))
+		return PTR_ERR(mhu->base);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MHU_CHANS; i++) {
 		mhu->chan[i].con_priv = &mhu->mlink[i];
@@ -152,7 +179,11 @@ static int mhu_probe(struct amba_device *adev, const struct amba_id *id)
 
 	amba_set_drvdata(adev, mhu);
 
+<<<<<<< HEAD
 	err = mbox_controller_register(&mhu->mbox);
+=======
+	err = devm_mbox_controller_register(dev, &mhu->mbox);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(dev, "Failed to register mailboxes %d\n", err);
 		return err;
@@ -162,6 +193,7 @@ static int mhu_probe(struct amba_device *adev, const struct amba_id *id)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int mhu_remove(struct amba_device *adev)
 {
 	struct arm_mhu *mhu = amba_get_drvdata(adev);
@@ -171,6 +203,8 @@ static int mhu_remove(struct amba_device *adev)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct amba_id mhu_ids[] = {
 	{
 		.id	= 0x1bb098,
@@ -186,7 +220,10 @@ static struct amba_driver arm_mhu_driver = {
 	},
 	.id_table	= mhu_ids,
 	.probe		= mhu_probe,
+<<<<<<< HEAD
 	.remove		= mhu_remove,
+=======
+>>>>>>> upstream/android-13
 };
 module_amba_driver(arm_mhu_driver);
 

@@ -71,6 +71,7 @@ static void rockchip_pcie_update_txcredit_mui(struct rockchip_pcie *rockchip)
 static int rockchip_pcie_valid_device(struct rockchip_pcie *rockchip,
 				      struct pci_bus *bus, int dev)
 {
+<<<<<<< HEAD
 	/* access only one slot on each root port */
 	if (bus->number == rockchip->root_bus_nr && dev > 0)
 		return 0;
@@ -81,6 +82,15 @@ static int rockchip_pcie_valid_device(struct rockchip_pcie *rockchip,
 	 */
 	if (bus->primary == rockchip->root_bus_nr && dev > 0)
 		return 0;
+=======
+	/*
+	 * Access only one slot on each root port.
+	 * Do not read more than one device on the bus directly attached
+	 * to RC's downstream side.
+	 */
+	if (pci_is_root_bus(bus) || pci_is_root_bus(bus->parent))
+		return dev == 0;
+>>>>>>> upstream/android-13
 
 	return 1;
 }
@@ -160,17 +170,29 @@ static int rockchip_pcie_rd_other_conf(struct rockchip_pcie *rockchip,
 				       struct pci_bus *bus, u32 devfn,
 				       int where, int size, u32 *val)
 {
+<<<<<<< HEAD
 	u32 busdev;
 
 	busdev = PCIE_ECAM_ADDR(bus->number, PCI_SLOT(devfn),
 				PCI_FUNC(devfn), where);
 
 	if (!IS_ALIGNED(busdev, size)) {
+=======
+	void __iomem *addr;
+
+	addr = rockchip->reg_base + PCIE_ECAM_OFFSET(bus->number, devfn, where);
+
+	if (!IS_ALIGNED((uintptr_t)addr, size)) {
+>>>>>>> upstream/android-13
 		*val = 0;
 		return PCIBIOS_BAD_REGISTER_NUMBER;
 	}
 
+<<<<<<< HEAD
 	if (bus->parent->number == rockchip->root_bus_nr)
+=======
+	if (pci_is_root_bus(bus->parent))
+>>>>>>> upstream/android-13
 		rockchip_pcie_cfg_configuration_accesses(rockchip,
 						AXI_WRAPPER_TYPE0_CFG);
 	else
@@ -178,11 +200,19 @@ static int rockchip_pcie_rd_other_conf(struct rockchip_pcie *rockchip,
 						AXI_WRAPPER_TYPE1_CFG);
 
 	if (size == 4) {
+<<<<<<< HEAD
 		*val = readl(rockchip->reg_base + busdev);
 	} else if (size == 2) {
 		*val = readw(rockchip->reg_base + busdev);
 	} else if (size == 1) {
 		*val = readb(rockchip->reg_base + busdev);
+=======
+		*val = readl(addr);
+	} else if (size == 2) {
+		*val = readw(addr);
+	} else if (size == 1) {
+		*val = readb(addr);
+>>>>>>> upstream/android-13
 	} else {
 		*val = 0;
 		return PCIBIOS_BAD_REGISTER_NUMBER;
@@ -194,6 +224,7 @@ static int rockchip_pcie_wr_other_conf(struct rockchip_pcie *rockchip,
 				       struct pci_bus *bus, u32 devfn,
 				       int where, int size, u32 val)
 {
+<<<<<<< HEAD
 	u32 busdev;
 
 	busdev = PCIE_ECAM_ADDR(bus->number, PCI_SLOT(devfn),
@@ -202,6 +233,16 @@ static int rockchip_pcie_wr_other_conf(struct rockchip_pcie *rockchip,
 		return PCIBIOS_BAD_REGISTER_NUMBER;
 
 	if (bus->parent->number == rockchip->root_bus_nr)
+=======
+	void __iomem *addr;
+
+	addr = rockchip->reg_base + PCIE_ECAM_OFFSET(bus->number, devfn, where);
+
+	if (!IS_ALIGNED((uintptr_t)addr, size))
+		return PCIBIOS_BAD_REGISTER_NUMBER;
+
+	if (pci_is_root_bus(bus->parent))
+>>>>>>> upstream/android-13
 		rockchip_pcie_cfg_configuration_accesses(rockchip,
 						AXI_WRAPPER_TYPE0_CFG);
 	else
@@ -209,11 +250,19 @@ static int rockchip_pcie_wr_other_conf(struct rockchip_pcie *rockchip,
 						AXI_WRAPPER_TYPE1_CFG);
 
 	if (size == 4)
+<<<<<<< HEAD
 		writel(val, rockchip->reg_base + busdev);
 	else if (size == 2)
 		writew(val, rockchip->reg_base + busdev);
 	else if (size == 1)
 		writeb(val, rockchip->reg_base + busdev);
+=======
+		writel(val, addr);
+	else if (size == 2)
+		writew(val, addr);
+	else if (size == 1)
+		writeb(val, addr);
+>>>>>>> upstream/android-13
 	else
 		return PCIBIOS_BAD_REGISTER_NUMBER;
 
@@ -230,7 +279,11 @@ static int rockchip_pcie_rd_conf(struct pci_bus *bus, u32 devfn, int where,
 		return PCIBIOS_DEVICE_NOT_FOUND;
 	}
 
+<<<<<<< HEAD
 	if (bus->number == rockchip->root_bus_nr)
+=======
+	if (pci_is_root_bus(bus))
+>>>>>>> upstream/android-13
 		return rockchip_pcie_rd_own_conf(rockchip, where, size, val);
 
 	return rockchip_pcie_rd_other_conf(rockchip, bus, devfn, where, size,
@@ -245,7 +298,11 @@ static int rockchip_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
 	if (!rockchip_pcie_valid_device(rockchip, bus, PCI_SLOT(devfn)))
 		return PCIBIOS_DEVICE_NOT_FOUND;
 
+<<<<<<< HEAD
 	if (bus->number == rockchip->root_bus_nr)
+=======
+	if (pci_is_root_bus(bus))
+>>>>>>> upstream/android-13
 		return rockchip_pcie_wr_own_conf(rockchip, where, size, val);
 
 	return rockchip_pcie_wr_other_conf(rockchip, bus, devfn, where, size,
@@ -521,7 +578,11 @@ static void rockchip_pcie_legacy_int_handler(struct irq_desc *desc)
 	struct device *dev = rockchip->dev;
 	u32 reg;
 	u32 hwirq;
+<<<<<<< HEAD
 	u32 virq;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	chained_irq_enter(chip, desc);
 
@@ -532,10 +593,15 @@ static void rockchip_pcie_legacy_int_handler(struct irq_desc *desc)
 		hwirq = ffs(reg) - 1;
 		reg &= ~BIT(hwirq);
 
+<<<<<<< HEAD
 		virq = irq_find_mapping(rockchip->irq_domain, hwirq);
 		if (virq)
 			generic_handle_irq(virq);
 		else
+=======
+		ret = generic_handle_domain_irq(rockchip->irq_domain, hwirq);
+		if (ret)
+>>>>>>> upstream/android-13
 			dev_err(dev, "unexpected IRQ, INT%d\n", hwirq);
 	}
 
@@ -549,10 +615,15 @@ static int rockchip_pcie_setup_irq(struct rockchip_pcie *rockchip)
 	struct platform_device *pdev = to_platform_device(dev);
 
 	irq = platform_get_irq_byname(pdev, "sys");
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "missing sys IRQ resource\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	err = devm_request_irq(dev, irq, rockchip_pcie_subsys_irq_handler,
 			       IRQF_SHARED, "pcie-sys", rockchip);
@@ -562,20 +633,30 @@ static int rockchip_pcie_setup_irq(struct rockchip_pcie *rockchip)
 	}
 
 	irq = platform_get_irq_byname(pdev, "legacy");
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "missing legacy IRQ resource\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	irq_set_chained_handler_and_data(irq,
 					 rockchip_pcie_legacy_int_handler,
 					 rockchip);
 
 	irq = platform_get_irq_byname(pdev, "client");
+<<<<<<< HEAD
 	if (irq < 0) {
 		dev_err(dev, "missing client IRQ resource\n");
 		return irq;
 	}
+=======
+	if (irq < 0)
+		return irq;
+>>>>>>> upstream/android-13
 
 	err = devm_request_irq(dev, irq, rockchip_pcie_client_irq_handler,
 			       IRQF_SHARED, "pcie-client", rockchip);
@@ -602,10 +683,13 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	err = rockchip_pcie_setup_irq(rockchip);
 	if (err)
 		return err;
 
+=======
+>>>>>>> upstream/android-13
 	rockchip->vpcie12v = devm_regulator_get_optional(dev, "vpcie12v");
 	if (IS_ERR(rockchip->vpcie12v)) {
 		if (PTR_ERR(rockchip->vpcie12v) != -ENODEV)
@@ -620,6 +704,7 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
 		dev_info(dev, "no vpcie3v3 regulator found\n");
 	}
 
+<<<<<<< HEAD
 	rockchip->vpcie1v8 = devm_regulator_get_optional(dev, "vpcie1v8");
 	if (IS_ERR(rockchip->vpcie1v8)) {
 		if (PTR_ERR(rockchip->vpcie1v8) != -ENODEV)
@@ -633,6 +718,15 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
 			return PTR_ERR(rockchip->vpcie0v9);
 		dev_info(dev, "no vpcie0v9 regulator found\n");
 	}
+=======
+	rockchip->vpcie1v8 = devm_regulator_get(dev, "vpcie1v8");
+	if (IS_ERR(rockchip->vpcie1v8))
+		return PTR_ERR(rockchip->vpcie1v8);
+
+	rockchip->vpcie0v9 = devm_regulator_get(dev, "vpcie0v9");
+	if (IS_ERR(rockchip->vpcie0v9))
+		return PTR_ERR(rockchip->vpcie0v9);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -658,6 +752,7 @@ static int rockchip_pcie_set_vpcie(struct rockchip_pcie *rockchip)
 		}
 	}
 
+<<<<<<< HEAD
 	if (!IS_ERR(rockchip->vpcie1v8)) {
 		err = regulator_enable(rockchip->vpcie1v8);
 		if (err) {
@@ -672,13 +767,29 @@ static int rockchip_pcie_set_vpcie(struct rockchip_pcie *rockchip)
 			dev_err(dev, "fail to enable vpcie0v9 regulator\n");
 			goto err_disable_1v8;
 		}
+=======
+	err = regulator_enable(rockchip->vpcie1v8);
+	if (err) {
+		dev_err(dev, "fail to enable vpcie1v8 regulator\n");
+		goto err_disable_3v3;
+	}
+
+	err = regulator_enable(rockchip->vpcie0v9);
+	if (err) {
+		dev_err(dev, "fail to enable vpcie0v9 regulator\n");
+		goto err_disable_1v8;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 
 err_disable_1v8:
+<<<<<<< HEAD
 	if (!IS_ERR(rockchip->vpcie1v8))
 		regulator_disable(rockchip->vpcie1v8);
+=======
+	regulator_disable(rockchip->vpcie1v8);
+>>>>>>> upstream/android-13
 err_disable_3v3:
 	if (!IS_ERR(rockchip->vpcie3v3))
 		regulator_disable(rockchip->vpcie3v3);
@@ -724,6 +835,10 @@ static int rockchip_pcie_init_irq_domain(struct rockchip_pcie *rockchip)
 
 	rockchip->irq_domain = irq_domain_add_linear(intc, PCI_NUM_INTX,
 						    &intx_domain_ops, rockchip);
+<<<<<<< HEAD
+=======
+	of_node_put(intc);
+>>>>>>> upstream/android-13
 	if (!rockchip->irq_domain) {
 		dev_err(dev, "failed to get a INTx IRQ domain\n");
 		return -EINVAL;
@@ -805,12 +920,19 @@ static int rockchip_pcie_prog_ib_atu(struct rockchip_pcie *rockchip,
 static int rockchip_pcie_cfg_atu(struct rockchip_pcie *rockchip)
 {
 	struct device *dev = rockchip->dev;
+<<<<<<< HEAD
+=======
+	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(rockchip);
+	struct resource_entry *entry;
+	u64 pci_addr, size;
+>>>>>>> upstream/android-13
 	int offset;
 	int err;
 	int reg_no;
 
 	rockchip_pcie_cfg_configuration_accesses(rockchip,
 						 AXI_WRAPPER_TYPE0_CFG);
+<<<<<<< HEAD
 
 	for (reg_no = 0; reg_no < (rockchip->mem_size >> 20); reg_no++) {
 		err = rockchip_pcie_prog_ob_atu(rockchip, reg_no + 1,
@@ -818,6 +940,21 @@ static int rockchip_pcie_cfg_atu(struct rockchip_pcie *rockchip)
 						20 - 1,
 						rockchip->mem_bus_addr +
 						(reg_no << 20),
+=======
+	entry = resource_list_first_type(&bridge->windows, IORESOURCE_MEM);
+	if (!entry)
+		return -ENODEV;
+
+	size = resource_size(entry->res);
+	pci_addr = entry->res->start - entry->offset;
+	rockchip->msg_bus_addr = pci_addr;
+
+	for (reg_no = 0; reg_no < (size >> 20); reg_no++) {
+		err = rockchip_pcie_prog_ob_atu(rockchip, reg_no + 1,
+						AXI_WRAPPER_MEM_WRITE,
+						20 - 1,
+						pci_addr + (reg_no << 20),
+>>>>>>> upstream/android-13
 						0);
 		if (err) {
 			dev_err(dev, "program RC mem outbound ATU failed\n");
@@ -831,14 +968,32 @@ static int rockchip_pcie_cfg_atu(struct rockchip_pcie *rockchip)
 		return err;
 	}
 
+<<<<<<< HEAD
 	offset = rockchip->mem_size >> 20;
 	for (reg_no = 0; reg_no < (rockchip->io_size >> 20); reg_no++) {
+=======
+	entry = resource_list_first_type(&bridge->windows, IORESOURCE_IO);
+	if (!entry)
+		return -ENODEV;
+
+	/* store the register number offset to program RC io outbound ATU */
+	offset = size >> 20;
+
+	size = resource_size(entry->res);
+	pci_addr = entry->res->start - entry->offset;
+
+	for (reg_no = 0; reg_no < (size >> 20); reg_no++) {
+>>>>>>> upstream/android-13
 		err = rockchip_pcie_prog_ob_atu(rockchip,
 						reg_no + 1 + offset,
 						AXI_WRAPPER_IO_WRITE,
 						20 - 1,
+<<<<<<< HEAD
 						rockchip->io_bus_addr +
 						(reg_no << 20),
+=======
+						pci_addr + (reg_no << 20),
+>>>>>>> upstream/android-13
 						0);
 		if (err) {
 			dev_err(dev, "program RC io outbound ATU failed\n");
@@ -851,8 +1006,12 @@ static int rockchip_pcie_cfg_atu(struct rockchip_pcie *rockchip)
 				  AXI_WRAPPER_NOR_MSG,
 				  20 - 1, 0, 0);
 
+<<<<<<< HEAD
 	rockchip->msg_bus_addr = rockchip->mem_bus_addr +
 					((reg_no + offset) << 20);
+=======
+	rockchip->msg_bus_addr += ((reg_no + offset) << 20);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -896,8 +1055,12 @@ static int __maybe_unused rockchip_pcie_suspend_noirq(struct device *dev)
 
 	rockchip_pcie_disable_clocks(rockchip);
 
+<<<<<<< HEAD
 	if (!IS_ERR(rockchip->vpcie0v9))
 		regulator_disable(rockchip->vpcie0v9);
+=======
+	regulator_disable(rockchip->vpcie0v9);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -907,12 +1070,19 @@ static int __maybe_unused rockchip_pcie_resume_noirq(struct device *dev)
 	struct rockchip_pcie *rockchip = dev_get_drvdata(dev);
 	int err;
 
+<<<<<<< HEAD
 	if (!IS_ERR(rockchip->vpcie0v9)) {
 		err = regulator_enable(rockchip->vpcie0v9);
 		if (err) {
 			dev_err(dev, "fail to enable vpcie0v9 regulator\n");
 			return err;
 		}
+=======
+	err = regulator_enable(rockchip->vpcie0v9);
+	if (err) {
+		dev_err(dev, "fail to enable vpcie0v9 regulator\n");
+		return err;
+>>>>>>> upstream/android-13
 	}
 
 	err = rockchip_pcie_enable_clocks(rockchip);
@@ -938,8 +1108,12 @@ err_err_deinit_port:
 err_pcie_resume:
 	rockchip_pcie_disable_clocks(rockchip);
 err_disable_0v9:
+<<<<<<< HEAD
 	if (!IS_ERR(rockchip->vpcie0v9))
 		regulator_disable(rockchip->vpcie0v9);
+=======
+	regulator_disable(rockchip->vpcie0v9);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -947,6 +1121,7 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
 {
 	struct rockchip_pcie *rockchip;
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct pci_bus *bus, *child;
 	struct pci_host_bridge *bridge;
 	struct resource_entry *win;
@@ -957,6 +1132,11 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
 
 	LIST_HEAD(res);
 
+=======
+	struct pci_host_bridge *bridge;
+	int err;
+
+>>>>>>> upstream/android-13
 	if (!dev->of_node)
 		return -ENODEV;
 
@@ -988,12 +1168,16 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
 	if (err)
 		goto err_vpcie;
 
+<<<<<<< HEAD
 	rockchip_pcie_enable_interrupts(rockchip);
 
+=======
+>>>>>>> upstream/android-13
 	err = rockchip_pcie_init_irq_domain(rockchip);
 	if (err < 0)
 		goto err_deinit_port;
 
+<<<<<<< HEAD
 	err = devm_of_pci_get_host_bridge_resources(dev, 0, 0xff,
 						    &res, &io_base);
 	if (err)
@@ -1036,10 +1220,16 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
 	err = rockchip_pcie_cfg_atu(rockchip);
 	if (err)
 		goto err_unmap_iospace;
+=======
+	err = rockchip_pcie_cfg_atu(rockchip);
+	if (err)
+		goto err_remove_irq_domain;
+>>>>>>> upstream/android-13
 
 	rockchip->msg_region = devm_ioremap(dev, rockchip->msg_bus_addr, SZ_1M);
 	if (!rockchip->msg_region) {
 		err = -ENOMEM;
+<<<<<<< HEAD
 		goto err_unmap_iospace;
 	}
 
@@ -1071,6 +1261,26 @@ err_unmap_iospace:
 	pci_unmap_iospace(rockchip->io);
 err_free_res:
 	pci_free_resource_list(&res);
+=======
+		goto err_remove_irq_domain;
+	}
+
+	bridge->sysdata = rockchip;
+	bridge->ops = &rockchip_pcie_ops;
+
+	err = rockchip_pcie_setup_irq(rockchip);
+	if (err)
+		goto err_remove_irq_domain;
+
+	rockchip_pcie_enable_interrupts(rockchip);
+
+	err = pci_host_probe(bridge);
+	if (err < 0)
+		goto err_remove_irq_domain;
+
+	return 0;
+
+>>>>>>> upstream/android-13
 err_remove_irq_domain:
 	irq_domain_remove(rockchip->irq_domain);
 err_deinit_port:
@@ -1080,10 +1290,15 @@ err_vpcie:
 		regulator_disable(rockchip->vpcie12v);
 	if (!IS_ERR(rockchip->vpcie3v3))
 		regulator_disable(rockchip->vpcie3v3);
+<<<<<<< HEAD
 	if (!IS_ERR(rockchip->vpcie1v8))
 		regulator_disable(rockchip->vpcie1v8);
 	if (!IS_ERR(rockchip->vpcie0v9))
 		regulator_disable(rockchip->vpcie0v9);
+=======
+	regulator_disable(rockchip->vpcie1v8);
+	regulator_disable(rockchip->vpcie0v9);
+>>>>>>> upstream/android-13
 err_set_vpcie:
 	rockchip_pcie_disable_clocks(rockchip);
 	return err;
@@ -1093,10 +1308,17 @@ static int rockchip_pcie_remove(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct rockchip_pcie *rockchip = dev_get_drvdata(dev);
+<<<<<<< HEAD
 
 	pci_stop_root_bus(rockchip->root_bus);
 	pci_remove_root_bus(rockchip->root_bus);
 	pci_unmap_iospace(rockchip->io);
+=======
+	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(rockchip);
+
+	pci_stop_root_bus(bridge->bus);
+	pci_remove_root_bus(bridge->bus);
+>>>>>>> upstream/android-13
 	irq_domain_remove(rockchip->irq_domain);
 
 	rockchip_pcie_deinit_phys(rockchip);
@@ -1107,10 +1329,15 @@ static int rockchip_pcie_remove(struct platform_device *pdev)
 		regulator_disable(rockchip->vpcie12v);
 	if (!IS_ERR(rockchip->vpcie3v3))
 		regulator_disable(rockchip->vpcie3v3);
+<<<<<<< HEAD
 	if (!IS_ERR(rockchip->vpcie1v8))
 		regulator_disable(rockchip->vpcie1v8);
 	if (!IS_ERR(rockchip->vpcie0v9))
 		regulator_disable(rockchip->vpcie0v9);
+=======
+	regulator_disable(rockchip->vpcie1v8);
+	regulator_disable(rockchip->vpcie0v9);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

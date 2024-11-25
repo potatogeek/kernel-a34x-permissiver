@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015-2017 Netronome Systems, Inc.
  *
@@ -30,6 +31,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
+/* Copyright (C) 2015-2018 Netronome Systems, Inc. */
+>>>>>>> upstream/android-13
 
 /*
  * nfp_cpp.h
@@ -56,9 +61,22 @@
 	dev_info(nfp_cpp_device(cpp)->parent, NFP_SUBSYS ": " fmt, ## args)
 #define nfp_dbg(cpp, fmt, args...) \
 	dev_dbg(nfp_cpp_device(cpp)->parent, NFP_SUBSYS ": " fmt, ## args)
+<<<<<<< HEAD
 
 #define PCI_64BIT_BAR_COUNT             3
 
+=======
+#define nfp_printk(level, cpp, fmt, args...) \
+	dev_printk(level, nfp_cpp_device(cpp)->parent,	\
+		   NFP_SUBSYS ": " fmt,	## args)
+
+#define PCI_64BIT_BAR_COUNT             3
+
+/* NFP hardware vendor/device ids.
+ */
+#define PCI_DEVICE_ID_NETRONOME_NFP3800	0x3800
+
+>>>>>>> upstream/android-13
 #define NFP_CPP_NUM_TARGETS             16
 /* Max size of area it should be safe to request */
 #define NFP_CPP_SAFE_AREA_SIZE		SZ_2M
@@ -226,6 +244,10 @@ void nfp_cpp_free(struct nfp_cpp *cpp);
 u32 nfp_cpp_model(struct nfp_cpp *cpp);
 u16 nfp_cpp_interface(struct nfp_cpp *cpp);
 int nfp_cpp_serial(struct nfp_cpp *cpp, const u8 **serial);
+<<<<<<< HEAD
+=======
+unsigned int nfp_cpp_mu_locality_lsb(struct nfp_cpp *cpp);
+>>>>>>> upstream/android-13
 
 struct nfp_cpp_area *nfp_cpp_area_alloc_with_name(struct nfp_cpp *cpp,
 						  u32 cpp_id,
@@ -286,8 +308,13 @@ int nfp_cpp_writeq(struct nfp_cpp *cpp, u32 cpp_id,
 		   unsigned long long address, u64 value);
 
 u8 __iomem *
+<<<<<<< HEAD
 nfp_cpp_map_area(struct nfp_cpp *cpp, const char *name, int domain, int target,
 		 u64 addr, unsigned long size, struct nfp_cpp_area **area);
+=======
+nfp_cpp_map_area(struct nfp_cpp *cpp, const char *name, u32 cpp_id, u64 addr,
+		 unsigned long size, struct nfp_cpp_area **area);
+>>>>>>> upstream/android-13
 
 struct nfp_cpp_mutex;
 

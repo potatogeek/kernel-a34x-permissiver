@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  PS3 pagetable management routines.
  *
  *  Copyright (C) 2006 Sony Computer Entertainment Inc.
  *  Copyright 2006, 2007 Sony Corporation
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -181,7 +188,12 @@ static void ps3_hpte_invalidate(unsigned long slot, unsigned long vpn,
 	spin_unlock_irqrestore(&ps3_htab_lock, flags);
 }
 
+<<<<<<< HEAD
 static void ps3_hpte_clear(void)
+=======
+/* Called during kexec sequence with MMU off */
+static notrace void ps3_hpte_clear(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long hpte_count = (1UL << ppc64_pft_size) >> 4;
 	u64 i;

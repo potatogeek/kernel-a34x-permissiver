@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  * Author: Padmavathi Venna <padma.v@samsung.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Common Clock Framework support for Audio Subsystem Clock Controller.
 */
 
@@ -15,7 +22,10 @@
 #include <linux/clk-provider.h>
 #include <linux/of_address.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/syscore_ops.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,6 +8,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2012 ARM Limited
  */
@@ -34,7 +39,11 @@ static ssize_t vexpress_hwmon_label_show(struct device *dev,
 {
 	const char *label = of_get_property(dev->of_node, "label", NULL);
 
+<<<<<<< HEAD
 	return snprintf(buffer, PAGE_SIZE, "%s\n", label);
+=======
+	return sysfs_emit(buffer, "%s\n", label);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t vexpress_hwmon_u32_show(struct device *dev,
@@ -48,8 +57,13 @@ static ssize_t vexpress_hwmon_u32_show(struct device *dev,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	return snprintf(buffer, PAGE_SIZE, "%u\n", value /
 			to_sensor_dev_attr(dev_attr)->index);
+=======
+	return sysfs_emit(buffer, "%u\n", value /
+			  to_sensor_dev_attr(dev_attr)->index);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t vexpress_hwmon_u64_show(struct device *dev,
@@ -67,9 +81,15 @@ static ssize_t vexpress_hwmon_u64_show(struct device *dev,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	return snprintf(buffer, PAGE_SIZE, "%llu\n",
 			div_u64(((u64)value_hi << 32) | value_lo,
 			to_sensor_dev_attr(dev_attr)->index));
+=======
+	return sysfs_emit(buffer, "%llu\n",
+			  div_u64(((u64)value_hi << 32) | value_lo,
+				  to_sensor_dev_attr(dev_attr)->index));
+>>>>>>> upstream/android-13
 }
 
 static umode_t vexpress_hwmon_attr_is_visible(struct kobject *kobj,
@@ -92,9 +112,14 @@ struct vexpress_hwmon_type {
 };
 
 #if !defined(CONFIG_REGULATOR_VEXPRESS)
+<<<<<<< HEAD
 static DEVICE_ATTR(in1_label, S_IRUGO, vexpress_hwmon_label_show, NULL);
 static SENSOR_DEVICE_ATTR(in1_input, S_IRUGO, vexpress_hwmon_u32_show,
 		NULL, 1000);
+=======
+static DEVICE_ATTR(in1_label, 0444, vexpress_hwmon_label_show, NULL);
+static SENSOR_DEVICE_ATTR_RO(in1_input, vexpress_hwmon_u32, 1000);
+>>>>>>> upstream/android-13
 static struct attribute *vexpress_hwmon_attrs_volt[] = {
 	&dev_attr_in1_label.attr,
 	&sensor_dev_attr_in1_input.dev_attr.attr,
@@ -113,9 +138,14 @@ static struct vexpress_hwmon_type vexpress_hwmon_volt = {
 };
 #endif
 
+<<<<<<< HEAD
 static DEVICE_ATTR(curr1_label, S_IRUGO, vexpress_hwmon_label_show, NULL);
 static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, vexpress_hwmon_u32_show,
 		NULL, 1000);
+=======
+static DEVICE_ATTR(curr1_label, 0444, vexpress_hwmon_label_show, NULL);
+static SENSOR_DEVICE_ATTR_RO(curr1_input, vexpress_hwmon_u32, 1000);
+>>>>>>> upstream/android-13
 static struct attribute *vexpress_hwmon_attrs_amp[] = {
 	&dev_attr_curr1_label.attr,
 	&sensor_dev_attr_curr1_input.dev_attr.attr,
@@ -133,9 +163,14 @@ static struct vexpress_hwmon_type vexpress_hwmon_amp = {
 	},
 };
 
+<<<<<<< HEAD
 static DEVICE_ATTR(temp1_label, S_IRUGO, vexpress_hwmon_label_show, NULL);
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, vexpress_hwmon_u32_show,
 		NULL, 1000);
+=======
+static DEVICE_ATTR(temp1_label, 0444, vexpress_hwmon_label_show, NULL);
+static SENSOR_DEVICE_ATTR_RO(temp1_input, vexpress_hwmon_u32, 1000);
+>>>>>>> upstream/android-13
 static struct attribute *vexpress_hwmon_attrs_temp[] = {
 	&dev_attr_temp1_label.attr,
 	&sensor_dev_attr_temp1_input.dev_attr.attr,
@@ -153,9 +188,14 @@ static struct vexpress_hwmon_type vexpress_hwmon_temp = {
 	},
 };
 
+<<<<<<< HEAD
 static DEVICE_ATTR(power1_label, S_IRUGO, vexpress_hwmon_label_show, NULL);
 static SENSOR_DEVICE_ATTR(power1_input, S_IRUGO, vexpress_hwmon_u32_show,
 		NULL, 1);
+=======
+static DEVICE_ATTR(power1_label, 0444, vexpress_hwmon_label_show, NULL);
+static SENSOR_DEVICE_ATTR_RO(power1_input, vexpress_hwmon_u32, 1);
+>>>>>>> upstream/android-13
 static struct attribute *vexpress_hwmon_attrs_power[] = {
 	&dev_attr_power1_label.attr,
 	&sensor_dev_attr_power1_input.dev_attr.attr,
@@ -173,9 +213,14 @@ static struct vexpress_hwmon_type vexpress_hwmon_power = {
 	},
 };
 
+<<<<<<< HEAD
 static DEVICE_ATTR(energy1_label, S_IRUGO, vexpress_hwmon_label_show, NULL);
 static SENSOR_DEVICE_ATTR(energy1_input, S_IRUGO, vexpress_hwmon_u64_show,
 		NULL, 1);
+=======
+static DEVICE_ATTR(energy1_label, 0444, vexpress_hwmon_label_show, NULL);
+static SENSOR_DEVICE_ATTR_RO(energy1_input, vexpress_hwmon_u64, 1);
+>>>>>>> upstream/android-13
 static struct attribute *vexpress_hwmon_attrs_energy[] = {
 	&dev_attr_energy1_label.attr,
 	&sensor_dev_attr_energy1_input.dev_attr.attr,

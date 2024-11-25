@@ -34,7 +34,10 @@ static bool ath9k_hw_set_reset_reg(struct ath_hw *ah, u32 type);
 
 MODULE_AUTHOR("Atheros Communications");
 MODULE_DESCRIPTION("Support for Atheros 802.11n wireless LAN cards.");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("Atheros 802.11n WLAN cards");
+=======
+>>>>>>> upstream/android-13
 MODULE_LICENSE("Dual BSD/GPL");
 
 static void ath9k_hw_set_clockrate(struct ath_hw *ah)
@@ -457,7 +460,11 @@ static void ath9k_hw_init_defaults(struct ath_hw *ah)
 	struct ath_regulatory *regulatory = ath9k_hw_regulatory(ah);
 
 	regulatory->country_code = CTRY_DEFAULT;
+<<<<<<< HEAD
 	regulatory->power_limit = MAX_RATE_POWER;
+=======
+	regulatory->power_limit = MAX_COMBINED_POWER;
+>>>>>>> upstream/android-13
 
 	ah->hw_version.magic = AR5416_MAGIC;
 	ah->hw_version.subvendorid = 0;
@@ -1277,12 +1284,20 @@ static void ath9k_hw_set_operating_mode(struct ath_hw *ah, int opmode)
 			REG_SET_BIT(ah, AR_CFG, AR_CFG_AP_ADHOC_INDICATION);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_OCB:
 	case NL80211_IFTYPE_MESH_POINT:
 	case NL80211_IFTYPE_AP:
 		set |= AR_STA_ID1_STA_AP;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_STATION:
 		REG_CLR_BIT(ah, AR_CFG, AR_CFG_AP_ADHOC_INDICATION);
 		break;
@@ -1622,7 +1637,10 @@ static void ath9k_hw_apply_gpio_override(struct ath_hw *ah)
 		ath9k_hw_gpio_request_out(ah, i, NULL,
 					  AR_GPIO_OUTPUT_MUX_AS_OUTPUT);
 		ath9k_hw_set_gpio(ah, i, !!(ah->gpio_val & BIT(i)));
+<<<<<<< HEAD
 		ath9k_hw_gpio_free(ah, i);
+=======
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2293,6 +2311,10 @@ void ath9k_hw_beaconinit(struct ath_hw *ah, u32 next_beacon, u32 beacon_period)
 	case NL80211_IFTYPE_ADHOC:
 		REG_SET_BIT(ah, AR_TXCFG,
 			    AR_TXCFG_ADHOC_BEACON_ATIM_TX_POLICY);
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case NL80211_IFTYPE_MESH_POINT:
 	case NL80211_IFTYPE_AP:
 		REG_WRITE(ah, AR_NEXT_TBTT_TIMER, next_beacon);
@@ -2307,7 +2329,10 @@ void ath9k_hw_beaconinit(struct ath_hw *ah, u32 next_beacon, u32 beacon_period)
 		ath_dbg(ath9k_hw_common(ah), BEACON,
 			"%s: unsupported opmode: %d\n", __func__, ah->opmode);
 		return;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	REG_WRITE(ah, AR_BEACON_PERIOD, beacon_period);
@@ -2409,7 +2434,11 @@ static u8 fixup_chainmask(u8 chip_chainmask, u8 eeprom_chainmask)
  * of tests. The testing requirements are going to be documented. Desired
  * test requirements are documented at:
  *
+<<<<<<< HEAD
  * http://wireless.kernel.org/en/users/Drivers/ath9k/dfs
+=======
+ * https://wireless.wiki.kernel.org/en/users/Drivers/ath9k/dfs
+>>>>>>> upstream/android-13
  *
  * Once a new chipset gets properly tested an individual commit can be used
  * to document the testing for DFS for that chipset.
@@ -2729,6 +2758,7 @@ static void ath9k_hw_gpio_cfg_output_mux(struct ath_hw *ah, u32 gpio, u32 type)
 static void ath9k_hw_gpio_cfg_soc(struct ath_hw *ah, u32 gpio, bool out,
 				  const char *label)
 {
+<<<<<<< HEAD
 	if (ah->caps.gpio_requested & BIT(gpio))
 		return;
 
@@ -2737,6 +2767,19 @@ static void ath9k_hw_gpio_cfg_soc(struct ath_hw *ah, u32 gpio, bool out,
 
 	if (gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label))
 		return;
+=======
+	int err;
+
+	if (ah->caps.gpio_requested & BIT(gpio))
+		return;
+
+	err = gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label);
+	if (err) {
+		ath_err(ath9k_hw_common(ah), "request GPIO%d failed:%d\n",
+			gpio, err);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	ah->caps.gpio_requested |= BIT(gpio);
 }
@@ -2965,7 +3008,11 @@ void ath9k_hw_apply_txpower(struct ath_hw *ah, struct ath9k_channel *chan,
 		ctl = ath9k_regd_get_ctl(reg, chan);
 
 	channel = chan->chan;
+<<<<<<< HEAD
 	chan_pwr = min_t(int, channel->max_power * 2, MAX_RATE_POWER);
+=======
+	chan_pwr = min_t(int, channel->max_power * 2, MAX_COMBINED_POWER);
+>>>>>>> upstream/android-13
 	new_pwr = min_t(int, chan_pwr, reg->power_limit);
 
 	ah->eep_ops->set_txpower(ah, chan, ctl,
@@ -2978,9 +3025,15 @@ void ath9k_hw_set_txpowerlimit(struct ath_hw *ah, u32 limit, bool test)
 	struct ath9k_channel *chan = ah->curchan;
 	struct ieee80211_channel *channel = chan->chan;
 
+<<<<<<< HEAD
 	reg->power_limit = min_t(u32, limit, MAX_RATE_POWER);
 	if (test)
 		channel->max_power = MAX_RATE_POWER / 2;
+=======
+	reg->power_limit = min_t(u32, limit, MAX_COMBINED_POWER);
+	if (test)
+		channel->max_power = MAX_COMBINED_POWER / 2;
+>>>>>>> upstream/android-13
 
 	ath9k_hw_apply_txpower(ah, chan, test);
 

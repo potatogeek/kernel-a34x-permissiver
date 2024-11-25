@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * RNDIS	Definitions for Remote NDIS
  *
@@ -170,11 +174,18 @@ typedef struct rndis_params {
 	struct net_device	*dev;
 
 	u32			vendorID;
+<<<<<<< HEAD
 	u8			max_pkt_per_xfer;
+=======
+>>>>>>> upstream/android-13
 	const char		*vendorDescr;
 	void			(*resp_avail)(void *v);
 	void			*v;
 	struct list_head	resp_queue;
+<<<<<<< HEAD
+=======
+	spinlock_t		resp_lock;
+>>>>>>> upstream/android-13
 } rndis_params;
 
 /* RNDIS Message parser and other useless functions */

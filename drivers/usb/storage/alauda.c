@@ -36,6 +36,10 @@
 MODULE_DESCRIPTION("Driver for Alauda-based card readers");
 MODULE_AUTHOR("Daniel Drake <dsd@gentoo.org>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(USB_STORAGE);
+>>>>>>> upstream/android-13
 
 /*
  * Status bytes
@@ -452,9 +456,14 @@ static int alauda_check_media(struct us_data *us)
 {
 	struct alauda_info *info = (struct alauda_info *) us->extra;
 	unsigned char status[2];
+<<<<<<< HEAD
 	int rc;
 
 	rc = alauda_get_media_status(us, status);
+=======
+
+	alauda_get_media_status(us, status);
+>>>>>>> upstream/android-13
 
 	/* Check for no media or door open */
 	if ((status[0] & 0x80) || ((status[0] & 0x1F) == 0x10)

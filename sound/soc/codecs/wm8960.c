@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * wm8960.c  --  WM8960 ALSA SoC Audio driver
  *
  * Copyright 2007-11 Wolfson Microelectronics, plc
  *
  * Author: Liam Girdwood
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -611,11 +618,15 @@ static const int bclk_divs[] = {
  *		- lrclk      = sysclk / dac_divs
  *		- 10 * bclk  = sysclk / bclk_divs
  *
+<<<<<<< HEAD
  *	If we cannot find an exact match for (sysclk, lrclk, bclk)
  *	triplet, we relax the bclk such that bclk is chosen as the
  *	closest available frequency greater than expected bclk.
  *
  * @wm8960_priv: wm8960 codec private data
+=======
+ * @wm8960: codec private data
+>>>>>>> upstream/android-13
  * @mclk: MCLK used to derive sysclk
  * @sysclk_idx: sysclk_divs index for found sysclk
  * @dac_idx: dac_divs index for found lrclk
@@ -632,7 +643,11 @@ int wm8960_configure_sysclk(struct wm8960_priv *wm8960, int mclk,
 {
 	int sysclk, bclk, lrclk;
 	int i, j, k;
+<<<<<<< HEAD
 	int diff, closest = mclk;
+=======
+	int diff;
+>>>>>>> upstream/android-13
 
 	/* marker for no match */
 	*bclk_idx = -1;
@@ -656,12 +671,15 @@ int wm8960_configure_sysclk(struct wm8960_priv *wm8960, int mclk,
 					*bclk_idx = k;
 					break;
 				}
+<<<<<<< HEAD
 				if (diff > 0 && closest > diff) {
 					*sysclk_idx = i;
 					*dac_idx = j;
 					*bclk_idx = k;
 					closest = diff;
 				}
+=======
+>>>>>>> upstream/android-13
 			}
 			if (k != ARRAY_SIZE(bclk_divs))
 				break;
@@ -751,6 +769,7 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
 {
 	struct wm8960_priv *wm8960 = snd_soc_component_get_drvdata(component);
 	int freq_out, freq_in;
+<<<<<<< HEAD
 	u16 iface1 = snd_soc_component_read32(component, WM8960_IFACE1);
 	int i, j, k;
 	int ret;
@@ -758,6 +777,22 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
 	if (!(iface1 & (1<<6))) {
 		dev_dbg(component->dev,
 			"Codec is slave mode, no need to configure clock\n");
+=======
+	u16 iface1 = snd_soc_component_read(component, WM8960_IFACE1);
+	int i, j, k;
+	int ret;
+
+	/*
+	 * For Slave mode clocking should still be configured,
+	 * so this if statement should be removed, but some platform
+	 * may not work if the sysclk is not configured, to avoid such
+	 * compatible issue, just add '!wm8960->sysclk' condition in
+	 * this if statement.
+	 */
+	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
+		dev_warn(component->dev,
+			 "slave mode, but proceeding with no clock configuration\n");
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -821,7 +856,11 @@ static int wm8960_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_soc_component *component = dai->component;
 	struct wm8960_priv *wm8960 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 iface = snd_soc_component_read32(component, WM8960_IFACE1) & 0xfff3;
+=======
+	u16 iface = snd_soc_component_read(component, WM8960_IFACE1) & 0xfff3;
+>>>>>>> upstream/android-13
 	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
 	int i;
 
@@ -845,7 +884,11 @@ static int wm8960_hw_params(struct snd_pcm_substream *substream,
 			iface |= 0x000c;
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		dev_err(component->dev, "unsupported width %d\n",
 			params_width(params));
@@ -887,7 +930,11 @@ static int wm8960_hw_free(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int wm8960_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int wm8960_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct snd_soc_component *component = dai->component;
 
@@ -902,7 +949,11 @@ static int wm8960_set_bias_level_out3(struct snd_soc_component *component,
 				      enum snd_soc_bias_level level)
 {
 	struct wm8960_priv *wm8960 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 pm2 = snd_soc_component_read32(component, WM8960_POWER2);
+=======
+	u16 pm2 = snd_soc_component_read(component, WM8960_POWER2);
+>>>>>>> upstream/android-13
 	int ret;
 
 	switch (level) {
@@ -992,7 +1043,11 @@ static int wm8960_set_bias_level_capless(struct snd_soc_component *component,
 					 enum snd_soc_bias_level level)
 {
 	struct wm8960_priv *wm8960 = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
 	u16 pm2 = snd_soc_component_read32(component, WM8960_POWER2);
+=======
+	u16 pm2 = snd_soc_component_read(component, WM8960_POWER2);
+>>>>>>> upstream/android-13
 	int reg, ret;
 
 	switch (level) {
@@ -1211,7 +1266,11 @@ static int wm8960_set_pll(struct snd_soc_component *component,
 	if (!freq_in || !freq_out)
 		return 0;
 
+<<<<<<< HEAD
 	reg = snd_soc_component_read32(component, WM8960_PLL1) & ~0x3f;
+=======
+	reg = snd_soc_component_read(component, WM8960_PLL1) & ~0x3f;
+>>>>>>> upstream/android-13
 	reg |= pll_div.pre_div << 4;
 	reg |= pll_div.n;
 
@@ -1254,6 +1313,7 @@ static int wm8960_set_dai_clkdiv(struct snd_soc_dai *codec_dai,
 
 	switch (div_id) {
 	case WM8960_SYSCLKDIV:
+<<<<<<< HEAD
 		reg = snd_soc_component_read32(component, WM8960_CLOCK1) & 0x1f9;
 		snd_soc_component_write(component, WM8960_CLOCK1, reg | div);
 		break;
@@ -1271,6 +1331,25 @@ static int wm8960_set_dai_clkdiv(struct snd_soc_dai *codec_dai,
 		break;
 	case WM8960_TOCLKSEL:
 		reg = snd_soc_component_read32(component, WM8960_ADDCTL1) & 0x1fd;
+=======
+		reg = snd_soc_component_read(component, WM8960_CLOCK1) & 0x1f9;
+		snd_soc_component_write(component, WM8960_CLOCK1, reg | div);
+		break;
+	case WM8960_DACDIV:
+		reg = snd_soc_component_read(component, WM8960_CLOCK1) & 0x1c7;
+		snd_soc_component_write(component, WM8960_CLOCK1, reg | div);
+		break;
+	case WM8960_OPCLKDIV:
+		reg = snd_soc_component_read(component, WM8960_PLL1) & 0x03f;
+		snd_soc_component_write(component, WM8960_PLL1, reg | div);
+		break;
+	case WM8960_DCLKDIV:
+		reg = snd_soc_component_read(component, WM8960_CLOCK2) & 0x03f;
+		snd_soc_component_write(component, WM8960_CLOCK2, reg | div);
+		break;
+	case WM8960_TOCLKSEL:
+		reg = snd_soc_component_read(component, WM8960_ADDCTL1) & 0x1fd;
+>>>>>>> upstream/android-13
 		snd_soc_component_write(component, WM8960_ADDCTL1, reg | div);
 		break;
 	default:
@@ -1324,11 +1403,19 @@ static int wm8960_set_dai_sysclk(struct snd_soc_dai *dai, int clk_id,
 static const struct snd_soc_dai_ops wm8960_dai_ops = {
 	.hw_params = wm8960_hw_params,
 	.hw_free = wm8960_hw_free,
+<<<<<<< HEAD
 	.digital_mute = wm8960_mute,
+=======
+	.mute_stream = wm8960_mute,
+>>>>>>> upstream/android-13
 	.set_fmt = wm8960_set_dai_fmt,
 	.set_clkdiv = wm8960_set_dai_clkdiv,
 	.set_pll = wm8960_set_dai_pll,
 	.set_sysclk = wm8960_set_dai_sysclk,
+<<<<<<< HEAD
+=======
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 static struct snd_soc_dai_driver wm8960_dai = {
@@ -1346,7 +1433,11 @@ static struct snd_soc_dai_driver wm8960_dai = {
 		.rates = WM8960_RATES,
 		.formats = WM8960_FORMATS,},
 	.ops = &wm8960_dai_ops,
+<<<<<<< HEAD
 	.symmetric_rates = 1,
+=======
+	.symmetric_rate = 1,
+>>>>>>> upstream/android-13
 };
 
 static int wm8960_probe(struct snd_soc_component *component)
@@ -1398,6 +1489,15 @@ static void wm8960_set_pdata_from_of(struct i2c_client *i2c,
 
 	if (of_property_read_bool(np, "wlf,shared-lrclk"))
 		pdata->shared_lrclk = true;
+<<<<<<< HEAD
+=======
+
+	of_property_read_u32_array(np, "wlf,gpio-cfg", pdata->gpio_cfg,
+				   ARRAY_SIZE(pdata->gpio_cfg));
+
+	of_property_read_u32_array(np, "wlf,hp-cfg", pdata->hp_cfg,
+				   ARRAY_SIZE(pdata->hp_cfg));
+>>>>>>> upstream/android-13
 }
 
 static int wm8960_i2c_probe(struct i2c_client *i2c,
@@ -1455,6 +1555,23 @@ static int wm8960_i2c_probe(struct i2c_client *i2c,
 	regmap_update_bits(wm8960->regmap, WM8960_LOUT2, 0x100, 0x100);
 	regmap_update_bits(wm8960->regmap, WM8960_ROUT2, 0x100, 0x100);
 
+<<<<<<< HEAD
+=======
+	/* ADCLRC pin configured as GPIO. */
+	regmap_update_bits(wm8960->regmap, WM8960_IFACE2, 1 << 6,
+			   wm8960->pdata.gpio_cfg[0] << 6);
+	regmap_update_bits(wm8960->regmap, WM8960_ADDCTL4, 0xF << 4,
+			   wm8960->pdata.gpio_cfg[1] << 4);
+
+	/* Enable headphone jack detect */
+	regmap_update_bits(wm8960->regmap, WM8960_ADDCTL4, 3 << 2,
+			   wm8960->pdata.hp_cfg[0] << 2);
+	regmap_update_bits(wm8960->regmap, WM8960_ADDCTL2, 3 << 5,
+			   wm8960->pdata.hp_cfg[1] << 5);
+	regmap_update_bits(wm8960->regmap, WM8960_ADDCTL1, 3,
+			   wm8960->pdata.hp_cfg[2]);
+
+>>>>>>> upstream/android-13
 	i2c_set_clientdata(i2c, wm8960);
 
 	ret = devm_snd_soc_register_component(&i2c->dev,

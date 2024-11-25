@@ -5,7 +5,11 @@ Block Cipher Algorithm Definitions
    :doc: Block Cipher Algorithm Definitions
 
 .. kernel-doc:: include/linux/crypto.h
+<<<<<<< HEAD
    :functions: crypto_alg ablkcipher_alg blkcipher_alg cipher_alg
+=======
+   :functions: crypto_alg cipher_alg compress_alg
+>>>>>>> upstream/android-13
 
 Symmetric Key Cipher API
 ------------------------
@@ -28,6 +32,7 @@ Symmetric Key Cipher Request Handle
 Single Block Cipher API
 -----------------------
 
+<<<<<<< HEAD
 .. kernel-doc:: include/linux/crypto.h
    :doc: Single Block Cipher API
 
@@ -60,3 +65,10 @@ Synchronous Block Cipher API - Deprecated
 
 .. kernel-doc:: include/linux/crypto.h
    :functions: crypto_alloc_blkcipher crypto_free_blkcipher crypto_has_blkcipher crypto_blkcipher_name crypto_blkcipher_ivsize crypto_blkcipher_blocksize crypto_blkcipher_setkey crypto_blkcipher_encrypt crypto_blkcipher_encrypt_iv crypto_blkcipher_decrypt crypto_blkcipher_decrypt_iv crypto_blkcipher_set_iv crypto_blkcipher_get_iv
+=======
+.. kernel-doc:: include/crypto/internal/cipher.h
+   :doc: Single Block Cipher API
+
+.. kernel-doc:: include/crypto/internal/cipher.h
+   :functions: crypto_alloc_cipher crypto_free_cipher crypto_has_cipher crypto_cipher_blocksize crypto_cipher_setkey crypto_cipher_encrypt_one crypto_cipher_decrypt_one
+>>>>>>> upstream/android-13

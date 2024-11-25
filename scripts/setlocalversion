@@ -41,8 +41,11 @@ if test $# -gt 0; then
 		kmi_generation=$1
 		[ $(expr $kmi_generation : '^[0-9]\+$') -eq 0 ] && usage
 		shift
+<<<<<<< HEAD
 	else
 		usage
+=======
+>>>>>>> upstream/android-13
 	fi
 fi
 if test $# -gt 0 -o ! -d "$srctree"; then
@@ -64,16 +67,29 @@ scm_version()
 	fi
 
 	# Check for git and a git repo.
+<<<<<<< HEAD
 	if test -z "$(git rev-parse --show-cdup 2>/dev/null)" &&
 	   head=$(git rev-parse --verify HEAD 2>/dev/null); then
 
 		if [ -n "$android_release" ] && [ -n "$kmi_generation" ]; then
 			printf '%s' "-$android_release-$kmi_generation"
+=======
+	if head=$(git rev-parse --verify HEAD 2>/dev/null); then
+
+		if [ -n "$android_release" ] && [ -n "$kmi_generation" ]; then
+			printf '%s' "-$android_release-$kmi_generation"
+		elif [ -n "$android_release" ]; then
+			printf '%s' "-$android_release"
+>>>>>>> upstream/android-13
 		fi
 
 		# If we are at a tagged commit (like "v2.6.30-rc6"), we ignore
 		# it, because this version is defined in the top level Makefile.
+<<<<<<< HEAD
 		if [ -z "`git describe --exact-match 2>/dev/null`" ]; then
+=======
+		if [ -z "$(git describe --exact-match 2>/dev/null)" ]; then
+>>>>>>> upstream/android-13
 
 			# If only the short version is requested, don't bother
 			# running further git commands
@@ -83,6 +99,7 @@ scm_version()
 			fi
 			# If we are past a tagged commit (like
 			# "v2.6.30-rc5-302-g72357d5"), we pretty print it.
+<<<<<<< HEAD
 			#
 			# Ensure the abbreviated sha1 has exactly 12
 			# hex characters, to make the output
@@ -109,6 +126,21 @@ scm_version()
 		fi
 
 		# Check for uncommitted changes.
+=======
+			if atag="$(git describe 2>/dev/null)"; then
+				echo "$atag" | awk -F- '{printf("-%05d", $(NF-1))}'
+			fi
+
+			# Add -g and exactly 12 hex chars.
+			printf '%s%s' -g "$(echo $head | cut -c1-12)"
+		fi
+
+		# Check for uncommitted changes.
+		# This script must avoid any write attempt to the source tree,
+		# which might be read-only.
+		# You cannot use 'git describe --dirty' because it tries to
+		# create .git/index.lock .
+>>>>>>> upstream/android-13
 		# First, with git-status, but --no-optional-locks is only
 		# supported in git >= 2.14, so fall back to git-diff-index if
 		# it fails. Note that git-diff-index does not refresh the
@@ -117,6 +149,7 @@ scm_version()
 		if {
 			git --no-optional-locks status -uno --porcelain 2>/dev/null ||
 			git diff-index --name-only HEAD
+<<<<<<< HEAD
 		} | grep -qvE '^(.. )?scripts/package'; then
 			printf '%s' -dirty
 		fi
@@ -156,12 +189,21 @@ scm_version()
 
 		# All done with svn
 		return
+=======
+		} | read dummy; then
+			printf '%s' -dirty
+		fi
+>>>>>>> upstream/android-13
 	fi
 }
 
 collect_files()
 {
+<<<<<<< HEAD
 	local file res
+=======
+	local file res=
+>>>>>>> upstream/android-13
 
 	for file; do
 		case "$file" in
@@ -204,6 +246,7 @@ res="${res}${CONFIG_LOCALVERSION}${LOCALVERSION}"
 if test "$CONFIG_LOCALVERSION_AUTO" = "y"; then
 	# full scm version string
 	res="$res$(scm_version)"
+<<<<<<< HEAD
 else
 	# append a plus sign if the repository is not in a clean
 	# annotated or signed tagged state (as git describe only
@@ -215,4 +258,36 @@ else
 	fi
 fi
 
+=======
+elif [ "${LOCALVERSION+set}" != "set" ]; then
+	# If the variable LOCALVERSION is not set, append a plus
+	# sign if the repository is not in a clean annotated or
+	# signed tagged state (as git describe only looks at signed
+	# or annotated tags - git tag -a/-s).
+	#
+	# If the variable LOCALVERSION is set (including being set
+	# to an empty string), we don't want to append a plus sign.
+	scm=$(scm_version --short)
+	res="$res${scm:++}"
+fi
+
+# finally, add the abXXX number if BUILD_NUMBER is set
+if test -n "${BUILD_NUMBER}"; then
+	res="$res-ab${BUILD_NUMBER}"
+fi
+
+sec_scm_version()
+{
+	# Forcely use android_release and kmi_generation.
+	# And SEC build provide 'LOCALVERSION' to propagate extra version info.
+	if [ -n "${android_release}" ] && [ -n "${kmi_generation}" ]; then
+		printf '%s' "-${android_release}-${kmi_generation}${CONFIG_LOCALVERSION}${LOCALVERSION}"
+	else
+		echo -n "$res"
+	fi
+}
+
+res=$(sec_scm_version)
+
+>>>>>>> upstream/android-13
 echo "$res"

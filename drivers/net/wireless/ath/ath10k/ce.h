@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: ISC */
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018 The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +19,8 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CE_H_
@@ -39,8 +46,13 @@ struct ath10k_ce_pipe;
 #define CE_DESC_FLAGS_BYTE_SWAP      (1 << 1)
 #define CE_WCN3990_DESC_FLAGS_GATHER BIT(31)
 
+<<<<<<< HEAD
 #define CE_DESC_FLAGS_GET_MASK		GENMASK(4, 0)
 #define CE_DESC_37BIT_ADDR_MASK		GENMASK_ULL(37, 0)
+=======
+#define CE_DESC_ADDR_MASK		GENMASK_ULL(34, 0)
+#define CE_DESC_ADDR_HI_MASK		GENMASK(4, 0)
+>>>>>>> upstream/android-13
 
 /* Following desc flags are used in QCA99X0 */
 #define CE_DESC_FLAGS_HOST_INT_DIS	(1 << 2)
@@ -104,7 +116,11 @@ struct ath10k_ce_ring {
 	/* Host address space */
 	void *base_addr_owner_space_unaligned;
 	/* CE address space */
+<<<<<<< HEAD
 	u32 base_addr_ce_space_unaligned;
+=======
+	dma_addr_t base_addr_ce_space_unaligned;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Actual start of descriptors.
@@ -115,13 +131,21 @@ struct ath10k_ce_ring {
 	void *base_addr_owner_space;
 
 	/* CE address space */
+<<<<<<< HEAD
 	u32 base_addr_ce_space;
+=======
+	dma_addr_t base_addr_ce_space;
+>>>>>>> upstream/android-13
 
 	char *shadow_base_unaligned;
 	struct ce_desc_64 *shadow_base;
 
 	/* keep last */
+<<<<<<< HEAD
 	void *per_transfer_context[0];
+=======
+	void *per_transfer_context[];
+>>>>>>> upstream/android-13
 };
 
 struct ath10k_ce_pipe {
@@ -266,15 +290,26 @@ int ath10k_ce_cancel_send_next(struct ath10k_ce_pipe *ce_state,
 /*==================CE Interrupt Handlers====================*/
 void ath10k_ce_per_engine_service_any(struct ath10k *ar);
 void ath10k_ce_per_engine_service(struct ath10k *ar, unsigned int ce_id);
+<<<<<<< HEAD
 int ath10k_ce_disable_interrupts(struct ath10k *ar);
 void ath10k_ce_enable_interrupts(struct ath10k *ar);
 void ath10k_ce_dump_registers(struct ath10k *ar,
 			      struct ath10k_fw_crash_data *crash_data);
+=======
+void ath10k_ce_disable_interrupt(struct ath10k *ar, int ce_id);
+void ath10k_ce_disable_interrupts(struct ath10k *ar);
+void ath10k_ce_enable_interrupt(struct ath10k *ar, int ce_id);
+void ath10k_ce_enable_interrupts(struct ath10k *ar);
+void ath10k_ce_dump_registers(struct ath10k *ar,
+			      struct ath10k_fw_crash_data *crash_data);
+
+>>>>>>> upstream/android-13
 void ath10k_ce_alloc_rri(struct ath10k *ar);
 void ath10k_ce_free_rri(struct ath10k *ar);
 
 /* ce_attr.flags values */
 /* Use NonSnooping PCIe accesses? */
+<<<<<<< HEAD
 #define CE_ATTR_NO_SNOOP		1
 
 /* Byte swap data words */
@@ -285,6 +320,21 @@ void ath10k_ce_free_rri(struct ath10k *ar);
 
 /* no interrupt on copy completion */
 #define CE_ATTR_DIS_INTR		8
+=======
+#define CE_ATTR_NO_SNOOP		BIT(0)
+
+/* Byte swap data words */
+#define CE_ATTR_BYTE_SWAP_DATA		BIT(1)
+
+/* Swizzle descriptors? */
+#define CE_ATTR_SWIZZLE_DESCRIPTORS	BIT(2)
+
+/* no interrupt on copy completion */
+#define CE_ATTR_DIS_INTR		BIT(3)
+
+/* no interrupt, only polling */
+#define CE_ATTR_POLL			BIT(4)
+>>>>>>> upstream/android-13
 
 /* Attributes of an instance of a Copy Engine */
 struct ce_attr {
@@ -331,6 +381,17 @@ struct ath10k_ce_ops {
 			      void *per_transfer_context,
 			      dma_addr_t buffer, u32 nbytes,
 			      u32 transfer_id, u32 flags);
+<<<<<<< HEAD
+=======
+	void (*ce_set_src_ring_base_addr_hi)(struct ath10k *ar,
+					     u32 ce_ctrl_addr,
+					     u64 addr);
+	void (*ce_set_dest_ring_base_addr_hi)(struct ath10k *ar,
+					      u32 ce_ctrl_addr,
+					      u64 addr);
+	int (*ce_completed_send_next_nolock)(struct ath10k_ce_pipe *ce_state,
+					     void **per_transfer_contextp);
+>>>>>>> upstream/android-13
 };
 
 static inline u32 ath10k_ce_base_address(struct ath10k *ar, unsigned int ce_id)
@@ -369,18 +430,27 @@ static inline u32 ath10k_ce_base_address(struct ath10k *ar, unsigned int ce_id)
 	(((x) & CE_WRAPPER_INTERRUPT_SUMMARY_HOST_MSI_MASK) >> \
 		CE_WRAPPER_INTERRUPT_SUMMARY_HOST_MSI_LSB)
 #define CE_WRAPPER_INTERRUPT_SUMMARY_ADDRESS			0x0000
+<<<<<<< HEAD
 #define CE_INTERRUPT_SUMMARY		(GENMASK(CE_COUNT_MAX - 1, 0))
+=======
+>>>>>>> upstream/android-13
 
 static inline u32 ath10k_ce_interrupt_summary(struct ath10k *ar)
 {
 	struct ath10k_ce *ce = ath10k_ce_priv(ar);
 
+<<<<<<< HEAD
 	if (!ar->hw_params.per_ce_irq)
 		return CE_WRAPPER_INTERRUPT_SUMMARY_HOST_MSI_GET(
 			ce->bus_ops->read32((ar), CE_WRAPPER_BASE_ADDRESS +
 			CE_WRAPPER_INTERRUPT_SUMMARY_ADDRESS));
 	else
 		return CE_INTERRUPT_SUMMARY;
+=======
+	return CE_WRAPPER_INTERRUPT_SUMMARY_HOST_MSI_GET(
+		ce->bus_ops->read32((ar), CE_WRAPPER_BASE_ADDRESS +
+		CE_WRAPPER_INTERRUPT_SUMMARY_ADDRESS));
+>>>>>>> upstream/android-13
 }
 
 /* Host software's Copy Engine configuration. */
@@ -419,7 +489,11 @@ struct ce_pipe_config {
 #define PIPEDIR_INOUT   3  /* bidirectional */
 
 /* Establish a mapping between a service/direction and a pipe. */
+<<<<<<< HEAD
 struct service_to_pipe {
+=======
+struct ce_service_to_pipe {
+>>>>>>> upstream/android-13
 	__le32 service_id;
 	__le32 pipedir;
 	__le32 pipenum;

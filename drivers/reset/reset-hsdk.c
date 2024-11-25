@@ -86,6 +86,10 @@ static int hsdk_reset_reset(struct reset_controller_dev *rcdev,
 
 static const struct reset_control_ops hsdk_reset_ops = {
 	.reset	= hsdk_reset_reset,
+<<<<<<< HEAD
+=======
+	.deassert = hsdk_reset_reset,
+>>>>>>> upstream/android-13
 };
 
 static int hsdk_reset_probe(struct platform_device *pdev)

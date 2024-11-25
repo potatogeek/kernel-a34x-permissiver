@@ -3,7 +3,11 @@
  *
  * Name: acglobal.h - Declarations for global variables
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -42,6 +46,15 @@ ACPI_GLOBAL(struct acpi_generic_address, acpi_gbl_xpm1a_enable);
 ACPI_GLOBAL(struct acpi_generic_address, acpi_gbl_xpm1b_status);
 ACPI_GLOBAL(struct acpi_generic_address, acpi_gbl_xpm1b_enable);
 
+<<<<<<< HEAD
+=======
+#ifdef ACPI_GPE_USE_LOGICAL_ADDRESSES
+ACPI_GLOBAL(unsigned long, acpi_gbl_xgpe0_block_logical_address);
+ACPI_GLOBAL(unsigned long, acpi_gbl_xgpe1_block_logical_address);
+
+#endif				/* ACPI_GPE_USE_LOGICAL_ADDRESSES */
+
+>>>>>>> upstream/android-13
 /*
  * Handle both ACPI 1.0 and ACPI 2.0+ Integer widths. The integer width is
  * determined by the revision of the DSDT: If the DSDT revision is less than
@@ -164,6 +177,10 @@ ACPI_GLOBAL(struct acpi_memory_list *, acpi_gbl_global_list);
 ACPI_GLOBAL(struct acpi_memory_list *, acpi_gbl_ns_node_list);
 ACPI_GLOBAL(u8, acpi_gbl_display_final_mem_stats);
 ACPI_GLOBAL(u8, acpi_gbl_disable_mem_tracking);
+<<<<<<< HEAD
+=======
+ACPI_GLOBAL(u8, acpi_gbl_verbose_leak_dump);
+>>>>>>> upstream/android-13
 #endif
 
 /*****************************************************************************
@@ -172,16 +189,23 @@ ACPI_GLOBAL(u8, acpi_gbl_disable_mem_tracking);
  *
  ****************************************************************************/
 
+<<<<<<< HEAD
 #if !defined (ACPI_NO_METHOD_EXECUTION) || defined (ACPI_CONSTANT_EVAL_ONLY)
 #define NUM_PREDEFINED_NAMES            10
 #else
 #define NUM_PREDEFINED_NAMES            9
 #endif
+=======
+#define NUM_PREDEFINED_NAMES            10
+>>>>>>> upstream/android-13
 
 ACPI_GLOBAL(struct acpi_namespace_node, acpi_gbl_root_node_struct);
 ACPI_GLOBAL(struct acpi_namespace_node *, acpi_gbl_root_node);
 ACPI_GLOBAL(struct acpi_namespace_node *, acpi_gbl_fadt_gpe_device);
+<<<<<<< HEAD
 ACPI_GLOBAL(union acpi_operand_object *, acpi_gbl_module_code_list);
+=======
+>>>>>>> upstream/android-13
 
 extern const u8 acpi_gbl_ns_properties[ACPI_NUM_NS_TYPES];
 extern const struct acpi_predefined_names
@@ -224,6 +248,11 @@ extern struct acpi_bit_register_info
     acpi_gbl_bit_register_info[ACPI_NUM_BITREG];
 ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a);
 ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b);
+<<<<<<< HEAD
+=======
+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a_s0);
+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b_s0);
+>>>>>>> upstream/android-13
 
 /*****************************************************************************
  *
@@ -294,6 +323,10 @@ ACPI_GLOBAL(struct acpi_external_file *, acpi_gbl_external_file_list);
 #ifdef ACPI_DEBUGGER
 ACPI_INIT_GLOBAL(u8, acpi_gbl_abort_method, FALSE);
 ACPI_INIT_GLOBAL(acpi_thread_id, acpi_gbl_db_thread_id, ACPI_INVALID_THREAD_ID);
+<<<<<<< HEAD
+=======
+ACPI_INIT_GLOBAL(u32, acpi_gbl_next_cmd_num, 1);
+>>>>>>> upstream/android-13
 
 ACPI_GLOBAL(u8, acpi_gbl_db_opt_no_ini_methods);
 ACPI_GLOBAL(u8, acpi_gbl_db_opt_no_region_support);

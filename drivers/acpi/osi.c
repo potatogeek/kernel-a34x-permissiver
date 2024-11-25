@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  osi.c - _OSI implementation
  *
  *  Copyright (C) 2016 Intel Corporation
  *    Author: Lv Zheng <lv.zheng@intel.com>
+<<<<<<< HEAD
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -17,6 +22,8 @@
  *  General Public License for more details.
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======
+>>>>>>> upstream/android-13
  */
 
 /* Uncomment next line to get verbose printout */
@@ -74,6 +81,16 @@ osi_setup_entries[OSI_STRING_ENTRIES_MAX] __initdata = {
 	 * a BIOS workaround.
 	 */
 	{"Linux-Lenovo-NV-HDMI-Audio", true},
+<<<<<<< HEAD
+=======
+	/*
+	 * Linux-HPI-Hybrid-Graphics is used by BIOS to enable dGPU to
+	 * output video directly to external monitors on HP Inc. mobile
+	 * workstations as Nvidia and AMD VGA drivers provide limited
+	 * hybrid graphics supports.
+	 */
+	{"Linux-HPI-Hybrid-Graphics", true},
+>>>>>>> upstream/android-13
 };
 
 static u32 acpi_osi_handler(acpi_string interface, u32 supported)
@@ -479,9 +496,15 @@ static const struct dmi_system_id acpi_osi_dmi_table[] __initconst = {
 	 */
 
 	/*
+<<<<<<< HEAD
 	 * Without this this EEEpc exports a non working WMI interface, with
 	 * this it exports a working "good old" eeepc_laptop interface, fixing
 	 * both brightness control, and rfkill not working.
+=======
+	 * Without this EEEpc exports a non working WMI interface, with
+	 * this it exports a working "good old" eeepc_laptop interface,
+	 * fixing both brightness control, and rfkill not working.
+>>>>>>> upstream/android-13
 	 */
 	{
 	.callback = dmi_enable_osi_linux,

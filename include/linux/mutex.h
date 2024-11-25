@@ -19,8 +19,24 @@
 #include <asm/processor.h>
 #include <linux/osq_lock.h>
 #include <linux/debug_locks.h>
+<<<<<<< HEAD
 
 struct ww_acquire_ctx;
+=======
+#include <linux/android_vendor.h>
+
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+# define __DEP_MAP_MUTEX_INITIALIZER(lockname)			\
+		, .dep_map = {					\
+			.name = #lockname,			\
+			.wait_type_inner = LD_WAIT_SLEEP,	\
+		}
+#else
+# define __DEP_MAP_MUTEX_INITIALIZER(lockname)
+#endif
+
+#ifndef CONFIG_PREEMPT_RT
+>>>>>>> upstream/android-13
 
 /*
  * Simple, straightforward mutexes with strict semantics:
@@ -52,7 +68,11 @@ struct ww_acquire_ctx;
  */
 struct mutex {
 	atomic_long_t		owner;
+<<<<<<< HEAD
 	spinlock_t		wait_lock;
+=======
+	raw_spinlock_t		wait_lock;
+>>>>>>> upstream/android-13
 #ifdef CONFIG_MUTEX_SPIN_ON_OWNER
 	struct optimistic_spin_queue osq; /* Spinner MCS lock */
 #endif
@@ -63,6 +83,7 @@ struct mutex {
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	struct lockdep_map	dep_map;
 #endif
+<<<<<<< HEAD
 };
 
 /*
@@ -86,6 +107,9 @@ struct mutex_waiter {
 #ifdef CONFIG_DEBUG_MUTEXES
 	void			*magic;
 #endif
+=======
+	ANDROID_OEM_DATA_ARRAY(1, 2);
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_DEBUG_MUTEXES
@@ -118,6 +142,7 @@ do {									\
 	__mutex_init((mutex), #mutex, &__key);				\
 } while (0)
 
+<<<<<<< HEAD
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 # define __DEP_MAP_MUTEX_INITIALIZER(lockname) \
 		, .dep_map = { .name = #lockname }
@@ -128,6 +153,11 @@ do {									\
 #define __MUTEX_INITIALIZER(lockname) \
 		{ .owner = ATOMIC_LONG_INIT(0) \
 		, .wait_lock = __SPIN_LOCK_UNLOCKED(lockname.wait_lock) \
+=======
+#define __MUTEX_INITIALIZER(lockname) \
+		{ .owner = ATOMIC_LONG_INIT(0) \
+		, .wait_lock = __RAW_SPIN_LOCK_UNLOCKED(lockname.wait_lock) \
+>>>>>>> upstream/android-13
 		, .wait_list = LIST_HEAD_INIT(lockname.wait_list) \
 		__DEBUG_MUTEX_INITIALIZER(lockname) \
 		__DEP_MAP_MUTEX_INITIALIZER(lockname) }
@@ -144,6 +174,7 @@ extern void __mutex_init(struct mutex *lock, const char *name,
  *
  * Returns true if the mutex is locked, false if unlocked.
  */
+<<<<<<< HEAD
 static inline bool mutex_is_locked(struct mutex *lock)
 {
 	return __mutex_owner(lock) != NULL;
@@ -152,6 +183,57 @@ static inline bool mutex_is_locked(struct mutex *lock)
 /*
  * See kernel/locking/mutex.c for detailed documentation of these APIs.
  * Also see Documentation/locking/mutex-design.txt.
+=======
+extern bool mutex_is_locked(struct mutex *lock);
+
+#else /* !CONFIG_PREEMPT_RT */
+/*
+ * Preempt-RT variant based on rtmutexes.
+ */
+#include <linux/rtmutex.h>
+
+struct mutex {
+	struct rt_mutex_base	rtmutex;
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+	struct lockdep_map	dep_map;
+#endif
+};
+
+#define __MUTEX_INITIALIZER(mutexname)					\
+{									\
+	.rtmutex = __RT_MUTEX_BASE_INITIALIZER(mutexname.rtmutex)	\
+	__DEP_MAP_MUTEX_INITIALIZER(mutexname)				\
+}
+
+#define DEFINE_MUTEX(mutexname)						\
+	struct mutex mutexname = __MUTEX_INITIALIZER(mutexname)
+
+extern void __mutex_rt_init(struct mutex *lock, const char *name,
+			    struct lock_class_key *key);
+extern int mutex_trylock(struct mutex *lock);
+
+static inline void mutex_destroy(struct mutex *lock) { }
+
+#define mutex_is_locked(l)	rt_mutex_base_is_locked(&(l)->rtmutex)
+
+#define __mutex_init(mutex, name, key)			\
+do {							\
+	rt_mutex_base_init(&(mutex)->rtmutex);		\
+	__mutex_rt_init((mutex), name, key);		\
+} while (0)
+
+#define mutex_init(mutex)				\
+do {							\
+	static struct lock_class_key __key;		\
+							\
+	__mutex_init((mutex), #mutex, &__key);		\
+} while (0)
+#endif /* CONFIG_PREEMPT_RT */
+
+/*
+ * See kernel/locking/mutex.c for detailed documentation of these APIs.
+ * Also see Documentation/locking/mutex-design.rst.
+>>>>>>> upstream/android-13
  */
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 extern void mutex_lock_nested(struct mutex *lock, unsigned int subclass);
@@ -198,6 +280,7 @@ extern void mutex_unlock(struct mutex *lock);
 
 extern int atomic_dec_and_mutex_lock(atomic_t *cnt, struct mutex *lock);
 
+<<<<<<< HEAD
 /*
  * These values are chosen such that FAIL and SUCCESS match the
  * values of the regular mutex_trylock().
@@ -229,4 +312,6 @@ mutex_trylock_recursive(struct mutex *lock)
 	return mutex_trylock(lock);
 }
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __LINUX_MUTEX_H */

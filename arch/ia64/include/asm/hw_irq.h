@@ -12,7 +12,10 @@
 #include <linux/types.h>
 #include <linux/profile.h>
 
+<<<<<<< HEAD
 #include <asm/machvec.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/ptrace.h>
 #include <asm/smp.h>
 
@@ -56,7 +59,11 @@ typedef u8 ia64_vector;
 extern int ia64_first_device_vector;
 extern int ia64_last_device_vector;
 
+<<<<<<< HEAD
 #if defined(CONFIG_SMP) && (defined(CONFIG_IA64_GENERIC) || defined (CONFIG_IA64_DIG))
+=======
+#ifdef CONFIG_SMP
+>>>>>>> upstream/android-13
 /* Reserve the lower priority vector than device vectors for "move IRQ" IPI */
 #define IA64_IRQ_MOVE_VECTOR		0x30	/* "move IRQ" IPI */
 #define IA64_DEF_FIRST_DEVICE_VECTOR	0x31
@@ -70,7 +77,10 @@ extern int ia64_last_device_vector;
 #define IA64_NUM_DEVICE_VECTORS		(IA64_LAST_DEVICE_VECTOR - IA64_FIRST_DEVICE_VECTOR + 1)
 
 #define IA64_MCA_RENDEZ_VECTOR		0xe8	/* MCA rendez interrupt */
+<<<<<<< HEAD
 #define IA64_PERFMON_VECTOR		0xee	/* performance monitor interrupt vector */
+=======
+>>>>>>> upstream/android-13
 #define IA64_TIMER_VECTOR		0xef	/* use highest-prio group 15 interrupt for timer */
 #define	IA64_MCA_WAKEUP_VECTOR		0xf0	/* MCA wakeup (must be >MCA_RENDEZ_VECTOR) */
 #define IA64_IPI_LOCAL_TLB_FLUSH	0xfc	/* SMP flush local TLB */
@@ -114,7 +124,10 @@ extern struct irq_chip irq_type_ia64_lsapic;	/* CPU-internal interrupt controlle
 #define ia64_register_ipi	ia64_native_register_ipi
 #define assign_irq_vector	ia64_native_assign_irq_vector
 #define free_irq_vector		ia64_native_free_irq_vector
+<<<<<<< HEAD
 #define register_percpu_irq	ia64_native_register_percpu_irq
+=======
+>>>>>>> upstream/android-13
 #define ia64_resend_irq		ia64_native_resend_irq
 
 extern void ia64_native_register_ipi(void);
@@ -124,10 +137,16 @@ extern void ia64_native_free_irq_vector (int vector);
 extern int reserve_irq_vector (int vector);
 extern void __setup_vector_irq(int cpu);
 extern void ia64_send_ipi (int cpu, int vector, int delivery_mode, int redirect);
+<<<<<<< HEAD
 extern void ia64_native_register_percpu_irq (ia64_vector vec, struct irqaction *action);
 extern void destroy_and_reserve_irq (unsigned int irq);
 
 #if defined(CONFIG_SMP) && (defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_DIG))
+=======
+extern void destroy_and_reserve_irq (unsigned int irq);
+
+#ifdef CONFIG_SMP
+>>>>>>> upstream/android-13
 extern int irq_prepare_move(int irq, int cpu);
 extern void irq_complete_move(unsigned int irq);
 #else
@@ -137,6 +156,7 @@ static inline void irq_complete_move(unsigned int irq) {}
 
 static inline void ia64_native_resend_irq(unsigned int vector)
 {
+<<<<<<< HEAD
 	platform_send_ipi(smp_processor_id(), vector, IA64_IPI_DM_INT, 0);
 }
 
@@ -157,6 +177,12 @@ __ia64_local_vector_to_irq (ia64_vector vec)
 #endif
 
 /*
+=======
+	ia64_send_ipi(smp_processor_id(), vector, IA64_IPI_DM_INT, 0);
+}
+
+/*
+>>>>>>> upstream/android-13
  * Next follows the irq descriptor interface.  On IA-64, each CPU supports 256 interrupt
  * vectors.  On smaller systems, there is a one-to-one correspondence between interrupt
  * vectors and the Linux irq numbers.  However, larger systems may have multiple interrupt
@@ -170,7 +196,11 @@ __ia64_local_vector_to_irq (ia64_vector vec)
 static inline ia64_vector
 irq_to_vector (int irq)
 {
+<<<<<<< HEAD
 	return platform_irq_to_vector(irq);
+=======
+	return irq_cfg[irq].vector;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -181,7 +211,11 @@ irq_to_vector (int irq)
 static inline unsigned int
 local_vector_to_irq (ia64_vector vec)
 {
+<<<<<<< HEAD
 	return platform_local_vector_to_irq(vec);
+=======
+	return __this_cpu_read(vector_irq[vec]);
+>>>>>>> upstream/android-13
 }
 
 #endif /* _ASM_IA64_HW_IRQ_H */

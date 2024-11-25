@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * AD7266/65 SPI ADC driver
  *
  * Copyright 2012 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -12,7 +19,11 @@
 #include <linux/spi/spi.h>
 #include <linux/regulator/consumer.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 
 #include <linux/interrupt.h>
@@ -35,7 +46,11 @@ struct ad7266_state {
 	enum ad7266_range	range;
 	enum ad7266_mode	mode;
 	bool			fixed_addr;
+<<<<<<< HEAD
 	struct gpio		gpios[3];
+=======
+	struct gpio_desc	*gpios[3];
+>>>>>>> upstream/android-13
 
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
@@ -75,8 +90,11 @@ static int ad7266_postdisable(struct iio_dev *indio_dev)
 
 static const struct iio_buffer_setup_ops iio_triggered_buffer_setup_ops = {
 	.preenable = &ad7266_preenable,
+<<<<<<< HEAD
 	.postenable = &iio_triggered_buffer_postenable,
 	.predisable = &iio_triggered_buffer_predisable,
+=======
+>>>>>>> upstream/android-13
 	.postdisable = &ad7266_postdisable,
 };
 
@@ -118,7 +136,11 @@ static void ad7266_select_input(struct ad7266_state *st, unsigned int nr)
 	}
 
 	for (i = 0; i < 3; ++i)
+<<<<<<< HEAD
 		gpio_set_value(st->gpios[i].gpio, (bool)(nr & BIT(i)));
+=======
+		gpiod_set_value(st->gpios[i], (bool)(nr & BIT(i)));
+>>>>>>> upstream/android-13
 }
 
 static int ad7266_update_scan_mode(struct iio_dev *indio_dev,
@@ -377,7 +399,11 @@ static void ad7266_init_channels(struct iio_dev *indio_dev)
 }
 
 static const char * const ad7266_gpio_labels[] = {
+<<<<<<< HEAD
 	"AD0", "AD1", "AD2",
+=======
+	"ad0", "ad1", "ad2",
+>>>>>>> upstream/android-13
 };
 
 static int ad7266_probe(struct spi_device *spi)
@@ -420,6 +446,7 @@ static int ad7266_probe(struct spi_device *spi)
 
 		if (!st->fixed_addr) {
 			for (i = 0; i < ARRAY_SIZE(st->gpios); ++i) {
+<<<<<<< HEAD
 				st->gpios[i].gpio = pdata->addr_gpios[i];
 				st->gpios[i].flags = GPIOF_OUT_INIT_LOW;
 				st->gpios[i].label = ad7266_gpio_labels[i];
@@ -428,6 +455,16 @@ static int ad7266_probe(struct spi_device *spi)
 				ARRAY_SIZE(st->gpios));
 			if (ret)
 				goto error_disable_reg;
+=======
+				st->gpios[i] = devm_gpiod_get(&spi->dev,
+						      ad7266_gpio_labels[i],
+						      GPIOD_OUT_LOW);
+				if (IS_ERR(st->gpios[i])) {
+					ret = PTR_ERR(st->gpios[i]);
+					goto error_disable_reg;
+				}
+			}
+>>>>>>> upstream/android-13
 		}
 	} else {
 		st->fixed_addr = true;
@@ -438,8 +475,11 @@ static int ad7266_probe(struct spi_device *spi)
 	spi_set_drvdata(spi, indio_dev);
 	st->spi = spi;
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &spi->dev;
 	indio_dev->dev.of_node = spi->dev.of_node;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->name = spi_get_device_id(spi)->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->info = &ad7266_info;
@@ -466,7 +506,11 @@ static int ad7266_probe(struct spi_device *spi)
 	ret = iio_triggered_buffer_setup(indio_dev, &iio_pollfunc_store_time,
 		&ad7266_trigger_handler, &iio_triggered_buffer_setup_ops);
 	if (ret)
+<<<<<<< HEAD
 		goto error_free_gpios;
+=======
+		goto error_disable_reg;
+>>>>>>> upstream/android-13
 
 	ret = iio_device_register(indio_dev);
 	if (ret)
@@ -476,9 +520,12 @@ static int ad7266_probe(struct spi_device *spi)
 
 error_buffer_cleanup:
 	iio_triggered_buffer_cleanup(indio_dev);
+<<<<<<< HEAD
 error_free_gpios:
 	if (!st->fixed_addr)
 		gpio_free_array(st->gpios, ARRAY_SIZE(st->gpios));
+=======
+>>>>>>> upstream/android-13
 error_disable_reg:
 	if (!IS_ERR(st->reg))
 		regulator_disable(st->reg);
@@ -493,8 +540,11 @@ static int ad7266_remove(struct spi_device *spi)
 
 	iio_device_unregister(indio_dev);
 	iio_triggered_buffer_cleanup(indio_dev);
+<<<<<<< HEAD
 	if (!st->fixed_addr)
 		gpio_free_array(st->gpios, ARRAY_SIZE(st->gpios));
+=======
+>>>>>>> upstream/android-13
 	if (!IS_ERR(st->reg))
 		regulator_disable(st->reg);
 

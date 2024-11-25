@@ -1,20 +1,34 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * Userland implementation of gettimeofday() for 64 bits processes in a
  * ppc64 kernel for use in the vDSO
  *
  * Copyright (C) 2004 Benjamin Herrenschmuidt (benh@kernel.crashing.org),
  *                    IBM Corp.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <asm/processor.h>
 #include <asm/ppc_asm.h>
 #include <asm/vdso.h>
+<<<<<<< HEAD
 #include <asm/asm-offsets.h>
 #include <asm/unistd.h>
+=======
+#include <asm/vdso_datapage.h>
+#include <asm/asm-offsets.h>
+#include <asm/unistd.h>
+#include <asm/vdso/gettimeofday.h>
+>>>>>>> upstream/android-13
 
 	.text
 /*
@@ -24,6 +38,7 @@
  *
  */
 V_FUNCTION_BEGIN(__kernel_gettimeofday)
+<<<<<<< HEAD
   .cfi_startproc
 	mflr	r12
   .cfi_register lr,r12
@@ -49,6 +64,9 @@ V_FUNCTION_BEGIN(__kernel_gettimeofday)
 	li	r3,0			/* always success */
 	blr
   .cfi_endproc
+=======
+	cvdso_call __c_kernel_gettimeofday
+>>>>>>> upstream/android-13
 V_FUNCTION_END(__kernel_gettimeofday)
 
 
@@ -59,6 +77,7 @@ V_FUNCTION_END(__kernel_gettimeofday)
  *
  */
 V_FUNCTION_BEGIN(__kernel_clock_gettime)
+<<<<<<< HEAD
   .cfi_startproc
 	/* Check for supported clock IDs */
 	cmpwi	cr0,r3,CLOCK_REALTIME
@@ -173,6 +192,9 @@ V_FUNCTION_BEGIN(__kernel_clock_gettime)
 	sc
 	blr
   .cfi_endproc
+=======
+	cvdso_call __c_kernel_clock_gettime
+>>>>>>> upstream/android-13
 V_FUNCTION_END(__kernel_clock_gettime)
 
 
@@ -183,6 +205,7 @@ V_FUNCTION_END(__kernel_clock_gettime)
  *
  */
 V_FUNCTION_BEGIN(__kernel_clock_getres)
+<<<<<<< HEAD
   .cfi_startproc
 	/* Check for supported clock IDs */
 	cmpwi	cr0,r3,CLOCK_REALTIME
@@ -211,6 +234,9 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
 	sc
 	blr
   .cfi_endproc
+=======
+	cvdso_call __c_kernel_clock_getres
+>>>>>>> upstream/android-13
 V_FUNCTION_END(__kernel_clock_getres)
 
 /*
@@ -220,6 +246,7 @@ V_FUNCTION_END(__kernel_clock_getres)
  *
  */
 V_FUNCTION_BEGIN(__kernel_time)
+<<<<<<< HEAD
   .cfi_startproc
 	mflr	r12
   .cfi_register lr,r12
@@ -291,3 +318,7 @@ V_FUNCTION_BEGIN(__do_get_tspec)
 	blr
   .cfi_endproc
 V_FUNCTION_END(__do_get_tspec)
+=======
+	cvdso_call_time __c_kernel_time
+V_FUNCTION_END(__kernel_time)
+>>>>>>> upstream/android-13

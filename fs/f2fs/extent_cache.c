@@ -58,6 +58,32 @@ struct rb_entry *f2fs_lookup_rb_tree(struct rb_root_cached *root,
 	return re;
 }
 
+<<<<<<< HEAD
+=======
+struct rb_node **f2fs_lookup_rb_tree_ext(struct f2fs_sb_info *sbi,
+					struct rb_root_cached *root,
+					struct rb_node **parent,
+					unsigned long long key, bool *leftmost)
+{
+	struct rb_node **p = &root->rb_root.rb_node;
+	struct rb_entry *re;
+
+	while (*p) {
+		*parent = *p;
+		re = rb_entry(*parent, struct rb_entry, rb_node);
+
+		if (key < re->key) {
+			p = &(*p)->rb_left;
+		} else {
+			p = &(*p)->rb_right;
+			*leftmost = false;
+		}
+	}
+
+	return p;
+}
+
+>>>>>>> upstream/android-13
 struct rb_node **f2fs_lookup_rb_tree_for_insert(struct f2fs_sb_info *sbi,
 				struct rb_root_cached *root,
 				struct rb_node **parent,
@@ -166,7 +192,11 @@ lookup_neighbors:
 }
 
 bool f2fs_check_rb_tree_consistence(struct f2fs_sb_info *sbi,
+<<<<<<< HEAD
 						struct rb_root_cached *root)
+=======
+				struct rb_root_cached *root, bool check_key)
+>>>>>>> upstream/android-13
 {
 #ifdef CONFIG_F2FS_CHECK_FS
 	struct rb_node *cur = rb_first_cached(root), *next;
@@ -183,13 +213,30 @@ bool f2fs_check_rb_tree_consistence(struct f2fs_sb_info *sbi,
 		cur_re = rb_entry(cur, struct rb_entry, rb_node);
 		next_re = rb_entry(next, struct rb_entry, rb_node);
 
+<<<<<<< HEAD
+=======
+		if (check_key) {
+			if (cur_re->key > next_re->key) {
+				f2fs_info(sbi, "inconsistent rbtree, "
+					"cur(%llu) next(%llu)",
+					cur_re->key, next_re->key);
+				return false;
+			}
+			goto next;
+		}
+
+>>>>>>> upstream/android-13
 		if (cur_re->ofs + cur_re->len > next_re->ofs) {
 			f2fs_info(sbi, "inconsistent rbtree, cur(%u, %u) next(%u, %u)",
 				  cur_re->ofs, cur_re->len,
 				  next_re->ofs, next_re->len);
 			return false;
 		}
+<<<<<<< HEAD
 
+=======
+next:
+>>>>>>> upstream/android-13
 		cur = next;
 	}
 #endif
@@ -206,7 +253,11 @@ static struct extent_node *__attach_extent_node(struct f2fs_sb_info *sbi,
 {
 	struct extent_node *en;
 
+<<<<<<< HEAD
 	en = kmem_cache_alloc(extent_node_slab, GFP_ATOMIC);
+=======
+	en = f2fs_kmem_cache_alloc(extent_node_slab, GFP_ATOMIC, false, sbi);
+>>>>>>> upstream/android-13
 	if (!en)
 		return NULL;
 
@@ -259,7 +310,12 @@ static struct extent_tree *__grab_extent_tree(struct inode *inode)
 	mutex_lock(&sbi->extent_tree_lock);
 	et = radix_tree_lookup(&sbi->extent_tree_root, ino);
 	if (!et) {
+<<<<<<< HEAD
 		et = f2fs_kmem_cache_alloc(extent_tree_slab, GFP_NOFS);
+=======
+		et = f2fs_kmem_cache_alloc(extent_tree_slab,
+					GFP_NOFS, true, NULL);
+>>>>>>> upstream/android-13
 		f2fs_radix_tree_insert(&sbi->extent_tree_root, ino, et);
 		memset(et, 0, sizeof(struct extent_tree));
 		et->ino = ino;
@@ -325,9 +381,16 @@ static void __drop_largest_extent(struct extent_tree *et,
 }
 
 /* return true, if inode page is changed */
+<<<<<<< HEAD
 static bool __f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_ext)
 {
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+=======
+static void __f2fs_init_extent_tree(struct inode *inode, struct page *ipage)
+{
+	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+	struct f2fs_extent *i_ext = ipage ? &F2FS_INODE(ipage)->i_ext : NULL;
+>>>>>>> upstream/android-13
 	struct extent_tree *et;
 	struct extent_node *en;
 	struct extent_info ei;
@@ -335,16 +398,29 @@ static bool __f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_e
 	if (!f2fs_may_extent_tree(inode)) {
 		/* drop largest extent */
 		if (i_ext && i_ext->len) {
+<<<<<<< HEAD
 			i_ext->len = 0;
 			return true;
 		}
 		return false;
+=======
+			f2fs_wait_on_page_writeback(ipage, NODE, true, true);
+			i_ext->len = 0;
+			set_page_dirty(ipage);
+			return;
+		}
+		return;
+>>>>>>> upstream/android-13
 	}
 
 	et = __grab_extent_tree(inode);
 
 	if (!i_ext || !i_ext->len)
+<<<<<<< HEAD
 		return false;
+=======
+		return;
+>>>>>>> upstream/android-13
 
 	get_extent_info(&ei, i_ext);
 
@@ -360,6 +436,7 @@ static bool __f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_e
 	}
 out:
 	write_unlock(&et->lock);
+<<<<<<< HEAD
 	return false;
 }
 
@@ -371,6 +448,16 @@ bool f2fs_init_extent_tree(struct inode *inode, struct f2fs_extent *i_ext)
 		set_inode_flag(inode, FI_NO_EXTENT);
 
 	return ret;
+=======
+}
+
+void f2fs_init_extent_tree(struct inode *inode, struct page *ipage)
+{
+	__f2fs_init_extent_tree(inode, ipage);
+
+	if (!F2FS_I(inode)->extent_tree)
+		set_inode_flag(inode, FI_NO_EXTENT);
+>>>>>>> upstream/android-13
 }
 
 static bool f2fs_lookup_extent_tree(struct inode *inode, pgoff_t pgofs,
@@ -628,6 +715,50 @@ static void f2fs_update_extent_tree_range(struct inode *inode,
 		f2fs_mark_inode_dirty_sync(inode, true);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_F2FS_FS_COMPRESSION
+void f2fs_update_extent_tree_range_compressed(struct inode *inode,
+				pgoff_t fofs, block_t blkaddr, unsigned int llen,
+				unsigned int c_len)
+{
+	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+	struct extent_tree *et = F2FS_I(inode)->extent_tree;
+	struct extent_node *en = NULL;
+	struct extent_node *prev_en = NULL, *next_en = NULL;
+	struct extent_info ei;
+	struct rb_node **insert_p = NULL, *insert_parent = NULL;
+	bool leftmost = false;
+
+	trace_f2fs_update_extent_tree_range(inode, fofs, blkaddr, llen);
+
+	/* it is safe here to check FI_NO_EXTENT w/o et->lock in ro image */
+	if (is_inode_flag_set(inode, FI_NO_EXTENT))
+		return;
+
+	write_lock(&et->lock);
+
+	en = (struct extent_node *)f2fs_lookup_rb_tree_ret(&et->root,
+				(struct rb_entry *)et->cached_en, fofs,
+				(struct rb_entry **)&prev_en,
+				(struct rb_entry **)&next_en,
+				&insert_p, &insert_parent, false,
+				&leftmost);
+	if (en)
+		goto unlock_out;
+
+	set_extent_info(&ei, fofs, blkaddr, llen);
+	ei.c_len = c_len;
+
+	if (!__try_merge_extent_node(sbi, et, &ei, prev_en, next_en))
+		__insert_extent_tree(sbi, et, &ei,
+				insert_p, insert_parent, leftmost);
+unlock_out:
+	write_unlock(&et->lock);
+}
+#endif
+
+>>>>>>> upstream/android-13
 unsigned int f2fs_shrink_extent_tree(struct f2fs_sb_info *sbi, int nr_shrink)
 {
 	struct extent_tree *et, *next;

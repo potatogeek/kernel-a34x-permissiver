@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * twl4030-irq.c - TWL4030/TPS659x0 irq support
  *
@@ -11,6 +15,7 @@
  *
  * Code cleanup and modifications to IRQ handler.
  * by syed khasim <x0khasim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +30,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/export.h>
@@ -490,7 +497,11 @@ static void twl4030_sih_bus_sync_unlock(struct irq_data *data)
 
 	if (agent->imr_change_pending) {
 		union {
+<<<<<<< HEAD
 			u32	word;
+=======
+			__le32	word;
+>>>>>>> upstream/android-13
 			u8	bytes[4];
 		} imr;
 
@@ -574,7 +585,11 @@ static inline int sih_read_isr(const struct sih *sih)
 	int status;
 	union {
 		u8 bytes[4];
+<<<<<<< HEAD
 		u32 word;
+=======
+		__le32 word;
+>>>>>>> upstream/android-13
 	} isr;
 
 	/* FIXME need retry-on-error ... */

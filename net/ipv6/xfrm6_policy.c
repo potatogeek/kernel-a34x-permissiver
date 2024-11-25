@@ -22,9 +22,12 @@
 #include <net/ipv6.h>
 #include <net/ip6_route.h>
 #include <net/l3mdev.h>
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_IPV6_MIP6)
 #include <net/mip6.h>
 #endif
+=======
+>>>>>>> upstream/android-13
 
 static struct dst_entry *xfrm6_dst_lookup(struct net *net, int tos, int oif,
 					  const xfrm_address_t *saddr,
@@ -71,6 +74,7 @@ static int xfrm6_get_saddr(struct net *net, int oif,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xfrm6_get_tos(const struct flowi *fl)
 {
 	return 0;
@@ -89,6 +93,8 @@ static int xfrm6_init_path(struct xfrm_dst *path, struct dst_entry *dst,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int xfrm6_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
 			  const struct flowi *fl)
 {
@@ -118,6 +124,7 @@ static int xfrm6_fill_dst(struct xfrm_dst *xdst, struct net_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void
 _decode_session6(struct sk_buff *skb, struct flowi *fl, int reverse)
 {
@@ -220,6 +227,8 @@ _decode_session6(struct sk_buff *skb, struct flowi *fl, int reverse)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 static void xfrm6_update_pmtu(struct dst_entry *dst, struct sock *sk,
 			      struct sk_buff *skb, u32 mtu,
 			      bool confirm_neigh)
@@ -263,7 +272,10 @@ static void xfrm6_dst_ifdown(struct dst_entry *dst, struct net_device *dev,
 	if (xdst->u.rt6.rt6i_idev->dev == dev) {
 		struct inet6_dev *loopback_idev =
 			in6_dev_get(dev_net(dev)->loopback_dev);
+<<<<<<< HEAD
 		BUG_ON(!loopback_idev);
+=======
+>>>>>>> upstream/android-13
 
 		do {
 			in6_dev_put(xdst->u.rt6.rt6i_idev);
@@ -293,9 +305,12 @@ static const struct xfrm_policy_afinfo xfrm6_policy_afinfo = {
 	.dst_ops =		&xfrm6_dst_ops_template,
 	.dst_lookup =		xfrm6_dst_lookup,
 	.get_saddr =		xfrm6_get_saddr,
+<<<<<<< HEAD
 	.decode_session =	_decode_session6,
 	.get_tos =		xfrm6_get_tos,
 	.init_path =		xfrm6_init_path,
+=======
+>>>>>>> upstream/android-13
 	.fill_dst =		xfrm6_fill_dst,
 	.blackhole_route =	ip6_blackhole_route,
 };

@@ -11,8 +11,11 @@
 #ifndef _XTENSA_PCI_H
 #define _XTENSA_PCI_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 /* Can be used to override the logic in pci_scan_bus for skipping
  * already-configured bus numbers - to be used for buggy BIOSes
  * or architectures with incomplete PCI setup by the loader
@@ -45,8 +48,11 @@
 #define ARCH_GENERIC_PCI_MMAP_RESOURCE	1
 #define arch_can_pci_mmap_io()		1
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
 
+=======
+>>>>>>> upstream/android-13
 /* Generic PCI */
 #include <asm-generic/pci.h>
 

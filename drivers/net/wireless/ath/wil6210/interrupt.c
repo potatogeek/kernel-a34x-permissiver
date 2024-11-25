@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
+ * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/interrupt.h>
@@ -20,7 +27,11 @@
 #include "wil6210.h"
 #include "trace.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Theory of operation:
  *
  * There is ISR pseudo-cause register,
@@ -595,7 +606,11 @@ static irqreturn_t wil6210_irq_misc(int irq, void *cookie)
 			/* no need to handle HALP ICRs until next vote */
 			wil->halp.handle_icr = false;
 			wil_dbg_irq(wil, "irq_misc: HALP IRQ invoked\n");
+<<<<<<< HEAD
 			wil6210_mask_halp(wil);
+=======
+			wil6210_mask_irq_misc(wil, true);
+>>>>>>> upstream/android-13
 			complete(&wil->halp.comp);
 		}
 	}
@@ -656,9 +671,13 @@ static irqreturn_t wil6210_irq_misc_thread(int irq, void *cookie)
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
 /**
  * thread IRQ handler
  */
+=======
+/* thread IRQ handler */
+>>>>>>> upstream/android-13
 static irqreturn_t wil6210_thread_irq(int irq, void *cookie)
 {
 	struct wil6210_priv *wil = cookie;

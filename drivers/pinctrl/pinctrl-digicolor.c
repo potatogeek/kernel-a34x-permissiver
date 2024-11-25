@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Driver for Conexant Digicolor General Purpose Pin Mapping
  *
@@ -5,11 +9,14 @@
  *
  * Copyright (C) 2015 Paradox Innovation Ltd.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * TODO:
  * - GPIO interrupt support
  * - Pin pad configuration (pull up/down, strength)
@@ -20,7 +27,10 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/io.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/gpio/driver.h>
 #include <linux/spinlock.h>
 #include <linux/pinctrl/machine.h>
@@ -275,7 +285,10 @@ static int dc_gpiochip_add(struct dc_pinmap *pmap, struct device_node *np)
 static int dc_pinctrl_probe(struct platform_device *pdev)
 {
 	struct dc_pinmap *pmap;
+<<<<<<< HEAD
 	struct resource *r;
+=======
+>>>>>>> upstream/android-13
 	struct pinctrl_pin_desc *pins;
 	struct pinctrl_desc *pctl_desc;
 	char *pin_names;
@@ -286,8 +299,12 @@ static int dc_pinctrl_probe(struct platform_device *pdev)
 	if (!pmap)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pmap->regs = devm_ioremap_resource(&pdev->dev, r);
+=======
+	pmap->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(pmap->regs))
 		return PTR_ERR(pmap->regs);
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -14,6 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ */
+
+#include <linux/clk.h>
+>>>>>>> upstream/android-13
 #include <linux/clk-provider.h>
 #include <linux/export.h>
 #include <linux/slab.h>
@@ -110,6 +119,35 @@ static void clk_periph_disable(struct clk_hw *hw)
 	gate_ops->disable(gate_hw);
 }
 
+<<<<<<< HEAD
+=======
+static void clk_periph_disable_unused(struct clk_hw *hw)
+{
+	struct tegra_clk_periph *periph = to_clk_periph(hw);
+	const struct clk_ops *gate_ops = periph->gate_ops;
+	struct clk_hw *gate_hw = &periph->gate.hw;
+
+	gate_ops->disable_unused(gate_hw);
+}
+
+static void clk_periph_restore_context(struct clk_hw *hw)
+{
+	struct tegra_clk_periph *periph = to_clk_periph(hw);
+	const struct clk_ops *div_ops = periph->div_ops;
+	struct clk_hw *div_hw = &periph->divider.hw;
+	int parent_id;
+
+	parent_id = clk_hw_get_parent_index(hw);
+	if (WARN_ON(parent_id < 0))
+		return;
+
+	if (!(periph->gate.flags & TEGRA_PERIPH_NO_DIV))
+		div_ops->restore_context(div_hw);
+
+	clk_periph_set_parent(hw, parent_id);
+}
+
+>>>>>>> upstream/android-13
 const struct clk_ops tegra_clk_periph_ops = {
 	.get_parent = clk_periph_get_parent,
 	.set_parent = clk_periph_set_parent,
@@ -119,6 +157,11 @@ const struct clk_ops tegra_clk_periph_ops = {
 	.is_enabled = clk_periph_is_enabled,
 	.enable = clk_periph_enable,
 	.disable = clk_periph_disable,
+<<<<<<< HEAD
+=======
+	.disable_unused = clk_periph_disable_unused,
+	.restore_context = clk_periph_restore_context,
+>>>>>>> upstream/android-13
 };
 
 static const struct clk_ops tegra_clk_periph_nodiv_ops = {
@@ -127,6 +170,11 @@ static const struct clk_ops tegra_clk_periph_nodiv_ops = {
 	.is_enabled = clk_periph_is_enabled,
 	.enable = clk_periph_enable,
 	.disable = clk_periph_disable,
+<<<<<<< HEAD
+=======
+	.disable_unused = clk_periph_disable_unused,
+	.restore_context = clk_periph_restore_context,
+>>>>>>> upstream/android-13
 };
 
 static const struct clk_ops tegra_clk_periph_no_gate_ops = {
@@ -135,6 +183,10 @@ static const struct clk_ops tegra_clk_periph_no_gate_ops = {
 	.recalc_rate = clk_periph_recalc_rate,
 	.round_rate = clk_periph_round_rate,
 	.set_rate = clk_periph_set_rate,
+<<<<<<< HEAD
+=======
+	.restore_context = clk_periph_restore_context,
+>>>>>>> upstream/android-13
 };
 
 static struct clk *_tegra_clk_register_periph(const char *name,
@@ -144,7 +196,11 @@ static struct clk *_tegra_clk_register_periph(const char *name,
 			unsigned long flags)
 {
 	struct clk *clk;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	const struct tegra_clk_periph_regs *bank;
 	bool div = !(periph->gate.flags & TEGRA_PERIPH_NO_DIV);
 

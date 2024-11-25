@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPv6 over IPv4 tunnel device - Simple Internet Transition (SIT)
  *	Linux INET6 implementation
@@ -6,11 +10,14 @@
  *	Pedro Roque		<roque@di.fc.ul.pt>
  *	Alexey Kuznetsov	<kuznet@ms2.inr.ac.ru>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	Changes:
  * Roger Venning <r.venning@telstra.com>:	6to4 support
  * Nate Thompson <nate@thebog.net>:		6to4 support
@@ -87,6 +94,16 @@ struct sit_net {
 	struct net_device *fb_tunnel_dev;
 };
 
+<<<<<<< HEAD
+=======
+static inline struct sit_net *dev_to_sit_net(struct net_device *dev)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+
+	return net_generic(t->net, sit_net_id);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Must be invoked with rcu_read_lock
  */
@@ -268,6 +285,12 @@ static struct ip_tunnel *ipip6_tunnel_locate(struct net *net,
 	if (ipip6_tunnel_create(dev) < 0)
 		goto failed_free;
 
+<<<<<<< HEAD
+=======
+	if (!parms->name[0])
+		strcpy(parms->name, dev->name);
+
+>>>>>>> upstream/android-13
 	return nt;
 
 failed_free:
@@ -293,14 +316,26 @@ __ipip6_tunnel_locate_prl(struct ip_tunnel *t, __be32 addr)
 
 }
 
+<<<<<<< HEAD
 static int ipip6_tunnel_get_prl(struct ip_tunnel *t,
 				struct ip_tunnel_prl __user *a)
 {
+=======
+static int ipip6_tunnel_get_prl(struct net_device *dev, struct ip_tunnel_prl __user *a)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+>>>>>>> upstream/android-13
 	struct ip_tunnel_prl kprl, *kp;
 	struct ip_tunnel_prl_entry *prl;
 	unsigned int cmax, c = 0, ca, len;
 	int ret = 0;
 
+<<<<<<< HEAD
+=======
+	if (dev == dev_to_sit_net(dev)->fb_tunnel_dev)
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	if (copy_from_user(&kprl, a, sizeof(kprl)))
 		return -EFAULT;
 	cmax = kprl.datalen / sizeof(kprl);
@@ -311,12 +346,20 @@ static int ipip6_tunnel_get_prl(struct ip_tunnel *t,
 	 * we try harder to allocate.
 	 */
 	kp = (cmax <= 1 || capable(CAP_NET_ADMIN)) ?
+<<<<<<< HEAD
 		kcalloc(cmax, sizeof(*kp), GFP_KERNEL | __GFP_NOWARN) :
+=======
+		kcalloc(cmax, sizeof(*kp), GFP_KERNEL_ACCOUNT | __GFP_NOWARN) :
+>>>>>>> upstream/android-13
 		NULL;
 
 	rcu_read_lock();
 
+<<<<<<< HEAD
 	ca = t->prl_count < cmax ? t->prl_count : cmax;
+=======
+	ca = min(t->prl_count, cmax);
+>>>>>>> upstream/android-13
 
 	if (!kp) {
 		/* We don't try hard to allocate much memory for
@@ -324,7 +367,12 @@ static int ipip6_tunnel_get_prl(struct ip_tunnel *t,
 		 * For root users, retry allocating enough memory for
 		 * the answer.
 		 */
+<<<<<<< HEAD
 		kp = kcalloc(ca, sizeof(*kp), GFP_ATOMIC);
+=======
+		kp = kcalloc(ca, sizeof(*kp), GFP_ATOMIC | __GFP_ACCOUNT |
+					      __GFP_NOWARN);
+>>>>>>> upstream/android-13
 		if (!kp) {
 			ret = -ENOMEM;
 			goto out;
@@ -443,6 +491,38 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
+=======
+static int ipip6_tunnel_prl_ctl(struct net_device *dev,
+				struct ip_tunnel_prl __user *data, int cmd)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+	struct ip_tunnel_prl prl;
+	int err;
+
+	if (!ns_capable(t->net->user_ns, CAP_NET_ADMIN))
+		return -EPERM;
+	if (dev == dev_to_sit_net(dev)->fb_tunnel_dev)
+		return -EINVAL;
+
+	if (copy_from_user(&prl, data, sizeof(prl)))
+		return -EFAULT;
+
+	switch (cmd) {
+	case SIOCDELPRL:
+		err = ipip6_tunnel_del_prl(t, &prl);
+		break;
+	case SIOCADDPRL:
+	case SIOCCHGPRL:
+		err = ipip6_tunnel_add_prl(t, &prl, cmd == SIOCCHGPRL);
+		break;
+	}
+	dst_cache_reset(&t->dst_cache);
+	netdev_state_change(dev);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static int
 isatap_chksrc(struct sk_buff *skb, const struct iphdr *iph, struct ip_tunnel *t)
 {
@@ -532,13 +612,22 @@ static int ipip6_err(struct sk_buff *skb, u32 info)
 
 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
 		ipv4_update_pmtu(skb, dev_net(skb->dev), info,
+<<<<<<< HEAD
 				 t->parms.link, 0, iph->protocol, 0);
+=======
+				 t->parms.link, iph->protocol);
+>>>>>>> upstream/android-13
 		err = 0;
 		goto out;
 	}
 	if (type == ICMP_REDIRECT) {
+<<<<<<< HEAD
 		ipv4_redirect(skb, dev_net(skb->dev), t->parms.link, 0,
 			      iph->protocol, 0);
+=======
+		ipv4_redirect(skb, dev_net(skb->dev), t->parms.link,
+			      iph->protocol);
+>>>>>>> upstream/android-13
 		err = 0;
 		goto out;
 	}
@@ -671,6 +760,11 @@ static int ipip6_rcv(struct sk_buff *skb)
 		 * old iph is no longer valid
 		 */
 		iph = (const struct iphdr *)skb_mac_header(skb);
+<<<<<<< HEAD
+=======
+		skb_reset_mac_header(skb);
+
+>>>>>>> upstream/android-13
 		err = IP_ECN_decapsulate(iph, skb);
 		if (unlikely(err)) {
 			if (log_ecn_error)
@@ -741,6 +835,11 @@ static int sit_tunnel_rcv(struct sk_buff *skb, u8 ipproto)
 			tpi = &ipip_tpi;
 		if (iptunnel_pull_header(skb, 0, tpi->proto, false))
 			goto drop;
+<<<<<<< HEAD
+=======
+		skb_reset_mac_header(skb);
+
+>>>>>>> upstream/android-13
 		return ip_tunnel_rcv(tunnel, skb, tpi, NULL, log_ecn_error);
 	}
 
@@ -902,12 +1001,26 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
 			   RT_TOS(tos), RT_SCOPE_UNIVERSE, IPPROTO_IPV6,
 			   0, dst, tiph->saddr, 0, 0,
 			   sock_net_uid(tunnel->net, NULL));
+<<<<<<< HEAD
 	rt = ip_route_output_flow(tunnel->net, &fl4, NULL);
 
 	if (IS_ERR(rt)) {
 		dev->stats.tx_carrier_errors++;
 		goto tx_error_icmp;
 	}
+=======
+
+	rt = dst_cache_get_ip4(&tunnel->dst_cache, &fl4.saddr);
+	if (!rt) {
+		rt = ip_route_output_flow(tunnel->net, &fl4, NULL);
+		if (IS_ERR(rt)) {
+			dev->stats.tx_carrier_errors++;
+			goto tx_error_icmp;
+		}
+		dst_cache_set_ip4(&tunnel->dst_cache, &rt->dst, fl4.saddr);
+	}
+
+>>>>>>> upstream/android-13
 	if (rt->rt_type != RTN_UNICAST) {
 		ip_rt_put(rt);
 		dev->stats.tx_carrier_errors++;
@@ -929,7 +1042,11 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
 	if (df) {
 		mtu = dst_mtu(&rt->dst) - t_hlen;
 
+<<<<<<< HEAD
 		if (mtu < 68) {
+=======
+		if (mtu < IPV4_MIN_MTU) {
+>>>>>>> upstream/android-13
 			dev->stats.collisions++;
 			ip_rt_put(rt);
 			goto tx_error;
@@ -944,7 +1061,11 @@ static netdev_tx_t ipip6_tunnel_xmit(struct sk_buff *skb,
 			skb_dst_update_pmtu_no_confirm(skb, mtu);
 
 		if (skb->len > mtu && !skb_is_gso(skb)) {
+<<<<<<< HEAD
 			icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+=======
+			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
+>>>>>>> upstream/android-13
 			ip_rt_put(rt);
 			goto tx_error;
 		}
@@ -1147,7 +1268,58 @@ static int ipip6_tunnel_update_6rd(struct ip_tunnel *t,
 	netdev_state_change(t->dev);
 	return 0;
 }
+<<<<<<< HEAD
 #endif
+=======
+
+static int
+ipip6_tunnel_get6rd(struct net_device *dev, struct ip_tunnel_parm __user *data)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+	struct ip_tunnel_6rd ip6rd;
+	struct ip_tunnel_parm p;
+
+	if (dev == dev_to_sit_net(dev)->fb_tunnel_dev) {
+		if (copy_from_user(&p, data, sizeof(p)))
+			return -EFAULT;
+		t = ipip6_tunnel_locate(t->net, &p, 0);
+	}
+	if (!t)
+		t = netdev_priv(dev);
+
+	ip6rd.prefix = t->ip6rd.prefix;
+	ip6rd.relay_prefix = t->ip6rd.relay_prefix;
+	ip6rd.prefixlen = t->ip6rd.prefixlen;
+	ip6rd.relay_prefixlen = t->ip6rd.relay_prefixlen;
+	if (copy_to_user(data, &ip6rd, sizeof(ip6rd)))
+		return -EFAULT;
+	return 0;
+}
+
+static int
+ipip6_tunnel_6rdctl(struct net_device *dev, struct ip_tunnel_6rd __user *data,
+		    int cmd)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+	struct ip_tunnel_6rd ip6rd;
+	int err;
+
+	if (!ns_capable(t->net->user_ns, CAP_NET_ADMIN))
+		return -EPERM;
+	if (copy_from_user(&ip6rd, data, sizeof(ip6rd)))
+		return -EFAULT;
+
+	if (cmd != SIOCDEL6RD) {
+		err = ipip6_tunnel_update_6rd(t, &ip6rd);
+		if (err < 0)
+			return err;
+	} else
+		ipip6_tunnel_clone_6rd(dev, dev_to_sit_net(dev));
+	return 0;
+}
+
+#endif /* CONFIG_IPV6_SIT_6RD */
+>>>>>>> upstream/android-13
 
 static bool ipip6_valid_ip_proto(u8 ipproto)
 {
@@ -1160,6 +1332,7 @@ static bool ipip6_valid_ip_proto(u8 ipproto)
 }
 
 static int
+<<<<<<< HEAD
 ipip6_tunnel_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
 	int err = 0;
@@ -1339,15 +1512,164 @@ ipip6_tunnel_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 done:
 	return err;
+=======
+__ipip6_tunnel_ioctl_validate(struct net *net, struct ip_tunnel_parm *p)
+{
+	if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
+		return -EPERM;
+
+	if (!ipip6_valid_ip_proto(p->iph.protocol))
+		return -EINVAL;
+	if (p->iph.version != 4 ||
+	    p->iph.ihl != 5 || (p->iph.frag_off & htons(~IP_DF)))
+		return -EINVAL;
+
+	if (p->iph.ttl)
+		p->iph.frag_off |= htons(IP_DF);
+	return 0;
+}
+
+static int
+ipip6_tunnel_get(struct net_device *dev, struct ip_tunnel_parm *p)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+
+	if (dev == dev_to_sit_net(dev)->fb_tunnel_dev)
+		t = ipip6_tunnel_locate(t->net, p, 0);
+	if (!t)
+		t = netdev_priv(dev);
+	memcpy(p, &t->parms, sizeof(*p));
+	return 0;
+}
+
+static int
+ipip6_tunnel_add(struct net_device *dev, struct ip_tunnel_parm *p)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+	int err;
+
+	err = __ipip6_tunnel_ioctl_validate(t->net, p);
+	if (err)
+		return err;
+
+	t = ipip6_tunnel_locate(t->net, p, 1);
+	if (!t)
+		return -ENOBUFS;
+	return 0;
+}
+
+static int
+ipip6_tunnel_change(struct net_device *dev, struct ip_tunnel_parm *p)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+	int err;
+
+	err = __ipip6_tunnel_ioctl_validate(t->net, p);
+	if (err)
+		return err;
+
+	t = ipip6_tunnel_locate(t->net, p, 0);
+	if (dev == dev_to_sit_net(dev)->fb_tunnel_dev) {
+		if (!t)
+			return -ENOENT;
+	} else {
+		if (t) {
+			if (t->dev != dev)
+				return -EEXIST;
+		} else {
+			if (((dev->flags & IFF_POINTOPOINT) && !p->iph.daddr) ||
+			    (!(dev->flags & IFF_POINTOPOINT) && p->iph.daddr))
+				return -EINVAL;
+			t = netdev_priv(dev);
+		}
+
+		ipip6_tunnel_update(t, p, t->fwmark);
+	}
+
+	return 0;
+}
+
+static int
+ipip6_tunnel_del(struct net_device *dev, struct ip_tunnel_parm *p)
+{
+	struct ip_tunnel *t = netdev_priv(dev);
+
+	if (!ns_capable(t->net->user_ns, CAP_NET_ADMIN))
+		return -EPERM;
+
+	if (dev == dev_to_sit_net(dev)->fb_tunnel_dev) {
+		t = ipip6_tunnel_locate(t->net, p, 0);
+		if (!t)
+			return -ENOENT;
+		if (t == netdev_priv(dev_to_sit_net(dev)->fb_tunnel_dev))
+			return -EPERM;
+		dev = t->dev;
+	}
+	unregister_netdevice(dev);
+	return 0;
+}
+
+static int
+ipip6_tunnel_ctl(struct net_device *dev, struct ip_tunnel_parm *p, int cmd)
+{
+	switch (cmd) {
+	case SIOCGETTUNNEL:
+		return ipip6_tunnel_get(dev, p);
+	case SIOCADDTUNNEL:
+		return ipip6_tunnel_add(dev, p);
+	case SIOCCHGTUNNEL:
+		return ipip6_tunnel_change(dev, p);
+	case SIOCDELTUNNEL:
+		return ipip6_tunnel_del(dev, p);
+	default:
+		return -EINVAL;
+	}
+}
+
+static int
+ipip6_tunnel_siocdevprivate(struct net_device *dev, struct ifreq *ifr,
+			    void __user *data, int cmd)
+{
+	switch (cmd) {
+	case SIOCGETTUNNEL:
+	case SIOCADDTUNNEL:
+	case SIOCCHGTUNNEL:
+	case SIOCDELTUNNEL:
+		return ip_tunnel_siocdevprivate(dev, ifr, data, cmd);
+	case SIOCGETPRL:
+		return ipip6_tunnel_get_prl(dev, data);
+	case SIOCADDPRL:
+	case SIOCDELPRL:
+	case SIOCCHGPRL:
+		return ipip6_tunnel_prl_ctl(dev, data, cmd);
+#ifdef CONFIG_IPV6_SIT_6RD
+	case SIOCGET6RD:
+		return ipip6_tunnel_get6rd(dev, data);
+	case SIOCADD6RD:
+	case SIOCCHG6RD:
+	case SIOCDEL6RD:
+		return ipip6_tunnel_6rdctl(dev, data, cmd);
+#endif
+	default:
+		return -EINVAL;
+	}
+>>>>>>> upstream/android-13
 }
 
 static const struct net_device_ops ipip6_netdev_ops = {
 	.ndo_init	= ipip6_tunnel_init,
 	.ndo_uninit	= ipip6_tunnel_uninit,
 	.ndo_start_xmit	= sit_tunnel_xmit,
+<<<<<<< HEAD
 	.ndo_do_ioctl	= ipip6_tunnel_ioctl,
 	.ndo_get_stats64 = ip_tunnel_get_stats64,
 	.ndo_get_iflink = ip_tunnel_get_iflink,
+=======
+	.ndo_siocdevprivate = ipip6_tunnel_siocdevprivate,
+	.ndo_get_stats64 = dev_get_tstats64,
+	.ndo_get_iflink = ip_tunnel_get_iflink,
+	.ndo_tunnel_ctl = ipip6_tunnel_ctl,
+>>>>>>> upstream/android-13
 };
 
 static void ipip6_dev_free(struct net_device *dev)
@@ -1370,6 +1692,10 @@ static void ipip6_tunnel_setup(struct net_device *dev)
 	int t_hlen = tunnel->hlen + sizeof(struct iphdr);
 
 	dev->netdev_ops		= &ipip6_netdev_ops;
+<<<<<<< HEAD
+=======
+	dev->header_ops		= &ip_tunnel_header_ops;
+>>>>>>> upstream/android-13
 	dev->needs_free_netdev	= true;
 	dev->priv_destructor	= ipip6_dev_free;
 
@@ -1875,7 +2201,10 @@ static int __net_init sit_init_net(struct net *net)
 	return 0;
 
 err_reg_dev:
+<<<<<<< HEAD
 	ipip6_dev_free(sitn->fb_tunnel_dev);
+=======
+>>>>>>> upstream/android-13
 	free_netdev(sitn->fb_tunnel_dev);
 err_alloc_dev:
 	return err;

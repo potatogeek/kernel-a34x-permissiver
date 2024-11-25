@@ -17,8 +17,14 @@
 #include <linux/timer.h>
 #include <linux/kernel.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
 #include <linux/sec_debug.h>
 #include <linux/version.h>
+=======
+#if defined(CONFIG_SEC_DEBUG)
+#include <linux/sec_debug.h>
+#endif
+>>>>>>> upstream/android-13
 
 #include "../comm/shub_comm.h"
 #include "../sensormanager/shub_sensor.h"
@@ -70,6 +76,7 @@ static void check_no_event(void)
 
 		event = get_sensor_event(type);
 		if (sensor->report_mode_continuous && sensor->enabled && sensor->max_report_latency == 0 &&
+<<<<<<< HEAD
 		    MAX(sensor->enable_timestamp, sensor->change_timestamp) + 5000000000ULL < timestamp &&
 		    event->received_timestamp + 5000000000ULL < timestamp) {
 			shub_infof("sensor(%d) %lld(%lld), cur = %lld en = %lld change = %lld", type, event->received_timestamp,
@@ -80,6 +87,13 @@ static void check_no_event(void)
 				sensor->enable_timestamp, sensor->disable_timestamp);
 				break;
 			}
+=======
+		    sensor->enable_timestamp + 5000000000ULL < timestamp &&
+		    event->received_timestamp + 5000000000ULL < timestamp) {
+			shub_infof("sensor(%d) %lld(%lld), cur = %lld", type, event->received_timestamp,
+				   event->timestamp, timestamp);
+
+>>>>>>> upstream/android-13
 			if (check_reset) {
 				shub_errf("no event, no sensorhub reset");
 				reset_mcu(RESET_TYPE_KERNEL_NO_EVENT);
@@ -102,17 +116,25 @@ static void check_no_event(void)
 static void debug_work_func(struct work_struct *work)
 {
 	int type;
+<<<<<<< HEAD
 	uint64_t probe_state[2] = {0, };
 	uint64_t en_state[2] = {0, };
 	struct shub_data_t *data = get_shub_data();
 	struct rtc_time tm;
 	char time_temp[50] = {0, };
+=======
+	uint64_t en_state = 0;
+	struct shub_data_t *data = get_shub_data();
+
+	en_state = get_sensors_legacy_enable_state();
+>>>>>>> upstream/android-13
 
 	for (type = 0; type < SENSOR_TYPE_MAX; type++) {
 		if (get_sensor_enabled(type))
 			print_sensor_debug(type);
 	}
 
+<<<<<<< HEAD
 	get_tm(&(tm));
 
 	memset(time_temp, 0, sizeof(time_temp));
@@ -128,11 +150,20 @@ static void debug_work_func(struct work_struct *work)
 		   data->cnt_shub_reset[RESET_TYPE_MAX], data->cnt_shub_reset[RESET_TYPE_KERNEL_COM_FAIL],
 		   get_cnt_comm_fail(), get_cnt_timeout(), data->cnt_shub_reset[RESET_TYPE_KERNEL_NO_EVENT],
 		   data->cnt_shub_reset[RESET_TYPE_HUB_NO_EVENT], data->cnt_shub_reset[RESET_TYPE_HUB_REQ_TASK_FAILURE],
+=======
+	shub_infof("FW(%d):%u, Sensor state: 0x%llx, En: 0x%llx, Reset cnt: %d[%d : C %u(%u, %u), N %u, %u]"
+		   ", Cal result : [M:%c, P:%c]",
+		   get_firmware_type(), get_firmware_rev(),
+		   get_sensors_legacy_probe_state(), en_state, data->cnt_reset, data->cnt_shub_reset[RESET_TYPE_MAX],
+		   data->cnt_shub_reset[RESET_TYPE_KERNEL_COM_FAIL], get_cnt_comm_fail(), get_cnt_timeout(),
+		   data->cnt_shub_reset[RESET_TYPE_KERNEL_NO_EVENT], data->cnt_shub_reset[RESET_TYPE_HUB_NO_EVENT],
+>>>>>>> upstream/android-13
 		   open_cal_result[SENSOR_TYPE_GEOMAGNETIC_FIELD], open_cal_result[SENSOR_TYPE_PRESSURE]);
 
 	if (is_shub_working())
 		check_no_event();
 
+<<<<<<< HEAD
 #if defined(CONFIG_SHUB_MTK) && IS_ENABLED(CONFIG_SEC_DEBUG)
 	if (data->hub_crash_timestamp && data->hub_crash_timestamp + 100000000000ULL < get_current_timestamp() ) {
 		shub_infof("hub crash timestamp %llu", data->hub_crash_timestamp);
@@ -142,6 +173,15 @@ static void debug_work_func(struct work_struct *work)
 			shub_infof("mini dump : %s", data->mini_dump);
 			panic("sensorhub crash error\n");
 
+=======
+#if defined(CONFIG_SHUB_MTK) && defined(CONFIG_SEC_DEBUG)
+	if (data->hub_crash_timestamp && data->hub_crash_timestamp + 100000000000ULL < get_current_timestamp() ) {
+		shub_infof("hub crash timestamp %llu", data->hub_crash_timestamp);
+		/* only work for debug level is mid */
+		if (SEC_DEBUG_LEVEL(kernel)) {
+			shub_infof("panic!");
+			panic("sensorhub crash error\n");
+>>>>>>> upstream/android-13
 		} else {
 			shub_infof("debug level is low");
 		}
@@ -185,6 +225,7 @@ void set_open_cal_result(int type, int result)
 		open_cal_result[type] = 'F';
 }
 
+<<<<<<< HEAD
 /*
  * low return 0, mid and high return over 0.
  */
@@ -201,6 +242,8 @@ int shub_debug_level(void)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 int init_shub_debug(void)
 {
 	int type;
@@ -248,6 +291,7 @@ int print_mcu_debug(char *dataframe, int *index, int frame_len)
 {
 	u16 length = 0;
 	int cur = *index;
+<<<<<<< HEAD
 	int len_size = 1;
 
 	if (is_support_system_feature(SF_DEBUG_V2))
@@ -255,6 +299,11 @@ int print_mcu_debug(char *dataframe, int *index, int frame_len)
 
 	memcpy(&length, dataframe + *index, len_size);
 	*index += len_size;
+=======
+
+	memcpy(&length, dataframe + *index, 1);
+	*index += 1;
+>>>>>>> upstream/android-13
 
 	if (length > frame_len - *index || length <= 0) {
 		shub_infof("[M] invalid debug length(%u/%d/%d)", length, frame_len, cur);

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef __NDS32_FUTEX_H__
@@ -40,7 +44,11 @@ futex_atomic_cmpxchg_inatomic(u32 * uval, u32 __user * uaddr,
 	int ret = 0;
 	u32 val, tmp, flags;
 
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(u32)))
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+>>>>>>> upstream/android-13
 		return -EFAULT;
 
 	smp_mb();
@@ -66,8 +74,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 {
 	int oldval = 0, ret;
 
+<<<<<<< HEAD
 
 	pagefault_disable();
+=======
+	if (!access_ok(uaddr, sizeof(u32)))
+		return -EFAULT;
+>>>>>>> upstream/android-13
 	switch (op) {
 	case FUTEX_OP_SET:
 		__futex_atomic_op("move	%0, %3", ret, oldval, tmp, uaddr,
@@ -93,8 +106,11 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
 		ret = -ENOSYS;
 	}
 
+<<<<<<< HEAD
 	pagefault_enable();
 
+=======
+>>>>>>> upstream/android-13
 	if (!ret)
 		*oval = oldval;
 

@@ -2,7 +2,11 @@
 /*
  * System Control and Power Interface (SCMI) Protocol based clock driver
  *
+<<<<<<< HEAD
  * Copyright (C) 2018 ARM Ltd.
+=======
+ * Copyright (C) 2018-2021 ARM Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -13,11 +17,20 @@
 #include <linux/scmi_protocol.h>
 #include <asm/div64.h>
 
+<<<<<<< HEAD
+=======
+static const struct scmi_clk_proto_ops *scmi_proto_clk_ops;
+
+>>>>>>> upstream/android-13
 struct scmi_clk {
 	u32 id;
 	struct clk_hw hw;
 	const struct scmi_clock_info *info;
+<<<<<<< HEAD
 	const struct scmi_handle *handle;
+=======
+	const struct scmi_protocol_handle *ph;
+>>>>>>> upstream/android-13
 };
 
 #define to_scmi_clk(clk) container_of(clk, struct scmi_clk, hw)
@@ -29,7 +42,11 @@ static unsigned long scmi_clk_recalc_rate(struct clk_hw *hw,
 	u64 rate;
 	struct scmi_clk *clk = to_scmi_clk(hw);
 
+<<<<<<< HEAD
 	ret = clk->handle->clk_ops->rate_get(clk->handle, clk->id, &rate);
+=======
+	ret = scmi_proto_clk_ops->rate_get(clk->ph, clk->id, &rate);
+>>>>>>> upstream/android-13
 	if (ret)
 		return 0;
 	return rate;
@@ -69,21 +86,33 @@ static int scmi_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 {
 	struct scmi_clk *clk = to_scmi_clk(hw);
 
+<<<<<<< HEAD
 	return clk->handle->clk_ops->rate_set(clk->handle, clk->id, 0, rate);
+=======
+	return scmi_proto_clk_ops->rate_set(clk->ph, clk->id, rate);
+>>>>>>> upstream/android-13
 }
 
 static int scmi_clk_enable(struct clk_hw *hw)
 {
 	struct scmi_clk *clk = to_scmi_clk(hw);
 
+<<<<<<< HEAD
 	return clk->handle->clk_ops->enable(clk->handle, clk->id);
+=======
+	return scmi_proto_clk_ops->enable(clk->ph, clk->id);
+>>>>>>> upstream/android-13
 }
 
 static void scmi_clk_disable(struct clk_hw *hw)
 {
 	struct scmi_clk *clk = to_scmi_clk(hw);
 
+<<<<<<< HEAD
 	clk->handle->clk_ops->disable(clk->handle, clk->id);
+=======
+	scmi_proto_clk_ops->disable(clk->ph, clk->id);
+>>>>>>> upstream/android-13
 }
 
 static const struct clk_ops scmi_clk_ops = {
@@ -142,6 +171,7 @@ static int scmi_clocks_probe(struct scmi_device *sdev)
 	struct device *dev = &sdev->dev;
 	struct device_node *np = dev->of_node;
 	const struct scmi_handle *handle = sdev->handle;
+<<<<<<< HEAD
 
 	if (!handle || !handle->clk_ops)
 		return -ENODEV;
@@ -149,6 +179,21 @@ static int scmi_clocks_probe(struct scmi_device *sdev)
 	count = handle->clk_ops->count_get(handle);
 	if (count < 0) {
 		dev_err(dev, "%s: invalid clock output count\n", np->name);
+=======
+	struct scmi_protocol_handle *ph;
+
+	if (!handle)
+		return -ENODEV;
+
+	scmi_proto_clk_ops =
+		handle->devm_protocol_get(sdev, SCMI_PROTOCOL_CLOCK, &ph);
+	if (IS_ERR(scmi_proto_clk_ops))
+		return PTR_ERR(scmi_proto_clk_ops);
+
+	count = scmi_proto_clk_ops->count_get(ph);
+	if (count < 0) {
+		dev_err(dev, "%pOFn: invalid clock output count\n", np);
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -167,14 +212,22 @@ static int scmi_clocks_probe(struct scmi_device *sdev)
 		if (!sclk)
 			return -ENOMEM;
 
+<<<<<<< HEAD
 		sclk->info = handle->clk_ops->info_get(handle, idx);
+=======
+		sclk->info = scmi_proto_clk_ops->info_get(ph, idx);
+>>>>>>> upstream/android-13
 		if (!sclk->info) {
 			dev_dbg(dev, "invalid clock info for idx %d\n", idx);
 			continue;
 		}
 
 		sclk->id = idx;
+<<<<<<< HEAD
 		sclk->handle = handle;
+=======
+		sclk->ph = ph;
+>>>>>>> upstream/android-13
 
 		err = scmi_clk_ops_init(dev, sclk);
 		if (err) {
@@ -192,7 +245,11 @@ static int scmi_clocks_probe(struct scmi_device *sdev)
 }
 
 static const struct scmi_device_id scmi_id_table[] = {
+<<<<<<< HEAD
 	{ SCMI_PROTOCOL_CLOCK },
+=======
+	{ SCMI_PROTOCOL_CLOCK, "clocks" },
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(scmi, scmi_id_table);

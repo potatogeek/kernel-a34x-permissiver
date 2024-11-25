@@ -6,16 +6,29 @@
 #include <crypto/algapi.h>
 #include <crypto/internal/hash.h>
 #include <crypto/internal/poly1305.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/simd.h>
+>>>>>>> upstream/android-13
 #include <linux/crypto.h>
 #include <linux/jump_label.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <asm/fpu/api.h>
 #include <asm/simd.h>
 #include <asm/intel-family.h>
 
 asmlinkage void poly1305_init_x86_64(void *ctx,
 				     const u8 key[POLY1305_KEY_SIZE]);
+=======
+#include <linux/sizes.h>
+#include <asm/intel-family.h>
+#include <asm/simd.h>
+
+asmlinkage void poly1305_init_x86_64(void *ctx,
+				     const u8 key[POLY1305_BLOCK_SIZE]);
+>>>>>>> upstream/android-13
 asmlinkage void poly1305_blocks_x86_64(void *ctx, const u8 *inp,
 				       const size_t len, const u32 padbit);
 asmlinkage void poly1305_emit_x86_64(void *ctx, u8 mac[POLY1305_DIGEST_SIZE],
@@ -80,7 +93,11 @@ static void convert_to_base2_64(void *ctx)
 	state->is_base2_26 = 0;
 }
 
+<<<<<<< HEAD
 static void poly1305_simd_init(void *ctx, const u8 key[POLY1305_KEY_SIZE])
+=======
+static void poly1305_simd_init(void *ctx, const u8 key[POLY1305_BLOCK_SIZE])
+>>>>>>> upstream/android-13
 {
 	poly1305_init_x86_64(ctx, key);
 }
@@ -94,9 +111,15 @@ static void poly1305_simd_blocks(void *ctx, const u8 *inp, size_t len,
 	BUILD_BUG_ON(SZ_4K < POLY1305_BLOCK_SIZE ||
 		     SZ_4K % POLY1305_BLOCK_SIZE);
 
+<<<<<<< HEAD
 	if (!IS_ENABLED(CONFIG_AS_AVX) || !static_branch_likely(&poly1305_use_avx) ||
 	    (len < (POLY1305_BLOCK_SIZE * 18) && !state->is_base2_26) ||
 	    !may_use_simd()) {
+=======
+	if (!static_branch_likely(&poly1305_use_avx) ||
+	    (len < (POLY1305_BLOCK_SIZE * 18) && !state->is_base2_26) ||
+	    !crypto_simd_usable()) {
+>>>>>>> upstream/android-13
 		convert_to_base2_64(ctx);
 		poly1305_blocks_x86_64(ctx, inp, len, padbit);
 		return;
@@ -108,7 +131,11 @@ static void poly1305_simd_blocks(void *ctx, const u8 *inp, size_t len,
 		kernel_fpu_begin();
 		if (IS_ENABLED(CONFIG_AS_AVX512) && static_branch_likely(&poly1305_use_avx512))
 			poly1305_blocks_avx512(ctx, inp, bytes, padbit);
+<<<<<<< HEAD
 		else if (IS_ENABLED(CONFIG_AS_AVX2) && static_branch_likely(&poly1305_use_avx2))
+=======
+		else if (static_branch_likely(&poly1305_use_avx2))
+>>>>>>> upstream/android-13
 			poly1305_blocks_avx2(ctx, inp, bytes, padbit);
 		else
 			poly1305_blocks_avx(ctx, inp, bytes, padbit);
@@ -122,13 +149,21 @@ static void poly1305_simd_blocks(void *ctx, const u8 *inp, size_t len,
 static void poly1305_simd_emit(void *ctx, u8 mac[POLY1305_DIGEST_SIZE],
 			       const u32 nonce[4])
 {
+<<<<<<< HEAD
 	if (!IS_ENABLED(CONFIG_AS_AVX) || !static_branch_likely(&poly1305_use_avx))
+=======
+	if (!static_branch_likely(&poly1305_use_avx))
+>>>>>>> upstream/android-13
 		poly1305_emit_x86_64(ctx, mac, nonce);
 	else
 		poly1305_emit_avx(ctx, mac, nonce);
 }
 
+<<<<<<< HEAD
 void poly1305_init_arch(struct poly1305_desc_ctx *dctx, const u8 *key)
+=======
+void poly1305_init_arch(struct poly1305_desc_ctx *dctx, const u8 key[POLY1305_KEY_SIZE])
+>>>>>>> upstream/android-13
 {
 	poly1305_simd_init(&dctx->h, key);
 	dctx->s[0] = get_unaligned_le32(&key[16]);
@@ -157,8 +192,11 @@ static unsigned int crypto_poly1305_setdctxkey(struct poly1305_desc_ctx *dctx,
 			dctx->s[1] = get_unaligned_le32(&inp[4]);
 			dctx->s[2] = get_unaligned_le32(&inp[8]);
 			dctx->s[3] = get_unaligned_le32(&inp[12]);
+<<<<<<< HEAD
 			inp += POLY1305_BLOCK_SIZE;
 			len -= POLY1305_BLOCK_SIZE;
+=======
+>>>>>>> upstream/android-13
 			acc += POLY1305_BLOCK_SIZE;
 			dctx->sset = true;
 		}
@@ -211,7 +249,11 @@ void poly1305_final_arch(struct poly1305_desc_ctx *dctx, u8 *dst)
 	}
 
 	poly1305_simd_emit(&dctx->h, dst, dctx->s);
+<<<<<<< HEAD
 	*dctx = (struct poly1305_desc_ctx){};
+=======
+	memzero_explicit(dctx, sizeof(*dctx));
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(poly1305_final_arch);
 
@@ -260,11 +302,18 @@ static struct shash_alg alg = {
 
 static int __init poly1305_simd_mod_init(void)
 {
+<<<<<<< HEAD
 	if (IS_ENABLED(CONFIG_AS_AVX) && boot_cpu_has(X86_FEATURE_AVX) &&
 	    cpu_has_xfeatures(XFEATURE_MASK_SSE | XFEATURE_MASK_YMM, NULL))
 		static_branch_enable(&poly1305_use_avx);
 	if (IS_ENABLED(CONFIG_AS_AVX2) && boot_cpu_has(X86_FEATURE_AVX) &&
 	    boot_cpu_has(X86_FEATURE_AVX2) &&
+=======
+	if (boot_cpu_has(X86_FEATURE_AVX) &&
+	    cpu_has_xfeatures(XFEATURE_MASK_SSE | XFEATURE_MASK_YMM, NULL))
+		static_branch_enable(&poly1305_use_avx);
+	if (boot_cpu_has(X86_FEATURE_AVX) && boot_cpu_has(X86_FEATURE_AVX2) &&
+>>>>>>> upstream/android-13
 	    cpu_has_xfeatures(XFEATURE_MASK_SSE | XFEATURE_MASK_YMM, NULL))
 		static_branch_enable(&poly1305_use_avx2);
 	if (IS_ENABLED(CONFIG_AS_AVX512) && boot_cpu_has(X86_FEATURE_AVX) &&

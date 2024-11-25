@@ -25,8 +25,15 @@ rxrpc-y := \
 	peer_event.o \
 	peer_object.o \
 	recvmsg.o \
+<<<<<<< HEAD
 	security.o \
 	sendmsg.o \
+=======
+	rtt.o \
+	security.o \
+	sendmsg.o \
+	server_key.o \
+>>>>>>> upstream/android-13
 	skbuff.o \
 	utils.o
 

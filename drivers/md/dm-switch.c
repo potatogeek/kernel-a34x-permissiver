@@ -53,7 +53,11 @@ struct switch_ctx {
 	/*
 	 * Array of dm devices to switch between.
 	 */
+<<<<<<< HEAD
 	struct switch_path path_list[0];
+=======
+	struct switch_path path_list[];
+>>>>>>> upstream/android-13
 };
 
 static struct switch_ctx *alloc_switch_ctx(struct dm_target *ti, unsigned nr_paths,
@@ -61,8 +65,12 @@ static struct switch_ctx *alloc_switch_ctx(struct dm_target *ti, unsigned nr_pat
 {
 	struct switch_ctx *sctx;
 
+<<<<<<< HEAD
 	sctx = kzalloc(sizeof(struct switch_ctx) + nr_paths * sizeof(struct switch_path),
 		       GFP_KERNEL);
+=======
+	sctx = kzalloc(struct_size(sctx, path_list, nr_paths), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!sctx)
 		return NULL;
 
@@ -505,6 +513,13 @@ static void switch_status(struct dm_target *ti, status_type_t type,
 			DMEMIT(" %s %llu", sctx->path_list[path_nr].dmdev->name,
 			       (unsigned long long)sctx->path_list[path_nr].start);
 		break;
+<<<<<<< HEAD
+=======
+
+	case STATUSTYPE_IMA:
+		result[0] = '\0';
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -551,6 +566,10 @@ static int switch_iterate_devices(struct dm_target *ti,
 static struct target_type switch_target = {
 	.name = "switch",
 	.version = {1, 1, 0},
+<<<<<<< HEAD
+=======
+	.features = DM_TARGET_NOWAIT,
+>>>>>>> upstream/android-13
 	.module = THIS_MODULE,
 	.ctr = switch_ctr,
 	.dtr = switch_dtr,

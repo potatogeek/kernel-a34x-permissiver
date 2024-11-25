@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *      Davicom DM9000 Fast Ethernet driver for Linux.
  * 	Copyright (C) 1997  Sten Wang
  *
+<<<<<<< HEAD
  * 	This program is free software; you can redistribute it and/or
  * 	modify it under the terms of the GNU General Public License
  * 	as published by the Free Software Foundation; either version 2
@@ -12,6 +17,8 @@
  * 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * 	GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * (C) Copyright 1997-1998 DAVICOM Semiconductor,Inc. All Rights Reserved.
  *
  * Additional updates, Copyright:
@@ -51,7 +58,10 @@
 #define DM9000_PHY		0x40	/* PHY address 0x01 */
 
 #define CARDNAME	"dm9000"
+<<<<<<< HEAD
 #define DRV_VERSION	"1.31"
+=======
+>>>>>>> upstream/android-13
 
 /*
  * Transmit timeout, default 5 seconds.
@@ -244,32 +254,52 @@ static void dm9000_inblk_32bit(void __iomem *reg, void *data, int count)
 static void dm9000_dumpblk_8bit(void __iomem *reg, int count)
 {
 	int i;
+<<<<<<< HEAD
 	int tmp;
 
 	for (i = 0; i < count; i++)
 		tmp = readb(reg);
+=======
+
+	for (i = 0; i < count; i++)
+		readb(reg);
+>>>>>>> upstream/android-13
 }
 
 static void dm9000_dumpblk_16bit(void __iomem *reg, int count)
 {
 	int i;
+<<<<<<< HEAD
 	int tmp;
+=======
+>>>>>>> upstream/android-13
 
 	count = (count + 1) >> 1;
 
 	for (i = 0; i < count; i++)
+<<<<<<< HEAD
 		tmp = readw(reg);
+=======
+		readw(reg);
+>>>>>>> upstream/android-13
 }
 
 static void dm9000_dumpblk_32bit(void __iomem *reg, int count)
 {
 	int i;
+<<<<<<< HEAD
 	int tmp;
+=======
+>>>>>>> upstream/android-13
 
 	count = (count + 3) >> 2;
 
 	for (i = 0; i < count; i++)
+<<<<<<< HEAD
 		tmp = readl(reg);
+=======
+		readl(reg);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -397,6 +427,10 @@ static void dm9000_set_io(struct board_info *db, int byte_width)
 
 	case 3:
 		dev_dbg(db->dev, ": 3 byte IO, falling back to 16bit\n");
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 2:
 		db->dumpblk = dm9000_dumpblk_16bit;
 		db->outblk  = dm9000_outblk_16bit;
@@ -553,7 +587,10 @@ static void dm9000_get_drvinfo(struct net_device *dev,
 	struct board_info *dm = to_dm9000_board(dev);
 
 	strlcpy(info->driver, CARDNAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	strlcpy(info->bus_info, to_platform_device(dm->dev)->name,
 		sizeof(info->bus_info));
 }
@@ -974,7 +1011,11 @@ dm9000_init_dm9000(struct net_device *dev)
 }
 
 /* Our watchdog timed out. Called by the networking layer */
+<<<<<<< HEAD
 static void dm9000_timeout(struct net_device *dev)
+=======
+static void dm9000_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct board_info *db = netdev_priv(dev);
 	u8 reg_save;
@@ -1385,7 +1426,11 @@ static const struct net_device_ops dm9000_netdev_ops = {
 	.ndo_start_xmit		= dm9000_start_xmit,
 	.ndo_tx_timeout		= dm9000_timeout,
 	.ndo_set_rx_mode	= dm9000_hash_table,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= dm9000_ioctl,
+=======
+	.ndo_eth_ioctl		= dm9000_ioctl,
+>>>>>>> upstream/android-13
 	.ndo_set_features	= dm9000_set_features,
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address	= eth_mac_addr,
@@ -1398,7 +1443,11 @@ static struct dm9000_plat_data *dm9000_parse_dt(struct device *dev)
 {
 	struct dm9000_plat_data *pdata;
 	struct device_node *np = dev->of_node;
+<<<<<<< HEAD
 	const void *mac_addr;
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (!IS_ENABLED(CONFIG_OF) || !np)
 		return ERR_PTR(-ENXIO);
@@ -1412,9 +1461,15 @@ static struct dm9000_plat_data *dm9000_parse_dt(struct device *dev)
 	if (of_find_property(np, "davicom,no-eeprom", NULL))
 		pdata->flags |= DM9000_PLATF_NO_EEPROM;
 
+<<<<<<< HEAD
 	mac_addr = of_get_mac_address(np);
 	if (mac_addr)
 		memcpy(pdata->dev_addr, mac_addr, sizeof(pdata->dev_addr));
+=======
+	ret = of_get_mac_address(np, pdata->dev_addr);
+	if (ret == -EPROBE_DEFER)
+		return ERR_PTR(ret);
+>>>>>>> upstream/android-13
 
 	return pdata;
 }
@@ -1516,13 +1571,20 @@ dm9000_probe(struct platform_device *pdev)
 
 	ndev->irq = platform_get_irq(pdev, 0);
 	if (ndev->irq < 0) {
+<<<<<<< HEAD
 		dev_err(db->dev, "interrupt resource unavailable: %d\n",
 			ndev->irq);
+=======
+>>>>>>> upstream/android-13
 		ret = ndev->irq;
 		goto out;
 	}
 
+<<<<<<< HEAD
 	db->irq_wake = platform_get_irq(pdev, 1);
+=======
+	db->irq_wake = platform_get_irq_optional(pdev, 1);
+>>>>>>> upstream/android-13
 	if (db->irq_wake >= 0) {
 		dev_dbg(db->dev, "wakeup irq %d\n", db->irq_wake);
 
@@ -1537,7 +1599,10 @@ dm9000_probe(struct platform_device *pdev)
 			if (ret) {
 				dev_err(db->dev, "irq %d cannot set wakeup (%d)\n",
 					db->irq_wake, ret);
+<<<<<<< HEAD
 				ret = 0;
+=======
+>>>>>>> upstream/android-13
 			} else {
 				irq_set_irq_wake(db->irq_wake, 0);
 				db->wake_supported = 1;
@@ -1734,8 +1799,12 @@ out_regulator_disable:
 static int
 dm9000_drv_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct net_device *ndev = platform_get_drvdata(pdev);
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct board_info *db;
 
 	if (ndev) {
@@ -1757,8 +1826,12 @@ dm9000_drv_suspend(struct device *dev)
 static int
 dm9000_drv_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	struct platform_device *pdev = to_platform_device(dev);
 	struct net_device *ndev = platform_get_drvdata(pdev);
+=======
+	struct net_device *ndev = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 	struct board_info *db = netdev_priv(ndev);
 
 	if (ndev) {

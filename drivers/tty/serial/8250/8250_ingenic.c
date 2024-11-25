@@ -129,6 +129,7 @@ static int __init ingenic_early_console_setup(struct earlycon_device *dev,
 	return 0;
 }
 
+<<<<<<< HEAD
 EARLYCON_DECLARE(jz4740_uart, ingenic_early_console_setup);
 OF_EARLYCON_DECLARE(jz4740_uart, "ingenic,jz4740-uart",
 		    ingenic_early_console_setup);
@@ -145,6 +146,23 @@ EARLYCON_DECLARE(jz4780_uart, ingenic_early_console_setup);
 OF_EARLYCON_DECLARE(jz4780_uart, "ingenic,jz4780-uart",
 		    ingenic_early_console_setup);
 
+=======
+OF_EARLYCON_DECLARE(jz4740_uart, "ingenic,jz4740-uart",
+		    ingenic_early_console_setup);
+
+OF_EARLYCON_DECLARE(jz4770_uart, "ingenic,jz4770-uart",
+		    ingenic_early_console_setup);
+
+OF_EARLYCON_DECLARE(jz4775_uart, "ingenic,jz4775-uart",
+		    ingenic_early_console_setup);
+
+OF_EARLYCON_DECLARE(jz4780_uart, "ingenic,jz4780-uart",
+		    ingenic_early_console_setup);
+
+OF_EARLYCON_DECLARE(x1000_uart, "ingenic,x1000-uart",
+		    ingenic_early_console_setup);
+
+>>>>>>> upstream/android-13
 static void ingenic_uart_serial_out(struct uart_port *p, int offset, int value)
 {
 	int ier;
@@ -208,6 +226,7 @@ static unsigned int ingenic_uart_serial_in(struct uart_port *p, int offset)
 static int ingenic_uart_probe(struct platform_device *pdev)
 {
 	struct uart_8250_port uart = {};
+<<<<<<< HEAD
 	struct resource *regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	struct resource *irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	struct ingenic_uart_data *data;
@@ -224,6 +243,26 @@ static int ingenic_uart_probe(struct platform_device *pdev)
 
 	if (!regs || !irq) {
 		dev_err(&pdev->dev, "no registers/irq defined\n");
+=======
+	struct ingenic_uart_data *data;
+	const struct ingenic_uart_config *cdata;
+	struct resource *regs;
+	int irq, err, line;
+
+	cdata = of_device_get_match_data(&pdev->dev);
+	if (!cdata) {
+		dev_err(&pdev->dev, "Error: No device match found\n");
+		return -ENODEV;
+	}
+
+	irq = platform_get_irq(pdev, 0);
+	if (irq < 0)
+		return irq;
+
+	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!regs) {
+		dev_err(&pdev->dev, "no registers defined\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -239,7 +278,11 @@ static int ingenic_uart_probe(struct platform_device *pdev)
 	uart.port.regshift = 2;
 	uart.port.serial_out = ingenic_uart_serial_out;
 	uart.port.serial_in = ingenic_uart_serial_in;
+<<<<<<< HEAD
 	uart.port.irq = irq->start;
+=======
+	uart.port.irq = irq;
+>>>>>>> upstream/android-13
 	uart.port.dev = &pdev->dev;
 	uart.port.fifosize = cdata->fifosize;
 	uart.tx_loadsz = cdata->tx_loadsz;
@@ -256,6 +299,7 @@ static int ingenic_uart_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	data->clk_module = devm_clk_get(&pdev->dev, "module");
+<<<<<<< HEAD
 	if (IS_ERR(data->clk_module)) {
 		err = PTR_ERR(data->clk_module);
 		if (err != -EPROBE_DEFER)
@@ -272,6 +316,16 @@ static int ingenic_uart_probe(struct platform_device *pdev)
 				"unable to get baud clock: %d\n", err);
 		return err;
 	}
+=======
+	if (IS_ERR(data->clk_module))
+		return dev_err_probe(&pdev->dev, PTR_ERR(data->clk_module),
+				     "unable to get module clock\n");
+
+	data->clk_baud = devm_clk_get(&pdev->dev, "baud");
+	if (IS_ERR(data->clk_baud))
+		return dev_err_probe(&pdev->dev, PTR_ERR(data->clk_baud),
+				     "unable to get baud clock\n");
+>>>>>>> upstream/android-13
 
 	err = clk_prepare_enable(data->clk_module);
 	if (err) {
@@ -328,12 +382,24 @@ static const struct ingenic_uart_config jz4780_uart_config = {
 	.fifosize = 64,
 };
 
+<<<<<<< HEAD
+=======
+static const struct ingenic_uart_config x1000_uart_config = {
+	.tx_loadsz = 32,
+	.fifosize = 64,
+};
+
+>>>>>>> upstream/android-13
 static const struct of_device_id of_match[] = {
 	{ .compatible = "ingenic,jz4740-uart", .data = &jz4740_uart_config },
 	{ .compatible = "ingenic,jz4760-uart", .data = &jz4760_uart_config },
 	{ .compatible = "ingenic,jz4770-uart", .data = &jz4760_uart_config },
 	{ .compatible = "ingenic,jz4775-uart", .data = &jz4760_uart_config },
 	{ .compatible = "ingenic,jz4780-uart", .data = &jz4780_uart_config },
+<<<<<<< HEAD
+=======
+	{ .compatible = "ingenic,x1000-uart", .data = &x1000_uart_config },
+>>>>>>> upstream/android-13
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, of_match);

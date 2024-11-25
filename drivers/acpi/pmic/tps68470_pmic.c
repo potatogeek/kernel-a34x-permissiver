@@ -10,8 +10,13 @@
  */
 
 #include <linux/acpi.h>
+<<<<<<< HEAD
 #include <linux/mfd/tps68470.h>
 #include <linux/init.h>
+=======
+#include <linux/init.h>
+#include <linux/mfd/tps68470.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/regmap.h>
 

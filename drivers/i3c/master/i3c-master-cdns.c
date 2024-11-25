@@ -22,6 +22,10 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/workqueue.h>
+<<<<<<< HEAD
+=======
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 
 #define DEV_ID				0x0
 #define DEV_ID_I3C_MASTER		0x5034
@@ -60,6 +64,10 @@
 #define CTRL_HALT_EN			BIT(30)
 #define CTRL_MCS			BIT(29)
 #define CTRL_MCS_EN			BIT(28)
+<<<<<<< HEAD
+=======
+#define CTRL_THD_DELAY(x)		(((x) << 24) & GENMASK(25, 24))
+>>>>>>> upstream/android-13
 #define CTRL_HJ_DISEC			BIT(8)
 #define CTRL_MST_ACK			BIT(7)
 #define CTRL_HJ_ACK			BIT(6)
@@ -70,6 +78,10 @@
 #define CTRL_MIXED_FAST_BUS_MODE	2
 #define CTRL_MIXED_SLOW_BUS_MODE	3
 #define CTRL_BUS_MODE_MASK		GENMASK(1, 0)
+<<<<<<< HEAD
+=======
+#define THD_DELAY_MAX			3
+>>>>>>> upstream/android-13
 
 #define PRESCL_CTRL0			0x14
 #define PRESCL_CTRL0_I2C(x)		((x) << 16)
@@ -385,7 +397,15 @@ struct cdns_i3c_xfer {
 	struct completion comp;
 	int ret;
 	unsigned int ncmds;
+<<<<<<< HEAD
 	struct cdns_i3c_cmd cmds[0];
+=======
+	struct cdns_i3c_cmd cmds[];
+};
+
+struct cdns_i3c_data {
+	u8 thd_delay_ns;
+>>>>>>> upstream/android-13
 };
 
 struct cdns_i3c_master {
@@ -408,6 +428,10 @@ struct cdns_i3c_master {
 	struct clk *pclk;
 	struct cdns_i3c_master_caps caps;
 	unsigned long i3c_scl_lim;
+<<<<<<< HEAD
+=======
+	const struct cdns_i3c_data *devdata;
+>>>>>>> upstream/android-13
 };
 
 static inline struct cdns_i3c_master *
@@ -903,7 +927,12 @@ static void cdns_i3c_master_upd_i3c_addr(struct i3c_dev_desc *dev)
 static int cdns_i3c_master_get_rr_slot(struct cdns_i3c_master *master,
 				       u8 dyn_addr)
 {
+<<<<<<< HEAD
 	u32 activedevs, rr;
+=======
+	unsigned long activedevs;
+	u32 rr;
+>>>>>>> upstream/android-13
 	int i;
 
 	if (!dyn_addr) {
@@ -913,6 +942,7 @@ static int cdns_i3c_master_get_rr_slot(struct cdns_i3c_master *master,
 		return ffs(master->free_rr_slots) - 1;
 	}
 
+<<<<<<< HEAD
 	activedevs = readl(master->regs + DEVS_CTRL) &
 		     DEVS_CTRL_DEVS_ACTIVE_MASK;
 
@@ -920,6 +950,12 @@ static int cdns_i3c_master_get_rr_slot(struct cdns_i3c_master *master,
 		if (!(BIT(i) & activedevs))
 			continue;
 
+=======
+	activedevs = readl(master->regs + DEVS_CTRL) & DEVS_CTRL_DEVS_ACTIVE_MASK;
+	activedevs &= ~BIT(0);
+
+	for_each_set_bit(i, &activedevs, master->maxdevs + 1) {
+>>>>>>> upstream/android-13
 		rr = readl(master->regs + DEV_ID_RR0(i));
 		if (!(rr & DEV_ID_RR0_IS_I3C) ||
 		    DEV_ID_RR0_GET_DEV_ADDR(rr) != dyn_addr)
@@ -1005,9 +1041,15 @@ static int cdns_i3c_master_attach_i2c_dev(struct i2c_dev_desc *dev)
 	master->free_rr_slots &= ~BIT(slot);
 	i2c_dev_set_master_data(dev, data);
 
+<<<<<<< HEAD
 	writel(prepare_rr0_dev_address(dev->boardinfo->base.addr),
 	       master->regs + DEV_ID_RR0(data->id));
 	writel(dev->boardinfo->lvr, master->regs + DEV_ID_RR2(data->id));
+=======
+	writel(prepare_rr0_dev_address(dev->addr),
+	       master->regs + DEV_ID_RR0(data->id));
+	writel(dev->lvr, master->regs + DEV_ID_RR2(data->id));
+>>>>>>> upstream/android-13
 	writel(readl(master->regs + DEVS_CTRL) |
 	       DEVS_CTRL_DEV_ACTIVE(data->id),
 	       master->regs + DEVS_CTRL);
@@ -1126,18 +1168,29 @@ static void cdns_i3c_master_upd_i3c_scl_lim(struct cdns_i3c_master *master)
 static int cdns_i3c_master_do_daa(struct i3c_master_controller *m)
 {
 	struct cdns_i3c_master *master = to_cdns_i3c_master(m);
+<<<<<<< HEAD
 	u32 olddevs, newdevs;
+=======
+	unsigned long olddevs, newdevs;
+>>>>>>> upstream/android-13
 	int ret, slot;
 	u8 addrs[MAX_DEVS] = { };
 	u8 last_addr = 0;
 
 	olddevs = readl(master->regs + DEVS_CTRL) & DEVS_CTRL_DEVS_ACTIVE_MASK;
+<<<<<<< HEAD
 
 	/* Prepare RR slots before launching DAA. */
 	for (slot = 1; slot <= master->maxdevs; slot++) {
 		if (olddevs & BIT(slot))
 			continue;
 
+=======
+	olddevs |= BIT(0);
+
+	/* Prepare RR slots before launching DAA. */
+	for_each_clear_bit(slot, &olddevs, master->maxdevs + 1) {
+>>>>>>> upstream/android-13
 		ret = i3c_master_get_free_addr(m, last_addr + 1);
 		if (ret < 0)
 			return -ENOSPC;
@@ -1161,10 +1214,15 @@ static int cdns_i3c_master_do_daa(struct i3c_master_controller *m)
 	 * Clear all retaining registers filled during DAA. We already
 	 * have the addressed assigned to them in the addrs array.
 	 */
+<<<<<<< HEAD
 	for (slot = 1; slot <= master->maxdevs; slot++) {
 		if (newdevs & BIT(slot))
 			i3c_master_add_i3c_dev_locked(m, addrs[slot]);
 	}
+=======
+	for_each_set_bit(slot, &newdevs, master->maxdevs + 1)
+		i3c_master_add_i3c_dev_locked(m, addrs[slot]);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Clear slots that ended up not being used. Can be caused by I3C
@@ -1187,6 +1245,23 @@ static int cdns_i3c_master_do_daa(struct i3c_master_controller *m)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static u8 cdns_i3c_master_calculate_thd_delay(struct cdns_i3c_master *master)
+{
+	unsigned long sysclk_rate = clk_get_rate(master->sysclk);
+	u8 thd_delay = DIV_ROUND_UP(master->devdata->thd_delay_ns,
+				    (NSEC_PER_SEC / sysclk_rate));
+
+	/* Every value greater than 3 is not valid. */
+	if (thd_delay > THD_DELAY_MAX)
+		thd_delay = THD_DELAY_MAX;
+
+	/* CTLR_THD_DEL value is encoded. */
+	return (THD_DELAY_MAX - thd_delay);
+}
+
+>>>>>>> upstream/android-13
 static int cdns_i3c_master_bus_init(struct i3c_master_controller *m)
 {
 	struct cdns_i3c_master *master = to_cdns_i3c_master(m);
@@ -1270,6 +1345,18 @@ static int cdns_i3c_master_bus_init(struct i3c_master_controller *m)
 	 * We will issue ENTDAA afterwards from the threaded IRQ handler.
 	 */
 	ctrl |= CTRL_HJ_ACK | CTRL_HJ_DISEC | CTRL_HALT_EN | CTRL_MCS_EN;
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Configure data hold delay based on device-specific data.
+	 *
+	 * MIPI I3C Specification 1.0 defines non-zero minimal tHD_PP timing on
+	 * master output. This setting allows to meet this timing on master's
+	 * SoC outputs, regardless of PCB balancing.
+	 */
+	ctrl |= CTRL_THD_DELAY(cdns_i3c_master_calculate_thd_delay(master));
+>>>>>>> upstream/android-13
 	writel(ctrl, master->regs + CTRL);
 
 	cdns_i3c_master_enable(master);
@@ -1354,6 +1441,11 @@ static void cnds_i3c_master_demux_ibis(struct cdns_i3c_master *master)
 
 		case IBIR_TYPE_MR:
 			WARN_ON(IBIR_XFER_BYTES(ibir) || (ibir & IBIR_ERROR));
+<<<<<<< HEAD
+=======
+			break;
+
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
@@ -1527,10 +1619,25 @@ static void cdns_i3c_master_hj(struct work_struct *work)
 	i3c_master_do_daa(&master->base);
 }
 
+<<<<<<< HEAD
 static int cdns_i3c_master_probe(struct platform_device *pdev)
 {
 	struct cdns_i3c_master *master;
 	struct resource *res;
+=======
+static struct cdns_i3c_data cdns_i3c_devdata = {
+	.thd_delay_ns = 10,
+};
+
+static const struct of_device_id cdns_i3c_master_of_ids[] = {
+	{ .compatible = "cdns,i3c-master", .data = &cdns_i3c_devdata },
+	{ /* sentinel */ },
+};
+
+static int cdns_i3c_master_probe(struct platform_device *pdev)
+{
+	struct cdns_i3c_master *master;
+>>>>>>> upstream/android-13
 	int ret, irq;
 	u32 val;
 
@@ -1538,8 +1645,16 @@ static int cdns_i3c_master_probe(struct platform_device *pdev)
 	if (!master)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	master->regs = devm_ioremap_resource(&pdev->dev, res);
+=======
+	master->devdata = of_device_get_match_data(&pdev->dev);
+	if (!master->devdata)
+		return -EINVAL;
+
+	master->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(master->regs))
 		return PTR_ERR(master->regs);
 
@@ -1599,8 +1714,15 @@ static int cdns_i3c_master_probe(struct platform_device *pdev)
 	master->ibi.slots = devm_kcalloc(&pdev->dev, master->ibi.num_slots,
 					 sizeof(*master->ibi.slots),
 					 GFP_KERNEL);
+<<<<<<< HEAD
 	if (!master->ibi.slots)
 		goto err_disable_sysclk;
+=======
+	if (!master->ibi.slots) {
+		ret = -ENOMEM;
+		goto err_disable_sysclk;
+	}
+>>>>>>> upstream/android-13
 
 	writel(IBIR_THR(1), master->regs + CMD_IBI_THR_CTRL);
 	writel(MST_INT_IBIR_THR, master->regs + MST_IER);
@@ -1637,11 +1759,14 @@ static int cdns_i3c_master_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id cdns_i3c_master_of_ids[] = {
 	{ .compatible = "cdns,i3c-master" },
 	{ /* sentinel */ },
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct platform_driver cdns_i3c_master = {
 	.probe = cdns_i3c_master_probe,
 	.remove = cdns_i3c_master_remove,

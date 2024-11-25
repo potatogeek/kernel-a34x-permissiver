@@ -15,18 +15,25 @@
 #include <linux/export.h>
 #include <linux/of_fdt.h>
 #include <linux/memblock.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/moduleparam.h>
 #include <linux/swap.h>
 #include <linux/swapops.h>
 #include <linux/kmemleak.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/pgalloc.h>
 #include <asm/tlb.h>
 #include <asm/setup.h>
 #include <asm/hugetlb.h>
 #include <asm/pte-walk.h>
 
+<<<<<<< HEAD
 
 #ifdef CONFIG_HUGETLB_PAGE
 
@@ -43,6 +50,15 @@ EXPORT_SYMBOL(HPAGE_SHIFT);
 
 #define hugepd_none(hpd)	(hpd_val(hpd) == 0)
 
+=======
+bool hugetlb_disabled = false;
+
+#define hugepd_none(hpd)	(hpd_val(hpd) == 0)
+
+#define PTE_T_ORDER	(__builtin_ffs(sizeof(pte_basic_t)) - \
+			 __builtin_ffs(sizeof(void *)))
+
+>>>>>>> upstream/android-13
 pte_t *huge_pte_offset(struct mm_struct *mm, unsigned long addr, unsigned long sz)
 {
 	/*
@@ -62,19 +78,36 @@ static int __hugepte_alloc(struct mm_struct *mm, hugepd_t *hpdp,
 	int num_hugepd;
 
 	if (pshift >= pdshift) {
+<<<<<<< HEAD
 		cachep = hugepte_cache;
+=======
+		cachep = PGT_CACHE(PTE_T_ORDER);
+>>>>>>> upstream/android-13
 		num_hugepd = 1 << (pshift - pdshift);
 	} else {
 		cachep = PGT_CACHE(pdshift - pshift);
 		num_hugepd = 1;
 	}
 
+<<<<<<< HEAD
 	new = kmem_cache_zalloc(cachep, pgtable_gfp_flags(mm, GFP_KERNEL));
+=======
+	if (!cachep) {
+		WARN_ONCE(1, "No page table cache created for hugetlb tables");
+		return -ENOMEM;
+	}
+
+	new = kmem_cache_alloc(cachep, pgtable_gfp_flags(mm, GFP_KERNEL));
+>>>>>>> upstream/android-13
 
 	BUG_ON(pshift > HUGEPD_SHIFT_MASK);
 	BUG_ON((unsigned long)new & HUGEPD_SHIFT_MASK);
 
+<<<<<<< HEAD
 	if (! new)
+=======
+	if (!new)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	/*
@@ -94,6 +127,7 @@ static int __hugepte_alloc(struct mm_struct *mm, hugepd_t *hpdp,
 	for (i = 0; i < num_hugepd; i++, hpdp++) {
 		if (unlikely(!hugepd_none(*hpdp)))
 			break;
+<<<<<<< HEAD
 		else {
 #ifdef CONFIG_PPC_BOOK3S_64
 			*hpdp = __hugepd(__pa(new) |
@@ -107,6 +141,9 @@ static int __hugepte_alloc(struct mm_struct *mm, hugepd_t *hpdp,
 			*hpdp = __hugepd(((unsigned long)new & ~PD_HUGE) | pshift);
 #endif
 		}
+=======
+		hugepd_populate(hpdp, new, pshift);
+>>>>>>> upstream/android-13
 	}
 	/* If we bailed from the for loop early, an error occurred, clean up */
 	if (i < num_hugepd) {
@@ -124,9 +161,17 @@ static int __hugepte_alloc(struct mm_struct *mm, hugepd_t *hpdp,
  * At this point we do the placement change only for BOOK3S 64. This would
  * possibly work on other subarchs.
  */
+<<<<<<< HEAD
 pte_t *huge_pte_alloc(struct mm_struct *mm, unsigned long addr, unsigned long sz)
 {
 	pgd_t *pg;
+=======
+pte_t *huge_pte_alloc(struct mm_struct *mm, struct vm_area_struct *vma,
+		      unsigned long addr, unsigned long sz)
+{
+	pgd_t *pg;
+	p4d_t *p4;
+>>>>>>> upstream/android-13
 	pud_t *pu;
 	pmd_t *pm;
 	hugepd_t *hpdp = NULL;
@@ -136,20 +181,35 @@ pte_t *huge_pte_alloc(struct mm_struct *mm, unsigned long addr, unsigned long sz
 
 	addr &= ~(sz-1);
 	pg = pgd_offset(mm, addr);
+<<<<<<< HEAD
+=======
+	p4 = p4d_offset(pg, addr);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_BOOK3S_64
 	if (pshift == PGDIR_SHIFT)
 		/* 16GB huge page */
+<<<<<<< HEAD
 		return (pte_t *) pg;
+=======
+		return (pte_t *) p4;
+>>>>>>> upstream/android-13
 	else if (pshift > PUD_SHIFT) {
 		/*
 		 * We need to use hugepd table
 		 */
 		ptl = &mm->page_table_lock;
+<<<<<<< HEAD
 		hpdp = (hugepd_t *)pg;
 	} else {
 		pdshift = PUD_SHIFT;
 		pu = pud_alloc(mm, pg, addr);
+=======
+		hpdp = (hugepd_t *)p4;
+	} else {
+		pdshift = PUD_SHIFT;
+		pu = pud_alloc(mm, p4, addr);
+>>>>>>> upstream/android-13
 		if (!pu)
 			return NULL;
 		if (pshift == PUD_SHIFT)
@@ -174,10 +234,17 @@ pte_t *huge_pte_alloc(struct mm_struct *mm, unsigned long addr, unsigned long sz
 #else
 	if (pshift >= PGDIR_SHIFT) {
 		ptl = &mm->page_table_lock;
+<<<<<<< HEAD
 		hpdp = (hugepd_t *)pg;
 	} else {
 		pdshift = PUD_SHIFT;
 		pu = pud_alloc(mm, pg, addr);
+=======
+		hpdp = (hugepd_t *)p4;
+	} else {
+		pdshift = PUD_SHIFT;
+		pu = pud_alloc(mm, p4, addr);
+>>>>>>> upstream/android-13
 		if (!pu)
 			return NULL;
 		if (pshift >= PUD_SHIFT) {
@@ -196,6 +263,12 @@ pte_t *huge_pte_alloc(struct mm_struct *mm, unsigned long addr, unsigned long sz
 	if (!hpdp)
 		return NULL;
 
+<<<<<<< HEAD
+=======
+	if (IS_ENABLED(CONFIG_PPC_8xx) && pshift < PMD_SHIFT)
+		return pte_alloc_map(mm, (pmd_t *)hpdp, addr);
+
+>>>>>>> upstream/android-13
 	BUG_ON(!hugepd_none(*hpdp) && !hugepd_ok(*hpdp));
 
 	if (hugepd_none(*hpdp) && __hugepte_alloc(mm, hpdp, addr,
@@ -230,7 +303,11 @@ void __init pseries_add_gpage(u64 addr, u64 page_size, unsigned long number_of_p
 	}
 }
 
+<<<<<<< HEAD
 int __init pseries_alloc_bootmem_huge_page(struct hstate *hstate)
+=======
+static int __init pseries_alloc_bootmem_huge_page(struct hstate *hstate)
+>>>>>>> upstream/android-13
 {
 	struct huge_bootmem_page *m;
 	if (nr_gpages == 0)
@@ -254,14 +331,22 @@ int __init alloc_bootmem_huge_page(struct hstate *h)
 	return __alloc_bootmem_huge_page(h);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_PPC_FSL_BOOK3E) || defined(CONFIG_PPC_8xx)
+=======
+#ifndef CONFIG_PPC_BOOK3S_64
+>>>>>>> upstream/android-13
 #define HUGEPD_FREELIST_SIZE \
 	((PAGE_SIZE - sizeof(struct hugepd_freelist)) / sizeof(pte_t))
 
 struct hugepd_freelist {
 	struct rcu_head	rcu;
 	unsigned int index;
+<<<<<<< HEAD
 	void *ptes[0];
+=======
+	void *ptes[];
+>>>>>>> upstream/android-13
 };
 
 static DEFINE_PER_CPU(struct hugepd_freelist *, hugepd_freelist_cur);
@@ -273,7 +358,11 @@ static void hugepd_free_rcu_callback(struct rcu_head *head)
 	unsigned int i;
 
 	for (i = 0; i < batch->index; i++)
+<<<<<<< HEAD
 		kmem_cache_free(hugepte_cache, batch->ptes[i]);
+=======
+		kmem_cache_free(PGT_CACHE(PTE_T_ORDER), batch->ptes[i]);
+>>>>>>> upstream/android-13
 
 	free_page((unsigned long)batch);
 }
@@ -286,7 +375,11 @@ static void hugepd_free(struct mmu_gather *tlb, void *hugepte)
 
 	if (atomic_read(&tlb->mm->mm_users) < 2 ||
 	    mm_is_thread_local(tlb->mm)) {
+<<<<<<< HEAD
 		kmem_cache_free(hugepte_cache, hugepte);
+=======
+		kmem_cache_free(PGT_CACHE(PTE_T_ORDER), hugepte);
+>>>>>>> upstream/android-13
 		put_cpu_var(hugepd_freelist_cur);
 		return;
 	}
@@ -298,7 +391,11 @@ static void hugepd_free(struct mmu_gather *tlb, void *hugepte)
 
 	(*batchp)->ptes[(*batchp)->index++] = hugepte;
 	if ((*batchp)->index == HUGEPD_FREELIST_SIZE) {
+<<<<<<< HEAD
 		call_rcu_sched(&(*batchp)->rcu, hugepd_free_rcu_callback);
+=======
+		call_rcu(&(*batchp)->rcu, hugepd_free_rcu_callback);
+>>>>>>> upstream/android-13
 		*batchp = NULL;
 	}
 	put_cpu_var(hugepd_freelist_cur);
@@ -307,6 +404,24 @@ static void hugepd_free(struct mmu_gather *tlb, void *hugepte)
 static inline void hugepd_free(struct mmu_gather *tlb, void *hugepte) {}
 #endif
 
+<<<<<<< HEAD
+=======
+/* Return true when the entry to be freed maps more than the area being freed */
+static bool range_is_outside_limits(unsigned long start, unsigned long end,
+				    unsigned long floor, unsigned long ceiling,
+				    unsigned long mask)
+{
+	if ((start & mask) < floor)
+		return true;
+	if (ceiling) {
+		ceiling &= mask;
+		if (!ceiling)
+			return true;
+	}
+	return end - 1 > ceiling - 1;
+}
+
+>>>>>>> upstream/android-13
 static void free_hugepd_range(struct mmu_gather *tlb, hugepd_t *hpdp, int pdshift,
 			      unsigned long start, unsigned long end,
 			      unsigned long floor, unsigned long ceiling)
@@ -322,6 +437,7 @@ static void free_hugepd_range(struct mmu_gather *tlb, hugepd_t *hpdp, int pdshif
 	if (shift > pdshift)
 		num_hugepd = 1 << (shift - pdshift);
 
+<<<<<<< HEAD
 	start &= pdmask;
 	if (start < floor)
 		return;
@@ -331,6 +447,9 @@ static void free_hugepd_range(struct mmu_gather *tlb, hugepd_t *hpdp, int pdshif
 			return;
 	}
 	if (end - 1 > ceiling - 1)
+=======
+	if (range_is_outside_limits(start, end, floor, ceiling, pdmask))
+>>>>>>> upstream/android-13
 		return;
 
 	for (i = 0; i < num_hugepd; i++, hpdp++)
@@ -343,6 +462,23 @@ static void free_hugepd_range(struct mmu_gather *tlb, hugepd_t *hpdp, int pdshif
 				 get_hugepd_cache_index(pdshift - shift));
 }
 
+<<<<<<< HEAD
+=======
+static void hugetlb_free_pte_range(struct mmu_gather *tlb, pmd_t *pmd,
+				   unsigned long addr, unsigned long end,
+				   unsigned long floor, unsigned long ceiling)
+{
+	pgtable_t token = pmd_pgtable(*pmd);
+
+	if (range_is_outside_limits(addr, end, floor, ceiling, PMD_MASK))
+		return;
+
+	pmd_clear(pmd);
+	pte_free_tlb(tlb, token, addr);
+	mm_dec_nr_ptes(tlb->mm);
+}
+
+>>>>>>> upstream/android-13
 static void hugetlb_free_pmd_range(struct mmu_gather *tlb, pud_t *pud,
 				   unsigned long addr, unsigned long end,
 				   unsigned long floor, unsigned long ceiling)
@@ -358,11 +494,24 @@ static void hugetlb_free_pmd_range(struct mmu_gather *tlb, pud_t *pud,
 		pmd = pmd_offset(pud, addr);
 		next = pmd_addr_end(addr, end);
 		if (!is_hugepd(__hugepd(pmd_val(*pmd)))) {
+<<<<<<< HEAD
+=======
+			if (pmd_none_or_clear_bad(pmd))
+				continue;
+
+>>>>>>> upstream/android-13
 			/*
 			 * if it is not hugepd pointer, we should already find
 			 * it cleared.
 			 */
+<<<<<<< HEAD
 			WARN_ON(!pmd_none_or_clear_bad(pmd));
+=======
+			WARN_ON(!IS_ENABLED(CONFIG_PPC_8xx));
+
+			hugetlb_free_pte_range(tlb, pmd, addr, end, floor, ceiling);
+
+>>>>>>> upstream/android-13
 			continue;
 		}
 		/*
@@ -379,6 +528,7 @@ static void hugetlb_free_pmd_range(struct mmu_gather *tlb, pud_t *pud,
 				  addr, next, floor, ceiling);
 	} while (addr = next, addr != end);
 
+<<<<<<< HEAD
 	start &= PUD_MASK;
 	if (start < floor)
 		return;
@@ -397,6 +547,18 @@ static void hugetlb_free_pmd_range(struct mmu_gather *tlb, pud_t *pud,
 }
 
 static void hugetlb_free_pud_range(struct mmu_gather *tlb, pgd_t *pgd,
+=======
+	if (range_is_outside_limits(start, end, floor, ceiling, PUD_MASK))
+		return;
+
+	pmd = pmd_offset(pud, start & PUD_MASK);
+	pud_clear(pud);
+	pmd_free_tlb(tlb, pmd, start & PUD_MASK);
+	mm_dec_nr_pmds(tlb->mm);
+}
+
+static void hugetlb_free_pud_range(struct mmu_gather *tlb, p4d_t *p4d,
+>>>>>>> upstream/android-13
 				   unsigned long addr, unsigned long end,
 				   unsigned long floor, unsigned long ceiling)
 {
@@ -406,7 +568,11 @@ static void hugetlb_free_pud_range(struct mmu_gather *tlb, pgd_t *pgd,
 
 	start = addr;
 	do {
+<<<<<<< HEAD
 		pud = pud_offset(pgd, addr);
+=======
+		pud = pud_offset(p4d, addr);
+>>>>>>> upstream/android-13
 		next = pud_addr_end(addr, end);
 		if (!is_hugepd(__hugepd(pud_val(*pud)))) {
 			if (pud_none_or_clear_bad(pud))
@@ -430,6 +596,7 @@ static void hugetlb_free_pud_range(struct mmu_gather *tlb, pgd_t *pgd,
 		}
 	} while (addr = next, addr != end);
 
+<<<<<<< HEAD
 	start &= PGDIR_MASK;
 	if (start < floor)
 		return;
@@ -444,6 +611,14 @@ static void hugetlb_free_pud_range(struct mmu_gather *tlb, pgd_t *pgd,
 	pud = pud_offset(pgd, start);
 	pgd_clear(pgd);
 	pud_free_tlb(tlb, pud, start);
+=======
+	if (range_is_outside_limits(start, end, floor, ceiling, PGDIR_MASK))
+		return;
+
+	pud = pud_offset(p4d, start & PGDIR_MASK);
+	p4d_clear(p4d);
+	pud_free_tlb(tlb, pud, start & PGDIR_MASK);
+>>>>>>> upstream/android-13
 	mm_dec_nr_puds(tlb->mm);
 }
 
@@ -455,6 +630,10 @@ void hugetlb_free_pgd_range(struct mmu_gather *tlb,
 			    unsigned long floor, unsigned long ceiling)
 {
 	pgd_t *pgd;
+<<<<<<< HEAD
+=======
+	p4d_t *p4d;
+>>>>>>> upstream/android-13
 	unsigned long next;
 
 	/*
@@ -477,10 +656,18 @@ void hugetlb_free_pgd_range(struct mmu_gather *tlb,
 	do {
 		next = pgd_addr_end(addr, end);
 		pgd = pgd_offset(tlb->mm, addr);
+<<<<<<< HEAD
 		if (!is_hugepd(__hugepd(pgd_val(*pgd)))) {
 			if (pgd_none_or_clear_bad(pgd))
 				continue;
 			hugetlb_free_pud_range(tlb, pgd, addr, next, floor, ceiling);
+=======
+		p4d = p4d_offset(pgd, addr);
+		if (!is_hugepd(__hugepd(pgd_val(*pgd)))) {
+			if (p4d_none_or_clear_bad(p4d))
+				continue;
+			hugetlb_free_pud_range(tlb, p4d, addr, next, floor, ceiling);
+>>>>>>> upstream/android-13
 		} else {
 			unsigned long more;
 			/*
@@ -493,7 +680,11 @@ void hugetlb_free_pgd_range(struct mmu_gather *tlb,
 			if (more > next)
 				next = more;
 
+<<<<<<< HEAD
 			free_hugepd_range(tlb, (hugepd_t *)pgd, PGDIR_SHIFT,
+=======
+			free_hugepd_range(tlb, (hugepd_t *)p4d, PGDIR_SHIFT,
+>>>>>>> upstream/android-13
 					  addr, next, floor, ceiling);
 		}
 	} while (addr = next, addr != end);
@@ -536,6 +727,7 @@ retry:
 	return page;
 }
 
+<<<<<<< HEAD
 static unsigned long hugepte_addr_end(unsigned long addr, unsigned long end,
 				      unsigned long sz)
 {
@@ -560,6 +752,8 @@ int gup_huge_pd(hugepd_t hugepd, unsigned long addr, unsigned pdshift,
 	return 1;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PPC_MM_SLICES
 unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 					unsigned long len, unsigned long pgoff,
@@ -579,13 +773,19 @@ unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 
 unsigned long vma_mmu_pagesize(struct vm_area_struct *vma)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_MM_SLICES
 	/* With radix we don't use slice, so derive it from vma*/
 	if (!radix_enabled()) {
+=======
+	/* With radix we don't use slice, so derive it from vma*/
+	if (IS_ENABLED(CONFIG_PPC_MM_SLICES) && !radix_enabled()) {
+>>>>>>> upstream/android-13
 		unsigned int psize = get_slice_psize(vma->vm_mm, vma->vm_start);
 
 		return 1UL << mmu_psize_to_shift(psize);
 	}
+<<<<<<< HEAD
 #endif
 	return vma_kernel_pagesize(vma);
 }
@@ -598,12 +798,19 @@ static inline bool is_power_of_4(unsigned long x)
 }
 
 static int __init add_huge_page_size(unsigned long long size)
+=======
+	return vma_kernel_pagesize(vma);
+}
+
+bool __init arch_hugetlb_valid_size(unsigned long size)
+>>>>>>> upstream/android-13
 {
 	int shift = __ffs(size);
 	int mmu_psize;
 
 	/* Check that it is a page size supported by the hardware and
 	 * that it fits within pagetable and slice limits. */
+<<<<<<< HEAD
 	if (size <= PAGE_SIZE)
 		return -EINVAL;
 #if defined(CONFIG_PPC_FSL_BOOK3E)
@@ -664,6 +871,34 @@ __setup("hugepagesz=", hugepage_setup_sz);
 struct kmem_cache *hugepte_cache;
 static int __init hugetlbpage_init(void)
 {
+=======
+	if (size <= PAGE_SIZE || !is_power_of_2(size))
+		return false;
+
+	mmu_psize = check_and_get_huge_psize(shift);
+	if (mmu_psize < 0)
+		return false;
+
+	BUG_ON(mmu_psize_defs[mmu_psize].shift != shift);
+
+	return true;
+}
+
+static int __init add_huge_page_size(unsigned long long size)
+{
+	int shift = __ffs(size);
+
+	if (!arch_hugetlb_valid_size((unsigned long)size))
+		return -EINVAL;
+
+	hugetlb_add_hstate(shift - PAGE_SHIFT);
+	return 0;
+}
+
+static int __init hugetlbpage_init(void)
+{
+	bool configured = false;
+>>>>>>> upstream/android-13
 	int psize;
 
 	if (hugetlb_disabled) {
@@ -671,10 +906,17 @@ static int __init hugetlbpage_init(void)
 		return 0;
 	}
 
+<<<<<<< HEAD
 #if !defined(CONFIG_PPC_FSL_BOOK3E) && !defined(CONFIG_PPC_8xx)
 	if (!radix_enabled() && !mmu_has_feature(MMU_FTR_16M_PAGE))
 		return -ENODEV;
 #endif
+=======
+	if (IS_ENABLED(CONFIG_PPC_BOOK3S_64) && !radix_enabled() &&
+	    !mmu_has_feature(MMU_FTR_16M_PAGE))
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	for (psize = 0; psize < MMU_PAGE_COUNT; ++psize) {
 		unsigned shift;
 		unsigned pdshift;
@@ -708,6 +950,7 @@ static int __init hugetlbpage_init(void)
 		 * if we have pdshift and shift value same, we don't
 		 * use pgt cache for hugepd.
 		 */
+<<<<<<< HEAD
 		if (pdshift > shift)
 			pgtable_cache_add(pdshift - shift, NULL);
 #if defined(CONFIG_PPC_FSL_BOOK3E) || defined(CONFIG_PPC_8xx)
@@ -746,11 +989,31 @@ static int __init hugetlbpage_init(void)
 	else if (mmu_psize_defs[MMU_PAGE_2M].shift)
 		HPAGE_SHIFT = mmu_psize_defs[MMU_PAGE_2M].shift;
 #endif
+=======
+		if (pdshift > shift) {
+			if (!IS_ENABLED(CONFIG_PPC_8xx))
+				pgtable_cache_add(pdshift - shift);
+		} else if (IS_ENABLED(CONFIG_PPC_FSL_BOOK3E) ||
+			   IS_ENABLED(CONFIG_PPC_8xx)) {
+			pgtable_cache_add(PTE_T_ORDER);
+		}
+
+		configured = true;
+	}
+
+	if (configured) {
+		if (IS_ENABLED(CONFIG_HUGETLB_PAGE_SIZE_VARIABLE))
+			hugetlbpage_init_default();
+	} else
+		pr_info("Failed to initialize. Disabling HugeTLB");
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 arch_initcall(hugetlbpage_init);
 
+<<<<<<< HEAD
 void flush_dcache_icache_hugepage(struct page *page)
 {
 	int i;
@@ -916,4 +1179,22 @@ int gup_hugepte(pte_t *ptep, unsigned long sz, unsigned long addr,
 	}
 
 	return 1;
+=======
+void __init gigantic_hugetlb_cma_reserve(void)
+{
+	unsigned long order = 0;
+
+	if (radix_enabled())
+		order = PUD_SHIFT - PAGE_SHIFT;
+	else if (!firmware_has_feature(FW_FEATURE_LPAR) && mmu_psize_defs[MMU_PAGE_16G].shift)
+		/*
+		 * For pseries we do use ibm,expected#pages for reserving 16G pages.
+		 */
+		order = mmu_psize_to_shift(MMU_PAGE_16G) - PAGE_SHIFT;
+
+	if (order) {
+		VM_WARN_ON(order < MAX_ORDER);
+		hugetlb_cma_reserve(order);
+	}
+>>>>>>> upstream/android-13
 }

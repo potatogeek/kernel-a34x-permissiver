@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * TI ADC081C/ADC101C/ADC121C 8/10/12-bit ADC driver
  *
  * Copyright (C) 2012 Avionic Design GmbH
  * Copyright (C) 2016 Intel
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -12,6 +17,12 @@
  *	http://www.ti.com/lit/ds/symlink/adc081c021.pdf
  *	http://www.ti.com/lit/ds/symlink/adc101c021.pdf
  *	http://www.ti.com/lit/ds/symlink/adc121c021.pdf
+=======
+ * Datasheets:
+ *	https://www.ti.com/lit/ds/symlink/adc081c021.pdf
+ *	https://www.ti.com/lit/ds/symlink/adc101c021.pdf
+ *	https://www.ti.com/lit/ds/symlink/adc121c021.pdf
+>>>>>>> upstream/android-13
  *
  * The devices have a very similar interface and differ mostly in the number of
  * bits handled. For the 8-bit and 10-bit models the least-significant 4 or 2
@@ -21,8 +32,13 @@
 #include <linux/err.h>
 #include <linux/i2c.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of.h>
 #include <linux/acpi.h>
+=======
+#include <linux/mod_devicetable.h>
+#include <linux/property.h>
+>>>>>>> upstream/android-13
 
 #include <linux/iio/iio.h>
 #include <linux/iio/buffer.h>
@@ -150,17 +166,30 @@ out:
 	return IRQ_HANDLED;
 }
 
+<<<<<<< HEAD
+=======
+static void adc081c_reg_disable(void *reg)
+{
+	regulator_disable(reg);
+}
+
+>>>>>>> upstream/android-13
 static int adc081c_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
 	struct iio_dev *iio;
 	struct adc081c *adc;
+<<<<<<< HEAD
 	struct adcxx1c_model *model;
+=======
+	const struct adcxx1c_model *model;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA))
 		return -EOPNOTSUPP;
 
+<<<<<<< HEAD
 	if (ACPI_COMPANION(&client->dev)) {
 		const struct acpi_device_id *ad_id;
 
@@ -172,6 +201,12 @@ static int adc081c_probe(struct i2c_client *client,
 	} else {
 		model = &adcxx1c_models[id->driver_data];
 	}
+=======
+	if (dev_fwnode(&client->dev))
+		model = device_get_match_data(&client->dev);
+	else
+		model = &adcxx1c_models[id->driver_data];
+>>>>>>> upstream/android-13
 
 	iio = devm_iio_device_alloc(&client->dev, sizeof(*adc));
 	if (!iio)
@@ -189,8 +224,16 @@ static int adc081c_probe(struct i2c_client *client,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	iio->dev.parent = &client->dev;
 	iio->dev.of_node = client->dev.of_node;
+=======
+	err = devm_add_action_or_reset(&client->dev, adc081c_reg_disable,
+				       adc->ref);
+	if (err)
+		return err;
+
+>>>>>>> upstream/android-13
 	iio->name = dev_name(&client->dev);
 	iio->modes = INDIO_DIRECT_MODE;
 	iio->info = &adc081c_info;
@@ -198,6 +241,7 @@ static int adc081c_probe(struct i2c_client *client,
 	iio->channels = model->channels;
 	iio->num_channels = ADC081C_NUM_CHANNELS;
 
+<<<<<<< HEAD
 	err = iio_triggered_buffer_setup(iio, NULL, adc081c_trigger_handler, NULL);
 	if (err < 0) {
 		dev_err(&client->dev, "iio triggered buffer setup failed\n");
@@ -230,6 +274,16 @@ static int adc081c_remove(struct i2c_client *client)
 	regulator_disable(adc->ref);
 
 	return 0;
+=======
+	err = devm_iio_triggered_buffer_setup(&client->dev, iio, NULL,
+					      adc081c_trigger_handler, NULL);
+	if (err < 0) {
+		dev_err(&client->dev, "iio triggered buffer setup failed\n");
+		return err;
+	}
+
+	return devm_iio_device_register(&client->dev, iio);
+>>>>>>> upstream/android-13
 }
 
 static const struct i2c_device_id adc081c_id[] = {
@@ -240,6 +294,7 @@ static const struct i2c_device_id adc081c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, adc081c_id);
 
+<<<<<<< HEAD
 #ifdef CONFIG_OF
 static const struct of_device_id adc081c_of_match[] = {
 	{ .compatible = "ti,adc081c" },
@@ -259,15 +314,38 @@ static const struct acpi_device_id adc081c_acpi_match[] = {
 };
 MODULE_DEVICE_TABLE(acpi, adc081c_acpi_match);
 #endif
+=======
+static const struct acpi_device_id adc081c_acpi_match[] = {
+	/* Used on some AAEON boards */
+	{ "ADC081C", (kernel_ulong_t)&adcxx1c_models[ADC081C] },
+	{ }
+};
+MODULE_DEVICE_TABLE(acpi, adc081c_acpi_match);
+
+static const struct of_device_id adc081c_of_match[] = {
+	{ .compatible = "ti,adc081c", .data = &adcxx1c_models[ADC081C] },
+	{ .compatible = "ti,adc101c", .data = &adcxx1c_models[ADC101C] },
+	{ .compatible = "ti,adc121c", .data = &adcxx1c_models[ADC121C] },
+	{ }
+};
+MODULE_DEVICE_TABLE(of, adc081c_of_match);
+>>>>>>> upstream/android-13
 
 static struct i2c_driver adc081c_driver = {
 	.driver = {
 		.name = "adc081c",
+<<<<<<< HEAD
 		.of_match_table = of_match_ptr(adc081c_of_match),
 		.acpi_match_table = ACPI_PTR(adc081c_acpi_match),
 	},
 	.probe = adc081c_probe,
 	.remove = adc081c_remove,
+=======
+		.of_match_table = adc081c_of_match,
+		.acpi_match_table = adc081c_acpi_match,
+	},
+	.probe = adc081c_probe,
+>>>>>>> upstream/android-13
 	.id_table = adc081c_id,
 };
 module_i2c_driver(adc081c_driver);

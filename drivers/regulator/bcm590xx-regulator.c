@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM590xx regulator driver
  *
  * Copyright 2014 Linaro Limited
  * Author: Matt Porter <mporter@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -103,10 +110,13 @@
 	((n > BCM590XX_REG_VSR) && (n < BCM590XX_REG_VBUS))
 #define BCM590XX_REG_IS_VBUS(n)	(n == BCM590XX_REG_VBUS)
 
+<<<<<<< HEAD
 struct bcm590xx_board {
 	struct regulator_init_data *bcm590xx_pmu_init_data[BCM590XX_NUM_REGS];
 };
 
+=======
+>>>>>>> upstream/android-13
 /* LDO group A: supported voltages in microvolts */
 static const unsigned int ldo_a_table[] = {
 	1200000, 1800000, 2500000, 2700000, 2800000,
@@ -124,14 +134,22 @@ static const unsigned int ldo_vbus[] = {
 };
 
 /* DCDC group CSR: supported voltages in microvolts */
+<<<<<<< HEAD
 static const struct regulator_linear_range dcdc_csr_ranges[] = {
+=======
+static const struct linear_range dcdc_csr_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(860000, 2, 50, 10000),
 	REGULATOR_LINEAR_RANGE(1360000, 51, 55, 20000),
 	REGULATOR_LINEAR_RANGE(900000, 56, 63, 0),
 };
 
 /* DCDC group IOSR1: supported voltages in microvolts */
+<<<<<<< HEAD
 static const struct regulator_linear_range dcdc_iosr1_ranges[] = {
+=======
+static const struct linear_range dcdc_iosr1_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(860000, 2, 51, 10000),
 	REGULATOR_LINEAR_RANGE(1500000, 52, 52, 0),
 	REGULATOR_LINEAR_RANGE(1800000, 53, 53, 0),
@@ -139,7 +157,11 @@ static const struct regulator_linear_range dcdc_iosr1_ranges[] = {
 };
 
 /* DCDC group SDSR1: supported voltages in microvolts */
+<<<<<<< HEAD
 static const struct regulator_linear_range dcdc_sdsr1_ranges[] = {
+=======
+static const struct linear_range dcdc_sdsr1_ranges[] = {
+>>>>>>> upstream/android-13
 	REGULATOR_LINEAR_RANGE(860000, 2, 50, 10000),
 	REGULATOR_LINEAR_RANGE(1340000, 51, 51, 0),
 	REGULATOR_LINEAR_RANGE(900000, 52, 63, 0),
@@ -151,7 +173,11 @@ struct bcm590xx_info {
 	u8 n_voltages;
 	const unsigned int *volt_table;
 	u8 n_linear_ranges;
+<<<<<<< HEAD
 	const struct regulator_linear_range *linear_ranges;
+=======
+	const struct linear_range *linear_ranges;
+>>>>>>> upstream/android-13
 };
 
 #define BCM590XX_REG_TABLE(_name, _table) \
@@ -242,8 +268,17 @@ static int bcm590xx_get_enable_register(int id)
 		case BCM590XX_REG_SDSR2:
 			reg = BCM590XX_SDSR2PMCTRL1;
 			break;
+<<<<<<< HEAD
 		case BCM590XX_REG_VBUS:
 			reg = BCM590XX_OTG_CTRL;
+=======
+		case BCM590XX_REG_VSR:
+			reg = BCM590XX_VSRPMCTRL1;
+			break;
+		case BCM590XX_REG_VBUS:
+			reg = BCM590XX_OTG_CTRL;
+			break;
+>>>>>>> upstream/android-13
 		}
 
 
@@ -276,6 +311,7 @@ static const struct regulator_ops bcm590xx_ops_vbus = {
 	.disable		= regulator_disable_regmap,
 };
 
+<<<<<<< HEAD
 #define BCM590XX_MATCH(_name, _id) \
 	{ \
 		.name = #_name, \
@@ -375,6 +411,17 @@ static int bcm590xx_probe(struct platform_device *pdev)
 	pmu_data = bcm590xx_parse_dt_reg_data(pdev,
 					      &bcm590xx_reg_matches);
 
+=======
+static int bcm590xx_probe(struct platform_device *pdev)
+{
+	struct bcm590xx *bcm590xx = dev_get_drvdata(pdev->dev.parent);
+	struct bcm590xx_reg *pmu;
+	struct regulator_config config = { };
+	struct bcm590xx_info *info;
+	struct regulator_dev *rdev;
+	int i;
+
+>>>>>>> upstream/android-13
 	pmu = devm_kzalloc(&pdev->dev, sizeof(*pmu), GFP_KERNEL);
 	if (!pmu)
 		return -ENOMEM;
@@ -393,6 +440,7 @@ static int bcm590xx_probe(struct platform_device *pdev)
 	info = bcm590xx_regs;
 
 	for (i = 0; i < BCM590XX_NUM_REGS; i++, info++) {
+<<<<<<< HEAD
 		if (pmu_data)
 			reg_data = pmu_data->bcm590xx_pmu_init_data[i];
 		else
@@ -400,6 +448,12 @@ static int bcm590xx_probe(struct platform_device *pdev)
 
 		/* Register the regulators */
 		pmu->desc[i].name = info->name;
+=======
+		/* Register the regulators */
+		pmu->desc[i].name = info->name;
+		pmu->desc[i].of_match = of_match_ptr(info->name);
+		pmu->desc[i].regulators_node = of_match_ptr("regulators");
+>>>>>>> upstream/android-13
 		pmu->desc[i].supply_name = info->vin_name;
 		pmu->desc[i].id = i;
 		pmu->desc[i].volt_table = info->volt_table;
@@ -429,16 +483,22 @@ static int bcm590xx_probe(struct platform_device *pdev)
 		pmu->desc[i].owner = THIS_MODULE;
 
 		config.dev = bcm590xx->dev;
+<<<<<<< HEAD
 		config.init_data = reg_data;
+=======
+>>>>>>> upstream/android-13
 		config.driver_data = pmu;
 		if (BCM590XX_REG_IS_GPLDO(i) || BCM590XX_REG_IS_VBUS(i))
 			config.regmap = bcm590xx->regmap_sec;
 		else
 			config.regmap = bcm590xx->regmap_pri;
 
+<<<<<<< HEAD
 		if (bcm590xx_reg_matches)
 			config.of_node = bcm590xx_reg_matches[i].of_node;
 
+=======
+>>>>>>> upstream/android-13
 		rdev = devm_regulator_register(&pdev->dev, &pmu->desc[i],
 					       &config);
 		if (IS_ERR(rdev)) {

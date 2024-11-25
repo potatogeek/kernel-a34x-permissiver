@@ -150,18 +150,24 @@ void add_fec_off_cnt(char* dev_name){
 }
 
 void print_blks_cnt(char* dev_name){
+<<<<<<< HEAD
     int i,foc = get_fec_off_cnt();
+=======
+>>>>>>> upstream/android-13
     if(empty_b_info()){
         return;
     }
 
     pr_err("dev_name = %s,total_blks = %llu,skipped_blks = %llu,corrupted_blks = %llu,fec_correct_blks = %llu",dev_name,get_total_blks(),get_skipped_blks(),get_corrupted_blks(),get_fec_correct_blks());
+<<<<<<< HEAD
 
     if(foc > 0){
         pr_err("fec_off_cnt = %d",foc);
         for(i = 0 ; i < foc; i++)
             pr_err("fec_off_dev = %s ",b_info->fec_off_list[i]);
     }
+=======
+>>>>>>> upstream/android-13
 }
 
 void print_fc_blks_list(void){
@@ -264,11 +270,23 @@ int verity_handle_err_hex_debug(struct dm_verity *v, enum verity_block_type type
     /* Corruption should be visible in device status in all modes */
     v->hash_failed = 1;
 
+<<<<<<< HEAD
+=======
+/* ignore_fs_panic is not ported.
+   we may not need to ignore_fs_panic.
+   verity_is_system_shutting_down is added.
+ */
+#if 0
+>>>>>>> upstream/android-13
     if (ignore_fs_panic) {
         DMERR("%s: Don't trigger a panic during cleanup for shutdown. Skipping %s",
                 v->data_dev->name, __func__);
         return 0;
     }
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
     if (v->corrupted_errs >= DM_VERITY_MAX_CORRUPTED_ERRS)
         goto out;

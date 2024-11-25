@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -30,6 +34,7 @@ EXPORT_SYMBOL_GPL(nf_osf_fingers);
 static inline int nf_osf_ttl(const struct sk_buff *skb,
 			     int ttl_check, unsigned char f_ttl)
 {
+<<<<<<< HEAD
 	const struct iphdr *ip = ip_hdr(skb);
 
 	if (ttl_check != -1) {
@@ -56,6 +61,28 @@ static inline int nf_osf_ttl(const struct sk_buff *skb,
 	}
 
 	return ip->ttl == f_ttl;
+=======
+	struct in_device *in_dev = __in_dev_get_rcu(skb->dev);
+	const struct iphdr *ip = ip_hdr(skb);
+	const struct in_ifaddr *ifa;
+	int ret = 0;
+
+	if (ttl_check == NF_OSF_TTL_TRUE)
+		return ip->ttl == f_ttl;
+	if (ttl_check == NF_OSF_TTL_NOCHECK)
+		return 1;
+	else if (ip->ttl <= f_ttl)
+		return 1;
+
+	in_dev_for_each_ifa_rcu(ifa, in_dev) {
+		if (inet_ifa_match(ip->saddr, ifa)) {
+			ret = (ip->ttl == f_ttl);
+			break;
+		}
+	}
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 struct nf_osf_hdr_ctx {
@@ -220,7 +247,11 @@ nf_osf_match(const struct sk_buff *skb, u_int8_t family,
 	if (!tcp)
 		return false;
 
+<<<<<<< HEAD
 	ttl_check = (info->flags & NF_OSF_TTL) ? info->ttl : -1;
+=======
+	ttl_check = (info->flags & NF_OSF_TTL) ? info->ttl : 0;
+>>>>>>> upstream/android-13
 
 	list_for_each_entry_rcu(kf, &nf_osf_fingers[ctx.df], finger_entry) {
 
@@ -263,8 +294,14 @@ nf_osf_match(const struct sk_buff *skb, u_int8_t family,
 }
 EXPORT_SYMBOL_GPL(nf_osf_match);
 
+<<<<<<< HEAD
 const char *nf_osf_find(const struct sk_buff *skb,
 			const struct list_head *nf_osf_fingers)
+=======
+bool nf_osf_find(const struct sk_buff *skb,
+		 const struct list_head *nf_osf_fingers,
+		 const int ttl_check, struct nf_osf_data *data)
+>>>>>>> upstream/android-13
 {
 	const struct iphdr *ip = ip_hdr(skb);
 	const struct nf_osf_user_finger *f;
@@ -272,13 +309,17 @@ const char *nf_osf_find(const struct sk_buff *skb,
 	const struct nf_osf_finger *kf;
 	struct nf_osf_hdr_ctx ctx;
 	const struct tcphdr *tcp;
+<<<<<<< HEAD
 	const char *genre = NULL;
+=======
+>>>>>>> upstream/android-13
 	struct tcphdr _tcph;
 
 	memset(&ctx, 0, sizeof(ctx));
 
 	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts, &_tcph);
 	if (!tcp)
+<<<<<<< HEAD
 		return NULL;
 
 	list_for_each_entry_rcu(kf, &nf_osf_fingers[ctx.df], finger_entry) {
@@ -291,6 +332,21 @@ const char *nf_osf_find(const struct sk_buff *skb,
 	}
 
 	return genre;
+=======
+		return false;
+
+	list_for_each_entry_rcu(kf, &nf_osf_fingers[ctx.df], finger_entry) {
+		f = &kf->finger;
+		if (!nf_osf_match_one(skb, f, ttl_check, &ctx))
+			continue;
+
+		data->genre = f->genre;
+		data->version = f->version;
+		break;
+	}
+
+	return true;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(nf_osf_find);
 
@@ -298,10 +354,16 @@ static const struct nla_policy nfnl_osf_policy[OSF_ATTR_MAX + 1] = {
 	[OSF_ATTR_FINGER]	= { .len = sizeof(struct nf_osf_user_finger) },
 };
 
+<<<<<<< HEAD
 static int nfnl_osf_add_callback(struct net *net, struct sock *ctnl,
 				 struct sk_buff *skb, const struct nlmsghdr *nlh,
 				 const struct nlattr * const osf_attrs[],
 				 struct netlink_ext_ack *extack)
+=======
+static int nfnl_osf_add_callback(struct sk_buff *skb,
+				 const struct nfnl_info *info,
+				 const struct nlattr * const osf_attrs[])
+>>>>>>> upstream/android-13
 {
 	struct nf_osf_user_finger *f;
 	struct nf_osf_finger *kf = NULL, *sf;
@@ -313,7 +375,11 @@ static int nfnl_osf_add_callback(struct net *net, struct sock *ctnl,
 	if (!osf_attrs[OSF_ATTR_FINGER])
 		return -EINVAL;
 
+<<<<<<< HEAD
 	if (!(nlh->nlmsg_flags & NLM_F_CREATE))
+=======
+	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	f = nla_data(osf_attrs[OSF_ATTR_FINGER]);
@@ -331,7 +397,11 @@ static int nfnl_osf_add_callback(struct net *net, struct sock *ctnl,
 		kfree(kf);
 		kf = NULL;
 
+<<<<<<< HEAD
 		if (nlh->nlmsg_flags & NLM_F_EXCL)
+=======
+		if (info->nlh->nlmsg_flags & NLM_F_EXCL)
+>>>>>>> upstream/android-13
 			err = -EEXIST;
 		break;
 	}
@@ -345,11 +415,17 @@ static int nfnl_osf_add_callback(struct net *net, struct sock *ctnl,
 	return err;
 }
 
+<<<<<<< HEAD
 static int nfnl_osf_remove_callback(struct net *net, struct sock *ctnl,
 				    struct sk_buff *skb,
 				    const struct nlmsghdr *nlh,
 				    const struct nlattr * const osf_attrs[],
 				    struct netlink_ext_ack *extack)
+=======
+static int nfnl_osf_remove_callback(struct sk_buff *skb,
+				    const struct nfnl_info *info,
+				    const struct nlattr * const osf_attrs[])
+>>>>>>> upstream/android-13
 {
 	struct nf_osf_user_finger *f;
 	struct nf_osf_finger *sf;
@@ -383,11 +459,19 @@ static int nfnl_osf_remove_callback(struct net *net, struct sock *ctnl,
 static const struct nfnl_callback nfnl_osf_callbacks[OSF_MSG_MAX] = {
 	[OSF_MSG_ADD]	= {
 		.call		= nfnl_osf_add_callback,
+<<<<<<< HEAD
+=======
+		.type		= NFNL_CB_MUTEX,
+>>>>>>> upstream/android-13
 		.attr_count	= OSF_ATTR_MAX,
 		.policy		= nfnl_osf_policy,
 	},
 	[OSF_MSG_REMOVE]	= {
 		.call		= nfnl_osf_remove_callback,
+<<<<<<< HEAD
+=======
+		.type		= NFNL_CB_MUTEX,
+>>>>>>> upstream/android-13
 		.attr_count	= OSF_ATTR_MAX,
 		.policy		= nfnl_osf_policy,
 	},

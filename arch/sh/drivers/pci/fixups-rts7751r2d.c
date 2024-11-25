@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/drivers/pci/fixups-rts7751r2d.c
  *
@@ -6,10 +10,13 @@
  * Copyright (C) 2003  Lineo uSolutions, Inc.
  * Copyright (C) 2004  Paul Mundt
  * Copyright (C) 2007  Nobuhiro Iwamatsu
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/pci.h>
 #include <mach/lboxre2.h>

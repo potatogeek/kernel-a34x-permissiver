@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /*
  * kexec.c - kexec_load system call
  * Copyright (C) 2002-2004 Eric Biederman  <ebiederm@xmission.com>
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * kexec.c - kexec_load system call
+ * Copyright (C) 2002-2004 Eric Biederman  <ebiederm@xmission.com>
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -21,6 +28,7 @@
 
 #include "kexec_internal.h"
 
+<<<<<<< HEAD
 static int copy_user_segment_list(struct kimage *image,
 				  unsigned long nr_segments,
 				  struct kexec_segment __user *segments)
@@ -41,6 +49,11 @@ static int copy_user_segment_list(struct kimage *image,
 static int kimage_alloc_init(struct kimage **rimage, unsigned long entry,
 			     unsigned long nr_segments,
 			     struct kexec_segment __user *segments,
+=======
+static int kimage_alloc_init(struct kimage **rimage, unsigned long entry,
+			     unsigned long nr_segments,
+			     struct kexec_segment *segments,
+>>>>>>> upstream/android-13
 			     unsigned long flags)
 {
 	int ret;
@@ -60,10 +73,15 @@ static int kimage_alloc_init(struct kimage **rimage, unsigned long entry,
 		return -ENOMEM;
 
 	image->start = entry;
+<<<<<<< HEAD
 
 	ret = copy_user_segment_list(image, nr_segments, segments);
 	if (ret)
 		goto out_free_image;
+=======
+	image->nr_segments = nr_segments;
+	memcpy(image->segment, segments, nr_segments * sizeof(*segments));
+>>>>>>> upstream/android-13
 
 	if (kexec_on_panic) {
 		/* Enable special crash kernel control page alloc policy. */
@@ -106,12 +124,30 @@ out_free_image:
 }
 
 static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
+<<<<<<< HEAD
 		struct kexec_segment __user *segments, unsigned long flags)
+=======
+		struct kexec_segment *segments, unsigned long flags)
+>>>>>>> upstream/android-13
 {
 	struct kimage **dest_image, *image;
 	unsigned long i;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Because we write directly to the reserved memory region when loading
+	 * crash kernels we need a mutex here to prevent multiple crash kernels
+	 * from attempting to load simultaneously, and to prevent a crash kernel
+	 * from loading over the top of a in use crash kernel.
+	 *
+	 * KISS: always take the mutex.
+	 */
+	if (!mutex_trylock(&kexec_mutex))
+		return -EBUSY;
+
+>>>>>>> upstream/android-13
 	if (flags & KEXEC_ON_CRASH) {
 		dest_image = &kexec_crash_image;
 		if (kexec_crash_image)
@@ -123,7 +159,12 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
 	if (nr_segments == 0) {
 		/* Uninstall image */
 		kimage_free(xchg(dest_image, NULL));
+<<<<<<< HEAD
 		return 0;
+=======
+		ret = 0;
+		goto out_unlock;
+>>>>>>> upstream/android-13
 	}
 	if (flags & KEXEC_ON_CRASH) {
 		/*
@@ -136,7 +177,11 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
 
 	ret = kimage_alloc_init(&image, entry, nr_segments, segments, flags);
 	if (ret)
+<<<<<<< HEAD
 		return ret;
+=======
+		goto out_unlock;
+>>>>>>> upstream/android-13
 
 	if (flags & KEXEC_PRESERVE_CONTEXT)
 		image->preserve_context = 1;
@@ -161,6 +206,13 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
 
 	kimage_terminate(image);
 
+<<<<<<< HEAD
+=======
+	ret = machine_kexec_post_load(image);
+	if (ret)
+		goto out;
+
+>>>>>>> upstream/android-13
 	/* Install the new kernel and uninstall the old */
 	image = xchg(dest_image, image);
 
@@ -169,6 +221,11 @@ out:
 		arch_kexec_protect_crashkres();
 
 	kimage_free(image);
+<<<<<<< HEAD
+=======
+out_unlock:
+	mutex_unlock(&kexec_mutex);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -203,11 +260,26 @@ static inline int kexec_load_check(unsigned long nr_segments,
 		return -EPERM;
 
 	/* Permit LSMs and IMA to fail the kexec */
+<<<<<<< HEAD
 	result = security_kernel_load_data(LOADING_KEXEC_IMAGE);
+=======
+	result = security_kernel_load_data(LOADING_KEXEC_IMAGE, false);
+>>>>>>> upstream/android-13
 	if (result < 0)
 		return result;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * kexec can be used to circumvent module loading restrictions, so
+	 * prevent loading in that case
+	 */
+	result = security_locked_down(LOCKDOWN_KEXEC);
+	if (result)
+		return result;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Verify we have a legal set of flags
 	 * This leaves us room for future extensions.
 	 */
@@ -226,7 +298,12 @@ static inline int kexec_load_check(unsigned long nr_segments,
 SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
 		struct kexec_segment __user *, segments, unsigned long, flags)
 {
+<<<<<<< HEAD
 	int result;
+=======
+	struct kexec_segment *ksegments;
+	unsigned long result;
+>>>>>>> upstream/android-13
 
 	result = kexec_load_check(nr_segments, flags);
 	if (result)
@@ -237,6 +314,7 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
 		((flags & KEXEC_ARCH_MASK) != KEXEC_ARCH_DEFAULT))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	/* Because we write directly to the reserved memory
 	 * region when loading crash kernels we need a mutex here to
 	 * prevent multiple crash  kernels from attempting to load
@@ -251,6 +329,14 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
 	result = do_kexec_load(entry, nr_segments, segments, flags);
 
 	mutex_unlock(&kexec_mutex);
+=======
+	ksegments = memdup_user(segments, nr_segments * sizeof(ksegments[0]));
+	if (IS_ERR(ksegments))
+		return PTR_ERR(ksegments);
+
+	result = do_kexec_load(entry, nr_segments, ksegments, flags);
+	kfree(ksegments);
+>>>>>>> upstream/android-13
 
 	return result;
 }
@@ -262,7 +348,11 @@ COMPAT_SYSCALL_DEFINE4(kexec_load, compat_ulong_t, entry,
 		       compat_ulong_t, flags)
 {
 	struct compat_kexec_segment in;
+<<<<<<< HEAD
 	struct kexec_segment out, __user *ksegments;
+=======
+	struct kexec_segment *ksegments;
+>>>>>>> upstream/android-13
 	unsigned long i, result;
 
 	result = kexec_load_check(nr_segments, flags);
@@ -275,6 +365,7 @@ COMPAT_SYSCALL_DEFINE4(kexec_load, compat_ulong_t, entry,
 	if ((flags & KEXEC_ARCH_MASK) == KEXEC_ARCH_DEFAULT)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ksegments = compat_alloc_user_space(nr_segments * sizeof(out));
 	for (i = 0; i < nr_segments; i++) {
 		result = copy_from_user(&in, &segments[i], sizeof(in));
@@ -306,6 +397,28 @@ COMPAT_SYSCALL_DEFINE4(kexec_load, compat_ulong_t, entry,
 
 	mutex_unlock(&kexec_mutex);
 
+=======
+	ksegments = kmalloc_array(nr_segments, sizeof(ksegments[0]),
+			GFP_KERNEL);
+	if (!ksegments)
+		return -ENOMEM;
+
+	for (i = 0; i < nr_segments; i++) {
+		result = copy_from_user(&in, &segments[i], sizeof(in));
+		if (result)
+			goto fail;
+
+		ksegments[i].buf   = compat_ptr(in.buf);
+		ksegments[i].bufsz = in.bufsz;
+		ksegments[i].mem   = in.mem;
+		ksegments[i].memsz = in.memsz;
+	}
+
+	result = do_kexec_load(entry, nr_segments, ksegments, flags);
+
+fail:
+	kfree(ksegments);
+>>>>>>> upstream/android-13
 	return result;
 }
 #endif

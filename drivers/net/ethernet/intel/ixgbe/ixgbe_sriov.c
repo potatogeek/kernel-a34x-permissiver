@@ -102,7 +102,11 @@ static int __ixgbe_enable_sriov(struct ixgbe_adapter *adapter,
 		 * indirection table and RSS hash key with PF therefore
 		 * we want to disable the querying by default.
 		 */
+<<<<<<< HEAD
 		adapter->vfinfo[i].rss_query_enabled = 0;
+=======
+		adapter->vfinfo[i].rss_query_enabled = false;
+>>>>>>> upstream/android-13
 
 		/* Untrust all VFs */
 		adapter->vfinfo[i].trusted = false;
@@ -467,12 +471,25 @@ static int ixgbe_set_vf_vlan(struct ixgbe_adapter *adapter, int add, int vid,
 	return err;
 }
 
+<<<<<<< HEAD
 static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
 {
 	struct ixgbe_hw *hw = &adapter->hw;
 	int max_frame = msgbuf[1];
 	u32 max_frs;
 
+=======
+static int ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 max_frame, u32 vf)
+{
+	struct ixgbe_hw *hw = &adapter->hw;
+	u32 max_frs;
+
+	if (max_frame < ETH_MIN_MTU || max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
+		e_err(drv, "VF max_frame %d out of range\n", max_frame);
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * For 82599EB we have to keep all PFs and VFs operating with
 	 * the same max_frame value in order to avoid sending an oversize
@@ -496,13 +513,21 @@ static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
 		case ixgbe_mbox_api_11:
 		case ixgbe_mbox_api_12:
 		case ixgbe_mbox_api_13:
+<<<<<<< HEAD
+=======
+		case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 			/* Version 1.1 supports jumbo frames on VFs if PF has
 			 * jumbo frames enabled which means legacy VFs are
 			 * disabled
 			 */
 			if (pf_max_frame > ETH_FRAME_LEN)
 				break;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		default:
 			/* If the PF or VF are running w/ jumbo frames enabled
 			 * we need to shut down the VF Rx path as we cannot
@@ -532,12 +557,15 @@ static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
 		}
 	}
 
+<<<<<<< HEAD
 	/* MTU < 68 is an error and causes problems on some kernels */
 	if (max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
 		e_err(drv, "VF max_frame %d out of range\n", max_frame);
 		return -EINVAL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/* pull current max frame size from hardware */
 	max_frs = IXGBE_READ_REG(hw, IXGBE_MAXFRS);
 	max_frs &= IXGBE_MHADD_MFS_MASK;
@@ -729,6 +757,12 @@ static inline void ixgbe_vf_reset_event(struct ixgbe_adapter *adapter, u32 vf)
 	/* reset multicast table array for vf */
 	adapter->vfinfo[vf].num_vf_mc_hashes = 0;
 
+<<<<<<< HEAD
+=======
+	/* clear any ipsec table info */
+	ixgbe_ipsec_vf_clear(adapter, vf);
+
+>>>>>>> upstream/android-13
 	/* Flush and reset the mta with the new values */
 	ixgbe_set_rx_mode(adapter->netdev);
 
@@ -779,7 +813,11 @@ static int ixgbe_set_vf_mac(struct ixgbe_adapter *adapter,
 		memcpy(adapter->vfinfo[vf].vf_mac_addresses, mac_addr,
 		       ETH_ALEN);
 	else
+<<<<<<< HEAD
 		memset(adapter->vfinfo[vf].vf_mac_addresses, 0, ETH_ALEN);
+=======
+		eth_zero_addr(adapter->vfinfo[vf].vf_mac_addresses);
+>>>>>>> upstream/android-13
 
 	return retval;
 }
@@ -1011,6 +1049,10 @@ static int ixgbe_negotiate_vf_api(struct ixgbe_adapter *adapter,
 	case ixgbe_mbox_api_11:
 	case ixgbe_mbox_api_12:
 	case ixgbe_mbox_api_13:
+<<<<<<< HEAD
+=======
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 		adapter->vfinfo[vf].vf_api = api;
 		return 0;
 	default:
@@ -1036,6 +1078,10 @@ static int ixgbe_get_vf_queues(struct ixgbe_adapter *adapter,
 	case ixgbe_mbox_api_11:
 	case ixgbe_mbox_api_12:
 	case ixgbe_mbox_api_13:
+<<<<<<< HEAD
+=======
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -1;
@@ -1076,6 +1122,10 @@ static int ixgbe_get_vf_reta(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
 
 	/* verify the PF is supporting the correct API */
 	switch (adapter->vfinfo[vf].vf_api) {
+<<<<<<< HEAD
+=======
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 	case ixgbe_mbox_api_13:
 	case ixgbe_mbox_api_12:
 		break;
@@ -1108,6 +1158,10 @@ static int ixgbe_get_vf_rss_key(struct ixgbe_adapter *adapter,
 
 	/* verify the PF is supporting the correct API */
 	switch (adapter->vfinfo[vf].vf_api) {
+<<<<<<< HEAD
+=======
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 	case ixgbe_mbox_api_13:
 	case ixgbe_mbox_api_12:
 		break;
@@ -1133,8 +1187,14 @@ static int ixgbe_update_vf_xcast_mode(struct ixgbe_adapter *adapter,
 		/* promisc introduced in 1.3 version */
 		if (xcast_mode == IXGBEVF_XCAST_MODE_PROMISC)
 			return -EOPNOTSUPP;
+<<<<<<< HEAD
 		/* Fall threw */
 	case ixgbe_mbox_api_13:
+=======
+		fallthrough;
+	case ixgbe_mbox_api_13:
+	case ixgbe_mbox_api_14:
+>>>>>>> upstream/android-13
 		break;
 	default:
 		return -EOPNOTSUPP;
@@ -1240,7 +1300,11 @@ static int ixgbe_rcv_msg_from_vf(struct ixgbe_adapter *adapter, u32 vf)
 		retval = ixgbe_set_vf_vlan_msg(adapter, msgbuf, vf);
 		break;
 	case IXGBE_VF_SET_LPE:
+<<<<<<< HEAD
 		retval = ixgbe_set_vf_lpe(adapter, msgbuf, vf);
+=======
+		retval = ixgbe_set_vf_lpe(adapter, msgbuf[1], vf);
+>>>>>>> upstream/android-13
 		break;
 	case IXGBE_VF_SET_MACVLAN:
 		retval = ixgbe_set_vf_macvlan_msg(adapter, msgbuf, vf);
@@ -1260,6 +1324,15 @@ static int ixgbe_rcv_msg_from_vf(struct ixgbe_adapter *adapter, u32 vf)
 	case IXGBE_VF_UPDATE_XCAST_MODE:
 		retval = ixgbe_update_vf_xcast_mode(adapter, msgbuf, vf);
 		break;
+<<<<<<< HEAD
+=======
+	case IXGBE_VF_IPSEC_ADD:
+		retval = ixgbe_ipsec_vf_add_sa(adapter, msgbuf, vf);
+		break;
+	case IXGBE_VF_IPSEC_DEL:
+		retval = ixgbe_ipsec_vf_del_sa(adapter, msgbuf, vf);
+		break;
+>>>>>>> upstream/android-13
 	default:
 		e_err(drv, "Unhandled Msg %8.8x\n", msgbuf[0]);
 		retval = IXGBE_ERR_MBX;
@@ -1630,7 +1703,11 @@ int ixgbe_ndo_set_vf_spoofchk(struct net_device *netdev, int vf, bool setting)
 		IXGBE_WRITE_REG(hw, IXGBE_ETQF(IXGBE_ETQF_FILTER_LLDP),
 				(IXGBE_ETQF_FILTER_EN    |
 				 IXGBE_ETQF_TX_ANTISPOOF |
+<<<<<<< HEAD
 				 IXGBE_ETH_P_LLDP));
+=======
+				 ETH_P_LLDP));
+>>>>>>> upstream/android-13
 
 		IXGBE_WRITE_REG(hw, IXGBE_ETQF(IXGBE_ETQF_FILTER_FC),
 				(IXGBE_ETQF_FILTER_EN |

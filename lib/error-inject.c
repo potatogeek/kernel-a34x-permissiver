@@ -180,6 +180,11 @@ static const char *error_type_string(int etype)
 		return "ERRNO";
 	case EI_ETYPE_ERRNO_NULL:
 		return "ERRNO_NULL";
+<<<<<<< HEAD
+=======
+	case EI_ETYPE_TRUE:
+		return "TRUE";
+>>>>>>> upstream/android-13
 	default:
 		return "(unknown)";
 	}
@@ -189,7 +194,11 @@ static int ei_seq_show(struct seq_file *m, void *v)
 {
 	struct ei_entry *ent = list_entry(v, struct ei_entry, list);
 
+<<<<<<< HEAD
 	seq_printf(m, "%pf\t%s\n", (void *)ent->start_addr,
+=======
+	seq_printf(m, "%ps\t%s\n", (void *)ent->start_addr,
+>>>>>>> upstream/android-13
 		   error_type_string(ent->etype));
 	return 0;
 }

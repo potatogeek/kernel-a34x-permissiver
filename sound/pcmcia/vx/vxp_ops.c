@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for Digigram VXpocket soundcards
  *
  * lowlevel routines for VXpocket soundcards
  *
  * Copyright (c) 2002 by Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -28,7 +35,11 @@
 #include "vxpocket.h"
 
 
+<<<<<<< HEAD
 static int vxp_reg_offset[VX_REG_MAX] = {
+=======
+static const int vxp_reg_offset[VX_REG_MAX] = {
+>>>>>>> upstream/android-13
 	[VX_ICR]	= 0x00,		// ICR
 	[VX_CVR]	= 0x01,		// CVR
 	[VX_ISR]	= 0x02,		// ISR
@@ -250,9 +261,17 @@ static int vxp_load_dsp(struct vx_core *vx, int index, const struct firmware *fw
 	switch (index) {
 	case 0:
 		/* xilinx boot */
+<<<<<<< HEAD
 		if ((err = vx_check_magic(vx)) < 0)
 			return err;
 		if ((err = snd_vx_load_boot_image(vx, fw)) < 0)
+=======
+		err = vx_check_magic(vx);
+		if (err < 0)
+			return err;
+		err = snd_vx_load_boot_image(vx, fw);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 		return 0;
 	case 1:
@@ -594,7 +613,11 @@ static void vxp_reset_board(struct vx_core *_chip, int cold_reset)
  * callbacks
  */
 /* exported */
+<<<<<<< HEAD
 struct snd_vx_ops snd_vxpocket_ops = {
+=======
+const struct snd_vx_ops snd_vxpocket_ops = {
+>>>>>>> upstream/android-13
 	.in8 = vxp_inb,
 	.out8 = vxp_outb,
 	.test_and_ack = vxp_test_and_ack,

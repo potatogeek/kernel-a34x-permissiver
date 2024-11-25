@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (c) 2015 Oracle.  All rights reserved.
  *
  * Support for backward direction RPCs on RPC/RDMA.
  */
 
 #include <linux/module.h>
+=======
+ * Copyright (c) 2015-2020, Oracle and/or its affiliates.
+ *
+ * Support for reverse-direction RPCs on RPC/RDMA.
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/sunrpc/xprt.h>
 #include <linux/sunrpc/svc.h>
 #include <linux/sunrpc/svc_xprt.h>
@@ -20,6 +28,7 @@
 
 #undef RPCRDMA_BACKCHANNEL_DEBUG
 
+<<<<<<< HEAD
 static void rpcrdma_bc_free_rqst(struct rpcrdma_xprt *r_xprt,
 				 struct rpc_rqst *rqst)
 {
@@ -73,6 +82,8 @@ out_fail:
 	return -ENOMEM;
 }
 
+=======
+>>>>>>> upstream/android-13
 /**
  * xprt_rdma_bc_setup - Pre-allocate resources for handling backchannel requests
  * @xprt: transport associated with these backchannel resources
@@ -83,6 +94,7 @@ out_fail:
 int xprt_rdma_bc_setup(struct rpc_xprt *xprt, unsigned int reqs)
 {
 	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(xprt);
+<<<<<<< HEAD
 	int rc;
 
 	/* The backchannel reply path returns each rpc_rqst to the
@@ -132,6 +144,12 @@ int xprt_rdma_bc_up(struct svc_serv *serv, struct net *net)
 	if (ret < 0)
 		return ret;
 	return 0;
+=======
+
+	r_xprt->rx_buf.rb_bc_srv_max_requests = RPCRDMA_BACKWARD_WRS >> 1;
+	trace_xprtrdma_cb_setup(r_xprt, reqs);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -143,14 +161,29 @@ int xprt_rdma_bc_up(struct svc_serv *serv, struct net *net)
 size_t xprt_rdma_bc_maxpayload(struct rpc_xprt *xprt)
 {
 	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(xprt);
+<<<<<<< HEAD
 	struct rpcrdma_create_data_internal *cdata = &r_xprt->rx_data;
 	size_t maxmsg;
 
 	maxmsg = min_t(unsigned int, cdata->inline_rsize, cdata->inline_wsize);
+=======
+	struct rpcrdma_ep *ep = r_xprt->rx_ep;
+	size_t maxmsg;
+
+	maxmsg = min_t(unsigned int, ep->re_inline_send, ep->re_inline_recv);
+>>>>>>> upstream/android-13
 	maxmsg = min_t(unsigned int, maxmsg, PAGE_SIZE);
 	return maxmsg - RPCRDMA_HDRLEN_MIN;
 }
 
+<<<<<<< HEAD
+=======
+unsigned int xprt_rdma_bc_max_slots(struct rpc_xprt *xprt)
+{
+	return RPCRDMA_BACKWARD_WRS >> 1;
+}
+
+>>>>>>> upstream/android-13
 static int rpcrdma_bc_marshal_reply(struct rpc_rqst *rqst)
 {
 	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(rqst->rq_xprt);
@@ -159,7 +192,11 @@ static int rpcrdma_bc_marshal_reply(struct rpc_rqst *rqst)
 
 	rpcrdma_set_xdrlen(&req->rl_hdrbuf, 0);
 	xdr_init_encode(&req->rl_stream, &req->rl_hdrbuf,
+<<<<<<< HEAD
 			req->rl_rdmabuf->rg_base);
+=======
+			rdmab_data(req->rl_rdmabuf), rqst);
+>>>>>>> upstream/android-13
 
 	p = xdr_reserve_space(&req->rl_stream, 28);
 	if (unlikely(!p))
@@ -173,10 +210,17 @@ static int rpcrdma_bc_marshal_reply(struct rpc_rqst *rqst)
 	*p = xdr_zero;
 
 	if (rpcrdma_prepare_send_sges(r_xprt, req, RPCRDMA_HDRLEN_MIN,
+<<<<<<< HEAD
 				      &rqst->rq_snd_buf, rpcrdma_noch))
 		return -EIO;
 
 	trace_xprtrdma_cb_reply(rqst);
+=======
+				      &rqst->rq_snd_buf, rpcrdma_noch_pullup))
+		return -EIO;
+
+	trace_xprtrdma_cb_reply(r_xprt, rqst);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -194,19 +238,36 @@ static int rpcrdma_bc_marshal_reply(struct rpc_rqst *rqst)
  */
 int xprt_rdma_bc_send_reply(struct rpc_rqst *rqst)
 {
+<<<<<<< HEAD
 	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(rqst->rq_xprt);
 	struct rpcrdma_req *req = rpcr_to_rdmar(rqst);
 	int rc;
 
 	if (!xprt_connected(rqst->rq_xprt))
 		goto drop_connection;
+=======
+	struct rpc_xprt *xprt = rqst->rq_xprt;
+	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(xprt);
+	struct rpcrdma_req *req = rpcr_to_rdmar(rqst);
+	int rc;
+
+	if (!xprt_connected(xprt))
+		return -ENOTCONN;
+
+	if (!xprt_request_get_cong(xprt, rqst))
+		return -EBADSLT;
+>>>>>>> upstream/android-13
 
 	rc = rpcrdma_bc_marshal_reply(rqst);
 	if (rc < 0)
 		goto failed_marshal;
 
+<<<<<<< HEAD
 	rpcrdma_post_recvs(r_xprt, true);
 	if (rpcrdma_ep_post(&r_xprt->rx_ia, &r_xprt->rx_ep, req))
+=======
+	if (frwr_send(r_xprt, req))
+>>>>>>> upstream/android-13
 		goto drop_connection;
 	return 0;
 
@@ -214,7 +275,11 @@ failed_marshal:
 	if (rc != -ENOTCONN)
 		return rc;
 drop_connection:
+<<<<<<< HEAD
 	xprt_disconnect_done(rqst->rq_xprt);
+=======
+	xprt_rdma_close(xprt);
+>>>>>>> upstream/android-13
 	return -ENOTCONN;
 }
 
@@ -225,6 +290,7 @@ drop_connection:
  */
 void xprt_rdma_bc_destroy(struct rpc_xprt *xprt, unsigned int reqs)
 {
+<<<<<<< HEAD
 	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(xprt);
 	struct rpc_rqst *rqst, *tmp;
 
@@ -238,6 +304,20 @@ void xprt_rdma_bc_destroy(struct rpc_xprt *xprt, unsigned int reqs)
 		spin_lock_bh(&xprt->bc_pa_lock);
 	}
 	spin_unlock_bh(&xprt->bc_pa_lock);
+=======
+	struct rpc_rqst *rqst, *tmp;
+
+	spin_lock(&xprt->bc_pa_lock);
+	list_for_each_entry_safe(rqst, tmp, &xprt->bc_pa_list, rq_bc_pa_list) {
+		list_del(&rqst->rq_bc_pa_list);
+		spin_unlock(&xprt->bc_pa_lock);
+
+		rpcrdma_req_destroy(rpcr_to_rdmar(rqst));
+
+		spin_lock(&xprt->bc_pa_lock);
+	}
+	spin_unlock(&xprt->bc_pa_lock);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -247,6 +327,7 @@ void xprt_rdma_bc_destroy(struct rpc_xprt *xprt, unsigned int reqs)
 void xprt_rdma_bc_free_rqst(struct rpc_rqst *rqst)
 {
 	struct rpcrdma_req *req = rpcr_to_rdmar(rqst);
+<<<<<<< HEAD
 	struct rpc_xprt *xprt = rqst->rq_xprt;
 
 	dprintk("RPC:       %s: freeing rqst %p (req %p)\n",
@@ -262,6 +343,64 @@ void xprt_rdma_bc_free_rqst(struct rpc_rqst *rqst)
 
 /**
  * rpcrdma_bc_receive_call - Handle a backward direction call
+=======
+	struct rpcrdma_rep *rep = req->rl_reply;
+	struct rpc_xprt *xprt = rqst->rq_xprt;
+	struct rpcrdma_xprt *r_xprt = rpcx_to_rdmax(xprt);
+
+	rpcrdma_rep_put(&r_xprt->rx_buf, rep);
+	req->rl_reply = NULL;
+
+	spin_lock(&xprt->bc_pa_lock);
+	list_add_tail(&rqst->rq_bc_pa_list, &xprt->bc_pa_list);
+	spin_unlock(&xprt->bc_pa_lock);
+	xprt_put(xprt);
+}
+
+static struct rpc_rqst *rpcrdma_bc_rqst_get(struct rpcrdma_xprt *r_xprt)
+{
+	struct rpc_xprt *xprt = &r_xprt->rx_xprt;
+	struct rpcrdma_req *req;
+	struct rpc_rqst *rqst;
+	size_t size;
+
+	spin_lock(&xprt->bc_pa_lock);
+	rqst = list_first_entry_or_null(&xprt->bc_pa_list, struct rpc_rqst,
+					rq_bc_pa_list);
+	if (!rqst)
+		goto create_req;
+	list_del(&rqst->rq_bc_pa_list);
+	spin_unlock(&xprt->bc_pa_lock);
+	return rqst;
+
+create_req:
+	spin_unlock(&xprt->bc_pa_lock);
+
+	/* Set a limit to prevent a remote from overrunning our resources.
+	 */
+	if (xprt->bc_alloc_count >= RPCRDMA_BACKWARD_WRS)
+		return NULL;
+
+	size = min_t(size_t, r_xprt->rx_ep->re_inline_recv, PAGE_SIZE);
+	req = rpcrdma_req_create(r_xprt, size, GFP_KERNEL);
+	if (!req)
+		return NULL;
+	if (rpcrdma_req_setup(r_xprt, req)) {
+		rpcrdma_req_destroy(req);
+		return NULL;
+	}
+
+	xprt->bc_alloc_count++;
+	rqst = &req->rl_slot;
+	rqst->rq_xprt = xprt;
+	__set_bit(RPC_BC_PA_IN_USE, &rqst->rq_bc_pa_state);
+	xdr_buf_init(&rqst->rq_snd_buf, rdmab_data(req->rl_sendbuf), size);
+	return rqst;
+}
+
+/**
+ * rpcrdma_bc_receive_call - Handle a reverse-direction Call
+>>>>>>> upstream/android-13
  * @r_xprt: transport receiving the call
  * @rep: receive buffer containing the call
  *
@@ -291,6 +430,7 @@ void rpcrdma_bc_receive_call(struct rpcrdma_xprt *r_xprt,
 	pr_info("RPC:       %s: %*ph\n", __func__, size, p);
 #endif
 
+<<<<<<< HEAD
 	/* Grab a free bc rqst */
 	spin_lock(&xprt->bc_pa_lock);
 	if (list_empty(&xprt->bc_pa_list)) {
@@ -305,6 +445,13 @@ void rpcrdma_bc_receive_call(struct rpcrdma_xprt *r_xprt,
 	/* Prepare rqst */
 	rqst->rq_reply_bytes_recvd = 0;
 	rqst->rq_bytes_sent = 0;
+=======
+	rqst = rpcrdma_bc_rqst_get(r_xprt);
+	if (!rqst)
+		goto out_overflow;
+
+	rqst->rq_reply_bytes_recvd = 0;
+>>>>>>> upstream/android-13
 	rqst->rq_xid = *p;
 
 	rqst->rq_private_buf.len = size;
@@ -322,10 +469,18 @@ void rpcrdma_bc_receive_call(struct rpcrdma_xprt *r_xprt,
 	 */
 	req = rpcr_to_rdmar(rqst);
 	req->rl_reply = rep;
+<<<<<<< HEAD
 	trace_xprtrdma_cb_call(rqst);
 
 	/* Queue rqst for ULP's callback service */
 	bc_serv = xprt->bc_serv;
+=======
+	trace_xprtrdma_cb_call(r_xprt, rqst);
+
+	/* Queue rqst for ULP's callback service */
+	bc_serv = xprt->bc_serv;
+	xprt_get(xprt);
+>>>>>>> upstream/android-13
 	spin_lock(&bc_serv->sv_cb_lock);
 	list_add(&rqst->rq_bc_list, &bc_serv->sv_cb_list);
 	spin_unlock(&bc_serv->sv_cb_lock);
@@ -337,7 +492,11 @@ void rpcrdma_bc_receive_call(struct rpcrdma_xprt *r_xprt,
 
 out_overflow:
 	pr_warn("RPC/RDMA backchannel overflow\n");
+<<<<<<< HEAD
 	xprt_disconnect_done(xprt);
+=======
+	xprt_force_disconnect(xprt);
+>>>>>>> upstream/android-13
 	/* This receive buffer gets reposted automatically
 	 * when the connection is re-established.
 	 */

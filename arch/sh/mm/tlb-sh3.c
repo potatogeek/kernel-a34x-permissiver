@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * arch/sh/mm/tlb-sh3.c
  *
@@ -5,8 +9,11 @@
  *
  * Copyright (C) 1999  Niibe Yutaka
  * Copyright (C) 2002  Paul Mundt
+<<<<<<< HEAD
  *
  * Released under the terms of the GNU GPL v2.0.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/signal.h>
 #include <linux/sched.h>
@@ -22,7 +29,10 @@
 
 #include <asm/io.h>
 #include <linux/uaccess.h>
+<<<<<<< HEAD
 #include <asm/pgalloc.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <asm/cacheflush.h>
 

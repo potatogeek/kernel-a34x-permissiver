@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM clk
@@ -126,6 +132,53 @@ DEFINE_EVENT(clk_rate, clk_set_rate_complete,
 	TP_ARGS(core, rate)
 );
 
+<<<<<<< HEAD
+=======
+DEFINE_EVENT(clk_rate, clk_set_min_rate,
+
+	TP_PROTO(struct clk_core *core, unsigned long rate),
+
+	TP_ARGS(core, rate)
+);
+
+DEFINE_EVENT(clk_rate, clk_set_max_rate,
+
+	TP_PROTO(struct clk_core *core, unsigned long rate),
+
+	TP_ARGS(core, rate)
+);
+
+DECLARE_EVENT_CLASS(clk_rate_range,
+
+	TP_PROTO(struct clk_core *core, unsigned long min, unsigned long max),
+
+	TP_ARGS(core, min, max),
+
+	TP_STRUCT__entry(
+		__string(        name,           core->name                )
+		__field(unsigned long,           min                       )
+		__field(unsigned long,           max                       )
+	),
+
+	TP_fast_assign(
+		__assign_str(name, core->name);
+		__entry->min = min;
+		__entry->max = max;
+	),
+
+	TP_printk("%s min %lu max %lu", __get_str(name),
+		  (unsigned long)__entry->min,
+		  (unsigned long)__entry->max)
+);
+
+DEFINE_EVENT(clk_rate_range, clk_set_rate_range,
+
+	TP_PROTO(struct clk_core *core, unsigned long min, unsigned long max),
+
+	TP_ARGS(core, min, max)
+);
+
+>>>>>>> upstream/android-13
 DECLARE_EVENT_CLASS(clk_parent,
 
 	TP_PROTO(struct clk_core *core, struct clk_core *parent),

@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+>>>>>>> upstream/android-13
  *
  * h3600 atmel micro companion support, key subdevice
  * based on previous kernel 2.4 version
  * Author : Alessandro Gardich <gremlin@gremlin.it>
  * Author : Linus Walleij <linus.walleij@linaro.org>
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -143,7 +151,11 @@ static int __maybe_unused micro_key_resume(struct device *dev)
 
 	mutex_lock(&input->mutex);
 
+<<<<<<< HEAD
 	if (input->users)
+=======
+	if (input_device_enabled(input))
+>>>>>>> upstream/android-13
 		micro_key_start(keys);
 
 	mutex_unlock(&input->mutex);

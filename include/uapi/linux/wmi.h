@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
+>>>>>>> upstream/android-13
 /*
  *  User API methods for ACPI-WMI mapping driver
  *
  *  Copyright (C) 2017 Dell, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef _UAPI_LINUX_WMI_H
 #define _UAPI_LINUX_WMI_H

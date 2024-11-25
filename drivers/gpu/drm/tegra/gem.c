@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * NVIDIA Tegra DRM GEM helper functions
  *
@@ -7,14 +11,23 @@
  * Based on the GEM/CMA helpers
  *
  * Copyright (c) 2011 Samsung Electronics Co., Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dma-buf.h>
 #include <linux/iommu.h>
+<<<<<<< HEAD
+=======
+
+#include <drm/drm_drv.h>
+#include <drm/drm_prime.h>
+>>>>>>> upstream/android-13
 #include <drm/tegra_drm.h>
 
 #include "drm.h"
@@ -24,6 +37,7 @@ static void tegra_bo_put(struct host1x_bo *bo)
 {
 	struct tegra_bo *obj = host1x_to_tegra_bo(bo);
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&obj->gem);
 }
 
@@ -38,11 +52,117 @@ static dma_addr_t tegra_bo_pin(struct host1x_bo *bo, struct sg_table **sgt)
 
 static void tegra_bo_unpin(struct host1x_bo *bo, struct sg_table *sgt)
 {
+=======
+	drm_gem_object_put(&obj->gem);
+}
+
+/* XXX move this into lib/scatterlist.c? */
+static int sg_alloc_table_from_sg(struct sg_table *sgt, struct scatterlist *sg,
+				  unsigned int nents, gfp_t gfp_mask)
+{
+	struct scatterlist *dst;
+	unsigned int i;
+	int err;
+
+	err = sg_alloc_table(sgt, nents, gfp_mask);
+	if (err < 0)
+		return err;
+
+	dst = sgt->sgl;
+
+	for (i = 0; i < nents; i++) {
+		sg_set_page(dst, sg_page(sg), sg->length, 0);
+		dst = sg_next(dst);
+		sg = sg_next(sg);
+	}
+
+	return 0;
+}
+
+static struct sg_table *tegra_bo_pin(struct device *dev, struct host1x_bo *bo,
+				     dma_addr_t *phys)
+{
+	struct tegra_bo *obj = host1x_to_tegra_bo(bo);
+	struct sg_table *sgt;
+	int err;
+
+	/*
+	 * If we've manually mapped the buffer object through the IOMMU, make
+	 * sure to return the IOVA address of our mapping.
+	 *
+	 * Similarly, for buffers that have been allocated by the DMA API the
+	 * physical address can be used for devices that are not attached to
+	 * an IOMMU. For these devices, callers must pass a valid pointer via
+	 * the @phys argument.
+	 *
+	 * Imported buffers were also already mapped at import time, so the
+	 * existing mapping can be reused.
+	 */
+	if (phys) {
+		*phys = obj->iova;
+		return NULL;
+	}
+
+	/*
+	 * If we don't have a mapping for this buffer yet, return an SG table
+	 * so that host1x can do the mapping for us via the DMA API.
+	 */
+	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
+	if (!sgt)
+		return ERR_PTR(-ENOMEM);
+
+	if (obj->pages) {
+		/*
+		 * If the buffer object was allocated from the explicit IOMMU
+		 * API code paths, construct an SG table from the pages.
+		 */
+		err = sg_alloc_table_from_pages(sgt, obj->pages, obj->num_pages,
+						0, obj->gem.size, GFP_KERNEL);
+		if (err < 0)
+			goto free;
+	} else if (obj->sgt) {
+		/*
+		 * If the buffer object already has an SG table but no pages
+		 * were allocated for it, it means the buffer was imported and
+		 * the SG table needs to be copied to avoid overwriting any
+		 * other potential users of the original SG table.
+		 */
+		err = sg_alloc_table_from_sg(sgt, obj->sgt->sgl,
+					     obj->sgt->orig_nents, GFP_KERNEL);
+		if (err < 0)
+			goto free;
+	} else {
+		/*
+		 * If the buffer object had no pages allocated and if it was
+		 * not imported, it had to be allocated with the DMA API, so
+		 * the DMA API helper can be used.
+		 */
+		err = dma_get_sgtable(dev, sgt, obj->vaddr, obj->iova,
+				      obj->gem.size);
+		if (err < 0)
+			goto free;
+	}
+
+	return sgt;
+
+free:
+	kfree(sgt);
+	return ERR_PTR(err);
+}
+
+static void tegra_bo_unpin(struct device *dev, struct sg_table *sgt)
+{
+	if (sgt) {
+		sg_free_table(sgt);
+		kfree(sgt);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void *tegra_bo_mmap(struct host1x_bo *bo)
 {
 	struct tegra_bo *obj = host1x_to_tegra_bo(bo);
+<<<<<<< HEAD
 
 	if (obj->vaddr)
 		return obj->vaddr;
@@ -51,15 +171,34 @@ static void *tegra_bo_mmap(struct host1x_bo *bo)
 	else
 		return vmap(obj->pages, obj->num_pages, VM_MAP,
 			    pgprot_writecombine(PAGE_KERNEL));
+=======
+	struct dma_buf_map map;
+	int ret;
+
+	if (obj->vaddr) {
+		return obj->vaddr;
+	} else if (obj->gem.import_attach) {
+		ret = dma_buf_vmap(obj->gem.import_attach->dmabuf, &map);
+		return ret ? NULL : map.vaddr;
+	} else {
+		return vmap(obj->pages, obj->num_pages, VM_MAP,
+			    pgprot_writecombine(PAGE_KERNEL));
+	}
+>>>>>>> upstream/android-13
 }
 
 static void tegra_bo_munmap(struct host1x_bo *bo, void *addr)
 {
 	struct tegra_bo *obj = host1x_to_tegra_bo(bo);
+<<<<<<< HEAD
+=======
+	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(addr);
+>>>>>>> upstream/android-13
 
 	if (obj->vaddr)
 		return;
 	else if (obj->gem.import_attach)
+<<<<<<< HEAD
 		dma_buf_vunmap(obj->gem.import_attach->dmabuf, addr);
 	else
 		vunmap(addr);
@@ -87,6 +226,9 @@ static void tegra_bo_kunmap(struct host1x_bo *bo, unsigned int page,
 		return;
 	else if (obj->gem.import_attach)
 		dma_buf_kunmap(obj->gem.import_attach->dmabuf, page, addr);
+=======
+		dma_buf_vunmap(obj->gem.import_attach->dmabuf, &map);
+>>>>>>> upstream/android-13
 	else
 		vunmap(addr);
 }
@@ -107,8 +249,11 @@ static const struct host1x_bo_ops tegra_bo_ops = {
 	.unpin = tegra_bo_unpin,
 	.mmap = tegra_bo_mmap,
 	.munmap = tegra_bo_munmap,
+<<<<<<< HEAD
 	.kmap = tegra_bo_kmap,
 	.kunmap = tegra_bo_kunmap,
+=======
+>>>>>>> upstream/android-13
 };
 
 static int tegra_bo_iommu_map(struct tegra_drm *tegra, struct tegra_bo *bo)
@@ -133,10 +278,16 @@ static int tegra_bo_iommu_map(struct tegra_drm *tegra, struct tegra_bo *bo)
 		goto unlock;
 	}
 
+<<<<<<< HEAD
 	bo->paddr = bo->mm->start;
 
 	bo->size = iommu_map_sg(tegra->domain, bo->paddr, bo->sgt->sgl,
 				bo->sgt->nents, prot);
+=======
+	bo->iova = bo->mm->start;
+
+	bo->size = iommu_map_sgtable(tegra->domain, bo->iova, bo->sgt, prot);
+>>>>>>> upstream/android-13
 	if (!bo->size) {
 		dev_err(tegra->drm->dev, "failed to map buffer\n");
 		err = -ENOMEM;
@@ -161,7 +312,11 @@ static int tegra_bo_iommu_unmap(struct tegra_drm *tegra, struct tegra_bo *bo)
 		return 0;
 
 	mutex_lock(&tegra->mm_lock);
+<<<<<<< HEAD
 	iommu_unmap(tegra->domain, bo->paddr, bo->size);
+=======
+	iommu_unmap(tegra->domain, bo->iova, bo->size);
+>>>>>>> upstream/android-13
 	drm_mm_remove_node(bo->mm);
 	mutex_unlock(&tegra->mm_lock);
 
@@ -170,6 +325,15 @@ static int tegra_bo_iommu_unmap(struct tegra_drm *tegra, struct tegra_bo *bo)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static const struct drm_gem_object_funcs tegra_gem_object_funcs = {
+	.free = tegra_bo_free_object,
+	.export = tegra_gem_prime_export,
+	.vm_ops = &tegra_bo_vm_ops,
+};
+
+>>>>>>> upstream/android-13
 static struct tegra_bo *tegra_bo_alloc_object(struct drm_device *drm,
 					      size_t size)
 {
@@ -180,6 +344,11 @@ static struct tegra_bo *tegra_bo_alloc_object(struct drm_device *drm,
 	if (!bo)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
+=======
+	bo->gem.funcs = &tegra_gem_object_funcs;
+
+>>>>>>> upstream/android-13
 	host1x_bo_init(&bo->base, &tegra_bo_ops);
 	size = round_up(size, PAGE_SIZE);
 
@@ -203,13 +372,21 @@ free:
 static void tegra_bo_free(struct drm_device *drm, struct tegra_bo *bo)
 {
 	if (bo->pages) {
+<<<<<<< HEAD
 		dma_unmap_sg(drm->dev, bo->sgt->sgl, bo->sgt->nents,
 			     DMA_FROM_DEVICE);
+=======
+		dma_unmap_sgtable(drm->dev, bo->sgt, DMA_FROM_DEVICE, 0);
+>>>>>>> upstream/android-13
 		drm_gem_put_pages(&bo->gem, bo->pages, true, true);
 		sg_free_table(bo->sgt);
 		kfree(bo->sgt);
 	} else if (bo->vaddr) {
+<<<<<<< HEAD
 		dma_free_wc(drm->dev, bo->gem.size, bo->vaddr, bo->paddr);
+=======
+		dma_free_wc(drm->dev, bo->gem.size, bo->vaddr, bo->iova);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -223,18 +400,28 @@ static int tegra_bo_get_pages(struct drm_device *drm, struct tegra_bo *bo)
 
 	bo->num_pages = bo->gem.size >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	bo->sgt = drm_prime_pages_to_sg(bo->pages, bo->num_pages);
+=======
+	bo->sgt = drm_prime_pages_to_sg(bo->gem.dev, bo->pages, bo->num_pages);
+>>>>>>> upstream/android-13
 	if (IS_ERR(bo->sgt)) {
 		err = PTR_ERR(bo->sgt);
 		goto put_pages;
 	}
 
+<<<<<<< HEAD
 	err = dma_map_sg(drm->dev, bo->sgt->sgl, bo->sgt->nents,
 			 DMA_FROM_DEVICE);
 	if (err == 0) {
 		err = -EFAULT;
 		goto free_sgt;
 	}
+=======
+	err = dma_map_sgtable(drm->dev, bo->sgt, DMA_FROM_DEVICE, 0);
+	if (err)
+		goto free_sgt;
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -264,7 +451,11 @@ static int tegra_bo_alloc(struct drm_device *drm, struct tegra_bo *bo)
 	} else {
 		size_t size = bo->gem.size;
 
+<<<<<<< HEAD
 		bo->vaddr = dma_alloc_wc(drm->dev, size, &bo->paddr,
+=======
+		bo->vaddr = dma_alloc_wc(drm->dev, size, &bo->iova,
+>>>>>>> upstream/android-13
 					 GFP_KERNEL | __GFP_NOWARN);
 		if (!bo->vaddr) {
 			dev_err(drm->dev,
@@ -324,7 +515,11 @@ struct tegra_bo *tegra_bo_create_with_handle(struct drm_file *file,
 		return ERR_PTR(err);
 	}
 
+<<<<<<< HEAD
 	drm_gem_object_put_unlocked(&bo->gem);
+=======
+	drm_gem_object_put(&bo->gem);
+>>>>>>> upstream/android-13
 
 	return bo;
 }
@@ -359,6 +554,7 @@ static struct tegra_bo *tegra_bo_import(struct drm_device *drm,
 		err = tegra_bo_iommu_map(tegra, bo);
 		if (err < 0)
 			goto detach;
+<<<<<<< HEAD
 	} else {
 		if (bo->sgt->nents > 1) {
 			err = -EINVAL;
@@ -366,6 +562,8 @@ static struct tegra_bo *tegra_bo_import(struct drm_device *drm,
 		}
 
 		bo->paddr = sg_dma_address(bo->sgt->sgl);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	bo->gem.import_attach = attach;
@@ -461,7 +659,11 @@ int __tegra_gem_mmap(struct drm_gem_object *gem, struct vm_area_struct *vma)
 		vma->vm_flags &= ~VM_PFNMAP;
 		vma->vm_pgoff = 0;
 
+<<<<<<< HEAD
 		err = dma_mmap_wc(gem->dev->dev, vma, bo->vaddr, bo->paddr,
+=======
+		err = dma_mmap_wc(gem->dev->dev, vma, bo->vaddr, bo->iova,
+>>>>>>> upstream/android-13
 				  gem->size);
 		if (err < 0) {
 			drm_gem_vm_close(vma);
@@ -508,6 +710,7 @@ tegra_gem_prime_map_dma_buf(struct dma_buf_attachment *attach,
 		return NULL;
 
 	if (bo->pages) {
+<<<<<<< HEAD
 		struct scatterlist *sg;
 		unsigned int i;
 
@@ -527,6 +730,20 @@ tegra_gem_prime_map_dma_buf(struct dma_buf_attachment *attach,
 		sg_dma_len(sgt->sgl) = gem->size;
 	}
 
+=======
+		if (sg_alloc_table_from_pages(sgt, bo->pages, bo->num_pages,
+					      0, gem->size, GFP_KERNEL) < 0)
+			goto free;
+	} else {
+		if (dma_get_sgtable(attach->dev, sgt, bo->vaddr, bo->iova,
+				    gem->size) < 0)
+			goto free;
+	}
+
+	if (dma_map_sgtable(attach->dev, sgt, dir, 0))
+		goto free;
+
+>>>>>>> upstream/android-13
 	return sgt;
 
 free:
@@ -543,7 +760,11 @@ static void tegra_gem_prime_unmap_dma_buf(struct dma_buf_attachment *attach,
 	struct tegra_bo *bo = to_tegra_bo(gem);
 
 	if (bo->pages)
+<<<<<<< HEAD
 		dma_unmap_sg(attach->dev, sgt->sgl, sgt->nents, dir);
+=======
+		dma_unmap_sgtable(attach->dev, sgt, dir, 0);
+>>>>>>> upstream/android-13
 
 	sg_free_table(sgt);
 	kfree(sgt);
@@ -562,8 +783,12 @@ static int tegra_gem_prime_begin_cpu_access(struct dma_buf *buf,
 	struct drm_device *drm = gem->dev;
 
 	if (bo->pages)
+<<<<<<< HEAD
 		dma_sync_sg_for_cpu(drm->dev, bo->sgt->sgl, bo->sgt->nents,
 				    DMA_FROM_DEVICE);
+=======
+		dma_sync_sgtable_for_cpu(drm->dev, bo->sgt, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -576,12 +801,17 @@ static int tegra_gem_prime_end_cpu_access(struct dma_buf *buf,
 	struct drm_device *drm = gem->dev;
 
 	if (bo->pages)
+<<<<<<< HEAD
 		dma_sync_sg_for_device(drm->dev, bo->sgt->sgl, bo->sgt->nents,
 				       DMA_TO_DEVICE);
+=======
+		dma_sync_sgtable_for_device(drm->dev, bo->sgt, DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void *tegra_gem_prime_kmap(struct dma_buf *buf, unsigned long page)
 {
 	return NULL;
@@ -592,6 +822,8 @@ static void tegra_gem_prime_kunmap(struct dma_buf *buf, unsigned long page,
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static int tegra_gem_prime_mmap(struct dma_buf *buf, struct vm_area_struct *vma)
 {
 	struct drm_gem_object *gem = buf->priv;
@@ -604,15 +836,28 @@ static int tegra_gem_prime_mmap(struct dma_buf *buf, struct vm_area_struct *vma)
 	return __tegra_gem_mmap(gem, vma);
 }
 
+<<<<<<< HEAD
 static void *tegra_gem_prime_vmap(struct dma_buf *buf)
+=======
+static int tegra_gem_prime_vmap(struct dma_buf *buf, struct dma_buf_map *map)
+>>>>>>> upstream/android-13
 {
 	struct drm_gem_object *gem = buf->priv;
 	struct tegra_bo *bo = to_tegra_bo(gem);
 
+<<<<<<< HEAD
 	return bo->vaddr;
 }
 
 static void tegra_gem_prime_vunmap(struct dma_buf *buf, void *vaddr)
+=======
+	dma_buf_map_set_vaddr(map, bo->vaddr);
+
+	return 0;
+}
+
+static void tegra_gem_prime_vunmap(struct dma_buf *buf, struct dma_buf_map *map)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -622,27 +867,42 @@ static const struct dma_buf_ops tegra_gem_prime_dmabuf_ops = {
 	.release = tegra_gem_prime_release,
 	.begin_cpu_access = tegra_gem_prime_begin_cpu_access,
 	.end_cpu_access = tegra_gem_prime_end_cpu_access,
+<<<<<<< HEAD
 	.map = tegra_gem_prime_kmap,
 	.unmap = tegra_gem_prime_kunmap,
+=======
+>>>>>>> upstream/android-13
 	.mmap = tegra_gem_prime_mmap,
 	.vmap = tegra_gem_prime_vmap,
 	.vunmap = tegra_gem_prime_vunmap,
 };
 
+<<<<<<< HEAD
 struct dma_buf *tegra_gem_prime_export(struct drm_device *drm,
 				       struct drm_gem_object *gem,
+=======
+struct dma_buf *tegra_gem_prime_export(struct drm_gem_object *gem,
+>>>>>>> upstream/android-13
 				       int flags)
 {
 	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
 
 	exp_info.exp_name = KBUILD_MODNAME;
+<<<<<<< HEAD
 	exp_info.owner = drm->driver->fops->owner;
+=======
+	exp_info.owner = gem->dev->driver->fops->owner;
+>>>>>>> upstream/android-13
 	exp_info.ops = &tegra_gem_prime_dmabuf_ops;
 	exp_info.size = gem->size;
 	exp_info.flags = flags;
 	exp_info.priv = gem;
 
+<<<<<<< HEAD
 	return drm_gem_dmabuf_export(drm, &exp_info);
+=======
+	return drm_gem_dmabuf_export(gem->dev, &exp_info);
+>>>>>>> upstream/android-13
 }
 
 struct drm_gem_object *tegra_gem_prime_import(struct drm_device *drm,
@@ -665,3 +925,19 @@ struct drm_gem_object *tegra_gem_prime_import(struct drm_device *drm,
 
 	return &bo->gem;
 }
+<<<<<<< HEAD
+=======
+
+struct host1x_bo *tegra_gem_lookup(struct drm_file *file, u32 handle)
+{
+	struct drm_gem_object *gem;
+	struct tegra_bo *bo;
+
+	gem = drm_gem_object_lookup(file, handle);
+	if (!gem)
+		return NULL;
+
+	bo = to_tegra_bo(gem);
+	return &bo->base;
+}
+>>>>>>> upstream/android-13

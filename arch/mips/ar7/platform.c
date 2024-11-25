@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2006,2007 Felix Fietkau <nbd@openwrt.org>
  * Copyright (C) 2006,2007 Eugene Konev <ejka@openwrt.org>
@@ -15,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2006,2007 Felix Fietkau <nbd@openwrt.org>
+ * Copyright (C) 2006,2007 Eugene Konev <ejka@openwrt.org>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -683,7 +690,11 @@ static int __init ar7_register_devices(void)
 
 	if (ar7_has_high_cpmac()) {
 		res = fixed_phy_add(PHY_POLL, cpmac_high.id,
+<<<<<<< HEAD
 				    &fixed_phy_status, -1);
+=======
+				    &fixed_phy_status);
+>>>>>>> upstream/android-13
 		if (!res) {
 			cpmac_get_mac(1, cpmac_high_data.dev_addr);
 
@@ -696,7 +707,11 @@ static int __init ar7_register_devices(void)
 	} else
 		cpmac_low_data.phy_mask = 0xffffffff;
 
+<<<<<<< HEAD
 	res = fixed_phy_add(PHY_POLL, cpmac_low.id, &fixed_phy_status, -1);
+=======
+	res = fixed_phy_add(PHY_POLL, cpmac_low.id, &fixed_phy_status);
+>>>>>>> upstream/android-13
 	if (!res) {
 		cpmac_get_mac(0, cpmac_low_data.dev_addr);
 		res = platform_device_register(&cpmac_low);
@@ -715,7 +730,11 @@ static int __init ar7_register_devices(void)
 		pr_warn("unable to register usb slave: %d\n", res);
 
 	/* Register watchdog only if enabled in hardware */
+<<<<<<< HEAD
 	bootcr = ioremap_nocache(AR7_REGS_DCL, 4);
+=======
+	bootcr = ioremap(AR7_REGS_DCL, 4);
+>>>>>>> upstream/android-13
 	val = readl(bootcr);
 	iounmap(bootcr);
 	if (val & AR7_WDT_HW_ENA) {

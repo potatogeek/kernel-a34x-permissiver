@@ -44,14 +44,22 @@ static void free_master_key(struct fscrypt_master_key *mk)
 
 	wipe_master_key_secret(&mk->mk_secret);
 
+<<<<<<< HEAD
 	for (i = 0; i <= __FSCRYPT_MODE_MAX; i++) {
+=======
+	for (i = 0; i <= FSCRYPT_MODE_MAX; i++) {
+>>>>>>> upstream/android-13
 		fscrypt_destroy_prepared_key(&mk->mk_direct_keys[i]);
 		fscrypt_destroy_prepared_key(&mk->mk_iv_ino_lblk_64_keys[i]);
 		fscrypt_destroy_prepared_key(&mk->mk_iv_ino_lblk_32_keys[i]);
 	}
 
 	key_put(mk->mk_users);
+<<<<<<< HEAD
 	kzfree(mk);
+=======
+	kfree_sensitive(mk);
+>>>>>>> upstream/android-13
 }
 
 static inline bool valid_key_spec(const struct fscrypt_key_specifier *spec)
@@ -142,7 +150,11 @@ static struct key *search_fscrypt_keyring(struct key *keyring,
 	 */
 	key_ref_t keyref = make_key_ref(keyring, true /* possessed */);
 
+<<<<<<< HEAD
 	keyref = keyring_search(keyref, type, description);
+=======
+	keyref = keyring_search(keyref, type, description, false);
+>>>>>>> upstream/android-13
 	if (IS_ERR(keyref)) {
 		if (PTR_ERR(keyref) == -EAGAIN || /* not found */
 		    PTR_ERR(keyref) == -EKEYREVOKED) /* recently invalidated */
@@ -153,7 +165,11 @@ static struct key *search_fscrypt_keyring(struct key *keyring,
 }
 
 #define FSCRYPT_FS_KEYRING_DESCRIPTION_SIZE	\
+<<<<<<< HEAD
 	(CONST_STRLEN("fscrypt-") + FIELD_SIZEOF(struct super_block, s_id))
+=======
+	(CONST_STRLEN("fscrypt-") + sizeof_field(struct super_block, s_id))
+>>>>>>> upstream/android-13
 
 #define FSCRYPT_MK_DESCRIPTION_SIZE	(2 * FSCRYPT_KEY_IDENTIFIER_SIZE + 1)
 
@@ -213,7 +229,15 @@ static int allocate_filesystem_keyring(struct super_block *sb)
 	if (IS_ERR(keyring))
 		return PTR_ERR(keyring);
 
+<<<<<<< HEAD
 	/* Pairs with READ_ONCE() in fscrypt_find_master_key() */
+=======
+	/*
+	 * Pairs with the smp_load_acquire() in fscrypt_find_master_key().
+	 * I.e., here we publish ->s_master_keys with a RELEASE barrier so that
+	 * concurrent tasks can ACQUIRE it.
+	 */
+>>>>>>> upstream/android-13
 	smp_store_release(&sb->s_master_keys, keyring);
 	return 0;
 }
@@ -234,8 +258,18 @@ struct key *fscrypt_find_master_key(struct super_block *sb,
 	struct key *keyring;
 	char description[FSCRYPT_MK_DESCRIPTION_SIZE];
 
+<<<<<<< HEAD
 	/* pairs with smp_store_release() in allocate_filesystem_keyring() */
 	keyring = READ_ONCE(sb->s_master_keys);
+=======
+	/*
+	 * Pairs with the smp_store_release() in allocate_filesystem_keyring().
+	 * I.e., another task can publish ->s_master_keys concurrently,
+	 * executing a RELEASE barrier.  We need to use smp_load_acquire() here
+	 * to safely ACQUIRE the memory the other task published.
+	 */
+	keyring = smp_load_acquire(&sb->s_master_keys);
+>>>>>>> upstream/android-13
 	if (keyring == NULL)
 		return ERR_PTR(-ENOKEY); /* No keyring yet, so no keys yet. */
 
@@ -338,7 +372,10 @@ static int add_new_master_key(struct fscrypt_master_key_secret *secret,
 	mk->mk_spec = *mk_spec;
 
 	move_master_key_secret(&mk->mk_secret, secret);
+<<<<<<< HEAD
 	init_rwsem(&mk->mk_secret_sem);
+=======
+>>>>>>> upstream/android-13
 
 	refcount_set(&mk->mk_refcount, 1); /* secret is present */
 	INIT_LIST_HEAD(&mk->mk_decrypted_inodes);
@@ -418,11 +455,16 @@ static int add_existing_master_key(struct fscrypt_master_key *mk,
 	}
 
 	/* Re-add the secret if needed. */
+<<<<<<< HEAD
 	if (rekey) {
 		down_write(&mk->mk_secret_sem);
 		move_master_key_secret(&mk->mk_secret, secret);
 		up_write(&mk->mk_secret_sem);
 	}
+=======
+	if (rekey)
+		move_master_key_secret(&mk->mk_secret, secret);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -538,7 +580,11 @@ static int fscrypt_provisioning_key_preparse(struct key_preparsed_payload *prep)
 static void fscrypt_provisioning_key_free_preparse(
 					struct key_preparsed_payload *prep)
 {
+<<<<<<< HEAD
 	kzfree(prep->payload.data[0]);
+=======
+	kfree_sensitive(prep->payload.data[0]);
+>>>>>>> upstream/android-13
 }
 
 static void fscrypt_provisioning_key_describe(const struct key *key,
@@ -555,7 +601,11 @@ static void fscrypt_provisioning_key_describe(const struct key *key,
 
 static void fscrypt_provisioning_key_destroy(struct key *key)
 {
+<<<<<<< HEAD
 	kzfree(key->payload.data[0]);
+=======
+	kfree_sensitive(key->payload.data[0]);
+>>>>>>> upstream/android-13
 }
 
 static struct key_type key_type_fscrypt_provisioning = {
@@ -838,6 +888,10 @@ static int check_for_busy_inodes(struct super_block *sb,
 	struct list_head *pos;
 	size_t busy_count = 0;
 	unsigned long ino;
+<<<<<<< HEAD
+=======
+	char ino_str[50] = "";
+>>>>>>> upstream/android-13
 
 	spin_lock(&mk->mk_decrypted_inodes_lock);
 
@@ -859,6 +913,7 @@ static int check_for_busy_inodes(struct super_block *sb,
 	}
 	spin_unlock(&mk->mk_decrypted_inodes_lock);
 
+<<<<<<< HEAD
 	fscrypt_warn(NULL,
 		     "%s: %zu inode(s) still busy after removing key with %s %*phN, including ino %lu",
 		     sb->s_id, busy_count, master_key_spec_type(&mk->mk_spec),
@@ -887,14 +942,31 @@ int fscrypt_unregister_key_removal_notifier(struct notifier_block *nb)
 }
 EXPORT_SYMBOL_GPL(fscrypt_unregister_key_removal_notifier);
 
+=======
+	/* If the inode is currently being created, ino may still be 0. */
+	if (ino)
+		snprintf(ino_str, sizeof(ino_str), ", including ino %lu", ino);
+
+	fscrypt_warn(NULL,
+		     "%s: %zu inode(s) still busy after removing key with %s %*phN%s",
+		     sb->s_id, busy_count, master_key_spec_type(&mk->mk_spec),
+		     master_key_spec_len(&mk->mk_spec), (u8 *)&mk->mk_spec.u,
+		     ino_str);
+	return -EBUSY;
+}
+
+>>>>>>> upstream/android-13
 static int try_to_lock_encrypted_files(struct super_block *sb,
 				       struct fscrypt_master_key *mk)
 {
 	int err1;
 	int err2;
 
+<<<<<<< HEAD
 	blocking_notifier_call_chain(&fscrypt_key_removal_notifiers, 0, NULL);
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * An inode can't be evicted while it is dirty or has dirty pages.
 	 * Thus, we first have to clean the inodes in ->mk_decrypted_inodes.
@@ -1013,10 +1085,15 @@ static int do_remove_key(struct file *filp, void __user *_uarg, bool all_users)
 	/* No user claims remaining.  Go ahead and wipe the secret. */
 	dead = false;
 	if (is_master_key_secret_present(&mk->mk_secret)) {
+<<<<<<< HEAD
 		down_write(&mk->mk_secret_sem);
 		wipe_master_key_secret(&mk->mk_secret);
 		dead = refcount_dec_and_test(&mk->mk_refcount);
 		up_write(&mk->mk_secret_sem);
+=======
+		wipe_master_key_secret(&mk->mk_secret);
+		dead = refcount_dec_and_test(&mk->mk_refcount);
+>>>>>>> upstream/android-13
 	}
 	up_write(&key->sem);
 	if (dead) {

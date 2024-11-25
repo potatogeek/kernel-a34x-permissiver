@@ -12,6 +12,7 @@ Description:
 		The following file operations are supported:
 
 		open(2)
+<<<<<<< HEAD
 		Currently the only useful flags are O_RDWR.
 
 		ioctl(2)
@@ -22,5 +23,18 @@ Description:
 		close(2)
 		Stops and free up the I/O contexts that was associated
 		with the file descriptor.
+=======
+		  Currently the only useful flags are O_RDWR.
+
+		ioctl(2)
+		  Initiate various actions.
+
+		  See the inline documentation in [include/uapi]<linux/gpio.h>
+		  for descriptions of all ioctls.
+
+		close(2)
+		  Stops and free up the I/O contexts that was associated
+		  with the file descriptor.
+>>>>>>> upstream/android-13
 
 Users:		TBD

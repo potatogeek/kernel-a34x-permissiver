@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 // Copyright (C) 2005-2017 Andes Technology Corporation
 
 #ifndef __ASM_NDS32_MMU_CONTEXT_H
@@ -9,6 +13,10 @@
 #include <asm/proc-fns.h>
 #include <asm-generic/mm_hooks.h>
 
+<<<<<<< HEAD
+=======
+#define init_new_context init_new_context
+>>>>>>> upstream/android-13
 static inline int
 init_new_context(struct task_struct *tsk, struct mm_struct *mm)
 {
@@ -16,8 +24,11 @@ init_new_context(struct task_struct *tsk, struct mm_struct *mm)
 	return 0;
 }
 
+<<<<<<< HEAD
 #define destroy_context(mm)	do { } while(0)
 
+=======
+>>>>>>> upstream/android-13
 #define CID_BITS	9
 extern spinlock_t cid_lock;
 extern unsigned int cpu_last_cid;
@@ -47,10 +58,13 @@ static inline void check_context(struct mm_struct *mm)
 		__new_context(mm);
 }
 
+<<<<<<< HEAD
 static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 			     struct task_struct *tsk)
 {
@@ -62,7 +76,11 @@ static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 	}
 }
 
+<<<<<<< HEAD
 #define deactivate_mm(tsk,mm)	do { } while (0)
 #define activate_mm(prev,next)	switch_mm(prev, next, NULL)
+=======
+#include <asm-generic/mmu_context.h>
+>>>>>>> upstream/android-13
 
 #endif

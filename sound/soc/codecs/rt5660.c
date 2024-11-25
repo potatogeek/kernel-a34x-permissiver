@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * rt5660.c  --  RT5660 ALSA SoC audio codec driver
  *
  * Copyright 2016 Realtek Semiconductor Corp.
  * Author: Oder Chiou <oder_chiou@realtek.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -376,7 +383,11 @@ static int rt5660_is_sys_clk_from_pll(struct snd_soc_dapm_widget *source,
 	struct snd_soc_component *component = snd_soc_dapm_to_component(source->dapm);
 	unsigned int val;
 
+<<<<<<< HEAD
 	val = snd_soc_component_read32(component, RT5660_GLB_CLK);
+=======
+	val = snd_soc_component_read(component, RT5660_GLB_CLK);
+>>>>>>> upstream/android-13
 	val &= RT5660_SCLK_SRC_MASK;
 	if (val == RT5660_SCLK_SRC_PLL1)
 		return 1;
@@ -1060,8 +1071,13 @@ static int rt5660_set_dai_pll(struct snd_soc_dai *dai, int pll_id, int source,
 	snd_soc_component_write(component, RT5660_PLL_CTRL1,
 		pll_code.n_code << RT5660_PLL_N_SFT | pll_code.k_code);
 	snd_soc_component_write(component, RT5660_PLL_CTRL2,
+<<<<<<< HEAD
 		(pll_code.m_bp ? 0 : pll_code.m_code) << RT5660_PLL_M_SFT |
 		pll_code.m_bp << RT5660_PLL_M_BP_SFT);
+=======
+		((pll_code.m_bp ? 0 : pll_code.m_code) << RT5660_PLL_M_SFT) |
+		(pll_code.m_bp << RT5660_PLL_M_BP_SFT));
+>>>>>>> upstream/android-13
 
 	rt5660->pll_in = freq_in;
 	rt5660->pll_out = freq_out;
@@ -1217,7 +1233,12 @@ static const struct snd_soc_component_driver soc_component_dev_rt5660 = {
 static const struct regmap_config rt5660_regmap = {
 	.reg_bits = 8,
 	.val_bits = 16,
+<<<<<<< HEAD
 	.use_single_rw = true,
+=======
+	.use_single_read = true,
+	.use_single_write = true,
+>>>>>>> upstream/android-13
 
 	.max_register = RT5660_VENDOR_ID2 + 1 + (ARRAY_SIZE(rt5660_ranges) *
 					       RT5660_PR_SPACING),
@@ -1237,17 +1258,34 @@ static const struct i2c_device_id rt5660_i2c_id[] = {
 };
 MODULE_DEVICE_TABLE(i2c, rt5660_i2c_id);
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_OF
+>>>>>>> upstream/android-13
 static const struct of_device_id rt5660_of_match[] = {
 	{ .compatible = "realtek,rt5660", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, rt5660_of_match);
+<<<<<<< HEAD
 
 static const struct acpi_device_id rt5660_acpi_match[] = {
 	{ "10EC5660", 0 },
 	{ },
 };
 MODULE_DEVICE_TABLE(acpi, rt5660_acpi_match);
+=======
+#endif
+
+#ifdef CONFIG_ACPI
+static const struct acpi_device_id rt5660_acpi_match[] = {
+	{ "10EC5660", 0 },
+	{ "10EC3277", 0 },
+	{ },
+};
+MODULE_DEVICE_TABLE(acpi, rt5660_acpi_match);
+#endif
+>>>>>>> upstream/android-13
 
 static int rt5660_parse_dt(struct rt5660_priv *rt5660, struct device *dev)
 {

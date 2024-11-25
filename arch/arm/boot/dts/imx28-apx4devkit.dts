@@ -7,18 +7,30 @@
 	compatible = "bluegiga,apx4devkit", "fsl,imx28";
 
 	memory@40000000 {
+<<<<<<< HEAD
+=======
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0x40000000 0x04000000>;
 	};
 
 	apb@80000000 {
 		apbh@80000000 {
+<<<<<<< HEAD
 			gpmi-nand@8000c000 {
+=======
+			nand-controller@8000c000 {
+>>>>>>> upstream/android-13
 				pinctrl-names = "default";
 				pinctrl-0 = <&gpmi_pins_a &gpmi_status_cfg>;
 				status = "okay";
 			};
 
+<<<<<<< HEAD
 			ssp0: ssp@80010000 {
+=======
+			ssp0: spi@80010000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx28-mmc";
 				pinctrl-names = "default";
 				pinctrl-0 = <&mmc0_4bit_pins_a &mmc0_sck_cfg>;
@@ -26,7 +38,11 @@
 				status = "okay";
 			};
 
+<<<<<<< HEAD
 			ssp2: ssp@80014000 {
+=======
+			ssp2: spi@80014000 {
+>>>>>>> upstream/android-13
 				compatible = "fsl,imx28-mmc";
 				pinctrl-names = "default";
 				pinctrl-0 = <&mmc2_4bit_pins_apx4 &mmc2_sck_cfg_apx4>;
@@ -182,10 +198,26 @@
 				pinctrl-0 = <&auart2_2pins_a>;
 				status = "okay";
 			};
+<<<<<<< HEAD
+=======
+
+			usbphy1: usbphy@8007e000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&usb1_pins_a>;
+				status = "okay";
+			};
+>>>>>>> upstream/android-13
 		};
 	};
 
 	ahb@80080000 {
+<<<<<<< HEAD
+=======
+		usb1: usb@80090000 {
+		      status = "okay";
+		};
+
+>>>>>>> upstream/android-13
 		mac0: ethernet@800f0000 {
 			phy-mode = "rmii";
 			pinctrl-names = "default";

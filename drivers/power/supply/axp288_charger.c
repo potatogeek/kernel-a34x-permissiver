@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * axp288_charger.c - X-power AXP288 PMIC Charger driver
  *
  * Copyright (C) 2016-2017 Hans de Goede <hdegoede@redhat.com>
  * Copyright (C) 2014 Intel Corporation
  * Author: Ramakrishna Pallala <ramakrishna.pallala@intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,6 +21,12 @@
  */
 
 #include <linux/acpi.h>
+=======
+ */
+
+#include <linux/acpi.h>
+#include <linux/bitops.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/device.h>
 #include <linux/regmap.h>
@@ -30,6 +41,7 @@
 #include <linux/extcon.h>
 #include <linux/dmi.h>
 
+<<<<<<< HEAD
 #define PS_STAT_VBUS_TRIGGER		(1 << 0)
 #define PS_STAT_BAT_CHRG_DIR		(1 << 2)
 #define PS_STAT_VBAT_ABOVE_VHOLD	(1 << 3)
@@ -41,6 +53,19 @@
 #define CHRG_STAT_BAT_PRESENT		(1 << 5)
 #define CHRG_STAT_CHARGING		(1 << 6)
 #define CHRG_STAT_PMIC_OTP		(1 << 7)
+=======
+#define PS_STAT_VBUS_TRIGGER		BIT(0)
+#define PS_STAT_BAT_CHRG_DIR		BIT(2)
+#define PS_STAT_VBAT_ABOVE_VHOLD	BIT(3)
+#define PS_STAT_VBUS_VALID		BIT(4)
+#define PS_STAT_VBUS_PRESENT		BIT(5)
+
+#define CHRG_STAT_BAT_SAFE_MODE		BIT(3)
+#define CHRG_STAT_BAT_VALID		BIT(4)
+#define CHRG_STAT_BAT_PRESENT		BIT(5)
+#define CHRG_STAT_CHARGING		BIT(6)
+#define CHRG_STAT_PMIC_OTP		BIT(7)
+>>>>>>> upstream/android-13
 
 #define VBUS_ISPOUT_CUR_LIM_MASK	0x03
 #define VBUS_ISPOUT_CUR_LIM_BIT_POS	0
@@ -48,38 +73,64 @@
 #define VBUS_ISPOUT_CUR_LIM_1500MA	0x1	/* 1500mA */
 #define VBUS_ISPOUT_CUR_LIM_2000MA	0x2	/* 2000mA */
 #define VBUS_ISPOUT_CUR_NO_LIM		0x3	/* 2500mA */
+<<<<<<< HEAD
 #define VBUS_ISPOUT_VHOLD_SET_MASK	0x31
 #define VBUS_ISPOUT_VHOLD_SET_BIT_POS	0x3
 #define VBUS_ISPOUT_VHOLD_SET_OFFSET	4000	/* 4000mV */
 #define VBUS_ISPOUT_VHOLD_SET_LSB_RES	100	/* 100mV */
 #define VBUS_ISPOUT_VHOLD_SET_4300MV	0x3	/* 4300mV */
 #define VBUS_ISPOUT_VBUS_PATH_DIS	(1 << 7)
+=======
+#define VBUS_ISPOUT_VHOLD_SET_MASK	0x38
+#define VBUS_ISPOUT_VHOLD_SET_BIT_POS	0x3
+#define VBUS_ISPOUT_VHOLD_SET_OFFSET	4000	/* 4000mV */
+#define VBUS_ISPOUT_VHOLD_SET_LSB_RES	100	/* 100mV */
+#define VBUS_ISPOUT_VHOLD_SET_4400MV	0x4	/* 4400mV */
+#define VBUS_ISPOUT_VBUS_PATH_DIS	BIT(7)
+>>>>>>> upstream/android-13
 
 #define CHRG_CCCV_CC_MASK		0xf		/* 4 bits */
 #define CHRG_CCCV_CC_BIT_POS		0
 #define CHRG_CCCV_CC_OFFSET		200		/* 200mA */
 #define CHRG_CCCV_CC_LSB_RES		200		/* 200mA */
+<<<<<<< HEAD
 #define CHRG_CCCV_ITERM_20P		(1 << 4)	/* 20% of CC */
+=======
+#define CHRG_CCCV_ITERM_20P		BIT(4)		/* 20% of CC */
+>>>>>>> upstream/android-13
 #define CHRG_CCCV_CV_MASK		0x60		/* 2 bits */
 #define CHRG_CCCV_CV_BIT_POS		5
 #define CHRG_CCCV_CV_4100MV		0x0		/* 4.10V */
 #define CHRG_CCCV_CV_4150MV		0x1		/* 4.15V */
 #define CHRG_CCCV_CV_4200MV		0x2		/* 4.20V */
 #define CHRG_CCCV_CV_4350MV		0x3		/* 4.35V */
+<<<<<<< HEAD
 #define CHRG_CCCV_CHG_EN		(1 << 7)
+=======
+#define CHRG_CCCV_CHG_EN		BIT(7)
+>>>>>>> upstream/android-13
 
 #define CNTL2_CC_TIMEOUT_MASK		0x3	/* 2 bits */
 #define CNTL2_CC_TIMEOUT_OFFSET		6	/* 6 Hrs */
 #define CNTL2_CC_TIMEOUT_LSB_RES	2	/* 2 Hrs */
 #define CNTL2_CC_TIMEOUT_12HRS		0x3	/* 12 Hrs */
+<<<<<<< HEAD
 #define CNTL2_CHGLED_TYPEB		(1 << 4)
 #define CNTL2_CHG_OUT_TURNON		(1 << 5)
+=======
+#define CNTL2_CHGLED_TYPEB		BIT(4)
+#define CNTL2_CHG_OUT_TURNON		BIT(5)
+>>>>>>> upstream/android-13
 #define CNTL2_PC_TIMEOUT_MASK		0xC0
 #define CNTL2_PC_TIMEOUT_OFFSET		40	/* 40 mins */
 #define CNTL2_PC_TIMEOUT_LSB_RES	10	/* 10 mins */
 #define CNTL2_PC_TIMEOUT_70MINS		0x3
 
+<<<<<<< HEAD
 #define CHRG_ILIM_TEMP_LOOP_EN		(1 << 3)
+=======
+#define CHRG_ILIM_TEMP_LOOP_EN		BIT(3)
+>>>>>>> upstream/android-13
 #define CHRG_VBUS_ILIM_MASK		0xf0
 #define CHRG_VBUS_ILIM_BIT_POS		4
 #define CHRG_VBUS_ILIM_100MA		0x0	/* 100mA */
@@ -95,7 +146,11 @@
 #define CHRG_VLTFC_0C			0xA5	/* 0 DegC */
 #define CHRG_VHTFC_45C			0x1F	/* 45 DegC */
 
+<<<<<<< HEAD
 #define FG_CNTL_OCV_ADJ_EN		(1 << 3)
+=======
+#define FG_CNTL_OCV_ADJ_EN		BIT(3)
+>>>>>>> upstream/android-13
 
 #define CV_4100MV			4100	/* 4100mV */
 #define CV_4150MV			4150	/* 4150mV */
@@ -751,6 +806,19 @@ static int charger_init_hw_regs(struct axp288_chrg_info *info)
 		ret = axp288_charger_vbus_path_select(info, true);
 		if (ret < 0)
 			return ret;
+<<<<<<< HEAD
+=======
+	} else {
+		/* Set Vhold to the factory default / recommended 4.4V */
+		val = VBUS_ISPOUT_VHOLD_SET_4400MV << VBUS_ISPOUT_VHOLD_SET_BIT_POS;
+		ret = regmap_update_bits(info->regmap, AXP20X_VBUS_IPSOUT_MGMT,
+					 VBUS_ISPOUT_VHOLD_SET_MASK, val);
+		if (ret < 0) {
+			dev_err(&info->pdev->dev, "register(%x) write error(%d)\n",
+				AXP20X_VBUS_IPSOUT_MGMT, ret);
+			return ret;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/* Read current charge voltage and current limit */
@@ -820,7 +888,11 @@ static int axp288_charger_probe(struct platform_device *pdev)
 	if (val == 0)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+=======
+	info = devm_kzalloc(dev, sizeof(*info), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!info)
 		return -ENOMEM;
 
@@ -830,7 +902,11 @@ static int axp288_charger_probe(struct platform_device *pdev)
 
 	info->cable.edev = extcon_get_extcon_dev(AXP288_EXTCON_DEV_NAME);
 	if (info->cable.edev == NULL) {
+<<<<<<< HEAD
 		dev_dbg(&pdev->dev, "%s is not ready, probe deferred\n",
+=======
+		dev_dbg(dev, "%s is not ready, probe deferred\n",
+>>>>>>> upstream/android-13
 			AXP288_EXTCON_DEV_NAME);
 		return -EPROBE_DEFER;
 	}
@@ -841,8 +917,12 @@ static int axp288_charger_probe(struct platform_device *pdev)
 			dev_dbg(dev, "EXTCON_USB_HOST is not ready, probe deferred\n");
 			return -EPROBE_DEFER;
 		}
+<<<<<<< HEAD
 		dev_info(&pdev->dev,
 			 "Using " USB_HOST_EXTCON_HID " extcon for usb-id\n");
+=======
+		dev_info(dev, "Using " USB_HOST_EXTCON_HID " extcon for usb-id\n");
+>>>>>>> upstream/android-13
 	}
 
 	platform_set_drvdata(pdev, info);
@@ -881,7 +961,11 @@ static int axp288_charger_probe(struct platform_device *pdev)
 	INIT_WORK(&info->otg.work, axp288_charger_otg_evt_worker);
 	info->otg.id_nb.notifier_call = axp288_charger_handle_otg_evt;
 	if (info->otg.cable) {
+<<<<<<< HEAD
 		ret = devm_extcon_register_notifier(&pdev->dev, info->otg.cable,
+=======
+		ret = devm_extcon_register_notifier(dev, info->otg.cable,
+>>>>>>> upstream/android-13
 					EXTCON_USB_HOST, &info->otg.id_nb);
 		if (ret) {
 			dev_err(dev, "failed to register EXTCON_USB_HOST notifier\n");
@@ -893,10 +977,16 @@ static int axp288_charger_probe(struct platform_device *pdev)
 	/* Register charger interrupts */
 	for (i = 0; i < CHRG_INTR_END; i++) {
 		pirq = platform_get_irq(info->pdev, i);
+<<<<<<< HEAD
 		if (pirq < 0) {
 			dev_err(&pdev->dev, "Failed to get IRQ: %d\n", pirq);
 			return pirq;
 		}
+=======
+		if (pirq < 0)
+			return pirq;
+
+>>>>>>> upstream/android-13
 		info->irq[i] = regmap_irq_get_virq(info->regmap_irqc, pirq);
 		if (info->irq[i] < 0) {
 			dev_warn(&info->pdev->dev,
@@ -907,7 +997,11 @@ static int axp288_charger_probe(struct platform_device *pdev)
 					NULL, axp288_charger_irq_thread_handler,
 					IRQF_ONESHOT, info->pdev->name, info);
 		if (ret) {
+<<<<<<< HEAD
 			dev_err(&pdev->dev, "failed to request interrupt=%d\n",
+=======
+			dev_err(dev, "failed to request interrupt=%d\n",
+>>>>>>> upstream/android-13
 								info->irq[i]);
 			return ret;
 		}

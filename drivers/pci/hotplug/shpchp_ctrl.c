@@ -299,7 +299,10 @@ static int board_added(struct slot *p_slot)
 	if (p_slot->status == 0xFF) {
 		/* power fault occurred, but it was benign */
 		ctrl_dbg(ctrl, "%s: Power fault\n", __func__);
+<<<<<<< HEAD
 		rc = POWER_FAILURE;
+=======
+>>>>>>> upstream/android-13
 		p_slot->status = 0;
 		goto err_exit;
 	}
@@ -341,8 +344,12 @@ static int remove_board(struct slot *p_slot)
 	u8 hp_slot;
 	int rc;
 
+<<<<<<< HEAD
 	if (shpchp_unconfigure_device(p_slot))
 		return(1);
+=======
+	shpchp_unconfigure_device(p_slot);
+>>>>>>> upstream/android-13
 
 	hp_slot = p_slot->device - ctrl->slot_device_offset;
 	p_slot = shpchp_find_slot(ctrl, hp_slot + ctrl->slot_device_offset);
@@ -446,6 +453,7 @@ void shpchp_queue_pushbutton_work(struct work_struct *work)
 	mutex_unlock(&p_slot->lock);
 }
 
+<<<<<<< HEAD
 static int update_slot_info (struct slot *slot)
 {
 	struct hotplug_slot_info *info;
@@ -463,6 +471,14 @@ static int update_slot_info (struct slot *slot)
 	result = pci_hp_change_slot_info(slot->hotplug_slot, info);
 	kfree (info);
 	return result;
+=======
+static void update_slot_info(struct slot *slot)
+{
+	slot->hpc_ops->get_power_status(slot, &slot->pwr_save);
+	slot->hpc_ops->get_attention_status(slot, &slot->attention_save);
+	slot->hpc_ops->get_latch_status(slot, &slot->latch_save);
+	slot->hpc_ops->get_adapter_status(slot, &slot->presence_save);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -654,7 +670,11 @@ int shpchp_sysfs_enable_slot(struct slot *p_slot)
 	switch (p_slot->state) {
 	case BLINKINGON_STATE:
 		cancel_delayed_work(&p_slot->work);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case STATIC_STATE:
 		p_slot->state = POWERON_STATE;
 		mutex_unlock(&p_slot->lock);
@@ -690,7 +710,11 @@ int shpchp_sysfs_disable_slot(struct slot *p_slot)
 	switch (p_slot->state) {
 	case BLINKINGOFF_STATE:
 		cancel_delayed_work(&p_slot->work);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case STATIC_STATE:
 		p_slot->state = POWEROFF_STATE;
 		mutex_unlock(&p_slot->lock);

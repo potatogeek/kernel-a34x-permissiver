@@ -111,7 +111,11 @@ static struct noise_keypair *keypair_create(struct wg_peer *peer)
 
 static void keypair_free_rcu(struct rcu_head *rcu)
 {
+<<<<<<< HEAD
 	kzfree(container_of(rcu, struct noise_keypair, rcu));
+=======
+	kfree_sensitive(container_of(rcu, struct noise_keypair, rcu));
+>>>>>>> upstream/android-13
 }
 
 static void keypair_free_kref(struct kref *kref)
@@ -818,7 +822,11 @@ bool wg_noise_handshake_begin_session(struct noise_handshake *handshake,
 			handshake->entry.peer->device->index_hashtable,
 			&handshake->entry, &new_keypair->entry);
 	} else {
+<<<<<<< HEAD
 		kzfree(new_keypair);
+=======
+		kfree_sensitive(new_keypair);
+>>>>>>> upstream/android-13
 	}
 	rcu_read_unlock_bh();
 

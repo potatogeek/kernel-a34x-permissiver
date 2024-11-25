@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPV4 GSO/GRO offload support
  *	Linux INET implementation
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  *	GRE GSO support
  */
 
@@ -19,7 +26,11 @@ static struct sk_buff *gre_gso_segment(struct sk_buff *skb,
 				       netdev_features_t features)
 {
 	int tnl_hlen = skb_inner_mac_header(skb) - skb_transport_header(skb);
+<<<<<<< HEAD
 	bool need_csum, need_recompute_csum, gso_partial;
+=======
+	bool need_csum, offload_csum, gso_partial, need_ipsec;
+>>>>>>> upstream/android-13
 	struct sk_buff *segs = ERR_PTR(-EINVAL);
 	u16 mac_offset = skb->mac_header;
 	__be16 protocol = skb->protocol;
@@ -45,10 +56,23 @@ static struct sk_buff *gre_gso_segment(struct sk_buff *skb,
 	skb->protocol = skb->inner_protocol;
 
 	need_csum = !!(skb_shinfo(skb)->gso_type & SKB_GSO_GRE_CSUM);
+<<<<<<< HEAD
 	need_recompute_csum = skb->csum_not_inet;
 	skb->encap_hdr_csum = need_csum;
 
 	features &= skb->dev->hw_enc_features;
+=======
+	skb->encap_hdr_csum = need_csum;
+
+	features &= skb->dev->hw_enc_features;
+	if (need_csum)
+		features &= ~NETIF_F_SCTP_CRC;
+
+	need_ipsec = skb_dst(skb) && dst_xfrm(skb_dst(skb));
+	/* Try to offload checksum if possible */
+	offload_csum = !!(need_csum && !need_ipsec &&
+			  (skb->dev->features & NETIF_F_HW_CSUM));
+>>>>>>> upstream/android-13
 
 	/* segment inner packet. */
 	segs = skb_mac_gso_segment(skb, features);
@@ -103,6 +127,7 @@ static struct sk_buff *gre_gso_segment(struct sk_buff *skb,
 		}
 
 		*(pcsum + 1) = 0;
+<<<<<<< HEAD
 		if (need_recompute_csum && !skb_is_gso(skb)) {
 			__wsum csum;
 
@@ -111,6 +136,14 @@ static struct sk_buff *gre_gso_segment(struct sk_buff *skb,
 			*pcsum = csum_fold(csum);
 		} else {
 			*pcsum = gso_make_checksum(skb, 0);
+=======
+		if (skb->encapsulation || !offload_csum) {
+			*pcsum = gso_make_checksum(skb, 0);
+		} else {
+			skb->ip_summed = CHECKSUM_PARTIAL;
+			skb->csum_start = skb_transport_header(skb) - skb->head;
+			skb->csum_offset = sizeof(*greh);
+>>>>>>> upstream/android-13
 		}
 	} while ((skb = skb->next));
 out:
@@ -187,7 +220,11 @@ static struct sk_buff *gre_gro_receive(struct list_head *head,
 		if (skb_gro_checksum_simple_validate(skb))
 			goto out_unlock;
 
+<<<<<<< HEAD
 		skb_gro_checksum_try_convert(skb, IPPROTO_GRE, 0,
+=======
+		skb_gro_checksum_try_convert(skb, IPPROTO_GRE,
+>>>>>>> upstream/android-13
 					     null_compute_pseudo);
 	}
 

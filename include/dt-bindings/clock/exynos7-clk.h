@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  * Author: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
@@ -6,6 +7,13 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
 */
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Author: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+ */
+>>>>>>> upstream/android-13
 
 #ifndef _DT_BINDINGS_CLOCK_EXYNOS7_H
 #define _DT_BINDINGS_CLOCK_EXYNOS7_H

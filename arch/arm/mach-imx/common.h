@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright 2004-2014 Freescale Semiconductor, Inc. All Rights Reserved.
  */
 
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+=======
+>>>>>>> upstream/android-13
 
 #ifndef __ASM_ARCH_MXC_COMMON_H__
 #define __ASM_ARCH_MXC_COMMON_H__
@@ -21,6 +28,7 @@ struct device_node;
 enum mxc_cpu_pwr_mode;
 struct of_device_id;
 
+<<<<<<< HEAD
 void mx21_map_io(void);
 void mx27_map_io(void);
 void mx31_map_io(void);
@@ -44,6 +52,15 @@ int mx31_clocks_init(unsigned long fref);
 int mx35_clocks_init(void);
 struct platform_device *mxc_register_gpio(char *name, int id,
 	resource_size_t iobase, resource_size_t iosize, int irq, int irq_high);
+=======
+void mx31_map_io(void);
+void mx35_map_io(void);
+void imx21_init_early(void);
+void imx31_init_early(void);
+void imx35_init_early(void);
+void mx31_init_irq(void);
+void mx35_init_irq(void);
+>>>>>>> upstream/android-13
 void mxc_set_cpu_type(unsigned int type);
 void mxc_restart(enum reboot_mode, const char *);
 void mxc_arch_reset_init(void __iomem *);
@@ -53,7 +70,10 @@ void imx_aips_allow_unprivileged_access(const char *compat);
 int mxc_device_init(void);
 void imx_set_soc_revision(unsigned int rev);
 void imx_init_revision_from_anatop(void);
+<<<<<<< HEAD
 struct device *imx_soc_device_init(void);
+=======
+>>>>>>> upstream/android-13
 void imx6_enable_rbc(bool enable);
 void imx_gpc_check_dt(void);
 void imx_gpc_set_arm_power_in_lpm(bool power_off);
@@ -72,6 +92,18 @@ enum mxc_cpu_pwr_mode {
 	STOP_POWER_OFF,		/* STOP + SRPG */
 };
 
+<<<<<<< HEAD
+=======
+enum ulp_cpu_pwr_mode {
+	ULP_PM_HSRUN,    /* High speed run mode */
+	ULP_PM_RUN,      /* Run mode */
+	ULP_PM_WAIT,     /* Wait mode */
+	ULP_PM_STOP,     /* Stop mode */
+	ULP_PM_VLPS,     /* Very low power stop mode */
+	ULP_PM_VLLS,     /* very low leakage stop mode */
+};
+
+>>>>>>> upstream/android-13
 void imx_enable_cpu(int cpu, bool enable);
 void imx_set_cpu_jump(int cpu, void *jump_addr);
 u32 imx_get_cpu_arg(int cpu);
@@ -85,19 +117,32 @@ static inline void imx_scu_map_io(void) {}
 static inline void imx_smp_prepare(void) {}
 #endif
 void imx_src_init(void);
+<<<<<<< HEAD
+=======
+void imx7_src_init(void);
+>>>>>>> upstream/android-13
 void imx_gpc_pre_suspend(bool arm_power_off);
 void imx_gpc_post_resume(void);
 void imx_gpc_mask_all(void);
 void imx_gpc_restore_all(void);
 void imx_gpc_hwirq_mask(unsigned int hwirq);
 void imx_gpc_hwirq_unmask(unsigned int hwirq);
+<<<<<<< HEAD
+=======
+void imx_gpcv2_set_core1_pdn_pup_by_software(bool pdn);
+>>>>>>> upstream/android-13
 void imx_anatop_init(void);
 void imx_anatop_pre_suspend(void);
 void imx_anatop_post_resume(void);
 int imx6_set_lpm(enum mxc_cpu_pwr_mode mode);
 void imx6_set_int_mem_clk_lpm(bool enable);
+<<<<<<< HEAD
 void imx6sl_set_wait_clk(bool enter);
 int imx_mmdc_get_ddr_type(void);
+=======
+int imx_mmdc_get_ddr_type(void);
+int imx7ulp_set_lpm(enum ulp_cpu_pwr_mode mode);
+>>>>>>> upstream/android-13
 
 void imx_cpu_die(unsigned int cpu);
 int imx_cpu_kill(unsigned int cpu);
@@ -120,6 +165,10 @@ void imx6dl_pm_init(void);
 void imx6sl_pm_init(void);
 void imx6sx_pm_init(void);
 void imx6ul_pm_init(void);
+<<<<<<< HEAD
+=======
+void imx7ulp_pm_init(void);
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PM
 void imx51_pm_init(void);
@@ -142,6 +191,10 @@ static inline void imx_init_l2cache(void) {}
 #endif
 
 extern const struct smp_operations imx_smp_ops;
+<<<<<<< HEAD
+=======
+extern const struct smp_operations imx7_smp_ops;
+>>>>>>> upstream/android-13
 extern const struct smp_operations ls1021a_smp_ops;
 
 #endif

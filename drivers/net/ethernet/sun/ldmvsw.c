@@ -101,8 +101,12 @@ static struct vnet_port *vsw_tx_port_find(struct sk_buff *skb,
 }
 
 static u16 vsw_select_queue(struct net_device *dev, struct sk_buff *skb,
+<<<<<<< HEAD
 			    struct net_device *sb_dev,
 			    select_queue_fallback_t fallback)
+=======
+			    struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	struct vnet_port *port = netdev_priv(dev);
 
@@ -405,7 +409,11 @@ err_out_free_dev:
 	return err;
 }
 
+<<<<<<< HEAD
 static int vsw_port_remove(struct vio_dev *vdev)
+=======
+static void vsw_port_remove(struct vio_dev *vdev)
+>>>>>>> upstream/android-13
 {
 	struct vnet_port *port = dev_get_drvdata(&vdev->dev);
 	unsigned long flags;
@@ -431,8 +439,11 @@ static int vsw_port_remove(struct vio_dev *vdev)
 
 		free_netdev(port->dev);
 	}
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void vsw_cleanup(void)

@@ -368,7 +368,11 @@ static int clk_establish_mapping(struct clk *clk)
 	if (!mapping->base && mapping->phys) {
 		kref_init(&mapping->ref);
 
+<<<<<<< HEAD
 		mapping->base = ioremap_nocache(mapping->phys, mapping->len);
+=======
+		mapping->base = ioremap(mapping->phys, mapping->len);
+>>>>>>> upstream/android-13
 		if (unlikely(!mapping->base))
 			return -ENXIO;
 	} else if (mapping->base) {

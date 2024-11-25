@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2001 Mike Corrigan & Dave Engebretsen, IBM Corporation
  * 
@@ -6,6 +10,7 @@
  *               and  Ben. Herrenschmidt, IBM Corporation
  *
  * Dynamic DMA mapping support, bus-independent parts.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -38,6 +45,10 @@
 #include <linux/pci.h>
 #include <linux/iommu.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
+=======
+#include <linux/debugfs.h>
+>>>>>>> upstream/android-13
 #include <asm/io.h>
 #include <asm/prom.h>
 #include <asm/iommu.h>
@@ -47,9 +58,56 @@
 #include <asm/fadump.h>
 #include <asm/vio.h>
 #include <asm/tce.h>
+<<<<<<< HEAD
 
 #define DBG(...)
 
+=======
+#include <asm/mmu_context.h>
+
+#define DBG(...)
+
+#ifdef CONFIG_IOMMU_DEBUGFS
+static int iommu_debugfs_weight_get(void *data, u64 *val)
+{
+	struct iommu_table *tbl = data;
+	*val = bitmap_weight(tbl->it_map, tbl->it_size);
+	return 0;
+}
+DEFINE_DEBUGFS_ATTRIBUTE(iommu_debugfs_fops_weight, iommu_debugfs_weight_get, NULL, "%llu\n");
+
+static void iommu_debugfs_add(struct iommu_table *tbl)
+{
+	char name[10];
+	struct dentry *liobn_entry;
+
+	sprintf(name, "%08lx", tbl->it_index);
+	liobn_entry = debugfs_create_dir(name, iommu_debugfs_dir);
+
+	debugfs_create_file_unsafe("weight", 0400, liobn_entry, tbl, &iommu_debugfs_fops_weight);
+	debugfs_create_ulong("it_size", 0400, liobn_entry, &tbl->it_size);
+	debugfs_create_ulong("it_page_shift", 0400, liobn_entry, &tbl->it_page_shift);
+	debugfs_create_ulong("it_reserved_start", 0400, liobn_entry, &tbl->it_reserved_start);
+	debugfs_create_ulong("it_reserved_end", 0400, liobn_entry, &tbl->it_reserved_end);
+	debugfs_create_ulong("it_indirect_levels", 0400, liobn_entry, &tbl->it_indirect_levels);
+	debugfs_create_ulong("it_level_size", 0400, liobn_entry, &tbl->it_level_size);
+}
+
+static void iommu_debugfs_del(struct iommu_table *tbl)
+{
+	char name[10];
+	struct dentry *liobn_entry;
+
+	sprintf(name, "%08lx", tbl->it_index);
+	liobn_entry = debugfs_lookup(name, iommu_debugfs_dir);
+	debugfs_remove(liobn_entry);
+}
+#else
+static void iommu_debugfs_add(struct iommu_table *tbl){}
+static void iommu_debugfs_del(struct iommu_table *tbl){}
+#endif
+
+>>>>>>> upstream/android-13
 static int novmerge;
 
 static void __iommu_free(struct iommu_table *, dma_addr_t, unsigned int);
@@ -184,7 +242,10 @@ static unsigned long iommu_range_alloc(struct device *dev,
 	int largealloc = npages > 15;
 	int pass = 0;
 	unsigned long align_mask;
+<<<<<<< HEAD
 	unsigned long boundary_size;
+=======
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	unsigned int pool_nr;
 	struct iommu_pool *pool;
@@ -197,11 +258,19 @@ static unsigned long iommu_range_alloc(struct device *dev,
 	if (unlikely(npages == 0)) {
 		if (printk_ratelimit())
 			WARN_ON(1);
+<<<<<<< HEAD
 		return IOMMU_MAPPING_ERROR;
 	}
 
 	if (should_fail_iommu(dev))
 		return IOMMU_MAPPING_ERROR;
+=======
+		return DMA_MAPPING_ERROR;
+	}
+
+	if (should_fail_iommu(dev))
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We don't need to disable preemption here because any CPU can
@@ -248,6 +317,7 @@ again:
 		}
 	}
 
+<<<<<<< HEAD
 	if (dev)
 		boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
 				      1 << tbl->it_page_shift);
@@ -257,6 +327,11 @@ again:
 
 	n = iommu_area_alloc(tbl->it_map, limit, start, npages, tbl->it_offset,
 			     boundary_size >> tbl->it_page_shift, align_mask);
+=======
+	n = iommu_area_alloc(tbl->it_map, limit, start, npages, tbl->it_offset,
+			dma_get_seg_boundary_nr_pages(dev, tbl->it_page_shift),
+			align_mask);
+>>>>>>> upstream/android-13
 	if (n == -1) {
 		if (likely(pass == 0)) {
 			/* First try the pool from the start */
@@ -274,10 +349,26 @@ again:
 			pass++;
 			goto again;
 
+<<<<<<< HEAD
 		} else {
 			/* Give up */
 			spin_unlock_irqrestore(&(pool->lock), flags);
 			return IOMMU_MAPPING_ERROR;
+=======
+		} else if (pass == tbl->nr_pools + 1) {
+			/* Last resort: try largepool */
+			spin_unlock(&pool->lock);
+			pool = &tbl->large_pool;
+			spin_lock(&pool->lock);
+			pool->hint = pool->start;
+			pass++;
+			goto again;
+
+		} else {
+			/* Give up */
+			spin_unlock_irqrestore(&(pool->lock), flags);
+			return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -309,13 +400,22 @@ static dma_addr_t iommu_alloc(struct device *dev, struct iommu_table *tbl,
 			      unsigned long attrs)
 {
 	unsigned long entry;
+<<<<<<< HEAD
 	dma_addr_t ret = IOMMU_MAPPING_ERROR;
+=======
+	dma_addr_t ret = DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	int build_fail;
 
 	entry = iommu_range_alloc(dev, tbl, npages, NULL, mask, align_order);
 
+<<<<<<< HEAD
 	if (unlikely(entry == IOMMU_MAPPING_ERROR))
 		return IOMMU_MAPPING_ERROR;
+=======
+	if (unlikely(entry == DMA_MAPPING_ERROR))
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 
 	entry += tbl->it_offset;	/* Offset into real TCE table */
 	ret = entry << tbl->it_page_shift;	/* Set the return dma address */
@@ -327,12 +427,20 @@ static dma_addr_t iommu_alloc(struct device *dev, struct iommu_table *tbl,
 
 	/* tbl->it_ops->set() only returns non-zero for transient errors.
 	 * Clean up the table bitmap in this case and return
+<<<<<<< HEAD
 	 * IOMMU_MAPPING_ERROR. For all other errors the functionality is
+=======
+	 * DMA_MAPPING_ERROR. For all other errors the functionality is
+>>>>>>> upstream/android-13
 	 * not altered.
 	 */
 	if (unlikely(build_fail)) {
 		__iommu_free(tbl, ret, npages);
+<<<<<<< HEAD
 		return IOMMU_MAPPING_ERROR;
+=======
+		return DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	}
 
 	/* Flush/invalidate TLB caches if necessary */
@@ -442,7 +550,11 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
 	BUG_ON(direction == DMA_NONE);
 
 	if ((nelems == 0) || !tbl)
+<<<<<<< HEAD
 		return 0;
+=======
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	outs = s = segstart = &sglist[0];
 	outcount = 1;
@@ -477,7 +589,11 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
 		DBG("  - vaddr: %lx, size: %lx\n", vaddr, slen);
 
 		/* Handle failure */
+<<<<<<< HEAD
 		if (unlikely(entry == IOMMU_MAPPING_ERROR)) {
+=======
+		if (unlikely(entry == DMA_MAPPING_ERROR)) {
+>>>>>>> upstream/android-13
 			if (!(attrs & DMA_ATTR_NO_WARN) &&
 			    printk_ratelimit())
 				dev_info(dev, "iommu_alloc failed, tbl %p "
@@ -544,7 +660,10 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
 	 */
 	if (outcount < incount) {
 		outs = sg_next(outs);
+<<<<<<< HEAD
 		outs->dma_address = IOMMU_MAPPING_ERROR;
+=======
+>>>>>>> upstream/android-13
 		outs->dma_length = 0;
 	}
 
@@ -562,13 +681,20 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
 			npages = iommu_num_pages(s->dma_address, s->dma_length,
 						 IOMMU_PAGE_SIZE(tbl));
 			__iommu_free(tbl, vaddr, npages);
+<<<<<<< HEAD
 			s->dma_address = IOMMU_MAPPING_ERROR;
+=======
+>>>>>>> upstream/android-13
 			s->dma_length = 0;
 		}
 		if (s == outs)
 			break;
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+	return -EIO;
+>>>>>>> upstream/android-13
 }
 
 
@@ -645,15 +771,60 @@ static void iommu_table_clear(struct iommu_table *tbl)
 #endif
 }
 
+<<<<<<< HEAD
+=======
+static void iommu_table_reserve_pages(struct iommu_table *tbl,
+		unsigned long res_start, unsigned long res_end)
+{
+	int i;
+
+	WARN_ON_ONCE(res_end < res_start);
+	/*
+	 * Reserve page 0 so it will not be used for any mappings.
+	 * This avoids buggy drivers that consider page 0 to be invalid
+	 * to crash the machine or even lose data.
+	 */
+	if (tbl->it_offset == 0)
+		set_bit(0, tbl->it_map);
+
+	if (res_start < tbl->it_offset)
+		res_start = tbl->it_offset;
+
+	if (res_end > (tbl->it_offset + tbl->it_size))
+		res_end = tbl->it_offset + tbl->it_size;
+
+	/* Check if res_start..res_end is a valid range in the table */
+	if (res_start >= res_end) {
+		tbl->it_reserved_start = tbl->it_offset;
+		tbl->it_reserved_end = tbl->it_offset;
+		return;
+	}
+
+	tbl->it_reserved_start = res_start;
+	tbl->it_reserved_end = res_end;
+
+	for (i = tbl->it_reserved_start; i < tbl->it_reserved_end; ++i)
+		set_bit(i - tbl->it_offset, tbl->it_map);
+}
+
+>>>>>>> upstream/android-13
 /*
  * Build a iommu_table structure.  This contains a bit map which
  * is used to manage allocation of the tce space.
  */
+<<<<<<< HEAD
 struct iommu_table *iommu_init_table(struct iommu_table *tbl, int nid)
 {
 	unsigned long sz;
 	static int welcomed = 0;
 	struct page *page;
+=======
+struct iommu_table *iommu_init_table(struct iommu_table *tbl, int nid,
+		unsigned long res_start, unsigned long res_end)
+{
+	unsigned long sz;
+	static int welcomed = 0;
+>>>>>>> upstream/android-13
 	unsigned int i;
 	struct iommu_pool *p;
 
@@ -662,6 +833,7 @@ struct iommu_table *iommu_init_table(struct iommu_table *tbl, int nid)
 	/* number of bytes needed for the bitmap */
 	sz = BITS_TO_LONGS(tbl->it_size) * sizeof(unsigned long);
 
+<<<<<<< HEAD
 	page = alloc_pages_node(nid, GFP_KERNEL, get_order(sz));
 	if (!page)
 		panic("iommu_init_table: Can't allocate %ld bytes\n", sz);
@@ -675,6 +847,15 @@ struct iommu_table *iommu_init_table(struct iommu_table *tbl, int nid)
 	 */
 	if (tbl->it_offset == 0)
 		set_bit(0, tbl->it_map);
+=======
+	tbl->it_map = vzalloc_node(sz, nid);
+	if (!tbl->it_map) {
+		pr_err("%s: Can't allocate %ld bytes\n", __func__, sz);
+		return NULL;
+	}
+
+	iommu_table_reserve_pages(tbl, res_start, res_end);
+>>>>>>> upstream/android-13
 
 	/* We only split the IOMMU table if we have 1GB or more of space */
 	if ((tbl->it_size << tbl->it_page_shift) >= (1UL * 1024 * 1024 * 1024))
@@ -707,6 +888,7 @@ struct iommu_table *iommu_init_table(struct iommu_table *tbl, int nid)
 		welcomed = 1;
 	}
 
+<<<<<<< HEAD
 	return tbl;
 }
 
@@ -714,6 +896,31 @@ static void iommu_table_free(struct kref *kref)
 {
 	unsigned long bitmap_sz;
 	unsigned int order;
+=======
+	iommu_debugfs_add(tbl);
+
+	return tbl;
+}
+
+bool iommu_table_in_use(struct iommu_table *tbl)
+{
+	unsigned long start = 0, end;
+
+	/* ignore reserved bit0 */
+	if (tbl->it_offset == 0)
+		start = 1;
+	end = tbl->it_reserved_start - tbl->it_offset;
+	if (find_next_bit(tbl->it_map, end, start) != end)
+		return true;
+
+	start = tbl->it_reserved_end - tbl->it_offset;
+	end = tbl->it_size;
+	return find_next_bit(tbl->it_map, end, start) != end;
+}
+
+static void iommu_table_free(struct kref *kref)
+{
+>>>>>>> upstream/android-13
 	struct iommu_table *tbl;
 
 	tbl = container_of(kref, struct iommu_table, it_kref);
@@ -726,6 +933,7 @@ static void iommu_table_free(struct kref *kref)
 		return;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * In case we have reserved the first bit, we should not emit
 	 * the warning below.
@@ -743,6 +951,16 @@ static void iommu_table_free(struct kref *kref)
 	/* free bitmap */
 	order = get_order(bitmap_sz);
 	free_pages((unsigned long) tbl->it_map, order);
+=======
+	iommu_debugfs_del(tbl);
+
+	/* verify that table contains no entries */
+	if (iommu_table_in_use(tbl))
+		pr_warn("%s: Unexpected TCEs\n", __func__);
+
+	/* free bitmap */
+	vfree(tbl->it_map);
+>>>>>>> upstream/android-13
 
 	/* free table */
 	kfree(tbl);
@@ -776,7 +994,11 @@ dma_addr_t iommu_map_page(struct device *dev, struct iommu_table *tbl,
 			  unsigned long mask, enum dma_data_direction direction,
 			  unsigned long attrs)
 {
+<<<<<<< HEAD
 	dma_addr_t dma_handle = IOMMU_MAPPING_ERROR;
+=======
+	dma_addr_t dma_handle = DMA_MAPPING_ERROR;
+>>>>>>> upstream/android-13
 	void *vaddr;
 	unsigned long uaddr;
 	unsigned int npages, align;
@@ -796,7 +1018,11 @@ dma_addr_t iommu_map_page(struct device *dev, struct iommu_table *tbl,
 		dma_handle = iommu_alloc(dev, tbl, vaddr, npages, direction,
 					 mask >> tbl->it_page_shift, align,
 					 attrs);
+<<<<<<< HEAD
 		if (dma_handle == IOMMU_MAPPING_ERROR) {
+=======
+		if (dma_handle == DMA_MAPPING_ERROR) {
+>>>>>>> upstream/android-13
 			if (!(attrs & DMA_ATTR_NO_WARN) &&
 			    printk_ratelimit())  {
 				dev_info(dev, "iommu_alloc failed, tbl %p "
@@ -868,7 +1094,11 @@ void *iommu_alloc_coherent(struct device *dev, struct iommu_table *tbl,
 	io_order = get_iommu_order(size, tbl);
 	mapping = iommu_alloc(dev, tbl, ret, nio_pages, DMA_BIDIRECTIONAL,
 			      mask >> tbl->it_page_shift, io_order, 0);
+<<<<<<< HEAD
 	if (mapping == IOMMU_MAPPING_ERROR) {
+=======
+	if (mapping == DMA_MAPPING_ERROR) {
+>>>>>>> upstream/android-13
 		free_pages((unsigned long)ret, order);
 		return NULL;
 	}
@@ -993,6 +1223,7 @@ int iommu_tce_check_gpa(unsigned long page_shift, unsigned long gpa)
 }
 EXPORT_SYMBOL_GPL(iommu_tce_check_gpa);
 
+<<<<<<< HEAD
 long iommu_tce_xchg(struct iommu_table *tbl, unsigned long entry,
 		unsigned long *hpa, enum dma_data_direction *direction)
 {
@@ -1012,6 +1243,34 @@ long iommu_tce_xchg(struct iommu_table *tbl, unsigned long entry,
 	return ret;
 }
 EXPORT_SYMBOL_GPL(iommu_tce_xchg);
+=======
+extern long iommu_tce_xchg_no_kill(struct mm_struct *mm,
+		struct iommu_table *tbl,
+		unsigned long entry, unsigned long *hpa,
+		enum dma_data_direction *direction)
+{
+	long ret;
+	unsigned long size = 0;
+
+	ret = tbl->it_ops->xchg_no_kill(tbl, entry, hpa, direction, false);
+	if (!ret && ((*direction == DMA_FROM_DEVICE) ||
+			(*direction == DMA_BIDIRECTIONAL)) &&
+			!mm_iommu_is_devmem(mm, *hpa, tbl->it_page_shift,
+					&size))
+		SetPageDirty(pfn_to_page(*hpa >> PAGE_SHIFT));
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(iommu_tce_xchg_no_kill);
+
+void iommu_tce_kill(struct iommu_table *tbl,
+		unsigned long entry, unsigned long pages)
+{
+	if (tbl->it_ops->tce_kill)
+		tbl->it_ops->tce_kill(tbl, entry, pages, false);
+}
+EXPORT_SYMBOL_GPL(iommu_tce_kill);
+>>>>>>> upstream/android-13
 
 int iommu_take_ownership(struct iommu_table *tbl)
 {
@@ -1025,13 +1284,18 @@ int iommu_take_ownership(struct iommu_table *tbl)
 	 * requires exchange() callback defined so if it is not
 	 * implemented, we disallow taking ownership over the table.
 	 */
+<<<<<<< HEAD
 	if (!tbl->it_ops->exchange)
+=======
+	if (!tbl->it_ops->xchg_no_kill)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	spin_lock_irqsave(&tbl->large_pool.lock, flags);
 	for (i = 0; i < tbl->nr_pools; i++)
 		spin_lock_nest_lock(&tbl->pools[i].lock, &tbl->large_pool.lock);
 
+<<<<<<< HEAD
 	if (tbl->it_offset == 0)
 		clear_bit(0, tbl->it_map);
 
@@ -1041,6 +1305,11 @@ int iommu_take_ownership(struct iommu_table *tbl)
 		/* Restore bit#0 set by iommu_init_table() */
 		if (tbl->it_offset == 0)
 			set_bit(0, tbl->it_map);
+=======
+	if (iommu_table_in_use(tbl)) {
+		pr_err("iommu_tce: it_map is not empty");
+		ret = -EBUSY;
+>>>>>>> upstream/android-13
 	} else {
 		memset(tbl->it_map, 0xff, sz);
 	}
@@ -1063,9 +1332,14 @@ void iommu_release_ownership(struct iommu_table *tbl)
 
 	memset(tbl->it_map, 0, sz);
 
+<<<<<<< HEAD
 	/* Restore bit#0 set by iommu_init_table() */
 	if (tbl->it_offset == 0)
 		set_bit(0, tbl->it_map);
+=======
+	iommu_table_reserve_pages(tbl, tbl->it_reserved_start,
+			tbl->it_reserved_end);
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < tbl->nr_pools; i++)
 		spin_unlock(&tbl->pools[i].lock);
@@ -1073,11 +1347,16 @@ void iommu_release_ownership(struct iommu_table *tbl)
 }
 EXPORT_SYMBOL_GPL(iommu_release_ownership);
 
+<<<<<<< HEAD
 int iommu_add_device(struct device *dev)
 {
 	struct iommu_table *tbl;
 	struct iommu_table_group_link *tgl;
 
+=======
+int iommu_add_device(struct iommu_table_group *table_group, struct device *dev)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * The sysfs entries should be populated before
 	 * binding IOMMU group. If sysfs entries isn't
@@ -1086,13 +1365,18 @@ int iommu_add_device(struct device *dev)
 	if (!device_is_registered(dev))
 		return -ENOENT;
 
+<<<<<<< HEAD
 	if (dev->iommu_group) {
+=======
+	if (device_iommu_mapped(dev)) {
+>>>>>>> upstream/android-13
 		pr_debug("%s: Skipping device %s with iommu group %d\n",
 			 __func__, dev_name(dev),
 			 iommu_group_id(dev->iommu_group));
 		return -EBUSY;
 	}
 
+<<<<<<< HEAD
 	tbl = get_iommu_table_base(dev);
 	if (!tbl) {
 		pr_debug("%s: Skipping device %s with no tbl\n",
@@ -1119,6 +1403,12 @@ int iommu_add_device(struct device *dev)
 	}
 
 	return iommu_group_add_device(tgl->table_group->group, dev);
+=======
+	pr_debug("%s: Adding %s to iommu group %d\n",
+		 __func__, dev_name(dev),  iommu_group_id(table_group->group));
+
+	return iommu_group_add_device(table_group->group, dev);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(iommu_add_device);
 
@@ -1129,7 +1419,11 @@ void iommu_del_device(struct device *dev)
 	 * and we needn't detach them from the associated
 	 * IOMMU groups
 	 */
+<<<<<<< HEAD
 	if (!dev->iommu_group) {
+=======
+	if (!device_iommu_mapped(dev)) {
+>>>>>>> upstream/android-13
 		pr_debug("iommu_tce: skipping device %s with no tbl\n",
 			 dev_name(dev));
 		return;
@@ -1138,6 +1432,7 @@ void iommu_del_device(struct device *dev)
 	iommu_group_remove_device(dev);
 }
 EXPORT_SYMBOL_GPL(iommu_del_device);
+<<<<<<< HEAD
 
 static int tce_iommu_bus_notifier(struct notifier_block *nb,
                 unsigned long action, void *data)
@@ -1165,4 +1460,6 @@ int __init tce_iommu_bus_notifier_init(void)
         bus_register_notifier(&pci_bus_type, &tce_iommu_bus_nb);
         return 0;
 }
+=======
+>>>>>>> upstream/android-13
 #endif /* CONFIG_IOMMU_API */

@@ -70,7 +70,11 @@ struct hostif_data_request {
 #define TYPE_DATA 0x0000
 #define TYPE_AUTH 0x0001
 	__le16 reserved;
+<<<<<<< HEAD
 	u8 data[0];
+=======
+	u8 data[];
+>>>>>>> upstream/android-13
 } __packed;
 
 #define TYPE_PMK1 0x0001
@@ -194,7 +198,11 @@ enum mib_data_type {
 struct hostif_mib_value {
 	__le16 size;
 	__le16 type;
+<<<<<<< HEAD
 	u8 body[0];
+=======
+	u8 body[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct hostif_mib_get_confirm_t {
@@ -498,6 +506,7 @@ struct hostif_mic_failure_request {
 #define TX_RATE_FIXED		5
 
 /* 11b rate */
+<<<<<<< HEAD
 #define TX_RATE_1M	(u8)(10 / 5)	/* 11b 11g basic rate */
 #define TX_RATE_2M	(u8)(20 / 5)	/* 11b 11g basic rate */
 #define TX_RATE_5M	(u8)(55 / 5)	/* 11g basic rate */
@@ -512,6 +521,22 @@ struct hostif_mic_failure_request {
 #define TX_RATE_36M	(u8)(360 / 5)
 #define TX_RATE_48M	(u8)(480 / 5)
 #define TX_RATE_54M	(u8)(540 / 5)
+=======
+#define TX_RATE_1M	((u8)(10 / 5))	/* 11b 11g basic rate */
+#define TX_RATE_2M	((u8)(20 / 5))	/* 11b 11g basic rate */
+#define TX_RATE_5M	((u8)(55 / 5))	/* 11g basic rate */
+#define TX_RATE_11M	((u8)(110 / 5))	/* 11g basic rate */
+
+/* 11g rate */
+#define TX_RATE_6M	((u8)(60 / 5))	/* 11g basic rate */
+#define TX_RATE_12M	((u8)(120 / 5))	/* 11g basic rate */
+#define TX_RATE_24M	((u8)(240 / 5))	/* 11g basic rate */
+#define TX_RATE_9M	((u8)(90 / 5))
+#define TX_RATE_18M	((u8)(180 / 5))
+#define TX_RATE_36M	((u8)(360 / 5))
+#define TX_RATE_48M	((u8)(480 / 5))
+#define TX_RATE_54M	((u8)(540 / 5))
+>>>>>>> upstream/android-13
 
 static inline bool is_11b_rate(u8 rate)
 {

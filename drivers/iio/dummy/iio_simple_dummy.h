@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Copyright (c) 2011 Jonathan Cameron
  *
@@ -5,6 +6,12 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/**
+ * Copyright (c) 2011 Jonathan Cameron
+ *
+>>>>>>> upstream/android-13
  * Join together the various functionality of iio_simple_dummy driver
  */
 

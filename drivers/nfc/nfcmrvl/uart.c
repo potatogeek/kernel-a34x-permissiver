@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Marvell NFC-over-UART driver
  *
@@ -14,6 +15,13 @@
  * IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE
  * ARE EXPRESSLY DISCLAIMED.  The License provides additional details about
  * this warranty disclaimer.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Marvell NFC-over-UART driver
+ *
+ * Copyright (C) 2015, Marvell International Ltd.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -29,8 +37,13 @@ static unsigned int break_control;
 static int reset_n_io = -EINVAL;
 
 /*
+<<<<<<< HEAD
 ** NFCMRVL NCI OPS
 */
+=======
+ * NFCMRVL NCI OPS
+ */
+>>>>>>> upstream/android-13
 
 static int nfcmrvl_uart_nci_open(struct nfcmrvl_private *priv)
 {
@@ -60,7 +73,11 @@ static void nfcmrvl_uart_nci_update_config(struct nfcmrvl_private *priv,
 			    config->flow_control);
 }
 
+<<<<<<< HEAD
 static struct nfcmrvl_if_ops uart_ops = {
+=======
+static const struct nfcmrvl_if_ops uart_ops = {
+>>>>>>> upstream/android-13
 	.nci_open = nfcmrvl_uart_nci_open,
 	.nci_close = nfcmrvl_uart_nci_close,
 	.nci_send = nfcmrvl_uart_nci_send,
@@ -103,14 +120,24 @@ static int nfcmrvl_uart_parse_dt(struct device_node *node,
 }
 
 /*
+<<<<<<< HEAD
 ** NCI UART OPS
 */
+=======
+ * NCI UART OPS
+ */
+>>>>>>> upstream/android-13
 
 static int nfcmrvl_nci_uart_open(struct nci_uart *nu)
 {
 	struct nfcmrvl_private *priv;
+<<<<<<< HEAD
 	struct nfcmrvl_platform_data *pdata = NULL;
 	struct nfcmrvl_platform_data config;
+=======
+	struct nfcmrvl_platform_data config;
+	const struct nfcmrvl_platform_data *pdata = NULL;
+>>>>>>> upstream/android-13
 	struct device *dev = nu->tty->dev;
 
 	/*
@@ -178,10 +205,17 @@ static void nfcmrvl_nci_uart_tx_done(struct nci_uart *nu)
 		return;
 
 	/*
+<<<<<<< HEAD
 	** To ensure that if the NFCC goes in DEEP SLEEP sate we can wake him
 	** up. we set BREAK. Once we will be ready to send again we will remove
 	** it.
 	*/
+=======
+	 * To ensure that if the NFCC goes in DEEP SLEEP sate we can wake him
+	 * up. we set BREAK. Once we will be ready to send again we will remove
+	 * it.
+	 */
+>>>>>>> upstream/android-13
 	if (priv->config.break_control && nu->tty->ops->break_ctl) {
 		nu->tty->ops->break_ctl(nu->tty, -1);
 		usleep_range(1000, 3000);
@@ -200,6 +234,7 @@ static struct nci_uart nfcmrvl_nci_uart = {
 		.tx_done	= nfcmrvl_nci_uart_tx_done,
 	}
 };
+<<<<<<< HEAD
 
 /*
 ** Module init
@@ -217,6 +252,9 @@ static void nfcmrvl_uart_exit_module(void)
 
 module_init(nfcmrvl_uart_init_module);
 module_exit(nfcmrvl_uart_exit_module);
+=======
+module_driver(nfcmrvl_nci_uart, nci_uart_register, nci_uart_unregister);
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Marvell International Ltd.");
 MODULE_DESCRIPTION("Marvell NFC-over-UART");

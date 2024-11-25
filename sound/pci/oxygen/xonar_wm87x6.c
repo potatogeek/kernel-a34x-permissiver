@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * card driver for models with WM8776/WM8766 DACs (Xonar DS/HDAV1.3 Slim)
  *
  * Copyright (c) Clemens Ladisch <clemens@ladisch.de>
+<<<<<<< HEAD
  *
  *
  *  This driver is free software; you can redistribute it and/or modify
@@ -14,6 +19,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this driver; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -127,7 +134,12 @@ static void wm8776_write(struct oxygen *chip,
 	else
 		wm8776_write_i2c(chip, reg, value);
 	if (reg < ARRAY_SIZE(data->wm8776_regs)) {
+<<<<<<< HEAD
 		if (reg >= WM8776_HPLVOL && reg <= WM8776_DACMASTER)
+=======
+		/* reg >= WM8776_HPLVOL is always true */
+		if (reg <= WM8776_DACMASTER)
+>>>>>>> upstream/android-13
 			value &= ~WM8776_UPDATE;
 		data->wm8776_regs[reg] = value;
 	}
@@ -155,7 +167,12 @@ static void wm8766_write(struct oxygen *chip,
 			 OXYGEN_SPI_CEN_LATCH_CLOCK_LO,
 			 (reg << 9) | value);
 	if (reg < ARRAY_SIZE(data->wm8766_regs)) {
+<<<<<<< HEAD
 		if ((reg >= WM8766_LDA1 && reg <= WM8766_RDA1) ||
+=======
+		/* reg >= WM8766_LDA1 is always true */
+		if (reg <= WM8766_RDA1 ||
+>>>>>>> upstream/android-13
 		    (reg >= WM8766_LDA2 && reg <= WM8766_MASTDA))
 			value &= ~WM8766_UPDATE;
 		data->wm8766_regs[reg] = value;

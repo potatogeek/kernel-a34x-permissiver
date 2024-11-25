@@ -3,8 +3,11 @@
  * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
  * All rights reserved.
  *
+<<<<<<< HEAD
  * File: rxtx.c
  *
+=======
+>>>>>>> upstream/android-13
  * Purpose: handle WMAC/802.3/802.11 rx & tx functions
  *
  * Author: Lyndon Chen
@@ -21,7 +24,11 @@
  *      s_uGetDataDuration - get tx data required duration
  *      s_uFillDataHead- fulfill tx data duration header
  *      s_uGetRTSCTSDuration- get rtx/cts required duration
+<<<<<<< HEAD
  *      s_uGetRTSCTSRsvTime- get rts/cts reserved time
+=======
+ *      get_rtscts_time- get rts/cts reserved time
+>>>>>>> upstream/android-13
  *      s_uGetTxRsvTime- get frame reserved time
  *      s_vFillCTSHead- fulfill CTS ctl header
  *      s_vFillFragParameter- Set fragment ctl parameter.
@@ -65,6 +72,10 @@ static const unsigned short wFB_Opt0[2][5] = {
 	{RATE_12M, RATE_18M, RATE_24M, RATE_36M, RATE_48M}, /* fallback_rate0 */
 	{RATE_12M, RATE_12M, RATE_18M, RATE_24M, RATE_36M}, /* fallback_rate1 */
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 static const unsigned short wFB_Opt1[2][5] = {
 	{RATE_12M, RATE_18M, RATE_24M, RATE_24M, RATE_36M}, /* fallback_rate0 */
 	{RATE_6M,  RATE_6M,  RATE_12M, RATE_12M, RATE_18M}, /* fallback_rate1 */
@@ -164,6 +175,7 @@ s_uGetTxRsvTime(
 {
 	unsigned int uDataTime, uAckTime;
 
+<<<<<<< HEAD
 	uDataTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, cbFrameLength, wRate);
 	if (byPktType == PK_TYPE_11B) /* llb,CCK mode */
 		uAckTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, 14, (unsigned short)pDevice->byTopCCKBasicRate);
@@ -174,6 +186,23 @@ s_uGetTxRsvTime(
 		return uDataTime + pDevice->uSIFS + uAckTime;
 	else
 		return uDataTime;
+=======
+	uDataTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, cbFrameLength, wRate);
+
+	if (!bNeedAck)
+		return uDataTime;
+
+	/*
+	 * CCK mode  - 11b
+	 * OFDM mode - 11g 2.4G & 11a 5G
+	 */
+	uAckTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14,
+				     byPktType == PK_TYPE_11B ?
+				     pDevice->byTopCCKBasicRate :
+				     pDevice->byTopOFDMBasicRate);
+
+	return uDataTime + pDevice->uSIFS + uAckTime;
+>>>>>>> upstream/android-13
 }
 
 static __le16 vnt_rxtx_rsvtime_le16(struct vnt_private *priv, u8 pkt_type,
@@ -184,6 +213,7 @@ static __le16 vnt_rxtx_rsvtime_le16(struct vnt_private *priv, u8 pkt_type,
 }
 
 /* byFreqType: 0=>5GHZ 1=>2.4GHZ */
+<<<<<<< HEAD
 static
 __le16
 s_uGetRTSCTSRsvTime(
@@ -219,6 +249,43 @@ s_uGetRTSCTSRsvTime(
 	/* RTSRrvTime */
 	uRrvTime = uRTSTime + uCTSTime + uAckTime + uDataTime + 3*pDevice->uSIFS;
 	return cpu_to_le16((u16)uRrvTime);
+=======
+static __le16 get_rtscts_time(struct vnt_private *priv,
+			      unsigned char rts_rsvtype,
+			      unsigned char pkt_type,
+			      unsigned int frame_length,
+			      unsigned short current_rate)
+{
+	unsigned int rrv_time = 0;
+	unsigned int rts_time = 0;
+	unsigned int cts_time = 0;
+	unsigned int ack_time = 0;
+	unsigned int data_time = 0;
+
+	data_time = bb_get_frame_time(priv->byPreambleType, pkt_type, frame_length, current_rate);
+	if (rts_rsvtype == 0) { /* RTSTxRrvTime_bb */
+		rts_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 20, priv->byTopCCKBasicRate);
+		ack_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 14, priv->byTopCCKBasicRate);
+		cts_time = ack_time;
+	} else if (rts_rsvtype == 1) { /* RTSTxRrvTime_ba, only in 2.4GHZ */
+		rts_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 20, priv->byTopCCKBasicRate);
+		cts_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 14, priv->byTopCCKBasicRate);
+		ack_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 14, priv->byTopOFDMBasicRate);
+	} else if (rts_rsvtype == 2) { /* RTSTxRrvTime_aa */
+		rts_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 20, priv->byTopOFDMBasicRate);
+		ack_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 14, priv->byTopOFDMBasicRate);
+		cts_time = ack_time;
+	} else if (rts_rsvtype == 3) { /* CTSTxRrvTime_ba, only in 2.4GHZ */
+		cts_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 14, priv->byTopCCKBasicRate);
+		ack_time = bb_get_frame_time(priv->byPreambleType, pkt_type, 14, priv->byTopOFDMBasicRate);
+		rrv_time = cts_time + ack_time + data_time + 2 * priv->uSIFS;
+		return cpu_to_le16((u16)rrv_time);
+	}
+
+	/* RTSRrvTime */
+	rrv_time = rts_time + cts_time + ack_time + data_time + 3 * priv->uSIFS;
+	return cpu_to_le16((u16)rrv_time);
+>>>>>>> upstream/android-13
 }
 
 /* byFreqType 0: 5GHz, 1:2.4Ghz */
@@ -238,6 +305,7 @@ s_uGetDataDuration(
 )
 {
 	bool bLastFrag = false;
+<<<<<<< HEAD
 	unsigned int uAckTime = 0, uNextPktTime = 0;
 
 	if (uFragIdx == (uMACfragNum-1))
@@ -370,6 +438,85 @@ s_uGetDataDuration(
 			}
 		}
 		break;
+=======
+	unsigned int uAckTime = 0, uNextPktTime = 0, len;
+
+	if (uFragIdx == (uMACfragNum - 1))
+		bLastFrag = true;
+
+	if (uFragIdx == (uMACfragNum - 2))
+		len = cbLastFragmentSize;
+	else
+		len = cbFrameLength;
+
+	switch (byDurType) {
+	case DATADUR_B:    /* DATADUR_B */
+		if (bNeedAck) {
+			uAckTime = bb_get_frame_time(pDevice->byPreambleType,
+						     byPktType, 14,
+						     pDevice->byTopCCKBasicRate);
+		}
+		/* Non Frag or Last Frag */
+		if ((uMACfragNum == 1) || bLastFrag) {
+			if (!bNeedAck)
+				return 0;
+		} else {
+			/* First Frag or Mid Frag */
+			uNextPktTime = s_uGetTxRsvTime(pDevice, byPktType,
+						       len, wRate, bNeedAck);
+		}
+
+		return pDevice->uSIFS + uAckTime + uNextPktTime;
+
+	case DATADUR_A:    /* DATADUR_A */
+		if (bNeedAck) {
+			uAckTime = bb_get_frame_time(pDevice->byPreambleType,
+						     byPktType, 14,
+						     pDevice->byTopOFDMBasicRate);
+		}
+		/* Non Frag or Last Frag */
+		if ((uMACfragNum == 1) || bLastFrag) {
+			if (!bNeedAck)
+				return 0;
+		} else {
+			/* First Frag or Mid Frag */
+			uNextPktTime = s_uGetTxRsvTime(pDevice, byPktType,
+						       len, wRate, bNeedAck);
+		}
+
+		return pDevice->uSIFS + uAckTime + uNextPktTime;
+
+	case DATADUR_A_F0:    /* DATADUR_A_F0 */
+	case DATADUR_A_F1:    /* DATADUR_A_F1 */
+		if (bNeedAck) {
+			uAckTime = bb_get_frame_time(pDevice->byPreambleType,
+						     byPktType, 14,
+						     pDevice->byTopOFDMBasicRate);
+		}
+		/* Non Frag or Last Frag */
+		if ((uMACfragNum == 1) || bLastFrag) {
+			if (!bNeedAck)
+				return 0;
+		} else {
+			/* First Frag or Mid Frag */
+			if (wRate < RATE_18M)
+				wRate = RATE_18M;
+			else if (wRate > RATE_54M)
+				wRate = RATE_54M;
+
+			wRate -= RATE_18M;
+
+			if (byFBOption == AUTO_FB_0)
+				wRate = wFB_Opt0[FB_RATE0][wRate];
+			else
+				wRate = wFB_Opt1[FB_RATE0][wRate];
+
+			uNextPktTime = s_uGetTxRsvTime(pDevice, byPktType,
+						       len, wRate, bNeedAck);
+		}
+
+		return pDevice->uSIFS + uAckTime + uNextPktTime;
+>>>>>>> upstream/android-13
 
 	default:
 		break;
@@ -395,6 +542,7 @@ s_uGetRTSCTSDuration(
 
 	switch (byDurType) {
 	case RTSDUR_BB:    /* RTSDuration_bb */
+<<<<<<< HEAD
 		uCTSTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, 14, pDevice->byTopCCKBasicRate);
 		uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wRate, bNeedAck);
 		break;
@@ -407,6 +555,20 @@ s_uGetRTSCTSDuration(
 	case RTSDUR_AA:    /* RTSDuration_aa */
 		uCTSTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, 14, pDevice->byTopOFDMBasicRate);
 		uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wRate, bNeedAck);
+=======
+		uCTSTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14, pDevice->byTopCCKBasicRate);
+		uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wRate, bNeedAck);
+		break;
+
+	case RTSDUR_BA:    /* RTSDuration_ba */
+		uCTSTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14, pDevice->byTopCCKBasicRate);
+		uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wRate, bNeedAck);
+		break;
+
+	case RTSDUR_AA:    /* RTSDuration_aa */
+		uCTSTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14, pDevice->byTopOFDMBasicRate);
+		uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wRate, bNeedAck);
+>>>>>>> upstream/android-13
 		break;
 
 	case CTSDUR_BA:    /* CTSDuration_ba */
@@ -414,54 +576,98 @@ s_uGetRTSCTSDuration(
 		break;
 
 	case RTSDUR_BA_F0: /* RTSDuration_ba_f0 */
+<<<<<<< HEAD
 		uCTSTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, 14, pDevice->byTopCCKBasicRate);
 		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE0][wRate-RATE_18M], bNeedAck);
 		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE0][wRate-RATE_18M], bNeedAck);
+=======
+		uCTSTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14, pDevice->byTopCCKBasicRate);
+		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE0][wRate - RATE_18M], bNeedAck);
+		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE0][wRate - RATE_18M], bNeedAck);
+>>>>>>> upstream/android-13
 
 		break;
 
 	case RTSDUR_AA_F0: /* RTSDuration_aa_f0 */
+<<<<<<< HEAD
 		uCTSTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, 14, pDevice->byTopOFDMBasicRate);
 		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE0][wRate-RATE_18M], bNeedAck);
 		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE0][wRate-RATE_18M], bNeedAck);
+=======
+		uCTSTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14, pDevice->byTopOFDMBasicRate);
+		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE0][wRate - RATE_18M], bNeedAck);
+		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE0][wRate - RATE_18M], bNeedAck);
+>>>>>>> upstream/android-13
 
 		break;
 
 	case RTSDUR_BA_F1: /* RTSDuration_ba_f1 */
+<<<<<<< HEAD
 		uCTSTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, 14, pDevice->byTopCCKBasicRate);
 		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE1][wRate-RATE_18M], bNeedAck);
 		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE1][wRate-RATE_18M], bNeedAck);
+=======
+		uCTSTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14, pDevice->byTopCCKBasicRate);
+		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE1][wRate - RATE_18M], bNeedAck);
+		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE1][wRate - RATE_18M], bNeedAck);
+>>>>>>> upstream/android-13
 
 		break;
 
 	case RTSDUR_AA_F1: /* RTSDuration_aa_f1 */
+<<<<<<< HEAD
 		uCTSTime = BBuGetFrameTime(pDevice->byPreambleType, byPktType, 14, pDevice->byTopOFDMBasicRate);
 		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE1][wRate-RATE_18M], bNeedAck);
 		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = uCTSTime + 2*pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE1][wRate-RATE_18M], bNeedAck);
+=======
+		uCTSTime = bb_get_frame_time(pDevice->byPreambleType, byPktType, 14, pDevice->byTopOFDMBasicRate);
+		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE1][wRate - RATE_18M], bNeedAck);
+		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = uCTSTime + 2 * pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE1][wRate - RATE_18M], bNeedAck);
+>>>>>>> upstream/android-13
 
 		break;
 
 	case CTSDUR_BA_F0: /* CTSDuration_ba_f0 */
 		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+<<<<<<< HEAD
 			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE0][wRate-RATE_18M], bNeedAck);
 		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE0][wRate-RATE_18M], bNeedAck);
+=======
+			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE0][wRate - RATE_18M], bNeedAck);
+		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE0][wRate - RATE_18M], bNeedAck);
+>>>>>>> upstream/android-13
 
 		break;
 
 	case CTSDUR_BA_F1: /* CTSDuration_ba_f1 */
 		if ((byFBOption == AUTO_FB_0) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+<<<<<<< HEAD
 			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE1][wRate-RATE_18M], bNeedAck);
 		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
 			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE1][wRate-RATE_18M], bNeedAck);
+=======
+			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt0[FB_RATE1][wRate - RATE_18M], bNeedAck);
+		else if ((byFBOption == AUTO_FB_1) && (wRate >= RATE_18M) && (wRate <= RATE_54M))
+			uDurTime = pDevice->uSIFS + s_uGetTxRsvTime(pDevice, byPktType, cbFrameLength, wFB_Opt1[FB_RATE1][wRate - RATE_18M], bNeedAck);
+>>>>>>> upstream/android-13
 
 		break;
 
@@ -489,10 +695,21 @@ s_uFillDataHead(
 	bool is_pspoll
 )
 {
+<<<<<<< HEAD
+=======
+	struct vnt_tx_datahead_ab *buf = pTxDataHead;
+
+>>>>>>> upstream/android-13
 	if (!pTxDataHead)
 		return 0;
 
 	if (byPktType == PK_TYPE_11GB || byPktType == PK_TYPE_11GA) {
+<<<<<<< HEAD
+=======
+		/* Auto Fallback */
+		struct vnt_tx_datahead_g_fb *buf = pTxDataHead;
+
+>>>>>>> upstream/android-13
 		if (byFBOption == AUTO_FB_NONE) {
 			struct vnt_tx_datahead_g *buf = pTxDataHead;
 			/* Get SignalField, ServiceField & Length */
@@ -526,6 +743,7 @@ s_uFillDataHead(
 			buf->time_stamp_off_b = vnt_time_stamp_off(pDevice, pDevice->byTopCCKBasicRate);
 
 			return buf->duration_a;
+<<<<<<< HEAD
 		} else {
 			/* Auto Fallback */
 			struct vnt_tx_datahead_g_fb *buf = pTxDataHead;
@@ -552,6 +770,35 @@ s_uFillDataHead(
 			return buf->duration_a;
 		} /* if (byFBOption == AUTO_FB_NONE) */
 	} else if (byPktType == PK_TYPE_11A) {
+=======
+		}
+
+		/* Get SignalField, ServiceField & Length */
+		vnt_get_phy_field(pDevice, cbFrameLength, wCurrentRate,
+				  byPktType, &buf->a);
+
+		vnt_get_phy_field(pDevice, cbFrameLength,
+				  pDevice->byTopCCKBasicRate,
+				  PK_TYPE_11B, &buf->b);
+		/* Get Duration and TimeStamp */
+		buf->duration_a = cpu_to_le16((u16)s_uGetDataDuration(pDevice, DATADUR_A, cbFrameLength, byPktType,
+								      wCurrentRate, bNeedAck, uFragIdx, cbLastFragmentSize, uMACfragNum, byFBOption));
+		buf->duration_b = cpu_to_le16((u16)s_uGetDataDuration(pDevice, DATADUR_B, cbFrameLength, PK_TYPE_11B,
+								       pDevice->byTopCCKBasicRate, bNeedAck, uFragIdx, cbLastFragmentSize, uMACfragNum, byFBOption));
+		buf->duration_a_f0 = cpu_to_le16((u16)s_uGetDataDuration(pDevice, DATADUR_A_F0, cbFrameLength, byPktType,
+									  wCurrentRate, bNeedAck, uFragIdx, cbLastFragmentSize, uMACfragNum, byFBOption));
+		buf->duration_a_f1 = cpu_to_le16((u16)s_uGetDataDuration(pDevice, DATADUR_A_F1, cbFrameLength, byPktType,
+									 wCurrentRate, bNeedAck, uFragIdx, cbLastFragmentSize, uMACfragNum, byFBOption));
+
+		buf->time_stamp_off_a = vnt_time_stamp_off(pDevice, wCurrentRate);
+		buf->time_stamp_off_b = vnt_time_stamp_off(pDevice, pDevice->byTopCCKBasicRate);
+
+		return buf->duration_a;
+		  /* if (byFBOption == AUTO_FB_NONE) */
+	} else if (byPktType == PK_TYPE_11A) {
+		struct vnt_tx_datahead_ab *buf = pTxDataHead;
+
+>>>>>>> upstream/android-13
 		if (byFBOption != AUTO_FB_NONE) {
 			/* Auto Fallback */
 			struct vnt_tx_datahead_a_fb *buf = pTxDataHead;
@@ -568,6 +815,7 @@ s_uFillDataHead(
 										wCurrentRate, bNeedAck, uFragIdx, cbLastFragmentSize, uMACfragNum, byFBOption));
 			buf->time_stamp_off = vnt_time_stamp_off(pDevice, wCurrentRate);
 			return buf->duration;
+<<<<<<< HEAD
 		} else {
 			struct vnt_tx_datahead_ab *buf = pTxDataHead;
 			/* Get SignalField, ServiceField & Length */
@@ -592,6 +840,10 @@ s_uFillDataHead(
 		}
 	} else {
 		struct vnt_tx_datahead_ab *buf = pTxDataHead;
+=======
+		}
+
+>>>>>>> upstream/android-13
 		/* Get SignalField, ServiceField & Length */
 		vnt_get_phy_field(pDevice, cbFrameLength, wCurrentRate,
 				  byPktType, &buf->ab);
@@ -603,7 +855,11 @@ s_uFillDataHead(
 		} else {
 			/* Get Duration and TimeStampOff */
 			buf->duration =
+<<<<<<< HEAD
 				cpu_to_le16((u16)s_uGetDataDuration(pDevice, DATADUR_B, cbFrameLength, byPktType,
+=======
+				cpu_to_le16((u16)s_uGetDataDuration(pDevice, DATADUR_A, cbFrameLength, byPktType,
+>>>>>>> upstream/android-13
 								    wCurrentRate, bNeedAck, uFragIdx,
 								    cbLastFragmentSize, uMACfragNum,
 								    byFBOption));
@@ -612,7 +868,30 @@ s_uFillDataHead(
 		buf->time_stamp_off = vnt_time_stamp_off(pDevice, wCurrentRate);
 		return buf->duration;
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+
+	/* Get SignalField, ServiceField & Length */
+	vnt_get_phy_field(pDevice, cbFrameLength, wCurrentRate,
+			  byPktType, &buf->ab);
+
+	if (is_pspoll) {
+		__le16 dur = cpu_to_le16(pDevice->current_aid | BIT(14) | BIT(15));
+
+		buf->duration = dur;
+	} else {
+		/* Get Duration and TimeStampOff */
+		buf->duration =
+			cpu_to_le16((u16)s_uGetDataDuration(pDevice, DATADUR_B, cbFrameLength, byPktType,
+							    wCurrentRate, bNeedAck, uFragIdx,
+							    cbLastFragmentSize, uMACfragNum,
+							    byFBOption));
+	}
+
+	buf->time_stamp_off = vnt_time_stamp_off(pDevice, wCurrentRate);
+	return buf->duration;
+>>>>>>> upstream/android-13
 }
 
 static
@@ -966,9 +1245,15 @@ s_vGenerateTxParameter(
 			/* Fill RsvTime */
 			struct vnt_rrv_time_rts *buf = pvRrvTime;
 
+<<<<<<< HEAD
 			buf->rts_rrv_time_aa = s_uGetRTSCTSRsvTime(pDevice, 2, byPktType, cbFrameSize, wCurrentRate);
 			buf->rts_rrv_time_ba = s_uGetRTSCTSRsvTime(pDevice, 1, byPktType, cbFrameSize, wCurrentRate);
 			buf->rts_rrv_time_bb = s_uGetRTSCTSRsvTime(pDevice, 0, byPktType, cbFrameSize, wCurrentRate);
+=======
+			buf->rts_rrv_time_aa = get_rtscts_time(pDevice, 2, byPktType, cbFrameSize, wCurrentRate);
+			buf->rts_rrv_time_ba = get_rtscts_time(pDevice, 1, byPktType, cbFrameSize, wCurrentRate);
+			buf->rts_rrv_time_bb = get_rtscts_time(pDevice, 0, byPktType, cbFrameSize, wCurrentRate);
+>>>>>>> upstream/android-13
 			buf->rrv_time_a = vnt_rxtx_rsvtime_le16(pDevice, byPktType, cbFrameSize, wCurrentRate, bNeedACK);
 			buf->rrv_time_b = vnt_rxtx_rsvtime_le16(pDevice, PK_TYPE_11B, cbFrameSize, pDevice->byTopCCKBasicRate, bNeedACK);
 
@@ -978,7 +1263,11 @@ s_vGenerateTxParameter(
 
 			buf->rrv_time_a = vnt_rxtx_rsvtime_le16(pDevice, byPktType, cbFrameSize, wCurrentRate, bNeedACK);
 			buf->rrv_time_b = vnt_rxtx_rsvtime_le16(pDevice, PK_TYPE_11B, cbFrameSize, pDevice->byTopCCKBasicRate, bNeedACK);
+<<<<<<< HEAD
 			buf->cts_rrv_time_ba = s_uGetRTSCTSRsvTime(pDevice, 3, byPktType, cbFrameSize, wCurrentRate);
+=======
+			buf->cts_rrv_time_ba = get_rtscts_time(pDevice, 3, byPktType, cbFrameSize, wCurrentRate);
+>>>>>>> upstream/android-13
 
 			/* Fill CTS */
 			s_vFillCTSHead(pDevice, uDMAIdx, byPktType, pvCTS, cbFrameSize, bNeedACK, bDisCRC, wCurrentRate, byFBOption);
@@ -987,7 +1276,11 @@ s_vGenerateTxParameter(
 		if (pvRTS) {/* RTS_need, non PCF mode */
 			struct vnt_rrv_time_ab *buf = pvRrvTime;
 
+<<<<<<< HEAD
 			buf->rts_rrv_time = s_uGetRTSCTSRsvTime(pDevice, 2, byPktType, cbFrameSize, wCurrentRate);
+=======
+			buf->rts_rrv_time = get_rtscts_time(pDevice, 2, byPktType, cbFrameSize, wCurrentRate);
+>>>>>>> upstream/android-13
 			buf->rrv_time = vnt_rxtx_rsvtime_le16(pDevice, byPktType, cbFrameSize, wCurrentRate, bNeedACK);
 
 			/* Fill RTS */
@@ -1001,7 +1294,11 @@ s_vGenerateTxParameter(
 		if (pvRTS) {/* RTS_need, non PCF mode */
 			struct vnt_rrv_time_ab *buf = pvRrvTime;
 
+<<<<<<< HEAD
 			buf->rts_rrv_time = s_uGetRTSCTSRsvTime(pDevice, 0, byPktType, cbFrameSize, wCurrentRate);
+=======
+			buf->rts_rrv_time = get_rtscts_time(pDevice, 0, byPktType, cbFrameSize, wCurrentRate);
+>>>>>>> upstream/android-13
 			buf->rrv_time = vnt_rxtx_rsvtime_le16(pDevice, PK_TYPE_11B, cbFrameSize, wCurrentRate, bNeedACK);
 
 			/* Fill RTS */
@@ -1039,6 +1336,7 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 	bool bRTS = (bool)(fifo_ctl & FIFOCTL_RTS);
 	struct vnt_tx_desc *ptdCurr;
 	unsigned int cbHeaderLength = 0;
+<<<<<<< HEAD
 	void *pvRrvTime;
 	struct vnt_mic_hdr *pMICHDR;
 	void *pvRTS;
@@ -1049,12 +1347,26 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 
 	pvRrvTime = pMICHDR = pvRTS = pvCTS = pvTxDataHd = NULL;
 
+=======
+	void *pvRrvTime = NULL;
+	struct vnt_mic_hdr *pMICHDR = NULL;
+	void *pvRTS = NULL;
+	void *pvCTS = NULL;
+	void *pvTxDataHd = NULL;
+	unsigned short wTxBufSize;   /* FFinfo size */
+	unsigned char byFBOption = AUTO_FB_NONE;
+
+>>>>>>> upstream/android-13
 	cbFrameSize = skb->len + 4;
 
 	if (info->control.hw_key) {
 		switch (info->control.hw_key->cipher) {
 		case WLAN_CIPHER_SUITE_CCMP:
 			cbMICHDR = sizeof(struct vnt_mic_hdr);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
@@ -1093,7 +1405,11 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 							sizeof(struct vnt_tx_datahead_g);
 			} else { /* RTS_needless */
 				pvRrvTime = (void *)(pbyTxBufferAddr + wTxBufSize);
+<<<<<<< HEAD
 				pMICHDR = (struct vnt_mic_hdr *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_cts));
+=======
+				pMICHDR = (struct vnt_mic_hdr *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_cts));
+>>>>>>> upstream/android-13
 				pvRTS = NULL;
 				pvCTS = (void *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_cts) + cbMICHDR);
 				pvTxDataHd = (void *)(pbyTxBufferAddr + wTxBufSize +
@@ -1105,7 +1421,11 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 			/* Auto Fall Back */
 			if (bRTS) {/* RTS_need */
 				pvRrvTime = (void *)(pbyTxBufferAddr + wTxBufSize);
+<<<<<<< HEAD
 				pMICHDR = (struct vnt_mic_hdr *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_rts));
+=======
+				pMICHDR = (struct vnt_mic_hdr *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_rts));
+>>>>>>> upstream/android-13
 				pvRTS = (void *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_rts) + cbMICHDR);
 				pvCTS = NULL;
 				pvTxDataHd = (void *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_rts) +
@@ -1114,7 +1434,11 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 					cbMICHDR + sizeof(struct vnt_rts_g_fb) + sizeof(struct vnt_tx_datahead_g_fb);
 			} else { /* RTS_needless */
 				pvRrvTime = (void *)(pbyTxBufferAddr + wTxBufSize);
+<<<<<<< HEAD
 				pMICHDR = (struct vnt_mic_hdr *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_cts));
+=======
+				pMICHDR = (struct vnt_mic_hdr *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_cts));
+>>>>>>> upstream/android-13
 				pvRTS = NULL;
 				pvCTS = (void *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_cts) + cbMICHDR);
 				pvTxDataHd = (void  *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_cts) +
@@ -1128,7 +1452,11 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 		if (byFBOption == AUTO_FB_NONE) {
 			if (bRTS) {
 				pvRrvTime = (void *)(pbyTxBufferAddr + wTxBufSize);
+<<<<<<< HEAD
 				pMICHDR = (struct vnt_mic_hdr *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab));
+=======
+				pMICHDR = (struct vnt_mic_hdr *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab));
+>>>>>>> upstream/android-13
 				pvRTS = (void *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab) + cbMICHDR);
 				pvCTS = NULL;
 				pvTxDataHd = (void *)(pbyTxBufferAddr + wTxBufSize +
@@ -1137,7 +1465,11 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 					cbMICHDR + sizeof(struct vnt_rts_ab) + sizeof(struct vnt_tx_datahead_ab);
 			} else { /* RTS_needless, need MICHDR */
 				pvRrvTime = (void *)(pbyTxBufferAddr + wTxBufSize);
+<<<<<<< HEAD
 				pMICHDR = (struct vnt_mic_hdr *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab));
+=======
+				pMICHDR = (struct vnt_mic_hdr *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab));
+>>>>>>> upstream/android-13
 				pvRTS = NULL;
 				pvCTS = NULL;
 				pvTxDataHd = (void *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab) + cbMICHDR);
@@ -1148,7 +1480,11 @@ s_cbFillTxBufHead(struct vnt_private *pDevice, unsigned char byPktType,
 			/* Auto Fall Back */
 			if (bRTS) { /* RTS_need */
 				pvRrvTime = (void *)(pbyTxBufferAddr + wTxBufSize);
+<<<<<<< HEAD
 				pMICHDR = (struct vnt_mic_hdr *) (pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab));
+=======
+				pMICHDR = (struct vnt_mic_hdr *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab));
+>>>>>>> upstream/android-13
 				pvRTS = (void *)(pbyTxBufferAddr + wTxBufSize + sizeof(struct vnt_rrv_time_ab) + cbMICHDR);
 				pvCTS = NULL;
 				pvTxDataHd = (void *)(pbyTxBufferAddr + wTxBufSize +
@@ -1288,7 +1624,11 @@ int vnt_generate_fifo_header(struct vnt_private *priv, u32 dma_idx,
 
 	current_rate = rate->hw_value;
 	if (priv->wCurrentRate != current_rate &&
+<<<<<<< HEAD
 			!(priv->hw->conf.flags & IEEE80211_CONF_OFFCHANNEL)) {
+=======
+	    !(priv->hw->conf.flags & IEEE80211_CONF_OFFCHANNEL)) {
+>>>>>>> upstream/android-13
 		priv->wCurrentRate = current_rate;
 
 		RFbSetPower(priv, priv->wCurrentRate,
@@ -1369,6 +1709,10 @@ int vnt_generate_fifo_header(struct vnt_private *priv, u32 dma_idx,
 			break;
 		case WLAN_CIPHER_SUITE_CCMP:
 			tx_buffer_head->frag_ctl |= cpu_to_le16(FRAGCTL_AES);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 		default:
 			break;
 		}
@@ -1395,7 +1739,12 @@ int vnt_generate_fifo_header(struct vnt_private *priv, u32 dma_idx,
 		tx_key = info->control.hw_key;
 		if (tx_key->keylen > 0)
 			vnt_fill_txkey(hdr, tx_buffer_head->tx_key,
+<<<<<<< HEAD
 				tx_key, skb, tx_body_size, td_info->mic_hdr);
+=======
+				       tx_key, skb, tx_body_size,
+				       td_info->mic_hdr);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;

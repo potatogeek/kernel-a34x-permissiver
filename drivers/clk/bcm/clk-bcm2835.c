@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2010,2015 Broadcom
  * Copyright (C) 2012 Stephen Warren
@@ -12,6 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2010,2015 Broadcom
+ * Copyright (C) 2012 Stephen Warren
+>>>>>>> upstream/android-13
  */
 
 /**
@@ -39,8 +46,14 @@
 #include <linux/clk.h>
 #include <linux/debugfs.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/of.h>
+=======
+#include <linux/io.h>
+#include <linux/module.h>
+#include <linux/of_device.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <dt-bindings/clock/bcm2835.h>
@@ -123,6 +136,11 @@
 #define CM_AVEODIV		0x1bc
 #define CM_EMMCCTL		0x1c0
 #define CM_EMMCDIV		0x1c4
+<<<<<<< HEAD
+=======
+#define CM_EMMC2CTL		0x1d0
+#define CM_EMMC2DIV		0x1d4
+>>>>>>> upstream/android-13
 
 /* General bits for the CM_*CTL regs */
 # define CM_ENABLE			BIT(4)
@@ -298,6 +316,13 @@
 #define LOCK_TIMEOUT_NS		100000000
 #define BCM2835_MAX_FB_RATE	1750000000u
 
+<<<<<<< HEAD
+=======
+#define SOC_BCM2835		BIT(0)
+#define SOC_BCM2711		BIT(1)
+#define SOC_ALL			(SOC_BCM2835 | SOC_BCM2711)
+
+>>>>>>> upstream/android-13
 /*
  * Names of clocks used within the driver that need to be replaced
  * with an external parent's name.  This array is in the order that
@@ -317,6 +342,10 @@ struct bcm2835_cprman {
 	struct device *dev;
 	void __iomem *regs;
 	spinlock_t regs_lock; /* spinlock for all clocks */
+<<<<<<< HEAD
+=======
+	unsigned int soc;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Real names of cprman clock parents looked up through
@@ -329,6 +358,13 @@ struct bcm2835_cprman {
 	struct clk_hw_onecell_data onecell;
 };
 
+<<<<<<< HEAD
+=======
+struct cprman_plat_data {
+	unsigned int soc;
+};
+
+>>>>>>> upstream/android-13
 static inline void cprman_write(struct bcm2835_cprman *cprman, u32 reg, u32 val)
 {
 	writel(CM_PASSWORD | val, cprman->regs + reg);
@@ -395,8 +431,13 @@ out:
 }
 
 static void bcm2835_debugfs_regset(struct bcm2835_cprman *cprman, u32 base,
+<<<<<<< HEAD
 				  struct debugfs_reg32 *regs, size_t nregs,
 				  struct dentry *dentry)
+=======
+				   const struct debugfs_reg32 *regs,
+				   size_t nregs, struct dentry *dentry)
+>>>>>>> upstream/android-13
 {
 	struct debugfs_regset32 *regset;
 
@@ -420,6 +461,10 @@ struct bcm2835_pll_data {
 	u32 reference_enable_mask;
 	/* Bit in CM_LOCK to indicate when the PLL has locked. */
 	u32 lock_mask;
+<<<<<<< HEAD
+=======
+	u32 flags;
+>>>>>>> upstream/android-13
 
 	const struct bcm2835_pll_ana_bits *ana;
 
@@ -524,6 +569,23 @@ static int bcm2835_pll_is_on(struct clk_hw *hw)
 		A2W_PLL_CTRL_PRST_DISABLE;
 }
 
+<<<<<<< HEAD
+=======
+static u32 bcm2835_pll_get_prediv_mask(struct bcm2835_cprman *cprman,
+				       const struct bcm2835_pll_data *data)
+{
+	/*
+	 * On BCM2711 there isn't a pre-divisor available in the PLL feedback
+	 * loop. Bits 13:14 of ANA1 (PLLA,PLLB,PLLC,PLLD) have been re-purposed
+	 * for to for VCO RANGE bits.
+	 */
+	if (cprman->soc & SOC_BCM2711)
+		return 0;
+
+	return data->ana->fb_prediv_mask;
+}
+
+>>>>>>> upstream/android-13
 static void bcm2835_pll_choose_ndiv_and_fdiv(unsigned long rate,
 					     unsigned long parent_rate,
 					     u32 *ndiv, u32 *fdiv)
@@ -581,7 +643,11 @@ static unsigned long bcm2835_pll_get_rate(struct clk_hw *hw,
 	ndiv = (a2wctrl & A2W_PLL_CTRL_NDIV_MASK) >> A2W_PLL_CTRL_NDIV_SHIFT;
 	pdiv = (a2wctrl & A2W_PLL_CTRL_PDIV_MASK) >> A2W_PLL_CTRL_PDIV_SHIFT;
 	using_prediv = cprman_read(cprman, data->ana_reg_base + 4) &
+<<<<<<< HEAD
 		data->ana->fb_prediv_mask;
+=======
+		       bcm2835_pll_get_prediv_mask(cprman, data);
+>>>>>>> upstream/android-13
 
 	if (using_prediv) {
 		ndiv *= 2;
@@ -664,6 +730,10 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
 	struct bcm2835_pll *pll = container_of(hw, struct bcm2835_pll, hw);
 	struct bcm2835_cprman *cprman = pll->cprman;
 	const struct bcm2835_pll_data *data = pll->data;
+<<<<<<< HEAD
+=======
+	u32 prediv_mask = bcm2835_pll_get_prediv_mask(cprman, data);
+>>>>>>> upstream/android-13
 	bool was_using_prediv, use_fb_prediv, do_ana_setup_first;
 	u32 ndiv, fdiv, a2w_ctl;
 	u32 ana[4];
@@ -681,7 +751,11 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
 	for (i = 3; i >= 0; i--)
 		ana[i] = cprman_read(cprman, data->ana_reg_base + i * 4);
 
+<<<<<<< HEAD
 	was_using_prediv = ana[1] & data->ana->fb_prediv_mask;
+=======
+	was_using_prediv = ana[1] & prediv_mask;
+>>>>>>> upstream/android-13
 
 	ana[0] &= ~data->ana->mask0;
 	ana[0] |= data->ana->set0;
@@ -691,10 +765,17 @@ static int bcm2835_pll_set_rate(struct clk_hw *hw,
 	ana[3] |= data->ana->set3;
 
 	if (was_using_prediv && !use_fb_prediv) {
+<<<<<<< HEAD
 		ana[1] &= ~data->ana->fb_prediv_mask;
 		do_ana_setup_first = true;
 	} else if (!was_using_prediv && use_fb_prediv) {
 		ana[1] |= data->ana->fb_prediv_mask;
+=======
+		ana[1] &= ~prediv_mask;
+		do_ana_setup_first = true;
+	} else if (!was_using_prediv && use_fb_prediv) {
+		ana[1] |= prediv_mask;
+>>>>>>> upstream/android-13
 		do_ana_setup_first = false;
 	} else {
 		do_ana_setup_first = true;
@@ -787,11 +868,18 @@ static int bcm2835_pll_divider_is_on(struct clk_hw *hw)
 	return !(cprman_read(cprman, data->a2w_reg) & A2W_PLL_CHANNEL_DISABLE);
 }
 
+<<<<<<< HEAD
 static long bcm2835_pll_divider_round_rate(struct clk_hw *hw,
 					   unsigned long rate,
 					   unsigned long *parent_rate)
 {
 	return clk_divider_ops.round_rate(hw, rate, parent_rate);
+=======
+static int bcm2835_pll_divider_determine_rate(struct clk_hw *hw,
+					      struct clk_rate_request *req)
+{
+	return clk_divider_ops.determine_rate(hw, req);
+>>>>>>> upstream/android-13
 }
 
 static unsigned long bcm2835_pll_divider_get_rate(struct clk_hw *hw,
@@ -883,7 +971,11 @@ static const struct clk_ops bcm2835_pll_divider_clk_ops = {
 	.unprepare = bcm2835_pll_divider_off,
 	.recalc_rate = bcm2835_pll_divider_get_rate,
 	.set_rate = bcm2835_pll_divider_set_rate,
+<<<<<<< HEAD
 	.round_rate = bcm2835_pll_divider_round_rate,
+=======
+	.determine_rate = bcm2835_pll_divider_determine_rate,
+>>>>>>> upstream/android-13
 	.debug_init = bcm2835_pll_divider_debug_init,
 };
 
@@ -915,8 +1007,12 @@ static int bcm2835_clock_is_on(struct clk_hw *hw)
 
 static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
 				    unsigned long rate,
+<<<<<<< HEAD
 				    unsigned long parent_rate,
 				    bool round_up)
+=======
+				    unsigned long parent_rate)
+>>>>>>> upstream/android-13
 {
 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
 	const struct bcm2835_clock_data *data = clock->data;
@@ -928,10 +1024,13 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
 
 	rem = do_div(temp, rate);
 	div = temp;
+<<<<<<< HEAD
 
 	/* Round up and mask off the unused bits */
 	if (round_up && ((div & unused_frac_mask) != 0 || rem != 0))
 		div += unused_frac_mask + 1;
+=======
+>>>>>>> upstream/android-13
 	div &= ~unused_frac_mask;
 
 	/* different clamping limits apply for a mash clock */
@@ -1062,7 +1161,11 @@ static int bcm2835_clock_set_rate(struct clk_hw *hw,
 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
 	struct bcm2835_cprman *cprman = clock->cprman;
 	const struct bcm2835_clock_data *data = clock->data;
+<<<<<<< HEAD
 	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate, false);
+=======
+	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate);
+>>>>>>> upstream/android-13
 	u32 ctl;
 
 	spin_lock(&cprman->regs_lock);
@@ -1113,7 +1216,11 @@ static unsigned long bcm2835_clock_choose_div_and_prate(struct clk_hw *hw,
 
 	if (!(BIT(parent_idx) & data->set_rate_parent)) {
 		*prate = clk_hw_get_rate(parent);
+<<<<<<< HEAD
 		*div = bcm2835_clock_choose_div(hw, rate, *prate, true);
+=======
+		*div = bcm2835_clock_choose_div(hw, rate, *prate);
+>>>>>>> upstream/android-13
 
 		*avgrate = bcm2835_clock_rate_from_divisor(clock, *prate, *div);
 
@@ -1199,7 +1306,11 @@ static int bcm2835_clock_determine_rate(struct clk_hw *hw,
 		rate = bcm2835_clock_choose_div_and_prate(hw, i, req->rate,
 							  &div, &prate,
 							  &avgrate);
+<<<<<<< HEAD
 		if (rate > best_rate && rate <= req->rate) {
+=======
+		if (abs(req->rate - rate) < abs(req->rate - best_rate)) {
+>>>>>>> upstream/android-13
 			best_parent = parent;
 			best_prate = prate;
 			best_rate = rate;
@@ -1239,7 +1350,11 @@ static u8 bcm2835_clock_get_parent(struct clk_hw *hw)
 	return (src & CM_SRC_MASK) >> CM_SRC_SHIFT;
 }
 
+<<<<<<< HEAD
 static struct debugfs_reg32 bcm2835_debugfs_clock_reg32[] = {
+=======
+static const struct debugfs_reg32 bcm2835_debugfs_clock_reg32[] = {
+>>>>>>> upstream/android-13
 	{
 		.name = "ctl",
 		.offset = 0,
@@ -1295,10 +1410,18 @@ static const struct clk_ops bcm2835_vpu_clock_clk_ops = {
 };
 
 static struct clk_hw *bcm2835_register_pll(struct bcm2835_cprman *cprman,
+<<<<<<< HEAD
 					   const struct bcm2835_pll_data *data)
 {
 	struct bcm2835_pll *pll;
 	struct clk_init_data init = {};
+=======
+					   const void *data)
+{
+	const struct bcm2835_pll_data *pll_data = data;
+	struct bcm2835_pll *pll;
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	memset(&init, 0, sizeof(init));
@@ -1306,16 +1429,26 @@ static struct clk_hw *bcm2835_register_pll(struct bcm2835_cprman *cprman,
 	/* All of the PLLs derive from the external oscillator. */
 	init.parent_names = &cprman->real_parent_names[0];
 	init.num_parents = 1;
+<<<<<<< HEAD
 	init.name = data->name;
 	init.ops = &bcm2835_pll_clk_ops;
 	init.flags = CLK_IGNORE_UNUSED;
+=======
+	init.name = pll_data->name;
+	init.ops = &bcm2835_pll_clk_ops;
+	init.flags = pll_data->flags | CLK_IGNORE_UNUSED;
+>>>>>>> upstream/android-13
 
 	pll = kzalloc(sizeof(*pll), GFP_KERNEL);
 	if (!pll)
 		return NULL;
 
 	pll->cprman = cprman;
+<<<<<<< HEAD
 	pll->data = data;
+=======
+	pll->data = pll_data;
+>>>>>>> upstream/android-13
 	pll->hw.init = &init;
 
 	ret = devm_clk_hw_register(cprman->dev, &pll->hw);
@@ -1328,6 +1461,7 @@ static struct clk_hw *bcm2835_register_pll(struct bcm2835_cprman *cprman,
 
 static struct clk_hw *
 bcm2835_register_pll_divider(struct bcm2835_cprman *cprman,
+<<<<<<< HEAD
 			     const struct bcm2835_pll_divider_data *data)
 {
 	struct bcm2835_pll_divider *divider;
@@ -1342,21 +1476,50 @@ bcm2835_register_pll_divider(struct bcm2835_cprman *cprman,
 			return NULL;
 	} else {
 		divider_name = data->name;
+=======
+			     const void *data)
+{
+	const struct bcm2835_pll_divider_data *divider_data = data;
+	struct bcm2835_pll_divider *divider;
+	struct clk_init_data init;
+	const char *divider_name;
+	int ret;
+
+	if (divider_data->fixed_divider != 1) {
+		divider_name = devm_kasprintf(cprman->dev, GFP_KERNEL,
+					      "%s_prediv", divider_data->name);
+		if (!divider_name)
+			return NULL;
+	} else {
+		divider_name = divider_data->name;
+>>>>>>> upstream/android-13
 	}
 
 	memset(&init, 0, sizeof(init));
 
+<<<<<<< HEAD
 	init.parent_names = &data->source_pll;
 	init.num_parents = 1;
 	init.name = divider_name;
 	init.ops = &bcm2835_pll_divider_clk_ops;
 	init.flags = data->flags | CLK_IGNORE_UNUSED;
+=======
+	init.parent_names = &divider_data->source_pll;
+	init.num_parents = 1;
+	init.name = divider_name;
+	init.ops = &bcm2835_pll_divider_clk_ops;
+	init.flags = divider_data->flags | CLK_IGNORE_UNUSED;
+>>>>>>> upstream/android-13
 
 	divider = devm_kzalloc(cprman->dev, sizeof(*divider), GFP_KERNEL);
 	if (!divider)
 		return NULL;
 
+<<<<<<< HEAD
 	divider->div.reg = cprman->regs + data->a2w_reg;
+=======
+	divider->div.reg = cprman->regs + divider_data->a2w_reg;
+>>>>>>> upstream/android-13
 	divider->div.shift = A2W_PLL_DIV_SHIFT;
 	divider->div.width = A2W_PLL_DIV_BITS;
 	divider->div.flags = CLK_DIVIDER_MAX_AT_ZERO;
@@ -1365,7 +1528,11 @@ bcm2835_register_pll_divider(struct bcm2835_cprman *cprman,
 	divider->div.table = NULL;
 
 	divider->cprman = cprman;
+<<<<<<< HEAD
 	divider->data = data;
+=======
+	divider->data = divider_data;
+>>>>>>> upstream/android-13
 
 	ret = devm_clk_hw_register(cprman->dev, &divider->div.hw);
 	if (ret)
@@ -1375,22 +1542,40 @@ bcm2835_register_pll_divider(struct bcm2835_cprman *cprman,
 	 * PLLH's channels have a fixed divide by 10 afterwards, which
 	 * is what our consumers are actually using.
 	 */
+<<<<<<< HEAD
 	if (data->fixed_divider != 1) {
 		return clk_hw_register_fixed_factor(cprman->dev, data->name,
 						    divider_name,
 						    CLK_SET_RATE_PARENT,
 						    1,
 						    data->fixed_divider);
+=======
+	if (divider_data->fixed_divider != 1) {
+		return clk_hw_register_fixed_factor(cprman->dev,
+						    divider_data->name,
+						    divider_name,
+						    CLK_SET_RATE_PARENT,
+						    1,
+						    divider_data->fixed_divider);
+>>>>>>> upstream/android-13
 	}
 
 	return &divider->div.hw;
 }
 
 static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
+<<<<<<< HEAD
 					  const struct bcm2835_clock_data *data)
 {
 	struct bcm2835_clock *clock;
 	struct clk_init_data init = {};
+=======
+					     const void *data)
+{
+	const struct bcm2835_clock_data *clock_data = data;
+	struct bcm2835_clock *clock;
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	const char *parents[1 << CM_SRC_BITS];
 	size_t i;
 	int ret;
@@ -1399,8 +1584,13 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
 	 * Replace our strings referencing parent clocks with the
 	 * actual clock-output-name of the parent.
 	 */
+<<<<<<< HEAD
 	for (i = 0; i < data->num_mux_parents; i++) {
 		parents[i] = data->parents[i];
+=======
+	for (i = 0; i < clock_data->num_mux_parents; i++) {
+		parents[i] = clock_data->parents[i];
+>>>>>>> upstream/android-13
 
 		ret = match_string(cprman_parent_names,
 				   ARRAY_SIZE(cprman_parent_names),
@@ -1411,18 +1601,31 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
 
 	memset(&init, 0, sizeof(init));
 	init.parent_names = parents;
+<<<<<<< HEAD
 	init.num_parents = data->num_mux_parents;
 	init.name = data->name;
 	init.flags = data->flags | CLK_IGNORE_UNUSED;
+=======
+	init.num_parents = clock_data->num_mux_parents;
+	init.name = clock_data->name;
+	init.flags = clock_data->flags | CLK_IGNORE_UNUSED;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Pass the CLK_SET_RATE_PARENT flag if we are allowed to propagate
 	 * rate changes on at least of the parents.
 	 */
+<<<<<<< HEAD
 	if (data->set_rate_parent)
 		init.flags |= CLK_SET_RATE_PARENT;
 
 	if (data->is_vpu_clock) {
+=======
+	if (clock_data->set_rate_parent)
+		init.flags |= CLK_SET_RATE_PARENT;
+
+	if (clock_data->is_vpu_clock) {
+>>>>>>> upstream/android-13
 		init.ops = &bcm2835_vpu_clock_clk_ops;
 	} else {
 		init.ops = &bcm2835_clock_clk_ops;
@@ -1431,7 +1634,11 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
 		/* If the clock wasn't actually enabled at boot, it's not
 		 * critical.
 		 */
+<<<<<<< HEAD
 		if (!(cprman_read(cprman, data->ctl_reg) & CM_ENABLE))
+=======
+		if (!(cprman_read(cprman, clock_data->ctl_reg) & CM_ENABLE))
+>>>>>>> upstream/android-13
 			init.flags &= ~CLK_IS_CRITICAL;
 	}
 
@@ -1440,7 +1647,11 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
 		return NULL;
 
 	clock->cprman = cprman;
+<<<<<<< HEAD
 	clock->data = data;
+=======
+	clock->data = clock_data;
+>>>>>>> upstream/android-13
 	clock->hw.init = &init;
 
 	ret = devm_clk_hw_register(cprman->dev, &clock->hw);
@@ -1450,6 +1661,7 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
 }
 
 static struct clk_hw *bcm2835_register_gate(struct bcm2835_cprman *cprman,
+<<<<<<< HEAD
 					 const struct bcm2835_gate_data *data)
 {
 	return clk_hw_register_gate(cprman->dev, data->name, data->parent,
@@ -1462,10 +1674,28 @@ typedef struct clk_hw *(*bcm2835_clk_register)(struct bcm2835_cprman *cprman,
 					       const void *data);
 struct bcm2835_clk_desc {
 	bcm2835_clk_register clk_register;
+=======
+					    const void *data)
+{
+	const struct bcm2835_gate_data *gate_data = data;
+
+	return clk_hw_register_gate(cprman->dev, gate_data->name,
+				    gate_data->parent,
+				    CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
+				    cprman->regs + gate_data->ctl_reg,
+				    CM_GATE_BIT, 0, &cprman->regs_lock);
+}
+
+struct bcm2835_clk_desc {
+	struct clk_hw *(*clk_register)(struct bcm2835_cprman *cprman,
+				       const void *data);
+	unsigned int supported;
+>>>>>>> upstream/android-13
 	const void *data;
 };
 
 /* assignment helper macros for different clock types */
+<<<<<<< HEAD
 #define _REGISTER(f, ...) { .clk_register = (bcm2835_clk_register)f, \
 			    .data = __VA_ARGS__ }
 #define REGISTER_PLL(...)	_REGISTER(&bcm2835_register_pll,	\
@@ -1478,6 +1708,25 @@ struct bcm2835_clk_desc {
 					  &(struct bcm2835_clock_data)	\
 					  {__VA_ARGS__})
 #define REGISTER_GATE(...)	_REGISTER(&bcm2835_register_gate,	\
+=======
+#define _REGISTER(f, s, ...) { .clk_register = f, \
+			       .supported = s,				\
+			       .data = __VA_ARGS__ }
+#define REGISTER_PLL(s, ...)	_REGISTER(&bcm2835_register_pll,	\
+					  s,				\
+					  &(struct bcm2835_pll_data)	\
+					  {__VA_ARGS__})
+#define REGISTER_PLL_DIV(s, ...) _REGISTER(&bcm2835_register_pll_divider, \
+					   s,				  \
+					   &(struct bcm2835_pll_divider_data) \
+					   {__VA_ARGS__})
+#define REGISTER_CLK(s, ...)	_REGISTER(&bcm2835_register_clock,	\
+					  s,				\
+					  &(struct bcm2835_clock_data)	\
+					  {__VA_ARGS__})
+#define REGISTER_GATE(s, ...)	_REGISTER(&bcm2835_register_gate,	\
+					  s,				\
+>>>>>>> upstream/android-13
 					  &(struct bcm2835_gate_data)	\
 					  {__VA_ARGS__})
 
@@ -1491,7 +1740,12 @@ static const char *const bcm2835_clock_osc_parents[] = {
 	"testdebug1"
 };
 
+<<<<<<< HEAD
 #define REGISTER_OSC_CLK(...)	REGISTER_CLK(				\
+=======
+#define REGISTER_OSC_CLK(s, ...)	REGISTER_CLK(			\
+	s,								\
+>>>>>>> upstream/android-13
 	.num_mux_parents = ARRAY_SIZE(bcm2835_clock_osc_parents),	\
 	.parents = bcm2835_clock_osc_parents,				\
 	__VA_ARGS__)
@@ -1508,7 +1762,12 @@ static const char *const bcm2835_clock_per_parents[] = {
 	"pllh_aux",
 };
 
+<<<<<<< HEAD
 #define REGISTER_PER_CLK(...)	REGISTER_CLK(				\
+=======
+#define REGISTER_PER_CLK(s, ...)	REGISTER_CLK(			\
+	s,								\
+>>>>>>> upstream/android-13
 	.num_mux_parents = ARRAY_SIZE(bcm2835_clock_per_parents),	\
 	.parents = bcm2835_clock_per_parents,				\
 	__VA_ARGS__)
@@ -1533,7 +1792,12 @@ static const char *const bcm2835_pcm_per_parents[] = {
 	"-",
 };
 
+<<<<<<< HEAD
 #define REGISTER_PCM_CLK(...)	REGISTER_CLK(				\
+=======
+#define REGISTER_PCM_CLK(s, ...)	REGISTER_CLK(			\
+	s,								\
+>>>>>>> upstream/android-13
 	.num_mux_parents = ARRAY_SIZE(bcm2835_pcm_per_parents),		\
 	.parents = bcm2835_pcm_per_parents,				\
 	__VA_ARGS__)
@@ -1552,7 +1816,12 @@ static const char *const bcm2835_clock_vpu_parents[] = {
 	"pllc_core2",
 };
 
+<<<<<<< HEAD
 #define REGISTER_VPU_CLK(...)	REGISTER_CLK(				\
+=======
+#define REGISTER_VPU_CLK(s, ...)	REGISTER_CLK(			\
+	s,								\
+>>>>>>> upstream/android-13
 	.num_mux_parents = ARRAY_SIZE(bcm2835_clock_vpu_parents),	\
 	.parents = bcm2835_clock_vpu_parents,				\
 	__VA_ARGS__)
@@ -1588,12 +1857,22 @@ static const char *const bcm2835_clock_dsi1_parents[] = {
 	"dsi1_byte_inv",
 };
 
+<<<<<<< HEAD
 #define REGISTER_DSI0_CLK(...)	REGISTER_CLK(				\
+=======
+#define REGISTER_DSI0_CLK(s, ...)	REGISTER_CLK(			\
+	s,								\
+>>>>>>> upstream/android-13
 	.num_mux_parents = ARRAY_SIZE(bcm2835_clock_dsi0_parents),	\
 	.parents = bcm2835_clock_dsi0_parents,				\
 	__VA_ARGS__)
 
+<<<<<<< HEAD
 #define REGISTER_DSI1_CLK(...)	REGISTER_CLK(				\
+=======
+#define REGISTER_DSI1_CLK(s, ...)	REGISTER_CLK(			\
+	s,								\
+>>>>>>> upstream/android-13
 	.num_mux_parents = ARRAY_SIZE(bcm2835_clock_dsi1_parents),	\
 	.parents = bcm2835_clock_dsi1_parents,				\
 	__VA_ARGS__)
@@ -1613,6 +1892,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * AUDIO domain is on.
 	 */
 	[BCM2835_PLLA]		= REGISTER_PLL(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plla",
 		.cm_ctrl_reg = CM_PLLA,
 		.a2w_ctrl_reg = A2W_PLLA_CTRL,
@@ -1627,6 +1910,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.max_rate = 2400000000u,
 		.max_fb_rate = BCM2835_MAX_FB_RATE),
 	[BCM2835_PLLA_CORE]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plla_core",
 		.source_pll = "plla",
 		.cm_reg = CM_PLLA,
@@ -1636,6 +1923,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.fixed_divider = 1,
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLA_PER]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plla_per",
 		.source_pll = "plla",
 		.cm_reg = CM_PLLA,
@@ -1645,6 +1936,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.fixed_divider = 1,
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLA_DSI0]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plla_dsi0",
 		.source_pll = "plla",
 		.cm_reg = CM_PLLA,
@@ -1653,6 +1948,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.hold_mask = CM_PLLA_HOLDDSI0,
 		.fixed_divider = 1),
 	[BCM2835_PLLA_CCP2]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plla_ccp2",
 		.source_pll = "plla",
 		.cm_reg = CM_PLLA,
@@ -1664,6 +1963,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* PLLB is used for the ARM's clock. */
 	[BCM2835_PLLB]		= REGISTER_PLL(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pllb",
 		.cm_ctrl_reg = CM_PLLB,
 		.a2w_ctrl_reg = A2W_PLLB_CTRL,
@@ -1676,8 +1979,15 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 		.min_rate = 600000000u,
 		.max_rate = 3000000000u,
+<<<<<<< HEAD
 		.max_fb_rate = BCM2835_MAX_FB_RATE),
 	[BCM2835_PLLB_ARM]	= REGISTER_PLL_DIV(
+=======
+		.max_fb_rate = BCM2835_MAX_FB_RATE,
+		.flags = CLK_GET_RATE_NOCACHE),
+	[BCM2835_PLLB_ARM]	= REGISTER_PLL_DIV(
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pllb_arm",
 		.source_pll = "pllb",
 		.cm_reg = CM_PLLB,
@@ -1685,7 +1995,11 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.load_mask = CM_PLLB_LOADARM,
 		.hold_mask = CM_PLLB_HOLDARM,
 		.fixed_divider = 1,
+<<<<<<< HEAD
 		.flags = CLK_SET_RATE_PARENT),
+=======
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE),
+>>>>>>> upstream/android-13
 
 	/*
 	 * PLLC is the core PLL, used to drive the core VPU clock.
@@ -1694,6 +2008,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * AUDIO domain is on.
 	 */
 	[BCM2835_PLLC]		= REGISTER_PLL(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pllc",
 		.cm_ctrl_reg = CM_PLLC,
 		.a2w_ctrl_reg = A2W_PLLC_CTRL,
@@ -1708,6 +2026,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.max_rate = 3000000000u,
 		.max_fb_rate = BCM2835_MAX_FB_RATE),
 	[BCM2835_PLLC_CORE0]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pllc_core0",
 		.source_pll = "pllc",
 		.cm_reg = CM_PLLC,
@@ -1717,6 +2039,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.fixed_divider = 1,
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLC_CORE1]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pllc_core1",
 		.source_pll = "pllc",
 		.cm_reg = CM_PLLC,
@@ -1726,6 +2052,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.fixed_divider = 1,
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLC_CORE2]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pllc_core2",
 		.source_pll = "pllc",
 		.cm_reg = CM_PLLC,
@@ -1735,6 +2065,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.fixed_divider = 1,
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLC_PER]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pllc_per",
 		.source_pll = "pllc",
 		.cm_reg = CM_PLLC,
@@ -1751,6 +2085,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * AUDIO domain is on.
 	 */
 	[BCM2835_PLLD]		= REGISTER_PLL(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plld",
 		.cm_ctrl_reg = CM_PLLD,
 		.a2w_ctrl_reg = A2W_PLLD_CTRL,
@@ -1765,6 +2103,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.max_rate = 2400000000u,
 		.max_fb_rate = BCM2835_MAX_FB_RATE),
 	[BCM2835_PLLD_CORE]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plld_core",
 		.source_pll = "plld",
 		.cm_reg = CM_PLLD,
@@ -1773,7 +2115,17 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.hold_mask = CM_PLLD_HOLDCORE,
 		.fixed_divider = 1,
 		.flags = CLK_SET_RATE_PARENT),
+<<<<<<< HEAD
 	[BCM2835_PLLD_PER]	= REGISTER_PLL_DIV(
+=======
+	/*
+	 * VPU firmware assumes that PLLD_PER isn't disabled by the ARM core.
+	 * Otherwise this could cause firmware lookups. That's why we mark
+	 * it as critical.
+	 */
+	[BCM2835_PLLD_PER]	= REGISTER_PLL_DIV(
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plld_per",
 		.source_pll = "plld",
 		.cm_reg = CM_PLLD,
@@ -1781,8 +2133,14 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.load_mask = CM_PLLD_LOADPER,
 		.hold_mask = CM_PLLD_HOLDPER,
 		.fixed_divider = 1,
+<<<<<<< HEAD
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLD_DSI0]	= REGISTER_PLL_DIV(
+=======
+		.flags = CLK_IS_CRITICAL | CLK_SET_RATE_PARENT),
+	[BCM2835_PLLD_DSI0]	= REGISTER_PLL_DIV(
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plld_dsi0",
 		.source_pll = "plld",
 		.cm_reg = CM_PLLD,
@@ -1791,6 +2149,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.hold_mask = CM_PLLD_HOLDDSI0,
 		.fixed_divider = 1),
 	[BCM2835_PLLD_DSI1]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "plld_dsi1",
 		.source_pll = "plld",
 		.cm_reg = CM_PLLD,
@@ -1806,6 +2168,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * It is in the HDMI power domain.
 	 */
 	[BCM2835_PLLH]		= REGISTER_PLL(
+<<<<<<< HEAD
+=======
+		SOC_BCM2835,
+>>>>>>> upstream/android-13
 		"pllh",
 		.cm_ctrl_reg = CM_PLLH,
 		.a2w_ctrl_reg = A2W_PLLH_CTRL,
@@ -1820,6 +2186,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.max_rate = 3000000000u,
 		.max_fb_rate = BCM2835_MAX_FB_RATE),
 	[BCM2835_PLLH_RCAL]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_BCM2835,
+>>>>>>> upstream/android-13
 		.name = "pllh_rcal",
 		.source_pll = "pllh",
 		.cm_reg = CM_PLLH,
@@ -1829,6 +2199,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.fixed_divider = 10,
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLH_AUX]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_BCM2835,
+>>>>>>> upstream/android-13
 		.name = "pllh_aux",
 		.source_pll = "pllh",
 		.cm_reg = CM_PLLH,
@@ -1838,6 +2212,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.fixed_divider = 1,
 		.flags = CLK_SET_RATE_PARENT),
 	[BCM2835_PLLH_PIX]	= REGISTER_PLL_DIV(
+<<<<<<< HEAD
+=======
+		SOC_BCM2835,
+>>>>>>> upstream/android-13
 		.name = "pllh_pix",
 		.source_pll = "pllh",
 		.cm_reg = CM_PLLH,
@@ -1853,6 +2231,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* One Time Programmable Memory clock.  Maximum 10Mhz. */
 	[BCM2835_CLOCK_OTP]	= REGISTER_OSC_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "otp",
 		.ctl_reg = CM_OTPCTL,
 		.div_reg = CM_OTPDIV,
@@ -1864,6 +2246,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * bythe watchdog timer and the camera pulse generator.
 	 */
 	[BCM2835_CLOCK_TIMER]	= REGISTER_OSC_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "timer",
 		.ctl_reg = CM_TIMERCTL,
 		.div_reg = CM_TIMERDIV,
@@ -1874,12 +2260,20 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * Generally run at 2Mhz, max 5Mhz.
 	 */
 	[BCM2835_CLOCK_TSENS]	= REGISTER_OSC_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "tsens",
 		.ctl_reg = CM_TSENSCTL,
 		.div_reg = CM_TSENSDIV,
 		.int_bits = 5,
 		.frac_bits = 0),
 	[BCM2835_CLOCK_TEC]	= REGISTER_OSC_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "tec",
 		.ctl_reg = CM_TECCTL,
 		.div_reg = CM_TECDIV,
@@ -1888,6 +2282,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* clocks with vpu parent mux */
 	[BCM2835_CLOCK_H264]	= REGISTER_VPU_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "h264",
 		.ctl_reg = CM_H264CTL,
 		.div_reg = CM_H264DIV,
@@ -1895,6 +2293,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 1),
 	[BCM2835_CLOCK_ISP]	= REGISTER_VPU_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "isp",
 		.ctl_reg = CM_ISPCTL,
 		.div_reg = CM_ISPDIV,
@@ -1907,6 +2309,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * in the SDRAM controller can't be used.
 	 */
 	[BCM2835_CLOCK_SDRAM]	= REGISTER_VPU_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "sdram",
 		.ctl_reg = CM_SDCCTL,
 		.div_reg = CM_SDCDIV,
@@ -1914,6 +2320,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 0,
 		.tcnt_mux = 3),
 	[BCM2835_CLOCK_V3D]	= REGISTER_VPU_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "v3d",
 		.ctl_reg = CM_V3DCTL,
 		.div_reg = CM_V3DDIV,
@@ -1927,6 +2337,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * in various hardware documentation.
 	 */
 	[BCM2835_CLOCK_VPU]	= REGISTER_VPU_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "vpu",
 		.ctl_reg = CM_VPUCTL,
 		.div_reg = CM_VPUDIV,
@@ -1938,6 +2352,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* clocks with per parent mux */
 	[BCM2835_CLOCK_AVEO]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "aveo",
 		.ctl_reg = CM_AVEOCTL,
 		.div_reg = CM_AVEODIV,
@@ -1945,6 +2363,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 0,
 		.tcnt_mux = 38),
 	[BCM2835_CLOCK_CAM0]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "cam0",
 		.ctl_reg = CM_CAM0CTL,
 		.div_reg = CM_CAM0DIV,
@@ -1952,6 +2374,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 14),
 	[BCM2835_CLOCK_CAM1]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "cam1",
 		.ctl_reg = CM_CAM1CTL,
 		.div_reg = CM_CAM1DIV,
@@ -1959,12 +2385,20 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 15),
 	[BCM2835_CLOCK_DFT]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "dft",
 		.ctl_reg = CM_DFTCTL,
 		.div_reg = CM_DFTDIV,
 		.int_bits = 5,
 		.frac_bits = 0),
 	[BCM2835_CLOCK_DPI]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "dpi",
 		.ctl_reg = CM_DPICTL,
 		.div_reg = CM_DPIDIV,
@@ -1974,6 +2408,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* Arasan EMMC clock */
 	[BCM2835_CLOCK_EMMC]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "emmc",
 		.ctl_reg = CM_EMMCCTL,
 		.div_reg = CM_EMMCDIV,
@@ -1981,8 +2419,24 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 39),
 
+<<<<<<< HEAD
 	/* General purpose (GPIO) clocks */
 	[BCM2835_CLOCK_GP0]	= REGISTER_PER_CLK(
+=======
+	/* EMMC2 clock (only available for BCM2711) */
+	[BCM2711_CLOCK_EMMC2]	= REGISTER_PER_CLK(
+		SOC_BCM2711,
+		.name = "emmc2",
+		.ctl_reg = CM_EMMC2CTL,
+		.div_reg = CM_EMMC2DIV,
+		.int_bits = 4,
+		.frac_bits = 8,
+		.tcnt_mux = 42),
+
+	/* General purpose (GPIO) clocks */
+	[BCM2835_CLOCK_GP0]	= REGISTER_PER_CLK(
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "gp0",
 		.ctl_reg = CM_GP0CTL,
 		.div_reg = CM_GP0DIV,
@@ -1991,6 +2445,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.is_mash_clock = true,
 		.tcnt_mux = 20),
 	[BCM2835_CLOCK_GP1]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "gp1",
 		.ctl_reg = CM_GP1CTL,
 		.div_reg = CM_GP1DIV,
@@ -2000,6 +2458,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.is_mash_clock = true,
 		.tcnt_mux = 21),
 	[BCM2835_CLOCK_GP2]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "gp2",
 		.ctl_reg = CM_GP2CTL,
 		.div_reg = CM_GP2DIV,
@@ -2009,6 +2471,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* HDMI state machine */
 	[BCM2835_CLOCK_HSM]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "hsm",
 		.ctl_reg = CM_HSMCTL,
 		.div_reg = CM_HSMDIV,
@@ -2016,6 +2482,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 22),
 	[BCM2835_CLOCK_PCM]	= REGISTER_PCM_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pcm",
 		.ctl_reg = CM_PCMCTL,
 		.div_reg = CM_PCMDIV,
@@ -2025,6 +2495,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.low_jitter = true,
 		.tcnt_mux = 23),
 	[BCM2835_CLOCK_PWM]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "pwm",
 		.ctl_reg = CM_PWMCTL,
 		.div_reg = CM_PWMDIV,
@@ -2033,6 +2507,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.is_mash_clock = true,
 		.tcnt_mux = 24),
 	[BCM2835_CLOCK_SLIM]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "slim",
 		.ctl_reg = CM_SLIMCTL,
 		.div_reg = CM_SLIMDIV,
@@ -2041,6 +2519,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.is_mash_clock = true,
 		.tcnt_mux = 25),
 	[BCM2835_CLOCK_SMI]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "smi",
 		.ctl_reg = CM_SMICTL,
 		.div_reg = CM_SMIDIV,
@@ -2048,6 +2530,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 27),
 	[BCM2835_CLOCK_UART]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "uart",
 		.ctl_reg = CM_UARTCTL,
 		.div_reg = CM_UARTDIV,
@@ -2057,6 +2543,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* TV encoder clock.  Only operating frequency is 108Mhz.  */
 	[BCM2835_CLOCK_VEC]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "vec",
 		.ctl_reg = CM_VECCTL,
 		.div_reg = CM_VECDIV,
@@ -2071,6 +2561,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 
 	/* dsi clocks */
 	[BCM2835_CLOCK_DSI0E]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "dsi0e",
 		.ctl_reg = CM_DSI0ECTL,
 		.div_reg = CM_DSI0EDIV,
@@ -2078,6 +2572,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 18),
 	[BCM2835_CLOCK_DSI1E]	= REGISTER_PER_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "dsi1e",
 		.ctl_reg = CM_DSI1ECTL,
 		.div_reg = CM_DSI1EDIV,
@@ -2085,6 +2583,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 8,
 		.tcnt_mux = 19),
 	[BCM2835_CLOCK_DSI0P]	= REGISTER_DSI0_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "dsi0p",
 		.ctl_reg = CM_DSI0PCTL,
 		.div_reg = CM_DSI0PDIV,
@@ -2092,6 +2594,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 		.frac_bits = 0,
 		.tcnt_mux = 12),
 	[BCM2835_CLOCK_DSI1P]	= REGISTER_DSI1_CLK(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "dsi1p",
 		.ctl_reg = CM_DSI1PCTL,
 		.div_reg = CM_DSI1PDIV,
@@ -2108,6 +2614,10 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
 	 * non-stop vpu clock.
 	 */
 	[BCM2835_CLOCK_PERI_IMAGE] = REGISTER_GATE(
+<<<<<<< HEAD
+=======
+		SOC_ALL,
+>>>>>>> upstream/android-13
 		.name = "peri_image",
 		.parent = "vpu",
 		.ctl_reg = CM_PERIICTL),
@@ -2137,12 +2647,25 @@ static int bcm2835_clk_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct clk_hw **hws;
 	struct bcm2835_cprman *cprman;
+<<<<<<< HEAD
 	struct resource *res;
 	const struct bcm2835_clk_desc *desc;
 	const size_t asize = ARRAY_SIZE(clk_desc_array);
 	size_t i;
 	int ret;
 
+=======
+	const struct bcm2835_clk_desc *desc;
+	const size_t asize = ARRAY_SIZE(clk_desc_array);
+	const struct cprman_plat_data *pdata;
+	size_t i;
+	int ret;
+
+	pdata = of_device_get_match_data(&pdev->dev);
+	if (!pdata)
+		return -ENODEV;
+
+>>>>>>> upstream/android-13
 	cprman = devm_kzalloc(dev,
 			      struct_size(cprman, onecell.hws, asize),
 			      GFP_KERNEL);
@@ -2151,8 +2674,12 @@ static int bcm2835_clk_probe(struct platform_device *pdev)
 
 	spin_lock_init(&cprman->regs_lock);
 	cprman->dev = dev;
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	cprman->regs = devm_ioremap_resource(dev, res);
+=======
+	cprman->regs = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(cprman->regs))
 		return PTR_ERR(cprman->regs);
 
@@ -2174,12 +2701,23 @@ static int bcm2835_clk_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, cprman);
 
 	cprman->onecell.num = asize;
+<<<<<<< HEAD
+=======
+	cprman->soc = pdata->soc;
+>>>>>>> upstream/android-13
 	hws = cprman->onecell.hws;
 
 	for (i = 0; i < asize; i++) {
 		desc = &clk_desc_array[i];
+<<<<<<< HEAD
 		if (desc->clk_register && desc->data)
 			hws[i] = desc->clk_register(cprman, desc->data);
+=======
+		if (desc->clk_register && desc->data &&
+		    (desc->supported & pdata->soc)) {
+			hws[i] = desc->clk_register(cprman, desc->data);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	ret = bcm2835_mark_sdc_parent_critical(hws[BCM2835_CLOCK_SDRAM]->clk);
@@ -2190,8 +2728,22 @@ static int bcm2835_clk_probe(struct platform_device *pdev)
 				      &cprman->onecell);
 }
 
+<<<<<<< HEAD
 static const struct of_device_id bcm2835_clk_of_match[] = {
 	{ .compatible = "brcm,bcm2835-cprman", },
+=======
+static const struct cprman_plat_data cprman_bcm2835_plat_data = {
+	.soc = SOC_BCM2835,
+};
+
+static const struct cprman_plat_data cprman_bcm2711_plat_data = {
+	.soc = SOC_BCM2711,
+};
+
+static const struct of_device_id bcm2835_clk_of_match[] = {
+	{ .compatible = "brcm,bcm2835-cprman", .data = &cprman_bcm2835_plat_data },
+	{ .compatible = "brcm,bcm2711-cprman", .data = &cprman_bcm2711_plat_data },
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(of, bcm2835_clk_of_match);
@@ -2208,4 +2760,8 @@ builtin_platform_driver(bcm2835_clk_driver);
 
 MODULE_AUTHOR("Eric Anholt <eric@anholt.net>");
 MODULE_DESCRIPTION("BCM2835 clock driver");
+<<<<<<< HEAD
 MODULE_LICENSE("GPL v2");
+=======
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

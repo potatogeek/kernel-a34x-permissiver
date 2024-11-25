@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  NAND family Bad Block Management (BBM) header file
  *    - Bad Block Table (BBT) implementation
@@ -7,6 +11,7 @@
  *
  *  Copyright © 2000-2005
  *  Thomas Gleixner <tglx@linuxtronix.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +27,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __LINUX_MTD_BBM_H
 #define __LINUX_MTD_BBM_H
@@ -93,10 +100,14 @@ struct nand_bbt_descr {
 #define NAND_BBT_WRITE		0x00002000
 /* Read and write back block contents when writing bbt */
 #define NAND_BBT_SAVECONTENT	0x00004000
+<<<<<<< HEAD
 /* Search good / bad pattern on the first and the second page */
 #define NAND_BBT_SCAN2NDPAGE	0x00008000
 /* Search good / bad pattern on the last page of the eraseblock */
 #define NAND_BBT_SCANLASTPAGE	0x00010000
+=======
+
+>>>>>>> upstream/android-13
 /*
  * Use a flash based bad block table. By default, OOB identifier is saved in
  * OOB area. This option is passed to the default bad block table function.
@@ -115,7 +126,11 @@ struct nand_bbt_descr {
 
 /*
  * Flag set by nand_create_default_bbt_descr(), marking that the nand_bbt_descr
+<<<<<<< HEAD
  * was allocated dynamicaly and must be freed in nand_release(). Has no meaning
+=======
+ * was allocated dynamicaly and must be freed in nand_cleanup(). Has no meaning
+>>>>>>> upstream/android-13
  * in nand_chip.bbt_options.
  */
 #define NAND_BBT_DYNAMICSTRUCT	0x80000000
@@ -124,6 +139,7 @@ struct nand_bbt_descr {
 #define NAND_BBT_SCAN_MAXBLOCKS	4
 
 /*
+<<<<<<< HEAD
  * Constants for oob configuration
  */
 #define NAND_SMALL_BADBLOCK_POS		5
@@ -131,6 +147,8 @@ struct nand_bbt_descr {
 #define ONENAND_BADBLOCK_POS		0
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Bad block scanning errors
  */
 #define ONENAND_BBT_READ_ERROR		1
@@ -140,7 +158,10 @@ struct nand_bbt_descr {
 /**
  * struct bbm_info - [GENERIC] Bad Block Table data structure
  * @bbt_erase_shift:	[INTERN] number of address bits in a bbt entry
+<<<<<<< HEAD
  * @badblockpos:	[INTERN] position of the bad block marker in the oob area
+=======
+>>>>>>> upstream/android-13
  * @options:		options for this descriptor
  * @bbt:		[INTERN] bad block table pointer
  * @isbad_bbt:		function to determine if a block is bad
@@ -150,7 +171,10 @@ struct nand_bbt_descr {
  */
 struct bbm_info {
 	int bbt_erase_shift;
+<<<<<<< HEAD
 	int badblockpos;
+=======
+>>>>>>> upstream/android-13
 	int options;
 
 	uint8_t *bbt;

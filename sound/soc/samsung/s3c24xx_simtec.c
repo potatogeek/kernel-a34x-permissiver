@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* sound/soc/samsung/s3c24xx_simtec.c
  *
  * Copyright 2009 Simtec Electronics
@@ -6,6 +7,11 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
 */
+=======
+// SPDX-License-Identifier: GPL-2.0
+//
+// Copyright 2009 Simtec Electronics
+>>>>>>> upstream/android-13
 
 #include <linux/gpio.h>
 #include <linux/clk.h>
@@ -164,9 +170,15 @@ EXPORT_SYMBOL_GPL(simtec_audio_init);
 static int simtec_hw_params(struct snd_pcm_substream *substream,
 			    struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	int ret;
 
 	ret = snd_soc_dai_set_sysclk(codec_dai, 0,
@@ -195,6 +207,14 @@ static int simtec_hw_params(struct snd_pcm_substream *substream,
 
 		ret = snd_soc_dai_set_clkdiv(cpu_dai, S3C24XX_DIV_PRESCALER,
 					     cdclk_scale);
+<<<<<<< HEAD
+=======
+		if (ret) {
+			pr_err("%s: failed to set clock div\n",
+			       __func__);
+			return ret;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -327,7 +347,11 @@ int simtec_audio_core_probe(struct platform_device *pdev,
 
 	snd_dev = platform_device_alloc("soc-audio", -1);
 	if (!snd_dev) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "failed to alloc soc-audio devicec\n");
+=======
+		dev_err(&pdev->dev, "failed to alloc soc-audio device\n");
+>>>>>>> upstream/android-13
 		ret = -ENOMEM;
 		goto err_gpio;
 	}

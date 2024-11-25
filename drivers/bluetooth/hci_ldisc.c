@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  *  Bluetooth HCI UART driver
@@ -5,6 +9,7 @@
  *  Copyright (C) 2000-2001  Qualcomm Incorporated
  *  Copyright (C) 2002-2003  Maxim Krasnyansky <maxk@qualcomm.com>
  *  Copyright (C) 2004-2005  Marcel Holtmann <marcel@holtmann.org>
+<<<<<<< HEAD
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +26,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -142,10 +149,16 @@ int hci_uart_tx_wakeup(struct hci_uart *hu)
 	if (!test_bit(HCI_UART_PROTO_READY, &hu->flags))
 		goto no_schedule;
 
+<<<<<<< HEAD
 	if (test_and_set_bit(HCI_UART_SENDING, &hu->tx_state)) {
 		set_bit(HCI_UART_TX_WAKEUP, &hu->tx_state);
 		goto no_schedule;
 	}
+=======
+	set_bit(HCI_UART_TX_WAKEUP, &hu->tx_state);
+	if (test_and_set_bit(HCI_UART_SENDING, &hu->tx_state))
+		goto no_schedule;
+>>>>>>> upstream/android-13
 
 	BT_DBG("");
 
@@ -189,10 +202,18 @@ restart:
 		kfree_skb(skb);
 	}
 
+<<<<<<< HEAD
 	if (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state))
 		goto restart;
 
 	clear_bit(HCI_UART_SENDING, &hu->tx_state);
+=======
+	clear_bit(HCI_UART_SENDING, &hu->tx_state);
+	if (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state))
+		goto restart;
+
+	wake_up_bit(&hu->tx_state, HCI_UART_SENDING);
+>>>>>>> upstream/android-13
 }
 
 void hci_uart_init_work(struct work_struct *work)
@@ -228,6 +249,16 @@ int hci_uart_init_ready(struct hci_uart *hu)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+int hci_uart_wait_until_sent(struct hci_uart *hu)
+{
+	return wait_on_bit_timeout(&hu->tx_state, HCI_UART_SENDING,
+				   TASK_INTERRUPTIBLE,
+				   msecs_to_jiffies(2000));
+}
+
+>>>>>>> upstream/android-13
 /* ------- Interface to HCI layer ------ */
 /* Reset device */
 static int hci_uart_flush(struct hci_dev *hdev)
@@ -601,7 +632,11 @@ static void hci_uart_tty_wakeup(struct tty_struct *tty)
  * Return Value:    None
  */
 static void hci_uart_tty_receive(struct tty_struct *tty, const u8 *data,
+<<<<<<< HEAD
 				 char *flags, int count)
+=======
+				 const char *flags, int count)
+>>>>>>> upstream/android-13
 {
 	struct hci_uart *hu = tty->disc_data;
 
@@ -809,7 +844,12 @@ static int hci_uart_tty_ioctl(struct tty_struct *tty, struct file *file,
  * We don't provide read/write/poll interface for user space.
  */
 static ssize_t hci_uart_tty_read(struct tty_struct *tty, struct file *file,
+<<<<<<< HEAD
 				 unsigned char __user *buf, size_t nr)
+=======
+				 unsigned char *buf, size_t nr,
+				 void **cookie, unsigned long offset)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
@@ -826,14 +866,35 @@ static __poll_t hci_uart_tty_poll(struct tty_struct *tty,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __init hci_uart_init(void)
 {
 	static struct tty_ldisc_ops hci_uart_ldisc;
+=======
+static struct tty_ldisc_ops hci_uart_ldisc = {
+	.owner		= THIS_MODULE,
+	.num		= N_HCI,
+	.name		= "n_hci",
+	.open		= hci_uart_tty_open,
+	.close		= hci_uart_tty_close,
+	.read		= hci_uart_tty_read,
+	.write		= hci_uart_tty_write,
+	.ioctl		= hci_uart_tty_ioctl,
+	.compat_ioctl	= hci_uart_tty_ioctl,
+	.poll		= hci_uart_tty_poll,
+	.receive_buf	= hci_uart_tty_receive,
+	.write_wakeup	= hci_uart_tty_wakeup,
+};
+
+static int __init hci_uart_init(void)
+{
+>>>>>>> upstream/android-13
 	int err;
 
 	BT_INFO("HCI UART driver ver %s", VERSION);
 
 	/* Register the tty discipline */
+<<<<<<< HEAD
 
 	memset(&hci_uart_ldisc, 0, sizeof(hci_uart_ldisc));
 	hci_uart_ldisc.magic		= TTY_LDISC_MAGIC;
@@ -849,6 +910,9 @@ static int __init hci_uart_init(void)
 	hci_uart_ldisc.owner		= THIS_MODULE;
 
 	err = tty_register_ldisc(N_HCI, &hci_uart_ldisc);
+=======
+	err = tty_register_ldisc(&hci_uart_ldisc);
+>>>>>>> upstream/android-13
 	if (err) {
 		BT_ERR("HCI line discipline registration failed. (%d)", err);
 		return err;
@@ -890,8 +954,11 @@ static int __init hci_uart_init(void)
 
 static void __exit hci_uart_exit(void)
 {
+<<<<<<< HEAD
 	int err;
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_BT_HCIUART_H4
 	h4_deinit();
 #endif
@@ -923,10 +990,14 @@ static void __exit hci_uart_exit(void)
 	mrvl_deinit();
 #endif
 
+<<<<<<< HEAD
 	/* Release tty registration of line discipline */
 	err = tty_unregister_ldisc(N_HCI);
 	if (err)
 		BT_ERR("Can't unregister HCI line discipline (%d)", err);
+=======
+	tty_unregister_ldisc(&hci_uart_ldisc);
+>>>>>>> upstream/android-13
 }
 
 module_init(hci_uart_init);

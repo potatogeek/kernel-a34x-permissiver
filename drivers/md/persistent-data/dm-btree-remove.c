@@ -423,9 +423,15 @@ static int rebalance_children(struct shadow_spine *s,
 
 		memcpy(n, dm_block_data(child),
 		       dm_bm_block_size(dm_tm_get_bm(info->tm)));
+<<<<<<< HEAD
 		dm_tm_unlock(info->tm, child);
 
 		dm_tm_dec(info->tm, dm_block_location(child));
+=======
+
+		dm_tm_dec(info->tm, dm_block_location(child));
+		dm_tm_unlock(info->tm, child);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -544,12 +550,21 @@ int dm_btree_remove(struct dm_btree_info *info, dm_block_t root,
 
 		if (info->value_type.dec)
 			info->value_type.dec(info->value_type.context,
+<<<<<<< HEAD
 					     value_ptr(n, index));
+=======
+					     value_ptr(n, index), 1);
+>>>>>>> upstream/android-13
 
 		delete_at(n, index);
 	}
 
+<<<<<<< HEAD
 	*new_root = shadow_root(&spine);
+=======
+	if (!r)
+		*new_root = shadow_root(&spine);
+>>>>>>> upstream/android-13
 	exit_shadow_spine(&spine);
 
 	return r;
@@ -653,7 +668,11 @@ static int remove_one(struct dm_btree_info *info, dm_block_t root,
 	if (k >= keys[last_level] && k < end_key) {
 		if (info->value_type.dec)
 			info->value_type.dec(info->value_type.context,
+<<<<<<< HEAD
 					     value_ptr(n, index));
+=======
+					     value_ptr(n, index), 1);
+>>>>>>> upstream/android-13
 
 		delete_at(n, index);
 		keys[last_level] = k + 1ull;

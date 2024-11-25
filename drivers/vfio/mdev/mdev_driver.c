@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * MDEV driver
  *
  * Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
  *     Author: Neo Jia <cjia@nvidia.com>
  *             Kirti Wankhede <kwankhede@nvidia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -42,7 +49,12 @@ static void mdev_detach_iommu(struct mdev_device *mdev)
 
 static int mdev_probe(struct device *dev)
 {
+<<<<<<< HEAD
 	struct mdev_driver *drv = to_mdev_driver(dev->driver);
+=======
+	struct mdev_driver *drv =
+		container_of(dev->driver, struct mdev_driver, driver);
+>>>>>>> upstream/android-13
 	struct mdev_device *mdev = to_mdev_device(dev);
 	int ret;
 
@@ -50,8 +62,13 @@ static int mdev_probe(struct device *dev)
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	if (drv && drv->probe) {
 		ret = drv->probe(dev);
+=======
+	if (drv->probe) {
+		ret = drv->probe(mdev);
+>>>>>>> upstream/android-13
 		if (ret)
 			mdev_detach_iommu(mdev);
 	}
@@ -59,6 +76,7 @@ static int mdev_probe(struct device *dev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int mdev_remove(struct device *dev)
 {
 	struct mdev_driver *drv = to_mdev_driver(dev->driver);
@@ -69,6 +87,26 @@ static int mdev_remove(struct device *dev)
 
 	mdev_detach_iommu(mdev);
 
+=======
+static void mdev_remove(struct device *dev)
+{
+	struct mdev_driver *drv =
+		container_of(dev->driver, struct mdev_driver, driver);
+	struct mdev_device *mdev = to_mdev_device(dev);
+
+	if (drv->remove)
+		drv->remove(mdev);
+
+	mdev_detach_iommu(mdev);
+}
+
+static int mdev_match(struct device *dev, struct device_driver *drv)
+{
+	/*
+	 * No drivers automatically match. Drivers are only bound by explicit
+	 * device_driver_attach()
+	 */
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -76,12 +114,17 @@ struct bus_type mdev_bus_type = {
 	.name		= "mdev",
 	.probe		= mdev_probe,
 	.remove		= mdev_remove,
+<<<<<<< HEAD
+=======
+	.match		= mdev_match,
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL_GPL(mdev_bus_type);
 
 /**
  * mdev_register_driver - register a new MDEV driver
  * @drv: the driver to register
+<<<<<<< HEAD
  * @owner: module owner of driver to be registered
  *
  * Returns a negative value on error, otherwise 0.
@@ -92,6 +135,15 @@ int mdev_register_driver(struct mdev_driver *drv, struct module *owner)
 	drv->driver.name = drv->name;
 	drv->driver.bus = &mdev_bus_type;
 	drv->driver.owner = owner;
+=======
+ *
+ * Returns a negative value on error, otherwise 0.
+ **/
+int mdev_register_driver(struct mdev_driver *drv)
+{
+	/* initialize common driver fields */
+	drv->driver.bus = &mdev_bus_type;
+>>>>>>> upstream/android-13
 
 	/* register with core */
 	return driver_register(&drv->driver);

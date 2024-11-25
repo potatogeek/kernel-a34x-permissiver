@@ -188,9 +188,15 @@ module_param(ttymajor, int, 0);
 static int moxa_open(struct tty_struct *, struct file *);
 static void moxa_close(struct tty_struct *, struct file *);
 static int moxa_write(struct tty_struct *, const unsigned char *, int);
+<<<<<<< HEAD
 static int moxa_write_room(struct tty_struct *);
 static void moxa_flush_buffer(struct tty_struct *);
 static int moxa_chars_in_buffer(struct tty_struct *);
+=======
+static unsigned int moxa_write_room(struct tty_struct *);
+static void moxa_flush_buffer(struct tty_struct *);
+static unsigned int moxa_chars_in_buffer(struct tty_struct *);
+>>>>>>> upstream/android-13
 static void moxa_set_termios(struct tty_struct *, struct ktermios *);
 static void moxa_stop(struct tty_struct *);
 static void moxa_start(struct tty_struct *);
@@ -216,6 +222,7 @@ static int MoxaPortLineStatus(struct moxa_port *);
 static void MoxaPortFlushData(struct moxa_port *, int);
 static int MoxaPortWriteData(struct tty_struct *, const unsigned char *, int);
 static int MoxaPortReadData(struct moxa_port *);
+<<<<<<< HEAD
 static int MoxaPortTxQueue(struct moxa_port *);
 static int MoxaPortRxQueue(struct moxa_port *);
 static int MoxaPortTxFree(struct moxa_port *);
@@ -223,6 +230,15 @@ static void MoxaPortTxDisable(struct moxa_port *);
 static void MoxaPortTxEnable(struct moxa_port *);
 static int moxa_get_serial_info(struct moxa_port *, struct serial_struct __user *);
 static int moxa_set_serial_info(struct moxa_port *, struct serial_struct __user *);
+=======
+static unsigned int MoxaPortTxQueue(struct moxa_port *);
+static int MoxaPortRxQueue(struct moxa_port *);
+static unsigned int MoxaPortTxFree(struct moxa_port *);
+static void MoxaPortTxDisable(struct moxa_port *);
+static void MoxaPortTxEnable(struct moxa_port *);
+static int moxa_get_serial_info(struct tty_struct *, struct serial_struct *);
+static int moxa_set_serial_info(struct tty_struct *, struct serial_struct *);
+>>>>>>> upstream/android-13
 static void MoxaSetFifo(struct moxa_port *port, int enable);
 
 /*
@@ -375,6 +391,7 @@ copy:
 		}
 		break;
 	}
+<<<<<<< HEAD
 	case TIOCGSERIAL:
 	        mutex_lock(&ch->port.mutex);
 		ret = moxa_get_serial_info(ch, argp);
@@ -385,6 +402,8 @@ copy:
 		ret = moxa_set_serial_info(ch, argp);
 		mutex_unlock(&ch->port.mutex);
 		break;
+=======
+>>>>>>> upstream/android-13
 	default:
 		ret = -ENOIOCTLCMD;
 	}
@@ -415,6 +434,11 @@ static const struct tty_operations moxa_ops = {
 	.break_ctl = moxa_break_ctl,
 	.tiocmget = moxa_tiocmget,
 	.tiocmset = moxa_tiocmset,
+<<<<<<< HEAD
+=======
+	.set_serial = moxa_set_serial_info,
+	.get_serial = moxa_get_serial_info,
+>>>>>>> upstream/android-13
 };
 
 static const struct tty_port_operations moxa_port_ops = {
@@ -969,7 +993,11 @@ static int moxa_pci_probe(struct pci_dev *pdev,
 		goto err;
 	}
 
+<<<<<<< HEAD
 	board->basemem = ioremap_nocache(pci_resource_start(pdev, 2), 0x4000);
+=======
+	board->basemem = ioremap(pci_resource_start(pdev, 2), 0x4000);
+>>>>>>> upstream/android-13
 	if (board->basemem == NULL) {
 		dev_err(&pdev->dev, "can't remap io space 2\n");
 		retval = -ENOMEM;
@@ -1061,7 +1089,11 @@ static int __init moxa_init(void)
 
 	if (tty_register_driver(moxaDriver)) {
 		printk(KERN_ERR "can't register MOXA Smartio tty driver!\n");
+<<<<<<< HEAD
 		put_tty_driver(moxaDriver);
+=======
+		tty_driver_kref_put(moxaDriver);
+>>>>>>> upstream/android-13
 		return -1;
 	}
 
@@ -1079,7 +1111,11 @@ static int __init moxa_init(void)
 			brd->numPorts = type[i] == MOXA_BOARD_C218_ISA ? 8 :
 					numports[i];
 			brd->busType = MOXA_BUS_TYPE_ISA;
+<<<<<<< HEAD
 			brd->basemem = ioremap_nocache(baseaddr[i], 0x4000);
+=======
+			brd->basemem = ioremap(baseaddr[i], 0x4000);
+>>>>>>> upstream/android-13
 			if (!brd->basemem) {
 				printk(KERN_ERR "MOXA: can't remap %lx\n",
 						baseaddr[i]);
@@ -1126,10 +1162,15 @@ static void __exit moxa_exit(void)
 
 	del_timer_sync(&moxaTimer);
 
+<<<<<<< HEAD
 	if (tty_unregister_driver(moxaDriver))
 		printk(KERN_ERR "Couldn't unregister MOXA Intellio family "
 				"serial driver\n");
 	put_tty_driver(moxaDriver);
+=======
+	tty_unregister_driver(moxaDriver);
+	tty_driver_kref_put(moxaDriver);
+>>>>>>> upstream/android-13
 }
 
 module_init(moxa_init);
@@ -1227,11 +1268,19 @@ static int moxa_write(struct tty_struct *tty,
 	return len;
 }
 
+<<<<<<< HEAD
 static int moxa_write_room(struct tty_struct *tty)
 {
 	struct moxa_port *ch;
 
 	if (tty->stopped)
+=======
+static unsigned int moxa_write_room(struct tty_struct *tty)
+{
+	struct moxa_port *ch;
+
+	if (tty->flow.stopped)
+>>>>>>> upstream/android-13
 		return 0;
 	ch = tty->driver_data;
 	if (ch == NULL)
@@ -1249,10 +1298,17 @@ static void moxa_flush_buffer(struct tty_struct *tty)
 	tty_wakeup(tty);
 }
 
+<<<<<<< HEAD
 static int moxa_chars_in_buffer(struct tty_struct *tty)
 {
 	struct moxa_port *ch = tty->driver_data;
 	int chars;
+=======
+static unsigned int moxa_chars_in_buffer(struct tty_struct *tty)
+{
+	struct moxa_port *ch = tty->driver_data;
+	unsigned int chars;
+>>>>>>> upstream/android-13
 
 	chars = MoxaPortTxQueue(ch);
 	if (chars)
@@ -1384,7 +1440,11 @@ static int moxa_poll_port(struct moxa_port *p, unsigned int handle,
 			clear_bit(EMPTYWAIT, &p->statusflags);
 			tty_wakeup(tty);
 		}
+<<<<<<< HEAD
 		if (test_bit(LOWWAIT, &p->statusflags) && !tty->stopped &&
+=======
+		if (test_bit(LOWWAIT, &p->statusflags) && !tty->flow.stopped &&
+>>>>>>> upstream/android-13
 				MoxaPortTxQueue(p) <= WAKEUP_CHARS) {
 			clear_bit(LOWWAIT, &p->statusflags);
 			tty_wakeup(tty);
@@ -1991,7 +2051,11 @@ static int MoxaPortReadData(struct moxa_port *port)
 }
 
 
+<<<<<<< HEAD
 static int MoxaPortTxQueue(struct moxa_port *port)
+=======
+static unsigned int MoxaPortTxQueue(struct moxa_port *port)
+>>>>>>> upstream/android-13
 {
 	void __iomem *ofsAddr = port->tableAddr;
 	u16 rptr, wptr, mask;
@@ -2002,7 +2066,11 @@ static int MoxaPortTxQueue(struct moxa_port *port)
 	return (wptr - rptr) & mask;
 }
 
+<<<<<<< HEAD
 static int MoxaPortTxFree(struct moxa_port *port)
+=======
+static unsigned int MoxaPortTxFree(struct moxa_port *port)
+>>>>>>> upstream/android-13
 {
 	void __iomem *ofsAddr = port->tableAddr;
 	u16 rptr, wptr, mask;
@@ -2034,6 +2102,7 @@ static void MoxaPortTxEnable(struct moxa_port *port)
 	moxafunc(port->tableAddr, FC_SetXonState, Magic_code);
 }
 
+<<<<<<< HEAD
 static int moxa_get_serial_info(struct moxa_port *info,
 		struct serial_struct __user *retinfo)
 {
@@ -2074,6 +2143,58 @@ static int moxa_set_serial_info(struct moxa_port *info,
 	MoxaSetFifo(info, new_serial.type == PORT_16550A);
 
 	info->type = new_serial.type;
+=======
+static int moxa_get_serial_info(struct tty_struct *tty,
+		struct serial_struct *ss)
+{
+	struct moxa_port *info = tty->driver_data;
+
+	if (tty->index == MAX_PORTS)
+		return -EINVAL;
+	if (!info)
+		return -ENODEV;
+	mutex_lock(&info->port.mutex);
+	ss->type = info->type;
+	ss->line = info->port.tty->index;
+	ss->flags = info->port.flags;
+	ss->baud_base = 921600;
+	ss->close_delay = jiffies_to_msecs(info->port.close_delay) / 10;
+	mutex_unlock(&info->port.mutex);
+	return 0;
+}
+
+
+static int moxa_set_serial_info(struct tty_struct *tty,
+		struct serial_struct *ss)
+{
+	struct moxa_port *info = tty->driver_data;
+	unsigned int close_delay;
+
+	if (tty->index == MAX_PORTS)
+		return -EINVAL;
+	if (!info)
+		return -ENODEV;
+
+	close_delay = msecs_to_jiffies(ss->close_delay * 10);
+
+	mutex_lock(&info->port.mutex);
+	if (!capable(CAP_SYS_ADMIN)) {
+		if (close_delay != info->port.close_delay ||
+		    ss->type != info->type ||
+		    ((ss->flags & ~ASYNC_USR_MASK) !=
+		     (info->port.flags & ~ASYNC_USR_MASK))) {
+			mutex_unlock(&info->port.mutex);
+			return -EPERM;
+		}
+	} else {
+		info->port.close_delay = close_delay;
+
+		MoxaSetFifo(info, ss->type == PORT_16550A);
+
+		info->type = ss->type;
+	}
+	mutex_unlock(&info->port.mutex);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

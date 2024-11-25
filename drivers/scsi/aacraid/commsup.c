@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Adaptec AAC series RAID controller driver
  *	(c) Copyright 2001 Red Hat Inc.
@@ -9,6 +13,7 @@
  *               2010-2015 PMC-Sierra, Inc. (aacraid@pmc-sierra.com)
  *		 2016-2017 Microsemi Corp. (aacraid@microsemi.com)
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -23,12 +28,17 @@
  * along with this program; see the file COPYING.  If not, write to
  * the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+=======
+>>>>>>> upstream/android-13
  * Module Name:
  *  commsup.c
  *
  * Abstract: Contain all routines that are required for FSA host/adapter
  *    communication.
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -44,7 +54,10 @@
 #include <linux/delay.h>
 #include <linux/kthread.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
 #include <linux/semaphore.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/bcd.h>
 #include <scsi/scsi.h>
 #include <scsi/scsi_host.h>
@@ -189,7 +202,11 @@ int aac_fib_setup(struct aac_dev * dev)
 		fibptr->hw_fib_va = hw_fib;
 		fibptr->data = (void *) fibptr->hw_fib_va->data;
 		fibptr->next = fibptr+1;	/* Forward chain the fibs */
+<<<<<<< HEAD
 		sema_init(&fibptr->event_wait, 0);
+=======
+		init_completion(&fibptr->event_wait);
+>>>>>>> upstream/android-13
 		spin_lock_init(&fibptr->event_lock);
 		hw_fib->header.XferState = cpu_to_le32(0xffffffff);
 		hw_fib->header.SenderSize =
@@ -229,6 +246,10 @@ int aac_fib_setup(struct aac_dev * dev)
 /**
  *	aac_fib_alloc_tag-allocate a fib using tags
  *	@dev: Adapter to allocate the fib for
+<<<<<<< HEAD
+=======
+ *	@scmd: SCSI command
+>>>>>>> upstream/android-13
  *
  *	Allocate a fib from the adapter fib pool using tags
  *	from the blk layer.
@@ -238,7 +259,11 @@ struct fib *aac_fib_alloc_tag(struct aac_dev *dev, struct scsi_cmnd *scmd)
 {
 	struct fib *fibptr;
 
+<<<<<<< HEAD
 	fibptr = &dev->fibs[scmd->request->tag];
+=======
+	fibptr = &dev->fibs[scsi_cmd_to_rq(scmd)->tag];
+>>>>>>> upstream/android-13
 	/*
 	 *	Null out fields that depend on being zero at the start of
 	 *	each I/O
@@ -247,6 +272,10 @@ struct fib *aac_fib_alloc_tag(struct aac_dev *dev, struct scsi_cmnd *scmd)
 	fibptr->type = FSAFS_NTC_FIB_CONTEXT;
 	fibptr->callback_data = NULL;
 	fibptr->callback = NULL;
+<<<<<<< HEAD
+=======
+	fibptr->flags = 0;
+>>>>>>> upstream/android-13
 
 	return fibptr;
 }
@@ -336,7 +365,11 @@ void aac_fib_init(struct fib *fibptr)
 }
 
 /**
+<<<<<<< HEAD
  *	fib_deallocate		-	deallocate a fib
+=======
+ *	fib_dealloc		-	deallocate a fib
+>>>>>>> upstream/android-13
  *	@fibptr: fib to deallocate
  *
  *	Will deallocate and return to the free pool the FIB pointed to by the
@@ -419,8 +452,13 @@ static int aac_get_entry (struct aac_dev * dev, u32 qid, struct aac_entry **entr
  *	aac_queue_get		-	get the next free QE
  *	@dev: Adapter
  *	@index: Returned index
+<<<<<<< HEAD
  *	@priority: Priority of fib
  *	@fib: Fib to associate with the queue entry
+=======
+ *	@qid: Queue number
+ *	@hw_fib: Fib to associate with the queue entry
+>>>>>>> upstream/android-13
  *	@wait: Wait if queue full
  *	@fibptr: Driver fib object to go with fib
  *	@nonotify: Don't notify the adapter
@@ -623,7 +661,11 @@ int aac_fib_send(u16 command, struct fib *fibptr, unsigned long size,
 		}
 		if (wait) {
 			fibptr->flags |= FIB_CONTEXT_FLAG_WAIT;
+<<<<<<< HEAD
 			if (down_interruptible(&fibptr->event_wait)) {
+=======
+			if (wait_for_completion_interruptible(&fibptr->event_wait)) {
+>>>>>>> upstream/android-13
 				fibptr->flags &= ~FIB_CONTEXT_FLAG_WAIT;
 				return -EFAULT;
 			}
@@ -659,7 +701,11 @@ int aac_fib_send(u16 command, struct fib *fibptr, unsigned long size,
 			 * hardware failure has occurred.
 			 */
 			unsigned long timeout = jiffies + (180 * HZ); /* 3 minutes */
+<<<<<<< HEAD
 			while (down_trylock(&fibptr->event_wait)) {
+=======
+			while (!try_wait_for_completion(&fibptr->event_wait)) {
+>>>>>>> upstream/android-13
 				int blink;
 				if (time_is_before_eq_jiffies(timeout)) {
 					struct aac_queue * q = &dev->queues->queue[AdapNormCmdQueue];
@@ -689,9 +735,15 @@ int aac_fib_send(u16 command, struct fib *fibptr, unsigned long size,
 				 */
 				schedule();
 			}
+<<<<<<< HEAD
 		} else if (down_interruptible(&fibptr->event_wait)) {
 			/* Do nothing ... satisfy
 			 * down_interruptible must_check */
+=======
+		} else if (wait_for_completion_interruptible(&fibptr->event_wait)) {
+			/* Do nothing ... satisfy
+			 * wait_for_completion_interruptible must_check */
+>>>>>>> upstream/android-13
 		}
 
 		spin_lock_irqsave(&fibptr->event_lock, flags);
@@ -777,7 +829,11 @@ int aac_hba_send(u8 command, struct fib *fibptr, fib_callback callback,
 			return -EFAULT;
 
 		fibptr->flags |= FIB_CONTEXT_FLAG_WAIT;
+<<<<<<< HEAD
 		if (down_interruptible(&fibptr->event_wait))
+=======
+		if (wait_for_completion_interruptible(&fibptr->event_wait))
+>>>>>>> upstream/android-13
 			fibptr->done = 2;
 		fibptr->flags &= ~(FIB_CONTEXT_FLAG_WAIT);
 
@@ -948,7 +1004,11 @@ int aac_fib_adapter_complete(struct fib *fibptr, unsigned short size)
 
 /**
  *	aac_fib_complete	-	fib completion handler
+<<<<<<< HEAD
  *	@fib: FIB to complete
+=======
+ *	@fibptr: FIB to complete
+>>>>>>> upstream/android-13
  *
  *	Will do all necessary work to complete a FIB.
  */
@@ -1063,6 +1123,10 @@ static void aac_handle_aif_bu(struct aac_dev *dev, struct aac_aifcmd *aifcmd)
 	}
 }
 
+<<<<<<< HEAD
+=======
+#define AIF_SNIFF_TIMEOUT	(500*HZ)
+>>>>>>> upstream/android-13
 /**
  *	aac_handle_aif		-	Handle a message from the firmware
  *	@dev: Which adapter this fib is from
@@ -1071,8 +1135,11 @@ static void aac_handle_aif_bu(struct aac_dev *dev, struct aac_aifcmd *aifcmd)
  *	This routine handles a driver notify fib from the adapter and
  *	dispatches it to the appropriate routine for handling.
  */
+<<<<<<< HEAD
 
 #define AIF_SNIFF_TIMEOUT	(500*HZ)
+=======
+>>>>>>> upstream/android-13
 static void aac_handle_aif(struct aac_dev * dev, struct fib * fibptr)
 {
 	struct hw_fib * hw_fib = fibptr->hw_fib_va;
@@ -1378,6 +1445,7 @@ static void aac_handle_aif(struct aac_dev * dev, struct fib * fibptr)
 
 	container = 0;
 retry_next:
+<<<<<<< HEAD
 	if (device_config_needed == NOTHING)
 	for (; container < dev->maximum_num_containers; ++container) {
 		if ((dev->fsa_dev[container].config_waiting_on == 0) &&
@@ -1390,6 +1458,21 @@ retry_next:
 			id = CONTAINER_TO_ID(container);
 			lun = CONTAINER_TO_LUN(container);
 			break;
+=======
+	if (device_config_needed == NOTHING) {
+		for (; container < dev->maximum_num_containers; ++container) {
+			if ((dev->fsa_dev[container].config_waiting_on == 0) &&
+			    (dev->fsa_dev[container].config_needed != NOTHING) &&
+			    time_before(jiffies, dev->fsa_dev[container].config_waiting_stamp + AIF_SNIFF_TIMEOUT)) {
+				device_config_needed =
+					dev->fsa_dev[container].config_needed;
+				dev->fsa_dev[container].config_needed = NOTHING;
+				channel = CONTAINER_TO_CHANNEL(container);
+				id = CONTAINER_TO_ID(container);
+				lun = CONTAINER_TO_LUN(container);
+				break;
+			}
+>>>>>>> upstream/android-13
 		}
 	}
 	if (device_config_needed == NOTHING)
@@ -1444,7 +1527,11 @@ retry_next:
 						"enclosure services event");
 				scsi_device_set_state(device, SDEV_RUNNING);
 			}
+<<<<<<< HEAD
 			/* FALLTHRU */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case CHANGE:
 			if ((channel == CONTAINER_CHANNEL)
 			 && (!dev->fsa_dev[container].valid)) {
@@ -1461,6 +1548,10 @@ retry_next:
 				break;
 			}
 			scsi_rescan_device(&device->sdev_gendev);
+<<<<<<< HEAD
+=======
+			break;
+>>>>>>> upstream/android-13
 
 		default:
 			break;
@@ -1477,14 +1568,29 @@ retry_next:
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void aac_schedule_bus_scan(struct aac_dev *aac)
+{
+	if (aac->sa_firmware)
+		aac_schedule_safw_scan_worker(aac);
+	else
+		aac_schedule_src_reinit_aif_worker(aac);
+}
+
+>>>>>>> upstream/android-13
 static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 {
 	int index, quirks;
 	int retval;
+<<<<<<< HEAD
 	struct Scsi_Host *host;
 	struct scsi_device *dev;
 	struct scsi_cmnd *command;
 	struct scsi_cmnd *command_list;
+=======
+	struct Scsi_Host *host = aac->scsi_host_ptr;
+>>>>>>> upstream/android-13
 	int jafo = 0;
 	int bled;
 	u64 dmamask;
@@ -1500,8 +1606,11 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	 *	- The card is dead, or will be very shortly ;-/ so no new
 	 *	  commands are completing in the interrupt service.
 	 */
+<<<<<<< HEAD
 	host = aac->scsi_host_ptr;
 	scsi_block_requests(host);
+=======
+>>>>>>> upstream/android-13
 	aac_adapter_disable_int(aac);
 	if (aac->thread && aac->thread->pid != current->pid) {
 		spin_unlock_irq(host->host_lock);
@@ -1539,7 +1648,11 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 		  || fib->flags & FIB_CONTEXT_FLAG_WAIT) {
 			unsigned long flagv;
 			spin_lock_irqsave(&fib->event_lock, flagv);
+<<<<<<< HEAD
 			up(&fib->event_wait);
+=======
+			complete(&fib->event_wait);
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&fib->event_lock, flagv);
 			schedule();
 			retval = 0;
@@ -1561,6 +1674,10 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	aac_fib_map_free(aac);
 	dma_free_coherent(&aac->pdev->dev, aac->comm_size, aac->comm_addr,
 			  aac->comm_phys);
+<<<<<<< HEAD
+=======
+	aac_adapter_ioremap(aac, 0);
+>>>>>>> upstream/android-13
 	aac->comm_addr = NULL;
 	aac->comm_phys = 0;
 	kfree(aac->queues);
@@ -1571,6 +1688,7 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	dmamask = DMA_BIT_MASK(32);
 	quirks = aac_get_driver_ident(index)->quirks;
 	if (quirks & AAC_QUIRK_31BIT)
+<<<<<<< HEAD
 		retval = pci_set_dma_mask(aac->pdev, dmamask);
 	else if (!(quirks & AAC_QUIRK_SRC))
 		retval = pci_set_dma_mask(aac->pdev, dmamask);
@@ -1580,6 +1698,17 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	if (quirks & AAC_QUIRK_31BIT && !retval) {
 		dmamask = DMA_BIT_MASK(31);
 		retval = pci_set_consistent_dma_mask(aac->pdev, dmamask);
+=======
+		retval = dma_set_mask(&aac->pdev->dev, dmamask);
+	else if (!(quirks & AAC_QUIRK_SRC))
+		retval = dma_set_mask(&aac->pdev->dev, dmamask);
+	else
+		retval = dma_set_coherent_mask(&aac->pdev->dev, dmamask);
+
+	if (quirks & AAC_QUIRK_31BIT && !retval) {
+		dmamask = DMA_BIT_MASK(31);
+		retval = dma_set_coherent_mask(&aac->pdev->dev, dmamask);
+>>>>>>> upstream/android-13
 	}
 
 	if (retval)
@@ -1612,6 +1741,7 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	 * This is where the assumption that the Adapter is quiesced
 	 * is important.
 	 */
+<<<<<<< HEAD
 	command_list = NULL;
 	__shost_for_each_device(dev, host) {
 		unsigned long flags;
@@ -1645,6 +1775,13 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 out:
 	aac->in_reset = 0;
 	scsi_unblock_requests(host);
+=======
+	scsi_host_complete_all_commands(host, DID_RESET);
+
+	retval = 0;
+out:
+	aac->in_reset = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Issue bus rescan to catch any configuration that might have
@@ -1652,7 +1789,11 @@ out:
 	 */
 	if (!retval && !is_kdump_kernel()) {
 		dev_info(&aac->pdev->dev, "Scheduling bus rescan\n");
+<<<<<<< HEAD
 		aac_schedule_safw_scan_worker(aac);
+=======
+		aac_schedule_bus_scan(aac);
+>>>>>>> upstream/android-13
 	}
 
 	if (jafo) {
@@ -1664,8 +1805,13 @@ out:
 int aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 {
 	unsigned long flagv = 0;
+<<<<<<< HEAD
 	int retval;
 	struct Scsi_Host * host;
+=======
+	int retval, unblock_retval;
+	struct Scsi_Host *host = aac->scsi_host_ptr;
+>>>>>>> upstream/android-13
 	int bled;
 
 	if (spin_trylock_irqsave(&aac->fib_lock, flagv) == 0)
@@ -1683,8 +1829,12 @@ int aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	 * target (block maximum 60 seconds). Although not necessary,
 	 * it does make us a good storage citizen.
 	 */
+<<<<<<< HEAD
 	host = aac->scsi_host_ptr;
 	scsi_block_requests(host);
+=======
+	scsi_host_block(host);
+>>>>>>> upstream/android-13
 
 	/* Quiesce build, flush cache, write through mode */
 	if (forced < 2)
@@ -1695,6 +1845,12 @@ int aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
 	retval = _aac_reset_adapter(aac, bled, reset_type);
 	spin_unlock_irqrestore(host->host_lock, flagv);
 
+<<<<<<< HEAD
+=======
+	unblock_retval = scsi_host_unblock(host, SDEV_RUNNING);
+	if (!retval)
+		retval = unblock_retval;
+>>>>>>> upstream/android-13
 	if ((forced < 2) && (retval == -ENODEV)) {
 		/* Unwind aac_send_shutdown() IOP_RESET unsupported/disabled */
 		struct fib * fibctx = aac_fib_alloc(aac);
@@ -1829,7 +1985,11 @@ int aac_check_health(struct aac_dev * aac)
 			 * Set the event to wake up the
 			 * thread that will waiting.
 			 */
+<<<<<<< HEAD
 			up(&fibctx->wait_sem);
+=======
+			complete(&fibctx->completion);
+>>>>>>> upstream/android-13
 		} else {
 			printk(KERN_WARNING "aifd: didn't allocate NewFib.\n");
 			kfree(fib);
@@ -1973,8 +2133,23 @@ int aac_scan_host(struct aac_dev *dev)
 	return rcode;
 }
 
+<<<<<<< HEAD
 /**
  *	aac_handle_sa_aif	Handle a message from the firmware
+=======
+void aac_src_reinit_aif_worker(struct work_struct *work)
+{
+	struct aac_dev *dev = container_of(to_delayed_work(work),
+				struct aac_dev, src_reinit_aif_worker);
+
+	wait_event(dev->scsi_host_ptr->host_wait,
+			!scsi_host_in_recovery(dev->scsi_host_ptr));
+	aac_reinit_aif(dev, dev->cardtype);
+}
+
+/**
+ *	aac_handle_sa_aif -	Handle a message from the firmware
+>>>>>>> upstream/android-13
  *	@dev: Which adapter this fib is from
  *	@fibptr: Pointer to fibptr from adapter
  *
@@ -2166,7 +2341,11 @@ static void wakeup_fibctx_threads(struct aac_dev *dev,
 		 * Set the event to wake up the
 		 * thread that is waiting.
 		 */
+<<<<<<< HEAD
 		up(&fibctx->wait_sem);
+=======
+		complete(&fibctx->completion);
+>>>>>>> upstream/android-13
 
 		entry = entry->next;
 	}
@@ -2377,7 +2556,11 @@ fib_free_out:
 	goto out;
 }
 
+<<<<<<< HEAD
 int aac_send_safw_hostttime(struct aac_dev *dev, struct timespec64 *now)
+=======
+static int aac_send_safw_hostttime(struct aac_dev *dev, struct timespec64 *now)
+>>>>>>> upstream/android-13
 {
 	struct tm cur_tm;
 	char wellness_str[] = "<HW>TD\010\0\0\0\0\0\0\0\0\0DW\0\0ZZ";
@@ -2406,7 +2589,11 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 int aac_send_hosttime(struct aac_dev *dev, struct timespec64 *now)
+=======
+static int aac_send_hosttime(struct aac_dev *dev, struct timespec64 *now)
+>>>>>>> upstream/android-13
 {
 	int ret = -ENOMEM;
 	struct fib *fibptr;
@@ -2442,7 +2629,11 @@ out:
 
 /**
  *	aac_command_thread	-	command processing thread
+<<<<<<< HEAD
  *	@dev: Adapter to monitor
+=======
+ *	@data: Adapter to monitor
+>>>>>>> upstream/android-13
  *
  *	Waits on the commandready event in it's queue. When the event gets set
  *	it will pull FIBs off it's queue. It will continue to pull FIBs off
@@ -2587,9 +2778,13 @@ int aac_acquire_irq(struct aac_dev *dev)
 void aac_free_irq(struct aac_dev *dev)
 {
 	int i;
+<<<<<<< HEAD
 	int cpu;
 
 	cpu = cpumask_first(cpu_online_mask);
+=======
+
+>>>>>>> upstream/android-13
 	if (aac_is_src(dev)) {
 		if (dev->max_msix > 1) {
 			for (i = 0; i < dev->max_msix; i++)

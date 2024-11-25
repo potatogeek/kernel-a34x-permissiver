@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * u_ether_configfs.h
  *
@@ -7,7 +11,11 @@
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __U_ETHER_CONFIGFS_H
@@ -148,7 +156,24 @@ out:									\
 		return ret;						\
 	}								\
 									\
+<<<<<<< HEAD
 	CONFIGFS_ATTR_RO(_f_##_opts_, ifname)
+=======
+	static ssize_t _f_##_opts_ifname_store(struct config_item *item, \
+					       const char *page, size_t len)\
+	{								\
+		struct f_##_f_##_opts *opts = to_f_##_f_##_opts(item);	\
+		int ret = -EBUSY;					\
+									\
+		mutex_lock(&opts->lock);				\
+		if (!opts->refcnt)					\
+			ret = gether_set_ifname(opts->net, page, len);	\
+		mutex_unlock(&opts->lock);				\
+		return ret ?: len;					\
+	}								\
+									\
+	CONFIGFS_ATTR(_f_##_opts_, ifname)
+>>>>>>> upstream/android-13
 
 #define USB_ETHER_CONFIGFS_ITEM_ATTR_U8_RW(_f_, _n_)			\
 	static ssize_t _f_##_opts_##_n_##_show(struct config_item *item,\

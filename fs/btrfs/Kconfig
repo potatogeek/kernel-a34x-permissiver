@@ -2,16 +2,34 @@
 
 config BTRFS_FS
 	tristate "Btrfs filesystem support"
+<<<<<<< HEAD
 	select LIBCRC32C
+=======
+	select CRYPTO
+	select CRYPTO_CRC32C
+	select LIBCRC32C
+	select CRYPTO_XXHASH
+	select CRYPTO_SHA256
+	select CRYPTO_BLAKE2B
+>>>>>>> upstream/android-13
 	select ZLIB_INFLATE
 	select ZLIB_DEFLATE
 	select LZO_COMPRESS
 	select LZO_DECOMPRESS
 	select ZSTD_COMPRESS
 	select ZSTD_DECOMPRESS
+<<<<<<< HEAD
 	select RAID6_PQ
 	select XOR_BLOCKS
 	select SRCU
+=======
+	select FS_IOMAP
+	select RAID6_PQ
+	select XOR_BLOCKS
+	select SRCU
+	depends on !PPC_256K_PAGES	# powerpc
+	depends on !PAGE_SIZE_256KB	# hexagon
+>>>>>>> upstream/android-13
 
 	help
 	  Btrfs is a general purpose copy-on-write filesystem with extents,

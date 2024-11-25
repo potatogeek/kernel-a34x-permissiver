@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 config VIDEO_BCM2835
 	tristate "BCM2835 Camera"
 	depends on MEDIA_SUPPORT
 	depends on VIDEO_V4L2 && (ARCH_BCM2835 || COMPILE_TEST)
 	select BCM2835_VCHIQ
+<<<<<<< HEAD
+=======
+	select BCM2835_VCHIQ_MMAL
+>>>>>>> upstream/android-13
 	select VIDEOBUF2_VMALLOC
 	select BTREE
 	help

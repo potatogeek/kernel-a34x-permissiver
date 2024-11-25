@@ -24,7 +24,13 @@
 #include <linux/errno.h>
 #include <linux/export.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+#include <drm/drm_mode.h>
+#include <drm/drm_print.h>
+>>>>>>> upstream/android-13
 #include <drm/drm_rect.h>
 
 /**
@@ -50,14 +56,25 @@ bool drm_rect_intersect(struct drm_rect *r1, const struct drm_rect *r2)
 }
 EXPORT_SYMBOL(drm_rect_intersect);
 
+<<<<<<< HEAD
 static u32 clip_scaled(u32 src, u32 dst, u32 clip)
+=======
+static u32 clip_scaled(int src, int dst, int *clip)
+>>>>>>> upstream/android-13
 {
 	u64 tmp;
 
 	if (dst == 0)
 		return 0;
 
+<<<<<<< HEAD
 	tmp = mul_u32_u32(src, dst - clip);
+=======
+	/* Only clip what we have. Keeps the result bounded. */
+	*clip = min(*clip, dst);
+
+	tmp = mul_u32_u32(src, dst - *clip);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Round toward 1.0 when clipping so that we don't accidentally
@@ -76,11 +93,21 @@ static u32 clip_scaled(u32 src, u32 dst, u32 clip)
  * @clip: clip rectangle
  *
  * Clip rectangle @dst by rectangle @clip. Clip rectangle @src by the
+<<<<<<< HEAD
  * same amounts multiplied by @hscale and @vscale.
  *
  * RETURNS:
  * %true if rectangle @dst is still visible after being clipped,
  * %false otherwise
+=======
+ * the corresponding amounts, retaining the vertical and horizontal scaling
+ * factors from @src to @dst.
+ *
+ * RETURNS:
+ *
+ * %true if rectangle @dst is still visible after being clipped,
+ * %false otherwise.
+>>>>>>> upstream/android-13
  */
 bool drm_rect_clip_scaled(struct drm_rect *src, struct drm_rect *dst,
 			  const struct drm_rect *clip)
@@ -90,34 +117,62 @@ bool drm_rect_clip_scaled(struct drm_rect *src, struct drm_rect *dst,
 	diff = clip->x1 - dst->x1;
 	if (diff > 0) {
 		u32 new_src_w = clip_scaled(drm_rect_width(src),
+<<<<<<< HEAD
 					    drm_rect_width(dst), diff);
 
 		src->x1 = clamp_t(int64_t, src->x2 - new_src_w, INT_MIN, INT_MAX);
 		dst->x1 = clip->x1;
+=======
+					    drm_rect_width(dst), &diff);
+
+		src->x1 = src->x2 - new_src_w;
+		dst->x1 += diff;
+>>>>>>> upstream/android-13
 	}
 	diff = clip->y1 - dst->y1;
 	if (diff > 0) {
 		u32 new_src_h = clip_scaled(drm_rect_height(src),
+<<<<<<< HEAD
 					    drm_rect_height(dst), diff);
 
 		src->y1 = clamp_t(int64_t, src->y2 - new_src_h, INT_MIN, INT_MAX);
 		dst->y1 = clip->y1;
+=======
+					    drm_rect_height(dst), &diff);
+
+		src->y1 = src->y2 - new_src_h;
+		dst->y1 += diff;
+>>>>>>> upstream/android-13
 	}
 	diff = dst->x2 - clip->x2;
 	if (diff > 0) {
 		u32 new_src_w = clip_scaled(drm_rect_width(src),
+<<<<<<< HEAD
 					    drm_rect_width(dst), diff);
 
 		src->x2 = clamp_t(int64_t, src->x1 + new_src_w, INT_MIN, INT_MAX);
 		dst->x2 = clip->x2;
+=======
+					    drm_rect_width(dst), &diff);
+
+		src->x2 = src->x1 + new_src_w;
+		dst->x2 -= diff;
+>>>>>>> upstream/android-13
 	}
 	diff = dst->y2 - clip->y2;
 	if (diff > 0) {
 		u32 new_src_h = clip_scaled(drm_rect_height(src),
+<<<<<<< HEAD
 					    drm_rect_height(dst), diff);
 
 		src->y2 = clamp_t(int64_t, src->y1 + new_src_h, INT_MIN, INT_MAX);
 		dst->y2 = clip->y2;
+=======
+					    drm_rect_height(dst), &diff);
+
+		src->y2 = src->y1 + new_src_h;
+		dst->y2 -= diff;
+>>>>>>> upstream/android-13
 	}
 
 	return drm_rect_visible(dst);
@@ -213,6 +268,7 @@ int drm_rect_calc_vscale(const struct drm_rect *src,
 EXPORT_SYMBOL(drm_rect_calc_vscale);
 
 /**
+<<<<<<< HEAD
  * drm_calc_hscale_relaxed - calculate the horizontal scaling factor
  * @src: source window rectangle
  * @dst: destination window rectangle
@@ -321,6 +377,8 @@ int drm_rect_calc_vscale_relaxed(struct drm_rect *src,
 EXPORT_SYMBOL(drm_rect_calc_vscale_relaxed);
 
 /**
+=======
+>>>>>>> upstream/android-13
  * drm_rect_debug_print - print the rectangle information
  * @prefix: prefix string
  * @r: rectangle to print

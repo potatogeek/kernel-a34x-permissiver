@@ -845,6 +845,7 @@ qdisc_peek_len(struct Qdisc *sch)
 }
 
 static void
+<<<<<<< HEAD
 hfsc_purge_queue(struct Qdisc *sch, struct hfsc_class *cl)
 {
 	unsigned int len = cl->qdisc->q.qlen;
@@ -855,6 +856,8 @@ hfsc_purge_queue(struct Qdisc *sch, struct hfsc_class *cl)
 }
 
 static void
+=======
+>>>>>>> upstream/android-13
 hfsc_adjust_levels(struct hfsc_class *cl)
 {
 	struct hfsc_class *p;
@@ -936,7 +939,12 @@ hfsc_change_class(struct Qdisc *sch, u32 classid, u32 parentid,
 	if (opt == NULL)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_HFSC_MAX, opt, hfsc_policy, NULL);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_HFSC_MAX, opt, hfsc_policy,
+					  NULL);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1076,7 +1084,11 @@ hfsc_change_class(struct Qdisc *sch, u32 classid, u32 parentid,
 	qdisc_class_hash_insert(&q->clhash, &cl->cl_common);
 	list_add_tail(&cl->siblings, &parent->children);
 	if (parent->level == 0)
+<<<<<<< HEAD
 		hfsc_purge_queue(sch, parent);
+=======
+		qdisc_purge_queue(parent->qdisc);
+>>>>>>> upstream/android-13
 	hfsc_adjust_levels(parent);
 	sch_tree_unlock(sch);
 
@@ -1092,14 +1104,23 @@ hfsc_destroy_class(struct Qdisc *sch, struct hfsc_class *cl)
 	struct hfsc_sched *q = qdisc_priv(sch);
 
 	tcf_block_put(cl->block);
+<<<<<<< HEAD
 	qdisc_destroy(cl->qdisc);
+=======
+	qdisc_put(cl->qdisc);
+>>>>>>> upstream/android-13
 	gen_kill_estimator(&cl->rate_est);
 	if (cl != &q->root)
 		kfree(cl);
 }
 
 static int
+<<<<<<< HEAD
 hfsc_delete_class(struct Qdisc *sch, unsigned long arg)
+=======
+hfsc_delete_class(struct Qdisc *sch, unsigned long arg,
+		  struct netlink_ext_ack *extack)
+>>>>>>> upstream/android-13
 {
 	struct hfsc_sched *q = qdisc_priv(sch);
 	struct hfsc_class *cl = (struct hfsc_class *)arg;
@@ -1112,7 +1133,11 @@ hfsc_delete_class(struct Qdisc *sch, unsigned long arg)
 	list_del(&cl->siblings);
 	hfsc_adjust_levels(cl->cl_parent);
 
+<<<<<<< HEAD
 	hfsc_purge_queue(sch, cl);
+=======
+	qdisc_purge_queue(cl->qdisc);
+>>>>>>> upstream/android-13
 	qdisc_class_hash_remove(&q->clhash, &cl->cl_common);
 
 	sch_tree_unlock(sch);
@@ -1138,14 +1163,22 @@ hfsc_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
 	*qerr = NET_XMIT_SUCCESS | __NET_XMIT_BYPASS;
 	head = &q->root;
 	tcf = rcu_dereference_bh(q->root.filter_list);
+<<<<<<< HEAD
 	while (tcf && (result = tcf_classify(skb, tcf, &res, false)) >= 0) {
+=======
+	while (tcf && (result = tcf_classify(skb, NULL, tcf, &res, false)) >= 0) {
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_CLS_ACT
 		switch (result) {
 		case TC_ACT_QUEUED:
 		case TC_ACT_STOLEN:
 		case TC_ACT_TRAP:
 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_ACT_SHOT:
 			return NULL;
 		}
@@ -1310,7 +1343,11 @@ hfsc_dump_class(struct Qdisc *sch, unsigned long arg, struct sk_buff *skb,
 	if (cl->level == 0)
 		tcm->tcm_info = cl->qdisc->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 	if (hfsc_dump_curves(skb, cl) < 0)
@@ -1328,8 +1365,14 @@ hfsc_dump_class_stats(struct Qdisc *sch, unsigned long arg,
 {
 	struct hfsc_class *cl = (struct hfsc_class *)arg;
 	struct tc_hfsc_stats xstats;
+<<<<<<< HEAD
 
 	cl->qstats.backlog = cl->qdisc->qstats.backlog;
+=======
+	__u32 qlen;
+
+	qdisc_qstats_qlen_backlog(cl->qdisc, &qlen, &cl->qstats.backlog);
+>>>>>>> upstream/android-13
 	xstats.level   = cl->level;
 	xstats.period  = cl->cl_vtperiod;
 	xstats.work    = cl->cl_total;
@@ -1337,7 +1380,11 @@ hfsc_dump_class_stats(struct Qdisc *sch, unsigned long arg,
 
 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch), d, NULL, &cl->bstats) < 0 ||
 	    gnet_stats_copy_rate_est(d, &cl->rate_est) < 0 ||
+<<<<<<< HEAD
 	    gnet_stats_copy_queue(d, NULL, &cl->qstats, cl->qdisc->q.qlen) < 0)
+=======
+	    gnet_stats_copy_queue(d, NULL, &cl->qstats, qlen) < 0)
+>>>>>>> upstream/android-13
 		return -1;
 
 	return gnet_stats_copy_app(d, &xstats, sizeof(xstats));
@@ -1539,8 +1586,15 @@ hfsc_dump_qdisc(struct Qdisc *sch, struct sk_buff *skb)
 static int
 hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 {
+<<<<<<< HEAD
 	struct hfsc_class *cl;
 	int uninitialized_var(err);
+=======
+	unsigned int len = qdisc_pkt_len(skb);
+	struct hfsc_class *cl;
+	int err;
+	bool first;
+>>>>>>> upstream/android-13
 
 	cl = hfsc_classify(skb, sch, &err);
 	if (cl == NULL) {
@@ -1550,6 +1604,10 @@ hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	first = !cl->qdisc->q.qlen;
+>>>>>>> upstream/android-13
 	err = qdisc_enqueue(skb, cl->qdisc, to_free);
 	if (unlikely(err != NET_XMIT_SUCCESS)) {
 		if (net_xmit_drop_count(err)) {
@@ -1559,9 +1617,13 @@ hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 		return err;
 	}
 
+<<<<<<< HEAD
 	if (cl->qdisc->q.qlen == 1) {
 		unsigned int len = qdisc_pkt_len(skb);
 
+=======
+	if (first) {
+>>>>>>> upstream/android-13
 		if (cl->cl_flags & HFSC_RSC)
 			init_ed(cl, len);
 		if (cl->cl_flags & HFSC_FSC)
@@ -1576,7 +1638,11 @@ hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 
 	}
 
+<<<<<<< HEAD
 	qdisc_qstats_backlog_inc(sch, skb);
+=======
+	sch->qstats.backlog += len;
+>>>>>>> upstream/android-13
 	sch->q.qlen++;
 
 	return NET_XMIT_SUCCESS;

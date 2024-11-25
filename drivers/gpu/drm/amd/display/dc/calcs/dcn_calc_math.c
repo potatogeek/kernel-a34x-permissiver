@@ -73,6 +73,20 @@ float dcn_bw_floor2(const float arg, const float significance)
 		return 0;
 	return ((int) (arg / significance)) * significance;
 }
+<<<<<<< HEAD
+=======
+float dcn_bw_floor(const float arg)
+{
+	return ((int) (arg));
+}
+
+float dcn_bw_ceil(const float arg)
+{
+	float flr = dcn_bw_floor2(arg, 1);
+
+	return flr + 0.00001 >= arg ? arg : flr + 1;
+}
+>>>>>>> upstream/android-13
 
 float dcn_bw_ceil2(const float arg, const float significance)
 {
@@ -109,6 +123,18 @@ float dcn_bw_pow(float a, float exp)
 	}
 }
 
+<<<<<<< HEAD
+=======
+double dcn_bw_fabs(double a)
+{
+	if (a > 0)
+		return (a);
+	else
+		return (-a);
+}
+
+
+>>>>>>> upstream/android-13
 float dcn_bw_log(float a, float b)
 {
 	int * const exp_ptr = (int *)(&a);

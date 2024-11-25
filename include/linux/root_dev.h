@@ -8,6 +8,10 @@
 
 enum {
 	Root_NFS = MKDEV(UNNAMED_MAJOR, 255),
+<<<<<<< HEAD
+=======
+	Root_CIFS = MKDEV(UNNAMED_MAJOR, 254),
+>>>>>>> upstream/android-13
 	Root_RAM0 = MKDEV(RAMDISK_MAJOR, 0),
 	Root_RAM1 = MKDEV(RAMDISK_MAJOR, 1),
 	Root_FD0 = MKDEV(FLOPPY_MAJOR, 0),

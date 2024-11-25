@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2009 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/gfp.h>
@@ -107,7 +114,11 @@ static void wl1271_rx_status(struct wl1271 *wl,
 	}
 
 	if (beacon || probe_rsp)
+<<<<<<< HEAD
 		status->boottime_ns = ktime_get_boot_ns();
+=======
+		status->boottime_ns = ktime_get_boottime_ns();
+>>>>>>> upstream/android-13
 
 	if (beacon)
 		wlcore_set_pending_regdomain_ch(wl, (u16)desc->channel,

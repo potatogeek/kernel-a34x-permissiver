@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2008-2009 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "wlcore.h"
@@ -43,18 +50,32 @@ int wlcore_event_fw_logger(struct wl1271 *wl)
 	u8  *buffer;
 	u32 internal_fw_addrbase = WL18XX_DATA_RAM_BASE_ADDRESS;
 	u32 addr = WL18XX_LOGGER_SDIO_BUFF_ADDR;
+<<<<<<< HEAD
 	u32 end_buff_addr = WL18XX_LOGGER_SDIO_BUFF_ADDR +
 				WL18XX_LOGGER_BUFF_OFFSET;
 	u32 available_len;
 	u32 actual_len;
 	u32 clear_addr;
+=======
+	u32 addr_ptr;
+	u32 buff_start_ptr;
+	u32 buff_read_ptr;
+	u32 buff_end_ptr;
+	u32 available_len;
+	u32 actual_len;
+	u32 clear_ptr;
+>>>>>>> upstream/android-13
 	size_t len;
 	u32 start_loc;
 
 	buffer = kzalloc(WL18XX_LOGGER_SDIO_BUFF_MAX, GFP_KERNEL);
 	if (!buffer) {
 		wl1271_error("Fail to allocate fw logger memory");
+<<<<<<< HEAD
 		fw_log.actual_buff_size = cpu_to_le32(0);
+=======
+		actual_len = 0;
+>>>>>>> upstream/android-13
 		goto out;
 	}
 
@@ -63,12 +84,17 @@ int wlcore_event_fw_logger(struct wl1271 *wl)
 	if (ret < 0) {
 		wl1271_error("Fail to read logger buffer, error_id = %d",
 			     ret);
+<<<<<<< HEAD
 		fw_log.actual_buff_size = cpu_to_le32(0);
+=======
+		actual_len = 0;
+>>>>>>> upstream/android-13
 		goto free_out;
 	}
 
 	memcpy(&fw_log, buffer, sizeof(fw_log));
 
+<<<<<<< HEAD
 	if (le32_to_cpu(fw_log.actual_buff_size) == 0)
 		goto free_out;
 
@@ -87,10 +113,45 @@ int wlcore_event_fw_logger(struct wl1271 *wl)
 			internal_fw_addrbase;
 
 	len = le32_to_cpu(fw_log.actual_buff_size) - len;
+=======
+	actual_len = le32_to_cpu(fw_log.actual_buff_size);
+	if (actual_len == 0)
+		goto free_out;
+
+	/* Calculate the internal pointer to the fwlog structure */
+	addr_ptr = internal_fw_addrbase + addr;
+
+	/* Calculate the internal pointers to the start and end of log buffer */
+	buff_start_ptr = addr_ptr + WL18XX_LOGGER_BUFF_OFFSET;
+	buff_end_ptr = buff_start_ptr + le32_to_cpu(fw_log.max_buff_size);
+
+	/* Read the read pointer and validate it */
+	buff_read_ptr = le32_to_cpu(fw_log.buff_read_ptr);
+	if (buff_read_ptr < buff_start_ptr ||
+	    buff_read_ptr >= buff_end_ptr) {
+		wl1271_error("buffer read pointer out of bounds: %x not in (%x-%x)\n",
+			     buff_read_ptr, buff_start_ptr, buff_end_ptr);
+		goto free_out;
+	}
+
+	start_loc = buff_read_ptr - addr_ptr;
+	available_len = buff_end_ptr - buff_read_ptr;
+
+	/* Copy initial part up to the end of ring buffer */
+	len = min(actual_len, available_len);
+	wl12xx_copy_fwlog(wl, &buffer[start_loc], len);
+	clear_ptr = addr_ptr + start_loc + actual_len;
+	if (clear_ptr == buff_end_ptr)
+		clear_ptr = buff_start_ptr;
+
+	/* Copy any remaining part from beginning of ring buffer */
+	len = actual_len - len;
+>>>>>>> upstream/android-13
 	if (len) {
 		wl12xx_copy_fwlog(wl,
 				  &buffer[WL18XX_LOGGER_BUFF_OFFSET],
 				  len);
+<<<<<<< HEAD
 		clear_addr = addr + WL18XX_LOGGER_BUFF_OFFSET + len +
 				internal_fw_addrbase;
 	}
@@ -108,6 +169,18 @@ free_out:
 	kfree(buffer);
 out:
 	return le32_to_cpu(fw_log.actual_buff_size);
+=======
+		clear_ptr = addr_ptr + WL18XX_LOGGER_BUFF_OFFSET + len;
+	}
+
+	/* Update the read pointer */
+	ret = wlcore_write32(wl, addr + WL18XX_LOGGER_READ_POINT_OFFSET,
+			     clear_ptr);
+free_out:
+	kfree(buffer);
+out:
+	return actual_len;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(wlcore_event_fw_logger);
 

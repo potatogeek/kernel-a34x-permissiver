@@ -13,6 +13,13 @@
 #
 
 archscripts: scripts_basic
+<<<<<<< HEAD
+=======
+	$(Q)$(MAKE) $(build)=arch/mips/tools elf-entry
+ifeq ($(CONFIG_CPU_LOONGSON3_WORKAROUNDS),y)
+	$(Q)$(MAKE) $(build)=arch/mips/tools loongson3-llsc-check
+endif
+>>>>>>> upstream/android-13
 	$(Q)$(MAKE) $(build)=arch/mips/boot/tools relocs
 
 KBUILD_DEFCONFIG := 32r2el_defconfig
@@ -46,7 +53,11 @@ tool-archpref		= $(64bit-tool-archpref)
 UTS_MACHINE		:= mips64
 endif
 
+<<<<<<< HEAD
 ifneq ($(SUBARCH),$(ARCH))
+=======
+ifdef cross_compiling
+>>>>>>> upstream/android-13
   ifeq ($(CROSS_COMPILE),)
     CROSS_COMPILE := $(call cc-cross-prefix, $(tool-archpref)-linux-  $(tool-archpref)-linux-gnu-  $(tool-archpref)-unknown-linux-gnu-)
   endif
@@ -112,6 +123,7 @@ endif
 
 cflags-y += -ffreestanding
 
+<<<<<<< HEAD
 #
 # We explicitly add the endianness specifier if needed, this allows
 # to compile kernels with a toolchain for the other endianness. We
@@ -139,6 +151,10 @@ predef-le += -DMIPSEL -D_MIPSEL -D__MIPSEL -D__MIPSEL__
 cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(shell $(CC) -dumpmachine |grep -q 'mips.*el-.*' && echo -EB $(undef-all) $(predef-be))
 cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= $(shell $(CC) -dumpmachine |grep -q 'mips.*el-.*' || echo -EL $(undef-all) $(predef-le))
 endif
+=======
+cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= -EB
+cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -EL
+>>>>>>> upstream/android-13
 
 cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(call cc-option,-mno-sched-prolog) \
 				   -fno-omit-frame-pointer
@@ -157,6 +173,28 @@ cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(call cc-option,-mno-sched-prolog) \
 #
 cflags-y += -fno-stack-check
 
+<<<<<<< HEAD
+=======
+# binutils from v2.35 when built with --enable-mips-fix-loongson3-llsc=yes,
+# supports an -mfix-loongson3-llsc flag which emits a sync prior to each ll
+# instruction to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h
+# for a description).
+#
+# We disable this in order to prevent the assembler meddling with the
+# instruction that labels refer to, ie. if we label an ll instruction:
+#
+# 1: ll v0, 0(a0)
+#
+# ...then with the assembler fix applied the label may actually point at a sync
+# instruction inserted by the assembler, and if we were using the label in an
+# exception table the table would no longer contain the address of the ll
+# instruction.
+#
+# Avoid this by explicitly disabling that assembler behaviour.
+#
+cflags-y += $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
+
+>>>>>>> upstream/android-13
 #
 # CPU-dependent compiler/assembler options for optimization.
 #
@@ -168,6 +206,7 @@ cflags-$(CONFIG_CPU_R4X00)	+= -march=r4600 -Wa,--trap
 cflags-$(CONFIG_CPU_TX49XX)	+= -march=r4600 -Wa,--trap
 cflags-$(CONFIG_CPU_MIPS32_R1)	+= -march=mips32 -Wa,--trap
 cflags-$(CONFIG_CPU_MIPS32_R2)	+= -march=mips32r2 -Wa,--trap
+<<<<<<< HEAD
 cflags-$(CONFIG_CPU_MIPS32_R6)	+= -march=mips32r6 -Wa,--trap -modd-spreg
 cflags-$(CONFIG_CPU_MIPS64_R1)	+= -march=mips64 -Wa,--trap
 cflags-$(CONFIG_CPU_MIPS64_R2)	+= -march=mips64r2 -Wa,--trap
@@ -175,6 +214,16 @@ cflags-$(CONFIG_CPU_MIPS64_R6)	+= -march=mips64r6 -Wa,--trap
 cflags-$(CONFIG_CPU_R5000)	+= -march=r5000 -Wa,--trap
 cflags-$(CONFIG_CPU_R5432)	+= $(call cc-option,-march=r5400,-march=r5000) \
 			-Wa,--trap
+=======
+cflags-$(CONFIG_CPU_MIPS32_R5)	+= -march=mips32r5 -Wa,--trap -modd-spreg
+cflags-$(CONFIG_CPU_MIPS32_R6)	+= -march=mips32r6 -Wa,--trap -modd-spreg
+cflags-$(CONFIG_CPU_MIPS64_R1)	+= -march=mips64 -Wa,--trap
+cflags-$(CONFIG_CPU_MIPS64_R2)	+= -march=mips64r2 -Wa,--trap
+cflags-$(CONFIG_CPU_MIPS64_R5)	+= -march=mips64r5 -Wa,--trap
+cflags-$(CONFIG_CPU_MIPS64_R6)	+= -march=mips64r6 -Wa,--trap
+cflags-$(CONFIG_CPU_P5600)	+= -march=p5600 -Wa,--trap -modd-spreg
+cflags-$(CONFIG_CPU_R5000)	+= -march=r5000 -Wa,--trap
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_CPU_R5500)	+= $(call cc-option,-march=r5500,-march=r5000) \
 			-Wa,--trap
 cflags-$(CONFIG_CPU_NEVADA)	+= $(call cc-option,-march=rm5200,-march=r5000) \
@@ -185,7 +234,10 @@ cflags-$(CONFIG_CPU_SB1)	+= $(call cc-option,-march=sb1,-march=r5000) \
 			-Wa,--trap
 cflags-$(CONFIG_CPU_SB1)	+= $(call cc-option,-mno-mdmx)
 cflags-$(CONFIG_CPU_SB1)	+= $(call cc-option,-mno-mips3d)
+<<<<<<< HEAD
 cflags-$(CONFIG_CPU_R8000)	+= -march=r8000 -Wa,--trap
+=======
+>>>>>>> upstream/android-13
 cflags-$(CONFIG_CPU_R10000)	+= $(call cc-option,-march=r10000,-march=r8000) \
 			-Wa,--trap
 cflags-$(CONFIG_CPU_CAVIUM_OCTEON) += $(call cc-option,-march=octeon) -Wa,--trap
@@ -231,6 +283,13 @@ toolchain-xpa				:= $(call cc-option-yn,$(xpa-cflags-y) -mxpa)
 cflags-$(toolchain-xpa)			+= -DTOOLCHAIN_SUPPORTS_XPA
 toolchain-crc				:= $(call cc-option-yn,$(mips-cflags) -Wa$(comma)-mcrc)
 cflags-$(toolchain-crc)			+= -DTOOLCHAIN_SUPPORTS_CRC
+<<<<<<< HEAD
+=======
+toolchain-dsp				:= $(call cc-option-yn,$(mips-cflags) -Wa$(comma)-mdsp)
+cflags-$(toolchain-dsp)			+= -DTOOLCHAIN_SUPPORTS_DSP
+toolchain-ginv				:= $(call cc-option-yn,$(mips-cflags) -Wa$(comma)-mginv)
+cflags-$(toolchain-ginv)		+= -DTOOLCHAIN_SUPPORTS_GINV
+>>>>>>> upstream/android-13
 
 #
 # Firmware support
@@ -252,12 +311,19 @@ endif
 #
 # Board-dependent options and extra files
 #
+<<<<<<< HEAD
 include arch/mips/Kbuild.platforms
+=======
+ifdef need-compiler
+include $(srctree)/arch/mips/Kbuild.platforms
+endif
+>>>>>>> upstream/android-13
 
 ifdef CONFIG_PHYSICAL_START
 load-y					= $(CONFIG_PHYSICAL_START)
 endif
 
+<<<<<<< HEAD
 # Sign-extend the entry point to 64 bits if retrieved as a 32-bit number.
 entry-y		= $(shell $(OBJDUMP) -f vmlinux 2>/dev/null \
 			| sed -n '/^start address / { \
@@ -265,6 +331,9 @@ entry-y		= $(shell $(OBJDUMP) -f vmlinux 2>/dev/null \
 				s/0x\([0-7].......\)$$/0x00000000\1/; \
 				s/0x\(........\)$$/0xffffffff\1/; p }')
 
+=======
+entry-y				= $(shell $(objtree)/arch/mips/tools/elf-entry vmlinux)
+>>>>>>> upstream/android-13
 cflags-y			+= -I$(srctree)/arch/mips/include/asm/mach-generic
 drivers-$(CONFIG_PCI)		+= arch/mips/pci/
 
@@ -325,7 +394,11 @@ KBUILD_LDFLAGS		+= -m $(ld-emul)
 
 ifdef CONFIG_MIPS
 CHECKFLAGS += $(shell $(CC) $(KBUILD_CFLAGS) -dM -E -x c /dev/null | \
+<<<<<<< HEAD
 	egrep -vw '__GNUC_(|MINOR_|PATCHLEVEL_)_' | \
+=======
+	egrep -vw '__GNUC_(MINOR_|PATCHLEVEL_)?_' | \
+>>>>>>> upstream/android-13
 	sed -e "s/^\#define /-D'/" -e "s/ /'='/" -e "s/$$/'/" -e 's/\$$/&&/g')
 endif
 
@@ -334,6 +407,7 @@ OBJCOPYFLAGS		+= --remove-section=.reginfo
 head-y := arch/mips/kernel/head.o
 
 libs-y			+= arch/mips/lib/
+<<<<<<< HEAD
 libs-y			+= arch/mips/math-emu/
 
 # See arch/mips/Kbuild for content of core part of the kernel
@@ -341,6 +415,11 @@ core-y += arch/mips/
 
 drivers-y			+= arch/mips/crypto/
 drivers-$(CONFIG_OPROFILE)	+= arch/mips/oprofile/
+=======
+libs-$(CONFIG_MIPS_FP_SUPPORT) += arch/mips/math-emu/
+
+drivers-y			+= arch/mips/crypto/
+>>>>>>> upstream/android-13
 
 # suspend and hibernation support
 drivers-$(CONFIG_PM)	+= arch/mips/power/
@@ -371,12 +450,16 @@ bootz-y			+= vmlinuz.srec
 ifeq ($(shell expr $(zload-y) \< 0xffffffff80000000 2> /dev/null), 0)
 bootz-y			+= uzImage.bin
 endif
+<<<<<<< HEAD
 
 ifdef CONFIG_LASAT
 rom.bin rom.sw: vmlinux
 	$(Q)$(MAKE) $(build)=arch/mips/lasat/image \
 		$(bootvars-y) $@
 endif
+=======
+bootz-y			+= vmlinuz.itb
+>>>>>>> upstream/android-13
 
 #
 # Some machines like the Indy need 32-bit ELF binaries for booting purposes.
@@ -408,7 +491,11 @@ ifdef CONFIG_SYS_SUPPORTS_ZBOOT
 # boot/compressed
 $(bootz-y): $(vmlinux-32) FORCE
 	$(Q)$(MAKE) $(build)=arch/mips/boot/compressed \
+<<<<<<< HEAD
 		$(bootvars-y) 32bit-bfd=$(32bit-bfd) $@
+=======
+		$(bootvars-y) 32bit-bfd=$(32bit-bfd) arch/mips/boot/$@
+>>>>>>> upstream/android-13
 else
 vmlinuz: FORCE
 	@echo '   CONFIG_SYS_SUPPORTS_ZBOOT is not enabled'
@@ -419,6 +506,7 @@ endif
 CLEAN_FILES += vmlinux.32 vmlinux.64
 
 # device-trees
+<<<<<<< HEAD
 core-$(CONFIG_BUILTIN_DTB) += arch/mips/boot/dts/
 
 %.dtb %.dtb.S %.dtb.o: | scripts
@@ -431,6 +519,9 @@ dtbs: scripts
 PHONY += dtbs_install
 dtbs_install:
 	$(Q)$(MAKE) $(dtbinst)=arch/mips/boot/dts
+=======
+core-y += arch/mips/boot/dts/
+>>>>>>> upstream/android-13
 
 archprepare:
 ifdef CONFIG_MIPS32_N32
@@ -454,7 +545,13 @@ archclean:
 	$(Q)$(MAKE) $(clean)=arch/mips/boot
 	$(Q)$(MAKE) $(clean)=arch/mips/boot/compressed
 	$(Q)$(MAKE) $(clean)=arch/mips/boot/tools
+<<<<<<< HEAD
 	$(Q)$(MAKE) $(clean)=arch/mips/lasat
+=======
+
+archheaders:
+	$(Q)$(MAKE) $(build)=arch/mips/kernel/syscalls all
+>>>>>>> upstream/android-13
 
 define archhelp
 	echo '  install              - install kernel into $(INSTALL_PATH)'
@@ -473,8 +570,11 @@ define archhelp
 	echo '  uImage.lzma          - U-Boot image (lzma)'
 	echo '  uImage.lzo           - U-Boot image (lzo)'
 	echo '  uzImage.bin          - U-Boot image (self-extracting)'
+<<<<<<< HEAD
 	echo '  dtbs                 - Device-tree blobs for enabled boards'
 	echo '  dtbs_install         - Install dtbs to $(INSTALL_DTBS_PATH)'
+=======
+>>>>>>> upstream/android-13
 	echo
 	echo '  These will be default as appropriate for a configured platform.'
 	echo
@@ -584,6 +684,12 @@ sead3micro_defconfig-y		:= micro32r2el_defconfig BOARDS=sead-3
 legacy_defconfigs		+= xilfpga_defconfig
 xilfpga_defconfig-y		:= 32r2el_defconfig BOARDS=xilfpga
 
+<<<<<<< HEAD
+=======
+legacy_defconfigs		+= pistachio_defconfig
+pistachio_defconfig-y		:= 32r2el_defconfig BOARDS=marduk
+
+>>>>>>> upstream/android-13
 .PHONY: $(legacy_defconfigs)
 $(legacy_defconfigs):
 	$(Q)$(MAKE) -f $(srctree)/Makefile $($@-y)

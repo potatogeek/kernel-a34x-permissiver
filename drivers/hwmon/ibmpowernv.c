@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * IBM PowerNV platform sensors for temperature/fan/voltage/power
  * Copyright (C) 2014 IBM
@@ -14,6 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * IBM PowerNV platform sensors for temperature/fan/voltage/power
+ * Copyright (C) 2014 IBM
+>>>>>>> upstream/android-13
  */
 
 #define DRVNAME		"ibmpowernv"
@@ -198,7 +205,11 @@ static void make_sensor_label(struct device_node *np,
 	u32 id;
 	size_t n;
 
+<<<<<<< HEAD
 	n = snprintf(sdata->label, sizeof(sdata->label), "%s", label);
+=======
+	n = scnprintf(sdata->label, sizeof(sdata->label), "%s", label);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Core temp pretty print
@@ -211,11 +222,19 @@ static void make_sensor_label(struct device_node *np,
 			 * The digital thermal sensors are associated
 			 * with a core.
 			 */
+<<<<<<< HEAD
 			n += snprintf(sdata->label + n,
 				      sizeof(sdata->label) - n, " %d",
 				      cpuid);
 		else
 			n += snprintf(sdata->label + n,
+=======
+			n += scnprintf(sdata->label + n,
+				      sizeof(sdata->label) - n, " %d",
+				      cpuid);
+		else
+			n += scnprintf(sdata->label + n,
+>>>>>>> upstream/android-13
 				      sizeof(sdata->label) - n, " phy%d", id);
 	}
 
@@ -223,7 +242,11 @@ static void make_sensor_label(struct device_node *np,
 	 * Membuffer pretty print
 	 */
 	if (!of_property_read_u32(np, "ibm,chip-id", &id))
+<<<<<<< HEAD
 		n += snprintf(sdata->label + n, sizeof(sdata->label) - n,
+=======
+		n += scnprintf(sdata->label + n, sizeof(sdata->label) - n,
+>>>>>>> upstream/android-13
 			      " %d", id & 0xffff);
 }
 
@@ -252,7 +275,11 @@ static int get_sensor_index_attr(const char *name, u32 *index, char *attr)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	strncpy(attr, dash_pos + 1, MAX_ATTR_LEN);
+=======
+	strscpy(attr, dash_pos + 1, MAX_ATTR_LEN);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -457,9 +484,12 @@ static int populate_attr_groups(struct platform_device *pdev)
 	for_each_child_of_node(opal, np) {
 		const char *label;
 
+<<<<<<< HEAD
 		if (np->name == NULL)
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		type = get_sensor_type(np);
 		if (type == MAX_SENSOR_TYPE)
 			continue;
@@ -588,9 +618,12 @@ static int create_device_attrs(struct platform_device *pdev)
 		const char *label;
 		enum sensors type;
 
+<<<<<<< HEAD
 		if (np->name == NULL)
 			continue;
 
+=======
+>>>>>>> upstream/android-13
 		type = get_sensor_type(np);
 		if (type == MAX_SENSOR_TYPE)
 			continue;
@@ -602,8 +635,13 @@ static int create_device_attrs(struct platform_device *pdev)
 		if (of_property_read_u32(np, "sensor-id", &sensor_id) &&
 		    of_property_read_u32(np, "sensor-data", &sensor_id)) {
 			dev_info(&pdev->dev,
+<<<<<<< HEAD
 				 "'sensor-id' missing in the node '%s'\n",
 				 np->name);
+=======
+				 "'sensor-id' missing in the node '%pOFn'\n",
+				 np);
+>>>>>>> upstream/android-13
 			continue;
 		}
 

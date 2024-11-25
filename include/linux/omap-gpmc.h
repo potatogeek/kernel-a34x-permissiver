@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  OMAP GPMC (General Purpose Memory Controller) defines
  *
@@ -5,6 +6,11 @@
  *  under  the terms of  the GNU General  Public License as published by the
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ *  OMAP GPMC (General Purpose Memory Controller) defines
+>>>>>>> upstream/android-13
  */
 
 #include <linux/platform_data/gpmc-omap.h>
@@ -85,9 +91,12 @@ extern int gpmc_configure(int cmd, int wval);
 extern void gpmc_read_settings_dt(struct device_node *np,
 				  struct gpmc_settings *p);
 
+<<<<<<< HEAD
 extern void omap3_gpmc_save_context(void);
 extern void omap3_gpmc_restore_context(void);
 
+=======
+>>>>>>> upstream/android-13
 struct gpmc_timings;
 struct omap_nand_platform_data;
 struct omap_onenand_platform_data;

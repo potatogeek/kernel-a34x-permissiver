@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2017 Intel Corporation. All rights reserved.
  *
@@ -10,6 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright(c) 2017 Intel Corporation. All rights reserved.
+ *
+>>>>>>> upstream/android-13
  * This code is based in part on work published here:
  *
  *	https://github.com/IAIK/KAISER
@@ -42,11 +49,18 @@
 #include <asm/vsyscall.h>
 #include <asm/cmdline.h>
 #include <asm/pti.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
 #include <asm/tlbflush.h>
 #include <asm/desc.h>
 #include <asm/sections.h>
+=======
+#include <asm/tlbflush.h>
+#include <asm/desc.h>
+#include <asm/sections.h>
+#include <asm/set_memory.h>
+>>>>>>> upstream/android-13
 
 #undef pr_fmt
 #define pr_fmt(fmt)     "Kernel/User page tables isolation: " fmt
@@ -78,7 +92,11 @@ static void __init pti_print_if_secure(const char *reason)
 		pr_info("%s\n", reason);
 }
 
+<<<<<<< HEAD
 enum pti_mode {
+=======
+static enum pti_mode {
+>>>>>>> upstream/android-13
 	PTI_AUTO = 0,
 	PTI_FORCE_OFF,
 	PTI_FORCE_ON
@@ -370,7 +388,11 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
 			 * global, so set it as global in both copies.  Note:
 			 * the X86_FEATURE_PGE check is not _required_ because
 			 * the CPU ignores _PAGE_GLOBAL when PGE is not
+<<<<<<< HEAD
 			 * supported.  The check keeps consistentency with
+=======
+			 * supported.  The check keeps consistency with
+>>>>>>> upstream/android-13
 			 * code that only set this bit when supported.
 			 */
 			if (boot_cpu_has(X86_FEATURE_PGE))
@@ -438,11 +460,43 @@ static void __init pti_clone_p4d(unsigned long addr)
 }
 
 /*
+<<<<<<< HEAD
  * Clone the CPU_ENTRY_AREA into the user space visible page table.
  */
 static void __init pti_clone_user_shared(void)
 {
 	pti_clone_p4d(CPU_ENTRY_AREA_BASE);
+=======
+ * Clone the CPU_ENTRY_AREA and associated data into the user space visible
+ * page table.
+ */
+static void __init pti_clone_user_shared(void)
+{
+	unsigned int cpu;
+
+	pti_clone_p4d(CPU_ENTRY_AREA_BASE);
+
+	for_each_possible_cpu(cpu) {
+		/*
+		 * The SYSCALL64 entry code needs one word of scratch space
+		 * in which to spill a register.  It lives in the sp2 slot
+		 * of the CPU's TSS.
+		 *
+		 * This is done for all possible CPUs during boot to ensure
+		 * that it's propagated to all mms.
+		 */
+
+		unsigned long va = (unsigned long)&per_cpu(cpu_tss_rw, cpu);
+		phys_addr_t pa = per_cpu_ptr_to_phys((void *)va);
+		pte_t *target_pte;
+
+		target_pte = pti_user_pagetable_walk_pte(va);
+		if (WARN_ON(!target_pte))
+			return;
+
+		*target_pte = pfn_pte(pa >> PAGE_SHIFT, PAGE_KERNEL);
+	}
+>>>>>>> upstream/android-13
 }
 
 #else /* CONFIG_X86_64 */
@@ -475,11 +529,16 @@ static void __init pti_setup_espfix64(void)
 }
 
 /*
+<<<<<<< HEAD
  * Clone the populated PMDs of the entry and irqentry text and force it RO.
+=======
+ * Clone the populated PMDs of the entry text and force it RO.
+>>>>>>> upstream/android-13
  */
 static void pti_clone_entry_text(void)
 {
 	pti_clone_pgtable((unsigned long) __entry_text_start,
+<<<<<<< HEAD
 			  (unsigned long) __irqentry_text_end,
 			  PTI_CLONE_PMD);
 
@@ -491,6 +550,10 @@ static void pti_clone_entry_text(void)
 		pti_clone_pgtable((unsigned long) __cfi_jt_start,
 				  (unsigned long) __cfi_jt_end,
 				  PTI_CLONE_PMD);
+=======
+			  (unsigned long) __entry_text_end,
+			  PTI_CLONE_PMD);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -505,7 +568,11 @@ static void pti_clone_entry_text(void)
 static inline bool pti_kernel_image_global_ok(void)
 {
 	/*
+<<<<<<< HEAD
 	 * Systems with PCIDs get litlle benefit from global
+=======
+	 * Systems with PCIDs get little benefit from global
+>>>>>>> upstream/android-13
 	 * kernel text and are not worth the downsides.
 	 */
 	if (cpu_feature_enabled(X86_FEATURE_PCID))
@@ -541,6 +608,7 @@ static inline bool pti_kernel_image_global_ok(void)
 }
 
 /*
+<<<<<<< HEAD
  * This is the only user for these and it is not arch-generic
  * like the other set_memory.h functions.  Just extern them.
  */
@@ -548,6 +616,8 @@ extern int set_memory_nonglobal(unsigned long addr, int numpages);
 extern int set_memory_global(unsigned long addr, int numpages);
 
 /*
+=======
+>>>>>>> upstream/android-13
  * For some configurations, map all of kernel text into the user page
  * tables.  This reduces TLB misses, especially on non-PCID systems.
  */
@@ -584,7 +654,11 @@ static void pti_clone_kernel_text(void)
 	set_memory_global(start, (end_global - start) >> PAGE_SHIFT);
 }
 
+<<<<<<< HEAD
 void pti_set_kernel_image_nonglobal(void)
+=======
+static void pti_set_kernel_image_nonglobal(void)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * The identity map is created with PMDs, regardless of the
@@ -608,7 +682,11 @@ void pti_set_kernel_image_nonglobal(void)
  */
 void __init pti_init(void)
 {
+<<<<<<< HEAD
 	if (!static_cpu_has(X86_FEATURE_PTI))
+=======
+	if (!boot_cpu_has(X86_FEATURE_PTI))
+>>>>>>> upstream/android-13
 		return;
 
 	pr_info("enabled\n");

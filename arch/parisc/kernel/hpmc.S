@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* 
  * HPMC (High Priority Machine Check) handler.
  *
  * Copyright (C) 1999 Philipp Rumpf <prumpf@tux.org>
  * Copyright (C) 1999 Hewlett-Packard (Frank Rowand)
  * Copyright (C) 2000 Hewlett-Packard (John Marvin)
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -302,6 +309,7 @@ os_hpmc_6:
 	b .
 	nop
 	.align 16	/* make function length multiple of 16 bytes */
+<<<<<<< HEAD
 .os_hpmc_end:
 
 
@@ -312,3 +320,5 @@ os_hpmc_6:
 	.size   os_hpmc_size, 4
 os_hpmc_size:
 	.word .os_hpmc_end-.os_hpmc
+=======
+>>>>>>> upstream/android-13

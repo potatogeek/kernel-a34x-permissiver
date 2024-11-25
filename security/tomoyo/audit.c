@@ -32,6 +32,10 @@ static char *tomoyo_print_bprm(struct linux_binprm *bprm,
 	int argv_count = bprm->argc;
 	int envp_count = bprm->envc;
 	bool truncated = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!buffer)
 		return NULL;
 	len = snprintf(buffer, tomoyo_buffer_len - 1, "argv[]={ ");
@@ -49,6 +53,10 @@ static char *tomoyo_print_bprm(struct linux_binprm *bprm,
 		while (offset < PAGE_SIZE) {
 			const char *kaddr = dump->data;
 			const unsigned char c = kaddr[offset++];
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 			if (cp == last_start)
 				*cp++ = '"';
 			if (cp >= buffer + tomoyo_buffer_len - 32) {
@@ -154,12 +162,17 @@ static char *tomoyo_print_header(struct tomoyo_request_info *r)
 	char *buffer = kmalloc(tomoyo_buffer_len, GFP_NOFS);
 	int pos;
 	u8 i;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!buffer)
 		return NULL;
 
 	tomoyo_convert_time(ktime_get_real_seconds(), &stamp);
 
 	pos = snprintf(buffer, tomoyo_buffer_len - 1,
+<<<<<<< HEAD
 		       "#%04u/%02u/%02u %02u:%02u:%02u# profile=%u mode=%s "
 		       "granted=%s (global-pid=%u) task={ pid=%u ppid=%u "
 		       "uid=%u gid=%u euid=%u egid=%u suid=%u sgid=%u "
@@ -167,6 +180,13 @@ static char *tomoyo_print_header(struct tomoyo_request_info *r)
 		       stamp.day, stamp.hour, stamp.min, stamp.sec, r->profile,
 		       tomoyo_mode[r->mode], tomoyo_yesno(r->granted), gpid,
 		       tomoyo_sys_getpid(), tomoyo_sys_getppid(),
+=======
+		       "#%04u/%02u/%02u %02u:%02u:%02u# profile=%u mode=%s granted=%s (global-pid=%u) task={ pid=%u ppid=%u uid=%u gid=%u euid=%u egid=%u suid=%u sgid=%u fsuid=%u fsgid=%u }",
+		       stamp.year, stamp.month, stamp.day, stamp.hour,
+		       stamp.min, stamp.sec, r->profile, tomoyo_mode[r->mode],
+		       tomoyo_yesno(r->granted), gpid, tomoyo_sys_getpid(),
+		       tomoyo_sys_getppid(),
+>>>>>>> upstream/android-13
 		       from_kuid(&init_user_ns, current_uid()),
 		       from_kgid(&init_user_ns, current_gid()),
 		       from_kuid(&init_user_ns, current_euid()),
@@ -185,6 +205,10 @@ static char *tomoyo_print_header(struct tomoyo_request_info *r)
 		struct tomoyo_mini_stat *stat;
 		unsigned int dev;
 		umode_t mode;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (!obj->stat_valid[i])
 			continue;
 		stat = &obj->stat[i];
@@ -193,8 +217,13 @@ static char *tomoyo_print_header(struct tomoyo_request_info *r)
 		if (i & 1) {
 			pos += snprintf(buffer + pos,
 					tomoyo_buffer_len - 1 - pos,
+<<<<<<< HEAD
 					" path%u.parent={ uid=%u gid=%u "
 					"ino=%lu perm=0%o }", (i >> 1) + 1,
+=======
+					" path%u.parent={ uid=%u gid=%u ino=%lu perm=0%o }",
+					(i >> 1) + 1,
+>>>>>>> upstream/android-13
 					from_kuid(&init_user_ns, stat->uid),
 					from_kgid(&init_user_ns, stat->gid),
 					(unsigned long)stat->ino,
@@ -202,8 +231,13 @@ static char *tomoyo_print_header(struct tomoyo_request_info *r)
 			continue;
 		}
 		pos += snprintf(buffer + pos, tomoyo_buffer_len - 1 - pos,
+<<<<<<< HEAD
 				" path%u={ uid=%u gid=%u ino=%lu major=%u"
 				" minor=%u perm=0%o type=%s", (i >> 1) + 1,
+=======
+				" path%u={ uid=%u gid=%u ino=%lu major=%u minor=%u perm=0%o type=%s",
+				(i >> 1) + 1,
+>>>>>>> upstream/android-13
 				from_kuid(&init_user_ns, stat->uid),
 				from_kgid(&init_user_ns, stat->gid),
 				(unsigned long)stat->ino,
@@ -249,6 +283,10 @@ char *tomoyo_init_log(struct tomoyo_request_info *r, int len, const char *fmt,
 	const char *symlink = NULL;
 	int pos;
 	const char *domainname = r->domain->domainname->name;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	header = tomoyo_print_header(r);
 	if (!header)
 		return NULL;
@@ -256,6 +294,10 @@ char *tomoyo_init_log(struct tomoyo_request_info *r, int len, const char *fmt,
 	len += strlen(domainname) + strlen(header) + 10;
 	if (r->ee) {
 		struct file *file = r->ee->bprm->file;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		realpath = tomoyo_realpath_from_path(&file->f_path);
 		bprm_info = tomoyo_print_bprm(r->ee->bprm, &r->ee->dump);
 		if (!realpath || !bprm_info)
@@ -275,6 +317,10 @@ char *tomoyo_init_log(struct tomoyo_request_info *r, int len, const char *fmt,
 	pos = snprintf(buf, len, "%s", header);
 	if (realpath) {
 		struct linux_binprm *bprm = r->ee->bprm;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		pos += snprintf(buf + pos, len - pos,
 				" exec={ realpath=\"%s\" argc=%d envc=%d %s }",
 				realpath, bprm->argc, bprm->envc, bprm_info);
@@ -306,7 +352,11 @@ static LIST_HEAD(tomoyo_log);
 /* Lock for "struct list_head tomoyo_log". */
 static DEFINE_SPINLOCK(tomoyo_log_lock);
 
+<<<<<<< HEAD
 /* Length of "stuct list_head tomoyo_log". */
+=======
+/* Length of "struct list_head tomoyo_log". */
+>>>>>>> upstream/android-13
 static unsigned int tomoyo_log_count;
 
 /**
@@ -315,6 +365,10 @@ static unsigned int tomoyo_log_count;
  * @ns:          Pointer to "struct tomoyo_policy_namespace".
  * @profile:     Profile number.
  * @index:       Index number of functionality.
+<<<<<<< HEAD
+=======
+ * @matched_acl: Pointer to "struct tomoyo_acl_info".
+>>>>>>> upstream/android-13
  * @is_granted:  True if granted log, false otherwise.
  *
  * Returns true if this request should be audited, false otherwise.
@@ -328,6 +382,10 @@ static bool tomoyo_get_audit(const struct tomoyo_policy_namespace *ns,
 	const u8 category = tomoyo_index2category[index] +
 		TOMOYO_MAX_MAC_INDEX;
 	struct tomoyo_profile *p;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!tomoyo_policy_loaded)
 		return false;
 	p = tomoyo_profile(ns, profile);
@@ -362,6 +420,10 @@ void tomoyo_write_log2(struct tomoyo_request_info *r, int len, const char *fmt,
 	char *buf;
 	struct tomoyo_log *entry;
 	bool quota_exceeded = false;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (!tomoyo_get_audit(r->domain->ns, r->profile, r->type,
 			      r->matched_acl, r->granted))
 		goto out;
@@ -413,6 +475,10 @@ void tomoyo_write_log(struct tomoyo_request_info *r, const char *fmt, ...)
 {
 	va_list args;
 	int len;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	va_start(args, fmt);
 	len = vsnprintf((char *) &len, 1, fmt, args) + 1;
 	va_end(args);
@@ -431,6 +497,10 @@ void tomoyo_write_log(struct tomoyo_request_info *r, const char *fmt, ...)
 void tomoyo_read_log(struct tomoyo_io_buffer *head)
 {
 	struct tomoyo_log *ptr = NULL;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	if (head->r.w_pos)
 		return;
 	kfree(head->read_buf);

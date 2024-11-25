@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DivIO nw80x subdriver
  *
  * Copyright (C) 2011 Jean-François Moine (http://moinejf.free.fr)
  * Copyright (C) 2003 Sylvain Munaut <tnt@246tNt.com>
  *			Kjell Claesson <keyson@users.sourceforge.net>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -2028,7 +2035,11 @@ static int sd_init_controls(struct gspca_dev *gspca_dev)
 			V4L2_CID_AUTOGAIN, 0, 1, 1, 1);
 		gspca_dev->gain = v4l2_ctrl_new_std(hdl, &sd_ctrl_ops,
 			V4L2_CID_GAIN, 0, 253, 1, 128);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case Cvideopro:
 	case DvcV6:
 	case Kritter:

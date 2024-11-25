@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * CRC vpmsum tester
  * Copyright 2017 Daniel Axtens, IBM Corporation.
@@ -5,6 +6,12 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * CRC vpmsum tester
+ * Copyright 2017 Daniel Axtens, IBM Corporation.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/crc-t10dif.h>
@@ -12,6 +19,10 @@
 #include <crypto/internal/hash.h>
 #include <linux/init.h>
 #include <linux/module.h>
+<<<<<<< HEAD
+=======
+#include <linux/random.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/kernel.h>
 #include <linux/cpufeature.h>
@@ -25,10 +36,18 @@ static unsigned long iterations = 10000;
 static int __init crc_test_init(void)
 {
 	u16 crc16 = 0, verify16 = 0;
+<<<<<<< HEAD
 	u32 crc32 = 0, verify32 = 0;
 	__le32 verify32le = 0;
 	unsigned char *data;
 	unsigned long i;
+=======
+	__le32 verify32le = 0;
+	unsigned char *data;
+	u32 verify32 = 0;
+	unsigned long i;
+	__le32 crc32;
+>>>>>>> upstream/android-13
 	int ret;
 
 	struct crypto_shash *crct10dif_tfm;
@@ -78,6 +97,7 @@ static int __init crc_test_init(void)
 
 		pr_info("crc-vpmsum_test begins, %lu iterations\n", iterations);
 		for (i=0; i<iterations; i++) {
+<<<<<<< HEAD
 			size_t len, offset;
 
 			get_random_bytes(data, MAX_CRC_LENGTH);
@@ -88,6 +108,14 @@ static int __init crc_test_init(void)
 			offset &= 15;
 			if (len <= offset)
 				continue;
+=======
+			size_t offset = prandom_u32_max(16);
+			size_t len = prandom_u32_max(MAX_CRC_LENGTH);
+
+			if (len <= offset)
+				continue;
+			prandom_bytes(data, len);
+>>>>>>> upstream/android-13
 			len -= offset;
 
 			crypto_shash_update(crct10dif_shash, data+offset, len);
@@ -105,11 +133,19 @@ static int __init crc_test_init(void)
 			crypto_shash_final(crc32c_shash, (u8 *)(&crc32));
 			verify32 = le32_to_cpu(verify32le);
 		        verify32le = ~cpu_to_le32(__crc32c_le(~verify32, data+offset, len));
+<<<<<<< HEAD
 			if (crc32 != (u32)verify32le) {
+=======
+			if (crc32 != verify32le) {
+>>>>>>> upstream/android-13
 				pr_err("FAILURE in CRC32: got 0x%08x expected 0x%08x (len %lu)\n",
 				       crc32, verify32, len);
 				break;
 			}
+<<<<<<< HEAD
+=======
+		cond_resched();
+>>>>>>> upstream/android-13
 		}
 		pr_info("crc-vpmsum_test done, completed %lu iterations\n", i);
 	} while (0);

@@ -29,6 +29,13 @@
 #define MAX_CHARGING_VOLT		9000 /* 9V */
 #define USBPD_VOLT_UNIT			50 /* 50mV */
 #define USBPD_CURRENT_UNIT		10 /* 10mA */
+<<<<<<< HEAD
+=======
+#define USBPD_POWER_UNIT		250 /* 250mW */
+#define USBPD_PPS_VOLT_UNIT		100	/* 100mV */
+#define USBPD_OUT_VOLT_UNIT		20	/* 20mV */
+#define USBPD_PPS_CURRENT_UNIT	50	/* 50mV */
+>>>>>>> upstream/android-13
 
 #define USBPD_MAX_COUNT_MSG_OBJECT	(8) /* 0..7 */
 #define USBPD_MAX_COUNT_RX_PAYLOAD	(28)
@@ -44,25 +51,46 @@
 #define tSrcTransition			(35)	/* 25~35 ms */
 #define tPSSourceOn				(440)	/* 390~480 ms */
 #define tPSSourceOff			(760)	/* 750~960 ms */
+<<<<<<< HEAD
 #define tSenderResponse			(27)	/* 24~30 ms */
+=======
+#if defined(CONFIG_SEC_FACTORY)
+#define tSenderResponse			(1100)  /* for UCT300 */
+#else
+#define tSenderResponse			(27)	/* 24~30 ms */
+#endif
+>>>>>>> upstream/android-13
 #define tSendSourceCap			(150)	/* 100 ~ 200 ms */
 #define tPSHardReset			(25)	/* 25~35 ms */
 #define tSinkWaitCap			(550)	/* 310~620 ms  */
 #define tPSTransition			(490)	/* 450~550 ms */
 #define tVCONNSourceOff			(25)	/* 25 ms */
+<<<<<<< HEAD
 #define tVCONNSourceOn			(100)	/* 100 ms */
+=======
+#define tVCONNSourceOn			(10)	/* ~50 ms */
+#define tVCONNSourceTimeout 	(100)	/* 100~200 ms */
+>>>>>>> upstream/android-13
 #define tVDMSenderResponse		(30)	/* 24~30 ms */
 #define tVDMWaitModeEntry		(50)	/* 40~50  ms */
 #define tVDMWaitModeExit		(50)    /* 40~50  ms */
 #define tDiscoverIdentity		(50)	/* 40~50  ms */
 #define tSwapSourceStart		(20)	/* 20  ms */
+<<<<<<< HEAD
 #define tSwapSinkReady			(15)	/* 15 ms */
+=======
+#define tSwapSinkReady			(10)	/* 10 ms */
+>>>>>>> upstream/android-13
 #define tSrcRecover				(670)	/* 660~1000 ms */
 
 typedef enum {
 	POWER_TYPE_FIXED = 0,
 	POWER_TYPE_BATTERY,
 	POWER_TYPE_VARIABLE,
+<<<<<<< HEAD
+=======
+	POWER_TYPE_APDO,
+>>>>>>> upstream/android-13
 } power_supply_type;
 
 typedef enum {
@@ -98,6 +126,34 @@ enum usbpd_control_msg_type {
 	USBPD_Wait				= 0xC,
 	USBPD_Soft_Reset		= 0xD,
 	USBPD_UVDM_MSG			= 0xE,
+<<<<<<< HEAD
+=======
+	USBPD_Not_Supported		= 0x10,
+	USBPD_Get_Src_Cap_Ext	= 0x11,
+	USBPD_Get_Status		= 0x12,
+	USBPD_FR_Swap			= 0x13,
+	USBPD_Get_PPS_Status	= 0x14,
+	USBPD_Get_Country_Codes	= 0x15,
+	USBPD_Get_Sink_Cap_Ext	= 0x16,
+};
+
+enum usbpd_extended_msg_type {
+	USBPD_Source_Cap_Ext	= 0x1,
+	USBPD_Status			= 0x2,
+	USBPD_Get_Battery_Cap	= 0x3,
+	USBPD_Get_Batt_Status	= 0x4,
+	USBPD_Battery_Cap		= 0x5,
+	USBPD_Get_Manuf_Info	= 0x6,
+	USBPD_Manuf_Info		= 0x7,
+	USBPD_Security_Request	= 0x8,
+	USBPD_Security_Response	= 0x9,
+	USBPD_FW_Update_Req		= 0xA,
+	USBPD_FW_Update_Res		= 0xB,
+	USBPD_PPS_Status		= 0xC,
+	USBPD_Country_Info		= 0xD,
+	USBPD_Country_Codes		= 0xE,
+	USBPD_Sink_Cap_Ext		= 0xF,
+>>>>>>> upstream/android-13
 };
 
 enum usbpd_check_msg_pass {
@@ -180,9 +236,27 @@ enum usbpd_data_msg_type {
 	USBPD_Request				= 0x2,
 	USBPD_BIST					= 0x3,
 	USBPD_Sink_Capabilities		= 0x4,
+<<<<<<< HEAD
 	USBPD_Vendor_Defined		= 0xF,
 };
 
+=======
+	USBPD_Battery_Status		= 0x5,
+	USBPD_Alert					= 0x6,
+	USBPD_Get_Country_Info		= 0x7,
+	USBPD_Vendor_Defined		= 0xF,
+};
+
+enum alert_type {
+	Battery_Status_Change		= 1 << 1,
+	OCP_event			= 1 << 2, /* Source only, for Sink Reserved and Shall be set to zero */
+	OTP_event			= 1 << 3,
+	Operating_Condition_Change	= 1 << 4,
+	Source_Input_Change_Event	= 1 << 5,
+	OVP_event			= 1 << 6,
+};
+
+>>>>>>> upstream/android-13
 enum uvdm_res_type {
 	RES_INIT = 0,
 	RES_ACK,
@@ -198,6 +272,14 @@ enum uvdm_rx_type {
 
 /* Policy Engine States */
 typedef enum {
+<<<<<<< HEAD
+=======
+	/* SRC_VDM */
+	PE_SRC_VDM_Identity_Request	= 20,
+	PE_SRC_VDM_Identity_ACKed	= 21,
+	PE_SRC_VDM_Identity_NAKed	= 22,
+
+>>>>>>> upstream/android-13
 	/* Source */
 	PE_SRC_Startup			= 0x30,
 	PE_SRC_Discovery		= 0x31,
@@ -329,6 +411,13 @@ typedef enum {
 	PE_DFP_UVDM_Send_Message	= 0xD0,
 	PE_DFP_UVDM_Receive_Message	= 0xD1,
 
+<<<<<<< HEAD
+=======
+	PE_SNK_Get_Source_Cap_Ext		= 0xD2,
+	PE_SNK_Get_Source_Status		= 0xD3,
+	PE_SNK_Get_Source_PPS_Status	= 0xD4,
+
+>>>>>>> upstream/android-13
 	/* BIST Message */
 	PE_BIST_CARRIER_M2		= 0xE0,
 
@@ -375,6 +464,10 @@ typedef enum sm5714_usbpd_manager_event {
 	MANAGER_UVDM_RECEIVE_MESSAGE			= 17,
 	MANAGER_PR_SWAP_REQUEST 				= 18,
 	MANAGER_DR_SWAP_REQUEST 				= 19,
+<<<<<<< HEAD
+=======
+	MANAGER_SEND_DISCOVER_IDENTITY			= 20,
+>>>>>>> upstream/android-13
 } sm5714_usbpd_manager_event_type;
 
 enum usbpd_msg_status {
@@ -410,6 +503,13 @@ enum usbpd_msg_status {
 	MSG_PASS				= 1<<29,
 	MSG_RID					= 1<<30,
 	MSG_NONE				= 1<<31,
+<<<<<<< HEAD
+=======
+	MSG_GET_BAT_STATUS		= 3<<2,
+	MSG_GET_STATUS			= 3<<3,
+	MSG_GET_PPS_STATUS		= 3<<4,
+	MSG_GET_SRC_CAP_EXT		= 3<<5,
+>>>>>>> upstream/android-13
 };
 
 /* Timer */
@@ -501,6 +601,42 @@ typedef union {
 	} power_data_obj_battery;
 
 	struct {
+<<<<<<< HEAD
+=======
+		unsigned max_current:7;		/* 50mA units */
+		unsigned reserved1:1;
+		unsigned min_voltage:8;		/* 100mV units  */
+		unsigned reserved2:1;
+		unsigned max_voltage:8;		/* 100mV units  */
+		unsigned reserved3:2;
+		unsigned pps_power_limited:1;
+		unsigned pps_supply:2;
+		unsigned supply_type:2;
+	} power_data_obj_programmable;
+
+	struct {
+		unsigned op_current:7;		/* 50mA units */
+		unsigned reserved1:2;
+		unsigned output_voltage:11;	/* 20mV units */
+		unsigned reserved2:3;
+		unsigned unchunked_ext_msg_support:1;
+		unsigned no_usb_suspend:1;
+		unsigned usb_comm_capable:1;
+		unsigned capability_mismatch:1;
+		unsigned reserved3:1;
+		unsigned object_position:3;
+		unsigned reserved4:1;
+	} request_data_object_programmable;
+
+	struct {
+		unsigned reserved:16;
+		unsigned hot_swappable_batteries:4;
+		unsigned fixed_batteries:4;
+		unsigned type_of_alert:8;
+	} alert_data_obejct;
+
+	struct {
+>>>>>>> upstream/android-13
 		unsigned min_current:10;	/* 10mA units */
 		unsigned op_current:10;		/* 10mA units */
 		unsigned:4;
@@ -608,8 +744,62 @@ typedef union {
 		unsigned reserved:28;
 		unsigned bist_mode:4;
 	} bist_data_object;
+<<<<<<< HEAD
 } data_obj_type;
 
+=======
+
+	struct{
+		unsigned VID:16;
+		unsigned PID:16;
+	} source_capabilities_extended_data1;
+
+	struct{
+		unsigned XID:32;
+	} source_capabilities_extended_data2;
+
+	struct{
+		unsigned fw_version:8;
+		unsigned hw_version:8;
+		unsigned voltage_regulation:8;
+		unsigned holdup_time:8;
+	} source_capabilities_extended_data3;
+
+	struct{
+		unsigned compliance:8;
+		unsigned torch_current:8;
+		unsigned peak_current1:16;
+	} source_capabilities_extended_data4;
+
+	struct{
+		unsigned peak_current2:16;
+		unsigned peak_current3:16;
+	} source_capabilities_extended_data5;
+
+	struct{
+		unsigned touch_temp:8;
+		unsigned source_inputs:8;
+		unsigned number_battery:8;
+		unsigned source_pdp_rating:8;
+	} source_capabilities_extended_data6;
+
+} data_obj_type;
+
+typedef union {
+	u16 word;
+	u8  byte[2];
+
+	struct {
+		unsigned data_size:9;
+		unsigned rsvd:1;
+		unsigned request_chunk:1;
+		unsigned chunk_number:4;
+		unsigned chunked:1;
+	};
+} ext_msg_header_type;
+
+
+>>>>>>> upstream/android-13
 typedef struct usbpd_phy_ops {
 	/*    1st param should be 'usbpd_data *'    */
 	int    (*tx_msg)(void *, msg_header_type *, data_obj_type *);
@@ -633,6 +823,10 @@ struct sm5714_policy_data {
 	policy_state	last_state;
 	msg_header_type	tx_msg_header;
 	msg_header_type	rx_msg_header;
+<<<<<<< HEAD
+=======
+	ext_msg_header_type	rx_msg_ext_header;
+>>>>>>> upstream/android-13
 	data_obj_type	tx_data_obj[USBPD_MAX_COUNT_MSG_OBJECT];
 	data_obj_type	rx_data_obj[USBPD_MAX_COUNT_MSG_OBJECT];
 	bool			rx_hardreset;
@@ -644,6 +838,10 @@ struct sm5714_policy_data {
 	u8				origin_message;
 	bool			sink_cap_received;
 	bool			send_sink_cap;
+<<<<<<< HEAD
+=======
+	bool			skip_ufp_svid_ack;
+>>>>>>> upstream/android-13
 };
 
 struct sm5714_protocol_data {
@@ -706,21 +904,45 @@ struct sm5714_usbpd_manager_data {
 	int uvdm_out_ok;
 	bool pn_flag;
 	int alt_sended;
+<<<<<<< HEAD
+=======
+	int vdm_en;
+	int ext_sended;
+>>>>>>> upstream/android-13
 	uint16_t Standard_Vendor_ID;
 	uint16_t Vendor_ID;
 	uint16_t Product_ID;
 	uint16_t Device_Version;
 	uint16_t SVID_0;
 	uint16_t SVID_1;
+<<<<<<< HEAD
 	u32 acc_type;
 	u32 dp_selected_pin;
+=======
+	uint16_t SVID_DP;
+	u32 acc_type;
+	u32 dp_selected_pin;
+	uint32_t is_sent_pin_configuration;
+>>>>>>> upstream/android-13
 	u32 dp_is_connect;
 	u32 dp_hs_connect;
 	u8 pin_assignment;
 	struct sm5714_usbpd_data *pd_data;
+<<<<<<< HEAD
 	struct delayed_work	acc_detach_handler;
 	struct delayed_work	new_power_handler;
 	uint32_t dr_swap_cnt;
+=======
+	struct delayed_work start_discover_msg_handler;
+	struct delayed_work start_dex_discover_msg_handler;
+	struct delayed_work	acc_detach_handler;
+	struct delayed_work	new_power_handler;
+	uint32_t dr_swap_cnt;
+#if defined(CONFIG_SEC_FACTORY)
+	int vbus_adc;
+#endif
+	bool support_vpdo;
+>>>>>>> upstream/android-13
 };
 
 struct sm5714_usbpd_data {
@@ -734,12 +956,26 @@ struct sm5714_usbpd_data {
 	struct sm5714_protocol_data	protocol_rx;
 	struct sm5714_policy_data	policy;
 	msg_header_type		source_msg_header;
+<<<<<<< HEAD
 	data_obj_type           source_data_obj;
+=======
+	data_obj_type           source_data_obj[2];
+>>>>>>> upstream/android-13
 	data_obj_type		source_request_obj;
 	struct sm5714_usbpd_manager_data	manager;
 	struct work_struct	worker;
 	struct completion	msg_arrived;
+<<<<<<< HEAD
 	unsigned int            wait_for_msg_arrived;
+=======
+	struct completion	pd_completion;
+	unsigned int            wait_for_msg_arrived;
+	int			specification_revision;
+	int			thermal_state;
+	int			auth_type;
+	int			d2d_type;
+	struct pdic_notifier_struct pd_noti;
+>>>>>>> upstream/android-13
 };
 
 static inline struct sm5714_usbpd_data *protocol_rx_to_usbpd(
@@ -796,6 +1032,12 @@ extern data_obj_type sm5714_usbpd_select_capability(
 		struct sm5714_usbpd_data *pd_data);
 extern bool sm5714_usbpd_vdm_request_enabled(
 		struct sm5714_usbpd_data *pd_data);
+<<<<<<< HEAD
+=======
+extern bool sm5714_usbpd_ext_request_enabled(
+		struct sm5714_usbpd_data *pd_data);
+extern bool sm5714_usbpd_dex_vdm_request(struct sm5714_usbpd_data *pd_data);
+>>>>>>> upstream/android-13
 extern void sm5714_usbpd_set_rp_scr_sel(struct sm5714_usbpd_data *pd_data,
 		int scr_sel);
 extern void sm5714_usbpd_policy_work(struct work_struct *work_s);
@@ -821,4 +1063,19 @@ extern int sm5714_usbpd_uvdm_out_request_message(void *data, int size);
 extern int sm5714_usbpd_uvdm_ready(void);
 extern void sm5714_usbpd_uvdm_close(void);
 extern void (*fp_select_pdo)(int num);
+<<<<<<< HEAD
+=======
+extern int (*fp_sec_pd_select_pps)(int num, int ppsVol, int ppsCur);
+extern int (*fp_sec_pd_get_apdo_max_power)(unsigned int *pdo_pos,
+		unsigned int *taMaxVol, unsigned int *taMaxCur, unsigned int *taMaxPwr);
+extern void (*fp_sec_pd_vpdo_auth)(int auth, int d2d_type);
+extern int (*fp_count_cisd_pd_data)(unsigned short vid, unsigned short pid);
+#if IS_ENABLED(CONFIG_ARCH_QCOM) && !defined(CONFIG_USB_ARCH_EXYNOS) && !defined(CONFIG_ARCH_EXYNOS)
+#if !defined(CONFIG_USB_MTK_OTG)
+extern int dwc3_restart_usb_host_mode_hs(void);
+#endif
+#endif
+void sm5714_usbpd_turn_on_reverse_booster(struct sm5714_usbpd_data *pd_data);
+void sm5714_usbpd_turn_off_reverse_booster(struct sm5714_usbpd_data *pd_data);
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2012 Red Hat
  *
@@ -5,18 +9,33 @@
  * Copyright (C) 2009 Roberto De Ioris <roberto@unbit.it>
  * Copyright (C) 2009 Jaya Kumar <jayakumar.lkml@gmail.com>
  * Copyright (C) 2009 Bernie Thompson <bernie@plugable.com>
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License v2. See the file COPYING in the main directory of this archive for
  * more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef UDL_DRV_H
 #define UDL_DRV_H
 
+<<<<<<< HEAD
 #include <linux/usb.h>
 #include <drm/drm_gem.h>
 #include <linux/mm_types.h>
+=======
+#include <linux/mm_types.h>
+#include <linux/usb.h>
+
+#include <drm/drm_device.h>
+#include <drm/drm_framebuffer.h>
+#include <drm/drm_gem.h>
+#include <drm/drm_simple_kms_helper.h>
+
+struct drm_mode_create_dumb;
+>>>>>>> upstream/android-13
 
 #define DRIVER_NAME		"udl"
 #define DRIVER_DESC		"DisplayLink"
@@ -26,9 +45,12 @@
 #define DRIVER_MINOR		0
 #define DRIVER_PATCHLEVEL	1
 
+<<<<<<< HEAD
 #define UDL_BO_CACHEABLE		(1 << 0)
 #define UDL_BO_WC		(1 << 1)
 
+=======
+>>>>>>> upstream/android-13
 struct udl_device;
 
 struct urb_node {
@@ -47,6 +69,7 @@ struct urb_list {
 	size_t size;
 };
 
+<<<<<<< HEAD
 struct udl_fbdev;
 
 struct udl_device {
@@ -54,12 +77,21 @@ struct udl_device {
 	struct device *dev;
 	struct usb_device *udev;
 	struct drm_crtc *crtc;
+=======
+struct udl_device {
+	struct drm_device drm;
+	struct device *dev;
+	struct device *dmadev;
+
+	struct drm_simple_display_pipe display_pipe;
+>>>>>>> upstream/android-13
 
 	struct mutex gem_lock;
 
 	int sku_pixel_limit;
 
 	struct urb_list urbs;
+<<<<<<< HEAD
 	atomic_t lost_pixels; /* 1 = a render op failed. Need screen refresh */
 
 	struct udl_fbdev *fbdev;
@@ -69,10 +101,16 @@ struct udl_device {
 	atomic_t bytes_identical; /* saved effort with backbuffer comparison */
 	atomic_t bytes_sent; /* to usb, after compression including overhead */
 	atomic_t cpu_kcycles_used; /* transpired during pixel processing */
+=======
+
+	char mode_buf[1024];
+	uint32_t mode_buf_len;
+>>>>>>> upstream/android-13
 };
 
 #define to_udl(x) container_of(x, struct udl_device, drm)
 
+<<<<<<< HEAD
 struct udl_gem_object {
 	struct drm_gem_object base;
 	struct page **pages;
@@ -98,6 +136,16 @@ void udl_modeset_cleanup(struct drm_device *dev);
 int udl_connector_init(struct drm_device *dev, struct drm_encoder *encoder);
 
 struct drm_encoder *udl_encoder_init(struct drm_device *dev);
+=======
+static inline struct usb_device *udl_to_usb_device(struct udl_device *udl)
+{
+	return interface_to_usbdev(to_usb_interface(udl->drm.dev));
+}
+
+/* modeset */
+int udl_modeset_init(struct drm_device *dev);
+struct drm_connector *udl_connector_init(struct drm_device *dev);
+>>>>>>> upstream/android-13
 
 struct urb *udl_get_urb(struct drm_device *dev);
 
@@ -105,6 +153,7 @@ int udl_submit_urb(struct drm_device *dev, struct urb *urb, size_t len);
 void udl_urb_completion(struct urb *urb);
 
 int udl_init(struct udl_device *udl);
+<<<<<<< HEAD
 void udl_fini(struct drm_device *dev);
 
 int udl_fbdev_init(struct drm_device *dev);
@@ -143,6 +192,12 @@ vm_fault_t udl_gem_fault(struct vm_fault *vmf);
 
 int udl_handle_damage(struct udl_framebuffer *fb, int x, int y,
 		      int width, int height);
+=======
+
+int udl_render_hline(struct drm_device *dev, int log_bpp, struct urb **urb_ptr,
+		     const char *front, char **urb_buf_ptr,
+		     u32 byte_offset, u32 device_byte_offset, u32 byte_width);
+>>>>>>> upstream/android-13
 
 int udl_drop_usb(struct drm_device *dev);
 
@@ -156,4 +211,16 @@ int udl_drop_usb(struct drm_device *dev);
 #define CMD_WRITE_COPY16 "\xAF\x6A" /**< 16 bit copy command. */
 #define CMD_WRITE_RLX16  "\xAF\x6B" /**< 16 bit extended run length command. */
 
+<<<<<<< HEAD
+=======
+/* On/Off for driving the DisplayLink framebuffer to the display */
+#define UDL_REG_BLANK_MODE		0x1f
+
+#define UDL_BLANK_MODE_ON		0x00 /* hsync and vsync on, visible */
+#define UDL_BLANK_MODE_BLANKED		0x01 /* hsync and vsync on, blanked */
+#define UDL_BLANK_MODE_VSYNC_OFF	0x03 /* vsync off, blanked */
+#define UDL_BLANK_MODE_HSYNC_OFF	0x05 /* hsync off, blanked */
+#define UDL_BLANK_MODE_POWERDOWN	0x07 /* powered off; requires modeset */
+
+>>>>>>> upstream/android-13
 #endif

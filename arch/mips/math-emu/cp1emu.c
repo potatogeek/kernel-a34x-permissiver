@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * cp1emu.c: a MIPS coprocessor 1 (FPU) instruction emulator
  *
@@ -7,6 +11,7 @@
  * Kevin D. Kissell, kevink@mips.com and Carsten Langgaard, carstenl@mips.com
  * Copyright (C) 2000  MIPS Technologies, Inc.
  *
+<<<<<<< HEAD
  *  This program is free software; you can distribute it and/or modify it
  *  under the terms of the GNU General Public License (Version 2) as
  *  published by the Free Software Foundation.
@@ -20,6 +25,8 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA.
  *
+=======
+>>>>>>> upstream/android-13
  * A complete emulator for MIPS coprocessor 1 instructions.  This is
  * required for #float(switch) or #float(trap), where it catches all
  * COP1 instructions via the "CoProcessor Unusable" exception.
@@ -451,7 +458,11 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 					regs->cp0_epc + dec_insn.pc_inc +
 					dec_insn.next_pc_inc;
 			}
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case jr_op:
 			/* For R6, JR already emulated in jalr_op */
 			if (NO_R6EMU && insn.r_format.func == jr_op)
@@ -471,11 +482,19 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 			regs->regs[31] = regs->cp0_epc +
 				dec_insn.pc_inc +
 				dec_insn.next_pc_inc;
+<<<<<<< HEAD
 			/* fall through */
 		case bltzl_op:
 			if (NO_R6EMU)
 				break;
 			/* fall through */
+=======
+			fallthrough;
+		case bltzl_op:
+			if (NO_R6EMU)
+				break;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case bltz_op:
 			if ((long)regs->regs[insn.i_format.rs] < 0)
 				*contpc = regs->cp0_epc +
@@ -495,11 +514,19 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 			regs->regs[31] = regs->cp0_epc +
 				dec_insn.pc_inc +
 				dec_insn.next_pc_inc;
+<<<<<<< HEAD
 			/* fall through */
 		case bgezl_op:
 			if (NO_R6EMU)
 				break;
 			/* fall through */
+=======
+			fallthrough;
+		case bgezl_op:
+			if (NO_R6EMU)
+				break;
+			fallthrough;
+>>>>>>> upstream/android-13
 		case bgez_op:
 			if ((long)regs->regs[insn.i_format.rs] >= 0)
 				*contpc = regs->cp0_epc +
@@ -514,12 +541,20 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 		break;
 	case jalx_op:
 		set_isa16_mode(bit);
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case jal_op:
 		regs->regs[31] = regs->cp0_epc +
 			dec_insn.pc_inc +
 			dec_insn.next_pc_inc;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case j_op:
 		*contpc = regs->cp0_epc + dec_insn.pc_inc;
 		*contpc >>= 28;
@@ -531,7 +566,11 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 	case beql_op:
 		if (NO_R6EMU)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case beq_op:
 		if (regs->regs[insn.i_format.rs] ==
 		    regs->regs[insn.i_format.rt])
@@ -546,7 +585,11 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 	case bnel_op:
 		if (NO_R6EMU)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case bne_op:
 		if (regs->regs[insn.i_format.rs] !=
 		    regs->regs[insn.i_format.rt])
@@ -561,7 +604,11 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 	case blezl_op:
 		if (!insn.i_format.rt && NO_R6EMU)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case blez_op:
 
 		/*
@@ -599,7 +646,11 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 	case bgtzl_op:
 		if (!insn.i_format.rt && NO_R6EMU)
 			break;
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case bgtz_op:
 		/*
 		 * Compact branches for R6 for the
@@ -737,7 +788,11 @@ int isBranchInstr(struct pt_regs *regs, struct mm_decoded_insn dec_insn,
 			return 1;
 		}
 		/* R2/R6 compatible cop1 instruction */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case cop2_op:
 	case cop1x_op:
 		if (insn.i_format.rs == bc_op) {
@@ -1063,7 +1118,11 @@ emul:
 				     MIPSInst_SIMM(ir));
 		MIPS_FPU_EMU_INC_STATS(loads);
 
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, dva, sizeof(u64))) {
+=======
+		if (!access_ok(dva, sizeof(u64))) {
+>>>>>>> upstream/android-13
 			MIPS_FPU_EMU_INC_STATS(errors);
 			*fault_addr = dva;
 			return SIGBUS;
@@ -1081,7 +1140,11 @@ emul:
 				      MIPSInst_SIMM(ir));
 		MIPS_FPU_EMU_INC_STATS(stores);
 		DIFROMREG(dval, MIPSInst_RT(ir));
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, dva, sizeof(u64))) {
+=======
+		if (!access_ok(dva, sizeof(u64))) {
+>>>>>>> upstream/android-13
 			MIPS_FPU_EMU_INC_STATS(errors);
 			*fault_addr = dva;
 			return SIGBUS;
@@ -1097,7 +1160,11 @@ emul:
 		wva = (u32 __user *) (xcp->regs[MIPSInst_RS(ir)] +
 				      MIPSInst_SIMM(ir));
 		MIPS_FPU_EMU_INC_STATS(loads);
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_READ, wva, sizeof(u32))) {
+=======
+		if (!access_ok(wva, sizeof(u32))) {
+>>>>>>> upstream/android-13
 			MIPS_FPU_EMU_INC_STATS(errors);
 			*fault_addr = wva;
 			return SIGBUS;
@@ -1115,7 +1182,11 @@ emul:
 				      MIPSInst_SIMM(ir));
 		MIPS_FPU_EMU_INC_STATS(stores);
 		SIFROMREG(wval, MIPSInst_RT(ir));
+<<<<<<< HEAD
 		if (!access_ok(VERIFY_WRITE, wva, sizeof(u32))) {
+=======
+		if (!access_ok(wva, sizeof(u32))) {
+>>>>>>> upstream/android-13
 			MIPS_FPU_EMU_INC_STATS(errors);
 			*fault_addr = wva;
 			return SIGBUS;
@@ -1229,14 +1300,22 @@ emul:
 			case bcfl_op:
 				if (cpu_has_mips_2_3_4_5_r)
 					likely = 1;
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case bcf_op:
 				cond = !cond;
 				break;
 			case bctl_op:
 				if (cpu_has_mips_2_3_4_5_r)
 					likely = 1;
+<<<<<<< HEAD
 				/* fall through */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case bct_op:
 				break;
 			}
@@ -1493,7 +1572,11 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 				xcp->regs[MIPSInst_FT(ir)]);
 
 			MIPS_FPU_EMU_INC_STATS(loads);
+<<<<<<< HEAD
 			if (!access_ok(VERIFY_READ, va, sizeof(u32))) {
+=======
+			if (!access_ok(va, sizeof(u32))) {
+>>>>>>> upstream/android-13
 				MIPS_FPU_EMU_INC_STATS(errors);
 				*fault_addr = va;
 				return SIGBUS;
@@ -1513,7 +1596,11 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 			MIPS_FPU_EMU_INC_STATS(stores);
 
 			SIFROMREG(val, MIPSInst_FS(ir));
+<<<<<<< HEAD
 			if (!access_ok(VERIFY_WRITE, va, sizeof(u32))) {
+=======
+			if (!access_ok(va, sizeof(u32))) {
+>>>>>>> upstream/android-13
 				MIPS_FPU_EMU_INC_STATS(errors);
 				*fault_addr = va;
 				return SIGBUS;
@@ -1526,6 +1613,7 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 			break;
 
 		case madd_s_op:
+<<<<<<< HEAD
 			handler = fpemu_sp_madd;
 			goto scoptop;
 		case msub_s_op:
@@ -1536,6 +1624,30 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 			goto scoptop;
 		case nmsub_s_op:
 			handler = fpemu_sp_nmsub;
+=======
+			if (cpu_has_mac2008_only)
+				handler = ieee754sp_madd;
+			else
+				handler = fpemu_sp_madd;
+			goto scoptop;
+		case msub_s_op:
+			if (cpu_has_mac2008_only)
+				handler = ieee754sp_msub;
+			else
+				handler = fpemu_sp_msub;
+			goto scoptop;
+		case nmadd_s_op:
+			if (cpu_has_mac2008_only)
+				handler = ieee754sp_nmadd;
+			else
+				handler = fpemu_sp_nmadd;
+			goto scoptop;
+		case nmsub_s_op:
+			if (cpu_has_mac2008_only)
+				handler = ieee754sp_nmsub;
+			else
+				handler = fpemu_sp_nmsub;
+>>>>>>> upstream/android-13
 			goto scoptop;
 
 		      scoptop:
@@ -1590,7 +1702,11 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 				xcp->regs[MIPSInst_FT(ir)]);
 
 			MIPS_FPU_EMU_INC_STATS(loads);
+<<<<<<< HEAD
 			if (!access_ok(VERIFY_READ, va, sizeof(u64))) {
+=======
+			if (!access_ok(va, sizeof(u64))) {
+>>>>>>> upstream/android-13
 				MIPS_FPU_EMU_INC_STATS(errors);
 				*fault_addr = va;
 				return SIGBUS;
@@ -1609,7 +1725,11 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 
 			MIPS_FPU_EMU_INC_STATS(stores);
 			DIFROMREG(val, MIPSInst_FS(ir));
+<<<<<<< HEAD
 			if (!access_ok(VERIFY_WRITE, va, sizeof(u64))) {
+=======
+			if (!access_ok(va, sizeof(u64))) {
+>>>>>>> upstream/android-13
 				MIPS_FPU_EMU_INC_STATS(errors);
 				*fault_addr = va;
 				return SIGBUS;
@@ -1622,6 +1742,7 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 			break;
 
 		case madd_d_op:
+<<<<<<< HEAD
 			handler = fpemu_dp_madd;
 			goto dcoptop;
 		case msub_d_op:
@@ -1631,6 +1752,29 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 			handler = fpemu_dp_nmadd;
 			goto dcoptop;
 		case nmsub_d_op:
+=======
+			if (cpu_has_mac2008_only)
+				handler = ieee754dp_madd;
+			else
+				handler = fpemu_dp_madd;
+			goto dcoptop;
+		case msub_d_op:
+			if (cpu_has_mac2008_only)
+				handler = ieee754dp_msub;
+			else
+				handler = fpemu_dp_msub;
+			goto dcoptop;
+		case nmadd_d_op:
+			if (cpu_has_mac2008_only)
+				handler = ieee754dp_nmadd;
+			else
+				handler = fpemu_dp_nmadd;
+			goto dcoptop;
+		case nmsub_d_op:
+			if (cpu_has_mac2008_only)
+				handler = ieee754dp_nmsub;
+			else
+>>>>>>> upstream/android-13
 			handler = fpemu_dp_nmsub;
 			goto dcoptop;
 
@@ -2831,6 +2975,16 @@ int fpu_emulator_cop1Handler(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 	u16 *instr_ptr;
 	int sig = 0;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Initialize context if it hasn't been used already, otherwise ensure
+	 * it has been saved to struct thread_struct.
+	 */
+	if (!init_fp_ctx(current))
+		lose_fpu(1);
+
+>>>>>>> upstream/android-13
 	oldepc = xcp->cp0_epc;
 	do {
 		prevepc = xcp->cp0_epc;

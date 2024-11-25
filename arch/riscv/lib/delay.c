@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Regents of the University of California
  *
@@ -9,6 +10,11 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Regents of the University of California
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -89,9 +95,19 @@ EXPORT_SYMBOL(__delay);
 void udelay(unsigned long usecs)
 {
 	u64 ucycles = (u64)usecs * lpj_fine * UDELAY_MULT;
+<<<<<<< HEAD
 
 	if (unlikely(usecs > MAX_UDELAY_US)) {
 		__delay((u64)usecs * riscv_timebase / 1000000ULL);
+=======
+	u64 n;
+
+	if (unlikely(usecs > MAX_UDELAY_US)) {
+		n = (u64)usecs * riscv_timebase;
+		do_div(n, 1000000);
+
+		__delay(n);
+>>>>>>> upstream/android-13
 		return;
 	}
 

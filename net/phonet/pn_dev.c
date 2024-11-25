@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * File: pn_dev.c
  *
@@ -7,6 +11,7 @@
  *
  * Authors: Sakari Ailus <sakari.ailus@nokia.com>
  *          Rémi Denis-Courmont
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -48,8 +55,11 @@ static unsigned int phonet_net_id __read_mostly;
 
 static struct phonet_net *phonet_pernet(struct net *net)
 {
+<<<<<<< HEAD
 	BUG_ON(!net);
 
+=======
+>>>>>>> upstream/android-13
 	return net_generic(net, phonet_net_id);
 }
 
@@ -137,8 +147,12 @@ struct net_device *phonet_device_get(struct net *net)
 			break;
 		dev = NULL;
 	}
+<<<<<<< HEAD
 	if (dev)
 		dev_hold(dev);
+=======
+	dev_hold(dev);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return dev;
 }
@@ -248,11 +262,19 @@ static int phonet_device_autoconf(struct net_device *dev)
 	struct if_phonet_req req;
 	int ret;
 
+<<<<<<< HEAD
 	if (!dev->netdev_ops->ndo_do_ioctl)
 		return -EOPNOTSUPP;
 
 	ret = dev->netdev_ops->ndo_do_ioctl(dev, (struct ifreq *)&req,
 						SIOCPNGAUTOCONF);
+=======
+	if (!dev->netdev_ops->ndo_siocdevprivate)
+		return -EOPNOTSUPP;
+
+	ret = dev->netdev_ops->ndo_siocdevprivate(dev, (struct ifreq *)&req,
+						  NULL, SIOCPNGAUTOCONF);
+>>>>>>> upstream/android-13
 	if (ret < 0)
 		return ret;
 
@@ -426,8 +448,12 @@ struct net_device *phonet_route_output(struct net *net, u8 daddr)
 	daddr >>= 2;
 	rcu_read_lock();
 	dev = rcu_dereference(routes->table[daddr]);
+<<<<<<< HEAD
 	if (dev)
 		dev_hold(dev);
+=======
+	dev_hold(dev);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 
 	if (!dev)

@@ -28,8 +28,13 @@
 #include <linux/kfifo.h>
 #include <linux/workqueue.h>
 #include <linux/completion.h>
+<<<<<<< HEAD
 
 #include "greybus.h"
+=======
+#include <linux/greybus.h>
+
+>>>>>>> upstream/android-13
 #include "gbphy.h"
 
 #define GB_NUM_MINORS	16	/* 16 is more than enough */
@@ -40,6 +45,7 @@
 #define GB_UART_FIRMWARE_CREDITS	4096
 #define GB_UART_CREDIT_WAIT_TIMEOUT_MSEC	10000
 
+<<<<<<< HEAD
 struct gb_tty_line_coding {
 	__le32	rate;
 	__u8	format;
@@ -48,6 +54,8 @@ struct gb_tty_line_coding {
 	__u8	flow_control;
 };
 
+=======
+>>>>>>> upstream/android-13
 struct gb_tty {
 	struct gbphy_device *gbphy_dev;
 	struct tty_port port;
@@ -66,7 +74,11 @@ struct gb_tty {
 	struct mutex mutex;
 	u8 ctrlin;	/* input control lines */
 	u8 ctrlout;	/* output control lines */
+<<<<<<< HEAD
 	struct gb_tty_line_coding line_coding;
+=======
+	struct gb_uart_set_line_coding_request line_coding;
+>>>>>>> upstream/android-13
 	struct work_struct tx_work;
 	struct kfifo write_fifo;
 	bool close_pending;
@@ -288,12 +300,18 @@ static void  gb_uart_tx_write_work(struct work_struct *work)
 
 static int send_line_coding(struct gb_tty *tty)
 {
+<<<<<<< HEAD
 	struct gb_uart_set_line_coding_request request;
 
 	memcpy(&request, &tty->line_coding,
 	       sizeof(tty->line_coding));
 	return gb_operation_sync(tty->connection, GB_UART_TYPE_SET_LINE_CODING,
 				 &request, sizeof(request), NULL, 0);
+=======
+	return gb_operation_sync(tty->connection, GB_UART_TYPE_SET_LINE_CODING,
+				 &tty->line_coding, sizeof(tty->line_coding),
+				 NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 static int send_control(struct gb_tty *gb_tty, u8 control)
@@ -451,7 +469,11 @@ static int gb_tty_write(struct tty_struct *tty, const unsigned char *buf,
 	return count;
 }
 
+<<<<<<< HEAD
 static int gb_tty_write_room(struct tty_struct *tty)
+=======
+static unsigned int gb_tty_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct gb_tty *gb_tty = tty->driver_data;
 	unsigned long flags;
@@ -468,11 +490,19 @@ static int gb_tty_write_room(struct tty_struct *tty)
 	return room;
 }
 
+<<<<<<< HEAD
 static int gb_tty_chars_in_buffer(struct tty_struct *tty)
 {
 	struct gb_tty *gb_tty = tty->driver_data;
 	unsigned long flags;
 	int chars;
+=======
+static unsigned int gb_tty_chars_in_buffer(struct tty_struct *tty)
+{
+	struct gb_tty *gb_tty = tty->driver_data;
+	unsigned long flags;
+	unsigned int chars;
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&gb_tty->write_lock, flags);
 	chars = kfifo_len(&gb_tty->write_fifo);
@@ -493,9 +523,15 @@ static int gb_tty_break_ctl(struct tty_struct *tty, int state)
 static void gb_tty_set_termios(struct tty_struct *tty,
 			       struct ktermios *termios_old)
 {
+<<<<<<< HEAD
 	struct gb_tty *gb_tty = tty->driver_data;
 	struct ktermios *termios = &tty->termios;
 	struct gb_tty_line_coding newline;
+=======
+	struct gb_uart_set_line_coding_request newline;
+	struct gb_tty *gb_tty = tty->driver_data;
+	struct ktermios *termios = &tty->termios;
+>>>>>>> upstream/android-13
 	u8 newctrl = gb_tty->ctrlout;
 
 	newline.rate = cpu_to_le32(tty_get_baud_rate(tty));
@@ -505,6 +541,7 @@ static void gb_tty_set_termios(struct tty_struct *tty,
 				(termios->c_cflag & PARODD ? 1 : 2) +
 				(termios->c_cflag & CMSPAR ? 2 : 0) : 0;
 
+<<<<<<< HEAD
 	switch (termios->c_cflag & CSIZE) {
 	case CS5:
 		newline.data_bits = 5;
@@ -520,6 +557,9 @@ static void gb_tty_set_termios(struct tty_struct *tty,
 		newline.data_bits = 8;
 		break;
 	}
+=======
+	newline.data_bits = tty_get_char_size(termios->c_cflag);
+>>>>>>> upstream/android-13
 
 	/* FIXME: needs to clear unsupported bits in the termios */
 	gb_tty->clocal = ((termios->c_cflag & CLOCAL) != 0);
@@ -616,6 +656,7 @@ static void gb_tty_unthrottle(struct tty_struct *tty)
 	}
 }
 
+<<<<<<< HEAD
 static int get_serial_info(struct gb_tty *gb_tty,
 			   struct serial_struct __user *info)
 {
@@ -640,16 +681,44 @@ static int set_serial_info(struct gb_tty *gb_tty,
 			   struct serial_struct __user *newinfo)
 {
 	struct serial_struct new_serial;
+=======
+static int get_serial_info(struct tty_struct *tty,
+			   struct serial_struct *ss)
+{
+	struct gb_tty *gb_tty = tty->driver_data;
+
+	ss->line = gb_tty->minor;
+	ss->close_delay = jiffies_to_msecs(gb_tty->port.close_delay) / 10;
+	ss->closing_wait =
+		gb_tty->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+		ASYNC_CLOSING_WAIT_NONE :
+		jiffies_to_msecs(gb_tty->port.closing_wait) / 10;
+
+	return 0;
+}
+
+static int set_serial_info(struct tty_struct *tty,
+			   struct serial_struct *ss)
+{
+	struct gb_tty *gb_tty = tty->driver_data;
+>>>>>>> upstream/android-13
 	unsigned int closing_wait;
 	unsigned int close_delay;
 	int retval = 0;
 
+<<<<<<< HEAD
 	if (copy_from_user(&new_serial, newinfo, sizeof(new_serial)))
 		return -EFAULT;
 
 	close_delay = new_serial.close_delay * 10;
 	closing_wait = new_serial.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
 			ASYNC_CLOSING_WAIT_NONE : new_serial.closing_wait * 10;
+=======
+	close_delay = msecs_to_jiffies(ss->close_delay * 10);
+	closing_wait = ss->closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+			ASYNC_CLOSING_WAIT_NONE :
+			msecs_to_jiffies(ss->closing_wait * 10);
+>>>>>>> upstream/android-13
 
 	mutex_lock(&gb_tty->port.mutex);
 	if (!capable(CAP_SYS_ADMIN)) {
@@ -726,12 +795,15 @@ static int gb_tty_ioctl(struct tty_struct *tty, unsigned int cmd,
 	struct gb_tty *gb_tty = tty->driver_data;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case TIOCGSERIAL:
 		return get_serial_info(gb_tty,
 				       (struct serial_struct __user *)arg);
 	case TIOCSSERIAL:
 		return set_serial_info(gb_tty,
 				       (struct serial_struct __user *)arg);
+=======
+>>>>>>> upstream/android-13
 	case TIOCMIWAIT:
 		return wait_serial_change(gb_tty, arg);
 	}
@@ -799,6 +871,20 @@ out:
 	gbphy_runtime_put_autosuspend(gb_tty->gbphy_dev);
 }
 
+<<<<<<< HEAD
+=======
+static void gb_tty_port_destruct(struct tty_port *port)
+{
+	struct gb_tty *gb_tty = container_of(port, struct gb_tty, port);
+
+	if (gb_tty->minor != GB_NUM_MINORS)
+		release_minor(gb_tty);
+	kfifo_free(&gb_tty->write_fifo);
+	kfree(gb_tty->buffer);
+	kfree(gb_tty);
+}
+
+>>>>>>> upstream/android-13
 static const struct tty_operations gb_ops = {
 	.install =		gb_tty_install,
 	.open =			gb_tty_open,
@@ -816,12 +902,21 @@ static const struct tty_operations gb_ops = {
 	.tiocmget =		gb_tty_tiocmget,
 	.tiocmset =		gb_tty_tiocmset,
 	.get_icount =		gb_tty_get_icount,
+<<<<<<< HEAD
+=======
+	.set_serial =		set_serial_info,
+	.get_serial =		get_serial_info,
+>>>>>>> upstream/android-13
 };
 
 static const struct tty_port_operations gb_port_ops = {
 	.dtr_rts =		gb_tty_dtr_rts,
 	.activate =		gb_tty_port_activate,
 	.shutdown =		gb_tty_port_shutdown,
+<<<<<<< HEAD
+=======
+	.destruct =		gb_tty_port_destruct,
+>>>>>>> upstream/android-13
 };
 
 static int gb_uart_probe(struct gbphy_device *gbphy_dev,
@@ -834,6 +929,7 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 	int retval;
 	int minor;
 
+<<<<<<< HEAD
 	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
 	if (!gb_tty)
 		return -ENOMEM;
@@ -845,6 +941,13 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 		retval = PTR_ERR(connection);
 		goto exit_tty_free;
 	}
+=======
+	connection = gb_connection_create(gbphy_dev->bundle,
+					  le16_to_cpu(gbphy_dev->cport_desc->id),
+					  gb_uart_request_handler);
+	if (IS_ERR(connection))
+		return PTR_ERR(connection);
+>>>>>>> upstream/android-13
 
 	max_payload = gb_operation_get_payload_size_max(connection);
 	if (max_payload < sizeof(struct gb_uart_send_data_request)) {
@@ -852,13 +955,30 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 		goto exit_connection_destroy;
 	}
 
+<<<<<<< HEAD
+=======
+	gb_tty = kzalloc(sizeof(*gb_tty), GFP_KERNEL);
+	if (!gb_tty) {
+		retval = -ENOMEM;
+		goto exit_connection_destroy;
+	}
+
+	tty_port_init(&gb_tty->port);
+	gb_tty->port.ops = &gb_port_ops;
+	gb_tty->minor = GB_NUM_MINORS;
+
+>>>>>>> upstream/android-13
 	gb_tty->buffer_payload_max = max_payload -
 			sizeof(struct gb_uart_send_data_request);
 
 	gb_tty->buffer = kzalloc(gb_tty->buffer_payload_max, GFP_KERNEL);
 	if (!gb_tty->buffer) {
 		retval = -ENOMEM;
+<<<<<<< HEAD
 		goto exit_connection_destroy;
+=======
+		goto exit_put_port;
+>>>>>>> upstream/android-13
 	}
 
 	INIT_WORK(&gb_tty->tx_work, gb_uart_tx_write_work);
@@ -866,7 +986,11 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 	retval = kfifo_alloc(&gb_tty->write_fifo, GB_UART_WRITE_FIFO_SIZE,
 			     GFP_KERNEL);
 	if (retval)
+<<<<<<< HEAD
 		goto exit_buf_free;
+=======
+		goto exit_put_port;
+>>>>>>> upstream/android-13
 
 	gb_tty->credits = GB_UART_FIRMWARE_CREDITS;
 	init_completion(&gb_tty->credits_complete);
@@ -880,7 +1004,11 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 		} else {
 			retval = minor;
 		}
+<<<<<<< HEAD
 		goto exit_kfifo_free;
+=======
+		goto exit_put_port;
+>>>>>>> upstream/android-13
 	}
 
 	gb_tty->minor = minor;
@@ -889,9 +1017,12 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 	init_waitqueue_head(&gb_tty->wioctl);
 	mutex_init(&gb_tty->mutex);
 
+<<<<<<< HEAD
 	tty_port_init(&gb_tty->port);
 	gb_tty->port.ops = &gb_port_ops;
 
+=======
+>>>>>>> upstream/android-13
 	gb_tty->connection = connection;
 	gb_tty->gbphy_dev = gbphy_dev;
 	gb_connection_set_data(connection, gb_tty);
@@ -899,7 +1030,11 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 
 	retval = gb_connection_enable_tx(connection);
 	if (retval)
+<<<<<<< HEAD
 		goto exit_release_minor;
+=======
+		goto exit_put_port;
+>>>>>>> upstream/android-13
 
 	send_control(gb_tty, gb_tty->ctrlout);
 
@@ -926,6 +1061,7 @@ static int gb_uart_probe(struct gbphy_device *gbphy_dev,
 
 exit_connection_disable:
 	gb_connection_disable(connection);
+<<<<<<< HEAD
 exit_release_minor:
 	release_minor(gb_tty);
 exit_kfifo_free:
@@ -936,6 +1072,12 @@ exit_connection_destroy:
 	gb_connection_destroy(connection);
 exit_tty_free:
 	kfree(gb_tty);
+=======
+exit_put_port:
+	tty_port_put(&gb_tty->port);
+exit_connection_destroy:
+	gb_connection_destroy(connection);
+>>>>>>> upstream/android-13
 
 	return retval;
 }
@@ -966,6 +1108,7 @@ static void gb_uart_remove(struct gbphy_device *gbphy_dev)
 	gb_connection_disable_rx(connection);
 	tty_unregister_device(gb_tty_driver, gb_tty->minor);
 
+<<<<<<< HEAD
 	/* FIXME - free transmit / receive buffers */
 
 	gb_connection_disable(connection);
@@ -975,6 +1118,12 @@ static void gb_uart_remove(struct gbphy_device *gbphy_dev)
 	kfifo_free(&gb_tty->write_fifo);
 	kfree(gb_tty->buffer);
 	kfree(gb_tty);
+=======
+	gb_connection_disable(connection);
+	gb_connection_destroy(connection);
+
+	tty_port_put(&gb_tty->port);
+>>>>>>> upstream/android-13
 }
 
 static int gb_tty_init(void)
@@ -1009,7 +1158,11 @@ static int gb_tty_init(void)
 	return 0;
 
 fail_put_gb_tty:
+<<<<<<< HEAD
 	put_tty_driver(gb_tty_driver);
+=======
+	tty_driver_kref_put(gb_tty_driver);
+>>>>>>> upstream/android-13
 fail_unregister_dev:
 	return retval;
 }
@@ -1017,7 +1170,11 @@ fail_unregister_dev:
 static void gb_tty_exit(void)
 {
 	tty_unregister_driver(gb_tty_driver);
+<<<<<<< HEAD
 	put_tty_driver(gb_tty_driver);
+=======
+	tty_driver_kref_put(gb_tty_driver);
+>>>>>>> upstream/android-13
 	idr_destroy(&tty_minors);
 }
 

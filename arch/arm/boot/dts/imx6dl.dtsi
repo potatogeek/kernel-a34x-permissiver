@@ -15,7 +15,11 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+<<<<<<< HEAD
 		cpu@0 {
+=======
+		cpu0: cpu@0 {
+>>>>>>> upstream/android-13
 			compatible = "arm,cortex-a9";
 			device_type = "cpu";
 			reg = <0>;
@@ -44,6 +48,11 @@
 			arm-supply = <&reg_arm>;
 			pu-supply = <&reg_pu>;
 			soc-supply = <&reg_soc>;
+<<<<<<< HEAD
+=======
+			nvmem-cells = <&cpu_speed_grade>;
+			nvmem-cell-names = "speed_grade";
+>>>>>>> upstream/android-13
 		};
 
 		cpu@1 {
@@ -64,6 +73,10 @@
 				396000	1175000
 			>;
 			clock-latency = <61036>; /* two CLK32 periods */
+<<<<<<< HEAD
+=======
+			#cooling-cells = <2>;
+>>>>>>> upstream/android-13
 			clocks = <&clks IMX6QDL_CLK_ARM>,
 				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>,
 				 <&clks IMX6QDL_CLK_STEP>,
@@ -84,11 +97,15 @@
 			clocks = <&clks IMX6QDL_CLK_OCRAM>;
 		};
 
+<<<<<<< HEAD
 		aips1: aips-bus@2000000 {
 			iomuxc: iomuxc@20e0000 {
 				compatible = "fsl,imx6dl-iomuxc";
 			};
 
+=======
+		aips1: bus@2000000 {
+>>>>>>> upstream/android-13
 			pxp: pxp@20f0000 {
 				reg = <0x020f0000 0x4000>;
 				interrupts = <0 98 IRQ_TYPE_LEVEL_HIGH>;
@@ -100,7 +117,11 @@
 			};
 		};
 
+<<<<<<< HEAD
 		aips2: aips-bus@2100000 {
+=======
+		aips2: bus@2100000 {
+>>>>>>> upstream/android-13
 			i2c4: i2c@21f8000 {
 				#address-cells = <1>;
 				#size-cells = <0>;
@@ -295,6 +316,13 @@
 	compatible = "fsl,imx6dl-hdmi";
 };
 
+<<<<<<< HEAD
+=======
+&iomuxc {
+	compatible = "fsl,imx6dl-iomuxc";
+};
+
+>>>>>>> upstream/android-13
 &ipu1_csi1 {
 	ipu1_csi1_from_ipu1_csi1_mux: endpoint {
 		remote-endpoint = <&ipu1_csi1_mux_to_ipu1_csi1>;

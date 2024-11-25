@@ -3,6 +3,10 @@
 #define _LINUX_KHUGEPAGED_H
 
 #include <linux/sched/coredump.h> /* MMF_VM_HUGEPAGE */
+<<<<<<< HEAD
+=======
+#include <linux/shmem_fs.h>
+>>>>>>> upstream/android-13
 
 
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
@@ -16,6 +20,17 @@ extern void __khugepaged_exit(struct mm_struct *mm);
 extern int khugepaged_enter_vma_merge(struct vm_area_struct *vma,
 				      unsigned long vm_flags);
 extern void khugepaged_min_free_kbytes_update(void);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SHMEM
+extern void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr);
+#else
+static inline void collapse_pte_mapped_thp(struct mm_struct *mm,
+					   unsigned long addr)
+{
+}
+#endif
+>>>>>>> upstream/android-13
 
 #define khugepaged_enabled()					       \
 	(transparent_hugepage_flags &				       \
@@ -49,6 +64,10 @@ static inline int khugepaged_enter(struct vm_area_struct *vma,
 {
 	if (!test_bit(MMF_VM_HUGEPAGE, &vma->vm_mm->flags))
 		if ((khugepaged_always() ||
+<<<<<<< HEAD
+=======
+		     (shmem_file(vma->vm_file) && shmem_huge_enabled(vma)) ||
+>>>>>>> upstream/android-13
 		     (khugepaged_req_madv() && (vm_flags & VM_HUGEPAGE))) &&
 		    !(vm_flags & VM_NOHUGEPAGE) &&
 		    !test_bit(MMF_DISABLE_THP, &vma->vm_mm->flags))
@@ -74,6 +93,13 @@ static inline int khugepaged_enter_vma_merge(struct vm_area_struct *vma,
 {
 	return 0;
 }
+<<<<<<< HEAD
+=======
+static inline void collapse_pte_mapped_thp(struct mm_struct *mm,
+					   unsigned long addr)
+{
+}
+>>>>>>> upstream/android-13
 
 static inline void khugepaged_min_free_kbytes_update(void)
 {

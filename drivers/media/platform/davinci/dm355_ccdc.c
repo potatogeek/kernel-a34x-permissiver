@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2005-2009 Texas Instruments Inc
  *
@@ -11,6 +12,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2005-2009 Texas Instruments Inc
+ *
+>>>>>>> upstream/android-13
  * CCDC hardware module for DM355
  * ------------------------------
  *
@@ -892,7 +899,11 @@ static int dm355_ccdc_probe(struct platform_device *pdev)
 		goto fail_nores;
 	}
 
+<<<<<<< HEAD
 	ccdc_cfg.base_addr = ioremap_nocache(res->start, resource_size(res));
+=======
+	ccdc_cfg.base_addr = ioremap(res->start, resource_size(res));
+>>>>>>> upstream/android-13
 	if (!ccdc_cfg.base_addr) {
 		status = -ENOMEM;
 		goto fail_nomem;

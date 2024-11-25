@@ -12,9 +12,15 @@ Come scrivere la documentazione del kernel
 .. toctree::
    :maxdepth: 1
 
+<<<<<<< HEAD
    sphinx.rst
    kernel-doc.rst
    parse-headers.rst
+=======
+   sphinx
+   kernel-doc
+   parse-headers
+>>>>>>> upstream/android-13
 
 .. only::  subproject and html
 

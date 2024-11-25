@@ -83,6 +83,7 @@ SUN RPC subsystem
 .. kernel-doc:: net/sunrpc/clnt.c
    :export:
 
+<<<<<<< HEAD
 WiMAX
 -----
 
@@ -104,6 +105,8 @@ WiMAX
 .. kernel-doc:: include/uapi/linux/wimax.h
    :internal:
 
+=======
+>>>>>>> upstream/android-13
 Network device support
 ======================
 
@@ -134,6 +137,18 @@ PHY Support
 .. kernel-doc:: drivers/net/phy/phy.c
    :internal:
 
+<<<<<<< HEAD
+=======
+.. kernel-doc:: drivers/net/phy/phy-core.c
+   :export:
+
+.. kernel-doc:: drivers/net/phy/phy-c45.c
+   :export:
+
+.. kernel-doc:: include/linux/phy.h
+   :internal:
+
+>>>>>>> upstream/android-13
 .. kernel-doc:: drivers/net/phy/phy_device.c
    :export:
 

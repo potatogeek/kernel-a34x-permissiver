@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * Copyright 2009-2015 Freescale Semiconductor, Inc. and others
  *
@@ -10,11 +14,14 @@
  *
  * Based on original driver mpc5121_nfc.c.
  *
+<<<<<<< HEAD
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Limitations:
  * - Untested on MPC5125 and M54418.
  * - DMA and pipelining not used.
@@ -152,6 +159,10 @@ enum vf610_nfc_variant {
 };
 
 struct vf610_nfc {
+<<<<<<< HEAD
+=======
+	struct nand_controller base;
+>>>>>>> upstream/android-13
 	struct nand_chip chip;
 	struct device *dev;
 	void __iomem *regs;
@@ -168,11 +179,14 @@ struct vf610_nfc {
 	u32 ecc_mode;
 };
 
+<<<<<<< HEAD
 static inline struct vf610_nfc *mtd_to_nfc(struct mtd_info *mtd)
 {
 	return container_of(mtd_to_nand(mtd), struct vf610_nfc, chip);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct vf610_nfc *chip_to_nfc(struct nand_chip *chip)
 {
 	return container_of(chip, struct vf610_nfc, chip);
@@ -316,8 +330,12 @@ static void vf610_nfc_done(struct vf610_nfc *nfc)
 
 static irqreturn_t vf610_nfc_irq(int irq, void *data)
 {
+<<<<<<< HEAD
 	struct mtd_info *mtd = data;
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+	struct vf610_nfc *nfc = data;
+>>>>>>> upstream/android-13
 
 	vf610_nfc_clear(nfc, NFC_IRQ_STATUS, IDLE_EN_BIT);
 	complete(&nfc->cmd_done);
@@ -332,11 +350,14 @@ static inline void vf610_nfc_ecc_mode(struct vf610_nfc *nfc, int ecc_mode)
 			    CONFIG_ECC_MODE_SHIFT, ecc_mode);
 }
 
+<<<<<<< HEAD
 static inline void vf610_nfc_transfer_size(struct vf610_nfc *nfc, int size)
 {
 	vf610_nfc_write(nfc, NFC_SECTOR_SIZE, size);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline void vf610_nfc_run(struct vf610_nfc *nfc, u32 col, u32 row,
 				 u32 cmd1, u32 cmd2, u32 trfr_sz)
 {
@@ -373,7 +394,11 @@ static int vf610_nfc_cmd(struct nand_chip *chip,
 {
 	const struct nand_op_instr *instr;
 	struct vf610_nfc *nfc = chip_to_nfc(chip);
+<<<<<<< HEAD
 	int op_id = -1, trfr_sz = 0, offset;
+=======
+	int op_id = -1, trfr_sz = 0, offset = 0;
+>>>>>>> upstream/android-13
 	u32 col = 0, row = 0, cmd1 = 0, cmd2 = 0, code = 0;
 	bool force8bit = false;
 
@@ -487,6 +512,7 @@ static const struct nand_op_parser vf610_nfc_op_parser = NAND_OP_PARSER(
 		NAND_OP_PARSER_PAT_DATA_IN_ELEM(true, PAGE_2K + OOB_MAX)),
 	);
 
+<<<<<<< HEAD
 static int vf610_nfc_exec_op(struct nand_chip *chip,
 			     const struct nand_operation *op,
 			     bool check_only)
@@ -502,25 +528,60 @@ static void vf610_nfc_select_chip(struct mtd_info *mtd, int chip)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
 	u32 tmp = vf610_nfc_read(nfc, NFC_ROW_ADDR);
+=======
+/*
+ * This function supports Vybrid only (MPC5125 would have full RB and four CS)
+ */
+static void vf610_nfc_select_target(struct nand_chip *chip, unsigned int cs)
+{
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+	u32 tmp;
+>>>>>>> upstream/android-13
 
 	/* Vybrid only (MPC5125 would have full RB and four CS) */
 	if (nfc->variant != NFC_VFC610)
 		return;
 
+<<<<<<< HEAD
 	tmp &= ~(ROW_ADDR_CHIP_SEL_RB_MASK | ROW_ADDR_CHIP_SEL_MASK);
 
 	if (chip >= 0) {
 		tmp |= 1 << ROW_ADDR_CHIP_SEL_RB_SHIFT;
 		tmp |= BIT(chip) << ROW_ADDR_CHIP_SEL_SHIFT;
 	}
+=======
+	tmp = vf610_nfc_read(nfc, NFC_ROW_ADDR);
+	tmp &= ~(ROW_ADDR_CHIP_SEL_RB_MASK | ROW_ADDR_CHIP_SEL_MASK);
+	tmp |= 1 << ROW_ADDR_CHIP_SEL_RB_SHIFT;
+	tmp |= BIT(cs) << ROW_ADDR_CHIP_SEL_SHIFT;
+>>>>>>> upstream/android-13
 
 	vf610_nfc_write(nfc, NFC_ROW_ADDR, tmp);
 }
 
+<<<<<<< HEAD
 static inline int vf610_nfc_correct_data(struct mtd_info *mtd, uint8_t *dat,
 					 uint8_t *oob, int page)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+static int vf610_nfc_exec_op(struct nand_chip *chip,
+			     const struct nand_operation *op,
+			     bool check_only)
+{
+	if (!check_only)
+		vf610_nfc_select_target(chip, op->cs);
+
+	return nand_op_parser_exec_op(chip, &vf610_nfc_op_parser, op,
+				      check_only);
+}
+
+static inline int vf610_nfc_correct_data(struct nand_chip *chip, uint8_t *dat,
+					 uint8_t *oob, int page)
+{
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	u32 ecc_status_off = NFC_MAIN_AREA(0) + ECC_SRAM_ADDR + ECC_STATUS;
 	u8 ecc_status;
 	u8 ecc_count;
@@ -557,14 +618,27 @@ static void vf610_nfc_fill_row(struct nand_chip *chip, int page, u32 *code,
 	}
 }
 
+<<<<<<< HEAD
 static int vf610_nfc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 				uint8_t *buf, int oob_required, int page)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+static int vf610_nfc_read_page(struct nand_chip *chip, uint8_t *buf,
+			       int oob_required, int page)
+{
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	int trfr_sz = mtd->writesize + mtd->oobsize;
 	u32 row = 0, cmd1 = 0, cmd2 = 0, code = 0;
 	int stat;
 
+<<<<<<< HEAD
+=======
+	vf610_nfc_select_target(chip, chip->cur_cs);
+
+>>>>>>> upstream/android-13
 	cmd2 |= NAND_CMD_READ0 << CMD_BYTE1_SHIFT;
 	code |= COMMAND_CMD_BYTE1 | COMMAND_CAR_BYTE1 | COMMAND_CAR_BYTE2;
 
@@ -591,7 +665,11 @@ static int vf610_nfc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 						   mtd->writesize,
 				       mtd->oobsize, false);
 
+<<<<<<< HEAD
 	stat = vf610_nfc_correct_data(mtd, buf, chip->oob_poi, page);
+=======
+	stat = vf610_nfc_correct_data(chip, buf, chip->oob_poi, page);
+>>>>>>> upstream/android-13
 
 	if (stat < 0) {
 		mtd->ecc_stats.failed++;
@@ -602,15 +680,28 @@ static int vf610_nfc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 	}
 }
 
+<<<<<<< HEAD
 static int vf610_nfc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 				const uint8_t *buf, int oob_required, int page)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+static int vf610_nfc_write_page(struct nand_chip *chip, const uint8_t *buf,
+				int oob_required, int page)
+{
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	int trfr_sz = mtd->writesize + mtd->oobsize;
 	u32 row = 0, cmd1 = 0, cmd2 = 0, code = 0;
 	u8 status;
 	int ret;
 
+<<<<<<< HEAD
+=======
+	vf610_nfc_select_target(chip, chip->cur_cs);
+
+>>>>>>> upstream/android-13
 	cmd2 |= NAND_CMD_SEQIN << CMD_BYTE1_SHIFT;
 	code |= COMMAND_CMD_BYTE1 | COMMAND_CAR_BYTE1 | COMMAND_CAR_BYTE2;
 
@@ -643,6 +734,7 @@ static int vf610_nfc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vf610_nfc_read_page_raw(struct mtd_info *mtd,
 				   struct nand_chip *chip, u8 *buf,
 				   int oob_required, int page)
@@ -652,16 +744,34 @@ static int vf610_nfc_read_page_raw(struct mtd_info *mtd,
 
 	nfc->data_access = true;
 	ret = nand_read_page_raw(mtd, chip, buf, oob_required, page);
+=======
+static int vf610_nfc_read_page_raw(struct nand_chip *chip, u8 *buf,
+				   int oob_required, int page)
+{
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+	int ret;
+
+	nfc->data_access = true;
+	ret = nand_read_page_raw(chip, buf, oob_required, page);
+>>>>>>> upstream/android-13
 	nfc->data_access = false;
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int vf610_nfc_write_page_raw(struct mtd_info *mtd,
 				    struct nand_chip *chip, const u8 *buf,
 				    int oob_required, int page)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+static int vf610_nfc_write_page_raw(struct nand_chip *chip, const u8 *buf,
+				    int oob_required, int page)
+{
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+	struct mtd_info *mtd = nand_to_mtd(chip);
+>>>>>>> upstream/android-13
 	int ret;
 
 	nfc->data_access = true;
@@ -677,6 +787,7 @@ static int vf610_nfc_write_page_raw(struct mtd_info *mtd,
 	return nand_prog_page_end_op(chip);
 }
 
+<<<<<<< HEAD
 static int vf610_nfc_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			      int page)
 {
@@ -685,15 +796,31 @@ static int vf610_nfc_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 
 	nfc->data_access = true;
 	ret = nand_read_oob_std(mtd, chip, page);
+=======
+static int vf610_nfc_read_oob(struct nand_chip *chip, int page)
+{
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+	int ret;
+
+	nfc->data_access = true;
+	ret = nand_read_oob_std(chip, page);
+>>>>>>> upstream/android-13
 	nfc->data_access = false;
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int vf610_nfc_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			       int page)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+static int vf610_nfc_write_oob(struct nand_chip *chip, int page)
+{
+	struct mtd_info *mtd = nand_to_mtd(chip);
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+>>>>>>> upstream/android-13
 	int ret;
 
 	nfc->data_access = true;
@@ -735,7 +862,11 @@ static void vf610_nfc_init_controller(struct vf610_nfc *nfc)
 	else
 		vf610_nfc_clear(nfc, NFC_FLASH_CONFIG, CONFIG_16BIT);
 
+<<<<<<< HEAD
 	if (nfc->chip.ecc.mode == NAND_ECC_HW) {
+=======
+	if (nfc->chip.ecc.engine_type == NAND_ECC_ENGINE_TYPE_ON_HOST) {
+>>>>>>> upstream/android-13
 		/* Set ECC status offset in SRAM */
 		vf610_nfc_set_field(nfc, NFC_FLASH_CONFIG,
 				    CONFIG_ECC_SRAM_ADDR_MASK,
@@ -750,7 +881,11 @@ static void vf610_nfc_init_controller(struct vf610_nfc *nfc)
 static int vf610_nfc_attach_chip(struct nand_chip *chip)
 {
 	struct mtd_info *mtd = nand_to_mtd(chip);
+<<<<<<< HEAD
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+	struct vf610_nfc *nfc = chip_to_nfc(chip);
+>>>>>>> upstream/android-13
 
 	vf610_nfc_init_controller(nfc);
 
@@ -764,7 +899,11 @@ static int vf610_nfc_attach_chip(struct nand_chip *chip)
 		return -ENXIO;
 	}
 
+<<<<<<< HEAD
 	if (chip->ecc.mode != NAND_ECC_HW)
+=======
+	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST)
+>>>>>>> upstream/android-13
 		return 0;
 
 	if (mtd->writesize != PAGE_2K && mtd->oobsize < 64) {
@@ -782,7 +921,11 @@ static int vf610_nfc_attach_chip(struct nand_chip *chip)
 		mtd->oobsize = 64;
 
 	/* Use default large page ECC layout defined in NAND core */
+<<<<<<< HEAD
 	mtd_set_ooblayout(mtd, &nand_ooblayout_lp_ops);
+=======
+	mtd_set_ooblayout(mtd, nand_get_large_page_ooblayout());
+>>>>>>> upstream/android-13
 	if (chip->ecc.strength == 32) {
 		nfc->ecc_mode = ECC_60_BYTE;
 		chip->ecc.bytes = 60;
@@ -808,6 +951,11 @@ static int vf610_nfc_attach_chip(struct nand_chip *chip)
 
 static const struct nand_controller_ops vf610_nfc_controller_ops = {
 	.attach_chip = vf610_nfc_attach_chip,
+<<<<<<< HEAD
+=======
+	.exec_op = vf610_nfc_exec_op,
+
+>>>>>>> upstream/android-13
 };
 
 static int vf610_nfc_probe(struct platform_device *pdev)
@@ -853,6 +1001,14 @@ static int vf610_nfc_probe(struct platform_device *pdev)
 	}
 
 	of_id = of_match_device(vf610_nfc_dt_ids, &pdev->dev);
+<<<<<<< HEAD
+=======
+	if (!of_id) {
+		err = -ENODEV;
+		goto err_disable_clk;
+	}
+
+>>>>>>> upstream/android-13
 	nfc->variant = (enum vf610_nfc_variant)of_id->data;
 
 	for_each_available_child_of_node(nfc->dev->of_node, child) {
@@ -862,6 +1018,10 @@ static int vf610_nfc_probe(struct platform_device *pdev)
 				dev_err(nfc->dev,
 					"Only one NAND chip supported!\n");
 				err = -EINVAL;
+<<<<<<< HEAD
+=======
+				of_node_put(child);
+>>>>>>> upstream/android-13
 				goto err_disable_clk;
 			}
 
@@ -875,14 +1035,21 @@ static int vf610_nfc_probe(struct platform_device *pdev)
 		goto err_disable_clk;
 	}
 
+<<<<<<< HEAD
 	chip->exec_op = vf610_nfc_exec_op;
 	chip->select_chip = vf610_nfc_select_chip;
 
+=======
+>>>>>>> upstream/android-13
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
 
 	init_completion(&nfc->cmd_done);
 
+<<<<<<< HEAD
 	err = devm_request_irq(nfc->dev, irq, vf610_nfc_irq, 0, DRV_NAME, mtd);
+=======
+	err = devm_request_irq(nfc->dev, irq, vf610_nfc_irq, 0, DRV_NAME, nfc);
+>>>>>>> upstream/android-13
 	if (err) {
 		dev_err(nfc->dev, "Error requesting IRQ!\n");
 		goto err_disable_clk;
@@ -890,13 +1057,25 @@ static int vf610_nfc_probe(struct platform_device *pdev)
 
 	vf610_nfc_preinit_controller(nfc);
 
+<<<<<<< HEAD
 	/* Scan the NAND chip */
 	chip->dummy_controller.ops = &vf610_nfc_controller_ops;
+=======
+	nand_controller_init(&nfc->base);
+	nfc->base.ops = &vf610_nfc_controller_ops;
+	chip->controller = &nfc->base;
+
+	/* Scan the NAND chip */
+>>>>>>> upstream/android-13
 	err = nand_scan(chip, 1);
 	if (err)
 		goto err_disable_clk;
 
+<<<<<<< HEAD
 	platform_set_drvdata(pdev, mtd);
+=======
+	platform_set_drvdata(pdev, nfc);
+>>>>>>> upstream/android-13
 
 	/* Register device in MTD */
 	err = mtd_device_register(mtd, NULL, 0);
@@ -913,10 +1092,20 @@ err_disable_clk:
 
 static int vf610_nfc_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct mtd_info *mtd = platform_get_drvdata(pdev);
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
 
 	nand_release(mtd_to_nand(mtd));
+=======
+	struct vf610_nfc *nfc = platform_get_drvdata(pdev);
+	struct nand_chip *chip = &nfc->chip;
+	int ret;
+
+	ret = mtd_device_unregister(nand_to_mtd(chip));
+	WARN_ON(ret);
+	nand_cleanup(chip);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(nfc->clk);
 	return 0;
 }
@@ -924,8 +1113,12 @@ static int vf610_nfc_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM_SLEEP
 static int vf610_nfc_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct mtd_info *mtd = dev_get_drvdata(dev);
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+=======
+	struct vf610_nfc *nfc = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	clk_disable_unprepare(nfc->clk);
 	return 0;
@@ -933,11 +1126,17 @@ static int vf610_nfc_suspend(struct device *dev)
 
 static int vf610_nfc_resume(struct device *dev)
 {
+<<<<<<< HEAD
 	int err;
 
 	struct mtd_info *mtd = dev_get_drvdata(dev);
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
 
+=======
+	struct vf610_nfc *nfc = dev_get_drvdata(dev);
+	int err;
+
+>>>>>>> upstream/android-13
 	err = clk_prepare_enable(nfc->clk);
 	if (err)
 		return err;

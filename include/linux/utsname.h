@@ -4,7 +4,10 @@
 
 
 #include <linux/sched.h>
+<<<<<<< HEAD
 #include <linux/kref.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/nsproxy.h>
 #include <linux/ns_common.h>
 #include <linux/err.h>
@@ -22,7 +25,10 @@ struct user_namespace;
 extern struct user_namespace init_user_ns;
 
 struct uts_namespace {
+<<<<<<< HEAD
 	struct kref kref;
+=======
+>>>>>>> upstream/android-13
 	struct new_utsname name;
 	struct user_namespace *user_ns;
 	struct ucounts *ucounts;
@@ -33,16 +39,29 @@ extern struct uts_namespace init_uts_ns;
 #ifdef CONFIG_UTS_NS
 static inline void get_uts_ns(struct uts_namespace *ns)
 {
+<<<<<<< HEAD
 	kref_get(&ns->kref);
+=======
+	refcount_inc(&ns->ns.count);
+>>>>>>> upstream/android-13
 }
 
 extern struct uts_namespace *copy_utsname(unsigned long flags,
 	struct user_namespace *user_ns, struct uts_namespace *old_ns);
+<<<<<<< HEAD
 extern void free_uts_ns(struct kref *kref);
 
 static inline void put_uts_ns(struct uts_namespace *ns)
 {
 	kref_put(&ns->kref, free_uts_ns);
+=======
+extern void free_uts_ns(struct uts_namespace *ns);
+
+static inline void put_uts_ns(struct uts_namespace *ns)
+{
+	if (refcount_dec_and_test(&ns->ns.count))
+		free_uts_ns(ns);
+>>>>>>> upstream/android-13
 }
 
 void uts_ns_init(void);

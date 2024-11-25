@@ -84,6 +84,7 @@
 static int rseq_update_cpu_id(struct task_struct *t)
 {
 	u32 cpu_id = raw_smp_processor_id();
+<<<<<<< HEAD
 
 	if (put_user(cpu_id, &t->rseq->cpu_id_start))
 		return -EFAULT;
@@ -91,6 +92,22 @@ static int rseq_update_cpu_id(struct task_struct *t)
 		return -EFAULT;
 	trace_rseq_update(t);
 	return 0;
+=======
+	struct rseq __user *rseq = t->rseq;
+
+	if (!user_write_access_begin(rseq, sizeof(*rseq)))
+		goto efault;
+	unsafe_put_user(cpu_id, &rseq->cpu_id_start, efault_end);
+	unsafe_put_user(cpu_id, &rseq->cpu_id, efault_end);
+	user_write_access_end();
+	trace_rseq_update(t);
+	return 0;
+
+efault_end:
+	user_write_access_end();
+efault:
+	return -EFAULT;
+>>>>>>> upstream/android-13
 }
 
 static int rseq_reset_rseq_cpu_id(struct task_struct *t)
@@ -120,8 +137,18 @@ static int rseq_get_rseq_cs(struct task_struct *t, struct rseq_cs *rseq_cs)
 	u32 sig;
 	int ret;
 
+<<<<<<< HEAD
 	if (copy_from_user(&ptr, &t->rseq->rseq_cs.ptr64, sizeof(ptr)))
 		return -EFAULT;
+=======
+#ifdef CONFIG_64BIT
+	if (get_user(ptr, &t->rseq->rseq_cs))
+		return -EFAULT;
+#else
+	if (copy_from_user(&ptr, &t->rseq->rseq_cs, sizeof(ptr)))
+		return -EFAULT;
+#endif
+>>>>>>> upstream/android-13
 	if (!ptr) {
 		memset(rseq_cs, 0, sizeof(*rseq_cs));
 		return 0;
@@ -204,9 +231,19 @@ static int clear_rseq_cs(struct task_struct *t)
 	 *
 	 * Set rseq_cs to NULL.
 	 */
+<<<<<<< HEAD
 	if (clear_user(&t->rseq->rseq_cs.ptr64, sizeof(t->rseq->rseq_cs.ptr64)))
 		return -EFAULT;
 	return 0;
+=======
+#ifdef CONFIG_64BIT
+	return put_user(0UL, &t->rseq->rseq_cs);
+#else
+	if (clear_user(&t->rseq->rseq_cs, sizeof(t->rseq->rseq_cs)))
+		return -EFAULT;
+	return 0;
+#endif
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -254,8 +291,12 @@ static int rseq_ip_fixup(struct pt_regs *regs)
  * - signal delivery,
  * and return to user-space.
  *
+<<<<<<< HEAD
  * This is how we can ensure that the entire rseq critical section,
  * consisting of both the C part and the assembly instruction sequence,
+=======
+ * This is how we can ensure that the entire rseq critical section
+>>>>>>> upstream/android-13
  * will issue the commit instruction only if executed atomically with
  * respect to other threads scheduled on the same CPU, and with respect
  * to signal handlers.
@@ -267,18 +308,36 @@ void __rseq_handle_notify_resume(struct ksignal *ksig, struct pt_regs *regs)
 
 	if (unlikely(t->flags & PF_EXITING))
 		return;
+<<<<<<< HEAD
 	if (unlikely(!access_ok(VERIFY_WRITE, t->rseq, sizeof(*t->rseq))))
 		goto error;
 	ret = rseq_ip_fixup(regs);
 	if (unlikely(ret < 0))
 		goto error;
+=======
+
+	/*
+	 * regs is NULL if and only if the caller is in a syscall path.  Skip
+	 * fixup and leave rseq_cs as is so that rseq_sycall() will detect and
+	 * kill a misbehaving userspace on debug kernels.
+	 */
+	if (regs) {
+		ret = rseq_ip_fixup(regs);
+		if (unlikely(ret < 0))
+			goto error;
+	}
+>>>>>>> upstream/android-13
 	if (unlikely(rseq_update_cpu_id(t)))
 		goto error;
 	return;
 
 error:
 	sig = ksig ? ksig->sig : 0;
+<<<<<<< HEAD
 	force_sigsegv(sig, t);
+=======
+	force_sigsegv(sig);
+>>>>>>> upstream/android-13
 }
 
 #ifdef CONFIG_DEBUG_RSEQ
@@ -295,9 +354,14 @@ void rseq_syscall(struct pt_regs *regs)
 
 	if (!t->rseq)
 		return;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_READ, t->rseq, sizeof(*t->rseq)) ||
 	    rseq_get_rseq_cs(t, &rseq_cs) || in_rseq_cs(ip, &rseq_cs))
 		force_sig(SIGSEGV, t);
+=======
+	if (rseq_get_rseq_cs(t, &rseq_cs) || in_rseq_cs(ip, &rseq_cs))
+		force_sig(SIGSEGV);
+>>>>>>> upstream/android-13
 }
 
 #endif
@@ -311,10 +375,19 @@ SYSCALL_DEFINE4(rseq, struct rseq __user *, rseq, u32, rseq_len,
 	int ret;
 
 	if (flags & RSEQ_FLAG_UNREGISTER) {
+<<<<<<< HEAD
 		/* Unregister rseq for current thread. */
 		if (current->rseq != rseq || !current->rseq)
 			return -EINVAL;
 		if (current->rseq_len != rseq_len)
+=======
+		if (flags & ~RSEQ_FLAG_UNREGISTER)
+			return -EINVAL;
+		/* Unregister rseq for current thread. */
+		if (current->rseq != rseq || !current->rseq)
+			return -EINVAL;
+		if (rseq_len != sizeof(*rseq))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		if (current->rseq_sig != sig)
 			return -EPERM;
@@ -322,7 +395,10 @@ SYSCALL_DEFINE4(rseq, struct rseq __user *, rseq, u32, rseq_len,
 		if (ret)
 			return ret;
 		current->rseq = NULL;
+<<<<<<< HEAD
 		current->rseq_len = 0;
+=======
+>>>>>>> upstream/android-13
 		current->rseq_sig = 0;
 		return 0;
 	}
@@ -336,7 +412,11 @@ SYSCALL_DEFINE4(rseq, struct rseq __user *, rseq, u32, rseq_len,
 		 * the provided address differs from the prior
 		 * one.
 		 */
+<<<<<<< HEAD
 		if (current->rseq != rseq || current->rseq_len != rseq_len)
+=======
+		if (current->rseq != rseq || rseq_len != sizeof(*rseq))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		if (current->rseq_sig != sig)
 			return -EPERM;
@@ -351,10 +431,16 @@ SYSCALL_DEFINE4(rseq, struct rseq __user *, rseq, u32, rseq_len,
 	if (!IS_ALIGNED((unsigned long)rseq, __alignof__(*rseq)) ||
 	    rseq_len != sizeof(*rseq))
 		return -EINVAL;
+<<<<<<< HEAD
 	if (!access_ok(VERIFY_WRITE, rseq, rseq_len))
 		return -EFAULT;
 	current->rseq = rseq;
 	current->rseq_len = rseq_len;
+=======
+	if (!access_ok(rseq, rseq_len))
+		return -EFAULT;
+	current->rseq = rseq;
+>>>>>>> upstream/android-13
 	current->rseq_sig = sig;
 	/*
 	 * If rseq was previously inactive, and has just been

@@ -2,6 +2,7 @@
 #ifndef _UAPI_ASM_M68K_UNISTD_H_
 #define _UAPI_ASM_M68K_UNISTD_H_
 
+<<<<<<< HEAD
 /*
  * This file contains the system call numbers.
  */
@@ -386,5 +387,8 @@
 #define __NR_preadv2		377
 #define __NR_pwritev2		378
 #define __NR_statx		379
+=======
+#include <asm/unistd_32.h>
+>>>>>>> upstream/android-13
 
 #endif /* _UAPI_ASM_M68K_UNISTD_H_ */

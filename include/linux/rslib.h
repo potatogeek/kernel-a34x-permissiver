@@ -54,7 +54,11 @@ struct rs_codec {
  */
 struct rs_control {
 	struct rs_codec	*codec;
+<<<<<<< HEAD
 	uint16_t	buffers[0];
+=======
+	uint16_t	buffers[];
+>>>>>>> upstream/android-13
 };
 
 /* General purpose RS codec, 8-bit data width, symbol width 1-15 bit  */

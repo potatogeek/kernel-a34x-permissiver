@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Broadcom BCM590xx PMU
  *
  * Copyright 2014 Linaro Limited
  * Author: Matt Porter <mporter@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under  the terms of the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -65,11 +72,19 @@ static int bcm590xx_i2c_probe(struct i2c_client *i2c_pri,
 	}
 
 	/* Secondary I2C slave address is the base address with A(2) asserted */
+<<<<<<< HEAD
 	bcm590xx->i2c_sec = i2c_new_dummy(i2c_pri->adapter,
 					  i2c_pri->addr | BIT(2));
 	if (!bcm590xx->i2c_sec) {
 		dev_err(&i2c_pri->dev, "failed to add secondary I2C device\n");
 		return -ENODEV;
+=======
+	bcm590xx->i2c_sec = i2c_new_dummy_device(i2c_pri->adapter,
+					  i2c_pri->addr | BIT(2));
+	if (IS_ERR(bcm590xx->i2c_sec)) {
+		dev_err(&i2c_pri->dev, "failed to add secondary I2C device\n");
+		return PTR_ERR(bcm590xx->i2c_sec);
+>>>>>>> upstream/android-13
 	}
 	i2c_set_clientdata(bcm590xx->i2c_sec, bcm590xx);
 
@@ -111,7 +126,11 @@ MODULE_DEVICE_TABLE(i2c, bcm590xx_i2c_id);
 static struct i2c_driver bcm590xx_i2c_driver = {
 	.driver = {
 		   .name = "bcm590xx",
+<<<<<<< HEAD
 		   .of_match_table = of_match_ptr(bcm590xx_of_match),
+=======
+		   .of_match_table = bcm590xx_of_match,
+>>>>>>> upstream/android-13
 	},
 	.probe = bcm590xx_i2c_probe,
 	.id_table = bcm590xx_i2c_id,

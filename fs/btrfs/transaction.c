@@ -10,11 +10,16 @@
 #include <linux/pagemap.h>
 #include <linux/blkdev.h>
 #include <linux/uuid.h>
+<<<<<<< HEAD
+=======
+#include "misc.h"
+>>>>>>> upstream/android-13
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
 #include "locking.h"
 #include "tree-log.h"
+<<<<<<< HEAD
 #include "inode-map.h"
 #include "volumes.h"
 #include "dev-replace.h"
@@ -25,6 +30,90 @@
 static const unsigned int btrfs_blocked_trans_types[TRANS_STATE_MAX] = {
 	[TRANS_STATE_RUNNING]		= 0U,
 	[TRANS_STATE_BLOCKED]		=  __TRANS_START,
+=======
+#include "volumes.h"
+#include "dev-replace.h"
+#include "qgroup.h"
+#include "block-group.h"
+#include "space-info.h"
+#include "zoned.h"
+
+#define BTRFS_ROOT_TRANS_TAG 0
+
+/*
+ * Transaction states and transitions
+ *
+ * No running transaction (fs tree blocks are not modified)
+ * |
+ * | To next stage:
+ * |  Call start_transaction() variants. Except btrfs_join_transaction_nostart().
+ * V
+ * Transaction N [[TRANS_STATE_RUNNING]]
+ * |
+ * | New trans handles can be attached to transaction N by calling all
+ * | start_transaction() variants.
+ * |
+ * | To next stage:
+ * |  Call btrfs_commit_transaction() on any trans handle attached to
+ * |  transaction N
+ * V
+ * Transaction N [[TRANS_STATE_COMMIT_START]]
+ * |
+ * | Will wait for previous running transaction to completely finish if there
+ * | is one
+ * |
+ * | Then one of the following happes:
+ * | - Wait for all other trans handle holders to release.
+ * |   The btrfs_commit_transaction() caller will do the commit work.
+ * | - Wait for current transaction to be committed by others.
+ * |   Other btrfs_commit_transaction() caller will do the commit work.
+ * |
+ * | At this stage, only btrfs_join_transaction*() variants can attach
+ * | to this running transaction.
+ * | All other variants will wait for current one to finish and attach to
+ * | transaction N+1.
+ * |
+ * | To next stage:
+ * |  Caller is chosen to commit transaction N, and all other trans handle
+ * |  haven been released.
+ * V
+ * Transaction N [[TRANS_STATE_COMMIT_DOING]]
+ * |
+ * | The heavy lifting transaction work is started.
+ * | From running delayed refs (modifying extent tree) to creating pending
+ * | snapshots, running qgroups.
+ * | In short, modify supporting trees to reflect modifications of subvolume
+ * | trees.
+ * |
+ * | At this stage, all start_transaction() calls will wait for this
+ * | transaction to finish and attach to transaction N+1.
+ * |
+ * | To next stage:
+ * |  Until all supporting trees are updated.
+ * V
+ * Transaction N [[TRANS_STATE_UNBLOCKED]]
+ * |						    Transaction N+1
+ * | All needed trees are modified, thus we only    [[TRANS_STATE_RUNNING]]
+ * | need to write them back to disk and update	    |
+ * | super blocks.				    |
+ * |						    |
+ * | At this stage, new transaction is allowed to   |
+ * | start.					    |
+ * | All new start_transaction() calls will be	    |
+ * | attached to transid N+1.			    |
+ * |						    |
+ * | To next stage:				    |
+ * |  Until all tree blocks are super blocks are    |
+ * |  written to block devices			    |
+ * V						    |
+ * Transaction N [[TRANS_STATE_COMPLETED]]	    V
+ *   All tree blocks and super blocks are written.  Transaction N+1
+ *   This transaction is finished and all its	    [[TRANS_STATE_COMMIT_START]]
+ *   data structures will be cleaned up.	    | Life goes on
+ */
+static const unsigned int btrfs_blocked_trans_types[TRANS_STATE_MAX] = {
+	[TRANS_STATE_RUNNING]		= 0U,
+>>>>>>> upstream/android-13
 	[TRANS_STATE_COMMIT_START]	= (__TRANS_START | __TRANS_ATTACH),
 	[TRANS_STATE_COMMIT_DOING]	= (__TRANS_START |
 					   __TRANS_ATTACH |
@@ -35,6 +124,14 @@ static const unsigned int btrfs_blocked_trans_types[TRANS_STATE_MAX] = {
 					   __TRANS_JOIN |
 					   __TRANS_JOIN_NOLOCK |
 					   __TRANS_JOIN_NOSTART),
+<<<<<<< HEAD
+=======
+	[TRANS_STATE_SUPER_COMMITTED]	= (__TRANS_START |
+					   __TRANS_ATTACH |
+					   __TRANS_JOIN |
+					   __TRANS_JOIN_NOLOCK |
+					   __TRANS_JOIN_NOSTART),
+>>>>>>> upstream/android-13
 	[TRANS_STATE_COMPLETED]		= (__TRANS_START |
 					   __TRANS_ATTACH |
 					   __TRANS_JOIN |
@@ -47,11 +144,19 @@ void btrfs_put_transaction(struct btrfs_transaction *transaction)
 	WARN_ON(refcount_read(&transaction->use_count) == 0);
 	if (refcount_dec_and_test(&transaction->use_count)) {
 		BUG_ON(!list_empty(&transaction->list));
+<<<<<<< HEAD
 		WARN_ON(!RB_EMPTY_ROOT(&transaction->delayed_refs.href_root));
+=======
+		WARN_ON(!RB_EMPTY_ROOT(
+				&transaction->delayed_refs.href_root.rb_root));
+		WARN_ON(!RB_EMPTY_ROOT(
+				&transaction->delayed_refs.dirty_extent_root));
+>>>>>>> upstream/android-13
 		if (transaction->delayed_refs.pending_csums)
 			btrfs_err(transaction->fs_info,
 				  "pending csums is %llu",
 				  transaction->delayed_refs.pending_csums);
+<<<<<<< HEAD
 		while (!list_empty(&transaction->pending_chunks)) {
 			struct extent_map *em;
 
@@ -60,6 +165,8 @@ void btrfs_put_transaction(struct btrfs_transaction *transaction)
 			list_del_init(&em->list);
 			free_extent_map(em);
 		}
+=======
+>>>>>>> upstream/android-13
 		/*
 		 * If any block groups are found in ->deleted_bgs then it's
 		 * because the transaction was aborted and a commit did not
@@ -68,6 +175,7 @@ void btrfs_put_transaction(struct btrfs_transaction *transaction)
 		 * discard the physical locations of the block groups.
 		 */
 		while (!list_empty(&transaction->deleted_bgs)) {
+<<<<<<< HEAD
 			struct btrfs_block_group_cache *cache;
 
 			cache = list_first_entry(&transaction->deleted_bgs,
@@ -77,10 +185,23 @@ void btrfs_put_transaction(struct btrfs_transaction *transaction)
 			btrfs_put_block_group_trimming(cache);
 			btrfs_put_block_group(cache);
 		}
+=======
+			struct btrfs_block_group *cache;
+
+			cache = list_first_entry(&transaction->deleted_bgs,
+						 struct btrfs_block_group,
+						 bg_list);
+			list_del_init(&cache->bg_list);
+			btrfs_unfreeze_block_group(cache);
+			btrfs_put_block_group(cache);
+		}
+		WARN_ON(!list_empty(&transaction->dev_update_list));
+>>>>>>> upstream/android-13
 		kfree(transaction);
 	}
 }
 
+<<<<<<< HEAD
 static void clear_btree_io_tree(struct extent_io_tree *tree)
 {
 	spin_lock(&tree->lock);
@@ -117,10 +238,26 @@ static noinline void switch_commit_roots(struct btrfs_transaction *trans)
 
 	down_write(&fs_info->commit_root_sem);
 	list_for_each_entry_safe(root, tmp, &trans->switch_commits,
+=======
+static noinline void switch_commit_roots(struct btrfs_trans_handle *trans)
+{
+	struct btrfs_transaction *cur_trans = trans->transaction;
+	struct btrfs_fs_info *fs_info = trans->fs_info;
+	struct btrfs_root *root, *tmp;
+	struct btrfs_caching_control *caching_ctl, *next;
+
+	down_write(&fs_info->commit_root_sem);
+
+	if (test_bit(BTRFS_FS_RELOC_RUNNING, &fs_info->flags))
+		fs_info->last_reloc_trans = trans->transid;
+
+	list_for_each_entry_safe(root, tmp, &cur_trans->switch_commits,
+>>>>>>> upstream/android-13
 				 dirty_list) {
 		list_del_init(&root->dirty_list);
 		free_extent_buffer(root->commit_root);
 		root->commit_root = btrfs_root_node(root);
+<<<<<<< HEAD
 		if (is_fstree(root->objectid))
 			btrfs_unpin_free_ino(root);
 		clear_btree_io_tree(&root->dirty_log_pages);
@@ -137,6 +274,65 @@ static noinline void switch_commit_roots(struct btrfs_transaction *trans)
 		spin_lock(&trans->dropped_roots_lock);
 	}
 	spin_unlock(&trans->dropped_roots_lock);
+=======
+		extent_io_tree_release(&root->dirty_log_pages);
+		btrfs_qgroup_clean_swapped_blocks(root);
+	}
+
+	/* We can free old roots now. */
+	spin_lock(&cur_trans->dropped_roots_lock);
+	while (!list_empty(&cur_trans->dropped_roots)) {
+		root = list_first_entry(&cur_trans->dropped_roots,
+					struct btrfs_root, root_list);
+		list_del_init(&root->root_list);
+		spin_unlock(&cur_trans->dropped_roots_lock);
+		btrfs_free_log(trans, root);
+		btrfs_drop_and_free_fs_root(fs_info, root);
+		spin_lock(&cur_trans->dropped_roots_lock);
+	}
+	spin_unlock(&cur_trans->dropped_roots_lock);
+
+	/*
+	 * We have to update the last_byte_to_unpin under the commit_root_sem,
+	 * at the same time we swap out the commit roots.
+	 *
+	 * This is because we must have a real view of the last spot the caching
+	 * kthreads were while caching.  Consider the following views of the
+	 * extent tree for a block group
+	 *
+	 * commit root
+	 * +----+----+----+----+----+----+----+
+	 * |\\\\|    |\\\\|\\\\|    |\\\\|\\\\|
+	 * +----+----+----+----+----+----+----+
+	 * 0    1    2    3    4    5    6    7
+	 *
+	 * new commit root
+	 * +----+----+----+----+----+----+----+
+	 * |    |    |    |\\\\|    |    |\\\\|
+	 * +----+----+----+----+----+----+----+
+	 * 0    1    2    3    4    5    6    7
+	 *
+	 * If the cache_ctl->progress was at 3, then we are only allowed to
+	 * unpin [0,1) and [2,3], because the caching thread has already
+	 * processed those extents.  We are not allowed to unpin [5,6), because
+	 * the caching thread will re-start it's search from 3, and thus find
+	 * the hole from [4,6) to add to the free space cache.
+	 */
+	spin_lock(&fs_info->block_group_cache_lock);
+	list_for_each_entry_safe(caching_ctl, next,
+				 &fs_info->caching_block_groups, list) {
+		struct btrfs_block_group *cache = caching_ctl->block_group;
+
+		if (btrfs_block_group_done(cache)) {
+			cache->last_byte_to_unpin = (u64)-1;
+			list_del_init(&caching_ctl->list);
+			btrfs_put_caching_control(caching_ctl);
+		} else {
+			cache->last_byte_to_unpin = caching_ctl->progress;
+		}
+	}
+	spin_unlock(&fs_info->block_group_cache_lock);
+>>>>>>> upstream/android-13
 	up_write(&fs_info->commit_root_sem);
 }
 
@@ -166,6 +362,28 @@ static inline int extwriter_counter_read(struct btrfs_transaction *trans)
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * To be called after doing the chunk btree updates right after allocating a new
+ * chunk (after btrfs_chunk_alloc_add_chunk_item() is called), when removing a
+ * chunk after all chunk btree updates and after finishing the second phase of
+ * chunk allocation (btrfs_create_pending_block_groups()) in case some block
+ * group had its chunk item insertion delayed to the second phase.
+ */
+void btrfs_trans_release_chunk_metadata(struct btrfs_trans_handle *trans)
+{
+	struct btrfs_fs_info *fs_info = trans->fs_info;
+
+	if (!trans->chunk_bytes_reserved)
+		return;
+
+	btrfs_block_rsv_release(fs_info, &fs_info->chunk_block_rsv,
+				trans->chunk_bytes_reserved, NULL);
+	trans->chunk_bytes_reserved = 0;
+}
+
+/*
+>>>>>>> upstream/android-13
  * either allocate a new transaction or hop into the existing one
  */
 static noinline int join_transaction(struct btrfs_fs_info *fs_info,
@@ -183,7 +401,11 @@ loop:
 
 	cur_trans = fs_info->running_transaction;
 	if (cur_trans) {
+<<<<<<< HEAD
 		if (cur_trans->aborted) {
+=======
+		if (TRANS_ABORTED(cur_trans)) {
+>>>>>>> upstream/android-13
 			spin_unlock(&fs_info->trans_lock);
 			return cur_trans->aborted;
 		}
@@ -231,24 +453,39 @@ loop:
 	}
 
 	cur_trans->fs_info = fs_info;
+<<<<<<< HEAD
+=======
+	atomic_set(&cur_trans->pending_ordered, 0);
+	init_waitqueue_head(&cur_trans->pending_wait);
+>>>>>>> upstream/android-13
 	atomic_set(&cur_trans->num_writers, 1);
 	extwriter_counter_init(cur_trans, type);
 	init_waitqueue_head(&cur_trans->writer_wait);
 	init_waitqueue_head(&cur_trans->commit_wait);
+<<<<<<< HEAD
 	init_waitqueue_head(&cur_trans->pending_wait);
+=======
+>>>>>>> upstream/android-13
 	cur_trans->state = TRANS_STATE_RUNNING;
 	/*
 	 * One for this trans handle, one so it will live on until we
 	 * commit the transaction.
 	 */
 	refcount_set(&cur_trans->use_count, 2);
+<<<<<<< HEAD
 	atomic_set(&cur_trans->pending_ordered, 0);
+=======
+>>>>>>> upstream/android-13
 	cur_trans->flags = 0;
 	cur_trans->start_time = ktime_get_seconds();
 
 	memset(&cur_trans->delayed_refs, 0, sizeof(cur_trans->delayed_refs));
 
+<<<<<<< HEAD
 	cur_trans->delayed_refs.href_root = RB_ROOT;
+=======
+	cur_trans->delayed_refs.href_root = RB_ROOT_CACHED;
+>>>>>>> upstream/android-13
 	cur_trans->delayed_refs.dirty_extent_root = RB_ROOT;
 	atomic_set(&cur_trans->delayed_refs.num_entries, 0);
 
@@ -266,12 +503,17 @@ loop:
 	spin_lock_init(&cur_trans->delayed_refs.lock);
 
 	INIT_LIST_HEAD(&cur_trans->pending_snapshots);
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&cur_trans->pending_chunks);
+=======
+	INIT_LIST_HEAD(&cur_trans->dev_update_list);
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&cur_trans->switch_commits);
 	INIT_LIST_HEAD(&cur_trans->dirty_bgs);
 	INIT_LIST_HEAD(&cur_trans->io_bgs);
 	INIT_LIST_HEAD(&cur_trans->dropped_roots);
 	mutex_init(&cur_trans->cache_write_mutex);
+<<<<<<< HEAD
 	cur_trans->num_dirty_bgs = 0;
 	spin_lock_init(&cur_trans->dirty_bgs_lock);
 	INIT_LIST_HEAD(&cur_trans->deleted_bgs);
@@ -279,6 +521,18 @@ loop:
 	list_add_tail(&cur_trans->list, &fs_info->trans_list);
 	extent_io_tree_init(&cur_trans->dirty_pages,
 			     fs_info->btree_inode);
+=======
+	spin_lock_init(&cur_trans->dirty_bgs_lock);
+	INIT_LIST_HEAD(&cur_trans->deleted_bgs);
+	spin_lock_init(&cur_trans->dropped_roots_lock);
+	INIT_LIST_HEAD(&cur_trans->releasing_ebs);
+	spin_lock_init(&cur_trans->releasing_ebs_lock);
+	list_add_tail(&cur_trans->list, &fs_info->trans_list);
+	extent_io_tree_init(fs_info, &cur_trans->dirty_pages,
+			IO_TREE_TRANS_DIRTY_PAGES, fs_info->btree_inode);
+	extent_io_tree_init(fs_info, &cur_trans->pinned_extents,
+			IO_TREE_FS_PINNED_EXTENTS, NULL);
+>>>>>>> upstream/android-13
 	fs_info->generation++;
 	cur_trans->transid = fs_info->generation;
 	fs_info->running_transaction = cur_trans;
@@ -289,18 +543,31 @@ loop:
 }
 
 /*
+<<<<<<< HEAD
  * this does all the record keeping required to make sure that a reference
  * counted root is properly recorded in a given transaction.  This is required
  * to make sure the old root from before we joined the transaction is deleted
  * when the transaction commits
+=======
+ * This does all the record keeping required to make sure that a shareable root
+ * is properly recorded in a given transaction.  This is required to make sure
+ * the old root from before we joined the transaction is deleted when the
+ * transaction commits.
+>>>>>>> upstream/android-13
  */
 static int record_root_in_trans(struct btrfs_trans_handle *trans,
 			       struct btrfs_root *root,
 			       int force)
 {
 	struct btrfs_fs_info *fs_info = root->fs_info;
+<<<<<<< HEAD
 
 	if ((test_bit(BTRFS_ROOT_REF_COWS, &root->state) &&
+=======
+	int ret = 0;
+
+	if ((test_bit(BTRFS_ROOT_SHAREABLE, &root->state) &&
+>>>>>>> upstream/android-13
 	    root->last_trans < trans->transid) || force) {
 		WARN_ON(root == fs_info->extent_root);
 		WARN_ON(!force && root->commit_root != root->node);
@@ -347,11 +614,19 @@ static int record_root_in_trans(struct btrfs_trans_handle *trans,
 		 * lock.  smp_wmb() makes sure that all the writes above are
 		 * done before we pop in the zero below
 		 */
+<<<<<<< HEAD
 		btrfs_init_reloc_root(trans, root);
 		smp_mb__before_atomic();
 		clear_bit(BTRFS_ROOT_IN_TRANS_SETUP, &root->state);
 	}
 	return 0;
+=======
+		ret = btrfs_init_reloc_root(trans, root);
+		smp_mb__before_atomic();
+		clear_bit(BTRFS_ROOT_IN_TRANS_SETUP, &root->state);
+	}
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 
@@ -378,8 +653,14 @@ int btrfs_record_root_in_trans(struct btrfs_trans_handle *trans,
 			       struct btrfs_root *root)
 {
 	struct btrfs_fs_info *fs_info = root->fs_info;
+<<<<<<< HEAD
 
 	if (!test_bit(BTRFS_ROOT_REF_COWS, &root->state))
+=======
+	int ret;
+
+	if (!test_bit(BTRFS_ROOT_SHAREABLE, &root->state))
+>>>>>>> upstream/android-13
 		return 0;
 
 	/*
@@ -392,17 +673,30 @@ int btrfs_record_root_in_trans(struct btrfs_trans_handle *trans,
 		return 0;
 
 	mutex_lock(&fs_info->reloc_mutex);
+<<<<<<< HEAD
 	record_root_in_trans(trans, root, 0);
 	mutex_unlock(&fs_info->reloc_mutex);
 
 	return 0;
+=======
+	ret = record_root_in_trans(trans, root, 0);
+	mutex_unlock(&fs_info->reloc_mutex);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static inline int is_transaction_blocked(struct btrfs_transaction *trans)
 {
+<<<<<<< HEAD
 	return (trans->state >= TRANS_STATE_BLOCKED &&
 		trans->state < TRANS_STATE_UNBLOCKED &&
 		!trans->aborted);
+=======
+	return (trans->state >= TRANS_STATE_COMMIT_START &&
+		trans->state < TRANS_STATE_UNBLOCKED &&
+		!TRANS_ABORTED(trans));
+>>>>>>> upstream/android-13
 }
 
 /* wait for commit against the current transaction to become unblocked
@@ -421,7 +715,11 @@ static void wait_current_trans(struct btrfs_fs_info *fs_info)
 
 		wait_event(fs_info->transaction_wait,
 			   cur_trans->state >= TRANS_STATE_UNBLOCKED ||
+<<<<<<< HEAD
 			   cur_trans->aborted);
+=======
+			   TRANS_ABORTED(cur_trans));
+>>>>>>> upstream/android-13
 		btrfs_put_transaction(cur_trans);
 	} else {
 		spin_unlock(&fs_info->trans_lock);
@@ -444,7 +742,11 @@ static inline bool need_reserve_reloc_root(struct btrfs_root *root)
 	struct btrfs_fs_info *fs_info = root->fs_info;
 
 	if (!fs_info->reloc_ctl ||
+<<<<<<< HEAD
 	    !test_bit(BTRFS_ROOT_REF_COWS, &root->state) ||
+=======
+	    !test_bit(BTRFS_ROOT_SHAREABLE, &root->state) ||
+>>>>>>> upstream/android-13
 	    root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID ||
 	    root->reloc_root)
 		return false;
@@ -458,17 +760,27 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
 		  bool enforce_qgroups)
 {
 	struct btrfs_fs_info *fs_info = root->fs_info;
+<<<<<<< HEAD
 
+=======
+	struct btrfs_block_rsv *delayed_refs_rsv = &fs_info->delayed_refs_rsv;
+>>>>>>> upstream/android-13
 	struct btrfs_trans_handle *h;
 	struct btrfs_transaction *cur_trans;
 	u64 num_bytes = 0;
 	u64 qgroup_reserved = 0;
 	bool reloc_reserved = false;
+<<<<<<< HEAD
 	int ret;
 
 	/* Send isn't supposed to start transactions. */
 	ASSERT(current->journal_info != BTRFS_SEND_TRANS_STUB);
 
+=======
+	bool do_chunk_alloc = false;
+	int ret;
+
+>>>>>>> upstream/android-13
 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
 		return ERR_PTR(-EROFS);
 
@@ -487,13 +799,36 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
 	 * the appropriate flushing if need be.
 	 */
 	if (num_items && root != fs_info->chunk_root) {
+<<<<<<< HEAD
+=======
+		struct btrfs_block_rsv *rsv = &fs_info->trans_block_rsv;
+		u64 delayed_refs_bytes = 0;
+
+>>>>>>> upstream/android-13
 		qgroup_reserved = num_items * fs_info->nodesize;
 		ret = btrfs_qgroup_reserve_meta_pertrans(root, qgroup_reserved,
 				enforce_qgroups);
 		if (ret)
 			return ERR_PTR(ret);
 
+<<<<<<< HEAD
 		num_bytes = btrfs_calc_trans_metadata_size(fs_info, num_items);
+=======
+		/*
+		 * We want to reserve all the bytes we may need all at once, so
+		 * we only do 1 enospc flushing cycle per transaction start.  We
+		 * accomplish this by simply assuming we'll do 2 x num_items
+		 * worth of delayed refs updates in this trans handle, and
+		 * refill that amount for whatever is missing in the reserve.
+		 */
+		num_bytes = btrfs_calc_insert_metadata_size(fs_info, num_items);
+		if (flush == BTRFS_RESERVE_FLUSH_ALL &&
+		    delayed_refs_rsv->full == 0) {
+			delayed_refs_bytes = num_bytes;
+			num_bytes <<= 1;
+		}
+
+>>>>>>> upstream/android-13
 		/*
 		 * Do the reservation for the relocation root creation
 		 */
@@ -502,8 +837,32 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
 			reloc_reserved = true;
 		}
 
+<<<<<<< HEAD
 		ret = btrfs_block_rsv_add(root, &fs_info->trans_block_rsv,
 					  num_bytes, flush);
+=======
+		ret = btrfs_block_rsv_add(root, rsv, num_bytes, flush);
+		if (ret)
+			goto reserve_fail;
+		if (delayed_refs_bytes) {
+			btrfs_migrate_to_delayed_refs_rsv(fs_info, rsv,
+							  delayed_refs_bytes);
+			num_bytes -= delayed_refs_bytes;
+		}
+
+		if (rsv->space_info->force_alloc)
+			do_chunk_alloc = true;
+	} else if (num_items == 0 && flush == BTRFS_RESERVE_FLUSH_ALL &&
+		   !delayed_refs_rsv->full) {
+		/*
+		 * Some people call with btrfs_start_transaction(root, 0)
+		 * because they can be throttled, but have some other mechanism
+		 * for reserving space.  We still want these guys to refill the
+		 * delayed block_rsv so just add 1 items worth of reservation
+		 * here.
+		 */
+		ret = btrfs_delayed_refs_rsv_refill(fs_info, flush);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto reserve_fail;
 	}
@@ -552,11 +911,18 @@ again:
 	h->fs_info = root->fs_info;
 
 	h->type = type;
+<<<<<<< HEAD
 	h->can_flush_pending_bgs = true;
 	INIT_LIST_HEAD(&h->new_bgs);
 
 	smp_mb();
 	if (cur_trans->state >= TRANS_STATE_BLOCKED &&
+=======
+	INIT_LIST_HEAD(&h->new_bgs);
+
+	smp_mb();
+	if (cur_trans->state >= TRANS_STATE_COMMIT_START &&
+>>>>>>> upstream/android-13
 	    may_wait_transaction(fs_info, type)) {
 		current->journal_info = h;
 		btrfs_commit_transaction(h);
@@ -576,6 +942,22 @@ got_it:
 		current->journal_info = h;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * If the space_info is marked ALLOC_FORCE then we'll get upgraded to
+	 * ALLOC_FORCE the first run through, and then we won't allocate for
+	 * anybody else who races in later.  We don't care about the return
+	 * value here.
+	 */
+	if (do_chunk_alloc && num_bytes) {
+		u64 flags = h->block_rsv->space_info->flags;
+
+		btrfs_chunk_alloc(h, btrfs_get_alloc_profile(fs_info, flags),
+				  CHUNK_ALLOC_NO_FORCE);
+	}
+
+	/*
+>>>>>>> upstream/android-13
 	 * btrfs_record_root_in_trans() needs to alloc new extents, and may
 	 * call btrfs_join_transaction() while we're also starting a
 	 * transaction.
@@ -583,7 +965,20 @@ got_it:
 	 * Thus it need to be called after current->journal_info initialized,
 	 * or we can deadlock.
 	 */
+<<<<<<< HEAD
 	btrfs_record_root_in_trans(h, root);
+=======
+	ret = btrfs_record_root_in_trans(h, root);
+	if (ret) {
+		/*
+		 * The transaction handle is fully initialized and linked with
+		 * other structures so it needs to be ended in case of errors,
+		 * not just freed.
+		 */
+		btrfs_end_transaction(h);
+		return ERR_PTR(ret);
+	}
+>>>>>>> upstream/android-13
 
 	return h;
 
@@ -594,7 +989,11 @@ join_fail:
 alloc_fail:
 	if (num_bytes)
 		btrfs_block_rsv_release(fs_info, &fs_info->trans_block_rsv,
+<<<<<<< HEAD
 					num_bytes);
+=======
+					num_bytes, NULL);
+>>>>>>> upstream/android-13
 reserve_fail:
 	btrfs_qgroup_free_meta_pertrans(root, qgroup_reserved);
 	return ERR_PTR(ret);
@@ -609,6 +1008,7 @@ struct btrfs_trans_handle *btrfs_start_transaction(struct btrfs_root *root,
 
 struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
 					struct btrfs_root *root,
+<<<<<<< HEAD
 					unsigned int num_items,
 					int min_factor)
 {
@@ -646,6 +1046,12 @@ struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
 				      trans->transid, num_bytes, 1);
 
 	return trans;
+=======
+					unsigned int num_items)
+{
+	return start_transaction(root, num_items, TRANS_START,
+				 BTRFS_RESERVE_FLUSH_ALL_STEAL, false);
+>>>>>>> upstream/android-13
 }
 
 struct btrfs_trans_handle *btrfs_join_transaction(struct btrfs_root *root)
@@ -654,7 +1060,11 @@ struct btrfs_trans_handle *btrfs_join_transaction(struct btrfs_root *root)
 				 true);
 }
 
+<<<<<<< HEAD
 struct btrfs_trans_handle *btrfs_join_transaction_nolock(struct btrfs_root *root)
+=======
+struct btrfs_trans_handle *btrfs_join_transaction_spacecache(struct btrfs_root *root)
+>>>>>>> upstream/android-13
 {
 	return start_transaction(root, 0, TRANS_JOIN_NOLOCK,
 				 BTRFS_RESERVE_NO_FLUSH, true);
@@ -692,7 +1102,11 @@ struct btrfs_trans_handle *btrfs_attach_transaction(struct btrfs_root *root)
 /*
  * btrfs_attach_transaction_barrier() - catch the running transaction
  *
+<<<<<<< HEAD
  * It is similar to the above function, the differentia is this one
+=======
+ * It is similar to the above function, the difference is this one
+>>>>>>> upstream/android-13
  * will wait for all the inactive transactions until they fully
  * complete.
  */
@@ -709,10 +1123,48 @@ btrfs_attach_transaction_barrier(struct btrfs_root *root)
 	return trans;
 }
 
+<<<<<<< HEAD
 /* wait for a transaction commit to be fully complete */
 static noinline void wait_for_commit(struct btrfs_transaction *commit)
 {
 	wait_event(commit->commit_wait, commit->state == TRANS_STATE_COMPLETED);
+=======
+/* Wait for a transaction commit to reach at least the given state. */
+static noinline void wait_for_commit(struct btrfs_transaction *commit,
+				     const enum btrfs_trans_state min_state)
+{
+	struct btrfs_fs_info *fs_info = commit->fs_info;
+	u64 transid = commit->transid;
+	bool put = false;
+
+	while (1) {
+		wait_event(commit->commit_wait, commit->state >= min_state);
+		if (put)
+			btrfs_put_transaction(commit);
+
+		if (min_state < TRANS_STATE_COMPLETED)
+			break;
+
+		/*
+		 * A transaction isn't really completed until all of the
+		 * previous transactions are completed, but with fsync we can
+		 * end up with SUPER_COMMITTED transactions before a COMPLETED
+		 * transaction. Wait for those.
+		 */
+
+		spin_lock(&fs_info->trans_lock);
+		commit = list_first_entry_or_null(&fs_info->trans_list,
+						  struct btrfs_transaction,
+						  list);
+		if (!commit || commit->transid > transid) {
+			spin_unlock(&fs_info->trans_lock);
+			break;
+		}
+		refcount_inc(&commit->use_count);
+		put = true;
+		spin_unlock(&fs_info->trans_lock);
+	}
+>>>>>>> upstream/android-13
 }
 
 int btrfs_wait_for_commit(struct btrfs_fs_info *fs_info, u64 transid)
@@ -767,7 +1219,11 @@ int btrfs_wait_for_commit(struct btrfs_fs_info *fs_info, u64 transid)
 			goto out;  /* nothing committing|committed */
 	}
 
+<<<<<<< HEAD
 	wait_for_commit(cur_trans);
+=======
+	wait_for_commit(cur_trans, TRANS_STATE_COMPLETED);
+>>>>>>> upstream/android-13
 	btrfs_put_transaction(cur_trans);
 out:
 	return ret;
@@ -778,16 +1234,26 @@ void btrfs_throttle(struct btrfs_fs_info *fs_info)
 	wait_current_trans(fs_info);
 }
 
+<<<<<<< HEAD
 static int should_end_transaction(struct btrfs_trans_handle *trans)
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
 
 	if (btrfs_check_space_for_delayed_refs(trans, fs_info))
 		return 1;
+=======
+static bool should_end_transaction(struct btrfs_trans_handle *trans)
+{
+	struct btrfs_fs_info *fs_info = trans->fs_info;
+
+	if (btrfs_check_space_for_delayed_refs(fs_info))
+		return true;
+>>>>>>> upstream/android-13
 
 	return !!btrfs_block_rsv_check(&fs_info->global_block_rsv, 5);
 }
 
+<<<<<<< HEAD
 int btrfs_should_end_transaction(struct btrfs_trans_handle *trans)
 {
 	struct btrfs_transaction *cur_trans = trans->transaction;
@@ -806,6 +1272,15 @@ int btrfs_should_end_transaction(struct btrfs_trans_handle *trans)
 		if (err) /* Error code will also eval true */
 			return err;
 	}
+=======
+bool btrfs_should_end_transaction(struct btrfs_trans_handle *trans)
+{
+	struct btrfs_transaction *cur_trans = trans->transaction;
+
+	if (cur_trans->state >= TRANS_STATE_COMMIT_START ||
+	    test_bit(BTRFS_DELAYED_REFS_FLUSHING, &cur_trans->delayed_refs.flags))
+		return true;
+>>>>>>> upstream/android-13
 
 	return should_end_transaction(trans);
 }
@@ -827,7 +1302,11 @@ static void btrfs_trans_release_metadata(struct btrfs_trans_handle *trans)
 	trace_btrfs_space_reservation(fs_info, "transaction",
 				      trans->transid, trans->bytes_reserved, 0);
 	btrfs_block_rsv_release(fs_info, trans->block_rsv,
+<<<<<<< HEAD
 				trans->bytes_reserved);
+=======
+				trans->bytes_reserved, NULL);
+>>>>>>> upstream/android-13
 	trans->bytes_reserved = 0;
 }
 
@@ -836,11 +1315,15 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 {
 	struct btrfs_fs_info *info = trans->fs_info;
 	struct btrfs_transaction *cur_trans = trans->transaction;
+<<<<<<< HEAD
 	u64 transid = trans->transid;
 	unsigned long cur = trans->delayed_ref_updates;
 	int lock = (trans->type != TRANS_JOIN_NOLOCK);
 	int err = 0;
 	int must_run_delayed_refs = 0;
+=======
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	if (refcount_read(&trans->use_count) > 1) {
 		refcount_dec(&trans->use_count);
@@ -851,6 +1334,7 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 	btrfs_trans_release_metadata(trans);
 	trans->block_rsv = NULL;
 
+<<<<<<< HEAD
 	if (!list_empty(&trans->new_bgs))
 		btrfs_create_pending_block_groups(trans);
 
@@ -892,6 +1376,12 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 			wake_up_process(info->transaction_kthread);
 	}
 
+=======
+	btrfs_create_pending_block_groups(trans);
+
+	btrfs_trans_release_chunk_metadata(trans);
+
+>>>>>>> upstream/android-13
 	if (trans->type & __TRANS_FREEZABLE)
 		sb_end_intwrite(info->sb);
 
@@ -909,6 +1399,7 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 	if (throttle)
 		btrfs_run_delayed_iputs(info);
 
+<<<<<<< HEAD
 	if (trans->aborted ||
 	    test_bit(BTRFS_FS_STATE_ERROR, &info->fs_state)) {
 		wake_up_process(info->transaction_kthread);
@@ -920,6 +1411,18 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
 		btrfs_async_run_delayed_refs(info, cur, transid,
 					     must_run_delayed_refs == 1);
 	}
+=======
+	if (TRANS_ABORTED(trans) ||
+	    test_bit(BTRFS_FS_STATE_ERROR, &info->fs_state)) {
+		wake_up_process(info->transaction_kthread);
+		if (TRANS_ABORTED(trans))
+			err = trans->aborted;
+		else
+			err = -EROFS;
+	}
+
+	kmem_cache_free(btrfs_trans_handle_cachep, trans);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -967,7 +1470,11 @@ int btrfs_write_marked_extents(struct btrfs_fs_info *fs_info,
 		 * superblock that points to btree nodes/leafs for which
 		 * writeback hasn't finished yet (and without errors).
 		 * We cleanup any entries left in the io tree when committing
+<<<<<<< HEAD
 		 * the transaction (through clear_btree_io_tree()).
+=======
+		 * the transaction (through extent_io_tree_release()).
+>>>>>>> upstream/android-13
 		 */
 		if (err == -ENOMEM) {
 			err = 0;
@@ -1012,7 +1519,11 @@ static int __btrfs_wait_marked_extents(struct btrfs_fs_info *fs_info,
 		 * left in the io tree. For a log commit, we don't remove them
 		 * after committing the log because the tree can be accessed
 		 * concurrently - we do it only at transaction commit time when
+<<<<<<< HEAD
 		 * it's safe to do it (through clear_btree_io_tree()).
+=======
+		 * it's safe to do it (through extent_io_tree_release()).
+>>>>>>> upstream/android-13
 		 */
 		err = clear_extent_bit(dirty_pages, start, end,
 				       EXTENT_NEED_WAIT, 0, 0, &cached_state);
@@ -1032,7 +1543,11 @@ static int __btrfs_wait_marked_extents(struct btrfs_fs_info *fs_info,
 	return werr;
 }
 
+<<<<<<< HEAD
 int btrfs_wait_extents(struct btrfs_fs_info *fs_info,
+=======
+static int btrfs_wait_extents(struct btrfs_fs_info *fs_info,
+>>>>>>> upstream/android-13
 		       struct extent_io_tree *dirty_pages)
 {
 	bool errors = false;
@@ -1090,7 +1605,11 @@ static int btrfs_write_and_wait_transaction(struct btrfs_trans_handle *trans)
 	blk_finish_plug(&plug);
 	ret2 = btrfs_wait_extents(fs_info, dirty_pages);
 
+<<<<<<< HEAD
 	clear_btree_io_tree(&trans->transaction->dirty_pages);
+=======
+	extent_io_tree_release(&trans->transaction->dirty_pages);
+>>>>>>> upstream/android-13
 
 	if (ret)
 		return ret;
@@ -1158,13 +1677,18 @@ static noinline int commit_cowonly_roots(struct btrfs_trans_handle *trans)
 
 	eb = btrfs_lock_root_node(fs_info->tree_root);
 	ret = btrfs_cow_block(trans, fs_info->tree_root, eb, NULL,
+<<<<<<< HEAD
 			      0, &eb);
+=======
+			      0, &eb, BTRFS_NESTING_COW);
+>>>>>>> upstream/android-13
 	btrfs_tree_unlock(eb);
 	free_extent_buffer(eb);
 
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
 	if (ret)
 		return ret;
@@ -1173,12 +1697,19 @@ static noinline int commit_cowonly_roots(struct btrfs_trans_handle *trans)
 	if (ret)
 		return ret;
 	ret = btrfs_run_dev_replace(trans, fs_info);
+=======
+	ret = btrfs_run_dev_stats(trans);
+	if (ret)
+		return ret;
+	ret = btrfs_run_dev_replace(trans);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 	ret = btrfs_run_qgroups(trans);
 	if (ret)
 		return ret;
 
+<<<<<<< HEAD
 	ret = btrfs_setup_space_cache(trans, fs_info);
 	if (ret)
 		return ret;
@@ -1187,6 +1718,12 @@ static noinline int commit_cowonly_roots(struct btrfs_trans_handle *trans)
 	ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
 	if (ret)
 		return ret;
+=======
+	ret = btrfs_setup_space_cache(trans);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 again:
 	while (!list_empty(&fs_info->dirty_cowonly_roots)) {
 		struct btrfs_root *root;
@@ -1201,6 +1738,7 @@ again:
 		ret = update_cowonly_root(trans, root);
 		if (ret)
 			return ret;
+<<<<<<< HEAD
 		ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
 		if (ret)
 			return ret;
@@ -1210,6 +1748,26 @@ again:
 		ret = btrfs_write_dirty_block_groups(trans, fs_info);
 		if (ret)
 			return ret;
+=======
+	}
+
+	/* Now flush any delayed refs generated by updating all of the roots */
+	ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
+	if (ret)
+		return ret;
+
+	while (!list_empty(dirty_bgs) || !list_empty(io_bgs)) {
+		ret = btrfs_write_dirty_block_groups(trans);
+		if (ret)
+			return ret;
+
+		/*
+		 * We're writing the dirty block groups, which could generate
+		 * delayed refs, which could generate more dirty block groups,
+		 * so we want to keep this flushing in this loop to make sure
+		 * everything gets run.
+		 */
+>>>>>>> upstream/android-13
 		ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
 		if (ret)
 			return ret;
@@ -1220,12 +1778,48 @@ again:
 
 	list_add_tail(&fs_info->extent_root->dirty_list,
 		      &trans->transaction->switch_commits);
+<<<<<<< HEAD
 	btrfs_after_dev_replace_commit(fs_info);
+=======
+
+	/* Update dev-replace pointer once everything is committed */
+	fs_info->dev_replace.committed_cursor_left =
+		fs_info->dev_replace.cursor_left_last_write_of_item;
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * If we had a pending drop we need to see if there are any others left in our
+ * dead roots list, and if not clear our bit and wake any waiters.
+ */
+void btrfs_maybe_wake_unfinished_drop(struct btrfs_fs_info *fs_info)
+{
+	/*
+	 * We put the drop in progress roots at the front of the list, so if the
+	 * first entry doesn't have UNFINISHED_DROP set we can wake everybody
+	 * up.
+	 */
+	spin_lock(&fs_info->trans_lock);
+	if (!list_empty(&fs_info->dead_roots)) {
+		struct btrfs_root *root = list_first_entry(&fs_info->dead_roots,
+							   struct btrfs_root,
+							   root_list);
+		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state)) {
+			spin_unlock(&fs_info->trans_lock);
+			return;
+		}
+	}
+	spin_unlock(&fs_info->trans_lock);
+
+	btrfs_wake_unfinished_drop(fs_info);
+}
+
+/*
+>>>>>>> upstream/android-13
  * dead roots are old snapshots that need to be deleted.  This allocates
  * a dirty root struct and adds it into the list of dead roots that need to
  * be deleted
@@ -1235,8 +1829,20 @@ void btrfs_add_dead_root(struct btrfs_root *root)
 	struct btrfs_fs_info *fs_info = root->fs_info;
 
 	spin_lock(&fs_info->trans_lock);
+<<<<<<< HEAD
 	if (list_empty(&root->root_list))
 		list_add_tail(&root->root_list, &fs_info->dead_roots);
+=======
+	if (list_empty(&root->root_list)) {
+		btrfs_grab_root(root);
+
+		/* We want to process the partially complete drops first. */
+		if (test_bit(BTRFS_ROOT_UNFINISHED_DROP, &root->state))
+			list_add(&root->root_list, &fs_info->dead_roots);
+		else
+			list_add_tail(&root->root_list, &fs_info->dead_roots);
+	}
+>>>>>>> upstream/android-13
 	spin_unlock(&fs_info->trans_lock);
 }
 
@@ -1268,9 +1874,15 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans)
 			spin_unlock(&fs_info->fs_roots_radix_lock);
 
 			btrfs_free_log(trans, root);
+<<<<<<< HEAD
 			btrfs_update_reloc_root(trans, root);
 
 			btrfs_save_ino_cache(root, trans);
+=======
+			ret2 = btrfs_update_reloc_root(trans, root);
+			if (ret2)
+				return ret2;
+>>>>>>> upstream/android-13
 
 			/* see comments in should_cow_block() */
 			clear_bit(BTRFS_ROOT_FORCE_COW, &root->state);
@@ -1311,8 +1923,15 @@ int btrfs_defrag_root(struct btrfs_root *root)
 
 	while (1) {
 		trans = btrfs_start_transaction(root, 0);
+<<<<<<< HEAD
 		if (IS_ERR(trans))
 			return PTR_ERR(trans);
+=======
+		if (IS_ERR(trans)) {
+			ret = PTR_ERR(trans);
+			break;
+		}
+>>>>>>> upstream/android-13
 
 		ret = btrfs_defrag_leaves(trans, root);
 
@@ -1358,12 +1977,39 @@ static int qgroup_account_snapshot(struct btrfs_trans_handle *trans,
 		return 0;
 
 	/*
+<<<<<<< HEAD
 	 * Ensure dirty @src will be commited.  Or, after comming
+=======
+	 * Ensure dirty @src will be committed.  Or, after coming
+>>>>>>> upstream/android-13
 	 * commit_fs_roots() and switch_commit_roots(), any dirty but not
 	 * recorded root will never be updated again, causing an outdated root
 	 * item.
 	 */
+<<<<<<< HEAD
 	record_root_in_trans(trans, src, 1);
+=======
+	ret = record_root_in_trans(trans, src, 1);
+	if (ret)
+		return ret;
+
+	/*
+	 * btrfs_qgroup_inherit relies on a consistent view of the usage for the
+	 * src root, so we must run the delayed refs here.
+	 *
+	 * However this isn't particularly fool proof, because there's no
+	 * synchronization keeping us from changing the tree after this point
+	 * before we do the qgroup_inherit, or even from making changes while
+	 * we're doing the qgroup_inherit.  But that's a problem for the future,
+	 * for now flush the delayed refs to narrow the race window where the
+	 * qgroup counters could end up wrong.
+	 */
+	ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
+	if (ret) {
+		btrfs_abort_transaction(trans, ret);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * We are going to commit transaction, see btrfs_commit_transaction()
@@ -1399,7 +2045,11 @@ static int qgroup_account_snapshot(struct btrfs_trans_handle *trans,
 	ret = commit_cowonly_roots(trans);
 	if (ret)
 		goto out;
+<<<<<<< HEAD
 	switch_commit_roots(trans->transaction);
+=======
+	switch_commit_roots(trans);
+>>>>>>> upstream/android-13
 	ret = btrfs_write_and_wait_transaction(trans);
 	if (ret)
 		btrfs_handle_fs_error(fs_info, ret,
@@ -1415,7 +2065,11 @@ out:
 	 * insert_dir_item()
 	 */
 	if (!ret)
+<<<<<<< HEAD
 		record_root_in_trans(trans, parent, 1);
+=======
+		ret = record_root_in_trans(trans, parent, 1);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -1451,7 +2105,10 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	u64 index = 0;
 	u64 objectid;
 	u64 root_flags;
+<<<<<<< HEAD
 	uuid_le new_uuid;
+=======
+>>>>>>> upstream/android-13
 
 	ASSERT(pending->path);
 	path = pending->path;
@@ -1459,7 +2116,11 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	ASSERT(pending->root_item);
 	new_root_item = pending->root_item;
 
+<<<<<<< HEAD
 	pending->error = btrfs_find_free_objectid(tree_root, &objectid);
+=======
+	pending->error = btrfs_get_free_objectid(tree_root, &objectid);
+>>>>>>> upstream/android-13
 	if (pending->error)
 		goto no_free_objectid;
 
@@ -1493,8 +2154,14 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	dentry = pending->dentry;
 	parent_inode = pending->dir;
 	parent_root = BTRFS_I(parent_inode)->root;
+<<<<<<< HEAD
 	record_root_in_trans(trans, parent_root, 0);
 
+=======
+	ret = record_root_in_trans(trans, parent_root, 0);
+	if (ret)
+		goto fail;
+>>>>>>> upstream/android-13
 	cur_time = current_time(parent_inode);
 
 	/*
@@ -1530,7 +2197,15 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	record_root_in_trans(trans, root, 0);
+=======
+	ret = record_root_in_trans(trans, root, 0);
+	if (ret) {
+		btrfs_abort_transaction(trans, ret);
+		goto fail;
+	}
+>>>>>>> upstream/android-13
 	btrfs_set_root_last_snapshot(&root->root_item, trans->transid);
 	memcpy(new_root_item, &root->root_item, sizeof(*new_root_item));
 	btrfs_check_and_init_root_item(new_root_item);
@@ -1544,8 +2219,12 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 
 	btrfs_set_root_generation_v2(new_root_item,
 			trans->transid);
+<<<<<<< HEAD
 	uuid_le_gen(&new_uuid);
 	memcpy(new_root_item->uuid, new_uuid.b, BTRFS_UUID_SIZE);
+=======
+	generate_random_guid(new_root_item->uuid);
+>>>>>>> upstream/android-13
 	memcpy(new_root_item->parent_uuid, root->root_item.uuid,
 			BTRFS_UUID_SIZE);
 	if (!(root_flags & BTRFS_ROOT_SUBVOL_RDONLY)) {
@@ -1561,7 +2240,12 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	btrfs_set_root_otransid(new_root_item, trans->transid);
 
 	old = btrfs_lock_root_node(root);
+<<<<<<< HEAD
 	ret = btrfs_cow_block(trans, root, old, NULL, 0, &old);
+=======
+	ret = btrfs_cow_block(trans, root, old, NULL, 0, &old,
+			      BTRFS_NESTING_COW);
+>>>>>>> upstream/android-13
 	if (ret) {
 		btrfs_tree_unlock(old);
 		free_extent_buffer(old);
@@ -1569,8 +2253,11 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	btrfs_set_lock_blocking(old);
 
+=======
+>>>>>>> upstream/android-13
 	ret = btrfs_copy_root(trans, root, old, &tmp, objectid);
 	/* clean up in any case */
 	btrfs_tree_unlock(old);
@@ -1607,9 +2294,16 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	}
 
 	key.offset = (u64)-1;
+<<<<<<< HEAD
 	pending->snap = btrfs_read_fs_root_no_name(fs_info, &key);
 	if (IS_ERR(pending->snap)) {
 		ret = PTR_ERR(pending->snap);
+=======
+	pending->snap = btrfs_get_new_fs_root(fs_info, objectid, pending->anon_dev);
+	if (IS_ERR(pending->snap)) {
+		ret = PTR_ERR(pending->snap);
+		pending->snap = NULL;
+>>>>>>> upstream/android-13
 		btrfs_abort_transaction(trans, ret);
 		goto fail;
 	}
@@ -1620,12 +2314,15 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		goto fail;
 	}
 
+<<<<<<< HEAD
 	ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
 	if (ret) {
 		btrfs_abort_transaction(trans, ret);
 		goto fail;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Do special qgroup accounting for snapshot, as we do some qgroup
 	 * snapshot hack to do fast snapshot.
@@ -1637,10 +2334,16 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 	if (ret < 0)
 		goto fail;
 
+<<<<<<< HEAD
 	ret = btrfs_insert_dir_item(trans, parent_root,
 				    dentry->d_name.name, dentry->d_name.len,
 				    BTRFS_I(parent_inode), &key,
 				    BTRFS_FT_DIR, index);
+=======
+	ret = btrfs_insert_dir_item(trans, dentry->d_name.name,
+				    dentry->d_name.len, BTRFS_I(parent_inode),
+				    &key, BTRFS_FT_DIR, index);
+>>>>>>> upstream/android-13
 	/* We have check then name at the beginning, so it is impossible. */
 	BUG_ON(ret == -EEXIST || ret == -EOVERFLOW);
 	if (ret) {
@@ -1652,12 +2355,21 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 					 dentry->d_name.len * 2);
 	parent_inode->i_mtime = parent_inode->i_ctime =
 		current_time(parent_inode);
+<<<<<<< HEAD
 	ret = btrfs_update_inode_fallback(trans, parent_root, parent_inode);
+=======
+	ret = btrfs_update_inode_fallback(trans, parent_root, BTRFS_I(parent_inode));
+>>>>>>> upstream/android-13
 	if (ret) {
 		btrfs_abort_transaction(trans, ret);
 		goto fail;
 	}
+<<<<<<< HEAD
 	ret = btrfs_uuid_tree_add(trans, new_uuid.b, BTRFS_UUID_KEY_SUBVOL,
+=======
+	ret = btrfs_uuid_tree_add(trans, new_root_item->uuid,
+				  BTRFS_UUID_KEY_SUBVOL,
+>>>>>>> upstream/android-13
 				  objectid);
 	if (ret) {
 		btrfs_abort_transaction(trans, ret);
@@ -1673,12 +2385,15 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
 		}
 	}
 
+<<<<<<< HEAD
 	ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
 	if (ret) {
 		btrfs_abort_transaction(trans, ret);
 		goto fail;
 	}
 
+=======
+>>>>>>> upstream/android-13
 fail:
 	pending->error = ret;
 dir_item_existed:
@@ -1731,6 +2446,11 @@ static void update_super_roots(struct btrfs_fs_info *fs_info)
 	super->root_level = root_item->level;
 	if (btrfs_test_opt(fs_info, SPACE_CACHE))
 		super->cache_generation = root_item->generation;
+<<<<<<< HEAD
+=======
+	else if (test_bit(BTRFS_FS_CLEANUP_SPACE_CACHE_V1, &fs_info->flags))
+		super->cache_generation = 0;
+>>>>>>> upstream/android-13
 	if (test_bit(BTRFS_FS_UPDATE_UUID_TREE_GEN, &fs_info->flags))
 		super->uuid_tree_generation = root_item->generation;
 }
@@ -1762,6 +2482,7 @@ int btrfs_transaction_blocked(struct btrfs_fs_info *info)
 }
 
 /*
+<<<<<<< HEAD
  * wait for the current transaction commit to start and block subsequent
  * transaction joins
  */
@@ -1785,6 +2506,8 @@ static void wait_current_trans_commit_start_and_unblock(
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * commit transactions asynchronously. once btrfs_commit_transaction_async
  * returns, any subsequent transaction will not be allowed to join.
  */
@@ -1811,8 +2534,12 @@ static void do_async_commit(struct work_struct *work)
 	kfree(ac);
 }
 
+<<<<<<< HEAD
 int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans,
 				   int wait_for_unblock)
+=======
+int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans)
+>>>>>>> upstream/android-13
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
 	struct btrfs_async_commit *ac;
@@ -1844,6 +2571,7 @@ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans,
 		__sb_writers_release(fs_info->sb, SB_FREEZE_FS);
 
 	schedule_work(&ac->work);
+<<<<<<< HEAD
 
 	/* wait for transaction to start and unblock */
 	if (wait_for_unblock)
@@ -1851,6 +2579,15 @@ int btrfs_commit_transaction_async(struct btrfs_trans_handle *trans,
 	else
 		wait_current_trans_commit_start(fs_info, cur_trans);
 
+=======
+	/*
+	 * Wait for the current transaction commit to start and block
+	 * subsequent transaction joins
+	 */
+	wait_event(fs_info->transaction_blocked_wait,
+		   cur_trans->state >= TRANS_STATE_COMMIT_START ||
+		   TRANS_ABORTED(cur_trans));
+>>>>>>> upstream/android-13
 	if (current->journal_info == trans)
 		current->journal_info = NULL;
 
@@ -1863,7 +2600,10 @@ static void cleanup_transaction(struct btrfs_trans_handle *trans, int err)
 {
 	struct btrfs_fs_info *fs_info = trans->fs_info;
 	struct btrfs_transaction *cur_trans = trans->transaction;
+<<<<<<< HEAD
 	DEFINE_WAIT(wait);
+=======
+>>>>>>> upstream/android-13
 
 	WARN_ON(refcount_read(&trans->use_count) > 1);
 
@@ -1878,7 +2618,10 @@ static void cleanup_transaction(struct btrfs_trans_handle *trans, int err)
 	 */
 	BUG_ON(list_empty(&cur_trans->list));
 
+<<<<<<< HEAD
 	list_del_init(&cur_trans->list);
+=======
+>>>>>>> upstream/android-13
 	if (cur_trans == fs_info->running_transaction) {
 		cur_trans->state = TRANS_STATE_COMMIT_DOING;
 		spin_unlock(&fs_info->trans_lock);
@@ -1887,6 +2630,20 @@ static void cleanup_transaction(struct btrfs_trans_handle *trans, int err)
 
 		spin_lock(&fs_info->trans_lock);
 	}
+<<<<<<< HEAD
+=======
+
+	/*
+	 * Now that we know no one else is still using the transaction we can
+	 * remove the transaction from the list of transactions. This avoids
+	 * the transaction kthread from cleaning up the transaction while some
+	 * other task is still using it, which could result in a use-after-free
+	 * on things like log trees, as it forces the transaction kthread to
+	 * wait for this transaction to be cleaned up by us.
+	 */
+	list_del_init(&cur_trans->list);
+
+>>>>>>> upstream/android-13
 	spin_unlock(&fs_info->trans_lock);
 
 	btrfs_cleanup_one_transaction(trans->transaction, fs_info);
@@ -1910,19 +2667,55 @@ static void cleanup_transaction(struct btrfs_trans_handle *trans, int err)
 	kmem_cache_free(btrfs_trans_handle_cachep, trans);
 }
 
+<<<<<<< HEAD
 static inline int btrfs_start_delalloc_flush(struct btrfs_fs_info *fs_info)
 {
 	/*
 	 * We use writeback_inodes_sb here because if we used
+=======
+/*
+ * Release reserved delayed ref space of all pending block groups of the
+ * transaction and remove them from the list
+ */
+static void btrfs_cleanup_pending_block_groups(struct btrfs_trans_handle *trans)
+{
+       struct btrfs_fs_info *fs_info = trans->fs_info;
+       struct btrfs_block_group *block_group, *tmp;
+
+       list_for_each_entry_safe(block_group, tmp, &trans->new_bgs, bg_list) {
+               btrfs_delayed_refs_rsv_release(fs_info, 1);
+               list_del_init(&block_group->bg_list);
+       }
+}
+
+static inline int btrfs_start_delalloc_flush(struct btrfs_fs_info *fs_info)
+{
+	/*
+	 * We use try_to_writeback_inodes_sb() here because if we used
+>>>>>>> upstream/android-13
 	 * btrfs_start_delalloc_roots we would deadlock with fs freeze.
 	 * Currently are holding the fs freeze lock, if we do an async flush
 	 * we'll do btrfs_join_transaction() and deadlock because we need to
 	 * wait for the fs freeze lock.  Using the direct flushing we benefit
 	 * from already being in a transaction and our join_transaction doesn't
 	 * have to re-take the fs freeze lock.
+<<<<<<< HEAD
 	 */
 	if (btrfs_test_opt(fs_info, FLUSHONCOMMIT))
 		writeback_inodes_sb(fs_info->sb, WB_REASON_SYNC);
+=======
+	 *
+	 * Note that try_to_writeback_inodes_sb() will only trigger writeback
+	 * if it can read lock sb->s_umount. It will always be able to lock it,
+	 * except when the filesystem is being unmounted or being frozen, but in
+	 * those cases sync_filesystem() is called, which results in calling
+	 * writeback_inodes_sb() while holding a write lock on sb->s_umount.
+	 * Note that we don't call writeback_inodes_sb() directly, because it
+	 * will emit a warning if sb->s_umount is not locked.
+	 */
+	if (btrfs_test_opt(fs_info, FLUSHONCOMMIT))
+		try_to_writeback_inodes_sb(fs_info->sb, WB_REASON_SYNC);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -1932,11 +2725,33 @@ static inline void btrfs_wait_delalloc_flush(struct btrfs_fs_info *fs_info)
 		btrfs_wait_ordered_roots(fs_info, U64_MAX, 0, (u64)-1);
 }
 
+<<<<<<< HEAD
 static inline void
 btrfs_wait_pending_ordered(struct btrfs_transaction *cur_trans)
 {
 	wait_event(cur_trans->pending_wait,
 		   atomic_read(&cur_trans->pending_ordered) == 0);
+=======
+/*
+ * Add a pending snapshot associated with the given transaction handle to the
+ * respective handle. This must be called after the transaction commit started
+ * and while holding fs_info->trans_lock.
+ * This serves to guarantee a caller of btrfs_commit_transaction() that it can
+ * safely free the pending snapshot pointer in case btrfs_commit_transaction()
+ * returns an error.
+ */
+static void add_pending_snapshot(struct btrfs_trans_handle *trans)
+{
+	struct btrfs_transaction *cur_trans = trans->transaction;
+
+	if (!trans->pending_snapshot)
+		return;
+
+	lockdep_assert_held(&trans->fs_info->trans_lock);
+	ASSERT(cur_trans->state >= TRANS_STATE_COMMIT_START);
+
+	list_add(&trans->pending_snapshot->list, &cur_trans->pending_snapshots);
+>>>>>>> upstream/android-13
 }
 
 int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
@@ -1946,6 +2761,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	struct btrfs_transaction *prev_trans = NULL;
 	int ret;
 
+<<<<<<< HEAD
 	/*
 	 * Some places just start a transaction to commit it.  We need to make
 	 * sure that if this commit fails that the abort code actually marks the
@@ -1956,6 +2772,12 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 
 	/* Stop the commit early if ->aborted is set */
 	if (unlikely(READ_ONCE(cur_trans->aborted))) {
+=======
+	ASSERT(refcount_read(&trans->use_count) == 1);
+
+	/* Stop the commit early if ->aborted is set */
+	if (TRANS_ABORTED(cur_trans)) {
+>>>>>>> upstream/android-13
 		ret = cur_trans->aborted;
 		btrfs_end_transaction(trans);
 		return ret;
@@ -1964,6 +2786,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	btrfs_trans_release_metadata(trans);
 	trans->block_rsv = NULL;
 
+<<<<<<< HEAD
 	/* make a pass through all the delayed refs we have so far
 	 * any runnings procs may add more while we are here
 	 */
@@ -1991,6 +2814,27 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 		return ret;
 	}
 
+=======
+	/*
+	 * We only want one transaction commit doing the flushing so we do not
+	 * waste a bunch of time on lock contention on the extent root node.
+	 */
+	if (!test_and_set_bit(BTRFS_DELAYED_REFS_FLUSHING,
+			      &cur_trans->delayed_refs.flags)) {
+		/*
+		 * Make a pass through all the delayed refs we have so far.
+		 * Any running threads may add more while we are here.
+		 */
+		ret = btrfs_run_delayed_refs(trans, 0);
+		if (ret) {
+			btrfs_end_transaction(trans);
+			return ret;
+		}
+	}
+
+	btrfs_create_pending_block_groups(trans);
+
+>>>>>>> upstream/android-13
 	if (!test_bit(BTRFS_TRANS_DIRTY_BG_RUN, &cur_trans->flags)) {
 		int run_it = 0;
 
@@ -2024,6 +2868,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 
 	spin_lock(&fs_info->trans_lock);
 	if (cur_trans->state >= TRANS_STATE_COMMIT_START) {
+<<<<<<< HEAD
 		spin_unlock(&fs_info->trans_lock);
 		refcount_inc(&cur_trans->use_count);
 		ret = btrfs_end_transaction(trans);
@@ -2031,6 +2876,21 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 		wait_for_commit(cur_trans);
 
 		if (unlikely(cur_trans->aborted))
+=======
+		enum btrfs_trans_state want_state = TRANS_STATE_COMPLETED;
+
+		add_pending_snapshot(trans);
+
+		spin_unlock(&fs_info->trans_lock);
+		refcount_inc(&cur_trans->use_count);
+
+		if (trans->in_fsync)
+			want_state = TRANS_STATE_SUPER_COMMITTED;
+		ret = btrfs_end_transaction(trans);
+		wait_for_commit(cur_trans, want_state);
+
+		if (TRANS_ABORTED(cur_trans))
+>>>>>>> upstream/android-13
 			ret = cur_trans->aborted;
 
 		btrfs_put_transaction(cur_trans);
@@ -2042,6 +2902,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	wake_up(&fs_info->transaction_blocked_wait);
 
 	if (cur_trans->list.prev != &fs_info->trans_list) {
+<<<<<<< HEAD
 		prev_trans = list_entry(cur_trans->list.prev,
 					struct btrfs_transaction, list);
 		if (prev_trans->state != TRANS_STATE_COMPLETED) {
@@ -2050,6 +2911,22 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 
 			wait_for_commit(prev_trans);
 			ret = prev_trans->aborted;
+=======
+		enum btrfs_trans_state want_state = TRANS_STATE_COMPLETED;
+
+		if (trans->in_fsync)
+			want_state = TRANS_STATE_SUPER_COMMITTED;
+
+		prev_trans = list_entry(cur_trans->list.prev,
+					struct btrfs_transaction, list);
+		if (prev_trans->state < want_state) {
+			refcount_inc(&prev_trans->use_count);
+			spin_unlock(&fs_info->trans_lock);
+
+			wait_for_commit(prev_trans, want_state);
+
+			ret = READ_ONCE(prev_trans->aborted);
+>>>>>>> upstream/android-13
 
 			btrfs_put_transaction(prev_trans);
 			if (ret)
@@ -2091,7 +2968,17 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 
 	btrfs_wait_delalloc_flush(fs_info);
 
+<<<<<<< HEAD
 	btrfs_wait_pending_ordered(cur_trans);
+=======
+	/*
+	 * Wait for all ordered extents started by a fast fsync that joined this
+	 * transaction. Otherwise if this transaction commits before the ordered
+	 * extents complete we lose logged data after a power failure.
+	 */
+	wait_event(cur_trans->pending_wait,
+		   atomic_read(&cur_trans->pending_ordered) == 0);
+>>>>>>> upstream/android-13
 
 	btrfs_scrub_pause(fs_info);
 	/*
@@ -2100,13 +2987,21 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	 * COMMIT_DOING so make sure to wait for num_writers to == 1 again.
 	 */
 	spin_lock(&fs_info->trans_lock);
+<<<<<<< HEAD
+=======
+	add_pending_snapshot(trans);
+>>>>>>> upstream/android-13
 	cur_trans->state = TRANS_STATE_COMMIT_DOING;
 	spin_unlock(&fs_info->trans_lock);
 	wait_event(cur_trans->writer_wait,
 		   atomic_read(&cur_trans->num_writers) == 1);
 
+<<<<<<< HEAD
 	/* ->aborted might be set after the previous check, so check it */
 	if (unlikely(READ_ONCE(cur_trans->aborted))) {
+=======
+	if (TRANS_ABORTED(cur_trans)) {
+>>>>>>> upstream/android-13
 		ret = cur_trans->aborted;
 		goto scrub_continue;
 	}
@@ -2123,10 +3018,15 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	 * core function of the snapshot creation.
 	 */
 	ret = create_pending_snapshots(trans);
+<<<<<<< HEAD
 	if (ret) {
 		mutex_unlock(&fs_info->reloc_mutex);
 		goto scrub_continue;
 	}
+=======
+	if (ret)
+		goto unlock_reloc;
+>>>>>>> upstream/android-13
 
 	/*
 	 * We insert the dir indexes of the snapshots and update the inode
@@ -2139,6 +3039,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	 * the nodes and leaves.
 	 */
 	ret = btrfs_run_delayed_items(trans);
+<<<<<<< HEAD
 	if (ret) {
 		mutex_unlock(&fs_info->reloc_mutex);
 		goto scrub_continue;
@@ -2149,6 +3050,14 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 		mutex_unlock(&fs_info->reloc_mutex);
 		goto scrub_continue;
 	}
+=======
+	if (ret)
+		goto unlock_reloc;
+
+	ret = btrfs_run_delayed_refs(trans, (unsigned long)-1);
+	if (ret)
+		goto unlock_reloc;
+>>>>>>> upstream/android-13
 
 	/*
 	 * make sure none of the code above managed to slip in a
@@ -2174,11 +3083,16 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	mutex_lock(&fs_info->tree_log_mutex);
 
 	ret = commit_fs_roots(trans);
+<<<<<<< HEAD
 	if (ret) {
 		mutex_unlock(&fs_info->tree_log_mutex);
 		mutex_unlock(&fs_info->reloc_mutex);
 		goto scrub_continue;
 	}
+=======
+	if (ret)
+		goto unlock_tree_log;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Since the transaction is done, we can apply the pending changes
@@ -2192,6 +3106,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	btrfs_free_log_root_tree(trans, fs_info);
 
 	/*
+<<<<<<< HEAD
 	 * commit_fs_roots() can call btrfs_save_ino_cache(), which generates
 	 * new delayed refs. Must handle them or qgroup can be wrong.
 	 */
@@ -2203,10 +3118,13 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	}
 
 	/*
+=======
+>>>>>>> upstream/android-13
 	 * Since fs roots are all committed, we can get a quite accurate
 	 * new_roots. So let's do quota accounting.
 	 */
 	ret = btrfs_qgroup_account_extents(trans);
+<<<<<<< HEAD
 	if (ret < 0) {
 		mutex_unlock(&fs_info->tree_log_mutex);
 		mutex_unlock(&fs_info->reloc_mutex);
@@ -2219,11 +3137,20 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 		mutex_unlock(&fs_info->reloc_mutex);
 		goto scrub_continue;
 	}
+=======
+	if (ret < 0)
+		goto unlock_tree_log;
+
+	ret = commit_cowonly_roots(trans);
+	if (ret)
+		goto unlock_tree_log;
+>>>>>>> upstream/android-13
 
 	/*
 	 * The tasks which save the space cache and inode cache may also
 	 * update ->aborted, check it.
 	 */
+<<<<<<< HEAD
 	if (unlikely(READ_ONCE(cur_trans->aborted))) {
 		ret = cur_trans->aborted;
 		mutex_unlock(&fs_info->tree_log_mutex);
@@ -2233,6 +3160,13 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 
 	btrfs_prepare_extent_commit(fs_info);
 
+=======
+	if (TRANS_ABORTED(cur_trans)) {
+		ret = cur_trans->aborted;
+		goto unlock_tree_log;
+	}
+
+>>>>>>> upstream/android-13
 	cur_trans = fs_info->running_transaction;
 
 	btrfs_set_root_node(&fs_info->tree_root->root_item,
@@ -2245,7 +3179,11 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	list_add_tail(&fs_info->chunk_root->dirty_list,
 		      &cur_trans->switch_commits);
 
+<<<<<<< HEAD
 	switch_commit_roots(cur_trans);
+=======
+	switch_commit_roots(trans);
+>>>>>>> upstream/android-13
 
 	ASSERT(list_empty(&cur_trans->dirty_bgs));
 	ASSERT(list_empty(&cur_trans->io_bgs));
@@ -2256,8 +3194,12 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	memcpy(fs_info->super_for_commit, fs_info->super_copy,
 	       sizeof(*fs_info->super_copy));
 
+<<<<<<< HEAD
 	btrfs_update_commit_device_size(fs_info);
 	btrfs_update_commit_device_bytes_used(cur_trans);
+=======
+	btrfs_commit_device_sizes(cur_trans);
+>>>>>>> upstream/android-13
 
 	clear_bit(BTRFS_FS_LOG1_ERR, &fs_info->flags);
 	clear_bit(BTRFS_FS_LOG2_ERR, &fs_info->flags);
@@ -2276,10 +3218,27 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	if (ret) {
 		btrfs_handle_fs_error(fs_info, ret,
 				      "Error while writing out transaction");
+<<<<<<< HEAD
+=======
+		/*
+		 * reloc_mutex has been unlocked, tree_log_mutex is still held
+		 * but we can't jump to unlock_tree_log causing double unlock
+		 */
+>>>>>>> upstream/android-13
 		mutex_unlock(&fs_info->tree_log_mutex);
 		goto scrub_continue;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * At this point, we should have written all the tree blocks allocated
+	 * in this transaction. So it's now safe to free the redirtyied extent
+	 * buffers.
+	 */
+	btrfs_free_redirty_list(cur_trans);
+
+>>>>>>> upstream/android-13
 	ret = write_all_supers(fs_info, 0);
 	/*
 	 * the super is written, we can safely allow the tree-loggers
@@ -2289,6 +3248,16 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	if (ret)
 		goto scrub_continue;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * We needn't acquire the lock here because there is no other task
+	 * which can change it.
+	 */
+	cur_trans->state = TRANS_STATE_SUPER_COMMITTED;
+	wake_up(&cur_trans->commit_wait);
+
+>>>>>>> upstream/android-13
 	btrfs_finish_extent_commit(trans);
 
 	if (test_bit(BTRFS_TRANS_HAVE_FREE_BGS, &cur_trans->flags))
@@ -2301,7 +3270,10 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 	 */
 	cur_trans->state = TRANS_STATE_COMPLETED;
 	wake_up(&cur_trans->commit_wait);
+<<<<<<< HEAD
 	clear_bit(BTRFS_FS_NEED_ASYNC_COMMIT, &fs_info->flags);
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock(&fs_info->trans_lock);
 	list_del_init(&cur_trans->list);
@@ -2324,10 +3296,21 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
 
 	return ret;
 
+<<<<<<< HEAD
+=======
+unlock_tree_log:
+	mutex_unlock(&fs_info->tree_log_mutex);
+unlock_reloc:
+	mutex_unlock(&fs_info->reloc_mutex);
+>>>>>>> upstream/android-13
 scrub_continue:
 	btrfs_scrub_continue(fs_info);
 cleanup_transaction:
 	btrfs_trans_release_metadata(trans);
+<<<<<<< HEAD
+=======
+	btrfs_cleanup_pending_block_groups(trans);
+>>>>>>> upstream/android-13
 	btrfs_trans_release_chunk_metadata(trans);
 	trans->block_rsv = NULL;
 	btrfs_warn(fs_info, "Skipping commit of aborted transaction.");
@@ -2363,16 +3346,28 @@ int btrfs_clean_one_deleted_snapshot(struct btrfs_root *root)
 	list_del_init(&root->root_list);
 	spin_unlock(&fs_info->trans_lock);
 
+<<<<<<< HEAD
 	btrfs_debug(fs_info, "cleaner removing %llu", root->objectid);
+=======
+	btrfs_debug(fs_info, "cleaner removing %llu", root->root_key.objectid);
+>>>>>>> upstream/android-13
 
 	btrfs_kill_all_delayed_nodes(root);
 
 	if (btrfs_header_backref_rev(root->node) <
 			BTRFS_MIXED_BACKREF_REV)
+<<<<<<< HEAD
 		ret = btrfs_drop_snapshot(root, NULL, 0, 0);
 	else
 		ret = btrfs_drop_snapshot(root, NULL, 1, 0);
 
+=======
+		ret = btrfs_drop_snapshot(root, 0, 0);
+	else
+		ret = btrfs_drop_snapshot(root, 1, 0);
+
+	btrfs_put_root(root);
+>>>>>>> upstream/android-13
 	return (ret < 0) ? 0 : 1;
 }
 
@@ -2385,6 +3380,7 @@ void btrfs_apply_pending_changes(struct btrfs_fs_info *fs_info)
 	if (!prev)
 		return;
 
+<<<<<<< HEAD
 	bit = 1 << BTRFS_PENDING_SET_INODE_MAP_CACHE;
 	if (prev & bit)
 		btrfs_set_opt(fs_info->mount_opt, INODE_MAP_CACHE);
@@ -2395,6 +3391,8 @@ void btrfs_apply_pending_changes(struct btrfs_fs_info *fs_info)
 		btrfs_clear_opt(fs_info->mount_opt, INODE_MAP_CACHE);
 	prev &= ~bit;
 
+=======
+>>>>>>> upstream/android-13
 	bit = 1 << BTRFS_PENDING_COMMIT;
 	if (prev & bit)
 		btrfs_debug(fs_info, "pending commit done");

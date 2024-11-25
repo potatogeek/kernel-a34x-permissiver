@@ -29,6 +29,10 @@
 static struct kmem_cache *hfs_inode_cachep;
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 static int hfs_sync_fs(struct super_block *sb, int wait)
 {
@@ -104,8 +108,12 @@ static int hfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	buf->f_bavail = buf->f_bfree;
 	buf->f_files = HFS_SB(sb)->fs_ablocks;
 	buf->f_ffree = HFS_SB(sb)->free_ablocks;
+<<<<<<< HEAD
 	buf->f_fsid.val[0] = (u32)id;
 	buf->f_fsid.val[1] = (u32)(id >> 32);
+=======
+	buf->f_fsid = u64_to_fsid(id);
+>>>>>>> upstream/android-13
 	buf->f_namelen = HFS_NAMELEN;
 
 	return 0;
@@ -167,6 +175,7 @@ static struct inode *hfs_alloc_inode(struct super_block *sb)
 	return i ? &i->vfs_inode : NULL;
 }
 
+<<<<<<< HEAD
 static void hfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
@@ -181,6 +190,16 @@ static void hfs_destroy_inode(struct inode *inode)
 static const struct super_operations hfs_super_operations = {
 	.alloc_inode	= hfs_alloc_inode,
 	.destroy_inode	= hfs_destroy_inode,
+=======
+static void hfs_free_inode(struct inode *inode)
+{
+	kmem_cache_free(hfs_inode_cachep, HFS_I(inode));
+}
+
+static const struct super_operations hfs_super_operations = {
+	.alloc_inode	= hfs_alloc_inode,
+	.free_inode	= hfs_free_inode,
+>>>>>>> upstream/android-13
 	.write_inode	= hfs_write_inode,
 	.evict_inode	= hfs_evict_inode,
 	.put_super	= hfs_put_super,
@@ -427,6 +446,7 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
 	if (!res) {
 		if (fd.entrylength > sizeof(rec) || fd.entrylength < 0) {
 			res =  -EIO;
+<<<<<<< HEAD
 			goto bail;
 		}
 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset, fd.entrylength);
@@ -435,6 +455,14 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
 		hfs_find_exit(&fd);
 		goto bail_no_root;
 	}
+=======
+			goto bail_hfs_find;
+		}
+		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset, fd.entrylength);
+	}
+	if (res)
+		goto bail_hfs_find;
+>>>>>>> upstream/android-13
 	res = -EINVAL;
 	root_inode = hfs_iget(sb, &fd.search_key->cat, &rec);
 	hfs_find_exit(&fd);
@@ -450,6 +478,11 @@ static int hfs_fill_super(struct super_block *sb, void *data, int silent)
 	/* everything's okay */
 	return 0;
 
+<<<<<<< HEAD
+=======
+bail_hfs_find:
+	hfs_find_exit(&fd);
+>>>>>>> upstream/android-13
 bail_no_root:
 	pr_err("get root inode failed\n");
 bail:

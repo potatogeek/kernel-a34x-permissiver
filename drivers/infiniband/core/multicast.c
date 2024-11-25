@@ -42,7 +42,11 @@
 #include <rdma/ib_cache.h>
 #include "sa.h"
 
+<<<<<<< HEAD
 static void mcast_add_one(struct ib_device *device);
+=======
+static int mcast_add_one(struct ib_device *device);
+>>>>>>> upstream/android-13
 static void mcast_remove_one(struct ib_device *device, void *client_data);
 
 static struct ib_client mcast_client = {
@@ -61,9 +65,15 @@ struct mcast_port {
 	struct mcast_device	*dev;
 	spinlock_t		lock;
 	struct rb_root		table;
+<<<<<<< HEAD
 	atomic_t		refcount;
 	struct completion	comp;
 	u8			port_num;
+=======
+	refcount_t		refcount;
+	struct completion	comp;
+	u32			port_num;
+>>>>>>> upstream/android-13
 };
 
 struct mcast_device {
@@ -71,7 +81,11 @@ struct mcast_device {
 	struct ib_event_handler	event_handler;
 	int			start_port;
 	int			end_port;
+<<<<<<< HEAD
 	struct mcast_port	port[0];
+=======
+	struct mcast_port	port[];
+>>>>>>> upstream/android-13
 };
 
 enum mcast_state {
@@ -117,7 +131,11 @@ struct mcast_member {
 	struct mcast_group	*group;
 	struct list_head	list;
 	enum mcast_state	state;
+<<<<<<< HEAD
 	atomic_t		refcount;
+=======
+	refcount_t		refcount;
+>>>>>>> upstream/android-13
 	struct completion	comp;
 };
 
@@ -178,7 +196,11 @@ static struct mcast_group *mcast_insert(struct mcast_port *port,
 
 static void deref_port(struct mcast_port *port)
 {
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&port->refcount))
+=======
+	if (refcount_dec_and_test(&port->refcount))
+>>>>>>> upstream/android-13
 		complete(&port->comp);
 }
 
@@ -199,7 +221,11 @@ static void release_group(struct mcast_group *group)
 
 static void deref_member(struct mcast_member *member)
 {
+<<<<<<< HEAD
 	if (atomic_dec_and_test(&member->refcount))
+=======
+	if (refcount_dec_and_test(&member->refcount))
+>>>>>>> upstream/android-13
 		complete(&member->comp);
 }
 
@@ -401,7 +427,11 @@ static void process_group_error(struct mcast_group *group)
 	while (!list_empty(&group->active_list)) {
 		member = list_entry(group->active_list.next,
 				    struct mcast_member, list);
+<<<<<<< HEAD
 		atomic_inc(&member->refcount);
+=======
+		refcount_inc(&member->refcount);
+>>>>>>> upstream/android-13
 		list_del_init(&member->list);
 		adjust_membership(group, member->multicast.rec.join_state, -1);
 		member->state = MCAST_ERROR;
@@ -445,7 +475,11 @@ retest:
 				    struct mcast_member, list);
 		multicast = &member->multicast;
 		join_state = multicast->rec.join_state;
+<<<<<<< HEAD
 		atomic_inc(&member->refcount);
+=======
+		refcount_inc(&member->refcount);
+>>>>>>> upstream/android-13
 
 		if (join_state == (group->rec.join_state & join_state)) {
 			status = cmp_rec(&group->rec, &multicast->rec,
@@ -497,7 +531,11 @@ static void process_join_error(struct mcast_group *group, int status)
 	member = list_entry(group->pending_list.next,
 			    struct mcast_member, list);
 	if (group->last_join == member) {
+<<<<<<< HEAD
 		atomic_inc(&member->refcount);
+=======
+		refcount_inc(&member->refcount);
+>>>>>>> upstream/android-13
 		list_del_init(&member->list);
 		spin_unlock_irq(&group->lock);
 		ret = member->multicast.callback(status, &member->multicast);
@@ -589,7 +627,11 @@ static struct mcast_group *acquire_group(struct mcast_port *port,
 		kfree(group);
 		group = cur_group;
 	} else
+<<<<<<< HEAD
 		atomic_inc(&port->refcount);
+=======
+		refcount_inc(&port->refcount);
+>>>>>>> upstream/android-13
 found:
 	atomic_inc(&group->refcount);
 	spin_unlock_irqrestore(&port->lock, flags);
@@ -605,7 +647,11 @@ found:
  */
 struct ib_sa_multicast *
 ib_sa_join_multicast(struct ib_sa_client *client,
+<<<<<<< HEAD
 		     struct ib_device *device, u8 port_num,
+=======
+		     struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 		     struct ib_sa_mcmember_rec *rec,
 		     ib_sa_comp_mask comp_mask, gfp_t gfp_mask,
 		     int (*callback)(int status,
@@ -632,7 +678,11 @@ ib_sa_join_multicast(struct ib_sa_client *client,
 	member->multicast.callback = callback;
 	member->multicast.context = context;
 	init_completion(&member->comp);
+<<<<<<< HEAD
 	atomic_set(&member->refcount, 1);
+=======
+	refcount_set(&member->refcount, 1);
+>>>>>>> upstream/android-13
 	member->state = MCAST_JOINING;
 
 	member->group = acquire_group(&dev->port[port_num - dev->start_port],
@@ -690,7 +740,11 @@ void ib_sa_free_multicast(struct ib_sa_multicast *multicast)
 }
 EXPORT_SYMBOL(ib_sa_free_multicast);
 
+<<<<<<< HEAD
 int ib_sa_get_mcmember_rec(struct ib_device *device, u8 port_num,
+=======
+int ib_sa_get_mcmember_rec(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			   union ib_gid *mgid, struct ib_sa_mcmember_rec *rec)
 {
 	struct mcast_device *dev;
@@ -721,6 +775,10 @@ EXPORT_SYMBOL(ib_sa_get_mcmember_rec);
  * member record and gid of the device.
  * @device:	RDMA device
  * @port_num:	Port of the rdma device to consider
+<<<<<<< HEAD
+=======
+ * @rec:	Multicast member record to use
+>>>>>>> upstream/android-13
  * @ndev:	Optional netdevice, applicable only for RoCE
  * @gid_type:	GID type to consider
  * @ah_attr:	AH attribute to fillup on successful completion
@@ -731,7 +789,11 @@ EXPORT_SYMBOL(ib_sa_get_mcmember_rec);
  * success or appropriate error code.
  *
  */
+<<<<<<< HEAD
 int ib_init_ah_from_mcmember(struct ib_device *device, u8 port_num,
+=======
+int ib_init_ah_from_mcmember(struct ib_device *device, u32 port_num,
+>>>>>>> upstream/android-13
 			     struct ib_sa_mcmember_rec *rec,
 			     struct net_device *ndev,
 			     enum ib_gid_type gid_type,
@@ -804,7 +866,10 @@ static void mcast_event_handler(struct ib_event_handler *handler,
 	switch (event->event) {
 	case IB_EVENT_PORT_ERR:
 	case IB_EVENT_LID_CHANGE:
+<<<<<<< HEAD
 	case IB_EVENT_SM_CHANGE:
+=======
+>>>>>>> upstream/android-13
 	case IB_EVENT_CLIENT_REREGISTER:
 		mcast_groups_event(&dev->port[index], MCAST_GROUP_ERROR);
 		break;
@@ -816,7 +881,11 @@ static void mcast_event_handler(struct ib_event_handler *handler,
 	}
 }
 
+<<<<<<< HEAD
 static void mcast_add_one(struct ib_device *device)
+=======
+static int mcast_add_one(struct ib_device *device)
+>>>>>>> upstream/android-13
 {
 	struct mcast_device *dev;
 	struct mcast_port *port;
@@ -826,7 +895,11 @@ static void mcast_add_one(struct ib_device *device)
 	dev = kmalloc(struct_size(dev, port, device->phys_port_cnt),
 		      GFP_KERNEL);
 	if (!dev)
+<<<<<<< HEAD
 		return;
+=======
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	dev->start_port = rdma_start_port(device);
 	dev->end_port = rdma_end_port(device);
@@ -840,13 +913,21 @@ static void mcast_add_one(struct ib_device *device)
 		spin_lock_init(&port->lock);
 		port->table = RB_ROOT;
 		init_completion(&port->comp);
+<<<<<<< HEAD
 		atomic_set(&port->refcount, 1);
+=======
+		refcount_set(&port->refcount, 1);
+>>>>>>> upstream/android-13
 		++count;
 	}
 
 	if (!count) {
 		kfree(dev);
+<<<<<<< HEAD
 		return;
+=======
+		return -EOPNOTSUPP;
+>>>>>>> upstream/android-13
 	}
 
 	dev->device = device;
@@ -854,6 +935,10 @@ static void mcast_add_one(struct ib_device *device)
 
 	INIT_IB_EVENT_HANDLER(&dev->event_handler, device, mcast_event_handler);
 	ib_register_event_handler(&dev->event_handler);
+<<<<<<< HEAD
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static void mcast_remove_one(struct ib_device *device, void *client_data)
@@ -862,9 +947,12 @@ static void mcast_remove_one(struct ib_device *device, void *client_data)
 	struct mcast_port *port;
 	int i;
 
+<<<<<<< HEAD
 	if (!dev)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	ib_unregister_event_handler(&dev->event_handler);
 	flush_workqueue(mcast_wq);
 

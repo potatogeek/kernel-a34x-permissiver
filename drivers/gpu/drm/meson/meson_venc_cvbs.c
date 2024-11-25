@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 BayLibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  * Copyright (C) 2015 Amlogic, Inc. All rights reserved.
  * Copyright (C) 2014 Endless Mobile
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -17,10 +22,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  * Written by:
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/of_graph.h>
@@ -38,6 +46,26 @@
 /* HHI VDAC Registers */
 #define HHI_VDAC_CNTL0		0x2F4 /* 0xbd offset in data sheet */
 #define HHI_VDAC_CNTL1		0x2F8 /* 0xbe offset in data sheet */
+=======
+#include <linux/export.h>
+#include <linux/of_graph.h>
+
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_device.h>
+#include <drm/drm_edid.h>
+#include <drm/drm_probe_helper.h>
+#include <drm/drm_print.h>
+
+#include "meson_registers.h"
+#include "meson_vclk.h"
+#include "meson_venc_cvbs.h"
+
+/* HHI VDAC Registers */
+#define HHI_VDAC_CNTL0		0x2F4 /* 0xbd offset in data sheet */
+#define HHI_VDAC_CNTL0_G12A	0x2EC /* 0xbd offset in data sheet */
+#define HHI_VDAC_CNTL1		0x2F8 /* 0xbe offset in data sheet */
+#define HHI_VDAC_CNTL1_G12A	0x2F0 /* 0xbe offset in data sheet */
+>>>>>>> upstream/android-13
 
 struct meson_venc_cvbs {
 	struct drm_encoder	encoder;
@@ -59,7 +87,10 @@ struct meson_cvbs_mode meson_cvbs_modes[MESON_CVBS_MODES_COUNT] = {
 			DRM_MODE("720x576i", DRM_MODE_TYPE_DRIVER, 13500,
 				 720, 732, 795, 864, 0, 576, 580, 586, 625, 0,
 				 DRM_MODE_FLAG_INTERLACE),
+<<<<<<< HEAD
 			.vrefresh = 50,
+=======
+>>>>>>> upstream/android-13
 			.picture_aspect_ratio = HDMI_PICTURE_ASPECT_4_3,
 		},
 	},
@@ -69,7 +100,10 @@ struct meson_cvbs_mode meson_cvbs_modes[MESON_CVBS_MODES_COUNT] = {
 			DRM_MODE("720x480i", DRM_MODE_TYPE_DRIVER, 13500,
 				720, 739, 801, 858, 0, 480, 488, 494, 525, 0,
 				DRM_MODE_FLAG_INTERLACE),
+<<<<<<< HEAD
 			.vrefresh = 60,
+=======
+>>>>>>> upstream/android-13
 			.picture_aspect_ratio = HDMI_PICTURE_ASPECT_4_3,
 		},
 	},
@@ -179,8 +213,18 @@ static void meson_venc_cvbs_encoder_disable(struct drm_encoder *encoder)
 	struct meson_drm *priv = meson_venc_cvbs->priv;
 
 	/* Disable CVBS VDAC */
+<<<<<<< HEAD
 	regmap_write(priv->hhi, HHI_VDAC_CNTL0, 0);
 	regmap_write(priv->hhi, HHI_VDAC_CNTL1, 8);
+=======
+	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		regmap_write(priv->hhi, HHI_VDAC_CNTL0_G12A, 0);
+		regmap_write(priv->hhi, HHI_VDAC_CNTL1_G12A, 0);
+	} else {
+		regmap_write(priv->hhi, HHI_VDAC_CNTL0, 0);
+		regmap_write(priv->hhi, HHI_VDAC_CNTL1, 8);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void meson_venc_cvbs_encoder_enable(struct drm_encoder *encoder)
@@ -190,6 +234,7 @@ static void meson_venc_cvbs_encoder_enable(struct drm_encoder *encoder)
 	struct meson_drm *priv = meson_venc_cvbs->priv;
 
 	/* VDAC0 source is not from ATV */
+<<<<<<< HEAD
 	writel_bits_relaxed(BIT(5), 0, priv->io_base + _REG(VENC_VDAC_DACSEL0));
 
 	if (meson_vpu_is_compatible(priv, "amlogic,meson-gxbb-vpu"))
@@ -199,6 +244,22 @@ static void meson_venc_cvbs_encoder_enable(struct drm_encoder *encoder)
 		regmap_write(priv->hhi, HHI_VDAC_CNTL0, 0xf0001);
 
 	regmap_write(priv->hhi, HHI_VDAC_CNTL1, 0);
+=======
+	writel_bits_relaxed(VENC_VDAC_SEL_ATV_DMD, 0,
+			    priv->io_base + _REG(VENC_VDAC_DACSEL0));
+
+	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXBB)) {
+		regmap_write(priv->hhi, HHI_VDAC_CNTL0, 1);
+		regmap_write(priv->hhi, HHI_VDAC_CNTL1, 0);
+	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXM) ||
+		 meson_vpu_is_compatible(priv, VPU_COMPATIBLE_GXL)) {
+		regmap_write(priv->hhi, HHI_VDAC_CNTL0, 0xf0001);
+		regmap_write(priv->hhi, HHI_VDAC_CNTL1, 0);
+	} else if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A)) {
+		regmap_write(priv->hhi, HHI_VDAC_CNTL0_G12A, 0x906001);
+		regmap_write(priv->hhi, HHI_VDAC_CNTL1_G12A, 0);
+	}
+>>>>>>> upstream/android-13
 }
 
 static void meson_venc_cvbs_encoder_mode_set(struct drm_encoder *encoder,
@@ -214,8 +275,15 @@ static void meson_venc_cvbs_encoder_mode_set(struct drm_encoder *encoder,
 		meson_venci_cvbs_mode_set(priv, meson_mode->enci);
 
 		/* Setup 27MHz vclk2 for ENCI and VDAC */
+<<<<<<< HEAD
 		meson_vclk_setup(priv, MESON_VCLK_TARGET_CVBS, MESON_VCLK_CVBS,
 				 MESON_VCLK_CVBS, MESON_VCLK_CVBS, true);
+=======
+		meson_vclk_setup(priv, MESON_VCLK_TARGET_CVBS,
+				 MESON_VCLK_CVBS, MESON_VCLK_CVBS,
+				 MESON_VCLK_CVBS, MESON_VCLK_CVBS,
+				 true);
+>>>>>>> upstream/android-13
 	}
 }
 

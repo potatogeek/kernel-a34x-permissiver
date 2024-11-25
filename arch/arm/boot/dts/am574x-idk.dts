@@ -1,19 +1,31 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
+=======
+ * Copyright (C) 2017 Texas Instruments Incorporated - https://www.ti.com/
+>>>>>>> upstream/android-13
  */
 
 
 /dts-v1/;
 
+<<<<<<< HEAD
 #include "dra76x.dtsi"
+=======
+#include "am5748.dtsi"
+>>>>>>> upstream/android-13
 #include "dra7-mmc-iodelay.dtsi"
 #include "dra76x-mmc-iodelay.dtsi"
 #include "am572x-idk-common.dtsi"
 
 / {
 	model = "TI AM5748 IDK";
+<<<<<<< HEAD
 	compatible = "ti,am5728-idk", "ti,dra762", "ti,dra7";
+=======
+	compatible = "ti,am5748-idk", "ti,am5748", "ti,dra762", "ti,dra7";
+>>>>>>> upstream/android-13
 };
 
 &qspi {
@@ -35,3 +47,18 @@
 	pinctrl-1 = <&mmc2_pins_default>;
 	pinctrl-2 = <&mmc2_pins_default>;
 };
+<<<<<<< HEAD
+=======
+
+&emif1 {
+	status = "okay";
+};
+
+&pruss1_mdio {
+	status = "disabled";
+};
+
+&pruss2_mdio {
+	status = "disabled";
+};
+>>>>>>> upstream/android-13

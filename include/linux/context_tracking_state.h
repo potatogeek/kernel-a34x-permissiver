@@ -23,6 +23,7 @@ struct context_tracking {
 };
 
 #ifdef CONFIG_CONTEXT_TRACKING
+<<<<<<< HEAD
 extern struct static_key_false context_tracking_enabled;
 DECLARE_PER_CPU(struct context_tracking, context_tracking);
 
@@ -37,14 +38,41 @@ static inline bool context_tracking_cpu_is_enabled(void)
 }
 
 static inline bool context_tracking_in_user(void)
+=======
+extern struct static_key_false context_tracking_key;
+DECLARE_PER_CPU(struct context_tracking, context_tracking);
+
+static __always_inline bool context_tracking_enabled(void)
+{
+	return static_branch_unlikely(&context_tracking_key);
+}
+
+static __always_inline bool context_tracking_enabled_cpu(int cpu)
+{
+	return context_tracking_enabled() && per_cpu(context_tracking.active, cpu);
+}
+
+static inline bool context_tracking_enabled_this_cpu(void)
+{
+	return context_tracking_enabled() && __this_cpu_read(context_tracking.active);
+}
+
+static __always_inline bool context_tracking_in_user(void)
+>>>>>>> upstream/android-13
 {
 	return __this_cpu_read(context_tracking.state) == CONTEXT_USER;
 }
 #else
 static inline bool context_tracking_in_user(void) { return false; }
+<<<<<<< HEAD
 static inline bool context_tracking_active(void) { return false; }
 static inline bool context_tracking_is_enabled(void) { return false; }
 static inline bool context_tracking_cpu_is_enabled(void) { return false; }
+=======
+static inline bool context_tracking_enabled(void) { return false; }
+static inline bool context_tracking_enabled_cpu(int cpu) { return false; }
+static inline bool context_tracking_enabled_this_cpu(void) { return false; }
+>>>>>>> upstream/android-13
 #endif /* CONFIG_CONTEXT_TRACKING */
 
 #endif

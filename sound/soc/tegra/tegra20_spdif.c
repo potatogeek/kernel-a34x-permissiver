@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * tegra20_spdif.c - Tegra20 SPDIF driver
  *
  * Author: Stephen Warren <swarren@nvidia.com>
  * Copyright (C) 2011-2012 - NVIDIA, Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +23,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -38,7 +45,11 @@
 
 #define DRV_NAME "tegra20-spdif"
 
+<<<<<<< HEAD
 static int tegra20_spdif_runtime_suspend(struct device *dev)
+=======
+static __maybe_unused int tegra20_spdif_runtime_suspend(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tegra20_spdif *spdif = dev_get_drvdata(dev);
 
@@ -47,7 +58,11 @@ static int tegra20_spdif_runtime_suspend(struct device *dev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tegra20_spdif_runtime_resume(struct device *dev)
+=======
+static __maybe_unused int tegra20_spdif_runtime_resume(struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct tegra20_spdif *spdif = dev_get_drvdata(dev);
 	int ret;
@@ -283,8 +298,12 @@ static int tegra20_spdif_platform_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	regs = devm_ioremap_resource(&pdev->dev, mem);
+=======
+	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &mem);
+>>>>>>> upstream/android-13
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
 
@@ -308,18 +327,25 @@ static int tegra20_spdif_platform_probe(struct platform_device *pdev)
 	spdif->playback_dma_data.slave_id = dmareq->start;
 
 	pm_runtime_enable(&pdev->dev);
+<<<<<<< HEAD
 	if (!pm_runtime_enabled(&pdev->dev)) {
 		ret = tegra20_spdif_runtime_resume(&pdev->dev);
 		if (ret)
 			goto err_pm_disable;
 	}
+=======
+>>>>>>> upstream/android-13
 
 	ret = snd_soc_register_component(&pdev->dev, &tegra20_spdif_component,
 					 &tegra20_spdif_dai, 1);
 	if (ret) {
 		dev_err(&pdev->dev, "Could not register DAI: %d\n", ret);
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto err_suspend;
+=======
+		goto err_pm_disable;
+>>>>>>> upstream/android-13
 	}
 
 	ret = tegra_pcm_platform_register(&pdev->dev);
@@ -332,9 +358,12 @@ static int tegra20_spdif_platform_probe(struct platform_device *pdev)
 
 err_unregister_component:
 	snd_soc_unregister_component(&pdev->dev);
+<<<<<<< HEAD
 err_suspend:
 	if (!pm_runtime_status_suspended(&pdev->dev))
 		tegra20_spdif_runtime_suspend(&pdev->dev);
+=======
+>>>>>>> upstream/android-13
 err_pm_disable:
 	pm_runtime_disable(&pdev->dev);
 
@@ -343,6 +372,7 @@ err_pm_disable:
 
 static int tegra20_spdif_platform_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	pm_runtime_disable(&pdev->dev);
 	if (!pm_runtime_status_suspended(&pdev->dev))
 		tegra20_spdif_runtime_suspend(&pdev->dev);
@@ -350,6 +380,13 @@ static int tegra20_spdif_platform_remove(struct platform_device *pdev)
 	tegra_pcm_platform_unregister(&pdev->dev);
 	snd_soc_unregister_component(&pdev->dev);
 
+=======
+	tegra_pcm_platform_unregister(&pdev->dev);
+	snd_soc_unregister_component(&pdev->dev);
+
+	pm_runtime_disable(&pdev->dev);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 

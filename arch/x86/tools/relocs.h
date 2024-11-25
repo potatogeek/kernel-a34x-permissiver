@@ -17,6 +17,10 @@
 #include <regex.h>
 #include <tools/le_byteshift.h>
 
+<<<<<<< HEAD
+=======
+__attribute__((__format__(printf, 1, 2)))
+>>>>>>> upstream/android-13
 void die(char *fmt, ...) __attribute__((noreturn));
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

@@ -62,7 +62,12 @@ enum {
 	X25_STATE_1,		/* Awaiting Call Accepted */
 	X25_STATE_2,		/* Awaiting Clear Confirmation */
 	X25_STATE_3,		/* Data Transfer */
+<<<<<<< HEAD
 	X25_STATE_4		/* Awaiting Reset Confirmation */
+=======
+	X25_STATE_4,		/* Awaiting Reset Confirmation */
+	X25_STATE_5		/* Call Accepted / Call Connected pending */
+>>>>>>> upstream/android-13
 };
 
 enum {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2015 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
  *
@@ -5,6 +6,12 @@
  * the terms of the GNU General Public License version 2 as published by the
  * Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014-2015 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
+ *
+>>>>>>> upstream/android-13
  * This is the driver for the imx25 GCQ (Generic Conversion Queue)
  * connected to the imx25 ADC.
  */
@@ -43,6 +50,18 @@ struct mx25_gcq_priv {
 	int irq;
 	struct regulator *vref[4];
 	u32 channel_vref_mv[MX25_NUM_CFGS];
+<<<<<<< HEAD
+=======
+	/*
+	 * Lock to protect the device state during a potential concurrent
+	 * read access from userspace. Reading a raw value requires a sequence
+	 * of register writes, then a wait for a completion callback,
+	 * and finally a register read, during which userspace could issue
+	 * another read request. This lock protects a read access from
+	 * ocurring before another one has finished.
+	 */
+	struct mutex lock;
+>>>>>>> upstream/android-13
 };
 
 #define MX25_CQG_CHAN(chan, id) {\
@@ -140,9 +159,15 @@ static int mx25_gcq_read_raw(struct iio_dev *indio_dev,
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
+<<<<<<< HEAD
 		mutex_lock(&indio_dev->mlock);
 		ret = mx25_gcq_get_raw_value(&indio_dev->dev, chan, priv, val);
 		mutex_unlock(&indio_dev->mlock);
+=======
+		mutex_lock(&priv->lock);
+		ret = mx25_gcq_get_raw_value(&indio_dev->dev, chan, priv, val);
+		mutex_unlock(&priv->lock);
+>>>>>>> upstream/android-13
 		return ret;
 
 	case IIO_CHAN_INFO_SCALE:
@@ -195,11 +220,19 @@ static int mx25_gcq_setup_cfgs(struct platform_device *pdev,
 	 */
 	priv->vref[MX25_ADC_REFP_INT] = NULL;
 	priv->vref[MX25_ADC_REFP_EXT] =
+<<<<<<< HEAD
 		devm_regulator_get_optional(&pdev->dev, "vref-ext");
 	priv->vref[MX25_ADC_REFP_XP] =
 		devm_regulator_get_optional(&pdev->dev, "vref-xp");
 	priv->vref[MX25_ADC_REFP_YP] =
 		devm_regulator_get_optional(&pdev->dev, "vref-yp");
+=======
+		devm_regulator_get_optional(dev, "vref-ext");
+	priv->vref[MX25_ADC_REFP_XP] =
+		devm_regulator_get_optional(dev, "vref-xp");
+	priv->vref[MX25_ADC_REFP_YP] =
+		devm_regulator_get_optional(dev, "vref-yp");
+>>>>>>> upstream/android-13
 
 	for_each_child_of_node(np, child) {
 		u32 reg;
@@ -297,19 +330,30 @@ static int mx25_gcq_probe(struct platform_device *pdev)
 	struct mx25_gcq_priv *priv;
 	struct mx25_tsadc *tsadc = dev_get_drvdata(pdev->dev.parent);
 	struct device *dev = &pdev->dev;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	void __iomem *mem;
 	int ret;
 	int i;
 
+<<<<<<< HEAD
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
+=======
+	indio_dev = devm_iio_device_alloc(dev, sizeof(*priv));
+>>>>>>> upstream/android-13
 	if (!indio_dev)
 		return -ENOMEM;
 
 	priv = iio_priv(indio_dev);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mem = devm_ioremap_resource(dev, res);
+=======
+	mem = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(mem))
 		return PTR_ERR(mem);
 
@@ -319,6 +363,11 @@ static int mx25_gcq_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->regs);
 	}
 
+<<<<<<< HEAD
+=======
+	mutex_init(&priv->lock);
+
+>>>>>>> upstream/android-13
 	init_completion(&priv->completed);
 
 	ret = mx25_gcq_setup_cfgs(pdev, priv);
@@ -341,6 +390,7 @@ static int mx25_gcq_probe(struct platform_device *pdev)
 		goto err_vref_disable;
 	}
 
+<<<<<<< HEAD
 	priv->irq = platform_get_irq(pdev, 0);
 	if (priv->irq <= 0) {
 		dev_err(dev, "Failed to get IRQ\n");
@@ -350,13 +400,23 @@ static int mx25_gcq_probe(struct platform_device *pdev)
 		goto err_clk_unprepare;
 	}
 
+=======
+	ret = platform_get_irq(pdev, 0);
+	if (ret < 0)
+		goto err_clk_unprepare;
+
+	priv->irq = ret;
+>>>>>>> upstream/android-13
 	ret = request_irq(priv->irq, mx25_gcq_irq, 0, pdev->name, priv);
 	if (ret) {
 		dev_err(dev, "Failed requesting IRQ\n");
 		goto err_clk_unprepare;
 	}
 
+<<<<<<< HEAD
 	indio_dev->dev.parent = &pdev->dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->channels = mx25_gcq_channels;
 	indio_dev->num_channels = ARRAY_SIZE(mx25_gcq_channels);
 	indio_dev->info = &mx25_gcq_iio_info;

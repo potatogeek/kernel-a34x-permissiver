@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Aspeed 24XX/25XX I2C Controller.
  *
  *  Copyright (C) 2012-2017 ASPEED Technology Inc.
  *  Copyright 2017 IBM Corporation
  *  Copyright 2017 Google, Inc.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -72,6 +79,10 @@
  * These share bit definitions, so use the same values for the enable &
  * status bits.
  */
+<<<<<<< HEAD
+=======
+#define ASPEED_I2CD_INTR_RECV_MASK			0xf000ffff
+>>>>>>> upstream/android-13
 #define ASPEED_I2CD_INTR_SDA_DL_TIMEOUT			BIT(14)
 #define ASPEED_I2CD_INTR_BUS_RECOVER_DONE		BIT(13)
 #define ASPEED_I2CD_INTR_SLAVE_MATCH			BIT(7)
@@ -82,6 +93,14 @@
 #define ASPEED_I2CD_INTR_RX_DONE			BIT(2)
 #define ASPEED_I2CD_INTR_TX_NAK				BIT(1)
 #define ASPEED_I2CD_INTR_TX_ACK				BIT(0)
+<<<<<<< HEAD
+=======
+#define ASPEED_I2CD_INTR_MASTER_ERRORS					       \
+		(ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |			       \
+		 ASPEED_I2CD_INTR_SCL_TIMEOUT |				       \
+		 ASPEED_I2CD_INTR_ABNORMAL |				       \
+		 ASPEED_I2CD_INTR_ARBIT_LOSS)
+>>>>>>> upstream/android-13
 #define ASPEED_I2CD_INTR_ALL						       \
 		(ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |			       \
 		 ASPEED_I2CD_INTR_BUS_RECOVER_DONE |			       \
@@ -106,12 +125,25 @@
 #define ASPEED_I2CD_S_TX_CMD				BIT(2)
 #define ASPEED_I2CD_M_TX_CMD				BIT(1)
 #define ASPEED_I2CD_M_START_CMD				BIT(0)
+<<<<<<< HEAD
+=======
+#define ASPEED_I2CD_MASTER_CMDS_MASK					       \
+		(ASPEED_I2CD_M_STOP_CMD |				       \
+		 ASPEED_I2CD_M_S_RX_CMD_LAST |				       \
+		 ASPEED_I2CD_M_RX_CMD |					       \
+		 ASPEED_I2CD_M_TX_CMD |					       \
+		 ASPEED_I2CD_M_START_CMD)
+>>>>>>> upstream/android-13
 
 /* 0x18 : I2CD Slave Device Address Register   */
 #define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
 
 enum aspeed_i2c_master_state {
 	ASPEED_I2C_MASTER_INACTIVE,
+<<<<<<< HEAD
+=======
+	ASPEED_I2C_MASTER_PENDING,
+>>>>>>> upstream/android-13
 	ASPEED_I2C_MASTER_START,
 	ASPEED_I2C_MASTER_TX_FIRST,
 	ASPEED_I2C_MASTER_TX,
@@ -121,12 +153,20 @@ enum aspeed_i2c_master_state {
 };
 
 enum aspeed_i2c_slave_state {
+<<<<<<< HEAD
 	ASPEED_I2C_SLAVE_STOP,
+=======
+	ASPEED_I2C_SLAVE_INACTIVE,
+>>>>>>> upstream/android-13
 	ASPEED_I2C_SLAVE_START,
 	ASPEED_I2C_SLAVE_READ_REQUESTED,
 	ASPEED_I2C_SLAVE_READ_PROCESSED,
 	ASPEED_I2C_SLAVE_WRITE_REQUESTED,
 	ASPEED_I2C_SLAVE_WRITE_RECEIVED,
+<<<<<<< HEAD
+=======
+	ASPEED_I2C_SLAVE_STOP,
+>>>>>>> upstream/android-13
 };
 
 struct aspeed_i2c_bus {
@@ -151,6 +191,11 @@ struct aspeed_i2c_bus {
 	int				cmd_err;
 	/* Protected only by i2c_lock_bus */
 	int				master_xfer_result;
+<<<<<<< HEAD
+=======
+	/* Multi-master */
+	bool				multi_master;
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_I2C_SLAVE)
 	struct i2c_client		*slave;
 	enum aspeed_i2c_slave_state	slave_state;
@@ -228,6 +273,7 @@ reset_out:
 }
 
 #if IS_ENABLED(CONFIG_I2C_SLAVE)
+<<<<<<< HEAD
 static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
 {
 	u32 command, irq_status, status_ack = 0;
@@ -246,14 +292,35 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
 	/* Slave was requested, restart state machine. */
 	if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
 		status_ack |= ASPEED_I2CD_INTR_SLAVE_MATCH;
+=======
+static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+{
+	u32 command, irq_handled = 0;
+	struct i2c_client *slave = bus->slave;
+	u8 value;
+
+	if (!slave)
+		return 0;
+
+	command = readl(bus->base + ASPEED_I2C_CMD_REG);
+
+	/* Slave was requested, restart state machine. */
+	if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
+		irq_handled |= ASPEED_I2CD_INTR_SLAVE_MATCH;
+>>>>>>> upstream/android-13
 		bus->slave_state = ASPEED_I2C_SLAVE_START;
 	}
 
 	/* Slave is not currently active, irq was for someone else. */
+<<<<<<< HEAD
 	if (bus->slave_state == ASPEED_I2C_SLAVE_STOP) {
 		irq_handled = false;
 		goto out;
 	}
+=======
+	if (bus->slave_state == ASPEED_I2C_SLAVE_INACTIVE)
+		return irq_handled;
+>>>>>>> upstream/android-13
 
 	dev_dbg(bus->dev, "slave irq status 0x%08x, cmd 0x%08x\n",
 		irq_status, command);
@@ -270,34 +337,62 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
 				bus->slave_state =
 						ASPEED_I2C_SLAVE_WRITE_REQUESTED;
 		}
+<<<<<<< HEAD
 		status_ack |= ASPEED_I2CD_INTR_RX_DONE;
+=======
+		irq_handled |= ASPEED_I2CD_INTR_RX_DONE;
+>>>>>>> upstream/android-13
 	}
 
 	/* Slave was asked to stop. */
 	if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
+<<<<<<< HEAD
 		status_ack |= ASPEED_I2CD_INTR_NORMAL_STOP;
 		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
 	}
 	if (irq_status & ASPEED_I2CD_INTR_TX_NAK) {
 		status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+=======
+		irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
+		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
+	}
+	if (irq_status & ASPEED_I2CD_INTR_TX_NAK &&
+	    bus->slave_state == ASPEED_I2C_SLAVE_READ_PROCESSED) {
+		irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
+>>>>>>> upstream/android-13
 		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
 	}
 
 	switch (bus->slave_state) {
 	case ASPEED_I2C_SLAVE_READ_REQUESTED:
+<<<<<<< HEAD
 		if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
 			dev_err(bus->dev, "Unexpected ACK on read request.\n");
 		bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
 
+=======
+		if (unlikely(irq_status & ASPEED_I2CD_INTR_TX_ACK))
+			dev_err(bus->dev, "Unexpected ACK on read request.\n");
+		bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
+>>>>>>> upstream/android-13
 		i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
 		writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
 		writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
 		break;
 	case ASPEED_I2C_SLAVE_READ_PROCESSED:
+<<<<<<< HEAD
 		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
 		if (!(irq_status & ASPEED_I2CD_INTR_TX_ACK))
 			dev_err(bus->dev,
 				"Expected ACK after processed read.\n");
+=======
+		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
+			dev_err(bus->dev,
+				"Expected ACK after processed read.\n");
+			break;
+		}
+		irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
+>>>>>>> upstream/android-13
 		i2c_slave_event(slave, I2C_SLAVE_READ_PROCESSED, &value);
 		writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
 		writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
@@ -311,6 +406,7 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
 		break;
 	case ASPEED_I2C_SLAVE_STOP:
 		i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
+<<<<<<< HEAD
 		break;
 	default:
 		dev_err(bus->dev, "unhandled slave_state: %d\n",
@@ -325,6 +421,20 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
 	writel(status_ack, bus->base + ASPEED_I2C_INTR_STS_REG);
 
 out:
+=======
+		bus->slave_state = ASPEED_I2C_SLAVE_INACTIVE;
+		break;
+	case ASPEED_I2C_SLAVE_START:
+		/* Slave was just started. Waiting for the next event. */;
+		break;
+	default:
+		dev_err(bus->dev, "unknown slave_state: %d\n",
+			bus->slave_state);
+		bus->slave_state = ASPEED_I2C_SLAVE_INACTIVE;
+		break;
+	}
+
+>>>>>>> upstream/android-13
 	return irq_handled;
 }
 #endif /* CONFIG_I2C_SLAVE */
@@ -336,6 +446,21 @@ static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
 	struct i2c_msg *msg = &bus->msgs[bus->msgs_index];
 	u8 slave_addr = i2c_8bit_addr_from_msg(msg);
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_I2C_SLAVE)
+	/*
+	 * If it's requested in the middle of a slave session, set the master
+	 * state to 'pending' then H/W will continue handling this master
+	 * command when the bus comes back to the idle state.
+	 */
+	if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE) {
+		bus->master_state = ASPEED_I2C_MASTER_PENDING;
+		return;
+	}
+#endif /* CONFIG_I2C_SLAVE */
+
+>>>>>>> upstream/android-13
 	bus->master_state = ASPEED_I2C_MASTER_START;
 	bus->buf_index = 0;
 
@@ -381,13 +506,20 @@ static int aspeed_i2c_is_irq_error(u32 irq_status)
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 {
 	u32 irq_status, status_ack = 0, command = 0;
+=======
+static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+{
+	u32 irq_handled = 0, command = 0;
+>>>>>>> upstream/android-13
 	struct i2c_msg *msg;
 	u8 recv_byte;
 	int ret;
 
+<<<<<<< HEAD
 	irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
 	/* Ack all interrupt bits. */
 	writel(irq_status, bus->base + ASPEED_I2C_INTR_STS_REG);
@@ -395,6 +527,11 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 	if (irq_status & ASPEED_I2CD_INTR_BUS_RECOVER_DONE) {
 		bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
 		status_ack |= ASPEED_I2CD_INTR_BUS_RECOVER_DONE;
+=======
+	if (irq_status & ASPEED_I2CD_INTR_BUS_RECOVER_DONE) {
+		bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+		irq_handled |= ASPEED_I2CD_INTR_BUS_RECOVER_DONE;
+>>>>>>> upstream/android-13
 		goto out_complete;
 	}
 
@@ -404,6 +541,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 	 * INACTIVE state.
 	 */
 	ret = aspeed_i2c_is_irq_error(irq_status);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_dbg(bus->dev, "received error interrupt: 0x%08x\n",
 			irq_status);
@@ -417,6 +555,31 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 		dev_err(bus->dev, "bus in unknown state\n");
 		bus->cmd_err = -EIO;
 		if (bus->master_state != ASPEED_I2C_MASTER_STOP)
+=======
+	if (ret) {
+		dev_dbg(bus->dev, "received error interrupt: 0x%08x\n",
+			irq_status);
+		irq_handled |= (irq_status & ASPEED_I2CD_INTR_MASTER_ERRORS);
+		if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE) {
+			bus->cmd_err = ret;
+			bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+			goto out_complete;
+		}
+	}
+
+	/* Master is not currently active, irq was for someone else. */
+	if (bus->master_state == ASPEED_I2C_MASTER_INACTIVE ||
+	    bus->master_state == ASPEED_I2C_MASTER_PENDING)
+		goto out_no_complete;
+
+	/* We are in an invalid state; reset bus to a known state. */
+	if (!bus->msgs) {
+		dev_err(bus->dev, "bus in unknown state. irq_status: 0x%x\n",
+			irq_status);
+		bus->cmd_err = -EIO;
+		if (bus->master_state != ASPEED_I2C_MASTER_STOP &&
+		    bus->master_state != ASPEED_I2C_MASTER_INACTIVE)
+>>>>>>> upstream/android-13
 			aspeed_i2c_do_stop(bus);
 		goto out_no_complete;
 	}
@@ -428,14 +591,47 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 	 * then update the state and handle the new state below.
 	 */
 	if (bus->master_state == ASPEED_I2C_MASTER_START) {
+<<<<<<< HEAD
 		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
 			pr_devel("no slave present at %02x\n", msg->addr);
 			status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+=======
+#if IS_ENABLED(CONFIG_I2C_SLAVE)
+		/*
+		 * If a peer master starts a xfer immediately after it queues a
+		 * master command, clear the queued master command and change
+		 * its state to 'pending'. To simplify handling of pending
+		 * cases, it uses S/W solution instead of H/W command queue
+		 * handling.
+		 */
+		if (unlikely(irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH)) {
+			writel(readl(bus->base + ASPEED_I2C_CMD_REG) &
+				~ASPEED_I2CD_MASTER_CMDS_MASK,
+			       bus->base + ASPEED_I2C_CMD_REG);
+			bus->master_state = ASPEED_I2C_MASTER_PENDING;
+			dev_dbg(bus->dev,
+				"master goes pending due to a slave start\n");
+			goto out_no_complete;
+		}
+#endif /* CONFIG_I2C_SLAVE */
+		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
+			if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_NAK))) {
+				bus->cmd_err = -ENXIO;
+				bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+				goto out_complete;
+			}
+			pr_devel("no slave present at %02x\n", msg->addr);
+			irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
+>>>>>>> upstream/android-13
 			bus->cmd_err = -ENXIO;
 			aspeed_i2c_do_stop(bus);
 			goto out_no_complete;
 		}
+<<<<<<< HEAD
 		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
+=======
+		irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
+>>>>>>> upstream/android-13
 		if (msg->len == 0) { /* SMBUS_QUICK */
 			aspeed_i2c_do_stop(bus);
 			goto out_no_complete;
@@ -450,14 +646,23 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 	case ASPEED_I2C_MASTER_TX:
 		if (unlikely(irq_status & ASPEED_I2CD_INTR_TX_NAK)) {
 			dev_dbg(bus->dev, "slave NACKed TX\n");
+<<<<<<< HEAD
 			status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+=======
+			irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
+>>>>>>> upstream/android-13
 			goto error_and_stop;
 		} else if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
 			dev_err(bus->dev, "slave failed to ACK TX\n");
 			goto error_and_stop;
 		}
+<<<<<<< HEAD
 		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
 		/* fallthrough intended */
+=======
+		irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASPEED_I2C_MASTER_TX_FIRST:
 		if (bus->buf_index < msg->len) {
 			bus->master_state = ASPEED_I2C_MASTER_TX;
@@ -473,13 +678,21 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 		/* RX may not have completed yet (only address cycle) */
 		if (!(irq_status & ASPEED_I2CD_INTR_RX_DONE))
 			goto out_no_complete;
+<<<<<<< HEAD
 		/* fallthrough intended */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case ASPEED_I2C_MASTER_RX:
 		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_RX_DONE))) {
 			dev_err(bus->dev, "master failed to RX\n");
 			goto error_and_stop;
 		}
+<<<<<<< HEAD
 		status_ack |= ASPEED_I2CD_INTR_RX_DONE;
+=======
+		irq_handled |= ASPEED_I2CD_INTR_RX_DONE;
+>>>>>>> upstream/android-13
 
 		recv_byte = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
 		msg->buf[bus->buf_index++] = recv_byte;
@@ -507,11 +720,21 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 		goto out_no_complete;
 	case ASPEED_I2C_MASTER_STOP:
 		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))) {
+<<<<<<< HEAD
 			dev_err(bus->dev, "master failed to STOP\n");
 			bus->cmd_err = -EIO;
 			/* Do not STOP as we have already tried. */
 		} else {
 			status_ack |= ASPEED_I2CD_INTR_NORMAL_STOP;
+=======
+			dev_err(bus->dev,
+				"master failed to STOP. irq_status:0x%x\n",
+				irq_status);
+			bus->cmd_err = -EIO;
+			/* Do not STOP as we have already tried. */
+		} else {
+			irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
+>>>>>>> upstream/android-13
 		}
 
 		bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
@@ -541,16 +764,21 @@ out_complete:
 		bus->master_xfer_result = bus->msgs_index + 1;
 	complete(&bus->cmd_complete);
 out_no_complete:
+<<<<<<< HEAD
 	if (irq_status != status_ack)
 		dev_err(bus->dev,
 			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
 			irq_status, status_ack);
 	return !!irq_status;
+=======
+	return irq_handled;
+>>>>>>> upstream/android-13
 }
 
 static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
 {
 	struct aspeed_i2c_bus *bus = dev_id;
+<<<<<<< HEAD
 	bool ret;
 
 	spin_lock(&bus->lock);
@@ -570,6 +798,66 @@ out:
 #endif
 	spin_unlock(&bus->lock);
 	return ret ? IRQ_HANDLED : IRQ_NONE;
+=======
+	u32 irq_received, irq_remaining, irq_handled;
+
+	spin_lock(&bus->lock);
+	irq_received = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
+	/* Ack all interrupts except for Rx done */
+	writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
+	       bus->base + ASPEED_I2C_INTR_STS_REG);
+	readl(bus->base + ASPEED_I2C_INTR_STS_REG);
+	irq_received &= ASPEED_I2CD_INTR_RECV_MASK;
+	irq_remaining = irq_received;
+
+#if IS_ENABLED(CONFIG_I2C_SLAVE)
+	/*
+	 * In most cases, interrupt bits will be set one by one, although
+	 * multiple interrupt bits could be set at the same time. It's also
+	 * possible that master interrupt bits could be set along with slave
+	 * interrupt bits. Each case needs to be handled using corresponding
+	 * handlers depending on the current state.
+	 */
+	if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE &&
+	    bus->master_state != ASPEED_I2C_MASTER_PENDING) {
+		irq_handled = aspeed_i2c_master_irq(bus, irq_remaining);
+		irq_remaining &= ~irq_handled;
+		if (irq_remaining)
+			irq_handled |= aspeed_i2c_slave_irq(bus, irq_remaining);
+	} else {
+		irq_handled = aspeed_i2c_slave_irq(bus, irq_remaining);
+		irq_remaining &= ~irq_handled;
+		if (irq_remaining)
+			irq_handled |= aspeed_i2c_master_irq(bus,
+							     irq_remaining);
+	}
+
+	/*
+	 * Start a pending master command at here if a slave operation is
+	 * completed.
+	 */
+	if (bus->master_state == ASPEED_I2C_MASTER_PENDING &&
+	    bus->slave_state == ASPEED_I2C_SLAVE_INACTIVE)
+		aspeed_i2c_do_start(bus);
+#else
+	irq_handled = aspeed_i2c_master_irq(bus, irq_remaining);
+#endif /* CONFIG_I2C_SLAVE */
+
+	irq_remaining &= ~irq_handled;
+	if (irq_remaining)
+		dev_err(bus->dev,
+			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
+			irq_received, irq_handled);
+
+	/* Ack Rx done */
+	if (irq_received & ASPEED_I2CD_INTR_RX_DONE) {
+		writel(ASPEED_I2CD_INTR_RX_DONE,
+		       bus->base + ASPEED_I2C_INTR_STS_REG);
+		readl(bus->base + ASPEED_I2C_INTR_STS_REG);
+	}
+	spin_unlock(&bus->lock);
+	return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
+>>>>>>> upstream/android-13
 }
 
 static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
@@ -577,15 +865,27 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
 {
 	struct aspeed_i2c_bus *bus = i2c_get_adapdata(adap);
 	unsigned long time_left, flags;
+<<<<<<< HEAD
 	int ret = 0;
+=======
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&bus->lock, flags);
 	bus->cmd_err = 0;
 
+<<<<<<< HEAD
 	/* If bus is busy, attempt recovery. We assume a single master
 	 * environment.
 	 */
 	if (readl(bus->base + ASPEED_I2C_CMD_REG) & ASPEED_I2CD_BUS_BUSY_STS) {
+=======
+	/* If bus is busy in a single master environment, attempt recovery. */
+	if (!bus->multi_master &&
+	    (readl(bus->base + ASPEED_I2C_CMD_REG) &
+	     ASPEED_I2CD_BUS_BUSY_STS)) {
+		int ret;
+
+>>>>>>> upstream/android-13
 		spin_unlock_irqrestore(&bus->lock, flags);
 		ret = aspeed_i2c_recover_bus(bus);
 		if (ret)
@@ -605,10 +905,36 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
 	time_left = wait_for_completion_timeout(&bus->cmd_complete,
 						bus->adap.timeout);
 
+<<<<<<< HEAD
 	if (time_left == 0)
 		return -ETIMEDOUT;
 	else
 		return bus->master_xfer_result;
+=======
+	if (time_left == 0) {
+		/*
+		 * If timed out and bus is still busy in a multi master
+		 * environment, attempt recovery at here.
+		 */
+		if (bus->multi_master &&
+		    (readl(bus->base + ASPEED_I2C_CMD_REG) &
+		     ASPEED_I2CD_BUS_BUSY_STS))
+			aspeed_i2c_recover_bus(bus);
+
+		/*
+		 * If timed out and the state is still pending, drop the pending
+		 * master command.
+		 */
+		spin_lock_irqsave(&bus->lock, flags);
+		if (bus->master_state == ASPEED_I2C_MASTER_PENDING)
+			bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+		spin_unlock_irqrestore(&bus->lock, flags);
+
+		return -ETIMEDOUT;
+	}
+
+	return bus->master_xfer_result;
+>>>>>>> upstream/android-13
 }
 
 static u32 aspeed_i2c_functionality(struct i2c_adapter *adap)
@@ -622,10 +948,21 @@ static void __aspeed_i2c_reg_slave(struct aspeed_i2c_bus *bus, u16 slave_addr)
 {
 	u32 addr_reg_val, func_ctrl_reg_val;
 
+<<<<<<< HEAD
 	/* Set slave addr. */
 	addr_reg_val = readl(bus->base + ASPEED_I2C_DEV_ADDR_REG);
 	addr_reg_val &= ~ASPEED_I2CD_DEV_ADDR_MASK;
 	addr_reg_val |= slave_addr & ASPEED_I2CD_DEV_ADDR_MASK;
+=======
+	/*
+	 * Set slave addr.  Reserved bits can all safely be written with zeros
+	 * on all of ast2[456]00, so zero everything else to ensure we only
+	 * enable a single slave address (ast2500 has two, ast2600 has three,
+	 * the enable bits for which are also in this register) so that we don't
+	 * end up with additional phantom devices responding on the bus.
+	 */
+	addr_reg_val = slave_addr & ASPEED_I2CD_DEV_ADDR_MASK;
+>>>>>>> upstream/android-13
 	writel(addr_reg_val, bus->base + ASPEED_I2C_DEV_ADDR_REG);
 
 	/* Turn on slave mode. */
@@ -648,7 +985,11 @@ static int aspeed_i2c_reg_slave(struct i2c_client *client)
 	__aspeed_i2c_reg_slave(bus, client->addr);
 
 	bus->slave = client;
+<<<<<<< HEAD
 	bus->slave_state = ASPEED_I2C_SLAVE_STOP;
+=======
+	bus->slave_state = ASPEED_I2C_SLAVE_INACTIVE;
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&bus->lock, flags);
 
 	return 0;
@@ -803,7 +1144,13 @@ static int aspeed_i2c_init(struct aspeed_i2c_bus *bus,
 	if (ret < 0)
 		return ret;
 
+<<<<<<< HEAD
 	if (!of_property_read_bool(pdev->dev.of_node, "multi-master"))
+=======
+	if (of_property_read_bool(pdev->dev.of_node, "multi-master"))
+		bus->multi_master = true;
+	else
+>>>>>>> upstream/android-13
 		fun_ctrl_reg |= ASPEED_I2CD_MULTI_MASTER_DIS;
 
 	/* Enable Master Mode */
@@ -850,6 +1197,13 @@ static const struct of_device_id aspeed_i2c_bus_of_table[] = {
 		.compatible = "aspeed,ast2500-i2c-bus",
 		.data = aspeed_i2c_25xx_get_clk_reg_val,
 	},
+<<<<<<< HEAD
+=======
+	{
+		.compatible = "aspeed,ast2600-i2c-bus",
+		.data = aspeed_i2c_25xx_get_clk_reg_val,
+	},
+>>>>>>> upstream/android-13
 	{ },
 };
 MODULE_DEVICE_TABLE(of, aspeed_i2c_bus_of_table);
@@ -891,7 +1245,11 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
 	if (ret < 0) {
 		dev_err(&pdev->dev,
 			"Could not read bus-frequency property\n");
+<<<<<<< HEAD
 		bus->bus_frequency = 100000;
+=======
+		bus->bus_frequency = I2C_MAX_STANDARD_MODE_FREQ;
+>>>>>>> upstream/android-13
 	}
 
 	match = of_match_node(aspeed_i2c_bus_of_table, pdev->dev.of_node);
@@ -906,7 +1264,10 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
 	init_completion(&bus->cmd_complete);
 	bus->adap.owner = THIS_MODULE;
 	bus->adap.retries = 0;
+<<<<<<< HEAD
 	bus->adap.timeout = 5 * HZ;
+=======
+>>>>>>> upstream/android-13
 	bus->adap.algo = &aspeed_i2c_algo;
 	bus->adap.dev.parent = &pdev->dev;
 	bus->adap.dev.of_node = pdev->dev.of_node;

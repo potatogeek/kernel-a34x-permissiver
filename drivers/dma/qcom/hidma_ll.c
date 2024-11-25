@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Qualcomm Technologies HIDMA DMA engine low level code
  *
  * Copyright (c) 2015-2016, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/dmaengine.h>
@@ -181,9 +188,15 @@ int hidma_ll_request(struct hidma_lldev *lldev, u32 sig, const char *dev_name,
 /*
  * Multiple TREs may be queued and waiting in the pending queue.
  */
+<<<<<<< HEAD
 static void hidma_ll_tre_complete(unsigned long arg)
 {
 	struct hidma_lldev *lldev = (struct hidma_lldev *)arg;
+=======
+static void hidma_ll_tre_complete(struct tasklet_struct *t)
+{
+	struct hidma_lldev *lldev = from_tasklet(lldev, t, task);
+>>>>>>> upstream/android-13
 	struct hidma_tre *tre;
 
 	while (kfifo_out(&lldev->handoff_fifo, &tre, 1)) {
@@ -757,7 +770,10 @@ struct hidma_lldev *hidma_ll_init(struct device *dev, u32 nr_tres,
 	if (!lldev->tre_ring)
 		return NULL;
 
+<<<<<<< HEAD
 	memset(lldev->tre_ring, 0, (HIDMA_TRE_SIZE + 1) * nr_tres);
+=======
+>>>>>>> upstream/android-13
 	lldev->tre_ring_size = HIDMA_TRE_SIZE * nr_tres;
 	lldev->nr_tres = nr_tres;
 
@@ -777,7 +793,10 @@ struct hidma_lldev *hidma_ll_init(struct device *dev, u32 nr_tres,
 	if (!lldev->evre_ring)
 		return NULL;
 
+<<<<<<< HEAD
 	memset(lldev->evre_ring, 0, (HIDMA_EVRE_SIZE + 1) * nr_tres);
+=======
+>>>>>>> upstream/android-13
 	lldev->evre_ring_size = HIDMA_EVRE_SIZE * nr_tres;
 
 	/* the EVRE ring has to be EVRE_SIZE aligned */
@@ -802,7 +821,11 @@ struct hidma_lldev *hidma_ll_init(struct device *dev, u32 nr_tres,
 		return NULL;
 
 	spin_lock_init(&lldev->lock);
+<<<<<<< HEAD
 	tasklet_init(&lldev->task, hidma_ll_tre_complete, (unsigned long)lldev);
+=======
+	tasklet_setup(&lldev->task, hidma_ll_tre_complete);
+>>>>>>> upstream/android-13
 	lldev->initialized = 1;
 	writel(ENABLE_IRQS, lldev->evca + HIDMA_EVCA_IRQ_EN_REG);
 	return lldev;

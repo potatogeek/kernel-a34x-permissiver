@@ -36,6 +36,10 @@
 #include <linux/mlx5/cq.h>
 #include <linux/mlx5/driver.h>
 #include "mlx5_core.h"
+<<<<<<< HEAD
+=======
+#include "lib/eq.h"
+>>>>>>> upstream/android-13
 
 enum {
 	QP_PID,
@@ -91,8 +95,11 @@ EXPORT_SYMBOL(mlx5_debugfs_root);
 void mlx5_register_debugfs(void)
 {
 	mlx5_debugfs_root = debugfs_create_dir("mlx5", NULL);
+<<<<<<< HEAD
 	if (IS_ERR_OR_NULL(mlx5_debugfs_root))
 		mlx5_debugfs_root = NULL;
+=======
+>>>>>>> upstream/android-13
 }
 
 void mlx5_unregister_debugfs(void)
@@ -100,6 +107,7 @@ void mlx5_unregister_debugfs(void)
 	debugfs_remove(mlx5_debugfs_root);
 }
 
+<<<<<<< HEAD
 int mlx5_qp_debugfs_init(struct mlx5_core_dev *dev)
 {
 	if (!mlx5_debugfs_root)
@@ -132,13 +140,33 @@ int mlx5_eq_debugfs_init(struct mlx5_core_dev *dev)
 		return -ENOMEM;
 
 	return 0;
+=======
+void mlx5_qp_debugfs_init(struct mlx5_core_dev *dev)
+{
+	dev->priv.qp_debugfs = debugfs_create_dir("QPs",  dev->priv.dbg_root);
+}
+EXPORT_SYMBOL(mlx5_qp_debugfs_init);
+
+void mlx5_qp_debugfs_cleanup(struct mlx5_core_dev *dev)
+{
+	debugfs_remove_recursive(dev->priv.qp_debugfs);
+}
+EXPORT_SYMBOL(mlx5_qp_debugfs_cleanup);
+
+void mlx5_eq_debugfs_init(struct mlx5_core_dev *dev)
+{
+	dev->priv.eq_debugfs = debugfs_create_dir("EQs",  dev->priv.dbg_root);
+>>>>>>> upstream/android-13
 }
 
 void mlx5_eq_debugfs_cleanup(struct mlx5_core_dev *dev)
 {
+<<<<<<< HEAD
 	if (!mlx5_debugfs_root)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	debugfs_remove_recursive(dev->priv.eq_debugfs);
 }
 
@@ -182,11 +210,16 @@ static const struct file_operations stats_fops = {
 	.write	= average_write,
 };
 
+<<<<<<< HEAD
 int mlx5_cmdif_debugfs_init(struct mlx5_core_dev *dev)
+=======
+void mlx5_cmdif_debugfs_init(struct mlx5_core_dev *dev)
+>>>>>>> upstream/android-13
 {
 	struct mlx5_cmd_stats *stats;
 	struct dentry **cmd;
 	const char *namep;
+<<<<<<< HEAD
 	int err;
 	int i;
 
@@ -199,10 +232,19 @@ int mlx5_cmdif_debugfs_init(struct mlx5_core_dev *dev)
 		return -ENOMEM;
 
 	for (i = 0; i < ARRAY_SIZE(dev->cmd.stats); i++) {
+=======
+	int i;
+
+	cmd = &dev->priv.cmdif_debugfs;
+	*cmd = debugfs_create_dir("commands", dev->priv.dbg_root);
+
+	for (i = 0; i < MLX5_CMD_OP_MAX; i++) {
+>>>>>>> upstream/android-13
 		stats = &dev->cmd.stats[i];
 		namep = mlx5_command_str(i);
 		if (strcmp(namep, "unknown command opcode")) {
 			stats->root = debugfs_create_dir(namep, *cmd);
+<<<<<<< HEAD
 			if (!stats->root) {
 				mlx5_core_warn(dev, "failed adding command %d\n",
 					       i);
@@ -234,10 +276,19 @@ int mlx5_cmdif_debugfs_init(struct mlx5_core_dev *dev)
 out:
 	debugfs_remove_recursive(dev->priv.cmdif_debugfs);
 	return err;
+=======
+
+			debugfs_create_file("average", 0400, stats->root, stats,
+					    &stats_fops);
+			debugfs_create_u64("n", 0400, stats->root, &stats->n);
+		}
+	}
+>>>>>>> upstream/android-13
 }
 
 void mlx5_cmdif_debugfs_cleanup(struct mlx5_core_dev *dev)
 {
+<<<<<<< HEAD
 	if (!mlx5_debugfs_root)
 		return;
 
@@ -254,13 +305,24 @@ int mlx5_cq_debugfs_init(struct mlx5_core_dev *dev)
 		return -ENOMEM;
 
 	return 0;
+=======
+	debugfs_remove_recursive(dev->priv.cmdif_debugfs);
+}
+
+void mlx5_cq_debugfs_init(struct mlx5_core_dev *dev)
+{
+	dev->priv.cq_debugfs = debugfs_create_dir("CQs",  dev->priv.dbg_root);
+>>>>>>> upstream/android-13
 }
 
 void mlx5_cq_debugfs_cleanup(struct mlx5_core_dev *dev)
 {
+<<<<<<< HEAD
 	if (!mlx5_debugfs_root)
 		return;
 
+=======
+>>>>>>> upstream/android-13
 	debugfs_remove_recursive(dev->priv.cq_debugfs);
 }
 
@@ -268,6 +330,7 @@ static u64 qp_read_field(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp,
 			 int index, int *is_str)
 {
 	int outlen = MLX5_ST_SZ_BYTES(query_qp_out);
+<<<<<<< HEAD
 	struct mlx5_qp_context *ctx;
 	u64 param = 0;
 	u32 *out;
@@ -289,11 +352,34 @@ static u64 qp_read_field(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp,
 	/* FIXME: use MLX5_GET rather than mlx5_qp_context manual struct */
 	ctx = (struct mlx5_qp_context *)MLX5_ADDR_OF(query_qp_out, out, qpc);
 
+=======
+	u32 in[MLX5_ST_SZ_DW(query_qp_in)] = {};
+	u64 param = 0;
+	u32 *out;
+	int state;
+	u32 *qpc;
+	int err;
+
+	out = kzalloc(outlen, GFP_KERNEL);
+	if (!out)
+		return 0;
+
+	MLX5_SET(query_qp_in, in, opcode, MLX5_CMD_OP_QUERY_QP);
+	MLX5_SET(query_qp_in, in, qpn, qp->qpn);
+	err = mlx5_cmd_exec_inout(dev, query_qp, in, out);
+	if (err)
+		goto out;
+
+	*is_str = 0;
+
+	qpc = MLX5_ADDR_OF(query_qp_out, out, qpc);
+>>>>>>> upstream/android-13
 	switch (index) {
 	case QP_PID:
 		param = qp->pid;
 		break;
 	case QP_STATE:
+<<<<<<< HEAD
 		param = (unsigned long)mlx5_qp_state_str(be32_to_cpu(ctx->flags) >> 28);
 		*is_str = 1;
 		break;
@@ -303,6 +389,18 @@ static u64 qp_read_field(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp,
 		break;
 	case QP_MTU:
 		switch (ctx->mtu_msgmax >> 5) {
+=======
+		state = MLX5_GET(qpc, qpc, state);
+		param = (unsigned long)mlx5_qp_state_str(state);
+		*is_str = 1;
+		break;
+	case QP_XPORT:
+		param = (unsigned long)mlx5_qp_type_str(MLX5_GET(qpc, qpc, st));
+		*is_str = 1;
+		break;
+	case QP_MTU:
+		switch (MLX5_GET(qpc, qpc, mtu)) {
+>>>>>>> upstream/android-13
 		case IB_MTU_256:
 			param = 256;
 			break;
@@ -323,6 +421,7 @@ static u64 qp_read_field(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp,
 		}
 		break;
 	case QP_N_RECV:
+<<<<<<< HEAD
 		param = 1 << ((ctx->rq_size_stride >> 3) & 0xf);
 		break;
 	case QP_RECV_SZ:
@@ -344,6 +443,24 @@ static u64 qp_read_field(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp,
 		break;
 	}
 
+=======
+		param = 1 << MLX5_GET(qpc, qpc, log_rq_size);
+		break;
+	case QP_RECV_SZ:
+		param = 1 << (MLX5_GET(qpc, qpc, log_rq_stride) + 4);
+		break;
+	case QP_N_SEND:
+		if (!MLX5_GET(qpc, qpc, no_sq))
+			param = 1 << MLX5_GET(qpc, qpc, log_sq_size);
+		break;
+	case QP_LOG_PG_SZ:
+		param = MLX5_GET(qpc, qpc, log_page_size) + 12;
+		break;
+	case QP_RQPN:
+		param = MLX5_GET(qpc, qpc, remote_qpn);
+		break;
+	}
+>>>>>>> upstream/android-13
 out:
 	kfree(out);
 	return param;
@@ -353,6 +470,10 @@ static u64 eq_read_field(struct mlx5_core_dev *dev, struct mlx5_eq *eq,
 			 int index)
 {
 	int outlen = MLX5_ST_SZ_BYTES(query_eq_out);
+<<<<<<< HEAD
+=======
+	u32 in[MLX5_ST_SZ_DW(query_eq_in)] = {};
+>>>>>>> upstream/android-13
 	u64 param = 0;
 	void *ctx;
 	u32 *out;
@@ -362,7 +483,13 @@ static u64 eq_read_field(struct mlx5_core_dev *dev, struct mlx5_eq *eq,
 	if (!out)
 		return param;
 
+<<<<<<< HEAD
 	err = mlx5_core_eq_query(dev, eq, out, outlen);
+=======
+	MLX5_SET(query_eq_in, in, opcode, MLX5_CMD_OP_QUERY_EQ);
+	MLX5_SET(query_eq_in, in, eq_number, eq->eqn);
+	err = mlx5_cmd_exec_inout(dev, query_eq, in, out);
+>>>>>>> upstream/android-13
 	if (err) {
 		mlx5_core_warn(dev, "failed to query eq\n");
 		goto out;
@@ -399,7 +526,11 @@ static u64 cq_read_field(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq,
 	if (!out)
 		return param;
 
+<<<<<<< HEAD
 	err = mlx5_core_query_cq(dev, cq, out, outlen);
+=======
+	err = mlx5_core_query_cq(dev, cq, out);
+>>>>>>> upstream/android-13
 	if (err) {
 		mlx5_core_warn(dev, "failed to query cq\n");
 		goto out;
@@ -473,7 +604,10 @@ static int add_res_tree(struct mlx5_core_dev *dev, enum dbg_rsc_type type,
 {
 	struct mlx5_rsc_debug *d;
 	char resn[32];
+<<<<<<< HEAD
 	int err;
+=======
+>>>>>>> upstream/android-13
 	int i;
 
 	d = kzalloc(struct_size(d, fields, nfile), GFP_KERNEL);
@@ -485,6 +619,7 @@ static int add_res_tree(struct mlx5_core_dev *dev, enum dbg_rsc_type type,
 	d->type = type;
 	sprintf(resn, "0x%x", rsn);
 	d->root = debugfs_create_dir(resn,  root);
+<<<<<<< HEAD
 	if (!d->root) {
 		err = -ENOMEM;
 		goto out_free;
@@ -499,16 +634,26 @@ static int add_res_tree(struct mlx5_core_dev *dev, enum dbg_rsc_type type,
 			err = -ENOMEM;
 			goto out_rem;
 		}
+=======
+
+	for (i = 0; i < nfile; i++) {
+		d->fields[i].i = i;
+		debugfs_create_file(field[i], 0400, d->root, &d->fields[i],
+				    &fops);
+>>>>>>> upstream/android-13
 	}
 	*dbg = d;
 
 	return 0;
+<<<<<<< HEAD
 out_rem:
 	debugfs_remove_recursive(d->root);
 
 out_free:
 	kfree(d);
 	return err;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void rem_res_tree(struct mlx5_rsc_debug *d)
@@ -532,6 +677,10 @@ int mlx5_debug_qp_add(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp)
 
 	return err;
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(mlx5_debug_qp_add);
+>>>>>>> upstream/android-13
 
 void mlx5_debug_qp_remove(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp)
 {
@@ -541,6 +690,10 @@ void mlx5_debug_qp_remove(struct mlx5_core_dev *dev, struct mlx5_core_qp *qp)
 	if (qp->dbg)
 		rem_res_tree(qp->dbg);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(mlx5_debug_qp_remove);
+>>>>>>> upstream/android-13
 
 int mlx5_debug_eq_add(struct mlx5_core_dev *dev, struct mlx5_eq *eq)
 {
@@ -588,6 +741,13 @@ void mlx5_debug_cq_remove(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq)
 	if (!mlx5_debugfs_root)
 		return;
 
+<<<<<<< HEAD
 	if (cq->dbg)
 		rem_res_tree(cq->dbg);
+=======
+	if (cq->dbg) {
+		rem_res_tree(cq->dbg);
+		cq->dbg = NULL;
+	}
+>>>>>>> upstream/android-13
 }

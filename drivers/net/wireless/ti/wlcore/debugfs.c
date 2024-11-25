@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of wl1271
  *
  * Copyright (C) 2009 Nokia Corporation
  *
  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +24,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "debugfs.h"
@@ -136,6 +143,7 @@ static void chip_op_handler(struct wl1271 *wl, unsigned long value,
 	pm_runtime_put_autosuspend(wl->dev);
 }
 
+<<<<<<< HEAD
 
 static inline void no_write_handler(struct wl1271 *wl,
 				    unsigned long value,
@@ -143,6 +151,8 @@ static inline void no_write_handler(struct wl1271 *wl,
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 #define WL12XX_CONF_DEBUGFS(param, conf_sub_struct,			\
 			    min_val, max_val, write_handler_locked,	\
 			    write_handler_arg)				\
@@ -1301,11 +1311,18 @@ static const struct file_operations fw_logger_ops = {
 	.llseek = default_llseek,
 };
 
+<<<<<<< HEAD
 static int wl1271_debugfs_add_files(struct wl1271 *wl,
 				    struct dentry *rootdir)
 {
 	int ret = 0;
 	struct dentry *entry, *streaming;
+=======
+static void wl1271_debugfs_add_files(struct wl1271 *wl,
+				     struct dentry *rootdir)
+{
+	struct dentry *streaming;
+>>>>>>> upstream/android-13
 
 	DEBUGFS_ADD(tx_queue_len, rootdir);
 	DEBUGFS_ADD(retry_count, rootdir);
@@ -1330,13 +1347,17 @@ static int wl1271_debugfs_add_files(struct wl1271 *wl,
 	DEBUGFS_ADD(fw_logger, rootdir);
 
 	streaming = debugfs_create_dir("rx_streaming", rootdir);
+<<<<<<< HEAD
 	if (!streaming || IS_ERR(streaming))
 		goto err;
+=======
+>>>>>>> upstream/android-13
 
 	DEBUGFS_ADD_PREFIX(rx_streaming, interval, streaming);
 	DEBUGFS_ADD_PREFIX(rx_streaming, always, streaming);
 
 	DEBUGFS_ADD_PREFIX(dev, mem, rootdir);
+<<<<<<< HEAD
 
 	return 0;
 
@@ -1347,6 +1368,8 @@ err:
 		ret = -ENOMEM;
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 void wl1271_debugfs_reset(struct wl1271 *wl)
@@ -1367,11 +1390,14 @@ int wl1271_debugfs_init(struct wl1271 *wl)
 	rootdir = debugfs_create_dir(KBUILD_MODNAME,
 				     wl->hw->wiphy->debugfsdir);
 
+<<<<<<< HEAD
 	if (IS_ERR(rootdir)) {
 		ret = PTR_ERR(rootdir);
 		goto out;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	wl->stats.fw_stats = kzalloc(wl->stats.fw_stats_len, GFP_KERNEL);
 	if (!wl->stats.fw_stats) {
 		ret = -ENOMEM;
@@ -1380,9 +1406,13 @@ int wl1271_debugfs_init(struct wl1271 *wl)
 
 	wl->stats.fw_stats_update = jiffies;
 
+<<<<<<< HEAD
 	ret = wl1271_debugfs_add_files(wl, rootdir);
 	if (ret < 0)
 		goto out_exit;
+=======
+	wl1271_debugfs_add_files(wl, rootdir);
+>>>>>>> upstream/android-13
 
 	ret = wlcore_debugfs_init(wl, rootdir);
 	if (ret < 0)

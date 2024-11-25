@@ -45,7 +45,11 @@ echo "raw vnet hdr"
 echo "raw csum_off"
 ./in_netns.sh ./psock_snd -v -c
 
+<<<<<<< HEAD
 echo "raw csum_off with bad offset (fails)"
+=======
+echo "raw csum_off with bad offset (expected to fail)"
+>>>>>>> upstream/android-13
 (! ./in_netns.sh ./psock_snd -v -c -C)
 
 
@@ -57,7 +61,11 @@ echo "raw min size"
 echo "raw mtu size"
 ./in_netns.sh ./psock_snd -l "${mss}"
 
+<<<<<<< HEAD
 echo "raw mtu size + 1 (fails)"
+=======
+echo "raw mtu size + 1 (expected to fail)"
+>>>>>>> upstream/android-13
 (! ./in_netns.sh ./psock_snd -l "${mss_exceeds}")
 
 # fails due to ARPHRD_ETHER check in packet_extra_vlan_len_allowed
@@ -65,12 +73,17 @@ echo "raw mtu size + 1 (fails)"
 # echo "raw vlan mtu size"
 # ./in_netns.sh ./psock_snd -V -l "${mss}"
 
+<<<<<<< HEAD
 echo "raw vlan mtu size + 1 (fails)"
+=======
+echo "raw vlan mtu size + 1 (expected to fail)"
+>>>>>>> upstream/android-13
 (! ./in_netns.sh ./psock_snd -V -l "${mss_exceeds}")
 
 echo "dgram mtu size"
 ./in_netns.sh ./psock_snd -d -l "${mss}"
 
+<<<<<<< HEAD
 echo "dgram mtu size + 1 (fails)"
 (! ./in_netns.sh ./psock_snd -d -l "${mss_exceeds}")
 
@@ -78,6 +91,15 @@ echo "raw truncate hlen (fails: does not arrive)"
 (! ./in_netns.sh ./psock_snd -t "$((${vnet_hlen} + ${eth_hlen}))")
 
 echo "raw truncate hlen - 1 (fails: EINVAL)"
+=======
+echo "dgram mtu size + 1 (expected to fail)"
+(! ./in_netns.sh ./psock_snd -d -l "${mss_exceeds}")
+
+echo "raw truncate hlen (expected to fail: does not arrive)"
+(! ./in_netns.sh ./psock_snd -t "$((${vnet_hlen} + ${eth_hlen}))")
+
+echo "raw truncate hlen - 1 (expected to fail: EINVAL)"
+>>>>>>> upstream/android-13
 (! ./in_netns.sh ./psock_snd -t "$((${vnet_hlen} + ${eth_hlen} - 1))")
 
 
@@ -86,6 +108,7 @@ echo "raw truncate hlen - 1 (fails: EINVAL)"
 echo "raw gso min size"
 ./in_netns.sh ./psock_snd -v -c -g -l "${mss_exceeds}"
 
+<<<<<<< HEAD
 echo "raw gso min size - 1 (fails)"
 (! ./in_netns.sh ./psock_snd -v -c -g -l "${mss}")
 
@@ -93,6 +116,12 @@ echo "raw gso max size"
 ./in_netns.sh ./psock_snd -v -c -g -l "${max_mss}"
 
 echo "raw gso max size + 1 (fails)"
+=======
+echo "raw gso max size"
+./in_netns.sh ./psock_snd -v -c -g -l "${max_mss}"
+
+echo "raw gso max size + 1 (expected to fail)"
+>>>>>>> upstream/android-13
 (! ./in_netns.sh ./psock_snd -v -c -g -l "${max_mss_exceeds}")
 
 echo "OK. All tests passed"

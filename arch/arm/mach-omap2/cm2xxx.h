@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP2xxx Clock Management (CM) register definitions
  *
@@ -5,10 +9,13 @@
  * Copyright (C) 2007-2010 Nokia Corporation
  * Paul Walmsley
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * The CM hardware modules on the OMAP2/3 are quite similar to each
  * other.  The CM modules/instances on OMAP4 are quite different, so
  * they are handled in a separate file.

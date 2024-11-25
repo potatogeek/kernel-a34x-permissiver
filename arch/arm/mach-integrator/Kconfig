@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 menuconfig ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
 	depends on ARCH_MULTI_V4T || ARCH_MULTI_V5 || ARCH_MULTI_V6
 	select ARM_AMBA
+<<<<<<< HEAD
 	select COMMON_CLK_VERSATILE
+=======
+>>>>>>> upstream/android-13
 	select CMA
 	select DMA_CMA
 	select HAVE_TCM
@@ -13,7 +20,10 @@ menuconfig ARCH_INTEGRATOR
 	select POWER_RESET_VERSATILE
 	select POWER_SUPPLY
 	select SOC_INTEGRATOR_CM
+<<<<<<< HEAD
 	select SPARSE_IRQ
+=======
+>>>>>>> upstream/android-13
 	select VERSATILE_FPGA_IRQ
 	help
 	  Support for ARM's Integrator platform.

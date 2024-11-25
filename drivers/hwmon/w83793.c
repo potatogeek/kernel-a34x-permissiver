@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * w83793.c - Linux kernel driver for hardware monitoring
  * Copyright (C) 2006 Winbond Electronics Corp.
@@ -7,6 +11,7 @@
  *		Watchdog driver part
  *		(Based partially on fschmd driver,
  *		 Copyright 2007-2008 by Hans de Goede)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +26,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -215,7 +222,10 @@ static inline s8 TEMP_TO_REG(long val, s8 min, s8 max)
 }
 
 struct w83793_data {
+<<<<<<< HEAD
 	struct i2c_client *lm75[2];
+=======
+>>>>>>> upstream/android-13
 	struct device *hwmon_dev;
 	struct mutex update_lock;
 	char valid;			/* !=0 if following fields are valid */
@@ -296,8 +306,12 @@ static void w83793_release_resources(struct kref *ref)
 
 static u8 w83793_read_value(struct i2c_client *client, u16 reg);
 static int w83793_write_value(struct i2c_client *client, u16 reg, u8 value);
+<<<<<<< HEAD
 static int w83793_probe(struct i2c_client *client,
 			const struct i2c_device_id *id);
+=======
+static int w83793_probe(struct i2c_client *client);
+>>>>>>> upstream/android-13
 static int w83793_detect(struct i2c_client *client,
 			 struct i2c_board_info *info);
 static int w83793_remove(struct i2c_client *client);
@@ -316,7 +330,11 @@ static struct i2c_driver w83793_driver = {
 	.driver = {
 		   .name = "w83793",
 	},
+<<<<<<< HEAD
 	.probe		= w83793_probe,
+=======
+	.probe_new	= w83793_probe,
+>>>>>>> upstream/android-13
 	.remove		= w83793_remove,
 	.id_table	= w83793_id,
 	.detect		= w83793_detect,
@@ -1341,7 +1359,11 @@ static int watchdog_open(struct inode *inode, struct file *filp)
 	/* Store pointer to data into filp's private data */
 	filp->private_data = data;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, filp);
+=======
+	return stream_open(inode, filp);
+>>>>>>> upstream/android-13
 }
 
 static int watchdog_close(struct inode *inode, struct file *filp)
@@ -1471,6 +1493,10 @@ static const struct file_operations watchdog_fops = {
 	.release = watchdog_close,
 	.write = watchdog_write,
 	.unlocked_ioctl = watchdog_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -1564,9 +1590,12 @@ static int w83793_remove(struct i2c_client *client)
 	for (i = 0; i < ARRAY_SIZE(w83793_temp); i++)
 		device_remove_file(dev, &w83793_temp[i].dev_attr);
 
+<<<<<<< HEAD
 	i2c_unregister_device(data->lm75[0]);
 	i2c_unregister_device(data->lm75[1]);
 
+=======
+>>>>>>> upstream/android-13
 	/* Decrease data reference counter */
 	mutex_lock(&watchdog_data_mutex);
 	kref_put(&data->kref, w83793_release_resources);
@@ -1578,11 +1607,18 @@ static int w83793_remove(struct i2c_client *client)
 static int
 w83793_detect_subclients(struct i2c_client *client)
 {
+<<<<<<< HEAD
 	int i, id, err;
 	int address = client->addr;
 	u8 tmp;
 	struct i2c_adapter *adapter = client->adapter;
 	struct w83793_data *data = i2c_get_clientdata(client);
+=======
+	int i, id;
+	int address = client->addr;
+	u8 tmp;
+	struct i2c_adapter *adapter = client->adapter;
+>>>>>>> upstream/android-13
 
 	id = i2c_adapter_id(adapter);
 	if (force_subclients[0] == id && force_subclients[1] == address) {
@@ -1593,8 +1629,12 @@ w83793_detect_subclients(struct i2c_client *client)
 					"invalid subclient "
 					"address %d; must be 0x48-0x4f\n",
 					force_subclients[i]);
+<<<<<<< HEAD
 				err = -EINVAL;
 				goto ERROR_SC_0;
+=======
+				return -EINVAL;
+>>>>>>> upstream/android-13
 			}
 		}
 		w83793_write_value(client, W83793_REG_I2C_SUBADDR,
@@ -1603,6 +1643,7 @@ w83793_detect_subclients(struct i2c_client *client)
 	}
 
 	tmp = w83793_read_value(client, W83793_REG_I2C_SUBADDR);
+<<<<<<< HEAD
 	if (!(tmp & 0x08))
 		data->lm75[0] = i2c_new_dummy(adapter, 0x48 + (tmp & 0x7));
 	if (!(tmp & 0x80)) {
@@ -1626,6 +1667,22 @@ ERROR_SC_1:
 	i2c_unregister_device(data->lm75[0]);
 ERROR_SC_0:
 	return err;
+=======
+
+	if (!(tmp & 0x88) && (tmp & 0x7) == ((tmp >> 4) & 0x7)) {
+		dev_err(&client->dev,
+			"duplicate addresses 0x%x, use force_subclient\n", 0x48 + (tmp & 0x7));
+		return -ENODEV;
+	}
+
+	if (!(tmp & 0x08))
+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + (tmp & 0x7));
+
+	if (!(tmp & 0x80))
+		devm_i2c_new_dummy_device(&client->dev, adapter, 0x48 + ((tmp >> 4) & 0x7));
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* Return 0 if detection is successful, -ENODEV otherwise */
@@ -1669,8 +1726,12 @@ static int w83793_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int w83793_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int w83793_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	static const int watchdog_minors[] = {
@@ -1958,9 +2019,12 @@ exit_remove:
 
 	for (i = 0; i < ARRAY_SIZE(w83793_temp); i++)
 		device_remove_file(dev, &w83793_temp[i].dev_attr);
+<<<<<<< HEAD
 
 	i2c_unregister_device(data->lm75[0]);
 	i2c_unregister_device(data->lm75[1]);
+=======
+>>>>>>> upstream/android-13
 free_mem:
 	kfree(data);
 exit:
@@ -2123,7 +2187,11 @@ END:
 static u8 w83793_read_value(struct i2c_client *client, u16 reg)
 {
 	struct w83793_data *data = i2c_get_clientdata(client);
+<<<<<<< HEAD
 	u8 res = 0xff;
+=======
+	u8 res;
+>>>>>>> upstream/android-13
 	u8 new_bank = reg >> 8;
 
 	new_bank |= data->bank & 0xfc;

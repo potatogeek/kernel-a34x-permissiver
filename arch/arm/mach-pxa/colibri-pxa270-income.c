@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/arch/arm/mach-pxa/income.c
  *
@@ -6,15 +10,22 @@
  * Copyright (C) 2010
  * Marek Vasut <marek.vasut@gmail.com>
  * Pavel Revak <palo@bielyvlk.sk>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bitops.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+#include <linux/gpio/machine.h>
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/leds.h>
@@ -51,6 +62,7 @@
 #if defined(CONFIG_MMC_PXA) || defined(CONFIG_MMC_PXA_MODULE)
 static struct pxamci_platform_data income_mci_platform_data = {
 	.ocr_mask		= MMC_VDD_32_33 | MMC_VDD_33_34,
+<<<<<<< HEAD
 	.gpio_power		= -1,
 	.gpio_card_detect	= GPIO0_INCOME_SD_DETECT,
 	.gpio_card_ro		= GPIO0_INCOME_SD_RO,
@@ -59,6 +71,27 @@ static struct pxamci_platform_data income_mci_platform_data = {
 
 static void __init income_mmc_init(void)
 {
+=======
+	.detect_delay_ms	= 200,
+};
+
+static struct gpiod_lookup_table income_mci_gpio_table = {
+	.dev_id = "pxa2xx-mci.0",
+	.table = {
+		/* Card detect on GPIO 0 */
+		GPIO_LOOKUP("gpio-pxa", GPIO0_INCOME_SD_DETECT,
+			    "cd", GPIO_ACTIVE_LOW),
+		/* Write protect on GPIO 1 */
+		GPIO_LOOKUP("gpio-pxa", GPIO0_INCOME_SD_RO,
+			    "wp", GPIO_ACTIVE_LOW),
+		{ },
+	},
+};
+
+static void __init income_mmc_init(void)
+{
+	gpiod_add_lookup_table(&income_mci_gpio_table);
+>>>>>>> upstream/android-13
 	pxa_set_mci_info(&income_mci_platform_data);
 }
 #else
@@ -194,7 +227,10 @@ static struct pwm_lookup income_pwm_lookup[] = {
 static struct platform_pwm_backlight_data income_backlight_data = {
 	.max_brightness	= 0x3ff,
 	.dft_brightness	= 0x1ff,
+<<<<<<< HEAD
 	.enable_gpio	= -1,
+=======
+>>>>>>> upstream/android-13
 };
 
 static struct platform_device income_backlight = {

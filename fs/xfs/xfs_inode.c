@@ -3,7 +3,10 @@
  * Copyright (c) 2000-2006 Silicon Graphics, Inc.
  * All Rights Reserved.
  */
+<<<<<<< HEAD
 #include <linux/log2.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/iversion.h>
 
 #include "xfs.h"
@@ -12,6 +15,7 @@
 #include "xfs_format.h"
 #include "xfs_log_format.h"
 #include "xfs_trans_resv.h"
+<<<<<<< HEAD
 #include "xfs_sb.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
@@ -20,6 +24,12 @@
 #include "xfs_da_btree.h"
 #include "xfs_dir2.h"
 #include "xfs_attr_sf.h"
+=======
+#include "xfs_mount.h"
+#include "xfs_defer.h"
+#include "xfs_inode.h"
+#include "xfs_dir2.h"
+>>>>>>> upstream/android-13
 #include "xfs_attr.h"
 #include "xfs_trans_space.h"
 #include "xfs_trans.h"
@@ -32,7 +42,10 @@
 #include "xfs_error.h"
 #include "xfs_quota.h"
 #include "xfs_filestream.h"
+<<<<<<< HEAD
 #include "xfs_cksum.h"
+=======
+>>>>>>> upstream/android-13
 #include "xfs_trace.h"
 #include "xfs_icache.h"
 #include "xfs_symlink.h"
@@ -40,7 +53,11 @@
 #include "xfs_log.h"
 #include "xfs_bmap_btree.h"
 #include "xfs_reflink.h"
+<<<<<<< HEAD
 #include "xfs_dir2_priv.h"
+=======
+#include "xfs_ag.h"
+>>>>>>> upstream/android-13
 
 kmem_zone_t *xfs_inode_zone;
 
@@ -50,9 +67,15 @@ kmem_zone_t *xfs_inode_zone;
  */
 #define	XFS_ITRUNC_MAX_EXTENTS	2
 
+<<<<<<< HEAD
 STATIC int xfs_iflush_int(struct xfs_inode *, struct xfs_buf *);
 STATIC int xfs_iunlink(struct xfs_trans *, struct xfs_inode *);
 STATIC int xfs_iunlink_remove(struct xfs_trans *, struct xfs_inode *);
+=======
+STATIC int xfs_iunlink(struct xfs_trans *, struct xfs_inode *);
+STATIC int xfs_iunlink_remove(struct xfs_trans *tp, struct xfs_perag *pag,
+	struct xfs_inode *);
+>>>>>>> upstream/android-13
 
 /*
  * helper function to extract extent size hint from inode
@@ -61,8 +84,19 @@ xfs_extlen_t
 xfs_get_extsz_hint(
 	struct xfs_inode	*ip)
 {
+<<<<<<< HEAD
 	if ((ip->i_d.di_flags & XFS_DIFLAG_EXTSIZE) && ip->i_d.di_extsize)
 		return ip->i_d.di_extsize;
+=======
+	/*
+	 * No point in aligning allocations if we need to COW to actually
+	 * write to them.
+	 */
+	if (xfs_is_always_cow_inode(ip))
+		return 0;
+	if ((ip->i_diflags & XFS_DIFLAG_EXTSIZE) && ip->i_extsize)
+		return ip->i_extsize;
+>>>>>>> upstream/android-13
 	if (XFS_IS_REALTIME_INODE(ip))
 		return ip->i_mount->m_sb.sb_rextsize;
 	return 0;
@@ -81,8 +115,13 @@ xfs_get_cowextsz_hint(
 	xfs_extlen_t		a, b;
 
 	a = 0;
+<<<<<<< HEAD
 	if (ip->i_d.di_flags2 & XFS_DIFLAG2_COWEXTSIZE)
 		a = ip->i_d.di_cowextsize;
+=======
+	if (ip->i_diflags2 & XFS_DIFLAG2_COWEXTSIZE)
+		a = ip->i_cowextsize;
+>>>>>>> upstream/android-13
 	b = xfs_get_extsz_hint(ip);
 
 	a = max(a, b);
@@ -112,8 +151,12 @@ xfs_ilock_data_map_shared(
 {
 	uint			lock_mode = XFS_ILOCK_SHARED;
 
+<<<<<<< HEAD
 	if (ip->i_d.di_format == XFS_DINODE_FMT_BTREE &&
 	    (ip->i_df.if_flags & XFS_IFEXTENTS) == 0)
+=======
+	if (xfs_need_iread_extents(&ip->i_df))
+>>>>>>> upstream/android-13
 		lock_mode = XFS_ILOCK_EXCL;
 	xfs_ilock(ip, lock_mode);
 	return lock_mode;
@@ -125,8 +168,12 @@ xfs_ilock_attr_map_shared(
 {
 	uint			lock_mode = XFS_ILOCK_SHARED;
 
+<<<<<<< HEAD
 	if (ip->i_d.di_aformat == XFS_DINODE_FMT_BTREE &&
 	    (ip->i_afp->if_flags & XFS_IFEXTENTS) == 0)
+=======
+	if (ip->i_afp && xfs_need_iread_extents(ip->i_afp))
+>>>>>>> upstream/android-13
 		lock_mode = XFS_ILOCK_EXCL;
 	xfs_ilock(ip, lock_mode);
 	return lock_mode;
@@ -134,7 +181,11 @@ xfs_ilock_attr_map_shared(
 
 /*
  * In addition to i_rwsem in the VFS inode, the xfs inode contains 2
+<<<<<<< HEAD
  * multi-reader locks: i_mmap_lock and the i_lock.  This routine allows
+=======
+ * multi-reader locks: invalidate_lock and the i_lock.  This routine allows
+>>>>>>> upstream/android-13
  * various combinations of the locks to be obtained.
  *
  * The 3 locks should always be ordered so that the IO lock is obtained first,
@@ -142,6 +193,7 @@ xfs_ilock_attr_map_shared(
  *
  * Basic locking order:
  *
+<<<<<<< HEAD
  * i_rwsem -> i_mmap_lock -> page_lock -> i_ilock
  *
  * mmap_sem locking order:
@@ -159,6 +211,25 @@ xfs_ilock_attr_map_shared(
  * Hence to serialise fully against both syscall and mmap based IO, we need to
  * take both the i_rwsem and the i_mmap_lock. These locks should *only* be both
  * taken in places where we need to invalidate the page cache in a race
+=======
+ * i_rwsem -> invalidate_lock -> page_lock -> i_ilock
+ *
+ * mmap_lock locking order:
+ *
+ * i_rwsem -> page lock -> mmap_lock
+ * mmap_lock -> invalidate_lock -> page_lock
+ *
+ * The difference in mmap_lock locking order mean that we cannot hold the
+ * invalidate_lock over syscall based read(2)/write(2) based IO. These IO paths
+ * can fault in pages during copy in/out (for buffered IO) or require the
+ * mmap_lock in get_user_pages() to map the user pages into the kernel address
+ * space for direct IO. Similarly the i_rwsem cannot be taken inside a page
+ * fault because page faults already hold the mmap_lock.
+ *
+ * Hence to serialise fully against both syscall and mmap based IO, we need to
+ * take both the i_rwsem and the invalidate_lock. These locks should *only* be
+ * both taken in places where we need to invalidate the page cache in a race
+>>>>>>> upstream/android-13
  * free manner (e.g. truncate, hole punch and other extent manipulation
  * functions).
  */
@@ -190,10 +261,20 @@ xfs_ilock(
 				 XFS_IOLOCK_DEP(lock_flags));
 	}
 
+<<<<<<< HEAD
 	if (lock_flags & XFS_MMAPLOCK_EXCL)
 		mrupdate_nested(&ip->i_mmaplock, XFS_MMAPLOCK_DEP(lock_flags));
 	else if (lock_flags & XFS_MMAPLOCK_SHARED)
 		mraccess_nested(&ip->i_mmaplock, XFS_MMAPLOCK_DEP(lock_flags));
+=======
+	if (lock_flags & XFS_MMAPLOCK_EXCL) {
+		down_write_nested(&VFS_I(ip)->i_mapping->invalidate_lock,
+				  XFS_MMAPLOCK_DEP(lock_flags));
+	} else if (lock_flags & XFS_MMAPLOCK_SHARED) {
+		down_read_nested(&VFS_I(ip)->i_mapping->invalidate_lock,
+				 XFS_MMAPLOCK_DEP(lock_flags));
+	}
+>>>>>>> upstream/android-13
 
 	if (lock_flags & XFS_ILOCK_EXCL)
 		mrupdate_nested(&ip->i_lock, XFS_ILOCK_DEP(lock_flags));
@@ -242,10 +323,17 @@ xfs_ilock_nowait(
 	}
 
 	if (lock_flags & XFS_MMAPLOCK_EXCL) {
+<<<<<<< HEAD
 		if (!mrtryupdate(&ip->i_mmaplock))
 			goto out_undo_iolock;
 	} else if (lock_flags & XFS_MMAPLOCK_SHARED) {
 		if (!mrtryaccess(&ip->i_mmaplock))
+=======
+		if (!down_write_trylock(&VFS_I(ip)->i_mapping->invalidate_lock))
+			goto out_undo_iolock;
+	} else if (lock_flags & XFS_MMAPLOCK_SHARED) {
+		if (!down_read_trylock(&VFS_I(ip)->i_mapping->invalidate_lock))
+>>>>>>> upstream/android-13
 			goto out_undo_iolock;
 	}
 
@@ -260,9 +348,15 @@ xfs_ilock_nowait(
 
 out_undo_mmaplock:
 	if (lock_flags & XFS_MMAPLOCK_EXCL)
+<<<<<<< HEAD
 		mrunlock_excl(&ip->i_mmaplock);
 	else if (lock_flags & XFS_MMAPLOCK_SHARED)
 		mrunlock_shared(&ip->i_mmaplock);
+=======
+		up_write(&VFS_I(ip)->i_mapping->invalidate_lock);
+	else if (lock_flags & XFS_MMAPLOCK_SHARED)
+		up_read(&VFS_I(ip)->i_mapping->invalidate_lock);
+>>>>>>> upstream/android-13
 out_undo_iolock:
 	if (lock_flags & XFS_IOLOCK_EXCL)
 		up_write(&VFS_I(ip)->i_rwsem);
@@ -309,9 +403,15 @@ xfs_iunlock(
 		up_read(&VFS_I(ip)->i_rwsem);
 
 	if (lock_flags & XFS_MMAPLOCK_EXCL)
+<<<<<<< HEAD
 		mrunlock_excl(&ip->i_mmaplock);
 	else if (lock_flags & XFS_MMAPLOCK_SHARED)
 		mrunlock_shared(&ip->i_mmaplock);
+=======
+		up_write(&VFS_I(ip)->i_mapping->invalidate_lock);
+	else if (lock_flags & XFS_MMAPLOCK_SHARED)
+		up_read(&VFS_I(ip)->i_mapping->invalidate_lock);
+>>>>>>> upstream/android-13
 
 	if (lock_flags & XFS_ILOCK_EXCL)
 		mrunlock_excl(&ip->i_lock);
@@ -337,7 +437,11 @@ xfs_ilock_demote(
 	if (lock_flags & XFS_ILOCK_EXCL)
 		mrdemote(&ip->i_lock);
 	if (lock_flags & XFS_MMAPLOCK_EXCL)
+<<<<<<< HEAD
 		mrdemote(&ip->i_mmaplock);
+=======
+		downgrade_write(&VFS_I(ip)->i_mapping->invalidate_lock);
+>>>>>>> upstream/android-13
 	if (lock_flags & XFS_IOLOCK_EXCL)
 		downgrade_write(&VFS_I(ip)->i_rwsem);
 
@@ -345,9 +449,35 @@ xfs_ilock_demote(
 }
 
 #if defined(DEBUG) || defined(XFS_WARN)
+<<<<<<< HEAD
 int
 xfs_isilocked(
 	xfs_inode_t		*ip,
+=======
+static inline bool
+__xfs_rwsem_islocked(
+	struct rw_semaphore	*rwsem,
+	bool			shared)
+{
+	if (!debug_locks)
+		return rwsem_is_locked(rwsem);
+
+	if (!shared)
+		return lockdep_is_held_type(rwsem, 0);
+
+	/*
+	 * We are checking that the lock is held at least in shared
+	 * mode but don't care that it might be held exclusively
+	 * (i.e. shared | excl). Hence we check if the lock is held
+	 * in any mode rather than an explicit shared mode.
+	 */
+	return lockdep_is_held_type(rwsem, -1);
+}
+
+bool
+xfs_isilocked(
+	struct xfs_inode	*ip,
+>>>>>>> upstream/android-13
 	uint			lock_flags)
 {
 	if (lock_flags & (XFS_ILOCK_EXCL|XFS_ILOCK_SHARED)) {
@@ -357,6 +487,7 @@ xfs_isilocked(
 	}
 
 	if (lock_flags & (XFS_MMAPLOCK_EXCL|XFS_MMAPLOCK_SHARED)) {
+<<<<<<< HEAD
 		if (!(lock_flags & XFS_MMAPLOCK_SHARED))
 			return !!ip->i_mmaplock.mr_writer;
 		return rwsem_is_locked(&ip->i_mmaplock.mr_lock);
@@ -371,6 +502,19 @@ xfs_isilocked(
 
 	ASSERT(0);
 	return 0;
+=======
+		return __xfs_rwsem_islocked(&VFS_I(ip)->i_rwsem,
+				(lock_flags & XFS_IOLOCK_SHARED));
+	}
+
+	if (lock_flags & (XFS_IOLOCK_EXCL | XFS_IOLOCK_SHARED)) {
+		return __xfs_rwsem_islocked(&VFS_I(ip)->i_rwsem,
+				(lock_flags & XFS_IOLOCK_SHARED));
+	}
+
+	ASSERT(0);
+	return false;
+>>>>>>> upstream/android-13
 }
 #endif
 
@@ -441,17 +585,30 @@ xfs_lock_inumorder(int lock_mode, int subclass)
  */
 static void
 xfs_lock_inodes(
+<<<<<<< HEAD
 	xfs_inode_t	**ips,
 	int		inodes,
 	uint		lock_mode)
 {
 	int		attempts = 0, i, j, try_lock;
 	xfs_log_item_t	*lp;
+=======
+	struct xfs_inode	**ips,
+	int			inodes,
+	uint			lock_mode)
+{
+	int			attempts = 0, i, j, try_lock;
+	struct xfs_log_item	*lp;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Currently supports between 2 and 5 inodes with exclusive locking.  We
 	 * support an arbitrary depth of locking here, but absolute limits on
+<<<<<<< HEAD
 	 * inodes depend on the the type of locking and the limits placed by
+=======
+	 * inodes depend on the type of locking and the limits placed by
+>>>>>>> upstream/android-13
 	 * lockdep annotations in xfs_lock_inumorder.  These are all checked by
 	 * the asserts.
 	 */
@@ -485,7 +642,11 @@ again:
 		 */
 		if (!try_lock) {
 			for (j = (i - 1); j >= 0 && !try_lock; j--) {
+<<<<<<< HEAD
 				lp = (xfs_log_item_t *)ips[j]->i_itemp;
+=======
+				lp = &ips[j]->i_itemp->ili_item;
+>>>>>>> upstream/android-13
 				if (lp && test_bit(XFS_LI_IN_AIL, &lp->li_flags))
 					try_lock++;
 			}
@@ -534,12 +695,19 @@ again:
 }
 
 /*
+<<<<<<< HEAD
  * xfs_lock_two_inodes() can only be used to lock one type of lock at a time -
  * the mmaplock or the ilock, but not more than one type at a time. If we lock
  * more than one at a time, lockdep will report false positives saying we have
  * violated locking orders.  The iolock must be double-locked separately since
  * we use i_rwsem for that.  We now support taking one lock EXCL and the other
  * SHARED.
+=======
+ * xfs_lock_two_inodes() can only be used to lock ilock. The iolock and
+ * mmaplock must be double-locked separately since we use i_rwsem and
+ * invalidate_lock for that. We now support taking one lock EXCL and the
+ * other SHARED.
+>>>>>>> upstream/android-13
  */
 void
 xfs_lock_two_inodes(
@@ -551,12 +719,17 @@ xfs_lock_two_inodes(
 	struct xfs_inode	*temp;
 	uint			mode_temp;
 	int			attempts = 0;
+<<<<<<< HEAD
 	xfs_log_item_t		*lp;
+=======
+	struct xfs_log_item	*lp;
+>>>>>>> upstream/android-13
 
 	ASSERT(hweight32(ip0_mode) == 1);
 	ASSERT(hweight32(ip1_mode) == 1);
 	ASSERT(!(ip0_mode & (XFS_IOLOCK_SHARED|XFS_IOLOCK_EXCL)));
 	ASSERT(!(ip1_mode & (XFS_IOLOCK_SHARED|XFS_IOLOCK_EXCL)));
+<<<<<<< HEAD
 	ASSERT(!(ip0_mode & (XFS_MMAPLOCK_SHARED|XFS_MMAPLOCK_EXCL)) ||
 	       !(ip0_mode & (XFS_ILOCK_SHARED|XFS_ILOCK_EXCL)));
 	ASSERT(!(ip1_mode & (XFS_MMAPLOCK_SHARED|XFS_MMAPLOCK_EXCL)) ||
@@ -566,6 +739,10 @@ xfs_lock_two_inodes(
 	ASSERT(!(ip0_mode & (XFS_MMAPLOCK_SHARED|XFS_MMAPLOCK_EXCL)) ||
 	       !(ip1_mode & (XFS_ILOCK_SHARED|XFS_ILOCK_EXCL)));
 
+=======
+	ASSERT(!(ip0_mode & (XFS_MMAPLOCK_SHARED|XFS_MMAPLOCK_EXCL)));
+	ASSERT(!(ip1_mode & (XFS_MMAPLOCK_SHARED|XFS_MMAPLOCK_EXCL)));
+>>>>>>> upstream/android-13
 	ASSERT(ip0->i_ino != ip1->i_ino);
 
 	if (ip0->i_ino > ip1->i_ino) {
@@ -585,7 +762,11 @@ xfs_lock_two_inodes(
 	 * the second lock. If we can't get it, we must release the first one
 	 * and try again.
 	 */
+<<<<<<< HEAD
 	lp = (xfs_log_item_t *)ip0->i_itemp;
+=======
+	lp = &ip0->i_itemp->ili_item;
+>>>>>>> upstream/android-13
 	if (lp && test_bit(XFS_LI_IN_AIL, &lp->li_flags)) {
 		if (!xfs_ilock_nowait(ip1, xfs_lock_inumorder(ip1_mode, 1))) {
 			xfs_iunlock(ip0, ip0_mode);
@@ -598,6 +779,7 @@ xfs_lock_two_inodes(
 	}
 }
 
+<<<<<<< HEAD
 void
 __xfs_iflock(
 	struct xfs_inode	*ip)
@@ -666,13 +848,61 @@ _xfs_dic2xflags(
 	return flags;
 }
 
+=======
+>>>>>>> upstream/android-13
 uint
 xfs_ip2xflags(
 	struct xfs_inode	*ip)
 {
+<<<<<<< HEAD
 	struct xfs_icdinode	*dic = &ip->i_d;
 
 	return _xfs_dic2xflags(dic->di_flags, dic->di_flags2, XFS_IFORK_Q(ip));
+=======
+	uint			flags = 0;
+
+	if (ip->i_diflags & XFS_DIFLAG_ANY) {
+		if (ip->i_diflags & XFS_DIFLAG_REALTIME)
+			flags |= FS_XFLAG_REALTIME;
+		if (ip->i_diflags & XFS_DIFLAG_PREALLOC)
+			flags |= FS_XFLAG_PREALLOC;
+		if (ip->i_diflags & XFS_DIFLAG_IMMUTABLE)
+			flags |= FS_XFLAG_IMMUTABLE;
+		if (ip->i_diflags & XFS_DIFLAG_APPEND)
+			flags |= FS_XFLAG_APPEND;
+		if (ip->i_diflags & XFS_DIFLAG_SYNC)
+			flags |= FS_XFLAG_SYNC;
+		if (ip->i_diflags & XFS_DIFLAG_NOATIME)
+			flags |= FS_XFLAG_NOATIME;
+		if (ip->i_diflags & XFS_DIFLAG_NODUMP)
+			flags |= FS_XFLAG_NODUMP;
+		if (ip->i_diflags & XFS_DIFLAG_RTINHERIT)
+			flags |= FS_XFLAG_RTINHERIT;
+		if (ip->i_diflags & XFS_DIFLAG_PROJINHERIT)
+			flags |= FS_XFLAG_PROJINHERIT;
+		if (ip->i_diflags & XFS_DIFLAG_NOSYMLINKS)
+			flags |= FS_XFLAG_NOSYMLINKS;
+		if (ip->i_diflags & XFS_DIFLAG_EXTSIZE)
+			flags |= FS_XFLAG_EXTSIZE;
+		if (ip->i_diflags & XFS_DIFLAG_EXTSZINHERIT)
+			flags |= FS_XFLAG_EXTSZINHERIT;
+		if (ip->i_diflags & XFS_DIFLAG_NODEFRAG)
+			flags |= FS_XFLAG_NODEFRAG;
+		if (ip->i_diflags & XFS_DIFLAG_FILESTREAM)
+			flags |= FS_XFLAG_FILESTREAM;
+	}
+
+	if (ip->i_diflags2 & XFS_DIFLAG2_ANY) {
+		if (ip->i_diflags2 & XFS_DIFLAG2_DAX)
+			flags |= FS_XFLAG_DAX;
+		if (ip->i_diflags2 & XFS_DIFLAG2_COWEXTSIZE)
+			flags |= FS_XFLAG_COWEXTSIZE;
+	}
+
+	if (XFS_IFORK_Q(ip))
+		flags |= FS_XFLAG_HASATTR;
+	return flags;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -693,7 +923,11 @@ xfs_lookup(
 
 	trace_xfs_lookup(dp, name);
 
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(dp->i_mount))
+=======
+	if (xfs_is_shutdown(dp->i_mount))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	error = xfs_dir_lookup(NULL, dp, name, &inum, ci_name);
@@ -714,6 +948,7 @@ out_unlock:
 	return error;
 }
 
+<<<<<<< HEAD
 /*
  * Allocate an inode on disk and return a copy of its in-core version.
  * The in-core inode is locked exclusively.  Set mode, nlink, and rdev
@@ -777,6 +1012,123 @@ xfs_ialloc(
 		return 0;
 	}
 	ASSERT(*ialloc_context == NULL);
+=======
+/* Propagate di_flags from a parent inode to a child inode. */
+static void
+xfs_inode_inherit_flags(
+	struct xfs_inode	*ip,
+	const struct xfs_inode	*pip)
+{
+	unsigned int		di_flags = 0;
+	xfs_failaddr_t		failaddr;
+	umode_t			mode = VFS_I(ip)->i_mode;
+
+	if (S_ISDIR(mode)) {
+		if (pip->i_diflags & XFS_DIFLAG_RTINHERIT)
+			di_flags |= XFS_DIFLAG_RTINHERIT;
+		if (pip->i_diflags & XFS_DIFLAG_EXTSZINHERIT) {
+			di_flags |= XFS_DIFLAG_EXTSZINHERIT;
+			ip->i_extsize = pip->i_extsize;
+		}
+		if (pip->i_diflags & XFS_DIFLAG_PROJINHERIT)
+			di_flags |= XFS_DIFLAG_PROJINHERIT;
+	} else if (S_ISREG(mode)) {
+		if ((pip->i_diflags & XFS_DIFLAG_RTINHERIT) &&
+		    xfs_has_realtime(ip->i_mount))
+			di_flags |= XFS_DIFLAG_REALTIME;
+		if (pip->i_diflags & XFS_DIFLAG_EXTSZINHERIT) {
+			di_flags |= XFS_DIFLAG_EXTSIZE;
+			ip->i_extsize = pip->i_extsize;
+		}
+	}
+	if ((pip->i_diflags & XFS_DIFLAG_NOATIME) &&
+	    xfs_inherit_noatime)
+		di_flags |= XFS_DIFLAG_NOATIME;
+	if ((pip->i_diflags & XFS_DIFLAG_NODUMP) &&
+	    xfs_inherit_nodump)
+		di_flags |= XFS_DIFLAG_NODUMP;
+	if ((pip->i_diflags & XFS_DIFLAG_SYNC) &&
+	    xfs_inherit_sync)
+		di_flags |= XFS_DIFLAG_SYNC;
+	if ((pip->i_diflags & XFS_DIFLAG_NOSYMLINKS) &&
+	    xfs_inherit_nosymlinks)
+		di_flags |= XFS_DIFLAG_NOSYMLINKS;
+	if ((pip->i_diflags & XFS_DIFLAG_NODEFRAG) &&
+	    xfs_inherit_nodefrag)
+		di_flags |= XFS_DIFLAG_NODEFRAG;
+	if (pip->i_diflags & XFS_DIFLAG_FILESTREAM)
+		di_flags |= XFS_DIFLAG_FILESTREAM;
+
+	ip->i_diflags |= di_flags;
+
+	/*
+	 * Inode verifiers on older kernels only check that the extent size
+	 * hint is an integer multiple of the rt extent size on realtime files.
+	 * They did not check the hint alignment on a directory with both
+	 * rtinherit and extszinherit flags set.  If the misaligned hint is
+	 * propagated from a directory into a new realtime file, new file
+	 * allocations will fail due to math errors in the rt allocator and/or
+	 * trip the verifiers.  Validate the hint settings in the new file so
+	 * that we don't let broken hints propagate.
+	 */
+	failaddr = xfs_inode_validate_extsize(ip->i_mount, ip->i_extsize,
+			VFS_I(ip)->i_mode, ip->i_diflags);
+	if (failaddr) {
+		ip->i_diflags &= ~(XFS_DIFLAG_EXTSIZE |
+				   XFS_DIFLAG_EXTSZINHERIT);
+		ip->i_extsize = 0;
+	}
+}
+
+/* Propagate di_flags2 from a parent inode to a child inode. */
+static void
+xfs_inode_inherit_flags2(
+	struct xfs_inode	*ip,
+	const struct xfs_inode	*pip)
+{
+	xfs_failaddr_t		failaddr;
+
+	if (pip->i_diflags2 & XFS_DIFLAG2_COWEXTSIZE) {
+		ip->i_diflags2 |= XFS_DIFLAG2_COWEXTSIZE;
+		ip->i_cowextsize = pip->i_cowextsize;
+	}
+	if (pip->i_diflags2 & XFS_DIFLAG2_DAX)
+		ip->i_diflags2 |= XFS_DIFLAG2_DAX;
+
+	/* Don't let invalid cowextsize hints propagate. */
+	failaddr = xfs_inode_validate_cowextsize(ip->i_mount, ip->i_cowextsize,
+			VFS_I(ip)->i_mode, ip->i_diflags, ip->i_diflags2);
+	if (failaddr) {
+		ip->i_diflags2 &= ~XFS_DIFLAG2_COWEXTSIZE;
+		ip->i_cowextsize = 0;
+	}
+}
+
+/*
+ * Initialise a newly allocated inode and return the in-core inode to the
+ * caller locked exclusively.
+ */
+int
+xfs_init_new_inode(
+	struct user_namespace	*mnt_userns,
+	struct xfs_trans	*tp,
+	struct xfs_inode	*pip,
+	xfs_ino_t		ino,
+	umode_t			mode,
+	xfs_nlink_t		nlink,
+	dev_t			rdev,
+	prid_t			prid,
+	bool			init_xattrs,
+	struct xfs_inode	**ipp)
+{
+	struct inode		*dir = pip ? VFS_I(pip) : NULL;
+	struct xfs_mount	*mp = tp->t_mountp;
+	struct xfs_inode	*ip;
+	unsigned int		flags;
+	int			error;
+	struct timespec64	tv;
+	struct inode		*inode;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Protect against obviously corrupt allocation btree records. Later
@@ -791,6 +1143,7 @@ xfs_ialloc(
 	}
 
 	/*
+<<<<<<< HEAD
 	 * Get the in-core inode with the lock held exclusively.
 	 * This is because we're setting fields here we need
 	 * to prevent others from looking at until we're done.
@@ -821,6 +1174,27 @@ xfs_ialloc(
 		ip->i_d.di_gid = pip->i_d.di_gid;
 		if ((VFS_I(pip)->i_mode & S_ISGID) && S_ISDIR(mode))
 			inode->i_mode |= S_ISGID;
+=======
+	 * Get the in-core inode with the lock held exclusively to prevent
+	 * others from looking at until we're done.
+	 */
+	error = xfs_iget(mp, tp, ino, XFS_IGET_CREATE, XFS_ILOCK_EXCL, &ip);
+	if (error)
+		return error;
+
+	ASSERT(ip != NULL);
+	inode = VFS_I(ip);
+	set_nlink(inode, nlink);
+	inode->i_rdev = rdev;
+	ip->i_projid = prid;
+
+	if (dir && !(dir->i_mode & S_ISGID) && xfs_has_grpid(mp)) {
+		inode_fsuid_set(inode, mnt_userns);
+		inode->i_gid = dir->i_gid;
+		inode->i_mode = mode;
+	} else {
+		inode_init_owner(mnt_userns, inode, dir, mode);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -828,6 +1202,7 @@ xfs_ialloc(
 	 * ID or one of the supplementary group IDs, the S_ISGID bit is cleared
 	 * (and only if the irix_sgid_inherit compatibility variable is set).
 	 */
+<<<<<<< HEAD
 	if ((irix_sgid_inherit) &&
 	    (inode->i_mode & S_ISGID) &&
 	    (!in_group_p(xfs_gid_to_kgid(ip->i_d.di_gid))))
@@ -836,12 +1211,23 @@ xfs_ialloc(
 	ip->i_d.di_size = 0;
 	ip->i_d.di_nextents = 0;
 	ASSERT(ip->i_d.di_nblocks == 0);
+=======
+	if (irix_sgid_inherit &&
+	    (inode->i_mode & S_ISGID) &&
+	    !in_group_p(i_gid_into_mnt(mnt_userns, inode)))
+		inode->i_mode &= ~S_ISGID;
+
+	ip->i_disk_size = 0;
+	ip->i_df.if_nextents = 0;
+	ASSERT(ip->i_nblocks == 0);
+>>>>>>> upstream/android-13
 
 	tv = current_time(inode);
 	inode->i_mtime = tv;
 	inode->i_atime = tv;
 	inode->i_ctime = tv;
 
+<<<<<<< HEAD
 	ip->i_d.di_extsize = 0;
 	ip->i_d.di_dmevmask = 0;
 	ip->i_d.di_dmstate = 0;
@@ -856,18 +1242,34 @@ xfs_ialloc(
 	}
 
 
+=======
+	ip->i_extsize = 0;
+	ip->i_diflags = 0;
+
+	if (xfs_has_v3inodes(mp)) {
+		inode_set_iversion(inode, 1);
+		ip->i_cowextsize = 0;
+		ip->i_crtime = tv;
+	}
+
+>>>>>>> upstream/android-13
 	flags = XFS_ILOG_CORE;
 	switch (mode & S_IFMT) {
 	case S_IFIFO:
 	case S_IFCHR:
 	case S_IFBLK:
 	case S_IFSOCK:
+<<<<<<< HEAD
 		ip->i_d.di_format = XFS_DINODE_FMT_DEV;
 		ip->i_df.if_flags = 0;
+=======
+		ip->i_df.if_format = XFS_DINODE_FMT_DEV;
+>>>>>>> upstream/android-13
 		flags |= XFS_ILOG_DEV;
 		break;
 	case S_IFREG:
 	case S_IFDIR:
+<<<<<<< HEAD
 		if (pip && (pip->i_d.di_flags & XFS_DIFLAG_ANY)) {
 			uint		di_flags = 0;
 
@@ -927,17 +1329,43 @@ xfs_ialloc(
 	case S_IFLNK:
 		ip->i_d.di_format = XFS_DINODE_FMT_EXTENTS;
 		ip->i_df.if_flags = XFS_IFEXTENTS;
+=======
+		if (pip && (pip->i_diflags & XFS_DIFLAG_ANY))
+			xfs_inode_inherit_flags(ip, pip);
+		if (pip && (pip->i_diflags2 & XFS_DIFLAG2_ANY))
+			xfs_inode_inherit_flags2(ip, pip);
+		fallthrough;
+	case S_IFLNK:
+		ip->i_df.if_format = XFS_DINODE_FMT_EXTENTS;
+>>>>>>> upstream/android-13
 		ip->i_df.if_bytes = 0;
 		ip->i_df.if_u1.if_root = NULL;
 		break;
 	default:
 		ASSERT(0);
 	}
+<<<<<<< HEAD
 	/*
 	 * Attribute fork settings for new inode.
 	 */
 	ip->i_d.di_aformat = XFS_DINODE_FMT_EXTENTS;
 	ip->i_d.di_anextents = 0;
+=======
+
+	/*
+	 * If we need to create attributes immediately after allocating the
+	 * inode, initialise an empty attribute fork right now. We use the
+	 * default fork offset for attributes here as we don't know exactly what
+	 * size or how many attributes we might be adding. We can do this
+	 * safely here because we know the data fork is completely empty and
+	 * this saves us from needing to run a separate transaction to set the
+	 * fork offset in the immediate future.
+	 */
+	if (init_xattrs && xfs_has_attr(mp)) {
+		ip->i_forkoff = xfs_default_attroffset(ip) >> 3;
+		ip->i_afp = xfs_ifork_alloc(XFS_DINODE_FMT_EXTENTS, 0);
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Log the new values stuffed into the inode.
@@ -953,6 +1381,7 @@ xfs_ialloc(
 }
 
 /*
+<<<<<<< HEAD
  * Allocates a new inode from disk and return a pointer to the
  * incore copy. This routine will internally commit the current
  * transaction and allocate a new one if the Space Manager needed
@@ -1093,6 +1522,8 @@ xfs_dir_ialloc(
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Decrement the link count on an inode & log the change.  If this causes the
  * link count to go to zero, move the inode to AGI unlinked list so that it can
  * be freed when the last active reference goes away via xfs_inactive().
@@ -1116,25 +1547,42 @@ xfs_droplink(
 /*
  * Increment the link count on an inode & log the change.
  */
+<<<<<<< HEAD
 static int
+=======
+static void
+>>>>>>> upstream/android-13
 xfs_bumplink(
 	xfs_trans_t *tp,
 	xfs_inode_t *ip)
 {
 	xfs_trans_ichgtime(tp, ip, XFS_ICHGTIME_CHG);
 
+<<<<<<< HEAD
 	ASSERT(ip->i_d.di_version > 1);
 	inc_nlink(VFS_I(ip));
 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 	return 0;
+=======
+	inc_nlink(VFS_I(ip));
+	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+>>>>>>> upstream/android-13
 }
 
 int
 xfs_create(
+<<<<<<< HEAD
+=======
+	struct user_namespace	*mnt_userns,
+>>>>>>> upstream/android-13
 	xfs_inode_t		*dp,
 	struct xfs_name		*name,
 	umode_t			mode,
 	dev_t			rdev,
+<<<<<<< HEAD
+=======
+	bool			init_xattrs,
+>>>>>>> upstream/android-13
 	xfs_inode_t		**ipp)
 {
 	int			is_dir = S_ISDIR(mode);
@@ -1149,10 +1597,18 @@ xfs_create(
 	struct xfs_dquot	*pdqp = NULL;
 	struct xfs_trans_res	*tres;
 	uint			resblks;
+<<<<<<< HEAD
 
 	trace_xfs_create(dp, name);
 
 	if (XFS_FORCED_SHUTDOWN(mp))
+=======
+	xfs_ino_t		ino;
+
+	trace_xfs_create(dp, name);
+
+	if (xfs_is_shutdown(mp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	prid = xfs_get_initial_prid(dp);
@@ -1160,10 +1616,17 @@ xfs_create(
 	/*
 	 * Make sure that we have allocated dquot(s) on disk.
 	 */
+<<<<<<< HEAD
 	error = xfs_qm_vop_dqalloc(dp, xfs_kuid_to_uid(current_fsuid()),
 					xfs_kgid_to_gid(current_fsgid()), prid,
 					XFS_QMOPT_QUOTALL | XFS_QMOPT_INHERIT,
 					&udqp, &gdqp, &pdqp);
+=======
+	error = xfs_qm_vop_dqalloc(dp, mapped_fsuid(mnt_userns),
+			mapped_fsgid(mnt_userns), prid,
+			XFS_QMOPT_QUOTALL | XFS_QMOPT_INHERIT,
+			&udqp, &gdqp, &pdqp);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -1181,6 +1644,7 @@ xfs_create(
 	 * the case we'll drop the one we have and get a more
 	 * appropriate transaction later.
 	 */
+<<<<<<< HEAD
 	error = xfs_trans_alloc(mp, tres, resblks, 0, 0, &tp);
 	if (error == -ENOSPC) {
 		/* flush outstanding delalloc blocks and retry */
@@ -1189,15 +1653,32 @@ xfs_create(
 	}
 	if (error)
 		goto out_release_inode;
+=======
+	error = xfs_trans_alloc_icreate(mp, tres, udqp, gdqp, pdqp, resblks,
+			&tp);
+	if (error == -ENOSPC) {
+		/* flush outstanding delalloc blocks and retry */
+		xfs_flush_inodes(mp);
+		error = xfs_trans_alloc_icreate(mp, tres, udqp, gdqp, pdqp,
+				resblks, &tp);
+	}
+	if (error)
+		goto out_release_dquots;
+>>>>>>> upstream/android-13
 
 	xfs_ilock(dp, XFS_ILOCK_EXCL | XFS_ILOCK_PARENT);
 	unlock_dp_on_error = true;
 
+<<<<<<< HEAD
 	/*
 	 * Reserve disk quota and the inode.
 	 */
 	error = xfs_trans_reserve_quota(tp, mp, udqp, gdqp,
 						pdqp, resblks, 1, 0);
+=======
+	error = xfs_iext_count_may_overflow(dp, XFS_DATA_FORK,
+			XFS_IEXT_DIR_MANIP_CNT(mp));
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_trans_cancel;
 
@@ -1206,13 +1687,24 @@ xfs_create(
 	 * entry pointing to them, but a directory also the "." entry
 	 * pointing to itself.
 	 */
+<<<<<<< HEAD
 	error = xfs_dir_ialloc(&tp, dp, mode, is_dir ? 2 : 1, rdev, prid, &ip);
+=======
+	error = xfs_dialloc(&tp, dp->i_ino, mode, &ino);
+	if (!error)
+		error = xfs_init_new_inode(mnt_userns, tp, dp, ino, mode,
+				is_dir ? 2 : 1, rdev, prid, init_xattrs, &ip);
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_trans_cancel;
 
 	/*
 	 * Now we join the directory inode to the transaction.  We do not do it
+<<<<<<< HEAD
 	 * earlier because xfs_dir_ialloc might commit the previous transaction
+=======
+	 * earlier because xfs_dialloc might commit the previous transaction
+>>>>>>> upstream/android-13
 	 * (and release all the locks).  An error from here on will result in
 	 * the transaction cancel unlocking dp so don't do it explicitly in the
 	 * error path.
@@ -1221,8 +1713,12 @@ xfs_create(
 	unlock_dp_on_error = false;
 
 	error = xfs_dir_createname(tp, dp, name, ip->i_ino,
+<<<<<<< HEAD
 				   resblks ?
 					resblks - XFS_IALLOC_SPACE_RES(mp) : 0);
+=======
+					resblks - XFS_IALLOC_SPACE_RES(mp));
+>>>>>>> upstream/android-13
 	if (error) {
 		ASSERT(error != -ENOSPC);
 		goto out_trans_cancel;
@@ -1235,9 +1731,13 @@ xfs_create(
 		if (error)
 			goto out_trans_cancel;
 
+<<<<<<< HEAD
 		error = xfs_bumplink(tp, dp);
 		if (error)
 			goto out_trans_cancel;
+=======
+		xfs_bumplink(tp, dp);
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -1245,7 +1745,11 @@ xfs_create(
 	 * create transaction goes to disk before returning to
 	 * the user.
 	 */
+<<<<<<< HEAD
 	if (mp->m_flags & (XFS_MOUNT_WSYNC|XFS_MOUNT_DIRSYNC))
+=======
+	if (xfs_has_wsync(mp) || xfs_has_dirsync(mp))
+>>>>>>> upstream/android-13
 		xfs_trans_set_sync(tp);
 
 	/*
@@ -1278,7 +1782,11 @@ xfs_create(
 		xfs_finish_inode_setup(ip);
 		xfs_irele(ip);
 	}
+<<<<<<< HEAD
 
+=======
+ out_release_dquots:
+>>>>>>> upstream/android-13
 	xfs_qm_dqrele(udqp);
 	xfs_qm_dqrele(gdqp);
 	xfs_qm_dqrele(pdqp);
@@ -1290,6 +1798,10 @@ xfs_create(
 
 int
 xfs_create_tmpfile(
+<<<<<<< HEAD
+=======
+	struct user_namespace	*mnt_userns,
+>>>>>>> upstream/android-13
 	struct xfs_inode	*dp,
 	umode_t			mode,
 	struct xfs_inode	**ipp)
@@ -1304,8 +1816,14 @@ xfs_create_tmpfile(
 	struct xfs_dquot	*pdqp = NULL;
 	struct xfs_trans_res	*tres;
 	uint			resblks;
+<<<<<<< HEAD
 
 	if (XFS_FORCED_SHUTDOWN(mp))
+=======
+	xfs_ino_t		ino;
+
+	if (xfs_is_shutdown(mp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	prid = xfs_get_initial_prid(dp);
@@ -1313,16 +1831,24 @@ xfs_create_tmpfile(
 	/*
 	 * Make sure that we have allocated dquot(s) on disk.
 	 */
+<<<<<<< HEAD
 	error = xfs_qm_vop_dqalloc(dp, xfs_kuid_to_uid(current_fsuid()),
 				xfs_kgid_to_gid(current_fsgid()), prid,
 				XFS_QMOPT_QUOTALL | XFS_QMOPT_INHERIT,
 				&udqp, &gdqp, &pdqp);
+=======
+	error = xfs_qm_vop_dqalloc(dp, mapped_fsuid(mnt_userns),
+			mapped_fsgid(mnt_userns), prid,
+			XFS_QMOPT_QUOTALL | XFS_QMOPT_INHERIT,
+			&udqp, &gdqp, &pdqp);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
 	resblks = XFS_IALLOC_SPACE_RES(mp);
 	tres = &M_RES(mp)->tr_create_tmpfile;
 
+<<<<<<< HEAD
 	error = xfs_trans_alloc(mp, tres, resblks, 0, 0, &tp);
 	if (error)
 		goto out_release_inode;
@@ -1337,6 +1863,21 @@ xfs_create_tmpfile(
 		goto out_trans_cancel;
 
 	if (mp->m_flags & XFS_MOUNT_WSYNC)
+=======
+	error = xfs_trans_alloc_icreate(mp, tres, udqp, gdqp, pdqp, resblks,
+			&tp);
+	if (error)
+		goto out_release_dquots;
+
+	error = xfs_dialloc(&tp, dp->i_ino, mode, &ino);
+	if (!error)
+		error = xfs_init_new_inode(mnt_userns, tp, dp, ino, mode,
+				0, 0, prid, false, &ip);
+	if (error)
+		goto out_trans_cancel;
+
+	if (xfs_has_wsync(mp))
+>>>>>>> upstream/android-13
 		xfs_trans_set_sync(tp);
 
 	/*
@@ -1373,7 +1914,11 @@ xfs_create_tmpfile(
 		xfs_finish_inode_setup(ip);
 		xfs_irele(ip);
 	}
+<<<<<<< HEAD
 
+=======
+ out_release_dquots:
+>>>>>>> upstream/android-13
 	xfs_qm_dqrele(udqp);
 	xfs_qm_dqrele(gdqp);
 	xfs_qm_dqrele(pdqp);
@@ -1396,7 +1941,11 @@ xfs_link(
 
 	ASSERT(!S_ISDIR(VFS_I(sip)->i_mode));
 
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(mp))
+=======
+	if (xfs_is_shutdown(mp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	error = xfs_qm_dqattach(sip);
@@ -1421,13 +1970,26 @@ xfs_link(
 	xfs_trans_ijoin(tp, sip, XFS_ILOCK_EXCL);
 	xfs_trans_ijoin(tp, tdp, XFS_ILOCK_EXCL);
 
+<<<<<<< HEAD
+=======
+	error = xfs_iext_count_may_overflow(tdp, XFS_DATA_FORK,
+			XFS_IEXT_DIR_MANIP_CNT(mp));
+	if (error)
+		goto error_return;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If we are using project inheritance, we only allow hard link
 	 * creation in our tree when the project IDs are the same; else
 	 * the tree quota mechanism could be circumvented.
 	 */
+<<<<<<< HEAD
 	if (unlikely((tdp->i_d.di_flags & XFS_DIFLAG_PROJINHERIT) &&
 		     (xfs_get_projid(tdp) != xfs_get_projid(sip)))) {
+=======
+	if (unlikely((tdp->i_diflags & XFS_DIFLAG_PROJINHERIT) &&
+		     tdp->i_projid != sip->i_projid)) {
+>>>>>>> upstream/android-13
 		error = -EXDEV;
 		goto error_return;
 	}
@@ -1442,7 +2004,15 @@ xfs_link(
 	 * Handle initial link state of O_TMPFILE inode
 	 */
 	if (VFS_I(sip)->i_nlink == 0) {
+<<<<<<< HEAD
 		error = xfs_iunlink_remove(tp, sip);
+=======
+		struct xfs_perag	*pag;
+
+		pag = xfs_perag_get(mp, XFS_INO_TO_AGNO(mp, sip->i_ino));
+		error = xfs_iunlink_remove(tp, pag, sip);
+		xfs_perag_put(pag);
+>>>>>>> upstream/android-13
 		if (error)
 			goto error_return;
 	}
@@ -1454,16 +2024,24 @@ xfs_link(
 	xfs_trans_ichgtime(tp, tdp, XFS_ICHGTIME_MOD | XFS_ICHGTIME_CHG);
 	xfs_trans_log_inode(tp, tdp, XFS_ILOG_CORE);
 
+<<<<<<< HEAD
 	error = xfs_bumplink(tp, sip);
 	if (error)
 		goto error_return;
+=======
+	xfs_bumplink(tp, sip);
+>>>>>>> upstream/android-13
 
 	/*
 	 * If this is a synchronous mount, make sure that the
 	 * link transaction goes to disk before returning to
 	 * the user.
 	 */
+<<<<<<< HEAD
 	if (mp->m_flags & (XFS_MOUNT_WSYNC|XFS_MOUNT_DIRSYNC))
+=======
+	if (xfs_has_wsync(mp) || xfs_has_dirsync(mp))
+>>>>>>> upstream/android-13
 		xfs_trans_set_sync(tp);
 
 	return xfs_trans_commit(tp);
@@ -1487,7 +2065,11 @@ xfs_itruncate_clear_reflink_flags(
 	dfork = XFS_IFORK_PTR(ip, XFS_DATA_FORK);
 	cfork = XFS_IFORK_PTR(ip, XFS_COW_FORK);
 	if (dfork->if_bytes == 0 && cfork->if_bytes == 0)
+<<<<<<< HEAD
 		ip->i_d.di_flags2 &= ~XFS_DIFLAG2_REFLINK;
+=======
+		ip->i_diflags2 &= ~XFS_DIFLAG2_REFLINK;
+>>>>>>> upstream/android-13
 	if (cfork->if_bytes == 0)
 		xfs_inode_clear_cowblocks_tag(ip);
 }
@@ -1524,10 +2106,15 @@ xfs_itruncate_extents_flags(
 	struct xfs_mount	*mp = ip->i_mount;
 	struct xfs_trans	*tp = *tpp;
 	xfs_fileoff_t		first_unmap_block;
+<<<<<<< HEAD
 	xfs_fileoff_t		last_block;
 	xfs_filblks_t		unmap_len;
 	int			error = 0;
 	int			done = 0;
+=======
+	xfs_filblks_t		unmap_len;
+	int			error = 0;
+>>>>>>> upstream/android-13
 
 	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
 	ASSERT(!atomic_read(&VFS_I(ip)->i_count) ||
@@ -1547,6 +2134,7 @@ xfs_itruncate_extents_flags(
 	 * the end of the file (in a crash where the space is allocated
 	 * but the inode size is not yet updated), simply remove any
 	 * blocks which show up between the new EOF and the maximum
+<<<<<<< HEAD
 	 * possible file size.  If the first block to be removed is
 	 * beyond the maximum file size (ie it is the same as last_block),
 	 * then there is nothing to do.
@@ -1576,12 +2164,41 @@ xfs_itruncate_extents_flags(
 		error = xfs_trans_roll_inode(&tp, ip);
 		if (error)
 			goto out;
+=======
+	 * possible file size.
+	 *
+	 * We have to free all the blocks to the bmbt maximum offset, even if
+	 * the page cache can't scale that far.
+	 */
+	first_unmap_block = XFS_B_TO_FSB(mp, (xfs_ufsize_t)new_size);
+	if (!xfs_verify_fileoff(mp, first_unmap_block)) {
+		WARN_ON_ONCE(first_unmap_block > XFS_MAX_FILEOFF);
+		return 0;
+	}
+
+	unmap_len = XFS_MAX_FILEOFF - first_unmap_block + 1;
+	while (unmap_len > 0) {
+		ASSERT(tp->t_firstblock == NULLFSBLOCK);
+		error = __xfs_bunmapi(tp, ip, first_unmap_block, &unmap_len,
+				flags, XFS_ITRUNC_MAX_EXTENTS);
+		if (error)
+			goto out;
+
+		/* free the just unmapped extents */
+		error = xfs_defer_finish(&tp);
+		if (error)
+			goto out;
+>>>>>>> upstream/android-13
 	}
 
 	if (whichfork == XFS_DATA_FORK) {
 		/* Remove all pending CoW reservations. */
 		error = xfs_reflink_cancel_cow_blocks(ip, &tp,
+<<<<<<< HEAD
 				first_unmap_block, last_block, true);
+=======
+				first_unmap_block, XFS_MAX_FILEOFF, true);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out;
 
@@ -1606,16 +2223,27 @@ xfs_release(
 	xfs_inode_t	*ip)
 {
 	xfs_mount_t	*mp = ip->i_mount;
+<<<<<<< HEAD
 	int		error;
+=======
+	int		error = 0;
+>>>>>>> upstream/android-13
 
 	if (!S_ISREG(VFS_I(ip)->i_mode) || (VFS_I(ip)->i_mode == 0))
 		return 0;
 
 	/* If this is a read-only mount, don't do this (would generate I/O) */
+<<<<<<< HEAD
 	if (mp->m_flags & XFS_MOUNT_RDONLY)
 		return 0;
 
 	if (!XFS_FORCED_SHUTDOWN(mp)) {
+=======
+	if (xfs_is_readonly(mp))
+		return 0;
+
+	if (!xfs_is_shutdown(mp)) {
+>>>>>>> upstream/android-13
 		int truncated;
 
 		/*
@@ -1642,8 +2270,21 @@ xfs_release(
 	if (VFS_I(ip)->i_nlink == 0)
 		return 0;
 
+<<<<<<< HEAD
 	if (xfs_can_free_eofblocks(ip, false)) {
 
+=======
+	/*
+	 * If we can't get the iolock just skip truncating the blocks past EOF
+	 * because we could deadlock with the mmap_lock otherwise. We'll get
+	 * another chance to drop them once the last reference to the inode is
+	 * dropped, so we'll never leak blocks permanently.
+	 */
+	if (!xfs_ilock_nowait(ip, XFS_IOLOCK_EXCL))
+		return 0;
+
+	if (xfs_can_free_eofblocks(ip, false)) {
+>>>>>>> upstream/android-13
 		/*
 		 * Check if the inode is being opened, written and closed
 		 * frequently and we have delayed allocation blocks outstanding
@@ -1659,6 +2300,7 @@ xfs_release(
 		 * place.
 		 */
 		if (xfs_iflags_test(ip, XFS_IDIRTY_RELEASE))
+<<<<<<< HEAD
 			return 0;
 		/*
 		 * If we can't get the iolock just skip truncating the blocks
@@ -1673,12 +2315,26 @@ xfs_release(
 			if (error)
 				return error;
 		}
+=======
+			goto out_unlock;
+
+		error = xfs_free_eofblocks(ip);
+		if (error)
+			goto out_unlock;
+>>>>>>> upstream/android-13
 
 		/* delalloc blocks after truncation means it really is dirty */
 		if (ip->i_delayed_blks)
 			xfs_iflags_set(ip, XFS_IDIRTY_RELEASE);
 	}
+<<<<<<< HEAD
 	return 0;
+=======
+
+out_unlock:
+	xfs_iunlock(ip, XFS_IOLOCK_EXCL);
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1696,7 +2352,11 @@ xfs_inactive_truncate(
 
 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_itruncate, 0, 0, 0, &tp);
 	if (error) {
+<<<<<<< HEAD
 		ASSERT(XFS_FORCED_SHUTDOWN(mp));
+=======
+		ASSERT(xfs_is_shutdown(mp));
+>>>>>>> upstream/android-13
 		return error;
 	}
 	xfs_ilock(ip, XFS_ILOCK_EXCL);
@@ -1707,14 +2367,22 @@ xfs_inactive_truncate(
 	 * of a system crash before the truncate completes. See the related
 	 * comment in xfs_vn_setattr_size() for details.
 	 */
+<<<<<<< HEAD
 	ip->i_d.di_size = 0;
+=======
+	ip->i_disk_size = 0;
+>>>>>>> upstream/android-13
 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 
 	error = xfs_itruncate_extents(&tp, ip, XFS_DATA_FORK, 0);
 	if (error)
 		goto error_trans_cancel;
 
+<<<<<<< HEAD
 	ASSERT(ip->i_d.di_nextents == 0);
+=======
+	ASSERT(ip->i_df.if_nextents == 0);
+>>>>>>> upstream/android-13
 
 	error = xfs_trans_commit(tp);
 	if (error)
@@ -1767,7 +2435,11 @@ xfs_inactive_ifree(
 			"Failed to remove inode(s) from unlinked list. "
 			"Please free space, unmount and run xfs_repair.");
 		} else {
+<<<<<<< HEAD
 			ASSERT(XFS_FORCED_SHUTDOWN(mp));
+=======
+			ASSERT(xfs_is_shutdown(mp));
+>>>>>>> upstream/android-13
 		}
 		return error;
 	}
@@ -1803,7 +2475,11 @@ xfs_inactive_ifree(
 		 * might do that, we need to make sure.  Otherwise the
 		 * inode might be lost for a long time or forever.
 		 */
+<<<<<<< HEAD
 		if (!XFS_FORCED_SHUTDOWN(mp)) {
+=======
+		if (!xfs_is_shutdown(mp)) {
+>>>>>>> upstream/android-13
 			xfs_notice(mp, "%s: xfs_ifree returned error %d",
 				__func__, error);
 			xfs_force_shutdown(mp, SHUTDOWN_META_IO_ERROR);
@@ -1830,6 +2506,62 @@ xfs_inactive_ifree(
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Returns true if we need to update the on-disk metadata before we can free
+ * the memory used by this inode.  Updates include freeing post-eof
+ * preallocations; freeing COW staging extents; and marking the inode free in
+ * the inobt if it is on the unlinked list.
+ */
+bool
+xfs_inode_needs_inactive(
+	struct xfs_inode	*ip)
+{
+	struct xfs_mount	*mp = ip->i_mount;
+	struct xfs_ifork	*cow_ifp = XFS_IFORK_PTR(ip, XFS_COW_FORK);
+
+	/*
+	 * If the inode is already free, then there can be nothing
+	 * to clean up here.
+	 */
+	if (VFS_I(ip)->i_mode == 0)
+		return false;
+
+	/* If this is a read-only mount, don't do this (would generate I/O) */
+	if (xfs_is_readonly(mp))
+		return false;
+
+	/* If the log isn't running, push inodes straight to reclaim. */
+	if (xfs_is_shutdown(mp) || xfs_has_norecovery(mp))
+		return false;
+
+	/* Metadata inodes require explicit resource cleanup. */
+	if (xfs_is_metadata_inode(ip))
+		return false;
+
+	/* Want to clean out the cow blocks if there are any. */
+	if (cow_ifp && cow_ifp->if_bytes > 0)
+		return true;
+
+	/* Unlinked files must be freed. */
+	if (VFS_I(ip)->i_nlink == 0)
+		return true;
+
+	/*
+	 * This file isn't being freed, so check if there are post-eof blocks
+	 * to free.  @force is true because we are evicting an inode from the
+	 * cache.  Post-eof blocks must be freed, lest we end up with broken
+	 * free space accounting.
+	 *
+	 * Note: don't bother with iolock here since lockdep complains about
+	 * acquiring it in reclaim context. We have the only reference to the
+	 * inode at this point anyways.
+	 */
+	return xfs_can_free_eofblocks(ip, true);
+}
+
+/*
+>>>>>>> upstream/android-13
  * xfs_inactive
  *
  * This is called when the vnode reference count for the vnode
@@ -1851,15 +2583,28 @@ xfs_inactive(
 	 */
 	if (VFS_I(ip)->i_mode == 0) {
 		ASSERT(ip->i_df.if_broot_bytes == 0);
+<<<<<<< HEAD
 		return;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 	}
 
 	mp = ip->i_mount;
 	ASSERT(!xfs_iflags_test(ip, XFS_IRECOVERY));
 
 	/* If this is a read-only mount, don't do this (would generate I/O) */
+<<<<<<< HEAD
 	if (mp->m_flags & XFS_MOUNT_RDONLY)
 		return;
+=======
+	if (xfs_is_readonly(mp))
+		goto out;
+
+	/* Metadata inodes require explicit resource cleanup. */
+	if (xfs_is_metadata_inode(ip))
+		goto out;
+>>>>>>> upstream/android-13
 
 	/* Try to clean out the cow blocks if there are any. */
 	if (xfs_inode_has_cow_data(ip))
@@ -1878,24 +2623,41 @@ xfs_inactive(
 		if (xfs_can_free_eofblocks(ip, true))
 			xfs_free_eofblocks(ip);
 
+<<<<<<< HEAD
 		return;
 	}
 
 	if (S_ISREG(VFS_I(ip)->i_mode) &&
 	    (ip->i_d.di_size != 0 || XFS_ISIZE(ip) != 0 ||
 	     ip->i_d.di_nextents > 0 || ip->i_delayed_blks > 0))
+=======
+		goto out;
+	}
+
+	if (S_ISREG(VFS_I(ip)->i_mode) &&
+	    (ip->i_disk_size != 0 || XFS_ISIZE(ip) != 0 ||
+	     ip->i_df.if_nextents > 0 || ip->i_delayed_blks > 0))
+>>>>>>> upstream/android-13
 		truncate = 1;
 
 	error = xfs_qm_dqattach(ip);
 	if (error)
+<<<<<<< HEAD
 		return;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	if (S_ISLNK(VFS_I(ip)->i_mode))
 		error = xfs_inactive_symlink(ip);
 	else if (truncate)
 		error = xfs_inactive_truncate(ip);
 	if (error)
+<<<<<<< HEAD
 		return;
+=======
+		goto out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If there are attributes associated with the file then blow them away
@@ -1905,27 +2667,378 @@ xfs_inactive(
 	if (XFS_IFORK_Q(ip)) {
 		error = xfs_attr_inactive(ip);
 		if (error)
+<<<<<<< HEAD
 			return;
 	}
 
 	ASSERT(!ip->i_afp);
 	ASSERT(ip->i_d.di_anextents == 0);
 	ASSERT(ip->i_d.di_forkoff == 0);
+=======
+			goto out;
+	}
+
+	ASSERT(!ip->i_afp);
+	ASSERT(ip->i_forkoff == 0);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Free the inode.
 	 */
+<<<<<<< HEAD
 	error = xfs_inactive_ifree(ip);
 	if (error)
 		return;
 
 	/*
 	 * Release the dquots held by inode, if any.
+=======
+	xfs_inactive_ifree(ip);
+
+out:
+	/*
+	 * We're done making metadata updates for this inode, so we can release
+	 * the attached dquots.
+>>>>>>> upstream/android-13
 	 */
 	xfs_qm_dqdetach(ip);
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * In-Core Unlinked List Lookups
+ * =============================
+ *
+ * Every inode is supposed to be reachable from some other piece of metadata
+ * with the exception of the root directory.  Inodes with a connection to a
+ * file descriptor but not linked from anywhere in the on-disk directory tree
+ * are collectively known as unlinked inodes, though the filesystem itself
+ * maintains links to these inodes so that on-disk metadata are consistent.
+ *
+ * XFS implements a per-AG on-disk hash table of unlinked inodes.  The AGI
+ * header contains a number of buckets that point to an inode, and each inode
+ * record has a pointer to the next inode in the hash chain.  This
+ * singly-linked list causes scaling problems in the iunlink remove function
+ * because we must walk that list to find the inode that points to the inode
+ * being removed from the unlinked hash bucket list.
+ *
+ * What if we modelled the unlinked list as a collection of records capturing
+ * "X.next_unlinked = Y" relations?  If we indexed those records on Y, we'd
+ * have a fast way to look up unlinked list predecessors, which avoids the
+ * slow list walk.  That's exactly what we do here (in-core) with a per-AG
+ * rhashtable.
+ *
+ * Because this is a backref cache, we ignore operational failures since the
+ * iunlink code can fall back to the slow bucket walk.  The only errors that
+ * should bubble out are for obviously incorrect situations.
+ *
+ * All users of the backref cache MUST hold the AGI buffer lock to serialize
+ * access or have otherwise provided for concurrency control.
+ */
+
+/* Capture a "X.next_unlinked = Y" relationship. */
+struct xfs_iunlink {
+	struct rhash_head	iu_rhash_head;
+	xfs_agino_t		iu_agino;		/* X */
+	xfs_agino_t		iu_next_unlinked;	/* Y */
+};
+
+/* Unlinked list predecessor lookup hashtable construction */
+static int
+xfs_iunlink_obj_cmpfn(
+	struct rhashtable_compare_arg	*arg,
+	const void			*obj)
+{
+	const xfs_agino_t		*key = arg->key;
+	const struct xfs_iunlink	*iu = obj;
+
+	if (iu->iu_next_unlinked != *key)
+		return 1;
+	return 0;
+}
+
+static const struct rhashtable_params xfs_iunlink_hash_params = {
+	.min_size		= XFS_AGI_UNLINKED_BUCKETS,
+	.key_len		= sizeof(xfs_agino_t),
+	.key_offset		= offsetof(struct xfs_iunlink,
+					   iu_next_unlinked),
+	.head_offset		= offsetof(struct xfs_iunlink, iu_rhash_head),
+	.automatic_shrinking	= true,
+	.obj_cmpfn		= xfs_iunlink_obj_cmpfn,
+};
+
+/*
+ * Return X, where X.next_unlinked == @agino.  Returns NULLAGINO if no such
+ * relation is found.
+ */
+static xfs_agino_t
+xfs_iunlink_lookup_backref(
+	struct xfs_perag	*pag,
+	xfs_agino_t		agino)
+{
+	struct xfs_iunlink	*iu;
+
+	iu = rhashtable_lookup_fast(&pag->pagi_unlinked_hash, &agino,
+			xfs_iunlink_hash_params);
+	return iu ? iu->iu_agino : NULLAGINO;
+}
+
+/*
+ * Take ownership of an iunlink cache entry and insert it into the hash table.
+ * If successful, the entry will be owned by the cache; if not, it is freed.
+ * Either way, the caller does not own @iu after this call.
+ */
+static int
+xfs_iunlink_insert_backref(
+	struct xfs_perag	*pag,
+	struct xfs_iunlink	*iu)
+{
+	int			error;
+
+	error = rhashtable_insert_fast(&pag->pagi_unlinked_hash,
+			&iu->iu_rhash_head, xfs_iunlink_hash_params);
+	/*
+	 * Fail loudly if there already was an entry because that's a sign of
+	 * corruption of in-memory data.  Also fail loudly if we see an error
+	 * code we didn't anticipate from the rhashtable code.  Currently we
+	 * only anticipate ENOMEM.
+	 */
+	if (error) {
+		WARN(error != -ENOMEM, "iunlink cache insert error %d", error);
+		kmem_free(iu);
+	}
+	/*
+	 * Absorb any runtime errors that aren't a result of corruption because
+	 * this is a cache and we can always fall back to bucket list scanning.
+	 */
+	if (error != 0 && error != -EEXIST)
+		error = 0;
+	return error;
+}
+
+/* Remember that @prev_agino.next_unlinked = @this_agino. */
+static int
+xfs_iunlink_add_backref(
+	struct xfs_perag	*pag,
+	xfs_agino_t		prev_agino,
+	xfs_agino_t		this_agino)
+{
+	struct xfs_iunlink	*iu;
+
+	if (XFS_TEST_ERROR(false, pag->pag_mount, XFS_ERRTAG_IUNLINK_FALLBACK))
+		return 0;
+
+	iu = kmem_zalloc(sizeof(*iu), KM_NOFS);
+	iu->iu_agino = prev_agino;
+	iu->iu_next_unlinked = this_agino;
+
+	return xfs_iunlink_insert_backref(pag, iu);
+}
+
+/*
+ * Replace X.next_unlinked = @agino with X.next_unlinked = @next_unlinked.
+ * If @next_unlinked is NULLAGINO, we drop the backref and exit.  If there
+ * wasn't any such entry then we don't bother.
+ */
+static int
+xfs_iunlink_change_backref(
+	struct xfs_perag	*pag,
+	xfs_agino_t		agino,
+	xfs_agino_t		next_unlinked)
+{
+	struct xfs_iunlink	*iu;
+	int			error;
+
+	/* Look up the old entry; if there wasn't one then exit. */
+	iu = rhashtable_lookup_fast(&pag->pagi_unlinked_hash, &agino,
+			xfs_iunlink_hash_params);
+	if (!iu)
+		return 0;
+
+	/*
+	 * Remove the entry.  This shouldn't ever return an error, but if we
+	 * couldn't remove the old entry we don't want to add it again to the
+	 * hash table, and if the entry disappeared on us then someone's
+	 * violated the locking rules and we need to fail loudly.  Either way
+	 * we cannot remove the inode because internal state is or would have
+	 * been corrupt.
+	 */
+	error = rhashtable_remove_fast(&pag->pagi_unlinked_hash,
+			&iu->iu_rhash_head, xfs_iunlink_hash_params);
+	if (error)
+		return error;
+
+	/* If there is no new next entry just free our item and return. */
+	if (next_unlinked == NULLAGINO) {
+		kmem_free(iu);
+		return 0;
+	}
+
+	/* Update the entry and re-add it to the hash table. */
+	iu->iu_next_unlinked = next_unlinked;
+	return xfs_iunlink_insert_backref(pag, iu);
+}
+
+/* Set up the in-core predecessor structures. */
+int
+xfs_iunlink_init(
+	struct xfs_perag	*pag)
+{
+	return rhashtable_init(&pag->pagi_unlinked_hash,
+			&xfs_iunlink_hash_params);
+}
+
+/* Free the in-core predecessor structures. */
+static void
+xfs_iunlink_free_item(
+	void			*ptr,
+	void			*arg)
+{
+	struct xfs_iunlink	*iu = ptr;
+	bool			*freed_anything = arg;
+
+	*freed_anything = true;
+	kmem_free(iu);
+}
+
+void
+xfs_iunlink_destroy(
+	struct xfs_perag	*pag)
+{
+	bool			freed_anything = false;
+
+	rhashtable_free_and_destroy(&pag->pagi_unlinked_hash,
+			xfs_iunlink_free_item, &freed_anything);
+
+	ASSERT(freed_anything == false || xfs_is_shutdown(pag->pag_mount));
+}
+
+/*
+ * Point the AGI unlinked bucket at an inode and log the results.  The caller
+ * is responsible for validating the old value.
+ */
+STATIC int
+xfs_iunlink_update_bucket(
+	struct xfs_trans	*tp,
+	struct xfs_perag	*pag,
+	struct xfs_buf		*agibp,
+	unsigned int		bucket_index,
+	xfs_agino_t		new_agino)
+{
+	struct xfs_agi		*agi = agibp->b_addr;
+	xfs_agino_t		old_value;
+	int			offset;
+
+	ASSERT(xfs_verify_agino_or_null(tp->t_mountp, pag->pag_agno, new_agino));
+
+	old_value = be32_to_cpu(agi->agi_unlinked[bucket_index]);
+	trace_xfs_iunlink_update_bucket(tp->t_mountp, pag->pag_agno, bucket_index,
+			old_value, new_agino);
+
+	/*
+	 * We should never find the head of the list already set to the value
+	 * passed in because either we're adding or removing ourselves from the
+	 * head of the list.
+	 */
+	if (old_value == new_agino) {
+		xfs_buf_mark_corrupt(agibp);
+		return -EFSCORRUPTED;
+	}
+
+	agi->agi_unlinked[bucket_index] = cpu_to_be32(new_agino);
+	offset = offsetof(struct xfs_agi, agi_unlinked) +
+			(sizeof(xfs_agino_t) * bucket_index);
+	xfs_trans_log_buf(tp, agibp, offset, offset + sizeof(xfs_agino_t) - 1);
+	return 0;
+}
+
+/* Set an on-disk inode's next_unlinked pointer. */
+STATIC void
+xfs_iunlink_update_dinode(
+	struct xfs_trans	*tp,
+	struct xfs_perag	*pag,
+	xfs_agino_t		agino,
+	struct xfs_buf		*ibp,
+	struct xfs_dinode	*dip,
+	struct xfs_imap		*imap,
+	xfs_agino_t		next_agino)
+{
+	struct xfs_mount	*mp = tp->t_mountp;
+	int			offset;
+
+	ASSERT(xfs_verify_agino_or_null(mp, pag->pag_agno, next_agino));
+
+	trace_xfs_iunlink_update_dinode(mp, pag->pag_agno, agino,
+			be32_to_cpu(dip->di_next_unlinked), next_agino);
+
+	dip->di_next_unlinked = cpu_to_be32(next_agino);
+	offset = imap->im_boffset +
+			offsetof(struct xfs_dinode, di_next_unlinked);
+
+	/* need to recalc the inode CRC if appropriate */
+	xfs_dinode_calc_crc(mp, dip);
+	xfs_trans_inode_buf(tp, ibp);
+	xfs_trans_log_buf(tp, ibp, offset, offset + sizeof(xfs_agino_t) - 1);
+}
+
+/* Set an in-core inode's unlinked pointer and return the old value. */
+STATIC int
+xfs_iunlink_update_inode(
+	struct xfs_trans	*tp,
+	struct xfs_inode	*ip,
+	struct xfs_perag	*pag,
+	xfs_agino_t		next_agino,
+	xfs_agino_t		*old_next_agino)
+{
+	struct xfs_mount	*mp = tp->t_mountp;
+	struct xfs_dinode	*dip;
+	struct xfs_buf		*ibp;
+	xfs_agino_t		old_value;
+	int			error;
+
+	ASSERT(xfs_verify_agino_or_null(mp, pag->pag_agno, next_agino));
+
+	error = xfs_imap_to_bp(mp, tp, &ip->i_imap, &ibp);
+	if (error)
+		return error;
+	dip = xfs_buf_offset(ibp, ip->i_imap.im_boffset);
+
+	/* Make sure the old pointer isn't garbage. */
+	old_value = be32_to_cpu(dip->di_next_unlinked);
+	if (!xfs_verify_agino_or_null(mp, pag->pag_agno, old_value)) {
+		xfs_inode_verifier_error(ip, -EFSCORRUPTED, __func__, dip,
+				sizeof(*dip), __this_address);
+		error = -EFSCORRUPTED;
+		goto out;
+	}
+
+	/*
+	 * Since we're updating a linked list, we should never find that the
+	 * current pointer is the same as the new value, unless we're
+	 * terminating the list.
+	 */
+	*old_next_agino = old_value;
+	if (old_value == next_agino) {
+		if (next_agino != NULLAGINO) {
+			xfs_inode_verifier_error(ip, -EFSCORRUPTED, __func__,
+					dip, sizeof(*dip), __this_address);
+			error = -EFSCORRUPTED;
+		}
+		goto out;
+	}
+
+	/* Ok, update the new pointer. */
+	xfs_iunlink_update_dinode(tp, pag, XFS_INO_TO_AGINO(mp, ip->i_ino),
+			ibp, dip, &ip->i_imap, next_agino);
+	return 0;
+out:
+	xfs_trans_brelse(tp, ibp);
+	return error;
+}
+
+/*
+>>>>>>> upstream/android-13
  * This is called when the inode's link count has gone to 0 or we are creating
  * a tmpfile via O_TMPFILE.  The inode @ip must have nlink == 0.
  *
@@ -1934,6 +3047,7 @@ xfs_inactive(
  */
 STATIC int
 xfs_iunlink(
+<<<<<<< HEAD
 	struct xfs_trans *tp,
 	struct xfs_inode *ip)
 {
@@ -2004,6 +3118,186 @@ xfs_iunlink(
 		(sizeof(xfs_agino_t) * bucket_index);
 	xfs_trans_log_buf(tp, agibp, offset,
 			  (offset + sizeof(xfs_agino_t) - 1));
+=======
+	struct xfs_trans	*tp,
+	struct xfs_inode	*ip)
+{
+	struct xfs_mount	*mp = tp->t_mountp;
+	struct xfs_perag	*pag;
+	struct xfs_agi		*agi;
+	struct xfs_buf		*agibp;
+	xfs_agino_t		next_agino;
+	xfs_agino_t		agino = XFS_INO_TO_AGINO(mp, ip->i_ino);
+	short			bucket_index = agino % XFS_AGI_UNLINKED_BUCKETS;
+	int			error;
+
+	ASSERT(VFS_I(ip)->i_nlink == 0);
+	ASSERT(VFS_I(ip)->i_mode != 0);
+	trace_xfs_iunlink(ip);
+
+	pag = xfs_perag_get(mp, XFS_INO_TO_AGNO(mp, ip->i_ino));
+
+	/* Get the agi buffer first.  It ensures lock ordering on the list. */
+	error = xfs_read_agi(mp, tp, pag->pag_agno, &agibp);
+	if (error)
+		goto out;
+	agi = agibp->b_addr;
+
+	/*
+	 * Get the index into the agi hash table for the list this inode will
+	 * go on.  Make sure the pointer isn't garbage and that this inode
+	 * isn't already on the list.
+	 */
+	next_agino = be32_to_cpu(agi->agi_unlinked[bucket_index]);
+	if (next_agino == agino ||
+	    !xfs_verify_agino_or_null(mp, pag->pag_agno, next_agino)) {
+		xfs_buf_mark_corrupt(agibp);
+		error = -EFSCORRUPTED;
+		goto out;
+	}
+
+	if (next_agino != NULLAGINO) {
+		xfs_agino_t		old_agino;
+
+		/*
+		 * There is already another inode in the bucket, so point this
+		 * inode to the current head of the list.
+		 */
+		error = xfs_iunlink_update_inode(tp, ip, pag, next_agino,
+				&old_agino);
+		if (error)
+			goto out;
+		ASSERT(old_agino == NULLAGINO);
+
+		/*
+		 * agino has been unlinked, add a backref from the next inode
+		 * back to agino.
+		 */
+		error = xfs_iunlink_add_backref(pag, agino, next_agino);
+		if (error)
+			goto out;
+	}
+
+	/* Point the head of the list to point to this inode. */
+	error = xfs_iunlink_update_bucket(tp, pag, agibp, bucket_index, agino);
+out:
+	xfs_perag_put(pag);
+	return error;
+}
+
+/* Return the imap, dinode pointer, and buffer for an inode. */
+STATIC int
+xfs_iunlink_map_ino(
+	struct xfs_trans	*tp,
+	xfs_agnumber_t		agno,
+	xfs_agino_t		agino,
+	struct xfs_imap		*imap,
+	struct xfs_dinode	**dipp,
+	struct xfs_buf		**bpp)
+{
+	struct xfs_mount	*mp = tp->t_mountp;
+	int			error;
+
+	imap->im_blkno = 0;
+	error = xfs_imap(mp, tp, XFS_AGINO_TO_INO(mp, agno, agino), imap, 0);
+	if (error) {
+		xfs_warn(mp, "%s: xfs_imap returned error %d.",
+				__func__, error);
+		return error;
+	}
+
+	error = xfs_imap_to_bp(mp, tp, imap, bpp);
+	if (error) {
+		xfs_warn(mp, "%s: xfs_imap_to_bp returned error %d.",
+				__func__, error);
+		return error;
+	}
+
+	*dipp = xfs_buf_offset(*bpp, imap->im_boffset);
+	return 0;
+}
+
+/*
+ * Walk the unlinked chain from @head_agino until we find the inode that
+ * points to @target_agino.  Return the inode number, map, dinode pointer,
+ * and inode cluster buffer of that inode as @agino, @imap, @dipp, and @bpp.
+ *
+ * @tp, @pag, @head_agino, and @target_agino are input parameters.
+ * @agino, @imap, @dipp, and @bpp are all output parameters.
+ *
+ * Do not call this function if @target_agino is the head of the list.
+ */
+STATIC int
+xfs_iunlink_map_prev(
+	struct xfs_trans	*tp,
+	struct xfs_perag	*pag,
+	xfs_agino_t		head_agino,
+	xfs_agino_t		target_agino,
+	xfs_agino_t		*agino,
+	struct xfs_imap		*imap,
+	struct xfs_dinode	**dipp,
+	struct xfs_buf		**bpp)
+{
+	struct xfs_mount	*mp = tp->t_mountp;
+	xfs_agino_t		next_agino;
+	int			error;
+
+	ASSERT(head_agino != target_agino);
+	*bpp = NULL;
+
+	/* See if our backref cache can find it faster. */
+	*agino = xfs_iunlink_lookup_backref(pag, target_agino);
+	if (*agino != NULLAGINO) {
+		error = xfs_iunlink_map_ino(tp, pag->pag_agno, *agino, imap,
+				dipp, bpp);
+		if (error)
+			return error;
+
+		if (be32_to_cpu((*dipp)->di_next_unlinked) == target_agino)
+			return 0;
+
+		/*
+		 * If we get here the cache contents were corrupt, so drop the
+		 * buffer and fall back to walking the bucket list.
+		 */
+		xfs_trans_brelse(tp, *bpp);
+		*bpp = NULL;
+		WARN_ON_ONCE(1);
+	}
+
+	trace_xfs_iunlink_map_prev_fallback(mp, pag->pag_agno);
+
+	/* Otherwise, walk the entire bucket until we find it. */
+	next_agino = head_agino;
+	while (next_agino != target_agino) {
+		xfs_agino_t	unlinked_agino;
+
+		if (*bpp)
+			xfs_trans_brelse(tp, *bpp);
+
+		*agino = next_agino;
+		error = xfs_iunlink_map_ino(tp, pag->pag_agno, next_agino, imap,
+				dipp, bpp);
+		if (error)
+			return error;
+
+		unlinked_agino = be32_to_cpu((*dipp)->di_next_unlinked);
+		/*
+		 * Make sure this pointer is valid and isn't an obvious
+		 * infinite loop.
+		 */
+		if (!xfs_verify_agino(mp, pag->pag_agno, unlinked_agino) ||
+		    next_agino == unlinked_agino) {
+			XFS_CORRUPTION_ERROR(__func__,
+					XFS_ERRLEVEL_LOW, mp,
+					*dipp, sizeof(**dipp));
+			error = -EFSCORRUPTED;
+			return error;
+		}
+		next_agino = unlinked_agino;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -2012,6 +3306,7 @@ xfs_iunlink(
  */
 STATIC int
 xfs_iunlink_remove(
+<<<<<<< HEAD
 	xfs_trans_t	*tp,
 	xfs_inode_t	*ip)
 {
@@ -2053,11 +3348,43 @@ xfs_iunlink_remove(
 	bucket_index = agino % XFS_AGI_UNLINKED_BUCKETS;
 	if (!xfs_verify_agino(mp, agno,
 			be32_to_cpu(agi->agi_unlinked[bucket_index]))) {
+=======
+	struct xfs_trans	*tp,
+	struct xfs_perag	*pag,
+	struct xfs_inode	*ip)
+{
+	struct xfs_mount	*mp = tp->t_mountp;
+	struct xfs_agi		*agi;
+	struct xfs_buf		*agibp;
+	struct xfs_buf		*last_ibp;
+	struct xfs_dinode	*last_dip = NULL;
+	xfs_agino_t		agino = XFS_INO_TO_AGINO(mp, ip->i_ino);
+	xfs_agino_t		next_agino;
+	xfs_agino_t		head_agino;
+	short			bucket_index = agino % XFS_AGI_UNLINKED_BUCKETS;
+	int			error;
+
+	trace_xfs_iunlink_remove(ip);
+
+	/* Get the agi buffer first.  It ensures lock ordering on the list. */
+	error = xfs_read_agi(mp, tp, pag->pag_agno, &agibp);
+	if (error)
+		return error;
+	agi = agibp->b_addr;
+
+	/*
+	 * Get the index into the agi hash table for the list this inode will
+	 * go on.  Make sure the head pointer isn't garbage.
+	 */
+	head_agino = be32_to_cpu(agi->agi_unlinked[bucket_index]);
+	if (!xfs_verify_agino(mp, pag->pag_agno, head_agino)) {
+>>>>>>> upstream/android-13
 		XFS_CORRUPTION_ERROR(__func__, XFS_ERRLEVEL_LOW, mp,
 				agi, sizeof(*agi));
 		return -EFSCORRUPTED;
 	}
 
+<<<<<<< HEAD
 	if (be32_to_cpu(agi->agi_unlinked[bucket_index]) == agino) {
 		/*
 		 * We're at the head of the list.  Get the inode's on-disk
@@ -2187,6 +3514,155 @@ xfs_iunlink_remove(
 		xfs_inobp_check(mp, last_ibp);
 	}
 	return 0;
+=======
+	/*
+	 * Set our inode's next_unlinked pointer to NULL and then return
+	 * the old pointer value so that we can update whatever was previous
+	 * to us in the list to point to whatever was next in the list.
+	 */
+	error = xfs_iunlink_update_inode(tp, ip, pag, NULLAGINO, &next_agino);
+	if (error)
+		return error;
+
+	/*
+	 * If there was a backref pointing from the next inode back to this
+	 * one, remove it because we've removed this inode from the list.
+	 *
+	 * Later, if this inode was in the middle of the list we'll update
+	 * this inode's backref to point from the next inode.
+	 */
+	if (next_agino != NULLAGINO) {
+		error = xfs_iunlink_change_backref(pag, next_agino, NULLAGINO);
+		if (error)
+			return error;
+	}
+
+	if (head_agino != agino) {
+		struct xfs_imap	imap;
+		xfs_agino_t	prev_agino;
+
+		/* We need to search the list for the inode being freed. */
+		error = xfs_iunlink_map_prev(tp, pag, head_agino, agino,
+				&prev_agino, &imap, &last_dip, &last_ibp);
+		if (error)
+			return error;
+
+		/* Point the previous inode on the list to the next inode. */
+		xfs_iunlink_update_dinode(tp, pag, prev_agino, last_ibp,
+				last_dip, &imap, next_agino);
+
+		/*
+		 * Now we deal with the backref for this inode.  If this inode
+		 * pointed at a real inode, change the backref that pointed to
+		 * us to point to our old next.  If this inode was the end of
+		 * the list, delete the backref that pointed to us.  Note that
+		 * change_backref takes care of deleting the backref if
+		 * next_agino is NULLAGINO.
+		 */
+		return xfs_iunlink_change_backref(agibp->b_pag, agino,
+				next_agino);
+	}
+
+	/* Point the head of the list to the next unlinked inode. */
+	return xfs_iunlink_update_bucket(tp, pag, agibp, bucket_index,
+			next_agino);
+}
+
+/*
+ * Look up the inode number specified and if it is not already marked XFS_ISTALE
+ * mark it stale. We should only find clean inodes in this lookup that aren't
+ * already stale.
+ */
+static void
+xfs_ifree_mark_inode_stale(
+	struct xfs_perag	*pag,
+	struct xfs_inode	*free_ip,
+	xfs_ino_t		inum)
+{
+	struct xfs_mount	*mp = pag->pag_mount;
+	struct xfs_inode_log_item *iip;
+	struct xfs_inode	*ip;
+
+retry:
+	rcu_read_lock();
+	ip = radix_tree_lookup(&pag->pag_ici_root, XFS_INO_TO_AGINO(mp, inum));
+
+	/* Inode not in memory, nothing to do */
+	if (!ip) {
+		rcu_read_unlock();
+		return;
+	}
+
+	/*
+	 * because this is an RCU protected lookup, we could find a recently
+	 * freed or even reallocated inode during the lookup. We need to check
+	 * under the i_flags_lock for a valid inode here. Skip it if it is not
+	 * valid, the wrong inode or stale.
+	 */
+	spin_lock(&ip->i_flags_lock);
+	if (ip->i_ino != inum || __xfs_iflags_test(ip, XFS_ISTALE))
+		goto out_iflags_unlock;
+
+	/*
+	 * Don't try to lock/unlock the current inode, but we _cannot_ skip the
+	 * other inodes that we did not find in the list attached to the buffer
+	 * and are not already marked stale. If we can't lock it, back off and
+	 * retry.
+	 */
+	if (ip != free_ip) {
+		if (!xfs_ilock_nowait(ip, XFS_ILOCK_EXCL)) {
+			spin_unlock(&ip->i_flags_lock);
+			rcu_read_unlock();
+			delay(1);
+			goto retry;
+		}
+	}
+	ip->i_flags |= XFS_ISTALE;
+
+	/*
+	 * If the inode is flushing, it is already attached to the buffer.  All
+	 * we needed to do here is mark the inode stale so buffer IO completion
+	 * will remove it from the AIL.
+	 */
+	iip = ip->i_itemp;
+	if (__xfs_iflags_test(ip, XFS_IFLUSHING)) {
+		ASSERT(!list_empty(&iip->ili_item.li_bio_list));
+		ASSERT(iip->ili_last_fields);
+		goto out_iunlock;
+	}
+
+	/*
+	 * Inodes not attached to the buffer can be released immediately.
+	 * Everything else has to go through xfs_iflush_abort() on journal
+	 * commit as the flock synchronises removal of the inode from the
+	 * cluster buffer against inode reclaim.
+	 */
+	if (!iip || list_empty(&iip->ili_item.li_bio_list))
+		goto out_iunlock;
+
+	__xfs_iflags_set(ip, XFS_IFLUSHING);
+	spin_unlock(&ip->i_flags_lock);
+	rcu_read_unlock();
+
+	/* we have a dirty inode in memory that has not yet been flushed. */
+	spin_lock(&iip->ili_lock);
+	iip->ili_last_fields = iip->ili_fields;
+	iip->ili_fields = 0;
+	iip->ili_fsync_fields = 0;
+	spin_unlock(&iip->ili_lock);
+	ASSERT(iip->ili_last_fields);
+
+	if (ip != free_ip)
+		xfs_iunlock(ip, XFS_ILOCK_EXCL);
+	return;
+
+out_iunlock:
+	if (ip != free_ip)
+		xfs_iunlock(ip, XFS_ILOCK_EXCL);
+out_iflags_unlock:
+	spin_unlock(&ip->i_flags_lock);
+	rcu_read_unlock();
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2194,6 +3670,7 @@ xfs_iunlink_remove(
  * inodes that are in memory - they all must be marked stale and attached to
  * the cluster buffer.
  */
+<<<<<<< HEAD
 STATIC int
 xfs_ifree_cluster(
 	xfs_inode_t		*free_ip,
@@ -2221,6 +3698,28 @@ xfs_ifree_cluster(
 	nbufs = mp->m_ialloc_blks / blks_per_cluster;
 
 	for (j = 0; j < nbufs; j++, inum += inodes_per_cluster) {
+=======
+static int
+xfs_ifree_cluster(
+	struct xfs_trans	*tp,
+	struct xfs_perag	*pag,
+	struct xfs_inode	*free_ip,
+	struct xfs_icluster	*xic)
+{
+	struct xfs_mount	*mp = free_ip->i_mount;
+	struct xfs_ino_geometry	*igeo = M_IGEO(mp);
+	struct xfs_buf		*bp;
+	xfs_daddr_t		blkno;
+	xfs_ino_t		inum = xic->first_ino;
+	int			nbufs;
+	int			i, j;
+	int			ioffset;
+	int			error;
+
+	nbufs = igeo->ialloc_blks / igeo->blocks_per_cluster;
+
+	for (j = 0; j < nbufs; j++, inum += igeo->inodes_per_cluster) {
+>>>>>>> upstream/android-13
 		/*
 		 * The allocation bitmap tells us which inodes of the chunk were
 		 * physically allocated. Skip the cluster if an inode falls into
@@ -2228,7 +3727,11 @@ xfs_ifree_cluster(
 		 */
 		ioffset = inum - xic->first_ino;
 		if ((xic->alloc & XFS_INOBT_MASK(ioffset)) == 0) {
+<<<<<<< HEAD
 			ASSERT(ioffset % inodes_per_cluster == 0);
+=======
+			ASSERT(ioffset % igeo->inodes_per_cluster == 0);
+>>>>>>> upstream/android-13
 			continue;
 		}
 
@@ -2237,18 +3740,32 @@ xfs_ifree_cluster(
 
 		/*
 		 * We obtain and lock the backing buffer first in the process
+<<<<<<< HEAD
 		 * here, as we have to ensure that any dirty inode that we
 		 * can't get the flush lock on is attached to the buffer.
+=======
+		 * here to ensure dirty inodes attached to the buffer remain in
+		 * the flushing state while we mark them stale.
+		 *
+>>>>>>> upstream/android-13
 		 * If we scan the in-memory inodes first, then buffer IO can
 		 * complete before we get a lock on it, and hence we may fail
 		 * to mark all the active inodes on the buffer stale.
 		 */
+<<<<<<< HEAD
 		bp = xfs_trans_get_buf(tp, mp->m_ddev_targp, blkno,
 					mp->m_bsize * blks_per_cluster,
 					XBF_UNMAPPED);
 
 		if (!bp)
 			return -ENOMEM;
+=======
+		error = xfs_trans_get_buf(tp, mp->m_ddev_targp, blkno,
+				mp->m_bsize * igeo->blocks_per_cluster,
+				XBF_UNMAPPED, &bp);
+		if (error)
+			return error;
+>>>>>>> upstream/android-13
 
 		/*
 		 * This buffer may not have been correctly initialised as we
@@ -2259,6 +3776,7 @@ xfs_ifree_cluster(
 		 * want it to fail. We can acheive this by adding a write
 		 * verifier to the buffer.
 		 */
+<<<<<<< HEAD
 		 bp->b_ops = &xfs_inode_buf_ops;
 
 		/*
@@ -2376,16 +3894,31 @@ retry:
 			if (ip != free_ip)
 				xfs_iunlock(ip, XFS_ILOCK_EXCL);
 		}
+=======
+		bp->b_ops = &xfs_inode_buf_ops;
+
+		/*
+		 * Now we need to set all the cached clean inodes as XFS_ISTALE,
+		 * too. This requires lookups, and will skip inodes that we've
+		 * already marked XFS_ISTALE.
+		 */
+		for (i = 0; i < igeo->inodes_per_cluster; i++)
+			xfs_ifree_mark_inode_stale(pag, free_ip, inum + i);
+>>>>>>> upstream/android-13
 
 		xfs_trans_stale_inode_buf(tp, bp);
 		xfs_trans_binval(tp, bp);
 	}
+<<<<<<< HEAD
 
 	xfs_perag_put(pag);
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 /*
+<<<<<<< HEAD
  * Free any local-format buffers sitting around before we reset to
  * extents format.
  */
@@ -2404,6 +3937,8 @@ xfs_ifree_local_data(
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * This is called to return an inode to the inode free list.
  * The inode should already be truncated to 0 length and have
  * no pages associated with it.  This routine also assumes that
@@ -2418,6 +3953,7 @@ xfs_ifree(
 	struct xfs_trans	*tp,
 	struct xfs_inode	*ip)
 {
+<<<<<<< HEAD
 	int			error;
 	struct xfs_icluster	xic = { 0 };
 
@@ -2427,10 +3963,26 @@ xfs_ifree(
 	ASSERT(ip->i_d.di_anextents == 0);
 	ASSERT(ip->i_d.di_size == 0 || !S_ISREG(VFS_I(ip)->i_mode));
 	ASSERT(ip->i_d.di_nblocks == 0);
+=======
+	struct xfs_mount	*mp = ip->i_mount;
+	struct xfs_perag	*pag;
+	struct xfs_icluster	xic = { 0 };
+	struct xfs_inode_log_item *iip = ip->i_itemp;
+	int			error;
+
+	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
+	ASSERT(VFS_I(ip)->i_nlink == 0);
+	ASSERT(ip->i_df.if_nextents == 0);
+	ASSERT(ip->i_disk_size == 0 || !S_ISREG(VFS_I(ip)->i_mode));
+	ASSERT(ip->i_nblocks == 0);
+
+	pag = xfs_perag_get(mp, XFS_INO_TO_AGNO(mp, ip->i_ino));
+>>>>>>> upstream/android-13
 
 	/*
 	 * Pull the on-disk inode from the AGI unlinked list.
 	 */
+<<<<<<< HEAD
 	error = xfs_iunlink_remove(tp, ip);
 	if (error)
 		return error;
@@ -2452,6 +4004,39 @@ xfs_ifree(
 
 	/* Don't attempt to replay owner changes for a deleted inode */
 	ip->i_itemp->ili_fields &= ~(XFS_ILOG_AOWNER|XFS_ILOG_DOWNER);
+=======
+	error = xfs_iunlink_remove(tp, pag, ip);
+	if (error)
+		goto out;
+
+	error = xfs_difree(tp, pag, ip->i_ino, &xic);
+	if (error)
+		goto out;
+
+	/*
+	 * Free any local-format data sitting around before we reset the
+	 * data fork to extents format.  Note that the attr fork data has
+	 * already been freed by xfs_attr_inactive.
+	 */
+	if (ip->i_df.if_format == XFS_DINODE_FMT_LOCAL) {
+		kmem_free(ip->i_df.if_u1.if_data);
+		ip->i_df.if_u1.if_data = NULL;
+		ip->i_df.if_bytes = 0;
+	}
+
+	VFS_I(ip)->i_mode = 0;		/* mark incore inode as free */
+	ip->i_diflags = 0;
+	ip->i_diflags2 = mp->m_ino_geo.new_diflags2;
+	ip->i_forkoff = 0;		/* mark the attr fork not in use */
+	ip->i_df.if_format = XFS_DINODE_FMT_EXTENTS;
+	if (xfs_iflags_test(ip, XFS_IPRESERVE_DM_FIELDS))
+		xfs_iflags_clear(ip, XFS_IPRESERVE_DM_FIELDS);
+
+	/* Don't attempt to replay owner changes for a deleted inode */
+	spin_lock(&iip->ili_lock);
+	iip->ili_fields &= ~(XFS_ILOG_AOWNER | XFS_ILOG_DOWNER);
+	spin_unlock(&iip->ili_lock);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Bump the generation count so no one will be confused
@@ -2461,8 +4046,14 @@ xfs_ifree(
 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
 
 	if (xic.deleted)
+<<<<<<< HEAD
 		error = xfs_ifree_cluster(ip, tp, &xic);
 
+=======
+		error = xfs_ifree_cluster(tp, pag, ip, &xic);
+out:
+	xfs_perag_put(pag);
+>>>>>>> upstream/android-13
 	return error;
 }
 
@@ -2480,7 +4071,11 @@ xfs_iunpin(
 	trace_xfs_inode_unpin_nowait(ip, _RET_IP_);
 
 	/* Give the log a push to start the unpinning I/O */
+<<<<<<< HEAD
 	xfs_log_force_lsn(ip->i_mount, ip->i_itemp->ili_last_lsn, 0, NULL);
+=======
+	xfs_log_force_seq(ip->i_mount, ip->i_itemp->ili_commit_seq, 0, NULL);
+>>>>>>> upstream/android-13
 
 }
 
@@ -2550,7 +4145,11 @@ xfs_remove(
 
 	trace_xfs_remove(dp, name);
 
+<<<<<<< HEAD
 	if (XFS_FORCED_SHUTDOWN(mp))
+=======
+	if (xfs_is_shutdown(mp))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	error = xfs_qm_dqattach(dp);
@@ -2610,6 +4209,22 @@ xfs_remove(
 		error = xfs_droplink(tp, ip);
 		if (error)
 			goto out_trans_cancel;
+<<<<<<< HEAD
+=======
+
+		/*
+		 * Point the unlinked child directory's ".." entry to the root
+		 * directory to eliminate back-references to inodes that may
+		 * get freed before the child directory is closed.  If the fs
+		 * gets shrunk, this can lead to dirent inode validation errors.
+		 */
+		if (dp->i_ino != tp->t_mountp->m_sb.sb_rootino) {
+			error = xfs_dir_replace(tp, ip, &xfs_name_dotdot,
+					tp->t_mountp->m_sb.sb_rootino, 0);
+			if (error)
+				return error;
+		}
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * When removing a non-directory we need to log the parent
@@ -2636,7 +4251,11 @@ xfs_remove(
 	 * remove transaction goes to disk before returning to
 	 * the user.
 	 */
+<<<<<<< HEAD
 	if (mp->m_flags & (XFS_MOUNT_WSYNC|XFS_MOUNT_DIRSYNC))
+=======
+	if (xfs_has_wsync(mp) || xfs_has_dirsync(mp))
+>>>>>>> upstream/android-13
 		xfs_trans_set_sync(tp);
 
 	error = xfs_trans_commit(tp);
@@ -2713,7 +4332,11 @@ xfs_finish_rename(
 	 * If this is a synchronous mount, make sure that the rename transaction
 	 * goes to disk before returning to the user.
 	 */
+<<<<<<< HEAD
 	if (tp->t_mountp->m_flags & (XFS_MOUNT_WSYNC|XFS_MOUNT_DIRSYNC))
+=======
+	if (xfs_has_wsync(tp->t_mountp) || xfs_has_dirsync(tp->t_mountp))
+>>>>>>> upstream/android-13
 		xfs_trans_set_sync(tp);
 
 	return xfs_trans_commit(tp);
@@ -2722,7 +4345,11 @@ xfs_finish_rename(
 /*
  * xfs_cross_rename()
  *
+<<<<<<< HEAD
  * responsible for handling RENAME_EXCHANGE flag in renameat2() sytemcall
+=======
+ * responsible for handling RENAME_EXCHANGE flag in renameat2() syscall
+>>>>>>> upstream/android-13
  */
 STATIC int
 xfs_cross_rename(
@@ -2769,9 +4396,13 @@ xfs_cross_rename(
 				error = xfs_droplink(tp, dp2);
 				if (error)
 					goto out_trans_abort;
+<<<<<<< HEAD
 				error = xfs_bumplink(tp, dp1);
 				if (error)
 					goto out_trans_abort;
+=======
+				xfs_bumplink(tp, dp1);
+>>>>>>> upstream/android-13
 			}
 
 			/*
@@ -2795,9 +4426,13 @@ xfs_cross_rename(
 				error = xfs_droplink(tp, dp1);
 				if (error)
 					goto out_trans_abort;
+<<<<<<< HEAD
 				error = xfs_bumplink(tp, dp2);
 				if (error)
 					goto out_trans_abort;
+=======
+				xfs_bumplink(tp, dp2);
+>>>>>>> upstream/android-13
 			}
 
 			/*
@@ -2835,20 +4470,33 @@ out_trans_abort:
 /*
  * xfs_rename_alloc_whiteout()
  *
+<<<<<<< HEAD
  * Return a referenced, unlinked, unlocked inode that that can be used as a
+=======
+ * Return a referenced, unlinked, unlocked inode that can be used as a
+>>>>>>> upstream/android-13
  * whiteout in a rename transaction. We use a tmpfile inode here so that if we
  * crash between allocating the inode and linking it into the rename transaction
  * recovery will free the inode and we won't leak it.
  */
 static int
 xfs_rename_alloc_whiteout(
+<<<<<<< HEAD
+=======
+	struct user_namespace	*mnt_userns,
+>>>>>>> upstream/android-13
 	struct xfs_inode	*dp,
 	struct xfs_inode	**wip)
 {
 	struct xfs_inode	*tmpfile;
 	int			error;
 
+<<<<<<< HEAD
 	error = xfs_create_tmpfile(dp, S_IFCHR | WHITEOUT_MODE, &tmpfile);
+=======
+	error = xfs_create_tmpfile(mnt_userns, dp, S_IFCHR | WHITEOUT_MODE,
+				   &tmpfile);
+>>>>>>> upstream/android-13
 	if (error)
 		return error;
 
@@ -2870,6 +4518,10 @@ xfs_rename_alloc_whiteout(
  */
 int
 xfs_rename(
+<<<<<<< HEAD
+=======
+	struct user_namespace	*mnt_userns,
+>>>>>>> upstream/android-13
 	struct xfs_inode	*src_dp,
 	struct xfs_name		*src_name,
 	struct xfs_inode	*src_ip,
@@ -2882,6 +4534,10 @@ xfs_rename(
 	struct xfs_trans	*tp;
 	struct xfs_inode	*wip = NULL;		/* whiteout inode */
 	struct xfs_inode	*inodes[__XFS_SORT_INODES];
+<<<<<<< HEAD
+=======
+	int			i;
+>>>>>>> upstream/android-13
 	int			num_inodes = __XFS_SORT_INODES;
 	bool			new_parent = (src_dp != target_dp);
 	bool			src_is_directory = S_ISDIR(VFS_I(src_ip)->i_mode);
@@ -2900,7 +4556,11 @@ xfs_rename(
 	 */
 	if (flags & RENAME_WHITEOUT) {
 		ASSERT(!(flags & (RENAME_NOREPLACE | RENAME_EXCHANGE)));
+<<<<<<< HEAD
 		error = xfs_rename_alloc_whiteout(target_dp, &wip);
+=======
+		error = xfs_rename_alloc_whiteout(mnt_userns, target_dp, &wip);
+>>>>>>> upstream/android-13
 		if (error)
 			return error;
 
@@ -2955,8 +4615,13 @@ xfs_rename(
 	 * into our tree when the project IDs are the same; else the
 	 * tree quota mechanism would be circumvented.
 	 */
+<<<<<<< HEAD
 	if (unlikely((target_dp->i_d.di_flags & XFS_DIFLAG_PROJINHERIT) &&
 		     (xfs_get_projid(target_dp) != xfs_get_projid(src_ip)))) {
+=======
+	if (unlikely((target_dp->i_diflags & XFS_DIFLAG_PROJINHERIT) &&
+		     target_dp->i_projid != src_ip->i_projid)) {
+>>>>>>> upstream/android-13
 		error = -EXDEV;
 		goto out_trans_cancel;
 	}
@@ -2970,6 +4635,38 @@ xfs_rename(
 	/*
 	 * Check for expected errors before we dirty the transaction
 	 * so we can return an error without a transaction abort.
+<<<<<<< HEAD
+=======
+	 *
+	 * Extent count overflow check:
+	 *
+	 * From the perspective of src_dp, a rename operation is essentially a
+	 * directory entry remove operation. Hence the only place where we check
+	 * for extent count overflow for src_dp is in
+	 * xfs_bmap_del_extent_real(). xfs_bmap_del_extent_real() returns
+	 * -ENOSPC when it detects a possible extent count overflow and in
+	 * response, the higher layers of directory handling code do the
+	 * following:
+	 * 1. Data/Free blocks: XFS lets these blocks linger until a
+	 *    future remove operation removes them.
+	 * 2. Dabtree blocks: XFS swaps the blocks with the last block in the
+	 *    Leaf space and unmaps the last block.
+	 *
+	 * For target_dp, there are two cases depending on whether the
+	 * destination directory entry exists or not.
+	 *
+	 * When destination directory entry does not exist (i.e. target_ip ==
+	 * NULL), extent count overflow check is performed only when transaction
+	 * has a non-zero sized space reservation associated with it.  With a
+	 * zero-sized space reservation, XFS allows a rename operation to
+	 * continue only when the directory has sufficient free space in its
+	 * data/leaf/free space blocks to hold the new entry.
+	 *
+	 * When destination directory entry exists (i.e. target_ip != NULL), all
+	 * we need to do is change the inode number associated with the already
+	 * existing entry. Hence there is no need to perform an extent count
+	 * overflow check.
+>>>>>>> upstream/android-13
 	 */
 	if (target_ip == NULL) {
 		/*
@@ -2980,6 +4677,15 @@ xfs_rename(
 			error = xfs_dir_canenter(tp, target_dp, target_name);
 			if (error)
 				goto out_trans_cancel;
+<<<<<<< HEAD
+=======
+		} else {
+			error = xfs_iext_count_may_overflow(target_dp,
+					XFS_DATA_FORK,
+					XFS_IEXT_DIR_MANIP_CNT(mp));
+			if (error)
+				goto out_trans_cancel;
+>>>>>>> upstream/android-13
 		}
 	} else {
 		/*
@@ -2995,6 +4701,33 @@ xfs_rename(
 	}
 
 	/*
+<<<<<<< HEAD
+=======
+	 * Lock the AGI buffers we need to handle bumping the nlink of the
+	 * whiteout inode off the unlinked list and to handle dropping the
+	 * nlink of the target inode.  Per locking order rules, do this in
+	 * increasing AG order and before directory block allocation tries to
+	 * grab AGFs because we grab AGIs before AGFs.
+	 *
+	 * The (vfs) caller must ensure that if src is a directory then
+	 * target_ip is either null or an empty directory.
+	 */
+	for (i = 0; i < num_inodes && inodes[i] != NULL; i++) {
+		if (inodes[i] == wip ||
+		    (inodes[i] == target_ip &&
+		     (VFS_I(target_ip)->i_nlink == 1 || src_is_directory))) {
+			struct xfs_buf	*bp;
+			xfs_agnumber_t	agno;
+
+			agno = XFS_INO_TO_AGNO(mp, inodes[i]->i_ino);
+			error = xfs_read_agi(mp, tp, agno, &bp);
+			if (error)
+				goto out_trans_cancel;
+		}
+	}
+
+	/*
+>>>>>>> upstream/android-13
 	 * Directory entry creation below may acquire the AGF. Remove
 	 * the whiteout from the unlinked list first to preserve correct
 	 * AGI/AGF locking order. This dirties the transaction so failures
@@ -3007,13 +4740,26 @@ xfs_rename(
 	 * in future.
 	 */
 	if (wip) {
+<<<<<<< HEAD
 		ASSERT(VFS_I(wip)->i_nlink == 0);
 		error = xfs_iunlink_remove(tp, wip);
+=======
+		struct xfs_perag	*pag;
+
+		ASSERT(VFS_I(wip)->i_nlink == 0);
+
+		pag = xfs_perag_get(mp, XFS_INO_TO_AGNO(mp, wip->i_ino));
+		error = xfs_iunlink_remove(tp, pag, wip);
+		xfs_perag_put(pag);
+>>>>>>> upstream/android-13
 		if (error)
 			goto out_trans_cancel;
 
 		xfs_bumplink(tp, wip);
+<<<<<<< HEAD
 		xfs_trans_log_inode(tp, wip, XFS_ILOG_CORE);
+=======
+>>>>>>> upstream/android-13
 		VFS_I(wip)->i_state &= ~I_LINKABLE;
 	}
 
@@ -3035,9 +4781,13 @@ xfs_rename(
 					XFS_ICHGTIME_MOD | XFS_ICHGTIME_CHG);
 
 		if (new_parent && src_is_directory) {
+<<<<<<< HEAD
 			error = xfs_bumplink(tp, target_dp);
 			if (error)
 				goto out_trans_cancel;
+=======
+			xfs_bumplink(tp, target_dp);
+>>>>>>> upstream/android-13
 		}
 	} else { /* target_ip != NULL */
 		/*
@@ -3124,9 +4874,22 @@ xfs_rename(
 	if (wip) {
 		error = xfs_dir_replace(tp, src_dp, src_name, wip->i_ino,
 					spaceres);
+<<<<<<< HEAD
 	} else
 		error = xfs_dir_removename(tp, src_dp, src_name, src_ip->i_ino,
 					   spaceres);
+=======
+	} else {
+		/*
+		 * NOTE: We don't need to check for extent count overflow here
+		 * because the dir remove name code will leave the dir block in
+		 * place if the extent count would overflow.
+		 */
+		error = xfs_dir_removename(tp, src_dp, src_name, src_ip->i_ino,
+					   spaceres);
+	}
+
+>>>>>>> upstream/android-13
 	if (error)
 		goto out_trans_cancel;
 
@@ -3148,6 +4911,7 @@ out_release_wip:
 	return error;
 }
 
+<<<<<<< HEAD
 STATIC int
 xfs_iflush_cluster(
 	struct xfs_inode	*ip,
@@ -3454,11 +5218,17 @@ xfs_inode_verify_forks(
 STATIC int
 xfs_iflush_int(
 	struct xfs_inode	*ip,
+=======
+static int
+xfs_iflush(
+	struct xfs_inode	*ip,
+>>>>>>> upstream/android-13
 	struct xfs_buf		*bp)
 {
 	struct xfs_inode_log_item *iip = ip->i_itemp;
 	struct xfs_dinode	*dip;
 	struct xfs_mount	*mp = ip->i_mount;
+<<<<<<< HEAD
 
 	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL|XFS_ILOCK_SHARED));
 	ASSERT(xfs_isiflocked(ip));
@@ -3470,21 +5240,50 @@ xfs_iflush_int(
 	/* set *dip = inode's place in the buffer */
 	dip = xfs_buf_offset(bp, ip->i_imap.im_boffset);
 
+=======
+	int			error;
+
+	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL|XFS_ILOCK_SHARED));
+	ASSERT(xfs_iflags_test(ip, XFS_IFLUSHING));
+	ASSERT(ip->i_df.if_format != XFS_DINODE_FMT_BTREE ||
+	       ip->i_df.if_nextents > XFS_IFORK_MAXEXT(ip, XFS_DATA_FORK));
+	ASSERT(iip->ili_item.li_buf == bp);
+
+	dip = xfs_buf_offset(bp, ip->i_imap.im_boffset);
+
+	/*
+	 * We don't flush the inode if any of the following checks fail, but we
+	 * do still update the log item and attach to the backing buffer as if
+	 * the flush happened. This is a formality to facilitate predictable
+	 * error handling as the caller will shutdown and fail the buffer.
+	 */
+	error = -EFSCORRUPTED;
+>>>>>>> upstream/android-13
 	if (XFS_TEST_ERROR(dip->di_magic != cpu_to_be16(XFS_DINODE_MAGIC),
 			       mp, XFS_ERRTAG_IFLUSH_1)) {
 		xfs_alert_tag(mp, XFS_PTAG_IFLUSH,
 			"%s: Bad inode %Lu magic number 0x%x, ptr "PTR_FMT,
 			__func__, ip->i_ino, be16_to_cpu(dip->di_magic), dip);
+<<<<<<< HEAD
 		goto corrupt_out;
 	}
 	if (S_ISREG(VFS_I(ip)->i_mode)) {
 		if (XFS_TEST_ERROR(
 		    (ip->i_d.di_format != XFS_DINODE_FMT_EXTENTS) &&
 		    (ip->i_d.di_format != XFS_DINODE_FMT_BTREE),
+=======
+		goto flush_out;
+	}
+	if (S_ISREG(VFS_I(ip)->i_mode)) {
+		if (XFS_TEST_ERROR(
+		    ip->i_df.if_format != XFS_DINODE_FMT_EXTENTS &&
+		    ip->i_df.if_format != XFS_DINODE_FMT_BTREE,
+>>>>>>> upstream/android-13
 		    mp, XFS_ERRTAG_IFLUSH_3)) {
 			xfs_alert_tag(mp, XFS_PTAG_IFLUSH,
 				"%s: Bad regular inode %Lu, ptr "PTR_FMT,
 				__func__, ip->i_ino, ip);
+<<<<<<< HEAD
 			goto corrupt_out;
 		}
 	} else if (S_ISDIR(VFS_I(ip)->i_mode)) {
@@ -3492,19 +5291,37 @@ xfs_iflush_int(
 		    (ip->i_d.di_format != XFS_DINODE_FMT_EXTENTS) &&
 		    (ip->i_d.di_format != XFS_DINODE_FMT_BTREE) &&
 		    (ip->i_d.di_format != XFS_DINODE_FMT_LOCAL),
+=======
+			goto flush_out;
+		}
+	} else if (S_ISDIR(VFS_I(ip)->i_mode)) {
+		if (XFS_TEST_ERROR(
+		    ip->i_df.if_format != XFS_DINODE_FMT_EXTENTS &&
+		    ip->i_df.if_format != XFS_DINODE_FMT_BTREE &&
+		    ip->i_df.if_format != XFS_DINODE_FMT_LOCAL,
+>>>>>>> upstream/android-13
 		    mp, XFS_ERRTAG_IFLUSH_4)) {
 			xfs_alert_tag(mp, XFS_PTAG_IFLUSH,
 				"%s: Bad directory inode %Lu, ptr "PTR_FMT,
 				__func__, ip->i_ino, ip);
+<<<<<<< HEAD
 			goto corrupt_out;
 		}
 	}
 	if (XFS_TEST_ERROR(ip->i_d.di_nextents + ip->i_d.di_anextents >
 				ip->i_d.di_nblocks, mp, XFS_ERRTAG_IFLUSH_5)) {
+=======
+			goto flush_out;
+		}
+	}
+	if (XFS_TEST_ERROR(ip->i_df.if_nextents + xfs_ifork_nextents(ip->i_afp) >
+				ip->i_nblocks, mp, XFS_ERRTAG_IFLUSH_5)) {
+>>>>>>> upstream/android-13
 		xfs_alert_tag(mp, XFS_PTAG_IFLUSH,
 			"%s: detected corrupt incore inode %Lu, "
 			"total extents = %d, nblocks = %Ld, ptr "PTR_FMT,
 			__func__, ip->i_ino,
+<<<<<<< HEAD
 			ip->i_d.di_nextents + ip->i_d.di_anextents,
 			ip->i_d.di_nblocks, ip);
 		goto corrupt_out;
@@ -3532,6 +5349,41 @@ xfs_iflush_int(
 	/* Check the inline fork data before we write out. */
 	if (!xfs_inode_verify_forks(ip))
 		goto corrupt_out;
+=======
+			ip->i_df.if_nextents + xfs_ifork_nextents(ip->i_afp),
+			ip->i_nblocks, ip);
+		goto flush_out;
+	}
+	if (XFS_TEST_ERROR(ip->i_forkoff > mp->m_sb.sb_inodesize,
+				mp, XFS_ERRTAG_IFLUSH_6)) {
+		xfs_alert_tag(mp, XFS_PTAG_IFLUSH,
+			"%s: bad inode %Lu, forkoff 0x%x, ptr "PTR_FMT,
+			__func__, ip->i_ino, ip->i_forkoff, ip);
+		goto flush_out;
+	}
+
+	/*
+	 * Inode item log recovery for v2 inodes are dependent on the flushiter
+	 * count for correct sequencing.  We bump the flush iteration count so
+	 * we can detect flushes which postdate a log record during recovery.
+	 * This is redundant as we now log every change and hence this can't
+	 * happen but we need to still do it to ensure backwards compatibility
+	 * with old kernels that predate logging all inode changes.
+	 */
+	if (!xfs_has_v3inodes(mp))
+		ip->i_flushiter++;
+
+	/*
+	 * If there are inline format data / attr forks attached to this inode,
+	 * make sure they are not corrupt.
+	 */
+	if (ip->i_df.if_format == XFS_DINODE_FMT_LOCAL &&
+	    xfs_ifork_verify_local_data(ip))
+		goto flush_out;
+	if (ip->i_afp && ip->i_afp->if_format == XFS_DINODE_FMT_LOCAL &&
+	    xfs_ifork_verify_local_attr(ip))
+		goto flush_out;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Copy the dirty parts of the inode into the on-disk inode.  We always
@@ -3541,13 +5393,23 @@ xfs_iflush_int(
 	xfs_inode_to_disk(ip, dip, iip->ili_item.li_lsn);
 
 	/* Wrap, we never let the log put out DI_MAX_FLUSH */
+<<<<<<< HEAD
 	if (ip->i_d.di_flushiter == DI_MAX_FLUSH)
 		ip->i_d.di_flushiter = 0;
+=======
+	if (!xfs_has_v3inodes(mp)) {
+		if (ip->i_flushiter == DI_MAX_FLUSH)
+			ip->i_flushiter = 0;
+	}
+>>>>>>> upstream/android-13
 
 	xfs_iflush_fork(ip, dip, iip, XFS_DATA_FORK);
 	if (XFS_IFORK_Q(ip))
 		xfs_iflush_fork(ip, dip, iip, XFS_ATTR_FORK);
+<<<<<<< HEAD
 	xfs_inobp_check(mp, bp);
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * We've recorded everything logged in the inode, so we'd like to clear
@@ -3560,6 +5422,7 @@ xfs_iflush_int(
 	 *
 	 * What we do is move the bits to the ili_last_fields field.  When
 	 * logging the inode, these bits are moved back to the ili_fields field.
+<<<<<<< HEAD
 	 * In the xfs_iflush_done() routine we clear ili_last_fields, since we
 	 * know that the information those bits represent is permanently on
 	 * disk.  As long as the flush completes before the inode is logged
@@ -3599,6 +5462,146 @@ xfs_iflush_int(
 
 corrupt_out:
 	return -EFSCORRUPTED;
+=======
+	 * In the xfs_buf_inode_iodone() routine we clear ili_last_fields, since
+	 * we know that the information those bits represent is permanently on
+	 * disk.  As long as the flush completes before the inode is logged
+	 * again, then both ili_fields and ili_last_fields will be cleared.
+	 */
+	error = 0;
+flush_out:
+	spin_lock(&iip->ili_lock);
+	iip->ili_last_fields = iip->ili_fields;
+	iip->ili_fields = 0;
+	iip->ili_fsync_fields = 0;
+	spin_unlock(&iip->ili_lock);
+
+	/*
+	 * Store the current LSN of the inode so that we can tell whether the
+	 * item has moved in the AIL from xfs_buf_inode_iodone().
+	 */
+	xfs_trans_ail_copy_lsn(mp->m_ail, &iip->ili_flush_lsn,
+				&iip->ili_item.li_lsn);
+
+	/* generate the checksum. */
+	xfs_dinode_calc_crc(mp, dip);
+	return error;
+}
+
+/*
+ * Non-blocking flush of dirty inode metadata into the backing buffer.
+ *
+ * The caller must have a reference to the inode and hold the cluster buffer
+ * locked. The function will walk across all the inodes on the cluster buffer it
+ * can find and lock without blocking, and flush them to the cluster buffer.
+ *
+ * On successful flushing of at least one inode, the caller must write out the
+ * buffer and release it. If no inodes are flushed, -EAGAIN will be returned and
+ * the caller needs to release the buffer. On failure, the filesystem will be
+ * shut down, the buffer will have been unlocked and released, and EFSCORRUPTED
+ * will be returned.
+ */
+int
+xfs_iflush_cluster(
+	struct xfs_buf		*bp)
+{
+	struct xfs_mount	*mp = bp->b_mount;
+	struct xfs_log_item	*lip, *n;
+	struct xfs_inode	*ip;
+	struct xfs_inode_log_item *iip;
+	int			clcount = 0;
+	int			error = 0;
+
+	/*
+	 * We must use the safe variant here as on shutdown xfs_iflush_abort()
+	 * can remove itself from the list.
+	 */
+	list_for_each_entry_safe(lip, n, &bp->b_li_list, li_bio_list) {
+		iip = (struct xfs_inode_log_item *)lip;
+		ip = iip->ili_inode;
+
+		/*
+		 * Quick and dirty check to avoid locks if possible.
+		 */
+		if (__xfs_iflags_test(ip, XFS_IRECLAIM | XFS_IFLUSHING))
+			continue;
+		if (xfs_ipincount(ip))
+			continue;
+
+		/*
+		 * The inode is still attached to the buffer, which means it is
+		 * dirty but reclaim might try to grab it. Check carefully for
+		 * that, and grab the ilock while still holding the i_flags_lock
+		 * to guarantee reclaim will not be able to reclaim this inode
+		 * once we drop the i_flags_lock.
+		 */
+		spin_lock(&ip->i_flags_lock);
+		ASSERT(!__xfs_iflags_test(ip, XFS_ISTALE));
+		if (__xfs_iflags_test(ip, XFS_IRECLAIM | XFS_IFLUSHING)) {
+			spin_unlock(&ip->i_flags_lock);
+			continue;
+		}
+
+		/*
+		 * ILOCK will pin the inode against reclaim and prevent
+		 * concurrent transactions modifying the inode while we are
+		 * flushing the inode. If we get the lock, set the flushing
+		 * state before we drop the i_flags_lock.
+		 */
+		if (!xfs_ilock_nowait(ip, XFS_ILOCK_SHARED)) {
+			spin_unlock(&ip->i_flags_lock);
+			continue;
+		}
+		__xfs_iflags_set(ip, XFS_IFLUSHING);
+		spin_unlock(&ip->i_flags_lock);
+
+		/*
+		 * Abort flushing this inode if we are shut down because the
+		 * inode may not currently be in the AIL. This can occur when
+		 * log I/O failure unpins the inode without inserting into the
+		 * AIL, leaving a dirty/unpinned inode attached to the buffer
+		 * that otherwise looks like it should be flushed.
+		 */
+		if (xfs_is_shutdown(mp)) {
+			xfs_iunpin_wait(ip);
+			xfs_iflush_abort(ip);
+			xfs_iunlock(ip, XFS_ILOCK_SHARED);
+			error = -EIO;
+			continue;
+		}
+
+		/* don't block waiting on a log force to unpin dirty inodes */
+		if (xfs_ipincount(ip)) {
+			xfs_iflags_clear(ip, XFS_IFLUSHING);
+			xfs_iunlock(ip, XFS_ILOCK_SHARED);
+			continue;
+		}
+
+		if (!xfs_inode_clean(ip))
+			error = xfs_iflush(ip, bp);
+		else
+			xfs_iflags_clear(ip, XFS_IFLUSHING);
+		xfs_iunlock(ip, XFS_ILOCK_SHARED);
+		if (error)
+			break;
+		clcount++;
+	}
+
+	if (error) {
+		bp->b_flags |= XBF_ASYNC;
+		xfs_buf_ioend_fail(bp);
+		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
+		return error;
+	}
+
+	if (!clcount)
+		return -EAGAIN;
+
+	XFS_STATS_INC(mp, xs_icluster_flushcnt);
+	XFS_STATS_ADD(mp, xs_icluster_flushinode, clcount);
+	return 0;
+
+>>>>>>> upstream/android-13
 }
 
 /* Release an inode. */
@@ -3609,3 +5612,112 @@ xfs_irele(
 	trace_xfs_irele(ip, _RET_IP_);
 	iput(VFS_I(ip));
 }
+<<<<<<< HEAD
+=======
+
+/*
+ * Ensure all commited transactions touching the inode are written to the log.
+ */
+int
+xfs_log_force_inode(
+	struct xfs_inode	*ip)
+{
+	xfs_csn_t		seq = 0;
+
+	xfs_ilock(ip, XFS_ILOCK_SHARED);
+	if (xfs_ipincount(ip))
+		seq = ip->i_itemp->ili_commit_seq;
+	xfs_iunlock(ip, XFS_ILOCK_SHARED);
+
+	if (!seq)
+		return 0;
+	return xfs_log_force_seq(ip->i_mount, seq, XFS_LOG_SYNC, NULL);
+}
+
+/*
+ * Grab the exclusive iolock for a data copy from src to dest, making sure to
+ * abide vfs locking order (lowest pointer value goes first) and breaking the
+ * layout leases before proceeding.  The loop is needed because we cannot call
+ * the blocking break_layout() with the iolocks held, and therefore have to
+ * back out both locks.
+ */
+static int
+xfs_iolock_two_inodes_and_break_layout(
+	struct inode		*src,
+	struct inode		*dest)
+{
+	int			error;
+
+	if (src > dest)
+		swap(src, dest);
+
+retry:
+	/* Wait to break both inodes' layouts before we start locking. */
+	error = break_layout(src, true);
+	if (error)
+		return error;
+	if (src != dest) {
+		error = break_layout(dest, true);
+		if (error)
+			return error;
+	}
+
+	/* Lock one inode and make sure nobody got in and leased it. */
+	inode_lock(src);
+	error = break_layout(src, false);
+	if (error) {
+		inode_unlock(src);
+		if (error == -EWOULDBLOCK)
+			goto retry;
+		return error;
+	}
+
+	if (src == dest)
+		return 0;
+
+	/* Lock the other inode and make sure nobody got in and leased it. */
+	inode_lock_nested(dest, I_MUTEX_NONDIR2);
+	error = break_layout(dest, false);
+	if (error) {
+		inode_unlock(src);
+		inode_unlock(dest);
+		if (error == -EWOULDBLOCK)
+			goto retry;
+		return error;
+	}
+
+	return 0;
+}
+
+/*
+ * Lock two inodes so that userspace cannot initiate I/O via file syscalls or
+ * mmap activity.
+ */
+int
+xfs_ilock2_io_mmap(
+	struct xfs_inode	*ip1,
+	struct xfs_inode	*ip2)
+{
+	int			ret;
+
+	ret = xfs_iolock_two_inodes_and_break_layout(VFS_I(ip1), VFS_I(ip2));
+	if (ret)
+		return ret;
+	filemap_invalidate_lock_two(VFS_I(ip1)->i_mapping,
+				    VFS_I(ip2)->i_mapping);
+	return 0;
+}
+
+/* Unlock both inodes to allow IO and mmap activity. */
+void
+xfs_iunlock2_io_mmap(
+	struct xfs_inode	*ip1,
+	struct xfs_inode	*ip2)
+{
+	filemap_invalidate_unlock_two(VFS_I(ip1)->i_mapping,
+				      VFS_I(ip2)->i_mapping);
+	inode_unlock(VFS_I(ip2));
+	if (ip1 != ip2)
+		inode_unlock(VFS_I(ip1));
+}
+>>>>>>> upstream/android-13

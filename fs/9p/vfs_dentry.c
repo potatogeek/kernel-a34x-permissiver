@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/9p/vfs_dentry.c
  *
@@ -5,6 +9,7 @@
  *
  *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
  *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -21,6 +26,8 @@
  *  51 Franklin Street, Fifth Floor
  *  Boston, MA  02111-1301  USA
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -100,6 +107,11 @@ static int v9fs_lookup_revalidate(struct dentry *dentry, unsigned int flags)
 			retval = v9fs_refresh_inode_dotl(fid, inode);
 		else
 			retval = v9fs_refresh_inode(fid, inode);
+<<<<<<< HEAD
+=======
+		p9_client_clunk(fid);
+
+>>>>>>> upstream/android-13
 		if (retval == -ENOENT)
 			return 0;
 		if (retval < 0)

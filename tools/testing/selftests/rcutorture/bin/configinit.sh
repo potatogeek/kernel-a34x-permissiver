@@ -1,6 +1,12 @@
 #!/bin/bash
+<<<<<<< HEAD
 #
 # Usage: configinit.sh config-spec-file build-output-dir results-dir
+=======
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Usage: configinit.sh config-spec-file results-dir
+>>>>>>> upstream/android-13
 #
 # Create a .config file from the spec file.  Run from the kernel source tree.
 # Exits with 0 if all went well, with 1 if all went well but the config
@@ -10,6 +16,7 @@
 # desired settings, for example, "CONFIG_NO_HZ=y".  For best results,
 # this should be a full pathname.
 #
+<<<<<<< HEAD
 # The second argument is a optional path to a build output directory,
 # for example, "O=/tmp/foo".  If this argument is omitted, the .config
 # file will be generated directly in the current directory.
@@ -31,6 +38,11 @@
 # Copyright (C) IBM Corporation, 2013
 #
 # Authors: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+=======
+# Copyright (C) IBM Corporation, 2013
+#
+# Authors: Paul E. McKenney <paulmck@linux.ibm.com>
+>>>>>>> upstream/android-13
 
 T=${TMPDIR-/tmp}/configinit.sh.$$
 trap 'rm -rf $T' 0
@@ -39,6 +51,7 @@ mkdir $T
 # Capture config spec file.
 
 c=$1
+<<<<<<< HEAD
 buildloc=$2
 resdir=$3
 builddir=
@@ -53,11 +66,15 @@ else
 	echo Bad build directory: \"$buildloc\"
 	exit 2
 fi
+=======
+resdir=$2
+>>>>>>> upstream/android-13
 
 sed -e 's/^\(CONFIG[0-9A-Z_]*\)=.*$/grep -v "^# \1" |/' < $c > $T/u.sh
 sed -e 's/^\(CONFIG[0-9A-Z_]*=\).*$/grep -v \1 |/' < $c >> $T/u.sh
 grep '^grep' < $T/u.sh > $T/upd.sh
 echo "cat - $c" >> $T/upd.sh
+<<<<<<< HEAD
 make mrproper
 make $buildloc distclean > $resdir/Make.distclean 2>&1
 make $buildloc $TORTURE_DEFCONFIG > $resdir/Make.defconfig.out 2>&1
@@ -68,5 +85,19 @@ yes '' | make $buildloc oldconfig > $resdir/Make.oldconfig.out 2> $resdir/Make.o
 
 # verify new config matches specification.
 configcheck.sh $builddir/.config $c
+=======
+if test -z "$TORTURE_TRUST_MAKE"
+then
+	make clean > $resdir/Make.clean 2>&1
+fi
+make $TORTURE_KMAKE_ARG $TORTURE_DEFCONFIG > $resdir/Make.defconfig.out 2>&1
+mv .config .config.sav
+sh $T/upd.sh < .config.sav > .config
+cp .config .config.new
+yes '' | make $TORTURE_KMAKE_ARG oldconfig > $resdir/Make.oldconfig.out 2> $resdir/Make.oldconfig.err
+
+# verify new config matches specification.
+configcheck.sh .config $c
+>>>>>>> upstream/android-13
 
 exit 0

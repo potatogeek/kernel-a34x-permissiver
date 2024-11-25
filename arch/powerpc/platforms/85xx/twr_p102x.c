@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright 2010-2011, 2013 Freescale Semiconductor, Inc.
  *
@@ -5,11 +9,14 @@
  *
  * Description:
  * TWR-P102x Board Setup
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -23,7 +30,10 @@
 #include <asm/udbg.h>
 #include <asm/mpic.h>
 #include <soc/fsl/qe/qe.h>
+<<<<<<< HEAD
 #include <soc/fsl/qe/qe_ic.h>
+=======
+>>>>>>> upstream/android-13
 
 #include <sysdev/fsl_soc.h>
 #include <sysdev/fsl_pci.h>
@@ -35,16 +45,20 @@ static void __init twr_p1025_pic_init(void)
 {
 	struct mpic *mpic;
 
+<<<<<<< HEAD
 #ifdef CONFIG_QUICC_ENGINE
 	struct device_node *np;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	mpic = mpic_alloc(NULL, 0, MPIC_BIG_ENDIAN |
 			MPIC_SINGLE_DEST_CPU,
 			0, 256, " OpenPIC  ");
 
 	BUG_ON(mpic == NULL);
 	mpic_init(mpic);
+<<<<<<< HEAD
 
 #ifdef CONFIG_QUICC_ENGINE
 	np = of_find_compatible_node(NULL, NULL, "fsl,qe-ic");
@@ -55,6 +69,8 @@ static void __init twr_p1025_pic_init(void)
 	} else
 		pr_err("Could not find qe-ic node\n");
 #endif
+=======
+>>>>>>> upstream/android-13
 }
 
 /* ************************************************************************
@@ -64,10 +80,13 @@ static void __init twr_p1025_pic_init(void)
  */
 static void __init twr_p1025_setup_arch(void)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_QUICC_ENGINE
 	struct device_node *np;
 #endif
 
+=======
+>>>>>>> upstream/android-13
 	if (ppc_md.progress)
 		ppc_md.progress("twr_p1025_setup_arch()", 0);
 
@@ -76,12 +95,19 @@ static void __init twr_p1025_setup_arch(void)
 	fsl_pci_assign_primary();
 
 #ifdef CONFIG_QUICC_ENGINE
+<<<<<<< HEAD
 	mpc85xx_qe_init();
+=======
+>>>>>>> upstream/android-13
 	mpc85xx_qe_par_io_init();
 
 #if IS_ENABLED(CONFIG_UCC_GETH) || IS_ENABLED(CONFIG_SERIAL_QE)
 	if (machine_is(twr_p1025)) {
 		struct ccsr_guts __iomem *guts;
+<<<<<<< HEAD
+=======
+		struct device_node *np;
+>>>>>>> upstream/android-13
 
 		np = of_find_compatible_node(NULL, NULL, "fsl,p1021-guts");
 		if (np) {

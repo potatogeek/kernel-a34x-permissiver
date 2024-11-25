@@ -3,6 +3,7 @@
 #define _ASM_X86_MSHYPER_H
 
 #include <linux/types.h>
+<<<<<<< HEAD
 #include <linux/atomic.h>
 #include <linux/nmi.h>
 #include <asm/io.h>
@@ -131,6 +132,47 @@ static inline void hv_disable_stimer0_percpu_irq(int irq) {}
 extern struct clocksource *hyperv_cs;
 extern void *hv_hypercall_pg;
 extern void  __percpu  **hyperv_pcpu_input_arg;
+=======
+#include <linux/nmi.h>
+#include <linux/msi.h>
+#include <asm/io.h>
+#include <asm/hyperv-tlfs.h>
+#include <asm/nospec-branch.h>
+#include <asm/paravirt.h>
+#include <asm/mshyperv.h>
+
+typedef int (*hyperv_fill_flush_list_func)(
+		struct hv_guest_mapping_flush_list *flush,
+		void *data);
+
+static inline void hv_set_register(unsigned int reg, u64 value)
+{
+	wrmsrl(reg, value);
+}
+
+static inline u64 hv_get_register(unsigned int reg)
+{
+	u64 value;
+
+	rdmsrl(reg, value);
+	return value;
+}
+
+#define hv_get_raw_timer() rdtsc_ordered()
+
+void hyperv_vector_handler(struct pt_regs *regs);
+
+#if IS_ENABLED(CONFIG_HYPERV)
+extern int hyperv_init_cpuhp;
+
+extern void *hv_hypercall_pg;
+
+extern u64 hv_current_partition_id;
+
+int hv_call_deposit_pages(int node, u64 partition_id, u32 num_pages);
+int hv_call_add_logical_proc(int node, u32 lp_index, u32 acpi_id);
+int hv_call_create_vp(int node, u64 partition_id, u32 vp_index, u32 flags);
+>>>>>>> upstream/android-13
 
 static inline u64 hv_do_hypercall(u64 control, void *input, void *output)
 {
@@ -232,6 +274,7 @@ static inline u64 hv_do_fast_hypercall16(u16 code, u64 input1, u64 input2)
 				      : "cc");
 	}
 #endif
+<<<<<<< HEAD
 		return hv_status;
 }
 
@@ -275,6 +318,11 @@ static inline u64 hv_do_rep_hypercall(u16 code, u16 rep_count, u16 varhead_size,
  */
 extern u32 *hv_vp_index;
 extern u32 hv_max_vp_index;
+=======
+	return hv_status;
+}
+
+>>>>>>> upstream/android-13
 extern struct hv_vp_assist_page **hv_vp_assist_page;
 
 static inline struct hv_vp_assist_page *hv_get_vp_assist_page(unsigned int cpu)
@@ -285,6 +333,7 @@ static inline struct hv_vp_assist_page *hv_get_vp_assist_page(unsigned int cpu)
 	return hv_vp_assist_page[cpu];
 }
 
+<<<<<<< HEAD
 /**
  * hv_cpu_number_to_vp_number() - Map CPU to VP.
  * @cpu_number: CPU number in Linux terms
@@ -344,21 +393,56 @@ bool hv_is_hyperv_initialized(void);
 void hyperv_cleanup(void);
 
 void hyperv_reenlightenment_intr(struct pt_regs *regs);
+=======
+void __init hyperv_init(void);
+void hyperv_setup_mmu_ops(void);
+>>>>>>> upstream/android-13
 void set_hv_tscchange_cb(void (*cb)(void));
 void clear_hv_tscchange_cb(void);
 void hyperv_stop_tsc_emulation(void);
 int hyperv_flush_guest_mapping(u64 as);
+<<<<<<< HEAD
 
 #ifdef CONFIG_X86_64
 void hv_apic_init(void);
+=======
+int hyperv_flush_guest_mapping_range(u64 as,
+		hyperv_fill_flush_list_func fill_func, void *data);
+int hyperv_fill_flush_guest_mapping_list(
+		struct hv_guest_mapping_flush_list *flush,
+		u64 start_gfn, u64 end_gfn);
+
+#ifdef CONFIG_X86_64
+void hv_apic_init(void);
+void __init hv_init_spinlocks(void);
+bool hv_vcpu_is_preempted(int vcpu);
+>>>>>>> upstream/android-13
 #else
 static inline void hv_apic_init(void) {}
 #endif
 
+<<<<<<< HEAD
 #else /* CONFIG_HYPERV */
 static inline void hyperv_init(void) {}
 static inline bool hv_is_hyperv_initialized(void) { return false; }
 static inline void hyperv_cleanup(void) {}
+=======
+static inline void hv_set_msi_entry_from_desc(union hv_msi_entry *msi_entry,
+					      struct msi_desc *msi_desc)
+{
+	msi_entry->address.as_uint32 = msi_desc->msg.address_lo;
+	msi_entry->data.as_uint32 = msi_desc->msg.data;
+}
+
+struct irq_domain *hv_create_pci_msi_domain(void);
+
+int hv_map_ioapic_interrupt(int ioapic_id, bool level, int vcpu, int vector,
+		struct hv_interrupt_entry *entry);
+int hv_unmap_ioapic_interrupt(int ioapic_id, struct hv_interrupt_entry *entry);
+
+#else /* CONFIG_HYPERV */
+static inline void hyperv_init(void) {}
+>>>>>>> upstream/android-13
 static inline void hyperv_setup_mmu_ops(void) {}
 static inline void set_hv_tscchange_cb(void (*cb)(void)) {}
 static inline void clear_hv_tscchange_cb(void) {}
@@ -368,6 +452,7 @@ static inline struct hv_vp_assist_page *hv_get_vp_assist_page(unsigned int cpu)
 	return NULL;
 }
 static inline int hyperv_flush_guest_mapping(u64 as) { return -1; }
+<<<<<<< HEAD
 #endif /* CONFIG_HYPERV */
 
 #ifdef CONFIG_HYPERV_TSCPAGE
@@ -439,4 +524,16 @@ static inline u64 hv_read_tsc_page_tsc(const struct ms_hyperv_tsc_page *tsc_pg,
 	return U64_MAX;
 }
 #endif
+=======
+static inline int hyperv_flush_guest_mapping_range(u64 as,
+		hyperv_fill_flush_list_func fill_func, void *data)
+{
+	return -1;
+}
+#endif /* CONFIG_HYPERV */
+
+
+#include <asm-generic/mshyperv.h>
+
+>>>>>>> upstream/android-13
 #endif

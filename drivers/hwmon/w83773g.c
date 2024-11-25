@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2017 IBM Corp.
  *
@@ -6,6 +7,12 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2017 IBM Corp.
+ *
+>>>>>>> upstream/android-13
  * Driver for the Nuvoton W83773G SMBus temperature sensor IC.
  * Supported models: W83773G
  */
@@ -44,7 +51,11 @@ static const struct i2c_device_id w83773_id[] = {
 
 MODULE_DEVICE_TABLE(i2c, w83773_id);
 
+<<<<<<< HEAD
 static const struct of_device_id w83773_of_match[] = {
+=======
+static const struct of_device_id __maybe_unused w83773_of_match[] = {
+>>>>>>> upstream/android-13
 	{
 		.compatible = "nuvoton,w83773g"
 	},
@@ -237,6 +248,7 @@ static umode_t w83773_is_visible(const void *data, enum hwmon_sensor_types type,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const u32 w83773_chip_config[] = {
 	HWMON_C_REGISTER_TZ | HWMON_C_UPDATE_INTERVAL,
 	0
@@ -262,6 +274,15 @@ static const struct hwmon_channel_info w83773_temp = {
 static const struct hwmon_channel_info *w83773_info[] = {
 	&w83773_chip,
 	&w83773_temp,
+=======
+static const struct hwmon_channel_info *w83773_info[] = {
+	HWMON_CHANNEL_INFO(chip,
+			   HWMON_C_REGISTER_TZ | HWMON_C_UPDATE_INTERVAL),
+	HWMON_CHANNEL_INFO(temp,
+			   HWMON_T_INPUT,
+			   HWMON_T_INPUT | HWMON_T_FAULT | HWMON_T_OFFSET,
+			   HWMON_T_INPUT | HWMON_T_FAULT | HWMON_T_OFFSET),
+>>>>>>> upstream/android-13
 	NULL
 };
 
@@ -281,8 +302,12 @@ static const struct regmap_config w83773_regmap_config = {
 	.val_bits = 8,
 };
 
+<<<<<<< HEAD
 static int w83773_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int w83773_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct device *dev = &client->dev;
 	struct device *hwmon_dev;
@@ -318,7 +343,11 @@ static struct i2c_driver w83773_driver = {
 		.name	= "w83773g",
 		.of_match_table = of_match_ptr(w83773_of_match),
 	},
+<<<<<<< HEAD
 	.probe = w83773_probe,
+=======
+	.probe_new = w83773_probe,
+>>>>>>> upstream/android-13
 	.id_table = w83773_id,
 };
 

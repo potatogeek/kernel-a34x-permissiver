@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
     i2c-stub.c - I2C/SMBus chip emulator
 
     Copyright (c) 2004 Mark M. Hoffman <mhoffman@lightlink.com>
     Copyright (C) 2007-2014 Jean Delvare <jdelvare@suse.de>
 
+<<<<<<< HEAD
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +21,10 @@
 */
 
 #define DEBUG 1
+=======
+*/
+
+>>>>>>> upstream/android-13
 #define pr_fmt(fmt) "i2c-stub: " fmt
 
 #include <linux/errno.h>

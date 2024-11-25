@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #ifndef __HNAE_H
@@ -354,7 +360,11 @@ struct hnae_buf_ops {
 };
 
 struct hnae_queue {
+<<<<<<< HEAD
 	void __iomem *io_base;
+=======
+	u8 __iomem *io_base;
+>>>>>>> upstream/android-13
 	phys_addr_t phy_base;
 	struct hnae_ae_dev *dev;	/* the device who use this queue */
 	struct hnae_ring rx_ring ____cacheline_internodealigned_in_smp;
@@ -418,10 +428,13 @@ enum hnae_media_type {
  *   get ring bd number limit
  * get_pauseparam()
  *   get tx and rx of pause frame use
+<<<<<<< HEAD
  * set_autoneg()
  *   set auto autonegotiation of pause frame use
  * get_autoneg()
  *   get auto autonegotiation of pause frame use
+=======
+>>>>>>> upstream/android-13
  * set_pauseparam()
  *   set tx and rx of pause frame use
  * get_coalesce_usecs()
@@ -491,8 +504,11 @@ struct hnae_ae_ops {
 				     u32 *uplimit);
 	void (*get_pauseparam)(struct hnae_handle *handle,
 			       u32 *auto_neg, u32 *rx_en, u32 *tx_en);
+<<<<<<< HEAD
 	int (*set_autoneg)(struct hnae_handle *handle, u8 enable);
 	int (*get_autoneg)(struct hnae_handle *handle);
+=======
+>>>>>>> upstream/android-13
 	int (*set_pauseparam)(struct hnae_handle *handle,
 			      u32 auto_neg, u32 rx_en, u32 tx_en);
 	void (*get_coalesce_usecs)(struct hnae_handle *handle,

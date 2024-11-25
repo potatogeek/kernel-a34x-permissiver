@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * MPC5200 General Purpose Timer device driver
  *
  * Copyright (c) 2009 Secret Lab Technologies Ltd.
  * Copyright (c) 2008 Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * This file is a driver for the the General Purpose Timer (gpt) devices
  * found on the MPC5200 SoC.  Each timer has an IO pin which can be used
  * for GPIO or can be used to raise interrupts.  The timer function can
@@ -194,6 +201,7 @@ static struct irq_chip mpc52xx_gpt_irq_chip = {
 static void mpc52xx_gpt_irq_cascade(struct irq_desc *desc)
 {
 	struct mpc52xx_gpt_priv *gpt = irq_desc_get_handler_data(desc);
+<<<<<<< HEAD
 	int sub_virq;
 	u32 status;
 
@@ -202,6 +210,13 @@ static void mpc52xx_gpt_irq_cascade(struct irq_desc *desc)
 		sub_virq = irq_linear_revmap(gpt->irqhost, 0);
 		generic_handle_irq(sub_virq);
 	}
+=======
+	u32 status;
+
+	status = in_be32(&gpt->regs->status) & MPC52xx_GPT_STATUS_IRQMASK;
+	if (status)
+		generic_handle_domain_irq(gpt->irqhost, 0);
+>>>>>>> upstream/android-13
 }
 
 static int mpc52xx_gpt_irq_map(struct irq_domain *h, unsigned int virq,
@@ -586,6 +601,10 @@ static long mpc52xx_wdt_ioctl(struct file *file, unsigned int cmd,
 		if (ret)
 			break;
 		/* fall through and return the timeout */
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 
 	case WDIOC_GETTIMEOUT:
 		/* we need to round here as to avoid e.g. the following
@@ -628,7 +647,11 @@ static int mpc52xx_wdt_open(struct inode *inode, struct file *file)
 	}
 
 	file->private_data = mpc52xx_gpt_wdt;
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static int mpc52xx_wdt_release(struct inode *inode, struct file *file)
@@ -654,6 +677,10 @@ static const struct file_operations mpc52xx_wdt_fops = {
 	.llseek		= no_llseek,
 	.write		= mpc52xx_wdt_write,
 	.unlocked_ioctl = mpc52xx_wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl	= compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open		= mpc52xx_wdt_open,
 	.release	= mpc52xx_wdt_release,
 };

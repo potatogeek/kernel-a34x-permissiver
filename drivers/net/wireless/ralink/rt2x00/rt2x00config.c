@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
 	<http://rt2x00.serialmonkey.com>
 
+<<<<<<< HEAD
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -14,6 +19,8 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -43,7 +50,10 @@ void rt2x00lib_config_intf(struct rt2x00_dev *rt2x00dev,
 		break;
 	case NL80211_IFTYPE_AP:
 	case NL80211_IFTYPE_MESH_POINT:
+<<<<<<< HEAD
 	case NL80211_IFTYPE_WDS:
+=======
+>>>>>>> upstream/android-13
 		conf.sync = TSF_SYNC_AP_NONE;
 		break;
 	case NL80211_IFTYPE_STATION:

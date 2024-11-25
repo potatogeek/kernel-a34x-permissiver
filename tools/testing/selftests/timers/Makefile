@@ -13,6 +13,10 @@ DESTRUCTIVE_TESTS = alarmtimer-suspend valid-adjtimex adjtick change_skew \
 
 TEST_GEN_PROGS_EXTENDED = $(DESTRUCTIVE_TESTS)
 
+<<<<<<< HEAD
+=======
+TEST_FILES := settings
+>>>>>>> upstream/android-13
 
 include ../lib.mk
 

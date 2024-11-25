@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/net/sunrpc/svc.c
  *
@@ -30,6 +34,11 @@
 
 #include <trace/events/sunrpc.h>
 
+<<<<<<< HEAD
+=======
+#include "fail.h"
+
+>>>>>>> upstream/android-13
 #define RPCDBG_FACILITY	RPCDBG_SVCDSP
 
 static void svc_unregister(const struct svc_serv *serv, struct net *net);
@@ -87,6 +96,7 @@ param_get_pool_mode(char *buf, const struct kernel_param *kp)
 	switch (*ip)
 	{
 	case SVC_POOL_AUTO:
+<<<<<<< HEAD
 		return strlcpy(buf, "auto", 20);
 	case SVC_POOL_GLOBAL:
 		return strlcpy(buf, "global", 20);
@@ -96,6 +106,17 @@ param_get_pool_mode(char *buf, const struct kernel_param *kp)
 		return strlcpy(buf, "pernode", 20);
 	default:
 		return sprintf(buf, "%d", *ip);
+=======
+		return strlcpy(buf, "auto\n", 20);
+	case SVC_POOL_GLOBAL:
+		return strlcpy(buf, "global\n", 20);
+	case SVC_POOL_PERCPU:
+		return strlcpy(buf, "percpu\n", 20);
+	case SVC_POOL_PERNODE:
+		return strlcpy(buf, "pernode\n", 20);
+	default:
+		return sprintf(buf, "%d\n", *ip);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -558,7 +579,11 @@ EXPORT_SYMBOL_GPL(svc_destroy);
 
 /*
  * Allocate an RPC server's buffer space.
+<<<<<<< HEAD
  * We allocate pages and place them in rq_argpages.
+=======
+ * We allocate pages and place them in rq_pages.
+>>>>>>> upstream/android-13
  */
 static int
 svc_init_buffer(struct svc_rqst *rqstp, unsigned int size, int node)
@@ -613,6 +638,13 @@ svc_rqst_alloc(struct svc_serv *serv, struct svc_pool *pool, int node)
 	rqstp->rq_server = serv;
 	rqstp->rq_pool = pool;
 
+<<<<<<< HEAD
+=======
+	rqstp->rq_scratch_page = alloc_pages_node(node, GFP_KERNEL, 0);
+	if (!rqstp->rq_scratch_page)
+		goto out_enomem;
+
+>>>>>>> upstream/android-13
 	rqstp->rq_argp = kmalloc_node(serv->sv_xdrsize, GFP_KERNEL, node);
 	if (!rqstp->rq_argp)
 		goto out_enomem;
@@ -833,6 +865,30 @@ svc_set_num_threads_sync(struct svc_serv *serv, struct svc_pool *pool, int nrser
 }
 EXPORT_SYMBOL_GPL(svc_set_num_threads_sync);
 
+<<<<<<< HEAD
+=======
+/**
+ * svc_rqst_replace_page - Replace one page in rq_pages[]
+ * @rqstp: svc_rqst with pages to replace
+ * @page: replacement page
+ *
+ * When replacing a page in rq_pages, batch the release of the
+ * replaced pages to avoid hammering the page allocator.
+ */
+void svc_rqst_replace_page(struct svc_rqst *rqstp, struct page *page)
+{
+	if (*rqstp->rq_next_page) {
+		if (!pagevec_space(&rqstp->rq_pvec))
+			__pagevec_release(&rqstp->rq_pvec);
+		pagevec_add(&rqstp->rq_pvec, *rqstp->rq_next_page);
+	}
+
+	get_page(page);
+	*(rqstp->rq_next_page++) = page;
+}
+EXPORT_SYMBOL_GPL(svc_rqst_replace_page);
+
+>>>>>>> upstream/android-13
 /*
  * Called from a server thread as it's exiting. Caller must hold the "service
  * mutex" for the service.
@@ -841,6 +897,11 @@ void
 svc_rqst_free(struct svc_rqst *rqstp)
 {
 	svc_release_buffer(rqstp);
+<<<<<<< HEAD
+=======
+	if (rqstp->rq_scratch_page)
+		put_page(rqstp->rq_scratch_page);
+>>>>>>> upstream/android-13
 	kfree(rqstp->rq_resp);
 	kfree(rqstp->rq_argp);
 	kfree(rqstp->rq_auth_data);
@@ -990,9 +1051,60 @@ static int __svc_register(struct net *net, const char *progname,
 #endif
 	}
 
+<<<<<<< HEAD
 	return error;
 }
 
+=======
+	trace_svc_register(progname, version, protocol, port, family, error);
+	return error;
+}
+
+int svc_rpcbind_set_version(struct net *net,
+			    const struct svc_program *progp,
+			    u32 version, int family,
+			    unsigned short proto,
+			    unsigned short port)
+{
+	return __svc_register(net, progp->pg_name, progp->pg_prog,
+				version, family, proto, port);
+
+}
+EXPORT_SYMBOL_GPL(svc_rpcbind_set_version);
+
+int svc_generic_rpcbind_set(struct net *net,
+			    const struct svc_program *progp,
+			    u32 version, int family,
+			    unsigned short proto,
+			    unsigned short port)
+{
+	const struct svc_version *vers = progp->pg_vers[version];
+	int error;
+
+	if (vers == NULL)
+		return 0;
+
+	if (vers->vs_hidden) {
+		trace_svc_noregister(progp->pg_name, version, proto,
+				     port, family, 0);
+		return 0;
+	}
+
+	/*
+	 * Don't register a UDP port if we need congestion
+	 * control.
+	 */
+	if (vers->vs_need_cong_ctrl && proto == IPPROTO_UDP)
+		return 0;
+
+	error = svc_rpcbind_set_version(net, progp, version,
+					family, proto, port);
+
+	return (vers->vs_rpcb_optnl) ? 0 : error;
+}
+EXPORT_SYMBOL_GPL(svc_generic_rpcbind_set);
+
+>>>>>>> upstream/android-13
 /**
  * svc_register - register an RPC service with the local portmapper
  * @serv: svc_serv struct for the service to register
@@ -1008,7 +1120,10 @@ int svc_register(const struct svc_serv *serv, struct net *net,
 		 const unsigned short port)
 {
 	struct svc_program	*progp;
+<<<<<<< HEAD
 	const struct svc_version *vers;
+=======
+>>>>>>> upstream/android-13
 	unsigned int		i;
 	int			error = 0;
 
@@ -1018,6 +1133,7 @@ int svc_register(const struct svc_serv *serv, struct net *net,
 
 	for (progp = serv->sv_program; progp; progp = progp->pg_next) {
 		for (i = 0; i < progp->pg_nvers; i++) {
+<<<<<<< HEAD
 			vers = progp->pg_vers[i];
 			if (vers == NULL)
 				continue;
@@ -1049,6 +1165,11 @@ int svc_register(const struct svc_serv *serv, struct net *net,
 				continue;
 			}
 
+=======
+
+			error = progp->pg_rpcbind_set(net, progp, i,
+					family, proto, port);
+>>>>>>> upstream/android-13
 			if (error < 0) {
 				printk(KERN_WARNING "svc: failed to register "
 					"%sv%u RPC service (errno %d).\n",
@@ -1082,8 +1203,12 @@ static void __svc_unregister(struct net *net, const u32 program, const u32 versi
 	if (error == -EPROTONOSUPPORT)
 		error = rpcb_register(net, program, version, 0, 0);
 
+<<<<<<< HEAD
 	dprintk("svc: %s(%sv%u), error %d\n",
 			__func__, progname, version, error);
+=======
+	trace_svc_unregister(progname, version, error);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1108,9 +1233,12 @@ static void svc_unregister(const struct svc_serv *serv, struct net *net)
 				continue;
 			if (progp->pg_vers[i]->vs_hidden)
 				continue;
+<<<<<<< HEAD
 
 			dprintk("svc: attempting to unregister %sv%u\n",
 				progp->pg_name, i);
+=======
+>>>>>>> upstream/android-13
 			__svc_unregister(net, progp->pg_prog, i, progp->pg_name);
 		}
 	}
@@ -1144,7 +1272,101 @@ void svc_printk(struct svc_rqst *rqstp, const char *fmt, ...)
 static __printf(2,3) void svc_printk(struct svc_rqst *rqstp, const char *fmt, ...) {}
 #endif
 
+<<<<<<< HEAD
 extern void svc_tcp_prep_reply_hdr(struct svc_rqst *);
+=======
+static int
+svc_generic_dispatch(struct svc_rqst *rqstp, __be32 *statp)
+{
+	struct kvec *argv = &rqstp->rq_arg.head[0];
+	struct kvec *resv = &rqstp->rq_res.head[0];
+	const struct svc_procedure *procp = rqstp->rq_procinfo;
+
+	/*
+	 * Decode arguments
+	 * XXX: why do we ignore the return value?
+	 */
+	if (procp->pc_decode &&
+	    !procp->pc_decode(rqstp, argv->iov_base)) {
+		*statp = rpc_garbage_args;
+		return 1;
+	}
+
+	*statp = procp->pc_func(rqstp);
+
+	if (*statp == rpc_drop_reply ||
+	    test_bit(RQ_DROPME, &rqstp->rq_flags))
+		return 0;
+
+	if (rqstp->rq_auth_stat != rpc_auth_ok)
+		return 1;
+
+	if (*statp != rpc_success)
+		return 1;
+
+	/* Encode reply */
+	if (procp->pc_encode &&
+	    !procp->pc_encode(rqstp, resv->iov_base + resv->iov_len)) {
+		dprintk("svc: failed to encode reply\n");
+		/* serv->sv_stats->rpcsystemerr++; */
+		*statp = rpc_system_err;
+	}
+	return 1;
+}
+
+__be32
+svc_generic_init_request(struct svc_rqst *rqstp,
+		const struct svc_program *progp,
+		struct svc_process_info *ret)
+{
+	const struct svc_version *versp = NULL;	/* compiler food */
+	const struct svc_procedure *procp = NULL;
+
+	if (rqstp->rq_vers >= progp->pg_nvers )
+		goto err_bad_vers;
+	versp = progp->pg_vers[rqstp->rq_vers];
+	if (!versp)
+		goto err_bad_vers;
+
+	/*
+	 * Some protocol versions (namely NFSv4) require some form of
+	 * congestion control.  (See RFC 7530 section 3.1 paragraph 2)
+	 * In other words, UDP is not allowed. We mark those when setting
+	 * up the svc_xprt, and verify that here.
+	 *
+	 * The spec is not very clear about what error should be returned
+	 * when someone tries to access a server that is listening on UDP
+	 * for lower versions. RPC_PROG_MISMATCH seems to be the closest
+	 * fit.
+	 */
+	if (versp->vs_need_cong_ctrl && rqstp->rq_xprt &&
+	    !test_bit(XPT_CONG_CTRL, &rqstp->rq_xprt->xpt_flags))
+		goto err_bad_vers;
+
+	if (rqstp->rq_proc >= versp->vs_nproc)
+		goto err_bad_proc;
+	rqstp->rq_procinfo = procp = &versp->vs_proc[rqstp->rq_proc];
+	if (!procp)
+		goto err_bad_proc;
+
+	/* Initialize storage for argp and resp */
+	memset(rqstp->rq_argp, 0, procp->pc_argsize);
+	memset(rqstp->rq_resp, 0, procp->pc_ressize);
+
+	/* Bump per-procedure stats counter */
+	versp->vs_count[rqstp->rq_proc]++;
+
+	ret->dispatch = versp->vs_dispatch;
+	return rpc_success;
+err_bad_vers:
+	ret->mismatch.lovers = progp->pg_lovers;
+	ret->mismatch.hivers = progp->pg_hivers;
+	return rpc_prog_mismatch;
+err_bad_proc:
+	return rpc_proc_unavail;
+}
+EXPORT_SYMBOL_GPL(svc_generic_init_request);
+>>>>>>> upstream/android-13
 
 /*
  * Common routine for processing the RPC request.
@@ -1153,12 +1375,21 @@ static int
 svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 {
 	struct svc_program	*progp;
+<<<<<<< HEAD
 	const struct svc_version *versp = NULL;	/* compiler food */
 	const struct svc_procedure *procp = NULL;
 	struct svc_serv		*serv = rqstp->rq_server;
 	__be32			*statp;
 	u32			prog, vers, proc;
 	__be32			auth_stat, rpc_stat;
+=======
+	const struct svc_procedure *procp = NULL;
+	struct svc_serv		*serv = rqstp->rq_server;
+	struct svc_process_info process;
+	__be32			*statp;
+	u32			prog, vers;
+	__be32			rpc_stat;
+>>>>>>> upstream/android-13
 	int			auth_res;
 	__be32			*reply_statp;
 
@@ -1173,10 +1404,13 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 	set_bit(RQ_USEDEFERRAL, &rqstp->rq_flags);
 	clear_bit(RQ_DROPME, &rqstp->rq_flags);
 
+<<<<<<< HEAD
 	/* Setup reply header */
 	if (rqstp->rq_prot == IPPROTO_TCP)
 		svc_tcp_prep_reply_hdr(rqstp);
 
+=======
+>>>>>>> upstream/android-13
 	svc_putu32(resv, rqstp->rq_xid);
 
 	vers = svc_getnl(argv);
@@ -1193,8 +1427,13 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 	svc_putnl(resv, 0);		/* ACCEPT */
 
 	rqstp->rq_prog = prog = svc_getnl(argv);	/* program number */
+<<<<<<< HEAD
 	rqstp->rq_vers = vers = svc_getnl(argv);	/* version number */
 	rqstp->rq_proc = proc = svc_getnl(argv);	/* procedure number */
+=======
+	rqstp->rq_vers = svc_getnl(argv);	/* version number */
+	rqstp->rq_proc = svc_getnl(argv);	/* procedure number */
+>>>>>>> upstream/android-13
 
 	for (progp = serv->sv_program; progp; progp = progp->pg_next)
 		if (prog == progp->pg_prog)
@@ -1205,12 +1444,21 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 	 * We do this before anything else in order to get a decent
 	 * auth verifier.
 	 */
+<<<<<<< HEAD
 	auth_res = svc_authenticate(rqstp, &auth_stat);
 	/* Also give the program a chance to reject this call: */
 	if (auth_res == SVC_OK && progp) {
 		auth_stat = rpc_autherr_badcred;
 		auth_res = progp->pg_authenticate(rqstp);
 	}
+=======
+	auth_res = svc_authenticate(rqstp);
+	/* Also give the program a chance to reject this call: */
+	if (auth_res == SVC_OK && progp)
+		auth_res = progp->pg_authenticate(rqstp);
+	if (auth_res != SVC_OK)
+		trace_svc_authenticate(rqstp, auth_res);
+>>>>>>> upstream/android-13
 	switch (auth_res) {
 	case SVC_OK:
 		break;
@@ -1232,6 +1480,7 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 	if (progp == NULL)
 		goto err_bad_prog;
 
+<<<<<<< HEAD
 	if (vers >= progp->pg_nvers ||
 	  !(versp = progp->pg_vers[vers]))
 		goto err_bad_vers;
@@ -1255,6 +1504,24 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 	if (proc >= versp->vs_nproc || !procp->pc_func)
 		goto err_bad_proc;
 	rqstp->rq_procinfo = procp;
+=======
+	rpc_stat = progp->pg_init_request(rqstp, progp, &process);
+	switch (rpc_stat) {
+	case rpc_success:
+		break;
+	case rpc_prog_unavail:
+		goto err_bad_prog;
+	case rpc_prog_mismatch:
+		goto err_bad_vers;
+	case rpc_proc_unavail:
+		goto err_bad_proc;
+	}
+
+	procp = rqstp->rq_procinfo;
+	/* Should this check go into the dispatcher? */
+	if (!procp || !procp->pc_func)
+		goto err_bad_proc;
+>>>>>>> upstream/android-13
 
 	/* Syntactic check complete */
 	serv->sv_stats->rpccnt++;
@@ -1264,6 +1531,7 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 	statp = resv->iov_base +resv->iov_len;
 	svc_putnl(resv, RPC_SUCCESS);
 
+<<<<<<< HEAD
 	/* Bump per-procedure stats counter */
 	versp->vs_count[proc]++;
 
@@ -1271,6 +1539,8 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 	memset(rqstp->rq_argp, 0, procp->pc_argsize);
 	memset(rqstp->rq_resp, 0, procp->pc_ressize);
 
+=======
+>>>>>>> upstream/android-13
 	/* un-reserve some of the out-queue now that we have a
 	 * better idea of reply size
 	 */
@@ -1278,6 +1548,7 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 		svc_reserve_auth(rqstp, procp->pc_xdrressize<<2);
 
 	/* Call the function that processes the request. */
+<<<<<<< HEAD
 	if (!versp->vs_dispatch) {
 		/*
 		 * Decode arguments
@@ -1317,6 +1588,22 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 		}
 	}
 
+=======
+	if (!process.dispatch) {
+		if (!svc_generic_dispatch(rqstp, statp))
+			goto release_dropit;
+		if (*statp == rpc_garbage_args)
+			goto err_garbage;
+	} else {
+		dprintk("svc: calling dispatcher\n");
+		if (!process.dispatch(rqstp, statp))
+			goto release_dropit; /* Release reply info */
+	}
+
+	if (rqstp->rq_auth_stat != rpc_auth_ok)
+		goto err_release_bad_auth;
+
+>>>>>>> upstream/android-13
 	/* Check RPC status result */
 	if (*statp != rpc_success)
 		resv->iov_len = ((void*)statp)  - resv->iov_base + 4;
@@ -1333,6 +1620,12 @@ svc_process_common(struct svc_rqst *rqstp, struct kvec *argv, struct kvec *resv)
 		goto close_xprt;
 	return 1;		/* Caller can now send it */
 
+<<<<<<< HEAD
+=======
+release_dropit:
+	if (procp->pc_release)
+		procp->pc_release(rqstp);
+>>>>>>> upstream/android-13
  dropit:
 	svc_authorise(rqstp);	/* doesn't hurt to call this twice */
 	dprintk("svc: svc_process dropit\n");
@@ -1359,14 +1652,27 @@ err_bad_rpc:
 	svc_putnl(resv, 2);
 	goto sendit;
 
+<<<<<<< HEAD
 err_bad_auth:
 	dprintk("svc: authentication failed (%d)\n", ntohl(auth_stat));
+=======
+err_release_bad_auth:
+	if (procp->pc_release)
+		procp->pc_release(rqstp);
+err_bad_auth:
+	dprintk("svc: authentication failed (%d)\n",
+		be32_to_cpu(rqstp->rq_auth_stat));
+>>>>>>> upstream/android-13
 	serv->sv_stats->rpcbadauth++;
 	/* Restore write pointer to location of accept status: */
 	xdr_ressize_check(rqstp, reply_statp);
 	svc_putnl(resv, 1);	/* REJECT */
 	svc_putnl(resv, 1);	/* AUTH_ERROR */
+<<<<<<< HEAD
 	svc_putnl(resv, ntohl(auth_stat));	/* status */
+=======
+	svc_putu32(resv, rqstp->rq_auth_stat);	/* status */
+>>>>>>> upstream/android-13
 	goto sendit;
 
 err_bad_prog:
@@ -1377,6 +1683,7 @@ err_bad_prog:
 
 err_bad_vers:
 	svc_printk(rqstp, "unknown version (%d for prog %d, %s)\n",
+<<<<<<< HEAD
 		       vers, prog, progp->pg_name);
 
 	serv->sv_stats->rpcbadfmt++;
@@ -1387,6 +1694,18 @@ err_bad_vers:
 
 err_bad_proc:
 	svc_printk(rqstp, "unknown procedure (%d)\n", proc);
+=======
+		       rqstp->rq_vers, rqstp->rq_prog, progp->pg_name);
+
+	serv->sv_stats->rpcbadfmt++;
+	svc_putnl(resv, RPC_PROG_MISMATCH);
+	svc_putnl(resv, process.mismatch.lovers);
+	svc_putnl(resv, process.mismatch.hivers);
+	goto sendit;
+
+err_bad_proc:
+	svc_printk(rqstp, "unknown procedure (%d)\n", rqstp->rq_proc);
+>>>>>>> upstream/android-13
 
 	serv->sv_stats->rpcbadfmt++;
 	svc_putnl(resv, RPC_PROC_UNAVAIL);
@@ -1413,6 +1732,15 @@ svc_process(struct svc_rqst *rqstp)
 	struct svc_serv		*serv = rqstp->rq_server;
 	u32			dir;
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_FAIL_SUNRPC)
+	if (!fail_sunrpc.ignore_server_disconnect &&
+	    should_fail(&fail_sunrpc.attr, 1))
+		svc_xprt_deferred_close(rqstp->rq_xprt);
+#endif
+
+>>>>>>> upstream/android-13
 	/*
 	 * Setup response xdr_buf.
 	 * Initially it has just one page
@@ -1500,6 +1828,7 @@ bc_svc_process(struct svc_serv *serv, struct rpc_rqst *req,
 	/* Parse and execute the bc call */
 	proc_error = svc_process_common(rqstp, argv, resv);
 
+<<<<<<< HEAD
 	atomic_inc(&req->rq_xprt->bc_free_slots);
 	if (!proc_error) {
 		/* Processing error: drop the request */
@@ -1507,6 +1836,15 @@ bc_svc_process(struct svc_serv *serv, struct rpc_rqst *req,
 		return 0;
 	}
 
+=======
+	atomic_dec(&req->rq_xprt->bc_slot_count);
+	if (!proc_error) {
+		/* Processing error: drop the request */
+		xprt_free_bc_request(req);
+		error = -EINVAL;
+		goto out;
+	}
+>>>>>>> upstream/android-13
 	/* Finally, send the reply synchronously */
 	memcpy(&req->rq_snd_buf, &rqstp->rq_res, sizeof(req->rq_snd_buf));
 	task = rpc_run_bc_task(req);
@@ -1540,6 +1878,7 @@ u32 svc_max_payload(const struct svc_rqst *rqstp)
 EXPORT_SYMBOL_GPL(svc_max_payload);
 
 /**
+<<<<<<< HEAD
  * svc_fill_write_vector - Construct data argument for VFS write call
  * @rqstp: svc_rqst to operate on
  * @pages: list of pages containing data payload
@@ -1552,6 +1891,53 @@ unsigned int svc_fill_write_vector(struct svc_rqst *rqstp, struct page **pages,
 				   struct kvec *first, size_t total)
 {
 	struct kvec *vec = rqstp->rq_vec;
+=======
+ * svc_proc_name - Return RPC procedure name in string form
+ * @rqstp: svc_rqst to operate on
+ *
+ * Return value:
+ *   Pointer to a NUL-terminated string
+ */
+const char *svc_proc_name(const struct svc_rqst *rqstp)
+{
+	if (rqstp && rqstp->rq_procinfo)
+		return rqstp->rq_procinfo->pc_name;
+	return "unknown";
+}
+
+
+/**
+ * svc_encode_result_payload - mark a range of bytes as a result payload
+ * @rqstp: svc_rqst to operate on
+ * @offset: payload's byte offset in rqstp->rq_res
+ * @length: size of payload, in bytes
+ *
+ * Returns zero on success, or a negative errno if a permanent
+ * error occurred.
+ */
+int svc_encode_result_payload(struct svc_rqst *rqstp, unsigned int offset,
+			      unsigned int length)
+{
+	return rqstp->rq_xprt->xpt_ops->xpo_result_payload(rqstp, offset,
+							   length);
+}
+EXPORT_SYMBOL_GPL(svc_encode_result_payload);
+
+/**
+ * svc_fill_write_vector - Construct data argument for VFS write call
+ * @rqstp: svc_rqst to operate on
+ * @payload: xdr_buf containing only the write data payload
+ *
+ * Fills in rqstp::rq_vec, and returns the number of elements.
+ */
+unsigned int svc_fill_write_vector(struct svc_rqst *rqstp,
+				   struct xdr_buf *payload)
+{
+	struct page **pages = payload->pages;
+	struct kvec *first = payload->head;
+	struct kvec *vec = rqstp->rq_vec;
+	size_t total = payload->len;
+>>>>>>> upstream/android-13
 	unsigned int i;
 
 	/* Some types of transport can present the write payload

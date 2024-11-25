@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * drivers/net/ethernet/mellanox/mlxfw/mlxfw_mfa2.h
  * Copyright (c) 2017 Mellanox Technologies. All rights reserved.
@@ -31,6 +32,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+=======
+/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0 */
+/* Copyright (c) 2017-2019 Mellanox Technologies. All rights reserved */
+>>>>>>> upstream/android-13
 
 #ifndef _MLXFW_MFA2_H
 #define _MLXFW_MFA2_H

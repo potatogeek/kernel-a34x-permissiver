@@ -89,7 +89,10 @@ union cvmx_dpi_bist_status {
 		uint64_t reserved_47_63:17;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_bist_status_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dpi_bist_status_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_45_63:19;
@@ -108,10 +111,13 @@ union cvmx_dpi_bist_status {
 		uint64_t reserved_37_63:27;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_dpi_bist_status_s cn66xx;
 	struct cvmx_dpi_bist_status_cn63xx cn68xx;
 	struct cvmx_dpi_bist_status_cn63xx cn68xxp1;
 	struct cvmx_dpi_bist_status_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_ctl {
@@ -136,12 +142,15 @@ union cvmx_dpi_ctl {
 		uint64_t reserved_1_63:63;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_dpi_ctl_s cn63xx;
 	struct cvmx_dpi_ctl_s cn63xxp1;
 	struct cvmx_dpi_ctl_s cn66xx;
 	struct cvmx_dpi_ctl_s cn68xx;
 	struct cvmx_dpi_ctl_s cn68xxp1;
 	struct cvmx_dpi_ctl_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_counts {
@@ -157,6 +166,7 @@ union cvmx_dpi_dmax_counts {
 		uint64_t reserved_39_63:25;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_counts_s cn61xx;
 	struct cvmx_dpi_dmax_counts_s cn63xx;
 	struct cvmx_dpi_dmax_counts_s cn63xxp1;
@@ -164,6 +174,8 @@ union cvmx_dpi_dmax_counts {
 	struct cvmx_dpi_dmax_counts_s cn68xx;
 	struct cvmx_dpi_dmax_counts_s cn68xxp1;
 	struct cvmx_dpi_dmax_counts_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_dbell {
@@ -177,6 +189,7 @@ union cvmx_dpi_dmax_dbell {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_dbell_s cn61xx;
 	struct cvmx_dpi_dmax_dbell_s cn63xx;
 	struct cvmx_dpi_dmax_dbell_s cn63xxp1;
@@ -184,6 +197,8 @@ union cvmx_dpi_dmax_dbell {
 	struct cvmx_dpi_dmax_dbell_s cn68xx;
 	struct cvmx_dpi_dmax_dbell_s cn68xxp1;
 	struct cvmx_dpi_dmax_dbell_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_err_rsp_status {
@@ -197,11 +212,14 @@ union cvmx_dpi_dmax_err_rsp_status {
 		uint64_t reserved_6_63:58;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_err_rsp_status_s cn61xx;
 	struct cvmx_dpi_dmax_err_rsp_status_s cn66xx;
 	struct cvmx_dpi_dmax_err_rsp_status_s cn68xx;
 	struct cvmx_dpi_dmax_err_rsp_status_s cn68xxp1;
 	struct cvmx_dpi_dmax_err_rsp_status_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_ibuff_saddr {
@@ -242,12 +260,15 @@ union cvmx_dpi_dmax_ibuff_saddr {
 		uint64_t reserved_62_63:2;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_ibuff_saddr_cn61xx cn63xx;
 	struct cvmx_dpi_dmax_ibuff_saddr_cn61xx cn63xxp1;
 	struct cvmx_dpi_dmax_ibuff_saddr_cn61xx cn66xx;
 	struct cvmx_dpi_dmax_ibuff_saddr_s cn68xx;
 	struct cvmx_dpi_dmax_ibuff_saddr_s cn68xxp1;
 	struct cvmx_dpi_dmax_ibuff_saddr_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_iflight {
@@ -261,11 +282,14 @@ union cvmx_dpi_dmax_iflight {
 		uint64_t reserved_3_63:61;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_iflight_s cn61xx;
 	struct cvmx_dpi_dmax_iflight_s cn66xx;
 	struct cvmx_dpi_dmax_iflight_s cn68xx;
 	struct cvmx_dpi_dmax_iflight_s cn68xxp1;
 	struct cvmx_dpi_dmax_iflight_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_naddr {
@@ -288,12 +312,15 @@ union cvmx_dpi_dmax_naddr {
 		uint64_t reserved_36_63:28;
 #endif
 	} cn61xx;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_naddr_cn61xx cn63xx;
 	struct cvmx_dpi_dmax_naddr_cn61xx cn63xxp1;
 	struct cvmx_dpi_dmax_naddr_cn61xx cn66xx;
 	struct cvmx_dpi_dmax_naddr_s cn68xx;
 	struct cvmx_dpi_dmax_naddr_s cn68xxp1;
 	struct cvmx_dpi_dmax_naddr_cn61xx cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_reqbnk0 {
@@ -305,6 +332,7 @@ union cvmx_dpi_dmax_reqbnk0 {
 		uint64_t state:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_reqbnk0_s cn61xx;
 	struct cvmx_dpi_dmax_reqbnk0_s cn63xx;
 	struct cvmx_dpi_dmax_reqbnk0_s cn63xxp1;
@@ -312,6 +340,8 @@ union cvmx_dpi_dmax_reqbnk0 {
 	struct cvmx_dpi_dmax_reqbnk0_s cn68xx;
 	struct cvmx_dpi_dmax_reqbnk0_s cn68xxp1;
 	struct cvmx_dpi_dmax_reqbnk0_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dmax_reqbnk1 {
@@ -323,6 +353,7 @@ union cvmx_dpi_dmax_reqbnk1 {
 		uint64_t state:64;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dmax_reqbnk1_s cn61xx;
 	struct cvmx_dpi_dmax_reqbnk1_s cn63xx;
 	struct cvmx_dpi_dmax_reqbnk1_s cn63xxp1;
@@ -330,6 +361,8 @@ union cvmx_dpi_dmax_reqbnk1 {
 	struct cvmx_dpi_dmax_reqbnk1_s cn68xx;
 	struct cvmx_dpi_dmax_reqbnk1_s cn68xxp1;
 	struct cvmx_dpi_dmax_reqbnk1_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dma_control {
@@ -379,7 +412,10 @@ union cvmx_dpi_dma_control {
 		uint64_t reserved_62_63:2;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dma_control_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dpi_dma_control_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_61_63:3;
@@ -462,10 +498,13 @@ union cvmx_dpi_dma_control {
 		uint64_t reserved_59_63:5;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_dpi_dma_control_cn63xx cn66xx;
 	struct cvmx_dpi_dma_control_s cn68xx;
 	struct cvmx_dpi_dma_control_cn63xx cn68xxp1;
 	struct cvmx_dpi_dma_control_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dma_engx_en {
@@ -479,6 +518,7 @@ union cvmx_dpi_dma_engx_en {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dma_engx_en_s cn61xx;
 	struct cvmx_dpi_dma_engx_en_s cn63xx;
 	struct cvmx_dpi_dma_engx_en_s cn63xxp1;
@@ -486,6 +526,8 @@ union cvmx_dpi_dma_engx_en {
 	struct cvmx_dpi_dma_engx_en_s cn68xx;
 	struct cvmx_dpi_dma_engx_en_s cn68xxp1;
 	struct cvmx_dpi_dma_engx_en_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_dma_ppx_cnt {
@@ -499,9 +541,12 @@ union cvmx_dpi_dma_ppx_cnt {
 		uint64_t reserved_16_63:48;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_dma_ppx_cnt_s cn61xx;
 	struct cvmx_dpi_dma_ppx_cnt_s cn68xx;
 	struct cvmx_dpi_dma_ppx_cnt_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_engx_buf {
@@ -521,7 +566,10 @@ union cvmx_dpi_engx_buf {
 		uint64_t reserved_37_63:27;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_engx_buf_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dpi_engx_buf_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_8_63:56;
@@ -533,11 +581,14 @@ union cvmx_dpi_engx_buf {
 		uint64_t reserved_8_63:56;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_dpi_engx_buf_cn63xx cn63xxp1;
 	struct cvmx_dpi_engx_buf_s cn66xx;
 	struct cvmx_dpi_engx_buf_s cn68xx;
 	struct cvmx_dpi_engx_buf_s cn68xxp1;
 	struct cvmx_dpi_engx_buf_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_info_reg {
@@ -557,8 +608,11 @@ union cvmx_dpi_info_reg {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_info_reg_s cn61xx;
 	struct cvmx_dpi_info_reg_s cn63xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dpi_info_reg_cn63xxp1 {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_2_63:62;
@@ -570,10 +624,13 @@ union cvmx_dpi_info_reg {
 		uint64_t reserved_2_63:62;
 #endif
 	} cn63xxp1;
+<<<<<<< HEAD
 	struct cvmx_dpi_info_reg_s cn66xx;
 	struct cvmx_dpi_info_reg_s cn68xx;
 	struct cvmx_dpi_info_reg_s cn68xxp1;
 	struct cvmx_dpi_info_reg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_int_en {
@@ -617,7 +674,10 @@ union cvmx_dpi_int_en {
 		uint64_t reserved_28_63:36;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_int_en_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dpi_int_en_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_26_63:38;
@@ -653,11 +713,14 @@ union cvmx_dpi_int_en {
 		uint64_t reserved_26_63:38;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_dpi_int_en_cn63xx cn63xxp1;
 	struct cvmx_dpi_int_en_s cn66xx;
 	struct cvmx_dpi_int_en_cn63xx cn68xx;
 	struct cvmx_dpi_int_en_cn63xx cn68xxp1;
 	struct cvmx_dpi_int_en_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_int_reg {
@@ -701,7 +764,10 @@ union cvmx_dpi_int_reg {
 		uint64_t reserved_28_63:36;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_int_reg_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dpi_int_reg_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_26_63:38;
@@ -737,11 +803,14 @@ union cvmx_dpi_int_reg {
 		uint64_t reserved_26_63:38;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_dpi_int_reg_cn63xx cn63xxp1;
 	struct cvmx_dpi_int_reg_s cn66xx;
 	struct cvmx_dpi_int_reg_cn63xx cn68xx;
 	struct cvmx_dpi_int_reg_cn63xx cn68xxp1;
 	struct cvmx_dpi_int_reg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_ncbx_cfg {
@@ -755,10 +824,13 @@ union cvmx_dpi_ncbx_cfg {
 		uint64_t reserved_6_63:58;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_ncbx_cfg_s cn61xx;
 	struct cvmx_dpi_ncbx_cfg_s cn66xx;
 	struct cvmx_dpi_ncbx_cfg_s cn68xx;
 	struct cvmx_dpi_ncbx_cfg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_pint_info {
@@ -776,6 +848,7 @@ union cvmx_dpi_pint_info {
 		uint64_t reserved_14_63:50;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_pint_info_s cn61xx;
 	struct cvmx_dpi_pint_info_s cn63xx;
 	struct cvmx_dpi_pint_info_s cn63xxp1;
@@ -783,6 +856,8 @@ union cvmx_dpi_pint_info {
 	struct cvmx_dpi_pint_info_s cn68xx;
 	struct cvmx_dpi_pint_info_s cn68xxp1;
 	struct cvmx_dpi_pint_info_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_pkt_err_rsp {
@@ -796,6 +871,7 @@ union cvmx_dpi_pkt_err_rsp {
 		uint64_t reserved_1_63:63;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_pkt_err_rsp_s cn61xx;
 	struct cvmx_dpi_pkt_err_rsp_s cn63xx;
 	struct cvmx_dpi_pkt_err_rsp_s cn63xxp1;
@@ -803,6 +879,8 @@ union cvmx_dpi_pkt_err_rsp {
 	struct cvmx_dpi_pkt_err_rsp_s cn68xx;
 	struct cvmx_dpi_pkt_err_rsp_s cn68xxp1;
 	struct cvmx_dpi_pkt_err_rsp_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_req_err_rsp {
@@ -816,6 +894,7 @@ union cvmx_dpi_req_err_rsp {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_req_err_rsp_s cn61xx;
 	struct cvmx_dpi_req_err_rsp_s cn63xx;
 	struct cvmx_dpi_req_err_rsp_s cn63xxp1;
@@ -823,6 +902,8 @@ union cvmx_dpi_req_err_rsp {
 	struct cvmx_dpi_req_err_rsp_s cn68xx;
 	struct cvmx_dpi_req_err_rsp_s cn68xxp1;
 	struct cvmx_dpi_req_err_rsp_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_req_err_rsp_en {
@@ -836,6 +917,7 @@ union cvmx_dpi_req_err_rsp_en {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_req_err_rsp_en_s cn61xx;
 	struct cvmx_dpi_req_err_rsp_en_s cn63xx;
 	struct cvmx_dpi_req_err_rsp_en_s cn63xxp1;
@@ -843,6 +925,8 @@ union cvmx_dpi_req_err_rsp_en {
 	struct cvmx_dpi_req_err_rsp_en_s cn68xx;
 	struct cvmx_dpi_req_err_rsp_en_s cn68xxp1;
 	struct cvmx_dpi_req_err_rsp_en_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_req_err_rst {
@@ -856,6 +940,7 @@ union cvmx_dpi_req_err_rst {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_req_err_rst_s cn61xx;
 	struct cvmx_dpi_req_err_rst_s cn63xx;
 	struct cvmx_dpi_req_err_rst_s cn63xxp1;
@@ -863,6 +948,8 @@ union cvmx_dpi_req_err_rst {
 	struct cvmx_dpi_req_err_rst_s cn68xx;
 	struct cvmx_dpi_req_err_rst_s cn68xxp1;
 	struct cvmx_dpi_req_err_rst_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_req_err_rst_en {
@@ -876,6 +963,7 @@ union cvmx_dpi_req_err_rst_en {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_req_err_rst_en_s cn61xx;
 	struct cvmx_dpi_req_err_rst_en_s cn63xx;
 	struct cvmx_dpi_req_err_rst_en_s cn63xxp1;
@@ -883,6 +971,8 @@ union cvmx_dpi_req_err_rst_en {
 	struct cvmx_dpi_req_err_rst_en_s cn68xx;
 	struct cvmx_dpi_req_err_rst_en_s cn68xxp1;
 	struct cvmx_dpi_req_err_rst_en_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_req_err_skip_comp {
@@ -900,11 +990,14 @@ union cvmx_dpi_req_err_skip_comp {
 		uint64_t reserved_24_63:40;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_req_err_skip_comp_s cn61xx;
 	struct cvmx_dpi_req_err_skip_comp_s cn66xx;
 	struct cvmx_dpi_req_err_skip_comp_s cn68xx;
 	struct cvmx_dpi_req_err_skip_comp_s cn68xxp1;
 	struct cvmx_dpi_req_err_skip_comp_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_req_gbl_en {
@@ -918,6 +1011,7 @@ union cvmx_dpi_req_gbl_en {
 		uint64_t reserved_8_63:56;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_req_gbl_en_s cn61xx;
 	struct cvmx_dpi_req_gbl_en_s cn63xx;
 	struct cvmx_dpi_req_gbl_en_s cn63xxp1;
@@ -925,6 +1019,8 @@ union cvmx_dpi_req_gbl_en {
 	struct cvmx_dpi_req_gbl_en_s cn68xx;
 	struct cvmx_dpi_req_gbl_en_s cn68xxp1;
 	struct cvmx_dpi_req_gbl_en_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_sli_prtx_cfg {
@@ -960,7 +1056,10 @@ union cvmx_dpi_sli_prtx_cfg {
 		uint64_t reserved_25_63:39;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_sli_prtx_cfg_s cn61xx;
+=======
+>>>>>>> upstream/android-13
 	struct cvmx_dpi_sli_prtx_cfg_cn63xx {
 #ifdef __BIG_ENDIAN_BITFIELD
 		uint64_t reserved_25_63:39;
@@ -994,11 +1093,14 @@ union cvmx_dpi_sli_prtx_cfg {
 		uint64_t reserved_25_63:39;
 #endif
 	} cn63xx;
+<<<<<<< HEAD
 	struct cvmx_dpi_sli_prtx_cfg_cn63xx cn63xxp1;
 	struct cvmx_dpi_sli_prtx_cfg_s cn66xx;
 	struct cvmx_dpi_sli_prtx_cfg_cn63xx cn68xx;
 	struct cvmx_dpi_sli_prtx_cfg_cn63xx cn68xxp1;
 	struct cvmx_dpi_sli_prtx_cfg_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_sli_prtx_err {
@@ -1012,6 +1114,7 @@ union cvmx_dpi_sli_prtx_err {
 		uint64_t addr:61;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_sli_prtx_err_s cn61xx;
 	struct cvmx_dpi_sli_prtx_err_s cn63xx;
 	struct cvmx_dpi_sli_prtx_err_s cn63xxp1;
@@ -1019,6 +1122,8 @@ union cvmx_dpi_sli_prtx_err {
 	struct cvmx_dpi_sli_prtx_err_s cn68xx;
 	struct cvmx_dpi_sli_prtx_err_s cn68xxp1;
 	struct cvmx_dpi_sli_prtx_err_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 union cvmx_dpi_sli_prtx_err_info {
@@ -1040,6 +1145,7 @@ union cvmx_dpi_sli_prtx_err_info {
 		uint64_t reserved_9_63:55;
 #endif
 	} s;
+<<<<<<< HEAD
 	struct cvmx_dpi_sli_prtx_err_info_s cn61xx;
 	struct cvmx_dpi_sli_prtx_err_info_s cn63xx;
 	struct cvmx_dpi_sli_prtx_err_info_s cn63xxp1;
@@ -1047,6 +1153,8 @@ union cvmx_dpi_sli_prtx_err_info {
 	struct cvmx_dpi_sli_prtx_err_info_s cn68xx;
 	struct cvmx_dpi_sli_prtx_err_info_s cn68xxp1;
 	struct cvmx_dpi_sli_prtx_err_info_s cnf71xx;
+=======
+>>>>>>> upstream/android-13
 };
 
 #endif

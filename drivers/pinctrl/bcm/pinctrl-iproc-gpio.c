@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2014-2017 Broadcom
  *
@@ -9,6 +10,11 @@
  * kind, whether express or implied; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2014-2017 Broadcom
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -114,6 +120,10 @@ struct iproc_gpio {
 
 	raw_spinlock_t lock;
 
+<<<<<<< HEAD
+=======
+	struct irq_chip irqchip;
+>>>>>>> upstream/android-13
 	struct gpio_chip gc;
 	unsigned num_banks;
 
@@ -138,7 +148,11 @@ static inline unsigned iproc_pin_to_gpio(unsigned pin)
  *  iproc_set_bit - set or clear one bit (corresponding to the GPIO pin) in a
  *  Iproc GPIO register
  *
+<<<<<<< HEAD
  *  @iproc_gpio: Iproc GPIO device
+=======
+ *  @chip: Iproc GPIO device
+>>>>>>> upstream/android-13
  *  @reg: register offset
  *  @gpio: GPIO pin
  *  @set: set or clear
@@ -183,7 +197,10 @@ static void iproc_gpio_irq_handler(struct irq_desc *desc)
 
 		for_each_set_bit(bit, &val, NGPIOS_PER_BANK) {
 			unsigned pin = NGPIOS_PER_BANK * i + bit;
+<<<<<<< HEAD
 			int child_irq = irq_find_mapping(gc->irq.domain, pin);
+=======
+>>>>>>> upstream/android-13
 
 			/*
 			 * Clear the interrupt before invoking the
@@ -192,7 +209,11 @@ static void iproc_gpio_irq_handler(struct irq_desc *desc)
 			writel(BIT(bit), chip->base + (i * GPIO_BANK_SIZE) +
 			       IPROC_GPIO_INT_CLR_OFFSET);
 
+<<<<<<< HEAD
 			generic_handle_irq(child_irq);
+=======
+			generic_handle_domain_irq(gc->irq.domain, pin);
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -293,6 +314,15 @@ static int iproc_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 	iproc_set_bit(chip, IPROC_GPIO_INT_DE_OFFSET, gpio, dual_edge);
 	iproc_set_bit(chip, IPROC_GPIO_INT_EDGE_OFFSET, gpio,
 		       rising_or_high);
+<<<<<<< HEAD
+=======
+
+	if (type & IRQ_TYPE_EDGE_BOTH)
+		irq_set_handler_locked(d, handle_edge_irq);
+	else
+		irq_set_handler_locked(d, handle_level_irq);
+
+>>>>>>> upstream/android-13
 	raw_spin_unlock_irqrestore(&chip->lock, flags);
 
 	dev_dbg(chip->dev,
@@ -302,6 +332,7 @@ static int iproc_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct irq_chip iproc_gpio_irq_chip = {
 	.name = "bcm-iproc-gpio",
 	.irq_ack = iproc_gpio_irq_ack,
@@ -310,6 +341,8 @@ static struct irq_chip iproc_gpio_irq_chip = {
 	.irq_set_type = iproc_gpio_irq_set_type,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Request the Iproc IOMUX pinmux controller to mux individual pins to GPIO
  */
@@ -366,6 +399,21 @@ static int iproc_gpio_direction_output(struct gpio_chip *gc, unsigned gpio,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int iproc_gpio_get_direction(struct gpio_chip *gc, unsigned int gpio)
+{
+	struct iproc_gpio *chip = gpiochip_get_data(gc);
+	unsigned int offset = IPROC_GPIO_REG(gpio, IPROC_GPIO_OUT_EN_OFFSET);
+	unsigned int shift = IPROC_GPIO_SHIFT(gpio);
+
+	if (readl(chip->base + offset) & BIT(shift))
+		return GPIO_LINE_DIRECTION_OUT;
+
+	return GPIO_LINE_DIRECTION_IN;
+}
+
+>>>>>>> upstream/android-13
 static void iproc_gpio_set(struct gpio_chip *gc, unsigned gpio, int val)
 {
 	struct iproc_gpio *chip = gpiochip_get_data(gc);
@@ -801,8 +849,12 @@ static int iproc_gpio_probe(struct platform_device *pdev)
 	chip->dev = dev;
 	platform_set_drvdata(pdev, chip);
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	chip->base = devm_ioremap_resource(dev, res);
+=======
+	chip->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(chip->base)) {
 		dev_err(dev, "unable to map I/O memory\n");
 		return PTR_ERR(chip->base);
@@ -811,10 +863,15 @@ static int iproc_gpio_probe(struct platform_device *pdev)
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	if (res) {
 		chip->io_ctrl = devm_ioremap_resource(dev, res);
+<<<<<<< HEAD
 		if (IS_ERR(chip->io_ctrl)) {
 			dev_err(dev, "unable to map I/O memory\n");
 			return PTR_ERR(chip->io_ctrl);
 		}
+=======
+		if (IS_ERR(chip->io_ctrl))
+			return PTR_ERR(chip->io_ctrl);
+>>>>>>> upstream/android-13
 		if (of_device_is_compatible(dev->of_node,
 					    "brcm,cygnus-ccm-gpio"))
 			io_ctrl_type = IOCTRL_TYPE_CDRU;
@@ -842,12 +899,48 @@ static int iproc_gpio_probe(struct platform_device *pdev)
 	gc->free = iproc_gpio_free;
 	gc->direction_input = iproc_gpio_direction_input;
 	gc->direction_output = iproc_gpio_direction_output;
+<<<<<<< HEAD
+=======
+	gc->get_direction = iproc_gpio_get_direction;
+>>>>>>> upstream/android-13
 	gc->set = iproc_gpio_set;
 	gc->get = iproc_gpio_get;
 
 	chip->pinmux_is_supported = of_property_read_bool(dev->of_node,
 							"gpio-ranges");
 
+<<<<<<< HEAD
+=======
+	/* optional GPIO interrupt support */
+	irq = platform_get_irq_optional(pdev, 0);
+	if (irq > 0) {
+		struct irq_chip *irqc;
+		struct gpio_irq_chip *girq;
+
+		irqc = &chip->irqchip;
+		irqc->name = dev_name(dev);
+		irqc->irq_ack = iproc_gpio_irq_ack;
+		irqc->irq_mask = iproc_gpio_irq_mask;
+		irqc->irq_unmask = iproc_gpio_irq_unmask;
+		irqc->irq_set_type = iproc_gpio_irq_set_type;
+		irqc->irq_enable = iproc_gpio_irq_unmask;
+		irqc->irq_disable = iproc_gpio_irq_mask;
+
+		girq = &gc->irq;
+		girq->chip = irqc;
+		girq->parent_handler = iproc_gpio_irq_handler;
+		girq->num_parents = 1;
+		girq->parents = devm_kcalloc(dev, 1,
+					     sizeof(*girq->parents),
+					     GFP_KERNEL);
+		if (!girq->parents)
+			return -ENOMEM;
+		girq->parents[0] = irq;
+		girq->default_type = IRQ_TYPE_NONE;
+		girq->handler = handle_bad_irq;
+	}
+
+>>>>>>> upstream/android-13
 	ret = gpiochip_add_data(gc, chip);
 	if (ret < 0) {
 		dev_err(dev, "unable to add GPIO chip\n");
@@ -872,6 +965,7 @@ static int iproc_gpio_probe(struct platform_device *pdev)
 		}
 	}
 
+<<<<<<< HEAD
 	/* optional GPIO interrupt support */
 	irq = platform_get_irq(pdev, 0);
 	if (irq) {
@@ -886,6 +980,8 @@ static int iproc_gpio_probe(struct platform_device *pdev)
 					     iproc_gpio_irq_handler);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 
 err_rm_gpiochip:

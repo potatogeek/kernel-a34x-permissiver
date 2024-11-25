@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2012 Sascha Hauer, Pengutronix
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2012 Sascha Hauer, Pengutronix
+>>>>>>> upstream/android-13
  */
 
 #include <linux/irq.h>
@@ -28,6 +34,7 @@ static void __init imx25_dt_init(void)
 	imx_aips_allow_unprivileged_access("fsl,imx25-aips");
 }
 
+<<<<<<< HEAD
 static void __init mx25_init_irq(void)
 {
 	struct device_node *np;
@@ -39,6 +46,8 @@ static void __init mx25_init_irq(void)
 	mxc_init_irq(avic_base);
 }
 
+=======
+>>>>>>> upstream/android-13
 static const char * const imx25_dt_board_compat[] __initconst = {
 	"fsl,imx25",
 	NULL
@@ -48,6 +57,9 @@ DT_MACHINE_START(IMX25_DT, "Freescale i.MX25 (Device Tree Support)")
 	.init_early	= imx25_init_early,
 	.init_machine	= imx25_dt_init,
 	.init_late      = imx25_pm_init,
+<<<<<<< HEAD
 	.init_irq	= mx25_init_irq,
+=======
+>>>>>>> upstream/android-13
 	.dt_compat	= imx25_dt_board_compat,
 MACHINE_END

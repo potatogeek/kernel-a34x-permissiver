@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /// Use BUG_ON instead of a if condition followed by BUG.
 ///
 //# This makes an effort to find cases where BUG() follows an if
@@ -6,7 +10,11 @@
 //# as argument.
 //
 // Confidence: High
+<<<<<<< HEAD
 // Copyright: (C) 2014 Himangi Saraogi.  GPLv2.
+=======
+// Copyright: (C) 2014 Himangi Saraogi.
+>>>>>>> upstream/android-13
 // Comments:
 // Options: --no-includes --include-headers
 

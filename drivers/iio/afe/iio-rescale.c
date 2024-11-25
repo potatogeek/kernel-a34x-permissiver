@@ -29,6 +29,10 @@ struct rescale {
 	struct iio_channel *source;
 	struct iio_chan_spec chan;
 	struct iio_chan_spec_ext_info *ext_info;
+<<<<<<< HEAD
+=======
+	bool chan_processed;
+>>>>>>> upstream/android-13
 	s32 numerator;
 	s32 denominator;
 };
@@ -38,15 +42,43 @@ static int rescale_read_raw(struct iio_dev *indio_dev,
 			    int *val, int *val2, long mask)
 {
 	struct rescale *rescale = iio_priv(indio_dev);
+<<<<<<< HEAD
 	unsigned long long tmp;
+=======
+	s64 tmp;
+>>>>>>> upstream/android-13
 	int ret;
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
+<<<<<<< HEAD
 		return iio_read_channel_raw(rescale->source, val);
 
 	case IIO_CHAN_INFO_SCALE:
 		ret = iio_read_channel_scale(rescale->source, val, val2);
+=======
+		if (rescale->chan_processed)
+			/*
+			 * When only processed channels are supported, we
+			 * read the processed data and scale it by 1/1
+			 * augmented with whatever the rescaler has calculated.
+			 */
+			return iio_read_channel_processed(rescale->source, val);
+		else
+			return iio_read_channel_raw(rescale->source, val);
+
+	case IIO_CHAN_INFO_SCALE:
+		if (rescale->chan_processed) {
+			/*
+			 * Processed channels are scaled 1-to-1
+			 */
+			*val = 1;
+			*val2 = 1;
+			ret = IIO_VAL_FRACTIONAL;
+		} else {
+			ret = iio_read_channel_scale(rescale->source, val, val2);
+		}
+>>>>>>> upstream/android-13
 		switch (ret) {
 		case IIO_VAL_FRACTIONAL:
 			*val *= rescale->numerator;
@@ -59,10 +91,17 @@ static int rescale_read_raw(struct iio_dev *indio_dev,
 			*val2 = rescale->denominator;
 			return IIO_VAL_FRACTIONAL;
 		case IIO_VAL_FRACTIONAL_LOG2:
+<<<<<<< HEAD
 			tmp = *val * 1000000000LL;
 			do_div(tmp, rescale->denominator);
 			tmp *= rescale->numerator;
 			do_div(tmp, 1000000000LL);
+=======
+			tmp = (s64)*val * 1000000000LL;
+			tmp = div_s64(tmp, rescale->denominator);
+			tmp *= rescale->numerator;
+			tmp = div_s64(tmp, 1000000000LL);
+>>>>>>> upstream/android-13
 			*val = tmp;
 			return ret;
 		default:
@@ -130,16 +169,37 @@ static int rescale_configure_channel(struct device *dev,
 	chan->ext_info = rescale->ext_info;
 	chan->type = rescale->cfg->type;
 
+<<<<<<< HEAD
 	if (!iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
 	    !iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE)) {
 		dev_err(dev, "source channel does not support raw/scale\n");
+=======
+	if (iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
+	    iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE)) {
+		dev_info(dev, "using raw+scale source channel\n");
+	} else if (iio_channel_has_info(schan, IIO_CHAN_INFO_PROCESSED)) {
+		dev_info(dev, "using processed channel\n");
+		rescale->chan_processed = true;
+	} else {
+		dev_err(dev, "source channel is not supported\n");
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
 	chan->info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
 		BIT(IIO_CHAN_INFO_SCALE);
 
+<<<<<<< HEAD
 	if (iio_channel_has_available(schan, IIO_CHAN_INFO_RAW))
+=======
+	/*
+	 * Using .read_avail() is fringe to begin with and makes no sense
+	 * whatsoever for processed channels, so we make sure that this cannot
+	 * be called on a processed channel.
+	 */
+	if (iio_channel_has_available(schan, IIO_CHAN_INFO_RAW) &&
+	    !rescale->chan_processed)
+>>>>>>> upstream/android-13
 		chan->info_mask_separate_available |= BIT(IIO_CHAN_INFO_RAW);
 
 	return 0;
@@ -276,11 +336,17 @@ static int rescale_probe(struct platform_device *pdev)
 	int ret;
 
 	source = devm_iio_channel_get(dev, NULL);
+<<<<<<< HEAD
 	if (IS_ERR(source)) {
 		if (PTR_ERR(source) != -EPROBE_DEFER)
 			dev_err(dev, "failed to get source channel\n");
 		return PTR_ERR(source);
 	}
+=======
+	if (IS_ERR(source))
+		return dev_err_probe(dev, PTR_ERR(source),
+				     "failed to get source channel\n");
+>>>>>>> upstream/android-13
 
 	sizeof_ext_info = iio_get_channel_ext_info_count(source);
 	if (sizeof_ext_info) {
@@ -314,7 +380,10 @@ static int rescale_probe(struct platform_device *pdev)
 	rescale->source = source;
 
 	indio_dev->name = dev_name(dev);
+<<<<<<< HEAD
 	indio_dev->dev.parent = dev;
+=======
+>>>>>>> upstream/android-13
 	indio_dev->info = &rescale_info;
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->channels = &rescale->chan;

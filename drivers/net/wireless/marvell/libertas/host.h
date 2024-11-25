@@ -461,7 +461,11 @@ struct cmd_ds_802_11_scan {
 
 	uint8_t bsstype;
 	uint8_t bssid[ETH_ALEN];
+<<<<<<< HEAD
 	uint8_t tlvbuffer[0];
+=======
+	uint8_t tlvbuffer[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct cmd_ds_802_11_scan_rsp {
@@ -469,7 +473,11 @@ struct cmd_ds_802_11_scan_rsp {
 
 	__le16 bssdescriptsize;
 	uint8_t nr_sets;
+<<<<<<< HEAD
 	uint8_t bssdesc_and_tlvbuffer[0];
+=======
+	uint8_t bssdesc_and_tlvbuffer[];
+>>>>>>> upstream/android-13
 } __packed;
 
 struct cmd_ds_802_11_get_log {

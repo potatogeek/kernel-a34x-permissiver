@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/compiler.h>
 #include <linux/fs.h>
 #include <linux/init.h>
@@ -21,6 +25,24 @@
 #define KPMMASK (KPMSIZE - 1)
 #define KPMBITS (KPMSIZE * BITS_PER_BYTE)
 
+<<<<<<< HEAD
+=======
+static inline unsigned long get_max_dump_pfn(void)
+{
+#ifdef CONFIG_SPARSEMEM
+	/*
+	 * The memmap of early sections is completely populated and marked
+	 * online even if max_pfn does not fall on a section boundary -
+	 * pfn_to_online_page() will succeed on all pages. Allow inspecting
+	 * these memmaps.
+	 */
+	return round_up(max_pfn, PAGES_PER_SECTION);
+#else
+	return max_pfn;
+#endif
+}
+
+>>>>>>> upstream/android-13
 /* /proc/kpagecount - an array exposing page counts
  *
  * Each entry is a u64 representing the corresponding
@@ -29,6 +51,10 @@
 static ssize_t kpagecount_read(struct file *file, char __user *buf,
 			     size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
+=======
+	const unsigned long max_dump_pfn = get_max_dump_pfn();
+>>>>>>> upstream/android-13
 	u64 __user *out = (u64 __user *)buf;
 	struct page *ppage;
 	unsigned long src = *ppos;
@@ -37,9 +63,17 @@ static ssize_t kpagecount_read(struct file *file, char __user *buf,
 	u64 pcount;
 
 	pfn = src / KPMSIZE;
+<<<<<<< HEAD
 	count = min_t(size_t, count, (max_pfn * KPMSIZE) - src);
 	if (src & KPMMASK || count & KPMMASK)
 		return -EINVAL;
+=======
+	if (src & KPMMASK || count & KPMMASK)
+		return -EINVAL;
+	if (src >= max_dump_pfn * KPMSIZE)
+		return 0;
+	count = min_t(unsigned long, count, (max_dump_pfn * KPMSIZE) - src);
+>>>>>>> upstream/android-13
 
 	while (count > 0) {
 		/*
@@ -48,7 +82,11 @@ static ssize_t kpagecount_read(struct file *file, char __user *buf,
 		 */
 		ppage = pfn_to_online_page(pfn);
 
+<<<<<<< HEAD
 		if (!ppage || PageSlab(ppage))
+=======
+		if (!ppage || PageSlab(ppage) || page_has_type(ppage))
+>>>>>>> upstream/android-13
 			pcount = 0;
 		else
 			pcount = page_mapcount(ppage);
@@ -71,9 +109,15 @@ static ssize_t kpagecount_read(struct file *file, char __user *buf,
 	return ret;
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_kpagecount_operations = {
 	.llseek = mem_lseek,
 	.read = kpagecount_read,
+=======
+static const struct proc_ops kpagecount_proc_ops = {
+	.proc_lseek	= mem_lseek,
+	.proc_read	= kpagecount_read,
+>>>>>>> upstream/android-13
 };
 
 /* /proc/kpageflags - an array exposing page flags
@@ -154,8 +198,13 @@ u64 stable_page_flags(struct page *page)
 	else if (page_count(page) == 0 && is_free_buddy_page(page))
 		u |= 1 << KPF_BUDDY;
 
+<<<<<<< HEAD
 	if (PageBalloon(page))
 		u |= 1 << KPF_BALLOON;
+=======
+	if (PageOffline(page))
+		u |= 1 << KPF_OFFLINE;
+>>>>>>> upstream/android-13
 	if (PageTable(page))
 		u |= 1 << KPF_PGTABLE;
 
@@ -199,6 +248,12 @@ u64 stable_page_flags(struct page *page)
 	u |= kpf_copy_bit(k, KPF_PRIVATE_2,	PG_private_2);
 	u |= kpf_copy_bit(k, KPF_OWNER_PRIVATE,	PG_owner_priv_1);
 	u |= kpf_copy_bit(k, KPF_ARCH,		PG_arch_1);
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_64BIT
+	u |= kpf_copy_bit(k, KPF_ARCH_2,	PG_arch_2);
+#endif
+>>>>>>> upstream/android-13
 
 	return u;
 };
@@ -206,6 +261,10 @@ u64 stable_page_flags(struct page *page)
 static ssize_t kpageflags_read(struct file *file, char __user *buf,
 			     size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
+=======
+	const unsigned long max_dump_pfn = get_max_dump_pfn();
+>>>>>>> upstream/android-13
 	u64 __user *out = (u64 __user *)buf;
 	struct page *ppage;
 	unsigned long src = *ppos;
@@ -213,9 +272,17 @@ static ssize_t kpageflags_read(struct file *file, char __user *buf,
 	ssize_t ret = 0;
 
 	pfn = src / KPMSIZE;
+<<<<<<< HEAD
 	count = min_t(unsigned long, count, (max_pfn * KPMSIZE) - src);
 	if (src & KPMMASK || count & KPMMASK)
 		return -EINVAL;
+=======
+	if (src & KPMMASK || count & KPMMASK)
+		return -EINVAL;
+	if (src >= max_dump_pfn * KPMSIZE)
+		return 0;
+	count = min_t(unsigned long, count, (max_dump_pfn * KPMSIZE) - src);
+>>>>>>> upstream/android-13
 
 	while (count > 0) {
 		/*
@@ -242,15 +309,25 @@ static ssize_t kpageflags_read(struct file *file, char __user *buf,
 	return ret;
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_kpageflags_operations = {
 	.llseek = mem_lseek,
 	.read = kpageflags_read,
+=======
+static const struct proc_ops kpageflags_proc_ops = {
+	.proc_lseek	= mem_lseek,
+	.proc_read	= kpageflags_read,
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_MEMCG
 static ssize_t kpagecgroup_read(struct file *file, char __user *buf,
 				size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
+=======
+	const unsigned long max_dump_pfn = get_max_dump_pfn();
+>>>>>>> upstream/android-13
 	u64 __user *out = (u64 __user *)buf;
 	struct page *ppage;
 	unsigned long src = *ppos;
@@ -259,9 +336,17 @@ static ssize_t kpagecgroup_read(struct file *file, char __user *buf,
 	u64 ino;
 
 	pfn = src / KPMSIZE;
+<<<<<<< HEAD
 	count = min_t(unsigned long, count, (max_pfn * KPMSIZE) - src);
 	if (src & KPMMASK || count & KPMMASK)
 		return -EINVAL;
+=======
+	if (src & KPMMASK || count & KPMMASK)
+		return -EINVAL;
+	if (src >= max_dump_pfn * KPMSIZE)
+		return 0;
+	count = min_t(unsigned long, count, (max_dump_pfn * KPMSIZE) - src);
+>>>>>>> upstream/android-13
 
 	while (count > 0) {
 		/*
@@ -293,18 +378,31 @@ static ssize_t kpagecgroup_read(struct file *file, char __user *buf,
 	return ret;
 }
 
+<<<<<<< HEAD
 static const struct file_operations proc_kpagecgroup_operations = {
 	.llseek = mem_lseek,
 	.read = kpagecgroup_read,
+=======
+static const struct proc_ops kpagecgroup_proc_ops = {
+	.proc_lseek	= mem_lseek,
+	.proc_read	= kpagecgroup_read,
+>>>>>>> upstream/android-13
 };
 #endif /* CONFIG_MEMCG */
 
 static int __init proc_page_init(void)
 {
+<<<<<<< HEAD
 	proc_create("kpagecount", S_IRUSR, NULL, &proc_kpagecount_operations);
 	proc_create("kpageflags", S_IRUSR, NULL, &proc_kpageflags_operations);
 #ifdef CONFIG_MEMCG
 	proc_create("kpagecgroup", S_IRUSR, NULL, &proc_kpagecgroup_operations);
+=======
+	proc_create("kpagecount", S_IRUSR, NULL, &kpagecount_proc_ops);
+	proc_create("kpageflags", S_IRUSR, NULL, &kpageflags_proc_ops);
+#ifdef CONFIG_MEMCG
+	proc_create("kpagecgroup", S_IRUSR, NULL, &kpagecgroup_proc_ops);
+>>>>>>> upstream/android-13
 #endif
 	return 0;
 }

@@ -57,7 +57,14 @@
 #include <linux/dma-mapping.h>
 #include "xhci.h"
 #include "xhci-trace.h"
+<<<<<<< HEAD
 #include "xhci-mtk.h"
+=======
+
+static int queue_command(struct xhci_hcd *xhci, struct xhci_command *cmd,
+			 u32 field1, u32 field2,
+			 u32 field3, u32 field4, bool command_must_succeed);
+>>>>>>> upstream/android-13
 
 /*
  * Returns zero if the TRB isn't in this segment, otherwise it returns the DMA
@@ -76,6 +83,10 @@ dma_addr_t xhci_trb_virt_to_dma(struct xhci_segment *seg,
 		return 0;
 	return seg->dma + (segment_offset * sizeof(*trb));
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_trb_virt_to_dma);
+>>>>>>> upstream/android-13
 
 static bool trb_is_noop(union xhci_trb *trb)
 {
@@ -151,10 +162,18 @@ static void next_trb(struct xhci_hcd *xhci,
 
 /*
  * See Cycle bit rules. SW is the consumer for the event ring only.
+<<<<<<< HEAD
  * Don't make a ring full of link TRBs.  That would be dumb and this would loop.
  */
 void inc_deq(struct xhci_hcd *xhci, struct xhci_ring *ring)
 {
+=======
+ */
+void inc_deq(struct xhci_hcd *xhci, struct xhci_ring *ring)
+{
+	unsigned int link_trb_count = 0;
+
+>>>>>>> upstream/android-13
 	/* event ring doesn't have link trbs, check for last trb */
 	if (ring->type == TYPE_EVENT) {
 		if (!last_trb_on_seg(ring->deq_seg, ring->dequeue)) {
@@ -170,6 +189,7 @@ void inc_deq(struct xhci_hcd *xhci, struct xhci_ring *ring)
 
 	/* All other rings have link trbs */
 	if (!trb_is_link(ring->dequeue)) {
+<<<<<<< HEAD
 		ring->dequeue++;
 		ring->num_trbs_free++;
 	}
@@ -178,6 +198,25 @@ void inc_deq(struct xhci_hcd *xhci, struct xhci_ring *ring)
 		ring->dequeue = ring->deq_seg->trbs;
 	}
 
+=======
+		if (last_trb_on_seg(ring->deq_seg, ring->dequeue)) {
+			xhci_warn(xhci, "Missing link TRB at end of segment\n");
+		} else {
+			ring->dequeue++;
+			ring->num_trbs_free++;
+		}
+	}
+
+	while (trb_is_link(ring->dequeue)) {
+		ring->deq_seg = ring->deq_seg->next;
+		ring->dequeue = ring->deq_seg->trbs;
+
+		if (link_trb_count++ > ring->num_segs) {
+			xhci_warn(xhci, "Ring is an endless link TRB loop\n");
+			break;
+		}
+	}
+>>>>>>> upstream/android-13
 out:
 	trace_xhci_inc_deq(ring);
 
@@ -186,7 +225,10 @@ out:
 
 /*
  * See Cycle bit rules. SW is the consumer for the event ring only.
+<<<<<<< HEAD
  * Don't make a ring full of link TRBs.  That would be dumb and this would loop.
+=======
+>>>>>>> upstream/android-13
  *
  * If we've just enqueued a TRB that is in the middle of a TD (meaning the
  * chain bit is set), then set the chain bit in all the following link TRBs.
@@ -206,11 +248,24 @@ static void inc_enq(struct xhci_hcd *xhci, struct xhci_ring *ring,
 {
 	u32 chain;
 	union xhci_trb *next;
+<<<<<<< HEAD
+=======
+	unsigned int link_trb_count = 0;
+>>>>>>> upstream/android-13
 
 	chain = le32_to_cpu(ring->enqueue->generic.field[3]) & TRB_CHAIN;
 	/* If this is not event ring, there is one less usable TRB */
 	if (!trb_is_link(ring->enqueue))
 		ring->num_trbs_free--;
+<<<<<<< HEAD
+=======
+
+	if (last_trb_on_seg(ring->enq_seg, ring->enqueue)) {
+		xhci_err(xhci, "Tried to move enqueue past ring segment\n");
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	next = ++(ring->enqueue);
 
 	/* Update the dequeue pointer further if that was a link TRB */
@@ -247,6 +302,14 @@ static void inc_enq(struct xhci_hcd *xhci, struct xhci_ring *ring,
 		ring->enq_seg = ring->enq_seg->next;
 		ring->enqueue = ring->enq_seg->trbs;
 		next = ring->enqueue;
+<<<<<<< HEAD
+=======
+
+		if (link_trb_count++ > ring->num_segs) {
+			xhci_warn(xhci, "%s: Ring link TRB loop\n", __func__);
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	trace_xhci_inc_enq(ring);
@@ -280,10 +343,20 @@ void xhci_ring_cmd_db(struct xhci_hcd *xhci)
 		return;
 
 	xhci_dbg(xhci, "// Ding dong!\n");
+<<<<<<< HEAD
+=======
+
+	trace_xhci_ring_host_doorbell(0, DB_VALUE_HOST);
+
+>>>>>>> upstream/android-13
 	writel(DB_VALUE_HOST, &xhci->dba->doorbell[0]);
 	/* Flush PCI posted writes */
 	readl(&xhci->dba->doorbell[0]);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL_GPL(xhci_ring_cmd_db);
+>>>>>>> upstream/android-13
 
 static bool xhci_mod_cmd_timer(struct xhci_hcd *xhci, unsigned long delay)
 {
@@ -348,7 +421,13 @@ static void xhci_handle_stopped_cmd_ring(struct xhci_hcd *xhci,
 /* Must be called with xhci->lock held, releases and aquires lock back */
 static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
 {
+<<<<<<< HEAD
 	u64 temp_64;
+=======
+	struct xhci_segment *new_seg	= xhci->cmd_ring->deq_seg;
+	union xhci_trb *new_deq		= xhci->cmd_ring->dequeue;
+	u64 crcr;
+>>>>>>> upstream/android-13
 	int ret;
 
 
@@ -360,9 +439,26 @@ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
 
 	reinit_completion(&xhci->cmd_ring_stop_completion);
 
+<<<<<<< HEAD
 	temp_64 = xhci_read_64(xhci, &xhci->op_regs->cmd_ring);
 	xhci_write_64(xhci, temp_64 | CMD_RING_ABORT,
 			&xhci->op_regs->cmd_ring);
+=======
+	/*
+	 * The control bits like command stop, abort are located in lower
+	 * dword of the command ring control register.
+	 * Some controllers require all 64 bits to be written to abort the ring.
+	 * Make sure the upper dword is valid, pointing to the next command,
+	 * avoiding corrupting the command ring pointer in case the command ring
+	 * is stopped by the time the upper dword is written.
+	 */
+	next_trb(xhci, NULL, &new_seg, &new_deq);
+	if (trb_is_link(new_deq))
+		next_trb(xhci, NULL, &new_seg, &new_deq);
+
+	crcr = xhci_trb_virt_to_dma(new_seg, new_deq);
+	xhci_write_64(xhci, crcr | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
+>>>>>>> upstream/android-13
 
 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
 	 * completion of the Command Abort operation. If CRR is not negated in 5
@@ -370,6 +466,7 @@ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
 	 * In the future we should distinguish between -ENODEV and -ETIMEDOUT
 	 * and try to recover a -ETIMEDOUT with a host controller reset.
 	 */
+<<<<<<< HEAD
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 	ret = xhci_handshake_check_state(xhci, &xhci->op_regs->cmd_ring,
 			CMD_RING_RUNNING, 0, 5 * 100 * 1000);
@@ -377,6 +474,10 @@ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
 	ret = xhci_handshake_check_state(xhci, &xhci->op_regs->cmd_ring,
 			CMD_RING_RUNNING, 0, 5 * 1000 * 1000);
 #endif
+=======
+	ret = xhci_handshake(&xhci->op_regs->cmd_ring,
+			CMD_RING_RUNNING, 0, 5 * 100 * 1000);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		xhci_err(xhci, "Abort failed to stop command ring: %d\n", ret);
 		xhci_halt(xhci);
@@ -394,12 +495,17 @@ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
 					  msecs_to_jiffies(2000));
 	spin_lock_irqsave(&xhci->lock, flags);
 	if (!ret) {
+<<<<<<< HEAD
 #if defined(CONFIG_USB_HOST_SAMSUNG_FEATURE)
 		xhci_info(xhci, "No stop event for abort, ring start fail?\n");
 		cancel_delayed_work(&xhci->cmd_timer);
 #else
 		xhci_dbg(xhci, "No stop event for abort, ring start fail?\n");
 #endif
+=======
+		xhci_info(xhci, "No stop event for abort, ring start fail?\n");
+		cancel_delayed_work(&xhci->cmd_timer);
+>>>>>>> upstream/android-13
 		xhci_cleanup_command_queue(xhci);
 	} else {
 		xhci_handle_stopped_cmd_ring(xhci, xhci_next_queued_cmd(xhci));
@@ -423,12 +529,23 @@ void xhci_ring_ep_doorbell(struct xhci_hcd *xhci,
 	 * stream once the endpoint is on the HW schedule.
 	 */
 	if ((ep_state & EP_STOP_CMD_PENDING) || (ep_state & SET_DEQ_PENDING) ||
+<<<<<<< HEAD
 	    (ep_state & EP_HALTED))
 		return;
 	writel(DB_VALUE(ep_index, stream_id), db_addr);
 	/* The CPU has better things to do at this point than wait for a
 	 * write-posting flush.  It'll get there soon enough.
 	 */
+=======
+	    (ep_state & EP_HALTED) || (ep_state & EP_CLEARING_TT))
+		return;
+
+	trace_xhci_ring_ep_doorbell(slot_id, DB_VALUE(ep_index, stream_id));
+
+	writel(DB_VALUE(ep_index, stream_id), db_addr);
+	/* flush the write */
+	readl(db_addr);
+>>>>>>> upstream/android-13
 }
 
 /* Ring the doorbell for any rings with pending URBs */
@@ -457,6 +574,56 @@ static void ring_doorbell_for_active_rings(struct xhci_hcd *xhci,
 	}
 }
 
+<<<<<<< HEAD
+=======
+void xhci_ring_doorbell_for_active_rings(struct xhci_hcd *xhci,
+		unsigned int slot_id,
+		unsigned int ep_index)
+{
+	ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+}
+
+static struct xhci_virt_ep *xhci_get_virt_ep(struct xhci_hcd *xhci,
+					     unsigned int slot_id,
+					     unsigned int ep_index)
+{
+	if (slot_id == 0 || slot_id >= MAX_HC_SLOTS) {
+		xhci_warn(xhci, "Invalid slot_id %u\n", slot_id);
+		return NULL;
+	}
+	if (ep_index >= EP_CTX_PER_DEV) {
+		xhci_warn(xhci, "Invalid endpoint index %u\n", ep_index);
+		return NULL;
+	}
+	if (!xhci->devs[slot_id]) {
+		xhci_warn(xhci, "No xhci virt device for slot_id %u\n", slot_id);
+		return NULL;
+	}
+
+	return &xhci->devs[slot_id]->eps[ep_index];
+}
+
+static struct xhci_ring *xhci_virt_ep_to_ring(struct xhci_hcd *xhci,
+					      struct xhci_virt_ep *ep,
+					      unsigned int stream_id)
+{
+	/* common case, no streams */
+	if (!(ep->ep_state & EP_HAS_STREAMS))
+		return ep->ring;
+
+	if (!ep->stream_info)
+		return NULL;
+
+	if (stream_id == 0 || stream_id >= ep->stream_info->num_streams) {
+		xhci_warn(xhci, "Invalid stream_id %u request for slot_id %u ep_index %u\n",
+			  stream_id, ep->vdev->slot_id, ep->ep_index);
+		return NULL;
+	}
+
+	return ep->stream_info->stream_rings[stream_id];
+}
+
+>>>>>>> upstream/android-13
 /* Get the right ring for the given slot_id, ep_index and stream_id.
  * If the endpoint supports streams, boundary check the URB's stream ID.
  * If the endpoint doesn't support streams, return the singular endpoint ring.
@@ -467,6 +634,7 @@ struct xhci_ring *xhci_triad_to_transfer_ring(struct xhci_hcd *xhci,
 {
 	struct xhci_virt_ep *ep;
 
+<<<<<<< HEAD
 	ep = &xhci->devs[slot_id]->eps[ep_index];
 	/* Common case: no streams */
 	if (!(ep->ep_state & EP_HAS_STREAMS))
@@ -491,6 +659,13 @@ struct xhci_ring *xhci_triad_to_transfer_ring(struct xhci_hcd *xhci,
 			ep->stream_info->num_streams - 1,
 			stream_id);
 	return NULL;
+=======
+	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
+	if (!ep)
+		return NULL;
+
+	return xhci_virt_ep_to_ring(xhci, ep, stream_id);
+>>>>>>> upstream/android-13
 }
 
 
@@ -517,6 +692,7 @@ static u64 xhci_get_hw_deq(struct xhci_hcd *xhci, struct xhci_virt_device *vdev,
 	return le64_to_cpu(ep_ctx->deq);
 }
 
+<<<<<<< HEAD
 /*
  * Move the xHC's endpoint ring dequeue pointer past cur_td.
  * Record the new state of the xHC's endpoint ring dequeue segment,
@@ -539,20 +715,41 @@ void xhci_find_new_dequeue_state(struct xhci_hcd *xhci,
 		unsigned int slot_id, unsigned int ep_index,
 		unsigned int stream_id, struct xhci_td *cur_td,
 		struct xhci_dequeue_state *state)
+=======
+static int xhci_move_dequeue_past_td(struct xhci_hcd *xhci,
+				unsigned int slot_id, unsigned int ep_index,
+				unsigned int stream_id, struct xhci_td *td)
+>>>>>>> upstream/android-13
 {
 	struct xhci_virt_device *dev = xhci->devs[slot_id];
 	struct xhci_virt_ep *ep = &dev->eps[ep_index];
 	struct xhci_ring *ep_ring;
+<<<<<<< HEAD
 	struct xhci_segment *new_seg;
 	union xhci_trb *new_deq;
+=======
+	struct xhci_command *cmd;
+	struct xhci_segment *new_seg;
+	struct xhci_segment *halted_seg = NULL;
+	union xhci_trb *new_deq;
+	int new_cycle;
+	union xhci_trb *halted_trb;
+	int index = 0;
+>>>>>>> upstream/android-13
 	dma_addr_t addr;
 	u64 hw_dequeue;
 	bool cycle_found = false;
 	bool td_last_trb_found = false;
+<<<<<<< HEAD
+=======
+	u32 trb_sct = 0;
+	int ret;
+>>>>>>> upstream/android-13
 
 	ep_ring = xhci_triad_to_transfer_ring(xhci, slot_id,
 			ep_index, stream_id);
 	if (!ep_ring) {
+<<<<<<< HEAD
 		xhci_warn(xhci, "WARN can't find new dequeue state "
 				"for invalid stream ID %u.\n",
 				stream_id);
@@ -561,12 +758,61 @@ void xhci_find_new_dequeue_state(struct xhci_hcd *xhci,
 	/* Dig out the cycle state saved by the xHC during the stop ep cmd */
 	xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
 			"Finding endpoint context");
+=======
+		xhci_warn(xhci, "WARN can't find new dequeue, invalid stream ID %u\n",
+			  stream_id);
+		return -ENODEV;
+	}
+	/*
+	 * A cancelled TD can complete with a stall if HW cached the trb.
+	 * In this case driver can't find td, but if the ring is empty we
+	 * can move the dequeue pointer to the current enqueue position.
+	 * We shouldn't hit this anymore as cached cancelled TRBs are given back
+	 * after clearing the cache, but be on the safe side and keep it anyway
+	 */
+	if (!td) {
+		if (list_empty(&ep_ring->td_list)) {
+			new_seg = ep_ring->enq_seg;
+			new_deq = ep_ring->enqueue;
+			new_cycle = ep_ring->cycle_state;
+			xhci_dbg(xhci, "ep ring empty, Set new dequeue = enqueue");
+			goto deq_found;
+		} else {
+			xhci_warn(xhci, "Can't find new dequeue state, missing td\n");
+			return -EINVAL;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	hw_dequeue = xhci_get_hw_deq(xhci, dev, ep_index, stream_id);
 	new_seg = ep_ring->deq_seg;
 	new_deq = ep_ring->dequeue;
+<<<<<<< HEAD
 	state->new_cycle_state = hw_dequeue & 0x1;
 	state->stream_id = stream_id;
+=======
+
+	/*
+	 * Quirk: xHC write-back of the DCS field in the hardware dequeue
+	 * pointer is wrong - use the cycle state of the TRB pointed to by
+	 * the dequeue pointer.
+	 */
+	if (xhci->quirks & XHCI_EP_CTX_BROKEN_DCS &&
+	    !(ep->ep_state & EP_HAS_STREAMS))
+		halted_seg = trb_in_td(xhci, td->start_seg,
+				       td->first_trb, td->last_trb,
+				       hw_dequeue & ~0xf, false);
+	if (halted_seg) {
+		index = ((dma_addr_t)(hw_dequeue & ~0xf) - halted_seg->dma) /
+			 sizeof(*halted_trb);
+		halted_trb = &halted_seg->trbs[index];
+		new_cycle = halted_trb->generic.field[3] & 0x1;
+		xhci_dbg(xhci, "Endpoint DCS = %d TRB index = %d cycle = %d\n",
+			 (u8)(hw_dequeue & 0x1), index, new_cycle);
+	} else {
+		new_cycle = hw_dequeue & 0x1;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * We want to find the pointer, segment and cycle state of the new trb
@@ -581,25 +827,38 @@ void xhci_find_new_dequeue_state(struct xhci_hcd *xhci,
 			if (td_last_trb_found)
 				break;
 		}
+<<<<<<< HEAD
 		if (new_deq == cur_td->last_trb)
+=======
+		if (new_deq == td->last_trb)
+>>>>>>> upstream/android-13
 			td_last_trb_found = true;
 
 		if (cycle_found && trb_is_link(new_deq) &&
 		    link_trb_toggles_cycle(new_deq))
+<<<<<<< HEAD
 			state->new_cycle_state ^= 0x1;
+=======
+			new_cycle ^= 0x1;
+>>>>>>> upstream/android-13
 
 		next_trb(xhci, ep_ring, &new_seg, &new_deq);
 
 		/* Search wrapped around, bail out */
 		if (new_deq == ep->ring->dequeue) {
 			xhci_err(xhci, "Error: Failed finding new dequeue state\n");
+<<<<<<< HEAD
 			state->new_deq_seg = NULL;
 			state->new_deq_ptr = NULL;
 			return;
+=======
+			return -EINVAL;
+>>>>>>> upstream/android-13
 		}
 
 	} while (!cycle_found || !td_last_trb_found);
 
+<<<<<<< HEAD
 	state->new_deq_seg = new_seg;
 	state->new_deq_ptr = new_deq;
 
@@ -614,6 +873,56 @@ void xhci_find_new_dequeue_state(struct xhci_hcd *xhci,
 	xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
 			"New dequeue pointer = 0x%llx (DMA)",
 			(unsigned long long) addr);
+=======
+deq_found:
+
+	/* Don't update the ring cycle state for the producer (us). */
+	addr = xhci_trb_virt_to_dma(new_seg, new_deq);
+	if (addr == 0) {
+		xhci_warn(xhci, "Can't find dma of new dequeue ptr\n");
+		xhci_warn(xhci, "deq seg = %p, deq ptr = %p\n", new_seg, new_deq);
+		return -EINVAL;
+	}
+
+	if ((ep->ep_state & SET_DEQ_PENDING)) {
+		xhci_warn(xhci, "Set TR Deq already pending, don't submit for 0x%pad\n",
+			  &addr);
+		return -EBUSY;
+	}
+
+	/* This function gets called from contexts where it cannot sleep */
+	cmd = xhci_alloc_command(xhci, false, GFP_ATOMIC);
+	if (!cmd) {
+		xhci_warn(xhci, "Can't alloc Set TR Deq cmd 0x%pad\n", &addr);
+		return -ENOMEM;
+	}
+
+	if (stream_id)
+		trb_sct = SCT_FOR_TRB(SCT_PRI_TR);
+	ret = queue_command(xhci, cmd,
+		lower_32_bits(addr) | trb_sct | new_cycle,
+		upper_32_bits(addr),
+		STREAM_ID_FOR_TRB(stream_id), SLOT_ID_FOR_TRB(slot_id) |
+		EP_ID_FOR_TRB(ep_index) | TRB_TYPE(TRB_SET_DEQ), false);
+	if (ret < 0) {
+		xhci_free_command(xhci, cmd);
+		return ret;
+	}
+	ep->queued_deq_seg = new_seg;
+	ep->queued_deq_ptr = new_deq;
+
+	xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
+		       "Set TR Deq ptr 0x%llx, cycle %u\n", addr, new_cycle);
+
+	/* Stop the TD queueing code from ringing the doorbell until
+	 * this command completes.  The HC won't set the dequeue pointer
+	 * if the ring is running, and ringing the doorbell starts the
+	 * ring running.
+	 */
+	ep->ep_state |= SET_DEQ_PENDING;
+	xhci_ring_cmd_db(xhci);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 /* flip_cycle means flip the cycle bit of all but the first and last TRB.
@@ -668,10 +977,15 @@ static void xhci_giveback_urb_in_irq(struct xhci_hcd *xhci,
 	}
 	xhci_urb_free_priv(urb_priv);
 	usb_hcd_unlink_urb_from_ep(hcd, urb);
+<<<<<<< HEAD
 	spin_unlock(&xhci->lock);
 	trace_xhci_urb_giveback(urb);
 	usb_hcd_giveback_urb(hcd, urb, status);
 	spin_lock(&xhci->lock);
+=======
+	trace_xhci_urb_giveback(urb);
+	usb_hcd_giveback_urb(hcd, urb, status);
+>>>>>>> upstream/android-13
 }
 
 static void xhci_unmap_td_bounce_buffer(struct xhci_hcd *xhci,
@@ -708,6 +1022,257 @@ static void xhci_unmap_td_bounce_buffer(struct xhci_hcd *xhci,
 	seg->bounce_offs = 0;
 }
 
+<<<<<<< HEAD
+=======
+static int xhci_td_cleanup(struct xhci_hcd *xhci, struct xhci_td *td,
+			   struct xhci_ring *ep_ring, int status)
+{
+	struct urb *urb = NULL;
+
+	/* Clean up the endpoint's TD list */
+	urb = td->urb;
+
+	/* if a bounce buffer was used to align this td then unmap it */
+	xhci_unmap_td_bounce_buffer(xhci, ep_ring, td);
+
+	/* Do one last check of the actual transfer length.
+	 * If the host controller said we transferred more data than the buffer
+	 * length, urb->actual_length will be a very big number (since it's
+	 * unsigned).  Play it safe and say we didn't transfer anything.
+	 */
+	if (urb->actual_length > urb->transfer_buffer_length) {
+		xhci_warn(xhci, "URB req %u and actual %u transfer length mismatch\n",
+			  urb->transfer_buffer_length, urb->actual_length);
+		urb->actual_length = 0;
+		status = 0;
+	}
+	/* TD might be removed from td_list if we are giving back a cancelled URB */
+	if (!list_empty(&td->td_list))
+		list_del_init(&td->td_list);
+	/* Giving back a cancelled URB, or if a slated TD completed anyway */
+	if (!list_empty(&td->cancelled_td_list))
+		list_del_init(&td->cancelled_td_list);
+
+	inc_td_cnt(urb);
+	/* Giveback the urb when all the tds are completed */
+	if (last_td_in_urb(td)) {
+		if ((urb->actual_length != urb->transfer_buffer_length &&
+		     (urb->transfer_flags & URB_SHORT_NOT_OK)) ||
+		    (status != 0 && !usb_endpoint_xfer_isoc(&urb->ep->desc)))
+			xhci_dbg(xhci, "Giveback URB %p, len = %d, expected = %d, status = %d\n",
+				 urb, urb->actual_length,
+				 urb->transfer_buffer_length, status);
+
+		/* set isoc urb status to 0 just as EHCI, UHCI, and OHCI */
+		if (usb_pipetype(urb->pipe) == PIPE_ISOCHRONOUS)
+			status = 0;
+		xhci_giveback_urb_in_irq(xhci, td, status);
+	}
+
+	return 0;
+}
+
+
+/* Complete the cancelled URBs we unlinked from td_list. */
+static void xhci_giveback_invalidated_tds(struct xhci_virt_ep *ep)
+{
+	struct xhci_ring *ring;
+	struct xhci_td *td, *tmp_td;
+
+	list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list,
+				 cancelled_td_list) {
+
+		ring = xhci_urb_to_transfer_ring(ep->xhci, td->urb);
+
+		if (td->cancel_status == TD_CLEARED) {
+			xhci_dbg(ep->xhci, "%s: Giveback cancelled URB %p TD\n",
+				 __func__, td->urb);
+			xhci_td_cleanup(ep->xhci, td, ring, td->status);
+		} else {
+			xhci_dbg(ep->xhci, "%s: Keep cancelled URB %p TD as cancel_status is %d\n",
+				 __func__, td->urb, td->cancel_status);
+		}
+		if (ep->xhci->xhc_state & XHCI_STATE_DYING)
+			return;
+	}
+}
+
+static int xhci_reset_halted_ep(struct xhci_hcd *xhci, unsigned int slot_id,
+				unsigned int ep_index, enum xhci_ep_reset_type reset_type)
+{
+	struct xhci_command *command;
+	int ret = 0;
+
+	command = xhci_alloc_command(xhci, false, GFP_ATOMIC);
+	if (!command) {
+		ret = -ENOMEM;
+		goto done;
+	}
+
+	xhci_info(xhci, "%s-reset ep %u, slot %u\n",
+		 (reset_type == EP_HARD_RESET) ? "Hard" : "Soft",
+		 ep_index, slot_id);
+
+	ret = xhci_queue_reset_ep(xhci, command, slot_id, ep_index, reset_type);
+done:
+	if (ret)
+		xhci_err(xhci, "ERROR queuing reset endpoint for slot %d ep_index %d, %d\n",
+			 slot_id, ep_index, ret);
+	return ret;
+}
+
+static int xhci_handle_halted_endpoint(struct xhci_hcd *xhci,
+				struct xhci_virt_ep *ep, unsigned int stream_id,
+				struct xhci_td *td,
+				enum xhci_ep_reset_type reset_type)
+{
+	unsigned int slot_id = ep->vdev->slot_id;
+	int err;
+
+	/*
+	 * Avoid resetting endpoint if link is inactive. Can cause host hang.
+	 * Device will be reset soon to recover the link so don't do anything
+	 */
+	if (ep->vdev->flags & VDEV_PORT_ERROR)
+		return -ENODEV;
+
+	/* add td to cancelled list and let reset ep handler take care of it */
+	if (reset_type == EP_HARD_RESET) {
+		ep->ep_state |= EP_HARD_CLEAR_TOGGLE;
+		if (td && list_empty(&td->cancelled_td_list)) {
+			list_add_tail(&td->cancelled_td_list, &ep->cancelled_td_list);
+			td->cancel_status = TD_HALTED;
+		}
+	}
+
+	if (ep->ep_state & EP_HALTED) {
+		xhci_info(xhci, "Reset ep command for ep_index %d already pending\n",
+			 ep->ep_index);
+		return 0;
+	}
+
+	err = xhci_reset_halted_ep(xhci, slot_id, ep->ep_index, reset_type);
+	if (err)
+		return err;
+
+	ep->ep_state |= EP_HALTED;
+
+	xhci_ring_cmd_db(xhci);
+
+	return 0;
+}
+
+/*
+ * Fix up the ep ring first, so HW stops executing cancelled TDs.
+ * We have the xHCI lock, so nothing can modify this list until we drop it.
+ * We're also in the event handler, so we can't get re-interrupted if another
+ * Stop Endpoint command completes.
+ *
+ * only call this when ring is not in a running state
+ */
+
+static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
+{
+	struct xhci_hcd		*xhci;
+	struct xhci_td		*td = NULL;
+	struct xhci_td		*tmp_td = NULL;
+	struct xhci_td		*cached_td = NULL;
+	struct xhci_ring	*ring;
+	u64			hw_deq;
+	unsigned int		slot_id = ep->vdev->slot_id;
+	int			err;
+
+	xhci = ep->xhci;
+
+	list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list, cancelled_td_list) {
+		xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
+			       "Removing canceled TD starting at 0x%llx (dma) in stream %u URB %p",
+			       (unsigned long long)xhci_trb_virt_to_dma(
+				       td->start_seg, td->first_trb),
+			       td->urb->stream_id, td->urb);
+		list_del_init(&td->td_list);
+		ring = xhci_urb_to_transfer_ring(xhci, td->urb);
+		if (!ring) {
+			xhci_warn(xhci, "WARN Cancelled URB %p has invalid stream ID %u.\n",
+				  td->urb, td->urb->stream_id);
+			continue;
+		}
+		/*
+		 * If a ring stopped on the TD we need to cancel then we have to
+		 * move the xHC endpoint ring dequeue pointer past this TD.
+		 * Rings halted due to STALL may show hw_deq is past the stalled
+		 * TD, but still require a set TR Deq command to flush xHC cache.
+		 */
+		hw_deq = xhci_get_hw_deq(xhci, ep->vdev, ep->ep_index,
+					 td->urb->stream_id);
+		hw_deq &= ~0xf;
+
+		if (td->cancel_status == TD_HALTED ||
+		    trb_in_td(xhci, td->start_seg, td->first_trb, td->last_trb, hw_deq, false)) {
+			switch (td->cancel_status) {
+			case TD_CLEARED: /* TD is already no-op */
+			case TD_CLEARING_CACHE: /* set TR deq command already queued */
+				break;
+			case TD_DIRTY: /* TD is cached, clear it */
+			case TD_HALTED:
+				td->cancel_status = TD_CLEARING_CACHE;
+				if (cached_td)
+					/* FIXME  stream case, several stopped rings */
+					xhci_dbg(xhci,
+						 "Move dq past stream %u URB %p instead of stream %u URB %p\n",
+						 td->urb->stream_id, td->urb,
+						 cached_td->urb->stream_id, cached_td->urb);
+				cached_td = td;
+				break;
+			}
+		} else {
+			td_to_noop(xhci, ring, td, false);
+			td->cancel_status = TD_CLEARED;
+		}
+	}
+
+	/* If there's no need to move the dequeue pointer then we're done */
+	if (!cached_td)
+		return 0;
+
+	err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
+					cached_td->urb->stream_id,
+					cached_td);
+	if (err) {
+		/* Failed to move past cached td, just set cached TDs to no-op */
+		list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list, cancelled_td_list) {
+			if (td->cancel_status != TD_CLEARING_CACHE)
+				continue;
+			xhci_dbg(xhci, "Failed to clear cancelled cached URB %p, mark clear anyway\n",
+				 td->urb);
+			td_to_noop(xhci, ring, td, false);
+			td->cancel_status = TD_CLEARED;
+		}
+	}
+	return 0;
+}
+
+/*
+ * Returns the TD the endpoint ring halted on.
+ * Only call for non-running rings without streams.
+ */
+static struct xhci_td *find_halted_td(struct xhci_virt_ep *ep)
+{
+	struct xhci_td	*td;
+	u64		hw_deq;
+
+	if (!list_empty(&ep->ring->td_list)) { /* Not streams compatible */
+		hw_deq = xhci_get_hw_deq(ep->xhci, ep->vdev, ep->ep_index, 0);
+		hw_deq &= ~0xf;
+		td = list_first_entry(&ep->ring->td_list, struct xhci_td, td_list);
+		if (trb_in_td(ep->xhci, td->start_seg, td->first_trb,
+				td->last_trb, hw_deq, false))
+			return td;
+	}
+	return NULL;
+}
+
+>>>>>>> upstream/android-13
 /*
  * When we get a command completion for a Stop Endpoint Command, we need to
  * unlink any cancelled TDs from the ring.  There are two ways to do that:
@@ -719,6 +1284,7 @@ static void xhci_unmap_td_bounce_buffer(struct xhci_hcd *xhci,
  *     bit cleared) so that the HW will skip over them.
  */
 static void xhci_handle_cmd_stop_ep(struct xhci_hcd *xhci, int slot_id,
+<<<<<<< HEAD
 		union xhci_trb *trb, struct xhci_event_cmd *event)
 {
 	unsigned int ep_index;
@@ -852,6 +1418,106 @@ remove_finished_td:
 	} while (cur_td != last_unlinked_td);
 
 	/* Return to the event handler with xhci->lock re-acquired */
+=======
+				    union xhci_trb *trb, u32 comp_code)
+{
+	unsigned int ep_index;
+	struct xhci_virt_ep *ep;
+	struct xhci_ep_ctx *ep_ctx;
+	struct xhci_td *td = NULL;
+	enum xhci_ep_reset_type reset_type;
+	struct xhci_command *command;
+	int err, ep_ctx_rsvd;
+
+	if (unlikely(TRB_TO_SUSPEND_PORT(le32_to_cpu(trb->generic.field[3])))) {
+		if (!xhci->devs[slot_id])
+			xhci_warn(xhci, "Stop endpoint command completion for disabled slot %u\n",
+				  slot_id);
+		return;
+	}
+
+	ep_index = TRB_TO_EP_INDEX(le32_to_cpu(trb->generic.field[3]));
+	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
+	if (!ep)
+		return;
+
+	ep_ctx = xhci_get_ep_ctx(xhci, ep->vdev->out_ctx, ep_index);
+
+	trace_xhci_handle_cmd_stop_ep(ep_ctx);
+
+	if (comp_code == COMP_CONTEXT_STATE_ERROR) {
+	/*
+	 * If stop endpoint command raced with a halting endpoint we need to
+	 * reset the host side endpoint first.
+	 * If the TD we halted on isn't cancelled the TD should be given back
+	 * with a proper error code, and the ring dequeue moved past the TD.
+	 * If streams case we can't find hw_deq, or the TD we halted on so do a
+	 * soft reset.
+	 *
+	 * Proper error code is unknown here, it would be -EPIPE if device side
+	 * of enadpoit halted (aka STALL), and -EPROTO if not (transaction error)
+	 * We use -EPROTO, if device is stalled it should return a stall error on
+	 * next transfer, which then will return -EPIPE, and device side stall is
+	 * noted and cleared by class driver.
+	 */
+		switch (GET_EP_CTX_STATE(ep_ctx)) {
+		case EP_STATE_HALTED:
+			xhci_info(xhci, "Stop ep completion raced with stall, reset ep\n");
+			if (ep->ep_state & EP_HAS_STREAMS) {
+				reset_type = EP_SOFT_RESET;
+			} else {
+				reset_type = EP_HARD_RESET;
+				td = find_halted_td(ep);
+				if (td)
+					td->status = -EPROTO;
+			}
+			/* reset ep, reset handler cleans up cancelled tds */
+			err = xhci_handle_halted_endpoint(xhci, ep, 0, td,
+							  reset_type);
+			if (err)
+				break;
+			xhci_stop_watchdog_timer_in_irq(xhci, ep);
+			return;
+		case EP_STATE_RUNNING:
+			/* Race, HW handled stop ep cmd before ep was running */
+			xhci_info(xhci, "Stop ep completion ctx error, ep is running\n");
+			ep_ctx_rsvd = CTX_TO_RESERVED(le32_to_cpu(ep_ctx->ep_info));
+			ep_ctx_rsvd++;
+			if (ep_ctx_rsvd > 10) {
+				/*
+				 * We don't want to stay in infinite loop.
+				 * We want to giveback all invalidated tds
+				 */
+				xhci_info(xhci, "EP keeps running state in EP stop, break\n");
+				break;
+			}
+			xhci_info(xhci, "EP state check count = %d\n", ep_ctx_rsvd);
+			ep_ctx->ep_info &= cpu_to_le32(~EP_RESERVED_MASK);
+			ep_ctx->ep_info |= cpu_to_le32(EP_RESERVED(ep_ctx_rsvd));
+
+			command = xhci_alloc_command(xhci, false, GFP_ATOMIC);
+			if (!command)
+				xhci_stop_watchdog_timer_in_irq(xhci, ep);
+
+			mod_timer(&ep->stop_cmd_timer,
+				  jiffies + XHCI_STOP_EP_CMD_TIMEOUT * HZ);
+			xhci_queue_stop_endpoint(xhci, command, slot_id, ep_index, 0);
+			xhci_ring_cmd_db(xhci);
+
+			return;
+		default:
+			break;
+		}
+	}
+	/* will queue a set TR deq if stopped on a cancelled, uncleared TD */
+	xhci_invalidate_cancelled_tds(ep);
+	xhci_stop_watchdog_timer_in_irq(xhci, ep);
+
+	/* Otherwise ring the doorbell(s) to restart queued transfers */
+	xhci_giveback_invalidated_tds(ep);
+	ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+	xhci_info(xhci, "%s\n", __func__);
+>>>>>>> upstream/android-13
 }
 
 static void xhci_kill_ring_urbs(struct xhci_hcd *xhci, struct xhci_ring *ring)
@@ -973,6 +1639,11 @@ void xhci_stop_endpoint_command_watchdog(struct timer_list *t)
 	struct xhci_virt_ep *ep = from_timer(ep, t, stop_cmd_timer);
 	struct xhci_hcd *xhci = ep->xhci;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	u32 usbsts;
+	char str[XHCI_MSG_MAX];
+>>>>>>> upstream/android-13
 
 	spin_lock_irqsave(&xhci->lock, flags);
 
@@ -983,8 +1654,16 @@ void xhci_stop_endpoint_command_watchdog(struct timer_list *t)
 		xhci_dbg(xhci, "Stop EP timer raced with cmd completion, exit");
 		return;
 	}
+<<<<<<< HEAD
 
 	xhci_warn(xhci, "xHCI host not responding to stop endpoint command.\n");
+=======
+	usbsts = readl(&xhci->op_regs->status);
+
+	xhci_warn(xhci, "xHCI host not responding to stop endpoint command.\n");
+	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(str, usbsts));
+
+>>>>>>> upstream/android-13
 	ep->ep_state &= ~EP_STOP_CMD_PENDING;
 
 	xhci_halt(xhci);
@@ -1060,6 +1739,7 @@ static void xhci_handle_cmd_set_deq(struct xhci_hcd *xhci, int slot_id,
 	unsigned int ep_index;
 	unsigned int stream_id;
 	struct xhci_ring *ep_ring;
+<<<<<<< HEAD
 	struct xhci_virt_device *dev;
 	struct xhci_virt_ep *ep;
 	struct xhci_ep_ctx *ep_ctx;
@@ -1071,6 +1751,20 @@ static void xhci_handle_cmd_set_deq(struct xhci_hcd *xhci, int slot_id,
 	ep = &dev->eps[ep_index];
 
 	ep_ring = xhci_stream_id_to_ring(dev, ep_index, stream_id);
+=======
+	struct xhci_virt_ep *ep;
+	struct xhci_ep_ctx *ep_ctx;
+	struct xhci_slot_ctx *slot_ctx;
+	struct xhci_td *td, *tmp_td;
+
+	ep_index = TRB_TO_EP_INDEX(le32_to_cpu(trb->generic.field[3]));
+	stream_id = TRB_TO_STREAM_ID(le32_to_cpu(trb->generic.field[2]));
+	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
+	if (!ep)
+		return;
+
+	ep_ring = xhci_virt_ep_to_ring(xhci, ep, stream_id);
+>>>>>>> upstream/android-13
 	if (!ep_ring) {
 		xhci_warn(xhci, "WARN Set TR deq ptr command for freed stream ID %u\n",
 				stream_id);
@@ -1078,8 +1772,13 @@ static void xhci_handle_cmd_set_deq(struct xhci_hcd *xhci, int slot_id,
 		goto cleanup;
 	}
 
+<<<<<<< HEAD
 	ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, ep_index);
 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
+=======
+	ep_ctx = xhci_get_ep_ctx(xhci, ep->vdev->out_ctx, ep_index);
+	slot_ctx = xhci_get_slot_ctx(xhci, ep->vdev->out_ctx);
+>>>>>>> upstream/android-13
 	trace_xhci_handle_cmd_set_deq(slot_ctx);
 	trace_xhci_handle_cmd_set_deq_ep(ep_ctx);
 
@@ -1132,7 +1831,11 @@ static void xhci_handle_cmd_set_deq(struct xhci_hcd *xhci, int slot_id,
 			/* Update the ring's dequeue segment and dequeue pointer
 			 * to reflect the new position.
 			 */
+<<<<<<< HEAD
 			update_ring_for_set_deq_completion(xhci, dev,
+=======
+			update_ring_for_set_deq_completion(xhci, ep->vdev,
+>>>>>>> upstream/android-13
 				ep_ring, ep_index);
 		} else {
 			xhci_warn(xhci, "Mismatch between completed Set TR Deq Ptr command & xHCI internal state.\n");
@@ -1140,11 +1843,32 @@ static void xhci_handle_cmd_set_deq(struct xhci_hcd *xhci, int slot_id,
 				  ep->queued_deq_seg, ep->queued_deq_ptr);
 		}
 	}
+<<<<<<< HEAD
 
 cleanup:
 	dev->eps[ep_index].ep_state &= ~SET_DEQ_PENDING;
 	dev->eps[ep_index].queued_deq_seg = NULL;
 	dev->eps[ep_index].queued_deq_ptr = NULL;
+=======
+	/* HW cached TDs cleared from cache, give them back */
+	list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list,
+				 cancelled_td_list) {
+		ep_ring = xhci_urb_to_transfer_ring(ep->xhci, td->urb);
+		if (td->cancel_status == TD_CLEARING_CACHE) {
+			td->cancel_status = TD_CLEARED;
+			xhci_dbg(ep->xhci, "%s: Giveback cancelled URB %p TD\n",
+				 __func__, td->urb);
+			xhci_td_cleanup(ep->xhci, td, ep_ring, td->status);
+		} else {
+			xhci_dbg(ep->xhci, "%s: Keep cancelled URB %p TD as cancel_status is %d\n",
+				 __func__, td->urb, td->cancel_status);
+		}
+	}
+cleanup:
+	ep->ep_state &= ~SET_DEQ_PENDING;
+	ep->queued_deq_seg = NULL;
+	ep->queued_deq_ptr = NULL;
+>>>>>>> upstream/android-13
 	/* Restart any rings with pending URBs */
 	ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
 }
@@ -1152,13 +1876,25 @@ cleanup:
 static void xhci_handle_cmd_reset_ep(struct xhci_hcd *xhci, int slot_id,
 		union xhci_trb *trb, u32 cmd_comp_code)
 {
+<<<<<<< HEAD
 	struct xhci_virt_device *vdev;
+=======
+	struct xhci_virt_ep *ep;
+>>>>>>> upstream/android-13
 	struct xhci_ep_ctx *ep_ctx;
 	unsigned int ep_index;
 
 	ep_index = TRB_TO_EP_INDEX(le32_to_cpu(trb->generic.field[3]));
+<<<<<<< HEAD
 	vdev = xhci->devs[slot_id];
 	ep_ctx = xhci_get_ep_ctx(xhci, vdev->out_ctx, ep_index);
+=======
+	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
+	if (!ep)
+		return;
+
+	ep_ctx = xhci_get_ep_ctx(xhci, ep->vdev->out_ctx, ep_index);
+>>>>>>> upstream/android-13
 	trace_xhci_handle_cmd_reset_ep(ep_ctx);
 
 	/* This command will only fail if the endpoint wasn't halted,
@@ -1167,6 +1903,7 @@ static void xhci_handle_cmd_reset_ep(struct xhci_hcd *xhci, int slot_id,
 	xhci_dbg_trace(xhci, trace_xhci_dbg_reset_ep,
 		"Ignoring reset ep completion code of %u", cmd_comp_code);
 
+<<<<<<< HEAD
 	/* HW with the reset endpoint quirk needs to have a configure endpoint
 	 * command complete before the endpoint can be used.  Queue that here
 	 * because the HW can't handle two commands being queued in a row.
@@ -1188,6 +1925,21 @@ static void xhci_handle_cmd_reset_ep(struct xhci_hcd *xhci, int slot_id,
 		/* Clear our internal halted state */
 		xhci->devs[slot_id]->eps[ep_index].ep_state &= ~EP_HALTED;
 	}
+=======
+	/* Cleanup cancelled TDs as ep is stopped. May queue a Set TR Deq cmd */
+	xhci_invalidate_cancelled_tds(ep);
+
+	if (xhci->quirks & XHCI_RESET_EP_QUIRK)
+		xhci_dbg(xhci, "Note: Removed workaround to queue config ep for this hw");
+	/* Clear our internal halted state */
+	ep->ep_state &= ~EP_HALTED;
+
+	xhci_giveback_invalidated_tds(ep);
+
+	/* if this was a soft reset, then restart */
+	if ((le32_to_cpu(trb->generic.field[3])) & TRB_TSP)
+		ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+>>>>>>> upstream/android-13
 }
 
 static void xhci_handle_cmd_enable_slot(struct xhci_hcd *xhci, int slot_id,
@@ -1214,11 +1966,18 @@ static void xhci_handle_cmd_disable_slot(struct xhci_hcd *xhci, int slot_id)
 	if (xhci->quirks & XHCI_EP_LIMIT_QUIRK)
 		/* Delete default control endpoint resources */
 		xhci_free_device_endpoint_resources(xhci, virt_dev, true);
+<<<<<<< HEAD
 	xhci_free_virt_device(xhci, slot_id);
 }
 
 static void xhci_handle_cmd_config_ep(struct xhci_hcd *xhci, int slot_id,
 		struct xhci_event_cmd *event, u32 cmd_comp_code)
+=======
+}
+
+static void xhci_handle_cmd_config_ep(struct xhci_hcd *xhci, int slot_id,
+		u32 cmd_comp_code)
+>>>>>>> upstream/android-13
 {
 	struct xhci_virt_device *virt_dev;
 	struct xhci_input_control_ctx *ctrl_ctx;
@@ -1236,6 +1995,11 @@ static void xhci_handle_cmd_config_ep(struct xhci_hcd *xhci, int slot_id,
 	 * is not waiting on the configure endpoint command.
 	 */
 	virt_dev = xhci->devs[slot_id];
+<<<<<<< HEAD
+=======
+	if (!virt_dev)
+		return;
+>>>>>>> upstream/android-13
 	ctrl_ctx = xhci_get_input_control_ctx(virt_dev->in_ctx);
 	if (!ctrl_ctx) {
 		xhci_warn(xhci, "Could not get input context, bad type.\n");
@@ -1280,24 +2044,44 @@ static void xhci_handle_cmd_addr_dev(struct xhci_hcd *xhci, int slot_id)
 	struct xhci_slot_ctx *slot_ctx;
 
 	vdev = xhci->devs[slot_id];
+<<<<<<< HEAD
+=======
+	if (!vdev)
+		return;
+>>>>>>> upstream/android-13
 	slot_ctx = xhci_get_slot_ctx(xhci, vdev->out_ctx);
 	trace_xhci_handle_cmd_addr_dev(slot_ctx);
 }
 
+<<<<<<< HEAD
 static void xhci_handle_cmd_reset_dev(struct xhci_hcd *xhci, int slot_id,
 		struct xhci_event_cmd *event)
+=======
+static void xhci_handle_cmd_reset_dev(struct xhci_hcd *xhci, int slot_id)
+>>>>>>> upstream/android-13
 {
 	struct xhci_virt_device *vdev;
 	struct xhci_slot_ctx *slot_ctx;
 
 	vdev = xhci->devs[slot_id];
+<<<<<<< HEAD
+=======
+	if (!vdev) {
+		xhci_warn(xhci, "Reset device command completion for disabled slot %u\n",
+			  slot_id);
+		return;
+	}
+>>>>>>> upstream/android-13
 	slot_ctx = xhci_get_slot_ctx(xhci, vdev->out_ctx);
 	trace_xhci_handle_cmd_reset_dev(slot_ctx);
 
 	xhci_dbg(xhci, "Completed reset device command.\n");
+<<<<<<< HEAD
 	if (!xhci->devs[slot_id])
 		xhci_warn(xhci, "Reset device command completion "
 				"for disabled slot %u\n", slot_id);
+=======
+>>>>>>> upstream/android-13
 }
 
 static void xhci_handle_cmd_nec_get_fw(struct xhci_hcd *xhci,
@@ -1395,6 +2179,14 @@ void xhci_handle_command_timeout(struct work_struct *work)
 		goto time_out_completed;
 	}
 
+<<<<<<< HEAD
+=======
+	/* host died */
+	if (!(hw_ring_state & CMD_RING_RUNNING)) {
+		xhci_hc_died(xhci);
+		goto time_out_completed;
+	}
+>>>>>>> upstream/android-13
 	/* command timeout on stopped ring, ring can't be aborted */
 	xhci_dbg(xhci, "Command timeout on stopped ring\n");
 	xhci_handle_stopped_cmd_ring(xhci, xhci->current_cmd);
@@ -1410,7 +2202,11 @@ time_out_completed:
 static void handle_cmd_completion(struct xhci_hcd *xhci,
 		struct xhci_event_cmd *event)
 {
+<<<<<<< HEAD
 	int slot_id = TRB_TO_SLOT_ID(le32_to_cpu(event->flags));
+=======
+	unsigned int slot_id = TRB_TO_SLOT_ID(le32_to_cpu(event->flags));
+>>>>>>> upstream/android-13
 	u64 cmd_dma;
 	dma_addr_t cmd_dequeue_dma;
 	u32 cmd_comp_code;
@@ -1418,6 +2214,14 @@ static void handle_cmd_completion(struct xhci_hcd *xhci,
 	struct xhci_command *cmd;
 	u32 cmd_type;
 
+<<<<<<< HEAD
+=======
+	if (slot_id >= MAX_HC_SLOTS) {
+		xhci_warn(xhci, "Invalid slot_id %u\n", slot_id);
+		return;
+	}
+
+>>>>>>> upstream/android-13
 	cmd_dma = le64_to_cpu(event->cmd_trb);
 	cmd_trb = xhci->cmd_ring->dequeue;
 
@@ -1485,8 +2289,12 @@ static void handle_cmd_completion(struct xhci_hcd *xhci,
 		break;
 	case TRB_CONFIG_EP:
 		if (!cmd->completion)
+<<<<<<< HEAD
 			xhci_handle_cmd_config_ep(xhci, slot_id, event,
 						  cmd_comp_code);
+=======
+			xhci_handle_cmd_config_ep(xhci, slot_id, cmd_comp_code);
+>>>>>>> upstream/android-13
 		break;
 	case TRB_EVAL_CONTEXT:
 		break;
@@ -1497,7 +2305,12 @@ static void handle_cmd_completion(struct xhci_hcd *xhci,
 		WARN_ON(slot_id != TRB_TO_SLOT_ID(
 				le32_to_cpu(cmd_trb->generic.field[3])));
 		if (!cmd->completion)
+<<<<<<< HEAD
 			xhci_handle_cmd_stop_ep(xhci, slot_id, cmd_trb, event);
+=======
+			xhci_handle_cmd_stop_ep(xhci, slot_id, cmd_trb,
+						cmd_comp_code);
+>>>>>>> upstream/android-13
 		break;
 	case TRB_SET_DEQ:
 		WARN_ON(slot_id != TRB_TO_SLOT_ID(
@@ -1520,7 +2333,11 @@ static void handle_cmd_completion(struct xhci_hcd *xhci,
 		 */
 		slot_id = TRB_TO_SLOT_ID(
 				le32_to_cpu(cmd_trb->generic.field[3]));
+<<<<<<< HEAD
 		xhci_handle_cmd_reset_dev(xhci, slot_id, event);
+=======
+		xhci_handle_cmd_reset_dev(xhci, slot_id);
+>>>>>>> upstream/android-13
 		break;
 	case TRB_NEC_GET_FW:
 		xhci_handle_cmd_nec_get_fw(xhci, event);
@@ -1547,11 +2364,16 @@ event_handled:
 }
 
 static void handle_vendor_event(struct xhci_hcd *xhci,
+<<<<<<< HEAD
 		union xhci_trb *event)
 {
 	u32 trb_type;
 
 	trb_type = TRB_FIELD_TO_TYPE(le32_to_cpu(event->generic.field[3]));
+=======
+				union xhci_trb *event, u32 trb_type)
+{
+>>>>>>> upstream/android-13
 	xhci_dbg(xhci, "Vendor specific event TRB type = %u\n", trb_type);
 	if (trb_type == TRB_NEC_CMD_COMP && (xhci->quirks & XHCI_NEC_HOST))
 		handle_cmd_completion(xhci, &event->event_cmd);
@@ -1625,18 +2447,31 @@ static void handle_port_status(struct xhci_hcd *xhci,
 			  "WARN: xHC returned failed port status event\n");
 
 	port_id = GET_PORT_ID(le32_to_cpu(event->generic.field[0]));
+<<<<<<< HEAD
 	xhci_dbg(xhci, "Port Status Change Event for port %d\n", port_id);
 
 	max_ports = HCS_MAX_PORTS(xhci->hcs_params1);
 	if ((port_id <= 0) || (port_id > max_ports)) {
 		xhci_warn(xhci, "Invalid port id %d\n", port_id);
+=======
+	max_ports = HCS_MAX_PORTS(xhci->hcs_params1);
+
+	if ((port_id <= 0) || (port_id > max_ports)) {
+		xhci_warn(xhci, "Port change event with invalid port ID %d\n",
+			  port_id);
+>>>>>>> upstream/android-13
 		inc_deq(xhci, xhci->event_ring);
 		return;
 	}
 
 	port = &xhci->hw_ports[port_id - 1];
 	if (!port || !port->rhub || port->hcd_portnum == DUPLICATE_ENTRY) {
+<<<<<<< HEAD
 		xhci_warn(xhci, "Event for invalid port %u\n", port_id);
+=======
+		xhci_warn(xhci, "Port change event, no port for port ID %u\n",
+			  port_id);
+>>>>>>> upstream/android-13
 		bogus_port_status = true;
 		goto cleanup;
 	}
@@ -1649,10 +2484,20 @@ static void handle_port_status(struct xhci_hcd *xhci,
 	}
 
 	hcd = port->rhub->hcd;
+<<<<<<< HEAD
 	bus_state = &xhci->bus_state[hcd_index(hcd)];
 	hcd_portnum = port->hcd_portnum;
 	portsc = readl(port->addr);
 
+=======
+	bus_state = &port->rhub->bus_state;
+	hcd_portnum = port->hcd_portnum;
+	portsc = readl(port->addr);
+
+	xhci_dbg(xhci, "Port change event, %d-%d, id %d, portsc: 0x%x\n",
+		 hcd->self.busnum, hcd_portnum + 1, port_id, portsc);
+
+>>>>>>> upstream/android-13
 	trace_xhci_handle_port_status(hcd_portnum, portsc);
 
 	if (hcd->state == HC_STATE_SUSPENDED) {
@@ -1684,8 +2529,13 @@ static void handle_port_status(struct xhci_hcd *xhci,
 			 */
 			bus_state->port_remote_wakeup |= 1 << hcd_portnum;
 			xhci_test_and_clear_bit(xhci, port, PORT_PLC);
+<<<<<<< HEAD
 			xhci_set_link_state(xhci, port, XDEV_U0);
 			usb_hcd_start_port_resume(&hcd->self, hcd_portnum);
+=======
+			usb_hcd_start_port_resume(&hcd->self, hcd_portnum);
+			xhci_set_link_state(xhci, port, XDEV_U0);
+>>>>>>> upstream/android-13
 			/* Need to wait until the next link state change
 			 * indicates the device is actually in U0.
 			 */
@@ -1714,6 +2564,10 @@ static void handle_port_status(struct xhci_hcd *xhci,
 	     (portsc & PORT_PLS_MASK) == XDEV_U1 ||
 	     (portsc & PORT_PLS_MASK) == XDEV_U2)) {
 		xhci_dbg(xhci, "resume SS port %d finished\n", port_id);
+<<<<<<< HEAD
+=======
+		complete(&bus_state->u3exit_done[hcd_portnum]);
+>>>>>>> upstream/android-13
 		/* We've just brought the device into U0/1/2 through either the
 		 * Resume state after a device remote wakeup, or through the
 		 * U3Exit state after a host-initiated resume.  If it's a device
@@ -1771,7 +2625,12 @@ cleanup:
 	 * bits are still set.  When an event occurs, switch over to
 	 * polling to avoid losing status changes.
 	 */
+<<<<<<< HEAD
 	xhci_dbg(xhci, "%s: starting port polling.\n", __func__);
+=======
+	xhci_dbg(xhci, "%s: starting usb%d port polling.\n",
+		 __func__, hcd->self.busnum);
+>>>>>>> upstream/android-13
 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
 	spin_unlock(&xhci->lock);
 	/* Pass this up to the core */
@@ -1846,6 +2705,7 @@ struct xhci_segment *trb_in_td(struct xhci_hcd *xhci,
 	return NULL;
 }
 
+<<<<<<< HEAD
 static void xhci_cleanup_halted_endpoint(struct xhci_hcd *xhci,
 		unsigned int slot_id, unsigned int ep_index,
 		unsigned int stream_id, struct xhci_td *td,
@@ -1874,6 +2734,23 @@ static void xhci_cleanup_halted_endpoint(struct xhci_hcd *xhci,
 		xhci_cleanup_stalled_ring(xhci, ep_index, stream_id, td);
 	}
 	xhci_ring_cmd_db(xhci);
+=======
+static void xhci_clear_hub_tt_buffer(struct xhci_hcd *xhci, struct xhci_td *td,
+		struct xhci_virt_ep *ep)
+{
+	/*
+	 * As part of low/full-speed endpoint-halt processing
+	 * we must clear the TT buffer (USB 2.0 specification 11.17.5).
+	 */
+	if (td->urb->dev->tt && !usb_pipeint(td->urb->pipe) &&
+	    (td->urb->dev->tt->hub != xhci_to_hcd(xhci)->self.root_hub) &&
+	    !(ep->ep_state & EP_CLEARING_TT)) {
+		ep->ep_state |= EP_CLEARING_TT;
+		td->urb->ep->hcpriv = td->urb->dev;
+		if (usb_hub_clear_tt_buffer(td->urb))
+			ep->ep_state &= ~EP_CLEARING_TT;
+	}
+>>>>>>> upstream/android-13
 }
 
 /* Check if an error has halted the endpoint ring.  The class driver will
@@ -1916,6 +2793,7 @@ int xhci_is_vendor_info_code(struct xhci_hcd *xhci, unsigned int trb_comp_code)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int xhci_td_cleanup(struct xhci_hcd *xhci, struct xhci_td *td,
 		struct xhci_ring *ep_ring, int *status)
 {
@@ -2007,6 +2885,90 @@ static int finish_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	}
 
 	return xhci_td_cleanup(xhci, td, ep_ring, status);
+=======
+static int finish_td(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
+		     struct xhci_ring *ep_ring, struct xhci_td *td,
+		     u32 trb_comp_code)
+{
+	struct xhci_ep_ctx *ep_ctx;
+
+	ep_ctx = xhci_get_ep_ctx(xhci, ep->vdev->out_ctx, ep->ep_index);
+
+	switch (trb_comp_code) {
+	case COMP_STOPPED_LENGTH_INVALID:
+	case COMP_STOPPED_SHORT_PACKET:
+	case COMP_STOPPED:
+		/*
+		 * The "Stop Endpoint" completion will take care of any
+		 * stopped TDs. A stopped TD may be restarted, so don't update
+		 * the ring dequeue pointer or take this TD off any lists yet.
+		 */
+		return 0;
+	case COMP_USB_TRANSACTION_ERROR:
+	case COMP_BABBLE_DETECTED_ERROR:
+	case COMP_SPLIT_TRANSACTION_ERROR:
+		/*
+		 * If endpoint context state is not halted we might be
+		 * racing with a reset endpoint command issued by a unsuccessful
+		 * stop endpoint completion (context error). In that case the
+		 * td should be on the cancelled list, and EP_HALTED flag set.
+		 *
+		 * Or then it's not halted due to the 0.95 spec stating that a
+		 * babbling control endpoint should not halt. The 0.96 spec
+		 * again says it should.  Some HW claims to be 0.95 compliant,
+		 * but it halts the control endpoint anyway.
+		 */
+		if (GET_EP_CTX_STATE(ep_ctx) != EP_STATE_HALTED) {
+			/*
+			 * If EP_HALTED is set and TD is on the cancelled list
+			 * the TD and dequeue pointer will be handled by reset
+			 * ep command completion
+			 */
+			if ((ep->ep_state & EP_HALTED) &&
+			    !list_empty(&td->cancelled_td_list)) {
+				xhci_dbg(xhci, "Already resolving halted ep for 0x%llx\n",
+					 (unsigned long long)xhci_trb_virt_to_dma(
+						 td->start_seg, td->first_trb));
+				return 0;
+			}
+			/* endpoint not halted, don't reset it */
+			break;
+		}
+		/* Almost same procedure as for STALL_ERROR below */
+		xhci_clear_hub_tt_buffer(xhci, td, ep);
+		xhci_handle_halted_endpoint(xhci, ep, ep_ring->stream_id, td,
+					    EP_HARD_RESET);
+		return 0;
+	case COMP_STALL_ERROR:
+		/*
+		 * xhci internal endpoint state will go to a "halt" state for
+		 * any stall, including default control pipe protocol stall.
+		 * To clear the host side halt we need to issue a reset endpoint
+		 * command, followed by a set dequeue command to move past the
+		 * TD.
+		 * Class drivers clear the device side halt from a functional
+		 * stall later. Hub TT buffer should only be cleared for FS/LS
+		 * devices behind HS hubs for functional stalls.
+		 */
+		if (ep->ep_index != 0)
+			xhci_clear_hub_tt_buffer(xhci, td, ep);
+
+		xhci_handle_halted_endpoint(xhci, ep, ep_ring->stream_id, td,
+					    EP_HARD_RESET);
+
+		return 0; /* xhci_handle_halted_endpoint marked td cancelled */
+	default:
+		break;
+	}
+
+	/* Update ring dequeue pointer */
+	ep_ring->dequeue = td->last_trb;
+	ep_ring->deq_seg = td->last_trb_seg;
+	ep_ring->num_trbs_free += td->num_trbs - 1;
+	inc_deq(xhci, ep_ring);
+
+	return xhci_td_cleanup(xhci, td, ep_ring, td->status);
+>>>>>>> upstream/android-13
 }
 
 /* sum trb lengths from ring dequeue up to stop_trb, _excluding_ stop_trb */
@@ -2027,6 +2989,7 @@ static int sum_trb_lengths(struct xhci_hcd *xhci, struct xhci_ring *ring,
 /*
  * Process control tds, update urb status and actual_length.
  */
+<<<<<<< HEAD
 static int process_ctrl_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	union xhci_trb *ep_trb, struct xhci_transfer_event *event,
 	struct xhci_virt_ep *ep, int *status)
@@ -2034,16 +2997,26 @@ static int process_ctrl_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	struct xhci_virt_device *xdev;
 	unsigned int slot_id;
 	int ep_index;
+=======
+static int process_ctrl_td(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
+		struct xhci_ring *ep_ring,  struct xhci_td *td,
+			   union xhci_trb *ep_trb, struct xhci_transfer_event *event)
+{
+>>>>>>> upstream/android-13
 	struct xhci_ep_ctx *ep_ctx;
 	u32 trb_comp_code;
 	u32 remaining, requested;
 	u32 trb_type;
 
 	trb_type = TRB_FIELD_TO_TYPE(le32_to_cpu(ep_trb->generic.field[3]));
+<<<<<<< HEAD
 	slot_id = TRB_TO_SLOT_ID(le32_to_cpu(event->flags));
 	xdev = xhci->devs[slot_id];
 	ep_index = TRB_TO_EP_ID(le32_to_cpu(event->flags)) - 1;
 	ep_ctx = xhci_get_ep_ctx(xhci, xdev->out_ctx, ep_index);
+=======
+	ep_ctx = xhci_get_ep_ctx(xhci, ep->vdev->out_ctx, ep->ep_index);
+>>>>>>> upstream/android-13
 	trb_comp_code = GET_COMP_CODE(le32_to_cpu(event->transfer_len));
 	requested = td->urb->transfer_buffer_length;
 	remaining = EVENT_TRB_LEN(le32_to_cpu(event->transfer_len));
@@ -2053,6 +3026,7 @@ static int process_ctrl_td(struct xhci_hcd *xhci, struct xhci_td *td,
 		if (trb_type != TRB_STATUS) {
 			xhci_warn(xhci, "WARN: Success on ctrl %s TRB without IOC set?\n",
 				  (trb_type == TRB_DATA) ? "data" : "setup");
+<<<<<<< HEAD
 			*status = -ESHUTDOWN;
 			break;
 		}
@@ -2060,6 +3034,15 @@ static int process_ctrl_td(struct xhci_hcd *xhci, struct xhci_td *td,
 		break;
 	case COMP_SHORT_PACKET:
 		*status = 0;
+=======
+			td->status = -ESHUTDOWN;
+			break;
+		}
+		td->status = 0;
+		break;
+	case COMP_SHORT_PACKET:
+		td->status = 0;
+>>>>>>> upstream/android-13
 		break;
 	case COMP_STOPPED_SHORT_PACKET:
 		if (trb_type == TRB_DATA || trb_type == TRB_NORMAL)
@@ -2091,8 +3074,13 @@ static int process_ctrl_td(struct xhci_hcd *xhci, struct xhci_td *td,
 						       ep_ctx, trb_comp_code))
 			break;
 		xhci_dbg(xhci, "TRB error %u, halted endpoint index = %u\n",
+<<<<<<< HEAD
 			 trb_comp_code, ep_index);
 		/* else fall through */
+=======
+			 trb_comp_code, ep->ep_index);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case COMP_STALL_ERROR:
 		/* Did we transfer part of the data (middle) phase? */
 		if (trb_type == TRB_DATA || trb_type == TRB_NORMAL)
@@ -2123,17 +3111,28 @@ static int process_ctrl_td(struct xhci_hcd *xhci, struct xhci_td *td,
 		td->urb->actual_length = requested;
 
 finish_td:
+<<<<<<< HEAD
 	return finish_td(xhci, td, event, ep, status);
+=======
+	return finish_td(xhci, ep, ep_ring, td, trb_comp_code);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Process isochronous tds, update urb packet status and actual_length.
  */
+<<<<<<< HEAD
 static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	union xhci_trb *ep_trb, struct xhci_transfer_event *event,
 	struct xhci_virt_ep *ep, int *status)
 {
 	struct xhci_ring *ep_ring;
+=======
+static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
+		struct xhci_ring *ep_ring, struct xhci_td *td,
+		union xhci_trb *ep_trb, struct xhci_transfer_event *event)
+{
+>>>>>>> upstream/android-13
 	struct urb_priv *urb_priv;
 	int idx;
 	struct usb_iso_packet_descriptor *frame;
@@ -2142,7 +3141,10 @@ static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	u32 remaining, requested, ep_trb_len;
 	int short_framestatus;
 
+<<<<<<< HEAD
 	ep_ring = xhci_dma_to_transfer_ring(ep, le64_to_cpu(event->buffer));
+=======
+>>>>>>> upstream/android-13
 	trb_comp_code = GET_COMP_CODE(le32_to_cpu(event->transfer_len));
 	urb_priv = td->urb->hcpriv;
 	idx = urb_priv->num_tds_done;
@@ -2203,13 +3205,18 @@ static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	}
 
 	if (sum_trbs_for_length)
+<<<<<<< HEAD
 		frame->actual_length = sum_trb_lengths(xhci, ep_ring, ep_trb) +
+=======
+		frame->actual_length = sum_trb_lengths(xhci, ep->ring, ep_trb) +
+>>>>>>> upstream/android-13
 			ep_trb_len - remaining;
 	else
 		frame->actual_length = requested;
 
 	td->urb->actual_length += frame->actual_length;
 
+<<<<<<< HEAD
 	return finish_td(xhci, td, event, ep, status);
 }
 
@@ -2218,11 +3225,22 @@ static int skip_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
 			struct xhci_virt_ep *ep, int *status)
 {
 	struct xhci_ring *ep_ring;
+=======
+	return finish_td(xhci, ep, ep_ring, td, trb_comp_code);
+}
+
+static int skip_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
+			struct xhci_virt_ep *ep, int status)
+{
+>>>>>>> upstream/android-13
 	struct urb_priv *urb_priv;
 	struct usb_iso_packet_descriptor *frame;
 	int idx;
 
+<<<<<<< HEAD
 	ep_ring = xhci_dma_to_transfer_ring(ep, le64_to_cpu(event->buffer));
+=======
+>>>>>>> upstream/android-13
 	urb_priv = td->urb->hcpriv;
 	idx = urb_priv->num_tds_done;
 	frame = &td->urb->iso_frame_desc[idx];
@@ -2234,16 +3252,26 @@ static int skip_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	frame->actual_length = 0;
 
 	/* Update ring dequeue pointer */
+<<<<<<< HEAD
 	while (ep_ring->dequeue != td->last_trb)
 		inc_deq(xhci, ep_ring);
 	inc_deq(xhci, ep_ring);
 
 	return xhci_td_cleanup(xhci, td, ep_ring, status);
+=======
+	ep->ring->dequeue = td->last_trb;
+	ep->ring->deq_seg = td->last_trb_seg;
+	ep->ring->num_trbs_free += td->num_trbs - 1;
+	inc_deq(xhci, ep->ring);
+
+	return xhci_td_cleanup(xhci, td, ep->ring, status);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Process bulk and interrupt tds, update urb status and actual_length.
  */
+<<<<<<< HEAD
 static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	union xhci_trb *ep_trb, struct xhci_transfer_event *event,
 	struct xhci_virt_ep *ep, int *status)
@@ -2253,6 +3281,17 @@ static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_td *td,
 	u32 remaining, requested, ep_trb_len;
 
 	ep_ring = xhci_dma_to_transfer_ring(ep, le64_to_cpu(event->buffer));
+=======
+static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
+		struct xhci_ring *ep_ring, struct xhci_td *td,
+		union xhci_trb *ep_trb, struct xhci_transfer_event *event)
+{
+	struct xhci_slot_ctx *slot_ctx;
+	u32 trb_comp_code;
+	u32 remaining, requested, ep_trb_len;
+
+	slot_ctx = xhci_get_slot_ctx(xhci, ep->vdev->out_ctx);
+>>>>>>> upstream/android-13
 	trb_comp_code = GET_COMP_CODE(le32_to_cpu(event->transfer_len));
 	remaining = EVENT_TRB_LEN(le32_to_cpu(event->transfer_len));
 	ep_trb_len = TRB_LEN(le32_to_cpu(ep_trb->generic.field[2]));
@@ -2260,6 +3299,10 @@ static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_td *td,
 
 	switch (trb_comp_code) {
 	case COMP_SUCCESS:
+<<<<<<< HEAD
+=======
+		ep_ring->err_count = 0;
+>>>>>>> upstream/android-13
 		/* handle success with untransferred data as short packet */
 		if (ep_trb != td->last_trb || remaining) {
 			xhci_warn(xhci, "WARN Successful completion on short TX\n");
@@ -2267,13 +3310,21 @@ static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_td *td,
 				 td->urb->ep->desc.bEndpointAddress,
 				 requested, remaining);
 		}
+<<<<<<< HEAD
 		*status = 0;
+=======
+		td->status = 0;
+>>>>>>> upstream/android-13
 		break;
 	case COMP_SHORT_PACKET:
 		xhci_dbg(xhci, "ep %#x - asked for %d bytes, %d bytes untransferred\n",
 			 td->urb->ep->desc.bEndpointAddress,
 			 requested, remaining);
+<<<<<<< HEAD
 		*status = 0;
+=======
+		td->status = 0;
+>>>>>>> upstream/android-13
 		break;
 	case COMP_STOPPED_SHORT_PACKET:
 		td->urb->actual_length = remaining;
@@ -2283,6 +3334,20 @@ static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_td *td,
 		ep_trb_len	= 0;
 		remaining	= 0;
 		break;
+<<<<<<< HEAD
+=======
+	case COMP_USB_TRANSACTION_ERROR:
+		if (xhci->quirks & XHCI_NO_SOFT_RETRY ||
+		    (ep_ring->err_count++ > MAX_SOFT_RETRY) ||
+		    le32_to_cpu(slot_ctx->tt_info) & TT_SLOT)
+			break;
+
+		td->status = 0;
+
+		xhci_handle_halted_endpoint(xhci, ep, ep_ring->stream_id, td,
+					    EP_SOFT_RESET);
+		return 0;
+>>>>>>> upstream/android-13
 	default:
 		/* do nothing */
 		break;
@@ -2300,7 +3365,12 @@ finish_td:
 			  remaining);
 		td->urb->actual_length = 0;
 	}
+<<<<<<< HEAD
 	return finish_td(xhci, td, event, ep, status);
+=======
+
+	return finish_td(xhci, ep, ep_ring, td, trb_comp_code);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2311,7 +3381,10 @@ finish_td:
 static int handle_tx_event(struct xhci_hcd *xhci,
 		struct xhci_transfer_event *event)
 {
+<<<<<<< HEAD
 	struct xhci_virt_device *xdev;
+=======
+>>>>>>> upstream/android-13
 	struct xhci_virt_ep *ep;
 	struct xhci_ring *ep_ring;
 	unsigned int slot_id;
@@ -2332,6 +3405,7 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 	trb_comp_code = GET_COMP_CODE(le32_to_cpu(event->transfer_len));
 	ep_trb_dma = le64_to_cpu(event->buffer);
 
+<<<<<<< HEAD
 	xdev = xhci->devs[slot_id];
 	if (!xdev) {
 		xhci_err(xhci, "ERROR Transfer event pointed to bad slot %u\n",
@@ -2342,6 +3416,16 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 	ep = &xdev->eps[ep_index];
 	ep_ring = xhci_dma_to_transfer_ring(ep, ep_trb_dma);
 	ep_ctx = xhci_get_ep_ctx(xhci, xdev->out_ctx, ep_index);
+=======
+	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
+	if (!ep) {
+		xhci_err(xhci, "ERROR Invalid Transfer event\n");
+		goto err_out;
+	}
+
+	ep_ring = xhci_dma_to_transfer_ring(ep, ep_trb_dma);
+	ep_ctx = xhci_get_ep_ctx(xhci, ep->vdev->out_ctx, ep_index);
+>>>>>>> upstream/android-13
 
 	if (GET_EP_CTX_STATE(ep_ctx) == EP_STATE_DISABLED) {
 		xhci_err(xhci,
@@ -2357,8 +3441,13 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 		case COMP_USB_TRANSACTION_ERROR:
 		case COMP_INVALID_STREAM_TYPE_ERROR:
 		case COMP_INVALID_STREAM_ID_ERROR:
+<<<<<<< HEAD
 			xhci_cleanup_halted_endpoint(xhci, slot_id, ep_index, 0,
 						     NULL, EP_SOFT_RESET);
+=======
+			xhci_handle_halted_endpoint(xhci, ep, 0, NULL,
+						    EP_SOFT_RESET);
+>>>>>>> upstream/android-13
 			goto cleanup;
 		case COMP_RING_UNDERRUN:
 		case COMP_RING_OVERRUN:
@@ -2392,6 +3481,10 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 			xhci_warn_ratelimited(xhci,
 					      "WARN Successful completion on short TX for slot %u ep %u: needs XHCI_TRUST_TX_LENGTH quirk?\n",
 					      slot_id, ep_index);
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case COMP_SHORT_PACKET:
 		break;
 	/* Completion codes for endpoint stopped state */
@@ -2413,10 +3506,20 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 	case COMP_STALL_ERROR:
 		xhci_dbg(xhci, "Stalled endpoint for slot %u ep %u\n", slot_id,
 			 ep_index);
+<<<<<<< HEAD
 		ep->ep_state |= EP_HALTED;
 		status = -EPIPE;
 		break;
 	case COMP_SPLIT_TRANSACTION_ERROR:
+=======
+		status = -EPIPE;
+		break;
+	case COMP_SPLIT_TRANSACTION_ERROR:
+		xhci_dbg(xhci, "Split transaction error for slot %u ep %u\n",
+			 slot_id, ep_index);
+		status = -EPROTO;
+		break;
+>>>>>>> upstream/android-13
 	case COMP_USB_TRANSACTION_ERROR:
 		xhci_dbg(xhci, "Transfer error for slot %u ep %u on endpoint\n",
 			 slot_id, ep_index);
@@ -2534,6 +3637,17 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 				xhci_dbg(xhci, "td_list is empty while skip flag set. Clear skip flag for slot %u ep %u.\n",
 					 slot_id, ep_index);
 			}
+<<<<<<< HEAD
+=======
+			if (trb_comp_code == COMP_STALL_ERROR ||
+			    xhci_requires_manual_halt_cleanup(xhci, ep_ctx,
+							      trb_comp_code)) {
+				xhci_handle_halted_endpoint(xhci, ep,
+							    ep_ring->stream_id,
+							    NULL,
+							    EP_HARD_RESET);
+			}
+>>>>>>> upstream/android-13
 			goto cleanup;
 		}
 
@@ -2591,7 +3705,11 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 				return -ESHUTDOWN;
 			}
 
+<<<<<<< HEAD
 			skip_isoc_td(xhci, td, event, ep, &status);
+=======
+			skip_isoc_td(xhci, td, ep, status);
+>>>>>>> upstream/android-13
 			goto cleanup;
 		}
 		if (trb_comp_code == COMP_SHORT_PACKET)
@@ -2619,10 +3737,15 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 		 * endpoint. Otherwise, the endpoint remains stalled
 		 * indefinitely.
 		 */
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 		if (trb_is_noop(ep_trb)) {
 			if (trb_comp_code == COMP_STALL_ERROR ||
 			    xhci_requires_manual_halt_cleanup(xhci, ep_ctx,
 							      trb_comp_code))
+<<<<<<< HEAD
 				xhci_cleanup_halted_endpoint(xhci, slot_id,
 							     ep_index,
 							     ep_ring->stream_id,
@@ -2638,6 +3761,23 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 		else
 			process_bulk_intr_td(xhci, td, ep_trb, event, ep,
 					     &status);
+=======
+				xhci_handle_halted_endpoint(xhci, ep,
+							    ep_ring->stream_id,
+							    td, EP_HARD_RESET);
+			goto cleanup;
+		}
+
+		td->status = status;
+
+		/* update the urb's actual_length and give back to the core */
+		if (usb_endpoint_xfer_control(&td->urb->ep->desc))
+			process_ctrl_td(xhci, ep, ep_ring, td, ep_trb, event);
+		else if (usb_endpoint_xfer_isoc(&td->urb->ep->desc))
+			process_isoc_td(xhci, ep, ep_ring, td, ep_trb, event);
+		else
+			process_bulk_intr_td(xhci, ep, ep_ring, td, ep_trb, event);
+>>>>>>> upstream/android-13
 cleanup:
 		handling_skipped_tds = ep->skip &&
 			trb_comp_code != COMP_MISSED_SERVICE_ERROR &&
@@ -2682,6 +3822,10 @@ static int xhci_handle_event(struct xhci_hcd *xhci)
 {
 	union xhci_trb *event;
 	int update_ptrs = 1;
+<<<<<<< HEAD
+=======
+	u32 trb_type;
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Event ring hasn't been allocated yet. */
@@ -2703,6 +3847,7 @@ static int xhci_handle_event(struct xhci_hcd *xhci)
 	 * speculative reads of the event's flags/data below.
 	 */
 	rmb();
+<<<<<<< HEAD
 	/* FIXME: Handle more event types. */
 	switch (le32_to_cpu(event->event_cmd.flags) & TRB_TYPE_BITMASK) {
 	case TRB_TYPE(TRB_COMPLETION):
@@ -2713,10 +3858,25 @@ static int xhci_handle_event(struct xhci_hcd *xhci)
 		update_ptrs = 0;
 		break;
 	case TRB_TYPE(TRB_TRANSFER):
+=======
+	trb_type = TRB_FIELD_TO_TYPE(le32_to_cpu(event->event_cmd.flags));
+	/* FIXME: Handle more event types. */
+
+	switch (trb_type) {
+	case TRB_COMPLETION:
+		handle_cmd_completion(xhci, &event->event_cmd);
+		break;
+	case TRB_PORT_STATUS:
+		handle_port_status(xhci, event);
+		update_ptrs = 0;
+		break;
+	case TRB_TRANSFER:
+>>>>>>> upstream/android-13
 		ret = handle_tx_event(xhci, &event->trans_event);
 		if (ret >= 0)
 			update_ptrs = 0;
 		break;
+<<<<<<< HEAD
 	case TRB_TYPE(TRB_DEV_NOTE):
 		handle_device_notification(xhci, event);
 		break;
@@ -2728,6 +3888,16 @@ static int xhci_handle_event(struct xhci_hcd *xhci)
 			xhci_warn(xhci, "ERROR unknown event type %d\n",
 				  TRB_FIELD_TO_TYPE(
 				  le32_to_cpu(event->event_cmd.flags)));
+=======
+	case TRB_DEV_NOTE:
+		handle_device_notification(xhci, event);
+		break;
+	default:
+		if (trb_type >= TRB_VENDOR_DEFINED_LOW)
+			handle_vendor_event(xhci, event, trb_type);
+		else
+			xhci_warn(xhci, "ERROR unknown event type %d\n", trb_type);
+>>>>>>> upstream/android-13
 	}
 	/* Any of the above functions may drop and re-acquire the lock, so check
 	 * to make sure a watchdog timer didn't mark the host as non-responsive.
@@ -2784,6 +3954,7 @@ static void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
 	xhci_write_64(xhci, temp_64, &xhci->ir_set->erst_dequeue);
 }
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 static irqreturn_t xhci_vendor_queue_irq_work(struct xhci_hcd *xhci)
 {
@@ -2795,6 +3966,8 @@ static irqreturn_t xhci_vendor_queue_irq_work(struct xhci_hcd *xhci)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /*
  * xHCI spec says we can get an interrupt, and if the HC has an error condition,
  * we might get bad data out of the event ring.  Section 4.10.2.7 has a list of
@@ -2805,12 +3978,19 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
 	union xhci_trb *event_ring_deq;
 	irqreturn_t ret = IRQ_NONE;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	u64 temp_64;
 	u32 status;
 	int event_loop = 0;
 
+<<<<<<< HEAD
 	spin_lock_irqsave(&xhci->lock, flags);
+=======
+	spin_lock(&xhci->lock);
+>>>>>>> upstream/android-13
 	/* Check if the xHC generated the interrupt, or the irq is shared */
 	status = readl(&xhci->op_regs->status);
 	if (status == ~(u32)0) {
@@ -2829,11 +4009,14 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
 		goto out;
 	}
 
+<<<<<<< HEAD
 #if IS_ENABLED(CONFIG_MTK_USB_OFFLOAD)
 	ret = xhci_vendor_queue_irq_work(xhci);
 	if (ret == IRQ_HANDLED)
 		goto out;
 #endif
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * Clear the op reg interrupt status first,
 	 * so we can receive interrupts from other MSI-X interrupters.
@@ -2871,6 +4054,15 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
 		if (event_loop++ < TRBS_PER_SEGMENT / 2)
 			continue;
 		xhci_update_erst_dequeue(xhci, event_ring_deq);
+<<<<<<< HEAD
+=======
+		event_ring_deq = xhci->event_ring->dequeue;
+
+		/* ring is half-full, force isoc trbs to interrupt more often */
+		if (xhci->isoc_bei_interval > AVOID_BEI_INTERVAL_MIN)
+			xhci->isoc_bei_interval = xhci->isoc_bei_interval / 2;
+
+>>>>>>> upstream/android-13
 		event_loop = 0;
 	}
 
@@ -2878,7 +4070,11 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
 	ret = IRQ_HANDLED;
 
 out:
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&xhci->lock, flags);
+=======
+	spin_unlock(&xhci->lock);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -2924,6 +4120,10 @@ static int prepare_ring(struct xhci_hcd *xhci, struct xhci_ring *ep_ring,
 		u32 ep_state, unsigned int num_trbs, gfp_t mem_flags)
 {
 	unsigned int num_trbs_needed;
+<<<<<<< HEAD
+=======
+	unsigned int link_trb_count = 0;
+>>>>>>> upstream/android-13
 
 	/* Make sure the endpoint has been added to xHC schedule */
 	switch (ep_state) {
@@ -2941,6 +4141,10 @@ static int prepare_ring(struct xhci_hcd *xhci, struct xhci_ring *ep_ring,
 		return -EINVAL;
 	case EP_STATE_HALTED:
 		xhci_dbg(xhci, "WARN halted endpoint, queueing URB anyway.\n");
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case EP_STATE_STOPPED:
 	case EP_STATE_RUNNING:
 		break;
@@ -2994,7 +4198,23 @@ static int prepare_ring(struct xhci_hcd *xhci, struct xhci_ring *ep_ring,
 
 		ep_ring->enq_seg = ep_ring->enq_seg->next;
 		ep_ring->enqueue = ep_ring->enq_seg->trbs;
+<<<<<<< HEAD
 	}
+=======
+
+		/* prevent infinite loop if all first trbs are link trbs */
+		if (link_trb_count++ > ep_ring->num_segs) {
+			xhci_warn(xhci, "Ring is an endless link TRB loop\n");
+			return -EINVAL;
+		}
+	}
+
+	if (last_trb_on_seg(ep_ring->enq_seg, ep_ring->enqueue)) {
+		xhci_warn(xhci, "Missing link TRB at end of ring segment\n");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -3013,7 +4233,12 @@ static int prepare_transfer(struct xhci_hcd *xhci,
 	struct xhci_ring *ep_ring;
 	struct xhci_ep_ctx *ep_ctx = xhci_get_ep_ctx(xhci, xdev->out_ctx, ep_index);
 
+<<<<<<< HEAD
 	ep_ring = xhci_stream_id_to_ring(xdev, ep_index, stream_id);
+=======
+	ep_ring = xhci_triad_to_transfer_ring(xhci, xdev->slot_id, ep_index,
+					      stream_id);
+>>>>>>> upstream/android-13
 	if (!ep_ring) {
 		xhci_dbg(xhci, "Can't prepare ring for bad stream ID %u\n",
 				stream_id);
@@ -3308,7 +4533,11 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 
 	full_len = urb->transfer_buffer_length;
 	/* If we have scatter/gather list, we use it. */
+<<<<<<< HEAD
 	if (urb->num_sgs) {
+=======
+	if (urb->num_sgs && !(urb->transfer_flags & URB_DMA_MAP_SINGLE)) {
+>>>>>>> upstream/android-13
 		num_sgs = urb->num_mapped_sgs;
 		sg = urb->sg;
 		addr = (u64) sg_dma_address(sg);
@@ -3382,6 +4611,16 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 			field |= TRB_IOC;
 			more_trbs_coming = false;
 			td->last_trb = ring->enqueue;
+<<<<<<< HEAD
+=======
+			td->last_trb_seg = ring->enq_seg;
+			if (xhci_urb_suitable_for_idt(urb)) {
+				memcpy(&send_addr, urb->transfer_buffer,
+				       trb_buff_len);
+				le64_to_cpus(&send_addr);
+				field |= TRB_IDT;
+			}
+>>>>>>> upstream/android-13
 		}
 
 		/* Only set interrupt on short packet for IN endpoints */
@@ -3401,7 +4640,11 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 				upper_32_bits(send_addr),
 				length_field,
 				field);
+<<<<<<< HEAD
 
+=======
+		td->num_trbs++;
+>>>>>>> upstream/android-13
 		addr += trb_buff_len;
 		sent_len = trb_buff_len;
 
@@ -3425,8 +4668,15 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 				       ep_index, urb->stream_id,
 				       1, urb, 1, mem_flags);
 		urb_priv->td[1].last_trb = ring->enqueue;
+<<<<<<< HEAD
 		field = TRB_TYPE(TRB_NORMAL) | ring->cycle_state | TRB_IOC;
 		queue_trb(xhci, ring, 0, 0, 0, TRB_INTR_TARGET(0), field);
+=======
+		urb_priv->td[1].last_trb_seg = ring->enq_seg;
+		field = TRB_TYPE(TRB_NORMAL) | ring->cycle_state | TRB_IOC;
+		queue_trb(xhci, ring, 0, 0, 0, TRB_INTR_TARGET(0), field);
+		urb_priv->td[1].num_trbs++;
+>>>>>>> upstream/android-13
 	}
 
 	check_trb_math(urb, enqd_len);
@@ -3477,6 +4727,10 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 
 	urb_priv = urb->hcpriv;
 	td = &urb_priv->td[0];
+<<<<<<< HEAD
+=======
+	td->num_trbs = num_trbs;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Don't give the first TRB to the hardware (by toggling the cycle bit)
@@ -3520,6 +4774,19 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 
 	if (urb->transfer_buffer_length > 0) {
 		u32 length_field, remainder;
+<<<<<<< HEAD
+=======
+		u64 addr;
+
+		if (xhci_urb_suitable_for_idt(urb)) {
+			memcpy(&addr, urb->transfer_buffer,
+			       urb->transfer_buffer_length);
+			le64_to_cpus(&addr);
+			field |= TRB_IDT;
+		} else {
+			addr = (u64) urb->transfer_dma;
+		}
+>>>>>>> upstream/android-13
 
 		remainder = xhci_td_remainder(xhci, 0,
 				urb->transfer_buffer_length,
@@ -3531,14 +4798,23 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 		if (setup->bRequestType & USB_DIR_IN)
 			field |= TRB_DIR_IN;
 		queue_trb(xhci, ep_ring, true,
+<<<<<<< HEAD
 				lower_32_bits(urb->transfer_dma),
 				upper_32_bits(urb->transfer_dma),
+=======
+				lower_32_bits(addr),
+				upper_32_bits(addr),
+>>>>>>> upstream/android-13
 				length_field,
 				field | ep_ring->cycle_state);
 	}
 
 	/* Save the DMA address of the last TRB in the TD */
 	td->last_trb = ep_ring->enqueue;
+<<<<<<< HEAD
+=======
+	td->last_trb_seg = ep_ring->enq_seg;
+>>>>>>> upstream/android-13
 
 	/* Queue status TRB - see Table 7 and sections 4.11.2.2 and 6.4.1.2.3 */
 	/* If the device sent data, the status stage is an OUT transfer */
@@ -3702,6 +4978,27 @@ static int xhci_get_isoc_frame_id(struct xhci_hcd *xhci,
 	return start_frame;
 }
 
+<<<<<<< HEAD
+=======
+/* Check if we should generate event interrupt for a TD in an isoc URB */
+static bool trb_block_event_intr(struct xhci_hcd *xhci, int num_tds, int i)
+{
+	if (xhci->hci_version < 0x100)
+		return false;
+	/* always generate an event interrupt for the last TD */
+	if (i == num_tds - 1)
+		return false;
+	/*
+	 * If AVOID_BEI is set the host handles full event rings poorly,
+	 * generate an event at least every 8th TD to clear the event ring
+	 */
+	if (i && xhci->quirks & XHCI_AVOID_BEI)
+		return !!(i % xhci->isoc_bei_interval);
+
+	return true;
+}
+
+>>>>>>> upstream/android-13
 /* This is for isoc transfer */
 static int xhci_queue_isoc_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 		struct urb *urb, int slot_id, unsigned int ep_index)
@@ -3765,7 +5062,11 @@ static int xhci_queue_isoc_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 			goto cleanup;
 		}
 		td = &urb_priv->td[i];
+<<<<<<< HEAD
 
+=======
+		td->num_trbs = trbs_per_td;
+>>>>>>> upstream/android-13
 		/* use SIA as default, if frame id is used overwrite it */
 		sia_frame_id = TRB_SIA;
 		if (!(urb->transfer_flags & URB_ISO_ASAP) &&
@@ -3808,11 +5109,17 @@ static int xhci_queue_isoc_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
 			} else {
 				more_trbs_coming = false;
 				td->last_trb = ep_ring->enqueue;
+<<<<<<< HEAD
 				field |= TRB_IOC;
 				/* set BEI, except for the last TD */
 				if (xhci->hci_version >= 0x100 &&
 				    !(xhci->quirks & XHCI_AVOID_BEI) &&
 				    i < num_tds - 1)
+=======
+				td->last_trb_seg = ep_ring->enq_seg;
+				field |= TRB_IOC;
+				if (trb_block_event_intr(xhci, num_tds, i))
+>>>>>>> upstream/android-13
 					field |= TRB_BEI;
 			}
 			/* Calculate TRB length */
@@ -4093,6 +5400,7 @@ int xhci_queue_stop_endpoint(struct xhci_hcd *xhci, struct xhci_command *cmd,
 	return queue_command(xhci, cmd, 0, 0, 0,
 			trb_slot_id | trb_ep_index | type | trb_suspend, false);
 }
+<<<<<<< HEAD
 
 /* Set Transfer Ring Dequeue Pointer command */
 void xhci_queue_new_dequeue_state(struct xhci_hcd *xhci,
@@ -4158,6 +5466,9 @@ void xhci_queue_new_dequeue_state(struct xhci_hcd *xhci,
 	 */
 	ep->ep_state |= SET_DEQ_PENDING;
 }
+=======
+EXPORT_SYMBOL_GPL(xhci_queue_stop_endpoint);
+>>>>>>> upstream/android-13
 
 int xhci_queue_reset_ep(struct xhci_hcd *xhci, struct xhci_command *cmd,
 			int slot_id, unsigned int ep_index,

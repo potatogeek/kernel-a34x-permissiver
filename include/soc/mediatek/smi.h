@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2020 MediaTek Inc.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2015-2016 MediaTek Inc.
+ * Author: Yong Wu <yong.wu@mediatek.com>
+>>>>>>> upstream/android-13
  */
 #ifndef MTK_IOMMU_SMI_H
 #define MTK_IOMMU_SMI_H
@@ -8,6 +15,7 @@
 #include <linux/bitops.h>
 #include <linux/device.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_MTK_SMI
 
 #define MTK_LARB_NR_MAX		32
@@ -75,6 +83,38 @@ s32 mtk_smi_conf_set(const struct mtk_smi_dev *smi, const u32 scen_id);
 s32 smi_register(void);
 s32 smi_get_dev_num(void);
 s32 smi_larb_port_check(void);
+=======
+#if IS_ENABLED(CONFIG_MTK_SMI)
+
+#define MTK_SMI_MMU_EN(port)	BIT(port)
+
+struct mtk_smi_larb_iommu {
+	struct device *dev;
+	unsigned int   mmu;
+	unsigned char  bank[32];
+};
+
+/*
+ * mtk_smi_larb_get: Enable the power domain and clocks for this local arbiter.
+ *                   It also initialize some basic setting(like iommu).
+ * mtk_smi_larb_put: Disable the power domain and clocks for this local arbiter.
+ * Both should be called in non-atomic context.
+ *
+ * Returns 0 if successful, negative on failure.
+ */
+int mtk_smi_larb_get(struct device *larbdev);
+void mtk_smi_larb_put(struct device *larbdev);
+
+#else
+
+static inline int mtk_smi_larb_get(struct device *larbdev)
+{
+	return 0;
+}
+
+static inline void mtk_smi_larb_put(struct device *larbdev) { }
+
+>>>>>>> upstream/android-13
 #endif
 
 #endif

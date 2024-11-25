@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 * Analogix DP (Display Port) core interface driver.
 *
 * Copyright (C) 2012 Samsung Electronics Co., Ltd.
 * Author: Jingoo Han <jg1.han@samsung.com>
+<<<<<<< HEAD
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -30,6 +35,31 @@
 #include <drm/drm_panel.h>
 
 #include <drm/bridge/analogix_dp.h>
+=======
+*/
+
+#include <linux/clk.h>
+#include <linux/component.h>
+#include <linux/err.h>
+#include <linux/gpio/consumer.h>
+#include <linux/interrupt.h>
+#include <linux/io.h>
+#include <linux/iopoll.h>
+#include <linux/module.h>
+#include <linux/of.h>
+#include <linux/phy/phy.h>
+#include <linux/platform_device.h>
+
+#include <drm/bridge/analogix_dp.h>
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_bridge.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_device.h>
+#include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_probe_helper.h>
+>>>>>>> upstream/android-13
 
 #include "analogix_dp_core.h"
 #include "analogix_dp_reg.h"
@@ -106,6 +136,7 @@ static int analogix_dp_detect_hpd(struct analogix_dp_device *dp)
 	return 0;
 }
 
+<<<<<<< HEAD
 int analogix_dp_psr_enabled(struct analogix_dp_device *dp)
 {
 
@@ -163,6 +194,9 @@ int analogix_dp_disable_psr(struct analogix_dp_device *dp)
 EXPORT_SYMBOL_GPL(analogix_dp_disable_psr);
 
 static int analogix_dp_detect_sink_psr(struct analogix_dp_device *dp)
+=======
+static bool analogix_dp_detect_sink_psr(struct analogix_dp_device *dp)
+>>>>>>> upstream/android-13
 {
 	unsigned char psr_version;
 	int ret;
@@ -170,6 +204,7 @@ static int analogix_dp_detect_sink_psr(struct analogix_dp_device *dp)
 	ret = drm_dp_dpcd_readb(&dp->aux, DP_PSR_SUPPORT, &psr_version);
 	if (ret != 1) {
 		dev_err(dp->dev, "failed to get PSR version, disable it\n");
+<<<<<<< HEAD
 		return ret;
 	}
 
@@ -178,6 +213,13 @@ static int analogix_dp_detect_sink_psr(struct analogix_dp_device *dp)
 	dp->psr_enable = (psr_version & DP_PSR_IS_SUPPORTED) ? true : false;
 
 	return 0;
+=======
+		return false;
+	}
+
+	dev_dbg(dp->dev, "Panel PSR version : %x\n", psr_version);
+	return psr_version & DP_PSR_IS_SUPPORTED;
+>>>>>>> upstream/android-13
 }
 
 static int analogix_dp_enable_sink_psr(struct analogix_dp_device *dp)
@@ -200,7 +242,11 @@ static int analogix_dp_enable_sink_psr(struct analogix_dp_device *dp)
 	}
 
 	/* Main-Link transmitter remains active during PSR active states */
+<<<<<<< HEAD
 	psr_en = DP_PSR_MAIN_LINK_ACTIVE | DP_PSR_CRC_VERIFICATION;
+=======
+	psr_en = DP_PSR_CRC_VERIFICATION;
+>>>>>>> upstream/android-13
 	ret = drm_dp_dpcd_writeb(&dp->aux, DP_PSR_EN_CFG, psr_en);
 	if (ret != 1) {
 		dev_err(dp->dev, "failed to set panel psr\n");
@@ -208,8 +254,12 @@ static int analogix_dp_enable_sink_psr(struct analogix_dp_device *dp)
 	}
 
 	/* Enable psr function */
+<<<<<<< HEAD
 	psr_en = DP_PSR_ENABLE | DP_PSR_MAIN_LINK_ACTIVE |
 		 DP_PSR_CRC_VERIFICATION;
+=======
+	psr_en = DP_PSR_ENABLE | DP_PSR_CRC_VERIFICATION;
+>>>>>>> upstream/android-13
 	ret = drm_dp_dpcd_writeb(&dp->aux, DP_PSR_EN_CFG, psr_en);
 	if (ret != 1) {
 		dev_err(dp->dev, "failed to set panel psr\n");
@@ -218,10 +268,18 @@ static int analogix_dp_enable_sink_psr(struct analogix_dp_device *dp)
 
 	analogix_dp_enable_psr_crc(dp);
 
+<<<<<<< HEAD
 	return 0;
 end:
 	dev_err(dp->dev, "enable psr fail, force to disable psr\n");
 	dp->psr_enable = false;
+=======
+	dp->psr_supported = true;
+
+	return 0;
+end:
+	dev_err(dp->dev, "enable psr fail, force to disable psr\n");
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -554,7 +612,11 @@ static int analogix_dp_process_clock_recovery(struct analogix_dp_device *dp)
 		if (retval < 0)
 			return retval;
 
+<<<<<<< HEAD
 		dev_info(dp->dev, "Link Training Clock Recovery success\n");
+=======
+		dev_dbg(dp->dev, "Link Training Clock Recovery success\n");
+>>>>>>> upstream/android-13
 		dp->link_train.lt_state = EQUALIZER_TRAINING;
 	} else {
 		for (lane = 0; lane < lane_count; lane++) {
@@ -634,7 +696,11 @@ static int analogix_dp_process_equalizer_training(struct analogix_dp_device *dp)
 		if (retval < 0)
 			return retval;
 
+<<<<<<< HEAD
 		dev_info(dp->dev, "Link Training success!\n");
+=======
+		dev_dbg(dp->dev, "Link Training success!\n");
+>>>>>>> upstream/android-13
 		analogix_dp_get_link_bandwidth(dp, &reg);
 		dp->link_train.link_rate = reg;
 		dev_dbg(dp->dev, "final bandwidth = %.2x\n",
@@ -1036,6 +1102,7 @@ static int analogix_dp_commit(struct analogix_dp_device *dp)
 		}
 	}
 
+<<<<<<< HEAD
 	ret = analogix_dp_detect_sink_psr(dp);
 	if (ret)
 		return ret;
@@ -1046,15 +1113,98 @@ static int analogix_dp_commit(struct analogix_dp_device *dp)
 		dp->psr_enable = false;
 
 	if (dp->psr_enable) {
+=======
+	/* Check whether panel supports fast training */
+	ret = analogix_dp_fast_link_train_detection(dp);
+	if (ret)
+		return ret;
+
+	if (analogix_dp_detect_sink_psr(dp)) {
+>>>>>>> upstream/android-13
 		ret = analogix_dp_enable_sink_psr(dp);
 		if (ret)
 			return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	return ret;
+}
+
+static int analogix_dp_enable_psr(struct analogix_dp_device *dp)
+{
+	struct dp_sdp psr_vsc;
+	int ret;
+	u8 sink;
+
+	ret = drm_dp_dpcd_readb(&dp->aux, DP_PSR_STATUS, &sink);
+	if (ret != 1)
+		DRM_DEV_ERROR(dp->dev, "Failed to read psr status %d\n", ret);
+	else if (sink == DP_PSR_SINK_ACTIVE_RFB)
+		return 0;
+
+	/* Prepare VSC packet as per EDP 1.4 spec, Table 6.9 */
+	memset(&psr_vsc, 0, sizeof(psr_vsc));
+	psr_vsc.sdp_header.HB0 = 0;
+	psr_vsc.sdp_header.HB1 = 0x7;
+	psr_vsc.sdp_header.HB2 = 0x2;
+	psr_vsc.sdp_header.HB3 = 0x8;
+	psr_vsc.db[0] = 0;
+	psr_vsc.db[1] = EDP_VSC_PSR_STATE_ACTIVE | EDP_VSC_PSR_CRC_VALUES_VALID;
+
+	ret = analogix_dp_send_psr_spd(dp, &psr_vsc, true);
+	if (!ret)
+		analogix_dp_set_analog_power_down(dp, POWER_ALL, true);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int analogix_dp_disable_psr(struct analogix_dp_device *dp)
+{
+	struct dp_sdp psr_vsc;
+	int ret;
+	u8 sink;
+
+	analogix_dp_set_analog_power_down(dp, POWER_ALL, false);
+
+	ret = drm_dp_dpcd_writeb(&dp->aux, DP_SET_POWER, DP_SET_POWER_D0);
+	if (ret != 1) {
+		DRM_DEV_ERROR(dp->dev, "Failed to set DP Power0 %d\n", ret);
+		return ret;
+	}
+
+	ret = drm_dp_dpcd_readb(&dp->aux, DP_PSR_STATUS, &sink);
+	if (ret != 1) {
+		DRM_DEV_ERROR(dp->dev, "Failed to read psr status %d\n", ret);
+		return ret;
+	} else if (sink == DP_PSR_SINK_INACTIVE) {
+		DRM_DEV_ERROR(dp->dev, "sink inactive, skip disable psr");
+		return 0;
+	}
+
+	ret = analogix_dp_train_link(dp);
+	if (ret) {
+		DRM_DEV_ERROR(dp->dev, "Failed to train the link %d\n", ret);
+		return ret;
+	}
+
+	/* Prepare VSC packet as per EDP 1.4 spec, Table 6.9 */
+	memset(&psr_vsc, 0, sizeof(psr_vsc));
+	psr_vsc.sdp_header.HB0 = 0;
+	psr_vsc.sdp_header.HB1 = 0x7;
+	psr_vsc.sdp_header.HB2 = 0x2;
+	psr_vsc.sdp_header.HB3 = 0x8;
+
+	psr_vsc.db[0] = 0;
+	psr_vsc.db[1] = 0;
+
+	return analogix_dp_send_psr_spd(dp, &psr_vsc, true);
+}
+
+>>>>>>> upstream/android-13
 /*
  * This function is a bit of a catch-all for panel preparation, hopefully
  * simplifying the logic of functions that need to prepare/unprepare the panel
@@ -1108,7 +1258,11 @@ static int analogix_dp_get_modes(struct drm_connector *connector)
 	int ret, num_modes = 0;
 
 	if (dp->plat_data->panel) {
+<<<<<<< HEAD
 		num_modes += drm_panel_get_modes(dp->plat_data->panel);
+=======
+		num_modes += drm_panel_get_modes(dp->plat_data->panel, connector);
+>>>>>>> upstream/android-13
 	} else {
 		ret = analogix_dp_prepare_panel(dp, true, false);
 		if (ret) {
@@ -1145,9 +1299,43 @@ analogix_dp_best_encoder(struct drm_connector *connector)
 	return dp->encoder;
 }
 
+<<<<<<< HEAD
 static const struct drm_connector_helper_funcs analogix_dp_connector_helper_funcs = {
 	.get_modes = analogix_dp_get_modes,
 	.best_encoder = analogix_dp_best_encoder,
+=======
+
+static int analogix_dp_atomic_check(struct drm_connector *connector,
+				    struct drm_atomic_state *state)
+{
+	struct analogix_dp_device *dp = to_dp(connector);
+	struct drm_connector_state *conn_state;
+	struct drm_crtc_state *crtc_state;
+
+	conn_state = drm_atomic_get_new_connector_state(state, connector);
+	if (WARN_ON(!conn_state))
+		return -ENODEV;
+
+	conn_state->self_refresh_aware = true;
+
+	if (!conn_state->crtc)
+		return 0;
+
+	crtc_state = drm_atomic_get_new_crtc_state(state, conn_state->crtc);
+	if (!crtc_state)
+		return 0;
+
+	if (crtc_state->self_refresh_active && !dp->psr_supported)
+		return -EINVAL;
+
+	return 0;
+}
+
+static const struct drm_connector_helper_funcs analogix_dp_connector_helper_funcs = {
+	.get_modes = analogix_dp_get_modes,
+	.best_encoder = analogix_dp_best_encoder,
+	.atomic_check = analogix_dp_atomic_check,
+>>>>>>> upstream/android-13
 };
 
 static enum drm_connector_status
@@ -1185,13 +1373,26 @@ static const struct drm_connector_funcs analogix_dp_connector_funcs = {
 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
 };
 
+<<<<<<< HEAD
 static int analogix_dp_bridge_attach(struct drm_bridge *bridge)
+=======
+static int analogix_dp_bridge_attach(struct drm_bridge *bridge,
+				     enum drm_bridge_attach_flags flags)
+>>>>>>> upstream/android-13
 {
 	struct analogix_dp_device *dp = bridge->driver_private;
 	struct drm_encoder *encoder = dp->encoder;
 	struct drm_connector *connector = NULL;
 	int ret = 0;
 
+<<<<<<< HEAD
+=======
+	if (flags & DRM_BRIDGE_ATTACH_NO_CONNECTOR) {
+		DRM_ERROR("Fix bridge driver to make connector optional!");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	if (!bridge->encoder) {
 		DRM_ERROR("Parent encoder object not found");
 		return -ENODEV;
@@ -1220,6 +1421,7 @@ static int analogix_dp_bridge_attach(struct drm_bridge *bridge)
 	 * plat_data->attch return, that's why we record the connector
 	 * point after plat attached.
 	 */
+<<<<<<< HEAD
 	 if (dp->plat_data->attach) {
 		 ret = dp->plat_data->attach(dp->plat_data, bridge, connector);
 		 if (ret) {
@@ -1232,6 +1434,12 @@ static int analogix_dp_bridge_attach(struct drm_bridge *bridge)
 		ret = drm_panel_attach(dp->plat_data->panel, &dp->connector);
 		if (ret) {
 			DRM_ERROR("Failed to attach panel\n");
+=======
+	if (dp->plat_data->attach) {
+		ret = dp->plat_data->attach(dp->plat_data, bridge, connector);
+		if (ret) {
+			DRM_ERROR("Failed at platform attach func\n");
+>>>>>>> upstream/android-13
 			return ret;
 		}
 	}
@@ -1239,11 +1447,52 @@ static int analogix_dp_bridge_attach(struct drm_bridge *bridge)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void analogix_dp_bridge_pre_enable(struct drm_bridge *bridge)
 {
 	struct analogix_dp_device *dp = bridge->driver_private;
 	int ret;
 
+=======
+static
+struct drm_crtc *analogix_dp_get_new_crtc(struct analogix_dp_device *dp,
+					  struct drm_atomic_state *state)
+{
+	struct drm_encoder *encoder = dp->encoder;
+	struct drm_connector *connector;
+	struct drm_connector_state *conn_state;
+
+	connector = drm_atomic_get_new_connector_for_encoder(state, encoder);
+	if (!connector)
+		return NULL;
+
+	conn_state = drm_atomic_get_new_connector_state(state, connector);
+	if (!conn_state)
+		return NULL;
+
+	return conn_state->crtc;
+}
+
+static void
+analogix_dp_bridge_atomic_pre_enable(struct drm_bridge *bridge,
+				     struct drm_bridge_state *old_bridge_state)
+{
+	struct drm_atomic_state *old_state = old_bridge_state->base.state;
+	struct analogix_dp_device *dp = bridge->driver_private;
+	struct drm_crtc *crtc;
+	struct drm_crtc_state *old_crtc_state;
+	int ret;
+
+	crtc = analogix_dp_get_new_crtc(dp, old_state);
+	if (!crtc)
+		return;
+
+	old_crtc_state = drm_atomic_get_old_crtc_state(old_state, crtc);
+	/* Don't touch the panel if we're coming back from PSR */
+	if (old_crtc_state && old_crtc_state->self_refresh_active)
+		return;
+
+>>>>>>> upstream/android-13
 	ret = analogix_dp_prepare_panel(dp, true, true);
 	if (ret)
 		DRM_ERROR("failed to setup the panel ret = %d\n", ret);
@@ -1304,10 +1553,36 @@ out_dp_clk_pre:
 	return ret;
 }
 
+<<<<<<< HEAD
 static void analogix_dp_bridge_enable(struct drm_bridge *bridge)
 {
 	struct analogix_dp_device *dp = bridge->driver_private;
 	int timeout_loop = 0;
+=======
+static void
+analogix_dp_bridge_atomic_enable(struct drm_bridge *bridge,
+				 struct drm_bridge_state *old_bridge_state)
+{
+	struct drm_atomic_state *old_state = old_bridge_state->base.state;
+	struct analogix_dp_device *dp = bridge->driver_private;
+	struct drm_crtc *crtc;
+	struct drm_crtc_state *old_crtc_state;
+	int timeout_loop = 0;
+	int ret;
+
+	crtc = analogix_dp_get_new_crtc(dp, old_state);
+	if (!crtc)
+		return;
+
+	old_crtc_state = drm_atomic_get_old_crtc_state(old_state, crtc);
+	/* Not a full enable, just disable PSR and continue */
+	if (old_crtc_state && old_crtc_state->self_refresh_active) {
+		ret = analogix_dp_disable_psr(dp);
+		if (ret)
+			DRM_ERROR("Failed to disable psr %d\n", ret);
+		return;
+	}
+>>>>>>> upstream/android-13
 
 	if (dp->dpms_mode == DRM_MODE_DPMS_ON)
 		return;
@@ -1356,6 +1631,7 @@ static void analogix_dp_bridge_disable(struct drm_bridge *bridge)
 	if (ret)
 		DRM_ERROR("failed to setup the panel ret = %d\n", ret);
 
+<<<<<<< HEAD
 	dp->psr_enable = false;
 	dp->fast_train_enable = false;
 	dp->dpms_mode = DRM_MODE_DPMS_OFF;
@@ -1364,6 +1640,64 @@ static void analogix_dp_bridge_disable(struct drm_bridge *bridge)
 static void analogix_dp_bridge_mode_set(struct drm_bridge *bridge,
 					struct drm_display_mode *orig_mode,
 					struct drm_display_mode *mode)
+=======
+	dp->fast_train_enable = false;
+	dp->psr_supported = false;
+	dp->dpms_mode = DRM_MODE_DPMS_OFF;
+}
+
+static void
+analogix_dp_bridge_atomic_disable(struct drm_bridge *bridge,
+				  struct drm_bridge_state *old_bridge_state)
+{
+	struct drm_atomic_state *old_state = old_bridge_state->base.state;
+	struct analogix_dp_device *dp = bridge->driver_private;
+	struct drm_crtc *crtc;
+	struct drm_crtc_state *new_crtc_state = NULL;
+
+	crtc = analogix_dp_get_new_crtc(dp, old_state);
+	if (!crtc)
+		goto out;
+
+	new_crtc_state = drm_atomic_get_new_crtc_state(old_state, crtc);
+	if (!new_crtc_state)
+		goto out;
+
+	/* Don't do a full disable on PSR transitions */
+	if (new_crtc_state->self_refresh_active)
+		return;
+
+out:
+	analogix_dp_bridge_disable(bridge);
+}
+
+static void
+analogix_dp_bridge_atomic_post_disable(struct drm_bridge *bridge,
+				struct drm_bridge_state *old_bridge_state)
+{
+	struct drm_atomic_state *old_state = old_bridge_state->base.state;
+	struct analogix_dp_device *dp = bridge->driver_private;
+	struct drm_crtc *crtc;
+	struct drm_crtc_state *new_crtc_state;
+	int ret;
+
+	crtc = analogix_dp_get_new_crtc(dp, old_state);
+	if (!crtc)
+		return;
+
+	new_crtc_state = drm_atomic_get_new_crtc_state(old_state, crtc);
+	if (!new_crtc_state || !new_crtc_state->self_refresh_active)
+		return;
+
+	ret = analogix_dp_enable_psr(dp);
+	if (ret)
+		DRM_ERROR("Failed to enable psr (%d)\n", ret);
+}
+
+static void analogix_dp_bridge_mode_set(struct drm_bridge *bridge,
+				const struct drm_display_mode *orig_mode,
+				const struct drm_display_mode *mode)
+>>>>>>> upstream/android-13
 {
 	struct analogix_dp_device *dp = bridge->driver_private;
 	struct drm_display_info *display_info = &dp->connector.display_info;
@@ -1412,8 +1746,11 @@ static void analogix_dp_bridge_mode_set(struct drm_bridge *bridge,
 		video->color_space = COLOR_YCBCR444;
 	else if (display_info->color_formats & DRM_COLOR_FORMAT_YCRCB422)
 		video->color_space = COLOR_YCBCR422;
+<<<<<<< HEAD
 	else if (display_info->color_formats & DRM_COLOR_FORMAT_RGB444)
 		video->color_space = COLOR_RGB;
+=======
+>>>>>>> upstream/android-13
 	else
 		video->color_space = COLOR_RGB;
 
@@ -1440,6 +1777,7 @@ static void analogix_dp_bridge_mode_set(struct drm_bridge *bridge,
 		video->interlaced = true;
 }
 
+<<<<<<< HEAD
 static void analogix_dp_bridge_nop(struct drm_bridge *bridge)
 {
 	/* do nothing */
@@ -1450,6 +1788,16 @@ static const struct drm_bridge_funcs analogix_dp_bridge_funcs = {
 	.enable = analogix_dp_bridge_enable,
 	.disable = analogix_dp_bridge_disable,
 	.post_disable = analogix_dp_bridge_nop,
+=======
+static const struct drm_bridge_funcs analogix_dp_bridge_funcs = {
+	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
+	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
+	.atomic_reset = drm_atomic_helper_bridge_reset,
+	.atomic_pre_enable = analogix_dp_bridge_atomic_pre_enable,
+	.atomic_enable = analogix_dp_bridge_atomic_enable,
+	.atomic_disable = analogix_dp_bridge_atomic_disable,
+	.atomic_post_disable = analogix_dp_bridge_atomic_post_disable,
+>>>>>>> upstream/android-13
 	.mode_set = analogix_dp_bridge_mode_set,
 	.attach = analogix_dp_bridge_attach,
 };
@@ -1458,7 +1806,10 @@ static int analogix_dp_create_bridge(struct drm_device *drm_dev,
 				     struct analogix_dp_device *dp)
 {
 	struct drm_bridge *bridge;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	bridge = devm_kzalloc(drm_dev->dev, sizeof(*bridge), GFP_KERNEL);
 	if (!bridge) {
@@ -1471,6 +1822,7 @@ static int analogix_dp_create_bridge(struct drm_device *drm_dev,
 	bridge->driver_private = dp;
 	bridge->funcs = &analogix_dp_bridge_funcs;
 
+<<<<<<< HEAD
 	ret = drm_bridge_attach(dp->encoder, bridge, NULL);
 	if (ret) {
 		DRM_ERROR("failed to attach drm bridge\n");
@@ -1478,6 +1830,9 @@ static int analogix_dp_create_bridge(struct drm_device *drm_dev,
 	}
 
 	return 0;
+=======
+	return drm_bridge_attach(dp->encoder, bridge, NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 static int analogix_dp_dt_parse_pdata(struct analogix_dp_device *dp)
@@ -1519,8 +1874,12 @@ static ssize_t analogix_dpaux_transfer(struct drm_dp_aux *aux,
 }
 
 struct analogix_dp_device *
+<<<<<<< HEAD
 analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 		 struct analogix_dp_plat_data *plat_data)
+=======
+analogix_dp_probe(struct device *dev, struct analogix_dp_plat_data *plat_data)
+>>>>>>> upstream/android-13
 {
 	struct platform_device *pdev = to_platform_device(dev);
 	struct analogix_dp_device *dp;
@@ -1586,12 +1945,27 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 
 	dp->force_hpd = of_property_read_bool(dev->of_node, "force-hpd");
 
+<<<<<<< HEAD
 	dp->hpd_gpio = of_get_named_gpio(dev->of_node, "hpd-gpios", 0);
 	if (!gpio_is_valid(dp->hpd_gpio))
 		dp->hpd_gpio = of_get_named_gpio(dev->of_node,
 						 "samsung,hpd-gpio", 0);
 
 	if (gpio_is_valid(dp->hpd_gpio)) {
+=======
+	/* Try two different names */
+	dp->hpd_gpiod = devm_gpiod_get_optional(dev, "hpd", GPIOD_IN);
+	if (!dp->hpd_gpiod)
+		dp->hpd_gpiod = devm_gpiod_get_optional(dev, "samsung,hpd",
+							GPIOD_IN);
+	if (IS_ERR(dp->hpd_gpiod)) {
+		dev_err(dev, "error getting HDP GPIO: %ld\n",
+			PTR_ERR(dp->hpd_gpiod));
+		return ERR_CAST(dp->hpd_gpiod);
+	}
+
+	if (dp->hpd_gpiod) {
+>>>>>>> upstream/android-13
 		/*
 		 * Set up the hotplug GPIO from the device tree as an interrupt.
 		 * Simply specifying a different interrupt in the device tree
@@ -1599,6 +1973,7 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 		 * using a GPIO.  We also need the actual GPIO specifier so
 		 * that we can get the current state of the GPIO.
 		 */
+<<<<<<< HEAD
 		ret = devm_gpio_request_one(&pdev->dev, dp->hpd_gpio, GPIOF_IN,
 					    "hpd_gpio");
 		if (ret) {
@@ -1609,6 +1984,11 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 		irq_flags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
 	} else {
 		dp->hpd_gpio = -ENODEV;
+=======
+		dp->irq = gpiod_to_irq(dp->hpd_gpiod);
+		irq_flags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
+	} else {
+>>>>>>> upstream/android-13
 		dp->irq = platform_get_irq(pdev, 0);
 		irq_flags = 0;
 	}
@@ -1624,15 +2004,31 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 					irq_flags, "analogix-dp", dp);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to request irq\n");
+<<<<<<< HEAD
 		goto err_disable_pm_runtime;
 	}
 	disable_irq(dp->irq);
 
+=======
+		return ERR_PTR(ret);
+	}
+	disable_irq(dp->irq);
+
+	return dp;
+}
+EXPORT_SYMBOL_GPL(analogix_dp_probe);
+
+int analogix_dp_bind(struct analogix_dp_device *dp, struct drm_device *drm_dev)
+{
+	int ret;
+
+>>>>>>> upstream/android-13
 	dp->drm_dev = drm_dev;
 	dp->encoder = dp->plat_data->encoder;
 
 	dp->aux.name = "DP-AUX";
 	dp->aux.transfer = analogix_dpaux_transfer;
+<<<<<<< HEAD
 	dp->aux.dev = &pdev->dev;
 
 	ret = drm_dp_aux_register(&dp->aux);
@@ -1640,6 +2036,16 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 		return ERR_PTR(ret);
 
 	pm_runtime_enable(dev);
+=======
+	dp->aux.dev = dp->dev;
+	dp->aux.drm_dev = drm_dev;
+
+	ret = drm_dp_aux_register(&dp->aux);
+	if (ret)
+		return ret;
+
+	pm_runtime_enable(dp->dev);
+>>>>>>> upstream/android-13
 
 	ret = analogix_dp_create_bridge(drm_dev, dp);
 	if (ret) {
@@ -1647,6 +2053,7 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
 		goto err_disable_pm_runtime;
 	}
 
+<<<<<<< HEAD
 	return dp;
 
 err_disable_pm_runtime:
@@ -1654,6 +2061,15 @@ err_disable_pm_runtime:
 	pm_runtime_disable(dev);
 
 	return ERR_PTR(ret);
+=======
+	return 0;
+
+err_disable_pm_runtime:
+	pm_runtime_disable(dp->dev);
+	drm_dp_aux_unregister(&dp->aux);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(analogix_dp_bind);
 
@@ -1665,16 +2081,31 @@ void analogix_dp_unbind(struct analogix_dp_device *dp)
 	if (dp->plat_data->panel) {
 		if (drm_panel_unprepare(dp->plat_data->panel))
 			DRM_ERROR("failed to turnoff the panel\n");
+<<<<<<< HEAD
 		if (drm_panel_detach(dp->plat_data->panel))
 			DRM_ERROR("failed to detach the panel\n");
+=======
+>>>>>>> upstream/android-13
 	}
 
 	drm_dp_aux_unregister(&dp->aux);
 	pm_runtime_disable(dp->dev);
+<<<<<<< HEAD
 	clk_disable_unprepare(dp->clock);
 }
 EXPORT_SYMBOL_GPL(analogix_dp_unbind);
 
+=======
+}
+EXPORT_SYMBOL_GPL(analogix_dp_unbind);
+
+void analogix_dp_remove(struct analogix_dp_device *dp)
+{
+	clk_disable_unprepare(dp->clock);
+}
+EXPORT_SYMBOL_GPL(analogix_dp_remove);
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 int analogix_dp_suspend(struct analogix_dp_device *dp)
 {

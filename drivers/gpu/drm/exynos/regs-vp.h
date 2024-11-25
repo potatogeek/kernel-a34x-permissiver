@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *
  *  Cloned from drivers/media/video/s5p-tv/regs-vp.h
@@ -6,10 +10,13 @@
  *		http://www.samsung.com/
  *
  * Video processor register header file for Samsung Mixer driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef SAMSUNG_REGS_VP_H

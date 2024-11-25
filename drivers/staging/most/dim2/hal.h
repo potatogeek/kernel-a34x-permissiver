@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * hal.h - DIM2 HAL interface
  * (MediaLB, Device Interface Macro IP, OS62420)
@@ -97,10 +101,13 @@ bool dim_enqueue_buffer(struct dim_channel *ch, u32 buffer_addr,
 
 bool dim_detach_buffers(struct dim_channel *ch, u16 buffers_number);
 
+<<<<<<< HEAD
 u32 dimcb_io_read(u32 __iomem *ptr32);
 
 void dimcb_io_write(u32 __iomem *ptr32, u32 value);
 
+=======
+>>>>>>> upstream/android-13
 void dimcb_on_error(u8 error_id, const char *error_message);
 
 #endif /* _DIM2_HAL_H */

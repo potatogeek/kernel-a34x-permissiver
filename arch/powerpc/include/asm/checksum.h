@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 #ifndef _ASM_POWERPC_CHECKSUM_H
 #define _ASM_POWERPC_CHECKSUM_H
 #ifdef __KERNEL__
 
 /*
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
@@ -12,6 +17,10 @@
 #ifdef CONFIG_GENERIC_CSUM
 #include <asm-generic/checksum.h>
 #else
+=======
+ */
+
+>>>>>>> upstream/android-13
 #include <linux/bitops.h>
 #include <linux/in6.h>
 /*
@@ -24,6 +33,7 @@
  * Like csum_partial, this must be called with even lengths,
  * except for the last fragment.
  */
+<<<<<<< HEAD
 extern __wsum csum_partial_copy_generic(const void *src, void *dst,
 					      int len, __wsum sum,
 					      int *src_err, int *dst_err);
@@ -37,6 +47,20 @@ extern __wsum csum_and_copy_to_user(const void *src, void __user *dst,
 
 #define csum_partial_copy_nocheck(src, dst, len, sum)   \
         csum_partial_copy_generic((src), (dst), (len), (sum), NULL, NULL)
+=======
+extern __wsum csum_partial_copy_generic(const void *src, void *dst, int len);
+
+#define _HAVE_ARCH_COPY_AND_CSUM_FROM_USER
+extern __wsum csum_and_copy_from_user(const void __user *src, void *dst,
+				      int len);
+#define HAVE_CSUM_COPY_USER
+extern __wsum csum_and_copy_to_user(const void *src, void __user *dst,
+				    int len);
+
+#define _HAVE_ARCH_CSUM_AND_COPY
+#define csum_partial_copy_nocheck(src, dst, len)   \
+        csum_partial_copy_generic((src), (dst), (len))
+>>>>>>> upstream/android-13
 
 
 /*
@@ -98,7 +122,11 @@ static inline __sum16 csum_tcpudp_magic(__be32 saddr, __be32 daddr, __u32 len,
 }
 
 #define HAVE_ARCH_CSUM_ADD
+<<<<<<< HEAD
 static inline __wsum csum_add(__wsum csum, __wsum addend)
+=======
+static __always_inline __wsum csum_add(__wsum csum, __wsum addend)
+>>>>>>> upstream/android-13
 {
 #ifdef __powerpc64__
 	u64 res = (__force u64)csum;
@@ -170,7 +198,11 @@ static inline __sum16 ip_fast_csum(const void *iph, unsigned int ihl)
  */
 __wsum __csum_partial(const void *buff, int len, __wsum sum);
 
+<<<<<<< HEAD
 static inline __wsum csum_partial(const void *buff, int len, __wsum sum)
+=======
+static __always_inline __wsum csum_partial(const void *buff, int len, __wsum sum)
+>>>>>>> upstream/android-13
 {
 	if (__builtin_constant_p(len) && len <= 16 && (len & 1) == 0) {
 		if (len == 2)
@@ -217,6 +249,9 @@ __sum16 csum_ipv6_magic(const struct in6_addr *saddr,
 			const struct in6_addr *daddr,
 			__u32 len, __u8 proto, __wsum sum);
 
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif

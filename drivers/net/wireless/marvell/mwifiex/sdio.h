@@ -1,10 +1,19 @@
 /*
+<<<<<<< HEAD
  * Marvell Wireless LAN device driver: SDIO specific definitions
  *
  * Copyright (C) 2011-2014, Marvell International Ltd.
  *
  * This software file (the "File") is distributed by Marvell International
  * Ltd. under the terms of the GNU General Public License Version 2, June 1991
+=======
+ * NXP Wireless LAN device driver: SDIO specific definitions
+ *
+ * Copyright 2011-2020 NXP
+ *
+ * This software file (the "File") is distributed by NXP
+ * under the terms of the GNU General Public License Version 2, June 1991
+>>>>>>> upstream/android-13
  * (the "License").  You may use, redistribute and/or modify this File in
  * accordance with the terms and conditions of the License, a copy of which
  * is available by writing to the Free Software Foundation, Inc.,
@@ -36,13 +45,22 @@
 #define SD8897_DEFAULT_FW_NAME "mrvl/sd8897_uapsta.bin"
 #define SD8887_DEFAULT_FW_NAME "mrvl/sd8887_uapsta.bin"
 #define SD8801_DEFAULT_FW_NAME "mrvl/sd8801_uapsta.bin"
+<<<<<<< HEAD
 #define SD8997_DEFAULT_FW_NAME "mrvl/sd8997_uapsta.bin"
+=======
+#define SD8977_DEFAULT_FW_NAME "mrvl/sdsd8977_combo_v2.bin"
+#define SD8987_DEFAULT_FW_NAME "mrvl/sd8987_uapsta.bin"
+#define SD8997_DEFAULT_FW_NAME "mrvl/sdsd8997_combo_v4.bin"
+>>>>>>> upstream/android-13
 
 #define BLOCK_MODE	1
 #define BYTE_MODE	0
 
+<<<<<<< HEAD
 #define REG_PORT			0
 
+=======
+>>>>>>> upstream/android-13
 #define MWIFIEX_SDIO_IO_PORT_MASK		0xfffff
 
 #define MWIFIEX_SDIO_BYTE_MODE_MASK	0x80000000
@@ -288,6 +306,7 @@ struct mwifiex_sdio_device {
 	bool can_ext_scan;
 };
 
+<<<<<<< HEAD
 static const struct mwifiex_sdio_card_reg mwifiex_reg_sd87xx = {
 	.start_rd_port = 1,
 	.start_wr_port = 1,
@@ -578,6 +597,8 @@ static const struct mwifiex_sdio_device mwifiex_sdio_sd8801 = {
 	.can_ext_scan = true,
 };
 
+=======
+>>>>>>> upstream/android-13
 /*
  * .cmdrsp_complete handler
  */

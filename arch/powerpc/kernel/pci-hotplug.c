@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Derived from "arch/powerpc/platforms/pseries/pci_dlpar.c"
  *
@@ -7,11 +11,14 @@
  * Updates, 2005, John Rose <johnrose@austin.ibm.com>
  * Updates, 2005, Linas Vepstas <linas@austin.ibm.com>
  * Updates, 2013, Gavin Shan <shangw@linux.vnet.ibm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/pci.h>
@@ -59,11 +66,24 @@ EXPORT_SYMBOL_GPL(pci_find_bus_by_node);
 void pcibios_release_device(struct pci_dev *dev)
 {
 	struct pci_controller *phb = pci_bus_to_host(dev->bus);
+<<<<<<< HEAD
 
 	eeh_remove_device(dev);
 
 	if (phb->controller_ops.release_device)
 		phb->controller_ops.release_device(dev);
+=======
+	struct pci_dn *pdn = pci_get_pdn(dev);
+
+	if (phb->controller_ops.release_device)
+		phb->controller_ops.release_device(dev);
+
+	/* free()ing the pci_dn has been deferred to us, do it now */
+	if (pdn && (pdn->flags & PCI_DN_FLAG_DEAD)) {
+		pci_dbg(dev, "freeing dead pdn\n");
+		kfree(pdn);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -109,8 +129,11 @@ void pci_hp_add_devices(struct pci_bus *bus)
 	struct pci_controller *phb;
 	struct device_node *dn = pci_bus_to_OF_node(bus);
 
+<<<<<<< HEAD
 	eeh_add_device_tree_early(PCI_DN(dn));
 
+=======
+>>>>>>> upstream/android-13
 	phb = pci_bus_to_host(bus);
 
 	mode = PCI_PROBE_NORMAL;
@@ -131,7 +154,10 @@ void pci_hp_add_devices(struct pci_bus *bus)
 		 */
 		slotno = PCI_SLOT(PCI_DN(dn->child)->devfn);
 		pci_scan_slot(bus, PCI_DEVFN(slotno, 0));
+<<<<<<< HEAD
 		pcibios_setup_bus_devices(bus);
+=======
+>>>>>>> upstream/android-13
 		max = bus->busn_res.start;
 		/*
 		 * Scan bridges that are already configured. We don't touch

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Broadcom Corporation
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2010 Broadcom Corporation
+>>>>>>> upstream/android-13
  */
 
 #ifndef BRCMFMAC_DEBUG_H
@@ -45,18 +51,48 @@
 #undef pr_fmt
 #define pr_fmt(fmt)		KBUILD_MODNAME ": " fmt
 
+<<<<<<< HEAD
 __printf(2, 3)
 void __brcmf_err(const char *func, const char *fmt, ...);
 /* Macro for error messages. When debugging / tracing the driver all error
  * messages are important to us.
  */
+=======
+struct brcmf_bus;
+
+__printf(3, 4)
+void __brcmf_err(struct brcmf_bus *bus, const char *func, const char *fmt, ...);
+/* Macro for error messages. When debugging / tracing the driver all error
+ * messages are important to us.
+ */
+#ifndef brcmf_err
+>>>>>>> upstream/android-13
 #define brcmf_err(fmt, ...)						\
 	do {								\
 		if (IS_ENABLED(CONFIG_BRCMDBG) ||			\
 		    IS_ENABLED(CONFIG_BRCM_TRACING) ||			\
 		    net_ratelimit())					\
+<<<<<<< HEAD
 			__brcmf_err(__func__, fmt, ##__VA_ARGS__);	\
 	} while (0)
+=======
+			__brcmf_err(NULL, __func__, fmt, ##__VA_ARGS__);\
+	} while (0)
+#endif
+
+#define bphy_err(drvr, fmt, ...)					\
+	do {								\
+		if (IS_ENABLED(CONFIG_BRCMDBG) ||			\
+		    IS_ENABLED(CONFIG_BRCM_TRACING) ||			\
+		    net_ratelimit())					\
+			wiphy_err((drvr)->wiphy, "%s: " fmt, __func__,	\
+				  ##__VA_ARGS__);			\
+	} while (0)
+
+#define bphy_info_once(drvr, fmt, ...)					\
+	wiphy_info_once((drvr)->wiphy, "%s: " fmt, __func__,		\
+			##__VA_ARGS__)
+>>>>>>> upstream/android-13
 
 #if defined(DEBUG) || defined(CONFIG_BRCM_TRACING)
 
@@ -110,6 +146,7 @@ do {									\
 
 extern int brcmf_msg_level;
 
+<<<<<<< HEAD
 struct brcmf_bus;
 struct brcmf_pub;
 #ifdef DEBUG
@@ -126,6 +163,25 @@ int brcmf_debugfs_add_entry(struct brcmf_pub *drvr, const char *fn,
 	return 0;
 }
 static inline
+=======
+struct brcmf_pub;
+#ifdef DEBUG
+struct dentry *brcmf_debugfs_get_devdir(struct brcmf_pub *drvr);
+void brcmf_debugfs_add_entry(struct brcmf_pub *drvr, const char *fn,
+			     int (*read_fn)(struct seq_file *seq, void *data));
+int brcmf_debug_create_memdump(struct brcmf_bus *bus, const void *data,
+			       size_t len);
+#else
+static inline struct dentry *brcmf_debugfs_get_devdir(struct brcmf_pub *drvr)
+{
+	return ERR_PTR(-ENOENT);
+}
+static inline
+void brcmf_debugfs_add_entry(struct brcmf_pub *drvr, const char *fn,
+			     int (*read_fn)(struct seq_file *seq, void *data))
+{ }
+static inline
+>>>>>>> upstream/android-13
 int brcmf_debug_create_memdump(struct brcmf_bus *bus, const void *data,
 			       size_t len)
 {

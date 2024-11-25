@@ -35,7 +35,10 @@ struct recovery_info
 	int		nr_revoke_hits;
 };
 
+<<<<<<< HEAD
 enum passtype {PASS_SCAN, PASS_REVOKE, PASS_REPLAY};
+=======
+>>>>>>> upstream/android-13
 static int do_one_pass(journal_t *journal,
 				struct recovery_info *info, enum passtype pass);
 static int scan_revoke_records(journal_t *, struct buffer_head *,
@@ -75,8 +78,13 @@ static int do_readahead(journal_t *journal, unsigned int start)
 
 	/* Do up to 128K of readahead */
 	max = start + (128 * 1024 / journal->j_blocksize);
+<<<<<<< HEAD
 	if (max > journal->j_maxlen)
 		max = journal->j_maxlen;
+=======
+	if (max > journal->j_total_len)
+		max = journal->j_total_len;
+>>>>>>> upstream/android-13
 
 	/* Do the readahead itself.  We'll submit MAXBUF buffer_heads at
 	 * a time to the block device IO layer. */
@@ -135,7 +143,11 @@ static int jread(struct buffer_head **bhp, journal_t *journal,
 
 	*bhp = NULL;
 
+<<<<<<< HEAD
 	if (offset >= journal->j_maxlen) {
+=======
+	if (offset >= journal->j_total_len) {
+>>>>>>> upstream/android-13
 		printk(KERN_ERR "JBD2: corrupted journal superblock\n");
 		return -EFSCORRUPTED;
 	}
@@ -180,8 +192,13 @@ static int jbd2_descriptor_block_csum_verify(journal_t *j, void *buf)
 	if (!jbd2_journal_has_csum_v2or3(j))
 		return 1;
 
+<<<<<<< HEAD
 	tail = (struct jbd2_journal_block_tail *)(buf + j->j_blocksize -
 			sizeof(struct jbd2_journal_block_tail));
+=======
+	tail = (struct jbd2_journal_block_tail *)((char *)buf +
+		j->j_blocksize - sizeof(struct jbd2_journal_block_tail));
+>>>>>>> upstream/android-13
 	provided = tail->t_checksum;
 	tail->t_checksum = 0;
 	calculated = jbd2_chksum(j, j->j_csum_seed, buf, j->j_blocksize);
@@ -197,7 +214,11 @@ static int jbd2_descriptor_block_csum_verify(journal_t *j, void *buf)
 static int count_tags(journal_t *journal, struct buffer_head *bh)
 {
 	char *			tagp;
+<<<<<<< HEAD
 	journal_block_tag_t *	tag;
+=======
+	journal_block_tag_t	tag;
+>>>>>>> upstream/android-13
 	int			nr = 0, size = journal->j_blocksize;
 	int			tag_bytes = journal_tag_bytes(journal);
 
@@ -207,6 +228,7 @@ static int count_tags(journal_t *journal, struct buffer_head *bh)
 	tagp = &bh->b_data[sizeof(journal_header_t)];
 
 	while ((tagp - bh->b_data + tag_bytes) <= size) {
+<<<<<<< HEAD
 		tag = (journal_block_tag_t *) tagp;
 
 		nr++;
@@ -215,6 +237,16 @@ static int count_tags(journal_t *journal, struct buffer_head *bh)
 			tagp += 16;
 
 		if (tag->t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
+=======
+		memcpy(&tag, tagp, sizeof(tag));
+
+		nr++;
+		tagp += tag_bytes;
+		if (!(tag.t_flags & cpu_to_be16(JBD2_FLAG_SAME_UUID)))
+			tagp += 16;
+
+		if (tag.t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
+>>>>>>> upstream/android-13
 			break;
 	}
 
@@ -225,10 +257,57 @@ static int count_tags(journal_t *journal, struct buffer_head *bh)
 /* Make sure we wrap around the log correctly! */
 #define wrap(journal, var)						\
 do {									\
+<<<<<<< HEAD
 	if (var >= (journal)->j_last)					\
 		var -= ((journal)->j_last - (journal)->j_first);	\
 } while (0)
 
+=======
+	unsigned long _wrap_last =					\
+		jbd2_has_feature_fast_commit(journal) ?			\
+			(journal)->j_fc_last : (journal)->j_last;	\
+									\
+	if (var >= _wrap_last)						\
+		var -= (_wrap_last - (journal)->j_first);		\
+} while (0)
+
+static int fc_do_one_pass(journal_t *journal,
+			  struct recovery_info *info, enum passtype pass)
+{
+	unsigned int expected_commit_id = info->end_transaction;
+	unsigned long next_fc_block;
+	struct buffer_head *bh;
+	int err = 0;
+
+	next_fc_block = journal->j_fc_first;
+	if (!journal->j_fc_replay_callback)
+		return 0;
+
+	while (next_fc_block <= journal->j_fc_last) {
+		jbd_debug(3, "Fast commit replay: next block %ld\n",
+			  next_fc_block);
+		err = jread(&bh, journal, next_fc_block);
+		if (err) {
+			jbd_debug(3, "Fast commit replay: read error\n");
+			break;
+		}
+
+		err = journal->j_fc_replay_callback(journal, bh, pass,
+					next_fc_block - journal->j_fc_first,
+					expected_commit_id);
+		next_fc_block++;
+		if (err < 0 || err == JBD2_FC_REPLAY_STOP)
+			break;
+		err = 0;
+	}
+
+	if (err)
+		jbd_debug(3, "Fast commit replay failed, err = %d\n", err);
+
+	return err;
+}
+
+>>>>>>> upstream/android-13
 /**
  * jbd2_journal_recover - recovers a on-disk journal
  * @journal: the journal to recover
@@ -286,7 +365,11 @@ int jbd2_journal_recover(journal_t *journal)
 		err = err2;
 	/* Make sure all replayed data is on permanent storage */
 	if (journal->j_flags & JBD2_BARRIER) {
+<<<<<<< HEAD
 		err2 = blkdev_issue_flush(journal->j_fs_dev, GFP_KERNEL, NULL);
+=======
+		err2 = blkdev_issue_flush(journal->j_fs_dev);
+>>>>>>> upstream/android-13
 		if (!err)
 			err = err2;
 	}
@@ -394,9 +477,15 @@ static int jbd2_commit_block_csum_verify(journal_t *j, void *buf)
 }
 
 static int jbd2_block_tag_csum_verify(journal_t *j, journal_block_tag_t *tag,
+<<<<<<< HEAD
 				      void *buf, __u32 sequence)
 {
 	journal_block_tag3_t *tag3 = (journal_block_tag3_t *)tag;
+=======
+				      journal_block_tag3_t *tag3,
+				      void *buf, __u32 sequence)
+{
+>>>>>>> upstream/android-13
 	__u32 csum32;
 	__be32 seq;
 
@@ -428,6 +517,11 @@ static int do_one_pass(journal_t *journal,
 	__u32			crc32_sum = ~0; /* Transactional Checksums */
 	int			descr_csum_size = 0;
 	int			block_error = 0;
+<<<<<<< HEAD
+=======
+	bool			need_check_commit_time = false;
+	__u64			last_trans_commit_time = 0, commit_time;
+>>>>>>> upstream/android-13
 
 	/*
 	 * First thing is to establish what we expect to find in the log
@@ -455,7 +549,11 @@ static int do_one_pass(journal_t *journal,
 	while (1) {
 		int			flags;
 		char *			tagp;
+<<<<<<< HEAD
 		journal_block_tag_t *	tag;
+=======
+		journal_block_tag_t	tag;
+>>>>>>> upstream/android-13
 		struct buffer_head *	obh;
 		struct buffer_head *	nbh;
 
@@ -470,7 +568,13 @@ static int do_one_pass(journal_t *journal,
 				break;
 
 		jbd_debug(2, "Scanning for sequence ID %u at %lu/%lu\n",
+<<<<<<< HEAD
 			  next_commit_ID, next_log_block, journal->j_last);
+=======
+			  next_commit_ID, next_log_block,
+			  jbd2_has_feature_fast_commit(journal) ?
+			  journal->j_fc_last : journal->j_last);
+>>>>>>> upstream/android-13
 
 		/* Skip over each chunk of the transaction looking
 		 * either the next descriptor block or the final commit
@@ -520,12 +624,30 @@ static int do_one_pass(journal_t *journal,
 			if (descr_csum_size > 0 &&
 			    !jbd2_descriptor_block_csum_verify(journal,
 							       bh->b_data)) {
+<<<<<<< HEAD
 				printk(KERN_ERR "JBD2: Invalid checksum "
 				       "recovering block %lu in log\n",
 				       next_log_block);
 				err = -EFSBADCRC;
 				brelse(bh);
 				goto failed;
+=======
+				/*
+				 * PASS_SCAN can see stale blocks due to lazy
+				 * journal init. Don't error out on those yet.
+				 */
+				if (pass != PASS_SCAN) {
+					pr_err("JBD2: Invalid checksum recovering block %lu in log\n",
+					       next_log_block);
+					err = -EFSBADCRC;
+					brelse(bh);
+					goto failed;
+				}
+				need_check_commit_time = true;
+				jbd_debug(1,
+					"invalid descriptor block found in %lu\n",
+					next_log_block);
+>>>>>>> upstream/android-13
 			}
 
 			/* If it is a valid descriptor block, replay it
@@ -535,6 +657,10 @@ static int do_one_pass(journal_t *journal,
 			if (pass != PASS_REPLAY) {
 				if (pass == PASS_SCAN &&
 				    jbd2_has_feature_checksum(journal) &&
+<<<<<<< HEAD
+=======
+				    !need_check_commit_time &&
+>>>>>>> upstream/android-13
 				    !info->end_transaction) {
 					if (calc_chksums(journal, bh,
 							&next_log_block,
@@ -560,8 +686,13 @@ static int do_one_pass(journal_t *journal,
 			       <= journal->j_blocksize - descr_csum_size) {
 				unsigned long io_block;
 
+<<<<<<< HEAD
 				tag = (journal_block_tag_t *) tagp;
 				flags = be16_to_cpu(tag->t_flags);
+=======
+				memcpy(&tag, tagp, sizeof(tag));
+				flags = be16_to_cpu(tag.t_flags);
+>>>>>>> upstream/android-13
 
 				io_block = next_log_block++;
 				wrap(journal, next_log_block);
@@ -579,7 +710,11 @@ static int do_one_pass(journal_t *journal,
 
 					J_ASSERT(obh != NULL);
 					blocknr = read_tag_block(journal,
+<<<<<<< HEAD
 								 tag);
+=======
+								 &tag);
+>>>>>>> upstream/android-13
 
 					/* If the block has been
 					 * revoked, then we're all done
@@ -594,8 +729,13 @@ static int do_one_pass(journal_t *journal,
 
 					/* Look for block corruption */
 					if (!jbd2_block_tag_csum_verify(
+<<<<<<< HEAD
 						journal, tag, obh->b_data,
 						be32_to_cpu(tmp->h_sequence))) {
+=======
+			journal, &tag, (journal_block_tag3_t *)tagp,
+			obh->b_data, be32_to_cpu(tmp->h_sequence))) {
+>>>>>>> upstream/android-13
 						brelse(obh);
 						success = -EFSBADCRC;
 						printk(KERN_ERR "JBD2: Invalid "
@@ -683,6 +823,7 @@ static int do_one_pass(journal_t *journal,
 			 *	 mentioned conditions. Hence assume
 			 *	 "Interrupted Commit".)
 			 */
+<<<<<<< HEAD
 
 			/* Found an expected commit block: if checksums
 			 * are present verify them in PASS_SCAN; else not
@@ -691,13 +832,54 @@ static int do_one_pass(journal_t *journal,
 			if (pass == PASS_SCAN &&
 			    jbd2_has_feature_checksum(journal)) {
 				int chksum_err, chksum_seen;
+=======
+			commit_time = be64_to_cpu(
+				((struct commit_header *)bh->b_data)->h_commit_sec);
+			/*
+			 * If need_check_commit_time is set, it means we are in
+			 * PASS_SCAN and csum verify failed before. If
+			 * commit_time is increasing, it's the same journal,
+			 * otherwise it is stale journal block, just end this
+			 * recovery.
+			 */
+			if (need_check_commit_time) {
+				if (commit_time >= last_trans_commit_time) {
+					pr_err("JBD2: Invalid checksum found in transaction %u\n",
+					       next_commit_ID);
+					err = -EFSBADCRC;
+					brelse(bh);
+					goto failed;
+				}
+			ignore_crc_mismatch:
+				/*
+				 * It likely does not belong to same journal,
+				 * just end this recovery with success.
+				 */
+				jbd_debug(1, "JBD2: Invalid checksum ignored in transaction %u, likely stale data\n",
+					  next_commit_ID);
+				brelse(bh);
+				goto done;
+			}
+
+			/*
+			 * Found an expected commit block: if checksums
+			 * are present, verify them in PASS_SCAN; else not
+			 * much to do other than move on to the next sequence
+			 * number.
+			 */
+			if (pass == PASS_SCAN &&
+			    jbd2_has_feature_checksum(journal)) {
+>>>>>>> upstream/android-13
 				struct commit_header *cbh =
 					(struct commit_header *)bh->b_data;
 				unsigned found_chksum =
 					be32_to_cpu(cbh->h_chksum[0]);
 
+<<<<<<< HEAD
 				chksum_err = chksum_seen = 0;
 
+=======
+>>>>>>> upstream/android-13
 				if (info->end_transaction) {
 					journal->j_failed_commit =
 						info->end_transaction;
@@ -705,6 +887,7 @@ static int do_one_pass(journal_t *journal,
 					break;
 				}
 
+<<<<<<< HEAD
 				if (crc32_sum == found_chksum &&
 				    cbh->h_chksum_type == JBD2_CRC32_CHKSUM &&
 				    cbh->h_chksum_size ==
@@ -736,11 +919,30 @@ static int do_one_pass(journal_t *journal,
 						break;
 					}
 				}
+=======
+				/* Neither checksum match nor unused? */
+				if (!((crc32_sum == found_chksum &&
+				       cbh->h_chksum_type ==
+						JBD2_CRC32_CHKSUM &&
+				       cbh->h_chksum_size ==
+						JBD2_CRC32_CHKSUM_SIZE) ||
+				      (cbh->h_chksum_type == 0 &&
+				       cbh->h_chksum_size == 0 &&
+				       found_chksum == 0)))
+					goto chksum_error;
+
+>>>>>>> upstream/android-13
 				crc32_sum = ~0;
 			}
 			if (pass == PASS_SCAN &&
 			    !jbd2_commit_block_csum_verify(journal,
 							   bh->b_data)) {
+<<<<<<< HEAD
+=======
+			chksum_error:
+				if (commit_time < last_trans_commit_time)
+					goto ignore_crc_mismatch;
+>>>>>>> upstream/android-13
 				info->end_transaction = next_commit_ID;
 
 				if (!jbd2_has_feature_async_commit(journal)) {
@@ -750,11 +952,30 @@ static int do_one_pass(journal_t *journal,
 					break;
 				}
 			}
+<<<<<<< HEAD
+=======
+			if (pass == PASS_SCAN)
+				last_trans_commit_time = commit_time;
+>>>>>>> upstream/android-13
 			brelse(bh);
 			next_commit_ID++;
 			continue;
 
 		case JBD2_REVOKE_BLOCK:
+<<<<<<< HEAD
+=======
+			/*
+			 * Check revoke block crc in pass_scan, if csum verify
+			 * failed, check commit block time later.
+			 */
+			if (pass == PASS_SCAN &&
+			    !jbd2_descriptor_block_csum_verify(journal,
+							       bh->b_data)) {
+				jbd_debug(1, "JBD2: invalid revoke block found in %lu\n",
+					  next_log_block);
+				need_check_commit_time = true;
+			}
+>>>>>>> upstream/android-13
 			/* If we aren't in the REVOKE pass, then we can
 			 * just skip over this block. */
 			if (pass != PASS_REVOKE) {
@@ -799,6 +1020,16 @@ static int do_one_pass(journal_t *journal,
 				success = -EIO;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	if (jbd2_has_feature_fast_commit(journal) &&  pass != PASS_REVOKE) {
+		err = fc_do_one_pass(journal, info, pass);
+		if (err)
+			success = err;
+	}
+
+>>>>>>> upstream/android-13
 	if (block_error && success == 0)
 		success = -EIO;
 	return success;
@@ -814,7 +1045,11 @@ static int scan_revoke_records(journal_t *journal, struct buffer_head *bh,
 {
 	jbd2_journal_revoke_header_t *header;
 	int offset, max;
+<<<<<<< HEAD
 	int csum_size = 0;
+=======
+	unsigned csum_size = 0;
+>>>>>>> upstream/android-13
 	__u32 rcount;
 	int record_len = 4;
 
@@ -822,9 +1057,12 @@ static int scan_revoke_records(journal_t *journal, struct buffer_head *bh,
 	offset = sizeof(jbd2_journal_revoke_header_t);
 	rcount = be32_to_cpu(header->r_count);
 
+<<<<<<< HEAD
 	if (!jbd2_descriptor_block_csum_verify(journal, header))
 		return -EFSBADCRC;
 
+=======
+>>>>>>> upstream/android-13
 	if (jbd2_journal_has_csum_v2or3(journal))
 		csum_size = sizeof(struct jbd2_journal_block_tail);
 	if (rcount > journal->j_blocksize - csum_size)

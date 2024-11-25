@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Universal Interface for Intel High Definition Audio Codec
  *
@@ -5,6 +9,7 @@
  *
  *  (C) 2006-2009 VIA Technology, Inc.
  *  (C) 2006-2008 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  *  This driver is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +24,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 /* * * * * * * * * * * * * * Release History * * * * * * * * * * * * * * * * */
@@ -52,7 +59,11 @@
 #include <linux/module.h>
 #include <sound/core.h>
 #include <sound/asoundef.h>
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_local.h"
 #include "hda_auto_parser.h"
 #include "hda_jack.h"
@@ -410,7 +421,11 @@ static int via_resume(struct hda_codec *codec)
 	/* some delay here to make jack detection working (bko#98921) */
 	msleep(10);
 	codec->patch_ops.init(codec);
+<<<<<<< HEAD
 	regcache_sync(codec->core.regmap);
+=======
+	snd_hda_regmap_sync(codec);
+>>>>>>> upstream/android-13
 	return 0;
 }
 #endif
@@ -1054,6 +1069,10 @@ static const struct hda_fixup via_fixups[] = {
 };
 
 static const struct snd_pci_quirk vt2002p_fixups[] = {
+<<<<<<< HEAD
+=======
+	SND_PCI_QUIRK(0x1043, 0x13f7, "Asus B23E", VIA_FIXUP_POWER_SAVE),
+>>>>>>> upstream/android-13
 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
@@ -1065,8 +1084,13 @@ static const struct snd_pci_quirk vt2002p_fixups[] = {
  */
 static void fix_vt1802_connections(struct hda_codec *codec)
 {
+<<<<<<< HEAD
 	static hda_nid_t conn_24[] = { 0x14, 0x1c };
 	static hda_nid_t conn_33[] = { 0x1c };
+=======
+	static const hda_nid_t conn_24[] = { 0x14, 0x1c };
+	static const hda_nid_t conn_33[] = { 0x1c };
+>>>>>>> upstream/android-13
 
 	snd_hda_override_conn_list(codec, 0x24, ARRAY_SIZE(conn_24), conn_24);
 	snd_hda_override_conn_list(codec, 0x33, ARRAY_SIZE(conn_33), conn_33);

@@ -38,22 +38,37 @@
 
 #undef DEPRECATED
 
+<<<<<<< HEAD
+=======
+struct dmub_srv;
+struct dc_dmub_srv;
+
+>>>>>>> upstream/android-13
 irq_handler_idx dm_register_interrupt(
 	struct dc_context *ctx,
 	struct dc_interrupt_params *int_params,
 	interrupt_handler ih,
 	void *handler_args);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 /*
  *
  * GPU registers access
  *
  */
+<<<<<<< HEAD
+=======
+uint32_t dm_read_reg_func(const struct dc_context *ctx, uint32_t address,
+			  const char *func_name);
+>>>>>>> upstream/android-13
 
 /* enable for debugging new code, this adds 50k to the driver size. */
 /* #define DM_CHECK_ADDR_0 */
 
+<<<<<<< HEAD
 #define dm_read_reg(ctx, address)	\
 		dm_read_reg_func(ctx, address, __func__)
 
@@ -73,10 +88,18 @@ static inline uint32_t dm_read_reg_func(
 
 	return value;
 }
+=======
+void dm_write_reg_func(const struct dc_context *ctx, uint32_t address,
+		       uint32_t value, const char *func_name);
+
+#define dm_read_reg(ctx, address)	\
+	dm_read_reg_func(ctx, address, __func__)
+>>>>>>> upstream/android-13
 
 #define dm_write_reg(ctx, address, value)	\
 	dm_write_reg_func(ctx, address, value, __func__)
 
+<<<<<<< HEAD
 static inline void dm_write_reg_func(
 	const struct dc_context *ctx,
 	uint32_t address,
@@ -92,6 +115,8 @@ static inline void dm_write_reg_func(
 	cgs_write_register(ctx->cgs_device, address, value);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline uint32_t dm_read_index_reg(
 	const struct dc_context *ctx,
 	enum cgs_ind_reg addr_space,
@@ -140,10 +165,28 @@ static inline uint32_t set_reg_field_value_ex(
 		reg_name ## __ ## reg_field ## _MASK,\
 		reg_name ## __ ## reg_field ## __SHIFT)
 
+<<<<<<< HEAD
 uint32_t generic_reg_update_ex(const struct dc_context *ctx,
 		uint32_t addr, uint32_t reg_val, int n,
 		uint8_t shift1, uint32_t mask1, uint32_t field_value1, ...);
 
+=======
+uint32_t generic_reg_set_ex(const struct dc_context *ctx,
+		uint32_t addr, uint32_t reg_val, int n,
+		uint8_t shift1, uint32_t mask1, uint32_t field_value1, ...);
+
+uint32_t generic_reg_update_ex(const struct dc_context *ctx,
+		uint32_t addr, int n,
+		uint8_t shift1, uint32_t mask1, uint32_t field_value1, ...);
+
+struct dc_dmub_srv *dc_dmub_srv_create(struct dc *dc, struct dmub_srv *dmub);
+void dc_dmub_srv_destroy(struct dc_dmub_srv **dmub_srv);
+
+void reg_sequence_start_gather(const struct dc_context *ctx);
+void reg_sequence_start_execute(const struct dc_context *ctx);
+void reg_sequence_wait_done(const struct dc_context *ctx);
+
+>>>>>>> upstream/android-13
 #define FD(reg_field)	reg_field ## __SHIFT, \
 						reg_field ## _MASK
 
@@ -151,11 +194,19 @@ uint32_t generic_reg_update_ex(const struct dc_context *ctx,
  * return number of poll before condition is met
  * return 0 if condition is not meet after specified time out tries
  */
+<<<<<<< HEAD
 unsigned int generic_reg_wait(const struct dc_context *ctx,
+=======
+void generic_reg_wait(const struct dc_context *ctx,
+>>>>>>> upstream/android-13
 	uint32_t addr, uint32_t mask, uint32_t shift, uint32_t condition_value,
 	unsigned int delay_between_poll_us, unsigned int time_out_num_tries,
 	const char *func_name, int line);
 
+<<<<<<< HEAD
+=======
+unsigned int snprintf_count(char *pBuf, unsigned int bufSize, char *fmt, ...);
+>>>>>>> upstream/android-13
 
 /* These macros need to be used with soc15 registers in order to retrieve
  * the actual offset.
@@ -168,11 +219,18 @@ unsigned int generic_reg_wait(const struct dc_context *ctx,
 
 #define generic_reg_update_soc15(ctx, inst_offset, reg_name, n, ...)\
 		generic_reg_update_ex(ctx, DCE_BASE.instance[0].segment[mm##reg_name##_BASE_IDX] +  mm##reg_name + inst_offset, \
+<<<<<<< HEAD
 		dm_read_reg_func(ctx, mm##reg_name + DCE_BASE.instance[0].segment[mm##reg_name##_BASE_IDX] + inst_offset, __func__), \
 		n, __VA_ARGS__)
 
 #define generic_reg_set_soc15(ctx, inst_offset, reg_name, n, ...)\
 		generic_reg_update_ex(ctx, DCE_BASE.instance[0].segment[mm##reg_name##_BASE_IDX] + mm##reg_name + inst_offset, 0, \
+=======
+		n, __VA_ARGS__)
+
+#define generic_reg_set_soc15(ctx, inst_offset, reg_name, n, ...)\
+		generic_reg_set_ex(ctx, DCE_BASE.instance[0].segment[mm##reg_name##_BASE_IDX] + mm##reg_name + inst_offset, 0, \
+>>>>>>> upstream/android-13
 		n, __VA_ARGS__)
 
 #define get_reg_field_value_soc15(reg_value, block, reg_num, reg_name, reg_field)\
@@ -219,8 +277,13 @@ bool dm_pp_notify_wm_clock_changes(
 	const struct dc_context *ctx,
 	struct dm_pp_wm_sets_with_clock_ranges *wm_with_clock_ranges);
 
+<<<<<<< HEAD
 void dm_pp_get_funcs_rv(struct dc_context *ctx,
 		struct pp_smu_funcs_rv *funcs);
+=======
+void dm_pp_get_funcs(struct dc_context *ctx,
+		struct pp_smu_funcs *funcs);
+>>>>>>> upstream/android-13
 
 /* DAL calls this function to notify PP about completion of Mode Set.
  * For PP it means that current DCE clocks are those which were returned
@@ -256,6 +319,7 @@ struct persistent_data_flag {
 	bool save_per_edid;
 };
 
+<<<<<<< HEAD
 /* Call to write data in registry editor for persistent data storage.
  *
  * \inputs      sink - identify edid/link for registry folder creation
@@ -325,6 +389,8 @@ bool dm_read_persistent_data(struct dc_context *ctx,
 		unsigned int size,
 		struct persistent_data_flag *flag);
 
+=======
+>>>>>>> upstream/android-13
 bool dm_query_extended_brightness_caps
 	(struct dc_context *ctx, enum dm_acpi_display_type display,
 			struct dm_acpi_atif_backlight_caps *pCaps);
@@ -351,16 +417,33 @@ unsigned long long dm_get_elapse_time_in_ns(struct dc_context *ctx,
 /*
  * performance tracing
  */
+<<<<<<< HEAD
 void dm_perf_trace_timestamp(const char *func_name, unsigned int line);
 #define PERF_TRACE()	dm_perf_trace_timestamp(__func__, __LINE__)
 
+=======
+void dm_perf_trace_timestamp(const char *func_name, unsigned int line, struct dc_context *ctx);
+
+#define PERF_TRACE()	dm_perf_trace_timestamp(__func__, __LINE__, CTX)
+#define PERF_TRACE_CTX(__CTX)	dm_perf_trace_timestamp(__func__, __LINE__, __CTX)
+>>>>>>> upstream/android-13
 
 /*
  * Debug and verification hooks
  */
 
+<<<<<<< HEAD
 void dm_dtn_log_begin(struct dc_context *ctx);
 void dm_dtn_log_append_v(struct dc_context *ctx, const char *msg, ...);
 void dm_dtn_log_end(struct dc_context *ctx);
+=======
+void dm_dtn_log_begin(struct dc_context *ctx,
+	struct dc_log_buffer_ctx *log_ctx);
+void dm_dtn_log_append_v(struct dc_context *ctx,
+	struct dc_log_buffer_ctx *log_ctx,
+	const char *msg, ...);
+void dm_dtn_log_end(struct dc_context *ctx,
+	struct dc_log_buffer_ctx *log_ctx);
+>>>>>>> upstream/android-13
 
 #endif /* __DM_SERVICES_H__ */

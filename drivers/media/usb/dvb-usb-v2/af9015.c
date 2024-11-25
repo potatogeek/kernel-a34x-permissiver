@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * DVB USB Linux driver for Afatech AF9015 DVB-T USB2.0 receiver
  *
  * Copyright (C) 2007 Antti Palosaari <crope@iki.fi>
  *
  * Thanks to Afatech who kindly provided information.
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "af9015.h"
@@ -53,7 +60,11 @@ static int af9015_ctrl_msg(struct dvb_usb_device *d, struct req_t *req)
 	case READ_I2C:
 		write = 0;
 		state->buf[2] |= 0x01; /* set I2C direction */
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case WRITE_I2C:
 		state->buf[0] = READ_WRITE_I2C;
 		break;
@@ -61,6 +72,10 @@ static int af9015_ctrl_msg(struct dvb_usb_device *d, struct req_t *req)
 		if (((req->addr & 0xff00) == 0xff00) ||
 		    ((req->addr & 0xff00) == 0xae00))
 			state->buf[0] = WRITE_VIRTUAL_MEMORY;
+<<<<<<< HEAD
+=======
+		break;
+>>>>>>> upstream/android-13
 	case WRITE_VIRTUAL_MEMORY:
 	case COPY_FIRMWARE:
 	case DOWNLOAD_FIRMWARE:

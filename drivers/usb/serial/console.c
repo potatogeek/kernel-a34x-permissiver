@@ -79,7 +79,11 @@ static int usb_console_setup(struct console *co, char *options)
 		if (*s)
 			doflow = (*s++ == 'r');
 	}
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	/* Sane default */
 	if (baud == 0)
 		baud = 9600;
@@ -102,6 +106,12 @@ static int usb_console_setup(struct console *co, char *options)
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	if (doflow)
+		cflag |= CRTSCTS;
+
+>>>>>>> upstream/android-13
 	/*
 	 * no need to check the index here: if the index is wrong, console
 	 * code won't call us

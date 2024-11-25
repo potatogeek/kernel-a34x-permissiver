@@ -177,12 +177,17 @@ int sb_notify_register(struct notifier_block *nb, notifier_fn_t notifier,
 	list_add(&ndev->list, &sb_notify.dev_list);
 	sb_notify.dev_count++;
 
+<<<<<<< HEAD
 	mutex_unlock(&noti_lock);
 	return ret;
 
 skip_register:
 	mutex_unlock(&noti_lock);
 	kfree(ndev);
+=======
+skip_register:
+	mutex_unlock(&noti_lock);
+>>>>>>> upstream/android-13
 	return ret;
 }
 EXPORT_SYMBOL(sb_notify_register);

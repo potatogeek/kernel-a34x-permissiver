@@ -57,9 +57,17 @@
 
 #define VMW_BINDING_RT_BIT     0
 #define VMW_BINDING_PS_BIT     1
+<<<<<<< HEAD
 #define VMW_BINDING_SO_BIT     2
 #define VMW_BINDING_VB_BIT     3
 #define VMW_BINDING_NUM_BITS   4
+=======
+#define VMW_BINDING_SO_T_BIT   2
+#define VMW_BINDING_VB_BIT     3
+#define VMW_BINDING_UAV_BIT    4
+#define VMW_BINDING_CS_UAV_BIT 5
+#define VMW_BINDING_NUM_BITS   6
+>>>>>>> upstream/android-13
 
 #define VMW_BINDING_PS_SR_BIT  0
 
@@ -75,6 +83,11 @@
  * @vertex_buffers: Vertex buffer bindings.
  * @index_buffer: Index buffer binding.
  * @per_shader: Per shader-type bindings.
+<<<<<<< HEAD
+=======
+ * @ua_views: UAV bindings.
+ * @so_state: StreamOutput bindings.
+>>>>>>> upstream/android-13
  * @dirty: Bitmap tracking per binding-type changes that have not yet
  * been emitted to the device.
  * @dirty_vb: Bitmap tracking individual vertex buffer binding changes that
@@ -95,10 +108,19 @@ struct vmw_ctx_binding_state {
 	struct vmw_ctx_bindinfo_view render_targets[SVGA3D_RT_MAX];
 	struct vmw_ctx_bindinfo_tex texture_units[SVGA3D_NUM_TEXTURE_UNITS];
 	struct vmw_ctx_bindinfo_view ds_view;
+<<<<<<< HEAD
 	struct vmw_ctx_bindinfo_so so_targets[SVGA3D_DX_MAX_SOTARGETS];
 	struct vmw_ctx_bindinfo_vb vertex_buffers[SVGA3D_DX_MAX_VERTEXBUFFERS];
 	struct vmw_ctx_bindinfo_ib index_buffer;
 	struct vmw_dx_shader_bindings per_shader[SVGA3D_NUM_SHADERTYPE_DX10];
+=======
+	struct vmw_ctx_bindinfo_so_target so_targets[SVGA3D_DX_MAX_SOTARGETS];
+	struct vmw_ctx_bindinfo_vb vertex_buffers[SVGA3D_DX_MAX_VERTEXBUFFERS];
+	struct vmw_ctx_bindinfo_ib index_buffer;
+	struct vmw_dx_shader_bindings per_shader[SVGA3D_NUM_SHADERTYPE];
+	struct vmw_ctx_bindinfo_uav ua_views[VMW_MAX_UAV_BIND_TYPE];
+	struct vmw_ctx_bindinfo_so so_state;
+>>>>>>> upstream/android-13
 
 	unsigned long dirty;
 	DECLARE_BITMAP(dirty_vb, SVGA3D_DX_MAX_VERTEXBUFFERS);
@@ -115,12 +137,23 @@ static int vmw_binding_scrub_texture(struct vmw_ctx_bindinfo *bi, bool rebind);
 static int vmw_binding_scrub_cb(struct vmw_ctx_bindinfo *bi, bool rebind);
 static int vmw_binding_scrub_dx_rt(struct vmw_ctx_bindinfo *bi, bool rebind);
 static int vmw_binding_scrub_sr(struct vmw_ctx_bindinfo *bi, bool rebind);
+<<<<<<< HEAD
 static int vmw_binding_scrub_so(struct vmw_ctx_bindinfo *bi, bool rebind);
+=======
+static int vmw_binding_scrub_so_target(struct vmw_ctx_bindinfo *bi, bool rebind);
+>>>>>>> upstream/android-13
 static int vmw_binding_emit_dirty(struct vmw_ctx_binding_state *cbs);
 static int vmw_binding_scrub_dx_shader(struct vmw_ctx_bindinfo *bi,
 				       bool rebind);
 static int vmw_binding_scrub_ib(struct vmw_ctx_bindinfo *bi, bool rebind);
 static int vmw_binding_scrub_vb(struct vmw_ctx_bindinfo *bi, bool rebind);
+<<<<<<< HEAD
+=======
+static int vmw_binding_scrub_uav(struct vmw_ctx_bindinfo *bi, bool rebind);
+static int vmw_binding_scrub_cs_uav(struct vmw_ctx_bindinfo *bi, bool rebind);
+static int vmw_binding_scrub_so(struct vmw_ctx_bindinfo *bi, bool rebind);
+
+>>>>>>> upstream/android-13
 static void vmw_binding_build_asserts(void) __attribute__ ((unused));
 
 typedef int (*vmw_scrub_func)(struct vmw_ctx_bindinfo *, bool);
@@ -151,6 +184,12 @@ static const size_t vmw_binding_shader_offsets[] = {
 	offsetof(struct vmw_ctx_binding_state, per_shader[0].shader),
 	offsetof(struct vmw_ctx_binding_state, per_shader[1].shader),
 	offsetof(struct vmw_ctx_binding_state, per_shader[2].shader),
+<<<<<<< HEAD
+=======
+	offsetof(struct vmw_ctx_binding_state, per_shader[3].shader),
+	offsetof(struct vmw_ctx_binding_state, per_shader[4].shader),
+	offsetof(struct vmw_ctx_binding_state, per_shader[5].shader),
+>>>>>>> upstream/android-13
 };
 static const size_t vmw_binding_rt_offsets[] = {
 	offsetof(struct vmw_ctx_binding_state, render_targets),
@@ -162,6 +201,12 @@ static const size_t vmw_binding_cb_offsets[] = {
 	offsetof(struct vmw_ctx_binding_state, per_shader[0].const_buffers),
 	offsetof(struct vmw_ctx_binding_state, per_shader[1].const_buffers),
 	offsetof(struct vmw_ctx_binding_state, per_shader[2].const_buffers),
+<<<<<<< HEAD
+=======
+	offsetof(struct vmw_ctx_binding_state, per_shader[3].const_buffers),
+	offsetof(struct vmw_ctx_binding_state, per_shader[4].const_buffers),
+	offsetof(struct vmw_ctx_binding_state, per_shader[5].const_buffers),
+>>>>>>> upstream/android-13
 };
 static const size_t vmw_binding_dx_ds_offsets[] = {
 	offsetof(struct vmw_ctx_binding_state, ds_view),
@@ -170,8 +215,16 @@ static const size_t vmw_binding_sr_offsets[] = {
 	offsetof(struct vmw_ctx_binding_state, per_shader[0].shader_res),
 	offsetof(struct vmw_ctx_binding_state, per_shader[1].shader_res),
 	offsetof(struct vmw_ctx_binding_state, per_shader[2].shader_res),
+<<<<<<< HEAD
 };
 static const size_t vmw_binding_so_offsets[] = {
+=======
+	offsetof(struct vmw_ctx_binding_state, per_shader[3].shader_res),
+	offsetof(struct vmw_ctx_binding_state, per_shader[4].shader_res),
+	offsetof(struct vmw_ctx_binding_state, per_shader[5].shader_res),
+};
+static const size_t vmw_binding_so_target_offsets[] = {
+>>>>>>> upstream/android-13
 	offsetof(struct vmw_ctx_binding_state, so_targets),
 };
 static const size_t vmw_binding_vb_offsets[] = {
@@ -180,6 +233,18 @@ static const size_t vmw_binding_vb_offsets[] = {
 static const size_t vmw_binding_ib_offsets[] = {
 	offsetof(struct vmw_ctx_binding_state, index_buffer),
 };
+<<<<<<< HEAD
+=======
+static const size_t vmw_binding_uav_offsets[] = {
+	offsetof(struct vmw_ctx_binding_state, ua_views[0].views),
+};
+static const size_t vmw_binding_cs_uav_offsets[] = {
+	offsetof(struct vmw_ctx_binding_state, ua_views[1].views),
+};
+static const size_t vmw_binding_so_offsets[] = {
+	offsetof(struct vmw_ctx_binding_state, so_state),
+};
+>>>>>>> upstream/android-13
 
 static const struct vmw_binding_info vmw_binding_infos[] = {
 	[vmw_ctx_binding_shader] = {
@@ -214,10 +279,17 @@ static const struct vmw_binding_info vmw_binding_infos[] = {
 		.size = sizeof(struct vmw_ctx_bindinfo_view),
 		.offsets = vmw_binding_dx_ds_offsets,
 		.scrub_func = vmw_binding_scrub_dx_rt},
+<<<<<<< HEAD
 	[vmw_ctx_binding_so] = {
 		.size = sizeof(struct vmw_ctx_bindinfo_so),
 		.offsets = vmw_binding_so_offsets,
 		.scrub_func = vmw_binding_scrub_so},
+=======
+	[vmw_ctx_binding_so_target] = {
+		.size = sizeof(struct vmw_ctx_bindinfo_so_target),
+		.offsets = vmw_binding_so_target_offsets,
+		.scrub_func = vmw_binding_scrub_so_target},
+>>>>>>> upstream/android-13
 	[vmw_ctx_binding_vb] = {
 		.size = sizeof(struct vmw_ctx_bindinfo_vb),
 		.offsets = vmw_binding_vb_offsets,
@@ -226,6 +298,21 @@ static const struct vmw_binding_info vmw_binding_infos[] = {
 		.size = sizeof(struct vmw_ctx_bindinfo_ib),
 		.offsets = vmw_binding_ib_offsets,
 		.scrub_func = vmw_binding_scrub_ib},
+<<<<<<< HEAD
+=======
+	[vmw_ctx_binding_uav] = {
+		.size = sizeof(struct vmw_ctx_bindinfo_view),
+		.offsets = vmw_binding_uav_offsets,
+		.scrub_func = vmw_binding_scrub_uav},
+	[vmw_ctx_binding_cs_uav] = {
+		.size = sizeof(struct vmw_ctx_bindinfo_view),
+		.offsets = vmw_binding_cs_uav_offsets,
+		.scrub_func = vmw_binding_scrub_cs_uav},
+	[vmw_ctx_binding_so] = {
+		.size = sizeof(struct vmw_ctx_bindinfo_so),
+		.offsets = vmw_binding_so_offsets,
+		.scrub_func = vmw_binding_scrub_so},
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -290,6 +377,11 @@ static void vmw_binding_drop(struct vmw_ctx_bindinfo *bi)
  *
  * @cbs: Pointer to the context binding state tracker.
  * @bi: Information about the binding to track.
+<<<<<<< HEAD
+=======
+ * @shader_slot: The shader slot of the binding.
+ * @slot: The slot of the binding.
+>>>>>>> upstream/android-13
  *
  * Starts tracking the binding in the context binding
  * state structure @cbs.
@@ -312,9 +404,28 @@ void vmw_binding_add(struct vmw_ctx_binding_state *cbs,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_binding_transfer: Transfer a context binding tracking entry.
  *
  * @cbs: Pointer to the persistent context binding state tracker.
+=======
+ * vmw_binding_add_uav_index - Add UAV index for tracking.
+ * @cbs: Pointer to the context binding state tracker.
+ * @slot: UAV type to which bind this index.
+ * @index: The splice index to track.
+ */
+void vmw_binding_add_uav_index(struct vmw_ctx_binding_state *cbs, uint32 slot,
+			       uint32 index)
+{
+	cbs->ua_views[slot].index = index;
+}
+
+/**
+ * vmw_binding_transfer: Transfer a context binding tracking entry.
+ *
+ * @cbs: Pointer to the persistent context binding state tracker.
+ * @from: Staged binding info built during execbuf
+>>>>>>> upstream/android-13
  * @bi: Information about the binding to track.
  *
  */
@@ -432,9 +543,14 @@ void vmw_binding_res_list_scrub(struct list_head *head)
 /**
  * vmw_binding_state_commit - Commit staged binding info
  *
+<<<<<<< HEAD
  * @ctx: Pointer to context to commit the staged binding info to.
  * @from: Staged binding info built during execbuf.
  * @scrubbed: Transfer only scrubbed bindings.
+=======
+ * @to:   Staged binding info area to copy into to.
+ * @from: Staged binding info built during execbuf.
+>>>>>>> upstream/android-13
  *
  * Transfers binding info from a temporary structure
  * (typically used by execbuf) to the persistent
@@ -450,12 +566,23 @@ void vmw_binding_state_commit(struct vmw_ctx_binding_state *to,
 		vmw_binding_transfer(to, from, entry);
 		vmw_binding_drop(entry);
 	}
+<<<<<<< HEAD
+=======
+
+	/* Also transfer uav splice indices */
+	to->ua_views[0].index = from->ua_views[0].index;
+	to->ua_views[1].index = from->ua_views[1].index;
+>>>>>>> upstream/android-13
 }
 
 /**
  * vmw_binding_rebind_all - Rebind all scrubbed bindings of a context
  *
+<<<<<<< HEAD
  * @ctx: The context resource
+=======
+ * @cbs: Pointer to the context binding state tracker.
+>>>>>>> upstream/android-13
  *
  * Walks through the context binding list and rebinds all scrubbed
  * resources.
@@ -499,19 +626,29 @@ static int vmw_binding_scrub_shader(struct vmw_ctx_bindinfo *bi, bool rebind)
 		SVGA3dCmdSetShader body;
 	} *cmd;
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, sizeof(*cmd));
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for shader "
 			  "unbinding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, sizeof(*cmd));
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_SET_SHADER;
 	cmd->header.size = sizeof(cmd->body);
 	cmd->body.cid = bi->ctx->id;
 	cmd->body.type = binding->shader_slot + SVGA3D_SHADERTYPE_MIN;
 	cmd->body.shid = ((rebind) ? bi->res->id : SVGA3D_INVALID_ID);
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmd));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -534,12 +671,18 @@ static int vmw_binding_scrub_render_target(struct vmw_ctx_bindinfo *bi,
 		SVGA3dCmdSetRenderTarget body;
 	} *cmd;
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, sizeof(*cmd));
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for render target "
 			  "unbinding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, sizeof(*cmd));
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_SETRENDERTARGET;
 	cmd->header.size = sizeof(cmd->body);
@@ -548,7 +691,11 @@ static int vmw_binding_scrub_render_target(struct vmw_ctx_bindinfo *bi,
 	cmd->body.target.sid = ((rebind) ? bi->res->id : SVGA3D_INVALID_ID);
 	cmd->body.target.face = 0;
 	cmd->body.target.mipmap = 0;
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmd));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -576,12 +723,18 @@ static int vmw_binding_scrub_texture(struct vmw_ctx_bindinfo *bi,
 		} body;
 	} *cmd;
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve(dev_priv, sizeof(*cmd));
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for texture "
 			  "unbinding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_RESERVE(dev_priv, sizeof(*cmd));
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_SETTEXTURESTATE;
 	cmd->header.size = sizeof(cmd->body);
@@ -589,7 +742,11 @@ static int vmw_binding_scrub_texture(struct vmw_ctx_bindinfo *bi,
 	cmd->body.s1.stage = binding->texture_stage;
 	cmd->body.s1.name = SVGA3D_TS_BIND_TEXTURE;
 	cmd->body.s1.value = ((rebind) ? bi->res->id : SVGA3D_INVALID_ID);
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmd));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -610,17 +767,28 @@ static int vmw_binding_scrub_dx_shader(struct vmw_ctx_bindinfo *bi, bool rebind)
 		SVGA3dCmdDXSetShader body;
 	} *cmd;
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve_dx(dev_priv, sizeof(*cmd), bi->ctx->id);
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for DX shader "
 			  "unbinding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_CTX_RESERVE(dev_priv, sizeof(*cmd), bi->ctx->id);
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	cmd->header.id = SVGA_3D_CMD_DX_SET_SHADER;
 	cmd->header.size = sizeof(cmd->body);
 	cmd->body.type = binding->shader_slot + SVGA3D_SHADERTYPE_MIN;
 	cmd->body.shaderId = ((rebind) ? bi->res->id : SVGA3D_INVALID_ID);
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmd));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -641,12 +809,18 @@ static int vmw_binding_scrub_cb(struct vmw_ctx_bindinfo *bi, bool rebind)
 		SVGA3dCmdDXSetSingleConstantBuffer body;
 	} *cmd;
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve_dx(dev_priv, sizeof(*cmd), bi->ctx->id);
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for DX shader "
 			  "unbinding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_CTX_RESERVE(dev_priv, sizeof(*cmd), bi->ctx->id);
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_DX_SET_SINGLE_CONSTANT_BUFFER;
 	cmd->header.size = sizeof(cmd->body);
@@ -661,7 +835,11 @@ static int vmw_binding_scrub_cb(struct vmw_ctx_bindinfo *bi, bool rebind)
 		cmd->body.sizeInBytes = 0;
 		cmd->body.sid = SVGA3D_INVALID_ID;
 	}
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmd));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -671,7 +849,11 @@ static int vmw_binding_scrub_cb(struct vmw_ctx_bindinfo *bi, bool rebind)
  * without checking which bindings actually need to be emitted
  *
  * @cbs: Pointer to the context's struct vmw_ctx_binding_state
+<<<<<<< HEAD
  * @bi: Pointer to where the binding info array is stored in @cbs
+=======
+ * @biv: Pointer to where the binding info array is stored in @cbs
+>>>>>>> upstream/android-13
  * @max_num: Maximum number of entries in the @bi array.
  *
  * Scans the @bi array for bindings and builds a buffer of view id data.
@@ -681,11 +863,17 @@ static int vmw_binding_scrub_cb(struct vmw_ctx_bindinfo *bi, bool rebind)
  * contains the command data.
  */
 static void vmw_collect_view_ids(struct vmw_ctx_binding_state *cbs,
+<<<<<<< HEAD
 				 const struct vmw_ctx_bindinfo *bi,
 				 u32 max_num)
 {
 	const struct vmw_ctx_bindinfo_view *biv =
 		container_of(bi, struct vmw_ctx_bindinfo_view, bi);
+=======
+				 const struct vmw_ctx_bindinfo_view *biv,
+				 u32 max_num)
+{
+>>>>>>> upstream/android-13
 	unsigned long i;
 
 	cbs->bind_cmd_count = 0;
@@ -744,9 +932,16 @@ static void vmw_collect_dirty_view_ids(struct vmw_ctx_binding_state *cbs,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_binding_emit_set_sr - Issue delayed DX shader resource binding commands
  *
  * @cbs: Pointer to the context's struct vmw_ctx_binding_state
+=======
+ * vmw_emit_set_sr - Issue delayed DX shader resource binding commands
+ *
+ * @cbs: Pointer to the context's struct vmw_ctx_binding_state
+ * @shader_slot: The shader slot of the binding.
+>>>>>>> upstream/android-13
  */
 static int vmw_emit_set_sr(struct vmw_ctx_binding_state *cbs,
 			   int shader_slot)
@@ -768,12 +963,18 @@ static int vmw_emit_set_sr(struct vmw_ctx_binding_state *cbs,
 
 	view_id_size = cbs->bind_cmd_count*sizeof(uint32);
 	cmd_size = sizeof(*cmd) + view_id_size;
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve_dx(ctx->dev_priv, cmd_size, ctx->id);
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for DX shader"
 			  " resource binding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_CTX_RESERVE(ctx->dev_priv, cmd_size, ctx->id);
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_DX_SET_SHADER_RESOURCES;
 	cmd->header.size = sizeof(cmd->body) + view_id_size;
@@ -782,7 +983,11 @@ static int vmw_emit_set_sr(struct vmw_ctx_binding_state *cbs,
 
 	memcpy(&cmd[1], cbs->bind_cmd_buffer, view_id_size);
 
+<<<<<<< HEAD
 	vmw_fifo_commit(ctx->dev_priv, cmd_size);
+=======
+	vmw_cmd_commit(ctx->dev_priv, cmd_size);
+>>>>>>> upstream/android-13
 	bitmap_clear(cbs->per_shader[shader_slot].dirty_sr,
 		     cbs->bind_first_slot, cbs->bind_cmd_count);
 
@@ -790,13 +995,21 @@ static int vmw_emit_set_sr(struct vmw_ctx_binding_state *cbs,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_binding_emit_set_rt - Issue delayed DX rendertarget binding commands
+=======
+ * vmw_emit_set_rt - Issue delayed DX rendertarget binding commands
+>>>>>>> upstream/android-13
  *
  * @cbs: Pointer to the context's struct vmw_ctx_binding_state
  */
 static int vmw_emit_set_rt(struct vmw_ctx_binding_state *cbs)
 {
+<<<<<<< HEAD
 	const struct vmw_ctx_bindinfo *loc = &cbs->render_targets[0].bi;
+=======
+	const struct vmw_ctx_bindinfo_view *loc = &cbs->render_targets[0];
+>>>>>>> upstream/android-13
 	struct {
 		SVGA3dCmdHeader header;
 		SVGA3dCmdDXSetRenderTargets body;
@@ -804,6 +1017,7 @@ static int vmw_emit_set_rt(struct vmw_ctx_binding_state *cbs)
 	size_t cmd_size, view_id_size;
 	const struct vmw_resource *ctx = vmw_cbs_context(cbs);
 
+<<<<<<< HEAD
 	vmw_collect_view_ids(cbs, loc, SVGA3D_MAX_SIMULTANEOUS_RENDER_TARGETS);
 	view_id_size = cbs->bind_cmd_count*sizeof(uint32);
 	cmd_size = sizeof(*cmd) + view_id_size;
@@ -813,6 +1027,14 @@ static int vmw_emit_set_rt(struct vmw_ctx_binding_state *cbs)
 			  " binding.\n");
 		return -ENOMEM;
 	}
+=======
+	vmw_collect_view_ids(cbs, loc, SVGA3D_DX_MAX_RENDER_TARGETS);
+	view_id_size = cbs->bind_cmd_count*sizeof(uint32);
+	cmd_size = sizeof(*cmd) + view_id_size;
+	cmd = VMW_CMD_CTX_RESERVE(ctx->dev_priv, cmd_size, ctx->id);
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_DX_SET_RENDERTARGETS;
 	cmd->header.size = sizeof(cmd->body) + view_id_size;
@@ -824,7 +1046,11 @@ static int vmw_emit_set_rt(struct vmw_ctx_binding_state *cbs)
 
 	memcpy(&cmd[1], cbs->bind_cmd_buffer, view_id_size);
 
+<<<<<<< HEAD
 	vmw_fifo_commit(ctx->dev_priv, cmd_size);
+=======
+	vmw_cmd_commit(ctx->dev_priv, cmd_size);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -835,7 +1061,11 @@ static int vmw_emit_set_rt(struct vmw_ctx_binding_state *cbs)
  * without checking which bindings actually need to be emitted
  *
  * @cbs: Pointer to the context's struct vmw_ctx_binding_state
+<<<<<<< HEAD
  * @bi: Pointer to where the binding info array is stored in @cbs
+=======
+ * @biso: Pointer to where the binding info array is stored in @cbs
+>>>>>>> upstream/android-13
  * @max_num: Maximum number of entries in the @bi array.
  *
  * Scans the @bi array for bindings and builds a buffer of SVGA3dSoTarget data.
@@ -845,11 +1075,17 @@ static int vmw_emit_set_rt(struct vmw_ctx_binding_state *cbs)
  * contains the command data.
  */
 static void vmw_collect_so_targets(struct vmw_ctx_binding_state *cbs,
+<<<<<<< HEAD
 				   const struct vmw_ctx_bindinfo *bi,
 				   u32 max_num)
 {
 	const struct vmw_ctx_bindinfo_so *biso =
 		container_of(bi, struct vmw_ctx_bindinfo_so, bi);
+=======
+				   const struct vmw_ctx_bindinfo_so_target *biso,
+				   u32 max_num)
+{
+>>>>>>> upstream/android-13
 	unsigned long i;
 	SVGA3dSoTarget *so_buffer = (SVGA3dSoTarget *) cbs->bind_cmd_buffer;
 
@@ -874,6 +1110,7 @@ static void vmw_collect_so_targets(struct vmw_ctx_binding_state *cbs,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_binding_emit_set_so - Issue delayed streamout binding commands
  *
  * @cbs: Pointer to the context's struct vmw_ctx_binding_state
@@ -881,6 +1118,15 @@ static void vmw_collect_so_targets(struct vmw_ctx_binding_state *cbs,
 static int vmw_emit_set_so(struct vmw_ctx_binding_state *cbs)
 {
 	const struct vmw_ctx_bindinfo *loc = &cbs->so_targets[0].bi;
+=======
+ * vmw_emit_set_so_target - Issue delayed streamout binding commands
+ *
+ * @cbs: Pointer to the context's struct vmw_ctx_binding_state
+ */
+static int vmw_emit_set_so_target(struct vmw_ctx_binding_state *cbs)
+{
+	const struct vmw_ctx_bindinfo_so_target *loc = &cbs->so_targets[0];
+>>>>>>> upstream/android-13
 	struct {
 		SVGA3dCmdHeader header;
 		SVGA3dCmdDXSetSOTargets body;
@@ -894,18 +1140,28 @@ static int vmw_emit_set_so(struct vmw_ctx_binding_state *cbs)
 
 	so_target_size = cbs->bind_cmd_count*sizeof(SVGA3dSoTarget);
 	cmd_size = sizeof(*cmd) + so_target_size;
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve_dx(ctx->dev_priv, cmd_size, ctx->id);
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for DX SO target"
 			  " binding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_CTX_RESERVE(ctx->dev_priv, cmd_size, ctx->id);
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_DX_SET_SOTARGETS;
 	cmd->header.size = sizeof(cmd->body) + so_target_size;
 	memcpy(&cmd[1], cbs->bind_cmd_buffer, so_target_size);
 
+<<<<<<< HEAD
 	vmw_fifo_commit(ctx->dev_priv, cmd_size);
+=======
+	vmw_cmd_commit(ctx->dev_priv, cmd_size);
+>>>>>>> upstream/android-13
 
 	return 0;
 
@@ -988,7 +1244,11 @@ static void vmw_collect_dirty_vbs(struct vmw_ctx_binding_state *cbs,
 }
 
 /**
+<<<<<<< HEAD
  * vmw_binding_emit_set_vb - Issue delayed vertex buffer binding commands
+=======
+ * vmw_emit_set_vb - Issue delayed vertex buffer binding commands
+>>>>>>> upstream/android-13
  *
  * @cbs: Pointer to the context's struct vmw_ctx_binding_state
  *
@@ -1011,12 +1271,18 @@ static int vmw_emit_set_vb(struct vmw_ctx_binding_state *cbs)
 
 	set_vb_size = cbs->bind_cmd_count*sizeof(SVGA3dVertexBuffer);
 	cmd_size = sizeof(*cmd) + set_vb_size;
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve_dx(ctx->dev_priv, cmd_size, ctx->id);
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for DX vertex buffer"
 			  " binding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_CTX_RESERVE(ctx->dev_priv, cmd_size, ctx->id);
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	cmd->header.id = SVGA_3D_CMD_DX_SET_VERTEX_BUFFERS;
 	cmd->header.size = sizeof(cmd->body) + set_vb_size;
@@ -1024,13 +1290,80 @@ static int vmw_emit_set_vb(struct vmw_ctx_binding_state *cbs)
 
 	memcpy(&cmd[1], cbs->bind_cmd_buffer, set_vb_size);
 
+<<<<<<< HEAD
 	vmw_fifo_commit(ctx->dev_priv, cmd_size);
+=======
+	vmw_cmd_commit(ctx->dev_priv, cmd_size);
+>>>>>>> upstream/android-13
 	bitmap_clear(cbs->dirty_vb,
 		     cbs->bind_first_slot, cbs->bind_cmd_count);
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int vmw_emit_set_uav(struct vmw_ctx_binding_state *cbs)
+{
+	const struct vmw_ctx_bindinfo_view *loc = &cbs->ua_views[0].views[0];
+	struct {
+		SVGA3dCmdHeader header;
+		SVGA3dCmdDXSetUAViews body;
+	} *cmd;
+	size_t cmd_size, view_id_size;
+	const struct vmw_resource *ctx = vmw_cbs_context(cbs);
+
+	vmw_collect_view_ids(cbs, loc, SVGA3D_MAX_UAVIEWS);
+	view_id_size = cbs->bind_cmd_count*sizeof(uint32);
+	cmd_size = sizeof(*cmd) + view_id_size;
+	cmd = VMW_CMD_CTX_RESERVE(ctx->dev_priv, cmd_size, ctx->id);
+	if (!cmd)
+		return -ENOMEM;
+
+	cmd->header.id = SVGA_3D_CMD_DX_SET_UA_VIEWS;
+	cmd->header.size = sizeof(cmd->body) + view_id_size;
+
+	/* Splice index is specified user-space   */
+	cmd->body.uavSpliceIndex = cbs->ua_views[0].index;
+
+	memcpy(&cmd[1], cbs->bind_cmd_buffer, view_id_size);
+
+	vmw_cmd_commit(ctx->dev_priv, cmd_size);
+
+	return 0;
+}
+
+static int vmw_emit_set_cs_uav(struct vmw_ctx_binding_state *cbs)
+{
+	const struct vmw_ctx_bindinfo_view *loc = &cbs->ua_views[1].views[0];
+	struct {
+		SVGA3dCmdHeader header;
+		SVGA3dCmdDXSetCSUAViews body;
+	} *cmd;
+	size_t cmd_size, view_id_size;
+	const struct vmw_resource *ctx = vmw_cbs_context(cbs);
+
+	vmw_collect_view_ids(cbs, loc, SVGA3D_MAX_UAVIEWS);
+	view_id_size = cbs->bind_cmd_count*sizeof(uint32);
+	cmd_size = sizeof(*cmd) + view_id_size;
+	cmd = VMW_CMD_CTX_RESERVE(ctx->dev_priv, cmd_size, ctx->id);
+	if (!cmd)
+		return -ENOMEM;
+
+	cmd->header.id = SVGA_3D_CMD_DX_SET_CS_UA_VIEWS;
+	cmd->header.size = sizeof(cmd->body) + view_id_size;
+
+	/* Start index is specified user-space */
+	cmd->body.startIndex = cbs->ua_views[1].index;
+
+	memcpy(&cmd[1], cbs->bind_cmd_buffer, view_id_size);
+
+	vmw_cmd_commit(ctx->dev_priv, cmd_size);
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 /**
  * vmw_binding_emit_dirty - Issue delayed binding commands
  *
@@ -1056,12 +1389,26 @@ static int vmw_binding_emit_dirty(struct vmw_ctx_binding_state *cbs)
 		case VMW_BINDING_PS_BIT:
 			ret = vmw_binding_emit_dirty_ps(cbs);
 			break;
+<<<<<<< HEAD
 		case VMW_BINDING_SO_BIT:
 			ret = vmw_emit_set_so(cbs);
+=======
+		case VMW_BINDING_SO_T_BIT:
+			ret = vmw_emit_set_so_target(cbs);
+>>>>>>> upstream/android-13
 			break;
 		case VMW_BINDING_VB_BIT:
 			ret = vmw_emit_set_vb(cbs);
 			break;
+<<<<<<< HEAD
+=======
+		case VMW_BINDING_UAV_BIT:
+			ret = vmw_emit_set_uav(cbs);
+			break;
+		case VMW_BINDING_CS_UAV_BIT:
+			ret = vmw_emit_set_cs_uav(cbs);
+			break;
+>>>>>>> upstream/android-13
 		default:
 			BUG();
 		}
@@ -1115,18 +1462,30 @@ static int vmw_binding_scrub_dx_rt(struct vmw_ctx_bindinfo *bi, bool rebind)
 }
 
 /**
+<<<<<<< HEAD
  * vmw_binding_scrub_so - Schedule a dx streamoutput buffer binding
+=======
+ * vmw_binding_scrub_so_target - Schedule a dx streamoutput buffer binding
+>>>>>>> upstream/android-13
  * scrub from a context
  *
  * @bi: single binding information.
  * @rebind: Whether to issue a bind instead of scrub command.
  */
+<<<<<<< HEAD
 static int vmw_binding_scrub_so(struct vmw_ctx_bindinfo *bi, bool rebind)
+=======
+static int vmw_binding_scrub_so_target(struct vmw_ctx_bindinfo *bi, bool rebind)
+>>>>>>> upstream/android-13
 {
 	struct vmw_ctx_binding_state *cbs =
 		vmw_context_binding_state(bi->ctx);
 
+<<<<<<< HEAD
 	__set_bit(VMW_BINDING_SO_BIT, &cbs->dirty);
+=======
+	__set_bit(VMW_BINDING_SO_T_BIT, &cbs->dirty);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1167,12 +1526,19 @@ static int vmw_binding_scrub_ib(struct vmw_ctx_bindinfo *bi, bool rebind)
 		SVGA3dCmdDXSetIndexBuffer body;
 	} *cmd;
 
+<<<<<<< HEAD
 	cmd = vmw_fifo_reserve_dx(dev_priv, sizeof(*cmd), bi->ctx->id);
 	if (unlikely(cmd == NULL)) {
 		DRM_ERROR("Failed reserving FIFO space for DX index buffer "
 			  "binding.\n");
 		return -ENOMEM;
 	}
+=======
+	cmd = VMW_CMD_CTX_RESERVE(dev_priv, sizeof(*cmd), bi->ctx->id);
+	if (unlikely(cmd == NULL))
+		return -ENOMEM;
+
+>>>>>>> upstream/android-13
 	cmd->header.id = SVGA_3D_CMD_DX_SET_INDEX_BUFFER;
 	cmd->header.size = sizeof(cmd->body);
 	if (rebind) {
@@ -1185,7 +1551,54 @@ static int vmw_binding_scrub_ib(struct vmw_ctx_bindinfo *bi, bool rebind)
 		cmd->body.offset = 0;
 	}
 
+<<<<<<< HEAD
 	vmw_fifo_commit(dev_priv, sizeof(*cmd));
+=======
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+
+	return 0;
+}
+
+static int vmw_binding_scrub_uav(struct vmw_ctx_bindinfo *bi, bool rebind)
+{
+	struct vmw_ctx_binding_state *cbs = vmw_context_binding_state(bi->ctx);
+
+	__set_bit(VMW_BINDING_UAV_BIT, &cbs->dirty);
+	return 0;
+}
+
+static int vmw_binding_scrub_cs_uav(struct vmw_ctx_bindinfo *bi, bool rebind)
+{
+	struct vmw_ctx_binding_state *cbs = vmw_context_binding_state(bi->ctx);
+
+	__set_bit(VMW_BINDING_CS_UAV_BIT, &cbs->dirty);
+	return 0;
+}
+
+/**
+ * vmw_binding_scrub_so - Scrub a streamoutput binding from context.
+ * @bi: Single binding information.
+ * @rebind: Whether to issue a bind instead of scrub command.
+ */
+static int vmw_binding_scrub_so(struct vmw_ctx_bindinfo *bi, bool rebind)
+{
+	struct vmw_ctx_bindinfo_so *binding =
+		container_of(bi, typeof(*binding), bi);
+	struct vmw_private *dev_priv = bi->ctx->dev_priv;
+	struct {
+		SVGA3dCmdHeader header;
+		SVGA3dCmdDXSetStreamOutput body;
+	} *cmd;
+
+	cmd = VMW_CMD_CTX_RESERVE(dev_priv, sizeof(*cmd), bi->ctx->id);
+	if (!cmd)
+		return -ENOMEM;
+
+	cmd->header.id = SVGA_3D_CMD_DX_SET_STREAMOUTPUT;
+	cmd->header.size = sizeof(cmd->body);
+	cmd->body.soid = rebind ? bi->res->id : SVGA3D_INVALID_ID;
+	vmw_cmd_commit(dev_priv, sizeof(*cmd));
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1254,7 +1667,11 @@ struct list_head *vmw_binding_state_list(struct vmw_ctx_binding_state *cbs)
 }
 
 /**
+<<<<<<< HEAD
  * vmwgfx_binding_state_reset - clear a struct vmw_ctx_binding_state
+=======
+ * vmw_binding_state_reset - clear a struct vmw_ctx_binding_state
+>>>>>>> upstream/android-13
  *
  * @cbs: Pointer to the struct vmw_ctx_binding_state to be cleared
  *
@@ -1269,6 +1686,37 @@ void vmw_binding_state_reset(struct vmw_ctx_binding_state *cbs)
 		vmw_binding_drop(entry);
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * vmw_binding_dirtying - Return whether a binding type is dirtying its resource
+ * @binding_type: The binding type
+ *
+ * Each time a resource is put on the validation list as the result of a
+ * context binding referencing it, we need to determine whether that resource
+ * will be dirtied (written to by the GPU) as a result of the corresponding
+ * GPU operation. Currently rendertarget-, depth-stencil-, stream-output-target
+ * and unordered access view bindings are capable of dirtying its resource.
+ *
+ * Return: Whether the binding type dirties the resource its binding points to.
+ */
+u32 vmw_binding_dirtying(enum vmw_ctx_binding_type binding_type)
+{
+	static u32 is_binding_dirtying[vmw_ctx_binding_max] = {
+		[vmw_ctx_binding_rt] = VMW_RES_DIRTY_SET,
+		[vmw_ctx_binding_dx_rt] = VMW_RES_DIRTY_SET,
+		[vmw_ctx_binding_ds] = VMW_RES_DIRTY_SET,
+		[vmw_ctx_binding_so_target] = VMW_RES_DIRTY_SET,
+		[vmw_ctx_binding_uav] = VMW_RES_DIRTY_SET,
+		[vmw_ctx_binding_cs_uav] = VMW_RES_DIRTY_SET,
+	};
+
+	/* Review this function as new bindings are added. */
+	BUILD_BUG_ON(vmw_ctx_binding_max != 14);
+	return is_binding_dirtying[binding_type];
+}
+
+>>>>>>> upstream/android-13
 /*
  * This function is unused at run-time, and only used to hold various build
  * asserts important for code optimization assumptions.
@@ -1276,7 +1724,11 @@ void vmw_binding_state_reset(struct vmw_ctx_binding_state *cbs)
 static void vmw_binding_build_asserts(void)
 {
 	BUILD_BUG_ON(SVGA3D_NUM_SHADERTYPE_DX10 != 3);
+<<<<<<< HEAD
 	BUILD_BUG_ON(SVGA3D_MAX_SIMULTANEOUS_RENDER_TARGETS > SVGA3D_RT_MAX);
+=======
+	BUILD_BUG_ON(SVGA3D_DX_MAX_RENDER_TARGETS > SVGA3D_RT_MAX);
+>>>>>>> upstream/android-13
 	BUILD_BUG_ON(sizeof(uint32) != sizeof(u32));
 
 	/*

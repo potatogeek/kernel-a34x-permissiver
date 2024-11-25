@@ -113,6 +113,10 @@ gm200_vmm_17 = {
 	.aper = gf100_vmm_aper,
 	.valid = gf100_vmm_valid,
 	.flush = gf100_vmm_flush,
+<<<<<<< HEAD
+=======
+	.invalidate_pdb = gf100_vmm_invalidate_pdb,
+>>>>>>> upstream/android-13
 	.page = {
 		{ 27, &gm200_vmm_desc_17_17[1], NVKM_VMM_PAGE_Sxxx },
 		{ 17, &gm200_vmm_desc_17_17[0], NVKM_VMM_PAGE_SVxC },
@@ -128,6 +132,10 @@ gm200_vmm_16 = {
 	.aper = gf100_vmm_aper,
 	.valid = gf100_vmm_valid,
 	.flush = gf100_vmm_flush,
+<<<<<<< HEAD
+=======
+	.invalidate_pdb = gf100_vmm_invalidate_pdb,
+>>>>>>> upstream/android-13
 	.page = {
 		{ 27, &gm200_vmm_desc_16_16[1], NVKM_VMM_PAGE_Sxxx },
 		{ 16, &gm200_vmm_desc_16_16[0], NVKM_VMM_PAGE_SVxC },
@@ -139,9 +147,15 @@ gm200_vmm_16 = {
 int
 gm200_vmm_new_(const struct nvkm_vmm_func *func_16,
 	       const struct nvkm_vmm_func *func_17,
+<<<<<<< HEAD
 	       struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	       struct lock_class_key *key, const char *name,
 	       struct nvkm_vmm **pvmm)
+=======
+	       struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	       void *argv, u32 argc, struct lock_class_key *key,
+	       const char *name, struct nvkm_vmm **pvmm)
+>>>>>>> upstream/android-13
 {
 	const struct nvkm_vmm_func *func;
 	union {
@@ -163,6 +177,7 @@ gm200_vmm_new_(const struct nvkm_vmm_func *func_16,
 	} else
 		return ret;
 
+<<<<<<< HEAD
 	return nvkm_vmm_new_(func, mmu, 0, addr, size, key, name, pvmm);
 }
 
@@ -172,14 +187,33 @@ gm200_vmm_new(struct nvkm_mmu *mmu, u64 addr, u64 size, void *argv, u32 argc,
 	      struct nvkm_vmm **pvmm)
 {
 	return gm200_vmm_new_(&gm200_vmm_16, &gm200_vmm_17, mmu, addr,
+=======
+	return nvkm_vmm_new_(func, mmu, 0, managed, addr, size, key, name, pvmm);
+}
+
+int
+gm200_vmm_new(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+	      void *argv, u32 argc, struct lock_class_key *key,
+	      const char *name, struct nvkm_vmm **pvmm)
+{
+	return gm200_vmm_new_(&gm200_vmm_16, &gm200_vmm_17, mmu, managed, addr,
+>>>>>>> upstream/android-13
 			      size, argv, argc, key, name, pvmm);
 }
 
 int
+<<<<<<< HEAD
 gm200_vmm_new_fixed(struct nvkm_mmu *mmu, u64 addr, u64 size,
 		    void *argv, u32 argc, struct lock_class_key *key,
 		    const char *name, struct nvkm_vmm **pvmm)
 {
 	return gf100_vmm_new_(&gm200_vmm_16, &gm200_vmm_17, mmu, addr,
+=======
+gm200_vmm_new_fixed(struct nvkm_mmu *mmu, bool managed, u64 addr, u64 size,
+		    void *argv, u32 argc, struct lock_class_key *key,
+		    const char *name, struct nvkm_vmm **pvmm)
+{
+	return gf100_vmm_new_(&gm200_vmm_16, &gm200_vmm_17, mmu, managed, addr,
+>>>>>>> upstream/android-13
 			      size, argv, argc, key, name, pvmm);
 }

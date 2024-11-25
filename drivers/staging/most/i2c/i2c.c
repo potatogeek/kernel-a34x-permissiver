@@ -13,8 +13,12 @@
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include <linux/err.h>
+<<<<<<< HEAD
 
 #include "most/core.h"
+=======
+#include <linux/most.h>
+>>>>>>> upstream/android-13
 
 enum { CH_RX, CH_TX, NUM_CHANNELS };
 
@@ -52,8 +56,13 @@ static void pending_rx_work(struct work_struct *);
 
 /**
  * configure_channel - called from MOST core to configure a channel
+<<<<<<< HEAD
  * @iface: interface the channel belongs to
  * @channel: channel to be configured
+=======
+ * @most_iface: interface the channel belongs to
+ * @ch_idx: channel to be configured
+>>>>>>> upstream/android-13
  * @channel_config: structure that holds the configuration information
  *
  * Return 0 on success, negative on failure.
@@ -108,8 +117,13 @@ static int configure_channel(struct most_interface *most_iface,
 
 /**
  * enqueue - called from MOST core to enqueue a buffer for data transfer
+<<<<<<< HEAD
  * @iface: intended interface
  * @channel: ID of the channel the buffer is intended for
+=======
+ * @most_iface: intended interface
+ * @ch_idx: ID of the channel the buffer is intended for
+>>>>>>> upstream/android-13
  * @mbo: pointer to the buffer object
  *
  * Return 0 on success, negative on failure.
@@ -154,8 +168,13 @@ static int enqueue(struct most_interface *most_iface,
 
 /**
  * poison_channel - called from MOST core to poison buffers of a channel
+<<<<<<< HEAD
  * @iface: pointer to the interface the channel to be poisoned belongs to
  * @channel_id: corresponding channel ID
+=======
+ * @most_iface: pointer to the interface the channel to be poisoned belongs to
+ * @ch_idx: corresponding channel ID
+>>>>>>> upstream/android-13
  *
  * Return 0 on success, negative on failure.
  *

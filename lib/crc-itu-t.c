@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 /*
  *      crc-itu-t.c
  *
  * This source code is licensed under the GNU General Public License,
  * Version 2. See the file COPYING for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *      crc-itu-t.c
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>

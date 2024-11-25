@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Intel Smart Sound Technology
  *
  * Copyright (C) 2013, Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __SOUND_SOC_SST_DSP_PRIV_H
@@ -24,6 +31,7 @@
 
 #include "../skylake/skl-sst-dsp.h"
 
+<<<<<<< HEAD
 struct sst_mem_block;
 struct sst_module;
 struct sst_fw;
@@ -31,10 +39,13 @@ struct sst_fw;
 /* do we need to remove or keep */
 #define DSP_DRAM_ADDR_OFFSET		0x400000
 
+=======
+>>>>>>> upstream/android-13
 /*
  * DSP Operations exported by platform Audio DSP driver.
  */
 struct sst_ops {
+<<<<<<< HEAD
 	/* DSP core boot / reset */
 	void (*boot)(struct sst_dsp *);
 	void (*reset)(struct sst_dsp *);
@@ -55,36 +66,52 @@ struct sst_ops {
 		size_t bytes);
 
 	void (*dump)(struct sst_dsp *);
+=======
+	/* Shim IO */
+	void (*write)(void __iomem *addr, u32 offset, u32 value);
+	u32 (*read)(void __iomem *addr, u32 offset);
+>>>>>>> upstream/android-13
 
 	/* IRQ handlers */
 	irqreturn_t (*irq_handler)(int irq, void *context);
 
 	/* SST init and free */
+<<<<<<< HEAD
 	int (*init)(struct sst_dsp *sst, struct sst_pdata *pdata);
 	void (*free)(struct sst_dsp *sst);
 
 	/* FW module parser/loader */
 	int (*parse_fw)(struct sst_fw *sst_fw);
+=======
+	int (*init)(struct sst_dsp *sst);
+	void (*free)(struct sst_dsp *sst);
+>>>>>>> upstream/android-13
 };
 
 /*
  * Audio DSP memory offsets and addresses.
  */
 struct sst_addr {
+<<<<<<< HEAD
 	u32 lpe_base;
 	u32 shim_offset;
 	u32 iram_offset;
 	u32 dram_offset;
 	u32 dsp_iram_offset;
 	u32 dsp_dram_offset;
+=======
+>>>>>>> upstream/android-13
 	u32 sram0_base;
 	u32 sram1_base;
 	u32 w0_stat_sz;
 	u32 w0_up_sz;
 	void __iomem *lpe;
 	void __iomem *shim;
+<<<<<<< HEAD
 	void __iomem *pci_cfg;
 	void __iomem *fw_ext;
+=======
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -98,6 +125,7 @@ struct sst_mailbox {
 };
 
 /*
+<<<<<<< HEAD
  * Audio DSP memory block types.
  */
 enum sst_mem_type {
@@ -260,6 +288,8 @@ struct sst_mem_block {
 };
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Generic SST Shim Interface.
  */
 struct sst_dsp {
@@ -271,7 +301,10 @@ struct sst_dsp {
 	spinlock_t spinlock;	/* IPC locking */
 	struct mutex mutex;	/* DSP FW lock */
 	struct device *dev;
+<<<<<<< HEAD
 	struct device *dma_dev;
+=======
+>>>>>>> upstream/android-13
 	void *thread_context;
 	int irq;
 	u32 id;
@@ -288,6 +321,7 @@ struct sst_dsp {
 	/* mailbox */
 	struct sst_mailbox mailbox;
 
+<<<<<<< HEAD
 	/* HSW/Byt data */
 
 	/* list of free and used ADSP memory blocks */
@@ -309,6 +343,10 @@ struct sst_dsp {
 	/* DMA FW loading */
 	struct sst_dma *dma;
 	bool fw_use_dma;
+=======
+	/* SST FW files loaded and their modules */
+	struct list_head module_list;
+>>>>>>> upstream/android-13
 
 	/* SKL data */
 
@@ -324,6 +362,7 @@ struct sst_dsp {
 	struct snd_dma_buffer dmab;
 };
 
+<<<<<<< HEAD
 /* Size optimised DRAM/IRAM memcpy */
 static inline void sst_dsp_write(struct sst_dsp *sst, void *src,
 	u32 dest_offset, size_t bytes)
@@ -389,4 +428,6 @@ void sst_mem_block_unregister_all(struct sst_dsp *dsp);
 
 u32 sst_dsp_get_offset(struct sst_dsp *dsp, u32 offset,
 	enum sst_mem_type type);
+=======
+>>>>>>> upstream/android-13
 #endif

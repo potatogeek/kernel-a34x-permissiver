@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * i.MX IPUv3 DP Overlay Planes
  *
  * Copyright (C) 2013 Philipp Zabel, Pengutronix
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,6 +27,21 @@
 #include <drm/drm_plane_helper.h>
 
 #include "video/imx-ipu-v3.h"
+=======
+ */
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_fb_cma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_cma_helper.h>
+#include <drm/drm_managed.h>
+#include <drm/drm_plane_helper.h>
+
+#include <video/imx-ipu-v3.h>
+
+>>>>>>> upstream/android-13
 #include "imx-drm.h"
 #include "ipuv3-plane.h"
 
@@ -36,12 +56,24 @@ to_ipu_plane_state(struct drm_plane_state *p)
 	return container_of(p, struct ipu_plane_state, base);
 }
 
+<<<<<<< HEAD
+=======
+static unsigned int ipu_src_rect_width(const struct drm_plane_state *state)
+{
+	return ALIGN(drm_rect_width(&state->src) >> 16, 8);
+}
+
+>>>>>>> upstream/android-13
 static inline struct ipu_plane *to_ipu_plane(struct drm_plane *p)
 {
 	return container_of(p, struct ipu_plane, base);
 }
 
+<<<<<<< HEAD
 static const uint32_t ipu_plane_formats[] = {
+=======
+static const uint32_t ipu_plane_all_formats[] = {
+>>>>>>> upstream/android-13
 	DRM_FORMAT_ARGB1555,
 	DRM_FORMAT_XRGB1555,
 	DRM_FORMAT_ABGR1555,
@@ -78,6 +110,34 @@ static const uint32_t ipu_plane_formats[] = {
 	DRM_FORMAT_BGRX8888_A8,
 };
 
+<<<<<<< HEAD
+=======
+static const uint32_t ipu_plane_rgb_formats[] = {
+	DRM_FORMAT_ARGB1555,
+	DRM_FORMAT_XRGB1555,
+	DRM_FORMAT_ABGR1555,
+	DRM_FORMAT_XBGR1555,
+	DRM_FORMAT_RGBA5551,
+	DRM_FORMAT_BGRA5551,
+	DRM_FORMAT_ARGB4444,
+	DRM_FORMAT_ARGB8888,
+	DRM_FORMAT_XRGB8888,
+	DRM_FORMAT_ABGR8888,
+	DRM_FORMAT_XBGR8888,
+	DRM_FORMAT_RGBA8888,
+	DRM_FORMAT_RGBX8888,
+	DRM_FORMAT_BGRA8888,
+	DRM_FORMAT_BGRX8888,
+	DRM_FORMAT_RGB565,
+	DRM_FORMAT_RGB565_A8,
+	DRM_FORMAT_BGR565_A8,
+	DRM_FORMAT_RGB888_A8,
+	DRM_FORMAT_BGR888_A8,
+	DRM_FORMAT_RGBX8888_A8,
+	DRM_FORMAT_BGRX8888_A8,
+};
+
+>>>>>>> upstream/android-13
 static const uint64_t ipu_format_modifiers[] = {
 	DRM_FORMAT_MOD_LINEAR,
 	DRM_FORMAT_MOD_INVALID
@@ -123,8 +183,13 @@ drm_plane_state_to_ubo(struct drm_plane_state *state)
 	cma_obj = drm_fb_cma_get_gem_obj(fb, 1);
 	BUG_ON(!cma_obj);
 
+<<<<<<< HEAD
 	x /= drm_format_horz_chroma_subsampling(fb->format->format);
 	y /= drm_format_vert_chroma_subsampling(fb->format->format);
+=======
+	x /= fb->format->hsub;
+	y /= fb->format->vsub;
+>>>>>>> upstream/android-13
 
 	return cma_obj->paddr + fb->offsets[1] + fb->pitches[1] * y +
 	       fb->format->cpp[1] * x - eba;
@@ -142,15 +207,27 @@ drm_plane_state_to_vbo(struct drm_plane_state *state)
 	cma_obj = drm_fb_cma_get_gem_obj(fb, 2);
 	BUG_ON(!cma_obj);
 
+<<<<<<< HEAD
 	x /= drm_format_horz_chroma_subsampling(fb->format->format);
 	y /= drm_format_vert_chroma_subsampling(fb->format->format);
+=======
+	x /= fb->format->hsub;
+	y /= fb->format->vsub;
+>>>>>>> upstream/android-13
 
 	return cma_obj->paddr + fb->offsets[2] + fb->pitches[2] * y +
 	       fb->format->cpp[2] * x - eba;
 }
 
+<<<<<<< HEAD
 void ipu_plane_put_resources(struct ipu_plane *ipu_plane)
 {
+=======
+static void ipu_plane_put_resources(struct drm_device *dev, void *ptr)
+{
+	struct ipu_plane *ipu_plane = ptr;
+
+>>>>>>> upstream/android-13
 	if (!IS_ERR_OR_NULL(ipu_plane->dp))
 		ipu_dp_put(ipu_plane->dp);
 	if (!IS_ERR_OR_NULL(ipu_plane->dmfc))
@@ -161,7 +238,12 @@ void ipu_plane_put_resources(struct ipu_plane *ipu_plane)
 		ipu_idmac_put(ipu_plane->alpha_ch);
 }
 
+<<<<<<< HEAD
 int ipu_plane_get_resources(struct ipu_plane *ipu_plane)
+=======
+static int ipu_plane_get_resources(struct drm_device *dev,
+				   struct ipu_plane *ipu_plane)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	int alpha_ch;
@@ -173,6 +255,13 @@ int ipu_plane_get_resources(struct ipu_plane *ipu_plane)
 		return ret;
 	}
 
+<<<<<<< HEAD
+=======
+	ret = drmm_add_action_or_reset(dev, ipu_plane_put_resources, ipu_plane);
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	alpha_ch = ipu_channel_alpha_channel(ipu_plane->dma);
 	if (alpha_ch >= 0) {
 		ipu_plane->alpha_ch = ipu_idmac_get(ipu_plane->ipu, alpha_ch);
@@ -188,7 +277,11 @@ int ipu_plane_get_resources(struct ipu_plane *ipu_plane)
 	if (IS_ERR(ipu_plane->dmfc)) {
 		ret = PTR_ERR(ipu_plane->dmfc);
 		DRM_ERROR("failed to get dmfc: ret %d\n", ret);
+<<<<<<< HEAD
 		goto err_out;
+=======
+		return ret;
+>>>>>>> upstream/android-13
 	}
 
 	if (ipu_plane->dp_flow >= 0) {
@@ -196,15 +289,22 @@ int ipu_plane_get_resources(struct ipu_plane *ipu_plane)
 		if (IS_ERR(ipu_plane->dp)) {
 			ret = PTR_ERR(ipu_plane->dp);
 			DRM_ERROR("failed to get dp flow: %d\n", ret);
+<<<<<<< HEAD
 			goto err_out;
+=======
+			return ret;
+>>>>>>> upstream/android-13
 		}
 	}
 
 	return 0;
+<<<<<<< HEAD
 err_out:
 	ipu_plane_put_resources(ipu_plane);
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static bool ipu_plane_separate_alpha(struct ipu_plane *ipu_plane)
@@ -236,9 +336,21 @@ static void ipu_plane_enable(struct ipu_plane *ipu_plane)
 
 void ipu_plane_disable(struct ipu_plane *ipu_plane, bool disable_dp_channel)
 {
+<<<<<<< HEAD
 	DRM_DEBUG_KMS("[%d] %s\n", __LINE__, __func__);
 
 	ipu_idmac_wait_busy(ipu_plane->ipu_ch, 50);
+=======
+	int ret;
+
+	DRM_DEBUG_KMS("[%d] %s\n", __LINE__, __func__);
+
+	ret = ipu_idmac_wait_busy(ipu_plane->ipu_ch, 50);
+	if (ret == -ETIMEDOUT) {
+		DRM_ERROR("[PLANE:%d] IDMAC timeout\n",
+			  ipu_plane->base.base.id);
+	}
+>>>>>>> upstream/android-13
 
 	if (ipu_plane->dp && disable_dp_channel)
 		ipu_dp_disable_channel(ipu_plane->dp, false);
@@ -261,6 +373,7 @@ void ipu_plane_disable_deferred(struct drm_plane *plane)
 		ipu_plane_disable(ipu_plane, false);
 	}
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(ipu_plane_disable_deferred);
 
 static void ipu_plane_destroy(struct drm_plane *plane)
@@ -275,22 +388,41 @@ static void ipu_plane_destroy(struct drm_plane *plane)
 
 static void ipu_plane_state_reset(struct drm_plane *plane)
 {
+=======
+
+static void ipu_plane_state_reset(struct drm_plane *plane)
+{
+	unsigned int zpos = (plane->type == DRM_PLANE_TYPE_PRIMARY) ? 0 : 1;
+>>>>>>> upstream/android-13
 	struct ipu_plane_state *ipu_state;
 
 	if (plane->state) {
 		ipu_state = to_ipu_plane_state(plane->state);
 		__drm_atomic_helper_plane_destroy_state(plane->state);
 		kfree(ipu_state);
+<<<<<<< HEAD
+=======
+		plane->state = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	ipu_state = kzalloc(sizeof(*ipu_state), GFP_KERNEL);
 
 	if (ipu_state) {
+<<<<<<< HEAD
 		ipu_state->base.plane = plane;
 		ipu_state->base.rotation = DRM_MODE_ROTATE_0;
 	}
 
 	plane->state = &ipu_state->base;
+=======
+		__drm_atomic_helper_plane_reset(plane, &ipu_state->base);
+		ipu_state->base.zpos = zpos;
+		ipu_state->base.normalized_zpos = zpos;
+		ipu_state->base.color_encoding = DRM_COLOR_YCBCR_BT601;
+		ipu_state->base.color_range = DRM_COLOR_YCBCR_LIMITED_RANGE;
+	}
+>>>>>>> upstream/android-13
 }
 
 static struct drm_plane_state *
@@ -326,17 +458,28 @@ static bool ipu_plane_format_mod_supported(struct drm_plane *plane,
 	if (modifier == DRM_FORMAT_MOD_LINEAR)
 		return true;
 
+<<<<<<< HEAD
 	/* without a PRG there are no supported modifiers */
 	if (!ipu_prg_present(ipu))
 		return false;
 
+=======
+	/*
+	 * Without a PRG the possible modifiers list only includes the linear
+	 * modifier, so we always take the early return from this function and
+	 * only end up here if the PRG is present.
+	 */
+>>>>>>> upstream/android-13
 	return ipu_prg_format_supported(ipu, format, modifier);
 }
 
 static const struct drm_plane_funcs ipu_plane_funcs = {
 	.update_plane	= drm_atomic_helper_update_plane,
 	.disable_plane	= drm_atomic_helper_disable_plane,
+<<<<<<< HEAD
 	.destroy	= ipu_plane_destroy,
+=======
+>>>>>>> upstream/android-13
 	.reset		= ipu_plane_state_reset,
 	.atomic_duplicate_state	= ipu_plane_duplicate_state,
 	.atomic_destroy_state	= ipu_plane_destroy_state,
@@ -344,6 +487,7 @@ static const struct drm_plane_funcs ipu_plane_funcs = {
 };
 
 static int ipu_plane_atomic_check(struct drm_plane *plane,
+<<<<<<< HEAD
 				  struct drm_plane_state *state)
 {
 	struct drm_plane_state *old_state = plane->state;
@@ -354,12 +498,27 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 	unsigned long eba, ubo, vbo, old_ubo, old_vbo, alpha_eba;
 	bool can_position = (plane->type == DRM_PLANE_TYPE_OVERLAY);
 	int hsub, vsub;
+=======
+				  struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+									   plane);
+	struct drm_crtc_state *crtc_state;
+	struct device *dev = plane->dev->dev;
+	struct drm_framebuffer *fb = new_state->fb;
+	struct drm_framebuffer *old_fb = old_state->fb;
+	unsigned long eba, ubo, vbo, old_ubo, old_vbo, alpha_eba;
+	bool can_position = (plane->type == DRM_PLANE_TYPE_OVERLAY);
+>>>>>>> upstream/android-13
 	int ret;
 
 	/* Ok to disable */
 	if (!fb)
 		return 0;
 
+<<<<<<< HEAD
 	if (!state->crtc)
 		return -EINVAL;
 
@@ -369,6 +528,18 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 		return -EINVAL;
 
 	ret = drm_atomic_helper_check_plane_state(state, crtc_state,
+=======
+	if (WARN_ON(!new_state->crtc))
+		return -EINVAL;
+
+	crtc_state =
+		drm_atomic_get_existing_crtc_state(state,
+						   new_state->crtc);
+	if (WARN_ON(!crtc_state))
+		return -EINVAL;
+
+	ret = drm_atomic_helper_check_plane_state(new_state, crtc_state,
+>>>>>>> upstream/android-13
 						  DRM_PLANE_HELPER_NO_SCALING,
 						  DRM_PLANE_HELPER_NO_SCALING,
 						  can_position, true);
@@ -382,7 +553,11 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 	switch (plane->type) {
 	case DRM_PLANE_TYPE_PRIMARY:
 		/* full plane minimum width is 13 pixels */
+<<<<<<< HEAD
 		if (drm_rect_width(&state->dst) < 13)
+=======
+		if (drm_rect_width(&new_state->dst) < 13)
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		break;
 	case DRM_PLANE_TYPE_OVERLAY:
@@ -392,7 +567,11 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	if (drm_rect_height(&state->dst) < 2)
+=======
+	if (drm_rect_height(&new_state->dst) < 2)
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -403,12 +582,21 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 	 * callback.
 	 */
 	if (old_fb &&
+<<<<<<< HEAD
 	    (drm_rect_width(&state->dst) != drm_rect_width(&old_state->dst) ||
 	     drm_rect_height(&state->dst) != drm_rect_height(&old_state->dst) ||
 	     fb->format != old_fb->format))
 		crtc_state->mode_changed = true;
 
 	eba = drm_plane_state_to_eba(state, 0);
+=======
+	    (drm_rect_width(&new_state->dst) != drm_rect_width(&old_state->dst) ||
+	     drm_rect_height(&new_state->dst) != drm_rect_height(&old_state->dst) ||
+	     fb->format != old_fb->format))
+		crtc_state->mode_changed = true;
+
+	eba = drm_plane_state_to_eba(new_state, 0);
+>>>>>>> upstream/android-13
 
 	if (eba & 0x7)
 		return -EINVAL;
@@ -419,6 +607,15 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 	if (old_fb && fb->pitches[0] != old_fb->pitches[0])
 		crtc_state->mode_changed = true;
 
+<<<<<<< HEAD
+=======
+	if (ALIGN(fb->width, 8) * fb->format->cpp[0] >
+	    fb->pitches[0] + fb->offsets[0]) {
+		dev_warn(dev, "pitch is not big enough for 8 pixels alignment");
+		return -EINVAL;
+	}
+
+>>>>>>> upstream/android-13
 	switch (fb->format->format) {
 	case DRM_FORMAT_YUV420:
 	case DRM_FORMAT_YVU420:
@@ -434,7 +631,11 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 		 * - Only EBA may be changed while scanout is active
 		 * - The strides of U and V planes must be identical.
 		 */
+<<<<<<< HEAD
 		vbo = drm_plane_state_to_vbo(state);
+=======
+		vbo = drm_plane_state_to_vbo(new_state);
+>>>>>>> upstream/android-13
 
 		if (vbo & 0x7 || vbo > 0xfffff8)
 			return -EINVAL;
@@ -448,10 +649,17 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 		if (fb->pitches[1] != fb->pitches[2])
 			return -EINVAL;
 
+<<<<<<< HEAD
 		/* fall-through */
 	case DRM_FORMAT_NV12:
 	case DRM_FORMAT_NV16:
 		ubo = drm_plane_state_to_ubo(state);
+=======
+		fallthrough;
+	case DRM_FORMAT_NV12:
+	case DRM_FORMAT_NV16:
+		ubo = drm_plane_state_to_ubo(new_state);
+>>>>>>> upstream/android-13
 
 		if (ubo & 0x7 || ubo > 0xfffff8)
 			return -EINVAL;
@@ -472,10 +680,15 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 		 * The x/y offsets must be even in case of horizontal/vertical
 		 * chroma subsampling.
 		 */
+<<<<<<< HEAD
 		hsub = drm_format_horz_chroma_subsampling(fb->format->format);
 		vsub = drm_format_vert_chroma_subsampling(fb->format->format);
 		if (((state->src.x1 >> 16) & (hsub - 1)) ||
 		    ((state->src.y1 >> 16) & (vsub - 1)))
+=======
+		if (((new_state->src.x1 >> 16) & (fb->format->hsub - 1)) ||
+		    ((new_state->src.y1 >> 16) & (fb->format->vsub - 1)))
+>>>>>>> upstream/android-13
 			return -EINVAL;
 		break;
 	case DRM_FORMAT_RGB565_A8:
@@ -484,7 +697,11 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 	case DRM_FORMAT_BGR888_A8:
 	case DRM_FORMAT_RGBX8888_A8:
 	case DRM_FORMAT_BGRX8888_A8:
+<<<<<<< HEAD
 		alpha_eba = drm_plane_state_to_eba(state, 1);
+=======
+		alpha_eba = drm_plane_state_to_eba(new_state, 1);
+>>>>>>> upstream/android-13
 		if (alpha_eba & 0x7)
 			return -EINVAL;
 
@@ -500,7 +717,11 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
 }
 
 static void ipu_plane_atomic_disable(struct drm_plane *plane,
+<<<<<<< HEAD
 				     struct drm_plane_state *old_state)
+=======
+				     struct drm_atomic_state *state)
+>>>>>>> upstream/android-13
 {
 	struct ipu_plane *ipu_plane = to_ipu_plane(plane);
 
@@ -545,6 +766,7 @@ static void ipu_calculate_bursts(u32 width, u32 cpp, u32 stride,
 }
 
 static void ipu_plane_atomic_update(struct drm_plane *plane,
+<<<<<<< HEAD
 				    struct drm_plane_state *old_state)
 {
 	struct ipu_plane *ipu_plane = to_ipu_plane(plane);
@@ -553,6 +775,19 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 	struct drm_crtc_state *crtc_state = state->crtc->state;
 	struct drm_framebuffer *fb = state->fb;
 	struct drm_rect *dst = &state->dst;
+=======
+				    struct drm_atomic_state *state)
+{
+	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+									   plane);
+	struct ipu_plane *ipu_plane = to_ipu_plane(plane);
+	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
+									   plane);
+	struct ipu_plane_state *ipu_state = to_ipu_plane_state(new_state);
+	struct drm_crtc_state *crtc_state = new_state->crtc->state;
+	struct drm_framebuffer *fb = new_state->fb;
+	struct drm_rect *dst = &new_state->dst;
+>>>>>>> upstream/android-13
 	unsigned long eba, ubo, vbo;
 	unsigned long alpha_eba = 0;
 	enum ipu_color_space ics;
@@ -565,7 +800,30 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 	if (ipu_plane->dp_flow == IPU_DP_FLOW_SYNC_FG)
 		ipu_dp_set_window_pos(ipu_plane->dp, dst->x1, dst->y1);
 
+<<<<<<< HEAD
 	eba = drm_plane_state_to_eba(state, 0);
+=======
+	switch (ipu_plane->dp_flow) {
+	case IPU_DP_FLOW_SYNC_BG:
+		if (new_state->normalized_zpos == 1) {
+			ipu_dp_set_global_alpha(ipu_plane->dp,
+						!fb->format->has_alpha, 0xff,
+						true);
+		} else {
+			ipu_dp_set_global_alpha(ipu_plane->dp, true, 0, true);
+		}
+		break;
+	case IPU_DP_FLOW_SYNC_FG:
+		if (new_state->normalized_zpos == 1) {
+			ipu_dp_set_global_alpha(ipu_plane->dp,
+						!fb->format->has_alpha, 0xff,
+						false);
+		}
+		break;
+	}
+
+	eba = drm_plane_state_to_eba(new_state, 0);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Configure PRG channel and attached PRE, this changes the EBA to an
@@ -574,12 +832,39 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 	if (ipu_state->use_pre) {
 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
 		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
+<<<<<<< HEAD
 					  drm_rect_width(&state->src) >> 16,
 					  drm_rect_height(&state->src) >> 16,
+=======
+					  ipu_src_rect_width(new_state),
+					  drm_rect_height(&new_state->src) >> 16,
+>>>>>>> upstream/android-13
 					  fb->pitches[0], fb->format->format,
 					  fb->modifier, &eba);
 	}
 
+<<<<<<< HEAD
+=======
+	if (!old_state->fb ||
+	    old_state->fb->format->format != fb->format->format ||
+	    old_state->color_encoding != new_state->color_encoding ||
+	    old_state->color_range != new_state->color_range) {
+		ics = ipu_drm_fourcc_to_colorspace(fb->format->format);
+		switch (ipu_plane->dp_flow) {
+		case IPU_DP_FLOW_SYNC_BG:
+			ipu_dp_setup_channel(ipu_plane->dp, new_state->color_encoding,
+					     new_state->color_range, ics,
+					     IPUV3_COLORSPACE_RGB);
+			break;
+		case IPU_DP_FLOW_SYNC_FG:
+			ipu_dp_setup_channel(ipu_plane->dp, new_state->color_encoding,
+					     new_state->color_range, ics,
+					     IPUV3_COLORSPACE_UNKNOWN);
+			break;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	if (old_state->fb && !drm_atomic_crtc_needs_modeset(crtc_state)) {
 		/* nothing to do if PRE is used */
 		if (ipu_state->use_pre)
@@ -599,6 +884,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 	ics = ipu_drm_fourcc_to_colorspace(fb->format->format);
 	switch (ipu_plane->dp_flow) {
 	case IPU_DP_FLOW_SYNC_BG:
+<<<<<<< HEAD
 		ipu_dp_setup_channel(ipu_plane->dp, ics, IPUV3_COLORSPACE_RGB);
 		ipu_dp_set_global_alpha(ipu_plane->dp, true, 0, true);
 		break;
@@ -634,6 +920,23 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 
 	width = drm_rect_width(&state->src) >> 16;
 	height = drm_rect_height(&state->src) >> 16;
+=======
+		ipu_dp_setup_channel(ipu_plane->dp, DRM_COLOR_YCBCR_BT601,
+				     DRM_COLOR_YCBCR_LIMITED_RANGE, ics,
+				     IPUV3_COLORSPACE_RGB);
+		break;
+	case IPU_DP_FLOW_SYNC_FG:
+		ipu_dp_setup_channel(ipu_plane->dp, DRM_COLOR_YCBCR_BT601,
+				     DRM_COLOR_YCBCR_LIMITED_RANGE, ics,
+				     IPUV3_COLORSPACE_UNKNOWN);
+		break;
+	}
+
+	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
+
+	width = ipu_src_rect_width(new_state);
+	height = drm_rect_height(&new_state->src) >> 16;
+>>>>>>> upstream/android-13
 	info = drm_format_info(fb->format->format);
 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
 			     &burstsize, &num_bursts);
@@ -643,6 +946,10 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 	ipu_cpmem_set_fmt(ipu_plane->ipu_ch, fb->format->format);
 	ipu_cpmem_set_burstsize(ipu_plane->ipu_ch, burstsize);
 	ipu_cpmem_set_high_priority(ipu_plane->ipu_ch);
+<<<<<<< HEAD
+=======
+	ipu_idmac_enable_watermark(ipu_plane->ipu_ch, true);
+>>>>>>> upstream/android-13
 	ipu_idmac_set_double_buffer(ipu_plane->ipu_ch, 1);
 	ipu_cpmem_set_stride(ipu_plane->ipu_ch, fb->pitches[0]);
 	ipu_cpmem_set_axi_id(ipu_plane->ipu_ch, axi_id);
@@ -654,8 +961,13 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 	case DRM_FORMAT_YVU422:
 	case DRM_FORMAT_YUV444:
 	case DRM_FORMAT_YVU444:
+<<<<<<< HEAD
 		ubo = drm_plane_state_to_ubo(state);
 		vbo = drm_plane_state_to_vbo(state);
+=======
+		ubo = drm_plane_state_to_ubo(new_state);
+		vbo = drm_plane_state_to_vbo(new_state);
+>>>>>>> upstream/android-13
 		if (fb->format->format == DRM_FORMAT_YVU420 ||
 		    fb->format->format == DRM_FORMAT_YVU422 ||
 		    fb->format->format == DRM_FORMAT_YVU444)
@@ -666,18 +978,30 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 
 		dev_dbg(ipu_plane->base.dev->dev,
 			"phy = %lu %lu %lu, x = %d, y = %d", eba, ubo, vbo,
+<<<<<<< HEAD
 			state->src.x1 >> 16, state->src.y1 >> 16);
 		break;
 	case DRM_FORMAT_NV12:
 	case DRM_FORMAT_NV16:
 		ubo = drm_plane_state_to_ubo(state);
+=======
+			new_state->src.x1 >> 16, new_state->src.y1 >> 16);
+		break;
+	case DRM_FORMAT_NV12:
+	case DRM_FORMAT_NV16:
+		ubo = drm_plane_state_to_ubo(new_state);
+>>>>>>> upstream/android-13
 
 		ipu_cpmem_set_yuv_planar_full(ipu_plane->ipu_ch,
 					      fb->pitches[1], ubo, ubo);
 
 		dev_dbg(ipu_plane->base.dev->dev,
 			"phy = %lu %lu, x = %d, y = %d", eba, ubo,
+<<<<<<< HEAD
 			state->src.x1 >> 16, state->src.y1 >> 16);
+=======
+			new_state->src.x1 >> 16, new_state->src.y1 >> 16);
+>>>>>>> upstream/android-13
 		break;
 	case DRM_FORMAT_RGB565_A8:
 	case DRM_FORMAT_BGR565_A8:
@@ -685,18 +1009,32 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 	case DRM_FORMAT_BGR888_A8:
 	case DRM_FORMAT_RGBX8888_A8:
 	case DRM_FORMAT_BGRX8888_A8:
+<<<<<<< HEAD
 		alpha_eba = drm_plane_state_to_eba(state, 1);
 		num_bursts = 0;
 
 		dev_dbg(ipu_plane->base.dev->dev, "phys = %lu %lu, x = %d, y = %d",
 			eba, alpha_eba, state->src.x1 >> 16, state->src.y1 >> 16);
+=======
+		alpha_eba = drm_plane_state_to_eba(new_state, 1);
+		num_bursts = 0;
+
+		dev_dbg(ipu_plane->base.dev->dev, "phys = %lu %lu, x = %d, y = %d",
+			eba, alpha_eba, new_state->src.x1 >> 16,
+			new_state->src.y1 >> 16);
+>>>>>>> upstream/android-13
 
 		ipu_cpmem_set_burstsize(ipu_plane->ipu_ch, 16);
 
 		ipu_cpmem_zero(ipu_plane->alpha_ch);
 		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
+<<<<<<< HEAD
 					 drm_rect_width(&state->src) >> 16,
 					 drm_rect_height(&state->src) >> 16);
+=======
+					 ipu_src_rect_width(new_state),
+					 drm_rect_height(&new_state->src) >> 16);
+>>>>>>> upstream/android-13
 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
 		ipu_idmac_set_double_buffer(ipu_plane->alpha_ch, 1);
@@ -707,7 +1045,11 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 		break;
 	default:
 		dev_dbg(ipu_plane->base.dev->dev, "phys = %lu, x = %d, y = %d",
+<<<<<<< HEAD
 			eba, state->src.x1 >> 16, state->src.y1 >> 16);
+=======
+			eba, new_state->src.x1 >> 16, new_state->src.y1 >> 16);
+>>>>>>> upstream/android-13
 		break;
 	}
 	ipu_cpmem_set_buffer(ipu_plane->ipu_ch, 0, eba);
@@ -717,12 +1059,41 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
 }
 
 static const struct drm_plane_helper_funcs ipu_plane_helper_funcs = {
+<<<<<<< HEAD
 	.prepare_fb = drm_gem_fb_prepare_fb,
+=======
+>>>>>>> upstream/android-13
 	.atomic_check = ipu_plane_atomic_check,
 	.atomic_disable = ipu_plane_atomic_disable,
 	.atomic_update = ipu_plane_atomic_update,
 };
 
+<<<<<<< HEAD
+=======
+bool ipu_plane_atomic_update_pending(struct drm_plane *plane)
+{
+	struct ipu_plane *ipu_plane = to_ipu_plane(plane);
+	struct drm_plane_state *state = plane->state;
+	struct ipu_plane_state *ipu_state = to_ipu_plane_state(state);
+
+	/* disabled crtcs must not block the update */
+	if (!state->crtc)
+		return false;
+
+	if (ipu_state->use_pre)
+		return ipu_prg_channel_configure_pending(ipu_plane->ipu_ch);
+
+	/*
+	 * Pretend no update is pending in the non-PRE/PRG case. For this to
+	 * happen, an atomic update would have to be deferred until after the
+	 * start of the next frame and simultaneously interrupt latency would
+	 * have to be high enough to let the atomic update finish and issue an
+	 * event before the previous end of frame interrupt handler can be
+	 * executed.
+	 */
+	return false;
+}
+>>>>>>> upstream/android-13
 int ipu_planes_assign_pre(struct drm_device *dev,
 			  struct drm_atomic_state *state)
 {
@@ -803,7 +1174,10 @@ int ipu_planes_assign_pre(struct drm_device *dev,
 
 	return 0;
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(ipu_planes_assign_pre);
+=======
+>>>>>>> upstream/android-13
 
 struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
 				 int dma, int dp, unsigned int possible_crtcs,
@@ -811,21 +1185,50 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
 {
 	struct ipu_plane *ipu_plane;
 	const uint64_t *modifiers = ipu_format_modifiers;
+<<<<<<< HEAD
+=======
+	unsigned int zpos = (type == DRM_PLANE_TYPE_PRIMARY) ? 0 : 1;
+	unsigned int format_count;
+	const uint32_t *formats;
+>>>>>>> upstream/android-13
 	int ret;
 
 	DRM_DEBUG_KMS("channel %d, dp flow %d, possible_crtcs=0x%x\n",
 		      dma, dp, possible_crtcs);
 
+<<<<<<< HEAD
 	ipu_plane = kzalloc(sizeof(*ipu_plane), GFP_KERNEL);
 	if (!ipu_plane) {
 		DRM_ERROR("failed to allocate plane\n");
 		return ERR_PTR(-ENOMEM);
+=======
+	if (dp == IPU_DP_FLOW_SYNC_BG || dp == IPU_DP_FLOW_SYNC_FG) {
+		formats = ipu_plane_all_formats;
+		format_count = ARRAY_SIZE(ipu_plane_all_formats);
+	} else {
+		formats = ipu_plane_rgb_formats;
+		format_count = ARRAY_SIZE(ipu_plane_rgb_formats);
+	}
+
+	if (ipu_prg_present(ipu))
+		modifiers = pre_format_modifiers;
+
+	ipu_plane = drmm_universal_plane_alloc(dev, struct ipu_plane, base,
+					       possible_crtcs, &ipu_plane_funcs,
+					       formats, format_count, modifiers,
+					       type, NULL);
+	if (IS_ERR(ipu_plane)) {
+		DRM_ERROR("failed to allocate and initialize %s plane\n",
+			  zpos ? "overlay" : "primary");
+		return ipu_plane;
+>>>>>>> upstream/android-13
 	}
 
 	ipu_plane->ipu = ipu;
 	ipu_plane->dma = dma;
 	ipu_plane->dp_flow = dp;
 
+<<<<<<< HEAD
 	if (ipu_prg_present(ipu))
 		modifiers = pre_format_modifiers;
 
@@ -841,5 +1244,34 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
 
 	drm_plane_helper_add(&ipu_plane->base, &ipu_plane_helper_funcs);
 
+=======
+	drm_plane_helper_add(&ipu_plane->base, &ipu_plane_helper_funcs);
+
+	if (dp == IPU_DP_FLOW_SYNC_BG || dp == IPU_DP_FLOW_SYNC_FG)
+		ret = drm_plane_create_zpos_property(&ipu_plane->base, zpos, 0,
+						     1);
+	else
+		ret = drm_plane_create_zpos_immutable_property(&ipu_plane->base,
+							       0);
+	if (ret)
+		return ERR_PTR(ret);
+
+	ret = drm_plane_create_color_properties(&ipu_plane->base,
+			BIT(DRM_COLOR_YCBCR_BT601) |
+			BIT(DRM_COLOR_YCBCR_BT709),
+			BIT(DRM_COLOR_YCBCR_LIMITED_RANGE),
+			DRM_COLOR_YCBCR_BT601,
+			DRM_COLOR_YCBCR_LIMITED_RANGE);
+	if (ret)
+		return ERR_PTR(ret);
+
+	ret = ipu_plane_get_resources(dev, ipu_plane);
+	if (ret) {
+		DRM_ERROR("failed to get %s plane resources: %pe\n",
+			  zpos ? "overlay" : "primary", &ret);
+		return ERR_PTR(ret);
+	}
+
+>>>>>>> upstream/android-13
 	return ipu_plane;
 }

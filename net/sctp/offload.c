@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * sctp_offload - GRO/GSO Offloading for SCTP
  *
  * Copyright (C) 2015, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -36,7 +43,15 @@ static __le32 sctp_gso_make_checksum(struct sk_buff *skb)
 {
 	skb->ip_summed = CHECKSUM_NONE;
 	skb->csum_not_inet = 0;
+<<<<<<< HEAD
 	gso_reset_checksum(skb, ~0);
+=======
+	/* csum and csum_start in GSO CB may be needed to do the UDP
+	 * checksum when it's a UDP tunneling packet.
+	 */
+	SKB_GSO_CB(skb)->csum = (__force __wsum)~0;
+	SKB_GSO_CB(skb)->csum_start = skb_headroom(skb) + skb->len;
+>>>>>>> upstream/android-13
 	return sctp_compute_cksum(skb, skb_transport_offset(skb));
 }
 
@@ -73,7 +88,11 @@ static struct sk_buff *sctp_gso_segment(struct sk_buff *skb,
 		goto out;
 	}
 
+<<<<<<< HEAD
 	segs = skb_segment(skb, features | NETIF_F_HW_CSUM | NETIF_F_SG);
+=======
+	segs = skb_segment(skb, (features | NETIF_F_HW_CSUM) & ~NETIF_F_SG);
+>>>>>>> upstream/android-13
 	if (IS_ERR(segs))
 		goto out;
 
@@ -103,11 +122,14 @@ static const struct net_offload sctp6_offload = {
 	},
 };
 
+<<<<<<< HEAD
 static const struct skb_checksum_ops crc32c_csum_ops = {
 	.update  = sctp_csum_update,
 	.combine = sctp_csum_combine,
 };
 
+=======
+>>>>>>> upstream/android-13
 int __init sctp_offload_init(void)
 {
 	int ret;
@@ -120,7 +142,11 @@ int __init sctp_offload_init(void)
 	if (ret)
 		goto ipv4;
 
+<<<<<<< HEAD
 	crc32c_csum_stub = &crc32c_csum_ops;
+=======
+	crc32c_csum_stub = &sctp_csum_ops;
+>>>>>>> upstream/android-13
 	return ret;
 
 ipv4:

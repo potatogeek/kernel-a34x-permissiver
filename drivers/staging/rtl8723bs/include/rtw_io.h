@@ -104,8 +104,11 @@ struct _io_ops {
 
 		void (*_read_port_cancel)(struct intf_hdl *pintfhdl);
 		void (*_write_port_cancel)(struct intf_hdl *pintfhdl);
+<<<<<<< HEAD
 
 		u8 (*_sd_f0_read8)(struct intf_hdl *pintfhdl, u32 addr);
+=======
+>>>>>>> upstream/android-13
 };
 
 struct io_req {
@@ -115,7 +118,10 @@ struct io_req {
 	u32 command;
 	u32 status;
 	u8 *pbuf;
+<<<<<<< HEAD
 	_sema	sema;
+=======
+>>>>>>> upstream/android-13
 
 	void (*_async_io_callback)(struct adapter *padater, struct io_req *pio_req, u8 *cnxt);
 	u8 *cnxt;
@@ -128,6 +134,7 @@ struct	intf_hdl {
 	struct _io_ops	io_ops;
 };
 
+<<<<<<< HEAD
 struct reg_protocol_rd {
 
 #ifdef __LITTLE_ENDIAN
@@ -239,6 +246,8 @@ struct reg_protocol_wt {
 #endif
 
 };
+=======
+>>>>>>> upstream/android-13
 #define SD_IO_TRY_CNT (8)
 #define MAX_CONTINUAL_IO_ERR SD_IO_TRY_CNT
 
@@ -251,7 +260,11 @@ Below is the data structure used by _io_handler
 */
 
 struct io_queue {
+<<<<<<< HEAD
 	_lock	lock;
+=======
+	spinlock_t	lock;
+>>>>>>> upstream/android-13
 	struct list_head	free_ioreqs;
 	struct list_head		pending;		/* The io_req list that will be served in the single protocol read/write. */
 	struct list_head		processing;
@@ -260,7 +273,11 @@ struct io_queue {
 	struct	intf_hdl	intf;
 };
 
+<<<<<<< HEAD
 struct io_priv{
+=======
+struct io_priv {
+>>>>>>> upstream/android-13
 
 	struct adapter *padapter;
 
@@ -282,6 +299,7 @@ extern void unregister_intf_hdl(struct intf_hdl *pintfhdl);
 extern void _rtw_attrib_read(struct adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 extern void _rtw_attrib_write(struct adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 
+<<<<<<< HEAD
 extern u8 _rtw_read8(struct adapter *adapter, u32 addr);
 extern u16 _rtw_read16(struct adapter *adapter, u32 addr);
 extern u32 _rtw_read32(struct adapter *adapter, u32 addr);
@@ -305,6 +323,17 @@ extern u32 _rtw_write_port(struct adapter *adapter, u32 addr, u32 cnt, u8 *pmem)
 #define rtw_write_port(adapter, addr, cnt, mem) _rtw_write_port((adapter), (addr), (cnt), (mem))
 
 #define rtw_sd_f0_read8(adapter, addr) _rtw_sd_f0_read8((adapter), (addr))
+=======
+extern u8 rtw_read8(struct adapter *adapter, u32 addr);
+extern u16 rtw_read16(struct adapter *adapter, u32 addr);
+extern u32 rtw_read32(struct adapter *adapter, u32 addr);
+
+extern int rtw_write8(struct adapter *adapter, u32 addr, u8 val);
+extern int rtw_write16(struct adapter *adapter, u32 addr, u16 val);
+extern int rtw_write32(struct adapter *adapter, u32 addr, u32 val);
+
+extern u32 rtw_write_port(struct adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
+>>>>>>> upstream/android-13
 
 extern void rtw_write_scsi(struct adapter *adapter, u32 cnt, u8 *pmem);
 
@@ -346,6 +375,7 @@ extern void free_io_queue(struct adapter *adapter);
 extern void async_bus_io(struct io_queue *pio_q);
 extern void bus_sync_io(struct io_queue *pio_q);
 extern u32 _ioreq2rwmem(struct io_queue *pio_q);
+<<<<<<< HEAD
 extern void dev_power_down(struct adapter * Adapter, u8 bpwrup);
 
 #define PlatformEFIOWrite1Byte(_a, _b, _c)		\
@@ -361,5 +391,8 @@ extern void dev_power_down(struct adapter * Adapter, u8 bpwrup);
 		rtw_read16(_a, _b)
 #define PlatformEFIORead4Byte(_a, _b)		\
 		rtw_read32(_a, _b)
+=======
+extern void dev_power_down(struct adapter *Adapter, u8 bpwrup);
+>>>>>>> upstream/android-13
 
 #endif	/* _RTL8711_IO_H_ */

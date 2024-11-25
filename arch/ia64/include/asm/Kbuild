@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 generic-y += compat.h
 generic-y += exec.h
 generic-y += irq_work.h
@@ -7,3 +8,10 @@ generic-y += preempt.h
 generic-y += trace_clock.h
 generic-y += vtime.h
 generic-y += word-at-a-time.h
+=======
+# SPDX-License-Identifier: GPL-2.0
+generated-y += syscall_table.h
+generic-y += kvm_para.h
+generic-y += mcs_spinlock.h
+generic-y += vtime.h
+>>>>>>> upstream/android-13

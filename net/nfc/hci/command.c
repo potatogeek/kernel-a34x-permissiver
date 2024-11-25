@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012  Intel Corporation. All rights reserved.
  *
@@ -13,6 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2012  Intel Corporation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) "hci: %s: " fmt, __func__
@@ -46,7 +52,11 @@ static int nfc_hci_execute_cmd_async(struct nfc_hci_dev *hdev, u8 pipe, u8 cmd,
  * HCI command execution completion callback.
  * err will be a standard linux error (may be converted from HCI response)
  * skb contains the response data and must be disposed, or may be NULL if
+<<<<<<< HEAD
  * an error occured
+=======
+ * an error occurred
+>>>>>>> upstream/android-13
  */
 static void nfc_hci_execute_cb(void *context, struct sk_buff *skb, int err)
 {

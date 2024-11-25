@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Industrial I/O subsystem Dummy Driver configuration
 #
@@ -33,6 +37,10 @@ config IIO_SIMPLE_DUMMY_BUFFER
 	select IIO_BUFFER
 	select IIO_TRIGGER
 	select IIO_KFIFO_BUF
+<<<<<<< HEAD
+=======
+	select IIO_TRIGGERED_BUFFER
+>>>>>>> upstream/android-13
 	help
 	  Add buffered data capture to the simple dummy driver.
 

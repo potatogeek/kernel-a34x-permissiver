@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * smscufx.c -- Framebuffer driver for SMSC UFX USB controller
  *
@@ -6,10 +10,13 @@
  * Copyright (C) 2009 Jaya Kumar <jayakumar.lkml@gmail.com>
  * Copyright (C) 2009 Bernie Thompson <bernie@plugable.com>
  *
+<<<<<<< HEAD
  * This file is subject to the terms and conditions of the GNU General Public
  * License v2. See the file COPYING in the main directory of this archive for
  * more details.
  *
+=======
+>>>>>>> upstream/android-13
  * Based on udlfb, with work from Florian Echtler, Henrik Bjerregaard Pedersen,
  * and others.
  *
@@ -1173,7 +1180,10 @@ static int ufx_ops_release(struct fb_info *info, int user)
 		fb_deferred_io_cleanup(info);
 		kfree(info->fbdefio);
 		info->fbdefio = NULL;
+<<<<<<< HEAD
 		info->fbops->fb_mmap = ufx_ops_mmap;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	pr_debug("released /dev/fb%d user=%d count=%d",
@@ -1272,7 +1282,11 @@ static int ufx_ops_blank(int blank_mode, struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops ufx_ops = {
+=======
+static const struct fb_ops ufx_ops = {
+>>>>>>> upstream/android-13
 	.owner = THIS_MODULE,
 	.fb_read = fb_sys_read,
 	.fb_write = ufx_ops_write,
@@ -1653,15 +1667,24 @@ static int ufx_usb_probe(struct usb_interface *interface,
 
 	/* allocates framebuffer driver structure, not framebuffer memory */
 	info = framebuffer_alloc(0, &usbdev->dev);
+<<<<<<< HEAD
 	if (!info) {
 		dev_err(dev->gdev, "framebuffer_alloc failed\n");
 		goto e_nomem;
 	}
+=======
+	if (!info)
+		goto e_nomem;
+>>>>>>> upstream/android-13
 
 	dev->info = info;
 	info->par = dev;
 	info->pseudo_palette = dev->pseudo_palette;
 	info->fbops = &ufx_ops;
+<<<<<<< HEAD
+=======
+	INIT_LIST_HEAD(&info->modelist);
+>>>>>>> upstream/android-13
 
 	retval = fb_alloc_cmap(&info->cmap, 256, 0);
 	if (retval < 0) {
@@ -1672,8 +1695,11 @@ static int ufx_usb_probe(struct usb_interface *interface,
 	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
 			  ufx_free_framebuffer_work);
 
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&info->modelist);
 
+=======
+>>>>>>> upstream/android-13
 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);

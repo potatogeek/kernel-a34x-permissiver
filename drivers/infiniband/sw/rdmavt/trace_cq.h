@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2016 - 2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
+/*
+ * Copyright(c) 2016 - 2018 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #if !defined(__RVT_TRACE_CQ_H) || defined(TRACE_HEADER_MULTI_READ)
 #define __RVT_TRACE_CQ_H
@@ -85,7 +91,11 @@ DECLARE_EVENT_CLASS(rvt_cq_template,
 				     __field(int, comp_vector_cpu)
 				     __field(u32, flags)
 				     ),
+<<<<<<< HEAD
 		    TP_fast_assign(RDI_DEV_ASSIGN(cq->rdi)
+=======
+		    TP_fast_assign(RDI_DEV_ASSIGN(cq->rdi);
+>>>>>>> upstream/android-13
 				   __entry->ip = cq->ip;
 				   __entry->cqe = attr->cqe;
 				   __entry->comp_vector = attr->comp_vector;
@@ -105,7 +115,11 @@ DEFINE_EVENT(rvt_cq_template, rvt_create_cq,
 	     TP_ARGS(cq, attr));
 
 #define CQ_PRN \
+<<<<<<< HEAD
 "[%s] idx %u wr_id %llx status %u opcode %u,%s length %u qpn %x"
+=======
+"[%s] idx %u wr_id %llx status %u opcode %u,%s length %u qpn %x flags %x imm %x"
+>>>>>>> upstream/android-13
 
 DECLARE_EVENT_CLASS(
 	rvt_cq_entry_template,
@@ -119,15 +133,28 @@ DECLARE_EVENT_CLASS(
 		__field(u32, qpn)
 		__field(u32, length)
 		__field(u32, idx)
+<<<<<<< HEAD
 	),
 	TP_fast_assign(
 		RDI_DEV_ASSIGN(cq->rdi)
+=======
+		__field(u32, flags)
+		__field(u32, imm)
+	),
+	TP_fast_assign(
+		RDI_DEV_ASSIGN(cq->rdi);
+>>>>>>> upstream/android-13
 		__entry->wr_id = wc->wr_id;
 		__entry->status = wc->status;
 		__entry->opcode = wc->opcode;
 		__entry->length = wc->byte_len;
 		__entry->qpn = wc->qp->qp_num;
 		__entry->idx = idx;
+<<<<<<< HEAD
+=======
+		__entry->flags = wc->wc_flags;
+		__entry->imm = be32_to_cpu(wc->ex.imm_data);
+>>>>>>> upstream/android-13
 	),
 	TP_printk(
 		CQ_PRN,
@@ -137,7 +164,13 @@ DECLARE_EVENT_CLASS(
 		__entry->status,
 		__entry->opcode, show_wc_opcode(__entry->opcode),
 		__entry->length,
+<<<<<<< HEAD
 		__entry->qpn
+=======
+		__entry->qpn,
+		__entry->flags,
+		__entry->imm
+>>>>>>> upstream/android-13
 	)
 );
 

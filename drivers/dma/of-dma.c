@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Device tree helpers for DMA request / controller
  *
  * Based on of_gpio.c
  *
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -18,6 +25,11 @@
 #include <linux/of.h>
 #include <linux/of_dma.h>
 
+<<<<<<< HEAD
+=======
+#include "dmaengine.h"
+
+>>>>>>> upstream/android-13
 static LIST_HEAD(of_dma_list);
 static DEFINE_MUTEX(of_dma_lock);
 
@@ -47,7 +59,11 @@ static struct of_dma *of_dma_find_controller(struct of_phandle_args *dma_spec)
 /**
  * of_dma_router_xlate - translation function for router devices
  * @dma_spec:	pointer to DMA specifier as found in the device tree
+<<<<<<< HEAD
  * @of_dma:	pointer to DMA controller data (router information)
+=======
+ * @ofdma:	pointer to DMA controller data (router information)
+>>>>>>> upstream/android-13
  *
  * The function creates new dma_spec to be passed to the router driver's
  * of_dma_route_allocate() function to prepare a dma_spec which will be used
@@ -68,18 +84,45 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
 		return NULL;
 
 	ofdma_target = of_dma_find_controller(&dma_spec_target);
+<<<<<<< HEAD
 	if (!ofdma_target)
 		return NULL;
+=======
+	if (!ofdma_target) {
+		ofdma->dma_router->route_free(ofdma->dma_router->dev,
+					      route_data);
+		chan = ERR_PTR(-EPROBE_DEFER);
+		goto err;
+	}
+>>>>>>> upstream/android-13
 
 	chan = ofdma_target->of_dma_xlate(&dma_spec_target, ofdma_target);
 	if (IS_ERR_OR_NULL(chan)) {
 		ofdma->dma_router->route_free(ofdma->dma_router->dev,
 					      route_data);
 	} else {
+<<<<<<< HEAD
 		chan->router = ofdma->dma_router;
 		chan->route_data = route_data;
 	}
 
+=======
+		int ret = 0;
+
+		chan->router = ofdma->dma_router;
+		chan->route_data = route_data;
+
+		if (chan->device->device_router_config)
+			ret = chan->device->device_router_config(chan);
+
+		if (ret) {
+			dma_release_channel(chan);
+			chan = ERR_PTR(ret);
+		}
+	}
+
+err:
+>>>>>>> upstream/android-13
 	/*
 	 * Need to put the node back since the ofdma->of_dma_route_allocate
 	 * has taken it for generating the new, translated dma_spec
@@ -93,7 +136,11 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
  * @np:			device node of DMA controller
  * @of_dma_xlate:	translation function which converts a phandle
  *			arguments list into a dma_chan structure
+<<<<<<< HEAD
  * @data		pointer to controller specific data to be used by
+=======
+ * @data:		pointer to controller specific data to be used by
+>>>>>>> upstream/android-13
  *			translation function
  *
  * Returns 0 on success or appropriate errno value on error.
@@ -296,7 +343,11 @@ EXPORT_SYMBOL_GPL(of_dma_request_slave_channel);
 /**
  * of_dma_simple_xlate - Simple DMA engine translation function
  * @dma_spec:	pointer to DMA specifier as found in the device tree
+<<<<<<< HEAD
  * @of_dma:	pointer to DMA controller data
+=======
+ * @ofdma:	pointer to DMA controller data
+>>>>>>> upstream/android-13
  *
  * A simple translation function for devices that use a 32-bit value for the
  * filter_param when calling the DMA engine dma_request_channel() function.
@@ -316,15 +367,24 @@ struct dma_chan *of_dma_simple_xlate(struct of_phandle_args *dma_spec,
 	if (count != 1)
 		return NULL;
 
+<<<<<<< HEAD
 	return dma_request_channel(info->dma_cap, info->filter_fn,
 			&dma_spec->args[0]);
+=======
+	return __dma_request_channel(&info->dma_cap, info->filter_fn,
+				     &dma_spec->args[0], dma_spec->np);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(of_dma_simple_xlate);
 
 /**
  * of_dma_xlate_by_chan_id - Translate dt property to DMA channel by channel id
  * @dma_spec:	pointer to DMA specifier as found in the device tree
+<<<<<<< HEAD
  * @of_dma:	pointer to DMA controller data
+=======
+ * @ofdma:	pointer to DMA controller data
+>>>>>>> upstream/android-13
  *
  * This function can be used as the of xlate callback for DMA driver which wants
  * to match the channel based on the channel id. When using this xlate function

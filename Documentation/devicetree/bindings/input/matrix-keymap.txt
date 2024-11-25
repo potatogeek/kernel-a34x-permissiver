@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 A simple common binding for matrix-connected key boards. Currently targeted at
 defining the keys in the scope of linux key codes since that is a stable and
 standardized interface at this time.
@@ -25,3 +26,6 @@ Example:
 			 0x0102003a >;
 	keypad,num-rows = <2>;
 	keypad,num-columns = <8>;
+=======
+This file has been moved to matrix-keymap.yaml
+>>>>>>> upstream/android-13

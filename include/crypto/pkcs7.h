@@ -1,18 +1,29 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /* PKCS#7 crypto data parser
  *
  * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public Licence
  * as published by the Free Software Foundation; either version
  * 2 of the Licence, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CRYPTO_PKCS7_H
 #define _CRYPTO_PKCS7_H
 
 #include <linux/verification.h>
+<<<<<<< HEAD
+=======
+#include <linux/hash_info.h>
+>>>>>>> upstream/android-13
 #include <crypto/public_key.h>
 
 struct key;
@@ -44,4 +55,10 @@ extern int pkcs7_verify(struct pkcs7_message *pkcs7,
 extern int pkcs7_supply_detached_data(struct pkcs7_message *pkcs7,
 				      const void *data, size_t datalen);
 
+<<<<<<< HEAD
+=======
+extern int pkcs7_get_digest(struct pkcs7_message *pkcs7, const u8 **buf,
+			    u32 *len, enum hash_algo *hash_algo);
+
+>>>>>>> upstream/android-13
 #endif /* _CRYPTO_PKCS7_H */

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2007-2010, 2011-2012 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2002-2006 Novell, Inc.
  *	Jan Beulich <jbeulich@novell.com>
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * A simple API for unwinding kernel stacks.  This is used for
  * debugging and error reporting purposes.  The kernel doesn't need
  * full-blown stack unwinding with all the bells and whistles, so there
@@ -15,7 +22,11 @@
 
 #include <linux/sched.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/sort.h>
 #include <linux/slab.h>
 #include <linux/stop_machine.h>
@@ -45,10 +56,17 @@ do {						\
 
 #define EXTRA_INFO(f) { \
 		BUILD_BUG_ON_ZERO(offsetof(struct unwind_frame_info, f) \
+<<<<<<< HEAD
 				% FIELD_SIZEOF(struct unwind_frame_info, f)) \
 				+ offsetof(struct unwind_frame_info, f) \
 				/ FIELD_SIZEOF(struct unwind_frame_info, f), \
 				FIELD_SIZEOF(struct unwind_frame_info, f) \
+=======
+				% sizeof_field(struct unwind_frame_info, f)) \
+				+ offsetof(struct unwind_frame_info, f) \
+				/ sizeof_field(struct unwind_frame_info, f), \
+				sizeof_field(struct unwind_frame_info, f) \
+>>>>>>> upstream/android-13
 	}
 #define PTREGS_INFO(f) EXTRA_INFO(regs.f)
 
@@ -181,8 +199,12 @@ static void init_unwind_hdr(struct unwind_table *table,
  */
 static void *__init unw_hdr_alloc_early(unsigned long sz)
 {
+<<<<<<< HEAD
 	return __alloc_bootmem_nopanic(sz, sizeof(unsigned int),
 				       MAX_DMA_ADDRESS);
+=======
+	return memblock_alloc_from(sz, sizeof(unsigned int), MAX_DMA_ADDRESS);
+>>>>>>> upstream/android-13
 }
 
 static void init_unwind_table(struct unwind_table *table, const char *name,
@@ -191,15 +213,19 @@ static void init_unwind_table(struct unwind_table *table, const char *name,
 			      const void *table_start, unsigned long table_size,
 			      const u8 *header_start, unsigned long header_size)
 {
+<<<<<<< HEAD
 	const u8 *ptr = header_start + 4;
 	const u8 *end = header_start + header_size;
 
+=======
+>>>>>>> upstream/android-13
 	table->core.pc = (unsigned long)core_start;
 	table->core.range = core_size;
 	table->init.pc = (unsigned long)init_start;
 	table->init.range = init_size;
 	table->address = table_start;
 	table->size = table_size;
+<<<<<<< HEAD
 
 	/* See if the linker provided table looks valid. */
 	if (header_size <= 4
@@ -210,6 +236,22 @@ static void init_unwind_table(struct unwind_table *table, const char *name,
 	    || header_start[3] == DW_EH_PE_omit)
 		header_start = NULL;
 
+=======
+	/* To avoid the pointer addition with NULL pointer.*/
+	if (header_start != NULL) {
+		const u8 *ptr = header_start + 4;
+		const u8 *end = header_start + header_size;
+		/* See if the linker provided table looks valid. */
+		if (header_size <= 4
+		|| header_start[0] != 1
+		|| (void *)read_pointer(&ptr, end, header_start[1])
+				!= table_start
+		|| header_start[2] == DW_EH_PE_omit
+		|| read_pointer(&ptr, end, header_start[2]) <= 0
+		|| header_start[3] == DW_EH_PE_omit)
+			header_start = NULL;
+	}
+>>>>>>> upstream/android-13
 	table->hdrsz = header_size;
 	smp_wmb();
 	table->header = header_start;
@@ -263,7 +305,11 @@ static void init_unwind_hdr(struct unwind_table *table,
 {
 	const u8 *ptr;
 	unsigned long tableSize = table->size, hdrSize;
+<<<<<<< HEAD
 	unsigned n;
+=======
+	unsigned int n;
+>>>>>>> upstream/android-13
 	const u32 *fde;
 	struct {
 		u8 version;
@@ -465,7 +511,11 @@ static uleb128_t get_uleb128(const u8 **pcur, const u8 *end)
 {
 	const u8 *cur = *pcur;
 	uleb128_t value;
+<<<<<<< HEAD
 	unsigned shift;
+=======
+	unsigned int shift;
+>>>>>>> upstream/android-13
 
 	for (shift = 0, value = 0; cur < end; shift += 7) {
 		if (shift + 7 > 8 * sizeof(value)
@@ -486,7 +536,11 @@ static sleb128_t get_sleb128(const u8 **pcur, const u8 *end)
 {
 	const u8 *cur = *pcur;
 	sleb128_t value;
+<<<<<<< HEAD
 	unsigned shift;
+=======
+	unsigned int shift;
+>>>>>>> upstream/android-13
 
 	for (shift = 0, value = 0; cur < end; shift += 7) {
 		if (shift + 7 > 8 * sizeof(value)
@@ -576,6 +630,10 @@ static unsigned long read_pointer(const u8 **pLoc, const void *end,
 #else
 		BUILD_BUG_ON(sizeof(u32) != sizeof(value));
 #endif
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case DW_EH_PE_native:
 		if (end < (const void *)(ptr.pul + 1))
 			return 0;
@@ -611,7 +669,11 @@ static unsigned long read_pointer(const u8 **pLoc, const void *end,
 static signed fde_pointer_type(const u32 *cie)
 {
 	const u8 *ptr = (const u8 *)(cie + 2);
+<<<<<<< HEAD
 	unsigned version = *ptr;
+=======
+	unsigned int version = *ptr;
+>>>>>>> upstream/android-13
 
 	if (*++ptr) {
 		const char *aug;
@@ -830,7 +892,11 @@ static int processCFI(const u8 *start, const u8 *end, unsigned long targetLoc,
 			case DW_CFA_def_cfa:
 				state->cfa.reg = get_uleb128(&ptr.p8, end);
 				unw_debug("cfa_def_cfa: r%lu ", state->cfa.reg);
+<<<<<<< HEAD
 				/*nobreak*/
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case DW_CFA_def_cfa_offset:
 				state->cfa.offs = get_uleb128(&ptr.p8, end);
 				unw_debug("cfa_def_cfa_offset: 0x%lx ",
@@ -838,7 +904,11 @@ static int processCFI(const u8 *start, const u8 *end, unsigned long targetLoc,
 				break;
 			case DW_CFA_def_cfa_sf:
 				state->cfa.reg = get_uleb128(&ptr.p8, end);
+<<<<<<< HEAD
 				/*nobreak */
+=======
+				fallthrough;
+>>>>>>> upstream/android-13
 			case DW_CFA_def_cfa_offset_sf:
 				state->cfa.offs = get_sleb128(&ptr.p8, end)
 				    * state->dataAlign;
@@ -906,7 +976,11 @@ int arc_unwind(struct unwind_frame_info *frame)
 	const u8 *ptr = NULL, *end = NULL;
 	unsigned long pc = UNW_PC(frame) - frame->call_frame;
 	unsigned long startLoc = 0, endLoc = 0, cfa;
+<<<<<<< HEAD
 	unsigned i;
+=======
+	unsigned int i;
+>>>>>>> upstream/android-13
 	signed ptrType = -1;
 	uleb128_t retAddrReg = 0;
 	const struct unwind_table *table;
@@ -1181,11 +1255,17 @@ int arc_unwind(struct unwind_frame_info *frame)
 #endif
 
 	/* update frame */
+<<<<<<< HEAD
 #ifndef CONFIG_AS_CFI_SIGNAL_FRAME
 	if (frame->call_frame
 	    && !UNW_DEFAULT_RA(state.regs[retAddrReg], state.dataAlign))
 		frame->call_frame = 0;
 #endif
+=======
+	if (frame->call_frame
+	    && !UNW_DEFAULT_RA(state.regs[retAddrReg], state.dataAlign))
+		frame->call_frame = 0;
+>>>>>>> upstream/android-13
 	cfa = FRAME_REG(state.cfa.reg, unsigned long) + state.cfa.offs;
 	startLoc = min_t(unsigned long, UNW_SP(frame), cfa);
 	endLoc = max_t(unsigned long, UNW_SP(frame), cfa);

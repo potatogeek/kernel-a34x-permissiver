@@ -29,6 +29,31 @@
  */
 
 /*
+<<<<<<< HEAD
+=======
+ * Supports KUAP feature
+ * key 0 controlling userspace addresses on radix
+ * Key 3 on hash
+ */
+#define MMU_FTR_BOOK3S_KUAP		ASM_CONST(0x00000200)
+
+/*
+ * Supports KUEP feature
+ * key 0 controlling userspace addresses on radix
+ * Key 3 on hash
+ */
+#define MMU_FTR_BOOK3S_KUEP		ASM_CONST(0x00000400)
+
+/*
+ * Support for memory protection keys.
+ */
+#define MMU_FTR_PKEY			ASM_CONST(0x00000800)
+
+/* Guest Translation Shootdown Enable */
+#define MMU_FTR_GTSE			ASM_CONST(0x00001000)
+
+/*
+>>>>>>> upstream/android-13
  * Support for 68 bit VA space. We added that from ISA 2.05
  */
 #define MMU_FTR_68_BIT_VA		ASM_CONST(0x00002000)
@@ -48,7 +73,11 @@
 #define MMU_FTR_USE_HIGH_BATS		ASM_CONST(0x00010000)
 
 /* Enable >32-bit physical addresses on 32-bit processor, only used
+<<<<<<< HEAD
  * by CONFIG_6xx currently as BookE supports that from day 1
+=======
+ * by CONFIG_PPC_BOOK3S_32 currently as BookE supports that from day 1
+>>>>>>> upstream/android-13
  */
 #define MMU_FTR_BIG_PHYS		ASM_CONST(0x00020000)
 
@@ -108,8 +137,12 @@
 #define MMU_FTR_1T_SEGMENT		ASM_CONST(0x40000000)
 
 /* MMU feature bit sets for various CPUs */
+<<<<<<< HEAD
 #define MMU_FTRS_DEFAULT_HPTE_ARCH_V2	\
 	MMU_FTR_HPTE_TABLE | MMU_FTR_PPCAS_ARCH_V2
+=======
+#define MMU_FTRS_DEFAULT_HPTE_ARCH_V2	(MMU_FTR_HPTE_TABLE | MMU_FTR_TLBIEL | MMU_FTR_16M_PAGE)
+>>>>>>> upstream/android-13
 #define MMU_FTRS_POWER		MMU_FTRS_DEFAULT_HPTE_ARCH_V2
 #define MMU_FTRS_PPC970		MMU_FTRS_POWER | MMU_FTR_TLBIE_CROP_VA
 #define MMU_FTRS_POWER5		MMU_FTRS_POWER | MMU_FTR_LOCKLESS_TLBIE
@@ -117,6 +150,10 @@
 #define MMU_FTRS_POWER7		MMU_FTRS_POWER6
 #define MMU_FTRS_POWER8		MMU_FTRS_POWER6
 #define MMU_FTRS_POWER9		MMU_FTRS_POWER6
+<<<<<<< HEAD
+=======
+#define MMU_FTRS_POWER10	MMU_FTRS_POWER6
+>>>>>>> upstream/android-13
 #define MMU_FTRS_CELL		MMU_FTRS_DEFAULT_HPTE_ARCH_V2 | \
 				MMU_FTR_CI_LARGE_PAGE
 #define MMU_FTRS_PA6T		MMU_FTRS_DEFAULT_HPTE_ARCH_V2 | \
@@ -124,6 +161,12 @@
 #ifndef __ASSEMBLY__
 #include <linux/bug.h>
 #include <asm/cputable.h>
+<<<<<<< HEAD
+=======
+#include <asm/page.h>
+
+typedef pte_t *pgtable_t;
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_PPC_FSL_BOOK3E
 #include <asm/percpu.h>
@@ -131,16 +174,48 @@ DECLARE_PER_CPU(int, next_tlbcam_idx);
 #endif
 
 enum {
+<<<<<<< HEAD
 	MMU_FTRS_POSSIBLE = MMU_FTR_HPTE_TABLE | MMU_FTR_TYPE_8xx |
 		MMU_FTR_TYPE_40x | MMU_FTR_TYPE_44x | MMU_FTR_TYPE_FSL_E |
 		MMU_FTR_TYPE_47x | MMU_FTR_USE_HIGH_BATS | MMU_FTR_BIG_PHYS |
 		MMU_FTR_USE_TLBIVAX_BCAST | MMU_FTR_USE_TLBILX |
 		MMU_FTR_LOCK_BCAST_INVAL | MMU_FTR_NEED_DTLB_SW_LRU |
 		MMU_FTR_USE_TLBRSRV | MMU_FTR_USE_PAIRED_MAS |
+=======
+	MMU_FTRS_POSSIBLE =
+#if defined(CONFIG_PPC_BOOK3S_64) || defined(CONFIG_PPC_BOOK3S_604)
+		MMU_FTR_HPTE_TABLE |
+#endif
+#ifdef CONFIG_PPC_8xx
+		MMU_FTR_TYPE_8xx |
+#endif
+#ifdef CONFIG_40x
+		MMU_FTR_TYPE_40x |
+#endif
+#ifdef CONFIG_PPC_47x
+		MMU_FTR_TYPE_47x | MMU_FTR_USE_TLBIVAX_BCAST | MMU_FTR_LOCK_BCAST_INVAL |
+#elif defined(CONFIG_44x)
+		MMU_FTR_TYPE_44x |
+#endif
+#ifdef CONFIG_E500
+		MMU_FTR_TYPE_FSL_E | MMU_FTR_BIG_PHYS | MMU_FTR_USE_TLBILX |
+#endif
+#ifdef CONFIG_PPC_BOOK3S_32
+		MMU_FTR_USE_HIGH_BATS |
+#endif
+#ifdef CONFIG_PPC_83xx
+		MMU_FTR_NEED_DTLB_SW_LRU |
+#endif
+#ifdef CONFIG_PPC_BOOK3E_64
+		MMU_FTR_USE_TLBRSRV | MMU_FTR_USE_PAIRED_MAS |
+#endif
+#ifdef CONFIG_PPC_BOOK3S_64
+>>>>>>> upstream/android-13
 		MMU_FTR_NO_SLBIE_B | MMU_FTR_16M_PAGE | MMU_FTR_TLBIEL |
 		MMU_FTR_LOCKLESS_TLBIE | MMU_FTR_CI_LARGE_PAGE |
 		MMU_FTR_1T_SEGMENT | MMU_FTR_TLBIE_CROP_VA |
 		MMU_FTR_KERNEL_RO | MMU_FTR_68_BIT_VA |
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_RADIX_MMU
 		MMU_FTR_TYPE_RADIX |
 #endif
@@ -149,6 +224,53 @@ enum {
 
 static inline bool early_mmu_has_feature(unsigned long feature)
 {
+=======
+#endif
+#ifdef CONFIG_PPC_RADIX_MMU
+		MMU_FTR_TYPE_RADIX |
+		MMU_FTR_GTSE |
+#endif /* CONFIG_PPC_RADIX_MMU */
+#ifdef CONFIG_PPC_KUAP
+	MMU_FTR_BOOK3S_KUAP |
+#endif /* CONFIG_PPC_KUAP */
+#ifdef CONFIG_PPC_MEM_KEYS
+	MMU_FTR_PKEY |
+#endif
+#ifdef CONFIG_PPC_KUEP
+	MMU_FTR_BOOK3S_KUEP |
+#endif /* CONFIG_PPC_KUAP */
+
+		0,
+};
+
+#if defined(CONFIG_PPC_BOOK3S_604) && !defined(CONFIG_PPC_BOOK3S_603)
+#define MMU_FTRS_ALWAYS		MMU_FTR_HPTE_TABLE
+#endif
+#ifdef CONFIG_PPC_8xx
+#define MMU_FTRS_ALWAYS		MMU_FTR_TYPE_8xx
+#endif
+#ifdef CONFIG_40x
+#define MMU_FTRS_ALWAYS		MMU_FTR_TYPE_40x
+#endif
+#ifdef CONFIG_PPC_47x
+#define MMU_FTRS_ALWAYS		MMU_FTR_TYPE_47x
+#elif defined(CONFIG_44x)
+#define MMU_FTRS_ALWAYS		MMU_FTR_TYPE_44x
+#endif
+#ifdef CONFIG_E500
+#define MMU_FTRS_ALWAYS		MMU_FTR_TYPE_FSL_E
+#endif
+
+#ifndef MMU_FTRS_ALWAYS
+#define MMU_FTRS_ALWAYS		0
+#endif
+
+static __always_inline bool early_mmu_has_feature(unsigned long feature)
+{
+	if (MMU_FTRS_ALWAYS & feature)
+		return true;
+
+>>>>>>> upstream/android-13
 	return !!(MMU_FTRS_POSSIBLE & cur_cpu_spec->mmu_features & feature);
 }
 
@@ -177,6 +299,12 @@ static __always_inline bool mmu_has_feature(unsigned long feature)
 	}
 #endif
 
+<<<<<<< HEAD
+=======
+	if (MMU_FTRS_ALWAYS & feature)
+		return true;
+
+>>>>>>> upstream/android-13
 	if (!(MMU_FTRS_POSSIBLE & feature))
 		return false;
 
@@ -199,7 +327,11 @@ static inline void mmu_feature_keys_init(void)
 
 }
 
+<<<<<<< HEAD
 static inline bool mmu_has_feature(unsigned long feature)
+=======
+static __always_inline bool mmu_has_feature(unsigned long feature)
+>>>>>>> upstream/android-13
 {
 	return early_mmu_has_feature(feature);
 }
@@ -225,7 +357,11 @@ extern void radix__mmu_cleanup_all(void);
 /* Functions for creating and updating partition table on POWER9 */
 extern void mmu_partition_table_init(void);
 extern void mmu_partition_table_set_entry(unsigned int lpid, unsigned long dw0,
+<<<<<<< HEAD
 					  unsigned long dw1);
+=======
+					  unsigned long dw1, bool flush);
+>>>>>>> upstream/android-13
 #endif /* CONFIG_PPC64 */
 
 struct mm_struct;
@@ -237,8 +373,12 @@ static inline void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
 }
 #endif /* !CONFIG_DEBUG_VM */
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_RADIX_MMU
 static inline bool radix_enabled(void)
+=======
+static __always_inline bool radix_enabled(void)
+>>>>>>> upstream/android-13
 {
 	return mmu_has_feature(MMU_FTR_TYPE_RADIX);
 }
@@ -247,6 +387,7 @@ static inline bool early_radix_enabled(void)
 {
 	return early_mmu_has_feature(MMU_FTR_TYPE_RADIX);
 }
+<<<<<<< HEAD
 #else
 static inline bool radix_enabled(void)
 {
@@ -254,11 +395,22 @@ static inline bool radix_enabled(void)
 }
 
 static inline bool early_radix_enabled(void)
+=======
+
+#ifdef CONFIG_STRICT_KERNEL_RWX
+static inline bool strict_kernel_rwx_enabled(void)
+{
+	return rodata_enabled;
+}
+#else
+static inline bool strict_kernel_rwx_enabled(void)
+>>>>>>> upstream/android-13
 {
 	return false;
 }
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_MEM_KEYS
 extern u16 get_mm_addr_key(struct mm_struct *mm, unsigned long address);
 #else
@@ -268,6 +420,12 @@ static inline u16 get_mm_addr_key(struct mm_struct *mm, unsigned long address)
 }
 #endif /* CONFIG_PPC_MEM_KEYS */
 
+=======
+static inline bool strict_module_rwx_enabled(void)
+{
+	return IS_ENABLED(CONFIG_STRICT_MODULE_RWX) && strict_kernel_rwx_enabled();
+}
+>>>>>>> upstream/android-13
 #endif /* !__ASSEMBLY__ */
 
 /* The kernel use the constants below to index in the page sizes array.
@@ -320,6 +478,7 @@ extern void early_init_mmu_secondary(void);
 extern void setup_initial_memory_limit(phys_addr_t first_memblock_base,
 				       phys_addr_t first_memblock_size);
 static inline void mmu_early_init_devtree(void) { }
+<<<<<<< HEAD
 #endif /* __ASSEMBLY__ */
 #endif
 
@@ -338,6 +497,20 @@ static inline void mmu_early_init_devtree(void) { }
 #elif defined (CONFIG_PPC_8xx)
 /* Motorola/Freescale 8xx software loaded TLB */
 #  include <asm/mmu-8xx.h>
+=======
+
+static inline void pkey_early_init_devtree(void) {}
+
+extern void *abatron_pteptrs[2];
+#endif /* __ASSEMBLY__ */
+#endif
+
+#if defined(CONFIG_PPC_BOOK3S_32)
+/* 32-bit classic hash table MMU */
+#include <asm/book3s/32/mmu-hash.h>
+#elif defined(CONFIG_PPC_MMU_NOHASH)
+#include <asm/nohash/mmu.h>
+>>>>>>> upstream/android-13
 #endif
 
 #endif /* __KERNEL__ */

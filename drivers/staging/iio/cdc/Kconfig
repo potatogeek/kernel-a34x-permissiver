@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 #
 # CDC drivers
 #
 menu "Capacitance to digital converters"
 
+<<<<<<< HEAD
 config AD7150
 	tristate "Analog Devices ad7150/1/6 capacitive sensor driver"
 	depends on I2C
@@ -23,6 +28,8 @@ config AD7152
 	  To compile this driver as a module, choose M here: the
 	  module will be called ad7152.
 
+=======
+>>>>>>> upstream/android-13
 config AD7746
 	tristate "Analog Devices AD7745, AD7746 AD7747 capacitive sensor driver"
 	depends on I2C

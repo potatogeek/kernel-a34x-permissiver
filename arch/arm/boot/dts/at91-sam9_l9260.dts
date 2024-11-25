@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * at91-sam9_l9260.dts - Device Tree file for Olimex SAM9-L9260 board
  *
  *  Copyright (C) 2016 Raashid Muhammed <raashidmuhammed@zilogic.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 /dts-v1/;
 #include "at91sam9260.dtsi"
@@ -16,7 +23,11 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x4000000>;
 	};
 
@@ -50,6 +61,10 @@
 					&pinctrl_mmc0_clk
 					&pinctrl_mmc0_slot1_cmd_dat0
 					&pinctrl_mmc0_slot1_dat1_3>;
+<<<<<<< HEAD
+=======
+				pinctrl-names = "default";
+>>>>>>> upstream/android-13
 				status = "okay";
 
 				slot@1 {

@@ -42,7 +42,11 @@
 
 /dts-v1/;
 #include "stm32h743.dtsi"
+<<<<<<< HEAD
 #include "stm32h743-pinctrl.dtsi"
+=======
+#include "stm32h7-pinctrl.dtsi"
+>>>>>>> upstream/android-13
 
 / {
 	model = "STMicroelectronics STM32H743i-EVAL board";
@@ -53,7 +57,12 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@d0000000 {
+		device_type = "memory";
+>>>>>>> upstream/android-13
 		reg = <0xd0000000 0x2000000>;
 	};
 
@@ -69,13 +78,27 @@
 		regulator-always-on;
 	};
 
+<<<<<<< HEAD
+=======
+	v2v9_sd: regulator-v2v9_sd {
+		compatible = "regulator-fixed";
+		regulator-name = "v2v9_sd";
+		regulator-min-microvolt = <2900000>;
+		regulator-max-microvolt = <2900000>;
+		regulator-always-on;
+	};
+
+>>>>>>> upstream/android-13
 	usbotg_hs_phy: usb-phy {
 		#phy-cells = <0>;
 		compatible = "usb-nop-xceiv";
 		clocks = <&rcc USB1ULPI_CK>;
 		clock-names = "main_clk";
 	};
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 };
 
 &adc_12 {
@@ -105,6 +128,40 @@
 	status = "okay";
 };
 
+<<<<<<< HEAD
+=======
+&mac {
+	status = "disabled";
+	pinctrl-0	= <&ethernet_rmii>;
+	pinctrl-names	= "default";
+	phy-mode	= "rmii";
+	phy-handle	= <&phy0>;
+
+	mdio0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "snps,dwmac-mdio";
+		phy0: ethernet-phy@0 {
+			reg = <0>;
+		};
+	};
+};
+
+&sdmmc1 {
+	pinctrl-names = "default", "opendrain", "sleep";
+	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
+	pinctrl-1 = <&sdmmc1_b4_od_pins_a &sdmmc1_dir_pins_a>;
+	pinctrl-2 = <&sdmmc1_b4_sleep_pins_a &sdmmc1_dir_sleep_pins_a>;
+	broken-cd;
+	st,sig-dir;
+	st,neg-edge;
+	st,use-ckin;
+	bus-width = <4>;
+	vmmc-supply = <&v2v9_sd>;
+	status = "okay";
+};
+
+>>>>>>> upstream/android-13
 &usart1 {
 	pinctrl-0 = <&usart1_pins>;
 	pinctrl-names = "default";

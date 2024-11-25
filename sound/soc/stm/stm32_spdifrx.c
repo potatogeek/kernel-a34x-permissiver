@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * STM32 ALSA SoC Digital Audio Interface (SPDIF-rx) driver.
  *
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Olivier Moysan <olivier.moysan@st.com> for STMicroelectronics.
+<<<<<<< HEAD
  *
  * License terms: GPL V2.0.
  *
@@ -16,6 +21,11 @@
  * details.
  */
 
+=======
+ */
+
+#include <linux/bitfield.h>
+>>>>>>> upstream/android-13
 #include <linux/clk.h>
 #include <linux/completion.h>
 #include <linux/delay.h>
@@ -35,6 +45,12 @@
 #define STM32_SPDIFRX_DR	0x10
 #define STM32_SPDIFRX_CSR	0x14
 #define STM32_SPDIFRX_DIR	0x18
+<<<<<<< HEAD
+=======
+#define STM32_SPDIFRX_VERR	0x3F4
+#define STM32_SPDIFRX_IDR	0x3F8
+#define STM32_SPDIFRX_SIDR	0x3FC
+>>>>>>> upstream/android-13
 
 /* Bit definition for SPDIF_CR register */
 #define SPDIFRX_CR_SPDIFEN_SHIFT	0
@@ -168,6 +184,21 @@
 #define SPDIFRX_SPDIFEN_SYNC	0x1
 #define SPDIFRX_SPDIFEN_ENABLE	0x3
 
+<<<<<<< HEAD
+=======
+/* Bit definition for SPDIFRX_VERR register */
+#define SPDIFRX_VERR_MIN_MASK	GENMASK(3, 0)
+#define SPDIFRX_VERR_MAJ_MASK	GENMASK(7, 4)
+
+/* Bit definition for SPDIFRX_IDR register */
+#define SPDIFRX_IDR_ID_MASK	GENMASK(31, 0)
+
+/* Bit definition for SPDIFRX_SIDR register */
+#define SPDIFRX_SIDR_SID_MASK	GENMASK(31, 0)
+
+#define SPDIFRX_IPIDR_NUMBER	0x00130041
+
+>>>>>>> upstream/android-13
 #define SPDIFRX_IN1		0x1
 #define SPDIFRX_IN2		0x2
 #define SPDIFRX_IN3		0x3
@@ -347,6 +378,11 @@ static int stm32_spdifrx_start_sync(struct stm32_spdifrx_data *spdifrx)
 		     SPDIFRX_CR_CUMSK | SPDIFRX_CR_PTMSK | SPDIFRX_CR_RXSTEO;
 		cr_mask = cr;
 
+<<<<<<< HEAD
+=======
+		cr |= SPDIFRX_CR_NBTRSET(SPDIFRX_NBTR_63);
+		cr_mask |= SPDIFRX_CR_NBTR_MASK;
+>>>>>>> upstream/android-13
 		cr |= SPDIFRX_CR_SPDIFENSET(SPDIFRX_SPDIFEN_SYNC);
 		cr_mask |= SPDIFRX_CR_SPDIFEN_MASK;
 		ret = regmap_update_bits(spdifrx->regmap, STM32_SPDIFRX_CR,
@@ -398,7 +434,13 @@ static int stm32_spdifrx_dma_ctrl_register(struct device *dev,
 
 	spdifrx->ctrl_chan = dma_request_chan(dev, "rx-ctrl");
 	if (IS_ERR(spdifrx->ctrl_chan)) {
+<<<<<<< HEAD
 		dev_err(dev, "dma_request_slave_channel failed\n");
+=======
+		if (PTR_ERR(spdifrx->ctrl_chan) != -EPROBE_DEFER)
+			dev_err(dev, "dma_request_slave_channel error %ld\n",
+				PTR_ERR(spdifrx->ctrl_chan));
+>>>>>>> upstream/android-13
 		return PTR_ERR(spdifrx->ctrl_chan);
 	}
 
@@ -497,7 +539,11 @@ static int stm32_spdifrx_get_ctrl_data(struct stm32_spdifrx_data *spdifrx)
 	if (wait_for_completion_interruptible_timeout(&spdifrx->cs_completion,
 						      msecs_to_jiffies(100))
 						      <= 0) {
+<<<<<<< HEAD
 		dev_err(&spdifrx->pdev->dev, "Failed to get control data\n");
+=======
+		dev_dbg(&spdifrx->pdev->dev, "Failed to get control data\n");
+>>>>>>> upstream/android-13
 		ret = -EAGAIN;
 	}
 
@@ -607,6 +653,12 @@ static bool stm32_spdifrx_readable_reg(struct device *dev, unsigned int reg)
 	case STM32_SPDIFRX_DR:
 	case STM32_SPDIFRX_CSR:
 	case STM32_SPDIFRX_DIR:
+<<<<<<< HEAD
+=======
+	case STM32_SPDIFRX_VERR:
+	case STM32_SPDIFRX_IDR:
+	case STM32_SPDIFRX_SIDR:
+>>>>>>> upstream/android-13
 		return true;
 	default:
 		return false;
@@ -615,10 +667,22 @@ static bool stm32_spdifrx_readable_reg(struct device *dev, unsigned int reg)
 
 static bool stm32_spdifrx_volatile_reg(struct device *dev, unsigned int reg)
 {
+<<<<<<< HEAD
 	if (reg == STM32_SPDIFRX_DR)
 		return true;
 
 	return false;
+=======
+	switch (reg) {
+	case STM32_SPDIFRX_DR:
+	case STM32_SPDIFRX_CSR:
+	case STM32_SPDIFRX_SR:
+	case STM32_SPDIFRX_DIR:
+		return true;
+	default:
+		return false;
+	}
+>>>>>>> upstream/android-13
 }
 
 static bool stm32_spdifrx_writeable_reg(struct device *dev, unsigned int reg)
@@ -637,11 +701,21 @@ static const struct regmap_config stm32_h7_spdifrx_regmap_conf = {
 	.reg_bits = 32,
 	.reg_stride = 4,
 	.val_bits = 32,
+<<<<<<< HEAD
 	.max_register = STM32_SPDIFRX_DIR,
 	.readable_reg = stm32_spdifrx_readable_reg,
 	.volatile_reg = stm32_spdifrx_volatile_reg,
 	.writeable_reg = stm32_spdifrx_writeable_reg,
 	.fast_io = true,
+=======
+	.max_register = STM32_SPDIFRX_SIDR,
+	.readable_reg = stm32_spdifrx_readable_reg,
+	.volatile_reg = stm32_spdifrx_volatile_reg,
+	.writeable_reg = stm32_spdifrx_writeable_reg,
+	.num_reg_defaults_raw = STM32_SPDIFRX_SIDR / sizeof(u32) + 1,
+	.fast_io = true,
+	.cache_type = REGCACHE_FLAT,
+>>>>>>> upstream/android-13
 };
 
 static irqreturn_t stm32_spdifrx_isr(int irq, void *devid)
@@ -649,7 +723,11 @@ static irqreturn_t stm32_spdifrx_isr(int irq, void *devid)
 	struct stm32_spdifrx_data *spdifrx = (struct stm32_spdifrx_data *)devid;
 	struct platform_device *pdev = spdifrx->pdev;
 	unsigned int cr, mask, sr, imr;
+<<<<<<< HEAD
 	unsigned int flags;
+=======
+	unsigned int flags, sync_state;
+>>>>>>> upstream/android-13
 	int err = 0, err_xrun = 0;
 
 	regmap_read(spdifrx->regmap, STM32_SPDIFRX_SR, &sr);
@@ -709,11 +787,30 @@ static irqreturn_t stm32_spdifrx_isr(int irq, void *devid)
 	}
 
 	if (err) {
+<<<<<<< HEAD
 		/* SPDIFRX in STATE_STOP. Disable SPDIFRX to clear errors */
+=======
+		regmap_read(spdifrx->regmap, STM32_SPDIFRX_CR, &cr);
+		sync_state = FIELD_GET(SPDIFRX_CR_SPDIFEN_MASK, cr) &&
+			     SPDIFRX_SPDIFEN_SYNC;
+
+		/* SPDIFRX is in STATE_STOP. Disable SPDIFRX to clear errors */
+>>>>>>> upstream/android-13
 		cr = SPDIFRX_CR_SPDIFENSET(SPDIFRX_SPDIFEN_DISABLE);
 		regmap_update_bits(spdifrx->regmap, STM32_SPDIFRX_CR,
 				   SPDIFRX_CR_SPDIFEN_MASK, cr);
 
+<<<<<<< HEAD
+=======
+		/* If SPDIFRX was in STATE_SYNC, retry synchro */
+		if (sync_state) {
+			cr = SPDIFRX_CR_SPDIFENSET(SPDIFRX_SPDIFEN_SYNC);
+			regmap_update_bits(spdifrx->regmap, STM32_SPDIFRX_CR,
+					   SPDIFRX_CR_SPDIFEN_MASK, cr);
+			return IRQ_HANDLED;
+		}
+
+>>>>>>> upstream/android-13
 		spin_lock(&spdifrx->irq_lock);
 		if (spdifrx->substream)
 			snd_pcm_stop(spdifrx->substream,
@@ -850,7 +947,12 @@ static struct snd_soc_dai_driver stm32_spdifrx_dai[] = {
 static const struct snd_pcm_hardware stm32_spdifrx_pcm_hw = {
 	.info = SNDRV_PCM_INFO_INTERLEAVED | SNDRV_PCM_INFO_MMAP,
 	.buffer_bytes_max = 8 * PAGE_SIZE,
+<<<<<<< HEAD
 	.period_bytes_max = 2048, /* MDMA constraint */
+=======
+	.period_bytes_min = 1024,
+	.period_bytes_max = 4 * PAGE_SIZE,
+>>>>>>> upstream/android-13
 	.periods_min = 2,
 	.periods_max = 8,
 };
@@ -889,8 +991,12 @@ static int stm32_spdifrx_parse_of(struct platform_device *pdev,
 	else
 		return -EINVAL;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	spdifrx->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	spdifrx->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(spdifrx->base))
 		return PTR_ERR(spdifrx->base);
 
@@ -898,15 +1004,42 @@ static int stm32_spdifrx_parse_of(struct platform_device *pdev,
 
 	spdifrx->kclk = devm_clk_get(&pdev->dev, "kclk");
 	if (IS_ERR(spdifrx->kclk)) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Could not get kclk\n");
+=======
+		if (PTR_ERR(spdifrx->kclk) != -EPROBE_DEFER)
+			dev_err(&pdev->dev, "Could not get kclk: %ld\n",
+				PTR_ERR(spdifrx->kclk));
+>>>>>>> upstream/android-13
 		return PTR_ERR(spdifrx->kclk);
 	}
 
 	spdifrx->irq = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (spdifrx->irq < 0) {
 		dev_err(&pdev->dev, "No irq for node %s\n", pdev->name);
 		return spdifrx->irq;
 	}
+=======
+	if (spdifrx->irq < 0)
+		return spdifrx->irq;
+
+	return 0;
+}
+
+static int stm32_spdifrx_remove(struct platform_device *pdev)
+{
+	struct stm32_spdifrx_data *spdifrx = platform_get_drvdata(pdev);
+
+	if (spdifrx->ctrl_chan)
+		dma_release_channel(spdifrx->ctrl_chan);
+
+	if (spdifrx->dmab)
+		snd_dma_free_pages(spdifrx->dmab);
+
+	snd_dmaengine_pcm_unregister(&pdev->dev);
+	snd_soc_unregister_component(&pdev->dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -916,6 +1049,10 @@ static int stm32_spdifrx_probe(struct platform_device *pdev)
 	struct stm32_spdifrx_data *spdifrx;
 	struct reset_control *rst;
 	const struct snd_dmaengine_pcm_config *pcm_config = NULL;
+<<<<<<< HEAD
+=======
+	u32 ver, idr;
+>>>>>>> upstream/android-13
 	int ret;
 
 	spdifrx = devm_kzalloc(&pdev->dev, sizeof(*spdifrx), GFP_KERNEL);
@@ -937,7 +1074,13 @@ static int stm32_spdifrx_probe(struct platform_device *pdev)
 						    spdifrx->base,
 						    spdifrx->regmap_conf);
 	if (IS_ERR(spdifrx->regmap)) {
+<<<<<<< HEAD
 		dev_err(&pdev->dev, "Regmap init failed\n");
+=======
+		if (PTR_ERR(spdifrx->regmap) != -EPROBE_DEFER)
+			dev_err(&pdev->dev, "Regmap init error %ld\n",
+				PTR_ERR(spdifrx->regmap));
+>>>>>>> upstream/android-13
 		return PTR_ERR(spdifrx->regmap);
 	}
 
@@ -948,6 +1091,7 @@ static int stm32_spdifrx_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	rst = devm_reset_control_get_exclusive(&pdev->dev, NULL);
 	if (!IS_ERR(rst)) {
 		reset_control_assert(rst);
@@ -961,11 +1105,41 @@ static int stm32_spdifrx_probe(struct platform_device *pdev)
 					      ARRAY_SIZE(stm32_spdifrx_dai));
 	if (ret)
 		return ret;
+=======
+	rst = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
+	if (IS_ERR(rst)) {
+		if (PTR_ERR(rst) != -EPROBE_DEFER)
+			dev_err(&pdev->dev, "Reset controller error %ld\n",
+				PTR_ERR(rst));
+		return PTR_ERR(rst);
+	}
+	reset_control_assert(rst);
+	udelay(2);
+	reset_control_deassert(rst);
+
+	pcm_config = &stm32_spdifrx_pcm_config;
+	ret = snd_dmaengine_pcm_register(&pdev->dev, pcm_config, 0);
+	if (ret) {
+		if (ret != -EPROBE_DEFER)
+			dev_err(&pdev->dev, "PCM DMA register error %d\n", ret);
+		return ret;
+	}
+
+	ret = snd_soc_register_component(&pdev->dev,
+					 &stm32_spdifrx_component,
+					 stm32_spdifrx_dai,
+					 ARRAY_SIZE(stm32_spdifrx_dai));
+	if (ret) {
+		snd_dmaengine_pcm_unregister(&pdev->dev);
+		return ret;
+	}
+>>>>>>> upstream/android-13
 
 	ret = stm32_spdifrx_dma_ctrl_register(&pdev->dev, spdifrx);
 	if (ret)
 		goto error;
 
+<<<<<<< HEAD
 	pcm_config = &stm32_spdifrx_pcm_config;
 	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, pcm_config, 0);
 	if (ret) {
@@ -980,10 +1154,31 @@ error:
 		dma_release_channel(spdifrx->ctrl_chan);
 	if (spdifrx->dmab)
 		snd_dma_free_pages(spdifrx->dmab);
+=======
+	ret = regmap_read(spdifrx->regmap, STM32_SPDIFRX_IDR, &idr);
+	if (ret)
+		goto error;
+
+	if (idr == SPDIFRX_IPIDR_NUMBER) {
+		ret = regmap_read(spdifrx->regmap, STM32_SPDIFRX_VERR, &ver);
+		if (ret)
+			goto error;
+
+		dev_dbg(&pdev->dev, "SPDIFRX version: %lu.%lu registered\n",
+			FIELD_GET(SPDIFRX_VERR_MAJ_MASK, ver),
+			FIELD_GET(SPDIFRX_VERR_MIN_MASK, ver));
+	}
+
+	return ret;
+
+error:
+	stm32_spdifrx_remove(pdev);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 static int stm32_spdifrx_remove(struct platform_device *pdev)
 {
 	struct stm32_spdifrx_data *spdifrx = platform_get_drvdata(pdev);
@@ -993,16 +1188,47 @@ static int stm32_spdifrx_remove(struct platform_device *pdev)
 
 	if (spdifrx->dmab)
 		snd_dma_free_pages(spdifrx->dmab);
+=======
+MODULE_DEVICE_TABLE(of, stm32_spdifrx_ids);
+
+#ifdef CONFIG_PM_SLEEP
+static int stm32_spdifrx_suspend(struct device *dev)
+{
+	struct stm32_spdifrx_data *spdifrx = dev_get_drvdata(dev);
+
+	regcache_cache_only(spdifrx->regmap, true);
+	regcache_mark_dirty(spdifrx->regmap);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 MODULE_DEVICE_TABLE(of, stm32_spdifrx_ids);
+=======
+static int stm32_spdifrx_resume(struct device *dev)
+{
+	struct stm32_spdifrx_data *spdifrx = dev_get_drvdata(dev);
+
+	regcache_cache_only(spdifrx->regmap, false);
+
+	return regcache_sync(spdifrx->regmap);
+}
+#endif /* CONFIG_PM_SLEEP */
+
+static const struct dev_pm_ops stm32_spdifrx_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(stm32_spdifrx_suspend, stm32_spdifrx_resume)
+};
+>>>>>>> upstream/android-13
 
 static struct platform_driver stm32_spdifrx_driver = {
 	.driver = {
 		.name = "st,stm32-spdifrx",
 		.of_match_table = stm32_spdifrx_ids,
+<<<<<<< HEAD
+=======
+		.pm = &stm32_spdifrx_pm_ops,
+>>>>>>> upstream/android-13
 	},
 	.probe = stm32_spdifrx_probe,
 	.remove = stm32_spdifrx_remove,

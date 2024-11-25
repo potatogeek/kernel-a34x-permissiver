@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 obj-$(CONFIG_FS_ENCRYPTION)	+= fscrypto.o
 
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+obj-$(CONFIG_FS_ENCRYPTION)	+= fscrypto.o
+
+ccflags-y += -DDEFAULT_SYMBOL_NAMESPACE=ANDROID_GKI_VFS_EXPORT_ONLY
+
+>>>>>>> upstream/android-13
 fscrypto-y := crypto.o \
 	      fname.o \
 	      hkdf.o \

@@ -42,6 +42,7 @@
 #include "core_priv.h"
 #include "rdma_core.h"
 
+<<<<<<< HEAD
 void uverbs_uobject_get(struct ib_uobject *uobject)
 {
 	kref_get(&uobject->ref);
@@ -58,10 +59,26 @@ static void uverbs_uobject_free(struct kref *ref)
 		kfree(uobj);
 }
 
+=======
+static void uverbs_uobject_free(struct kref *ref)
+{
+	kfree_rcu(container_of(ref, struct ib_uobject, ref), rcu);
+}
+
+/*
+ * In order to indicate we no longer needs this uobject, uverbs_uobject_put
+ * is called. When the reference count is decreased, the uobject is freed.
+ * For example, this is used when attaching a completion channel to a CQ.
+ */
+>>>>>>> upstream/android-13
 void uverbs_uobject_put(struct ib_uobject *uobject)
 {
 	kref_put(&uobject->ref, uverbs_uobject_free);
 }
+<<<<<<< HEAD
+=======
+EXPORT_SYMBOL(uverbs_uobject_put);
+>>>>>>> upstream/android-13
 
 static int uverbs_try_lock_object(struct ib_uobject *uobj,
 				  enum rdma_lookup_mode mode)
@@ -117,7 +134,11 @@ static void assert_uverbs_usecnt(struct ib_uobject *uobj,
  * however the type's allocat_commit function cannot have been called and the
  * uobject cannot be on the uobjects_lists
  *
+<<<<<<< HEAD
  * For RDMA_REMOVE_DESTROY the caller shold be holding a kref (eg via
+=======
+ * For RDMA_REMOVE_DESTROY the caller should be holding a kref (eg via
+>>>>>>> upstream/android-13
  * rdma_lookup_get_uobject) and the object is left in a state where the caller
  * needs to call rdma_lookup_put_uobject.
  *
@@ -125,15 +146,23 @@ static void assert_uverbs_usecnt(struct ib_uobject *uobj,
  * and consumes the kref on the uobj.
  */
 static int uverbs_destroy_uobject(struct ib_uobject *uobj,
+<<<<<<< HEAD
 				  enum rdma_remove_reason reason)
 {
 	struct ib_uverbs_file *ufile = uobj->ufile;
+=======
+				  enum rdma_remove_reason reason,
+				  struct uverbs_attr_bundle *attrs)
+{
+	struct ib_uverbs_file *ufile = attrs->ufile;
+>>>>>>> upstream/android-13
 	unsigned long flags;
 	int ret;
 
 	lockdep_assert_held(&ufile->hw_destroy_rwsem);
 	assert_uverbs_usecnt(uobj, UVERBS_LOOKUP_WRITE);
 
+<<<<<<< HEAD
 	if (uobj->object) {
 		ret = uobj->uapi_object->type_class->destroy_hw(uobj, reason);
 		if (ret) {
@@ -149,10 +178,23 @@ static int uverbs_destroy_uobject(struct ib_uobject *uobj,
 		uobj->object = NULL;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	if (reason == RDMA_REMOVE_ABORT) {
 		WARN_ON(!list_empty(&uobj->list));
 		WARN_ON(!uobj->context);
 		uobj->uapi_object->type_class->alloc_abort(uobj);
+<<<<<<< HEAD
+=======
+	} else if (uobj->object) {
+		ret = uobj->uapi_object->type_class->destroy_hw(uobj, reason,
+								attrs);
+		if (ret)
+			/* Nothing to be done, wait till ucontext will clean it */
+			return ret;
+
+		uobj->object = NULL;
+>>>>>>> upstream/android-13
 	}
 
 	uobj->context = NULL;
@@ -196,9 +238,15 @@ static int uverbs_destroy_uobject(struct ib_uobject *uobj,
  * version requires the caller to have already obtained an
  * LOOKUP_DESTROY uobject kref.
  */
+<<<<<<< HEAD
 int uobj_destroy(struct ib_uobject *uobj)
 {
 	struct ib_uverbs_file *ufile = uobj->ufile;
+=======
+int uobj_destroy(struct ib_uobject *uobj, struct uverbs_attr_bundle *attrs)
+{
+	struct ib_uverbs_file *ufile = attrs->ufile;
+>>>>>>> upstream/android-13
 	int ret;
 
 	down_read(&ufile->hw_destroy_rwsem);
@@ -214,7 +262,11 @@ int uobj_destroy(struct ib_uobject *uobj)
 	if (ret)
 		goto out_unlock;
 
+<<<<<<< HEAD
 	ret = uverbs_destroy_uobject(uobj, RDMA_REMOVE_DESTROY);
+=======
+	ret = uverbs_destroy_uobject(uobj, RDMA_REMOVE_DESTROY, attrs);
+>>>>>>> upstream/android-13
 	if (ret) {
 		atomic_set(&uobj->usecnt, 0);
 		goto out_unlock;
@@ -231,16 +283,29 @@ out_unlock:
  * uobj_put_destroy().
  */
 struct ib_uobject *__uobj_get_destroy(const struct uverbs_api_object *obj,
+<<<<<<< HEAD
 				      u32 id, struct ib_uverbs_file *ufile)
+=======
+				      u32 id, struct uverbs_attr_bundle *attrs)
+>>>>>>> upstream/android-13
 {
 	struct ib_uobject *uobj;
 	int ret;
 
+<<<<<<< HEAD
 	uobj = rdma_lookup_get_uobject(obj, ufile, id, UVERBS_LOOKUP_DESTROY);
 	if (IS_ERR(uobj))
 		return uobj;
 
 	ret = uobj_destroy(uobj);
+=======
+	uobj = rdma_lookup_get_uobject(obj, attrs->ufile, id,
+				       UVERBS_LOOKUP_DESTROY, attrs);
+	if (IS_ERR(uobj))
+		return uobj;
+
+	ret = uobj_destroy(uobj, attrs);
+>>>>>>> upstream/android-13
 	if (ret) {
 		rdma_lookup_put_uobject(uobj, UVERBS_LOOKUP_DESTROY);
 		return ERR_PTR(ret);
@@ -250,6 +315,7 @@ struct ib_uobject *__uobj_get_destroy(const struct uverbs_api_object *obj,
 }
 
 /*
+<<<<<<< HEAD
  * Does both uobj_get_destroy() and uobj_put_destroy().  Returns success_res
  * on success (negative errno on failure). For use by callers that do not need
  * the uobj.
@@ -277,6 +343,38 @@ static struct ib_uobject *alloc_uobj(struct ib_uverbs_file *ufile,
 	ucontext = ib_uverbs_get_ucontext(ufile);
 	if (IS_ERR(ucontext))
 		return ERR_CAST(ucontext);
+=======
+ * Does both uobj_get_destroy() and uobj_put_destroy().  Returns 0 on success
+ * (negative errno on failure). For use by callers that do not need the uobj.
+ */
+int __uobj_perform_destroy(const struct uverbs_api_object *obj, u32 id,
+			   struct uverbs_attr_bundle *attrs)
+{
+	struct ib_uobject *uobj;
+
+	uobj = __uobj_get_destroy(obj, id, attrs);
+	if (IS_ERR(uobj))
+		return PTR_ERR(uobj);
+	uobj_put_destroy(uobj);
+	return 0;
+}
+
+/* alloc_uobj must be undone by uverbs_destroy_uobject() */
+static struct ib_uobject *alloc_uobj(struct uverbs_attr_bundle *attrs,
+				     const struct uverbs_api_object *obj)
+{
+	struct ib_uverbs_file *ufile = attrs->ufile;
+	struct ib_uobject *uobj;
+
+	if (!attrs->context) {
+		struct ib_ucontext *ucontext =
+			ib_uverbs_get_ucontext_file(ufile);
+
+		if (IS_ERR(ucontext))
+			return ERR_CAST(ucontext);
+		attrs->context = ucontext;
+	}
+>>>>>>> upstream/android-13
 
 	uobj = kzalloc(obj->type_attrs->obj_size, GFP_KERNEL);
 	if (!uobj)
@@ -286,7 +384,11 @@ static struct ib_uobject *alloc_uobj(struct ib_uverbs_file *ufile,
 	 * The object is added to the list in the commit stage.
 	 */
 	uobj->ufile = ufile;
+<<<<<<< HEAD
 	uobj->context = ucontext;
+=======
+	uobj->context = attrs->context;
+>>>>>>> upstream/android-13
 	INIT_LIST_HEAD(&uobj->list);
 	uobj->uapi_object = obj;
 	/*
@@ -302,6 +404,7 @@ static struct ib_uobject *alloc_uobj(struct ib_uverbs_file *ufile,
 
 static int idr_add_uobj(struct ib_uobject *uobj)
 {
+<<<<<<< HEAD
 	int ret;
 
 	idr_preload(GFP_KERNEL);
@@ -321,6 +424,15 @@ static int idr_add_uobj(struct ib_uobject *uobj)
 	idr_preload_end();
 
 	return ret < 0 ? ret : 0;
+=======
+       /*
+        * We start with allocating an idr pointing to NULL. This represents an
+        * object which isn't initialized yet. We'll replace it later on with
+        * the real object once we commit.
+        */
+	return xa_alloc(&uobj->ufile->idr, &uobj->id, NULL, xa_limit_32b,
+			GFP_KERNEL);
+>>>>>>> upstream/android-13
 }
 
 /* Returns the ib_uobject or an error. The caller should check for IS_ERR. */
@@ -330,12 +442,16 @@ lookup_get_idr_uobject(const struct uverbs_api_object *obj,
 		       enum rdma_lookup_mode mode)
 {
 	struct ib_uobject *uobj;
+<<<<<<< HEAD
 	unsigned long idrno = id;
+=======
+>>>>>>> upstream/android-13
 
 	if (id < 0 || id > ULONG_MAX)
 		return ERR_PTR(-EINVAL);
 
 	rcu_read_lock();
+<<<<<<< HEAD
 	/* object won't be released as we're protected in rcu */
 	uobj = idr_find(&ufile->idr, idrno);
 	if (!uobj) {
@@ -343,16 +459,24 @@ lookup_get_idr_uobject(const struct uverbs_api_object *obj,
 		goto free;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/*
 	 * The idr_find is guaranteed to return a pointer to something that
 	 * isn't freed yet, or NULL, as the free after idr_remove goes through
 	 * kfree_rcu(). However the object may still have been released and
 	 * kfree() could be called at any time.
 	 */
+<<<<<<< HEAD
 	if (!kref_get_unless_zero(&uobj->ref))
 		uobj = ERR_PTR(-ENOENT);
 
 free:
+=======
+	uobj = xa_load(&ufile->idr, id);
+	if (!uobj || !kref_get_unless_zero(&uobj->ref))
+		uobj = ERR_PTR(-ENOENT);
+>>>>>>> upstream/android-13
 	rcu_read_unlock();
 	return uobj;
 }
@@ -384,9 +508,15 @@ lookup_get_fd_uobject(const struct uverbs_api_object *obj,
 
 	uobject = f->private_data;
 	/*
+<<<<<<< HEAD
 	 * fget(id) ensures we are not currently running uverbs_close_fd,
 	 * and the caller is expected to ensure that uverbs_close_fd is never
 	 * done while a call top lookup is possible.
+=======
+	 * fget(id) ensures we are not currently running
+	 * uverbs_uobject_fd_release(), and the caller is expected to ensure
+	 * that release is never done while a call to lookup is possible.
+>>>>>>> upstream/android-13
 	 */
 	if (f->f_op != fd_type->fops || uobject->ufile != ufile) {
 		fput(f);
@@ -399,11 +529,17 @@ lookup_get_fd_uobject(const struct uverbs_api_object *obj,
 
 struct ib_uobject *rdma_lookup_get_uobject(const struct uverbs_api_object *obj,
 					   struct ib_uverbs_file *ufile, s64 id,
+<<<<<<< HEAD
 					   enum rdma_lookup_mode mode)
+=======
+					   enum rdma_lookup_mode mode,
+					   struct uverbs_attr_bundle *attrs)
+>>>>>>> upstream/android-13
 {
 	struct ib_uobject *uobj;
 	int ret;
 
+<<<<<<< HEAD
 	if (!obj)
 		return ERR_PTR(-EINVAL);
 
@@ -414,6 +550,25 @@ struct ib_uobject *rdma_lookup_get_uobject(const struct uverbs_api_object *obj,
 	if (uobj->uapi_object != obj) {
 		ret = -EINVAL;
 		goto free;
+=======
+	if (obj == ERR_PTR(-ENOMSG)) {
+		/* must be UVERBS_IDR_ANY_OBJECT, see uapi_get_object() */
+		uobj = lookup_get_idr_uobject(NULL, ufile, id, mode);
+		if (IS_ERR(uobj))
+			return uobj;
+	} else {
+		if (IS_ERR(obj))
+			return ERR_PTR(-EINVAL);
+
+		uobj = obj->type_class->lookup_get(obj, ufile, id, mode);
+		if (IS_ERR(uobj))
+			return uobj;
+
+		if (uobj->uapi_object != obj) {
+			ret = -EINVAL;
+			goto free;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -430,22 +585,39 @@ struct ib_uobject *rdma_lookup_get_uobject(const struct uverbs_api_object *obj,
 	ret = uverbs_try_lock_object(uobj, mode);
 	if (ret)
 		goto free;
+<<<<<<< HEAD
 
 	return uobj;
 free:
 	obj->type_class->lookup_put(uobj, mode);
+=======
+	if (attrs)
+		attrs->context = uobj->context;
+
+	return uobj;
+free:
+	uobj->uapi_object->type_class->lookup_put(uobj, mode);
+>>>>>>> upstream/android-13
 	uverbs_uobject_put(uobj);
 	return ERR_PTR(ret);
 }
 
 static struct ib_uobject *
 alloc_begin_idr_uobject(const struct uverbs_api_object *obj,
+<<<<<<< HEAD
 			struct ib_uverbs_file *ufile)
+=======
+			struct uverbs_attr_bundle *attrs)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	struct ib_uobject *uobj;
 
+<<<<<<< HEAD
 	uobj = alloc_uobj(ufile, obj);
+=======
+	uobj = alloc_uobj(attrs, obj);
+>>>>>>> upstream/android-13
 	if (IS_ERR(uobj))
 		return uobj;
 
@@ -456,6 +628,7 @@ alloc_begin_idr_uobject(const struct uverbs_api_object *obj,
 	ret = ib_rdmacg_try_charge(&uobj->cg_obj, uobj->context->device,
 				   RDMACG_RESOURCE_HCA_OBJECT);
 	if (ret)
+<<<<<<< HEAD
 		goto idr_remove;
 
 	return uobj;
@@ -464,6 +637,14 @@ idr_remove:
 	spin_lock(&ufile->idr_lock);
 	idr_remove(&ufile->idr, uobj->id);
 	spin_unlock(&ufile->idr_lock);
+=======
+		goto remove;
+
+	return uobj;
+
+remove:
+	xa_erase(&attrs->ufile->idr, uobj->id);
+>>>>>>> upstream/android-13
 uobj_put:
 	uverbs_uobject_put(uobj);
 	return ERR_PTR(ret);
@@ -471,6 +652,7 @@ uobj_put:
 
 static struct ib_uobject *
 alloc_begin_fd_uobject(const struct uverbs_api_object *obj,
+<<<<<<< HEAD
 		       struct ib_uverbs_file *ufile)
 {
 	int new_fd;
@@ -498,6 +680,59 @@ struct ib_uobject *rdma_alloc_begin_uobject(const struct uverbs_api_object *obj,
 	struct ib_uobject *ret;
 
 	if (!obj)
+=======
+		       struct uverbs_attr_bundle *attrs)
+{
+	const struct uverbs_obj_fd_type *fd_type;
+	int new_fd;
+	struct ib_uobject *uobj, *ret;
+	struct file *filp;
+
+	uobj = alloc_uobj(attrs, obj);
+	if (IS_ERR(uobj))
+		return uobj;
+
+	fd_type =
+		container_of(obj->type_attrs, struct uverbs_obj_fd_type, type);
+	if (WARN_ON(fd_type->fops->release != &uverbs_uobject_fd_release &&
+		    fd_type->fops->release != &uverbs_async_event_release)) {
+		ret = ERR_PTR(-EINVAL);
+		goto err_fd;
+	}
+
+	new_fd = get_unused_fd_flags(O_CLOEXEC);
+	if (new_fd < 0) {
+		ret = ERR_PTR(new_fd);
+		goto err_fd;
+	}
+
+	/* Note that uverbs_uobject_fd_release() is called during abort */
+	filp = anon_inode_getfile(fd_type->name, fd_type->fops, NULL,
+				  fd_type->flags);
+	if (IS_ERR(filp)) {
+		ret = ERR_CAST(filp);
+		goto err_getfile;
+	}
+	uobj->object = filp;
+
+	uobj->id = new_fd;
+	return uobj;
+
+err_getfile:
+	put_unused_fd(new_fd);
+err_fd:
+	uverbs_uobject_put(uobj);
+	return ret;
+}
+
+struct ib_uobject *rdma_alloc_begin_uobject(const struct uverbs_api_object *obj,
+					    struct uverbs_attr_bundle *attrs)
+{
+	struct ib_uverbs_file *ufile = attrs->ufile;
+	struct ib_uobject *ret;
+
+	if (IS_ERR(obj))
+>>>>>>> upstream/android-13
 		return ERR_PTR(-EINVAL);
 
 	/*
@@ -508,7 +743,11 @@ struct ib_uobject *rdma_alloc_begin_uobject(const struct uverbs_api_object *obj,
 	if (!down_read_trylock(&ufile->hw_destroy_rwsem))
 		return ERR_PTR(-EIO);
 
+<<<<<<< HEAD
 	ret = obj->type_class->alloc_begin(obj, ufile);
+=======
+	ret = obj->type_class->alloc_begin(obj, attrs);
+>>>>>>> upstream/android-13
 	if (IS_ERR(ret)) {
 		up_read(&ufile->hw_destroy_rwsem);
 		return ret;
@@ -521,6 +760,7 @@ static void alloc_abort_idr_uobject(struct ib_uobject *uobj)
 	ib_rdmacg_uncharge(&uobj->cg_obj, uobj->context->device,
 			   RDMACG_RESOURCE_HCA_OBJECT);
 
+<<<<<<< HEAD
 	spin_lock(&uobj->ufile->idr_lock);
 	idr_remove(&uobj->ufile->idr, uobj->id);
 	spin_unlock(&uobj->ufile->idr_lock);
@@ -528,10 +768,19 @@ static void alloc_abort_idr_uobject(struct ib_uobject *uobj)
 
 static int __must_check destroy_hw_idr_uobject(struct ib_uobject *uobj,
 					       enum rdma_remove_reason why)
+=======
+	xa_erase(&uobj->ufile->idr, uobj->id);
+}
+
+static int __must_check destroy_hw_idr_uobject(struct ib_uobject *uobj,
+					       enum rdma_remove_reason why,
+					       struct uverbs_attr_bundle *attrs)
+>>>>>>> upstream/android-13
 {
 	const struct uverbs_obj_idr_type *idr_type =
 		container_of(uobj->uapi_object->type_attrs,
 			     struct uverbs_obj_idr_type, type);
+<<<<<<< HEAD
 	int ret = idr_type->destroy_object(uobj, why);
 
 	/*
@@ -540,6 +789,11 @@ static int __must_check destroy_hw_idr_uobject(struct ib_uobject *uobj,
 	 * In the rest of the cases, just remove whatever you can.
 	 */
 	if (ib_is_destroy_retryable(ret, why, uobj))
+=======
+	int ret = idr_type->destroy_object(uobj, why, attrs);
+
+	if (ret)
+>>>>>>> upstream/android-13
 		return ret;
 
 	if (why == RDMA_REMOVE_ABORT)
@@ -553,19 +807,30 @@ static int __must_check destroy_hw_idr_uobject(struct ib_uobject *uobj,
 
 static void remove_handle_idr_uobject(struct ib_uobject *uobj)
 {
+<<<<<<< HEAD
 	spin_lock(&uobj->ufile->idr_lock);
 	idr_remove(&uobj->ufile->idr, uobj->id);
 	spin_unlock(&uobj->ufile->idr_lock);
+=======
+	xa_erase(&uobj->ufile->idr, uobj->id);
+>>>>>>> upstream/android-13
 	/* Matches the kref in alloc_commit_idr_uobject */
 	uverbs_uobject_put(uobj);
 }
 
 static void alloc_abort_fd_uobject(struct ib_uobject *uobj)
 {
+<<<<<<< HEAD
+=======
+	struct file *filp = uobj->object;
+
+	fput(filp);
+>>>>>>> upstream/android-13
 	put_unused_fd(uobj->id);
 }
 
 static int __must_check destroy_hw_fd_uobject(struct ib_uobject *uobj,
+<<<<<<< HEAD
 					      enum rdma_remove_reason why)
 {
 	const struct uverbs_obj_fd_type *fd_type = container_of(
@@ -575,6 +840,15 @@ static int __must_check destroy_hw_fd_uobject(struct ib_uobject *uobj,
 	if (ib_is_destroy_retryable(ret, why, uobj))
 		return ret;
 
+=======
+					      enum rdma_remove_reason why,
+					      struct uverbs_attr_bundle *attrs)
+{
+	const struct uverbs_obj_fd_type *fd_type = container_of(
+		uobj->uapi_object->type_attrs, struct uverbs_obj_fd_type, type);
+
+	fd_type->destroy_object(uobj, why);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -582,15 +856,24 @@ static void remove_handle_fd_uobject(struct ib_uobject *uobj)
 {
 }
 
+<<<<<<< HEAD
 static int alloc_commit_idr_uobject(struct ib_uobject *uobj)
 {
 	struct ib_uverbs_file *ufile = uobj->ufile;
 
 	spin_lock(&ufile->idr_lock);
+=======
+static void alloc_commit_idr_uobject(struct ib_uobject *uobj)
+{
+	struct ib_uverbs_file *ufile = uobj->ufile;
+	void *old;
+
+>>>>>>> upstream/android-13
 	/*
 	 * We already allocated this IDR with a NULL object, so
 	 * this shouldn't fail.
 	 *
+<<<<<<< HEAD
 	 * NOTE: Once we set the IDR we loose ownership of our kref on uobj.
 	 * It will be put by remove_commit_idr_uobject()
 	 */
@@ -623,6 +906,42 @@ static int alloc_commit_fd_uobject(struct ib_uobject *uobj)
 	uobj->object = filp;
 
 	/* Matching put will be done in uverbs_close_fd() */
+=======
+	 * NOTE: Storing the uobj transfers our kref on uobj to the XArray.
+	 * It will be put by remove_commit_idr_uobject()
+	 */
+	old = xa_store(&ufile->idr, uobj->id, uobj, GFP_KERNEL);
+	WARN_ON(old != NULL);
+}
+
+static void swap_idr_uobjects(struct ib_uobject *obj_old,
+			     struct ib_uobject *obj_new)
+{
+	struct ib_uverbs_file *ufile = obj_old->ufile;
+	void *old;
+
+	/*
+	 * New must be an object that been allocated but not yet committed, this
+	 * moves the pre-committed state to obj_old, new still must be comitted.
+	 */
+	old = xa_cmpxchg(&ufile->idr, obj_old->id, obj_old, XA_ZERO_ENTRY,
+			 GFP_KERNEL);
+	if (WARN_ON(old != obj_old))
+		return;
+
+	swap(obj_old->id, obj_new->id);
+
+	old = xa_cmpxchg(&ufile->idr, obj_old->id, NULL, obj_old, GFP_KERNEL);
+	WARN_ON(old != NULL);
+}
+
+static void alloc_commit_fd_uobject(struct ib_uobject *uobj)
+{
+	int fd = uobj->id;
+	struct file *filp = uobj->object;
+
+	/* Matching put will be done in uverbs_uobject_fd_release() */
+>>>>>>> upstream/android-13
 	kref_get(&uobj->ufile->ref);
 
 	/* This shouldn't be used anymore. Use the file object instead */
@@ -630,11 +949,18 @@ static int alloc_commit_fd_uobject(struct ib_uobject *uobj)
 
 	/*
 	 * NOTE: Once we install the file we loose ownership of our kref on
+<<<<<<< HEAD
 	 * uobj. It will be put by uverbs_close_fd()
 	 */
 	fd_install(fd, filp);
 
 	return 0;
+=======
+	 * uobj. It will be put by uverbs_uobject_fd_release()
+	 */
+	filp->private_data = uobj;
+	fd_install(fd, filp);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -642,6 +968,7 @@ static int alloc_commit_fd_uobject(struct ib_uobject *uobj)
  * caller can no longer assume uobj is valid. If this function fails it
  * destroys the uboject, including the attached HW object.
  */
+<<<<<<< HEAD
 int __must_check rdma_alloc_commit_uobject(struct ib_uobject *uobj)
 {
 	struct ib_uverbs_file *ufile = uobj->ufile;
@@ -654,6 +981,12 @@ int __must_check rdma_alloc_commit_uobject(struct ib_uobject *uobj)
 		up_read(&ufile->hw_destroy_rwsem);
 		return ret;
 	}
+=======
+void rdma_alloc_commit_uobject(struct ib_uobject *uobj,
+			       struct uverbs_attr_bundle *attrs)
+{
+	struct ib_uverbs_file *ufile = attrs->ufile;
+>>>>>>> upstream/android-13
 
 	/* kref is held so long as the uobj is on the uobj list. */
 	uverbs_uobject_get(uobj);
@@ -664,22 +997,83 @@ int __must_check rdma_alloc_commit_uobject(struct ib_uobject *uobj)
 	/* matches atomic_set(-1) in alloc_uobj */
 	atomic_set(&uobj->usecnt, 0);
 
+<<<<<<< HEAD
 	/* Matches the down_read in rdma_alloc_begin_uobject */
 	up_read(&ufile->hw_destroy_rwsem);
 
 	return 0;
+=======
+	/* alloc_commit consumes the uobj kref */
+	uobj->uapi_object->type_class->alloc_commit(uobj);
+
+	/* Matches the down_read in rdma_alloc_begin_uobject */
+	up_read(&ufile->hw_destroy_rwsem);
+}
+
+/*
+ * new_uobj will be assigned to the handle currently used by to_uobj, and
+ * to_uobj will be destroyed.
+ *
+ * Upon return the caller must do:
+ *    rdma_alloc_commit_uobject(new_uobj)
+ *    uobj_put_destroy(to_uobj)
+ *
+ * to_uobj must have a write get but the put mode switches to destroy once
+ * this is called.
+ */
+void rdma_assign_uobject(struct ib_uobject *to_uobj, struct ib_uobject *new_uobj,
+			struct uverbs_attr_bundle *attrs)
+{
+	assert_uverbs_usecnt(new_uobj, UVERBS_LOOKUP_WRITE);
+
+	if (WARN_ON(to_uobj->uapi_object != new_uobj->uapi_object ||
+		    !to_uobj->uapi_object->type_class->swap_uobjects))
+		return;
+
+	to_uobj->uapi_object->type_class->swap_uobjects(to_uobj, new_uobj);
+
+	/*
+	 * If this fails then the uobject is still completely valid (though with
+	 * a new ID) and we leak it until context close.
+	 */
+	uverbs_destroy_uobject(to_uobj, RDMA_REMOVE_DESTROY, attrs);
+>>>>>>> upstream/android-13
 }
 
 /*
  * This consumes the kref for uobj. It is up to the caller to unwind the HW
  * object and anything else connected to uobj before calling this.
  */
+<<<<<<< HEAD
 void rdma_alloc_abort_uobject(struct ib_uobject *uobj)
 {
 	struct ib_uverbs_file *ufile = uobj->ufile;
 
 	uobj->object = NULL;
 	uverbs_destroy_uobject(uobj, RDMA_REMOVE_ABORT);
+=======
+void rdma_alloc_abort_uobject(struct ib_uobject *uobj,
+			      struct uverbs_attr_bundle *attrs,
+			      bool hw_obj_valid)
+{
+	struct ib_uverbs_file *ufile = uobj->ufile;
+	int ret;
+
+	if (hw_obj_valid) {
+		ret = uobj->uapi_object->type_class->destroy_hw(
+			uobj, RDMA_REMOVE_ABORT, attrs);
+		/*
+		 * If the driver couldn't destroy the object then go ahead and
+		 * commit it. Leaking objects that can't be destroyed is only
+		 * done during FD close after the driver has a few more tries to
+		 * destroy it.
+		 */
+		if (WARN_ON(ret))
+			return rdma_alloc_commit_uobject(uobj, attrs);
+	}
+
+	uverbs_destroy_uobject(uobj, RDMA_REMOVE_ABORT, attrs);
+>>>>>>> upstream/android-13
 
 	/* Matches the down_read in rdma_alloc_begin_uobject */
 	up_read(&ufile->hw_destroy_rwsem);
@@ -696,7 +1090,14 @@ static void lookup_put_fd_uobject(struct ib_uobject *uobj,
 	struct file *filp = uobj->object;
 
 	WARN_ON(mode != UVERBS_LOOKUP_READ);
+<<<<<<< HEAD
 	/* This indirectly calls uverbs_close_fd and free the object */
+=======
+	/*
+	 * This indirectly calls uverbs_uobject_fd_release() and free the
+	 * object
+	 */
+>>>>>>> upstream/android-13
 	fput(filp);
 }
 
@@ -727,29 +1128,49 @@ void rdma_lookup_put_uobject(struct ib_uobject *uobj,
 
 void setup_ufile_idr_uobject(struct ib_uverbs_file *ufile)
 {
+<<<<<<< HEAD
 	spin_lock_init(&ufile->idr_lock);
 	idr_init(&ufile->idr);
+=======
+	xa_init_flags(&ufile->idr, XA_FLAGS_ALLOC);
+>>>>>>> upstream/android-13
 }
 
 void release_ufile_idr_uobject(struct ib_uverbs_file *ufile)
 {
 	struct ib_uobject *entry;
+<<<<<<< HEAD
 	int id;
 
 	/*
 	 * At this point uverbs_cleanup_ufile() is guaranteed to have run, and
 	 * there are no HW objects left, however the IDR is still populated
+=======
+	unsigned long id;
+
+	/*
+	 * At this point uverbs_cleanup_ufile() is guaranteed to have run, and
+	 * there are no HW objects left, however the xarray is still populated
+>>>>>>> upstream/android-13
 	 * with anything that has not been cleaned up by userspace. Since the
 	 * kref on ufile is 0, nothing is allowed to call lookup_get.
 	 *
 	 * This is an optimized equivalent to remove_handle_idr_uobject
 	 */
+<<<<<<< HEAD
 	idr_for_each_entry(&ufile->idr, entry, id) {
+=======
+	xa_for_each(&ufile->idr, id, entry) {
+>>>>>>> upstream/android-13
 		WARN_ON(entry->object);
 		uverbs_uobject_put(entry);
 	}
 
+<<<<<<< HEAD
 	idr_destroy(&ufile->idr);
+=======
+	xa_destroy(&ufile->idr);
+>>>>>>> upstream/android-13
 }
 
 const struct uverbs_obj_type_class uverbs_idr_class = {
@@ -760,6 +1181,7 @@ const struct uverbs_obj_type_class uverbs_idr_class = {
 	.lookup_put = lookup_put_idr_uobject,
 	.destroy_hw = destroy_hw_idr_uobject,
 	.remove_handle = remove_handle_idr_uobject,
+<<<<<<< HEAD
 	/*
 	 * When we destroy an object, we first just lock it for WRITE and
 	 * actually DESTROY it in the finalize stage. So, the problematic
@@ -783,6 +1205,35 @@ void uverbs_close_fd(struct file *f)
 	struct ib_uverbs_file *ufile = uobj->ufile;
 
 	if (down_read_trylock(&ufile->hw_destroy_rwsem)) {
+=======
+	.swap_uobjects = swap_idr_uobjects,
+};
+EXPORT_SYMBOL(uverbs_idr_class);
+
+/*
+ * Users of UVERBS_TYPE_ALLOC_FD should set this function as the struct
+ * file_operations release method.
+ */
+int uverbs_uobject_fd_release(struct inode *inode, struct file *filp)
+{
+	struct ib_uverbs_file *ufile;
+	struct ib_uobject *uobj;
+
+	/*
+	 * This can only happen if the fput came from alloc_abort_fd_uobject()
+	 */
+	if (!filp->private_data)
+		return 0;
+	uobj = filp->private_data;
+	ufile = uobj->ufile;
+
+	if (down_read_trylock(&ufile->hw_destroy_rwsem)) {
+		struct uverbs_attr_bundle attrs = {
+			.context = uobj->context,
+			.ufile = ufile,
+		};
+
+>>>>>>> upstream/android-13
 		/*
 		 * lookup_get_fd_uobject holds the kref on the struct file any
 		 * time a FD uobj is locked, which prevents this release
@@ -790,15 +1241,24 @@ void uverbs_close_fd(struct file *f)
 		 * write lock here, or we have a kernel bug.
 		 */
 		WARN_ON(uverbs_try_lock_object(uobj, UVERBS_LOOKUP_WRITE));
+<<<<<<< HEAD
 		uverbs_destroy_uobject(uobj, RDMA_REMOVE_CLOSE);
 		up_read(&ufile->hw_destroy_rwsem);
 	}
 
 	/* Matches the get in alloc_begin_fd_uobject */
+=======
+		uverbs_destroy_uobject(uobj, RDMA_REMOVE_CLOSE, &attrs);
+		up_read(&ufile->hw_destroy_rwsem);
+	}
+
+	/* Matches the get in alloc_commit_fd_uobject() */
+>>>>>>> upstream/android-13
 	kref_put(&ufile->ref, ib_uverbs_release_file);
 
 	/* Pairs with filp->private_data in alloc_begin_fd_uobject */
 	uverbs_uobject_put(uobj);
+<<<<<<< HEAD
 }
 
 static void ufile_disassociate_ucontext(struct ib_ucontext *ibcontext)
@@ -838,6 +1298,11 @@ static void ufile_disassociate_ucontext(struct ib_ucontext *ibcontext)
 	mmput(owning_mm);
 	put_task_struct(owning_process);
 }
+=======
+	return 0;
+}
+EXPORT_SYMBOL(uverbs_uobject_fd_release);
+>>>>>>> upstream/android-13
 
 /*
  * Drop the ucontext off the ufile and completely disconnect it from the
@@ -847,6 +1312,7 @@ static void ufile_destroy_ucontext(struct ib_uverbs_file *ufile,
 				   enum rdma_remove_reason reason)
 {
 	struct ib_ucontext *ucontext = ufile->ucontext;
+<<<<<<< HEAD
 	int ret;
 
 	if (reason == RDMA_REMOVE_DRIVER_REMOVE)
@@ -862,6 +1328,29 @@ static void ufile_destroy_ucontext(struct ib_uverbs_file *ufile,
 	 */
 	ret = ucontext->device->dealloc_ucontext(ucontext);
 	WARN_ON(ret);
+=======
+	struct ib_device *ib_dev = ucontext->device;
+
+	/*
+	 * If we are closing the FD then the user mmap VMAs must have
+	 * already been destroyed as they hold on to the filep, otherwise
+	 * they need to be zap'd.
+	 */
+	if (reason == RDMA_REMOVE_DRIVER_REMOVE) {
+		uverbs_user_mmap_disassociate(ufile);
+		if (ib_dev->ops.disassociate_ucontext)
+			ib_dev->ops.disassociate_ucontext(ucontext);
+	}
+
+	ib_rdmacg_uncharge(&ucontext->cg_obj, ib_dev,
+			   RDMACG_RESOURCE_HCA_HANDLE);
+
+	rdma_restrack_del(&ucontext->res);
+
+	ib_dev->ops.dealloc_ucontext(ucontext);
+	WARN_ON(!xa_empty(&ucontext->mmap_xa));
+	kfree(ucontext);
+>>>>>>> upstream/android-13
 
 	ufile->ucontext = NULL;
 }
@@ -871,6 +1360,10 @@ static int __uverbs_cleanup_ufile(struct ib_uverbs_file *ufile,
 {
 	struct ib_uobject *obj, *next_obj;
 	int ret = -EINVAL;
+<<<<<<< HEAD
+=======
+	struct uverbs_attr_bundle attrs = { .ufile = ufile };
+>>>>>>> upstream/android-13
 
 	/*
 	 * This shouldn't run while executing other commands on this
@@ -882,23 +1375,45 @@ static int __uverbs_cleanup_ufile(struct ib_uverbs_file *ufile,
 	 * other threads (which might still use the FDs) chance to run.
 	 */
 	list_for_each_entry_safe(obj, next_obj, &ufile->uobjects, list) {
+<<<<<<< HEAD
+=======
+		attrs.context = obj->context;
+>>>>>>> upstream/android-13
 		/*
 		 * if we hit this WARN_ON, that means we are
 		 * racing with a lookup_get.
 		 */
 		WARN_ON(uverbs_try_lock_object(obj, UVERBS_LOOKUP_WRITE));
+<<<<<<< HEAD
 		if (!uverbs_destroy_uobject(obj, reason))
+=======
+		if (reason == RDMA_REMOVE_DRIVER_FAILURE)
+			obj->object = NULL;
+		if (!uverbs_destroy_uobject(obj, reason, &attrs))
+>>>>>>> upstream/android-13
 			ret = 0;
 		else
 			atomic_set(&obj->usecnt, 0);
 	}
+<<<<<<< HEAD
+=======
+
+	if (reason == RDMA_REMOVE_DRIVER_FAILURE) {
+		WARN_ON(!list_empty(&ufile->uobjects));
+		return 0;
+	}
+>>>>>>> upstream/android-13
 	return ret;
 }
 
 /*
+<<<<<<< HEAD
  * Destroy the uncontext and every uobject associated with it. If called with
  * reason != RDMA_REMOVE_CLOSE this will not return until the destruction has
  * been completed and ufile->ucontext is NULL.
+=======
+ * Destroy the ucontext and every uobject associated with it.
+>>>>>>> upstream/android-13
  *
  * This is internally locked and can be called in parallel from multiple
  * contexts.
@@ -906,6 +1421,7 @@ static int __uverbs_cleanup_ufile(struct ib_uverbs_file *ufile,
 void uverbs_destroy_ufile_hw(struct ib_uverbs_file *ufile,
 			     enum rdma_remove_reason reason)
 {
+<<<<<<< HEAD
 	if (reason == RDMA_REMOVE_CLOSE) {
 		/*
 		 * During destruction we might trigger something that
@@ -922,6 +1438,8 @@ void uverbs_destroy_ufile_hw(struct ib_uverbs_file *ufile,
 		mutex_lock(&ufile->ucontext_lock);
 	}
 
+=======
+>>>>>>> upstream/android-13
 	down_write(&ufile->hw_destroy_rwsem);
 
 	/*
@@ -931,6 +1449,7 @@ void uverbs_destroy_ufile_hw(struct ib_uverbs_file *ufile,
 	if (!ufile->ucontext)
 		goto done;
 
+<<<<<<< HEAD
 	ufile->ucontext->closing = true;
 	ufile->ucontext->cleanup_retryable = true;
 	while (!list_empty(&ufile->uobjects))
@@ -946,11 +1465,22 @@ void uverbs_destroy_ufile_hw(struct ib_uverbs_file *ufile,
 	if (!list_empty(&ufile->uobjects))
 		__uverbs_cleanup_ufile(ufile, reason);
 
+=======
+	while (!list_empty(&ufile->uobjects) &&
+	       !__uverbs_cleanup_ufile(ufile, reason)) {
+	}
+
+	if (WARN_ON(!list_empty(&ufile->uobjects)))
+		__uverbs_cleanup_ufile(ufile, RDMA_REMOVE_DRIVER_FAILURE);
+>>>>>>> upstream/android-13
 	ufile_destroy_ucontext(ufile, reason);
 
 done:
 	up_write(&ufile->hw_destroy_rwsem);
+<<<<<<< HEAD
 	mutex_unlock(&ufile->ucontext_lock);
+=======
+>>>>>>> upstream/android-13
 }
 
 const struct uverbs_obj_type_class uverbs_fd_class = {
@@ -961,11 +1491,15 @@ const struct uverbs_obj_type_class uverbs_fd_class = {
 	.lookup_put = lookup_put_fd_uobject,
 	.destroy_hw = destroy_hw_fd_uobject,
 	.remove_handle = remove_handle_fd_uobject,
+<<<<<<< HEAD
 	.needs_kfree_rcu = false,
+=======
+>>>>>>> upstream/android-13
 };
 EXPORT_SYMBOL(uverbs_fd_class);
 
 struct ib_uobject *
+<<<<<<< HEAD
 uverbs_get_uobject_from_file(u16 object_id,
 			     struct ib_uverbs_file *ufile,
 			     enum uverbs_obj_access access, s64 id)
@@ -986,18 +1520,46 @@ uverbs_get_uobject_from_file(u16 object_id,
 					       UVERBS_LOOKUP_WRITE);
 	case UVERBS_ACCESS_NEW:
 		return rdma_alloc_begin_uobject(obj, ufile);
+=======
+uverbs_get_uobject_from_file(u16 object_id, enum uverbs_obj_access access,
+			     s64 id, struct uverbs_attr_bundle *attrs)
+{
+	const struct uverbs_api_object *obj =
+		uapi_get_object(attrs->ufile->device->uapi, object_id);
+
+	switch (access) {
+	case UVERBS_ACCESS_READ:
+		return rdma_lookup_get_uobject(obj, attrs->ufile, id,
+					       UVERBS_LOOKUP_READ, attrs);
+	case UVERBS_ACCESS_DESTROY:
+		/* Actual destruction is done inside uverbs_handle_method */
+		return rdma_lookup_get_uobject(obj, attrs->ufile, id,
+					       UVERBS_LOOKUP_DESTROY, attrs);
+	case UVERBS_ACCESS_WRITE:
+		return rdma_lookup_get_uobject(obj, attrs->ufile, id,
+					       UVERBS_LOOKUP_WRITE, attrs);
+	case UVERBS_ACCESS_NEW:
+		return rdma_alloc_begin_uobject(obj, attrs);
+>>>>>>> upstream/android-13
 	default:
 		WARN_ON(true);
 		return ERR_PTR(-EOPNOTSUPP);
 	}
 }
 
+<<<<<<< HEAD
 int uverbs_finalize_object(struct ib_uobject *uobj,
 			   enum uverbs_obj_access access,
 			   bool commit)
 {
 	int ret = 0;
 
+=======
+void uverbs_finalize_object(struct ib_uobject *uobj,
+			    enum uverbs_obj_access access, bool hw_obj_valid,
+			    bool commit, struct uverbs_attr_bundle *attrs)
+{
+>>>>>>> upstream/android-13
 	/*
 	 * refcounts should be handled at the object level and not at the
 	 * uobject level. Refcounts of the objects themselves are done in
@@ -1017,6 +1579,7 @@ int uverbs_finalize_object(struct ib_uobject *uobj,
 		break;
 	case UVERBS_ACCESS_NEW:
 		if (commit)
+<<<<<<< HEAD
 			ret = rdma_alloc_commit_uobject(uobj);
 		else
 			rdma_alloc_abort_uobject(uobj);
@@ -1027,4 +1590,13 @@ int uverbs_finalize_object(struct ib_uobject *uobj,
 	}
 
 	return ret;
+=======
+			rdma_alloc_commit_uobject(uobj, attrs);
+		else
+			rdma_alloc_abort_uobject(uobj, attrs, hw_obj_valid);
+		break;
+	default:
+		WARN_ON(true);
+	}
+>>>>>>> upstream/android-13
 }

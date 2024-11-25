@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Regents of the University of California
  *
@@ -10,11 +11,23 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2012 Regents of the University of California
+ */
+#include <asm/page.h>
+#include <asm/vdso.h>
+>>>>>>> upstream/android-13
 
 OUTPUT_ARCH(riscv)
 
 SECTIONS
 {
+<<<<<<< HEAD
+=======
+	PROVIDE(_vdso_data = . - __VVAR_PAGES * PAGE_SIZE);
+>>>>>>> upstream/android-13
 	. = SIZEOF_HEADERS;
 
 	.hash		: { *(.hash) }			:text

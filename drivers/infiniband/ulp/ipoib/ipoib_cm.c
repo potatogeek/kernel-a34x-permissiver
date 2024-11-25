@@ -512,13 +512,21 @@ static int ipoib_cm_rx_handler(struct ib_cm_id *cm_id,
 		return ipoib_cm_req_handler(cm_id, event);
 	case IB_CM_DREQ_RECEIVED:
 		ib_send_cm_drep(cm_id, NULL, 0);
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case IB_CM_REJ_RECEIVED:
 		p = cm_id->context;
 		priv = ipoib_priv(p->dev);
 		if (ib_modify_qp(p->qp, &ipoib_cm_err_attr, IB_QP_STATE))
 			ipoib_warn(priv, "unable to move qp to error state\n");
+<<<<<<< HEAD
 		/* Fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
@@ -1122,12 +1130,17 @@ static int ipoib_cm_modify_tx_init(struct net_device *dev,
 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
 	struct ib_qp_attr qp_attr;
 	int qp_attr_mask, ret;
+<<<<<<< HEAD
 	ret = ib_find_pkey(priv->ca, priv->port, priv->pkey, &qp_attr.pkey_index);
 	if (ret) {
 		ipoib_warn(priv, "pkey 0x%x not found: %d\n", priv->pkey, ret);
 		return ret;
 	}
 
+=======
+
+	qp_attr.pkey_index = priv->pkey_index;
+>>>>>>> upstream/android-13
 	qp_attr.qp_state = IB_QPS_INIT;
 	qp_attr.qp_access_flags = IB_ACCESS_LOCAL_WRITE;
 	qp_attr.port_num = priv->port;
@@ -1155,7 +1168,10 @@ static int ipoib_cm_tx_init(struct ipoib_cm_tx *p, u32 qpn,
 		ret = -ENOMEM;
 		goto err_tx;
 	}
+<<<<<<< HEAD
 	memset(p->tx_ring, 0, ipoib_sendq_size * sizeof(*p->tx_ring));
+=======
+>>>>>>> upstream/android-13
 
 	p->qp = ipoib_cm_create_tx_qp(p->dev, p);
 	memalloc_noio_restore(noio_flag);
@@ -1508,13 +1524,18 @@ static void ipoib_cm_stale_task(struct work_struct *work)
 	spin_unlock_irq(&priv->lock);
 }
 
+<<<<<<< HEAD
 static ssize_t show_mode(struct device *d, struct device_attribute *attr,
+=======
+static ssize_t mode_show(struct device *d, struct device_attribute *attr,
+>>>>>>> upstream/android-13
 			 char *buf)
 {
 	struct net_device *dev = to_net_dev(d);
 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
 
 	if (test_bit(IPOIB_FLAG_ADMIN_CM, &priv->flags))
+<<<<<<< HEAD
 		return sprintf(buf, "connected\n");
 	else
 		return sprintf(buf, "datagram\n");
@@ -1522,6 +1543,15 @@ static ssize_t show_mode(struct device *d, struct device_attribute *attr,
 
 static ssize_t set_mode(struct device *d, struct device_attribute *attr,
 			const char *buf, size_t count)
+=======
+		return sysfs_emit(buf, "connected\n");
+	else
+		return sysfs_emit(buf, "datagram\n");
+}
+
+static ssize_t mode_store(struct device *d, struct device_attribute *attr,
+			  const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev = to_net_dev(d);
 	int ret;
@@ -1547,7 +1577,11 @@ static ssize_t set_mode(struct device *d, struct device_attribute *attr,
 	return (!ret || ret == -EBUSY) ? count : ret;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(mode, S_IWUSR | S_IRUGO, show_mode, set_mode);
+=======
+static DEVICE_ATTR_RW(mode);
+>>>>>>> upstream/android-13
 
 int ipoib_cm_add_mode_attr(struct net_device *dev)
 {
@@ -1648,17 +1682,24 @@ int ipoib_cm_dev_init(struct net_device *dev)
 void ipoib_cm_dev_cleanup(struct net_device *dev)
 {
 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	if (!priv->cm.srq)
 		return;
 
 	ipoib_dbg(priv, "Cleanup ipoib connected mode.\n");
 
+<<<<<<< HEAD
 	ret = ib_destroy_srq(priv->cm.srq);
 	if (ret)
 		ipoib_warn(priv, "ib_destroy_srq failed: %d\n", ret);
 
+=======
+	ib_destroy_srq(priv->cm.srq);
+>>>>>>> upstream/android-13
 	priv->cm.srq = NULL;
 	if (!priv->cm.srq_ring)
 		return;

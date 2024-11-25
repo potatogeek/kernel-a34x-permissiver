@@ -4,7 +4,12 @@ Required properties:
 -------------------
 - compatible: Must be one of
 		"maxim,max77620"
+<<<<<<< HEAD
 		"maxim,max20024".
+=======
+		"maxim,max20024"
+		"maxim,max77663"
+>>>>>>> upstream/android-13
 - reg: I2C device address.
 
 Optional properties:
@@ -17,6 +22,14 @@ Optional properties:
 			IRQ numbers for different interrupt source of MAX77620
 			are defined at dt-bindings/mfd/max77620.h.
 
+<<<<<<< HEAD
+=======
+- system-power-controller: Indicates that this PMIC is controlling the
+			   system power, see [1] for more details.
+
+[1] Documentation/devicetree/bindings/power/power-controller.txt
+
+>>>>>>> upstream/android-13
 Optional subnodes and their properties:
 =======================================
 
@@ -105,6 +118,10 @@ Optional properties:
 Here supported time periods by device in microseconds are as follows:
 MAX77620 supports 40, 80, 160, 320, 640, 1280, 2560 and 5120 microseconds.
 MAX20024 supports 20, 40, 80, 160, 320, 640, 1280 and 2540 microseconds.
+<<<<<<< HEAD
+=======
+MAX77663 supports 20, 40, 80, 160, 320, 640, 1280 and 2540 microseconds.
+>>>>>>> upstream/android-13
 
 -maxim,power-ok-control: configure map power ok bit
 			1: Enables POK(Power OK) to control nRST_IO and GPIO1

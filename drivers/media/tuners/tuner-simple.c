@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * i2c tv tuner chip device driver
  * controls all those simple 4-control-bytes style tuners.
@@ -1131,7 +1135,11 @@ struct dvb_frontend *simple_tuner_attach(struct dvb_frontend *fe,
 				   priv->nr, dtv_input[priv->nr]);
 	}
 
+<<<<<<< HEAD
 	strlcpy(fe->ops.tuner_ops.info.name, priv->tun->name,
+=======
+	strscpy(fe->ops.tuner_ops.info.name, priv->tun->name,
+>>>>>>> upstream/android-13
 		sizeof(fe->ops.tuner_ops.info.name));
 
 	return fe;

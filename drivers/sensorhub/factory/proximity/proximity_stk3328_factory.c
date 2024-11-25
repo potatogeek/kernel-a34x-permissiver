@@ -112,7 +112,11 @@ static ssize_t prox_cal_store(struct device *dev, struct device_attribute *attr,
 
 	if (sysfs_streq(buf, "1")) { /* calibrate */
 		shub_infof("calibrate");
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> upstream/android-13
 		prox_raw = get_prox_raw_data();
 		if (prox_raw > thd_data->prox_cal_thresh[PROX_THRESH_LOW]
 		    && prox_raw <= thd_data->prox_cal_thresh[PROX_THRESH_HIGH]) {
@@ -134,7 +138,11 @@ static ssize_t prox_cal_store(struct device *dev, struct device_attribute *attr,
 			shub_infof("crosstalk(%u)", prox_raw);
 		}
 	} else {
+<<<<<<< HEAD
 		shub_errf("invalid value %d", *buf);
+=======
+		shub_errf("%s: invalid value %d", *buf);
+>>>>>>> upstream/android-13
 		ret = -EINVAL;
 	}
 

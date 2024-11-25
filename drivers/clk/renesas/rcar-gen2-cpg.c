@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * R-Car Gen2 Clock Pulse Generator
  *
  * Copyright (C) 2016 Cogent Embedded Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
  * by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/bug.h>
@@ -66,6 +73,7 @@ static unsigned long cpg_z_clk_recalc_rate(struct clk_hw *hw,
 	return div_u64((u64)parent_rate * mult, 32);
 }
 
+<<<<<<< HEAD
 static long cpg_z_clk_round_rate(struct clk_hw *hw, unsigned long rate,
 				 unsigned long *parent_rate)
 {
@@ -79,6 +87,24 @@ static long cpg_z_clk_round_rate(struct clk_hw *hw, unsigned long rate,
 	mult = clamp(mult, 1U, 32U);
 
 	return *parent_rate / 32 * mult;
+=======
+static int cpg_z_clk_determine_rate(struct clk_hw *hw,
+				    struct clk_rate_request *req)
+{
+	unsigned long prate = req->best_parent_rate;
+	unsigned int min_mult, max_mult, mult;
+
+	min_mult = max(div64_ul(req->min_rate * 32ULL, prate), 1ULL);
+	max_mult = min(div64_ul(req->max_rate * 32ULL, prate), 32ULL);
+	if (max_mult < min_mult)
+		return -EINVAL;
+
+	mult = div64_ul(req->rate * 32ULL, prate);
+	mult = clamp(mult, min_mult, max_mult);
+
+	req->rate = div_u64((u64)prate * mult, 32);
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int cpg_z_clk_set_rate(struct clk_hw *hw, unsigned long rate,
@@ -89,7 +115,11 @@ static int cpg_z_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 	u32 val, kick;
 	unsigned int i;
 
+<<<<<<< HEAD
 	mult = div_u64((u64)rate * 32, parent_rate);
+=======
+	mult = div64_ul(rate * 32ULL, parent_rate);
+>>>>>>> upstream/android-13
 	mult = clamp(mult, 1U, 32U);
 
 	if (readl(zclk->kick_reg) & CPG_FRQCRB_KICK)
@@ -129,7 +159,11 @@ static int cpg_z_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 
 static const struct clk_ops cpg_z_clk_ops = {
 	.recalc_rate = cpg_z_clk_recalc_rate,
+<<<<<<< HEAD
 	.round_rate = cpg_z_clk_round_rate,
+=======
+	.determine_rate = cpg_z_clk_determine_rate,
+>>>>>>> upstream/android-13
 	.set_rate = cpg_z_clk_set_rate,
 };
 
@@ -147,7 +181,10 @@ static struct clk * __init cpg_z_clk_register(const char *name,
 
 	init.name = name;
 	init.ops = &cpg_z_clk_ops;
+<<<<<<< HEAD
 	init.flags = 0;
+=======
+>>>>>>> upstream/android-13
 	init.parent_names = &parent_name;
 	init.num_parents = 1;
 

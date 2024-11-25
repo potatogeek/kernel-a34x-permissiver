@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 /* -*- mode: c; c-basic-offset: 8; -*-
  * vim: noexpandtab sw=8 ts=8 sts=0:
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+>>>>>>> upstream/android-13
  * userdlm.c
  *
  * Code which implements the kernel side of a minimal userspace
@@ -10,6 +15,7 @@
  * functions.
  *
  * Copyright (C) 2003, 2004 Oracle.  All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -25,6 +31,8 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 021110-1307, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/signal.h>
@@ -35,12 +43,21 @@
 #include <linux/types.h>
 #include <linux/crc32.h>
 
+<<<<<<< HEAD
 #include "ocfs2_lockingver.h"
 #include "stackglue.h"
 #include "userdlm.h"
 
 #define MLOG_MASK_PREFIX ML_DLMFS
 #include "cluster/masklog.h"
+=======
+#include "../ocfs2_lockingver.h"
+#include "../stackglue.h"
+#include "userdlm.h"
+
+#define MLOG_MASK_PREFIX ML_DLMFS
+#include "../cluster/masklog.h"
+>>>>>>> upstream/android-13
 
 
 static inline struct user_lock_res *user_lksb_to_lock_res(struct ocfs2_dlm_lksb *lksb)
@@ -561,6 +578,7 @@ void user_dlm_write_lvb(struct inode *inode,
 	spin_unlock(&lockres->l_lock);
 }
 
+<<<<<<< HEAD
 ssize_t user_dlm_read_lvb(struct inode *inode,
 			  char *val,
 			  unsigned int len)
@@ -570,15 +588,28 @@ ssize_t user_dlm_read_lvb(struct inode *inode,
 	ssize_t ret = len;
 
 	BUG_ON(len > DLM_LVB_LEN);
+=======
+bool user_dlm_read_lvb(struct inode *inode, char *val)
+{
+	struct user_lock_res *lockres = &DLMFS_I(inode)->ip_lockres;
+	char *lvb;
+	bool ret = true;
+>>>>>>> upstream/android-13
 
 	spin_lock(&lockres->l_lock);
 
 	BUG_ON(lockres->l_level < DLM_LOCK_PR);
 	if (ocfs2_dlm_lvb_valid(&lockres->l_lksb)) {
 		lvb = ocfs2_dlm_lvb(&lockres->l_lksb);
+<<<<<<< HEAD
 		memcpy(val, lvb, len);
 	} else
 		ret = 0;
+=======
+		memcpy(val, lvb, DLM_LVB_LEN);
+	} else
+		ret = false;
+>>>>>>> upstream/android-13
 
 	spin_unlock(&lockres->l_lock);
 	return ret;

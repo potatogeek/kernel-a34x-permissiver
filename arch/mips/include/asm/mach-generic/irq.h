@@ -9,7 +9,11 @@
 #define __ASM_MACH_GENERIC_IRQ_H
 
 #ifndef NR_IRQS
+<<<<<<< HEAD
 #define NR_IRQS 128
+=======
+#define NR_IRQS 256
+>>>>>>> upstream/android-13
 #endif
 
 #ifdef CONFIG_I8259
@@ -28,6 +32,7 @@
 #endif /* CONFIG_I8259 */
 #endif
 
+<<<<<<< HEAD
 #ifdef CONFIG_IRQ_CPU_RM7K
 #ifndef RM7K_CPU_IRQ_BASE
 #define RM7K_CPU_IRQ_BASE (MIPS_CPU_IRQ_BASE+8)
@@ -42,4 +47,8 @@
 #endif
 #endif /* CONFIG_MIPS_GIC */
 
+=======
+#endif /* CONFIG_IRQ_MIPS_CPU */
+
+>>>>>>> upstream/android-13
 #endif /* __ASM_MACH_GENERIC_IRQ_H */

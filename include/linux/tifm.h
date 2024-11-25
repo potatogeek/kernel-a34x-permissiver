@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  *  tifm.h - TI FlashMedia driver
  *
  *  Copyright (C) 2006 Alex Dubov <oakad@yahoo.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _TIFM_H
@@ -128,7 +135,11 @@ struct tifm_adapter {
 	int                 (*has_ms_pif)(struct tifm_adapter *fm,
 					  struct tifm_dev *sock);
 
+<<<<<<< HEAD
 	struct tifm_dev     *sockets[0];
+=======
+	struct tifm_dev     *sockets[];
+>>>>>>> upstream/android-13
 };
 
 struct tifm_adapter *tifm_alloc_adapter(unsigned int num_sockets,

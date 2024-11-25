@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
   This file is provided under a dual BSD/GPLv2 license.  When using or
   redistributing this file, you may do so under either license.
@@ -44,6 +45,10 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+=======
+/* SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only) */
+/* Copyright(c) 2014 - 2020 Intel Corporation */
+>>>>>>> upstream/android-13
 #ifndef ADF_DRV_H
 #define ADF_DRV_H
 
@@ -123,11 +128,19 @@ int adf_devmgr_add_dev(struct adf_accel_dev *accel_dev,
 void adf_devmgr_rm_dev(struct adf_accel_dev *accel_dev,
 		       struct adf_accel_dev *pf);
 struct list_head *adf_devmgr_get_head(void);
+<<<<<<< HEAD
 struct adf_accel_dev *adf_devmgr_get_dev_by_id(uint32_t id);
 struct adf_accel_dev *adf_devmgr_get_first(void);
 struct adf_accel_dev *adf_devmgr_pci_to_accel_dev(struct pci_dev *pci_dev);
 int adf_devmgr_verify_id(uint32_t id);
 void adf_devmgr_get_num_dev(uint32_t *num);
+=======
+struct adf_accel_dev *adf_devmgr_get_dev_by_id(u32 id);
+struct adf_accel_dev *adf_devmgr_get_first(void);
+struct adf_accel_dev *adf_devmgr_pci_to_accel_dev(struct pci_dev *pci_dev);
+int adf_devmgr_verify_id(u32 id);
+void adf_devmgr_get_num_dev(u32 *num);
+>>>>>>> upstream/android-13
 int adf_devmgr_in_reset(struct adf_accel_dev *accel_dev);
 int adf_dev_started(struct adf_accel_dev *accel_dev);
 int adf_dev_restarting_notify(struct adf_accel_dev *accel_dev);
@@ -139,7 +152,11 @@ void adf_ae_fw_release(struct adf_accel_dev *accel_dev);
 int adf_ae_start(struct adf_accel_dev *accel_dev);
 int adf_ae_stop(struct adf_accel_dev *accel_dev);
 
+<<<<<<< HEAD
 int adf_enable_aer(struct adf_accel_dev *accel_dev, struct pci_driver *adf);
+=======
+int adf_enable_aer(struct adf_accel_dev *accel_dev);
+>>>>>>> upstream/android-13
 void adf_disable_aer(struct adf_accel_dev *accel_dev);
 void adf_reset_sbr(struct adf_accel_dev *accel_dev);
 void adf_reset_flr(struct adf_accel_dev *accel_dev);
@@ -177,8 +194,12 @@ void adf_vf_isr_resource_free(struct adf_accel_dev *accel_dev);
 
 int qat_hal_init(struct adf_accel_dev *accel_dev);
 void qat_hal_deinit(struct icp_qat_fw_loader_handle *handle);
+<<<<<<< HEAD
 void qat_hal_start(struct icp_qat_fw_loader_handle *handle, unsigned char ae,
 		   unsigned int ctx_mask);
+=======
+int qat_hal_start(struct icp_qat_fw_loader_handle *handle);
+>>>>>>> upstream/android-13
 void qat_hal_stop(struct icp_qat_fw_loader_handle *handle, unsigned char ae,
 		  unsigned int ctx_mask);
 void qat_hal_reset(struct icp_qat_fw_loader_handle *handle);
@@ -198,7 +219,11 @@ void qat_hal_set_pc(struct icp_qat_fw_loader_handle *handle,
 		    unsigned char ae, unsigned int ctx_mask, unsigned int upc);
 void qat_hal_wr_uwords(struct icp_qat_fw_loader_handle *handle,
 		       unsigned char ae, unsigned int uaddr,
+<<<<<<< HEAD
 		       unsigned int words_num, uint64_t *uword);
+=======
+		       unsigned int words_num, u64 *uword);
+>>>>>>> upstream/android-13
 void qat_hal_wr_umem(struct icp_qat_fw_loader_handle *handle, unsigned char ae,
 		     unsigned int uword_addr, unsigned int words_num,
 		     unsigned int *data);
@@ -207,6 +232,7 @@ int qat_hal_batch_wr_lm(struct icp_qat_fw_loader_handle *handle,
 			unsigned char ae,
 			struct icp_qat_uof_batch_init *lm_init_header);
 int qat_hal_init_gpr(struct icp_qat_fw_loader_handle *handle,
+<<<<<<< HEAD
 		     unsigned char ae, unsigned char ctx_mask,
 		     enum icp_qat_uof_regtype reg_type,
 		     unsigned short reg_num, unsigned int regdata);
@@ -229,10 +255,39 @@ int qat_uclo_wr_mimage(struct icp_qat_fw_loader_handle *handle, void *addr_ptr,
 		       int mem_size);
 int qat_uclo_map_obj(struct icp_qat_fw_loader_handle *handle,
 		     void *addr_ptr, int mem_size);
+=======
+		     unsigned char ae, unsigned long ctx_mask,
+		     enum icp_qat_uof_regtype reg_type,
+		     unsigned short reg_num, unsigned int regdata);
+int qat_hal_init_wr_xfer(struct icp_qat_fw_loader_handle *handle,
+			 unsigned char ae, unsigned long ctx_mask,
+			 enum icp_qat_uof_regtype reg_type,
+			 unsigned short reg_num, unsigned int regdata);
+int qat_hal_init_rd_xfer(struct icp_qat_fw_loader_handle *handle,
+			 unsigned char ae, unsigned long ctx_mask,
+			 enum icp_qat_uof_regtype reg_type,
+			 unsigned short reg_num, unsigned int regdata);
+int qat_hal_init_nn(struct icp_qat_fw_loader_handle *handle,
+		    unsigned char ae, unsigned long ctx_mask,
+		    unsigned short reg_num, unsigned int regdata);
+int qat_hal_wr_lm(struct icp_qat_fw_loader_handle *handle,
+		  unsigned char ae, unsigned short lm_addr, unsigned int value);
+void qat_hal_set_ae_tindex_mode(struct icp_qat_fw_loader_handle *handle,
+				unsigned char ae, unsigned char mode);
+int qat_uclo_wr_all_uimage(struct icp_qat_fw_loader_handle *handle);
+void qat_uclo_del_obj(struct icp_qat_fw_loader_handle *handle);
+int qat_uclo_wr_mimage(struct icp_qat_fw_loader_handle *handle, void *addr_ptr,
+		       int mem_size);
+int qat_uclo_map_obj(struct icp_qat_fw_loader_handle *handle,
+		     void *addr_ptr, u32 mem_size, char *obj_name);
+int qat_uclo_set_cfg_ae_mask(struct icp_qat_fw_loader_handle *handle,
+			     unsigned int cfg_ae_mask);
+>>>>>>> upstream/android-13
 #if defined(CONFIG_PCI_IOV)
 int adf_sriov_configure(struct pci_dev *pdev, int numvfs);
 void adf_disable_sriov(struct adf_accel_dev *accel_dev);
 void adf_disable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
+<<<<<<< HEAD
 				  uint32_t vf_mask);
 void adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
 				 uint32_t vf_mask);
@@ -241,15 +296,34 @@ void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev);
 
 int adf_vf2pf_init(struct adf_accel_dev *accel_dev);
 void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev);
+=======
+				  u32 vf_mask);
+void adf_disable_vf2pf_interrupts_irq(struct adf_accel_dev *accel_dev,
+				      u32 vf_mask);
+void adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
+				 u32 vf_mask);
+void adf_enable_pf2vf_interrupts(struct adf_accel_dev *accel_dev);
+void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev);
+void adf_schedule_vf2pf_handler(struct adf_accel_vf_info *vf_info);
+
+int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev);
+void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev);
+>>>>>>> upstream/android-13
 int adf_init_pf_wq(void);
 void adf_exit_pf_wq(void);
 int adf_init_vf_wq(void);
 void adf_exit_vf_wq(void);
+<<<<<<< HEAD
 #else
 static inline int adf_sriov_configure(struct pci_dev *pdev, int numvfs)
 {
 	return 0;
 }
+=======
+void adf_flush_vf_wq(struct adf_accel_dev *accel_dev);
+#else
+#define adf_sriov_configure NULL
+>>>>>>> upstream/android-13
 
 static inline void adf_disable_sriov(struct adf_accel_dev *accel_dev)
 {
@@ -263,12 +337,20 @@ static inline void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev)
 {
 }
 
+<<<<<<< HEAD
 static inline int adf_vf2pf_init(struct adf_accel_dev *accel_dev)
+=======
+static inline int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev)
+>>>>>>> upstream/android-13
 {
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev)
+=======
+static inline void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev)
+>>>>>>> upstream/android-13
 {
 }
 
@@ -290,5 +372,12 @@ static inline void adf_exit_vf_wq(void)
 {
 }
 
+<<<<<<< HEAD
+=======
+static inline void adf_flush_vf_wq(struct adf_accel_dev *accel_dev)
+{
+}
+
+>>>>>>> upstream/android-13
 #endif
 #endif

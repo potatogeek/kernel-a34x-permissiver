@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *  V4L2 sub-device support header.
  *
  *  Copyright (C) 2008  Hans Verkuil <hverkuil@xs4all.nl>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -12,6 +17,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _V4L2_SUBDEV_H
@@ -70,7 +77,11 @@ struct v4l2_decode_vbi_line {
  * device. These devices are usually audio/video muxers/encoders/decoders or
  * sensors and webcam controllers.
  *
+<<<<<<< HEAD
  * Usually these devices are controlled through an i2c bus, but other busses
+=======
+ * Usually these devices are controlled through an i2c bus, but other buses
+>>>>>>> upstream/android-13
  * may also be used.
  *
  * The v4l2_subdev struct provides a way of accessing these devices in a
@@ -171,6 +182,12 @@ struct v4l2_subdev_io_pin_config {
  * @s_gpio: set GPIO pins. Very simple right now, might need to be extended with
  *	a direction argument if needed.
  *
+<<<<<<< HEAD
+=======
+ * @command: called by in-kernel drivers in order to call functions internal
+ *	   to subdev drivers driver that have a separate callback.
+ *
+>>>>>>> upstream/android-13
  * @ioctl: called at the end of ioctl() syscall handler at the V4L2 core.
  *	   used to provide support for private ioctls used on the driver.
  *
@@ -202,6 +219,10 @@ struct v4l2_subdev_core_ops {
 	int (*load_fw)(struct v4l2_subdev *sd);
 	int (*reset)(struct v4l2_subdev *sd, u32 val);
 	int (*s_gpio)(struct v4l2_subdev *sd, u32 val);
+<<<<<<< HEAD
+=======
+	long (*command)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+>>>>>>> upstream/android-13
 	long (*ioctl)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
 #ifdef CONFIG_COMPAT
 	long (*compat_ioctl32)(struct v4l2_subdev *sd, unsigned int cmd,
@@ -318,7 +339,11 @@ struct v4l2_subdev_audio_ops {
 };
 
 /**
+<<<<<<< HEAD
  * enum v4l2_mbus_frame_desc_entry - media bus frame description flags
+=======
+ * enum v4l2_mbus_frame_desc_flags - media bus frame description flags
+>>>>>>> upstream/android-13
  *
  * @V4L2_MBUS_FRAME_DESC_FL_LEN_MAX:
  *	Indicates that &struct v4l2_mbus_frame_desc_entry->length field
@@ -360,6 +385,19 @@ struct v4l2_mbus_frame_desc {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * enum v4l2_subdev_pre_streamon_flags - Flags for pre_streamon subdev core op
+ *
+ * @V4L2_SUBDEV_PRE_STREAMON_FL_MANUAL_LP: Set the transmitter to either LP-11
+ *	or LP-111 mode before call to s_stream().
+ */
+enum v4l2_subdev_pre_streamon_flags {
+	V4L2_SUBDEV_PRE_STREAMON_FL_MANUAL_LP = BIT(0),
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct v4l2_subdev_video_ops - Callbacks used when v4l device was opened
  *				  in video mode.
  *
@@ -390,7 +428,11 @@ struct v4l2_mbus_frame_desc {
  *	OUTPUT device. This is ignored by video capture devices.
  *
  * @g_input_status: get input status. Same as the status field in the
+<<<<<<< HEAD
  *	&struct &v4l2_input
+=======
+ *	&struct v4l2_input
+>>>>>>> upstream/android-13
  *
  * @s_stream: used to notify the driver that a video stream will start or has
  *	stopped.
@@ -411,6 +453,7 @@ struct v4l2_mbus_frame_desc {
  *
  * @query_dv_timings: callback for VIDIOC_QUERY_DV_TIMINGS() ioctl handler code.
  *
+<<<<<<< HEAD
  * @g_mbus_config: get supported mediabus configurations
  *
  * @s_mbus_config: set a certain mediabus configuration. This operation is added
@@ -420,6 +463,24 @@ struct v4l2_mbus_frame_desc {
  * @s_rx_buffer: set a host allocated memory buffer for the subdev. The subdev
  *	can adjust @size to a lower value and must not write more data to the
  *	buffer starting at @data than the original value of @size.
+=======
+ * @s_rx_buffer: set a host allocated memory buffer for the subdev. The subdev
+ *	can adjust @size to a lower value and must not write more data to the
+ *	buffer starting at @data than the original value of @size.
+ *
+ * @pre_streamon: May be called before streaming is actually started, to help
+ *	initialising the bus. Current usage is to set a CSI-2 transmitter to
+ *	LP-11 or LP-111 mode before streaming. See &enum
+ *	v4l2_subdev_pre_streamon_flags.
+ *
+ *	pre_streamon shall return error if it cannot perform the operation as
+ *	indicated by the flags argument. In particular, -EACCES indicates lack
+ *	of support for the operation. The caller shall call post_streamoff for
+ *	each successful call of pre_streamon.
+ *
+ * @post_streamoff: Called after streaming is stopped, but if and only if
+ *	pre_streamon was called earlier.
+>>>>>>> upstream/android-13
  */
 struct v4l2_subdev_video_ops {
 	int (*s_routing)(struct v4l2_subdev *sd, u32 input, u32 output, u32 config);
@@ -444,12 +505,19 @@ struct v4l2_subdev_video_ops {
 			struct v4l2_dv_timings *timings);
 	int (*query_dv_timings)(struct v4l2_subdev *sd,
 			struct v4l2_dv_timings *timings);
+<<<<<<< HEAD
 	int (*g_mbus_config)(struct v4l2_subdev *sd,
 			     struct v4l2_mbus_config *cfg);
 	int (*s_mbus_config)(struct v4l2_subdev *sd,
 			     const struct v4l2_mbus_config *cfg);
 	int (*s_rx_buffer)(struct v4l2_subdev *sd, void *buf,
 			   unsigned int *size);
+=======
+	int (*s_rx_buffer)(struct v4l2_subdev *sd, void *buf,
+			   unsigned int *size);
+	int (*pre_streamon)(struct v4l2_subdev *sd, u32 flags);
+	int (*post_streamoff)(struct v4l2_subdev *sd);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -575,9 +643,15 @@ struct v4l2_subdev_ir_parameters {
  *
  * @rx_read: Reads received codes or pulse width data.
  *	The semantics are similar to a non-blocking read() call.
+<<<<<<< HEAD
  * @rx_g_parameters: Get the current operating parameters and state of the
  *	the IR receiver.
  * @rx_s_parameters: Set the current operating parameters and state of the
+=======
+ * @rx_g_parameters: Get the current operating parameters and state of
+ *	the IR receiver.
+ * @rx_s_parameters: Set the current operating parameters and state of
+>>>>>>> upstream/android-13
  *	the IR receiver.  It is recommended to call
  *	[rt]x_g_parameters first to fill out the current state, and only change
  *	the fields that need to be changed.  Upon return, the actual device
@@ -591,9 +665,15 @@ struct v4l2_subdev_ir_parameters {
  *
  * @tx_write: Writes codes or pulse width data for transmission.
  *	The semantics are similar to a non-blocking write() call.
+<<<<<<< HEAD
  * @tx_g_parameters: Get the current operating parameters and state of the
  *	the IR transmitter.
  * @tx_s_parameters: Set the current operating parameters and state of the
+=======
+ * @tx_g_parameters: Get the current operating parameters and state of
+ *	the IR transmitter.
+ * @tx_s_parameters: Set the current operating parameters and state of
+>>>>>>> upstream/android-13
  *	the IR transmitter.  It is recommended to call
  *	[rt]x_g_parameters first to fill out the current state, and only change
  *	the fields that need to be changed.  Upon return, the actual device
@@ -643,6 +723,22 @@ struct v4l2_subdev_pad_config {
 };
 
 /**
+<<<<<<< HEAD
+=======
+ * struct v4l2_subdev_state - Used for storing subdev state information.
+ *
+ * @pads: &struct v4l2_subdev_pad_config array
+ *
+ * This structure only needs to be passed to the pad op if the 'which' field
+ * of the main argument is set to %V4L2_SUBDEV_FORMAT_TRY. For
+ * %V4L2_SUBDEV_FORMAT_ACTIVE it is safe to pass %NULL.
+ */
+struct v4l2_subdev_state {
+	struct v4l2_subdev_pad_config *pads;
+};
+
+/**
+>>>>>>> upstream/android-13
  * struct v4l2_subdev_pad_ops - v4l2-subdev pad level operations
  *
  * @init_cfg: initialize the pad config to default values
@@ -679,6 +775,7 @@ struct v4l2_subdev_pad_config {
  *
  * @set_frame_desc: set the low level media bus frame parameters, @fd array
  *                  may be adjusted by the subdev driver to device capabilities.
+<<<<<<< HEAD
  */
 struct v4l2_subdev_pad_ops {
 	int (*init_cfg)(struct v4l2_subdev *sd,
@@ -703,6 +800,56 @@ struct v4l2_subdev_pad_ops {
 			     struct v4l2_subdev_selection *sel);
 	int (*set_selection)(struct v4l2_subdev *sd,
 			     struct v4l2_subdev_pad_config *cfg,
+=======
+ *
+ * @get_mbus_config: get the media bus configuration of a remote sub-device.
+ *		     The media bus configuration is usually retrieved from the
+ *		     firmware interface at sub-device probe time, immediately
+ *		     applied to the hardware and eventually adjusted by the
+ *		     driver. Remote sub-devices (usually video receivers) shall
+ *		     use this operation to query the transmitting end bus
+ *		     configuration in order to adjust their own one accordingly.
+ *		     Callers should make sure they get the most up-to-date as
+ *		     possible configuration from the remote end, likely calling
+ *		     this operation as close as possible to stream on time. The
+ *		     operation shall fail if the pad index it has been called on
+ *		     is not valid or in case of unrecoverable failures.
+ *
+ * @set_mbus_config: set the media bus configuration of a remote sub-device.
+ *		     This operations is intended to allow, in combination with
+ *		     the get_mbus_config operation, the negotiation of media bus
+ *		     configuration parameters between media sub-devices. The
+ *		     operation shall not fail if the requested configuration is
+ *		     not supported, but the driver shall update the content of
+ *		     the %config argument to reflect what has been actually
+ *		     applied to the hardware. The operation shall fail if the
+ *		     pad index it has been called on is not valid or in case of
+ *		     unrecoverable failures.
+ */
+struct v4l2_subdev_pad_ops {
+	int (*init_cfg)(struct v4l2_subdev *sd,
+			struct v4l2_subdev_state *state);
+	int (*enum_mbus_code)(struct v4l2_subdev *sd,
+			      struct v4l2_subdev_state *state,
+			      struct v4l2_subdev_mbus_code_enum *code);
+	int (*enum_frame_size)(struct v4l2_subdev *sd,
+			       struct v4l2_subdev_state *state,
+			       struct v4l2_subdev_frame_size_enum *fse);
+	int (*enum_frame_interval)(struct v4l2_subdev *sd,
+				   struct v4l2_subdev_state *state,
+				   struct v4l2_subdev_frame_interval_enum *fie);
+	int (*get_fmt)(struct v4l2_subdev *sd,
+		       struct v4l2_subdev_state *state,
+		       struct v4l2_subdev_format *format);
+	int (*set_fmt)(struct v4l2_subdev *sd,
+		       struct v4l2_subdev_state *state,
+		       struct v4l2_subdev_format *format);
+	int (*get_selection)(struct v4l2_subdev *sd,
+			     struct v4l2_subdev_state *state,
+			     struct v4l2_subdev_selection *sel);
+	int (*set_selection)(struct v4l2_subdev *sd,
+			     struct v4l2_subdev_state *state,
+>>>>>>> upstream/android-13
 			     struct v4l2_subdev_selection *sel);
 	int (*get_edid)(struct v4l2_subdev *sd, struct v4l2_edid *edid);
 	int (*set_edid)(struct v4l2_subdev *sd, struct v4l2_edid *edid);
@@ -719,6 +866,13 @@ struct v4l2_subdev_pad_ops {
 			      struct v4l2_mbus_frame_desc *fd);
 	int (*set_frame_desc)(struct v4l2_subdev *sd, unsigned int pad,
 			      struct v4l2_mbus_frame_desc *fd);
+<<<<<<< HEAD
+=======
+	int (*get_mbus_config)(struct v4l2_subdev *sd, unsigned int pad,
+			       struct v4l2_mbus_config *config);
+	int (*set_mbus_config)(struct v4l2_subdev *sd, unsigned int pad,
+			       struct v4l2_mbus_config *config);
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -755,7 +909,21 @@ struct v4l2_subdev_ops {
  *
  * @open: called when the subdev device node is opened by an application.
  *
+<<<<<<< HEAD
  * @close: called when the subdev device node is closed.
+=======
+ * @close: called when the subdev device node is closed. Please note that
+ *	it is possible for @close to be called after @unregistered!
+ *
+ * @release: called when the last user of the subdev device is gone. This
+ *	happens after the @unregistered callback and when the last open
+ *	filehandle to the v4l-subdevX device node was closed. If no device
+ *	node was created for this sub-device, then the @release callback
+ *	is called right after the @unregistered callback.
+ *	The @release callback is typically used to free the memory containing
+ *	the v4l2_subdev structure. It is almost certainly required for any
+ *	sub-device that sets the V4L2_SUBDEV_FL_HAS_DEVNODE flag.
+>>>>>>> upstream/android-13
  *
  * .. note::
  *	Never call this from drivers, only the v4l2 framework can call
@@ -766,6 +934,10 @@ struct v4l2_subdev_internal_ops {
 	void (*unregistered)(struct v4l2_subdev *sd);
 	int (*open)(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh);
 	int (*close)(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh);
+<<<<<<< HEAD
+=======
+	void (*release)(struct v4l2_subdev *sd);
+>>>>>>> upstream/android-13
 };
 
 #define V4L2_SUBDEV_NAME_SIZE 32
@@ -776,7 +948,15 @@ struct v4l2_subdev_internal_ops {
 #define V4L2_SUBDEV_FL_IS_SPI			(1U << 1)
 /* Set this flag if this subdev needs a device node. */
 #define V4L2_SUBDEV_FL_HAS_DEVNODE		(1U << 2)
+<<<<<<< HEAD
 /* Set this flag if this subdev generates events. */
+=======
+/*
+ * Set this flag if this subdev generates events.
+ * Note controls can send events, thus drivers exposing controls
+ * should set this flag.
+ */
+>>>>>>> upstream/android-13
 #define V4L2_SUBDEV_FL_HAS_EVENTS		(1U << 3)
 
 struct regulator_bulk_data;
@@ -830,7 +1010,11 @@ struct v4l2_subdev_platform_data {
  * @asd: Pointer to respective &struct v4l2_async_subdev.
  * @notifier: Pointer to the managing notifier.
  * @subdev_notifier: A sub-device notifier implicitly registered for the sub-
+<<<<<<< HEAD
  *		     device using v4l2_device_register_sensor_subdev().
+=======
+ *		     device using v4l2_async_register_subdev_sensor().
+>>>>>>> upstream/android-13
  * @pdata: common part of subdevice platform data
  *
  * Each instance of a subdev driver should create this struct, either
@@ -894,12 +1078,23 @@ struct v4l2_subdev {
  * struct v4l2_subdev_fh - Used for storing subdev information per file handle
  *
  * @vfh: pointer to &struct v4l2_fh
+<<<<<<< HEAD
  * @pad: pointer to &struct v4l2_subdev_pad_config
  */
 struct v4l2_subdev_fh {
 	struct v4l2_fh vfh;
 #if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
 	struct v4l2_subdev_pad_config *pad;
+=======
+ * @state: pointer to &struct v4l2_subdev_state
+ * @owner: module pointer to the owner of this file handle
+ */
+struct v4l2_subdev_fh {
+	struct v4l2_fh vfh;
+	struct module *owner;
+#if defined(CONFIG_VIDEO_V4L2_SUBDEV_API)
+	struct v4l2_subdev_state *state;
+>>>>>>> upstream/android-13
 #endif
 };
 
@@ -919,6 +1114,7 @@ struct v4l2_subdev_fh {
  *	&struct v4l2_subdev_pad_config->try_fmt
  *
  * @sd: pointer to &struct v4l2_subdev
+<<<<<<< HEAD
  * @cfg: pointer to &struct v4l2_subdev_pad_config array.
  * @pad: index of the pad in the @cfg array.
  */
@@ -930,6 +1126,19 @@ static inline struct v4l2_mbus_framefmt
 	if (WARN_ON(pad >= sd->entity.num_pads))
 		pad = 0;
 	return &cfg[pad].try_fmt;
+=======
+ * @state: pointer to &struct v4l2_subdev_state
+ * @pad: index of the pad in the &struct v4l2_subdev_state->pads array
+ */
+static inline struct v4l2_mbus_framefmt *
+v4l2_subdev_get_try_format(struct v4l2_subdev *sd,
+			   struct v4l2_subdev_state *state,
+			   unsigned int pad)
+{
+	if (WARN_ON(pad >= sd->entity.num_pads))
+		pad = 0;
+	return &state->pads[pad].try_fmt;
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -937,6 +1146,7 @@ static inline struct v4l2_mbus_framefmt
  *	&struct v4l2_subdev_pad_config->try_crop
  *
  * @sd: pointer to &struct v4l2_subdev
+<<<<<<< HEAD
  * @cfg: pointer to &struct v4l2_subdev_pad_config array.
  * @pad: index of the pad in the @cfg array.
  */
@@ -967,6 +1177,39 @@ static inline struct v4l2_rect
 		pad = 0;
 	return &cfg[pad].try_compose;
 }
+=======
+ * @state: pointer to &struct v4l2_subdev_state.
+ * @pad: index of the pad in the &struct v4l2_subdev_state->pads array.
+ */
+static inline struct v4l2_rect *
+v4l2_subdev_get_try_crop(struct v4l2_subdev *sd,
+			 struct v4l2_subdev_state *state,
+			 unsigned int pad)
+{
+	if (WARN_ON(pad >= sd->entity.num_pads))
+		pad = 0;
+	return &state->pads[pad].try_crop;
+}
+
+/**
+ * v4l2_subdev_get_try_compose - ancillary routine to call
+ *	&struct v4l2_subdev_pad_config->try_compose
+ *
+ * @sd: pointer to &struct v4l2_subdev
+ * @state: pointer to &struct v4l2_subdev_state.
+ * @pad: index of the pad in the &struct v4l2_subdev_state->pads array.
+ */
+static inline struct v4l2_rect *
+v4l2_subdev_get_try_compose(struct v4l2_subdev *sd,
+			    struct v4l2_subdev_state *state,
+			    unsigned int pad)
+{
+	if (WARN_ON(pad >= sd->entity.num_pads))
+		pad = 0;
+	return &state->pads[pad].try_compose;
+}
+
+>>>>>>> upstream/android-13
 #endif
 
 extern const struct v4l2_file_operations v4l2_subdev_fops;
@@ -1020,6 +1263,26 @@ static inline void *v4l2_get_subdev_hostdata(const struct v4l2_subdev *sd)
 #ifdef CONFIG_MEDIA_CONTROLLER
 
 /**
+<<<<<<< HEAD
+=======
+ * v4l2_subdev_get_fwnode_pad_1_to_1 - Get pad number from a subdev fwnode
+ *                                     endpoint, assuming 1:1 port:pad
+ *
+ * @entity: Pointer to the subdev entity
+ * @endpoint: Pointer to a parsed fwnode endpoint
+ *
+ * This function can be used as the .get_fwnode_pad operation for
+ * subdevices that map port numbers and pad indexes 1:1. If the endpoint
+ * is owned by the subdevice, the function returns the endpoint port
+ * number.
+ *
+ * Returns the endpoint port number on success or a negative error code.
+ */
+int v4l2_subdev_get_fwnode_pad_1_to_1(struct media_entity *entity,
+				      struct fwnode_endpoint *endpoint);
+
+/**
+>>>>>>> upstream/android-13
  * v4l2_subdev_link_validate_default - validates a media link
  *
  * @sd: pointer to &struct v4l2_subdev
@@ -1049,6 +1312,7 @@ int v4l2_subdev_link_validate_default(struct v4l2_subdev *sd,
 int v4l2_subdev_link_validate(struct media_link *link);
 
 /**
+<<<<<<< HEAD
  * v4l2_subdev_alloc_pad_config - Allocates memory for pad config
  *
  * @sd: pointer to struct v4l2_subdev
@@ -1063,6 +1327,23 @@ v4l2_subdev_pad_config *v4l2_subdev_alloc_pad_config(struct v4l2_subdev *sd);
  * @cfg: pointer to &struct v4l2_subdev_pad_config
  */
 void v4l2_subdev_free_pad_config(struct v4l2_subdev_pad_config *cfg);
+=======
+ * v4l2_subdev_alloc_state - allocate v4l2_subdev_state
+ *
+ * @sd: pointer to &struct v4l2_subdev for which the state is being allocated.
+ *
+ * Must call v4l2_subdev_free_state() when state is no longer needed.
+ */
+struct v4l2_subdev_state *v4l2_subdev_alloc_state(struct v4l2_subdev *sd);
+
+/**
+ * v4l2_subdev_free_state - free a v4l2_subdev_state
+ *
+ * @state: v4l2_subdev_state to be freed.
+ */
+void v4l2_subdev_free_state(struct v4l2_subdev_state *state);
+
+>>>>>>> upstream/android-13
 #endif /* CONFIG_MEDIA_CONTROLLER */
 
 /**
@@ -1074,21 +1355,34 @@ void v4l2_subdev_free_pad_config(struct v4l2_subdev_pad_config *cfg);
 void v4l2_subdev_init(struct v4l2_subdev *sd,
 		      const struct v4l2_subdev_ops *ops);
 
+<<<<<<< HEAD
+=======
+extern const struct v4l2_subdev_ops v4l2_subdev_call_wrappers;
+
+>>>>>>> upstream/android-13
 /**
  * v4l2_subdev_call - call an operation of a v4l2_subdev.
  *
  * @sd: pointer to the &struct v4l2_subdev
  * @o: name of the element at &struct v4l2_subdev_ops that contains @f.
  *     Each element there groups a set of callbacks functions.
+<<<<<<< HEAD
  * @f: callback function that will be called if @cond matches.
  *     The callback functions are defined in groups, according to
  *     each element at &struct v4l2_subdev_ops.
  * @args...: arguments for @f.
+=======
+ * @f: callback function to be called.
+ *     The callback functions are defined in groups, according to
+ *     each element at &struct v4l2_subdev_ops.
+ * @args: arguments for @f.
+>>>>>>> upstream/android-13
  *
  * Example: err = v4l2_subdev_call(sd, video, s_std, norm);
  */
 #define v4l2_subdev_call(sd, o, f, args...)				\
 	({								\
+<<<<<<< HEAD
 		int __result;						\
 		if (!(sd))						\
 			__result = -ENODEV;				\
@@ -1096,6 +1390,20 @@ void v4l2_subdev_init(struct v4l2_subdev *sd,
 			__result = -ENOIOCTLCMD;			\
 		else							\
 			__result = (sd)->ops->o->f((sd), ##args);	\
+=======
+		struct v4l2_subdev *__sd = (sd);			\
+		int __result;						\
+		if (!__sd)						\
+			__result = -ENODEV;				\
+		else if (!(__sd->ops->o && __sd->ops->o->f))		\
+			__result = -ENOIOCTLCMD;			\
+		else if (v4l2_subdev_call_wrappers.o &&			\
+			 v4l2_subdev_call_wrappers.o->f)		\
+			__result = v4l2_subdev_call_wrappers.o->f(	\
+							__sd, ##args);	\
+		else							\
+			__result = __sd->ops->o->f(__sd, ##args);	\
+>>>>>>> upstream/android-13
 		__result;						\
 	})
 

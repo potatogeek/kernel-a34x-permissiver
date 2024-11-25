@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * OpenRISC Linux
  *
@@ -9,11 +13,14 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
  * et al.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_OPENRISC_PGALLOC_H
@@ -24,6 +31,12 @@
 #include <linux/mm.h>
 #include <linux/memblock.h>
 
+<<<<<<< HEAD
+=======
+#define __HAVE_ARCH_PTE_ALLOC_ONE_KERNEL
+#include <asm-generic/pgalloc.h>
+
+>>>>>>> upstream/android-13
 extern int mem_init_done;
 
 #define pmd_populate_kernel(mm, pmd, pte) \
@@ -65,6 +78,7 @@ extern inline pgd_t *pgd_alloc(struct mm_struct *mm)
 }
 #endif
 
+<<<<<<< HEAD
 static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
 {
 	free_page((unsigned long)pgd);
@@ -108,4 +122,14 @@ do {					\
 
 #define check_pgt_cache()          do { } while (0)
 
+=======
+extern pte_t *pte_alloc_one_kernel(struct mm_struct *mm);
+
+#define __pte_free_tlb(tlb, pte, addr)	\
+do {					\
+	pgtable_pte_page_dtor(pte);	\
+	tlb_remove_page((tlb), (pte));	\
+} while (0)
+
+>>>>>>> upstream/android-13
 #endif

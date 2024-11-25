@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * TI LMU (Lighting Management Unit) Devices
  *
  * Copyright 2017 Texas Instruments
  *
  * Author: Milo Kim <milo.kim@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __MFD_TI_LMU_H__
@@ -16,17 +23,28 @@
 #include <linux/gpio.h>
 #include <linux/notifier.h>
 #include <linux/regmap.h>
+<<<<<<< HEAD
+=======
+#include <linux/gpio/consumer.h>
+>>>>>>> upstream/android-13
 
 /* Notifier event */
 #define LMU_EVENT_MONITOR_DONE		0x01
 
 enum ti_lmu_id {
+<<<<<<< HEAD
 	LM3532,
+=======
+>>>>>>> upstream/android-13
 	LM3631,
 	LM3632,
 	LM3633,
 	LM3695,
+<<<<<<< HEAD
 	LM3697,
+=======
+	LM36274,
+>>>>>>> upstream/android-13
 	LMU_MAX_ID,
 };
 
@@ -68,6 +86,12 @@ enum lm363x_regulator_id {
 	LM3632_BOOST,		/* Boost output */
 	LM3632_LDO_POS,		/* Positive display bias output */
 	LM3632_LDO_NEG,		/* Negative display bias output */
+<<<<<<< HEAD
+=======
+	LM36274_BOOST,		/* Boost output */
+	LM36274_LDO_POS,	/* Positive display bias output */
+	LM36274_LDO_NEG,	/* Negative display bias output */
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -81,7 +105,11 @@ enum lm363x_regulator_id {
 struct ti_lmu {
 	struct device *dev;
 	struct regmap *regmap;
+<<<<<<< HEAD
 	int en_gpio;
+=======
+	struct gpio_desc *en_gpio;
+>>>>>>> upstream/android-13
 	struct blocking_notifier_head notifier;
 };
 #endif

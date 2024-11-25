@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Driver for SiliconFile NOON010PC30 CIF (1/11") Image Sensor with ISP
  *
@@ -6,11 +10,14 @@
  *
  * Initial register configuration based on a driver authored by
  * HeungJun Kim <riverful.kim@samsung.com>.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -492,7 +499,11 @@ unlock:
 }
 
 static int noon010_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 				  struct v4l2_subdev_pad_config *cfg,
+=======
+				  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 				  struct v4l2_subdev_mbus_code_enum *code)
 {
 	if (code->index >= ARRAY_SIZE(noon010_formats))
@@ -503,15 +514,24 @@ static int noon010_enum_mbus_code(struct v4l2_subdev *sd,
 }
 
 static int noon010_get_fmt(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   struct v4l2_subdev_format *fmt)
 {
 	struct noon010_info *info = to_noon010(sd);
 	struct v4l2_mbus_framefmt *mf;
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		if (cfg) {
 			mf = v4l2_subdev_get_try_format(sd, cfg, 0);
+=======
+		if (sd_state) {
+			mf = v4l2_subdev_get_try_format(sd, sd_state, 0);
+>>>>>>> upstream/android-13
 			fmt->format = *mf;
 		}
 		return 0;
@@ -543,7 +563,12 @@ static const struct noon010_format *noon010_try_fmt(struct v4l2_subdev *sd,
 	return &noon010_formats[i];
 }
 
+<<<<<<< HEAD
 static int noon010_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg,
+=======
+static int noon010_set_fmt(struct v4l2_subdev *sd,
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   struct v4l2_subdev_format *fmt)
 {
 	struct noon010_info *info = to_noon010(sd);
@@ -558,8 +583,13 @@ static int noon010_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config
 	fmt->format.field = V4L2_FIELD_NONE;
 
 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+<<<<<<< HEAD
 		if (cfg) {
 			mf = v4l2_subdev_get_try_format(sd, cfg, 0);
+=======
+		if (sd_state) {
+			mf = v4l2_subdev_get_try_format(sd, sd_state, 0);
+>>>>>>> upstream/android-13
 			*mf = fmt->format;
 		}
 		return 0;
@@ -641,7 +671,13 @@ static int noon010_log_status(struct v4l2_subdev *sd)
 
 static int noon010_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
+<<<<<<< HEAD
 	struct v4l2_mbus_framefmt *mf = v4l2_subdev_get_try_format(sd, fh->pad, 0);
+=======
+	struct v4l2_mbus_framefmt *mf = v4l2_subdev_get_try_format(sd,
+								   fh->state,
+								   0);
+>>>>>>> upstream/android-13
 
 	mf->width = noon010_sizes[0].width;
 	mf->height = noon010_sizes[0].height;
@@ -720,7 +756,12 @@ static int noon010_probe(struct i2c_client *client,
 	mutex_init(&info->lock);
 	sd = &info->sd;
 	v4l2_i2c_subdev_init(sd, client, &noon010_ops);
+<<<<<<< HEAD
 	strlcpy(sd->name, MODULE_NAME, sizeof(sd->name));
+=======
+	/* Static name; NEVER use in new drivers! */
+	strscpy(sd->name, MODULE_NAME, sizeof(sd->name));
+>>>>>>> upstream/android-13
 
 	sd->internal_ops = &noon010_subdev_internal_ops;
 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;

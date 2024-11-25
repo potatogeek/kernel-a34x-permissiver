@@ -25,6 +25,11 @@ readonly path_sysctl_mem="net.core.optmem_max"
 if [[ "$#" -eq "0" ]]; then
 	$0 4 tcp -t 1
 	$0 6 tcp -t 1
+<<<<<<< HEAD
+=======
+	$0 4 udp -t 1
+	$0 6 udp -t 1
+>>>>>>> upstream/android-13
 	echo "OK. All tests passed"
 	exit 0
 fi

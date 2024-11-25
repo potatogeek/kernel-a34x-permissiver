@@ -6,16 +6,24 @@
  * the ppc64 non-hashed page table.
  */
 
+<<<<<<< HEAD
+=======
+#include <linux/sizes.h>
+
+>>>>>>> upstream/android-13
 #include <asm/nohash/64/pgtable-4k.h>
 #include <asm/barrier.h>
 #include <asm/asm-const.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_PPC_64K_PAGES
 #error "Page size not supported"
 #endif
 
 #define FIRST_USER_ADDRESS	0UL
 
+=======
+>>>>>>> upstream/android-13
 /*
  * Size of EA range mapped by our pagetables.
  */
@@ -23,11 +31,15 @@
 			    PUD_INDEX_SIZE + PGD_INDEX_SIZE + PAGE_SHIFT)
 #define PGTABLE_RANGE (ASM_CONST(1) << PGTABLE_EADDR_SIZE)
 
+<<<<<<< HEAD
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 #define PMD_CACHE_INDEX	(PMD_INDEX_SIZE + 1)
 #else
 #define PMD_CACHE_INDEX	PMD_INDEX_SIZE
 #endif
+=======
+#define PMD_CACHE_INDEX	PMD_INDEX_SIZE
+>>>>>>> upstream/android-13
 #define PUD_CACHE_INDEX PUD_INDEX_SIZE
 
 /*
@@ -61,7 +73,13 @@
 #define  PHB_IO_BASE	(ISA_IO_END)
 #define  PHB_IO_END	(KERN_IO_START + FULL_IO_SIZE)
 #define IOREMAP_BASE	(PHB_IO_END)
+<<<<<<< HEAD
 #define IOREMAP_END	(KERN_VIRT_START + KERN_VIRT_SIZE)
+=======
+#define IOREMAP_START	(ioremap_bot)
+#define IOREMAP_END	(KERN_VIRT_START + KERN_VIRT_SIZE - FIXADDR_SIZE)
+#define FIXADDR_SIZE	SZ_32M
+>>>>>>> upstream/android-13
 
 
 /*
@@ -73,7 +91,10 @@
 
 #define VMALLOC_REGION_ID	(REGION_ID(VMALLOC_START))
 #define KERNEL_REGION_ID	(REGION_ID(PAGE_OFFSET))
+<<<<<<< HEAD
 #define VMEMMAP_REGION_ID	(0xfUL)	/* Server only */
+=======
+>>>>>>> upstream/android-13
 #define USER_REGION_ID		(0UL)
 
 /*
@@ -89,11 +110,49 @@
  * Include the PTE bits definitions
  */
 #include <asm/nohash/pte-book3e.h>
+<<<<<<< HEAD
 #include <asm/pte-common.h>
+=======
+
+#define _PAGE_SAO	0
+
+#define PTE_RPN_MASK	(~((1UL << PTE_RPN_SHIFT) - 1))
+
+/*
+ * _PAGE_CHG_MASK masks of bits that are to be preserved across
+ * pgprot changes.
+ */
+#define _PAGE_CHG_MASK	(PTE_RPN_MASK | _PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_SPECIAL)
+
+#define H_PAGE_4K_PFN 0
+>>>>>>> upstream/android-13
 
 #ifndef __ASSEMBLY__
 /* pte_clear moved to later in this file */
 
+<<<<<<< HEAD
+=======
+static inline pte_t pte_mkwrite(pte_t pte)
+{
+	return __pte(pte_val(pte) | _PAGE_RW);
+}
+
+static inline pte_t pte_mkdirty(pte_t pte)
+{
+	return __pte(pte_val(pte) | _PAGE_DIRTY);
+}
+
+static inline pte_t pte_mkyoung(pte_t pte)
+{
+	return __pte(pte_val(pte) | _PAGE_ACCESSED);
+}
+
+static inline pte_t pte_wrprotect(pte_t pte)
+{
+	return __pte(pte_val(pte) & ~_PAGE_RW);
+}
+
+>>>>>>> upstream/android-13
 #define PMD_BAD_BITS		(PTE_TABLE_SIZE-1)
 #define PUD_BAD_BITS		(PMD_TABLE_SIZE-1)
 
@@ -133,7 +192,15 @@ static inline void pud_clear(pud_t *pudp)
 #define	pud_bad(pud)		(!is_kernel_addr(pud_val(pud)) \
 				 || (pud_val(pud) & PUD_BAD_BITS))
 #define pud_present(pud)	(pud_val(pud) != 0)
+<<<<<<< HEAD
 #define pud_page_vaddr(pud)	(pud_val(pud) & ~PUD_MASKED_BITS)
+=======
+
+static inline pmd_t *pud_pgtable(pud_t pud)
+{
+	return (pmd_t *)(pud_val(pud) & ~PUD_MASKED_BITS);
+}
+>>>>>>> upstream/android-13
 
 extern struct page *pud_page(pud_t pud);
 
@@ -147,6 +214,7 @@ static inline pud_t pte_pud(pte_t pte)
 	return __pud(pte_val(pte));
 }
 #define pud_write(pud)		pte_write(pud_pte(pud))
+<<<<<<< HEAD
 #define pgd_write(pgd)		pte_write(pgd_pte(pgd))
 
 static inline void pgd_set(pgd_t *pgdp, unsigned long val)
@@ -175,6 +243,15 @@ static inline void pgd_set(pgd_t *pgdp, unsigned long val)
 /* This now only contains the vmalloc pages */
 #define pgd_offset_k(address) pgd_offset(&init_mm, address)
 
+=======
+#define p4d_write(pgd)		pte_write(p4d_pte(p4d))
+
+static inline void p4d_set(p4d_t *p4dp, unsigned long val)
+{
+	*p4dp = __p4d(val);
+}
+
+>>>>>>> upstream/android-13
 /* Atomic PTE updates */
 static inline unsigned long pte_update(struct mm_struct *mm,
 				       unsigned long addr,
@@ -182,6 +259,7 @@ static inline unsigned long pte_update(struct mm_struct *mm,
 				       unsigned long set,
 				       int huge)
 {
+<<<<<<< HEAD
 #ifdef PTE_ATOMIC_UPDATES
 	unsigned long old, tmp;
 
@@ -198,6 +276,11 @@ static inline unsigned long pte_update(struct mm_struct *mm,
 	unsigned long old = pte_val(*ptep);
 	*ptep = __pte((old & ~clr) | set);
 #endif
+=======
+	unsigned long old = pte_val(*ptep);
+	*ptep = __pte((old & ~clr) | set);
+
+>>>>>>> upstream/android-13
 	/* huge pages use the old page table lock */
 	if (!huge)
 		assert_pte_locked(mm, addr);
@@ -239,6 +322,10 @@ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr,
 	pte_update(mm, addr, ptep, _PAGE_RW, 0, 0);
 }
 
+<<<<<<< HEAD
+=======
+#define __HAVE_ARCH_HUGE_PTEP_SET_WRPROTECT
+>>>>>>> upstream/android-13
 static inline void huge_ptep_set_wrprotect(struct mm_struct *mm,
 					   unsigned long addr, pte_t *ptep)
 {
@@ -280,6 +367,7 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
 	unsigned long bits = pte_val(entry) &
 		(_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW | _PAGE_EXEC);
 
+<<<<<<< HEAD
 #ifdef PTE_ATOMIC_UPDATES
 	unsigned long old, tmp;
 
@@ -295,6 +383,10 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
 	unsigned long old = pte_val(*ptep);
 	*ptep = __pte(old | bits);
 #endif
+=======
+	unsigned long old = pte_val(*ptep);
+	*ptep = __pte(old | bits);
+>>>>>>> upstream/android-13
 
 	flush_tlb_page(vma, address);
 }
@@ -313,9 +405,13 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
 #define MAX_SWAPFILES_CHECK() do { \
 	BUILD_BUG_ON(MAX_SWAPFILES_SHIFT > SWP_TYPE_BITS); \
 	} while (0)
+<<<<<<< HEAD
 /*
  * on pte we don't need handle RADIX_TREE_EXCEPTIONAL_SHIFT;
  */
+=======
+
+>>>>>>> upstream/android-13
 #define SWP_TYPE_BITS 5
 #define __swp_type(x)		(((x).val >> _PAGE_BIT_SWAP_TYPE) \
 				& ((1UL << SWP_TYPE_BITS) - 1))
@@ -327,8 +423,13 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
 #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val((pte)) })
 #define __swp_entry_to_pte(x)		__pte((x).val)
 
+<<<<<<< HEAD
 extern int map_kernel_page(unsigned long ea, unsigned long pa,
 			   unsigned long flags);
+=======
+int map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t prot);
+void unmap_kernel_page(unsigned long va);
+>>>>>>> upstream/android-13
 extern int __meminit vmemmap_create_mapping(unsigned long start,
 					    unsigned long page_size,
 					    unsigned long phys);

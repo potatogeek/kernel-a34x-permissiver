@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NV50_GR_H__
 #define __NV50_GR_H__
 #define nv50_gr(p) container_of((p), struct nv50_gr, base)
@@ -11,7 +15,11 @@ struct nv50_gr {
 	u32 size;
 };
 
+<<<<<<< HEAD
 int nv50_gr_new_(const struct nvkm_gr_func *, struct nvkm_device *, int index,
+=======
+int nv50_gr_new_(const struct nvkm_gr_func *, struct nvkm_device *, enum nvkm_subdev_type, int,
+>>>>>>> upstream/android-13
 		 struct nvkm_gr **);
 int nv50_gr_init(struct nvkm_gr *);
 void nv50_gr_intr(struct nvkm_gr *);

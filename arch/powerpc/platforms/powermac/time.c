@@ -28,7 +28,10 @@
 #include <asm/sections.h>
 #include <asm/prom.h>
 #include <asm/io.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/machdep.h>
 #include <asm/time.h>
 #include <asm/nvram.h>
@@ -45,6 +48,7 @@
 #endif
 
 /*
+<<<<<<< HEAD
  * Offset between Unix time (1970-based) and Mac time (1904-based). Cuda and PMU
  * times wrap in 2040. If we need to handle later times, the read_time functions
  * need to be changed to interpret wrapped times as post-2040.
@@ -52,6 +56,8 @@
 #define RTC_OFFSET	2082844800
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Calibrate the decrementer frequency with the VIA timer 1.
  */
 #define VIA_TIMER_FREQ_6	4700000	/* time 1 frequency * 6 */
@@ -75,7 +81,11 @@
 long __init pmac_time_init(void)
 {
 	s32 delta = 0;
+<<<<<<< HEAD
 #ifdef CONFIG_NVRAM
+=======
+#if defined(CONFIG_NVRAM) && defined(CONFIG_PPC32)
+>>>>>>> upstream/android-13
 	int dst;
 	
 	delta = ((s32)pmac_xpram_read(PMAC_XPRAM_MACHINE_LOC + 0x9)) << 16;
@@ -90,6 +100,7 @@ long __init pmac_time_init(void)
 	return delta;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ADB_CUDA
 static time64_t cuda_get_time(void)
 {
@@ -182,6 +193,8 @@ static int pmu_set_rtc_time(struct rtc_time *tm)
 #define pmu_set_rtc_time(tm)	0
 #endif
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PMAC_SMU
 static time64_t smu_get_time(void)
 {
@@ -191,11 +204,14 @@ static time64_t smu_get_time(void)
 		return 0;
 	return rtc_tm_to_time64(&tm);
 }
+<<<<<<< HEAD
 
 #else
 #define smu_get_time()			0
 #define smu_get_rtc_time(tm, spin)
 #define smu_set_rtc_time(tm, spin)	0
+=======
+>>>>>>> upstream/android-13
 #endif
 
 /* Can't be __init, it's called when suspending and resuming */
@@ -203,12 +219,27 @@ time64_t pmac_get_boot_time(void)
 {
 	/* Get the time from the RTC, used only at boot time */
 	switch (sys_ctrler) {
+<<<<<<< HEAD
 	case SYS_CTRLER_CUDA:
 		return cuda_get_time();
 	case SYS_CTRLER_PMU:
 		return pmu_get_time();
 	case SYS_CTRLER_SMU:
 		return smu_get_time();
+=======
+#ifdef CONFIG_ADB_CUDA
+	case SYS_CTRLER_CUDA:
+		return cuda_get_time();
+#endif
+#ifdef CONFIG_ADB_PMU
+	case SYS_CTRLER_PMU:
+		return pmu_get_time();
+#endif
+#ifdef CONFIG_PMAC_SMU
+	case SYS_CTRLER_SMU:
+		return smu_get_time();
+#endif
+>>>>>>> upstream/android-13
 	default:
 		return 0;
 	}
@@ -218,6 +249,7 @@ void pmac_get_rtc_time(struct rtc_time *tm)
 {
 	/* Get the time from the RTC, used only at boot time */
 	switch (sys_ctrler) {
+<<<<<<< HEAD
 	case SYS_CTRLER_CUDA:
 		cuda_get_rtc_time(tm);
 		break;
@@ -227,6 +259,23 @@ void pmac_get_rtc_time(struct rtc_time *tm)
 	case SYS_CTRLER_SMU:
 		smu_get_rtc_time(tm, 1);
 		break;
+=======
+#ifdef CONFIG_ADB_CUDA
+	case SYS_CTRLER_CUDA:
+		rtc_time64_to_tm(cuda_get_time(), tm);
+		break;
+#endif
+#ifdef CONFIG_ADB_PMU
+	case SYS_CTRLER_PMU:
+		rtc_time64_to_tm(pmu_get_time(), tm);
+		break;
+#endif
+#ifdef CONFIG_PMAC_SMU
+	case SYS_CTRLER_SMU:
+		smu_get_rtc_time(tm, 1);
+		break;
+#endif
+>>>>>>> upstream/android-13
 	default:
 		;
 	}
@@ -235,12 +284,27 @@ void pmac_get_rtc_time(struct rtc_time *tm)
 int pmac_set_rtc_time(struct rtc_time *tm)
 {
 	switch (sys_ctrler) {
+<<<<<<< HEAD
 	case SYS_CTRLER_CUDA:
 		return cuda_set_rtc_time(tm);
 	case SYS_CTRLER_PMU:
 		return pmu_set_rtc_time(tm);
 	case SYS_CTRLER_SMU:
 		return smu_set_rtc_time(tm, 1);
+=======
+#ifdef CONFIG_ADB_CUDA
+	case SYS_CTRLER_CUDA:
+		return cuda_set_rtc_time(tm);
+#endif
+#ifdef CONFIG_ADB_PMU
+	case SYS_CTRLER_PMU:
+		return pmu_set_rtc_time(tm);
+#endif
+#ifdef CONFIG_PMAC_SMU
+	case SYS_CTRLER_SMU:
+		return smu_set_rtc_time(tm, 1);
+#endif
+>>>>>>> upstream/android-13
 	default:
 		return -ENODEV;
 	}

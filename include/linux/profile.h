@@ -15,7 +15,10 @@
 #define KVM_PROFILING	4
 
 struct proc_dir_entry;
+<<<<<<< HEAD
 struct pt_regs;
+=======
+>>>>>>> upstream/android-13
 struct notifier_block;
 
 #if defined(CONFIG_PROFILING) && defined(CONFIG_PROC_FS)
@@ -84,8 +87,11 @@ int task_handoff_unregister(struct notifier_block * n);
 int profile_event_register(enum profile_type, struct notifier_block * n);
 int profile_event_unregister(enum profile_type, struct notifier_block * n);
 
+<<<<<<< HEAD
 struct pt_regs;
 
+=======
+>>>>>>> upstream/android-13
 #else
 
 #define prof_on 0

@@ -12,6 +12,10 @@
  */
 
 #include <linux/clkdev.h>
+<<<<<<< HEAD
+=======
+#include <linux/clk/spear.h>
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/of_platform.h>

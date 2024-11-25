@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 /*
  * Copyright 2015, Michael Neuling, IBM Corp.
  * Licensed under GPLv2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright 2015, Michael Neuling, IBM Corp.
+>>>>>>> upstream/android-13
  *
  * Test the kernel's signal return code to ensure that it doesn't
  * crash when both the transactional and suspend MSR bits are set in

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2014-2015 Hisilicon Limited.
  *
@@ -5,6 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2014-2015 Hisilicon Limited.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/io-64-nonatomic-hi-lo.h>
@@ -108,7 +114,11 @@ static void hns_xgmac_rx_enable(struct mac_driver *drv, u32 value)
 }
 
 /**
+<<<<<<< HEAD
  * hns_xgmac_tx_lf_rf_insert - insert lf rf control about xgmac
+=======
+ * hns_xgmac_lf_rf_insert - insert lf rf control about xgmac
+>>>>>>> upstream/android-13
  * @mac_drv: mac driver
  * @mode: inserf rf or lf
  */
@@ -119,7 +129,11 @@ static void hns_xgmac_lf_rf_insert(struct mac_driver *mac_drv, u32 mode)
 }
 
 /**
+<<<<<<< HEAD
  * hns_xgmac__lf_rf_control_init - initial the lf rf control register
+=======
+ * hns_xgmac_lf_rf_control_init - initial the lf rf control register
+>>>>>>> upstream/android-13
  * @mac_drv: mac driver
  */
 static void hns_xgmac_lf_rf_control_init(struct mac_driver *mac_drv)
@@ -134,7 +148,11 @@ static void hns_xgmac_lf_rf_control_init(struct mac_driver *mac_drv)
 
 /**
  *hns_xgmac_enable - enable xgmac port
+<<<<<<< HEAD
  *@drv: mac driver
+=======
+ *@mac_drv: mac driver
+>>>>>>> upstream/android-13
  *@mode: mode of mac port
  */
 static void hns_xgmac_enable(void *mac_drv, enum mac_commom_mode mode)
@@ -246,7 +264,12 @@ static void hns_xgmac_config_pad_and_crc(void *mac_drv, u8 newval)
 /**
  *hns_xgmac_pausefrm_cfg - set pause param about xgmac
  *@mac_drv: mac driver
+<<<<<<< HEAD
  *@newval:enable of pad and crc
+=======
+ *@rx_en: enable receive
+ *@tx_en: enable transmit
+>>>>>>> upstream/android-13
  */
 static void hns_xgmac_pausefrm_cfg(void *mac_drv, u32 rx_en, u32 tx_en)
 {
@@ -270,6 +293,7 @@ static void hns_xgmac_set_pausefrm_mac_addr(void *mac_drv, char *mac_addr)
 }
 
 /**
+<<<<<<< HEAD
  *hns_xgmac_set_rx_ignore_pause_frames - set rx pause param about xgmac
  *@mac_drv: mac driver
  *@enable:enable rx pause param
@@ -283,6 +307,8 @@ static void hns_xgmac_set_rx_ignore_pause_frames(void *mac_drv, u32 enable)
 }
 
 /**
+=======
+>>>>>>> upstream/android-13
  *hns_xgmac_set_tx_auto_pause_frames - set tx pause param about xgmac
  *@mac_drv: mac driver
  *@enable:enable tx pause param
@@ -494,12 +520,19 @@ static void hns_xgmac_get_link_status(void *mac_drv, u32 *link_stat)
 /**
  *hns_xgmac_get_regs - dump xgmac regs
  *@mac_drv: mac driver
+<<<<<<< HEAD
  *@cmd:ethtool cmd
+=======
+>>>>>>> upstream/android-13
  *@data:data for value of regs
  */
 static void hns_xgmac_get_regs(void *mac_drv, void *data)
 {
+<<<<<<< HEAD
 	u32 i = 0;
+=======
+	u32 i;
+>>>>>>> upstream/android-13
 	struct mac_driver *drv = (struct mac_driver *)mac_drv;
 	u32 *regs = data;
 	u64 qtmp;
@@ -762,16 +795,25 @@ static void hns_xgmac_get_stats(void *mac_drv, u64 *data)
  */
 static void hns_xgmac_get_strings(u32 stringset, u8 *data)
 {
+<<<<<<< HEAD
 	char *buff = (char *)data;
+=======
+	u8 *buff = data;
+>>>>>>> upstream/android-13
 	u32 i;
 
 	if (stringset != ETH_SS_STATS)
 		return;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(g_xgmac_stats_string); i++) {
 		snprintf(buff, ETH_GSTRING_LEN, g_xgmac_stats_string[i].desc);
 		buff = buff + ETH_GSTRING_LEN;
 	}
+=======
+	for (i = 0; i < ARRAY_SIZE(g_xgmac_stats_string); i++)
+		ethtool_sprintf(&buff, g_xgmac_stats_string[i].desc);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -818,9 +860,12 @@ void *hns_xgmac_config(struct hns_mac_cb *mac_cb, struct mac_params *mac_param)
 	mac_drv->set_an_mode = NULL;
 	mac_drv->config_loopback = NULL;
 	mac_drv->config_pad_and_crc = hns_xgmac_config_pad_and_crc;
+<<<<<<< HEAD
 	mac_drv->config_half_duplex = NULL;
 	mac_drv->set_rx_ignore_pause_frames =
 		hns_xgmac_set_rx_ignore_pause_frames;
+=======
+>>>>>>> upstream/android-13
 	mac_drv->mac_free = hns_xgmac_free;
 	mac_drv->adjust_link = NULL;
 	mac_drv->set_tx_auto_pause_frames = hns_xgmac_set_tx_auto_pause_frames;

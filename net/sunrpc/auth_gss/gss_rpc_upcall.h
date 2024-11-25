@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  *  linux/net/sunrpc/gss_rpc_upcall.h
  *
  *  Copyright (C) 2012 Simo Sorce <simo@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _GSS_RPC_UPCALL_H
@@ -45,4 +52,8 @@ void gssp_free_upcall_data(struct gssp_upcall_data *data);
 void init_gssp_clnt(struct sunrpc_net *);
 int set_gssp_clnt(struct net *);
 void clear_gssp_clnt(struct sunrpc_net *);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #endif /* _GSS_RPC_UPCALL_H */

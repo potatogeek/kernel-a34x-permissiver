@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2008 Red Hat, Inc. All rights reserved.
  * Copyright 2008 Ian Kent <raven@themaw.net>
@@ -11,6 +12,20 @@
 #include <linux/compat.h>
 #include <linux/syscalls.h>
 #include <linux/magic.h>
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2008 Red Hat, Inc. All rights reserved.
+ * Copyright 2008 Ian Kent <raven@themaw.net>
+ */
+
+#include <linux/module.h>
+#include <linux/miscdevice.h>
+#include <linux/compat.h>
+#include <linux/fdtable.h>
+#include <linux/magic.h>
+#include <linux/nospec.h>
+>>>>>>> upstream/android-13
 
 #include "autofs_i.h"
 
@@ -23,7 +38,11 @@
  * another mount. This situation arises when starting automount(8)
  * or other user space daemon which uses direct mounts or offset
  * mounts (used for autofs lazy mount/umount of nested mount trees),
+<<<<<<< HEAD
  * which have been left busy at at service shutdown.
+=======
+ * which have been left busy at service shutdown.
+>>>>>>> upstream/android-13
  */
 
 typedef int (*ioctl_fn)(struct file *, struct autofs_sb_info *,
@@ -151,6 +170,7 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 /*
  * Get the autofs super block info struct from the file opened on
  * the autofs mount point.
@@ -167,6 +187,8 @@ static struct autofs_sb_info *autofs_dev_ioctl_sbi(struct file *f)
 	return sbi;
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Return autofs dev ioctl version */
 static int autofs_dev_ioctl_version(struct file *fp,
 				    struct autofs_sb_info *sbi,
@@ -205,7 +227,11 @@ static int find_autofs_mount(const char *pathname,
 	struct path path;
 	int err;
 
+<<<<<<< HEAD
 	err = kern_path_mountpoint(AT_FDCWD, pathname, &path, 0);
+=======
+	err = kern_path(pathname, LOOKUP_MOUNTPOINT, &path);
+>>>>>>> upstream/android-13
 	if (err)
 		return err;
 	err = -ENOENT;
@@ -307,7 +333,11 @@ static int autofs_dev_ioctl_closemount(struct file *fp,
 				       struct autofs_sb_info *sbi,
 				       struct autofs_dev_ioctl *param)
 {
+<<<<<<< HEAD
 	return ksys_close(param->ioctlfd);
+=======
+	return close_fd(param->ioctlfd);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -366,7 +396,11 @@ static int autofs_dev_ioctl_setpipefd(struct file *fp,
 	pipefd = param->setpipefd.pipefd;
 
 	mutex_lock(&sbi->wq_mutex);
+<<<<<<< HEAD
 	if (!sbi->catatonic) {
+=======
+	if (!(sbi->flags & AUTOFS_SBI_CATATONIC)) {
+>>>>>>> upstream/android-13
 		mutex_unlock(&sbi->wq_mutex);
 		return -EBUSY;
 	} else {
@@ -393,7 +427,11 @@ static int autofs_dev_ioctl_setpipefd(struct file *fp,
 		swap(sbi->oz_pgrp, new_pid);
 		sbi->pipefd = pipefd;
 		sbi->pipe = pipe;
+<<<<<<< HEAD
 		sbi->catatonic = 0;
+=======
+		sbi->flags &= ~AUTOFS_SBI_CATATONIC;
+>>>>>>> upstream/android-13
 	}
 out:
 	put_pid(new_pid);
@@ -515,7 +553,11 @@ static int autofs_dev_ioctl_askumount(struct file *fp,
  * located path is the root of a mount we return 1 along with
  * the super magic of the mount or 0 otherwise.
  *
+<<<<<<< HEAD
  * In both cases the the device number (as returned by
+=======
+ * In both cases the device number (as returned by
+>>>>>>> upstream/android-13
  * new_encode_dev()) is also returned.
  */
 static int autofs_dev_ioctl_ismountpoint(struct file *fp,
@@ -538,8 +580,13 @@ static int autofs_dev_ioctl_ismountpoint(struct file *fp,
 
 	if (!fp || param->ioctlfd == -1) {
 		if (autofs_type_any(type))
+<<<<<<< HEAD
 			err = kern_path_mountpoint(AT_FDCWD,
 						   name, &path, LOOKUP_FOLLOW);
+=======
+			err = kern_path(name, LOOKUP_FOLLOW | LOOKUP_MOUNTPOINT,
+					&path);
+>>>>>>> upstream/android-13
 		else
 			err = find_autofs_mount(name, &path,
 						test_by_type, &type);
@@ -582,7 +629,11 @@ out:
 
 static ioctl_fn lookup_dev_ioctl(unsigned int cmd)
 {
+<<<<<<< HEAD
 	static ioctl_fn _ioctls[] = {
+=======
+	static const ioctl_fn _ioctls[] = {
+>>>>>>> upstream/android-13
 		autofs_dev_ioctl_version,
 		autofs_dev_ioctl_protover,
 		autofs_dev_ioctl_protosubver,
@@ -600,7 +651,14 @@ static ioctl_fn lookup_dev_ioctl(unsigned int cmd)
 	};
 	unsigned int idx = cmd_idx(cmd);
 
+<<<<<<< HEAD
 	return (idx >= ARRAY_SIZE(_ioctls)) ? NULL : _ioctls[idx];
+=======
+	if (idx >= ARRAY_SIZE(_ioctls))
+		return NULL;
+	idx = array_index_nospec(idx, ARRAY_SIZE(_ioctls));
+	return _ioctls[idx];
+>>>>>>> upstream/android-13
 }
 
 /* ioctl dispatcher */
@@ -658,6 +716,11 @@ static int _autofs_dev_ioctl(unsigned int command,
 	if (cmd != AUTOFS_DEV_IOCTL_VERSION_CMD &&
 	    cmd != AUTOFS_DEV_IOCTL_OPENMOUNT_CMD &&
 	    cmd != AUTOFS_DEV_IOCTL_CLOSEMOUNT_CMD) {
+<<<<<<< HEAD
+=======
+		struct super_block *sb;
+
+>>>>>>> upstream/android-13
 		fp = fget(param->ioctlfd);
 		if (!fp) {
 			if (cmd == AUTOFS_DEV_IOCTL_ISMOUNTPOINT_CMD)
@@ -666,12 +729,21 @@ static int _autofs_dev_ioctl(unsigned int command,
 			goto out;
 		}
 
+<<<<<<< HEAD
 		sbi = autofs_dev_ioctl_sbi(fp);
 		if (!sbi || sbi->magic != AUTOFS_SBI_MAGIC) {
+=======
+		sb = file_inode(fp)->i_sb;
+		if (sb->s_type != &autofs_fs_type) {
+>>>>>>> upstream/android-13
 			err = -EINVAL;
 			fput(fp);
 			goto out;
 		}
+<<<<<<< HEAD
+=======
+		sbi = autofs_sbi(sb);
+>>>>>>> upstream/android-13
 
 		/*
 		 * Admin needs to be able to set the mount catatonic in

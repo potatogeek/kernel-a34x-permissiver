@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
  *
@@ -9,6 +10,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #undef TRACE_SYSTEM
@@ -19,6 +25,7 @@
 
 #include <linux/tracepoint.h>
 
+<<<<<<< HEAD
 #define UFS_LINK_STATES			\
 	EM(UIC_LINK_OFF_STATE)		\
 	EM(UIC_LINK_ACTIVE_STATE)	\
@@ -34,16 +41,70 @@
 	EM(CLKS_ON)			\
 	EM(REQ_CLKS_OFF)		\
 	EMe(REQ_CLKS_ON)
+=======
+#define str_opcode(opcode)						\
+	__print_symbolic(opcode,					\
+		{ WRITE_16,		"WRITE_16" },			\
+		{ WRITE_10,		"WRITE_10" },			\
+		{ READ_16,		"READ_16" },			\
+		{ READ_10,		"READ_10" },			\
+		{ SYNCHRONIZE_CACHE,	"SYNC" },			\
+		{ UNMAP,		"UNMAP" })
+
+#define UFS_LINK_STATES						\
+	EM(UIC_LINK_OFF_STATE,		"UIC_LINK_OFF_STATE")		\
+	EM(UIC_LINK_ACTIVE_STATE,	"UIC_LINK_ACTIVE_STATE")	\
+	EMe(UIC_LINK_HIBERN8_STATE,	"UIC_LINK_HIBERN8_STATE")
+
+#define UFS_PWR_MODES							\
+	EM(UFS_ACTIVE_PWR_MODE,		"UFS_ACTIVE_PWR_MODE")		\
+	EM(UFS_SLEEP_PWR_MODE,		"UFS_SLEEP_PWR_MODE")		\
+	EM(UFS_POWERDOWN_PWR_MODE,	"UFS_POWERDOWN_PWR_MODE")	\
+	EMe(UFS_DEEPSLEEP_PWR_MODE,	"UFS_DEEPSLEEP_PWR_MODE")
+
+#define UFSCHD_CLK_GATING_STATES				\
+	EM(CLKS_OFF,			"CLKS_OFF")		\
+	EM(CLKS_ON,			"CLKS_ON")		\
+	EM(REQ_CLKS_OFF,		"REQ_CLKS_OFF")		\
+	EMe(REQ_CLKS_ON,		"REQ_CLKS_ON")
+
+#define UFS_CMD_TRACE_STRINGS					\
+	EM(UFS_CMD_SEND,	"send_req")			\
+	EM(UFS_CMD_COMP,	"complete_rsp")			\
+	EM(UFS_DEV_COMP,	"dev_complete")			\
+	EM(UFS_QUERY_SEND,	"query_send")			\
+	EM(UFS_QUERY_COMP,	"query_complete")		\
+	EM(UFS_QUERY_ERR,	"query_complete_err")		\
+	EM(UFS_TM_SEND,		"tm_send")			\
+	EM(UFS_TM_COMP,		"tm_complete")			\
+	EMe(UFS_TM_ERR,		"tm_complete_err")
+
+#define UFS_CMD_TRACE_TSF_TYPES					\
+	EM(UFS_TSF_CDB,		"CDB")		                \
+	EM(UFS_TSF_OSF,		"OSF")		                \
+	EM(UFS_TSF_TM_INPUT,	"TM_INPUT")                     \
+	EMe(UFS_TSF_TM_OUTPUT,	"TM_OUTPUT")
+>>>>>>> upstream/android-13
 
 /* Enums require being exported to userspace, for user tool parsing */
 #undef EM
 #undef EMe
+<<<<<<< HEAD
 #define EM(a)	TRACE_DEFINE_ENUM(a);
 #define EMe(a)	TRACE_DEFINE_ENUM(a);
+=======
+#define EM(a, b)	TRACE_DEFINE_ENUM(a);
+#define EMe(a, b)	TRACE_DEFINE_ENUM(a);
+>>>>>>> upstream/android-13
 
 UFS_LINK_STATES;
 UFS_PWR_MODES;
 UFSCHD_CLK_GATING_STATES;
+<<<<<<< HEAD
+=======
+UFS_CMD_TRACE_STRINGS
+UFS_CMD_TRACE_TSF_TYPES
+>>>>>>> upstream/android-13
 
 /*
  * Now redefine the EM() and EMe() macros to map the enums to the strings
@@ -51,8 +112,18 @@ UFSCHD_CLK_GATING_STATES;
  */
 #undef EM
 #undef EMe
+<<<<<<< HEAD
 #define EM(a)	{ a, #a },
 #define EMe(a)	{ a, #a }
+=======
+#define EM(a, b)	{a, b},
+#define EMe(a, b)	{a, b}
+
+#define show_ufs_cmd_trace_str(str_t)	\
+				__print_symbolic(str_t, UFS_CMD_TRACE_STRINGS)
+#define show_ufs_cmd_trace_tsf(tsf)	\
+				__print_symbolic(tsf, UFS_CMD_TRACE_TSF_TYPES)
+>>>>>>> upstream/android-13
 
 TRACE_EVENT(ufshcd_clk_gating,
 
@@ -220,6 +291,7 @@ DEFINE_EVENT(ufshcd_template, ufshcd_init,
 		      int dev_state, int link_state),
 	     TP_ARGS(dev_name, err, usecs, dev_state, link_state));
 
+<<<<<<< HEAD
 TRACE_EVENT(ufshcd_command,
 	TP_PROTO(const char *dev_name, const char *str, unsigned int tag,
 			u32 doorbell, int transfer_len, u32 intr, u64 lba,
@@ -231,25 +303,67 @@ TRACE_EVENT(ufshcd_command,
 	TP_STRUCT__entry(
 		__string(dev_name, dev_name)
 		__string(str, str)
+=======
+DEFINE_EVENT(ufshcd_template, ufshcd_wl_suspend,
+	     TP_PROTO(const char *dev_name, int err, s64 usecs,
+		      int dev_state, int link_state),
+	     TP_ARGS(dev_name, err, usecs, dev_state, link_state));
+
+DEFINE_EVENT(ufshcd_template, ufshcd_wl_resume,
+	     TP_PROTO(const char *dev_name, int err, s64 usecs,
+		      int dev_state, int link_state),
+	     TP_ARGS(dev_name, err, usecs, dev_state, link_state));
+
+DEFINE_EVENT(ufshcd_template, ufshcd_wl_runtime_suspend,
+	     TP_PROTO(const char *dev_name, int err, s64 usecs,
+		      int dev_state, int link_state),
+	     TP_ARGS(dev_name, err, usecs, dev_state, link_state));
+
+DEFINE_EVENT(ufshcd_template, ufshcd_wl_runtime_resume,
+	     TP_PROTO(const char *dev_name, int err, s64 usecs,
+		      int dev_state, int link_state),
+	     TP_ARGS(dev_name, err, usecs, dev_state, link_state));
+
+TRACE_EVENT(ufshcd_command,
+	TP_PROTO(const char *dev_name, enum ufs_trace_str_t str_t,
+		 unsigned int tag, u32 doorbell, int transfer_len, u32 intr,
+		 u64 lba, u8 opcode, u8 group_id),
+
+	TP_ARGS(dev_name, str_t, tag, doorbell, transfer_len,
+				intr, lba, opcode, group_id),
+
+	TP_STRUCT__entry(
+		__string(dev_name, dev_name)
+		__field(enum ufs_trace_str_t, str_t)
+>>>>>>> upstream/android-13
 		__field(unsigned int, tag)
 		__field(u32, doorbell)
 		__field(int, transfer_len)
 		__field(u32, intr)
 		__field(u64, lba)
 		__field(u8, opcode)
+<<<<<<< HEAD
 		__field(u8, crypt_en)
 		__field(u8, crypt_keyslot)
+=======
+		__field(u8, group_id)
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(
 		__assign_str(dev_name, dev_name);
+<<<<<<< HEAD
 		__assign_str(str, str);
+=======
+		__entry->str_t = str_t;
+>>>>>>> upstream/android-13
 		__entry->tag = tag;
 		__entry->doorbell = doorbell;
 		__entry->transfer_len = transfer_len;
 		__entry->intr = intr;
 		__entry->lba = lba;
 		__entry->opcode = opcode;
+<<<<<<< HEAD
 		__entry->crypt_en = crypt_en;
 		__entry->crypt_keyslot = crypt_keyslot;
 	),
@@ -260,10 +374,22 @@ TRACE_EVENT(ufshcd_command,
 		__entry->doorbell, __entry->transfer_len,
 		__entry->intr, __entry->crypt_en, __entry->crypt_keyslot,
 		__entry->lba, (u32)__entry->opcode
+=======
+		__entry->group_id = group_id;
+	),
+
+	TP_printk(
+		"%s: %s: tag: %u, DB: 0x%x, size: %d, IS: %u, LBA: %llu, opcode: 0x%x (%s), group_id: 0x%x",
+		show_ufs_cmd_trace_str(__entry->str_t), __get_str(dev_name),
+		__entry->tag, __entry->doorbell, __entry->transfer_len,
+		__entry->intr, __entry->lba, (u32)__entry->opcode,
+		str_opcode(__entry->opcode), (u32)__entry->group_id
+>>>>>>> upstream/android-13
 	)
 );
 
 TRACE_EVENT(ufshcd_uic_command,
+<<<<<<< HEAD
 	TP_PROTO(const char *dev_name, const char *str, u32 cmd,
 		 u32 arg1, u32 arg2, u32 arg3),
 
@@ -272,6 +398,16 @@ TRACE_EVENT(ufshcd_uic_command,
 	TP_STRUCT__entry(
 		__string(dev_name, dev_name)
 		__string(str, str)
+=======
+	TP_PROTO(const char *dev_name, enum ufs_trace_str_t str_t, u32 cmd,
+		 u32 arg1, u32 arg2, u32 arg3),
+
+	TP_ARGS(dev_name, str_t, cmd, arg1, arg2, arg3),
+
+	TP_STRUCT__entry(
+		__string(dev_name, dev_name)
+		__field(enum ufs_trace_str_t, str_t)
+>>>>>>> upstream/android-13
 		__field(u32, cmd)
 		__field(u32, arg1)
 		__field(u32, arg2)
@@ -280,7 +416,11 @@ TRACE_EVENT(ufshcd_uic_command,
 
 	TP_fast_assign(
 		__assign_str(dev_name, dev_name);
+<<<<<<< HEAD
 		__assign_str(str, str);
+=======
+		__entry->str_t = str_t;
+>>>>>>> upstream/android-13
 		__entry->cmd = cmd;
 		__entry->arg1 = arg1;
 		__entry->arg2 = arg2;
@@ -289,12 +429,18 @@ TRACE_EVENT(ufshcd_uic_command,
 
 	TP_printk(
 		"%s: %s: cmd: 0x%x, arg1: 0x%x, arg2: 0x%x, arg3: 0x%x",
+<<<<<<< HEAD
 		__get_str(str), __get_str(dev_name), __entry->cmd,
 		__entry->arg1, __entry->arg2, __entry->arg3
+=======
+		show_ufs_cmd_trace_str(__entry->str_t), __get_str(dev_name),
+		__entry->cmd, __entry->arg1, __entry->arg2, __entry->arg3
+>>>>>>> upstream/android-13
 	)
 );
 
 TRACE_EVENT(ufshcd_upiu,
+<<<<<<< HEAD
 	TP_PROTO(const char *dev_name, const char *str, void *hdr, void *tsf),
 
 	TP_ARGS(dev_name, str, hdr, tsf),
@@ -304,10 +450,24 @@ TRACE_EVENT(ufshcd_upiu,
 		__string(str, str)
 		__array(unsigned char, hdr, 12)
 		__array(unsigned char, tsf, 16)
+=======
+	TP_PROTO(const char *dev_name, enum ufs_trace_str_t str_t, void *hdr,
+		 void *tsf, enum ufs_trace_tsf_t tsf_t),
+
+	TP_ARGS(dev_name, str_t, hdr, tsf, tsf_t),
+
+	TP_STRUCT__entry(
+		__string(dev_name, dev_name)
+		__field(enum ufs_trace_str_t, str_t)
+		__array(unsigned char, hdr, 12)
+		__array(unsigned char, tsf, 16)
+		__field(enum ufs_trace_tsf_t, tsf_t)
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(
 		__assign_str(dev_name, dev_name);
+<<<<<<< HEAD
 		__assign_str(str, str);
 		memcpy(__entry->hdr, hdr, sizeof(__entry->hdr));
 		memcpy(__entry->tsf, tsf, sizeof(__entry->tsf));
@@ -317,10 +477,24 @@ TRACE_EVENT(ufshcd_upiu,
 		"%s: %s: HDR:%s, CDB:%s",
 		__get_str(str), __get_str(dev_name),
 		__print_hex(__entry->hdr, sizeof(__entry->hdr)),
+=======
+		__entry->str_t = str_t;
+		memcpy(__entry->hdr, hdr, sizeof(__entry->hdr));
+		memcpy(__entry->tsf, tsf, sizeof(__entry->tsf));
+		__entry->tsf_t = tsf_t;
+	),
+
+	TP_printk(
+		"%s: %s: HDR:%s, %s:%s",
+		show_ufs_cmd_trace_str(__entry->str_t), __get_str(dev_name),
+		__print_hex(__entry->hdr, sizeof(__entry->hdr)),
+		show_ufs_cmd_trace_tsf(__entry->tsf_t),
+>>>>>>> upstream/android-13
 		__print_hex(__entry->tsf, sizeof(__entry->tsf))
 	)
 );
 
+<<<<<<< HEAD
 TRACE_EVENT(ufshcd_device_reset,
 	TP_PROTO(const char *dev_name),
 
@@ -328,10 +502,22 @@ TRACE_EVENT(ufshcd_device_reset,
 
 	TP_STRUCT__entry(
 		__string(dev_name, dev_name)
+=======
+TRACE_EVENT(ufshcd_exception_event,
+
+	TP_PROTO(const char *dev_name, u16 status),
+
+	TP_ARGS(dev_name, status),
+
+	TP_STRUCT__entry(
+		__string(dev_name, dev_name)
+		__field(u16, status)
+>>>>>>> upstream/android-13
 	),
 
 	TP_fast_assign(
 		__assign_str(dev_name, dev_name);
+<<<<<<< HEAD
 	),
 
 	TP_printk(
@@ -341,6 +527,16 @@ TRACE_EVENT(ufshcd_device_reset,
 );
 
 
+=======
+		__entry->status = status;
+	),
+
+	TP_printk("%s: status 0x%x",
+		__get_str(dev_name), __entry->status
+	)
+);
+
+>>>>>>> upstream/android-13
 #endif /* if !defined(_TRACE_UFS_H) || defined(TRACE_HEADER_MULTI_READ) */
 
 /* This part must be outside protection */

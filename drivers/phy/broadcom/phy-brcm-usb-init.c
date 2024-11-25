@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * phy-brcm-usb-init.c - Broadcom USB Phy chip specific init functions
  *
  * Copyright (C) 2014-2017 Broadcom
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -50,6 +57,10 @@
 #define   USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK		0x80000000 /* option */
 #define USB_CTRL_EBRIDGE		0x0c
 #define   USB_CTRL_EBRIDGE_ESTOP_SCB_REQ_MASK		0x00020000 /* option */
+<<<<<<< HEAD
+=======
+#define   USB_CTRL_EBRIDGE_EBR_SCB_SIZE_MASK		0x00000f80 /* option */
+>>>>>>> upstream/android-13
 #define USB_CTRL_OBRIDGE		0x10
 #define   USB_CTRL_OBRIDGE_LS_KEEP_ALIVE_MASK		0x08000000
 #define USB_CTRL_MDIO			0x14
@@ -65,6 +76,11 @@
 #define   USB_CTRL_USB_PM_SOFT_RESET_MASK		0x40000000 /* option */
 #define   USB_CTRL_USB_PM_USB20_HC_RESETB_MASK		0x30000000 /* option */
 #define   USB_CTRL_USB_PM_USB20_HC_RESETB_VAR_MASK	0x00300000 /* option */
+<<<<<<< HEAD
+=======
+#define   USB_CTRL_USB_PM_RMTWKUP_EN_MASK		0x00000001
+#define USB_CTRL_USB_PM_STATUS		0x38
+>>>>>>> upstream/android-13
 #define USB_CTRL_USB30_CTL1		0x60
 #define   USB_CTRL_USB30_CTL1_PHY3_PLL_SEQ_START_MASK	0x00000010
 #define   USB_CTRL_USB30_CTL1_PHY3_RESETB_MASK		0x00010000
@@ -84,6 +100,10 @@
 
 enum brcm_family_type {
 	BRCM_FAMILY_3390A0,
+<<<<<<< HEAD
+=======
+	BRCM_FAMILY_4908,
+>>>>>>> upstream/android-13
 	BRCM_FAMILY_7250B0,
 	BRCM_FAMILY_7271A0,
 	BRCM_FAMILY_7364A0,
@@ -101,6 +121,10 @@ enum brcm_family_type {
 
 static const char *family_names[BRCM_FAMILY_COUNT] = {
 	USB_BRCM_FAMILY(3390A0),
+<<<<<<< HEAD
+=======
+	USB_BRCM_FAMILY(4908),
+>>>>>>> upstream/android-13
 	USB_BRCM_FAMILY(7250B0),
 	USB_BRCM_FAMILY(7271A0),
 	USB_BRCM_FAMILY(7364A0),
@@ -134,10 +158,13 @@ enum {
 	USB_CTRL_SELECTOR_COUNT,
 };
 
+<<<<<<< HEAD
 #define USB_CTRL_REG(base, reg)	((void *)base + USB_CTRL_##reg)
 #define USB_XHCI_EC_REG(base, reg) ((void *)base + USB_XHCI_EC_##reg)
 #define USB_CTRL_MASK(reg, field) \
 	USB_CTRL_##reg##_##field##_MASK
+=======
+>>>>>>> upstream/android-13
 #define USB_CTRL_MASK_FAMILY(params, reg, field)			\
 	(params->usb_reg_bits_map[USB_CTRL_##reg##_##field##_SELECTOR])
 
@@ -148,6 +175,7 @@ enum {
 	usb_ctrl_unset_family(params, USB_CTRL_##reg,	\
 		USB_CTRL_##reg##_##field##_SELECTOR)
 
+<<<<<<< HEAD
 #define USB_CTRL_SET(base, reg, field)	\
 	usb_ctrl_set(USB_CTRL_REG(base, reg),		\
 		     USB_CTRL_##reg##_##field##_MASK)
@@ -155,6 +183,8 @@ enum {
 	usb_ctrl_unset(USB_CTRL_REG(base, reg),		\
 		       USB_CTRL_##reg##_##field##_MASK)
 
+=======
+>>>>>>> upstream/android-13
 #define MDIO_USB2	0
 #define MDIO_USB3	BIT(31)
 
@@ -184,6 +214,10 @@ static const struct id_to_type id_to_type_table[] = {
 	{ 0x33900000, BRCM_FAMILY_3390A0 },
 	{ 0x72500010, BRCM_FAMILY_7250B0 },
 	{ 0x72600000, BRCM_FAMILY_7260A0 },
+<<<<<<< HEAD
+=======
+	{ 0x72550000, BRCM_FAMILY_7260A0 },
+>>>>>>> upstream/android-13
 	{ 0x72680000, BRCM_FAMILY_7271A0 },
 	{ 0x72710000, BRCM_FAMILY_7271A0 },
 	{ 0x73640000, BRCM_FAMILY_7364A0 },
@@ -218,6 +252,30 @@ usb_reg_bits_map_table[BRCM_FAMILY_COUNT][USB_CTRL_SELECTOR_COUNT] = {
 		USB_CTRL_USB_PM_USB20_HC_RESETB_VAR_MASK,
 		ENDIAN_SETTINGS, /* USB_CTRL_SETUP ENDIAN bits */
 	},
+<<<<<<< HEAD
+=======
+	/* 4908 */
+	[BRCM_FAMILY_4908] = {
+		0, /* USB_CTRL_SETUP_SCB1_EN_MASK */
+		0, /* USB_CTRL_SETUP_SCB2_EN_MASK */
+		0, /* USB_CTRL_SETUP_SS_EHCI64BIT_EN_MASK */
+		0, /* USB_CTRL_SETUP_STRAP_IPP_SEL_MASK */
+		0, /* USB_CTRL_SETUP_OC3_DISABLE_MASK */
+		0, /* USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK */
+		0, /* USB_CTRL_USB_PM_BDC_SOFT_RESETB_MASK */
+		USB_CTRL_USB_PM_XHC_SOFT_RESETB_MASK,
+		USB_CTRL_USB_PM_USB_PWRDN_MASK,
+		0, /* USB_CTRL_USB30_CTL1_XHC_SOFT_RESETB_MASK */
+		0, /* USB_CTRL_USB30_CTL1_USB3_IOC_MASK */
+		0, /* USB_CTRL_USB30_CTL1_USB3_IPP_MASK */
+		0, /* USB_CTRL_USB_DEVICE_CTL1_PORT_MODE_MASK */
+		0, /* USB_CTRL_USB_PM_SOFT_RESET_MASK */
+		0, /* USB_CTRL_SETUP_CC_DRD_MODE_ENABLE_MASK */
+		0, /* USB_CTRL_SETUP_STRAP_CC_DRD_MODE_ENABLE_SEL_MASK */
+		0, /* USB_CTRL_USB_PM_USB20_HC_RESETB_VAR_MASK */
+		0, /* USB_CTRL_SETUP ENDIAN bits */
+	},
+>>>>>>> upstream/android-13
 	/* 7250b0 */
 	[BRCM_FAMILY_7250B0] = {
 		USB_CTRL_SETUP_SCB1_EN_MASK,
@@ -409,6 +467,7 @@ usb_reg_bits_map_table[BRCM_FAMILY_COUNT][USB_CTRL_SELECTOR_COUNT] = {
 	},
 };
 
+<<<<<<< HEAD
 static inline u32 brcmusb_readl(void __iomem *addr)
 {
 	return readl(addr);
@@ -419,16 +478,24 @@ static inline void brcmusb_writel(u32 val, void __iomem *addr)
 	writel(val, addr);
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline
 void usb_ctrl_unset_family(struct brcm_usb_init_params *params,
 			   u32 reg_offset, u32 field)
 {
 	u32 mask;
+<<<<<<< HEAD
 	void *reg;
 
 	mask = params->usb_reg_bits_map[field];
 	reg = params->ctrl_regs + reg_offset;
 	brcmusb_writel(brcmusb_readl(reg) & ~mask, reg);
+=======
+
+	mask = params->usb_reg_bits_map[field];
+	brcm_usb_ctrl_unset(params->regs[BRCM_REGS_CTRL] + reg_offset, mask);
+>>>>>>> upstream/android-13
 };
 
 static inline
@@ -436,6 +503,7 @@ void usb_ctrl_set_family(struct brcm_usb_init_params *params,
 			 u32 reg_offset, u32 field)
 {
 	u32 mask;
+<<<<<<< HEAD
 	void *reg;
 
 	mask = params->usb_reg_bits_map[field];
@@ -459,11 +527,19 @@ static inline void usb_ctrl_unset(void __iomem *reg, u32 field)
 	brcmusb_writel(value & ~field, reg);
 }
 
+=======
+
+	mask = params->usb_reg_bits_map[field];
+	brcm_usb_ctrl_set(params->regs[BRCM_REGS_CTRL] + reg_offset, mask);
+};
+
+>>>>>>> upstream/android-13
 static u32 brcmusb_usb_mdio_read(void __iomem *ctrl_base, u32 reg, int mode)
 {
 	u32 data;
 
 	data = (reg << 16) | mode;
+<<<<<<< HEAD
 	brcmusb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
 	data |= (1 << 24);
 	brcmusb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
@@ -475,6 +551,19 @@ static u32 brcmusb_usb_mdio_read(void __iomem *ctrl_base, u32 reg, int mode)
 	usleep_range(10, 20);
 
 	return brcmusb_readl(USB_CTRL_REG(ctrl_base, MDIO2)) & 0xffff;
+=======
+	brcm_usb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+	data |= (1 << 24);
+	brcm_usb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+	data &= ~(1 << 24);
+	/* wait for the 60MHz parallel to serial shifter */
+	usleep_range(10, 20);
+	brcm_usb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+	/* wait for the 60MHz parallel to serial shifter */
+	usleep_range(10, 20);
+
+	return brcm_usb_readl(USB_CTRL_REG(ctrl_base, MDIO2)) & 0xffff;
+>>>>>>> upstream/android-13
 }
 
 static void brcmusb_usb_mdio_write(void __iomem *ctrl_base, u32 reg,
@@ -483,14 +572,24 @@ static void brcmusb_usb_mdio_write(void __iomem *ctrl_base, u32 reg,
 	u32 data;
 
 	data = (reg << 16) | val | mode;
+<<<<<<< HEAD
 	brcmusb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
 	data |= (1 << 25);
 	brcmusb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+=======
+	brcm_usb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+	data |= (1 << 25);
+	brcm_usb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+>>>>>>> upstream/android-13
 	data &= ~(1 << 25);
 
 	/* wait for the 60MHz parallel to serial shifter */
 	usleep_range(10, 20);
+<<<<<<< HEAD
 	brcmusb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+=======
+	brcm_usb_writel(data, USB_CTRL_REG(ctrl_base, MDIO));
+>>>>>>> upstream/android-13
 	/* wait for the 60MHz parallel to serial shifter */
 	usleep_range(10, 20);
 }
@@ -589,7 +688,11 @@ static void brcmusb_usb3_pll_54mhz(struct brcm_usb_init_params *params)
 {
 	u32 ofs;
 	int ii;
+<<<<<<< HEAD
 	void __iomem *ctrl_base = params->ctrl_regs;
+=======
+	void __iomem *ctrl_base = params->regs[BRCM_REGS_CTRL];
+>>>>>>> upstream/android-13
 
 	/*
 	 * On newer B53 based SoC's, the reference clock for the
@@ -604,6 +707,10 @@ static void brcmusb_usb3_pll_54mhz(struct brcm_usb_init_params *params)
 	 */
 	switch (params->selected_family) {
 	case BRCM_FAMILY_3390A0:
+<<<<<<< HEAD
+=======
+	case BRCM_FAMILY_4908:
+>>>>>>> upstream/android-13
 	case BRCM_FAMILY_7250B0:
 	case BRCM_FAMILY_7366C0:
 	case BRCM_FAMILY_74371A0:
@@ -670,7 +777,11 @@ static void brcmusb_usb3_ssc_enable(void __iomem *ctrl_base)
 
 static void brcmusb_usb3_phy_workarounds(struct brcm_usb_init_params *params)
 {
+<<<<<<< HEAD
 	void __iomem *ctrl_base = params->ctrl_regs;
+=======
+	void __iomem *ctrl_base = params->regs[BRCM_REGS_CTRL];
+>>>>>>> upstream/android-13
 
 	brcmusb_usb3_pll_fix(ctrl_base);
 	brcmusb_usb3_pll_54mhz(params);
@@ -712,6 +823,7 @@ static void brcmusb_memc_fix(struct brcm_usb_init_params *params)
 
 static void brcmusb_usb3_otp_fix(struct brcm_usb_init_params *params)
 {
+<<<<<<< HEAD
 	void __iomem *xhci_ec_base = params->xhci_ec_regs;
 	u32 val;
 
@@ -727,6 +839,23 @@ static void brcmusb_usb3_otp_fix(struct brcm_usb_init_params *params)
 	/* Reset USB 3.0 PHY for workaround to take effect */
 	USB_CTRL_UNSET(params->ctrl_regs, USB30_CTL1, PHY3_RESETB);
 	USB_CTRL_SET(params->ctrl_regs,	USB30_CTL1, PHY3_RESETB);
+=======
+	void __iomem *xhci_ec_base = params->regs[BRCM_REGS_XHCI_EC];
+	u32 val;
+
+	if (params->family_id != 0x74371000 || !xhci_ec_base)
+		return;
+	brcm_usb_writel(0xa20c, USB_XHCI_EC_REG(xhci_ec_base, IRAADR));
+	val = brcm_usb_readl(USB_XHCI_EC_REG(xhci_ec_base, IRADAT));
+
+	/* set cfg_pick_ss_lock */
+	val |= (1 << 27);
+	brcm_usb_writel(val, USB_XHCI_EC_REG(xhci_ec_base, IRADAT));
+
+	/* Reset USB 3.0 PHY for workaround to take effect */
+	USB_CTRL_UNSET(params->regs[BRCM_REGS_CTRL], USB30_CTL1, PHY3_RESETB);
+	USB_CTRL_SET(params->regs[BRCM_REGS_CTRL], USB30_CTL1, PHY3_RESETB);
+>>>>>>> upstream/android-13
 }
 
 static void brcmusb_xhci_soft_reset(struct brcm_usb_init_params *params,
@@ -755,7 +884,11 @@ static void brcmusb_xhci_soft_reset(struct brcm_usb_init_params *params,
  *   - default chip/rev.
  * NOTE: The minor rev is always ignored.
  */
+<<<<<<< HEAD
 static enum brcm_family_type brcmusb_get_family_type(
+=======
+static enum brcm_family_type get_family_type(
+>>>>>>> upstream/android-13
 	struct brcm_usb_init_params *params)
 {
 	int last_type = -1;
@@ -783,9 +916,15 @@ static enum brcm_family_type brcmusb_get_family_type(
 	return last_type;
 }
 
+<<<<<<< HEAD
 void brcm_usb_init_ipp(struct brcm_usb_init_params *params)
 {
 	void __iomem *ctrl = params->ctrl_regs;
+=======
+static void usb_init_ipp(struct brcm_usb_init_params *params)
+{
+	void __iomem *ctrl = params->regs[BRCM_REGS_CTRL];
+>>>>>>> upstream/android-13
 	u32 reg;
 	u32 orig_reg;
 
@@ -799,7 +938,11 @@ void brcm_usb_init_ipp(struct brcm_usb_init_params *params)
 			USB_CTRL_SET_FAMILY(params, USB30_CTL1, USB3_IPP);
 	}
 
+<<<<<<< HEAD
 	reg = brcmusb_readl(USB_CTRL_REG(ctrl, SETUP));
+=======
+	reg = brcm_usb_readl(USB_CTRL_REG(ctrl, SETUP));
+>>>>>>> upstream/android-13
 	orig_reg = reg;
 	if (USB_CTRL_MASK_FAMILY(params, SETUP, STRAP_CC_DRD_MODE_ENABLE_SEL))
 		/* Never use the strap, it's going away. */
@@ -807,8 +950,13 @@ void brcm_usb_init_ipp(struct brcm_usb_init_params *params)
 					      SETUP,
 					      STRAP_CC_DRD_MODE_ENABLE_SEL));
 	if (USB_CTRL_MASK_FAMILY(params, SETUP, STRAP_IPP_SEL))
+<<<<<<< HEAD
 		if (params->ipp != 2)
 			/* override ipp strap pin (if it exits) */
+=======
+		/* override ipp strap pin (if it exits) */
+		if (params->ipp != 2)
+>>>>>>> upstream/android-13
 			reg &= ~(USB_CTRL_MASK_FAMILY(params, SETUP,
 						      STRAP_IPP_SEL));
 
@@ -816,14 +964,21 @@ void brcm_usb_init_ipp(struct brcm_usb_init_params *params)
 	reg &= ~(USB_CTRL_MASK(SETUP, IPP) | USB_CTRL_MASK(SETUP, IOC));
 	if (params->ioc)
 		reg |= USB_CTRL_MASK(SETUP, IOC);
+<<<<<<< HEAD
 	if (params->ipp == 1 && ((reg & USB_CTRL_MASK(SETUP, IPP)) == 0))
 		reg |= USB_CTRL_MASK(SETUP, IPP);
 	brcmusb_writel(reg, USB_CTRL_REG(ctrl, SETUP));
+=======
+	if (params->ipp == 1)
+		reg |= USB_CTRL_MASK(SETUP, IPP);
+	brcm_usb_writel(reg, USB_CTRL_REG(ctrl, SETUP));
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we're changing IPP, make sure power is off long enough
 	 * to turn off any connected devices.
 	 */
+<<<<<<< HEAD
 	if (reg != orig_reg)
 		msleep(50);
 }
@@ -860,6 +1015,32 @@ void brcm_usb_init_common(struct brcm_usb_init_params *params)
 {
 	u32 reg;
 	void __iomem *ctrl = params->ctrl_regs;
+=======
+	if ((reg ^ orig_reg) & USB_CTRL_MASK(SETUP, IPP))
+		msleep(50);
+}
+
+static void usb_wake_enable(struct brcm_usb_init_params *params,
+			  bool enable)
+{
+	void __iomem *ctrl = params->regs[BRCM_REGS_CTRL];
+
+	if (enable)
+		USB_CTRL_SET(ctrl, USB_PM, RMTWKUP_EN);
+	else
+		USB_CTRL_UNSET(ctrl, USB_PM, RMTWKUP_EN);
+}
+
+static void usb_init_common(struct brcm_usb_init_params *params)
+{
+	u32 reg;
+	void __iomem *ctrl = params->regs[BRCM_REGS_CTRL];
+
+	/* Clear any pending wake conditions */
+	usb_wake_enable(params, false);
+	reg = brcm_usb_readl(USB_CTRL_REG(ctrl, USB_PM_STATUS));
+	brcm_usb_writel(reg, USB_CTRL_REG(ctrl, USB_PM_STATUS));
+>>>>>>> upstream/android-13
 
 	/* Take USB out of power down */
 	if (USB_CTRL_MASK_FAMILY(params, PLL_CTL, PLL_IDDQ_PWRDN)) {
@@ -885,7 +1066,11 @@ void brcm_usb_init_common(struct brcm_usb_init_params *params)
 	/* Block auto PLL suspend by USB2 PHY (Sasi) */
 	USB_CTRL_SET(ctrl, PLL_CTL, PLL_SUSPEND_EN);
 
+<<<<<<< HEAD
 	reg = brcmusb_readl(USB_CTRL_REG(ctrl, SETUP));
+=======
+	reg = brcm_usb_readl(USB_CTRL_REG(ctrl, SETUP));
+>>>>>>> upstream/android-13
 	if (params->selected_family == BRCM_FAMILY_7364A0)
 		/* Suppress overcurrent indication from USB30 ports for A0 */
 		reg |= USB_CTRL_MASK_FAMILY(params, SETUP, OC3_DISABLE);
@@ -901,16 +1086,28 @@ void brcm_usb_init_common(struct brcm_usb_init_params *params)
 		reg |= USB_CTRL_MASK_FAMILY(params, SETUP, SCB1_EN);
 	if (USB_CTRL_MASK_FAMILY(params, SETUP, SCB2_EN))
 		reg |= USB_CTRL_MASK_FAMILY(params, SETUP, SCB2_EN);
+<<<<<<< HEAD
 	brcmusb_writel(reg, USB_CTRL_REG(ctrl, SETUP));
+=======
+	brcm_usb_writel(reg, USB_CTRL_REG(ctrl, SETUP));
+>>>>>>> upstream/android-13
 
 	brcmusb_memc_fix(params);
 
 	if (USB_CTRL_MASK_FAMILY(params, USB_DEVICE_CTL1, PORT_MODE)) {
+<<<<<<< HEAD
 		reg = brcmusb_readl(USB_CTRL_REG(ctrl, USB_DEVICE_CTL1));
 		reg &= ~USB_CTRL_MASK_FAMILY(params, USB_DEVICE_CTL1,
 					PORT_MODE);
 		reg |= params->mode;
 		brcmusb_writel(reg, USB_CTRL_REG(ctrl, USB_DEVICE_CTL1));
+=======
+		reg = brcm_usb_readl(USB_CTRL_REG(ctrl, USB_DEVICE_CTL1));
+		reg &= ~USB_CTRL_MASK_FAMILY(params, USB_DEVICE_CTL1,
+					PORT_MODE);
+		reg |= params->mode;
+		brcm_usb_writel(reg, USB_CTRL_REG(ctrl, USB_DEVICE_CTL1));
+>>>>>>> upstream/android-13
 	}
 	if (USB_CTRL_MASK_FAMILY(params, USB_PM, BDC_SOFT_RESETB)) {
 		switch (params->mode) {
@@ -932,10 +1129,17 @@ void brcm_usb_init_common(struct brcm_usb_init_params *params)
 	}
 }
 
+<<<<<<< HEAD
 void brcm_usb_init_eohci(struct brcm_usb_init_params *params)
 {
 	u32 reg;
 	void __iomem *ctrl = params->ctrl_regs;
+=======
+static void usb_init_eohci(struct brcm_usb_init_params *params)
+{
+	u32 reg;
+	void __iomem *ctrl = params->regs[BRCM_REGS_CTRL];
+>>>>>>> upstream/android-13
 
 	if (USB_CTRL_MASK_FAMILY(params, USB_PM, USB20_HC_RESETB))
 		USB_CTRL_SET_FAMILY(params, USB_PM, USB20_HC_RESETB);
@@ -948,19 +1152,45 @@ void brcm_usb_init_eohci(struct brcm_usb_init_params *params)
 		USB_CTRL_SET(ctrl, EBRIDGE, ESTOP_SCB_REQ);
 
 	/* Setup the endian bits */
+<<<<<<< HEAD
 	reg = brcmusb_readl(USB_CTRL_REG(ctrl, SETUP));
 	reg &= ~USB_CTRL_SETUP_ENDIAN_BITS;
 	reg |= USB_CTRL_MASK_FAMILY(params, SETUP, ENDIAN);
 	brcmusb_writel(reg, USB_CTRL_REG(ctrl, SETUP));
+=======
+	reg = brcm_usb_readl(USB_CTRL_REG(ctrl, SETUP));
+	reg &= ~USB_CTRL_SETUP_ENDIAN_BITS;
+	reg |= USB_CTRL_MASK_FAMILY(params, SETUP, ENDIAN);
+	brcm_usb_writel(reg, USB_CTRL_REG(ctrl, SETUP));
+>>>>>>> upstream/android-13
 
 	if (params->selected_family == BRCM_FAMILY_7271A0)
 		/* Enable LS keep alive fix for certain keyboards */
 		USB_CTRL_SET(ctrl, OBRIDGE, LS_KEEP_ALIVE);
+<<<<<<< HEAD
 }
 
 void brcm_usb_init_xhci(struct brcm_usb_init_params *params)
 {
 	void __iomem *ctrl = params->ctrl_regs;
+=======
+
+	if (params->family_id == 0x72550000) {
+		/*
+		 * Make the burst size 512 bytes to fix a hardware bug
+		 * on the 7255a0. See HW7255-24.
+		 */
+		reg = brcm_usb_readl(USB_CTRL_REG(ctrl, EBRIDGE));
+		reg &= ~USB_CTRL_MASK(EBRIDGE, EBR_SCB_SIZE);
+		reg |= 0x800;
+		brcm_usb_writel(reg, USB_CTRL_REG(ctrl, EBRIDGE));
+	}
+}
+
+static void usb_init_xhci(struct brcm_usb_init_params *params)
+{
+	void __iomem *ctrl = params->regs[BRCM_REGS_CTRL];
+>>>>>>> upstream/android-13
 
 	USB_CTRL_UNSET(ctrl, USB30_PCTL, PHY3_IDDQ_OVERRIDE);
 	/* 1 millisecond - for USB clocks to settle down */
@@ -986,13 +1216,18 @@ void brcm_usb_init_xhci(struct brcm_usb_init_params *params)
 	brcmusb_usb3_otp_fix(params);
 }
 
+<<<<<<< HEAD
 void brcm_usb_uninit_common(struct brcm_usb_init_params *params)
+=======
+static void usb_uninit_common(struct brcm_usb_init_params *params)
+>>>>>>> upstream/android-13
 {
 	if (USB_CTRL_MASK_FAMILY(params, USB_PM, USB_PWRDN))
 		USB_CTRL_SET_FAMILY(params, USB_PM, USB_PWRDN);
 
 	if (USB_CTRL_MASK_FAMILY(params, PLL_CTL, PLL_IDDQ_PWRDN))
 		USB_CTRL_SET_FAMILY(params, PLL_CTL, PLL_IDDQ_PWRDN);
+<<<<<<< HEAD
 }
 
 void brcm_usb_uninit_eohci(struct brcm_usb_init_params *params)
@@ -1012,8 +1247,90 @@ void brcm_usb_set_family_map(struct brcm_usb_init_params *params)
 	int fam;
 
 	fam = brcmusb_get_family_type(params);
+=======
+	if (params->wake_enabled)
+		usb_wake_enable(params, true);
+}
+
+static void usb_uninit_eohci(struct brcm_usb_init_params *params)
+{
+}
+
+static void usb_uninit_xhci(struct brcm_usb_init_params *params)
+{
+	brcmusb_xhci_soft_reset(params, 1);
+	USB_CTRL_SET(params->regs[BRCM_REGS_CTRL], USB30_PCTL,
+		     PHY3_IDDQ_OVERRIDE);
+}
+
+static int usb_get_dual_select(struct brcm_usb_init_params *params)
+{
+	void __iomem *ctrl = params->regs[BRCM_REGS_CTRL];
+	u32 reg = 0;
+
+	pr_debug("%s\n", __func__);
+	if (USB_CTRL_MASK_FAMILY(params, USB_DEVICE_CTL1, PORT_MODE)) {
+		reg = brcm_usb_readl(USB_CTRL_REG(ctrl, USB_DEVICE_CTL1));
+		reg &= USB_CTRL_MASK_FAMILY(params, USB_DEVICE_CTL1,
+					PORT_MODE);
+	}
+	return reg;
+}
+
+static void usb_set_dual_select(struct brcm_usb_init_params *params, int mode)
+{
+	void __iomem *ctrl = params->regs[BRCM_REGS_CTRL];
+	u32 reg;
+
+	pr_debug("%s\n", __func__);
+
+	if (USB_CTRL_MASK_FAMILY(params, USB_DEVICE_CTL1, PORT_MODE)) {
+		reg = brcm_usb_readl(USB_CTRL_REG(ctrl, USB_DEVICE_CTL1));
+		reg &= ~USB_CTRL_MASK_FAMILY(params, USB_DEVICE_CTL1,
+					PORT_MODE);
+		reg |= mode;
+		brcm_usb_writel(reg, USB_CTRL_REG(ctrl, USB_DEVICE_CTL1));
+	}
+}
+
+static const struct brcm_usb_init_ops bcm7445_ops = {
+	.init_ipp = usb_init_ipp,
+	.init_common = usb_init_common,
+	.init_eohci = usb_init_eohci,
+	.init_xhci = usb_init_xhci,
+	.uninit_common = usb_uninit_common,
+	.uninit_eohci = usb_uninit_eohci,
+	.uninit_xhci = usb_uninit_xhci,
+	.get_dual_select = usb_get_dual_select,
+	.set_dual_select = usb_set_dual_select,
+};
+
+void brcm_usb_dvr_init_4908(struct brcm_usb_init_params *params)
+{
+	int fam;
+
+	fam = BRCM_FAMILY_4908;
+>>>>>>> upstream/android-13
 	params->selected_family = fam;
 	params->usb_reg_bits_map =
 		&usb_reg_bits_map_table[fam][0];
 	params->family_name = family_names[fam];
+<<<<<<< HEAD
+=======
+	params->ops = &bcm7445_ops;
+}
+
+void brcm_usb_dvr_init_7445(struct brcm_usb_init_params *params)
+{
+	int fam;
+
+	pr_debug("%s\n", __func__);
+
+	fam = get_family_type(params);
+	params->selected_family = fam;
+	params->usb_reg_bits_map =
+		&usb_reg_bits_map_table[fam][0];
+	params->family_name = family_names[fam];
+	params->ops = &bcm7445_ops;
+>>>>>>> upstream/android-13
 }

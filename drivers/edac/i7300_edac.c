@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Intel 7300 class Memory Controllers kernel module (Clarksboro)
  *
@@ -8,6 +9,16 @@
  *	 Mauro Carvalho Chehab
  *
  * Red Hat Inc. http://www.redhat.com
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Intel 7300 class Memory Controllers kernel module (Clarksboro)
+ *
+ * Copyright (c) 2010 by:
+ *	 Mauro Carvalho Chehab
+ *
+ * Red Hat Inc. https://www.redhat.com
+>>>>>>> upstream/android-13
  *
  * Intel 7300 Chipset Memory Controller Hub (MCH) - Datasheet
  *	http://www.intel.com/Assets/PDF/datasheet/318082.pdf
@@ -582,7 +593,11 @@ static void i7300_enable_error_reporting(struct mem_ctl_info *mci)
  * @ch: Channel number within the branch (0 or 1)
  * @branch: Branch number (0 or 1)
  * @dinfo: Pointer to DIMM info where dimm size is stored
+<<<<<<< HEAD
  * @p_csrow: Pointer to the struct csrow_info that corresponds to that element
+=======
+ * @dimm: Pointer to the struct dimm_info that corresponds to that element
+>>>>>>> upstream/android-13
  */
 static int decode_mtr(struct i7300_pvt *pvt,
 		      int slot, int ch, int branch,
@@ -796,8 +811,12 @@ static int i7300_init_csrows(struct mem_ctl_info *mci)
 			for (ch = 0; ch < max_channel; ch++) {
 				int channel = to_channel(ch, branch);
 
+<<<<<<< HEAD
 				dimm = EDAC_DIMM_PTR(mci->layers, mci->dimms,
 					       mci->n_layers, branch, ch, slot);
+=======
+				dimm = edac_get_dimm(mci, branch, ch, slot);
+>>>>>>> upstream/android-13
 
 				dinfo = &pvt->dimm_info[slot][channel];
 
@@ -819,7 +838,11 @@ static int i7300_init_csrows(struct mem_ctl_info *mci)
 
 /**
  * decode_mir() - Decodes Memory Interleave Register (MIR) info
+<<<<<<< HEAD
  * @int mir_no: number of the MIR register to decode
+=======
+ * @mir_no: number of the MIR register to decode
+>>>>>>> upstream/android-13
  * @mir: array with the MIR data cached on the driver
  */
 static void decode_mir(int mir_no, u16 mir[MAX_MIR])
@@ -1209,7 +1232,11 @@ module_exit(i7300_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mauro Carvalho Chehab");
+<<<<<<< HEAD
 MODULE_AUTHOR("Red Hat Inc. (http://www.redhat.com)");
+=======
+MODULE_AUTHOR("Red Hat Inc. (https://www.redhat.com)");
+>>>>>>> upstream/android-13
 MODULE_DESCRIPTION("MC Driver for Intel I7300 memory controllers - "
 		   I7300_REVISION);
 

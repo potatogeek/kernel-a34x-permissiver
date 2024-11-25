@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Intel Memory Protection Keys management
  * Copyright (c) 2015, Intel Corporation.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Intel Memory Protection Keys management
+ * Copyright (c) 2015, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 #include <linux/debugfs.h>		/* debugfs_create_u32()		*/
 #include <linux/mm_types.h>             /* mm_struct, vma, etc...       */
@@ -39,6 +46,7 @@ int __execute_only_pkey(struct mm_struct *mm)
 	 * dance to set PKRU if we do not need to.  Check it
 	 * first and assume that if the execute-only pkey is
 	 * write-disabled that we do not have to set it
+<<<<<<< HEAD
 	 * ourselves.  We need preempt off so that nobody
 	 * can make fpregs inactive.
 	 */
@@ -50,6 +58,14 @@ int __execute_only_pkey(struct mm_struct *mm)
 		return execute_only_pkey;
 	}
 	preempt_enable();
+=======
+	 * ourselves.
+	 */
+	if (!need_to_set_mm_pkey &&
+	    !__pkru_allows_read(read_pkru(), execute_only_pkey)) {
+		return execute_only_pkey;
+	}
+>>>>>>> upstream/android-13
 
 	/*
 	 * Set up PKRU so that it denies access for everything
@@ -75,7 +91,11 @@ int __execute_only_pkey(struct mm_struct *mm)
 static inline bool vma_is_pkey_exec_only(struct vm_area_struct *vma)
 {
 	/* Do this check first since the vm_flags should be hot */
+<<<<<<< HEAD
 	if ((vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)) != VM_EXEC)
+=======
+	if ((vma->vm_flags & VM_ACCESS_FLAGS) != VM_EXEC)
+>>>>>>> upstream/android-13
 		return false;
 	if (vma_pkey(vma) != vma->vm_mm->context.execute_only_pkey)
 		return false;
@@ -137,6 +157,7 @@ u32 init_pkru_value = PKRU_AD_KEY( 1) | PKRU_AD_KEY( 2) | PKRU_AD_KEY( 3) |
 		      PKRU_AD_KEY(10) | PKRU_AD_KEY(11) | PKRU_AD_KEY(12) |
 		      PKRU_AD_KEY(13) | PKRU_AD_KEY(14) | PKRU_AD_KEY(15);
 
+<<<<<<< HEAD
 /*
  * Called from the FPU code when creating a fresh set of FPU
  * registers.  This is called from a very specific context where
@@ -160,6 +181,8 @@ void copy_init_pkru_to_fpregs(void)
 	write_pkru(init_pkru_value_snapshot);
 }
 
+=======
+>>>>>>> upstream/android-13
 static ssize_t init_pkru_read_file(struct file *file, char __user *user_buf,
 			     size_t count, loff_t *ppos)
 {
@@ -206,6 +229,13 @@ static const struct file_operations fops_init_pkru = {
 
 static int __init create_init_pkru_value(void)
 {
+<<<<<<< HEAD
+=======
+	/* Do not expose the file if pkeys are not supported. */
+	if (!cpu_feature_enabled(X86_FEATURE_OSPKE))
+		return 0;
+
+>>>>>>> upstream/android-13
 	debugfs_create_file("init_pkru", S_IRUSR | S_IWUSR,
 			arch_debugfs_dir, NULL, &fops_init_pkru);
 	return 0;

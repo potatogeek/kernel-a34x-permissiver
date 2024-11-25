@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2020, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -16,18 +20,31 @@
 #include "core/kthread_pool.h"
 #include "core/ree_time.h"
 #include "core/subsystem.h"
+<<<<<<< HEAD
 #include "core/uiwsock.h"
 #include "core/umem.h"
 #include "extensions/boost.h"
 #include "extensions/cpufreq_trans.h"
 #include "extensions/fsdev.h"
+=======
+#include "core/uiwshmem.h"
+#include "core/uiwsock.h"
+#include "debug/kmemleak.h"
+#include "debug/pmf.h"
+#include "debug/profiler.h"
+#include "extensions/boost.h"
+#include "extensions/cpufreq_trans.h"
+>>>>>>> upstream/android-13
 #include "extensions/hotplug.h"
 #include "extensions/ion_fd2phys.h"
 #include "extensions/irs.h"
 #include "extensions/scma.h"
+<<<<<<< HEAD
 #include "debug/pmf.h"
 #include "debug/profiler.h"
 #include "tests/tests.h"
+=======
+>>>>>>> upstream/android-13
 
 struct tzdev_init_exit_table {
 	initcall_t init;
@@ -46,7 +63,11 @@ static const struct tzdev_init_exit_table table[] = {
 	DECLARE_INIT_CALL(tz_deploy_tzar_init),
 #endif
 	DECLARE_INIT_CALL(tz_uiwsock_init),
+<<<<<<< HEAD
 	DECLARE_INIT_CALL(tzdev_mem_init_call),
+=======
+	DECLARE_INIT_CALL(tz_uiwshmem_init_call),
+>>>>>>> upstream/android-13
 #ifdef CONFIG_TZDEV_HOTPLUG
 	DECLARE_INIT_CALL(tz_hotplug_init),
 #endif
@@ -62,17 +83,22 @@ static const struct tzdev_init_exit_table table[] = {
 #ifdef CONFIG_TZ_PMF
 	DECLARE_INIT_CALL(tz_pmf_init),
 #endif
+<<<<<<< HEAD
 	DECLARE_INIT_CALL(tz_cred_init_notifier),
 	DECLARE_INIT_EXIT_CALL(tz_ree_time_init, tz_ree_time_fini),
 #ifdef CONFIG_TZ_NWFS
 	DECLARE_INIT_EXIT_CALL(tz_fsdev_init, tz_fsdev_exit),
 #endif
+=======
+	DECLARE_INIT_EXIT_CALL(tz_ree_time_init, tz_ree_time_fini),
+>>>>>>> upstream/android-13
 #ifdef CONFIG_ION_FD2PHYS
 	DECLARE_INIT_EXIT_CALL(ionfd2phys_init, ionfd2phys_exit),
 #endif
 #ifdef CONFIG_TZIRS
 	DECLARE_INIT_EXIT_CALL(tzirs_init, tzirs_exit),
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_EFUSE_TEST
 	DECLARE_INIT_EXIT_CALL(efuse_module_init, efuse_module_exit),
 #endif
@@ -109,6 +135,14 @@ static const struct tzdev_init_exit_table table[] = {
 #ifdef CONFIG_TZDEV_CPUFREQ_TRANSITION
 	DECLARE_INIT_CALL(cpufreq_trans_init),
 #endif
+=======
+#ifdef CONFIG_TZDEV_CPUFREQ_TRANSITION
+	DECLARE_INIT_CALL(cpufreq_trans_init),
+#endif
+#ifdef CONFIG_TZDEV_DEBUG
+	DECLARE_INIT_CALL(tz_kmemleak_init),
+#endif
+>>>>>>> upstream/android-13
 };
 
 int __init tzdev_call_init_array(void)

@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
@@ -16,6 +21,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 51
  * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
+=======
+>>>>>>> upstream/android-13
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
  */
@@ -38,6 +45,10 @@ static int make_idx_node(struct ubifs_info *c, struct ubifs_idx_node *idx,
 			 struct ubifs_znode *znode, int lnum, int offs, int len)
 {
 	struct ubifs_znode *zp;
+<<<<<<< HEAD
+=======
+	u8 hash[UBIFS_HASH_ARR_SZ];
+>>>>>>> upstream/android-13
 	int i, err;
 
 	/* Make index node */
@@ -52,6 +63,10 @@ static int make_idx_node(struct ubifs_info *c, struct ubifs_idx_node *idx,
 		br->lnum = cpu_to_le32(zbr->lnum);
 		br->offs = cpu_to_le32(zbr->offs);
 		br->len = cpu_to_le32(zbr->len);
+<<<<<<< HEAD
+=======
+		ubifs_copy_hash(c, zbr->hash, ubifs_branch_hash(c, br));
+>>>>>>> upstream/android-13
 		if (!zbr->lnum || !zbr->len) {
 			ubifs_err(c, "bad ref in znode");
 			ubifs_dump_znode(c, znode);
@@ -62,6 +77,10 @@ static int make_idx_node(struct ubifs_info *c, struct ubifs_idx_node *idx,
 		}
 	}
 	ubifs_prepare_node(c, idx, len, 0);
+<<<<<<< HEAD
+=======
+	ubifs_node_calc_hash(c, idx, hash);
+>>>>>>> upstream/android-13
 
 	znode->lnum = lnum;
 	znode->offs = offs;
@@ -78,10 +97,18 @@ static int make_idx_node(struct ubifs_info *c, struct ubifs_idx_node *idx,
 		zbr->lnum = lnum;
 		zbr->offs = offs;
 		zbr->len = len;
+<<<<<<< HEAD
+=======
+		ubifs_copy_hash(c, hash, zbr->hash);
+>>>>>>> upstream/android-13
 	} else {
 		c->zroot.lnum = lnum;
 		c->zroot.offs = offs;
 		c->zroot.len = len;
+<<<<<<< HEAD
+=======
+		ubifs_copy_hash(c, hash, c->zroot.hash);
+>>>>>>> upstream/android-13
 	}
 	c->calc_idx_sz += ALIGN(len, 8);
 
@@ -667,6 +694,11 @@ static int get_znodes_to_commit(struct ubifs_info *c)
 			znode->cnext = c->cnext;
 			break;
 		}
+<<<<<<< HEAD
+=======
+		znode->cparent = znode->parent;
+		znode->ciip = znode->iip;
+>>>>>>> upstream/android-13
 		znode->cnext = cnext;
 		znode = cnext;
 		cnt += 1;
@@ -860,6 +892,11 @@ static int write_index(struct ubifs_info *c)
 	}
 
 	while (1) {
+<<<<<<< HEAD
+=======
+		u8 hash[UBIFS_HASH_ARR_SZ];
+
+>>>>>>> upstream/android-13
 		cond_resched();
 
 		znode = cnext;
@@ -877,6 +914,10 @@ static int write_index(struct ubifs_info *c)
 			br->lnum = cpu_to_le32(zbr->lnum);
 			br->offs = cpu_to_le32(zbr->offs);
 			br->len = cpu_to_le32(zbr->len);
+<<<<<<< HEAD
+=======
+			ubifs_copy_hash(c, zbr->hash, ubifs_branch_hash(c, br));
+>>>>>>> upstream/android-13
 			if (!zbr->lnum || !zbr->len) {
 				ubifs_err(c, "bad ref in znode");
 				ubifs_dump_znode(c, znode);
@@ -888,6 +929,26 @@ static int write_index(struct ubifs_info *c)
 		}
 		len = ubifs_idx_node_sz(c, znode->child_cnt);
 		ubifs_prepare_node(c, idx, len, 0);
+<<<<<<< HEAD
+=======
+		ubifs_node_calc_hash(c, idx, hash);
+
+		mutex_lock(&c->tnc_mutex);
+
+		if (znode->cparent)
+			ubifs_copy_hash(c, hash,
+					znode->cparent->zbranch[znode->ciip].hash);
+
+		if (znode->parent) {
+			if (!ubifs_zn_obsolete(znode))
+				ubifs_copy_hash(c, hash,
+					znode->parent->zbranch[znode->iip].hash);
+		} else {
+			ubifs_copy_hash(c, hash, c->zroot.hash);
+		}
+
+		mutex_unlock(&c->tnc_mutex);
+>>>>>>> upstream/android-13
 
 		/* Determine the index node position */
 		if (lnum == -1) {
@@ -915,7 +976,11 @@ static int write_index(struct ubifs_info *c)
 		 * flag cleared before %COW_ZNODE. Specifically, it matters in
 		 * the 'dirty_cow_znode()' function. This is the reason for the
 		 * first barrier. Also, we want the bit changes to be seen to
+<<<<<<< HEAD
 		 * other threads ASAP, to avoid unnecesarry copying, which is
+=======
+		 * other threads ASAP, to avoid unnecessary copying, which is
+>>>>>>> upstream/android-13
 		 * the reason for the second barrier.
 		 */
 		clear_bit(DIRTY_ZNODE, &znode->flags);

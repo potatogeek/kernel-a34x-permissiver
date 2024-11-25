@@ -28,12 +28,29 @@
 
 #include "gpio_types.h"
 
+<<<<<<< HEAD
+=======
+
+union gpio_hw_container {
+	struct hw_ddc *ddc;
+	struct hw_generic *generic;
+	struct hw_hpd *hpd;
+};
+
+>>>>>>> upstream/android-13
 struct gpio {
 	struct gpio_service *service;
 	struct hw_gpio_pin *pin;
 	enum gpio_id id;
 	uint32_t en;
+<<<<<<< HEAD
 	enum gpio_mode mode;
+=======
+
+	union gpio_hw_container hw_container;
+	enum gpio_mode mode;
+
+>>>>>>> upstream/android-13
 	/* when GPIO comes from VBIOS, it has defined output state */
 	enum gpio_pin_output_state output_state;
 };

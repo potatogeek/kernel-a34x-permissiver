@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/media/i2c/lm3560.c
  * General device driver for TI lm3559, lm3560, FLASH LED Driver
@@ -6,6 +10,7 @@
  *
  * Contact: Daniel Jeong <gshark.jeong@gmail.com>
  *			Ldd-Mlp <ldd-mlp@list.ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +20,8 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/delay.h>
@@ -55,7 +62,11 @@ enum led_enable {
  * @regmap: reg. map for i2c
  * @lock: muxtex for serial access.
  * @led_mode: V4L2 LED mode
+<<<<<<< HEAD
  * @ctrls_led: V4L2 contols
+=======
+ * @ctrls_led: V4L2 controls
+>>>>>>> upstream/android-13
  * @subdev_led: V4L2 subdev
  */
 struct lm3560_flash {
@@ -362,7 +373,12 @@ static int lm3560_subdev_init(struct lm3560_flash *flash,
 
 	v4l2_i2c_subdev_init(&flash->subdev_led[led_no], client, &lm3560_ops);
 	flash->subdev_led[led_no].flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+<<<<<<< HEAD
 	strcpy(flash->subdev_led[led_no].name, led_name);
+=======
+	strscpy(flash->subdev_led[led_no].name, led_name,
+		sizeof(flash->subdev_led[led_no].name));
+>>>>>>> upstream/android-13
 	rval = lm3560_init_controls(flash, led_no);
 	if (rval)
 		goto err_out;

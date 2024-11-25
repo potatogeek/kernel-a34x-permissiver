@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 /* Copyright (C) 2011-2018  B.A.T.M.A.N. contributors:
  *
  * Simon Wunderlich
@@ -14,6 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+/* Copyright (C) B.A.T.M.A.N. contributors:
+ *
+ * Simon Wunderlich
+>>>>>>> upstream/android-13
  */
 
 #include "bridge_loop_avoidance.h"
@@ -37,10 +43,15 @@
 #include <linux/lockdep.h>
 #include <linux/netdevice.h>
 #include <linux/netlink.h>
+<<<<<<< HEAD
 #include <linux/preempt.h>
 #include <linux/rculist.h>
 #include <linux/rcupdate.h>
 #include <linux/seq_file.h>
+=======
+#include <linux/rculist.h>
+#include <linux/rcupdate.h>
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
@@ -60,7 +71,10 @@
 #include "netlink.h"
 #include "originator.h"
 #include "soft-interface.h"
+<<<<<<< HEAD
 #include "sysfs.h"
+=======
+>>>>>>> upstream/android-13
 #include "translation-table.h"
 
 static const u8 batadv_announce_mac[4] = {0x43, 0x05, 0x43, 0x05};
@@ -177,6 +191,12 @@ static void batadv_backbone_gw_release(struct kref *ref)
  */
 static void batadv_backbone_gw_put(struct batadv_bla_backbone_gw *backbone_gw)
 {
+<<<<<<< HEAD
+=======
+	if (!backbone_gw)
+		return;
+
+>>>>>>> upstream/android-13
 	kref_put(&backbone_gw->refcount, batadv_backbone_gw_release);
 }
 
@@ -212,6 +232,12 @@ static void batadv_claim_release(struct kref *ref)
  */
 static void batadv_claim_put(struct batadv_bla_claim *claim)
 {
+<<<<<<< HEAD
+=======
+	if (!claim)
+		return;
+
+>>>>>>> upstream/android-13
 	kref_put(&claim->refcount, batadv_claim_release);
 }
 
@@ -410,7 +436,11 @@ static void batadv_bla_send_claim(struct batadv_priv *bat_priv, u8 *mac,
 		break;
 	case BATADV_CLAIM_TYPE_ANNOUNCE:
 		/* announcement frame
+<<<<<<< HEAD
 		 * set HW SRC to the special mac containg the crc
+=======
+		 * set HW SRC to the special mac containing the crc
+>>>>>>> upstream/android-13
 		 */
 		ether_addr_copy(hw_src, mac);
 		batadv_dbg(BATADV_DBG_BLA, bat_priv,
@@ -452,6 +482,7 @@ static void batadv_bla_send_claim(struct batadv_priv *bat_priv, u8 *mac,
 	batadv_add_counter(bat_priv, BATADV_CNT_RX_BYTES,
 			   skb->len + ETH_HLEN);
 
+<<<<<<< HEAD
 	if (in_interrupt())
 		netif_rx(skb);
 	else
@@ -459,6 +490,11 @@ static void batadv_bla_send_claim(struct batadv_priv *bat_priv, u8 *mac,
 out:
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	netif_rx_any_context(skb);
+out:
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -862,7 +898,11 @@ static bool batadv_handle_announce(struct batadv_priv *bat_priv, u8 *an_addr,
 
 	/* handle as ANNOUNCE frame */
 	backbone_gw->lasttime = jiffies;
+<<<<<<< HEAD
 	crc = ntohs(*((__be16 *)(&an_addr[4])));
+=======
+	crc = ntohs(*((__force __be16 *)(&an_addr[4])));
+>>>>>>> upstream/android-13
 
 	batadv_dbg(BATADV_DBG_BLA, bat_priv,
 		   "%s(): ANNOUNCE vid %d (sent by %pM)... CRC = %#.4x\n",
@@ -1010,7 +1050,11 @@ static bool batadv_handle_claim(struct batadv_priv *bat_priv,
  * @hw_dst: the Hardware destination in the ARP Header
  * @ethhdr: pointer to the Ethernet header of the claim frame
  *
+<<<<<<< HEAD
  * checks if it is a claim packet and if its on the same group.
+=======
+ * checks if it is a claim packet and if it's on the same group.
+>>>>>>> upstream/android-13
  * This function also applies the group ID of the sender
  * if it is in the same mesh.
  *
@@ -1058,7 +1102,11 @@ static int batadv_check_claim_group(struct batadv_priv *bat_priv,
 	/* lets see if this originator is in our mesh */
 	orig_node = batadv_orig_hash_find(bat_priv, backbone_addr);
 
+<<<<<<< HEAD
 	/* dont accept claims from gateways which are not in
+=======
+	/* don't accept claims from gateways which are not in
+>>>>>>> upstream/android-13
 	 * the same mesh or group.
 	 */
 	if (!orig_node)
@@ -1516,8 +1564,12 @@ static void batadv_bla_periodic_work(struct work_struct *work)
 		rcu_read_unlock();
 	}
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 
 	queue_delayed_work(batadv_event_workqueue, &bat_priv->bla.work,
 			   msecs_to_jiffies(BATADV_BLA_PERIOD_LENGTH));
@@ -1574,11 +1626,23 @@ int batadv_bla_init(struct batadv_priv *bat_priv)
 		return 0;
 
 	bat_priv->bla.claim_hash = batadv_hash_new(128);
+<<<<<<< HEAD
 	bat_priv->bla.backbone_hash = batadv_hash_new(32);
 
 	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
 		return -ENOMEM;
 
+=======
+	if (!bat_priv->bla.claim_hash)
+		return -ENOMEM;
+
+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
+	if (!bat_priv->bla.backbone_hash) {
+		batadv_hash_destroy(bat_priv->bla.claim_hash);
+		return -ENOMEM;
+	}
+
+>>>>>>> upstream/android-13
 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
 				   &batadv_claim_hash_lock_class_key);
 	batadv_hash_set_lock_class(bat_priv->bla.backbone_hash,
@@ -1826,8 +1890,12 @@ void batadv_bla_free(struct batadv_priv *bat_priv)
 		batadv_hash_destroy(bat_priv->bla.backbone_hash);
 		bat_priv->bla.backbone_hash = NULL;
 	}
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
+=======
+	batadv_hardif_put(primary_if);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -1838,7 +1906,11 @@ void batadv_bla_free(struct batadv_priv *bat_priv)
  * @vid: the VLAN ID of the frame
  *
  * Checks if this packet is a loop detect frame which has been sent by us,
+<<<<<<< HEAD
  * throw an uevent and log the event if that is the case.
+=======
+ * throws an uevent and logs the event if that is the case.
+>>>>>>> upstream/android-13
  *
  * Return: true if it is a loop detect frame which is to be dropped, false
  * otherwise.
@@ -1876,7 +1948,11 @@ batadv_bla_loopdetect_check(struct batadv_priv *bat_priv, struct sk_buff *skb,
 
 	ret = queue_work(batadv_event_workqueue, &backbone_gw->report_work);
 
+<<<<<<< HEAD
 	/* backbone_gw is unreferenced in the report work function function
+=======
+	/* backbone_gw is unreferenced in the report work function
+>>>>>>> upstream/android-13
 	 * if queue_work() call was successful
 	 */
 	if (!ret)
@@ -1896,7 +1972,11 @@ batadv_bla_loopdetect_check(struct batadv_priv *bat_priv, struct sk_buff *skb,
  *  * we have to race for a claim
  *  * if the frame is allowed on the LAN
  *
+<<<<<<< HEAD
  * in these cases, the skb is further handled by this function
+=======
+ * In these cases, the skb is further handled by this function
+>>>>>>> upstream/android-13
  *
  * Return: true if handled, otherwise it returns false and the caller shall
  * further process the skb.
@@ -2014,10 +2094,15 @@ handled:
 	ret = true;
 
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
 	if (claim)
 		batadv_claim_put(claim);
+=======
+	batadv_hardif_put(primary_if);
+	batadv_claim_put(claim);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2121,6 +2206,7 @@ allow:
 handled:
 	ret = true;
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
 	if (claim)
@@ -2191,19 +2277,35 @@ out:
 }
 #endif
 
+=======
+	batadv_hardif_put(primary_if);
+	batadv_claim_put(claim);
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 /**
  * batadv_bla_claim_dump_entry() - dump one entry of the claim table
  * to a netlink socket
  * @msg: buffer for the message
  * @portid: netlink port
+<<<<<<< HEAD
  * @seq: Sequence number of netlink message
+=======
+ * @cb: Control block containing additional options
+>>>>>>> upstream/android-13
  * @primary_if: primary interface
  * @claim: entry to dump
  *
  * Return: 0 or error code.
  */
 static int
+<<<<<<< HEAD
 batadv_bla_claim_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
+=======
+batadv_bla_claim_dump_entry(struct sk_buff *msg, u32 portid,
+			    struct netlink_callback *cb,
+>>>>>>> upstream/android-13
 			    struct batadv_hard_iface *primary_if,
 			    struct batadv_bla_claim *claim)
 {
@@ -2213,13 +2315,24 @@ batadv_bla_claim_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
 	void *hdr;
 	int ret = -EINVAL;
 
+<<<<<<< HEAD
 	hdr = genlmsg_put(msg, portid, seq, &batadv_netlink_family,
 			  NLM_F_MULTI, BATADV_CMD_GET_BLA_CLAIM);
+=======
+	hdr = genlmsg_put(msg, portid, cb->nlh->nlmsg_seq,
+			  &batadv_netlink_family, NLM_F_MULTI,
+			  BATADV_CMD_GET_BLA_CLAIM);
+>>>>>>> upstream/android-13
 	if (!hdr) {
 		ret = -ENOBUFS;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	genl_dump_check_consistent(cb, hdr);
+
+>>>>>>> upstream/android-13
 	is_own = batadv_compare_eth(claim->backbone_gw->orig,
 				    primary_addr);
 
@@ -2255,28 +2368,54 @@ out:
  * to a netlink socket
  * @msg: buffer for the message
  * @portid: netlink port
+<<<<<<< HEAD
  * @seq: Sequence number of netlink message
  * @primary_if: primary interface
  * @head: bucket to dump
+=======
+ * @cb: Control block containing additional options
+ * @primary_if: primary interface
+ * @hash: hash to dump
+ * @bucket: bucket index to dump
+>>>>>>> upstream/android-13
  * @idx_skip: How many entries to skip
  *
  * Return: always 0.
  */
 static int
+<<<<<<< HEAD
 batadv_bla_claim_dump_bucket(struct sk_buff *msg, u32 portid, u32 seq,
 			     struct batadv_hard_iface *primary_if,
 			     struct hlist_head *head, int *idx_skip)
+=======
+batadv_bla_claim_dump_bucket(struct sk_buff *msg, u32 portid,
+			     struct netlink_callback *cb,
+			     struct batadv_hard_iface *primary_if,
+			     struct batadv_hashtable *hash, unsigned int bucket,
+			     int *idx_skip)
+>>>>>>> upstream/android-13
 {
 	struct batadv_bla_claim *claim;
 	int idx = 0;
 	int ret = 0;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	hlist_for_each_entry_rcu(claim, head, hash_entry) {
 		if (idx++ < *idx_skip)
 			continue;
 
 		ret = batadv_bla_claim_dump_entry(msg, portid, seq,
+=======
+	spin_lock_bh(&hash->list_locks[bucket]);
+	cb->seq = atomic_read(&hash->generation) << 1 | 1;
+
+	hlist_for_each_entry(claim, &hash->table[bucket], hash_entry) {
+		if (idx++ < *idx_skip)
+			continue;
+
+		ret = batadv_bla_claim_dump_entry(msg, portid, cb,
+>>>>>>> upstream/android-13
 						  primary_if, claim);
 		if (ret) {
 			*idx_skip = idx - 1;
@@ -2286,7 +2425,11 @@ batadv_bla_claim_dump_bucket(struct sk_buff *msg, u32 portid, u32 seq,
 
 	*idx_skip = 0;
 unlock:
+<<<<<<< HEAD
 	rcu_read_unlock();
+=======
+	spin_unlock_bh(&hash->list_locks[bucket]);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2306,7 +2449,10 @@ int batadv_bla_claim_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	struct batadv_hashtable *hash;
 	struct batadv_priv *bat_priv;
 	int bucket = cb->args[0];
+<<<<<<< HEAD
 	struct hlist_head *head;
+=======
+>>>>>>> upstream/android-13
 	int idx = cb->args[1];
 	int ifindex;
 	int ret = 0;
@@ -2332,11 +2478,16 @@ int batadv_bla_claim_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	}
 
 	while (bucket < hash->size) {
+<<<<<<< HEAD
 		head = &hash->table[bucket];
 
 		if (batadv_bla_claim_dump_bucket(msg, portid,
 						 cb->nlh->nlmsg_seq,
 						 primary_if, head, &idx))
+=======
+		if (batadv_bla_claim_dump_bucket(msg, portid, cb, primary_if,
+						 hash, bucket, &idx))
+>>>>>>> upstream/android-13
 			break;
 		bucket++;
 	}
@@ -2347,15 +2498,22 @@ int batadv_bla_claim_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	ret = msg->len;
 
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
 
 	if (soft_iface)
 		dev_put(soft_iface);
+=======
+	batadv_hardif_put(primary_if);
+
+	dev_put(soft_iface);
+>>>>>>> upstream/android-13
 
 	return ret;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_BATMAN_ADV_DEBUGFS
 /**
  * batadv_bla_backbone_table_seq_print_text() - print the backbone table in a
@@ -2422,19 +2580,30 @@ out:
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 /**
  * batadv_bla_backbone_dump_entry() - dump one entry of the backbone table to a
  *  netlink socket
  * @msg: buffer for the message
  * @portid: netlink port
+<<<<<<< HEAD
  * @seq: Sequence number of netlink message
+=======
+ * @cb: Control block containing additional options
+>>>>>>> upstream/android-13
  * @primary_if: primary interface
  * @backbone_gw: entry to dump
  *
  * Return: 0 or error code.
  */
 static int
+<<<<<<< HEAD
 batadv_bla_backbone_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
+=======
+batadv_bla_backbone_dump_entry(struct sk_buff *msg, u32 portid,
+			       struct netlink_callback *cb,
+>>>>>>> upstream/android-13
 			       struct batadv_hard_iface *primary_if,
 			       struct batadv_bla_backbone_gw *backbone_gw)
 {
@@ -2445,13 +2614,24 @@ batadv_bla_backbone_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
 	void *hdr;
 	int ret = -EINVAL;
 
+<<<<<<< HEAD
 	hdr = genlmsg_put(msg, portid, seq, &batadv_netlink_family,
 			  NLM_F_MULTI, BATADV_CMD_GET_BLA_BACKBONE);
+=======
+	hdr = genlmsg_put(msg, portid, cb->nlh->nlmsg_seq,
+			  &batadv_netlink_family, NLM_F_MULTI,
+			  BATADV_CMD_GET_BLA_BACKBONE);
+>>>>>>> upstream/android-13
 	if (!hdr) {
 		ret = -ENOBUFS;
 		goto out;
 	}
 
+<<<<<<< HEAD
+=======
+	genl_dump_check_consistent(cb, hdr);
+
+>>>>>>> upstream/android-13
 	is_own = batadv_compare_eth(backbone_gw->orig, primary_addr);
 
 	spin_lock_bh(&backbone_gw->crc_lock);
@@ -2488,28 +2668,54 @@ out:
  *  a netlink socket
  * @msg: buffer for the message
  * @portid: netlink port
+<<<<<<< HEAD
  * @seq: Sequence number of netlink message
  * @primary_if: primary interface
  * @head: bucket to dump
+=======
+ * @cb: Control block containing additional options
+ * @primary_if: primary interface
+ * @hash: hash to dump
+ * @bucket: bucket index to dump
+>>>>>>> upstream/android-13
  * @idx_skip: How many entries to skip
  *
  * Return: always 0.
  */
 static int
+<<<<<<< HEAD
 batadv_bla_backbone_dump_bucket(struct sk_buff *msg, u32 portid, u32 seq,
 				struct batadv_hard_iface *primary_if,
 				struct hlist_head *head, int *idx_skip)
+=======
+batadv_bla_backbone_dump_bucket(struct sk_buff *msg, u32 portid,
+				struct netlink_callback *cb,
+				struct batadv_hard_iface *primary_if,
+				struct batadv_hashtable *hash,
+				unsigned int bucket, int *idx_skip)
+>>>>>>> upstream/android-13
 {
 	struct batadv_bla_backbone_gw *backbone_gw;
 	int idx = 0;
 	int ret = 0;
 
+<<<<<<< HEAD
 	rcu_read_lock();
 	hlist_for_each_entry_rcu(backbone_gw, head, hash_entry) {
 		if (idx++ < *idx_skip)
 			continue;
 
 		ret = batadv_bla_backbone_dump_entry(msg, portid, seq,
+=======
+	spin_lock_bh(&hash->list_locks[bucket]);
+	cb->seq = atomic_read(&hash->generation) << 1 | 1;
+
+	hlist_for_each_entry(backbone_gw, &hash->table[bucket], hash_entry) {
+		if (idx++ < *idx_skip)
+			continue;
+
+		ret = batadv_bla_backbone_dump_entry(msg, portid, cb,
+>>>>>>> upstream/android-13
 						     primary_if, backbone_gw);
 		if (ret) {
 			*idx_skip = idx - 1;
@@ -2519,7 +2725,11 @@ batadv_bla_backbone_dump_bucket(struct sk_buff *msg, u32 portid, u32 seq,
 
 	*idx_skip = 0;
 unlock:
+<<<<<<< HEAD
 	rcu_read_unlock();
+=======
+	spin_unlock_bh(&hash->list_locks[bucket]);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -2539,7 +2749,10 @@ int batadv_bla_backbone_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	struct batadv_hashtable *hash;
 	struct batadv_priv *bat_priv;
 	int bucket = cb->args[0];
+<<<<<<< HEAD
 	struct hlist_head *head;
+=======
+>>>>>>> upstream/android-13
 	int idx = cb->args[1];
 	int ifindex;
 	int ret = 0;
@@ -2565,11 +2778,16 @@ int batadv_bla_backbone_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	}
 
 	while (bucket < hash->size) {
+<<<<<<< HEAD
 		head = &hash->table[bucket];
 
 		if (batadv_bla_backbone_dump_bucket(msg, portid,
 						    cb->nlh->nlmsg_seq,
 						    primary_if, head, &idx))
+=======
+		if (batadv_bla_backbone_dump_bucket(msg, portid, cb, primary_if,
+						    hash, bucket, &idx))
+>>>>>>> upstream/android-13
 			break;
 		bucket++;
 	}
@@ -2580,11 +2798,17 @@ int batadv_bla_backbone_dump(struct sk_buff *msg, struct netlink_callback *cb)
 	ret = msg->len;
 
 out:
+<<<<<<< HEAD
 	if (primary_if)
 		batadv_hardif_put(primary_if);
 
 	if (soft_iface)
 		dev_put(soft_iface);
+=======
+	batadv_hardif_put(primary_if);
+
+	dev_put(soft_iface);
+>>>>>>> upstream/android-13
 
 	return ret;
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2008-2010 Freescale Semiconductor, Inc. All Rights Reserved.
  *
@@ -7,6 +8,11 @@
  *
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2008-2010 Freescale Semiconductor, Inc. All Rights Reserved.
+>>>>>>> upstream/android-13
  */
 #include <linux/export.h>
 #include <linux/types.h>

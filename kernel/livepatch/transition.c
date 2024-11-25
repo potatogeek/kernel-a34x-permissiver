@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * transition.c - Kernel Live Patching transition functions
  *
  * Copyright (C) 2015-2016 Josh Poimboeuf <jpoimboe@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,12 +20,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #include <linux/cpu.h>
 #include <linux/stacktrace.h>
+<<<<<<< HEAD
+=======
+#include <linux/tracehook.h>
+>>>>>>> upstream/android-13
 #include "core.h"
 #include "patch.h"
 #include "transition.h"
@@ -29,11 +40,20 @@
 #define MAX_STACK_ENTRIES  100
 #define STACK_ERR_BUF_SIZE 128
 
+<<<<<<< HEAD
+=======
+#define SIGNALS_TIMEOUT 15
+
+>>>>>>> upstream/android-13
 struct klp_patch *klp_transition_patch;
 
 static int klp_target_state = KLP_UNDEFINED;
 
+<<<<<<< HEAD
 static bool klp_forced = false;
+=======
+static unsigned int klp_signals_cnt;
+>>>>>>> upstream/android-13
 
 /*
  * This work can be performed periodically to finish patching or unpatching any
@@ -52,7 +72,11 @@ static DECLARE_DELAYED_WORK(klp_transition_work, klp_transition_work_fn);
 
 /*
  * This function is just a stub to implement a hard force
+<<<<<<< HEAD
  * of synchronize_sched(). This requires synchronizing
+=======
+ * of synchronize_rcu(). This requires synchronizing
+>>>>>>> upstream/android-13
  * tasks even in userspace and idle.
  */
 static void klp_sync(struct work_struct *work)
@@ -87,6 +111,14 @@ static void klp_complete_transition(void)
 		 klp_transition_patch->mod->name,
 		 klp_target_state == KLP_PATCHED ? "patching" : "unpatching");
 
+<<<<<<< HEAD
+=======
+	if (klp_transition_patch->replace && klp_target_state == KLP_PATCHED) {
+		klp_unpatch_replaced_patches(klp_transition_patch);
+		klp_discard_nops(klp_transition_patch);
+	}
+
+>>>>>>> upstream/android-13
 	if (klp_target_state == KLP_UNPATCHED) {
 		/*
 		 * All tasks have transitioned to KLP_UNPATCHED so we can now
@@ -136,6 +168,7 @@ static void klp_complete_transition(void)
 	pr_notice("'%s': %s complete\n", klp_transition_patch->mod->name,
 		  klp_target_state == KLP_PATCHED ? "patching" : "unpatching");
 
+<<<<<<< HEAD
 	/*
 	 * klp_forced set implies unbounded increase of module's ref count if
 	 * the module is disabled/enabled in a loop.
@@ -143,6 +176,8 @@ static void klp_complete_transition(void)
 	if (!klp_forced && klp_target_state == KLP_UNPATCHED)
 		module_put(klp_transition_patch->mod);
 
+=======
+>>>>>>> upstream/android-13
 	klp_target_state = KLP_UNDEFINED;
 	klp_transition_patch = NULL;
 }
@@ -175,7 +210,11 @@ void klp_cancel_transition(void)
 void klp_update_patch_state(struct task_struct *task)
 {
 	/*
+<<<<<<< HEAD
 	 * A variant of synchronize_sched() is used to allow patching functions
+=======
+	 * A variant of synchronize_rcu() is used to allow patching functions
+>>>>>>> upstream/android-13
 	 * where RCU is not watching, see klp_synchronize_transition().
 	 */
 	preempt_disable_notrace();
@@ -202,15 +241,25 @@ void klp_update_patch_state(struct task_struct *task)
  * Determine whether the given stack trace includes any references to a
  * to-be-patched or to-be-unpatched function.
  */
+<<<<<<< HEAD
 static int klp_check_stack_func(struct klp_func *func,
 				struct stack_trace *trace)
+=======
+static int klp_check_stack_func(struct klp_func *func, unsigned long *entries,
+				unsigned int nr_entries)
+>>>>>>> upstream/android-13
 {
 	unsigned long func_addr, func_size, address;
 	struct klp_ops *ops;
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < trace->nr_entries; i++) {
 		address = trace->entries[i];
+=======
+	for (i = 0; i < nr_entries; i++) {
+		address = entries[i];
+>>>>>>> upstream/android-13
 
 		if (klp_target_state == KLP_UNPATCHED) {
 			 /*
@@ -224,11 +273,19 @@ static int klp_check_stack_func(struct klp_func *func,
 			 * Check for the to-be-patched function
 			 * (the previous func).
 			 */
+<<<<<<< HEAD
 			ops = klp_find_ops(func->old_addr);
 
 			if (list_is_singular(&ops->func_stack)) {
 				/* original function */
 				func_addr = func->old_addr;
+=======
+			ops = klp_find_ops(func->old_func);
+
+			if (list_is_singular(&ops->func_stack)) {
+				/* original function */
+				func_addr = (unsigned long)func->old_func;
+>>>>>>> upstream/android-13
 				func_size = func->old_size;
 			} else {
 				/* previously patched function */
@@ -254,6 +311,7 @@ static int klp_check_stack_func(struct klp_func *func,
 static int klp_check_stack(struct task_struct *task, char *err_buf)
 {
 	static unsigned long entries[MAX_STACK_ENTRIES];
+<<<<<<< HEAD
 	struct stack_trace trace;
 	struct klp_object *obj;
 	struct klp_func *func;
@@ -266,17 +324,33 @@ static int klp_check_stack(struct task_struct *task, char *err_buf)
 	ret = save_stack_trace_tsk_reliable(task, &trace);
 	WARN_ON_ONCE(ret == -ENOSYS);
 	if (ret) {
+=======
+	struct klp_object *obj;
+	struct klp_func *func;
+	int ret, nr_entries;
+
+	ret = stack_trace_save_tsk_reliable(task, entries, ARRAY_SIZE(entries));
+	if (ret < 0) {
+>>>>>>> upstream/android-13
 		snprintf(err_buf, STACK_ERR_BUF_SIZE,
 			 "%s: %s:%d has an unreliable stack\n",
 			 __func__, task->comm, task->pid);
 		return ret;
 	}
+<<<<<<< HEAD
+=======
+	nr_entries = ret;
+>>>>>>> upstream/android-13
 
 	klp_for_each_object(klp_transition_patch, obj) {
 		if (!obj->patched)
 			continue;
 		klp_for_each_func(obj, func) {
+<<<<<<< HEAD
 			ret = klp_check_stack_func(func, &trace);
+=======
+			ret = klp_check_stack_func(func, entries, nr_entries);
+>>>>>>> upstream/android-13
 			if (ret) {
 				snprintf(err_buf, STACK_ERR_BUF_SIZE,
 					 "%s: %s:%d is sleeping on function %s\n",
@@ -297,11 +371,18 @@ static int klp_check_stack(struct task_struct *task, char *err_buf)
  */
 static bool klp_try_switch_task(struct task_struct *task)
 {
+<<<<<<< HEAD
+=======
+	static char err_buf[STACK_ERR_BUF_SIZE];
+>>>>>>> upstream/android-13
 	struct rq *rq;
 	struct rq_flags flags;
 	int ret;
 	bool success = false;
+<<<<<<< HEAD
 	char err_buf[STACK_ERR_BUF_SIZE];
+=======
+>>>>>>> upstream/android-13
 
 	err_buf[0] = '\0';
 
@@ -310,6 +391,16 @@ static bool klp_try_switch_task(struct task_struct *task)
 		return true;
 
 	/*
+<<<<<<< HEAD
+=======
+	 * For arches which don't have reliable stack traces, we have to rely
+	 * on other methods (e.g., switching tasks at kernel exit).
+	 */
+	if (!klp_have_reliable_stack())
+		return false;
+
+	/*
+>>>>>>> upstream/android-13
 	 * Now try to check the stack for any to-be-patched or to-be-unpatched
 	 * functions.  If all goes well, switch the task to the target patch
 	 * state.
@@ -344,7 +435,49 @@ done:
 		pr_debug("%s", err_buf);
 
 	return success;
+<<<<<<< HEAD
 
+=======
+}
+
+/*
+ * Sends a fake signal to all non-kthread tasks with TIF_PATCH_PENDING set.
+ * Kthreads with TIF_PATCH_PENDING set are woken up.
+ */
+static void klp_send_signals(void)
+{
+	struct task_struct *g, *task;
+
+	if (klp_signals_cnt == SIGNALS_TIMEOUT)
+		pr_notice("signaling remaining tasks\n");
+
+	read_lock(&tasklist_lock);
+	for_each_process_thread(g, task) {
+		if (!klp_patch_pending(task))
+			continue;
+
+		/*
+		 * There is a small race here. We could see TIF_PATCH_PENDING
+		 * set and decide to wake up a kthread or send a fake signal.
+		 * Meanwhile the task could migrate itself and the action
+		 * would be meaningless. It is not serious though.
+		 */
+		if (task->flags & PF_KTHREAD) {
+			/*
+			 * Wake up a kthread which sleeps interruptedly and
+			 * still has not been migrated.
+			 */
+			wake_up_state(task, TASK_INTERRUPTIBLE);
+		} else {
+			/*
+			 * Send fake signal to all non-kthread tasks which are
+			 * still not migrated.
+			 */
+			set_notify_signal(task);
+		}
+	}
+	read_unlock(&tasklist_lock);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -359,6 +492,10 @@ void klp_try_complete_transition(void)
 {
 	unsigned int cpu;
 	struct task_struct *g, *task;
+<<<<<<< HEAD
+=======
+	struct klp_patch *patch;
+>>>>>>> upstream/android-13
 	bool complete = true;
 
 	WARN_ON_ONCE(klp_target_state == KLP_UNDEFINED);
@@ -381,7 +518,11 @@ void klp_try_complete_transition(void)
 	/*
 	 * Ditto for the idle "swapper" tasks.
 	 */
+<<<<<<< HEAD
 	get_online_cpus();
+=======
+	cpus_read_lock();
+>>>>>>> upstream/android-13
 	for_each_possible_cpu(cpu) {
 		task = idle_task(cpu);
 		if (cpu_online(cpu)) {
@@ -393,9 +534,19 @@ void klp_try_complete_transition(void)
 			task->patch_state = klp_target_state;
 		}
 	}
+<<<<<<< HEAD
 	put_online_cpus();
 
 	if (!complete) {
+=======
+	cpus_read_unlock();
+
+	if (!complete) {
+		if (klp_signals_cnt && !(klp_signals_cnt % SIGNALS_TIMEOUT))
+			klp_send_signals();
+		klp_signals_cnt++;
+
+>>>>>>> upstream/android-13
 		/*
 		 * Some tasks weren't able to be switched over.  Try again
 		 * later and/or wait for other methods like kernel exit
@@ -407,7 +558,22 @@ void klp_try_complete_transition(void)
 	}
 
 	/* we're done, now cleanup the data structures */
+<<<<<<< HEAD
 	klp_complete_transition();
+=======
+	patch = klp_transition_patch;
+	klp_complete_transition();
+
+	/*
+	 * It would make more sense to free the unused patches in
+	 * klp_complete_transition() but it is called also
+	 * from klp_cancel_transition().
+	 */
+	if (!patch->enabled)
+		klp_free_patch_async(patch);
+	else if (patch->replace)
+		klp_free_replaced_patches_async(patch);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -446,6 +612,11 @@ void klp_start_transition(void)
 		if (task->patch_state != klp_target_state)
 			set_tsk_thread_flag(task, TIF_PATCH_PENDING);
 	}
+<<<<<<< HEAD
+=======
+
+	klp_signals_cnt = 0;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -569,6 +740,7 @@ void klp_copy_process(struct task_struct *child)
 }
 
 /*
+<<<<<<< HEAD
  * Sends a fake signal to all non-kthread tasks with TIF_PATCH_PENDING set.
  * Kthreads with TIF_PATCH_PENDING set are woken up. Only admin can request this
  * action currently.
@@ -610,6 +782,8 @@ void klp_send_signals(void)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Drop TIF_PATCH_PENDING of all tasks on admin's request. This forces an
  * existing transition to finish.
  *
@@ -620,6 +794,10 @@ void klp_send_signals(void)
  */
 void klp_force_transition(void)
 {
+<<<<<<< HEAD
+=======
+	struct klp_patch *patch;
+>>>>>>> upstream/android-13
 	struct task_struct *g, *task;
 	unsigned int cpu;
 
@@ -633,5 +811,10 @@ void klp_force_transition(void)
 	for_each_possible_cpu(cpu)
 		klp_update_patch_state(idle_task(cpu));
 
+<<<<<<< HEAD
 	klp_forced = true;
+=======
+	klp_for_each_patch(patch)
+		patch->forced = true;
+>>>>>>> upstream/android-13
 }

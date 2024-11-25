@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
  * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
@@ -13,12 +14,22 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+/* SPDX-License-Identifier: ISC */
+/*
+ * Copyright (c) 2005-2011 Atheros Communications Inc.
+ * Copyright (c) 2011-2017 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #ifndef _PCI_H_
 #define _PCI_H_
 
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/mutex.h>
+>>>>>>> upstream/android-13
 
 #include "hw.h"
 #include "ce.h"
@@ -128,6 +139,13 @@ struct ath10k_pci {
 
 	/* Copy Engine used for Diagnostic Accesses */
 	struct ath10k_ce_pipe *ce_diag;
+<<<<<<< HEAD
+=======
+	/* For protecting ce_diag */
+	struct mutex ce_diag_mutex;
+
+	struct work_struct dump_work;
+>>>>>>> upstream/android-13
 
 	struct ath10k_ce ce;
 	struct timer_list rx_post_retry;
@@ -184,11 +202,23 @@ struct ath10k_pci {
 	 */
 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
 
+<<<<<<< HEAD
+=======
+	struct ce_attr *attr;
+	struct ce_pipe_config *pipe_config;
+	struct ce_service_to_pipe *serv_to_pipe;
+
+>>>>>>> upstream/android-13
 	/* Keep this entry in the last, memory for struct ath10k_ahb is
 	 * allocated (ahb support enabled case) in the continuation of
 	 * this struct.
 	 */
+<<<<<<< HEAD
 	struct ath10k_ahb ahb[0];
+=======
+	struct ath10k_ahb ahb[];
+
+>>>>>>> upstream/android-13
 };
 
 static inline struct ath10k_pci *ath10k_pci_priv(struct ath10k *ar)
@@ -207,7 +237,12 @@ static inline struct ath10k_pci *ath10k_pci_priv(struct ath10k *ar)
 #define CDC_WAR_DATA_CE     4
 
 /* Wait up to this many Ms for a Diagnostic Access CE operation to complete */
+<<<<<<< HEAD
 #define DIAG_ACCESS_CE_TIMEOUT_MS 10
+=======
+#define DIAG_ACCESS_CE_TIMEOUT_US 10000 /* 10 ms */
+#define DIAG_ACCESS_CE_WAIT_US	50
+>>>>>>> upstream/android-13
 
 void ath10k_pci_write32(struct ath10k *ar, u32 offset, u32 value);
 void ath10k_pci_soc_write32(struct ath10k *ar, u32 addr, u32 val);
@@ -235,7 +270,10 @@ u16 ath10k_pci_hif_get_free_queue_number(struct ath10k *ar, u8 pipe);
 void ath10k_pci_hif_power_down(struct ath10k *ar);
 int ath10k_pci_alloc_pipes(struct ath10k *ar);
 void ath10k_pci_free_pipes(struct ath10k *ar);
+<<<<<<< HEAD
 void ath10k_pci_free_pipes(struct ath10k *ar);
+=======
+>>>>>>> upstream/android-13
 void ath10k_pci_rx_replenish_retry(struct timer_list *t);
 void ath10k_pci_ce_deinit(struct ath10k *ar);
 void ath10k_pci_init_napi(struct ath10k *ar);

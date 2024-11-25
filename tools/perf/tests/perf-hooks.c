@@ -4,7 +4,10 @@
 
 #include "tests.h"
 #include "debug.h"
+<<<<<<< HEAD
 #include "util.h"
+=======
+>>>>>>> upstream/android-13
 #include "perf-hooks.h"
 
 static void sigsegv_handler(int sig __maybe_unused)

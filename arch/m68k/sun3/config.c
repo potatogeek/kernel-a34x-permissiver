@@ -15,14 +15,21 @@
 #include <linux/tty.h>
 #include <linux/console.h>
 #include <linux/init.h>
+<<<<<<< HEAD
 #include <linux/bootmem.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_device.h>
 
 #include <asm/oplib.h>
 #include <asm/setup.h>
 #include <asm/contregs.h>
 #include <asm/movs.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/pgalloc.h>
 #include <asm/sun3-head.h>
 #include <asm/sun3mmu.h>
@@ -32,13 +39,20 @@
 #include <asm/intersil.h>
 #include <asm/irq.h>
 #include <asm/sections.h>
+<<<<<<< HEAD
 #include <asm/segment.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/sun3ints.h>
 
 char sun3_reserved_pmeg[SUN3_PMEGS_NUM];
 
+<<<<<<< HEAD
 extern u32 sun3_gettimeoffset(void);
 static void sun3_sched_init(irq_handler_t handler);
+=======
+static void sun3_sched_init(void);
+>>>>>>> upstream/android-13
 extern void sun3_get_model (char* model);
 extern int sun3_hwclk(int set, struct rtc_time *t);
 
@@ -91,7 +105,11 @@ void __init sun3_init(void)
 	sun3_reserved_pmeg[249] = 1;
 	sun3_reserved_pmeg[252] = 1;
 	sun3_reserved_pmeg[253] = 1;
+<<<<<<< HEAD
 	set_fs(KERNEL_DS);
+=======
+	set_fc(USER_DATA);
+>>>>>>> upstream/android-13
 }
 
 /* Without this, Bad Things happen when something calls arch_reset. */
@@ -138,7 +156,10 @@ void __init config_sun3(void)
         mach_sched_init      =  sun3_sched_init;
         mach_init_IRQ        =  sun3_init_IRQ;
         mach_reset           =  sun3_reboot;
+<<<<<<< HEAD
 	arch_gettimeoffset   =  sun3_gettimeoffset;
+=======
+>>>>>>> upstream/android-13
 	mach_get_model	     =  sun3_get_model;
 	mach_hwclk           =  sun3_hwclk;
 	mach_halt	     =  sun3_halt;
@@ -154,7 +175,11 @@ void __init config_sun3(void)
 	sun3_bootmem_alloc(memory_start, memory_end);
 }
 
+<<<<<<< HEAD
 static void __init sun3_sched_init(irq_handler_t timer_routine)
+=======
+static void __init sun3_sched_init(void)
+>>>>>>> upstream/android-13
 {
 	sun3_disable_interrupts();
         intersil_clock->cmd_reg=(INTERSIL_RUN|INTERSIL_INT_DISABLE|INTERSIL_24H_MODE);

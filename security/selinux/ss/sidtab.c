@@ -9,6 +9,11 @@
  */
 #include <linux/errno.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/list.h>
+#include <linux/rcupdate.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/sched.h>
 #include <linux/spinlock.h>
@@ -17,6 +22,17 @@
 #include "security.h"
 #include "sidtab.h"
 
+<<<<<<< HEAD
+=======
+struct sidtab_str_cache {
+	struct rcu_head rcu_member;
+	struct list_head lru_member;
+	struct sidtab_entry *parent;
+	u32 len;
+	char str[];
+};
+
+>>>>>>> upstream/android-13
 #define index_to_sid(index) (index + SECINITSID_NUM + 1)
 #define sid_to_index(sid) (sid - (SECINITSID_NUM + 1))
 
@@ -29,11 +45,16 @@ int sidtab_init(struct sidtab *s)
 	for (i = 0; i < SECINITSID_NUM; i++)
 		s->isids[i].set = 0;
 
+<<<<<<< HEAD
+=======
+	s->frozen = false;
+>>>>>>> upstream/android-13
 	s->count = 0;
 	s->convert = NULL;
 	hash_init(s->context_to_sid);
 
 	spin_lock_init(&s->lock);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -45,6 +66,27 @@ static u32 context_to_sid(struct sidtab *s, struct context *context)
 	rcu_read_lock();
 	hash_for_each_possible_rcu(s->context_to_sid, entry, list,
 				   context->hash) {
+=======
+
+#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+	s->cache_free_slots = CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE;
+	INIT_LIST_HEAD(&s->cache_lru_list);
+	spin_lock_init(&s->cache_lock);
+#endif
+
+	return 0;
+}
+
+static u32 context_to_sid(struct sidtab *s, struct context *context, u32 hash)
+{
+	struct sidtab_entry *entry;
+	u32 sid = 0;
+
+	rcu_read_lock();
+	hash_for_each_possible_rcu(s->context_to_sid, entry, list, hash) {
+		if (entry->hash != hash)
+			continue;
+>>>>>>> upstream/android-13
 		if (context_cmp(&entry->context, context)) {
 			sid = entry->sid;
 			break;
@@ -56,12 +98,18 @@ static u32 context_to_sid(struct sidtab *s, struct context *context)
 
 int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
 {
+<<<<<<< HEAD
 	struct sidtab_isid_entry *entry;
+=======
+	struct sidtab_isid_entry *isid;
+	u32 hash;
+>>>>>>> upstream/android-13
 	int rc;
 
 	if (sid == 0 || sid > SECINITSID_NUM)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	entry = &s->isids[sid - 1];
 
 	rc = context_cpy(&entry->leaf.context, context);
@@ -69,6 +117,20 @@ int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
 		return rc;
 
 	entry->set = 1;
+=======
+	isid = &s->isids[sid - 1];
+
+	rc = context_cpy(&isid->entry.context, context);
+	if (rc)
+		return rc;
+
+#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+	isid->entry.cache = NULL;
+#endif
+	isid->set = 1;
+
+	hash = context_compute_hash(context);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Multiple initial sids may map to the same context. Check that this
@@ -76,9 +138,16 @@ int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
 	 * to avoid duplicate entries and long linked lists upon hash
 	 * collision.
 	 */
+<<<<<<< HEAD
 	if (!context_to_sid(s, context)) {
 		entry->leaf.sid = sid;
 		hash_add(s->context_to_sid, &entry->leaf.list, context->hash);
+=======
+	if (!context_to_sid(s, context, hash)) {
+		isid->entry.sid = sid;
+		isid->entry.hash = hash;
+		hash_add(s->context_to_sid, &isid->entry.list, hash);
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
@@ -92,7 +161,11 @@ int sidtab_hash_stats(struct sidtab *sidtab, char *page)
 	int entries = 0;
 	int max_chain_len = 0;
 	int cur_bucket = 0;
+<<<<<<< HEAD
 	struct sidtab_entry_leaf *entry;
+=======
+	struct sidtab_entry *entry;
+>>>>>>> upstream/android-13
 
 	rcu_read_lock();
 	hash_for_each_rcu(sidtab->context_to_sid, i, entry, list) {
@@ -151,8 +224,13 @@ static int sidtab_alloc_roots(struct sidtab *s, u32 level)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct sidtab_entry_leaf *sidtab_do_lookup(struct sidtab *s, u32 index,
 						  int alloc)
+=======
+static struct sidtab_entry *sidtab_do_lookup(struct sidtab *s, u32 index,
+					     int alloc)
+>>>>>>> upstream/android-13
 {
 	union sidtab_entry_inner *entry;
 	u32 level, capacity_shift, leaf_index = index / SIDTAB_LEAF_ENTRIES;
@@ -192,7 +270,11 @@ static struct sidtab_entry_leaf *sidtab_do_lookup(struct sidtab *s, u32 index,
 	return &entry->ptr_leaf->entries[index % SIDTAB_LEAF_ENTRIES];
 }
 
+<<<<<<< HEAD
 static struct context *sidtab_lookup(struct sidtab *s, u32 index)
+=======
+static struct sidtab_entry *sidtab_lookup(struct sidtab *s, u32 index)
+>>>>>>> upstream/android-13
 {
 	/* read entries only after reading count */
 	u32 count = smp_load_acquire(&s->count);
@@ -200,6 +282,7 @@ static struct context *sidtab_lookup(struct sidtab *s, u32 index)
 	if (index >= count)
 		return NULL;
 
+<<<<<<< HEAD
 	return &sidtab_do_lookup(s, index, 0)->context;
 }
 
@@ -219,17 +302,47 @@ static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
 			context = sidtab_lookup_initial(s, sid);
 		if (context && (!context->len || force))
 			return context;
+=======
+	return sidtab_do_lookup(s, index, 0);
+}
+
+static struct sidtab_entry *sidtab_lookup_initial(struct sidtab *s, u32 sid)
+{
+	return s->isids[sid - 1].set ? &s->isids[sid - 1].entry : NULL;
+}
+
+static struct sidtab_entry *sidtab_search_core(struct sidtab *s, u32 sid,
+					       int force)
+{
+	if (sid != 0) {
+		struct sidtab_entry *entry;
+
+		if (sid > SECINITSID_NUM)
+			entry = sidtab_lookup(s, sid_to_index(sid));
+		else
+			entry = sidtab_lookup_initial(s, sid);
+		if (entry && (!entry->context.len || force))
+			return entry;
+>>>>>>> upstream/android-13
 	}
 
 	return sidtab_lookup_initial(s, SECINITSID_UNLABELED);
 }
 
+<<<<<<< HEAD
 struct context *sidtab_search(struct sidtab *s, u32 sid)
+=======
+struct sidtab_entry *sidtab_search_entry(struct sidtab *s, u32 sid)
+>>>>>>> upstream/android-13
 {
 	return sidtab_search_core(s, sid, 0);
 }
 
+<<<<<<< HEAD
 struct context *sidtab_search_force(struct sidtab *s, u32 sid)
+=======
+struct sidtab_entry *sidtab_search_entry_force(struct sidtab *s, u32 sid)
+>>>>>>> upstream/android-13
 {
 	return sidtab_search_core(s, sid, 1);
 }
@@ -238,12 +351,21 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
 			  u32 *sid)
 {
 	unsigned long flags;
+<<<<<<< HEAD
 	u32 count;
 	struct sidtab_convert_params *convert;
 	struct sidtab_entry_leaf *dst, *dst_convert;
 	int rc;
 
 	*sid = context_to_sid(s, context);
+=======
+	u32 count, hash = context_compute_hash(context);
+	struct sidtab_convert_params *convert;
+	struct sidtab_entry *dst, *dst_convert;
+	int rc;
+
+	*sid = context_to_sid(s, context, hash);
+>>>>>>> upstream/android-13
 	if (*sid)
 		return 0;
 
@@ -251,12 +373,29 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
 	spin_lock_irqsave(&s->lock, flags);
 
 	rc = 0;
+<<<<<<< HEAD
 	*sid = context_to_sid(s, context);
 	if (*sid)
 		goto out_unlock;
 
 	/* read entries only after reading count */
 	count = smp_load_acquire(&s->count);
+=======
+	*sid = context_to_sid(s, context, hash);
+	if (*sid)
+		goto out_unlock;
+
+	if (unlikely(s->frozen)) {
+		/*
+		 * This sidtab is now frozen - tell the caller to abort and
+		 * get the new one.
+		 */
+		rc = -ESTALE;
+		goto out_unlock;
+	}
+
+	count = s->count;
+>>>>>>> upstream/android-13
 	convert = s->convert;
 
 	/* bail out if we already reached max entries */
@@ -271,6 +410,10 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
 		goto out_unlock;
 
 	dst->sid = index_to_sid(count);
+<<<<<<< HEAD
+=======
+	dst->hash = hash;
+>>>>>>> upstream/android-13
 
 	rc = context_cpy(&dst->context, context);
 	if (rc)
@@ -289,16 +432,28 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
 		}
 
 		rc = convert->func(context, &dst_convert->context,
+<<<<<<< HEAD
 				convert->args);
+=======
+				   convert->args);
+>>>>>>> upstream/android-13
 		if (rc) {
 			context_destroy(&dst->context);
 			goto out_unlock;
 		}
 		dst_convert->sid = index_to_sid(count);
+<<<<<<< HEAD
 		convert->target->count = count + 1;
 
 		hash_add_rcu(convert->target->context_to_sid,
 				&dst_convert->list, dst_convert->context.hash);
+=======
+		dst_convert->hash = context_compute_hash(&dst_convert->context);
+		convert->target->count = count + 1;
+
+		hash_add_rcu(convert->target->context_to_sid,
+			     &dst_convert->list, dst_convert->hash);
+>>>>>>> upstream/android-13
 	}
 
 	if (context->len)
@@ -309,7 +464,11 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
 
 	/* write entries before updating count */
 	smp_store_release(&s->count, count + 1);
+<<<<<<< HEAD
 	hash_add_rcu(s->context_to_sid, &dst->list, dst->context.hash);
+=======
+	hash_add_rcu(s->context_to_sid, &dst->list, dst->hash);
+>>>>>>> upstream/android-13
 
 	rc = 0;
 out_unlock:
@@ -319,16 +478,26 @@ out_unlock:
 
 static void sidtab_convert_hashtable(struct sidtab *s, u32 count)
 {
+<<<<<<< HEAD
 	struct sidtab_entry_leaf *entry;
+=======
+	struct sidtab_entry *entry;
+>>>>>>> upstream/android-13
 	u32 i;
 
 	for (i = 0; i < count; i++) {
 		entry = sidtab_do_lookup(s, i, 0);
 		entry->sid = index_to_sid(i);
+<<<<<<< HEAD
 
 		hash_add_rcu(s->context_to_sid, &entry->list,
 				entry->context.hash);
 
+=======
+		entry->hash = context_compute_hash(&entry->context);
+
+		hash_add_rcu(s->context_to_sid, &entry->list, entry->hash);
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -376,7 +545,10 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
 		}
 		cond_resched();
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -439,6 +611,38 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+void sidtab_cancel_convert(struct sidtab *s)
+{
+	unsigned long flags;
+
+	/* cancelling policy load - disable live convert of sidtab */
+	spin_lock_irqsave(&s->lock, flags);
+	s->convert = NULL;
+	spin_unlock_irqrestore(&s->lock, flags);
+}
+
+void sidtab_freeze_begin(struct sidtab *s, unsigned long *flags) __acquires(&s->lock)
+{
+	spin_lock_irqsave(&s->lock, *flags);
+	s->frozen = true;
+	s->convert = NULL;
+}
+void sidtab_freeze_end(struct sidtab *s, unsigned long *flags) __releases(&s->lock)
+{
+	spin_unlock_irqrestore(&s->lock, *flags);
+}
+
+static void sidtab_destroy_entry(struct sidtab_entry *entry)
+{
+	context_destroy(&entry->context);
+#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+	kfree(rcu_dereference_raw(entry->cache));
+#endif
+}
+
+>>>>>>> upstream/android-13
 static void sidtab_destroy_tree(union sidtab_entry_inner entry, u32 level)
 {
 	u32 i;
@@ -459,7 +663,11 @@ static void sidtab_destroy_tree(union sidtab_entry_inner entry, u32 level)
 			return;
 
 		for (i = 0; i < SIDTAB_LEAF_ENTRIES; i++)
+<<<<<<< HEAD
 			context_destroy(&node->entries[i].context);
+=======
+			sidtab_destroy_entry(&node->entries[i]);
+>>>>>>> upstream/android-13
 		kfree(node);
 	}
 }
@@ -470,7 +678,11 @@ void sidtab_destroy(struct sidtab *s)
 
 	for (i = 0; i < SECINITSID_NUM; i++)
 		if (s->isids[i].set)
+<<<<<<< HEAD
 			context_destroy(&s->isids[i].leaf.context);
+=======
+			sidtab_destroy_entry(&s->isids[i].entry);
+>>>>>>> upstream/android-13
 
 	level = SIDTAB_MAX_LEVEL;
 	while (level && !s->roots[level].ptr_inner)
@@ -483,3 +695,85 @@ void sidtab_destroy(struct sidtab *s)
 	 * to be cleaned up here.
 	 */
 }
+<<<<<<< HEAD
+=======
+
+#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+
+void sidtab_sid2str_put(struct sidtab *s, struct sidtab_entry *entry,
+			const char *str, u32 str_len)
+{
+	struct sidtab_str_cache *cache, *victim = NULL;
+	unsigned long flags;
+
+	/* do not cache invalid contexts */
+	if (entry->context.len)
+		return;
+
+	spin_lock_irqsave(&s->cache_lock, flags);
+
+	cache = rcu_dereference_protected(entry->cache,
+					  lockdep_is_held(&s->cache_lock));
+	if (cache) {
+		/* entry in cache - just bump to the head of LRU list */
+		list_move(&cache->lru_member, &s->cache_lru_list);
+		goto out_unlock;
+	}
+
+	cache = kmalloc(sizeof(struct sidtab_str_cache) + str_len, GFP_ATOMIC);
+	if (!cache)
+		goto out_unlock;
+
+	if (s->cache_free_slots == 0) {
+		/* pop a cache entry from the tail and free it */
+		victim = container_of(s->cache_lru_list.prev,
+				      struct sidtab_str_cache, lru_member);
+		list_del(&victim->lru_member);
+		rcu_assign_pointer(victim->parent->cache, NULL);
+	} else {
+		s->cache_free_slots--;
+	}
+	cache->parent = entry;
+	cache->len = str_len;
+	memcpy(cache->str, str, str_len);
+	list_add(&cache->lru_member, &s->cache_lru_list);
+
+	rcu_assign_pointer(entry->cache, cache);
+
+out_unlock:
+	spin_unlock_irqrestore(&s->cache_lock, flags);
+	kfree_rcu(victim, rcu_member);
+}
+
+int sidtab_sid2str_get(struct sidtab *s, struct sidtab_entry *entry,
+		       char **out, u32 *out_len)
+{
+	struct sidtab_str_cache *cache;
+	int rc = 0;
+
+	if (entry->context.len)
+		return -ENOENT; /* do not cache invalid contexts */
+
+	rcu_read_lock();
+
+	cache = rcu_dereference(entry->cache);
+	if (!cache) {
+		rc = -ENOENT;
+	} else {
+		*out_len = cache->len;
+		if (out) {
+			*out = kmemdup(cache->str, cache->len, GFP_ATOMIC);
+			if (!*out)
+				rc = -ENOMEM;
+		}
+	}
+
+	rcu_read_unlock();
+
+	if (!rc && out)
+		sidtab_sid2str_put(s, entry, *out, *out_len);
+	return rc;
+}
+
+#endif /* CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0 */
+>>>>>>> upstream/android-13

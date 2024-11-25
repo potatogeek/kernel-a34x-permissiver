@@ -21,6 +21,11 @@
 #ifndef __XEN_PUBLIC_HVM_HVM_OP_H__
 #define __XEN_PUBLIC_HVM_HVM_OP_H__
 
+<<<<<<< HEAD
+=======
+#include <xen/interface/xen.h>
+
+>>>>>>> upstream/android-13
 /* Get/set subcommands: the second argument of the hypercall is a
  * pointer to a xen_hvm_param struct. */
 #define HVMOP_set_param           0

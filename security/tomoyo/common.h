@@ -10,6 +10,11 @@
 #ifndef _SECURITY_TOMOYO_COMMON_H
 #define _SECURITY_TOMOYO_COMMON_H
 
+<<<<<<< HEAD
+=======
+#define pr_fmt(fmt) fmt
+
+>>>>>>> upstream/android-13
 #include <linux/ctype.h>
 #include <linux/string.h>
 #include <linux/mm.h>
@@ -29,6 +34,10 @@
 #include <linux/in.h>
 #include <linux/in6.h>
 #include <linux/un.h>
+<<<<<<< HEAD
+=======
+#include <linux/lsm_hooks.h>
+>>>>>>> upstream/android-13
 #include <net/sock.h>
 #include <net/af_unix.h>
 #include <net/ip.h>
@@ -422,7 +431,11 @@ struct tomoyo_request_info {
 	struct tomoyo_obj_info *obj;
 	/*
 	 * For holding parameters specific to execve() request.
+<<<<<<< HEAD
 	 * NULL if not dealing do_execve().
+=======
+	 * NULL if not dealing execve().
+>>>>>>> upstream/android-13
 	 */
 	struct tomoyo_execve *ee;
 	struct tomoyo_domain_info *domain;
@@ -681,11 +694,20 @@ struct tomoyo_domain_info {
 	const struct tomoyo_path_info *domainname;
 	/* Namespace for this domain. Never NULL. */
 	struct tomoyo_policy_namespace *ns;
+<<<<<<< HEAD
 	u8 profile;        /* Profile number to use. */
 	u8 group;          /* Group number to use.   */
 	bool is_deleted;   /* Delete flag.           */
 	bool flags[TOMOYO_MAX_DOMAIN_INFO_FLAGS];
 	atomic_t users; /* Number of referring credentials. */
+=======
+	/* Group numbers to use.   */
+	unsigned long group[TOMOYO_MAX_ACL_GROUPS / BITS_PER_LONG];
+	u8 profile;        /* Profile number to use. */
+	bool is_deleted;   /* Delete flag.           */
+	bool flags[TOMOYO_MAX_DOMAIN_INFO_FLAGS];
+	atomic_t users; /* Number of referring tasks. */
+>>>>>>> upstream/android-13
 };
 
 /*
@@ -787,9 +809,15 @@ struct tomoyo_acl_param {
  * interfaces.
  */
 struct tomoyo_io_buffer {
+<<<<<<< HEAD
 	void (*read) (struct tomoyo_io_buffer *);
 	int (*write) (struct tomoyo_io_buffer *);
 	__poll_t (*poll) (struct file *file, poll_table *wait);
+=======
+	void (*read)(struct tomoyo_io_buffer *head);
+	int (*write)(struct tomoyo_io_buffer *head);
+	__poll_t (*poll)(struct file *file, poll_table *wait);
+>>>>>>> upstream/android-13
 	/* Exclusive lock for this structure.   */
 	struct mutex io_sem;
 	char __user *read_user_buf;
@@ -906,12 +934,25 @@ struct tomoyo_policy_namespace {
 	struct list_head acl_group[TOMOYO_MAX_ACL_GROUPS];
 	/* List for connecting to tomoyo_namespace_list list. */
 	struct list_head namespace_list;
+<<<<<<< HEAD
 	/* Profile version. Currently only 20110903 is defined. */
+=======
+	/* Profile version. Currently only 20150505 is defined. */
+>>>>>>> upstream/android-13
 	unsigned int profile_version;
 	/* Name of this namespace (e.g. "<kernel>", "</usr/sbin/httpd>" ). */
 	const char *name;
 };
 
+<<<<<<< HEAD
+=======
+/* Structure for "struct task_struct"->security. */
+struct tomoyo_task {
+	struct tomoyo_domain_info *domain_info;
+	struct tomoyo_domain_info *old_domain_info;
+};
+
+>>>>>>> upstream/android-13
 /********** Function prototypes. **********/
 
 bool tomoyo_address_matches_group(const bool is_ipv6, const __be32 *address,
@@ -1020,6 +1061,10 @@ ssize_t tomoyo_write_control(struct tomoyo_io_buffer *head,
 struct tomoyo_condition *tomoyo_get_condition(struct tomoyo_acl_param *param);
 struct tomoyo_domain_info *tomoyo_assign_domain(const char *domainname,
 						const bool transit);
+<<<<<<< HEAD
+=======
+struct tomoyo_domain_info *tomoyo_domain(void);
+>>>>>>> upstream/android-13
 struct tomoyo_domain_info *tomoyo_find_domain(const char *domainname);
 struct tomoyo_group *tomoyo_get_group(struct tomoyo_acl_param *param,
 				      const u8 idx);
@@ -1034,8 +1079,13 @@ void *tomoyo_commit_ok(void *data, const unsigned int size);
 void __init tomoyo_load_builtin_policy(void);
 void __init tomoyo_mm_init(void);
 void tomoyo_check_acl(struct tomoyo_request_info *r,
+<<<<<<< HEAD
 		      bool (*check_entry) (struct tomoyo_request_info *,
 					   const struct tomoyo_acl_info *));
+=======
+		      bool (*check_entry)(struct tomoyo_request_info *,
+					  const struct tomoyo_acl_info *));
+>>>>>>> upstream/android-13
 void tomoyo_check_profile(void);
 void tomoyo_convert_time(time64_t time, struct tomoyo_time *stamp);
 void tomoyo_del_condition(struct list_head *element);
@@ -1062,6 +1112,10 @@ void tomoyo_write_log2(struct tomoyo_request_info *r, int len, const char *fmt,
 /********** External variable definitions. **********/
 
 extern bool tomoyo_policy_loaded;
+<<<<<<< HEAD
+=======
+extern int tomoyo_enabled;
+>>>>>>> upstream/android-13
 extern const char * const tomoyo_condition_keyword
 [TOMOYO_MAX_CONDITION_KEYWORD];
 extern const char * const tomoyo_dif[TOMOYO_MAX_DOMAIN_INFO_FLAGS];
@@ -1085,6 +1139,10 @@ extern struct tomoyo_domain_info tomoyo_kernel_domain;
 extern struct tomoyo_policy_namespace tomoyo_kernel_namespace;
 extern unsigned int tomoyo_memory_quota[TOMOYO_MAX_MEMORY_STAT];
 extern unsigned int tomoyo_memory_used[TOMOYO_MAX_MEMORY_STAT];
+<<<<<<< HEAD
+=======
+extern struct lsm_blob_sizes tomoyo_blob_sizes;
+>>>>>>> upstream/android-13
 
 /********** Inlined functions. **********/
 
@@ -1121,6 +1179,10 @@ static inline void tomoyo_read_unlock(int idx)
 static inline pid_t tomoyo_sys_getppid(void)
 {
 	pid_t pid;
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	pid = task_tgid_vnr(rcu_dereference(current->real_parent));
 	rcu_read_unlock();
@@ -1197,6 +1259,7 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
 }
 
 /**
+<<<<<<< HEAD
  * tomoyo_domain - Get "struct tomoyo_domain_info" for current thread.
  *
  * Returns pointer to "struct tomoyo_domain_info" for current thread.
@@ -1217,6 +1280,17 @@ static inline struct tomoyo_domain_info *tomoyo_real_domain(struct task_struct
 							    *task)
 {
 	return task_cred_xxx(task, security);
+=======
+ * tomoyo_task - Get "struct tomoyo_task" for specified thread.
+ *
+ * @task - Pointer to "struct task_struct".
+ *
+ * Returns pointer to "struct tomoyo_task" for specified thread.
+ */
+static inline struct tomoyo_task *tomoyo_task(struct task_struct *task)
+{
+	return task->security + tomoyo_blob_sizes.lbs_task;
+>>>>>>> upstream/android-13
 }
 
 /**

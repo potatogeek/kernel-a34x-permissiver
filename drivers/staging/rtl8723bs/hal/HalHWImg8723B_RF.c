@@ -9,7 +9,11 @@
 #include "odm_precomp.h"
 
 static bool CheckPositive(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm, const u32 Condition1, const u32 Condition2
+=======
+	struct dm_odm_t *pDM_Odm, const u32 Condition1, const u32 Condition2
+>>>>>>> upstream/android-13
 )
 {
 	u8 _BoardType =
@@ -33,6 +37,7 @@ static bool CheckPositive(
 		pDM_Odm->TypeALNA << 16 |
 		pDM_Odm->TypeAPA  << 24;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -75,6 +80,8 @@ static bool CheckPositive(
 		)
 	);
 
+=======
+>>>>>>> upstream/android-13
 	/*  Value Defined Check =============== */
 	/* QFN Type [15:12] and Cut Version [27:24] need to do value check */
 
@@ -121,7 +128,11 @@ static bool CheckPositive(
 }
 
 static bool CheckNegative(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm, const u32  Condition1, const u32 Condition2
+=======
+	struct dm_odm_t *pDM_Odm, const u32  Condition1, const u32 Condition2
+>>>>>>> upstream/android-13
 )
 {
 	return true;
@@ -259,12 +270,17 @@ static u32 Array_MP_8723B_RadioA[] = {
 
 };
 
+<<<<<<< HEAD
 void ODM_ReadAndConfig_MP_8723B_RadioA(PDM_ODM_T pDM_Odm)
+=======
+void ODM_ReadAndConfig_MP_8723B_RadioA(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 	u32 i = 0;
 	u32 ArrayLen = ARRAY_SIZE(Array_MP_8723B_RadioA);
 	u32 *Array = Array_MP_8723B_RadioA;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -272,6 +288,8 @@ void ODM_ReadAndConfig_MP_8723B_RadioA(PDM_ODM_T pDM_Odm)
 		("===> ODM_ReadAndConfig_MP_8723B_RadioA\n")
 	);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < ArrayLen; i += 2) {
 		u32 v1 = Array[i];
 		u32 v2 = Array[i+1];
@@ -301,7 +319,11 @@ void ODM_ReadAndConfig_MP_8723B_RadioA(PDM_ODM_T pDM_Odm)
 				READ_NEXT_PAIR(v1, v2, i);
 			}
 
+<<<<<<< HEAD
 			if (bMatched == false) {
+=======
+			if (!bMatched) {
+>>>>>>> upstream/android-13
 				/*  Condition isn't matched.
 				*   Discard the following (offset, data) pairs.
 				*/
@@ -331,6 +353,7 @@ void ODM_ReadAndConfig_MP_8723B_RadioA(PDM_ODM_T pDM_Odm)
 *                           TxPowerTrack_SDIO.TXT
 ******************************************************************************/
 
+<<<<<<< HEAD
 static u8 gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_SDIO_8723B[][DELTA_SWINGIDX_SIZE] = {
 	{
 		0, 1, 1, 2, 2, 3, 4, 5, 5, 6,  6,  7,  7,  8,  8,  9,
@@ -387,6 +410,8 @@ static u8 gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_SDIO_8723B[][DELTA_SWINGIDX_
 		12, 13, 14, 15, 15, 16, 17, 18, 18, 19, 20, 21, 21, 21
 	},
 };
+=======
+>>>>>>> upstream/android-13
 static u8 gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_SDIO_8723B[] = {
 	0, 0, 1, 2, 2, 2, 3, 3, 3, 4,  5,  5,  6,  6, 6,  6,
 	7,  7,  7, 8,  8,  9,  9, 10, 10, 11, 12, 13, 14, 15
@@ -420,6 +445,7 @@ static u8 gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_SDIO_8723B[] = {
 	8,  8,  9,  9,  9, 10, 10, 11, 11, 12, 12, 13, 14, 15
 };
 
+<<<<<<< HEAD
 void ODM_ReadAndConfig_MP_8723B_TxPowerTrack_SDIO(PDM_ODM_T pDM_Odm)
 {
 	PODM_RF_CAL_T pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
@@ -430,6 +456,11 @@ void ODM_ReadAndConfig_MP_8723B_TxPowerTrack_SDIO(PDM_ODM_T pDM_Odm)
 		ODM_DBG_LOUD,
 		("===> ODM_ReadAndConfig_MP_MP_8723B\n")
 	);
+=======
+void ODM_ReadAndConfig_MP_8723B_TxPowerTrack_SDIO(struct dm_odm_t *pDM_Odm)
+{
+	struct odm_rf_cal_t *pRFCalibrateInfo = &pDM_Odm->RFCalibrateInfo;
+>>>>>>> upstream/android-13
 
 
 	memcpy(
@@ -473,6 +504,7 @@ void ODM_ReadAndConfig_MP_8723B_TxPowerTrack_SDIO(PDM_ODM_T pDM_Odm)
 		gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_SDIO_8723B,
 		DELTA_SWINGIDX_SIZE
 	);
+<<<<<<< HEAD
 
 	memcpy(
 		pRFCalibrateInfo->DeltaSwingTableIdx_5GA_P,
@@ -494,6 +526,8 @@ void ODM_ReadAndConfig_MP_8723B_TxPowerTrack_SDIO(PDM_ODM_T pDM_Odm)
 		gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_SDIO_8723B,
 		DELTA_SWINGIDX_SIZE*3
 	);
+=======
+>>>>>>> upstream/android-13
 }
 
 /******************************************************************************
@@ -501,6 +535,7 @@ void ODM_ReadAndConfig_MP_8723B_TxPowerTrack_SDIO(PDM_ODM_T pDM_Odm)
 ******************************************************************************/
 
 static u8 *Array_MP_8723B_TXPWR_LMT[] = {
+<<<<<<< HEAD
 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "32",
 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "32",
 	"MKK", "2.4G", "20M", "CCK", "1T", "01", "32",
@@ -756,10 +791,184 @@ static u8 *Array_MP_8723B_TXPWR_LMT[] = {
 };
 
 void ODM_ReadAndConfig_MP_8723B_TXPWR_LMT(PDM_ODM_T pDM_Odm)
+=======
+	"FCC", "20M", "CCK", "1T", "01", "32",
+	"ETSI", "20M", "CCK", "1T", "01", "32",
+	"MKK", "20M", "CCK", "1T", "01", "32",
+	"FCC", "20M", "CCK", "1T", "02", "32",
+	"ETSI", "20M", "CCK", "1T", "02", "32",
+	"MKK", "20M", "CCK", "1T", "02", "32",
+	"FCC", "20M", "CCK", "1T", "03", "32",
+	"ETSI", "20M", "CCK", "1T", "03", "32",
+	"MKK", "20M", "CCK", "1T", "03", "32",
+	"FCC", "20M", "CCK", "1T", "04", "32",
+	"ETSI", "20M", "CCK", "1T", "04", "32",
+	"MKK", "20M", "CCK", "1T", "04", "32",
+	"FCC", "20M", "CCK", "1T", "05", "32",
+	"ETSI", "20M", "CCK", "1T", "05", "32",
+	"MKK", "20M", "CCK", "1T", "05", "32",
+	"FCC", "20M", "CCK", "1T", "06", "32",
+	"ETSI", "20M", "CCK", "1T", "06", "32",
+	"MKK", "20M", "CCK", "1T", "06", "32",
+	"FCC", "20M", "CCK", "1T", "07", "32",
+	"ETSI", "20M", "CCK", "1T", "07", "32",
+	"MKK", "20M", "CCK", "1T", "07", "32",
+	"FCC", "20M", "CCK", "1T", "08", "32",
+	"ETSI", "20M", "CCK", "1T", "08", "32",
+	"MKK", "20M", "CCK", "1T", "08", "32",
+	"FCC", "20M", "CCK", "1T", "09", "32",
+	"ETSI", "20M", "CCK", "1T", "09", "32",
+	"MKK", "20M", "CCK", "1T", "09", "32",
+	"FCC", "20M", "CCK", "1T", "10", "32",
+	"ETSI", "20M", "CCK", "1T", "10", "32",
+	"MKK", "20M", "CCK", "1T", "10", "32",
+	"FCC", "20M", "CCK", "1T", "11", "32",
+	"ETSI", "20M", "CCK", "1T", "11", "32",
+	"MKK", "20M", "CCK", "1T", "11", "32",
+	"FCC", "20M", "CCK", "1T", "12", "63",
+	"ETSI", "20M", "CCK", "1T", "12", "32",
+	"MKK", "20M", "CCK", "1T", "12", "32",
+	"FCC", "20M", "CCK", "1T", "13", "63",
+	"ETSI", "20M", "CCK", "1T", "13", "32",
+	"MKK", "20M", "CCK", "1T", "13", "32",
+	"FCC", "20M", "CCK", "1T", "14", "63",
+	"ETSI", "20M", "CCK", "1T", "14", "63",
+	"MKK", "20M", "CCK", "1T", "14", "32",
+	"FCC", "20M", "OFDM", "1T", "01", "28",
+	"ETSI", "20M", "OFDM", "1T", "01", "32",
+	"MKK", "20M", "OFDM", "1T", "01", "32",
+	"FCC", "20M", "OFDM", "1T", "02", "28",
+	"ETSI", "20M", "OFDM", "1T", "02", "32",
+	"MKK", "20M", "OFDM", "1T", "02", "32",
+	"FCC", "20M", "OFDM", "1T", "03", "32",
+	"ETSI", "20M", "OFDM", "1T", "03", "32",
+	"MKK", "20M", "OFDM", "1T", "03", "32",
+	"FCC", "20M", "OFDM", "1T", "04", "32",
+	"ETSI", "20M", "OFDM", "1T", "04", "32",
+	"MKK", "20M", "OFDM", "1T", "04", "32",
+	"FCC", "20M", "OFDM", "1T", "05", "32",
+	"ETSI", "20M", "OFDM", "1T", "05", "32",
+	"MKK", "20M", "OFDM", "1T", "05", "32",
+	"FCC", "20M", "OFDM", "1T", "06", "32",
+	"ETSI", "20M", "OFDM", "1T", "06", "32",
+	"MKK", "20M", "OFDM", "1T", "06", "32",
+	"FCC", "20M", "OFDM", "1T", "07", "32",
+	"ETSI", "20M", "OFDM", "1T", "07", "32",
+	"MKK", "20M", "OFDM", "1T", "07", "32",
+	"FCC", "20M", "OFDM", "1T", "08", "32",
+	"ETSI", "20M", "OFDM", "1T", "08", "32",
+	"MKK", "20M", "OFDM", "1T", "08", "32",
+	"FCC", "20M", "OFDM", "1T", "09", "32",
+	"ETSI", "20M", "OFDM", "1T", "09", "32",
+	"MKK", "20M", "OFDM", "1T", "09", "32",
+	"FCC", "20M", "OFDM", "1T", "10", "28",
+	"ETSI", "20M", "OFDM", "1T", "10", "32",
+	"MKK", "20M", "OFDM", "1T", "10", "32",
+	"FCC", "20M", "OFDM", "1T", "11", "28",
+	"ETSI", "20M", "OFDM", "1T", "11", "32",
+	"MKK", "20M", "OFDM", "1T", "11", "32",
+	"FCC", "20M", "OFDM", "1T", "12", "63",
+	"ETSI", "20M", "OFDM", "1T", "12", "32",
+	"MKK", "20M", "OFDM", "1T", "12", "32",
+	"FCC", "20M", "OFDM", "1T", "13", "63",
+	"ETSI", "20M", "OFDM", "1T", "13", "32",
+	"MKK", "20M", "OFDM", "1T", "13", "32",
+	"FCC", "20M", "OFDM", "1T", "14", "63",
+	"ETSI", "20M", "OFDM", "1T", "14", "63",
+	"MKK", "20M", "OFDM", "1T", "14", "63",
+	"FCC", "20M", "HT", "1T", "01", "26",
+	"ETSI", "20M", "HT", "1T", "01", "32",
+	"MKK", "20M", "HT", "1T", "01", "32",
+	"FCC", "20M", "HT", "1T", "02", "26",
+	"ETSI", "20M", "HT", "1T", "02", "32",
+	"MKK", "20M", "HT", "1T", "02", "32",
+	"FCC", "20M", "HT", "1T", "03", "32",
+	"ETSI", "20M", "HT", "1T", "03", "32",
+	"MKK", "20M", "HT", "1T", "03", "32",
+	"FCC", "20M", "HT", "1T", "04", "32",
+	"ETSI", "20M", "HT", "1T", "04", "32",
+	"MKK", "20M", "HT", "1T", "04", "32",
+	"FCC", "20M", "HT", "1T", "05", "32",
+	"ETSI", "20M", "HT", "1T", "05", "32",
+	"MKK", "20M", "HT", "1T", "05", "32",
+	"FCC", "20M", "HT", "1T", "06", "32",
+	"ETSI", "20M", "HT", "1T", "06", "32",
+	"MKK", "20M", "HT", "1T", "06", "32",
+	"FCC", "20M", "HT", "1T", "07", "32",
+	"ETSI", "20M", "HT", "1T", "07", "32",
+	"MKK", "20M", "HT", "1T", "07", "32",
+	"FCC", "20M", "HT", "1T", "08", "32",
+	"ETSI", "20M", "HT", "1T", "08", "32",
+	"MKK", "20M", "HT", "1T", "08", "32",
+	"FCC", "20M", "HT", "1T", "09", "32",
+	"ETSI", "20M", "HT", "1T", "09", "32",
+	"MKK", "20M", "HT", "1T", "09", "32",
+	"FCC", "20M", "HT", "1T", "10", "26",
+	"ETSI", "20M", "HT", "1T", "10", "32",
+	"MKK", "20M", "HT", "1T", "10", "32",
+	"FCC", "20M", "HT", "1T", "11", "26",
+	"ETSI", "20M", "HT", "1T", "11", "32",
+	"MKK", "20M", "HT", "1T", "11", "32",
+	"FCC", "20M", "HT", "1T", "12", "63",
+	"ETSI", "20M", "HT", "1T", "12", "32",
+	"MKK", "20M", "HT", "1T", "12", "32",
+	"FCC", "20M", "HT", "1T", "13", "63",
+	"ETSI", "20M", "HT", "1T", "13", "32",
+	"MKK", "20M", "HT", "1T", "13", "32",
+	"FCC", "20M", "HT", "1T", "14", "63",
+	"ETSI", "20M", "HT", "1T", "14", "63",
+	"MKK", "20M", "HT", "1T", "14", "63",
+	"FCC", "40M", "HT", "1T", "01", "63",
+	"ETSI", "40M", "HT", "1T", "01", "63",
+	"MKK", "40M", "HT", "1T", "01", "63",
+	"FCC", "40M", "HT", "1T", "02", "63",
+	"ETSI", "40M", "HT", "1T", "02", "63",
+	"MKK", "40M", "HT", "1T", "02", "63",
+	"FCC", "40M", "HT", "1T", "03", "26",
+	"ETSI", "40M", "HT", "1T", "03", "32",
+	"MKK", "40M", "HT", "1T", "03", "32",
+	"FCC", "40M", "HT", "1T", "04", "26",
+	"ETSI", "40M", "HT", "1T", "04", "32",
+	"MKK", "40M", "HT", "1T", "04", "32",
+	"FCC", "40M", "HT", "1T", "05", "32",
+	"ETSI", "40M", "HT", "1T", "05", "32",
+	"MKK", "40M", "HT", "1T", "05", "32",
+	"FCC", "40M", "HT", "1T", "06", "32",
+	"ETSI", "40M", "HT", "1T", "06", "32",
+	"MKK", "40M", "HT", "1T", "06", "32",
+	"FCC", "40M", "HT", "1T", "07", "32",
+	"ETSI", "40M", "HT", "1T", "07", "32",
+	"MKK", "40M", "HT", "1T", "07", "32",
+	"FCC", "40M", "HT", "1T", "08", "26",
+	"ETSI", "40M", "HT", "1T", "08", "32",
+	"MKK", "40M", "HT", "1T", "08", "32",
+	"FCC", "40M", "HT", "1T", "09", "26",
+	"ETSI", "40M", "HT", "1T", "09", "32",
+	"MKK", "40M", "HT", "1T", "09", "32",
+	"FCC", "40M", "HT", "1T", "10", "26",
+	"ETSI", "40M", "HT", "1T", "10", "32",
+	"MKK", "40M", "HT", "1T", "10", "32",
+	"FCC", "40M", "HT", "1T", "11", "26",
+	"ETSI", "40M", "HT", "1T", "11", "32",
+	"MKK", "40M", "HT", "1T", "11", "32",
+	"FCC", "40M", "HT", "1T", "12", "63",
+	"ETSI", "40M", "HT", "1T", "12", "32",
+	"MKK", "40M", "HT", "1T", "12", "32",
+	"FCC", "40M", "HT", "1T", "13", "63",
+	"ETSI", "40M", "HT", "1T", "13", "32",
+	"MKK", "40M", "HT", "1T", "13", "32",
+	"FCC", "40M", "HT", "1T", "14", "63",
+	"ETSI", "40M", "HT", "1T", "14", "63",
+	"MKK", "40M", "HT", "1T", "14", "63"
+};
+
+void ODM_ReadAndConfig_MP_8723B_TXPWR_LMT(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 	u32 i = 0;
 	u8 **Array = Array_MP_8723B_TXPWR_LMT;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -775,11 +984,23 @@ void ODM_ReadAndConfig_MP_8723B_TXPWR_LMT(PDM_ODM_T pDM_Odm)
 		u8 *rfPath = Array[i+4];
 		u8 *chnl = Array[i+5];
 		u8 *val = Array[i+6];
+=======
+	for (i = 0; i < ARRAY_SIZE(Array_MP_8723B_TXPWR_LMT); i += 6) {
+		u8 *regulation = Array[i];
+		u8 *bandwidth = Array[i+1];
+		u8 *rate = Array[i+2];
+		u8 *rfPath = Array[i+3];
+		u8 *chnl = Array[i+4];
+		u8 *val = Array[i+5];
+>>>>>>> upstream/android-13
 
 		odm_ConfigBB_TXPWR_LMT_8723B(
 			pDM_Odm,
 			regulation,
+<<<<<<< HEAD
 			band,
+=======
+>>>>>>> upstream/android-13
 			bandwidth,
 			rate,
 			rfPath,

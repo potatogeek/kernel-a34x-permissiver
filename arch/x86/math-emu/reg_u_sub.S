@@ -33,7 +33,11 @@
 #include "control_w.h"
 
 .text
+<<<<<<< HEAD
 ENTRY(FPU_u_sub)
+=======
+SYM_FUNC_START(FPU_u_sub)
+>>>>>>> upstream/android-13
 	pushl	%ebp
 	movl	%esp,%ebp
 	pushl	%esi
@@ -270,5 +274,10 @@ L_exit:
 	popl	%edi
 	popl	%esi
 	leave
+<<<<<<< HEAD
 	ret
 ENDPROC(FPU_u_sub)
+=======
+	RET
+SYM_FUNC_END(FPU_u_sub)
+>>>>>>> upstream/android-13

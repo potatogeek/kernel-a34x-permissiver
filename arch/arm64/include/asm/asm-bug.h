@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef __ASM_ASM_BUG_H
 /*
  * Copyright (C) 2017  ARM Limited
@@ -13,6 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+#ifndef __ASM_ASM_BUG_H
+/*
+ * Copyright (C) 2017  ARM Limited
+>>>>>>> upstream/android-13
  */
 #define __ASM_ASM_BUG_H
 

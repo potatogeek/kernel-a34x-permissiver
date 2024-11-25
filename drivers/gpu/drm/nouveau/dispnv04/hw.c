@@ -22,11 +22,18 @@
  * SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+>>>>>>> upstream/android-13
 #include "nouveau_drv.h"
 #include "hw.h"
 
 #include <subdev/bios/pll.h>
+<<<<<<< HEAD
+=======
+#include <nvif/timer.h>
+>>>>>>> upstream/android-13
 
 #define CHIPSET_NFORCE 0x01a0
 #define CHIPSET_NFORCE2 0x01f0
@@ -214,14 +221,25 @@ nouveau_hw_pllvals_to_clk(struct nvkm_pll_vals *pv)
 int
 nouveau_hw_get_clock(struct drm_device *dev, enum nvbios_pll_type plltype)
 {
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	struct nvkm_pll_vals pllvals;
 	int ret;
 	int domain;
 
+<<<<<<< HEAD
 	domain = pci_domain_nr(dev->pdev->bus);
 
 	if (plltype == PLL_MEMORY &&
 	    (dev->pdev->device & 0x0ff0) == CHIPSET_NFORCE) {
+=======
+	domain = pci_domain_nr(pdev->bus);
+
+	if (plltype == PLL_MEMORY &&
+	    (pdev->device & 0x0ff0) == CHIPSET_NFORCE) {
+>>>>>>> upstream/android-13
 		uint32_t mpllP;
 		pci_read_config_dword(pci_get_domain_bus_and_slot(domain, 0, 3),
 				      0x6c, &mpllP);
@@ -232,7 +250,11 @@ nouveau_hw_get_clock(struct drm_device *dev, enum nvbios_pll_type plltype)
 		return 400000 / mpllP;
 	} else
 	if (plltype == PLL_MEMORY &&
+<<<<<<< HEAD
 	    (dev->pdev->device & 0xff0) == CHIPSET_NFORCE2) {
+=======
+	    (pdev->device & 0xff0) == CHIPSET_NFORCE2) {
+>>>>>>> upstream/android-13
 		uint32_t clock;
 
 		pci_read_config_dword(pci_get_domain_bus_and_slot(domain, 0, 5),
@@ -309,6 +331,10 @@ void
 nouveau_hw_save_vga_fonts(struct drm_device *dev, bool save)
 {
 	struct nouveau_drm *drm = nouveau_drm(dev);
+<<<<<<< HEAD
+=======
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>>>>>>> upstream/android-13
 	uint8_t misc, gr4, gr5, gr6, seq2, seq4;
 	bool graphicsmode;
 	unsigned plane;
@@ -327,7 +353,11 @@ nouveau_hw_save_vga_fonts(struct drm_device *dev, bool save)
 	NV_INFO(drm, "%sing VGA fonts\n", save ? "Sav" : "Restor");
 
 	/* map first 64KiB of VRAM, holds VGA fonts etc */
+<<<<<<< HEAD
 	iovram = ioremap(pci_resource_start(dev->pdev, 1), 65536);
+=======
+	iovram = ioremap(pci_resource_start(pdev, 1), 65536);
+>>>>>>> upstream/android-13
 	if (!iovram) {
 		NV_ERROR(drm, "Failed to map VRAM, "
 					"cannot save/restore VGA fonts.\n");

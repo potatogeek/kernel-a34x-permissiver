@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019 Samsung Electronics, Inc.
+=======
+ * Copyright (c) 2012 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,6 +18,10 @@
 #include <linux/err.h>
 #include <linux/gfp.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
+=======
+#include <linux/limits.h>
+>>>>>>> upstream/android-13
 #include <linux/mm.h>
 #include <linux/slab.h>
 #include <linux/string.h>
@@ -22,6 +30,10 @@
 
 #include "tzdev_internal.h"
 #include "core/iwio.h"
+<<<<<<< HEAD
+=======
+#include "core/iwio_impl.h"
+>>>>>>> upstream/android-13
 #include "core/log.h"
 
 struct iw_channel {
@@ -29,8 +41,16 @@ struct iw_channel {
 	void *vaddr;
 	struct page **pages;
 	unsigned int num_pages;
+<<<<<<< HEAD
 };
 
+=======
+	void *impl_data;
+};
+
+static const struct tzdev_iwio_impl *impl;
+
+>>>>>>> upstream/android-13
 static LIST_HEAD(iw_channel_list);
 static DEFINE_SPINLOCK(iw_channel_list_lock);
 
@@ -72,11 +92,21 @@ static int tz_iwio_alloc_aux_channel(int cpu)
 
 	ch = page_address(page);
 
+<<<<<<< HEAD
 	ret = tzdev_smc_connect_aux(page_to_pfn(page));
 	if (ret) {
 		log_error(tzdev_iwio, "Failed to connect aux_channel[%d] page, error=%d\n",
 				cpu, ret);
 		__free_page(page);
+=======
+	ret = impl->connect_aux_channel(page);
+	if (ret) {
+		log_error(tzdev_iwio, "Failed to connect aux_channel[%d] page, error=%d\n",
+				cpu, ret);
+		if (ret != -EADDRNOTAVAIL)
+			__free_page(page);
+
+>>>>>>> upstream/android-13
 		return ret;
 	}
 
@@ -104,26 +134,47 @@ void *tz_iwio_alloc_iw_channel(unsigned int mode, unsigned int num_pages,
 {
 	void *buffer;
 	struct page **pages;
+<<<<<<< HEAD
 	sk_pfn_t *pfns;
 	struct tz_iwio_aux_channel *aux_ch;
 	struct iw_channel *new_ch;
 	unsigned int i, j;
 	unsigned long offset, num_pfns;
 	unsigned long pfns_in_buf = TZ_IWIO_AUX_BUF_SIZE / sizeof(sk_pfn_t);
+=======
+	struct iw_channel *new_ch;
+	unsigned int i, j;
+>>>>>>> upstream/android-13
 	int ret;
 
 	might_sleep();
 
+<<<<<<< HEAD
 	new_ch = kmalloc(sizeof(struct iw_channel), GFP_KERNEL);
+=======
+	new_ch = kzalloc(sizeof(struct iw_channel), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!new_ch) {
 		log_error(tzdev_iwio, "IW channel structure allocation failed\n");
 		return ERR_PTR(-ENOMEM);
 	}
 
+<<<<<<< HEAD
+=======
+	if (impl->data_size) {
+		new_ch->impl_data = kzalloc(impl->data_size, GFP_KERNEL);
+		if (!new_ch->impl_data) {
+			ret = -ENOMEM;
+			goto free_iw_channel_structure;
+		}
+	}
+
+>>>>>>> upstream/android-13
 	pages = kcalloc(num_pages, sizeof(struct page *), GFP_KERNEL);
 	if (!pages) {
 		log_error(tzdev_iwio, "IW channel pages buffer allocation failed\n");
 		ret = -ENOMEM;
+<<<<<<< HEAD
 		goto free_iw_channel_structure;
 	}
 
@@ -132,6 +183,9 @@ void *tz_iwio_alloc_iw_channel(unsigned int mode, unsigned int num_pages,
 		log_error(tzdev_iwio, "IW channel pfns buffer allocation failed\n");
 		ret = -ENOMEM;
 		goto free_pages_arr;
+=======
+		goto free_impl_data;
+>>>>>>> upstream/android-13
 	}
 
 	/* Allocate non-contiguous buffer to reduce page allocator pressure */
@@ -140,16 +194,25 @@ void *tz_iwio_alloc_iw_channel(unsigned int mode, unsigned int num_pages,
 		if (!pages[i]) {
 			log_error(tzdev_iwio, "IW channel pages aloocation failed\n");
 			ret = -ENOMEM;
+<<<<<<< HEAD
 			goto free_pfns_arr;
 		}
 		pfns[i] = page_to_pfn(pages[i]);
+=======
+			goto free_pages;
+		}
+>>>>>>> upstream/android-13
 	}
 
 	buffer = vmap(pages, num_pages, VM_MAP, PAGE_KERNEL);
 	if (!buffer) {
 		log_error(tzdev_iwio, "IW buffer map failed\n");
 		ret = -EINVAL;
+<<<<<<< HEAD
 		goto free_pfns_arr;
+=======
+		goto free_pages;
+>>>>>>> upstream/android-13
 	}
 
 	/* Call pre-callback */
@@ -161,6 +224,7 @@ void *tz_iwio_alloc_iw_channel(unsigned int mode, unsigned int num_pages,
 		}
 	}
 
+<<<<<<< HEAD
 	/* Push PFNs list into aux channel */
 	aux_ch = tz_iwio_get_aux_channel();
 
@@ -175,6 +239,12 @@ void *tz_iwio_alloc_iw_channel(unsigned int mode, unsigned int num_pages,
 			log_error(tzdev_iwio, "IW buffer registration failed, error=%d\n", ret);
 			goto pre_callback_cleanup;
 		}
+=======
+	ret = impl->connect(mode, pages, num_pages, new_ch->impl_data);
+	if (ret) {
+		log_error(tzdev_iwio, "IW buffer registration failed, error=%d\n", ret);
+		goto pre_callback_cleanup;
+>>>>>>> upstream/android-13
 	}
 
 	new_ch->pages = pages;
@@ -188,10 +258,13 @@ void *tz_iwio_alloc_iw_channel(unsigned int mode, unsigned int num_pages,
 	list_add_tail(&new_ch->list, &iw_channel_list);
 	spin_unlock(&iw_channel_list_lock);
 
+<<<<<<< HEAD
 	tz_iwio_put_aux_channel();
 
 	kfree(pfns);
 
+=======
+>>>>>>> upstream/android-13
 	return buffer;
 
 pre_callback_cleanup:
@@ -201,6 +274,7 @@ pre_callback_cleanup:
 unmap_buffer:
 	vunmap(buffer);
 
+<<<<<<< HEAD
 free_pfns_arr:
 	kfree(pfns);
 
@@ -210,6 +284,17 @@ free_pfns_arr:
 free_pages_arr:
 	kfree(pages);
 
+=======
+free_pages:
+	if (ret != -EADDRNOTAVAIL)
+		for (j = 0; j < i; j++)
+			__free_page(pages[j]);
+	kfree(pages);
+
+free_impl_data:
+	kfree(new_ch->impl_data);
+
+>>>>>>> upstream/android-13
 free_iw_channel_structure:
 	kfree(new_ch);
 
@@ -218,6 +303,10 @@ free_iw_channel_structure:
 
 void tz_iwio_free_iw_channel(void *ch)
 {
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct iw_channel *iw;
 	unsigned int i, found = 0;
 
@@ -240,9 +329,18 @@ void tz_iwio_free_iw_channel(void *ch)
 
 	vunmap(ch);
 
+<<<<<<< HEAD
 	for (i = 0; i < iw->num_pages; i++)
 		__free_page(iw->pages[i]);
 
+=======
+	ret = impl->deinit(iw->impl_data);
+	if (ret != -EADDRNOTAVAIL)
+		for (i = 0; i < iw->num_pages; i++)
+			__free_page(iw->pages[i]);
+
+	kfree(iw->impl_data);
+>>>>>>> upstream/android-13
 	kfree(iw->pages);
 	kfree(iw);
 }
@@ -252,6 +350,11 @@ int tz_iwio_init(void)
 	int ret;
 	unsigned int i;
 
+<<<<<<< HEAD
+=======
+	impl = tzdev_get_iwio_impl();
+
+>>>>>>> upstream/android-13
 	for (i = 0; i < NR_SW_CPU_IDS; ++i) {
 		ret = tz_iwio_alloc_aux_channel(i);
 		if (ret) {

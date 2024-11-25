@@ -114,8 +114,11 @@ Log: nmclan_cs.c,v
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
 #define DRV_NAME	"nmclan_cs"
+<<<<<<< HEAD
 #define DRV_VERSION	"0.16"
 
+=======
+>>>>>>> upstream/android-13
 
 /* ----------------------------------------------------------------------------
 Conditional Compilation Options
@@ -367,7 +370,11 @@ typedef struct _mace_private {
 
     char tx_free_frames; /* Number of free transmit frame buffers */
     char tx_irq_disabled; /* MACE TX interrupt disabled */
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> upstream/android-13
     spinlock_t bank_lock; /* Must be held if you step off bank 0 */
 } mace_private;
 
@@ -407,7 +414,11 @@ static int mace_open(struct net_device *dev);
 static int mace_close(struct net_device *dev);
 static netdev_tx_t mace_start_xmit(struct sk_buff *skb,
 					 struct net_device *dev);
+<<<<<<< HEAD
 static void mace_tx_timeout(struct net_device *dev);
+=======
+static void mace_tx_timeout(struct net_device *dev, unsigned int txqueue);
+>>>>>>> upstream/android-13
 static irqreturn_t mace_interrupt(int irq, void *dev_id);
 static struct net_device_stats *mace_get_stats(struct net_device *dev);
 static int mace_rx(struct net_device *dev, unsigned char RxCnt);
@@ -444,7 +455,11 @@ static int nmclan_probe(struct pcmcia_device *link)
     lp = netdev_priv(dev);
     lp->p_dev = link;
     link->priv = dev;
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> upstream/android-13
     spin_lock_init(&lp->bank_lock);
     link->resource[0]->end = 32;
     link->resource[0]->flags |= IO_DATA_PATH_WIDTH_AUTO;
@@ -543,7 +558,11 @@ static int mace_init(mace_private *lp, unsigned int ioaddr, char *enet_addr)
     if(++ct > 500)
     {
 	pr_err("reset failed, card removed?\n");
+<<<<<<< HEAD
     	return -1;
+=======
+	return -1;
+>>>>>>> upstream/android-13
     }
     udelay(1);
   }
@@ -587,11 +606,19 @@ static int mace_init(mace_private *lp, unsigned int ioaddr, char *enet_addr)
   ct = 0;
   while (mace_read(lp, ioaddr, MACE_IAC) & MACE_IAC_ADDRCHG)
   {
+<<<<<<< HEAD
   	if(++ ct > 500)
   	{
 		pr_err("ADDRCHG timeout, card removed?\n");
   		return -1;
   	}
+=======
+	if(++ ct > 500)
+	{
+		pr_err("ADDRCHG timeout, card removed?\n");
+		return -1;
+	}
+>>>>>>> upstream/android-13
   }
   /* Set PADR register */
   for (i = 0; i < ETH_ALEN; i++)
@@ -657,7 +684,11 @@ static int nmclan_config(struct pcmcia_device *link)
   }
 
   if(mace_init(lp, ioaddr, dev->dev_addr) == -1)
+<<<<<<< HEAD
   	goto failed;
+=======
+	goto failed;
+>>>>>>> upstream/android-13
 
   /* The if_port symbol can be set when the module is loaded */
   if (if_port <= 2)
@@ -817,7 +848,10 @@ static void netdev_get_drvinfo(struct net_device *dev,
 			       struct ethtool_drvinfo *info)
 {
 	strlcpy(info->driver, DRV_NAME, sizeof(info->driver));
+<<<<<<< HEAD
 	strlcpy(info->version, DRV_VERSION, sizeof(info->version));
+=======
+>>>>>>> upstream/android-13
 	snprintf(info->bus_info, sizeof(info->bus_info),
 		"PCMCIA 0x%lx", dev->base_addr);
 }
@@ -837,7 +871,11 @@ mace_start_xmit
 	failed, put skb back into a list."
 ---------------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 static void mace_tx_timeout(struct net_device *dev)
+=======
+static void mace_tx_timeout(struct net_device *dev, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
   mace_private *lp = netdev_priv(dev);
   struct pcmcia_device *link = lp->p_dev;
@@ -1110,7 +1148,11 @@ static int mace_rx(struct net_device *dev, unsigned char RxCnt)
 	if (pkt_len & 1)
 	    *(skb_tail_pointer(skb) - 1) = inb(ioaddr + AM2150_RCV);
 	skb->protocol = eth_type_trans(skb, dev);
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> upstream/android-13
 	netif_rx(skb); /* Send the packet to the upper (protocol) layers. */
 
 	dev->stats.rx_packets++;

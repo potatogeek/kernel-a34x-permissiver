@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * AD193X Audio Codec driver supporting AD1936/7/8/9
  *
  * Copyright 2010 Analog Devices Inc.
+<<<<<<< HEAD
  *
  * Licensed under the GPL-2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -37,6 +44,16 @@ static SOC_ENUM_SINGLE_DECL(ad193x_deemp_enum, AD193X_DAC_CTRL2, 1,
 
 static const DECLARE_TLV_DB_MINMAX(adau193x_tlv, -9563, 0);
 
+<<<<<<< HEAD
+=======
+static const unsigned int ad193x_sb[] = {32};
+
+static struct snd_pcm_hw_constraint_list constr = {
+	.list = ad193x_sb,
+	.count = ARRAY_SIZE(ad193x_sb),
+};
+
+>>>>>>> upstream/android-13
 static const struct snd_kcontrol_new ad193x_snd_controls[] = {
 	/* DAC volume control */
 	SOC_DOUBLE_R_TLV("DAC1 Volume", AD193X_DAC_L1_VOL,
@@ -93,6 +110,18 @@ static const struct snd_soc_dapm_widget ad193x_adc_widgets[] = {
 	SND_SOC_DAPM_INPUT("ADC2IN"),
 };
 
+<<<<<<< HEAD
+=======
+static int ad193x_check_pll(struct snd_soc_dapm_widget *source,
+			    struct snd_soc_dapm_widget *sink)
+{
+	struct snd_soc_component *component = snd_soc_dapm_to_component(source->dapm);
+	struct ad193x_priv *ad193x = snd_soc_component_get_drvdata(component);
+
+	return !!ad193x->sysclk;
+}
+
+>>>>>>> upstream/android-13
 static const struct snd_soc_dapm_route audio_paths[] = {
 	{ "DAC", NULL, "SYSCLK" },
 	{ "DAC Output", NULL, "DAC" },
@@ -101,7 +130,11 @@ static const struct snd_soc_dapm_route audio_paths[] = {
 	{ "DAC2OUT", NULL, "DAC Output" },
 	{ "DAC3OUT", NULL, "DAC Output" },
 	{ "DAC4OUT", NULL, "DAC Output" },
+<<<<<<< HEAD
 	{ "SYSCLK", NULL, "PLL_PWR" },
+=======
+	{ "SYSCLK", NULL, "PLL_PWR", &ad193x_check_pll },
+>>>>>>> upstream/android-13
 };
 
 static const struct snd_soc_dapm_route ad193x_adc_audio_paths[] = {
@@ -128,7 +161,11 @@ static inline bool ad193x_has_adc(const struct ad193x_priv *ad193x)
  * DAI ops entries
  */
 
+<<<<<<< HEAD
 static int ad193x_mute(struct snd_soc_dai *dai, int mute)
+=======
+static int ad193x_mute(struct snd_soc_dai *dai, int mute, int direction)
+>>>>>>> upstream/android-13
 {
 	struct ad193x_priv *ad193x = snd_soc_component_get_drvdata(dai->component);
 
@@ -181,23 +218,43 @@ static int ad193x_set_dai_fmt(struct snd_soc_dai *codec_dai,
 {
 	struct ad193x_priv *ad193x = snd_soc_component_get_drvdata(codec_dai->component);
 	unsigned int adc_serfmt = 0;
+<<<<<<< HEAD
+=======
+	unsigned int dac_serfmt = 0;
+>>>>>>> upstream/android-13
 	unsigned int adc_fmt = 0;
 	unsigned int dac_fmt = 0;
 
 	/* At present, the driver only support AUX ADC mode(SND_SOC_DAIFMT_I2S
+<<<<<<< HEAD
 	 * with TDM) and ADC&DAC TDM mode(SND_SOC_DAIFMT_DSP_A)
+=======
+	 * with TDM), ADC&DAC TDM mode(SND_SOC_DAIFMT_DSP_A) and DAC I2S mode
+	 * (SND_SOC_DAIFMT_I2S)
+>>>>>>> upstream/android-13
 	 */
 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
 	case SND_SOC_DAIFMT_I2S:
 		adc_serfmt |= AD193X_ADC_SERFMT_TDM;
+<<<<<<< HEAD
 		break;
 	case SND_SOC_DAIFMT_DSP_A:
 		adc_serfmt |= AD193X_ADC_SERFMT_AUX;
+=======
+		dac_serfmt |= AD193X_DAC_SERFMT_STEREO;
+		break;
+	case SND_SOC_DAIFMT_DSP_A:
+		adc_serfmt |= AD193X_ADC_SERFMT_AUX;
+		dac_serfmt |= AD193X_DAC_SERFMT_TDM;
+>>>>>>> upstream/android-13
 		break;
 	default:
 		if (ad193x_has_adc(ad193x))
 			return -EINVAL;
+<<<<<<< HEAD
 		break;
+=======
+>>>>>>> upstream/android-13
 	}
 
 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
@@ -221,6 +278,13 @@ static int ad193x_set_dai_fmt(struct snd_soc_dai *codec_dai,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
+=======
+	/* For DSP_*, LRCLK's polarity must be inverted */
+	if (fmt & SND_SOC_DAIFMT_DSP_A)
+		dac_fmt ^= AD193X_DAC_LEFT_HIGH;
+
+>>>>>>> upstream/android-13
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBM_CFM: /* codec clk & frm master */
 		adc_fmt |= AD193X_ADC_LCR_MASTER;
@@ -248,6 +312,11 @@ static int ad193x_set_dai_fmt(struct snd_soc_dai *codec_dai,
 		regmap_update_bits(ad193x->regmap, AD193X_ADC_CTRL2,
 				   AD193X_ADC_FMT_MASK, adc_fmt);
 	}
+<<<<<<< HEAD
+=======
+	regmap_update_bits(ad193x->regmap, AD193X_DAC_CTRL0,
+			   AD193X_DAC_SERFMT_MASK, dac_serfmt);
+>>>>>>> upstream/android-13
 	regmap_update_bits(ad193x->regmap, AD193X_DAC_CTRL1,
 		AD193X_DAC_FMT_MASK, dac_fmt);
 
@@ -258,7 +327,26 @@ static int ad193x_set_dai_sysclk(struct snd_soc_dai *codec_dai,
 		int clk_id, unsigned int freq, int dir)
 {
 	struct snd_soc_component *component = codec_dai->component;
+<<<<<<< HEAD
 	struct ad193x_priv *ad193x = snd_soc_component_get_drvdata(component);
+=======
+	struct snd_soc_dapm_context *dapm = snd_soc_component_get_dapm(component);
+	struct ad193x_priv *ad193x = snd_soc_component_get_drvdata(component);
+
+	if (clk_id == AD193X_SYSCLK_MCLK) {
+		/* MCLK must be 512 x fs */
+		if (dir == SND_SOC_CLOCK_OUT || freq != 24576000)
+			return -EINVAL;
+
+		regmap_update_bits(ad193x->regmap, AD193X_PLL_CLK_CTRL1,
+				   AD193X_PLL_SRC_MASK,
+				   AD193X_PLL_DAC_SRC_MCLK |
+				   AD193X_PLL_CLK_SRC_MCLK);
+
+		snd_soc_dapm_sync(dapm);
+		return 0;
+	}
+>>>>>>> upstream/android-13
 	switch (freq) {
 	case 12288000:
 	case 18432000:
@@ -277,6 +365,16 @@ static int ad193x_hw_params(struct snd_pcm_substream *substream,
 	int word_len = 0, master_rate = 0;
 	struct snd_soc_component *component = dai->component;
 	struct ad193x_priv *ad193x = snd_soc_component_get_drvdata(component);
+<<<<<<< HEAD
+=======
+	bool is_playback = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
+	u8 dacc0;
+
+	dev_dbg(dai->dev, "%s() rate=%u format=%#x width=%u channels=%u\n",
+		__func__, params_rate(params), params_format(params),
+		params_width(params), params_channels(params));
+
+>>>>>>> upstream/android-13
 
 	/* bit size */
 	switch (params_width(params)) {
@@ -307,6 +405,28 @@ static int ad193x_hw_params(struct snd_pcm_substream *substream,
 		break;
 	}
 
+<<<<<<< HEAD
+=======
+	if (is_playback) {
+		switch (params_rate(params)) {
+		case 48000:
+			dacc0 = AD193X_DAC_SR_48;
+			break;
+		case 96000:
+			dacc0 = AD193X_DAC_SR_96;
+			break;
+		case 192000:
+			dacc0 = AD193X_DAC_SR_192;
+			break;
+		default:
+			dev_err(dai->dev, "invalid sampling rate: %d\n", params_rate(params));
+			return -EINVAL;
+		}
+
+		regmap_update_bits(ad193x->regmap, AD193X_DAC_CTRL0, AD193X_DAC_SR_MASK, dacc0);
+	}
+
+>>>>>>> upstream/android-13
 	regmap_update_bits(ad193x->regmap, AD193X_PLL_CLK_CTRL0,
 			    AD193X_PLL_INPUT_MASK, master_rate);
 
@@ -321,12 +441,31 @@ static int ad193x_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct snd_soc_dai_ops ad193x_dai_ops = {
 	.hw_params = ad193x_hw_params,
 	.digital_mute = ad193x_mute,
 	.set_tdm_slot = ad193x_set_tdm_slot,
 	.set_sysclk	= ad193x_set_dai_sysclk,
 	.set_fmt = ad193x_set_dai_fmt,
+=======
+static int ad193x_startup(struct snd_pcm_substream *substream,
+			  struct snd_soc_dai *dai)
+{
+	return snd_pcm_hw_constraint_list(substream->runtime, 0,
+				   SNDRV_PCM_HW_PARAM_SAMPLE_BITS,
+				   &constr);
+}
+
+static const struct snd_soc_dai_ops ad193x_dai_ops = {
+	.startup = ad193x_startup,
+	.hw_params = ad193x_hw_params,
+	.mute_stream = ad193x_mute,
+	.set_tdm_slot = ad193x_set_tdm_slot,
+	.set_sysclk	= ad193x_set_dai_sysclk,
+	.set_fmt = ad193x_set_dai_fmt,
+	.no_capture_mute = 1,
+>>>>>>> upstream/android-13
 };
 
 /* codec DAI instance */
@@ -336,7 +475,11 @@ static struct snd_soc_dai_driver ad193x_dai = {
 		.stream_name = "Playback",
 		.channels_min = 2,
 		.channels_max = 8,
+<<<<<<< HEAD
 		.rates = SNDRV_PCM_RATE_48000,
+=======
+		.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_96000 | SNDRV_PCM_RATE_192000,
+>>>>>>> upstream/android-13
 		.formats = SNDRV_PCM_FMTBIT_S32_LE | SNDRV_PCM_FMTBIT_S16_LE |
 			SNDRV_PCM_FMTBIT_S20_3LE | SNDRV_PCM_FMTBIT_S24_LE,
 	},
@@ -351,6 +494,56 @@ static struct snd_soc_dai_driver ad193x_dai = {
 	.ops = &ad193x_dai_ops,
 };
 
+<<<<<<< HEAD
+=======
+/* codec DAI instance for DAC only */
+static struct snd_soc_dai_driver ad193x_no_adc_dai = {
+	.name = "ad193x-hifi",
+	.playback = {
+		.stream_name = "Playback",
+		.channels_min = 2,
+		.channels_max = 8,
+		.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_96000 | SNDRV_PCM_RATE_192000,
+		.formats = SNDRV_PCM_FMTBIT_S32_LE | SNDRV_PCM_FMTBIT_S16_LE |
+			SNDRV_PCM_FMTBIT_S20_3LE | SNDRV_PCM_FMTBIT_S24_LE,
+	},
+	.ops = &ad193x_dai_ops,
+};
+
+/* codec register values to set after reset */
+static void ad193x_reg_default_init(struct ad193x_priv *ad193x)
+{
+	static const struct reg_sequence reg_init[] = {
+		{  0, 0x99 },	/* PLL_CLK_CTRL0: pll input: mclki/xi 12.288Mhz */
+		{  1, 0x04 },	/* PLL_CLK_CTRL1: no on-chip Vref */
+		{  2, 0x40 },	/* DAC_CTRL0: TDM mode */
+		{  3, 0x00 },	/* DAC_CTRL1: reset */
+		{  4, 0x1A },	/* DAC_CTRL2: 48kHz de-emphasis, unmute dac */
+		{  5, 0x00 },	/* DAC_CHNL_MUTE: unmute DAC channels */
+		{  6, 0x00 },	/* DAC_L1_VOL: no attenuation */
+		{  7, 0x00 },	/* DAC_R1_VOL: no attenuation */
+		{  8, 0x00 },	/* DAC_L2_VOL: no attenuation */
+		{  9, 0x00 },	/* DAC_R2_VOL: no attenuation */
+		{ 10, 0x00 },	/* DAC_L3_VOL: no attenuation */
+		{ 11, 0x00 },	/* DAC_R3_VOL: no attenuation */
+		{ 12, 0x00 },	/* DAC_L4_VOL: no attenuation */
+		{ 13, 0x00 },	/* DAC_R4_VOL: no attenuation */
+	};
+	static const struct reg_sequence reg_adc_init[] = {
+		{ 14, 0x03 },	/* ADC_CTRL0: high-pass filter enable */
+		{ 15, 0x43 },	/* ADC_CTRL1: sata delay=1, adc aux mode */
+		{ 16, 0x00 },	/* ADC_CTRL2: reset */
+	};
+
+	regmap_multi_reg_write(ad193x->regmap, reg_init, ARRAY_SIZE(reg_init));
+
+	if (ad193x_has_adc(ad193x)) {
+		regmap_multi_reg_write(ad193x->regmap, reg_adc_init,
+				       ARRAY_SIZE(reg_adc_init));
+	}
+}
+
+>>>>>>> upstream/android-13
 static int ad193x_component_probe(struct snd_soc_component *component)
 {
 	struct ad193x_priv *ad193x = snd_soc_component_get_drvdata(component);
@@ -358,6 +551,7 @@ static int ad193x_component_probe(struct snd_soc_component *component)
 	int num, ret;
 
 	/* default setting for ad193x */
+<<<<<<< HEAD
 
 	/* unmute dac channels */
 	regmap_write(ad193x->regmap, AD193X_DAC_CHNL_MUTE, 0x0);
@@ -377,6 +571,9 @@ static int ad193x_component_probe(struct snd_soc_component *component)
 	/* pll input: mclki/xi */
 	regmap_write(ad193x->regmap, AD193X_PLL_CLK_CTRL0, 0x99); /* mclk=24.576Mhz: 0x9D; mclk=12.288Mhz: 0x99 */
 	regmap_write(ad193x->regmap, AD193X_PLL_CLK_CTRL1, 0x04);
+=======
+	ad193x_reg_default_init(ad193x);
+>>>>>>> upstream/android-13
 
 	/* adc only */
 	if (ad193x_has_adc(ad193x)) {
@@ -444,8 +641,16 @@ int ad193x_probe(struct device *dev, struct regmap *regmap,
 
 	dev_set_drvdata(dev, ad193x);
 
+<<<<<<< HEAD
 	return devm_snd_soc_register_component(dev, &soc_component_dev_ad193x,
 		&ad193x_dai, 1);
+=======
+	if (ad193x_has_adc(ad193x))
+		return devm_snd_soc_register_component(dev, &soc_component_dev_ad193x,
+						       &ad193x_dai, 1);
+	return devm_snd_soc_register_component(dev, &soc_component_dev_ad193x,
+		&ad193x_no_adc_dai, 1);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(ad193x_probe);
 

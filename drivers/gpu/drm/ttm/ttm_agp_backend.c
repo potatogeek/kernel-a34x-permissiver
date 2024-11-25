@@ -32,10 +32,16 @@
 
 #define pr_fmt(fmt) "[TTM] " fmt
 
+<<<<<<< HEAD
 #include <drm/ttm/ttm_module.h>
 #include <drm/ttm/ttm_bo_driver.h>
 #include <drm/ttm/ttm_page_alloc.h>
 #include <drm/ttm/ttm_placement.h>
+=======
+#include <drm/ttm/ttm_device.h>
+#include <drm/ttm/ttm_tt.h>
+#include <drm/ttm/ttm_resource.h>
+>>>>>>> upstream/android-13
 #include <linux/agp_backend.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -48,6 +54,7 @@ struct ttm_agp_backend {
 	struct agp_bridge_data *bridge;
 };
 
+<<<<<<< HEAD
 static int ttm_agp_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem)
 {
 	struct ttm_agp_backend *agp_be = container_of(ttm, struct ttm_agp_backend, ttm);
@@ -57,6 +64,19 @@ static int ttm_agp_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem)
 	int ret, cached = (bo_mem->placement & TTM_PL_FLAG_CACHED);
 	unsigned i;
 
+=======
+int ttm_agp_bind(struct ttm_tt *ttm, struct ttm_resource *bo_mem)
+{
+	struct ttm_agp_backend *agp_be = container_of(ttm, struct ttm_agp_backend, ttm);
+	struct page *dummy_read_page = ttm_glob.dummy_read_page;
+	struct agp_memory *mem;
+	int ret, cached = ttm->caching == ttm_cached;
+	unsigned i;
+
+	if (agp_be->mem)
+		return 0;
+
+>>>>>>> upstream/android-13
 	mem = agp_allocate_memory(agp_be->bridge, ttm->num_pages, AGP_USER_MEMORY);
 	if (unlikely(mem == NULL))
 		return -ENOMEM;
@@ -75,18 +95,29 @@ static int ttm_agp_bind(struct ttm_tt *ttm, struct ttm_mem_reg *bo_mem)
 	mem->is_flushed = 1;
 	mem->type = (cached) ? AGP_USER_CACHED_MEMORY : AGP_USER_MEMORY;
 
+<<<<<<< HEAD
 	ret = agp_bind_memory(mem, node->start);
+=======
+	ret = agp_bind_memory(mem, bo_mem->start);
+>>>>>>> upstream/android-13
 	if (ret)
 		pr_err("AGP Bind memory failed\n");
 
 	return ret;
 }
+<<<<<<< HEAD
 
 static int ttm_agp_unbind(struct ttm_tt *ttm)
+=======
+EXPORT_SYMBOL(ttm_agp_bind);
+
+void ttm_agp_unbind(struct ttm_tt *ttm)
+>>>>>>> upstream/android-13
 {
 	struct ttm_agp_backend *agp_be = container_of(ttm, struct ttm_agp_backend, ttm);
 
 	if (agp_be->mem) {
+<<<<<<< HEAD
 		if (agp_be->mem->is_bound)
 			return agp_unbind_memory(agp_be->mem);
 		agp_free_memory(agp_be->mem);
@@ -96,6 +127,30 @@ static int ttm_agp_unbind(struct ttm_tt *ttm)
 }
 
 static void ttm_agp_destroy(struct ttm_tt *ttm)
+=======
+		if (agp_be->mem->is_bound) {
+			agp_unbind_memory(agp_be->mem);
+			return;
+		}
+		agp_free_memory(agp_be->mem);
+		agp_be->mem = NULL;
+	}
+}
+EXPORT_SYMBOL(ttm_agp_unbind);
+
+bool ttm_agp_is_bound(struct ttm_tt *ttm)
+{
+	struct ttm_agp_backend *agp_be = container_of(ttm, struct ttm_agp_backend, ttm);
+
+	if (!ttm)
+		return false;
+
+	return (agp_be->mem != NULL);
+}
+EXPORT_SYMBOL(ttm_agp_is_bound);
+
+void ttm_agp_destroy(struct ttm_tt *ttm)
+>>>>>>> upstream/android-13
 {
 	struct ttm_agp_backend *agp_be = container_of(ttm, struct ttm_agp_backend, ttm);
 
@@ -104,12 +159,16 @@ static void ttm_agp_destroy(struct ttm_tt *ttm)
 	ttm_tt_fini(ttm);
 	kfree(agp_be);
 }
+<<<<<<< HEAD
 
 static struct ttm_backend_func ttm_agp_func = {
 	.bind = ttm_agp_bind,
 	.unbind = ttm_agp_unbind,
 	.destroy = ttm_agp_destroy,
 };
+=======
+EXPORT_SYMBOL(ttm_agp_destroy);
+>>>>>>> upstream/android-13
 
 struct ttm_tt *ttm_agp_tt_create(struct ttm_buffer_object *bo,
 				 struct agp_bridge_data *bridge,
@@ -123,9 +182,14 @@ struct ttm_tt *ttm_agp_tt_create(struct ttm_buffer_object *bo,
 
 	agp_be->mem = NULL;
 	agp_be->bridge = bridge;
+<<<<<<< HEAD
 	agp_be->ttm.func = &ttm_agp_func;
 
 	if (ttm_tt_init(&agp_be->ttm, bo, page_flags)) {
+=======
+
+	if (ttm_tt_init(&agp_be->ttm, bo, page_flags, ttm_write_combined)) {
+>>>>>>> upstream/android-13
 		kfree(agp_be);
 		return NULL;
 	}
@@ -133,6 +197,7 @@ struct ttm_tt *ttm_agp_tt_create(struct ttm_buffer_object *bo,
 	return &agp_be->ttm;
 }
 EXPORT_SYMBOL(ttm_agp_tt_create);
+<<<<<<< HEAD
 
 int ttm_agp_tt_populate(struct ttm_tt *ttm, struct ttm_operation_ctx *ctx)
 {
@@ -148,3 +213,5 @@ void ttm_agp_tt_unpopulate(struct ttm_tt *ttm)
 	ttm_pool_unpopulate(ttm);
 }
 EXPORT_SYMBOL(ttm_agp_tt_unpopulate);
+=======
+>>>>>>> upstream/android-13

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* dir.c: AFS filesystem directory handling
  *
  * Copyright (C) 2002, 2018 Red Hat, Inc. All Rights Reserved.
  * Written by David Howells (dhowells@redhat.com)
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -18,6 +25,10 @@
 #include <linux/sched.h>
 #include <linux/task_io_accounting_ops.h>
 #include "internal.h"
+<<<<<<< HEAD
+=======
+#include "afs_fs.h"
+>>>>>>> upstream/android-13
 #include "xdr_fs.h"
 
 static struct dentry *afs_lookup(struct inode *dir, struct dentry *dentry,
@@ -26,22 +37,41 @@ static int afs_dir_open(struct inode *inode, struct file *file);
 static int afs_readdir(struct file *file, struct dir_context *ctx);
 static int afs_d_revalidate(struct dentry *dentry, unsigned int flags);
 static int afs_d_delete(const struct dentry *dentry);
+<<<<<<< HEAD
+=======
+static void afs_d_iput(struct dentry *dentry, struct inode *inode);
+>>>>>>> upstream/android-13
 static int afs_lookup_one_filldir(struct dir_context *ctx, const char *name, int nlen,
 				  loff_t fpos, u64 ino, unsigned dtype);
 static int afs_lookup_filldir(struct dir_context *ctx, const char *name, int nlen,
 			      loff_t fpos, u64 ino, unsigned dtype);
+<<<<<<< HEAD
 static int afs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		      bool excl);
 static int afs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode);
+=======
+static int afs_create(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode, bool excl);
+static int afs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		     struct dentry *dentry, umode_t mode);
+>>>>>>> upstream/android-13
 static int afs_rmdir(struct inode *dir, struct dentry *dentry);
 static int afs_unlink(struct inode *dir, struct dentry *dentry);
 static int afs_link(struct dentry *from, struct inode *dir,
 		    struct dentry *dentry);
+<<<<<<< HEAD
 static int afs_symlink(struct inode *dir, struct dentry *dentry,
 		       const char *content);
 static int afs_rename(struct inode *old_dir, struct dentry *old_dentry,
 		      struct inode *new_dir, struct dentry *new_dentry,
 		      unsigned int flags);
+=======
+static int afs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, const char *content);
+static int afs_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		      struct dentry *old_dentry, struct inode *new_dir,
+		      struct dentry *new_dentry, unsigned int flags);
+>>>>>>> upstream/android-13
 static int afs_dir_releasepage(struct page *page, gfp_t gfp_flags);
 static void afs_dir_invalidatepage(struct page *page, unsigned int offset,
 				   unsigned int length);
@@ -71,7 +101,10 @@ const struct inode_operations afs_dir_inode_operations = {
 	.permission	= afs_permission,
 	.getattr	= afs_getattr,
 	.setattr	= afs_setattr,
+<<<<<<< HEAD
 	.listxattr	= afs_listxattr,
+=======
+>>>>>>> upstream/android-13
 };
 
 const struct address_space_operations afs_dir_aops = {
@@ -85,6 +118,10 @@ const struct dentry_operations afs_fs_dentry_operations = {
 	.d_delete	= afs_d_delete,
 	.d_release	= afs_d_release,
 	.d_automount	= afs_d_automount,
+<<<<<<< HEAD
+=======
+	.d_iput		= afs_d_iput,
+>>>>>>> upstream/android-13
 };
 
 struct afs_lookup_one_cookie {
@@ -100,12 +137,47 @@ struct afs_lookup_cookie {
 	bool			found;
 	bool			one_only;
 	unsigned short		nr_fids;
+<<<<<<< HEAD
 	struct afs_file_status	*statuses;
 	struct afs_callback	*callbacks;
+=======
+>>>>>>> upstream/android-13
 	struct afs_fid		fids[50];
 };
 
 /*
+<<<<<<< HEAD
+=======
+ * Drop the refs that we're holding on the pages we were reading into.  We've
+ * got refs on the first nr_pages pages.
+ */
+static void afs_dir_read_cleanup(struct afs_read *req)
+{
+	struct address_space *mapping = req->vnode->vfs_inode.i_mapping;
+	struct page *page;
+	pgoff_t last = req->nr_pages - 1;
+
+	XA_STATE(xas, &mapping->i_pages, 0);
+
+	if (unlikely(!req->nr_pages))
+		return;
+
+	rcu_read_lock();
+	xas_for_each(&xas, page, last) {
+		if (xas_retry(&xas, page))
+			continue;
+		BUG_ON(xa_is_value(page));
+		BUG_ON(PageCompound(page));
+		ASSERTCMP(page->mapping, ==, mapping);
+
+		put_page(page);
+	}
+
+	rcu_read_unlock();
+}
+
+/*
+>>>>>>> upstream/android-13
  * check that a directory page is valid
  */
 static bool afs_dir_check_page(struct afs_vnode *dvnode, struct page *page,
@@ -130,7 +202,11 @@ static bool afs_dir_check_page(struct afs_vnode *dvnode, struct page *page,
 	qty /= sizeof(union afs_xdr_dir_block);
 
 	/* check them */
+<<<<<<< HEAD
 	dbuf = kmap(page);
+=======
+	dbuf = kmap_atomic(page);
+>>>>>>> upstream/android-13
 	for (tmp = 0; tmp < qty; tmp++) {
 		if (dbuf->blocks[tmp].hdr.magic != AFS_DIR_MAGIC) {
 			printk("kAFS: %s(%lx): bad magic %d/%d is %04hx\n",
@@ -138,6 +214,10 @@ static bool afs_dir_check_page(struct afs_vnode *dvnode, struct page *page,
 			       ntohs(dbuf->blocks[tmp].hdr.magic));
 			trace_afs_dir_check_failed(dvnode, off, i_size);
 			kunmap(page);
+<<<<<<< HEAD
+=======
+			trace_afs_file_error(dvnode, -EIO, afs_file_error_dir_bad_magic);
+>>>>>>> upstream/android-13
 			goto error;
 		}
 
@@ -148,7 +228,11 @@ static bool afs_dir_check_page(struct afs_vnode *dvnode, struct page *page,
 		((u8 *)&dbuf->blocks[tmp])[AFS_DIR_BLOCK_SIZE - 1] = 0;
 	}
 
+<<<<<<< HEAD
 	kunmap(page);
+=======
+	kunmap_atomic(dbuf);
+>>>>>>> upstream/android-13
 
 checked:
 	afs_stat_v(dvnode, n_read_dir);
@@ -159,6 +243,80 @@ error:
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Dump the contents of a directory.
+ */
+static void afs_dir_dump(struct afs_vnode *dvnode, struct afs_read *req)
+{
+	struct afs_xdr_dir_page *dbuf;
+	struct address_space *mapping = dvnode->vfs_inode.i_mapping;
+	struct page *page;
+	unsigned int i, qty = PAGE_SIZE / sizeof(union afs_xdr_dir_block);
+	pgoff_t last = req->nr_pages - 1;
+
+	XA_STATE(xas, &mapping->i_pages, 0);
+
+	pr_warn("DIR %llx:%llx f=%llx l=%llx al=%llx\n",
+		dvnode->fid.vid, dvnode->fid.vnode,
+		req->file_size, req->len, req->actual_len);
+	pr_warn("DIR %llx %x %zx %zx\n",
+		req->pos, req->nr_pages,
+		req->iter->iov_offset,  iov_iter_count(req->iter));
+
+	xas_for_each(&xas, page, last) {
+		if (xas_retry(&xas, page))
+			continue;
+
+		BUG_ON(PageCompound(page));
+		BUG_ON(page->mapping != mapping);
+
+		dbuf = kmap_atomic(page);
+		for (i = 0; i < qty; i++) {
+			union afs_xdr_dir_block *block = &dbuf->blocks[i];
+
+			pr_warn("[%02lx] %32phN\n", page->index * qty + i, block);
+		}
+		kunmap_atomic(dbuf);
+	}
+}
+
+/*
+ * Check all the pages in a directory.  All the pages are held pinned.
+ */
+static int afs_dir_check(struct afs_vnode *dvnode, struct afs_read *req)
+{
+	struct address_space *mapping = dvnode->vfs_inode.i_mapping;
+	struct page *page;
+	pgoff_t last = req->nr_pages - 1;
+	int ret = 0;
+
+	XA_STATE(xas, &mapping->i_pages, 0);
+
+	if (unlikely(!req->nr_pages))
+		return 0;
+
+	rcu_read_lock();
+	xas_for_each(&xas, page, last) {
+		if (xas_retry(&xas, page))
+			continue;
+
+		BUG_ON(PageCompound(page));
+		BUG_ON(page->mapping != mapping);
+
+		if (!afs_dir_check_page(dvnode, page, req->file_size)) {
+			afs_dir_dump(dvnode, req);
+			ret = -EIO;
+			break;
+		}
+	}
+
+	rcu_read_unlock();
+	return ret;
+}
+
+/*
+>>>>>>> upstream/android-13
  * open an AFS directory file
  */
 static int afs_dir_open(struct inode *inode, struct file *file)
@@ -184,6 +342,7 @@ static struct afs_read *afs_read_dir(struct afs_vnode *dvnode, struct key *key)
 {
 	struct afs_read *req;
 	loff_t i_size;
+<<<<<<< HEAD
 	int nr_pages, nr_inline, i, n;
 	int ret = -ENOMEM;
 
@@ -206,10 +365,19 @@ retry:
 
 	req = kzalloc(sizeof(*req) + sizeof(struct page *) * nr_inline,
 		      GFP_KERNEL);
+=======
+	int nr_pages, i, n;
+	int ret;
+
+	_enter("");
+
+	req = kzalloc(sizeof(*req), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!req)
 		return ERR_PTR(-ENOMEM);
 
 	refcount_set(&req->usage, 1);
+<<<<<<< HEAD
 	req->nr_pages = nr_pages;
 	req->actual_len = i_size; /* May change */
 	req->len = nr_pages * PAGE_SIZE; /* We can ask for more than there is */
@@ -234,6 +402,49 @@ retry:
 					  req->nr_pages - i,
 					  req->pages + i);
 		_debug("find %u at %u/%u", n, i, req->nr_pages);
+=======
+	req->vnode = dvnode;
+	req->key = key_get(key);
+	req->cleanup = afs_dir_read_cleanup;
+
+expand:
+	i_size = i_size_read(&dvnode->vfs_inode);
+	if (i_size < 2048) {
+		ret = afs_bad(dvnode, afs_file_error_dir_small);
+		goto error;
+	}
+	if (i_size > 2048 * 1024) {
+		trace_afs_file_error(dvnode, -EFBIG, afs_file_error_dir_big);
+		ret = -EFBIG;
+		goto error;
+	}
+
+	_enter("%llu", i_size);
+
+	nr_pages = (i_size + PAGE_SIZE - 1) / PAGE_SIZE;
+
+	req->actual_len = i_size; /* May change */
+	req->len = nr_pages * PAGE_SIZE; /* We can ask for more than there is */
+	req->data_version = dvnode->status.data_version; /* May change */
+	iov_iter_xarray(&req->def_iter, READ, &dvnode->vfs_inode.i_mapping->i_pages,
+			0, i_size);
+	req->iter = &req->def_iter;
+
+	/* Fill in any gaps that we might find where the memory reclaimer has
+	 * been at work and pin all the pages.  If there are any gaps, we will
+	 * need to reread the entire directory contents.
+	 */
+	i = req->nr_pages;
+	while (i < nr_pages) {
+		struct page *pages[8], *page;
+
+		n = find_get_pages_contig(dvnode->vfs_inode.i_mapping, i,
+					  min_t(unsigned int, nr_pages - i,
+						ARRAY_SIZE(pages)),
+					  pages);
+		_debug("find %u at %u/%u", n, i, nr_pages);
+
+>>>>>>> upstream/android-13
 		if (n == 0) {
 			gfp_t gfp = dvnode->vfs_inode.i_mapping->gfp_mask;
 
@@ -241,15 +452,23 @@ retry:
 				afs_stat_v(dvnode, n_inval);
 
 			ret = -ENOMEM;
+<<<<<<< HEAD
 			req->pages[i] = __page_cache_alloc(gfp);
 			if (!req->pages[i])
 				goto error;
 			ret = add_to_page_cache_lru(req->pages[i],
+=======
+			page = __page_cache_alloc(gfp);
+			if (!page)
+				goto error;
+			ret = add_to_page_cache_lru(page,
+>>>>>>> upstream/android-13
 						    dvnode->vfs_inode.i_mapping,
 						    i, gfp);
 			if (ret < 0)
 				goto error;
 
+<<<<<<< HEAD
 			set_page_private(req->pages[i], 1);
 			SetPagePrivate(req->pages[i]);
 			unlock_page(req->pages[i]);
@@ -258,6 +477,17 @@ retry:
 			i += n;
 		}
 	} while (i < req->nr_pages);
+=======
+			attach_page_private(page, (void *)1);
+			unlock_page(page);
+			req->nr_pages++;
+			i++;
+		} else {
+			req->nr_pages += n;
+			i += n;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* If we're going to reload, we need to lock all the pages to prevent
 	 * races.
@@ -274,12 +504,18 @@ retry:
 		goto error;
 
 	if (!test_bit(AFS_VNODE_DIR_VALID, &dvnode->flags)) {
+<<<<<<< HEAD
 		ret = afs_fetch_data(dvnode, key, req);
+=======
+		trace_afs_reload_dir(dvnode);
+		ret = afs_fetch_data(dvnode, req);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			goto error_unlock;
 
 		task_io_account_read(PAGE_SIZE * req->nr_pages);
 
+<<<<<<< HEAD
 		if (req->len < req->file_size)
 			goto content_has_grown;
 
@@ -289,6 +525,20 @@ retry:
 			if (!afs_dir_check_page(dvnode, req->pages[i],
 						req->actual_len))
 				goto error_unlock;
+=======
+		if (req->len < req->file_size) {
+			/* The content has grown, so we need to expand the
+			 * buffer.
+			 */
+			up_write(&dvnode->validate_lock);
+			goto expand;
+		}
+
+		/* Validate the data we just read. */
+		ret = afs_dir_check(dvnode, req);
+		if (ret < 0)
+			goto error_unlock;
+>>>>>>> upstream/android-13
 
 		// TODO: Trim excess pages
 
@@ -305,22 +555,34 @@ error:
 	afs_put_read(req);
 	_leave(" = %d", ret);
 	return ERR_PTR(ret);
+<<<<<<< HEAD
 
 content_has_grown:
 	up_write(&dvnode->validate_lock);
 	afs_put_read(req);
 	goto retry;
+=======
+>>>>>>> upstream/android-13
 }
 
 /*
  * deal with one block in an AFS directory
  */
+<<<<<<< HEAD
 static int afs_dir_iterate_block(struct dir_context *ctx,
+=======
+static int afs_dir_iterate_block(struct afs_vnode *dvnode,
+				 struct dir_context *ctx,
+>>>>>>> upstream/android-13
 				 union afs_xdr_dir_block *block,
 				 unsigned blkoff)
 {
 	union afs_xdr_dirent *dire;
+<<<<<<< HEAD
 	unsigned offset, next, curr;
+=======
+	unsigned offset, next, curr, nr_slots;
+>>>>>>> upstream/android-13
 	size_t nlen;
 	int tmp;
 
@@ -333,13 +595,20 @@ static int afs_dir_iterate_block(struct dir_context *ctx,
 	     offset < AFS_DIR_SLOTS_PER_BLOCK;
 	     offset = next
 	     ) {
+<<<<<<< HEAD
 		next = offset + 1;
 
+=======
+>>>>>>> upstream/android-13
 		/* skip entries marked unused in the bitmap */
 		if (!(block->hdr.bitmap[offset / 8] &
 		      (1 << (offset % 8)))) {
 			_debug("ENT[%zu.%u]: unused",
 			       blkoff / sizeof(union afs_xdr_dir_block), offset);
+<<<<<<< HEAD
+=======
+			next = offset + 1;
+>>>>>>> upstream/android-13
 			if (offset >= curr)
 				ctx->pos = blkoff +
 					next * sizeof(union afs_xdr_dirent);
@@ -351,12 +620,22 @@ static int afs_dir_iterate_block(struct dir_context *ctx,
 		nlen = strnlen(dire->u.name,
 			       sizeof(*block) -
 			       offset * sizeof(union afs_xdr_dirent));
+<<<<<<< HEAD
+=======
+		if (nlen > AFSNAMEMAX - 1) {
+			_debug("ENT[%zu]: name too long (len %u/%zu)",
+			       blkoff / sizeof(union afs_xdr_dir_block),
+			       offset, nlen);
+			return afs_bad(dvnode, afs_file_error_dir_name_too_long);
+		}
+>>>>>>> upstream/android-13
 
 		_debug("ENT[%zu.%u]: %s %zu \"%s\"",
 		       blkoff / sizeof(union afs_xdr_dir_block), offset,
 		       (offset < curr ? "skip" : "fill"),
 		       nlen, dire->u.name);
 
+<<<<<<< HEAD
 		/* work out where the next possible entry is */
 		for (tmp = nlen; tmp > 15; tmp -= sizeof(union afs_xdr_dirent)) {
 			if (next >= AFS_DIR_SLOTS_PER_BLOCK) {
@@ -380,6 +659,29 @@ static int afs_dir_iterate_block(struct dir_context *ctx,
 			       blkoff / sizeof(union afs_xdr_dir_block),
 			       next, tmp, nlen);
 			next++;
+=======
+		nr_slots = afs_dir_calc_slots(nlen);
+		next = offset + nr_slots;
+		if (next > AFS_DIR_SLOTS_PER_BLOCK) {
+			_debug("ENT[%zu.%u]:"
+			       " %u extends beyond end dir block"
+			       " (len %zu)",
+			       blkoff / sizeof(union afs_xdr_dir_block),
+			       offset, next, nlen);
+			return afs_bad(dvnode, afs_file_error_dir_over_end);
+		}
+
+		/* Check that the name-extension dirents are all allocated */
+		for (tmp = 1; tmp < nr_slots; tmp++) {
+			unsigned int ix = offset + tmp;
+			if (!(block->hdr.bitmap[ix / 8] & (1 << (ix % 8)))) {
+				_debug("ENT[%zu.u]:"
+				       " %u unmarked extension (%u/%u)",
+				       blkoff / sizeof(union afs_xdr_dir_block),
+				       offset, tmp, nr_slots);
+				return afs_bad(dvnode, afs_file_error_dir_unmarked_ext);
+			}
+>>>>>>> upstream/android-13
 		}
 
 		/* skip if starts before the current position */
@@ -407,7 +709,11 @@ static int afs_dir_iterate_block(struct dir_context *ctx,
  * iterate through the data blob that lists the contents of an AFS directory
  */
 static int afs_dir_iterate(struct inode *dir, struct dir_context *ctx,
+<<<<<<< HEAD
 			   struct key *key)
+=======
+			   struct key *key, afs_dataversion_t *_dir_version)
+>>>>>>> upstream/android-13
 {
 	struct afs_vnode *dvnode = AFS_FS_I(dir);
 	struct afs_xdr_dir_page *dbuf;
@@ -415,6 +721,10 @@ static int afs_dir_iterate(struct inode *dir, struct dir_context *ctx,
 	struct afs_read *req;
 	struct page *page;
 	unsigned blkoff, limit;
+<<<<<<< HEAD
+=======
+	void __rcu **slot;
+>>>>>>> upstream/android-13
 	int ret;
 
 	_enter("{%lu},%u,,", dir->i_ino, (unsigned)ctx->pos);
@@ -427,6 +737,10 @@ static int afs_dir_iterate(struct inode *dir, struct dir_context *ctx,
 	req = afs_read_dir(dvnode, key);
 	if (IS_ERR(req))
 		return PTR_ERR(req);
+<<<<<<< HEAD
+=======
+	*_dir_version = req->data_version;
+>>>>>>> upstream/android-13
 
 	/* round the file position up to the next entry boundary */
 	ctx->pos += sizeof(union afs_xdr_dirent) - 1;
@@ -438,11 +752,25 @@ static int afs_dir_iterate(struct inode *dir, struct dir_context *ctx,
 		blkoff = ctx->pos & ~(sizeof(union afs_xdr_dir_block) - 1);
 
 		/* Fetch the appropriate page from the directory and re-add it
+<<<<<<< HEAD
 		 * to the LRU.
 		 */
 		page = req->pages[blkoff / PAGE_SIZE];
 		if (!page) {
 			ret = -EIO;
+=======
+		 * to the LRU.  We have all the pages pinned with an extra ref.
+		 */
+		rcu_read_lock();
+		page = NULL;
+		slot = radix_tree_lookup_slot(&dvnode->vfs_inode.i_mapping->i_pages,
+					      blkoff / PAGE_SIZE);
+		if (slot)
+			page = radix_tree_deref_slot(slot);
+		rcu_read_unlock();
+		if (!page) {
+			ret = afs_bad(dvnode, afs_file_error_dir_missing_page);
+>>>>>>> upstream/android-13
 			break;
 		}
 		mark_page_accessed(page);
@@ -455,7 +783,11 @@ static int afs_dir_iterate(struct inode *dir, struct dir_context *ctx,
 		do {
 			dblock = &dbuf->blocks[(blkoff % PAGE_SIZE) /
 					       sizeof(union afs_xdr_dir_block)];
+<<<<<<< HEAD
 			ret = afs_dir_iterate_block(ctx, dblock, blkoff);
+=======
+			ret = afs_dir_iterate_block(dvnode, ctx, dblock, blkoff);
+>>>>>>> upstream/android-13
 			if (ret != 1) {
 				kunmap(page);
 				goto out;
@@ -481,7 +813,14 @@ out:
  */
 static int afs_readdir(struct file *file, struct dir_context *ctx)
 {
+<<<<<<< HEAD
 	return afs_dir_iterate(file_inode(file), ctx, afs_file_key(file));
+=======
+	afs_dataversion_t dir_version;
+
+	return afs_dir_iterate(file_inode(file), ctx, afs_file_key(file),
+			       &dir_version);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -522,7 +861,12 @@ static int afs_lookup_one_filldir(struct dir_context *ctx, const char *name,
  * - just returns the FID the dentry name maps to if found
  */
 static int afs_do_lookup_one(struct inode *dir, struct dentry *dentry,
+<<<<<<< HEAD
 			     struct afs_fid *fid, struct key *key)
+=======
+			     struct afs_fid *fid, struct key *key,
+			     afs_dataversion_t *_dir_version)
+>>>>>>> upstream/android-13
 {
 	struct afs_super_info *as = dir->i_sb->s_fs_info;
 	struct afs_lookup_one_cookie cookie = {
@@ -535,20 +879,31 @@ static int afs_do_lookup_one(struct inode *dir, struct dentry *dentry,
 	_enter("{%lu},%p{%pd},", dir->i_ino, dentry, dentry);
 
 	/* search the directory */
+<<<<<<< HEAD
 	ret = afs_dir_iterate(dir, &cookie.ctx, key);
+=======
+	ret = afs_dir_iterate(dir, &cookie.ctx, key, _dir_version);
+>>>>>>> upstream/android-13
 	if (ret < 0) {
 		_leave(" = %d [iter]", ret);
 		return ret;
 	}
 
+<<<<<<< HEAD
 	ret = -ENOENT;
+=======
+>>>>>>> upstream/android-13
 	if (!cookie.found) {
 		_leave(" = -ENOENT [not found]");
 		return -ENOENT;
 	}
 
 	*fid = cookie.fid;
+<<<<<<< HEAD
 	_leave(" = 0 { vn=%u u=%u }", fid->vnode, fid->unique);
+=======
+	_leave(" = 0 { vn=%llu u=%u }", fid->vnode, fid->unique);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -580,8 +935,13 @@ static int afs_lookup_filldir(struct dir_context *ctx, const char *name,
 		}
 	} else if (cookie->name.len == nlen &&
 		   memcmp(cookie->name.name, name, nlen) == 0) {
+<<<<<<< HEAD
 		cookie->fids[0].vnode	= ino;
 		cookie->fids[0].unique	= dtype;
+=======
+		cookie->fids[1].vnode	= ino;
+		cookie->fids[1].unique	= dtype;
+>>>>>>> upstream/android-13
 		cookie->found = 1;
 		if (cookie->one_only)
 			return -1;
@@ -593,6 +953,115 @@ static int afs_lookup_filldir(struct dir_context *ctx, const char *name,
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Deal with the result of a successful lookup operation.  Turn all the files
+ * into inodes and save the first one - which is the one we actually want.
+ */
+static void afs_do_lookup_success(struct afs_operation *op)
+{
+	struct afs_vnode_param *vp;
+	struct afs_vnode *vnode;
+	struct inode *inode;
+	u32 abort_code;
+	int i;
+
+	_enter("");
+
+	for (i = 0; i < op->nr_files; i++) {
+		switch (i) {
+		case 0:
+			vp = &op->file[0];
+			abort_code = vp->scb.status.abort_code;
+			if (abort_code != 0) {
+				op->ac.abort_code = abort_code;
+				op->error = afs_abort_to_error(abort_code);
+			}
+			break;
+
+		case 1:
+			vp = &op->file[1];
+			break;
+
+		default:
+			vp = &op->more_files[i - 2];
+			break;
+		}
+
+		if (!vp->scb.have_status && !vp->scb.have_error)
+			continue;
+
+		_debug("do [%u]", i);
+		if (vp->vnode) {
+			if (!test_bit(AFS_VNODE_UNSET, &vp->vnode->flags))
+				afs_vnode_commit_status(op, vp);
+		} else if (vp->scb.status.abort_code == 0) {
+			inode = afs_iget(op, vp);
+			if (!IS_ERR(inode)) {
+				vnode = AFS_FS_I(inode);
+				afs_cache_permit(vnode, op->key,
+						 0 /* Assume vnode->cb_break is 0 */ +
+						 op->cb_v_break,
+						 &vp->scb);
+				vp->vnode = vnode;
+				vp->put_vnode = true;
+			}
+		} else {
+			_debug("- abort %d %llx:%llx.%x",
+			       vp->scb.status.abort_code,
+			       vp->fid.vid, vp->fid.vnode, vp->fid.unique);
+		}
+	}
+
+	_leave("");
+}
+
+static const struct afs_operation_ops afs_inline_bulk_status_operation = {
+	.issue_afs_rpc	= afs_fs_inline_bulk_status,
+	.issue_yfs_rpc	= yfs_fs_inline_bulk_status,
+	.success	= afs_do_lookup_success,
+};
+
+static const struct afs_operation_ops afs_lookup_fetch_status_operation = {
+	.issue_afs_rpc	= afs_fs_fetch_status,
+	.issue_yfs_rpc	= yfs_fs_fetch_status,
+	.success	= afs_do_lookup_success,
+	.aborted	= afs_check_for_remote_deletion,
+};
+
+/*
+ * See if we know that the server we expect to use doesn't support
+ * FS.InlineBulkStatus.
+ */
+static bool afs_server_supports_ibulk(struct afs_vnode *dvnode)
+{
+	struct afs_server_list *slist;
+	struct afs_volume *volume = dvnode->volume;
+	struct afs_server *server;
+	bool ret = true;
+	int i;
+
+	if (!test_bit(AFS_VOLUME_MAYBE_NO_IBULK, &volume->flags))
+		return true;
+
+	rcu_read_lock();
+	slist = rcu_dereference(volume->servers);
+
+	for (i = 0; i < slist->nr_servers; i++) {
+		server = slist->servers[i].server;
+		if (server == dvnode->cb_server) {
+			if (test_bit(AFS_SERVER_FL_NO_IBULK, &server->flags))
+				ret = false;
+			break;
+		}
+	}
+
+	rcu_read_unlock();
+	return ret;
+}
+
+/*
+>>>>>>> upstream/android-13
  * Do a lookup in a directory.  We make use of bulk lookup to query a slew of
  * files in one go and create inodes for them.  The inode of the file we were
  * asked for is returned.
@@ -601,6 +1070,7 @@ static struct inode *afs_do_lookup(struct inode *dir, struct dentry *dentry,
 				   struct key *key)
 {
 	struct afs_lookup_cookie *cookie;
+<<<<<<< HEAD
 	struct afs_cb_interest *cbi = NULL;
 	struct afs_super_info *as = dir->i_sb->s_fs_info;
 	struct afs_iget_data data;
@@ -608,6 +1078,15 @@ static struct inode *afs_do_lookup(struct inode *dir, struct dentry *dentry,
 	struct afs_vnode *dvnode = AFS_FS_I(dir);
 	struct inode *inode = NULL;
 	int ret, i;
+=======
+	struct afs_vnode_param *vp;
+	struct afs_operation *op;
+	struct afs_vnode *dvnode = AFS_FS_I(dir), *vnode;
+	struct inode *inode = NULL, *ti;
+	afs_dataversion_t data_version = READ_ONCE(dvnode->status.data_version);
+	long ret;
+	int i;
+>>>>>>> upstream/android-13
 
 	_enter("{%lu},%p{%pd},", dir->i_ino, dentry, dentry);
 
@@ -615,6 +1094,7 @@ static struct inode *afs_do_lookup(struct inode *dir, struct dentry *dentry,
 	if (!cookie)
 		return ERR_PTR(-ENOMEM);
 
+<<<<<<< HEAD
 	cookie->ctx.actor = afs_lookup_filldir;
 	cookie->name = dentry->d_name;
 	cookie->nr_fids = 1; /* slot 0 is saved for the fid we actually want */
@@ -637,10 +1117,31 @@ static struct inode *afs_do_lookup(struct inode *dir, struct dentry *dentry,
 	}
 
 	inode = ERR_PTR(-ENOENT);
+=======
+	for (i = 0; i < ARRAY_SIZE(cookie->fids); i++)
+		cookie->fids[i].vid = dvnode->fid.vid;
+	cookie->ctx.actor = afs_lookup_filldir;
+	cookie->name = dentry->d_name;
+	cookie->nr_fids = 2; /* slot 0 is saved for the fid we actually want
+			      * and slot 1 for the directory */
+
+	if (!afs_server_supports_ibulk(dvnode))
+		cookie->one_only = true;
+
+	/* search the directory */
+	ret = afs_dir_iterate(dir, &cookie->ctx, key, &data_version);
+	if (ret < 0)
+		goto out;
+
+	dentry->d_fsdata = (void *)(unsigned long)data_version;
+
+	ret = -ENOENT;
+>>>>>>> upstream/android-13
 	if (!cookie->found)
 		goto out;
 
 	/* Check to see if we already have an inode for the primary fid. */
+<<<<<<< HEAD
 	data.volume = dvnode->volume;
 	data.fid = cookie->fids[0];
 	inode = ilookup5(dir->i_sb, cookie->fids[0].vnode, afs_iget5_test, &data);
@@ -658,11 +1159,63 @@ static struct inode *afs_do_lookup(struct inode *dir, struct dentry *dentry,
 				    GFP_KERNEL);
 	if (!cookie->callbacks)
 		goto out_s;
+=======
+	inode = ilookup5(dir->i_sb, cookie->fids[1].vnode,
+			 afs_ilookup5_test_by_fid, &cookie->fids[1]);
+	if (inode)
+		goto out; /* We do */
+
+	/* Okay, we didn't find it.  We need to query the server - and whilst
+	 * we're doing that, we're going to attempt to look up a bunch of other
+	 * vnodes also.
+	 */
+	op = afs_alloc_operation(NULL, dvnode->volume);
+	if (IS_ERR(op)) {
+		ret = PTR_ERR(op);
+		goto out;
+	}
+
+	afs_op_set_vnode(op, 0, dvnode);
+	afs_op_set_fid(op, 1, &cookie->fids[1]);
+
+	op->nr_files = cookie->nr_fids;
+	_debug("nr_files %u", op->nr_files);
+
+	/* Need space for examining all the selected files */
+	op->error = -ENOMEM;
+	if (op->nr_files > 2) {
+		op->more_files = kvcalloc(op->nr_files - 2,
+					  sizeof(struct afs_vnode_param),
+					  GFP_KERNEL);
+		if (!op->more_files)
+			goto out_op;
+
+		for (i = 2; i < op->nr_files; i++) {
+			vp = &op->more_files[i - 2];
+			vp->fid = cookie->fids[i];
+
+			/* Find any inodes that already exist and get their
+			 * callback counters.
+			 */
+			ti = ilookup5_nowait(dir->i_sb, vp->fid.vnode,
+					     afs_ilookup5_test_by_fid, &vp->fid);
+			if (!IS_ERR_OR_NULL(ti)) {
+				vnode = AFS_FS_I(ti);
+				vp->dv_before = vnode->status.data_version;
+				vp->cb_break_before = afs_calc_vnode_cb_break(vnode);
+				vp->vnode = vnode;
+				vp->put_vnode = true;
+				vp->speculative = true; /* vnode not locked */
+			}
+		}
+	}
+>>>>>>> upstream/android-13
 
 	/* Try FS.InlineBulkStatus first.  Abort codes for the individual
 	 * lookups contained therein are stored in the reply without aborting
 	 * the whole operation.
 	 */
+<<<<<<< HEAD
 	if (cookie->one_only)
 		goto no_inline_bulk_status;
 
@@ -756,6 +1309,42 @@ out_s:
 out:
 	kfree(cookie);
 	return inode;
+=======
+	op->error = -ENOTSUPP;
+	if (!cookie->one_only) {
+		op->ops = &afs_inline_bulk_status_operation;
+		afs_begin_vnode_operation(op);
+		afs_wait_for_operation(op);
+	}
+
+	if (op->error == -ENOTSUPP) {
+		/* We could try FS.BulkStatus next, but this aborts the entire
+		 * op if any of the lookups fails - so, for the moment, revert
+		 * to FS.FetchStatus for op->file[1].
+		 */
+		op->fetch_status.which = 1;
+		op->ops = &afs_lookup_fetch_status_operation;
+		afs_begin_vnode_operation(op);
+		afs_wait_for_operation(op);
+	}
+	inode = ERR_PTR(op->error);
+
+out_op:
+	if (op->error == 0) {
+		inode = &op->file[1].vnode->vfs_inode;
+		op->file[1].vnode = NULL;
+	}
+
+	if (op->file[0].scb.have_status)
+		dentry->d_fsdata = (void *)(unsigned long)op->file[0].scb.status.data_version;
+	else
+		dentry->d_fsdata = (void *)(unsigned long)op->file[0].dv_before;
+	ret = afs_put_operation(op);
+out:
+	kfree(cookie);
+	_leave("");
+	return inode ?: ERR_PTR(ret);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -821,12 +1410,20 @@ static struct dentry *afs_lookup(struct inode *dir, struct dentry *dentry,
 				 unsigned int flags)
 {
 	struct afs_vnode *dvnode = AFS_FS_I(dir);
+<<<<<<< HEAD
+=======
+	struct afs_fid fid = {};
+>>>>>>> upstream/android-13
 	struct inode *inode;
 	struct dentry *d;
 	struct key *key;
 	int ret;
 
+<<<<<<< HEAD
 	_enter("{%x:%u},%p{%pd},",
+=======
+	_enter("{%llx:%llu},%p{%pd},",
+>>>>>>> upstream/android-13
 	       dvnode->fid.vid, dvnode->fid.vnode, dentry, dentry);
 
 	ASSERTCMP(d_inode(dentry), ==, NULL);
@@ -864,6 +1461,7 @@ static struct dentry *afs_lookup(struct inode *dir, struct dentry *dentry,
 	afs_stat_v(dvnode, n_lookup);
 	inode = afs_do_lookup(dir, dentry, key);
 	key_put(key);
+<<<<<<< HEAD
 	if (inode == ERR_PTR(-ENOENT)) {
 		inode = afs_try_auto_mntpt(dentry, dir);
 	} else {
@@ -873,10 +1471,70 @@ static struct dentry *afs_lookup(struct inode *dir, struct dentry *dentry,
 	d = d_splice_alias(inode, dentry);
 	if (!IS_ERR_OR_NULL(d))
 		d->d_fsdata = dentry->d_fsdata;
+=======
+	if (inode == ERR_PTR(-ENOENT))
+		inode = afs_try_auto_mntpt(dentry, dir);
+
+	if (!IS_ERR_OR_NULL(inode))
+		fid = AFS_FS_I(inode)->fid;
+
+	_debug("splice %p", dentry->d_inode);
+	d = d_splice_alias(inode, dentry);
+	if (!IS_ERR_OR_NULL(d)) {
+		d->d_fsdata = dentry->d_fsdata;
+		trace_afs_lookup(dvnode, &d->d_name, &fid);
+	} else {
+		trace_afs_lookup(dvnode, &dentry->d_name, &fid);
+	}
+	_leave("");
+>>>>>>> upstream/android-13
 	return d;
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Check the validity of a dentry under RCU conditions.
+ */
+static int afs_d_revalidate_rcu(struct dentry *dentry)
+{
+	struct afs_vnode *dvnode;
+	struct dentry *parent;
+	struct inode *dir;
+	long dir_version, de_version;
+
+	_enter("%p", dentry);
+
+	/* Check the parent directory is still valid first. */
+	parent = READ_ONCE(dentry->d_parent);
+	dir = d_inode_rcu(parent);
+	if (!dir)
+		return -ECHILD;
+	dvnode = AFS_FS_I(dir);
+	if (test_bit(AFS_VNODE_DELETED, &dvnode->flags))
+		return -ECHILD;
+
+	if (!afs_check_validity(dvnode))
+		return -ECHILD;
+
+	/* We only need to invalidate a dentry if the server's copy changed
+	 * behind our back.  If we made the change, it's no problem.  Note that
+	 * on a 32-bit system, we only have 32 bits in the dentry to store the
+	 * version.
+	 */
+	dir_version = (long)READ_ONCE(dvnode->status.data_version);
+	de_version = (long)READ_ONCE(dentry->d_fsdata);
+	if (de_version != dir_version) {
+		dir_version = (long)READ_ONCE(dvnode->invalid_before);
+		if (de_version - dir_version < 0)
+			return -ECHILD;
+	}
+
+	return 1; /* Still valid */
+}
+
+/*
+>>>>>>> upstream/android-13
  * check that a dentry lookup hit has found a valid entry
  * - NOTE! the hit can be a negative hit too, so we can't assume we have an
  *   inode
@@ -884,6 +1542,7 @@ static struct dentry *afs_lookup(struct inode *dir, struct dentry *dentry,
 static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 {
 	struct afs_vnode *vnode, *dir;
+<<<<<<< HEAD
 	struct afs_fid uninitialized_var(fid);
 	struct dentry *parent;
 	struct inode *inode;
@@ -897,6 +1556,22 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	if (d_really_is_positive(dentry)) {
 		vnode = AFS_FS_I(d_inode(dentry));
 		_enter("{v={%x:%u} n=%pd fl=%lx},",
+=======
+	struct afs_fid fid;
+	struct dentry *parent;
+	struct inode *inode;
+	struct key *key;
+	afs_dataversion_t dir_version, invalid_before;
+	long de_version;
+	int ret;
+
+	if (flags & LOOKUP_RCU)
+		return afs_d_revalidate_rcu(dentry);
+
+	if (d_really_is_positive(dentry)) {
+		vnode = AFS_FS_I(d_inode(dentry));
+		_enter("{v={%llx:%llu} n=%pd fl=%lx},",
+>>>>>>> upstream/android-13
 		       vnode->fid.vid, vnode->fid.vnode, dentry,
 		       vnode->flags);
 	} else {
@@ -907,6 +1582,7 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	if (IS_ERR(key))
 		key = NULL;
 
+<<<<<<< HEAD
 	if (d_really_is_positive(dentry)) {
 		inode = d_inode(dentry);
 		if (inode) {
@@ -918,6 +1594,9 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	}
 
 	/* lock down the parent dentry so we can peer at it */
+=======
+	/* Hold the parent dentry so we can peer at it */
+>>>>>>> upstream/android-13
 	parent = dget_parent(dentry);
 	dir = AFS_FS_I(d_inode(parent));
 
@@ -926,7 +1605,11 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 
 	if (test_bit(AFS_VNODE_DELETED, &dir->flags)) {
 		_debug("%pd: parent dir deleted", dentry);
+<<<<<<< HEAD
 		goto out_bad_parent;
+=======
+		goto not_found;
+>>>>>>> upstream/android-13
 	}
 
 	/* We only need to invalidate a dentry if the server's copy changed
@@ -934,6 +1617,7 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	 * on a 32-bit system, we only have 32 bits in the dentry to store the
 	 * version.
 	 */
+<<<<<<< HEAD
 	dir_version = (long)dir->status.data_version;
 	de_version = (long)dentry->d_fsdata;
 	if (de_version == dir_version)
@@ -941,23 +1625,44 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 
 	dir_version = (long)dir->invalid_before;
 	if (de_version - dir_version >= 0)
+=======
+	dir_version = dir->status.data_version;
+	de_version = (long)dentry->d_fsdata;
+	if (de_version == (long)dir_version)
+		goto out_valid_noupdate;
+
+	invalid_before = dir->invalid_before;
+	if (de_version - (long)invalid_before >= 0)
+>>>>>>> upstream/android-13
 		goto out_valid;
 
 	_debug("dir modified");
 	afs_stat_v(dir, n_reval);
 
 	/* search the directory for this vnode */
+<<<<<<< HEAD
 	ret = afs_do_lookup_one(&dir->vfs_inode, dentry, &fid, key);
+=======
+	ret = afs_do_lookup_one(&dir->vfs_inode, dentry, &fid, key, &dir_version);
+>>>>>>> upstream/android-13
 	switch (ret) {
 	case 0:
 		/* the filename maps to something */
 		if (d_really_is_negative(dentry))
+<<<<<<< HEAD
 			goto out_bad_parent;
+=======
+			goto not_found;
+>>>>>>> upstream/android-13
 		inode = d_inode(dentry);
 		if (is_bad_inode(inode)) {
 			printk("kAFS: afs_d_revalidate: %pd2 has bad inode\n",
 			       dentry);
+<<<<<<< HEAD
 			goto out_bad_parent;
+=======
+			goto not_found;
+>>>>>>> upstream/android-13
 		}
 
 		vnode = AFS_FS_I(inode);
@@ -965,7 +1670,11 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 		/* if the vnode ID has changed, then the dirent points to a
 		 * different file */
 		if (fid.vnode != vnode->fid.vnode) {
+<<<<<<< HEAD
 			_debug("%pd: dirent changed [%u != %u]",
+=======
+			_debug("%pd: dirent changed [%llu != %llu]",
+>>>>>>> upstream/android-13
 			       dentry, fid.vnode,
 			       vnode->fid.vnode);
 			goto not_found;
@@ -979,9 +1688,12 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 			       dentry, fid.unique,
 			       vnode->fid.unique,
 			       vnode->vfs_inode.i_generation);
+<<<<<<< HEAD
 			write_seqlock(&vnode->cb_lock);
 			set_bit(AFS_VNODE_DELETED, &vnode->flags);
 			write_sequnlock(&vnode->cb_lock);
+=======
+>>>>>>> upstream/android-13
 			goto not_found;
 		}
 		goto out_valid;
@@ -996,17 +1708,26 @@ static int afs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	default:
 		_debug("failed to iterate dir %pd: %d",
 		       parent, ret);
+<<<<<<< HEAD
 		goto out_bad_parent;
 	}
 
 out_valid:
 	dentry->d_fsdata = (void *)dir_version;
+=======
+		goto not_found;
+	}
+
+out_valid:
+	dentry->d_fsdata = (void *)(unsigned long)dir_version;
+>>>>>>> upstream/android-13
 out_valid_noupdate:
 	dput(parent);
 	key_put(key);
 	_leave(" = 1 [valid]");
 	return 1;
 
+<<<<<<< HEAD
 	/* the dirent, if it exists, now points to a different vnode */
 not_found:
 	spin_lock(&dentry->d_lock);
@@ -1017,6 +1738,11 @@ out_bad_parent:
 	_debug("dropping dentry %pd2", dentry);
 	dput(parent);
 out_bad:
+=======
+not_found:
+	_debug("dropping dentry %pd2", dentry);
+	dput(parent);
+>>>>>>> upstream/android-13
 	key_put(key);
 
 	_leave(" = 0 [bad]");
@@ -1050,6 +1776,19 @@ zap:
 }
 
 /*
+<<<<<<< HEAD
+=======
+ * Clean up sillyrename files on dentry removal.
+ */
+static void afs_d_iput(struct dentry *dentry, struct inode *inode)
+{
+	if (dentry->d_flags & DCACHE_NFSFS_RENAMED)
+		afs_silly_iput(dentry, inode);
+	iput(inode);
+}
+
+/*
+>>>>>>> upstream/android-13
  * handle dentry release
  */
 void afs_d_release(struct dentry *dentry)
@@ -1057,6 +1796,7 @@ void afs_d_release(struct dentry *dentry)
 	_enter("%pd", dentry);
 }
 
+<<<<<<< HEAD
 /*
  * Create a new inode for create/mkdir/symlink
  */
@@ -1076,16 +1816,48 @@ static void afs_vnode_new_inode(struct afs_fs_cursor *fc,
 
 	inode = afs_iget(fc->vnode->vfs_inode.i_sb, fc->key,
 			 newfid, newstatus, newcb, fc->cbi);
+=======
+void afs_check_for_remote_deletion(struct afs_operation *op)
+{
+	struct afs_vnode *vnode = op->file[0].vnode;
+
+	switch (op->ac.abort_code) {
+	case VNOVNODE:
+		set_bit(AFS_VNODE_DELETED, &vnode->flags);
+		afs_break_callback(vnode, afs_cb_break_for_deleted);
+	}
+}
+
+/*
+ * Create a new inode for create/mkdir/symlink
+ */
+static void afs_vnode_new_inode(struct afs_operation *op)
+{
+	struct afs_vnode_param *vp = &op->file[1];
+	struct afs_vnode *vnode;
+	struct inode *inode;
+
+	_enter("");
+
+	ASSERTCMP(op->error, ==, 0);
+
+	inode = afs_iget(op, vp);
+>>>>>>> upstream/android-13
 	if (IS_ERR(inode)) {
 		/* ENOMEM or EINTR at a really inconvenient time - just abandon
 		 * the new directory on the server.
 		 */
+<<<<<<< HEAD
 		fc->ac.error = PTR_ERR(inode);
+=======
+		op->error = PTR_ERR(inode);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	vnode = AFS_FS_I(inode);
 	set_bit(AFS_VNODE_NEW_CONTENT, &vnode->flags);
+<<<<<<< HEAD
 	d_add(new_dentry, inode);
 }
 
@@ -1147,6 +1919,82 @@ error:
 	d_drop(dentry);
 	_leave(" = %d", ret);
 	return ret;
+=======
+	if (!op->error)
+		afs_cache_permit(vnode, op->key, vnode->cb_break, &vp->scb);
+	d_instantiate(op->dentry, inode);
+}
+
+static void afs_create_success(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+	op->ctime = op->file[0].scb.status.mtime_client;
+	afs_vnode_commit_status(op, &op->file[0]);
+	afs_update_dentry_version(op, &op->file[0], op->dentry);
+	afs_vnode_new_inode(op);
+}
+
+static void afs_create_edit_dir(struct afs_operation *op)
+{
+	struct afs_vnode_param *dvp = &op->file[0];
+	struct afs_vnode_param *vp = &op->file[1];
+	struct afs_vnode *dvnode = dvp->vnode;
+
+	_enter("op=%08x", op->debug_id);
+
+	down_write(&dvnode->validate_lock);
+	if (test_bit(AFS_VNODE_DIR_VALID, &dvnode->flags) &&
+	    dvnode->status.data_version == dvp->dv_before + dvp->dv_delta)
+		afs_edit_dir_add(dvnode, &op->dentry->d_name, &vp->fid,
+				 op->create.reason);
+	up_write(&dvnode->validate_lock);
+}
+
+static void afs_create_put(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+
+	if (op->error)
+		d_drop(op->dentry);
+}
+
+static const struct afs_operation_ops afs_mkdir_operation = {
+	.issue_afs_rpc	= afs_fs_make_dir,
+	.issue_yfs_rpc	= yfs_fs_make_dir,
+	.success	= afs_create_success,
+	.aborted	= afs_check_for_remote_deletion,
+	.edit_dir	= afs_create_edit_dir,
+	.put		= afs_create_put,
+};
+
+/*
+ * create a directory on an AFS filesystem
+ */
+static int afs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		     struct dentry *dentry, umode_t mode)
+{
+	struct afs_operation *op;
+	struct afs_vnode *dvnode = AFS_FS_I(dir);
+
+	_enter("{%llx:%llu},{%pd},%ho",
+	       dvnode->fid.vid, dvnode->fid.vnode, dentry, mode);
+
+	op = afs_alloc_operation(NULL, dvnode->volume);
+	if (IS_ERR(op)) {
+		d_drop(dentry);
+		return PTR_ERR(op);
+	}
+
+	afs_op_set_vnode(op, 0, dvnode);
+	op->file[0].dv_delta = 1;
+	op->file[0].modification = true;
+	op->file[0].update_ctime = true;
+	op->dentry	= dentry;
+	op->create.mode	= S_IFDIR | mode;
+	op->create.reason = afs_edit_dir_for_mkdir;
+	op->ops		= &afs_mkdir_operation;
+	return afs_do_sync_operation(op);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1164,11 +2012,55 @@ static void afs_dir_remove_subdir(struct dentry *dentry)
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void afs_rmdir_success(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+	op->ctime = op->file[0].scb.status.mtime_client;
+	afs_vnode_commit_status(op, &op->file[0]);
+	afs_update_dentry_version(op, &op->file[0], op->dentry);
+}
+
+static void afs_rmdir_edit_dir(struct afs_operation *op)
+{
+	struct afs_vnode_param *dvp = &op->file[0];
+	struct afs_vnode *dvnode = dvp->vnode;
+
+	_enter("op=%08x", op->debug_id);
+	afs_dir_remove_subdir(op->dentry);
+
+	down_write(&dvnode->validate_lock);
+	if (test_bit(AFS_VNODE_DIR_VALID, &dvnode->flags) &&
+	    dvnode->status.data_version == dvp->dv_before + dvp->dv_delta)
+		afs_edit_dir_remove(dvnode, &op->dentry->d_name,
+				    afs_edit_dir_for_rmdir);
+	up_write(&dvnode->validate_lock);
+}
+
+static void afs_rmdir_put(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+	if (op->file[1].vnode)
+		up_write(&op->file[1].vnode->rmdir_lock);
+}
+
+static const struct afs_operation_ops afs_rmdir_operation = {
+	.issue_afs_rpc	= afs_fs_remove_dir,
+	.issue_yfs_rpc	= yfs_fs_remove_dir,
+	.success	= afs_rmdir_success,
+	.aborted	= afs_check_for_remote_deletion,
+	.edit_dir	= afs_rmdir_edit_dir,
+	.put		= afs_rmdir_put,
+};
+
+>>>>>>> upstream/android-13
 /*
  * remove a directory from an AFS filesystem
  */
 static int afs_rmdir(struct inode *dir, struct dentry *dentry)
 {
+<<<<<<< HEAD
 	struct afs_fs_cursor fc;
 	struct afs_vnode *dvnode = AFS_FS_I(dir);
 	struct key *key;
@@ -1205,6 +2097,46 @@ static int afs_rmdir(struct inode *dir, struct dentry *dentry)
 	key_put(key);
 error:
 	return ret;
+=======
+	struct afs_operation *op;
+	struct afs_vnode *dvnode = AFS_FS_I(dir), *vnode = NULL;
+	int ret;
+
+	_enter("{%llx:%llu},{%pd}",
+	       dvnode->fid.vid, dvnode->fid.vnode, dentry);
+
+	op = afs_alloc_operation(NULL, dvnode->volume);
+	if (IS_ERR(op))
+		return PTR_ERR(op);
+
+	afs_op_set_vnode(op, 0, dvnode);
+	op->file[0].dv_delta = 1;
+	op->file[0].modification = true;
+	op->file[0].update_ctime = true;
+
+	op->dentry	= dentry;
+	op->ops		= &afs_rmdir_operation;
+
+	/* Try to make sure we have a callback promise on the victim. */
+	if (d_really_is_positive(dentry)) {
+		vnode = AFS_FS_I(d_inode(dentry));
+		ret = afs_validate(vnode, op->key);
+		if (ret < 0)
+			goto error;
+	}
+
+	if (vnode) {
+		ret = down_write_killable(&vnode->rmdir_lock);
+		if (ret < 0)
+			goto error;
+		op->file[1].vnode = vnode;
+	}
+
+	return afs_do_sync_operation(op);
+
+error:
+	return afs_put_operation(op);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1217,6 +2149,7 @@ error:
  * However, if we didn't have a callback promise outstanding, or it was
  * outstanding on a different server, then it won't break it either...
  */
+<<<<<<< HEAD
 static int afs_dir_remove_link(struct dentry *dentry, struct key *key,
 			       unsigned long d_version_before,
 			       unsigned long d_version_after)
@@ -1255,11 +2188,92 @@ static int afs_dir_remove_link(struct dentry *dentry, struct key *key,
 	return ret;
 }
 
+=======
+static void afs_dir_remove_link(struct afs_operation *op)
+{
+	struct afs_vnode *dvnode = op->file[0].vnode;
+	struct afs_vnode *vnode = op->file[1].vnode;
+	struct dentry *dentry = op->dentry;
+	int ret;
+
+	if (op->error != 0 ||
+	    (op->file[1].scb.have_status && op->file[1].scb.have_error))
+		return;
+	if (d_really_is_positive(dentry))
+		return;
+
+	if (test_bit(AFS_VNODE_DELETED, &vnode->flags)) {
+		/* Already done */
+	} else if (test_bit(AFS_VNODE_DIR_VALID, &dvnode->flags)) {
+		write_seqlock(&vnode->cb_lock);
+		drop_nlink(&vnode->vfs_inode);
+		if (vnode->vfs_inode.i_nlink == 0) {
+			set_bit(AFS_VNODE_DELETED, &vnode->flags);
+			__afs_break_callback(vnode, afs_cb_break_for_unlink);
+		}
+		write_sequnlock(&vnode->cb_lock);
+	} else {
+		afs_break_callback(vnode, afs_cb_break_for_unlink);
+
+		if (test_bit(AFS_VNODE_DELETED, &vnode->flags))
+			_debug("AFS_VNODE_DELETED");
+
+		ret = afs_validate(vnode, op->key);
+		if (ret != -ESTALE)
+			op->error = ret;
+	}
+
+	_debug("nlink %d [val %d]", vnode->vfs_inode.i_nlink, op->error);
+}
+
+static void afs_unlink_success(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+	op->ctime = op->file[0].scb.status.mtime_client;
+	afs_check_dir_conflict(op, &op->file[0]);
+	afs_vnode_commit_status(op, &op->file[0]);
+	afs_vnode_commit_status(op, &op->file[1]);
+	afs_update_dentry_version(op, &op->file[0], op->dentry);
+	afs_dir_remove_link(op);
+}
+
+static void afs_unlink_edit_dir(struct afs_operation *op)
+{
+	struct afs_vnode_param *dvp = &op->file[0];
+	struct afs_vnode *dvnode = dvp->vnode;
+
+	_enter("op=%08x", op->debug_id);
+	down_write(&dvnode->validate_lock);
+	if (test_bit(AFS_VNODE_DIR_VALID, &dvnode->flags) &&
+	    dvnode->status.data_version == dvp->dv_before + dvp->dv_delta)
+		afs_edit_dir_remove(dvnode, &op->dentry->d_name,
+				    afs_edit_dir_for_unlink);
+	up_write(&dvnode->validate_lock);
+}
+
+static void afs_unlink_put(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+	if (op->unlink.need_rehash && op->error < 0 && op->error != -ENOENT)
+		d_rehash(op->dentry);
+}
+
+static const struct afs_operation_ops afs_unlink_operation = {
+	.issue_afs_rpc	= afs_fs_remove_file,
+	.issue_yfs_rpc	= yfs_fs_remove_file,
+	.success	= afs_unlink_success,
+	.aborted	= afs_check_for_remote_deletion,
+	.edit_dir	= afs_unlink_edit_dir,
+	.put		= afs_unlink_put,
+};
+
+>>>>>>> upstream/android-13
 /*
  * Remove a file or symlink from an AFS filesystem.
  */
 static int afs_unlink(struct inode *dir, struct dentry *dentry)
 {
+<<<<<<< HEAD
 	struct afs_fs_cursor fc;
 	struct afs_vnode *dvnode = AFS_FS_I(dir), *vnode;
 	struct key *key;
@@ -1268,11 +2282,20 @@ static int afs_unlink(struct inode *dir, struct dentry *dentry)
 	int ret;
 
 	_enter("{%x:%u},{%pd}",
+=======
+	struct afs_operation *op;
+	struct afs_vnode *dvnode = AFS_FS_I(dir);
+	struct afs_vnode *vnode = AFS_FS_I(d_inode(dentry));
+	int ret;
+
+	_enter("{%llx:%llu},{%pd}",
+>>>>>>> upstream/android-13
 	       dvnode->fid.vid, dvnode->fid.vnode, dentry);
 
 	if (dentry->d_name.len >= AFSNAMEMAX)
 		return -ENAMETOOLONG;
 
+<<<<<<< HEAD
 	key = afs_request_key(dvnode->volume->cell);
 	if (IS_ERR(key)) {
 		ret = PTR_ERR(key);
@@ -1372,18 +2395,154 @@ static int afs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 
 error_key:
 	key_put(key);
+=======
+	op = afs_alloc_operation(NULL, dvnode->volume);
+	if (IS_ERR(op))
+		return PTR_ERR(op);
+
+	afs_op_set_vnode(op, 0, dvnode);
+	op->file[0].dv_delta = 1;
+	op->file[0].modification = true;
+	op->file[0].update_ctime = true;
+
+	/* Try to make sure we have a callback promise on the victim. */
+	ret = afs_validate(vnode, op->key);
+	if (ret < 0) {
+		op->error = ret;
+		goto error;
+	}
+
+	spin_lock(&dentry->d_lock);
+	if (d_count(dentry) > 1) {
+		spin_unlock(&dentry->d_lock);
+		/* Start asynchronous writeout of the inode */
+		write_inode_now(d_inode(dentry), 0);
+		op->error = afs_sillyrename(dvnode, vnode, dentry, op->key);
+		goto error;
+	}
+	if (!d_unhashed(dentry)) {
+		/* Prevent a race with RCU lookup. */
+		__d_drop(dentry);
+		op->unlink.need_rehash = true;
+	}
+	spin_unlock(&dentry->d_lock);
+
+	op->file[1].vnode = vnode;
+	op->file[1].update_ctime = true;
+	op->file[1].op_unlinked = true;
+	op->dentry	= dentry;
+	op->ops		= &afs_unlink_operation;
+	afs_begin_vnode_operation(op);
+	afs_wait_for_operation(op);
+
+	/* If there was a conflict with a third party, check the status of the
+	 * unlinked vnode.
+	 */
+	if (op->error == 0 && (op->flags & AFS_OPERATION_DIR_CONFLICT)) {
+		op->file[1].update_ctime = false;
+		op->fetch_status.which = 1;
+		op->ops = &afs_fetch_status_operation;
+		afs_begin_vnode_operation(op);
+		afs_wait_for_operation(op);
+	}
+
+	return afs_put_operation(op);
+
+error:
+	return afs_put_operation(op);
+}
+
+static const struct afs_operation_ops afs_create_operation = {
+	.issue_afs_rpc	= afs_fs_create_file,
+	.issue_yfs_rpc	= yfs_fs_create_file,
+	.success	= afs_create_success,
+	.aborted	= afs_check_for_remote_deletion,
+	.edit_dir	= afs_create_edit_dir,
+	.put		= afs_create_put,
+};
+
+/*
+ * create a regular file on an AFS filesystem
+ */
+static int afs_create(struct user_namespace *mnt_userns, struct inode *dir,
+		      struct dentry *dentry, umode_t mode, bool excl)
+{
+	struct afs_operation *op;
+	struct afs_vnode *dvnode = AFS_FS_I(dir);
+	int ret = -ENAMETOOLONG;
+
+	_enter("{%llx:%llu},{%pd},%ho",
+	       dvnode->fid.vid, dvnode->fid.vnode, dentry, mode);
+
+	if (dentry->d_name.len >= AFSNAMEMAX)
+		goto error;
+
+	op = afs_alloc_operation(NULL, dvnode->volume);
+	if (IS_ERR(op)) {
+		ret = PTR_ERR(op);
+		goto error;
+	}
+
+	afs_op_set_vnode(op, 0, dvnode);
+	op->file[0].dv_delta = 1;
+	op->file[0].modification = true;
+	op->file[0].update_ctime = true;
+
+	op->dentry	= dentry;
+	op->create.mode	= S_IFREG | mode;
+	op->create.reason = afs_edit_dir_for_create;
+	op->ops		= &afs_create_operation;
+	return afs_do_sync_operation(op);
+
+>>>>>>> upstream/android-13
 error:
 	d_drop(dentry);
 	_leave(" = %d", ret);
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void afs_link_success(struct afs_operation *op)
+{
+	struct afs_vnode_param *dvp = &op->file[0];
+	struct afs_vnode_param *vp = &op->file[1];
+
+	_enter("op=%08x", op->debug_id);
+	op->ctime = dvp->scb.status.mtime_client;
+	afs_vnode_commit_status(op, dvp);
+	afs_vnode_commit_status(op, vp);
+	afs_update_dentry_version(op, dvp, op->dentry);
+	if (op->dentry_2->d_parent == op->dentry->d_parent)
+		afs_update_dentry_version(op, dvp, op->dentry_2);
+	ihold(&vp->vnode->vfs_inode);
+	d_instantiate(op->dentry, &vp->vnode->vfs_inode);
+}
+
+static void afs_link_put(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+	if (op->error)
+		d_drop(op->dentry);
+}
+
+static const struct afs_operation_ops afs_link_operation = {
+	.issue_afs_rpc	= afs_fs_link,
+	.issue_yfs_rpc	= yfs_fs_link,
+	.success	= afs_link_success,
+	.aborted	= afs_check_for_remote_deletion,
+	.edit_dir	= afs_create_edit_dir,
+	.put		= afs_link_put,
+};
+
+>>>>>>> upstream/android-13
 /*
  * create a hard link between files in an AFS filesystem
  */
 static int afs_link(struct dentry *from, struct inode *dir,
 		    struct dentry *dentry)
 {
+<<<<<<< HEAD
 	struct afs_fs_cursor fc;
 	struct afs_vnode *dvnode, *vnode;
 	struct key *key;
@@ -1395,10 +2554,19 @@ static int afs_link(struct dentry *from, struct inode *dir,
 	data_version = dvnode->status.data_version;
 
 	_enter("{%x:%u},{%x:%u},{%pd}",
+=======
+	struct afs_operation *op;
+	struct afs_vnode *dvnode = AFS_FS_I(dir);
+	struct afs_vnode *vnode = AFS_FS_I(d_inode(from));
+	int ret = -ENAMETOOLONG;
+
+	_enter("{%llx:%llu},{%llx:%llu},{%pd}",
+>>>>>>> upstream/android-13
 	       vnode->fid.vid, vnode->fid.vnode,
 	       dvnode->fid.vid, dvnode->fid.vnode,
 	       dentry);
 
+<<<<<<< HEAD
 	ret = -ENAMETOOLONG;
 	if (dentry->d_name.len >= AFSNAMEMAX)
 		goto error;
@@ -1445,12 +2613,43 @@ static int afs_link(struct dentry *from, struct inode *dir,
 
 error_key:
 	key_put(key);
+=======
+	if (dentry->d_name.len >= AFSNAMEMAX)
+		goto error;
+
+	op = afs_alloc_operation(NULL, dvnode->volume);
+	if (IS_ERR(op)) {
+		ret = PTR_ERR(op);
+		goto error;
+	}
+
+	ret = afs_validate(vnode, op->key);
+	if (ret < 0)
+		goto error_op;
+
+	afs_op_set_vnode(op, 0, dvnode);
+	afs_op_set_vnode(op, 1, vnode);
+	op->file[0].dv_delta = 1;
+	op->file[0].modification = true;
+	op->file[0].update_ctime = true;
+	op->file[1].update_ctime = true;
+
+	op->dentry		= dentry;
+	op->dentry_2		= from;
+	op->ops			= &afs_link_operation;
+	op->create.reason	= afs_edit_dir_for_link;
+	return afs_do_sync_operation(op);
+
+error_op:
+	afs_put_operation(op);
+>>>>>>> upstream/android-13
 error:
 	d_drop(dentry);
 	_leave(" = %d", ret);
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * create a symlink in an AFS filesystem
  */
@@ -1466,6 +2665,28 @@ static int afs_symlink(struct inode *dir, struct dentry *dentry,
 	int ret;
 
 	_enter("{%x:%u},{%pd},%s",
+=======
+static const struct afs_operation_ops afs_symlink_operation = {
+	.issue_afs_rpc	= afs_fs_symlink,
+	.issue_yfs_rpc	= yfs_fs_symlink,
+	.success	= afs_create_success,
+	.aborted	= afs_check_for_remote_deletion,
+	.edit_dir	= afs_create_edit_dir,
+	.put		= afs_create_put,
+};
+
+/*
+ * create a symlink in an AFS filesystem
+ */
+static int afs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, const char *content)
+{
+	struct afs_operation *op;
+	struct afs_vnode *dvnode = AFS_FS_I(dir);
+	int ret;
+
+	_enter("{%llx:%llu},{%pd},%s",
+>>>>>>> upstream/android-13
 	       dvnode->fid.vid, dvnode->fid.vnode, dentry,
 	       content);
 
@@ -1477,6 +2698,7 @@ static int afs_symlink(struct inode *dir, struct dentry *dentry,
 	if (strlen(content) >= AFSPATHMAX)
 		goto error;
 
+<<<<<<< HEAD
 	key = afs_request_key(dvnode->volume->cell);
 	if (IS_ERR(key)) {
 		ret = PTR_ERR(key);
@@ -1512,12 +2734,30 @@ static int afs_symlink(struct inode *dir, struct dentry *dentry,
 
 error_key:
 	key_put(key);
+=======
+	op = afs_alloc_operation(NULL, dvnode->volume);
+	if (IS_ERR(op)) {
+		ret = PTR_ERR(op);
+		goto error;
+	}
+
+	afs_op_set_vnode(op, 0, dvnode);
+	op->file[0].dv_delta = 1;
+
+	op->dentry		= dentry;
+	op->ops			= &afs_symlink_operation;
+	op->create.reason	= afs_edit_dir_for_symlink;
+	op->create.symlink	= content;
+	return afs_do_sync_operation(op);
+
+>>>>>>> upstream/android-13
 error:
 	d_drop(dentry);
 	_leave(" = %d", ret);
 	return ret;
 }
 
+<<<<<<< HEAD
 /*
  * rename a file in an AFS filesystem and/or move it between directories
  */
@@ -1530,11 +2770,117 @@ static int afs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	struct key *key;
 	u64 orig_data_version, new_data_version;
 	bool new_negative = d_is_negative(new_dentry);
+=======
+static void afs_rename_success(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+
+	op->ctime = op->file[0].scb.status.mtime_client;
+	afs_check_dir_conflict(op, &op->file[1]);
+	afs_vnode_commit_status(op, &op->file[0]);
+	if (op->file[1].vnode != op->file[0].vnode) {
+		op->ctime = op->file[1].scb.status.mtime_client;
+		afs_vnode_commit_status(op, &op->file[1]);
+	}
+}
+
+static void afs_rename_edit_dir(struct afs_operation *op)
+{
+	struct afs_vnode_param *orig_dvp = &op->file[0];
+	struct afs_vnode_param *new_dvp = &op->file[1];
+	struct afs_vnode *orig_dvnode = orig_dvp->vnode;
+	struct afs_vnode *new_dvnode = new_dvp->vnode;
+	struct afs_vnode *vnode = AFS_FS_I(d_inode(op->dentry));
+	struct dentry *old_dentry = op->dentry;
+	struct dentry *new_dentry = op->dentry_2;
+	struct inode *new_inode;
+
+	_enter("op=%08x", op->debug_id);
+
+	if (op->rename.rehash) {
+		d_rehash(op->rename.rehash);
+		op->rename.rehash = NULL;
+	}
+
+	down_write(&orig_dvnode->validate_lock);
+	if (test_bit(AFS_VNODE_DIR_VALID, &orig_dvnode->flags) &&
+	    orig_dvnode->status.data_version == orig_dvp->dv_before + orig_dvp->dv_delta)
+		afs_edit_dir_remove(orig_dvnode, &old_dentry->d_name,
+				    afs_edit_dir_for_rename_0);
+
+	if (new_dvnode != orig_dvnode) {
+		up_write(&orig_dvnode->validate_lock);
+		down_write(&new_dvnode->validate_lock);
+	}
+
+	if (test_bit(AFS_VNODE_DIR_VALID, &new_dvnode->flags) &&
+	    new_dvnode->status.data_version == new_dvp->dv_before + new_dvp->dv_delta) {
+		if (!op->rename.new_negative)
+			afs_edit_dir_remove(new_dvnode, &new_dentry->d_name,
+					    afs_edit_dir_for_rename_1);
+
+		afs_edit_dir_add(new_dvnode, &new_dentry->d_name,
+				 &vnode->fid, afs_edit_dir_for_rename_2);
+	}
+
+	new_inode = d_inode(new_dentry);
+	if (new_inode) {
+		spin_lock(&new_inode->i_lock);
+		if (S_ISDIR(new_inode->i_mode))
+			clear_nlink(new_inode);
+		else if (new_inode->i_nlink > 0)
+			drop_nlink(new_inode);
+		spin_unlock(&new_inode->i_lock);
+	}
+
+	/* Now we can update d_fsdata on the dentries to reflect their
+	 * new parent's data_version.
+	 *
+	 * Note that if we ever implement RENAME_EXCHANGE, we'll have
+	 * to update both dentries with opposing dir versions.
+	 */
+	afs_update_dentry_version(op, new_dvp, op->dentry);
+	afs_update_dentry_version(op, new_dvp, op->dentry_2);
+
+	d_move(old_dentry, new_dentry);
+
+	up_write(&new_dvnode->validate_lock);
+}
+
+static void afs_rename_put(struct afs_operation *op)
+{
+	_enter("op=%08x", op->debug_id);
+	if (op->rename.rehash)
+		d_rehash(op->rename.rehash);
+	dput(op->rename.tmp);
+	if (op->error)
+		d_rehash(op->dentry);
+}
+
+static const struct afs_operation_ops afs_rename_operation = {
+	.issue_afs_rpc	= afs_fs_rename,
+	.issue_yfs_rpc	= yfs_fs_rename,
+	.success	= afs_rename_success,
+	.edit_dir	= afs_rename_edit_dir,
+	.put		= afs_rename_put,
+};
+
+/*
+ * rename a file in an AFS filesystem and/or move it between directories
+ */
+static int afs_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+		      struct dentry *old_dentry, struct inode *new_dir,
+		      struct dentry *new_dentry, unsigned int flags)
+{
+	struct afs_operation *op;
+	struct afs_vnode *orig_dvnode, *new_dvnode, *vnode;
+>>>>>>> upstream/android-13
 	int ret;
 
 	if (flags)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	vnode = AFS_FS_I(d_inode(old_dentry));
 	orig_dvnode = AFS_FS_I(old_dir);
 	new_dvnode = AFS_FS_I(new_dir);
@@ -1542,11 +2888,23 @@ static int afs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	new_data_version = new_dvnode->status.data_version;
 
 	_enter("{%x:%u},{%x:%u},{%x:%u},{%pd}",
+=======
+	/* Don't allow silly-rename files be moved around. */
+	if (old_dentry->d_flags & DCACHE_NFSFS_RENAMED)
+		return -EINVAL;
+
+	vnode = AFS_FS_I(d_inode(old_dentry));
+	orig_dvnode = AFS_FS_I(old_dir);
+	new_dvnode = AFS_FS_I(new_dir);
+
+	_enter("{%llx:%llu},{%llx:%llu},{%llx:%llu},{%pd}",
+>>>>>>> upstream/android-13
 	       orig_dvnode->fid.vid, orig_dvnode->fid.vnode,
 	       vnode->fid.vid, vnode->fid.vnode,
 	       new_dvnode->fid.vid, new_dvnode->fid.vnode,
 	       new_dentry);
 
+<<<<<<< HEAD
 	key = afs_request_key(orig_dvnode->volume->cell);
 	if (IS_ERR(key)) {
 		ret = PTR_ERR(key);
@@ -1598,6 +2956,83 @@ error_key:
 error:
 	_leave(" = %d", ret);
 	return ret;
+=======
+	op = afs_alloc_operation(NULL, orig_dvnode->volume);
+	if (IS_ERR(op))
+		return PTR_ERR(op);
+
+	ret = afs_validate(vnode, op->key);
+	op->error = ret;
+	if (ret < 0)
+		goto error;
+
+	afs_op_set_vnode(op, 0, orig_dvnode);
+	afs_op_set_vnode(op, 1, new_dvnode); /* May be same as orig_dvnode */
+	op->file[0].dv_delta = 1;
+	op->file[1].dv_delta = 1;
+	op->file[0].modification = true;
+	op->file[1].modification = true;
+	op->file[0].update_ctime = true;
+	op->file[1].update_ctime = true;
+
+	op->dentry		= old_dentry;
+	op->dentry_2		= new_dentry;
+	op->rename.new_negative	= d_is_negative(new_dentry);
+	op->ops			= &afs_rename_operation;
+
+	/* For non-directories, check whether the target is busy and if so,
+	 * make a copy of the dentry and then do a silly-rename.  If the
+	 * silly-rename succeeds, the copied dentry is hashed and becomes the
+	 * new target.
+	 */
+	if (d_is_positive(new_dentry) && !d_is_dir(new_dentry)) {
+		/* To prevent any new references to the target during the
+		 * rename, we unhash the dentry in advance.
+		 */
+		if (!d_unhashed(new_dentry)) {
+			d_drop(new_dentry);
+			op->rename.rehash = new_dentry;
+		}
+
+		if (d_count(new_dentry) > 2) {
+			/* copy the target dentry's name */
+			op->rename.tmp = d_alloc(new_dentry->d_parent,
+						 &new_dentry->d_name);
+			if (!op->rename.tmp) {
+				op->error = -ENOMEM;
+				goto error;
+			}
+
+			ret = afs_sillyrename(new_dvnode,
+					      AFS_FS_I(d_inode(new_dentry)),
+					      new_dentry, op->key);
+			if (ret) {
+				op->error = ret;
+				goto error;
+			}
+
+			op->dentry_2 = op->rename.tmp;
+			op->rename.rehash = NULL;
+			op->rename.new_negative = true;
+		}
+	}
+
+	/* This bit is potentially nasty as there's a potential race with
+	 * afs_d_revalidate{,_rcu}().  We have to change d_fsdata on the dentry
+	 * to reflect it's new parent's new data_version after the op, but
+	 * d_revalidate may see old_dentry between the op having taken place
+	 * and the version being updated.
+	 *
+	 * So drop the old_dentry for now to make other threads go through
+	 * lookup instead - which we hold a lock against.
+	 */
+	d_drop(old_dentry);
+
+	return afs_do_sync_operation(op);
+
+error:
+	return afs_put_operation(op);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1608,10 +3043,16 @@ static int afs_dir_releasepage(struct page *page, gfp_t gfp_flags)
 {
 	struct afs_vnode *dvnode = AFS_FS_I(page->mapping->host);
 
+<<<<<<< HEAD
 	_enter("{{%x:%u}[%lu]}", dvnode->fid.vid, dvnode->fid.vnode, page->index);
 
 	set_page_private(page, 0);
 	ClearPagePrivate(page);
+=======
+	_enter("{{%llx:%llu}[%lu]}", dvnode->fid.vid, dvnode->fid.vnode, page->index);
+
+	detach_page_private(page);
+>>>>>>> upstream/android-13
 
 	/* The directory will need reloading. */
 	if (test_and_clear_bit(AFS_VNODE_DIR_VALID, &dvnode->flags))
@@ -1638,8 +3079,13 @@ static void afs_dir_invalidatepage(struct page *page, unsigned int offset,
 		afs_stat_v(dvnode, n_inval);
 
 	/* we clean up only if the entire page is being invalidated */
+<<<<<<< HEAD
 	if (offset == 0 && length == PAGE_SIZE) {
 		set_page_private(page, 0);
 		ClearPagePrivate(page);
 	}
+=======
+	if (offset == 0 && length == thp_size(page))
+		detach_page_private(page);
+>>>>>>> upstream/android-13
 }

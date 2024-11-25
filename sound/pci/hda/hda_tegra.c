@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *
  * Implementation of primary ALSA driver code base for NVIDIA Tegra HDA.
@@ -14,6 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *
+ * Implementation of primary ALSA driver code base for NVIDIA Tegra HDA.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -29,13 +36,25 @@
 #include <linux/moduleparam.h>
 #include <linux/mutex.h>
 #include <linux/of_device.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/time.h>
+=======
+#include <linux/reset.h>
+#include <linux/slab.h>
+#include <linux/time.h>
+#include <linux/string.h>
+#include <linux/pm_runtime.h>
+>>>>>>> upstream/android-13
 
 #include <sound/core.h>
 #include <sound/initval.h>
 
+<<<<<<< HEAD
 #include "hda_codec.h"
+=======
+#include <sound/hda_codec.h>
+>>>>>>> upstream/android-13
 #include "hda_controller.h"
 
 /* Defines for Nvidia Tegra HDA support */
@@ -62,10 +81,19 @@
 #define HDA_IPFS_INTR_MASK        0x188
 #define HDA_IPFS_EN_INTR          (1 << 16)
 
+<<<<<<< HEAD
+=======
+/* FPCI */
+#define FPCI_DBG_CFG_2		  0x10F4
+#define FPCI_GCAP_NSDO_SHIFT	  18
+#define FPCI_GCAP_NSDO_MASK	  (0x3 << FPCI_GCAP_NSDO_SHIFT)
+
+>>>>>>> upstream/android-13
 /* max number of SDs */
 #define NUM_CAPTURE_SD 1
 #define NUM_PLAYBACK_SD 1
 
+<<<<<<< HEAD
 struct hda_tegra {
 	struct azx chip;
 	struct device *dev;
@@ -74,6 +102,28 @@ struct hda_tegra {
 	struct clk *hda2hdmi_clk;
 	void __iomem *regs;
 	struct work_struct probe_work;
+=======
+/*
+ * Tegra194 does not reflect correct number of SDO lines. Below macro
+ * is used to update the GCAP register to workaround the issue.
+ */
+#define TEGRA194_NUM_SDO_LINES	  4
+
+struct hda_tegra_soc {
+	bool has_hda2codec_2x_reset;
+};
+
+struct hda_tegra {
+	struct azx chip;
+	struct device *dev;
+	struct reset_control_bulk_data resets[3];
+	struct clk_bulk_data clocks[3];
+	unsigned int nresets;
+	unsigned int nclocks;
+	void __iomem *regs;
+	struct work_struct probe_work;
+	const struct hda_tegra_soc *soc;
+>>>>>>> upstream/android-13
 };
 
 #ifdef CONFIG_PM
@@ -85,6 +135,7 @@ MODULE_PARM_DESC(power_save,
 #define power_save	0
 #endif
 
+<<<<<<< HEAD
 /*
  * DMA page allocation ops.
  */
@@ -184,6 +235,9 @@ static const struct hda_controller_ops hda_tegra_ops = {
 	.substream_alloc_pages = substream_alloc_pages,
 	.substream_free_pages = substream_free_pages,
 };
+=======
+static const struct hda_controller_ops hda_tegra_ops; /* nothing special */
+>>>>>>> upstream/android-13
 
 static void hda_tegra_init(struct hda_tegra *hda)
 {
@@ -210,6 +264,7 @@ static void hda_tegra_init(struct hda_tegra *hda)
 	writel(v, hda->regs + HDA_IPFS_INTR_MASK);
 }
 
+<<<<<<< HEAD
 static int hda_tegra_enable_clocks(struct hda_tegra *data)
 {
 	int rc;
@@ -273,14 +328,101 @@ static int hda_tegra_resume(struct device *dev)
 
 	azx_init_chip(chip, 1);
 
+=======
+/*
+ * power management
+ */
+static int __maybe_unused hda_tegra_suspend(struct device *dev)
+{
+	struct snd_card *card = dev_get_drvdata(dev);
+	int rc;
+
+	rc = pm_runtime_force_suspend(dev);
+	if (rc < 0)
+		return rc;
+	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+
+	return 0;
+}
+
+static int __maybe_unused hda_tegra_resume(struct device *dev)
+{
+	struct snd_card *card = dev_get_drvdata(dev);
+	int rc;
+
+	rc = pm_runtime_force_resume(dev);
+	if (rc < 0)
+		return rc;
+>>>>>>> upstream/android-13
 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
 
 	return 0;
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM_SLEEP */
 
 static const struct dev_pm_ops hda_tegra_pm = {
 	SET_SYSTEM_SLEEP_PM_OPS(hda_tegra_suspend, hda_tegra_resume)
+=======
+
+static int __maybe_unused hda_tegra_runtime_suspend(struct device *dev)
+{
+	struct snd_card *card = dev_get_drvdata(dev);
+	struct azx *chip = card->private_data;
+	struct hda_tegra *hda = container_of(chip, struct hda_tegra, chip);
+
+	if (chip && chip->running) {
+		/* enable controller wake up event */
+		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) |
+			   STATESTS_INT_MASK);
+
+		azx_stop_chip(chip);
+		azx_enter_link_reset(chip);
+	}
+	clk_bulk_disable_unprepare(hda->nclocks, hda->clocks);
+
+	return 0;
+}
+
+static int __maybe_unused hda_tegra_runtime_resume(struct device *dev)
+{
+	struct snd_card *card = dev_get_drvdata(dev);
+	struct azx *chip = card->private_data;
+	struct hda_tegra *hda = container_of(chip, struct hda_tegra, chip);
+	int rc;
+
+	if (!chip->running) {
+		rc = reset_control_bulk_assert(hda->nresets, hda->resets);
+		if (rc)
+			return rc;
+	}
+
+	rc = clk_bulk_prepare_enable(hda->nclocks, hda->clocks);
+	if (rc != 0)
+		return rc;
+	if (chip->running) {
+		hda_tegra_init(hda);
+		azx_init_chip(chip, 1);
+		/* disable controller wake up event*/
+		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) &
+			   ~STATESTS_INT_MASK);
+	} else {
+		usleep_range(10, 100);
+
+		rc = reset_control_bulk_deassert(hda->nresets, hda->resets);
+		if (rc)
+			return rc;
+	}
+
+	return 0;
+}
+
+static const struct dev_pm_ops hda_tegra_pm = {
+	SET_SYSTEM_SLEEP_PM_OPS(hda_tegra_suspend, hda_tegra_resume)
+	SET_RUNTIME_PM_OPS(hda_tegra_runtime_suspend,
+			   hda_tegra_runtime_resume,
+			   NULL)
+>>>>>>> upstream/android-13
 };
 
 static int hda_tegra_dev_disconnect(struct snd_device *device)
@@ -316,6 +458,7 @@ static int hda_tegra_init_chip(struct azx *chip, struct platform_device *pdev)
 {
 	struct hda_tegra *hda = container_of(chip, struct hda_tegra, chip);
 	struct hdac_bus *bus = azx_bus(chip);
+<<<<<<< HEAD
 	struct device *dev = hda->dev;
 	struct resource *res;
 	int err;
@@ -338,18 +481,26 @@ static int hda_tegra_init_chip(struct azx *chip, struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	hda->regs = devm_ioremap_resource(dev, res);
+=======
+	struct resource *res;
+
+	hda->regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>>>>>>> upstream/android-13
 	if (IS_ERR(hda->regs))
 		return PTR_ERR(hda->regs);
 
 	bus->remap_addr = hda->regs + HDA_BAR0;
 	bus->addr = res->start + HDA_BAR0;
 
+<<<<<<< HEAD
 	err = hda_tegra_enable_clocks(hda);
 	if (err) {
 		dev_err(dev, "failed to get enable clocks\n");
 		return err;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	hda_tegra_init(hda);
 
 	return 0;
@@ -357,11 +508,23 @@ static int hda_tegra_init_chip(struct azx *chip, struct platform_device *pdev)
 
 static int hda_tegra_first_init(struct azx *chip, struct platform_device *pdev)
 {
+<<<<<<< HEAD
+=======
+	struct hda_tegra *hda = container_of(chip, struct hda_tegra, chip);
+>>>>>>> upstream/android-13
 	struct hdac_bus *bus = azx_bus(chip);
 	struct snd_card *card = chip->card;
 	int err;
 	unsigned short gcap;
 	int irq_id = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
+=======
+	const char *sname, *drv_name = "tegra-hda";
+	struct device_node *np = pdev->dev.of_node;
+
+	if (irq_id < 0)
+		return irq_id;
+>>>>>>> upstream/android-13
 
 	err = hda_tegra_init_chip(chip, pdev);
 	if (err)
@@ -376,12 +539,42 @@ static int hda_tegra_first_init(struct azx *chip, struct platform_device *pdev)
 		return err;
 	}
 	bus->irq = irq_id;
+<<<<<<< HEAD
 
 	synchronize_irq(bus->irq);
+=======
+	bus->dma_stop_delay = 100;
+	card->sync_irq = bus->irq;
+
+	/*
+	 * Tegra194 has 4 SDO lines and the STRIPE can be used to
+	 * indicate how many of the SDO lines the stream should be
+	 * striped. But GCAP register does not reflect the true
+	 * capability of HW. Below workaround helps to fix this.
+	 *
+	 * GCAP_NSDO is bits 19:18 in T_AZA_DBG_CFG_2,
+	 * 0 for 1 SDO, 1 for 2 SDO, 2 for 4 SDO lines.
+	 */
+	if (of_device_is_compatible(np, "nvidia,tegra194-hda")) {
+		u32 val;
+
+		dev_info(card->dev, "Override SDO lines to %u\n",
+			 TEGRA194_NUM_SDO_LINES);
+
+		val = readl(hda->regs + FPCI_DBG_CFG_2) & ~FPCI_GCAP_NSDO_MASK;
+		val |= (TEGRA194_NUM_SDO_LINES >> 1) << FPCI_GCAP_NSDO_SHIFT;
+		writel(val, hda->regs + FPCI_DBG_CFG_2);
+	}
+>>>>>>> upstream/android-13
 
 	gcap = azx_readw(chip, GCAP);
 	dev_dbg(card->dev, "chipset global capabilities = 0x%x\n", gcap);
 
+<<<<<<< HEAD
+=======
+	chip->align_buffer_size = 1;
+
+>>>>>>> upstream/android-13
 	/* read number of streams from GCAP register instead of using
 	 * hardcoded value
 	 */
@@ -413,14 +606,48 @@ static int hda_tegra_first_init(struct azx *chip, struct platform_device *pdev)
 	/* initialize chip */
 	azx_init_chip(chip, 1);
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Playback (for 44.1K/48K, 2-channel, 16-bps) fails with
+	 * 4 SDO lines due to legacy design limitation. Following
+	 * is, from HD Audio Specification (Revision 1.0a), used to
+	 * control striping of the stream across multiple SDO lines
+	 * for sample rates <= 48K.
+	 *
+	 * { ((num_channels * bits_per_sample) / number of SDOs) >= 8 }
+	 *
+	 * Due to legacy design issue it is recommended that above
+	 * ratio must be greater than 8. Since number of SDO lines is
+	 * in powers of 2, next available ratio is 16 which can be
+	 * used as a limiting factor here.
+	 */
+	if (of_device_is_compatible(np, "nvidia,tegra30-hda"))
+		chip->bus.core.sdo_limit = 16;
+
+>>>>>>> upstream/android-13
 	/* codec detection */
 	if (!bus->codec_mask) {
 		dev_err(card->dev, "no codecs found!\n");
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	strcpy(card->driver, "tegra-hda");
 	strcpy(card->shortname, "tegra-hda");
+=======
+	/* driver name */
+	strncpy(card->driver, drv_name, sizeof(card->driver));
+	/* shortname for card */
+	sname = of_get_property(np, "nvidia,model", NULL);
+	if (!sname)
+		sname = drv_name;
+	if (strlen(sname) > sizeof(card->shortname))
+		dev_info(card->dev, "truncating shortname for card\n");
+	strncpy(card->shortname, sname, sizeof(card->shortname));
+
+	/* longname for card */
+>>>>>>> upstream/android-13
 	snprintf(card->longname, sizeof(card->longname),
 		 "%s at 0x%lx irq %i",
 		 card->shortname, bus->addr, bus->irq);
@@ -438,7 +665,11 @@ static int hda_tegra_create(struct snd_card *card,
 			    unsigned int driver_caps,
 			    struct hda_tegra *hda)
 {
+<<<<<<< HEAD
 	static struct snd_device_ops ops = {
+=======
+	static const struct snd_device_ops ops = {
+>>>>>>> upstream/android-13
 		.dev_disconnect = hda_tegra_dev_disconnect,
 		.dev_free = hda_tegra_dev_free,
 	};
@@ -462,11 +693,21 @@ static int hda_tegra_create(struct snd_card *card,
 
 	INIT_WORK(&hda->probe_work, hda_tegra_probe_work);
 
+<<<<<<< HEAD
 	err = azx_bus_init(chip, NULL, &hda_tegra_io_ops);
 	if (err < 0)
 		return err;
 
 	chip->bus.needs_damn_long_delay = 1;
+=======
+	err = azx_bus_init(chip, NULL);
+	if (err < 0)
+		return err;
+
+	chip->bus.core.sync_write = 0;
+	chip->bus.core.needs_damn_long_delay = 1;
+	chip->bus.core.aligned_mmio = 1;
+>>>>>>> upstream/android-13
 
 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
 	if (err < 0) {
@@ -477,15 +718,34 @@ static int hda_tegra_create(struct snd_card *card,
 	return 0;
 }
 
+<<<<<<< HEAD
 static const struct of_device_id hda_tegra_match[] = {
 	{ .compatible = "nvidia,tegra30-hda" },
+=======
+static const struct hda_tegra_soc tegra30_data = {
+	.has_hda2codec_2x_reset = true,
+};
+
+static const struct hda_tegra_soc tegra194_data = {
+	.has_hda2codec_2x_reset = false,
+};
+
+static const struct of_device_id hda_tegra_match[] = {
+	{ .compatible = "nvidia,tegra30-hda", .data = &tegra30_data },
+	{ .compatible = "nvidia,tegra194-hda", .data = &tegra194_data },
+>>>>>>> upstream/android-13
 	{},
 };
 MODULE_DEVICE_TABLE(of, hda_tegra_match);
 
 static int hda_tegra_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	const unsigned int driver_flags = AZX_DCAPS_CORBRP_SELF_CLEAR;
+=======
+	const unsigned int driver_flags = AZX_DCAPS_CORBRP_SELF_CLEAR |
+					  AZX_DCAPS_PM_RUNTIME;
+>>>>>>> upstream/android-13
 	struct snd_card *card;
 	struct azx *chip;
 	struct hda_tegra *hda;
@@ -497,6 +757,11 @@ static int hda_tegra_probe(struct platform_device *pdev)
 	hda->dev = &pdev->dev;
 	chip = &hda->chip;
 
+<<<<<<< HEAD
+=======
+	hda->soc = of_device_get_match_data(&pdev->dev);
+
+>>>>>>> upstream/android-13
 	err = snd_card_new(&pdev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
 			   THIS_MODULE, 0, &card);
 	if (err < 0) {
@@ -504,12 +769,46 @@ static int hda_tegra_probe(struct platform_device *pdev)
 		return err;
 	}
 
+<<<<<<< HEAD
+=======
+	hda->resets[hda->nresets++].id = "hda";
+	hda->resets[hda->nresets++].id = "hda2hdmi";
+	/*
+	 * "hda2codec_2x" reset is not present on Tegra194. Though DT would
+	 * be updated to reflect this, but to have backward compatibility
+	 * below is necessary.
+	 */
+	if (hda->soc->has_hda2codec_2x_reset)
+		hda->resets[hda->nresets++].id = "hda2codec_2x";
+
+	err = devm_reset_control_bulk_get_exclusive(&pdev->dev, hda->nresets,
+						    hda->resets);
+	if (err)
+		goto out_free;
+
+	hda->clocks[hda->nclocks++].id = "hda";
+	hda->clocks[hda->nclocks++].id = "hda2hdmi";
+	hda->clocks[hda->nclocks++].id = "hda2codec_2x";
+
+	err = devm_clk_bulk_get(&pdev->dev, hda->nclocks, hda->clocks);
+	if (err < 0)
+		goto out_free;
+
+>>>>>>> upstream/android-13
 	err = hda_tegra_create(card, driver_flags, hda);
 	if (err < 0)
 		goto out_free;
 	card->private_data = chip;
 
 	dev_set_drvdata(&pdev->dev, card);
+<<<<<<< HEAD
+=======
+
+	pm_runtime_enable(hda->dev);
+	if (!azx_has_pm_runtime(chip))
+		pm_runtime_forbid(hda->dev);
+
+>>>>>>> upstream/android-13
 	schedule_work(&hda->probe_work);
 
 	return 0;
@@ -526,12 +825,20 @@ static void hda_tegra_probe_work(struct work_struct *work)
 	struct platform_device *pdev = to_platform_device(hda->dev);
 	int err;
 
+<<<<<<< HEAD
+=======
+	pm_runtime_get_sync(hda->dev);
+>>>>>>> upstream/android-13
 	err = hda_tegra_first_init(chip, pdev);
 	if (err < 0)
 		goto out_free;
 
 	/* create codec instances */
+<<<<<<< HEAD
 	err = azx_probe_codecs(chip, 0);
+=======
+	err = azx_probe_codecs(chip, 8);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		goto out_free;
 
@@ -547,12 +854,25 @@ static void hda_tegra_probe_work(struct work_struct *work)
 	snd_hda_set_power_save(&chip->bus, power_save * 1000);
 
  out_free:
+<<<<<<< HEAD
+=======
+	pm_runtime_put(hda->dev);
+>>>>>>> upstream/android-13
 	return; /* no error return from async probe */
 }
 
 static int hda_tegra_remove(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	return snd_card_free(dev_get_drvdata(&pdev->dev));
+=======
+	int ret;
+
+	ret = snd_card_free(dev_get_drvdata(&pdev->dev));
+	pm_runtime_disable(&pdev->dev);
+
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 static void hda_tegra_shutdown(struct platform_device *pdev)

@@ -74,6 +74,14 @@ int ext4_resize_begin(struct super_block *sb)
 		return -EPERM;
 	}
 
+<<<<<<< HEAD
+=======
+	if (ext4_has_feature_sparse_super2(sb)) {
+		ext4_msg(sb, KERN_ERR, "Online resizing not supported with sparse_super2");
+		return -EOPNOTSUPP;
+	}
+
+>>>>>>> upstream/android-13
 	if (test_and_set_bit_lock(EXT4_FLAGS_RESIZING,
 				  &EXT4_SB(sb)->s_ext4_flags))
 		ret = -EBUSY;
@@ -404,7 +412,12 @@ static struct buffer_head *bclean(handle_t *handle, struct super_block *sb,
 	if (unlikely(!bh))
 		return ERR_PTR(-ENOMEM);
 	BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 	if ((err = ext4_journal_get_write_access(handle, bh))) {
+=======
+	err = ext4_journal_get_write_access(handle, sb, bh, EXT4_JTR_NONE);
+	if (err) {
+>>>>>>> upstream/android-13
 		brelse(bh);
 		bh = ERR_PTR(err);
 	} else {
@@ -415,6 +428,7 @@ static struct buffer_head *bclean(handle_t *handle, struct super_block *sb,
 	return bh;
 }
 
+<<<<<<< HEAD
 /*
  * If we have fewer than thresh credits, extend by EXT4_MAX_TRANS_DATA.
  * If that fails, restart the transaction & regain write access for the
@@ -437,6 +451,12 @@ static int extend_or_restart_transaction(handle_t *handle, int thresh)
 	}
 
 	return 0;
+=======
+static int ext4_resize_ensure_credits_batch(handle_t *handle, int credits)
+{
+	return ext4_journal_ensure_credits_fn(handle, credits,
+		EXT4_MAX_TRANS_DATA, 0, 0);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -478,8 +498,13 @@ static int set_flexbg_block_bitmap(struct super_block *sb, handle_t *handle,
 			continue;
 		}
 
+<<<<<<< HEAD
 		err = extend_or_restart_transaction(handle, 1);
 		if (err)
+=======
+		err = ext4_resize_ensure_credits_batch(handle, 1);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			return err;
 
 		bh = sb_getblk(sb, flex_gd->groups[group].block_bitmap);
@@ -487,7 +512,12 @@ static int set_flexbg_block_bitmap(struct super_block *sb, handle_t *handle,
 			return -ENOMEM;
 
 		BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 		err = ext4_journal_get_write_access(handle, bh);
+=======
+		err = ext4_journal_get_write_access(handle, sb, bh,
+						    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 		if (err) {
 			brelse(bh);
 			return err;
@@ -571,8 +601,13 @@ static int setup_new_flex_group_blocks(struct super_block *sb,
 			struct buffer_head *gdb;
 
 			ext4_debug("update backup group %#04llx\n", block);
+<<<<<<< HEAD
 			err = extend_or_restart_transaction(handle, 1);
 			if (err)
+=======
+			err = ext4_resize_ensure_credits_batch(handle, 1);
+			if (err < 0)
+>>>>>>> upstream/android-13
 				goto out;
 
 			gdb = sb_getblk(sb, block);
@@ -582,7 +617,12 @@ static int setup_new_flex_group_blocks(struct super_block *sb,
 			}
 
 			BUFFER_TRACE(gdb, "get_write_access");
+<<<<<<< HEAD
 			err = ext4_journal_get_write_access(handle, gdb);
+=======
+			err = ext4_journal_get_write_access(handle, sb, gdb,
+							    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 			if (err) {
 				brelse(gdb);
 				goto out;
@@ -629,8 +669,13 @@ handle_bb:
 
 		/* Initialize block bitmap of the @group */
 		block = group_data[i].block_bitmap;
+<<<<<<< HEAD
 		err = extend_or_restart_transaction(handle, 1);
 		if (err)
+=======
+		err = ext4_resize_ensure_credits_batch(handle, 1);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto out;
 
 		bh = bclean(handle, sb, block);
@@ -658,8 +703,13 @@ handle_ib:
 
 		/* Initialize inode bitmap of the @group */
 		block = group_data[i].inode_bitmap;
+<<<<<<< HEAD
 		err = extend_or_restart_transaction(handle, 1);
 		if (err)
+=======
+		err = ext4_resize_ensure_credits_batch(handle, 1);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			goto out;
 		/* Mark unused entries in inode bitmap used */
 		bh = bclean(handle, sb, block);
@@ -850,17 +900,30 @@ static int add_new_gdb(handle_t *handle, struct inode *inode,
 	}
 
 	BUFFER_TRACE(EXT4_SB(sb)->s_sbh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, EXT4_SB(sb)->s_sbh);
+=======
+	err = ext4_journal_get_write_access(handle, sb, EXT4_SB(sb)->s_sbh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (unlikely(err))
 		goto errout;
 
 	BUFFER_TRACE(gdb_bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, gdb_bh);
+=======
+	err = ext4_journal_get_write_access(handle, sb, gdb_bh, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (unlikely(err))
 		goto errout;
 
 	BUFFER_TRACE(dind, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, dind);
+=======
+	err = ext4_journal_get_write_access(handle, sb, dind, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (unlikely(err)) {
 		ext4_std_error(sb, err);
 		goto errout;
@@ -871,9 +934,14 @@ static int add_new_gdb(handle_t *handle, struct inode *inode,
 	if (unlikely(err))
 		goto errout;
 
+<<<<<<< HEAD
 	n_group_desc = ext4_kvmalloc((gdb_num + 1) *
 				     sizeof(struct buffer_head *),
 				     GFP_NOFS);
+=======
+	n_group_desc = kvmalloc((gdb_num + 1) * sizeof(struct buffer_head *),
+				GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!n_group_desc) {
 		err = -ENOMEM;
 		ext4_warning(sb, "not enough memory for %lu groups",
@@ -918,8 +986,16 @@ static int add_new_gdb(handle_t *handle, struct inode *inode,
 	EXT4_SB(sb)->s_gdb_count++;
 	ext4_kvfree_array_rcu(o_group_desc);
 
+<<<<<<< HEAD
 	le16_add_cpu(&es->s_reserved_gdt_blocks, -1);
 	err = ext4_handle_dirty_super(handle, sb);
+=======
+	lock_buffer(EXT4_SB(sb)->s_sbh);
+	le16_add_cpu(&es->s_reserved_gdt_blocks, -1);
+	ext4_superblock_csum_set(sb);
+	unlock_buffer(EXT4_SB(sb)->s_sbh);
+	err = ext4_handle_dirty_metadata(handle, NULL, EXT4_SB(sb)->s_sbh);
+>>>>>>> upstream/android-13
 	if (err)
 		ext4_std_error(sb, err);
 	return err;
@@ -949,9 +1025,14 @@ static int add_new_gdb_meta_bg(struct super_block *sb,
 	gdb_bh = ext4_sb_bread(sb, gdblock, 0);
 	if (IS_ERR(gdb_bh))
 		return PTR_ERR(gdb_bh);
+<<<<<<< HEAD
 	n_group_desc = ext4_kvmalloc((gdb_num + 1) *
 				     sizeof(struct buffer_head *),
 				     GFP_NOFS);
+=======
+	n_group_desc = kvmalloc((gdb_num + 1) * sizeof(struct buffer_head *),
+				GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!n_group_desc) {
 		brelse(gdb_bh);
 		err = -ENOMEM;
@@ -968,7 +1049,11 @@ static int add_new_gdb_meta_bg(struct super_block *sb,
 	n_group_desc[gdb_num] = gdb_bh;
 
 	BUFFER_TRACE(gdb_bh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, gdb_bh);
+=======
+	err = ext4_journal_get_write_access(handle, sb, gdb_bh, EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err) {
 		kvfree(n_group_desc);
 		brelse(gdb_bh);
@@ -1054,7 +1139,12 @@ static int reserve_backup_gdb(handle_t *handle, struct inode *inode,
 
 	for (i = 0; i < reserved_gdb; i++) {
 		BUFFER_TRACE(primary[i], "get_write_access");
+<<<<<<< HEAD
 		if ((err = ext4_journal_get_write_access(handle, primary[i])))
+=======
+		if ((err = ext4_journal_get_write_access(handle, sb, primary[i],
+							 EXT4_JTR_NONE)))
+>>>>>>> upstream/android-13
 			goto exit_bh;
 	}
 
@@ -1142,10 +1232,15 @@ static void update_backups(struct super_block *sb, sector_t blk_off, char *data,
 		ext4_fsblk_t backup_block;
 
 		/* Out of journal space, and can't get more - abort - so sad */
+<<<<<<< HEAD
 		if (ext4_handle_valid(handle) &&
 		    handle->h_buffer_credits == 0 &&
 		    ext4_journal_extend(handle, EXT4_MAX_TRANS_DATA) &&
 		    (err = ext4_journal_restart(handle, EXT4_MAX_TRANS_DATA)))
+=======
+		err = ext4_resize_ensure_credits_batch(handle, 1);
+		if (err < 0)
+>>>>>>> upstream/android-13
 			break;
 
 		if (meta_bg == 0)
@@ -1163,10 +1258,16 @@ static void update_backups(struct super_block *sb, sector_t blk_off, char *data,
 			   backup_block, backup_block -
 			   ext4_group_first_block_no(sb, group));
 		BUFFER_TRACE(bh, "get_write_access");
+<<<<<<< HEAD
 		if ((err = ext4_journal_get_write_access(handle, bh))) {
 			brelse(bh);
 			break;
 		}
+=======
+		if ((err = ext4_journal_get_write_access(handle, sb, bh,
+							 EXT4_JTR_NONE)))
+			break;
+>>>>>>> upstream/android-13
 		lock_buffer(bh);
 		memcpy(bh->b_data, data, size);
 		if (rest)
@@ -1246,7 +1347,12 @@ static int ext4_add_new_descs(handle_t *handle, struct super_block *sb,
 			gdb_bh = sbi_array_rcu_deref(sbi, s_group_desc,
 						     gdb_num);
 			BUFFER_TRACE(gdb_bh, "get_write_access");
+<<<<<<< HEAD
 			err = ext4_journal_get_write_access(handle, gdb_bh);
+=======
+			err = ext4_journal_get_write_access(handle, sb, gdb_bh,
+							    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 
 			if (!err && reserved_gdb && ext4_bg_num_gdb(sb, group))
 				err = reserve_backup_gdb(handle, resize_inode, group);
@@ -1267,7 +1373,11 @@ static struct buffer_head *ext4_get_bitmap(struct super_block *sb, __u64 block)
 	if (unlikely(!bh))
 		return NULL;
 	if (!bh_uptodate_or_lock(bh)) {
+<<<<<<< HEAD
 		if (bh_submit_read(bh) < 0) {
+=======
+		if (ext4_read_bh(bh, 0, NULL) < 0) {
+>>>>>>> upstream/android-13
 			brelse(bh);
 			return NULL;
 		}
@@ -1406,6 +1516,10 @@ static void ext4_update_super(struct super_block *sb,
 	reserved_blocks *= blocks_count;
 	do_div(reserved_blocks, 100);
 
+<<<<<<< HEAD
+=======
+	lock_buffer(sbi->s_sbh);
+>>>>>>> upstream/android-13
 	ext4_blocks_count_set(es, ext4_blocks_count(es) + blocks_count);
 	ext4_free_blocks_count_set(es, ext4_free_blocks_count(es) + free_blocks);
 	le32_add_cpu(&es->s_inodes_count, EXT4_INODES_PER_GROUP(sb) *
@@ -1443,6 +1557,11 @@ static void ext4_update_super(struct super_block *sb,
 	 * active. */
 	ext4_r_blocks_count_set(es, ext4_r_blocks_count(es) +
 				reserved_blocks);
+<<<<<<< HEAD
+=======
+	ext4_superblock_csum_set(sb);
+	unlock_buffer(sbi->s_sbh);
+>>>>>>> upstream/android-13
 
 	/* Update the free space counts */
 	percpu_counter_add(&sbi->s_freeclusters_counter,
@@ -1520,7 +1639,12 @@ static int ext4_flex_group_add(struct super_block *sb,
 	}
 
 	BUFFER_TRACE(sbi->s_sbh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, sbi->s_sbh);
+=======
+	err = ext4_journal_get_write_access(handle, sb, sbi->s_sbh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err)
 		goto exit_journal;
 
@@ -1537,7 +1661,11 @@ static int ext4_flex_group_add(struct super_block *sb,
 
 	ext4_update_super(sb, flex_gd);
 
+<<<<<<< HEAD
 	err = ext4_handle_dirty_super(handle, sb);
+=======
+	err = ext4_handle_dirty_metadata(handle, NULL, sbi->s_sbh);
+>>>>>>> upstream/android-13
 
 exit_journal:
 	err2 = ext4_journal_stop(handle);
@@ -1733,21 +1861,38 @@ static int ext4_group_extend_no_check(struct super_block *sb,
 	}
 
 	BUFFER_TRACE(EXT4_SB(sb)->s_sbh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, EXT4_SB(sb)->s_sbh);
+=======
+	err = ext4_journal_get_write_access(handle, sb, EXT4_SB(sb)->s_sbh,
+					    EXT4_JTR_NONE);
+>>>>>>> upstream/android-13
 	if (err) {
 		ext4_warning(sb, "error %d on journal write access", err);
 		goto errout;
 	}
 
+<<<<<<< HEAD
 	ext4_blocks_count_set(es, o_blocks_count + add);
 	ext4_free_blocks_count_set(es, ext4_free_blocks_count(es) + add);
+=======
+	lock_buffer(EXT4_SB(sb)->s_sbh);
+	ext4_blocks_count_set(es, o_blocks_count + add);
+	ext4_free_blocks_count_set(es, ext4_free_blocks_count(es) + add);
+	ext4_superblock_csum_set(sb);
+	unlock_buffer(EXT4_SB(sb)->s_sbh);
+>>>>>>> upstream/android-13
 	ext4_debug("freeing blocks %llu through %llu\n", o_blocks_count,
 		   o_blocks_count + add);
 	/* We add the blocks to the bitmap and set the group need init bit */
 	err = ext4_group_add_blocks(handle, sb, o_blocks_count, add);
 	if (err)
 		goto errout;
+<<<<<<< HEAD
 	ext4_handle_dirty_super(handle, sb);
+=======
+	ext4_handle_dirty_metadata(handle, NULL, EXT4_SB(sb)->s_sbh);
+>>>>>>> upstream/android-13
 	ext4_debug("freed blocks %llu through %llu\n", o_blocks_count,
 		   o_blocks_count + add);
 errout:
@@ -1799,8 +1944,11 @@ int ext4_group_extend(struct super_block *sb, struct ext4_super_block *es,
 		ext4_msg(sb, KERN_ERR,
 			 "filesystem too large to resize to %llu blocks safely",
 			 n_blocks_count);
+<<<<<<< HEAD
 		if (sizeof(sector_t) < 8)
 			ext4_warning(sb, "CONFIG_LBDAF not enabled");
+=======
+>>>>>>> upstream/android-13
 		return -EINVAL;
 	}
 
@@ -1832,8 +1980,13 @@ int ext4_group_extend(struct super_block *sb, struct ext4_super_block *es,
 			     o_blocks_count + add, add);
 
 	/* See if the device is actually as big as what was requested */
+<<<<<<< HEAD
 	bh = sb_bread(sb, o_blocks_count + add - 1);
 	if (!bh) {
+=======
+	bh = ext4_sb_bread(sb, o_blocks_count + add - 1, 0);
+	if (IS_ERR(bh)) {
+>>>>>>> upstream/android-13
 		ext4_warning(sb, "can't read last block, resize aborted");
 		return -ENOSPC;
 	}
@@ -1894,16 +2047,32 @@ static int ext4_convert_meta_bg(struct super_block *sb, struct inode *inode)
 		return PTR_ERR(handle);
 
 	BUFFER_TRACE(sbi->s_sbh, "get_write_access");
+<<<<<<< HEAD
 	err = ext4_journal_get_write_access(handle, sbi->s_sbh);
 	if (err)
 		goto errout;
 
+=======
+	err = ext4_journal_get_write_access(handle, sb, sbi->s_sbh,
+					    EXT4_JTR_NONE);
+	if (err)
+		goto errout;
+
+	lock_buffer(sbi->s_sbh);
+>>>>>>> upstream/android-13
 	ext4_clear_feature_resize_inode(sb);
 	ext4_set_feature_meta_bg(sb);
 	sbi->s_es->s_first_meta_bg =
 		cpu_to_le32(num_desc_blocks(sb, sbi->s_groups_count));
+<<<<<<< HEAD
 
 	err = ext4_handle_dirty_super(handle, sb);
+=======
+	ext4_superblock_csum_set(sb);
+	unlock_buffer(sbi->s_sbh);
+
+	err = ext4_handle_dirty_metadata(handle, NULL, sbi->s_sbh);
+>>>>>>> upstream/android-13
 	if (err) {
 		ext4_std_error(sb, err);
 		goto errout;
@@ -1958,8 +2127,13 @@ int ext4_resize_fs(struct super_block *sb, ext4_fsblk_t n_blocks_count)
 	int meta_bg;
 
 	/* See if the device is actually as big as what was requested */
+<<<<<<< HEAD
 	bh = sb_bread(sb, n_blocks_count - 1);
 	if (!bh) {
+=======
+	bh = ext4_sb_bread(sb, n_blocks_count - 1, 0);
+	if (IS_ERR(bh)) {
+>>>>>>> upstream/android-13
 		ext4_warning(sb, "can't read last block, resize aborted");
 		return -ENOSPC;
 	}

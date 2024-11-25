@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2010 Patrick McHardy <kaber@trash.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2010 Patrick McHardy <kaber@trash.net>
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
@@ -27,7 +33,11 @@ static inline int xt_ct_target(struct sk_buff *skb, struct nf_conn *ct)
 		return XT_CONTINUE;
 
 	if (ct) {
+<<<<<<< HEAD
 		atomic_inc(&ct->ct_general.use);
+=======
+		refcount_inc(&ct->ct_general.use);
+>>>>>>> upstream/android-13
 		nf_ct_set(skb, ct, IP_CT_NEW);
 	} else {
 		nf_ct_set(skb, ct, IP_CT_UNTRACKED);
@@ -103,6 +113,7 @@ xt_ct_set_helper(struct nf_conn *ct, const char *helper_name,
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_NF_CONNTRACK_TIMEOUT
 static void __xt_ct_tg_timeout_put(struct nf_ct_timeout *timeout)
 {
@@ -114,11 +125,14 @@ static void __xt_ct_tg_timeout_put(struct nf_ct_timeout *timeout)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int
 xt_ct_set_timeout(struct nf_conn *ct, const struct xt_tgchk_param *par,
 		  const char *timeout_name)
 {
 #ifdef CONFIG_NF_CONNTRACK_TIMEOUT
+<<<<<<< HEAD
 	typeof(nf_ct_timeout_find_get_hook) timeout_find_get;
 	const struct nf_conntrack_l4proto *l4proto;
 	struct nf_ct_timeout *timeout;
@@ -182,6 +196,21 @@ out:
 	if (errmsg)
 		pr_info_ratelimited("%s\n", errmsg);
 	return ret;
+=======
+	const struct nf_conntrack_l4proto *l4proto;
+	u8 proto;
+
+	proto = xt_ct_find_proto(par);
+	if (!proto) {
+		pr_info_ratelimited("You must specify a L4 protocol and not "
+				    "use inversions on it");
+		return -EINVAL;
+	}
+	l4proto = nf_ct_l4proto_find(proto);
+	return nf_ct_set_timeout(par->net, ct, par->family, l4proto->l4proto,
+				 timeout_name);
+
+>>>>>>> upstream/android-13
 #else
 	return -EOPNOTSUPP;
 #endif
@@ -236,7 +265,10 @@ static int xt_ct_tg_check(const struct xt_tgchk_param *par,
 		goto err2;
 	}
 
+<<<<<<< HEAD
 	ret = 0;
+=======
+>>>>>>> upstream/android-13
 	if ((info->ct_events || info->exp_events) &&
 	    !nf_ct_ecache_ext_add(ct, info->ct_events, info->exp_events,
 				  GFP_KERNEL)) {
@@ -266,7 +298,10 @@ static int xt_ct_tg_check(const struct xt_tgchk_param *par,
 			goto err4;
 	}
 	__set_bit(IPS_CONFIRMED_BIT, &ct->status);
+<<<<<<< HEAD
 	nf_conntrack_get(&ct->ct_general);
+=======
+>>>>>>> upstream/android-13
 out:
 	info->ct = ct;
 	return 0;
@@ -328,6 +363,7 @@ static int xt_ct_tg_check_v2(const struct xt_tgchk_param *par)
 	return xt_ct_tg_check(par, par->targinfo);
 }
 
+<<<<<<< HEAD
 static void xt_ct_destroy_timeout(struct nf_conn *ct)
 {
 #ifdef CONFIG_NF_CONNTRACK_TIMEOUT
@@ -348,6 +384,8 @@ static void xt_ct_destroy_timeout(struct nf_conn *ct)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 static void xt_ct_tg_destroy(const struct xt_tgdtor_param *par,
 			     struct xt_ct_target_info_v1 *info)
 {
@@ -361,7 +399,11 @@ static void xt_ct_tg_destroy(const struct xt_tgdtor_param *par,
 
 		nf_ct_netns_put(par->net, par->family);
 
+<<<<<<< HEAD
 		xt_ct_destroy_timeout(ct);
+=======
+		nf_ct_destroy_timeout(ct);
+>>>>>>> upstream/android-13
 		nf_ct_put(info->ct);
 	}
 }
@@ -436,6 +478,7 @@ notrack_tg(struct sk_buff *skb, const struct xt_action_param *par)
 	return XT_CONTINUE;
 }
 
+<<<<<<< HEAD
 static int notrack_chk(const struct xt_tgchk_param *par)
 {
 	if (!par->net->xt.notrack_deprecated_warning) {
@@ -446,11 +489,16 @@ static int notrack_chk(const struct xt_tgchk_param *par)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static struct xt_target notrack_tg_reg __read_mostly = {
 	.name		= "NOTRACK",
 	.revision	= 0,
 	.family		= NFPROTO_UNSPEC,
+<<<<<<< HEAD
 	.checkentry	= notrack_chk,
+=======
+>>>>>>> upstream/android-13
 	.target		= notrack_tg,
 	.table		= "raw",
 	.me		= THIS_MODULE,

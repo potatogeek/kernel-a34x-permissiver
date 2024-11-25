@@ -47,13 +47,17 @@
 #include "usnic_uiom.h"
 #include "usnic_uiom_interval_tree.h"
 
+<<<<<<< HEAD
 static struct workqueue_struct *usnic_uiom_wq;
 
+=======
+>>>>>>> upstream/android-13
 #define USNIC_UIOM_PAGE_CHUNK						\
 	((PAGE_SIZE - offsetof(struct usnic_uiom_chunk, page_list))	/\
 	((void *) &((struct usnic_uiom_chunk *) 0)->page_list[1] -	\
 	(void *) &((struct usnic_uiom_chunk *) 0)->page_list[0]))
 
+<<<<<<< HEAD
 static void usnic_uiom_reg_account(struct work_struct *work)
 {
 	struct usnic_uiom_reg *umem = container_of(work,
@@ -66,6 +70,8 @@ static void usnic_uiom_reg_account(struct work_struct *work)
 	kfree(umem);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int usnic_uiom_dma_fault(struct iommu_domain *domain,
 				struct device *dev,
 				unsigned long iova, int flags,
@@ -89,9 +95,13 @@ static void usnic_uiom_put_pages(struct list_head *chunk_list, int dirty)
 		for_each_sg(chunk->page_list, sg, chunk->nents, i) {
 			page = sg_page(sg);
 			pa = sg_phys(sg);
+<<<<<<< HEAD
 			if (!PageDirty(page) && dirty)
 				set_page_dirty_lock(page);
 			put_page(page);
+=======
+			unpin_user_pages_dirty_lock(&page, 1, dirty);
+>>>>>>> upstream/android-13
 			usnic_dbg("pa: %pa\n", &pa);
 		}
 		kfree(chunk);
@@ -99,8 +109,14 @@ static void usnic_uiom_put_pages(struct list_head *chunk_list, int dirty)
 }
 
 static int usnic_uiom_get_pages(unsigned long addr, size_t size, int writable,
+<<<<<<< HEAD
 				int dmasync, struct list_head *chunk_list)
 {
+=======
+				int dmasync, struct usnic_uiom_reg *uiomr)
+{
+	struct list_head *chunk_list = &uiomr->chunk_list;
+>>>>>>> upstream/android-13
 	struct page **page_list;
 	struct scatterlist *sg;
 	struct usnic_uiom_chunk *chunk;
@@ -114,6 +130,10 @@ static int usnic_uiom_get_pages(unsigned long addr, size_t size, int writable,
 	int flags;
 	dma_addr_t pa;
 	unsigned int gup_flags;
+<<<<<<< HEAD
+=======
+	struct mm_struct *mm;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the combination of the addr and size requested for this memory
@@ -136,9 +156,16 @@ static int usnic_uiom_get_pages(unsigned long addr, size_t size, int writable,
 
 	npages = PAGE_ALIGN(size + (addr & ~PAGE_MASK)) >> PAGE_SHIFT;
 
+<<<<<<< HEAD
 	down_write(&current->mm->mmap_sem);
 
 	locked = npages + current->mm->pinned_vm;
+=======
+	uiomr->owning_mm = mm = current->mm;
+	mmap_read_lock(mm);
+
+	locked = atomic64_add_return(npages, &current->mm->pinned_vm);
+>>>>>>> upstream/android-13
 	lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
 
 	if ((locked > lock_limit) && !capable(CAP_IPC_LOCK)) {
@@ -154,7 +181,11 @@ static int usnic_uiom_get_pages(unsigned long addr, size_t size, int writable,
 	ret = 0;
 
 	while (npages) {
+<<<<<<< HEAD
 		ret = get_user_pages(cur_base,
+=======
+		ret = pin_user_pages(cur_base,
+>>>>>>> upstream/android-13
 				     min_t(unsigned long, npages,
 				     PAGE_SIZE / sizeof(struct page *)),
 				     gup_flags | FOLL_LONGTERM,
@@ -167,9 +198,14 @@ static int usnic_uiom_get_pages(unsigned long addr, size_t size, int writable,
 		off = 0;
 
 		while (ret) {
+<<<<<<< HEAD
 			chunk = kmalloc(sizeof(*chunk) +
 					sizeof(struct scatterlist) *
 					min_t(int, ret, USNIC_UIOM_PAGE_CHUNK),
+=======
+			chunk = kmalloc(struct_size(chunk, page_list,
+					min_t(int, ret, USNIC_UIOM_PAGE_CHUNK)),
+>>>>>>> upstream/android-13
 					GFP_KERNEL);
 			if (!chunk) {
 				ret = -ENOMEM;
@@ -195,12 +231,22 @@ static int usnic_uiom_get_pages(unsigned long addr, size_t size, int writable,
 	}
 
 out:
+<<<<<<< HEAD
 	if (ret < 0)
 		usnic_uiom_put_pages(chunk_list, 0);
 	else
 		current->mm->pinned_vm = locked;
 
 	up_write(&current->mm->mmap_sem);
+=======
+	if (ret < 0) {
+		usnic_uiom_put_pages(chunk_list, 0);
+		atomic64_sub(npages, &current->mm->pinned_vm);
+	} else
+		mmgrab(uiomr->owning_mm);
+
+	mmap_read_unlock(mm);
+>>>>>>> upstream/android-13
 	free_page((unsigned long) page_list);
 	return ret;
 }
@@ -380,7 +426,11 @@ struct usnic_uiom_reg *usnic_uiom_reg_get(struct usnic_uiom_pd *pd,
 	uiomr->pd = pd;
 
 	err = usnic_uiom_get_pages(addr, size, writable, dmasync,
+<<<<<<< HEAD
 					&uiomr->chunk_list);
+=======
+				   uiomr);
+>>>>>>> upstream/android-13
 	if (err) {
 		usnic_err("Failed get_pages vpn [0x%lx,0x%lx] err %d\n",
 				vpn_start, vpn_last, err);
@@ -427,11 +477,16 @@ out_put_intervals:
 out_put_pages:
 	usnic_uiom_put_pages(&uiomr->chunk_list, 0);
 	spin_unlock(&pd->lock);
+<<<<<<< HEAD
+=======
+	mmdrop(uiomr->owning_mm);
+>>>>>>> upstream/android-13
 out_free_uiomr:
 	kfree(uiomr);
 	return ERR_PTR(err);
 }
 
+<<<<<<< HEAD
 void usnic_uiom_reg_release(struct usnic_uiom_reg *uiomr,
 			    struct ib_ucontext *ucontext)
 {
@@ -476,6 +531,25 @@ void usnic_uiom_reg_release(struct usnic_uiom_reg *uiomr,
 	mmput(mm);
 out:
 	kfree(uiomr);
+=======
+static void __usnic_uiom_release_tail(struct usnic_uiom_reg *uiomr)
+{
+	mmdrop(uiomr->owning_mm);
+	kfree(uiomr);
+}
+
+static inline size_t usnic_uiom_num_pages(struct usnic_uiom_reg *uiomr)
+{
+	return PAGE_ALIGN(uiomr->length + uiomr->offset) >> PAGE_SHIFT;
+}
+
+void usnic_uiom_reg_release(struct usnic_uiom_reg *uiomr)
+{
+	__usnic_uiom_reg_release(uiomr->pd, uiomr, 1);
+
+	atomic64_sub(usnic_uiom_num_pages(uiomr), &uiomr->owning_mm->pinned_vm);
+	__usnic_uiom_release_tail(uiomr);
+>>>>>>> upstream/android-13
 }
 
 struct usnic_uiom_pd *usnic_uiom_alloc_pd(void)
@@ -603,6 +677,7 @@ int usnic_uiom_init(char *drv_name)
 		return -EPERM;
 	}
 
+<<<<<<< HEAD
 	usnic_uiom_wq = create_workqueue(drv_name);
 	if (!usnic_uiom_wq) {
 		usnic_err("Unable to alloc wq for drv %s\n", drv_name);
@@ -617,3 +692,7 @@ void usnic_uiom_fini(void)
 	flush_workqueue(usnic_uiom_wq);
 	destroy_workqueue(usnic_uiom_wq);
 }
+=======
+	return 0;
+}
+>>>>>>> upstream/android-13

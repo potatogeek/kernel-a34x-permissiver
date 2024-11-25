@@ -22,8 +22,13 @@ void tz_ree_time_fini(void);
 #endif
 
 struct tz_ree_time {
+<<<<<<< HEAD
 	uint32_t sec;
 	uint32_t nsec;
+=======
+	int64_t sec;
+	int32_t nsec;
+>>>>>>> upstream/android-13
 } __attribute__((__packed__));
 
 #endif /* __TZ_REE_TIME_H__ */

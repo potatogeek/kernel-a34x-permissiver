@@ -4,10 +4,13 @@
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  ******************************************************************************/
+<<<<<<< HEAD
 
 
 #define _MLME_OSDEP_C_
 
+=======
+>>>>>>> upstream/android-13
 #include <drv_types.h>
 #include <rtw_debug.h>
 
@@ -26,7 +29,11 @@ static void _rtw_set_scan_deny_timer_hdl(struct timer_list *t)
 	struct adapter *adapter =
 		from_timer(adapter, t, mlmepriv.set_scan_deny_timer);
 
+<<<<<<< HEAD
 	rtw_set_scan_deny_timer_hdl(adapter);
+=======
+	rtw_clear_scan_deny(adapter);
+>>>>>>> upstream/android-13
 }
 
 void rtw_init_mlme_timer(struct adapter *padapter)
@@ -46,6 +53,7 @@ void rtw_os_indicate_connect(struct adapter *adapter)
 	struct mlme_priv *pmlmepriv = &(adapter->mlmepriv);
 
 	if ((check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) == true) ||
+<<<<<<< HEAD
 		(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true))
 	{
 		rtw_cfg80211_ibss_indicate_connect(adapter);
@@ -54,6 +62,14 @@ void rtw_os_indicate_connect(struct adapter *adapter)
 		rtw_cfg80211_indicate_connect(adapter);
 
 	rtw_indicate_wx_assoc_event(adapter);
+=======
+		(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) == true)) {
+		rtw_cfg80211_ibss_indicate_connect(adapter);
+	} else {
+		rtw_cfg80211_indicate_connect(adapter);
+	}
+
+>>>>>>> upstream/android-13
 	netif_carrier_on(adapter->pnetdev);
 
 	if (adapter->pid[2] != 0)
@@ -63,10 +79,16 @@ void rtw_os_indicate_connect(struct adapter *adapter)
 void rtw_os_indicate_scan_done(struct adapter *padapter, bool aborted)
 {
 	rtw_cfg80211_indicate_scan_done(padapter, aborted);
+<<<<<<< HEAD
 	indicate_wx_scan_complete_event(padapter);
 }
 
 static RT_PMKID_LIST   backupPMKIDList[ NUM_PMKID_CACHE ];
+=======
+}
+
+static struct rt_pmkid_list   backupPMKIDList[NUM_PMKID_CACHE];
+>>>>>>> upstream/android-13
 void rtw_reset_securitypriv(struct adapter *adapter)
 {
 	u8 backupPMKIDIndex = 0;
@@ -77,15 +99,24 @@ void rtw_reset_securitypriv(struct adapter *adapter)
 
 	spin_lock_bh(&adapter->security_key_mutex);
 
+<<<<<<< HEAD
 	if (adapter->securitypriv.dot11AuthAlgrthm == dot11AuthAlgrthm_8021X)/* 802.1x */
 	{
+=======
+	if (adapter->securitypriv.dot11AuthAlgrthm == dot11AuthAlgrthm_8021X) {
+		/* 802.1x */
+>>>>>>> upstream/android-13
 		/*  Added by Albert 2009/02/18 */
 		/*  We have to backup the PMK information for WiFi PMK Caching test item. */
 		/*  */
 		/*  Backup the btkip_countermeasure information. */
 		/*  When the countermeasure is trigger, the driver have to disconnect with AP for 60 seconds. */
 
+<<<<<<< HEAD
 		memcpy(&backupPMKIDList[ 0 ], &adapter->securitypriv.PMKIDList[ 0 ], sizeof(RT_PMKID_LIST) * NUM_PMKID_CACHE);
+=======
+		memcpy(&backupPMKIDList[0], &adapter->securitypriv.PMKIDList[0], sizeof(struct rt_pmkid_list) * NUM_PMKID_CACHE);
+>>>>>>> upstream/android-13
 		backupPMKIDIndex = adapter->securitypriv.PMKIDIndex;
 		backupTKIPCountermeasure = adapter->securitypriv.btkip_countermeasure;
 		backupTKIPcountermeasure_time = adapter->securitypriv.btkip_countermeasure_time;
@@ -97,7 +128,11 @@ void rtw_reset_securitypriv(struct adapter *adapter)
 
 		/*  Added by Albert 2009/02/18 */
 		/*  Restore the PMK information to securitypriv structure for the following connection. */
+<<<<<<< HEAD
 		memcpy(&adapter->securitypriv.PMKIDList[ 0 ], &backupPMKIDList[ 0 ], sizeof(RT_PMKID_LIST) * NUM_PMKID_CACHE);
+=======
+		memcpy(&adapter->securitypriv.PMKIDList[0], &backupPMKIDList[0], sizeof(struct rt_pmkid_list) * NUM_PMKID_CACHE);
+>>>>>>> upstream/android-13
 		adapter->securitypriv.PMKIDIndex = backupPMKIDIndex;
 		adapter->securitypriv.btkip_countermeasure = backupTKIPCountermeasure;
 		adapter->securitypriv.btkip_countermeasure_time = backupTKIPcountermeasure_time;
@@ -105,9 +140,14 @@ void rtw_reset_securitypriv(struct adapter *adapter)
 		adapter->securitypriv.ndisauthtype = Ndis802_11AuthModeOpen;
 		adapter->securitypriv.ndisencryptstatus = Ndis802_11WEPDisabled;
 
+<<<<<<< HEAD
 	}
 	else /* reset values in securitypriv */
 	{
+=======
+	} else {
+		/* reset values in securitypriv */
+>>>>>>> upstream/android-13
 		/* if (adapter->mlmepriv.fw_state & WIFI_STATION_STATE) */
 		/*  */
 		struct security_priv *psec_priv = &adapter->securitypriv;
@@ -129,14 +169,21 @@ void rtw_reset_securitypriv(struct adapter *adapter)
 
 void rtw_os_indicate_disconnect(struct adapter *adapter)
 {
+<<<<<<< HEAD
 	/* RT_PMKID_LIST   backupPMKIDList[ NUM_PMKID_CACHE ]; */
+=======
+	/* struct rt_pmkid_list   backupPMKIDList[ NUM_PMKID_CACHE ]; */
+>>>>>>> upstream/android-13
 
 	netif_carrier_off(adapter->pnetdev); /*  Do it first for tx broadcast pkt after disconnection issue! */
 
 	rtw_cfg80211_indicate_disconnect(adapter);
 
+<<<<<<< HEAD
 	rtw_indicate_wx_disassoc_event(adapter);
 
+=======
+>>>>>>> upstream/android-13
 	/* modify for CONFIG_IEEE80211W, none 11w also can use the same command */
 	rtw_reset_securitypriv_cmd(adapter);
 }
@@ -147,6 +194,7 @@ void rtw_report_sec_ie(struct adapter *adapter, u8 authmode, u8 *sec_ie)
 	u8 *buff, *p, i;
 	union iwreq_data wrqu;
 
+<<<<<<< HEAD
 	RT_TRACE(_module_mlme_osdep_c_, _drv_info_, ("+rtw_report_sec_ie, authmode =%d\n", authmode));
 
 	buff = NULL;
@@ -163,15 +211,33 @@ void rtw_report_sec_ie(struct adapter *adapter, u8 authmode, u8 *sec_ie)
 		p = buff;
 
 		p += sprintf(p, "ASSOCINFO(ReqIEs =");
+=======
+	buff = NULL;
+	if (authmode == WLAN_EID_VENDOR_SPECIFIC) {
+		buff = rtw_zmalloc(IW_CUSTOM_MAX);
+		if (!buff)
+			return;
+
+		p = buff;
+
+		p += scnprintf(p, IW_CUSTOM_MAX - (p - buff), "ASSOCINFO(ReqIEs =");
+>>>>>>> upstream/android-13
 
 		len = sec_ie[1] + 2;
 		len = (len < IW_CUSTOM_MAX) ? len : IW_CUSTOM_MAX;
 
+<<<<<<< HEAD
 		for (i = 0; i < len; i++) {
 			p += sprintf(p, "%02x", sec_ie[i]);
 		}
 
 		p += sprintf(p, ")");
+=======
+		for (i = 0; i < len; i++)
+			p += scnprintf(p, IW_CUSTOM_MAX - (p - buff), "%02x", sec_ie[i]);
+
+		p += scnprintf(p, IW_CUSTOM_MAX - (p - buff), ")");
+>>>>>>> upstream/android-13
 
 		memset(&wrqu, 0, sizeof(wrqu));
 

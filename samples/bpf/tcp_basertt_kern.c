@@ -7,7 +7,11 @@
  * BPF program to set base_rtt to 80us when host is running TCP-NV and
  * both hosts are in the same datacenter (as determined by IPv6 prefix).
  *
+<<<<<<< HEAD
  * Use load_sock_ops to load this BPF program.
+=======
+ * Use "bpftool cgroup attach $cg sock_ops $prog" to load this BPF program.
+>>>>>>> upstream/android-13
  */
 
 #include <uapi/linux/bpf.h>
@@ -16,6 +20,7 @@
 #include <uapi/linux/if_packet.h>
 #include <uapi/linux/ip.h>
 #include <linux/socket.h>
+<<<<<<< HEAD
 #include "bpf_helpers.h"
 #include "bpf_endian.h"
 
@@ -28,6 +33,13 @@
 				##__VA_ARGS__);			\
 })
 
+=======
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_endian.h>
+
+#define DEBUG 1
+
+>>>>>>> upstream/android-13
 SEC("sockops")
 int bpf_basertt(struct bpf_sock_ops *skops)
 {

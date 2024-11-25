@@ -34,8 +34,11 @@
 #ifndef _LINUX_SUNRPC_GSS_ERR_H
 #define _LINUX_SUNRPC_GSS_ERR_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
 
+=======
+>>>>>>> upstream/android-13
 typedef unsigned int OM_uint32;
 
 /*
@@ -163,5 +166,8 @@ typedef unsigned int OM_uint32;
 /* XXXX This is a necessary evil until the spec is fixed */
 #define GSS_S_CRED_UNAVAIL GSS_S_FAILURE
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
+=======
+>>>>>>> upstream/android-13
 #endif /* __LINUX_SUNRPC_GSS_ERR_H */

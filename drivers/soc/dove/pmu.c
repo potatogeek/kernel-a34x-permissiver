@@ -383,7 +383,11 @@ int __init dove_init_pmu(void)
 
 	domains_node = of_get_child_by_name(np_pmu, "domains");
 	if (!domains_node) {
+<<<<<<< HEAD
 		pr_err("%s: failed to find domains sub-node\n", np_pmu->name);
+=======
+		pr_err("%pOFn: failed to find domains sub-node\n", np_pmu);
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
@@ -396,7 +400,11 @@ int __init dove_init_pmu(void)
 	pmu->pmc_base = of_iomap(pmu->of_node, 0);
 	pmu->pmu_base = of_iomap(pmu->of_node, 1);
 	if (!pmu->pmc_base || !pmu->pmu_base) {
+<<<<<<< HEAD
 		pr_err("%s: failed to map PMU\n", np_pmu->name);
+=======
+		pr_err("%pOFn: failed to map PMU\n", np_pmu);
+>>>>>>> upstream/android-13
 		iounmap(pmu->pmu_base);
 		iounmap(pmu->pmc_base);
 		kfree(pmu);
@@ -414,7 +422,11 @@ int __init dove_init_pmu(void)
 			break;
 
 		domain->pmu = pmu;
+<<<<<<< HEAD
 		domain->base.name = kstrdup(np->name, GFP_KERNEL);
+=======
+		domain->base.name = kasprintf(GFP_KERNEL, "%pOFn", np);
+>>>>>>> upstream/android-13
 		if (!domain->base.name) {
 			kfree(domain);
 			break;
@@ -444,7 +456,11 @@ int __init dove_init_pmu(void)
 	/* Loss of the interrupt controller is not a fatal error. */
 	parent_irq = irq_of_parse_and_map(pmu->of_node, 0);
 	if (!parent_irq) {
+<<<<<<< HEAD
 		pr_err("%s: no interrupt specified\n", np_pmu->name);
+=======
+		pr_err("%pOFn: no interrupt specified\n", np_pmu);
+>>>>>>> upstream/android-13
 	} else {
 		ret = dove_init_pmu_irq(pmu, parent_irq);
 		if (ret)

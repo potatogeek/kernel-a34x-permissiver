@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Map driver for Intel XScale PXA2xx platforms.
  *
  * Author:	Nicolas Pitre
  * Copyright:	(C) 2001 MontaVista Software Inc.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -71,8 +78,12 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
 		       info->map.name);
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	info->map.cached =
 		ioremap_cached(info->map.phys, info->map.size);
+=======
+	info->map.cached = ioremap_cache(info->map.phys, info->map.size);
+>>>>>>> upstream/android-13
 	if (!info->map.cached)
 		printk(KERN_WARNING "Failed to ioremap cached %s\n",
 		       info->map.name);

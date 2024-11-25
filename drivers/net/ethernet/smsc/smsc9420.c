@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
  /***************************************************************************
  *
  * Copyright (C) 2007,2008  SMSC
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  ***************************************************************************
  */
 
@@ -222,6 +229,7 @@ static int smsc9420_eeprom_reload(struct smsc9420_pdata *pd)
 	return -EIO;
 }
 
+<<<<<<< HEAD
 /* Standard ioctls for mii-tool */
 static int smsc9420_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
@@ -231,6 +239,8 @@ static int smsc9420_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 	return phy_mii_ioctl(dev->phydev, ifr, cmd);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void smsc9420_ethtool_get_drvinfo(struct net_device *netdev,
 					 struct ethtool_drvinfo *drvinfo)
 {
@@ -518,8 +528,14 @@ static void smsc9420_free_tx_ring(struct smsc9420_pdata *pd)
 
 		if (skb) {
 			BUG_ON(!pd->tx_buffers[i].mapping);
+<<<<<<< HEAD
 			pci_unmap_single(pd->pdev, pd->tx_buffers[i].mapping,
 					 skb->len, PCI_DMA_TODEVICE);
+=======
+			dma_unmap_single(&pd->pdev->dev,
+					 pd->tx_buffers[i].mapping, skb->len,
+					 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 			dev_kfree_skb_any(skb);
 		}
 
@@ -551,8 +567,14 @@ static void smsc9420_free_rx_ring(struct smsc9420_pdata *pd)
 			dev_kfree_skb_any(pd->rx_buffers[i].skb);
 
 		if (pd->rx_buffers[i].mapping)
+<<<<<<< HEAD
 			pci_unmap_single(pd->pdev, pd->rx_buffers[i].mapping,
 				PKT_BUF_SZ, PCI_DMA_FROMDEVICE);
+=======
+			dma_unmap_single(&pd->pdev->dev,
+					 pd->rx_buffers[i].mapping,
+					 PKT_BUF_SZ, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 
 		pd->rx_ring[i].status = 0;
 		pd->rx_ring[i].length = 0;
@@ -770,8 +792,13 @@ static void smsc9420_rx_handoff(struct smsc9420_pdata *pd, const int index,
 	dev->stats.rx_packets++;
 	dev->stats.rx_bytes += packet_length;
 
+<<<<<<< HEAD
 	pci_unmap_single(pd->pdev, pd->rx_buffers[index].mapping,
 		PKT_BUF_SZ, PCI_DMA_FROMDEVICE);
+=======
+	dma_unmap_single(&pd->pdev->dev, pd->rx_buffers[index].mapping,
+			 PKT_BUF_SZ, DMA_FROM_DEVICE);
+>>>>>>> upstream/android-13
 	pd->rx_buffers[index].mapping = 0;
 
 	skb = pd->rx_buffers[index].skb;
@@ -803,9 +830,15 @@ static int smsc9420_alloc_rx_buffer(struct smsc9420_pdata *pd, int index)
 	if (unlikely(!skb))
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	mapping = pci_map_single(pd->pdev, skb_tail_pointer(skb),
 				 PKT_BUF_SZ, PCI_DMA_FROMDEVICE);
 	if (pci_dma_mapping_error(pd->pdev, mapping)) {
+=======
+	mapping = dma_map_single(&pd->pdev->dev, skb_tail_pointer(skb),
+				 PKT_BUF_SZ, DMA_FROM_DEVICE);
+	if (dma_mapping_error(&pd->pdev->dev, mapping)) {
+>>>>>>> upstream/android-13
 		dev_kfree_skb_any(skb);
 		netif_warn(pd, rx_err, pd->dev, "pci_map_single failed!\n");
 		return -ENOMEM;
@@ -922,8 +955,15 @@ static void smsc9420_complete_tx(struct net_device *dev)
 		BUG_ON(!pd->tx_buffers[index].skb);
 		BUG_ON(!pd->tx_buffers[index].mapping);
 
+<<<<<<< HEAD
 		pci_unmap_single(pd->pdev, pd->tx_buffers[index].mapping,
 			pd->tx_buffers[index].skb->len, PCI_DMA_TODEVICE);
+=======
+		dma_unmap_single(&pd->pdev->dev,
+				 pd->tx_buffers[index].mapping,
+				 pd->tx_buffers[index].skb->len,
+				 DMA_TO_DEVICE);
+>>>>>>> upstream/android-13
 		pd->tx_buffers[index].mapping = 0;
 
 		dev_kfree_skb_any(pd->tx_buffers[index].skb);
@@ -953,9 +993,15 @@ static netdev_tx_t smsc9420_hard_start_xmit(struct sk_buff *skb,
 	BUG_ON(pd->tx_buffers[index].skb);
 	BUG_ON(pd->tx_buffers[index].mapping);
 
+<<<<<<< HEAD
 	mapping = pci_map_single(pd->pdev, skb->data,
 				 skb->len, PCI_DMA_TODEVICE);
 	if (pci_dma_mapping_error(pd->pdev, mapping)) {
+=======
+	mapping = dma_map_single(&pd->pdev->dev, skb->data, skb->len,
+				 DMA_TO_DEVICE);
+	if (dma_mapping_error(&pd->pdev->dev, mapping)) {
+>>>>>>> upstream/android-13
 		netif_warn(pd, tx_err, pd->dev,
 			   "pci_map_single failed, dropping packet\n");
 		return NETDEV_TX_BUSY;
@@ -1135,10 +1181,17 @@ static int smsc9420_mii_probe(struct net_device *dev)
 		return PTR_ERR(phydev);
 	}
 
+<<<<<<< HEAD
 	/* mask with MAC supported features */
 	phydev->supported &= (PHY_BASIC_FEATURES | SUPPORTED_Pause |
 			      SUPPORTED_Asym_Pause);
 	phydev->advertising = phydev->supported;
+=======
+	phy_set_max_speed(phydev, SPEED_100);
+
+	/* mask with MAC supported features */
+	phy_support_asym_pause(phydev);
+>>>>>>> upstream/android-13
 
 	phy_attached_info(phydev);
 
@@ -1443,11 +1496,17 @@ out_0:
 	return result;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 
 static int smsc9420_suspend(struct pci_dev *pdev, pm_message_t state)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
+=======
+static int __maybe_unused smsc9420_suspend(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+>>>>>>> upstream/android-13
 	struct smsc9420_pdata *pd = netdev_priv(dev);
 	u32 int_cfg;
 	ulong flags;
@@ -1472,14 +1531,19 @@ static int smsc9420_suspend(struct pci_dev *pdev, pm_message_t state)
 		netif_device_detach(dev);
 	}
 
+<<<<<<< HEAD
 	pci_save_state(pdev);
 	pci_enable_wake(pdev, pci_choose_state(pdev, state), 0);
 	pci_disable_device(pdev);
 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+=======
+	device_wakeup_disable(dev_d);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static int smsc9420_resume(struct pci_dev *pdev)
 {
 	struct net_device *dev = pci_get_drvdata(pdev);
@@ -1500,6 +1564,18 @@ static int smsc9420_resume(struct pci_dev *pdev)
 		netif_warn(pd, ifup, pd->dev, "pci_enable_wake failed: %d\n",
 			   err);
 
+=======
+static int __maybe_unused smsc9420_resume(struct device *dev_d)
+{
+	struct net_device *dev = dev_get_drvdata(dev_d);
+	int err;
+
+	pci_set_master(to_pci_dev(dev_d));
+
+	device_wakeup_disable(dev_d);
+
+	err = 0;
+>>>>>>> upstream/android-13
 	if (netif_running(dev)) {
 		/* FIXME: gross. It looks like ancient PM relic.*/
 		err = smsc9420_open(dev);
@@ -1508,15 +1584,22 @@ static int smsc9420_resume(struct pci_dev *pdev)
 	return err;
 }
 
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
 
+=======
+>>>>>>> upstream/android-13
 static const struct net_device_ops smsc9420_netdev_ops = {
 	.ndo_open		= smsc9420_open,
 	.ndo_stop		= smsc9420_stop,
 	.ndo_start_xmit		= smsc9420_hard_start_xmit,
 	.ndo_get_stats		= smsc9420_get_stats,
 	.ndo_set_rx_mode	= smsc9420_set_multicast_list,
+<<<<<<< HEAD
 	.ndo_do_ioctl		= smsc9420_do_ioctl,
+=======
+	.ndo_eth_ioctl		= phy_do_ioctl_running,
+>>>>>>> upstream/android-13
 	.ndo_validate_addr	= eth_validate_addr,
 	.ndo_set_mac_address 	= eth_mac_addr,
 #ifdef CONFIG_NET_POLL_CONTROLLER
@@ -1560,7 +1643,11 @@ smsc9420_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto out_free_netdev_2;
 	}
 
+<<<<<<< HEAD
 	if (pci_set_dma_mask(pdev, DMA_BIT_MASK(32))) {
+=======
+	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+>>>>>>> upstream/android-13
 		netdev_err(dev, "No usable DMA configuration, aborting\n");
 		goto out_free_regions_3;
 	}
@@ -1578,10 +1665,16 @@ smsc9420_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	pd = netdev_priv(dev);
 
 	/* pci descriptors are created in the PCI consistent area */
+<<<<<<< HEAD
 	pd->rx_ring = pci_alloc_consistent(pdev,
 		sizeof(struct smsc9420_dma_desc) * RX_RING_SIZE +
 		sizeof(struct smsc9420_dma_desc) * TX_RING_SIZE,
 		&pd->rx_dma_addr);
+=======
+	pd->rx_ring = dma_alloc_coherent(&pdev->dev,
+		sizeof(struct smsc9420_dma_desc) * (RX_RING_SIZE + TX_RING_SIZE),
+		&pd->rx_dma_addr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	if (!pd->rx_ring)
 		goto out_free_io_4;
@@ -1637,8 +1730,14 @@ smsc9420_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	return 0;
 
 out_free_dmadesc_5:
+<<<<<<< HEAD
 	pci_free_consistent(pdev, sizeof(struct smsc9420_dma_desc) *
 		(RX_RING_SIZE + TX_RING_SIZE), pd->rx_ring, pd->rx_dma_addr);
+=======
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct smsc9420_dma_desc) * (RX_RING_SIZE + TX_RING_SIZE),
+			  pd->rx_ring, pd->rx_dma_addr);
+>>>>>>> upstream/android-13
 out_free_io_4:
 	iounmap(virt_addr - LAN9420_CPSR_ENDIAN_OFFSET);
 out_free_regions_3:
@@ -1670,8 +1769,14 @@ static void smsc9420_remove(struct pci_dev *pdev)
 	BUG_ON(!pd->tx_ring);
 	BUG_ON(!pd->rx_ring);
 
+<<<<<<< HEAD
 	pci_free_consistent(pdev, sizeof(struct smsc9420_dma_desc) *
 		(RX_RING_SIZE + TX_RING_SIZE), pd->rx_ring, pd->rx_dma_addr);
+=======
+	dma_free_coherent(&pdev->dev,
+			  sizeof(struct smsc9420_dma_desc) * (RX_RING_SIZE + TX_RING_SIZE),
+			  pd->rx_ring, pd->rx_dma_addr);
+>>>>>>> upstream/android-13
 
 	iounmap(pd->ioaddr - LAN9420_CPSR_ENDIAN_OFFSET);
 	pci_release_regions(pdev);
@@ -1679,15 +1784,24 @@ static void smsc9420_remove(struct pci_dev *pdev)
 	pci_disable_device(pdev);
 }
 
+<<<<<<< HEAD
+=======
+static SIMPLE_DEV_PM_OPS(smsc9420_pm_ops, smsc9420_suspend, smsc9420_resume);
+
+>>>>>>> upstream/android-13
 static struct pci_driver smsc9420_driver = {
 	.name = DRV_NAME,
 	.id_table = smsc9420_id_table,
 	.probe = smsc9420_probe,
 	.remove = smsc9420_remove,
+<<<<<<< HEAD
 #ifdef CONFIG_PM
 	.suspend = smsc9420_suspend,
 	.resume = smsc9420_resume,
 #endif /* CONFIG_PM */
+=======
+	.driver.pm = &smsc9420_pm_ops,
+>>>>>>> upstream/android-13
 };
 
 static int __init smsc9420_init_module(void)

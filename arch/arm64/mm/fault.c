@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Based on arch/arm/mm/fault.c
  *
  * Copyright (C) 1995  Linus Torvalds
  * Copyright (C) 1995-2004 Russell King
  * Copyright (C) 2012 ARM Ltd.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,10 +24,22 @@
  */
 
 #include <linux/extable.h>
+=======
+ */
+
+#include <linux/acpi.h>
+#include <linux/bitfield.h>
+#include <linux/extable.h>
+#include <linux/kfence.h>
+>>>>>>> upstream/android-13
 #include <linux/signal.h>
 #include <linux/mm.h>
 #include <linux/hardirq.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/kasan.h>
+>>>>>>> upstream/android-13
 #include <linux/kprobes.h>
 #include <linux/uaccess.h>
 #include <linux/page-flags.h>
@@ -32,11 +49,18 @@
 #include <linux/perf_event.h>
 #include <linux/preempt.h>
 #include <linux/hugetlb.h>
+<<<<<<< HEAD
 
+=======
+#include <linux/vm_event_item.h>
+
+#include <asm/acpi.h>
+>>>>>>> upstream/android-13
 #include <asm/bug.h>
 #include <asm/cmpxchg.h>
 #include <asm/cpufeature.h>
 #include <asm/exception.h>
+<<<<<<< HEAD
 #include <asm/debug-monitors.h>
 #include <asm/esr.h>
 #include <asm/kasan.h>
@@ -53,6 +77,24 @@
 
 struct fault_info {
 	int	(*fn)(unsigned long addr, unsigned int esr,
+=======
+#include <asm/daifflags.h>
+#include <asm/debug-monitors.h>
+#include <asm/esr.h>
+#include <asm/kprobes.h>
+#include <asm/mte.h>
+#include <asm/processor.h>
+#include <asm/sysreg.h>
+#include <asm/system_misc.h>
+#include <asm/tlbflush.h>
+#include <asm/traps.h>
+#include <asm/virt.h>
+
+#include <trace/hooks/fault.h>
+
+struct fault_info {
+	int	(*fn)(unsigned long far, unsigned int esr,
+>>>>>>> upstream/android-13
 		      struct pt_regs *regs);
 	int	sig;
 	int	code;
@@ -60,6 +102,7 @@ struct fault_info {
 };
 
 static const struct fault_info fault_info[];
+<<<<<<< HEAD
 
 static inline const struct fault_info *esr_to_fault_info(unsigned int esr)
 {
@@ -87,6 +130,19 @@ static inline int notify_page_fault(struct pt_regs *regs, unsigned int esr)
 	return 0;
 }
 #endif
+=======
+static struct fault_info debug_fault_info[];
+
+static inline const struct fault_info *esr_to_fault_info(unsigned int esr)
+{
+	return fault_info + (esr & ESR_ELx_FSC);
+}
+
+static inline const struct fault_info *esr_to_debug_fault_info(unsigned int esr)
+{
+	return debug_fault_info + DBG_ESR_EVT(esr);
+}
+>>>>>>> upstream/android-13
 
 static void data_abort_decode(unsigned int esr)
 {
@@ -115,8 +171,13 @@ static void mem_abort_decode(unsigned int esr)
 	pr_alert("Mem abort info:\n");
 
 	pr_alert("  ESR = 0x%08x\n", esr);
+<<<<<<< HEAD
 	pr_alert("  Exception class = %s, IL = %u bits\n",
 		 esr_get_class_string(esr),
+=======
+	pr_alert("  EC = 0x%02lx: %s, IL = %u bits\n",
+		 ESR_ELx_EC(esr), esr_get_class_string(esr),
+>>>>>>> upstream/android-13
 		 (esr & ESR_ELx_IL) ? 32 : 16);
 	pr_alert("  SET = %lu, FnV = %lu\n",
 		 (esr & ESR_ELx_SET_MASK) >> ESR_ELx_SET_SHIFT,
@@ -124,11 +185,17 @@ static void mem_abort_decode(unsigned int esr)
 	pr_alert("  EA = %lu, S1PTW = %lu\n",
 		 (esr & ESR_ELx_EA) >> ESR_ELx_EA_SHIFT,
 		 (esr & ESR_ELx_S1PTW) >> ESR_ELx_S1PTW_SHIFT);
+<<<<<<< HEAD
+=======
+	pr_alert("  FSC = 0x%02x: %s\n", (esr & ESR_ELx_FSC),
+		 esr_to_fault_info(esr)->name);
+>>>>>>> upstream/android-13
 
 	if (esr_is_data_abort(esr))
 		data_abort_decode(esr);
 }
 
+<<<<<<< HEAD
 static inline bool is_ttbr0_addr(unsigned long addr)
 {
 	/* entry assembly clears tags for TTBR0 addrs */
@@ -139,12 +206,25 @@ static inline bool is_ttbr1_addr(unsigned long addr)
 {
 	/* TTBR1 addresses may have a tag if KASAN_SW_TAGS is in use */
 	return arch_kasan_reset_tag(addr) >= VA_START;
+=======
+static inline unsigned long mm_to_pgd_phys(struct mm_struct *mm)
+{
+	/* Either init_pg_dir or swapper_pg_dir */
+	if (mm == &init_mm)
+		return __pa_symbol(mm->pgd);
+
+	return (unsigned long)virt_to_phys(mm->pgd);
+>>>>>>> upstream/android-13
 }
 
 /*
  * Dump out the page tables associated with 'addr' in the currently active mm.
  */
+<<<<<<< HEAD
 void show_pte(unsigned long addr)
+=======
+static void show_pte(unsigned long addr)
+>>>>>>> upstream/android-13
 {
 	struct mm_struct *mm;
 	pgd_t *pgdp;
@@ -167,14 +247,24 @@ void show_pte(unsigned long addr)
 		return;
 	}
 
+<<<<<<< HEAD
 	pr_alert("%s pgtable: %luk pages, %u-bit VAs, pgdp = %p\n",
 		 mm == &init_mm ? "swapper" : "user", PAGE_SIZE / SZ_1K,
 		 VA_BITS, mm->pgd);
+=======
+	pr_alert("%s pgtable: %luk pages, %llu-bit VAs, pgdp=%016lx\n",
+		 mm == &init_mm ? "swapper" : "user", PAGE_SIZE / SZ_1K,
+		 vabits_actual, mm_to_pgd_phys(mm));
+>>>>>>> upstream/android-13
 	pgdp = pgd_offset(mm, addr);
 	pgd = READ_ONCE(*pgdp);
 	pr_alert("[%016lx] pgd=%016llx", addr, pgd_val(pgd));
 
 	do {
+<<<<<<< HEAD
+=======
+		p4d_t *p4dp, p4d;
+>>>>>>> upstream/android-13
 		pud_t *pudp, pud;
 		pmd_t *pmdp, pmd;
 		pte_t *ptep, pte;
@@ -182,7 +272,17 @@ void show_pte(unsigned long addr)
 		if (pgd_none(pgd) || pgd_bad(pgd))
 			break;
 
+<<<<<<< HEAD
 		pudp = pud_offset(pgdp, addr);
+=======
+		p4dp = p4d_offset(pgdp, addr);
+		p4d = READ_ONCE(*p4dp);
+		pr_cont(", p4d=%016llx", p4d_val(p4d));
+		if (p4d_none(p4d) || p4d_bad(p4d))
+			break;
+
+		pudp = pud_offset(p4dp, addr);
+>>>>>>> upstream/android-13
 		pud = READ_ONCE(*pudp);
 		pr_cont(", pud=%016llx", pud_val(pud));
 		if (pud_none(pud) || pud_bad(pud))
@@ -242,7 +342,13 @@ int ptep_set_access_flags(struct vm_area_struct *vma,
 		pteval = cmpxchg_relaxed(&pte_val(*ptep), old_pteval, pteval);
 	} while (pteval != old_pteval);
 
+<<<<<<< HEAD
 	flush_tlb_fix_spurious_fault(vma, address);
+=======
+	/* Invalidate a stale read-only entry */
+	if (dirty)
+		flush_tlb_page(vma, address);
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -251,6 +357,7 @@ static bool is_el1_instruction_abort(unsigned int esr)
 	return ESR_ELx_EC(esr) == ESR_ELx_EC_IABT_CUR;
 }
 
+<<<<<<< HEAD
 static inline bool is_el1_permission_fault(unsigned int esr,
 					   struct pt_regs *regs,
 					   unsigned long addr)
@@ -259,6 +366,19 @@ static inline bool is_el1_permission_fault(unsigned int esr,
 	unsigned int fsc_type = esr & ESR_ELx_FSC_TYPE;
 
 	if (ec != ESR_ELx_EC_DABT_CUR && ec != ESR_ELx_EC_IABT_CUR)
+=======
+static bool is_el1_data_abort(unsigned int esr)
+{
+	return ESR_ELx_EC(esr) == ESR_ELx_EC_DABT_CUR;
+}
+
+static inline bool is_el1_permission_fault(unsigned long addr, unsigned int esr,
+					   struct pt_regs *regs)
+{
+	unsigned int fsc_type = esr & ESR_ELx_FSC_TYPE;
+
+	if (!is_el1_data_abort(esr) && !is_el1_instruction_abort(esr))
+>>>>>>> upstream/android-13
 		return false;
 
 	if (fsc_type == ESR_ELx_FSC_PERM)
@@ -271,11 +391,59 @@ static inline bool is_el1_permission_fault(unsigned int esr,
 	return false;
 }
 
+<<<<<<< HEAD
+=======
+static bool is_pkvm_stage2_abort(unsigned int esr)
+{
+	/*
+	 * S1PTW should only ever be set in ESR_EL1 if the pkvm hypervisor
+	 * injected a stage-2 abort -- see host_inject_abort().
+	 */
+	return is_pkvm_initialized() && (esr & ESR_ELx_S1PTW);
+}
+
+static bool __kprobes is_spurious_el1_translation_fault(unsigned long addr,
+							unsigned int esr,
+							struct pt_regs *regs)
+{
+	unsigned long flags;
+	u64 par, dfsc;
+
+	if (!is_el1_data_abort(esr) ||
+	    (esr & ESR_ELx_FSC_TYPE) != ESR_ELx_FSC_FAULT)
+		return false;
+
+	if (is_pkvm_stage2_abort(esr))
+		return false;
+
+	local_irq_save(flags);
+	asm volatile("at s1e1r, %0" :: "r" (addr));
+	isb();
+	par = read_sysreg_par();
+	local_irq_restore(flags);
+
+	/*
+	 * If we now have a valid translation, treat the translation fault as
+	 * spurious.
+	 */
+	if (!(par & SYS_PAR_EL1_F))
+		return true;
+
+	/*
+	 * If we got a different type of fault from the AT instruction,
+	 * treat the translation fault as spurious.
+	 */
+	dfsc = FIELD_GET(SYS_PAR_EL1_FST, par);
+	return (dfsc & ESR_ELx_FSC_TYPE) != ESR_ELx_FSC_FAULT;
+}
+
+>>>>>>> upstream/android-13
 static void die_kernel_fault(const char *msg, unsigned long addr,
 			     unsigned int esr, struct pt_regs *regs)
 {
 	bust_spinlocks(1);
 
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_DEBUG_AUTO_COMMENT
 	pr_auto(ASL1, "Unable to handle kernel %s at virtual address %016lx\n", msg,
 		 addr);
@@ -289,6 +457,12 @@ static void die_kernel_fault(const char *msg, unsigned long addr,
 	sec_debug_set_extra_info_esr(esr);
 #endif
 
+=======
+	pr_auto(ASL1, "Unable to handle kernel %s at virtual address %016lx\n", msg,
+		 addr);
+
+	trace_android_rvh_die_kernel_fault(msg, addr, esr, regs);
+>>>>>>> upstream/android-13
 	mem_abort_decode(esr);
 
 	show_pte(addr);
@@ -297,6 +471,54 @@ static void die_kernel_fault(const char *msg, unsigned long addr,
 	do_exit(SIGKILL);
 }
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_KASAN_HW_TAGS
+static void report_tag_fault(unsigned long addr, unsigned int esr,
+			     struct pt_regs *regs)
+{
+	/*
+	 * SAS bits aren't set for all faults reported in EL1, so we can't
+	 * find out access size.
+	 */
+	bool is_write = !!(esr & ESR_ELx_WNR);
+	kasan_report(addr, 0, is_write, regs->pc);
+}
+#else
+/* Tag faults aren't enabled without CONFIG_KASAN_HW_TAGS. */
+static inline void report_tag_fault(unsigned long addr, unsigned int esr,
+				    struct pt_regs *regs) { }
+#endif
+
+static void do_tag_recovery(unsigned long addr, unsigned int esr,
+			   struct pt_regs *regs)
+{
+
+	report_tag_fault(addr, esr, regs);
+
+	/*
+	 * Disable MTE Tag Checking on the local CPU for the current EL.
+	 * It will be done lazily on the other CPUs when they will hit a
+	 * tag fault.
+	 */
+	sysreg_clear_set(sctlr_el1, SCTLR_ELx_TCF_MASK, SCTLR_ELx_TCF_NONE);
+	isb();
+}
+
+static bool is_el1_mte_sync_tag_check_fault(unsigned int esr)
+{
+	unsigned int fsc = esr & ESR_ELx_FSC;
+
+	if (!is_el1_data_abort(esr))
+		return false;
+
+	if (fsc == ESR_ELx_FSC_MTE)
+		return true;
+
+	return false;
+}
+
+>>>>>>> upstream/android-13
 static void __do_kernel_fault(unsigned long addr, unsigned int esr,
 			      struct pt_regs *regs)
 {
@@ -309,23 +531,56 @@ static void __do_kernel_fault(unsigned long addr, unsigned int esr,
 	if (!is_el1_instruction_abort(esr) && fixup_exception(regs))
 		return;
 
+<<<<<<< HEAD
 	if (is_el1_permission_fault(esr, regs, addr)) {
 		if (esr & ESR_ELx_WNR)
 			msg = "write to read-only memory";
+=======
+	if (WARN_RATELIMIT(is_spurious_el1_translation_fault(addr, esr, regs),
+	    "Ignoring spurious kernel translation fault at virtual address %016lx\n", addr))
+		return;
+
+	if (is_el1_mte_sync_tag_check_fault(esr)) {
+		do_tag_recovery(addr, esr, regs);
+
+		return;
+	}
+
+	if (is_el1_permission_fault(addr, esr, regs)) {
+		if (esr & ESR_ELx_WNR)
+			msg = "write to read-only memory";
+		else if (is_el1_instruction_abort(esr))
+			msg = "execute from non-executable memory";
+>>>>>>> upstream/android-13
 		else
 			msg = "read from unreadable memory";
 	} else if (addr < PAGE_SIZE) {
 		msg = "NULL pointer dereference";
+<<<<<<< HEAD
 	} else {
+=======
+	} else if (is_pkvm_stage2_abort(esr)) {
+		msg = "access to hypervisor-protected memory";
+	} else {
+		if (kfence_handle_page_fault(addr, esr & ESR_ELx_WNR, regs))
+			return;
+
+>>>>>>> upstream/android-13
 		msg = "paging request";
 	}
 
 	die_kernel_fault(msg, addr, esr, regs);
 }
 
+<<<<<<< HEAD
 static void __do_user_fault(struct siginfo *info, unsigned int esr)
 {
 	current->thread.fault_address = (unsigned long)info->si_addr;
+=======
+static void set_thread_esr(unsigned long address, unsigned int esr)
+{
+	current->thread.fault_address = address;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If the faulting address is in the kernel, we must sanitize the ESR.
@@ -378,17 +633,28 @@ static void __do_user_fault(struct siginfo *info, unsigned int esr)
 	}
 
 	current->thread.fault_code = esr;
+<<<<<<< HEAD
 	arm64_force_sig_info(info, esr_to_fault_info(esr)->name, current);
 }
 
 static void do_bad_area(unsigned long addr, unsigned int esr, struct pt_regs *regs)
 {
+=======
+}
+
+static void do_bad_area(unsigned long far, unsigned int esr,
+			struct pt_regs *regs)
+{
+	unsigned long addr = untagged_addr(far);
+
+>>>>>>> upstream/android-13
 	/*
 	 * If we are in kernel mode at this point, we have no context to
 	 * handle this fault with.
 	 */
 	if (user_mode(regs)) {
 		const struct fault_info *inf = esr_to_fault_info(esr);
+<<<<<<< HEAD
 		struct siginfo si;
 
 		clear_siginfo(&si);
@@ -397,6 +663,11 @@ static void do_bad_area(unsigned long addr, unsigned int esr, struct pt_regs *re
 		si.si_addr	= (void __user *)addr;
 
 		__do_user_fault(&si, esr);
+=======
+
+		set_thread_esr(addr, esr);
+		arm64_force_sig_fault(inf->sig, inf->code, far, inf->name);
+>>>>>>> upstream/android-13
 	} else {
 		__do_kernel_fault(addr, esr, regs);
 	}
@@ -406,6 +677,7 @@ static void do_bad_area(unsigned long addr, unsigned int esr, struct pt_regs *re
 #define VM_FAULT_BADACCESS	0x020000
 
 static vm_fault_t __do_page_fault(struct mm_struct *mm, unsigned long addr,
+<<<<<<< HEAD
 			   unsigned int mm_flags, unsigned long vm_flags,
 			   struct task_struct *tsk)
 {
@@ -418,16 +690,36 @@ static vm_fault_t __do_page_fault(struct mm_struct *mm, unsigned long addr,
 		goto out;
 	if (unlikely(vma->vm_start > addr))
 		goto check_stack;
+=======
+				  unsigned int mm_flags, unsigned long vm_flags,
+				  struct pt_regs *regs)
+{
+	struct vm_area_struct *vma = find_vma(mm, addr);
+
+	if (unlikely(!vma))
+		return VM_FAULT_BADMAP;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Ok, we have a good vm_area for this memory access, so we can handle
 	 * it.
 	 */
+<<<<<<< HEAD
 good_area:
+=======
+	if (unlikely(vma->vm_start > addr)) {
+		if (!(vma->vm_flags & VM_GROWSDOWN))
+			return VM_FAULT_BADMAP;
+		if (expand_stack(vma, addr))
+			return VM_FAULT_BADMAP;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * Check that the permissions on the VMA allow for the fault which
 	 * occurred.
 	 */
+<<<<<<< HEAD
 	if (!(vma->vm_flags & vm_flags)) {
 		fault = VM_FAULT_BADACCESS;
 		goto out;
@@ -440,6 +732,11 @@ check_stack:
 		goto good_area;
 out:
 	return fault;
+=======
+	if (!(vma->vm_flags & vm_flags))
+		return VM_FAULT_BADACCESS;
+	return handle_mm_fault(vma, addr, mm_flags, regs);
+>>>>>>> upstream/android-13
 }
 
 static bool is_el0_instruction_abort(unsigned int esr)
@@ -447,6 +744,7 @@ static bool is_el0_instruction_abort(unsigned int esr)
 	return ESR_ELx_EC(esr) == ESR_ELx_EC_IABT_LOW;
 }
 
+<<<<<<< HEAD
 static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 				   struct pt_regs *regs)
 {
@@ -463,6 +761,34 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 	tsk = current;
 	mm  = tsk->mm;
 
+=======
+/*
+ * Note: not valid for EL1 DC IVAC, but we never use that such that it
+ * should fault. EL0 cannot issue DC IVAC (undef).
+ */
+static bool is_write_abort(unsigned int esr)
+{
+	return (esr & ESR_ELx_WNR) && !(esr & ESR_ELx_CM);
+}
+
+static int __kprobes do_page_fault(unsigned long far, unsigned int esr,
+				   struct pt_regs *regs)
+{
+	const struct fault_info *inf;
+	struct mm_struct *mm = current->mm;
+	vm_fault_t fault;
+	unsigned long vm_flags;
+	unsigned int mm_flags = FAULT_FLAG_DEFAULT;
+	unsigned long addr = untagged_addr(far);
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+	struct vm_area_struct *vma;
+	unsigned long seq;
+#endif
+
+	if (kprobe_page_fault(regs, esr))
+		return 0;
+
+>>>>>>> upstream/android-13
 	/*
 	 * If we're in an interrupt or have no user context, we must not take
 	 * the fault.
@@ -473,6 +799,7 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 	if (user_mode(regs))
 		mm_flags |= FAULT_FLAG_USER;
 
+<<<<<<< HEAD
 	if (is_el0_instruction_abort(esr)) {
 		vm_flags = VM_EXEC;
 	} else if ((esr & ESR_ELx_WNR) && !(esr & ESR_ELx_CM)) {
@@ -486,6 +813,33 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 			die_kernel_fault("access to user memory with fs=KERNEL_DS",
 					 addr, esr, regs);
 
+=======
+	/*
+	 * vm_flags tells us what bits we must have in vma->vm_flags
+	 * for the fault to be benign, __do_page_fault() would check
+	 * vma->vm_flags & vm_flags and returns an error if the
+	 * intersection is empty
+	 */
+	if (is_el0_instruction_abort(esr)) {
+		/* It was exec fault */
+		vm_flags = VM_EXEC;
+		mm_flags |= FAULT_FLAG_INSTRUCTION;
+	} else if (is_write_abort(esr)) {
+		/* It was write fault */
+		vm_flags = VM_WRITE;
+		mm_flags |= FAULT_FLAG_WRITE;
+	} else {
+		/* It was read fault */
+		vm_flags = VM_READ;
+		/* Write implies read */
+		vm_flags |= VM_WRITE;
+		/* If EPAN is absent then exec implies read */
+		if (!cpus_have_const_cap(ARM64_HAS_EPAN))
+			vm_flags |= VM_EXEC;
+	}
+
+	if (is_ttbr0_addr(addr) && is_el1_permission_fault(addr, esr, regs)) {
+>>>>>>> upstream/android-13
 		if (is_el1_instruction_abort(esr))
 			die_kernel_fault("execution of user memory",
 					 addr, esr, regs);
@@ -495,6 +849,7 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 					 addr, esr, regs);
 	}
 
+<<<<<<< HEAD
 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
 
 	/*
@@ -505,11 +860,76 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 	if (fault != VM_FAULT_RETRY)
 		goto done;
 
+=======
+	if (is_pkvm_stage2_abort(esr)) {
+		if (!user_mode(regs))
+			goto no_context;
+		arm64_force_sig_fault(SIGSEGV, SEGV_ACCERR, far, "stage-2 fault");
+		return 0;
+	}
+
+	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
+
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+	/*
+	 * No need to try speculative faults for kernel or
+	 * single threaded user space.
+	 */
+	if (!(mm_flags & FAULT_FLAG_USER) || atomic_read(&mm->mm_users) == 1)
+		goto no_spf;
+
+	count_vm_event(SPF_ATTEMPT);
+	seq = mmap_seq_read_start(mm);
+	if (seq & 1) {
+		count_vm_spf_event(SPF_ABORT_ODD);
+		goto spf_abort;
+	}
+	vma = get_vma(mm, addr);
+	if (!vma) {
+		count_vm_spf_event(SPF_ABORT_UNMAPPED);
+		goto spf_abort;
+	}
+	if (!vma_can_speculate(vma, mm_flags)) {
+		put_vma(vma);
+		count_vm_spf_event(SPF_ABORT_NO_SPECULATE);
+		goto spf_abort;
+	}
+
+	if (!mmap_seq_read_check(mm, seq, SPF_ABORT_VMA_COPY)) {
+		put_vma(vma);
+		goto spf_abort;
+	}
+	if (!(vma->vm_flags & vm_flags)) {
+		put_vma(vma);
+		count_vm_spf_event(SPF_ABORT_ACCESS_ERROR);
+		goto spf_abort;
+	}
+	fault = do_handle_mm_fault(vma, addr & PAGE_MASK,
+			mm_flags | FAULT_FLAG_SPECULATIVE, seq, regs);
+	put_vma(vma);
+
+	/* Quick path to respond to signals */
+	if (fault_signal_pending(fault, regs)) {
+		if (!user_mode(regs))
+			goto no_context;
+		return 0;
+	}
+	if (!(fault & VM_FAULT_RETRY))
+		goto done;
+
+spf_abort:
+	count_vm_event(SPF_ABORT);
+no_spf:
+
+#endif	/* CONFIG_SPECULATIVE_PAGE_FAULT */
+
+>>>>>>> upstream/android-13
 	/*
 	 * As per x86, we may deadlock here. However, since the kernel only
 	 * validly references user space from well defined areas of the code,
 	 * we can bug out early if this is from code which shouldn't.
 	 */
+<<<<<<< HEAD
 	if (!down_read_trylock(&mm->mmap_sem)) {
 		if (!user_mode(regs) && !search_exception_tables(regs->pc))
 			goto no_context;
@@ -518,10 +938,21 @@ retry:
 	} else {
 		/*
 		 * The above down_read_trylock() might have succeeded in which
+=======
+	if (!mmap_read_trylock(mm)) {
+		if (!user_mode(regs) && !search_exception_tables(regs->pc))
+			goto no_context;
+retry:
+		mmap_read_lock(mm);
+	} else {
+		/*
+		 * The above mmap_read_trylock() might have succeeded in which
+>>>>>>> upstream/android-13
 		 * case, we'll have missed the might_sleep() from down_read().
 		 */
 		might_sleep();
 #ifdef CONFIG_DEBUG_VM
+<<<<<<< HEAD
 		if (!user_mode(regs) && !search_exception_tables(regs->pc))
 			goto no_context;
 #endif
@@ -549,18 +980,46 @@ retry:
 		 */
 		if (mm_flags & FAULT_FLAG_ALLOW_RETRY) {
 			mm_flags &= ~FAULT_FLAG_ALLOW_RETRY;
+=======
+		if (!user_mode(regs) && !search_exception_tables(regs->pc)) {
+			mmap_read_unlock(mm);
+			goto no_context;
+		}
+#endif
+	}
+
+	fault = __do_page_fault(mm, addr, mm_flags, vm_flags, regs);
+
+	/* Quick path to respond to signals */
+	if (fault_signal_pending(fault, regs)) {
+		if (!user_mode(regs))
+			goto no_context;
+		return 0;
+	}
+
+	if (fault & VM_FAULT_RETRY) {
+		if (mm_flags & FAULT_FLAG_ALLOW_RETRY) {
+>>>>>>> upstream/android-13
 			mm_flags |= FAULT_FLAG_TRIED;
 			goto retry;
 		}
 	}
+<<<<<<< HEAD
 	up_read(&mm->mmap_sem);
 
 done:
+=======
+	mmap_read_unlock(mm);
+#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
+done:
+#endif
+>>>>>>> upstream/android-13
 
 	/*
 	 * Handle the "normal" (no error) case first.
 	 */
 	if (likely(!(fault & (VM_FAULT_ERROR | VM_FAULT_BADMAP |
+<<<<<<< HEAD
 			      VM_FAULT_BADACCESS)))) {
 		/*
 		 * Major/minor page fault accounting is only done
@@ -580,6 +1039,10 @@ done:
 
 		return 0;
 	}
+=======
+			      VM_FAULT_BADACCESS))))
+		return 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we are in kernel mode at this point, we have no context to
@@ -598,14 +1061,20 @@ done:
 		return 0;
 	}
 
+<<<<<<< HEAD
 	clear_siginfo(&si);
 	si.si_addr = (void __user *)addr;
 
+=======
+	inf = esr_to_fault_info(esr);
+	set_thread_esr(addr, esr);
+>>>>>>> upstream/android-13
 	if (fault & VM_FAULT_SIGBUS) {
 		/*
 		 * We had some memory, but were unable to successfully fix up
 		 * this page fault.
 		 */
+<<<<<<< HEAD
 		si.si_signo	= SIGBUS;
 		si.si_code	= BUS_ADRERR;
 	} else if (fault & VM_FAULT_HWPOISON_LARGE) {
@@ -618,17 +1087,36 @@ done:
 		si.si_signo	= SIGBUS;
 		si.si_code	= BUS_MCEERR_AR;
 		si.si_addr_lsb	= PAGE_SHIFT;
+=======
+		arm64_force_sig_fault(SIGBUS, BUS_ADRERR, far, inf->name);
+	} else if (fault & (VM_FAULT_HWPOISON_LARGE | VM_FAULT_HWPOISON)) {
+		unsigned int lsb;
+
+		lsb = PAGE_SHIFT;
+		if (fault & VM_FAULT_HWPOISON_LARGE)
+			lsb = hstate_index_to_shift(VM_FAULT_GET_HINDEX(fault));
+
+		arm64_force_sig_mceerr(BUS_MCEERR_AR, far, lsb, inf->name);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * Something tried to access memory that isn't in our memory
 		 * map.
 		 */
+<<<<<<< HEAD
 		si.si_signo	= SIGSEGV;
 		si.si_code	= fault == VM_FAULT_BADACCESS ?
 				  SEGV_ACCERR : SEGV_MAPERR;
 	}
 
 	__do_user_fault(&si, esr);
+=======
+		arm64_force_sig_fault(SIGSEGV,
+				      fault == VM_FAULT_BADACCESS ? SEGV_ACCERR : SEGV_MAPERR,
+				      far, inf->name);
+	}
+
+>>>>>>> upstream/android-13
 	return 0;
 
 no_context:
@@ -636,6 +1124,7 @@ no_context:
 	return 0;
 }
 
+<<<<<<< HEAD
 int __weak do_tlb_conf_fault(unsigned long addr,
 			     unsigned int esr,
 			     struct pt_regs *regs)
@@ -717,6 +1206,95 @@ static int do_sea(unsigned long addr, unsigned int esr, struct pt_regs *regs)
 		info.si_addr  = (void __user *)addr;
 	arm64_notify_die(inf->name, regs, &info, esr);
 
+=======
+static int __kprobes do_translation_fault(unsigned long far,
+					  unsigned int esr,
+					  struct pt_regs *regs)
+{
+	unsigned long addr = untagged_addr(far);
+
+	if (is_ttbr0_addr(addr))
+		return do_page_fault(far, esr, regs);
+
+	do_bad_area(far, esr, regs);
+	return 0;
+}
+
+static int do_alignment_fault(unsigned long far, unsigned int esr,
+			      struct pt_regs *regs)
+{
+	do_bad_area(far, esr, regs);
+	return 0;
+}
+
+static int do_bad(unsigned long far, unsigned int esr, struct pt_regs *regs)
+{
+	unsigned long addr = untagged_addr(far);
+	int ret = 1;
+
+	trace_android_vh_handle_tlb_conf(addr, esr, &ret);
+	return ret;
+}
+
+#define __is_in_kernel_image(addr)					\
+	((unsigned long)(addr) >= (unsigned long)KERNEL_START &&	\
+	 (unsigned long)(addr) <= (unsigned long)KERNEL_END)
+
+static phys_addr_t show_virt_to_phys(unsigned long addr)
+{
+	if (!is_vmalloc_or_module_addr((void *)addr) ||
+			__is_in_kernel_image(addr))
+		return __pa(addr);
+	else
+		return page_to_phys(vmalloc_to_page((void *)addr)) +
+		       offset_in_page(addr);
+}
+
+static int do_sea(unsigned long far, unsigned int esr, struct pt_regs *regs)
+{
+	const struct fault_info *inf;
+	unsigned long siaddr;
+
+	inf = esr_to_fault_info(esr);
+
+	if (user_mode(regs) && apei_claim_sea(regs) == 0) {
+		/*
+		 * APEI claimed this as a firmware-first notification.
+		 * Some processing deferred to task_work before ret_to_user().
+		 */
+		return 0;
+	}
+
+	if (esr & ESR_ELx_FnV) {
+		siaddr = 0;
+	} else {
+		/*
+		 * The architecture specifies that the tag bits of FAR_EL1 are
+		 * UNKNOWN for synchronous external aborts. Mask them out now
+		 * so that userspace doesn't see them.
+		 */
+		siaddr  = untagged_addr(far);
+	}
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_FAULT_MSG_ADV))
+		pr_auto(ASL1, "%s (0x%08x) at 0x%016lx[0x%09llx]\n",
+			      inf->name, esr, siaddr, show_virt_to_phys(siaddr));
+	trace_android_rvh_do_sea(siaddr, esr, regs);
+	arm64_notify_die(inf->name, regs, inf->sig, inf->code, siaddr, esr);
+
+	return 0;
+}
+
+static int do_tag_check_fault(unsigned long far, unsigned int esr,
+			      struct pt_regs *regs)
+{
+	/*
+	 * The architecture specifies that bits 63:60 of FAR_EL1 are UNKNOWN
+	 * for tag check faults. Set them to corresponding bits in the untagged
+	 * address.
+	 */
+	far = (__untagged_addr(far) & ~MTE_TAG_MASK) | (far & MTE_TAG_MASK);
+	do_bad_area(far, esr, regs);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -738,7 +1316,11 @@ static const struct fault_info fault_info[] = {
 	{ do_page_fault,	SIGSEGV, SEGV_ACCERR,	"level 2 permission fault"	},
 	{ do_page_fault,	SIGSEGV, SEGV_ACCERR,	"level 3 permission fault"	},
 	{ do_sea,		SIGBUS,  BUS_OBJERR,	"synchronous external abort"	},
+<<<<<<< HEAD
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 17"			},
+=======
+	{ do_tag_check_fault,	SIGSEGV, SEGV_MTESERR,	"synchronous tag check fault"	},
+>>>>>>> upstream/android-13
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 18"			},
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 19"			},
 	{ do_sea,		SIGKILL, SI_KERNEL,	"level 0 (translation table walk)"	},
@@ -769,7 +1351,11 @@ static const struct fault_info fault_info[] = {
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 45"			},
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 46"			},
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 47"			},
+<<<<<<< HEAD
 	{ _do_tlb_conf_fault,	SIGKILL, SI_KERNEL,	"TLB conflict abort"		},
+=======
+	{ do_bad,		SIGKILL, SI_KERNEL,	"TLB conflict abort"		},
+>>>>>>> upstream/android-13
 	{ do_bad,		SIGKILL, SI_KERNEL,	"Unsupported atomic hardware update fault"	},
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 50"			},
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 51"			},
@@ -787,6 +1373,7 @@ static const struct fault_info fault_info[] = {
 	{ do_bad,		SIGKILL, SI_KERNEL,	"unknown 63"			},
 };
 
+<<<<<<< HEAD
 int handle_guest_sea(phys_addr_t addr, unsigned int esr)
 {
 	return ghes_notify_sea();
@@ -812,10 +1399,28 @@ asmlinkage void __exception do_mem_abort(unsigned long addr, unsigned int esr,
 		sec_debug_set_extra_info_fault(addr, regs);
 		sec_debug_set_extra_info_esr(esr);
 #endif
+=======
+void do_mem_abort(unsigned long far, unsigned int esr, struct pt_regs *regs)
+{
+	const struct fault_info *inf = esr_to_fault_info(esr);
+	unsigned long addr = untagged_addr(far);
+
+	if (!inf->fn(far, esr, regs))
+		return;
+
+	if (!user_mode(regs)) {
+		if (IS_ENABLED(CONFIG_SEC_DEBUG_FAULT_MSG_ADV))
+			pr_auto(ASL1, "Unhandled fault: %s (0x%08x) at 0x%016lx\n",
+						inf->name, esr, addr);
+		else
+			pr_alert("Unhandled fault at 0x%016lx\n", addr);
+		trace_android_rvh_do_mem_abort(addr, esr, regs);
+>>>>>>> upstream/android-13
 		mem_abort_decode(esr);
 		show_pte(addr);
 	}
 
+<<<<<<< HEAD
 	clear_siginfo(&info);
 	info.si_signo = inf->sig;
 	info.si_errno = 0;
@@ -881,6 +1486,30 @@ asmlinkage void __exception do_sp_pc_abort(unsigned long addr,
 	info.si_addr  = (void __user *)addr;
 	arm64_notify_die("SP/PC alignment exception", regs, &info, esr);
 }
+=======
+	/*
+	 * At this point we have an unrecognized fault type whose tag bits may
+	 * have been defined as UNKNOWN. Therefore we only expose the untagged
+	 * address to the signal handler.
+	 */
+	arm64_notify_die(inf->name, regs, inf->sig, inf->code, addr, esr);
+}
+NOKPROBE_SYMBOL(do_mem_abort);
+
+void do_sp_pc_abort(unsigned long addr, unsigned int esr, struct pt_regs *regs)
+{
+	trace_android_rvh_do_sp_pc_abort(addr, esr, regs);
+
+	if (IS_ENABLED(CONFIG_SEC_DEBUG_FAULT_MSG_ADV) && !user_mode(regs))
+		pr_auto(ASL1, "%s exception: pc=0x%016llx sp=0x%016llx\n",
+			esr_get_class_string(esr),
+			regs->pc, regs->sp);
+
+	arm64_notify_die("SP/PC alignment exception", regs, SIGBUS, BUS_ADRALN,
+			 addr, esr);
+}
+NOKPROBE_SYMBOL(do_sp_pc_abort);
+>>>>>>> upstream/android-13
 
 int __init early_brk64(unsigned long addr, unsigned int esr,
 		       struct pt_regs *regs);
@@ -913,6 +1542,7 @@ void __init hook_debug_fault_code(int nr,
 	debug_fault_info[nr].name	= name;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_ARM64_ERRATUM_1463225
 DECLARE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
 
@@ -960,10 +1590,42 @@ asmlinkage int __exception do_debug_exception(unsigned long addr_if_watchpoint,
 	 */
 	if (interrupts_enabled(regs))
 		trace_hardirqs_off();
+=======
+/*
+ * In debug exception context, we explicitly disable preemption despite
+ * having interrupts disabled.
+ * This serves two purposes: it makes it much less likely that we would
+ * accidentally schedule in exception context and it will force a warning
+ * if we somehow manage to schedule by accident.
+ */
+static void debug_exception_enter(struct pt_regs *regs)
+{
+	preempt_disable();
+
+	/* This code is a bit fragile.  Test it. */
+	RCU_LOCKDEP_WARN(!rcu_is_watching(), "exception_enter didn't work");
+}
+NOKPROBE_SYMBOL(debug_exception_enter);
+
+static void debug_exception_exit(struct pt_regs *regs)
+{
+	preempt_enable_no_resched();
+}
+NOKPROBE_SYMBOL(debug_exception_exit);
+
+void do_debug_exception(unsigned long addr_if_watchpoint, unsigned int esr,
+			struct pt_regs *regs)
+{
+	const struct fault_info *inf = esr_to_debug_fault_info(esr);
+	unsigned long pc = instruction_pointer(regs);
+
+	debug_exception_enter(regs);
+>>>>>>> upstream/android-13
 
 	if (user_mode(regs) && !is_ttbr0_addr(pc))
 		arm64_apply_bp_hardening();
 
+<<<<<<< HEAD
 	if (!inf->fn(addr_if_watchpoint, esr, regs)) {
 		rv = 1;
 	} else {
@@ -998,3 +1660,38 @@ void cpu_enable_pan(const struct arm64_cpu_capabilities *__unused)
 	asm(SET_PSTATE_PAN(1));
 }
 #endif /* CONFIG_ARM64_PAN */
+=======
+	if (inf->fn(addr_if_watchpoint, esr, regs)) {
+		arm64_notify_die(inf->name, regs, inf->sig, inf->code, pc, esr);
+	}
+
+	debug_exception_exit(regs);
+}
+NOKPROBE_SYMBOL(do_debug_exception);
+
+/*
+ * Used during anonymous page fault handling.
+ */
+struct page *alloc_zeroed_user_highpage_movable(struct vm_area_struct *vma,
+						unsigned long vaddr)
+{
+	gfp_t flags = GFP_HIGHUSER_MOVABLE | __GFP_ZERO | __GFP_CMA;
+
+	/*
+	 * If the page is mapped with PROT_MTE, initialise the tags at the
+	 * point of allocation and page zeroing as this is usually faster than
+	 * separate DC ZVA and STGM.
+	 */
+	if (vma->vm_flags & VM_MTE)
+		flags |= __GFP_ZEROTAGS;
+
+	return alloc_page_vma(flags, vma, vaddr);
+}
+
+void tag_clear_highpage(struct page *page)
+{
+	mte_zero_clear_page_tags(page_address(page));
+	page_kasan_tag_reset(page);
+	set_bit(PG_mte_tagged, &page->flags);
+}
+>>>>>>> upstream/android-13

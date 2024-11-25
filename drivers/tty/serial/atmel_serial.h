@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0+
+=======
+/* SPDX-License-Identifier: GPL-2.0+ */
+>>>>>>> upstream/android-13
 /*
  * include/linux/atmel_serial.h
  *
@@ -78,7 +82,12 @@
 #define	ATMEL_US_OVER		BIT(19)	/* Oversampling Mode */
 #define	ATMEL_US_INACK		BIT(20)	/* Inhibit Non Acknowledge */
 #define	ATMEL_US_DSNACK		BIT(21)	/* Disable Successive NACK */
+<<<<<<< HEAD
 #define	ATMEL_US_MAX_ITER	GENMASK(26, 24)	/* Max Iterations */
+=======
+#define	ATMEL_US_MAX_ITER_MASK	GENMASK(26, 24)	/* Max Iterations */
+#define	ATMEL_US_MAX_ITER(n)	(((n) << 24) & ATMEL_US_MAX_ITER_MASK)
+>>>>>>> upstream/android-13
 #define	ATMEL_US_FILTER		BIT(28)	/* Infrared Receive Line Filter */
 
 #define ATMEL_US_IER		0x08	/* Interrupt Enable Register */

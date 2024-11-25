@@ -16,7 +16,11 @@
  * OHCI is the main "non-Intel/VIA" standard for USB 1.1 host controller
  * interfaces (though some non-x86 Intel chips use it).  It supports
  * smarter hardware than UHCI.  A download link for the spec available
+<<<<<<< HEAD
  * through the http://www.usb.org website.
+=======
+ * through the https://www.usb.org website.
+>>>>>>> upstream/android-13
  *
  * This file is licenced under the GPL.
  */
@@ -40,6 +44,10 @@
 #include <linux/dmapool.h>
 #include <linux/workqueue.h>
 #include <linux/debugfs.h>
+<<<<<<< HEAD
+=======
+#include <linux/genalloc.h>
+>>>>>>> upstream/android-13
 
 #include <asm/io.h>
 #include <asm/irq.h>
@@ -170,7 +178,11 @@ static int ohci_urb_enqueue (
 
 			/* 1 TD for setup, 1 for ACK, plus ... */
 			size = 2;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		// case PIPE_INTERRUPT:
 		// case PIPE_BULK:
 		default:
@@ -384,7 +396,11 @@ sanitize:
 			ed_free (ohci, ed);
 			break;
 		}
+<<<<<<< HEAD
 		/* fall through */
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	default:
 		/* caller was supposed to have unlinked any requests;
 		 * that's not our job.  can't recover; must leak ed.
@@ -456,7 +472,11 @@ static int ohci_init (struct ohci_hcd *ohci)
 	struct usb_hcd *hcd = ohci_to_hcd(ohci);
 
 	/* Accept arbitrarily long scatter-gather lists */
+<<<<<<< HEAD
 	if (!(hcd->driver->flags & HCD_LOCAL_MEM))
+=======
+	if (!hcd->localmem_pool)
+>>>>>>> upstream/android-13
 		hcd->self.sg_tablesize = ~0;
 
 	if (distrust_firmware)
@@ -514,8 +534,20 @@ static int ohci_init (struct ohci_hcd *ohci)
 	timer_setup(&ohci->io_watchdog, io_watchdog_func, 0);
 	ohci->prev_frame_no = IO_WATCHDOG_OFF;
 
+<<<<<<< HEAD
 	ohci->hcca = dma_alloc_coherent (hcd->self.controller,
 			sizeof(*ohci->hcca), &ohci->hcca_dma, GFP_KERNEL);
+=======
+	if (hcd->localmem_pool)
+		ohci->hcca = gen_pool_dma_alloc_align(hcd->localmem_pool,
+						sizeof(*ohci->hcca),
+						&ohci->hcca_dma, 256);
+	else
+		ohci->hcca = dma_alloc_coherent(hcd->self.controller,
+						sizeof(*ohci->hcca),
+						&ohci->hcca_dma,
+						GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ohci->hcca)
 		return -ENOMEM;
 
@@ -1003,9 +1035,20 @@ static void ohci_stop (struct usb_hcd *hcd)
 	remove_debug_files (ohci);
 	ohci_mem_cleanup (ohci);
 	if (ohci->hcca) {
+<<<<<<< HEAD
 		dma_free_coherent (hcd->self.controller,
 				sizeof *ohci->hcca,
 				ohci->hcca, ohci->hcca_dma);
+=======
+		if (hcd->localmem_pool)
+			gen_pool_free(hcd->localmem_pool,
+				      (unsigned long)ohci->hcca,
+				      sizeof(*ohci->hcca));
+		else
+			dma_free_coherent(hcd->self.controller,
+					  sizeof(*ohci->hcca),
+					  ohci->hcca, ohci->hcca_dma);
+>>>>>>> upstream/android-13
 		ohci->hcca = NULL;
 		ohci->hcca_dma = 0;
 	}
@@ -1042,7 +1085,11 @@ int ohci_restart(struct ohci_hcd *ohci)
 			ed->ed_next = ohci->ed_rm_list;
 			ed->ed_prev = NULL;
 			ohci->ed_rm_list = ed;
+<<<<<<< HEAD
 			/* FALLTHROUGH */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case ED_UNLINK:
 			break;
 		default:
@@ -1178,7 +1225,11 @@ static const struct hc_driver ohci_hc_driver = {
 	 * generic hardware linkage
 	*/
 	.irq =                  ohci_irq,
+<<<<<<< HEAD
 	.flags =                HCD_MEMORY | HCD_USB11,
+=======
+	.flags =                HCD_MEMORY | HCD_DMA | HCD_USB11,
+>>>>>>> upstream/android-13
 
 	/*
 	* basic lifecycle operations

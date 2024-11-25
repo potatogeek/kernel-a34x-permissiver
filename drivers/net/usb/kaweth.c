@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /****************************************************************
  *
  *     kaweth.c - driver for KL5KUSB101 based USB->Ethernet
@@ -14,6 +18,7 @@
  *     Also many thanks to Joel Silverman and Ed Surprenant at Kawasaki
  *     for providing the firmware and driver resources.
  *
+<<<<<<< HEAD
  *     This program is free software; you can redistribute it and/or
  *     modify it under the terms of the GNU General Public License as
  *     published by the Free Software Foundation; either version 2, or
@@ -27,6 +32,8 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  ****************************************************************/
 
 /* TODO:
@@ -115,10 +122,13 @@ static int kaweth_probe(
 		const struct usb_device_id *id	/* from id_table */
 	);
 static void kaweth_disconnect(struct usb_interface *intf);
+<<<<<<< HEAD
 static int kaweth_internal_control_msg(struct usb_device *usb_dev,
 				       unsigned int pipe,
 				       struct usb_ctrlrequest *cmd, void *data,
 				       int len, int timeout);
+=======
+>>>>>>> upstream/android-13
 static int kaweth_suspend(struct usb_interface *intf, pm_message_t message);
 static int kaweth_resume(struct usb_interface *intf);
 
@@ -248,6 +258,7 @@ struct kaweth_device
 };
 
 /****************************************************************
+<<<<<<< HEAD
  *     kaweth_control
  ****************************************************************/
 static int kaweth_control(struct kaweth_device *kaweth,
@@ -290,10 +301,13 @@ static int kaweth_control(struct kaweth_device *kaweth,
 }
 
 /****************************************************************
+=======
+>>>>>>> upstream/android-13
  *     kaweth_read_configuration
  ****************************************************************/
 static int kaweth_read_configuration(struct kaweth_device *kaweth)
 {
+<<<<<<< HEAD
 	int retval;
 
 	retval = kaweth_control(kaweth,
@@ -307,6 +321,15 @@ static int kaweth_read_configuration(struct kaweth_device *kaweth)
 				KAWETH_CONTROL_TIMEOUT);
 
 	return retval;
+=======
+	return usb_control_msg(kaweth->dev, usb_rcvctrlpipe(kaweth->dev, 0),
+				KAWETH_COMMAND_GET_ETHERNET_DESC,
+				USB_TYPE_VENDOR | USB_DIR_IN | USB_RECIP_DEVICE,
+				0, 0,
+				&kaweth->configuration,
+				sizeof(kaweth->configuration),
+				KAWETH_CONTROL_TIMEOUT);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************
@@ -314,6 +337,7 @@ static int kaweth_read_configuration(struct kaweth_device *kaweth)
  ****************************************************************/
 static int kaweth_set_urb_size(struct kaweth_device *kaweth, __u16 urb_size)
 {
+<<<<<<< HEAD
 	int retval;
 
 	netdev_dbg(kaweth->net, "Setting URB size to %d\n", (unsigned)urb_size);
@@ -329,6 +353,16 @@ static int kaweth_set_urb_size(struct kaweth_device *kaweth, __u16 urb_size)
 				KAWETH_CONTROL_TIMEOUT);
 
 	return retval;
+=======
+	netdev_dbg(kaweth->net, "Setting URB size to %d\n", (unsigned)urb_size);
+
+	return usb_control_msg(kaweth->dev, usb_sndctrlpipe(kaweth->dev, 0),
+			       KAWETH_COMMAND_SET_URB_SIZE,
+			       USB_TYPE_VENDOR | USB_DIR_OUT | USB_RECIP_DEVICE,
+			       urb_size, 0,
+			       &kaweth->scratch, 0,
+			       KAWETH_CONTROL_TIMEOUT);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************
@@ -336,6 +370,7 @@ static int kaweth_set_urb_size(struct kaweth_device *kaweth, __u16 urb_size)
  ****************************************************************/
 static int kaweth_set_sofs_wait(struct kaweth_device *kaweth, __u16 sofs_wait)
 {
+<<<<<<< HEAD
 	int retval;
 
 	netdev_dbg(kaweth->net, "Set SOFS wait to %d\n", (unsigned)sofs_wait);
@@ -351,6 +386,16 @@ static int kaweth_set_sofs_wait(struct kaweth_device *kaweth, __u16 sofs_wait)
 				KAWETH_CONTROL_TIMEOUT);
 
 	return retval;
+=======
+	netdev_dbg(kaweth->net, "Set SOFS wait to %d\n", (unsigned)sofs_wait);
+
+	return usb_control_msg(kaweth->dev, usb_sndctrlpipe(kaweth->dev, 0),
+			       KAWETH_COMMAND_SET_SOFS_WAIT,
+			       USB_TYPE_VENDOR | USB_DIR_OUT | USB_RECIP_DEVICE,
+			       sofs_wait, 0,
+			       &kaweth->scratch, 0,
+			       KAWETH_CONTROL_TIMEOUT);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************
@@ -359,6 +404,7 @@ static int kaweth_set_sofs_wait(struct kaweth_device *kaweth, __u16 sofs_wait)
 static int kaweth_set_receive_filter(struct kaweth_device *kaweth,
 				     __u16 receive_filter)
 {
+<<<<<<< HEAD
 	int retval;
 
 	netdev_dbg(kaweth->net, "Set receive filter to %d\n",
@@ -375,6 +421,17 @@ static int kaweth_set_receive_filter(struct kaweth_device *kaweth,
 				KAWETH_CONTROL_TIMEOUT);
 
 	return retval;
+=======
+	netdev_dbg(kaweth->net, "Set receive filter to %d\n",
+		   (unsigned)receive_filter);
+
+	return usb_control_msg(kaweth->dev, usb_sndctrlpipe(kaweth->dev, 0),
+			       KAWETH_COMMAND_SET_PACKET_FILTER,
+			       USB_TYPE_VENDOR | USB_DIR_OUT | USB_RECIP_DEVICE,
+			       receive_filter, 0,
+			       &kaweth->scratch, 0,
+			       KAWETH_CONTROL_TIMEOUT);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************
@@ -419,6 +476,7 @@ static int kaweth_download_firmware(struct kaweth_device *kaweth,
 		   kaweth->firmware_buf, kaweth);
 	netdev_dbg(kaweth->net, "Firmware length: %d\n", data_len);
 
+<<<<<<< HEAD
 	return kaweth_control(kaweth,
 		              usb_sndctrlpipe(kaweth->dev, 0),
 			      KAWETH_COMMAND_SCAN,
@@ -427,6 +485,13 @@ static int kaweth_download_firmware(struct kaweth_device *kaweth,
 			      0,
 			      (void *)kaweth->firmware_buf,
 			      data_len,
+=======
+	return usb_control_msg(kaweth->dev, usb_sndctrlpipe(kaweth->dev, 0),
+			      KAWETH_COMMAND_SCAN,
+			      USB_TYPE_VENDOR | USB_DIR_OUT | USB_RECIP_DEVICE,
+			      0, 0,
+			      kaweth->firmware_buf, data_len,
+>>>>>>> upstream/android-13
 			      KAWETH_CONTROL_TIMEOUT);
 }
 
@@ -445,6 +510,7 @@ static int kaweth_trigger_firmware(struct kaweth_device *kaweth,
 	kaweth->firmware_buf[6] = 0x00;
 	kaweth->firmware_buf[7] = 0x00;
 
+<<<<<<< HEAD
 	return kaweth_control(kaweth,
 			      usb_sndctrlpipe(kaweth->dev, 0),
 			      KAWETH_COMMAND_SCAN,
@@ -454,6 +520,14 @@ static int kaweth_trigger_firmware(struct kaweth_device *kaweth,
 			      (void *)kaweth->firmware_buf,
 			      8,
 			      KAWETH_CONTROL_TIMEOUT);
+=======
+	return usb_control_msg(kaweth->dev, usb_sndctrlpipe(kaweth->dev, 0),
+			       KAWETH_COMMAND_SCAN,
+			       USB_TYPE_VENDOR | USB_DIR_OUT | USB_RECIP_DEVICE,
+			       0, 0,
+			       (void *)kaweth->firmware_buf, 8,
+			       KAWETH_CONTROL_TIMEOUT);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************
@@ -576,7 +650,12 @@ static int kaweth_resubmit_rx_urb(struct kaweth_device *kaweth,
 	return result;
 }
 
+<<<<<<< HEAD
 static void kaweth_async_set_rx_mode(struct kaweth_device *kaweth);
+=======
+static void kaweth_async_set_rx_mode(struct kaweth_device *kaweth,
+				     bool may_sleep);
+>>>>>>> upstream/android-13
 
 /****************************************************************
  *     kaweth_usb_receive
@@ -706,7 +785,11 @@ static int kaweth_open(struct net_device *net)
 
 	netif_start_queue(net);
 
+<<<<<<< HEAD
 	kaweth_async_set_rx_mode(kaweth);
+=======
+	kaweth_async_set_rx_mode(kaweth, true);
+>>>>>>> upstream/android-13
 	return 0;
 
 err_out:
@@ -794,7 +877,11 @@ static netdev_tx_t kaweth_start_xmit(struct sk_buff *skb,
 
 	spin_lock_irq(&kaweth->device_lock);
 
+<<<<<<< HEAD
 	kaweth_async_set_rx_mode(kaweth);
+=======
+	kaweth_async_set_rx_mode(kaweth, false);
+>>>>>>> upstream/android-13
 	netif_stop_queue(net);
 	if (IS_BLOCKED(kaweth->status)) {
 		goto skip;
@@ -871,15 +958,23 @@ static void kaweth_set_rx_mode(struct net_device *net)
 /****************************************************************
  *     kaweth_async_set_rx_mode
  ****************************************************************/
+<<<<<<< HEAD
 static void kaweth_async_set_rx_mode(struct kaweth_device *kaweth)
 {
 	int result;
+=======
+static void kaweth_async_set_rx_mode(struct kaweth_device *kaweth,
+				     bool may_sleep)
+{
+	int ret;
+>>>>>>> upstream/android-13
 	__u16 packet_filter_bitmap = kaweth->packet_filter_bitmap;
 
 	kaweth->packet_filter_bitmap = 0;
 	if (packet_filter_bitmap == 0)
 		return;
 
+<<<<<<< HEAD
 	if (in_interrupt())
 		return;
 
@@ -901,12 +996,33 @@ static void kaweth_async_set_rx_mode(struct kaweth_device *kaweth)
 		netdev_dbg(kaweth->net, "Set Rx mode to %d\n",
 			   packet_filter_bitmap);
 	}
+=======
+	if (!may_sleep)
+		return;
+
+	ret = usb_control_msg(kaweth->dev, usb_sndctrlpipe(kaweth->dev, 0),
+			      KAWETH_COMMAND_SET_PACKET_FILTER,
+			      USB_TYPE_VENDOR | USB_DIR_OUT | USB_RECIP_DEVICE,
+			      packet_filter_bitmap, 0,
+			      &kaweth->scratch, 0,
+			      KAWETH_CONTROL_TIMEOUT);
+	if (ret < 0)
+		dev_err(&kaweth->intf->dev, "Failed to set Rx mode: %d\n",
+			ret);
+	else
+		netdev_dbg(kaweth->net, "Set Rx mode to %d\n",
+			   packet_filter_bitmap);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************
  *     kaweth_tx_timeout
  ****************************************************************/
+<<<<<<< HEAD
 static void kaweth_tx_timeout(struct net_device *net)
+=======
+static void kaweth_tx_timeout(struct net_device *net, unsigned int txqueue)
+>>>>>>> upstream/android-13
 {
 	struct kaweth_device *kaweth = netdev_priv(net);
 
@@ -1208,6 +1324,7 @@ static void kaweth_disconnect(struct usb_interface *intf)
 }
 
 
+<<<<<<< HEAD
 // FIXME this completion stuff is a modified clone of
 // an OLD version of some stuff in usb.c ...
 struct usb_api_data {
@@ -1292,4 +1409,6 @@ static int kaweth_internal_control_msg(struct usb_device *usb_dev,
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 module_usb_driver(kaweth_driver);

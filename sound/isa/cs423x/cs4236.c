@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Driver for generic CS4232/CS4235/CS4236/CS4236B/CS4237B/CS4238B/CS4239 chips
  *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
@@ -17,6 +18,12 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Driver for generic CS4232/CS4235/CS4236/CS4236B/CS4237B/CS4238B/CS4239 chips
+ *  Copyright (c) by Jaroslav Kysela <perex@perex.cz>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -33,6 +40,7 @@
 MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Cirrus Logic CS4232-9");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{{Turtle Beach,TBS-2000},"
 		"{Turtle Beach,Tropez Plus},"
 		"{SIC CrystalWave 32},"
@@ -67,6 +75,8 @@ MODULE_SUPPORTED_DEVICE("{{Turtle Beach,TBS-2000},"
 		"{Turtle Beach,Malibu},"
 		"{Unknown,Digital PC 5000 Onboard}}");
 
+=======
+>>>>>>> upstream/android-13
 MODULE_ALIAS("snd_cs4232");
 
 #define IDENT "CS4232+"
@@ -125,7 +135,10 @@ static int pnp_registered;
 
 struct snd_card_cs4236 {
 	struct snd_wss *chip;
+<<<<<<< HEAD
 	struct resource *res_sb_port;
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PNP
 	struct pnp_dev *wss;
 	struct pnp_dev *ctrl;
@@ -358,6 +371,7 @@ static int snd_card_cs423x_pnpc(int dev, struct snd_card_cs4236 *acard,
 #define is_isapnp_selected(dev)		0
 #endif
 
+<<<<<<< HEAD
 static void snd_card_cs4236_free(struct snd_card *card)
 {
 	struct snd_card_cs4236 *acard = card->private_data;
@@ -365,17 +379,26 @@ static void snd_card_cs4236_free(struct snd_card *card)
 	release_and_free_resource(acard->res_sb_port);
 }
 
+=======
+>>>>>>> upstream/android-13
 static int snd_cs423x_card_new(struct device *pdev, int dev,
 			       struct snd_card **cardp)
 {
 	struct snd_card *card;
 	int err;
 
+<<<<<<< HEAD
 	err = snd_card_new(pdev, index[dev], id[dev], THIS_MODULE,
 			   sizeof(struct snd_card_cs4236), &card);
 	if (err < 0)
 		return err;
 	card->private_free = snd_card_cs4236_free;
+=======
+	err = snd_devm_card_new(pdev, index[dev], id[dev], THIS_MODULE,
+				sizeof(struct snd_card_cs4236), &card);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	*cardp = card;
 	return 0;
 }
@@ -388,11 +411,21 @@ static int snd_cs423x_probe(struct snd_card *card, int dev)
 	int err;
 
 	acard = card->private_data;
+<<<<<<< HEAD
 	if (sb_port[dev] > 0 && sb_port[dev] != SNDRV_AUTO_PORT)
 		if ((acard->res_sb_port = request_region(sb_port[dev], 16, IDENT " SB")) == NULL) {
 			printk(KERN_ERR IDENT ": unable to register SB port at 0x%lx\n", sb_port[dev]);
 			return -EBUSY;
 		}
+=======
+	if (sb_port[dev] > 0 && sb_port[dev] != SNDRV_AUTO_PORT) {
+		if (!devm_request_region(card->dev, sb_port[dev], 16,
+					 IDENT " SB")) {
+			printk(KERN_ERR IDENT ": unable to register SB port at 0x%lx\n", sb_port[dev]);
+			return -EBUSY;
+		}
+	}
+>>>>>>> upstream/android-13
 
 	err = snd_cs4236_create(card, port[dev], cport[dev],
 			     irq[dev],
@@ -420,8 +453,13 @@ static int snd_cs423x_probe(struct snd_card *card, int dev)
 		if (err < 0)
 			return err;
 	}
+<<<<<<< HEAD
 	strlcpy(card->driver, chip->pcm->name, sizeof(card->driver));
 	strlcpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+=======
+	strscpy(card->driver, chip->pcm->name, sizeof(card->driver));
+	strscpy(card->shortname, chip->pcm->name, sizeof(card->shortname));
+>>>>>>> upstream/android-13
 	if (dma2[dev] < 0)
 		snprintf(card->longname, sizeof(card->longname),
 			 "%s at 0x%lx, irq %i, dma %i",
@@ -442,7 +480,12 @@ static int snd_cs423x_probe(struct snd_card *card, int dev)
 				    OPL3_HW_OPL3_CS, 0, &opl3) < 0) {
 			printk(KERN_WARNING IDENT ": OPL3 not detected\n");
 		} else {
+<<<<<<< HEAD
 			if ((err = snd_opl3_hwdep_new(opl3, 0, 1, NULL)) < 0)
+=======
+			err = snd_opl3_hwdep_new(opl3, 0, 1, NULL);
+			if (err < 0)
+>>>>>>> upstream/android-13
 				return err;
 		}
 	}
@@ -493,15 +536,22 @@ static int snd_cs423x_isa_probe(struct device *pdev,
 	err = snd_cs423x_card_new(pdev, dev, &card);
 	if (err < 0)
 		return err;
+<<<<<<< HEAD
 	if ((err = snd_cs423x_probe(card, dev)) < 0) {
 		snd_card_free(card);
 		return err;
 	}
 
+=======
+	err = snd_cs423x_probe(card, dev);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	dev_set_drvdata(pdev, card);
 	return 0;
 }
 
+<<<<<<< HEAD
 static int snd_cs423x_isa_remove(struct device *pdev,
 				 unsigned int dev)
 {
@@ -509,6 +559,8 @@ static int snd_cs423x_isa_remove(struct device *pdev,
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int snd_cs423x_suspend(struct snd_card *card)
 {
@@ -541,7 +593,10 @@ static int snd_cs423x_isa_resume(struct device *dev, unsigned int n)
 static struct isa_driver cs423x_isa_driver = {
 	.match		= snd_cs423x_isa_match,
 	.probe		= snd_cs423x_isa_probe,
+<<<<<<< HEAD
 	.remove		= snd_cs423x_isa_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend	= snd_cs423x_isa_suspend,
 	.resume		= snd_cs423x_isa_resume,
@@ -559,7 +614,11 @@ static int snd_cs423x_pnpbios_detect(struct pnp_dev *pdev,
 	static int dev;
 	int err;
 	struct snd_card *card;
+<<<<<<< HEAD
 	struct pnp_dev *cdev;
+=======
+	struct pnp_dev *cdev, *iter;
+>>>>>>> upstream/android-13
 	char cid[PNP_ID_LEN];
 
 	if (pnp_device_is_isapnp(pdev))
@@ -575,9 +634,17 @@ static int snd_cs423x_pnpbios_detect(struct pnp_dev *pdev,
 	strcpy(cid, pdev->id[0].id);
 	cid[5] = '1';
 	cdev = NULL;
+<<<<<<< HEAD
 	list_for_each_entry(cdev, &(pdev->protocol->devices), protocol_list) {
 		if (!strcmp(cdev->id[0].id, cid))
 			break;
+=======
+	list_for_each_entry(iter, &(pdev->protocol->devices), protocol_list) {
+		if (!strcmp(iter->id[0].id, cid)) {
+			cdev = iter;
+			break;
+		}
+>>>>>>> upstream/android-13
 	}
 	err = snd_cs423x_card_new(&pdev->dev, dev, &card);
 	if (err < 0)
@@ -585,6 +652,7 @@ static int snd_cs423x_pnpbios_detect(struct pnp_dev *pdev,
 	err = snd_card_cs423x_pnp(dev, card->private_data, pdev, cdev);
 	if (err < 0) {
 		printk(KERN_ERR "PnP BIOS detection failed for " IDENT "\n");
+<<<<<<< HEAD
 		snd_card_free(card);
 		return err;
 	}
@@ -592,16 +660,26 @@ static int snd_cs423x_pnpbios_detect(struct pnp_dev *pdev,
 		snd_card_free(card);
 		return err;
 	}
+=======
+		return err;
+	}
+	err = snd_cs423x_probe(card, dev);
+	if (err < 0)
+		return err;
+>>>>>>> upstream/android-13
 	pnp_set_drvdata(pdev, card);
 	dev++;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_cs423x_pnp_remove(struct pnp_dev *pdev)
 {
 	snd_card_free(pnp_get_drvdata(pdev));
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int snd_cs423x_pnp_suspend(struct pnp_dev *pdev, pm_message_t state)
 {
@@ -618,7 +696,10 @@ static struct pnp_driver cs423x_pnp_driver = {
 	.name = "cs423x-pnpbios",
 	.id_table = snd_cs423x_pnpbiosids,
 	.probe = snd_cs423x_pnpbios_detect,
+<<<<<<< HEAD
 	.remove = snd_cs423x_pnp_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend	= snd_cs423x_pnp_suspend,
 	.resume		= snd_cs423x_pnp_resume,
@@ -642,6 +723,7 @@ static int snd_cs423x_pnpc_detect(struct pnp_card_link *pcard,
 	res = snd_cs423x_card_new(&pcard->card->dev, dev, &card);
 	if (res < 0)
 		return res;
+<<<<<<< HEAD
 	if ((res = snd_card_cs423x_pnpc(dev, card->private_data, pcard, pid)) < 0) {
 		printk(KERN_ERR "isapnp detection failed and probing for " IDENT
 		       " is not supported\n");
@@ -652,17 +734,31 @@ static int snd_cs423x_pnpc_detect(struct pnp_card_link *pcard,
 		snd_card_free(card);
 		return res;
 	}
+=======
+	res = snd_card_cs423x_pnpc(dev, card->private_data, pcard, pid);
+	if (res < 0) {
+		printk(KERN_ERR "isapnp detection failed and probing for " IDENT
+		       " is not supported\n");
+		return res;
+	}
+	res = snd_cs423x_probe(card, dev);
+	if (res < 0)
+		return res;
+>>>>>>> upstream/android-13
 	pnp_set_card_drvdata(pcard, card);
 	dev++;
 	return 0;
 }
 
+<<<<<<< HEAD
 static void snd_cs423x_pnpc_remove(struct pnp_card_link *pcard)
 {
 	snd_card_free(pnp_get_card_drvdata(pcard));
 	pnp_set_card_drvdata(pcard, NULL);
 }
 
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 static int snd_cs423x_pnpc_suspend(struct pnp_card_link *pcard, pm_message_t state)
 {
@@ -680,7 +776,10 @@ static struct pnp_card_driver cs423x_pnpc_driver = {
 	.name = CS423X_ISAPNP_DRIVER,
 	.id_table = snd_cs423x_pnpids,
 	.probe = snd_cs423x_pnpc_detect,
+<<<<<<< HEAD
 	.remove = snd_cs423x_pnpc_remove,
+=======
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 	.suspend	= snd_cs423x_pnpc_suspend,
 	.resume		= snd_cs423x_pnpc_resume,

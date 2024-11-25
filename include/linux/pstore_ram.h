@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010 Marco Stornelli <marco.stornelli@gmail.com>
  * Copyright (C) 2011 Kees Cook <keescook@chromium.org>
  * Copyright (C) 2011 Google, Inc.
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -12,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __LINUX_PSTORE_RAM_H__
@@ -22,6 +29,10 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
+<<<<<<< HEAD
+=======
+#include <linux/pstore.h>
+>>>>>>> upstream/android-13
 #include <linux/types.h>
 
 /*
@@ -30,6 +41,14 @@
  * PRZ_FLAG_NO_LOCK is used. For all other cases, locking is required.
  */
 #define PRZ_FLAG_NO_LOCK	BIT(0)
+<<<<<<< HEAD
+=======
+/*
+ * If a PRZ should only have a single-boot lifetime, this marks it as
+ * getting wiped after its contents get copied out after boot.
+ */
+#define PRZ_FLAG_ZAP_OLD	BIT(1)
+>>>>>>> upstream/android-13
 
 struct persistent_ram_buffer;
 struct rs_control;
@@ -42,16 +61,67 @@ struct persistent_ram_ecc_info {
 	uint16_t *par;
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * struct persistent_ram_zone - Details of a persistent RAM zone (PRZ)
+ *                              used as a pstore backend
+ *
+ * @paddr:	physical address of the mapped RAM area
+ * @size:	size of mapping
+ * @label:	unique name of this PRZ
+ * @type:	frontend type for this PRZ
+ * @flags:	holds PRZ_FLAGS_* bits
+ *
+ * @buffer_lock:
+ *	locks access to @buffer "size" bytes and "start" offset
+ * @buffer:
+ *	pointer to actual RAM area managed by this PRZ
+ * @buffer_size:
+ *	bytes in @buffer->data (not including any trailing ECC bytes)
+ *
+ * @par_buffer:
+ *	pointer into @buffer->data containing ECC bytes for @buffer->data
+ * @par_header:
+ *	pointer into @buffer->data containing ECC bytes for @buffer header
+ *	(i.e. all fields up to @data)
+ * @rs_decoder:
+ *	RSLIB instance for doing ECC calculations
+ * @corrected_bytes:
+ *	ECC corrected bytes accounting since boot
+ * @bad_blocks:
+ *	ECC uncorrectable bytes accounting since boot
+ * @ecc_info:
+ *	ECC configuration details
+ *
+ * @old_log:
+ *	saved copy of @buffer->data prior to most recent wipe
+ * @old_log_size:
+ *	bytes contained in @old_log
+ *
+ */
+>>>>>>> upstream/android-13
 struct persistent_ram_zone {
 	phys_addr_t paddr;
 	size_t size;
 	void *vaddr;
+<<<<<<< HEAD
 	struct persistent_ram_buffer *buffer;
 	size_t buffer_size;
 	u32 flags;
 	raw_spinlock_t buffer_lock;
 
 	/* ECC correction */
+=======
+	char *label;
+	enum pstore_type_id type;
+	u32 flags;
+
+	raw_spinlock_t buffer_lock;
+	struct persistent_ram_buffer *buffer;
+	size_t buffer_size;
+
+>>>>>>> upstream/android-13
 	char *par_buffer;
 	char *par_header;
 	struct rs_control *rs_decoder;
@@ -65,7 +135,11 @@ struct persistent_ram_zone {
 
 struct persistent_ram_zone *persistent_ram_new(phys_addr_t start, size_t size,
 			u32 sig, struct persistent_ram_ecc_info *ecc_info,
+<<<<<<< HEAD
 			unsigned int memtype, u32 flags);
+=======
+			unsigned int memtype, u32 flags, char *label);
+>>>>>>> upstream/android-13
 void persistent_ram_free(struct persistent_ram_zone *prz);
 void persistent_ram_zap(struct persistent_ram_zone *prz);
 
@@ -97,7 +171,11 @@ struct ramoops_platform_data {
 	unsigned long	console_size;
 	unsigned long	ftrace_size;
 	unsigned long	pmsg_size;
+<<<<<<< HEAD
 	int		dump_oops;
+=======
+	int		max_reason;
+>>>>>>> upstream/android-13
 	u32		flags;
 	struct persistent_ram_ecc_info ecc_info;
 };

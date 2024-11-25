@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * IPVS:        Weighted Round-Robin Scheduling module
  *
  * Authors:     Wensong Zhang <wensong@linuxvirtualserver.org>
  *
+<<<<<<< HEAD
  *              This program is free software; you can redistribute it and/or
  *              modify it under the terms of the GNU General Public License
  *              as published by the Free Software Foundation; either version
  *              2 of the License, or (at your option) any later version.
  *
+=======
+>>>>>>> upstream/android-13
  * Changes:
  *     Wensong Zhang            :     changed the ip_vs_wrr_schedule to return dest
  *     Wensong Zhang            :     changed some comestics things for debugging
@@ -15,7 +22,10 @@
  *     Wensong Zhang            :     added the ip_vs_wrr_update_svc
  *     Julian Anastasov         :     fixed the bug of returning destination
  *                                    with weight 0 when all weights are zero
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define KMSG_COMPONENT "IPVS"

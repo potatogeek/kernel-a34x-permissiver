@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  Copyright 2007-2010 Red Hat, Inc.
  *  by Peter Jones <pjones@redhat.com>
@@ -7,6 +11,7 @@
  *  by Konrad Rzeszutek <ketuzsezr@darnok.org>
  *
  * This code finds the iSCSI Boot Format Table.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v2.0 as published by
@@ -19,6 +24,11 @@
  */
 
 #include <linux/bootmem.h>
+=======
+ */
+
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/blkdev.h>
 #include <linux/ctype.h>
 #include <linux/device.h>
@@ -39,8 +49,13 @@
 /*
  * Physical location of iSCSI Boot Format Table.
  */
+<<<<<<< HEAD
 struct acpi_table_ibft *ibft_addr;
 EXPORT_SYMBOL_GPL(ibft_addr);
+=======
+phys_addr_t ibft_phys_addr;
+EXPORT_SYMBOL_GPL(ibft_phys_addr);
+>>>>>>> upstream/android-13
 
 static const struct {
 	char *sign;
@@ -55,13 +70,31 @@ static const struct {
 #define VGA_MEM 0xA0000 /* VGA buffer */
 #define VGA_SIZE 0x20000 /* 128kB */
 
+<<<<<<< HEAD
 static int __init find_ibft_in_mem(void)
+=======
+/*
+ * Routine used to find and reserve the iSCSI Boot Format Table
+ */
+void __init reserve_ibft_region(void)
+>>>>>>> upstream/android-13
 {
 	unsigned long pos;
 	unsigned int len = 0;
 	void *virt;
 	int i;
 
+<<<<<<< HEAD
+=======
+	ibft_phys_addr = 0;
+
+	/* iBFT 1.03 section 1.4.3.1 mandates that UEFI machines will
+	 * only use ACPI for this
+	 */
+	if (efi_enabled(EFI_BOOT))
+		return;
+
+>>>>>>> upstream/android-13
 	for (pos = IBFT_START; pos < IBFT_END; pos += 16) {
 		/* The table can't be inside the VGA BIOS reserved space,
 		 * so skip that area */
@@ -78,13 +111,21 @@ static int __init find_ibft_in_mem(void)
 				/* if the length of the table extends past 1M,
 				 * the table cannot be valid. */
 				if (pos + len <= (IBFT_END-1)) {
+<<<<<<< HEAD
 					ibft_addr = (struct acpi_table_ibft *)virt;
 					pr_info("iBFT found at 0x%lx.\n", pos);
 					goto done;
+=======
+					ibft_phys_addr = pos;
+					memblock_reserve(ibft_phys_addr, PAGE_ALIGN(len));
+					pr_info("iBFT found at %pa.\n", &ibft_phys_addr);
+					return;
+>>>>>>> upstream/android-13
 				}
 			}
 		}
 	}
+<<<<<<< HEAD
 done:
 	return len;
 }
@@ -109,4 +150,6 @@ unsigned long __init find_ibft_region(unsigned long *sizep)
 
 	*sizep = 0;
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }

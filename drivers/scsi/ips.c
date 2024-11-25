@@ -208,7 +208,11 @@ module_param(ips, charp, 0);
 
 #define IPS_DMA_DIR(scb) ((!scb->scsi_cmd || ips_is_passthru(scb->scsi_cmd) || \
                          DMA_NONE == scb->scsi_cmd->sc_data_direction) ? \
+<<<<<<< HEAD
                          PCI_DMA_BIDIRECTIONAL : \
+=======
+                         DMA_BIDIRECTIONAL : \
+>>>>>>> upstream/android-13
                          scb->scsi_cmd->sc_data_direction)
 
 #ifdef IPS_DEBUG
@@ -365,7 +369,10 @@ static struct scsi_host_template ips_driver_template = {
 	.this_id		= -1,
 	.sg_tablesize		= IPS_MAX_SG,
 	.cmd_per_lun		= 3,
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.no_write_same		= 1,
 };
 
@@ -499,7 +506,11 @@ ips_setup(char *ips_str)
 	int i;
 	char *key;
 	char *value;
+<<<<<<< HEAD
 	IPS_OPTION options[] = {
+=======
+	static const IPS_OPTION options[] = {
+>>>>>>> upstream/android-13
 		{"noi2o", &ips_force_i2o, 0},
 		{"nommap", &ips_force_memio, 0},
 		{"ioctlsize", &ips_ioctlsize, IPS_IOCTL_SIZE},
@@ -1046,10 +1057,17 @@ static int ips_queue_lck(struct scsi_cmnd *SC, void (*done) (struct scsi_cmnd *)
 	ha = (ips_ha_t *) SC->device->host->hostdata;
 
 	if (!ha)
+<<<<<<< HEAD
 		return (1);
 
 	if (!ha->active)
 		return (DID_ERROR);
+=======
+		goto out_error;
+
+	if (!ha->active)
+		goto out_error;
+>>>>>>> upstream/android-13
 
 	if (ips_is_passthru(SC)) {
 		if (ha->copp_waitlist.count == IPS_MAX_IOCTL_QUEUE) {
@@ -1125,6 +1143,14 @@ static int ips_queue_lck(struct scsi_cmnd *SC, void (*done) (struct scsi_cmnd *)
 	ips_next(ha, IPS_INTR_IORL);
 
 	return (0);
+<<<<<<< HEAD
+=======
+out_error:
+	SC->result = DID_ERROR << 16;
+	done(SC);
+
+	return (0);
+>>>>>>> upstream/android-13
 }
 
 static DEF_SCSI_QCMD(ips_queue)
@@ -1529,11 +1555,20 @@ ips_alloc_passthru_buffer(ips_ha_t * ha, int length)
 	if (ha->ioctl_data && length <= ha->ioctl_len)
 		return 0;
 	/* there is no buffer or it's not big enough, allocate a new one */
+<<<<<<< HEAD
 	bigger_buf = pci_alloc_consistent(ha->pcidev, length, &dma_busaddr);
 	if (bigger_buf) {
 		/* free the old memory */
 		pci_free_consistent(ha->pcidev, ha->ioctl_len, ha->ioctl_data,
 				    ha->ioctl_busaddr);
+=======
+	bigger_buf = dma_alloc_coherent(&ha->pcidev->dev, length, &dma_busaddr,
+			GFP_KERNEL);
+	if (bigger_buf) {
+		/* free the old memory */
+		dma_free_coherent(&ha->pcidev->dev, ha->ioctl_len,
+				  ha->ioctl_data, ha->ioctl_busaddr);
+>>>>>>> upstream/android-13
 		/* use the new memory */
 		ha->ioctl_data = (char *) bigger_buf;
 		ha->ioctl_len = length;
@@ -1678,9 +1713,14 @@ ips_flash_copperhead(ips_ha_t * ha, ips_passthru_t * pt, ips_scb_t * scb)
 		} else if (!ha->flash_data) {
 			datasize = pt->CoppCP.cmd.flashfw.total_packets *
 			    pt->CoppCP.cmd.flashfw.count;
+<<<<<<< HEAD
 			ha->flash_data = pci_alloc_consistent(ha->pcidev,
 					                      datasize,
 							      &ha->flash_busaddr);
+=======
+			ha->flash_data = dma_alloc_coherent(&ha->pcidev->dev,
+					datasize, &ha->flash_busaddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 			if (!ha->flash_data){
 				printk(KERN_WARNING "Unable to allocate a flash buffer\n");
 				return IPS_FAILURE;
@@ -1801,6 +1841,7 @@ ips_fill_scb_sg_single(ips_ha_t * ha, dma_addr_t busaddr,
 	}
 	if (IPS_USE_ENH_SGLIST(ha)) {
 		scb->sg_list.enh_list[indx].address_lo =
+<<<<<<< HEAD
 		    cpu_to_le32(pci_dma_lo32(busaddr));
 		scb->sg_list.enh_list[indx].address_hi =
 		    cpu_to_le32(pci_dma_hi32(busaddr));
@@ -1808,6 +1849,15 @@ ips_fill_scb_sg_single(ips_ha_t * ha, dma_addr_t busaddr,
 	} else {
 		scb->sg_list.std_list[indx].address =
 		    cpu_to_le32(pci_dma_lo32(busaddr));
+=======
+		    cpu_to_le32(lower_32_bits(busaddr));
+		scb->sg_list.enh_list[indx].address_hi =
+		    cpu_to_le32(upper_32_bits(busaddr));
+		scb->sg_list.enh_list[indx].length = cpu_to_le32(e_len);
+	} else {
+		scb->sg_list.std_list[indx].address =
+		    cpu_to_le32(lower_32_bits(busaddr));
+>>>>>>> upstream/android-13
 		scb->sg_list.std_list[indx].length = cpu_to_le32(e_len);
 	}
 
@@ -1858,7 +1908,11 @@ ips_flash_firmware(ips_ha_t * ha, ips_passthru_t * pt, ips_scb_t * scb)
 
 	scb->data_len = ha->flash_datasize;
 	scb->data_busaddr =
+<<<<<<< HEAD
 	    pci_map_single(ha->pcidev, ha->flash_data, scb->data_len,
+=======
+	    dma_map_single(&ha->pcidev->dev, ha->flash_data, scb->data_len,
+>>>>>>> upstream/android-13
 			   IPS_DMA_DIR(scb));
 	scb->flags |= IPS_SCB_MAP_SINGLE;
 	scb->cmd.flashfw.command_id = IPS_COMMAND_ID(ha, scb);
@@ -1880,8 +1934,13 @@ ips_free_flash_copperhead(ips_ha_t * ha)
 	if (ha->flash_data == ips_FlashData)
 		test_and_clear_bit(0, &ips_FlashDataInUse);
 	else if (ha->flash_data)
+<<<<<<< HEAD
 		pci_free_consistent(ha->pcidev, ha->flash_len, ha->flash_data,
 				    ha->flash_busaddr);
+=======
+		dma_free_coherent(&ha->pcidev->dev, ha->flash_len,
+				  ha->flash_data, ha->flash_busaddr);
+>>>>>>> upstream/android-13
 	ha->flash_data = NULL;
 }
 
@@ -2240,7 +2299,11 @@ ips_get_bios_version(ips_ha_t * ha, int intr)
 	major = 0;
 	minor = 0;
 
+<<<<<<< HEAD
 	strncpy(ha->bios_version, "       ?", 8);
+=======
+	memcpy(ha->bios_version, "       ?", 8);
+>>>>>>> upstream/android-13
 
 	if (ha->pcidev->device == IPS_DEVICEID_COPPERHEAD) {
 		if (IPS_USE_MEMIO(ha)) {
@@ -3340,6 +3403,7 @@ ips_map_status(ips_ha_t * ha, ips_scb_t * scb, ips_stat_t * sp)
 					IPS_CMD_EXTENDED_DCDB_SG)) {
 					tapeDCDB =
 					    (IPS_DCDB_TABLE_TAPE *) & scb->dcdb;
+<<<<<<< HEAD
 					memcpy(scb->scsi_cmd->sense_buffer,
 					       tapeDCDB->sense_info,
 					       SCSI_SENSE_BUFFERSIZE);
@@ -3347,6 +3411,17 @@ ips_map_status(ips_ha_t * ha, ips_scb_t * scb, ips_stat_t * sp)
 					memcpy(scb->scsi_cmd->sense_buffer,
 					       scb->dcdb.sense_info,
 					       SCSI_SENSE_BUFFERSIZE);
+=======
+					memcpy_and_pad(scb->scsi_cmd->sense_buffer,
+					       SCSI_SENSE_BUFFERSIZE,
+					       tapeDCDB->sense_info,
+					       sizeof(tapeDCDB->sense_info), 0);
+				} else {
+					memcpy_and_pad(scb->scsi_cmd->sense_buffer,
+					       SCSI_SENSE_BUFFERSIZE,
+					       scb->dcdb.sense_info,
+					       sizeof(scb->dcdb.sense_info), 0);
+>>>>>>> upstream/android-13
 				}
 				device_error = 2;	/* check condition */
 			}
@@ -3516,11 +3591,19 @@ ips_send_cmd(ips_ha_t * ha, ips_scb_t * scb)
 					inquiry.Flags[1] =
 					    IPS_SCSI_INQ_WBus16 |
 					    IPS_SCSI_INQ_Sync;
+<<<<<<< HEAD
 					strncpy(inquiry.VendorId, "IBM     ",
 						8);
 					strncpy(inquiry.ProductId,
 						"SERVERAID       ", 16);
 					strncpy(inquiry.ProductRevisionLevel,
+=======
+					memcpy(inquiry.VendorId, "IBM     ",
+						8);
+					memcpy(inquiry.ProductId,
+						"SERVERAID       ", 16);
+					memcpy(inquiry.ProductRevisionLevel,
+>>>>>>> upstream/android-13
 						"1.00", 4);
 
 					ips_scmd_buf_write(scb->scsi_cmd,
@@ -3729,7 +3812,11 @@ ips_send_cmd(ips_ha_t * ha, ips_scb_t * scb)
 		scb->cmd.dcdb.segment_4G = 0;
 		scb->cmd.dcdb.enhanced_sg = 0;
 
+<<<<<<< HEAD
 		TimeOut = scb->scsi_cmd->request->timeout;
+=======
+		TimeOut = scsi_cmd_to_rq(scb->scsi_cmd)->timeout;
+>>>>>>> upstream/android-13
 
 		if (ha->subsys->param[4] & 0x00100000) {	/* If NEW Tape DCDB is Supported */
 			if (!scb->sg_len) {
@@ -4037,9 +4124,15 @@ ips_inquiry(ips_ha_t * ha, ips_scb_t * scb)
 	inquiry.Flags[0] = IPS_SCSI_INQ_Address16;
 	inquiry.Flags[1] =
 	    IPS_SCSI_INQ_WBus16 | IPS_SCSI_INQ_Sync | IPS_SCSI_INQ_CmdQue;
+<<<<<<< HEAD
 	strncpy(inquiry.VendorId, "IBM     ", 8);
 	strncpy(inquiry.ProductId, "SERVERAID       ", 16);
 	strncpy(inquiry.ProductRevisionLevel, "1.00", 4);
+=======
+	memcpy(inquiry.VendorId, "IBM     ", 8);
+	memcpy(inquiry.ProductId, "SERVERAID       ", 16);
+	memcpy(inquiry.ProductRevisionLevel, "1.00", 4);
+>>>>>>> upstream/android-13
 
 	ips_scmd_buf_write(scb->scsi_cmd, &inquiry, sizeof (inquiry));
 
@@ -4213,7 +4306,11 @@ ips_free(ips_ha_t * ha)
 
 	if (ha) {
 		if (ha->enq) {
+<<<<<<< HEAD
 			pci_free_consistent(ha->pcidev, sizeof(IPS_ENQ),
+=======
+			dma_free_coherent(&ha->pcidev->dev, sizeof(IPS_ENQ),
+>>>>>>> upstream/android-13
 					    ha->enq, ha->enq_busaddr);
 			ha->enq = NULL;
 		}
@@ -4222,7 +4319,11 @@ ips_free(ips_ha_t * ha)
 		ha->conf = NULL;
 
 		if (ha->adapt) {
+<<<<<<< HEAD
 			pci_free_consistent(ha->pcidev,
+=======
+			dma_free_coherent(&ha->pcidev->dev,
+>>>>>>> upstream/android-13
 					    sizeof (IPS_ADAPTER) +
 					    sizeof (IPS_IO_CMD), ha->adapt,
 					    ha->adapt->hw_status_start);
@@ -4230,7 +4331,11 @@ ips_free(ips_ha_t * ha)
 		}
 
 		if (ha->logical_drive_info) {
+<<<<<<< HEAD
 			pci_free_consistent(ha->pcidev,
+=======
+			dma_free_coherent(&ha->pcidev->dev,
+>>>>>>> upstream/android-13
 					    sizeof (IPS_LD_INFO),
 					    ha->logical_drive_info,
 					    ha->logical_drive_info_dma_addr);
@@ -4244,7 +4349,11 @@ ips_free(ips_ha_t * ha)
 		ha->subsys = NULL;
 
 		if (ha->ioctl_data) {
+<<<<<<< HEAD
 			pci_free_consistent(ha->pcidev, ha->ioctl_len,
+=======
+			dma_free_coherent(&ha->pcidev->dev, ha->ioctl_len,
+>>>>>>> upstream/android-13
 					    ha->ioctl_data, ha->ioctl_busaddr);
 			ha->ioctl_data = NULL;
 			ha->ioctl_datasize = 0;
@@ -4277,11 +4386,19 @@ static int
 ips_deallocatescbs(ips_ha_t * ha, int cmds)
 {
 	if (ha->scbs) {
+<<<<<<< HEAD
 		pci_free_consistent(ha->pcidev,
 				    IPS_SGLIST_SIZE(ha) * IPS_MAX_SG * cmds,
 				    ha->scbs->sg_list.list,
 				    ha->scbs->sg_busaddr);
 		pci_free_consistent(ha->pcidev, sizeof (ips_scb_t) * cmds,
+=======
+		dma_free_coherent(&ha->pcidev->dev,
+				    IPS_SGLIST_SIZE(ha) * IPS_MAX_SG * cmds,
+				    ha->scbs->sg_list.list,
+				    ha->scbs->sg_busaddr);
+		dma_free_coherent(&ha->pcidev->dev, sizeof (ips_scb_t) * cmds,
+>>>>>>> upstream/android-13
 				    ha->scbs, ha->scbs->scb_busaddr);
 		ha->scbs = NULL;
 	}			/* end if */
@@ -4308,6 +4425,7 @@ ips_allocatescbs(ips_ha_t * ha)
 	METHOD_TRACE("ips_allocatescbs", 1);
 
 	/* Allocate memory for the SCBs */
+<<<<<<< HEAD
 	ha->scbs =
 	    pci_alloc_consistent(ha->pcidev, ha->max_cmds * sizeof (ips_scb_t),
 				 &command_dma);
@@ -4319,6 +4437,18 @@ ips_allocatescbs(ips_ha_t * ha)
 				 ha->max_cmds, &sg_dma);
 	if (ips_sg.list == NULL) {
 		pci_free_consistent(ha->pcidev,
+=======
+	ha->scbs = dma_alloc_coherent(&ha->pcidev->dev,
+			ha->max_cmds * sizeof (ips_scb_t),
+			&command_dma, GFP_KERNEL);
+	if (ha->scbs == NULL)
+		return 0;
+	ips_sg.list = dma_alloc_coherent(&ha->pcidev->dev,
+			IPS_SGLIST_SIZE(ha) * IPS_MAX_SG * ha->max_cmds,
+			&sg_dma, GFP_KERNEL);
+	if (ips_sg.list == NULL) {
+		dma_free_coherent(&ha->pcidev->dev,
+>>>>>>> upstream/android-13
 				    ha->max_cmds * sizeof (ips_scb_t), ha->scbs,
 				    command_dma);
 		return 0;
@@ -4447,8 +4577,13 @@ ips_freescb(ips_ha_t * ha, ips_scb_t * scb)
 	if (scb->flags & IPS_SCB_MAP_SG)
                 scsi_dma_unmap(scb->scsi_cmd);
 	else if (scb->flags & IPS_SCB_MAP_SINGLE)
+<<<<<<< HEAD
 		pci_unmap_single(ha->pcidev, scb->data_busaddr, scb->data_len,
 				 IPS_DMA_DIR(scb));
+=======
+		dma_unmap_single(&ha->pcidev->dev, scb->data_busaddr,
+				 scb->data_len, IPS_DMA_DIR(scb));
+>>>>>>> upstream/android-13
 
 	/* check to make sure this is not our "special" scb */
 	if (IPS_COMMAND_ID(ha, scb) < (ha->max_cmds - 1)) {
@@ -4560,7 +4695,12 @@ ips_flush_and_reset(ips_ha_t *ha)
 	dma_addr_t command_dma;
 
 	/* Create a usuable SCB */
+<<<<<<< HEAD
 	scb = pci_alloc_consistent(ha->pcidev, sizeof(ips_scb_t), &command_dma);
+=======
+	scb = dma_alloc_coherent(&ha->pcidev->dev, sizeof(ips_scb_t),
+			&command_dma, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (scb) {
 	    memset(scb, 0, sizeof(ips_scb_t));
 	    ips_init_scb(ha, scb);
@@ -4595,7 +4735,11 @@ ips_flush_and_reset(ips_ha_t *ha)
 	/* Now RESET and INIT the adapter */
 	(*ha->func.reset) (ha);
 
+<<<<<<< HEAD
 	pci_free_consistent(ha->pcidev, sizeof(ips_scb_t), scb, command_dma);
+=======
+	dma_free_coherent(&ha->pcidev->dev, sizeof(ips_scb_t), scb, command_dma);
+>>>>>>> upstream/android-13
 	return;
 }
 
@@ -4698,7 +4842,10 @@ ips_init_copperhead(ips_ha_t * ha)
 	uint8_t Isr;
 	uint8_t Cbsp;
 	uint8_t PostByte[IPS_MAX_POST_BYTES];
+<<<<<<< HEAD
 	uint8_t ConfigByte[IPS_MAX_CONFIG_BYTES];
+=======
+>>>>>>> upstream/android-13
 	int i, j;
 
 	METHOD_TRACE("ips_init_copperhead", 1);
@@ -4743,7 +4890,11 @@ ips_init_copperhead(ips_ha_t * ha)
 			/* error occurred */
 			return (0);
 
+<<<<<<< HEAD
 		ConfigByte[i] = inb(ha->io_addr + IPS_REG_ISPR);
+=======
+		inb(ha->io_addr + IPS_REG_ISPR);
+>>>>>>> upstream/android-13
 		outb(Isr, ha->io_addr + IPS_REG_HISR);
 	}
 
@@ -4792,7 +4943,10 @@ ips_init_copperhead_memio(ips_ha_t * ha)
 	uint8_t Isr = 0;
 	uint8_t Cbsp;
 	uint8_t PostByte[IPS_MAX_POST_BYTES];
+<<<<<<< HEAD
 	uint8_t ConfigByte[IPS_MAX_CONFIG_BYTES];
+=======
+>>>>>>> upstream/android-13
 	int i, j;
 
 	METHOD_TRACE("ips_init_copperhead_memio", 1);
@@ -4837,7 +4991,11 @@ ips_init_copperhead_memio(ips_ha_t * ha)
 			/* error occurred */
 			return (0);
 
+<<<<<<< HEAD
 		ConfigByte[i] = readb(ha->mem_ptr + IPS_REG_ISPR);
+=======
+		readb(ha->mem_ptr + IPS_REG_ISPR);
+>>>>>>> upstream/android-13
 		writeb(Isr, ha->mem_ptr + IPS_REG_HISR);
 	}
 
@@ -5623,10 +5781,17 @@ ips_write_driver_status(ips_ha_t * ha, int intr)
 	/* change values (as needed) */
 	ha->nvram->operating_system = IPS_OS_LINUX;
 	ha->nvram->adapter_type = ha->ad_type;
+<<<<<<< HEAD
 	strncpy((char *) ha->nvram->driver_high, IPS_VERSION_HIGH, 4);
 	strncpy((char *) ha->nvram->driver_low, IPS_VERSION_LOW, 4);
 	strncpy((char *) ha->nvram->bios_high, ha->bios_version, 4);
 	strncpy((char *) ha->nvram->bios_low, ha->bios_version + 4, 4);
+=======
+	memcpy((char *) ha->nvram->driver_high, IPS_VERSION_HIGH, 4);
+	memcpy((char *) ha->nvram->driver_low, IPS_VERSION_LOW, 4);
+	memcpy((char *) ha->nvram->bios_high, ha->bios_version, 4);
+	memcpy((char *) ha->nvram->bios_low, ha->bios_version + 4, 4);
+>>>>>>> upstream/android-13
 
 	ha->nvram->versioning = 0;	/* Indicate the Driver Does Not Support Versioning */
 
@@ -6678,7 +6843,10 @@ ips_register_scsi(int index)
 	sh->sg_tablesize = sh->hostt->sg_tablesize;
 	sh->can_queue = sh->hostt->can_queue;
 	sh->cmd_per_lun = sh->hostt->cmd_per_lun;
+<<<<<<< HEAD
 	sh->use_clustering = sh->hostt->use_clustering;
+=======
+>>>>>>> upstream/android-13
 	sh->max_sectors = 128;
 
 	sh->max_id = ha->ntargets;
@@ -6837,8 +7005,11 @@ ips_init_phase1(struct pci_dev *pci_dev, int *indexPtr)
 	uint32_t mem_addr;
 	uint32_t io_len;
 	uint32_t mem_len;
+<<<<<<< HEAD
 	uint8_t bus;
 	uint8_t func;
+=======
+>>>>>>> upstream/android-13
 	int j;
 	int index;
 	dma_addr_t dma_address;
@@ -6858,10 +7029,13 @@ ips_init_phase1(struct pci_dev *pci_dev, int *indexPtr)
 	if (index >= IPS_MAX_ADAPTERS)
 		return -1;
 
+<<<<<<< HEAD
 	/* stuff that we get in dev */
 	bus = pci_dev->bus->number;
 	func = pci_dev->devfn;
 
+=======
+>>>>>>> upstream/android-13
 	/* Init MEM/IO addresses to 0 */
 	mem_addr = 0;
 	io_addr = 0;
@@ -6926,30 +7100,53 @@ ips_init_phase1(struct pci_dev *pci_dev, int *indexPtr)
 	 * it!  Also, don't use 64bit addressing if dma addresses
 	 * are guaranteed to be < 4G.
 	 */
+<<<<<<< HEAD
 	if (IPS_ENABLE_DMA64 && IPS_HAS_ENH_SGLIST(ha) &&
 	    !pci_set_dma_mask(ha->pcidev, DMA_BIT_MASK(64))) {
 		(ha)->flags |= IPS_HA_ENH_SG;
 	} else {
 		if (pci_set_dma_mask(ha->pcidev, DMA_BIT_MASK(32)) != 0) {
+=======
+	if (sizeof(dma_addr_t) > 4 && IPS_HAS_ENH_SGLIST(ha) &&
+	    !dma_set_mask(&ha->pcidev->dev, DMA_BIT_MASK(64))) {
+		(ha)->flags |= IPS_HA_ENH_SG;
+	} else {
+		if (dma_set_mask(&ha->pcidev->dev, DMA_BIT_MASK(32)) != 0) {
+>>>>>>> upstream/android-13
 			printk(KERN_WARNING "Unable to set DMA Mask\n");
 			return ips_abort_init(ha, index);
 		}
 	}
 	if(ips_cd_boot && !ips_FlashData){
+<<<<<<< HEAD
 		ips_FlashData = pci_alloc_consistent(pci_dev, PAGE_SIZE << 7,
 						     &ips_flashbusaddr);
 	}
 
 	ha->enq = pci_alloc_consistent(pci_dev, sizeof (IPS_ENQ),
 				       &ha->enq_busaddr);
+=======
+		ips_FlashData = dma_alloc_coherent(&pci_dev->dev,
+				PAGE_SIZE << 7, &ips_flashbusaddr, GFP_KERNEL);
+	}
+
+	ha->enq = dma_alloc_coherent(&pci_dev->dev, sizeof (IPS_ENQ),
+			&ha->enq_busaddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ha->enq) {
 		IPS_PRINTK(KERN_WARNING, pci_dev,
 			   "Unable to allocate host inquiry structure\n");
 		return ips_abort_init(ha, index);
 	}
 
+<<<<<<< HEAD
 	ha->adapt = pci_alloc_consistent(pci_dev, sizeof (IPS_ADAPTER) +
 					 sizeof (IPS_IO_CMD), &dma_address);
+=======
+	ha->adapt = dma_alloc_coherent(&pci_dev->dev,
+			sizeof (IPS_ADAPTER) + sizeof (IPS_IO_CMD),
+			&dma_address, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ha->adapt) {
 		IPS_PRINTK(KERN_WARNING, pci_dev,
 			   "Unable to allocate host adapt & dummy structures\n");
@@ -6960,7 +7157,12 @@ ips_init_phase1(struct pci_dev *pci_dev, int *indexPtr)
 
 
 
+<<<<<<< HEAD
 	ha->logical_drive_info = pci_alloc_consistent(pci_dev, sizeof (IPS_LD_INFO), &dma_address);
+=======
+	ha->logical_drive_info = dma_alloc_coherent(&pci_dev->dev,
+			sizeof (IPS_LD_INFO), &dma_address, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ha->logical_drive_info) {
 		IPS_PRINTK(KERN_WARNING, pci_dev,
 			   "Unable to allocate logical drive info structure\n");
@@ -6998,8 +7200,13 @@ ips_init_phase1(struct pci_dev *pci_dev, int *indexPtr)
 	if (ips_ioctlsize < PAGE_SIZE)
 		ips_ioctlsize = PAGE_SIZE;
 
+<<<<<<< HEAD
 	ha->ioctl_data = pci_alloc_consistent(pci_dev, ips_ioctlsize,
 					      &ha->ioctl_busaddr);
+=======
+	ha->ioctl_data = dma_alloc_coherent(&pci_dev->dev, ips_ioctlsize,
+			&ha->ioctl_busaddr, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	ha->ioctl_len = ips_ioctlsize;
 	if (!ha->ioctl_data) {
 		IPS_PRINTK(KERN_WARNING, pci_dev,
@@ -7102,6 +7309,7 @@ ips_init_phase2(int index)
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("IBM ServeRAID Adapter Driver " IPS_VER_STRING);
 MODULE_VERSION(IPS_VER_STRING);
+<<<<<<< HEAD
 
 
 /*
@@ -7122,3 +7330,5 @@ MODULE_VERSION(IPS_VER_STRING);
  * tab-width: 8
  * End:
  */
+=======
+>>>>>>> upstream/android-13

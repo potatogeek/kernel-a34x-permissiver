@@ -10,6 +10,7 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
 {
 #if defined(CONFIG_MACH_JAZZ)
 	return &jazz_dma_ops;
+<<<<<<< HEAD
 #elif defined(CONFIG_SWIOTLB)
 	return &swiotlb_dma_ops;
 #elif defined(CONFIG_DMA_NONCOHERENT_OPS)
@@ -26,6 +27,10 @@ static inline void arch_setup_dma_ops(struct device *dev, u64 dma_base,
 {
 #ifdef CONFIG_DMA_PERDEV_COHERENT
 	dev->archdata.dma_coherent = coherent;
+=======
+#else
+	return NULL;
+>>>>>>> upstream/android-13
 #endif
 }
 

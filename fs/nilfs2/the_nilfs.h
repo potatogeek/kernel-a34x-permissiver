@@ -375,7 +375,11 @@ static inline int nilfs_flush_device(struct the_nilfs *nilfs)
 	 */
 	smp_wmb();
 
+<<<<<<< HEAD
 	err = blkdev_issue_flush(nilfs->ns_bdev, GFP_KERNEL, NULL);
+=======
+	err = blkdev_issue_flush(nilfs->ns_bdev);
+>>>>>>> upstream/android-13
 	if (err != -EIO)
 		err = 0;
 	return err;

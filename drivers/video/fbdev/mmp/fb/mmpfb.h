@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * linux/drivers/video/mmp/fb/mmpfb.h
  * Framebuffer driver for Marvell Display controller.
  *
  * Copyright (C) 2012 Marvell Technology Group Ltd.
  * Authors: Zhou Zhu <zzhu3@marvell.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _MMP_FB_H_

@@ -53,6 +53,10 @@
 MODULE_DESCRIPTION("Driver for In-System Design, Inc. ISD200 ASIC");
 MODULE_AUTHOR("Björn Stenberg <bjorn@haxx.se>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(USB_STORAGE);
+>>>>>>> upstream/android-13
 
 static int isd200_Initialization(struct us_data *us);
 
@@ -1153,7 +1157,11 @@ static int isd200_get_inquiry_data( struct us_data *us )
 				/* Fill in vendor identification fields */
 				src = (__be16 *)&id[ATA_ID_PROD];
 				dest = (__u16*)info->InquiryData.VendorId;
+<<<<<<< HEAD
 				for (i=0;i<4;i++)
+=======
+				for (i = 0; i < 4; i++)
+>>>>>>> upstream/android-13
 					dest[i] = be16_to_cpu(src[i]);
 
 				src = (__be16 *)&id[ATA_ID_PROD + 8/2];
@@ -1382,7 +1390,11 @@ static int isd200_scsi_to_ata(struct scsi_cmnd *srb, struct us_data *us,
 				ATA_CMD_MEDIA_LOCK : ATA_CMD_MEDIA_UNLOCK;
 			isd200_srb_set_bufflen(srb, 0);
 		} else {
+<<<<<<< HEAD
 			usb_stor_dbg(us, "   Not removeable media, just report okay\n");
+=======
+			usb_stor_dbg(us, "   Not removable media, just report okay\n");
+>>>>>>> upstream/android-13
 			srb->result = SAM_STAT_GOOD;
 			sendToTransport = 0;
 		}
@@ -1511,7 +1523,11 @@ static int isd200_Initialization(struct us_data *us)
 
 static void isd200_ata_command(struct scsi_cmnd *srb, struct us_data *us)
 {
+<<<<<<< HEAD
 	int sendToTransport = 1, orig_bufflen;
+=======
+	int sendToTransport, orig_bufflen;
+>>>>>>> upstream/android-13
 	union ata_cdb ataCdb;
 
 	/* Make sure driver was initialized */

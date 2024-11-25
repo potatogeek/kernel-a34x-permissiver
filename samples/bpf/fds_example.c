@@ -14,8 +14,13 @@
 
 #include <bpf/bpf.h>
 
+<<<<<<< HEAD
 #include "bpf_insn.h"
 #include "bpf_load.h"
+=======
+#include <bpf/libbpf.h>
+#include "bpf_insn.h"
+>>>>>>> upstream/android-13
 #include "sock_example.h"
 
 #define BPF_F_PIN	(1 << 0)
@@ -30,6 +35,11 @@
 #define BPF_M_MAP	1
 #define BPF_M_PROG	2
 
+<<<<<<< HEAD
+=======
+char bpf_log_buf[BPF_LOG_BUF_SIZE];
+
+>>>>>>> upstream/android-13
 static void usage(void)
 {
 	printf("Usage: fds_example [...]\n");
@@ -57,10 +67,20 @@ static int bpf_prog_create(const char *object)
 		BPF_EXIT_INSN(),
 	};
 	size_t insns_cnt = sizeof(insns) / sizeof(struct bpf_insn);
+<<<<<<< HEAD
 
 	if (object) {
 		assert(!load_bpf_file((char *)object));
 		return prog_fd[0];
+=======
+	struct bpf_object *obj;
+	int prog_fd;
+
+	if (object) {
+		assert(!bpf_prog_load(object, BPF_PROG_TYPE_UNSPEC,
+				      &obj, &prog_fd));
+		return prog_fd;
+>>>>>>> upstream/android-13
 	} else {
 		return bpf_load_program(BPF_PROG_TYPE_SOCKET_FILTER,
 					insns, insns_cnt, "GPL", 0,

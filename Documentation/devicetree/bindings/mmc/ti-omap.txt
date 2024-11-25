@@ -24,6 +24,7 @@ Examples:
 		dmas = <&sdma 61 &sdma 62>;
 		dma-names = "tx", "rx";
 	};
+<<<<<<< HEAD
 
 * TI MMC host controller for OMAP1 and 2420
 
@@ -52,3 +53,5 @@ Examples:
 		dma-names = "tx", "rx";
 	};
 
+=======
+>>>>>>> upstream/android-13

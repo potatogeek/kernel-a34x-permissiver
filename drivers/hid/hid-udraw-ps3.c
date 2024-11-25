@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HID driver for THQ PS3 uDraw tablet
  *
  * Copyright (C) 2016 Red Hat Inc. All Rights Reserved
+<<<<<<< HEAD
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -11,6 +16,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/device.h>
@@ -24,7 +31,11 @@ MODULE_LICENSE("GPL");
 
 /*
  * Protocol information from:
+<<<<<<< HEAD
  * http://brandonw.net/udraw/
+=======
+ * https://brandonw.net/udraw/
+>>>>>>> upstream/android-13
  * and the source code of:
  * https://vvvv.org/contribution/udraw-hid
  */

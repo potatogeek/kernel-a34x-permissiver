@@ -4,6 +4,7 @@
  * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
  */
+<<<<<<< HEAD
 #include <linux/version.h>
 #include <linux/ptrace.h>
 #include <uapi/linux/bpf.h>
@@ -18,6 +19,22 @@ struct bpf_map_def SEC("maps") ip_map = {
 	.value_size = sizeof(u32),
 	.max_entries = MAX_IPS,
 };
+=======
+#include <linux/ptrace.h>
+#include <uapi/linux/bpf.h>
+#include <uapi/linux/bpf_perf_event.h>
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+
+#define MAX_IPS		8192
+
+struct {
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__type(key, u64);
+	__type(value, u32);
+	__uint(max_entries, MAX_IPS);
+} ip_map SEC(".maps");
+>>>>>>> upstream/android-13
 
 SEC("perf_event")
 int do_sample(struct bpf_perf_event_data *ctx)

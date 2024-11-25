@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C)2006 USAGI/WIDE Project
  *
@@ -5,11 +6,20 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C)2006 USAGI/WIDE Project
+ *
+>>>>>>> upstream/android-13
  * Author:
  *	Masahide NAKAMURA @USAGI <masahide.nakamura.cz@hitachi.com>
  *
  * Based on net/netfilter/xt_tcpudp.c
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/types.h>

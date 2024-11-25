@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
  * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
@@ -5,6 +6,12 @@
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License version 2.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
+ * Copyright (C) 2004-2008 Red Hat, Inc.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -39,6 +46,7 @@
 #define BFITNOENT ((u32)~0)
 #define NO_BLOCK ((u64)~0)
 
+<<<<<<< HEAD
 #if BITS_PER_LONG == 32
 #define LBITMASK   (0x55555555UL)
 #define LBITSKIP55 (0x55555555UL)
@@ -48,6 +56,25 @@
 #define LBITSKIP55 (0x5555555555555555UL)
 #define LBITSKIP00 (0x0000000000000000UL)
 #endif
+=======
+struct gfs2_rbm {
+	struct gfs2_rgrpd *rgd;
+	u32 offset;		/* The offset is bitmap relative */
+	int bii;		/* Bitmap index */
+};
+
+static inline struct gfs2_bitmap *rbm_bi(const struct gfs2_rbm *rbm)
+{
+	return rbm->rgd->rd_bits + rbm->bii;
+}
+
+static inline u64 gfs2_rbm_to_block(const struct gfs2_rbm *rbm)
+{
+	BUG_ON(rbm->offset >= rbm->rgd->rd_data);
+	return rbm->rgd->rd_data0 + (rbm_bi(rbm)->bi_start * GFS2_NBBY) +
+		rbm->offset;
+}
+>>>>>>> upstream/android-13
 
 /*
  * These routines are used by the resource group routines (rgrp.c)
@@ -74,7 +101,11 @@ static const char valid_change[16] = {
 };
 
 static int gfs2_rbm_find(struct gfs2_rbm *rbm, u8 state, u32 *minext,
+<<<<<<< HEAD
 			 const struct gfs2_inode *ip, bool nowrap);
+=======
+			 struct gfs2_blkreserv *rs, bool nowrap);
+>>>>>>> upstream/android-13
 
 
 /**
@@ -90,7 +121,11 @@ static inline void gfs2_setbit(const struct gfs2_rbm *rbm, bool do_clone,
 {
 	unsigned char *byte1, *byte2, *end, cur_state;
 	struct gfs2_bitmap *bi = rbm_bi(rbm);
+<<<<<<< HEAD
 	unsigned int buflen = bi->bi_len;
+=======
+	unsigned int buflen = bi->bi_bytes;
+>>>>>>> upstream/android-13
 	const unsigned int bit = (rbm->offset % GFS2_NBBY) * GFS2_BIT_SIZE;
 
 	byte1 = bi->bi_bh->b_data + bi->bi_offset + (rbm->offset / GFS2_NBBY);
@@ -101,12 +136,25 @@ static inline void gfs2_setbit(const struct gfs2_rbm *rbm, bool do_clone,
 	cur_state = (*byte1 >> bit) & GFS2_BIT_MASK;
 
 	if (unlikely(!valid_change[new_state * 4 + cur_state])) {
+<<<<<<< HEAD
 		pr_warn("buf_blk = 0x%x old_state=%d, new_state=%d\n",
 			rbm->offset, cur_state, new_state);
 		pr_warn("rgrp=0x%llx bi_start=0x%x\n",
 			(unsigned long long)rbm->rgd->rd_addr, bi->bi_start);
 		pr_warn("bi_offset=0x%x bi_len=0x%x\n",
 			bi->bi_offset, bi->bi_len);
+=======
+		struct gfs2_sbd *sdp = rbm->rgd->rd_sbd;
+
+		fs_warn(sdp, "buf_blk = 0x%x old_state=%d, new_state=%d\n",
+			rbm->offset, cur_state, new_state);
+		fs_warn(sdp, "rgrp=0x%llx bi_start=0x%x biblk: 0x%llx\n",
+			(unsigned long long)rbm->rgd->rd_addr, bi->bi_start,
+			(unsigned long long)bi->bi_bh->b_blocknr);
+		fs_warn(sdp, "bi_offset=0x%x bi_bytes=0x%x block=0x%llx\n",
+			bi->bi_offset, bi->bi_bytes,
+			(unsigned long long)gfs2_rbm_to_block(rbm));
+>>>>>>> upstream/android-13
 		dump_stack();
 		gfs2_consist_rgrpd(rbm->rgd);
 		return;
@@ -184,7 +232,11 @@ static inline u64 gfs2_bit_search(const __le64 *ptr, u64 mask, u8 state)
 
 /**
  * rs_cmp - multi-block reservation range compare
+<<<<<<< HEAD
  * @blk: absolute file system block number of the new reservation
+=======
+ * @start: start of the new reservation
+>>>>>>> upstream/android-13
  * @len: number of blocks in the new reservation
  * @rs: existing reservation to compare against
  *
@@ -192,6 +244,7 @@ static inline u64 gfs2_bit_search(const __le64 *ptr, u64 mask, u8 state)
  *         -1 if the block range is before the start of the reservation
  *          0 if the block range overlaps with the reservation
  */
+<<<<<<< HEAD
 static inline int rs_cmp(u64 blk, u32 len, struct gfs2_blkreserv *rs)
 {
 	u64 startblk = gfs2_rbm_to_block(&rs->rs_rbm);
@@ -199,6 +252,13 @@ static inline int rs_cmp(u64 blk, u32 len, struct gfs2_blkreserv *rs)
 	if (blk >= startblk + rs->rs_free)
 		return 1;
 	if (blk + len - 1 < startblk)
+=======
+static inline int rs_cmp(u64 start, u32 len, struct gfs2_blkreserv *rs)
+{
+	if (start >= rs->rs_start + rs->rs_requested)
+		return 1;
+	if (rs->rs_start >= start + len)
+>>>>>>> upstream/android-13
 		return -1;
 	return 0;
 }
@@ -269,6 +329,7 @@ static u32 gfs2_bitfit(const u8 *buf, const unsigned int len,
 
 static int gfs2_rbm_from_block(struct gfs2_rbm *rbm, u64 block)
 {
+<<<<<<< HEAD
 	u64 rblock = block - rbm->rgd->rd_data0;
 
 	if (WARN_ON_ONCE(rblock > UINT_MAX))
@@ -278,6 +339,12 @@ static int gfs2_rbm_from_block(struct gfs2_rbm *rbm, u64 block)
 
 	rbm->bii = 0;
 	rbm->offset = (u32)(rblock);
+=======
+	if (!rgrp_contains_block(rbm->rgd, block))
+		return -E2BIG;
+	rbm->bii = 0;
+	rbm->offset = block - rbm->rgd->rd_data0;
+>>>>>>> upstream/android-13
 	/* Check if the block is within the first block */
 	if (rbm->offset < rbm_bi(rbm)->bi_blocks)
 		return 0;
@@ -291,6 +358,7 @@ static int gfs2_rbm_from_block(struct gfs2_rbm *rbm, u64 block)
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_rbm_incr - increment an rbm structure
  * @rbm: The rbm with rgd already set correctly
  *
@@ -314,6 +382,40 @@ static bool gfs2_rbm_incr(struct gfs2_rbm *rbm)
 	rbm->offset = 0;
 	rbm->bii++;
 	return false;
+=======
+ * gfs2_rbm_add - add a number of blocks to an rbm
+ * @rbm: The rbm with rgd already set correctly
+ * @blocks: The number of blocks to add to rpm
+ *
+ * This function takes an existing rbm structure and adds a number of blocks to
+ * it.
+ *
+ * Returns: True if the new rbm would point past the end of the rgrp.
+ */
+
+static bool gfs2_rbm_add(struct gfs2_rbm *rbm, u32 blocks)
+{
+	struct gfs2_rgrpd *rgd = rbm->rgd;
+	struct gfs2_bitmap *bi = rgd->rd_bits + rbm->bii;
+
+	if (rbm->offset + blocks < bi->bi_blocks) {
+		rbm->offset += blocks;
+		return false;
+	}
+	blocks -= bi->bi_blocks - rbm->offset;
+
+	for(;;) {
+		bi++;
+		if (bi == rgd->rd_bits + rgd->rd_length)
+			return true;
+		if (blocks < bi->bi_blocks) {
+			rbm->offset = blocks;
+			rbm->bii = bi - rgd->rd_bits;
+			return false;
+		}
+		blocks -= bi->bi_blocks;
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -322,7 +424,12 @@ static bool gfs2_rbm_incr(struct gfs2_rbm *rbm)
  * @n_unaligned: Number of unaligned blocks to check
  * @len: Decremented for each block found (terminate on zero)
  *
+<<<<<<< HEAD
  * Returns: true if a non-free block is encountered
+=======
+ * Returns: true if a non-free block is encountered or the end of the resource
+ *	    group is reached.
+>>>>>>> upstream/android-13
  */
 
 static bool gfs2_unaligned_extlen(struct gfs2_rbm *rbm, u32 n_unaligned, u32 *len)
@@ -337,7 +444,11 @@ static bool gfs2_unaligned_extlen(struct gfs2_rbm *rbm, u32 n_unaligned, u32 *le
 		(*len)--;
 		if (*len == 0)
 			return true;
+<<<<<<< HEAD
 		if (gfs2_rbm_incr(rbm))
+=======
+		if (gfs2_rbm_add(rbm, 1))
+>>>>>>> upstream/android-13
 			return true;
 	}
 
@@ -382,7 +493,11 @@ static u32 gfs2_free_extlen(const struct gfs2_rbm *rrbm, u32 len)
 		if (bi->bi_clone)
 			start = bi->bi_clone;
 		start += bi->bi_offset;
+<<<<<<< HEAD
 		end = start + bi->bi_len;
+=======
+		end = start + bi->bi_bytes;
+>>>>>>> upstream/android-13
 		BUG_ON(rbm.offset & 3);
 		start += (rbm.offset / GFS2_NBBY);
 		bytes = min_t(u32, len / GFS2_NBBY, (end - start));
@@ -467,6 +582,7 @@ void gfs2_rgrp_verify(struct gfs2_rgrpd *rgd)
 			count[x] += gfs2_bitcount(rgd,
 						  bi->bi_bh->b_data +
 						  bi->bi_offset,
+<<<<<<< HEAD
 						  bi->bi_len, x);
 	}
 
@@ -474,21 +590,42 @@ void gfs2_rgrp_verify(struct gfs2_rgrpd *rgd)
 		if (gfs2_consist_rgrpd(rgd))
 			fs_err(sdp, "free data mismatch:  %u != %u\n",
 			       count[0], rgd->rd_free);
+=======
+						  bi->bi_bytes, x);
+	}
+
+	if (count[0] != rgd->rd_free) {
+		gfs2_lm(sdp, "free data mismatch:  %u != %u\n",
+			count[0], rgd->rd_free);
+		gfs2_consist_rgrpd(rgd);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	tmp = rgd->rd_data - rgd->rd_free - rgd->rd_dinodes;
 	if (count[1] != tmp) {
+<<<<<<< HEAD
 		if (gfs2_consist_rgrpd(rgd))
 			fs_err(sdp, "used data mismatch:  %u != %u\n",
 			       count[1], tmp);
+=======
+		gfs2_lm(sdp, "used data mismatch:  %u != %u\n",
+			count[1], tmp);
+		gfs2_consist_rgrpd(rgd);
+>>>>>>> upstream/android-13
 		return;
 	}
 
 	if (count[2] + count[3] != rgd->rd_dinodes) {
+<<<<<<< HEAD
 		if (gfs2_consist_rgrpd(rgd))
 			fs_err(sdp, "used metadata mismatch:  %u != %u\n",
 			       count[2] + count[3], rgd->rd_dinodes);
+=======
+		gfs2_lm(sdp, "used metadata mismatch:  %u != %u\n",
+			count[2] + count[3], rgd->rd_dinodes);
+		gfs2_consist_rgrpd(rgd);
+>>>>>>> upstream/android-13
 		return;
 	}
 }
@@ -604,6 +741,7 @@ void gfs2_free_clones(struct gfs2_rgrpd *rgd)
 	}
 }
 
+<<<<<<< HEAD
 /**
  * gfs2_rsqa_alloc - make sure we have a reservation assigned to the inode
  *                 plus a quota allocations data structure, if necessary
@@ -622,6 +760,18 @@ static void dump_rs(struct seq_file *seq, const struct gfs2_blkreserv *rs)
 		       (unsigned long long)ip->i_no_addr,
 		       (unsigned long long)gfs2_rbm_to_block(&rs->rs_rbm),
 		       rs->rs_rbm.offset, rs->rs_free);
+=======
+static void dump_rs(struct seq_file *seq, const struct gfs2_blkreserv *rs,
+		    const char *fs_id_buf)
+{
+	struct gfs2_inode *ip = container_of(rs, struct gfs2_inode, i_res);
+
+	gfs2_print_dbg(seq, "%s  B: n:%llu s:%llu f:%u\n",
+		       fs_id_buf,
+		       (unsigned long long)ip->i_no_addr,
+		       (unsigned long long)rs->rs_start,
+		       rs->rs_requested);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -636,11 +786,16 @@ static void __rs_deltree(struct gfs2_blkreserv *rs)
 	if (!gfs2_rs_active(rs))
 		return;
 
+<<<<<<< HEAD
 	rgd = rs->rs_rbm.rgd;
+=======
+	rgd = rs->rs_rgd;
+>>>>>>> upstream/android-13
 	trace_gfs2_rs(rs, TRACE_RS_TREEDEL);
 	rb_erase(&rs->rs_node, &rgd->rd_rstree);
 	RB_CLEAR_NODE(&rs->rs_node);
 
+<<<<<<< HEAD
 	if (rs->rs_free) {
 		u64 last_block = gfs2_rbm_to_block(&rs->rs_rbm) +
 				 rs->rs_free - 1;
@@ -650,10 +805,18 @@ static void __rs_deltree(struct gfs2_blkreserv *rs)
 		/* return reserved blocks to the rgrp */
 		BUG_ON(rs->rs_rbm.rgd->rd_reserved < rs->rs_free);
 		rs->rs_rbm.rgd->rd_reserved -= rs->rs_free;
+=======
+	if (rs->rs_requested) {
+		/* return requested blocks to the rgrp */
+		BUG_ON(rs->rs_rgd->rd_requested < rs->rs_requested);
+		rs->rs_rgd->rd_requested -= rs->rs_requested;
+
+>>>>>>> upstream/android-13
 		/* The rgrp extent failure point is likely not to increase;
 		   it will only do so if the freed blocks are somehow
 		   contiguous with a span of free blocks that follows. Still,
 		   it will force the number to be recalculated later. */
+<<<<<<< HEAD
 		rgd->rd_extfail_pt += rs->rs_free;
 		rs->rs_free = 0;
 		if (gfs2_rbm_from_block(&last_rbm, last_block))
@@ -663,6 +826,10 @@ static void __rs_deltree(struct gfs2_blkreserv *rs)
 		do
 			clear_bit(GBF_FULL, &start->bi_flags);
 		while (start++ != last);
+=======
+		rgd->rd_extfail_pt += rs->rs_requested;
+		rs->rs_requested = 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -675,16 +842,25 @@ void gfs2_rs_deltree(struct gfs2_blkreserv *rs)
 {
 	struct gfs2_rgrpd *rgd;
 
+<<<<<<< HEAD
 	rgd = rs->rs_rbm.rgd;
 	if (rgd) {
 		spin_lock(&rgd->rd_rsspin);
 		__rs_deltree(rs);
 		BUG_ON(rs->rs_free);
+=======
+	rgd = rs->rs_rgd;
+	if (rgd) {
+		spin_lock(&rgd->rd_rsspin);
+		__rs_deltree(rs);
+		BUG_ON(rs->rs_requested);
+>>>>>>> upstream/android-13
 		spin_unlock(&rgd->rd_rsspin);
 	}
 }
 
 /**
+<<<<<<< HEAD
  * gfs2_rsqa_delete - delete a multi-block reservation and quota allocation
  * @ip: The inode for this reservation
  * @wcount: The inode's write count, or NULL
@@ -697,6 +873,20 @@ void gfs2_rsqa_delete(struct gfs2_inode *ip, atomic_t *wcount)
 		gfs2_rs_deltree(&ip->i_res);
 	up_write(&ip->i_rw_mutex);
 	gfs2_qa_delete(ip, wcount);
+=======
+ * gfs2_rs_delete - delete a multi-block reservation
+ * @ip: The inode for this reservation
+ *
+ */
+void gfs2_rs_delete(struct gfs2_inode *ip)
+{
+	struct inode *inode = &ip->i_inode;
+
+	down_write(&ip->i_rw_mutex);
+	if (atomic_read(&inode->i_writecount) <= 1)
+		gfs2_rs_deltree(&ip->i_res);
+	up_write(&ip->i_rw_mutex);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -733,8 +923,17 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
 		rb_erase(n, &sdp->sd_rindex_tree);
 
 		if (gl) {
+<<<<<<< HEAD
 			glock_clear_object(gl, rgd);
 			gfs2_rgrp_brelse(rgd);
+=======
+			if (gl->gl_state != LM_ST_UNLOCKED) {
+				gfs2_glock_cb(gl, LM_ST_UNLOCKED);
+				flush_delayed_work(&gl->gl_work);
+			}
+			gfs2_rgrp_brelse(rgd);
+			glock_clear_object(gl, rgd);
+>>>>>>> upstream/android-13
 			gfs2_glock_put(gl);
 		}
 
@@ -746,6 +945,7 @@ void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
 	}
 }
 
+<<<<<<< HEAD
 static void gfs2_rindex_print(const struct gfs2_rgrpd *rgd)
 {
 	pr_info("ri_addr = %llu\n", (unsigned long long)rgd->rd_addr);
@@ -757,6 +957,10 @@ static void gfs2_rindex_print(const struct gfs2_rgrpd *rgd)
 
 /**
  * gfs2_compute_bitstructs - Compute the bitmap sizes
+=======
+/**
+ * compute_bitstructs - Compute the bitmap sizes
+>>>>>>> upstream/android-13
  * @rgd: The resource group descriptor
  *
  * Calculates bitmap descriptors, one for each block that contains bitmap data
@@ -790,21 +994,33 @@ static int compute_bitstructs(struct gfs2_rgrpd *rgd)
 			bytes = bytes_left;
 			bi->bi_offset = sizeof(struct gfs2_rgrp);
 			bi->bi_start = 0;
+<<<<<<< HEAD
 			bi->bi_len = bytes;
+=======
+			bi->bi_bytes = bytes;
+>>>>>>> upstream/android-13
 			bi->bi_blocks = bytes * GFS2_NBBY;
 		/* header block */
 		} else if (x == 0) {
 			bytes = sdp->sd_sb.sb_bsize - sizeof(struct gfs2_rgrp);
 			bi->bi_offset = sizeof(struct gfs2_rgrp);
 			bi->bi_start = 0;
+<<<<<<< HEAD
 			bi->bi_len = bytes;
+=======
+			bi->bi_bytes = bytes;
+>>>>>>> upstream/android-13
 			bi->bi_blocks = bytes * GFS2_NBBY;
 		/* last block */
 		} else if (x + 1 == length) {
 			bytes = bytes_left;
 			bi->bi_offset = sizeof(struct gfs2_meta_header);
 			bi->bi_start = rgd->rd_bitbytes - bytes_left;
+<<<<<<< HEAD
 			bi->bi_len = bytes;
+=======
+			bi->bi_bytes = bytes;
+>>>>>>> upstream/android-13
 			bi->bi_blocks = bytes * GFS2_NBBY;
 		/* other blocks */
 		} else {
@@ -812,7 +1028,11 @@ static int compute_bitstructs(struct gfs2_rgrpd *rgd)
 				sizeof(struct gfs2_meta_header);
 			bi->bi_offset = sizeof(struct gfs2_meta_header);
 			bi->bi_start = rgd->rd_bitbytes - bytes_left;
+<<<<<<< HEAD
 			bi->bi_len = bytes;
+=======
+			bi->bi_bytes = bytes;
+>>>>>>> upstream/android-13
 			bi->bi_blocks = bytes * GFS2_NBBY;
 		}
 
@@ -824,12 +1044,30 @@ static int compute_bitstructs(struct gfs2_rgrpd *rgd)
 		return -EIO;
 	}
 	bi = rgd->rd_bits + (length - 1);
+<<<<<<< HEAD
 	if ((bi->bi_start + bi->bi_len) * GFS2_NBBY != rgd->rd_data) {
 		if (gfs2_consist_rgrpd(rgd)) {
 			gfs2_rindex_print(rgd);
 			fs_err(sdp, "start=%u len=%u offset=%u\n",
 			       bi->bi_start, bi->bi_len, bi->bi_offset);
 		}
+=======
+	if ((bi->bi_start + bi->bi_bytes) * GFS2_NBBY != rgd->rd_data) {
+		gfs2_lm(sdp,
+			"ri_addr = %llu\n"
+			"ri_length = %u\n"
+			"ri_data0 = %llu\n"
+			"ri_data = %u\n"
+			"ri_bitbytes = %u\n"
+			"start=%u len=%u offset=%u\n",
+			(unsigned long long)rgd->rd_addr,
+			rgd->rd_length,
+			(unsigned long long)rgd->rd_data0,
+			rgd->rd_data,
+			rgd->rd_bitbytes,
+			bi->bi_start, bi->bi_bytes, bi->bi_offset);
+		gfs2_consist_rgrpd(rgd);
+>>>>>>> upstream/android-13
 		return -EIO;
 	}
 
@@ -898,7 +1136,10 @@ static int rgd_insert(struct gfs2_rgrpd *rgd)
 static int read_rindex_entry(struct gfs2_inode *ip)
 {
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
+<<<<<<< HEAD
 	const unsigned bsize = sdp->sd_sb.sb_bsize;
+=======
+>>>>>>> upstream/android-13
 	loff_t pos = sdp->sd_rgrps * sizeof(struct gfs2_rindex);
 	struct gfs2_rindex buf;
 	int error;
@@ -925,16 +1166,27 @@ static int read_rindex_entry(struct gfs2_inode *ip)
 	rgd->rd_data = be32_to_cpu(buf.ri_data);
 	rgd->rd_bitbytes = be32_to_cpu(buf.ri_bitbytes);
 	spin_lock_init(&rgd->rd_rsspin);
+<<<<<<< HEAD
 
 	error = compute_bitstructs(rgd);
 	if (error)
 		goto fail;
+=======
+	mutex_init(&rgd->rd_mutex);
+>>>>>>> upstream/android-13
 
 	error = gfs2_glock_get(sdp, rgd->rd_addr,
 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
 	if (error)
 		goto fail;
 
+<<<<<<< HEAD
+=======
+	error = compute_bitstructs(rgd);
+	if (error)
+		goto fail_glock;
+
+>>>>>>> upstream/android-13
 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
 	if (rgd->rd_data > sdp->sd_max_rg_data)
@@ -944,13 +1196,20 @@ static int read_rindex_entry(struct gfs2_inode *ip)
 	spin_unlock(&sdp->sd_rindex_spin);
 	if (!error) {
 		glock_set_object(rgd->rd_gl, rgd);
+<<<<<<< HEAD
 		rgd->rd_gl->gl_vm.start = (rgd->rd_addr * bsize) & PAGE_MASK;
 		rgd->rd_gl->gl_vm.end = PAGE_ALIGN((rgd->rd_addr +
 						    rgd->rd_length) * bsize) - 1;
+=======
+>>>>>>> upstream/android-13
 		return 0;
 	}
 
 	error = 0; /* someone else read in the rgrp; free it and ignore it */
+<<<<<<< HEAD
+=======
+fail_glock:
+>>>>>>> upstream/android-13
 	gfs2_glock_put(rgd->rd_gl);
 
 fail:
@@ -1117,12 +1376,45 @@ static int gfs2_rgrp_lvb_valid(struct gfs2_rgrpd *rgd)
 {
 	struct gfs2_rgrp_lvb *rgl = rgd->rd_rgl;
 	struct gfs2_rgrp *str = (struct gfs2_rgrp *)rgd->rd_bits[0].bi_bh->b_data;
+<<<<<<< HEAD
 
 	if (rgl->rl_flags != str->rg_flags || rgl->rl_free != str->rg_free ||
 	    rgl->rl_dinodes != str->rg_dinodes ||
 	    rgl->rl_igeneration != str->rg_igeneration)
 		return 0;
 	return 1;
+=======
+	struct gfs2_sbd *sdp = rgd->rd_sbd;
+	int valid = 1;
+
+	if (rgl->rl_flags != str->rg_flags) {
+		fs_warn(sdp, "GFS2: rgd: %llu lvb flag mismatch %u/%u",
+			(unsigned long long)rgd->rd_addr,
+		       be32_to_cpu(rgl->rl_flags), be32_to_cpu(str->rg_flags));
+		valid = 0;
+	}
+	if (rgl->rl_free != str->rg_free) {
+		fs_warn(sdp, "GFS2: rgd: %llu lvb free mismatch %u/%u",
+			(unsigned long long)rgd->rd_addr,
+			be32_to_cpu(rgl->rl_free), be32_to_cpu(str->rg_free));
+		valid = 0;
+	}
+	if (rgl->rl_dinodes != str->rg_dinodes) {
+		fs_warn(sdp, "GFS2: rgd: %llu lvb dinode mismatch %u/%u",
+			(unsigned long long)rgd->rd_addr,
+			be32_to_cpu(rgl->rl_dinodes),
+			be32_to_cpu(str->rg_dinodes));
+		valid = 0;
+	}
+	if (rgl->rl_igeneration != str->rg_igeneration) {
+		fs_warn(sdp, "GFS2: rgd: %llu lvb igen mismatch %llu/%llu",
+			(unsigned long long)rgd->rd_addr,
+			(unsigned long long)be64_to_cpu(rgl->rl_igeneration),
+			(unsigned long long)be64_to_cpu(str->rg_igeneration));
+		valid = 0;
+	}
+	return valid;
+>>>>>>> upstream/android-13
 }
 
 static u32 count_unlinked(struct gfs2_rgrpd *rgd)
@@ -1136,8 +1428,13 @@ static u32 count_unlinked(struct gfs2_rgrpd *rgd)
 		goal = 0;
 		buffer = bi->bi_bh->b_data + bi->bi_offset;
 		WARN_ON(!buffer_uptodate(bi->bi_bh));
+<<<<<<< HEAD
 		while (goal < bi->bi_len * GFS2_NBBY) {
 			goal = gfs2_bitfit(buffer, bi->bi_len, goal,
+=======
+		while (goal < bi->bi_blocks) {
+			goal = gfs2_bitfit(buffer, bi->bi_bytes, goal,
+>>>>>>> upstream/android-13
 					   GFS2_BLKST_UNLINKED);
 			if (goal == BFITNOENT)
 				break;
@@ -1149,6 +1446,26 @@ static u32 count_unlinked(struct gfs2_rgrpd *rgd)
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static void rgrp_set_bitmap_flags(struct gfs2_rgrpd *rgd)
+{
+	struct gfs2_bitmap *bi;
+	int x;
+
+	if (rgd->rd_free) {
+		for (x = 0; x < rgd->rd_length; x++) {
+			bi = rgd->rd_bits + x;
+			clear_bit(GBF_FULL, &bi->bi_flags);
+		}
+	} else {
+		for (x = 0; x < rgd->rd_length; x++) {
+			bi = rgd->rd_bits + x;
+			set_bit(GBF_FULL, &bi->bi_flags);
+		}
+	}
+}
+>>>>>>> upstream/android-13
 
 /**
  * gfs2_rgrp_bh_get - Read in a RG's header and bitmaps
@@ -1192,11 +1509,19 @@ static int gfs2_rgrp_bh_get(struct gfs2_rgrpd *rgd)
 	}
 
 	if (!(rgd->rd_flags & GFS2_RDF_UPTODATE)) {
+<<<<<<< HEAD
 		for (x = 0; x < length; x++)
 			clear_bit(GBF_FULL, &rgd->rd_bits[x].bi_flags);
 		gfs2_rgrp_in(rgd, (rgd->rd_bits[0].bi_bh)->b_data);
 		rgd->rd_flags |= (GFS2_RDF_UPTODATE | GFS2_RDF_CHECK);
 		rgd->rd_free_clone = rgd->rd_free;
+=======
+		gfs2_rgrp_in(rgd, (rgd->rd_bits[0].bi_bh)->b_data);
+		rgrp_set_bitmap_flags(rgd);
+		rgd->rd_flags |= (GFS2_RDF_UPTODATE | GFS2_RDF_CHECK);
+		rgd->rd_free_clone = rgd->rd_free;
+		BUG_ON(rgd->rd_reserved);
+>>>>>>> upstream/android-13
 		/* max out the rgrp allocation failure point */
 		rgd->rd_extfail_pt = rgd->rd_free;
 	}
@@ -1244,7 +1569,15 @@ static int update_rgrp_lvb(struct gfs2_rgrpd *rgd)
 	if (rgd->rd_rgl->rl_unlinked == 0)
 		rgd->rd_flags &= ~GFS2_RDF_CHECK;
 	rgd->rd_free = be32_to_cpu(rgd->rd_rgl->rl_free);
+<<<<<<< HEAD
 	rgd->rd_free_clone = rgd->rd_free;
+=======
+	rgrp_set_bitmap_flags(rgd);
+	rgd->rd_free_clone = rgd->rd_free;
+	BUG_ON(rgd->rd_reserved);
+	/* max out the rgrp allocation failure point */
+	rgd->rd_extfail_pt = rgd->rd_free;
+>>>>>>> upstream/android-13
 	rgd->rd_dinodes = be32_to_cpu(rgd->rd_rgl->rl_dinodes);
 	rgd->rd_igeneration = be64_to_cpu(rgd->rd_rgl->rl_igeneration);
 	return 0;
@@ -1277,6 +1610,7 @@ void gfs2_rgrp_brelse(struct gfs2_rgrpd *rgd)
 			bi->bi_bh = NULL;
 		}
 	}
+<<<<<<< HEAD
 
 }
 
@@ -1294,6 +1628,8 @@ void gfs2_rgrp_go_unlock(struct gfs2_holder *gh)
 
 	if (rgd && demote_requested)
 		gfs2_rgrp_brelse(rgd);
+=======
+>>>>>>> upstream/android-13
 }
 
 int gfs2_rgrp_send_discards(struct gfs2_sbd *sdp, u64 offset,
@@ -1309,7 +1645,11 @@ int gfs2_rgrp_send_discards(struct gfs2_sbd *sdp, u64 offset,
 	u32 trimmed = 0;
 	u8 diff;
 
+<<<<<<< HEAD
 	for (x = 0; x < bi->bi_len; x++) {
+=======
+	for (x = 0; x < bi->bi_bytes; x++) {
+>>>>>>> upstream/android-13
 		const u8 *clone = bi->bi_clone ? bi->bi_clone : bi->bi_bh->b_data;
 		clone += bi->bi_offset;
 		clone += x;
@@ -1406,7 +1746,12 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
 
 	start = r.start >> bs_shift;
 	end = start + (r.len >> bs_shift);
+<<<<<<< HEAD
 	minlen = max_t(u64, r.minlen,
+=======
+	minlen = max_t(u64, r.minlen, sdp->sd_sb.sb_bsize);
+	minlen = max_t(u64, minlen,
+>>>>>>> upstream/android-13
 		       q->limits.discard_granularity) >> bs_shift;
 
 	if (end <= start || minlen > sdp->sd_max_rg_data)
@@ -1421,7 +1766,12 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
 
 	while (1) {
 
+<<<<<<< HEAD
 		ret = gfs2_glock_nq_init(rgd->rd_gl, LM_ST_EXCLUSIVE, 0, &gh);
+=======
+		ret = gfs2_glock_nq_init(rgd->rd_gl, LM_ST_EXCLUSIVE,
+					 LM_FLAG_NODE_SCOPE, &gh);
+>>>>>>> upstream/android-13
 		if (ret)
 			goto out;
 
@@ -1429,9 +1779,17 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
 			/* Trim each bitmap in the rgrp */
 			for (x = 0; x < rgd->rd_length; x++) {
 				struct gfs2_bitmap *bi = rgd->rd_bits + x;
+<<<<<<< HEAD
 				ret = gfs2_rgrp_send_discards(sdp,
 						rgd->rd_data0, NULL, bi, minlen,
 						&amt);
+=======
+				rgrp_lock_local(rgd);
+				ret = gfs2_rgrp_send_discards(sdp,
+						rgd->rd_data0, NULL, bi, minlen,
+						&amt);
+				rgrp_unlock_local(rgd);
+>>>>>>> upstream/android-13
 				if (ret) {
 					gfs2_glock_dq_uninit(&gh);
 					goto out;
@@ -1443,9 +1801,17 @@ int gfs2_fitrim(struct file *filp, void __user *argp)
 			ret = gfs2_trans_begin(sdp, RES_RG_HDR, 0);
 			if (ret == 0) {
 				bh = rgd->rd_bits[0].bi_bh;
+<<<<<<< HEAD
 				rgd->rd_flags |= GFS2_RGF_TRIMMED;
 				gfs2_trans_add_meta(rgd->rd_gl, bh);
 				gfs2_rgrp_out(rgd, bh->b_data);
+=======
+				rgrp_lock_local(rgd);
+				rgd->rd_flags |= GFS2_RGF_TRIMMED;
+				gfs2_trans_add_meta(rgd->rd_gl, bh);
+				gfs2_rgrp_out(rgd, bh->b_data);
+				rgrp_unlock_local(rgd);
+>>>>>>> upstream/android-13
 				gfs2_trans_end(sdp);
 			}
 		}
@@ -1475,8 +1841,12 @@ static void rs_insert(struct gfs2_inode *ip)
 	struct rb_node **newn, *parent = NULL;
 	int rc;
 	struct gfs2_blkreserv *rs = &ip->i_res;
+<<<<<<< HEAD
 	struct gfs2_rgrpd *rgd = rs->rs_rbm.rgd;
 	u64 fsblock = gfs2_rbm_to_block(&rs->rs_rbm);
+=======
+	struct gfs2_rgrpd *rgd = rs->rs_rgd;
+>>>>>>> upstream/android-13
 
 	BUG_ON(gfs2_rs_active(rs));
 
@@ -1487,7 +1857,11 @@ static void rs_insert(struct gfs2_inode *ip)
 			rb_entry(*newn, struct gfs2_blkreserv, rs_node);
 
 		parent = *newn;
+<<<<<<< HEAD
 		rc = rs_cmp(fsblock, rs->rs_free, cur);
+=======
+		rc = rs_cmp(rs->rs_start, rs->rs_requested, cur);
+>>>>>>> upstream/android-13
 		if (rc > 0)
 			newn = &((*newn)->rb_right);
 		else if (rc < 0)
@@ -1503,14 +1877,24 @@ static void rs_insert(struct gfs2_inode *ip)
 	rb_insert_color(&rs->rs_node, &rgd->rd_rstree);
 
 	/* Do our rgrp accounting for the reservation */
+<<<<<<< HEAD
 	rgd->rd_reserved += rs->rs_free; /* blocks reserved */
+=======
+	rgd->rd_requested += rs->rs_requested; /* blocks requested */
+>>>>>>> upstream/android-13
 	spin_unlock(&rgd->rd_rsspin);
 	trace_gfs2_rs(rs, TRACE_RS_INSERT);
 }
 
 /**
+<<<<<<< HEAD
  * rgd_free - return the number of free blocks we can allocate.
  * @rgd: the resource group
+=======
+ * rgd_free - return the number of free blocks we can allocate
+ * @rgd: the resource group
+ * @rs: The reservation to free
+>>>>>>> upstream/android-13
  *
  * This function returns the number of free blocks for an rgrp.
  * That's the clone-free blocks (blocks that are free, not including those
@@ -1524,9 +1908,15 @@ static inline u32 rgd_free(struct gfs2_rgrpd *rgd, struct gfs2_blkreserv *rs)
 {
 	u32 tot_reserved, tot_free;
 
+<<<<<<< HEAD
 	if (WARN_ON_ONCE(rgd->rd_reserved < rs->rs_free))
 		return 0;
 	tot_reserved = rgd->rd_reserved - rs->rs_free;
+=======
+	if (WARN_ON_ONCE(rgd->rd_requested < rs->rs_requested))
+		return 0;
+	tot_reserved = rgd->rd_requested - rs->rs_requested;
+>>>>>>> upstream/android-13
 
 	if (rgd->rd_free_clone < tot_reserved)
 		tot_reserved = 0;
@@ -1551,6 +1941,7 @@ static void rg_mblk_search(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip,
 	u64 goal;
 	struct gfs2_blkreserv *rs = &ip->i_res;
 	u32 extlen;
+<<<<<<< HEAD
 	u32 free_blocks = rgd_free(rgd, rs);
 	int ret;
 	struct inode *inode = &ip->i_inode;
@@ -1562,6 +1953,28 @@ static void rg_mblk_search(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip,
 		extlen = clamp(extlen, RGRP_RSRV_MINBLKS, free_blocks);
 	}
 	if ((rgd->rd_free_clone < rgd->rd_reserved) || (free_blocks < extlen))
+=======
+	u32 free_blocks, blocks_available;
+	int ret;
+	struct inode *inode = &ip->i_inode;
+
+	spin_lock(&rgd->rd_rsspin);
+	free_blocks = rgd_free(rgd, rs);
+	if (rgd->rd_free_clone < rgd->rd_requested)
+		free_blocks = 0;
+	blocks_available = rgd->rd_free_clone - rgd->rd_reserved;
+	if (rgd == rs->rs_rgd)
+		blocks_available += rs->rs_reserved;
+	spin_unlock(&rgd->rd_rsspin);
+
+	if (S_ISDIR(inode->i_mode))
+		extlen = 1;
+	else {
+		extlen = max_t(u32, atomic_read(&ip->i_sizehint), ap->target);
+		extlen = clamp(extlen, (u32)RGRP_RSRV_MINBLKS, free_blocks);
+	}
+	if (free_blocks < extlen || blocks_available < extlen)
+>>>>>>> upstream/android-13
 		return;
 
 	/* Find bitmap block that contains bits for goal block */
@@ -1573,10 +1986,17 @@ static void rg_mblk_search(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip,
 	if (WARN_ON(gfs2_rbm_from_block(&rbm, goal)))
 		return;
 
+<<<<<<< HEAD
 	ret = gfs2_rbm_find(&rbm, GFS2_BLKST_FREE, &extlen, ip, true);
 	if (ret == 0) {
 		rs->rs_rbm = rbm;
 		rs->rs_free = extlen;
+=======
+	ret = gfs2_rbm_find(&rbm, GFS2_BLKST_FREE, &extlen, &ip->i_res, true);
+	if (ret == 0) {
+		rs->rs_start = gfs2_rbm_to_block(&rbm);
+		rs->rs_requested = extlen;
+>>>>>>> upstream/android-13
 		rs_insert(ip);
 	} else {
 		if (goal == rgd->rd_last_alloc + rgd->rd_data0)
@@ -1589,7 +2009,11 @@ static void rg_mblk_search(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip,
  * @rgd: The resource group
  * @block: The starting block
  * @length: The required length
+<<<<<<< HEAD
  * @ip: Ignore any reservations for this inode
+=======
+ * @ignore_rs: Reservation to ignore
+>>>>>>> upstream/android-13
  *
  * If the block does not appear in any reservation, then return the
  * block number unchanged. If it does appear in the reservation, then
@@ -1599,7 +2023,11 @@ static void rg_mblk_search(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip,
 
 static u64 gfs2_next_unreserved_block(struct gfs2_rgrpd *rgd, u64 block,
 				      u32 length,
+<<<<<<< HEAD
 				      const struct gfs2_inode *ip)
+=======
+				      struct gfs2_blkreserv *ignore_rs)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_blkreserv *rs;
 	struct rb_node *n;
@@ -1619,8 +2047,13 @@ static u64 gfs2_next_unreserved_block(struct gfs2_rgrpd *rgd, u64 block,
 	}
 
 	if (n) {
+<<<<<<< HEAD
 		while ((rs_cmp(block, length, rs) == 0) && (&ip->i_res != rs)) {
 			block = gfs2_rbm_to_block(&rs->rs_rbm) + rs->rs_free;
+=======
+		while (rs_cmp(block, length, rs) == 0 && rs != ignore_rs) {
+			block = rs->rs_start + rs->rs_requested;
+>>>>>>> upstream/android-13
 			n = n->rb_right;
 			if (n == NULL)
 				break;
@@ -1635,7 +2068,11 @@ static u64 gfs2_next_unreserved_block(struct gfs2_rgrpd *rgd, u64 block,
 /**
  * gfs2_reservation_check_and_update - Check for reservations during block alloc
  * @rbm: The current position in the resource group
+<<<<<<< HEAD
  * @ip: The inode for which we are searching for blocks
+=======
+ * @rs: Our own reservation
+>>>>>>> upstream/android-13
  * @minext: The minimum extent length
  * @maxext: A pointer to the maximum extent structure
  *
@@ -1649,20 +2086,31 @@ static u64 gfs2_next_unreserved_block(struct gfs2_rgrpd *rgd, u64 block,
  */
 
 static int gfs2_reservation_check_and_update(struct gfs2_rbm *rbm,
+<<<<<<< HEAD
 					     const struct gfs2_inode *ip,
+=======
+					     struct gfs2_blkreserv *rs,
+>>>>>>> upstream/android-13
 					     u32 minext,
 					     struct gfs2_extent *maxext)
 {
 	u64 block = gfs2_rbm_to_block(rbm);
 	u32 extlen = 1;
 	u64 nblock;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	/*
 	 * If we have a minimum extent length, then skip over any extent
 	 * which is less than the min extent length in size.
 	 */
+<<<<<<< HEAD
 	if (minext) {
+=======
+	if (minext > 1) {
+>>>>>>> upstream/android-13
 		extlen = gfs2_free_extlen(rbm, minext);
 		if (extlen <= maxext->len)
 			goto fail;
@@ -1672,7 +2120,11 @@ static int gfs2_reservation_check_and_update(struct gfs2_rbm *rbm,
 	 * Check the extent which has been found against the reservations
 	 * and skip if parts of it are already reserved
 	 */
+<<<<<<< HEAD
 	nblock = gfs2_next_unreserved_block(rbm->rgd, block, extlen, ip);
+=======
+	nblock = gfs2_next_unreserved_block(rbm->rgd, block, extlen, rs);
+>>>>>>> upstream/android-13
 	if (nblock == block) {
 		if (!minext || extlen >= minext)
 			return 0;
@@ -1681,12 +2133,24 @@ static int gfs2_reservation_check_and_update(struct gfs2_rbm *rbm,
 			maxext->len = extlen;
 			maxext->rbm = *rbm;
 		}
+<<<<<<< HEAD
 fail:
 		nblock = block + extlen;
 	}
 	ret = gfs2_rbm_from_block(rbm, nblock);
 	if (ret < 0)
 		return ret;
+=======
+	} else {
+		u64 len = nblock - block;
+		if (len >= (u64)1 << 32)
+			return -E2BIG;
+		extlen = len;
+	}
+fail:
+	if (gfs2_rbm_add(rbm, extlen))
+		return -E2BIG;
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -1694,9 +2158,15 @@ fail:
  * gfs2_rbm_find - Look for blocks of a particular state
  * @rbm: Value/result starting position and final position
  * @state: The state which we want to find
+<<<<<<< HEAD
  * @minext: Pointer to the requested extent length (NULL for a single block)
  *          This is updated to be the actual reservation size.
  * @ip: If set, check for reservations
+=======
+ * @minext: Pointer to the requested extent length
+ *          This is updated to be the actual reservation size.
+ * @rs: Our own reservation (NULL to skip checking for reservations)
+>>>>>>> upstream/android-13
  * @nowrap: Stop looking at the end of the rgrp, rather than wrapping
  *          around until we've reached the starting point.
  *
@@ -1710,6 +2180,7 @@ fail:
  */
 
 static int gfs2_rbm_find(struct gfs2_rbm *rbm, u8 state, u32 *minext,
+<<<<<<< HEAD
 			 const struct gfs2_inode *ip, bool nowrap)
 {
 	struct buffer_head *bh;
@@ -1721,10 +2192,21 @@ static int gfs2_rbm_find(struct gfs2_rbm *rbm, u8 state, u32 *minext,
 	u8 *buffer;
 	int n = 0;
 	int iters = rbm->rgd->rd_length;
+=======
+			 struct gfs2_blkreserv *rs, bool nowrap)
+{
+	bool scan_from_start = rbm->bii == 0 && rbm->offset == 0;
+	struct buffer_head *bh;
+	int last_bii;
+	u32 offset;
+	u8 *buffer;
+	bool wrapped = false;
+>>>>>>> upstream/android-13
 	int ret;
 	struct gfs2_bitmap *bi;
 	struct gfs2_extent maxext = { .rbm.rgd = rbm->rgd, };
 
+<<<<<<< HEAD
 	/* If we are not starting at the beginning of a bitmap, then we
 	 * need to add one to the bitmap count to ensure that we search
 	 * the starting bitmap twice.
@@ -1736,6 +2218,18 @@ static int gfs2_rbm_find(struct gfs2_rbm *rbm, u8 state, u32 *minext,
 		bi = rbm_bi(rbm);
 		if ((ip == NULL || !gfs2_rs_active(&ip->i_res)) &&
 		    test_bit(GBF_FULL, &bi->bi_flags) &&
+=======
+	/*
+	 * Determine the last bitmap to search.  If we're not starting at the
+	 * beginning of a bitmap, we need to search that bitmap twice to scan
+	 * the entire resource group.
+	 */
+	last_bii = rbm->bii - (rbm->offset == 0);
+
+	while(1) {
+		bi = rbm_bi(rbm);
+		if (test_bit(GBF_FULL, &bi->bi_flags) &&
+>>>>>>> upstream/android-13
 		    (state == GFS2_BLKST_FREE))
 			goto next_bitmap;
 
@@ -1744,6 +2238,7 @@ static int gfs2_rbm_find(struct gfs2_rbm *rbm, u8 state, u32 *minext,
 		WARN_ON(!buffer_uptodate(bh));
 		if (state != GFS2_BLKST_UNLINKED && bi->bi_clone)
 			buffer = bi->bi_clone + bi->bi_offset;
+<<<<<<< HEAD
 		initial_offset = rbm->offset;
 		offset = gfs2_bitfit(buffer, bi->bi_len, rbm->offset, state);
 		if (offset == BFITNOENT)
@@ -1766,20 +2261,45 @@ static int gfs2_rbm_find(struct gfs2_rbm *rbm, u8 state, u32 *minext,
 			rbm->bii = 0;
 			rbm->offset = 0;
 			n += (rbm->bii - initial_bii);
+=======
+		offset = gfs2_bitfit(buffer, bi->bi_bytes, rbm->offset, state);
+		if (offset == BFITNOENT) {
+			if (state == GFS2_BLKST_FREE && rbm->offset == 0)
+				set_bit(GBF_FULL, &bi->bi_flags);
+			goto next_bitmap;
+		}
+		rbm->offset = offset;
+		if (!rs || !minext)
+			return 0;
+
+		ret = gfs2_reservation_check_and_update(rbm, rs, *minext,
+							&maxext);
+		if (ret == 0)
+			return 0;
+		if (ret > 0)
+			goto next_iter;
+		if (ret == -E2BIG) {
+			rbm->bii = 0;
+			rbm->offset = 0;
+>>>>>>> upstream/android-13
 			goto res_covered_end_of_rgrp;
 		}
 		return ret;
 
+<<<<<<< HEAD
 bitmap_full:	/* Mark bitmap as full and fall through */
 		if ((state == GFS2_BLKST_FREE) && initial_offset == 0)
 			set_bit(GBF_FULL, &bi->bi_flags);
 
+=======
+>>>>>>> upstream/android-13
 next_bitmap:	/* Find next bitmap in the rgrp */
 		rbm->offset = 0;
 		rbm->bii++;
 		if (rbm->bii == rbm->rgd->rd_length)
 			rbm->bii = 0;
 res_covered_end_of_rgrp:
+<<<<<<< HEAD
 		if ((rbm->bii == 0) && nowrap)
 			break;
 		n++;
@@ -1789,14 +2309,36 @@ next_iter:
 	}
 
 	if (minext == NULL || state != GFS2_BLKST_FREE)
+=======
+		if (rbm->bii == 0) {
+			if (wrapped)
+				break;
+			wrapped = true;
+			if (nowrap)
+				break;
+		}
+next_iter:
+		/* Have we scanned the entire resource group? */
+		if (wrapped && rbm->bii > last_bii)
+			break;
+	}
+
+	if (state != GFS2_BLKST_FREE)
+>>>>>>> upstream/android-13
 		return -ENOSPC;
 
 	/* If the extent was too small, and it's smaller than the smallest
 	   to have failed before, remember for future reference that it's
 	   useless to search this rgrp again for this amount or more. */
+<<<<<<< HEAD
 	if ((first_offset == 0) && (first_bii == 0) &&
 	    (*minext < rbm->rgd->rd_extfail_pt))
 		rbm->rgd->rd_extfail_pt = *minext;
+=======
+	if (wrapped && (scan_from_start || rbm->bii > last_bii) &&
+	    *minext < rbm->rgd->rd_extfail_pt)
+		rbm->rgd->rd_extfail_pt = *minext - 1;
+>>>>>>> upstream/android-13
 
 	/* If the maximum extent we found is big enough to fulfill the
 	   minimum requirements, use it anyway. */
@@ -1830,10 +2372,15 @@ static void try_rgrp_unlink(struct gfs2_rgrpd *rgd, u64 *last_unlinked, u64 skip
 	struct gfs2_rbm rbm = { .rgd = rgd, .bii = 0, .offset = 0 };
 
 	while (1) {
+<<<<<<< HEAD
 		down_write(&sdp->sd_log_flush_lock);
 		error = gfs2_rbm_find(&rbm, GFS2_BLKST_UNLINKED, NULL, NULL,
 				      true);
 		up_write(&sdp->sd_log_flush_lock);
+=======
+		error = gfs2_rbm_find(&rbm, GFS2_BLKST_UNLINKED, NULL, NULL,
+				      true);
+>>>>>>> upstream/android-13
 		if (error == -ENOSPC)
 			break;
 		if (WARN_ON_ONCE(error))
@@ -1861,7 +2408,11 @@ static void try_rgrp_unlink(struct gfs2_rgrpd *rgd, u64 *last_unlinked, u64 skip
 		 */
 		ip = gl->gl_object;
 
+<<<<<<< HEAD
 		if (ip || queue_work(gfs2_delete_workqueue, &gl->gl_delete) == 0)
+=======
+		if (ip || !gfs2_queue_delete_work(gl, 0))
+>>>>>>> upstream/android-13
 			gfs2_glock_put(gl);
 		else
 			found++;
@@ -1961,7 +2512,11 @@ static bool gfs2_rgrp_used_recently(const struct gfs2_blkreserv *rs,
 	u64 tdiff;
 
 	tdiff = ktime_to_ns(ktime_sub(ktime_get_real(),
+<<<<<<< HEAD
                             rs->rs_rbm.rgd->rd_gl->gl_dstamp));
+=======
+                            rs->rs_rgd->rd_gl->gl_dstamp));
+>>>>>>> upstream/android-13
 
 	return tdiff > (msecs * 1000 * 1000);
 }
@@ -1991,6 +2546,10 @@ static bool gfs2_select_rgrp(struct gfs2_rgrpd **pos, const struct gfs2_rgrpd *b
 
 /**
  * fast_to_acquire - determine if a resource group will be fast to acquire
+<<<<<<< HEAD
+=======
+ * @rgd: The rgrp
+>>>>>>> upstream/android-13
  *
  * If this is one of our preferred rgrps, it should be quicker to acquire,
  * because we tried to set ourselves up as dlm lock master.
@@ -2016,8 +2575,12 @@ static inline int fast_to_acquire(struct gfs2_rgrpd *rgd)
  * We try our best to find an rgrp that has at least ap->target blocks
  * available. After a couple of passes (loops == 2), the prospects of finding
  * such an rgrp diminish. At this stage, we return the first rgrp that has
+<<<<<<< HEAD
  * atleast ap->min_target blocks available. Either way, we set ap->allowed to
  * the number of blocks available in the chosen rgrp.
+=======
+ * at least ap->min_target blocks available.
+>>>>>>> upstream/android-13
  *
  * Returns: 0 on success,
  *          -ENOMEM if a suitable rgrp can't be found
@@ -2029,6 +2592,7 @@ int gfs2_inplace_reserve(struct gfs2_inode *ip, struct gfs2_alloc_parms *ap)
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
 	struct gfs2_rgrpd *begin = NULL;
 	struct gfs2_blkreserv *rs = &ip->i_res;
+<<<<<<< HEAD
 	int error = 0, rg_locked, flags = 0;
 	u64 last_unlinked = NO_BLOCK;
 	int loops = 0;
@@ -2057,10 +2621,47 @@ int gfs2_inplace_reserve(struct gfs2_inode *ip, struct gfs2_alloc_parms *ap)
 
 		if (!gfs2_glock_is_locked_by_me(rs->rs_rbm.rgd->rd_gl)) {
 			rg_locked = 0;
+=======
+	int error = 0, flags = LM_FLAG_NODE_SCOPE;
+	bool rg_locked;
+	u64 last_unlinked = NO_BLOCK;
+	u32 target = ap->target;
+	int loops = 0;
+	u32 free_blocks, blocks_available, skip = 0;
+
+	BUG_ON(rs->rs_reserved);
+
+	if (sdp->sd_args.ar_rgrplvb)
+		flags |= GL_SKIP;
+	if (gfs2_assert_warn(sdp, target))
+		return -EINVAL;
+	if (gfs2_rs_active(rs)) {
+		begin = rs->rs_rgd;
+	} else if (rs->rs_rgd &&
+		   rgrp_contains_block(rs->rs_rgd, ip->i_goal)) {
+		begin = rs->rs_rgd;
+	} else {
+		check_and_update_goal(ip);
+		rs->rs_rgd = begin = gfs2_blk2rgrpd(sdp, ip->i_goal, 1);
+	}
+	if (S_ISDIR(ip->i_inode.i_mode) && (ap->aflags & GFS2_AF_ORLOV))
+		skip = gfs2_orlov_skip(ip);
+	if (rs->rs_rgd == NULL)
+		return -EBADSLT;
+
+	while (loops < 3) {
+		struct gfs2_rgrpd *rgd;
+
+		rg_locked = gfs2_glock_is_locked_by_me(rs->rs_rgd->rd_gl);
+		if (rg_locked) {
+			rgrp_lock_local(rs->rs_rgd);
+		} else {
+>>>>>>> upstream/android-13
 			if (skip && skip--)
 				goto next_rgrp;
 			if (!gfs2_rs_active(rs)) {
 				if (loops == 0 &&
+<<<<<<< HEAD
 				    !fast_to_acquire(rs->rs_rbm.rgd))
 					goto next_rgrp;
 				if ((loops < 2) &&
@@ -2080,11 +2681,35 @@ int gfs2_inplace_reserve(struct gfs2_inode *ip, struct gfs2_alloc_parms *ap)
 				error = update_rgrp_lvb(rs->rs_rbm.rgd);
 				if (unlikely(error)) {
 					gfs2_glock_dq_uninit(&rs->rs_rgd_gh);
+=======
+				    !fast_to_acquire(rs->rs_rgd))
+					goto next_rgrp;
+				if ((loops < 2) &&
+				    gfs2_rgrp_used_recently(rs, 1000) &&
+				    gfs2_rgrp_congested(rs->rs_rgd, loops))
+					goto next_rgrp;
+			}
+			error = gfs2_glock_nq_init(rs->rs_rgd->rd_gl,
+						   LM_ST_EXCLUSIVE, flags,
+						   &ip->i_rgd_gh);
+			if (unlikely(error))
+				return error;
+			rgrp_lock_local(rs->rs_rgd);
+			if (!gfs2_rs_active(rs) && (loops < 2) &&
+			    gfs2_rgrp_congested(rs->rs_rgd, loops))
+				goto skip_rgrp;
+			if (sdp->sd_args.ar_rgrplvb) {
+				error = update_rgrp_lvb(rs->rs_rgd);
+				if (unlikely(error)) {
+					rgrp_unlock_local(rs->rs_rgd);
+					gfs2_glock_dq_uninit(&ip->i_rgd_gh);
+>>>>>>> upstream/android-13
 					return error;
 				}
 			}
 		}
 
+<<<<<<< HEAD
 		/* Skip unuseable resource groups */
 		if ((rs->rs_rbm.rgd->rd_flags & (GFS2_RGF_NOALLOC |
 						 GFS2_RDF_ERROR)) ||
@@ -2097,12 +2722,27 @@ int gfs2_inplace_reserve(struct gfs2_inode *ip, struct gfs2_alloc_parms *ap)
 		/* Get a reservation if we don't already have one */
 		if (!gfs2_rs_active(rs))
 			rg_mblk_search(rs->rs_rbm.rgd, ip, ap);
+=======
+		/* Skip unusable resource groups */
+		if ((rs->rs_rgd->rd_flags & (GFS2_RGF_NOALLOC |
+						 GFS2_RDF_ERROR)) ||
+		    (loops == 0 && target > rs->rs_rgd->rd_extfail_pt))
+			goto skip_rgrp;
+
+		if (sdp->sd_args.ar_rgrplvb)
+			gfs2_rgrp_bh_get(rs->rs_rgd);
+
+		/* Get a reservation if we don't already have one */
+		if (!gfs2_rs_active(rs))
+			rg_mblk_search(rs->rs_rgd, ip, ap);
+>>>>>>> upstream/android-13
 
 		/* Skip rgrps when we can't get a reservation on first pass */
 		if (!gfs2_rs_active(rs) && (loops < 1))
 			goto check_rgrp;
 
 		/* If rgrp has enough free space, use it */
+<<<<<<< HEAD
 		free_blocks = rgd_free(rs->rs_rbm.rgd, rs);
 		if (free_blocks >= ap->target ||
 		    (loops == 2 && ap->min_target &&
@@ -2116,16 +2756,48 @@ check_rgrp:
 			try_rgrp_unlink(rs->rs_rbm.rgd, &last_unlinked,
 					ip->i_no_addr);
 skip_rgrp:
+=======
+		rgd = rs->rs_rgd;
+		spin_lock(&rgd->rd_rsspin);
+		free_blocks = rgd_free(rgd, rs);
+		blocks_available = rgd->rd_free_clone - rgd->rd_reserved;
+		if (free_blocks < target || blocks_available < target) {
+			spin_unlock(&rgd->rd_rsspin);
+			goto check_rgrp;
+		}
+		rs->rs_reserved = ap->target;
+		if (rs->rs_reserved > blocks_available)
+			rs->rs_reserved = blocks_available;
+		rgd->rd_reserved += rs->rs_reserved;
+		spin_unlock(&rgd->rd_rsspin);
+		rgrp_unlock_local(rs->rs_rgd);
+		return 0;
+check_rgrp:
+		/* Check for unlinked inodes which can be reclaimed */
+		if (rs->rs_rgd->rd_flags & GFS2_RDF_CHECK)
+			try_rgrp_unlink(rs->rs_rgd, &last_unlinked,
+					ip->i_no_addr);
+skip_rgrp:
+		rgrp_unlock_local(rs->rs_rgd);
+
+>>>>>>> upstream/android-13
 		/* Drop reservation, if we couldn't use reserved rgrp */
 		if (gfs2_rs_active(rs))
 			gfs2_rs_deltree(rs);
 
 		/* Unlock rgrp if required */
 		if (!rg_locked)
+<<<<<<< HEAD
 			gfs2_glock_dq_uninit(&rs->rs_rgd_gh);
 next_rgrp:
 		/* Find the next rgrp, and continue looking */
 		if (gfs2_select_rgrp(&rs->rs_rbm.rgd, begin))
+=======
+			gfs2_glock_dq_uninit(&ip->i_rgd_gh);
+next_rgrp:
+		/* Find the next rgrp, and continue looking */
+		if (gfs2_select_rgrp(&rs->rs_rgd, begin))
+>>>>>>> upstream/android-13
 			continue;
 		if (skip)
 			continue;
@@ -2142,9 +2814,18 @@ next_rgrp:
 				return error;
 		}
 		/* Flushing the log may release space */
+<<<<<<< HEAD
 		if (loops == 2)
 			gfs2_log_flush(sdp, NULL, GFS2_LOG_HEAD_FLUSH_NORMAL |
 				       GFS2_LFC_INPLACE_RESERVE);
+=======
+		if (loops == 2) {
+			if (ap->min_target)
+				target = ap->min_target;
+			gfs2_log_flush(sdp, NULL, GFS2_LOG_HEAD_FLUSH_NORMAL |
+				       GFS2_LFC_INPLACE_RESERVE);
+		}
+>>>>>>> upstream/android-13
 	}
 
 	return -ENOSPC;
@@ -2161,8 +2842,22 @@ void gfs2_inplace_release(struct gfs2_inode *ip)
 {
 	struct gfs2_blkreserv *rs = &ip->i_res;
 
+<<<<<<< HEAD
 	if (gfs2_holder_initialized(&rs->rs_rgd_gh))
 		gfs2_glock_dq_uninit(&rs->rs_rgd_gh);
+=======
+	if (rs->rs_reserved) {
+		struct gfs2_rgrpd *rgd = rs->rs_rgd;
+
+		spin_lock(&rgd->rd_rsspin);
+		BUG_ON(rgd->rd_reserved < rs->rs_reserved);
+		rgd->rd_reserved -= rs->rs_reserved;
+		spin_unlock(&rgd->rd_rsspin);
+		rs->rs_reserved = 0;
+	}
+	if (gfs2_holder_initialized(&ip->i_rgd_gh))
+		gfs2_glock_dq_uninit(&ip->i_rgd_gh);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2201,6 +2896,7 @@ static void gfs2_alloc_extent(const struct gfs2_rbm *rbm, bool dinode,
 /**
  * rgblk_free - Change alloc state of given block(s)
  * @sdp: the filesystem
+<<<<<<< HEAD
  * @bstart: the start of a run of blocks to free
  * @blen: the length of the block run (all must lie within ONE RG!)
  * @new_state: GFS2_BLKST_XXX the after-allocation block state
@@ -2210,10 +2906,21 @@ static void gfs2_alloc_extent(const struct gfs2_rbm *rbm, bool dinode,
 
 static struct gfs2_rgrpd *rgblk_free(struct gfs2_sbd *sdp, u64 bstart,
 				     u32 blen, unsigned char new_state)
+=======
+ * @rgd: the resource group the blocks are in
+ * @bstart: the start of a run of blocks to free
+ * @blen: the length of the block run (all must lie within ONE RG!)
+ * @new_state: GFS2_BLKST_XXX the after-allocation block state
+ */
+
+static void rgblk_free(struct gfs2_sbd *sdp, struct gfs2_rgrpd *rgd,
+		       u64 bstart, u32 blen, unsigned char new_state)
+>>>>>>> upstream/android-13
 {
 	struct gfs2_rbm rbm;
 	struct gfs2_bitmap *bi, *bi_prev = NULL;
 
+<<<<<<< HEAD
 	rbm.rgd = gfs2_blk2rgrpd(sdp, bstart, 1);
 	if (!rbm.rgd) {
 		if (gfs2_consist(sdp))
@@ -2222,6 +2929,11 @@ static struct gfs2_rgrpd *rgblk_free(struct gfs2_sbd *sdp, u64 bstart,
 	}
 
 	gfs2_rbm_from_block(&rbm, bstart);
+=======
+	rbm.rgd = rgd;
+	if (WARN_ON_ONCE(gfs2_rbm_from_block(&rbm, bstart)))
+		return;
+>>>>>>> upstream/android-13
 	while (blen--) {
 		bi = rbm_bi(&rbm);
 		if (bi != bi_prev) {
@@ -2230,21 +2942,31 @@ static struct gfs2_rgrpd *rgblk_free(struct gfs2_sbd *sdp, u64 bstart,
 						      GFP_NOFS | __GFP_NOFAIL);
 				memcpy(bi->bi_clone + bi->bi_offset,
 				       bi->bi_bh->b_data + bi->bi_offset,
+<<<<<<< HEAD
 				       bi->bi_len);
+=======
+				       bi->bi_bytes);
+>>>>>>> upstream/android-13
 			}
 			gfs2_trans_add_meta(rbm.rgd->rd_gl, bi->bi_bh);
 			bi_prev = bi;
 		}
 		gfs2_setbit(&rbm, false, new_state);
+<<<<<<< HEAD
 		gfs2_rbm_incr(&rbm);
 	}
 
 	return rbm.rgd;
+=======
+		gfs2_rbm_add(&rbm, 1);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
  * gfs2_rgrp_dump - print out an rgrp
  * @seq: The iterator
+<<<<<<< HEAD
  * @gl: The glock in question
  *
  */
@@ -2265,6 +2987,36 @@ void gfs2_rgrp_dump(struct seq_file *seq, const struct gfs2_glock *gl)
 	for (n = rb_first(&rgd->rd_rstree); n; n = rb_next(&trs->rs_node)) {
 		trs = rb_entry(n, struct gfs2_blkreserv, rs_node);
 		dump_rs(seq, trs);
+=======
+ * @rgd: The rgrp in question
+ * @fs_id_buf: pointer to file system id (if requested)
+ *
+ */
+
+void gfs2_rgrp_dump(struct seq_file *seq, struct gfs2_rgrpd *rgd,
+		    const char *fs_id_buf)
+{
+	struct gfs2_blkreserv *trs;
+	const struct rb_node *n;
+
+	spin_lock(&rgd->rd_rsspin);
+	gfs2_print_dbg(seq, "%s R: n:%llu f:%02x b:%u/%u i:%u q:%u r:%u e:%u\n",
+		       fs_id_buf,
+		       (unsigned long long)rgd->rd_addr, rgd->rd_flags,
+		       rgd->rd_free, rgd->rd_free_clone, rgd->rd_dinodes,
+		       rgd->rd_requested, rgd->rd_reserved, rgd->rd_extfail_pt);
+	if (rgd->rd_sbd->sd_args.ar_rgrplvb) {
+		struct gfs2_rgrp_lvb *rgl = rgd->rd_rgl;
+
+		gfs2_print_dbg(seq, "%s  L: f:%02x b:%u i:%u\n", fs_id_buf,
+			       be32_to_cpu(rgl->rl_flags),
+			       be32_to_cpu(rgl->rl_free),
+			       be32_to_cpu(rgl->rl_dinodes));
+	}
+	for (n = rb_first(&rgd->rd_rstree); n; n = rb_next(&trs->rs_node)) {
+		trs = rb_entry(n, struct gfs2_blkreserv, rs_node);
+		dump_rs(seq, trs, fs_id_buf);
+>>>>>>> upstream/android-13
 	}
 	spin_unlock(&rgd->rd_rsspin);
 }
@@ -2272,10 +3024,20 @@ void gfs2_rgrp_dump(struct seq_file *seq, const struct gfs2_glock *gl)
 static void gfs2_rgrp_error(struct gfs2_rgrpd *rgd)
 {
 	struct gfs2_sbd *sdp = rgd->rd_sbd;
+<<<<<<< HEAD
 	fs_warn(sdp, "rgrp %llu has an error, marking it readonly until umount\n",
 		(unsigned long long)rgd->rd_addr);
 	fs_warn(sdp, "umount on all nodes and run fsck.gfs2 to fix the error\n");
 	gfs2_rgrp_dump(NULL, rgd->rd_gl);
+=======
+	char fs_id_buf[sizeof(sdp->sd_fsname) + 7];
+
+	fs_warn(sdp, "rgrp %llu has an error, marking it readonly until umount\n",
+		(unsigned long long)rgd->rd_addr);
+	fs_warn(sdp, "umount on all nodes and run fsck.gfs2 to fix the error\n");
+	sprintf(fs_id_buf, "fsid=%s: ", sdp->sd_fsname);
+	gfs2_rgrp_dump(NULL, rgd, fs_id_buf);
+>>>>>>> upstream/android-13
 	rgd->rd_flags |= GFS2_RDF_ERROR;
 }
 
@@ -2295,6 +3057,7 @@ static void gfs2_adjust_reservation(struct gfs2_inode *ip,
 {
 	struct gfs2_blkreserv *rs = &ip->i_res;
 	struct gfs2_rgrpd *rgd = rbm->rgd;
+<<<<<<< HEAD
 	unsigned rlen;
 	u64 block;
 	int ret;
@@ -2318,6 +3081,31 @@ static void gfs2_adjust_reservation(struct gfs2_inode *ip,
 	}
 out:
 	spin_unlock(&rgd->rd_rsspin);
+=======
+
+	BUG_ON(rs->rs_reserved < len);
+	rs->rs_reserved -= len;
+	if (gfs2_rs_active(rs)) {
+		u64 start = gfs2_rbm_to_block(rbm);
+
+		if (rs->rs_start == start) {
+			unsigned int rlen;
+
+			rs->rs_start += len;
+			rlen = min(rs->rs_requested, len);
+			rs->rs_requested -= rlen;
+			rgd->rd_requested -= rlen;
+			trace_gfs2_rs(rs, TRACE_RS_CLAIM);
+			if (rs->rs_start < rgd->rd_data0 + rgd->rd_data &&
+			    rs->rs_requested)
+				return;
+			/* We used up our block reservation, so we should
+			   reserve more blocks next time. */
+			atomic_add(RGRP_RSRV_ADDBLKS, &ip->i_sizehint);
+		}
+		__rs_deltree(rs);
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2337,6 +3125,7 @@ static void gfs2_set_alloc_start(struct gfs2_rbm *rbm,
 	u64 goal;
 
 	if (gfs2_rs_active(&ip->i_res)) {
+<<<<<<< HEAD
 		*rbm = ip->i_res.rs_rbm;
 		return;
 	}
@@ -2347,6 +3136,19 @@ static void gfs2_set_alloc_start(struct gfs2_rbm *rbm,
 		goal = rbm->rgd->rd_last_alloc + rbm->rgd->rd_data0;
 
 	gfs2_rbm_from_block(rbm, goal);
+=======
+		goal = ip->i_res.rs_start;
+	} else {
+		if (!dinode && rgrp_contains_block(rbm->rgd, ip->i_goal))
+			goal = ip->i_goal;
+		else
+			goal = rbm->rgd->rd_last_alloc + rbm->rgd->rd_data0;
+	}
+	if (WARN_ON_ONCE(gfs2_rbm_from_block(rbm, goal))) {
+		rbm->bii = 0;
+		rbm->offset = 0;
+	}
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2365,6 +3167,7 @@ int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *nblocks,
 {
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
 	struct buffer_head *dibh;
+<<<<<<< HEAD
 	struct gfs2_rbm rbm = { .rgd = ip->i_res.rs_rbm.rgd, };
 	unsigned int ndata;
 	u64 block; /* block, within the file system scope */
@@ -2376,6 +3179,23 @@ int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *nblocks,
 	if (error == -ENOSPC) {
 		gfs2_set_alloc_start(&rbm, ip, dinode);
 		error = gfs2_rbm_find(&rbm, GFS2_BLKST_FREE, NULL, NULL, false);
+=======
+	struct gfs2_rbm rbm = { .rgd = ip->i_res.rs_rgd, };
+	u64 block; /* block, within the file system scope */
+	u32 minext = 1;
+	int error = -ENOSPC;
+
+	BUG_ON(ip->i_res.rs_reserved < *nblocks);
+
+	rgrp_lock_local(rbm.rgd);
+	if (gfs2_rs_active(&ip->i_res)) {
+		gfs2_set_alloc_start(&rbm, ip, dinode);
+		error = gfs2_rbm_find(&rbm, GFS2_BLKST_FREE, &minext, &ip->i_res, false);
+	}
+	if (error == -ENOSPC) {
+		gfs2_set_alloc_start(&rbm, ip, dinode);
+		error = gfs2_rbm_find(&rbm, GFS2_BLKST_FREE, &minext, NULL, false);
+>>>>>>> upstream/android-13
 	}
 
 	/* Since all blocks are reserved in advance, this shouldn't happen */
@@ -2390,6 +3210,7 @@ int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *nblocks,
 	gfs2_alloc_extent(&rbm, dinode, nblocks);
 	block = gfs2_rbm_to_block(&rbm);
 	rbm.rgd->rd_last_alloc = block - rbm.rgd->rd_data0;
+<<<<<<< HEAD
 	if (gfs2_rs_active(&ip->i_res))
 		gfs2_adjust_reservation(ip, &rbm, *nblocks);
 	ndata = *nblocks;
@@ -2398,6 +3219,10 @@ int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *nblocks,
 
 	if (!dinode) {
 		ip->i_goal = block + ndata - 1;
+=======
+	if (!dinode) {
+		ip->i_goal = block + *nblocks - 1;
+>>>>>>> upstream/android-13
 		error = gfs2_meta_inode_buffer(ip, &dibh);
 		if (error == 0) {
 			struct gfs2_dinode *di =
@@ -2408,12 +3233,29 @@ int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *nblocks,
 			brelse(dibh);
 		}
 	}
+<<<<<<< HEAD
 	if (rbm.rgd->rd_free < *nblocks) {
 		pr_warn("nblocks=%u\n", *nblocks);
 		goto rgrp_error;
 	}
 
 	rbm.rgd->rd_free -= *nblocks;
+=======
+	spin_lock(&rbm.rgd->rd_rsspin);
+	gfs2_adjust_reservation(ip, &rbm, *nblocks);
+	if (rbm.rgd->rd_free < *nblocks || rbm.rgd->rd_reserved < *nblocks) {
+		fs_warn(sdp, "nblocks=%u\n", *nblocks);
+		spin_unlock(&rbm.rgd->rd_rsspin);
+		goto rgrp_error;
+	}
+	BUG_ON(rbm.rgd->rd_reserved < *nblocks);
+	BUG_ON(rbm.rgd->rd_free_clone < *nblocks);
+	BUG_ON(rbm.rgd->rd_free < *nblocks);
+	rbm.rgd->rd_reserved -= *nblocks;
+	rbm.rgd->rd_free_clone -= *nblocks;
+	rbm.rgd->rd_free -= *nblocks;
+	spin_unlock(&rbm.rgd->rd_rsspin);
+>>>>>>> upstream/android-13
 	if (dinode) {
 		rbm.rgd->rd_dinodes++;
 		*generation = rbm.rgd->rd_igeneration++;
@@ -2423,6 +3265,7 @@ int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *nblocks,
 
 	gfs2_trans_add_meta(rbm.rgd->rd_gl, rbm.rgd->rd_bits[0].bi_bh);
 	gfs2_rgrp_out(rbm.rgd, rbm.rgd->rd_bits[0].bi_bh->b_data);
+<<<<<<< HEAD
 
 	gfs2_statfs_change(sdp, 0, -(s64)*nblocks, dinode ? 1 : 0);
 	if (dinode)
@@ -2431,12 +3274,26 @@ int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *nblocks,
 	gfs2_quota_change(ip, *nblocks, ip->i_inode.i_uid, ip->i_inode.i_gid);
 
 	rbm.rgd->rd_free_clone -= *nblocks;
+=======
+	rgrp_unlock_local(rbm.rgd);
+
+	gfs2_statfs_change(sdp, 0, -(s64)*nblocks, dinode ? 1 : 0);
+	if (dinode)
+		gfs2_trans_remove_revoke(sdp, block, *nblocks);
+
+	gfs2_quota_change(ip, *nblocks, ip->i_inode.i_uid, ip->i_inode.i_gid);
+
+>>>>>>> upstream/android-13
 	trace_gfs2_block_alloc(ip, rbm.rgd, block, *nblocks,
 			       dinode ? GFS2_BLKST_DINODE : GFS2_BLKST_USED);
 	*bn = block;
 	return 0;
 
 rgrp_error:
+<<<<<<< HEAD
+=======
+	rgrp_unlock_local(rbm.rgd);
+>>>>>>> upstream/android-13
 	gfs2_rgrp_error(rbm.rgd);
 	return -EIO;
 }
@@ -2444,12 +3301,17 @@ rgrp_error:
 /**
  * __gfs2_free_blocks - free a contiguous run of block(s)
  * @ip: the inode these blocks are being freed from
+<<<<<<< HEAD
+=======
+ * @rgd: the resource group the blocks are in
+>>>>>>> upstream/android-13
  * @bstart: first block of a run of contiguous blocks
  * @blen: the length of the block run
  * @meta: 1 if the blocks represent metadata
  *
  */
 
+<<<<<<< HEAD
 void __gfs2_free_blocks(struct gfs2_inode *ip, u64 bstart, u32 blen, int meta)
 {
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
@@ -2458,30 +3320,60 @@ void __gfs2_free_blocks(struct gfs2_inode *ip, u64 bstart, u32 blen, int meta)
 	rgd = rgblk_free(sdp, bstart, blen, GFS2_BLKST_FREE);
 	if (!rgd)
 		return;
+=======
+void __gfs2_free_blocks(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+			u64 bstart, u32 blen, int meta)
+{
+	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
+
+	rgrp_lock_local(rgd);
+	rgblk_free(sdp, rgd, bstart, blen, GFS2_BLKST_FREE);
+>>>>>>> upstream/android-13
 	trace_gfs2_block_alloc(ip, rgd, bstart, blen, GFS2_BLKST_FREE);
 	rgd->rd_free += blen;
 	rgd->rd_flags &= ~GFS2_RGF_TRIMMED;
 	gfs2_trans_add_meta(rgd->rd_gl, rgd->rd_bits[0].bi_bh);
 	gfs2_rgrp_out(rgd, rgd->rd_bits[0].bi_bh->b_data);
+<<<<<<< HEAD
 
 	/* Directories keep their data in the metadata address space */
 	if (meta || ip->i_depth)
 		gfs2_meta_wipe(ip, bstart, blen);
+=======
+	rgrp_unlock_local(rgd);
+
+	/* Directories keep their data in the metadata address space */
+	if (meta || ip->i_depth || gfs2_is_jdata(ip))
+		gfs2_journal_wipe(ip, bstart, blen);
+>>>>>>> upstream/android-13
 }
 
 /**
  * gfs2_free_meta - free a contiguous run of data block(s)
  * @ip: the inode these blocks are being freed from
+<<<<<<< HEAD
+=======
+ * @rgd: the resource group the blocks are in
+>>>>>>> upstream/android-13
  * @bstart: first block of a run of contiguous blocks
  * @blen: the length of the block run
  *
  */
 
+<<<<<<< HEAD
 void gfs2_free_meta(struct gfs2_inode *ip, u64 bstart, u32 blen)
 {
 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
 
 	__gfs2_free_blocks(ip, bstart, blen, 1);
+=======
+void gfs2_free_meta(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+		    u64 bstart, u32 blen)
+{
+	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
+
+	__gfs2_free_blocks(ip, rgd, bstart, blen, 1);
+>>>>>>> upstream/android-13
 	gfs2_statfs_change(sdp, 0, +blen, 0);
 	gfs2_quota_change(ip, -(s64)blen, ip->i_inode.i_uid, ip->i_inode.i_gid);
 }
@@ -2493,18 +3385,31 @@ void gfs2_unlink_di(struct inode *inode)
 	struct gfs2_rgrpd *rgd;
 	u64 blkno = ip->i_no_addr;
 
+<<<<<<< HEAD
 	rgd = rgblk_free(sdp, blkno, 1, GFS2_BLKST_UNLINKED);
 	if (!rgd)
 		return;
+=======
+	rgd = gfs2_blk2rgrpd(sdp, blkno, true);
+	if (!rgd)
+		return;
+	rgrp_lock_local(rgd);
+	rgblk_free(sdp, rgd, blkno, 1, GFS2_BLKST_UNLINKED);
+>>>>>>> upstream/android-13
 	trace_gfs2_block_alloc(ip, rgd, blkno, 1, GFS2_BLKST_UNLINKED);
 	gfs2_trans_add_meta(rgd->rd_gl, rgd->rd_bits[0].bi_bh);
 	gfs2_rgrp_out(rgd, rgd->rd_bits[0].bi_bh->b_data);
 	be32_add_cpu(&rgd->rd_rgl->rl_unlinked, 1);
+<<<<<<< HEAD
+=======
+	rgrp_unlock_local(rgd);
+>>>>>>> upstream/android-13
 }
 
 void gfs2_free_di(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip)
 {
 	struct gfs2_sbd *sdp = rgd->rd_sbd;
+<<<<<<< HEAD
 	struct gfs2_rgrpd *tmp_rgd;
 
 	tmp_rgd = rgblk_free(sdp, ip->i_no_addr, 1, GFS2_BLKST_FREE);
@@ -2512,6 +3417,11 @@ void gfs2_free_di(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip)
 		return;
 	gfs2_assert_withdraw(sdp, rgd == tmp_rgd);
 
+=======
+
+	rgrp_lock_local(rgd);
+	rgblk_free(sdp, rgd, ip->i_no_addr, 1, GFS2_BLKST_FREE);
+>>>>>>> upstream/android-13
 	if (!rgd->rd_dinodes)
 		gfs2_consist_rgrpd(rgd);
 	rgd->rd_dinodes--;
@@ -2519,12 +3429,20 @@ void gfs2_free_di(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip)
 
 	gfs2_trans_add_meta(rgd->rd_gl, rgd->rd_bits[0].bi_bh);
 	gfs2_rgrp_out(rgd, rgd->rd_bits[0].bi_bh->b_data);
+<<<<<<< HEAD
+=======
+	rgrp_unlock_local(rgd);
+>>>>>>> upstream/android-13
 	be32_add_cpu(&rgd->rd_rgl->rl_unlinked, -1);
 
 	gfs2_statfs_change(sdp, 0, +1, -1);
 	trace_gfs2_block_alloc(ip, rgd, ip->i_no_addr, 1, GFS2_BLKST_FREE);
 	gfs2_quota_change(ip, -1, ip->i_inode.i_uid, ip->i_inode.i_gid);
+<<<<<<< HEAD
 	gfs2_meta_wipe(ip, ip->i_no_addr, 1);
+=======
+	gfs2_journal_wipe(ip, ip->i_no_addr, 1);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2533,6 +3451,13 @@ void gfs2_free_di(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip)
  * @no_addr: The block number to check
  * @type: The block type we are looking for
  *
+<<<<<<< HEAD
+=======
+ * The inode glock of @no_addr must be held.  The @type to check for is either
+ * GFS2_BLKST_DINODE or GFS2_BLKST_UNLINKED; checking for type GFS2_BLKST_FREE
+ * or GFS2_BLKST_USED would make no sense.
+ *
+>>>>>>> upstream/android-13
  * Returns: 0 if the block type matches the expected type
  *          -ESTALE if it doesn't match
  *          or -ve errno if something went wrong while checking
@@ -2555,12 +3480,29 @@ int gfs2_check_blk_type(struct gfs2_sbd *sdp, u64 no_addr, unsigned int type)
 
 	rbm.rgd = rgd;
 	error = gfs2_rbm_from_block(&rbm, no_addr);
+<<<<<<< HEAD
 	WARN_ON_ONCE(error != 0);
 
 	if (gfs2_testbit(&rbm, false) != type)
 		error = -ESTALE;
 
 	gfs2_glock_dq_uninit(&rgd_gh);
+=======
+	if (!WARN_ON_ONCE(error)) {
+		/*
+		 * No need to take the local resource group lock here; the
+		 * inode glock of @no_addr provides the necessary
+		 * synchronization in case the block is an inode.  (In case
+		 * the block is not an inode, the block type will not match
+		 * the @type we are looking for.)
+		 */
+		if (gfs2_testbit(&rbm, false) != type)
+			error = -ESTALE;
+	}
+
+	gfs2_glock_dq_uninit(&rgd_gh);
+
+>>>>>>> upstream/android-13
 fail:
 	return error;
 }
@@ -2599,7 +3541,11 @@ void gfs2_rlist_add(struct gfs2_inode *ip, struct gfs2_rgrp_list *rlist,
 			return;
 		rgd = gfs2_blk2rgrpd(sdp, block, 1);
 	} else {
+<<<<<<< HEAD
 		rgd = ip->i_res.rs_rbm.rgd;
+=======
+		rgd = ip->i_res.rs_rgd;
+>>>>>>> upstream/android-13
 		if (!rgd || !rgrp_contains_block(rgd, block))
 			rgd = gfs2_blk2rgrpd(sdp, block, 1);
 	}
@@ -2641,13 +3587,20 @@ void gfs2_rlist_add(struct gfs2_inode *ip, struct gfs2_rgrp_list *rlist,
  * gfs2_rlist_alloc - all RGs have been added to the rlist, now allocate
  *      and initialize an array of glock holders for them
  * @rlist: the list of resource groups
+<<<<<<< HEAD
  * @state: the lock state to acquire the RG lock in
+=======
+>>>>>>> upstream/android-13
  *
  * FIXME: Don't use NOFAIL
  *
  */
 
+<<<<<<< HEAD
 void gfs2_rlist_alloc(struct gfs2_rgrp_list *rlist, unsigned int state)
+=======
+void gfs2_rlist_alloc(struct gfs2_rgrp_list *rlist)
+>>>>>>> upstream/android-13
 {
 	unsigned int x;
 
@@ -2655,9 +3608,14 @@ void gfs2_rlist_alloc(struct gfs2_rgrp_list *rlist, unsigned int state)
 				      sizeof(struct gfs2_holder),
 				      GFP_NOFS | __GFP_NOFAIL);
 	for (x = 0; x < rlist->rl_rgrps; x++)
+<<<<<<< HEAD
 		gfs2_holder_init(rlist->rl_rgd[x]->rd_gl,
 				state, 0,
 				&rlist->rl_ghs[x]);
+=======
+		gfs2_holder_init(rlist->rl_rgd[x]->rd_gl, LM_ST_EXCLUSIVE,
+				 LM_FLAG_NODE_SCOPE, &rlist->rl_ghs[x]);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -2680,3 +3638,17 @@ void gfs2_rlist_free(struct gfs2_rgrp_list *rlist)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void rgrp_lock_local(struct gfs2_rgrpd *rgd)
+{
+	BUG_ON(!gfs2_glock_is_held_excl(rgd->rd_gl) &&
+	       !test_bit(SDF_NORECOVERY, &rgd->rd_sbd->sd_flags));
+	mutex_lock(&rgd->rd_mutex);
+}
+
+void rgrp_unlock_local(struct gfs2_rgrpd *rgd)
+{
+	mutex_unlock(&rgd->rd_mutex);
+}
+>>>>>>> upstream/android-13

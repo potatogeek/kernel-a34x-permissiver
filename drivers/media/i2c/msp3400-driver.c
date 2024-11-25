@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Programming the mspx4xx sound processor family
  *
@@ -11,7 +15,11 @@
  *
  *  FM-Mono
  *      should work. The stereo modes are backward compatible to FM-mono,
+<<<<<<< HEAD
  *      therefore FM-Mono should be allways available.
+=======
+ *      therefore FM-Mono should be always available.
+>>>>>>> upstream/android-13
  *
  *  FM-Stereo (B/G, used in germany)
  *      should work, with autodetect
@@ -29,6 +37,7 @@
  *
  * 980623  Thomas Sailer (sailer@ife.ee.ethz.ch)
  *         using soundcore instead of OSS
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,6 +48,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 
@@ -688,7 +699,11 @@ static int msp_probe(struct i2c_client *client, const struct i2c_device_id *id)
 #endif
 
 	if (!id)
+<<<<<<< HEAD
 		strlcpy(client->name, "msp3400", sizeof(client->name));
+=======
+		strscpy(client->name, "msp3400", sizeof(client->name));
+>>>>>>> upstream/android-13
 
 	if (msp_reset(client) == -1) {
 		dev_dbg_lvl(&client->dev, 1, msp_debug, "msp3400 not found\n");
@@ -703,8 +718,15 @@ static int msp_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	v4l2_i2c_subdev_init(sd, client, &msp_ops);
 
 #if defined(CONFIG_MEDIA_CONTROLLER)
+<<<<<<< HEAD
 	state->pads[IF_AUD_DEC_PAD_IF_INPUT].flags = MEDIA_PAD_FL_SINK;
 	state->pads[IF_AUD_DEC_PAD_OUT].flags = MEDIA_PAD_FL_SOURCE;
+=======
+	state->pads[MSP3400_PAD_IF_INPUT].flags = MEDIA_PAD_FL_SINK;
+	state->pads[MSP3400_PAD_IF_INPUT].sig_type = PAD_SIGNAL_AUDIO;
+	state->pads[MSP3400_PAD_OUT].flags = MEDIA_PAD_FL_SOURCE;
+	state->pads[MSP3400_PAD_OUT].sig_type = PAD_SIGNAL_AUDIO;
+>>>>>>> upstream/android-13
 
 	sd->entity.function = MEDIA_ENT_F_IF_AUD_DECODER;
 

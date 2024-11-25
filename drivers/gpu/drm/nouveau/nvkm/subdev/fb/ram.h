@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_FB_RAM_PRIV_H__
 #define __NVKM_FB_RAM_PRIV_H__
 #include "priv.h"
@@ -70,4 +74,8 @@ int gk104_ram_new(struct nvkm_fb *, struct nvkm_ram **);
 int gm107_ram_new(struct nvkm_fb *, struct nvkm_ram **);
 int gm200_ram_new(struct nvkm_fb *, struct nvkm_ram **);
 int gp100_ram_new(struct nvkm_fb *, struct nvkm_ram **);
+<<<<<<< HEAD
+=======
+int ga102_ram_new(struct nvkm_fb *, struct nvkm_ram **);
+>>>>>>> upstream/android-13
 #endif

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * net/sched/sch_cbq.c	Class-Based Queueing discipline.
  *
@@ -8,6 +9,13 @@
  *
  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * net/sched/sch_cbq.c	Class-Based Queueing discipline.
+ *
+ * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -233,7 +241,11 @@ cbq_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
 		/*
 		 * Step 2+n. Apply classifier.
 		 */
+<<<<<<< HEAD
 		result = tcf_classify(skb, fl, &res, true);
+=======
+		result = tcf_classify(skb, NULL, fl, &res, true);
+>>>>>>> upstream/android-13
 		if (!fl || result < 0)
 			goto fallback;
 
@@ -255,7 +267,11 @@ cbq_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
 		case TC_ACT_STOLEN:
 		case TC_ACT_TRAP:
 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
+<<<<<<< HEAD
 			/* fall through */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case TC_ACT_SHOT:
 			return NULL;
 		case TC_ACT_RECLASSIFY:
@@ -268,7 +284,11 @@ cbq_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
 		/*
 		 * Step 3+n. If classifier selected a link sharing class,
 		 *	   apply agency specific classifier.
+<<<<<<< HEAD
 		 *	   Repeat this procdure until we hit a leaf node.
+=======
+		 *	   Repeat this procedure until we hit a leaf node.
+>>>>>>> upstream/android-13
 		 */
 		head = cl;
 	}
@@ -365,7 +385,11 @@ cbq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
 	    struct sk_buff **to_free)
 {
 	struct cbq_sched_data *q = qdisc_priv(sch);
+<<<<<<< HEAD
 	int uninitialized_var(ret);
+=======
+	int ret;
+>>>>>>> upstream/android-13
 	struct cbq_class *cl = cbq_classify(skb, sch, &ret);
 
 #ifdef CONFIG_NET_CLS_ACT
@@ -864,7 +888,11 @@ cbq_dequeue(struct Qdisc *sch)
 	return NULL;
 }
 
+<<<<<<< HEAD
 /* CBQ class maintanance routines */
+=======
+/* CBQ class maintenance routines */
+>>>>>>> upstream/android-13
 
 static void cbq_adjust_levels(struct cbq_class *this)
 {
@@ -1143,7 +1171,12 @@ static int cbq_opt_parse(struct nlattr *tb[TCA_CBQ_MAX + 1],
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	err = nla_parse_nested(tb, TCA_CBQ_MAX, opt, cbq_policy, extack);
+=======
+	err = nla_parse_nested_deprecated(tb, TCA_CBQ_MAX, opt,
+					  cbq_policy, extack);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -1326,7 +1359,11 @@ static int cbq_dump(struct Qdisc *sch, struct sk_buff *skb)
 	struct cbq_sched_data *q = qdisc_priv(sch);
 	struct nlattr *nest;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 	if (cbq_dump_attr(skb, &q->link) < 0)
@@ -1361,7 +1398,11 @@ cbq_dump_class(struct Qdisc *sch, unsigned long arg,
 	tcm->tcm_handle = cl->common.classid;
 	tcm->tcm_info = cl->q->handle;
 
+<<<<<<< HEAD
 	nest = nla_nest_start(skb, TCA_OPTIONS);
+=======
+	nest = nla_nest_start_noflag(skb, TCA_OPTIONS);
+>>>>>>> upstream/android-13
 	if (nest == NULL)
 		goto nla_put_failure;
 	if (cbq_dump_attr(skb, cl) < 0)
@@ -1379,9 +1420,17 @@ cbq_dump_class_stats(struct Qdisc *sch, unsigned long arg,
 {
 	struct cbq_sched_data *q = qdisc_priv(sch);
 	struct cbq_class *cl = (struct cbq_class *)arg;
+<<<<<<< HEAD
 
 	cl->xstats.avgidle = cl->avgidle;
 	cl->xstats.undertime = 0;
+=======
+	__u32 qlen;
+
+	cl->xstats.avgidle = cl->avgidle;
+	cl->xstats.undertime = 0;
+	qdisc_qstats_qlen_backlog(cl->q, &qlen, &cl->qstats.backlog);
+>>>>>>> upstream/android-13
 
 	if (cl->undertime != PSCHED_PASTPERFECT)
 		cl->xstats.undertime = cl->undertime - q->now;
@@ -1389,7 +1438,11 @@ cbq_dump_class_stats(struct Qdisc *sch, unsigned long arg,
 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
 				  d, NULL, &cl->bstats) < 0 ||
 	    gnet_stats_copy_rate_est(d, &cl->rate_est) < 0 ||
+<<<<<<< HEAD
 	    gnet_stats_copy_queue(d, NULL, &cl->qstats, cl->q->q.qlen) < 0)
+=======
+	    gnet_stats_copy_queue(d, NULL, &cl->qstats, qlen) < 0)
+>>>>>>> upstream/android-13
 		return -1;
 
 	return gnet_stats_copy_app(d, &cl->xstats, sizeof(cl->xstats));
@@ -1439,7 +1492,11 @@ static void cbq_destroy_class(struct Qdisc *sch, struct cbq_class *cl)
 	WARN_ON(cl->filters);
 
 	tcf_block_put(cl->block);
+<<<<<<< HEAD
 	qdisc_destroy(cl->q);
+=======
+	qdisc_put(cl->q);
+>>>>>>> upstream/android-13
 	qdisc_put_rtab(cl->R_tab);
 	gen_kill_estimator(&cl->rate_est);
 	if (cl != &q->link)
@@ -1616,7 +1673,11 @@ cbq_change_class(struct Qdisc *sch, u32 classid, u32 parentid, struct nlattr **t
 	err = tcf_block_get(&cl->block, &cl->filter_list, sch, extack);
 	if (err) {
 		kfree(cl);
+<<<<<<< HEAD
 		return err;
+=======
+		goto failure;
+>>>>>>> upstream/android-13
 	}
 
 	if (tca[TCA_RATE]) {
@@ -1677,21 +1738,33 @@ failure:
 	return err;
 }
 
+<<<<<<< HEAD
 static int cbq_delete(struct Qdisc *sch, unsigned long arg)
 {
 	struct cbq_sched_data *q = qdisc_priv(sch);
 	struct cbq_class *cl = (struct cbq_class *)arg;
 	unsigned int qlen, backlog;
+=======
+static int cbq_delete(struct Qdisc *sch, unsigned long arg,
+		      struct netlink_ext_ack *extack)
+{
+	struct cbq_sched_data *q = qdisc_priv(sch);
+	struct cbq_class *cl = (struct cbq_class *)arg;
+>>>>>>> upstream/android-13
 
 	if (cl->filters || cl->children || cl == &q->link)
 		return -EBUSY;
 
 	sch_tree_lock(sch);
 
+<<<<<<< HEAD
 	qlen = cl->q->q.qlen;
 	backlog = cl->q->qstats.backlog;
 	qdisc_reset(cl->q);
 	qdisc_tree_reduce_backlog(cl->q, qlen, backlog);
+=======
+	qdisc_purge_queue(cl->q);
+>>>>>>> upstream/android-13
 
 	if (cl->next_alive)
 		cbq_deactivate_class(cl);

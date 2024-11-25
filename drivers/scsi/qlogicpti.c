@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /* qlogicpti.c: Performance Technologies QlogicISP sbus card driver.
  *
  * Copyright (C) 1996, 2006, 2008 David S. Miller (davem@davemloft.net)
@@ -29,6 +33,10 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/firmware.h>
+<<<<<<< HEAD
+=======
+#include <linux/pgtable.h>
+>>>>>>> upstream/android-13
 
 #include <asm/byteorder.h>
 
@@ -36,7 +44,10 @@
 
 #include <asm/dma.h>
 #include <asm/ptrace.h>
+<<<<<<< HEAD
 #include <asm/pgtable.h>
+=======
+>>>>>>> upstream/android-13
 #include <asm/oplib.h>
 #include <asm/io.h>
 #include <asm/irq.h>
@@ -199,10 +210,22 @@ static int qlogicpti_mbox_command(struct qlogicpti *qpti, u_short param[], int f
 	/* Write mailbox command registers. */
 	switch (mbox_param[param[0]] >> 4) {
 	case 6: sbus_writew(param[5], qpti->qregs + MBOX5);
+<<<<<<< HEAD
 	case 5: sbus_writew(param[4], qpti->qregs + MBOX4);
 	case 4: sbus_writew(param[3], qpti->qregs + MBOX3);
 	case 3: sbus_writew(param[2], qpti->qregs + MBOX2);
 	case 2: sbus_writew(param[1], qpti->qregs + MBOX1);
+=======
+		fallthrough;
+	case 5: sbus_writew(param[4], qpti->qregs + MBOX4);
+		fallthrough;
+	case 4: sbus_writew(param[3], qpti->qregs + MBOX3);
+		fallthrough;
+	case 3: sbus_writew(param[2], qpti->qregs + MBOX2);
+		fallthrough;
+	case 2: sbus_writew(param[1], qpti->qregs + MBOX1);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1: sbus_writew(param[0], qpti->qregs + MBOX0);
 	}
 
@@ -253,10 +276,22 @@ static int qlogicpti_mbox_command(struct qlogicpti *qpti, u_short param[], int f
 	/* Read back output parameters. */
 	switch (mbox_param[param[0]] & 0xf) {
 	case 6: param[5] = sbus_readw(qpti->qregs + MBOX5);
+<<<<<<< HEAD
 	case 5: param[4] = sbus_readw(qpti->qregs + MBOX4);
 	case 4: param[3] = sbus_readw(qpti->qregs + MBOX3);
 	case 3: param[2] = sbus_readw(qpti->qregs + MBOX2);
 	case 2: param[1] = sbus_readw(qpti->qregs + MBOX1);
+=======
+		fallthrough;
+	case 5: param[4] = sbus_readw(qpti->qregs + MBOX4);
+		fallthrough;
+	case 4: param[3] = sbus_readw(qpti->qregs + MBOX3);
+		fallthrough;
+	case 3: param[2] = sbus_readw(qpti->qregs + MBOX2);
+		fallthrough;
+	case 2: param[1] = sbus_readw(qpti->qregs + MBOX1);
+		fallthrough;
+>>>>>>> upstream/android-13
 	case 1: param[0] = sbus_readw(qpti->qregs + MBOX0);
 	}
 
@@ -879,7 +914,11 @@ static inline void cmd_frob(struct Command_Entry *cmd, struct scsi_cmnd *Cmnd,
 		cmd->control_flags |= CFLAG_WRITE;
 	else
 		cmd->control_flags |= CFLAG_READ;
+<<<<<<< HEAD
 	cmd->time_out = Cmnd->request->timeout/HZ;
+=======
+	cmd->time_out = scsi_cmd_to_rq(Cmnd)->timeout / HZ;
+>>>>>>> upstream/android-13
 	memcpy(cmd->cdb, Cmnd->cmnd, Cmnd->cmd_len);
 }
 
@@ -1287,7 +1326,10 @@ static struct scsi_host_template qpti_template = {
 	.can_queue		= QLOGICPTI_REQ_QUEUE_LEN,
 	.this_id		= 7,
 	.sg_tablesize		= QLOGICPTI_MAX_SG(QLOGICPTI_REQ_QUEUE_LEN),
+<<<<<<< HEAD
 	.use_clustering		= ENABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 };
 
 static const struct of_device_id qpti_match[];
@@ -1315,8 +1357,12 @@ static int qpti_sbus_probe(struct platform_device *op)
 	qpti->qhost = host;
 	qpti->op = op;
 	qpti->qpti_id = nqptis;
+<<<<<<< HEAD
 	strcpy(qpti->prom_name, op->dev.of_node->name);
 	qpti->is_pti = strcmp(qpti->prom_name, "QLGC,isp");
+=======
+	qpti->is_pti = !of_node_name_eq(op->dev.of_node, "QLGC,isp");
+>>>>>>> upstream/android-13
 
 	if (qpti_map_regs(qpti) < 0)
 		goto fail_unlink;
@@ -1459,6 +1505,7 @@ static struct platform_driver qpti_sbus_driver = {
 	.probe		= qpti_sbus_probe,
 	.remove		= qpti_sbus_remove,
 };
+<<<<<<< HEAD
 
 static int __init qpti_init(void)
 {
@@ -1469,12 +1516,18 @@ static void __exit qpti_exit(void)
 {
 	platform_driver_unregister(&qpti_sbus_driver);
 }
+=======
+module_platform_driver(qpti_sbus_driver);
+>>>>>>> upstream/android-13
 
 MODULE_DESCRIPTION("QlogicISP SBUS driver");
 MODULE_AUTHOR("David S. Miller (davem@davemloft.net)");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("2.1");
 MODULE_FIRMWARE("qlogic/isp1000.bin");
+<<<<<<< HEAD
 
 module_init(qpti_init);
 module_exit(qpti_exit);
+=======
+>>>>>>> upstream/android-13

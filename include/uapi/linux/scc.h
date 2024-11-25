@@ -4,6 +4,10 @@
 #ifndef _UAPI_SCC_H
 #define _UAPI_SCC_H
 
+<<<<<<< HEAD
+=======
+#include <linux/sockios.h>
+>>>>>>> upstream/android-13
 
 /* selection of hardware types */
 

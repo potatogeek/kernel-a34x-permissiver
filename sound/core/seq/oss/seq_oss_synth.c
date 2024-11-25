@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OSS compatible sequencer driver
  *
  * synth device handlers
  *
  * Copyright (C) 1998,99 Takashi Iwai <tiwai@suse.de>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +23,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "seq_oss_synth.h"
@@ -120,7 +127,11 @@ snd_seq_oss_synth_probe(struct device *_dev)
 	snd_use_lock_init(&rec->use_lock);
 
 	/* copy and truncate the name of synth device */
+<<<<<<< HEAD
 	strlcpy(rec->name, dev->name, sizeof(rec->name));
+=======
+	strscpy(rec->name, dev->name, sizeof(rec->name));
+>>>>>>> upstream/android-13
 
 	/* registration */
 	spin_lock_irqsave(&register_lock, flags);
@@ -464,7 +475,12 @@ snd_seq_oss_synth_load_patch(struct seq_oss_devinfo *dp, int dev, int fmt,
 
 	if (info->is_midi)
 		return 0;
+<<<<<<< HEAD
 	if ((rec = get_synthdev(dp, dev)) == NULL)
+=======
+	rec = get_synthdev(dp, dev);
+	if (!rec)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 
 	if (rec->oper.load_patch == NULL)
@@ -582,7 +598,12 @@ snd_seq_oss_synth_ioctl(struct seq_oss_devinfo *dp, int dev, unsigned int cmd, u
 	info = get_synthinfo_nospec(dp, dev);
 	if (!info || info->is_midi)
 		return -ENXIO;
+<<<<<<< HEAD
 	if ((rec = get_synthdev(dp, dev)) == NULL)
+=======
+	rec = get_synthdev(dp, dev);
+	if (!rec)
+>>>>>>> upstream/android-13
 		return -ENXIO;
 	if (rec->oper.ioctl == NULL)
 		rc = -ENXIO;
@@ -630,15 +651,26 @@ snd_seq_oss_synth_make_info(struct seq_oss_devinfo *dp, int dev, struct synth_in
 		inf->synth_subtype = 0;
 		inf->nr_voices = 16;
 		inf->device = dev;
+<<<<<<< HEAD
 		strlcpy(inf->name, minf.name, sizeof(inf->name));
 	} else {
 		if ((rec = get_synthdev(dp, dev)) == NULL)
+=======
+		strscpy(inf->name, minf.name, sizeof(inf->name));
+	} else {
+		rec = get_synthdev(dp, dev);
+		if (!rec)
+>>>>>>> upstream/android-13
 			return -ENXIO;
 		inf->synth_type = rec->synth_type;
 		inf->synth_subtype = rec->synth_subtype;
 		inf->nr_voices = rec->nr_voices;
 		inf->device = dev;
+<<<<<<< HEAD
 		strlcpy(inf->name, rec->name, sizeof(inf->name));
+=======
+		strscpy(inf->name, rec->name, sizeof(inf->name));
+>>>>>>> upstream/android-13
 		snd_use_lock_free(&rec->use_lock);
 	}
 	return 0;

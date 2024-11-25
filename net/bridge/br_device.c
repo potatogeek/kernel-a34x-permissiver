@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	Device handling code
  *	Linux ethernet bridge
  *
  *	Authors:
  *	Lennert Buytenhek		<buytenh@gnu.org>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
  *	as published by the Free Software Foundation; either version
  *	2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -28,6 +35,7 @@
 const struct nf_br_ops __rcu *nf_br_ops __read_mostly;
 EXPORT_SYMBOL_GPL(nf_br_ops);
 
+<<<<<<< HEAD
 static struct lock_class_key bridge_netdev_addr_lock_key;
 
 /* net device transmit always called with BH disabled */
@@ -42,6 +50,24 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
 	struct ethhdr *eth;
 	u16 vid = 0;
 
+=======
+/* net device transmit always called with BH disabled */
+netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+{
+	struct net_bridge_mcast_port *pmctx_null = NULL;
+	struct net_bridge *br = netdev_priv(dev);
+	struct net_bridge_mcast *brmctx = &br->multicast_ctx;
+	struct net_bridge_fdb_entry *dst;
+	struct net_bridge_mdb_entry *mdst;
+	const struct nf_br_ops *nf_ops;
+	u8 state = BR_STATE_FORWARDING;
+	struct net_bridge_vlan *vlan;
+	const unsigned char *dest;
+	u16 vid = 0;
+
+	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
+
+>>>>>>> upstream/android-13
 	rcu_read_lock();
 	nf_ops = rcu_dereference(nf_br_ops);
 	if (nf_ops && nf_ops->br_dev_xmit_hook(skb)) {
@@ -49,6 +75,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
 		return NETDEV_TX_OK;
 	}
 
+<<<<<<< HEAD
 	u64_stats_update_begin(&brstats->syncp);
 	brstats->tx_packets++;
 	brstats->tx_bytes += skb->len;
@@ -72,6 +99,29 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
 	} else if (IS_ENABLED(CONFIG_IPV6) &&
 		   skb->protocol == htons(ETH_P_IPV6) &&
 		   br->neigh_suppress_enabled &&
+=======
+	dev_sw_netstats_tx_add(dev, 1, skb->len);
+
+	br_switchdev_frame_unmark(skb);
+	BR_INPUT_SKB_CB(skb)->brdev = dev;
+	BR_INPUT_SKB_CB(skb)->frag_max_size = 0;
+
+	skb_reset_mac_header(skb);
+	skb_pull(skb, ETH_HLEN);
+
+	if (!br_allowed_ingress(br, br_vlan_group_rcu(br), skb, &vid,
+				&state, &vlan))
+		goto out;
+
+	if (IS_ENABLED(CONFIG_INET) &&
+	    (eth_hdr(skb)->h_proto == htons(ETH_P_ARP) ||
+	     eth_hdr(skb)->h_proto == htons(ETH_P_RARP)) &&
+	    br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED)) {
+		br_do_proxy_suppress_arp(skb, br, vid, NULL);
+	} else if (IS_ENABLED(CONFIG_IPV6) &&
+		   skb->protocol == htons(ETH_P_IPV6) &&
+		   br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED) &&
+>>>>>>> upstream/android-13
 		   pskb_may_pull(skb, sizeof(struct ipv6hdr) +
 				 sizeof(struct nd_msg)) &&
 		   ipv6_hdr(skb)->nexthdr == IPPROTO_ICMPV6) {
@@ -90,15 +140,26 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
 			br_flood(br, skb, BR_PKT_MULTICAST, false, true);
 			goto out;
 		}
+<<<<<<< HEAD
 		if (br_multicast_rcv(br, NULL, skb, vid)) {
+=======
+		if (br_multicast_rcv(&brmctx, &pmctx_null, vlan, skb, vid)) {
+>>>>>>> upstream/android-13
 			kfree_skb(skb);
 			goto out;
 		}
 
+<<<<<<< HEAD
 		mdst = br_mdb_get(br, skb, vid);
 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
 		    br_multicast_querier_exists(br, eth_hdr(skb)))
 			br_multicast_flood(mdst, skb, false, true);
+=======
+		mdst = br_mdb_get(brmctx, skb, vid);
+		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst))
+			br_multicast_flood(mdst, skb, brmctx, false, true);
+>>>>>>> upstream/android-13
 		else
 			br_flood(br, skb, BR_PKT_MULTICAST, false, true);
 	} else if ((dst = br_fdb_find_rcu(br, dest, vid)) != NULL) {
@@ -111,6 +172,11 @@ out:
 	return NETDEV_TX_OK;
 }
 
+<<<<<<< HEAD
+=======
+static struct lock_class_key bridge_netdev_addr_lock_key;
+
+>>>>>>> upstream/android-13
 static void br_set_lockdep_class(struct net_device *dev)
 {
 	lockdep_set_class(&dev->addr_list_lock, &bridge_netdev_addr_lock_key);
@@ -121,31 +187,62 @@ static int br_dev_init(struct net_device *dev)
 	struct net_bridge *br = netdev_priv(dev);
 	int err;
 
+<<<<<<< HEAD
 	br->stats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
 	if (!br->stats)
+=======
+	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
+	if (!dev->tstats)
+>>>>>>> upstream/android-13
 		return -ENOMEM;
 
 	err = br_fdb_hash_init(br);
 	if (err) {
+<<<<<<< HEAD
 		free_percpu(br->stats);
+=======
+		free_percpu(dev->tstats);
+		return err;
+	}
+
+	err = br_mdb_hash_init(br);
+	if (err) {
+		free_percpu(dev->tstats);
+		br_fdb_hash_fini(br);
+>>>>>>> upstream/android-13
 		return err;
 	}
 
 	err = br_vlan_init(br);
 	if (err) {
+<<<<<<< HEAD
 		free_percpu(br->stats);
+=======
+		free_percpu(dev->tstats);
+		br_mdb_hash_fini(br);
+>>>>>>> upstream/android-13
 		br_fdb_hash_fini(br);
 		return err;
 	}
 
 	err = br_multicast_init_stats(br);
 	if (err) {
+<<<<<<< HEAD
 		free_percpu(br->stats);
 		br_vlan_flush(br);
 		br_fdb_hash_fini(br);
 	}
 	br_set_lockdep_class(dev);
 
+=======
+		free_percpu(dev->tstats);
+		br_vlan_flush(br);
+		br_mdb_hash_fini(br);
+		br_fdb_hash_fini(br);
+	}
+
+	br_set_lockdep_class(dev);
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -156,8 +253,14 @@ static void br_dev_uninit(struct net_device *dev)
 	br_multicast_dev_del(br);
 	br_multicast_uninit_stats(br);
 	br_vlan_flush(br);
+<<<<<<< HEAD
 	br_fdb_hash_fini(br);
 	free_percpu(br->stats);
+=======
+	br_mdb_hash_fini(br);
+	br_fdb_hash_fini(br);
+	free_percpu(dev->tstats);
+>>>>>>> upstream/android-13
 }
 
 static int br_dev_open(struct net_device *dev)
@@ -169,6 +272,12 @@ static int br_dev_open(struct net_device *dev)
 	br_stp_enable_bridge(br);
 	br_multicast_open(br);
 
+<<<<<<< HEAD
+=======
+	if (br_opt_get(br, BROPT_MULTICAST_ENABLED))
+		br_multicast_join_snoopers(br);
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -189,11 +298,18 @@ static int br_dev_stop(struct net_device *dev)
 	br_stp_disable_bridge(br);
 	br_multicast_stop(br);
 
+<<<<<<< HEAD
+=======
+	if (br_opt_get(br, BROPT_MULTICAST_ENABLED))
+		br_multicast_leave_snoopers(br);
+
+>>>>>>> upstream/android-13
 	netif_stop_queue(dev);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static void br_get_stats64(struct net_device *dev,
 			   struct rtnl_link_stats64 *stats)
 {
@@ -222,6 +338,8 @@ static void br_get_stats64(struct net_device *dev,
 	stats->rx_packets = sum.rx_packets;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int br_change_mtu(struct net_device *dev, int new_mtu)
 {
 	struct net_bridge *br = netdev_priv(dev);
@@ -229,7 +347,11 @@ static int br_change_mtu(struct net_device *dev, int new_mtu)
 	dev->mtu = new_mtu;
 
 	/* this flag will be cleared if the MTU was automatically adjusted */
+<<<<<<< HEAD
 	br->mtu_set_by_user = true;
+=======
+	br_opt_toggle(br, BROPT_MTU_SET_BY_USER, true);
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
 	/* remember the MTU in the rtable for PMTU */
 	dst_metric_set(&br->fake_rtable.dst, RTAX_MTU, new_mtu);
@@ -271,6 +393,40 @@ static void br_getinfo(struct net_device *dev, struct ethtool_drvinfo *info)
 	strlcpy(info->bus_info, "N/A", sizeof(info->bus_info));
 }
 
+<<<<<<< HEAD
+=======
+static int br_get_link_ksettings(struct net_device *dev,
+				 struct ethtool_link_ksettings *cmd)
+{
+	struct net_bridge *br = netdev_priv(dev);
+	struct net_bridge_port *p;
+
+	cmd->base.duplex = DUPLEX_UNKNOWN;
+	cmd->base.port = PORT_OTHER;
+	cmd->base.speed = SPEED_UNKNOWN;
+
+	list_for_each_entry(p, &br->port_list, list) {
+		struct ethtool_link_ksettings ecmd;
+		struct net_device *pdev = p->dev;
+
+		if (!netif_running(pdev) || !netif_oper_up(pdev))
+			continue;
+
+		if (__ethtool_get_link_ksettings(pdev, &ecmd))
+			continue;
+
+		if (ecmd.base.speed == (__u32)SPEED_UNKNOWN)
+			continue;
+
+		if (cmd->base.speed == (__u32)SPEED_UNKNOWN ||
+		    cmd->base.speed < ecmd.base.speed)
+			cmd->base.speed = ecmd.base.speed;
+	}
+
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static netdev_features_t br_fix_features(struct net_device *dev,
 	netdev_features_t features)
 {
@@ -351,7 +507,11 @@ void br_netpoll_disable(struct net_bridge_port *p)
 
 	p->np = NULL;
 
+<<<<<<< HEAD
 	__netpoll_free_async(np);
+=======
+	__netpoll_free(np);
+>>>>>>> upstream/android-13
 }
 
 #endif
@@ -372,9 +532,64 @@ static int br_del_slave(struct net_device *dev, struct net_device *slave_dev)
 	return br_del_if(br, slave_dev);
 }
 
+<<<<<<< HEAD
 static const struct ethtool_ops br_ethtool_ops = {
 	.get_drvinfo    = br_getinfo,
 	.get_link	= ethtool_op_get_link,
+=======
+static int br_fill_forward_path(struct net_device_path_ctx *ctx,
+				struct net_device_path *path)
+{
+	struct net_bridge_fdb_entry *f;
+	struct net_bridge_port *dst;
+	struct net_bridge *br;
+
+	if (netif_is_bridge_port(ctx->dev))
+		return -1;
+
+	br = netdev_priv(ctx->dev);
+
+	br_vlan_fill_forward_path_pvid(br, ctx, path);
+
+	f = br_fdb_find_rcu(br, ctx->daddr, path->bridge.vlan_id);
+	if (!f || !f->dst)
+		return -1;
+
+	dst = READ_ONCE(f->dst);
+	if (!dst)
+		return -1;
+
+	if (br_vlan_fill_forward_path_mode(br, dst, path))
+		return -1;
+
+	path->type = DEV_PATH_BRIDGE;
+	path->dev = dst->br->dev;
+	ctx->dev = dst->dev;
+
+	switch (path->bridge.vlan_mode) {
+	case DEV_PATH_BR_VLAN_TAG:
+		if (ctx->num_vlans >= ARRAY_SIZE(ctx->vlan))
+			return -ENOSPC;
+		ctx->vlan[ctx->num_vlans].id = path->bridge.vlan_id;
+		ctx->vlan[ctx->num_vlans].proto = path->bridge.vlan_proto;
+		ctx->num_vlans++;
+		break;
+	case DEV_PATH_BR_VLAN_UNTAG_HW:
+	case DEV_PATH_BR_VLAN_UNTAG:
+		ctx->num_vlans--;
+		break;
+	case DEV_PATH_BR_VLAN_KEEP:
+		break;
+	}
+
+	return 0;
+}
+
+static const struct ethtool_ops br_ethtool_ops = {
+	.get_drvinfo		 = br_getinfo,
+	.get_link		 = ethtool_op_get_link,
+	.get_link_ksettings	 = br_get_link_ksettings,
+>>>>>>> upstream/android-13
 };
 
 static const struct net_device_ops br_netdev_ops = {
@@ -383,12 +598,20 @@ static const struct net_device_ops br_netdev_ops = {
 	.ndo_init		 = br_dev_init,
 	.ndo_uninit		 = br_dev_uninit,
 	.ndo_start_xmit		 = br_dev_xmit,
+<<<<<<< HEAD
 	.ndo_get_stats64	 = br_get_stats64,
+=======
+	.ndo_get_stats64	 = dev_get_tstats64,
+>>>>>>> upstream/android-13
 	.ndo_set_mac_address	 = br_set_mac_address,
 	.ndo_set_rx_mode	 = br_dev_set_multicast_list,
 	.ndo_change_rx_flags	 = br_dev_change_rx_flags,
 	.ndo_change_mtu		 = br_change_mtu,
+<<<<<<< HEAD
 	.ndo_do_ioctl		 = br_dev_ioctl,
+=======
+	.ndo_siocdevprivate	 = br_dev_siocdevprivate,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_netpoll_setup	 = br_netpoll_setup,
 	.ndo_netpoll_cleanup	 = br_netpoll_cleanup,
@@ -400,10 +623,18 @@ static const struct net_device_ops br_netdev_ops = {
 	.ndo_fdb_add		 = br_fdb_add,
 	.ndo_fdb_del		 = br_fdb_delete,
 	.ndo_fdb_dump		 = br_fdb_dump,
+<<<<<<< HEAD
+=======
+	.ndo_fdb_get		 = br_fdb_get,
+>>>>>>> upstream/android-13
 	.ndo_bridge_getlink	 = br_getlink,
 	.ndo_bridge_setlink	 = br_setlink,
 	.ndo_bridge_dellink	 = br_dellink,
 	.ndo_features_check	 = passthru_features_check,
+<<<<<<< HEAD
+=======
+	.ndo_fill_forward_path	 = br_fill_forward_path,
+>>>>>>> upstream/android-13
 };
 
 static struct device_type br_type = {
@@ -433,6 +664,16 @@ void br_dev_setup(struct net_device *dev)
 	spin_lock_init(&br->lock);
 	INIT_LIST_HEAD(&br->port_list);
 	INIT_HLIST_HEAD(&br->fdb_list);
+<<<<<<< HEAD
+=======
+	INIT_HLIST_HEAD(&br->frame_type_list);
+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
+	INIT_HLIST_HEAD(&br->mrp_list);
+#endif
+#if IS_ENABLED(CONFIG_BRIDGE_CFM)
+	INIT_HLIST_HEAD(&br->mep_list);
+#endif
+>>>>>>> upstream/android-13
 	spin_lock_init(&br->hash_lock);
 
 	br->bridge_id.prio[0] = 0x80;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * BTS PMU driver for perf
  * Copyright (c) 2013-2014, Intel Corporation.
@@ -10,6 +11,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * BTS PMU driver for perf
+ * Copyright (c) 2013-2014, Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 #undef DEBUG
@@ -23,7 +30,11 @@
 #include <linux/device.h>
 #include <linux/coredump.h>
 
+<<<<<<< HEAD
 #include <asm-generic/sizes.h>
+=======
+#include <linux/sizes.h>
+>>>>>>> upstream/android-13
 #include <asm/perf_event.h>
 
 #include "../perf_event.h"
@@ -66,7 +77,11 @@ struct bts_buffer {
 	local_t		head;
 	unsigned long	end;
 	void		**data_pages;
+<<<<<<< HEAD
 	struct bts_phys	buf[0];
+=======
+	struct bts_phys	buf[];
+>>>>>>> upstream/android-13
 };
 
 static struct pmu bts_pmu;
@@ -599,10 +614,17 @@ static __init int bts_init(void)
 		 * the AUX buffer.
 		 *
 		 * However, since this driver supports per-CPU and per-task inherit
+<<<<<<< HEAD
 		 * we cannot use the user mapping since it will not be availble
 		 * if we're not running the owning process.
 		 *
 		 * With PTI we can't use the kernal map either, because its not
+=======
+		 * we cannot use the user mapping since it will not be available
+		 * if we're not running the owning process.
+		 *
+		 * With PTI we can't use the kernel map either, because its not
+>>>>>>> upstream/android-13
 		 * there when we run userspace.
 		 *
 		 * For now, disable this driver when using PTI.

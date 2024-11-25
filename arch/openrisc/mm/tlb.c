@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * OpenRISC tlb.c
  *
@@ -9,11 +13,14 @@
  * Copyright (C) 2003 Matjaz Breskvar <phoenix@bsemi.com>
  * Copyright (C) 2010-2011 Julius Baxter <julius.baxter@orsoc.se>
  * Copyright (C) 2010-2011 Jonas Bonn <jonas@southpole.se>
+<<<<<<< HEAD
  *
  *      This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
  *      2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sched.h>
@@ -26,9 +33,13 @@
 #include <linux/mm.h>
 #include <linux/init.h>
 
+<<<<<<< HEAD
 #include <asm/segment.h>
 #include <asm/tlbflush.h>
 #include <asm/pgtable.h>
+=======
+#include <asm/tlbflush.h>
+>>>>>>> upstream/android-13
 #include <asm/mmu_context.h>
 #include <asm/spr_defs.h>
 
@@ -143,21 +154,42 @@ void local_flush_tlb_mm(struct mm_struct *mm)
 void switch_mm(struct mm_struct *prev, struct mm_struct *next,
 	       struct task_struct *next_tsk)
 {
+<<<<<<< HEAD
+=======
+	unsigned int cpu;
+
+	if (unlikely(prev == next))
+		return;
+
+	cpu = smp_processor_id();
+
+	cpumask_clear_cpu(cpu, mm_cpumask(prev));
+	cpumask_set_cpu(cpu, mm_cpumask(next));
+
+>>>>>>> upstream/android-13
 	/* remember the pgd for the fault handlers
 	 * this is similar to the pgd register in some other CPU's.
 	 * we need our own copy of it because current and active_mm
 	 * might be invalid at points where we still need to derefer
 	 * the pgd.
 	 */
+<<<<<<< HEAD
 	current_pgd[smp_processor_id()] = next->pgd;
+=======
+	current_pgd[cpu] = next->pgd;
+>>>>>>> upstream/android-13
 
 	/* We don't have context support implemented, so flush all
 	 * entries belonging to previous map
 	 */
+<<<<<<< HEAD
 
 	if (prev != next)
 		local_flush_tlb_mm(prev);
 
+=======
+	local_flush_tlb_mm(prev);
+>>>>>>> upstream/android-13
 }
 
 /*

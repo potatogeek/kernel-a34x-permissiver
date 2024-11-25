@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * at91-linea.dtsi - Device Tree Include file for the Axentia Linea Module.
  *
  * Copyright (C) 2017 Axentia Technologies AB
  *
  * Author: Peter Rosin <peda@axentia.se>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "sama5d31.dtsi"
@@ -14,7 +21,11 @@
 	compatible = "axentia,linea",
 		     "atmel,sama5d31", "atmel,sama5d3", "atmel,sama5";
 
+<<<<<<< HEAD
 	memory {
+=======
+	memory@20000000 {
+>>>>>>> upstream/android-13
 		reg = <0x20000000 0x4000000>;
 	};
 };

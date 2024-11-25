@@ -274,9 +274,15 @@ static void xgbe_i2c_clear_isr_interrupts(struct xgbe_prv_data *pdata,
 		XI2C_IOREAD(pdata, IC_CLR_STOP_DET);
 }
 
+<<<<<<< HEAD
 static void xgbe_i2c_isr_task(unsigned long data)
 {
 	struct xgbe_prv_data *pdata = (struct xgbe_prv_data *)data;
+=======
+static void xgbe_i2c_isr_task(struct tasklet_struct *t)
+{
+	struct xgbe_prv_data *pdata = from_tasklet(pdata, t, tasklet_i2c);
+>>>>>>> upstream/android-13
 	struct xgbe_i2c_op_state *state = &pdata->i2c.op_state;
 	unsigned int isr;
 
@@ -324,7 +330,11 @@ static irqreturn_t xgbe_i2c_isr(int irq, void *data)
 	if (pdata->isr_as_tasklet)
 		tasklet_schedule(&pdata->tasklet_i2c);
 	else
+<<<<<<< HEAD
 		xgbe_i2c_isr_task((unsigned long)pdata);
+=======
+		xgbe_i2c_isr_task(&pdata->tasklet_i2c);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -369,7 +379,11 @@ static void xgbe_i2c_set_target(struct xgbe_prv_data *pdata, unsigned int addr)
 
 static irqreturn_t xgbe_i2c_combined_isr(struct xgbe_prv_data *pdata)
 {
+<<<<<<< HEAD
 	xgbe_i2c_isr_task((unsigned long)pdata);
+=======
+	xgbe_i2c_isr_task(&pdata->tasklet_i2c);
+>>>>>>> upstream/android-13
 
 	return IRQ_HANDLED;
 }
@@ -462,8 +476,12 @@ static int xgbe_i2c_start(struct xgbe_prv_data *pdata)
 
 	/* If we have a separate I2C irq, enable it */
 	if (pdata->dev_irq != pdata->i2c_irq) {
+<<<<<<< HEAD
 		tasklet_init(&pdata->tasklet_i2c, xgbe_i2c_isr_task,
 			     (unsigned long)pdata);
+=======
+		tasklet_setup(&pdata->tasklet_i2c, xgbe_i2c_isr_task);
+>>>>>>> upstream/android-13
 
 		ret = devm_request_irq(pdata->dev, pdata->i2c_irq,
 				       xgbe_i2c_isr, 0, pdata->i2c_name,

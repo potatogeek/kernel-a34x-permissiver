@@ -21,7 +21,10 @@
 #include <linux/spinlock.h>
 #include <linux/interrupt.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
 #include <linux/device.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <net/iucv/iucv.h>
 #include <linux/uaccess.h>
@@ -79,8 +82,11 @@ static u8 user_data_sever[16] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 };
 
+<<<<<<< HEAD
 static struct device *monreader_device;
 
+=======
+>>>>>>> upstream/android-13
 /******************************************************************************
  *                             helper functions                               *
  *****************************************************************************/
@@ -319,7 +325,10 @@ static int mon_open(struct inode *inode, struct file *filp)
 		goto out_path;
 	}
 	filp->private_data = monpriv;
+<<<<<<< HEAD
 	dev_set_drvdata(monreader_device, monpriv);
+=======
+>>>>>>> upstream/android-13
 	return nonseekable_open(inode, filp);
 
 out_path:
@@ -354,7 +363,10 @@ static int mon_close(struct inode *inode, struct file *filp)
 	atomic_set(&monpriv->msglim_count, 0);
 	monpriv->write_index  = 0;
 	monpriv->read_index   = 0;
+<<<<<<< HEAD
 	dev_set_drvdata(monreader_device, NULL);
+=======
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < MON_MSGLIM; i++)
 		kfree(monpriv->msg_array[i]);
@@ -456,6 +468,7 @@ static struct miscdevice mon_dev = {
 	.minor      = MISC_DYNAMIC_MINOR,
 };
 
+<<<<<<< HEAD
 
 /******************************************************************************
  *				suspend / resume			      *
@@ -544,6 +557,8 @@ static struct device_driver monreader_driver = {
 };
 
 
+=======
+>>>>>>> upstream/android-13
 /******************************************************************************
  *                              module init/exit                              *
  *****************************************************************************/
@@ -567,6 +582,7 @@ static int __init mon_init(void)
 		return rc;
 	}
 
+<<<<<<< HEAD
 	rc = driver_register(&monreader_driver);
 	if (rc)
 		goto out_iucv;
@@ -591,12 +607,22 @@ static int __init mon_init(void)
 	if (rc < 0) {
 		segment_warning(rc, mon_dcss_name);
 		goto out_device;
+=======
+	rc = segment_type(mon_dcss_name);
+	if (rc < 0) {
+		segment_warning(rc, mon_dcss_name);
+		goto out_iucv;
+>>>>>>> upstream/android-13
 	}
 	if (rc != SEG_TYPE_SC) {
 		pr_err("The specified *MONITOR DCSS %s does not have the "
 		       "required type SC\n", mon_dcss_name);
 		rc = -EINVAL;
+<<<<<<< HEAD
 		goto out_device;
+=======
+		goto out_iucv;
+>>>>>>> upstream/android-13
 	}
 
 	rc = segment_load(mon_dcss_name, SEGMENT_SHARED,
@@ -604,7 +630,11 @@ static int __init mon_init(void)
 	if (rc < 0) {
 		segment_warning(rc, mon_dcss_name);
 		rc = -EINVAL;
+<<<<<<< HEAD
 		goto out_device;
+=======
+		goto out_iucv;
+>>>>>>> upstream/android-13
 	}
 	dcss_mkname(mon_dcss_name, &user_data_connect[8]);
 
@@ -619,10 +649,13 @@ static int __init mon_init(void)
 
 out:
 	segment_unload(mon_dcss_name);
+<<<<<<< HEAD
 out_device:
 	device_unregister(monreader_device);
 out_driver:
 	driver_unregister(&monreader_driver);
+=======
+>>>>>>> upstream/android-13
 out_iucv:
 	iucv_unregister(&monreader_iucv_handler, 1);
 	return rc;
@@ -632,8 +665,11 @@ static void __exit mon_exit(void)
 {
 	segment_unload(mon_dcss_name);
 	misc_deregister(&mon_dev);
+<<<<<<< HEAD
 	device_unregister(monreader_device);
 	driver_unregister(&monreader_driver);
+=======
+>>>>>>> upstream/android-13
 	iucv_unregister(&monreader_iucv_handler, 1);
 	return;
 }

@@ -9,7 +9,11 @@
 #include "odm_precomp.h"
 
 static bool CheckPositive(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm, const u32 Condition1, const u32 Condition2
+=======
+	struct dm_odm_t *pDM_Odm, const u32 Condition1, const u32 Condition2
+>>>>>>> upstream/android-13
 )
 {
 	u8 _BoardType =
@@ -33,6 +37,7 @@ static bool CheckPositive(
 		pDM_Odm->TypeALNA << 16 |
 		pDM_Odm->TypeAPA  << 24;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -75,6 +80,8 @@ static bool CheckPositive(
 		)
 	);
 
+=======
+>>>>>>> upstream/android-13
 
 	/*  Value Defined Check =============== */
 	/* QFN Type [15:12] and Cut Version [27:24] need to do value check */
@@ -111,7 +118,11 @@ static bool CheckPositive(
 }
 
 static bool CheckNegative(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm, const u32 Condition1, const u32 Condition2
+=======
+	struct dm_odm_t *pDM_Odm, const u32 Condition1, const u32 Condition2
+>>>>>>> upstream/android-13
 )
 {
 	return true;
@@ -228,12 +239,17 @@ static u32 Array_MP_8723B_MAC_REG[] = {
 
 };
 
+<<<<<<< HEAD
 void ODM_ReadAndConfig_MP_8723B_MAC_REG(PDM_ODM_T pDM_Odm)
+=======
+void ODM_ReadAndConfig_MP_8723B_MAC_REG(struct dm_odm_t *pDM_Odm)
+>>>>>>> upstream/android-13
 {
 	u32 i = 0;
 	u32 ArrayLen = ARRAY_SIZE(Array_MP_8723B_MAC_REG);
 	u32 *Array = Array_MP_8723B_MAC_REG;
 
+<<<<<<< HEAD
 	ODM_RT_TRACE(
 		pDM_Odm,
 		ODM_COMP_INIT,
@@ -241,6 +257,8 @@ void ODM_ReadAndConfig_MP_8723B_MAC_REG(PDM_ODM_T pDM_Odm)
 		("===> ODM_ReadAndConfig_MP_8723B_MAC_REG\n")
 	);
 
+=======
+>>>>>>> upstream/android-13
 	for (i = 0; i < ArrayLen; i += 2) {
 		u32 v1 = Array[i];
 		u32 v2 = Array[i+1];
@@ -270,7 +288,11 @@ void ODM_ReadAndConfig_MP_8723B_MAC_REG(PDM_ODM_T pDM_Odm)
 				READ_NEXT_PAIR(v1, v2, i);
 			}
 
+<<<<<<< HEAD
 			if (bMatched == false) {
+=======
+			if (!bMatched) {
+>>>>>>> upstream/android-13
 				/*  Condition isn't matched. Discard the following (offset, data) pairs. */
 				while (v1 < 0x40000000 && i < ArrayLen-2)
 					READ_NEXT_PAIR(v1, v2, i);

@@ -3,6 +3,10 @@
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
 #include <linux/err.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <dt-bindings/clock/imx27-clock.h>
@@ -48,6 +52,7 @@ static const char *ssi_sel_clks[] = { "spll_gate", "mpll", };
 static struct clk *clk[IMX27_CLK_MAX];
 static struct clk_onecell_data clk_data;
 
+<<<<<<< HEAD
 static struct clk ** const uart_clks[] __initconst = {
 	&clk[IMX27_CLK_PER1_GATE],
 	&clk[IMX27_CLK_UART1_IPG_GATE],
@@ -59,6 +64,8 @@ static struct clk ** const uart_clks[] __initconst = {
 	NULL
 };
 
+=======
+>>>>>>> upstream/android-13
 static void __init _mx27_clocks_init(unsigned long fref)
 {
 	BUG_ON(!ccm);
@@ -175,11 +182,16 @@ static void __init _mx27_clocks_init(unsigned long fref)
 
 	clk_prepare_enable(clk[IMX27_CLK_EMI_AHB_GATE]);
 
+<<<<<<< HEAD
 	imx_register_uart_clocks(uart_clks);
+=======
+	imx_register_uart_clocks(7);
+>>>>>>> upstream/android-13
 
 	imx_print_silicon_rev("i.MX27", mx27_revision());
 }
 
+<<<<<<< HEAD
 int __init mx27_clocks_init(unsigned long fref)
 {
 	ccm = ioremap(MX27_CCM_BASE_ADDR, SZ_4K);
@@ -253,6 +265,8 @@ int __init mx27_clocks_init(unsigned long fref)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void __init mx27_clocks_init_dt(struct device_node *np)
 {
 	struct device_node *refnp;

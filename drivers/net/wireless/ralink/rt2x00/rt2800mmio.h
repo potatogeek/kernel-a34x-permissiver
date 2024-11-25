@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*	Copyright (C) 2009 - 2010 Ivo van Doorn <IvDoorn@gmail.com>
  *	Copyright (C) 2009 Alban Browaeys <prahal@yahoo.com>
  *	Copyright (C) 2009 Felix Fietkau <nbd@openwrt.org>
@@ -7,6 +11,7 @@
  *	Copyright (C) 2009 Xose Vazquez Perez <xose.vazquez@gmail.com>
  *	Copyright (C) 2009 Bart Zolnierkiewicz <bzolnier@gmail.com>
  *	<http://rt2x00.serialmonkey.com>
+<<<<<<< HEAD
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,6 +25,8 @@
  *
  *	You should have received a copy of the GNU General Public License
  *	along with this program; if not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*	Module: rt2800mmio
@@ -126,6 +133,11 @@
 #define RXD_W3_PLCP_SIGNAL		FIELD32(0x00020000)
 #define RXD_W3_PLCP_RSSI		FIELD32(0x00040000)
 
+<<<<<<< HEAD
+=======
+unsigned int rt2800mmio_get_dma_done(struct data_queue *queue);
+
+>>>>>>> upstream/android-13
 /* TX descriptor initialization */
 __le32 *rt2800mmio_get_txwi(struct queue_entry *entry);
 void rt2800mmio_write_tx_desc(struct queue_entry *entry,
@@ -136,11 +148,19 @@ void rt2800mmio_fill_rxdone(struct queue_entry *entry,
 			    struct rxdone_entry_desc *rxdesc);
 
 /* Interrupt functions */
+<<<<<<< HEAD
 void rt2800mmio_txstatus_tasklet(unsigned long data);
 void rt2800mmio_pretbtt_tasklet(unsigned long data);
 void rt2800mmio_tbtt_tasklet(unsigned long data);
 void rt2800mmio_rxdone_tasklet(unsigned long data);
 void rt2800mmio_autowake_tasklet(unsigned long data);
+=======
+void rt2800mmio_txstatus_tasklet(struct tasklet_struct *t);
+void rt2800mmio_pretbtt_tasklet(struct tasklet_struct *t);
+void rt2800mmio_tbtt_tasklet(struct tasklet_struct *t);
+void rt2800mmio_rxdone_tasklet(struct tasklet_struct *t);
+void rt2800mmio_autowake_tasklet(struct tasklet_struct *t);
+>>>>>>> upstream/android-13
 irqreturn_t rt2800mmio_interrupt(int irq, void *dev_instance);
 void rt2800mmio_toggle_irq(struct rt2x00_dev *rt2x00dev,
 			   enum dev_state state);
@@ -148,10 +168,18 @@ void rt2800mmio_toggle_irq(struct rt2x00_dev *rt2x00dev,
 /* Queue handlers */
 void rt2800mmio_start_queue(struct data_queue *queue);
 void rt2800mmio_kick_queue(struct data_queue *queue);
+<<<<<<< HEAD
+=======
+void rt2800mmio_flush_queue(struct data_queue *queue, bool drop);
+>>>>>>> upstream/android-13
 void rt2800mmio_stop_queue(struct data_queue *queue);
 void rt2800mmio_queue_init(struct data_queue *queue);
 
 /* Initialization functions */
+<<<<<<< HEAD
+=======
+int rt2800mmio_probe_hw(struct rt2x00_dev *rt2x00dev);
+>>>>>>> upstream/android-13
 bool rt2800mmio_get_entry_state(struct queue_entry *entry);
 void rt2800mmio_clear_entry(struct queue_entry *entry);
 int rt2800mmio_init_queues(struct rt2x00_dev *rt2x00dev);

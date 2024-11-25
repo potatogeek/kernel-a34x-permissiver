@@ -24,7 +24,11 @@ struct lpddr_private {
 	struct qinfo_chip *qinfo;
 	int numchips;
 	unsigned long chipshift;
+<<<<<<< HEAD
 	struct flchip chips[0];
+=======
+	struct flchip chips[];
+>>>>>>> upstream/android-13
 };
 
 /* qinfo_query_info structure contains request information for

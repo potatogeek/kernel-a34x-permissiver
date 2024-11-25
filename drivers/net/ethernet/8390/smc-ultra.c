@@ -347,11 +347,19 @@ static int __init ultra_probe_isapnp(struct net_device *dev)
                                             idev))) {
                         /* Avoid already found cards from previous calls */
                         if (pnp_device_attach(idev) < 0)
+<<<<<<< HEAD
                         	continue;
                         if (pnp_activate_dev(idev) < 0) {
                               __again:
                         	pnp_device_detach(idev);
                         	continue;
+=======
+				continue;
+                        if (pnp_activate_dev(idev) < 0) {
+                              __again:
+				pnp_device_detach(idev);
+				continue;
+>>>>>>> upstream/android-13
                         }
 			/* if no io and irq, search for next */
 			if (!pnp_port_valid(idev, 0) || !pnp_irq_valid(idev, 0))
@@ -522,7 +530,10 @@ static void ultra_pio_input(struct net_device *dev, int count,
 	/* We know skbuffs are padded to at least word alignment. */
 	insw(ioaddr + IOPD, buf, (count+1)>>1);
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 static void ultra_pio_output(struct net_device *dev, int count,
 							const unsigned char *buf, const int start_page)
 {
@@ -572,8 +583,12 @@ MODULE_LICENSE("GPL");
 
 /* This is set up so that only a single autoprobe takes place per call.
 ISA device autoprobes on a running machine are not recommended. */
+<<<<<<< HEAD
 int __init
 init_module(void)
+=======
+static int __init ultra_init_module(void)
+>>>>>>> upstream/android-13
 {
 	struct net_device *dev;
 	int this_dev, found = 0;
@@ -600,6 +615,10 @@ init_module(void)
 		return 0;
 	return -ENXIO;
 }
+<<<<<<< HEAD
+=======
+module_init(ultra_init_module);
+>>>>>>> upstream/android-13
 
 static void cleanup_card(struct net_device *dev)
 {
@@ -613,8 +632,12 @@ static void cleanup_card(struct net_device *dev)
 	iounmap(ei_status.mem);
 }
 
+<<<<<<< HEAD
 void __exit
 cleanup_module(void)
+=======
+static void __exit ultra_cleanup_module(void)
+>>>>>>> upstream/android-13
 {
 	int this_dev;
 
@@ -627,4 +650,8 @@ cleanup_module(void)
 		}
 	}
 }
+<<<<<<< HEAD
+=======
+module_exit(ultra_cleanup_module);
+>>>>>>> upstream/android-13
 #endif /* MODULE */

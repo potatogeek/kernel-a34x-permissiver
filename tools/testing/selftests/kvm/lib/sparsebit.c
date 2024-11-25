@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Sparse bit array
  *
  * Copyright (C) 2018, Google LLC.
  * Copyright (C) 2018, Red Hat, Inc. (code style cleanup and fuzzing driver)
  *
+<<<<<<< HEAD
  * This work is licensed under the terms of the GNU GPL, version 2.
  *
+=======
+>>>>>>> upstream/android-13
  * This library provides functions to support a memory efficient bit array,
  * with an index size of 2^64.  A sparsebit array is allocated through
  * the use sparsebit_alloc() and free'd via sparsebit_free(),
@@ -1891,7 +1898,10 @@ void sparsebit_validate_internal(struct sparsebit *s)
  */
 
 #include <stdlib.h>
+<<<<<<< HEAD
 #include <assert.h>
+=======
+>>>>>>> upstream/android-13
 
 struct range {
 	sparsebit_idx_t first, last;

@@ -16,10 +16,14 @@
 
 #ifndef CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM
 
+<<<<<<< HEAD
 static inline void compaq_nvram_init(void __iomem *rom_start)
 {
 	return;
 }
+=======
+static inline void compaq_nvram_init(void __iomem *rom_start) { }
+>>>>>>> upstream/android-13
 
 static inline int compaq_nvram_load(void __iomem *rom_start, struct controller *ctrl)
 {

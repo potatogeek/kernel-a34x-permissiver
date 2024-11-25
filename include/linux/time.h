@@ -3,7 +3,10 @@
 #define _LINUX_TIME_H
 
 # include <linux/cache.h>
+<<<<<<< HEAD
 # include <linux/seqlock.h>
+=======
+>>>>>>> upstream/android-13
 # include <linux/math64.h>
 # include <linux/time64.h>
 
@@ -22,6 +25,7 @@ extern time64_t mktime64(const unsigned int year, const unsigned int mon,
 			const unsigned int day, const unsigned int hour,
 			const unsigned int min, const unsigned int sec);
 
+<<<<<<< HEAD
 /* Some architectures do not supply their own clocksource.
  * This is mainly the case in architectures that get their
  * inter-tick times by reading the counter on their interval
@@ -40,6 +44,14 @@ extern int do_setitimer(int which, struct itimerval *value,
 			struct itimerval *ovalue);
 extern int do_getitimer(int which, struct itimerval *value);
 
+=======
+#ifdef CONFIG_POSIX_TIMERS
+extern void clear_itimer(void);
+#else
+static inline void clear_itimer(void) {}
+#endif
+
+>>>>>>> upstream/android-13
 extern long do_utimes(int dfd, const char __user *filename, struct timespec64 *times, int flags);
 
 /*

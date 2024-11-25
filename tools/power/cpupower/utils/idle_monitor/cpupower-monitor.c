@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
  *
@@ -5,6 +6,13 @@
  *
  *  Output format inspired by Len Brown's <lenb@kernel.org> turbostat tool.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ *  (C) 2010,2011       Thomas Renninger <trenn@suse.de>, Novell Inc.
+ *
+ *  Output format inspired by Len Brown's <lenb@kernel.org> turbostat tool.
+>>>>>>> upstream/android-13
  */
 
 
@@ -412,7 +420,11 @@ int cmd_monitor(int argc, char **argv)
 		dprint("Try to register: %s\n", all_monitors[num]->name);
 		test_mon = all_monitors[num]->do_register();
 		if (test_mon) {
+<<<<<<< HEAD
 			if (test_mon->needs_root && !run_as_root) {
+=======
+			if (test_mon->flags.needs_root && !run_as_root) {
+>>>>>>> upstream/android-13
 				fprintf(stderr, _("Available monitor %s needs "
 					  "root access\n"), test_mon->name);
 				continue;

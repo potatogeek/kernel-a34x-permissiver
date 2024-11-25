@@ -32,7 +32,11 @@ There are helpers to lock/unlock a table and other accessor functions:
 
 Split page table lock for PTE tables is enabled compile-time if
 CONFIG_SPLIT_PTLOCK_CPUS (usually 4) is less or equal to NR_CPUS.
+<<<<<<< HEAD
 If split lock is disabled, all tables guaded by mm->page_table_lock.
+=======
+If split lock is disabled, all tables are guarded by mm->page_table_lock.
+>>>>>>> upstream/android-13
 
 Split page table lock for PMD tables is enabled, if it's enabled for PTE
 tables and the architecture supports it (see below).
@@ -54,9 +58,15 @@ Hugetlb-specific helpers:
 Support of split page table lock by an architecture
 ===================================================
 
+<<<<<<< HEAD
 There's no need in special enabling of PTE split page table lock:
 everything required is done by pgtable_page_ctor() and pgtable_page_dtor(),
 which must be called on PTE table allocation / freeing.
+=======
+There's no need in special enabling of PTE split page table lock: everything
+required is done by pgtable_pte_page_ctor() and pgtable_pte_page_dtor(), which
+must be called on PTE table allocation / freeing.
+>>>>>>> upstream/android-13
 
 Make sure the architecture doesn't use slab allocator for page table
 allocation: slab uses page->slab_cache for its pages.
@@ -74,7 +84,11 @@ paths: i.e X86_PAE preallocate few PMDs on pgd_alloc().
 
 With everything in place you can set CONFIG_ARCH_ENABLE_SPLIT_PMD_PTLOCK.
 
+<<<<<<< HEAD
 NOTE: pgtable_page_ctor() and pgtable_pmd_page_ctor() can fail -- it must
+=======
+NOTE: pgtable_pte_page_ctor() and pgtable_pmd_page_ctor() can fail -- it must
+>>>>>>> upstream/android-13
 be handled properly.
 
 page->ptl
@@ -94,7 +108,11 @@ trick:
    split lock with enabled DEBUG_SPINLOCK or DEBUG_LOCK_ALLOC, but costs
    one more cache line for indirect access;
 
+<<<<<<< HEAD
 The spinlock_t allocated in pgtable_page_ctor() for PTE table and in
+=======
+The spinlock_t allocated in pgtable_pte_page_ctor() for PTE table and in
+>>>>>>> upstream/android-13
 pgtable_pmd_page_ctor() for PMD table.
 
 Please, never access page->ptl directly -- use appropriate helper.

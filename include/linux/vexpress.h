@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -7,6 +8,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+>>>>>>> upstream/android-13
  *
  * Copyright (C) 2012 ARM Limited
  */
@@ -17,6 +22,7 @@
 #include <linux/device.h>
 #include <linux/regmap.h>
 
+<<<<<<< HEAD
 #define VEXPRESS_SITE_MB		0
 #define VEXPRESS_SITE_DB1		1
 #define VEXPRESS_SITE_DB2		2
@@ -43,12 +49,17 @@ struct vexpress_config_bridge_ops {
 struct device *vexpress_config_bridge_register(struct device *parent,
 		struct vexpress_config_bridge_ops *ops, void *context);
 
+=======
+>>>>>>> upstream/android-13
 /* Config regmap API */
 
 struct regmap *devm_regmap_init_vexpress_config(struct device *dev);
 
+<<<<<<< HEAD
 /* Platform control */
 
 void vexpress_flags_set(u32 data);
 
+=======
+>>>>>>> upstream/android-13
 #endif

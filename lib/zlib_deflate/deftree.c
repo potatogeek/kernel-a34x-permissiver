@@ -76,11 +76,14 @@ static const uch bl_order[BL_CODES]
  * probability, to avoid transmitting the lengths for unused bit length codes.
  */
 
+<<<<<<< HEAD
 #define Buf_size (8 * 2*sizeof(char))
 /* Number of bits used within bi_buf. (bi_buf might be implemented on
  * more than 16 bits on some systems.)
  */
 
+=======
+>>>>>>> upstream/android-13
 /* ===========================================================================
  * Local data. These are initialized only once.
  */
@@ -147,7 +150,10 @@ static void send_all_trees (deflate_state *s, int lcodes, int dcodes,
 static void compress_block (deflate_state *s, ct_data *ltree,
                            ct_data *dtree);
 static void set_data_type  (deflate_state *s);
+<<<<<<< HEAD
 static void bi_windup      (deflate_state *s);
+=======
+>>>>>>> upstream/android-13
 static void bi_flush       (deflate_state *s);
 static void copy_block     (deflate_state *s, char *buf, unsigned len,
                            int header);
@@ -170,6 +176,7 @@ static void copy_block     (deflate_state *s, char *buf, unsigned len,
  */
 
 /* ===========================================================================
+<<<<<<< HEAD
  * Send a value on a given number of bits.
  * IN assertion: length <= 16 and value fits in length bits.
  */
@@ -218,6 +225,8 @@ static void send_bits(
 #endif /* DEBUG_ZLIB */
 
 /* ===========================================================================
+=======
+>>>>>>> upstream/android-13
  * Initialize the various 'constant' tables. In a multi-threaded environment,
  * this function may be called by two threads concurrently, but this is
  * harmless since both invocations do exactly the same thing.

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * MFD core driver for Intel Broxton Whiskey Cove PMIC
  *
  * Copyright (C) 2015 Intel Corporation. All rights reserved.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -17,12 +22,25 @@
 #include <linux/acpi.h>
 #include <linux/err.h>
 #include <linux/delay.h>
+=======
+ */
+
+#include <linux/acpi.h>
+#include <linux/delay.h>
+#include <linux/err.h>
+>>>>>>> upstream/android-13
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
 #include <linux/mfd/core.h>
 #include <linux/mfd/intel_soc_pmic.h>
 #include <linux/mfd/intel_soc_pmic_bxtwc.h>
+<<<<<<< HEAD
 #include <asm/intel_pmc_ipc.h>
+=======
+#include <linux/module.h>
+
+#include <asm/intel_scu_ipc.h>
+>>>>>>> upstream/android-13
 
 /* PMIC device registers */
 #define REG_ADDR_MASK		0xFF00
@@ -65,6 +83,13 @@
 /* Whiskey Cove PMIC share same ACPI ID between different platforms */
 #define BROXTON_PMIC_WC_HRV	4
 
+<<<<<<< HEAD
+=======
+#define PMC_PMIC_ACCESS		0xFF
+#define PMC_PMIC_READ		0x0
+#define PMC_PMIC_WRITE		0x1
+
+>>>>>>> upstream/android-13
 enum bxtwc_irqs {
 	BXTWC_PWRBTN_LVL1_IRQ = 0,
 	BXTWC_TMU_LVL1_IRQ,
@@ -203,6 +228,7 @@ static struct regmap_irq_chip bxtwc_regmap_irq_chip_crit = {
 	.num_regs = 1,
 };
 
+<<<<<<< HEAD
 static struct resource gpio_resources[] = {
 	DEFINE_RES_IRQ_NAMED(BXTWC_GPIO_LVL1_IRQ, "GPIO"),
 };
@@ -216,10 +242,26 @@ static struct resource usbc_resources[] = {
 };
 
 static struct resource charger_resources[] = {
+=======
+static const struct resource gpio_resources[] = {
+	DEFINE_RES_IRQ_NAMED(BXTWC_GPIO_LVL1_IRQ, "GPIO"),
+};
+
+static const struct resource adc_resources[] = {
+	DEFINE_RES_IRQ_NAMED(BXTWC_ADC_IRQ, "ADC"),
+};
+
+static const struct resource usbc_resources[] = {
+	DEFINE_RES_IRQ(BXTWC_USBC_IRQ),
+};
+
+static const struct resource charger_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ_NAMED(BXTWC_CHGR0_IRQ, "CHARGER"),
 	DEFINE_RES_IRQ_NAMED(BXTWC_CHGR1_IRQ, "CHARGER1"),
 };
 
+<<<<<<< HEAD
 static struct resource thermal_resources[] = {
 	DEFINE_RES_IRQ(BXTWC_THRM_LVL1_IRQ),
 };
@@ -229,6 +271,17 @@ static struct resource bcu_resources[] = {
 };
 
 static struct resource tmu_resources[] = {
+=======
+static const struct resource thermal_resources[] = {
+	DEFINE_RES_IRQ(BXTWC_THRM_LVL1_IRQ),
+};
+
+static const struct resource bcu_resources[] = {
+	DEFINE_RES_IRQ_NAMED(BXTWC_BCU_IRQ, "BCU"),
+};
+
+static const struct resource tmu_resources[] = {
+>>>>>>> upstream/android-13
 	DEFINE_RES_IRQ_NAMED(BXTWC_TMU_IRQ, "TMU"),
 };
 
@@ -295,6 +348,7 @@ static int regmap_ipc_byte_reg_read(void *context, unsigned int reg,
 
 	ipc_in[0] = reg;
 	ipc_in[1] = i2c_addr;
+<<<<<<< HEAD
 	ret = intel_pmc_ipc_command(PMC_IPC_PMIC_ACCESS,
 			PMC_IPC_PMIC_ACCESS_READ,
 			ipc_in, sizeof(ipc_in), (u32 *)ipc_out, 1);
@@ -302,6 +356,14 @@ static int regmap_ipc_byte_reg_read(void *context, unsigned int reg,
 		dev_err(pmic->dev, "Failed to read from PMIC\n");
 		return ret;
 	}
+=======
+	ret = intel_scu_ipc_dev_command(pmic->scu, PMC_PMIC_ACCESS,
+					PMC_PMIC_READ, ipc_in, sizeof(ipc_in),
+					ipc_out, sizeof(ipc_out));
+	if (ret)
+		return ret;
+
+>>>>>>> upstream/android-13
 	*val = ipc_out[0];
 
 	return 0;
@@ -310,7 +372,10 @@ static int regmap_ipc_byte_reg_read(void *context, unsigned int reg,
 static int regmap_ipc_byte_reg_write(void *context, unsigned int reg,
 				       unsigned int val)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 	int i2c_addr;
 	u8 ipc_in[3];
 	struct intel_soc_pmic *pmic = context;
@@ -328,6 +393,7 @@ static int regmap_ipc_byte_reg_write(void *context, unsigned int reg,
 	ipc_in[0] = reg;
 	ipc_in[1] = i2c_addr;
 	ipc_in[2] = val;
+<<<<<<< HEAD
 	ret = intel_pmc_ipc_command(PMC_IPC_PMIC_ACCESS,
 			PMC_IPC_PMIC_ACCESS_WRITE,
 			ipc_in, sizeof(ipc_in), NULL, 0);
@@ -337,18 +403,33 @@ static int regmap_ipc_byte_reg_write(void *context, unsigned int reg,
 	}
 
 	return 0;
+=======
+	return intel_scu_ipc_dev_command(pmic->scu, PMC_PMIC_ACCESS,
+					 PMC_PMIC_WRITE, ipc_in, sizeof(ipc_in),
+					 NULL, 0);
+>>>>>>> upstream/android-13
 }
 
 /* sysfs interfaces to r/w PMIC registers, required by initial script */
 static unsigned long bxtwc_reg_addr;
+<<<<<<< HEAD
 static ssize_t bxtwc_reg_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t addr_show(struct device *dev,
+			 struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	return sprintf(buf, "0x%lx\n", bxtwc_reg_addr);
 }
 
+<<<<<<< HEAD
 static ssize_t bxtwc_reg_store(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t addr_store(struct device *dev,
+			  struct device_attribute *attr, const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	if (kstrtoul(buf, 0, &bxtwc_reg_addr)) {
 		dev_err(dev, "Invalid register address\n");
@@ -357,8 +438,13 @@ static ssize_t bxtwc_reg_store(struct device *dev,
 	return (ssize_t)count;
 }
 
+<<<<<<< HEAD
 static ssize_t bxtwc_val_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
+=======
+static ssize_t val_show(struct device *dev,
+			struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	unsigned int val;
@@ -373,8 +459,13 @@ static ssize_t bxtwc_val_show(struct device *dev,
 	return sprintf(buf, "0x%02x\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t bxtwc_val_store(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t count)
+=======
+static ssize_t val_store(struct device *dev,
+			 struct device_attribute *attr, const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int ret;
 	unsigned int val;
@@ -393,8 +484,13 @@ static ssize_t bxtwc_val_store(struct device *dev,
 	return count;
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(addr, S_IWUSR | S_IRUSR, bxtwc_reg_show, bxtwc_reg_store);
 static DEVICE_ATTR(val, S_IWUSR | S_IRUSR, bxtwc_val_show, bxtwc_val_store);
+=======
+static DEVICE_ATTR_ADMIN_RW(addr);
+static DEVICE_ATTR_ADMIN_RW(val);
+>>>>>>> upstream/android-13
 static struct attribute *bxtwc_attrs[] = {
 	&dev_attr_addr.attr,
 	&dev_attr_val.attr,
@@ -457,15 +553,27 @@ static int bxtwc_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	ret = platform_get_irq(pdev, 0);
+<<<<<<< HEAD
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Invalid IRQ\n");
 		return ret;
 	}
+=======
+	if (ret < 0)
+		return ret;
+>>>>>>> upstream/android-13
 	pmic->irq = ret;
 
 	dev_set_drvdata(&pdev->dev, pmic);
 	pmic->dev = &pdev->dev;
 
+<<<<<<< HEAD
+=======
+	pmic->scu = devm_intel_scu_ipc_dev_get(&pdev->dev);
+	if (!pmic->scu)
+		return -EPROBE_DEFER;
+
+>>>>>>> upstream/android-13
 	pmic->regmap = devm_regmap_init(&pdev->dev, NULL, pmic,
 					&bxtwc_regmap_config);
 	if (IS_ERR(pmic->regmap)) {

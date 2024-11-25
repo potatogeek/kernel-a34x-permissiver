@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 * Copyright (c) 2016 MediaTek Inc.
 * Author: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
@@ -10,6 +11,12 @@
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+* Copyright (c) 2016 MediaTek Inc.
+* Author: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
+>>>>>>> upstream/android-13
 */
 
 #ifndef _MTK_VPU_H
@@ -18,12 +25,23 @@
 #include <linux/platform_device.h>
 
 /**
+<<<<<<< HEAD
  * VPU (video processor unit) is a tiny processor controlling video hardware
  * related to video codec, scaling and color format converting.
  * VPU interfaces with other blocks by share memory and interrupt.
  **/
 
 typedef int (*ipi_handler_t) (void *data,
+=======
+ * DOC: VPU
+ *
+ * VPU (video processor unit) is a tiny processor controlling video hardware
+ * related to video codec, scaling and color format converting.
+ * VPU interfaces with other blocks by share memory and interrupt.
+ */
+
+typedef void (*ipi_handler_t) (const void *data,
+>>>>>>> upstream/android-13
 			       unsigned int len,
 			       void *priv);
 
@@ -134,18 +152,31 @@ struct platform_device *vpu_get_plat_device(struct platform_device *pdev);
  * vpu_wdt_reg_handler - register a VPU watchdog handler
  *
  * @pdev:               VPU platform device
+<<<<<<< HEAD
  * @vpu_wdt_reset_func:	the callback reset function
  * @private_data:       the private data for reset function
  * @rst_id:		reset id
+=======
+ * @vpu_wdt_reset_func():	the callback reset function
+ *	@priv: the private data for reset function
+ * @priv:		the private data for reset function
+ * @id:			reset id
+>>>>>>> upstream/android-13
  *
  * Register a handler performing own tasks when vpu reset by watchdog
  *
  * Return: Return 0 if the handler is added successfully,
  * otherwise it is failed.
+<<<<<<< HEAD
  *
  **/
 int vpu_wdt_reg_handler(struct platform_device *pdev,
 			void vpu_wdt_reset_func(void *),
+=======
+ **/
+int vpu_wdt_reg_handler(struct platform_device *pdev,
+			void vpu_wdt_reset_func(void *priv),
+>>>>>>> upstream/android-13
 			void *priv, enum rst_id id);
 
 /**
@@ -179,8 +210,13 @@ int vpu_load_firmware(struct platform_device *pdev);
 /**
  * vpu_mapping_dm_addr - Mapping DTCM/DMEM to kernel virtual address
  *
+<<<<<<< HEAD
  * @pdev:	VPU platform device
  * @dmem_addr:	VPU's data memory address
+=======
+ * @pdev:		VPU platform device
+ * @dtcm_dmem_addr:	VPU's data memory address
+>>>>>>> upstream/android-13
  *
  * Mapping the VPU's DTCM (Data Tightly-Coupled Memory) /
  * DMEM (Data Extended Memory) memory address to

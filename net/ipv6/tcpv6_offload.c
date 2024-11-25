@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *	IPV6 GSO/GRO offload support
  *	Linux INET6 implementation
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
  *      as published by the Free Software Foundation; either version
@@ -9,14 +14,24 @@
  *
  *      TCPv6 GSO/GRO support
  */
+=======
+ *      TCPv6 GSO/GRO support
+ */
+#include <linux/indirect_call_wrapper.h>
+>>>>>>> upstream/android-13
 #include <linux/skbuff.h>
 #include <net/protocol.h>
 #include <net/tcp.h>
 #include <net/ip6_checksum.h>
 #include "ip6_offload.h"
 
+<<<<<<< HEAD
 static struct sk_buff *tcp6_gro_receive(struct list_head *head,
 					struct sk_buff *skb)
+=======
+INDIRECT_CALLABLE_SCOPE
+struct sk_buff *tcp6_gro_receive(struct list_head *head, struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	/* Don't bother verifying checksum if we're going to flush anyway. */
 	if (!NAPI_GRO_CB(skb)->flush &&
@@ -29,7 +44,11 @@ static struct sk_buff *tcp6_gro_receive(struct list_head *head,
 	return tcp_gro_receive(head, skb);
 }
 
+<<<<<<< HEAD
 static int tcp6_gro_complete(struct sk_buff *skb, int thoff)
+=======
+INDIRECT_CALLABLE_SCOPE int tcp6_gro_complete(struct sk_buff *skb, int thoff)
+>>>>>>> upstream/android-13
 {
 	const struct ipv6hdr *iph = ipv6_hdr(skb);
 	struct tcphdr *th = tcp_hdr(skb);

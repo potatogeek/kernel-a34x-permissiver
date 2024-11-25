@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * A V4L2 driver for OmniVision OV7670 cameras.
  *
  * Copyright 2010 One Laptop Per Child
+<<<<<<< HEAD
  *
  * This file may be distributed under the terms of the GNU General
  * Public License, version 2.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef __OV7670_H

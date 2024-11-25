@@ -37,7 +37,11 @@
  */
 #include <linux/init.h>
 #include <linux/kernel.h>
+<<<<<<< HEAD
 #include <asm/bootinfo.h>
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <asm/txx9/generic.h>
 #include <asm/txx9/jmr3927.h>
 
@@ -47,6 +51,10 @@ void __init jmr3927_prom_init(void)
 	if ((tx3927_ccfgptr->ccfg & TX3927_CCFG_TLBOFF) == 0)
 		pr_err("TX3927 TLB off\n");
 
+<<<<<<< HEAD
 	add_memory_region(0, JMR3927_SDRAM_SIZE, BOOT_MEM_RAM);
+=======
+	memblock_add(0, JMR3927_SDRAM_SIZE);
+>>>>>>> upstream/android-13
 	txx9_sio_putchar_init(TX3927_SIO_REG(1));
 }

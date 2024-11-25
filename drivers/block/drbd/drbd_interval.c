@@ -3,7 +3,11 @@
 #include <linux/rbtree_augmented.h>
 #include "drbd_interval.h"
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * interval_end  -  return end of @node
  */
 static inline
@@ -13,6 +17,7 @@ sector_t interval_end(struct rb_node *node)
 	return this->end;
 }
 
+<<<<<<< HEAD
 /**
  * compute_subtree_last  -  compute end of @node
  *
@@ -42,6 +47,14 @@ RB_DECLARE_CALLBACKS(static, augment_callbacks, struct drbd_interval, rb,
 		     sector_t, end, compute_subtree_last);
 
 /**
+=======
+#define NODE_END(node) ((node)->sector + ((node)->size >> 9))
+
+RB_DECLARE_CALLBACKS_MAX(static, augment_callbacks,
+			 struct drbd_interval, rb, sector_t, end, NODE_END);
+
+/*
+>>>>>>> upstream/android-13
  * drbd_insert_interval  -  insert a new interval into a tree
  */
 bool
@@ -79,6 +92,10 @@ drbd_insert_interval(struct rb_root *root, struct drbd_interval *this)
 
 /**
  * drbd_contains_interval  -  check if a tree contains a given interval
+<<<<<<< HEAD
+=======
+ * @root:	red black tree root
+>>>>>>> upstream/android-13
  * @sector:	start sector of @interval
  * @interval:	may not be a valid pointer
  *
@@ -111,7 +128,11 @@ drbd_contains_interval(struct rb_root *root, sector_t sector,
 	return false;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * drbd_remove_interval  -  remove an interval from a tree
  */
 void
@@ -122,6 +143,10 @@ drbd_remove_interval(struct rb_root *root, struct drbd_interval *this)
 
 /**
  * drbd_find_overlap  - search for an interval overlapping with [sector, sector + size)
+<<<<<<< HEAD
+=======
+ * @root:	red black tree root
+>>>>>>> upstream/android-13
  * @sector:	start sector
  * @size:	size, aligned to 512 bytes
  *

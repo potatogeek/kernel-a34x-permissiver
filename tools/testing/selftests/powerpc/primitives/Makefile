@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 CFLAGS += -I$(CURDIR)
 
 TEST_GEN_PROGS := load_unaligned_zeropad

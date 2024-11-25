@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /******************************************************************************
  *
  * Copyright(c) 2009-2012  Realtek Corporation.
@@ -22,6 +23,10 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+=======
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright(c) 2009-2012  Realtek Corporation.*/
+>>>>>>> upstream/android-13
 
 #include "../wifi.h"
 #include "../core.h"
@@ -36,7 +41,10 @@
 #include "../rtl8192c/phy_common.h"
 #include "hw.h"
 #include "rf.h"
+<<<<<<< HEAD
 #include "sw.h"
+=======
+>>>>>>> upstream/android-13
 #include "trx.h"
 #include "led.h"
 
@@ -87,7 +95,11 @@ static void rtl92c_init_aspm_vars(struct ieee80211_hw *hw)
 	rtlpci->const_support_pciaspm = rtlpriv->cfg->mod_params->aspm_support;
 }
 
+<<<<<<< HEAD
 int rtl92c_init_sw_vars(struct ieee80211_hw *hw)
+=======
+static int rtl92c_init_sw_vars(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	int err;
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -135,8 +147,11 @@ int rtl92c_init_sw_vars(struct ieee80211_hw *hw)
 	rtlpriv->psc.inactiveps = rtlpriv->cfg->mod_params->inactiveps;
 	rtlpriv->psc.swctrl_lps = rtlpriv->cfg->mod_params->swctrl_lps;
 	rtlpriv->psc.fwctrl_lps = rtlpriv->cfg->mod_params->fwctrl_lps;
+<<<<<<< HEAD
 	rtlpriv->cfg->mod_params->sw_crypto =
 		rtlpriv->cfg->mod_params->sw_crypto;
+=======
+>>>>>>> upstream/android-13
 	if (!rtlpriv->psc.inactiveps)
 		pr_info("rtl8192ce: Power Save off (module option)\n");
 	if (!rtlpriv->psc.fwctrl_lps)
@@ -185,7 +200,11 @@ int rtl92c_init_sw_vars(struct ieee80211_hw *hw)
 	return 0;
 }
 
+<<<<<<< HEAD
 void rtl92c_deinit_sw_vars(struct ieee80211_hw *hw)
+=======
+static void rtl92c_deinit_sw_vars(struct ieee80211_hw *hw)
+>>>>>>> upstream/android-13
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
 

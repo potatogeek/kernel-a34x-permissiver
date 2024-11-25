@@ -12,6 +12,11 @@
 #include <linux/clk/davinci.h>
 #include <linux/gpio.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+#include <linux/irqchip/irq-davinci-cp-intc.h>
+>>>>>>> upstream/android-13
 #include <linux/platform_data/gpio-davinci.h>
 
 #include <asm/mach/map.h>
@@ -19,9 +24,16 @@
 #include <mach/common.h>
 #include <mach/cputype.h>
 #include <mach/da8xx.h>
+<<<<<<< HEAD
 #include <mach/irqs.h>
 #include <mach/time.h>
 
+=======
+
+#include <clocksource/timer-davinci.h>
+
+#include "irqs.h"
+>>>>>>> upstream/android-13
 #include "mux.h"
 
 /* Offsets of the 8 compare registers on the da830 */
@@ -623,6 +635,7 @@ const short da830_eqep1_pins[] __initconst = {
 	-1
 };
 
+<<<<<<< HEAD
 /* FIQ are pri 0-1; otherwise 2-7, with 7 lowest priority */
 static u8 da830_default_priorities[DA830_N_CP_INTC_IRQ] = {
 	[IRQ_DA8XX_COMMTX]		= 7,
@@ -718,6 +731,8 @@ static u8 da830_default_priorities[DA830_N_CP_INTC_IRQ] = {
 	[IRQ_DA8XX_ARMCLKSTOPREQ]	= 7,
 };
 
+=======
+>>>>>>> upstream/android-13
 static struct map_desc da830_io_desc[] = {
 	{
 		.virtual	= IO_VIRT,
@@ -759,7 +774,13 @@ static struct davinci_id da830_ids[] = {
 };
 
 static struct davinci_gpio_platform_data da830_gpio_platform_data = {
+<<<<<<< HEAD
 	.ngpio = 128,
+=======
+	.no_auto_base	= true,
+	.base		= 0,
+	.ngpio		= 128,
+>>>>>>> upstream/android-13
 };
 
 int __init da830_register_gpio(void)
@@ -767,6 +788,7 @@ int __init da830_register_gpio(void)
 	return da8xx_register_gpio(&da830_gpio_platform_data);
 }
 
+<<<<<<< HEAD
 static struct davinci_timer_instance da830_timer_instance[2] = {
 	{
 		.base		= DA8XX_TIMER64P0_BASE,
@@ -793,6 +815,19 @@ static struct davinci_timer_info da830_timer_info = {
 	.timers		= da830_timer_instance,
 	.clockevent_id	= T0_BOT,
 	.clocksource_id	= T0_BOT,
+=======
+/*
+ * Bottom half of timer0 is used both for clock even and clocksource.
+ * Top half is used by DSP.
+ */
+static const struct davinci_timer_cfg da830_timer_cfg = {
+	.reg = DEFINE_RES_IO(DA8XX_TIMER64P0_BASE, SZ_4K),
+	.irq = {
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_DA830_T12CMPINT0_0)),
+		DEFINE_RES_IRQ(DAVINCI_INTC_IRQ(IRQ_DA8XX_TINT12_0)),
+	},
+	.cmp_off = DA830_CMP12_0,
+>>>>>>> upstream/android-13
 };
 
 static const struct davinci_soc_info davinci_soc_info_da830 = {
@@ -804,11 +839,14 @@ static const struct davinci_soc_info davinci_soc_info_da830 = {
 	.pinmux_base		= DA8XX_SYSCFG0_BASE + 0x120,
 	.pinmux_pins		= da830_pins,
 	.pinmux_pins_num	= ARRAY_SIZE(da830_pins),
+<<<<<<< HEAD
 	.intc_base		= DA8XX_CP_INTC_BASE,
 	.intc_type		= DAVINCI_INTC_TYPE_CP_INTC,
 	.intc_irq_prios		= da830_default_priorities,
 	.intc_irq_num		= DA830_N_CP_INTC_IRQ,
 	.timer_info		= &da830_timer_info,
+=======
+>>>>>>> upstream/android-13
 	.emac_pdata		= &da8xx_emac_pdata,
 };
 
@@ -820,10 +858,31 @@ void __init da830_init(void)
 	WARN(!da8xx_syscfg0_base, "Unable to map syscfg0 module");
 }
 
+<<<<<<< HEAD
+=======
+static const struct davinci_cp_intc_config da830_cp_intc_config = {
+	.reg = {
+		.start		= DA8XX_CP_INTC_BASE,
+		.end		= DA8XX_CP_INTC_BASE + SZ_8K - 1,
+		.flags		= IORESOURCE_MEM,
+	},
+	.num_irqs		= DA830_N_CP_INTC_IRQ,
+};
+
+void __init da830_init_irq(void)
+{
+	davinci_cp_intc_init(&da830_cp_intc_config);
+}
+
+>>>>>>> upstream/android-13
 void __init da830_init_time(void)
 {
 	void __iomem *pll;
 	struct clk *clk;
+<<<<<<< HEAD
+=======
+	int rv;
+>>>>>>> upstream/android-13
 
 	clk_register_fixed_rate(NULL, "ref_clk", NULL, 0, DA830_REF_FREQ);
 
@@ -832,8 +891,18 @@ void __init da830_init_time(void)
 	da830_pll_init(NULL, pll, NULL);
 
 	clk = clk_get(NULL, "timer0");
+<<<<<<< HEAD
 
 	davinci_timer_init(clk);
+=======
+	if (WARN_ON(IS_ERR(clk))) {
+		pr_err("Unable to get the timer clock\n");
+		return;
+	}
+
+	rv = davinci_timer_register(clk, &da830_timer_cfg);
+	WARN(rv, "Unable to register the timer: %d\n", rv);
+>>>>>>> upstream/android-13
 }
 
 static struct resource da830_psc0_resources[] = {

@@ -2,6 +2,11 @@
 #ifndef _ASM_X86_XEN_EVENTS_H
 #define _ASM_X86_XEN_EVENTS_H
 
+<<<<<<< HEAD
+=======
+#include <xen/xen.h>
+
+>>>>>>> upstream/android-13
 enum ipi_vector {
 	XEN_RESCHEDULE_VECTOR,
 	XEN_CALL_FUNCTION_VECTOR,

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * Header File to describe the DMA descriptors and related definitions specific
  * for DesignWare databook 4.xx.
  *
  * Copyright (C) 2015  STMicroelectronics Ltd
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  * Author: Alexandre Torgue <alexandre.torgue@st.com>
  */
 
@@ -21,13 +28,30 @@
 /* TDES2 (read format) */
 #define TDES2_BUFFER1_SIZE_MASK		GENMASK(13, 0)
 #define TDES2_VLAN_TAG_MASK		GENMASK(15, 14)
+<<<<<<< HEAD
 #define TDES2_BUFFER2_SIZE_MASK		GENMASK(29, 16)
 #define TDES2_BUFFER2_SIZE_MASK_SHIFT	16
 #define TDES2_TIMESTAMP_ENABLE		BIT(30)
+=======
+#define TDES2_VLAN_TAG_SHIFT		14
+#define TDES2_BUFFER2_SIZE_MASK		GENMASK(29, 16)
+#define TDES2_BUFFER2_SIZE_MASK_SHIFT	16
+#define TDES3_IVTIR_MASK		GENMASK(19, 18)
+#define TDES3_IVTIR_SHIFT		18
+#define TDES3_IVLTV			BIT(17)
+#define TDES2_TIMESTAMP_ENABLE		BIT(30)
+#define TDES2_IVT_MASK			GENMASK(31, 16)
+#define TDES2_IVT_SHIFT			16
+>>>>>>> upstream/android-13
 #define TDES2_INTERRUPT_ON_COMPLETION	BIT(31)
 
 /* TDES3 (read format) */
 #define TDES3_PACKET_SIZE_MASK		GENMASK(14, 0)
+<<<<<<< HEAD
+=======
+#define TDES3_VLAN_TAG			GENMASK(15, 0)
+#define TDES3_VLTV			BIT(16)
+>>>>>>> upstream/android-13
 #define TDES3_CHECKSUM_INSERTION_MASK	GENMASK(17, 16)
 #define TDES3_CHECKSUM_INSERTION_SHIFT	16
 #define TDES3_TCP_PKT_PAYLOAD_MASK	GENMASK(17, 0)
@@ -35,6 +59,10 @@
 #define TDES3_HDR_LEN_SHIFT		19
 #define TDES3_SLOT_NUMBER_MASK		GENMASK(22, 19)
 #define TDES3_SA_INSERT_CTRL_MASK	GENMASK(25, 23)
+<<<<<<< HEAD
+=======
+#define TDES3_SA_INSERT_CTRL_SHIFT	23
+>>>>>>> upstream/android-13
 #define TDES3_CRC_PAD_CTRL_MASK		GENMASK(27, 26)
 
 /* TDES3 (write back format) */
@@ -67,6 +95,16 @@
 #define TDES3_CONTEXT_TYPE		BIT(30)
 #define	TDES3_CONTEXT_TYPE_SHIFT	30
 
+<<<<<<< HEAD
+=======
+/* TDES4 */
+#define TDES4_LTV			BIT(31)
+#define TDES4_LT			GENMASK(7, 0)
+
+/* TDES5 */
+#define TDES5_LT			GENMASK(31, 8)
+
+>>>>>>> upstream/android-13
 /* TDS3 use for both format (read and write back) */
 #define TDES3_OWN			BIT(31)
 #define TDES3_OWN_SHIFT			31
@@ -103,6 +141,10 @@
 #define RDES2_L4_FILTER_MATCH		BIT(28)
 #define RDES2_L3_L4_FILT_NB_MATCH_MASK	GENMASK(27, 26)
 #define RDES2_L3_L4_FILT_NB_MATCH_SHIFT	26
+<<<<<<< HEAD
+=======
+#define RDES2_HL			GENMASK(9, 0)
+>>>>>>> upstream/android-13
 
 /* RDES3 (write back format) */
 #define RDES3_PACKET_SIZE_MASK		GENMASK(14, 0)

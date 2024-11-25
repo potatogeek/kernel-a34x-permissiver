@@ -1,10 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * ge863_pro3.dtsi - Device Tree file for Telit GE863-PRO3
  *
  * Copyright (C) 2012 Telit,
  *               2012 Fabio Porcedda <fabio.porcedda@gmail.com>
+<<<<<<< HEAD
  *
  * Licensed under GPLv2 or later.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "at91sam9260.dtsi"

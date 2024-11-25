@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  sst.c - Intel SST Driver for audio engine
  *
@@ -8,6 +12,7 @@
  *		KP Jeeja <jeeja.kp@intel.com>
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -17,11 +22,17 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/interrupt.h>
+<<<<<<< HEAD
+=======
+#include <linux/io.h>
+>>>>>>> upstream/android-13
 #include <linux/firmware.h>
 #include <linux/pm_runtime.h>
 #include <linux/pm_qos.h>
@@ -33,7 +44,10 @@
 #include <asm/platform_sst_audio.h>
 #include "../sst-mfld-platform.h"
 #include "sst.h"
+<<<<<<< HEAD
 #include "../../common/sst-dsp.h"
+=======
+>>>>>>> upstream/android-13
 
 MODULE_AUTHOR("Vinod Koul <vinod.koul@intel.com>");
 MODULE_AUTHOR("Harsha Priya <priya.harsha@intel.com>");
@@ -56,7 +70,11 @@ static irqreturn_t intel_sst_interrupt_mrfld(int irq, void *context)
 	union ipc_header_mrfld header;
 	union sst_imr_reg_mrfld imr;
 	struct ipc_post *msg = NULL;
+<<<<<<< HEAD
 	unsigned int size = 0;
+=======
+	unsigned int size;
+>>>>>>> upstream/android-13
 	struct intel_sst_drv *drv = (struct intel_sst_drv *) context;
 	irqreturn_t retval = IRQ_HANDLED;
 
@@ -194,7 +212,11 @@ int sst_driver_ops(struct intel_sst_drv *sst)
 			"SST Driver capabilities missing for dev_id: %x",
 			sst->dev_id);
 		return -EINVAL;
+<<<<<<< HEAD
 	};
+=======
+	}
+>>>>>>> upstream/android-13
 }
 
 void sst_process_pending_msg(struct work_struct *work)
@@ -332,8 +354,12 @@ int sst_context_init(struct intel_sst_drv *ctx)
 		ret = -ENOMEM;
 		goto do_free_mem;
 	}
+<<<<<<< HEAD
 	pm_qos_add_request(ctx->qos, PM_QOS_CPU_DMA_LATENCY,
 				PM_QOS_DEFAULT_VALUE);
+=======
+	cpu_latency_qos_add_request(ctx->qos, PM_QOS_DEFAULT_VALUE);
+>>>>>>> upstream/android-13
 
 	dev_dbg(ctx->dev, "Requesting FW %s now...\n", ctx->firmware_name);
 	ret = request_firmware_nowait(THIS_MODULE, true, ctx->firmware_name,
@@ -371,14 +397,21 @@ void sst_context_cleanup(struct intel_sst_drv *ctx)
 	sysfs_remove_group(&ctx->dev->kobj, &sst_fw_version_attr_group);
 	flush_scheduled_work();
 	destroy_workqueue(ctx->post_msg_wq);
+<<<<<<< HEAD
 	pm_qos_remove_request(ctx->qos);
+=======
+	cpu_latency_qos_remove_request(ctx->qos);
+>>>>>>> upstream/android-13
 	kfree(ctx->fw_sg_list.src);
 	kfree(ctx->fw_sg_list.dst);
 	ctx->fw_sg_list.list_len = 0;
 	kfree(ctx->fw_in_mem);
 	ctx->fw_in_mem = NULL;
 	sst_memcpy_free_resources(ctx);
+<<<<<<< HEAD
 	ctx = NULL;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(sst_context_cleanup);
 
@@ -432,7 +465,11 @@ static int intel_sst_suspend(struct device *dev)
 {
 	struct intel_sst_drv *ctx = dev_get_drvdata(dev);
 	struct sst_fw_save *fw_save;
+<<<<<<< HEAD
 	int i, ret = 0;
+=======
+	int i, ret;
+>>>>>>> upstream/android-13
 
 	/* check first if we are already in SW reset */
 	if (ctx->sst_state == SST_RESET)

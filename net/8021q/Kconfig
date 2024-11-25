@@ -1,10 +1,18 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # Configuration for 802.1Q VLAN support
 #
 
 config VLAN_8021Q
 	tristate "802.1Q/802.1ad VLAN Support"
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  Select this and you will be able to create 802.1Q VLAN interfaces
 	  on your Ethernet interfaces. 802.1Q VLAN supports almost
 	  everything a regular Ethernet interface does, including

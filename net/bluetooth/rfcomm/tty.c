@@ -198,20 +198,35 @@ static void rfcomm_reparent_device(struct rfcomm_dev *dev)
 	hci_dev_put(hdev);
 }
 
+<<<<<<< HEAD
 static ssize_t show_address(struct device *tty_dev, struct device_attribute *attr, char *buf)
+=======
+static ssize_t address_show(struct device *tty_dev,
+			    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct rfcomm_dev *dev = dev_get_drvdata(tty_dev);
 	return sprintf(buf, "%pMR\n", &dev->dst);
 }
 
+<<<<<<< HEAD
 static ssize_t show_channel(struct device *tty_dev, struct device_attribute *attr, char *buf)
+=======
+static ssize_t channel_show(struct device *tty_dev,
+			    struct device_attribute *attr, char *buf)
+>>>>>>> upstream/android-13
 {
 	struct rfcomm_dev *dev = dev_get_drvdata(tty_dev);
 	return sprintf(buf, "%d\n", dev->channel);
 }
 
+<<<<<<< HEAD
 static DEVICE_ATTR(address, 0444, show_address, NULL);
 static DEVICE_ATTR(channel, 0444, show_channel, NULL);
+=======
+static DEVICE_ATTR_RO(address);
+static DEVICE_ATTR_RO(channel);
+>>>>>>> upstream/android-13
 
 static struct rfcomm_dev *__rfcomm_dev_add(struct rfcomm_dev_req *req,
 					   struct rfcomm_dlc *dlc)
@@ -807,7 +822,11 @@ static int rfcomm_tty_write(struct tty_struct *tty, const unsigned char *buf, in
 	return sent;
 }
 
+<<<<<<< HEAD
 static int rfcomm_tty_write_room(struct tty_struct *tty)
+=======
+static unsigned int rfcomm_tty_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct rfcomm_dev *dev = (struct rfcomm_dev *) tty->driver_data;
 	int room = 0;
@@ -837,6 +856,7 @@ static int rfcomm_tty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned l
 		BT_DBG("TIOCMIWAIT");
 		break;
 
+<<<<<<< HEAD
 	case TIOCGSERIAL:
 		BT_ERR("TIOCGSERIAL is not supported");
 		return -ENOIOCTLCMD;
@@ -849,6 +869,8 @@ static int rfcomm_tty_ioctl(struct tty_struct *tty, unsigned int cmd, unsigned l
 		BT_ERR("TIOCSERGSTRUCT is not supported");
 		return -ENOIOCTLCMD;
 
+=======
+>>>>>>> upstream/android-13
 	case TIOCSERGETLSR:
 		BT_ERR("TIOCSERGETLSR is not supported");
 		return -ENOIOCTLCMD;
@@ -1022,7 +1044,11 @@ static void rfcomm_tty_unthrottle(struct tty_struct *tty)
 	rfcomm_dlc_unthrottle(dev->dlc);
 }
 
+<<<<<<< HEAD
 static int rfcomm_tty_chars_in_buffer(struct tty_struct *tty)
+=======
+static unsigned int rfcomm_tty_chars_in_buffer(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct rfcomm_dev *dev = (struct rfcomm_dev *) tty->driver_data;
 
@@ -1137,9 +1163,16 @@ int __init rfcomm_init_ttys(void)
 {
 	int error;
 
+<<<<<<< HEAD
 	rfcomm_tty_driver = alloc_tty_driver(RFCOMM_TTY_PORTS);
 	if (!rfcomm_tty_driver)
 		return -ENOMEM;
+=======
+	rfcomm_tty_driver = tty_alloc_driver(RFCOMM_TTY_PORTS,
+			TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV);
+	if (IS_ERR(rfcomm_tty_driver))
+		return PTR_ERR(rfcomm_tty_driver);
+>>>>>>> upstream/android-13
 
 	rfcomm_tty_driver->driver_name	= "rfcomm";
 	rfcomm_tty_driver->name		= "rfcomm";
@@ -1147,7 +1180,10 @@ int __init rfcomm_init_ttys(void)
 	rfcomm_tty_driver->minor_start	= RFCOMM_TTY_MINOR;
 	rfcomm_tty_driver->type		= TTY_DRIVER_TYPE_SERIAL;
 	rfcomm_tty_driver->subtype	= SERIAL_TYPE_NORMAL;
+<<<<<<< HEAD
 	rfcomm_tty_driver->flags	= TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV;
+=======
+>>>>>>> upstream/android-13
 	rfcomm_tty_driver->init_termios	= tty_std_termios;
 	rfcomm_tty_driver->init_termios.c_cflag	= B9600 | CS8 | CREAD | HUPCL;
 	rfcomm_tty_driver->init_termios.c_lflag &= ~ICANON;
@@ -1156,7 +1192,11 @@ int __init rfcomm_init_ttys(void)
 	error = tty_register_driver(rfcomm_tty_driver);
 	if (error) {
 		BT_ERR("Can't register RFCOMM TTY driver");
+<<<<<<< HEAD
 		put_tty_driver(rfcomm_tty_driver);
+=======
+		tty_driver_kref_put(rfcomm_tty_driver);
+>>>>>>> upstream/android-13
 		return error;
 	}
 
@@ -1168,5 +1208,9 @@ int __init rfcomm_init_ttys(void)
 void rfcomm_cleanup_ttys(void)
 {
 	tty_unregister_driver(rfcomm_tty_driver);
+<<<<<<< HEAD
 	put_tty_driver(rfcomm_tty_driver);
+=======
+	tty_driver_kref_put(rfcomm_tty_driver);
+>>>>>>> upstream/android-13
 }

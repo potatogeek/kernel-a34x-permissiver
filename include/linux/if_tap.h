@@ -62,7 +62,10 @@ struct tap_dev {
 struct tap_queue {
 	struct sock sk;
 	struct socket sock;
+<<<<<<< HEAD
 	struct socket_wq wq;
+=======
+>>>>>>> upstream/android-13
 	int vnet_hdr_sz;
 	struct tap_dev __rcu *tap;
 	struct file *file;

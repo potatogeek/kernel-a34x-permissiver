@@ -20,6 +20,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/fdtable.h>
 #include <linux/uaccess.h>
@@ -28,6 +29,10 @@
 #include "amdgpu.h"
 #include "amdgpu_amdkfd.h"
 #include "amdgpu_ucode.h"
+=======
+#include "amdgpu.h"
+#include "amdgpu_amdkfd.h"
+>>>>>>> upstream/android-13
 #include "gfx_v8_0.h"
 #include "gca/gfx_8_0_sh_mask.h"
 #include "gca/gfx_8_0_d.h"
@@ -45,6 +50,7 @@ enum hqd_dequeue_request_type {
 	RESET_WAVES
 };
 
+<<<<<<< HEAD
 struct vi_sdma_mqd;
 
 /*
@@ -186,6 +192,8 @@ struct kfd2kgd_calls *amdgpu_amdkfd_gfx_8_0_get_functions(void)
 	return (struct kfd2kgd_calls *)&kfd2kgd;
 }
 
+=======
+>>>>>>> upstream/android-13
 static inline struct amdgpu_device *get_amdgpu_device(struct kgd_dev *kgd)
 {
 	return (struct amdgpu_device *)kgd;
@@ -243,7 +251,11 @@ static void kgd_program_sh_mem_settings(struct kgd_dev *kgd, uint32_t vmid,
 	unlock_srbm(kgd);
 }
 
+<<<<<<< HEAD
 static int kgd_set_pasid_vmid_mapping(struct kgd_dev *kgd, unsigned int pasid,
+=======
+static int kgd_set_pasid_vmid_mapping(struct kgd_dev *kgd, u32 pasid,
+>>>>>>> upstream/android-13
 					unsigned int vmid)
 {
 	struct amdgpu_device *adev = get_amdgpu_device(kgd);
@@ -281,20 +293,35 @@ static int kgd_init_interrupts(struct kgd_dev *kgd, uint32_t pipe_id)
 
 	lock_srbm(kgd, mec, pipe, 0, 0);
 
+<<<<<<< HEAD
 	WREG32(mmCPC_INT_CNTL, CP_INT_CNTL_RING0__TIME_STAMP_INT_ENABLE_MASK);
+=======
+	WREG32(mmCPC_INT_CNTL, CP_INT_CNTL_RING0__TIME_STAMP_INT_ENABLE_MASK |
+			CP_INT_CNTL_RING0__OPCODE_ERROR_INT_ENABLE_MASK);
+>>>>>>> upstream/android-13
 
 	unlock_srbm(kgd);
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static inline uint32_t get_sdma_base_addr(struct vi_sdma_mqd *m)
+=======
+static inline uint32_t get_sdma_rlc_reg_offset(struct vi_sdma_mqd *m)
+>>>>>>> upstream/android-13
 {
 	uint32_t retval;
 
 	retval = m->sdma_engine_id * SDMA1_REGISTER_OFFSET +
 		m->sdma_queue_id * KFD_VI_SDMA_QUEUE_OFFSET;
+<<<<<<< HEAD
 	pr_debug("kfd: sdma base address: 0x%x\n", retval);
+=======
+
+	pr_debug("RLC register offset for SDMA%d RLC%d: 0x%x\n",
+			m->sdma_engine_id, m->sdma_queue_id, retval);
+>>>>>>> upstream/android-13
 
 	return retval;
 }
@@ -366,7 +393,11 @@ static int kgd_hqd_load(struct kgd_dev *kgd, void *mqd, uint32_t pipe_id,
 			     CP_HQD_PQ_DOORBELL_CONTROL, DOORBELL_EN, 1);
 	WREG32(mmCP_HQD_PQ_DOORBELL_CONTROL, data);
 
+<<<<<<< HEAD
 	/* read_user_ptr may take the mm->mmap_sem.
+=======
+	/* read_user_ptr may take the mm->mmap_lock.
+>>>>>>> upstream/android-13
 	 * release srbm_mutex to avoid circular dependency between
 	 * srbm_mutex->mm_sem->reservation_ww_class_mutex->srbm_mutex.
 	 */
@@ -426,16 +457,26 @@ static int kgd_hqd_sdma_load(struct kgd_dev *kgd, void *mqd,
 	struct amdgpu_device *adev = get_amdgpu_device(kgd);
 	struct vi_sdma_mqd *m;
 	unsigned long end_jiffies;
+<<<<<<< HEAD
 	uint32_t sdma_base_addr;
 	uint32_t data;
 
 	m = get_sdma_mqd(mqd);
 	sdma_base_addr = get_sdma_base_addr(m);
 	WREG32(sdma_base_addr + mmSDMA0_RLC0_RB_CNTL,
+=======
+	uint32_t sdma_rlc_reg_offset;
+	uint32_t data;
+
+	m = get_sdma_mqd(mqd);
+	sdma_rlc_reg_offset = get_sdma_rlc_reg_offset(m);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_CNTL,
+>>>>>>> upstream/android-13
 		m->sdmax_rlcx_rb_cntl & (~SDMA0_RLC0_RB_CNTL__RB_ENABLE_MASK));
 
 	end_jiffies = msecs_to_jiffies(2000) + jiffies;
 	while (true) {
+<<<<<<< HEAD
 		data = RREG32(sdma_base_addr + mmSDMA0_RLC0_CONTEXT_STATUS);
 		if (data & SDMA0_RLC0_CONTEXT_STATUS__IDLE_MASK)
 			break;
@@ -474,11 +515,47 @@ static int kgd_hqd_sdma_load(struct kgd_dev *kgd, void *mqd,
 	WREG32(sdma_base_addr + mmSDMA0_RLC0_RB_RPTR_ADDR_LO,
 			m->sdmax_rlcx_rb_rptr_addr_lo);
 	WREG32(sdma_base_addr + mmSDMA0_RLC0_RB_RPTR_ADDR_HI,
+=======
+		data = RREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_CONTEXT_STATUS);
+		if (data & SDMA0_RLC0_CONTEXT_STATUS__IDLE_MASK)
+			break;
+		if (time_after(jiffies, end_jiffies)) {
+			pr_err("SDMA RLC not idle in %s\n", __func__);
+			return -ETIME;
+		}
+		usleep_range(500, 1000);
+	}
+
+	data = REG_SET_FIELD(m->sdmax_rlcx_doorbell, SDMA0_RLC0_DOORBELL,
+			     ENABLE, 1);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_DOORBELL, data);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_RPTR,
+				m->sdmax_rlcx_rb_rptr);
+
+	if (read_user_wptr(mm, wptr, data))
+		WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_WPTR, data);
+	else
+		WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_WPTR,
+		       m->sdmax_rlcx_rb_rptr);
+
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_VIRTUAL_ADDR,
+				m->sdmax_rlcx_virtual_addr);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_BASE, m->sdmax_rlcx_rb_base);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_BASE_HI,
+			m->sdmax_rlcx_rb_base_hi);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_RPTR_ADDR_LO,
+			m->sdmax_rlcx_rb_rptr_addr_lo);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_RPTR_ADDR_HI,
+>>>>>>> upstream/android-13
 			m->sdmax_rlcx_rb_rptr_addr_hi);
 
 	data = REG_SET_FIELD(m->sdmax_rlcx_rb_cntl, SDMA0_RLC0_RB_CNTL,
 			     RB_ENABLE, 1);
+<<<<<<< HEAD
 	WREG32(sdma_base_addr + mmSDMA0_RLC0_RB_CNTL, data);
+=======
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_CNTL, data);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -545,6 +622,7 @@ static bool kgd_hqd_sdma_is_occupied(struct kgd_dev *kgd, void *mqd)
 {
 	struct amdgpu_device *adev = get_amdgpu_device(kgd);
 	struct vi_sdma_mqd *m;
+<<<<<<< HEAD
 	uint32_t sdma_base_addr;
 	uint32_t sdma_rlc_rb_cntl;
 
@@ -552,6 +630,15 @@ static bool kgd_hqd_sdma_is_occupied(struct kgd_dev *kgd, void *mqd)
 	sdma_base_addr = get_sdma_base_addr(m);
 
 	sdma_rlc_rb_cntl = RREG32(sdma_base_addr + mmSDMA0_RLC0_RB_CNTL);
+=======
+	uint32_t sdma_rlc_reg_offset;
+	uint32_t sdma_rlc_rb_cntl;
+
+	m = get_sdma_mqd(mqd);
+	sdma_rlc_reg_offset = get_sdma_rlc_reg_offset(m);
+
+	sdma_rlc_rb_cntl = RREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_CNTL);
+>>>>>>> upstream/android-13
 
 	if (sdma_rlc_rb_cntl & SDMA0_RLC0_RB_CNTL__RB_ENABLE_MASK)
 		return true;
@@ -571,7 +658,11 @@ static int kgd_hqd_destroy(struct kgd_dev *kgd, void *mqd,
 	int retry;
 	struct vi_mqd *m = get_mqd(mqd);
 
+<<<<<<< HEAD
 	if (adev->in_gpu_reset)
+=======
+	if (amdgpu_in_reset(adev))
+>>>>>>> upstream/android-13
 		return -EIO;
 
 	acquire_queue(kgd, pipe_id, queue_id);
@@ -669,11 +760,16 @@ static int kgd_hqd_sdma_destroy(struct kgd_dev *kgd, void *mqd,
 {
 	struct amdgpu_device *adev = get_amdgpu_device(kgd);
 	struct vi_sdma_mqd *m;
+<<<<<<< HEAD
 	uint32_t sdma_base_addr;
+=======
+	uint32_t sdma_rlc_reg_offset;
+>>>>>>> upstream/android-13
 	uint32_t temp;
 	unsigned long end_jiffies = (utimeout * HZ / 1000) + jiffies;
 
 	m = get_sdma_mqd(mqd);
+<<<<<<< HEAD
 	sdma_base_addr = get_sdma_base_addr(m);
 
 	temp = RREG32(sdma_base_addr + mmSDMA0_RLC0_RB_CNTL);
@@ -695,10 +791,36 @@ static int kgd_hqd_sdma_destroy(struct kgd_dev *kgd, void *mqd,
 		SDMA0_RLC0_RB_CNTL__RB_ENABLE_MASK);
 
 	m->sdmax_rlcx_rb_rptr = RREG32(sdma_base_addr + mmSDMA0_RLC0_RB_RPTR);
+=======
+	sdma_rlc_reg_offset = get_sdma_rlc_reg_offset(m);
+
+	temp = RREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_CNTL);
+	temp = temp & ~SDMA0_RLC0_RB_CNTL__RB_ENABLE_MASK;
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_CNTL, temp);
+
+	while (true) {
+		temp = RREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_CONTEXT_STATUS);
+		if (temp & SDMA0_RLC0_CONTEXT_STATUS__IDLE_MASK)
+			break;
+		if (time_after(jiffies, end_jiffies)) {
+			pr_err("SDMA RLC not idle in %s\n", __func__);
+			return -ETIME;
+		}
+		usleep_range(500, 1000);
+	}
+
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_DOORBELL, 0);
+	WREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_CNTL,
+		RREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_CNTL) |
+		SDMA0_RLC0_RB_CNTL__RB_ENABLE_MASK);
+
+	m->sdmax_rlcx_rb_rptr = RREG32(sdma_rlc_reg_offset + mmSDMA0_RLC0_RB_RPTR);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
 
+<<<<<<< HEAD
 static bool get_atc_vmid_pasid_mapping_valid(struct kgd_dev *kgd,
 							uint8_t vmid)
 {
@@ -717,6 +839,18 @@ static uint16_t get_atc_vmid_pasid_mapping_pasid(struct kgd_dev *kgd,
 
 	reg = RREG32(mmATC_VMID0_PASID_MAPPING + vmid);
 	return reg & ATC_VMID0_PASID_MAPPING__PASID_MASK;
+=======
+static bool get_atc_vmid_pasid_mapping_info(struct kgd_dev *kgd,
+					uint8_t vmid, uint16_t *p_pasid)
+{
+	uint32_t value;
+	struct amdgpu_device *adev = (struct amdgpu_device *) kgd;
+
+	value = RREG32(mmATC_VMID0_PASID_MAPPING + vmid);
+	*p_pasid = value & ATC_VMID0_PASID_MAPPING__PASID_MASK;
+
+	return !!(value & ATC_VMID0_PASID_MAPPING__VALID_MASK);
+>>>>>>> upstream/android-13
 }
 
 static int kgd_address_watch_disable(struct kgd_dev *kgd)
@@ -775,6 +909,7 @@ static void set_scratch_backing_va(struct kgd_dev *kgd,
 	unlock_srbm(kgd);
 }
 
+<<<<<<< HEAD
 static uint16_t get_fw_version(struct kgd_dev *kgd, enum kgd_engine_type type)
 {
 	struct amdgpu_device *adev = (struct amdgpu_device *) kgd;
@@ -834,6 +969,10 @@ static uint16_t get_fw_version(struct kgd_dev *kgd, enum kgd_engine_type type)
 
 static void set_vm_context_page_table_base(struct kgd_dev *kgd, uint32_t vmid,
 		uint32_t page_table_base)
+=======
+static void set_vm_context_page_table_base(struct kgd_dev *kgd, uint32_t vmid,
+		uint64_t page_table_base)
+>>>>>>> upstream/android-13
 {
 	struct amdgpu_device *adev = get_amdgpu_device(kgd);
 
@@ -841,6 +980,7 @@ static void set_vm_context_page_table_base(struct kgd_dev *kgd, uint32_t vmid,
 		pr_err("trying to set page table base for wrong VMID\n");
 		return;
 	}
+<<<<<<< HEAD
 	WREG32(mmVM_CONTEXT8_PAGE_TABLE_BASE_ADDR + vmid - 8, page_table_base);
 }
 
@@ -882,3 +1022,30 @@ static int invalidate_tlbs_vmid(struct kgd_dev *kgd, uint16_t vmid)
 	RREG32(mmVM_INVALIDATE_RESPONSE);
 	return 0;
 }
+=======
+	WREG32(mmVM_CONTEXT8_PAGE_TABLE_BASE_ADDR + vmid - 8,
+			lower_32_bits(page_table_base));
+}
+
+const struct kfd2kgd_calls gfx_v8_kfd2kgd = {
+	.program_sh_mem_settings = kgd_program_sh_mem_settings,
+	.set_pasid_vmid_mapping = kgd_set_pasid_vmid_mapping,
+	.init_interrupts = kgd_init_interrupts,
+	.hqd_load = kgd_hqd_load,
+	.hqd_sdma_load = kgd_hqd_sdma_load,
+	.hqd_dump = kgd_hqd_dump,
+	.hqd_sdma_dump = kgd_hqd_sdma_dump,
+	.hqd_is_occupied = kgd_hqd_is_occupied,
+	.hqd_sdma_is_occupied = kgd_hqd_sdma_is_occupied,
+	.hqd_destroy = kgd_hqd_destroy,
+	.hqd_sdma_destroy = kgd_hqd_sdma_destroy,
+	.address_watch_disable = kgd_address_watch_disable,
+	.address_watch_execute = kgd_address_watch_execute,
+	.wave_control_execute = kgd_wave_control_execute,
+	.address_watch_get_offset = kgd_address_watch_get_offset,
+	.get_atc_vmid_pasid_mapping_info =
+			get_atc_vmid_pasid_mapping_info,
+	.set_scratch_backing_va = set_scratch_backing_va,
+	.set_vm_context_page_table_base = set_vm_context_page_table_base,
+};
+>>>>>>> upstream/android-13

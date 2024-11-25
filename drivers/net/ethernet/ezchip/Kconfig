@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 #
 # EZchip network device configuration
 #
@@ -5,7 +9,11 @@
 config NET_VENDOR_EZCHIP
 	bool "EZchip devices"
 	default y
+<<<<<<< HEAD
 	---help---
+=======
+	help
+>>>>>>> upstream/android-13
 	  If you have a network (Ethernet) device belonging to this class, say Y.
 
 	  Note that the answer to this question doesn't directly affect the
@@ -17,9 +25,15 @@ if NET_VENDOR_EZCHIP
 
 config EZCHIP_NPS_MANAGEMENT_ENET
 	tristate "EZchip NPS management enet support"
+<<<<<<< HEAD
 	depends on OF_IRQ && OF_NET
 	depends on HAS_IOMEM
 	---help---
+=======
+	depends on OF_IRQ
+	depends on HAS_IOMEM
+	help
+>>>>>>> upstream/android-13
 	  Simple LAN device for debug or management purposes.
 	  Device supports interrupts for RX and TX(completion).
 	  Device does not have DMA ability.

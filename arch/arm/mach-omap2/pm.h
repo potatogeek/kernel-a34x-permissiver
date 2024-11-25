@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 /*
  * OMAP2/3 Power Management Routines
  *
  * Copyright (C) 2008 Nokia Corporation
  * Jouni Hogander
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #ifndef __ARCH_ARM_MACH_OMAP2_PM_H
 #define __ARCH_ARM_MACH_OMAP2_PM_H
@@ -52,11 +59,15 @@ static inline int omap4_opp_init(void)
 extern int omap3_pm_get_suspend_state(struct powerdomain *pwrdm);
 extern int omap3_pm_set_suspend_state(struct powerdomain *pwrdm, int state);
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM_DEBUG
 extern u32 enable_off_mode;
 #else
 #define enable_off_mode 0
 #endif
+=======
+extern u32 enable_off_mode;
+>>>>>>> upstream/android-13
 
 #if defined(CONFIG_PM_DEBUG) && defined(CONFIG_DEBUG_FS)
 extern void pm_dbg_update_time(struct powerdomain *pwrdm, int prev);
@@ -110,6 +121,14 @@ extern u16 pm44xx_errata;
 #define IS_PM44XX_ERRATUM(id)		0
 #endif
 
+<<<<<<< HEAD
+=======
+#define OMAP4_VP_CONFIG_ERROROFFSET	0x00
+#define OMAP4_VP_VSTEPMIN_VSTEPMIN	0x01
+#define OMAP4_VP_VSTEPMAX_VSTEPMAX	0x04
+#define OMAP4_VP_VLIMITTO_TIMEOUT_US	200
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_POWER_AVS_OMAP
 extern int omap_devinit_smartreflex(void);
 extern void omap_enable_smartreflex_on_init(void);
@@ -137,6 +156,18 @@ static inline int omap4_twl_init(void)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_MFD_CPCAP)
+extern int omap4_cpcap_init(void);
+#else
+static inline int omap4_cpcap_init(void)
+{
+	return -EINVAL;
+}
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PM
 extern void omap_pm_setup_oscillator(u32 tstart, u32 tshut);
 extern void omap_pm_get_oscillator(u32 *tstart, u32 *tshut);

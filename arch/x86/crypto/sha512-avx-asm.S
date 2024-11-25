@@ -47,7 +47,10 @@
 #
 ########################################################################
 
+<<<<<<< HEAD
 #ifdef CONFIG_AS_AVX
+=======
+>>>>>>> upstream/android-13
 #include <linux/linkage.h>
 
 .text
@@ -77,6 +80,7 @@ tmp0	= %rax
 W_SIZE = 80*8
 # W[t] + K[t] | W[t+1] + K[t+1]
 WK_SIZE = 2*8
+<<<<<<< HEAD
 RSPSAVE_SIZE = 1*8
 GPRSAVE_SIZE = 5*8
 
@@ -85,6 +89,12 @@ frame_WK = frame_W + W_SIZE
 frame_RSPSAVE = frame_WK + WK_SIZE
 frame_GPRSAVE = frame_RSPSAVE + RSPSAVE_SIZE
 frame_size = frame_GPRSAVE + GPRSAVE_SIZE
+=======
+
+frame_W = 0
+frame_WK = frame_W + W_SIZE
+frame_size = frame_WK + WK_SIZE
+>>>>>>> upstream/android-13
 
 # Useful QWORD "arrays" for simpler memory references
 # MSG, DIGEST, K_t, W_t are arrays
@@ -278,6 +288,7 @@ frame_size = frame_GPRSAVE + GPRSAVE_SIZE
 # of SHA512 message blocks.
 # "blocks" is the message length in SHA512 blocks
 ########################################################################
+<<<<<<< HEAD
 ENTRY(sha512_transform_avx)
 	cmp $0, msglen
 	je nowork
@@ -294,6 +305,24 @@ ENTRY(sha512_transform_avx)
 	mov     %r13, frame_GPRSAVE +8*2(%rsp)
 	mov     %r14, frame_GPRSAVE +8*3(%rsp)
 	mov     %r15, frame_GPRSAVE +8*4(%rsp)
+=======
+SYM_FUNC_START(sha512_transform_avx)
+	test msglen, msglen
+	je nowork
+
+	# Save GPRs
+	push	%rbx
+	push	%r12
+	push	%r13
+	push	%r14
+	push	%r15
+
+	# Allocate Stack Space
+	push	%rbp
+	mov	%rsp, %rbp
+	sub     $frame_size, %rsp
+	and	$~(0x20 - 1), %rsp
+>>>>>>> upstream/android-13
 
 updateblock:
 
@@ -354,6 +383,7 @@ updateblock:
 	dec     msglen
 	jnz     updateblock
 
+<<<<<<< HEAD
 	# Restore GPRs
 	mov     frame_GPRSAVE(%rsp),      %rbx
 	mov     frame_GPRSAVE +8*1(%rsp), %r12
@@ -367,6 +397,22 @@ updateblock:
 nowork:
 	ret
 ENDPROC(sha512_transform_avx)
+=======
+	# Restore Stack Pointer
+	mov	%rbp, %rsp
+	pop	%rbp
+
+	# Restore GPRs
+	pop	%r15
+	pop	%r14
+	pop	%r13
+	pop	%r12
+	pop	%rbx
+
+nowork:
+	RET
+SYM_FUNC_END(sha512_transform_avx)
+>>>>>>> upstream/android-13
 
 ########################################################################
 ### Binary Data
@@ -424,4 +470,7 @@ K512:
 	.quad 0x3c9ebe0a15c9bebc,0x431d67c49c100d4c
 	.quad 0x4cc5d4becb3e42b6,0x597f299cfc657e2a
 	.quad 0x5fcb6fab3ad6faec,0x6c44198c4a475817
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> upstream/android-13

@@ -10,6 +10,10 @@
 
 #define get_user	__get_user
 
+<<<<<<< HEAD
 #define access_ok(type, addr, size)	1
+=======
+#define access_ok(addr, size)	1
+>>>>>>> upstream/android-13
 
 #endif

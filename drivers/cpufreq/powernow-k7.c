@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  AMD K7 Powernow driver.
  *  (C) 2003 Dave Jones on behalf of SuSE Labs.
  *
+<<<<<<< HEAD
  *  Licensed under the terms of the GNU GPL License version 2.
+=======
+>>>>>>> upstream/android-13
  *  Based upon datasheets & sample CPUs kindly provided by AMD.
  *
  * Errata 5:
@@ -109,7 +116,11 @@ static int check_fsb(unsigned int fsbspeed)
 }
 
 static const struct x86_cpu_id powernow_k7_cpuids[] = {
+<<<<<<< HEAD
 	{ X86_VENDOR_AMD, 6, },
+=======
+	X86_MATCH_VENDOR_FAM(AMD, 6, NULL),
+>>>>>>> upstream/android-13
 	{}
 };
 MODULE_DEVICE_TABLE(x86cpu, powernow_k7_cpuids);

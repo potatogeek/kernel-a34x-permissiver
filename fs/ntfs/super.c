@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * super.c - NTFS kernel super block handling. Part of the Linux-NTFS project.
  *
  * Copyright (c) 2001-2012 Anton Altaparmakov and Tuxera Inc.
  * Copyright (c) 2001,2002 Richard Russon
+<<<<<<< HEAD
  *
  * This program/include file is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
@@ -18,6 +23,8 @@
  * along with this program (in the main directory of the Linux-NTFS
  * distribution in the file COPYING); if not, write to the Free Software
  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
@@ -1489,7 +1496,11 @@ not_enabled:
 	kfree(name);
 	/* Get the inode. */
 	tmp_ino = ntfs_iget(vol->sb, MREF(mref));
+<<<<<<< HEAD
 	if (unlikely(IS_ERR(tmp_ino) || is_bad_inode(tmp_ino))) {
+=======
+	if (IS_ERR(tmp_ino) || unlikely(is_bad_inode(tmp_ino))) {
+>>>>>>> upstream/android-13
 		if (!IS_ERR(tmp_ino))
 			iput(tmp_ino);
 		ntfs_error(vol->sb, "Failed to load $UsnJrnl.");
@@ -2657,8 +2668,12 @@ static int ntfs_statfs(struct dentry *dentry, struct kstatfs *sfs)
 	 * the least significant 32-bits in f_fsid[0] and the most significant
 	 * 32-bits in f_fsid[1].
 	 */
+<<<<<<< HEAD
 	sfs->f_fsid.val[0] = vol->serial_no & 0xffffffff;
 	sfs->f_fsid.val[1] = (vol->serial_no >> 32) & 0xffffffff;
+=======
+	sfs->f_fsid = u64_to_fsid(vol->serial_no);
+>>>>>>> upstream/android-13
 	/* Maximum length of filenames. */
 	sfs->f_namelen	   = NTFS_MAX_NAME_LEN;
 	return 0;
@@ -2676,7 +2691,11 @@ static int ntfs_write_inode(struct inode *vi, struct writeback_control *wbc)
  */
 static const struct super_operations ntfs_sops = {
 	.alloc_inode	= ntfs_alloc_big_inode,	  /* VFS: Allocate new inode. */
+<<<<<<< HEAD
 	.destroy_inode	= ntfs_destroy_big_inode, /* VFS: Deallocate inode. */
+=======
+	.free_inode	= ntfs_free_big_inode, /* VFS: Deallocate inode. */
+>>>>>>> upstream/android-13
 #ifdef NTFS_RW
 	.write_inode	= ntfs_write_inode,	/* VFS: Write dirty inode to
 						   disk. */
@@ -3201,6 +3220,10 @@ MODULE_AUTHOR("Anton Altaparmakov <anton@tuxera.com>");
 MODULE_DESCRIPTION("NTFS 1.2/3.x driver - Copyright (c) 2001-2014 Anton Altaparmakov and Tuxera Inc.");
 MODULE_VERSION(NTFS_VERSION);
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 #ifdef DEBUG
 module_param(debug_msgs, bint, 0);
 MODULE_PARM_DESC(debug_msgs, "Enable debug messages.");

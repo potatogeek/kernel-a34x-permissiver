@@ -71,17 +71,27 @@ INT_MODULE_PARM(testing, 0);
 /* Some boards misreport power switching/overcurrent*/
 static bool distrust_firmware = true;
 module_param(distrust_firmware, bool, 0);
+<<<<<<< HEAD
 MODULE_PARM_DESC(distrust_firmware, "true to distrust firmware power/overcurren"
+=======
+MODULE_PARM_DESC(distrust_firmware, "true to distrust firmware power/overcurrent"
+>>>>>>> upstream/android-13
 	"t setup");
 static DECLARE_WAIT_QUEUE_HEAD(u132_hcd_wait);
 /*
 * u132_module_lock exists to protect access to global variables
 *
 */
+<<<<<<< HEAD
 static struct mutex u132_module_lock;
 static int u132_exiting;
 static int u132_instances;
 static struct list_head u132_static_list;
+=======
+static DEFINE_MUTEX(u132_module_lock);
+static int u132_exiting;
+static int u132_instances;
+>>>>>>> upstream/android-13
 /*
 * end of the global variables protected by u132_module_lock
 */
@@ -177,7 +187,10 @@ struct u132_ring {
 };
 struct u132 {
 	struct kref kref;
+<<<<<<< HEAD
 	struct list_head u132_list;
+=======
+>>>>>>> upstream/android-13
 	struct mutex sw_lock;
 	struct mutex scheduler_lock;
 	struct u132_platform_data *board;
@@ -210,6 +223,7 @@ struct u132 {
 #define ftdi_read_pcimem(pdev, member, data) usb_ftdi_elan_read_pcimem(pdev, \
 	offsetof(struct ohci_regs, member), 0, data);
 #define ftdi_write_pcimem(pdev, member, data) usb_ftdi_elan_write_pcimem(pdev, \
+<<<<<<< HEAD
 	offsetof(struct ohci_regs, member), 0, data);
 #define u132_read_pcimem(u132, member, data) \
 	usb_ftdi_elan_read_pcimem(u132->platform_dev, offsetof(struct \
@@ -217,6 +231,15 @@ struct u132 {
 #define u132_write_pcimem(u132, member, data) \
 	usb_ftdi_elan_write_pcimem(u132->platform_dev, offsetof(struct \
 	ohci_regs, member), 0, data);
+=======
+	offsetof(struct ohci_regs, member), 0, data)
+#define u132_read_pcimem(u132, member, data) \
+	usb_ftdi_elan_read_pcimem(u132->platform_dev, offsetof(struct \
+	ohci_regs, member), 0, data)
+#define u132_write_pcimem(u132, member, data) \
+	usb_ftdi_elan_write_pcimem(u132->platform_dev, offsetof(struct \
+	ohci_regs, member), 0, data)
+>>>>>>> upstream/android-13
 static inline struct u132 *udev_to_u132(struct u132_udev *udev)
 {
 	u8 udev_number = udev->udev_number;
@@ -254,7 +277,10 @@ static void u132_hcd_delete(struct kref *kref)
 	struct usb_hcd *hcd = u132_to_hcd(u132);
 	u132->going += 1;
 	mutex_lock(&u132_module_lock);
+<<<<<<< HEAD
 	list_del_init(&u132->u132_list);
+=======
+>>>>>>> upstream/android-13
 	u132_instances -= 1;
 	mutex_unlock(&u132_module_lock);
 	dev_warn(&u132->platform_dev->dev, "FREEING the hcd=%p and thus the u13"
@@ -2395,8 +2421,12 @@ static int dequeue_from_overflow_chain(struct u132 *u132,
 			urb->error_count = 0;
 			usb_hcd_giveback_urb(hcd, urb, 0);
 			return 0;
+<<<<<<< HEAD
 		} else
 			continue;
+=======
+		}
+>>>>>>> upstream/android-13
 	}
 	dev_err(&u132->platform_dev->dev, "urb=%p not found in endp[%d]=%p ring"
 		"[%d] %c%c usb_endp=%d usb_addr=%d size=%d next=%04X last=%04X"
@@ -2451,8 +2481,12 @@ static int u132_endp_urb_dequeue(struct u132 *u132, struct u132_endp *endp,
 				urb_slot = &endp->urb_list[ENDP_QUEUE_MASK &
 					queue_scan];
 				break;
+<<<<<<< HEAD
 			} else
 				continue;
+=======
+			}
+>>>>>>> upstream/android-13
 		}
 		while (++queue_list < ENDP_QUEUE_SIZE && --queue_size > 0) {
 			*urb_slot = endp->urb_list[ENDP_QUEUE_MASK &
@@ -2477,7 +2511,12 @@ static int u132_endp_urb_dequeue(struct u132 *u132, struct u132_endp *endp,
 				spin_unlock_irqrestore(&endp->queue_lock.slock,
 					irqs);
 				kfree(urbq);
+<<<<<<< HEAD
 			} urb->error_count = 0;
+=======
+			}
+			urb->error_count = 0;
+>>>>>>> upstream/android-13
 			usb_hcd_giveback_urb(hcd, urb, status);
 			return 0;
 		} else if (list_empty(&endp->urb_more)) {
@@ -2553,10 +2592,16 @@ static int u132_get_frame(struct usb_hcd *hcd)
 		dev_err(&u132->platform_dev->dev, "device is being removed\n");
 		return -ESHUTDOWN;
 	} else {
+<<<<<<< HEAD
 		int frame = 0;
 		dev_err(&u132->platform_dev->dev, "TODO: u132_get_frame\n");
 		mdelay(100);
 		return frame;
+=======
+		dev_err(&u132->platform_dev->dev, "TODO: u132_get_frame\n");
+		mdelay(100);
+		return 0;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -2982,7 +3027,12 @@ static int u132_remove(struct platform_device *pdev)
 			while (rings-- > 0) {
 				struct u132_ring *ring = &u132->ring[rings];
 				u132_ring_cancel_work(u132, ring);
+<<<<<<< HEAD
 			} while (endps-- > 0) {
+=======
+			}
+			while (endps-- > 0) {
+>>>>>>> upstream/android-13
 				struct u132_endp *endp = u132->endp[endps];
 				if (endp)
 					u132_endp_cancel_work(u132, endp);
@@ -3076,8 +3126,11 @@ static int u132_probe(struct platform_device *pdev)
 	retval = ftdi_read_pcimem(pdev, roothub.a, &rh_a);
 	if (retval)
 		return retval;
+<<<<<<< HEAD
 	if (pdev->dev.dma_mask)
 		return -EINVAL;
+=======
+>>>>>>> upstream/android-13
 
 	hcd = usb_create_hcd(&u132_hc_driver, &pdev->dev, dev_name(&pdev->dev));
 	if (!hcd) {
@@ -3090,7 +3143,10 @@ static int u132_probe(struct platform_device *pdev)
 		retval = 0;
 		hcd->rsrc_start = 0;
 		mutex_lock(&u132_module_lock);
+<<<<<<< HEAD
 		list_add_tail(&u132->u132_list, &u132_static_list);
+=======
+>>>>>>> upstream/android-13
 		u132->sequence_num = ++u132_instances;
 		mutex_unlock(&u132_module_lock);
 		u132_u132_init_kref(u132);
@@ -3193,14 +3249,24 @@ static struct platform_driver u132_platform_driver = {
 static int __init u132_hcd_init(void)
 {
 	int retval;
+<<<<<<< HEAD
 	INIT_LIST_HEAD(&u132_static_list);
 	u132_instances = 0;
 	u132_exiting = 0;
 	mutex_init(&u132_module_lock);
+=======
+	u132_instances = 0;
+	u132_exiting = 0;
+>>>>>>> upstream/android-13
 	if (usb_disabled())
 		return -ENODEV;
 	printk(KERN_INFO "driver %s\n", hcd_name);
 	workqueue = create_singlethread_workqueue("u132");
+<<<<<<< HEAD
+=======
+	if (!workqueue)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 	retval = platform_driver_register(&u132_platform_driver);
 	if (retval)
 		destroy_workqueue(workqueue);
@@ -3212,6 +3278,7 @@ static int __init u132_hcd_init(void)
 module_init(u132_hcd_init);
 static void __exit u132_hcd_exit(void)
 {
+<<<<<<< HEAD
 	struct u132 *u132;
 	struct u132 *temp;
 	mutex_lock(&u132_module_lock);
@@ -3220,6 +3287,11 @@ static void __exit u132_hcd_exit(void)
 	list_for_each_entry_safe(u132, temp, &u132_static_list, u132_list) {
 		platform_device_unregister(u132->platform_dev);
 	}
+=======
+	mutex_lock(&u132_module_lock);
+	u132_exiting += 1;
+	mutex_unlock(&u132_module_lock);
+>>>>>>> upstream/android-13
 	platform_driver_unregister(&u132_platform_driver);
 	printk(KERN_INFO "u132-hcd driver deregistered\n");
 	wait_event(u132_hcd_wait, u132_instances == 0);

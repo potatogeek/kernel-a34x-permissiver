@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-mmp/ttc_dkb.c
  *
  *  Support for the Marvell PXA910-based TTC_DKB Development Platform.
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
  *  publishhed by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -282,6 +289,14 @@ static void __init ttc_dkb_init(void)
 				 sizeof(struct pxa_gpio_platform_data));
 	platform_add_devices(ARRAY_AND_SIZE(ttc_dkb_devices));
 
+<<<<<<< HEAD
+=======
+#if IS_ENABLED(CONFIG_USB_SUPPORT)
+#if IS_ENABLED(CONFIG_PHY_PXA_USB)
+	platform_device_register(&pxa168_device_usb_phy);
+#endif
+
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_USB_MV_UDC)
 	pxa168_device_u2o.dev.platform_data = &ttc_usb_pdata;
 	platform_device_register(&pxa168_device_u2o);
@@ -296,6 +311,10 @@ static void __init ttc_dkb_init(void)
 	pxa168_device_u2ootg.dev.platform_data = &ttc_usb_pdata;
 	platform_device_register(&pxa168_device_u2ootg);
 #endif
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> upstream/android-13
 
 #if IS_ENABLED(CONFIG_MMP_DISP)
 	add_disp();

@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * fschmd.c
  *
  * Copyright (C) 2007 - 2009 Hans de Goede <hdegoede@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -227,8 +234,12 @@ static const int FSCHMD_NO_TEMP_SENSORS[7] = { 3, 3, 4, 3, 5, 5, 11 };
  * Functions declarations
  */
 
+<<<<<<< HEAD
 static int fschmd_probe(struct i2c_client *client,
 			const struct i2c_device_id *id);
+=======
+static int fschmd_probe(struct i2c_client *client);
+>>>>>>> upstream/android-13
 static int fschmd_detect(struct i2c_client *client,
 			 struct i2c_board_info *info);
 static int fschmd_remove(struct i2c_client *client);
@@ -255,7 +266,11 @@ static struct i2c_driver fschmd_driver = {
 	.driver = {
 		.name	= "fschmd",
 	},
+<<<<<<< HEAD
 	.probe		= fschmd_probe,
+=======
+	.probe_new	= fschmd_probe,
+>>>>>>> upstream/android-13
 	.remove		= fschmd_remove,
 	.id_table	= fschmd_id,
 	.detect		= fschmd_detect,
@@ -331,8 +346,13 @@ static void fschmd_release_resources(struct kref *ref)
  * Sysfs attr show / store functions
  */
 
+<<<<<<< HEAD
 static ssize_t show_in_value(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t in_value_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	const int max_reading[3] = { 14200, 6600, 3300 };
 	int index = to_sensor_dev_attr(devattr)->index;
@@ -349,8 +369,13 @@ static ssize_t show_in_value(struct device *dev,
 
 #define TEMP_FROM_REG(val)	(((val) - 128) * 1000)
 
+<<<<<<< HEAD
 static ssize_t show_temp_value(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_value_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -358,8 +383,13 @@ static ssize_t show_temp_value(struct device *dev,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_act[index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_max(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_max_show(struct device *dev,
+			     struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -367,8 +397,14 @@ static ssize_t show_temp_max(struct device *dev,
 	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_max[index]));
 }
 
+<<<<<<< HEAD
 static ssize_t store_temp_max(struct device *dev, struct device_attribute
 	*devattr, const char *buf, size_t count)
+=======
+static ssize_t temp_max_store(struct device *dev,
+			      struct device_attribute *devattr,
+			      const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = dev_get_drvdata(dev);
@@ -390,8 +426,13 @@ static ssize_t store_temp_max(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_fault(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_fault_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -403,8 +444,13 @@ static ssize_t show_temp_fault(struct device *dev,
 		return sprintf(buf, "1\n");
 }
 
+<<<<<<< HEAD
 static ssize_t show_temp_alarm(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t temp_alarm_show(struct device *dev,
+			       struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -419,8 +465,13 @@ static ssize_t show_temp_alarm(struct device *dev,
 
 #define RPM_FROM_REG(val)	((val) * 60)
 
+<<<<<<< HEAD
 static ssize_t show_fan_value(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t fan_value_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -428,8 +479,13 @@ static ssize_t show_fan_value(struct device *dev,
 	return sprintf(buf, "%u\n", RPM_FROM_REG(data->fan_act[index]));
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_div(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t fan_div_show(struct device *dev,
+			    struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -438,8 +494,14 @@ static ssize_t show_fan_div(struct device *dev,
 	return sprintf(buf, "%d\n", 1 << (data->fan_ripple[index] & 3));
 }
 
+<<<<<<< HEAD
 static ssize_t store_fan_div(struct device *dev, struct device_attribute
 	*devattr, const char *buf, size_t count)
+=======
+static ssize_t fan_div_store(struct device *dev,
+			     struct device_attribute *devattr,
+			     const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	u8 reg;
 	int index = to_sensor_dev_attr(devattr)->index;
@@ -488,8 +550,13 @@ static ssize_t store_fan_div(struct device *dev, struct device_attribute
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_alarm(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t fan_alarm_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -500,8 +567,13 @@ static ssize_t show_fan_alarm(struct device *dev,
 		return sprintf(buf, "0\n");
 }
 
+<<<<<<< HEAD
 static ssize_t show_fan_fault(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t fan_fault_show(struct device *dev,
+			      struct device_attribute *devattr, char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -513,8 +585,14 @@ static ssize_t show_fan_fault(struct device *dev,
 }
 
 
+<<<<<<< HEAD
 static ssize_t show_pwm_auto_point1_pwm(struct device *dev,
 	struct device_attribute *devattr, char *buf)
+=======
+static ssize_t pwm_auto_point1_pwm_show(struct device *dev,
+					struct device_attribute *devattr,
+					char *buf)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = fschmd_update_device(dev);
@@ -527,8 +605,14 @@ static ssize_t show_pwm_auto_point1_pwm(struct device *dev,
 	return sprintf(buf, "%d\n", val);
 }
 
+<<<<<<< HEAD
 static ssize_t store_pwm_auto_point1_pwm(struct device *dev,
 	struct device_attribute *devattr, const char *buf, size_t count)
+=======
+static ssize_t pwm_auto_point1_pwm_store(struct device *dev,
+					 struct device_attribute *devattr,
+					 const char *buf, size_t count)
+>>>>>>> upstream/android-13
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct fschmd_data *data = dev_get_drvdata(dev);
@@ -605,6 +689,7 @@ static ssize_t alert_led_store(struct device *dev,
 static DEVICE_ATTR_RW(alert_led);
 
 static struct sensor_device_attribute fschmd_attr[] = {
+<<<<<<< HEAD
 	SENSOR_ATTR(in0_input, 0444, show_in_value, NULL, 0),
 	SENSOR_ATTR(in1_input, 0444, show_in_value, NULL, 1),
 	SENSOR_ATTR(in2_input, 0444, show_in_value, NULL, 2),
@@ -703,6 +788,99 @@ static struct sensor_device_attribute fschmd_fan_attr[] = {
 	SENSOR_ATTR(fan7_fault, 0444, show_fan_fault, NULL, 6),
 	SENSOR_ATTR(pwm7_auto_point1_pwm, 0644, show_pwm_auto_point1_pwm,
 		store_pwm_auto_point1_pwm, 6),
+=======
+	SENSOR_ATTR_RO(in0_input, in_value, 0),
+	SENSOR_ATTR_RO(in1_input, in_value, 1),
+	SENSOR_ATTR_RO(in2_input, in_value, 2),
+	SENSOR_ATTR_RO(in3_input, in_value, 3),
+	SENSOR_ATTR_RO(in4_input, in_value, 4),
+	SENSOR_ATTR_RO(in5_input, in_value, 5),
+};
+
+static struct sensor_device_attribute fschmd_temp_attr[] = {
+	SENSOR_ATTR_RO(temp1_input, temp_value, 0),
+	SENSOR_ATTR_RW(temp1_max, temp_max, 0),
+	SENSOR_ATTR_RO(temp1_fault, temp_fault, 0),
+	SENSOR_ATTR_RO(temp1_alarm, temp_alarm, 0),
+	SENSOR_ATTR_RO(temp2_input, temp_value, 1),
+	SENSOR_ATTR_RW(temp2_max, temp_max, 1),
+	SENSOR_ATTR_RO(temp2_fault, temp_fault, 1),
+	SENSOR_ATTR_RO(temp2_alarm, temp_alarm, 1),
+	SENSOR_ATTR_RO(temp3_input, temp_value, 2),
+	SENSOR_ATTR_RW(temp3_max, temp_max, 2),
+	SENSOR_ATTR_RO(temp3_fault, temp_fault, 2),
+	SENSOR_ATTR_RO(temp3_alarm, temp_alarm, 2),
+	SENSOR_ATTR_RO(temp4_input, temp_value, 3),
+	SENSOR_ATTR_RW(temp4_max, temp_max, 3),
+	SENSOR_ATTR_RO(temp4_fault, temp_fault, 3),
+	SENSOR_ATTR_RO(temp4_alarm, temp_alarm, 3),
+	SENSOR_ATTR_RO(temp5_input, temp_value, 4),
+	SENSOR_ATTR_RW(temp5_max, temp_max, 4),
+	SENSOR_ATTR_RO(temp5_fault, temp_fault, 4),
+	SENSOR_ATTR_RO(temp5_alarm, temp_alarm, 4),
+	SENSOR_ATTR_RO(temp6_input, temp_value, 5),
+	SENSOR_ATTR_RW(temp6_max, temp_max, 5),
+	SENSOR_ATTR_RO(temp6_fault, temp_fault, 5),
+	SENSOR_ATTR_RO(temp6_alarm, temp_alarm, 5),
+	SENSOR_ATTR_RO(temp7_input, temp_value, 6),
+	SENSOR_ATTR_RW(temp7_max, temp_max, 6),
+	SENSOR_ATTR_RO(temp7_fault, temp_fault, 6),
+	SENSOR_ATTR_RO(temp7_alarm, temp_alarm, 6),
+	SENSOR_ATTR_RO(temp8_input, temp_value, 7),
+	SENSOR_ATTR_RW(temp8_max, temp_max, 7),
+	SENSOR_ATTR_RO(temp8_fault, temp_fault, 7),
+	SENSOR_ATTR_RO(temp8_alarm, temp_alarm, 7),
+	SENSOR_ATTR_RO(temp9_input, temp_value, 8),
+	SENSOR_ATTR_RW(temp9_max, temp_max, 8),
+	SENSOR_ATTR_RO(temp9_fault, temp_fault, 8),
+	SENSOR_ATTR_RO(temp9_alarm, temp_alarm, 8),
+	SENSOR_ATTR_RO(temp10_input, temp_value, 9),
+	SENSOR_ATTR_RW(temp10_max, temp_max, 9),
+	SENSOR_ATTR_RO(temp10_fault, temp_fault, 9),
+	SENSOR_ATTR_RO(temp10_alarm, temp_alarm, 9),
+	SENSOR_ATTR_RO(temp11_input, temp_value, 10),
+	SENSOR_ATTR_RW(temp11_max, temp_max, 10),
+	SENSOR_ATTR_RO(temp11_fault, temp_fault, 10),
+	SENSOR_ATTR_RO(temp11_alarm, temp_alarm, 10),
+};
+
+static struct sensor_device_attribute fschmd_fan_attr[] = {
+	SENSOR_ATTR_RO(fan1_input, fan_value, 0),
+	SENSOR_ATTR_RW(fan1_div, fan_div, 0),
+	SENSOR_ATTR_RO(fan1_alarm, fan_alarm, 0),
+	SENSOR_ATTR_RO(fan1_fault, fan_fault, 0),
+	SENSOR_ATTR_RW(pwm1_auto_point1_pwm, pwm_auto_point1_pwm, 0),
+	SENSOR_ATTR_RO(fan2_input, fan_value, 1),
+	SENSOR_ATTR_RW(fan2_div, fan_div, 1),
+	SENSOR_ATTR_RO(fan2_alarm, fan_alarm, 1),
+	SENSOR_ATTR_RO(fan2_fault, fan_fault, 1),
+	SENSOR_ATTR_RW(pwm2_auto_point1_pwm, pwm_auto_point1_pwm, 1),
+	SENSOR_ATTR_RO(fan3_input, fan_value, 2),
+	SENSOR_ATTR_RW(fan3_div, fan_div, 2),
+	SENSOR_ATTR_RO(fan3_alarm, fan_alarm, 2),
+	SENSOR_ATTR_RO(fan3_fault, fan_fault, 2),
+	SENSOR_ATTR_RW(pwm3_auto_point1_pwm, pwm_auto_point1_pwm, 2),
+	SENSOR_ATTR_RO(fan4_input, fan_value, 3),
+	SENSOR_ATTR_RW(fan4_div, fan_div, 3),
+	SENSOR_ATTR_RO(fan4_alarm, fan_alarm, 3),
+	SENSOR_ATTR_RO(fan4_fault, fan_fault, 3),
+	SENSOR_ATTR_RW(pwm4_auto_point1_pwm, pwm_auto_point1_pwm, 3),
+	SENSOR_ATTR_RO(fan5_input, fan_value, 4),
+	SENSOR_ATTR_RW(fan5_div, fan_div, 4),
+	SENSOR_ATTR_RO(fan5_alarm, fan_alarm, 4),
+	SENSOR_ATTR_RO(fan5_fault, fan_fault, 4),
+	SENSOR_ATTR_RW(pwm5_auto_point1_pwm, pwm_auto_point1_pwm, 4),
+	SENSOR_ATTR_RO(fan6_input, fan_value, 5),
+	SENSOR_ATTR_RW(fan6_div, fan_div, 5),
+	SENSOR_ATTR_RO(fan6_alarm, fan_alarm, 5),
+	SENSOR_ATTR_RO(fan6_fault, fan_fault, 5),
+	SENSOR_ATTR_RW(pwm6_auto_point1_pwm, pwm_auto_point1_pwm, 5),
+	SENSOR_ATTR_RO(fan7_input, fan_value, 6),
+	SENSOR_ATTR_RW(fan7_div, fan_div, 6),
+	SENSOR_ATTR_RO(fan7_alarm, fan_alarm, 6),
+	SENSOR_ATTR_RO(fan7_fault, fan_fault, 6),
+	SENSOR_ATTR_RW(pwm7_auto_point1_pwm, pwm_auto_point1_pwm, 6),
+>>>>>>> upstream/android-13
 };
 
 
@@ -840,7 +1018,11 @@ static int watchdog_open(struct inode *inode, struct file *filp)
 	watchdog_trigger(data);
 	filp->private_data = data;
 
+<<<<<<< HEAD
 	return nonseekable_open(inode, filp);
+=======
+	return stream_open(inode, filp);
+>>>>>>> upstream/android-13
 }
 
 static int watchdog_release(struct inode *inode, struct file *filp)
@@ -970,6 +1152,10 @@ static const struct file_operations watchdog_fops = {
 	.release = watchdog_release,
 	.write = watchdog_write,
 	.unlocked_ioctl = watchdog_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 };
 
 
@@ -1096,15 +1282,23 @@ static int fschmd_detect(struct i2c_client *client,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int fschmd_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+=======
+static int fschmd_probe(struct i2c_client *client)
+>>>>>>> upstream/android-13
 {
 	struct fschmd_data *data;
 	const char * const names[7] = { "Poseidon", "Hermes", "Scylla",
 				"Heracles", "Heimdall", "Hades", "Syleus" };
 	const int watchdog_minors[] = { WATCHDOG_MINOR, 212, 213, 214, 215 };
 	int i, err;
+<<<<<<< HEAD
 	enum chips kind = id->driver_data;
+=======
+	enum chips kind = i2c_match_id(fschmd_id, client)->driver_data;
+>>>>>>> upstream/android-13
 
 	data = kzalloc(sizeof(struct fschmd_data), GFP_KERNEL);
 	if (!data)
@@ -1169,7 +1363,11 @@ static int fschmd_probe(struct i2c_client *client,
 	for (i = 0; i < (FSCHMD_NO_TEMP_SENSORS[data->kind] * 4); i++) {
 		/* Poseidon doesn't have TEMP_LIMIT registers */
 		if (kind == fscpos && fschmd_temp_attr[i].dev_attr.show ==
+<<<<<<< HEAD
 				show_temp_max)
+=======
+				temp_max_show)
+>>>>>>> upstream/android-13
 			continue;
 
 		if (kind == fscsyl) {

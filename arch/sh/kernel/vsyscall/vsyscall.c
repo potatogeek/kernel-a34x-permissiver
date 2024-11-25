@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * arch/sh/kernel/vsyscall/vsyscall.c
  *
@@ -5,10 +9,13 @@
  *
  * vDSO randomization
  * Copyright(C) 2005-2006, Red Hat, Inc., Ingo Molnar
+<<<<<<< HEAD
  *
  * This file is subject to the terms and conditions of the GNU General Public
  * License.  See the file "COPYING" in the main directory of this archive
  * for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/mm.h>
 #include <linux/kernel.h>
@@ -64,7 +71,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	unsigned long addr;
 	int ret;
 
+<<<<<<< HEAD
 	if (down_write_killable(&mm->mmap_sem))
+=======
+	if (mmap_write_lock_killable(mm))
+>>>>>>> upstream/android-13
 		return -EINTR;
 
 	addr = get_unmapped_area(NULL, 0, PAGE_SIZE, 0, 0);
@@ -83,7 +94,11 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
 	current->mm->context.vdso = (void *)addr;
 
 up_fail:
+<<<<<<< HEAD
 	up_write(&mm->mmap_sem);
+=======
+	mmap_write_unlock(mm);
+>>>>>>> upstream/android-13
 	return ret;
 }
 

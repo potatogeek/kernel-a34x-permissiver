@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* 
  *  Copyright 10/16/2005 Tilman Kranz <tilde@tk-sls.de>
  *  Creative Audio MIDI, for the CA0106 Driver
@@ -8,6 +12,7 @@
  *    tested with ca0106.
  *    mpu401: Copyright (c) by Jaroslav Kysela <perex@perex.cz>
  *    emu10k1x: Copyright (c) by Francisco Moraes <fmoraes@nc.rr.com>
+<<<<<<< HEAD
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,6 +29,8 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/spinlock.h>
@@ -291,7 +298,12 @@ int ca_midi_init(void *dev_id, struct snd_ca_midi *midi, int device, char *name)
 	struct snd_rawmidi *rmidi;
 	int err;
 
+<<<<<<< HEAD
 	if ((err = snd_rawmidi_new(midi->get_dev_id_card(midi->dev_id), name, device, 1, 1, &rmidi)) < 0)
+=======
+	err = snd_rawmidi_new(midi->get_dev_id_card(midi->dev_id), name, device, 1, 1, &rmidi);
+	if (err < 0)
+>>>>>>> upstream/android-13
 		return err;
 
 	midi->dev_id = dev_id;

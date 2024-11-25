@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* QLogic qede NIC Driver
  * Copyright (c) 2015-2017  QLogic Corporation
  *
@@ -29,6 +30,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+=======
+/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
+/* QLogic qede NIC Driver
+ * Copyright (c) 2015-2017  QLogic Corporation
+ * Copyright (c) 2019-2020 Marvell International Ltd.
+ */
+
+>>>>>>> upstream/android-13
 #ifndef _QEDE_H_
 #define _QEDE_H_
 #include <linux/compiler.h>
@@ -55,6 +64,7 @@
 #include <net/pkt_cls.h>
 #include <net/tc_act/tc_gact.h>
 
+<<<<<<< HEAD
 #define QEDE_MAJOR_VERSION		8
 #define QEDE_MINOR_VERSION		33
 #define QEDE_REVISION_VERSION		0
@@ -64,6 +74,8 @@
 		__stringify(QEDE_REVISION_VERSION) "."		\
 		__stringify(QEDE_ENGINEERING_VERSION)
 
+=======
+>>>>>>> upstream/android-13
 #define DRV_MODULE_SYM		qede
 
 struct qede_stats_common {
@@ -92,6 +104,10 @@ struct qede_stats_common {
 	u64 non_coalesced_pkts;
 	u64 coalesced_bytes;
 	u64 link_change_count;
+<<<<<<< HEAD
+=======
+	u64 ptp_skip_txts;
+>>>>>>> upstream/android-13
 
 	/* port */
 	u64 rx_64_byte_packets;
@@ -164,20 +180,59 @@ struct qede_rdma_dev {
 	struct workqueue_struct *rdma_wq;
 	struct kref refcnt;
 	struct completion event_comp;
+<<<<<<< HEAD
+=======
+	bool exp_recovery;
+>>>>>>> upstream/android-13
 };
 
 struct qede_ptp;
 
 #define QEDE_RFS_MAX_FLTR	256
 
+<<<<<<< HEAD
+=======
+enum qede_flags_bit {
+	QEDE_FLAGS_IS_VF = 0,
+	QEDE_FLAGS_LINK_REQUESTED,
+	QEDE_FLAGS_PTP_TX_IN_PRORGESS,
+	QEDE_FLAGS_TX_TIMESTAMPING_EN
+};
+
+#define QEDE_DUMP_MAX_ARGS 4
+enum qede_dump_cmd {
+	QEDE_DUMP_CMD_NONE = 0,
+	QEDE_DUMP_CMD_NVM_CFG,
+	QEDE_DUMP_CMD_GRCDUMP,
+	QEDE_DUMP_CMD_MAX
+};
+
+struct qede_dump_info {
+	enum qede_dump_cmd cmd;
+	u8 num_args;
+	u32 args[QEDE_DUMP_MAX_ARGS];
+};
+
+struct qede_coalesce {
+	bool isvalid;
+	u16 rxc;
+	u16 txc;
+};
+
+>>>>>>> upstream/android-13
 struct qede_dev {
 	struct qed_dev			*cdev;
 	struct net_device		*ndev;
 	struct pci_dev			*pdev;
+<<<<<<< HEAD
+=======
+	struct devlink			*devlink;
+>>>>>>> upstream/android-13
 
 	u32				dp_module;
 	u8				dp_level;
 
+<<<<<<< HEAD
 	unsigned long flags;
 #define QEDE_FLAG_IS_VF			BIT(0)
 #define IS_VF(edev)	(!!((edev)->flags & QEDE_FLAG_IS_VF))
@@ -190,18 +245,36 @@ struct qede_dev {
 	struct qed_dev_eth_info dev_info;
 #define QEDE_MAX_RSS_CNT(edev)	((edev)->dev_info.num_queues)
 #define QEDE_MAX_TSS_CNT(edev)	((edev)->dev_info.num_queues)
+=======
+	unsigned long			flags;
+#define IS_VF(edev)			test_bit(QEDE_FLAGS_IS_VF, \
+						 &(edev)->flags)
+
+	const struct qed_eth_ops	*ops;
+	struct qede_ptp			*ptp;
+	u64				ptp_skip_txts;
+
+	struct qed_dev_eth_info		dev_info;
+#define QEDE_MAX_RSS_CNT(edev)		((edev)->dev_info.num_queues)
+#define QEDE_MAX_TSS_CNT(edev)		((edev)->dev_info.num_queues)
+>>>>>>> upstream/android-13
 #define QEDE_IS_BB(edev) \
 	((edev)->dev_info.common.dev_type == QED_DEV_TYPE_BB)
 #define QEDE_IS_AH(edev) \
 	((edev)->dev_info.common.dev_type == QED_DEV_TYPE_AH)
 
 	struct qede_fastpath		*fp_array;
+<<<<<<< HEAD
+=======
+	struct qede_coalesce            *coal_entry;
+>>>>>>> upstream/android-13
 	u8				req_num_tx;
 	u8				fp_num_tx;
 	u8				req_num_rx;
 	u8				fp_num_rx;
 	u16				req_queues;
 	u16				num_queues;
+<<<<<<< HEAD
 #define QEDE_QUEUE_CNT(edev)	((edev)->num_queues)
 #define QEDE_RSS_COUNT(edev)	((edev)->num_queues - (edev)->fp_num_tx)
 #define QEDE_RX_QUEUE_IDX(edev, i)	(i)
@@ -210,6 +283,18 @@ struct qede_dev {
 	struct qed_int_info		int_info;
 
 	/* Smaller private varaiant of the RTNL lock */
+=======
+	u16				total_xdp_queues;
+
+#define QEDE_QUEUE_CNT(edev)		((edev)->num_queues)
+#define QEDE_RSS_COUNT(edev)		((edev)->num_queues - (edev)->fp_num_tx)
+#define QEDE_RX_QUEUE_IDX(edev, i)	(i)
+#define QEDE_TSS_COUNT(edev)		((edev)->num_queues - (edev)->fp_num_rx)
+
+	struct qed_int_info		int_info;
+
+	/* Smaller private variant of the RTNL lock */
+>>>>>>> upstream/android-13
 	struct mutex			qede_lock;
 	u32				state; /* Protected by qede_lock */
 	u16				rx_buf_size;
@@ -230,6 +315,7 @@ struct qede_dev {
 	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
 
 	struct qede_stats		stats;
+<<<<<<< HEAD
 #define QEDE_RSS_INDIR_INITED	BIT(0)
 #define QEDE_RSS_KEY_INITED	BIT(1)
 #define QEDE_RSS_CAPS_INITED	BIT(2)
@@ -246,6 +332,30 @@ struct qede_dev {
 	u16 configured_vlans;
 	u16 non_configured_vlans;
 	bool accept_any_vlan;
+=======
+
+	/* Bitfield to track initialized RSS params */
+	u32				rss_params_inited;
+#define QEDE_RSS_INDIR_INITED		BIT(0)
+#define QEDE_RSS_KEY_INITED		BIT(1)
+#define QEDE_RSS_CAPS_INITED		BIT(2)
+
+	u16				rss_ind_table[128];
+	u32				rss_key[10];
+	u8				rss_caps;
+
+	/* Both must be a power of two */
+	u16				q_num_rx_buffers;
+	u16				q_num_tx_buffers;
+
+	bool				gro_disable;
+
+	struct list_head		vlan_list;
+	u16				configured_vlans;
+	u16				non_configured_vlans;
+	bool				accept_any_vlan;
+
+>>>>>>> upstream/android-13
 	struct delayed_work		sp_task;
 	unsigned long			sp_flags;
 	u16				vxlan_dst_port;
@@ -256,12 +366,30 @@ struct qede_dev {
 
 	struct qede_rdma_dev		rdma_info;
 
+<<<<<<< HEAD
 	struct bpf_prog *xdp_prog;
+=======
+	struct bpf_prog			*xdp_prog;
+
+	enum qed_hw_err_type		last_err_type;
+	unsigned long			err_flags;
+#define QEDE_ERR_IS_HANDLED		31
+#define QEDE_ERR_ATTN_CLR_EN		0
+#define QEDE_ERR_GET_DBG_INFO		1
+#define QEDE_ERR_IS_RECOVERABLE		2
+#define QEDE_ERR_WARN			3
+
+	struct qede_dump_info		dump_info;
+>>>>>>> upstream/android-13
 };
 
 enum QEDE_STATE {
 	QEDE_STATE_CLOSED,
 	QEDE_STATE_OPEN,
+<<<<<<< HEAD
+=======
+	QEDE_STATE_RECOVERY,
+>>>>>>> upstream/android-13
 };
 
 #define HILO_U64(hi, lo)		((((u64)(hi)) << 32) + (lo))
@@ -366,6 +494,7 @@ struct sw_tx_bd {
 };
 
 struct sw_tx_xdp {
+<<<<<<< HEAD
 	struct page *page;
 	dma_addr_t mapping;
 };
@@ -388,6 +517,36 @@ struct qede_tx_queue {
 	void __iomem *doorbell_addr;
 	union db_prod tx_db;
 	int index; /* Slowpath only */
+=======
+	struct page			*page;
+	struct xdp_frame		*xdpf;
+	dma_addr_t			mapping;
+};
+
+struct qede_tx_queue {
+	u8				is_xdp;
+	bool				is_legacy;
+	u16				sw_tx_cons;
+	u16				sw_tx_prod;
+	u16				num_tx_buffers; /* Slowpath only */
+
+	u64				xmit_pkts;
+	u64				stopped_cnt;
+	u64				tx_mem_alloc_err;
+
+	__le16				*hw_cons_ptr;
+
+	/* Needed for the mapping of packets */
+	struct device			*dev;
+
+	void __iomem			*doorbell_addr;
+	union db_prod			tx_db;
+
+	/* Spinlock for XDP queues in case of XDP_REDIRECT */
+	spinlock_t			xdp_tx_lock;
+
+	int				index; /* Slowpath only */
+>>>>>>> upstream/android-13
 #define QEDE_TXQ_XDP_TO_IDX(edev, txq)	((txq)->index - \
 					 QEDE_MAX_TSS_CNT(edev))
 #define QEDE_TXQ_IDX_TO_XDP(edev, idx)	((idx) + QEDE_MAX_TSS_CNT(edev))
@@ -399,12 +558,17 @@ struct qede_tx_queue {
 #define QEDE_NDEV_TXQ_ID_TO_TXQ(edev, idx)	\
 	(&((edev)->fp_array[QEDE_NDEV_TXQ_ID_TO_FP_ID(edev, idx)].txq \
 	[QEDE_NDEV_TXQ_ID_TO_TXQ_COS(edev, idx)]))
+<<<<<<< HEAD
 #define QEDE_FP_TC0_TXQ(fp)	(&((fp)->txq[0]))
+=======
+#define QEDE_FP_TC0_TXQ(fp)		(&((fp)->txq[0]))
+>>>>>>> upstream/android-13
 
 	/* Regular Tx requires skb + metadata for release purpose,
 	 * while XDP requires the pages and the mapped address.
 	 */
 	union {
+<<<<<<< HEAD
 		struct sw_tx_bd *skbs;
 		struct sw_tx_xdp *xdp;
 	} sw_tx_ring;
@@ -415,6 +579,18 @@ struct qede_tx_queue {
 	void *handle;
 	u16 cos;
 	u16 ndev_txq_id;
+=======
+		struct sw_tx_bd		*skbs;
+		struct sw_tx_xdp	*xdp;
+	}				sw_tx_ring;
+
+	struct qed_chain		tx_pbl;
+
+	/* Slowpath; Should be kept in end [unless missing padding] */
+	void				*handle;
+	u16				cos;
+	u16				ndev_txq_id;
+>>>>>>> upstream/android-13
 };
 
 #define BD_UNMAP_ADDR(bd)		HILO_U64(le32_to_cpu((bd)->addr.hi), \
@@ -428,6 +604,7 @@ struct qede_tx_queue {
 #define BD_UNMAP_LEN(bd)		(le16_to_cpu((bd)->nbytes))
 
 struct qede_fastpath {
+<<<<<<< HEAD
 	struct qede_dev	*edev;
 #define QEDE_FASTPATH_TX	BIT(0)
 #define QEDE_FASTPATH_RX	BIT(1)
@@ -454,17 +631,64 @@ struct qede_fastpath {
 #define XMIT_LSO		BIT(1)
 #define XMIT_ENC		BIT(2)
 #define XMIT_ENC_GSO_L4_CSUM	BIT(3)
+=======
+	struct qede_dev			*edev;
+
+	u8				type;
+#define QEDE_FASTPATH_TX		BIT(0)
+#define QEDE_FASTPATH_RX		BIT(1)
+#define QEDE_FASTPATH_XDP		BIT(2)
+#define QEDE_FASTPATH_COMBINED		(QEDE_FASTPATH_TX | QEDE_FASTPATH_RX)
+
+	u8				id;
+
+	u8				xdp_xmit;
+#define QEDE_XDP_TX			BIT(0)
+#define QEDE_XDP_REDIRECT		BIT(1)
+
+	struct napi_struct		napi;
+	struct qed_sb_info		*sb_info;
+	struct qede_rx_queue		*rxq;
+	struct qede_tx_queue		*txq;
+	struct qede_tx_queue		*xdp_tx;
+
+	char				name[IFNAMSIZ + 8];
+};
+
+/* Debug print definitions */
+#define DP_NAME(edev)			netdev_name((edev)->ndev)
+
+#define XMIT_PLAIN			0
+#define XMIT_L4_CSUM			BIT(0)
+#define XMIT_LSO			BIT(1)
+#define XMIT_ENC			BIT(2)
+#define XMIT_ENC_GSO_L4_CSUM		BIT(3)
+>>>>>>> upstream/android-13
 
 #define QEDE_CSUM_ERROR			BIT(0)
 #define QEDE_CSUM_UNNECESSARY		BIT(1)
 #define QEDE_TUNN_CSUM_UNNECESSARY	BIT(2)
 
+<<<<<<< HEAD
 #define QEDE_SP_RX_MODE			1
+=======
+#define QEDE_SP_RECOVERY		0
+#define QEDE_SP_RX_MODE			1
+#define QEDE_SP_RSVD1                   2
+#define QEDE_SP_RSVD2                   3
+#define QEDE_SP_HW_ERR                  4
+#define QEDE_SP_ARFS_CONFIG             5
+#define QEDE_SP_AER			7
+#define QEDE_SP_DISABLE			8
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_RFS_ACCEL
 int qede_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
 		       u16 rxq_index, u32 flow_id);
+<<<<<<< HEAD
 #define QEDE_SP_ARFS_CONFIG	4
+=======
+>>>>>>> upstream/android-13
 #define QEDE_SP_TASK_POLL_DELAY	(5 * HZ)
 #endif
 
@@ -491,6 +715,7 @@ struct qede_reload_args {
 
 /* Datapath functions definition */
 netdev_tx_t qede_start_xmit(struct sk_buff *skb, struct net_device *ndev);
+<<<<<<< HEAD
 u16 qede_select_queue(struct net_device *dev, struct sk_buff *skb,
 		      struct net_device *sb_dev,
 		      select_queue_fallback_t fallback);
@@ -498,6 +723,15 @@ netdev_features_t qede_features_check(struct sk_buff *skb,
 				      struct net_device *dev,
 				      netdev_features_t features);
 void qede_tx_log_print(struct qede_dev *edev, struct qede_fastpath *fp);
+=======
+int qede_xdp_transmit(struct net_device *dev, int n_frames,
+		      struct xdp_frame **frames, u32 flags);
+u16 qede_select_queue(struct net_device *dev, struct sk_buff *skb,
+		      struct net_device *sb_dev);
+netdev_features_t qede_features_check(struct sk_buff *skb,
+				      struct net_device *dev,
+				      netdev_features_t features);
+>>>>>>> upstream/android-13
 int qede_alloc_rx_buffer(struct qede_rx_queue *rxq, bool allow_lazy);
 int qede_free_tx_pkt(struct qede_dev *edev,
 		     struct qede_tx_queue *txq, int *len);
@@ -533,6 +767,10 @@ void qede_set_dcbnl_ops(struct net_device *ndev);
 
 void qede_config_debug(uint debug, u32 *p_dp_module, u8 *p_dp_level);
 void qede_set_ethtool_ops(struct net_device *netdev);
+<<<<<<< HEAD
+=======
+void qede_set_udp_tunnels(struct qede_dev *edev);
+>>>>>>> upstream/android-13
 void qede_reload(struct qede_dev *edev,
 		 struct qede_reload_args *args, bool is_locked);
 int qede_change_mtu(struct net_device *dev, int new_mtu);
@@ -544,7 +782,18 @@ int qede_txq_has_work(struct qede_tx_queue *txq);
 void qede_recycle_rx_bd_ring(struct qede_rx_queue *rxq, u8 count);
 void qede_update_rx_prod(struct qede_dev *edev, struct qede_rx_queue *rxq);
 int qede_add_tc_flower_fltr(struct qede_dev *edev, __be16 proto,
+<<<<<<< HEAD
 			    struct tc_cls_flower_offload *f);
+=======
+			    struct flow_cls_offload *f);
+
+void qede_forced_speed_maps_init(void);
+int qede_set_coalesce(struct net_device *dev, struct ethtool_coalesce *coal,
+		      struct kernel_ethtool_coalesce *kernel_coal,
+		      struct netlink_ext_ack *extack);
+int qede_set_per_coalesce(struct net_device *dev, u32 queue,
+			  struct ethtool_coalesce *coal);
+>>>>>>> upstream/android-13
 
 #define RX_RING_SIZE_POW	13
 #define RX_RING_SIZE		((u16)BIT(RX_RING_SIZE_POW))

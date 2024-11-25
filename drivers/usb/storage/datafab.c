@@ -54,6 +54,10 @@
 MODULE_DESCRIPTION("Driver for Datafab USB Compact Flash reader");
 MODULE_AUTHOR("Jimmie Mayfield <mayfield+datafab@sackheads.org>");
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(USB_STORAGE);
+>>>>>>> upstream/android-13
 
 struct datafab_info {
 	unsigned long   sectors;	/* total sector count */
@@ -293,7 +297,10 @@ static int datafab_write_data(struct us_data *us,
 		if (reply[0] != 0x50 && reply[1] != 0) {
 			usb_stor_dbg(us, "Gah! write return code: %02x %02x\n",
 				     reply[0], reply[1]);
+<<<<<<< HEAD
 			result = USB_STOR_TRANSPORT_ERROR;
+=======
+>>>>>>> upstream/android-13
 			goto leave;
 		}
 

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
 
   Broadcom B43 wireless driver
@@ -6,6 +10,7 @@
 
   Copyright (c) 2005-2008 Michael Buesch <m@bues.ch>
 
+<<<<<<< HEAD
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +25,8 @@
   along with this program; see the file COPYING.  If not, write to
   the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
   Boston, MA 02110-1301, USA.
+=======
+>>>>>>> upstream/android-13
 
 */
 
@@ -307,7 +314,11 @@ static struct b43_pio_txqueue *select_queue_by_priority(struct b43_wldev *dev,
 		switch (queue_prio) {
 		default:
 			B43_WARN_ON(1);
+<<<<<<< HEAD
 			/* fallthrough */
+=======
+			fallthrough;
+>>>>>>> upstream/android-13
 		case 0:
 			q = dev->pio.tx_queue_AC_VO;
 			break;
@@ -778,7 +789,11 @@ void b43_pio_rx(struct b43_pio_rxqueue *q)
 	bool stop;
 
 	while (1) {
+<<<<<<< HEAD
 		stop = (pio_rx_frame(q) == 0);
+=======
+		stop = !pio_rx_frame(q);
+>>>>>>> upstream/android-13
 		if (stop)
 			break;
 		cond_resched();

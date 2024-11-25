@@ -18,16 +18,25 @@
 
 #include <linux/io.h>
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <linux/gpio.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/of_gpio.h>
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
 #include <linux/platform_data/i2c-cbus-gpio.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/interrupt.h>
+#include <linux/platform_device.h>
+>>>>>>> upstream/android-13
 
 /*
  * Bit counts are derived from Nokia implementation. These should be checked
@@ -39,9 +48,15 @@
 struct cbus_host {
 	spinlock_t	lock;		/* host lock */
 	struct device	*dev;
+<<<<<<< HEAD
 	int		clk_gpio;
 	int		dat_gpio;
 	int		sel_gpio;
+=======
+	struct gpio_desc *clk;
+	struct gpio_desc *dat;
+	struct gpio_desc *sel;
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -51,9 +66,15 @@ struct cbus_host {
  */
 static void cbus_send_bit(struct cbus_host *host, unsigned bit)
 {
+<<<<<<< HEAD
 	gpio_set_value(host->dat_gpio, bit ? 1 : 0);
 	gpio_set_value(host->clk_gpio, 1);
 	gpio_set_value(host->clk_gpio, 0);
+=======
+	gpiod_set_value(host->dat, bit ? 1 : 0);
+	gpiod_set_value(host->clk, 1);
+	gpiod_set_value(host->clk, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -78,9 +99,15 @@ static int cbus_receive_bit(struct cbus_host *host)
 {
 	int ret;
 
+<<<<<<< HEAD
 	gpio_set_value(host->clk_gpio, 1);
 	ret = gpio_get_value(host->dat_gpio);
 	gpio_set_value(host->clk_gpio, 0);
+=======
+	gpiod_set_value(host->clk, 1);
+	ret = gpiod_get_value(host->dat);
+	gpiod_set_value(host->clk, 0);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -123,10 +150,17 @@ static int cbus_transfer(struct cbus_host *host, char rw, unsigned dev,
 	spin_lock_irqsave(&host->lock, flags);
 
 	/* Reset state and start of transfer, SEL stays down during transfer */
+<<<<<<< HEAD
 	gpio_set_value(host->sel_gpio, 0);
 
 	/* Set the DAT pin to output */
 	gpio_direction_output(host->dat_gpio, 1);
+=======
+	gpiod_set_value(host->sel, 0);
+
+	/* Set the DAT pin to output */
+	gpiod_direction_output(host->dat, 1);
+>>>>>>> upstream/android-13
 
 	/* Send the device address */
 	cbus_send_data(host, dev, CBUS_ADDR_BITS);
@@ -141,12 +175,20 @@ static int cbus_transfer(struct cbus_host *host, char rw, unsigned dev,
 		cbus_send_data(host, data, 16);
 		ret = 0;
 	} else {
+<<<<<<< HEAD
 		ret = gpio_direction_input(host->dat_gpio);
+=======
+		ret = gpiod_direction_input(host->dat);
+>>>>>>> upstream/android-13
 		if (ret) {
 			dev_dbg(host->dev, "failed setting direction\n");
 			goto out;
 		}
+<<<<<<< HEAD
 		gpio_set_value(host->clk_gpio, 1);
+=======
+		gpiod_set_value(host->clk, 1);
+>>>>>>> upstream/android-13
 
 		ret = cbus_receive_word(host);
 		if (ret < 0) {
@@ -156,9 +198,15 @@ static int cbus_transfer(struct cbus_host *host, char rw, unsigned dev,
 	}
 
 	/* Indicate end of transfer, SEL goes up until next transfer */
+<<<<<<< HEAD
 	gpio_set_value(host->sel_gpio, 1);
 	gpio_set_value(host->clk_gpio, 1);
 	gpio_set_value(host->clk_gpio, 0);
+=======
+	gpiod_set_value(host->sel, 1);
+	gpiod_set_value(host->clk, 1);
+	gpiod_set_value(host->clk, 0);
+>>>>>>> upstream/android-13
 
 out:
 	spin_unlock_irqrestore(&host->lock, flags);
@@ -197,8 +245,14 @@ static u32 cbus_i2c_func(struct i2c_adapter *adapter)
 }
 
 static const struct i2c_algorithm cbus_i2c_algo = {
+<<<<<<< HEAD
 	.smbus_xfer	= cbus_i2c_smbus_xfer,
 	.functionality	= cbus_i2c_func,
+=======
+	.smbus_xfer		= cbus_i2c_smbus_xfer,
+	.smbus_xfer_atomic	= cbus_i2c_smbus_xfer,
+	.functionality		= cbus_i2c_func,
+>>>>>>> upstream/android-13
 };
 
 static int cbus_i2c_remove(struct platform_device *pdev)
@@ -214,7 +268,10 @@ static int cbus_i2c_probe(struct platform_device *pdev)
 {
 	struct i2c_adapter *adapter;
 	struct cbus_host *chost;
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> upstream/android-13
 
 	adapter = devm_kzalloc(&pdev->dev, sizeof(struct i2c_adapter),
 			       GFP_KERNEL);
@@ -225,6 +282,7 @@ static int cbus_i2c_probe(struct platform_device *pdev)
 	if (!chost)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (pdev->dev.of_node) {
 		struct device_node *dnode = pdev->dev.of_node;
 		if (of_gpio_count(dnode) != 3)
@@ -241,6 +299,22 @@ static int cbus_i2c_probe(struct platform_device *pdev)
 	} else {
 		return -ENODEV;
 	}
+=======
+	if (gpiod_count(&pdev->dev, NULL) != 3)
+		return -ENODEV;
+	chost->clk = devm_gpiod_get_index(&pdev->dev, NULL, 0, GPIOD_OUT_LOW);
+	if (IS_ERR(chost->clk))
+		return PTR_ERR(chost->clk);
+	chost->dat = devm_gpiod_get_index(&pdev->dev, NULL, 1, GPIOD_IN);
+	if (IS_ERR(chost->dat))
+		return PTR_ERR(chost->dat);
+	chost->sel = devm_gpiod_get_index(&pdev->dev, NULL, 2, GPIOD_OUT_HIGH);
+	if (IS_ERR(chost->sel))
+		return PTR_ERR(chost->sel);
+	gpiod_set_consumer_name(chost->clk, "CBUS clk");
+	gpiod_set_consumer_name(chost->dat, "CBUS dat");
+	gpiod_set_consumer_name(chost->sel, "CBUS sel");
+>>>>>>> upstream/android-13
 
 	adapter->owner		= THIS_MODULE;
 	adapter->class		= I2C_CLASS_HWMON;
@@ -254,6 +328,7 @@ static int cbus_i2c_probe(struct platform_device *pdev)
 	spin_lock_init(&chost->lock);
 	chost->dev = &pdev->dev;
 
+<<<<<<< HEAD
 	ret = devm_gpio_request_one(&pdev->dev, chost->clk_gpio,
 				    GPIOF_OUT_INIT_LOW, "CBUS clk");
 	if (ret)
@@ -269,6 +344,8 @@ static int cbus_i2c_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
+=======
+>>>>>>> upstream/android-13
 	i2c_set_adapdata(adapter, chost);
 	platform_set_drvdata(pdev, adapter);
 

@@ -9,6 +9,7 @@
  * MAX_PHYSMEM_BITS		2^N: how much memory we can have in that space
  */
 #define SECTION_SIZE_BITS       24
+<<<<<<< HEAD
 /*
  * If we store section details in page->flags we can't increase the MAX_PHYSMEM_BITS
  * if we increase SECTIONS_WIDTH we will not store node details in page->flags and
@@ -20,10 +21,13 @@
 #else
 #define MAX_PHYSMEM_BITS        46
 #endif
+=======
+>>>>>>> upstream/android-13
 
 #endif /* CONFIG_SPARSEMEM */
 
 #ifdef CONFIG_MEMORY_HOTPLUG
+<<<<<<< HEAD
 extern int create_section_mapping(unsigned long start, unsigned long end, int nid);
 extern int remove_section_mapping(unsigned long start, unsigned long end);
 
@@ -32,6 +36,11 @@ extern void resize_hpt_for_hotplug(unsigned long new_mem_size);
 #else
 static inline void resize_hpt_for_hotplug(unsigned long new_mem_size) { }
 #endif
+=======
+extern int remove_section_mapping(unsigned long start, unsigned long end);
+extern int memory_add_physaddr_to_nid(u64 start);
+#define memory_add_physaddr_to_nid memory_add_physaddr_to_nid
+>>>>>>> upstream/android-13
 
 #ifdef CONFIG_NUMA
 extern int hot_add_scn_to_nid(unsigned long scn_addr);
@@ -42,6 +51,9 @@ static inline int hot_add_scn_to_nid(unsigned long scn_addr)
 }
 #endif /* CONFIG_NUMA */
 #endif /* CONFIG_MEMORY_HOTPLUG */
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __KERNEL__ */
 #endif /* _ASM_POWERPC_SPARSEMEM_H */

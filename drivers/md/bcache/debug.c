@@ -25,8 +25,13 @@ struct dentry *bcache_debug;
 	for (i = (start);						\
 	     (void *) i < (void *) (start) + (KEY_SIZE(&b->key) << 9) &&\
 	     i->seq == (start)->seq;					\
+<<<<<<< HEAD
 	     i = (void *) i + set_blocks(i, block_bytes(b->c)) *	\
 		 block_bytes(b->c))
+=======
+	     i = (void *) i + set_blocks(i, block_bytes(b->c->cache)) *	\
+		 block_bytes(b->c->cache))
+>>>>>>> upstream/android-13
 
 void bch_btree_verify(struct btree *b)
 {
@@ -50,7 +55,11 @@ void bch_btree_verify(struct btree *b)
 	v->keys.ops = b->keys.ops;
 
 	bio = bch_bbio_alloc(b->c);
+<<<<<<< HEAD
 	bio_set_dev(bio, PTR_CACHE(b->c, &b->key, 0)->bdev);
+=======
+	bio_set_dev(bio, b->c->cache->bdev);
+>>>>>>> upstream/android-13
 	bio->bi_iter.bi_sector	= PTR_OFFSET(&b->key, 0);
 	bio->bi_iter.bi_size	= KEY_SIZE(&v->key) << 9;
 	bio->bi_opf		= REQ_OP_READ | REQ_META;
@@ -82,14 +91,22 @@ void bch_btree_verify(struct btree *b)
 
 		for_each_written_bset(b, ondisk, i) {
 			unsigned int block = ((void *) i - (void *) ondisk) /
+<<<<<<< HEAD
 				block_bytes(b->c);
+=======
+				block_bytes(b->c->cache);
+>>>>>>> upstream/android-13
 
 			pr_err("*** on disk block %u:\n", block);
 			bch_dump_bset(&b->keys, i, block);
 		}
 
 		pr_err("*** block %zu not written\n",
+<<<<<<< HEAD
 		       ((void *) i - (void *) ondisk) / block_bytes(b->c));
+=======
+		       ((void *) i - (void *) ondisk) / block_bytes(b->c->cache));
+>>>>>>> upstream/android-13
 
 		for (j = 0; j < inmemory->keys; j++)
 			if (inmemory->d[j] != sorted->d[j])
@@ -114,7 +131,11 @@ void bch_data_verify(struct cached_dev *dc, struct bio *bio)
 	check = bio_kmalloc(GFP_NOIO, bio_segments(bio));
 	if (!check)
 		return;
+<<<<<<< HEAD
 	check->bi_disk = bio->bi_disk;
+=======
+	bio_set_dev(check, bio->bi_bdev);
+>>>>>>> upstream/android-13
 	check->bi_opf = REQ_OP_READ;
 	check->bi_iter.bi_sector = bio->bi_iter.bi_sector;
 	check->bi_iter.bi_size = bio->bi_iter.bi_size;
@@ -238,7 +259,11 @@ void bch_debug_init_cache_set(struct cache_set *c)
 	if (!IS_ERR_OR_NULL(bcache_debug)) {
 		char name[50];
 
+<<<<<<< HEAD
 		snprintf(name, 50, "bcache-%pU", c->sb.set_uuid);
+=======
+		snprintf(name, 50, "bcache-%pU", c->set_uuid);
+>>>>>>> upstream/android-13
 		c->debug = debugfs_create_file(name, 0400, bcache_debug, c,
 					       &cache_set_debug_ops);
 	}
@@ -251,7 +276,11 @@ void bch_debug_exit(void)
 	debugfs_remove_recursive(bcache_debug);
 }
 
+<<<<<<< HEAD
 void __init bch_debug_init(struct kobject *kobj)
+=======
+void __init bch_debug_init(void)
+>>>>>>> upstream/android-13
 {
 	/*
 	 * it is unnecessary to check return value of

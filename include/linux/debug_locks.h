@@ -2,6 +2,7 @@
 #ifndef __LINUX_DEBUG_LOCKING_H
 #define __LINUX_DEBUG_LOCKING_H
 
+<<<<<<< HEAD
 #include <linux/kernel.h>
 #include <linux/atomic.h>
 #include <linux/bug.h>
@@ -13,6 +14,18 @@ extern int debug_locks_silent;
 
 
 static inline int __debug_locks_off(void)
+=======
+#include <linux/atomic.h>
+#include <linux/cache.h>
+
+struct task_struct;
+
+extern int debug_locks __read_mostly;
+extern int debug_locks_silent __read_mostly;
+
+
+static __always_inline int __debug_locks_off(void)
+>>>>>>> upstream/android-13
 {
 	return xchg(&debug_locks, 0);
 }
@@ -27,8 +40,15 @@ extern int debug_locks_off(void);
 	int __ret = 0;							\
 									\
 	if (!oops_in_progress && unlikely(c)) {				\
+<<<<<<< HEAD
 		if (debug_locks_off() && !debug_locks_silent)		\
 			WARN(1, "DEBUG_LOCKS_WARN_ON(%s)", #c);		\
+=======
+		instrumentation_begin();				\
+		if (debug_locks_off() && !debug_locks_silent)		\
+			WARN(1, "DEBUG_LOCKS_WARN_ON(%s)", #c);		\
+		instrumentation_end();					\
+>>>>>>> upstream/android-13
 		__ret = 1;						\
 	}								\
 	__ret;								\

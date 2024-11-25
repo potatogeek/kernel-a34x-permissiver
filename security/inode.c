@@ -1,20 +1,34 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  inode.c - securityfs
  *
  *  Copyright (C) 2005 Greg Kroah-Hartman <gregkh@suse.de>
  *
+<<<<<<< HEAD
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License version
  *	2 as published by the Free Software Foundation.
  *
+=======
+>>>>>>> upstream/android-13
  *  Based on fs/debugfs/inode.c which had the following copyright notice:
  *    Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
  *    Copyright (C) 2004 IBM Inc.
  */
 
 /* #define DEBUG */
+<<<<<<< HEAD
 #include <linux/module.h>
 #include <linux/fs.h>
+=======
+#include <linux/sysfs.h>
+#include <linux/kobject.h>
+#include <linux/fs.h>
+#include <linux/fs_context.h>
+>>>>>>> upstream/android-13
 #include <linux/mount.h>
 #include <linux/pagemap.h>
 #include <linux/init.h>
@@ -26,14 +40,20 @@
 static struct vfsmount *mount;
 static int mount_count;
 
+<<<<<<< HEAD
 static void securityfs_i_callback(struct rcu_head *head)
 {
 	struct inode *inode = container_of(head, struct inode, i_rcu);
+=======
+static void securityfs_free_inode(struct inode *inode)
+{
+>>>>>>> upstream/android-13
 	if (S_ISLNK(inode->i_mode))
 		kfree(inode->i_link);
 	free_inode_nonrcu(inode);
 }
 
+<<<<<<< HEAD
 static void securityfs_destroy_inode(struct inode *inode)
 {
 	call_rcu(&inode->i_rcu, securityfs_i_callback);
@@ -45,6 +65,14 @@ static const struct super_operations securityfs_super_operations = {
 };
 
 static int fill_super(struct super_block *sb, void *data, int silent)
+=======
+static const struct super_operations securityfs_super_operations = {
+	.statfs		= simple_statfs,
+	.free_inode	= securityfs_free_inode,
+};
+
+static int securityfs_fill_super(struct super_block *sb, struct fs_context *fc)
+>>>>>>> upstream/android-13
 {
 	static const struct tree_descr files[] = {{""}};
 	int error;
@@ -58,17 +86,37 @@ static int fill_super(struct super_block *sb, void *data, int silent)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct dentry *get_sb(struct file_system_type *fs_type,
 		  int flags, const char *dev_name,
 		  void *data)
 {
 	return mount_single(fs_type, flags, data, fill_super);
+=======
+static int securityfs_get_tree(struct fs_context *fc)
+{
+	return get_tree_single(fc, securityfs_fill_super);
+}
+
+static const struct fs_context_operations securityfs_context_ops = {
+	.get_tree	= securityfs_get_tree,
+};
+
+static int securityfs_init_fs_context(struct fs_context *fc)
+{
+	fc->ops = &securityfs_context_ops;
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static struct file_system_type fs_type = {
 	.owner =	THIS_MODULE,
 	.name =		"securityfs",
+<<<<<<< HEAD
 	.mount =	get_sb,
+=======
+	.init_fs_context = securityfs_init_fs_context,
+>>>>>>> upstream/android-13
 	.kill_sb =	kill_litter_super,
 };
 
@@ -127,7 +175,11 @@ static struct dentry *securityfs_create_dentry(const char *name, umode_t mode,
 	dir = d_inode(parent);
 
 	inode_lock(dir);
+<<<<<<< HEAD
 	dentry = lookup_one_len2(name, mount, parent, strlen(name));
+=======
+	dentry = lookup_one_len(name, parent, strlen(name));
+>>>>>>> upstream/android-13
 	if (IS_ERR(dentry))
 		goto out;
 
@@ -346,7 +398,11 @@ static int __init securityfs_init(void)
 #endif
 	return 0;
 }
+<<<<<<< HEAD
 
 core_initcall(securityfs_init);
 MODULE_LICENSE("GPL");
 
+=======
+core_initcall(securityfs_init);
+>>>>>>> upstream/android-13

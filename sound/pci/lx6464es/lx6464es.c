@@ -1,8 +1,13 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* -*- linux-c -*- *
  *
  * ALSA driver for the digigram lx6464es interface
  *
  * Copyright (c) 2008, 2009 Tim Blechmann <tim@klingt.org>
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,6 +25,8 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -37,8 +44,11 @@
 MODULE_AUTHOR("Tim Blechmann");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("digigram lx6464es");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("{digigram lx6464es{}}");
 
+=======
+>>>>>>> upstream/android-13
 
 static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;
 static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;
@@ -277,9 +287,14 @@ exit:
 
 static int lx_pcm_close(struct snd_pcm_substream *substream)
 {
+<<<<<<< HEAD
 	int err = 0;
 	dev_dbg(substream->pcm->card->dev, "->lx_pcm_close\n");
 	return err;
+=======
+	dev_dbg(substream->pcm->card->dev, "->lx_pcm_close\n");
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static snd_pcm_uframes_t lx_pcm_stream_pointer(struct snd_pcm_substream
@@ -359,23 +374,33 @@ static int lx_pcm_hw_params(struct snd_pcm_substream *substream,
 			    struct snd_pcm_hw_params *hw_params, int is_capture)
 {
 	struct lx6464es *chip = snd_pcm_substream_chip(substream);
+<<<<<<< HEAD
 	int err = 0;
+=======
+>>>>>>> upstream/android-13
 
 	dev_dbg(chip->card->dev, "->lx_pcm_hw_params\n");
 
 	mutex_lock(&chip->setup_mutex);
 
+<<<<<<< HEAD
 	/* set dma buffer */
 	err = snd_pcm_lib_malloc_pages(substream,
 				       params_buffer_bytes(hw_params));
 
+=======
+>>>>>>> upstream/android-13
 	if (is_capture)
 		chip->capture_stream.stream = substream;
 	else
 		chip->playback_stream.stream = substream;
 
 	mutex_unlock(&chip->setup_mutex);
+<<<<<<< HEAD
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int lx_pcm_hw_params_playback(struct snd_pcm_substream *substream,
@@ -417,8 +442,11 @@ static int lx_pcm_hw_free(struct snd_pcm_substream *substream)
 		chip->hardware_running[is_capture] = 0;
 	}
 
+<<<<<<< HEAD
 	err = snd_pcm_lib_free_pages(substream);
 
+=======
+>>>>>>> upstream/android-13
 	if (is_capture)
 		chip->capture_stream.stream = NULL;
 	else
@@ -550,6 +578,7 @@ static int lx_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	return lx_pcm_trigger_dispatch(chip, stream, cmd);
 }
 
+<<<<<<< HEAD
 static int snd_lx6464es_free(struct lx6464es *chip)
 {
 	dev_dbg(chip->card->dev, "->snd_lx6464es_free\n");
@@ -573,6 +602,13 @@ static int snd_lx6464es_free(struct lx6464es *chip)
 static int snd_lx6464es_dev_free(struct snd_device *device)
 {
 	return snd_lx6464es_free(device->device_data);
+=======
+static void snd_lx6464es_free(struct snd_card *card)
+{
+	struct lx6464es *chip = card->private_data;
+
+	lx_irq_disable(chip);
+>>>>>>> upstream/android-13
 }
 
 /* reset the dsp during initialization */
@@ -815,7 +851,10 @@ mac_ready:
 static const struct snd_pcm_ops lx_ops_playback = {
 	.open      = lx_pcm_open,
 	.close     = lx_pcm_close,
+<<<<<<< HEAD
 	.ioctl     = snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.prepare   = lx_pcm_prepare,
 	.hw_params = lx_pcm_hw_params_playback,
 	.hw_free   = lx_pcm_hw_free,
@@ -826,7 +865,10 @@ static const struct snd_pcm_ops lx_ops_playback = {
 static const struct snd_pcm_ops lx_ops_capture = {
 	.open      = lx_pcm_open,
 	.close     = lx_pcm_close,
+<<<<<<< HEAD
 	.ioctl     = snd_pcm_lib_ioctl,
+=======
+>>>>>>> upstream/android-13
 	.prepare   = lx_pcm_prepare,
 	.hw_params = lx_pcm_hw_params_capture,
 	.hw_free   = lx_pcm_hw_free,
@@ -862,11 +904,16 @@ static int lx_pcm_create(struct lx6464es *chip)
 	pcm->nonatomic = true;
 	strcpy(pcm->name, card_name);
 
+<<<<<<< HEAD
 	err = snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
 						    snd_dma_pci_data(chip->pci),
 						    size, size);
 	if (err < 0)
 		return err;
+=======
+	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_DEV,
+				       &chip->pci->dev, size, size);
+>>>>>>> upstream/android-13
 
 	chip->pcm = pcm;
 	chip->capture_stream.is_capture = 1;
@@ -956,6 +1003,7 @@ static void lx_proc_levels_read(struct snd_info_entry *entry,
 
 static int lx_proc_create(struct snd_card *card, struct lx6464es *chip)
 {
+<<<<<<< HEAD
 	struct snd_info_entry *entry;
 	int err = snd_card_proc_new(card, "levels", &entry);
 	if (err < 0)
@@ -963,10 +1011,14 @@ static int lx_proc_create(struct snd_card *card, struct lx6464es *chip)
 
 	snd_info_set_text_ops(entry, chip, lx_proc_levels_read);
 	return 0;
+=======
+	return snd_card_ro_proc_new(card, "levels", chip, lx_proc_levels_read);
+>>>>>>> upstream/android-13
 }
 
 
 static int snd_lx6464es_create(struct snd_card *card,
+<<<<<<< HEAD
 			       struct pci_dev *pci,
 			       struct lx6464es **rchip)
 {
@@ -983,6 +1035,17 @@ static int snd_lx6464es_create(struct snd_card *card,
 
 	/* enable PCI device */
 	err = pci_enable_device(pci);
+=======
+			       struct pci_dev *pci)
+{
+	struct lx6464es *chip = card->private_data;
+	int err;
+
+	dev_dbg(card->dev, "->snd_lx6464es_create\n");
+
+	/* enable PCI device */
+	err = pcim_enable_device(pci);
+>>>>>>> upstream/android-13
 	if (err < 0)
 		return err;
 
@@ -993,6 +1056,7 @@ static int snd_lx6464es_create(struct snd_card *card,
 	if (err < 0) {
 		dev_err(card->dev,
 			"architecture does not support 32bit PCI busmaster DMA\n");
+<<<<<<< HEAD
 		pci_disable_device(pci);
 		return -ENXIO;
 	}
@@ -1003,6 +1067,11 @@ static int snd_lx6464es_create(struct snd_card *card,
 		goto alloc_failed;
 	}
 
+=======
+		return -ENXIO;
+	}
+
+>>>>>>> upstream/android-13
 	chip->card = card;
 	chip->pci = pci;
 	chip->irq = -1;
@@ -1015,6 +1084,7 @@ static int snd_lx6464es_create(struct snd_card *card,
 	/* request resources */
 	err = pci_request_regions(pci, card_name);
 	if (err < 0)
+<<<<<<< HEAD
 		goto request_regions_failed;
 
 	/* plx port */
@@ -1041,6 +1111,32 @@ static int snd_lx6464es_create(struct snd_card *card,
 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
 	if (err < 0)
 		goto device_new_failed;
+=======
+		return err;
+
+	/* plx port */
+	chip->port_plx = pci_resource_start(pci, 1);
+	chip->port_plx_remapped = devm_ioport_map(&pci->dev, chip->port_plx,
+						  pci_resource_len(pci, 1));
+	if (!chip->port_plx_remapped)
+		return -ENOMEM;
+
+	/* dsp port */
+	chip->port_dsp_bar = pcim_iomap(pci, 2, 0);
+	if (!chip->port_dsp_bar)
+		return -ENOMEM;
+
+	err = devm_request_threaded_irq(&pci->dev, pci->irq, lx_interrupt,
+					lx_threaded_irq, IRQF_SHARED,
+					KBUILD_MODNAME, chip);
+	if (err) {
+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+		return err;
+	}
+	chip->irq = pci->irq;
+	card->sync_irq = chip->irq;
+	card->private_free = snd_lx6464es_free;
+>>>>>>> upstream/android-13
 
 	err = lx_init_dsp(chip);
 	if (err < 0) {
@@ -1061,6 +1157,7 @@ static int snd_lx6464es_create(struct snd_card *card,
 	if (err < 0)
 		return err;
 
+<<<<<<< HEAD
 	*rchip = chip;
 	return 0;
 
@@ -1080,6 +1177,9 @@ alloc_failed:
 	pci_disable_device(pci);
 
 	return err;
+=======
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int snd_lx6464es_probe(struct pci_dev *pci,
@@ -1099,6 +1199,7 @@ static int snd_lx6464es_probe(struct pci_dev *pci,
 		return -ENOENT;
 	}
 
+<<<<<<< HEAD
 	err = snd_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
 			   0, &card);
 	if (err < 0)
@@ -1108,6 +1209,18 @@ static int snd_lx6464es_probe(struct pci_dev *pci,
 	if (err < 0) {
 		dev_err(card->dev, "error during snd_lx6464es_create\n");
 		goto out_free;
+=======
+	err = snd_devm_card_new(&pci->dev, index[dev], id[dev], THIS_MODULE,
+				sizeof(*chip), &card);
+	if (err < 0)
+		return err;
+	chip = card->private_data;
+
+	err = snd_lx6464es_create(card, pci);
+	if (err < 0) {
+		dev_err(card->dev, "error during snd_lx6464es_create\n");
+		goto error;
+>>>>>>> upstream/android-13
 	}
 
 	strcpy(card->driver, "LX6464ES");
@@ -1124,13 +1237,18 @@ static int snd_lx6464es_probe(struct pci_dev *pci,
 
 	err = snd_card_register(card);
 	if (err < 0)
+<<<<<<< HEAD
 		goto out_free;
+=======
+		goto error;
+>>>>>>> upstream/android-13
 
 	dev_dbg(chip->card->dev, "initialization successful\n");
 	pci_set_drvdata(pci, card);
 	dev++;
 	return 0;
 
+<<<<<<< HEAD
 out_free:
 	snd_card_free(card);
 	return err;
@@ -1143,11 +1261,21 @@ static void snd_lx6464es_remove(struct pci_dev *pci)
 }
 
 
+=======
+ error:
+	snd_card_free(card);
+	return err;
+}
+
+>>>>>>> upstream/android-13
 static struct pci_driver lx6464es_driver = {
 	.name =     KBUILD_MODNAME,
 	.id_table = snd_lx6464es_ids,
 	.probe =    snd_lx6464es_probe,
+<<<<<<< HEAD
 	.remove = snd_lx6464es_remove,
+=======
+>>>>>>> upstream/android-13
 };
 
 module_pci_driver(lx6464es_driver);

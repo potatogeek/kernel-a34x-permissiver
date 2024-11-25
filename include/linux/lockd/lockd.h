@@ -10,7 +10,11 @@
 #ifndef LINUX_LOCKD_LOCKD_H
 #define LINUX_LOCKD_LOCKD_H
 
+<<<<<<< HEAD
 #ifdef __KERNEL__
+=======
+/* XXX: a lot of this should really be under fs/lockd. */
+>>>>>>> upstream/android-13
 
 #include <linux/in.h>
 #include <linux/in6.h>
@@ -70,6 +74,10 @@ struct nlm_host {
 	struct nsm_handle	*h_nsmhandle;	/* NSM status handle */
 	char			*h_addrbuf;	/* address eyecatcher */
 	struct net		*net;		/* host net */
+<<<<<<< HEAD
+=======
+	const struct cred	*h_cred;
+>>>>>>> upstream/android-13
 	char			nodename[UNX_MAXNODENAME + 1];
 	const struct nlmclnt_operations	*h_nlmclnt_ops;	/* Callback ops for NLM users */
 };
@@ -155,7 +163,12 @@ struct nlm_rqst {
 struct nlm_file {
 	struct hlist_node	f_list;		/* linked list */
 	struct nfs_fh		f_handle;	/* NFS file handle */
+<<<<<<< HEAD
 	struct file *		f_file;		/* VFS file pointer */
+=======
+	struct file *		f_file[2];	/* VFS file pointers,
+						   indexed by O_ flags */
+>>>>>>> upstream/android-13
 	struct nlm_share *	f_shares;	/* DOS shares */
 	struct list_head	f_blocks;	/* blocked locks */
 	unsigned int		f_locks;	/* guesstimate # of locks */
@@ -229,7 +242,12 @@ struct nlm_host  *nlmclnt_lookup_host(const struct sockaddr *sap,
 					const u32 version,
 					const char *hostname,
 					int noresvport,
+<<<<<<< HEAD
 					struct net *net);
+=======
+					struct net *net,
+					const struct cred *cred);
+>>>>>>> upstream/android-13
 void		  nlmclnt_release_host(struct nlm_host *);
 struct nlm_host  *nlmsvc_lookup_host(const struct svc_rqst *rqstp,
 					const char *hostname,
@@ -267,6 +285,10 @@ typedef int	  (*nlm_host_match_fn_t)(void *cur, struct nlm_host *ref);
 /*
  * Server-side lock handling
  */
+<<<<<<< HEAD
+=======
+int		  lock_to_openmode(struct file_lock *);
+>>>>>>> upstream/android-13
 __be32		  nlmsvc_lock(struct svc_rqst *, struct nlm_file *,
 			      struct nlm_host *, struct nlm_lock *, int,
 			      struct nlm_cookie *, int);
@@ -280,13 +302,23 @@ void		  nlmsvc_traverse_blocks(struct nlm_host *, struct nlm_file *,
 					nlm_host_match_fn_t match);
 void		  nlmsvc_grant_reply(struct nlm_cookie *, __be32);
 void		  nlmsvc_release_call(struct nlm_rqst *);
+<<<<<<< HEAD
+=======
+void		  nlmsvc_locks_init_private(struct file_lock *, struct nlm_host *, pid_t);
+>>>>>>> upstream/android-13
 
 /*
  * File handling for the server personality
  */
 __be32		  nlm_lookup_file(struct svc_rqst *, struct nlm_file **,
+<<<<<<< HEAD
 					struct nfs_fh *);
 void		  nlm_release_file(struct nlm_file *);
+=======
+					struct nlm_lock *);
+void		  nlm_release_file(struct nlm_file *);
+void		  nlmsvc_release_lockowner(struct nlm_lock *);
+>>>>>>> upstream/android-13
 void		  nlmsvc_mark_resources(struct net *);
 void		  nlmsvc_free_host_resources(struct nlm_host *);
 void		  nlmsvc_invalidate_all(void);
@@ -299,7 +331,12 @@ int           nlmsvc_unlock_all_by_ip(struct sockaddr *server_addr);
 
 static inline struct inode *nlmsvc_file_inode(struct nlm_file *file)
 {
+<<<<<<< HEAD
 	return locks_inode(file->f_file);
+=======
+	return locks_inode(file->f_file[O_RDONLY] ?
+			   file->f_file[O_RDONLY] : file->f_file[O_WRONLY]);
+>>>>>>> upstream/android-13
 }
 
 static inline int __nlm_privileged_request4(const struct sockaddr *sap)
@@ -369,6 +406,9 @@ static inline int nlm_compare_locks(const struct file_lock *fl1,
 
 extern const struct lock_manager_operations nlmsvc_lock_operations;
 
+<<<<<<< HEAD
 #endif /* __KERNEL__ */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* LINUX_LOCKD_LOCKD_H */

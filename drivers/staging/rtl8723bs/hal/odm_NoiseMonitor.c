@@ -19,7 +19,11 @@
 #define ValidCnt				5
 
 static s16 odm_InbandNoise_Monitor_NSeries(
+<<<<<<< HEAD
 	PDM_ODM_T pDM_Odm,
+=======
+	struct dm_odm_t *pDM_Odm,
+>>>>>>> upstream/android-13
 	u8 bPauseDIG,
 	u8 IGIValue,
 	u32 max_time
@@ -29,6 +33,7 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 	u8 max_rf_path = 0, rf_path;
 	u8 reg_c50, reg_c58, valid_done = 0;
 	struct noise_level noise_data;
+<<<<<<< HEAD
 	u32 start  = 0, func_start = 0, func_end = 0;
 
 	func_start = jiffies;
@@ -40,6 +45,13 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 		max_rf_path = 1;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("odm_DebugControlInbandNoise_Nseries() ==>\n"));
+=======
+	u32 start  = 0;
+
+	pDM_Odm->noise_level.noise_all = 0;
+
+	max_rf_path = 1;
+>>>>>>> upstream/android-13
 
 	memset(&noise_data, 0, sizeof(struct noise_level));
 
@@ -65,7 +77,10 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 
 		/* Read Noise Floor Report */
 		tmp4b = PHY_QueryBBReg(pDM_Odm->Adapter, 0x8f8, bMaskDWord);
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("Noise Floor Report (0x8f8) = 0x%08x\n", tmp4b));
+=======
+>>>>>>> upstream/android-13
 
 		/* PHY_SetBBReg(pDM_Odm->Adapter, rOFDM0_XAAGCCore1, bMaskByte0, TestInitialGain); */
 		/* if (max_rf_path == 2) */
@@ -74,6 +89,7 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 		/* update idle time pwer report per 5us */
 		PHY_SetBBReg(pDM_Odm->Adapter, rFPGA0_TxGainStage, BIT25, 0);
 
+<<<<<<< HEAD
 		noise_data.value[ODM_RF_PATH_A] = (u8)(tmp4b&0xff);
 		noise_data.value[ODM_RF_PATH_B]  = (u8)((tmp4b&0xff00)>>8);
 
@@ -100,6 +116,24 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 				if (noise_data.valid_cnt[rf_path] == ValidCnt) {
 					valid_done++;
 					ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("After divided, RF_Path:%d , sum = %d\n", rf_path, noise_data.sum[rf_path]));
+=======
+		noise_data.value[RF_PATH_A] = (u8)(tmp4b&0xff);
+		noise_data.value[RF_PATH_B]  = (u8)((tmp4b&0xff00)>>8);
+
+		for (rf_path = RF_PATH_A; rf_path < max_rf_path; rf_path++) {
+			noise_data.sval[rf_path] = (s8)noise_data.value[rf_path];
+			noise_data.sval[rf_path] /= 2;
+		}
+		/* mdelay(10); */
+		/* msleep(10); */
+
+		for (rf_path = RF_PATH_A; rf_path < max_rf_path; rf_path++) {
+			if ((noise_data.valid_cnt[rf_path] < ValidCnt) && (noise_data.sval[rf_path] < Valid_Max && noise_data.sval[rf_path] >= Valid_Min)) {
+				noise_data.valid_cnt[rf_path]++;
+				noise_data.sum[rf_path] += noise_data.sval[rf_path];
+				if (noise_data.valid_cnt[rf_path] == ValidCnt) {
+					valid_done++;
+>>>>>>> upstream/android-13
 				}
 
 			}
@@ -108,7 +142,11 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 
 		/* printk("####### valid_done:%d #############\n", valid_done); */
 		if ((valid_done == max_rf_path) || (jiffies_to_msecs(jiffies - start) > max_time)) {
+<<<<<<< HEAD
 			for (rf_path = ODM_RF_PATH_A; rf_path < max_rf_path; rf_path++) {
+=======
+			for (rf_path = RF_PATH_A; rf_path < max_rf_path; rf_path++) {
+>>>>>>> upstream/android-13
 				/* printk("%s PATH_%d - sum = %d, valid_cnt = %d\n", __func__, rf_path, noise_data.sum[rf_path], noise_data.valid_cnt[rf_path]); */
 				if (noise_data.valid_cnt[rf_path])
 					noise_data.sum[rf_path] /= noise_data.valid_cnt[rf_path];
@@ -120,13 +158,19 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 	}
 	reg_c50 = (s32)PHY_QueryBBReg(pDM_Odm->Adapter, rOFDM0_XAAGCCore1, bMaskByte0);
 	reg_c50 &= ~BIT7;
+<<<<<<< HEAD
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("0x%x = 0x%02x(%d)\n", rOFDM0_XAAGCCore1, reg_c50, reg_c50));
 	pDM_Odm->noise_level.noise[ODM_RF_PATH_A] = -110 + reg_c50 + noise_data.sum[ODM_RF_PATH_A];
 	pDM_Odm->noise_level.noise_all += pDM_Odm->noise_level.noise[ODM_RF_PATH_A];
+=======
+	pDM_Odm->noise_level.noise[RF_PATH_A] = -110 + reg_c50 + noise_data.sum[RF_PATH_A];
+	pDM_Odm->noise_level.noise_all += pDM_Odm->noise_level.noise[RF_PATH_A];
+>>>>>>> upstream/android-13
 
 	if (max_rf_path == 2) {
 		reg_c58 = (s32)PHY_QueryBBReg(pDM_Odm->Adapter, rOFDM0_XBAGCCore1, bMaskByte0);
 		reg_c58 &= ~BIT7;
+<<<<<<< HEAD
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("0x%x = 0x%02x(%d)\n", rOFDM0_XBAGCCore1, reg_c58, reg_c58));
 		pDM_Odm->noise_level.noise[ODM_RF_PATH_B] = -110 + reg_c58 + noise_data.sum[ODM_RF_PATH_B];
 		pDM_Odm->noise_level.noise_all += pDM_Odm->noise_level.noise[ODM_RF_PATH_B];
@@ -144,12 +188,20 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 		)
 	);
 
+=======
+		pDM_Odm->noise_level.noise[RF_PATH_B] = -110 + reg_c58 + noise_data.sum[RF_PATH_B];
+		pDM_Odm->noise_level.noise_all += pDM_Odm->noise_level.noise[RF_PATH_B];
+	}
+	pDM_Odm->noise_level.noise_all /= max_rf_path;
+
+>>>>>>> upstream/android-13
 	/*  */
 	/*  Step 4. Recover the Dig */
 	/*  */
 	if (bPauseDIG)
 		odm_PauseDIG(pDM_Odm, ODM_RESUME_DIG, IGIValue);
 
+<<<<<<< HEAD
 	func_end = jiffies_to_msecs(jiffies - func_start);
 	/* printk("%s noise_a = %d, noise_b = %d noise_all:%d (%d ms)\n", __func__, */
 	/* pDM_Odm->noise_level.noise[ODM_RF_PATH_A], */
@@ -157,6 +209,8 @@ static s16 odm_InbandNoise_Monitor_NSeries(
 	/* pDM_Odm->noise_level.noise_all, func_end); */
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("odm_DebugControlInbandNoise_Nseries() <==\n"));
+=======
+>>>>>>> upstream/android-13
 	return pDM_Odm->noise_level.noise_all;
 
 }

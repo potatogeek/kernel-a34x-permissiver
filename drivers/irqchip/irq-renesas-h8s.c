@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * H8S interrupt contoller driver
+=======
+ * H8S interrupt controller driver
+>>>>>>> upstream/android-13
  *
  * Copyright 2015 Yoshinori Sato <ysato@users.sourceforge.jp>
  */

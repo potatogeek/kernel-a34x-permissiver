@@ -90,6 +90,12 @@ void synchronise_count_master(int cpu)
 void synchronise_count_slave(int cpu)
 {
 	int i;
+<<<<<<< HEAD
+=======
+	unsigned long flags;
+
+	local_irq_save(flags);
+>>>>>>> upstream/android-13
 
 	/*
 	 * Not every cpu is online at the time this gets called,
@@ -113,5 +119,10 @@ void synchronise_count_slave(int cpu)
 	}
 	/* Arrange for an interrupt in a short while */
 	write_c0_compare(read_c0_count() + COUNTON);
+<<<<<<< HEAD
+=======
+
+	local_irq_restore(flags);
+>>>>>>> upstream/android-13
 }
 #undef NR_LOOPS

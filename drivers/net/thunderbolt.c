@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0
+>>>>>>> upstream/android-13
 /*
  * Networking over Thunderbolt cable using Apple ThunderboltIP protocol
  *
@@ -5,10 +9,13 @@
  * Authors: Amir Levy <amir.jer.levy@intel.com>
  *          Michael Jamet <michael.jamet@intel.com>
  *          Mika Westerberg <mika.westerberg@linux.intel.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/atomic.h>
@@ -28,6 +35,7 @@
 /* Protocol timeouts in ms */
 #define TBNET_LOGIN_DELAY	4500
 #define TBNET_LOGIN_TIMEOUT	500
+<<<<<<< HEAD
 #define TBNET_LOGOUT_TIMEOUT	100
 
 #define TBNET_RING_SIZE		256
@@ -35,6 +43,15 @@
 #define TBNET_LOGIN_RETRIES	60
 #define TBNET_LOGOUT_RETRIES	5
 #define TBNET_MATCH_FRAGS_ID	BIT(1)
+=======
+#define TBNET_LOGOUT_TIMEOUT	1000
+
+#define TBNET_RING_SIZE		256
+#define TBNET_LOGIN_RETRIES	60
+#define TBNET_LOGOUT_RETRIES	10
+#define TBNET_MATCH_FRAGS_ID	BIT(1)
+#define TBNET_64K_FRAMES	BIT(2)
+>>>>>>> upstream/android-13
 #define TBNET_MAX_MTU		SZ_64K
 #define TBNET_FRAME_SIZE	SZ_4K
 #define TBNET_MAX_PAYLOAD_SIZE	\
@@ -157,8 +174,13 @@ struct tbnet_ring {
  * @login_sent: ThunderboltIP login message successfully sent
  * @login_received: ThunderboltIP login message received from the remote
  *		    host
+<<<<<<< HEAD
  * @transmit_path: HopID the other end needs to use building the
  *		   opposite side path.
+=======
+ * @local_transmit_path: HopID we are using to send out packets
+ * @remote_transmit_path: HopID the other end is using to send packets to us
+>>>>>>> upstream/android-13
  * @connection_lock: Lock serializing access to @login_sent,
  *		     @login_received and @transmit_path.
  * @login_retries: Number of login retries currently done
@@ -187,7 +209,12 @@ struct tbnet {
 	atomic_t command_id;
 	bool login_sent;
 	bool login_received;
+<<<<<<< HEAD
 	u32 transmit_path;
+=======
+	int local_transmit_path;
+	int remote_transmit_path;
+>>>>>>> upstream/android-13
 	struct mutex connection_lock;
 	int login_retries;
 	struct delayed_work login_work;
@@ -260,7 +287,11 @@ static int tbnet_login_request(struct tbnet *net, u8 sequence)
 			  atomic_inc_return(&net->command_id));
 
 	request.proto_version = TBIP_LOGIN_PROTO_VERSION;
+<<<<<<< HEAD
 	request.transmit_path = TBNET_LOCAL_PATH;
+=======
+	request.transmit_path = net->local_transmit_path;
+>>>>>>> upstream/android-13
 
 	return tb_xdomain_request(xd, &request, sizeof(request),
 				  TB_CFG_PKG_XDOMAIN_RESP, &reply,
@@ -367,10 +398,17 @@ static void tbnet_tear_down(struct tbnet *net, bool send_logout)
 	mutex_lock(&net->connection_lock);
 
 	if (net->login_sent && net->login_received) {
+<<<<<<< HEAD
 		int retries = TBNET_LOGOUT_RETRIES;
 
 		while (send_logout && retries-- > 0) {
 			int ret = tbnet_logout_request(net);
+=======
+		int ret, retries = TBNET_LOGOUT_RETRIES;
+
+		while (send_logout && retries-- > 0) {
+			ret = tbnet_logout_request(net);
+>>>>>>> upstream/android-13
 			if (ret != -ETIMEDOUT)
 				break;
 		}
@@ -380,8 +418,21 @@ static void tbnet_tear_down(struct tbnet *net, bool send_logout)
 		tbnet_free_buffers(&net->rx_ring);
 		tbnet_free_buffers(&net->tx_ring);
 
+<<<<<<< HEAD
 		if (tb_xdomain_disable_paths(net->xd))
 			netdev_warn(net->dev, "failed to disable DMA paths\n");
+=======
+		ret = tb_xdomain_disable_paths(net->xd,
+					       net->local_transmit_path,
+					       net->rx_ring.ring->hop,
+					       net->remote_transmit_path,
+					       net->tx_ring.ring->hop);
+		if (ret)
+			netdev_warn(net->dev, "failed to disable DMA paths\n");
+
+		tb_xdomain_release_in_hopid(net->xd, net->remote_transmit_path);
+		net->remote_transmit_path = 0;
+>>>>>>> upstream/android-13
 	}
 
 	net->login_retries = 0;
@@ -427,7 +478,11 @@ static int tbnet_handle_packet(const void *buf, size_t size, void *data)
 		if (!ret) {
 			mutex_lock(&net->connection_lock);
 			net->login_received = true;
+<<<<<<< HEAD
 			net->transmit_path = pkg->transmit_path;
+=======
+			net->remote_transmit_path = pkg->transmit_path;
+>>>>>>> upstream/android-13
 
 			/* If we reached the number of max retries or
 			 * previous logout, schedule another round of
@@ -600,12 +655,27 @@ static void tbnet_connected_work(struct work_struct *work)
 	if (!connected)
 		return;
 
+<<<<<<< HEAD
 	/* Both logins successful so enable the high-speed DMA paths and
 	 * start the network device queue.
 	 */
 	ret = tb_xdomain_enable_paths(net->xd, TBNET_LOCAL_PATH,
 				      net->rx_ring.ring->hop,
 				      net->transmit_path,
+=======
+	ret = tb_xdomain_alloc_in_hopid(net->xd, net->remote_transmit_path);
+	if (ret != net->remote_transmit_path) {
+		netdev_err(net->dev, "failed to allocate Rx HopID\n");
+		return;
+	}
+
+	/* Both logins successful so enable the high-speed DMA paths and
+	 * start the network device queue.
+	 */
+	ret = tb_xdomain_enable_paths(net->xd, net->local_transmit_path,
+				      net->rx_ring.ring->hop,
+				      net->remote_transmit_path,
+>>>>>>> upstream/android-13
 				      net->tx_ring.ring->hop);
 	if (ret) {
 		netdev_err(net->dev, "failed to enable DMA paths\n");
@@ -632,6 +702,10 @@ err_free_rx_buffers:
 err_stop_rings:
 	tb_ring_stop(net->rx_ring.ring);
 	tb_ring_stop(net->tx_ring.ring);
+<<<<<<< HEAD
+=======
+	tb_xdomain_release_in_hopid(net->xd, net->remote_transmit_path);
+>>>>>>> upstream/android-13
 }
 
 static void tbnet_login_work(struct work_struct *work)
@@ -854,6 +928,10 @@ static int tbnet_open(struct net_device *dev)
 	struct tb_xdomain *xd = net->xd;
 	u16 sof_mask, eof_mask;
 	struct tb_ring *ring;
+<<<<<<< HEAD
+=======
+	int hopid;
+>>>>>>> upstream/android-13
 
 	netif_carrier_off(dev);
 
@@ -865,12 +943,29 @@ static int tbnet_open(struct net_device *dev)
 	}
 	net->tx_ring.ring = ring;
 
+<<<<<<< HEAD
+=======
+	hopid = tb_xdomain_alloc_out_hopid(xd, -1);
+	if (hopid < 0) {
+		netdev_err(dev, "failed to allocate Tx HopID\n");
+		tb_ring_free(net->tx_ring.ring);
+		net->tx_ring.ring = NULL;
+		return hopid;
+	}
+	net->local_transmit_path = hopid;
+
+>>>>>>> upstream/android-13
 	sof_mask = BIT(TBIP_PDF_FRAME_START);
 	eof_mask = BIT(TBIP_PDF_FRAME_END);
 
 	ring = tb_ring_alloc_rx(xd->tb->nhi, -1, TBNET_RING_SIZE,
+<<<<<<< HEAD
 				RING_FLAG_FRAME | RING_FLAG_E2E, sof_mask,
 				eof_mask, tbnet_start_poll, net);
+=======
+				RING_FLAG_FRAME, 0, sof_mask, eof_mask,
+				tbnet_start_poll, net);
+>>>>>>> upstream/android-13
 	if (!ring) {
 		netdev_err(dev, "failed to allocate Rx ring\n");
 		tb_ring_free(net->tx_ring.ring);
@@ -896,6 +991,11 @@ static int tbnet_stop(struct net_device *dev)
 
 	tb_ring_free(net->rx_ring.ring);
 	net->rx_ring.ring = NULL;
+<<<<<<< HEAD
+=======
+
+	tb_xdomain_release_out_hopid(net->xd, net->local_transmit_path);
+>>>>>>> upstream/android-13
 	tb_ring_free(net->tx_ring.ring);
 	net->tx_ring.ring = NULL;
 
@@ -1008,7 +1108,11 @@ static void *tbnet_kmap_frag(struct sk_buff *skb, unsigned int frag_num,
 	const skb_frag_t *frag = &skb_shinfo(skb)->frags[frag_num];
 
 	*len = skb_frag_size(frag);
+<<<<<<< HEAD
 	return kmap_atomic(skb_frag_page(frag)) + frag->page_offset;
+=======
+	return kmap_atomic(skb_frag_page(frag)) + skb_frag_off(frag);
+>>>>>>> upstream/android-13
 }
 
 static netdev_tx_t tbnet_start_xmit(struct sk_buff *skb,
@@ -1244,7 +1348,11 @@ static int tbnet_probe(struct tb_service *svc, const struct tb_service_id *id)
 	dev->max_mtu = TBNET_MAX_MTU - ETH_HLEN;
 
 	net->handler.uuid = &tbnet_svc_uuid;
+<<<<<<< HEAD
 	net->handler.callback = tbnet_handle_packet,
+=======
+	net->handler.callback = tbnet_handle_packet;
+>>>>>>> upstream/android-13
 	net->handler.data = net;
 	tb_register_protocol_handler(&net->handler);
 
@@ -1338,8 +1446,17 @@ static int __init tbnet_init(void)
 	tb_property_add_immediate(tbnet_dir, "prtcid", 1);
 	tb_property_add_immediate(tbnet_dir, "prtcvers", 1);
 	tb_property_add_immediate(tbnet_dir, "prtcrevs", 1);
+<<<<<<< HEAD
 	tb_property_add_immediate(tbnet_dir, "prtcstns",
 				  TBNET_MATCH_FRAGS_ID);
+=======
+	/* Currently only announce support for match frags ID (bit 1). Bit 0
+	 * is reserved for full E2E flow control which we do not support at
+	 * the moment.
+	 */
+	tb_property_add_immediate(tbnet_dir, "prtcstns",
+				  TBNET_MATCH_FRAGS_ID | TBNET_64K_FRAMES);
+>>>>>>> upstream/android-13
 
 	ret = tb_register_property_dir("network", tbnet_dir);
 	if (ret) {

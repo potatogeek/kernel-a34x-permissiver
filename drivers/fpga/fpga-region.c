@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< HEAD
  * FPGA Region - Device Tree support for FPGA programming under Linux
+=======
+ * FPGA Region - Support for FPGA programming under Linux
+>>>>>>> upstream/android-13
  *
  *  Copyright (C) 2013-2016 Altera Corporation
  *  Copyright (C) 2017 Intel Corporation
@@ -33,14 +37,22 @@ struct fpga_region *fpga_region_class_find(
 EXPORT_SYMBOL_GPL(fpga_region_class_find);
 
 /**
+<<<<<<< HEAD
  * fpga_region_get - get an exclusive reference to a fpga region
+=======
+ * fpga_region_get - get an exclusive reference to an fpga region
+>>>>>>> upstream/android-13
  * @region: FPGA Region struct
  *
  * Caller should call fpga_region_put() when done with region.
  *
  * Return fpga_region struct if successful.
  * Return -EBUSY if someone already has a reference to the region.
+<<<<<<< HEAD
  * Return -ENODEV if @np is not a FPGA Region.
+=======
+ * Return -ENODEV if @np is not an FPGA Region.
+>>>>>>> upstream/android-13
  */
 static struct fpga_region *fpga_region_get(struct fpga_region *region)
 {
@@ -181,6 +193,7 @@ ATTRIBUTE_GROUPS(fpga_region);
 
 /**
  * fpga_region_create - alloc and init a struct fpga_region
+<<<<<<< HEAD
  * @dev: device parent
  * @mgr: manager that programs this region
  * @get_bridges: optional function to get bridges to a list
@@ -189,6 +202,20 @@ ATTRIBUTE_GROUPS(fpga_region);
  */
 struct fpga_region
 *fpga_region_create(struct device *dev,
+=======
+ * @parent: device parent
+ * @mgr: manager that programs this region
+ * @get_bridges: optional function to get bridges to a list
+ *
+ * The caller of this function is responsible for freeing the resulting region
+ * struct with fpga_region_free().  Using devm_fpga_region_create() instead is
+ * recommended.
+ *
+ * Return: struct fpga_region or NULL
+ */
+struct fpga_region
+*fpga_region_create(struct device *parent,
+>>>>>>> upstream/android-13
 		    struct fpga_manager *mgr,
 		    int (*get_bridges)(struct fpga_region *))
 {
@@ -210,8 +237,13 @@ struct fpga_region
 
 	device_initialize(&region->dev);
 	region->dev.class = fpga_region_class;
+<<<<<<< HEAD
 	region->dev.parent = dev;
 	region->dev.of_node = dev->of_node;
+=======
+	region->dev.parent = parent;
+	region->dev.of_node = parent->of_node;
+>>>>>>> upstream/android-13
 	region->dev.id = id;
 
 	ret = dev_set_name(&region->dev, "region%d", id);
@@ -230,8 +262,13 @@ err_free:
 EXPORT_SYMBOL_GPL(fpga_region_create);
 
 /**
+<<<<<<< HEAD
  * fpga_region_free - free a struct fpga_region
  * @region: FPGA region created by fpga_region_create
+=======
+ * fpga_region_free - free an FPGA region created by fpga_region_create()
+ * @region: FPGA region
+>>>>>>> upstream/android-13
  */
 void fpga_region_free(struct fpga_region *region)
 {
@@ -240,21 +277,84 @@ void fpga_region_free(struct fpga_region *region)
 }
 EXPORT_SYMBOL_GPL(fpga_region_free);
 
+<<<<<<< HEAD
 /**
  * fpga_region_register - register a FPGA region
  * @region: FPGA region created by fpga_region_create
+=======
+static void devm_fpga_region_release(struct device *dev, void *res)
+{
+	struct fpga_region *region = *(struct fpga_region **)res;
+
+	fpga_region_free(region);
+}
+
+/**
+ * devm_fpga_region_create - create and initialize a managed FPGA region struct
+ * @parent: device parent
+ * @mgr: manager that programs this region
+ * @get_bridges: optional function to get bridges to a list
+ *
+ * This function is intended for use in an FPGA region driver's probe function.
+ * After the region driver creates the region struct with
+ * devm_fpga_region_create(), it should register it with fpga_region_register().
+ * The region driver's remove function should call fpga_region_unregister().
+ * The region struct allocated with this function will be freed automatically on
+ * driver detach.  This includes the case of a probe function returning error
+ * before calling fpga_region_register(), the struct will still get cleaned up.
+ *
+ * Return: struct fpga_region or NULL
+ */
+struct fpga_region
+*devm_fpga_region_create(struct device *parent,
+			 struct fpga_manager *mgr,
+			 int (*get_bridges)(struct fpga_region *))
+{
+	struct fpga_region **ptr, *region;
+
+	ptr = devres_alloc(devm_fpga_region_release, sizeof(*ptr), GFP_KERNEL);
+	if (!ptr)
+		return NULL;
+
+	region = fpga_region_create(parent, mgr, get_bridges);
+	if (!region) {
+		devres_free(ptr);
+	} else {
+		*ptr = region;
+		devres_add(parent, ptr);
+	}
+
+	return region;
+}
+EXPORT_SYMBOL_GPL(devm_fpga_region_create);
+
+/**
+ * fpga_region_register - register an FPGA region
+ * @region: FPGA region
+ *
+>>>>>>> upstream/android-13
  * Return: 0 or -errno
  */
 int fpga_region_register(struct fpga_region *region)
 {
 	return device_add(&region->dev);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(fpga_region_register);
 
 /**
+<<<<<<< HEAD
  * fpga_region_unregister - unregister and free a FPGA region
  * @region: FPGA region
+=======
+ * fpga_region_unregister - unregister an FPGA region
+ * @region: FPGA region
+ *
+ * This function is intended for use in an FPGA region driver's remove function.
+>>>>>>> upstream/android-13
  */
 void fpga_region_unregister(struct fpga_region *region)
 {
@@ -264,9 +364,12 @@ EXPORT_SYMBOL_GPL(fpga_region_unregister);
 
 static void fpga_region_dev_release(struct device *dev)
 {
+<<<<<<< HEAD
 	struct fpga_region *region = to_fpga_region(dev);
 
 	fpga_region_free(region);
+=======
+>>>>>>> upstream/android-13
 }
 
 /**

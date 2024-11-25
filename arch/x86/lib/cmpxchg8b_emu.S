@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *	This program is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -5,6 +6,9 @@
  *	of the License.
  *
  */
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>>> upstream/android-13
 
 #include <linux/linkage.h>
 #include <asm/export.h>
@@ -19,7 +23,11 @@
  * %ebx : low 32 bits of new value
  * %ecx : high 32 bits of new value
  */
+<<<<<<< HEAD
 ENTRY(cmpxchg8b_emu)
+=======
+SYM_FUNC_START(cmpxchg8b_emu)
+>>>>>>> upstream/android-13
 
 #
 # Emulate 'cmpxchg8b (%esi)' on UP except we don't
@@ -38,7 +46,11 @@ ENTRY(cmpxchg8b_emu)
 	movl %ecx, 4(%esi)
 
 	popfl
+<<<<<<< HEAD
 	ret
+=======
+	RET
+>>>>>>> upstream/android-13
 
 .Lnot_same:
 	movl  (%esi), %eax
@@ -46,7 +58,13 @@ ENTRY(cmpxchg8b_emu)
 	movl 4(%esi), %edx
 
 	popfl
+<<<<<<< HEAD
 	ret
 
 ENDPROC(cmpxchg8b_emu)
+=======
+	RET
+
+SYM_FUNC_END(cmpxchg8b_emu)
+>>>>>>> upstream/android-13
 EXPORT_SYMBOL(cmpxchg8b_emu)

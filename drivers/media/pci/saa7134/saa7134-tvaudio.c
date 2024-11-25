@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *
  * device driver for philips saa7134 based TV cards
  * tv audio decoder (fm stereo, nicam, ...)
  *
  * (c) 2001-03 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "saa7134.h"
@@ -328,7 +335,10 @@ static int tvaudio_checkcarrier(struct saa7134_dev *dev, struct mainscan *scan)
 	__s32 left,right,value;
 
 	if (!(dev->tvnorm->id & scan->std)) {
+<<<<<<< HEAD
 		value = 0;
+=======
+>>>>>>> upstream/android-13
 		audio_dbg(1, "skipping %d.%03d MHz [%4s]\n",
 			  scan->carr / 1000, scan->carr % 1000, scan->name);
 		return 0;
@@ -881,6 +891,7 @@ void saa7134_enable_i2s(struct saa7134_dev *dev)
 	switch (dev->pci->device) {
 	case PCI_DEVICE_ID_PHILIPS_SAA7133:
 	case PCI_DEVICE_ID_PHILIPS_SAA7135:
+<<<<<<< HEAD
 	    /* Set I2S format (SONY)  */
 	    saa_writeb(SAA7133_I2S_AUDIO_CONTROL, 0x00);
 	    /* Start I2S */
@@ -898,6 +909,26 @@ void saa7134_enable_i2s(struct saa7134_dev *dev)
 
 	default:
 	    break;
+=======
+		/* Set I2S format (SONY) */
+		saa_writeb(SAA7133_I2S_AUDIO_CONTROL, 0x00);
+		/* Start I2S */
+		saa_writeb(SAA7134_I2S_AUDIO_OUTPUT, 0x11);
+		break;
+
+	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+		i2s_format = (dev->input->amux == TV) ? 0x00 : 0x01;
+
+		/* enable I2S audio output for the mpeg encoder */
+		saa_writeb(SAA7134_I2S_OUTPUT_SELECT, 0x80);
+		saa_writeb(SAA7134_I2S_OUTPUT_FORMAT, i2s_format);
+		saa_writeb(SAA7134_I2S_OUTPUT_LEVEL,  0x0F);
+		saa_writeb(SAA7134_I2S_AUDIO_OUTPUT,  0x01);
+		break;
+
+	default:
+		break;
+>>>>>>> upstream/android-13
 	}
 }
 

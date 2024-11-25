@@ -165,7 +165,10 @@ static int phy_berlin_usb_probe(struct platform_device *pdev)
 	const struct of_device_id *match =
 		of_match_device(phy_berlin_usb_of_match, &pdev->dev);
 	struct phy_berlin_usb_priv *priv;
+<<<<<<< HEAD
 	struct resource *res;
+=======
+>>>>>>> upstream/android-13
 	struct phy *phy;
 	struct phy_provider *phy_provider;
 
@@ -173,8 +176,12 @@ static int phy_berlin_usb_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+=======
+	priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>>>>>> upstream/android-13
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 

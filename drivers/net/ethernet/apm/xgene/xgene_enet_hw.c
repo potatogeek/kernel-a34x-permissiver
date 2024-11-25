@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /* Applied Micro X-Gene SoC Ethernet Driver
  *
  * Copyright (c) 2014, Applied Micro Circuits Corporation
  * Authors: Iyappan Subramanian <isubramanian@apm.com>
  *	    Ravi Patel <rapatel@apm.com>
  *	    Keyur Chudgar <kchudgar@apm.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -17,6 +22,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include "xgene_enet_main.h"
@@ -724,11 +731,19 @@ static int xgene_enet_reset(struct xgene_enet_pdata *pdata)
 		udelay(5);
 	} else {
 #ifdef CONFIG_ACPI
+<<<<<<< HEAD
 		if (acpi_has_method(ACPI_HANDLE(&pdata->pdev->dev), "_RST")) {
 			acpi_evaluate_object(ACPI_HANDLE(&pdata->pdev->dev),
 					     "_RST", NULL, NULL);
 		} else if (acpi_has_method(ACPI_HANDLE(&pdata->pdev->dev),
 					 "_INI")) {
+=======
+		acpi_status status;
+
+		status = acpi_evaluate_object(ACPI_HANDLE(&pdata->pdev->dev),
+					      "_RST", NULL, NULL);
+		if (ACPI_FAILURE(status)) {
+>>>>>>> upstream/android-13
 			acpi_evaluate_object(ACPI_HANDLE(&pdata->pdev->dev),
 					     "_INI", NULL, NULL);
 		}
@@ -895,12 +910,19 @@ int xgene_enet_phy_connect(struct net_device *ndev)
 	}
 
 	pdata->phy_speed = SPEED_UNKNOWN;
+<<<<<<< HEAD
 	phy_dev->supported &= ~SUPPORTED_10baseT_Half &
 			      ~SUPPORTED_100baseT_Half &
 			      ~SUPPORTED_1000baseT_Half;
 	phy_dev->supported |= SUPPORTED_Pause |
 			      SUPPORTED_Asym_Pause;
 	phy_dev->advertising = phy_dev->supported;
+=======
+	phy_remove_link_mode(phy_dev, ETHTOOL_LINK_MODE_10baseT_Half_BIT);
+	phy_remove_link_mode(phy_dev, ETHTOOL_LINK_MODE_100baseT_Half_BIT);
+	phy_remove_link_mode(phy_dev, ETHTOOL_LINK_MODE_1000baseT_Half_BIT);
+	phy_support_asym_pause(phy_dev);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

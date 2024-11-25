@@ -15,6 +15,10 @@
 #include <linux/time.h>
 #include <linux/namei.h>
 #include <linux/poll.h>
+<<<<<<< HEAD
+=======
+#include <linux/fiemap.h>
+>>>>>>> upstream/android-13
 
 static int bad_file_open(struct inode *inode, struct file *filp)
 {
@@ -26,8 +30,14 @@ static const struct file_operations bad_file_ops =
 	.open		= bad_file_open,
 };
 
+<<<<<<< HEAD
 static int bad_inode_create (struct inode *dir, struct dentry *dentry,
 		umode_t mode, bool excl)
+=======
+static int bad_inode_create(struct user_namespace *mnt_userns,
+			    struct inode *dir, struct dentry *dentry,
+			    umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	return -EIO;
 }
@@ -49,14 +59,25 @@ static int bad_inode_unlink(struct inode *dir, struct dentry *dentry)
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_symlink (struct inode *dir, struct dentry *dentry,
 		const char *symname)
+=======
+static int bad_inode_symlink(struct user_namespace *mnt_userns,
+			     struct inode *dir, struct dentry *dentry,
+			     const char *symname)
+>>>>>>> upstream/android-13
 {
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_mkdir(struct inode *dir, struct dentry *dentry,
 			umode_t mode)
+=======
+static int bad_inode_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+			   struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	return -EIO;
 }
@@ -66,13 +87,23 @@ static int bad_inode_rmdir (struct inode *dir, struct dentry *dentry)
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_mknod (struct inode *dir, struct dentry *dentry,
 			umode_t mode, dev_t rdev)
+=======
+static int bad_inode_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+			   struct dentry *dentry, umode_t mode, dev_t rdev)
+>>>>>>> upstream/android-13
 {
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_rename2(struct inode *old_dir, struct dentry *old_dentry,
+=======
+static int bad_inode_rename2(struct user_namespace *mnt_userns,
+			     struct inode *old_dir, struct dentry *old_dentry,
+>>>>>>> upstream/android-13
 			     struct inode *new_dir, struct dentry *new_dentry,
 			     unsigned int flags)
 {
@@ -85,18 +116,33 @@ static int bad_inode_readlink(struct dentry *dentry, char __user *buffer,
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_permission(struct inode *inode, int mask)
+=======
+static int bad_inode_permission(struct user_namespace *mnt_userns,
+				struct inode *inode, int mask)
+>>>>>>> upstream/android-13
 {
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_getattr(const struct path *path, struct kstat *stat,
+=======
+static int bad_inode_getattr(struct user_namespace *mnt_userns,
+			     const struct path *path, struct kstat *stat,
+>>>>>>> upstream/android-13
 			     u32 request_mask, unsigned int query_flags)
 {
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_setattr(struct dentry *direntry, struct iattr *attrs)
+=======
+static int bad_inode_setattr(struct user_namespace *mnt_userns,
+			     struct dentry *direntry, struct iattr *attrs)
+>>>>>>> upstream/android-13
 {
 	return -EIO;
 }
@@ -114,7 +160,11 @@ static const char *bad_inode_get_link(struct dentry *dentry,
 	return ERR_PTR(-EIO);
 }
 
+<<<<<<< HEAD
 static struct posix_acl *bad_inode_get_acl(struct inode *inode, int type)
+=======
+static struct posix_acl *bad_inode_get_acl(struct inode *inode, int type, bool rcu)
+>>>>>>> upstream/android-13
 {
 	return ERR_PTR(-EIO);
 }
@@ -139,13 +189,23 @@ static int bad_inode_atomic_open(struct inode *inode, struct dentry *dentry,
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_tmpfile(struct inode *inode, struct dentry *dentry,
+=======
+static int bad_inode_tmpfile(struct user_namespace *mnt_userns,
+			     struct inode *inode, struct dentry *dentry,
+>>>>>>> upstream/android-13
 			     umode_t mode)
 {
 	return -EIO;
 }
 
+<<<<<<< HEAD
 static int bad_inode_set_acl(struct inode *inode, struct posix_acl *acl,
+=======
+static int bad_inode_set_acl(struct user_namespace *mnt_userns,
+			     struct inode *inode, struct posix_acl *acl,
+>>>>>>> upstream/android-13
 			     int type)
 {
 	return -EIO;
@@ -206,7 +266,11 @@ void make_bad_inode(struct inode *inode)
 	inode->i_opflags &= ~IOP_XATTR;
 	inode->i_fop = &bad_file_ops;	
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL(make_bad_inode);
+=======
+EXPORT_SYMBOL_NS(make_bad_inode, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /*
  * This tests whether an inode has been flagged as bad. The test uses
@@ -226,7 +290,11 @@ bool is_bad_inode(struct inode *inode)
 	return (inode->i_op == &bad_inode_ops);	
 }
 
+<<<<<<< HEAD
 EXPORT_SYMBOL(is_bad_inode);
+=======
+EXPORT_SYMBOL_NS(is_bad_inode, ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 
 /**
  * iget_failed - Mark an under-construction inode as dead and release it

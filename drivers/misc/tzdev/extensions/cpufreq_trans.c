@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2012-2019, Samsung Electronics Co., Ltd.
+=======
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd All Rights Reserved
+>>>>>>> upstream/android-13
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -17,6 +21,10 @@
 #include "core/iwservice.h"
 #include "core/log.h"
 #include "core/subsystem.h"
+<<<<<<< HEAD
+=======
+#include "core/sysdep.h"
+>>>>>>> upstream/android-13
 
 static void cpufreq_trans_postchange_action(struct cpufreq_freqs *freqs)
 {
@@ -56,7 +64,11 @@ static struct notifier_block cpufreq_trans_notifier = {
 
 int cpufreq_trans_init(void)
 {
+<<<<<<< HEAD
 	return cpufreq_register_notifier(&cpufreq_trans_notifier,
+=======
+	return sysdep_cpufreq_register_notifier(&cpufreq_trans_notifier,
+>>>>>>> upstream/android-13
 		CPUFREQ_TRANSITION_NOTIFIER);
 }
 

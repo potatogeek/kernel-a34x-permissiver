@@ -1,9 +1,15 @@
 # SPDX-License-Identifier: GPL-2.0
 menuconfig PPC_83xx
 	bool "83xx-based boards"
+<<<<<<< HEAD
 	depends on 6xx
 	select PPC_UDBG_16550
 	select PPC_PCI_CHOICE
+=======
+	depends on PPC_BOOK3S_32
+	select PPC_UDBG_16550
+	select HAVE_PCI
+>>>>>>> upstream/android-13
 	select FSL_PCI if PCI
 	select FSL_SOC
 	select IPIC

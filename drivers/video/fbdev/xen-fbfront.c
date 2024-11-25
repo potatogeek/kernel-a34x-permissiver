@@ -328,7 +328,11 @@ static int xenfb_set_par(struct fb_info *info)
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct fb_ops xenfb_fb_ops = {
+=======
+static const struct fb_ops xenfb_fb_ops = {
+>>>>>>> upstream/android-13
 	.owner		= THIS_MODULE,
 	.fb_read	= fb_sys_read,
 	.fb_write	= xenfb_write,
@@ -677,7 +681,11 @@ static void xenfb_backend_changed(struct xenbus_device *dev,
 	case XenbusStateClosed:
 		if (dev->state == XenbusStateClosed)
 			break;
+<<<<<<< HEAD
 		/* Missed the backend's CLOSING state -- fallthrough */
+=======
+		fallthrough;	/* Missed the backend's CLOSING state */
+>>>>>>> upstream/android-13
 	case XenbusStateClosing:
 		xenbus_frontend_closed(dev);
 		break;

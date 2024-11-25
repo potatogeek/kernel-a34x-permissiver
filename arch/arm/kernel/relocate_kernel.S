@@ -27,26 +27,42 @@ ENTRY(relocate_new_kernel)
 	ldr	r3, [r0],#4
 
 	/* Is it a destination page. Put destination address to r4 */
+<<<<<<< HEAD
 	tst	r3,#1,0
+=======
+	tst	r3,#1
+>>>>>>> upstream/android-13
 	beq	1f
 	bic	r4,r3,#1
 	b	0b
 1:
 	/* Is it an indirection page */
+<<<<<<< HEAD
 	tst	r3,#2,0
+=======
+	tst	r3,#2
+>>>>>>> upstream/android-13
 	beq	1f
 	bic	r0,r3,#2
 	b	0b
 1:
 
 	/* are we done ? */
+<<<<<<< HEAD
 	tst	r3,#4,0
+=======
+	tst	r3,#4
+>>>>>>> upstream/android-13
 	beq	1f
 	b	2f
 
 1:
 	/* is it source ? */
+<<<<<<< HEAD
 	tst	r3,#8,0
+=======
+	tst	r3,#8
+>>>>>>> upstream/android-13
 	beq	0b
 	bic r3,r3,#8
 	mov r6,#1024

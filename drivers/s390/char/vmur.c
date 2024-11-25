@@ -62,7 +62,10 @@ static int ur_probe(struct ccw_device *cdev);
 static void ur_remove(struct ccw_device *cdev);
 static int ur_set_online(struct ccw_device *cdev);
 static int ur_set_offline(struct ccw_device *cdev);
+<<<<<<< HEAD
 static int ur_pm_suspend(struct ccw_device *cdev);
+=======
+>>>>>>> upstream/android-13
 
 static struct ccw_driver ur_driver = {
 	.driver = {
@@ -74,7 +77,10 @@ static struct ccw_driver ur_driver = {
 	.remove		= ur_remove,
 	.set_online	= ur_set_online,
 	.set_offline	= ur_set_offline,
+<<<<<<< HEAD
 	.freeze		= ur_pm_suspend,
+=======
+>>>>>>> upstream/android-13
 	.int_class	= IRQIO_VMR,
 };
 
@@ -165,6 +171,7 @@ static void urdev_put(struct urdev *urd)
 }
 
 /*
+<<<<<<< HEAD
  * State and contents of ur devices can be changed by class D users issuing
  * CP commands such as PURGE or TRANSFER, while the Linux guest is suspended.
  * Also the Linux guest might be logged off, which causes all active spool
@@ -187,6 +194,8 @@ static int ur_pm_suspend(struct ccw_device *cdev)
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * Low-level functions to do I/O to a ur device.
  *     alloc_chan_prog
  *     free_chan_prog
@@ -705,7 +714,11 @@ static int ur_open(struct inode *inode, struct file *file)
 	 * We treat the minor number as the devno of the ur device
 	 * to find in the driver tree.
 	 */
+<<<<<<< HEAD
 	devno = MINOR(file_inode(file)->i_rdev);
+=======
+	devno = iminor(file_inode(file));
+>>>>>>> upstream/android-13
 
 	urd = urdev_get_from_devno(devno);
 	if (!urd) {

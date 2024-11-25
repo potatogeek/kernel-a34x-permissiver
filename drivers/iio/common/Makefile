@@ -11,5 +11,9 @@
 obj-y += cros_ec_sensors/
 obj-y += hid-sensors/
 obj-y += ms_sensors/
+<<<<<<< HEAD
+=======
+obj-y += scmi_sensors/
+>>>>>>> upstream/android-13
 obj-y += ssp_sensors/
 obj-y += st_sensors/

@@ -21,6 +21,7 @@
  *
  */
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include "radeon.h"
 #include "cikd.h"
@@ -29,6 +30,17 @@
 #include "radeon_asic.h"
 #include <linux/seq_file.h>
 
+=======
+#include <linux/pci.h>
+#include <linux/seq_file.h>
+
+#include "cikd.h"
+#include "kv_dpm.h"
+#include "r600_dpm.h"
+#include "radeon.h"
+#include "radeon_asic.h"
+
+>>>>>>> upstream/android-13
 #define KV_MAX_DEEPSLEEP_DIVIDER_ID     5
 #define KV_MINIMUM_ENGINE_CLOCK         800
 #define SMC_RAM_END                     0x40000
@@ -63,6 +75,7 @@ extern void cik_exit_rlc_safe_mode(struct radeon_device *rdev);
 extern void cik_update_cg(struct radeon_device *rdev,
 			  u32 block, bool enable);
 
+<<<<<<< HEAD
 static const struct kv_lcac_config_values sx_local_cac_cfg_kv[] =
 {
 	{  0,       4,        1    },
@@ -162,6 +175,8 @@ static const struct kv_lcac_config_reg cpl_cac_config_reg[] =
 	{ 0xc0400d80, 0x003e0000, 17, 0x3fc00000, 22, 0x0001fffe, 1, 0x00000001, 0 }
 };
 
+=======
+>>>>>>> upstream/android-13
 static const struct kv_pt_config_reg didt_config_kv[] =
 {
 	{ 0x10, 0x000000ff, 0, 0x0, KV_CONFIGREG_DIDT_IND },
@@ -253,6 +268,7 @@ static struct kv_power_info *kv_get_pi(struct radeon_device *rdev)
 	return pi;
 }
 
+<<<<<<< HEAD
 #if 0
 static void kv_program_local_cac_table(struct radeon_device *rdev,
 				       const struct kv_lcac_config_values *local_cac_table,
@@ -279,6 +295,8 @@ static void kv_program_local_cac_table(struct radeon_device *rdev,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int kv_program_pt_config_registers(struct radeon_device *rdev,
 					  const struct kv_pt_config_reg *cac_config_regs)
 {
@@ -397,6 +415,7 @@ static int kv_enable_didt(struct radeon_device *rdev, bool enable)
 	return 0;
 }
 
+<<<<<<< HEAD
 #if 0
 static void kv_initialize_hardware_cac_manager(struct radeon_device *rdev)
 {
@@ -430,6 +449,8 @@ static void kv_initialize_hardware_cac_manager(struct radeon_device *rdev)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static int kv_enable_smc_cac(struct radeon_device *rdev, bool enable)
 {
 	struct kv_power_info *pi = kv_get_pi(rdev);
@@ -1226,9 +1247,13 @@ int kv_dpm_enable(struct radeon_device *rdev)
 		return ret;
 	}
 	kv_program_vc(rdev);
+<<<<<<< HEAD
 #if 0
 	kv_initialize_hardware_cac_manager(rdev);
 #endif
+=======
+
+>>>>>>> upstream/android-13
 	kv_start_am(rdev);
 	if (pi->enable_auto_thermal_throttling) {
 		ret = kv_enable_auto_thermal_throttling(rdev);
@@ -1329,6 +1354,7 @@ void kv_dpm_disable(struct radeon_device *rdev)
 	kv_update_current_ps(rdev, rdev->pm.dpm.boot_ps);
 }
 
+<<<<<<< HEAD
 #if 0
 static int kv_write_smc_soft_register(struct radeon_device *rdev,
 				      u16 reg_offset, u32 value)
@@ -1349,6 +1375,8 @@ static int kv_read_smc_soft_register(struct radeon_device *rdev,
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 static void kv_init_sclk_t(struct radeon_device *rdev)
 {
 	struct kv_power_info *pi = kv_get_pi(rdev);
@@ -1938,6 +1966,7 @@ void kv_dpm_setup_asic(struct radeon_device *rdev)
 	kv_init_sclk_t(rdev);
 }
 
+<<<<<<< HEAD
 #if 0
 void kv_dpm_reset_asic(struct radeon_device *rdev)
 {
@@ -1961,6 +1990,8 @@ void kv_dpm_reset_asic(struct radeon_device *rdev)
 }
 #endif
 
+=======
+>>>>>>> upstream/android-13
 //XXX use sumo_dpm_display_configuration_changed
 
 static void kv_construct_max_power_limits_table(struct radeon_device *rdev,

@@ -1,14 +1,21 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Allwinner SoCs Reset Controller driver
  *
  * Copyright 2013 Maxime Ripard
  *
  * Maxime Ripard <maxime.ripard@free-electrons.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/err.h>
@@ -18,12 +25,20 @@
 #include <linux/of_address.h>
 #include <linux/platform_device.h>
 #include <linux/reset-controller.h>
+<<<<<<< HEAD
+=======
+#include <linux/reset/reset-simple.h>
+#include <linux/reset/sunxi.h>
+>>>>>>> upstream/android-13
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/types.h>
 
+<<<<<<< HEAD
 #include "reset-simple.h"
 
+=======
+>>>>>>> upstream/android-13
 static int sunxi_reset_init(struct device_node *np)
 {
 	struct reset_simple_data *data;

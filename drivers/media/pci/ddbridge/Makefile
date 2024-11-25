@@ -7,7 +7,14 @@ ddbridge-objs := ddbridge-main.o ddbridge-core.o ddbridge-ci.o \
 		ddbridge-hw.o ddbridge-i2c.o ddbridge-max.o ddbridge-mci.o \
 		ddbridge-sx8.o
 
+<<<<<<< HEAD
 obj-$(CONFIG_DVB_DDBRIDGE) += ddbridge.o
 
 ccflags-y += -Idrivers/media/dvb-frontends/
 ccflags-y += -Idrivers/media/tuners/
+=======
+obj-$(CONFIG_DVB_DDBRIDGE) += ddbridge.o ddbridge-dummy-fe.o
+
+ccflags-y += -I $(srctree)/drivers/media/dvb-frontends/
+ccflags-y += -I $(srctree)/drivers/media/tuners/
+>>>>>>> upstream/android-13

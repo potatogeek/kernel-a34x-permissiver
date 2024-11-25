@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright 2013 Google Inc.
  * Author: Willem de Bruijn (willemb@google.com)
@@ -24,6 +28,7 @@
  *
  * Todo:
  * - functionality: PACKET_FANOUT_FLAG_DEFRAG
+<<<<<<< HEAD
  *
  * License (GPLv2):
  *
@@ -39,6 +44,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #define _GNU_SOURCE		/* for sched_setaffinity */
@@ -70,12 +77,22 @@
 
 #define RING_NUM_FRAMES			20
 
+<<<<<<< HEAD
+=======
+static uint32_t cfg_max_num_members;
+
+>>>>>>> upstream/android-13
 /* Open a socket in a given fanout mode.
  * @return -1 if mode is bad, a valid socket otherwise */
 static int sock_fanout_open(uint16_t typeflags, uint16_t group_id)
 {
 	struct sockaddr_ll addr = {0};
+<<<<<<< HEAD
 	int fd, val;
+=======
+	struct fanout_args args;
+	int fd, val, err;
+>>>>>>> upstream/android-13
 
 	fd = socket(PF_PACKET, SOCK_RAW, 0);
 	if (fd < 0) {
@@ -97,8 +114,23 @@ static int sock_fanout_open(uint16_t typeflags, uint16_t group_id)
 		exit(1);
 	}
 
+<<<<<<< HEAD
 	val = (((int) typeflags) << 16) | group_id;
 	if (setsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val, sizeof(val))) {
+=======
+	if (cfg_max_num_members) {
+		args.id = group_id;
+		args.type_flags = typeflags;
+		args.max_num_members = cfg_max_num_members;
+		err = setsockopt(fd, SOL_PACKET, PACKET_FANOUT, &args,
+				 sizeof(args));
+	} else {
+		val = (((int) typeflags) << 16) | group_id;
+		err = setsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val,
+				 sizeof(val));
+	}
+	if (err) {
+>>>>>>> upstream/android-13
 		if (close(fd)) {
 			perror("close packet");
 			exit(1);
@@ -112,8 +144,13 @@ static int sock_fanout_open(uint16_t typeflags, uint16_t group_id)
 static void sock_fanout_set_cbpf(int fd)
 {
 	struct sock_filter bpf_filter[] = {
+<<<<<<< HEAD
 		BPF_STMT(BPF_LD+BPF_B+BPF_ABS, 80),	      /* ldb [80] */
 		BPF_STMT(BPF_RET+BPF_A, 0),		      /* ret A */
+=======
+		BPF_STMT(BPF_LD | BPF_B | BPF_ABS, 80),	      /* ldb [80] */
+		BPF_STMT(BPF_RET | BPF_A, 0),		      /* ret A */
+>>>>>>> upstream/android-13
 	};
 	struct sock_fprog bpf_prog;
 
@@ -300,6 +337,59 @@ static void test_control_group(void)
 	}
 }
 
+<<<<<<< HEAD
+=======
+/* Test illegal max_num_members values */
+static void test_control_group_max_num_members(void)
+{
+	int fds[3];
+
+	fprintf(stderr, "test: control multiple sockets, max_num_members\n");
+
+	/* expected failure on greater than PACKET_FANOUT_MAX */
+	cfg_max_num_members = (1 << 16) + 1;
+	if (sock_fanout_open(PACKET_FANOUT_HASH, 0) != -1) {
+		fprintf(stderr, "ERROR: max_num_members > PACKET_FANOUT_MAX\n");
+		exit(1);
+	}
+
+	cfg_max_num_members = 256;
+	fds[0] = sock_fanout_open(PACKET_FANOUT_HASH, 0);
+	if (fds[0] == -1) {
+		fprintf(stderr, "ERROR: failed open\n");
+		exit(1);
+	}
+
+	/* expected failure on joining group with different max_num_members */
+	cfg_max_num_members = 257;
+	if (sock_fanout_open(PACKET_FANOUT_HASH, 0) != -1) {
+		fprintf(stderr, "ERROR: set different max_num_members\n");
+		exit(1);
+	}
+
+	/* success on joining group with same max_num_members */
+	cfg_max_num_members = 256;
+	fds[1] = sock_fanout_open(PACKET_FANOUT_HASH, 0);
+	if (fds[1] == -1) {
+		fprintf(stderr, "ERROR: failed to join group\n");
+		exit(1);
+	}
+
+	/* success on joining group with max_num_members unspecified */
+	cfg_max_num_members = 0;
+	fds[2] = sock_fanout_open(PACKET_FANOUT_HASH, 0);
+	if (fds[2] == -1) {
+		fprintf(stderr, "ERROR: failed to join group\n");
+		exit(1);
+	}
+
+	if (close(fds[2]) || close(fds[1]) || close(fds[0])) {
+		fprintf(stderr, "ERROR: closing sockets\n");
+		exit(1);
+	}
+}
+
+>>>>>>> upstream/android-13
 /* Test creating a unique fanout group ids */
 static void test_unique_fanout_group_ids(void)
 {
@@ -440,8 +530,16 @@ int main(int argc, char **argv)
 
 	test_control_single();
 	test_control_group();
+<<<<<<< HEAD
 	test_unique_fanout_group_ids();
 
+=======
+	test_control_group_max_num_members();
+	test_unique_fanout_group_ids();
+
+	/* PACKET_FANOUT_MAX */
+	cfg_max_num_members = 1 << 16;
+>>>>>>> upstream/android-13
 	/* find a set of ports that do not collide onto the same socket */
 	ret = test_datapath(PACKET_FANOUT_HASH, port_off,
 			    expect_hash[0], expect_hash[1]);

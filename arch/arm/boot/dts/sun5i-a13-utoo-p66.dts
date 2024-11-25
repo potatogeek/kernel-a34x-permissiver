@@ -58,6 +58,7 @@
 		/delete-property/stdout-path;
 	};
 
+<<<<<<< HEAD
 	i2c_lcd: i2c@0 {
 		/* The lcd panel i2c interface is hooked up via gpios */
 		compatible = "i2c-gpio";
@@ -65,6 +66,13 @@
 		pinctrl-0 = <&i2c_lcd_pins>;
 		gpios = <&pio 6 12 GPIO_ACTIVE_HIGH>, /* PG12, sda */
 			<&pio 6 10 GPIO_ACTIVE_HIGH>; /* PG10, scl */
+=======
+	i2c_lcd: i2c {
+		/* The lcd panel i2c interface is hooked up via gpios */
+		compatible = "i2c-gpio";
+		sda-gpios = <&pio 6 12 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PG12 */
+		scl-gpios = <&pio 6 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PG10 */
+>>>>>>> upstream/android-13
 		i2c-gpio,delay-us = <5>;
 	};
 };
@@ -79,6 +87,7 @@
 	allwinner,pa-gpios = <&pio 6 3 GPIO_ACTIVE_HIGH>; /* PG3 */
 };
 
+<<<<<<< HEAD
 &codec_pa_pin {
 	pins = "PG3";
 };
@@ -86,6 +95,11 @@
 &mmc2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc2_pins_a>;
+=======
+&mmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc2_8bit_pins>;
+>>>>>>> upstream/android-13
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <8>;
 	non-removable;
@@ -98,6 +112,7 @@
 	};
 };
 
+<<<<<<< HEAD
 &pio {
 	i2c_lcd_pins: i2c_lcd_pin@0 {
 		pins = "PG10", "PG12";
@@ -106,6 +121,8 @@
 	};
 };
 
+=======
+>>>>>>> upstream/android-13
 &reg_usb0_vbus {
 	gpio = <&pio 1 4 GPIO_ACTIVE_HIGH>; /* PB4 */
 };
@@ -128,7 +145,10 @@
 	/* The P66 uses the uart pins as gpios */
 	status = "disabled";
 };
+<<<<<<< HEAD
 
 &usb0_vbus_pin_a {
 	pins = "PB4";
 };
+=======
+>>>>>>> upstream/android-13

@@ -5,7 +5,11 @@
  *                   Declarations and definitions contained herein are derived
  *                   directly from the ACPI specification.
  *
+<<<<<<< HEAD
  * Copyright (C) 2000 - 2018, Intel Corp.
+=======
+ * Copyright (C) 2000 - 2021, Intel Corp.
+>>>>>>> upstream/android-13
  *
  *****************************************************************************/
 
@@ -432,6 +436,7 @@ typedef enum {
  */
 typedef enum {
 	AML_FIELD_ATTRIB_QUICK = 0x02,
+<<<<<<< HEAD
 	AML_FIELD_ATTRIB_SEND_RCV = 0x04,
 	AML_FIELD_ATTRIB_BYTE = 0x06,
 	AML_FIELD_ATTRIB_WORD = 0x08,
@@ -441,6 +446,17 @@ typedef enum {
 	AML_FIELD_ATTRIB_BLOCK_CALL = 0x0D,
 	AML_FIELD_ATTRIB_RAW_BYTES = 0x0E,
 	AML_FIELD_ATTRIB_RAW_PROCESS = 0x0F
+=======
+	AML_FIELD_ATTRIB_SEND_RECEIVE = 0x04,
+	AML_FIELD_ATTRIB_BYTE = 0x06,
+	AML_FIELD_ATTRIB_WORD = 0x08,
+	AML_FIELD_ATTRIB_BLOCK = 0x0A,
+	AML_FIELD_ATTRIB_BYTES = 0x0B,
+	AML_FIELD_ATTRIB_PROCESS_CALL = 0x0C,
+	AML_FIELD_ATTRIB_BLOCK_PROCESS_CALL = 0x0D,
+	AML_FIELD_ATTRIB_RAW_BYTES = 0x0E,
+	AML_FIELD_ATTRIB_RAW_PROCESS_BYTES = 0x0F
+>>>>>>> upstream/android-13
 } AML_ACCESS_ATTRIBUTE;
 
 /* Bit fields in the AML method_flags byte */

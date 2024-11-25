@@ -73,12 +73,15 @@ SECTIONS
 
 	.text		: { *(.text*) }			:text	=0x90909090,
 
+<<<<<<< HEAD
 	.vread_tick_patch : {
 		vread_tick_patch_start = .;
 		*(.vread_tick_patch)
 		vread_tick_patch_end = .;
 	}
 
+=======
+>>>>>>> upstream/android-13
 	/DISCARD/ : {
 		*(.discard)
 		*(.discard.*)

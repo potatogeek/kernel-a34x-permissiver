@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright 2009 Freescale Semiconductor, Inc.
  *
@@ -6,6 +7,12 @@
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
  *
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright 2009 Freescale Semiconductor, Inc.
+ *
+>>>>>>> upstream/android-13
  * provides masks and opcode images for use by code generation, emulation
  * and for instructions that older assemblers might not know about
  */

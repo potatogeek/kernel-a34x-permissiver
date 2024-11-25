@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  sst_drv_interface.c - Intel SST Driver for audio engine
  *
@@ -7,6 +11,7 @@
  *		Dharageswari R <dharageswari.r@intel.com)
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+<<<<<<< HEAD
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; version 2 of the License.
@@ -16,6 +21,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 #include <linux/delay.h>
@@ -32,9 +39,12 @@
 #include <asm/platform_sst_audio.h>
 #include "../sst-mfld-platform.h"
 #include "sst.h"
+<<<<<<< HEAD
 #include "../../common/sst-dsp.h"
 
 
+=======
+>>>>>>> upstream/android-13
 
 #define NUM_CODEC 2
 #define MIN_FRAGMENT 2
@@ -146,7 +156,11 @@ static int sst_power_control(struct device *dev, bool state)
 	int ret = 0;
 	int usage_count = 0;
 
+<<<<<<< HEAD
 	if (state == true) {
+=======
+	if (state) {
+>>>>>>> upstream/android-13
 		ret = pm_runtime_get_sync(dev);
 		usage_count = GET_USAGE_COUNT(dev);
 		dev_dbg(ctx->dev, "Enable: pm usage count: %d\n", usage_count);
@@ -377,7 +391,11 @@ static int sst_cdev_tstamp(struct device *dev, unsigned int str_id,
 	tstamp->sampling_rate = fw_tstamp.sampling_frequency;
 
 	dev_dbg(dev, "PCM  = %u\n", tstamp->pcm_io_frames);
+<<<<<<< HEAD
 	dev_dbg(dev, "Ptr Query on strid = %d  copied_total %llu, decodec %d\n",
+=======
+	dev_dbg(dev, "Ptr Query on strid = %d  copied_total %d, decodec %d\n",
+>>>>>>> upstream/android-13
 		str_id, tstamp->copied_total, tstamp->pcm_frames);
 	dev_dbg(dev, "rendered %d\n", tstamp->pcm_io_frames);
 

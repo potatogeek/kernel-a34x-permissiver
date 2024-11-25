@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2016 Imagination Technologies
  * Author: Paul Burton <paul.burton@mips.com>
@@ -6,17 +7,34 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (C) 2016 Imagination Technologies
+ * Author: Paul Burton <paul.burton@mips.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/of.h>
 
 #include <asm/bootinfo.h>
 
+<<<<<<< HEAD
+=======
+char *system_type;
+
+>>>>>>> upstream/android-13
 const char *get_system_type(void)
 {
 	const char *str;
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (system_type)
+		return system_type;
+
+>>>>>>> upstream/android-13
 	err = of_property_read_string(of_root, "model", &str);
 	if (!err)
 		return str;

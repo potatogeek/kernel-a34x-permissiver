@@ -11,6 +11,10 @@
 
 #include <linux/kernel.h>
 #include <linux/init.h>
+<<<<<<< HEAD
+=======
+#include <linux/memblock.h>
+>>>>>>> upstream/android-13
 #include <linux/string.h>
 #include <linux/console.h>
 
@@ -86,10 +90,13 @@ void *prom_get_hwconf(void)
 	return (void *)CKSEG1ADDR(hwconf);
 }
 
+<<<<<<< HEAD
 void __init prom_free_prom_memory(void)
 {
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * /proc/cpuinfo system type
  *
@@ -131,8 +138,12 @@ static void __init sni_mem_init(void)
 		}
 		pr_debug("Bank%d: %08x @ %08x\n", i,
 			memconf[i].size, memconf[i].base);
+<<<<<<< HEAD
 		add_memory_region(memconf[i].base, memconf[i].size,
 				  BOOT_MEM_RAM);
+=======
+		memblock_add(memconf[i].base, memconf[i].size);
+>>>>>>> upstream/android-13
 	}
 }
 

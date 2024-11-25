@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2013-2016, Linux Foundation. All rights reserved.
  *
@@ -12,11 +13,25 @@
  *
  */
 
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2013-2016, Linux Foundation. All rights reserved.
+ */
+
+#include <linux/acpi.h>
+>>>>>>> upstream/android-13
 #include <linux/time.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/phy/phy.h>
+<<<<<<< HEAD
 #include <linux/phy/phy-qcom-ufs.h>
+=======
+#include <linux/gpio/consumer.h>
+#include <linux/reset-controller.h>
+#include <linux/devfreq.h>
+>>>>>>> upstream/android-13
 
 #include "ufshcd.h"
 #include "ufshcd-pltfrm.h"
@@ -45,11 +60,22 @@ enum {
 
 static struct ufs_qcom_host *ufs_qcom_hosts[MAX_UFS_QCOM_HOSTS];
 
+<<<<<<< HEAD
 static int ufs_qcom_set_bus_vote(struct ufs_qcom_host *host, int vote);
+=======
+>>>>>>> upstream/android-13
 static void ufs_qcom_get_default_testbus_cfg(struct ufs_qcom_host *host);
 static int ufs_qcom_set_dme_vs_core_clk_ctrl_clear_div(struct ufs_hba *hba,
 						       u32 clk_cycles);
 
+<<<<<<< HEAD
+=======
+static struct ufs_qcom_host *rcdev_to_ufs_host(struct reset_controller_dev *rcd)
+{
+	return container_of(rcd, struct ufs_qcom_host, rcdev);
+}
+
+>>>>>>> upstream/android-13
 static void ufs_qcom_dump_regs_wrapper(struct ufs_hba *hba, int offset, int len,
 				       const char *prefix, void *priv)
 {
@@ -70,12 +96,17 @@ static int ufs_qcom_get_connected_tx_lanes(struct ufs_hba *hba, u32 *tx_lanes)
 }
 
 static int ufs_qcom_host_clk_get(struct device *dev,
+<<<<<<< HEAD
 		const char *name, struct clk **clk_out)
+=======
+		const char *name, struct clk **clk_out, bool optional)
+>>>>>>> upstream/android-13
 {
 	struct clk *clk;
 	int err = 0;
 
 	clk = devm_clk_get(dev, name);
+<<<<<<< HEAD
 	if (IS_ERR(clk)) {
 		err = PTR_ERR(clk);
 		dev_err(dev, "%s: failed to get %s err %d",
@@ -84,6 +115,23 @@ static int ufs_qcom_host_clk_get(struct device *dev,
 		*clk_out = clk;
 	}
 
+=======
+	if (!IS_ERR(clk)) {
+		*clk_out = clk;
+		return 0;
+	}
+
+	err = PTR_ERR(clk);
+
+	if (optional && err == -ENOENT) {
+		*clk_out = NULL;
+		return 0;
+	}
+
+	if (err != -EPROBE_DEFER)
+		dev_err(dev, "failed to get %s err %d\n", name, err);
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -104,11 +152,17 @@ static void ufs_qcom_disable_lane_clks(struct ufs_qcom_host *host)
 	if (!host->is_lane_clks_enabled)
 		return;
 
+<<<<<<< HEAD
 	if (host->hba->lanes_per_direction > 1)
 		clk_disable_unprepare(host->tx_l1_sync_clk);
 	clk_disable_unprepare(host->tx_l0_sync_clk);
 	if (host->hba->lanes_per_direction > 1)
 		clk_disable_unprepare(host->rx_l1_sync_clk);
+=======
+	clk_disable_unprepare(host->tx_l1_sync_clk);
+	clk_disable_unprepare(host->tx_l0_sync_clk);
+	clk_disable_unprepare(host->rx_l1_sync_clk);
+>>>>>>> upstream/android-13
 	clk_disable_unprepare(host->rx_l0_sync_clk);
 
 	host->is_lane_clks_enabled = false;
@@ -132,6 +186,7 @@ static int ufs_qcom_enable_lane_clks(struct ufs_qcom_host *host)
 	if (err)
 		goto disable_rx_l0;
 
+<<<<<<< HEAD
 	if (host->hba->lanes_per_direction > 1) {
 		err = ufs_qcom_host_clk_enable(dev, "rx_lane1_sync_clk",
 			host->rx_l1_sync_clk);
@@ -143,13 +198,28 @@ static int ufs_qcom_enable_lane_clks(struct ufs_qcom_host *host)
 		if (err)
 			goto disable_rx_l1;
 	}
+=======
+	err = ufs_qcom_host_clk_enable(dev, "rx_lane1_sync_clk",
+			host->rx_l1_sync_clk);
+	if (err)
+		goto disable_tx_l0;
+
+	err = ufs_qcom_host_clk_enable(dev, "tx_lane1_sync_clk",
+			host->tx_l1_sync_clk);
+	if (err)
+		goto disable_rx_l1;
+>>>>>>> upstream/android-13
 
 	host->is_lane_clks_enabled = true;
 	goto out;
 
 disable_rx_l1:
+<<<<<<< HEAD
 	if (host->hba->lanes_per_direction > 1)
 		clk_disable_unprepare(host->rx_l1_sync_clk);
+=======
+	clk_disable_unprepare(host->rx_l1_sync_clk);
+>>>>>>> upstream/android-13
 disable_tx_l0:
 	clk_disable_unprepare(host->tx_l0_sync_clk);
 disable_rx_l0:
@@ -163,6 +233,7 @@ static int ufs_qcom_init_lane_clks(struct ufs_qcom_host *host)
 	int err = 0;
 	struct device *dev = host->hba->dev;
 
+<<<<<<< HEAD
 	err = ufs_qcom_host_clk_get(dev,
 			"rx_lane0_sync_clk", &host->rx_l0_sync_clk);
 	if (err)
@@ -170,18 +241,38 @@ static int ufs_qcom_init_lane_clks(struct ufs_qcom_host *host)
 
 	err = ufs_qcom_host_clk_get(dev,
 			"tx_lane0_sync_clk", &host->tx_l0_sync_clk);
+=======
+	if (has_acpi_companion(dev))
+		return 0;
+
+	err = ufs_qcom_host_clk_get(dev, "rx_lane0_sync_clk",
+					&host->rx_l0_sync_clk, false);
+	if (err)
+		goto out;
+
+	err = ufs_qcom_host_clk_get(dev, "tx_lane0_sync_clk",
+					&host->tx_l0_sync_clk, false);
+>>>>>>> upstream/android-13
 	if (err)
 		goto out;
 
 	/* In case of single lane per direction, don't read lane1 clocks */
 	if (host->hba->lanes_per_direction > 1) {
 		err = ufs_qcom_host_clk_get(dev, "rx_lane1_sync_clk",
+<<<<<<< HEAD
 			&host->rx_l1_sync_clk);
+=======
+			&host->rx_l1_sync_clk, false);
+>>>>>>> upstream/android-13
 		if (err)
 			goto out;
 
 		err = ufs_qcom_host_clk_get(dev, "tx_lane1_sync_clk",
+<<<<<<< HEAD
 			&host->tx_l1_sync_clk);
+=======
+			&host->tx_l1_sync_clk, true);
+>>>>>>> upstream/android-13
 	}
 out:
 	return err;
@@ -189,6 +280,7 @@ out:
 
 static int ufs_qcom_link_startup_post_change(struct ufs_hba *hba)
 {
+<<<<<<< HEAD
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
 	struct phy *phy = host->generic_phy;
 	u32 tx_lanes;
@@ -205,6 +297,11 @@ static int ufs_qcom_link_startup_post_change(struct ufs_hba *hba)
 
 out:
 	return err;
+=======
+	u32 tx_lanes;
+
+	return ufs_qcom_get_connected_tx_lanes(hba, &tx_lanes);
+>>>>>>> upstream/android-13
 }
 
 static int ufs_qcom_check_hibern8(struct ufs_hba *hba)
@@ -256,6 +353,57 @@ static void ufs_qcom_select_unipro_mode(struct ufs_qcom_host *host)
 	mb();
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * ufs_qcom_host_reset - reset host controller and PHY
+ */
+static int ufs_qcom_host_reset(struct ufs_hba *hba)
+{
+	int ret = 0;
+	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+	bool reenable_intr = false;
+
+	if (!host->core_reset) {
+		dev_warn(hba->dev, "%s: reset control not set\n", __func__);
+		goto out;
+	}
+
+	reenable_intr = hba->is_irq_enabled;
+	disable_irq(hba->irq);
+	hba->is_irq_enabled = false;
+
+	ret = reset_control_assert(host->core_reset);
+	if (ret) {
+		dev_err(hba->dev, "%s: core_reset assert failed, err = %d\n",
+				 __func__, ret);
+		goto out;
+	}
+
+	/*
+	 * The hardware requirement for delay between assert/deassert
+	 * is at least 3-4 sleep clock (32.7KHz) cycles, which comes to
+	 * ~125us (4/32768). To be on the safe side add 200us delay.
+	 */
+	usleep_range(200, 210);
+
+	ret = reset_control_deassert(host->core_reset);
+	if (ret)
+		dev_err(hba->dev, "%s: core_reset deassert failed, err = %d\n",
+				 __func__, ret);
+
+	usleep_range(1000, 1100);
+
+	if (reenable_intr) {
+		enable_irq(hba->irq);
+		hba->is_irq_enabled = true;
+	}
+
+out:
+	return ret;
+}
+
+>>>>>>> upstream/android-13
 static int ufs_qcom_power_up_sequence(struct ufs_hba *hba)
 {
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
@@ -264,6 +412,7 @@ static int ufs_qcom_power_up_sequence(struct ufs_hba *hba)
 	bool is_rate_B = (UFS_QCOM_LIMIT_HS_RATE == PA_HS_MODE_B)
 							? true : false;
 
+<<<<<<< HEAD
 	if (is_rate_B)
 		phy_set_mode(phy, PHY_MODE_UFS_HS_B);
 
@@ -272,6 +421,17 @@ static int ufs_qcom_power_up_sequence(struct ufs_hba *hba)
 	/* provide 1ms delay to let the reset pulse propagate */
 	usleep_range(1000, 1100);
 
+=======
+	/* Reset UFS Host Controller and PHY */
+	ret = ufs_qcom_host_reset(hba);
+	if (ret)
+		dev_warn(hba->dev, "%s: host reset returned %d\n",
+				  __func__, ret);
+
+	if (is_rate_B)
+		phy_set_mode(phy, PHY_MODE_UFS_HS_B);
+
+>>>>>>> upstream/android-13
 	/* phy initialization - calibrate the phy */
 	ret = phy_init(phy);
 	if (ret) {
@@ -280,6 +440,7 @@ static int ufs_qcom_power_up_sequence(struct ufs_hba *hba)
 		goto out;
 	}
 
+<<<<<<< HEAD
 	/* De-assert PHY reset and start serdes */
 	ufs_qcom_deassert_reset(hba);
 
@@ -289,6 +450,8 @@ static int ufs_qcom_power_up_sequence(struct ufs_hba *hba)
 	 */
 	usleep_range(1000, 1100);
 
+=======
+>>>>>>> upstream/android-13
 	/* power on phy - start serdes and phy's power and clocks */
 	ret = phy_power_on(phy);
 	if (ret) {
@@ -302,7 +465,10 @@ static int ufs_qcom_power_up_sequence(struct ufs_hba *hba)
 	return 0;
 
 out_disable_phy:
+<<<<<<< HEAD
 	ufs_qcom_assert_reset(hba);
+=======
+>>>>>>> upstream/android-13
 	phy_exit(phy);
 out:
 	return ret;
@@ -346,7 +512,11 @@ static int ufs_qcom_hce_enable_notify(struct ufs_hba *hba,
 		/* check if UFS PHY moved from DISABLED to HIBERN8 */
 		err = ufs_qcom_check_hibern8(hba);
 		ufs_qcom_enable_hw_clk_gating(hba);
+<<<<<<< HEAD
 
+=======
+		ufs_qcom_ice_enable(host);
+>>>>>>> upstream/android-13
 		break;
 	default:
 		dev_err(hba->dev, "%s: invalid status %d\n", __func__, status);
@@ -356,7 +526,11 @@ static int ufs_qcom_hce_enable_notify(struct ufs_hba *hba,
 	return err;
 }
 
+<<<<<<< HEAD
 /**
+=======
+/*
+>>>>>>> upstream/android-13
  * Returns zero for success and non-zero in case of a failure
  */
 static int ufs_qcom_cfg_timers(struct ufs_hba *hba, u32 gear,
@@ -549,11 +723,33 @@ out:
 	return err;
 }
 
+<<<<<<< HEAD
 static int ufs_qcom_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
 {
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
 	struct phy *phy = host->generic_phy;
 	int ret = 0;
+=======
+static void ufs_qcom_device_reset_ctrl(struct ufs_hba *hba, bool asserted)
+{
+	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+
+	/* reset gpio is optional */
+	if (!host->device_reset)
+		return;
+
+	gpiod_set_value_cansleep(host->device_reset, asserted);
+}
+
+static int ufs_qcom_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op,
+	enum ufs_notify_change_status status)
+{
+	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+	struct phy *phy = host->generic_phy;
+
+	if (status == PRE_CHANGE)
+		return 0;
+>>>>>>> upstream/android-13
 
 	if (ufs_qcom_is_link_off(hba)) {
 		/*
@@ -564,6 +760,7 @@ static int ufs_qcom_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
 		ufs_qcom_disable_lane_clks(host);
 		phy_power_off(phy);
 
+<<<<<<< HEAD
 		/* Assert PHY soft reset */
 		ufs_qcom_assert_reset(hba);
 		goto out;
@@ -580,6 +777,16 @@ static int ufs_qcom_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
 
 out:
 	return ret;
+=======
+		/* reset the connected UFS device during power down */
+		ufs_qcom_device_reset_ctrl(hba, true);
+
+	} else if (!ufs_qcom_is_link_active(hba)) {
+		ufs_qcom_disable_lane_clks(host);
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static int ufs_qcom_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
@@ -588,6 +795,7 @@ static int ufs_qcom_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
 	struct phy *phy = host->generic_phy;
 	int err;
 
+<<<<<<< HEAD
 	err = phy_power_on(phy);
 	if (err) {
 		dev_err(hba->dev, "%s: failed enabling regs, err = %d\n",
@@ -788,6 +996,34 @@ static int ufs_qcom_bus_register(struct ufs_qcom_host *host)
 }
 #endif /* CONFIG_MSM_BUS_SCALING */
 
+=======
+	if (ufs_qcom_is_link_off(hba)) {
+		err = phy_power_on(phy);
+		if (err) {
+			dev_err(hba->dev, "%s: failed PHY power on: %d\n",
+				__func__, err);
+			return err;
+		}
+
+		err = ufs_qcom_enable_lane_clks(host);
+		if (err)
+			return err;
+
+	} else if (!ufs_qcom_is_link_active(hba)) {
+		err = ufs_qcom_enable_lane_clks(host);
+		if (err)
+			return err;
+	}
+
+	err = ufs_qcom_ice_resume(host);
+	if (err)
+		return err;
+
+	hba->is_sys_suspended = false;
+	return 0;
+}
+
+>>>>>>> upstream/android-13
 static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_qcom_host *host, bool enable)
 {
 	if (host->dev_ref_clk_ctrl_mmio &&
@@ -802,11 +1038,35 @@ static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_qcom_host *host, bool enable)
 		/*
 		 * If we are here to disable this clock it might be immediately
 		 * after entering into hibern8 in which case we need to make
+<<<<<<< HEAD
 		 * sure that device ref_clk is active at least 1us after the
 		 * hibern8 enter.
 		 */
 		if (!enable)
 			udelay(1);
+=======
+		 * sure that device ref_clk is active for specific time after
+		 * hibern8 enter.
+		 */
+		if (!enable) {
+			unsigned long gating_wait;
+
+			gating_wait = host->hba->dev_info.clk_gating_wait_us;
+			if (!gating_wait) {
+				udelay(1);
+			} else {
+				/*
+				 * bRefClkGatingWaitTime defines the minimum
+				 * time for which the reference clock is
+				 * required by device during transition from
+				 * HS-MODE to LS-MODE or HIBERN8 state. Give it
+				 * more delay to be on the safe side.
+				 */
+				gating_wait += 10;
+				usleep_range(gating_wait, gating_wait + 10);
+			}
+		}
+>>>>>>> upstream/android-13
 
 		writel_relaxed(temp, host->dev_ref_clk_ctrl_mmio);
 
@@ -830,12 +1090,18 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 				struct ufs_pa_layer_attr *dev_max_params,
 				struct ufs_pa_layer_attr *dev_req_params)
 {
+<<<<<<< HEAD
 	u32 val;
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
 	struct phy *phy = host->generic_phy;
 	struct ufs_dev_params ufs_qcom_cap;
 	int ret = 0;
 	int res = 0;
+=======
+	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+	struct ufs_dev_params ufs_qcom_cap;
+	int ret = 0;
+>>>>>>> upstream/android-13
 
 	if (!dev_req_params) {
 		pr_err("%s: incoming dev_req_params is NULL\n", __func__);
@@ -845,6 +1111,7 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 
 	switch (status) {
 	case PRE_CHANGE:
+<<<<<<< HEAD
 		ufs_qcom_cap.tx_lanes = UFS_QCOM_LIMIT_NUM_LANES_TX;
 		ufs_qcom_cap.rx_lanes = UFS_QCOM_LIMIT_NUM_LANES_RX;
 		ufs_qcom_cap.hs_rx_gear = UFS_QCOM_LIMIT_HSGEAR_RX;
@@ -858,6 +1125,10 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 		ufs_qcom_cap.hs_rate = UFS_QCOM_LIMIT_HS_RATE;
 		ufs_qcom_cap.desired_working_mode =
 					UFS_QCOM_LIMIT_DESIRED_MODE;
+=======
+		ufshcd_init_pwr_dev_param(&ufs_qcom_cap);
+		ufs_qcom_cap.hs_rate = UFS_QCOM_LIMIT_HS_RATE;
+>>>>>>> upstream/android-13
 
 		if (host->hw_ver.major == 0x1) {
 			/*
@@ -886,6 +1157,15 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 		if (!ufshcd_is_hs_mode(&hba->pwr_info) &&
 			ufshcd_is_hs_mode(dev_req_params))
 			ufs_qcom_dev_ref_clk_ctrl(host, true);
+<<<<<<< HEAD
+=======
+
+		if (host->hw_ver.major >= 0x4) {
+			ufshcd_dme_configure_adapt(hba,
+						dev_req_params->gear_tx,
+						PA_INITIAL_ADAPT);
+		}
+>>>>>>> upstream/android-13
 		break;
 	case POST_CHANGE:
 		if (ufs_qcom_cfg_timers(hba, dev_req_params->gear_rx,
@@ -901,6 +1181,7 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 			ret = -EINVAL;
 		}
 
+<<<<<<< HEAD
 		val = ~(MAX_U32 << dev_req_params->lane_tx);
 		res = ufs_qcom_phy_set_tx_lane_enable(phy, val);
 		if (res) {
@@ -913,6 +1194,11 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 		memcpy(&host->dev_req_params,
 				dev_req_params, sizeof(*dev_req_params));
 		ufs_qcom_update_bus_bw_vote(host);
+=======
+		/* cache the power mode parameters to use internally */
+		memcpy(&host->dev_req_params,
+				dev_req_params, sizeof(*dev_req_params));
+>>>>>>> upstream/android-13
 
 		/* disable the device ref clock if entered PWM mode */
 		if (ufshcd_is_hs_mode(&hba->pwr_info) &&
@@ -952,6 +1238,12 @@ static int ufs_qcom_apply_dev_quirks(struct ufs_hba *hba)
 	if (hba->dev_quirks & UFS_DEVICE_QUIRK_HOST_PA_SAVECONFIGTIME)
 		err = ufs_qcom_quirk_host_pa_saveconfigtime(hba);
 
+<<<<<<< HEAD
+=======
+	if (hba->dev_info.wmanufacturerid == UFS_VENDOR_WDC)
+		hba->dev_quirks |= UFS_DEVICE_QUIRK_HOST_PA_TACTIVATE;
+
+>>>>>>> upstream/android-13
 	return err;
 }
 
@@ -960,9 +1252,15 @@ static u32 ufs_qcom_get_ufs_hci_version(struct ufs_hba *hba)
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
 
 	if (host->hw_ver.major == 0x1)
+<<<<<<< HEAD
 		return UFSHCI_VERSION_11;
 	else
 		return UFSHCI_VERSION_20;
+=======
+		return ufshci_version(1, 1);
+	else
+		return ufshci_version(2, 0);
+>>>>>>> upstream/android-13
 }
 
 /**
@@ -998,6 +1296,7 @@ static void ufs_qcom_advertise_quirks(struct ufs_hba *hba)
 				| UFSHCD_QUIRK_DME_PEER_ACCESS_AUTO_MODE
 				| UFSHCD_QUIRK_BROKEN_PA_RXHSUNTERMCAP);
 	}
+<<<<<<< HEAD
 
 	/*
 	 * Inline crypto is currently broken with ufs-qcom at least because the
@@ -1005,6 +1304,8 @@ static void ufs_qcom_advertise_quirks(struct ufs_hba *hba)
 	 * to be other issues that will need to be addressed too.
 	 */
 	hba->quirks |= UFSHCD_QUIRK_BROKEN_CRYPTO;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void ufs_qcom_set_caps(struct ufs_hba *hba)
@@ -1012,8 +1313,16 @@ static void ufs_qcom_set_caps(struct ufs_hba *hba)
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
 
 	hba->caps |= UFSHCD_CAP_CLK_GATING | UFSHCD_CAP_HIBERN8_WITH_CLK_GATING;
+<<<<<<< HEAD
 	hba->caps |= UFSHCD_CAP_CLK_SCALING;
 	hba->caps |= UFSHCD_CAP_AUTO_BKOPS_SUSPEND;
+=======
+	hba->caps |= UFSHCD_CAP_CLK_SCALING | UFSHCD_CAP_WB_WITH_CLK_SCALING;
+	hba->caps |= UFSHCD_CAP_AUTO_BKOPS_SUSPEND;
+	hba->caps |= UFSHCD_CAP_WB_EN;
+	hba->caps |= UFSHCD_CAP_CRYPTO;
+	hba->caps |= UFSHCD_CAP_AGGR_POWER_COLLAPSE;
+>>>>>>> upstream/android-13
 
 	if (host->hw_ver.major >= 0x2) {
 		host->caps = UFS_QCOM_CAP_QUNIPRO |
@@ -1033,8 +1342,12 @@ static int ufs_qcom_setup_clocks(struct ufs_hba *hba, bool on,
 				 enum ufs_notify_change_status status)
 {
 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+<<<<<<< HEAD
 	int err;
 	int vote = 0;
+=======
+	int err = 0;
+>>>>>>> upstream/android-13
 
 	/*
 	 * In case ufs_qcom_init() is not yet done, simply ignore.
@@ -1044,6 +1357,7 @@ static int ufs_qcom_setup_clocks(struct ufs_hba *hba, bool on,
 	if (!host)
 		return 0;
 
+<<<<<<< HEAD
 	if (on && (status == POST_CHANGE)) {
 		phy_power_on(host->generic_phy);
 
@@ -1074,6 +1388,64 @@ static int ufs_qcom_setup_clocks(struct ufs_hba *hba, bool on,
 	return err;
 }
 
+=======
+	switch (status) {
+	case PRE_CHANGE:
+		if (!on) {
+			if (!ufs_qcom_is_link_active(hba)) {
+				/* disable device ref_clk */
+				ufs_qcom_dev_ref_clk_ctrl(host, false);
+			}
+		}
+		break;
+	case POST_CHANGE:
+		if (on) {
+			/* enable the device ref clock for HS mode*/
+			if (ufshcd_is_hs_mode(&hba->pwr_info))
+				ufs_qcom_dev_ref_clk_ctrl(host, true);
+		}
+		break;
+	}
+
+	return err;
+}
+
+static int
+ufs_qcom_reset_assert(struct reset_controller_dev *rcdev, unsigned long id)
+{
+	struct ufs_qcom_host *host = rcdev_to_ufs_host(rcdev);
+
+	/* Currently this code only knows about a single reset. */
+	WARN_ON(id);
+	ufs_qcom_assert_reset(host->hba);
+	/* provide 1ms delay to let the reset pulse propagate. */
+	usleep_range(1000, 1100);
+	return 0;
+}
+
+static int
+ufs_qcom_reset_deassert(struct reset_controller_dev *rcdev, unsigned long id)
+{
+	struct ufs_qcom_host *host = rcdev_to_ufs_host(rcdev);
+
+	/* Currently this code only knows about a single reset. */
+	WARN_ON(id);
+	ufs_qcom_deassert_reset(host->hba);
+
+	/*
+	 * after reset deassertion, phy will need all ref clocks,
+	 * voltage, current to settle down before starting serdes.
+	 */
+	usleep_range(1000, 1100);
+	return 0;
+}
+
+static const struct reset_control_ops ufs_qcom_reset_ops = {
+	.assert = ufs_qcom_reset_assert,
+	.deassert = ufs_qcom_reset_deassert,
+};
+
+>>>>>>> upstream/android-13
 #define	ANDROID_BOOT_DEV_MAX	30
 static char android_boot_dev[ANDROID_BOOT_DEV_MAX];
 
@@ -1103,6 +1475,10 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 	struct platform_device *pdev = to_platform_device(dev);
 	struct ufs_qcom_host *host;
 	struct resource *res;
+<<<<<<< HEAD
+=======
+	struct ufs_clk_info *clki;
+>>>>>>> upstream/android-13
 
 	if (strlen(android_boot_dev) && strcmp(android_boot_dev, dev_name(dev)))
 		return -ENODEV;
@@ -1118,6 +1494,29 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 	host->hba = hba;
 	ufshcd_set_variant(hba, host);
 
+<<<<<<< HEAD
+=======
+	/* Setup the reset control of HCI */
+	host->core_reset = devm_reset_control_get(hba->dev, "rst");
+	if (IS_ERR(host->core_reset)) {
+		err = PTR_ERR(host->core_reset);
+		dev_warn(dev, "Failed to get reset control %d\n", err);
+		host->core_reset = NULL;
+		err = 0;
+	}
+
+	/* Fire up the reset controller. Failure here is non-fatal. */
+	host->rcdev.of_node = dev->of_node;
+	host->rcdev.ops = &ufs_qcom_reset_ops;
+	host->rcdev.owner = dev->driver->owner;
+	host->rcdev.nr_resets = 1;
+	err = devm_reset_controller_register(dev, &host->rcdev);
+	if (err) {
+		dev_warn(dev, "Failed to register reset controller\n");
+		err = 0;
+	}
+
+>>>>>>> upstream/android-13
 	/*
 	 * voting/devoting device ref_clk source is time consuming hence
 	 * skip devoting it during aggressive clock gating. This clock
@@ -1135,6 +1534,7 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 			__func__, err);
 		goto out_variant_clear;
 	} else if (IS_ERR(host->generic_phy)) {
+<<<<<<< HEAD
 		err = PTR_ERR(host->generic_phy);
 		dev_err(dev, "%s: PHY get failed %d\n", __func__, err);
 		goto out_variant_clear;
@@ -1143,6 +1543,25 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 	err = ufs_qcom_bus_register(host);
 	if (err)
 		goto out_variant_clear;
+=======
+		if (has_acpi_companion(dev)) {
+			host->generic_phy = NULL;
+		} else {
+			err = PTR_ERR(host->generic_phy);
+			dev_err(dev, "%s: PHY get failed %d\n", __func__, err);
+			goto out_variant_clear;
+		}
+	}
+
+	host->device_reset = devm_gpiod_get_optional(dev, "reset",
+						     GPIOD_OUT_HIGH);
+	if (IS_ERR(host->device_reset)) {
+		err = PTR_ERR(host->device_reset);
+		if (err != -EPROBE_DEFER)
+			dev_err(dev, "failed to acquire reset gpio: %d\n", err);
+		goto out_variant_clear;
+	}
+>>>>>>> upstream/android-13
 
 	ufs_qcom_get_controller_revision(hba, &host->hw_ver.major,
 		&host->hw_ver.minor, &host->hw_ver.step);
@@ -1156,6 +1575,7 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 		host->dev_ref_clk_en_mask = BIT(26);
 	} else {
 		/* "dev_ref_clk_ctrl_mem" is optional resource */
+<<<<<<< HEAD
 		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 		if (res) {
 			host->dev_ref_clk_ctrl_mmio =
@@ -1167,13 +1587,29 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 					PTR_ERR(host->dev_ref_clk_ctrl_mmio));
 				host->dev_ref_clk_ctrl_mmio = NULL;
 			}
+=======
+		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
+						   "dev_ref_clk_ctrl_mem");
+		if (res) {
+			host->dev_ref_clk_ctrl_mmio =
+					devm_ioremap_resource(dev, res);
+			if (IS_ERR(host->dev_ref_clk_ctrl_mmio))
+				host->dev_ref_clk_ctrl_mmio = NULL;
+>>>>>>> upstream/android-13
 			host->dev_ref_clk_en_mask = BIT(5);
 		}
 	}
 
+<<<<<<< HEAD
 	/* update phy revision information before calling phy_init() */
 	ufs_qcom_phy_save_controller_version(host->generic_phy,
 		host->hw_ver.major, host->hw_ver.minor, host->hw_ver.step);
+=======
+	list_for_each_entry(clki, &hba->clk_list_head, list) {
+		if (!strcmp(clki->name, "core_clk_unipro"))
+			clki->keep_link_active = true;
+	}
+>>>>>>> upstream/android-13
 
 	err = ufs_qcom_init_lane_clks(host);
 	if (err)
@@ -1182,6 +1618,13 @@ static int ufs_qcom_init(struct ufs_hba *hba)
 	ufs_qcom_set_caps(hba);
 	ufs_qcom_advertise_quirks(hba);
 
+<<<<<<< HEAD
+=======
+	err = ufs_qcom_ice_init(host);
+	if (err)
+		goto out_variant_clear;
+
+>>>>>>> upstream/android-13
 	ufs_qcom_setup_clocks(hba, true, POST_CHANGE);
 
 	if (hba->dev->id < MAX_UFS_QCOM_HOSTS)
@@ -1320,7 +1763,10 @@ static int ufs_qcom_clk_scale_notify(struct ufs_hba *hba,
 				    dev_req_params->pwr_rx,
 				    dev_req_params->hs_rate,
 				    false);
+<<<<<<< HEAD
 		ufs_qcom_update_bus_bw_vote(host);
+=======
+>>>>>>> upstream/android-13
 	}
 
 out:
@@ -1504,6 +1950,7 @@ int ufs_qcom_testbus_config(struct ufs_qcom_host *host)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void ufs_qcom_testbus_read(struct ufs_hba *hba)
 {
 	ufshcd_dump_regs(hba, UFS_TEST_BUS, 4, "UFS_TEST_BUS ");
@@ -1530,11 +1977,14 @@ static void ufs_qcom_print_unipro_testbus(struct ufs_hba *hba)
 	kfree(testbus);
 }
 
+=======
+>>>>>>> upstream/android-13
 static void ufs_qcom_dump_dbg_regs(struct ufs_hba *hba)
 {
 	ufshcd_dump_regs(hba, REG_UFS_SYS1CLK_1US, 16 * 4,
 			 "HCI Vendor Specific Registers ");
 
+<<<<<<< HEAD
 	/* sleep a bit intermittently as we are dumping too much data */
 	ufs_qcom_print_hw_debug_reg_all(hba, NULL, ufs_qcom_dump_regs_wrapper);
 	udelay(1000);
@@ -1545,12 +1995,72 @@ static void ufs_qcom_dump_dbg_regs(struct ufs_hba *hba)
 }
 
 /**
+=======
+	ufs_qcom_print_hw_debug_reg_all(hba, NULL, ufs_qcom_dump_regs_wrapper);
+}
+
+/**
+ * ufs_qcom_device_reset() - toggle the (optional) device reset line
+ * @hba: per-adapter instance
+ *
+ * Toggles the (optional) reset line to reset the attached device.
+ */
+static int ufs_qcom_device_reset(struct ufs_hba *hba)
+{
+	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
+
+	/* reset gpio is optional */
+	if (!host->device_reset)
+		return -EOPNOTSUPP;
+
+	/*
+	 * The UFS device shall detect reset pulses of 1us, sleep for 10us to
+	 * be on the safe side.
+	 */
+	ufs_qcom_device_reset_ctrl(hba, true);
+	usleep_range(10, 15);
+
+	ufs_qcom_device_reset_ctrl(hba, false);
+	usleep_range(10, 15);
+
+	return 0;
+}
+
+#if IS_ENABLED(CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND)
+static void ufs_qcom_config_scaling_param(struct ufs_hba *hba,
+					  struct devfreq_dev_profile *p,
+					  void *data)
+{
+	static struct devfreq_simple_ondemand_data *d;
+
+	if (!data)
+		return;
+
+	d = (struct devfreq_simple_ondemand_data *)data;
+	p->polling_ms = 60;
+	d->upthreshold = 70;
+	d->downdifferential = 5;
+}
+#else
+static void ufs_qcom_config_scaling_param(struct ufs_hba *hba,
+					  struct devfreq_dev_profile *p,
+					  void *data)
+{
+}
+#endif
+
+/*
+>>>>>>> upstream/android-13
  * struct ufs_hba_qcom_vops - UFS QCOM specific variant operations
  *
  * The variant operations configure the necessary controller and PHY
  * handshake during initialization.
  */
+<<<<<<< HEAD
 static struct ufs_hba_variant_ops ufs_hba_qcom_vops = {
+=======
+static const struct ufs_hba_variant_ops ufs_hba_qcom_vops = {
+>>>>>>> upstream/android-13
 	.name                   = "qcom",
 	.init                   = ufs_qcom_init,
 	.exit                   = ufs_qcom_exit,
@@ -1564,6 +2074,12 @@ static struct ufs_hba_variant_ops ufs_hba_qcom_vops = {
 	.suspend		= ufs_qcom_suspend,
 	.resume			= ufs_qcom_resume,
 	.dbg_register_dump	= ufs_qcom_dump_dbg_regs,
+<<<<<<< HEAD
+=======
+	.device_reset		= ufs_qcom_device_reset,
+	.config_scaling_param = ufs_qcom_config_scaling_param,
+	.program_key		= ufs_qcom_ice_program_key,
+>>>>>>> upstream/android-13
 };
 
 /**
@@ -1606,12 +2122,28 @@ static const struct of_device_id ufs_qcom_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, ufs_qcom_of_match);
 
+<<<<<<< HEAD
 static const struct dev_pm_ops ufs_qcom_pm_ops = {
 	.suspend	= ufshcd_pltfrm_suspend,
 	.resume		= ufshcd_pltfrm_resume,
 	.runtime_suspend = ufshcd_pltfrm_runtime_suspend,
 	.runtime_resume  = ufshcd_pltfrm_runtime_resume,
 	.runtime_idle    = ufshcd_pltfrm_runtime_idle,
+=======
+#ifdef CONFIG_ACPI
+static const struct acpi_device_id ufs_qcom_acpi_match[] = {
+	{ "QCOM24A5" },
+	{ },
+};
+MODULE_DEVICE_TABLE(acpi, ufs_qcom_acpi_match);
+#endif
+
+static const struct dev_pm_ops ufs_qcom_pm_ops = {
+	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_system_suspend, ufshcd_system_resume)
+	SET_RUNTIME_PM_OPS(ufshcd_runtime_suspend, ufshcd_runtime_resume, NULL)
+	.prepare	 = ufshcd_suspend_prepare,
+	.complete	 = ufshcd_resume_complete,
+>>>>>>> upstream/android-13
 };
 
 static struct platform_driver ufs_qcom_pltform = {
@@ -1622,6 +2154,10 @@ static struct platform_driver ufs_qcom_pltform = {
 		.name	= "ufshcd-qcom",
 		.pm	= &ufs_qcom_pm_ops,
 		.of_match_table = of_match_ptr(ufs_qcom_of_match),
+<<<<<<< HEAD
+=======
+		.acpi_match_table = ACPI_PTR(ufs_qcom_acpi_match),
+>>>>>>> upstream/android-13
 	},
 };
 module_platform_driver(ufs_qcom_pltform);

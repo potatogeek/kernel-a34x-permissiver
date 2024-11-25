@@ -71,7 +71,11 @@ This is an example which is used on FalconFalls:
 			/* This I2C controller has one gpio controller */
 			gpio@26 {
 				#gpio-cells = <2>;
+<<<<<<< HEAD
 				compatible = "ti,pcf8575";
+=======
+				compatible = "nxp,pcf8575";
+>>>>>>> upstream/android-13
 				reg = <0x26>;
 				gpio-controller;
 			};
@@ -85,7 +89,11 @@ This is an example which is used on FalconFalls:
 
 			gpio@26 {
 				#gpio-cells = <2>;
+<<<<<<< HEAD
 				compatible = "ti,pcf8575";
+=======
+				compatible = "nxp,pcf8575";
+>>>>>>> upstream/android-13
 				reg = <0x26>;
 				gpio-controller;
 			};

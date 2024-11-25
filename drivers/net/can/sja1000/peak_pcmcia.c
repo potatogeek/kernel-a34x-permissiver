@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2010-2012 Stephane Grosjean <s.grosjean@peak-system.com>
  *
  * CAN driver for PEAK-System PCAN-PC Card
  * Derived from the PCAN project file driver/src/pcan_pccard.c
  * Copyright (C) 2006-2010 PEAK System-Technik GmbH
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the version 2 of the GNU General Public License
@@ -13,6 +18,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -30,7 +37,10 @@
 MODULE_AUTHOR("Stephane Grosjean <s.grosjean@peak-system.com>");
 MODULE_DESCRIPTION("CAN driver for PEAK-System PCAN-PC Cards");
 MODULE_LICENSE("GPL v2");
+<<<<<<< HEAD
 MODULE_SUPPORTED_DEVICE("PEAK PCAN-PC Card");
+=======
+>>>>>>> upstream/android-13
 
 /* PEAK-System PCMCIA driver name */
 #define PCC_NAME		"peak_pcmcia"
@@ -679,7 +689,11 @@ static int pcan_probe(struct pcmcia_device *pdev)
 	card->fw_major = pcan_read_reg(card, PCC_FW_MAJOR);
 	card->fw_minor = pcan_read_reg(card, PCC_FW_MINOR);
 
+<<<<<<< HEAD
 	/* display board name and firware version */
+=======
+	/* display board name and firmware version */
+>>>>>>> upstream/android-13
 	dev_info(&pdev->dev, "PEAK-System pcmcia card %s fw %d.%d\n",
 		pdev->prod_id[1] ? pdev->prod_id[1] : "PCAN-PC Card",
 		card->fw_major, card->fw_minor);

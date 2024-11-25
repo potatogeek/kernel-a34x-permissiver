@@ -23,7 +23,22 @@
 #define _DESCTYPE_MASK	0x003
 
 #define _CACHEMASK040	(~0x060)
+<<<<<<< HEAD
 #define _TABLE_MASK	(0xfffffe00)
+=======
+
+/*
+ * Currently set to the minimum alignment of table pointers (256 bytes).
+ * The hardware only uses the low 4 bits for state:
+ *
+ *    3 - Used
+ *    2 - Write Protected
+ *  0,1 - Descriptor Type
+ *
+ * and has the rest of the bits reserved.
+ */
+#define _TABLE_MASK	(0xffffff00)
+>>>>>>> upstream/android-13
 
 #define _PAGE_TABLE	(_PAGE_SHORT)
 #define _PAGE_CHG_MASK  (PAGE_MASK | _PAGE_ACCESSED | _PAGE_DIRTY | _PAGE_NOCACHE)
@@ -94,6 +109,11 @@ extern unsigned long mm_cachebits;
 #define __S110	PAGE_SHARED_C
 #define __S111	PAGE_SHARED_C
 
+<<<<<<< HEAD
+=======
+#define pmd_pgtable(pmd) ((pgtable_t)pmd_page_vaddr(pmd))
+
+>>>>>>> upstream/android-13
 /*
  * Conversion functions: convert a page and protection to a page entry,
  * and a page entry and page directory to the page they refer to.
@@ -108,6 +128,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
 
 static inline void pmd_set(pmd_t *pmdp, pte_t *ptep)
 {
+<<<<<<< HEAD
 	unsigned long ptbl = virt_to_phys(ptep) | _PAGE_TABLE | _PAGE_ACCESSED;
 	unsigned long *ptr = pmdp->pmd;
 	short i = 16;
@@ -125,6 +146,19 @@ static inline void pgd_set(pgd_t *pgdp, pmd_t *pmdp)
 #define __pte_page(pte) ((unsigned long)__va(pte_val(pte) & PAGE_MASK))
 #define __pmd_page(pmd) ((unsigned long)__va(pmd_val(pmd) & _TABLE_MASK))
 #define __pgd_page(pgd) ((unsigned long)__va(pgd_val(pgd) & _TABLE_MASK))
+=======
+	pmd_val(*pmdp) = virt_to_phys(ptep) | _PAGE_TABLE | _PAGE_ACCESSED;
+}
+
+static inline void pud_set(pud_t *pudp, pmd_t *pmdp)
+{
+	pud_val(*pudp) = _PAGE_TABLE | _PAGE_ACCESSED | __pa(pmdp);
+}
+
+#define __pte_page(pte) ((unsigned long)__va(pte_val(pte) & PAGE_MASK))
+#define pmd_page_vaddr(pmd) ((unsigned long)__va(pmd_val(pmd) & _TABLE_MASK))
+#define pud_pgtable(pud) ((pmd_t *)__va(pud_val(pud) & _TABLE_MASK))
+>>>>>>> upstream/android-13
 
 
 #define pte_none(pte)		(!pte_val(pte))
@@ -138,6 +172,7 @@ static inline void pgd_set(pgd_t *pgdp, pmd_t *pmdp)
 #define pmd_none(pmd)		(!pmd_val(pmd))
 #define pmd_bad(pmd)		((pmd_val(pmd) & _DESCTYPE_MASK) != _PAGE_TABLE)
 #define pmd_present(pmd)	(pmd_val(pmd) & _PAGE_TABLE)
+<<<<<<< HEAD
 #define pmd_clear(pmdp) ({			\
 	unsigned long *__ptr = pmdp->pmd;	\
 	short __i = 16;				\
@@ -152,6 +187,23 @@ static inline void pgd_set(pgd_t *pgdp, pmd_t *pmdp)
 #define pgd_present(pgd)	(pgd_val(pgd) & _PAGE_TABLE)
 #define pgd_clear(pgdp)		({ pgd_val(*pgdp) = 0; })
 #define pgd_page(pgd)		(mem_map + ((unsigned long)(__va(pgd_val(pgd)) - PAGE_OFFSET) >> PAGE_SHIFT))
+=======
+#define pmd_clear(pmdp)		({ pmd_val(*pmdp) = 0; })
+
+/*
+ * m68k does not have huge pages (020/030 actually could), but generic code
+ * expects pmd_page() to exists, only to then DCE it all. Provide a dummy to
+ * make the compiler happy.
+ */
+#define pmd_page(pmd)		NULL
+
+
+#define pud_none(pud)		(!pud_val(pud))
+#define pud_bad(pud)		((pud_val(pud) & _DESCTYPE_MASK) != _PAGE_TABLE)
+#define pud_present(pud)	(pud_val(pud) & _PAGE_TABLE)
+#define pud_clear(pudp)		({ pud_val(*pudp) = 0; })
+#define pud_page(pud)		(mem_map + ((unsigned long)(__va(pud_val(pud)) - PAGE_OFFSET) >> PAGE_SHIFT))
+>>>>>>> upstream/android-13
 
 #define pte_ERROR(e) \
 	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
@@ -168,7 +220,10 @@ static inline void pgd_set(pgd_t *pgdp, pmd_t *pmdp)
 static inline int pte_write(pte_t pte)		{ return !(pte_val(pte) & _PAGE_RONLY); }
 static inline int pte_dirty(pte_t pte)		{ return pte_val(pte) & _PAGE_DIRTY; }
 static inline int pte_young(pte_t pte)		{ return pte_val(pte) & _PAGE_ACCESSED; }
+<<<<<<< HEAD
 static inline int pte_special(pte_t pte)	{ return 0; }
+=======
+>>>>>>> upstream/android-13
 
 static inline pte_t pte_wrprotect(pte_t pte)	{ pte_val(pte) |= _PAGE_RONLY; return pte; }
 static inline pte_t pte_mkclean(pte_t pte)	{ pte_val(pte) &= ~_PAGE_DIRTY; return pte; }
@@ -186,6 +241,7 @@ static inline pte_t pte_mkcache(pte_t pte)
 	pte_val(pte) = (pte_val(pte) & _CACHEMASK040) | m68k_supervisor_cachemode;
 	return pte;
 }
+<<<<<<< HEAD
 static inline pte_t pte_mkspecial(pte_t pte)	{ return pte; }
 
 #define PAGE_DIR_OFFSET(tsk,address) pgd_offset((tsk),(address))
@@ -198,10 +254,13 @@ static inline pgd_t *pgd_offset(const struct mm_struct *mm,
 {
 	return mm->pgd + pgd_index(address);
 }
+=======
+>>>>>>> upstream/android-13
 
 #define swapper_pg_dir kernel_pg_dir
 extern pgd_t kernel_pg_dir[128];
 
+<<<<<<< HEAD
 static inline pgd_t *pgd_offset_k(unsigned long address)
 {
 	return kernel_pg_dir + (address >> PGDIR_SHIFT);
@@ -265,6 +324,8 @@ static inline void cache_page(void *vaddr)
 	}
 }
 
+=======
+>>>>>>> upstream/android-13
 /* Encode and de-code a swap entry (must be !pte_none(e) && !pte_present(e)) */
 #define __swp_type(x)		(((x).val >> 4) & 0xff)
 #define __swp_offset(x)		((x).val >> 12)

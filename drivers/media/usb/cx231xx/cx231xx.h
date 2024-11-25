@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
    cx231xx.h - driver for Conexant Cx23100/101/102 USB video capture devices
 
    Copyright (C) 2008 <srinivasa.deevi at conexant dot com>
 	Based on em28xx driver
 
+<<<<<<< HEAD
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +22,8 @@
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #ifndef _CX231XX_H
@@ -32,7 +39,11 @@
 
 #include <media/drv-intf/cx2341x.h>
 
+<<<<<<< HEAD
 #include <media/videobuf-vmalloc.h>
+=======
+#include <media/videobuf2-vmalloc.h>
+>>>>>>> upstream/android-13
 #include <media/v4l2-device.h>
 #include <media/v4l2-ctrls.h>
 #include <media/v4l2-fh.h>
@@ -133,7 +144,10 @@
 #define CX23417_RESET    9
 
 struct cx23417_fmt {
+<<<<<<< HEAD
 	char  *name;
+=======
+>>>>>>> upstream/android-13
 	u32   fourcc;          /* v4l2 format id */
 	int   depth;
 	int   flags;
@@ -236,8 +250,13 @@ struct cx231xx_fmt {
 /* buffer for one video frame */
 struct cx231xx_buffer {
 	/* common v4l buffer stuff -- must be first */
+<<<<<<< HEAD
 	struct videobuf_buffer vb;
 
+=======
+	struct vb2_v4l2_buffer vb;
+	struct list_head list;
+>>>>>>> upstream/android-13
 	struct list_head frame;
 	int top_field;
 	int receiving;
@@ -250,7 +269,10 @@ enum ps_package_head {
 
 struct cx231xx_dmaqueue {
 	struct list_head active;
+<<<<<<< HEAD
 	struct list_head queued;
+=======
+>>>>>>> upstream/android-13
 
 	wait_queue_head_t wq;
 
@@ -264,6 +286,10 @@ struct cx231xx_dmaqueue {
 	u32 lines_completed;
 	u8 field1_done;
 	u32 lines_per_field;
+<<<<<<< HEAD
+=======
+	u32 sequence;
+>>>>>>> upstream/android-13
 
 	/*Mpeg2 control buffer*/
 	u8 *p_left_data;
@@ -438,6 +464,7 @@ struct cx231xx_audio {
 	u16 end_point_addr;
 };
 
+<<<<<<< HEAD
 struct cx231xx;
 
 struct cx231xx_fh {
@@ -457,6 +484,8 @@ struct cx231xx_fh {
 	atomic_t                   v4l_reading;
 };
 
+=======
+>>>>>>> upstream/android-13
 /*****************************************************************/
 /* set/get i2c */
 /* 00--1Mb/s, 01-400kb/s, 10--100kb/s, 11--5Mb/s */
@@ -646,7 +675,12 @@ struct cx231xx {
 	/* frame properties */
 	int width;		/* current frame width */
 	int height;		/* current frame height */
+<<<<<<< HEAD
 	int interlaced;		/* 1=interlace fileds, 0=just top fileds */
+=======
+	int interlaced;		/* 1=interlace fields, 0=just top fields */
+	unsigned int size;
+>>>>>>> upstream/android-13
 
 	struct cx231xx_audio adev;
 
@@ -670,6 +704,12 @@ struct cx231xx {
 	struct media_pad input_pad[MAX_CX231XX_INPUT];
 #endif
 
+<<<<<<< HEAD
+=======
+	struct vb2_queue vidq;
+	struct vb2_queue vbiq;
+
+>>>>>>> upstream/android-13
 	unsigned char eedata[256];
 
 	struct cx231xx_video_mode video_mode;
@@ -730,6 +770,10 @@ struct cx231xx {
 	u8 USE_ISO;
 	struct cx231xx_tvnorm      encodernorm;
 	struct cx231xx_tsport      ts1, ts2;
+<<<<<<< HEAD
+=======
+	struct vb2_queue	   mpegq;
+>>>>>>> upstream/android-13
 	struct video_device        v4l_device;
 	atomic_t                   v4l_reader_count;
 	u32                        freq;

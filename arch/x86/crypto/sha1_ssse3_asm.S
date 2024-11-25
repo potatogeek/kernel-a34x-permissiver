@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  * This is a SIMD SHA-1 implementation. It requires the Intel(R) Supplemental
  * SSE3 instruction set extensions introduced in Intel Core Microarchitecture
@@ -21,11 +25,14 @@
  *
  * Converted to AT&T syntax and adapted for inclusion in the Linux kernel:
  *   Author: Mathias Krause <minipli@googlemail.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/linkage.h>
@@ -71,7 +78,11 @@
  * param: function's name
  */
 .macro SHA1_VECTOR_ASM  name
+<<<<<<< HEAD
 	ENTRY(\name)
+=======
+	SYM_FUNC_START(\name)
+>>>>>>> upstream/android-13
 
 	push	%rbx
 	push	%r12
@@ -103,9 +114,15 @@
 	pop	%rbp
 	pop	%r12
 	pop	%rbx
+<<<<<<< HEAD
 	ret
 
 	ENDPROC(\name)
+=======
+	RET
+
+	SYM_FUNC_END(\name)
+>>>>>>> upstream/android-13
 .endm
 
 /*
@@ -471,8 +488,11 @@ W_PRECALC_SSSE3
  */
 SHA1_VECTOR_ASM     sha1_transform_ssse3
 
+<<<<<<< HEAD
 #ifdef CONFIG_AS_AVX
 
+=======
+>>>>>>> upstream/android-13
 .macro W_PRECALC_AVX
 
 .purgem W_PRECALC_00_15
@@ -557,5 +577,8 @@ W_PRECALC_AVX
  *				       const u8 *data, int blocks);
  */
 SHA1_VECTOR_ASM     sha1_transform_avx
+<<<<<<< HEAD
 
 #endif
+=======
+>>>>>>> upstream/android-13

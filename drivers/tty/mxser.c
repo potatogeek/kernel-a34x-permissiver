@@ -41,9 +41,118 @@
 #include <asm/irq.h>
 #include <linux/uaccess.h>
 
+<<<<<<< HEAD
 #include "mxser.h"
 
 #define	MXSER_VERSION	"2.0.5"		/* 1.14 */
+=======
+/*
+ *	Semi-public control interfaces
+ */
+
+/*
+ *	MOXA ioctls
+ */
+
+#define MOXA			0x400
+#define MOXA_SET_OP_MODE	(MOXA + 66)
+#define MOXA_GET_OP_MODE	(MOXA + 67)
+
+#define RS232_MODE		0
+#define RS485_2WIRE_MODE	1
+#define RS422_MODE		2
+#define RS485_4WIRE_MODE	3
+#define OP_MODE_MASK		3
+
+/* --------------------------------------------------- */
+
+/*
+ * Follow just what Moxa Must chip defines.
+ *
+ * When LCR register (offset 0x03) is written the following value, the Must chip
+ * will enter enhanced mode. And a write to EFR (offset 0x02) bit 6,7 will
+ * change bank.
+ */
+#define MOXA_MUST_ENTER_ENHANCED	0xBF
+
+/* when enhanced mode is enabled, access to general bank register */
+#define MOXA_MUST_GDL_REGISTER		0x07
+#define MOXA_MUST_GDL_MASK		0x7F
+#define MOXA_MUST_GDL_HAS_BAD_DATA	0x80
+
+#define MOXA_MUST_LSR_RERR		0x80	/* error in receive FIFO */
+/* enhanced register bank select and enhanced mode setting register */
+/* This works only when LCR register equals to 0xBF */
+#define MOXA_MUST_EFR_REGISTER		0x02
+#define MOXA_MUST_EFR_EFRB_ENABLE	0x10 /* enhanced mode enable */
+/* enhanced register bank set 0, 1, 2 */
+#define MOXA_MUST_EFR_BANK0		0x00
+#define MOXA_MUST_EFR_BANK1		0x40
+#define MOXA_MUST_EFR_BANK2		0x80
+#define MOXA_MUST_EFR_BANK3		0xC0
+#define MOXA_MUST_EFR_BANK_MASK		0xC0
+
+/* set XON1 value register, when LCR=0xBF and change to bank0 */
+#define MOXA_MUST_XON1_REGISTER		0x04
+
+/* set XON2 value register, when LCR=0xBF and change to bank0 */
+#define MOXA_MUST_XON2_REGISTER		0x05
+
+/* set XOFF1 value register, when LCR=0xBF and change to bank0 */
+#define MOXA_MUST_XOFF1_REGISTER	0x06
+
+/* set XOFF2 value register, when LCR=0xBF and change to bank0 */
+#define MOXA_MUST_XOFF2_REGISTER	0x07
+
+#define MOXA_MUST_RBRTL_REGISTER	0x04
+#define MOXA_MUST_RBRTH_REGISTER	0x05
+#define MOXA_MUST_RBRTI_REGISTER	0x06
+#define MOXA_MUST_THRTL_REGISTER	0x07
+#define MOXA_MUST_ENUM_REGISTER		0x04
+#define MOXA_MUST_HWID_REGISTER		0x05
+#define MOXA_MUST_ECR_REGISTER		0x06
+#define MOXA_MUST_CSR_REGISTER		0x07
+
+#define MOXA_MUST_FCR_GDA_MODE_ENABLE	0x20 /* good data mode enable */
+#define MOXA_MUST_FCR_GDA_ONLY_ENABLE	0x10 /* only good data put into RxFIFO */
+
+#define MOXA_MUST_IER_ECTSI		0x80 /* enable CTS interrupt */
+#define MOXA_MUST_IER_ERTSI		0x40 /* enable RTS interrupt */
+#define MOXA_MUST_IER_XINT		0x20 /* enable Xon/Xoff interrupt */
+#define MOXA_MUST_IER_EGDAI		0x10 /* enable GDA interrupt */
+
+#define MOXA_MUST_RECV_ISR		(UART_IER_RDI | MOXA_MUST_IER_EGDAI)
+
+/* GDA interrupt pending */
+#define MOXA_MUST_IIR_GDA		0x1C
+#define MOXA_MUST_IIR_RDA		0x04
+#define MOXA_MUST_IIR_RTO		0x0C
+#define MOXA_MUST_IIR_LSR		0x06
+
+/* received Xon/Xoff or specical interrupt pending */
+#define MOXA_MUST_IIR_XSC		0x10
+
+/* RTS/CTS change state interrupt pending */
+#define MOXA_MUST_IIR_RTSCTS		0x20
+#define MOXA_MUST_IIR_MASK		0x3E
+
+#define MOXA_MUST_MCR_XON_FLAG		0x40
+#define MOXA_MUST_MCR_XON_ANY		0x80
+#define MOXA_MUST_MCR_TX_XON		0x08
+
+#define MOXA_MUST_EFR_SF_MASK		0x0F /* software flow control on chip mask value */
+#define MOXA_MUST_EFR_SF_TX1		0x08 /* send Xon1/Xoff1 */
+#define MOXA_MUST_EFR_SF_TX2		0x04 /* send Xon2/Xoff2 */
+#define MOXA_MUST_EFR_SF_TX12		0x0C /* send Xon1,Xon2/Xoff1,Xoff2 */
+#define MOXA_MUST_EFR_SF_TX_NO		0x00 /* don't send Xon/Xoff */
+#define MOXA_MUST_EFR_SF_TX_MASK	0x0C /* Tx software flow control mask */
+#define MOXA_MUST_EFR_SF_RX_NO		0x00 /* don't receive Xon/Xoff */
+#define MOXA_MUST_EFR_SF_RX1		0x02 /* receive Xon1/Xoff1 */
+#define MOXA_MUST_EFR_SF_RX2		0x01 /* receive Xon2/Xoff2 */
+#define MOXA_MUST_EFR_SF_RX12		0x03 /* receive Xon1,Xon2/Xoff1,Xoff2 */
+#define MOXA_MUST_EFR_SF_RX_MASK	0x03 /* Rx software flow control mask */
+
+>>>>>>> upstream/android-13
 #define	MXSERMAJOR	 174
 
 #define MXSER_BOARDS		4	/* Max. boards */
@@ -51,6 +160,7 @@
 #define MXSER_PORTS		(MXSER_BOARDS * MXSER_PORTS_PER_BOARD)
 #define MXSER_ISR_PASS_LIMIT	100
 
+<<<<<<< HEAD
 /*CheckIsMoxaMust return value*/
 #define MOXA_OTHER_UART		0x00
 #define MOXA_MUST_MU150_HWID	0x01
@@ -60,6 +170,12 @@
 
 #define UART_MCR_AFE		0x20
 #define UART_LSR_SPECIAL	0x1E
+=======
+#define WAKEUP_CHARS		256
+
+#define MXSER_BAUD_BASE		921600
+#define MXSER_CUSTOM_DIVISOR	(MXSER_BAUD_BASE * 16)
+>>>>>>> upstream/android-13
 
 #define PCI_DEVICE_ID_POS104UL	0x1044
 #define PCI_DEVICE_ID_CB108	0x1080
@@ -70,6 +186,7 @@
 #define PCI_DEVICE_ID_CB134I	0x1341
 #define PCI_DEVICE_ID_CP138U	0x1380
 
+<<<<<<< HEAD
 
 #define C168_ASIC_ID    1
 #define C104_ASIC_ID    2
@@ -138,10 +255,35 @@ static const struct mxser_cardinfo mxser_cards[] = {
 /*30*/	{ "CP-102UF series",	2, },
 	{ "CP-112UL series",	2, },
 };
+=======
+#define MXSER_NPORTS(ddata)		((ddata) & 0xffU)
+#define MXSER_HIGHBAUD			0x0100
+
+enum mxser_must_hwid {
+	MOXA_OTHER_UART		= 0x00,
+	MOXA_MUST_MU150_HWID	= 0x01,
+	MOXA_MUST_MU860_HWID	= 0x02,
+};
+
+static const struct {
+	u8 type;
+	u8 fifo_size;
+	u8 rx_high_water;
+	u8 rx_low_water;
+	speed_t max_baud;
+} Gpci_uart_info[] = {
+	{ MOXA_OTHER_UART,	 16, 14,  1, 921600 },
+	{ MOXA_MUST_MU150_HWID,	 64, 48, 16, 230400 },
+	{ MOXA_MUST_MU860_HWID, 128, 96, 32, 921600 }
+};
+#define UART_INFO_NUM	ARRAY_SIZE(Gpci_uart_info)
+
+>>>>>>> upstream/android-13
 
 /* driver_data correspond to the lines in the structure above
    see also ISA probe function before you change something */
 static const struct pci_device_id mxser_pcibrds[] = {
+<<<<<<< HEAD
 	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_C168),	.driver_data = 3 },
 	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_C104),	.driver_data = 4 },
 	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP132),	.driver_data = 8 },
@@ -168,17 +310,49 @@ static const struct pci_device_id mxser_pcibrds[] = {
 	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CP114UL),	.driver_data = 29 },
 	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CP102UF),	.driver_data = 30 },
 	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CP112UL),	.driver_data = 31 },
+=======
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_C168),	.driver_data = 8 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_C104),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP132),	.driver_data = 2 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP114),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CT114),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP102),	.driver_data = 2 | MXSER_HIGHBAUD },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP104U),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP168U),	.driver_data = 8 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP132U),	.driver_data = 2 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP134U),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP104JU),.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_RC7000),	.driver_data = 8 }, /* RC7000 */
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP118U),	.driver_data = 8 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP102UL),.driver_data = 2 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP102U),	.driver_data = 2 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP118EL),.driver_data = 8 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP168EL),.driver_data = 8 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_MOXA_CP104EL),.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CB108),	.driver_data = 8 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CB114),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CB134I),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CP138U),	.driver_data = 8 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_POS104UL),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CP114UL),	.driver_data = 4 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CP102UF),	.driver_data = 2 },
+	{ PCI_VDEVICE(MOXA, PCI_DEVICE_ID_CP112UL),	.driver_data = 2 },
+>>>>>>> upstream/android-13
 	{ }
 };
 MODULE_DEVICE_TABLE(pci, mxser_pcibrds);
 
+<<<<<<< HEAD
 static unsigned long ioaddr[MXSER_BOARDS];
+=======
+>>>>>>> upstream/android-13
 static int ttymajor = MXSERMAJOR;
 
 /* Variables for insmod */
 
 MODULE_AUTHOR("Casper Yang");
 MODULE_DESCRIPTION("MOXA Smartio/Industio Family Multiport Board Device Driver");
+<<<<<<< HEAD
 module_param_hw_array(ioaddr, ulong, ioport, NULL, 0);
 MODULE_PARM_DESC(ioaddr, "ISA io addresses to look for a moxa board");
 module_param(ttymajor, int, 0);
@@ -215,6 +389,11 @@ struct mxser_mon_ext {
 	int iftype[32];
 };
 
+=======
+module_param(ttymajor, int, 0);
+MODULE_LICENSE("GPL");
+
+>>>>>>> upstream/android-13
 struct mxser_board;
 
 struct mxser_port {
@@ -223,6 +402,7 @@ struct mxser_port {
 
 	unsigned long ioaddr;
 	unsigned long opmode_ioaddr;
+<<<<<<< HEAD
 	int max_baud;
 
 	int rx_high_water;
@@ -255,12 +435,35 @@ struct mxser_port {
 	struct ktermios normal_termios;
 
 	struct mxser_mon mon_data;
+=======
+
+	u8 rx_high_water;
+	u8 rx_low_water;
+	int type;		/* UART type */
+
+	unsigned char x_char;	/* xon/xoff character */
+	u8 IER;			/* Interrupt Enable Register */
+	u8 MCR;			/* Modem control register */
+
+	unsigned char ldisc_stop_rx;
+
+	struct async_icount icount; /* kernel counters for 4 input interrupts */
+	unsigned int timeout;
+
+	u8 read_status_mask;
+	u8 ignore_status_mask;
+	u8 xmit_fifo_size;
+	unsigned int xmit_head;
+	unsigned int xmit_tail;
+	unsigned int xmit_cnt;
+>>>>>>> upstream/android-13
 
 	spinlock_t slock;
 };
 
 struct mxser_board {
 	unsigned int idx;
+<<<<<<< HEAD
 	int irq;
 	const struct mxser_cardinfo *info;
 	unsigned long vector;
@@ -330,12 +533,57 @@ static void mxser_set_must_xon1_value(unsigned long baseio, u8 value)
 	efr |= MOXA_MUST_EFR_BANK0;
 
 	outb(efr, baseio + MOXA_MUST_EFR_REGISTER);
+=======
+	unsigned short nports;
+	int irq;
+	unsigned long vector;
+
+	enum mxser_must_hwid must_hwid;
+	speed_t max_baud;
+
+	struct mxser_port ports[];
+};
+
+static DECLARE_BITMAP(mxser_boards, MXSER_BOARDS);
+static struct tty_driver *mxvar_sdriver;
+
+static u8 __mxser_must_set_EFR(unsigned long baseio, u8 clear, u8 set,
+		bool restore_LCR)
+{
+	u8 oldlcr, efr;
+
+	oldlcr = inb(baseio + UART_LCR);
+	outb(MOXA_MUST_ENTER_ENHANCED, baseio + UART_LCR);
+
+	efr = inb(baseio + MOXA_MUST_EFR_REGISTER);
+	efr &= ~clear;
+	efr |= set;
+
+	outb(efr, baseio + MOXA_MUST_EFR_REGISTER);
+
+	if (restore_LCR)
+		outb(oldlcr, baseio + UART_LCR);
+
+	return oldlcr;
+}
+
+static u8 mxser_must_select_bank(unsigned long baseio, u8 bank)
+{
+	return __mxser_must_set_EFR(baseio, MOXA_MUST_EFR_BANK_MASK, bank,
+			false);
+}
+
+static void mxser_set_must_xon1_value(unsigned long baseio, u8 value)
+{
+	u8 oldlcr = mxser_must_select_bank(baseio, MOXA_MUST_EFR_BANK0);
+>>>>>>> upstream/android-13
 	outb(value, baseio + MOXA_MUST_XON1_REGISTER);
 	outb(oldlcr, baseio + UART_LCR);
 }
 
 static void mxser_set_must_xoff1_value(unsigned long baseio, u8 value)
 {
+<<<<<<< HEAD
 	u8 oldlcr;
 	u8 efr;
 
@@ -347,12 +595,16 @@ static void mxser_set_must_xoff1_value(unsigned long baseio, u8 value)
 	efr |= MOXA_MUST_EFR_BANK0;
 
 	outb(efr, baseio + MOXA_MUST_EFR_REGISTER);
+=======
+	u8 oldlcr = mxser_must_select_bank(baseio, MOXA_MUST_EFR_BANK0);
+>>>>>>> upstream/android-13
 	outb(value, baseio + MOXA_MUST_XOFF1_REGISTER);
 	outb(oldlcr, baseio + UART_LCR);
 }
 
 static void mxser_set_must_fifo_value(struct mxser_port *info)
 {
+<<<<<<< HEAD
 	u8 oldlcr;
 	u8 efr;
 
@@ -367,11 +619,18 @@ static void mxser_set_must_fifo_value(struct mxser_port *info)
 	outb((u8)info->rx_high_water, info->ioaddr + MOXA_MUST_RBRTH_REGISTER);
 	outb((u8)info->rx_trigger, info->ioaddr + MOXA_MUST_RBRTI_REGISTER);
 	outb((u8)info->rx_low_water, info->ioaddr + MOXA_MUST_RBRTL_REGISTER);
+=======
+	u8 oldlcr = mxser_must_select_bank(info->ioaddr, MOXA_MUST_EFR_BANK1);
+	outb(info->rx_high_water, info->ioaddr + MOXA_MUST_RBRTH_REGISTER);
+	outb(info->rx_high_water, info->ioaddr + MOXA_MUST_RBRTI_REGISTER);
+	outb(info->rx_low_water, info->ioaddr + MOXA_MUST_RBRTL_REGISTER);
+>>>>>>> upstream/android-13
 	outb(oldlcr, info->ioaddr + UART_LCR);
 }
 
 static void mxser_set_must_enum_value(unsigned long baseio, u8 value)
 {
+<<<<<<< HEAD
 	u8 oldlcr;
 	u8 efr;
 
@@ -383,10 +642,14 @@ static void mxser_set_must_enum_value(unsigned long baseio, u8 value)
 	efr |= MOXA_MUST_EFR_BANK2;
 
 	outb(efr, baseio + MOXA_MUST_EFR_REGISTER);
+=======
+	u8 oldlcr = mxser_must_select_bank(baseio, MOXA_MUST_EFR_BANK2);
+>>>>>>> upstream/android-13
 	outb(value, baseio + MOXA_MUST_ENUM_REGISTER);
 	outb(oldlcr, baseio + UART_LCR);
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PCI
 static void mxser_get_must_hardware_id(unsigned long baseio, u8 *pId)
 {
@@ -485,12 +748,57 @@ static void mxser_disable_must_rx_software_flow_control(unsigned long baseio)
 
 #ifdef CONFIG_PCI
 static int CheckIsMoxaMust(unsigned long io)
+=======
+static u8 mxser_get_must_hardware_id(unsigned long baseio)
+{
+	u8 oldlcr = mxser_must_select_bank(baseio, MOXA_MUST_EFR_BANK2);
+	u8 id = inb(baseio + MOXA_MUST_HWID_REGISTER);
+	outb(oldlcr, baseio + UART_LCR);
+
+	return id;
+}
+
+static void mxser_must_set_EFR(unsigned long baseio, u8 clear, u8 set)
+{
+	__mxser_must_set_EFR(baseio, clear, set, true);
+}
+
+static void mxser_must_set_enhance_mode(unsigned long baseio, bool enable)
+{
+	mxser_must_set_EFR(baseio,
+			enable ? 0 : MOXA_MUST_EFR_EFRB_ENABLE,
+			enable ? MOXA_MUST_EFR_EFRB_ENABLE : 0);
+}
+
+static void mxser_must_no_sw_flow_control(unsigned long baseio)
+{
+	mxser_must_set_EFR(baseio, MOXA_MUST_EFR_SF_MASK, 0);
+}
+
+static void mxser_must_set_tx_sw_flow_control(unsigned long baseio, bool enable)
+{
+	mxser_must_set_EFR(baseio, MOXA_MUST_EFR_SF_TX_MASK,
+			enable ? MOXA_MUST_EFR_SF_TX1 : 0);
+}
+
+static void mxser_must_set_rx_sw_flow_control(unsigned long baseio, bool enable)
+{
+	mxser_must_set_EFR(baseio, MOXA_MUST_EFR_SF_RX_MASK,
+			enable ? MOXA_MUST_EFR_SF_RX1 : 0);
+}
+
+static enum mxser_must_hwid mxser_must_get_hwid(unsigned long io)
+>>>>>>> upstream/android-13
 {
 	u8 oldmcr, hwid;
 	int i;
 
 	outb(0, io + UART_LCR);
+<<<<<<< HEAD
 	mxser_disable_must_enchance_mode(io);
+=======
+	mxser_must_set_enhance_mode(io, false);
+>>>>>>> upstream/android-13
 	oldmcr = inb(io + UART_MCR);
 	outb(0, io + UART_MCR);
 	mxser_set_must_xon1_value(io, 0x11);
@@ -499,6 +807,7 @@ static int CheckIsMoxaMust(unsigned long io)
 		return MOXA_OTHER_UART;
 	}
 
+<<<<<<< HEAD
 	mxser_get_must_hardware_id(io, &hwid);
 	for (i = 1; i < UART_INFO_NUM; i++) { /* 0 = OTHER_UART */
 		if (hwid == Gpci_uart_info[i].type)
@@ -542,6 +851,61 @@ static unsigned char mxser_get_msr(int baseaddr, int mode, int port)
 		mxser_msr[port] = 0;
 
 	return status;
+=======
+	hwid = mxser_get_must_hardware_id(io);
+	for (i = 1; i < UART_INFO_NUM; i++) /* 0 = OTHER_UART */
+		if (hwid == Gpci_uart_info[i].type)
+			return hwid;
+
+	return MOXA_OTHER_UART;
+}
+
+static bool mxser_16550A_or_MUST(struct mxser_port *info)
+{
+	return info->type == PORT_16550A || info->board->must_hwid;
+}
+
+static void mxser_process_txrx_fifo(struct mxser_port *info)
+{
+	unsigned int i;
+
+	if (info->type == PORT_16450 || info->type == PORT_8250) {
+		info->rx_high_water = 1;
+		info->rx_low_water = 1;
+		info->xmit_fifo_size = 1;
+		return;
+	}
+
+	for (i = 0; i < UART_INFO_NUM; i++)
+		if (info->board->must_hwid == Gpci_uart_info[i].type) {
+			info->rx_low_water = Gpci_uart_info[i].rx_low_water;
+			info->rx_high_water = Gpci_uart_info[i].rx_high_water;
+			info->xmit_fifo_size = Gpci_uart_info[i].fifo_size;
+			break;
+		}
+}
+
+static void __mxser_start_tx(struct mxser_port *info)
+{
+	outb(info->IER & ~UART_IER_THRI, info->ioaddr + UART_IER);
+	info->IER |= UART_IER_THRI;
+	outb(info->IER, info->ioaddr + UART_IER);
+}
+
+static void mxser_start_tx(struct mxser_port *info)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&info->slock, flags);
+	__mxser_start_tx(info);
+	spin_unlock_irqrestore(&info->slock, flags);
+}
+
+static void __mxser_stop_tx(struct mxser_port *info)
+{
+	info->IER &= ~UART_IER_THRI;
+	outb(info->IER, info->ioaddr + UART_IER);
+>>>>>>> upstream/android-13
 }
 
 static int mxser_carrier_raised(struct tty_port *port)
@@ -554,6 +918,7 @@ static void mxser_dtr_rts(struct tty_port *port, int on)
 {
 	struct mxser_port *mp = container_of(port, struct mxser_port, port);
 	unsigned long flags;
+<<<<<<< HEAD
 
 	spin_lock_irqsave(&mp->slock, flags);
 	if (on)
@@ -566,12 +931,28 @@ static void mxser_dtr_rts(struct tty_port *port, int on)
 }
 
 static int mxser_set_baud(struct tty_struct *tty, long newspd)
+=======
+	u8 mcr;
+
+	spin_lock_irqsave(&mp->slock, flags);
+	mcr = inb(mp->ioaddr + UART_MCR);
+	if (on)
+		mcr |= UART_MCR_DTR | UART_MCR_RTS;
+	else
+		mcr &= ~(UART_MCR_DTR | UART_MCR_RTS);
+	outb(mcr, mp->ioaddr + UART_MCR);
+	spin_unlock_irqrestore(&mp->slock, flags);
+}
+
+static int mxser_set_baud(struct tty_struct *tty, speed_t newspd)
+>>>>>>> upstream/android-13
 {
 	struct mxser_port *info = tty->driver_data;
 	unsigned int quot = 0, baud;
 	unsigned char cval;
 	u64 timeout;
 
+<<<<<<< HEAD
 	if (!info->ioaddr)
 		return -1;
 
@@ -586,6 +967,19 @@ static int mxser_set_baud(struct tty_struct *tty, long newspd)
 		if (quot == 0)
 			quot = 1;
 		baud = info->baud_base/quot;
+=======
+	if (newspd > info->board->max_baud)
+		return -1;
+
+	if (newspd == 134) {
+		quot = 2 * MXSER_BAUD_BASE / 269;
+		tty_encode_baud_rate(tty, 134, 134);
+	} else if (newspd) {
+		quot = MXSER_BAUD_BASE / newspd;
+		if (quot == 0)
+			quot = 1;
+		baud = MXSER_BAUD_BASE / quot;
+>>>>>>> upstream/android-13
 		tty_encode_baud_rate(tty, baud, baud);
 	} else {
 		quot = 0;
@@ -596,7 +990,11 @@ static int mxser_set_baud(struct tty_struct *tty, long newspd)
 	 * u64 domain
 	 */
 	timeout = (u64)info->xmit_fifo_size * HZ * 10 * quot;
+<<<<<<< HEAD
 	do_div(timeout, info->baud_base);
+=======
+	do_div(timeout, MXSER_BAUD_BASE);
+>>>>>>> upstream/android-13
 	info->timeout = timeout + HZ / 50; /* Add .02 seconds of slop */
 
 	if (quot) {
@@ -618,7 +1016,11 @@ static int mxser_set_baud(struct tty_struct *tty, long newspd)
 
 #ifdef BOTHER
 	if (C_BAUD(tty) == BOTHER) {
+<<<<<<< HEAD
 		quot = info->baud_base % newspd;
+=======
+		quot = MXSER_BAUD_BASE % newspd;
+>>>>>>> upstream/android-13
 		quot *= 8;
 		if (quot % newspd > newspd / 2) {
 			quot /= newspd;
@@ -634,10 +1036,36 @@ static int mxser_set_baud(struct tty_struct *tty, long newspd)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void mxser_handle_cts(struct tty_struct *tty, struct mxser_port *info,
+		u8 msr)
+{
+	bool cts = msr & UART_MSR_CTS;
+
+	if (tty->hw_stopped) {
+		if (cts) {
+			tty->hw_stopped = 0;
+
+			if (!mxser_16550A_or_MUST(info))
+				__mxser_start_tx(info);
+			tty_wakeup(tty);
+		}
+		return;
+	} else if (cts)
+		return;
+
+	tty->hw_stopped = 1;
+	if (!mxser_16550A_or_MUST(info))
+		__mxser_stop_tx(info);
+}
+
+>>>>>>> upstream/android-13
 /*
  * This routine is called to set the UART divisor registers to match
  * the specified baud rate for a serial port.
  */
+<<<<<<< HEAD
 static int mxser_change_speed(struct tty_struct *tty)
 {
 	struct mxser_port *info = tty->driver_data;
@@ -672,6 +1100,36 @@ static int mxser_change_speed(struct tty_struct *tty)
 	}
 	if (cflag & CSTOPB)
 		cval |= 0x04;
+=======
+static void mxser_change_speed(struct tty_struct *tty)
+{
+	struct mxser_port *info = tty->driver_data;
+	unsigned cflag, cval, fcr;
+
+	cflag = tty->termios.c_cflag;
+
+	mxser_set_baud(tty, tty_get_baud_rate(tty));
+
+	/* byte size and parity */
+	switch (cflag & CSIZE) {
+	default:
+	case CS5:
+		cval = UART_LCR_WLEN5;
+		break;
+	case CS6:
+		cval = UART_LCR_WLEN6;
+		break;
+	case CS7:
+		cval = UART_LCR_WLEN7;
+		break;
+	case CS8:
+		cval = UART_LCR_WLEN8;
+		break;
+	}
+
+	if (cflag & CSTOPB)
+		cval |= UART_LCR_STOP;
+>>>>>>> upstream/android-13
 	if (cflag & PARENB)
 		cval |= UART_LCR_PARITY;
 	if (!(cflag & PARODD))
@@ -680,7 +1138,11 @@ static int mxser_change_speed(struct tty_struct *tty)
 		cval |= UART_LCR_SPAR;
 
 	if ((info->type == PORT_8250) || (info->type == PORT_16450)) {
+<<<<<<< HEAD
 		if (info->board->chip_flag) {
+=======
+		if (info->board->must_hwid) {
+>>>>>>> upstream/android-13
 			fcr = UART_FCR_ENABLE_FIFO;
 			fcr |= MOXA_MUST_FCR_GDA_MODE_ENABLE;
 			mxser_set_must_fifo_value(info);
@@ -688,11 +1150,19 @@ static int mxser_change_speed(struct tty_struct *tty)
 			fcr = 0;
 	} else {
 		fcr = UART_FCR_ENABLE_FIFO;
+<<<<<<< HEAD
 		if (info->board->chip_flag) {
 			fcr |= MOXA_MUST_FCR_GDA_MODE_ENABLE;
 			mxser_set_must_fifo_value(info);
 		} else {
 			switch (info->rx_trigger) {
+=======
+		if (info->board->must_hwid) {
+			fcr |= MOXA_MUST_FCR_GDA_MODE_ENABLE;
+			mxser_set_must_fifo_value(info);
+		} else {
+			switch (info->rx_high_water) {
+>>>>>>> upstream/android-13
 			case 1:
 				fcr |= UART_FCR_TRIGGER_1;
 				break;
@@ -715,6 +1185,7 @@ static int mxser_change_speed(struct tty_struct *tty)
 	tty_port_set_cts_flow(&info->port, cflag & CRTSCTS);
 	if (cflag & CRTSCTS) {
 		info->IER |= UART_IER_MSI;
+<<<<<<< HEAD
 		if ((info->type == PORT_16550A) || (info->board->chip_flag)) {
 			info->MCR |= UART_MCR_AFE;
 		} else {
@@ -744,6 +1215,13 @@ static int mxser_change_speed(struct tty_struct *tty)
 					}
 				}
 			}
+=======
+		if (mxser_16550A_or_MUST(info)) {
+			info->MCR |= UART_MCR_AFE;
+		} else {
+			mxser_handle_cts(tty, info,
+					inb(info->ioaddr + UART_MSR));
+>>>>>>> upstream/android-13
 		}
 	}
 	outb(info->MCR, info->ioaddr + UART_MCR);
@@ -781,6 +1259,7 @@ static int mxser_change_speed(struct tty_struct *tty)
 						UART_LSR_FE;
 		}
 	}
+<<<<<<< HEAD
 	if (info->board->chip_flag) {
 		mxser_set_must_xon1_value(info->ioaddr, START_CHAR(tty));
 		mxser_set_must_xoff1_value(info->ioaddr, STOP_CHAR(tty));
@@ -798,13 +1277,23 @@ static int mxser_change_speed(struct tty_struct *tty)
 			mxser_disable_must_tx_software_flow_control(
 					info->ioaddr);
 		}
+=======
+	if (info->board->must_hwid) {
+		mxser_set_must_xon1_value(info->ioaddr, START_CHAR(tty));
+		mxser_set_must_xoff1_value(info->ioaddr, STOP_CHAR(tty));
+		mxser_must_set_rx_sw_flow_control(info->ioaddr, I_IXON(tty));
+		mxser_must_set_tx_sw_flow_control(info->ioaddr, I_IXOFF(tty));
+>>>>>>> upstream/android-13
 	}
 
 
 	outb(fcr, info->ioaddr + UART_FCR);	/* set fcr */
 	outb(cval, info->ioaddr + UART_LCR);
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> upstream/android-13
 }
 
 static void mxser_check_modem_status(struct tty_struct *tty,
@@ -819,7 +1308,10 @@ static void mxser_check_modem_status(struct tty_struct *tty,
 		port->icount.dcd++;
 	if (status & UART_MSR_DCTS)
 		port->icount.cts++;
+<<<<<<< HEAD
 	port->mon_data.modem_status = status;
+=======
+>>>>>>> upstream/android-13
 	wake_up_interruptible(&port->port.delta_msr_wait);
 
 	if (tty_port_check_carrier(&port->port) && (status & UART_MSR_DDCD)) {
@@ -827,6 +1319,7 @@ static void mxser_check_modem_status(struct tty_struct *tty,
 			wake_up_interruptible(&port->port.open_wait);
 	}
 
+<<<<<<< HEAD
 	if (tty_port_cts_enabled(&port->port)) {
 		if (tty->hw_stopped) {
 			if (status & UART_MSR_CTS) {
@@ -854,6 +1347,10 @@ static void mxser_check_modem_status(struct tty_struct *tty,
 			}
 		}
 	}
+=======
+	if (tty_port_cts_enabled(&port->port))
+		mxser_handle_cts(tty, port, status);
+>>>>>>> upstream/android-13
 }
 
 static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
@@ -861,6 +1358,10 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
 	struct mxser_port *info = container_of(port, struct mxser_port, port);
 	unsigned long page;
 	unsigned long flags;
+<<<<<<< HEAD
+=======
+	int ret;
+>>>>>>> upstream/android-13
 
 	page = __get_free_page(GFP_KERNEL);
 	if (!page)
@@ -868,11 +1369,19 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
 
 	spin_lock_irqsave(&info->slock, flags);
 
+<<<<<<< HEAD
 	if (!info->ioaddr || !info->type) {
 		set_bit(TTY_IO_ERROR, &tty->flags);
 		free_page(page);
 		spin_unlock_irqrestore(&info->slock, flags);
 		return 0;
+=======
+	if (!info->type) {
+		set_bit(TTY_IO_ERROR, &tty->flags);
+		spin_unlock_irqrestore(&info->slock, flags);
+		ret = 0;
+		goto err_free_xmit;
+>>>>>>> upstream/android-13
 	}
 	info->port.xmit_buf = (unsigned char *) page;
 
@@ -880,7 +1389,11 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
 	 * Clear the FIFO buffers and disable them
 	 * (they will be reenabled in mxser_change_speed())
 	 */
+<<<<<<< HEAD
 	if (info->board->chip_flag)
+=======
+	if (info->board->must_hwid)
+>>>>>>> upstream/android-13
 		outb((UART_FCR_CLEAR_RCVR |
 			UART_FCR_CLEAR_XMIT |
 			MOXA_MUST_FCR_GDA_MODE_ENABLE), info->ioaddr + UART_FCR);
@@ -898,8 +1411,15 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
 		if (capable(CAP_SYS_ADMIN)) {
 			set_bit(TTY_IO_ERROR, &tty->flags);
 			return 0;
+<<<<<<< HEAD
 		} else
 			return -ENODEV;
+=======
+		}
+
+		ret = -ENODEV;
+		goto err_free_xmit;
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -922,7 +1442,11 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
 	 */
 	info->IER = UART_IER_MSI | UART_IER_RLSI | UART_IER_RDI;
 
+<<<<<<< HEAD
 	if (info->board->chip_flag)
+=======
+	if (info->board->must_hwid)
+>>>>>>> upstream/android-13
 		info->IER |= MOXA_MUST_IER_EGDAI;
 	outb(info->IER, info->ioaddr + UART_IER);	/* enable interrupts */
 
@@ -944,6 +1468,13 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
 	spin_unlock_irqrestore(&info->slock, flags);
 
 	return 0;
+<<<<<<< HEAD
+=======
+err_free_xmit:
+	free_page(page);
+	info->port.xmit_buf = NULL;
+	return ret;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -974,7 +1505,11 @@ static void mxser_shutdown_port(struct tty_port *port)
 	outb(0x00, info->ioaddr + UART_IER);
 
 	/* clear Rx/Tx FIFO's */
+<<<<<<< HEAD
 	if (info->board->chip_flag)
+=======
+	if (info->board->must_hwid)
+>>>>>>> upstream/android-13
 		outb(UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT |
 				MOXA_MUST_FCR_GDA_MODE_ENABLE,
 				info->ioaddr + UART_FCR);
@@ -986,8 +1521,13 @@ static void mxser_shutdown_port(struct tty_port *port)
 	(void) inb(info->ioaddr + UART_RX);
 
 
+<<<<<<< HEAD
 	if (info->board->chip_flag)
 		SET_MOXA_MUST_NO_SOFTWARE_FLOW_CONTROL(info->ioaddr);
+=======
+	if (info->board->must_hwid)
+		mxser_must_no_sw_flow_control(info->ioaddr);
+>>>>>>> upstream/android-13
 
 	spin_unlock_irqrestore(&info->slock, flags);
 }
@@ -1000,6 +1540,7 @@ static void mxser_shutdown_port(struct tty_port *port)
  */
 static int mxser_open(struct tty_struct *tty, struct file *filp)
 {
+<<<<<<< HEAD
 	struct mxser_port *info;
 	int line;
 
@@ -1012,6 +1553,14 @@ static int mxser_open(struct tty_struct *tty, struct file *filp)
 
 	tty->driver_data = info;
 	return tty_port_open(&info->port, tty, filp);
+=======
+	struct tty_port *tport = tty->port;
+	struct mxser_port *port = container_of(tport, struct mxser_port, port);
+
+	tty->driver_data = port;
+
+	return tty_port_open(tport, tty, filp);
+>>>>>>> upstream/android-13
 }
 
 static void mxser_flush_buffer(struct tty_struct *tty)
@@ -1046,7 +1595,11 @@ static void mxser_close_port(struct tty_port *port)
 	 * line status register.
 	 */
 	info->IER &= ~UART_IER_RLSI;
+<<<<<<< HEAD
 	if (info->board->chip_flag)
+=======
+	if (info->board->must_hwid)
+>>>>>>> upstream/android-13
 		info->IER &= ~MOXA_MUST_RECV_ISR;
 
 	outb(info->IER, info->ioaddr + UART_IER);
@@ -1074,11 +1627,18 @@ static void mxser_close(struct tty_struct *tty, struct file *filp)
 	struct mxser_port *info = tty->driver_data;
 	struct tty_port *port = &info->port;
 
+<<<<<<< HEAD
 	if (tty->index == MXSER_PORTS || info == NULL)
 		return;
 	if (tty_port_close_start(port, tty, filp) == 0)
 		return;
 	info->closing = 1;
+=======
+	if (info == NULL)
+		return;
+	if (tty_port_close_start(port, tty, filp) == 0)
+		return;
+>>>>>>> upstream/android-13
 	mutex_lock(&port->mutex);
 	mxser_close_port(port);
 	mxser_flush_buffer(tty);
@@ -1087,7 +1647,10 @@ static void mxser_close(struct tty_struct *tty, struct file *filp)
 	mxser_shutdown_port(port);
 	tty_port_set_initialized(port, 0);
 	mutex_unlock(&port->mutex);
+<<<<<<< HEAD
 	info->closing = 0;
+=======
+>>>>>>> upstream/android-13
 	/* Right now the tty_port set is done outside of the close_end helper
 	   as we don't yet have everyone using refcounts */	
 	tty_port_close_end(port, tty);
@@ -1121,6 +1684,7 @@ static int mxser_write(struct tty_struct *tty, const unsigned char *buf, int cou
 		total += c;
 	}
 
+<<<<<<< HEAD
 	if (info->xmit_cnt && !tty->stopped) {
 		if (!tty->hw_stopped ||
 				(info->type == PORT_16550A) ||
@@ -1133,6 +1697,12 @@ static int mxser_write(struct tty_struct *tty, const unsigned char *buf, int cou
 			spin_unlock_irqrestore(&info->slock, flags);
 		}
 	}
+=======
+	if (info->xmit_cnt && !tty->flow.stopped)
+		if (!tty->hw_stopped || mxser_16550A_or_MUST(info))
+			mxser_start_tx(info);
+
+>>>>>>> upstream/android-13
 	return total;
 }
 
@@ -1152,6 +1722,7 @@ static int mxser_put_char(struct tty_struct *tty, unsigned char ch)
 	info->xmit_head &= SERIAL_XMIT_SIZE - 1;
 	info->xmit_cnt++;
 	spin_unlock_irqrestore(&info->slock, flags);
+<<<<<<< HEAD
 	if (!tty->stopped) {
 		if (!tty->hw_stopped ||
 				(info->type == PORT_16550A) ||
@@ -1163,6 +1734,9 @@ static int mxser_put_char(struct tty_struct *tty, unsigned char ch)
 			spin_unlock_irqrestore(&info->slock, flags);
 		}
 	}
+=======
+
+>>>>>>> upstream/android-13
 	return 1;
 }
 
@@ -1170,6 +1744,7 @@ static int mxser_put_char(struct tty_struct *tty, unsigned char ch)
 static void mxser_flush_chars(struct tty_struct *tty)
 {
 	struct mxser_port *info = tty->driver_data;
+<<<<<<< HEAD
 	unsigned long flags;
 
 	if (info->xmit_cnt <= 0 || tty->stopped || !info->port.xmit_buf ||
@@ -1187,6 +1762,17 @@ static void mxser_flush_chars(struct tty_struct *tty)
 }
 
 static int mxser_write_room(struct tty_struct *tty)
+=======
+
+	if (!info->xmit_cnt || tty->flow.stopped || !info->port.xmit_buf ||
+			(tty->hw_stopped && !mxser_16550A_or_MUST(info)))
+		return;
+
+	mxser_start_tx(info);
+}
+
+static unsigned int mxser_write_room(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct mxser_port *info = tty->driver_data;
 	int ret;
@@ -1195,7 +1781,11 @@ static int mxser_write_room(struct tty_struct *tty)
 	return ret < 0 ? 0 : ret;
 }
 
+<<<<<<< HEAD
 static int mxser_chars_in_buffer(struct tty_struct *tty)
+=======
+static unsigned int mxser_chars_in_buffer(struct tty_struct *tty)
+>>>>>>> upstream/android-13
 {
 	struct mxser_port *info = tty->driver_data;
 	return info->xmit_cnt;
@@ -1207,6 +1797,7 @@ static int mxser_chars_in_buffer(struct tty_struct *tty)
  * ------------------------------------------------------------
  */
 static int mxser_get_serial_info(struct tty_struct *tty,
+<<<<<<< HEAD
 		struct serial_struct __user *retinfo)
 {
 	struct mxser_port *info = tty->driver_data;
@@ -1223,10 +1814,36 @@ static int mxser_get_serial_info(struct tty_struct *tty,
 	};
 	if (copy_to_user(retinfo, &tmp, sizeof(*retinfo)))
 		return -EFAULT;
+=======
+		struct serial_struct *ss)
+{
+	struct mxser_port *info = tty->driver_data;
+	struct tty_port *port = &info->port;
+	unsigned int closing_wait, close_delay;
+
+	mutex_lock(&port->mutex);
+
+	close_delay = jiffies_to_msecs(info->port.close_delay) / 10;
+	closing_wait = info->port.closing_wait;
+	if (closing_wait != ASYNC_CLOSING_WAIT_NONE)
+		closing_wait = jiffies_to_msecs(closing_wait) / 10;
+
+	ss->type = info->type;
+	ss->line = tty->index;
+	ss->port = info->ioaddr;
+	ss->irq = info->board->irq;
+	ss->flags = info->port.flags;
+	ss->baud_base = MXSER_BAUD_BASE;
+	ss->close_delay = close_delay;
+	ss->closing_wait = closing_wait;
+	ss->custom_divisor = MXSER_CUSTOM_DIVISOR,
+	mutex_unlock(&port->mutex);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int mxser_set_serial_info(struct tty_struct *tty,
+<<<<<<< HEAD
 		struct serial_struct __user *new_info)
 {
 	struct mxser_port *info = tty->driver_data;
@@ -1255,12 +1872,52 @@ static int mxser_set_serial_info(struct tty_struct *tty,
 			return -EPERM;
 		info->port.flags = ((info->port.flags & ~ASYNC_USR_MASK) |
 				(new_serial.flags & ASYNC_USR_MASK));
+=======
+		struct serial_struct *ss)
+{
+	struct mxser_port *info = tty->driver_data;
+	struct tty_port *port = &info->port;
+	speed_t baud;
+	unsigned long sl_flags;
+	unsigned int old_speed, close_delay, closing_wait;
+	int retval = 0;
+
+	if (tty_io_error(tty))
+		return -EIO;
+
+	mutex_lock(&port->mutex);
+
+	if (ss->irq != info->board->irq ||
+			ss->port != info->ioaddr) {
+		mutex_unlock(&port->mutex);
+		return -EINVAL;
+	}
+
+	old_speed = port->flags & ASYNC_SPD_MASK;
+
+	close_delay = msecs_to_jiffies(ss->close_delay * 10);
+	closing_wait = ss->closing_wait;
+	if (closing_wait != ASYNC_CLOSING_WAIT_NONE)
+		closing_wait = msecs_to_jiffies(closing_wait * 10);
+
+	if (!capable(CAP_SYS_ADMIN)) {
+		if ((ss->baud_base != MXSER_BAUD_BASE) ||
+				(close_delay != port->close_delay) ||
+				(closing_wait != port->closing_wait) ||
+				((ss->flags & ~ASYNC_USR_MASK) != (port->flags & ~ASYNC_USR_MASK))) {
+			mutex_unlock(&port->mutex);
+			return -EPERM;
+		}
+		port->flags = (port->flags & ~ASYNC_USR_MASK) |
+				(ss->flags & ASYNC_USR_MASK);
+>>>>>>> upstream/android-13
 	} else {
 		/*
 		 * OK, past this point, all the error checking has been done.
 		 * At this point, we start making changes.....
 		 */
 		port->flags = ((port->flags & ~ASYNC_FLAGS) |
+<<<<<<< HEAD
 				(new_serial.flags & ASYNC_FLAGS));
 		port->close_delay = new_serial.close_delay * HZ / 100;
 		port->closing_wait = new_serial.closing_wait * HZ / 100;
@@ -1282,6 +1939,30 @@ static int mxser_set_serial_info(struct tty_struct *tty,
 
 	if (tty_port_initialized(port)) {
 		if (flags != (port->flags & ASYNC_SPD_MASK)) {
+=======
+				(ss->flags & ASYNC_FLAGS));
+		port->close_delay = close_delay;
+		port->closing_wait = closing_wait;
+		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_CUST &&
+				(ss->baud_base != MXSER_BAUD_BASE ||
+				ss->custom_divisor !=
+				MXSER_CUSTOM_DIVISOR)) {
+			if (ss->custom_divisor == 0) {
+				mutex_unlock(&port->mutex);
+				return -EINVAL;
+			}
+			baud = ss->baud_base / ss->custom_divisor;
+			tty_encode_baud_rate(tty, baud, baud);
+		}
+
+		info->type = ss->type;
+
+		mxser_process_txrx_fifo(info);
+	}
+
+	if (tty_port_initialized(port)) {
+		if (old_speed != (port->flags & ASYNC_SPD_MASK)) {
+>>>>>>> upstream/android-13
 			spin_lock_irqsave(&info->slock, sl_flags);
 			mxser_change_speed(tty);
 			spin_unlock_irqrestore(&info->slock, sl_flags);
@@ -1291,6 +1972,10 @@ static int mxser_set_serial_info(struct tty_struct *tty,
 		if (retval == 0)
 			tty_port_set_initialized(port, 1);
 	}
+<<<<<<< HEAD
+=======
+	mutex_unlock(&port->mutex);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
@@ -1324,6 +2009,7 @@ static int mxser_tiocmget(struct tty_struct *tty)
 	unsigned char control, status;
 	unsigned long flags;
 
+<<<<<<< HEAD
 
 	if (tty->index == MXSER_PORTS)
 		return -ENOIOCTLCMD;
@@ -1333,10 +2019,21 @@ static int mxser_tiocmget(struct tty_struct *tty)
 	control = info->MCR;
 
 	spin_lock_irqsave(&info->slock, flags);
+=======
+	if (tty_io_error(tty))
+		return -EIO;
+
+	spin_lock_irqsave(&info->slock, flags);
+	control = info->MCR;
+>>>>>>> upstream/android-13
 	status = inb(info->ioaddr + UART_MSR);
 	if (status & UART_MSR_ANY_DELTA)
 		mxser_check_modem_status(tty, info, status);
 	spin_unlock_irqrestore(&info->slock, flags);
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 	return ((control & UART_MCR_RTS) ? TIOCM_RTS : 0) |
 		    ((control & UART_MCR_DTR) ? TIOCM_DTR : 0) |
 		    ((status & UART_MSR_DCD) ? TIOCM_CAR : 0) |
@@ -1351,9 +2048,12 @@ static int mxser_tiocmset(struct tty_struct *tty,
 	struct mxser_port *info = tty->driver_data;
 	unsigned long flags;
 
+<<<<<<< HEAD
 
 	if (tty->index == MXSER_PORTS)
 		return -ENOIOCTLCMD;
+=======
+>>>>>>> upstream/android-13
 	if (tty_io_error(tty))
 		return -EIO;
 
@@ -1374,6 +2074,7 @@ static int mxser_tiocmset(struct tty_struct *tty,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __init mxser_program_mode(int port)
 {
 	int id, i, j, n;
@@ -1635,6 +2336,8 @@ static int mxser_ioctl_special(unsigned int cmd, void __user *argp)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int mxser_cflags_changed(struct mxser_port *info, unsigned long arg,
 		struct async_icount *cprev)
 {
@@ -1656,10 +2359,49 @@ static int mxser_cflags_changed(struct mxser_port *info, unsigned long arg,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+/* We should likely switch to TIOCGRS485/TIOCSRS485. */
+static int mxser_ioctl_op_mode(struct mxser_port *port, int index, bool set,
+		int __user *u_opmode)
+{
+	int opmode, p = index % 4;
+	int shiftbit = p * 2;
+	u8 val;
+
+	if (port->board->must_hwid != MOXA_MUST_MU860_HWID)
+		return -EFAULT;
+
+	if (set) {
+		if (get_user(opmode, u_opmode))
+			return -EFAULT;
+
+		if (opmode & ~OP_MODE_MASK)
+			return -EINVAL;
+
+		spin_lock_irq(&port->slock);
+		val = inb(port->opmode_ioaddr);
+		val &= ~(OP_MODE_MASK << shiftbit);
+		val |= (opmode << shiftbit);
+		outb(val, port->opmode_ioaddr);
+		spin_unlock_irq(&port->slock);
+
+		return 0;
+	}
+
+	spin_lock_irq(&port->slock);
+	opmode = inb(port->opmode_ioaddr) >> shiftbit;
+	spin_unlock_irq(&port->slock);
+
+	return put_user(opmode & OP_MODE_MASK, u_opmode);
+}
+
+>>>>>>> upstream/android-13
 static int mxser_ioctl(struct tty_struct *tty,
 		unsigned int cmd, unsigned long arg)
 {
 	struct mxser_port *info = tty->driver_data;
+<<<<<<< HEAD
 	struct tty_port *port = &info->port;
 	struct async_icount cnow;
 	unsigned long flags;
@@ -1722,6 +2464,20 @@ static int mxser_ioctl(struct tty_struct *tty,
 		retval = mxser_set_serial_info(tty, argp);
 		mutex_unlock(&port->mutex);
 		return retval;
+=======
+	struct async_icount cnow;
+	unsigned long flags;
+	void __user *argp = (void __user *)arg;
+
+	if (cmd == MOXA_SET_OP_MODE || cmd == MOXA_GET_OP_MODE)
+		return mxser_ioctl_op_mode(info, tty->index,
+				cmd == MOXA_SET_OP_MODE, argp);
+
+	if (cmd != TIOCMIWAIT && tty_io_error(tty))
+		return -EIO;
+
+	switch (cmd) {
+>>>>>>> upstream/android-13
 	case TIOCSERGETLSR:	/* Get line status register */
 		return  mxser_get_lsr_info(info, argp);
 		/*
@@ -1737,6 +2493,7 @@ static int mxser_ioctl(struct tty_struct *tty,
 
 		return wait_event_interruptible(info->port.delta_msr_wait,
 				mxser_cflags_changed(info, arg, &cnow));
+<<<<<<< HEAD
 	case MOXA_HighSpeedOn:
 		return put_user(info->baud_base != 115200 ? 1 : 0, (int __user *)argp);
 	case MOXA_SDS_RSTICOUNTER:
@@ -1803,6 +2560,8 @@ static int mxser_ioctl(struct tty_struct *tty,
 		mxser_set_baud_method[tty->index] = method;
 		return put_user(method, (int __user *)argp);
 	}
+=======
+>>>>>>> upstream/android-13
 	default:
 		return -ENOIOCTLCMD;
 	}
@@ -1848,7 +2607,11 @@ static void mxser_stoprx(struct tty_struct *tty)
 
 	info->ldisc_stop_rx = 1;
 	if (I_IXOFF(tty)) {
+<<<<<<< HEAD
 		if (info->board->chip_flag) {
+=======
+		if (info->board->must_hwid) {
+>>>>>>> upstream/android-13
 			info->IER &= ~MOXA_MUST_RECV_ISR;
 			outb(info->IER, info->ioaddr + UART_IER);
 		} else {
@@ -1884,7 +2647,11 @@ static void mxser_unthrottle(struct tty_struct *tty)
 		if (info->x_char)
 			info->x_char = 0;
 		else {
+<<<<<<< HEAD
 			if (info->board->chip_flag) {
+=======
+			if (info->board->must_hwid) {
+>>>>>>> upstream/android-13
 				info->IER |= MOXA_MUST_RECV_ISR;
 				outb(info->IER, info->ioaddr + UART_IER);
 			} else {
@@ -1905,7 +2672,11 @@ static void mxser_unthrottle(struct tty_struct *tty)
 /*
  * mxser_stop() and mxser_start()
  *
+<<<<<<< HEAD
  * This routines are called before setting or resetting tty->stopped.
+=======
+ * This routines are called before setting or resetting tty->flow.stopped.
+>>>>>>> upstream/android-13
  * They enable or disable transmitter interrupts, as necessary.
  */
 static void mxser_stop(struct tty_struct *tty)
@@ -1914,10 +2685,15 @@ static void mxser_stop(struct tty_struct *tty)
 	unsigned long flags;
 
 	spin_lock_irqsave(&info->slock, flags);
+<<<<<<< HEAD
 	if (info->IER & UART_IER_THRI) {
 		info->IER &= ~UART_IER_THRI;
 		outb(info->IER, info->ioaddr + UART_IER);
 	}
+=======
+	if (info->IER & UART_IER_THRI)
+		__mxser_stop_tx(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->slock, flags);
 }
 
@@ -1927,11 +2703,16 @@ static void mxser_start(struct tty_struct *tty)
 	unsigned long flags;
 
 	spin_lock_irqsave(&info->slock, flags);
+<<<<<<< HEAD
 	if (info->xmit_cnt && info->port.xmit_buf) {
 		outb(info->IER & ~UART_IER_THRI, info->ioaddr + UART_IER);
 		info->IER |= UART_IER_THRI;
 		outb(info->IER, info->ioaddr + UART_IER);
 	}
+=======
+	if (info->xmit_cnt && info->port.xmit_buf)
+		__mxser_start_tx(info);
+>>>>>>> upstream/android-13
 	spin_unlock_irqrestore(&info->slock, flags);
 }
 
@@ -1951,12 +2732,20 @@ static void mxser_set_termios(struct tty_struct *tty, struct ktermios *old_termi
 
 	/* Handle sw stopped */
 	if ((old_termios->c_iflag & IXON) && !I_IXON(tty)) {
+<<<<<<< HEAD
 		tty->stopped = 0;
 
 		if (info->board->chip_flag) {
 			spin_lock_irqsave(&info->slock, flags);
 			mxser_disable_must_rx_software_flow_control(
 					info->ioaddr);
+=======
+		tty->flow.stopped = 0;
+
+		if (info->board->must_hwid) {
+			spin_lock_irqsave(&info->slock, flags);
+			mxser_must_set_rx_sw_flow_control(info->ioaddr, false);
+>>>>>>> upstream/android-13
 			spin_unlock_irqrestore(&info->slock, flags);
 		}
 
@@ -2039,6 +2828,7 @@ static int mxser_rs_break(struct tty_struct *tty, int break_state)
 {
 	struct mxser_port *info = tty->driver_data;
 	unsigned long flags;
+<<<<<<< HEAD
 
 	spin_lock_irqsave(&info->slock, flags);
 	if (break_state == -1)
@@ -2089,27 +2879,97 @@ static void mxser_receive_chars(struct tty_struct *tty,
 		goto end_intr;
 	}
 intr_old:
+=======
+	u8 lcr;
+
+	spin_lock_irqsave(&info->slock, flags);
+	lcr = inb(info->ioaddr + UART_LCR);
+	if (break_state == -1)
+		lcr |= UART_LCR_SBC;
+	else
+		lcr &= ~UART_LCR_SBC;
+	outb(lcr, info->ioaddr + UART_LCR);
+	spin_unlock_irqrestore(&info->slock, flags);
+
+	return 0;
+}
+
+static bool mxser_receive_chars_new(struct tty_struct *tty,
+		struct mxser_port *port, u8 status)
+{
+	enum mxser_must_hwid hwid = port->board->must_hwid;
+	u8 gdl;
+
+	if (hwid == MOXA_OTHER_UART)
+		return false;
+	if (status & UART_LSR_BRK_ERROR_BITS)
+		return false;
+	if (hwid == MOXA_MUST_MU860_HWID && (status & MOXA_MUST_LSR_RERR))
+		return false;
+	if (status & MOXA_MUST_LSR_RERR)
+		return false;
+
+	gdl = inb(port->ioaddr + MOXA_MUST_GDL_REGISTER);
+	if (hwid == MOXA_MUST_MU150_HWID)
+		gdl &= MOXA_MUST_GDL_MASK;
+
+	if (gdl >= tty->receive_room && !port->ldisc_stop_rx)
+		mxser_stoprx(tty);
+
+	while (gdl--) {
+		u8 ch = inb(port->ioaddr + UART_RX);
+		tty_insert_flip_char(&port->port, ch, 0);
+	}
+
+	return true;
+}
+
+static u8 mxser_receive_chars_old(struct tty_struct *tty,
+		                struct mxser_port *port, u8 status)
+{
+	enum mxser_must_hwid hwid = port->board->must_hwid;
+	int recv_room = tty->receive_room;
+	int ignored = 0;
+	int max = 256;
+	int cnt = 0;
+	u8 ch;
+>>>>>>> upstream/android-13
 
 	do {
 		if (max-- < 0)
 			break;
 
 		ch = inb(port->ioaddr + UART_RX);
+<<<<<<< HEAD
 		if (port->board->chip_flag && (*status & UART_LSR_OE))
 			outb(0x23, port->ioaddr + UART_FCR);
 		*status &= port->read_status_mask;
 		if (*status & port->ignore_status_mask) {
+=======
+		if (hwid && (status & UART_LSR_OE))
+			outb(UART_FCR_ENABLE_FIFO | UART_FCR_CLEAR_RCVR |
+					MOXA_MUST_FCR_GDA_MODE_ENABLE,
+					port->ioaddr + UART_FCR);
+		status &= port->read_status_mask;
+		if (status & port->ignore_status_mask) {
+>>>>>>> upstream/android-13
 			if (++ignored > 100)
 				break;
 		} else {
 			char flag = 0;
+<<<<<<< HEAD
 			if (*status & UART_LSR_SPECIAL) {
 				if (*status & UART_LSR_BI) {
+=======
+			if (status & UART_LSR_BRK_ERROR_BITS) {
+				if (status & UART_LSR_BI) {
+>>>>>>> upstream/android-13
 					flag = TTY_BREAK;
 					port->icount.brk++;
 
 					if (port->port.flags & ASYNC_SAK)
 						do_SAK(tty);
+<<<<<<< HEAD
 				} else if (*status & UART_LSR_PE) {
 					flag = TTY_PARITY;
 					port->icount.parity++;
@@ -2121,6 +2981,18 @@ intr_old:
 					port->icount.overrun++;
 				} else
 					flag = TTY_BREAK;
+=======
+				} else if (status & UART_LSR_PE) {
+					flag = TTY_PARITY;
+					port->icount.parity++;
+				} else if (status & UART_LSR_FE) {
+					flag = TTY_FRAME;
+					port->icount.frame++;
+				} else if (status & UART_LSR_OE) {
+					flag = TTY_OVERRUN;
+					port->icount.overrun++;
+				}
+>>>>>>> upstream/android-13
 			}
 			tty_insert_flip_char(&port->port, ch, flag);
 			cnt++;
@@ -2132,6 +3004,7 @@ intr_old:
 
 		}
 
+<<<<<<< HEAD
 		if (port->board->chip_flag)
 			break;
 
@@ -2151,6 +3024,29 @@ end_intr:
 	spin_unlock(&port->slock);
 	tty_flip_buffer_push(&port->port);
 	spin_lock(&port->slock);
+=======
+		if (hwid)
+			break;
+
+		status = inb(port->ioaddr + UART_LSR);
+	} while (status & UART_LSR_DR);
+
+	return status;
+}
+
+static u8 mxser_receive_chars(struct tty_struct *tty,
+		struct mxser_port *port, u8 status)
+{
+	if (tty->receive_room == 0 && !port->ldisc_stop_rx)
+		mxser_stoprx(tty);
+
+	if (!mxser_receive_chars_new(tty, port, status))
+		status = mxser_receive_chars_old(tty, port, status);
+
+	tty_flip_buffer_push(&port->port);
+
+	return status;
+>>>>>>> upstream/android-13
 }
 
 static void mxser_transmit_chars(struct tty_struct *tty, struct mxser_port *port)
@@ -2160,9 +3056,12 @@ static void mxser_transmit_chars(struct tty_struct *tty, struct mxser_port *port
 	if (port->x_char) {
 		outb(port->x_char, port->ioaddr + UART_TX);
 		port->x_char = 0;
+<<<<<<< HEAD
 		mxvar_log.txcnt[tty->index]++;
 		port->mon_data.txcnt++;
 		port->mon_data.up_txcnt++;
+=======
+>>>>>>> upstream/android-13
 		port->icount.tx++;
 		return;
 	}
@@ -2170,12 +3069,18 @@ static void mxser_transmit_chars(struct tty_struct *tty, struct mxser_port *port
 	if (port->port.xmit_buf == NULL)
 		return;
 
+<<<<<<< HEAD
 	if (port->xmit_cnt <= 0 || tty->stopped ||
 			(tty->hw_stopped &&
 			(port->type != PORT_16550A) &&
 			(!port->board->chip_flag))) {
 		port->IER &= ~UART_IER_THRI;
 		outb(port->IER, port->ioaddr + UART_IER);
+=======
+	if (!port->xmit_cnt || tty->flow.stopped ||
+			(tty->hw_stopped && !mxser_16550A_or_MUST(port))) {
+		__mxser_stop_tx(port);
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -2185,6 +3090,7 @@ static void mxser_transmit_chars(struct tty_struct *tty, struct mxser_port *port
 		outb(port->port.xmit_buf[port->xmit_tail++],
 			port->ioaddr + UART_TX);
 		port->xmit_tail = port->xmit_tail & (SERIAL_XMIT_SIZE - 1);
+<<<<<<< HEAD
 		if (--port->xmit_cnt <= 0)
 			break;
 	} while (--count > 0);
@@ -2192,15 +3098,81 @@ static void mxser_transmit_chars(struct tty_struct *tty, struct mxser_port *port
 
 	port->mon_data.txcnt += (cnt - port->xmit_cnt);
 	port->mon_data.up_txcnt += (cnt - port->xmit_cnt);
+=======
+		if (!--port->xmit_cnt)
+			break;
+	} while (--count > 0);
+
+>>>>>>> upstream/android-13
 	port->icount.tx += (cnt - port->xmit_cnt);
 
 	if (port->xmit_cnt < WAKEUP_CHARS)
 		tty_wakeup(tty);
 
+<<<<<<< HEAD
 	if (port->xmit_cnt <= 0) {
 		port->IER &= ~UART_IER_THRI;
 		outb(port->IER, port->ioaddr + UART_IER);
 	}
+=======
+	if (!port->xmit_cnt)
+		__mxser_stop_tx(port);
+}
+
+static bool mxser_port_isr(struct mxser_port *port)
+{
+	struct tty_struct *tty;
+	u8 iir, msr, status;
+	bool error = false;
+
+	iir = inb(port->ioaddr + UART_IIR);
+	if (iir & UART_IIR_NO_INT)
+		return true;
+
+	iir &= MOXA_MUST_IIR_MASK;
+	tty = tty_port_tty_get(&port->port);
+	if (!tty) {
+		status = inb(port->ioaddr + UART_LSR);
+		outb(MOXA_MUST_FCR_GDA_MODE_ENABLE | UART_FCR_ENABLE_FIFO |
+				UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT,
+				port->ioaddr + UART_FCR);
+		inb(port->ioaddr + UART_MSR);
+
+		error = true;
+		goto put_tty;
+	}
+
+	status = inb(port->ioaddr + UART_LSR);
+
+	if (port->board->must_hwid) {
+		if (iir == MOXA_MUST_IIR_GDA ||
+		    iir == MOXA_MUST_IIR_RDA ||
+		    iir == MOXA_MUST_IIR_RTO ||
+		    iir == MOXA_MUST_IIR_LSR)
+			status = mxser_receive_chars(tty, port, status);
+	} else {
+		status &= port->read_status_mask;
+		if (status & UART_LSR_DR)
+			status = mxser_receive_chars(tty, port, status);
+	}
+
+	msr = inb(port->ioaddr + UART_MSR);
+	if (msr & UART_MSR_ANY_DELTA)
+		mxser_check_modem_status(tty, port, msr);
+
+	if (port->board->must_hwid) {
+		if (iir == 0x02 && (status & UART_LSR_THRE))
+			mxser_transmit_chars(tty, port);
+	} else {
+		if (status & UART_LSR_THRE)
+			mxser_transmit_chars(tty, port);
+	}
+
+put_tty:
+	tty_kref_put(tty);
+
+	return error;
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -2208,6 +3180,7 @@ static void mxser_transmit_chars(struct tty_struct *tty, struct mxser_port *port
  */
 static irqreturn_t mxser_interrupt(int irq, void *dev_id)
 {
+<<<<<<< HEAD
 	int status, iir, i;
 	struct mxser_board *brd = NULL;
 	struct mxser_port *port;
@@ -2230,11 +3203,27 @@ static irqreturn_t mxser_interrupt(int irq, void *dev_id)
 	while (pass_counter++ < MXSER_ISR_PASS_LIMIT) {
 		irqbits = inb(brd->vector) & brd->vector_mask;
 		if (irqbits == brd->vector_mask)
+=======
+	struct mxser_board *brd = dev_id;
+	struct mxser_port *port;
+	unsigned int int_cnt, pass_counter = 0;
+	unsigned int i, max = brd->nports;
+	int handled = IRQ_NONE;
+	u8 irqbits, bits, mask = BIT(max) - 1;
+
+	while (pass_counter++ < MXSER_ISR_PASS_LIMIT) {
+		irqbits = inb(brd->vector) & mask;
+		if (irqbits == mask)
+>>>>>>> upstream/android-13
 			break;
 
 		handled = IRQ_HANDLED;
 		for (i = 0, bits = 1; i < max; i++, irqbits |= bits, bits <<= 1) {
+<<<<<<< HEAD
 			if (irqbits == brd->vector_mask)
+=======
+			if (irqbits == mask)
+>>>>>>> upstream/android-13
 				break;
 			if (bits & irqbits)
 				continue;
@@ -2243,6 +3232,7 @@ static irqreturn_t mxser_interrupt(int irq, void *dev_id)
 			int_cnt = 0;
 			spin_lock(&port->slock);
 			do {
+<<<<<<< HEAD
 				iir = inb(port->ioaddr + UART_IIR);
 				if (iir & UART_IIR_NO_INT)
 					break;
@@ -2296,12 +3286,19 @@ static irqreturn_t mxser_interrupt(int irq, void *dev_id)
 						mxser_transmit_chars(tty, port);
 				}
 				tty_kref_put(tty);
+=======
+				if (mxser_port_isr(port))
+					break;
+>>>>>>> upstream/android-13
 			} while (int_cnt++ < MXSER_ISR_PASS_LIMIT);
 			spin_unlock(&port->slock);
 		}
 	}
 
+<<<<<<< HEAD
 irq_stop:
+=======
+>>>>>>> upstream/android-13
 	return handled;
 }
 
@@ -2325,6 +3322,11 @@ static const struct tty_operations mxser_ops = {
 	.wait_until_sent = mxser_wait_until_sent,
 	.tiocmget = mxser_tiocmget,
 	.tiocmset = mxser_tiocmset,
+<<<<<<< HEAD
+=======
+	.set_serial = mxser_set_serial_info,
+	.get_serial = mxser_get_serial_info,
+>>>>>>> upstream/android-13
 	.get_icount = mxser_get_icount,
 };
 
@@ -2339,6 +3341,7 @@ static const struct tty_port_operations mxser_port_ops = {
  * The MOXA Smartio/Industio serial driver boot-time initialization code!
  */
 
+<<<<<<< HEAD
 static bool allow_overlapping_vector;
 module_param(allow_overlapping_vector, bool, S_IRUGO);
 MODULE_PARM_DESC(allow_overlapping_vector, "whether we allow ISA cards to be configured such that vector overlabs IO ports (default=no)");
@@ -2401,12 +3404,64 @@ static int mxser_initbrd(struct mxser_board *brd)
 		info->normal_termios = mxvar_sdriver->init_termios;
 		memset(&info->mon_data, 0, sizeof(struct mxser_mon));
 		info->err_shadow = 0;
+=======
+static void mxser_initbrd(struct mxser_board *brd, bool high_baud)
+{
+	struct mxser_port *info;
+	unsigned int i;
+	bool is_mu860;
+
+	brd->must_hwid = mxser_must_get_hwid(brd->ports[0].ioaddr);
+	is_mu860 = brd->must_hwid == MOXA_MUST_MU860_HWID;
+
+	for (i = 0; i < UART_INFO_NUM; i++) {
+		if (Gpci_uart_info[i].type == brd->must_hwid) {
+			brd->max_baud = Gpci_uart_info[i].max_baud;
+
+			/* exception....CP-102 */
+			if (high_baud)
+				brd->max_baud = 921600;
+			break;
+		}
+	}
+
+	if (is_mu860) {
+		/* set to RS232 mode by default */
+		outb(0, brd->vector + 4);
+		outb(0, brd->vector + 0x0c);
+	}
+
+	for (i = 0; i < brd->nports; i++) {
+		info = &brd->ports[i];
+		if (is_mu860) {
+			if (i < 4)
+				info->opmode_ioaddr = brd->vector + 4;
+			else
+				info->opmode_ioaddr = brd->vector + 0x0c;
+		}
+		tty_port_init(&info->port);
+		info->port.ops = &mxser_port_ops;
+		info->board = brd;
+		info->ldisc_stop_rx = 0;
+
+		/* Enhance mode enabled here */
+		if (brd->must_hwid != MOXA_OTHER_UART)
+			mxser_must_set_enhance_mode(info->ioaddr, true);
+
+		info->type = PORT_16550A;
+
+		mxser_process_txrx_fifo(info);
+
+		info->port.close_delay = 5 * HZ / 10;
+		info->port.closing_wait = 30 * HZ;
+>>>>>>> upstream/android-13
 		spin_lock_init(&info->slock);
 
 		/* before set INT ISR, disable all int */
 		outb(inb(info->ioaddr + UART_IER) & 0xf0,
 			info->ioaddr + UART_IER);
 	}
+<<<<<<< HEAD
 
 	retval = request_irq(brd->irq, mxser_interrupt, IRQF_SHARED, "mxser",
 			brd);
@@ -2545,11 +3600,14 @@ static int __init mxser_get_ISA_conf(int cap, struct mxser_board *brd)
 err_irqconflict:
 	printk(KERN_ERR "mxser: invalid interrupt number\n");
 	return -EIO;
+=======
+>>>>>>> upstream/android-13
 }
 
 static int mxser_probe(struct pci_dev *pdev,
 		const struct pci_device_id *ent)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PCI
 	struct mxser_board *brd;
 	unsigned int i, j;
@@ -2561,12 +3619,23 @@ static int mxser_probe(struct pci_dev *pdev,
 		if (mxser_boards[i].info == NULL)
 			break;
 
+=======
+	struct mxser_board *brd;
+	unsigned int i, base;
+	unsigned long ioaddress;
+	unsigned short nports = MXSER_NPORTS(ent->driver_data);
+	struct device *tty_dev;
+	int retval = -EINVAL;
+
+	i = find_first_zero_bit(mxser_boards, MXSER_BOARDS);
+>>>>>>> upstream/android-13
 	if (i >= MXSER_BOARDS) {
 		dev_err(&pdev->dev, "too many boards found (maximum %d), board "
 				"not configured\n", MXSER_BOARDS);
 		goto err;
 	}
 
+<<<<<<< HEAD
 	brd = &mxser_boards[i];
 	brd->idx = i * MXSER_PORTS_PER_BOARD;
 	dev_info(&pdev->dev, "found MOXA %s board (BusNo=%d, DevNo=%d)\n",
@@ -2577,16 +3646,38 @@ static int mxser_probe(struct pci_dev *pdev,
 	if (retval) {
 		dev_err(&pdev->dev, "PCI enable failed\n");
 		goto err;
+=======
+	brd = devm_kzalloc(&pdev->dev, struct_size(brd, ports, nports),
+			GFP_KERNEL);
+	if (!brd)
+		goto err;
+
+	brd->idx = i;
+	__set_bit(brd->idx, mxser_boards);
+	base = i * MXSER_PORTS_PER_BOARD;
+
+	retval = pcim_enable_device(pdev);
+	if (retval) {
+		dev_err(&pdev->dev, "PCI enable failed\n");
+		goto err_zero;
+>>>>>>> upstream/android-13
 	}
 
 	/* io address */
 	ioaddress = pci_resource_start(pdev, 2);
 	retval = pci_request_region(pdev, 2, "mxser(IO)");
 	if (retval)
+<<<<<<< HEAD
 		goto err_dis;
 
 	brd->info = &mxser_cards[ent->driver_data];
 	for (i = 0; i < brd->info->nports; i++)
+=======
+		goto err_zero;
+
+	brd->nports = nports;
+	for (i = 0; i < nports; i++)
+>>>>>>> upstream/android-13
 		brd->ports[i].ioaddr = ioaddress + 8 * i;
 
 	/* vector */
@@ -2599,6 +3690,7 @@ static int mxser_probe(struct pci_dev *pdev,
 	/* irq */
 	brd->irq = pdev->irq;
 
+<<<<<<< HEAD
 	brd->chip_flag = CheckIsMoxaMust(brd->ports[0].ioaddr);
 	brd->uart_type = PORT_16550A;
 	brd->vector_mask = 0;
@@ -2641,11 +3733,29 @@ static int mxser_probe(struct pci_dev *pdev,
 	for (i = 0; i < brd->info->nports; i++) {
 		tty_dev = tty_port_register_device(&brd->ports[i].port,
 				mxvar_sdriver, brd->idx + i, &pdev->dev);
+=======
+	mxser_initbrd(brd, ent->driver_data & MXSER_HIGHBAUD);
+
+	retval = devm_request_irq(&pdev->dev, brd->irq, mxser_interrupt,
+			IRQF_SHARED, "mxser", brd);
+	if (retval) {
+		dev_err(&pdev->dev, "request irq failed");
+		goto err_relbrd;
+	}
+
+	for (i = 0; i < nports; i++) {
+		tty_dev = tty_port_register_device(&brd->ports[i].port,
+				mxvar_sdriver, base + i, &pdev->dev);
+>>>>>>> upstream/android-13
 		if (IS_ERR(tty_dev)) {
 			retval = PTR_ERR(tty_dev);
 			for (; i > 0; i--)
 				tty_unregister_device(mxvar_sdriver,
+<<<<<<< HEAD
 					brd->idx + i - 1);
+=======
+					base + i - 1);
+>>>>>>> upstream/android-13
 			goto err_relbrd;
 		}
 	}
@@ -2654,6 +3764,7 @@ static int mxser_probe(struct pci_dev *pdev,
 
 	return 0;
 err_relbrd:
+<<<<<<< HEAD
 	for (i = 0; i < brd->info->nports; i++)
 		tty_port_destroy(&brd->ports[i].port);
 	free_irq(brd->irq, brd);
@@ -2669,10 +3780,19 @@ err:
 #else
 	return -ENODEV;
 #endif
+=======
+	for (i = 0; i < nports; i++)
+		tty_port_destroy(&brd->ports[i].port);
+err_zero:
+	__clear_bit(brd->idx, mxser_boards);
+err:
+	return retval;
+>>>>>>> upstream/android-13
 }
 
 static void mxser_remove(struct pci_dev *pdev)
 {
+<<<<<<< HEAD
 #ifdef CONFIG_PCI
 	struct mxser_board *brd = pci_get_drvdata(pdev);
 
@@ -2683,6 +3803,17 @@ static void mxser_remove(struct pci_dev *pdev)
 	pci_disable_device(pdev);
 	brd->info = NULL;
 #endif
+=======
+	struct mxser_board *brd = pci_get_drvdata(pdev);
+	unsigned int i, base = brd->idx * MXSER_PORTS_PER_BOARD;
+
+	for (i = 0; i < brd->nports; i++) {
+		tty_unregister_device(mxvar_sdriver, base + i);
+		tty_port_destroy(&brd->ports[i].port);
+	}
+
+	__clear_bit(brd->idx, mxser_boards);
+>>>>>>> upstream/android-13
 }
 
 static struct pci_driver mxser_driver = {
@@ -2694,6 +3825,7 @@ static struct pci_driver mxser_driver = {
 
 static int __init mxser_module_init(void)
 {
+<<<<<<< HEAD
 	struct mxser_board *brd;
 	struct device *tty_dev;
 	unsigned int b, i, m;
@@ -2705,6 +3837,14 @@ static int __init mxser_module_init(void)
 
 	printk(KERN_INFO "MOXA Smartio/Industio family driver version %s\n",
 		MXSER_VERSION);
+=======
+	int retval;
+
+	mxvar_sdriver = tty_alloc_driver(MXSER_PORTS, TTY_DRIVER_REAL_RAW |
+			TTY_DRIVER_DYNAMIC_DEV);
+	if (IS_ERR(mxvar_sdriver))
+		return PTR_ERR(mxvar_sdriver);
+>>>>>>> upstream/android-13
 
 	/* Initialize the tty_driver structure */
 	mxvar_sdriver->name = "ttyMI";
@@ -2714,7 +3854,10 @@ static int __init mxser_module_init(void)
 	mxvar_sdriver->subtype = SERIAL_TYPE_NORMAL;
 	mxvar_sdriver->init_termios = tty_std_termios;
 	mxvar_sdriver->init_termios.c_cflag = B9600|CS8|CREAD|HUPCL|CLOCAL;
+<<<<<<< HEAD
 	mxvar_sdriver->flags = TTY_DRIVER_REAL_RAW|TTY_DRIVER_DYNAMIC_DEV;
+=======
+>>>>>>> upstream/android-13
 	tty_set_operations(mxvar_sdriver, &mxser_ops);
 
 	retval = tty_register_driver(mxvar_sdriver);
@@ -2724,6 +3867,7 @@ static int __init mxser_module_init(void)
 		goto err_put;
 	}
 
+<<<<<<< HEAD
 	/* Start finding ISA boards here */
 	for (m = 0, b = 0; b < MXSER_BOARDS; b++) {
 		if (!ioaddr[b])
@@ -2775,18 +3919,29 @@ static int __init mxser_module_init(void)
 			retval = -ENODEV;
 			goto err_unr;
 		} /* else: we have some ISA cards under control */
+=======
+	retval = pci_register_driver(&mxser_driver);
+	if (retval) {
+		printk(KERN_ERR "mxser: can't register pci driver\n");
+		goto err_unr;
+>>>>>>> upstream/android-13
 	}
 
 	return 0;
 err_unr:
 	tty_unregister_driver(mxvar_sdriver);
 err_put:
+<<<<<<< HEAD
 	put_tty_driver(mxvar_sdriver);
+=======
+	tty_driver_kref_put(mxvar_sdriver);
+>>>>>>> upstream/android-13
 	return retval;
 }
 
 static void __exit mxser_module_exit(void)
 {
+<<<<<<< HEAD
 	unsigned int i;
 
 	pci_unregister_driver(&mxser_driver);
@@ -2800,6 +3955,11 @@ static void __exit mxser_module_exit(void)
 	for (i = 0; i < MXSER_BOARDS; i++)
 		if (mxser_boards[i].info != NULL)
 			mxser_release_ISA_res(&mxser_boards[i]);
+=======
+	pci_unregister_driver(&mxser_driver);
+	tty_unregister_driver(mxvar_sdriver);
+	tty_driver_kref_put(mxvar_sdriver);
+>>>>>>> upstream/android-13
 }
 
 module_init(mxser_module_init);

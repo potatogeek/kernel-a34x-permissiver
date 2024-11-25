@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+<<<<<<< HEAD
 #include <linux/threads.h>
 #include <linux/cpumask.h>
 #include <linux/string.h>
@@ -9,6 +10,13 @@
 #include <asm/smp.h>
 #include <asm/ipi.h>
 #include "x2apic.h"
+=======
+
+#include <linux/cpumask.h>
+#include <linux/acpi.h>
+
+#include "local.h"
+>>>>>>> upstream/android-13
 
 int x2apic_phys;
 
@@ -88,12 +96,20 @@ static void
 
 static void x2apic_send_IPI_allbutself(int vector)
 {
+<<<<<<< HEAD
 	__x2apic_send_IPI_mask(cpu_online_mask, vector, APIC_DEST_ALLBUT);
+=======
+	__x2apic_send_IPI_shorthand(vector, APIC_DEST_ALLBUT);
+>>>>>>> upstream/android-13
 }
 
 static void x2apic_send_IPI_all(int vector)
 {
+<<<<<<< HEAD
 	__x2apic_send_IPI_mask(cpu_online_mask, vector, APIC_DEST_ALLINC);
+=======
+	__x2apic_send_IPI_shorthand(vector, APIC_DEST_ALLINC);
+>>>>>>> upstream/android-13
 }
 
 static void init_x2apic_ldr(void)
@@ -128,6 +144,18 @@ void __x2apic_send_IPI_dest(unsigned int apicid, int vector, unsigned int dest)
 	native_x2apic_icr_write(cfg, apicid);
 }
 
+<<<<<<< HEAD
+=======
+void __x2apic_send_IPI_shorthand(int vector, u32 which)
+{
+	unsigned long cfg = __prepare_ICR(which, vector, 0);
+
+	/* x2apic MSRs are special and need a special fence: */
+	weak_wrmsr_fence();
+	native_x2apic_icr_write(cfg, 0);
+}
+
+>>>>>>> upstream/android-13
 unsigned int x2apic_get_apic_id(unsigned long id)
 {
 	return id;
@@ -156,6 +184,7 @@ static struct apic apic_x2apic_phys __ro_after_init = {
 	.apic_id_valid			= x2apic_apic_id_valid,
 	.apic_id_registered		= x2apic_apic_id_registered,
 
+<<<<<<< HEAD
 	.irq_delivery_mode		= dest_Fixed,
 	.irq_dest_mode			= 0, /* physical */
 
@@ -165,6 +194,15 @@ static struct apic apic_x2apic_phys __ro_after_init = {
 
 	.init_apic_ldr			= init_x2apic_ldr,
 
+=======
+	.delivery_mode			= APIC_DELIVERY_MODE_FIXED,
+	.dest_mode_logical		= false,
+
+	.disable_esr			= 0,
+
+	.check_apicid_used		= NULL,
+	.init_apic_ldr			= init_x2apic_ldr,
+>>>>>>> upstream/android-13
 	.ioapic_phys_id_map		= NULL,
 	.setup_apic_routing		= NULL,
 	.cpu_present_to_apicid		= default_cpu_present_to_apicid,

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/fs/msdos/namei.c
  *
@@ -250,7 +254,11 @@ static int msdos_add_entry(struct inode *dir, const unsigned char *name,
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	dir->i_ctime = dir->i_mtime = *ts;
+=======
+	fat_truncate_time(dir, ts, S_CTIME|S_MTIME);
+>>>>>>> upstream/android-13
 	if (IS_DIRSYNC(dir))
 		(void)fat_sync_inode(dir);
 	else
@@ -260,8 +268,13 @@ static int msdos_add_entry(struct inode *dir, const unsigned char *name,
 }
 
 /***** Create a file */
+<<<<<<< HEAD
 static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 			bool excl)
+=======
+static int msdos_create(struct user_namespace *mnt_userns, struct inode *dir,
+			struct dentry *dentry, umode_t mode, bool excl)
+>>>>>>> upstream/android-13
 {
 	struct super_block *sb = dir->i_sb;
 	struct inode *inode = NULL;
@@ -294,7 +307,11 @@ static int msdos_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		err = PTR_ERR(inode);
 		goto out;
 	}
+<<<<<<< HEAD
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
+=======
+	fat_truncate_time(inode, &ts, S_ATIME|S_CTIME|S_MTIME);
+>>>>>>> upstream/android-13
 	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
 
 	d_instantiate(dentry, inode);
@@ -327,7 +344,11 @@ static int msdos_rmdir(struct inode *dir, struct dentry *dentry)
 	drop_nlink(dir);
 
 	clear_nlink(inode);
+<<<<<<< HEAD
 	inode->i_ctime = current_time(inode);
+=======
+	fat_truncate_time(inode, NULL, S_CTIME);
+>>>>>>> upstream/android-13
 	fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -338,7 +359,12 @@ out:
 }
 
 /***** Make a directory */
+<<<<<<< HEAD
 static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+=======
+static int msdos_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+		       struct dentry *dentry, umode_t mode)
+>>>>>>> upstream/android-13
 {
 	struct super_block *sb = dir->i_sb;
 	struct fat_slot_info sinfo;
@@ -380,7 +406,11 @@ static int msdos_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 		goto out;
 	}
 	set_nlink(inode, 2);
+<<<<<<< HEAD
 	inode->i_mtime = inode->i_atime = inode->i_ctime = ts;
+=======
+	fat_truncate_time(inode, &ts, S_ATIME|S_CTIME|S_MTIME);
+>>>>>>> upstream/android-13
 	/* timestamp is already written, so mark_inode_dirty() is unneeded. */
 
 	d_instantiate(dentry, inode);
@@ -413,7 +443,11 @@ static int msdos_unlink(struct inode *dir, struct dentry *dentry)
 	if (err)
 		goto out;
 	clear_nlink(inode);
+<<<<<<< HEAD
 	inode->i_ctime = current_time(inode);
+=======
+	fat_truncate_time(inode, NULL, S_CTIME);
+>>>>>>> upstream/android-13
 	fat_detach(inode);
 out:
 	mutex_unlock(&MSDOS_SB(sb)->s_lock);
@@ -478,7 +512,11 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 				mark_inode_dirty(old_inode);
 
 			inode_inc_iversion(old_dir);
+<<<<<<< HEAD
 			old_dir->i_ctime = old_dir->i_mtime = current_time(old_dir);
+=======
+			fat_truncate_time(old_dir, NULL, S_CTIME|S_MTIME);
+>>>>>>> upstream/android-13
 			if (IS_DIRSYNC(old_dir))
 				(void)fat_sync_inode(old_dir);
 			else
@@ -538,7 +576,11 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 	if (err)
 		goto error_dotdot;
 	inode_inc_iversion(old_dir);
+<<<<<<< HEAD
 	old_dir->i_ctime = old_dir->i_mtime = ts;
+=======
+	fat_truncate_time(old_dir, &ts, S_CTIME|S_MTIME);
+>>>>>>> upstream/android-13
 	if (IS_DIRSYNC(old_dir))
 		(void)fat_sync_inode(old_dir);
 	else
@@ -548,7 +590,11 @@ static int do_msdos_rename(struct inode *old_dir, unsigned char *old_name,
 		drop_nlink(new_inode);
 		if (is_dir)
 			drop_nlink(new_inode);
+<<<<<<< HEAD
 		new_inode->i_ctime = ts;
+=======
+		fat_truncate_time(new_inode, &ts, S_CTIME);
+>>>>>>> upstream/android-13
 	}
 out:
 	brelse(sinfo.bh);
@@ -592,7 +638,12 @@ error_inode:
 }
 
 /***** Rename, a wrapper for rename_same_dir & rename_diff_dir */
+<<<<<<< HEAD
 static int msdos_rename(struct inode *old_dir, struct dentry *old_dentry,
+=======
+static int msdos_rename(struct user_namespace *mnt_userns,
+			struct inode *old_dir, struct dentry *old_dentry,
+>>>>>>> upstream/android-13
 			struct inode *new_dir, struct dentry *new_dentry,
 			unsigned int flags)
 {
@@ -637,6 +688,10 @@ static const struct inode_operations msdos_dir_inode_operations = {
 	.rename		= msdos_rename,
 	.setattr	= fat_setattr,
 	.getattr	= fat_getattr,
+<<<<<<< HEAD
+=======
+	.update_time	= fat_update_time,
+>>>>>>> upstream/android-13
 };
 
 static void setup(struct super_block *sb)
@@ -663,7 +718,11 @@ static struct file_system_type msdos_fs_type = {
 	.name		= "msdos",
 	.mount		= msdos_mount,
 	.kill_sb	= kill_block_super,
+<<<<<<< HEAD
 	.fs_flags	= FS_REQUIRES_DEV,
+=======
+	.fs_flags	= FS_REQUIRES_DEV | FS_ALLOW_IDMAP,
+>>>>>>> upstream/android-13
 };
 MODULE_ALIAS_FS("msdos");
 
@@ -678,6 +737,10 @@ static void __exit exit_msdos_fs(void)
 }
 
 MODULE_LICENSE("GPL");
+<<<<<<< HEAD
+=======
+MODULE_IMPORT_NS(ANDROID_GKI_VFS_EXPORT_ONLY);
+>>>>>>> upstream/android-13
 MODULE_AUTHOR("Werner Almesberger");
 MODULE_DESCRIPTION("MS-DOS filesystem support");
 

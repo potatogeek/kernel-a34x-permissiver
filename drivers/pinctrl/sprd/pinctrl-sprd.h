@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Driver header file for pin controller driver
  * Copyright (C) 2017 Spreadtrum  - http://www.spreadtrum.com
@@ -10,6 +11,12 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+=======
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Driver header file for pin controller driver
+ * Copyright (C) 2017 Spreadtrum  - http://www.spreadtrum.com
+>>>>>>> upstream/android-13
  */
 
 #ifndef __PINCTRL_SPRD_H__

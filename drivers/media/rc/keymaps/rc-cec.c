@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Keytable for the CEC remote control
  *
  * Copyright (c) 2015 by Kamil Debski
@@ -6,6 +7,22 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/* Keytable for the CEC remote control
+ *
+ * This keymap is unusual in that it can't be built as a module,
+ * instead it is registered directly in rc-main.c if CONFIG_MEDIA_CEC_RC
+ * is set. This is because it can be called from drm_dp_cec_set_edid() via
+ * cec_register_adapter() in an asynchronous context, and it is not
+ * allowed to use request_module() to load rc-cec.ko in that case.
+ *
+ * Since this keymap is only used if CONFIG_MEDIA_CEC_RC is set, we
+ * just compile this keymap into the rc-core module and never as a
+ * separate module.
+ *
+ * Copyright (c) 2015 by Kamil Debski
+>>>>>>> upstream/android-13
  */
 
 #include <media/rc-map.h>
@@ -156,7 +173,11 @@ static struct rc_map_table cec[] = {
 	/* 0x77-0xff: Reserved */
 };
 
+<<<<<<< HEAD
 static struct rc_map_list cec_map = {
+=======
+struct rc_map_list cec_map = {
+>>>>>>> upstream/android-13
 	.map = {
 		.scan		= cec,
 		.size		= ARRAY_SIZE(cec),
@@ -164,6 +185,7 @@ static struct rc_map_list cec_map = {
 		.name		= RC_MAP_CEC,
 	}
 };
+<<<<<<< HEAD
 
 static int __init init_rc_map_cec(void)
 {
@@ -180,3 +202,5 @@ module_exit(exit_rc_map_cec);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Kamil Debski");
+=======
+>>>>>>> upstream/android-13

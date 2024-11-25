@@ -106,8 +106,12 @@ int cxgb4_clip_get(const struct net_device *dev, const u32 *lip, u8 v6)
 	if (!list_empty(&ctbl->ce_free_head)) {
 		ce = list_first_entry(&ctbl->ce_free_head,
 				      struct clip_entry, list);
+<<<<<<< HEAD
 		list_del(&ce->list);
 		INIT_LIST_HEAD(&ce->list);
+=======
+		list_del_init(&ce->list);
+>>>>>>> upstream/android-13
 		spin_lock_init(&ce->lock);
 		refcount_set(&ce->refcnt, 0);
 		atomic_dec(&ctbl->nfree);
@@ -179,8 +183,12 @@ found:
 	write_lock_bh(&ctbl->lock);
 	spin_lock_bh(&ce->lock);
 	if (refcount_dec_and_test(&ce->refcnt)) {
+<<<<<<< HEAD
 		list_del(&ce->list);
 		INIT_LIST_HEAD(&ce->list);
+=======
+		list_del_init(&ce->list);
+>>>>>>> upstream/android-13
 		list_add_tail(&ce->list, &ctbl->ce_free_head);
 		atomic_inc(&ctbl->nfree);
 		if (v6)
@@ -289,8 +297,12 @@ struct clip_tbl *t4_init_clip_tbl(unsigned int clipt_start,
 	if (clipt_size < CLIPT_MIN_HASH_BUCKETS)
 		return NULL;
 
+<<<<<<< HEAD
 	ctbl = kvzalloc(sizeof(*ctbl) +
 			    clipt_size*sizeof(struct list_head), GFP_KERNEL);
+=======
+	ctbl = kvzalloc(struct_size(ctbl, hash_list, clipt_size), GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!ctbl)
 		return NULL;
 
@@ -324,8 +336,12 @@ void t4_cleanup_clip_tbl(struct adapter *adap)
 	struct clip_tbl *ctbl = adap->clipt;
 
 	if (ctbl) {
+<<<<<<< HEAD
 		if (ctbl->cl_list)
 			kvfree(ctbl->cl_list);
+=======
+		kvfree(ctbl->cl_list);
+>>>>>>> upstream/android-13
 		kvfree(ctbl);
 	}
 }

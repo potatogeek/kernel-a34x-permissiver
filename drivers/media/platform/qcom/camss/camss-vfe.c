@@ -26,6 +26,7 @@
 
 #define MSM_VFE_NAME "msm_vfe"
 
+<<<<<<< HEAD
 #define vfe_line_array(ptr_line)	\
 	((const struct vfe_line (*)[]) &(ptr_line[-(ptr_line->id)]))
 
@@ -42,6 +43,10 @@
 #define VFE_FRAME_DROP_VAL 20
 
 #define VFE_NEXT_SOF_MS 500
+=======
+/* VFE reset timeout */
+#define VFE_RESET_TIMEOUT_MS 50
+>>>>>>> upstream/android-13
 
 #define SCALER_RATIO_MAX 16
 
@@ -110,6 +115,35 @@ static const struct vfe_format formats_pix_8x96[] = {
 	{ MEDIA_BUS_FMT_YVYU8_2X8, 8 },
 };
 
+<<<<<<< HEAD
+=======
+static const struct vfe_format formats_rdi_845[] = {
+	{ MEDIA_BUS_FMT_UYVY8_2X8, 8 },
+	{ MEDIA_BUS_FMT_VYUY8_2X8, 8 },
+	{ MEDIA_BUS_FMT_YUYV8_2X8, 8 },
+	{ MEDIA_BUS_FMT_YVYU8_2X8, 8 },
+	{ MEDIA_BUS_FMT_SBGGR8_1X8, 8 },
+	{ MEDIA_BUS_FMT_SGBRG8_1X8, 8 },
+	{ MEDIA_BUS_FMT_SGRBG8_1X8, 8 },
+	{ MEDIA_BUS_FMT_SRGGB8_1X8, 8 },
+	{ MEDIA_BUS_FMT_SBGGR10_1X10, 10 },
+	{ MEDIA_BUS_FMT_SGBRG10_1X10, 10 },
+	{ MEDIA_BUS_FMT_SGRBG10_1X10, 10 },
+	{ MEDIA_BUS_FMT_SRGGB10_1X10, 10 },
+	{ MEDIA_BUS_FMT_SBGGR10_2X8_PADHI_LE, 16 },
+	{ MEDIA_BUS_FMT_SBGGR12_1X12, 12 },
+	{ MEDIA_BUS_FMT_SGBRG12_1X12, 12 },
+	{ MEDIA_BUS_FMT_SGRBG12_1X12, 12 },
+	{ MEDIA_BUS_FMT_SRGGB12_1X12, 12 },
+	{ MEDIA_BUS_FMT_SBGGR14_1X14, 14 },
+	{ MEDIA_BUS_FMT_SGBRG14_1X14, 14 },
+	{ MEDIA_BUS_FMT_SGRBG14_1X14, 14 },
+	{ MEDIA_BUS_FMT_SRGGB14_1X14, 14 },
+	{ MEDIA_BUS_FMT_Y10_1X10, 10 },
+	{ MEDIA_BUS_FMT_Y10_2X8_PADHI_LE, 16 },
+};
+
+>>>>>>> upstream/android-13
 /*
  * vfe_get_bpp - map media bus format to bits per pixel
  * @formats: supported media bus formats array
@@ -205,7 +239,13 @@ static u32 vfe_src_pad_code(struct vfe_line *line, u32 sink_code,
 
 			return sink_code;
 		}
+<<<<<<< HEAD
 	else if (vfe->camss->version == CAMSS_8x96)
+=======
+	else if (vfe->camss->version == CAMSS_8x96 ||
+		 vfe->camss->version == CAMSS_660 ||
+		 vfe->camss->version == CAMSS_845)
+>>>>>>> upstream/android-13
 		switch (sink_code) {
 		case MEDIA_BUS_FMT_YUYV8_2X8:
 		{
@@ -269,6 +309,7 @@ static u32 vfe_src_pad_code(struct vfe_line *line, u32 sink_code,
 		return 0;
 }
 
+<<<<<<< HEAD
 /*
  * vfe_reset - Trigger reset on VFE module and wait to complete
  * @vfe: VFE device
@@ -276,6 +317,9 @@ static u32 vfe_src_pad_code(struct vfe_line *line, u32 sink_code,
  * Return 0 on success or a negative error code otherwise
  */
 static int vfe_reset(struct vfe_device *vfe)
+=======
+int vfe_reset(struct vfe_device *vfe)
+>>>>>>> upstream/android-13
 {
 	unsigned long time;
 
@@ -293,6 +337,7 @@ static int vfe_reset(struct vfe_device *vfe)
 	return 0;
 }
 
+<<<<<<< HEAD
 /*
  * vfe_halt - Trigger halt on VFE module and wait to complete
  * @vfe: VFE device
@@ -317,11 +362,17 @@ static int vfe_halt(struct vfe_device *vfe)
 	return 0;
 }
 
+=======
+>>>>>>> upstream/android-13
 static void vfe_init_outputs(struct vfe_device *vfe)
 {
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(vfe->line); i++) {
+=======
+	for (i = 0; i < vfe->line_num; i++) {
+>>>>>>> upstream/android-13
 		struct vfe_output *output = &vfe->line[i].output;
 
 		output->state = VFE_OUTPUT_OFF;
@@ -339,6 +390,7 @@ static void vfe_reset_output_maps(struct vfe_device *vfe)
 		vfe->wm_output_map[i] = VFE_LINE_NONE;
 }
 
+<<<<<<< HEAD
 static void vfe_output_init_addrs(struct vfe_device *vfe,
 				  struct vfe_output *output, u8 sync)
 {
@@ -404,6 +456,9 @@ static void vfe_output_update_pong_addr(struct vfe_device *vfe,
 }
 
 static int vfe_reserve_wm(struct vfe_device *vfe, enum vfe_line_id line_id)
+=======
+int vfe_reserve_wm(struct vfe_device *vfe, enum vfe_line_id line_id)
+>>>>>>> upstream/android-13
 {
 	int ret = -EBUSY;
 	int i;
@@ -419,7 +474,11 @@ static int vfe_reserve_wm(struct vfe_device *vfe, enum vfe_line_id line_id)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int vfe_release_wm(struct vfe_device *vfe, u8 wm)
+=======
+int vfe_release_wm(struct vfe_device *vfe, u8 wm)
+>>>>>>> upstream/android-13
 {
 	if (wm >= ARRAY_SIZE(vfe->wm_output_map))
 		return -EINVAL;
@@ -429,6 +488,7 @@ static int vfe_release_wm(struct vfe_device *vfe, u8 wm)
 	return 0;
 }
 
+<<<<<<< HEAD
 static void vfe_output_frame_drop(struct vfe_device *vfe,
 				  struct vfe_output *output,
 				  u32 drop_pattern)
@@ -452,6 +512,9 @@ static void vfe_output_frame_drop(struct vfe_device *vfe,
 }
 
 static struct camss_buffer *vfe_buf_get_pending(struct vfe_output *output)
+=======
+struct camss_buffer *vfe_buf_get_pending(struct vfe_output *output)
+>>>>>>> upstream/android-13
 {
 	struct camss_buffer *buffer = NULL;
 
@@ -465,6 +528,7 @@ static struct camss_buffer *vfe_buf_get_pending(struct vfe_output *output)
 	return buffer;
 }
 
+<<<<<<< HEAD
 /*
  * vfe_buf_add_pending - Add output buffer to list of pending
  * @output: VFE output
@@ -472,6 +536,10 @@ static struct camss_buffer *vfe_buf_get_pending(struct vfe_output *output)
  */
 static void vfe_buf_add_pending(struct vfe_output *output,
 				struct camss_buffer *buffer)
+=======
+void vfe_buf_add_pending(struct vfe_output *output,
+			 struct camss_buffer *buffer)
+>>>>>>> upstream/android-13
 {
 	INIT_LIST_HEAD(&buffer->queue);
 	list_add_tail(&buffer->queue, &output->pending_bufs);
@@ -494,6 +562,7 @@ static void vfe_buf_flush_pending(struct vfe_output *output,
 	}
 }
 
+<<<<<<< HEAD
 static void vfe_buf_update_wm_on_next(struct vfe_device *vfe,
 				      struct vfe_output *output)
 {
@@ -637,6 +706,9 @@ error:
 }
 
 static int vfe_put_output(struct vfe_line *line)
+=======
+int vfe_put_output(struct vfe_line *line)
+>>>>>>> upstream/android-13
 {
 	struct vfe_device *vfe = to_vfe(line);
 	struct vfe_output *output = &line->output;
@@ -654,6 +726,7 @@ static int vfe_put_output(struct vfe_line *line)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int vfe_enable_output(struct vfe_line *line)
 {
 	struct vfe_device *vfe = to_vfe(line);
@@ -1068,27 +1141,46 @@ out_unlock:
  * @comp: Composite image id
  */
 static void vfe_isr_comp_done(struct vfe_device *vfe, u8 comp)
+=======
+/**
+ * vfe_isr_comp_done() - Process composite image done interrupt
+ * @vfe: VFE Device
+ * @comp: Composite image id
+ */
+void vfe_isr_comp_done(struct vfe_device *vfe, u8 comp)
+>>>>>>> upstream/android-13
 {
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(vfe->wm_output_map); i++)
 		if (vfe->wm_output_map[i] == VFE_LINE_PIX) {
+<<<<<<< HEAD
 			vfe_isr_wm_done(vfe, i);
+=======
+			vfe->isr_ops.wm_done(vfe, i);
+>>>>>>> upstream/android-13
 			break;
 		}
 }
 
+<<<<<<< HEAD
 static inline void vfe_isr_reset_ack(struct vfe_device *vfe)
+=======
+void vfe_isr_reset_ack(struct vfe_device *vfe)
+>>>>>>> upstream/android-13
 {
 	complete(&vfe->reset_complete);
 }
 
+<<<<<<< HEAD
 static inline void vfe_isr_halt_ack(struct vfe_device *vfe)
 {
 	complete(&vfe->halt_complete);
 	vfe->ops->halt_clear(vfe);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * vfe_set_clock_rates - Calculate and set clock rates on VFE module
  * @vfe: VFE device
@@ -1098,11 +1190,19 @@ static inline void vfe_isr_halt_ack(struct vfe_device *vfe)
 static int vfe_set_clock_rates(struct vfe_device *vfe)
 {
 	struct device *dev = vfe->camss->dev;
+<<<<<<< HEAD
 	u32 pixel_clock[MSM_VFE_LINE_NUM];
 	int i, j;
 	int ret;
 
 	for (i = VFE_LINE_RDI0; i <= VFE_LINE_PIX; i++) {
+=======
+	u64 pixel_clock[VFE_LINE_NUM_MAX];
+	int i, j;
+	int ret;
+
+	for (i = VFE_LINE_RDI0; i < vfe->line_num; i++) {
+>>>>>>> upstream/android-13
 		ret = camss_get_pixel_clock(&vfe->line[i].subdev.entity,
 					    &pixel_clock[i]);
 		if (ret)
@@ -1113,11 +1213,20 @@ static int vfe_set_clock_rates(struct vfe_device *vfe)
 		struct camss_clock *clock = &vfe->clock[i];
 
 		if (!strcmp(clock->name, "vfe0") ||
+<<<<<<< HEAD
 		    !strcmp(clock->name, "vfe1")) {
 			u64 min_rate = 0;
 			long rate;
 
 			for (j = VFE_LINE_RDI0; j <= VFE_LINE_PIX; j++) {
+=======
+		    !strcmp(clock->name, "vfe1") ||
+		    !strcmp(clock->name, "vfe_lite")) {
+			u64 min_rate = 0;
+			long rate;
+
+			for (j = VFE_LINE_RDI0; j < vfe->line_num; j++) {
+>>>>>>> upstream/android-13
 				u32 tmp;
 				u8 bpp;
 
@@ -1180,11 +1289,19 @@ static int vfe_set_clock_rates(struct vfe_device *vfe)
  */
 static int vfe_check_clock_rates(struct vfe_device *vfe)
 {
+<<<<<<< HEAD
 	u32 pixel_clock[MSM_VFE_LINE_NUM];
 	int i, j;
 	int ret;
 
 	for (i = VFE_LINE_RDI0; i <= VFE_LINE_PIX; i++) {
+=======
+	u64 pixel_clock[VFE_LINE_NUM_MAX];
+	int i, j;
+	int ret;
+
+	for (i = VFE_LINE_RDI0; i < vfe->line_num; i++) {
+>>>>>>> upstream/android-13
 		ret = camss_get_pixel_clock(&vfe->line[i].subdev.entity,
 					    &pixel_clock[i]);
 		if (ret)
@@ -1199,7 +1316,11 @@ static int vfe_check_clock_rates(struct vfe_device *vfe)
 			u64 min_rate = 0;
 			unsigned long rate;
 
+<<<<<<< HEAD
 			for (j = VFE_LINE_RDI0; j <= VFE_LINE_PIX; j++) {
+=======
+			for (j = VFE_LINE_RDI0; j < vfe->line_num; j++) {
+>>>>>>> upstream/android-13
 				u32 tmp;
 				u8 bpp;
 
@@ -1242,6 +1363,7 @@ static int vfe_get(struct vfe_device *vfe)
 	mutex_lock(&vfe->power_lock);
 
 	if (vfe->power_count == 0) {
+<<<<<<< HEAD
 		ret = camss_pm_domain_on(vfe->camss, vfe->id);
 		if (ret < 0)
 			goto error_pm_domain;
@@ -1253,11 +1375,28 @@ static int vfe_get(struct vfe_device *vfe)
 		ret = vfe_set_clock_rates(vfe);
 		if (ret < 0)
 			goto error_clocks;
+=======
+		ret = vfe->ops->pm_domain_on(vfe);
+		if (ret < 0)
+			goto error_pm_domain;
+
+		ret = pm_runtime_resume_and_get(vfe->camss->dev);
+		if (ret < 0)
+			goto error_domain_off;
+
+		ret = vfe_set_clock_rates(vfe);
+		if (ret < 0)
+			goto error_pm_runtime_get;
+>>>>>>> upstream/android-13
 
 		ret = camss_enable_clocks(vfe->nclocks, vfe->clock,
 					  vfe->camss->dev);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto error_clocks;
+=======
+			goto error_pm_runtime_get;
+>>>>>>> upstream/android-13
 
 		ret = vfe_reset(vfe);
 		if (ret < 0)
@@ -1269,7 +1408,11 @@ static int vfe_get(struct vfe_device *vfe)
 	} else {
 		ret = vfe_check_clock_rates(vfe);
 		if (ret < 0)
+<<<<<<< HEAD
 			goto error_clocks;
+=======
+			goto error_pm_runtime_get;
+>>>>>>> upstream/android-13
 	}
 	vfe->power_count++;
 
@@ -1280,11 +1423,18 @@ static int vfe_get(struct vfe_device *vfe)
 error_reset:
 	camss_disable_clocks(vfe->nclocks, vfe->clock);
 
+<<<<<<< HEAD
 error_clocks:
 	pm_runtime_put_sync(vfe->camss->dev);
 
 error_pm_runtime_get:
 	camss_pm_domain_off(vfe->camss, vfe->id);
+=======
+error_pm_runtime_get:
+	pm_runtime_put_sync(vfe->camss->dev);
+error_domain_off:
+	vfe->ops->pm_domain_off(vfe);
+>>>>>>> upstream/android-13
 
 error_pm_domain:
 	mutex_unlock(&vfe->power_lock);
@@ -1306,11 +1456,19 @@ static void vfe_put(struct vfe_device *vfe)
 	} else if (vfe->power_count == 1) {
 		if (vfe->was_streaming) {
 			vfe->was_streaming = 0;
+<<<<<<< HEAD
 			vfe_halt(vfe);
 		}
 		camss_disable_clocks(vfe->nclocks, vfe->clock);
 		pm_runtime_put_sync(vfe->camss->dev);
 		camss_pm_domain_off(vfe->camss, vfe->id);
+=======
+			vfe->ops->vfe_halt(vfe);
+		}
+		camss_disable_clocks(vfe->nclocks, vfe->clock);
+		pm_runtime_put_sync(vfe->camss->dev);
+		vfe->ops->pm_domain_off(vfe);
+>>>>>>> upstream/android-13
 	}
 
 	vfe->power_count--;
@@ -1320,6 +1478,7 @@ exit:
 }
 
 /*
+<<<<<<< HEAD
  * vfe_queue_buffer - Add empty buffer
  * @vid: Video device structure
  * @buf: Buffer to be enqueued
@@ -1349,6 +1508,8 @@ static int vfe_queue_buffer(struct camss_video *vid,
 }
 
 /*
+=======
+>>>>>>> upstream/android-13
  * vfe_flush_buffers - Return all vb2 buffers
  * @vid: Video device structure
  * @state: vb2 buffer state of the returned buffers
@@ -1358,8 +1519,13 @@ static int vfe_queue_buffer(struct camss_video *vid,
  *
  * Return 0 on success or a negative error code otherwise
  */
+<<<<<<< HEAD
 static int vfe_flush_buffers(struct camss_video *vid,
 			     enum vb2_buffer_state state)
+=======
+int vfe_flush_buffers(struct camss_video *vid,
+		      enum vb2_buffer_state state)
+>>>>>>> upstream/android-13
 {
 	struct vfe_line *line = container_of(vid, struct vfe_line, video_out);
 	struct vfe_device *vfe = to_vfe(line);
@@ -1430,12 +1596,20 @@ static int vfe_set_stream(struct v4l2_subdev *sd, int enable)
 	int ret;
 
 	if (enable) {
+<<<<<<< HEAD
 		ret = vfe_enable(line);
+=======
+		ret = vfe->ops->vfe_enable(line);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			dev_err(vfe->camss->dev,
 				"Failed to enable vfe outputs\n");
 	} else {
+<<<<<<< HEAD
 		ret = vfe_disable(line);
+=======
+		ret = vfe->ops->vfe_disable(line);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			dev_err(vfe->camss->dev,
 				"Failed to disable vfe outputs\n");
@@ -1455,12 +1629,21 @@ static int vfe_set_stream(struct v4l2_subdev *sd, int enable)
  */
 static struct v4l2_mbus_framefmt *
 __vfe_get_format(struct vfe_line *line,
+<<<<<<< HEAD
 		 struct v4l2_subdev_pad_config *cfg,
+=======
+		 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 		 unsigned int pad,
 		 enum v4l2_subdev_format_whence which)
 {
 	if (which == V4L2_SUBDEV_FORMAT_TRY)
+<<<<<<< HEAD
 		return v4l2_subdev_get_try_format(&line->subdev, cfg, pad);
+=======
+		return v4l2_subdev_get_try_format(&line->subdev, sd_state,
+						  pad);
+>>>>>>> upstream/android-13
 
 	return &line->fmt[pad];
 }
@@ -1475,11 +1658,19 @@ __vfe_get_format(struct vfe_line *line,
  */
 static struct v4l2_rect *
 __vfe_get_compose(struct vfe_line *line,
+<<<<<<< HEAD
 		  struct v4l2_subdev_pad_config *cfg,
 		  enum v4l2_subdev_format_whence which)
 {
 	if (which == V4L2_SUBDEV_FORMAT_TRY)
 		return v4l2_subdev_get_try_compose(&line->subdev, cfg,
+=======
+		  struct v4l2_subdev_state *sd_state,
+		  enum v4l2_subdev_format_whence which)
+{
+	if (which == V4L2_SUBDEV_FORMAT_TRY)
+		return v4l2_subdev_get_try_compose(&line->subdev, sd_state,
+>>>>>>> upstream/android-13
 						   MSM_VFE_PAD_SINK);
 
 	return &line->compose;
@@ -1495,11 +1686,19 @@ __vfe_get_compose(struct vfe_line *line,
  */
 static struct v4l2_rect *
 __vfe_get_crop(struct vfe_line *line,
+<<<<<<< HEAD
 	       struct v4l2_subdev_pad_config *cfg,
 	       enum v4l2_subdev_format_whence which)
 {
 	if (which == V4L2_SUBDEV_FORMAT_TRY)
 		return v4l2_subdev_get_try_crop(&line->subdev, cfg,
+=======
+	       struct v4l2_subdev_state *sd_state,
+	       enum v4l2_subdev_format_whence which)
+{
+	if (which == V4L2_SUBDEV_FORMAT_TRY)
+		return v4l2_subdev_get_try_crop(&line->subdev, sd_state,
+>>>>>>> upstream/android-13
 						MSM_VFE_PAD_SRC);
 
 	return &line->crop;
@@ -1514,7 +1713,11 @@ __vfe_get_crop(struct vfe_line *line,
  * @which: wanted subdev format
  */
 static void vfe_try_format(struct vfe_line *line,
+<<<<<<< HEAD
 			   struct v4l2_subdev_pad_config *cfg,
+=======
+			   struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			   unsigned int pad,
 			   struct v4l2_mbus_framefmt *fmt,
 			   enum v4l2_subdev_format_whence which)
@@ -1546,14 +1749,23 @@ static void vfe_try_format(struct vfe_line *line,
 		/* Set and return a format same as sink pad */
 		code = fmt->code;
 
+<<<<<<< HEAD
 		*fmt = *__vfe_get_format(line, cfg, MSM_VFE_PAD_SINK, which);
+=======
+		*fmt = *__vfe_get_format(line, sd_state, MSM_VFE_PAD_SINK,
+					 which);
+>>>>>>> upstream/android-13
 
 		fmt->code = vfe_src_pad_code(line, fmt->code, 0, code);
 
 		if (line->id == VFE_LINE_PIX) {
 			struct v4l2_rect *rect;
 
+<<<<<<< HEAD
 			rect = __vfe_get_crop(line, cfg, which);
+=======
+			rect = __vfe_get_crop(line, sd_state, which);
+>>>>>>> upstream/android-13
 
 			fmt->width = rect->width;
 			fmt->height = rect->height;
@@ -1573,13 +1785,21 @@ static void vfe_try_format(struct vfe_line *line,
  * @which: wanted subdev format
  */
 static void vfe_try_compose(struct vfe_line *line,
+<<<<<<< HEAD
 			    struct v4l2_subdev_pad_config *cfg,
+=======
+			    struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			    struct v4l2_rect *rect,
 			    enum v4l2_subdev_format_whence which)
 {
 	struct v4l2_mbus_framefmt *fmt;
 
+<<<<<<< HEAD
 	fmt = __vfe_get_format(line, cfg, MSM_VFE_PAD_SINK, which);
+=======
+	fmt = __vfe_get_format(line, sd_state, MSM_VFE_PAD_SINK, which);
+>>>>>>> upstream/android-13
 
 	if (rect->width > fmt->width)
 		rect->width = fmt->width;
@@ -1612,13 +1832,21 @@ static void vfe_try_compose(struct vfe_line *line,
  * @which: wanted subdev format
  */
 static void vfe_try_crop(struct vfe_line *line,
+<<<<<<< HEAD
 			 struct v4l2_subdev_pad_config *cfg,
+=======
+			 struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			 struct v4l2_rect *rect,
 			 enum v4l2_subdev_format_whence which)
 {
 	struct v4l2_rect *compose;
 
+<<<<<<< HEAD
 	compose = __vfe_get_compose(line, cfg, which);
+=======
+	compose = __vfe_get_compose(line, sd_state, which);
+>>>>>>> upstream/android-13
 
 	if (rect->width > compose->width)
 		rect->width = compose->width;
@@ -1656,7 +1884,11 @@ static void vfe_try_crop(struct vfe_line *line,
  * return -EINVAL or zero on success
  */
 static int vfe_enum_mbus_code(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			      struct v4l2_subdev_pad_config *cfg,
+=======
+			      struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			      struct v4l2_subdev_mbus_code_enum *code)
 {
 	struct vfe_line *line = v4l2_get_subdevdata(sd);
@@ -1669,7 +1901,11 @@ static int vfe_enum_mbus_code(struct v4l2_subdev *sd,
 	} else {
 		struct v4l2_mbus_framefmt *sink_fmt;
 
+<<<<<<< HEAD
 		sink_fmt = __vfe_get_format(line, cfg, MSM_VFE_PAD_SINK,
+=======
+		sink_fmt = __vfe_get_format(line, sd_state, MSM_VFE_PAD_SINK,
+>>>>>>> upstream/android-13
 					    code->which);
 
 		code->code = vfe_src_pad_code(line, sink_fmt->code,
@@ -1690,7 +1926,11 @@ static int vfe_enum_mbus_code(struct v4l2_subdev *sd,
  * Return -EINVAL or zero on success
  */
 static int vfe_enum_frame_size(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			       struct v4l2_subdev_pad_config *cfg,
+=======
+			       struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			       struct v4l2_subdev_frame_size_enum *fse)
 {
 	struct vfe_line *line = v4l2_get_subdevdata(sd);
@@ -1702,7 +1942,11 @@ static int vfe_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = 1;
 	format.height = 1;
+<<<<<<< HEAD
 	vfe_try_format(line, cfg, fse->pad, &format, fse->which);
+=======
+	vfe_try_format(line, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->min_width = format.width;
 	fse->min_height = format.height;
 
@@ -1712,7 +1956,11 @@ static int vfe_enum_frame_size(struct v4l2_subdev *sd,
 	format.code = fse->code;
 	format.width = -1;
 	format.height = -1;
+<<<<<<< HEAD
 	vfe_try_format(line, cfg, fse->pad, &format, fse->which);
+=======
+	vfe_try_format(line, sd_state, fse->pad, &format, fse->which);
+>>>>>>> upstream/android-13
 	fse->max_width = format.width;
 	fse->max_height = format.height;
 
@@ -1728,13 +1976,21 @@ static int vfe_enum_frame_size(struct v4l2_subdev *sd,
  * Return -EINVAL or zero on success
  */
 static int vfe_get_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *fmt)
 {
 	struct vfe_line *line = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __vfe_get_format(line, cfg, fmt->pad, fmt->which);
+=======
+	format = __vfe_get_format(line, sd_state, fmt->pad, fmt->which);
+>>>>>>> upstream/android-13
 	if (format == NULL)
 		return -EINVAL;
 
@@ -1744,7 +2000,11 @@ static int vfe_get_format(struct v4l2_subdev *sd,
 }
 
 static int vfe_set_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg,
+=======
+			     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			     struct v4l2_subdev_selection *sel);
 
 /*
@@ -1756,17 +2016,29 @@ static int vfe_set_selection(struct v4l2_subdev *sd,
  * Return -EINVAL or zero on success
  */
 static int vfe_set_format(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			  struct v4l2_subdev_pad_config *cfg,
+=======
+			  struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			  struct v4l2_subdev_format *fmt)
 {
 	struct vfe_line *line = v4l2_get_subdevdata(sd);
 	struct v4l2_mbus_framefmt *format;
 
+<<<<<<< HEAD
 	format = __vfe_get_format(line, cfg, fmt->pad, fmt->which);
 	if (format == NULL)
 		return -EINVAL;
 
 	vfe_try_format(line, cfg, fmt->pad, &fmt->format, fmt->which);
+=======
+	format = __vfe_get_format(line, sd_state, fmt->pad, fmt->which);
+	if (format == NULL)
+		return -EINVAL;
+
+	vfe_try_format(line, sd_state, fmt->pad, &fmt->format, fmt->which);
+>>>>>>> upstream/android-13
 	*format = fmt->format;
 
 	if (fmt->pad == MSM_VFE_PAD_SINK) {
@@ -1774,11 +2046,19 @@ static int vfe_set_format(struct v4l2_subdev *sd,
 		int ret;
 
 		/* Propagate the format from sink to source */
+<<<<<<< HEAD
 		format = __vfe_get_format(line, cfg, MSM_VFE_PAD_SRC,
 					  fmt->which);
 
 		*format = fmt->format;
 		vfe_try_format(line, cfg, MSM_VFE_PAD_SRC, format,
+=======
+		format = __vfe_get_format(line, sd_state, MSM_VFE_PAD_SRC,
+					  fmt->which);
+
+		*format = fmt->format;
+		vfe_try_format(line, sd_state, MSM_VFE_PAD_SRC, format,
+>>>>>>> upstream/android-13
 			       fmt->which);
 
 		if (line->id != VFE_LINE_PIX)
@@ -1790,7 +2070,11 @@ static int vfe_set_format(struct v4l2_subdev *sd,
 		sel.target = V4L2_SEL_TGT_COMPOSE;
 		sel.r.width = fmt->format.width;
 		sel.r.height = fmt->format.height;
+<<<<<<< HEAD
 		ret = vfe_set_selection(sd, cfg, &sel);
+=======
+		ret = vfe_set_selection(sd, sd_state, &sel);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 	}
@@ -1807,7 +2091,11 @@ static int vfe_set_format(struct v4l2_subdev *sd,
  * Return -EINVAL or zero on success
  */
 static int vfe_get_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg,
+=======
+			     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			     struct v4l2_subdev_selection *sel)
 {
 	struct vfe_line *line = v4l2_get_subdevdata(sd);
@@ -1823,7 +2111,11 @@ static int vfe_get_selection(struct v4l2_subdev *sd,
 		case V4L2_SEL_TGT_COMPOSE_BOUNDS:
 			fmt.pad = sel->pad;
 			fmt.which = sel->which;
+<<<<<<< HEAD
 			ret = vfe_get_format(sd, cfg, &fmt);
+=======
+			ret = vfe_get_format(sd, sd_state, &fmt);
+>>>>>>> upstream/android-13
 			if (ret < 0)
 				return ret;
 
@@ -1833,7 +2125,11 @@ static int vfe_get_selection(struct v4l2_subdev *sd,
 			sel->r.height = fmt.format.height;
 			break;
 		case V4L2_SEL_TGT_COMPOSE:
+<<<<<<< HEAD
 			rect = __vfe_get_compose(line, cfg, sel->which);
+=======
+			rect = __vfe_get_compose(line, sd_state, sel->which);
+>>>>>>> upstream/android-13
 			if (rect == NULL)
 				return -EINVAL;
 
@@ -1845,7 +2141,11 @@ static int vfe_get_selection(struct v4l2_subdev *sd,
 	else if (sel->pad == MSM_VFE_PAD_SRC)
 		switch (sel->target) {
 		case V4L2_SEL_TGT_CROP_BOUNDS:
+<<<<<<< HEAD
 			rect = __vfe_get_compose(line, cfg, sel->which);
+=======
+			rect = __vfe_get_compose(line, sd_state, sel->which);
+>>>>>>> upstream/android-13
 			if (rect == NULL)
 				return -EINVAL;
 
@@ -1855,7 +2155,11 @@ static int vfe_get_selection(struct v4l2_subdev *sd,
 			sel->r.height = rect->height;
 			break;
 		case V4L2_SEL_TGT_CROP:
+<<<<<<< HEAD
 			rect = __vfe_get_crop(line, cfg, sel->which);
+=======
+			rect = __vfe_get_crop(line, sd_state, sel->which);
+>>>>>>> upstream/android-13
 			if (rect == NULL)
 				return -EINVAL;
 
@@ -1877,7 +2181,11 @@ static int vfe_get_selection(struct v4l2_subdev *sd,
  * Return -EINVAL or zero on success
  */
 static int vfe_set_selection(struct v4l2_subdev *sd,
+<<<<<<< HEAD
 			     struct v4l2_subdev_pad_config *cfg,
+=======
+			     struct v4l2_subdev_state *sd_state,
+>>>>>>> upstream/android-13
 			     struct v4l2_subdev_selection *sel)
 {
 	struct vfe_line *line = v4l2_get_subdevdata(sd);
@@ -1891,11 +2199,19 @@ static int vfe_set_selection(struct v4l2_subdev *sd,
 		sel->pad == MSM_VFE_PAD_SINK) {
 		struct v4l2_subdev_selection crop = { 0 };
 
+<<<<<<< HEAD
 		rect = __vfe_get_compose(line, cfg, sel->which);
 		if (rect == NULL)
 			return -EINVAL;
 
 		vfe_try_compose(line, cfg, &sel->r, sel->which);
+=======
+		rect = __vfe_get_compose(line, sd_state, sel->which);
+		if (rect == NULL)
+			return -EINVAL;
+
+		vfe_try_compose(line, sd_state, &sel->r, sel->which);
+>>>>>>> upstream/android-13
 		*rect = sel->r;
 
 		/* Reset source crop selection */
@@ -1903,28 +2219,48 @@ static int vfe_set_selection(struct v4l2_subdev *sd,
 		crop.pad = MSM_VFE_PAD_SRC;
 		crop.target = V4L2_SEL_TGT_CROP;
 		crop.r = *rect;
+<<<<<<< HEAD
 		ret = vfe_set_selection(sd, cfg, &crop);
+=======
+		ret = vfe_set_selection(sd, sd_state, &crop);
+>>>>>>> upstream/android-13
 	} else if (sel->target == V4L2_SEL_TGT_CROP &&
 		sel->pad == MSM_VFE_PAD_SRC) {
 		struct v4l2_subdev_format fmt = { 0 };
 
+<<<<<<< HEAD
 		rect = __vfe_get_crop(line, cfg, sel->which);
 		if (rect == NULL)
 			return -EINVAL;
 
 		vfe_try_crop(line, cfg, &sel->r, sel->which);
+=======
+		rect = __vfe_get_crop(line, sd_state, sel->which);
+		if (rect == NULL)
+			return -EINVAL;
+
+		vfe_try_crop(line, sd_state, &sel->r, sel->which);
+>>>>>>> upstream/android-13
 		*rect = sel->r;
 
 		/* Reset source pad format width and height */
 		fmt.which = sel->which;
 		fmt.pad = MSM_VFE_PAD_SRC;
+<<<<<<< HEAD
 		ret = vfe_get_format(sd, cfg, &fmt);
+=======
+		ret = vfe_get_format(sd, sd_state, &fmt);
+>>>>>>> upstream/android-13
 		if (ret < 0)
 			return ret;
 
 		fmt.format.width = rect->width;
 		fmt.format.height = rect->height;
+<<<<<<< HEAD
 		ret = vfe_set_format(sd, cfg, &fmt);
+=======
+		ret = vfe_set_format(sd, sd_state, &fmt);
+>>>>>>> upstream/android-13
 	} else {
 		ret = -EINVAL;
 	}
@@ -1954,7 +2290,11 @@ static int vfe_init_formats(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 		}
 	};
 
+<<<<<<< HEAD
 	return vfe_set_format(sd, fh ? fh->pad : NULL, &format);
+=======
+	return vfe_set_format(sd, fh ? fh->state : NULL, &format);
+>>>>>>> upstream/android-13
 }
 
 /*
@@ -1973,6 +2313,7 @@ int msm_vfe_subdev_init(struct camss *camss, struct vfe_device *vfe,
 	int i, j;
 	int ret;
 
+<<<<<<< HEAD
 	vfe->isr_ops.reset_ack = vfe_isr_reset_ack;
 	vfe->isr_ops.halt_ack = vfe_isr_halt_ack;
 	vfe->isr_ops.reg_update = vfe_isr_reg_update;
@@ -1991,6 +2332,30 @@ int msm_vfe_subdev_init(struct camss *camss, struct vfe_device *vfe,
 
 	r = platform_get_resource_byname(pdev, IORESOURCE_MEM, res->reg[0]);
 	vfe->base = devm_ioremap_resource(dev, r);
+=======
+	switch (camss->version) {
+	case CAMSS_8x16:
+		vfe->ops = &vfe_ops_4_1;
+		break;
+	case CAMSS_8x96:
+		vfe->ops = &vfe_ops_4_7;
+		break;
+	case CAMSS_660:
+		vfe->ops = &vfe_ops_4_8;
+		break;
+
+	case CAMSS_845:
+		vfe->ops = &vfe_ops_170;
+		break;
+	default:
+		return -EINVAL;
+	}
+	vfe->ops->subdev_init(dev, vfe);
+
+	/* Memory */
+
+	vfe->base = devm_platform_ioremap_resource_byname(pdev, res->reg[0]);
+>>>>>>> upstream/android-13
 	if (IS_ERR(vfe->base)) {
 		dev_err(dev, "could not map memory\n");
 		return PTR_ERR(vfe->base);
@@ -2067,7 +2432,11 @@ int msm_vfe_subdev_init(struct camss *camss, struct vfe_device *vfe,
 	vfe->id = id;
 	vfe->reg_update = 0;
 
+<<<<<<< HEAD
 	for (i = VFE_LINE_RDI0; i <= VFE_LINE_PIX; i++) {
+=======
+	for (i = VFE_LINE_RDI0; i < vfe->line_num; i++) {
+>>>>>>> upstream/android-13
 		struct vfe_line *l = &vfe->line[i];
 
 		l->video_out.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
@@ -2084,7 +2453,12 @@ int msm_vfe_subdev_init(struct camss *camss, struct vfe_device *vfe,
 				l->formats = formats_rdi_8x16;
 				l->nformats = ARRAY_SIZE(formats_rdi_8x16);
 			}
+<<<<<<< HEAD
 		} else if (camss->version == CAMSS_8x96) {
+=======
+		} else if (camss->version == CAMSS_8x96 ||
+			   camss->version == CAMSS_660) {
+>>>>>>> upstream/android-13
 			if (i == VFE_LINE_PIX) {
 				l->formats = formats_pix_8x96;
 				l->nformats = ARRAY_SIZE(formats_pix_8x96);
@@ -2092,6 +2466,12 @@ int msm_vfe_subdev_init(struct camss *camss, struct vfe_device *vfe,
 				l->formats = formats_rdi_8x96;
 				l->nformats = ARRAY_SIZE(formats_rdi_8x96);
 			}
+<<<<<<< HEAD
+=======
+		} else if (camss->version == CAMSS_845) {
+			l->formats = formats_rdi_845;
+			l->nformats = ARRAY_SIZE(formats_rdi_845);
+>>>>>>> upstream/android-13
 		} else {
 			return -EINVAL;
 		}
@@ -2189,6 +2569,7 @@ static const struct media_entity_operations vfe_media_ops = {
 	.link_validate = v4l2_subdev_link_validate,
 };
 
+<<<<<<< HEAD
 static const struct camss_video_ops camss_vfe_video_ops = {
 	.queue_buffer = vfe_queue_buffer,
 	.flush_buffers = vfe_flush_buffers,
@@ -2202,6 +2583,8 @@ void msm_vfe_stop_streaming(struct vfe_device *vfe)
 		msm_video_stop_streaming(&vfe->line[i].video_out);
 }
 
+=======
+>>>>>>> upstream/android-13
 /*
  * msm_vfe_register_entities - Register subdev node for VFE module
  * @vfe: VFE device
@@ -2224,7 +2607,11 @@ int msm_vfe_register_entities(struct vfe_device *vfe,
 	int ret;
 	int i;
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(vfe->line); i++) {
+=======
+	for (i = 0; i < vfe->line_num; i++) {
+>>>>>>> upstream/android-13
 		char name[32];
 
 		sd = &vfe->line[i].subdev;
@@ -2267,7 +2654,11 @@ int msm_vfe_register_entities(struct vfe_device *vfe,
 			goto error_reg_subdev;
 		}
 
+<<<<<<< HEAD
 		video_out->ops = &camss_vfe_video_ops;
+=======
+		video_out->ops = &vfe->video_ops;
+>>>>>>> upstream/android-13
 		video_out->bpl_alignment = 8;
 		video_out->line_based = 0;
 		if (i == VFE_LINE_PIX) {
@@ -2331,7 +2722,11 @@ void msm_vfe_unregister_entities(struct vfe_device *vfe)
 	mutex_destroy(&vfe->power_lock);
 	mutex_destroy(&vfe->stream_lock);
 
+<<<<<<< HEAD
 	for (i = 0; i < ARRAY_SIZE(vfe->line); i++) {
+=======
+	for (i = 0; i < vfe->line_num; i++) {
+>>>>>>> upstream/android-13
 		struct v4l2_subdev *sd = &vfe->line[i].subdev;
 		struct camss_video *video_out = &vfe->line[i].video_out;
 

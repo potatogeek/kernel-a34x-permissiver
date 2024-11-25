@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * LIRC base driver
  *
  * by Artur Lipowski <alipowski@interia.pl>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -13,6 +18,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -40,12 +47,20 @@ static DEFINE_IDA(lirc_ida);
 static struct class *lirc_class;
 
 /**
+<<<<<<< HEAD
  * ir_lirc_raw_event() - Send raw IR data to lirc to be relayed to userspace
+=======
+ * lirc_raw_event() - Send raw IR data to lirc to be relayed to userspace
+>>>>>>> upstream/android-13
  *
  * @dev:	the struct rc_dev descriptor of the device
  * @ev:		the struct ir_raw_event descriptor of the pulse/space
  */
+<<<<<<< HEAD
 void ir_lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev)
+=======
+void lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct lirc_fh *fh;
@@ -77,17 +92,28 @@ void ir_lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev)
 		dev->gap = true;
 		dev->gap_duration = ev.duration;
 
+<<<<<<< HEAD
 		sample = LIRC_TIMEOUT(ev.duration / 1000);
+=======
+		sample = LIRC_TIMEOUT(ev.duration);
+>>>>>>> upstream/android-13
 		dev_dbg(&dev->dev, "timeout report (duration: %d)\n", sample);
 
 	/* Normal sample */
 	} else {
 		if (dev->gap) {
+<<<<<<< HEAD
 			dev->gap_duration += ktime_to_ns(ktime_sub(ktime_get(),
 							 dev->gap_start));
 
 			/* Convert to ms and cap by LIRC_VALUE_MASK */
 			do_div(dev->gap_duration, 1000);
+=======
+			dev->gap_duration += ktime_to_us(ktime_sub(ktime_get(),
+							 dev->gap_start));
+
+			/* Cap by LIRC_VALUE_MASK */
+>>>>>>> upstream/android-13
 			dev->gap_duration = min_t(u64, dev->gap_duration,
 						  LIRC_VALUE_MASK);
 
@@ -99,10 +125,17 @@ void ir_lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev)
 			dev->gap = false;
 		}
 
+<<<<<<< HEAD
 		sample = ev.pulse ? LIRC_PULSE(ev.duration / 1000) :
 					LIRC_SPACE(ev.duration / 1000);
 		dev_dbg(&dev->dev, "delivering %uus %s to lirc_dev\n",
 			TO_US(ev.duration), TO_STR(ev.pulse));
+=======
+		sample = ev.pulse ? LIRC_PULSE(ev.duration) :
+					LIRC_SPACE(ev.duration);
+		dev_dbg(&dev->dev, "delivering %uus %s to lirc_dev\n",
+			ev.duration, TO_STR(ev.pulse));
+>>>>>>> upstream/android-13
 	}
 
 	/*
@@ -122,12 +155,20 @@ void ir_lirc_raw_event(struct rc_dev *dev, struct ir_raw_event ev)
 }
 
 /**
+<<<<<<< HEAD
  * ir_lirc_scancode_event() - Send scancode data to lirc to be relayed to
+=======
+ * lirc_scancode_event() - Send scancode data to lirc to be relayed to
+>>>>>>> upstream/android-13
  *		userspace. This can be called in atomic context.
  * @dev:	the struct rc_dev descriptor of the device
  * @lsc:	the struct lirc_scancode describing the decoded scancode
  */
+<<<<<<< HEAD
 void ir_lirc_scancode_event(struct rc_dev *dev, struct lirc_scancode *lsc)
+=======
+void lirc_scancode_event(struct rc_dev *dev, struct lirc_scancode *lsc)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct lirc_fh *fh;
@@ -141,9 +182,15 @@ void ir_lirc_scancode_event(struct rc_dev *dev, struct lirc_scancode *lsc)
 	}
 	spin_unlock_irqrestore(&dev->lirc_fh_lock, flags);
 }
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(ir_lirc_scancode_event);
 
 static int ir_lirc_open(struct inode *inode, struct file *file)
+=======
+EXPORT_SYMBOL_GPL(lirc_scancode_event);
+
+static int lirc_open(struct inode *inode, struct file *file)
+>>>>>>> upstream/android-13
 {
 	struct rc_dev *dev = container_of(inode->i_cdev, struct rc_dev,
 					  lirc_cdev);
@@ -195,7 +242,11 @@ static int ir_lirc_open(struct inode *inode, struct file *file)
 	list_add(&fh->list, &dev->lirc_fh);
 	spin_unlock_irqrestore(&dev->lirc_fh_lock, flags);
 
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 
 	return 0;
 out_kfifo:
@@ -211,7 +262,11 @@ out_fh:
 	return retval;
 }
 
+<<<<<<< HEAD
 static int ir_lirc_close(struct inode *inode, struct file *file)
+=======
+static int lirc_close(struct inode *inode, struct file *file)
+>>>>>>> upstream/android-13
 {
 	struct lirc_fh *fh = file->private_data;
 	struct rc_dev *dev = fh->rc;
@@ -233,8 +288,13 @@ static int ir_lirc_close(struct inode *inode, struct file *file)
 	return 0;
 }
 
+<<<<<<< HEAD
 static ssize_t ir_lirc_transmit_ir(struct file *file, const char __user *buf,
 				   size_t n, loff_t *ppos)
+=======
+static ssize_t lirc_transmit(struct file *file, const char __user *buf,
+			     size_t n, loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct lirc_fh *fh = file->private_data;
 	struct rc_dev *dev = fh->rc;
@@ -274,17 +334,26 @@ static ssize_t ir_lirc_transmit_ir(struct file *file, const char __user *buf,
 			goto out_unlock;
 		}
 
+<<<<<<< HEAD
 		if (scan.flags || scan.keycode || scan.timestamp) {
+=======
+		if (scan.flags || scan.keycode || scan.timestamp ||
+		    scan.rc_proto > RC_PROTO_MAX) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto out_unlock;
 		}
 
+<<<<<<< HEAD
 		/*
 		 * The scancode field in lirc_scancode is 64-bit simply
 		 * to future-proof it, since there are IR protocols encode
 		 * use more than 32 bits. For now only 32-bit protocols
 		 * are supported.
 		 */
+=======
+		/* We only have encoders for 32-bit protocols. */
+>>>>>>> upstream/android-13
 		if (scan.scancode > U32_MAX ||
 		    !rc_validate_scancode(scan.rc_proto, scan.scancode)) {
 			ret = -EINVAL;
@@ -311,8 +380,12 @@ static ssize_t ir_lirc_transmit_ir(struct file *file, const char __user *buf,
 		}
 
 		for (i = 0; i < count; i++)
+<<<<<<< HEAD
 			/* Convert from NS to US */
 			txbuf[i] = DIV_ROUND_UP(raw[i].duration, 1000);
+=======
+			txbuf[i] = raw[i].duration;
+>>>>>>> upstream/android-13
 
 		if (dev->s_tx_carrier) {
 			int carrier = ir_raw_encode_carrier(scan.rc_proto);
@@ -340,7 +413,11 @@ static ssize_t ir_lirc_transmit_ir(struct file *file, const char __user *buf,
 	}
 
 	for (i = 0; i < count; i++) {
+<<<<<<< HEAD
 		if (txbuf[i] > IR_MAX_DURATION / 1000 - duration || !txbuf[i]) {
+=======
+		if (txbuf[i] > IR_MAX_DURATION - duration || !txbuf[i]) {
+>>>>>>> upstream/android-13
 			ret = -EINVAL;
 			goto out_kfree;
 		}
@@ -380,8 +457,12 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< HEAD
 static long ir_lirc_ioctl(struct file *file, unsigned int cmd,
 			  unsigned long arg)
+=======
+static long lirc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+>>>>>>> upstream/android-13
 {
 	struct lirc_fh *fh = file->private_data;
 	struct rc_dev *dev = fh->rc;
@@ -429,7 +510,11 @@ static long ir_lirc_ioctl(struct file *file, unsigned int cmd,
 			val |= LIRC_CAN_SET_REC_CARRIER |
 				LIRC_CAN_SET_REC_CARRIER_RANGE;
 
+<<<<<<< HEAD
 		if (dev->s_learning_mode)
+=======
+		if (dev->s_wideband_receiver)
+>>>>>>> upstream/android-13
 			val |= LIRC_CAN_USE_WIDEBAND_RECEIVER;
 
 		if (dev->s_carrier_report)
@@ -532,6 +617,7 @@ static long ir_lirc_ioctl(struct file *file, unsigned int cmd,
 		if (!dev->rx_resolution)
 			ret = -ENOTTY;
 		else
+<<<<<<< HEAD
 			val = dev->rx_resolution / 1000;
 		break;
 
@@ -540,6 +626,16 @@ static long ir_lirc_ioctl(struct file *file, unsigned int cmd,
 			ret = -ENOTTY;
 		else
 			ret = dev->s_learning_mode(dev, !!val);
+=======
+			val = dev->rx_resolution;
+		break;
+
+	case LIRC_SET_WIDEBAND_RECEIVER:
+		if (!dev->s_wideband_receiver)
+			ret = -ENOTTY;
+		else
+			ret = dev->s_wideband_receiver(dev, !!val);
+>>>>>>> upstream/android-13
 		break;
 
 	case LIRC_SET_MEASURE_CARRIER_MODE:
@@ -554,19 +650,28 @@ static long ir_lirc_ioctl(struct file *file, unsigned int cmd,
 		if (!dev->max_timeout)
 			ret = -ENOTTY;
 		else
+<<<<<<< HEAD
 			val = DIV_ROUND_UP(dev->min_timeout, 1000);
+=======
+			val = dev->min_timeout;
+>>>>>>> upstream/android-13
 		break;
 
 	case LIRC_GET_MAX_TIMEOUT:
 		if (!dev->max_timeout)
 			ret = -ENOTTY;
 		else
+<<<<<<< HEAD
 			val = dev->max_timeout / 1000;
+=======
+			val = dev->max_timeout;
+>>>>>>> upstream/android-13
 		break;
 
 	case LIRC_SET_REC_TIMEOUT:
 		if (!dev->max_timeout) {
 			ret = -ENOTTY;
+<<<<<<< HEAD
 		} else if (val > U32_MAX / 1000) {
 			/* Check for multiply overflow */
 			ret = -EINVAL;
@@ -579,6 +684,15 @@ static long ir_lirc_ioctl(struct file *file, unsigned int cmd,
 				ret = dev->s_timeout(dev, tmp);
 			else
 				dev->timeout = tmp;
+=======
+		} else {
+			if (val < dev->min_timeout || val > dev->max_timeout)
+				ret = -EINVAL;
+			else if (dev->s_timeout)
+				ret = dev->s_timeout(dev, val);
+			else
+				dev->timeout = val;
+>>>>>>> upstream/android-13
 		}
 		break;
 
@@ -586,7 +700,11 @@ static long ir_lirc_ioctl(struct file *file, unsigned int cmd,
 		if (!dev->timeout)
 			ret = -ENOTTY;
 		else
+<<<<<<< HEAD
 			val = DIV_ROUND_UP(dev->timeout, 1000);
+=======
+			val = dev->timeout;
+>>>>>>> upstream/android-13
 		break;
 
 	case LIRC_SET_REC_TIMEOUT_REPORTS:
@@ -608,7 +726,11 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static __poll_t ir_lirc_poll(struct file *file, struct poll_table_struct *wait)
+=======
+static __poll_t lirc_poll(struct file *file, struct poll_table_struct *wait)
+>>>>>>> upstream/android-13
 {
 	struct lirc_fh *fh = file->private_data;
 	struct rc_dev *rcdev = fh->rc;
@@ -631,8 +753,13 @@ static __poll_t ir_lirc_poll(struct file *file, struct poll_table_struct *wait)
 	return events;
 }
 
+<<<<<<< HEAD
 static ssize_t ir_lirc_read_mode2(struct file *file, char __user *buffer,
 				  size_t length)
+=======
+static ssize_t lirc_read_mode2(struct file *file, char __user *buffer,
+			       size_t length)
+>>>>>>> upstream/android-13
 {
 	struct lirc_fh *fh = file->private_data;
 	struct rc_dev *rcdev = fh->rc;
@@ -669,8 +796,13 @@ static ssize_t ir_lirc_read_mode2(struct file *file, char __user *buffer,
 	return copied;
 }
 
+<<<<<<< HEAD
 static ssize_t ir_lirc_read_scancode(struct file *file, char __user *buffer,
 				     size_t length)
+=======
+static ssize_t lirc_read_scancode(struct file *file, char __user *buffer,
+				  size_t length)
+>>>>>>> upstream/android-13
 {
 	struct lirc_fh *fh = file->private_data;
 	struct rc_dev *rcdev = fh->rc;
@@ -708,8 +840,13 @@ static ssize_t ir_lirc_read_scancode(struct file *file, char __user *buffer,
 	return copied;
 }
 
+<<<<<<< HEAD
 static ssize_t ir_lirc_read(struct file *file, char __user *buffer,
 			    size_t length, loff_t *ppos)
+=======
+static ssize_t lirc_read(struct file *file, char __user *buffer, size_t length,
+			 loff_t *ppos)
+>>>>>>> upstream/android-13
 {
 	struct lirc_fh *fh = file->private_data;
 	struct rc_dev *rcdev = fh->rc;
@@ -721,13 +858,20 @@ static ssize_t ir_lirc_read(struct file *file, char __user *buffer,
 		return -ENODEV;
 
 	if (fh->rec_mode == LIRC_MODE_MODE2)
+<<<<<<< HEAD
 		return ir_lirc_read_mode2(file, buffer, length);
 	else /* LIRC_MODE_SCANCODE */
 		return ir_lirc_read_scancode(file, buffer, length);
+=======
+		return lirc_read_mode2(file, buffer, length);
+	else /* LIRC_MODE_SCANCODE */
+		return lirc_read_scancode(file, buffer, length);
+>>>>>>> upstream/android-13
 }
 
 static const struct file_operations lirc_fops = {
 	.owner		= THIS_MODULE,
+<<<<<<< HEAD
 	.write		= ir_lirc_transmit_ir,
 	.unlocked_ioctl	= ir_lirc_ioctl,
 #ifdef CONFIG_COMPAT
@@ -737,6 +881,15 @@ static const struct file_operations lirc_fops = {
 	.poll		= ir_lirc_poll,
 	.open		= ir_lirc_open,
 	.release	= ir_lirc_close,
+=======
+	.write		= lirc_transmit,
+	.unlocked_ioctl	= lirc_ioctl,
+	.compat_ioctl	= compat_ptr_ioctl,
+	.read		= lirc_read,
+	.poll		= lirc_poll,
+	.open		= lirc_open,
+	.release	= lirc_close,
+>>>>>>> upstream/android-13
 	.llseek		= no_llseek,
 };
 
@@ -747,7 +900,11 @@ static void lirc_release_device(struct device *ld)
 	put_device(&rcdev->dev);
 }
 
+<<<<<<< HEAD
 int ir_lirc_register(struct rc_dev *dev)
+=======
+int lirc_register(struct rc_dev *dev)
+>>>>>>> upstream/android-13
 {
 	const char *rx_type, *tx_type;
 	int err, minor;
@@ -801,7 +958,11 @@ out_ida:
 	return err;
 }
 
+<<<<<<< HEAD
 void ir_lirc_unregister(struct rc_dev *dev)
+=======
+void lirc_unregister(struct rc_dev *dev)
+>>>>>>> upstream/android-13
 {
 	unsigned long flags;
 	struct lirc_fh *fh;
@@ -828,8 +989,12 @@ int __init lirc_dev_init(void)
 		return PTR_ERR(lirc_class);
 	}
 
+<<<<<<< HEAD
 	retval = alloc_chrdev_region(&lirc_base_dev, 0, RC_DEV_MAX,
 				     "BaseRemoteCtl");
+=======
+	retval = alloc_chrdev_region(&lirc_base_dev, 0, RC_DEV_MAX, "lirc");
+>>>>>>> upstream/android-13
 	if (retval) {
 		class_destroy(lirc_class);
 		pr_err("alloc_chrdev_region failed\n");

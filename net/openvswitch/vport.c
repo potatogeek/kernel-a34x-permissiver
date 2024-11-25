@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007-2014 Nicira, Inc.
  *
@@ -14,6 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007-2014 Nicira, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/etherdevice.h>
@@ -100,6 +106,10 @@ EXPORT_SYMBOL_GPL(ovs_vport_ops_unregister);
 /**
  *	ovs_vport_locate - find a port that has already been created
  *
+<<<<<<< HEAD
+=======
+ * @net: network namespace
+>>>>>>> upstream/android-13
  * @name: name of port to find
  *
  * Must be called with ovs or RCU read lock.
@@ -109,7 +119,12 @@ struct vport *ovs_vport_locate(const struct net *net, const char *name)
 	struct hlist_head *bucket = hash_bucket(net, name);
 	struct vport *vport;
 
+<<<<<<< HEAD
 	hlist_for_each_entry_rcu(vport, bucket, hash_node)
+=======
+	hlist_for_each_entry_rcu(vport, bucket, hash_node,
+				 lockdep_ovsl_is_held())
+>>>>>>> upstream/android-13
 		if (!strcmp(name, ovs_vport_name(vport)) &&
 		    net_eq(ovs_dp_get_net(vport->dp), net))
 			return vport;
@@ -122,6 +137,7 @@ struct vport *ovs_vport_locate(const struct net *net, const char *name)
  *
  * @priv_size: Size of private data area to allocate.
  * @ops: vport device ops
+<<<<<<< HEAD
  *
  * Allocate and initialize a new vport defined by @ops.  The vport will contain
  * a private data area of size @priv_size that can be accessed using
@@ -130,6 +146,18 @@ struct vport *ovs_vport_locate(const struct net *net, const char *name)
  */
 struct vport *ovs_vport_alloc(int priv_size, const struct vport_ops *ops,
 			  const struct vport_parms *parms)
+=======
+ * @parms: information about new vport.
+ *
+ * Allocate and initialize a new vport defined by @ops.  The vport will contain
+ * a private data area of size @priv_size that can be accessed using
+ * vport_priv().  Some parameters of the vport will be initialized from @parms.
+ * @vports that are no longer needed should be released with
+ * vport_free().
+ */
+struct vport *ovs_vport_alloc(int priv_size, const struct vport_ops *ops,
+			      const struct vport_parms *parms)
+>>>>>>> upstream/android-13
 {
 	struct vport *vport;
 	size_t alloc_size;
@@ -261,8 +289,11 @@ int ovs_vport_set_options(struct vport *vport, struct nlattr *options)
  */
 void ovs_vport_del(struct vport *vport)
 {
+<<<<<<< HEAD
 	ASSERT_OVSL();
 
+=======
+>>>>>>> upstream/android-13
 	hlist_del_rcu(&vport->hash_node);
 	module_put(vport->ops->owner);
 	vport->ops->destroy(vport);
@@ -319,7 +350,11 @@ int ovs_vport_get_options(const struct vport *vport, struct sk_buff *skb)
 	if (!vport->ops->get_options)
 		return 0;
 
+<<<<<<< HEAD
 	nla = nla_nest_start(skb, OVS_VPORT_ATTR_OPTIONS);
+=======
+	nla = nla_nest_start_noflag(skb, OVS_VPORT_ATTR_OPTIONS);
+>>>>>>> upstream/android-13
 	if (!nla)
 		return -EMSGSIZE;
 
@@ -410,7 +445,12 @@ int ovs_vport_get_upcall_portids(const struct vport *vport,
  *
  * Returns the portid of the target socket.  Must be called with rcu_read_lock.
  */
+<<<<<<< HEAD
 u32 ovs_vport_find_upcall_portid(const struct vport *vport, struct sk_buff *skb)
+=======
+u32 ovs_vport_find_upcall_portid(const struct vport *vport,
+				 struct sk_buff *skb)
+>>>>>>> upstream/android-13
 {
 	struct vport_portids *ids;
 	u32 ids_index;
@@ -418,8 +458,14 @@ u32 ovs_vport_find_upcall_portid(const struct vport *vport, struct sk_buff *skb)
 
 	ids = rcu_dereference(vport->upcall_portids);
 
+<<<<<<< HEAD
 	if (ids->n_ids == 1 && ids->ids[0] == 0)
 		return 0;
+=======
+	/* If there is only one portid, select it in the fast-path. */
+	if (ids->n_ids == 1)
+		return ids->ids[0];
+>>>>>>> upstream/android-13
 
 	hash = skb_get_hash(skb);
 	ids_index = hash - ids->n_ids * reciprocal_divide(hash, ids->rn_ids);
@@ -431,7 +477,11 @@ u32 ovs_vport_find_upcall_portid(const struct vport *vport, struct sk_buff *skb)
  *
  * @vport: vport that received the packet
  * @skb: skb that was received
+<<<<<<< HEAD
  * @tun_key: tunnel (if any) that carried packet
+=======
+ * @tun_info: tunnel (if any) that carried packet
+>>>>>>> upstream/android-13
  *
  * Must be called with rcu_read_lock.  The packet cannot be shared and
  * skb->data should point to the Ethernet header.
@@ -506,14 +556,27 @@ void ovs_vport_send(struct vport *vport, struct sk_buff *skb, u8 mac_proto)
 
 	if (unlikely(packet_length(skb, vport->dev) > mtu &&
 		     !skb_is_gso(skb))) {
+<<<<<<< HEAD
 		net_warn_ratelimited("%s: dropped over-mtu packet: %d > %d\n",
 				     vport->dev->name,
 				     packet_length(skb, vport->dev), mtu);
 		vport->dev->stats.tx_errors++;
+=======
+		vport->dev->stats.tx_errors++;
+		if (vport->dev->flags & IFF_UP)
+			net_warn_ratelimited("%s: dropped over-mtu packet: "
+					     "%d > %d\n", vport->dev->name,
+					     packet_length(skb, vport->dev),
+					     mtu);
+>>>>>>> upstream/android-13
 		goto drop;
 	}
 
 	skb->dev = vport->dev;
+<<<<<<< HEAD
+=======
+	skb->tstamp = 0;
+>>>>>>> upstream/android-13
 	vport->ops->send(skb);
 	return;
 

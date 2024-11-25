@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015 Qualcomm Atheros, Inc.
  *
@@ -12,6 +13,11 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2015 Qualcomm Atheros, Inc.
+>>>>>>> upstream/android-13
  */
 
 #include "core.h"
@@ -150,7 +156,11 @@ void ath10k_p2p_noa_update_by_vdev_id(struct ath10k *ar, u32 vdev_id,
 	};
 
 	ieee80211_iterate_active_interfaces_atomic(ar->hw,
+<<<<<<< HEAD
 						   IEEE80211_IFACE_ITER_NORMAL,
+=======
+						   ATH10K_ITER_NORMAL_FLAGS,
+>>>>>>> upstream/android-13
 						   ath10k_p2p_noa_update_vdev_iter,
 						   &arg);
 }

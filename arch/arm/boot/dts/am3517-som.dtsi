@@ -1,11 +1,18 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Copyright (C) 2016 Derald D. Woods <woods.technical@gmail.com>
  *
  * Based on am3517-evm.dts
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 / {
@@ -72,6 +79,11 @@
 };
 
 &i2c1 {
+<<<<<<< HEAD
+=======
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins>;
+>>>>>>> upstream/android-13
 	clock-frequency = <400000>;
 
 	s35390a: s35390a@30 {
@@ -182,6 +194,16 @@
 
 &omap3_pmx_core {
 
+<<<<<<< HEAD
+=======
+	i2c1_pins: pinmux_i2c1_pins {
+		pinctrl-single,pins = <
+			OMAP3_CORE1_IOPAD(0x21ba, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c1_scl */
+			OMAP3_CORE1_IOPAD(0x21bc, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c1_sda */
+		>;
+	};
+
+>>>>>>> upstream/android-13
 	wl12xx_buffer_pins: pinmux_wl12xx_buffer_pins {
 		pinctrl-single,pins = <
 			OMAP3_CORE1_IOPAD(0x2156, PIN_OUTPUT | MUX_MODE4)  /* mmc1_dat7.gpio_129 */

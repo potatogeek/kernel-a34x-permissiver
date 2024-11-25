@@ -108,7 +108,12 @@ enum ab8500_usb_mode {
 	USB_IDLE = 0,
 	USB_PERIPHERAL,
 	USB_HOST,
+<<<<<<< HEAD
 	USB_DEDICATED_CHG
+=======
+	USB_DEDICATED_CHG,
+	USB_UART
+>>>>>>> upstream/android-13
 };
 
 /* Register USB_LINK_STATUS interrupt */
@@ -330,6 +335,10 @@ static int ab8505_usb_link_status_update(struct ab8500_usb *ab,
 	switch (lsts) {
 	case USB_LINK_ACA_RID_B_8505:
 		event = UX500_MUSB_RIDB;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_LINK_NOT_CONFIGURED_8505:
 	case USB_LINK_RESERVED0_8505:
 	case USB_LINK_RESERVED1_8505:
@@ -350,6 +359,10 @@ static int ab8505_usb_link_status_update(struct ab8500_usb *ab,
 
 	case USB_LINK_ACA_RID_C_NM_8505:
 		event = UX500_MUSB_RIDC;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_LINK_STD_HOST_NC_8505:
 	case USB_LINK_STD_HOST_C_NS_8505:
 	case USB_LINK_STD_HOST_C_S_8505:
@@ -368,6 +381,10 @@ static int ab8505_usb_link_status_update(struct ab8500_usb *ab,
 	case USB_LINK_ACA_RID_A_8505:
 	case USB_LINK_ACA_DOCK_CHGR_8505:
 		event = UX500_MUSB_RIDA;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_LINK_HM_IDGND_8505:
 		if (ab->mode == USB_IDLE) {
 			ab->mode = USB_HOST;
@@ -390,6 +407,27 @@ static int ab8505_usb_link_status_update(struct ab8500_usb *ab,
 		usb_phy_set_event(&ab->phy, USB_EVENT_CHARGER);
 		break;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * FIXME: For now we rely on the boot firmware to set up the necessary
+	 * PHY/pin configuration for UART mode.
+	 *
+	 * AB8505 does not seem to report any status change for UART cables,
+	 * possibly because it cannot detect them autonomously.
+	 * We may need to measure the ID resistance manually to reliably
+	 * detect UART cables after bootup.
+	 */
+	case USB_LINK_SAMSUNG_UART_CBL_PHY_EN_8505:
+	case USB_LINK_SAMSUNG_UART_CBL_PHY_DISB_8505:
+		if (ab->mode == USB_IDLE) {
+			ab->mode = USB_UART;
+			ab8500_usb_peri_phy_en(ab);
+		}
+
+		break;
+
+>>>>>>> upstream/android-13
 	default:
 		break;
 	}
@@ -422,6 +460,10 @@ static int ab8500_usb_link_status_update(struct ab8500_usb *ab,
 	switch (lsts) {
 	case USB_LINK_ACA_RID_B_8500:
 		event = UX500_MUSB_RIDB;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_LINK_NOT_CONFIGURED_8500:
 	case USB_LINK_NOT_VALID_LINK_8500:
 		ab->mode = USB_IDLE;
@@ -438,6 +480,10 @@ static int ab8500_usb_link_status_update(struct ab8500_usb *ab,
 	case USB_LINK_ACA_RID_C_HS_8500:
 	case USB_LINK_ACA_RID_C_HS_CHIRP_8500:
 		event = UX500_MUSB_RIDC;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_LINK_STD_HOST_NC_8500:
 	case USB_LINK_STD_HOST_C_NS_8500:
 	case USB_LINK_STD_HOST_C_S_8500:
@@ -457,6 +503,10 @@ static int ab8500_usb_link_status_update(struct ab8500_usb *ab,
 
 	case USB_LINK_ACA_RID_A_8500:
 		event = UX500_MUSB_RIDA;
+<<<<<<< HEAD
+=======
+		fallthrough;
+>>>>>>> upstream/android-13
 	case USB_LINK_HM_IDGND_8500:
 		if (ab->mode == USB_IDLE) {
 			ab->mode = USB_HOST;
@@ -493,7 +543,11 @@ static int ab8500_usb_link_status_update(struct ab8500_usb *ab,
  *   3. Enable AB regulators
  *   4. Enable USB phy
  *   5. Reset the musb controller
+<<<<<<< HEAD
  *   6. Switch the ULPI GPIO pins to fucntion mode
+=======
+ *   6. Switch the ULPI GPIO pins to function mode
+>>>>>>> upstream/android-13
  *   7. Enable the musb Peripheral5 clock
  *   8. Restore MUSB context
  */
@@ -505,15 +559,29 @@ static int abx500_usb_link_status_update(struct ab8500_usb *ab)
 	if (is_ab8500(ab->ab8500)) {
 		enum ab8500_usb_link_status lsts;
 
+<<<<<<< HEAD
 		abx500_get_register_interruptible(ab->dev,
 				AB8500_USB, AB8500_USB_LINE_STAT_REG, &reg);
+=======
+		ret = abx500_get_register_interruptible(ab->dev,
+				AB8500_USB, AB8500_USB_LINE_STAT_REG, &reg);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 		lsts = (reg >> 3) & 0x0F;
 		ret = ab8500_usb_link_status_update(ab, lsts);
 	} else if (is_ab8505(ab->ab8500)) {
 		enum ab8505_usb_link_status lsts;
 
+<<<<<<< HEAD
 		abx500_get_register_interruptible(ab->dev,
 				AB8500_USB, AB8505_USB_LINE_STAT_REG, &reg);
+=======
+		ret = abx500_get_register_interruptible(ab->dev,
+				AB8500_USB, AB8505_USB_LINE_STAT_REG, &reg);
+		if (ret < 0)
+			return ret;
+>>>>>>> upstream/android-13
 		lsts = (reg >> 3) & 0x1F;
 		ret = ab8505_usb_link_status_update(ab, lsts);
 	}
@@ -556,6 +624,14 @@ static irqreturn_t ab8500_usb_disconnect_irq(int irq, void *data)
 		ab->vbus_draw = 0;
 	}
 
+<<<<<<< HEAD
+=======
+	if (ab->mode == USB_UART) {
+		ab8500_usb_peri_phy_dis(ab);
+		ab->mode = USB_IDLE;
+	}
+
+>>>>>>> upstream/android-13
 	if (is_ab8500_2p0(ab->ab8500)) {
 		if (ab->mode == USB_DEDICATED_CHG) {
 			ab8500_usb_wd_linkstatus(ab,
@@ -708,10 +784,15 @@ static int ab8500_usb_irq_setup(struct platform_device *pdev,
 
 	if (ab->flags & AB8500_USB_FLAG_USE_LINK_STATUS_IRQ) {
 		irq = platform_get_irq_byname(pdev, "USB_LINK_STATUS");
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(&pdev->dev, "Link status irq not found\n");
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 		err = devm_request_threaded_irq(&pdev->dev, irq, NULL,
 				ab8500_usb_link_status_irq,
 				IRQF_NO_SUSPEND | IRQF_SHARED | IRQF_ONESHOT,
@@ -724,10 +805,15 @@ static int ab8500_usb_irq_setup(struct platform_device *pdev,
 
 	if (ab->flags & AB8500_USB_FLAG_USE_ID_WAKEUP_IRQ) {
 		irq = platform_get_irq_byname(pdev, "ID_WAKEUP_F");
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(&pdev->dev, "ID fall irq not found\n");
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 		err = devm_request_threaded_irq(&pdev->dev, irq, NULL,
 				ab8500_usb_disconnect_irq,
 				IRQF_NO_SUSPEND | IRQF_SHARED | IRQF_ONESHOT,
@@ -740,10 +826,15 @@ static int ab8500_usb_irq_setup(struct platform_device *pdev,
 
 	if (ab->flags & AB8500_USB_FLAG_USE_VBUS_DET_IRQ) {
 		irq = platform_get_irq_byname(pdev, "VBUS_DET_F");
+<<<<<<< HEAD
 		if (irq < 0) {
 			dev_err(&pdev->dev, "VBUS fall irq not found\n");
 			return irq;
 		}
+=======
+		if (irq < 0)
+			return irq;
+>>>>>>> upstream/android-13
 		err = devm_request_threaded_irq(&pdev->dev, irq, NULL,
 				ab8500_usb_disconnect_irq,
 				IRQF_NO_SUSPEND | IRQF_SHARED | IRQF_ONESHOT,

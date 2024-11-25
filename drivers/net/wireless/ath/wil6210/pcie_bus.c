@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
  * Copyright (c) 2018, The Linux Foundation. All rights reserved.
@@ -13,6 +14,12 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+=======
+// SPDX-License-Identifier: ISC
+/*
+ * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
+ * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -142,6 +149,11 @@ int wil_set_capabilities(struct wil6210_priv *wil)
 		       min(sizeof(wil->platform_capa), sizeof(platform_capa)));
 	}
 
+<<<<<<< HEAD
+=======
+	wil_info(wil, "platform_capa 0x%lx\n", *wil->platform_capa);
+
+>>>>>>> upstream/android-13
 	/* extract FW capabilities from file without loading the FW */
 	wil_request_firmware(wil, wil->wil_fw_name, false);
 	wil_refresh_fw_capabilities(wil);
@@ -176,7 +188,11 @@ static void wil_remove_all_additional_vifs(struct wil6210_priv *wil)
 	struct wil6210_vif *vif;
 	int i;
 
+<<<<<<< HEAD
 	for (i = 1; i < wil->max_vifs; i++) {
+=======
+	for (i = 1; i < GET_MAX_VIFS(wil); i++) {
+>>>>>>> upstream/android-13
 		vif = wil->vifs[i];
 		if (vif) {
 			wil_vif_prepare_stop(vif);
@@ -418,6 +434,10 @@ static int wil_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	}
 	/* rollback to bus_disable */
 
+<<<<<<< HEAD
+=======
+	wil_clear_fw_log_addr(wil);
+>>>>>>> upstream/android-13
 	rc = wil_if_add(wil);
 	if (rc) {
 		wil_err(wil, "wil_if_add failed: %d\n", rc);
@@ -432,7 +452,11 @@ static int wil_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		mutex_unlock(&wil->mutex);
 		if (rc) {
 			wil_err(wil, "failed to load WMI only FW\n");
+<<<<<<< HEAD
 			goto if_remove;
+=======
+			/* ignore the error to allow debugging */
+>>>>>>> upstream/android-13
 		}
 	}
 
@@ -452,8 +476,11 @@ static int wil_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	return 0;
 
+<<<<<<< HEAD
 if_remove:
 	wil_if_remove(wil);
+=======
+>>>>>>> upstream/android-13
 bus_disable:
 	wil_if_pcie_disable(wil);
 err_iounmap:
@@ -483,8 +510,15 @@ static void wil_pcie_remove(struct pci_dev *pdev)
 
 	wil6210_debugfs_remove(wil);
 	rtnl_lock();
+<<<<<<< HEAD
 	wil_p2p_wdev_free(wil);
 	wil_remove_all_additional_vifs(wil);
+=======
+	wiphy_lock(wil->wiphy);
+	wil_p2p_wdev_free(wil);
+	wil_remove_all_additional_vifs(wil);
+	wiphy_unlock(wil->wiphy);
+>>>>>>> upstream/android-13
 	rtnl_unlock();
 	wil_if_remove(wil);
 	wil_if_pcie_disable(wil);
@@ -628,8 +662,12 @@ static int __maybe_unused wil6210_pm_resume(struct device *dev)
 
 static int __maybe_unused wil6210_pm_runtime_idle(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct wil6210_priv *wil = pci_get_drvdata(pdev);
+=======
+	struct wil6210_priv *wil = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	wil_dbg_pm(wil, "Runtime idle\n");
 
@@ -643,8 +681,12 @@ static int __maybe_unused wil6210_pm_runtime_resume(struct device *dev)
 
 static int __maybe_unused wil6210_pm_runtime_suspend(struct device *dev)
 {
+<<<<<<< HEAD
 	struct pci_dev *pdev = to_pci_dev(dev);
 	struct wil6210_priv *wil = pci_get_drvdata(pdev);
+=======
+	struct wil6210_priv *wil = dev_get_drvdata(dev);
+>>>>>>> upstream/android-13
 
 	if (test_bit(wil_status_suspended, wil->status)) {
 		wil_dbg_pm(wil, "trying to suspend while suspended\n");

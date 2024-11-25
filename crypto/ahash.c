@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Asynchronous Cryptographic Hash operations.
  *
@@ -5,17 +9,23 @@
  * completion via a callback.
  *
  * Copyright (c) 2008 Loc Ho <lho@amcc.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/internal/hash.h>
 #include <crypto/scatterwalk.h>
+<<<<<<< HEAD
 #include <linux/bug.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -28,6 +38,11 @@
 
 #include "internal.h"
 
+<<<<<<< HEAD
+=======
+static const struct crypto_type crypto_ahash_type;
+
+>>>>>>> upstream/android-13
 struct ahash_request_priv {
 	crypto_completion_t complete;
 	void *data;
@@ -49,10 +64,14 @@ static int hash_walk_next(struct crypto_hash_walk *walk)
 	unsigned int nbytes = min(walk->entrylen,
 				  ((unsigned int)(PAGE_SIZE)) - offset);
 
+<<<<<<< HEAD
 	if (walk->flags & CRYPTO_ALG_ASYNC)
 		walk->data = kmap(walk->pg);
 	else
 		walk->data = kmap_atomic(walk->pg);
+=======
+	walk->data = kmap_atomic(walk->pg);
+>>>>>>> upstream/android-13
 	walk->data += offset;
 
 	if (offset & alignmask) {
@@ -102,6 +121,7 @@ int crypto_hash_walk_done(struct crypto_hash_walk *walk, int err)
 		}
 	}
 
+<<<<<<< HEAD
 	if (walk->flags & CRYPTO_ALG_ASYNC)
 		kunmap(walk->pg);
 	else {
@@ -112,6 +132,10 @@ int crypto_hash_walk_done(struct crypto_hash_walk *walk, int err)
 		 */
 		crypto_yield(walk->flags);
 	}
+=======
+	kunmap_atomic(walk->data);
+	crypto_yield(walk->flags);
+>>>>>>> upstream/android-13
 
 	if (err)
 		return err;
@@ -143,12 +167,17 @@ int crypto_hash_walk_first(struct ahash_request *req,
 
 	walk->alignmask = crypto_ahash_alignmask(crypto_ahash_reqtfm(req));
 	walk->sg = req->src;
+<<<<<<< HEAD
 	walk->flags = req->base.flags & CRYPTO_TFM_REQ_MASK;
+=======
+	walk->flags = req->base.flags;
+>>>>>>> upstream/android-13
 
 	return hash_walk_new_entry(walk);
 }
 EXPORT_SYMBOL_GPL(crypto_hash_walk_first);
 
+<<<<<<< HEAD
 int crypto_ahash_walk_first(struct ahash_request *req,
 			    struct crypto_hash_walk *walk)
 {
@@ -170,6 +199,8 @@ int crypto_ahash_walk_first(struct ahash_request *req,
 }
 EXPORT_SYMBOL_GPL(crypto_ahash_walk_first);
 
+=======
+>>>>>>> upstream/android-13
 static int ahash_setkey_unaligned(struct crypto_ahash *tfm, const u8 *key,
 				unsigned int keylen)
 {
@@ -186,7 +217,11 @@ static int ahash_setkey_unaligned(struct crypto_ahash *tfm, const u8 *key,
 	alignbuffer = (u8 *)ALIGN((unsigned long)buffer, alignmask + 1);
 	memcpy(alignbuffer, key, keylen);
 	ret = tfm->setkey(tfm, alignbuffer, keylen);
+<<<<<<< HEAD
 	kzfree(buffer);
+=======
+	kfree_sensitive(buffer);
+>>>>>>> upstream/android-13
 	return ret;
 }
 
@@ -305,7 +340,11 @@ static void ahash_restore_req(struct ahash_request *req, int err)
 	req->priv = NULL;
 
 	/* Free the req->priv.priv from the ADJUSTED request. */
+<<<<<<< HEAD
 	kzfree(priv);
+=======
+	kfree_sensitive(priv);
+>>>>>>> upstream/android-13
 }
 
 static void ahash_notify_einprogress(struct ahash_request *req)
@@ -375,24 +414,62 @@ static int crypto_ahash_op(struct ahash_request *req,
 
 int crypto_ahash_final(struct ahash_request *req)
 {
+<<<<<<< HEAD
 	return crypto_ahash_op(req, crypto_ahash_reqtfm(req)->final);
+=======
+	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+	struct crypto_alg *alg = tfm->base.__crt_alg;
+	unsigned int nbytes = req->nbytes;
+	int ret;
+
+	crypto_stats_get(alg);
+	ret = crypto_ahash_op(req, crypto_ahash_reqtfm(req)->final);
+	crypto_stats_ahash_final(nbytes, ret, alg);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_ahash_final);
 
 int crypto_ahash_finup(struct ahash_request *req)
 {
+<<<<<<< HEAD
 	return crypto_ahash_op(req, crypto_ahash_reqtfm(req)->finup);
+=======
+	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+	struct crypto_alg *alg = tfm->base.__crt_alg;
+	unsigned int nbytes = req->nbytes;
+	int ret;
+
+	crypto_stats_get(alg);
+	ret = crypto_ahash_op(req, crypto_ahash_reqtfm(req)->finup);
+	crypto_stats_ahash_final(nbytes, ret, alg);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_ahash_finup);
 
 int crypto_ahash_digest(struct ahash_request *req)
 {
 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+<<<<<<< HEAD
 
 	if (crypto_ahash_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
 		return -ENOKEY;
 
 	return crypto_ahash_op(req, tfm->digest);
+=======
+	struct crypto_alg *alg = tfm->base.__crt_alg;
+	unsigned int nbytes = req->nbytes;
+	int ret;
+
+	crypto_stats_get(alg);
+	if (crypto_ahash_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
+		ret = -ENOKEY;
+	else
+		ret = crypto_ahash_op(req, tfm->digest);
+	crypto_stats_ahash_final(nbytes, ret, alg);
+	return ret;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_ahash_digest);
 
@@ -458,6 +535,17 @@ static int ahash_def_finup(struct ahash_request *req)
 	return ahash_def_finup_finish1(req, err);
 }
 
+<<<<<<< HEAD
+=======
+static void crypto_ahash_exit_tfm(struct crypto_tfm *tfm)
+{
+	struct crypto_ahash *hash = __crypto_ahash_cast(tfm);
+	struct ahash_alg *alg = crypto_ahash_alg(hash);
+
+	alg->exit_tfm(hash);
+}
+
+>>>>>>> upstream/android-13
 static int crypto_ahash_init_tfm(struct crypto_tfm *tfm)
 {
 	struct crypto_ahash *hash = __crypto_ahash_cast(tfm);
@@ -481,7 +569,14 @@ static int crypto_ahash_init_tfm(struct crypto_tfm *tfm)
 		ahash_set_needkey(hash);
 	}
 
+<<<<<<< HEAD
 	return 0;
+=======
+	if (alg->exit_tfm)
+		tfm->exit = crypto_ahash_exit_tfm;
+
+	return alg->init_tfm ? alg->init_tfm(hash) : 0;
+>>>>>>> upstream/android-13
 }
 
 static unsigned int crypto_ahash_extsize(struct crypto_alg *alg)
@@ -492,16 +587,33 @@ static unsigned int crypto_ahash_extsize(struct crypto_alg *alg)
 	return crypto_alg_extsize(alg);
 }
 
+<<<<<<< HEAD
+=======
+static void crypto_ahash_free_instance(struct crypto_instance *inst)
+{
+	struct ahash_instance *ahash = ahash_instance(inst);
+
+	ahash->free(ahash);
+}
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_NET
 static int crypto_ahash_report(struct sk_buff *skb, struct crypto_alg *alg)
 {
 	struct crypto_report_hash rhash;
 
+<<<<<<< HEAD
 	strncpy(rhash.type, "ahash", sizeof(rhash.type));
+=======
+	memset(&rhash, 0, sizeof(rhash));
+
+	strscpy(rhash.type, "ahash", sizeof(rhash.type));
+>>>>>>> upstream/android-13
 
 	rhash.blocksize = alg->cra_blocksize;
 	rhash.digestsize = __crypto_hash_alg_common(alg)->digestsize;
 
+<<<<<<< HEAD
 	if (nla_put(skb, CRYPTOCFGA_REPORT_HASH,
 		    sizeof(struct crypto_report_hash), &rhash))
 		goto nla_put_failure;
@@ -509,6 +621,9 @@ static int crypto_ahash_report(struct sk_buff *skb, struct crypto_alg *alg)
 
 nla_put_failure:
 	return -EMSGSIZE;
+=======
+	return nla_put(skb, CRYPTOCFGA_REPORT_HASH, sizeof(rhash), &rhash);
+>>>>>>> upstream/android-13
 }
 #else
 static int crypto_ahash_report(struct sk_buff *skb, struct crypto_alg *alg)
@@ -529,9 +644,16 @@ static void crypto_ahash_show(struct seq_file *m, struct crypto_alg *alg)
 		   __crypto_hash_alg_common(alg)->digestsize);
 }
 
+<<<<<<< HEAD
 const struct crypto_type crypto_ahash_type = {
 	.extsize = crypto_ahash_extsize,
 	.init_tfm = crypto_ahash_init_tfm,
+=======
+static const struct crypto_type crypto_ahash_type = {
+	.extsize = crypto_ahash_extsize,
+	.init_tfm = crypto_ahash_init_tfm,
+	.free = crypto_ahash_free_instance,
+>>>>>>> upstream/android-13
 #ifdef CONFIG_PROC_FS
 	.show = crypto_ahash_show,
 #endif
@@ -541,7 +663,19 @@ const struct crypto_type crypto_ahash_type = {
 	.type = CRYPTO_ALG_TYPE_AHASH,
 	.tfmsize = offsetof(struct crypto_ahash, base),
 };
+<<<<<<< HEAD
 EXPORT_SYMBOL_GPL(crypto_ahash_type);
+=======
+
+int crypto_grab_ahash(struct crypto_ahash_spawn *spawn,
+		      struct crypto_instance *inst,
+		      const char *name, u32 type, u32 mask)
+{
+	spawn->base.frontend = &crypto_ahash_type;
+	return crypto_grab_spawn(&spawn->base, inst, name, type, mask);
+}
+EXPORT_SYMBOL_GPL(crypto_grab_ahash);
+>>>>>>> upstream/android-13
 
 struct crypto_ahash *crypto_alloc_ahash(const char *alg_name, u32 type,
 					u32 mask)
@@ -560,8 +694,13 @@ static int ahash_prepare_alg(struct ahash_alg *alg)
 {
 	struct crypto_alg *base = &alg->halg.base;
 
+<<<<<<< HEAD
 	if (alg->halg.digestsize > PAGE_SIZE / 8 ||
 	    alg->halg.statesize > PAGE_SIZE / 8 ||
+=======
+	if (alg->halg.digestsize > HASH_MAX_DIGESTSIZE ||
+	    alg->halg.statesize > HASH_MAX_STATESIZE ||
+>>>>>>> upstream/android-13
 	    alg->halg.statesize == 0)
 		return -EINVAL;
 
@@ -585,9 +724,15 @@ int crypto_register_ahash(struct ahash_alg *alg)
 }
 EXPORT_SYMBOL_GPL(crypto_register_ahash);
 
+<<<<<<< HEAD
 int crypto_unregister_ahash(struct ahash_alg *alg)
 {
 	return crypto_unregister_alg(&alg->halg.base);
+=======
+void crypto_unregister_ahash(struct ahash_alg *alg)
+{
+	crypto_unregister_alg(&alg->halg.base);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(crypto_unregister_ahash);
 
@@ -625,6 +770,12 @@ int ahash_register_instance(struct crypto_template *tmpl,
 {
 	int err;
 
+<<<<<<< HEAD
+=======
+	if (WARN_ON(!inst->free))
+		return -EINVAL;
+
+>>>>>>> upstream/android-13
 	err = ahash_prepare_alg(&inst->alg);
 	if (err)
 		return err;
@@ -633,6 +784,7 @@ int ahash_register_instance(struct crypto_template *tmpl,
 }
 EXPORT_SYMBOL_GPL(ahash_register_instance);
 
+<<<<<<< HEAD
 void ahash_free_instance(struct crypto_instance *inst)
 {
 	crypto_drop_spawn(crypto_instance_ctx(inst));
@@ -658,6 +810,8 @@ struct hash_alg_common *ahash_attr_alg(struct rtattr *rta, u32 type, u32 mask)
 }
 EXPORT_SYMBOL_GPL(ahash_attr_alg);
 
+=======
+>>>>>>> upstream/android-13
 bool crypto_hash_alg_has_setkey(struct hash_alg_common *halg)
 {
 	struct crypto_alg *alg = &halg->base;

@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+>>>>>>> upstream/android-13
 /*
  *    Support for NXT2002 and NXT2004 - VSB/QAM
  *
  *    Copyright (C) 2005 Kirk Lapray (kirk.lapray@gmail.com)
  *    based on nxt2002 by Taylor Jacob <rtjacob@earthlink.net>
  *    and nxt2004 by Jean-Francois Thibert (jeanfrancois@sagetv.com)
+<<<<<<< HEAD
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
 */
 
 #ifndef NXT200X_H

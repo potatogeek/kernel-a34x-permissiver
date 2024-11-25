@@ -37,6 +37,10 @@
 
 #include "mlx4_ib.h"
 #include <rdma/mlx4-abi.h>
+<<<<<<< HEAD
+=======
+#include <rdma/uverbs_ioctl.h>
+>>>>>>> upstream/android-13
 
 static void *get_wqe(struct mlx4_ib_srq *srq, int n)
 {
@@ -68,12 +72,23 @@ static void mlx4_ib_srq_event(struct mlx4_srq *srq, enum mlx4_event type)
 	}
 }
 
+<<<<<<< HEAD
 struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 				  struct ib_srq_init_attr *init_attr,
 				  struct ib_udata *udata)
 {
 	struct mlx4_ib_dev *dev = to_mdev(pd->device);
 	struct mlx4_ib_srq *srq;
+=======
+int mlx4_ib_create_srq(struct ib_srq *ib_srq,
+		       struct ib_srq_init_attr *init_attr,
+		       struct ib_udata *udata)
+{
+	struct mlx4_ib_dev *dev = to_mdev(ib_srq->device);
+	struct mlx4_ib_ucontext *ucontext = rdma_udata_to_drv_context(
+		udata, struct mlx4_ib_ucontext, ibucontext);
+	struct mlx4_ib_srq *srq = to_msrq(ib_srq);
+>>>>>>> upstream/android-13
 	struct mlx4_wqe_srq_next_seg *next;
 	struct mlx4_wqe_data_seg *scatter;
 	u32 cqn;
@@ -83,6 +98,7 @@ struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 	int err;
 	int i;
 
+<<<<<<< HEAD
 	/* Sanity check SRQ size before proceeding */
 	if (init_attr->attr.max_wr  >= dev->dev->caps.max_srq_wqes ||
 	    init_attr->attr.max_sge >  dev->dev->caps.max_srq_sge)
@@ -91,6 +107,16 @@ struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 	srq = kmalloc(sizeof *srq, GFP_KERNEL);
 	if (!srq)
 		return ERR_PTR(-ENOMEM);
+=======
+	if (init_attr->srq_type != IB_SRQT_BASIC &&
+	    init_attr->srq_type != IB_SRQT_XRC)
+		return -EOPNOTSUPP;
+
+	/* Sanity check SRQ size before proceeding */
+	if (init_attr->attr.max_wr  >= dev->dev->caps.max_srq_wqes ||
+	    init_attr->attr.max_sge >  dev->dev->caps.max_srq_sge)
+		return -EINVAL;
+>>>>>>> upstream/android-13
 
 	mutex_init(&srq->mutex);
 	spin_lock_init(&srq->lock);
@@ -105,6 +131,7 @@ struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 
 	buf_size = srq->msrq.max * desc_size;
 
+<<<<<<< HEAD
 	if (pd->uobject) {
 		struct mlx4_ib_create_srq ucmd;
 
@@ -122,6 +149,22 @@ struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 
 		err = mlx4_mtt_init(dev->dev, ib_umem_page_count(srq->umem),
 				    srq->umem->page_shift, &srq->mtt);
+=======
+	if (udata) {
+		struct mlx4_ib_create_srq ucmd;
+
+		if (ib_copy_from_udata(&ucmd, udata, sizeof(ucmd)))
+			return -EFAULT;
+
+		srq->umem =
+			ib_umem_get(ib_srq->device, ucmd.buf_addr, buf_size, 0);
+		if (IS_ERR(srq->umem))
+			return PTR_ERR(srq->umem);
+
+		err = mlx4_mtt_init(
+			dev->dev, ib_umem_num_dma_blocks(srq->umem, PAGE_SIZE),
+			PAGE_SHIFT, &srq->mtt);
+>>>>>>> upstream/android-13
 		if (err)
 			goto err_buf;
 
@@ -129,14 +172,22 @@ struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 		if (err)
 			goto err_mtt;
 
+<<<<<<< HEAD
 		err = mlx4_ib_db_map_user(to_mucontext(pd->uobject->context),
 					  ucmd.db_addr, &srq->db);
+=======
+		err = mlx4_ib_db_map_user(udata, ucmd.db_addr, &srq->db);
+>>>>>>> upstream/android-13
 		if (err)
 			goto err_mtt;
 	} else {
 		err = mlx4_db_alloc(dev->dev, &srq->db, 0);
 		if (err)
+<<<<<<< HEAD
 			goto err_srq;
+=======
+			return err;
+>>>>>>> upstream/android-13
 
 		*srq->db.db = 0;
 
@@ -183,15 +234,24 @@ struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 	xrcdn = (init_attr->srq_type == IB_SRQT_XRC) ?
 		to_mxrcd(init_attr->ext.xrc.xrcd)->xrcdn :
 		(u16) dev->dev->caps.reserved_xrcds;
+<<<<<<< HEAD
 	err = mlx4_srq_alloc(dev->dev, to_mpd(pd)->pdn, cqn, xrcdn, &srq->mtt,
 			     srq->db.dma, &srq->msrq);
+=======
+	err = mlx4_srq_alloc(dev->dev, to_mpd(ib_srq->pd)->pdn, cqn, xrcdn,
+			     &srq->mtt, srq->db.dma, &srq->msrq);
+>>>>>>> upstream/android-13
 	if (err)
 		goto err_wrid;
 
 	srq->msrq.event = mlx4_ib_srq_event;
 	srq->ibsrq.ext.xrc.srq_num = srq->msrq.srqn;
 
+<<<<<<< HEAD
 	if (pd->uobject)
+=======
+	if (udata)
+>>>>>>> upstream/android-13
 		if (ib_copy_to_udata(udata, &srq->msrq.srqn, sizeof (__u32))) {
 			err = -EFAULT;
 			goto err_wrid;
@@ -199,11 +259,19 @@ struct ib_srq *mlx4_ib_create_srq(struct ib_pd *pd,
 
 	init_attr->attr.max_wr = srq->msrq.max - 1;
 
+<<<<<<< HEAD
 	return &srq->ibsrq;
 
 err_wrid:
 	if (pd->uobject)
 		mlx4_ib_db_unmap_user(to_mucontext(pd->uobject->context), &srq->db);
+=======
+	return 0;
+
+err_wrid:
+	if (udata)
+		mlx4_ib_db_unmap_user(ucontext, &srq->db);
+>>>>>>> upstream/android-13
 	else
 		kvfree(srq->wrid);
 
@@ -211,6 +279,7 @@ err_mtt:
 	mlx4_mtt_cleanup(dev->dev, &srq->mtt);
 
 err_buf:
+<<<<<<< HEAD
 	if (pd->uobject)
 		ib_umem_release(srq->umem);
 	else
@@ -224,6 +293,17 @@ err_srq:
 	kfree(srq);
 
 	return ERR_PTR(err);
+=======
+	if (!srq->umem)
+		mlx4_buf_free(dev->dev, buf_size, &srq->buf);
+	ib_umem_release(srq->umem);
+
+err_db:
+	if (!udata)
+		mlx4_db_free(dev->dev, &srq->db);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 int mlx4_ib_modify_srq(struct ib_srq *ibsrq, struct ib_srq_attr *attr,
@@ -270,7 +350,11 @@ int mlx4_ib_query_srq(struct ib_srq *ibsrq, struct ib_srq_attr *srq_attr)
 	return 0;
 }
 
+<<<<<<< HEAD
 int mlx4_ib_destroy_srq(struct ib_srq *srq)
+=======
+int mlx4_ib_destroy_srq(struct ib_srq *srq, struct ib_udata *udata)
+>>>>>>> upstream/android-13
 {
 	struct mlx4_ib_dev *dev = to_mdev(srq->device);
 	struct mlx4_ib_srq *msrq = to_msrq(srq);
@@ -278,18 +362,32 @@ int mlx4_ib_destroy_srq(struct ib_srq *srq)
 	mlx4_srq_free(dev->dev, &msrq->msrq);
 	mlx4_mtt_cleanup(dev->dev, &msrq->mtt);
 
+<<<<<<< HEAD
 	if (srq->uobject) {
 		mlx4_ib_db_unmap_user(to_mucontext(srq->uobject->context), &msrq->db);
 		ib_umem_release(msrq->umem);
+=======
+	if (udata) {
+		mlx4_ib_db_unmap_user(
+			rdma_udata_to_drv_context(
+				udata,
+				struct mlx4_ib_ucontext,
+				ibucontext),
+			&msrq->db);
+>>>>>>> upstream/android-13
 	} else {
 		kvfree(msrq->wrid);
 		mlx4_buf_free(dev->dev, msrq->msrq.max << msrq->msrq.wqe_shift,
 			      &msrq->buf);
 		mlx4_db_free(dev->dev, &msrq->db);
 	}
+<<<<<<< HEAD
 
 	kfree(msrq);
 
+=======
+	ib_umem_release(msrq->umem);
+>>>>>>> upstream/android-13
 	return 0;
 }
 

@@ -213,6 +213,7 @@ process_mcheck_info(unsigned long vector, unsigned long la_ptr,
  * The special RTC interrupt type.  The interrupt itself was
  * processed by PALcode, and comes in via entInt vector 1.
  */
+<<<<<<< HEAD
 
 struct irqaction timer_irqaction = {
 	.handler	= rtc_timer_interrupt,
@@ -242,3 +243,15 @@ struct irqaction halt_switch_irqaction = {
 	.handler	= no_action,
 	.name		= "halt-switch"
 };
+=======
+void __init
+init_rtc_irq(irq_handler_t handler)
+{
+	irq_set_chip_and_handler_name(RTC_IRQ, &dummy_irq_chip,
+				      handle_percpu_irq, "RTC");
+	if (!handler)
+		handler = rtc_timer_interrupt;
+	if (request_irq(RTC_IRQ, handler, 0, "timer", NULL))
+		pr_err("Failed to register timer interrupt\n");
+}
+>>>>>>> upstream/android-13

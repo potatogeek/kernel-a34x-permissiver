@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0+
+>>>>>>> upstream/android-13
 /*
  * GSS Proxy upcall module
  *
  *  Copyright (C) 2012 Simo Sorce <simo@redhat.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/sunrpc/svcauth.h>
@@ -801,7 +808,11 @@ int gssx_dec_accept_sec_context(struct rpc_rqst *rqstp,
 	scratch = alloc_page(GFP_KERNEL);
 	if (!scratch)
 		return -ENOMEM;
+<<<<<<< HEAD
 	xdr_set_scratch_buffer(xdr, page_address(scratch), PAGE_SIZE);
+=======
+	xdr_set_scratch_page(xdr, scratch);
+>>>>>>> upstream/android-13
 
 	/* res->status */
 	err = gssx_dec_status(xdr, &res->status);

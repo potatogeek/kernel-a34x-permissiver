@@ -6,15 +6,25 @@
 #include <linux/sched/sysctl.h>
 #include <linux/sched/rt.h>
 #include <linux/sched/task.h>
+<<<<<<< HEAD
 #include <linux/sched/topology.h>
+=======
+>>>>>>> upstream/android-13
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/mm.h>
 #include <linux/audit.h>
+<<<<<<< HEAD
 #include <linux/scs.h>
 #include <linux/task_integrity.h>
 
 #include <asm/pgtable.h>
+=======
+#include <linux/numa.h>
+#include <linux/scs.h>
+#include <linux/task_integrity.h>
+
+>>>>>>> upstream/android-13
 #include <linux/uaccess.h>
 
 static struct signal_struct init_signals = {
@@ -28,12 +38,19 @@ static struct signal_struct init_signals = {
 	.multiprocess	= HLIST_HEAD_INIT,
 	.rlim		= INIT_RLIMITS,
 	.cred_guard_mutex = __MUTEX_INITIALIZER(init_signals.cred_guard_mutex),
+<<<<<<< HEAD
+=======
+	.exec_update_lock = __RWSEM_INITIALIZER(init_signals.exec_update_lock),
+>>>>>>> upstream/android-13
 #ifdef CONFIG_POSIX_TIMERS
 	.posix_timers = LIST_HEAD_INIT(init_signals.posix_timers),
 	.cputimer	= {
 		.cputime_atomic	= INIT_CPUTIME_ATOMIC,
+<<<<<<< HEAD
 		.running	= false,
 		.checking_timer = false,
+=======
+>>>>>>> upstream/android-13
 	},
 #endif
 	INIT_CPU_TIMERS(init_signals)
@@ -47,12 +64,26 @@ static struct signal_struct init_signals = {
 };
 
 static struct sighand_struct init_sighand = {
+<<<<<<< HEAD
 	.count		= ATOMIC_INIT(1),
+=======
+	.count		= REFCOUNT_INIT(1),
+>>>>>>> upstream/android-13
 	.action		= { { { .sa_handler = SIG_DFL, } }, },
 	.siglock	= __SPIN_LOCK_UNLOCKED(init_sighand.siglock),
 	.signalfd_wqh	= __WAIT_QUEUE_HEAD_INITIALIZER(init_sighand.signalfd_wqh),
 };
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_SHADOW_CALL_STACK
+unsigned long init_shadow_call_stack[SCS_SIZE / sizeof(long)]
+		__init_task_data = {
+	[(SCS_SIZE / sizeof(long)) - 1] = SCS_END_MAGIC
+};
+#endif
+
+>>>>>>> upstream/android-13
 #ifdef CONFIG_FIVE
 static struct task_integrity init_integrity =
 					INIT_TASK_INTEGRITY(init_integrity);
@@ -66,6 +97,7 @@ struct task_struct init_task
 #ifdef CONFIG_ARCH_TASK_STRUCT_ON_STACK
 	__init_task_data
 #endif
+<<<<<<< HEAD
 = {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	.thread_info	= INIT_THREAD_INFO(init_task),
@@ -74,14 +106,32 @@ struct task_struct init_task
 	.state		= 0,
 	.stack		= init_stack,
 	.usage		= ATOMIC_INIT(2),
+=======
+	__aligned(L1_CACHE_BYTES)
+= {
+#ifdef CONFIG_THREAD_INFO_IN_TASK
+	.thread_info	= INIT_THREAD_INFO(init_task),
+	.stack_refcount	= REFCOUNT_INIT(1),
+#endif
+	.__state	= 0,
+	.stack		= init_stack,
+	.usage		= REFCOUNT_INIT(2),
+>>>>>>> upstream/android-13
 	.flags		= PF_KTHREAD,
 	.prio		= MAX_PRIO - 20,
 	.static_prio	= MAX_PRIO - 20,
 	.normal_prio	= MAX_PRIO - 20,
 	.policy		= SCHED_NORMAL,
+<<<<<<< HEAD
 	.cpus_allowed	= CPU_MASK_ALL,
 	.nr_cpus_allowed= NR_CPUS,
 	.cpus_requested	= CPU_MASK_ALL,
+=======
+	.cpus_ptr	= &init_task.cpus_mask,
+	.user_cpus_ptr	= NULL,
+	.cpus_mask	= CPU_MASK_ALL,
+	.nr_cpus_allowed= NR_CPUS,
+>>>>>>> upstream/android-13
 	.mm		= NULL,
 	.active_mm	= &init_mm,
 	.restart_block	= {
@@ -114,6 +164,12 @@ struct task_struct init_task
 	.thread		= INIT_THREAD,
 	.fs		= &init_fs,
 	.files		= &init_files,
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_IO_URING
+	.io_uring	= NULL,
+#endif
+>>>>>>> upstream/android-13
 	.signal		= &init_signals,
 	.sighand	= &init_sighand,
 	.nsproxy	= &init_nsproxy,
@@ -130,7 +186,11 @@ struct task_struct init_task
 	.thread_pid	= &init_struct_pid,
 	.thread_group	= LIST_HEAD_INIT(init_task.thread_group),
 	.thread_node	= LIST_HEAD_INIT(init_signals.thread_head),
+<<<<<<< HEAD
 #ifdef CONFIG_AUDITSYSCALL
+=======
+#ifdef CONFIG_AUDIT
+>>>>>>> upstream/android-13
 	.loginuid	= INVALID_UID,
 	.sessionid	= AUDIT_SID_UNSET,
 #endif
@@ -149,8 +209,19 @@ struct task_struct init_task
 	.rcu_tasks_holdout_list = LIST_HEAD_INIT(init_task.rcu_tasks_holdout_list),
 	.rcu_tasks_idle_cpu = -1,
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_CPUSETS
 	.mems_allowed_seq = SEQCNT_ZERO(init_task.mems_allowed_seq),
+=======
+#ifdef CONFIG_TASKS_TRACE_RCU
+	.trc_reader_nesting = 0,
+	.trc_reader_special.s = 0,
+	.trc_holdout_list = LIST_HEAD_INIT(init_task.trc_holdout_list),
+#endif
+#ifdef CONFIG_CPUSETS
+	.mems_allowed_seq = SEQCNT_SPINLOCK_ZERO(init_task.mems_allowed_seq,
+						 &init_task.alloc_lock),
+>>>>>>> upstream/android-13
 #endif
 #ifdef CONFIG_RT_MUTEXES
 	.pi_waiters	= RB_ROOT_CACHED,
@@ -163,6 +234,7 @@ struct task_struct init_task
 	.vtime.state	= VTIME_SYS,
 #endif
 #ifdef CONFIG_NUMA_BALANCING
+<<<<<<< HEAD
 	.numa_preferred_nid = -1,
 	.numa_group	= NULL,
 	.numa_faults	= NULL,
@@ -170,17 +242,45 @@ struct task_struct init_task
 #ifdef CONFIG_KASAN
 	.kasan_depth	= 1,
 #endif
+=======
+	.numa_preferred_nid = NUMA_NO_NODE,
+	.numa_group	= NULL,
+	.numa_faults	= NULL,
+#endif
+#if defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)
+	.kasan_depth	= 1,
+#endif
+#ifdef CONFIG_KCSAN
+	.kcsan_ctx = {
+		.disable_count		= 0,
+		.atomic_next		= 0,
+		.atomic_nest_count	= 0,
+		.in_flat_atomic		= false,
+		.access_mask		= 0,
+		.scoped_accesses	= {LIST_POISON1, NULL},
+	},
+#endif
+>>>>>>> upstream/android-13
 #ifdef CONFIG_TRACE_IRQFLAGS
 	.softirqs_enabled = 1,
 #endif
 #ifdef CONFIG_LOCKDEP
+<<<<<<< HEAD
+=======
+	.lockdep_depth = 0, /* no locks held yet */
+	.curr_chain_key = INITIAL_CHAIN_KEY,
+>>>>>>> upstream/android-13
 	.lockdep_recursion = 0,
 #endif
 #ifdef CONFIG_FUNCTION_GRAPH_TRACER
 	.ret_stack		= NULL,
 	.tracing_graph_pause	= ATOMIC_INIT(0),
 #endif
+<<<<<<< HEAD
 #if defined(CONFIG_TRACING) && defined(CONFIG_PREEMPT)
+=======
+#if defined(CONFIG_TRACING) && defined(CONFIG_PREEMPTION)
+>>>>>>> upstream/android-13
 	.trace_recursion = 0,
 #endif
 #ifdef CONFIG_LIVEPATCH
@@ -189,6 +289,7 @@ struct task_struct init_task
 #ifdef CONFIG_SECURITY
 	.security	= NULL,
 #endif
+<<<<<<< HEAD
 #ifdef CONFIG_FIVE
 	INIT_INTEGRITY(init_task)
 #endif
@@ -202,6 +303,19 @@ unsigned long init_shadow_call_stack[SCS_SIZE / sizeof(long)] __init_task_data
 };
 #endif
 
+=======
+#ifdef CONFIG_SECCOMP_FILTER
+	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
+#endif
+#ifdef CONFIG_ANDROID_VENDOR_OEM_DATA
+	.android_vendor_data1 = {0, },
+	.android_oem_data1 = {0, },
+#endif
+	INIT_INTEGRITY(init_task)
+};
+EXPORT_SYMBOL(init_task);
+
+>>>>>>> upstream/android-13
 /*
  * Initial thread structure. Alignment of this is handled by a special
  * linker map entry.

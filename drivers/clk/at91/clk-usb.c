@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
  *
@@ -6,6 +7,11 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ *  Copyright (C) 2013 Boris BREZILLON <b.brezillon@overkiz.com>
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk-provider.h>
@@ -17,17 +23,31 @@
 
 #include "pmc.h"
 
+<<<<<<< HEAD
 #define USB_SOURCE_MAX		2
 
+=======
+>>>>>>> upstream/android-13
 #define SAM9X5_USB_DIV_SHIFT	8
 #define SAM9X5_USB_MAX_DIV	0xf
 
 #define RM9200_USB_DIV_SHIFT	28
 #define RM9200_USB_DIV_TAB_SIZE	4
 
+<<<<<<< HEAD
 struct at91sam9x5_clk_usb {
 	struct clk_hw hw;
 	struct regmap *regmap;
+=======
+#define SAM9X5_USBS_MASK	GENMASK(0, 0)
+#define SAM9X60_USBS_MASK	GENMASK(1, 0)
+
+struct at91sam9x5_clk_usb {
+	struct clk_hw hw;
+	struct regmap *regmap;
+	u32 usbs_mask;
+	u8 num_parents;
+>>>>>>> upstream/android-13
 };
 
 #define to_at91sam9x5_clk_usb(hw) \
@@ -113,11 +133,18 @@ static int at91sam9x5_clk_usb_set_parent(struct clk_hw *hw, u8 index)
 {
 	struct at91sam9x5_clk_usb *usb = to_at91sam9x5_clk_usb(hw);
 
+<<<<<<< HEAD
 	if (index > 1)
 		return -EINVAL;
 
 	regmap_update_bits(usb->regmap, AT91_PMC_USB, AT91_PMC_USBS,
 			   index ? AT91_PMC_USBS : 0);
+=======
+	if (index >= usb->num_parents)
+		return -EINVAL;
+
+	regmap_update_bits(usb->regmap, AT91_PMC_USB, usb->usbs_mask, index);
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -129,7 +156,11 @@ static u8 at91sam9x5_clk_usb_get_parent(struct clk_hw *hw)
 
 	regmap_read(usb->regmap, AT91_PMC_USB, &usbr);
 
+<<<<<<< HEAD
 	return usbr & AT91_PMC_USBS;
+=======
+	return usbr & usb->usbs_mask;
+>>>>>>> upstream/android-13
 }
 
 static int at91sam9x5_clk_usb_set_rate(struct clk_hw *hw, unsigned long rate,
@@ -196,12 +227,22 @@ static const struct clk_ops at91sam9n12_usb_ops = {
 };
 
 static struct clk_hw * __init
+<<<<<<< HEAD
 at91sam9x5_clk_register_usb(struct regmap *regmap, const char *name,
 			    const char **parent_names, u8 num_parents)
 {
 	struct at91sam9x5_clk_usb *usb;
 	struct clk_hw *hw;
 	struct clk_init_data init = {};
+=======
+_at91sam9x5_clk_register_usb(struct regmap *regmap, const char *name,
+			     const char **parent_names, u8 num_parents,
+			     u32 usbs_mask)
+{
+	struct at91sam9x5_clk_usb *usb;
+	struct clk_hw *hw;
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	usb = kzalloc(sizeof(*usb), GFP_KERNEL);
@@ -217,6 +258,11 @@ at91sam9x5_clk_register_usb(struct regmap *regmap, const char *name,
 
 	usb->hw.init = &init;
 	usb->regmap = regmap;
+<<<<<<< HEAD
+=======
+	usb->usbs_mask = usbs_mask;
+	usb->num_parents = num_parents;
+>>>>>>> upstream/android-13
 
 	hw = &usb->hw;
 	ret = clk_hw_register(NULL, &usb->hw);
@@ -228,13 +274,37 @@ at91sam9x5_clk_register_usb(struct regmap *regmap, const char *name,
 	return hw;
 }
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+at91sam9x5_clk_register_usb(struct regmap *regmap, const char *name,
+			    const char **parent_names, u8 num_parents)
+{
+	return _at91sam9x5_clk_register_usb(regmap, name, parent_names,
+					    num_parents, SAM9X5_USBS_MASK);
+}
+
+struct clk_hw * __init
+sam9x60_clk_register_usb(struct regmap *regmap, const char *name,
+			 const char **parent_names, u8 num_parents)
+{
+	return _at91sam9x5_clk_register_usb(regmap, name, parent_names,
+					    num_parents, SAM9X60_USBS_MASK);
+}
+
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91sam9n12_clk_register_usb(struct regmap *regmap, const char *name,
 			     const char *parent_name)
 {
 	struct at91sam9x5_clk_usb *usb;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	usb = kzalloc(sizeof(*usb), GFP_KERNEL);
@@ -345,13 +415,21 @@ static const struct clk_ops at91rm9200_usb_ops = {
 	.set_rate = at91rm9200_clk_usb_set_rate,
 };
 
+<<<<<<< HEAD
 static struct clk_hw * __init
+=======
+struct clk_hw * __init
+>>>>>>> upstream/android-13
 at91rm9200_clk_register_usb(struct regmap *regmap, const char *name,
 			    const char *parent_name, const u32 *divisors)
 {
 	struct at91rm9200_clk_usb *usb;
 	struct clk_hw *hw;
+<<<<<<< HEAD
 	struct clk_init_data init = {};
+=======
+	struct clk_init_data init;
+>>>>>>> upstream/android-13
 	int ret;
 
 	usb = kzalloc(sizeof(*usb), GFP_KERNEL);
@@ -377,6 +455,7 @@ at91rm9200_clk_register_usb(struct regmap *regmap, const char *name,
 
 	return hw;
 }
+<<<<<<< HEAD
 
 static void __init of_at91sam9x5_clk_usb_setup(struct device_node *np)
 {
@@ -463,3 +542,5 @@ static void __init of_at91rm9200_clk_usb_setup(struct device_node *np)
 }
 CLK_OF_DECLARE(at91rm9200_clk_usb, "atmel,at91rm9200-clk-usb",
 	       of_at91rm9200_clk_usb_setup);
+=======
+>>>>>>> upstream/android-13

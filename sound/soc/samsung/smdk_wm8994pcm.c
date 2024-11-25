@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  *  sound/soc/samsung/smdk_wm8994pcm.c
  *
@@ -9,6 +10,13 @@
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  */
+=======
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright (c) 2011 Samsung Electronics Co., Ltd
+//		http://www.samsung.com
+
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <sound/soc.h>
 #include <sound/pcm.h>
@@ -49,9 +57,15 @@
 static int smdk_wm8994_pcm_hw_params(struct snd_pcm_substream *substream,
 			      struct snd_pcm_hw_params *params)
 {
+<<<<<<< HEAD
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
+=======
+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+	struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
+	struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
+>>>>>>> upstream/android-13
 	unsigned long mclk_freq;
 	int rfs, ret;
 
@@ -91,14 +105,27 @@ static int smdk_wm8994_pcm_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
+<<<<<<< HEAD
 static struct snd_soc_ops smdk_wm8994_pcm_ops = {
 	.hw_params = smdk_wm8994_pcm_hw_params,
 };
 
+=======
+static const struct snd_soc_ops smdk_wm8994_pcm_ops = {
+	.hw_params = smdk_wm8994_pcm_hw_params,
+};
+
+SND_SOC_DAILINK_DEFS(paif_pcm,
+	DAILINK_COMP_ARRAY(COMP_CPU("samsung-pcm.0")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("wm8994-codec", "wm8994-aif1")),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("samsung-pcm.0")));
+
+>>>>>>> upstream/android-13
 static struct snd_soc_dai_link smdk_dai[] = {
 	{
 		.name = "WM8994 PAIF PCM",
 		.stream_name = "Primary PCM",
+<<<<<<< HEAD
 		.cpu_dai_name = "samsung-pcm.0",
 		.codec_dai_name = "wm8994-aif1",
 		.platform_name = "samsung-pcm.0",
@@ -106,6 +133,12 @@ static struct snd_soc_dai_link smdk_dai[] = {
 		.dai_fmt = SND_SOC_DAIFMT_DSP_B | SND_SOC_DAIFMT_IB_NF |
 			   SND_SOC_DAIFMT_CBS_CFS,
 		.ops = &smdk_wm8994_pcm_ops,
+=======
+		.dai_fmt = SND_SOC_DAIFMT_DSP_B | SND_SOC_DAIFMT_IB_NF |
+			   SND_SOC_DAIFMT_CBS_CFS,
+		.ops = &smdk_wm8994_pcm_ops,
+		SND_SOC_DAILINK_REG(paif_pcm),
+>>>>>>> upstream/android-13
 	},
 };
 
@@ -122,7 +155,11 @@ static int snd_smdk_probe(struct platform_device *pdev)
 
 	smdk_pcm.dev = &pdev->dev;
 	ret = devm_snd_soc_register_card(&pdev->dev, &smdk_pcm);
+<<<<<<< HEAD
 	if (ret)
+=======
+	if (ret && ret != -EPROBE_DEFER)
+>>>>>>> upstream/android-13
 		dev_err(&pdev->dev, "snd_soc_register_card failed %d\n", ret);
 
 	return ret;

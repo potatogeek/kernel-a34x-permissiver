@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Copyright (c) 2011 - 2012 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
  * Samsung EXYNOS5 SoC series G-Scaler driver
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 2 of the License,
  * or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -60,10 +67,15 @@ static void __gsc_m2m_job_abort(struct gsc_ctx *ctx)
 static int gsc_m2m_start_streaming(struct vb2_queue *q, unsigned int count)
 {
 	struct gsc_ctx *ctx = q->drv_priv;
+<<<<<<< HEAD
 	int ret;
 
 	ret = pm_runtime_get_sync(&ctx->gsc_dev->pdev->dev);
 	return ret > 0 ? 0 : ret;
+=======
+
+	return pm_runtime_resume_and_get(&ctx->gsc_dev->pdev->dev);
+>>>>>>> upstream/android-13
 }
 
 static void __gsc_m2m_cleanup_queue(struct gsc_ctx *ctx)
@@ -259,7 +271,11 @@ static int gsc_m2m_buf_prepare(struct vb2_buffer *vb)
 	if (IS_ERR(frame))
 		return PTR_ERR(frame);
 
+<<<<<<< HEAD
 	if (!V4L2_TYPE_IS_OUTPUT(vb->vb2_queue->type)) {
+=======
+	if (V4L2_TYPE_IS_CAPTURE(vb->vb2_queue->type)) {
+>>>>>>> upstream/android-13
 		for (i = 0; i < frame->fmt->num_planes; i++)
 			vb2_set_plane_payload(vb, i, frame->payload[i]);
 	}
@@ -294,6 +310,7 @@ static int gsc_m2m_querycap(struct file *file, void *fh,
 	struct gsc_ctx *ctx = fh_to_ctx(fh);
 	struct gsc_dev *gsc = ctx->gsc_dev;
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, GSC_MODULE_NAME, sizeof(cap->driver));
 	strlcpy(cap->card, GSC_MODULE_NAME " gscaler", sizeof(cap->card));
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
@@ -307,6 +324,19 @@ static int gsc_m2m_enum_fmt_mplane(struct file *file, void *priv,
 				struct v4l2_fmtdesc *f)
 {
 	return gsc_enum_fmt_mplane(f);
+=======
+	strscpy(cap->driver, GSC_MODULE_NAME, sizeof(cap->driver));
+	strscpy(cap->card, GSC_MODULE_NAME " gscaler", sizeof(cap->card));
+	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s",
+		 dev_name(&gsc->pdev->dev));
+	return 0;
+}
+
+static int gsc_m2m_enum_fmt(struct file *file, void *priv,
+			    struct v4l2_fmtdesc *f)
+{
+	return gsc_enum_fmt(f);
+>>>>>>> upstream/android-13
 }
 
 static int gsc_m2m_g_fmt_mplane(struct file *file, void *fh,
@@ -494,6 +524,7 @@ static int gsc_m2m_s_selection(struct file *file, void *fh,
 {
 	struct gsc_frame *frame;
 	struct gsc_ctx *ctx = fh_to_ctx(fh);
+<<<<<<< HEAD
 	struct v4l2_crop cr;
 	struct gsc_variant *variant = ctx->gsc_dev->variant;
 	int ret;
@@ -501,15 +532,26 @@ static int gsc_m2m_s_selection(struct file *file, void *fh,
 	cr.type = s->type;
 	cr.c = s->r;
 
+=======
+	struct gsc_variant *variant = ctx->gsc_dev->variant;
+	struct v4l2_selection sel = *s;
+	int ret;
+
+>>>>>>> upstream/android-13
 	if ((s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE) &&
 	    (s->type != V4L2_BUF_TYPE_VIDEO_OUTPUT))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	ret = gsc_try_crop(ctx, &cr);
+=======
+	ret = gsc_try_selection(ctx, &sel);
+>>>>>>> upstream/android-13
 	if (ret)
 		return ret;
 
 	if (s->flags & V4L2_SEL_FLAG_LE &&
+<<<<<<< HEAD
 	    !is_rectangle_enclosed(&cr.c, &s->r))
 		return -ERANGE;
 
@@ -518,6 +560,16 @@ static int gsc_m2m_s_selection(struct file *file, void *fh,
 		return -ERANGE;
 
 	s->r = cr.c;
+=======
+	    !is_rectangle_enclosed(&sel.r, &s->r))
+		return -ERANGE;
+
+	if (s->flags & V4L2_SEL_FLAG_GE &&
+	    !is_rectangle_enclosed(&s->r, &sel.r))
+		return -ERANGE;
+
+	s->r = sel.r;
+>>>>>>> upstream/android-13
 
 	switch (s->target) {
 	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
@@ -539,15 +591,25 @@ static int gsc_m2m_s_selection(struct file *file, void *fh,
 	/* Check to see if scaling ratio is within supported range */
 	if (gsc_ctx_state_is_set(GSC_DST_FMT | GSC_SRC_FMT, ctx)) {
 		if (s->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
+<<<<<<< HEAD
 			ret = gsc_check_scaler_ratio(variant, cr.c.width,
 				cr.c.height, ctx->d_frame.crop.width,
+=======
+			ret = gsc_check_scaler_ratio(variant, sel.r.width,
+				sel.r.height, ctx->d_frame.crop.width,
+>>>>>>> upstream/android-13
 				ctx->d_frame.crop.height,
 				ctx->gsc_ctrls.rotate->val, ctx->out_path);
 		} else {
 			ret = gsc_check_scaler_ratio(variant,
 				ctx->s_frame.crop.width,
+<<<<<<< HEAD
 				ctx->s_frame.crop.height, cr.c.width,
 				cr.c.height, ctx->gsc_ctrls.rotate->val,
+=======
+				ctx->s_frame.crop.height, sel.r.width,
+				sel.r.height, ctx->gsc_ctrls.rotate->val,
+>>>>>>> upstream/android-13
 				ctx->out_path);
 		}
 
@@ -557,7 +619,11 @@ static int gsc_m2m_s_selection(struct file *file, void *fh,
 		}
 	}
 
+<<<<<<< HEAD
 	frame->crop = cr.c;
+=======
+	frame->crop = sel.r;
+>>>>>>> upstream/android-13
 
 	gsc_ctx_state_lock_set(GSC_PARAMS, ctx);
 	return 0;
@@ -565,8 +631,13 @@ static int gsc_m2m_s_selection(struct file *file, void *fh,
 
 static const struct v4l2_ioctl_ops gsc_m2m_ioctl_ops = {
 	.vidioc_querycap		= gsc_m2m_querycap,
+<<<<<<< HEAD
 	.vidioc_enum_fmt_vid_cap_mplane	= gsc_m2m_enum_fmt_mplane,
 	.vidioc_enum_fmt_vid_out_mplane	= gsc_m2m_enum_fmt_mplane,
+=======
+	.vidioc_enum_fmt_vid_cap	= gsc_m2m_enum_fmt,
+	.vidioc_enum_fmt_vid_out	= gsc_m2m_enum_fmt,
+>>>>>>> upstream/android-13
 	.vidioc_g_fmt_vid_cap_mplane	= gsc_m2m_g_fmt_mplane,
 	.vidioc_g_fmt_vid_out_mplane	= gsc_m2m_g_fmt_mplane,
 	.vidioc_try_fmt_vid_cap_mplane	= gsc_m2m_try_fmt_mplane,
@@ -766,6 +837,11 @@ int gsc_register_m2m_device(struct gsc_dev *gsc)
 	gsc->vdev.lock		= &gsc->lock;
 	gsc->vdev.vfl_dir	= VFL_DIR_M2M;
 	gsc->vdev.v4l2_dev	= &gsc->v4l2_dev;
+<<<<<<< HEAD
+=======
+	gsc->vdev.device_caps	= V4L2_CAP_STREAMING |
+				  V4L2_CAP_VIDEO_M2M_MPLANE;
+>>>>>>> upstream/android-13
 	snprintf(gsc->vdev.name, sizeof(gsc->vdev.name), "%s.%d:m2m",
 					GSC_MODULE_NAME, gsc->id);
 
@@ -778,7 +854,11 @@ int gsc_register_m2m_device(struct gsc_dev *gsc)
 		return PTR_ERR(gsc->m2m.m2m_dev);
 	}
 
+<<<<<<< HEAD
 	ret = video_register_device(&gsc->vdev, VFL_TYPE_GRABBER, -1);
+=======
+	ret = video_register_device(&gsc->vdev, VFL_TYPE_VIDEO, -1);
+>>>>>>> upstream/android-13
 	if (ret) {
 		dev_err(&pdev->dev,
 			 "%s(): failed to register video device\n", __func__);

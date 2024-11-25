@@ -1,7 +1,12 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Emma Mobile GPIO Support - GIO
  *
  *  Copyright (C) 2012 Magnus Damm
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/init.h>
@@ -185,7 +192,11 @@ static irqreturn_t em_gio_irq_handler(int irq, void *dev_id)
 	while ((pending = em_gio_read(p, GIO_MST))) {
 		offset = __ffs(pending);
 		em_gio_write(p, GIO_IIR, BIT(offset));
+<<<<<<< HEAD
 		generic_handle_irq(irq_find_mapping(p->irq_domain, offset));
+=======
+		generic_handle_domain_irq(p->irq_domain, offset);
+>>>>>>> upstream/android-13
 		irqs_handled++;
 	}
 
@@ -271,6 +282,7 @@ static const struct irq_domain_ops em_gio_irq_domain_ops = {
 	.xlate	= irq_domain_xlate_twocell,
 };
 
+<<<<<<< HEAD
 static int em_gio_probe(struct platform_device *pdev)
 {
 	struct em_gio_priv *p;
@@ -286,11 +298,34 @@ static int em_gio_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto err0;
 	}
+=======
+static void em_gio_irq_domain_remove(void *data)
+{
+	struct irq_domain *domain = data;
+
+	irq_domain_remove(domain);
+}
+
+static int em_gio_probe(struct platform_device *pdev)
+{
+	struct em_gio_priv *p;
+	struct gpio_chip *gpio_chip;
+	struct irq_chip *irq_chip;
+	struct device *dev = &pdev->dev;
+	const char *name = dev_name(dev);
+	unsigned int ngpios;
+	int irq[2], ret;
+
+	p = devm_kzalloc(dev, sizeof(*p), GFP_KERNEL);
+	if (!p)
+		return -ENOMEM;
+>>>>>>> upstream/android-13
 
 	p->pdev = pdev;
 	platform_set_drvdata(pdev, p);
 	spin_lock_init(&p->sense_lock);
 
+<<<<<<< HEAD
 	io[0] = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	io[1] = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	irq[0] = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
@@ -326,6 +361,31 @@ static int em_gio_probe(struct platform_device *pdev)
 
 	gpio_chip = &p->gpio_chip;
 	gpio_chip->of_node = pdev->dev.of_node;
+=======
+	irq[0] = platform_get_irq(pdev, 0);
+	if (irq[0] < 0)
+		return irq[0];
+
+	irq[1] = platform_get_irq(pdev, 1);
+	if (irq[1] < 0)
+		return irq[1];
+
+	p->base0 = devm_platform_ioremap_resource(pdev, 0);
+	if (IS_ERR(p->base0))
+		return PTR_ERR(p->base0);
+
+	p->base1 = devm_platform_ioremap_resource(pdev, 1);
+	if (IS_ERR(p->base1))
+		return PTR_ERR(p->base1);
+
+	if (of_property_read_u32(dev->of_node, "ngpios", &ngpios)) {
+		dev_err(dev, "Missing ngpios OF property\n");
+		return -EINVAL;
+	}
+
+	gpio_chip = &p->gpio_chip;
+	gpio_chip->of_node = dev->of_node;
+>>>>>>> upstream/android-13
 	gpio_chip->direction_input = em_gio_direction_input;
 	gpio_chip->get = em_gio_get;
 	gpio_chip->direction_output = em_gio_direction_output;
@@ -334,13 +394,21 @@ static int em_gio_probe(struct platform_device *pdev)
 	gpio_chip->request = em_gio_request;
 	gpio_chip->free = em_gio_free;
 	gpio_chip->label = name;
+<<<<<<< HEAD
 	gpio_chip->parent = &pdev->dev;
+=======
+	gpio_chip->parent = dev;
+>>>>>>> upstream/android-13
 	gpio_chip->owner = THIS_MODULE;
 	gpio_chip->base = -1;
 	gpio_chip->ngpio = ngpios;
 
 	irq_chip = &p->irq_chip;
+<<<<<<< HEAD
 	irq_chip->name = name;
+=======
+	irq_chip->name = "gpio-em";
+>>>>>>> upstream/android-13
 	irq_chip->irq_mask = em_gio_irq_disable;
 	irq_chip->irq_unmask = em_gio_irq_enable;
 	irq_chip->irq_set_type = em_gio_irq_set_type;
@@ -348,6 +416,7 @@ static int em_gio_probe(struct platform_device *pdev)
 	irq_chip->irq_release_resources = em_gio_irq_relres;
 	irq_chip->flags	= IRQCHIP_SKIP_SET_WAKE | IRQCHIP_MASK_ON_SUSPEND;
 
+<<<<<<< HEAD
 	p->irq_domain = irq_domain_add_simple(pdev->dev.of_node, ngpios, 0,
 					      &em_gio_irq_domain_ops, p);
 	if (!p->irq_domain) {
@@ -392,6 +461,37 @@ static int em_gio_remove(struct platform_device *pdev)
 
 	irq_domain_remove(p->irq_domain);
 	return 0;
+=======
+	p->irq_domain = irq_domain_add_simple(dev->of_node, ngpios, 0,
+					      &em_gio_irq_domain_ops, p);
+	if (!p->irq_domain) {
+		dev_err(dev, "cannot initialize irq domain\n");
+		return -ENXIO;
+	}
+
+	ret = devm_add_action_or_reset(dev, em_gio_irq_domain_remove,
+				       p->irq_domain);
+	if (ret)
+		return ret;
+
+	if (devm_request_irq(dev, irq[0], em_gio_irq_handler, 0, name, p)) {
+		dev_err(dev, "failed to request low IRQ\n");
+		return -ENOENT;
+	}
+
+	if (devm_request_irq(dev, irq[1], em_gio_irq_handler, 0, name, p)) {
+		dev_err(dev, "failed to request high IRQ\n");
+		return -ENOENT;
+	}
+
+	ret = devm_gpiochip_add_data(dev, gpio_chip, p);
+	if (ret) {
+		dev_err(dev, "failed to add GPIO controller\n");
+		return ret;
+	}
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 
 static const struct of_device_id em_gio_dt_ids[] = {
@@ -402,7 +502,10 @@ MODULE_DEVICE_TABLE(of, em_gio_dt_ids);
 
 static struct platform_driver em_gio_device_driver = {
 	.probe		= em_gio_probe,
+<<<<<<< HEAD
 	.remove		= em_gio_remove,
+=======
+>>>>>>> upstream/android-13
 	.driver		= {
 		.name	= "em_gio",
 		.of_match_table = em_gio_dt_ids,

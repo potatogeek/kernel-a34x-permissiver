@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2009 Lemote, Inc.
  * Author: Wu Zhangjin <wuzhangjin@gmail.com>
@@ -6,6 +7,12 @@
  * under  the terms of	the GNU General	 Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+=======
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright (C) 2009 Lemote, Inc.
+ * Author: Wu Zhangjin <wuzhangjin@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef __ASM_MACH_LOONGSON64_LOONGSON_H
@@ -16,8 +23,35 @@
 #include <linux/irq.h>
 #include <boot_param.h>
 
+<<<<<<< HEAD
 /* loongson internal northbridge initialization */
 extern void bonito_irq_init(void);
+=======
+enum loongson_fw_interface {
+	LOONGSON_LEFI,
+	LOONGSON_DTB,
+};
+
+/* machine-specific boot configuration */
+struct loongson_system_configuration {
+	enum loongson_fw_interface fw_interface;
+	u32 nr_cpus;
+	u32 nr_nodes;
+	int cores_per_node;
+	int cores_per_package;
+	u16 boot_cpu_id;
+	u16 reserved_cpus_mask;
+	enum loongson_cpu_type cputype;
+	enum loongson_bridge_type bridgetype;
+	u64 restart_addr;
+	u64 poweroff_addr;
+	u64 suspend_addr;
+	u64 vgabios_addr;
+	u32 dma_mask_bits;
+	u64 workarounds;
+	void (*early_config)(void);
+};
+>>>>>>> upstream/android-13
 
 /* machine-specific reboot/halt operation */
 extern void mach_prepare_reboot(void);
@@ -29,6 +63,7 @@ extern u32 memsize, highmemsize;
 extern const struct plat_smp_ops loongson3_smp_ops;
 
 /* loongson-specific command line, env and memory initialization */
+<<<<<<< HEAD
 extern void __init prom_init_memory(void);
 extern void __init prom_init_cmdline(void);
 extern void __init prom_init_machtype(void);
@@ -49,6 +84,14 @@ static inline void prom_init_uart_base(void)
 extern void bonito_irqdispatch(void);
 extern void __init bonito_irq_init(void);
 extern void __init mach_init_irq(void);
+=======
+extern void __init prom_dtb_init_env(void);
+extern void __init prom_lefi_init_env(void);
+extern void __init szmem(unsigned int node);
+extern void *loongson_fdt_blob;
+
+/* irq operation functions */
+>>>>>>> upstream/android-13
 extern void mach_irq_dispatch(unsigned int pending);
 extern int mach_i8259_irq(void);
 
@@ -68,6 +111,7 @@ extern int mach_i8259_irq(void);
 #define LOONGSON3_REG32(base, x) \
 	(*(volatile u32 *)((char *)TO_UNCAC(base) + (x)))
 
+<<<<<<< HEAD
 #define LOONGSON_IRQ_BASE	32
 #define LOONGSON2_PERFCNT_IRQ	(MIPS_CPU_IRQ_BASE + 6) /* cpu perf counter */
 
@@ -79,6 +123,8 @@ static inline void do_perfcnt_IRQ(void)
 #endif
 }
 
+=======
+>>>>>>> upstream/android-13
 #define LOONGSON_FLASH_BASE	0x1c000000
 #define LOONGSON_FLASH_SIZE	0x02000000	/* 32M */
 #define LOONGSON_FLASH_TOP	(LOONGSON_FLASH_BASE+LOONGSON_FLASH_SIZE-1)
@@ -113,11 +159,15 @@ static inline void do_perfcnt_IRQ(void)
 #define LOONGSON_PCICFG_SIZE	0x00000800	/* 2K */
 #define LOONGSON_PCICFG_TOP	(LOONGSON_PCICFG_BASE+LOONGSON_PCICFG_SIZE-1)
 
+<<<<<<< HEAD
 #if defined(CONFIG_HT_PCI)
 #define LOONGSON_PCIIO_BASE	loongson_sysconf.pci_io_base
 #else
 #define LOONGSON_PCIIO_BASE	0x1fd00000
 #endif
+=======
+#define LOONGSON_PCIIO_BASE	loongson_sysconf.pci_io_base
+>>>>>>> upstream/android-13
 
 #define LOONGSON_PCIIO_SIZE	0x00100000	/* 1M */
 #define LOONGSON_PCIIO_TOP	(LOONGSON_PCIIO_BASE+LOONGSON_PCIIO_SIZE-1)
@@ -274,6 +324,7 @@ extern u64 loongson_freqctrl[MAX_PACKAGES];
 #define LOONGSON_PCIMAP_WIN(WIN, ADDR)	\
 	((((ADDR)>>26) & LOONGSON_PCIMAP_PCIMAP_LO0) << ((WIN)*6))
 
+<<<<<<< HEAD
 #ifdef CONFIG_CPU_SUPPORTS_CPUFREQ
 #include <linux/cpufreq.h>
 extern struct cpufreq_frequency_table loongson2_clockmod_table[];
@@ -356,4 +407,6 @@ extern unsigned long _loongson_addrwincfg_base;
 
 #endif	/* ! CONFIG_CPU_SUPPORTS_ADDRWINCFG */
 
+=======
+>>>>>>> upstream/android-13
 #endif /* __ASM_MACH_LOONGSON64_LOONGSON_H */

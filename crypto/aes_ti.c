@@ -1,16 +1,24 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Scalar fixed time AES core transform
  *
  * Copyright (C) 2017 Linaro Ltd <ard.biesheuvel@linaro.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <crypto/aes.h>
 #include <linux/crypto.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <asm/unaligned.h>
 
 /*
@@ -232,11 +240,14 @@ static int aesti_expand_key(struct crypto_aes_ctx *ctx, const u8 *in_key,
 
 	return 0;
 }
+=======
+>>>>>>> upstream/android-13
 
 static int aesti_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 			 unsigned int key_len)
 {
 	struct crypto_aes_ctx *ctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	int err;
 
 	err = aesti_expand_key(ctx, in_key, key_len);
@@ -261,11 +272,16 @@ static int aesti_set_key(struct crypto_tfm *tfm, const u8 *in_key,
 	ctx->key_dec[3] ^= __aesti_inv_sbox[96] ^ __aesti_inv_sbox[224];
 
 	return 0;
+=======
+
+	return aes_expandkey(ctx, in_key, key_len);
+>>>>>>> upstream/android-13
 }
 
 static void aesti_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	const struct crypto_aes_ctx *ctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	const u32 *rkp = ctx->key_enc + 4;
 	int rounds = 6 + ctx->key_length / 4;
 	u32 st0[4], st1[4];
@@ -276,6 +292,9 @@ static void aesti_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	st0[1] = ctx->key_enc[1] ^ get_unaligned_le32(in + 4);
 	st0[2] = ctx->key_enc[2] ^ get_unaligned_le32(in + 8);
 	st0[3] = ctx->key_enc[3] ^ get_unaligned_le32(in + 12);
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Temporarily disable interrupts to avoid races where cachelines are
@@ -283,6 +302,7 @@ static void aesti_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	 */
 	local_irq_save(flags);
 
+<<<<<<< HEAD
 	st0[0] ^= __aesti_sbox[ 0] ^ __aesti_sbox[128];
 	st0[1] ^= __aesti_sbox[32] ^ __aesti_sbox[160];
 	st0[2] ^= __aesti_sbox[64] ^ __aesti_sbox[192];
@@ -307,6 +327,9 @@ static void aesti_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	put_unaligned_le32(subshift(st1, 1) ^ rkp[5], out + 4);
 	put_unaligned_le32(subshift(st1, 2) ^ rkp[6], out + 8);
 	put_unaligned_le32(subshift(st1, 3) ^ rkp[7], out + 12);
+=======
+	aes_encrypt(ctx, out, in);
+>>>>>>> upstream/android-13
 
 	local_irq_restore(flags);
 }
@@ -314,6 +337,7 @@ static void aesti_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 static void aesti_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	const struct crypto_aes_ctx *ctx = crypto_tfm_ctx(tfm);
+<<<<<<< HEAD
 	const u32 *rkp = ctx->key_dec + 4;
 	int rounds = 6 + ctx->key_length / 4;
 	u32 st0[4], st1[4];
@@ -324,6 +348,9 @@ static void aesti_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	st0[1] = ctx->key_dec[1] ^ get_unaligned_le32(in + 4);
 	st0[2] = ctx->key_dec[2] ^ get_unaligned_le32(in + 8);
 	st0[3] = ctx->key_dec[3] ^ get_unaligned_le32(in + 12);
+=======
+	unsigned long flags;
+>>>>>>> upstream/android-13
 
 	/*
 	 * Temporarily disable interrupts to avoid races where cachelines are
@@ -331,6 +358,7 @@ static void aesti_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	 */
 	local_irq_save(flags);
 
+<<<<<<< HEAD
 	st0[0] ^= __aesti_inv_sbox[ 0] ^ __aesti_inv_sbox[128];
 	st0[1] ^= __aesti_inv_sbox[32] ^ __aesti_inv_sbox[160];
 	st0[2] ^= __aesti_inv_sbox[64] ^ __aesti_inv_sbox[192];
@@ -355,6 +383,9 @@ static void aesti_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 	put_unaligned_le32(inv_subshift(st1, 1) ^ rkp[5], out + 4);
 	put_unaligned_le32(inv_subshift(st1, 2) ^ rkp[6], out + 8);
 	put_unaligned_le32(inv_subshift(st1, 3) ^ rkp[7], out + 12);
+=======
+	aes_decrypt(ctx, out, in);
+>>>>>>> upstream/android-13
 
 	local_irq_restore(flags);
 }

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // SPDX-License-Identifier: GPL-2.0
+=======
+/* SPDX-License-Identifier: GPL-2.0 */
+>>>>>>> upstream/android-13
 /*
  * u_uvc.h
  *
@@ -7,7 +11,11 @@
  * Copyright (c) 2013-2014 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
+<<<<<<< HEAD
  * Author: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+=======
+ * Author: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
+>>>>>>> upstream/android-13
  */
 
 #ifndef U_UVC_H
@@ -25,6 +33,13 @@ struct f_uvc_opts {
 	unsigned int					streaming_maxpacket;
 	unsigned int					streaming_maxburst;
 
+<<<<<<< HEAD
+=======
+	unsigned int					control_interface;
+	unsigned int					streaming_interface;
+	char						function_name[32];
+
+>>>>>>> upstream/android-13
 	/*
 	 * Control descriptors array pointers for full-/high-speed and
 	 * super-speed. They point by default to the uvc_fs_control_cls and

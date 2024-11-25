@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * linux/fs/nfs/namespace.c
  *
@@ -18,6 +22,10 @@
 #include <linux/vfs.h>
 #include <linux/sunrpc/gss_api.h>
 #include "internal.h"
+<<<<<<< HEAD
+=======
+#include "nfs.h"
+>>>>>>> upstream/android-13
 
 #define NFSDBG_FACILITY		NFSDBG_VFS
 
@@ -142,14 +150,25 @@ EXPORT_SYMBOL_GPL(nfs_path);
  */
 struct vfsmount *nfs_d_automount(struct path *path)
 {
+<<<<<<< HEAD
 	struct vfsmount *mnt;
 	struct nfs_server *server = NFS_SERVER(d_inode(path->dentry));
 	struct nfs_fh *fh = NULL;
 	struct nfs_fattr *fattr = NULL;
+=======
+	struct nfs_fs_context *ctx;
+	struct fs_context *fc;
+	struct vfsmount *mnt = ERR_PTR(-ENOMEM);
+	struct nfs_server *server = NFS_SERVER(d_inode(path->dentry));
+	struct nfs_client *client = server->nfs_client;
+	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
+	int ret;
+>>>>>>> upstream/android-13
 
 	if (IS_ROOT(path->dentry))
 		return ERR_PTR(-ESTALE);
 
+<<<<<<< HEAD
 	mnt = ERR_PTR(-ENOMEM);
 	fh = nfs_alloc_fhandle();
 	fattr = nfs_alloc_fattr();
@@ -167,24 +186,94 @@ struct vfsmount *nfs_d_automount(struct path *path)
 out:
 	nfs_free_fattr(fattr);
 	nfs_free_fhandle(fh);
+=======
+	/* Open a new filesystem context, transferring parameters from the
+	 * parent superblock, including the network namespace.
+	 */
+	fc = fs_context_for_submount(path->mnt->mnt_sb->s_type, path->dentry);
+	if (IS_ERR(fc))
+		return ERR_CAST(fc);
+
+	ctx = nfs_fc2context(fc);
+	ctx->clone_data.dentry	= path->dentry;
+	ctx->clone_data.sb	= path->dentry->d_sb;
+	ctx->clone_data.fattr	= nfs_alloc_fattr();
+	if (!ctx->clone_data.fattr)
+		goto out_fc;
+
+	if (fc->net_ns != client->cl_net) {
+		put_net(fc->net_ns);
+		fc->net_ns = get_net(client->cl_net);
+	}
+
+	/* for submounts we want the same server; referrals will reassign */
+	memcpy(&ctx->nfs_server.address, &client->cl_addr, client->cl_addrlen);
+	ctx->nfs_server.addrlen	= client->cl_addrlen;
+	ctx->nfs_server.port	= server->port;
+
+	ctx->version		= client->rpc_ops->version;
+	ctx->minorversion	= client->cl_minorversion;
+	ctx->nfs_mod		= client->cl_nfs_mod;
+	__module_get(ctx->nfs_mod->owner);
+
+	ret = client->rpc_ops->submount(fc, server);
+	if (ret < 0) {
+		mnt = ERR_PTR(ret);
+		goto out_fc;
+	}
+
+	up_write(&fc->root->d_sb->s_umount);
+	mnt = vfs_create_mount(fc);
+	if (IS_ERR(mnt))
+		goto out_fc;
+
+	mntget(mnt); /* prevent immediate expiration */
+	if (timeout <= 0)
+		goto out_fc;
+
+	mnt_set_expiry(mnt, &nfs_automount_list);
+	schedule_delayed_work(&nfs_automount_task, timeout);
+
+out_fc:
+	put_fs_context(fc);
+>>>>>>> upstream/android-13
 	return mnt;
 }
 
 static int
+<<<<<<< HEAD
 nfs_namespace_getattr(const struct path *path, struct kstat *stat,
 			u32 request_mask, unsigned int query_flags)
 {
 	if (NFS_FH(d_inode(path->dentry))->size != 0)
 		return nfs_getattr(path, stat, request_mask, query_flags);
 	generic_fillattr(d_inode(path->dentry), stat);
+=======
+nfs_namespace_getattr(struct user_namespace *mnt_userns,
+		      const struct path *path, struct kstat *stat,
+		      u32 request_mask, unsigned int query_flags)
+{
+	if (NFS_FH(d_inode(path->dentry))->size != 0)
+		return nfs_getattr(mnt_userns, path, stat, request_mask,
+				   query_flags);
+	generic_fillattr(&init_user_ns, d_inode(path->dentry), stat);
+>>>>>>> upstream/android-13
 	return 0;
 }
 
 static int
+<<<<<<< HEAD
 nfs_namespace_setattr(struct dentry *dentry, struct iattr *attr)
 {
 	if (NFS_FH(d_inode(dentry))->size != 0)
 		return nfs_setattr(dentry, attr);
+=======
+nfs_namespace_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
+		      struct iattr *attr)
+{
+	if (NFS_FH(d_inode(dentry))->size != 0)
+		return nfs_setattr(mnt_userns, dentry, attr);
+>>>>>>> upstream/android-13
 	return -EACCES;
 }
 
@@ -201,10 +290,18 @@ const struct inode_operations nfs_referral_inode_operations = {
 static void nfs_expire_automounts(struct work_struct *work)
 {
 	struct list_head *list = &nfs_automount_list;
+<<<<<<< HEAD
 
 	mark_mounts_for_expiry(list);
 	if (!list_empty(list))
 		schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
+=======
+	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
+
+	mark_mounts_for_expiry(list);
+	if (!list_empty(list) && timeout > 0)
+		schedule_delayed_work(&nfs_automount_task, timeout);
+>>>>>>> upstream/android-13
 }
 
 void nfs_release_automount_timer(void)
@@ -213,6 +310,7 @@ void nfs_release_automount_timer(void)
 		cancel_delayed_work(&nfs_automount_task);
 }
 
+<<<<<<< HEAD
 /*
  * Clone a mountpoint of the appropriate type
  */
@@ -274,3 +372,119 @@ struct vfsmount *nfs_submount(struct nfs_server *server, struct dentry *dentry,
 	return nfs_do_submount(dentry, fh, fattr, server->client->cl_auth->au_flavor);
 }
 EXPORT_SYMBOL_GPL(nfs_submount);
+=======
+/**
+ * nfs_do_submount - set up mountpoint when crossing a filesystem boundary
+ * @fc: pointer to struct nfs_fs_context
+ *
+ */
+int nfs_do_submount(struct fs_context *fc)
+{
+	struct nfs_fs_context *ctx = nfs_fc2context(fc);
+	struct dentry *dentry = ctx->clone_data.dentry;
+	struct nfs_server *server;
+	char *buffer, *p;
+	int ret;
+
+	/* create a new volume representation */
+	server = ctx->nfs_mod->rpc_ops->clone_server(NFS_SB(ctx->clone_data.sb),
+						     ctx->mntfh,
+						     ctx->clone_data.fattr,
+						     ctx->selected_flavor);
+
+	if (IS_ERR(server))
+		return PTR_ERR(server);
+
+	ctx->server = server;
+
+	buffer = kmalloc(4096, GFP_USER);
+	if (!buffer)
+		return -ENOMEM;
+
+	ctx->internal		= true;
+	ctx->clone_data.inherited_bsize = ctx->clone_data.sb->s_blocksize_bits;
+
+	p = nfs_devname(dentry, buffer, 4096);
+	if (IS_ERR(p)) {
+		nfs_errorf(fc, "NFS: Couldn't determine submount pathname");
+		ret = PTR_ERR(p);
+	} else {
+		ret = vfs_parse_fs_string(fc, "source", p, buffer + 4096 - p);
+		if (!ret)
+			ret = vfs_get_tree(fc);
+	}
+	kfree(buffer);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(nfs_do_submount);
+
+int nfs_submount(struct fs_context *fc, struct nfs_server *server)
+{
+	struct nfs_fs_context *ctx = nfs_fc2context(fc);
+	struct dentry *dentry = ctx->clone_data.dentry;
+	struct dentry *parent = dget_parent(dentry);
+	int err;
+
+	/* Look it up again to get its attributes */
+	err = server->nfs_client->rpc_ops->lookup(d_inode(parent), dentry,
+						  ctx->mntfh, ctx->clone_data.fattr,
+						  NULL);
+	dput(parent);
+	if (err != 0)
+		return err;
+
+	ctx->selected_flavor = server->client->cl_auth->au_flavor;
+	return nfs_do_submount(fc);
+}
+EXPORT_SYMBOL_GPL(nfs_submount);
+
+static int param_set_nfs_timeout(const char *val, const struct kernel_param *kp)
+{
+	long num;
+	int ret;
+
+	if (!val)
+		return -EINVAL;
+	ret = kstrtol(val, 0, &num);
+	if (ret)
+		return -EINVAL;
+	if (num > 0) {
+		if (num >= INT_MAX / HZ)
+			num = INT_MAX;
+		else
+			num *= HZ;
+		*((int *)kp->arg) = num;
+		if (!list_empty(&nfs_automount_list))
+			mod_delayed_work(system_wq, &nfs_automount_task, num);
+	} else {
+		*((int *)kp->arg) = -1*HZ;
+		cancel_delayed_work(&nfs_automount_task);
+	}
+	return 0;
+}
+
+static int param_get_nfs_timeout(char *buffer, const struct kernel_param *kp)
+{
+	long num = *((int *)kp->arg);
+
+	if (num > 0) {
+		if (num >= INT_MAX - (HZ - 1))
+			num = INT_MAX / HZ;
+		else
+			num = (num + (HZ - 1)) / HZ;
+	} else
+		num = -1;
+	return scnprintf(buffer, PAGE_SIZE, "%li\n", num);
+}
+
+static const struct kernel_param_ops param_ops_nfs_timeout = {
+	.set = param_set_nfs_timeout,
+	.get = param_get_nfs_timeout,
+};
+#define param_check_nfs_timeout(name, p) __param_check(name, p, int)
+
+module_param(nfs_mountpoint_expiry_timeout, nfs_timeout, 0644);
+MODULE_PARM_DESC(nfs_mountpoint_expiry_timeout,
+		"Set the NFS automounted mountpoint timeout value (seconds)."
+		"Values <= 0 turn expiration off.");
+>>>>>>> upstream/android-13

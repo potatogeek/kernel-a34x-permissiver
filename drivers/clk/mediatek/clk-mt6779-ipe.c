@@ -4,23 +4,34 @@
  * Author: Wendell Lin <wendell.lin@mediatek.com>
  */
 
+<<<<<<< HEAD
 #include <linux/clk-provider.h>
 #include <linux/platform_device.h>
 #include <dt-bindings/clock/mt6779-clk.h>
 #include <linux/slab.h>
+=======
+#include <linux/module.h>
+#include <linux/clk-provider.h>
+#include <linux/platform_device.h>
+#include <dt-bindings/clock/mt6779-clk.h>
+>>>>>>> upstream/android-13
 
 #include "clk-mtk.h"
 #include "clk-gate.h"
 
+<<<<<<< HEAD
 #define MT_CLKMGR_MODULE_INIT	0
 #define CCF_SUBSYS_DEBUG		1
 
+=======
+>>>>>>> upstream/android-13
 static const struct mtk_gate_regs ipe_cg_regs = {
 	.set_ofs = 0x0004,
 	.clr_ofs = 0x0008,
 	.sta_ofs = 0x0000,
 };
 
+<<<<<<< HEAD
 #define GATE_IPE(_id, _name, _parent, _shift) {	\
 	.id = _id,			\
 	.name = _name,			\
@@ -42,6 +53,15 @@ static const struct mtk_gate_regs ipe_cg_regs = {
 static const struct mtk_gate ipe_clks[] = {
 	GATE_IPE_DUMMY(CLK_IPE_LARB7, "ipe_larb7", "ipe_sel", 0),
 	GATE_IPE_DUMMY(CLK_IPE_LARB8, "ipe_larb8", "ipe_sel", 1),
+=======
+#define GATE_IPE(_id, _name, _parent, _shift)			\
+	GATE_MTK(_id, _name, _parent, &ipe_cg_regs, _shift,	\
+		&mtk_clk_gate_ops_setclr)
+
+static const struct mtk_gate ipe_clks[] = {
+	GATE_IPE(CLK_IPE_LARB7, "ipe_larb7", "ipe_sel", 0),
+	GATE_IPE(CLK_IPE_LARB8, "ipe_larb8", "ipe_sel", 1),
+>>>>>>> upstream/android-13
 	GATE_IPE(CLK_IPE_SMI_SUBCOM, "ipe_smi_subcom", "ipe_sel", 2),
 	GATE_IPE(CLK_IPE_FD, "ipe_fd", "ipe_sel", 3),
 	GATE_IPE(CLK_IPE_FE, "ipe_fe", "ipe_sel", 4),
@@ -58,6 +78,7 @@ static int clk_mt6779_ipe_probe(struct platform_device *pdev)
 {
 	struct clk_onecell_data *clk_data;
 	struct device_node *node = pdev->dev.of_node;
+<<<<<<< HEAD
 	int ret;
 
 	clk_data = mtk_alloc_clk_data(CLK_IPE_NR_CLK);
@@ -69,10 +90,15 @@ static int clk_mt6779_ipe_probe(struct platform_device *pdev)
 #if CCF_SUBSYS_DEBUG
 	pr_info("%s(): clk data number: %d\n", __func__, clk_data->clk_num);
 #endif
+=======
+
+	clk_data = mtk_alloc_clk_data(CLK_IPE_NR_CLK);
+>>>>>>> upstream/android-13
 
 	mtk_clk_register_gates(node, ipe_clks, ARRAY_SIZE(ipe_clks),
 			       clk_data);
 
+<<<<<<< HEAD
 	ret = of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
 
 	if (ret) {
@@ -83,6 +109,9 @@ static int clk_mt6779_ipe_probe(struct platform_device *pdev)
 	}
 
 	return ret;
+=======
+	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
+>>>>>>> upstream/android-13
 }
 
 static struct platform_driver clk_mt6779_ipe_drv = {
@@ -93,6 +122,7 @@ static struct platform_driver clk_mt6779_ipe_drv = {
 	},
 };
 
+<<<<<<< HEAD
 
 #if MT_CLKMGR_MODULE_INIT
 
@@ -109,3 +139,7 @@ arch_initcall_sync(clk_mt6779_ipe_platform_init);
 
 #endif /* MT_CLKMGR_MODULE_INIT */
 
+=======
+module_platform_driver(clk_mt6779_ipe_drv);
+MODULE_LICENSE("GPL");
+>>>>>>> upstream/android-13

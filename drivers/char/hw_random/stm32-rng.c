@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2015, Daniel Thompson
  *
@@ -10,6 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2015, Daniel Thompson
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
@@ -154,6 +160,7 @@ static int stm32_rng_probe(struct platform_device *ofdev)
 
 	dev_set_drvdata(dev, priv);
 
+<<<<<<< HEAD
 	priv->rng.name = dev_driver_string(dev),
 #ifndef CONFIG_PM
 	priv->rng.init = stm32_rng_init,
@@ -161,6 +168,16 @@ static int stm32_rng_probe(struct platform_device *ofdev)
 #endif
 	priv->rng.read = stm32_rng_read,
 	priv->rng.priv = (unsigned long) dev;
+=======
+	priv->rng.name = dev_driver_string(dev);
+#ifndef CONFIG_PM
+	priv->rng.init = stm32_rng_init;
+	priv->rng.cleanup = stm32_rng_cleanup;
+#endif
+	priv->rng.read = stm32_rng_read;
+	priv->rng.priv = (unsigned long) dev;
+	priv->rng.quality = 900;
+>>>>>>> upstream/android-13
 
 	pm_runtime_set_autosuspend_delay(dev, 100);
 	pm_runtime_use_autosuspend(dev);

@@ -60,15 +60,22 @@ out:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int scm_remove(struct scm_device *scmdev)
+=======
+static void scm_remove(struct scm_device *scmdev)
+>>>>>>> upstream/android-13
 {
 	struct scm_blk_dev *bdev = dev_get_drvdata(&scmdev->dev);
 
 	scm_blk_dev_cleanup(bdev);
 	dev_set_drvdata(&scmdev->dev, NULL);
 	kfree(bdev);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 
 static struct scm_driver scm_drv = {

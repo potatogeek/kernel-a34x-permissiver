@@ -20,11 +20,16 @@
  */
 
 #include <crypto/algapi.h>
+<<<<<<< HEAD
+=======
+#include <crypto/internal/cipher.h>
+>>>>>>> upstream/android-13
 #include <crypto/internal/skcipher.h>
 #include <linux/err.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+<<<<<<< HEAD
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/types.h>
@@ -39,14 +44,25 @@ static unsigned int crypto_cfb_bsize(struct crypto_skcipher *tfm)
 	struct crypto_cipher *child = ctx->child;
 
 	return crypto_cipher_blocksize(child);
+=======
+#include <linux/string.h>
+
+static unsigned int crypto_cfb_bsize(struct crypto_skcipher *tfm)
+{
+	return crypto_cipher_blocksize(skcipher_cipher_simple(tfm));
+>>>>>>> upstream/android-13
 }
 
 static void crypto_cfb_encrypt_one(struct crypto_skcipher *tfm,
 					  const u8 *src, u8 *dst)
 {
+<<<<<<< HEAD
 	struct crypto_cfb_ctx *ctx = crypto_skcipher_ctx(tfm);
 
 	crypto_cipher_encrypt_one(ctx->child, dst, src);
+=======
+	crypto_cipher_encrypt_one(skcipher_cipher_simple(tfm), dst, src);
+>>>>>>> upstream/android-13
 }
 
 /* final encrypt and decrypt is the same */
@@ -186,6 +202,7 @@ static int crypto_cfb_decrypt_blocks(struct skcipher_walk *walk,
 		return crypto_cfb_decrypt_segment(walk, tfm);
 }
 
+<<<<<<< HEAD
 static int crypto_cfb_setkey(struct crypto_skcipher *parent, const u8 *key,
 			     unsigned int keylen)
 {
@@ -202,6 +219,8 @@ static int crypto_cfb_setkey(struct crypto_skcipher *parent, const u8 *key,
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 static int crypto_cfb_decrypt(struct skcipher_request *req)
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
@@ -224,6 +243,7 @@ static int crypto_cfb_decrypt(struct skcipher_request *req)
 	return err;
 }
 
+<<<<<<< HEAD
 static int crypto_cfb_init_tfm(struct crypto_skcipher *tfm)
 {
 	struct skcipher_instance *inst = skcipher_alg_instance(tfm);
@@ -297,6 +317,22 @@ static int crypto_cfb_create(struct crypto_template *tmpl, struct rtattr **tb)
 	/* we're a stream cipher independend of the crypto cra_blocksize */
 	inst->alg.base.cra_blocksize = 1;
 	inst->alg.base.cra_alignmask = alg->cra_alignmask;
+=======
+static int crypto_cfb_create(struct crypto_template *tmpl, struct rtattr **tb)
+{
+	struct skcipher_instance *inst;
+	struct crypto_alg *alg;
+	int err;
+
+	inst = skcipher_alloc_instance_simple(tmpl, tb);
+	if (IS_ERR(inst))
+		return PTR_ERR(inst);
+
+	alg = skcipher_ialg_simple(inst);
+
+	/* CFB mode is a stream cipher. */
+	inst->alg.base.cra_blocksize = 1;
+>>>>>>> upstream/android-13
 
 	/*
 	 * To simplify the implementation, configure the skcipher walk to only
@@ -304,6 +340,7 @@ static int crypto_cfb_create(struct crypto_template *tmpl, struct rtattr **tb)
 	 */
 	inst->alg.chunksize = alg->cra_blocksize;
 
+<<<<<<< HEAD
 	inst->alg.ivsize = alg->cra_blocksize;
 	inst->alg.min_keysize = alg->cra_cipher.cia_min_keysize;
 	inst->alg.max_keysize = alg->cra_cipher.cia_max_keysize;
@@ -334,6 +371,16 @@ err_put_alg:
 err_free_inst:
 	kfree(inst);
 	goto out;
+=======
+	inst->alg.encrypt = crypto_cfb_encrypt;
+	inst->alg.decrypt = crypto_cfb_decrypt;
+
+	err = skcipher_register_instance(tmpl, inst);
+	if (err)
+		inst->free(inst);
+
+	return err;
+>>>>>>> upstream/android-13
 }
 
 static struct crypto_template crypto_cfb_tmpl = {
@@ -352,9 +399,19 @@ static void __exit crypto_cfb_module_exit(void)
 	crypto_unregister_template(&crypto_cfb_tmpl);
 }
 
+<<<<<<< HEAD
 module_init(crypto_cfb_module_init);
 module_exit(crypto_cfb_module_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("CFB block cipher algorithm");
 MODULE_ALIAS_CRYPTO("cfb");
+=======
+subsys_initcall(crypto_cfb_module_init);
+module_exit(crypto_cfb_module_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("CFB block cipher mode of operation");
+MODULE_ALIAS_CRYPTO("cfb");
+MODULE_IMPORT_NS(CRYPTO_INTERNAL);
+>>>>>>> upstream/android-13

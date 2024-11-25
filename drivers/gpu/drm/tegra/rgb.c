@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2012 Avionic Design GmbH
  * Copyright (C) 2012 NVIDIA CORPORATION.  All rights reserved.
@@ -5,12 +6,23 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2012 Avionic Design GmbH
+ * Copyright (C) 2012 NVIDIA CORPORATION.  All rights reserved.
+>>>>>>> upstream/android-13
  */
 
 #include <linux/clk.h>
 
 #include <drm/drm_atomic_helper.h>
+<<<<<<< HEAD
 #include <drm/drm_panel.h>
+=======
+#include <drm/drm_bridge_connector.h>
+#include <drm/drm_simple_kms_helper.h>
+>>>>>>> upstream/android-13
 
 #include "drm.h"
 #include "dc.h"
@@ -87,6 +99,7 @@ static void tegra_dc_write_regs(struct tegra_dc *dc,
 		tegra_dc_writel(dc, table[i].value, table[i].offset);
 }
 
+<<<<<<< HEAD
 static const struct drm_connector_funcs tegra_rgb_connector_funcs = {
 	.reset = drm_atomic_helper_connector_reset,
 	.detect = tegra_output_connector_detect,
@@ -117,11 +130,14 @@ static const struct drm_encoder_funcs tegra_rgb_encoder_funcs = {
 	.destroy = tegra_output_encoder_destroy,
 };
 
+=======
+>>>>>>> upstream/android-13
 static void tegra_rgb_encoder_disable(struct drm_encoder *encoder)
 {
 	struct tegra_output *output = encoder_to_output(encoder);
 	struct tegra_rgb *rgb = to_rgb(output);
 
+<<<<<<< HEAD
 	if (output->panel)
 		drm_panel_disable(output->panel);
 
@@ -130,6 +146,10 @@ static void tegra_rgb_encoder_disable(struct drm_encoder *encoder)
 
 	if (output->panel)
 		drm_panel_unprepare(output->panel);
+=======
+	tegra_dc_write_regs(rgb->dc, rgb_disable, ARRAY_SIZE(rgb_disable));
+	tegra_dc_commit(rgb->dc);
+>>>>>>> upstream/android-13
 }
 
 static void tegra_rgb_encoder_enable(struct drm_encoder *encoder)
@@ -138,9 +158,12 @@ static void tegra_rgb_encoder_enable(struct drm_encoder *encoder)
 	struct tegra_rgb *rgb = to_rgb(output);
 	u32 value;
 
+<<<<<<< HEAD
 	if (output->panel)
 		drm_panel_prepare(output->panel);
 
+=======
+>>>>>>> upstream/android-13
 	tegra_dc_write_regs(rgb->dc, rgb_enable, ARRAY_SIZE(rgb_enable));
 
 	value = DE_SELECT_ACTIVE | DE_CONTROL_NORMAL;
@@ -162,9 +185,12 @@ static void tegra_rgb_encoder_enable(struct drm_encoder *encoder)
 	tegra_dc_writel(rgb->dc, value, DC_DISP_SHIFT_CLOCK_OPTIONS);
 
 	tegra_dc_commit(rgb->dc);
+<<<<<<< HEAD
 
 	if (output->panel)
 		drm_panel_enable(output->panel);
+=======
+>>>>>>> upstream/android-13
 }
 
 static int
@@ -273,11 +299,16 @@ int tegra_dc_rgb_remove(struct tegra_dc *dc)
 int tegra_dc_rgb_init(struct drm_device *drm, struct tegra_dc *dc)
 {
 	struct tegra_output *output = dc->rgb;
+<<<<<<< HEAD
+=======
+	struct drm_connector *connector;
+>>>>>>> upstream/android-13
 	int err;
 
 	if (!dc->rgb)
 		return -ENODEV;
 
+<<<<<<< HEAD
 	drm_connector_init(drm, &output->connector, &tegra_rgb_connector_funcs,
 			   DRM_MODE_CONNECTOR_LVDS);
 	drm_connector_helper_add(&output->connector,
@@ -292,6 +323,61 @@ int tegra_dc_rgb_init(struct drm_device *drm, struct tegra_dc *dc)
 	drm_connector_attach_encoder(&output->connector,
 					  &output->encoder);
 	drm_connector_register(&output->connector);
+=======
+	drm_simple_encoder_init(drm, &output->encoder, DRM_MODE_ENCODER_LVDS);
+	drm_encoder_helper_add(&output->encoder,
+			       &tegra_rgb_encoder_helper_funcs);
+
+	/*
+	 * Wrap directly-connected panel into DRM bridge in order to let
+	 * DRM core to handle panel for us.
+	 */
+	if (output->panel) {
+		output->bridge = devm_drm_panel_bridge_add(output->dev,
+							   output->panel);
+		if (IS_ERR(output->bridge)) {
+			dev_err(output->dev,
+				"failed to wrap panel into bridge: %pe\n",
+				output->bridge);
+			return PTR_ERR(output->bridge);
+		}
+
+		output->panel = NULL;
+	}
+
+	/*
+	 * Tegra devices that have LVDS panel utilize LVDS encoder bridge
+	 * for converting up to 28 LCD LVTTL lanes into 5/4 LVDS lanes that
+	 * go to display panel's receiver.
+	 *
+	 * Encoder usually have a power-down control which needs to be enabled
+	 * in order to transmit data to the panel.  Historically devices that
+	 * use an older device-tree version didn't model the bridge, assuming
+	 * that encoder is turned ON by default, while today's DRM allows us
+	 * to model LVDS encoder properly.
+	 *
+	 * Newer device-trees utilize LVDS encoder bridge, which provides
+	 * us with a connector and handles the display panel.
+	 *
+	 * For older device-trees we wrapped panel into the panel-bridge.
+	 */
+	if (output->bridge) {
+		err = drm_bridge_attach(&output->encoder, output->bridge,
+					NULL, DRM_BRIDGE_ATTACH_NO_CONNECTOR);
+		if (err)
+			return err;
+
+		connector = drm_bridge_connector_init(drm, &output->encoder);
+		if (IS_ERR(connector)) {
+			dev_err(output->dev,
+				"failed to initialize bridge connector: %pe\n",
+				connector);
+			return PTR_ERR(connector);
+		}
+
+		drm_connector_attach_encoder(connector, &output->encoder);
+	}
+>>>>>>> upstream/android-13
 
 	err = tegra_output_init(drm, output);
 	if (err < 0) {

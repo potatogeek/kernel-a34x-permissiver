@@ -57,6 +57,7 @@ static int hfsplus_ioctl_bless(struct file *file, int __user *user_flags)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hfsplus_ioctl_getflags(struct file *file, int __user *user_flags)
 {
 	struct inode *inode = file_inode(file);
@@ -134,15 +135,20 @@ out:
 	return err;
 }
 
+=======
+>>>>>>> upstream/android-13
 long hfsplus_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	void __user *argp = (void __user *)arg;
 
 	switch (cmd) {
+<<<<<<< HEAD
 	case HFSPLUS_IOC_EXT2_GETFLAGS:
 		return hfsplus_ioctl_getflags(file, argp);
 	case HFSPLUS_IOC_EXT2_SETFLAGS:
 		return hfsplus_ioctl_setflags(file, argp);
+=======
+>>>>>>> upstream/android-13
 	case HFSPLUS_IOC_BLESS:
 		return hfsplus_ioctl_bless(file, argp);
 	default:

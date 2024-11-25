@@ -47,9 +47,15 @@
 #include <linux/bug.h>
 #include <linux/sched.h>
 #include <linux/rculist.h>
+<<<<<<< HEAD
 #ifdef CONFIG_SEC_DEBUG
 #include <linux/sec_debug.h>
 #endif
+=======
+#include <linux/ftrace.h>
+
+#include <trace/hooks/bug.h>
+>>>>>>> upstream/android-13
 
 extern struct bug_entry __start___bug_table[], __stop___bug_table[];
 
@@ -93,8 +99,11 @@ void module_bug_finalize(const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs,
 	char *secstrings;
 	unsigned int i;
 
+<<<<<<< HEAD
 	lockdep_assert_held(&module_mutex);
 
+=======
+>>>>>>> upstream/android-13
 	mod->bug_table = NULL;
 	mod->num_bugs = 0;
 
@@ -120,7 +129,10 @@ void module_bug_finalize(const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs,
 
 void module_bug_cleanup(struct module *mod)
 {
+<<<<<<< HEAD
 	lockdep_assert_held(&module_mutex);
+=======
+>>>>>>> upstream/android-13
 	list_del_rcu(&mod->bug_list);
 }
 
@@ -132,6 +144,25 @@ static inline struct bug_entry *module_find_bug(unsigned long bugaddr)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+void bug_get_file_line(struct bug_entry *bug, const char **file,
+		       unsigned int *line)
+{
+#ifdef CONFIG_DEBUG_BUGVERBOSE
+#ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
+	*file = bug->file;
+#else
+	*file = (const char *)bug + bug->file_disp;
+#endif
+	*line = bug->line;
+#else
+	*file = NULL;
+	*line = 0;
+#endif
+}
+
+>>>>>>> upstream/android-13
 struct bug_entry *find_bug(unsigned long bugaddr)
 {
 	struct bug_entry *bug;
@@ -156,6 +187,7 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
 	if (!bug)
 		return BUG_TRAP_TYPE_NONE;
 
+<<<<<<< HEAD
 	file = NULL;
 	line = 0;
 
@@ -167,6 +199,12 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
 #endif
 	line = bug->line;
 #endif
+=======
+	disable_trace_on_warning();
+
+	bug_get_file_line(bug, &file, &line);
+
+>>>>>>> upstream/android-13
 	warning = (bug->flags & BUGFLAG_WARNING) != 0;
 	once = (bug->flags & BUGFLAG_ONCE) != 0;
 	done = (bug->flags & BUGFLAG_DONE) != 0;
@@ -181,6 +219,18 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
 		bug->flags |= BUGFLAG_DONE;
 	}
 
+<<<<<<< HEAD
+=======
+	/*
+	 * BUG() and WARN_ON() families don't print a custom debug message
+	 * before triggering the exception handler, so we must add the
+	 * "cut here" line now. WARN() issues its own "cut here" before the
+	 * extra debugging message it writes before triggering the handler.
+	 */
+	if ((bug->flags & BUGFLAG_NO_CUT_HERE) == 0)
+		printk(KERN_DEFAULT CUT_HERE);
+
+>>>>>>> upstream/android-13
 	if (warning) {
 		/* this is a WARN_ON rather than BUG/BUG_ON */
 		__warn(file, line, (void *)bugaddr, BUG_GET_TAINT(bug), regs,
@@ -188,6 +238,7 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
 		return BUG_TRAP_TYPE_WARN;
 	}
 
+<<<<<<< HEAD
 	printk(KERN_DEFAULT CUT_HERE);
 
 #ifdef CONFIG_SEC_DEBUG_EXTRA_INFO
@@ -210,6 +261,15 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
 		pr_crit("Kernel BUG at %pB [verbose debug info unavailable]\n",
 			(void *)bugaddr);
 #endif
+=======
+	if (file)
+		pr_auto(ASL1, "kernel BUG at %s:%u!\n", file, line);
+	else
+		pr_auto(ASL1, "Kernel BUG at %pB [verbose debug info unavailable]\n",
+			(void *)bugaddr);
+
+	trace_android_rvh_report_bug(file, line, bugaddr);
+>>>>>>> upstream/android-13
 
 	return BUG_TRAP_TYPE_BUG;
 }

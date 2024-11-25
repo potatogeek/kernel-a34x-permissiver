@@ -23,6 +23,7 @@
  */
 
 #include <linux/gcd.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
 #include <drm/drm_crtc.h>
 #include "radeon.h"
@@ -95,13 +96,31 @@ void dce4_set_audio_packet(struct drm_encoder *encoder, u32 offset);
 void r600_set_mute(struct drm_encoder *encoder, u32 offset, bool mute);
 void dce3_2_set_mute(struct drm_encoder *encoder, u32 offset, bool mute);
 void dce4_set_mute(struct drm_encoder *encoder, u32 offset, bool mute);
+=======
+
+#include <drm/drm_crtc.h>
+#include "dce6_afmt.h"
+#include "evergreen_hdmi.h"
+#include "radeon.h"
+#include "atom.h"
+#include "r600.h"
+#include "radeon_audio.h"
+
+void dce6_audio_enable(struct radeon_device *rdev, struct r600_audio_pin *pin,
+		u8 enable_mask);
+struct r600_audio_pin* r600_audio_get_pin(struct radeon_device *rdev);
+struct r600_audio_pin* dce6_audio_get_pin(struct radeon_device *rdev);
+>>>>>>> upstream/android-13
 static void radeon_audio_hdmi_mode_set(struct drm_encoder *encoder,
 	struct drm_display_mode *mode);
 static void radeon_audio_dp_mode_set(struct drm_encoder *encoder,
 	struct drm_display_mode *mode);
+<<<<<<< HEAD
 void r600_hdmi_enable(struct drm_encoder *encoder, bool enable);
 void evergreen_hdmi_enable(struct drm_encoder *encoder, bool enable);
 void evergreen_dp_enable(struct drm_encoder *encoder, bool enable);
+=======
+>>>>>>> upstream/android-13
 
 static const u32 pin_offsets[7] =
 {
@@ -288,7 +307,11 @@ static void radeon_audio_interface_init(struct radeon_device *rdev)
 	} else {
 		rdev->audio.funcs = &r600_funcs;
 		rdev->audio.hdmi_funcs = &r600_hdmi_funcs;
+<<<<<<< HEAD
 		rdev->audio.dp_funcs = 0;
+=======
+		rdev->audio.dp_funcs = NULL;
+>>>>>>> upstream/android-13
 	}
 }
 
@@ -367,10 +390,17 @@ static void radeon_audio_write_sad_regs(struct drm_encoder *encoder)
 		return;
 
 	sad_count = drm_edid_to_sad(radeon_connector_edid(connector), &sads);
+<<<<<<< HEAD
 	if (sad_count <= 0) {
 		DRM_ERROR("Couldn't read SADs: %d\n", sad_count);
 		return;
 	}
+=======
+	if (sad_count < 0)
+		DRM_ERROR("Couldn't read SADs: %d\n", sad_count);
+	if (sad_count <= 0)
+		return;
+>>>>>>> upstream/android-13
 	BUG_ON(!sads);
 
 	if (radeon_encoder->audio && radeon_encoder->audio->write_sad_regs)
@@ -516,13 +546,18 @@ static int radeon_audio_set_avi_packet(struct drm_encoder *encoder,
 	if (!connector)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	err = drm_hdmi_avi_infoframe_from_display_mode(&frame, mode, false);
+=======
+	err = drm_hdmi_avi_infoframe_from_display_mode(&frame, connector, mode);
+>>>>>>> upstream/android-13
 	if (err < 0) {
 		DRM_ERROR("failed to setup AVI infoframe: %d\n", err);
 		return err;
 	}
 
 	if (radeon_encoder->output_csc != RADEON_OUTPUT_CSC_BYPASS) {
+<<<<<<< HEAD
 		if (drm_rgb_quant_range_selectable(radeon_connector_edid(connector))) {
 			if (radeon_encoder->output_csc == RADEON_OUTPUT_CSC_TVRGB)
 				frame.quantization_range = HDMI_QUANTIZATION_RANGE_LIMITED;
@@ -531,6 +566,12 @@ static int radeon_audio_set_avi_packet(struct drm_encoder *encoder,
 		} else {
 			frame.quantization_range = HDMI_QUANTIZATION_RANGE_DEFAULT;
 		}
+=======
+		drm_hdmi_avi_infoframe_quant_range(&frame, connector, mode,
+						   radeon_encoder->output_csc == RADEON_OUTPUT_CSC_TVRGB ?
+						   HDMI_QUANTIZATION_RANGE_LIMITED :
+						   HDMI_QUANTIZATION_RANGE_FULL);
+>>>>>>> upstream/android-13
 	}
 
 	err = hdmi_avi_infoframe_pack(&frame, buffer, sizeof(buffer));

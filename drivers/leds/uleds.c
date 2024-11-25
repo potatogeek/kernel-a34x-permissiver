@@ -1,9 +1,14 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Userspace driver for the LED subsystem
  *
  * Copyright (C) 2016 David Lechner <david@lechnology.com>
  *
  * Based on uinput.c: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +19,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/fs.h>
 #include <linux/init.h>
@@ -74,7 +81,11 @@ static int uleds_open(struct inode *inode, struct file *file)
 	udev->state = ULEDS_STATE_UNKNOWN;
 
 	file->private_data = udev;
+<<<<<<< HEAD
 	nonseekable_open(inode, file);
+=======
+	stream_open(inode, file);
+>>>>>>> upstream/android-13
 
 	return 0;
 }

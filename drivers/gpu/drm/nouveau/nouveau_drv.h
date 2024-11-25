@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NOUVEAU_DRV_H__
 #define __NOUVEAU_DRV_H__
 
@@ -46,22 +50,37 @@
 #include <nvif/mmu.h>
 #include <nvif/vmm.h>
 
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+#include <drm/drm_connector.h>
+#include <drm/drm_device.h>
+#include <drm/drm_drv.h>
+#include <drm/drm_file.h>
+>>>>>>> upstream/android-13
 
 #include <drm/ttm/ttm_bo_api.h>
 #include <drm/ttm/ttm_bo_driver.h>
 #include <drm/ttm/ttm_placement.h>
+<<<<<<< HEAD
 #include <drm/ttm/ttm_memory.h>
 #include <drm/ttm/ttm_module.h>
 #include <drm/ttm/ttm_page_alloc.h>
+=======
+
+#include <drm/drm_audio_component.h>
+>>>>>>> upstream/android-13
 
 #include "uapi/drm/nouveau_drm.h"
 
 struct nouveau_channel;
 struct platform_device;
 
+<<<<<<< HEAD
 #define DRM_FILE_PAGE_OFFSET (0x100000000ULL >> PAGE_SHIFT)
 
+=======
+>>>>>>> upstream/android-13
 #include "nouveau_fence.h"
 #include "nouveau_bios.h"
 #include "nouveau_vmm.h"
@@ -96,6 +115,10 @@ struct nouveau_cli {
 	struct nvif_device device;
 	struct nvif_mmu mmu;
 	struct nouveau_vmm vmm;
+<<<<<<< HEAD
+=======
+	struct nouveau_vmm svm;
+>>>>>>> upstream/android-13
 	const struct nvif_mclass *mem;
 
 	struct list_head head;
@@ -128,15 +151,32 @@ nouveau_cli(struct drm_file *fpriv)
 }
 
 #include <nvif/object.h>
+<<<<<<< HEAD
 #include <nvif/device.h>
 
 struct nouveau_drm {
+=======
+#include <nvif/parent.h>
+
+struct nouveau_drm {
+	struct nvif_parent parent;
+>>>>>>> upstream/android-13
 	struct nouveau_cli master;
 	struct nouveau_cli client;
 	struct drm_device *dev;
 
 	struct list_head clients;
 
+<<<<<<< HEAD
+=======
+	/**
+	 * @clients_lock: Protects access to the @clients list of &struct nouveau_cli.
+	 */
+	struct mutex clients_lock;
+
+	u8 old_pm_cap;
+
+>>>>>>> upstream/android-13
 	struct {
 		struct agp_bridge_data *bridge;
 		u32 base;
@@ -146,6 +186,7 @@ struct nouveau_drm {
 
 	/* TTM interface support */
 	struct {
+<<<<<<< HEAD
 		struct drm_global_reference mem_global_ref;
 		struct ttm_bo_global_ref bo_global_ref;
 		struct ttm_bo_device bdev;
@@ -153,12 +194,24 @@ struct nouveau_drm {
 		int (*move)(struct nouveau_channel *,
 			    struct ttm_buffer_object *,
 			    struct ttm_mem_reg *, struct ttm_mem_reg *);
+=======
+		struct ttm_device bdev;
+		atomic_t validate_sequence;
+		int (*move)(struct nouveau_channel *,
+			    struct ttm_buffer_object *,
+			    struct ttm_resource *, struct ttm_resource *);
+>>>>>>> upstream/android-13
 		struct nouveau_channel *chan;
 		struct nvif_object copy;
 		int mtrr;
 		int type_vram;
 		int type_host[2];
 		int type_ncoh[2];
+<<<<<<< HEAD
+=======
+		struct mutex io_reserve_mutex;
+		struct list_head io_reserve_lru;
+>>>>>>> upstream/android-13
 	} ttm;
 
 	/* GEM interface support */
@@ -181,9 +234,13 @@ struct nouveau_drm {
 	struct nouveau_channel *channel;
 	struct nvkm_gpuobj *notify;
 	struct nouveau_fbdev *fbcon;
+<<<<<<< HEAD
 	struct nvif_object nvsw;
 	struct nvif_object ntfy;
 	struct nvif_notify flip;
+=======
+	struct nvif_object ntfy;
+>>>>>>> upstream/android-13
 
 	/* nv10-nv40 tiling regions */
 	struct {
@@ -194,9 +251,15 @@ struct nouveau_drm {
 	/* modesetting */
 	struct nvbios vbios;
 	struct nouveau_display *display;
+<<<<<<< HEAD
 	struct backlight_device *backlight;
 	struct list_head bl_connectors;
 	struct work_struct hpd_work;
+=======
+	struct work_struct hpd_work;
+	struct mutex hpd_lock;
+	u32 hpd_pending;
+>>>>>>> upstream/android-13
 	struct work_struct fbcon_work;
 	int fbcon_new_state;
 #ifdef CONFIG_ACPI
@@ -210,10 +273,24 @@ struct nouveau_drm {
 	/* led management */
 	struct nouveau_led *led;
 
+<<<<<<< HEAD
 	/* display power reference */
 	bool have_disp_power_ref;
 
 	struct dev_pm_domain vga_pm_domain;
+=======
+	struct dev_pm_domain vga_pm_domain;
+
+	struct nouveau_svm *svm;
+
+	struct nouveau_dmem *dmem;
+
+	struct {
+		struct drm_audio_component *component;
+		struct mutex lock;
+		bool component_registered;
+	} audio;
+>>>>>>> upstream/android-13
 };
 
 static inline struct nouveau_drm *
@@ -244,10 +321,15 @@ void nouveau_drm_device_remove(struct drm_device *dev);
 	struct nouveau_cli *_cli = (c);                                        \
 	dev_##l(_cli->drm->dev->dev, "%s: "f, _cli->name, ##a);                \
 } while(0)
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/android-13
 #define NV_FATAL(drm,f,a...) NV_PRINTK(crit, &(drm)->client, f, ##a)
 #define NV_ERROR(drm,f,a...) NV_PRINTK(err, &(drm)->client, f, ##a)
 #define NV_WARN(drm,f,a...) NV_PRINTK(warn, &(drm)->client, f, ##a)
 #define NV_INFO(drm,f,a...) NV_PRINTK(info, &(drm)->client, f, ##a)
+<<<<<<< HEAD
 #define NV_DEBUG(drm,f,a...) do {                                              \
 	if (unlikely(drm_debug & DRM_UT_DRIVER))                               \
 		NV_PRINTK(info, &(drm)->client, f, ##a);                       \
@@ -257,6 +339,24 @@ void nouveau_drm_device_remove(struct drm_device *dev);
 		NV_PRINTK(info, &(drm)->client, f, ##a);                       \
 } while(0)
 
+=======
+
+#define NV_DEBUG(drm,f,a...) do {                                              \
+	if (drm_debug_enabled(DRM_UT_DRIVER))                                  \
+		NV_PRINTK(info, &(drm)->client, f, ##a);                       \
+} while(0)
+#define NV_ATOMIC(drm,f,a...) do {                                             \
+	if (drm_debug_enabled(DRM_UT_ATOMIC))                                  \
+		NV_PRINTK(info, &(drm)->client, f, ##a);                       \
+} while(0)
+
+#define NV_PRINTK_ONCE(l,c,f,a...) NV_PRINTK(l##_once,c,f, ##a)
+
+#define NV_ERROR_ONCE(drm,f,a...) NV_PRINTK_ONCE(err, &(drm)->client, f, ##a)
+#define NV_WARN_ONCE(drm,f,a...) NV_PRINTK_ONCE(warn, &(drm)->client, f, ##a)
+#define NV_INFO_ONCE(drm,f,a...) NV_PRINTK_ONCE(info, &(drm)->client, f, ##a)
+
+>>>>>>> upstream/android-13
 extern int nouveau_modeset;
 
 #endif

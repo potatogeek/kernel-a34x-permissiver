@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * ngene.c: nGene PCIe bridge driver
  *
@@ -7,6 +11,7 @@
  *                         Modifications for new nGene firmware,
  *                         support for EEPROM-copying,
  *                         support for new dual DVB-S2 card prototype
+<<<<<<< HEAD
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +26,8 @@
  *
  * To obtain the license, point your browser to
  * http://www.gnu.org/copyleft/gpl.html
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/module.h>
@@ -63,9 +70,15 @@ DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 /* nGene interrupt handler **************************************************/
 /****************************************************************************/
 
+<<<<<<< HEAD
 static void event_tasklet(unsigned long data)
 {
 	struct ngene *dev = (struct ngene *)data;
+=======
+static void event_tasklet(struct tasklet_struct *t)
+{
+	struct ngene *dev = from_tasklet(dev, t, event_tasklet);
+>>>>>>> upstream/android-13
 
 	while (dev->EventQueueReadIndex != dev->EventQueueWriteIndex) {
 		struct EVENT_BUFFER Event =
@@ -81,9 +94,15 @@ static void event_tasklet(unsigned long data)
 	}
 }
 
+<<<<<<< HEAD
 static void demux_tasklet(unsigned long data)
 {
 	struct ngene_channel *chan = (struct ngene_channel *)data;
+=======
+static void demux_tasklet(struct tasklet_struct *t)
+{
+	struct ngene_channel *chan = from_tasklet(chan, t, demux_tasklet);
+>>>>>>> upstream/android-13
 	struct device *pdev = &chan->dev->pci_dev->dev;
 	struct SBufferHeader *Cur = chan->nextBuffer;
 
@@ -398,7 +417,11 @@ static int ngene_command_config_free_buf(struct ngene *dev, u8 *config)
 
 	com.cmd.hdr.Opcode = CMD_CONFIGURE_FREE_BUFFER;
 	com.cmd.hdr.Length = 6;
+<<<<<<< HEAD
 	memcpy(&com.cmd.ConfigureBuffers.config, config, 6);
+=======
+	memcpy(&com.cmd.ConfigureFreeBuffers.config, config, 6);
+>>>>>>> upstream/android-13
 	com.in_len = 6;
 	com.out_len = 0;
 
@@ -776,6 +799,7 @@ static void free_ringbuffer(struct ngene *dev, struct SRingBufferDescriptor *rb)
 
 	for (j = 0; j < rb->NumBuffers; j++, Cur = Cur->Next) {
 		if (Cur->Buffer1)
+<<<<<<< HEAD
 			pci_free_consistent(dev->pci_dev,
 					    rb->Buffer1Length,
 					    Cur->Buffer1,
@@ -793,6 +817,24 @@ static void free_ringbuffer(struct ngene *dev, struct SRingBufferDescriptor *rb)
 				    rb->SCListMem, rb->PASCListMem);
 
 	pci_free_consistent(dev->pci_dev, rb->MemSize, rb->Head, rb->PAHead);
+=======
+			dma_free_coherent(&dev->pci_dev->dev,
+					  rb->Buffer1Length, Cur->Buffer1,
+					  Cur->scList1->Address);
+
+		if (Cur->Buffer2)
+			dma_free_coherent(&dev->pci_dev->dev,
+					  rb->Buffer2Length, Cur->Buffer2,
+					  Cur->scList2->Address);
+	}
+
+	if (rb->SCListMem)
+		dma_free_coherent(&dev->pci_dev->dev, rb->SCListMemSize,
+				  rb->SCListMem, rb->PASCListMem);
+
+	dma_free_coherent(&dev->pci_dev->dev, rb->MemSize, rb->Head,
+			  rb->PAHead);
+>>>>>>> upstream/android-13
 }
 
 static void free_idlebuffer(struct ngene *dev,
@@ -826,6 +868,7 @@ static void free_common_buffers(struct ngene *dev)
 	}
 
 	if (dev->OverflowBuffer)
+<<<<<<< HEAD
 		pci_free_consistent(dev->pci_dev,
 				    OVERFLOW_BUFFER_SIZE,
 				    dev->OverflowBuffer, dev->PAOverflowBuffer);
@@ -835,6 +878,15 @@ static void free_common_buffers(struct ngene *dev)
 				    4096,
 				    dev->FWInterfaceBuffer,
 				    dev->PAFWInterfaceBuffer);
+=======
+		dma_free_coherent(&dev->pci_dev->dev, OVERFLOW_BUFFER_SIZE,
+				  dev->OverflowBuffer, dev->PAOverflowBuffer);
+
+	if (dev->FWInterfaceBuffer)
+		dma_free_coherent(&dev->pci_dev->dev, 4096,
+				  dev->FWInterfaceBuffer,
+				  dev->PAFWInterfaceBuffer);
+>>>>>>> upstream/android-13
 }
 
 /****************************************************************************/
@@ -861,14 +913,21 @@ static int create_ring_buffer(struct pci_dev *pci_dev,
 	if (MemSize < 4096)
 		MemSize = 4096;
 
+<<<<<<< HEAD
 	Head = pci_alloc_consistent(pci_dev, MemSize, &tmp);
+=======
+	Head = dma_alloc_coherent(&pci_dev->dev, MemSize, &tmp, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	PARingBufferHead = tmp;
 
 	if (!Head)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(Head, 0, MemSize);
 
+=======
+>>>>>>> upstream/android-13
 	PARingBufferCur = PARingBufferHead;
 	Cur = Head;
 
@@ -914,14 +973,22 @@ static int AllocateRingBuffers(struct pci_dev *pci_dev,
 	if (SCListMemSize < 4096)
 		SCListMemSize = 4096;
 
+<<<<<<< HEAD
 	SCListMem = pci_alloc_consistent(pci_dev, SCListMemSize, &tmp);
+=======
+	SCListMem = dma_alloc_coherent(&pci_dev->dev, SCListMemSize, &tmp,
+				       GFP_KERNEL);
+>>>>>>> upstream/android-13
 
 	PASCListMem = tmp;
 	if (SCListMem == NULL)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	memset(SCListMem, 0, SCListMemSize);
 
+=======
+>>>>>>> upstream/android-13
 	pRingBuffer->SCListMem = SCListMem;
 	pRingBuffer->PASCListMem = PASCListMem;
 	pRingBuffer->SCListMemSize = SCListMemSize;
@@ -935,8 +1002,13 @@ static int AllocateRingBuffers(struct pci_dev *pci_dev,
 	for (i = 0; i < pRingBuffer->NumBuffers; i += 1, Cur = Cur->Next) {
 		u64 PABuffer;
 
+<<<<<<< HEAD
 		void *Buffer = pci_alloc_consistent(pci_dev, Buffer1Length,
 						    &tmp);
+=======
+		void *Buffer = dma_alloc_coherent(&pci_dev->dev,
+						  Buffer1Length, &tmp, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		PABuffer = tmp;
 
 		if (Buffer == NULL)
@@ -968,7 +1040,12 @@ static int AllocateRingBuffers(struct pci_dev *pci_dev,
 		if (!Buffer2Length)
 			continue;
 
+<<<<<<< HEAD
 		Buffer = pci_alloc_consistent(pci_dev, Buffer2Length, &tmp);
+=======
+		Buffer = dma_alloc_coherent(&pci_dev->dev, Buffer2Length,
+					    &tmp, GFP_KERNEL);
+>>>>>>> upstream/android-13
 		PABuffer = tmp;
 
 		if (Buffer == NULL)
@@ -1014,7 +1091,11 @@ static int FillTSIdleBuffer(struct SRingBufferDescriptor *pIdleBuffer,
 	/* Point to first buffer entry */
 	struct SBufferHeader *Cur = pRingBuffer->Head;
 	int i;
+<<<<<<< HEAD
 	/* Loop thru all buffer and set Buffer 2 pointers to TSIdlebuffer */
+=======
+	/* Loop through all buffer and set Buffer 2 pointers to TSIdlebuffer */
+>>>>>>> upstream/android-13
 	for (i = 0; i < n; i++) {
 		Cur->Buffer2 = pIdleBuffer->Head->Buffer1;
 		Cur->scList2 = pIdleBuffer->Head->scList1;
@@ -1057,17 +1138,29 @@ static int AllocCommonBuffers(struct ngene *dev)
 {
 	int status = 0, i;
 
+<<<<<<< HEAD
 	dev->FWInterfaceBuffer = pci_alloc_consistent(dev->pci_dev, 4096,
 						     &dev->PAFWInterfaceBuffer);
+=======
+	dev->FWInterfaceBuffer = dma_alloc_coherent(&dev->pci_dev->dev, 4096,
+						    &dev->PAFWInterfaceBuffer,
+						    GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev->FWInterfaceBuffer)
 		return -ENOMEM;
 	dev->hosttongene = dev->FWInterfaceBuffer;
 	dev->ngenetohost = dev->FWInterfaceBuffer + 256;
 	dev->EventBuffer = dev->FWInterfaceBuffer + 512;
 
+<<<<<<< HEAD
 	dev->OverflowBuffer = pci_zalloc_consistent(dev->pci_dev,
 						    OVERFLOW_BUFFER_SIZE,
 						    &dev->PAOverflowBuffer);
+=======
+	dev->OverflowBuffer = dma_alloc_coherent(&dev->pci_dev->dev,
+						 OVERFLOW_BUFFER_SIZE,
+						 &dev->PAOverflowBuffer, GFP_KERNEL);
+>>>>>>> upstream/android-13
 	if (!dev->OverflowBuffer)
 		return -ENOMEM;
 
@@ -1198,7 +1291,11 @@ static void ngene_init(struct ngene *dev)
 	struct device *pdev = &dev->pci_dev->dev;
 	int i;
 
+<<<<<<< HEAD
 	tasklet_init(&dev->event_tasklet, event_tasklet, (unsigned long)dev);
+=======
+	tasklet_setup(&dev->event_tasklet, event_tasklet);
+>>>>>>> upstream/android-13
 
 	memset_io(dev->iomem + 0xc000, 0x00, 0x220);
 	memset_io(dev->iomem + 0xc400, 0x00, 0x100);
@@ -1462,7 +1559,11 @@ static int init_channel(struct ngene_channel *chan)
 	struct ngene_info *ni = dev->card_info;
 	int io = ni->io_type[nr];
 
+<<<<<<< HEAD
 	tasklet_init(&chan->demux_tasklet, demux_tasklet, (unsigned long)chan);
+=======
+	tasklet_setup(&chan->demux_tasklet, demux_tasklet);
+>>>>>>> upstream/android-13
 	chan->users = 0;
 	chan->type = io;
 	chan->mode = chan->type;	/* for now only one mode */

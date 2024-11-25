@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * ROHM BU21023/24 Dual touch support resistive touch screen driver
  * Copyright (C) 2012 ROHM CO.,LTD.
@@ -10,6 +11,12 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * ROHM BU21023/24 Dual touch support resistive touch screen driver
+ * Copyright (C) 2012 ROHM CO.,LTD.
+>>>>>>> upstream/android-13
  */
 #include <linux/delay.h>
 #include <linux/firmware.h>

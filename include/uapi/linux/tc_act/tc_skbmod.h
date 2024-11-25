@@ -13,12 +13,19 @@
 
 #include <linux/pkt_cls.h>
 
+<<<<<<< HEAD
 #define TCA_ACT_SKBMOD 15
 
+=======
+>>>>>>> upstream/android-13
 #define SKBMOD_F_DMAC	0x1
 #define SKBMOD_F_SMAC	0x2
 #define SKBMOD_F_ETYPE	0x4
 #define SKBMOD_F_SWAPMAC 0x8
+<<<<<<< HEAD
+=======
+#define SKBMOD_F_ECN	0x10
+>>>>>>> upstream/android-13
 
 struct tc_skbmod {
 	tc_gen;

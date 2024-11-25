@@ -1,13 +1,20 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  * Use DWARF Debug information to skip unnecessary callchain entries.
  *
  * Copyright (C) 2014 Sukadev Bhattiprolu, IBM Corporation.
  * Copyright (C) 2014 Ulrich Weigand, IBM Corporation.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version
  * 2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 #include <inttypes.h>
 #include <dwarf.h>
@@ -16,6 +23,13 @@
 #include "util/thread.h"
 #include "util/callchain.h"
 #include "util/debug.h"
+<<<<<<< HEAD
+=======
+#include "util/dso.h"
+#include "util/event.h" // struct ip_callchain
+#include "util/map.h"
+#include "util/symbol.h"
+>>>>>>> upstream/android-13
 
 /*
  * When saving the callchain on Power, the kernel conservatively saves
@@ -45,7 +59,11 @@ static const Dwfl_Callbacks offline_callbacks = {
  */
 static int check_return_reg(int ra_regno, Dwarf_Frame *frame)
 {
+<<<<<<< HEAD
 	Dwarf_Op ops_mem[2];
+=======
+	Dwarf_Op ops_mem[3];
+>>>>>>> upstream/android-13
 	Dwarf_Op dummy;
 	Dwarf_Op *ops = &dummy;
 	size_t nops;

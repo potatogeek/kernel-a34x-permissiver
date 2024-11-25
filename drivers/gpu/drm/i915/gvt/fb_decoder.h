@@ -36,6 +36,15 @@
 #ifndef _GVT_FB_DECODER_H_
 #define _GVT_FB_DECODER_H_
 
+<<<<<<< HEAD
+=======
+#include <linux/types.h>
+
+#include "display/intel_display.h"
+
+struct intel_vgpu;
+
+>>>>>>> upstream/android-13
 #define _PLANE_CTL_FORMAT_SHIFT		24
 #define _PLANE_CTL_TILED_SHIFT		10
 #define _PIPE_V_SRCSZ_SHIFT		0
@@ -96,8 +105,11 @@ enum DDI_PORT {
 	DDI_PORT_E	= 4
 };
 
+<<<<<<< HEAD
 struct intel_gvt;
 
+=======
+>>>>>>> upstream/android-13
 /* color space conversion and gamma correction are not included */
 struct intel_vgpu_primary_plane_format {
 	u8	enabled;	/* plane is enabled */

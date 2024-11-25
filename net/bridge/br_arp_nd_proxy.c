@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-or-later
+>>>>>>> upstream/android-13
 /*
  *  Handle bridge arp/nd proxy/suppress
  *
@@ -6,11 +10,14 @@
  *
  *  Authors:
  *	Roopa Prabhu <roopa@cumulusnetworks.com>
+<<<<<<< HEAD
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version
  *  2 of the License, or (at your option) any later version.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/kernel.h>
@@ -21,6 +28,10 @@
 #include <linux/if_vlan.h>
 #include <linux/inetdevice.h>
 #include <net/addrconf.h>
+<<<<<<< HEAD
+=======
+#include <net/ipv6_stubs.h>
+>>>>>>> upstream/android-13
 #if IS_ENABLED(CONFIG_IPV6)
 #include <net/ip6_checksum.h>
 #endif
@@ -39,7 +50,11 @@ void br_recalculate_neigh_suppress_enabled(struct net_bridge *br)
 		}
 	}
 
+<<<<<<< HEAD
 	br->neigh_suppress_enabled = neigh_suppress;
+=======
+	br_opt_toggle(br, BROPT_NEIGH_SUPPRESS_ENABLED, neigh_suppress);
+>>>>>>> upstream/android-13
 }
 
 #if IS_ENABLED(CONFIG_INET)
@@ -91,9 +106,16 @@ static void br_arp_send(struct net_bridge *br, struct net_bridge_port *p,
 	}
 }
 
+<<<<<<< HEAD
 static int br_chk_addr_ip(struct net_device *dev, void *data)
 {
 	__be32 ip = *(__be32 *)data;
+=======
+static int br_chk_addr_ip(struct net_device *dev,
+			  struct netdev_nested_priv *priv)
+{
+	__be32 ip = *(__be32 *)priv->data;
+>>>>>>> upstream/android-13
 	struct in_device *in_dev;
 	__be32 addr = 0;
 
@@ -110,11 +132,23 @@ static int br_chk_addr_ip(struct net_device *dev, void *data)
 
 static bool br_is_local_ip(struct net_device *dev, __be32 ip)
 {
+<<<<<<< HEAD
 	if (br_chk_addr_ip(dev, &ip))
 		return true;
 
 	/* check if ip is configured on upper dev */
 	if (netdev_walk_all_upper_dev_rcu(dev, br_chk_addr_ip, &ip))
+=======
+	struct netdev_nested_priv priv = {
+		.data = (void *)&ip,
+	};
+
+	if (br_chk_addr_ip(dev, &priv))
+		return true;
+
+	/* check if ip is configured on upper dev */
+	if (netdev_walk_all_upper_dev_rcu(dev, br_chk_addr_ip, &priv))
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;
@@ -130,7 +164,11 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
 	u8 *arpptr, *sha;
 	__be32 sip, tip;
 
+<<<<<<< HEAD
 	BR_INPUT_SKB_CB(skb)->proxyarp_replied = false;
+=======
+	BR_INPUT_SKB_CB(skb)->proxyarp_replied = 0;
+>>>>>>> upstream/android-13
 
 	if ((dev->flags & IFF_NOARP) ||
 	    !pskb_may_pull(skb, arp_hdr_len(dev)))
@@ -155,14 +193,22 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
 	    ipv4_is_multicast(tip))
 		return;
 
+<<<<<<< HEAD
 	if (br->neigh_suppress_enabled) {
+=======
+	if (br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED)) {
+>>>>>>> upstream/android-13
 		if (p && (p->flags & BR_NEIGH_SUPPRESS))
 			return;
 		if (parp->ar_op != htons(ARPOP_RREQUEST) &&
 		    parp->ar_op != htons(ARPOP_RREPLY) &&
 		    (ipv4_is_zeronet(sip) || sip == tip)) {
 			/* prevent flooding to neigh suppress ports */
+<<<<<<< HEAD
 			BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
+=======
+			BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+>>>>>>> upstream/android-13
 			return;
 		}
 	}
@@ -177,11 +223,20 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
 			return;
 	}
 
+<<<<<<< HEAD
 	if (br->neigh_suppress_enabled && br_is_local_ip(vlandev, tip)) {
 		/* its our local ip, so don't proxy reply
 		 * and don't forward to neigh suppress ports
 		 */
 		BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
+=======
+	if (br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED) &&
+	    br_is_local_ip(vlandev, tip)) {
+		/* its our local ip, so don't proxy reply
+		 * and don't forward to neigh suppress ports
+		 */
+		BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -215,8 +270,14 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
 			/* If we have replied or as long as we know the
 			 * mac, indicate to arp replied
 			 */
+<<<<<<< HEAD
 			if (replied || br->neigh_suppress_enabled)
 				BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
+=======
+			if (replied ||
+			    br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED))
+				BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+>>>>>>> upstream/android-13
 		}
 
 		neigh_release(n);
@@ -364,9 +425,16 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
 	}
 }
 
+<<<<<<< HEAD
 static int br_chk_addr_ip6(struct net_device *dev, void *data)
 {
 	struct in6_addr *addr = (struct in6_addr *)data;
+=======
+static int br_chk_addr_ip6(struct net_device *dev,
+			   struct netdev_nested_priv *priv)
+{
+	struct in6_addr *addr = (struct in6_addr *)priv->data;
+>>>>>>> upstream/android-13
 
 	if (ipv6_chk_addr(dev_net(dev), addr, dev, 0))
 		return 1;
@@ -377,11 +445,23 @@ static int br_chk_addr_ip6(struct net_device *dev, void *data)
 static bool br_is_local_ip6(struct net_device *dev, struct in6_addr *addr)
 
 {
+<<<<<<< HEAD
 	if (br_chk_addr_ip6(dev, addr))
 		return true;
 
 	/* check if ip is configured on upper dev */
 	if (netdev_walk_all_upper_dev_rcu(dev, br_chk_addr_ip6, addr))
+=======
+	struct netdev_nested_priv priv = {
+		.data = (void *)addr,
+	};
+
+	if (br_chk_addr_ip6(dev, &priv))
+		return true;
+
+	/* check if ip is configured on upper dev */
+	if (netdev_walk_all_upper_dev_rcu(dev, br_chk_addr_ip6, &priv))
+>>>>>>> upstream/android-13
 		return true;
 
 	return false;
@@ -396,7 +476,11 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
 	struct ipv6hdr *iphdr;
 	struct neighbour *n;
 
+<<<<<<< HEAD
 	BR_INPUT_SKB_CB(skb)->proxyarp_replied = false;
+=======
+	BR_INPUT_SKB_CB(skb)->proxyarp_replied = 0;
+>>>>>>> upstream/android-13
 
 	if (p && (p->flags & BR_NEIGH_SUPPRESS))
 		return;
@@ -404,7 +488,11 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
 	if (msg->icmph.icmp6_type == NDISC_NEIGHBOUR_ADVERTISEMENT &&
 	    !msg->icmph.icmp6_solicited) {
 		/* prevent flooding to neigh suppress ports */
+<<<<<<< HEAD
 		BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
+=======
+		BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -417,7 +505,11 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
 
 	if (ipv6_addr_any(saddr) || !ipv6_addr_cmp(saddr, daddr)) {
 		/* prevent flooding to neigh suppress ports */
+<<<<<<< HEAD
 		BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
+=======
+		BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -435,7 +527,11 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
 		/* its our own ip, so don't proxy reply
 		 * and don't forward to arp suppress ports
 		 */
+<<<<<<< HEAD
 		BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
+=======
+		BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -466,8 +562,14 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
 			 * mac, indicate to NEIGH_SUPPRESS ports that we
 			 * have replied
 			 */
+<<<<<<< HEAD
 			if (replied || br->neigh_suppress_enabled)
 				BR_INPUT_SKB_CB(skb)->proxyarp_replied = true;
+=======
+			if (replied ||
+			    br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED))
+				BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+>>>>>>> upstream/android-13
 		}
 		neigh_release(n);
 	}

@@ -102,37 +102,58 @@ MODULE_PARM_DESC(video_debug, "enable debug messages [video]");
 /* supported video standards */
 static struct em28xx_fmt format[] = {
 	{
+<<<<<<< HEAD
 		.name     = "16 bpp YUY2, 4:2:2, packed",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUYV,
 		.depth    = 16,
 		.reg	  = EM28XX_OUTFMT_YUV422_Y0UY1V,
 	}, {
+<<<<<<< HEAD
 		.name     = "16 bpp RGB 565, LE",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_RGB565,
 		.depth    = 16,
 		.reg      = EM28XX_OUTFMT_RGB_16_656,
 	}, {
+<<<<<<< HEAD
 		.name     = "8 bpp Bayer RGRG..GBGB",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_SRGGB8,
 		.depth    = 8,
 		.reg      = EM28XX_OUTFMT_RGB_8_RGRG,
 	}, {
+<<<<<<< HEAD
 		.name     = "8 bpp Bayer BGBG..GRGR",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_SBGGR8,
 		.depth    = 8,
 		.reg      = EM28XX_OUTFMT_RGB_8_BGBG,
 	}, {
+<<<<<<< HEAD
 		.name     = "8 bpp Bayer GRGR..BGBG",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_SGRBG8,
 		.depth    = 8,
 		.reg      = EM28XX_OUTFMT_RGB_8_GRGR,
 	}, {
+<<<<<<< HEAD
 		.name     = "8 bpp Bayer GBGB..RGRG",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_SGBRG8,
 		.depth    = 8,
 		.reg      = EM28XX_OUTFMT_RGB_8_GBGB,
 	}, {
+<<<<<<< HEAD
 		.name     = "12 bpp YUV411",
+=======
+>>>>>>> upstream/android-13
 		.fourcc   = V4L2_PIX_FMT_YUV411P,
 		.depth    = 12,
 		.reg      = EM28XX_OUTFMT_YUV411,
@@ -1517,7 +1538,10 @@ static int vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 	else
 		f->fmt.pix.field = v4l2->interlaced_fieldmode ?
 			   V4L2_FIELD_INTERLACED : V4L2_FIELD_TOP;
+<<<<<<< HEAD
 	f->fmt.pix.priv = 0;
+=======
+>>>>>>> upstream/android-13
 
 	return 0;
 }
@@ -1678,7 +1702,11 @@ static int vidioc_enum_input(struct file *file, void *priv,
 
 	i->type = V4L2_INPUT_TYPE_CAMERA;
 
+<<<<<<< HEAD
 	strcpy(i->name, iname[INPUT(n)->type]);
+=======
+	strscpy(i->name, iname[INPUT(n)->type], sizeof(i->name));
+>>>>>>> upstream/android-13
 
 	if (INPUT(n)->type == EM28XX_VMUX_TELEVISION)
 		i->type = V4L2_INPUT_TYPE_TUNER;
@@ -1738,6 +1766,7 @@ static int em28xx_fill_audio_input(struct em28xx *dev,
 
 	switch (idx) {
 	case EM28XX_AMUX_VIDEO:
+<<<<<<< HEAD
 		strcpy(a->name, "Television");
 		break;
 	case EM28XX_AMUX_LINE_IN:
@@ -1760,6 +1789,30 @@ static int em28xx_fill_audio_input(struct em28xx *dev,
 		break;
 	case EM28XX_AMUX_PCM_OUT:
 		strcpy(a->name, "PCM");
+=======
+		strscpy(a->name, "Television", sizeof(a->name));
+		break;
+	case EM28XX_AMUX_LINE_IN:
+		strscpy(a->name, "Line In", sizeof(a->name));
+		break;
+	case EM28XX_AMUX_VIDEO2:
+		strscpy(a->name, "Television alt", sizeof(a->name));
+		break;
+	case EM28XX_AMUX_PHONE:
+		strscpy(a->name, "Phone", sizeof(a->name));
+		break;
+	case EM28XX_AMUX_MIC:
+		strscpy(a->name, "Mic", sizeof(a->name));
+		break;
+	case EM28XX_AMUX_CD:
+		strscpy(a->name, "CD", sizeof(a->name));
+		break;
+	case EM28XX_AMUX_AUX:
+		strscpy(a->name, "Aux", sizeof(a->name));
+		break;
+	case EM28XX_AMUX_PCM_OUT:
+		strscpy(a->name, "PCM", sizeof(a->name));
+>>>>>>> upstream/android-13
 		break;
 	case EM28XX_AMUX_UNUSED:
 	default:
@@ -1845,7 +1898,11 @@ static int vidioc_g_tuner(struct file *file, void *priv,
 	if (t->index != 0)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(t->name, "Tuner");
+=======
+	strscpy(t->name, "Tuner", sizeof(t->name));
+>>>>>>> upstream/android-13
 
 	v4l2_device_call_all(&dev->v4l2->v4l2_dev, 0, tuner, g_tuner, t);
 	return 0;
@@ -1902,9 +1959,15 @@ static int vidioc_g_chip_info(struct file *file, void *priv,
 	if (chip->match.addr > 1)
 		return -EINVAL;
 	if (chip->match.addr == 1)
+<<<<<<< HEAD
 		strlcpy(chip->name, "ac97", sizeof(chip->name));
 	else
 		strlcpy(chip->name,
+=======
+		strscpy(chip->name, "ac97", sizeof(chip->name));
+	else
+		strscpy(chip->name,
+>>>>>>> upstream/android-13
 			dev->v4l2->v4l2_dev.name, sizeof(chip->name));
 	return 0;
 }
@@ -1984,11 +2047,15 @@ static int vidioc_s_register(struct file *file, void *priv,
 static int vidioc_querycap(struct file *file, void  *priv,
 			   struct v4l2_capability *cap)
 {
+<<<<<<< HEAD
 	struct video_device   *vdev = video_devdata(file);
+=======
+>>>>>>> upstream/android-13
 	struct em28xx         *dev  = video_drvdata(file);
 	struct em28xx_v4l2    *v4l2 = dev->v4l2;
 	struct usb_device *udev = interface_to_usbdev(dev->intf);
 
+<<<<<<< HEAD
 	strlcpy(cap->driver, "em28xx", sizeof(cap->driver));
 	strlcpy(cap->card, em28xx_boards[dev->model].name, sizeof(cap->card));
 	usb_make_path(udev, cap->bus_info, sizeof(cap->bus_info));
@@ -2010,6 +2077,18 @@ static int vidioc_querycap(struct file *file, void  *priv,
 	cap->capabilities = cap->device_caps |
 			    V4L2_CAP_DEVICE_CAPS | V4L2_CAP_READWRITE |
 			    V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
+=======
+	strscpy(cap->driver, "em28xx", sizeof(cap->driver));
+	strscpy(cap->card, em28xx_boards[dev->model].name, sizeof(cap->card));
+	usb_make_path(udev, cap->bus_info, sizeof(cap->bus_info));
+
+	cap->capabilities = V4L2_CAP_DEVICE_CAPS | V4L2_CAP_READWRITE |
+			    V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
+	if (dev->int_audio_type != EM28XX_INT_AUDIO_NONE)
+		cap->capabilities |= V4L2_CAP_AUDIO;
+	if (dev->tuner_type != TUNER_ABSENT)
+		cap->capabilities |= V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 	if (video_is_registered(&v4l2->vbi_dev))
 		cap->capabilities |= V4L2_CAP_VBI_CAPTURE;
 	if (video_is_registered(&v4l2->radio_dev))
@@ -2023,7 +2102,10 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 	if (unlikely(f->index >= ARRAY_SIZE(format)))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strlcpy(f->description, format[f->index].name, sizeof(f->description));
+=======
+>>>>>>> upstream/android-13
 	f->pixelformat = format[f->index].fourcc;
 
 	return 0;
@@ -2114,7 +2196,11 @@ static int radio_g_tuner(struct file *file, void *priv,
 	if (unlikely(t->index > 0))
 		return -EINVAL;
 
+<<<<<<< HEAD
 	strcpy(t->name, "Radio");
+=======
+	strscpy(t->name, "Radio", sizeof(t->name));
+>>>>>>> upstream/android-13
 
 	v4l2_device_call_all(&dev->v4l2->v4l2_dev, 0, tuner, g_tuner, t);
 
@@ -2162,7 +2248,11 @@ static int em28xx_v4l2_open(struct file *filp)
 	int ret;
 
 	switch (vdev->vfl_type) {
+<<<<<<< HEAD
 	case VFL_TYPE_GRABBER:
+=======
+	case VFL_TYPE_VIDEO:
+>>>>>>> upstream/android-13
 		fh_type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		break;
 	case VFL_TYPE_VBI:
@@ -2220,7 +2310,11 @@ static int em28xx_v4l2_open(struct file *filp)
 /*
  * em28xx_v4l2_fini()
  * unregisters the v4l2,i2c and usb devices
+<<<<<<< HEAD
  * called when the device gets disconected or at module unload
+=======
+ * called when the device gets disconnected or at module unload
+>>>>>>> upstream/android-13
  */
 static int em28xx_v4l2_fini(struct em28xx *dev)
 {
@@ -2782,6 +2876,16 @@ static int em28xx_v4l2_init(struct em28xx *dev)
 	mutex_init(&v4l2->vb_vbi_queue_lock);
 	v4l2->vdev.queue = &v4l2->vb_vidq;
 	v4l2->vdev.queue->lock = &v4l2->vb_queue_lock;
+<<<<<<< HEAD
+=======
+	v4l2->vdev.device_caps = V4L2_CAP_READWRITE | V4L2_CAP_VIDEO_CAPTURE |
+				 V4L2_CAP_STREAMING;
+	if (dev->int_audio_type != EM28XX_INT_AUDIO_NONE)
+		v4l2->vdev.device_caps |= V4L2_CAP_AUDIO;
+	if (dev->tuner_type != TUNER_ABSENT)
+		v4l2->vdev.device_caps |= V4L2_CAP_TUNER;
+
+>>>>>>> upstream/android-13
 
 	/* disable inapplicable ioctls */
 	if (dev->is_webcam) {
@@ -2803,7 +2907,11 @@ static int em28xx_v4l2_init(struct em28xx *dev)
 	}
 
 	/* register v4l2 video video_device */
+<<<<<<< HEAD
 	ret = video_register_device(&v4l2->vdev, VFL_TYPE_GRABBER,
+=======
+	ret = video_register_device(&v4l2->vdev, VFL_TYPE_VIDEO,
+>>>>>>> upstream/android-13
 				    video_nr[dev->devno]);
 	if (ret) {
 		dev_err(&dev->intf->dev,
@@ -2818,6 +2926,13 @@ static int em28xx_v4l2_init(struct em28xx *dev)
 
 		v4l2->vbi_dev.queue = &v4l2->vb_vbiq;
 		v4l2->vbi_dev.queue->lock = &v4l2->vb_vbi_queue_lock;
+<<<<<<< HEAD
+=======
+		v4l2->vbi_dev.device_caps = V4L2_CAP_STREAMING |
+			V4L2_CAP_READWRITE | V4L2_CAP_VBI_CAPTURE;
+		if (dev->tuner_type != TUNER_ABSENT)
+			v4l2->vbi_dev.device_caps |= V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 
 		/* disable inapplicable ioctls */
 		v4l2_disable_ioctl(&v4l2->vbi_dev, VIDIOC_S_PARM);
@@ -2845,6 +2960,10 @@ static int em28xx_v4l2_init(struct em28xx *dev)
 	if (em28xx_boards[dev->model].radio.type == EM28XX_RADIO) {
 		em28xx_vdev_init(dev, &v4l2->radio_dev, &em28xx_radio_template,
 				 "radio");
+<<<<<<< HEAD
+=======
+		v4l2->radio_dev.device_caps = V4L2_CAP_RADIO | V4L2_CAP_TUNER;
+>>>>>>> upstream/android-13
 		ret = video_register_device(&v4l2->radio_dev, VFL_TYPE_RADIO,
 					    radio_nr[dev->devno]);
 		if (ret < 0) {

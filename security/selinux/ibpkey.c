@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * Pkey table
  *
@@ -11,11 +15,15 @@
  * Paul Moore <paul@paul-moore.com>
  *   (see security/selinux/netif.c and security/selinux/netport.c for more
  *   information)
+<<<<<<< HEAD
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 /*
  * (c) Mellanox Technologies, 2016
+<<<<<<< HEAD
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License as
@@ -26,6 +34,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/types.h>
@@ -50,7 +60,10 @@ struct sel_ib_pkey {
 	struct rcu_head rcu;
 };
 
+<<<<<<< HEAD
 static LIST_HEAD(sel_ib_pkey_list);
+=======
+>>>>>>> upstream/android-13
 static DEFINE_SPINLOCK(sel_ib_pkey_lock);
 static struct sel_ib_pkey_bkt sel_ib_pkey_hash[SEL_PKEY_HASH_SIZE];
 
@@ -234,7 +247,11 @@ static __init int sel_ib_pkey_init(void)
 {
 	int iter;
 
+<<<<<<< HEAD
 	if (!selinux_enabled)
+=======
+	if (!selinux_enabled_boot)
+>>>>>>> upstream/android-13
 		return 0;
 
 	for (iter = 0; iter < SEL_PKEY_HASH_SIZE; iter++) {

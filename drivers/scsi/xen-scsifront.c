@@ -212,7 +212,11 @@ static int scsifront_do_request(struct vscsifrnt_info *info,
 	memcpy(ring_req->cmnd, sc->cmnd, sc->cmd_len);
 
 	ring_req->sc_data_direction   = (uint8_t)sc->sc_data_direction;
+<<<<<<< HEAD
 	ring_req->timeout_per_command = sc->request->timeout / HZ;
+=======
+	ring_req->timeout_per_command = scsi_cmd_to_rq(sc)->timeout / HZ;
+>>>>>>> upstream/android-13
 
 	for (i = 0; i < (shadow->nr_segments & ~VSCSIIF_SG_GRANT); i++)
 		ring_req->seg[i] = shadow->seg[i];
@@ -233,12 +237,19 @@ static void scsifront_gnttab_done(struct vscsifrnt_info *info,
 		return;
 
 	for (i = 0; i < shadow->nr_grants; i++) {
+<<<<<<< HEAD
 		if (unlikely(gnttab_query_foreign_access(shadow->gref[i]))) {
+=======
+		if (unlikely(!gnttab_try_end_foreign_access(shadow->gref[i]))) {
+>>>>>>> upstream/android-13
 			shost_printk(KERN_ALERT, info->host, KBUILD_MODNAME
 				     "grant still in use by backend\n");
 			BUG();
 		}
+<<<<<<< HEAD
 		gnttab_end_foreign_access(shadow->gref[i], 0, 0UL);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	kfree(shadow->sg);
@@ -251,6 +262,10 @@ static void scsifront_cdb_cmd_done(struct vscsifrnt_info *info,
 	struct scsi_cmnd *sc;
 	uint32_t id;
 	uint8_t sense_len;
+<<<<<<< HEAD
+=======
+	int result;
+>>>>>>> upstream/android-13
 
 	id = ring_rsp->rqid;
 	shadow = info->shadow[id];
@@ -261,7 +276,16 @@ static void scsifront_cdb_cmd_done(struct vscsifrnt_info *info,
 	scsifront_gnttab_done(info, shadow);
 	scsifront_put_rqid(info, id);
 
+<<<<<<< HEAD
 	sc->result = ring_rsp->rslt;
+=======
+	result = ring_rsp->rslt;
+	if (result >> 24)
+		set_host_byte(sc, DID_ERROR);
+	else
+		set_host_byte(sc, host_byte(result));
+	set_status_byte(sc, result & 0xff);
+>>>>>>> upstream/android-13
 	scsi_set_resid(sc, ring_rsp->residual_len);
 
 	sense_len = min_t(uint8_t, VSCSIIF_SENSE_BUFFERSIZE,
@@ -696,7 +720,10 @@ static struct scsi_host_template scsifront_sht = {
 	.this_id		= -1,
 	.cmd_size		= sizeof(struct vscsifrnt_shadow),
 	.sg_tablesize		= VSCSIIF_SG_TABLESIZE,
+<<<<<<< HEAD
 	.use_clustering		= DISABLE_CLUSTERING,
+=======
+>>>>>>> upstream/android-13
 	.proc_name		= "scsifront",
 };
 
@@ -1112,7 +1139,11 @@ static void scsifront_backend_changed(struct xenbus_device *dev,
 	case XenbusStateClosed:
 		if (dev->state == XenbusStateClosed)
 			break;
+<<<<<<< HEAD
 		/* Missed the backend's Closing state -- fallthrough */
+=======
+		fallthrough;	/* Missed the backend's Closing state */
+>>>>>>> upstream/android-13
 	case XenbusStateClosing:
 		scsifront_disconnect(info);
 		break;

@@ -1,12 +1,19 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * HDMI Connector driver
  *
  * Copyright (C) 2013 Texas Instruments
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 
 #include <linux/slab.h>
@@ -53,18 +60,25 @@ static int hdmic_connect(struct omap_dss_device *dssdev)
 {
 	struct panel_drv_data *ddata = to_panel_data(dssdev);
 	struct omap_dss_device *in = ddata->in;
+<<<<<<< HEAD
 	int r;
+=======
+>>>>>>> upstream/android-13
 
 	dev_dbg(ddata->dev, "connect\n");
 
 	if (omapdss_device_is_connected(dssdev))
 		return 0;
 
+<<<<<<< HEAD
 	r = in->ops.hdmi->connect(in, dssdev);
 	if (r)
 		return r;
 
 	return 0;
+=======
+	return in->ops.hdmi->connect(in, dssdev);
+>>>>>>> upstream/android-13
 }
 
 static void hdmic_disconnect(struct omap_dss_device *dssdev)

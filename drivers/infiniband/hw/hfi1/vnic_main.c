@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright(c) 2017 - 2018 Intel Corporation.
  *
@@ -43,6 +44,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
+/*
+ * Copyright(c) 2017 - 2020 Intel Corporation.
+>>>>>>> upstream/android-13
  */
 
 /*
@@ -53,6 +59,10 @@
 #include <linux/if_vlan.h>
 
 #include "vnic.h"
+<<<<<<< HEAD
+=======
+#include "netdev.h"
+>>>>>>> upstream/android-13
 
 #define HFI_TX_TIMEOUT_MS 1000
 
@@ -62,6 +72,7 @@
 
 static DEFINE_SPINLOCK(vport_cntr_lock);
 
+<<<<<<< HEAD
 static int setup_vnic_ctxt(struct hfi1_devdata *dd, struct hfi1_ctxtdata *uctxt)
 {
 	unsigned int rcvctrl_ops = 0;
@@ -168,6 +179,8 @@ void hfi1_vnic_cleanup(struct hfi1_devdata *dd)
 	idr_destroy(&dd->vnic.vesw_idr);
 }
 
+=======
+>>>>>>> upstream/android-13
 #define SUM_GRP_COUNTERS(stats, qstats, x_grp) do {            \
 		u64 *src64, *dst64;                            \
 		for (src64 = &qstats->x_grp.unicast,           \
@@ -177,6 +190,12 @@ void hfi1_vnic_cleanup(struct hfi1_devdata *dd)
 		}                                              \
 	} while (0)
 
+<<<<<<< HEAD
+=======
+#define VNIC_MASK (0xFF)
+#define VNIC_ID(val) ((1ull << 24) | ((val) & VNIC_MASK))
+
+>>>>>>> upstream/android-13
 /* hfi1_vnic_update_stats - update statistics */
 static void hfi1_vnic_update_stats(struct hfi1_vnic_vport_info *vinfo,
 				   struct opa_vnic_stats *stats)
@@ -421,8 +440,12 @@ tx_finish:
 
 static u16 hfi1_vnic_select_queue(struct net_device *netdev,
 				  struct sk_buff *skb,
+<<<<<<< HEAD
 				  struct net_device *sb_dev,
 				  select_queue_fallback_t fallback)
+=======
+				  struct net_device *sb_dev)
+>>>>>>> upstream/android-13
 {
 	struct hfi1_vnic_vport_info *vinfo = opa_vnic_dev_priv(netdev);
 	struct opa_vnic_skb_mdata *mdata;
@@ -453,6 +476,7 @@ static inline int hfi1_vnic_decap_skb(struct hfi1_vnic_rx_queue *rxq,
 	return rc;
 }
 
+<<<<<<< HEAD
 static inline struct sk_buff *hfi1_vnic_get_skb(struct hfi1_vnic_rx_queue *rxq)
 {
 	unsigned char *pad_info;
@@ -518,6 +542,27 @@ static int hfi1_vnic_napi(struct napi_struct *napi, int budget)
 		napi_complete(napi);
 
 	return work_done;
+=======
+static struct hfi1_vnic_vport_info *get_vnic_port(struct hfi1_devdata *dd,
+						  int vesw_id)
+{
+	int vnic_id = VNIC_ID(vesw_id);
+
+	return hfi1_netdev_get_data(dd, vnic_id);
+}
+
+static struct hfi1_vnic_vport_info *get_first_vnic_port(struct hfi1_devdata *dd)
+{
+	struct hfi1_vnic_vport_info *vinfo;
+	int next_id = VNIC_ID(0);
+
+	vinfo = hfi1_netdev_get_first_data(dd, &next_id);
+
+	if (next_id > VNIC_ID(VNIC_MASK))
+		return NULL;
+
+	return vinfo;
+>>>>>>> upstream/android-13
 }
 
 void hfi1_vnic_bypass_rcv(struct hfi1_packet *packet)
@@ -526,13 +571,23 @@ void hfi1_vnic_bypass_rcv(struct hfi1_packet *packet)
 	struct hfi1_vnic_vport_info *vinfo = NULL;
 	struct hfi1_vnic_rx_queue *rxq;
 	struct sk_buff *skb;
+<<<<<<< HEAD
 	int l4_type, vesw_id = -1;
 	u8 q_idx;
+=======
+	int l4_type, vesw_id = -1, rc;
+	u8 q_idx;
+	unsigned char *pad_info;
+>>>>>>> upstream/android-13
 
 	l4_type = hfi1_16B_get_l4(packet->ebuf);
 	if (likely(l4_type == OPA_16B_L4_ETHR)) {
 		vesw_id = HFI1_VNIC_GET_VESWID(packet->ebuf);
+<<<<<<< HEAD
 		vinfo = idr_find(&dd->vnic.vesw_idr, vesw_id);
+=======
+		vinfo = get_vnic_port(dd, vesw_id);
+>>>>>>> upstream/android-13
 
 		/*
 		 * In case of invalid vesw id, count the error on
@@ -540,9 +595,14 @@ void hfi1_vnic_bypass_rcv(struct hfi1_packet *packet)
 		 */
 		if (unlikely(!vinfo)) {
 			struct hfi1_vnic_vport_info *vinfo_tmp;
+<<<<<<< HEAD
 			int id_tmp = 0;
 
 			vinfo_tmp =  idr_get_next(&dd->vnic.vesw_idr, &id_tmp);
+=======
+
+			vinfo_tmp = get_first_vnic_port(dd);
+>>>>>>> upstream/android-13
 			if (vinfo_tmp) {
 				spin_lock(&vport_cntr_lock);
 				vinfo_tmp->stats[0].netstats.rx_nohandler++;
@@ -561,12 +621,15 @@ void hfi1_vnic_bypass_rcv(struct hfi1_packet *packet)
 	rxq = &vinfo->rxq[q_idx];
 	if (unlikely(!netif_oper_up(vinfo->netdev))) {
 		vinfo->stats[q_idx].rx_drop_state++;
+<<<<<<< HEAD
 		skb_queue_purge(&rxq->skbq);
 		return;
 	}
 
 	if (unlikely(skb_queue_len(&rxq->skbq) > HFI1_VNIC_RCV_Q_SIZE)) {
 		vinfo->stats[q_idx].netstats.rx_fifo_errors++;
+=======
+>>>>>>> upstream/android-13
 		return;
 	}
 
@@ -578,24 +641,50 @@ void hfi1_vnic_bypass_rcv(struct hfi1_packet *packet)
 
 	memcpy(skb->data, packet->ebuf, packet->tlen);
 	skb_put(skb, packet->tlen);
+<<<<<<< HEAD
 	skb_queue_tail(&rxq->skbq, skb);
 
 	if (napi_schedule_prep(&rxq->napi)) {
 		v_dbg("napi %d scheduling\n", q_idx);
 		__napi_schedule(&rxq->napi);
 	}
+=======
+
+	pad_info = skb->data + skb->len - 1;
+	skb_trim(skb, (skb->len - OPA_VNIC_ICRC_TAIL_LEN -
+		       ((*pad_info) & 0x7)));
+
+	rc = hfi1_vnic_decap_skb(rxq, skb);
+
+	/* update rx counters */
+	hfi1_vnic_update_rx_counters(vinfo, rxq->idx, skb, rc);
+	if (unlikely(rc)) {
+		dev_kfree_skb_any(skb);
+		return;
+	}
+
+	skb_checksum_none_assert(skb);
+	skb->protocol = eth_type_trans(skb, rxq->netdev);
+
+	napi_gro_receive(&rxq->napi, skb);
+>>>>>>> upstream/android-13
 }
 
 static int hfi1_vnic_up(struct hfi1_vnic_vport_info *vinfo)
 {
 	struct hfi1_devdata *dd = vinfo->dd;
 	struct net_device *netdev = vinfo->netdev;
+<<<<<<< HEAD
 	int i, rc;
+=======
+	int rc;
+>>>>>>> upstream/android-13
 
 	/* ensure virtual eth switch id is valid */
 	if (!vinfo->vesw_id)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	rc = idr_alloc(&dd->vnic.vesw_idr, vinfo, vinfo->vesw_id,
 		       vinfo->vesw_id + 1, GFP_NOWAIT);
 	if (rc < 0)
@@ -607,22 +696,42 @@ static int hfi1_vnic_up(struct hfi1_vnic_vport_info *vinfo)
 		skb_queue_head_init(&rxq->skbq);
 		napi_enable(&rxq->napi);
 	}
+=======
+	rc = hfi1_netdev_add_data(dd, VNIC_ID(vinfo->vesw_id), vinfo);
+	if (rc < 0)
+		return rc;
+
+	rc = hfi1_netdev_rx_init(dd);
+	if (rc)
+		goto err_remove;
+>>>>>>> upstream/android-13
 
 	netif_carrier_on(netdev);
 	netif_tx_start_all_queues(netdev);
 	set_bit(HFI1_VNIC_UP, &vinfo->flags);
 
 	return 0;
+<<<<<<< HEAD
+=======
+
+err_remove:
+	hfi1_netdev_remove_data(dd, VNIC_ID(vinfo->vesw_id));
+	return rc;
+>>>>>>> upstream/android-13
 }
 
 static void hfi1_vnic_down(struct hfi1_vnic_vport_info *vinfo)
 {
 	struct hfi1_devdata *dd = vinfo->dd;
+<<<<<<< HEAD
 	u8 i;
+=======
+>>>>>>> upstream/android-13
 
 	clear_bit(HFI1_VNIC_UP, &vinfo->flags);
 	netif_carrier_off(vinfo->netdev);
 	netif_tx_disable(vinfo->netdev);
+<<<<<<< HEAD
 	idr_remove(&dd->vnic.vesw_idr, vinfo->vesw_id);
 
 	/* ensure irqs see the change */
@@ -635,6 +744,11 @@ static void hfi1_vnic_down(struct hfi1_vnic_vport_info *vinfo)
 		napi_disable(&rxq->napi);
 		skb_queue_purge(&rxq->skbq);
 	}
+=======
+	hfi1_netdev_remove_data(dd, VNIC_ID(vinfo->vesw_id));
+
+	hfi1_netdev_rx_destroy(dd);
+>>>>>>> upstream/android-13
 }
 
 static int hfi1_netdev_open(struct net_device *netdev)
@@ -659,6 +773,7 @@ static int hfi1_netdev_close(struct net_device *netdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int hfi1_vnic_allot_ctxt(struct hfi1_devdata *dd,
 				struct hfi1_ctxtdata **vnic_ctxt)
 {
@@ -725,6 +840,33 @@ static int hfi1_vnic_init(struct hfi1_vnic_vport_info *vinfo)
 	hfi1_vnic_sdma_init(vinfo);
 alloc_fail:
 	if (!dd->vnic.num_vports)
+=======
+static int hfi1_vnic_init(struct hfi1_vnic_vport_info *vinfo)
+{
+	struct hfi1_devdata *dd = vinfo->dd;
+	int rc = 0;
+
+	mutex_lock(&hfi1_mutex);
+	if (!dd->vnic_num_vports) {
+		rc = hfi1_vnic_txreq_init(dd);
+		if (rc)
+			goto txreq_fail;
+	}
+
+	rc = hfi1_netdev_rx_init(dd);
+	if (rc) {
+		dd_dev_err(dd, "Unable to initialize netdev contexts\n");
+		goto alloc_fail;
+	}
+
+	hfi1_init_vnic_rsm(dd);
+
+	dd->vnic_num_vports++;
+	hfi1_vnic_sdma_init(vinfo);
+
+alloc_fail:
+	if (!dd->vnic_num_vports)
+>>>>>>> upstream/android-13
 		hfi1_vnic_txreq_deinit(dd);
 txreq_fail:
 	mutex_unlock(&hfi1_mutex);
@@ -734,6 +876,7 @@ txreq_fail:
 static void hfi1_vnic_deinit(struct hfi1_vnic_vport_info *vinfo)
 {
 	struct hfi1_devdata *dd = vinfo->dd;
+<<<<<<< HEAD
 	int i;
 
 	mutex_lock(&hfi1_mutex);
@@ -748,6 +891,16 @@ static void hfi1_vnic_deinit(struct hfi1_vnic_vport_info *vinfo)
 		hfi1_vnic_txreq_deinit(dd);
 	}
 	mutex_unlock(&hfi1_mutex);
+=======
+
+	mutex_lock(&hfi1_mutex);
+	if (--dd->vnic_num_vports == 0) {
+		hfi1_deinit_vnic_rsm(dd);
+		hfi1_vnic_txreq_deinit(dd);
+	}
+	mutex_unlock(&hfi1_mutex);
+	hfi1_netdev_rx_destroy(dd);
+>>>>>>> upstream/android-13
 }
 
 static void hfi1_vnic_set_vesw_id(struct net_device *netdev, int id)
@@ -793,7 +946,11 @@ static void hfi1_vnic_free_rn(struct net_device *netdev)
 }
 
 struct net_device *hfi1_vnic_alloc_rn(struct ib_device *device,
+<<<<<<< HEAD
 				      u8 port_num,
+=======
+				      u32 port_num,
+>>>>>>> upstream/android-13
 				      enum rdma_netdev_t type,
 				      const char *name,
 				      unsigned char name_assign_type,
@@ -805,7 +962,11 @@ struct net_device *hfi1_vnic_alloc_rn(struct ib_device *device,
 	struct rdma_netdev *rn;
 	int i, size, rc;
 
+<<<<<<< HEAD
 	if (!dd->num_vnic_contexts)
+=======
+	if (!dd->num_netdev_contexts)
+>>>>>>> upstream/android-13
 		return ERR_PTR(-ENOMEM);
 
 	if (!port_num || (port_num > dd->num_pports))
@@ -816,7 +977,12 @@ struct net_device *hfi1_vnic_alloc_rn(struct ib_device *device,
 
 	size = sizeof(struct opa_vnic_rdma_netdev) + sizeof(*vinfo);
 	netdev = alloc_netdev_mqs(size, name, name_assign_type, setup,
+<<<<<<< HEAD
 				  chip_sdma_engines(dd), dd->num_vnic_contexts);
+=======
+				  chip_sdma_engines(dd),
+				  dd->num_netdev_contexts);
+>>>>>>> upstream/android-13
 	if (!netdev)
 		return ERR_PTR(-ENOMEM);
 
@@ -824,7 +990,11 @@ struct net_device *hfi1_vnic_alloc_rn(struct ib_device *device,
 	vinfo = opa_vnic_dev_priv(netdev);
 	vinfo->dd = dd;
 	vinfo->num_tx_q = chip_sdma_engines(dd);
+<<<<<<< HEAD
 	vinfo->num_rx_q = dd->num_vnic_contexts;
+=======
+	vinfo->num_rx_q = dd->num_netdev_contexts;
+>>>>>>> upstream/android-13
 	vinfo->netdev = netdev;
 	rn->free_rdma_netdev = hfi1_vnic_free_rn;
 	rn->set_id = hfi1_vnic_set_vesw_id;
@@ -842,7 +1012,10 @@ struct net_device *hfi1_vnic_alloc_rn(struct ib_device *device,
 		rxq->idx = i;
 		rxq->vinfo = vinfo;
 		rxq->netdev = netdev;
+<<<<<<< HEAD
 		netif_napi_add(netdev, &rxq->napi, hfi1_vnic_napi, 64);
+=======
+>>>>>>> upstream/android-13
 	}
 
 	rc = hfi1_vnic_init(vinfo);

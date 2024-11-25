@@ -87,6 +87,7 @@ static int sm_disk_set_count(struct dm_space_map *sm, dm_block_t b,
 			     uint32_t count)
 {
 	int r;
+<<<<<<< HEAD
 	uint32_t old_count;
 	enum allocation_event ev;
 	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
@@ -118,11 +119,20 @@ static int sm_disk_set_count(struct dm_space_map *sm, dm_block_t b,
 				smd->nr_allocated_this_transaction--;
 			break;
 		}
+=======
+	int32_t nr_allocations;
+	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
+
+	r = sm_ll_insert(&smd->ll, b, count, &nr_allocations);
+	if (!r) {
+		smd->nr_allocated_this_transaction += nr_allocations;
+>>>>>>> upstream/android-13
 	}
 
 	return r;
 }
 
+<<<<<<< HEAD
 static int sm_disk_inc_block(struct dm_space_map *sm, dm_block_t b)
 {
 	int r;
@@ -136,10 +146,22 @@ static int sm_disk_inc_block(struct dm_space_map *sm, dm_block_t b)
 		 * otherwise we've lost atomicity.
 		 */
 		smd->nr_allocated_this_transaction++;
+=======
+static int sm_disk_inc_blocks(struct dm_space_map *sm, dm_block_t b, dm_block_t e)
+{
+	int r;
+	int32_t nr_allocations;
+	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
+
+	r = sm_ll_inc(&smd->ll, b, e, &nr_allocations);
+	if (!r)
+		smd->nr_allocated_this_transaction += nr_allocations;
+>>>>>>> upstream/android-13
 
 	return r;
 }
 
+<<<<<<< HEAD
 static int sm_disk_dec_block(struct dm_space_map *sm, dm_block_t b)
 {
 	int r;
@@ -157,6 +179,17 @@ static int sm_disk_dec_block(struct dm_space_map *sm, dm_block_t b)
 		if (!r && !old_count)
 			smd->nr_allocated_this_transaction--;
 	}
+=======
+static int sm_disk_dec_blocks(struct dm_space_map *sm, dm_block_t b, dm_block_t e)
+{
+	int r;
+	int32_t nr_allocations;
+	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
+
+	r = sm_ll_dec(&smd->ll, b, e, &nr_allocations);
+	if (!r)
+		smd->nr_allocated_this_transaction += nr_allocations;
+>>>>>>> upstream/android-13
 
 	return r;
 }
@@ -164,21 +197,42 @@ static int sm_disk_dec_block(struct dm_space_map *sm, dm_block_t b)
 static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
 {
 	int r;
+<<<<<<< HEAD
 	enum allocation_event ev;
+=======
+	int32_t nr_allocations;
+>>>>>>> upstream/android-13
 	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
 
 	/*
 	 * Any block we allocate has to be free in both the old and current ll.
 	 */
 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
+<<<<<<< HEAD
+=======
+	if (r == -ENOSPC) {
+		/*
+		 * There's no free block between smd->begin and the end of the metadata device.
+		 * We search before smd->begin in case something has been freed.
+		 */
+		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
+	}
+
+>>>>>>> upstream/android-13
 	if (r)
 		return r;
 
 	smd->begin = *b + 1;
+<<<<<<< HEAD
 	r = sm_ll_inc(&smd->ll, *b, &ev);
 	if (!r) {
 		BUG_ON(ev != SM_ALLOC);
 		smd->nr_allocated_this_transaction++;
+=======
+	r = sm_ll_inc(&smd->ll, *b, *b + 1, &nr_allocations);
+	if (!r) {
+		smd->nr_allocated_this_transaction += nr_allocations;
+>>>>>>> upstream/android-13
 	}
 
 	return r;
@@ -187,6 +241,7 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
 static int sm_disk_commit(struct dm_space_map *sm)
 {
 	int r;
+<<<<<<< HEAD
 	dm_block_t nr_free;
 	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
 
@@ -194,11 +249,16 @@ static int sm_disk_commit(struct dm_space_map *sm)
 	if (r)
 		return r;
 
+=======
+	struct sm_disk *smd = container_of(sm, struct sm_disk, sm);
+
+>>>>>>> upstream/android-13
 	r = sm_ll_commit(&smd->ll);
 	if (r)
 		return r;
 
 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
+<<<<<<< HEAD
 	smd->begin = 0;
 	smd->nr_allocated_this_transaction = 0;
 
@@ -206,6 +266,10 @@ static int sm_disk_commit(struct dm_space_map *sm)
 	if (r)
 		return r;
 
+=======
+	smd->nr_allocated_this_transaction = 0;
+
+>>>>>>> upstream/android-13
 	return 0;
 }
 
@@ -244,8 +308,13 @@ static struct dm_space_map ops = {
 	.get_count = sm_disk_get_count,
 	.count_is_more_than_one = sm_disk_count_is_more_than_one,
 	.set_count = sm_disk_set_count,
+<<<<<<< HEAD
 	.inc_block = sm_disk_inc_block,
 	.dec_block = sm_disk_dec_block,
+=======
+	.inc_blocks = sm_disk_inc_blocks,
+	.dec_blocks = sm_disk_dec_blocks,
+>>>>>>> upstream/android-13
 	.new_block = sm_disk_new_block,
 	.commit = sm_disk_commit,
 	.root_size = sm_disk_root_size,

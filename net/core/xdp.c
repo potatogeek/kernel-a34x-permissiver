@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /* net/core/xdp.c
  *
  * Copyright (c) 2017 Jesper Dangaard Brouer, Red Hat Inc.
  * Released under terms in GPL version 2.  See COPYING.
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/* net/core/xdp.c
+ *
+ * Copyright (c) 2017 Jesper Dangaard Brouer, Red Hat Inc.
+>>>>>>> upstream/android-13
  */
 #include <linux/bpf.h>
 #include <linux/filter.h>
@@ -11,9 +18,19 @@
 #include <linux/slab.h>
 #include <linux/idr.h>
 #include <linux/rhashtable.h>
+<<<<<<< HEAD
 #include <net/page_pool.h>
 
 #include <net/xdp.h>
+=======
+#include <linux/bug.h>
+#include <net/page_pool.h>
+
+#include <net/xdp.h>
+#include <net/xdp_priv.h> /* struct xdp_mem_allocator */
+#include <trace/events/xdp.h>
+#include <net/xdp_sock_drv.h>
+>>>>>>> upstream/android-13
 
 #define REG_STATE_NEW		0x0
 #define REG_STATE_REGISTERED	0x1
@@ -29,6 +46,7 @@ static int mem_id_next = MEM_ID_MIN;
 static bool mem_id_init; /* false */
 static struct rhashtable *mem_id_ht;
 
+<<<<<<< HEAD
 struct xdp_mem_allocator {
 	struct xdp_mem_info mem;
 	union {
@@ -40,12 +58,18 @@ struct xdp_mem_allocator {
 	struct rcu_head rcu;
 };
 
+=======
+>>>>>>> upstream/android-13
 static u32 xdp_mem_id_hashfn(const void *data, u32 len, u32 seed)
 {
 	const u32 *k = data;
 	const u32 key = *k;
 
+<<<<<<< HEAD
 	BUILD_BUG_ON(FIELD_SIZEOF(struct xdp_mem_allocator, mem.id)
+=======
+	BUILD_BUG_ON(sizeof_field(struct xdp_mem_allocator, mem.id)
+>>>>>>> upstream/android-13
 		     != sizeof(u32));
 
 	/* Use cyclic increasing ID as direct hash key */
@@ -65,7 +89,11 @@ static const struct rhashtable_params mem_id_rht_params = {
 	.nelem_hint = 64,
 	.head_offset = offsetof(struct xdp_mem_allocator, node),
 	.key_offset  = offsetof(struct xdp_mem_allocator, mem.id),
+<<<<<<< HEAD
 	.key_len = FIELD_SIZEOF(struct xdp_mem_allocator, mem.id),
+=======
+	.key_len = sizeof_field(struct xdp_mem_allocator, mem.id),
+>>>>>>> upstream/android-13
 	.max_size = MEM_ID_MAX,
 	.min_size = 8,
 	.automatic_shrinking = true,
@@ -82,6 +110,7 @@ static void __xdp_mem_allocator_rcu_free(struct rcu_head *rcu)
 	/* Allow this ID to be reused */
 	ida_simple_remove(&mem_id_pool, xa->mem.id);
 
+<<<<<<< HEAD
 	/* Notice, driver is expected to free the *allocator,
 	 * e.g. page_pool, and MUST also use RCU free.
 	 */
@@ -110,6 +139,69 @@ static void __xdp_rxq_info_unreg_mem_model(struct xdp_rxq_info *xdp_rxq)
 
 	mutex_unlock(&mem_id_lock);
 }
+=======
+	kfree(xa);
+}
+
+static void mem_xa_remove(struct xdp_mem_allocator *xa)
+{
+	trace_mem_disconnect(xa);
+
+	if (!rhashtable_remove_fast(mem_id_ht, &xa->node, mem_id_rht_params))
+		call_rcu(&xa->rcu, __xdp_mem_allocator_rcu_free);
+}
+
+static void mem_allocator_disconnect(void *allocator)
+{
+	struct xdp_mem_allocator *xa;
+	struct rhashtable_iter iter;
+
+	mutex_lock(&mem_id_lock);
+
+	rhashtable_walk_enter(mem_id_ht, &iter);
+	do {
+		rhashtable_walk_start(&iter);
+
+		while ((xa = rhashtable_walk_next(&iter)) && !IS_ERR(xa)) {
+			if (xa->allocator == allocator)
+				mem_xa_remove(xa);
+		}
+
+		rhashtable_walk_stop(&iter);
+
+	} while (xa == ERR_PTR(-EAGAIN));
+	rhashtable_walk_exit(&iter);
+
+	mutex_unlock(&mem_id_lock);
+}
+
+void xdp_rxq_info_unreg_mem_model(struct xdp_rxq_info *xdp_rxq)
+{
+	struct xdp_mem_allocator *xa;
+	int type = xdp_rxq->mem.type;
+	int id = xdp_rxq->mem.id;
+
+	/* Reset mem info to defaults */
+	xdp_rxq->mem.id = 0;
+	xdp_rxq->mem.type = 0;
+
+	if (xdp_rxq->reg_state != REG_STATE_REGISTERED) {
+		WARN(1, "Missing register, driver bug");
+		return;
+	}
+
+	if (id == 0)
+		return;
+
+	if (type == MEM_TYPE_PAGE_POOL) {
+		rcu_read_lock();
+		xa = rhashtable_lookup(mem_id_ht, &id, mem_id_rht_params);
+		page_pool_destroy(xa->page_pool);
+		rcu_read_unlock();
+	}
+}
+EXPORT_SYMBOL_GPL(xdp_rxq_info_unreg_mem_model);
+>>>>>>> upstream/android-13
 
 void xdp_rxq_info_unreg(struct xdp_rxq_info *xdp_rxq)
 {
@@ -119,6 +211,7 @@ void xdp_rxq_info_unreg(struct xdp_rxq_info *xdp_rxq)
 
 	WARN(!(xdp_rxq->reg_state == REG_STATE_REGISTERED), "Driver BUG");
 
+<<<<<<< HEAD
 	__xdp_rxq_info_unreg_mem_model(xdp_rxq);
 
 	xdp_rxq->reg_state = REG_STATE_UNREGISTERED;
@@ -127,6 +220,12 @@ void xdp_rxq_info_unreg(struct xdp_rxq_info *xdp_rxq)
 	/* Reset mem info to defaults */
 	xdp_rxq->mem.id = 0;
 	xdp_rxq->mem.type = 0;
+=======
+	xdp_rxq_info_unreg_mem_model(xdp_rxq);
+
+	xdp_rxq->reg_state = REG_STATE_UNREGISTERED;
+	xdp_rxq->dev = NULL;
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xdp_rxq_info_unreg);
 
@@ -137,7 +236,11 @@ static void xdp_rxq_info_init(struct xdp_rxq_info *xdp_rxq)
 
 /* Returns 0 on success, negative on failure */
 int xdp_rxq_info_reg(struct xdp_rxq_info *xdp_rxq,
+<<<<<<< HEAD
 		     struct net_device *dev, u32 queue_index)
+=======
+		     struct net_device *dev, u32 queue_index, unsigned int napi_id)
+>>>>>>> upstream/android-13
 {
 	if (xdp_rxq->reg_state == REG_STATE_UNUSED) {
 		WARN(1, "Driver promised not to register this");
@@ -158,6 +261,10 @@ int xdp_rxq_info_reg(struct xdp_rxq_info *xdp_rxq,
 	xdp_rxq_info_init(xdp_rxq);
 	xdp_rxq->dev = dev;
 	xdp_rxq->queue_index = queue_index;
+<<<<<<< HEAD
+=======
+	xdp_rxq->napi_id = napi_id;
+>>>>>>> upstream/android-13
 
 	xdp_rxq->reg_state = REG_STATE_REGISTERED;
 	return 0;
@@ -257,7 +364,11 @@ int xdp_rxq_info_reg_mem_model(struct xdp_rxq_info *xdp_rxq,
 	xdp_rxq->mem.type = type;
 
 	if (!allocator) {
+<<<<<<< HEAD
 		if (type == MEM_TYPE_PAGE_POOL || type == MEM_TYPE_ZERO_COPY)
+=======
+		if (type == MEM_TYPE_PAGE_POOL)
+>>>>>>> upstream/android-13
 			return -EINVAL; /* Setup time check page_pool req */
 		return 0;
 	}
@@ -290,12 +401,26 @@ int xdp_rxq_info_reg_mem_model(struct xdp_rxq_info *xdp_rxq,
 	/* Insert allocator into ID lookup table */
 	ptr = rhashtable_insert_slow(mem_id_ht, &id, &xdp_alloc->node);
 	if (IS_ERR(ptr)) {
+<<<<<<< HEAD
+=======
+		ida_simple_remove(&mem_id_pool, xdp_rxq->mem.id);
+		xdp_rxq->mem.id = 0;
+>>>>>>> upstream/android-13
 		errno = PTR_ERR(ptr);
 		goto err;
 	}
 
+<<<<<<< HEAD
 	mutex_unlock(&mem_id_lock);
 
+=======
+	if (type == MEM_TYPE_PAGE_POOL)
+		page_pool_use_xdp_mem(allocator, mem_allocator_disconnect);
+
+	mutex_unlock(&mem_id_lock);
+
+	trace_mem_connect(xdp_alloc, xdp_rxq);
+>>>>>>> upstream/android-13
 	return 0;
 err:
 	mutex_unlock(&mem_id_lock);
@@ -306,12 +431,20 @@ EXPORT_SYMBOL_GPL(xdp_rxq_info_reg_mem_model);
 
 /* XDP RX runs under NAPI protection, and in different delivery error
  * scenarios (e.g. queue full), it is possible to return the xdp_frame
+<<<<<<< HEAD
  * while still leveraging this protection.  The @napi_direct boolian
+=======
+ * while still leveraging this protection.  The @napi_direct boolean
+>>>>>>> upstream/android-13
  * is used for those calls sites.  Thus, allowing for faster recycling
  * of xdp_frames/pages in those cases.
  */
 static void __xdp_return(void *data, struct xdp_mem_info *mem, bool napi_direct,
+<<<<<<< HEAD
 			 unsigned long handle)
+=======
+			 struct xdp_buff *xdp)
+>>>>>>> upstream/android-13
 {
 	struct xdp_mem_allocator *xa;
 	struct page *page;
@@ -322,12 +455,18 @@ static void __xdp_return(void *data, struct xdp_mem_info *mem, bool napi_direct,
 		/* mem->id is valid, checked in xdp_rxq_info_reg_mem_model() */
 		xa = rhashtable_lookup(mem_id_ht, &mem->id, mem_id_rht_params);
 		page = virt_to_head_page(data);
+<<<<<<< HEAD
 		if (xa) {
 			napi_direct &= !xdp_return_frame_no_direct();
 			page_pool_put_page(xa->page_pool, page, napi_direct);
 		} else {
 			put_page(page);
 		}
+=======
+		if (napi_direct && xdp_return_frame_no_direct())
+			napi_direct = false;
+		page_pool_put_full_page(xa->page_pool, page, napi_direct);
+>>>>>>> upstream/android-13
 		rcu_read_unlock();
 		break;
 	case MEM_TYPE_PAGE_SHARED:
@@ -337,6 +476,7 @@ static void __xdp_return(void *data, struct xdp_mem_info *mem, bool napi_direct,
 		page = virt_to_page(data); /* Assumes order0 page*/
 		put_page(page);
 		break;
+<<<<<<< HEAD
 	case MEM_TYPE_ZERO_COPY:
 		/* NB! Only valid from an xdp_buff! */
 		rcu_read_lock();
@@ -346,18 +486,32 @@ static void __xdp_return(void *data, struct xdp_mem_info *mem, bool napi_direct,
 		rcu_read_unlock();
 	default:
 		/* Not possible, checked in xdp_rxq_info_reg_mem_model() */
+=======
+	case MEM_TYPE_XSK_BUFF_POOL:
+		/* NB! Only valid from an xdp_buff! */
+		xsk_buff_free(xdp);
+		break;
+	default:
+		/* Not possible, checked in xdp_rxq_info_reg_mem_model() */
+		WARN(1, "Incorrect XDP memory type (%d) usage", mem->type);
+>>>>>>> upstream/android-13
 		break;
 	}
 }
 
 void xdp_return_frame(struct xdp_frame *xdpf)
 {
+<<<<<<< HEAD
 	__xdp_return(xdpf->data, &xdpf->mem, false, 0);
+=======
+	__xdp_return(xdpf->data, &xdpf->mem, false, NULL);
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL_GPL(xdp_return_frame);
 
 void xdp_return_frame_rx_napi(struct xdp_frame *xdpf)
 {
+<<<<<<< HEAD
 	__xdp_return(xdpf->data, &xdpf->mem, true, 0);
 }
 EXPORT_SYMBOL_GPL(xdp_return_frame_rx_napi);
@@ -388,6 +542,85 @@ bool xdp_attachment_flags_ok(struct xdp_attachment_info *info,
 	return true;
 }
 EXPORT_SYMBOL_GPL(xdp_attachment_flags_ok);
+=======
+	__xdp_return(xdpf->data, &xdpf->mem, true, NULL);
+}
+EXPORT_SYMBOL_GPL(xdp_return_frame_rx_napi);
+
+/* XDP bulk APIs introduce a defer/flush mechanism to return
+ * pages belonging to the same xdp_mem_allocator object
+ * (identified via the mem.id field) in bulk to optimize
+ * I-cache and D-cache.
+ * The bulk queue size is set to 16 to be aligned to how
+ * XDP_REDIRECT bulking works. The bulk is flushed when
+ * it is full or when mem.id changes.
+ * xdp_frame_bulk is usually stored/allocated on the function
+ * call-stack to avoid locking penalties.
+ */
+void xdp_flush_frame_bulk(struct xdp_frame_bulk *bq)
+{
+	struct xdp_mem_allocator *xa = bq->xa;
+
+	if (unlikely(!xa || !bq->count))
+		return;
+
+	page_pool_put_page_bulk(xa->page_pool, bq->q, bq->count);
+	/* bq->xa is not cleared to save lookup, if mem.id same in next bulk */
+	bq->count = 0;
+}
+EXPORT_SYMBOL_GPL(xdp_flush_frame_bulk);
+
+/* Must be called with rcu_read_lock held */
+void xdp_return_frame_bulk(struct xdp_frame *xdpf,
+			   struct xdp_frame_bulk *bq)
+{
+	struct xdp_mem_info *mem = &xdpf->mem;
+	struct xdp_mem_allocator *xa;
+
+	if (mem->type != MEM_TYPE_PAGE_POOL) {
+		__xdp_return(xdpf->data, &xdpf->mem, false, NULL);
+		return;
+	}
+
+	xa = bq->xa;
+	if (unlikely(!xa)) {
+		xa = rhashtable_lookup(mem_id_ht, &mem->id, mem_id_rht_params);
+		bq->count = 0;
+		bq->xa = xa;
+	}
+
+	if (bq->count == XDP_BULK_QUEUE_SIZE)
+		xdp_flush_frame_bulk(bq);
+
+	if (unlikely(mem->id != xa->mem.id)) {
+		xdp_flush_frame_bulk(bq);
+		bq->xa = rhashtable_lookup(mem_id_ht, &mem->id, mem_id_rht_params);
+	}
+
+	bq->q[bq->count++] = xdpf->data;
+}
+EXPORT_SYMBOL_GPL(xdp_return_frame_bulk);
+
+void xdp_return_buff(struct xdp_buff *xdp)
+{
+	__xdp_return(xdp->data, &xdp->rxq->mem, true, xdp);
+}
+
+/* Only called for MEM_TYPE_PAGE_POOL see xdp.h */
+void __xdp_release_frame(void *data, struct xdp_mem_info *mem)
+{
+	struct xdp_mem_allocator *xa;
+	struct page *page;
+
+	rcu_read_lock();
+	xa = rhashtable_lookup(mem_id_ht, &mem->id, mem_id_rht_params);
+	page = virt_to_head_page(data);
+	if (xa)
+		page_pool_release_page(xa->page_pool, page);
+	rcu_read_unlock();
+}
+EXPORT_SYMBOL_GPL(__xdp_release_frame);
+>>>>>>> upstream/android-13
 
 void xdp_attachment_setup(struct xdp_attachment_info *info,
 			  struct netdev_bpf *bpf)
@@ -398,3 +631,150 @@ void xdp_attachment_setup(struct xdp_attachment_info *info,
 	info->flags = bpf->flags;
 }
 EXPORT_SYMBOL_GPL(xdp_attachment_setup);
+<<<<<<< HEAD
+=======
+
+struct xdp_frame *xdp_convert_zc_to_xdp_frame(struct xdp_buff *xdp)
+{
+	unsigned int metasize, totsize;
+	void *addr, *data_to_copy;
+	struct xdp_frame *xdpf;
+	struct page *page;
+
+	/* Clone into a MEM_TYPE_PAGE_ORDER0 xdp_frame. */
+	metasize = xdp_data_meta_unsupported(xdp) ? 0 :
+		   xdp->data - xdp->data_meta;
+	totsize = xdp->data_end - xdp->data + metasize;
+
+	if (sizeof(*xdpf) + totsize > PAGE_SIZE)
+		return NULL;
+
+	page = dev_alloc_page();
+	if (!page)
+		return NULL;
+
+	addr = page_to_virt(page);
+	xdpf = addr;
+	memset(xdpf, 0, sizeof(*xdpf));
+
+	addr += sizeof(*xdpf);
+	data_to_copy = metasize ? xdp->data_meta : xdp->data;
+	memcpy(addr, data_to_copy, totsize);
+
+	xdpf->data = addr + metasize;
+	xdpf->len = totsize - metasize;
+	xdpf->headroom = 0;
+	xdpf->metasize = metasize;
+	xdpf->frame_sz = PAGE_SIZE;
+	xdpf->mem.type = MEM_TYPE_PAGE_ORDER0;
+
+	xsk_buff_free(xdp);
+	return xdpf;
+}
+EXPORT_SYMBOL_GPL(xdp_convert_zc_to_xdp_frame);
+
+/* Used by XDP_WARN macro, to avoid inlining WARN() in fast-path */
+void xdp_warn(const char *msg, const char *func, const int line)
+{
+	WARN(1, "XDP_WARN: %s(line:%d): %s\n", func, line, msg);
+};
+EXPORT_SYMBOL_GPL(xdp_warn);
+
+int xdp_alloc_skb_bulk(void **skbs, int n_skb, gfp_t gfp)
+{
+	n_skb = kmem_cache_alloc_bulk(skbuff_head_cache, gfp,
+				      n_skb, skbs);
+	if (unlikely(!n_skb))
+		return -ENOMEM;
+
+	return 0;
+}
+EXPORT_SYMBOL_GPL(xdp_alloc_skb_bulk);
+
+struct sk_buff *__xdp_build_skb_from_frame(struct xdp_frame *xdpf,
+					   struct sk_buff *skb,
+					   struct net_device *dev)
+{
+	unsigned int headroom, frame_size;
+	void *hard_start;
+
+	/* Part of headroom was reserved to xdpf */
+	headroom = sizeof(*xdpf) + xdpf->headroom;
+
+	/* Memory size backing xdp_frame data already have reserved
+	 * room for build_skb to place skb_shared_info in tailroom.
+	 */
+	frame_size = xdpf->frame_sz;
+
+	hard_start = xdpf->data - headroom;
+	skb = build_skb_around(skb, hard_start, frame_size);
+	if (unlikely(!skb))
+		return NULL;
+
+	skb_reserve(skb, headroom);
+	__skb_put(skb, xdpf->len);
+	if (xdpf->metasize)
+		skb_metadata_set(skb, xdpf->metasize);
+
+	/* Essential SKB info: protocol and skb->dev */
+	skb->protocol = eth_type_trans(skb, dev);
+
+	/* Optional SKB info, currently missing:
+	 * - HW checksum info		(skb->ip_summed)
+	 * - HW RX hash			(skb_set_hash)
+	 * - RX ring dev queue index	(skb_record_rx_queue)
+	 */
+
+	/* Until page_pool get SKB return path, release DMA here */
+	xdp_release_frame(xdpf);
+
+	/* Allow SKB to reuse area used by xdp_frame */
+	xdp_scrub_frame(xdpf);
+
+	return skb;
+}
+EXPORT_SYMBOL_GPL(__xdp_build_skb_from_frame);
+
+struct sk_buff *xdp_build_skb_from_frame(struct xdp_frame *xdpf,
+					 struct net_device *dev)
+{
+	struct sk_buff *skb;
+
+	skb = kmem_cache_alloc(skbuff_head_cache, GFP_ATOMIC);
+	if (unlikely(!skb))
+		return NULL;
+
+	memset(skb, 0, offsetof(struct sk_buff, tail));
+
+	return __xdp_build_skb_from_frame(xdpf, skb, dev);
+}
+EXPORT_SYMBOL_GPL(xdp_build_skb_from_frame);
+
+struct xdp_frame *xdpf_clone(struct xdp_frame *xdpf)
+{
+	unsigned int headroom, totalsize;
+	struct xdp_frame *nxdpf;
+	struct page *page;
+	void *addr;
+
+	headroom = xdpf->headroom + sizeof(*xdpf);
+	totalsize = headroom + xdpf->len;
+
+	if (unlikely(totalsize > PAGE_SIZE))
+		return NULL;
+	page = dev_alloc_page();
+	if (!page)
+		return NULL;
+	addr = page_to_virt(page);
+
+	memcpy(addr, xdpf, totalsize);
+
+	nxdpf = addr;
+	nxdpf->data = addr + headroom;
+	nxdpf->frame_sz = PAGE_SIZE;
+	nxdpf->mem.type = MEM_TYPE_PAGE_ORDER0;
+	nxdpf->mem.id = 0;
+
+	return nxdpf;
+}
+>>>>>>> upstream/android-13

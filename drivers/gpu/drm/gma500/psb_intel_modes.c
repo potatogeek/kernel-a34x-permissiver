@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (c) 2007 Intel Corporation
  *
@@ -14,16 +15,30 @@
  * this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2007 Intel Corporation
+ *
+>>>>>>> upstream/android-13
  * Authers: Jesse Barnes <jesse.barnes@intel.com>
  */
 
 #include <linux/i2c.h>
+<<<<<<< HEAD
 #include <drm/drmP.h>
+=======
+
+>>>>>>> upstream/android-13
 #include "psb_intel_drv.h"
 
 /**
  * psb_intel_ddc_probe
+<<<<<<< HEAD
  *
+=======
+ * @adapter:   Associated I2C adaptor
+>>>>>>> upstream/android-13
  */
 bool psb_intel_ddc_probe(struct i2c_adapter *adapter)
 {
@@ -55,6 +70,10 @@ bool psb_intel_ddc_probe(struct i2c_adapter *adapter)
 /**
  * psb_intel_ddc_get_modes - get modelist from monitor
  * @connector: DRM connector device to use
+<<<<<<< HEAD
+=======
+ * @adapter:   Associated I2C adaptor
+>>>>>>> upstream/android-13
  *
  * Fetch the EDID information from @connector using the DDC bus.
  */

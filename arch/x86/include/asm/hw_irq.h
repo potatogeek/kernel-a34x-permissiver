@@ -28,6 +28,7 @@
 #include <asm/irq.h>
 #include <asm/sections.h>
 
+<<<<<<< HEAD
 /* Interrupt handlers registered during init_IRQ */
 extern asmlinkage void apic_timer_interrupt(void);
 extern asmlinkage void x86_platform_ipi(void);
@@ -50,6 +51,8 @@ extern asmlinkage void deferred_error_interrupt(void);
 extern asmlinkage void call_function_interrupt(void);
 extern asmlinkage void call_function_single_interrupt(void);
 
+=======
+>>>>>>> upstream/android-13
 #ifdef	CONFIG_X86_LOCAL_APIC
 struct irq_data;
 struct pci_dev;
@@ -58,6 +61,7 @@ struct msi_desc;
 enum irq_alloc_type {
 	X86_IRQ_ALLOC_TYPE_IOAPIC = 1,
 	X86_IRQ_ALLOC_TYPE_HPET,
+<<<<<<< HEAD
 	X86_IRQ_ALLOC_TYPE_MSI,
 	X86_IRQ_ALLOC_TYPE_MSIX,
 	X86_IRQ_ALLOC_TYPE_DMAR,
@@ -113,6 +117,56 @@ struct irq_alloc_info {
 			struct msi_desc *desc;
 		};
 #endif
+=======
+	X86_IRQ_ALLOC_TYPE_PCI_MSI,
+	X86_IRQ_ALLOC_TYPE_PCI_MSIX,
+	X86_IRQ_ALLOC_TYPE_DMAR,
+	X86_IRQ_ALLOC_TYPE_AMDVI,
+	X86_IRQ_ALLOC_TYPE_UV,
+};
+
+struct ioapic_alloc_info {
+	int		pin;
+	int		node;
+	u32		is_level	: 1;
+	u32		active_low	: 1;
+	u32		valid		: 1;
+};
+
+struct uv_alloc_info {
+	int		limit;
+	int		blade;
+	unsigned long	offset;
+	char		*name;
+
+};
+
+/**
+ * irq_alloc_info - X86 specific interrupt allocation info
+ * @type:	X86 specific allocation type
+ * @flags:	Flags for allocation tweaks
+ * @devid:	Device ID for allocations
+ * @hwirq:	Associated hw interrupt number in the domain
+ * @mask:	CPU mask for vector allocation
+ * @desc:	Pointer to msi descriptor
+ * @data:	Allocation specific data
+ *
+ * @ioapic:	IOAPIC specific allocation data
+ * @uv:		UV specific allocation data
+*/
+struct irq_alloc_info {
+	enum irq_alloc_type	type;
+	u32			flags;
+	u32			devid;
+	irq_hw_number_t		hwirq;
+	const struct cpumask	*mask;
+	struct msi_desc		*desc;
+	void			*data;
+
+	union {
+		struct ioapic_alloc_info	ioapic;
+		struct uv_alloc_info		uv;
+>>>>>>> upstream/android-13
 	};
 };
 
@@ -153,8 +207,13 @@ extern char irq_entries_start[];
 extern char spurious_entries_start[];
 
 #define VECTOR_UNUSED		NULL
+<<<<<<< HEAD
 #define VECTOR_SHUTDOWN		((void *)~0UL)
 #define VECTOR_RETRIGGERED	((void *)~1UL)
+=======
+#define VECTOR_SHUTDOWN		((void *)-1L)
+#define VECTOR_RETRIGGERED	((void *)-2L)
+>>>>>>> upstream/android-13
 
 typedef struct irq_desc* vector_irq_t[NR_VECTORS];
 DECLARE_PER_CPU(vector_irq_t, vector_irq);

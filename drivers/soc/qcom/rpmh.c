@@ -9,6 +9,10 @@
 #include <linux/jiffies.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
+<<<<<<< HEAD
+=======
+#include <linux/lockdep.h>
+>>>>>>> upstream/android-13
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
@@ -23,7 +27,11 @@
 
 #define RPMH_TIMEOUT_MS			msecs_to_jiffies(10000)
 
+<<<<<<< HEAD
 #define DEFINE_RPMH_MSG_ONSTACK(dev, s, q, name)	\
+=======
+#define DEFINE_RPMH_MSG_ONSTACK(device, s, q, name)	\
+>>>>>>> upstream/android-13
 	struct rpmh_request name = {			\
 		.msg = {				\
 			.state = s,			\
@@ -33,7 +41,11 @@
 		},					\
 		.cmd = { { 0 } },			\
 		.completion = q,			\
+<<<<<<< HEAD
 		.dev = dev,				\
+=======
+		.dev = device,				\
+>>>>>>> upstream/android-13
 		.needs_free = false,				\
 	}
 
@@ -180,8 +192,11 @@ static int __rpmh_write(const struct device *dev, enum rpmh_state state,
 	struct cache_req *req;
 	int i;
 
+<<<<<<< HEAD
 	rpm_msg->msg.state = state;
 
+=======
+>>>>>>> upstream/android-13
 	/* Cache the request in our store and link the payload */
 	for (i = 0; i < rpm_msg->msg.num_cmds; i++) {
 		req = cache_rpm_request(ctrlr, state, &rpm_msg->msg.cmds[i]);
@@ -189,15 +204,23 @@ static int __rpmh_write(const struct device *dev, enum rpmh_state state,
 			return PTR_ERR(req);
 	}
 
+<<<<<<< HEAD
 	rpm_msg->msg.state = state;
 
+=======
+>>>>>>> upstream/android-13
 	if (state == RPMH_ACTIVE_ONLY_STATE) {
 		WARN_ON(irqs_disabled());
 		ret = rpmh_rsc_send_data(ctrlr_to_drv(ctrlr), &rpm_msg->msg);
 	} else {
+<<<<<<< HEAD
 		ret = rpmh_rsc_write_ctrl_data(ctrlr_to_drv(ctrlr),
 				&rpm_msg->msg);
 		/* Clean up our call by spoofing tx_done */
+=======
+		/* Clean up our call by spoofing tx_done */
+		ret = 0;
+>>>>>>> upstream/android-13
 		rpmh_tx_done(&rpm_msg->msg, ret);
 	}
 
@@ -254,7 +277,11 @@ EXPORT_SYMBOL(rpmh_write_async);
 /**
  * rpmh_write: Write a set of RPMH commands and block until response
  *
+<<<<<<< HEAD
  * @rc: The RPMH handle got from rpmh_get_client
+=======
+ * @dev: The device making the request
+>>>>>>> upstream/android-13
  * @state: Active/sleep set
  * @cmd: The payload data
  * @n: The number of elements in @cmd
@@ -268,11 +295,17 @@ int rpmh_write(const struct device *dev, enum rpmh_state state,
 	DEFINE_RPMH_MSG_ONSTACK(dev, state, &compl, rpm_msg);
 	int ret;
 
+<<<<<<< HEAD
 	if (!cmd || !n || n > MAX_RPMH_PAYLOAD)
 		return -EINVAL;
 
 	memcpy(rpm_msg.cmd, cmd, n * sizeof(*cmd));
 	rpm_msg.msg.num_cmds = n;
+=======
+	ret = __fill_rpmh_msg(&rpm_msg, state, cmd, n);
+	if (ret)
+		return ret;
+>>>>>>> upstream/android-13
 
 	ret = __rpmh_write(dev, state, &rpm_msg);
 	if (ret)
@@ -298,12 +331,18 @@ static int flush_batch(struct rpmh_ctrlr *ctrlr)
 {
 	struct batch_cache_req *req;
 	const struct rpmh_request *rpm_msg;
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+>>>>>>> upstream/android-13
 	int ret = 0;
 	int i;
 
 	/* Send Sleep/Wake requests to the controller, expect no response */
+<<<<<<< HEAD
 	spin_lock_irqsave(&ctrlr->cache_lock, flags);
+=======
+>>>>>>> upstream/android-13
 	list_for_each_entry(req, &ctrlr->batch_cache, list) {
 		for (i = 0; i < req->count; i++) {
 			rpm_msg = req->rpm_msgs + i;
@@ -313,7 +352,10 @@ static int flush_batch(struct rpmh_ctrlr *ctrlr)
 				break;
 		}
 	}
+<<<<<<< HEAD
 	spin_unlock_irqrestore(&ctrlr->cache_lock, flags);
+=======
+>>>>>>> upstream/android-13
 
 	return ret;
 }
@@ -419,11 +461,18 @@ static int is_req_valid(struct cache_req *req)
 		req->sleep_val != req->wake_val);
 }
 
+<<<<<<< HEAD
 static int send_single(const struct device *dev, enum rpmh_state state,
 		       u32 addr, u32 data)
 {
 	DEFINE_RPMH_MSG_ONSTACK(dev, state, NULL, rpm_msg);
 	struct rpmh_ctrlr *ctrlr = get_rpmh_ctrlr(dev);
+=======
+static int send_single(struct rpmh_ctrlr *ctrlr, enum rpmh_state state,
+		       u32 addr, u32 data)
+{
+	DEFINE_RPMH_MSG_ONSTACK(NULL, state, NULL, rpm_msg);
+>>>>>>> upstream/android-13
 
 	/* Wake sets are always complete and sleep sets are not */
 	rpm_msg.msg.wait_for_compl = (state == RPMH_WAKE_ONLY_STATE);
@@ -435,6 +484,7 @@ static int send_single(const struct device *dev, enum rpmh_state state,
 }
 
 /**
+<<<<<<< HEAD
  * rpmh_flush: Flushes the buffered active and sleep sets to TCS
  *
  * @dev: The device making the request
@@ -463,22 +513,60 @@ int rpmh_flush(const struct device *dev)
 	} while (ret == -EAGAIN);
 	if (ret)
 		return ret;
+=======
+ * rpmh_flush() - Flushes the buffered sleep and wake sets to TCSes
+ *
+ * @ctrlr: Controller making request to flush cached data
+ *
+ * Return:
+ * * 0          - Success
+ * * Error code - Otherwise
+ */
+int rpmh_flush(struct rpmh_ctrlr *ctrlr)
+{
+	struct cache_req *p;
+	int ret = 0;
+
+	lockdep_assert_irqs_disabled();
+
+	/*
+	 * Currently rpmh_flush() is only called when we think we're running
+	 * on the last processor.  If the lock is busy it means another
+	 * processor is up and it's better to abort than spin.
+	 */
+	if (!spin_trylock(&ctrlr->cache_lock))
+		return -EBUSY;
+
+	if (!ctrlr->dirty) {
+		pr_debug("Skipping flush, TCS has latest data.\n");
+		goto exit;
+	}
+
+	/* Invalidate the TCSes first to avoid stale data */
+	rpmh_rsc_invalidate(ctrlr_to_drv(ctrlr));
+>>>>>>> upstream/android-13
 
 	/* First flush the cached batch requests */
 	ret = flush_batch(ctrlr);
 	if (ret)
+<<<<<<< HEAD
 		return ret;
 
 	/*
 	 * Nobody else should be calling this function other than system PM,
 	 * hence we can run without locks.
 	 */
+=======
+		goto exit;
+
+>>>>>>> upstream/android-13
 	list_for_each_entry(p, &ctrlr->cache, list) {
 		if (!is_req_valid(p)) {
 			pr_debug("%s: skipping RPMH req: a:%#x s:%#x w:%#x",
 				 __func__, p->addr, p->sleep_val, p->wake_val);
 			continue;
 		}
+<<<<<<< HEAD
 		ret = send_single(dev, RPMH_SLEEP_STATE, p->addr, p->sleep_val);
 		if (ret)
 			return ret;
@@ -486,13 +574,30 @@ int rpmh_flush(const struct device *dev)
 				  p->addr, p->wake_val);
 		if (ret)
 			return ret;
+=======
+		ret = send_single(ctrlr, RPMH_SLEEP_STATE, p->addr,
+				  p->sleep_val);
+		if (ret)
+			goto exit;
+		ret = send_single(ctrlr, RPMH_WAKE_ONLY_STATE, p->addr,
+				  p->wake_val);
+		if (ret)
+			goto exit;
+>>>>>>> upstream/android-13
 	}
 
 	ctrlr->dirty = false;
 
+<<<<<<< HEAD
 	return 0;
 }
 EXPORT_SYMBOL(rpmh_flush);
+=======
+exit:
+	spin_unlock(&ctrlr->cache_lock);
+	return ret;
+}
+>>>>>>> upstream/android-13
 
 /**
  * rpmh_invalidate: Invalidate sleep and wake sets in batch_cache
@@ -501,7 +606,11 @@ EXPORT_SYMBOL(rpmh_flush);
  *
  * Invalidate the sleep and wake values in batch_cache.
  */
+<<<<<<< HEAD
 int rpmh_invalidate(const struct device *dev)
+=======
+void rpmh_invalidate(const struct device *dev)
+>>>>>>> upstream/android-13
 {
 	struct rpmh_ctrlr *ctrlr = get_rpmh_ctrlr(dev);
 	struct batch_cache_req *req, *tmp;
@@ -513,7 +622,10 @@ int rpmh_invalidate(const struct device *dev)
 	INIT_LIST_HEAD(&ctrlr->batch_cache);
 	ctrlr->dirty = true;
 	spin_unlock_irqrestore(&ctrlr->cache_lock, flags);
+<<<<<<< HEAD
 
 	return 0;
+=======
+>>>>>>> upstream/android-13
 }
 EXPORT_SYMBOL(rpmh_invalidate);

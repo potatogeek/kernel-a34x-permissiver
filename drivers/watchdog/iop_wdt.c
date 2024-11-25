@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  * drivers/char/watchdog/iop_wdt.c
  *
@@ -6,6 +10,7 @@
  *
  * Based on ixp4xx driver, Copyright 2004 (c) MontaVista, Software, Inc.
  *
+<<<<<<< HEAD
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
  * version 2, as published by the Free Software Foundation.
@@ -19,6 +24,8 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307 USA.
  *
+=======
+>>>>>>> upstream/android-13
  *	Curt E Bruns <curt.e.bruns@intel.com>
  *	Peter Milne <peter.milne@d-tacq.com>
  *	Dan Williams <dan.j.williams@intel.com>
@@ -101,7 +108,11 @@ static int iop_wdt_open(struct inode *inode, struct file *file)
 	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
 	wdt_enable();
 	set_bit(WDT_ENABLED, &wdt_status);
+<<<<<<< HEAD
 	return nonseekable_open(inode, file);
+=======
+	return stream_open(inode, file);
+>>>>>>> upstream/android-13
 }
 
 static ssize_t iop_wdt_write(struct file *file, const char *data, size_t len,
@@ -214,6 +225,10 @@ static const struct file_operations iop_wdt_fops = {
 	.llseek = no_llseek,
 	.write = iop_wdt_write,
 	.unlocked_ioctl = iop_wdt_ioctl,
+<<<<<<< HEAD
+=======
+	.compat_ioctl = compat_ptr_ioctl,
+>>>>>>> upstream/android-13
 	.open = iop_wdt_open,
 	.release = iop_wdt_release,
 };

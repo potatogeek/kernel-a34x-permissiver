@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> upstream/android-13
 /*
  *  linux/arch/arm/mach-omap1/clock.c
  *
@@ -6,10 +10,13 @@
  *
  *  Modified to use omap shared clock framework by
  *  Tony Lindgren <tony@atomide.com>
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
+=======
+>>>>>>> upstream/android-13
  */
 #include <linux/kernel.h>
 #include <linux/export.h>
@@ -615,7 +622,11 @@ int clk_enable(struct clk *clk)
 	unsigned long flags;
 	int ret;
 
+<<<<<<< HEAD
 	if (clk == NULL || IS_ERR(clk))
+=======
+	if (IS_ERR_OR_NULL(clk))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	spin_lock_irqsave(&clockfw_lock, flags);
@@ -630,7 +641,11 @@ void clk_disable(struct clk *clk)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (clk == NULL || IS_ERR(clk))
+=======
+	if (IS_ERR_OR_NULL(clk))
+>>>>>>> upstream/android-13
 		return;
 
 	spin_lock_irqsave(&clockfw_lock, flags);
@@ -653,7 +668,11 @@ unsigned long clk_get_rate(struct clk *clk)
 	unsigned long flags;
 	unsigned long ret;
 
+<<<<<<< HEAD
 	if (clk == NULL || IS_ERR(clk))
+=======
+	if (IS_ERR_OR_NULL(clk))
+>>>>>>> upstream/android-13
 		return 0;
 
 	spin_lock_irqsave(&clockfw_lock, flags);
@@ -673,7 +692,11 @@ long clk_round_rate(struct clk *clk, unsigned long rate)
 	unsigned long flags;
 	long ret;
 
+<<<<<<< HEAD
 	if (clk == NULL || IS_ERR(clk))
+=======
+	if (IS_ERR_OR_NULL(clk))
+>>>>>>> upstream/android-13
 		return 0;
 
 	spin_lock_irqsave(&clockfw_lock, flags);
@@ -689,7 +712,11 @@ int clk_set_rate(struct clk *clk, unsigned long rate)
 	unsigned long flags;
 	int ret = -EINVAL;
 
+<<<<<<< HEAD
 	if (clk == NULL || IS_ERR(clk))
+=======
+	if (IS_ERR_OR_NULL(clk))
+>>>>>>> upstream/android-13
 		return ret;
 
 	spin_lock_irqsave(&clockfw_lock, flags);
@@ -794,7 +821,11 @@ void clk_preinit(struct clk *clk)
 
 int clk_register(struct clk *clk)
 {
+<<<<<<< HEAD
 	if (clk == NULL || IS_ERR(clk))
+=======
+	if (IS_ERR_OR_NULL(clk))
+>>>>>>> upstream/android-13
 		return -EINVAL;
 
 	/*
@@ -820,7 +851,11 @@ EXPORT_SYMBOL(clk_register);
 
 void clk_unregister(struct clk *clk)
 {
+<<<<<<< HEAD
 	if (clk == NULL || IS_ERR(clk))
+=======
+	if (IS_ERR_OR_NULL(clk))
+>>>>>>> upstream/android-13
 		return;
 
 	mutex_lock(&clocks_mutex);
@@ -968,7 +1003,11 @@ late_initcall(omap_clk_enable_autoidle_all);
 
 static struct dentry *clk_debugfs_root;
 
+<<<<<<< HEAD
 static int clk_dbg_show_summary(struct seq_file *s, void *unused)
+=======
+static int debug_clock_show(struct seq_file *s, void *unused)
+>>>>>>> upstream/android-13
 {
 	struct clk *c;
 	struct clk *pa;
@@ -988,6 +1027,7 @@ static int clk_dbg_show_summary(struct seq_file *s, void *unused)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int clk_dbg_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, clk_dbg_show_summary, inode->i_private);
@@ -1003,10 +1043,17 @@ static const struct file_operations debug_clock_fops = {
 static int clk_debugfs_register_one(struct clk *c)
 {
 	int err;
+=======
+DEFINE_SHOW_ATTRIBUTE(debug_clock);
+
+static void clk_debugfs_register_one(struct clk *c)
+{
+>>>>>>> upstream/android-13
 	struct dentry *d;
 	struct clk *pa = c->parent;
 
 	d = debugfs_create_dir(c->name, pa ? pa->dent : clk_debugfs_root);
+<<<<<<< HEAD
 	if (!d)
 		return -ENOMEM;
 	c->dent = d;
@@ -1050,12 +1097,31 @@ static int clk_debugfs_register(struct clk *c)
 			return err;
 	}
 	return 0;
+=======
+	c->dent = d;
+
+	debugfs_create_u8("usecount", S_IRUGO, c->dent, &c->usecount);
+	debugfs_create_ulong("rate", S_IRUGO, c->dent, &c->rate);
+	debugfs_create_x8("flags", S_IRUGO, c->dent, &c->flags);
+}
+
+static void clk_debugfs_register(struct clk *c)
+{
+	struct clk *pa = c->parent;
+
+	if (pa && !pa->dent)
+		clk_debugfs_register(pa);
+
+	if (!c->dent)
+		clk_debugfs_register_one(c);
+>>>>>>> upstream/android-13
 }
 
 static int __init clk_debugfs_init(void)
 {
 	struct clk *c;
 	struct dentry *d;
+<<<<<<< HEAD
 	int err;
 
 	d = debugfs_create_dir("clock", NULL);
@@ -1078,6 +1144,18 @@ static int __init clk_debugfs_init(void)
 err_out:
 	debugfs_remove_recursive(clk_debugfs_root);
 	return err;
+=======
+
+	d = debugfs_create_dir("clock", NULL);
+	clk_debugfs_root = d;
+
+	list_for_each_entry(c, &clocks, node)
+		clk_debugfs_register(c);
+
+	debugfs_create_file("summary", S_IRUGO, d, NULL, &debug_clock_fops);
+
+	return 0;
+>>>>>>> upstream/android-13
 }
 late_initcall(clk_debugfs_init);
 

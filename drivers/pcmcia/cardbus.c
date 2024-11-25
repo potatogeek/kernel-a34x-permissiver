@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * cardbus.c -- 16-bit PCMCIA core support
  *
@@ -5,6 +6,12 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * cardbus.c -- 16-bit PCMCIA core support
+ *
+>>>>>>> upstream/android-13
  * The initial developer of the original code is David A. Hinds
  * <dahinds@users.sourceforge.net>.  Portions created by David A. Hinds
  * are Copyright (C) 1999 David A. Hinds.  All Rights Reserved.
@@ -25,7 +32,13 @@
 #include <linux/pci.h>
 
 #include <pcmcia/ss.h>
+<<<<<<< HEAD
 
+=======
+#include <pcmcia/cistpl.h>
+
+#include "cs_internal.h"
+>>>>>>> upstream/android-13
 
 static void cardbus_config_irq_and_cls(struct pci_bus *bus, int irq)
 {

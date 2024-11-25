@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 /* SPDX-License-Identifier: GPL-2.0 */
+=======
+/* SPDX-License-Identifier: MIT */
+>>>>>>> upstream/android-13
 #ifndef __NVKM_BAR_PRIV_H__
 #define __NVKM_BAR_PRIV_H__
 #define nvkm_bar(p) container_of((p), struct nvkm_bar, subdev)
 #include <subdev/bar.h>
 
 void nvkm_bar_ctor(const struct nvkm_bar_func *, struct nvkm_device *,
+<<<<<<< HEAD
 		   int, struct nvkm_bar *);
+=======
+		   enum nvkm_subdev_type, int, struct nvkm_bar *);
+>>>>>>> upstream/android-13
 
 struct nvkm_bar_func {
 	void *(*dtor)(struct nvkm_bar *);
